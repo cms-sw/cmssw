@@ -6,7 +6,7 @@
 
 RectangularStripTopology::RectangularStripTopology(int ns, float p, float l) : 
   thePitch(p), theNumberOfStrips(ns), theStripLength(l) { 
-  theOffset = -0.5f*theNumberOfStrips * thePitch;
+  theOffset = -theNumberOfStrips/2. * thePitch;
 
 #ifdef VERBOSE
   cout <<"Constructing RectangularStripTopology with"
@@ -19,7 +19,7 @@ RectangularStripTopology::RectangularStripTopology(int ns, float p, float l) :
   
 LocalPoint 
 RectangularStripTopology::localPosition(float strip) const {
-  return LocalPoint( strip*thePitch + theOffset, 0.0f);
+  return LocalPoint( strip*thePitch + theOffset, 0.0);
 }
 
 LocalPoint 
@@ -30,8 +30,8 @@ RectangularStripTopology::localPosition(const MeasurementPoint& mp) const {
 LocalError 
 RectangularStripTopology::localError(float strip, float stripErr2) const{
   return LocalError(stripErr2 * thePitch*thePitch,
-		    0.f,
-		    theStripLength*theStripLength*(1.f/12.f));
+		    0.,
+		    theStripLength*theStripLength/12.);
 }
 
 LocalError 
@@ -45,7 +45,7 @@ RectangularStripTopology::localError(const MeasurementPoint& mp,
 float 
 RectangularStripTopology::strip(const LocalPoint& lp) const {
   float aStrip = (lp.x() - theOffset) / thePitch;
-  if (aStrip < 0 ) aStrip = 0;
+  if (aStrip < 0. ) aStrip = 0.;
   else if (aStrip > theNumberOfStrips)  aStrip = theNumberOfStrips;
   return aStrip;
 }
@@ -59,9 +59,9 @@ RectangularStripTopology::measurementPosition(const LocalPoint& lp) const {
 MeasurementError 
 RectangularStripTopology::measurementError(const LocalPoint& lp,
   const LocalError& lerr) const {
-  return MeasurementError(lerr.xx()/(thePitch*thePitch),
-  			  lerr.xy()/(thePitch*theStripLength),
-			  lerr.yy()/(theStripLength*theStripLength));
+  return MeasurementError(lerr.xx()/thePitch/thePitch,
+  			  lerr.xy()/thePitch/theStripLength,
+			  lerr.yy()/theStripLength/theStripLength);
 }
 
 int 
@@ -81,7 +81,7 @@ RectangularStripTopology::localPitch(const LocalPoint& lp) const {
   
 float 
 RectangularStripTopology::stripAngle(float strip) const {
-  return 0;
+  return 0.;
 }
   
 int 

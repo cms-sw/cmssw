@@ -12,9 +12,8 @@
 #include <sstream>
 
 
-SiStripGainFromAsciiFile::SiStripGainFromAsciiFile(const edm::ParameterSet& iConfig) : ConditionDBWriter<SiStripApvGain>::ConditionDBWriter<SiStripApvGain>(iConfig){
+SiStripGainFromAsciiFile::SiStripGainFromAsciiFile(const edm::ParameterSet& iConfig) : ConditionDBWriter<SiStripApvGain>(iConfig){
 
-  edm::LogInfo("SiStripGainFromAsciiFile::SiStripGainFromAsciiFile");
 
   Asciifilename_=iConfig.getParameter<std::string>("InputFileName");
   referenceValue_ = iConfig.getParameter<double>("referenceValue");
@@ -27,8 +26,6 @@ SiStripGainFromAsciiFile::~SiStripGainFromAsciiFile(){
 }
 
 SiStripApvGain * SiStripGainFromAsciiFile::getNewObject(){
-  
-  edm::LogInfo("SiStripGainFromAsciiFile") <<" [SiStripGainFromAsciiFile::getNewObject]"<<std::endl;
 
   SiStripApvGain* obj = new SiStripApvGain();
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Gobinda Majumder
 //         Created:  Mon Mar  2 12:33:08 CET 2009
-// $Id: DQMHOAlCaRecoStream.cc,v 1.7 2009/12/14 22:22:19 wmtan Exp $
+// $Id: DQMHOAlCaRecoStream.cc,v 1.8 2010/02/11 00:11:13 wmtan Exp $
 //
 //
 
@@ -28,6 +28,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/HcalCalibObjects/interface/HOCalibVariables.h"
@@ -102,9 +103,14 @@ DQMHOAlCaRecoStream::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   
   edm::Handle<HOCalibVariableCollection>HOCalib;
   bool isCosMu = true;
-  try {
+  
     iEvent.getByType(HOCalib); 
-  } catch ( cms::Exception &iEvent ) { isCosMu = false; } 
+
+  if(!HOCalib.isValid()){
+    LogDebug("") << "DQMHOAlCaRecoStream:: Error! can't get HOCalib product!" << std::endl;
+    return ;
+  }
+
   
   if (isCosMu) { 
     hMuonMultipl->Fill((*HOCalib).size(),1.);

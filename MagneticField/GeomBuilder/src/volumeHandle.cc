@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/05/13 15:57:05 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/05/25 16:02:09 $
+ *  $Revision: 1.12 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -21,9 +21,6 @@
 #include "DataFormats/GeometryVector/interface/CoordinateSets.h"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
-
-// #include "Utilities/Notification/interface/TimingReport.h"
-// #include "Utilities/UI/interface/SimpleConfigurable.h"
 
 #include "MagneticField/Layers/interface/MagVerbosity.h"
 
@@ -305,9 +302,6 @@ bool MagGeoBuilderFromDDD::volumeHandle::sameSurface(const Surface & s1, Sides w
     if (MagGeoBuilderFromDDD::debug) cout << "      sameSurface: OK (same ptr)" << endl;
     return true;
   }
-
-//   static TimingReport::Item & timer = (*TimingReport::current())["volumeHandle::sameSurface"];
-//   TimeMe time(timer,false);
 
   const float maxtilt  = 0.999;
 

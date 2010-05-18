@@ -112,6 +112,7 @@ class EventSetupRecordProvider
       boost::shared_ptr<EventSetupRecordIntervalFinder> finder_;
       std::vector< boost::shared_ptr<DataProxyProvider> > providers_;
       std::auto_ptr< std::vector<boost::shared_ptr<EventSetupRecordIntervalFinder> > > multipleFinders_;
+      bool lastSyncWasBeginOfRun_;
 };
    }
 }

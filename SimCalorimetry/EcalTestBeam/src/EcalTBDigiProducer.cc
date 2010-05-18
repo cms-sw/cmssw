@@ -65,8 +65,8 @@ EcalTBDigiProducer::EcalTBDigiProducer(const edm::ParameterSet& params)
                                             doPhotostatistics, syncPhase);
 
   
-  theEBResponse = new CaloHitRespoNew(theParameterMap, &theEBShape);
-  theEEResponse = new CaloHitRespoNew(theParameterMap, &theEEShape);
+  theEBResponse = new CaloHitResponse(theParameterMap, &theEBShape);
+  theEEResponse = new CaloHitResponse(theParameterMap, &theEEShape);
 
   EcalCorrMatrix thisMatrix;
 
@@ -152,19 +152,17 @@ void EcalTBDigiProducer::produce( edm::Event&            event      ,
 //For TB ----------------
    edm::ESHandle<CaloGeometry>               hGeometry ;
    eventSetup.get<CaloGeometryRecord>().get( hGeometry ) ;
-   theEBResponse->setGeometry( 
-      hGeometry->getSubdetectorGeometry( DetId::Ecal, EcalBarrel    ) ) ;
-   theEEResponse->setGeometry( 
-      hGeometry->getSubdetectorGeometry( DetId::Ecal, EcalEndcap    ) ) ;
+   theEBResponse->setGeometry(           &*hGeometry ) ;
+   theEEResponse->setGeometry(           &*hGeometry ) ;
 
    // takes no time because gives back const ref
    const std::vector<DetId>& theBarrelDets (
       hGeometry->getValidDetIds(DetId::Ecal, EcalBarrel) ) ;
-//   const std::vector<DetId>& theEndcapDets (
-//      hGeometry->getValidDetIds(DetId::Ecal, EcalEndcap) ) ;
+   const std::vector<DetId>& theEndcapDets (
+      hGeometry->getValidDetIds(DetId::Ecal, EcalEndcap) ) ;
 
-//   theBarrelDigitizer->setDetIds( theBarrelDets ) ;
-//   theEndcapDigitizer->setDetIds( theEndcapDets ) ;
+   theBarrelDigitizer->setDetIds( theBarrelDets ) ;
+   theEndcapDigitizer->setDetIds( theEndcapDets ) ;
    theTBReadout      ->setDetIds( theBarrelDets ) ;
 
 //For TB ----------------

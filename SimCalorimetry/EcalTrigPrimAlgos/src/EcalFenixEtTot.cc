@@ -23,7 +23,7 @@ void EcalFenixEtTot::process(std::vector<std::vector <int> >  &bypasslinout, int
   int mask = (1<<bitMask)-1;
   for(int istrip=0;istrip<nStr;istrip++){
     for (unsigned int i=0;i<bypasslinout[istrip].size();i++) {
-      output[i]+= bypasslinout[istrip][i];
+      output[i]+= (bypasslinout[istrip][i] & mask) ; //fix bug inn case of EE: MSB are set for FG, so need to apply mask in summation.
       if (output[i]>mask) output[i]= mask;
     }
   }

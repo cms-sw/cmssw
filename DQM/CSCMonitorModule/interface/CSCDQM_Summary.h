@@ -27,8 +27,9 @@
 
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Detector.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Logger.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
-#define HWSTATUSBITSETSIZE    12
+#define HWSTATUSBITSETSIZE    14
 #define HWSTATUSERRORBITS     0xffc
 #define HWSTATUSEQUALS(s, m)  (((std::bitset<HWSTATUSBITSETSIZE>) m & s) == m)
 #define HWSTATUSANY(s, m)     (((std::bitset<HWSTATUSBITSETSIZE>) m & s).any())
@@ -45,6 +46,7 @@ enum HWStatusBit {
 
   DATA,         /// Data available (reporting)
   MASKED,       /// HW element was masked out (not in readout)
+
   HOT,          /// HW element is hot by comparing with reference histogram 
   COLD,         /// HW element is cold comparing with reference histogram
 
@@ -56,7 +58,10 @@ enum HWStatusBit {
   NODATA_ALCT,  /// No ALCT data
   NODATA_CLCT,  /// No CLCT data
   NODATA_CFEB,  /// No CFEB data
-  CFEB_BWORDS   /// Data with CFEB BWORDS
+  CFEB_BWORDS,  /// Data with CFEB BWORDS
+
+  STANDBY,      /// HW element in standby mode
+  WAS_ON        /// HW element ever in the run was ON (off standby mode)
 
 };
 
@@ -105,6 +110,9 @@ class Summary {
     const double GetEfficiencyHW(Address adr) const; 
     const double GetEfficiencyArea(const unsigned int station) const; 
     const double GetEfficiencyArea(Address adr) const; 
+
+    bool isChamberStandby(unsigned int side, unsigned int station, unsigned int ring, unsigned int chamber) const;
+    bool isChamberStandby(CSCDetId cid) const;
 
   private:
 

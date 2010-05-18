@@ -102,7 +102,7 @@ L1GtBoard::L1GtBoard(const L1GtBoard& gtb)
 }
 
 // assignment operator
-L1GtBoard::L1GtBoard& L1GtBoard::operator=(const L1GtBoard& gtb)
+L1GtBoard& L1GtBoard::operator=(const L1GtBoard& gtb)
 {
 
     if ( this != &gtb ) {

@@ -8,6 +8,7 @@
 <use name=DataFormats/SiStripCluster>
 <use name=DataFormats/SiPixelCluster>
 <use name=DataFormats/TrackerRecHit2D>
+<use name=DataFormats/METReco>
 <export>
   <lib name=CommonToolsRecoAlgos>
 </export>

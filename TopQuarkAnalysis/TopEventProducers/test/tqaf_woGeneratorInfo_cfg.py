@@ -34,6 +34,9 @@ process.GlobalTag.globaltag = cms.string('GR09_R_36X_V3::All')
 ## std sequence for PAT
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
+from PhysicsTools.PatAlgos.tools.cmsswVersionTools import run36xOn35xInput
+run36xOn35xInput(process)
+
 ## remove MC specific stuff in PAT
 from PhysicsTools.PatAlgos.tools.coreTools import *
 removeMCMatching(process, ["All"])

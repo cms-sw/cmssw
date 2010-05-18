@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.48 2010/04/01 21:10:04 jengbou Exp $
+   version $Id: BeamFitter.cc,v 1.49 2010/04/03 10:17:13 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -473,6 +473,8 @@ bool BeamFitter::runFitter() {
     }
   }
   else{ // tracks <= 1
+    reco::BeamSpot tmpbs;
+    fbeamspot = tmpbs;
     fbeamspot.setType(reco::BeamSpot::Fake);
     if(debug_) std::cout << "Not enough good tracks selected! No beam fit!" << std::endl;
     if(writeTxt_ && fasciiFile.is_open()) dumpTxtFile(outputTxt_,true);  // all results

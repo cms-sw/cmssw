@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         extended by Luca Lista, INFN
  *
- * \version $Revision: 1.5 $
+ * \version $Revision: 1.6 $
  *
  */
 #include "boost/spirit/include/classic_core.hpp"
@@ -82,7 +82,7 @@ namespace reco {
 						   boost::spirit::classic::same, 
 						   boost::spirit::classic::same>{  
 	typedef boost::spirit::classic::rule<ScannerT> rule;
-	rule number, var, metharg, method, term, power, factor, function1, function2, expression, 
+	rule number, var, metharg, method, term, power, factor, function1, function2, function4, expression, 
 	  comparison_op, binary_comp, trinary_comp,
 	  logical_combiner, logical_expression, nocond_expression, cond_expression, logical_factor, logical_term,
 	  or_op, and_op, cut, fun;
@@ -104,14 +104,15 @@ namespace reco {
 	  ComparisonSetter<not_equal_to<double> > not_equal_to_s(self.cmpStack);
 	  FunctionSetter 
 	    abs_s(kAbs, self.funStack), acos_s(kAcos, self.funStack), asin_s(kAsin, self.funStack),
-	    atan_s(kAtan, self.funStack), atan2_s(kAtan, self.funStack), 
+	    atan2_s(kAtan, self.funStack), atan_s(kAtan, self.funStack), 
 	    chi2prob_s(kChi2Prob, self.funStack), 
-            cos_s(kCos, self.funStack), 
-	    cosh_s(kCosh, self.funStack), exp_s(kExp, self.funStack), log_s(kLog, self.funStack), 
+            cosh_s(kCosh, self.funStack), 
+	    cos_s(kCos, self.funStack), exp_s(kExp, self.funStack), hypot_s(kHypot, self.funStack), log_s(kLog, self.funStack), 
 	    log10_s(kLog10, self.funStack), max_s(kMax, self.funStack), min_s(kMin, self.funStack),
-	    pow_s(kPow, self.funStack), sin_s(kSin, self.funStack), 
-	    sinh_s(kSinh, self.funStack), sqrt_s(kSqrt, self.funStack), tan_s(kTan, self.funStack), 
-	    tanh_s(kTanh, self.funStack);
+	    pow_s(kPow, self.funStack), sinh_s(kSinh, self.funStack), 
+	    sin_s(kSin, self.funStack), sqrt_s(kSqrt, self.funStack), tanh_s(kTanh, self.funStack), 
+	    tan_s(kTan, self.funStack),
+            deltaPhi_s(kDeltaPhi, self.funStack), deltaR_s(kDeltaR, self.funStack);
 	  TrinarySelectorSetter trinary_s(self.selStack, self.cmpStack, self.exprStack);
 	  BinarySelectorSetter binary_s(self.selStack, self.cmpStack, self.exprStack);
 	  ExpressionSelectorSetter expr_sel_s(self.selStack, self.exprStack);
@@ -138,6 +139,7 @@ namespace reco {
 	  BOOST_SPIRIT_DEBUG_RULE(metharg);
 	  BOOST_SPIRIT_DEBUG_RULE(function1);
 	  BOOST_SPIRIT_DEBUG_RULE(function2);
+	  BOOST_SPIRIT_DEBUG_RULE(function4);
 	  BOOST_SPIRIT_DEBUG_RULE(expression);
 	  BOOST_SPIRIT_DEBUG_RULE(term);
 	  BOOST_SPIRIT_DEBUG_RULE(power);
@@ -166,14 +168,16 @@ namespace reco {
 	  method = 
 	    (var >> * ((ch_p('.') >> expect(var)))) [ var_s ];
 	  function1 = 
-	    chseq_p("abs") [ abs_s ] | chseq_p("acos") [ acos_s ] | chseq_p("asin") [ asin_s ] |
-	    chseq_p("atan") [ atan_s ] | chseq_p("cos") [ cos_s ] | chseq_p("cosh") [ cosh_s ] |
-	    chseq_p("exp") [ exp_s ] | chseq_p("log") [ log_s ] | chseq_p("log10") [ log10_s ] |
-	    chseq_p("sin") [ sin_s ] | chseq_p("sinh") [ sinh_s ] | chseq_p("sqrt") [ sqrt_s ] |
-	    chseq_p("tan") [ tan_s ] | chseq_p("tanh") [ tanh_s ];
+	    chseq_p("abs")  [ abs_s ]  | chseq_p("acos") [ acos_s ] | chseq_p("asin") [ asin_s ] |
+	    chseq_p("atan") [ atan_s ] | chseq_p("cosh") [ cosh_s ] | chseq_p("cos") [ cos_s ] |
+	    chseq_p("exp")  [ exp_s ]  | chseq_p("log") [ log_s ] | chseq_p("log10") [ log10_s ] |
+	    chseq_p("sinh") [ sinh_s ] | chseq_p("sin") [ sin_s ] | chseq_p("sqrt") [ sqrt_s ] |
+	    chseq_p("tanh") [ tanh_s ] | chseq_p("tan") [ tan_s ];
 	  function2 = 
 	    chseq_p("atan2") [ atan2_s ] | chseq_p("chi2prob") [ chi2prob_s ] | chseq_p("pow") [ pow_s ] |
-            chseq_p("min") [ min_s ] | chseq_p("max") [ max_s ];
+            chseq_p("min") [ min_s ] | chseq_p("max") [ max_s ] | chseq_p("deltaPhi") [deltaPhi_s]  | chseq_p("hypot") [hypot_s];
+          function4 =
+            chseq_p("deltaR") [deltaR_s];
 	  expression =
 	    cond_expression |
 	    nocond_expression;
@@ -192,6 +196,8 @@ namespace reco {
 	    (function1 >> ch_p('(') >> expect(expression) >> expectParenthesis(ch_p(')'))) [ fun_s ] |
 	    (function2 >> ch_p('(') >> expect(expression) >> 
 	     expect(ch_p(',')) >> expect(expression) >> expectParenthesis(ch_p(')'))) [ fun_s ] |
+            (function4 >> ch_p('(') >> expect(expression) >> expect(ch_p(',')) >> expect(expression) >> expect(ch_p(',')) >> expect(expression) >> 
+             expect(ch_p(',')) >> expect(expression) >> expectParenthesis(ch_p(')'))) [ fun_s ] |
             //NOTE: no expect around the first ch_p('(') otherwise it can't parse a method that starts like a function name (i.e. maxSomething)
 	    method | 
 	    //NOTE: no 'expectedParenthesis around ending ')' because at this point the partial phrase

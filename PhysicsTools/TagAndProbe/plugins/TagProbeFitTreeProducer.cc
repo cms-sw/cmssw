@@ -13,7 +13,7 @@
 //
 // Original Author:  Sep 15 09:45
 //         Created:  Mon Sep 15 09:49:08 CEST 2008
-// $Id: TagProbeFitTreeProducer.cc,v 1.5 2010/03/08 23:05:07 kalanand Exp $
+// $Id: TagProbeFitTreeProducer.cc,v 1.3 2010/01/15 09:50:07 gpetrucc Exp $
 //
 //
 
@@ -82,7 +82,6 @@ class TagProbeFitTreeProducer : public edm::EDAnalyzer {
       std::auto_ptr<tnp::TPTreeFiller> treeFiller_; 
       /// The object that actually computes variables and fills the tree for unbiased MC
       std::auto_ptr<tnp::BaseTreeFiller> mcUnbiasFiller_;
-      std::auto_ptr<tnp::BaseTreeFiller> tagFiller_;
 };
 
 //
@@ -93,8 +92,7 @@ TagProbeFitTreeProducer::TagProbeFitTreeProducer(const edm::ParameterSet& iConfi
     makeMCUnbiasTree_(isMC_ ? iConfig.getParameter<bool>("makeMCUnbiasTree") : false),
     checkMotherInUnbiasEff_(makeMCUnbiasTree_ ? iConfig.getParameter<bool>("checkMotherInUnbiasEff") : false),
     tagProbePairMaker_(iConfig),
-    treeFiller_(new tnp::TPTreeFiller(iConfig)),
-    tagFiller_((iConfig.existsAs<bool>("fillTagTree") && iConfig.getParameter<bool>("fillTagTree")) ? new tnp::BaseTreeFiller("tag_tree",iConfig) : 0)
+    treeFiller_(new tnp::TPTreeFiller(iConfig))
 {
     if (isMC_) { 
         // For mc efficiency we need the MC matches for tags & probes
@@ -135,7 +133,6 @@ TagProbeFitTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup
     Handle<Association<vector<reco::GenParticle> > > tagMatches, probeMatches;
 
     treeFiller_->init(iEvent); // read out info from the event if needed (external vars, list of passing probes, ...)
-    if (tagFiller_.get()) tagFiller_->init(iEvent);
 
     // on mc we want to load also the MC match info
     if (isMC_) {
@@ -154,8 +151,7 @@ TagProbeFitTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup
             mcTrue = checkMother(mtag) && checkMother(mprobe);
         }
         // fill in the variables for this t+p pair
-	if (tagFiller_.get()) tagFiller_->fill(it->tag);
-	treeFiller_->fill(it->probe, it->mass, mcTrue);
+        treeFiller_->fill(it->probe, it->mass, mcTrue);
     } 
 
     if (isMC_ && makeMCUnbiasTree_) {

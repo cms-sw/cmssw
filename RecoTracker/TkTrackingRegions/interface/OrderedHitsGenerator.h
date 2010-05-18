@@ -9,6 +9,7 @@ namespace edm { class Event; class EventSetup; }
 
 class OrderedHitsGenerator {
 public:
+  OrderedHitsGenerator() : theMaxElement(0){}
   virtual ~OrderedHitsGenerator() {}
 
   virtual const OrderedSeedingHits & run( 
@@ -16,5 +17,7 @@ public:
 
   virtual void clear() { }  //fixme: should be purely virtual!
 
+  unsigned int theMaxElement;
 };
+
 #endif

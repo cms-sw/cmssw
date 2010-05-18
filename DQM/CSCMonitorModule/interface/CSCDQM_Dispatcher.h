@@ -49,6 +49,12 @@ namespace cscdqm {
       /** Global Configuration */
       Configuration *config;
 
+      /** If full standby was already processed? */
+      bool fullStandbyProcessed;
+
+      /** Last standby value. To be checked for HV changes */
+      HWStandbyType lastStandby;
+
     public:
 
       /**
@@ -57,6 +63,7 @@ namespace cscdqm {
        */
       EventProcessorMutex(Configuration* const p_config) : processor(p_config) {
         config = p_config;
+        fullStandbyProcessed = false;
       }
 
       /**
@@ -84,6 +91,26 @@ namespace cscdqm {
         return processor.maskHWElements(tokens);
       }
 
+      
+      /**
+       * @brief  Process standby information
+       * @param  standby Standby information
+       */
+      void processStandby(HWStandbyType& standby) {
+        if (lastStandby != standby) {
+          processor.standbyEfficiencyHistos(standby);
+          if (config->getIN_FULL_STANDBY()) {
+            // Lets mark CSCs as BAD - have not ever ever been in !STANDBY 
+            if (!fullStandbyProcessed) {
+              processor.standbyEfficiencyHistos(standby);
+              processor.writeShifterHistograms();
+              fullStandbyProcessed = true;
+            }
+          }
+          lastStandby = standby;
+        }
+      }
+
   };
 
   /**
@@ -109,7 +136,7 @@ namespace cscdqm {
       void updateFractionAndEfficiencyHistos();
       const bool getHisto(const HistoDef& histoD, MonitorObject*& me);
       unsigned int maskHWElements(std::vector<std::string>& tokens);
-
+      void processStandby(HWStandbyType& standby);
 
     private:
 
@@ -152,7 +179,7 @@ namespace cscdqm {
 
     public:
 
-      void processEvent(const edm::Event& e, const edm::InputTag& inputTag);
+      void processEvent(const edm::Event& e, const edm::InputTag& inputTag, HWStandbyType& standby);
 
 #endif      
 

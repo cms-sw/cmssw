@@ -13,7 +13,7 @@
 //
 // Original Author:  Seema Sharma
 //         Created:  Mon Aug 10 15:30:40 CST 2009
-// $Id: IsolatedTracksTree.cc,v 1.2 2010/02/03 02:30:12 wmtan Exp $
+// $Id: IsolatedTracksTree.cc,v 1.3 2010/02/11 14:42:43 sunanda Exp $
 //
 //
 
@@ -192,7 +192,7 @@ void IsolatedTracksTree::analyze(const edm::Event& iEvent, const edm::EventSetup
 
     if(myverbose_>5) std::cout << "leadL1JetPT " << leadL1JetPT << " L1Pass " << L1Pass << std::endl;
 
-    TrackerHitAssociator* associate = new TrackerHitAssociator::TrackerHitAssociator(iEvent);
+    TrackerHitAssociator* associate = new TrackerHitAssociator(iEvent);
 
     //decide the goodness of each track for this track collection
     for( trkItr = trkCollection->begin(),nTracks=0; trkItr != trkCollection->end(); ++trkItr, nTracks++){

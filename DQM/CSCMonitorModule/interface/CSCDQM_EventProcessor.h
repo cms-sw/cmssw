@@ -51,6 +51,54 @@
 
 namespace cscdqm {
 
+  /**
+   * Structure of standby flags
+   */
+  struct HWStandbyType {
+  
+    // if standby flag should be considered at all?
+    // at the start it will be false, thus good for last value ;)
+    bool process;
+
+    // ME+
+    bool MeP;
+
+    // ME-
+    bool MeM;
+
+    HWStandbyType() {
+      process = MeP = MeM = false;
+    }
+
+    void applyMeP(bool ready) {
+      MeP = MeP || !ready;
+    }
+
+    void applyMeM(bool ready) {
+      MeM = MeM || !ready;
+    }
+
+    bool fullStandby() const {
+      return (MeM && MeP);
+    }
+
+    bool operator==(const HWStandbyType& t) const {
+      return (t.MeP == MeP && t.MeM == MeM && t.process == process);
+    }
+
+    bool operator!=(const HWStandbyType& t) const {
+      return !(*this == t);
+    }
+
+    const HWStandbyType& operator= (const HWStandbyType& t) {
+      MeP = t.MeP;
+      MeM = t.MeM;
+      process = t.process;
+      return *this;
+    }
+
+  };
+
   typedef std::map<CSCIdType, ExaminerStatusType> CSCExaminerMapType;
   typedef std::vector<DDUIdType>                  DDUExaminerVectorType;
   // typedef std::map<int, long> CSCExaminerMapType;
@@ -76,8 +124,12 @@ namespace cscdqm {
       ~EventProcessor() { }
 
       void init();
+
       void updateFractionHistos();
       void updateEfficiencyHistos();
+      void standbyEfficiencyHistos(HWStandbyType& standby);
+      void writeShifterHistograms();
+
       unsigned int maskHWElements(std::vector<std::string>& tokens);
 
     private:

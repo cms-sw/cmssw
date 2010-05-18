@@ -21,7 +21,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 using namespace edm;
 using namespace std;
@@ -41,28 +41,12 @@ class HiggsTo2GammaSkim : public edm::EDFilter {
 
  private:
   int nEvents, nSelectedEvents;
-  int n1loose, n1tight, n2loose, n2tight, n1loose1tight, n0loosetight; 
+
 
   bool debug;
-
-  //note, all loose cuts should be looser than tight cuts
-  float photonLooseMinPt;
-  float photonTightMinPt;
-  float photonLooseMaxEta;
-  float photonTightMaxEta;
-  float photonLooseMaxHoE;
-  float photonTightMaxHoE;
-  float photonLooseMaxHIsol;
-  float photonTightMaxHIsol;
-  float photonLooseMaxEIsol;
-  float photonTightMaxEIsol;
-  float photonLooseMaxTIsol;
-  float photonTightMaxTIsol;
-
-  //float photon2MinPt;
-
-  int nPhotonLooseMin;
-  int nPhotonTightMin;
+  float photon1MinPt;
+  float photon2MinPt;
+  int nPhotonMin;
 
   // Reco samples
   edm::InputTag thePhotonLabel;

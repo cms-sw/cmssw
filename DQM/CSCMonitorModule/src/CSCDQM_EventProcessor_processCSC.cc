@@ -119,9 +119,13 @@ namespace cscdqm {
     unsigned int cscPosition = 0;
     if (!getCSCFromMap(crateID, dmbID, cscType, cscPosition )) return;
 
-    CSCDetId cid = config->fnGetCSCDetId(crateID, dmbID);
-    uint32_t detRawId = cid.rawId();
-    if (!detRawId) {
+    CSCDetId cid;
+    if (!config->fnGetCSCDetId(crateID, dmbID, cid)) {
+      return;
+    }
+
+    // Check if in standby!
+    if (summary.isChamberStandby(cid)) {
       return;
     }
 
@@ -776,7 +780,7 @@ namespace cscdqm {
 
           CSCCLCTData* clctData = data.clctData();
 
-          std::vector<CSCCLCTDigi> clctsDatasTmp = tmbHeader->CLCTDigis(detRawId);
+          std::vector<CSCCLCTDigi> clctsDatasTmp = tmbHeader->CLCTDigis(cid.rawId());
           std::vector<CSCCLCTDigi> clctsDatas;
 
           for (uint32_t lct = 0; lct < clctsDatasTmp.size(); lct++) {

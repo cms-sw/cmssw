@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.26 2009/10/12 22:18:50 rwolf Exp $
+// $Id: Electron.h,v 1.27.10.1 2010/04/20 14:43:50 srappocc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Electron.h,v 1.26 2009/10/12 22:18:50 rwolf Exp $
+  \version  $Id: Electron.h,v 1.27.10.1 2010/04/20 14:43:50 srappocc Exp $
 */
 
 
@@ -121,7 +121,8 @@ namespace pat {
       /// If this is not cached it is not meaningful, since
       /// it relies on the distance to the beamline. 
       double dB() const;
-      void setDB(double dB) { dB_ = dB; cachedDB_ = true;}
+      double edB() const;
+      void setDB(double dB, double edB) { dB_ = dB; edB_ = edB; cachedDB_ = true;}
 
     protected:
 
@@ -147,7 +148,8 @@ namespace pat {
 
       // V+Jets group selection variables. 
       bool    cachedDB_;         // have these values been cached? 
-      double  dB_;               // track->dxy( beamPoint ) 
+      double  dB_;               // dB and edB are the impact parameter at the primary vertex,
+      double  edB_;              // dB and edB are the impact parameter at the primary vertex,
   };
 }
 

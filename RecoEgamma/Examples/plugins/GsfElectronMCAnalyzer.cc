@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.cc,v 1.47 2009/12/14 23:22:32 chamont Exp $
+// $Id: GsfElectronMCAnalyzer.cc,v 1.46 2009/11/11 12:41:03 chamont Exp $
 //
 //
 
@@ -1786,7 +1786,7 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	if (gsfIter->charge()*gsfIter2->charge()<0.) {
 	  h_ele_mee_os -> Fill(sqrt(mee2));
 	  if (gsfIter->isEB() && gsfIter2->isEB()) h_ele_mee_os_ebeb -> Fill(sqrt(mee2));
-	  if ((gsfIter->isEB() && gsfIter2->isEE()) || (gsfIter->isEE() && gsfIter2->isEB())) h_ele_mee_os_ebee -> Fill(sqrt(mee2));	
+	  if (gsfIter->isEB() && gsfIter2->isEE()) h_ele_mee_os_ebee -> Fill(sqrt(mee2));
 	  if (gsfIter->isEE() && gsfIter2->isEE()) h_ele_mee_os_eeee -> Fill(sqrt(mee2));
 	  if ((gsfIter->classification()==GsfElectron::GOLDEN && gsfIter2->classification()==GsfElectron::GOLDEN) ||
 	     (gsfIter->classification()==GsfElectron::GOLDEN && gsfIter2->classification()==GsfElectron::BIGBREM) ||

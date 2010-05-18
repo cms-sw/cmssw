@@ -113,6 +113,8 @@ void DQMMessageLoggerClient::fillHistograms(){
       switch(mel){
       case 1:
 	theDbe->setCurrentFolder(directoryName + "/Warnings");
+        modulesWarningsFound = theDbe->get(directoryName + "/Warnings/modulesWarningsFound");
+        if (modulesWarningsFound) theDbe->removeElement(modulesWarningsFound->getName());
 	if(nonzeros>0){
 	  modulesWarningsFound = theDbe->book1D("modulesWarningsFound", "Warnings per module", binContent.size(), 0, binContent.size());
 	}else{
@@ -131,6 +133,8 @@ void DQMMessageLoggerClient::fillHistograms(){
 	break;
       case 2:
 	theDbe->setCurrentFolder(directoryName + "/Errors");
+        modulesErrorsFound = theDbe->get(directoryName + "/Errors/modulesErrorsFound");
+        if (modulesErrorsFound) theDbe->removeElement(modulesErrorsFound->getName());
 	if(nonzeros>0){
 	  modulesErrorsFound = theDbe->book1D("modulesErrorsFound", "Errors per module",binContent.size(), 0, binContent.size() );
 	}else{
@@ -148,6 +152,8 @@ void DQMMessageLoggerClient::fillHistograms(){
 	break;
       case 3:
 	theDbe->setCurrentFolder(directoryName + "/Warnings");
+        categoriesWarningsFound = theDbe->get(directoryName + "/Warnings/categoriesWarningsFound");
+        if (categoriesWarningsFound) theDbe->removeElement(categoriesWarningsFound->getName());
 	if(nonzeros>0){
 	  categoriesWarningsFound = theDbe->book1D("categoriesWarningsFound", "Warnings per category", binContent.size(),0,binContent.size());
 	} else{
@@ -166,6 +172,8 @@ void DQMMessageLoggerClient::fillHistograms(){
 	break;
       case 4:
 	theDbe->setCurrentFolder(directoryName + "/Errors");
+        categoriesErrorsFound = theDbe->get(directoryName + "/Errors/categoriesErrorsFound");
+        if (categoriesErrorsFound) theDbe->removeElement(categoriesErrorsFound->getName());
 	if(nonzeros>0){
 	  categoriesErrorsFound = theDbe->book1D("categoriesErrorsFound", "Errors per category", binContent.size(),0,binContent.size());
 	}else{

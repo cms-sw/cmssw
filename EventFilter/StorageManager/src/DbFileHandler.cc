@@ -1,4 +1,4 @@
-// $Id: DbFileHandler.cc,v 1.3 2010/03/25 09:55:18 mommsen Exp $
+// $Id: DbFileHandler.cc,v 1.4 2010/03/31 12:33:53 mommsen Exp $
 /// @file: DbFileHandler.cc
 
 #include <EventFilter/StorageManager/interface/DbFileHandler.h>
@@ -52,11 +52,10 @@ void DbFileHandler::openFile
   const utils::time_point_t& timestamp
 ) const
 {
-  string dbPath(_dwParams._filePath+"/log");
-  utils::checkDirectory(dbPath);
+  utils::checkDirectory(_dwParams._dbFilePath);
 
   ostringstream dbfilename;
-  dbfilename << dbPath << "/"
+  dbfilename << _dwParams._dbFilePath << "/"
              << utils::dateStamp(timestamp)
              << "-" << _dwParams._hostName
              << "-" << _dwParams._smInstanceString

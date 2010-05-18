@@ -33,7 +33,7 @@ using namespace reco;
 using namespace std;
 using namespace edm;
 
-DeDxDiscriminatorLearner::DeDxDiscriminatorLearner(const edm::ParameterSet& iConfig) : ConditionDBWriter<PhysicsTools::Calibration::HistogramD3D>::ConditionDBWriter<PhysicsTools::Calibration::HistogramD3D>(iConfig)
+DeDxDiscriminatorLearner::DeDxDiscriminatorLearner(const edm::ParameterSet& iConfig) : ConditionDBWriter<PhysicsTools::Calibration::HistogramD3D>(iConfig)
 {
    m_tracksTag                 = iConfig.getParameter<edm::InputTag>("tracks");
    m_trajTrackAssociationTag   = iConfig.getParameter<edm::InputTag>("trajectoryTrackAssociation");
@@ -164,10 +164,9 @@ void DeDxDiscriminatorLearner::algoAnalyze(const edm::Event& iEvent, const edm::
          const SiStripMatchedRecHit2D* sistripmatchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
          const SiStripRecHit1D*        sistripsimple1dhit  = dynamic_cast<const SiStripRecHit1D*>(hit);
 
-         if(sistripsimplehit)
-         {
+         if(sistripsimplehit){
              Learn((sistripsimplehit->cluster()).get(), trajState);
-         }else if(sistripsimplehit){
+         }else if(sistripmatchedhit){
              Learn((sistripmatchedhit->monoHit()  ->cluster()).get(),trajState);
              Learn((sistripmatchedhit->stereoHit()->cluster()).get(),trajState);
          }else if(sistripsimple1dhit){

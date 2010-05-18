@@ -5,6 +5,7 @@ SiStripMonitorDigiHVOff.OutputMEsInRootFile = False
 SiStripMonitorDigiHVOff.SelectAllDetectors  = True
 SiStripMonitorDigiHVOff.Mod_On              = False
 SiStripMonitorDigiHVOff.TkHistoMap_On       = False
+SiStripMonitorDigiHVOff.UseDCSFiltering     = False
 
 SiStripMonitorDigiHVOff.TProfTotalNumberOfDigis.subdetswitchon = True
 SiStripMonitorDigiHVOff.TProfDigiApvCycle.subdetswitchon   = False
@@ -34,6 +35,7 @@ SiStripMonitorClusterHVOff.Mod_On              = False
 SiStripMonitorClusterHVOff.TkHistoMap_On       = False
 SiStripMonitorClusterHVOff.TProfTotalNumberOfClusters.subdetswitchon = True
 SiStripMonitorClusterHVOff.TProfClustersApvCycle.subdetswitchon = False
+SiStripMonitorClusterHVOff.UseDCSFiltering     = False
 
 SiStripMonitorClusterHVOff.TH1ClusterNoise.layerswitchon = False
 SiStripMonitorClusterHVOff.TH1ClusterNoise.moduleswitchon = False

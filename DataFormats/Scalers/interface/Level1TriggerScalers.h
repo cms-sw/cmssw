@@ -117,9 +117,9 @@ class Level1TriggerScalers
   unsigned int lastStart() const         { return(lastStart_);}
   unsigned int lastEventCounter0() const { return(lastEventCounter0_);}
   unsigned int lastHardReset() const     { return(lastHardReset_);}
-  unsigned long long spare0() const      { return(spare1_);}
-  unsigned long long spare1() const      { return(spare2_);}
-  unsigned long long spare2() const      { return(spare3_);}
+  unsigned long long spare0() const      { return(spare0_);}
+  unsigned long long spare1() const      { return(spare1_);}
+  unsigned long long spare2() const      { return(spare2_);}
 
   static double rateLS(unsigned long long counts);
   static double rateLS(unsigned int counts);
@@ -196,10 +196,9 @@ protected:
   unsigned int lastHardReset_;
 
   // For future use
-  unsigned int spare0_;
+  unsigned long long spare0_;
   unsigned long long spare1_;
   unsigned long long spare2_;
-  unsigned long long spare3_;
 };
 
 

@@ -3,7 +3,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.58 2010/03/14 15:32:06 dutta Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.60 2010/04/22 16:26:22 dutta Exp $
 #include<fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -24,6 +24,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DPGAnalysis/SiStripTools/interface/APVCyclePhaseCollection.h"
 #include "DPGAnalysis/SiStripTools/interface/EventWithHistory.h"
+#include "CalibTracker/SiStripCommon/interface/SiStripDCSStatus.h"
 
 #include "TMath.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
@@ -36,17 +37,18 @@
 
 
 //--------------------------------------------------------------------------------------------
-SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : dqmStore_(edm::Service<DQMStore>().operator->()), conf_(iConfig), show_mechanical_structure_view(true), show_readout_view(false), show_control_view(false), select_all_detectors(true), reset_each_run(false), m_cacheID_(0), folder_organizer() 
+SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : dqmStore_(edm::Service<DQMStore>().operator->()), conf_(iConfig), show_mechanical_structure_view(true), show_readout_view(false), show_control_view(false), select_all_detectors(true), reset_each_run(false), folder_organizer(), m_cacheID_(0) 
 {
   firstEvent = -1;
   eventNb = 0;
 
   // Detector Partitions
-
-  SubDetPhasePartMap["TIB"]="TI";
-  SubDetPhasePartMap["TID"]="TI";
-  SubDetPhasePartMap["TOB"]="TO";
-  SubDetPhasePartMap["TEC"]="TP";
+  SubDetPhasePartMap["TIB"]        = "TI";
+  SubDetPhasePartMap["TID_side_1"] = "TI";
+  SubDetPhasePartMap["TID_side_2"] = "TI";
+  SubDetPhasePartMap["TOB"]        = "TO";
+  SubDetPhasePartMap["TEC_side_1"] = "TM";
+  SubDetPhasePartMap["TEC_side_2"] = "TP";
 
   // get Digi Producer List   
   digiProducerList = conf_.getParameter<std::vector<edm::InputTag> >("DigiProducersList");
@@ -98,9 +100,16 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : dqmSt
   historyProducer_ = conf_.getParameter<edm::InputTag>("HistoryProducer");
   // Apv Phase Producer
   apvPhaseProducer_ = conf_.getParameter<edm::InputTag>("ApvPhaseProducer");
+
+  // Create DCS Status
+  bool checkDCS    = conf_.getParameter<bool>("UseDCSFiltering");
+  if (checkDCS) dcsStatus_ = new SiStripDCSStatus();
+  else dcsStatus_ = 0; 
 }
 //------------------------------------------------------------------------------------------
-SiStripMonitorDigi::~SiStripMonitorDigi() { }
+SiStripMonitorDigi::~SiStripMonitorDigi() { 
+  if (dcsStatus_) delete dcsStatus_;
+}
 
 //--------------------------------------------------------------------------------------------
 void SiStripMonitorDigi::beginRun(const edm::Run& run, const edm::EventSetup& es){
@@ -138,13 +147,13 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
 
   if ( show_mechanical_structure_view ){
     // take from eventSetup the SiStripDetCabling object - here will use SiStripDetControl later on
-    edm::ESHandle<SiStripDetCabling> tkmechstruct;
-    es.get<SiStripDetCablingRcd>().get(tkmechstruct);
+    es.get<SiStripDetCablingRcd>().get(SiStripDetCabling_);
     
     // get list of active detectors from SiStripDetCabling
     std::vector<uint32_t> activeDets; 
     activeDets.clear(); // just in case
-    tkmechstruct->addActiveDetectorsRawIds(activeDets);
+    SiStripDetCabling_->addActiveDetectorsRawIds(activeDets);
+
     SiStripSubStructure substructure;
 
     // remove any eventual zero elements - there should be none, but just in case
@@ -173,66 +182,64 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
       local_modmes.DigiADCs = 0;
       local_modmes.StripOccupancy = 0;
 
-      local_modmes.nStrip = tkmechstruct->nApvPairs(detid) * 2 * 128;
-
       if (Mod_On_) {
 	// set appropriate folder using SiStripFolderOrganizer
 	folder_organizer.setDetectorFolder(detid); // pass the detid to this method
 	if (reset_each_run) ResetModuleMEs(detid);
 	createModuleMEs(local_modmes, detid);
+	// append to DigiMEs
+	DigiMEs.insert( std::make_pair(detid, local_modmes));
       }
-      // append to DigiMEs
-      DigiMEs.insert( std::make_pair(detid, local_modmes));
 
-      // Created Layer Level MEs if thet=y are npt created already
+      // Create Layer Level MEs if they are not created already
       std::pair<std::string,int32_t> det_layer_pair = folder_organizer.GetSubDetAndLayer(detid);
-      if (DetectedLayers.find(det_layer_pair) == DetectedLayers.end()){
-	DetectedLayers[det_layer_pair]=true;
-
+      SiStripHistoId hidmanager;
+      std::string label = hidmanager.getSubdetid(detid,false);
+      
+      // get detids for the layer
+      std::map<std::string, LayerMEs>::iterator iLayerME  = LayerMEsMap.find(label);
+      if(iLayerME==LayerMEsMap.end()) {
         int32_t lnumber = det_layer_pair.second;
         std::vector<uint32_t> layerDetIds;
         if (det_layer_pair.first == "TIB") {
           substructure.getTIBDetectors(activeDets,layerDetIds,lnumber,0,0,0);
-          if (SubDetMEsMap.find("TIB") == SubDetMEsMap.end()) createSubDetMEs("TIB");
         } else if (det_layer_pair.first == "TOB") {
           substructure.getTOBDetectors(activeDets,layerDetIds,lnumber,0,0);
-	  if (SubDetMEsMap.find("TOB") == SubDetMEsMap.end()) createSubDetMEs("TOB");
         } else if (det_layer_pair.first == "TID" && lnumber > 0) {
           substructure.getTIDDetectors(activeDets,layerDetIds,2,abs(lnumber),0,0);
-          if (SubDetMEsMap.find("TID") == SubDetMEsMap.end()) createSubDetMEs("TID");
         } else if (det_layer_pair.first == "TID" && lnumber < 0) {
           substructure.getTIDDetectors(activeDets,layerDetIds,1,abs(lnumber),0,0);
-          if (SubDetMEsMap.find("TID") == SubDetMEsMap.end()) createSubDetMEs("TID");          
         } else if (det_layer_pair.first == "TEC" && lnumber > 0) {
           substructure.getTECDetectors(activeDets,layerDetIds,2,abs(lnumber),0,0,0,0);
-          if (SubDetMEsMap.find("TEC") == SubDetMEsMap.end()) createSubDetMEs("TEC");
         } else if (det_layer_pair.first == "TEC" && lnumber < 0) {
           substructure.getTECDetectors(activeDets,layerDetIds,1,abs(lnumber),0,0,0,0);
-          if (SubDetMEsMap.find("TEC") == SubDetMEsMap.end()) createSubDetMEs("TEC");
         }
 
-        SiStripHistoId hidmanager;
-	std::string label = hidmanager.getSubdetid(detid, false);
         LayerDetMap[label] = layerDetIds;
 
         // book Layer plots      
 	folder_organizer.setLayerFolder(detid,det_layer_pair.second); 
-
 	createLayerMEs(label, layerDetIds.size());
+      }
+      
+      // book sub-detector plots
+      std::pair<std::string,std::string> sdet_pair = folder_organizer.getSubDetFolderAndTag(detid);
+      if (SubDetMEsMap.find(sdet_pair.second) == SubDetMEsMap.end()){
+	dqmStore_->setCurrentFolder(sdet_pair.first);
+	createSubDetMEs(sdet_pair.second);        
+      }
 
-      }    
-    
     }//end of loop over detectors
 
   }//end of if
 
 }//end of method
 
-
-
 //--------------------------------------------------------------------------------------------
 void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 
+  // Filter out events if DCS Event if requested
+  if (dcsStatus_ && !dcsStatus_->getStatus(iEvent, iSetup)) return;
 
   runNb   = iEvent.id().run();
   eventNb++;
@@ -247,11 +254,13 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
     iEvent.getByLabel((*itDigiProducerList),digi_handle);
     if (digi_handle.isValid()) digi_detset_handles.push_back(digi_handle.product());
   }    
-  int nTotDigiTIB = 0; 
-  int nTotDigiTOB = 0;
-  int nTotDigiTEC = 0;
-  int nTotDigiTID = 0;
-  
+
+  // initialise # of clusters to zero
+  for (std::map<std::string, SubDetMEs>::iterator iSubdet  = SubDetMEsMap.begin();
+       iSubdet != SubDetMEsMap.end(); iSubdet++) {
+    iSubdet->second.totNDigis = 0;
+  }
+
   for (std::map<std::string, std::vector< uint32_t > >::const_iterator iterLayer = LayerDetMap.begin();
        iterLayer != LayerDetMap.end(); iterLayer++) {
     
@@ -268,6 +277,7 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
     int ndigi_layer = 0;
     
     uint16_t iDet = 0;
+    std::string subdet_label = ""; 
     // loop over all modules in the layer
     for (std::vector< uint32_t >::const_iterator iterDets = layer_dets.begin() ; 
 	 iterDets != layer_dets.end() ; iterDets++) {
@@ -275,6 +285,9 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
       // detid and type of ME
       uint32_t detid = (*iterDets);
 	
+      // Get SubDet label once
+      if (subdet_label.size() == 0) subdet_label = folder_organizer.getSubDetFolderAndTag(detid).second;
+
       // DetId and corresponding set of MEs
       std::map<uint32_t, ModMEs >::iterator pos = DigiMEs.find(detid);
       ModMEs local_modmes = pos->second;
@@ -335,8 +348,9 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
       }//end of loop over digis in this det
       
       // Occupancy
-      if (local_modmes.nStrip > 0 && det_occupancy > 0 ) {
-	det_occupancy = det_occupancy/local_modmes.nStrip;
+      short nstrips = SiStripDetCabling_->nApvPairs(detid) * 2 * 128;
+      if (nstrips > 0 && det_occupancy > 0 ) {
+	det_occupancy = det_occupancy/nstrips;
 	if (Mod_On_ && moduleswitchstripoccupancyon && (local_modmes.StripOccupancy != NULL))
 	  (local_modmes.StripOccupancy)->Fill(det_occupancy);
 	if (layerswitchstripoccupancyon) {
@@ -370,11 +384,8 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
       fillME(local_layermes.LayerADCsCoolestStrip ,smallest_adc_layer);
       if (createTrendMEs) fillTrend(local_layermes.LayerADCsCoolestStripTrend, smallest_adc_layer, iOrbitSec);
     }
-    
-    if (layer_label.find("TIB") != std::string::npos)      nTotDigiTIB += ndigi_layer;
-    else if (layer_label.find("TOB") != std::string::npos) nTotDigiTOB += ndigi_layer;
-    else if (layer_label.find("TEC") != std::string::npos) nTotDigiTEC += ndigi_layer;        
-    else if (layer_label.find("TID") != std::string::npos) nTotDigiTID += ndigi_layer;        
+    std::map<std::string, SubDetMEs>::iterator iSubdet  = SubDetMEsMap.find(subdet_label);
+    if(iSubdet != SubDetMEsMap.end()) iSubdet->second.totNDigis += ndigi_layer;
   }
 
   // get EventHistory 
@@ -410,24 +421,9 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
          the_phase==APVCyclePhaseCollection::invalid) the_phase=30;
       tbx_corr  -= the_phase;
       
-      if (subdet == "TIB"){
-	if (subdetswitchtotdigiprofon)subdetmes.SubDetTotDigiProf->Fill(iOrbitSec,nTotDigiTIB);  
-	if (subdetswitchapvcycleprofon)subdetmes.SubDetDigiApvProf->Fill(tbx_corr%70,nTotDigiTIB);
-	if (subdetswitchapvcycleth2on) subdetmes.SubDetDigiApvTH2->Fill(tbx_corr%70,nTotDigiTIB);
-      } else if (subdet == "TOB"){
-	if (subdetswitchtotdigiprofon)subdetmes.SubDetTotDigiProf->Fill(iOrbitSec,nTotDigiTOB);  
-	if (subdetswitchapvcycleprofon)subdetmes.SubDetDigiApvProf->Fill(tbx_corr%70,nTotDigiTOB);
-	if (subdetswitchapvcycleth2on) subdetmes.SubDetDigiApvTH2->Fill(tbx_corr%70,nTotDigiTOB);
-      } else if (subdet == "TID"){
-	if (subdetswitchtotdigiprofon)subdetmes.SubDetTotDigiProf->Fill(iOrbitSec,nTotDigiTID);  
-	if (subdetswitchapvcycleprofon)subdetmes.SubDetDigiApvProf->Fill(tbx_corr%70,nTotDigiTID);
-	if (subdetswitchapvcycleth2on) subdetmes.SubDetDigiApvTH2->Fill(tbx_corr%70,nTotDigiTID);
-      } else if (subdet == "TEC"){
-	if (subdetswitchtotdigiprofon)subdetmes.SubDetTotDigiProf->Fill(iOrbitSec,nTotDigiTEC);  
-	if (subdetswitchapvcycleprofon)subdetmes.SubDetDigiApvProf->Fill(tbx_corr%70,nTotDigiTEC);
-	if (subdetswitchapvcycleth2on) subdetmes.SubDetDigiApvTH2->Fill(tbx_corr%70,nTotDigiTEC);
-
-      }
+      if (subdetswitchtotdigiprofon)subdetmes.SubDetTotDigiProf->Fill(iOrbitSec,subdetmes.totNDigis);  
+      if (subdetswitchapvcycleprofon)subdetmes.SubDetDigiApvProf->Fill(tbx_corr%70,subdetmes.totNDigis);
+      if (subdetswitchapvcycleth2on) subdetmes.SubDetDigiApvTH2->Fill(tbx_corr%70,subdetmes.totNDigis);
     }
   }
 }//end of method analyze
@@ -513,7 +509,8 @@ void SiStripMonitorDigi::createModuleMEs(ModMEs& mod_single, uint32_t detid) {
   //nr. of digis per strip in module
   if(moduleswitchnumdigispstripon){
     hid = hidmanager.createHistoId("NumberOfDigisPerStrip","det",detid);
-    mod_single.NumberOfDigisPerStrip = dqmStore_->book1D(hid, hid, mod_single.nStrip, -0.5, mod_single.nStrip+0.5);
+    short nstrips = SiStripDetCabling_->nApvPairs(detid) * 2 * 128; 
+    mod_single.NumberOfDigisPerStrip = dqmStore_->book1D(hid, hid, nstrips, -0.5, nstrips+0.5);
     dqmStore_->tag(mod_single.NumberOfDigisPerStrip, detid);
     mod_single.NumberOfDigisPerStrip->setAxisTitle("number of (digis > 0) per strip");
     mod_single.NumberOfDigisPerStrip->getTH1()->StatOverflows(kTRUE);  // over/underflows in Mean calculation
@@ -626,71 +623,67 @@ void SiStripMonitorDigi::createLayerMEs(std::string label, int ndets) {
 //
 void SiStripMonitorDigi::createSubDetMEs(std::string label) {
 
-  std::map<std::string, SubDetMEs>::iterator iSubDetME  = SubDetMEsMap.find(label);
-  if(iSubDetME==SubDetMEsMap.end()){
-    SubDetMEs subdetMEs; 
-    subdetMEs.SubDetTotDigiProf = 0;
-    subdetMEs.SubDetDigiApvProf = 0;
-    subdetMEs.SubDetDigiApvTH2 = 0;
-    
-    std::string HistoName;
-
-    // Total Number of Digi - Profile
-    if(subdetswitchtotdigiprofon){
-      edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TProfTotalNumberOfDigis");
-      dqmStore_->setCurrentFolder("SiStrip/MechanicalView/"+label);
-      HistoName = "TotalNumberOfDigiProfile__" + label;
-      subdetMEs.SubDetTotDigiProf=dqmStore_->bookProfile(HistoName,HistoName,
-					      Parameters.getParameter<int32_t>("Nbins"),
-					      Parameters.getParameter<double>("xmin"),
-					      Parameters.getParameter<double>("xmax"),
-					      100, //that parameter should not be there !?
-					      Parameters.getParameter<double>("ymin"),
-					      Parameters.getParameter<double>("ymax"),
-					      "" );
-      subdetMEs.SubDetTotDigiProf->setAxisTitle("Event Time in Seconds",1);
-      if (subdetMEs.SubDetTotDigiProf->kind() == MonitorElement::DQM_KIND_TPROFILE) subdetMEs.SubDetTotDigiProf->getTH1()->SetBit(TH1::kCanRebin);
-    }
-
-    // Number of Digi vs Bx - Profile
-    if(subdetswitchapvcycleprofon){
-      edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TProfDigiApvCycle");
-      dqmStore_->setCurrentFolder("SiStrip/MechanicalView/"+label);
-      HistoName = "Digi_vs_ApvCycle_" + label;
-      subdetMEs.SubDetDigiApvProf=dqmStore_->bookProfile(HistoName,HistoName,
-					      Parameters.getParameter<int32_t>("Nbins"),
-					      Parameters.getParameter<double>("xmin"),
-					      Parameters.getParameter<double>("xmax"),
-					      200, //that parameter should not be there !?
-					      Parameters.getParameter<double>("ymin"),
-					      Parameters.getParameter<double>("ymax"),
-					      "" );
-      subdetMEs.SubDetDigiApvProf->setAxisTitle("ApvCycle (Corrected Absolute Bx % 70)",1);
-    }
-
-    // Number of Digi vs Bx - TH2
-    if(subdetswitchapvcycleth2on){
-      edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TH2DigiApvCycle");
-      dqmStore_->setCurrentFolder("SiStrip/MechanicalView/"+label);
-      HistoName = "Digi_vs_ApvCycle_2D_" + label;
-      // Adjusting the scale for 2D histogram
-      double h2ymax = 9999.0;
-      double yfact = Parameters.getParameter<double>("yfactor");
-      if(label == "TIB") h2ymax = (6984.*256.)*yfact;
-      else if (label == "TID") h2ymax = (2208.*256.)*yfact;
-      else if (label == "TOB") h2ymax = (12906.*256.)*yfact;
-      else if (label == "TEC") h2ymax = (7552.*2.*256.)*yfact;
-      subdetMEs.SubDetDigiApvTH2=dqmStore_->book2D(HistoName,HistoName,
-					      Parameters.getParameter<int32_t>("Nbins"),
-					      Parameters.getParameter<double>("xmin"),
-					      Parameters.getParameter<double>("xmax"),
-					      Parameters.getParameter<int32_t>("Nbinsy"), //it was 100 that parameter should not be there !?
-					      Parameters.getParameter<double>("ymin"),
-					      h2ymax);
-      subdetMEs.SubDetDigiApvTH2->setAxisTitle("absolute Bx mod(70)",1);
-    }
-  SubDetMEsMap[label]=subdetMEs;
+  SubDetMEs subdetMEs; 
+  subdetMEs.totNDigis         = 0;
+  subdetMEs.SubDetTotDigiProf = 0;
+  subdetMEs.SubDetDigiApvProf = 0;
+  subdetMEs.SubDetDigiApvTH2  = 0;
+  
+  std::string HistoName;
+  
+  // Total Number of Digi - Profile
+  if(subdetswitchtotdigiprofon){
+    edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TProfTotalNumberOfDigis");
+    HistoName = "TotalNumberOfDigiProfile__" + label;
+    subdetMEs.SubDetTotDigiProf=dqmStore_->bookProfile(HistoName,HistoName,
+						       Parameters.getParameter<int32_t>("Nbins"),
+						       Parameters.getParameter<double>("xmin"),
+						       Parameters.getParameter<double>("xmax"),
+						       100, //that parameter should not be there !?
+						       Parameters.getParameter<double>("ymin"),
+						       Parameters.getParameter<double>("ymax"),
+						       "" );
+    subdetMEs.SubDetTotDigiProf->setAxisTitle("Event Time in Seconds",1);
+    if (subdetMEs.SubDetTotDigiProf->kind() == MonitorElement::DQM_KIND_TPROFILE) subdetMEs.SubDetTotDigiProf->getTH1()->SetBit(TH1::kCanRebin);
   }
+  
+  // Number of Digi vs Bx - Profile
+  if(subdetswitchapvcycleprofon){
+    edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TProfDigiApvCycle");
+    HistoName = "Digi_vs_ApvCycle__" + label;
+    subdetMEs.SubDetDigiApvProf=dqmStore_->bookProfile(HistoName,HistoName,
+						       Parameters.getParameter<int32_t>("Nbins"),
+						       Parameters.getParameter<double>("xmin"),
+						       Parameters.getParameter<double>("xmax"),
+						       200, //that parameter should not be there !?
+						       Parameters.getParameter<double>("ymin"),
+						       Parameters.getParameter<double>("ymax"),
+						       "" );
+    subdetMEs.SubDetDigiApvProf->setAxisTitle("ApvCycle (Corrected Absolute Bx % 70)",1);
+  }
+  
+  // Number of Digi vs Bx - TH2
+  if(subdetswitchapvcycleth2on){
+    edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TH2DigiApvCycle");
+    dqmStore_->setCurrentFolder("SiStrip/MechanicalView/"+label);
+    HistoName = "Digi_vs_ApvCycle_2D__" + label;
+    // Adjusting the scale for 2D histogram
+    double h2ymax = 9999.0;
+    double yfact = Parameters.getParameter<double>("yfactor");
+    if(label.find("TIB") != std::string::npos) h2ymax = (6984.*256.)*yfact;
+    else if (label.find("TID") != std::string::npos) h2ymax = (2208.*256.)*yfact;
+    else if (label.find("TOB") != std::string::npos) h2ymax = (12906.*256.)*yfact;
+    else if (label.find("TEC") != std::string::npos) h2ymax = (7552.*2.*256.)*yfact;
+    subdetMEs.SubDetDigiApvTH2=dqmStore_->book2D(HistoName,HistoName,
+						 Parameters.getParameter<int32_t>("Nbins"),
+						 Parameters.getParameter<double>("xmin"),
+						 Parameters.getParameter<double>("xmax"),
+						 Parameters.getParameter<int32_t>("Nbinsy"), //it was 100 that parameter should not be there !?
+						 Parameters.getParameter<double>("ymin"),
+						 h2ymax);
+    subdetMEs.SubDetDigiApvTH2->setAxisTitle("absolute Bx mod(70)",1);
+  }
+  SubDetMEsMap[label]=subdetMEs;
 }
 //
 // -- Get DetSet vector for a given Detector

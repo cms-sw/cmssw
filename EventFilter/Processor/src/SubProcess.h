@@ -1,7 +1,7 @@
 #ifndef EVENTFILTER_PROCESSOR_SUB_PROCESS_H
 #define EVENTFILTER_PROCESSOR_SUB_PROCESS_H
 
-#include "MsgBuf.h"
+#include "EventFilter/Utilities/interface/MsgBuf.h"
 #include <string>
 
 #include <iostream>

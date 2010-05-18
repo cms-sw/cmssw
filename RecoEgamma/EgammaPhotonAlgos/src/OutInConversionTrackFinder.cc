@@ -28,7 +28,7 @@ OutInConversionTrackFinder::OutInConversionTrackFinder(const edm::EventSetup& es
 {
 
 
-  theTrajectoryCleaner_ = new TrajectoryCleanerBySharedHits();
+  theTrajectoryCleaner_ = new TrajectoryCleanerBySharedHits(conf);
 
   // get the seed cleaner
   std::string cleaner = conf_.getParameter<std::string>("OutInRedundantSeedCleaner");

@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     08-Oct-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.22 $
-#     $Date: 2009/07/15 15:05:47 $
+#     $Revision: 1.21 $
+#     $Date: 2009/06/24 11:58:48 $
 #
 #  Setup local mps database
 #  
@@ -25,9 +25,8 @@
 # Known options:
 #  -m          Setup pede merging job.
 #  -a          Append jobs to existing list.
-#  -M pedeMem  The memory (MB) to be allocated for pede (min: 1024 MB).
-#              If not given, it is evinced from the pede executable name.
-#              Finally, it is set 2560 MB if neither of the two are available.
+#  -M pedeMem  The allocated memory (MB) for pede (min: 1024 MB; def: 2560 MB).
+
 
 BEGIN {
 use File::Basename;
@@ -72,6 +71,7 @@ while (@ARGV) {
       $pedeMem = $arg;
       $pedeMem =~ s/-M//; # Strips away the "-M"
       if (length($pedeMem) == 0) { # The memory size must be following param
+###        $pedeMem = $ARGV[0];
         $pedeMem = shift(ARGV);
       }
     }
@@ -111,11 +111,9 @@ while (@ARGV) {
 if ($nJobs eq 0 or $helpwanted != 0 ) {
   print "Usage:\n  mps_setup.pl [options] batchScript cfgTemplate infiList nJobs class[:classMerge] jobname [mergeScript [pool:]mssDir]";
   print "\nKnown options:";
-  print "  \n -m          Setup the pede merging job.";
-  print "  \n -a          Append jobs to the already existing list.";
-  print "  \n -M pedeMem  The memory (MB) to be allocated for pede (min: 1024 MB).";
-  print "  \n             If not given, it is evinced from the pede executable name.";
-  print "  \n             Finally, it is set 2560 MB if neither of the two are available.";
+  print "  \n -m          Setup pede merging job.";
+  print "  \n -a          Append jobs to existing list.";
+  print "  \n -M pedeMem  The allocated memory (MB) for pede (min: 1024MB; def: 2560MB).";
   print "\n";
   exit 1;
 }
@@ -166,30 +164,6 @@ if ($mssDir ne "") {
     exit 1;
   }
 
-}
-
-$pedeMemMin = 1024; # Minimum memory allocated for pede: 1024MB=1GB
-
-# Try to guess the memory requirements from the pede executable name.
-# 2.5GB is used as default otherwise.
-# AP - 23.03.2010
-$pedeMemDef = `cat $cfgTemplate | grep "process.AlignmentProducer.algoConfig.pedeSteerer.pedeCommand" | cut -d '#' -f 1 | grep "=" | tail -1 | cut -d '=' -f 2`; # This is the pede executable (full path).
-$pedeMemDef = `basename $pedeMemDef`; # This is the pede executable (only the file name, eg "pede_4GB").
-$pedeMemDef =~ s/.*_//; # Strip away the first part of the name (eg remains only "4GB").
-$pedeMemDef =~ s/GB//; # Strip away "GB" (eg remains only "4").
-if ($pedeMemDef =~ /\d/) { # If what remains is a number...
-  $pedeMemDef = 1024*$pedeMemDef; # ... convert it into GB.
-  if ($pedeMemDef < $pedeMemMin) {$pedeMemDef = $pedeMemMin}; # $pedeMemDef must be >= pedeMemMin.
-} else { # Use a default value.
-  $pedeMemDef = 1024*2.5;
-}
-
-# Allocate memory for the pede job.
-# The value specified by the user (-M option) prevails on the one evinced from the executable name.
-# AP - 23.03.2010
-if ($pedeMem =~ /\D/ || $pedeMem < $pedeMemMin) {
-  print "Memory request (".$pedeMem.") non-digit or < ".$pedeMemMin.", use ".$pedeMemDef."\n";
-  $pedeMem = $pedeMemDef;
 }
 
 # Create the job directories
@@ -252,7 +226,7 @@ if ($append == 1) {
 
 # Restore variables
   $batchScript = $tmpBatchScript;
-  $cfgTemplate = $tmpCfgTemplate;
+  $cfgTemplate = $tmpCfgTemplate; 
   $infiList = $tmpInfiList;
   $nJobs = $tmpNJobs;
   $class = $tmpClass;

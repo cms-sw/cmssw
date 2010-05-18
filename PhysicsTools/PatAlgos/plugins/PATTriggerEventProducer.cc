@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerEventProducer.cc,v 1.6 2010/02/28 13:47:53 vadler Exp $
+// $Id: PATTriggerEventProducer.cc,v 1.11 2010/04/19 18:01:56 vadler Exp $
 //
 
 
@@ -8,93 +8,124 @@
 #include <cassert>
 
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "DataFormats/PatCandidates/interface/TriggerEvent.h"
 
 #include "DataFormats/Common/interface/AssociativeIterator.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 using namespace pat;
+using namespace edm;
 
 
-PATTriggerEventProducer::PATTriggerEventProducer( const edm::ParameterSet & iConfig ) :
+PATTriggerEventProducer::PATTriggerEventProducer( const ParameterSet & iConfig ) :
   nameProcess_( iConfig.getParameter< std::string >( "processName" ) ),
-  tagTriggerResults_( iConfig.getParameter< edm::InputTag >( "triggerResults" ) ),
-  tagTriggerProducer_( iConfig.getParameter< edm::InputTag >( "patTriggerProducer" ) ),
-  tagsTriggerMatcher_( iConfig.getParameter< std::vector< edm::InputTag > >( "patTriggerMatches" ) )
+  tagTriggerResults_( "TriggerResults" ),
+  tagTriggerProducer_( "patTrigger" ),
+  tagL1Gt_( "gtDigis" ),
+  tagsTriggerMatcher_()
 {
 
-  if ( tagTriggerResults_.process().empty() ) {
-    tagTriggerResults_ = edm::InputTag( tagTriggerResults_.label(), tagTriggerResults_.instance(), nameProcess_ );
-  }
+  if ( iConfig.exists( "triggerResults" ) )     tagTriggerResults_  = iConfig.getParameter< InputTag >( "triggerResults" );
+  if ( iConfig.exists( "patTriggerProducer" ) ) tagTriggerProducer_ = iConfig.getParameter< InputTag >( "patTriggerProducer" );
+  if ( iConfig.exists( "l1GtTag" ) )            tagL1Gt_            = iConfig.getParameter< InputTag >( "l1GtTag" );
+  if ( iConfig.exists( "patTriggerMatches" ) )  tagsTriggerMatcher_ = iConfig.getParameter< std::vector< InputTag > >( "patTriggerMatches" );
+  if ( tagTriggerResults_.process().empty() ) tagTriggerResults_ = InputTag( tagTriggerResults_.label(), tagTriggerResults_.instance(), nameProcess_ );
 
   for ( size_t iMatch = 0; iMatch < tagsTriggerMatcher_.size(); ++iMatch ) {
-   produces< TriggerObjectMatch >( tagsTriggerMatcher_.at( iMatch ).label() );
+    produces< TriggerObjectMatch >( tagsTriggerMatcher_.at( iMatch ).label() );
   }
   produces< TriggerEvent >();
 
 }
 
 
-void PATTriggerEventProducer::beginRun( edm::Run & iRun, const edm::EventSetup & iSetup )
+void PATTriggerEventProducer::beginRun( Run & iRun, const EventSetup & iSetup )
 {
 
+  // Initialize
+  hltConfigInit_ = false;
+
+  // Initialize HLTConfigProvider
   bool changed( true );
   if ( ! hltConfig_.init( iRun, iSetup, nameProcess_, changed ) ) {
-    edm::LogError( "errorHltConfigExtraction" ) << "HLT config extraction error with process name " << nameProcess_;
-    hltConfigInit_ = false;
-    return;
-  }
-  if ( hltConfig_.size() <= 0 ) {
-    edm::LogError( "hltConfigSize" ) << "HLT config size error";
-    hltConfigInit_ = false;
-    return;
-  }
-  hltConfigInit_ = true;
+    LogError( "errorHltConfigExtraction" ) << "HLT config extraction error with process name " << nameProcess_;
+  } else if ( hltConfig_.size() <= 0 ) {
+    LogError( "hltConfigSize" ) << "HLT config size error";
+  } else hltConfigInit_ = true;
 
 }
 
 
-void PATTriggerEventProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
+void PATTriggerEventProducer::produce( Event& iEvent, const EventSetup& iSetup )
 {
 
   if ( ! hltConfigInit_ ) return;
 
-  edm::Handle< edm::TriggerResults > handleTriggerResults;
+  ESHandle< L1GtTriggerMenu > handleL1GtTriggerMenu;
+  iSetup.get< L1GtTriggerMenuRcd >().get( handleL1GtTriggerMenu );
+  Handle< TriggerResults > handleTriggerResults;
   iEvent.getByLabel( tagTriggerResults_, handleTriggerResults );
   if ( ! handleTriggerResults.isValid() ) {
-    edm::LogError( "triggerResultsValid" ) << "edm::TriggerResults product with InputTag " << tagTriggerResults_.encode() << " not in event";
+    LogError( "triggerResultsValid" ) << "TriggerResults product with InputTag " << tagTriggerResults_.encode() << " not in event";
     return;
   }
-  edm::Handle< TriggerPathCollection > handleTriggerPaths;
+  Handle< TriggerAlgorithmCollection > handleTriggerAlgorithms;
+  iEvent.getByLabel( tagTriggerProducer_, handleTriggerAlgorithms );
+  Handle< TriggerPathCollection > handleTriggerPaths;
   iEvent.getByLabel( tagTriggerProducer_, handleTriggerPaths );
-  edm::Handle< TriggerFilterCollection > handleTriggerFilters;
+  Handle< TriggerFilterCollection > handleTriggerFilters;
   iEvent.getByLabel( tagTriggerProducer_, handleTriggerFilters );
-  edm::Handle< TriggerObjectCollection > handleTriggerObjects;
+  Handle< TriggerObjectCollection > handleTriggerObjects;
   iEvent.getByLabel( tagTriggerProducer_, handleTriggerObjects );
-  edm::Handle< TriggerObjectStandAloneCollection > handleTriggerObjectsStandAlone;
+  Handle< TriggerObjectStandAloneCollection > handleTriggerObjectsStandAlone;
   iEvent.getByLabel( tagTriggerProducer_, handleTriggerObjectsStandAlone );
   assert( handleTriggerObjects->size() == handleTriggerObjectsStandAlone->size() );
 
+  bool physDecl( false );
+  if ( iEvent.isRealData() ) {
+    Handle< L1GlobalTriggerReadoutRecord > handleL1GlobalTriggerReadoutRecord;
+    iEvent.getByLabel( tagL1Gt_, handleL1GlobalTriggerReadoutRecord );
+    if ( handleL1GlobalTriggerReadoutRecord.isValid() ) {
+      L1GtFdlWord fdlWord = handleL1GlobalTriggerReadoutRecord->gtFdlWord();
+      if ( fdlWord.physicsDeclared() == 1 ) {
+        physDecl = true;
+      }
+    } else {
+      LogError( "l1GlobalTriggerReadoutRecordValid" ) << "L1GlobalTriggerReadoutRecord product with InputTag " << tagL1Gt_.encode() << " not in event";
+    }
+  } else {
+    physDecl = true;
+  }
+
   // produce trigger event
 
-  std::auto_ptr< TriggerEvent > triggerEvent( new TriggerEvent( std::string( hltConfig_.tableName() ), handleTriggerResults->wasrun(), handleTriggerResults->accept(), handleTriggerResults->error() ) );
+  std::auto_ptr< TriggerEvent > triggerEvent( new TriggerEvent( handleL1GtTriggerMenu->gtTriggerMenuName(), std::string( hltConfig_.tableName() ), handleTriggerResults->wasrun(), handleTriggerResults->accept(), handleTriggerResults->error(), physDecl ) );
   // set product references to trigger collections
+  if ( handleTriggerAlgorithms.isValid() ) {
+    triggerEvent->setAlgorithms( handleTriggerAlgorithms );
+  } else {
+    LogError( "triggerAlgorithmsValid" ) << "pat::TriggerAlgorithmCollection product with InputTag " << tagTriggerProducer_.encode() << " not in event";
+  }
   if ( handleTriggerPaths.isValid() ) {
     triggerEvent->setPaths( handleTriggerPaths );
   } else {
-    edm::LogError( "triggerPathsValid" ) << "pat::TriggerPathCollection product with InputTag " << tagTriggerProducer_.encode() << " not in event";
+    LogError( "triggerPathsValid" ) << "pat::TriggerPathCollection product with InputTag " << tagTriggerProducer_.encode() << " not in event";
   }
   if ( handleTriggerFilters.isValid() ) {
     triggerEvent->setFilters( handleTriggerFilters );
   } else {
-    edm::LogError( "triggerFiltersValid" ) << "pat::TriggerFilterCollection product with InputTag " << tagTriggerProducer_.encode() << " not in event";
+    LogError( "triggerFiltersValid" ) << "pat::TriggerFilterCollection product with InputTag " << tagTriggerProducer_.encode() << " not in event";
   }
   if ( handleTriggerObjects.isValid() ) {
     triggerEvent->setObjects( handleTriggerObjects );
   } else {
-    edm::LogError( "triggerObjectsValid" ) << "pat::TriggerObjectCollection product with InputTag " << tagTriggerProducer_.encode() << " not in event";
+    LogError( "triggerObjectsValid" ) << "pat::TriggerObjectCollection product with InputTag " << tagTriggerProducer_.encode() << " not in event";
   }
 
   // produce trigger match association and set references
@@ -103,14 +134,14 @@ void PATTriggerEventProducer::produce( edm::Event& iEvent, const edm::EventSetup
       const std::string labelTriggerObjectMatcher( tagsTriggerMatcher_.at( iMatch ).label() );
       // copy trigger match association using TriggerObjectStandAlone to those using TriggerObject
       // relying on the fact, that only one candidate collection is present in the association
-      edm::Handle< TriggerObjectStandAloneMatch > handleTriggerObjectStandAloneMatch;
+      Handle< TriggerObjectStandAloneMatch > handleTriggerObjectStandAloneMatch;
       iEvent.getByLabel( labelTriggerObjectMatcher, handleTriggerObjectStandAloneMatch );
       if ( ! handleTriggerObjectStandAloneMatch.isValid() ) {
-        edm::LogError( "triggerMatchValid" ) << "pat::TriggerObjectStandAloneMatch product with InputTag " << labelTriggerObjectMatcher << " not in event";
+        LogError( "triggerMatchValid" ) << "pat::TriggerObjectStandAloneMatch product with InputTag " << labelTriggerObjectMatcher << " not in event";
         continue;
       }
-      edm::AssociativeIterator< reco::CandidateBaseRef, TriggerObjectStandAloneMatch > it( *handleTriggerObjectStandAloneMatch, edm::EdmEventItemGetter< reco::CandidateBaseRef >( iEvent ) ), itEnd( it.end() );
-      edm::Handle< reco::CandidateView > handleCands;
+      AssociativeIterator< reco::CandidateBaseRef, TriggerObjectStandAloneMatch > it( *handleTriggerObjectStandAloneMatch, EdmEventItemGetter< reco::CandidateBaseRef >( iEvent ) ), itEnd( it.end() );
+      Handle< reco::CandidateView > handleCands;
       std::vector< int > indices;
       while ( it != itEnd ) {
         if ( indices.size() == 0 ) {
@@ -125,14 +156,14 @@ void PATTriggerEventProducer::produce( edm::Event& iEvent, const edm::EventSetup
         matchFiller.insert( handleCands, indices.begin(), indices.end() );
       }
       matchFiller.fill();
-      edm::OrphanHandle< TriggerObjectMatch > handleTriggerObjectMatch( iEvent.put( triggerObjectMatch, labelTriggerObjectMatcher ) );
+      OrphanHandle< TriggerObjectMatch > handleTriggerObjectMatch( iEvent.put( triggerObjectMatch, labelTriggerObjectMatcher ) );
       // set product reference to trigger match association
       if ( ! handleTriggerObjectMatch.isValid() ) {
-        edm::LogError( "triggerMatchValid" ) << "pat::TriggerObjectMatch product with InputTag " << labelTriggerObjectMatcher << " not in event";
+        LogError( "triggerMatchValid" ) << "pat::TriggerObjectMatch product with InputTag " << labelTriggerObjectMatcher << " not in event";
         continue;
       }
       if ( ! ( triggerEvent->addObjectMatchResult( handleTriggerObjectMatch, labelTriggerObjectMatcher ) ) ) {
-        edm::LogWarning( "triggerObjectMatchReplication" ) << "pat::TriggerEvent contains already a pat::TriggerObjectMatch from matcher module " << labelTriggerObjectMatcher;
+        LogWarning( "triggerObjectMatchReplication" ) << "pat::TriggerEvent contains already a pat::TriggerObjectMatch from matcher module " << labelTriggerObjectMatcher;
       }
     }
   }

@@ -7,7 +7,7 @@ namespace edm {
   namespace detail {
     // This string is the 16-byte, non-printable version.
     std::string const& InvalidHash() {
-      static const std::string invalid = cms::MD5Result().compactForm();
+      static std::string const invalid = cms::MD5Result().compactForm();
       return invalid;
     }
   }
@@ -29,9 +29,6 @@ namespace edm {
     void
     fixup_(value_type& hash) {
       switch (hash.size()) {
-        case 0: {
-          hash = edm::detail::InvalidHash();
-        }	
         case 16: {
           break;
         }
@@ -41,8 +38,12 @@ namespace edm {
           hash = temp.compactForm();
           break;
         }
+        case 0: {
+          throw Exception(errors::LogicError)
+            << "Empty edm::Hash<> instance:\n" << "\nPlease report this to the core framework developers";
+        }	
         default: {
-          throw edm::Exception(edm::errors::LogicError)
+          throw Exception(errors::LogicError)
             << "edm::Hash<> instance with data in illegal state:\n"
             << hash
             << "\nPlease report this to the core framework developers";
@@ -57,14 +58,14 @@ namespace edm {
 
     bool
     isValid_(value_type const& hash) {
-      return isCompactForm_(hash) ? (hash != edm::detail::InvalidHash()) : (!hash.empty());
+      return isCompactForm_(hash) ? (hash != detail::InvalidHash()) : (!hash.empty());
     }
 
     void
     throwIfIllFormed(value_type const& hash) {
       // Fixup not needed here.
       if (hash.size() % 2 == 1) {
-	throw edm::Exception(edm::errors::LogicError)
+	throw Exception(errors::LogicError)
 	  << "Ill-formed Hash instance. "
 	  << "Please report this to the core framework developers";
       }

@@ -1,4 +1,4 @@
-//$Id: Utils.cc,v 1.11 2010/02/01 11:56:11 mommsen Exp $
+//$Id: Utils.cc,v 1.12 2010/03/31 12:31:29 mommsen Exp $
 /// @file: Utils.cc
 
 #include "EventFilter/StorageManager/interface/Exception.h"
@@ -8,6 +8,7 @@
 #include <sstream>
 #include <string.h>
 
+#include <time.h>
 #include <sys/time.h>
 #include <sys/stat.h>
 
@@ -61,17 +62,17 @@ namespace stor
     std::string timeStamp(time_point_t theTime)
     {
       time_t rawtime = (time_t)theTime;
-      tm * ptm;
-      ptm = localtime(&rawtime);
+      tm ptm;
+      localtime_r(&rawtime, &ptm);
       std::ostringstream timeStampStr;
       std::string colon(":");
       std::string slash("/");
-      timeStampStr << std::setfill('0') << std::setw(2) << ptm->tm_mday      << slash 
-                   << std::setfill('0') << std::setw(2) << ptm->tm_mon+1     << slash
-                   << std::setfill('0') << std::setw(4) << ptm->tm_year+1900 << colon
-                   << std::setfill('0') << std::setw(2) << ptm->tm_hour      << slash
-                   << std::setfill('0') << std::setw(2) << ptm->tm_min       << slash
-                   << std::setfill('0') << std::setw(2) << ptm->tm_sec;
+      timeStampStr << std::setfill('0') << std::setw(2) << ptm.tm_mday      << slash 
+                   << std::setfill('0') << std::setw(2) << ptm.tm_mon+1     << slash
+                   << std::setfill('0') << std::setw(4) << ptm.tm_year+1900 << colon
+                   << std::setfill('0') << std::setw(2) << ptm.tm_hour      << slash
+                   << std::setfill('0') << std::setw(2) << ptm.tm_min       << slash
+                   << std::setfill('0') << std::setw(2) << ptm.tm_sec;
       return timeStampStr.str();
     }
 
@@ -79,12 +80,12 @@ namespace stor
     std::string dateStamp(time_point_t theTime)
     {
       time_t rawtime = (time_t)theTime;
-      tm * ptm;
-      ptm = localtime(&rawtime);
+      tm ptm;
+      localtime_r(&rawtime, &ptm);
       std::ostringstream dateStampStr;
-      dateStampStr << std::setfill('0') << std::setw(4) << ptm->tm_year+1900
-                   << std::setfill('0') << std::setw(2) << ptm->tm_mon+1
-                   << std::setfill('0') << std::setw(2) << ptm->tm_mday;
+      dateStampStr << std::setfill('0') << std::setw(4) << ptm.tm_year+1900
+                   << std::setfill('0') << std::setw(2) << ptm.tm_mon+1
+                   << std::setfill('0') << std::setw(2) << ptm.tm_mday;
       return dateStampStr.str();
     }
 

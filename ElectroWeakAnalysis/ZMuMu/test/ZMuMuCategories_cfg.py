@@ -18,16 +18,14 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(100)
 )
 
 
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    "rfio:/castor/cern.ch/user/f/fabozzi/test354/testZMuMuSubskimUserData_2.root "
-   # "file:testZMuMuSubskimUserData.root"
-#"file:../../Skimming/test/testZMuMuSubskim.root"
+"file:../../Skimming/test/testZMuMuSubskim.root"
   #  "rfio:/castor/cern.ch/user/f/fabozzi/origZmumuSubSkim.root"
     #"rfio:/castor/cern.ch/user/f/fabozzi/350ZmumuSubSkim.root"
    # 'rfio:/castor/cern.ch/cms/store/relval/CMSSW_3_4_0_pre1/RelValZMM/GEN-SIM-RECO/STARTUP31X_V8-v1/0007/CAE2081C-48B5-DE11-9161-001D09F29321.root',
@@ -59,9 +57,5 @@ process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesPlots_cff")
 
 ### ntuple
 
-### Added UserData
-
-#process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesNtuples_cff")
-process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuAnalysisNtupler_cff")
-process.ntuplesOut.fileName = cms.untracked.string('file:NtupleLooseTestNew.root')
+process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesNtuples_cff")
 

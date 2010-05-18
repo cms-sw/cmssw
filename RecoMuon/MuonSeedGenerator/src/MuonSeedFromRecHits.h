@@ -8,13 +8,18 @@
  *  \author porting R.Bellan - INFN Torino
  *
  *   Generate a seed starting from a list of RecHits 
+ *   make use of TrajectorySeed from CommonDet
  *
  */
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include <vector>
 class MuonSeedPtExtractor;
+
+
+namespace edm {class EventSetup;}
 
 class MuonSeedFromRecHits 
 {
@@ -34,10 +39,12 @@ public:
 			    MuonTransientTrackingRecHit::ConstMuonRecHitPointer last) const;
   
   protected:
+  friend class MuonSeedFinder;
   typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
   typedef MuonTransientTrackingRecHit::MuonRecHitPointer MuonRecHitPointer;
   typedef MuonTransientTrackingRecHit::ConstMuonRecHitPointer ConstMuonRecHitPointer;
 
+  protected:
   MuonTransientTrackingRecHit::MuonRecHitContainer theRhits;
   const MagneticField * theField;
   const MuonSeedPtExtractor * thePtExtractor;

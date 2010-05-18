@@ -75,7 +75,11 @@ class EventID {
       }
       
       bool operator<(EventID const& iRHS) const {
-         return (run_ == iRHS.run_ ? event_ < iRHS.event_ : run_ < iRHS.run_);
+	if (run_ < iRHS.run_) return true;
+	if (run_ > iRHS.run_) return false;
+        if (luminosityBlock_ < iRHS.luminosityBlock_) return true;
+        if (luminosityBlock_ > iRHS.luminosityBlock_) return false;
+        return (event_ < iRHS.event_);
       }
 
       bool operator>=(EventID const& iRHS) const {

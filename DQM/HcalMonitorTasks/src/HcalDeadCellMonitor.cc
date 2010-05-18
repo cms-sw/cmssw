@@ -798,6 +798,8 @@ void HcalDeadCellMonitor::fillNevents_recentrechits()
   // Only exception is if something strange is going on between ZS ADC value an RecHit energy?
 
   if (!deadmon_test_rechits_) return;
+  FillUnphysicalHEHFBins(RecHitPresentByDepth);
+
   if (deadevt_ < minDeadEventCount_) return; // not enough entries to make a determination for this LS
 
   if (debug_>0)
@@ -849,7 +851,6 @@ void HcalDeadCellMonitor::fillNevents_recentrechits()
 	} // // loop on subdetectors
     } // for (int eta=0;...)
 
-  FillUnphysicalHEHFBins(RecHitPresentByDepth);
   FillUnphysicalHEHFBins(RecentMissingRecHitsByDepth);
 
   return;

@@ -21,6 +21,7 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
+
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -28,12 +29,9 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-
-#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -57,7 +55,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
-// #include "FWCore/Common/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
@@ -151,16 +149,15 @@ void myJetAna::beginJob( ) {
 
   dijetMass  =  fs->make<TH1F>("dijetMass","DiJet Mass",100,0,100);
 
-  totEneLeadJetEta1 = fs->make<TH1F>("totEneLeadJetEta1","Total Energy Lead Jet Eta1 1",100,0,100);
-  totEneLeadJetEta2 = fs->make<TH1F>("totEneLeadJetEta2","Total Energy Lead Jet Eta2 1",150,0,150);
-  totEneLeadJetEta3 = fs->make<TH1F>("totEneLeadJetEta3","Total Energy Lead Jet Eta3 1",150,0,150);
-
-  hadEneLeadJetEta1 = fs->make<TH1F>("hadEneLeadJetEta1","Hadronic Energy Lead Jet Eta1 1",50,0,50);
-  hadEneLeadJetEta2 = fs->make<TH1F>("hadEneLeadJetEta2","Hadronic Energy Lead Jet Eta2 1",100,0,100);
-  hadEneLeadJetEta3 = fs->make<TH1F>("hadEneLeadJetEta3","Hadronic Energy Lead Jet Eta3 1",100,0,100);
-  emEneLeadJetEta1  = fs->make<TH1F>("emEneLeadJetEta1","EM Energy Lead Jet Eta1 1",50,0,50);
-  emEneLeadJetEta2  = fs->make<TH1F>("emEneLeadJetEta2","EM Energy Lead Jet Eta2 1",100,0,100);
-  emEneLeadJetEta3  = fs->make<TH1F>("emEneLeadJetEta3","EM Energy Lead Jet Eta3 1",100,0,100);
+  totEneLeadJetEta1 = fs->make<TH1F>("totEneLeadJetEta1","Total Energy Lead Jet Eta1 1",100,0,1500);
+  totEneLeadJetEta2 = fs->make<TH1F>("totEneLeadJetEta2","Total Energy Lead Jet Eta2 1",100,0,1500);
+  totEneLeadJetEta3 = fs->make<TH1F>("totEneLeadJetEta3","Total Energy Lead Jet Eta3 1",100,0,1500);
+  hadEneLeadJetEta1 = fs->make<TH1F>("hadEneLeadJetEta1","Hadronic Energy Lead Jet Eta1 1",100,0,1500);
+  hadEneLeadJetEta2 = fs->make<TH1F>("hadEneLeadJetEta2","Hadronic Energy Lead Jet Eta2 1",100,0,1500);
+  hadEneLeadJetEta3 = fs->make<TH1F>("hadEneLeadJetEta3","Hadronic Energy Lead Jet Eta3 1",100,0,1500);
+  emEneLeadJetEta1  = fs->make<TH1F>("emEneLeadJetEta1","EM Energy Lead Jet Eta1 1",100,0,1500);
+  emEneLeadJetEta2  = fs->make<TH1F>("emEneLeadJetEta2","EM Energy Lead Jet Eta2 1",100,0,1500);
+  emEneLeadJetEta3  = fs->make<TH1F>("emEneLeadJetEta3","EM Energy Lead Jet Eta3 1",100,0,1500);
 
 
   hadFracEta1 = fs->make<TH1F>("hadFracEta11","Hadronic Fraction Eta1 Jet 1",100,0,1);
@@ -177,7 +174,6 @@ void myJetAna::beginJob( ) {
   MET_HPD    = fs->make<TH1F>("MET_HPD",  "MET",100,0,1000);
   MET_Tower  = fs->make<TH1F>("MET_Tower",  "MET",100,0,1000);
 
-  SiClusters = fs->make<TH1F>("SiClusters",  "SiClusters",150,0,1500);
 
   h_Vx     = fs->make<TH1F>("Vx",  "Vx",100,-0.5,0.5);
   h_Vy     = fs->make<TH1F>("Vy",  "Vy",100,-0.5,0.5);
@@ -185,7 +181,7 @@ void myJetAna::beginJob( ) {
   h_VNTrks = fs->make<TH1F>("VNTrks",  "VNTrks",10,1,100);
 
   h_Trk_pt   = fs->make<TH1F>("Trk_pt",  "Trk_pt",100,0,20);
-  h_Trk_NTrk = fs->make<TH1F>("Trk_NTrk",  "Trk_NTrk",150,0,150);
+  h_Trk_NTrk = fs->make<TH1F>("Trk_NTrk",  "Trk_NTrk",20,0,20);
 
   hf_sumTowerAllEx = fs->make<TH1F>("sumTowerAllEx","Tower Ex",100,-1000,1000);
   hf_sumTowerAllEy = fs->make<TH1F>("sumTowerAllEy","Tower Ey",100,-1000,1000);
@@ -194,14 +190,6 @@ void myJetAna::beginJob( ) {
 
   ETime = fs->make<TH1F>("ETime","Ecal Time",200,-200,200);
   HTime = fs->make<TH1F>("HTime","Hcal Time",200,-200,200);
-
-  towerHadEnHB    = fs->make<TH1F>("towerHadEnHB" ,"HB: Calo Tower HAD Energy",210,-1,20);
-  towerHadEnHE    = fs->make<TH1F>("towerHadEnHE" ,"HE: Calo Tower HAD Energy",510,-1,50);
-  towerHadEnHF    = fs->make<TH1F>("towerHadEnHF" ,"HF: Calo Tower HAD Energy",510,-1,50);
-
-  towerEmEnHB    = fs->make<TH1F>("towerEmEnHB" ,"HB: Calo Tower EM Energy",210,-1,20);
-  towerEmEnHE    = fs->make<TH1F>("towerEmEnHE" ,"HE: Calo Tower EM Energy",510,-1,50);
-  towerEmEnHF    = fs->make<TH1F>("towerEmEnHF" ,"HF: Calo Tower EM Energy",510,-1,50);
 
   towerHadEn    = fs->make<TH1F>("towerHadEn" ,"Hadronic Energy in Calo Tower",2000,-100,100);
   towerEmEn  	= fs->make<TH1F>("towerEmEn"  ,"EM Energy in Calo Tower",2000,-100,100);
@@ -238,55 +226,28 @@ void myJetAna::beginJob( ) {
   HFEneOOT  = fs->make<TH1F>( "HFEneOOT",  "HFEneOOT", 200, -5, 10 );
   HOEneOOT  = fs->make<TH1F>( "HOEneOOT",  "HOEneOOT", 200, -5, 10 );
 
-  HBEneOOTTh  = fs->make<TH1F>( "HBEneOOTTh",  "HBEneOOTTh", 200, -5, 10 );
-  HEEneOOTTh  = fs->make<TH1F>( "HEEneOOTTh",  "HEEneOOTTh", 200, -5, 10 );
-  HFEneOOTTh  = fs->make<TH1F>( "HFEneOOTTh",  "HFEneOOTTh", 200, -5, 10 );
-  HOEneOOTTh  = fs->make<TH1F>( "HOEneOOTTh",  "HOEneOOTTh", 200, -5, 10 );
-
-  HBEneOOTTh1  = fs->make<TH1F>( "HBEneOOTTh1",  "HBEneOOT", 200, -5, 10 );
-  HEEneOOTTh1  = fs->make<TH1F>( "HEEneOOTTh1",  "HEEneOOT", 200, -5, 10 );
-  HFEneOOTTh1  = fs->make<TH1F>( "HFEneOOTTh1",  "HFEneOOT", 200, -5, 10 );
-  HOEneOOTTh1  = fs->make<TH1F>( "HOEneOOTTh1",  "HOEneOOT", 200, -5, 10 );
-
   HBEne     = fs->make<TH1F>( "HBEne",  "HBEne", 200, -5, 10 );
   HBEneTh   = fs->make<TH1F>( "HBEneTh",  "HBEneTh", 200, -5, 10 );
-  HBEneTh1  = fs->make<TH1F>( "HBEneTh1",  "HBEneTh1", 200, -5, 10 );
   HBEneX    = fs->make<TH1F>( "HBEneX",  "HBEneX", 200, -5, 10 );
   HBEneY    = fs->make<TH1F>( "HBEneY",  "HBEnedY", 200, -5, 10 );
   HBTime    = fs->make<TH1F>( "HBTime", "HBTime", 200, -100, 100 );
   HBTimeTh  = fs->make<TH1F>( "HBTimeTh", "HBTimeTh", 200, -100, 100 );
-  HBTimeTh1  = fs->make<TH1F>( "HBTimeTh1", "HBTimeTh1", 200, -100, 100 );
-  HBTimeTh2  = fs->make<TH1F>( "HBTimeTh2", "HBTimeTh2", 200, -100, 100 );
-  HBTimeTh3  = fs->make<TH1F>( "HBTimeTh3", "HBTimeTh3", 200, -100, 100 );
-  HBTimeThR  = fs->make<TH1F>( "HBTimeThR", "HBTimeThR", 200, -100, 100 );
-  HBTimeTh1R  = fs->make<TH1F>( "HBTimeTh1R", "HBTimeTh1R", 200, -100, 100 );
-  HBTimeTh2R  = fs->make<TH1F>( "HBTimeTh2R", "HBTimeTh2R", 200, -100, 100 );
-  HBTimeTh3R  = fs->make<TH1F>( "HBTimeTh3R", "HBTimeTh3R", 200, -100, 100 );
   HBTimeX   = fs->make<TH1F>( "HBTimeX", "HBTimeX", 200, -100, 100 );
   HBTimeY   = fs->make<TH1F>( "HBTimeY", "HBTimeY", 200, -100, 100 );
   HEEne     = fs->make<TH1F>( "HEEne",  "HEEne", 200, -5, 10 );
   HEEneTh   = fs->make<TH1F>( "HEEneTh",  "HEEneTh", 200, -5, 10 );
-  HEEneTh1  = fs->make<TH1F>( "HEEneTh1",  "HEEneTh1", 200, -5, 10 );
   HEEneX    = fs->make<TH1F>( "HEEneX",  "HEEneX", 200, -5, 10 );
   HEEneY    = fs->make<TH1F>( "HEEneY",  "HEEneY", 200, -5, 10 );
   HEposEne  = fs->make<TH1F>( "HEposEne",  "HEposEne", 200, -5, 10 );
   HEnegEne  = fs->make<TH1F>( "HEnegEne",  "HEnegEne", 200, -5, 10 );
   HETime    = fs->make<TH1F>( "HETime", "HETime", 200, -100, 100 );
   HETimeTh  = fs->make<TH1F>( "HETimeTh", "HETimeTh", 200, -100, 100 );
-  HETimeTh1  = fs->make<TH1F>( "HETimeTh1", "HETimeTh1", 200, -100, 100 );
-  HETimeTh2  = fs->make<TH1F>( "HETimeTh2", "HETimeTh2", 200, -100, 100 );
-  HETimeTh3  = fs->make<TH1F>( "HETimeTh3", "HETimeTh3", 200, -100, 100 );
-  HETimeThR  = fs->make<TH1F>( "HETimeThR", "HETimeThR", 200, -100, 100 );
-  HETimeTh1R  = fs->make<TH1F>( "HETimeTh1R", "HETimeTh1R", 200, -100, 100 );
-  HETimeTh2R  = fs->make<TH1F>( "HETimeTh2R", "HETimeTh2R", 200, -100, 100 );
-  HETimeTh3R  = fs->make<TH1F>( "HETimeTh3R", "HETimeTh3R", 200, -100, 100 );
   HETimeX   = fs->make<TH1F>( "HETimeX", "HETimeX", 200, -100, 100 );
   HETimeY   = fs->make<TH1F>( "HETimeY", "HETimeY", 200, -100, 100 );
   HEposTime = fs->make<TH1F>( "HEposTime",  "HEposTime", 200, -100, 100 );
   HEnegTime = fs->make<TH1F>( "HEnegTime",  "HEnegTime", 200, -100, 100 );
   HOEne     = fs->make<TH1F>( "HOEne",  "HOEne", 200, -5, 10 );
   HOEneTh   = fs->make<TH1F>( "HOEneTh",  "HOEneTh", 200, -5, 10 );
-  HOEneTh1  = fs->make<TH1F>( "HOEneTh1",  "HOEneTh1", 200, -5, 10 );
   HOTime    = fs->make<TH1F>( "HOTime", "HOTime", 200, -100, 100 );
   HOTimeTh  = fs->make<TH1F>( "HOTimeTh", "HOTimeTh", 200, -100, 100 );
 
@@ -314,67 +275,17 @@ void myJetAna::beginJob( ) {
 
   HFvsZ    = fs->make<TH2F>( "HFvsZ", "HFvsZ",100,-50,50,100,-50,50);
 
-
-
-  HOocc    = fs->make<TH2F>( "HOocc", "HOocc",85,-42.5,42.5,70,0.5,70.5);
-  HBocc    = fs->make<TH2F>( "HBocc", "HBocc",85,-42.5,42.5,70,0.5,70.5);
-  HEocc    = fs->make<TH2F>( "HEocc", "HEocc",85,-42.5,42.5,70,0.5,70.5);
-  HFocc    = fs->make<TH2F>( "HFocc", "HFocc",85,-42.5,42.5,70,0.5,70.5);
-  HFoccFlagged    = fs->make<TH2F>( "HFoccFlagged", "HFoccFlagged",85,-42.5,42.5,70,0.5,70.5);
-
-  HFEtaPhiNFlagged    = fs->make<TH2F>( "HFEtaPhiNFlagged", "HFEtaPhiNFlagged",85,-42.5,42.5,70,0.5,70.5);
-
-  //  HFEtaFlagged    = fs->make<TProfile>( "HFEtaFlagged", "HFEtaFlagged",85,-42.5,42.5,0, 10000);
-  HFEtaFlagged     = fs->make<TH1F>( "HFEtaFlagged", "HFEtaFlagged",85,-42.5,42.5);
-  HFEtaFlaggedL    = fs->make<TH1F>( "HFEtaFlaggedL", "HFEtaFlaggedL",85,-42.5,42.5);
-  HFEtaFlaggedLN    = fs->make<TH1F>( "HFEtaFlaggedLN", "HFEtaFlaggedLN",85,-42.5,42.5);
-  HFEtaFlaggedS    = fs->make<TH1F>( "HFEtaFlaggedS", "HFEtaFlaggedS",85,-42.5,42.5);
-  HFEtaFlaggedSN    = fs->make<TH1F>( "HFEtaFlaggedSN", "HFEtaFlaggedSN",85,-42.5,42.5);
-
-  HFEtaNFlagged    = fs->make<TProfile>( "HFEtaNFlagged", "HFEtaNFlagged",85,-42.5,42.5,0, 10000);
-
-  HOoccOOT    = fs->make<TH2F>( "HOoccOOT", "HOoccOOT",85,-42.5,42.5,70,0.5,70.5);
-  HBoccOOT    = fs->make<TH2F>( "HBoccOOT", "HBoccOOT",85,-42.5,42.5,70,0.5,70.5);
-  HEoccOOT    = fs->make<TH2F>( "HEoccOOT", "HEoccOOT",85,-42.5,42.5,70,0.5,70.5);
-  HFoccOOT    = fs->make<TH2F>( "HFoccOOT", "HFoccOOT",85,-42.5,42.5,70,0.5,70.5);
-
-  HFEnePMT0     = fs->make<TH1F>( "HFEnePMT0",  "HFEnePMT0", 210, -10, 200 );
-  HFEnePMT1     = fs->make<TH1F>( "HFEnePMT1",  "HFEnePMT1", 210, -10, 200 );
-  HFEnePMT2     = fs->make<TH1F>( "HFEnePMT2",  "HFEnePMT2", 210, -10, 200 );
-  HFTimePMT0    = fs->make<TH1F>( "HFTimePMT0", "HFTimePMT0", 200, -100, 100 );
-  HFTimePMT1    = fs->make<TH1F>( "HFTimePMT1", "HFTimePMT1", 200, -100, 100 );
-  HFTimePMT2    = fs->make<TH1F>( "HFTimePMT2", "HFTimePMT2", 200, -100, 100 );
+  HOocc    = fs->make<TH2F>( "HOocc", "HOocc",81,-40.5,40.5,70,0.5,70.5);
+  HBocc    = fs->make<TH2F>( "HBocc", "HBocc",81,-40.5,40.5,70,0.5,70.5);
+  HEocc    = fs->make<TH2F>( "HEocc", "HEocc",81,-40.5,40.5,70,0.5,70.5);
+  HFocc    = fs->make<TH2F>( "HFocc", "HFocc",81,-40.5,40.5,70,0.5,70.5);
 
   HFEne     = fs->make<TH1F>( "HFEne",  "HFEne", 210, -10, 200 );
-  HFEneFlagged     = fs->make<TH1F>( "HFEneFlagged",  "HFEneFlagged", 210, -10, 200 );
   HFEneTh   = fs->make<TH1F>( "HFEneTh",  "HFEneTh", 210, -10, 200 );
-  HFEneTh1  = fs->make<TH1F>( "HFEneTh1",  "HFEneTh1", 210, -10, 200 );
   HFEneP    = fs->make<TH1F>( "HFEneP",  "HFEneP", 200, -5, 10 );
   HFEneM    = fs->make<TH1F>( "HFEneM",  "HFEneM", 200, -5, 10 );
   HFTime    = fs->make<TH1F>( "HFTime", "HFTime", 200, -100, 100 );
-  PMTHits   = fs->make<TH1F>( "PMTHits", "PMTHits", 10, 0, 10 );
-  HFTimeFlagged  = fs->make<TH1F>( "HFTimeFlagged", "HFTimeFlagged", 200, -100, 100 );
-  HFTimeThFlagged  = fs->make<TH1F>( "HFTimeThFlagged", "HFTimeThFlagged", 200, -100, 100 );
-  HFTimeThFlaggedR  = fs->make<TH1F>( "HFTimeThFlaggedR", "HFTimeThFlaggedR", 200, -100, 100 );
-  HFTimeThFlaggedR1  = fs->make<TH1F>( "HFTimeThFlaggedR1", "HFTimeThFlaggedR1", 200, -100, 100 );
-  HFTimeThFlaggedR2  = fs->make<TH1F>( "HFTimeThFlaggedR2", "HFTimeThFlaggedR2", 200, -100, 100 );
-  HFTimeThFlaggedR3  = fs->make<TH1F>( "HFTimeThFlaggedR3", "HFTimeThFlaggedR3", 200, -100, 100 );
-  HFTimeThFlaggedR4  = fs->make<TH1F>( "HFTimeThFlaggedR4", "HFTimeThFlaggedR4", 200, -100, 100 );
-  HFTimeThFlaggedRM  = fs->make<TH1F>( "HFTimeThFlaggedRM", "HFTimeThFlaggedRM", 200, -100, 100 );
-  TrkMultFlagged0  = fs->make<TH1F>( "TrkMultFlagged0", "TrkMultFlagged0", 100, 0, 100 );
-  TrkMultFlagged1  = fs->make<TH1F>( "TrkMultFlagged1", "TrkMultFlagged1", 100, 0, 100 );
-  TrkMultFlagged2  = fs->make<TH1F>( "TrkMultFlagged2", "TrkMultFlagged2", 100, 0, 100 );
-  TrkMultFlagged3  = fs->make<TH1F>( "TrkMultFlagged3", "TrkMultFlagged3", 100, 0, 100 );
-  TrkMultFlagged4  = fs->make<TH1F>( "TrkMultFlagged4", "TrkMultFlagged4", 100, 0, 100 );
-  TrkMultFlaggedM  = fs->make<TH1F>( "TrkMultFlaggedM", "TrkMultFlaggedM", 100, 0, 100 );
   HFTimeTh  = fs->make<TH1F>( "HFTimeTh", "HFTimeTh", 200, -100, 100 );
-  HFTimeTh1  = fs->make<TH1F>( "HFTimeTh1", "HFTimeTh1", 200, -100, 100 );
-  HFTimeTh2  = fs->make<TH1F>( "HFTimeTh2", "HFTimeTh2", 200, -100, 100 );
-  HFTimeTh3  = fs->make<TH1F>( "HFTimeTh3", "HFTimeTh3", 200, -100, 100 );
-  HFTimeThR  = fs->make<TH1F>( "HFTimeThR", "HFTimeThR", 200, -100, 100 );
-  HFTimeTh1R  = fs->make<TH1F>( "HFTimeTh1R", "HFTimeTh1R", 200, -100, 100 );
-  HFTimeTh2R  = fs->make<TH1F>( "HFTimeTh2R", "HFTimeTh2R", 200, -100, 100 );
-  HFTimeTh3R  = fs->make<TH1F>( "HFTimeTh3R", "HFTimeTh3R", 200, -100, 100 );
   HFTimeP   = fs->make<TH1F>( "HFTimeP", "HFTimeP", 100, -100, 50 );
   HFTimeM   = fs->make<TH1F>( "HFTimeM", "HFTimeM", 100, -100, 50 );
   HFTimePMa = fs->make<TH1F>( "HFTimePMa", "HFTimePMa", 100, -100, 100 );
@@ -385,17 +296,8 @@ void myJetAna::beginJob( ) {
   HFLTime    = fs->make<TH1F>( "HFLTime", "HFLTime", 200, -100, 100 );
   HFSEne     = fs->make<TH1F>( "HFSEne",  "HFSEne", 200, -5, 10 );
   HFSTime    = fs->make<TH1F>( "HFSTime", "HFSTime", 200, -100, 100 );
-  HFLSRatio  = fs->make<TH1F>( "HFLSRatio",  "HFLSRatio", 220, -1.1, 1.1 );
-
-  HFOERatio  = fs->make<TH1F>( "HFOERatio",  "HFOERatio", 2200, -1.1, 1.1 );
 
   HFLvsS     = fs->make<TH2F>( "HFLvsS", "HFLvsS",220,-20,200,220,-20,200);
-  HFLEneNoS  = fs->make<TH1F>( "HFLEneNoS",  "HFLEneNoS", 205, -5, 200 );
-  HFSEneNoL  = fs->make<TH1F>( "HFSEneNoL",  "HFSEneNoL", 205, -5, 200 );
-  HFLEneNoSFlagged  = fs->make<TH1F>( "HFLEneNoSFlagged",  "HFLEneNoSFlagged", 205, -5, 200 );
-  HFSEneNoLFlagged  = fs->make<TH1F>( "HFSEneNoLFlagged",  "HFSEneNoLFlagged", 205, -5, 200 );
-  HFLEneNoSFlaggedN  = fs->make<TH1F>( "HFLEneNoSFlaggedN",  "HFLEneNoSFlaggedN", 205, -5, 200 );
-  HFSEneNoLFlaggedN  = fs->make<TH1F>( "HFSEneNoLFlaggedN",  "HFSEneNoLFlaggedN", 205, -5, 200 );
 
 
   EBEne     = fs->make<TH1F>( "EBEne",  "EBEne", 200, -5, 10 );
@@ -419,11 +321,9 @@ void myJetAna::beginJob( ) {
   EEnegTime = fs->make<TH1F>( "EEnegTime", "EEnegTime", 200, -100, 100 );
   EEposTime = fs->make<TH1F>( "EEposTime", "EEposTime", 200, -100, 100 );
 
-  h_nTowersCal = fs->make<TH1F>( "nTowersCal",  "N Towers in Jet", 100, 0, 50 );
-  h_EMFracCal  = fs->make<TH1F>( "EMFracCal",  "EM Fraction in Jet", 100, -1.1, 1.1 );
-  h_ptCal      = fs->make<TH1F>( "ptCal",  "p_{T} of CalJet", 100, 0, 50 );
-  h_etaCal     = fs->make<TH1F>( "etaCal", "#eta of  CalJet", 100, -4, 4 );
-  h_phiCal     = fs->make<TH1F>( "phiCal", "#phi of  CalJet", 50, -M_PI, M_PI );
+  h_ptCal     = fs->make<TH1F>( "ptCal",  "p_{T} of CalJet", 100, 0, 50 );
+  h_etaCal    = fs->make<TH1F>( "etaCal", "#eta of  CalJet", 100, -4, 4 );
+  h_phiCal    = fs->make<TH1F>( "phiCal", "#phi of  CalJet", 50, -M_PI, M_PI );
 
   h_nGenJets  =  fs->make<TH1F>( "nGenJets",  "Number of GenJets", 20, 0, 20 );
 
@@ -484,18 +384,6 @@ void myJetAna::beginJob( ) {
   EMF_EtaX  = fs->make<TProfile>("EMF_EtaX","EMF EtaX", 100, -50, 50, 0, 10);
   EMF_PhiX  = fs->make<TProfile>("EMF_PhiX","EMF PhiX", 100, 0, 100, 0, 10);
 
-  HFTimeVsiEtaP  = fs->make<TProfile>("HFTimeVsiEtaP","HFTimeVsiEtaP", 13, 28.5, 41.5, -100, 100);
-  HFTimeVsiEtaM  = fs->make<TProfile>("HFTimeVsiEtaM","HFTimeVsiEtaM", 13, -41.5, -28.5, -100, 100);
-
-  HFTimeVsiEtaP5  = fs->make<TProfile>("HFTimeVsiEtaP5","HFTimeVsiEtaP5", 13, 28.5, 41.5, -100, 100);
-  HFTimeVsiEtaM5  = fs->make<TProfile>("HFTimeVsiEtaM5","HFTimeVsiEtaM5", 13, -41.5, -28.5, -100, 100);
-
-  HFTimeVsiEtaP20  = fs->make<TProfile>("HFTimeVsiEtaP20","HFTimeVsiEtaP20", 13, 28.5, 41.5, -100, 100);
-  HFTimeVsiEtaM20  = fs->make<TProfile>("HFTimeVsiEtaM20","HFTimeVsiEtaM20", 13, -41.5, -28.5, -100, 100);
-
-  NPass          = fs->make<TH1F>( "NPass", "NPass", 3, -1, 1 );
-  NTotal         = fs->make<TH1F>( "NTotal", "NTotal", 3, -1, 1 );
-
 
   totBNC = 0;
   for (int i=0; i<4000; i++)  nBNC[i] = 0;
@@ -515,35 +403,16 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   double LeadMass;
 
   double HFRecHit[100][100][2];
-  int HFRecHitFlag[100][100][2];
-  int HFRecHitFlagN[100][100][2];
 
   double towerEtCut, towerECut, towerE;
 
   towerEtCut = 1.0;
   towerECut  = 1.0;
 
-  uint StableRun = 123732;
-
   double HBHEThreshold = 2.0;
   double HFThreshold   = 2.0;
   double HOThreshold   = 2.0;
   double EBEEThreshold = 2.0;
-
-  double HBHEThreshold1 = 4.0;
-  double HFThreshold1   = 4.0;
-  double HOThreshold1   = 4.0;
-  double EBEEThreshold1 = 4.0;
-
-  double HBHEThreshold2 = 10.0;
-  double HFThreshold2   = 10.0;
-  double HOThreshold2   = 10.0;
-  double EBEEThreshold2 = 10.0;
-
-  double HBHEThreshold3 = 20.0;
-  double HFThreshold3   = 20.0;
-  double HOThreshold3   = 20.0;
-  double EBEEThreshold3 = 20.0;
 
   float pt1;
 
@@ -568,15 +437,13 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   // --------------------------------------------------------------
   // --------------------------------------------------------------
 
-  /***
   std::cout << ">>>> ANA: Run = "    << evt.id().run() 
 	    << " Event = " << evt.id().event()
 	    << " Bunch Crossing = " << evt.bunchCrossing() 
 	    << " Orbit Number = "   << evt.orbitNumber()
 	    << " Luminosity Block = "  << evt.luminosityBlock()
 	    <<  std::endl;
-  ***/
-
+  
   // *********************
   // *** Filter Event
   // *********************
@@ -602,7 +469,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 
   if (triggerResults.isValid()) {
     if (DEBUG) std::cout << "trigger valid " << std::endl;
-    // const edm::TriggerNames & triggerNames = evt.triggerNames(*triggerResults);
+    const edm::TriggerNames & triggerNames = evt.triggerNames(*triggerResults);
     unsigned int n = triggerResults->size();
     for (unsigned int i=0; i!=n; i++) {
 
@@ -619,19 +486,17 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
       }
       ****/
 
-      //      if (DEBUG) std::cout <<  triggerNames.triggerName(i) << std::endl;
+      if (DEBUG) std::cout <<  triggerNames.triggerName(i) << std::endl;
 
       //      if ( (triggerNames.triggerName(i) == "HLT_ZeroBias")  || 
       //	   (triggerNames.triggerName(i) == "HLT_MinBias")   || 
       //	   (triggerNames.triggerName(i) == "HLT_MinBiasHcal") )  {
 
-      /***
       if (triggerNames.triggerName(i) == "HLT_MinBiasBSC") {
 	Pass_Trigger = true;
       } else {
 	Pass_Trigger = false;
       }
-      ****/
 
     }
       
@@ -652,7 +517,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 
     //return;
   }
-
 
   
   /***
@@ -742,10 +606,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
     for (int j=0; j<100; j++) {
       HFRecHit[i][j][0] = -10.;
       HFRecHit[i][j][1] = -10.;
-      HFRecHitFlag[i][j][0]  = 0;
-      HFRecHitFlag[i][j][1]  = 0;
-      HFRecHitFlagN[i][j][0] = 0;
-      HFRecHitFlagN[i][j][1] = 0;
     }
   }
 
@@ -764,16 +624,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 	  int iphi = id.iphi();
 	  int depth = id.depth();
 	  
-	  // Long:  depth = 1
-	  // Short: depth = 2
 	  HFRecHit[ieta+41][iphi][depth-1] = en;
-	  HFRecHitFlag[ieta+41][iphi][depth-1] = j->flagField(0);
-
-	  /****
-	  std::cout << "RecHit Flag = " 
-		    << j->flagField(0)a
-		    << std::endl;
-	  ***/
 
 	  if (j->id().ieta()<0) {
 	    if (j->energy() > HFThreshold) {
@@ -793,41 +644,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   } catch (...) {
     cout << "No HF RecHits." << endl;
   }
-
-  double OER, OddEne, EvenEne;
-  int nOdd, nEven;
-
-  for (int iphi=0; iphi<100; iphi++) {
-    OddEne = EvenEne = 0.;
-    nOdd  = 0;
-    nEven = 0;
-    for (int ieta=0; ieta<100; ieta++) {
-      if (HFRecHit[ieta][iphi][0] > 1.0) {
-	if (ieta%2 == 0) {
-	  EvenEne += HFRecHit[ieta][iphi][0]; 
-	  nEven++;
-	} else {
-	  OddEne  += HFRecHit[ieta][iphi][0];
-	  nOdd++;
-	}
-      }
-      if (HFRecHit[ieta][iphi][1] > 1.0) {
-	if (ieta%2 == 0) {
-	  EvenEne += HFRecHit[ieta][iphi][1]; 
-	  nEven++;
-	} else {
-	  OddEne  += HFRecHit[ieta][iphi][1]; 
-	  nOdd++;
-	}
-      }
-    }
-    if (((OddEne + EvenEne) > 10.) && (nOdd > 1) && (nEven > 1)) {
-      OER = (OddEne - EvenEne) / (OddEne + EvenEne);
-      HFOERatio->Fill(OER);
-    }
-  }
-
-
 
   if ((HFP_E > 0.) && (HFM_E > 0.)) {
     HF_PMM = (HFP_ETime / HFP_E) - (HFM_ETime / HFM_E);
@@ -887,14 +703,14 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   // **************************
   // ***  Pass Vertex
   // **************************
-  double VTX=0;
-  int nVTX=0;
+  double VTX = 0.;
+  int nVTX = 0;
 
   edm::Handle<reco::VertexCollection> vertexCollection;
   evt.getByLabel("offlinePrimaryVertices", vertexCollection);
   const reco::VertexCollection vC = *(vertexCollection.product());
 
-  //  std::cout << "Reconstructed "<< vC.size() << " vertices" << std::endl ;
+  std::cout << "Reconstructed "<< vC.size() << " vertices" << std::endl ;
 
   nVTX = vC.size();
   for (reco::VertexCollection::const_iterator vertex=vC.begin(); vertex!=vC.end(); vertex++){
@@ -926,20 +742,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   //  } 
 
 
-  // ********************************
-  // *** Pixel Clusters
-  // ********************************
-  edm::Handle< edmNew::DetSetVector<SiPixelCluster> > hClusterColl;
-  evt.getByLabel("siPixelClusters", hClusterColl);
-  const edmNew::DetSetVector<SiPixelCluster> clustColl = *(hClusterColl.product());
-
-  edm::Handle<reco::TrackCollection> trackCollection;
-  evt.getByLabel("generalTracks", trackCollection);
-  const reco::TrackCollection tC = *(trackCollection.product());
-
-
-
-
   // **************************
   // *** Event Passed Selection
   // **************************
@@ -952,8 +754,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
     } else {
       Pass = false;
     }
-    Pass = true;
-
   } else {
     if ( (Pass_BunchCrossing) && 
 	 (Pass_HFTime)        &&
@@ -964,7 +764,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
     }
   }
 
-  /***
   std::cout << "+++ Result " 
 	    << " Event = " 
 	    << evt.id().run()
@@ -975,16 +774,9 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 	    << " Pass = " 
 	    << Pass
 	    << std::endl;
-  ***/
-
-  NTotal->Fill(0);
-  
-  Pass = false;
-  if ((tC.size() > 100) && (clustColl.size() > 1000)) Pass = true;
-  Pass = true;
+        
   if (Pass) {
-
-    NPass->Fill(0);
+ 
 
   // *********************
   // *** Classify Event
@@ -1039,20 +831,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
        tower != caloTowers->end(); tower++) {
 
     // Raw tower energy without grouping or thresholds
-    if (abs(tower->ieta()) < 100) EMF_Eta->Fill(tower->ieta(), emFrac);
-
-    if (abs(tower->ieta()) < 15) {
-      towerHadEnHB->Fill(tower->hadEnergy());
-      towerEmEnHB->Fill(tower->emEnergy());
-    }
-    if ( (abs(tower->ieta()) > 17) && ((abs(tower->ieta()) < 30)) ){
-      towerHadEnHE->Fill(tower->hadEnergy());
-      towerEmEnHE->Fill(tower->emEnergy());
-    }
-    if (abs(tower->ieta()) > 29) {
-      towerHadEnHF->Fill(tower->hadEnergy());
-      towerEmEnHF->Fill(tower->emEnergy());
-    }
 
     towerHadEn->Fill(tower->hadEnergy());
     towerEmEn->Fill(tower->emEnergy());
@@ -1167,13 +945,11 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   ECALvHCALEta2->Fill(HCALTotalCaloTowerE_Eta2, ECALTotalCaloTowerE_Eta2);
   ECALvHCALEta3->Fill(HCALTotalCaloTowerE_Eta3, ECALTotalCaloTowerE_Eta3);
 
-  /***
   std::cout << " Total CaloTower Energy :  "
 	    << " ETotal= " << ETotal 
 	    << " HCAL= " << HCALTotalCaloTowerE 
 	    << " ECAL= " << ECALTotalCaloTowerE
 	    << std::endl;
-  ***/
 
   /***
 	    << " HCAL Eta1 = "  << HCALTotalCaloTowerE_Eta1
@@ -1237,7 +1013,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   
   if (triggerResults.isValid()) {
     if (DEBUG) std::cout << "trigger valid " << std::endl;
-    // const edm::TriggerNames & triggerNames = evt.triggerNames(*triggerResults);
+    const edm::TriggerNames & triggerNames = evt.triggerNames(*triggerResults);
     unsigned int n = triggerResults->size();
     for (unsigned int i=0; i!=n; i++) {
 
@@ -1247,16 +1023,14 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 		<< std::endl;
       ***/
 
-      //      if (DEBUG) std::cout <<  triggerNames.triggerName(i) << std::endl;
+      if (DEBUG) std::cout <<  triggerNames.triggerName(i) << std::endl;
 
-      /***
       if ( triggerNames.triggerName(i) == "HLT_Jet30" ) {
         JetLoPass =  triggerResults->accept(i);
         if (DEBUG) std::cout << "Found  HLT_Jet30 " 
 			     << JetLoPass
 			     << std::endl;
       }
-      ***/
 
     }
       
@@ -1348,10 +1122,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
     }
 
     if ( cal->pt() > minJetPt) {
-      const std::vector<CaloTowerPtr> jetCaloRefs = cal->getCaloConstituents();
-      int nConstituents = jetCaloRefs.size();
-      h_nTowersCal->Fill(nConstituents);
-      h_EMFracCal->Fill(cal->emEnergyFraction());    
       h_ptCal->Fill( cal->pt() );   
       h_etaCal->Fill( cal->eta() );
       h_phiCal->Fill( cal->phi() );
@@ -1385,30 +1155,39 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
                     ijet->hadEnergyInHE() + ijet->hadEnergyInHF();                   
     float emEne   = ijet->emEnergyInEB() + ijet->emEnergyInEE() + ijet->emEnergyInHF();
     float had     = ijet->energyFractionHadronic();    
+
     float j_et = ijet->et();
 
     // *** Barrel
     if (fabs(ijet->eta()) < 1.3) {
       totEneLeadJetEta1->Fill(hadEne+emEne); 
-      hadEneLeadJetEta1->Fill(ijet->hadEnergyInHB()); 
-      emEneLeadJetEta1->Fill(ijet->emEnergyInEB());       
-      if (ijet->pt() > minJetPt10) hadFracEta1->Fill(had);
+      hadEneLeadJetEta1->Fill(hadEne); 
+      emEneLeadJetEta1->Fill(emEne);       
+
+      if (ijet->pt() > minJetPt10) 
+	hadFracEta1->Fill(had);
     }
 
     // *** EndCap
     if ((fabs(ijet->eta()) > 1.3) && (fabs(ijet->eta()) < 3.) ) {
+
       totEneLeadJetEta2->Fill(hadEne+emEne); 
-      hadEneLeadJetEta2->Fill(ijet->hadEnergyInHE()); 
-      emEneLeadJetEta2->Fill(ijet->emEnergyInEE());       
-      if (ijet->pt() > minJetPt10) hadFracEta2->Fill(had);
+      hadEneLeadJetEta2->Fill(hadEne); 
+      emEneLeadJetEta2->Fill(emEne);   
+    
+      if (ijet->pt() > minJetPt10) 
+	hadFracEta2->Fill(had);
     }
 
     // *** Forward
     if (fabs(ijet->eta()) > 3.) {
+
       totEneLeadJetEta3->Fill(hadEne+emEne); 
       hadEneLeadJetEta3->Fill(hadEne); 
       emEneLeadJetEta3->Fill(emEne); 
-      if (ijet->pt() > minJetPt10) hadFracEta3->Fill(had);
+
+      if (ijet->pt() > minJetPt10) 
+	hadFracEta3->Fill(had);
     }
 
     // *** CaloTowers in Jet
@@ -1488,35 +1267,18 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 	  HBEne->Fill(j->energy()); 
 	  HBTime->Fill(j->time()); 
 	  HBTvsE->Fill(j->energy(), j->time());
-	  if ((j->time()<-25.) || (j->time()>75.)) {
+
+	  if ((j->time()<25.) || (j->time()>75.)) {
 	    HBEneOOT->Fill(j->energy()); 
-	    if (j->energy() > HBHEThreshold)  HBEneOOTTh->Fill(j->energy()); 
-	    if (j->energy() > HBHEThreshold1) HBEneOOTTh1->Fill(j->energy()); 
 	  }
+
 	  if (j->energy() > HBHEThreshold) {
 	    HBEneTh->Fill(j->energy()); 
 	    HBTimeTh->Fill(j->time()); 
-	    if (evt.id().run() >= StableRun) HBTimeThR->Fill(j->time()); 
 	    HBTotalE += j->energy();
 	    HBocc->Fill(j->id().ieta(),j->id().iphi());
 	    hitEta->Fill(j->id().ieta());
 	    hitPhi->Fill(j->id().iphi());
-	  }
-	  if (j->energy() > HBHEThreshold1) {
-	    HBEneTh1->Fill(j->energy()); 
-	    HBTimeTh1->Fill(j->time()); 
-	    if (evt.id().run() >= StableRun) HBTimeTh1R->Fill(j->time()); 
-	    if ((j->time()<-25.) || (j->time()>75.)) {
-	      HBoccOOT->Fill(j->id().ieta(),j->id().iphi());
-	    }
-	  }
-	  if (j->energy() > HBHEThreshold2) {
-	    HBTimeTh2->Fill(j->time()); 
-	    if (evt.id().run() >= StableRun) HBTimeTh2R->Fill(j->time()); 
-	  }
-	  if (j->energy() > HBHEThreshold3) {
-	    HBTimeTh3->Fill(j->time()); 
-	    if (evt.id().run() >= StableRun) HBTimeTh3R->Fill(j->time()); 
 	  }
 	  if ( (evt.id().run() == 120020) && (evt.id().event() == 453) ) {
 	    HBEneX->Fill(j->energy()); 
@@ -1532,36 +1294,17 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 	  HETime->Fill(j->time()); 
 	  HETvsE->Fill(j->energy(), j->time());
 
-	  if ((j->time()<-25.) || (j->time()>75.)) {
+	  if ((j->time()<25.) || (j->time()>75.)) {
 	    HEEneOOT->Fill(j->energy()); 
-	    if (j->energy() > HBHEThreshold)  HEEneOOTTh->Fill(j->energy());  
-	    if (j->energy() > HBHEThreshold1) HEEneOOTTh1->Fill(j->energy());  
 	  }
 
 	  if (j->energy() > HBHEThreshold) {
 	    HEEneTh->Fill(j->energy()); 
 	    HETimeTh->Fill(j->time()); 
-	    if (evt.id().run() >= StableRun) HETimeThR->Fill(j->time()); 
 	    HETotalE += j->energy();
 	    HEocc->Fill(j->id().ieta(),j->id().iphi());
 	    hitEta->Fill(j->id().ieta());
 	    hitPhi->Fill(j->id().iphi());
-	  }
-	  if (j->energy() > HBHEThreshold1) {
-	    HEEneTh1->Fill(j->energy()); 
-	    HETimeTh1->Fill(j->time()); 
-	    if (evt.id().run() >= StableRun) HETimeTh1R->Fill(j->time()); 
-	    if ((j->time()<-25.) || (j->time()>75.)) {
-	      HEoccOOT->Fill(j->id().ieta(),j->id().iphi());
-	    }
-	  }
-	  if (j->energy() > HBHEThreshold2) {
-	    HETimeTh2->Fill(j->time()); 
-	    if (evt.id().run() >= StableRun) HETimeTh2R->Fill(j->time()); 
-	  }
-	  if (j->energy() > HBHEThreshold2) {
-	    HETimeTh3->Fill(j->time()); 
-	    if (evt.id().run() >= StableRun) HETimeTh3R->Fill(j->time()); 
 	  }
 
 	  if ( (evt.id().run() == 120020) && (evt.id().event() == 453) ) {
@@ -1608,25 +1351,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   HFM_E = 0.;
   HFP_ETime = 0.;
   HFP_E = 0.;
-
-  int NPMTHits;
-  NPMTHits = 0;
-  try {
-    std::vector<edm::Handle<HFRecHitCollection> > colls;
-    evt.getManyByType(colls);
-    std::vector<edm::Handle<HFRecHitCollection> >::iterator i;
-    for (i=colls.begin(); i!=colls.end(); i++) {
-      for (HFRecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
-	if (j->flagField(0) != 0) NPMTHits++;
-      }
-    }
-  } catch (...) {
-    cout << "No HF RecHits." << endl;
-  }
-
-
-  PMTHits->Fill(NPMTHits); 
-
+  
   try {
     std::vector<edm::Handle<HFRecHitCollection> > colls;
     evt.getManyByType(colls);
@@ -1645,97 +1370,16 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 	//  std::cout << *j << std::endl;
 
         if (j->id().subdet() == HcalForward) {
-
-	  if (NPMTHits == 1) {
-	    if (j->flagField(0) != 0) {
-	      HFEtaFlagged->Fill(j->id().ieta());
-	      if (j->id().depth() == 1) HFEtaFlaggedL->Fill(j->id().ieta());
-	      if (j->id().depth() == 2) HFEtaFlaggedS->Fill(j->id().ieta());
-	    }
-	    if (j->flagField(0) == 0) {
-	      HFEtaNFlagged->Fill(j->id().ieta(), j->energy());
-	      HFEtaPhiNFlagged->Fill(j->id().ieta(),j->id().iphi(),j->energy());
-	    }
-	  }
-	  if (j->energy() > 20.) {
-	    if (NPMTHits == 0) {
-	      HFEnePMT0->Fill(j->energy()); 
-	      HFTimePMT0->Fill(j->time()); 
-	    }
-	    if (NPMTHits == 1) {
-	      if (j->flagField(0) != 0) {
-		HFEnePMT1->Fill(j->energy()); 
-		HFTimePMT1->Fill(j->time()); 
-	      }
-	    }
-	    if (NPMTHits > 1) {
-	      if (j->flagField(0) != 0) {
-		HFEnePMT2->Fill(j->energy()); 
-		HFTimePMT2->Fill(j->time()); 
-	      }
-	    }
-	  }
-
-	  HFTimeVsiEtaP->Fill(j->id().ieta(), j->time());
-	  HFTimeVsiEtaM->Fill(j->id().ieta(), j->time());
-
-	  if (j->energy() > 5.) { 
-	    HFTimeVsiEtaP5->Fill(j->id().ieta(), j->time());
-	    HFTimeVsiEtaM5->Fill(j->id().ieta(), j->time());
-	  }	  
-
-	  if (j->energy() > 20.) { 
-	    HFTimeVsiEtaP20->Fill(j->id().ieta(), j->time());
-	    HFTimeVsiEtaM20->Fill(j->id().ieta(), j->time());
-	  }	  
-
 	  HFEne->Fill(j->energy()); 
-	  if (j->flagField(0) != 0) HFEneFlagged->Fill(j->energy());
-
 	  HFTime->Fill(j->time()); 
 	  HFTvsE->Fill(j->energy(), j->time());
-
-	  if (j->flagField(0) != 0) {
-	    HFoccFlagged->Fill(j->id().ieta(),j->id().iphi());
-	    HFTimeFlagged->Fill(j->time()); 
-	  }
-
 	  if (j->energy() > HFThreshold) {
 	    HFEneTh->Fill(j->energy()); 
 	    HFTimeTh->Fill(j->time()); 
-	    if (evt.id().run() >= StableRun) HFTimeThR->Fill(j->time()); 
-	    if (j->flagField(0) != 0) {
-	      HFTimeThFlagged->Fill(j->time()); 
-	      if (evt.id().run() >= StableRun) {
-		HFTimeThFlaggedR->Fill(j->time()); 
-		if (NPMTHits == 1) HFTimeThFlaggedR1->Fill(j->time()); 
-		if (NPMTHits == 2) HFTimeThFlaggedR2->Fill(j->time()); 
-		if (NPMTHits == 3) HFTimeThFlaggedR3->Fill(j->time()); 
-		if (NPMTHits == 4) HFTimeThFlaggedR4->Fill(j->time()); 
-		if (NPMTHits > 1) HFTimeThFlaggedRM->Fill(j->time()); 
-	      }
-	    }
 	    HFTotalE += j->energy();
 	    HFocc->Fill(j->id().ieta(),j->id().iphi());
 	    hitEta->Fill(j->id().ieta());
 	    hitPhi->Fill(j->id().iphi());
-	  }
-
-	  if (j->energy() > HFThreshold1) {
-	    HFEneTh1->Fill(j->energy());
-	    HFTimeTh1->Fill(j->time()); 
-	    if (evt.id().run() >= StableRun) HFTimeTh1R->Fill(j->time()); 
-	    if ((j->time()<-20.) || (j->time()>20.)) {
-	      HFoccOOT->Fill(j->id().ieta(),j->id().iphi());
-	    }
-	  } 
-	  if (j->energy() > HFThreshold2) {
-	    HFTimeTh2->Fill(j->time()); 
-	    if (evt.id().run() >= StableRun) HFTimeTh2R->Fill(j->time()); 
-	  }
-	  if (j->energy() > HFThreshold3) {
-	    HFTimeTh3->Fill(j->time()); 
-	    if (evt.id().run() >= StableRun) HFTimeTh3R->Fill(j->time()); 
 	  }
 
 	  if (j->id().ieta()<0) {
@@ -1769,59 +1413,9 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
     cout << "No HF RecHits." << endl;
   }
 
-  for (int ieta=0; ieta<100; ieta++) {
-     for (int iphi=0; iphi<100; iphi++) {
-       double longF, shortF;
-       if (HFRecHit[ieta][iphi][0] == -10.) {
-	 longF = 0.;
-       } else {
-	 longF = HFRecHit[ieta][iphi][0];
-       }
-       if (HFRecHit[ieta][iphi][1] == -10.) {
-	 shortF = 0.;
-       } else {
-	 shortF = HFRecHit[ieta][iphi][1];
-       }
-       //       if ((longF > HFThreshold) || (shortF > HFThreshold)) HFLSRatio->Fill((longF-shortF)/(longF+shortF));
-       if ((longF > 20.) || (shortF > 20.)) {
-	 double R = (longF-shortF)/(longF+shortF);
-	 HFLSRatio->Fill(R);
-	 if (fabs(R) > 0.995) {	   
-
-	   //	   if (longF > 110.)  {
-	   //	   if (longF > 50.)  {
-	   if (longF > (162.4-10.19*abs(ieta-41)+.21*abs(ieta-41)*abs(ieta-41)) )  {
-	     HFRecHitFlagN[ieta+41][iphi][0] = 1;
-	     HFEtaFlaggedLN->Fill(ieta-41);
-	     if (shortF == 0.) HFLEneNoSFlaggedN->Fill(longF);
-	   }
-	   //	   if (shortF > 70.)  {
-	   //	   if (shortF > 50.)  {
-	   if (shortF > (129.9-6.61*abs(ieta-41)+0.1153*abs(ieta-41)*abs(ieta-41)) ) {
-	     HFRecHitFlagN[ieta+41][iphi][1] = 1;
-	     HFEtaFlaggedSN->Fill(ieta-41);
-	     if (longF == 0.) HFSEneNoLFlaggedN->Fill(shortF);
-	   }
-	 }
-       }
-       /***
-       cout << "HF LS Ratio long= " 
-	    << longF
-	    << " short= "
-	    << shortF
-	    << endl;
-       ***/
-
-       HFLvsS->Fill(HFRecHit[ieta][iphi][1], HFRecHit[ieta][iphi][0]);         
-       if ( (HFRecHit[ieta][iphi][1] == -10.) && (HFRecHit[ieta][iphi][0] != -10.) ) {
-         HFLEneNoS->Fill(HFRecHit[ieta][iphi][0]);
-	 if (HFRecHitFlag[ieta][iphi][0] !=0 ) HFLEneNoSFlagged->Fill(HFRecHit[ieta][iphi][0]);
-       }
-       if ( (HFRecHit[ieta][iphi][0] == -10.) && (HFRecHit[ieta][iphi][1] != -10.) ) {
-         HFSEneNoL->Fill(HFRecHit[ieta][iphi][1]);
-	 if (HFRecHitFlag[ieta][iphi][1] !=0 ) HFSEneNoLFlagged->Fill(HFRecHit[ieta][iphi][1]);
-       }
-
+  for (int i=0; i<100; i++) {
+     for (int j=0; j<100; j++) {
+       HFLvsS->Fill(HFRecHit[i][j][1], HFRecHit[i][j][0]);  
      }
   }
 
@@ -1847,9 +1441,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 	  HOEne->Fill(j->energy()); 
 	  HOTime->Fill(j->time());
 	  HOTvsE->Fill(j->energy(), j->time());
-	  if (j->energy() > HOThreshold1) {
-	    HOEneTh1->Fill(j->energy()); 
-	  }
 	  if (j->energy() > HOThreshold) {
 	    HOEneTh->Fill(j->energy()); 
 	    HOTimeTh->Fill(j->time());
@@ -2022,14 +1613,12 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
     
   }
 
-  /***
   std::cout << " Rechits: Total Energy :  " 
 	    << " HCAL= " << HCALTotalE 
 	    << " ECAL= " << ECALTotalE
 	    << " HB = " << HBTotalE
 	    << " EB = " << EBTotalE
 	    << std::endl;
-  ***/
 
 
   // *********************
@@ -2313,17 +1902,15 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   evt.getByLabel("offlinePrimaryVertices", vertexCollection);
   const reco::VertexCollection vC = *(vertexCollection.product());
 
-  //  std::cout << "Reconstructed "<< vC.size() << " vertices" << std::endl ;
+  std::cout << "Reconstructed "<< vC.size() << " vertices" << std::endl ;
   nVTX = vC.size();
-  double vertex_numTrks;
   for (reco::VertexCollection::const_iterator vertex=vC.begin(); vertex!=vC.end(); vertex++){
 
     h_Vx->Fill(vertex->x());
     h_Vy->Fill(vertex->y());
     h_Vz->Fill(vertex->z());
     VTX  = vertex->z();
-    //    vertex_numTrks = vertex->tracksSize();
-    //    h_VNTrks->Fill(vertex_numTrks);
+    //    h_VNTrks->Fill(vertex->tracksSize());
 
   }
 
@@ -2332,61 +1919,21 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   }
 
   // ********************************
-  // *** Pixel Clusters
-  // ********************************
-  //  edm::Handle< edmNew::DetSetVector<SiPixelCluster> > hClusterColl;
-  //  evt.getByLabel("siPixelClusters", hClusterColl);
-  //  const edmNew::DetSetVector<SiPixelCluster> clustColl = *(hClusterColl.product());
-
-  SiClusters->Fill(clustColl.size());
-
-  // ********************************
   // *** Tracks
   // ********************************
-  //  edm::Handle<reco::TrackCollection> trackCollection;
+  edm::Handle<reco::TrackCollection> trackCollection;
   //  evt.getByLabel("ctfWithMaterialTracks", trackCollection);
-  //  evt.getByLabel("generalTracks", trackCollection);
-  //  const reco::TrackCollection tC = *(trackCollection.product());
+  evt.getByLabel("generalTracks", trackCollection);
 
-  //  std::cout << "ANA: Reconstructed "<< tC.size() << " tracks" << std::endl ;
+  const reco::TrackCollection tC = *(trackCollection.product());
 
-  // *************************************
-  /*****
-  //Get the Vertex Collection
-  edm::Handle<std::vector<reco::Vertex> > verticies;  evt.getByLabel("offlinePrimaryVertices", verticies);
-
-  //Fill the variables
-  int _ntracksw5 = 0;
-  for (std::vector<reco::Vertex>::const_iterator it = verticies->begin(); it != verticies->end(); ++it) {
-
-    //    ntracks->push_back(int(it->tracksSize())); //all tracks considered for vertexing
-    //    isvalid->push_back(int(it->isValid()));
-    //    isfake->push_back(int(it->isFake()));
-
-    if(it->tracksSize() > 0) {
-      std::vector<TrackBaseRef>::const_iterator trackIt;
-      for( trackIt = it->tracks_begin(); trackIt != it->tracks_end(); trackIt++) {
-	if(fabs((**trackIt).charge()) <= 1.)  { 
-	  //tracks that contribute with more than 0.5 weight in vertex reconstruction
-	  if (it->trackWeight(*trackIt) >= 0.5 ) 
-	    _ntracksw5++;
-	}
-      }
-    }
-  }
-  *****/
-  // *************************************
-  
+  std::cout << "ANA: Reconstructed "<< tC.size() << " tracks" << std::endl ;
 
   h_Trk_NTrk->Fill(tC.size());
-  if (NPMTHits == 0) TrkMultFlagged0->Fill(tC.size());
-  if (NPMTHits == 1) TrkMultFlagged1->Fill(tC.size());
-  if (NPMTHits == 2) TrkMultFlagged2->Fill(tC.size());
-  if (NPMTHits == 3) TrkMultFlagged3->Fill(tC.size());
-  if (NPMTHits == 4) TrkMultFlagged4->Fill(tC.size());
-  if (NPMTHits > 1) TrkMultFlaggedM->Fill(tC.size());
   for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); track++){
+
     h_Trk_pt->Fill(track->pt());
+
   }
 
 
@@ -2453,11 +2000,11 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 	 //	 (ijet->emEnergyFraction() > 0.99) ) {
 
     iJet++; 
-    //    if (iJet == 1) {
-    //      cout << " CaloJet: Event Type = "   << evtType 
-    //	   << " pt = " << ijet->pt()
-    //	   << endl; 
-    //    }
+    if (iJet == 1) {
+      cout << " CaloJet: Event Type = "   << evtType 
+	   << " pt = " << ijet->pt()
+	   << endl; 
+    }
     h_pt->Fill(ijet->pt());
     if (evtType == 0) h_ptTower->Fill(ijet->pt());
     if (evtType == 1) h_ptRBX->Fill(ijet->pt());

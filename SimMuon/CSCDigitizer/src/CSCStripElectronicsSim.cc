@@ -1,4 +1,3 @@
-#include "Utilities/Timing/interface/TimingReport.h" 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimMuon/CSCDigitizer/src/CSCStripElectronicsSim.h"
 #include "SimMuon/CSCDigitizer/src/CSCAnalogSignal.h"
@@ -56,7 +55,6 @@ CSCStripElectronicsSim::~CSCStripElectronicsSim() {
 }
 
 void CSCStripElectronicsSim::initParameters() {
-  TimeMe t("CSCStripEl:init");
   nElements = theLayerGeometry->numberOfStrips();
   theComparatorThreshold = 20.;
   //selfTest();
@@ -333,7 +331,6 @@ bool SortSignalsByTotal(const CSCAnalogSignal & s1,
 void CSCStripElectronicsSim::fillDigis(CSCStripDigiCollection & digis, 
                                        CSCComparatorDigiCollection & comparators)
 {
-  TimeMe t("CSCStripEl:filldigi");
   if(doCrosstalk_) {
     addCrosstalk();
   } 

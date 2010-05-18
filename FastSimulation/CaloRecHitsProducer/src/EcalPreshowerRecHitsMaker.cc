@@ -73,6 +73,7 @@ void EcalPreshowerRecHitsMaker::loadEcalPreshowerRecHits(edm::Event &iEvent,ESRe
       // check if it is above the threshold
       if(it->second.first<threshold_) continue;
       ESDetId detid(it->first);
+      //  std::cout << detid << " " << it->second.first << std::endl;
       ecalHits.push_back(EcalRecHit(detid,it->second.first,0.)); 
     }
 }
@@ -131,7 +132,7 @@ void EcalPreshowerRecHitsMaker::noisify()
       noisifySubdet(ecalsRecHits_,escells_,ncells_);
     }
   else
-    edm::LogWarning("CaloRecHitsProducer") << "All HCAL(HB-HE) cells on ! " << std::endl;
+    edm::LogWarning("CaloRecHitsProducer") << "All Preshower cells on ! " << std::endl;
 }
 
 

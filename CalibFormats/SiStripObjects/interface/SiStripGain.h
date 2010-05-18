@@ -14,31 +14,29 @@
  *
  * Original Author:  gbruno
  *         Created:  Wed Mar 22 12:24:20 CET 2006
- * $Id: SiStripGain.h,v 1.5 2009/11/16 10:06:20 demattia Exp $
+ * $Id: SiStripGain.h,v 1.8 2010/04/15 14:30:41 demattia Exp $
  *
  * Modifications by M. De Mattia (demattia@pd.infn.it) on 11/11/2009:
  * It now holds a std::vector of pointers to ApvGain and a std::vector of corresponding
  * normalization factors. <br>
  * It returns the product of all the Gain/norm ratios. <br>
  * The multiply method allows to input additional gain records. <br>
- * ATTENTION: we take the list of detIds from the first gain and we assume
- * that is it the same for all the rest of the gains. <br>
+ * ATTENTION: the code assumes that the second tag has at least the same DetIds that the first tag and
+ * only the DetIds present in the first tag will be used. <br>
  * <br>
- * The getStripGain and getApvGain return the gain value for the selected range of a gain set
- * specified by index in the internal std::vector (default 0). This std::vector is built adding each
- * gain in sequence and retains this order, so the first set of gain input will be 0 ecc... <br>
- * Additional overloaded methods receive the full std::vector of ranges for all the gains and returns
- * the product of all gains/norm. <br>
- * The getRange method can be used to take the range for a given detId and index of the gain set
- * (default 0). <br>
- * The getAllRanges method can be used to take all the ranges for a given detId and pass them to
- * the getStripGain and getApvGain methods.
- * The ESProducer CalibTracker/SiStripESProducers/plugins/real/SiStripGainESProducerTemplate.h
- * handles the multiple inputs of gains and shows an example on how to use this class.
+ * There are two set of methods to access the gain value. The first one returns the products of all ApvGain/norm.
+ * The second set of methods take an additional integer paramter and return the corresponding ApvGain (without normalization).
+ * Note that no check is done inside these methods to see if the ApvGain really exists. It is responsibility of the
+ * user to not pass an index value that exceeds the number of ApvGains. <br>
+ * The normalization factors for each of the stored ApvGains are also accessible passing the corresponding index.
+ * <br>
+ * Additional method are provided to get the number of ApvGains used to build this object, the names of the records
+ * that stored those ApvGains and the labels (they can be used to go back to the tags looking in the cfg).
  */
 
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 #include <vector>
+#include <memory>
 
 class SiStripGain
 {
@@ -46,51 +44,80 @@ class SiStripGain
   SiStripGain() {};
   virtual ~SiStripGain() {};
 
-  inline SiStripGain(const SiStripApvGain& apvgain, const double & factor)
+  /// Kept for compatibility
+  inline SiStripGain(const SiStripApvGain& apvgain, const double & factor) :
+    apvgain_(0)
   {
-    multiply(apvgain, factor);
+    multiply(apvgain, factor, std::make_pair("", ""));
+  }
+
+  inline SiStripGain(const SiStripApvGain& apvgain, const double & factor,
+		     const std::pair<std::string, std::string> & recordLabelPair) :
+    apvgain_(0)
+  {
+    multiply(apvgain, factor, recordLabelPair);
   }
 
   /// Used to input additional gain values that will be multiplied to the first one
-  void multiply(const SiStripApvGain & apvgain, const double & factor);
+  void multiply(const SiStripApvGain & apvgain, const double & factor,
+		const std::pair<std::string, std::string> & recordLabelPair);
 
   // getters
+  // For the product of all apvGains
+  // -------------------------------
+  const SiStripApvGain::Range getRange(const uint32_t& detID) const;
+  float getStripGain(const uint16_t& strip, const SiStripApvGain::Range& range) const;
+  float getApvGain(const uint16_t& apv, const SiStripApvGain::Range& range) const;
+
+  // For a specific apvGain
+  // ----------------------
   /**
-   * This method is kept for compatibility, but it can also be used to get one particular
-   * set of gain values. By default it will return the first gain, so if there is only
-   * one it will work like the old version and the old code using it will work.
    * The second parameter allows to specify which gain to retrieve, considering that
    * they are in input order.
    * NOTE that no protection is inside the method (because we want to keep it very light)
    * therefore it is the caller duty to check that the index is in the correct range.
    */
-  const SiStripApvGain::Range getRange(const uint32_t& detID, const int index = 0) const;
-  /// Returns a std::vector of ranges for all the gains in the format expected by getStripGain and getApvGain.
-  const std::vector<SiStripApvGain::Range> getAllRanges(const uint32_t& DetId) const;
+  const SiStripApvGain::Range getRange(const uint32_t& detID, const uint32_t index) const;
+  float getStripGain(const uint16_t& strip, const SiStripApvGain::Range& range, const uint32_t index) const;
+  float getApvGain(const uint16_t& apv, const SiStripApvGain::Range& range, const uint32_t index) const;
 
-  /// Used to get the gain of a specific gain set
-  float getStripGain(const uint16_t& strip, const SiStripApvGain::Range& range, const int index = 0) const;
-  /// Used to get the full gain (product of all the gains)
-  float getStripGain(const uint16_t& strip, const std::vector<SiStripApvGain::Range>& range) const;
-  /// Used to get the gain of a specific gain set
-  float getApvGain(const uint16_t& apv, const SiStripApvGain::Range& range, const int index = 0) const;
-  /// Used to get the full gain (product of all the gains)
-  float getApvGain(const uint16_t& apv, const std::vector<SiStripApvGain::Range>& rangeVector) const;
   /// ATTENTION: we assume the detIds are the same as those from the first gain
   void getDetIds(std::vector<uint32_t>& DetIds_) const;
+
+  inline size_t getNumberOfTags() const
+  {
+    return apvgainVector_.size();
+  }
+  inline std::string getRcdName(const uint32_t index) const
+  {
+    return recordLabelPair_[index].first;
+  }
+  inline std::string getLabelName(const uint32_t index) const
+  {
+    return recordLabelPair_[index].second;
+  }
+  inline double getTagNorm(const uint32_t index) const
+  {
+    return normVector_[index];
+  }
 
   void printDebug(std::stringstream& ss) const;
   void printSummary(std::stringstream& ss) const;
 
  private:
 
+  void fillNewGain(const SiStripApvGain * apvgain, const double & factor,
+		   const SiStripApvGain * apvgain2 = 0, const double & factor2 = 1.);
   SiStripGain(const SiStripGain&); // stop default
   const SiStripGain& operator=(const SiStripGain&); // stop default
 
   // ---------- member data --------------------------------
 
-  std::vector<const SiStripApvGain *> apvgain_;
-  std::vector<double> norm_;
+  std::vector<const SiStripApvGain *> apvgainVector_;
+  std::vector<double> normVector_;
+  const SiStripApvGain * apvgain_;
+  std::auto_ptr<SiStripApvGain> apvgainAutoPtr_;
+  std::vector<std::pair<std::string, std::string> > recordLabelPair_;
 };
 
 #endif

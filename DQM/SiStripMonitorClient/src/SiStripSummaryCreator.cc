@@ -1,6 +1,5 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripSummaryCreator.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripConfigParser.h"
-#include "DQM/SiStripMonitorClient/interface/SiStripConfigWriter.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
@@ -13,7 +12,6 @@ SiStripSummaryCreator::SiStripSummaryCreator() {
   edm::LogInfo("SiStripSummaryCreator") << 
     " Creating SiStripSummaryCreator " << "\n" ;
   summaryMEMap.clear();
-  configWriter_ = 0;
   summaryFrequency_ = -1;
 }
 //
@@ -23,7 +21,6 @@ SiStripSummaryCreator::~SiStripSummaryCreator() {
   edm::LogInfo("SiStripSummaryCreator") << 
     " Deleting SiStripSummaryCreator " << "\n" ;
   summaryMEMap.clear();
-  if (configWriter_) delete configWriter_;
 }
 //
 // -- Read Configuration
@@ -293,34 +290,6 @@ MonitorElement* SiStripSummaryCreator::getSummaryME(DQMStore* dqm_store,
     hist->LabelsOption("uv");
   }
   return me;
-}
-//
-// -- Create Layout
-//
-void SiStripSummaryCreator::createLayout(DQMStore * dqm_store){
-  /*  if (configWriter_ == 0) {
-    configWriter_ = new SiStripConfigWriter();
-    if (!configWriter_->init()) return;
-  }
-  std::string currDir = dqm_store->pwd();   
-  if (currDir.find("layer") != std::string::npos) {
-    std::string name = "Default";
-   configWriter_->createLayout(name);
-   configWriter_->createRow();
-    fillLayout(dqm_store);
-  } else {
-    std::vector<std::string> subdirs = dqm_store->getSubdirs();
-    for (std::vector<std::string>::const_iterator it = subdirs.begin();
-	 it != subdirs.end(); it++) {
-      dqm_store->cd(*it);
-      createLayout(dqm_store);
-      dqm_store->goUp();
-    }
-  } 
-  std::string fname = "test.xml";
-  configWriter_->write(fname); 
-  if (configWriter_) delete configWriter_;
-  configWriter_ = 0;*/
 }
 //
 //

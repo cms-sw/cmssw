@@ -20,7 +20,6 @@
 <use name=SimGeneral/NoiseGenerators>
 <use name=SimMuon/Neutron>
 <use name=Utilities/General>
-<use name=Utilities/Timing>
 <use name=boost>
 <use name=clhep>
 <flags EDM_PLUGIN=1>
