@@ -33,7 +33,7 @@ namespace cond{
     }
 
     BaseKeyed * m_obj;
-     std::string m_skey
+    std::string m_skey;
     cond::Time_t m_key;
   };
   
