@@ -63,6 +63,7 @@ class HLTPMMassFilter : public HLTFilter {
       edm::ESHandle<MagneticField> theMagField;
 
       edm::InputTag candTag_;     // input tag identifying product contains filtered egammas
+      edm::InputTag beamSpot_;    // input tag identifying beamSpot product
       double lowerMassCut_;
       double upperMassCut_;
       // double lowerPtCut_;
