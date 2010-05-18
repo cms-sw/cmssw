@@ -1,33 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-muonAssociatorByHits = cms.EDProducer("MuonAssociatorEDProducer",
-    # for Muon Track association
-    #
-    #     input collections
-    #
-    # ... reco::Track collection
-    # tracksTag = cms.InputTag("standAloneMuons"),
-    # tracksTag = cms.InputTag("standAloneMuons","UpdatedAtVtx"),
-    # tracksTag = cms.InputTag("standAloneSETMuons"),
-    # tracksTag = cms.InputTag("standAloneSETMuons","UpdatedAtVtx"),                                   
-    # tracksTag = cms.InputTag("cosmicMuons"),
-    tracksTag = cms.InputTag("globalMuons"),
-    # tracksTag = cms.InputTag("tevMuons","firstHit"),
-    # tracksTag = cms.InputTag("tevMuons","picky"),                                     
-    # tracksTag = cms.InputTag("globalSETMuons"),
-    # tracksTag = cms.InputTag("globalCosmicMuons"),
-    # tracksTag = cms.InputTag("generalTracks"),
-    # tracksTag = cms.InputTag("ctfWithMaterialTracksP5LHCNavigation"),
-    # tracksTag = cms.InputTag("hltL2Muons"),
-    # tracksTag = cms.InputTag("hltL2Muons","UpdatedAtVtx"),
-    # tracksTag = cms.InputTag("hltL3Muons")
-    # tracksTag = cms.InputTag("hltL3Muons","L2Seeded")
-    # tracksTag = cms.InputTag("hltL3TkTracksFromL2")
-    #
-    # ... TrackingParticle collection
-    tpTag = cms.InputTag("mergedtruth","MergedTrackTruth"),
-    #
-    ignoreMissingTrackCollection = cms.untracked.bool(False),
+
+muonAssociatorByHitsCommonParameters = cms.PSet(
     dumpInputCollections = cms.bool(False),
     #
     #....... general input parameters
@@ -103,5 +77,41 @@ muonAssociatorByHits = cms.EDProducer("MuonAssociatorEDProducer",
         'TrackerHitsPixelBarrelLowTof', 
         'TrackerHitsPixelBarrelHighTof', 
         'TrackerHitsPixelEndcapLowTof', 
-        'TrackerHitsPixelEndcapHighTof')
+        'TrackerHitsPixelEndcapHighTof'),
+    #
+    # to associate to reco::Muon segments (3.5.X only)
+    inputDTRecSegment4DCollection = cms.InputTag("dt4DSegments"),
+    inputCSCSegmentCollection = cms.InputTag("cscSegments"),
 )
+
+muonAssociatorByHits = cms.EDProducer("MuonAssociatorEDProducer",
+    # COMMON CONFIGURATION
+    muonAssociatorByHitsCommonParameters,
+    # for Muon Track association
+    #
+    #     input collections
+    #
+    # ... reco::Track collection
+    # tracksTag = cms.InputTag("standAloneMuons"),
+    # tracksTag = cms.InputTag("standAloneMuons","UpdatedAtVtx"),
+    # tracksTag = cms.InputTag("standAloneSETMuons"),
+    # tracksTag = cms.InputTag("standAloneSETMuons","UpdatedAtVtx"),                                   
+    # tracksTag = cms.InputTag("cosmicMuons"),
+    tracksTag = cms.InputTag("globalMuons"),
+    # tracksTag = cms.InputTag("tevMuons","firstHit"),
+    # tracksTag = cms.InputTag("tevMuons","picky"),                                     
+    # tracksTag = cms.InputTag("globalSETMuons"),
+    # tracksTag = cms.InputTag("globalCosmicMuons"),
+    # tracksTag = cms.InputTag("generalTracks"),
+    # tracksTag = cms.InputTag("ctfWithMaterialTracksP5LHCNavigation"),
+    # tracksTag = cms.InputTag("hltL2Muons"),
+    # tracksTag = cms.InputTag("hltL2Muons","UpdatedAtVtx"),
+    # tracksTag = cms.InputTag("hltL3Muons")
+    # tracksTag = cms.InputTag("hltL3Muons","L2Seeded")
+    # tracksTag = cms.InputTag("hltL3TkTracksFromL2")
+    #
+    # ... TrackingParticle collection
+    tpTag = cms.InputTag("mergedtruth","MergedTrackTruth"),
+    ignoreMissingTrackCollection = cms.untracked.bool(False),
+)
+ 

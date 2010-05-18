@@ -67,7 +67,7 @@ DTHitAssociator::DTHitAssociator(const edm::Event& iEvent, const edm::EventSetup
       mapOfSimHit[wireid].push_back(make_pair(*isimhit,takeHit));
     }
   }
-  else {
+  else if (!DTsimhitsTag.label().empty()) {
     edm::Handle<edm::PSimHitContainer> DTsimhits;
     LogTrace("DTHitAssociator") <<"getting PSimHit collection - "<<DTsimhitsTag;
     iEvent.getByLabel(DTsimhitsTag,DTsimhits);    

@@ -10,9 +10,53 @@ MuonAssociatorEDProducer::MuonAssociatorEDProducer(const edm::ParameterSet& pars
   ignoreMissingTrackCollection(parset.getUntrackedParameter<bool>("ignoreMissingTrackCollection",false)),
   parset_(parset)
 {
+  
   LogTrace("MuonAssociatorEDProducer") << "constructing  MuonAssociatorEDProducer" << parset_.dump();
   produces<reco::RecoToSimCollection>();
   produces<reco::SimToRecoCollection>();
+
+  /// Perform some sanity checks of the configuration
+  edm::LogVerbatim("MuonAssociatorByHits") << "constructing  MuonAssociatorByHits" << parset_.dump();
+  edm::LogVerbatim("MuonAssociatorByHits") << "\n MuonAssociatorByHits will associate reco::Tracks with "<<tracksTag
+					   << "\n\t\t and TrackingParticles with "<<tpTag;
+  const std::string recoTracksLabel = tracksTag.label();
+  const std::string recoTracksInstance = tracksTag.instance();
+
+  // check and fix inconsistent input settings
+  // tracks with hits only on muon detectors
+  if (recoTracksLabel == "standAloneMuons" || recoTracksLabel == "standAloneSETMuons" ||
+      recoTracksLabel == "cosmicMuons" || recoTracksLabel == "hltL2Muons") {
+    if (parset_.getParameter<bool>("UseTracker")) {
+      edm::LogWarning("MuonAssociatorByHits") 
+	<<"\n*** WARNING : inconsistent input tracksTag = "<<tracksTag
+	<<"\n with UseTracker = true"<<"\n ---> setting UseTracker = false ";
+      parset_.addParameter<bool>("UseTracker",false);
+    }
+    if (!parset_.getParameter<bool>("UseMuon")) {
+      edm::LogWarning("MuonAssociatorByHits") 
+	<<"\n*** WARNING : inconsistent input tracksTag = "<<tracksTag
+	<<"\n with UseMuon = false"<<"\n ---> setting UseMuon = true ";
+      parset_.addParameter<bool>("UseMuon",true);
+    }
+  }
+  // tracks with hits only on tracker
+  if (recoTracksLabel == "generalTracks" || recoTracksLabel == "ctfWithMaterialTracksP5LHCNavigation" ||
+      recoTracksLabel == "hltL3TkTracksFromL2" || 
+      (recoTracksLabel == "hltL3Muons" && recoTracksInstance == "L2Seeded")) {
+    if (parset_.getParameter<bool>("UseMuon")) {
+      edm::LogWarning("MuonAssociatorByHits") 
+	<<"\n*** WARNING : inconsistent input tracksTag = "<<tracksTag
+	<<"\n with UseMuon = true"<<"\n ---> setting UseMuon = false ";
+      parset_.addParameter<bool>("UseMuon",false);
+    }
+    if (!parset_.getParameter<bool>("UseTracker")) {
+      edm::LogWarning("MuonAssociatorByHits") 
+	<<"\n*** WARNING : inconsistent input tracksTag = "<<tracksTag
+	<<"\n with UseTracker = false"<<"\n ---> setting UseTracker = true ";
+      parset_.addParameter<bool>("UseTracker",true);
+    }
+  }
+
 }
 
 MuonAssociatorEDProducer::~MuonAssociatorEDProducer() {}

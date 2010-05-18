@@ -30,7 +30,7 @@ RPCHitAssociator::RPCHitAssociator(const edm::Event& e, const edm::EventSetup& e
 	_SimHitMap[hitItr->detUnitId()].push_back(*hitItr);
       }
     
-  } else {
+  } else if (!RPCsimhitsTag.label().empty()) {
     edm::Handle<edm::PSimHitContainer> RPCsimhits;
     LogTrace("RPCHitAssociator") <<"getting PSimHit collection - "<<RPCsimhitsTag;
     e.getByLabel(RPCsimhitsTag, RPCsimhits);    

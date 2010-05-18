@@ -11,6 +11,7 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
@@ -18,8 +19,9 @@
 #include "SimMuon/MCTruth/interface/MuonTruth.h"
 #include "SimMuon/MCTruth/interface/RPCHitAssociator.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
+#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 
-class MuonAssociatorByHits {
+class MuonAssociatorByHits : public TrackAssociatorBase {
   
  public:
   typedef std::pair <uint32_t, EncodedEventId> SimHitIdpr;
@@ -28,48 +30,22 @@ class MuonAssociatorByHits {
   MuonAssociatorByHits( const edm::ParameterSet& );  
   ~MuonAssociatorByHits();
   
-  /* Associate SimTracks to RecoTracks By Hits */
+  // Get base methods from base class
+  using TrackAssociatorBase::associateRecoToSim;
+  using TrackAssociatorBase::associateSimToReco;
  
+  /* Associate SimTracks to RecoTracks By Hits */
   /// Association Reco To Sim with Collections
-  reco::RecoToSimCollection associateRecoToSim(edm::RefToBaseVector<reco::Track>&,
-					       edm::RefVector<TrackingParticleCollection>&,
+  reco::RecoToSimCollection associateRecoToSim(const edm::RefToBaseVector<reco::Track>&,
+					       const edm::RefVector<TrackingParticleCollection>&,
 					       const edm::Event * event = 0, const edm::EventSetup * setup = 0) const;
   
   /// Association Sim To Reco with Collections
-  reco::SimToRecoCollection associateSimToReco(edm::RefToBaseVector<reco::Track>&,
-					       edm::RefVector<TrackingParticleCollection>&,
+  reco::SimToRecoCollection associateSimToReco(const edm::RefToBaseVector<reco::Track>&,
+					       const edm::RefVector<TrackingParticleCollection>&,
 					       const edm::Event * event = 0, const edm::EventSetup * setup = 0) const ;
-  
-  /// compare reco to sim the handle of reco::Track and TrackingParticle collections
-  reco::RecoToSimCollection associateRecoToSim(edm::Handle<edm::View<reco::Track> >& tCH, 
-					       edm::Handle<TrackingParticleCollection>& tPCH, 
-					       const edm::Event * event = 0, const edm::EventSetup * setup = 0) const {
-    edm::RefToBaseVector<reco::Track> tc(tCH);
-    for (unsigned int j=0; j<tCH->size();j++)
-      tc.push_back(edm::RefToBase<reco::Track>(tCH,j));
-    
-    edm::RefVector<TrackingParticleCollection> tpc(tPCH.id());
-    for (unsigned int j=0; j<tPCH->size();j++)
-      tpc.push_back(edm::Ref<TrackingParticleCollection>(tPCH,j));
-    
-    return associateRecoToSim(tc,tpc,event,setup);
-  }
-  
-  /// compare reco to sim the handle of reco::Track and TrackingParticle collections
-  reco::SimToRecoCollection associateSimToReco(edm::Handle<edm::View<reco::Track> >& tCH, 
-					       edm::Handle<TrackingParticleCollection>& tPCH,
-					       const edm::Event * event = 0, const edm::EventSetup * setup = 0) const {
-    edm::RefToBaseVector<reco::Track> tc(tCH);
-    for (unsigned int j=0; j<tCH->size();j++)
-      tc.push_back(edm::RefToBase<reco::Track>(tCH,j));
-    
-    edm::RefVector<TrackingParticleCollection> tpc(tPCH.id());
-    for (unsigned int j=0; j<tPCH->size();j++)
-      tpc.push_back(edm::Ref<TrackingParticleCollection>(tPCH,j));
-    
-    return associateSimToReco(tc,tpc,event,setup);
-  }  
-  
+
+ 
   void getMatchedIds
     (MapOfMatchedIds & tracker_matchedIds_valid, MapOfMatchedIds & muon_matchedIds_valid,
      MapOfMatchedIds & tracker_matchedIds_INVALID, MapOfMatchedIds & muon_matchedIds_INVALID,
@@ -82,6 +58,27 @@ class MuonAssociatorByHits {
      bool printRts) const;
   
   int getShared(MapOfMatchedIds & matchedIds, TrackingParticleCollection::const_iterator trpart) const;
+
+
+  enum MuonTrackType { InnerTk, OuterTk, GlobalTk, Segments };
+  struct RefToBaseSort { 
+    template<typename T> bool operator()(const edm::RefToBase<T> &r1, const edm::RefToBase<T> &r2) const { 
+        return (r1.id() == r2.id() ? r1.key() < r2.key() : r1.id() < r2.id()); 
+    }
+  };
+  typedef std::map<edm::RefToBase<reco::Muon>, std::vector<std::pair<TrackingParticleRef, double> >, RefToBaseSort> MuonToSimCollection;
+  typedef std::map<TrackingParticleRef, std::vector<std::pair<edm::RefToBase<reco::Muon>, double> > >               SimToMuonCollection;
+
+
+  void associateMuons(MuonToSimCollection & recoToSim, SimToMuonCollection & simToReco,
+                      const edm::RefToBaseVector<reco::Muon> &, MuonTrackType ,
+                      const edm::RefVector<TrackingParticleCollection>&,
+                      const edm::Event * event = 0, const edm::EventSetup * setup = 0) const ; 
+
+  void associateMuons(MuonToSimCollection & recoToSim, SimToMuonCollection & simToReco,
+                      const edm::Handle<edm::View<reco::Muon> > &, MuonTrackType , 
+                      const edm::Handle<TrackingParticleCollection>&,
+                      const edm::Event * event = 0, const edm::EventSetup * setup = 0) const ;
 
  private:
   const bool includeZeroHitMuons;    
@@ -112,6 +109,24 @@ class MuonAssociatorByHits {
   const TrackingRecHit* getHitPtr(trackingRecHit_iterator iter) const {return &**iter;}
 
   std::string write_matched_simtracks(const std::vector<SimHitIdpr>&) const;
+
+  /* ==== ALL BELOW THIS IS FOR EXPERTS OR INTERNAL USE ONLY ==== */
+  typedef std::vector<std::pair<trackingRecHit_iterator, trackingRecHit_iterator> > TrackHitsCollection;
+  struct IndexMatch {
+      IndexMatch(size_t index, double global_quality) : idx(index), quality(global_quality) {}
+      size_t idx; double quality; 
+      bool operator<(const IndexMatch &other) const { return other.quality < quality; } 
+  };
+  typedef std::map<size_t, std::vector<IndexMatch> > IndexAssociation;
+ 
+  IndexAssociation associateSimToRecoIndices(const TrackHitsCollection &, 
+                                             const edm::RefVector<TrackingParticleCollection>&,
+					     const edm::Event * event = 0, const edm::EventSetup * setup = 0) const ; 
+  IndexAssociation associateRecoToSimIndices(const TrackHitsCollection &, 
+                                             const edm::RefVector<TrackingParticleCollection>&,
+					     const edm::Event * event = 0, const edm::EventSetup * setup = 0) const ;
+  
+
 
 };
 
