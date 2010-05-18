@@ -56,7 +56,7 @@ def getLastUploadedIOV(tagName,destDB="oracle://cms_orcoff_prod/CMS_COND_31X_BEA
     aCommand       = listIOVCommand + " | grep DB= | tail -1 | awk \'{print $1}\'"
 #    print " >> " + aCommand
     output = commands.getstatusoutput( aCommand )
-    if output[1] == '' :
+    if output[0] != 0 :
         dbError = commands.getstatusoutput( listIOVCommand )
         if dbError[1].find("metadata entry \"" + tagName + "\" does not exist"):
             print "Creating a new tag because I got the following error contacting the DB"
@@ -103,8 +103,8 @@ def getListOfRunsAndLumiFromDBS(dataSet,lastRun=-1):
 
 ########################################################################
 def getListOfRunsAndLumiFromRR(dataSet,lastRun=-1):
-    #RunReg  ="http://pccmsdqm04.cern.ch/runregistry"
-    RunReg  = "http://localhost:40010/runregistry"
+    RunReg  ="http://pccmsdqm04.cern.ch/runregistry"
+    #RunReg  = "http://localhost:40010/runregistry"
     #Dataset=%Online%
     Group   = "Collisions10"
 
@@ -390,8 +390,8 @@ def main():
     option,args = parse(__doc__)
 
     #Right now always in the test DB
-#    destDB = 'oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT'
-    destDB = 'oracle://cms_orcoff_prep/CMS_COND_BEAMSPOT'
+    destDB = 'oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT'
+    #destDB = 'oracle://cms_orcoff_prep/CMS_COND_BEAMSPOT'
     if option.Test:
         destDB = 'oracle://cms_orcoff_prep/CMS_COND_BEAMSPOT'
 
@@ -433,7 +433,12 @@ def main():
 
 
     print "Getting last IOV for tag: " + databaseTag
-    lastUploadedIOV = getLastUploadedIOV(databaseTag,destDB) 
+    lastUploadedIOV = 1
+    if destDB == "oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT": 
+        lastUploadedIOV = getLastUploadedIOV(databaseTag)
+    else:
+        lastUploadedIOV = getLastUploadedIOV(databaseTag,destDB)
+        
     #lastUploadedIOV = 133885
     #lastUploadedIOV = 575216380019329
     if dbIOVBase == "lumiid":
@@ -516,6 +521,13 @@ def main():
     payloadNumber = -1
     iovSinceFirst = 0;
     iovTillLast   = 0;
+
+    #Creating the final name for the combined sqlite file
+    uuid = commands.getstatusoutput('uuidgen -t')[1]
+    final_sqlite_file_name = databaseTag + '@' + uuid
+    sqlite_file     = workingDir + final_sqlite_file_name + ".db"
+    metadata_file   = workingDir + final_sqlite_file_name + ".txt"
+
     for payload in payloadList:
         payloadNumber += 1
         if option.zlarge:
@@ -549,7 +561,7 @@ def main():
         elif payloadNumber == len(payloadList)-1:
             iovTillLast   = iov_till
             
-        appendSqliteFile("Combined.db", tmpSqliteFileName, databaseTag, iov_since, iov_till ,workingDir)
+        appendSqliteFile(final_sqlite_file_name + ".db", tmpSqliteFileName, databaseTag, iov_since, iov_till ,workingDir)
         os.system("rm -f " + tmpPayloadFileName + " " + tmpSqliteFileName)
 
         
@@ -557,8 +569,6 @@ def main():
 
     print " create MERGED payload card for dropbox ..."
 
-    sqlite_file   = workingDir + "Combined.db"
-    metadata_file = workingDir + "Combined.txt"
     dfile = open(metadata_file,'w')
 
     dfile.write('destDB '  + destDB        +'\n')
@@ -581,28 +591,24 @@ def main():
     dfile.close()
 
                                                                                                 
-    uuid = commands.getstatusoutput('uuidgen -t')[1]
-    final_sqlite_file_name = "Payloads_" + iovSinceFirst + "_" + iovTillLast + "_" + databaseTag + '@' + uuid
 
-    if not os.path.isdir(archiveDir + 'payloads'):
-        os.mkdir(archiveDir + 'payloads')
-    commands.getstatusoutput('mv ' + sqlite_file   + ' ' + archiveDir + 'payloads/' + final_sqlite_file_name + '.db')
-    commands.getstatusoutput('mv ' + metadata_file + ' ' + archiveDir + 'payloads/' + final_sqlite_file_name + '.txt')
-   
-   
-    print archiveDir + "payloads/" + final_sqlite_file_name + '.db'
-    print archiveDir + "payloads/" + final_sqlite_file_name + '.txt'
-   
     if option.upload:
         print " scp files to offline Drop Box"
         dropbox = "/DropBox"
-        #WARNIG fixed to dropbox test
-        option.Test = True
         if option.Test:
             dropbox = "/DropBox_test"
         print "UPLOADING TO TEST DB"
-        uploadSqliteFile(archiveDir + "payloads/",final_sqlite_file_name,dropbox)
+        uploadSqliteFile(workingDir, final_sqlite_file_name, dropbox)
                    
+    archive_sqlite_file_name = "Payloads_" + iovSinceFirst + "_" + iovTillLast + "_" + final_sqlite_file_name
+    if not os.path.isdir(archiveDir + 'payloads'):
+        os.mkdir(archiveDir + 'payloads')
+    commands.getstatusoutput('mv ' + sqlite_file   + ' ' + archiveDir + 'payloads/' + archive_sqlite_file_name + '.db')
+    commands.getstatusoutput('mv ' + metadata_file + ' ' + archiveDir + 'payloads/' + archive_sqlite_file_name + '.txt')
+  
+    print archiveDir + "payloads/" + archive_sqlite_file_name + '.db'
+    print archiveDir + "payloads/" + archive_sqlite_file_name + '.txt'
+   
 
 if __name__ == '__main__':
     main()
