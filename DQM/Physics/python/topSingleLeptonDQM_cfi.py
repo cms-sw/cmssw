@@ -24,7 +24,7 @@ topSingleLeptonDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ),
     ## [optional] : when omitted the verbosity level is set to STANDARD
     monitoring = cms.PSet(
-      verbosity = cms.string("STANDARD")
+      verbosity = cms.string("DEBUG")
     ),
     ## [optional] : when omitted all monitoring plots for the electron
     ## will be filled w/o preselection
