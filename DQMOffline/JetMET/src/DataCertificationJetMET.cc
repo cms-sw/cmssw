@@ -5,7 +5,7 @@
 // 
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.41 2010/05/15 16:48:01 sturdy Exp $
+// $Id: DataCertificationJetMET.cc,v 1.42 2010/05/16 12:58:41 sturdy Exp $
 //
 
 #include "DQMOffline/JetMET/interface/DataCertificationJetMET.h"
@@ -264,40 +264,40 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   if (isData)
     cleaningdir = "Cleaned";
   //Jet Phi histos
-  meJetPhi[0] = new MonitorElement(*(dbe_->get((newHistoName+cleaningdir+"AntiKtJets/Phi_Barrel"))));
-  meJetPhi[1] = new MonitorElement(*(dbe_->get((newHistoName+cleaningdir+"AntiKtJets/Phi_EndCap"))));
-  meJetPhi[2] = new MonitorElement(*(dbe_->get((newHistoName+cleaningdir+"AntiKtJets/Phi_Forward"))));
-  meJetPhi[3] = new MonitorElement(*(dbe_->get((newHistoName+"PFJets/Phi"))));
-  meJetPhi[4] = new MonitorElement(*(dbe_->get((newHistoName+"JPT/Phi"))));
+  meJetPhi[0] = dbe_->get(newHistoName+cleaningdir+"AntiKtJets/Phi_Barrel");
+  meJetPhi[1] = dbe_->get(newHistoName+cleaningdir+"AntiKtJets/Phi_EndCap");
+  meJetPhi[2] = dbe_->get(newHistoName+cleaningdir+"AntiKtJets/Phi_Forward");
+  meJetPhi[3] = dbe_->get(newHistoName+"PFJets/Phi");
+  meJetPhi[4] = dbe_->get(newHistoName+"JPT/Phi");
 
   //Jet Eta histos
-  meJetEta[0] = new MonitorElement(*(dbe_->get((newHistoName+cleaningdir+"AntiKtJets/Eta"))));
-  meJetEta[1] = new MonitorElement(*(dbe_->get((newHistoName+cleaningdir+"AntiKtJets/Eta"))));
-  meJetEta[2] = new MonitorElement(*(dbe_->get((newHistoName+cleaningdir+"AntiKtJets/Eta"))));
-  meJetEta[3] = new MonitorElement(*(dbe_->get((newHistoName+"PFJets/Eta"))));
-  meJetEta[4] = new MonitorElement(*(dbe_->get((newHistoName+"JPT/Eta"))));
+  meJetEta[0] = dbe_->get(newHistoName+cleaningdir+"AntiKtJets/Eta");
+  meJetEta[1] = dbe_->get(newHistoName+cleaningdir+"AntiKtJets/Eta");
+  meJetEta[2] = dbe_->get(newHistoName+cleaningdir+"AntiKtJets/Eta");
+  meJetEta[3] = dbe_->get(newHistoName+"PFJets/Eta");
+  meJetEta[4] = dbe_->get(newHistoName+"JPT/Eta");
 
   //Jet Pt histos
-  meJetPt[0]  = new MonitorElement(*(dbe_->get((newHistoName+cleaningdir+"AntiKtJets/Pt_Barrel"))));
-  meJetPt[1]  = new MonitorElement(*(dbe_->get((newHistoName+cleaningdir+"AntiKtJets/Pt_EndCap"))));
-  meJetPt[2]  = new MonitorElement(*(dbe_->get((newHistoName+cleaningdir+"AntiKtJets/Pt_Forward"))));
-  meJetPt[3]  = new MonitorElement(*(dbe_->get((newHistoName+"PFJets/Pt2"))));
-  meJetPt[4]  = new MonitorElement(*(dbe_->get((newHistoName+"JPT/Pt2"))));
+  meJetPt[0]  = dbe_->get(newHistoName+cleaningdir+"AntiKtJets/Pt_Barrel");
+  meJetPt[1]  = dbe_->get(newHistoName+cleaningdir+"AntiKtJets/Pt_EndCap");
+  meJetPt[2]  = dbe_->get(newHistoName+cleaningdir+"AntiKtJets/Pt_Forward");
+  meJetPt[3]  = dbe_->get(newHistoName+"PFJets/Pt2");
+  meJetPt[4]  = dbe_->get(newHistoName+"JPT/Pt2");
 
   ////Jet Constituents histos
-  meJetConstituents[0] = new MonitorElement(*(dbe_->get((newHistoName+cleaningdir+"AntiKtJets/Constituents"))));
-  meJetConstituents[1] = new MonitorElement(*(dbe_->get((newHistoName+cleaningdir+"AntiKtJets/Constituents"))));
-  meJetConstituents[2] = new MonitorElement(*(dbe_->get((newHistoName+cleaningdir+"AntiKtJets/Constituents"))));
-  meJetConstituents[3] = new MonitorElement(*(dbe_->get((newHistoName+"PFJets/Constituents"))));
+  meJetConstituents[0] = dbe_->get(newHistoName+cleaningdir+"AntiKtJets/Constituents");
+  meJetConstituents[1] = dbe_->get(newHistoName+cleaningdir+"AntiKtJets/Constituents");
+  meJetConstituents[2] = dbe_->get(newHistoName+cleaningdir+"AntiKtJets/Constituents");
+  meJetConstituents[3] = dbe_->get(newHistoName+"PFJets/Constituents");
   //
   ////Jet EMFrac histos
-  meJetEMFrac[0] = new MonitorElement(*(dbe_->get((newHistoName+cleaningdir+"AntiKtJets/EFrac"))));
-  meJetEMFrac[1] = new MonitorElement(*(dbe_->get((newHistoName+cleaningdir+"AntiKtJets/EFrac"))));
-  meJetEMFrac[2] = new MonitorElement(*(dbe_->get((newHistoName+cleaningdir+"AntiKtJets/EFrac"))));
-  meJetEMFrac[3] = new MonitorElement(*(dbe_->get((newHistoName+"PFJets/EFrac"))));
+  meJetEMFrac[0] = dbe_->get(newHistoName+cleaningdir+"AntiKtJets/EFrac");
+  meJetEMFrac[1] = dbe_->get(newHistoName+cleaningdir+"AntiKtJets/EFrac");
+  meJetEMFrac[2] = dbe_->get(newHistoName+cleaningdir+"AntiKtJets/EFrac");
+  meJetEMFrac[3] = dbe_->get(newHistoName+"PFJets/EFrac");
 
   //JPT specific histos
-  meJetNTracks = new MonitorElement(*(dbe_->get((newHistoName+"JPT/nTracks"))));
+  meJetNTracks = dbe_->get(newHistoName+"JPT/nTracks");
 				   
   //------------------------------------------------------------------------------
   //--- Extract quality test results and fill data certification results for Jets
@@ -626,34 +626,34 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   else
     cleaningdir = "All";
   //MEx/MEy monitor elements
-  meMExy[0][0] = new MonitorElement(*(dbe_->get((newHistoName+"CaloMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMEx"))));
-  meMExy[0][1] = new MonitorElement(*(dbe_->get((newHistoName+"CaloMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMEy"))));
-  meMExy[1][0] = new MonitorElement(*(dbe_->get((newHistoName+"CaloMETNoHF/"+cleaningdir+"/"+metFolder+"/METTask_CaloMEx"))));
-  meMExy[1][1] = new MonitorElement(*(dbe_->get((newHistoName+"CaloMETNoHF/"+cleaningdir+"/"+metFolder+"/METTask_CaloMEy"))));
-  meMExy[2][0] = new MonitorElement(*(dbe_->get((newHistoName+"PfMET/"+cleaningdir+"/"+metFolder+"/METTask_PfMEx"))));
-  meMExy[2][1] = new MonitorElement(*(dbe_->get((newHistoName+"PfMET/"+cleaningdir+"/"+metFolder+"/METTask_PfMEy"))));
-  meMExy[3][0] = new MonitorElement(*(dbe_->get((newHistoName+"TcMET/"+cleaningdir+"/"+metFolder+"/METTask_MEx"))));
-  meMExy[3][1] = new MonitorElement(*(dbe_->get((newHistoName+"TcMET/"+cleaningdir+"/"+metFolder+"/METTask_MEy"))));
-  meMExy[4][0] = new MonitorElement(*(dbe_->get((newHistoName+"MuCorrMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMEx"))));
-  meMExy[4][1] = new MonitorElement(*(dbe_->get((newHistoName+"MuCorrMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMEy"))));
+  meMExy[0][0] = dbe_->get(newHistoName+"CaloMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMEx");
+  meMExy[0][1] = dbe_->get(newHistoName+"CaloMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMEy");
+  meMExy[1][0] = dbe_->get(newHistoName+"CaloMETNoHF/"+cleaningdir+"/"+metFolder+"/METTask_CaloMEx");
+  meMExy[1][1] = dbe_->get(newHistoName+"CaloMETNoHF/"+cleaningdir+"/"+metFolder+"/METTask_CaloMEy");
+  meMExy[2][0] = dbe_->get(newHistoName+"PfMET/"+cleaningdir+"/"+metFolder+"/METTask_PfMEx");
+  meMExy[2][1] = dbe_->get(newHistoName+"PfMET/"+cleaningdir+"/"+metFolder+"/METTask_PfMEy");
+  meMExy[3][0] = dbe_->get(newHistoName+"TcMET/"+cleaningdir+"/"+metFolder+"/METTask_MEx");
+  meMExy[3][1] = dbe_->get(newHistoName+"TcMET/"+cleaningdir+"/"+metFolder+"/METTask_MEy");
+  meMExy[4][0] = dbe_->get(newHistoName+"MuCorrMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMEx");
+  meMExy[4][1] = dbe_->get(newHistoName+"MuCorrMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMEy");
   //MET Phi monitor elements
-  meMETPhi[0]  = new MonitorElement(*(dbe_->get((newHistoName+"CaloMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMETPhi"))));
-  meMETPhi[1]  = new MonitorElement(*(dbe_->get((newHistoName+"CaloMETNoHF/"+cleaningdir+"/"+metFolder+"/METTask_CaloMETPhi"))));
-  meMETPhi[2]  = new MonitorElement(*(dbe_->get((newHistoName+"PfMET/"+cleaningdir+"/"+metFolder+"/METTask_PfMETPhi"))));
-  meMETPhi[3]  = new MonitorElement(*(dbe_->get((newHistoName+"TcMET/"+cleaningdir+"/"+metFolder+"/METTask_METPhi"))));
-  meMETPhi[4]  = new MonitorElement(*(dbe_->get((newHistoName+"MuCorrMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMETPhi"))));
+  meMETPhi[0]  = dbe_->get(newHistoName+"CaloMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMETPhi");
+  meMETPhi[1]  = dbe_->get(newHistoName+"CaloMETNoHF/"+cleaningdir+"/"+metFolder+"/METTask_CaloMETPhi");
+  meMETPhi[2]  = dbe_->get(newHistoName+"PfMET/"+cleaningdir+"/"+metFolder+"/METTask_PfMETPhi");
+  meMETPhi[3]  = dbe_->get(newHistoName+"TcMET/"+cleaningdir+"/"+metFolder+"/METTask_METPhi");
+  meMETPhi[4]  = dbe_->get(newHistoName+"MuCorrMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMETPhi");
   //MET monitor elements
-  meMEt[0]  = new MonitorElement(*(dbe_->get((newHistoName+"CaloMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMET"))));
-  meMEt[1]  = new MonitorElement(*(dbe_->get((newHistoName+"CaloMETNoHF/"+cleaningdir+"/"+metFolder+"/METTask_CaloMET"))));
-  meMEt[2]  = new MonitorElement(*(dbe_->get((newHistoName+"PfMET/"+cleaningdir+"/"+metFolder+"/METTask_PfMET"))));
-  meMEt[3]  = new MonitorElement(*(dbe_->get((newHistoName+"TcMET/"+cleaningdir+"/"+metFolder+"/METTask_MET"))));
-  meMEt[4]  = new MonitorElement(*(dbe_->get((newHistoName+"MuCorrMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMET"))));
+  meMEt[0]  = dbe_->get(newHistoName+"CaloMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMET");
+  meMEt[1]  = dbe_->get(newHistoName+"CaloMETNoHF/"+cleaningdir+"/"+metFolder+"/METTask_CaloMET");
+  meMEt[2]  = dbe_->get(newHistoName+"PfMET/"+cleaningdir+"/"+metFolder+"/METTask_PfMET");
+  meMEt[3]  = dbe_->get(newHistoName+"TcMET/"+cleaningdir+"/"+metFolder+"/METTask_MET");
+  meMEt[4]  = dbe_->get(newHistoName+"MuCorrMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMET");
   //SumET monitor elements
-  meSumEt[0]  = new MonitorElement(*(dbe_->get((newHistoName+"CaloMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloSumET"))));
-  meSumEt[1]  = new MonitorElement(*(dbe_->get((newHistoName+"CaloMETNoHF/"+cleaningdir+"/"+metFolder+"/METTask_CaloSumET"))));
-  meSumEt[2]  = new MonitorElement(*(dbe_->get((newHistoName+"PfMET/"+cleaningdir+"/"+metFolder+"/METTask_PfSumET"))));
-  meSumEt[3]  = new MonitorElement(*(dbe_->get((newHistoName+"TcMET/"+cleaningdir+"/"+metFolder+"/METTask_SumET"))));
-  meSumEt[4]  = new MonitorElement(*(dbe_->get((newHistoName+"MuCorrMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloSumET"))));
+  meSumEt[0]  = dbe_->get(newHistoName+"CaloMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloSumET");
+  meSumEt[1]  = dbe_->get(newHistoName+"CaloMETNoHF/"+cleaningdir+"/"+metFolder+"/METTask_CaloSumET");
+  meSumEt[2]  = dbe_->get(newHistoName+"PfMET/"+cleaningdir+"/"+metFolder+"/METTask_PfSumET");
+  meSumEt[3]  = dbe_->get(newHistoName+"TcMET/"+cleaningdir+"/"+metFolder+"/METTask_SumET");
+  meSumEt[4]  = dbe_->get(newHistoName+"MuCorrMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloSumET");
 				   
   //----------------------------------------------------------------------------
   //--- Extract quality test results and fill data certification results for MET
