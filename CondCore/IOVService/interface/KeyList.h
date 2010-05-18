@@ -3,7 +3,6 @@
 
 #include "CondCore/IOVService/interface/IOVProxy.h"
 #include "CondFormats/Common/interface/BaseKeyed.h"
-#include "CondFormats/Common/interface/PayloadWrapper.h"
 #include "DataSvc/Ref.h"
 #include<vector>
 #include<string>
@@ -27,7 +26,7 @@ namespace cond {
 
   class KeyList {
   public:
-    typedef cond::DataWrapper<BaseKeyed> Wrapper;
+    typedef BaseKeyed Base;
 
     KeyList(IOVKeysDescription const * idescr=0);
 
@@ -67,7 +66,7 @@ namespace cond {
     // the full collection of keyed object
     cond::IOVProxy m_sequence;
     // the current set
-    std::vector<pool::Ref<Wrapper> > m_data;
+    std::vector<pool::Ref<Base> > m_data;
 
   };
 

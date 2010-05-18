@@ -15,9 +15,8 @@ namespace cond {
       if (keys[i]!=0) {
         IOVSequence::const_iterator p = m_sequence.iov().findSince(keys[i]);
 	if (p!=m_sequence.iov().iovs().end()) { 
-	  pool::Ref<Wrapper> ref = m_sequence.db().getTypedObject<Wrapper>( (*p).wrapperToken() );
+	  pool::Ref<Base> ref = m_sequence.db().getTypedObject<Base>( (*p).wrapperToken() );
 	  m_data[i].copyShallow(ref);
-	  m_data[i]->loadAll();
 	}
       }
     }
@@ -27,7 +26,7 @@ namespace cond {
 
   BaseKeyed const * KeyList::elem(int n) const {
     if (!m_data[n]) return 0;
-    return &(*m_data[n]).data();
+    return &(*m_data[n]);
   }
   
 
