@@ -48,7 +48,6 @@ accept(const edm::Event& event, const edm::TriggerResults& triggerTable, const s
 
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
 /**
    \class   Calculate TopDQMHelpers.h "DQM/Physics/interface/TopDQMHelpers.h"
@@ -64,14 +63,14 @@ accept(const edm::Event& event, const edm::TriggerResults& triggerTable, const s
 class Calculate {
  public:
   /// default constructor
-  Calculate(int maxNJets, double wMass, const JetCorrector* corrector);
+  Calculate(int maxNJets, double wMass);
   /// default destructor
   ~Calculate(){};
      
   /// calculate W boson mass estimate
-    double massWBoson(const std::vector<reco::Jet>& jets);
+  double massWBoson(const std::vector<reco::Jet>& jets);
   /// calculate W boson mass estimate
-      double massTopQuark(const std::vector<reco::Jet>& jets); 
+  double massTopQuark(const std::vector<reco::Jet>& jets); 
   
  private:
   /// do the calculation; this is called only once per event by the first 
@@ -90,9 +89,6 @@ class Calculate {
   double massWBoson_;
   /// cache of top quark mass estimate
   double massTopQuark_;
-  /// jet corrector to improve the correlation 
-  /// between parton level and reco level
-  const JetCorrector* corrector_;
 };
 
 
