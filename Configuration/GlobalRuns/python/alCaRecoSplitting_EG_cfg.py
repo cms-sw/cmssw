@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.168.2.1 
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: alCaRecoSplitting -s ALCAOUTPUT:EcalCalElectron --conditions FrontierConditions_GlobalTag,GR10_P_V5::All --no_exec --triggerResultsProcess RECO --filein=/store/temp/data/Commissioning10/MinimumBias/ALCARECO/v9/000/135/528/26F91E4B-C160-DF11-A588-003048D37456.root --no_output --python_filename=alCaRecoSplitting_EG_cfg.py
+# with command line options: alCaRecoSplitting -s ALCAOUTPUT:EcalCalElectron --conditions FrontierConditions_GlobalTag,GR10_P_V5::All --no_exec --triggerResultsProcess RECO --filein=/store/temp/data/Commissioning10/MinimumBias/ALCARECO/v9/000/135/528/26F91E4B-C160-DF11-A588-003048D37456.root --no_output --python_filename=alCaRecoSplitting_EG_cfg.py --data
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('ALCAOUTPUT')
@@ -11,10 +11,9 @@ process = cms.Process('ALCAOUTPUT')
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('Configuration.StandardSequences.MixingNoPileUp_cff')
 process.load('Configuration.StandardSequences.GeometryExtended_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
-process.load('Configuration.StandardSequences.AlCaRecoStreamsMC_cff')
+process.load('Configuration.StandardSequences.AlCaRecoStreams_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
@@ -25,7 +24,7 @@ process.configurationMetadata = cms.untracked.PSet(
     name = cms.untracked.string('PyReleaseValidation')
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(100)
 )
 process.options = cms.untracked.PSet(
 
