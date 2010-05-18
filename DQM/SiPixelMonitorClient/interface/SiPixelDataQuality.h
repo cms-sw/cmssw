@@ -162,5 +162,8 @@ class SiPixelDataQuality {
   int count4;
   int count5;
   int count6;
+  
+  int timeoutCounter_;
+  int modCounter_;
 };
 #endif
