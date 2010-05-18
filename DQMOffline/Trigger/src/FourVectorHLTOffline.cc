@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.74 2010/04/23 16:35:39 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.75 2010/05/17 10:31:57 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -21,6 +21,9 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig):
 
   fIsSetup = false;
   fSelectedMuons = new reco::MuonCollection;
+  fSelectedElectrons = new reco::GsfElectronCollection;
+  fSelectedPhotons = new reco::PhotonCollection;
+  fSelectedJets = new reco::CaloJetCollection;
 
   dbe_ = Service < DQMStore > ().operator->();
   if ( ! dbe_ ) {
@@ -2257,6 +2260,7 @@ void FourVectorHLTOffline::selectMuons(const edm::Handle<reco::MuonCollection> &
 
 void FourVectorHLTOffline::selectElectrons(const edm::Handle<reco::GsfElectronCollection> & eleHandle)
 {
+
   // for every event, first clear vector of selected objects
   fSelectedElectrons->clear();
 
