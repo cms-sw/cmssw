@@ -233,30 +233,38 @@ void TrackingTruthProducer::associator(
     // Solution to the problem of not having vertexId
     bool useVertexId = true;
     EncodedEventIdToIndex vertexId;
-    std::set<unsigned int> vertexIds;
+    EncodedEventId oldEventId;
+    unsigned int oldVertexId = 0;
 
     // Loop for finding repeated vertexId (vertexId problem hack)
-    for (MixCollection<SimVertex>::MixItr iterator = mixCollection->begin(); iterator != mixCollection->end(); ++iterator)
+    for (MixCollection<SimVertex>::MixItr iterator = mixCollection->begin(); iterator != mixCollection->end(); ++iterator, ++index)
     {
-    	unsigned int vertexId = iterator->vertexId();
-        if ( vertexIds.find(vertexId) == vertexIds.end() )
-            vertexIds.insert(vertexId);
-        else
+        if (!index || iterator->eventId() != oldEventId)
         {
-        	edm::LogWarning(MessageCategory_) << "Multiple vertexId found, no using vertexId.";
-        	useVertexId = false;
-        	break;
+            oldEventId = iterator->eventId();
+            oldVertexId = iterator->vertexId();
+            continue;
+        }
+
+        if ( iterator->vertexId() == oldVertexId )
+        {
+            edm::LogWarning(MessageCategory_) << "Multiple vertexId found, no using vertexId.";
+            useVertexId = false;
+            break;
         }
     }
-        
+
+    // Reset the index
+    index = 0;
+
     // Clear the association map
     association.clear();
 
     // Create a association from simvertexes to overall index in the mix collection
     for (MixCollection<SimVertex>::MixItr iterator = mixCollection->begin(); iterator != mixCollection->end(); ++iterator, ++index)
     {
-    	EncodedTruthId objectId;
-    	if (useVertexId)
+        EncodedTruthId objectId;
+        if (useVertexId)
             objectId = EncodedTruthId(iterator->eventId(), iterator->vertexId());
         else
             objectId = EncodedTruthId(iterator->eventId(), vertexId[iterator->eventId()]++);
