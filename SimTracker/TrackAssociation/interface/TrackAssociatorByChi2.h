@@ -4,8 +4,8 @@
 /** \class TrackAssociatorByChi2
  *  Class that performs the association of reco::Tracks and TrackingParticles evaluating the chi2 of reco tracks parameters and sim tracks parameters. The cut can be tuned from the config file: see data/TrackAssociatorByChi2.cfi. Note that the Association Map is filled with -ch2 and not chi2 because it is ordered using std::greater: the track with the lowest association chi2 will be the first in the output map.It is possible to use only diagonal terms (associator by pulls) seeting onlyDiagonal = true in the PSet 
  *
- *  $Date: 2009/07/27 16:45:51 $
- *  $Revision: 1.25 $
+ *  $Date: 2010/02/11 00:15:08 $
+ *  $Revision: 1.26 $
  *  \author cerati, magni
  */
 
@@ -84,24 +84,28 @@ class TrackAssociatorByChi2 : public TrackAssociatorBase {
   /// Association Reco To Sim with Collections
   reco::RecoToSimCollection associateRecoToSim(const edm::RefToBaseVector<reco::Track>&,
 					       const edm::RefVector<TrackingParticleCollection>&,
-					       const edm::Event * event = 0 ) const ;
+					       const edm::Event * event = 0,
+                                               const edm::EventSetup * setup = 0 ) const ;
   /// Association Sim To Reco with Collections
   reco::SimToRecoCollection associateSimToReco(const edm::RefToBaseVector<reco::Track>&,
 					       const edm::RefVector<TrackingParticleCollection>&,
-					       const edm::Event * event = 0 ) const ;
+					       const edm::Event * event = 0,
+                                               const edm::EventSetup * setup = 0 ) const ;
   
   /// compare reco to sim the handle of reco::Track and TrackingParticle collections
   reco::RecoToSimCollection associateRecoToSim(edm::Handle<edm::View<reco::Track> >& tCH, 
 					       edm::Handle<TrackingParticleCollection>& tPCH, 
-					       const edm::Event * event = 0) const {
-    return TrackAssociatorBase::associateRecoToSim(tCH,tPCH,event);
+					       const edm::Event * event = 0,
+                                               const edm::EventSetup * setup = 0) const {
+    return TrackAssociatorBase::associateRecoToSim(tCH,tPCH,event,setup);
   }
   
   /// compare reco to sim the handle of reco::Track and TrackingParticle collections
   reco::SimToRecoCollection associateSimToReco(edm::Handle<edm::View<reco::Track> >& tCH, 
 					       edm::Handle<TrackingParticleCollection>& tPCH,
-					       const edm::Event * event = 0) const {
-    return TrackAssociatorBase::associateSimToReco(tCH,tPCH,event);
+					       const edm::Event * event = 0,
+                                               const edm::EventSetup * setup = 0) const {
+    return TrackAssociatorBase::associateSimToReco(tCH,tPCH,event,setup);
   }  
  private:
   edm::ESHandle<MagneticField> theMF;

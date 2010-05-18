@@ -4,8 +4,8 @@
 /** \class TrackAssociatorByPosition
  *  Class that performs the association of reco::Tracks and TrackingParticles based on position in muon detector
  *
- *  $Date: 2008/12/16 11:02:10 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/07/27 16:45:51 $
+ *  $Revision: 1.9 $
  *  \author vlimant
  */
 
@@ -61,12 +61,14 @@ class TrackAssociatorByPosition : public TrackAssociatorBase {
   /// compare reco to sim the handle of reco::Track and TrackingParticle collections
   reco::RecoToSimCollection associateRecoToSim(const edm::RefToBaseVector<reco::Track>&,
 					       const edm::RefVector<TrackingParticleCollection>&,
-					       const edm::Event * event = 0 ) const ;
+					       const edm::Event * event = 0,
+                                               const edm::EventSetup * setup = 0 ) const ;
 
   /// compare reco to sim the handle of reco::Track and TrackingParticle collections
   reco::SimToRecoCollection associateSimToReco(const edm::RefToBaseVector<reco::Track>&,
 					       const edm::RefVector<TrackingParticleCollection>&,
-					       const edm::Event * event = 0 ) const ;
+					       const edm::Event * event = 0,
+                                               const edm::EventSetup * setup = 0 ) const ;
 
   double quality(const TrajectoryStateOnSurface&, const TrajectoryStateOnSurface &)const;
 

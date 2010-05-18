@@ -159,7 +159,8 @@ TrackAssociatorByChi2::parametersAtClosestApproach(Basic3DVector<double> vertex,
 
 RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(const edm::RefToBaseVector<reco::Track>& tC, 
 							      const edm::RefVector<TrackingParticleCollection>& tPCH,
-							      const edm::Event * e ) const{
+							      const edm::Event * e,
+                                                              const edm::EventSetup *setup ) const{
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   e->getByLabel(bsSrc,recoBeamSpotHandle);
   reco::BeamSpot bs = *recoBeamSpotHandle;      
@@ -238,7 +239,8 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(const edm::RefToBa
 
 SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(const edm::RefToBaseVector<reco::Track>& tC, 
 							      const edm::RefVector<TrackingParticleCollection>& tPCH,
-							      const edm::Event * e ) const {
+							      const edm::Event * e,
+                                                              const edm::EventSetup *setup ) const {
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   e->getByLabel(bsSrc,recoBeamSpotHandle);
   reco::BeamSpot bs = *recoBeamSpotHandle;      

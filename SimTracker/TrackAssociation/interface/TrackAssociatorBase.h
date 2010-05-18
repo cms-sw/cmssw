@@ -4,8 +4,8 @@
 /** \class TrackAssociatorBase
  *  Base class for TrackAssociators. Methods take as input the handle of Track and TrackingPArticle collections and return an AssociationMap (oneToManyWithQuality)
  *
- *  $Date: 2008/03/03 16:50:46 $
- *  $Revision: 1.15 $
+ *  $Date: 2009/07/27 16:45:51 $
+ *  $Revision: 1.16 $
  *  \author magni, cerati
  */
 
@@ -43,7 +43,8 @@ class TrackAssociatorBase {
   /// compare reco to sim the handle of reco::Track and TrackingParticle collections
   virtual reco::RecoToSimCollection associateRecoToSim(edm::Handle<edm::View<reco::Track> >& tCH, 
 						       edm::Handle<TrackingParticleCollection>& tPCH, 
-						       const edm::Event * event = 0) const {
+						       const edm::Event * event = 0,
+                                                       const edm::EventSetup * setup = 0) const {
     edm::RefToBaseVector<reco::Track> tc(tCH);
     for (unsigned int j=0; j<tCH->size();j++)
       tc.push_back(edm::RefToBase<reco::Track>(tCH,j));
@@ -52,13 +53,14 @@ class TrackAssociatorBase {
     for (unsigned int j=0; j<tPCH->size();j++)
       tpc.push_back(edm::Ref<TrackingParticleCollection>(tPCH,j));
 
-    return associateRecoToSim(tc,tpc,event);
+    return associateRecoToSim(tc,tpc,event,setup);
   }
   
   /// compare reco to sim the handle of reco::Track and TrackingParticle collections
   virtual reco::SimToRecoCollection associateSimToReco(edm::Handle<edm::View<reco::Track> >& tCH, 
 						       edm::Handle<TrackingParticleCollection>& tPCH,
-						       const edm::Event * event = 0) const {
+						       const edm::Event * event = 0,
+                                                       const edm::EventSetup * setup = 0) const {
     edm::RefToBaseVector<reco::Track> tc(tCH);
     for (unsigned int j=0; j<tCH->size();j++)
       tc.push_back(edm::RefToBase<reco::Track>(tCH,j));
@@ -67,29 +69,33 @@ class TrackAssociatorBase {
     for (unsigned int j=0; j<tPCH->size();j++)
       tpc.push_back(edm::Ref<TrackingParticleCollection>(tPCH,j));
 
-    return associateSimToReco(tc,tpc,event);
+    return associateSimToReco(tc,tpc,event,setup);
   }  
   
   /// Association Reco To Sim with Collections
   virtual  reco::RecoToSimCollection associateRecoToSim(const edm::RefToBaseVector<reco::Track> & tc,
                                                         const edm::RefVector<TrackingParticleCollection>& tpc,
-                                                        const edm::Event * event = 0 ) const = 0 ;
+                                                        const edm::Event * event = 0,
+                                                        const edm::EventSetup * setup = 0 ) const = 0 ;
   /// Association Sim To Reco with Collections
   virtual  reco::SimToRecoCollection associateSimToReco(const edm::RefToBaseVector<reco::Track> & tc,
                                                         const edm::RefVector<TrackingParticleCollection>& tpc ,
-                                                        const edm::Event * event = 0 ) const = 0 ; 
+                                                        const edm::Event * event = 0,
+                                                        const edm::EventSetup * setup = 0 ) const = 0 ; 
 
   //TrajectorySeed
   virtual reco::RecoToSimCollectionSeed associateRecoToSim(const edm::Handle<edm::View<TrajectorySeed> >&, 
 							   const edm::Handle<TrackingParticleCollection>&, 
-							   const edm::Event * event = 0) const {
+							   const edm::Event * event = 0,
+                                                           const edm::EventSetup * setup = 0) const {
     reco::RecoToSimCollectionSeed empty;
     return empty;
   }
   
   virtual reco::SimToRecoCollectionSeed associateSimToReco(const edm::Handle<edm::View<TrajectorySeed> >&, 
 							   const edm::Handle<TrackingParticleCollection>&, 
-							   const edm::Event * event = 0) const {
+							   const edm::Event * event = 0,
+                                                           const edm::EventSetup * setup = 0) const {
     reco::SimToRecoCollectionSeed empty;
     return empty;
   }
@@ -97,14 +103,16 @@ class TrackAssociatorBase {
   //TrackCandidate
   virtual reco::RecoToSimCollectionTCandidate associateRecoToSim(const edm::Handle<TrackCandidateCollection>&, 
 								 const edm::Handle<TrackingParticleCollection>&, 
-								 const edm::Event * event = 0) const {
+								 const edm::Event * event = 0,
+                                                                 const edm::EventSetup * setup = 0) const {
     reco::RecoToSimCollectionTCandidate empty;
     return empty;
   }
   
   virtual reco::SimToRecoCollectionTCandidate associateSimToReco(const edm::Handle<TrackCandidateCollection>&, 
 								 const edm::Handle<TrackingParticleCollection>&, 
-								 const edm::Event * event = 0) const {
+								 const edm::Event * event = 0,
+                                                                 const edm::EventSetup * setup = 0) const {
     reco::SimToRecoCollectionTCandidate empty;
     return empty;
   }

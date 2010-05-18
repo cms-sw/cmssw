@@ -33,34 +33,40 @@ class TrackAssociatorByHits : public TrackAssociatorBase {
   /// Association Reco To Sim with Collections
   reco::RecoToSimCollection associateRecoToSim(const edm::RefToBaseVector<reco::Track>&,
 					       const edm::RefVector<TrackingParticleCollection>&,
-					       const edm::Event * event = 0 ) const ;
+					       const edm::Event * event = 0,
+                                               const edm::EventSetup * setup = 0 ) const ;
   /// Association Sim To Reco with Collections
   reco::SimToRecoCollection associateSimToReco(const edm::RefToBaseVector<reco::Track>&,
 					       const edm::RefVector<TrackingParticleCollection>&,
-					       const edm::Event * event = 0 ) const ;
+					       const edm::Event * event = 0,
+                                               const edm::EventSetup * setup = 0 ) const ;
   
   /// compare reco to sim the handle of reco::Track and TrackingParticle collections
   reco::RecoToSimCollection associateRecoToSim(edm::Handle<edm::View<reco::Track> >& tCH, 
 					       edm::Handle<TrackingParticleCollection>& tPCH, 
-					       const edm::Event * event = 0) const {
-    return TrackAssociatorBase::associateRecoToSim(tCH,tPCH,event);
+					       const edm::Event * event = 0,
+                                               const edm::EventSetup * setup = 0) const {
+    return TrackAssociatorBase::associateRecoToSim(tCH,tPCH,event,setup);
   }
   
   /// compare reco to sim the handle of reco::Track and TrackingParticle collections
   reco::SimToRecoCollection associateSimToReco(edm::Handle<edm::View<reco::Track> >& tCH, 
 					       edm::Handle<TrackingParticleCollection>& tPCH,
-					       const edm::Event * event = 0) const {
-    return TrackAssociatorBase::associateSimToReco(tCH,tPCH,event);
+					       const edm::Event * event = 0,
+                                               const edm::EventSetup * setup = 0) const {
+    return TrackAssociatorBase::associateSimToReco(tCH,tPCH,event,setup);
   }  
 
   //seed
   reco::RecoToSimCollectionSeed associateRecoToSim(edm::Handle<edm::View<TrajectorySeed> >&, 
 						   edm::Handle<TrackingParticleCollection>&, 
-						   const edm::Event * event = 0) const;
+						   const edm::Event * event = 0,
+                                                   const edm::EventSetup * setup = 0) const;
   
   reco::SimToRecoCollectionSeed associateSimToReco(edm::Handle<edm::View<TrajectorySeed> >&, 
 						   edm::Handle<TrackingParticleCollection>&, 
-						   const edm::Event * event = 0) const;
+						   const edm::Event * event = 0,
+                                                   const edm::EventSetup * setup = 0) const;
   template<typename iter>
   void getMatchedIds(std::vector<SimHitIdpr>&, 
 		     std::vector<SimHitIdpr>&, 

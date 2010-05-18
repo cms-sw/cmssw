@@ -75,7 +75,8 @@ TrackAssociatorByHits::~TrackAssociatorByHits()
 RecoToSimCollection  
 TrackAssociatorByHits::associateRecoToSim(const edm::RefToBaseVector<reco::Track>& tC, 
 					  const edm::RefVector<TrackingParticleCollection>& TPCollectionH,
-					  const edm::Event * e ) const{
+					  const edm::Event * e,
+                                          const edm::EventSetup *setup ) const{
 
   //edm::LogVerbatim("TrackAssociator") << "Starting TrackAssociatorByHits::associateRecoToSim - #tracks="<<tC.size()<<" #TPs="<<TPCollectionH.size();
   int nshared = 0;
@@ -152,7 +153,8 @@ TrackAssociatorByHits::associateRecoToSim(const edm::RefToBaseVector<reco::Track
 SimToRecoCollection  
 TrackAssociatorByHits::associateSimToReco(const edm::RefToBaseVector<reco::Track>& tC, 
 					  const edm::RefVector<TrackingParticleCollection>& TPCollectionH,
-					  const edm::Event * e ) const{
+					  const edm::Event * e,
+                                          const edm::EventSetup *setup ) const{
 //  edm::LogVerbatim("TrackAssociator") << "Starting TrackAssociatorByHits::associateSimToReco - #tracks="<<tC.size()<<" #TPs="<<TPCollectionH.size();
   float quality=0;//fraction or absolute number of shared hits
   int nshared = 0;
@@ -330,7 +332,8 @@ int TrackAssociatorByHits::LayerFromDetid(const DetId& detId ) const
 RecoToSimCollectionSeed  
 TrackAssociatorByHits::associateRecoToSim(edm::Handle<edm::View<TrajectorySeed> >& seedCollectionH,
 					  edm::Handle<TrackingParticleCollection>&  TPCollectionH,     
-					  const edm::Event * e ) const{
+					  const edm::Event * e,
+                                          const edm::EventSetup *setup ) const{
 
   edm::LogVerbatim("TrackAssociator") << "Starting TrackAssociatorByHits::associateRecoToSim - #seeds="
 				      <<seedCollectionH->size()<<" #TPs="<<TPCollectionH->size();
@@ -398,7 +401,8 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<edm::View<TrajectorySeed> 
 SimToRecoCollectionSeed
 TrackAssociatorByHits::associateSimToReco(edm::Handle<edm::View<TrajectorySeed> >& seedCollectionH,
 					  edm::Handle<TrackingParticleCollection>& TPCollectionH, 
-					  const edm::Event * e ) const{
+					  const edm::Event * e,
+                                          const edm::EventSetup *setup ) const{
 
   edm::LogVerbatim("TrackAssociator") << "Starting TrackAssociatorByHits::associateSimToReco - #seeds="
 				      <<seedCollectionH->size()<<" #TPs="<<TPCollectionH->size();
