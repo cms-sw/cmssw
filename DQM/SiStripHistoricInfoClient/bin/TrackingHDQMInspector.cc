@@ -10,12 +10,13 @@ using namespace std;
  * Extraction of the summary information using DQMServices/Diagnostic/test/HDQMInspector. <br>
  * The sqlite database should have been filled using the new SiPixelHistoryDQMService.   
  */
-void runTrackingInspector( const string & dbName, const string &tagName, const string & Password, const int Start, const int End, const int nRuns )
+void runTrackingInspector( const string & dbName, const string &tagName, const string & Password, const string & whiteListFile,
+			   const int Start, const int End, const int nRuns )
 {
   // IMPORTANT SETTINGS:
   string siStripTracker = "268435456";
-  string condition = siStripTracker+"@Chi2oNDF_CKFTk@entries > 100";
-  // string condition = siStripTracker+"@Chi2oNDF_GenTk@entries > 100";  // Use for collision data
+  // string condition = siStripTracker+"@Chi2oNDF_CKFTk@entries > 100";
+  string condition = siStripTracker+"@Chi2oNDF_GenTk@entries > 100";  // Use for collision data
   //string condition = "";
   string blackList = "109468";
   // -------------------
@@ -23,14 +24,14 @@ void runTrackingInspector( const string & dbName, const string &tagName, const s
   HDQMInspectorConfigTracking trackingConfig;
   // Select quantities you want the integral of
   vector<string> ItemsForIntegration;
-  ItemsForIntegration.push_back("Chi2oNDF_CKFTk_entries");
-  ItemsForIntegration.push_back("NumberOfTracks_CKFTk_entries");
-  ItemsForIntegration.push_back("Chi2oNDF_RSTk_entries");
-  ItemsForIntegration.push_back("NumberOfTracks_RSTk_entries");
-  ItemsForIntegration.push_back("Chi2oNDF_CosmicTk_entries");
-  ItemsForIntegration.push_back("NumberOfTracks_CosmicTk_entries");
-  //ItemsForIntegration.push_back("Chi2oNDF_GenTk_entries");
-  //ItemsForIntegration.push_back("NumberOfTracks_GenTk_entries");
+  //ItemsForIntegration.push_back("Chi2oNDF_CKFTk_entries");
+  //ItemsForIntegration.push_back("NumberOfTracks_CKFTk_entries");
+  //ItemsForIntegration.push_back("Chi2oNDF_RSTk_entries");
+  //ItemsForIntegration.push_back("NumberOfTracks_RSTk_entries");
+  //ItemsForIntegration.push_back("Chi2oNDF_CosmicTk_entries");
+  //ItemsForIntegration.push_back("NumberOfTracks_CosmicTk_entries");
+  ItemsForIntegration.push_back("Chi2oNDF_GenTk_entries");
+  ItemsForIntegration.push_back("NumberOfTracks_GenTk_entries");
   trackingConfig.computeIntegralList(ItemsForIntegration);
   // Create the functor
   DQMHistoryCreateTrend makeTrend(&trackingConfig);
@@ -41,6 +42,7 @@ void runTrackingInspector( const string & dbName, const string &tagName, const s
   makeTrend.setDoStat(1);
   makeTrend.setSkip99s(true);
   makeTrend.setBlackList(blackList);
+  makeTrend.setWhiteListFromFile(whiteListFile);
 
   // Definition of trends
   typedef DQMHistoryTrendsConfig Trend;
@@ -49,19 +51,19 @@ void runTrackingInspector( const string & dbName, const string &tagName, const s
 
 
   // Something you might want for collisions
-  //config.push_back(Trend( siStripTracker+"@Chi2oNDF_GenTk@mean", "Chi2oNDF_GenTk_mean.gif", 0, condition, "", Start, End, nRuns, 0, 50 ));
-  //config.push_back(Trend( siStripTracker+"@NumberOfTracks_GenTk@mean", "NumberOfTracks_GenTk_mean.gif", 0, condition, "", Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@Chi2oNDF_GenTk@mean", "Chi2oNDF_GenTk_mean.gif", 0, condition, "", Start, End, nRuns, 0, 50 ));
+  config.push_back(Trend( siStripTracker+"@NumberOfTracks_GenTk@mean", "NumberOfTracks_GenTk_mean.gif", 0, condition, "", Start, End, nRuns ));
   //config.push_back(Trend( siStripTracker+"@NumberOfRecHitsPerTrack_GenTk@mean", "NumberOfRecHitsPerTrack_GenTk_mean.gif", 0, condition, "", Start, End, nRuns ));
-  //config.push_back(Trend( siStripTracker+"@TrackPt_GenTk@mean", "TrackPt_GenTk_mean.gif", 0, condition, "", Start, End, nRuns, 0, 200 ));
-  //config.push_back(Trend( siStripTracker+"@TrackPx_GenTk@mean", "TrackPx_GenTk_mean.gif", 0, condition, "", Start, End, nRuns, -20, 20 ));
-  //config.push_back(Trend( siStripTracker+"@TrackPy_GenTk@mean", "TrackPy_GenTk_mean.gif", 0, condition, "", Start, End, nRuns, -100, 100 ));
-  //config.push_back(Trend( siStripTracker+"@TrackPz_GenTk@mean", "TrackPz_GenTk_mean.gif", 0, condition, "", Start, End, nRuns, -20, 20 ));
-  //config.push_back(Trend( siStripTracker+"@TrackPhi_GenTk@mean", "TrackPhi_GenTk_mean.gif", 0, condition, "", Start, End, nRuns ));
-  //config.push_back(Trend( siStripTracker+"@TrackEta_GenTk@mean", "TrackEta_GenTk_mean.gif", 0, condition, "", Start, End, nRuns ));
-  //config.push_back(Trend( siStripTracker+"@DistanceOfClosestApproach_GenTk@mean", "DistanceOfClosestApproach_GenTk_mean.gif", 0, condition, "", Start, End, nRuns, -15, 15 ));
-  //// Integral
-  //config.push_back(Trend( siStripTracker+"@Chi2oNDF_GenTk@entries", "Chi2oNDF_GenTk_entries.gif", 0, condition, "", Start, End, nRuns ));
-  //config.push_back(Trend( siStripTracker+"@NumberOfTracks_GenTk@entries", "NumberOfTracks_GenTk_entries.gif", 0, condition, "", Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@TrackPt_ImpactPoint_GenTk@mean", "TrackPt_GenTk_mean.gif", 0, condition, "", Start, End, nRuns, 0, 200 ));
+  config.push_back(Trend( siStripTracker+"@TrackPx_ImpactPoint_GenTk@mean", "TrackPx_GenTk_mean.gif", 0, condition, "", Start, End, nRuns, -20, 20 ));
+  config.push_back(Trend( siStripTracker+"@TrackPy_ImpactPoint_GenTk@mean", "TrackPy_GenTk_mean.gif", 0, condition, "", Start, End, nRuns, -100, 100 ));
+  config.push_back(Trend( siStripTracker+"@TrackPz_ImpactPoint_GenTk@mean", "TrackPz_GenTk_mean.gif", 0, condition, "", Start, End, nRuns, -20, 20 ));
+  config.push_back(Trend( siStripTracker+"@TrackPhi_ImpactPoint_GenTk@mean", "TrackPhi_GenTk_mean.gif", 0, condition, "", Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@TrackEta_ImpactPoint_GenTk@mean", "TrackEta_GenTk_mean.gif", 0, condition, "", Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@DistanceOfClosestApproach_GenTk@mean", "DistanceOfClosestApproach_GenTk_mean.gif", 0, condition, "", Start, End, nRuns, -15, 15 ));
+  // Integral
+  config.push_back(Trend( siStripTracker+"@Chi2oNDF_GenTk@entries", "Chi2oNDF_GenTk_entries.gif", 0, condition, "", Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@NumberOfTracks_GenTk@entries", "NumberOfTracks_GenTk_entries.gif", 0, condition, "", Start, End, nRuns ));
 
 
 
@@ -84,6 +86,21 @@ void runTrackingInspector( const string & dbName, const string &tagName, const s
 
 
 
+
+/*
+  config.push_back(Trend( siStripTracker+"@Chi2oNDF_GenTk@mean", "Chi2oNDF_GenTk_mean.gif", 0, condition, "", Start, End, nRuns, 0, 50 ));
+  config.push_back(Trend( siStripTracker+"@NumberOfTracks_GenTk@mean", "NumberOfTracks_GenTk_mean.gif", 0, condition, "", Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@NumberOfRecHitsPerTrack_GenTk@mean", "NumberOfRecHitsPerTrack_GenTk_mean.gif", 0, condition, "", Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@TrackPt_GenTk@mean", "TrackPt_GenTk_mean.gif", 0, condition, "", Start, End, nRuns, 0, 200 ));
+  config.push_back(Trend( siStripTracker+"@TrackPx_GenTk@mean", "TrackPx_GenTk_mean.gif", 0, condition, "", Start, End, nRuns, -20, 20 ));
+  config.push_back(Trend( siStripTracker+"@TrackPy_GenTk@mean", "TrackPy_GenTk_mean.gif", 0, condition, "", Start, End, nRuns, -100, 100 ));
+  config.push_back(Trend( siStripTracker+"@TrackPz_GenTk@mean", "TrackPz_GenTk_mean.gif", 0, condition, "", Start, End, nRuns, -20, 20 ));
+  config.push_back(Trend( siStripTracker+"@TrackPhi_GenTk@mean", "TrackPhi_GenTk_mean.gif", 0, condition, "", Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@TrackEta_GenTk@mean", "TrackEta_GenTk_mean.gif", 0, condition, "", Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@DistanceOfClosestApproach_GenTk@mean", "DistanceOfClosestApproach_GenTk_mean.gif", 0, condition, "", Start, End, nRuns, -15, 15 ));
+  // Integral
+  config.push_back(Trend( siStripTracker+"@Chi2oNDF_GenTk@entries", "Chi2oNDF_GenTk_entries.gif", 0, condition, "", Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@NumberOfTracks_GenTk@entries", "NumberOfTracks_GenTk_entries.gif", 0, condition, "", Start, End, nRuns ));
 
 
   config.push_back(Trend( siStripTracker+"@Chi2oNDF_CKFTk@mean,"
@@ -184,6 +201,12 @@ void runTrackingInspector( const string & dbName, const string &tagName, const s
   config.push_back(Trend( siStripTracker+"@NumberOfTracks_CosmicTk@entries", "NumberOfTracks_CosmicTk_entries.gif", 0, condition, "", Start, End, nRuns ));
   // config.push_back(Trend( siStripTracker+"@NumberOfTracks_CKFTk@entries", "NumberOfTracks_CKFTk_entries.gif", 0, condition, "", Start, End, nRuns ));
   // config.push_back(Trend( siStripTracker+"@NumberOfRecHitsPerTrack_CKFTk@entries", "NumberOfRecHitsPerTrack_CKFTk_entries.gif", 0, condition, "", Start, End, nRuns ));
+*/
+
+
+
+
+
 
   // Creation of trends
   for_each(config.begin(), config.end(), makeTrend);
@@ -192,30 +215,32 @@ void runTrackingInspector( const string & dbName, const string &tagName, const s
   makeTrend.closeFile();
 }
 
-void TrackingHDQMInspector( const string & dbName, const string & tagName, const string & password, const int start, const int end )
+void TrackingHDQMInspector( const string & dbName, const string & tagName, const string & password, const string & whiteListFile,
+			    const int start, const int end )
 {
-  runTrackingInspector(dbName, tagName, password, start, end, 0);
+  runTrackingInspector(dbName, tagName, password, whiteListFile, start, end, 0);
 }
 
-void TrackingHDQMInspector( const string & dbName, const string & tagName, const string & password, const int nRuns )
+void TrackingHDQMInspector( const string & dbName, const string & tagName, const string & password, const string & whiteListFile,
+			    const int nRuns )
 {
-  runTrackingInspector(dbName, tagName, password, 0, 0, nRuns);
+  runTrackingInspector(dbName, tagName, password, whiteListFile, 0, 0, nRuns);
 }
 
 int main (int argc, char* argv[])
 {
-  if (argc != 5 && argc != 6) {
-    std::cerr << "Usage: " << argv[0] << " [Database] [TagName] [Password] [NRuns] " << std::endl;
-    std::cerr << "Or:    " << argv[0] << " [Database] [TagName] [Password] [FirstRun] [LastRun] " << std::endl;
+  if (argc != 6 && argc != 7) {
+    std::cerr << "Usage: " << argv[0] << " [Database] [TagName] [Password] [WhiteListFile] [NRuns] " << std::endl;
+    std::cerr << "Or:    " << argv[0] << " [Database] [TagName] [Password] [WhiteListFile] [FirstRun] [LastRun] " << std::endl;
     return 1;
   }
 
-  if (argc == 5) {
-    std::cout << "Creating trends for NRuns = " << argv[4] << " for tag: " << argv[2] << std::endl;
-    TrackingHDQMInspector( argv[1], argv[2], argv[3], atoi(argv[4]) );
-  } else if(argc == 6) {
-    std::cout << "Creating trends for range:  " << argv[4] << " " << argv[5] << " for tag: " << argv[1] << std::endl;
-    TrackingHDQMInspector( argv[1], argv[2], argv[3], atoi(argv[4]), atoi(argv[5]) );
+  if (argc == 6) {
+    std::cout << "Creating trends for NRuns = " << argv[5] << " for tag: " << argv[2] << std::endl;
+    TrackingHDQMInspector( argv[1], argv[2], argv[3], argv[4], atoi(argv[5]) );
+  } else if(argc == 7) {
+    std::cout << "Creating trends for range:  " << argv[5] << " " << argv[6] << " for tag: " << argv[1] << std::endl;
+    TrackingHDQMInspector( argv[1], argv[2], argv[3], argv[4], atoi(argv[5]), atoi(argv[6]) );
   }
 
   return 0;

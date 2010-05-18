@@ -35,6 +35,10 @@ class DQMHistoryCreateTrend
   inline void setWhiteList(const std::string & listItems) {
     inspector_->setWhiteList(listItems);
   }
+  inline void setWhiteListFromFile(const string & listFileName) {
+    std::cout << "Reading white list from file: " << listFileName << std::endl;
+    inspector_->setWhiteList(inspector_->readListFromFile(listFileName));
+  }
   inline void closeFile() {
     inspector_->closeFile();
   }

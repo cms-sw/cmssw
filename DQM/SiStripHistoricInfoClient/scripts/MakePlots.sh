@@ -1,25 +1,31 @@
 #!/bin/sh
 
-DBName=$1
-TagName=$2
-Password=$3
-RunStart=$4
-RunEnd=$5
+ExeName=$1
+Database=$2
+TagName=$3
+Password=$4
+WhiteListFile=$5
+RunStart=$6
+RunEnd=$7
 
 PlotDir="CurrentPlots"
 
 rm -rf $PlotDir
 
-if [ $5 ]; then
-SiStripHDQMInspector $DBName $TagName $Password $RunStart $RunEnd
+if [ $6 ]; then
+    echo "RUNNING: $ExeName $Database $TagName $Password $RunStart $RunEnd"
+    $ExeName $Database $TagName $Password $WhiteListFile $RunStart $RunEnd
 else
-SiStripHDQMInspector $DBName $TagName $Password $RunStart
+    echo "RUNNING: $ExeName $Database $TagName $Password $RunStart"
+    $ExeName $Database $TagName $Password $WhiteListFile $RunStart
 fi
 mkdir -pv $PlotDir
 mv *.gif $PlotDir
 mv *.eps $PlotDir
-cp diow.pl $PlotDir
+cp DeanConvert.pl $PlotDir
+cp html/$ExeName.html $PlotDir/index.html
 cd $PlotDir
-./diow.pl
-cd ..
+./DeanConvert.pl
+rm -f DeanConvert.pl
 
+cd ..

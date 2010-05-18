@@ -17,6 +17,7 @@
 #include "vector"
 #include "string"
 #include "iostream"
+#include <fstream>
 #include "cmath"
 #include "CondCore/Utilities/interface/CondCachedIter.h"
 #include "CondFormats/DQMObjects/interface/HDQMSummary.h"
@@ -59,7 +60,7 @@ class HDQMInspector
     {
     };
   
-  virtual ~HDQMInspector(){
+  virtual ~HDQMInspector() {
     delete Iterator;
   };
   struct DetIdItemList {
@@ -77,6 +78,7 @@ class HDQMInspector
   void setDoStat(int i){iDoStat=i;}
   void setBlackList(std::string const& ListItems);
   void setWhiteList(std::string const& ListItems);
+  std::string readListFromFile(const std::string & listFileName);
   void setSkip99s (bool const in) {
     fSkip99s = in;
     return;
