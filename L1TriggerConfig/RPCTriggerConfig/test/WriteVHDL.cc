@@ -96,6 +96,8 @@ class WriteVHDL : public edm::EDAnalyzer {
                                 int tower, int sector, std::string PACt);
       
       std::string writeGB(std::string PACt);
+
+      void prepareEncdap4thPlaneConnections(edm::ESHandle<RPCGeometry> geom);
       // ----------member data ---------------------------
 };
 
@@ -533,6 +535,29 @@ std::string WriteVHDL::writeGB(std::string PACt){
 
 
 
+void WriteVHDL::prepareEncdap4thPlaneConnections(edm::ESHandle<RPCGeometry> rpcGeom) {
+
+ static bool jobDone = false;
+ if (jobDone) return;
+ jobDone = true;
+ for(TrackingGeometry::DetContainer::const_iterator it = rpcGeom->dets().begin();
+     it != rpcGeom->dets().end();
+     ++it)
+ {
+   RPCRoll* roll = dynamic_cast< RPCRoll*>( *it );
+   if( roll == 0 ) continue;
+   RPCDetId detId = roll->id().rawId();
+   if (detId.region()!=1) continue;
+   if (detId.station()!=3 || detId.station()!=4) continue;
+
+   std::cout << detId << std::endl;
+      
+
+ }
+
+
+}
+
 std::string WriteVHDL::writeConeDef(const edm::EventSetup& evtSetup, int tower, int sector,  std::string PACt )
 {
     std::stringstream ret;
@@ -579,11 +604,8 @@ std::string WriteVHDL::writeConeDef(const edm::EventSetup& evtSetup, int tower, 
       it != rpcGeom->dets().end();
       ++it)
     {
-
       if( dynamic_cast< RPCRoll* >( *it ) == 0 ) continue;
-
       RPCRoll* roll = dynamic_cast< RPCRoll*>( *it );
-
       int detId = roll->id().rawId();
       //iterate over strips
       
