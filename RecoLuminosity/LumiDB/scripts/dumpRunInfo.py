@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 VERSION='1.02'
 import os,sys
+import re
 import coral
 from RecoLuminosity.LumiDB import argparse
 
@@ -65,6 +66,7 @@ def main():
     parser.add_argument('-r',dest='runnumber',action='store',required=True,help='run number')
     parser.add_argument('action',choices=['hltkey'],help='dump hltconf key')
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
+    parser.add_argument('--collision-only',dest='collisiononly',action='store_true',help='return only collision runs')
     args=parser.parse_args()
     runnumber=args.runnumber
     c.runinfodb=args.connect
@@ -79,11 +81,14 @@ def main():
         msg.setMsgVerbosity(coral.message_Level_Debug)
     
     if args.action == 'hltkey':
+        p=re.compile(r'^/cdaq/.+/HLT_7TeV.+')
         result=hltkeyForRun(session,c,runnumber)
         print 'runnumber hltkey'
         for runnum,hltkey in result.items():
-            print runnum,hltkey
-
+            if not args.collisiononly:
+                print runnum,hltkey
+            if args.collisiononly and re.match(p,hltkey):
+                print runnum,hltkey                               
     del session
     del svc
         
