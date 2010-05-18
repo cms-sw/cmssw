@@ -17,6 +17,7 @@ struct HName
     ClusterSize, Res, Pull,
 
     NRefHit_Wheel, NRefHit_Disk,
+    NRecHit_Wheel, NRecHit_Disk,
 
     NLostHit_Wheel, NLostHit_Disk,
     NNoisyHit_Wheel, NNoisyHit_Disk,
@@ -75,6 +76,9 @@ RPCPointVsRecHit::RPCPointVsRecHit(const edm::ParameterSet& pset)
   h_[HName::NRefHit_Wheel] = dbe_->book1D("NRefHit_Wheel", "Number of reference Hits;Wheel", 5, -2.5, 2.5);
   h_[HName::NRefHit_Disk] = dbe_->book1D("NRefHit_Disk", "Number of reference Hits;Disk", 7, -3.5, 3.5);
 
+  h_[HName::NRecHit_Wheel] = dbe_->book1D("NRecHit_Wheel", "Number of RecHits;Wheel", 5, -2.5, 2.5);
+  h_[HName::NRecHit_Disk] = dbe_->book1D("NRecHit_Disk", "Number of RecHits;Disk", 7, -3.5, 3.5);
+
   h_[HName::NLostHit_Wheel] = dbe_->book1D("NLostHit_Wheel", "Number of lost hits;Wheel", 5, -2.5, 2.5);
   h_[HName::NLostHit_Disk] = dbe_->book1D("NLostHit_Disk", "Number of lost hits;Disk", 7, -3.5, 3.5);
 
@@ -88,6 +92,7 @@ RPCPointVsRecHit::RPCPointVsRecHit(const edm::ParameterSet& pset)
   h_[HName::NMatchedRecHit_Disk] = dbe_->book1D("NMatchedRecHit_Disk", "Number of Matched RecHits;Disk", 7, -3.5, 3.5);
 
   h_[HName::RefHitEta] = dbe_->book1D("RefHitEta", "Number of reference Hits vs #eta;Pseudorapidity #eta", 100, -2.5, 2.5);
+  h_[HName::RecHitEta] = dbe_->book1D("RecHitEta", "Number of recHits vs #eta;Pseudorapidity #eta", 100, -2.5, 2.5);
   h_[HName::NoisyHitEta] = dbe_->book1D("NoisyHitEta", "Number of noisy recHits vs #eta;Pseudorapidity #eta", 100, -2.5, 2.5);
   h_[HName::MatchedRecHitEta] = dbe_->book1D("MatchedRecHitEta", "Number of matched recHits vs Eta;Pseudorapidity #eta", 100, -2.5, 2.5);
 
@@ -254,6 +259,30 @@ void RPCPointVsRecHit::analyze(const edm::Event& event, const edm::EventSetup& e
         h_[HName::NRefHitXY_DP1+(station-1)]->Fill(pos.x(), pos.y());
       }
     }
+  }
+
+  // Loop over recHits, fill histograms which does not need associations
+  for ( RecHitIter recHitIter = recHitHandle->begin();
+        recHitIter != recHitHandle->end(); ++recHitIter )
+  {
+    const RPCDetId detId = static_cast<const RPCDetId>(recHitIter->rpcId());
+    const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(detId()));
+    if ( !roll ) continue;
+
+    const int region = roll->id().region();
+    const int ring = roll->id().ring();
+    //const int sector = roll->id().sector();
+    const int station = abs(roll->id().station());
+    //const int layer = roll->id().layer();
+    //const int subSector = roll->id().subsector();
+
+    h_[HName::ClusterSize]->Fill(recHitIter->clusterSize());
+
+    if ( region == 0 ) h_[HName::NRecHit_Wheel]->Fill(ring);
+    else h_[HName::NRecHit_Disk]->Fill(region*station);
+
+    const GlobalPoint pos = roll->toGlobal(recHitIter->localPosition());
+    h_[HName::RecHitEta]->Fill(pos.eta());
   }
 
   // Start matching RefHits to RecHits
