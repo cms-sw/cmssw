@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.168.2.1 
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: alCaRecoSplitting -s ALCAOUTPUT:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+HcalCalIsoTrk --conditions FrontierConditions_GlobalTag,GR10_P_V5::All --no_exec --triggerResultsProcess RECO --filein=/store/temp/data/Commissioning10/MinimumBias/ALCARECO/v9/000/135/528/26F91E4B-C160-DF11-A588-003048D37456.root --no_output --python_filename=alCaRecoSplitting_MinimumBias_cfg.py
+# with command line options: alCaRecoSplitting -s ALCAOUTPUT:HcalCalDijets --conditions FrontierConditions_GlobalTag,GR10_P_V5::All --no_exec --triggerResultsProcess RECO --filein=/store/temp/data/Commissioning10/MinimumBias/ALCARECO/v9/000/135/528/26F91E4B-C160-DF11-A588-003048D37456.root --no_output --python_filename=alCaRecoSplitting_JetMETTau_cfg.py
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('ALCAOUTPUT')
@@ -36,47 +36,14 @@ process.source = cms.Source("PoolSource",
 )
 
 # Additional output definition
-process.ALCARECOStreamTkAlMinBias = cms.OutputModule("PoolOutputModule",
+process.ALCARECOStreamHcalCalDijets = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('pathALCARECOTkAlMinBias:RECO')
+        SelectEvents = cms.vstring('pathALCARECOHcalCalDijets:RECO')
     ),
-    outputCommands = process.OutALCARECOTkAlMinBias_noDrop.outputCommands,
-    fileName = cms.untracked.string('TkAlMinBias.root'),
+    outputCommands = process.OutALCARECOHcalCalDijets_noDrop.outputCommands,
+    fileName = cms.untracked.string('HcalCalDijets.root'),
     dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string('TkAlMinBias'),
-        dataTier = cms.untracked.string('ALCARECO')
-    )
-)
-process.ALCARECOStreamSiStripCalMinBias = cms.OutputModule("PoolOutputModule",
-    SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('pathALCARECOSiStripCalMinBias:RECO')
-    ),
-    outputCommands = process.OutALCARECOSiStripCalMinBias_noDrop.outputCommands,
-    fileName = cms.untracked.string('SiStripCalMinBias.root'),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string('SiStripCalMinBias'),
-        dataTier = cms.untracked.string('ALCARECO')
-    )
-)
-process.ALCARECOStreamHcalCalIsoTrk = cms.OutputModule("PoolOutputModule",
-    SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('pathALCARECOHcalCalIsoTrk:RECO')
-    ),
-    outputCommands = process.OutALCARECOHcalCalIsoTrk_noDrop.outputCommands,
-    fileName = cms.untracked.string('HcalCalIsoTrk.root'),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string('HcalCalIsoTrk'),
-        dataTier = cms.untracked.string('ALCARECO')
-    )
-)
-process.ALCARECOStreamSiStripCalZeroBias = cms.OutputModule("PoolOutputModule",
-    SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('pathALCARECOSiStripCalZeroBias:RECO')
-    ),
-    outputCommands = process.OutALCARECOSiStripCalZeroBias_noDrop.outputCommands,
-    fileName = cms.untracked.string('SiStripCalZeroBias.root'),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string('SiStripCalZeroBias'),
+        filterName = cms.untracked.string('HcalCalDijets'),
         dataTier = cms.untracked.string('ALCARECO')
     )
 )
@@ -129,10 +96,7 @@ process.pathALCARECOMuAlGlobalCosmics = cms.Path(process.seqALCARECOMuAlGlobalCo
 process.pathALCARECOTkAlJpsiMuMu = cms.Path(process.seqALCARECOTkAlJpsiMuMu*process.ALCARECOTkAlJpsiMuMuDQM)
 
 
-process.ALCARECOStreamTkAlMinBiasOutPath = cms.EndPath(process.ALCARECOStreamTkAlMinBias)
-process.ALCARECOStreamSiStripCalMinBiasOutPath = cms.EndPath(process.ALCARECOStreamSiStripCalMinBias)
-process.ALCARECOStreamHcalCalIsoTrkOutPath = cms.EndPath(process.ALCARECOStreamHcalCalIsoTrk)
-process.ALCARECOStreamSiStripCalZeroBiasOutPath = cms.EndPath(process.ALCARECOStreamSiStripCalZeroBias)
+process.ALCARECOStreamHcalCalDijetsOutPath = cms.EndPath(process.ALCARECOStreamHcalCalDijets)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.ALCARECOStreamTkAlMinBiasOutPath,process.ALCARECOStreamSiStripCalMinBiasOutPath,process.ALCARECOStreamHcalCalIsoTrkOutPath,process.ALCARECOStreamSiStripCalZeroBiasOutPath)
+process.schedule = cms.Schedule(process.ALCARECOStreamHcalCalDijetsOutPath)
