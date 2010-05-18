@@ -104,6 +104,7 @@ class Calculate {
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 
 /**
    \class   SelectionStep TopDQMHelpers.h "DQM/Physics/interface/TopDQMHelpers.h"
@@ -248,9 +249,26 @@ bool SelectionStep<Object>::select(const edm::Event& event, const edm::EventSetu
   // load jet corrector if configured such
   const JetCorrector* corrector=0;
   if(!jetCorrector_.empty()){
-    corrector = JetCorrector::getJetCorrector(jetCorrector_, setup);
+    // check whether a jet correcto is in the event setup or not
+    if(setup.find( edm::eventsetup::EventSetupRecordKey::makeKey<JetCorrectionsRecord>() )){
+      corrector = JetCorrector::getJetCorrector(jetCorrector_, setup);
+    }
+    else{
+      //edm::LogVerbatim( "TopDQMHelpers" ) 
+      //  << "\n"
+      //  << "------------------------------------------------------------------------------------- \n"
+      //  << " No JetCorrectionsRecord available from EventSetup:                                   \n" 
+      //  << "  - Jets will not be corrected.                                                       \n"
+      //  << "  - If you want to change this add the following                                      \n"
+      //  << "    lines to your cfg file:                                                           \n"
+      //  << "                                                                                      \n"
+      //  << "  ## load jet corrections                                                             \n"
+      //  << "  process.load(\"JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff\") \n"
+      //  << "  process.prefer(\"ak5CaloL2L3\")                                                     \n"
+      //  << "                                                                                      \n"
+      //  << "------------------------------------------------------------------------------------- \n";
+    }
   }
-
   // determine multiplicity of selected objects
   int n=0;
   for(typename edm::View<Object>::const_iterator obj=src->begin(); obj!=src->end(); ++obj){

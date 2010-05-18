@@ -1,9 +1,10 @@
-#include <algorithm>
-#include "DQM/Physics/interface/TopDQMHelpers.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
+//#include <algorithm>
+#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DQM/Physics/src/TopDiLeptonOfflineDQM.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DQM/Physics/interface/TopDQMHelpers.h"
 
 namespace TopDiLeptonOffline {
 
@@ -295,7 +296,27 @@ namespace TopDiLeptonOffline {
     // buffer leadingJets
     std::vector<reco::Jet> leadingJets;
     const JetCorrector* corrector=0;
-    if(!jetCorrector_.empty()){ corrector = JetCorrector::getJetCorrector(jetCorrector_, setup); }
+    if(!jetCorrector_.empty()){
+      // check whether a jet correcto is in the event setup or not
+      if(setup.find( edm::eventsetup::EventSetupRecordKey::makeKey<JetCorrectionsRecord>() )){
+	corrector = JetCorrector::getJetCorrector(jetCorrector_, setup);
+      }
+      else{
+	//edm::LogVerbatim( "TopDiLeptonOfflineDQM" ) 
+	//  << "\n"
+	//  << "------------------------------------------------------------------------------------- \n"
+	//  << " No JetCorrectionsRecord available from EventSetup:                                   \n" 
+	//  << "  - Jets will not be corrected.                                                       \n"
+	//  << "  - If you want to change this add the following                                      \n"
+	//  << "    lines to your cfg file:                                                           \n"
+	//  << "                                                                                      \n"
+	//  << "  ## load jet corrections                                                             \n"
+	//  << "  process.load(\"JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff\") \n"
+	//  << "  process.prefer(\"ak5CaloL2L3\")                                                     \n"
+	//  << "                                                                                      \n"
+	//  << "------------------------------------------------------------------------------------- \n";
+      }
+    }
     edm::Handle<edm::View<reco::Jet> > jets; event.getByLabel(jets_, jets);
     for(edm::View<reco::Jet>::const_iterator jet=jets->begin(); jet!=jets->end(); ++jet){
       //check for overlap with the selected electrons
