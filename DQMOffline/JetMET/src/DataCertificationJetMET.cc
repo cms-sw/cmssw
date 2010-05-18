@@ -5,7 +5,7 @@
 // 
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.43 2010/05/18 10:24:33 dellaric Exp $
+// $Id: DataCertificationJetMET.cc,v 1.44 2010/05/18 12:06:42 sturdy Exp $
 //
 
 #include "DQMOffline/JetMET/interface/DataCertificationJetMET.h"
@@ -658,11 +658,11 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
 
   for (int mtyp = 0; mtyp < 5; ++mtyp){
     //Mean test results
-    std::cout<<"meMEx = :"<<meMExy[mtyp][0]<<std::endl;
-    std::cout<<"meMEy = :"<<meMExy[mtyp][1]<<std::endl;
-    std::cout<<"meMET = :"<<meMEt[mtyp]<<std::endl;
-    std::cout<<"meMETPhi = :"<<meMExy[mtyp]<<std::endl;
-    std::cout<<"meSumEt = :"<<meMExy[mtyp]<<std::endl;
+    //std::cout<<"meMEx = :"<<meMExy[mtyp][0]<<std::endl;
+    //std::cout<<"meMEy = :"<<meMExy[mtyp][1]<<std::endl;
+    //std::cout<<"meMET = :"<<meMEt[mtyp]<<std::endl;
+    //std::cout<<"meMETPhi = :"<<meMExy[mtyp]<<std::endl;
+    //std::cout<<"meSumEt = :"<<meMExy[mtyp]<<std::endl;
     if (meMExy[mtyp][0]) {
       QReport_MExy[mtyp][0][0] = meMExy[mtyp][0]->getQReport("meanMExyTest");
       QReport_MExy[mtyp][1][0] = meMExy[mtyp][0]->getQReport("KolmogorovTest");
