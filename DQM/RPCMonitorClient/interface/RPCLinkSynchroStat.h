@@ -14,6 +14,8 @@ public:
 
   RPCLinkSynchroStat(bool useFirstHitOnly);
 
+  virtual ~RPCLinkSynchroStat(){}
+
   void init(const RPCReadOutMapping* theCabling, bool addChamberInfo);
 
   void add(const RPCRawSynchro::ProdItem & counts, std::vector<LinkBoardElectronicIndex> & problems);
@@ -22,7 +24,7 @@ public:
 
   std::string dumpDelays();
 
-private:
+protected:
 
   class LinkBoard {
   public:
