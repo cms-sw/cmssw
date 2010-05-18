@@ -9,6 +9,7 @@
 
 #include <stdexcept>
 #include <string>
+#include <sstream>
 
 using namespace std;
 
@@ -1160,8 +1161,15 @@ PFClusterAlgo::calculateClusterPosition(reco::PFCluster& cluster,
       seedIndexFound = true;
     }
 
-
     double recHitEnergy = rh.energy() * fraction;
+
+    // is nan ? 
+    if( recHitEnergy!=recHitEnergy ) {
+      ostringstream ostr;
+      ostr<<"rechit "<<rh.detId()<<" has a NaN energy... particle flow energy refuses to work in these conditions";
+      throw cms::Exception("DataCorrupt", ostr.str() ); 
+    }
+
     cluster.energy_ += recHitEnergy;
 
     // sum energy in each layer
