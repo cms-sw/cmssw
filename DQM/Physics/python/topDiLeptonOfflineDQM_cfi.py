@@ -46,9 +46,8 @@ topDiLeptonOfflineDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
     ),
     ## [optional] : when omitted all monitoring plots for jets will
     ## be filled from uncorrected jets
-### COMMENTED - CRASHES RELVALS
     jetExtras = cms.PSet(
-#      jetCorrector = cms.string("ak5CaloL2L3")
+      jetCorrector = cms.string("ak5CaloL2L3")
     ),
     ## [optional] : when omitted all monitoring plots for triggering
     ## will be empty
