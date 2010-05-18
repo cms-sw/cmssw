@@ -223,11 +223,19 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
 
   // Retrieve SimHits from the event
   edm::Handle<edm::PSimHitContainer> simHitHandle;
-  event.getByLabel(simHitLabel_, simHitHandle);
+  if ( !event.getByLabel(simHitLabel_, simHitHandle) )
+  {
+    edm::LogInfo("RPCRecHitValid") << "Cannot find simHit collection\n";
+    return;
+  }
 
   // Retrieve RecHits from the event
   edm::Handle<RPCRecHitCollection> recHitHandle;
-  event.getByLabel(recHitLabel_, recHitHandle);
+  if ( !event.getByLabel(recHitLabel_, recHitHandle) )
+  {
+    edm::LogInfo("RPCRecHitValid") << "Cannot find recHit collection\n";
+    return;
+  }
 
   typedef edm::PSimHitContainer::const_iterator SimHitIter;
   typedef RPCRecHitCollection::const_iterator RecHitIter;
