@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-pfIsolatedMuons  = cms.EDProducer(
+pfIsolatedMuons  = cms.EDFilter(
     "IsolatedPFCandidateSelector",
     src = cms.InputTag("pfMuonsPtGt5"),
     isolationValueMaps = cms.VInputTag(
