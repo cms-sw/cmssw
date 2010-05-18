@@ -26,7 +26,7 @@ from PhysicsTools.PatAlgos.tools.pfTools import *
 # An empty postfix means that only PF2PAT is run,
 # otherwise both standard PAT and PF2PAT are run. In the latter case PF2PAT
 # collections have standard names + postfix (e.g. patElectronPFlow)  
-postfix = ""
+postfix = "PFlow"
 usePF2PAT(process,runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix=postfix) 
 
 # turn to false when running on data
