@@ -16,7 +16,8 @@ my $usage =
     "\t  [all other options are diregarded if --list <s> is specified!]\n\n" .
     "\t--configId <id>             (specify configuration by id)\n" .
     "\t--configName <name>         (specify configuration by name)\n" .
-    "\t  [--configId OR --configName are required if --list is NOT specified!]\n\n" .
+    "\t--runNumber <run>           (specify configuration by run)\n" .
+    "\t  [--configId OR --configName OR --runNumber are required if --list is NOT specified!]\n\n" .
     "\t--versions                  (list all versions for specified configuration)\n" .
     "\t--packages                  (list all packages of configuration)\n" .
     "\t  [all options below are disregarded if --versions/--packages specified!]\n\n" .
