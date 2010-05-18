@@ -1,5 +1,3 @@
-#include "CondFormats/Common/interface/PayloadWrapper.h"
-
 #include "CondFormats/Calibration/interface/Pedestals.h"
 #include "CondFormats/Calibration/interface/BlobPedestals.h"
 #include "CondFormats/Calibration/interface/BlobNoises.h"
@@ -21,19 +19,5 @@ namespace {
   struct dictionary {
     fixedArray<unsigned short,2097> d;
     std::map<std::string, Algo> e;
-  };
-  struct wrappers {
-    pool::PolyPtr<mySiStripNoises> p0;
-    cond::DataWrapper<mySiStripNoises> d0;
-    pool::PolyPtr<Pedestals> p1;
-    cond::DataWrapper<Pedestals> d1;
-    pool::PolyPtr<BlobComplex> p2;
-    cond::DataWrapper<BlobComplex> d2;
-    pool::PolyPtr<condex::Efficiency> p3;
-    cond::DataWrapper<condex::Efficiency> d3;
-    pool::PolyPtr<BlobPedestals> p4;
-    cond::DataWrapper<BlobPedestals> d4; 
-    pool::PolyPtr<CalibHistograms> p5;
-    cond::DataWrapper<CalibHistograms> d5; 
   };
 }

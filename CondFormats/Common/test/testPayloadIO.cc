@@ -16,9 +16,7 @@
 #include "DataSvc/Ref.h"
 #include <iostream>
 
-#include "CondFormats/Common/interface/PayloadWrapper.h"
-#include "CondFormats/Common/interface/GenericSummary.h"
-#include <vector>
+include <vector>
 
 
 #ifdef ALLCLASSES
@@ -29,35 +27,24 @@
 
 typedef THECLASS Payload;
 
-typedef cond::DataWrapper<Payload> SimplePtr;
 
-namespace{
-
-  bool withWrapper=false;
-}
 
 int main(int argc, char** ) {
 try{
 
   // this is the correct container name following cms rules (container name = C++ type name) 
   //  std::string className = cond::classNameForTypeId(typeid(THECLASS));
-  // std::string DSW_Name("DSW_"+className);
-
+ 
   // for this test we use the class name THECLASS as typed by the user including space, typedefs etc
   // this makes further mapping query easier at script level....
   std::string className("THECLASS");
-  std::string DSW_Name("DSW_THECLASS");
-
-
-  withWrapper = argc>1;
   
   edmplugin::PluginManager::Config config;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
 
   unsigned int nobjects=10;
   std::vector<std::string> payTok;
-  std::vector<std::string> wrapTok;
-
+ 
 
   //write....
   {
@@ -73,18 +60,12 @@ try{
     for (iw = 0; iw < nobjects; ++iw )   {
       pool::Ref<Payload> ref = session.storeObject(new Payload,className);
       payTok.push_back(ref.toString());
-      if (withWrapper) {
-	pool::Ref<cond::PayloadWrapper> refW = 
-	  session.storeObject(new SimplePtr(new Payload, new cond::GenericSummary(className)),DSW_Name);
-	wrapTok.push_back(refW.toString());
-     }
+ 
     }
     
     tr.commit();
     if (payTok.size()!=nobjects)
       throw std::string("not all object written!");
-    if (withWrapper &&  wrapTok.size()!=nobjects)
-      throw std::string("not all wrapped object written!");
  
   }
 
@@ -106,16 +87,6 @@ try{
 
     if (ir!=nobjects)
       throw std::string("not all object read!");
- 
-
-    for (ir = 0; ir < wrapTok.size(); ++ir )   {
-      pool::Ref<SimplePtr> ref = session.getTypedObject<SimplePtr>(wrapTok[ir]);
-      Payload const & p = ref->data();
-    }
-
-    if (withWrapper &&  (ir!=nobjects))
-      throw std::string("not all wrapped object read!");
-   
     
     tr.commit();
     

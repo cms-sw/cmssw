@@ -19,7 +19,7 @@ namespace cond {
     // short message (just content to be used in a table)
     virtual void shortMessage(std::ostream & os) const;
     
-    // long message (ot be used in pop-up, single views)
+    // long message (to be used in pop-up, single views)
     virtual void longMessage(std::ostream & os) const;
     
     

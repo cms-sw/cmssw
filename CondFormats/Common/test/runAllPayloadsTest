@@ -26,10 +26,8 @@ mv bfile BuildFile
 scramv1 b
 echo "run CondPayload_${cname}_testIO"
 $CMSSW_BASE/test/$SCRAM_ARCH/CondPayload_${cname}_testIO
-# $CMSSW_BASE/test/$SCRAM_ARCH/CondPayload_${cname}_testIO wrapper
+
 pool_retrieve_object_relational_mapping -c sqlite_file:test.db -n "$class" -d CondFormats$1
 cat mapping.xml
-# pool_retrieve_object_relational_mapping -c sqlite_file:test.db -n "DSW_$class" -d CondFormats$1
-# cat mapping.xml
 end
 pool_list_object_relational_mapping -c sqlite_file:test.db -cv -tm
