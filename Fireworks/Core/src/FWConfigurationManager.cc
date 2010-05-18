@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 24 14:42:32 EST 2008
-// $Id: FWConfigurationManager.cc,v 1.12 2010/05/06 12:49:09 amraktad Exp $
+// $Id: FWConfigurationManager.cc,v 1.13 2010/05/06 14:28:16 amraktad Exp $
 //
 
 // system include files
@@ -354,34 +354,18 @@ FWConfigurationManager::readFromFile(const std::string& iName) const
    std::ifstream f(iName.c_str());
    if (f.peek() != (int) '<')
       return readFromOldFile(iName);
-
+   
    // Check that the syntax is correct.
-   try
-   {
-      SimpleSAXParser syntaxTest(f);
-      syntaxTest.parse();
-   }
-   catch(SimpleSAXParser::ParserError &e)
-   {
-      printf(e.error());
-      exit(1);
-   }
+   SimpleSAXParser syntaxTest(f);
+   syntaxTest.parse();
    f.close();
    
    // Read again, this time actually parse.
    std::ifstream g(iName.c_str());
    // Actually parse the results.
-   try
-   {
-      FWXMLConfigParser parser(g);
-      parser.parse();
-      setFrom(*parser.config());
-   }
-   catch(SimpleSAXParser::ParserError &e)
-   {
-      printf(e.error());
-      exit(1);      
-   }
+   FWXMLConfigParser parser(g);
+   parser.parse();
+   setFrom(*parser.config());
 }
 
 //

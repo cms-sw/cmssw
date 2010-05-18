@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.161 2010/05/07 09:59:26 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.162 2010/05/18 12:48:59 eulisse Exp $
 //
 
 // system include files
@@ -26,6 +26,7 @@
 #include "TFile.h"
 #include "TROOT.h"
 #include "TGFileDialog.h"
+#include "TGMsgBox.h"
 #include "TMonitor.h"
 #include "TServerSocket.h"
 #include "TEveLine.h"
@@ -60,6 +61,8 @@
 #include "Fireworks/Core/src/CmsShowTaskExecutor.h"
 #include "Fireworks/Core/interface/CmsShowMainFrame.h"
 #include "Fireworks/Core/interface/CmsShowSearchFiles.h"
+
+#include "Fireworks/Core/src/SimpleSAXParser.h"
 
 #include "Fireworks/Core/interface/fwLog.h"
 
@@ -584,7 +587,32 @@ CmsShowMain::reloadConfiguration(const std::string &config)
    m_eiManager->clearItems();
    m_configFileName = config;
    m_guiManager->subviewDestroyAll();
-   m_configurationManager->readFromFile(config);
+   try
+   {
+      m_configurationManager->readFromFile(config);
+   }
+   catch (std::runtime_error &e)
+   {
+      Int_t chosen;
+      new TGMsgBox(gClient->GetDefaultRoot(),
+                   gClient->GetDefaultRoot(),
+                   "Bad configuration",
+                   ("Configuration " + config + " cannot be parsed.").c_str(),
+                   kMBIconExclamation,
+                   kMBCancel,
+                   &chosen);
+   }
+   catch (SimpleSAXParser::ParserError &e)
+   {
+      Int_t chosen;
+      new TGMsgBox(gClient->GetDefaultRoot(),
+                   gClient->GetDefaultRoot(),
+                   "Bad configuration",
+                   ("Configuration " + config + " cannot be parsed.").c_str(),
+                   kMBIconExclamation,
+                   kMBCancel,
+                   &chosen);
+   }
    m_guiManager->updateStatus("");
 }
 
@@ -611,7 +639,26 @@ CmsShowMain::setupConfiguration()
       }
 
       delete [] whereConfig;
-      m_configurationManager->readFromFile(m_configFileName);
+      try
+      {
+         m_configurationManager->readFromFile(m_configFileName);
+      }
+      catch (std::runtime_error &e)
+      {
+         fwLog(fwlog::kError) <<"Unable to load configuration file '" 
+                              << m_configFileName 
+                              << "' which was specified on command line. Quitting." 
+                              << std::endl;
+         exit(1);
+      }
+      catch (SimpleSAXParser::ParserError &e)
+      {
+         fwLog(fwlog::kError) <<"Unable to load configuration file '" 
+                              << m_configFileName 
+                              << "' which was specified on command line. Quitting." 
+                              << std::endl;
+         exit(1);
+      }
    }
 
    if(not m_configFileName.empty() ) {
