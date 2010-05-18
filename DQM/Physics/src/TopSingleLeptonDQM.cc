@@ -139,9 +139,9 @@ namespace TopSingleLepton {
     // multiplicity of jets with pt>20 (corrected to L2+L3)
     hists_["jetMult_"    ] = store_->book1D("JetMult"    , "N_{30}(jet)"      ,     10,     0.,     10.);   
     // trigger efficiency estimates for single lepton triggers
-    hists_["triggerEff_" ] = store_->book1D("triggerEff" , "Eff(trigger)"     , nPaths,     0.,  nPaths);
+    hists_["triggerEff_" ] = store_->book1D("TriggerEff" , "Eff(trigger)"     , nPaths,     0.,  nPaths);
     // monitored trigger occupancy for single lepton triggers
-    hists_["triggerMon_" ] = store_->book1D("triggerMon" , "Mon(trigger)"     , nPaths,     0.,  nPaths);
+    hists_["triggerMon_" ] = store_->book1D("TriggerMon" , "Mon(trigger)"     , nPaths,     0.,  nPaths);
     // MET (calo)
     hists_["metCalo_"    ] = store_->book1D("METCalo"    , "MET_{Calo}"       ,     50,     0.,    200.);   
     // W mass estimate
