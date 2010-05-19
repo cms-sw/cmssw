@@ -1,5 +1,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <assert.h>
 #include <iostream>
 
@@ -27,7 +29,7 @@ PFLayer::Layer   PFLayer::fromCaloID( const CaloID& id) {
 
   //  cout<<"PFLayer::fromCaloID "<<id<<" "<<id.detector()<<endl;
   if( !id.isSingleDetector() ) {
-    assert(0); 
+    edm::LogError("PFLayer")<<"cannot convert "<<id<<"to a layer, as this CaloID does not correspond to a single detector"; 
   }
 
   switch( id.detector() ) {
