@@ -19,15 +19,14 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         'file:testRunMerge1.root', 
-        'file:testRunMerge2extra.root', 
-        'file:testRunMerge3extra.root',
+        'file:testRunMerge2.root', 
+        'file:testRunMerge3.root',
         'file:testRunMerge4.root',
         'file:testRunMerge5.root'
     ),
     inputCommands = cms.untracked.vstring(
         'keep *', 
-        'drop *_C_*_*',
-        'drop *_*_*_EXTRA'
+        'drop *_C_*_*'
     )
     , duplicateCheckMode = cms.untracked.string('checkEachRealDataFile')
 )
@@ -165,8 +164,8 @@ process.test = cms.EDAnalyzer("TestMergeResults",
 
     expectedInputFileNames = cms.untracked.vstring(
         'file:testRunMerge1.root', 
-        'file:testRunMerge2extra.root', 
-        'file:testRunMerge3extra.root',
+        'file:testRunMerge2.root', 
+        'file:testRunMerge3.root',
         'file:testRunMerge4.root',
         'file:testRunMerge5.root'
     ),
