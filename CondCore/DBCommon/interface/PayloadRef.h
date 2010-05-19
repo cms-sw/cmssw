@@ -2,14 +2,10 @@
 #define CondCore_DBCommon_PayloadRef_h
 
 #include "DataSvc/Ref.h"
-#include "CondFormats/Common/interface/PayloadWrapper.h"
-
-#include<iostream>
 
 namespace pool{
   class IDataSvc;
 }
-
 
 namespace cond {
 
@@ -18,52 +14,36 @@ namespace cond {
   template<typename DataT>
   class PayloadRef {
   public:
-    typedef cond::DataWrapper<DataT> DataWrapper;
  
-
-    PayloadRef() : old(false){}
+    PayloadRef(){}
     ~PayloadRef(){}
     
     // dereference (does not re-load)
     const DataT & operator*() const {
-      return old ? *m_OldData : m_data->data(); 
+      *m_Data; 
     }
     
     void clear() {
-      m_data.clear();
-      m_OldData.clear();
+      m_Data.clear();
     }
     
     
     bool load(pool::IDataSvc * svc, std::string const & itoken) {
-      old = false;
       clear();
       bool ok = false;
-      // try wrapper, if not try plain
-      if (Reflex::Type::ByTypeInfo(typeid(DataWrapper))) {
-        pool::Ref<DataWrapper> ref(svc,itoken);
-        if (ref) {
-          m_data.copyShallow(ref);
-          ok = m_data->loadData();
-        }
-      } else {
-        pool::Ref<DataT> refo(svc,itoken);
-        if (refo) {
-          old = true;
-          m_OldData.copyShallow(refo);
-          ok =  true;
-        }
+     
+      pool::Ref<DataT> refo(svc,itoken);
+      if (refo) {
+	m_Data.copyShallow(refo);
+	ok =  true;
       }
       return ok;
     }
     
     
   private:
-    bool old;
-    pool::Ref<DataWrapper> m_data;
-    // Backward compatibility
-    pool::Ref<DataT> m_OldData;
+    pool::Ref<DataT> m_Data;
   };
   
 }
-#endif // CondCore_IOVService_PayloadProxy_h
+#endif // CondCore_PayloadProxy_h
