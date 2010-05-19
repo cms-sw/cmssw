@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 EcalTrivialConditionRetriever = cms.ESSource("EcalTrivialConditionRetriever",
     producedEcalChannelStatus = cms.untracked.bool(True),
+    producedEcalDQMTowerStatus = cms.untracked.bool(True),
+    producedEcalDQMChannelStatus = cms.untracked.bool(True),
     producedEcalDCSTowerStatus = cms.untracked.bool(True),
     producedEcalDAQTowerStatus = cms.untracked.bool(True),
     producedEcalTrgChannelStatus = cms.untracked.bool(True),
