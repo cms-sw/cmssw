@@ -20,7 +20,7 @@ namespace cond {
     
     // dereference (does not re-load)
     const DataT & operator*() const {
-      *m_Data; 
+      return *m_Data; 
     }
     
     void clear() {

@@ -14,6 +14,7 @@
 #include <iostream>
 #include <sstream>
 #include "TFile.h"
+#include "Cintex/Cintex.h"
 
 namespace cond {
   class ListIOVUtilities : public Utilities {
@@ -31,6 +32,9 @@ cond::ListIOVUtilities::ListIOVUtilities():Utilities("cmscond_list_iov"){
   addOption<bool>("all","a","list all tags(default mode)");
   addOption<bool>("summary","s","print also the summary for each payload");
   addOption<std::string>("tag","t","list info of the specified tag");
+
+   ROOT::Cintex::Cintex::Enable();
+ 
 }
 
 cond::ListIOVUtilities::~ListIOVUtilities(){
@@ -81,8 +85,8 @@ int cond::ListIOVUtilities::execute(){
         std::cout<<ioviterator->since() << " \t "<<ioviterator->till() <<" \t "<<ioviterator->wrapperToken();
         if (details) {
 	  pool::RefBase ref = session.getObject(ioviterator->wrapperToken());
-	  std::ostringstream ss; ss << tag << '_' << since; 
-	  xml->WriteObjectAny(ref.object().get(),ref.objectType().Name().c_str(), ss.str().c_str());
+	  std::ostringstream ss; ss << tag << '_' << ioviterator->since(); 
+	  xml->WriteObjectAny(ref.object().get(),ref.objectType().Name(ROOT::Reflex::SCOPED).c_str(), ss.str().c_str());
         }
         std::cout<<std::endl;
         ++counter;
