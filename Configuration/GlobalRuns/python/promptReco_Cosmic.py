@@ -23,7 +23,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContentCosmics_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.18 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('promptReco nevts:-1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -71,8 +71,8 @@ process.ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlBeamHalo_noDro
 process.GlobalTag.globaltag = 'GR09_R_35_V2A::All'
 
 ## preshower baseline substraction is done already in data.
-process.ecalPreshowerRecHit.ESBaseline = cms.int32(0) 
-process.ecalPreshowerRecHit.ESRecoAlgo = cms.untracked.int32(1)
+process.ecalPreshowerRecHit.ESBaseline = 0
+process.ecalPreshowerRecHit.ESRecoAlgo = 1
 
 
 # Path and EndPath definitions
