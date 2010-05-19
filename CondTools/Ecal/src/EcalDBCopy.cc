@@ -42,6 +42,10 @@
 #include "CondFormats/DataRecord/interface/EcalDCSTowerStatusRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalDAQTowerStatus.h"
 #include "CondFormats/DataRecord/interface/EcalDAQTowerStatusRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalDQMTowerStatus.h"
+#include "CondFormats/DataRecord/interface/EcalDQMTowerStatusRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalDQMChannelStatus.h"
+#include "CondFormats/DataRecord/interface/EcalDQMChannelStatusRcd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalClusterCrackCorrParameters.h"
 #include "CondFormats/DataRecord/interface/EcalClusterCrackCorrParametersRcd.h"
@@ -129,6 +133,10 @@ bool EcalDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string contain
     cacheID = evtSetup.get<EcalTBWeightsRcd>().cacheIdentifier();
   } else if (container == "EcalChannelStatus") {
     cacheID = evtSetup.get<EcalChannelStatusRcd>().cacheIdentifier();
+  } else if (container == "EcalDQMTowerStatus") {
+    cacheID = evtSetup.get<EcalDQMTowerStatusRcd>().cacheIdentifier();
+  } else if (container == "EcalDQMChannelStatus") {
+    cacheID = evtSetup.get<EcalDQMChannelStatusRcd>().cacheIdentifier();
   } else if (container == "EcalDCSTowerStatus") {
     cacheID = evtSetup.get<EcalDCSTowerStatusRcd>().cacheIdentifier();
   } else if (container == "EcalDAQTowerStatus") {
@@ -202,6 +210,20 @@ void EcalDBCopy::copyToDB(const edm::EventSetup& evtSetup, std::string container
     cout << "channel status pointer is: "<< obj<< endl;
 
    dbOutput->createNewIOV<const EcalChannelStatus>( new EcalChannelStatus(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
+
+  }  else if (container == "EcalDQMChannelStatus") {
+    edm::ESHandle<EcalDQMChannelStatus> handle;
+    evtSetup.get<EcalDQMChannelStatusRcd>().get(handle);
+    const EcalDQMChannelStatus* obj = handle.product();
+    cout << "DQM channel status pointer is: "<< obj<< endl;
+    dbOutput->createNewIOV<const EcalDQMChannelStatus>( new EcalDQMChannelStatus(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
+
+  }  else if (container == "EcalDQMTowerStatus") {
+    edm::ESHandle<EcalDQMTowerStatus> handle;
+    evtSetup.get<EcalDQMTowerStatusRcd>().get(handle);
+    const EcalDQMTowerStatus* obj = handle.product();
+    cout << "DQM Tower status pointer is: "<< obj<< endl;
+    dbOutput->createNewIOV<const EcalDQMTowerStatus>( new EcalDQMTowerStatus(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
   }  else if (container == "EcalDCSTowerStatus") {
     edm::ESHandle<EcalDCSTowerStatus> handle;
