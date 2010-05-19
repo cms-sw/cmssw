@@ -115,7 +115,11 @@
 #include "CondFormats/EcalObjects/interface/EcalDAQTowerStatus.h"
 #include "CondFormats/DataRecord/interface/EcalDAQTowerStatusRcd.h"
 
+#include "CondFormats/EcalObjects/interface/EcalDQMTowerStatus.h"
+#include "CondFormats/DataRecord/interface/EcalDQMTowerStatusRcd.h"
 
+#include "CondFormats/EcalObjects/interface/EcalDQMChannelStatus.h"
+#include "CondFormats/DataRecord/interface/EcalDQMChannelStatusRcd.h"
 
 REGISTER_PLUGIN(EcalPedestalsRcd,EcalPedestals);
 REGISTER_PLUGIN(EcalWeightXtalGroupsRcd,EcalWeightXtalGroups);
@@ -156,4 +160,8 @@ REGISTER_PLUGIN(EcalTPGTowerStatusRcd,EcalTPGTowerStatus);
 
 REGISTER_PLUGIN(EcalDCSTowerStatusRcd,EcalDCSTowerStatus);
 REGISTER_PLUGIN(EcalDAQTowerStatusRcd,EcalDAQTowerStatus);
+
+REGISTER_PLUGIN(EcalDQMChannelStatusRcd,EcalDQMChannelStatus);
+REGISTER_PLUGIN(EcalDQMTowerStatusRcd,EcalDQMChannelStatus);
+
 

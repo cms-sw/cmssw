@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.h,v 1.25 2009/12/18 13:43:22 fra Exp $
+// $Id: EcalTrivialConditionRetriever.h,v 1.26 2010/01/29 10:45:28 fra Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -64,6 +64,11 @@
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
+#include "CondFormats/EcalObjects/interface/EcalDQMChannelStatus.h"
+#include "CondFormats/DataRecord/interface/EcalDQMChannelStatusRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalDQMTowerStatus.h"
+#include "CondFormats/DataRecord/interface/EcalDQMTowerStatusRcd.h"
+
 #include "CondFormats/EcalObjects/interface/EcalClusterLocalContCorrParameters.h"
 #include "CondFormats/EcalObjects/interface/EcalClusterCrackCorrParameters.h"
 #include "CondFormats/EcalObjects/interface/EcalClusterEnergyCorrectionParameters.h"
@@ -126,7 +131,8 @@ public:
 
   virtual std::auto_ptr<EcalDCSTowerStatus> produceEcalDCSTowerStatus( const EcalDCSTowerStatusRcd& );
   virtual std::auto_ptr<EcalDAQTowerStatus> produceEcalDAQTowerStatus( const EcalDAQTowerStatusRcd& );
-
+  virtual std::auto_ptr<EcalDQMTowerStatus> produceEcalDQMTowerStatus( const EcalDQMTowerStatusRcd& );
+  virtual std::auto_ptr<EcalDQMChannelStatus> produceEcalDQMChannelStatus( const EcalDQMChannelStatusRcd& );
 
   virtual std::auto_ptr<EcalMappingElectronics> produceEcalMappingElectronics( const EcalMappingElectronicsRcd& );
   virtual std::auto_ptr<EcalMappingElectronics> getMappingFromConfiguration( const EcalMappingElectronicsRcd& );
@@ -236,6 +242,8 @@ private:
   bool producedEcalADCToGeVConstant_;
   bool producedEcalLaserCorrection_;
   bool producedEcalChannelStatus_;
+  bool producedEcalDQMTowerStatus_;
+  bool producedEcalDQMChannelStatus_;
   bool producedEcalDCSTowerStatus_;
   bool producedEcalDAQTowerStatus_;
   bool producedEcalTrgChannelStatus_;

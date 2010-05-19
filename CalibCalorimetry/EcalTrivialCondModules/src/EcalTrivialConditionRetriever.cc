@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.46 2010/01/20 16:28:32 fra Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.47 2010/01/29 10:45:27 fra Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -262,6 +262,12 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
           }
           findingRecord<EcalChannelStatusRcd>();
   }
+  // DQM channel status
+  producedEcalDQMChannelStatus_ = ps.getUntrackedParameter<bool>("producedEcalDQMChannelStatus",true);
+  if ( producedEcalDQMChannelStatus_ ) {
+    setWhatProduced( this, &EcalTrivialConditionRetriever::produceEcalDQMChannelStatus );
+    findingRecord<EcalDQMChannelStatusRcd>();
+  }
   // DCS Tower status
   producedEcalDCSTowerStatus_ = ps.getUntrackedParameter<bool>("producedEcalDCSTowerStatus",true);
   if ( producedEcalDCSTowerStatus_ ) {
@@ -273,6 +279,12 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   if ( producedEcalDAQTowerStatus_ ) {
     setWhatProduced( this, &EcalTrivialConditionRetriever::produceEcalDAQTowerStatus );
     findingRecord<EcalDAQTowerStatusRcd>();
+  }
+  // DQM Tower status
+  producedEcalDQMTowerStatus_ = ps.getUntrackedParameter<bool>("producedEcalDQMTowerStatus",true);
+  if ( producedEcalDQMTowerStatus_ ) {
+    setWhatProduced( this, &EcalTrivialConditionRetriever::produceEcalDQMTowerStatus );
+    findingRecord<EcalDQMTowerStatusRcd>();
   }
 
   // trigger channel status
@@ -1640,8 +1652,85 @@ EcalTrivialConditionRetriever::produceEcalChannelStatus( const EcalChannelStatus
         }
         return ical;
 }
+
+// --------------------------------------------------------------------------------
+std::auto_ptr<EcalDQMChannelStatus>
+EcalTrivialConditionRetriever::produceEcalDQMChannelStatus( const EcalDQMChannelStatusRcd& )
+{
+  uint32_t sta(0);
+
+        std::auto_ptr<EcalDQMChannelStatus>  ical = std::auto_ptr<EcalDQMChannelStatus>( new EcalDQMChannelStatus() );
+        // barrel
+        for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
+                if(ieta==0) continue;
+                for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
+                        if (EBDetId::validDetId(ieta,iphi)) {
+                                EBDetId ebid(ieta,iphi);
+                                ical->setValue( ebid, sta );
+                        }
+                }
+        }
+        // endcap
+        for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
+                for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
+                        // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
+                        if (EEDetId::validDetId(iX,iY,1)) {
+                                EEDetId eedetidpos(iX,iY,1);
+                                ical->setValue( eedetidpos, sta );
+                        }
+                        if (EEDetId::validDetId(iX,iY,-1)) {
+                                EEDetId eedetidneg(iX,iY,-1);
+                                ical->setValue( eedetidneg, sta );
+                        }
+                }
+        }
+        return ical;
+}
 // --------------------------------------------------------------------------------
 
+std::auto_ptr<EcalDQMTowerStatus>
+EcalTrivialConditionRetriever::produceEcalDQMTowerStatus( const EcalDQMTowerStatusRcd& )
+{
+
+        std::auto_ptr<EcalDQMTowerStatus>  ical = std::auto_ptr<EcalDQMTowerStatus>( new EcalDQMTowerStatus() );
+
+	uint32_t sta(0);
+	
+        // barrel
+	int iz=0;
+        for(int k=0 ; k<2; k++ ) {
+	  if(k==0) iz=-1;
+	  if(k==1) iz=+1;
+	  for(int i=1 ; i<73; i++) {
+	    for(int j=1 ; j<18; j++) {
+	      if (EcalTrigTowerDetId::validDetId(iz,EcalBarrel,j,i )){
+		EcalTrigTowerDetId ebid(iz,EcalBarrel,j,i);
+
+		ical->setValue( ebid, sta );
+	      }
+	    }
+	  }
+	}
+
+
+        // endcap
+        for(int k=0 ; k<2; k++ ) {
+	  if(k==0) iz=-1;
+	  if(k==1) iz=+1;
+	  for(int i=1 ; i<21; i++) {
+	    for(int j=1 ; j<21; j++) {
+	      if (EcalScDetId::validDetId(i,j,iz )){
+		EcalScDetId eeid(i,j,iz);
+		ical->setValue( eeid, sta );
+	      }
+	    }
+	  }
+	}
+
+        return ical;
+}
+
+// --------------------------------------------------------------------------------
 std::auto_ptr<EcalDCSTowerStatus>
 EcalTrivialConditionRetriever::produceEcalDCSTowerStatus( const EcalDCSTowerStatusRcd& )
 {
