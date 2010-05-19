@@ -19,6 +19,8 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include "CondFormats/Calibration/interface/Pedestals.h"
 #include "CondFormats/DataRecord/interface/PedestalsRcd.h"
 
+#include "TFile.h"
+
 using namespace std;
 
 namespace edmtest
@@ -76,6 +78,10 @@ namespace edmtest
       std::cout << " mean: " <<it->m_mean
                 << " variance: " <<it->m_variance;
     std::cout  << std::endl;
+
+    TFile * f = TFile::Open("MyPedestal.xml","recreate");
+    f->WriteObjectAny(myped,"Pedestals","Pedestals");
+    f->Close();
   }
   DEFINE_FWK_MODULE(PedestalsAnalyzer);
 }
