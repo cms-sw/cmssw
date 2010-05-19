@@ -83,7 +83,7 @@ TH1F * subRangeHisto( const double * resMass, const double * resHalfWidth,
 }
 
 TH1F * buildHistogram(const double * ResMass, const double * ResHalfWidth, const int xBins, const double & deltaX, const double & xMin, const double & xMax,
-                      const int ires, const double & Bgrp1, const double & a, const double & leftWindowFactor, const double & rightWindowFactor,
+                      const int ires, const double & Bgrp1, const double & a, const double & leftWindowBorder, const double & rightWindowBorder,
 		      const TH1F* allHisto, const int backgroundType, const double & b = 0);
 
 void BackgroundCheck()
@@ -119,8 +119,8 @@ void BackgroundCheck()
   vector<int> ires;
   vector<double> Bgrp1;
   vector<double> a;
-  vector<double> leftWindowFactor;
-  vector<double> rightWindowFactor;
+  vector<double> leftWindowBorder;
+  vector<double> rightWindowBorder;
   int backgroundType = 0;
 
   // IMPORTANT: parameters to change
@@ -129,27 +129,27 @@ void BackgroundCheck()
 
   // Exponential
   backgroundType = 0;
-  Bgrp1.push_back(0.397312);
-  a.push_back(0.562841);
-  a.push_back(0.);
-  leftWindowFactor.push_back(4);
-  rightWindowFactor.push_back(1);
+  Bgrp1.push_back(0.740986);
+  a.push_back(0.394166);
+  a.push_back(0);
+  leftWindowBorder.push_back(2);
+  rightWindowBorder.push_back(4);
 
   // // Linear
   // backgroundType.push_back(1);
   // Bgrp1.push_back(0.833);
   // a.push_back(0.00016);
   // a.push_back(-1.27329e-11);
-  // leftWindowFactor.push_back(1);
-  // rightWindowFactor.push_back(1);
+  // leftWindowBorder.push_back(1);
+  // rightWindowBorder.push_back(1);
 
   // // Atan
   // backgroundType.push_back(2);
   // Bgrp1.push_back(0.000547261);
   // a.push_back(10.0145);
   // a.push_back(-0.320232);
-  // leftWindowFactor.push_back(1);
-  // rightWindowFactor.push_back(1);
+  // leftWindowBorder.push_back(1);
+  // rightWindowBorder.push_back(1);
 
   // -------------------------------
 
@@ -157,7 +157,7 @@ void BackgroundCheck()
   vector<TH1F*> backgroundFunctionHisto;
   for( unsigned int i=0; i<ires.size(); ++i ) {
     backgroundFunctionHisto.push_back( buildHistogram(ResMass, ResHalfWidth, xBins, deltaX, xMin, xMax,
-                                                      ires[i], Bgrp1[i], a[i], leftWindowFactor[i], rightWindowFactor[i],
+                                                      ires[i], Bgrp1[i], a[i], leftWindowBorder[i], rightWindowBorder[i],
 						      allHisto, backgroundType, a[i+1]) );
   }
 
@@ -208,12 +208,12 @@ void BackgroundCheck()
 TH1F * buildHistogram(const double * ResMass, const double * ResHalfWidth, const int xBins,
 		      const double & deltaX, const double & xMin, const double & xMax,
                       const int ires, const double & Bgrp1, const double & a,
-		      const double & leftWindowFactor, const double & rightWindowFactor,
+		      const double & leftWindowBorder, const double & rightWindowBorder,
 		      const TH1F* allHisto, const int backgroundType, const double & b)
 {
   // For J/Psi exclude the Upsilon from the background normalization as the bin is not used by the fit.
-  double lowWindowValue = ResMass[ires]-leftWindowFactor*ResHalfWidth[ires];
-  double upWindowValue = ResMass[ires]+rightWindowFactor*ResHalfWidth[ires];
+  double lowWindowValue = ResMass[ires]-leftWindowBorder;
+  double upWindowValue = ResMass[ires]+rightWindowBorder;
 
   int lowBin = int((lowWindowValue)*xBins/deltaX);
   int upBin = int((upWindowValue)*xBins/deltaX);
