@@ -51,6 +51,7 @@
 #include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
 
 
+#include <boost/foreach.hpp>
 
 #include <fstream>
 #include <bitset>
@@ -70,6 +71,9 @@ class WriteVHDL : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       int getDCCNumber(int iTower, int iSec);
+      int getDCC(int iSec);
+      int getTBNumber(int iTower);
+      int getDCCNumberFromTB(int tbNumber, int iSec);
       int   m_towerBeg;
       int   m_towerEnd;
       int   m_sectorBeg;
@@ -77,6 +81,44 @@ class WriteVHDL : public edm::EDAnalyzer {
       std::string m_templateName;  
       std::string m_outdirName;  
 
+      struct TBLoc {
+        TBLoc(int tb, int sec) : tbNum(tb), sector(sec) {}; 
+        int tbNum;
+        int sector;
+        bool operator< (const TBLoc &  c2  ) const {
+              if (this->tbNum != c2.tbNum )  return (this->tbNum < c2.tbNum);
+                  else return (this->sector < c2.sector);
+        }
+      };
+
+      typedef std::map<TBLoc, std::set<int> > TBInputsMap; /// value contains list of used TB inputs, key localizes TB
+      TBInputsMap m_tbInputs;
+
+      typedef std::map<TBLoc, std::map<int, int> > TBInputs3to4Map;
+      TBInputs3to4Map m_tbInputs3to4;
+      
+      struct TDetStrip{
+        TDetStrip(int d, int s) : detId(d), strip(s) {};
+        int detId;
+        int strip;
+        bool operator< (const TDetStrip &  c2  ) const {
+          if (this->detId != c2.detId )  return (this->detId < c2.detId);
+          else return (this->strip < c2.strip);
+        }
+      };
+      
+      struct TStripConnection{
+        TStripConnection(int t, int l, int p) : tbInput(t), lbInTBInput(l), packedStrip(p) {};
+        TStripConnection() : tbInput(-1), lbInTBInput(-1), packedStrip(-1) {};
+        int tbInput;
+        int lbInTBInput;
+        int packedStrip;
+      };
+      
+      typedef std::map<TDetStrip,TStripConnection> TStrip2Con;
+      typedef std::map<TBLoc, TStrip2Con > TTB2Con;
+      TTB2Con m_4thPlaneConnections;
+      
 
       void writePats(const edm::EventSetup& evtSetup,int tower, int logsector);
 
@@ -97,7 +139,7 @@ class WriteVHDL : public edm::EDAnalyzer {
       
       std::string writeGB(std::string PACt);
 
-      void prepareEncdap4thPlaneConnections(edm::ESHandle<RPCGeometry> geom);
+      void prepareEncdap4thPlaneConnections(edm::ESHandle<RPCGeometry> geom, edm::ESHandle<RPCReadOutMapping> map);
       // ----------member data ---------------------------
 };
 
@@ -535,22 +577,224 @@ std::string WriteVHDL::writeGB(std::string PACt){
 
 
 
-void WriteVHDL::prepareEncdap4thPlaneConnections(edm::ESHandle<RPCGeometry> rpcGeom) {
+void WriteVHDL::prepareEncdap4thPlaneConnections(edm::ESHandle<RPCGeometry> rpcGeom, edm::ESHandle<RPCReadOutMapping> map) {
 
  static bool jobDone = false;
  if (jobDone) return;
  jobDone = true;
+
+ //std::cout << "prepareEncdap4thPlaneConnections\n " ;
+ 
+ 
+  // build map of used TB inputs
+  for(TrackingGeometry::DetContainer::const_iterator it = rpcGeom->dets().begin();
+      it != rpcGeom->dets().end();
+      ++it)
+  {
+    if( dynamic_cast< RPCRoll* >( *it ) == 0 ) continue;
+    RPCRoll* roll = dynamic_cast< RPCRoll*>( *it );
+    int detId = roll->id().rawId();
+    
+    for (int strip = 1; strip<= roll->nstrips(); ++strip){
+      LinkBoardElectronicIndex a = {0,0,0,0};
+      std::pair< LinkBoardElectronicIndex, LinkBoardPackedStrip> linkStrip =
+          std::make_pair(a, LinkBoardPackedStrip(0,0));
+
+      std::pair<int,int> stripInDetUnit(detId, strip);
+      std::vector< std::pair< LinkBoardElectronicIndex, LinkBoardPackedStrip> > aVec = map->rawDataFrame( stripInDetUnit);
+      std::vector< std::pair< LinkBoardElectronicIndex, LinkBoardPackedStrip> >::const_iterator CI;
+
+      
+      for (int iSec = 0; iSec < 12; ++iSec) {
+        int DCC = getDCC(iSec);
+        for (int iTB = 1; iTB <8 ; ++iTB) {
+          int DCCin = getDCCNumberFromTB(iTB, iSec);
+          int ncons = 0;
+          for(CI=aVec.begin();CI!=aVec.end();++CI){
+            if(CI->first.dccInputChannelNum==DCCin &&  CI->first.dccId == DCC ) {
+              linkStrip = *CI;
+              ++ncons;
+            }
+          }
+          
+          if (ncons > 1) std::cout << "Problem: more then one connection for given TB\n";
+          if (ncons == 1) {
+            TBLoc loc(iTB, iSec);
+            int tbInput = linkStrip.first.tbLinkInputNum;
+            //int lbInTBInput = linkStrip.first.lbNumInLink;
+            m_tbInputs[loc].insert(tbInput);
+            /*std::cout << " Found con for TC" << iSec << " TB" << iTB
+                << " - " << tbInput
+                << std::endl;*/
+
+          }
+        } // tb iter
+      } // TC iter
+    } // strip iter
+  } // roll iter
+
+  /*
+  BOOST_FOREACH( TBInputsMap::value_type t, m_tbInputs )
+  {
+    std::cout 
+        << "TB" << t.first.tbNum
+        << " SEC" <<  t.first.sector
+        << std::endl
+        << "      ";
+    BOOST_FOREACH( TBInputsMap::mapped_type::key_type  input, t.second ){
+      std::cout << " " << input; 
+    }
+    std::cout << std::endl;
+  }
+  */
+
+ 
  for(TrackingGeometry::DetContainer::const_iterator it = rpcGeom->dets().begin();
      it != rpcGeom->dets().end();
      ++it)
  {
    RPCRoll* roll = dynamic_cast< RPCRoll*>( *it );
    if( roll == 0 ) continue;
-   RPCDetId detId = roll->id().rawId();
-   if (detId.region()!=1) continue;
-   if (detId.station()!=3 || detId.station()!=4) continue;
+   RPCDetId d = roll->id();
+   if ( std::abs(d.region()) !=1) continue;
+   if (d.station()!=4 && d.station() != -4) continue;
+   int ss = 3;
+   if  ( d.station() < 0) ss = -3;
 
-   std::cout << detId << std::endl;
+   RPCDetId matching4stDetId(d.region(), d.ring(), ss, d.sector(), d.layer(), d.subsector(), d.roll() );
+
+   //std::cout << d << std::endl;
+   int chamberMatches = 0;
+   // check if 3d plane matches 4th plane
+   for(TrackingGeometry::DetContainer::const_iterator it3 = rpcGeom->dets().begin();
+             it3 != rpcGeom->dets().end();
+                  ++it3)
+   {
+     RPCRoll* roll3 = dynamic_cast< RPCRoll*>( *it3 );
+     if( roll3 == 0 ) continue;
+     RPCDetId d3 = roll3->id().rawId();
+     if (d3 != matching4stDetId ) continue;
+     /*
+     if (roll->id().rawId() == 637637354) {
+       std::cout << "Match found for:  " <<  roll->id().rawId() 
+           << " " <<d3 
+           << "\n " << d << std::endl; 
+   }*/
+     ++chamberMatches;
+     //std::cout << "    " << d3 << std::endl;
+
+     if (roll->nstrips() != roll3->nstrips() ) {
+       std::cout << d << " Strips differ\n " ;
+     } else { // check phi pos
+       LocalPoint c = roll->centreOfStrip(roll->nstrips()/2);
+       LocalPoint c4 = roll3->centreOfStrip(roll3->nstrips()/2);
+       GlobalPoint g = roll->toGlobal(c);
+       GlobalPoint g4 = roll3->toGlobal(c4);
+       if ( std::abs( g.phi() - g4.phi() ) > 0.01 ) std::cout << d << " " << g.phi() << " " << g4.phi() << std::endl;
+     }
+     
+     
+     // Prepare 4th plane cons
+     int detId3 = roll3->id().rawId();
+
+     for (int strip = 1; strip<= roll3->nstrips(); ++strip){
+       LinkBoardElectronicIndex a = {0,0,0,0};
+       std::pair< LinkBoardElectronicIndex, LinkBoardPackedStrip> linkStrip = std::make_pair(a, LinkBoardPackedStrip(0,0));
+
+       std::pair<int,int> stripInDetUnit(detId3, strip);
+       std::vector< std::pair< LinkBoardElectronicIndex, LinkBoardPackedStrip> > aVec = map->rawDataFrame( stripInDetUnit);
+       std::vector< std::pair< LinkBoardElectronicIndex, LinkBoardPackedStrip> >::const_iterator CI;
+       
+       /*
+       if (roll->id().rawId() == 637637354 && strip == 8) {
+         std::cout << "Enter\n";
+        }*/
+       
+       
+       for(CI=aVec.begin();CI!=aVec.end();++CI){
+         
+
+         
+         // reverse map a DCC connection to a TB
+         int DCCin = CI->first.dccInputChannelNum;
+         int DCC =   CI->first.dccId;
+         int tb=-1, tc=-1;
+
+
+         
+         int tbInput = -1;
+         int lbInTBInput = -1;
+         int packedStrip = -1; 
+         for (int iSec = 0; iSec < 12; ++iSec){
+           
+           int matches = 0;
+           for (int iTB = 1; iTB < 8; ++iTB){
+             if (DCCin == getDCCNumberFromTB(iTB, iSec) ){
+               if ( DCC == getDCC(iSec) ){
+                 ++matches;
+                 tb = iTB;
+                 tc = iSec;
+                 tbInput = linkStrip.first.tbLinkInputNum;
+                 lbInTBInput = linkStrip.first.lbNumInLink;
+                 packedStrip = linkStrip.second.packedStrip();
+               }
+             }
+           } // TB iter
+           if (matches > 1) {
+             std::cout << "Found more than one match!\n";
+           }
+           
+           /*
+           if (roll->id().rawId() == 637637354 && strip == 8) {
+             std::cout << "Going through 3 cons"
+                << " " <<  DCC
+                << " " << DCCin
+                <<std::endl;
+             std::cout << "DCC=" << getDCC(10)
+                 << " DCCin=" << getDCCNumberFromTB(7, 10)
+                 << std::endl;
+             if (matches == 1) {
+               std::cout << "got one\n";
+             }
+          }*/
+
+         
+           if (matches != 1) continue;
+           TBLoc loc(tb,tc);
+         
+         // check if coresponding chamber from plane 4 hasnt have tbInput assigned, if not find new one 
+           if (m_tbInputs3to4[loc].find(tbInput) == m_tbInputs3to4[loc].end()){
+             bool conAdded = false;
+           // get first free connection
+             for (int con = 0; con < 18; ++con){
+               if ( m_tbInputs[loc].find(con) == m_tbInputs[loc].end() ) {
+                 m_tbInputs3to4[loc][tbInput]=con;
+                 m_tbInputs[loc].insert(con); // input just taken
+                 conAdded = true; 
+                 break;
+               } 
+             }
+             if (!conAdded) std::cout << "Warning - no more connections were avaliable!!\n";
+           }
+           
+            
+           int tbInput4 = m_tbInputs3to4[loc][tbInput];
+           m_4thPlaneConnections[loc][TDetStrip(roll->id().rawId(), strip)] 
+               = TStripConnection(tbInput4, lbInTBInput, packedStrip);
+           /*
+           if (roll->id().rawId() == 637637354) {
+             std::cout << "Connection added for:  " <<  roll->id().rawId() 
+                 << " " << strip << std::endl; 
+           }*/
+           
+           
+         } // TC iter
+       } // connection vec iter
+     } // strip iter
+   } // roll iter
+
+   if (chamberMatches!=1)
+     std::cout << d <<  "  -> no  of matches is  "  << chamberMatches << std::endl;
       
 
  }
@@ -571,6 +815,7 @@ std::string WriteVHDL::writeConeDef(const edm::EventSetup& evtSetup, int tower, 
     evtSetup.get<MuonGeometryRecord>().get(rpcGeom);
 
 
+
     edm::ESHandle<L1RPCConeDefinition> coneDef;
     evtSetup.get<L1RPCConeDefinitionRcd>().get(coneDef);
 
@@ -585,6 +830,8 @@ std::string WriteVHDL::writeConeDef(const edm::EventSetup& evtSetup, int tower, 
       map = eMap->convert(); //*/
       isMapValid = true;
     }
+    
+    prepareEncdap4thPlaneConnections(rpcGeom,  map);
 
    /*
    static edm::ESWatcher<RPCEMapRcd> recordWatcher;
@@ -606,6 +853,7 @@ std::string WriteVHDL::writeConeDef(const edm::EventSetup& evtSetup, int tower, 
     {
       if( dynamic_cast< RPCRoll* >( *it ) == 0 ) continue;
       RPCRoll* roll = dynamic_cast< RPCRoll*>( *it );
+      
       int detId = roll->id().rawId();
       //iterate over strips
       
@@ -647,24 +895,53 @@ std::string WriteVHDL::writeConeDef(const edm::EventSetup& evtSetup, int tower, 
                    std::vector< std::pair< LinkBoardElectronicIndex, LinkBoardPackedStrip> > aVec = map->rawDataFrame( stripInDetUnit);
                    std::vector< std::pair< LinkBoardElectronicIndex, LinkBoardPackedStrip> >::const_iterator CI;
 
+                   bool connectionFound = false;
                    for(CI=aVec.begin();CI!=aVec.end();++CI){
 
                      if(CI->first.dccInputChannelNum==dccInputChannel) linkStrip = *CI;
+                     connectionFound = true;
+                     
 
                    }
+                   // check if it is missing plane 4 in endcap
+
+                   int tbLink = linkStrip.first.tbLinkInputNum;
+                   int lbNum = linkStrip.first.lbNumInLink;
+                   int packedStrip = linkStrip.second.packedStrip();
+                   bool plane4HackWorked = false; 
+                   if ( std::abs(roll->id().region()) == 1 && std::abs(roll->id().station())==4 ) {
+                     TBLoc loc( getTBNumber(tower), sector);
+                     TDetStrip ds(detId, strip);
+                     if ( m_4thPlaneConnections.find(loc) ==m_4thPlaneConnections.end() ) {
+                       std::cout << "4thplane problem - unkown TB\n";
+                     } else if (m_4thPlaneConnections[loc].find(ds) ==m_4thPlaneConnections[loc].end()){
+                       std::cout << "4thplane problem - unkown strip " 
+                           << strip
+                           << " " << detId
+                           << " " <<roll->id() << std::endl;
+                       
+                     } else {
+                       //std::cout << "4thplane fine" << std::endl;
+                       tbLink = m_4thPlaneConnections[loc][ds].tbInput;
+                       lbNum = m_4thPlaneConnections[loc][ds].lbInTBInput;
+                       packedStrip =  m_4thPlaneConnections[loc][ds].packedStrip;
+                       plane4HackWorked = true;
+                     }
+                   }
             
-                   if(linkStrip.second.packedStrip()==-17) {
+                   
+                   //if(!connectionFound) { test me...
+                   if(linkStrip.second.packedStrip()==-17 && !plane4HackWorked) {
                        std::cout << "Problem" << std::endl;
                    
                    } else {
 
                      if(!beg) ret<<","; else beg = false;
-
-	             ret << "(" << PAC - PACstart  << ",\t "<< PACt<<", \t"<<  (int)itComp->m_logplane - 1<<",\t"
-                         <<linkStrip.first.tbLinkInputNum<<",\t"
-                         <<linkStrip.first.lbNumInLink<<",\t"
+                     ret << "(" << PAC - PACstart  << ",\t "<< PACt<<", \t"<<  (int)itComp->m_logplane - 1<<",\t"
+                         << tbLink<<",\t"
+                         << lbNum <<",\t"
                          << logstrip<<",\t "
-                         <<linkStrip.second.packedStrip()<<", \t";
+                         << packedStrip <<", \t";
                       ret << 1 << ") --" << roll->id() << std::endl;	
 
                    }
@@ -691,8 +968,23 @@ void
 WriteVHDL::endJob() {
 }
 
+// returns DCC channel for given tower, sec
 int WriteVHDL::getDCCNumber(int iTower, int iSec){
+  
+  int tbNumber = getTBNumber(iTower);
+  return getDCCNumberFromTB(tbNumber, iSec); //Count DCC input channel from 1
+  
+}
 
+int WriteVHDL::getDCCNumberFromTB(int tbNumber, int iSec){
+
+  int phiFactor = iSec%4;
+  return (tbNumber + phiFactor*9); //Count DCC input channel from 1
+}
+
+
+int WriteVHDL::getTBNumber(int iTower){
+  
   int tbNumber = 0;
   if(iTower<-12) tbNumber = 0;
   else if(-13<iTower && iTower<-8) tbNumber = 1;
@@ -703,11 +995,22 @@ int WriteVHDL::getDCCNumber(int iTower, int iSec){
   else if(4<iTower && iTower<9) tbNumber = 6;
   else if(8<iTower && iTower<13) tbNumber = 7;
   else if(12<iTower) tbNumber = 8;
-
-  int phiFactor = iSec%4;
-  return (tbNumber + phiFactor*9); //Count DCC input channel from 1
+  return tbNumber;
+  
+  
 }
 
+int WriteVHDL::getDCC(int iSec){
+  if (iSec < 0 || iSec > 12) throw cms::Exception("Problem!!!\n");
+  int DCC = 792; // sec 0...3
+  if ( iSec > 3 && iSec < 8) {
+    DCC = 791;
+  } else if ( iSec > 7 ) {
+    DCC = 790;
+  }
+
+  return DCC;
+}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(WriteVHDL);
