@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.76 2010/05/18 11:23:11 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.77 2010/05/18 13:58:08 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -2270,17 +2270,43 @@ void FourVectorHLTOffline::selectElectrons(const edm::Handle<reco::GsfElectronCo
 
     for( reco::GsfElectronCollection::const_iterator iter = eleHandle->begin(), iend = eleHandle->end(); iter != iend; ++iter )
     {
+      // Barrel 
+      if(iter->isEB()) {
 
-      fSelectedElectrons->push_back(*iter);
-      /*
-       if (iter->isGlobalMuon()){ 
-            if (iter->isTrackerMuon()){ 
+        if (
+				  iter->dr03TkSumPt()         < 7.0 && 
+				  iter->dr04EcalRecHitSumEt() < 5.0 &&
+				  iter->dr04HcalTowerSumEt()  < 5.0 &&
+				  iter->hadronicOverEm()      < 0.05 &&
+				  fabs(iter->deltaPhiSuperClusterTrackAtVtx()) < 0.8 &&
+				  fabs(iter->deltaEtaSuperClusterTrackAtVtx()) < 0.006 &&
+				  iter->sigmaIetaIeta() < 0.01
+        ) {
 
-                fSelectedElectrons->push_back(*iter);
-              
-            }
-       }
-       */
+            fSelectedElectrons->push_back(*iter);
+
+        }
+
+      } // end if
+
+      // EndCap
+      else if(iter->isEE()) {
+        if (
+				  iter->dr03TkSumPt()         < 8.0 && 
+				  iter->dr04EcalRecHitSumEt() < 3.0 &&
+				  iter->dr04HcalTowerSumEt()  < 2.0 &&
+				  iter->hadronicOverEm()      < 0.04 &&
+				  fabs(iter->deltaPhiSuperClusterTrackAtVtx()) < 0.7 &&
+				  fabs(iter->deltaEtaSuperClusterTrackAtVtx()) < 0.008 &&
+				  iter->sigmaIetaIeta() < 0.03
+        ) {
+
+            fSelectedElectrons->push_back(*iter);
+
+          }
+
+      } // end else if
+
 
     } // end for
   
