@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_6_0/1E31/V31 (CMSSW_3_6_0_HLT10)
+# /dev/CMSSW_3_6_0/1E31/V32 (CMSSW_3_6_0_HLT10)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/1E31/V31')
+  tableName = cms.string('/dev/CMSSW_3_6_0/1E31/V32')
 )
 
 streams = cms.PSet( 
@@ -1128,7 +1128,7 @@ hltScalersRawToDigi = cms.EDProducer( "ScalersRawToDigi",
     scalersInputTag = cms.InputTag( "rawDataCollector" )
 )
 hltOnlineBeamSpot = cms.EDProducer( "BeamSpotOnlineProducer",
-    label = cms.InputTag( "scalersRawToDigi" ),
+    label = cms.InputTag( "hltScalersRawToDigi" ),
     changeToCMSCoordinates = cms.bool( False ),
     maxRadius = cms.double( 2.0 ),
     maxZ = cms.double( 40.0 ),
