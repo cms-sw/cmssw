@@ -52,7 +52,6 @@ class PFDisplacedVertexHelper {
 
 
   /// Tools used to calculate quantities for vertex identification
-  double    angle(const reco::PFDisplacedVertex& v) const;
   int    lambdaCP(const reco::PFDisplacedVertex& v) const;
   bool isKaonMass(const reco::PFDisplacedVertex& v) const;
 

@@ -234,7 +234,16 @@ PFDisplacedVertexCandidateFinder::link(const TrackBaseRef& el1,
 
   if ( rho2 < primaryVertexCut2_) {dist = -1; return;}
 
+  // Check if the closses approach point is out of range of the tracker 
+
+  double tob_rho_limit2 = 10000;
+  double tec_z_limit = 270;
+
+  if ( rho2 > tob_rho_limit2) {dist = -1; return;}
+  if ( fabs(P.z()) > tec_z_limit) {dist = -1; return;}
+
   return;
+
 
   /*
   // Check if the inner hit of one of the tracks is not too far away from the vertex

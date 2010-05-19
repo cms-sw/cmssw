@@ -8,10 +8,10 @@
 using namespace std;
 using namespace reco;
 
+
 const double PFDisplacedVertexHelper::pion_mass2 = 0.0194;
 const double PFDisplacedVertexHelper::muon_mass2 = 0.106*0.106;
 const double PFDisplacedVertexHelper::proton_mass2 = 0.938*0.938;
-
 
 //for debug only 
 //#define PFLOW_DEBUG
@@ -94,17 +94,20 @@ reco::PFDisplacedVertex::VertexType
 PFDisplacedVertexHelper::identifyVertex(const reco::PFDisplacedVertex& v) const{
 
   if (!vertexIdentifier_.identifyVertices()) return PFDisplacedVertex::ANY;
-  
-  math::XYZTLorentzVector mom_ee = v.secondaryMomentum("MASSLESS", true);
-  math::XYZTLorentzVector mom_pipi = v.secondaryMomentum("PI", true);
+
+  PFDisplacedVertex::M_Hypo massElec = PFDisplacedVertex::M_MASSLESS;
+  PFDisplacedVertex::M_Hypo massPion = PFDisplacedVertex::M_PION;
+
+  math::XYZTLorentzVector mom_ee = v.secondaryMomentum(massElec, true);
+  math::XYZTLorentzVector mom_pipi = v.secondaryMomentum(massPion, true);
 
   // ===== (1) Identify fake and looper vertices ===== //
 
-  double ang = angle(v);
+  double ang = v.angle_io();
   double pt_ee = mom_ee.Pt();
   double eta_vtx = v.position().eta();
 
-  //  cout << "Angle = " << ang << endl;
+  //cout << "Angle = " << ang << endl;
 
   bool bDirectionFake = ang > vertexIdentifier_.angle_max();
   bool bLowPt = pt_ee < vertexIdentifier_.pt_min();
@@ -189,7 +192,7 @@ PFDisplacedVertexHelper::identifyVertex(const reco::PFDisplacedVertex& v) const{
 
   // ===== (3) Identify Nuclears, Kinks and Remaining Fakes ===== //
 
-  math::XYZTLorentzVector mom_prim = v.primaryMomentum("PI", true);
+  math::XYZTLorentzVector mom_prim = v.primaryMomentum(massPion, true);
   
   double p_prim = mom_prim.P();
   double p_sec = mom_pipi.P();
@@ -235,35 +238,6 @@ PFDisplacedVertexHelper::identifyVertex(const reco::PFDisplacedVertex& v) const{
   
 
   return PFDisplacedVertex::ANY;
-
-}
-
-
-
-
-
-
-
-
-
-double PFDisplacedVertexHelper::angle(const PFDisplacedVertex& v) const {
-
-  math::XYZTLorentzVector T = v.secondaryMomentum("MASSLESS", true);
-
-  math::XYZVector p = T.Vect();
-
-  math::XYZVector dir(v.position().x(), v.position().y(), v.position().z()); 
-  math::XYZVector pvtx(pvtx_.x(), pvtx_.y(), pvtx_.z());
-
-  //  cout << "Vertex displ. x y z: " << Dir.x() << " "
-  //     << Dir.y() << " "
-  //     << Dir.z() << " " << endl;
-
-  dir = dir - pvtx;
-     
-  double angle = acos(p.Dot(dir)/sqrt(p.Mag2()*dir.Mag2()))/TMath::Pi()*180.0;
-
-  return angle;
 
 }
 
@@ -334,7 +308,7 @@ int PFDisplacedVertexHelper::lambdaCP(const PFDisplacedVertex& v) const {
 
   if (
       mass_l < mass_lbar 
-      && mass_l > vertexIdentifier_. mLambda_min()
+      && mass_l > vertexIdentifier_.mLambda_min()
       && mass_l < vertexIdentifier_.mLambda_max()) 
     lambdaCP = 1;
   else if (mass_lbar < mass_l 
@@ -347,6 +321,8 @@ int PFDisplacedVertexHelper::lambdaCP(const PFDisplacedVertex& v) const {
   return lambdaCP;
 
 }
+
+
 
 bool PFDisplacedVertexHelper::isKaonMass(const PFDisplacedVertex& v) const {
 
@@ -376,6 +352,7 @@ bool PFDisplacedVertexHelper::isKaonMass(const PFDisplacedVertex& v) const {
     return bKMass; 
 
 }
+
 
 
 void PFDisplacedVertexHelper::Dump(std::ostream& out) const {
