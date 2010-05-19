@@ -6,6 +6,7 @@
 #include "TH2F.h"
 #include "TROOT.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <stdexcept>
 #include <string>
@@ -1166,8 +1167,7 @@ PFClusterAlgo::calculateClusterPosition(reco::PFCluster& cluster,
     // is nan ? 
     if( recHitEnergy!=recHitEnergy ) {
       ostringstream ostr;
-      ostr<<"rechit "<<rh.detId()<<" has a NaN energy... particle flow energy refuses to work in these conditions";
-      throw cms::Exception("DataCorrupt", ostr.str() ); 
+      edm::LogError("PFClusterAlgo")<<"rechit "<<rh.detId()<<" has a NaN energy... The input of the particle flow clustering seems to be corrupted.";
     }
 
     cluster.energy_ += recHitEnergy;
