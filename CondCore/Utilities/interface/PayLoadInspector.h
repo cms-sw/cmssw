@@ -80,7 +80,6 @@ namespace cond {
   public:
     typedef DataT Class;
     typedef ValueExtractor<DataT> Extractor;
-    typedef cond::DataWrapper<DataT> DataWrapper;
 
     PayLoadInspector() {}
 
@@ -93,10 +92,9 @@ namespace cond {
 
     std::string dump() const { return ""; }
 
-    // specialize in case of no-wrapper!
+    // specialize... 
     std::string summary() const {
       std::ostringstream os;
-      os << m_data->summary();
       os << std::endl;
       return os.str();
     }
