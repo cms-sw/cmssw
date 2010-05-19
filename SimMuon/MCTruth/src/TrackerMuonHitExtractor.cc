@@ -161,7 +161,7 @@ TrackerMuonHitExtractor::getMuonHits(const reco::Muon &mu) const {
               if (segmentDT.get() != 0) {
 		const DTRecSegment4D* segment = segmentDT.get();
 		
-		edm::LogVerbatim("MuonTrackProducer")<<"\t ===> MATCHING with DT segment with index = "<<segmentDT.key();
+		edm::LogVerbatim("TrackerMuonHitExtractor")<<"\t ===> MATCHING with DT segment with index = "<<segmentDT.key();
 		
 		if(segment->hasPhi()) {
 		  const DTChamberRecSegment2D* phiSeg = segment->phiSegment();
@@ -180,7 +180,7 @@ TrackerMuonHitExtractor::getMuonHits(const reco::Muon &mu) const {
                     ret.push_back(*ihit);
 		  }
 		}
-	      } else edm::LogWarning("MuonTrackProducer")<<"\n***WARNING: UNMATCHED DT segment ! \n";
+	      } else edm::LogWarning("TrackerMuonHitExtractor")<<"\n***WARNING: UNMATCHED DT segment ! \n";
             } // if (subdet == MuonSubdetId::DT)
 	    
 	    else if (subdet == MuonSubdetId::CSC) {
@@ -194,14 +194,14 @@ TrackerMuonHitExtractor::getMuonHits(const reco::Muon &mu) const {
               if (segmentCSC.get() != 0) {
 		const CSCSegment* segment = segmentCSC.get();
 		
-		edm::LogVerbatim("MuonTrackProducer")<<"\t ===> MATCHING with CSC segment with index = "<<segmentCSC.key();
+		edm::LogVerbatim("TrackerMuonHitExtractor")<<"\t ===> MATCHING with CSC segment with index = "<<segmentCSC.key();
 		
 		std::vector<const TrackingRecHit*> hits = segment->recHits();
 		for(std::vector<const TrackingRecHit*>::const_iterator ihit = hits.begin();
 		    ihit != hits.end(); ++ihit) {
                   ret.push_back(*ihit);
 		}
-	      } else edm::LogWarning("MuonTrackProducer")<<"\n***WARNING: UNMATCHED CSC segment ! \n";
+	      } else edm::LogWarning("TrackerMuonHitExtractor")<<"\n***WARNING: UNMATCHED CSC segment ! \n";
 	    }   // else if (subdet == MuonSubdetId::CSC)
 	    
 	  } // loop on vector<MuonSegmentMatch>	  
