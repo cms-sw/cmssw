@@ -192,6 +192,7 @@ namespace reco {
     static uint32_t getSide (uint32_t pattern);		// mono (0) or stereo (1)
 
     bool hasValidHitInFirstPixelBarrel() const; // has valid hit in PXB layer 1
+    bool hasValidHitInFirstPixelEndcap() const; // has valid hit in PXF layer 1
 
     int numberOfHits() const;                 // not-null
     int numberOfValidHits() const;            // not-null, valid
