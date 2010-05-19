@@ -74,6 +74,10 @@ void PFDisplacedVertexSeed::Dump( ostream& out ) const {
   out<<"\t--- DisplacedVertexSeed ---  "<<endl;
   out<<"\tnumber of elements: "<<elements_.size()<<endl;
   
+  out<<"\t Seed Point x = " << seedPoint().x() 
+     <<"\t Seed Point y = " << seedPoint().y()
+     <<"\t Seed Point z = " << seedPoint().z() << endl;
+
   // Build element label (string) : elid from type, layer and occurence number
   // use stringstream instead of sprintf to concatenate string and integer into string
   for(IEset ie = elements_.begin(); ie !=  elements_.end(); ie++){
@@ -93,6 +97,12 @@ void PFDisplacedVertexSeed::Dump( ostream& out ) const {
        <<" innermost hit radius = " << innermost_radius << " rho = " << innermost_rho
        <<" outermost hit radius = " << outermost_radius << " rho = " << outermost_rho
        <<endl;
+
+    out<<"ie = " << (*ie).key() << " pt = " << pt
+      //       <<" inn hit pos x = " << Pi.x() << " y = " << Pi.y() << " z = " << Pi.z() 
+       <<" out hit pos x = " << Po.x() << " y = " << Po.y() << " z = " << Po.z() 
+       <<endl;
+
   }
    
   out<<endl;
