@@ -10,7 +10,6 @@
 #include "CondCore/DBCommon/interface/TagInfo.h"
 #include <string>
 #include <map>
-#include "CondFormats/Common/interface/PayloadWrapper.h"
 
 // many many clients do not include explicitely!
 #ifndef COND_EXCEPTION_H
@@ -36,6 +35,10 @@ namespace edm{
   class ParameterSet;
 }
 namespace cond{
+
+  // FIXME
+  class Summary;
+
   namespace service {
 
     /** transaction and data consistency
@@ -66,30 +69,18 @@ namespace cond{
     
     template<typename T>
     struct GetTokenFromPointer : public GetToken {
-      typedef cond::DataWrapper<T> Wrapper;
       
-      GetTokenFromPointer(T * p, Summary * s) :
+      GetTokenFromPointer(T * p, Summary * s=0) :
 	m_p(p), m_s(s){}
-      //m_w(new Wrapper(p,s)){}
       
-      virtual std::string operator()(cond::DbSession& pooldb, bool withWrapper) const {
-	std::string ret("");
-	if (withWrapper) {
-	  Wrapper* wrapper = new Wrapper(m_p,m_s);
-	  std::string className = cond::classNameForPointer( wrapper );
-	  pool::Ref<Wrapper> myPayload = pooldb.storeObject(wrapper,className.replace(0,sizeDSW(),"DSW"));
-	  ret = myPayload.toString();
-	} else {
-	  std::string className = cond::classNameForPointer( m_p );
-	  pool::Ref<T> myPayload = pooldb.storeObject(m_p,className);
-	  ret = myPayload.toString();
-	}
-	return ret;
+      virtual std::string operator()(cond::DbSession& pooldb, bool /* withWrapper */) const {
+	std::string className = cond::classNameForPointer( m_p );
+	pool::Ref<T> myPayload = pooldb.storeObject(m_p,className);
+	return myPayload.toString();
       }
       
       T * m_p;
       cond::Summary * m_s;
-      // Wrapper * m_w;
       //const std::string& m_recordName;
     };
     

@@ -8,7 +8,6 @@
 #include "CondFormats/Common/interface/TimeConversions.h"
 
 #include "CondCore/IOVService/interface/IOVProxy.h"
-#include "CondFormats/Common/interface/PayloadWrapper.h"
 
 #include <boost/program_options.hpp>
 #include <iterator>
@@ -75,9 +74,6 @@ int cond::ListIOVUtilities::execute(){
       for (cond::IOVProxy::const_iterator ioviterator=iov.begin(); ioviterator!=iov.end(); ioviterator++) {
         std::cout<<ioviterator->since() << " \t "<<ioviterator->till() <<" \t "<<ioviterator->wrapperToken();
         if (details) {
-          pool::Ref<cond::PayloadWrapper> wrapper =
-            session.getTypedObject<cond::PayloadWrapper>(ioviterator->wrapperToken());
-          if (wrapper.ptr()) std::cout << " \t "<< wrapper->summary();
         }
         std::cout<<std::endl;
         ++counter;
