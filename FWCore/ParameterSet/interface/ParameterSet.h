@@ -49,8 +49,11 @@ namespace edm {
     ~ParameterSet();
 
     // instantiate in this library, so these methods don't cause code bloat
-    ParameterSet(const ParameterSet & p1);
-    const ParameterSet & operator=(const ParameterSet & p1);
+    ParameterSet(ParameterSet const& other);
+
+    ParameterSet const& operator=(ParameterSet const& other);
+
+    void swap(ParameterSet& other);
 
     // identification
     ParameterSetID id() const;
@@ -285,6 +288,11 @@ namespace edm {
 
 
   };  // ParameterSet
+
+  inline
+  void swap (ParameterSet& a, ParameterSet& b) {
+    a.swap(b);
+  }
 
   bool operator==(ParameterSet const& a, ParameterSet const& b);
 
