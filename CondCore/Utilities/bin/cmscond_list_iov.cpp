@@ -12,6 +12,8 @@
 #include <boost/program_options.hpp>
 #include <iterator>
 #include <iostream>
+#include <sstream>
+#include "TFile.h"
 
 namespace cond {
   class ListIOVUtilities : public Utilities {
@@ -61,6 +63,10 @@ int cond::ListIOVUtilities::execute(){
     {
       bool verbose = hasOptionValue("verbose");
       bool details = hasOptionValue("summary");
+      TFile * xml=0;
+      if (details) {
+	xml =  TFile::Open(std::string(tag+".xml").c_str(),"recreate");
+      } 
       cond::IOVProxy iov( session, token, !details, details);
       unsigned int counter=0;
       std::string payloadContainer=iov.payloadContainerName();
@@ -74,10 +80,14 @@ int cond::ListIOVUtilities::execute(){
       for (cond::IOVProxy::const_iterator ioviterator=iov.begin(); ioviterator!=iov.end(); ioviterator++) {
         std::cout<<ioviterator->since() << " \t "<<ioviterator->till() <<" \t "<<ioviterator->wrapperToken();
         if (details) {
+	  pool::RefBase ref = session.getObject(ioviterator->wrapperToken());
+	  std::ostringstream ss; ss << tag << '_' << since; 
+	  xml->WriteObjectAny(ref.object().get(),ref.objectType().Name().c_str(), ss.str().c_str());
         }
         std::cout<<std::endl;
         ++counter;
       }
+      if (xml) xml->Close();
       std::cout<<"Total # of payload objects: "<<counter<<std::endl;
     }
   }
