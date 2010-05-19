@@ -1,8 +1,14 @@
-# /dev/CMSSW_3_6_0/GRun/V30
+# /dev/CMSSW_3_6_0/GRun/V31
 
 import FWCore.ParameterSet.Config as cms
 
 # dump of the Stream A Datasets defined in the HLT table
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetRandomTriggers_selector
+streamA_datasetRandomTriggers_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetRandomTriggers_selector.l1tResults = cms.InputTag('')
+streamA_datasetRandomTriggers_selector.throw      = cms.bool(False)
+streamA_datasetRandomTriggers_selector.triggerConditions = cms.vstring('HLT_Random')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetJetMETTauMonitor_selector
 streamA_datasetJetMETTauMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -100,12 +106,6 @@ streamA_datasetHcalNZS_selector.l1tResults = cms.InputTag('')
 streamA_datasetHcalNZS_selector.throw      = cms.bool(False)
 streamA_datasetHcalNZS_selector.triggerConditions = cms.vstring('HLT_HcalNZS_8E29', 
     'HLT_HcalPhiSym')
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetRandomTriggers_selector
-streamA_datasetRandomTriggers_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetRandomTriggers_selector.l1tResults = cms.InputTag('')
-streamA_datasetRandomTriggers_selector.throw      = cms.bool(False)
-streamA_datasetRandomTriggers_selector.triggerConditions = cms.vstring('HLT_Random')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetEGMonitor_selector
 streamA_datasetEGMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
