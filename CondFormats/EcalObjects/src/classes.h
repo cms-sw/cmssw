@@ -19,6 +19,8 @@
 #include "CondFormats/EcalObjects/interface/EcalDCUTemperatures.h"
 #include "CondFormats/EcalObjects/interface/EcalPTMTemperatures.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "CondFormats/EcalObjects/interface/EcalDQMTowerStatus.h"
+#include "CondFormats/EcalObjects/interface/EcalDQMChannelStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalDCSTowerStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalDAQTowerStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatusCode.h"
@@ -78,7 +80,9 @@ namespace{
     EcalPTMTemperatures ptmTemperatures;
  
     EcalChannelStatus channelStatus;
+    EcalDQMChannelStatus dqmChannelStatus;
 
+    EcalDQMTowerStatus dqmTowerStatus;
     EcalDCSTowerStatus dcsTowerStatus;
     EcalDAQTowerStatus daqTowerStatus;
  
@@ -133,6 +137,9 @@ namespace{
     EcalTPGTowerStatus towerstatus;
     std::map< uint32_t, uint16_t > tStatus;
     std::pair< const uint32_t, uint16_t > tStatus_valuetype;
+
+    std::map< uint32_t, uint32_t > dStatus;
+    std::pair< const uint32_t, uint32_t > dStatus_valuetype;
     
     EcalTPGCrystalStatus tpgCrystalStatus;
   };
