@@ -6,18 +6,19 @@ process = cms.Process("TEST")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
-# any old data source
 process.load("Configuration.StandardSequences.Services_cff")
-process.load("Configuration.Generator.SingleElectronPt10_cfi")
+
+## Source
+process.source = cms.Source("EmptySource")
 
 # include L1 emulator configuration
 startupConfig = bool(True)
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 if startupConfig:
-    process.GlobalTag.globaltag = 'STARTUP3X_V8A::All'
+    process.GlobalTag.globaltag = cms.string('START3X_V20::All')
 else:
-    process.GlobalTag.globaltag = 'MC_31X_V9::All'
+    process.GlobalTag.globaltag = cms.string('MC_3XY_V20::All')
 
 # process.load("L1Trigger.Configuration.L1StartupConfig_cff")
 # but only part of it since I can't get a working set of tags
