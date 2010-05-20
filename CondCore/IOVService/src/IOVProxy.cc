@@ -89,7 +89,8 @@ namespace cond {
 
 
   void IOVProxy::setRange(cond::Time_t since, cond::Time_t  till) const {
-    m_low=iov().find(since)-iov().iovs().begin();
+    m_low = (since<iov().iovs().front().sinceTime()) ? 0 :
+      iov().find(since)-iov().iovs().begin();
     m_high=iov().find(till)-iov().iovs().begin();
     m_high=std::min(m_high+1,size());
   }
