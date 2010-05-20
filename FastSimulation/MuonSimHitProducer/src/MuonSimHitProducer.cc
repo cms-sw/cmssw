@@ -15,7 +15,7 @@
 //         Created:  Wed Jul 30 11:37:24 CET 2007
 //         Working:  Fri Nov  9 09:39:33 CST 2007
 //
-// $Id: MuonSimHitProducer.cc,v 1.31 2010/03/30 15:33:10 aperrott Exp $
+// $Id: MuonSimHitProducer.cc,v 1.32 2010/05/13 15:23:21 aperrott Exp $
 //
 //
 
@@ -629,7 +629,8 @@ MuonSimHitProducer::applyMaterialEffects(TrajectoryStateOnSurface& tsosWithdEdx,
     // Particle momentum & position after energy loss + fluctuation
     XYZTLorentzVector theNewMomentum = theMuon.momentum() + energyLoss->deltaMom() + fac * deltaMom;
     XYZTLorentzVector theNewPosition = theMuon.vertex() + fac * deltaPos;
-    fac  = std::sqrt((theNewMomentum.E()*theNewMomentum.E()-mu*mu)/theNewMomentum.Vect().Mag2());
+    fac  = (theNewMomentum.E()*theNewMomentum.E()-mu*mu)/theNewMomentum.Vect().Mag2();
+    fac  = fac>0.? std::sqrt(fac) : 1E-9;
     theMuon.SetXYZT(theNewMomentum.Px()*fac,theNewMomentum.Py()*fac,
                     theNewMomentum.Pz()*fac,theNewMomentum.E());    
     theMuon.setVertex(theNewPosition);
