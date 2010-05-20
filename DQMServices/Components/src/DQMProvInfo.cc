@@ -2,8 +2,8 @@
  * \file DQMProvInfo.cc
  * \author A.Raval / A.Meyer - DESY
  * Last Update:
- * $Date: 2010/05/18 23:19:25 $
- * $Revision: 1.20 $
+ * $Date: 2010/05/19 23:19:20 $
+ * $Revision: 1.21 $
  * $Author: ameyer $
  *
  */
@@ -46,7 +46,7 @@ DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
 
   reportSummary_=dbe_->bookFloat("reportSummary");
   reportSummaryMap_ = dbe_->book2D("reportSummaryMap",
-                     "HV and GT vs Lumi", XBINS, 1., XBINS+1, YBINS+1, 0., YBINS+1);
+                     "HV and Beam Status vs Lumi", XBINS, 1., XBINS+1, YBINS+1, 0., YBINS+1);
   reportSummaryMap_->setBinLabel(1," CSC+",2);   
   reportSummaryMap_->setBinLabel(2," CSC-",2);   
   reportSummaryMap_->setBinLabel(3," DT0",2);    
