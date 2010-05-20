@@ -17,7 +17,7 @@ from Configuration.PyReleaseValidation.ConfigBuilder import Options
 from Configuration.PyReleaseValidation.ConfigBuilder import defaultOptions
 from Configuration.PyReleaseValidation.ConfigBuilder import installFilteredStream
 from Configuration.PyReleaseValidation.ConfigBuilder import addOutputModule
-from Configuration.DataProcessing.RecoTLR import customisePPData
+from Configuration.DataProcessing.RecoTLR import customisePrompt
 
 class pp(Scenario):
     """
@@ -73,7 +73,7 @@ class pp(Scenario):
           addOutputModule(process, tier, tier)        
 
         #add the former top level patches here
-        customisePPData(process)
+        customisePrompt(process)
         
         return process
 
@@ -116,7 +116,7 @@ class pp(Scenario):
           addOutputModule(process, tier, tier)        
 
         #add the former top level patches here
-        customisePPData(process)
+        customisePrompt(process)
         
         return process
 
