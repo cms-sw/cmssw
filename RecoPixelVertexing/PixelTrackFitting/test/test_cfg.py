@@ -3,7 +3,7 @@ process = cms.Process("Analysis")
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000))
 process.source = cms.Source("PoolSource", fileNames =  cms.untracked.vstring( 
-'/store/relval/CMSSW_3_7_0_pre4/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_37Y_V3-v1/0022/FEC7E481-A85D-DF11-8A78-003048678B04.root'
+'file:data/DoubleMu_3_00.root'
 ))
 
 # import of standard configurations
@@ -15,7 +15,7 @@ process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'MC_37Y_V3::All'
+process.GlobalTag.globaltag = 'DESIGN_36_V3::All'
 
 process.MessageLogger = cms.Service("MessageLogger",
     #debugModules = cms.untracked.vstring('pixelVertices'),
@@ -45,46 +45,29 @@ BBlock = cms.PSet(
   )
 )
 
-
-PixelTripletHLTGenerator = cms.PSet (
-  ComponentName = cms.string('PixelTripletHLTGenerator'),
-  useFixedPreFiltering = cms.bool(True),
-  phiPreFiltering = cms.double(0.3),
-  useBending = cms.bool(True),
-  extraHitRPhitolerance = cms.double(0.032),
-  useMultScattering = cms.bool(True),
-  extraHitRZtolerance = cms.double(0.037),
-  maxTriplets = cms.uint32(10000),
-  maxElement = cms.uint32(10000)
+GBlock= cms.PSet(
+  ComponentName = cms.string('GlobalRegionProducer'),
+  RegionPSet = cms.PSet(
+     precise = cms.bool(True),
+     ptMin = cms.double(0.875),
+     originHalfLength = cms.double(15.9),
+     originRadius = cms.double(0.2),
+     originXPos = cms.double(0.),
+     originYPos = cms.double(0.),
+     originZPos = cms.double(0.)
+#     originXPos = cms.double(0.2),
+#     originYPos = cms.double(0.4),
+#     originZPos = cms.double(-2.4)
+      
+  )
 )
 
-
-FitterPSet2 = cms.PSet(
-  ComponentName = cms.string('PixelFitterByConformalMappingAndLine'),
-#  fixImpactParameter = cms.double(0.),
-#  ComponentName = cms.string('PixelFitterByHelixProjections'),
-  TTRHBuilder   = cms.string('TTRHBuilderWithoutAngle4PixelTriplets')
-)
-
-FitterPSet3 = cms.PSet(
-  ComponentName = cms.string('PixelFitterByConformalMappingAndLine'),
-  fixImpactParameter = cms.double(0.),
-#  ComponentName = cms.string('PixelFitterByHelixProjections'),
-  TTRHBuilder   = cms.string('TTRHBuilderWithoutAngle4PixelTriplets')
-)
 
 process.pixelTracks2 = pixelTracks.clone()
-process.pixelTracks2.RegionFactoryPSet= cms.PSet( BBlock )
+process.pixelTracks2.RegionFactoryPSet= cms.PSet( GBlock )
 process.pixelTracks2.FilterPSet.ComponentName = cms.string('none')
-process.pixelTracks2.OrderedHitsFactoryPSet.GeneratorPSet = cms.PSet ( PixelTripletHLTGenerator )
-process.pixelTracks2.FitterPSet = cms.PSet(FitterPSet2)
 
-process.pixelTracks3 = process.pixelTracks2.clone()
-process.pixelTracks3.FitterPSet = cms.PSet(FitterPSet3)
+process.test = cms.EDAnalyzer("PixelTrackTest", TrackCollection = cms.string("pixelTracks2"))
 
-process.test1 = cms.EDAnalyzer("PixelTrackTest", TrackCollection = cms.string("pixelTracks"))
-process.test2 = cms.EDAnalyzer("PixelTrackTest", TrackCollection = cms.string("pixelTracks2"))
-process.test3 = cms.EDAnalyzer("PixelTrackTest", TrackCollection = cms.string("pixelTracks3"))
-
-process.p=cms.Path(process.siPixelDigis*process.pixeltrackerlocalreco*process.offlineBeamSpot*process.pixelTracks*process.pixelTracks2*process.pixelTracks3*process.test1*process.test2*process.test3)
+process.p=cms.Path(process.siPixelDigis*process.pixeltrackerlocalreco*process.offlineBeamSpot*process.pixelTracks2*process.test)
 
