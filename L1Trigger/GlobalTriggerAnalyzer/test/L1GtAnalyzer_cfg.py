@@ -50,6 +50,12 @@ process.load("L1Trigger.GlobalTriggerAnalyzer.l1GtAnalyzer_cfi")
 # input tag for GT object map collection
 #process.l1GtAnalyzer.L1GtObjectMapTag = 'hltL1GtObjectMap'
 
+# input tag for L1GtTriggerMenuLite
+#process.l1GtAnalyzer.L1GtTmLInputTag = 'l1GtTriggerMenuLite'
+
+# input tag for ConditionInEdm products
+#process.l1GtAnalyzer.CondInEdmInputTag = 'conditionsInEdm'
+
 # physics algorithm name or alias, technical trigger name 
 process.l1GtAnalyzer.AlgorithmName = 'L1_SingleEG5'
 #process.l1GtAnalyzer.AlgorithmName = 'L1_BscMinBiasOR_BptxPlusORMinus'

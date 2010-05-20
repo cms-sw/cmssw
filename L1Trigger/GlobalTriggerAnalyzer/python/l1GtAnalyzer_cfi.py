@@ -25,6 +25,9 @@ l1GtAnalyzer = cms.EDAnalyzer("L1GtAnalyzer",
     # input tag for L1GtTriggerMenuLite
     L1GtTmLInputTag = cms.InputTag("l1GtTriggerMenuLite"),
     
+    # input tag for input tag for ConditionInEdm products
+    CondInEdmInputTag = cms.InputTag("conditionsInEdm"),
+
     # an algorithm and a condition in that algorithm to test the object maps, a bit number
     AlgorithmName = cms.string('L1_DoubleJet50_ETM20'),
     ConditionName = cms.string('DoubleTauJet50_2'),

@@ -33,10 +33,11 @@
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GtTriggerMenuLite.h"
 
-#include "L1Trigger/GlobalTrigger/interface/L1GlobalTrigger.h"
+#include "DataFormats/Common/interface/ConditionsInEdm.h"
 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 
+#include "L1Trigger/GlobalTrigger/interface/L1GlobalTrigger.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerPSB.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerGTL.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerFDL.h"
@@ -73,6 +74,10 @@ L1GtAnalyzer::L1GtAnalyzer(const edm::ParameterSet& parSet) :
             m_l1GtTmLInputTag(parSet.getParameter<edm::InputTag> (
                     "L1GtTmLInputTag")),
 
+            // input tag for ConditionInEdm products
+            m_condInEdmInputTag(parSet.getParameter<edm::InputTag> (
+                            "CondInEdmInputTag")),
+
             // an algorithm and a condition in that algorithm to test the object maps
             m_nameAlgTechTrig(parSet.getParameter<std::string> ("AlgorithmName")),
             m_condName(parSet.getParameter<std::string> ("ConditionName")),
@@ -107,6 +112,29 @@ L1GtAnalyzer::~L1GtAnalyzer() {
 
 }
 
+// method called once each job just before starting event loop
+void L1GtAnalyzer::beginJob()
+{
+
+    // empty
+
+}
+
+void L1GtAnalyzer::beginRun(const edm::Run& iRun,
+        const edm::EventSetup& evSetup) {
+
+    analyzeConditionsInRunBlock(iRun, evSetup);
+
+}
+
+void L1GtAnalyzer::beginLuminosityBlock(const edm::LuminosityBlock& iLumi,
+        const edm::EventSetup& evSetup) {
+
+    analyzeConditionsInLumiBlock(iLumi, evSetup);
+
+}
+
+
 // member functions
 
 // analyze: decision and decision word
@@ -131,7 +159,7 @@ void L1GtAnalyzer::analyzeDecisionReadoutRecord(const edm::Event& iEvent, const 
         LogDebug("L1GtAnalyzer") << "\nL1GlobalTriggerReadoutRecord with \n  "
                 << m_l1GtDaqReadoutRecordInputTag
                 << "\nrequested in configuration, but not found in the event."
-                << "\nExit the method." << std::endl;
+                << "\nExit the method.\n" << std::endl;
 
         return;
     }
@@ -173,7 +201,7 @@ void L1GtAnalyzer::analyzeDecisionLiteRecord(const edm::Event& iEvent,
         LogDebug("L1GtAnalyzer") << "\nL1GlobalTriggerRecord with \n  "
                 << m_l1GtRecordInputTag
                 << "\nrequested in configuration, but not found in the event."
-                << "\nExit the method." << std::endl;
+                << "\nExit the method.\n" << std::endl;
 
         return;
 
@@ -1183,7 +1211,7 @@ void L1GtAnalyzer::analyzeObjectMap(const edm::Event& iEvent,
                 << "\nWarning: L1GlobalTriggerObjectMapRecord with input tag "
                 << m_l1GtObjectMapTag
                 << "\nrequested in configuration, but not found in the event."
-                << "\nExit the method." << std::endl;
+                << "\nExit the method.\n" << std::endl;
 
         return;
     }
@@ -1256,7 +1284,7 @@ void L1GtAnalyzer::analyzeL1GtTriggerMenuLite(const edm::Event& iEvent,
         LogDebug("L1GtAnalyzer") << "\nL1GtTriggerMenuLite with \n  "
                 << m_l1GtTmLInputTag
                 << "\nrequested in configuration, but not found in the event."
-                << "\nExit the method." << std::endl;
+                << "\nExit the method.\n" << std::endl;
 
         return;
     }
@@ -1432,10 +1460,139 @@ void L1GtAnalyzer::analyzeL1GtTriggerMenuLite(const edm::Event& iEvent,
 
 }
 
+// analyze: usage of ConditionsInEdm
+void L1GtAnalyzer::analyzeConditionsInRunBlock(const edm::Run& iRun,
+        const edm::EventSetup& evSetup) {
+
+    LogDebug("L1GtAnalyzer")
+            << "\n**** L1GtAnalyzer::analyzeConditionsInRunBlock ****\n"
+            << std::endl;
+
+    // define an output stream to print into
+    // it can then be directed to whatever log level is desired
+    std::ostringstream myCoutStream;
+
+    // get ConditionsInRunBlock
+    edm::Handle<edm::ConditionsInRunBlock> condInRunBlock;
+    iRun.getByLabel(m_condInEdmInputTag, condInRunBlock);
+
+    if (!condInRunBlock.isValid()) {
+
+        LogDebug("L1GtAnalyzer") << "\nConditionsInRunBlock with \n  "
+                << m_condInEdmInputTag
+                << "\nrequested in configuration, but not found in the event."
+                << "\nExit the method.\n" << std::endl;
+
+        return;
+    }
+
+    const boost::uint16_t beamModeVal = condInRunBlock->beamMode;
+    const boost::uint16_t beamMomentumVal = condInRunBlock->beamMomentum;
+    const boost::uint32_t lhcFillNumberVal = condInRunBlock->lhcFillNumber;
+
+    // print via supplied "print" function
+    myCoutStream << "\nLHC quantities in run " << iRun.run()
+            << "\n  Beam Mode = " << beamModeVal
+            << "\n  Beam Momentum = " << beamMomentumVal << "Gev"
+            << "\n  LHC Fill Number = " << lhcFillNumberVal
+            << std::endl;
+
+    LogDebug("L1GtAnalyzer") << myCoutStream.str() << std::endl;
+
+    myCoutStream.str("");
+    myCoutStream.clear();
+
+}
+
+
+void L1GtAnalyzer::analyzeConditionsInLumiBlock(
+        const edm::LuminosityBlock& iLumi, const edm::EventSetup& evSetup) {
+    LogDebug("L1GtAnalyzer")
+            << "\n**** L1GtAnalyzer::analyzeConditionsInLumiBlock ****\n"
+            << std::endl;
+
+    // define an output stream to print into
+    // it can then be directed to whatever log level is desired
+    std::ostringstream myCoutStream;
+
+    // get ConditionsInLumiBlock
+    edm::Handle<edm::ConditionsInLumiBlock> condInLumiBlock;
+    iLumi.getByLabel(m_condInEdmInputTag, condInLumiBlock);
+
+    if (!condInLumiBlock.isValid()) {
+
+        LogDebug("L1GtAnalyzer") << "\nConditionsInLumiBlock with \n  "
+                << m_condInEdmInputTag
+                << "\nrequested in configuration, but not found in the event."
+                << "\nExit the method.\n" << std::endl;
+
+        return;
+    }
+
+    const boost::uint32_t totalIntensityBeam1Val =
+            condInLumiBlock->totalIntensityBeam1;
+    const boost::uint32_t totalIntensityBeam2Val =
+            condInLumiBlock->totalIntensityBeam2;
+
+    myCoutStream << "\nLHC quantities in luminosity section "
+
+            << iLumi.luminosityBlock() << " from run " << iLumi.run()
+            << "\n  Total Intensity Beam 1 (Integer × 10E10 charges)  = "
+            << totalIntensityBeam1Val
+            << "\n  Total Intensity Beam 2 (Integer × 10E10 charges)  = "
+            << totalIntensityBeam2Val << std::endl;
+
+    LogDebug("L1GtAnalyzer") << myCoutStream.str() << std::endl;
+
+    myCoutStream.str("");
+    myCoutStream.clear();
+
+}
+
+void L1GtAnalyzer::analyzeConditionsInEventBlock(const edm::Event& iEvent,
+        const edm::EventSetup& evSetup) {
+    // define an output stream to print into
+    // it can then be directed to whatever log level is desired
+    std::ostringstream myCoutStream;
+
+    // get ConditionsInEventBlock
+    edm::Handle<edm::ConditionsInEventBlock> condInEventBlock;
+    iEvent.getByLabel(m_condInEdmInputTag, condInEventBlock);
+
+    if (!condInEventBlock.isValid()) {
+
+        LogDebug("L1GtAnalyzer") << "\nConditionsInEventBlock with \n  "
+                << m_condInEdmInputTag
+                << "\nrequested in configuration, but not found in the event."
+                << "\nExit the method.\n" << std::endl;
+
+        return;
+    }
+
+    const boost::uint16_t bstMasterStatusVal =
+            condInEventBlock->bstMasterStatus;
+    const boost::uint32_t turnCountNumberVal =
+            condInEventBlock->turnCountNumber;
+
+    myCoutStream << "\nLHC quantities in event " << iEvent.id().event()
+            << " from luminosity section " << iEvent.luminosityBlock()
+            << " from run " << iEvent.run() << "\n  BST Master Status = "
+            << bstMasterStatusVal << "\n  Turn count number = "
+            << turnCountNumberVal << std::endl;
+
+    LogDebug("L1GtAnalyzer") << myCoutStream.str() << std::endl;
+
+    myCoutStream.str("");
+    myCoutStream.clear();
+
+}
 
 // analyze each event: event loop
 void L1GtAnalyzer::analyze(const edm::Event& iEvent,
         const edm::EventSetup& evSetup) {
+
+    // analyze: usage of ConditionsInEdm
+    analyzeConditionsInEventBlock(iEvent, evSetup);
 
     // analyze: decision and decision word
     //   bunch cross in event BxInEvent = 0 - L1Accept event
@@ -1478,18 +1635,21 @@ void L1GtAnalyzer::analyze(const edm::Event& iEvent,
 
 }
 
+// end section
+void L1GtAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& iLumi,
+        const edm::EventSetup& evSetup) {
 
-// method called once each job just before starting event loop
-void L1GtAnalyzer::beginJob()
-{
+    // empty
+
+}
+void L1GtAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& evSetup) {
 
     // empty
 
 }
 
 // method called once each job just after ending the event loop
-void L1GtAnalyzer::endJob()
-{
+void L1GtAnalyzer::endJob() {
 
     // empty
 

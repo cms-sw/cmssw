@@ -15,7 +15,7 @@ import sys
 cmsRunRelease = 'CMSSW_3_6_X'
 #cmsRunRelease = 'CMSSW_3_5_X'
 
-# choose (pre)release used to produce the event samples
+# choose (pre)release used to produce the RelVal samples (data are independent)
 sampleFromRelease = 'CMSSW_3_5_6'
 #sampleFromRelease = 'CMSSW_3_5_2'
 #sampleFromRelease = 'CMSSW_3_5_0'
@@ -32,7 +32,7 @@ useRelValSample = True
 #
 # comment/uncomment the next line to choose sample type 
 # (un-commented selects data)
-#useRelValSample=False 
+useRelValSample=False 
 
 if useRelValSample == True :
     
@@ -66,7 +66,8 @@ else :
     #runNumber = '127715'
     #runNumber = '132440_132439_Cosmics'
     #runNumber = '132442_132440_MinimumBias_small'
-    runNumber = 'Commissioning10-Apr1Skim_Muon_skim-v1' 
+    #runNumber = 'Commissioning10-Apr1Skim_Muon_skim-v1' 
+    runNumber = 'MinimumBias_Commissioning10-May13thReReco_preproduction-v1_RECO'
         
 # change to True to use local files
 #     the type of file must be matched by hand
@@ -689,7 +690,7 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
             
 
     elif dataType == 'RECO' : 
-        # data dat
+        # data
         if runNumber == '123596' :
             dataset = '/Cosmics/BeamCommissioning09-v2/RECO'
             print '   Running on dataset:', dataset, 'run', runNumber, 'with global tag ', useGlobalTag 
@@ -737,6 +738,19 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
             secFiles.extend([
                 ])
 
+        elif runNumber == 'MinimumBias_Commissioning10-May13thReReco_preproduction-v1_RECO' :
+            dataset = '/MinimumBias/Commissioning10-May13thReReco_preproduction-v1/RECO'
+            print '   Running on dataset:', dataset, 'run', runNumber, 'with global tag ', useGlobalTag 
+    
+            readFiles.extend( [
+                '/store/data/Commissioning10/MinimumBias/RECO/May13thReReco_preproduction-v1/0141/A07EA5F3-845F-DF11-870E-00261894388A.root',
+                '/store/data/Commissioning10/MinimumBias/RECO/May13thReReco_preproduction-v1/0141/208DE4F3-845F-DF11-8CD2-00261894390B.root',
+                '/store/data/Commissioning10/MinimumBias/RECO/May13thReReco_preproduction-v1/0139/FEDE3C23-145F-DF11-915A-0018F3D0965E.root',
+                '/store/data/Commissioning10/MinimumBias/RECO/May13thReReco_preproduction-v1/0139/FABF11BB-0B5F-DF11-8CF9-00248C0BE013.root'                
+                ]);                                                                                               
+
+            secFiles.extend([
+                ])
         else :
             print 'Error: run', runNumber, 'has no RECO file available.'    
             errorUserOptions = True

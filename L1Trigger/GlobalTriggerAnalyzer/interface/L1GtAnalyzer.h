@@ -45,6 +45,9 @@ public:
 private:
 
     virtual void beginJob();
+    virtual void beginRun(const edm::Run&, const edm::EventSetup&);
+    virtual void beginLuminosityBlock(const edm::LuminosityBlock&,
+            const edm::EventSetup&);
 
     /// analyze: decision and decision word
     ///   bunch cross in event BxInEvent = 0 - L1Accept event
@@ -66,8 +69,22 @@ private:
     /// analyze: usage of L1GtTriggerMenuLite
     void analyzeL1GtTriggerMenuLite(const edm::Event&, const edm::EventSetup&);
 
+    /// analyze: usage of ConditionsInEdm
+    ///
+    /// to be used in beginRun
+    void analyzeConditionsInRunBlock(const edm::Run&, const edm::EventSetup&);
+    /// to be used in beginLuminosityBlock
+    void analyzeConditionsInLumiBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+    /// to be used in analyze/produce/filter
+    void analyzeConditionsInEventBlock(const edm::Event&, const edm::EventSetup&);
+
     /// analyze each event: event loop over various code snippets
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
+
+    /// end section
+    virtual void endLuminosityBlock(const edm::LuminosityBlock&,
+            const edm::EventSetup&);
+    virtual void endRun(const edm::Run&, const edm::EventSetup&);
 
     /// end of job
     virtual void endJob();
@@ -88,6 +105,9 @@ private:
 
     /// input tag for L1GtTriggerMenuLite
     edm::InputTag m_l1GtTmLInputTag;
+
+    /// input tag for ConditionInEdm products
+    edm::InputTag m_condInEdmInputTag;
 
     /// a physics algorithm (name or alias) or a technical trigger name
     std::string m_nameAlgTechTrig;
