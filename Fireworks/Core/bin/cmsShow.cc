@@ -12,6 +12,7 @@
 #include <fstream>
 #include <string.h>
 #include <memory>
+#include <signal.h>
 
 /* NOTE: This is a short term work around until FWLite can properly handle the MessageLogger
  */
