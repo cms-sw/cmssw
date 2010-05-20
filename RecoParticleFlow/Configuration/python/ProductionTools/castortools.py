@@ -45,6 +45,46 @@ def matchingFiles( dir, regexp, protocol=None, castor=True):
 
     return matchingFiles
 
+# does not work
+def rootEventNumber( file ):
+    tmp = open("nEvents.C", "w")
+    tmp.write('''
+void nEvents(const char* f) {
+  loadFWLite();
+  TFile* fp = TFile::Open(f);
+  cout<<Events->GetEntries()<<endl;
+  gApplication->Terminate();
+}
+''')
+    command = 'root -b \'nEvents.C(\"%s\")\' ' % file
+    print command
+    output = os.popen('root -b \'nEvents.C(\"%s\")\' ' % file)
+    print 'done'
+    output.close()
+    print 'closed'
+
+# returns the number of events in a file 
+def numberOfEvents( file ):
+    output = os.popen('edmFileUtil -f rfio:%s' % file)
+    
+    pattern = re.compile( '\( (\d+) events,' )
+
+    for line in output.readlines():
+        m = pattern.search( line )
+        if m:
+            return int(m.group(1))
+
+def emptyFiles( dir, regexp, castor=True):
+    allFiles = matchingFiles( dir, regexp)
+    emptyFiles = []
+    for file in allFiles:
+        print 'file ',file
+        num = numberOfEvents(file)
+        print 'nEvents = ', num
+        if num==0:
+            emptyFiles.append( file )
+    return emptyFiles 
+
 # cleanup files with a size that is too small, out of a given tolerance. 
 def cleanFiles( castorDir, regexp, tolerance = 999999.):
 
@@ -192,7 +232,7 @@ def sync( regexp1, files1, regexp2, files2):
 # create a subdirectory in an existing directory 
 def createSubDir( castorDir, subDir ):
     absName = '%s/%s' % (castorDir, subDir)
-    createCastorDir( absName )
+    return createCastorDir( absName )
 
 # create castor directory, if it does not already exist
 def createCastorDir( absName ):
