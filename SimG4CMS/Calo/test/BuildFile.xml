@@ -16,7 +16,9 @@
 <flags   EDM_PLUGIN="1"/>
 <library   file="CaloSimHitStudy.cc" name="testCaloSimHits">
 </library>
-<library   file="HOSimHitStudy.cc" name="testHOSimHits">
+<library   file="HOSimHitStudy.cc" name="testCaloHOSimHits">
 </library>
 <library   file="HFPMTHitAnalyzer.cc" name="testCaloHFPMTHitAnalyzer">
+</library>
+<library   file="HitParentTest.cc" name="testCaloHitParentTest">
 </library>

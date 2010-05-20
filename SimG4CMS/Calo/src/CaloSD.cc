@@ -22,9 +22,9 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
 	       SensitiveDetectorCatalog & clg, 
 	       edm::ParameterSet const & p, const SimTrackManager* manager) : 
   SensitiveCaloDetector(name, cpv, clg, p),
-  G4VGFlashSensitiveDetector(), 
-  theTrack(0), preStepPoint(0), eminHit(0), m_trackManager(manager), 
-  currentHit(0), hcID(-1), theHC(0), meanResponse(0) {
+  G4VGFlashSensitiveDetector(), theTrack(0), preStepPoint(0), eminHit(0), 
+  eminHitD(0), m_trackManager(manager), currentHit(0), hcID(-1), theHC(0), 
+  meanResponse(0) {
 
   //Add Hcal Sentitive Detector Names
 
@@ -38,6 +38,7 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
   std::vector<double> tmaxHits = m_CaloSD.getParameter<std::vector<double> >("TmaxHits");
   std::vector<std::string> hcn = m_CaloSD.getParameter<std::vector<std::string> >("HCNames");
   std::vector<int>   useResMap = m_CaloSD.getParameter<std::vector<int> >("UseResponseTables");
+  std::vector<double> eminHitX = m_CaloSD.getParameter<std::vector<double> >("EminHitsDepth");
   suppressHeavy= m_CaloSD.getParameter<bool>("SuppressHeavy");
   kmaxIon      = m_CaloSD.getParameter<double>("IonThreshold")*MeV;
   kmaxProton   = m_CaloSD.getParameter<double>("ProtonThreshold")*MeV;
@@ -54,7 +55,8 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
   for (unsigned int k=0; k<hcn.size(); k++) {
     if (name == (G4String)(hcn[k])) {
       if (k < eminHits.size()) eminHit = eminHits[k]*MeV;
-      tmaxHit = tmaxHits[k]*ns;
+      if (k < eminHitX.size()) eminHitD= eminHitX[k]*MeV;
+      if (k < tmaxHits.size()) tmaxHit = tmaxHits[k]*ns;
       if (k < useResMap.size() && useResMap[k] > 0) 
 	meanResponse = new CaloMeanResponse(p);
       break;
@@ -111,7 +113,8 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
                           << " ns (Flag =" << corrTOFBeam << ")\n"
                           << "        Save hits recorded before " << tmaxHit
                           << " ns and if energy is above " << eminHit/MeV
-                          << " MeV";
+                          << " MeV (for depth 0) or " << eminHitD/MeV
+			  << " MeV (for nonzero depths)";
 }
 
 CaloSD::~CaloSD() { 
@@ -607,7 +610,12 @@ int CaloSD::getTrackID(G4Track* aTrack) {
 uint16_t CaloSD::getDepth(G4Step*) { return 0; }
 
 bool CaloSD::filterHit(CaloG4Hit* hit, double time) {
-  return ((time <= tmaxHit) && (hit->getEnergyDeposit() > eminHit));
+  double emin(eminHit);
+  if (hit->getDepth() > 0) emin = eminHitD;
+#ifdef DebugLog
+  LogDebug("CaloSim") << "Depth " << hit->getDepth() << " Emin = " << emin << " (" << eminHit << ", " << eminHitD << ")";
+#endif   
+  return ((time <= tmaxHit) && (hit->getEnergyDeposit() > emin));
 }
 
 double CaloSD::getResponseWt(G4Track* aTrack) {
