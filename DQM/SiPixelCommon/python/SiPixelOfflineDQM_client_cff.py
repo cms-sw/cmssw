@@ -13,6 +13,14 @@ sipixelEDAClient = cms.EDAnalyzer("SiPixelEDAClient",
     DoHitEfficiency = cms.untracked.bool(True)
 )
 
+#QualityTester
+sipixelQTester = cms.EDAnalyzer("QualityTester",
+    qtList = cms.untracked.FileInPath('DQM/SiPixelMonitorClient/test/sipixel_tier0_qualitytest.xml'),
+    prescaleFactor = cms.untracked.int32(1),
+    getQualityTestsFromFile = cms.untracked.bool(True),
+    verboseQT = cms.untracked.bool(False)
+)
+
 #DataCertification:
 sipixelDaqInfo = cms.EDAnalyzer("SiPixelDaqInfo")
 sipixelDcsInfo = cms.EDAnalyzer("SiPixelDcsInfo")
@@ -20,7 +28,8 @@ sipixelCertification = cms.EDAnalyzer("SiPixelCertification")
 
 #Predefined Sequences:
 PixelOfflineDQMClient = cms.Sequence(sipixelEDAClient)
-PixelOfflineDQMClientWithDataCertification = cms.Sequence(sipixelEDAClient+
+PixelOfflineDQMClientWithDataCertification = cms.Sequence(sipixelQTester+
+                                                          sipixelEDAClient+
                                                           sipixelDaqInfo+
 							  sipixelDcsInfo+
 							  sipixelCertification)
