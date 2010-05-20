@@ -258,6 +258,7 @@ class parserPerfsuiteMetadata:
 		parsing_rules = (
 			(("", "num_cores", "run_on_cpus"), r"""^This machine \((.+)\) is assumed to have (\d+) cores, and the suite will be run on cpu \[(.+)\]$"""),
 			(("start_time", "host", "local_workdir", "user"), r"""^Performance Suite started running at (.+) on (.+) in directory (.+), run by user (.+)$""", "req"),
+			(("architecture",) ,r"""^Current Architecture is (.+)$"""),
 			(("test_release_based_on",), r"""^Test Release based on: (.+)$""", "req"),
 			(("base_release_path",) , r"""^Base Release in: (.+)$"""),
 			(("test_release_local_path",) , r"""^Your Test release in: (.+)$"""),
