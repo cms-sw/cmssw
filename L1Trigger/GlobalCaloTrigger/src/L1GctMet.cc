@@ -35,7 +35,7 @@ L1GctMet::metVector () const
       break;
 
     case useHtMissLut:
-      algoResult = useHtMissLutAlgo    (m_exComponent.value(), m_eyComponent.value());
+      algoResult = useHtMissLutAlgo    (m_exComponent.value(), m_eyComponent.value(), (m_exComponent.overFlow() || m_eyComponent.overFlow()) );
       break;
 
     case oldGct:
@@ -162,7 +162,7 @@ int L1GctMet::cordicShiftAndRoundBits (const int e, const unsigned nBits) const
 
 
 L1GctMet::etmiss_internal
-L1GctMet::useHtMissLutAlgo (const int ex, const int ey) const
+L1GctMet::useHtMissLutAlgo (const int ex, const int ey, const bool of) const
 {
   // The firmware discards the LSB of the input values, before forming
   // the address for the LUT. We do the same here.
@@ -177,13 +177,18 @@ L1GctMet::useHtMissLutAlgo (const int ex, const int ey) const
   if (m_htMissLut == 0) {
 
     result.mag = 0;
-    result.phi = 9;
+    result.phi = 0;
 
   } else {
 
     // Extract the bit fields of the input components to be used for the LUT address
     int hxCompBits = (ex >> kExOrEyMissComponentShift) & componentMask;
     int hyCompBits = (ey >> kExOrEyMissComponentShift) & componentMask;
+
+    if (of) {
+      hxCompBits = componentMask;
+      hyCompBits = componentMask;
+    }
 
     // Perform the table lookup to get the missing Ht magnitude and phi
     uint16_t lutAddress = static_cast<uint16_t> ( (hxCompBits << L1GctHtMissLut::kHxOrHyMissComponentNBits) | hyCompBits );
