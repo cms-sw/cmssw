@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2010/04/22 00:16:03 $
- *  $Revision: 1.17 $
+ *  $Date: 2010/05/11 00:03:13 $
+ *  $Revision: 1.18 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -97,11 +97,13 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
   // Don not use RPC for seeding
   MuonDetLayerMeasurements muonMeasurements(theDTRecSegmentLabel.label(),theCSCRecSegmentLabel,edm::InputTag(),
 					    enableDTMeasurement,enableCSCMeasurement,false);
-
-  MuonRecHitContainer list9 = filterSegments(muonMeasurements.recHits(MB4DL,event));
-  MuonRecHitContainer list6 = filterSegments(muonMeasurements.recHits(MB3DL,event));
-  MuonRecHitContainer list7 = filterSegments(muonMeasurements.recHits(MB2DL,event));
-  MuonRecHitContainer list8 = filterSegments(muonMeasurements.recHits(MB1DL,event));
+  double barreldThetaCut = 0.2;
+  // still lose good muons to a tighter cut
+  double endcapdThetaCut = 1.0;
+  MuonRecHitContainer list9 = filterSegments(muonMeasurements.recHits(MB4DL,event), barreldThetaCut);
+  MuonRecHitContainer list6 = filterSegments(muonMeasurements.recHits(MB3DL,event), barreldThetaCut);
+  MuonRecHitContainer list7 = filterSegments(muonMeasurements.recHits(MB2DL,event), barreldThetaCut);
+  MuonRecHitContainer list8 = filterSegments(muonMeasurements.recHits(MB1DL,event), barreldThetaCut);
 
   dumpLayer("MB4 ", list9);
   dumpLayer("MB3 ", list6);
@@ -112,19 +114,19 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
   bool* MB2 = zero(list7.size());
   bool* MB3 = zero(list6.size());
 
-  endcapPatterns(filterSegments(muonMeasurements.recHits(ME11Bwd,event)),
-                 filterSegments(muonMeasurements.recHits(ME12Bwd,event)),
-                 filterSegments(muonMeasurements.recHits(ME2Bwd,event)),
-                 filterSegments(muonMeasurements.recHits(ME3Bwd,event)),
-                 filterSegments(muonMeasurements.recHits(ME4Bwd,event)),
+  endcapPatterns(filterSegments(muonMeasurements.recHits(ME11Bwd,event), endcapdThetaCut),
+                 filterSegments(muonMeasurements.recHits(ME12Bwd,event), endcapdThetaCut),
+                 filterSegments(muonMeasurements.recHits(ME2Bwd,event), endcapdThetaCut),
+                 filterSegments(muonMeasurements.recHits(ME3Bwd,event), endcapdThetaCut),
+                 filterSegments(muonMeasurements.recHits(ME4Bwd,event), endcapdThetaCut),
                  list8, list7, list6,
                  MB1, MB2, MB3, result);
 
-  endcapPatterns(filterSegments(muonMeasurements.recHits(ME11Fwd,event)),
-                 filterSegments(muonMeasurements.recHits(ME12Fwd,event)),
-                 filterSegments(muonMeasurements.recHits(ME2Fwd,event)),
-                 filterSegments(muonMeasurements.recHits(ME3Fwd,event)),
-                 filterSegments(muonMeasurements.recHits(ME4Fwd,event)),
+  endcapPatterns(filterSegments(muonMeasurements.recHits(ME11Fwd,event), endcapdThetaCut),
+                 filterSegments(muonMeasurements.recHits(ME12Fwd,event), endcapdThetaCut),
+                 filterSegments(muonMeasurements.recHits(ME2Fwd,event), endcapdThetaCut),
+                 filterSegments(muonMeasurements.recHits(ME3Fwd,event), endcapdThetaCut),
+                 filterSegments(muonMeasurements.recHits(ME4Fwd,event), endcapdThetaCut),
                  list8, list7, list6,
                  MB1, MB2, MB3, result);
 
@@ -197,47 +199,50 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
   if ( MB2 ) delete [] MB2;
   if ( MB1 ) delete [] MB1;
 
-
   if(result.empty()) 
   {
+    // be a little stricter with single segment seeds
+    barreldThetaCut = 0.2;
+    endcapdThetaCut = 0.2;
+
     MuonRecHitContainer all = muonMeasurements.recHits(ME4Bwd,event);
-    MuonRecHitContainer tmp = muonMeasurements.recHits(ME3Bwd,event);
+    MuonRecHitContainer tmp = filterSegments(muonMeasurements.recHits(ME3Bwd,event), endcapdThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
-    tmp = muonMeasurements.recHits(ME2Bwd,event);
+    tmp = filterSegments(muonMeasurements.recHits(ME2Bwd,event), endcapdThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
-    tmp = muonMeasurements.recHits(ME12Bwd,event);
+    tmp = filterSegments(muonMeasurements.recHits(ME12Bwd,event), endcapdThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
-    tmp = muonMeasurements.recHits(ME11Bwd,event);
+    tmp = filterSegments(muonMeasurements.recHits(ME11Bwd,event), endcapdThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
-    tmp = muonMeasurements.recHits(ME11Fwd,event);
+    tmp = filterSegments(muonMeasurements.recHits(ME11Fwd,event), endcapdThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
-    tmp = muonMeasurements.recHits(ME12Fwd,event);
+    tmp = filterSegments(muonMeasurements.recHits(ME12Fwd,event), endcapdThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
-    tmp = muonMeasurements.recHits(ME2Fwd,event);
+    tmp = filterSegments(muonMeasurements.recHits(ME2Fwd,event), endcapdThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
-    tmp = muonMeasurements.recHits(ME3Fwd,event);
+    tmp = filterSegments(muonMeasurements.recHits(ME3Fwd,event), endcapdThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
-    tmp = muonMeasurements.recHits(ME4Fwd,event);
+    tmp = filterSegments(muonMeasurements.recHits(ME4Fwd,event), endcapdThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
-    tmp = muonMeasurements.recHits(MB4DL,event);
+    tmp = filterSegments(muonMeasurements.recHits(MB4DL,event), barreldThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
-    tmp = muonMeasurements.recHits(MB3DL,event);
+    tmp = filterSegments(muonMeasurements.recHits(MB3DL,event), barreldThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
-    tmp = muonMeasurements.recHits(MB2DL,event);
+    tmp = filterSegments(muonMeasurements.recHits(MB2DL,event), barreldThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
-    tmp = muonMeasurements.recHits(MB1DL,event);
+    tmp = filterSegments(muonMeasurements.recHits(MB1DL,event), barreldThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
     LogTrace(metname)<<"Number of segments: "<<all.size();
@@ -470,7 +475,7 @@ void MuonSeedOrcaPatternRecognition::complete(MuonRecHitContainer& seedSegments,
     bool crack = isCrack(recHit) || isCrack(first);
     //float detaWindow = 0.3;
 float detaWindow = crack ? 0.25 : 0.2;
-    if ( deta > detaWindow || dphi > .2 ) {
+    if ( deta > detaWindow || dphi > .25 ) {
       continue;
     }   // +vvp!!!
 
@@ -504,7 +509,7 @@ float detaWindow = crack ? 0.25 : 0.2;
       // allow a looser dphi cut where bend is greatest, so we get those little 5-GeV muons
       // watch out for ghosts from ME1/A, below 2.0.
       //float dphicut = (eta2 > 1.6 && eta2 < 2.0) ? 0.2 : 0.2;
-      float dphicut = (isME1A(first) || isME1A(recHit)) ? 0.1 : 0.2;
+      float dphicut = (isME1A(first) || isME1A(recHit)) ? 0.25 : 0.25;
       // segments at the edge of the barrel may not have a good eta measurement
      // float detacut = (first->isDT() || recHit->isDT()) ? 0.1 : 0.2;
       if ( dphi < dphicut ) {
@@ -517,7 +522,7 @@ float detaWindow = crack ? 0.25 : 0.2;
 
   // select the best rhit among the compatible ones (based on Dphi Glob & Dir)
 
-  MuonRecHitPointer best=bestMatch2(first, good_rhit);
+  MuonRecHitPointer best=bestMatch(first, good_rhit);
   if(best && best->isValid() ) seedSegments.push_back(best);
 }
 
@@ -528,102 +533,48 @@ MuonSeedOrcaPatternRecognition::bestMatch(const ConstMuonRecHitPointer & first,
                                           MuonRecHitContainer & good_rhit) const
 {
   MuonRecHitPointer best = 0;
-  float best_dphiG = M_PI;
-  float best_dphiD = M_PI;
-
-  if( first->isCSC() ) {    //  endcap & overlap.
-      
-    // select the best rhit among the compatible ones (based on Dphi Glob & Dir)
-      
-    GlobalVector dir2 =  first->globalDirection();
-   
-    GlobalPoint  pos2 =  first->globalPosition();  // +v
-      
-    for (MuonRecHitContainer::iterator iter=good_rhit.begin(); iter!=good_rhit.end(); iter++){
-
-      GlobalPoint pos1 = (*iter)->globalPosition();  // +v
- 
-      float dphi = fabs( deltaPhi(pos1.phi(),pos2.phi()) );       //+v
-
-      if (  dphi < best_dphiG*1.5 ) {  
-
-
-	if (  dphi < best_dphiG*.67  && best_dphiG > .005 )  best_dphiD = M_PI;  // thresh. of strip order
-
-	GlobalVector dir1 = (*iter)->globalDirection();
-	
-	float  dphidir = fabs( deltaPhi( dir1.phi(), dir2.phi() ) );
-
-	if (  dphidir < best_dphiD ) {
-
-	  best_dphiG = dphi;
-	  if ( dphi < .002 )  best_dphiG =  .002;                          // thresh. of half-strip order
-	  best_dphiD = dphidir;
-	  best = (*iter);
-
-	}
-
-      }
-
-
-    }   //  rhit iter
-
-  }  // eta > 1.0
-
-  else {     //  barrel only
-
-    // select the best rhit among the compatible ones (based on Dphi)
-
-    float best_dphi = M_PI;
-
-    for (MuonRecHitContainer::iterator iter=good_rhit.begin(); iter!=good_rhit.end(); iter++){
-      GlobalVector dir1 = (*iter)->globalDirection();
-
-      //@@ Tim: Why do this again? 'first' hasn't changed, has it?
-      //@@ I comment it out.
-      //    RecHit first = seed.rhit();
-      
-      GlobalVector dir2 = first->globalDirection();
-      
-      float dphi = fabs( deltaPhi(dir1.phi(),dir2.phi()) );
-      if (  dphi < best_dphi ) {
-
-	best_dphi = dphi;
-	best = (*iter);
-      }
-
-    }   //  rhit iter
-
-  }  // eta < 1.0
+  if(good_rhit.size() == 1) return good_rhit[0];
+  double bestDiscrim = 10000.;
+  for (MuonRecHitContainer::iterator iter=good_rhit.begin(); 
+       iter!=good_rhit.end(); iter++)
+  {
+    double discrim = discriminator(first, *iter);
+    if(discrim < bestDiscrim)
+    {
+      bestDiscrim = discrim;
+      best = *iter;
+    }
+  }
   return best;
 }
 
 
-MuonSeedOrcaPatternRecognition::MuonRecHitPointer
-MuonSeedOrcaPatternRecognition::bestMatch2(const ConstMuonRecHitPointer & first,
-                                          MuonRecHitContainer & good_rhit) const
+double MuonSeedOrcaPatternRecognition::discriminator(const ConstMuonRecHitPointer & first, MuonRecHitPointer & other) const
 {
-  MuonRecHitPointer best = 0;
-  if( first->isCSC() ) {    //  endcap & overlap.
-    double bestDiscrim = 10000.;
-    for (MuonRecHitContainer::iterator iter=good_rhit.begin(); iter!=good_rhit.end(); iter++){
-      if ((**iter).isDT()) return bestMatch(first, good_rhit);
-      float discrim = fabs((**iter).globalPosition().theta()-first->globalPosition().theta());
-      // penalize those 3-hit segments
-      int nhits = (**iter).recHits().size();
-      // better never be zero
-      discrim /= std::max(nhits-2, 1);
-      if(discrim < bestDiscrim) 
-      {
-        best = (*iter);
-        bestDiscrim = discrim;
-      }
-    }
+  GlobalPoint gp1= first->globalPosition();
+  GlobalPoint gp2= other->globalPosition();
+  GlobalVector gd1 = first->globalDirection();
+  GlobalVector gd2 = other->globalDirection();
+  if(first->isDT() || other->isDT()) {
+    return deltaPhi(gd1.phi(), gd2.phi());
   }
-  else {
-    best =  bestMatch(first, good_rhit);
-  }
-  return best;
+
+  float dphig = deltaPhi(gp1.phi(), gp2.phi());
+  float dthetag = gp1.theta()-gp2.theta();
+  //float dphid12 = deltaPhi(gd1.phi(), gd2.phi());
+  //float dthetad12 = gd1.theta()-gd2.theta();
+  float dphid2 = deltaPhi(gd2.phi(), gp2.phi());
+  float dthetad2 = gp2.theta()-gd2.theta();
+  // for CSC, make a big chi-squared of relevant variables
+  float chisq =  ((dphig/0.02)*(dphig/0.02) 
+                + (dthetag/0.003)*(dthetag/0.003)
+                + (dphid2/0.06)*(dphid2/0.06) 
+                + (dthetad2/0.08)*(dthetad2/0.08)
+                );
+  // penalize those 3-hit segments
+  int nhits = other->recHits().size();
+  // better never be zero
+  return chisq / std::max(nhits-2, 1);
 }
 
 
@@ -706,12 +657,12 @@ void MuonSeedOrcaPatternRecognition::dumpLayer(const char * name, const MuonRecH
 
 
 MuonSeedOrcaPatternRecognition::MuonRecHitContainer 
-MuonSeedOrcaPatternRecognition::filterSegments(const MuonRecHitContainer & segments) const
+MuonSeedOrcaPatternRecognition::filterSegments(const MuonRecHitContainer & segments, double dThetaCut) const
 {
 MuonPatternRecoDumper theDumper;
   MuonRecHitContainer result;
   double theBarreldThetaCut = 0.2;
-  double theEndcapdThetaCut = 999.;
+  double theEndcapdThetaCut = 0.7;
   for(MuonRecHitContainer::const_iterator segmentItr = segments.begin();
       segmentItr != segments.end(); ++segmentItr)
   {
@@ -719,7 +670,7 @@ MuonPatternRecoDumper theDumper;
     if((*segmentItr)->isDT())
     {
       // only apply the cut to 4D segments
-      if((*segmentItr)->dimension() == 2 || fabs(dtheta) < theBarreldThetaCut)
+      if((*segmentItr)->dimension() == 2 || fabs(dtheta) < dThetaCut)
       {
         result.push_back(*segmentItr);
       }
@@ -731,7 +682,7 @@ MuonPatternRecoDumper theDumper;
     }
     else if((*segmentItr)->isCSC()) 
     {
-      if(fabs(dtheta) < theEndcapdThetaCut)
+      if(fabs(dtheta) < dThetaCut)
       {
         result.push_back(*segmentItr);
       }
