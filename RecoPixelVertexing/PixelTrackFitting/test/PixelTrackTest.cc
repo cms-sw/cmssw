@@ -52,8 +52,8 @@ PixelTrackTest::PixelTrackTest(const edm::ParameterSet& conf)
 
 PixelTrackTest::~PixelTrackTest()
 {
-    
-  TFile f("ana.root","RECREATE");
+  std::string fileName = collectionLabel+".root";   
+  TFile f(fileName.c_str(),"RECREATE");
   hList.Write();
   f.Close();
 
