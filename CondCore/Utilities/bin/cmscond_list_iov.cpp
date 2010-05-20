@@ -33,7 +33,7 @@ cond::ListIOVUtilities::ListIOVUtilities():Utilities("cmscond_list_iov"){
   addOption<bool>("summary","s","print also the summary for each payload");
   addOption<std::string>("tag","t","list info of the specified tag");
 
-   ROOT::Cintex::Cintex::Enable();
+  ROOT::Cintex::Cintex::Enable();
  
 }
 
