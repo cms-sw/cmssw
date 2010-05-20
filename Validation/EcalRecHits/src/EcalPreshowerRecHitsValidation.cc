@@ -1,7 +1,7 @@
 /*
  * \file EcalPreshowerRecHitsValidation.cc
  *
- * $Date: 2009/07/28 09:32:01 $
+ * $Date: 2009/12/14 22:24:45 $
  * \author C. Rovelli
  *
  */
@@ -75,19 +75,19 @@ EcalPreshowerRecHitsValidation::EcalPreshowerRecHitsValidation(const ParameterSe
       dbe_->setCurrentFolder("EcalRecHitsV/EcalPreshowerRecHitsTask");
 
       sprintf (histo, "ES Energy" );
-      meESRecHitsEnergy_ = dbe_->book1D(histo, histo, 110, -0.0005, 0.005);
+      meESRecHitsEnergy_ = dbe_->book1D(histo, histo, 210, -0.0005, 0.01);
       
       sprintf (histo, "ES Energy Plane1 Side+" );
-      meESRecHitsEnergy_zp1st_ = dbe_->book1D(histo, histo, 110, -0.0005, 0.005);
+      meESRecHitsEnergy_zp1st_ = dbe_->book1D(histo, histo, 210, -0.0005, 0.01);
 
       sprintf (histo, "ES Energy Plane2 Side+");
-      meESRecHitsEnergy_zp2nd_ = dbe_->book1D(histo, histo, 110, -0.0005, 0.005);
+      meESRecHitsEnergy_zp2nd_ = dbe_->book1D(histo, histo, 210, -0.0005, 0.01);
      
       sprintf (histo, "ES Energy Plane1 Side-");
-      meESRecHitsEnergy_zm1st_ = dbe_->book1D(histo, histo, 110, -0.0005, 0.005);
+      meESRecHitsEnergy_zm1st_ = dbe_->book1D(histo, histo, 210, -0.0005, 0.01);
 
       sprintf (histo, "ES Energy Plane2 Side-");
-      meESRecHitsEnergy_zm2nd_ = dbe_->book1D(histo, histo, 110, -0.0005, 0.005);
+      meESRecHitsEnergy_zm2nd_ = dbe_->book1D(histo, histo, 210, -0.0005, 0.01);
 
       sprintf (histo, "ES Multiplicity" );
       meESRecHitsMultip_ = dbe_->book1D(histo, histo, 100, 0., 700.);
