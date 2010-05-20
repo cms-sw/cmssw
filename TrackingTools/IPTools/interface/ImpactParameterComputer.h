@@ -38,8 +38,8 @@ namespace IPTools{
     ImpactParameterComputer(const reco::BeamSpot bsp);
     ~ImpactParameterComputer();
     
-    Measurement1D computeIP(const edm::EventSetup& es, const reco::Track tr, bool return3D=false);
-    Measurement1D computeIPdz(const edm::EventSetup& es, const reco::Track tr);
+    std::pair<bool,Measurement1D> computeIP(const edm::EventSetup& es, const reco::Track tr, bool return3D=false);
+    std::pair<bool,Measurement1D> computeIPdz(const edm::EventSetup& es, const reco::Track tr);
     
   private:
     

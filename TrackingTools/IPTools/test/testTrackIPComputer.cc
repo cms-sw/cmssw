@@ -52,58 +52,75 @@ void testTrackIPComputer::analyze(const edm::Event &evt, const edm::EventSetup &
         reco::TrackRef trRef = itMuon->globalTrack(); // alternatively itMuon->track(), etc could be used
         if(!trRef.isNull()){
 	  IPTools::ImpactParameterComputer IPComp(vtxs[0]); // use the vtx with the highest pt sum in this example 
-
-	  Measurement1D mess1D = IPComp.computeIP(es, *trRef);
+	  
+	  std::pair<bool,Measurement1D> mess1D = IPComp.computeIP(es, *trRef);
 	  
 	  // to calculate the ImpactParameter, its Error and the Significance use
-	  double IP             =  mess1D.value();
-	  double IPError        =  mess1D.error();
-	  double IPSignificance =  mess1D.significance();
-	  std::cout << "PrimaryVertex IP2D : IP2DErr :  " << IP << ": \t" << IPError << ": \t" << IPSignificance << "\t" << std::endl;
+	  if(mess1D.first){
+	    double IP             =  mess1D.second.value();
+	    double IPError        =  mess1D.second.error();
+	    double IPSignificance =  mess1D.second.significance();
+	    std::cout << "PrimaryVertex IP2D : IP2DErr :  " << IP << ": \t" << IPError << ": \t" << IPSignificance << "\t" << std::endl;
+	  }
+	  else{
+	    std::cout << "Measurement mess1D is invalid!" << std::endl;
+	  }
 
-	  Measurement1D mess1D_3D = IPComp.computeIP(es, *trRef, true);
-	  
+	  std::pair<bool,Measurement1D> mess1D_3D = IPComp.computeIP(es, *trRef, true);
 	  // to calculate the ImpactParameter, its Error and the Significance use
-	  IP             =  mess1D_3D.value();
-	  IPError        =  mess1D_3D.error();
-	  IPSignificance =  mess1D_3D.significance();
-	  std::cout << "IP3D : IP3DErr : " << IP << ": \t" << IPError << ": \t" << IPSignificance << std::endl;
-        }
+	  if(mess1D_3D.first){
+	    double IP             =  mess1D_3D.second.value();
+	    double IPError        =  mess1D_3D.second.error();
+	    double IPSignificance =  mess1D_3D.second.significance();
+	    std::cout << "IP3D : IP3DErr : " << IP << ": \t" << IPError << ": \t" << IPSignificance << std::endl;
+	  }
+	  else{
+	    std::cout << "Measurement mess1D_3D is invalid!" << std::endl;
+	  }
+	}
       }
 
       reco::TrackRef trRef = itMuon->globalTrack(); // alternatively itMuon->track(), etc could be used
       if(!trRef.isNull()){
 	IPTools::ImpactParameterComputer IPComp(bsp); // use the vtx with the highest pt sum in this example 
 
-	Measurement1D mess1D = IPComp.computeIP(es, *trRef);
-	  
+	std::pair<bool,Measurement1D> mess1D = IPComp.computeIP(es, *trRef);
 	// to calculate the ImpactParameter, its Error and the Significance use
-	double IP             =  mess1D.value();
-	double IPError        =  mess1D.error();
-	double IPSignificance =  mess1D.significance();
-	std::cout << "BeamSpot IP2D : IP2DErr :  " << IP << ": \t" << IPError << ": \t" << IPSignificance << std::endl;
+	if(mess1D.first){
+	  double IP             =  mess1D.second.value();
+	  double IPError        =  mess1D.second.error();
+	  double IPSignificance =  mess1D.second.significance();
+	  std::cout << "BeamSpot IP2D : IP2DErr :  " << IP << ": \t" << IPError << ": \t" << IPSignificance << std::endl;
+	}
+	else{
+	  std::cout << "Measurement mess1D for the beamspot is invalid!" << std::endl;
+	}
 	
-	Measurement1D mess1D_3D = IPComp.computeIP(es, *trRef, true);
-	
+	std::pair<bool,Measurement1D> mess1D_3D = IPComp.computeIP(es, *trRef, true);
 	// to calculate the ImpactParameter, its Error and the Significance use
-	IP             =  mess1D_3D.value();
-	IPError        =  mess1D_3D.error();
-	IPSignificance =  mess1D_3D.significance();
-	std::cout << "IP3D : IP3DErr : " << IP << ": \t" << IPError << ": \t" << IPSignificance << std::endl;
-
+	if(mess1D_3D.first){
+	  double IP             =  mess1D_3D.second.value();
+	  double IPError        =  mess1D_3D.second.error();
+	  double IPSignificance =  mess1D_3D.second.significance();
+	  std::cout << "IP3D : IP3DErr : " << IP << ": \t" << IPError << ": \t" << IPSignificance << std::endl;
+	}
+	else{
+	  std::cout << "Measurement mess1D_3D for the beamspot is invalid!" << std::endl;
+	}
 	
 	mess1D = IPComp.computeIPdz(es, *trRef);
 	  
 	// to calculate the ImpactParameter, its Error and the Significance use
-	double dZ             =  mess1D.value();
-	double dZErr          =  mess1D.error();
-	std::cout << "BeamSpot dZ : dZError :  " << dZ << ": \t" << dZErr << std::endl;
+	if(mess1D.first){
+	  double dZ             =  mess1D.second.value();
+	  double dZErr          =  mess1D.second.error();
+	  std::cout << "BeamSpot dZ : dZError :  " << dZ << ": \t" << dZErr << std::endl;
+	}
+	else{
+	  std::cout << "Measurement mess1D for BeamSpot z distance is invalid!" << std::endl;
+	}
       }
-
-
     }
-
-    
 }
 
 DEFINE_FWK_MODULE(testTrackIPComputer);

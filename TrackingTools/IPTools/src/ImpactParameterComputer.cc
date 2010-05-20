@@ -12,19 +12,23 @@ IPTools::ImpactParameterComputer::ImpactParameterComputer(const reco::BeamSpot b
 
 IPTools::ImpactParameterComputer::~ImpactParameterComputer() { }
 
-Measurement1D IPTools::ImpactParameterComputer::computeIP(const edm::EventSetup& es, const reco::Track tr, bool return3D){
+std::pair<bool,Measurement1D> IPTools::ImpactParameterComputer::computeIP(const edm::EventSetup& es, const reco::Track tr, bool return3D){
 
   //get the transient track (e.g. for the muon track)
   edm::ESHandle<TransientTrackBuilder> builder;
   es.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
   reco::TransientTrack transTrack = builder->build(tr);
 
+  Measurement1D mess1D(0.,0.);
+
   ///define the position of the refPoint on the muon track and its error
   TrajectoryStateOnSurface tsos = IPTools::transverseExtrapolate(transTrack.impactPointState(), _VtxPos, transTrack.field());
+  if(!tsos.isValid()){
+    return std::make_pair(false, mess1D);
+  }
   GlobalPoint refPoint          = tsos.globalPosition();
   GlobalError refPointErr       = tsos.cartesianError().position();
-   
-  Measurement1D mess1D(0.,0.);
+
   ///calculate the distance of the PV to the refPoint on the track
   if(!return3D){
     VertexDistanceXY distanceComputer;
@@ -35,18 +39,23 @@ Measurement1D IPTools::ImpactParameterComputer::computeIP(const edm::EventSetup&
     mess1D = distanceComputer.distance(VertexState(_VtxPos, _VtxPosErr), VertexState(refPoint, refPointErr));
   }
   
-  return mess1D;
+  return std::make_pair(true,mess1D);
 }
 
-Measurement1D IPTools::ImpactParameterComputer::computeIPdz(const edm::EventSetup& es, const reco::Track tr){
+std::pair<bool,Measurement1D> IPTools::ImpactParameterComputer::computeIPdz(const edm::EventSetup& es, const reco::Track tr){
 
   //get the transient track (e.g. for the muon track)
   edm::ESHandle<TransientTrackBuilder> builder;
   es.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
   reco::TransientTrack transTrack = builder->build(tr);
 
+  Measurement1D mess1D(0., 0.);
+
   ///define the position of the refPoint on the muon track and its error
   TrajectoryStateOnSurface tsos = IPTools::transverseExtrapolate(transTrack.impactPointState(), _VtxPos, transTrack.field());
+  if(!tsos.isValid()){
+    return std::make_pair(false, mess1D);
+  }
   GlobalPoint refPoint          = tsos.globalPosition();
   GlobalError refPointErr       = tsos.cartesianError().position();
 
@@ -59,8 +68,8 @@ Measurement1D IPTools::ImpactParameterComputer::computeIPdz(const edm::EventSetu
 
   double dz    = ( VtxPosZ - RefPointZ );
   double dzErr = sqrt( VtxPosZErr*VtxPosZErr  + RefPointZErr*RefPointZErr);
+  Measurement1D mess1Ddz(dz,dzErr);
 
-  Measurement1D mess1D(dz, dzErr);
-  return mess1D;
+  return std::make_pair(true,mess1Ddz);
 }
 
