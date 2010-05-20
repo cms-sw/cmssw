@@ -92,7 +92,7 @@ if (verbose)
 	       <<ioviterator->wrapperToken()<<std::endl;
     
     pool::RefBase ref = session.getObject(ioviterator->wrapperToken());
-    std::ostringstream ss; ss << tag << '_' << since; 
+    std::ostringstream ss; ss << tag << '_' << <ioviterator->since(); 
     if (multi) xml = TFile::Open(std::string(ss.str()+".xml").c_str(),"recreate");
     xml->WriteObjectAny(ref.object().get(),ref.objectType().Name(ROOT::Reflex::SCOPED).c_str(), ss.str().c_str());
     ++counter;
