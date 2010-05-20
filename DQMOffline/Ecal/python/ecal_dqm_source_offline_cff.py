@@ -31,12 +31,6 @@ ee_dqm_source_offline = cms.Sequence(ecalEndcapMonitorModule*dqmInfoEE*ecalEndca
 ## standard with Selective Readout Task and Raw Data Task
 ee_dqm_source_offline1 = cms.Sequence(ecalEndcapMonitorModule*dqmInfoEE*ecalEndcapOccupancyTask*ecalEndcapIntegrityTask*ecalEndcapStatusFlagsTask*ecalEndcapSelectiveReadoutTask*ecalEndcapRawDataTask*ecalEndcapPedestalOnlineTask*ecalEndcapTriggerTowerTask*ecalEndcapClusterTask*ecalEndcapHltTask*ecalEndcapClusterTaskExtras)
 
-## standard, but remove Trigger Tower Task
-#ee_dqm_source_offline = cms.Sequence(ecalEndcapMonitorModule*dqmInfoEE*ecalEndcapOccupancyTask*ecalEndcapIntegrityTask*ecalEndcapStatusFlagsTask*ecalEndcapPedestalOnlineTask*ecalEndcapClusterTask*ecalEndcapHltTask*ecalEndcapClusterTaskExtras)
-
-## standard with Selective Readout Task and Raw Data Task, but remove Trigger Tower Task
-#ee_dqm_source_offline1 = cms.Sequence(ecalEndcapMonitorModule*dqmInfoEE*ecalEndcapOccupancyTask*ecalEndcapIntegrityTask*ecalEndcapStatusFlagsTask*ecalEndcapSelectiveReadoutTask*ecalEndcapRawDataTask*ecalEndcapPedestalOnlineTask*ecalEndcapClusterTask*ecalEndcapHltTask*ecalEndcapClusterTaskExtras)
-
 ecal_dqm_source_offline = cms.Sequence(eb_dqm_source_offline*ee_dqm_source_offline)
 
 ecalBarrelMonitorModule.EcalRawDataCollection = 'ecalDigis:'
