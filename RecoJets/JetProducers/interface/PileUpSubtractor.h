@@ -4,6 +4,8 @@
 #include <vector>
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/ClusterSequence.hh"
+#include "fastjet/ClusterSequenceArea.hh"
+#include "fastjet/ActiveAreaSpec.hh"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -19,6 +21,8 @@ class PileUpSubtractor{
  public:
 
   typedef boost::shared_ptr<fastjet::ClusterSequence>        ClusterSequencePtr;
+  typedef boost::shared_ptr<fastjet::ActiveAreaSpec>         ActiveAreaSpecPtr;
+  typedef boost::shared_ptr<fastjet::RangeDefinition>        RangeDefPtr;
   
   PileUpSubtractor(const edm::ParameterSet& iConfig, 
 		   std::vector<edm::Ptr<reco::Candidate> >& input,
@@ -33,23 +37,30 @@ class PileUpSubtractor{
   void subtractPedestal(std::vector<fastjet::PseudoJet> & coll);
   void calculateOrphanInput(std::vector<fastjet::PseudoJet> & orphanInput);
   void offsetCorrectJets();
-  double getPileUpAtTower(const reco::CandidatePtr & in);
-  double getPileUpEnergy(int ijet){return jetOffset_[ijet];}
+  double getMeanAtTower(const reco::CandidatePtr & in) const;
+  double getSigmaAtTower(const reco::CandidatePtr & in) const;
+  double getPileUpAtTower(const reco::CandidatePtr & in) const;
+  double getPileUpEnergy(int ijet) const {return jetOffset_[ijet];}
   void calculateJetOffset();
 
  private:
 
   // From jet producer
-  ClusterSequencePtr               fjClusterSeq_;    // fastjet cluster sequence
+  ClusterSequencePtr              fjClusterSeq_;    // fastjet cluster sequence
   std::vector<edm::Ptr<reco::Candidate> >*       inputs_;          // input candidates
   std::vector<fastjet::PseudoJet>* fjInputs_;        // fastjet inputs
   std::vector<fastjet::PseudoJet>* fjJets_;          // fastjet jets
 
   // PU subtraction parameters
   bool     reRunAlgo_;
+  bool     doAreaFastjet_;
+  bool     doRhoFastjet_;
   double   jetPtMin_;
   double                nSigmaPU_;                  // number of sigma for pileup
   double                radiusPU_;                  // pileup radius
+  ActiveAreaSpecPtr               fjActiveArea_;    // fastjet active area definition
+  RangeDefPtr                     fjRangeDef_;      // range definition
+
   CaloGeometry const *  geo_;                       // geometry
   int                   ietamax_;                   // maximum eta in geometry
   int                   ietamin_;                   // minimum eta in geometry

@@ -27,11 +27,26 @@ PileUpSubtractor::PileUpSubtractor(const edm::ParameterSet& iConfig,
   fjInputs_(&towers),
   fjJets_(&output),
   reRunAlgo_ (iConfig.getUntrackedParameter<bool>("reRunAlgo",false)),
+  doAreaFastjet_ (iConfig.getParameter<bool>         ("doAreaFastjet")),
+  doRhoFastjet_  (iConfig.getParameter<bool>         ("doRhoFastjet")),
   jetPtMin_(iConfig.getParameter<double>       ("jetPtMin")),
   nSigmaPU_(iConfig.getParameter<double>("nSigmaPU")),
   radiusPU_(iConfig.getParameter<double>("radiusPU")),
   geo_(0)
-{;}
+{
+   if ( doAreaFastjet_ || doRhoFastjet_ ) {
+      // default Ghost_EtaMax should be 5
+      double ghostEtaMax = iConfig.getParameter<double>("Ghost_EtaMax");
+      // default Active_Area_Repeats 1
+      int    activeAreaRepeats = iConfig.getParameter<int> ("Active_Area_Repeats");
+      // default GhostArea 0.01
+      double ghostArea = iConfig.getParameter<double> ("GhostArea");
+      fjActiveArea_ =  ActiveAreaSpecPtr(new fastjet::ActiveAreaSpec(ghostEtaMax,
+								     activeAreaRepeats,
+								     ghostArea));
+      fjRangeDef_ = RangeDefPtr( new fastjet::RangeDefinition(ghostEtaMax) );
+   } 
+}
 
 void PileUpSubtractor::setAlgorithm(ClusterSequencePtr& algorithm){
   fjClusterSeq_ = algorithm;
@@ -263,8 +278,13 @@ void PileUpSubtractor::offsetCorrectJets()
 
   if(reRunAlgo_){
     subtractPedestal(*fjInputs_);
-    const fastjet::JetDefinition def = fjClusterSeq_->jet_def();
-    fjClusterSeq_.reset(new fastjet::ClusterSequence( *fjInputs_, def ));
+    const fastjet::JetDefinition& def = fjClusterSeq_->jet_def();
+    if ( !doAreaFastjet_ && !doRhoFastjet_) {
+       fjClusterSeq_.reset(new fastjet::ClusterSequence( *fjInputs_, def ));
+    } else {
+       fjClusterSeq_.reset(new fastjet::ClusterSequenceArea( *fjInputs_, def, *fjActiveArea_ ) );
+    }
+
     *fjJets_ = fastjet::sorted_by_pt(fjClusterSeq_->inclusive_jets(jetPtMin_));
   }
 
@@ -317,7 +337,17 @@ void PileUpSubtractor::offsetCorrectJets()
 
 }
 
-double PileUpSubtractor::getPileUpAtTower(const reco::CandidatePtr & in){
+double PileUpSubtractor::getMeanAtTower(const reco::CandidatePtr & in) const{
+   int it = ieta(in);
+   return (*emean_.find(it)).second;
+}
+
+double PileUpSubtractor::getSigmaAtTower(const reco::CandidatePtr & in) const {
+   int it = ieta(in);
+   return (*esigma_.find(it)).second;
+}
+
+double PileUpSubtractor::getPileUpAtTower(const reco::CandidatePtr & in) const {
   int it = ieta(in);
   return (*emean_.find(it)).second + (*esigma_.find(it)).second;
 }
