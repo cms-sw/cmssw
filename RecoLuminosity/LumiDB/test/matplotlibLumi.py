@@ -20,36 +20,21 @@ except ImportError:
 
 from matplotlib.figure import Figure
  
-def drawHTTPstring():
-    fig=Figure(figsize=(5,4),dpi=100)
-    a=fig.add_subplot(111)
-    t=arange(0.0,3.0,0.01)
-    s=sin(2*pi*t)
-    a.plot(t,s)
+def drawHTTPstring(fig):
     canvas=CanvasBackend(fig)    
     cherrypy.response.headers['Content-Type']='image/png'
     buf=StringIO()
     canvas.print_png(buf)
     return buf.getvalue()
     
-def drawBatch():
-    fig=Figure(figsize=(5,4),dpi=100)
-    a=fig.add_subplot(111)
-    t=arange(0.0,3.0,0.01)
-    s=sin(2*pi*t)
-    a.plot(t,s)
+def drawBatch(fig,filename):
     canvas=CanvasBackend(fig)    
-    canvas.print_figure("a.png")
+    canvas.print_figure("filename")
     
-def drawInteractive():
+def drawInteractive(fig):
     if batchonly:
         print 'interactive mode is not available for your setup, exit'
-        sys.exit()
-    fig=Figure(figsize=(5,4),dpi=100)
-    a=fig.add_subplot(111)
-    t=arange(0.0,3.0,0.01)
-    s=sin(2*pi*t)
-    a.plot(t,s)
+        sys.exit()    
     canvas=CanvasBackend(fig,master=root)
     canvas.show()
     canvas.get_tk_widget().pack(side=Tk.TOP,fill=Tk.BOTH,expand=1)
@@ -60,6 +45,11 @@ def drawInteractive():
     button.pack(side=Tk.BOTTOM)
     Tk.mainloop()
 if __name__=='__main__':
-    drawBatch()
-    #drawInteractive()
+    fig=Figure(figsize=(5,4),dpi=100)
+    a=fig.add_subplot(111)
+    t=arange(0.0,3.0,0.01)
+    s=sin(2*pi*t)
+    a.plot(t,s)
+    drawBatch(fig,'testbatch.png')
+    drawInteractive(fig)
     #print drawHTTPstring()
