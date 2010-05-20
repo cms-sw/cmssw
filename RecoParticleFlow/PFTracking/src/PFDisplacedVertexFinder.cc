@@ -299,7 +299,7 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
 
 
 
-  // 1)If only two 
+  // 1)If only two track are found do not prefit
 
 
   if ( transTracksRaw.size() == 2 ){
@@ -310,36 +310,64 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
 
     theVertexAdaptiveRaw = TransientVertex(seedPoint,  globalError, transTracksRaw, 1.);
 
+
+
   } else {
 
-    if (debug_) cout << "Raw fit done. But first test the convergence with KFT" << endl;
+
+
+    if (debug_) cout << "Raw fit done." << endl;
     
-    /// This prefit procedure allow to reduce the Warning rate from Adaptive Vertex fitter
-    /// It reject also many fake tracks
-
-    if ( transTracksRaw.size() < 6 ){
-
-      KalmanVertexFitter theKalmanFitter(true);
-      theVertexAdaptiveRaw = theKalmanFitter.vertex(transTracksRaw, seedPoint);
-
-      if( !theVertexAdaptiveRaw.isValid() || theVertexAdaptiveRaw.totalChiSquared() < 0. ) {
-	if(debug_) cout << "Prefit failed : valid? " << theVertexAdaptiveRaw.isValid() 
-			<< " totalChi2 = " << theVertexAdaptiveRaw.totalChiSquared() << endl;
-	return true;
-      }
-
-    }
-
     AdaptiveVertexFitter theAdaptiveFitterRaw(GeometricAnnealing(sigmacut_, t_ini_, ratio_),
 					      DefaultLinearizationPointFinder(),
 					      KalmanVertexUpdator<5>(), 
 					      KalmanVertexTrackCompatibilityEstimator<5>(), 
 					      KalmanVertexSmoother() );
 
+    /// This prefit procedure allow to reduce the Warning rate from Adaptive Vertex fitter
+    /// It reject also many fake tracks
+
   
+    if ( transTracksRaw.size() < 10 ){
 
-    theVertexAdaptiveRaw = theAdaptiveFitterRaw.vertex(transTracksRaw, seedPoint);
+      if (debug_) cout << "First test with KFT" << endl;
 
+      KalmanVertexFitter theKalmanFitter(true);
+      theVertexAdaptiveRaw = theKalmanFitter.vertex(transTracksRaw, seedPoint);
+      
+      if( !theVertexAdaptiveRaw.isValid() || theVertexAdaptiveRaw.totalChiSquared() < 0. ) {
+	if(debug_) cout << "Prefit failed : valid? " << theVertexAdaptiveRaw.isValid() 
+			<< " totalChi2 = " << theVertexAdaptiveRaw.totalChiSquared() << endl;
+	return true;
+      }
+
+      if (debug_) cout << "We use KFT instead of seed point to set up a point for AVF "
+		       << " x = " << theVertexAdaptiveRaw.position().x() 
+		       << " y = " << theVertexAdaptiveRaw.position().y() 
+		       << " z = " << theVertexAdaptiveRaw.position().z() 
+		       << endl;
+
+      // To save time: reject the Displaced vertex if it is too close to the beam pipe. 
+      // Frequently it is very big vertices, with some dosens of tracks
+
+      Vertex vtx =  theVertexAdaptiveRaw;
+      rho = vtx.position().rho();
+
+      if (rho < primaryVertexCut_) {
+	if (debug_) cout << "KFT Vertex geometrically rejected with  tracks #rho = " << rho << endl;
+	return true;
+      }
+
+
+      theVertexAdaptiveRaw = theAdaptiveFitterRaw.vertex(transTracksRaw, theVertexAdaptiveRaw.position());
+
+
+    } else {
+
+
+      theVertexAdaptiveRaw = theAdaptiveFitterRaw.vertex(transTracksRaw, seedPoint);
+
+    }
 
     if( !theVertexAdaptiveRaw.isValid() || theVertexAdaptiveRaw.totalChiSquared() < 0. ) {
       if(debug_) cout << "Fit failed : valid? " << theVertexAdaptiveRaw.isValid() 
@@ -350,9 +378,8 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
     // To save time: reject the Displaced vertex if it is too close to the beam pipe. 
     // Frequently it is very big vertices, with some dosens of tracks
 
-    Vertex theVtxAdaptiveRaw = theVertexAdaptiveRaw;
-
-    rho =  theVtxAdaptiveRaw.position().rho();
+    Vertex vtx =  theVertexAdaptiveRaw;
+    rho = vtx.position().rho();
 
     if (rho < primaryVertexCut_)  {
       if (debug_) cout << "Vertex " << " geometrically rejected with " <<  transTracksRaw.size() << " tracks #rho = " << rho << endl;

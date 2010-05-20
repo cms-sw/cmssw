@@ -257,7 +257,7 @@ int PFDisplacedVertexHelper::lambdaCP(const PFDisplacedVertex& v) const {
 
   double mass2_0 = 0, mass2_1 = 0;
 
-  int c1 = v.originalTrack(v.refittedTracks()[0])->charge();
+  int c1 = v.originalTrack(v.refittedTracks()[1])->charge();
 
   // --------------------------- lambda --------------------
 
@@ -301,10 +301,13 @@ int PFDisplacedVertexHelper::lambdaCP(const PFDisplacedVertex& v) const {
 				    tMomentumDcaRefit_1.pz(), E); 
 
 
-  totalMomentumDcaRefit_lambdabar = momentumDcaRefit_0 + momentumDcaRefit_1;
+  totalMomentumDcaRefit_lambdabar = momentumDcaRefit_01 + momentumDcaRefit_11;
 
   double mass_l    = totalMomentumDcaRefit_lambda.M();
   double mass_lbar = totalMomentumDcaRefit_lambdabar.M();
+
+  //  cout << "mass_l = " << mass_l << " mass_lbar = " <<  mass_lbar << endl;
+
 
   if (
       mass_l < mass_lbar 
@@ -317,6 +320,8 @@ int PFDisplacedVertexHelper::lambdaCP(const PFDisplacedVertex& v) const {
     lambdaCP = -1;
   else 
     lambdaCP = 0;
+
+  //cout << "lambdaCP = " << lambdaCP << endl;
 
   return lambdaCP;
 
