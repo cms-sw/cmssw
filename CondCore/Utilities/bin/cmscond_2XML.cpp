@@ -60,7 +60,7 @@ int cond::ListIOVUtilities::execute(){
   if (!multi) xml = TFile::Open(std::string(tag+".xml").c_str(),"recreate");
 
 
-  cond::IOVProxy iov( session, token, !details, details);
+  cond::IOVProxy iov( session, token, false, true);
 
   since = std::max(since, cond::timeTypeSpecs[iov.timetype()].beginValue);
   till  = std::min(till,  cond::timeTypeSpecs[iov.timetype()].endValue);
@@ -68,7 +68,7 @@ int cond::ListIOVUtilities::execute(){
  
 if (verbose)
   std::cout << "dumping " << tag << " from "<< since << " to " << till
-	    << " in file " << (multi) ? std::string(tag+"_since.xml") : std::string(tag+".xml") 
+	    << " in file " << ((multi) ? std::string(tag+"_since.xml") : std::string(tag+".xml")) 
 	    << std::endl;
 	
 
@@ -86,7 +86,7 @@ if (verbose)
   for (cond::IOVProxy::const_iterator ioviterator=iov.begin(); ioviterator!=iov.end(); ioviterator++) {
     if (verbose)
       std::cout<<ioviterator->since() << " \t "<<ioviterator->till() <<" \t "
-	       <<ioviterator->wrapperToken()<<std::endl;;
+	       <<ioviterator->wrapperToken()<<std::endl;
     
     pool::RefBase ref = session.getObject(ioviterator->wrapperToken());
     std::ostringstream ss; ss << tag << '_' << since; 
