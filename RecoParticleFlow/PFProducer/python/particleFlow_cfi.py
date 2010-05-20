@@ -75,6 +75,9 @@ particleFlow = cms.EDProducer("PFProducer",
     muon_HCAL = cms.vdouble(3.0,3.0),
     muon_ECAL = cms.vdouble(0.5,0.5),
 
+    # Use PF muon momentum assigment instead of default reco muon one
+    usePFMuonMomAssign = cms.bool(False),
+
     # Treatment of potential fake tracks
     # Number of sigmas for fake track detection
     nsigma_TRACK = cms.double(1.0),

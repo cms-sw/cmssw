@@ -1695,12 +1695,16 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	    double muonPtError = elements[it->second.first].muonRef()->combinedMuon()->ptError();
 	    double staPtError = elements[it->second.first].muonRef()->standAloneMuon()->ptError();
 	    double globalCorr = 1;
-	    if ( !isTrack || 
-		 ( muonPt > 20. && muonPtError < trackPtError && muonPtError < staPtError ) ) 
-	      globalCorr = muonMomentum/trackMomentum;
-	    else if ( staPt > 20. && staPtError < trackPtError && staPtError < muonPtError ) 
-	      globalCorr = staMomentum/trackMomentum;
-	    (*pfCandidates_)[tmpi].rescaleMomentum(globalCorr);
+
+	    if(usePFMuonMomAssign_){
+	      if ( !isTrack || 
+		   ( muonPt > 20. && muonPtError < trackPtError && muonPtError < staPtError ) ) 
+		globalCorr = muonMomentum/trackMomentum;
+	      else if ( staPt > 20. && staPtError < trackPtError && staPtError < muonPtError ) 
+		globalCorr = staMomentum/trackMomentum;
+	      (*pfCandidates_)[tmpi].rescaleMomentum(globalCorr);
+	    }
+
 	    if (debug_){
 	      std::cout << "\tElement  " << elements[iTrack] << std::endl 
 			<< "PFAlgo: particle type set to muon (global, loose)" <<"muon pT "<<elements[it->second.first].muonRef()->pt()<<std::endl; 
@@ -2566,9 +2570,12 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
   if ( thisIsAMuon ) { 
     
     // assume that track pT is taken, may be overwritten below
-    energy = sqrt(track.p()*track.p() + 0.1057*0.1057);
-    
-    if(thisIsAGlobalTightMuon||thisIsAnIsolatedMuon){    
+    px = muonRef->px();
+    py = muonRef->py();
+    pz = muonRef->pz();
+    energy = sqrt(muonRef->p()*muonRef->p() + 0.1057*0.1057);
+
+    if((thisIsAGlobalTightMuon||thisIsAnIsolatedMuon) && usePFMuonMomAssign_){    
 
       // If the global muon above 10 GeV and is a tracker muon take the global pT
       // If it's not a tracker muon, choose between the global pT and the STA pT

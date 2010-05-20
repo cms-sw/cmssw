@@ -263,6 +263,9 @@ class PFAlgo {
   unsigned int nTrackIsoForEgammaSC_;
   PFElectronAlgo *pfele_;
 
+  // Option to let PF decide the muon momentum
+  bool usePFMuonMomAssign_;
+
   /// Flags to use the protection against fakes 
   /// and not reconstructed displaced vertices
   bool rejectTracks_Bad_;
