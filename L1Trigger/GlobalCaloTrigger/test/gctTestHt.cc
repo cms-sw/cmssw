@@ -156,7 +156,7 @@ bool gctTestHt::checkHtSums(const L1GlobalCaloTrigger* gct) const
 	leafHtmOvf |= (mJet->htmOverFlow);
 	mJet++;
       }
-      if (leafHttSum >= 4096) { leafHttSum -= 4096; leafHttOvf = true; }
+      if (leafHttSum >= 4096 || leafHttOvf) { leafHttSum = 4095; leafHttOvf = true; }
       if (leafHttSum == gct->getJetLeafCards().at(leaf)->getAllOutputHt().at(bx).value()) {
 	htMinusVl += leafHttSum;
       } else { cout << "Ht sum check leaf " << leaf << " bx " << bx << endl; testPass = false; }
@@ -190,7 +190,7 @@ bool gctTestHt::checkHtSums(const L1GlobalCaloTrigger* gct) const
 	leafHtmOvf |= (pJet->htmOverFlow);
 	pJet++;
       }
-      if (leafHttSum >= 4096) { leafHttSum -= 4096; leafHttOvf = true; }
+      if (leafHttSum >= 4096 || leafHttOvf) { leafHttSum = 4095; leafHttOvf = true; }
       if (leafHttSum == gct->getJetLeafCards().at(leaf)->getAllOutputHt().at(bx).value()) {
 	htPlusVal += leafHttSum;
       } else { cout << "Ht sum check leaf " << leaf << " bx " << bx << endl; testPass = false; }
@@ -213,12 +213,12 @@ bool gctTestHt::checkHtSums(const L1GlobalCaloTrigger* gct) const
     bool httMinusOvrFlow = (htMinusVl>=4096) || httMinusInputOf;
     bool httPlusOverFlow = (htPlusVal>=4096) || httPlusInputOvf;
 
-    htMinusVl = htMinusVl%4096;
-    htPlusVal = htPlusVal%4096;
+    if (httMinusOvrFlow) htMinusVl = 4095;
+    if (httPlusOverFlow) htPlusVal = 4095;
 
     bool httTotalOvrFlow = (htTotal>=4096) || httMinusOvrFlow  || httPlusOverFlow;
 
-    htTotal = htTotal%4096;
+    if (httTotalOvrFlow) htTotal = 4095;
 
     int hxTotal = hxMinusVl + hxPlusVal;
     int hyTotal = hyMinusVl + hyPlusVal;
@@ -293,6 +293,12 @@ bool gctTestHt::checkHtSums(const L1GlobalCaloTrigger* gct) const
     unsigned htMiss = 0;
     unsigned htMPhi = 0;
 
+    if ((htmMinusOvrFlow || htmPlusOverFlow) 
+	|| ((abs(hxTotal)>2047) || (abs(hyTotal)>2047)) ) {
+      hxTotal = 2047;
+      hyTotal = 2047;
+    }
+
     if ((((hxTotal) & 0xff0) != 0) || (((hyTotal) & 0xff0) != 0)) {
 
       double dhx = htComponentGeVForHtMiss(hxTotal);
@@ -305,9 +311,6 @@ bool gctTestHt::checkHtSums(const L1GlobalCaloTrigger* gct) const
 
     }
 
-    if (htmMinusOvrFlow || htmPlusOverFlow) htMiss = 127;
-    if ((abs(hxTotal)>2047) || (abs(hyTotal)>2047)) htMiss = 127; 
-
     if ((htMiss != myGlobalEnergy->getHtMissColl().at(bx).value()) ||
 	(htMPhi != myGlobalEnergy->getHtMissPhiColl().at(bx).value())) {
       cout << "Missing Ht: expected " << htMiss << " phi " << htMPhi 
@@ -319,13 +322,16 @@ bool gctTestHt::checkHtSums(const L1GlobalCaloTrigger* gct) const
 
     // Check the storage of internal jet candidates
     unsigned htFromInternalJets = 0;
+    bool htOvfFromInternalJets = false;
     for (L1GctInternJetDataCollection::const_iterator jet=internalJets.begin();
 	 jet != internalJets.end(); jet++) {
       if ((jet->bx() == bx+m_bxStart) && (jet->et() >= m_jfPars->getHtJetEtThresholdGct())) {
-	htFromInternalJets += jet->et();
+	htFromInternalJets    += jet->et();
+	htOvfFromInternalJets |= jet->oflow();
       }
     }
-    if (htFromInternalJets%4096 != htTotal) {
+    if ((htFromInternalJets >= 4096) || htOvfFromInternalJets) htFromInternalJets = 4095;
+    if (htFromInternalJets != htTotal) {
       cout << "Found ht from jets " << htFromInternalJets << " expected " << htTotal << " bx " << bx << endl;
       testPass = false;
     }

@@ -166,8 +166,11 @@ L1GctMet::useHtMissLutAlgo (const int ex, const int ey, const bool of) const
 {
   // The firmware discards the LSB of the input values, before forming
   // the address for the LUT. We do the same here.
-  static const int maxComponent  = 1<<L1GctHtMissLut::kHxOrHyMissComponentNBits;
-  static const int componentMask = maxComponent-1;
+  static const int maxComponent    = 1<<L1GctHtMissLut::kHxOrHyMissComponentNBits;
+  static const int componentMask   = maxComponent-1;
+  static const int maxPosComponent = componentMask >> 1;
+
+  static const int maxInput = 1<<(L1GctHtMissLut::kHxOrHyMissComponentNBits+kExOrEyMissComponentShift-1);
 
   static const unsigned resultMagMask = (1<<L1GctHtMissLut::kHtMissMagnitudeNBits) - 1;
   static const unsigned resultPhiMask = (1<<L1GctHtMissLut::kHtMissAngleNBits)     - 1;
@@ -185,9 +188,9 @@ L1GctMet::useHtMissLutAlgo (const int ex, const int ey, const bool of) const
     int hxCompBits = (ex >> kExOrEyMissComponentShift) & componentMask;
     int hyCompBits = (ey >> kExOrEyMissComponentShift) & componentMask;
 
-    if (of) {
-      hxCompBits = componentMask;
-      hyCompBits = componentMask;
+    if (of || (abs(ex) >= maxInput) || (abs(ey) >= maxInput)) {
+      hxCompBits = maxPosComponent;
+      hyCompBits = maxPosComponent;
     }
 
     // Perform the table lookup to get the missing Ht magnitude and phi

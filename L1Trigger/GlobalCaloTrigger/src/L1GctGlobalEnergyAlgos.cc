@@ -291,8 +291,12 @@ void L1GctGlobalEnergyAlgos::process()
     //
     //-----------------------------------------------------------------------------
     // Form the Et and Ht sums
-    m_outputEtSum.store (m_etValPlusWheel + m_etVlMinusWheel, bxRel());
-    m_outputEtHad.store (m_htValPlusWheel + m_htVlMinusWheel, bxRel());
+    etTotalType ettTemp = m_etValPlusWheel + m_etVlMinusWheel;
+    if (ettTemp.overFlow()) ettTemp.setValue(etTotalMaxValue);
+    etHadType   httTemp = m_htValPlusWheel + m_htVlMinusWheel;
+    if (httTemp.overFlow()) httTemp.setValue(etHadMaxValue);
+    m_outputEtSum.store (ettTemp, bxRel());
+    m_outputEtHad.store (httTemp, bxRel());
 
     m_hfSumProcessor->process();
   }

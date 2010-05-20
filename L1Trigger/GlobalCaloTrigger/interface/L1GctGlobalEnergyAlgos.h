@@ -42,6 +42,11 @@ public:
         typedef L1GctMet::etmiss_vec     etmiss_vec;
         typedef L1GctWheelEnergyFpga::etComponentType etComponentType;
 
+	enum maxValues {
+	  etTotalMaxValue = L1GctEtTotal::kEtTotalMaxValue,
+	  etHadMaxValue   =   L1GctEtHad::kEtHadMaxValue
+	};
+
         /// Constructor needs the Wheel card Fpgas set up first
 	 L1GctGlobalEnergyAlgos(std::vector<L1GctWheelEnergyFpga*> WheelFpga,
 			       std::vector<L1GctWheelJetFpga*> WheelJetFpga);
