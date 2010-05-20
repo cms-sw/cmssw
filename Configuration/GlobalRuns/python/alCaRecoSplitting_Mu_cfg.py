@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.168.2.1 
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: alCaRecoSplitting -s ALCAOUTPUT:MuAlCalIsolatedMu+MuAlOverlaps+TkAlMuonIsolated+HcalCalHO+TkAlJpsiMuMu+TkAlUpsilonMuMu --conditions FrontierConditions_GlobalTag,GR10_P_V5::All --no_exec --triggerResultsProcess RECO --filein=/store/temp/data/Commissioning10/MinimumBias/ALCARECO/v9/000/135/528/26F91E4B-C160-DF11-A588-003048D37456.root --no_output --python_filename=alCaRecoSplitting_Mu_cfg.py --data
+# with command line options: alCaRecoSplitting -s ALCAOUTPUT:MuAlCalIsolatedMu+MuAlOverlaps+TkAlMuonIsolated --conditions FrontierConditions_GlobalTag,GR10_P_V5::All --no_exec --triggerResultsProcess RECO --filein=/store/temp/data/Run2010A/Mu/ALCARECO/v1/000/135/836/8C8EBAAF-F963-DF11-BB6A-000423D9997E.root --no_output --python_filename=alCaRecoSplitting_Mu_cfg.py --data
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('ALCAOUTPUT')
@@ -31,21 +31,10 @@ process.options = cms.untracked.PSet(
 )
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/temp/data/Commissioning10/MinimumBias/ALCARECO/v9/000/135/528/26F91E4B-C160-DF11-A588-003048D37456.root')
+    fileNames = cms.untracked.vstring('/store/temp/data/Run2010A/Mu/ALCARECO/v1/000/135/836/8C8EBAAF-F963-DF11-BB6A-000423D9997E.root')
 )
 
 # Additional output definition
-process.ALCARECOStreamTkAlUpsilonMuMu = cms.OutputModule("PoolOutputModule",
-    SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('pathALCARECOTkAlUpsilonMuMu:RECO')
-    ),
-    outputCommands = process.OutALCARECOTkAlUpsilonMuMu_noDrop.outputCommands,
-    fileName = cms.untracked.string('TkAlUpsilonMuMu.root'),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string('TkAlUpsilonMuMu'),
-        dataTier = cms.untracked.string('ALCARECO')
-    )
-)
 process.ALCARECOStreamTkAlMuonIsolated = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOTkAlMuonIsolated:RECO')
@@ -68,17 +57,6 @@ process.ALCARECOStreamMuAlCalIsolatedMu = cms.OutputModule("PoolOutputModule",
         dataTier = cms.untracked.string('ALCARECO')
     )
 )
-process.ALCARECOStreamTkAlJpsiMuMu = cms.OutputModule("PoolOutputModule",
-    SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('pathALCARECOTkAlJpsiMuMu:RECO')
-    ),
-    outputCommands = process.OutALCARECOTkAlJpsiMuMu_noDrop.outputCommands,
-    fileName = cms.untracked.string('TkAlJpsiMuMu.root'),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string('TkAlJpsiMuMu'),
-        dataTier = cms.untracked.string('ALCARECO')
-    )
-)
 process.ALCARECOStreamMuAlOverlaps = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOMuAlOverlaps:RECO')
@@ -87,17 +65,6 @@ process.ALCARECOStreamMuAlOverlaps = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('MuAlOverlaps.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('MuAlOverlaps'),
-        dataTier = cms.untracked.string('ALCARECO')
-    )
-)
-process.ALCARECOStreamHcalCalHO = cms.OutputModule("PoolOutputModule",
-    SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('pathALCARECOHcalCalHO:RECO')
-    ),
-    outputCommands = process.OutALCARECOHcalCalHO_noDrop.outputCommands,
-    fileName = cms.untracked.string('HcalCalHO.root'),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string('HcalCalHO'),
         dataTier = cms.untracked.string('ALCARECO')
     )
 )
@@ -150,14 +117,9 @@ process.pathALCARECOMuAlGlobalCosmics = cms.Path(process.seqALCARECOMuAlGlobalCo
 process.pathALCARECOTkAlJpsiMuMu = cms.Path(process.seqALCARECOTkAlJpsiMuMu*process.ALCARECOTkAlJpsiMuMuDQM)
 
 
-process.ALCARECOStreamTkAlUpsilonMuMuOutPath = cms.EndPath(process.ALCARECOStreamTkAlUpsilonMuMu)
 process.ALCARECOStreamTkAlMuonIsolatedOutPath = cms.EndPath(process.ALCARECOStreamTkAlMuonIsolated)
 process.ALCARECOStreamMuAlCalIsolatedMuOutPath = cms.EndPath(process.ALCARECOStreamMuAlCalIsolatedMu)
-process.ALCARECOStreamTkAlJpsiMuMuOutPath = cms.EndPath(process.ALCARECOStreamTkAlJpsiMuMu)
 process.ALCARECOStreamMuAlOverlapsOutPath = cms.EndPath(process.ALCARECOStreamMuAlOverlaps)
-process.ALCARECOStreamHcalCalHOOutPath = cms.EndPath(process.ALCARECOStreamHcalCalHO)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.ALCARECOStreamTkAlMuonIsolatedOutPath,process.ALCARECOStreamMuAlCalIsolatedMuOutPath,process.ALCARECOStreamMuAlOverlapsOutPath)
-
-#process.schedule = cms.Schedule(process.ALCARECOStreamTkAlUpsilonMuMuOutPath,process.ALCARECOStreamTkAlMuonIsolatedOutPath,process.ALCARECOStreamMuAlCalIsolatedMuOutPath,process.ALCARECOStreamTkAlJpsiMuMuOutPath,process.ALCARECOStreamMuAlOverlapsOutPath,process.ALCARECOStreamHcalCalHOOutPath)
