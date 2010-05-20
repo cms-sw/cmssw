@@ -192,12 +192,16 @@ def sync( regexp1, files1, regexp2, files2):
 # create a subdirectory in an existing directory 
 def createSubDir( castorDir, subDir ):
     absName = '%s/%s' % (castorDir, subDir)
+    createCastorDir( absName )
+
+# create castor directory, if it does not already exist
+def createCastorDir( absName ):
     out = os.system( 'rfdir %s' % absName )
-    print out
     if out!=0:
         # dir does not exist
         os.system( 'rfmkdir %s' % absName )
     return absName
+    
 
 # move a set of files to another directory on castor
 def move( absDestDir, files ):
@@ -220,7 +224,8 @@ def cp( absDestDir, files ):
     destIsCastorDir = isCastorDir(absDestDir)
     if destIsCastorDir: 
         cp = 'rfcp'
-
+        createCastorDir( absDestDir )
+        
     for file in files:
 
         if destIsCastorDir == False:
@@ -229,7 +234,7 @@ def cp( absDestDir, files ):
             else:
                 cp = 'cp'
         
-        cpfile = '%s %s %s &' % (cp, file,absDestDir)
+        cpfile = '%s %s %s' % (cp, file,absDestDir)
         print cpfile
         os.system(cpfile)
         
