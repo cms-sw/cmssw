@@ -261,7 +261,7 @@ def getSUSY_pattuple_outputCommands( process ):
         'keep HcalNoiseSummary_*_*_*' #Keep the one in RECO
         ] 
 
-def run36xOnReRecoMC( process, genJets = "ak5GenJets"):
+def run36xOnReRecoMC( process ):
     """
     ------------------------------------------------------------------
     running GenJets for ak5 and ak7
@@ -277,6 +277,14 @@ def run36xOnReRecoMC( process, genJets = "ak5GenJets"):
     print "              anti-kT since that is not part of the re-reco          "
     print "*********************************************************************"
     process.load("RecoJets.Configuration.GenJetParticles_cff")
-    process.load("RecoJets.JetProducers." + genJets +"_cfi")
-    process.makePatJets.replace( process.patJetCharge, process.genParticlesForJets+getattr(process,genJets)+process.patJetCharge)
+    process.load("RecoJets.JetProducers.ak5GenJets_cfi")
+    process.ak7GenJets = process.ak5GenJets.clone( rParam = 0.7 )
+    process.makePatJets.replace( process.patJetCharge, process.genParticlesForJets+process.ak5GenJets+process.ak7GenJets+process.patJetCharge)
+    #-- Remove changes for GenJets ------------------------------------------------
+    process.genParticlesForJets.ignoreParticleIDs = cms.vuint32(1000022, 1000012, 1000014, 1000016, 2000012,
+        2000014, 2000016, 1000039, 5100039, 4000012,
+        4000014, 4000016, 9900012, 9900014, 9900016,
+        39)
+    process.genParticlesForJets.excludeResonances = True
+
 
