@@ -114,6 +114,9 @@ class CaloGeometryAnalyzer : public edm::EDAnalyzer
       TProfile* h_dPhi ;
       TProfile* h_dPhiR ;
 
+      TProfile* h_dEta ;
+      TProfile* h_dEtaR ;
+
       TProfile* h_eta ;
       TProfile* h_phi;
 
@@ -141,6 +144,9 @@ CaloGeometryAnalyzer::CaloGeometryAnalyzer( const edm::ParameterSet& iConfig )
   //  fullEcalDump_=iConfig.getUntrackedParameter<bool>("fullEcalDump",false);
   h_dPhi = h_fs->make<TProfile>("dPhi", "dPhi vs index", 14648, -0.5, 14647.5, " " ) ;
   h_dPhiR= h_fs->make<TProfile>("dPhi", "dPhi vs R", 150, 0, 150, " " ) ;
+
+  h_dEta = h_fs->make<TProfile>("dEta", "dEta vs index", 14648, -0.5, 14647.5, " " ) ;
+  h_dEtaR= h_fs->make<TProfile>("dEta", "dEta vs R", 150, 0, 150, " " ) ;
 
   h_eta = h_fs->make<TProfile>("iEta", "Eta vs iEta", 86*2*4, -86, 86, " " ) ;
   h_phi = h_fs->make<TProfile>("iPhi", "Phi vs iPhi", 360*4, 1, 361, " " ) ;
@@ -757,9 +763,13 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 
 	    const double deltaPhi ( dynamic_cast<const EcalEndcapGeometry*>( geom )->deltaPhi( did ) ) ;
 
+	    const double deltaEta ( dynamic_cast<const EcalEndcapGeometry*>( geom )->deltaEta( did ) ) ;
+
 	    h_dPhi->Fill( did.denseIndex(), deltaPhi ) ;
 	    h_dPhiR->Fill( gp.perp(), deltaPhi ) ;
 
+	    h_dEta->Fill( did.denseIndex(), deltaEta ) ;
+	    h_dEtaR->Fill( gp.perp(), deltaEta ) ;
 
 	    const GlobalVector xx ( 2.5,   0, 0 ) ;
 	    const GlobalVector yy (   0, 2.5, 0 ) ;
