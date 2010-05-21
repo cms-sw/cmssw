@@ -23,7 +23,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.172.2.1 $'),
+    version = cms.untracked.string('$Revision: 1.5 $'),
     annotation = cms.untracked.string('expressReco nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -55,7 +55,8 @@ process.secondOutput = cms.OutputModule("PoolOutputModule",
     outputCommands = process.ALCARECOEventContent.outputCommands,
     fileName = cms.untracked.string('expressReco_RAW2DIGI_L1Reco_RECO_DQM_ALCAPRODUCER_secondary.root'),
     dataset = cms.untracked.PSet(
-        dataTier = cms.untracked.string('ALCARECO')
+        dataTier = cms.untracked.string('ALCARECO'),
+        filterName = cms.untracked.string('StreamALCACombined')
     )
 )
 process.secondOutput.outputCommands.extend(cms.untracked.vstring('drop *_MEtoEDMConverter_*_*'))
