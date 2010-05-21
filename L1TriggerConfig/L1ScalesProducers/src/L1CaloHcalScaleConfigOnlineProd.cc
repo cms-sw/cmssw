@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Tue Sep 16 22:43:22 CEST 2008
-// $Id: L1CaloHcalScaleConfigOnlineProd.cc,v 1.3 2009/10/25 19:30:36 efron Exp $
+// $Id: L1CaloHcalScaleConfigOnlineProd.cc,v 1.1 2009/11/30 12:05:44 efron Exp $
 //
 //
 
@@ -24,16 +24,17 @@
 #include "CondTools/L1Trigger/interface/L1ConfigOnlineProdBase.h"
 #include "CondFormats/L1TObjects/interface/L1CaloHcalScale.h"
 #include "CondFormats/DataRecord/interface/L1CaloHcalScaleRcd.h"
-//#include "CondFormats/HcalObjects/interface/HcalTPGLutIdMap.h"
-//#include "CondFormats/HcalObjects/interface/HcalTPGLutGroup.h"
-//#include "CondFormats/HcalObjects/interface/HcalTPGPhysicsConst.h"
-//#include "DataFormats/HcalDigi/interface/HcalTriggerPrimitiveDigi.h"
-//#include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
-//#include "Geometry/HcalMapping/interface/HcalElectronicsMapping.h"
-//#include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
 #include "CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.h"
 #include "CondTools/L1Trigger/interface/DataManager.h"
+#include "CondTools/L1Trigger/interface/OMDSReader.h"
+
+
+
+#include "CondCore/DBCommon/interface/DbSession.h"
+#include "CondCore/DBCommon/interface/DbConnection.h"
+#include "CondCore/DBCommon/interface/DbScopedTransaction.h"
+
 
 #include <iostream>
 #include <iomanip>
@@ -53,12 +54,10 @@ class L1CaloHcalScaleConfigOnlineProd :
 
 
    private:
-  // const HcalElectronicsMapping * theMapping_ ;
-  //  std::map<int, std::vector<int>* > groupInfo;
-  // HcalTPGGroups*  lutGrpMap;
+ 
   L1CaloHcalScale* hcalScale;
   HcalTrigTowerGeometry theTrigTowerGeometry;
-  CaloTPGTranscoderULUT caloTPG;
+  CaloTPGTranscoderULUT* caloTPG;
   typedef std::vector<double> RCTdecompression;
   std::vector<RCTdecompression> hcaluncomp;
   cond::CoralTransaction* m_coralTransaction ;
@@ -66,7 +65,11 @@ class L1CaloHcalScaleConfigOnlineProd :
  cond::DBSession * session;
  cond::Connection * connection ;
 
-  
+  //  HcaluLUTTPGCoder* tpgCoder;// = new	 HcaluLUTTPGCoder();
+
+
+  HcalTrigTowerDetId* ttDetId;
+
       // ----------member data ---------------------------
 };
 
@@ -86,27 +89,20 @@ L1CaloHcalScaleConfigOnlineProd::L1CaloHcalScaleConfigOnlineProd(
   : L1ConfigOnlineProdBase< L1CaloHcalScaleRcd, L1CaloHcalScale >( iConfig )
 {
   hcalScale = new L1CaloHcalScale(0);
-  //  theMapping_ = new HcalElectronicsMapping();
-  //   lutGrpMap = new HcalTPGGroups();
-
-
-
- session = new cond::DBSession();
- session->configuration().setMessageLevel( cond::Debug ) ;
-
+  caloTPG = new CaloTPGTranscoderULUT();
+  session = new cond::DBSession();
+  session->configuration().setMessageLevel( cond::Info ) ;
+  
  
   std::string  connectString =    iConfig.getParameter< std::string >( "onlineDB" );
   std::string authenticationPath  =   iConfig.getParameter< std::string >( "onlineAuthentication" );
   
 
   session->configuration().setAuthenticationMethod(cond::XML);
-  std::cout << "authenticating  crap " << std::endl;
   session->configuration().setAuthenticationPath( authenticationPath ) ;
-  std::cout << "initializing pthing  crap " << std::endl << std::flush;
-  session->configuration().setBlobStreamer("COND/Services/TBufferBlobStreamingService") ;
-  std::cout << "initializing blobbing crap " << std::endl <<std::flush;
+
   session->open() ;
-  std::cout << "initializing opening crap " << std::endl << std::flush;
+
 
  connection = new cond::Connection( connectString ) ;
      connection->connect( session ) ;
@@ -115,8 +111,7 @@ L1CaloHcalScaleConfigOnlineProd::L1CaloHcalScaleConfigOnlineProd(
      m_coralTransaction = &( connection->coralTransaction() ) ;
      m_coralTransaction->start( true ) ;
 
-   
-     //        DataM a ( connectString, authenticationPath, true );
+
 
 }
 
@@ -126,15 +121,21 @@ L1CaloHcalScaleConfigOnlineProd::~L1CaloHcalScaleConfigOnlineProd()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-  //  delete theMapping_;
- 
-  connection->disconnect() ;
-  //  delete connection ;
-  //   delete session ;
 
-    delete hcalScale;
-  //  delete lutGrpMap;
-  //  groupInfo.clear();
+
+  connection->disconnect() ;
+
+  if(connection != 0)
+    delete connection ;
+  if(session != 0)
+    delete session ;
+
+  if(caloTPG != 0)
+    delete caloTPG;
+
+
+
+
 
 
 }
@@ -144,19 +145,19 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 {
      using namespace edm::es;
  
-     std:: cout << "object Key " << objectKey <<std::endl;
+     std:: cout << "object Key " << objectKey <<std::endl <<std::flush;
 
      if(objectKey == "NULL" || objectKey == "")  // return default blank ecal scale	 
-        return boost::shared_ptr< L1CaloHcalScale >( hcalScale );
+       return boost::shared_ptr< L1CaloHcalScale >( hcalScale );
      if(objectKey == "IDENTITY"){  // return identity ecal scale  
-       hcalScale = 0;
+       
+       delete hcalScale;
+       
        hcalScale = new L1CaloHcalScale(1);
+       
        return boost::shared_ptr< L1CaloHcalScale >( hcalScale);
      }
-     
-  // TODO cms::Error log
-     //   if (1024 != (unsigned int) 0x400) std::cout << "Error: Analytic compression expects 10-bit LUT; found LUT with " << 1024 << " entries instead" << std::endl;
- 
+  
      std::vector<unsigned int> analyticalLUT(1024, 0);
      std::vector<unsigned int> identityLUT(1024, 0);
      
@@ -164,17 +165,14 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
      for (unsigned int i=0; i < 1024; i++) {
        analyticalLUT[i] = (unsigned int)(sqrt(14.94*log(1.+i/14.94)*i) + 0.5);
        identityLUT[i] = std::min(i,0xffu);
-       //        std::cout << "output lsb " <<std::endl;
-       //	 for (unsigned int k = threshold; k < 1024; ++k)
-       //      std::cout << i << " "<<analyticalLUT[i] << " ";
      }
      
      hcaluncomp.clear();
-    for (int i = 0; i < 4176; i++){
-       RCTdecompression decompressionTable(0x100,0);
+     for (int i = 0; i < 4176; i++){
+       RCTdecompression decompressionTable(256,0);
        hcaluncomp.push_back(decompressionTable);
     }
-
+     
 
 
      std::vector < std::string > mainStrings;
@@ -188,9 +186,6 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
      metaStrings.push_back("RCTLSB");  
      metaStrings.push_back("NOMINAL_GAIN");  
    
-     
-   
-
  
     l1t::OMDSReader::QueryResults paramResults =
        m_omdsReader.basicQueryView( metaStrings,
@@ -213,22 +208,13 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 	 edm::LogError( "L1-O2O" ) << "Problem with L1CaloHcalScale key.  Unable to find lutparam dat table" ;
 	 return boost::shared_ptr< L1CaloHcalScale >() ;
        }
-
-    
-
-    //     for(int i = 0; i < paramResults.numberRows() ; i++){
-       
-    //HcalTPGPhysicsConst::Item item;
+        
     double hcalLSB, nominal_gain;
     paramResults.fillVariable("RCTLSB",hcalLSB);    
     paramResults.fillVariable("NOMINAL_GAIN",nominal_gain);
  
-    float    rctlsb = hcalLSB == 0.25 ? 1./4 : 1./8;
+        float    rctlsb = hcalLSB == 0.25 ? 1./4 : 1./8;
 
-
-
-
-    std::cout << " god fucking mother fucker lsb "   << rctlsb << " ng " << nominal_gain <<std::endl;
 
     l1t::OMDSReader::QueryResults chanKey =m_omdsReader.basicQuery(
 								  "HCAL_LUT_CHAN_DATA",
@@ -240,30 +226,12 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
     //coral::AttributeList myresult;
     //    myresult.extend(
     
-    /*
-    l1t::OMDSReader::QueryResults chanResults 
-
-					 
-       m_omdsReader.basicQueryView( channelStrings,
-                                "CMS_HCL_HCAL_COND",
-                                "V_HCAL_LUT_CHAN_DATA_V1",
-                                "V_HCAL_LUT_CHAN_DATA_V1.TAG_NAME",
-				m_omdsReader.basicQuery(
-							"HCAL_LUT_CHAN_DATA",
-							"CMS_RCT",
-							"HCAL_SCALE_KEY",
-							"HCAL_SCALE_KEY.HCAL_TAG",
-							m_omdsReader.singleAttribute(objectKey)));
-    
-    */
-
+ 
     std::string schemaName("CMS_HCL_HCAL_COND");
     coral::ISchema& schema = schemaName.empty() ?
       m_coralTransaction->nominalSchema() :
       m_coralTransaction->coralSessionProxy().schema( schemaName ) ;
      coral::IQuery* query = schema.newQuery(); ;
-
-
 
      
     std::vector< std::string > channelStrings;
@@ -273,6 +241,8 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
     channelStrings.push_back("OUTPUT_LUT_THRESHOLD");
     channelStrings.push_back("OBJECTNAME");
 
+		 
+   
      std::vector< std::string >::const_iterator it = channelStrings.begin() ;
      std::vector< std::string >::const_iterator end = channelStrings.end() ;
      for( ; it != end ; ++it )
@@ -287,18 +257,14 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
     myresult.extend("LUT_GRANULARITY", typeid(int)); 
     myresult.extend("OUTPUT_LUT_THRESHOLD", typeid(int)); 
     myresult.extend( ob,typeid(std::string));//, typeid(std::string)); 
-    //   query->addToOutputList(*constIt);
+
     query->defineOutput( myresult ); 
 
-    //  query->addToOutputList(ob);
-
     query->addToTableList( "V_HCAL_LUT_CHAN_DATA_V1");
-
 
     query->setCondition(
 			"V_HCAL_LUT_CHAN_DATA_V1.TAG_NAME = :" + chanKey.columnNames().front(),
 			chanKey.attributeLists().front());
-
 
     coral::ICursor& cursor = query->execute();
 
@@ -317,7 +283,7 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 	 edm::LogError( "L1-O2O" ) << "Problem with L1CaloHcalScale key.  Unable to find lutparam dat table nrows" << chanResults.numberRows() ;
 	 return boost::shared_ptr< L1CaloHcalScale >() ;
        }
-    std::cout << " god fucking mother fucker 2" << std::endl;
+
 
 
     chanResults.attributeLists();
@@ -334,26 +300,20 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 	 chanResults.fillVariableFromRow("IETA",i,ieta);
 	 chanResults.fillVariableFromRow("OUTPUT_LUT_THRESHOLD",i,threshold);
 	 
-	 if(ieta == 1 && iphi == 1)
-	   std::cout << "11 data  gran " << lutGranularity << " thresh " << threshold <<std::endl;
-
-	 if(ieta == 29 && iphi > 0 && iphi <= 4)
-	   std::cout << "hf data  gran " << lutGranularity << " thresh " << threshold <<std::endl;
 
 	 unsigned int outputLut[1024];
-	 int lutId = caloTPG.GetOutputLUTId(ieta,iphi);
 
-
+	 uint32_t lutId = caloTPG->getOutputLUTId(ieta,iphi);
 
 	 double eta_low = 0., eta_high = 0.;
 	 theTrigTowerGeometry.towerEtaBounds(ieta,eta_low,eta_high); 
 	 double cosh_ieta = fabs(cosh((eta_low + eta_high)/2.));
 
-	  //	  for (int iphi = 1; iphi <= 72; iphi++) {
-	 if (!caloTPG.HTvalid(ieta, iphi)) continue;
+
+	 if (!caloTPG->HTvalid(ieta, iphi)) continue;
 	 double factor = 0.;
 	 if (abs(ieta) >= theTrigTowerGeometry.firstHFTower())
-	   factor = hcalLSB;
+	   factor = rctlsb;
 	 else 
 	   factor = nominal_gain / cosh_ieta * lutGranularity;
 	 for (int k = 0; k < threshold; ++k)
@@ -361,40 +321,22 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 	 
          for (unsigned int k = threshold; k < 1024; ++k)
 	   outputLut[k] = (abs(ieta) < theTrigTowerGeometry.firstHFTower()) ? analyticalLUT[k] : identityLUT[k];
-	 /*
-	 if((ieta == 1 && iphi ==1) || (ieta == 29 && iphi > 0 && iphi <= 4) ){
-	   std::cout << "output lsb " <<std::endl;
-	   for (unsigned int k = 0; k < 1024; ++k)
-	     std::cout << k << " "<<outputLut[k]<< " ";
-	   
-	   std::cout <<std::endl;
-	 }
-	 */
+	 
+
 	   // tpg - compressed value
 	   unsigned int tpg = outputLut[0];
           
 	   int low = 0;
-	  if(ieta == 1 && iphi ==1)
-	    std::cout << "11 data  gran low " << low << " tpg " << tpg <<std::endl;
-	  
-	  if(ieta == 29 && iphi > 0 && iphi <= 4)
-	    std::cout << "hf data  gran "<< low << " tpg " << tpg <<std::endl;
+
           for (unsigned int k = 0; k < 1024; ++k){
              if (outputLut[k] != tpg){
                 unsigned int mid = (low + k)/2;
                 hcaluncomp[lutId][tpg] = (tpg == 0 ? low : factor * mid);
                 low = k;
-		if((ieta == 1 && iphi ==1) || (ieta == 29 && iphi > 0 && iphi <= 4) )
-	   
-		  std::cout << tpg << " " << hcaluncomp[lutId][tpg] << " " ;
                 tpg = outputLut[k];
-
-
              }
           }
           hcaluncomp[lutId][tpg] = factor * low;
-	if((ieta == 1 && iphi ==1) || (ieta == 29 && iphi ==1))
-	  std::cout << std::endl;
        }
      }
      
@@ -410,22 +352,18 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 	   int nphi = 0;
 	   double etvalue = 0.;
 	   
-	   //	 std::cout << "ieta " <<zside*ieta ;
-	   for(int iphi = 1; iphi<=72; iphi++){
 
-	     if(!caloTPG.HTvalid(ieta, iphi))
+	   for(int iphi = 1; iphi<=72; iphi++){
+	     if(!caloTPG->HTvalid(ieta, iphi))
 	       continue;
-	     int lutId = caloTPG.GetOutputLUTId(ieta,iphi);
+	     uint32_t lutId = caloTPG->getOutputLUTId(ieta,iphi);
 	     nphi++;
-	     etvalue += hcaluncomp[lutId][irank];
+	     etvalue += (double) hcaluncomp[lutId][irank];
 
 	   } // phi
 	   if (nphi > 0) etvalue /= nphi;
-
 	   
 	   hcalScale->setBin(irank, ieta, zside, etvalue);
-
-		   //		 std::cout << " irank " << irank << " etValue " << et_lsb*tpgValue[irank] << std::endl;		 
 
 	 } // rank
        } // zside
