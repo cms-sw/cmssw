@@ -35,9 +35,16 @@ void L1ScalesTester::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
    ESHandle< L1CaloEcalScale > ecalScale;
    es.get< L1CaloEcalScaleRcd >().get(ecalScale);
+
+   ESHandle< L1CaloHcalScale > hcalScale;
+   es.get< L1CaloHcalScaleRcd >().get(hcalScale);
    
    cout << " L1ColoEcalScale  :" << endl;
    ecalScale->print(cout);
+   cout << endl;
+
+ cout << " L1ColoHcalScale  :" << endl;
+   hcalScale->print(cout);
    cout << endl;
    
    ESHandle< L1CaloEtScale > jetScale ;
