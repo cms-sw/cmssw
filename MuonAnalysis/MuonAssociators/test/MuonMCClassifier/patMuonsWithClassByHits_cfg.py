@@ -23,7 +23,8 @@ process.source = cms.Source("PoolSource",
         #'rfio:/castor/cern.ch/user/g/gpetrucc/900GeV/MC/Feb9Skims/MC_CollisionEvents_MuonSkim_1.root',
         #'rfio:/castor/cern.ch/user/g/gpetrucc/900GeV/MC/Feb9Skims/MC_CollisionEvents_MuonSkim_2.root',
         #'rfio:/castor/cern.ch/user/g/gpetrucc/900GeV/MC/Feb9Skims/MC_CollisionEvents_MuonSkim_3.root',
-        'file:/data/gpetrucc/Feb9Skims/MC_CollisionEvents_MuonSkim_1.root'
+        'root://pcmssd12.cern.ch//data/gpetrucc/Feb9Skims/MC_CollisionEvents_MuonSkim_1.root'
+        #'file:/data/gpetrucc/Feb9Skims/MC_CollisionEvents_MuonSkim_1.root'
     ),
     inputCommands = RECOSIMEventContent.outputCommands,            # keep only RECO out of RAW+RECO, for tests
     dropDescendantsOfDroppedBranches = cms.untracked.bool(False),  # keep only RECO out of RAW+RECO, for tests
@@ -80,7 +81,7 @@ process.classByHitsTM = cms.EDProducer("MuonMCClassifier",
     #trackingParticles = cms.InputTag("mergedtruth"),                 # RAW+RECO
     #associatorLabel = cms.string("muonAssociatorByHits"),            # RAW+RECO
 )
-process.classByHitsGlb = process.classByHitsTM.clone(trackType = "outer")
+process.classByHitsGlb = process.classByHitsTM.clone(trackType = "global")
 
 process.classByHits = cms.Sequence(
     process.mix * 
