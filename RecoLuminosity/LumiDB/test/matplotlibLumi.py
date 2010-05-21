@@ -1,5 +1,5 @@
 import sys
-from numpy import arange,sin,pi
+from numpy import arange,sin,pi,random
 
 batchonly=False
 def destroy(e) :
@@ -19,6 +19,7 @@ except ImportError:
     batchonly=True
 
 from matplotlib.figure import Figure
+import matplotlib.ticker as ticker
  
 def drawHTTPstring(fig):
     canvas=CanvasBackend(fig)    
@@ -44,12 +45,46 @@ def drawInteractive(fig):
     button = Tk.Button(master=root,text='Quit',command=sys.exit)
     button.pack(side=Tk.BOTTOM)
     Tk.mainloop()
+
+def plotDate(fig):
+    import datetime as dt
+    ax2=fig.add_subplot(111)
+    date2_1=dt.datetime(2008,9,23)
+    date2_2=dt.datetime(2008,10,3)
+    delta2=dt.timedelta(days=1)
+    dates2=matplotlib.dates.drange(date2_1,date2_2,delta2)
+    y2=random.rand(len(dates2))
+    ax2.set_ylabel(r'Luminosity $\mu$b$^{-1}$')
+    ax2.plot_date(dates2,y2,linestyle='-')
+    dateFmt=matplotlib.dates.DateFormatter('%Y-%m-%d')
+    ax2.xaxis.set_major_formatter(dateFmt)
+    daysLoc=matplotlib.dates.DayLocator()
+    hoursLoc=matplotlib.dates.HourLocator(interval=6)
+    ax2.xaxis.set_major_locator(daysLoc)
+    ax2.xaxis.set_minor_locator(hoursLoc)
+    fig.autofmt_xdate(bottom=0.18)
+    fig.subplots_adjust(left=0.18)
+def plotRun(fig):
+    
 if __name__=='__main__':
     fig=Figure(figsize=(5,4),dpi=100)
-    a=fig.add_subplot(111)
-    t=arange(0.0,3.0,0.01)
-    s=sin(2*pi*t)
-    a.plot(t,s)
-    drawBatch(fig,'testbatch.png')
+    #a=fig.add_subplot(111)
+    #timevars=[1,2,3,4] #should be a absolute packed number runnumber+lsnumber
+    #lumivars=[5,6,7,8]
+    #use major and minor tickers: major is run,fill or time interval, minor ticker is lumisection. grid is set on major ticker
+    #a.set_title('luminosity run')
+    #a.set_xlabel('lumi section')
+    #a.set_ylabel('Luminosity')
+    #a.set_xbound(lower=0,upper=5)
+    #a.set_ybound(lower=0.0,upper=10.5)
+    #a.set_xticks(range(0,5))
+    #a.set_xticks(range(1,5,1))
+    #a.plot(timevars,lumivars,'rs-',linewidth=1.0,label='delivered')
+    #a.plot(timevars,[v*0.8 for v in lumivars],'gs-',linewidth=1.0,label='recorded')
+    #a.grid(True)
+    #a.legend(('delivered','recorded'),loc='upper left')
+    
+    #drawBatch(fig,'testbatch.png')
+    plotDate(fig)
     drawInteractive(fig)
     #print drawHTTPstring()
