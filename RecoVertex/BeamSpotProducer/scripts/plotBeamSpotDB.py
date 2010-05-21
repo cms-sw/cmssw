@@ -356,10 +356,13 @@ if __name__ == '__main__':
 		    datax = str(ibeam.Run) + ":" + str(ibeam.IOVfirst)+"-"+str(ibeam.IOVlast)
             #print datax
 	    if option.graph:
-		#datax = pack( int(ibeam.Run) , int(ibeam.IOVfirst) )
 		if IOVbase=="lumibase":
-		    datax = (float(ibeam.IOVlast) - float(ibeam.IOVfirst))/2 + float(ibeam.IOVfirst)
-		    dataxerr =  (float(ibeam.IOVlast) - float(ibeam.IOVfirst))/2
+                    #first = int( pack( int(ibeam.Run) , int(ibeam.IOVfirst) ) )
+                    #last = int( pack( int(ibeam.Run) , int(ibeam.IOVlast) ) )
+                    first = ibeam.IOVfirst
+                    last = ibeam.IOVlast
+		    datax = (float(last) - float(first))/2 + float(first)
+		    dataxerr =  (float(last) - float(first))/2
 		graphlist[ig].SetPoint(ipoint, float(datax), float(datay) )
 		graphlist[ig].SetPointError(ipoint, float(dataxerr), float(datayerr) )
 	    else:
