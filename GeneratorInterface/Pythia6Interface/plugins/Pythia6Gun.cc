@@ -1,6 +1,6 @@
 /*
- *  $Date: 2010/02/15 21:12:49 $
- *  $Revision: 1.16 $
+ *  $Date: 2010/02/15 23:02:20 $
+ *  $Revision: 1.17 $
  *  \author Julia Yarba
  */
 
@@ -124,9 +124,6 @@ void Pythia6Gun::attachPy6DecaysToGenEvent()
 	                                        // and replace with the new one
 						// I presume barcode will be given automatically
 	 
-	 // attention: pyjets.k[1][iprt] is PYTHIA6 PID !!!
-	 //            need to convert to standard PDG
-	 //
 	 HepMC::FourVector  pmom(pyjets.p[0][iprt],pyjets.p[1][iprt],
 	                         pyjets.p[2][iprt],pyjets.p[3][iprt] );
 	 
@@ -159,11 +156,10 @@ void Pythia6Gun::attachPy6DecaysToGenEvent()
 	 for ( iprt1=iprt+1; iprt1<pyjets.n; iprt1++ ) // the pointer is shifted by -1, c++ style
 	 {
 	    if ( pyjets.k[2][iprt1] != parent ) break; // another parent particle, break the loop
+
 	    HepMC::FourVector  pmomN(pyjets.p[0][iprt1],pyjets.p[1][iprt1],
 	                             pyjets.p[2][iprt1],pyjets.p[3][iprt1] );
-	    //
-	    // same here with PID - need py6->pdg !!!
-	    //
+
 	    dstatus = 0;
 	    if ( pyjets.k[0][iprt1] >= 1 && pyjets.k[0][iprt1] <= 10 )  
 	    {
