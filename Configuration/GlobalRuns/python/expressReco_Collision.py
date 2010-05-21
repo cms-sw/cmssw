@@ -23,7 +23,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.5 $'),
+    version = cms.untracked.string('$Revision: 1.6 $'),
     annotation = cms.untracked.string('expressReco nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -50,6 +50,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 )
 
 # Second Output definition
+process.ALCARECOEventContent.outputCommands.extend(cms.untracked.vstring('drop *_MEtoEDMConverter_*_*'))
 process.secondOutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     outputCommands = process.ALCARECOEventContent.outputCommands,
@@ -59,7 +60,6 @@ process.secondOutput = cms.OutputModule("PoolOutputModule",
         filterName = cms.untracked.string('StreamALCACombined')
     )
 )
-process.secondOutput.outputCommands.extend(cms.untracked.vstring('drop *_MEtoEDMConverter_*_*'))
 
 # Additional output definition
 
@@ -115,7 +115,7 @@ process.out_step = cms.EndPath(process.output)
 process.out_stepSecond = cms.EndPath(process.secondOutput)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.dqmoffline_step,process.pathALCARECOMuAlCalIsolatedMu,process.pathALCARECODtCalib,process.pathALCARECOTkAlMinBias,process.pathALCARECOSiStripCalZeroBias,process.endjob_step,process.out_step,process.out_stepSecond)
+process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.dqmoffline_step,process.pathALCARECOMuAlCalIsolatedMu,process.pathALCARECODtCalib,process.pathALCARECOTkAlMinBias,process.pathALCARECOSiStripCalZeroBias,process.endjob_step)
 
 
 # Automatic addition of the customisation function
