@@ -1,3 +1,4 @@
+# to test the chain producer->emulator without using the global tag
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("analyzer")
@@ -26,7 +27,7 @@ process.MessageLogger.debugModules = cms.untracked.vstring('*')
 readFiles = cms.untracked.vstring()
 process.source = cms.Source ("PoolSource", fileNames = readFiles)
 readFiles.extend((
-        'file:/nfshome0/digiovan/7489BAFA-A28D-DE11-83BE-0018F3D096EE.root',
+        'file:Raw.root',
 ))
 
 # read the streamer directly. Be careful: it WON'T work if your cmssw version
@@ -49,6 +50,7 @@ process.load("Geometry.CSCGeometry.cscGeometry_cfi")
 process.load("L1TriggerConfig.CSCTFConfigProducers.L1CSCTFConfig_cff")
 process.load("L1TriggerConfig.L1ScalesProducers.L1MuTriggerScalesConfig_cff")
 process.load("L1TriggerConfig.L1ScalesProducers.L1MuTriggerPtScaleConfig_cff")
+
 
 # CSC TF (copy-paste L1Trigger/Configuration/python/L1RawToDigi_cff.py + little modifications)
 import EventFilter.CSCTFRawToDigi.csctfunpacker_cfi
