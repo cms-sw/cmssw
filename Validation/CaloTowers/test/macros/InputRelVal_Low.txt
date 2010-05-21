@@ -69,8 +69,8 @@
            CaloTowersTask_sum_of_energy_HCAL_vs_ECAL_HF   0
                             CaloTowersTask_EM_Timing_HF   1	     HF_CaloTowers_EM_Timing_HF.gif	2	0	-1	0	-1	1D	Stat	Chi2	Log	2	1	       HF CaloTowers EM Timing
                            CaloTowersTask_HAD_Timing_HF   1	    HF_CaloTowers_HAD_Timing_HF.gif	2	0	-1	0	-1	1D	Stat	Chi2	Log	2	1	       HF CaloTowers HAD Timing
-                 CaloTowersTask_EM_Energy_Timing_Low_HF   1   HF_CaloTowers_EM_Energy_Timing_HF.gif	1	0	50.	0	-1	TM	noStat	noChi2	NoLog	53	42	       HF CaloTowers EM Timing vs Energy
-         CaloTowersTask_EM_Energy_Timing_profile_Low_HF
+                     CaloTowersTask_EM_Energy_Timing_HF   1   HF_CaloTowers_EM_Energy_Timing_HF.gif	1	0	50.	0	-1	TM	noStat	noChi2	NoLog	53	42	       HF CaloTowers EM Timing vs Energy
+             CaloTowersTask_EM_Energy_Timing_profile_HF
                 CaloTowersTask_HAD_Energy_Timing_Low_HF   1  HF_CaloTowers_HAD_Energy_Timing_HF.gif	1	0	20.	0	-1	TM	noStat	noChi2	NoLog	53	42	       HF CaloTowers HAD Timing vs Energy
         CaloTowersTask_HAD_Energy_Timing_profile_Low_HF
                        CaloTowersTask_occupancy_vs_ieta   1        CaloTowers_occupancy_vs_ieta.gif	1	0	-1	0	-1	1D	noStat	noChi2	NoLog	41	42	       CaloTowers Occupancy vs. iEta

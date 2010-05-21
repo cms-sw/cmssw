@@ -252,7 +252,7 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
 
     //Energy-Timing histos are divided into low and normal to reduce memory usage
     //EM
-    sprintf  (histo, "CaloTowersTask_EM_Energy_Low_Timing_HE" ) ;
+    sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_Low_HE" ) ;
     emEnergyTiming_Low_HE = dbe_->book2D(histo, histo, 160, 0. , 160., 110, -120., 100.  ) ;
 
     sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_HE" ) ;
