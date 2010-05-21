@@ -7,12 +7,13 @@ process.MessageLogger.cout.threshold = cms.untracked.string('INFO')
 process.MessageLogger.debugModules = cms.untracked.vstring('*')
 
 # Generate dummy L1TriggerKeyList
-process.load("CondTools.L1Trigger.L1TriggerKeyListDummy_cff")
+#process.load("CondTools.L1Trigger.L1TriggerKeyListDummy_cff")
 
 # Get configuration data from OMDS.  This is the subclass of L1ConfigOnlineProdBase.
 process.load("L1TriggerConfig.RCTConfigProducers.L1RCTParametersOnline_cfi")
 process.load("L1TriggerConfig.L1ScalesProducers.L1EmEtScaleConfigOnline_cfi")
 process.load("L1TriggerConfig.L1ScalesProducers.L1CaloEcalScaleConfigOnline_cfi")
+process.load("L1TriggerConfig.L1ScalesProducers.L1CaloHcalScaleConfigOnline_cfi")
 process.l1RCTParametersTest = cms.EDAnalyzer("L1RCTParametersTester")
 process.l1RCTChannelMaskTest = cms.EDAnalyzer("L1RCTChannelMaskTester")
 process.l1scalesTest = cms.EDAnalyzer("L1ScalesTester")
@@ -25,12 +26,12 @@ process.l1scalesTest = cms.EDAnalyzer("L1ScalesTester")
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
-process.source = cms.Source("EmptyIOVSource",
-    timetype = cms.string('runnumber'),
-    firstValue = cms.uint64(1),
-    lastValue = cms.uint64(1),
-    interval = cms.uint64(1)
-)
+
+process.source = cms.Source("EmptySource")
+
+from CondTools.L1Trigger.L1CondDBPayloadWriter_cff import initPayloadWriter
+initPayloadWriter( process )
+
 
 
 
@@ -41,7 +42,12 @@ process.getter = cms.EDAnalyzer("EventSetupRecordDataGetter",
                      cms.PSet(
     record = cms.string('L1RCTParametersRcd'),
     data = cms.vstring('L1RCTParameters')
-    ), cms.PSet(
+    ),
+                     cms.PSet(
+      record = cms.string('L1CaloHcalScaleRcd'),
+    data = cms.vstring('L1CaloHcalScale')
+    ),
+                     cms.PSet(
     record = cms.string('L1CaloEcalScaleRcd'),
     data = cms.vstring('L1CaloEcalScale')
     )),
@@ -55,8 +61,9 @@ process.L1TriggerKeyDummy.objectKeys = cms.VPSet()
 process.L1TriggerKeyDummy.label = cms.string('SubsystemKeysOnly')
 
 # rctKey = csctfKey, dttfKey, rpcKey, gmtKey, rctKey, gctKey, gtKey, or tsp0Key
-#process.L1TriggerKeyDummy.rctKey = cms.string('EEG_ESUMS_TAU3_DECO_25_FALLGR09_FULLECAL')
-process.L1TriggerKeyDummy.rctKey = cms.string('HEG_HSUMS_HF');
+#process.L1TriggerKeyDummy.rctKey = cms.string('EEG_EHSUMS_TAU3_DECO_25_FALLGR09_FULLECAL')
+#process.L1TriggerKeyDummy.rctKey = cms.string('HEG_HSUMS_HF');
+process.L1TriggerKeyDummy.rctKey = cms.string('EEG_EHSUMS_TAU4_NOVETOES_14APR10')
 #process.L1TriggerKeyDummy.rctKey = cms.string('EE+');
 
 # Subclass of L1ObjectKeysOnlineProdBase.
