@@ -66,8 +66,14 @@ edm::ParameterSet L1MuCSCTFConfiguration::parameters(int sp) const {
                
   unsigned int straightp =   60;
   unsigned int curvedp   =  200;
+  
   unsigned int mbaPhiOff =    0;
-  unsigned int mbbPhiOff = 2048;
+  // this differ from the default value in the documentation because during
+  // craft 09 it mbbPhiOff, as well as mbaPhiOff were not existing, thus set to 0 (they are offsets)
+  // and for backward compatibility it needs to be set to 0. Anyway mbbPhiOff since its introduction in the
+  // core will have to be ALWAYS part of the configuration, so it won't be never initialized to the
+  // default value 2048.
+  unsigned int mbbPhiOff =    0;
 
   int eta_cnt=0;
 
