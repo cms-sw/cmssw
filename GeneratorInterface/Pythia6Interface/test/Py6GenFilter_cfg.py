@@ -28,7 +28,7 @@ from Configuration.Generator.PythiaUESettings_cfi import *
 from GeneratorInterface.ExternalDecays.TauolaSettings_cff import *
 
 process.generator = cms.EDFilter("Pythia6GeneratorFilter",
-    pythiaHepMCVerbosity = cms.untracked.bool(False),
+    pythiaHepMCVerbosity = cms.untracked.bool(True),
     maxEventsToPrint = cms.untracked.int32(3),
     pythiaPylistVerbosity = cms.untracked.int32(1),
     # this shows how to turn ON some of the general Py6 printouts, like banner...
@@ -47,7 +47,7 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
 	     ( 
 	        pjak1 = cms.int32(0),
 		pjak2 = cms.int32(0), 
-		mdtau = cms.int32(214) 
+		mdtau = cms.int32(240) # (any) tau -> nu pi+- 
 	     )
 #           TauolaDefaultInputCards,
 #	   TauolaPolar
