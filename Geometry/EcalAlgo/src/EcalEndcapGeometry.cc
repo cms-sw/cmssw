@@ -10,7 +10,8 @@ EcalEndcapGeometry::EcalEndcapGeometry() :
    _nnmods ( 316 ) ,
    _nncrys ( 25 ) ,
    m_borderMgr ( 0 ),
-   m_borderPtrVec ( 0 ) 
+   m_borderPtrVec ( 0 ) ,
+   m_deltaPhi  ( 0 ) 
 {
 }
 
@@ -18,6 +19,7 @@ EcalEndcapGeometry::~EcalEndcapGeometry()
 {
    delete m_borderPtrVec ;
    delete m_borderMgr ;
+   delete m_deltaPhi ;
 }
 
 unsigned int
@@ -406,4 +408,53 @@ EcalEndcapGeometry::newCell( const GlobalPoint& f1 ,
 			     const DetId&       detId   ) 
 {
    return ( new TruncatedPyramid( mgr, f1, f2, f3, parm ) ) ;
+}
+
+double 
+EcalEndcapGeometry::deltaPhi( const DetId& detId ) const
+{
+   const CaloGenericDetId cgId ( detId ) ;
+   assert( cgId.isEE() ) ;
+
+   if( 0 == m_deltaPhi )
+   {
+      const uint32_t kSize ( cgId.sizeForDenseIndexing() ) ;
+      m_deltaPhi = new std::vector<double> ( kSize ) ;
+      for( uint32_t i ( 0 ) ; i != kSize ; ++i )
+      {
+	 const CaloCellGeometry& cell ( *cellGeometries()[ i ] ) ;
+	 const double dPhi1 ( fabs(
+	    GlobalPoint( ( cell.getCorners()[0].x() + 
+			   cell.getCorners()[1].x() )/2. ,
+			 ( cell.getCorners()[0].y() + 
+			   cell.getCorners()[1].y() )/2. ,
+			 ( cell.getCorners()[0].z() + 
+			   cell.getCorners()[1].z() )/2.  ).phi() -
+	    GlobalPoint( ( cell.getCorners()[2].x() + 
+			   cell.getCorners()[3].x() )/2. ,
+			 ( cell.getCorners()[2].y() + 
+			   cell.getCorners()[3].y() )/2. ,
+			 ( cell.getCorners()[2].z() + 
+			   cell.getCorners()[3].z() )/2.  ).phi() ) ) ;
+	 const double dPhi2 ( fabs(
+	    GlobalPoint( ( cell.getCorners()[0].x() + 
+			   cell.getCorners()[3].x() )/2. ,
+			 ( cell.getCorners()[0].y() + 
+			   cell.getCorners()[3].y() )/2. ,
+			 ( cell.getCorners()[0].z() + 
+			   cell.getCorners()[3].z() )/2.  ).phi() -
+	    GlobalPoint( ( cell.getCorners()[2].x() + 
+			   cell.getCorners()[1].x() )/2. ,
+			 ( cell.getCorners()[2].y() + 
+			   cell.getCorners()[1].y() )/2. ,
+			 ( cell.getCorners()[2].z() + 
+			   cell.getCorners()[1].z() )/2.  ).phi() ) ) ;
+	 const double dPhi3 ( fabs( cell.getCorners()[0].phi() -
+				    cell.getCorners()[2].phi()   ) ) ;	 
+	 const double dPhi4 ( fabs( cell.getCorners()[1].phi() -
+				    cell.getCorners()[3].phi()   ) ) ;
+	 (*m_deltaPhi)[i] = ( dPhi1 + dPhi2 + dPhi3 + dPhi4 )/4. ;
+      }
+   }
+   return (*m_deltaPhi)[ cgId.denseIndex() ] ;
 }

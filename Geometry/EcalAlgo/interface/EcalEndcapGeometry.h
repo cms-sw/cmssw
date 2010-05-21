@@ -58,6 +58,8 @@ class EcalEndcapGeometry : public CaloSubdetectorGeometry
 
       const OrderedListOfEBDetId* getClosestBarrelCells( EEDetId id ) const ;
 
+      double deltaPhi( const DetId& detId ) const ;
+
       // Get closest cell, etc...
       virtual DetId getClosestCell( const GlobalPoint& r ) const ;
 
@@ -109,6 +111,8 @@ class EcalEndcapGeometry : public CaloSubdetectorGeometry
       mutable EZMgrFL<EBDetId>*     m_borderMgr ;
 
       mutable VecOrdListEBDetIdPtr* m_borderPtrVec ;
+
+      mutable std::vector<double>*  m_deltaPhi ;
 } ;
 
 
