@@ -256,7 +256,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   pthread_mutex_init(&pickup_lock_,0);
 
   std::ostringstream ost;
-  ost  << "<div id=\"ve\">2.2.5 (" << edm::getReleaseVersion() <<")</div>"
+  ost  << "<div id=\"ve\">2.2.6 (" << edm::getReleaseVersion() <<")</div>"
        << "<div id=\"ou\">" << outPut_.toString() << "</div>"
        << "<div id=\"sh\">" << hasShMem_.toString() << "</div>"
        << "<div id=\"mw\">" << hasModuleWebRegistry_.toString() << "</div>"
@@ -1034,6 +1034,18 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 		    subs_[i].setParams(p);
 		    spMStates_[i] = p->Ms;
 		    spmStates_[i] = p->ms;
+		    if(p->Ms == edm::event_processor::sError || p->Ms == edm::event_processor::sInvalid
+		       || p->Ms == edm::event_processor::sStopping){
+		      std::ostringstream ost;
+		      ost << "edm::eventprocessor slot " << i << " process id " 
+			  << subs_[i].pid() << " not in Running state : Mstate=" 
+			  << evtProcessor_.stateNameFromIndex(p->Ms) << " mstate="
+			  << evtProcessor_.moduleNameFromIndex(p->ms) 
+			  << " - this will likely cause a problem at Stop";
+		      XCEPT_DECLARE(evf::Exception,
+				    sentinelException, ost.str());
+		      notifyQualified("error",sentinelException);
+		    }
 		    ((xdata::UnsignedInteger32*)nbProcessed)->value_ += p->nbp;
 		    ((xdata::UnsignedInteger32*)nbAccepted)->value_  += p->nba;
 		    if(dqm)dqm->value_ += p->dqm;
