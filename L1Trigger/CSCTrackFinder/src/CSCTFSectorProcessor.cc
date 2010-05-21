@@ -135,8 +135,8 @@ void CSCTFSectorProcessor::initialize(const edm::EventSetup& c){
     edm::ESHandle<L1MuCSCTFConfiguration> config;
     c.get<L1MuCSCTFConfigurationRcd>().get(config);
     // And initialize only those parameters, which left uninitialized during construction
-//std::cout<<"Initializing endcap: "<<m_endcap<<" sector:"<<m_sector<<std::endl<<config.product()->parameters((m_endcap-1)*2+(m_sector-1))<<std::endl;;
-    readParameters(config.product()->parameters((m_endcap-1)*2+(m_sector-1)));
+//std::cout<<"Initializing endcap: "<<m_endcap<<" sector:"<<m_sector<<std::endl<<config.product()->parameters((m_endcap-1)*6+(m_sector-1))<<std::endl;;
+    readParameters(config.product()->parameters((m_endcap-1)*6+(m_sector-1)));
   }
   // Check if parameters were not initialized in both: constuctor (from .cf? file) and initialize method (from EventSetup)
   if(m_bxa_depth<0) throw cms::Exception("CSCTFSectorProcessor")<<"BXAdepth parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
