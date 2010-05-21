@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/03/18 16:06:54 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2010/05/14 11:43:09 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -15,7 +15,6 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "CondTools/DT/interface/DTConfigHandler.h"
 #include "CondFormats/DTObjects/interface/DTCCBConfig.h"
 #include "CondFormats/DTObjects/interface/DTKeyedConfig.h"
 #include "CondCore/DBCommon/interface/AuthenticationMethod.h"
