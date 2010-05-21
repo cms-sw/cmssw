@@ -11,7 +11,8 @@ EcalEndcapGeometry::EcalEndcapGeometry() :
    _nncrys ( 25 ) ,
    m_borderMgr ( 0 ),
    m_borderPtrVec ( 0 ) ,
-   m_deltaPhi  ( 0 ) 
+   m_deltaPhi  ( 0 ) ,
+   m_deltaEta  ( 0 ) 
 {
 }
 
@@ -20,6 +21,7 @@ EcalEndcapGeometry::~EcalEndcapGeometry()
    delete m_borderPtrVec ;
    delete m_borderMgr ;
    delete m_deltaPhi ;
+   delete m_deltaEta ;
 }
 
 unsigned int
@@ -457,4 +459,56 @@ EcalEndcapGeometry::deltaPhi( const DetId& detId ) const
       }
    }
    return (*m_deltaPhi)[ cgId.denseIndex() ] ;
+}
+
+double 
+EcalEndcapGeometry::deltaEta( const DetId& detId ) const
+{
+   const CaloGenericDetId cgId ( detId ) ;
+   assert( cgId.isEE() ) ;
+
+   if( 0 == m_deltaEta )
+   {
+      const uint32_t kSize ( cgId.sizeForDenseIndexing() ) ;
+      m_deltaEta = new std::vector<double> ( kSize ) ;
+      for( uint32_t i ( 0 ) ; i != kSize ; ++i )
+      {
+	 const CaloCellGeometry& cell ( *cellGeometries()[ i ] ) ;
+	 const double dEta1 ( fabs(
+	    GlobalPoint( ( cell.getCorners()[0].x() + 
+			   cell.getCorners()[1].x() )/2. ,
+			 ( cell.getCorners()[0].y() + 
+			   cell.getCorners()[1].y() )/2. ,
+			 ( cell.getCorners()[0].z() + 
+			   cell.getCorners()[1].z() )/2.  ).eta() -
+	    GlobalPoint( ( cell.getCorners()[2].x() + 
+			   cell.getCorners()[3].x() )/2. ,
+			 ( cell.getCorners()[2].y() + 
+			   cell.getCorners()[3].y() )/2. ,
+			 ( cell.getCorners()[2].z() + 
+			   cell.getCorners()[3].z() )/2.  ).eta() ) ) ;
+	 const double dEta2 ( fabs(
+	    GlobalPoint( ( cell.getCorners()[0].x() + 
+			   cell.getCorners()[3].x() )/2. ,
+			 ( cell.getCorners()[0].y() + 
+			   cell.getCorners()[3].y() )/2. ,
+			 ( cell.getCorners()[0].z() + 
+			   cell.getCorners()[3].z() )/2.  ).eta() -
+	    GlobalPoint( ( cell.getCorners()[2].x() + 
+			   cell.getCorners()[1].x() )/2. ,
+			 ( cell.getCorners()[2].y() + 
+			   cell.getCorners()[1].y() )/2. ,
+			 ( cell.getCorners()[2].z() + 
+			   cell.getCorners()[1].z() )/2.  ).eta() ) ) ;
+	 const double dEta3 ( fabs( cell.getCorners()[0].eta() -
+				    cell.getCorners()[2].eta()   ) ) ;	 
+	 const double dEta4 ( fabs( cell.getCorners()[1].eta() -
+				    cell.getCorners()[3].eta()   ) ) ;
+	 (*m_deltaEta)[i] = ( dEta1>dEta2 && dEta1>dEta3 && dEta1>dEta4 ? dEta1 :
+			      ( dEta2>dEta1 && dEta2>dEta3 && dEta2>dEta4 ? dEta2 :
+				( dEta3>dEta1 && dEta3>dEta2 && dEta3>dEta4 ? dEta3 :
+				  dEta4 ) ) ) ;
+      }
+   }
+   return (*m_deltaEta)[ cgId.denseIndex() ] ;
 }
