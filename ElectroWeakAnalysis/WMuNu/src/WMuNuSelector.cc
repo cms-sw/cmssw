@@ -164,23 +164,23 @@ void WMuNuSelector::beginJob() {
 
    if(plotHistograms_){
      edm::Service<TFileService> fs;
-     h1_["hNWCand_sel"]                  =fs->make<TH1D>("NWCand_sel","Nb. of WCandidates built",10,0.,10.);
-     h1_["hNWCandPreSel_sel"]            =fs->make<TH1D>("NWCandPreSel_sel","Nb. of WCandidates passing pre-selection (ordered by pt)",10,0.,10.);
-     h1_["hPtMu_sel"]                    =fs->make<TH1D>("ptMu_sel","Pt mu",100,0.,100.);
-     h1_["hEtaMu_sel"]                   =fs->make<TH1D>("etaMu_sel","Eta mu",50,-2.5,2.5);
-     h1_["hd0_sel"]                      =fs->make<TH1D>("d0_sel","Impact parameter",1000,-1.,1.);
-     h1_["hNHits_sel"]                   =fs->make<TH1D>("NumberOfValidHits_sel","Number of Hits in Silicon",100,0.,100.);
-     h1_["hNMuonHits_sel"]               =fs->make<TH1D>("NumberOfValidMuonHits_sel","Number of Hits in Silicon",100,0.,100.);
-     h1_["hNormChi2_sel"]                =fs->make<TH1D>("NormChi2_sel","Chi2/ndof of global track",1000,0.,50.);
-     h1_["hTracker_sel"]                 =fs->make<TH1D>("isTrackerMuon_sel","is Tracker Muon?",2,0.,2.); 
-     h1_["hMET_sel"]                     =fs->make<TH1D>("MET_sel","Missing Transverse Energy (GeV)", 200,0,200);
-     h1_["hTMass_sel"]                   =fs->make<TH1D>("TMass_sel","Rec. Transverse Mass (GeV)",200,0,200);
-     h1_["hAcop_sel"]                    =fs->make<TH1D>("Acop_sel","Mu-MET acoplanarity",50,0.,M_PI);
-     h1_["hPtSum_sel"]                   =fs->make<TH1D>("ptSum_sel","Track Isolation, Sum pT (GeV)",200,0.,100.);
-     h1_["hPtSumN_sel"]                  =fs->make<TH1D>("ptSumN_sel","Track Isolation, Sum pT/pT",1000,0.,10.);
-     h1_["hCal_sel"]                     =fs->make<TH1D>("Cal_sel","Calorimetric isolation, HCAL+ECAL (GeV)",200,0.,100.);
-     h1_["hIsoTotN_sel"]                 =fs->make<TH1D>("isoTotN_sel","(Sum pT + Cal)/pT",1000,0.,10.);
-     h1_["hIsoTot_sel"]                  =fs->make<TH1D>("isoTot_sel","(Sum pT + Cal)",200,0.,100.);
+     h1_["hNWCand"]                  =fs->make<TH1D>("NWCand","Nb. of WCandidates built",10,0.,10.);
+     h1_["hNWCandPreSel"]            =fs->make<TH1D>("NWCandPreSel","Nb. of WCandidates passing pre-selection (ordered by pt)",10,0.,10.);
+     h1_["hPtMu"]                    =fs->make<TH1D>("ptMu","Pt mu",100,0.,100.);
+     h1_["hEtaMu"]                   =fs->make<TH1D>("etaMu","Eta mu",50,-2.5,2.5);
+     h1_["hd0"]                      =fs->make<TH1D>("d0","Impact parameter",1000,-1.,1.);
+     h1_["hNHits"]                   =fs->make<TH1D>("NumberOfValidHits","Number of Hits in Silicon",100,0.,100.);
+     h1_["hNMuonHits"]               =fs->make<TH1D>("NumberOfValidMuonHits","Number of Hits in Silicon",100,0.,100.);
+     h1_["hNormChi2"]                =fs->make<TH1D>("NormChi2","Chi2/ndof of global track",1000,0.,50.);
+     h1_["hTracker"]                 =fs->make<TH1D>("isTrackerMuon","is Tracker Muon?",2,0.,2.); 
+     h1_["hMET"]                     =fs->make<TH1D>("MET","Missing Transverse Energy (GeV)", 200,0,200);
+     h1_["hTMass"]                   =fs->make<TH1D>("TMass","Rec. Transverse Mass (GeV)",200,0,200);
+     h1_["hAcop"]                    =fs->make<TH1D>("Acop","Mu-MET acoplanarity",50,0.,M_PI);
+     h1_["hPtSum"]                   =fs->make<TH1D>("ptSum","Track Isolation, Sum pT (GeV)",200,0.,100.);
+     h1_["hPtSumN"]                  =fs->make<TH1D>("ptSumN","Track Isolation, Sum pT/pT",1000,0.,10.);
+     h1_["hCal"]                     =fs->make<TH1D>("Cal","Calorimetric isolation, HCAL+ECAL (GeV)",200,0.,100.);
+     h1_["hIsoTotN"]                 =fs->make<TH1D>("isoTotN","(Sum pT + Cal)/pT",1000,0.,10.);
+     h1_["hIsoTot"]                  =fs->make<TH1D>("isoTot","(Sum pT + Cal)",200,0.,100.);
   
      h2_["hTMass_PtSum"]       =fs->make<TH2D>("TMass_PtSum","Rec. Transverse Mass (GeV) vs Sum pT (GeV)",200,0.,100.,200,0,200);
      h2_["hTMass_PtSumNorm"]   =fs->make<TH2D>("TMass_PtSumNorm","Rec. Transverse Mass (GeV) vs Sum Pt / Pt", 1000,0,10,200,0,200);
@@ -195,17 +195,9 @@ void WMuNuSelector::beginJob() {
      h2_["hPt_PtSumNorm"]   =fs->make<TH2D>("Pt_PtSumNorm","Pt( GeV) vs Sum Pt / Pt", 1000,0,10,100,0,100);
      h2_["hPt_TotIsoNorm"]=fs->make<TH2D>("Pt_TotIsoNorm","Pt (GeV) vs (Sum Pt + Cal)/Pt", 1000,0,10,100,0,100);
 
-     //h2_["hEta_PtSumNorm"]     =fs->make<TH2D>("Eta_PtSumNorm","Eta vs Sum Pt/Pt",1000,0,10, 50,-2.1,2.1);
-     //h2_["hEta_TotIsoNorm"] =fs->make<TH2D>("Eta_TotIsoNorm","Eta vs (SumPt + Cal)/Pt",10000,0,10, 50,-2.1,2.1);
-
      h2_["hTMass_Pt"]   =fs->make<TH2D>("TMass_Pt","Rec. Transverse Mass (GeV) vs Pt (GeV)", 100,0,100,200,0,200);
-     //h2_["hTMass_Eta"]   =fs->make<TH2D>("TMass_Eta","Rec. Transverse Mass (GeV) vs Eta ", 50,-2.1,2.1,200,0,200);
 
      h2_["hMET_Pt"]   =fs->make<TH2D>("MET_Pt","MET (GeV) vs  Pt (GeV)   ", 100,0,100,200,0,200);
-     //h2_["hMET_Eta"]   =fs->make<TH2D>("MET_Eta","MET (GeV) vs Eta", 50,-2.1,2.1,200,0,200);
-
-     //h3_["hMET_Eta_Pt"]   =fs->make<TH3D>("MET_Eta_Pt","MET (GeV) vs Eta vs Pt (GeV)", 100,0,100,50,-2.1,2.1,200,0,200);
-     //h3_["hTMass_Eta_Pt"]   =fs->make<TH3D>("TMass_Eta_Pt","TMass (GeV) vs Eta vs Pt (GeV)", 100,0,100,50,-2.1,2.1,200,0,200);
 
      h1_["hCutFlowSummary"]             = fs->make<TH1D>("CutFlowSummary", "Cut-flow Summary(number of events AFTER each cut)", 11, 0.5, 11.5);
      h1_["hCutFlowSummary"] ->GetXaxis()->SetBinLabel(1, "Total");
@@ -280,7 +272,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
 
 
       bool trigger_fired = false;
-      if ( trigTag_.label() == ""){
+      if ( muonTrig_==""){
       LogTrace("") << ">>> Careful, you are not requesting any trigger, event will be always fired";
       trigger_fired = true;
       }
@@ -352,7 +344,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
       }
  
       if(plotHistograms_){
-             h1_["hNWCand_sel"]->Fill(WMuNuCollection->size());
+             h1_["hNWCand"]->Fill(WMuNuCollection->size());
              // If the producer is set to only build 1 WMuNuCandidate per event, this plot is irrelevant..
       }
 
@@ -389,7 +381,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
 
 
       if(plotHistograms_){
-             h1_["hNWCandPreSel_sel"]->Fill(WMuNuCollection->size());
+             h1_["hNWCandPreSel"]->Fill(WMuNuCollection->size());
       }
 
       // Select Ws by charge:
@@ -402,15 +394,14 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             if (!mu.isGlobalMuon()) return 0; 
 
             reco::TrackRef gm = mu.globalTrack();
-            //reco::TrackRef tk = mu.innerTrack();
 
             // Pt,eta cuts
             double pt = mu.pt();
             double eta = mu.eta();
             LogTrace("") << "\t... Muon pt, eta: " << pt << " [GeV], " << eta;
-                  if(plotHistograms_){ h1_["hPtMu_sel"]->Fill(pt);}
+                  if(plotHistograms_){ h1_["hPtMu"]->Fill(pt);}
             if (pt<ptCut_) return 0;
-                   if(plotHistograms_){ h1_["hEtaMu_sel"]->Fill(eta); h2_["hEta_Pt"]->Fill(pt,eta);}
+                   if(plotHistograms_){ h1_["hEtaMu"]->Fill(eta); h2_["hEta_Pt"]->Fill(pt,eta);}
 
             nPt++;
                    if(plotHistograms_) h1_["hCutFlowSummary"]->Fill(6.);
@@ -428,15 +419,15 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             double muonHits = gm->hitPattern().numberOfValidMuonHits();
             LogTrace("") << "\t... Muon dxy, normalizedChi2, trackerHits, muonhits, isTrackerMuon?: " << dxy << " [cm], "<<normalizedChi2 << ", "<<trackerHits << ", " <<", "<<muonHits << ", " << mu.isTrackerMuon();
 
-                  if(plotHistograms_){ h1_["hd0_sel"]->Fill(dxy);}
+                  if(plotHistograms_){ h1_["hd0"]->Fill(dxy);}
             if (dxy>dxyCut_) return 0;
-                  if(plotHistograms_){ h1_["hNormChi2_sel"]->Fill(normalizedChi2);}
+                  if(plotHistograms_){ h1_["hNormChi2"]->Fill(normalizedChi2);}
             if (normalizedChi2>normalizedChi2Cut_) return 0;
-                  if(plotHistograms_){ h1_["hNHits_sel"]->Fill(trackerHits);}
+                  if(plotHistograms_){ h1_["hNHits"]->Fill(trackerHits);}
             if (trackerHits<trackerHitsCut_) return 0;
-                  if(plotHistograms_){ h1_["hNMuonHits_sel"]->Fill(muonHits);}
+                  if(plotHistograms_){ h1_["hNMuonHits"]->Fill(muonHits);}
             if (muonHits<muonHitsCut_) return 0;
-                  if(plotHistograms_){ h1_["hTracker_sel"]->Fill(mu.isTrackerMuon());}
+                  if(plotHistograms_){ h1_["hTracker"]->Fill(mu.isTrackerMuon());}
             if (!mu.isTrackerMuon()) return 0;
 
             nid++;
@@ -451,11 +442,11 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             double SumPt = mu.isolationR03().sumPt; double isovar=SumPt;
             double Cal   = mu.isolationR03().emEt + mu.isolationR03().hadEt; if(isCombinedIso_)isovar+=Cal;
                   if(plotHistograms_){
-                  h1_["hPtSum_sel"]->Fill(SumPt);
-                  h1_["hPtSumN_sel"]->Fill(SumPt/pt);
-                  h1_["hCal_sel"]->Fill(Cal);
-                  h1_["hIsoTot_sel"]->Fill( (SumPt+Cal));
-                  h1_["hIsoTotN_sel"]->Fill( (SumPt+Cal) / pt );
+                  h1_["hPtSum"]->Fill(SumPt);
+                  h1_["hPtSumN"]->Fill(SumPt/pt);
+                  h1_["hCal"]->Fill(Cal);
+                  h1_["hIsoTot"]->Fill( (SumPt+Cal));
+                  h1_["hIsoTotN"]->Fill( (SumPt+Cal) / pt );
                   }
 
             if (isRelativeIso_) isovar /= pt;
@@ -483,12 +474,9 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
 
                   h2_["hPt_PtSumNorm"]->Fill(SumPt/pt,pt);
                   h2_["hPt_TotIsoNorm"]->Fill((SumPt+Cal)/pt,pt);
-                  //h2_["hEta_PtSumNorm"]->Fill(SumPt/pt,eta);
-                  //h2_["hEta_TotIsoNorm"]->Fill((SumPt+Cal)/pt,eta);
-
                   }
 
-            if(plotHistograms_){ h1_["hAcop_sel"]->Fill(acop);}
+            if(plotHistograms_){ h1_["hAcop"]->Fill(acop);}
             if (acop>=acopCut_) return 0;
 
             nacop++;
@@ -503,17 +491,10 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
 
 
             if(plotHistograms_){
-                  h1_["hMET_sel"]->Fill(met_et);
-                  h1_["hTMass_sel"]->Fill(massT);
-
+                  h1_["hMET"]->Fill(met_et);
+                  h1_["hTMass"]->Fill(massT);
                   h2_["hTMass_Pt"]->Fill(pt,massT),
-                  //h2_["hTMass_Eta"]->Fill(eta,massT);   
-   
                   h2_["hMET_Pt"]->Fill(pt,met_et);
-                  //h2_["hMET_Eta"]->Fill(eta,met_et);
-   
-                  //h3_["hMET_Eta_Pt"]->Fill(pt,eta,met_et);  
-                  //h3_["hTMass_Eta_Pt"]->Fill(pt,eta,massT);
             }
 
 

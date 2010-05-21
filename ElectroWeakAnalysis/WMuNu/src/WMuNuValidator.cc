@@ -247,7 +247,7 @@ void WMuNuValidator::init_histograms() {
             snprintf(chtitle, 255, "DiMuonSaSaMass");
             h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,100,0,200);
       }
-            h1_["PTZCUT_LASTCUT"]=  subDir[1]->make<TH1D>("PTZCUT_LASTCUT","Global pt for Muons in Z",100,0.,50.);
+            h1_["PTZCUT_LASTCUT"]=  subDir[1]->make<TH1D>("PTZCUT_LASTCUT","Global pt for Muons in Z",100,0.,100.);
 
             h1_["NMuons_LASTCUT"] = subDir[1]->make<TH1D>("NMuons_LASTCUT", "Number of Muons in the event, after ALL cuts", 10, -0.5, 9.5);
             h1_["NMuons_BEFORECUTS"] = subDir[0]->make<TH1D>("NMuons_BEFORECUTS", "Number of Muons in the event, Before cuts", 10, -0.5, 9.5);
@@ -482,13 +482,11 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
             if (eta>etaMinCut_ && eta<etaMaxCut_) muon_sel[1] = true; 
 
             if (pt<ptThrForZ1_) { muon4Z = false;}
-            //if (fabs(eta)>=etaCut_) { muon4Z = false;}
 
             // d0, chi2, nhits quality cuts
             double dxy = gm->dxy(beamSpotHandle->position());
             double normalizedChi2 = gm->normalizedChi2();
             double validmuonhits=gm->hitPattern().numberOfValidMuonHits();
-            //double standalonehits=mu.outerTrack()->numberOfValidHits();
             double trackerHits = gm->hitPattern().numberOfValidTrackerHits(); 
             LogTrace("") << "\t... dxy, normalizedChi2, trackerHits, isTrackerMuon?: " << dxy << " [cm], " << normalizedChi2 << ", " << trackerHits << ", " << mu.isTrackerMuon();
             if (fabs(dxy)<dxyCut_) muon_sel[2] = true; 
@@ -584,9 +582,10 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
                         fill_histogram("ETA_LASTCUT",eta);
                   if (!muon_sel[2] || flags_passed==NFLAGS) 
                         fill_histogram("DXY_LASTCUT",dxy);
-                  if (!muon_sel[3] || flags_passed==NFLAGS) 
+                  if (!muon_sel[3] || flags_passed==NFLAGS){ 
                         fill_histogram("CHI2_LASTCUT",normalizedChi2);
                         fill_histogram("ValidMuonHits_LASTCUT",validmuonhits);
+                        }
                   if (!muon_sel[4] || flags_passed==NFLAGS) 
                         fill_histogram("NHITS_LASTCUT",trackerHits);
                   if (!muon_sel[5] || flags_passed==NFLAGS) 
