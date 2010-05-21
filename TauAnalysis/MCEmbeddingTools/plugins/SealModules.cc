@@ -5,11 +5,11 @@
 #include "TauAnalysis/MCEmbeddingTools/plugins/SelectReplacementCandidates.h"
 //#include "TauAnalysis/MCEmbeddingTools/plugins/EmptyEventsFilter.cc"
 
-DEFINE_SEAL_MODULE();
+//DEFINE_SEAL_MODULE();
 
 //DEFINE_ANOTHER_FWK_MODULE(ReconstructZmumu);
 //DEFINE_ANOTHER_FWK_MODULE(AddPartialEvent);
-DEFINE_ANOTHER_FWK_MODULE(SelectReplacementCandidates);
+//DEFINE_FWK_MODULE(SelectReplacementCandidates);
 //DEFINE_ANOTHER_FWK_MODULE(EmptyEventsFilter);
 //DEFINE_ANOTHER_FWK_MODULE(CheckHepMCEvent);
 // DEFINE_ANOTHER_FWK_MODULE(FastTSGFromL2Muon);

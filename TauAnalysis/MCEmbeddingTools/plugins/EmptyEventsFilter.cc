@@ -13,7 +13,7 @@
 //
 // Original Author:  Manuel Zeise
 //         Created:  Wed Oct 17 10:06:52 CEST 2007
-// $Id: EmptyEventsFilter.cc,v 1.2 2009/10/25 12:38:21 veelken Exp $
+// $Id: EmptyEventsFilter.cc,v 1.3 2010/04/21 14:47:23 fruboes Exp $
 //
 //
 
@@ -141,4 +141,4 @@ void
 EmptyEventsFilter::endJob() {
 }
 
-DEFINE_ANOTHER_FWK_MODULE(EmptyEventsFilter);
+DEFINE_FWK_MODULE(EmptyEventsFilter);

@@ -266,3 +266,7 @@ void SelectReplacementCandidates::transformMuMu2TauTau(reco::Muon * muon1, reco:
 	return;
 }
 
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(SelectReplacementCandidates);
+
