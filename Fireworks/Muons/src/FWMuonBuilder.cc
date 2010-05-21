@@ -2,7 +2,7 @@
 //
 // Package:     Muons
 // Class  :     FWMuonBuilder
-// $Id: FWMuonBuilder.cc,v 1.24 2010/04/30 12:29:29 amraktad Exp $
+// $Id: FWMuonBuilder.cc,v 1.25 2010/05/12 10:35:27 mccauley Exp $
 //
 
 #include "TEveTrackPropagator.h"
@@ -25,10 +25,12 @@
 
 #include "Fireworks/Muons/interface/FWMuonBuilder.h"
 #include "Fireworks/Muons/interface/SegmentUtils.h"
+#include "Fireworks/Muons/interface/CSCUtils.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
 namespace  {
 std::vector<TEveVector> getRecoTrajectoryPoints( const reco::Muon* muon,
@@ -109,27 +111,49 @@ void addMatchInformation( const reco::Muon* muon,
                            << id.rawId() <<std::endl;
       return;
     }
-    
+
     for( std::vector<reco::MuonSegmentMatch>::const_iterator segment = chamber->segmentMatches.begin(),
                                                           segmentEnd = chamber->segmentMatches.end();
          segment != segmentEnd; ++segment )
     {
-      double segmentLength;
 
-      // FIXME: This is not optimal but mitigates the problem of size mis-match with 
-      // separate DT and CSC segments draw by proxy builders.
-      // This will be fixed with consolidation of segment drawing.
+      double segmentLength = 0.0;
+      double segmentLimit  = 0.0;
 
       if ( chamber->detector() == MuonSubdetId::DT )
-        segmentLength = 15.0;
-      
-      else if ( chamber->detector() == MuonSubdetId::CSC )
-        segmentLength = 10.0;
+        segmentLength = 17.0; // FIXME: Can we get this from TGeoShape?
 
+      else if ( chamber->detector() == MuonSubdetId::CSC )
+      {
+        CSCDetId cscDetId(id);
+
+        double length    = 0.0;
+        double thickness = 0.0;
+        
+        // FIXME: Can we get this information from TGeoShape?
+        fireworks::fillCSCChamberParameters(cscDetId.station(), 
+                                            cscDetId.ring(), 
+                                            length, thickness);
+
+        segmentLength = thickness*0.5;
+        segmentLimit  = length*0.5;
+
+        // Check if CSC segment position lies outside the chamber: a pathology of the reconstruction.
+        // If so, do not draw segment.
+
+        if ( fabs(segment->y) > segmentLimit )
+        {
+          fwLog(fwlog::kWarning) <<" position of CSC segment lies outside the chamber; station: "
+                                 << cscDetId.station() <<"  ring: "<< cscDetId.ring() << std::endl;   
+          
+          continue;
+        }
+      }
+      
       else
       {
         fwLog(fwlog::kWarning) <<" MuonSubdetId: "<< chamber->detector() <<std::endl;
-        return;
+        continue;
       }
 
       double segmentPosition[3] = 
@@ -144,8 +168,9 @@ void addMatchInformation( const reco::Muon* muon,
 
       double localSegmentInnerPoint[3];
       double localSegmentOuterPoint[3];
-      
-      fireworks::createSegment(chamber->detector(), true, segmentLength,
+
+      fireworks::createSegment(chamber->detector(), true, 
+                               segmentLength, segmentLimit, 
                                segmentPosition, segmentDirection,
                                localSegmentInnerPoint, localSegmentOuterPoint);
                                

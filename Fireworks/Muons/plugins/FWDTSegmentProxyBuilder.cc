@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWDTSegmentProxyBuilder.cc,v 1.6 2010/05/12 10:35:27 mccauley Exp $
+// $Id: FWDTSegmentProxyBuilder.cc,v 1.7 2010/05/12 15:13:02 dmytro Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -71,7 +71,8 @@ FWDTSegmentProxyBuilder::build(const DTRecSegment4D& iData,
    double localSegmentInnerPoint[3];
    double localSegmentOuterPoint[3];
 
-   fireworks::createSegment(MuonSubdetId::DT, false, 17.0, 
+   fireworks::createSegment(MuonSubdetId::DT, false, 
+                            17.0, 0.0, // Get these from TGeoShape?               
                             localPosition, localDirection, 
                             localSegmentInnerPoint, localSegmentOuterPoint);
                             

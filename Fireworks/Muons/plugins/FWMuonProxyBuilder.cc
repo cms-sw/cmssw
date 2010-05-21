@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec  4 19:28:07 EST 2008
-// $Id: FWMuonProxyBuilder.cc,v 1.6 2010/05/03 15:47:42 amraktad Exp $
+// $Id: FWMuonProxyBuilder.cc,v 1.7 2010/05/07 09:03:40 mccauley Exp $
 //
 
 #include "TEvePointSet.h"
@@ -97,8 +97,6 @@ private:
    const FWMuonLegoProxyBuilder& operator=(const FWMuonLegoProxyBuilder&); // stop default
 
    virtual void build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*);
-
-   mutable FWMuonBuilder m_builder;
 };
 
 void

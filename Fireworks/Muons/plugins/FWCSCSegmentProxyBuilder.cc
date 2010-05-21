@@ -8,11 +8,11 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCSegmentProxyBuilder.cc,v 1.10 2010/05/12 10:35:27 mccauley Exp $
+// $Id: FWCSCSegmentProxyBuilder.cc,v 1.11 2010/05/12 15:13:00 dmytro Exp $
 //
 
 #include "TEveStraightLineSet.h"
-#include "TEvePointSet.h"
+#include "TEveGeoNode.h"
 
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
@@ -52,8 +52,8 @@ FWCSCSegmentProxyBuilder::build(const CSCSegment& iData,
                          << iData.cscDetId().rawId() <<std::endl;
     return;
   }
- 
-  double length = 0.0;
+  
+  double length    = 0.0;
   double thickness = 0.0;
  
   fireworks::fillCSCChamberParameters(iData.cscDetId().station(), 
@@ -74,9 +74,12 @@ FWCSCSegmentProxyBuilder::build(const CSCSegment& iData,
   
   length *= 0.5;
 
-  // If there is a bad recosntruction of the CSC segment one can have positions that
+  // If there is a bad reconstruction of the CSC segment one can have positions that
   // lie outside the chamber. In this case just drawn the position but do not
   // attempt to draw a line.
+
+  // Q: can we determine this from the shape? A: It would make sense, but doesn't work when 
+  // trying to determine from TGeoShape
 
   if ( fabs(localPosition[1]) > length )
   {
@@ -94,7 +97,8 @@ FWCSCSegmentProxyBuilder::build(const CSCSegment& iData,
   double localSegmentInnerPoint[3];
   double localSegmentOuterPoint[3];
  
-  fireworks::createSegment(MuonSubdetId::CSC, false, length,
+  fireworks::createSegment(MuonSubdetId::CSC, false, 
+                           length, 0.0,
                            localPosition, localDirection,
                            localSegmentInnerPoint, localSegmentOuterPoint);
 
