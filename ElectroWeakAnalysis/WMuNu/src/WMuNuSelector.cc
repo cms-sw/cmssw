@@ -131,7 +131,7 @@ WMuNuSelector::WMuNuSelector( const ParameterSet & cfg ) :
       isCombinedIso_(cfg.getUntrackedParameter<bool>("IsCombinedIso", true)),
       isoCut03_(cfg.getUntrackedParameter<double>("IsoCut03", 0.15)),
       mtMin_(cfg.getUntrackedParameter<double>("MtMin", 50.)),
-      mtMax_(cfg.getUntrackedParameter<double>("MtMax", 200.)),
+      mtMax_(cfg.getUntrackedParameter<double>("MtMax", 9999999.)),
       metMin_(cfg.getUntrackedParameter<double>("MetMin", -999999.)),
       metMax_(cfg.getUntrackedParameter<double>("MetMax", 999999.)),
       acopCut_(cfg.getUntrackedParameter<double>("AcopCut", 2.)),
