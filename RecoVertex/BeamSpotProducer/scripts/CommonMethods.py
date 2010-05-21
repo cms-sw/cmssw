@@ -216,11 +216,13 @@ def readBeamSpotFile(fileName,listbeam=[],IOVbase="runbase", firstRun='1',lastRu
     
     #firstRun = "1"
     #lastRun  = "4999999999"
-    if IOVbase == "lumibase":
-	firstRun = "1:1"
-	lastRun = "4999999999:4999999999"
+    #if IOVbase == "lumibase":
+    #	firstRun = "1:1"
+    #   lastRun = "4999999999:4999999999"
 
     inputfiletype = 0
+    #print "first = " +firstRun
+    #print "last = " +lastRun
     
     tmpfile = open(fileName)
     if tmpfile.readline().find('Runnumber') != -1:
