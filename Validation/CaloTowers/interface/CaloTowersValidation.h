@@ -117,10 +117,20 @@ class CaloTowersValidation : public edm::EDAnalyzer {
 
   MonitorElement* emTiming_HB;
   MonitorElement* hadTiming_HB;
+
+  MonitorElement* emEnergyTiming_Low_HB;
   MonitorElement* emEnergyTiming_HB;
-  MonitorElement* hadEnergyTiming_HB;
+  MonitorElement* emEnergyTiming_High_HB;
+  MonitorElement* emEnergyTiming_profile_Low_HB;
   MonitorElement* emEnergyTiming_profile_HB;
+  MonitorElement* emEnergyTiming_profile_High_HB;
+
+  MonitorElement* hadEnergyTiming_Low_HB;
+  MonitorElement* hadEnergyTiming_HB;
+  MonitorElement* hadEnergyTiming_High_HB;
+  MonitorElement* hadEnergyTiming_profile_Low_HB;
   MonitorElement* hadEnergyTiming_profile_HB;
+  MonitorElement* hadEnergyTiming_profile_High_HB;
 
   // HE
   MonitorElement* meEnergyHcalvsEcal_HE;
@@ -142,9 +152,15 @@ class CaloTowersValidation : public edm::EDAnalyzer {
 
   MonitorElement* emTiming_HE;
   MonitorElement* hadTiming_HE;
+
+  MonitorElement* emEnergyTiming_Low_HE;
   MonitorElement* emEnergyTiming_HE;
-  MonitorElement* hadEnergyTiming_HE;
+  MonitorElement* emEnergyTiming_profile_Low_HE;
   MonitorElement* emEnergyTiming_profile_HE;
+
+  MonitorElement* hadEnergyTiming_Low_HE;
+  MonitorElement* hadEnergyTiming_HE;
+  MonitorElement* hadEnergyTiming_profile_Low_HE;
   MonitorElement* hadEnergyTiming_profile_HE;
 
   // HF
@@ -168,8 +184,11 @@ class CaloTowersValidation : public edm::EDAnalyzer {
   MonitorElement* emTiming_HF;
   MonitorElement* hadTiming_HF;
   MonitorElement* emEnergyTiming_HF;
-  MonitorElement* hadEnergyTiming_HF;
   MonitorElement* emEnergyTiming_profile_HF;
+
+  MonitorElement* hadEnergyTiming_Low_HF;
+  MonitorElement* hadEnergyTiming_HF;
+  MonitorElement* hadEnergyTiming_profile_Low_HF;
   MonitorElement* hadEnergyTiming_profile_HF;
 
 };

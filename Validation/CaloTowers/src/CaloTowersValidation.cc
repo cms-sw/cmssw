@@ -141,22 +141,49 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
     //Timing histos and profiles -- all six are necessary
     //-------------------------------------------------------------------------------------------
     sprintf  (histo, "CaloTowersTask_EM_Timing_HB" ) ;
-    emTiming_HB = dbe_->book1D(histo, histo, 200, -100., 100. ) ;
+    emTiming_HB = dbe_->book1D(histo, histo, 110, -120., 100. ) ;
 
     sprintf  (histo, "CaloTowersTask_HAD_Timing_HB" ) ;
-    hadTiming_HB = dbe_->book1D(histo, histo, 200, -100., 100. ) ;
+    hadTiming_HB = dbe_->book1D(histo, histo, 70, -48., 92. ) ;
+
+    //Energy-Timing histos are divided into low, medium and high to reduce memory usage
+    //EM
+    sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_Low_HB" ) ;
+    emEnergyTiming_Low_HB = dbe_->book2D(histo, histo, 40, 0. , 40., 110, -120., 100.  ) ;
 
     sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_HB" ) ;
-    emEnergyTiming_HB = dbe_->book2D(histo, histo, 4000, 0. , 4000., 200, -100., 100.  ) ;
+    emEnergyTiming_HB = dbe_->book2D(histo, histo, 200, 0. , 400., 110, -120., 100.  ) ;
 
-    sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_HB" ) ;
-    hadEnergyTiming_HB = dbe_->book2D(histo, histo, 4000, 0. , 4000., 200, -100., 100. ) ;
+    sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_High_HB" ) ;
+    emEnergyTiming_High_HB = dbe_->book2D(histo, histo, 200, 0. , 3000., 110, -120., 100.  ) ;
+
+    sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_profile_Low_HB" ) ;
+    emEnergyTiming_profile_Low_HB = dbe_->bookProfile(histo, histo, 40, 0. , 40., 110, -120., 100.  ) ;
 
     sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_profile_HB" ) ;
-    emEnergyTiming_profile_HB = dbe_->bookProfile(histo, histo, 4000, 0. , 4000., 200, -100., 100.  ) ;
+    emEnergyTiming_profile_HB = dbe_->bookProfile(histo, histo, 200, 0. , 400., 110, -120., 100.  ) ;
+
+    sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_profile_High_HB" ) ;
+    emEnergyTiming_profile_High_HB = dbe_->bookProfile(histo, histo, 200, 0. , 3000., 110, -120., 100.  ) ;
+
+    //HAD
+    sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_Low_HB" ) ;
+    hadEnergyTiming_Low_HB = dbe_->book2D(histo, histo, 40, 0. , 40., 70, -48., 92. ) ;
+
+    sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_HB" ) ;
+    hadEnergyTiming_HB = dbe_->book2D(histo, histo, 100, 0. , 200., 70, -48., 92. ) ;
+
+    sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_High_HB" ) ;
+    hadEnergyTiming_High_HB = dbe_->book2D(histo, histo, 300, 0. , 3000., 70, -48., 92. ) ;
+
+    sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_profile_Low_HB" ) ;
+    hadEnergyTiming_profile_Low_HB = dbe_->bookProfile(histo, histo, 40, 0. , 40., 70, -48., 92. ) ;
 
     sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_profile_HB" ) ;
-    hadEnergyTiming_profile_HB = dbe_->bookProfile(histo, histo, 4000, 0. , 4000., 200, -100., 100. ) ;
+    hadEnergyTiming_profile_HB = dbe_->bookProfile(histo, histo, 100, 0. , 200., 70, -48., 92. ) ;
+
+    sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_profile_High_HB" ) ;
+    hadEnergyTiming_profile_High_HB = dbe_->bookProfile(histo, histo, 300, 0. , 3000., 70, -48., 92. ) ;
     //-------------------------------------------------------------------------------------------
 
     //Everything else is not drawn
@@ -218,22 +245,37 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
     //Timing histos and profiles -- all six are necessary
     //-------------------------------------------------------------------------------------------
     sprintf  (histo, "CaloTowersTask_EM_Timing_HE" ) ;
-    emTiming_HE = dbe_->book1D(histo, histo, 200, -100., 100. ) ;
+    emTiming_HE = dbe_->book1D(histo, histo, 110, -120., 100. ) ;
 
     sprintf  (histo, "CaloTowersTask_HAD_Timing_HE" ) ;
-    hadTiming_HE = dbe_->book1D(histo, histo, 200, -100., 100. ) ;
+    hadTiming_HE = dbe_->book1D(histo, histo, 70, -48., 92. ) ;
+
+    //Energy-Timing histos are divided into low and normal to reduce memory usage
+    //EM
+    sprintf  (histo, "CaloTowersTask_EM_Energy_Low_Timing_HE" ) ;
+    emEnergyTiming_Low_HE = dbe_->book2D(histo, histo, 160, 0. , 160., 110, -120., 100.  ) ;
 
     sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_HE" ) ;
-    emEnergyTiming_HE = dbe_->book2D(histo, histo, 2000, 0. , 2000., 200, -100., 100.  ) ;
+    emEnergyTiming_HE = dbe_->book2D(histo, histo, 200, 0. , 800., 110, -120., 100.  ) ;
 
-    sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_HE" ) ;
-    hadEnergyTiming_HE = dbe_->book2D(histo, histo, 2000, 0. , 2000., 200, -100., 100. ) ;
+    sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_profile_Low_HE" ) ;
+    emEnergyTiming_profile_Low_HE = dbe_->bookProfile(histo, histo, 160, 0. , 160., 110, -120., 100.  ) ;
 
     sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_profile_HE" ) ;
-    emEnergyTiming_profile_HE = dbe_->bookProfile(histo, histo, 2000, 0. , 2000., 200, -100., 100.  ) ;
+    emEnergyTiming_profile_HE = dbe_->bookProfile(histo, histo, 200, 0. , 800., 110, -120., 100.  ) ;
+
+    //HAD
+    sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_Low_HE" ) ;
+    hadEnergyTiming_Low_HE = dbe_->book2D(histo, histo, 160, 0. , 160., 70, -48., 92. ) ;
+
+    sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_HE" ) ;
+    hadEnergyTiming_HE = dbe_->book2D(histo, histo, 200, 0. , 800., 70, -48., 92. ) ;
+
+    sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_profile_Low_HE" ) ;
+    hadEnergyTiming_profile_Low_HE = dbe_->bookProfile(histo, histo, 160, 0. , 160., 70, -48., 92. ) ;
 
     sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_profile_HE" ) ;
-    hadEnergyTiming_profile_HE = dbe_->bookProfile(histo, histo, 2000, 0. , 2000., 200, -100., 100. ) ;
+    hadEnergyTiming_profile_HE = dbe_->bookProfile(histo, histo, 200, 0. , 800., 70, -48., 92. ) ;
     //-------------------------------------------------------------------------------------------
 
     //Everything else is not drawn
@@ -296,22 +338,30 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
     //Timing histos and profiles -- all six are necessary
     //-------------------------------------------------------------------------------------------
     sprintf  (histo, "CaloTowersTask_EM_Timing_HF" ) ;
-    emTiming_HF = dbe_->book1D(histo, histo, 200, -100., 100. ) ;
+    emTiming_HF = dbe_->book1D(histo, histo, 110, -120., 100. ) ;
 
     sprintf  (histo, "CaloTowersTask_HAD_Timing_HF" ) ;
-    hadTiming_HF = dbe_->book1D(histo, histo, 200, -100., 100. ) ;
+    hadTiming_HF = dbe_->book1D(histo, histo, 70, -48., 92. ) ;
 
+    //EM
     sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_HF" ) ;
-    emEnergyTiming_HF = dbe_->book2D(histo, histo, 500, 0. , 500., 200, -100., 100.  ) ;
-
-    sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_HF" ) ;
-    hadEnergyTiming_HF = dbe_->book2D(histo, histo, 500, 0. , 500., 200, -100., 100. ) ;
+    emEnergyTiming_HF = dbe_->book2D(histo, histo, 150, 0. , 300., 110, -120., 100.  ) ;
 
     sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_profile_HF" ) ;
-    emEnergyTiming_profile_HF = dbe_->bookProfile(histo, histo, 500, 0. , 500., 200, -100., 100.  ) ;
+    emEnergyTiming_profile_HF = dbe_->bookProfile(histo, histo, 150, 0. , 300., 110, -120., 100.  ) ;
+
+    //HAD (requires two different sets of histograms to lower RAM usage)
+    sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_Low_HF" ) ;
+    hadEnergyTiming_Low_HF = dbe_->book2D(histo, histo, 40, 0. , 40., 70, -48., 92. ) ;
+
+    sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_HF" ) ;
+    hadEnergyTiming_HF = dbe_->book2D(histo, histo, 200, 0. , 600., 70, -48., 92. ) ;
+
+    sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_profile_Low_HF" ) ;
+    hadEnergyTiming_profile_Low_HF = dbe_->bookProfile(histo, histo, 40, 0. , 40., 70, -48., 92. ) ;
 
     sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_profile_HF" ) ;
-    hadEnergyTiming_profile_HF = dbe_->bookProfile(histo, histo, 500, 0. , 500., 200, -100., 100. ) ;
+    hadEnergyTiming_profile_HF = dbe_->bookProfile(histo, histo, 200, 0. , 600., 70, -48., 92. ) ;
     //-------------------------------------------------------------------------------------------
 
     //Everything else is not drawn
@@ -630,10 +680,20 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
       //Timing (all histos are used)
       emTiming_HB->Fill(em_tm);
       hadTiming_HB->Fill(had_tm);
+
+      emEnergyTiming_Low_HB->Fill(eE, em_tm);
       emEnergyTiming_HB->Fill(eE, em_tm);
-      hadEnergyTiming_HB->Fill(eH, had_tm); 
+      emEnergyTiming_High_HB->Fill(eE, em_tm);
+      emEnergyTiming_profile_Low_HB->Fill(eE, em_tm);
       emEnergyTiming_profile_HB->Fill(eE, em_tm);
+      emEnergyTiming_profile_High_HB->Fill(eE, em_tm);
+
+      hadEnergyTiming_Low_HB->Fill(eH, had_tm); 
+      hadEnergyTiming_HB->Fill(eH, had_tm); 
+      hadEnergyTiming_High_HB->Fill(eH, had_tm); 
+      hadEnergyTiming_profile_Low_HB->Fill(eH, had_tm);     
       hadEnergyTiming_profile_HB->Fill(eH, had_tm);     
+      hadEnergyTiming_profile_High_HB->Fill(eH, had_tm);     
     }
    
     if((isub == 0 || isub == 2) 
@@ -673,9 +733,15 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
       //Timing (all histos are used)
       emTiming_HE->Fill(em_tm);
       hadTiming_HE->Fill(had_tm);
+
+      emEnergyTiming_Low_HE->Fill(eE, em_tm);
       emEnergyTiming_HE->Fill(eE, em_tm);
-      hadEnergyTiming_HE->Fill(eH, had_tm);     
+      emEnergyTiming_profile_Low_HE->Fill(eE, em_tm);
       emEnergyTiming_profile_HE->Fill(eE, em_tm);
+
+      hadEnergyTiming_Low_HE->Fill(eH, had_tm);     
+      hadEnergyTiming_HE->Fill(eH, had_tm);   
+      hadEnergyTiming_profile_Low_HE->Fill(eH, had_tm);     
       hadEnergyTiming_profile_HE->Fill(eH, had_tm);     
     }
 
@@ -717,8 +783,11 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
       emTiming_HF->Fill(em_tm);
       hadTiming_HF->Fill(had_tm);
       emEnergyTiming_HF->Fill(eE, em_tm);
-      hadEnergyTiming_HF->Fill(eH, had_tm);     
       emEnergyTiming_profile_HF->Fill(eE, em_tm);
+
+      hadEnergyTiming_Low_HF->Fill(eH, had_tm);     
+      hadEnergyTiming_HF->Fill(eH, had_tm);     
+      hadEnergyTiming_profile_Low_HF->Fill(eH, had_tm);     
       hadEnergyTiming_profile_HF->Fill(eH, had_tm);     
     }
 

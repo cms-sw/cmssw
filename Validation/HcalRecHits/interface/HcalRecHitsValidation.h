@@ -276,19 +276,32 @@ class HcalRecHitsValidation : public edm::EDAnalyzer {
   MonitorElement* meRecHitsEnergyHO;
   MonitorElement* meRecHitsEnergyHF;
 
+  MonitorElement* meTE_Low_HB;
   MonitorElement* meTE_HB;
+  MonitorElement* meTE_High_HB;
   MonitorElement* meTE_HB1;
   MonitorElement* meTE_HB2;
+  MonitorElement* meTEprofileHB_Low;
   MonitorElement* meTEprofileHB;
+  MonitorElement* meTEprofileHB_High;
+
+  MonitorElement* meTE_Low_HE;
   MonitorElement* meTE_HE;
   MonitorElement* meTE_HE1;
   MonitorElement* meTE_HE2;
+  MonitorElement* meTEprofileHE_Low;
   MonitorElement* meTEprofileHE;
+
   MonitorElement* meTE_HO;
+  MonitorElement* meTE_High_HO;
   MonitorElement* meTEprofileHO;
+  MonitorElement* meTEprofileHO_High;
+
+  MonitorElement* meTE_Low_HF;
   MonitorElement* meTE_HF;
   MonitorElement* meTE_HFL;
   MonitorElement* meTE_HFS;
+  MonitorElement* meTEprofileHF_Low;
   MonitorElement* meTEprofileHF;
 
 
