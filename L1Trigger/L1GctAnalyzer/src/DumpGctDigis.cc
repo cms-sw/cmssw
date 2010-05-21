@@ -251,16 +251,36 @@ void DumpGctDigis::doEnergySums(const edm::Event& iEvent, const edm::InputTag& l
 {
   using namespace edm;
   
-  Handle<L1GctEtTotal> etTotal;
-  Handle<L1GctEtHad> etHad;
-  Handle<L1GctEtMiss> etMiss;
+  Handle<L1GctEtTotalCollection> etTotal;
+  Handle<L1GctEtHadCollection> etHad;
+  Handle<L1GctEtMissCollection> etMiss;
+  Handle<L1GctHtMissCollection> htMiss;
   
   iEvent.getByLabel(label, etTotal);
   iEvent.getByLabel(label, etHad);
   iEvent.getByLabel(label, etMiss);
+  iEvent.getByLabel(label, htMiss);
   
   outFile_ << "Energy sums from: " << label.label() << endl;
-  outFile_ << *(etTotal.product()) << endl;
-  outFile_ << *(etHad.product()) << endl;
-  outFile_ << *(etMiss.product()) << endl << endl;
+  
+  L1GctEtTotalCollection::const_iterator et;
+  for (et=etTotal->begin(); et!=etTotal->end(); et++){
+    outFile_ << *(et) << endl;
+  }
+
+  L1GctEtHadCollection::const_iterator ht;
+  for (ht=etHad->begin(); ht!=etHad->end(); ht++){
+    outFile_ << *(ht) << endl;
+  }
+
+  L1GctEtMissCollection::const_iterator met;
+  for (met=etMiss->begin(); met!=etMiss->end(); met++){
+    outFile_ << *(met) << endl;
+  }
+
+  L1GctHtMissCollection::const_iterator mht;
+  for (mht=htMiss->begin(); mht!=htMiss->end(); mht++){
+    outFile_ << *(mht) << endl;
+  }
+
 }
