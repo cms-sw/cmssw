@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Fri Aug 22 19:51:36 CEST 2008
-// $Id: RCTObjectKeysOnlineProd.cc,v 1.6 2009/10/20 14:56:45 efron Exp $
+// $Id: RCTObjectKeysOnlineProd.cc,v 1.7 2009/10/25 19:29:20 efron Exp $
 //
 //
 
@@ -76,7 +76,7 @@ RCTObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
 
   if( !rctKey.empty() )
     {
-      std::string paremKey, scaleKey, ecalScaleKey ;
+      std::string paremKey, scaleKey, ecalScaleKey , hcalScaleKey;
       // SELECT RCT_PARAMETER FROM RCT_CONF WHERE RCT_CONF.RCT_KEY = rctKey
       l1t::OMDSReader::QueryResults paremKeyResults =
 	m_omdsReader.basicQuery( "RCT_PARAMETER",
@@ -107,7 +107,7 @@ RCTObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
 				"RCT_CONF",
 				"RCT_CONF.RCT_KEY",
 				m_omdsReader.singleAttribute(rctKey));
-      //      std::cout << " empty row for ECAL_CONF" <<std::endl;
+
       if( ecalKeyResults.queryFailed() ||
 	  ecalKeyResults.numberRows() > 1 ) // check query successful)	
 	{
@@ -117,22 +117,22 @@ RCTObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
       std::string ecalKey;
       if(!ecalKeyResults.fillVariable(ecalKey))
 	 ecalScaleKey = "NULL";
-      else {
-	std::cout << "ecal key " << ecalKey <<std::endl;
+      else { // fill variable not null
+
 	if( ecalKey == "NULL")
 	  ecalScaleKey = "NULL";
 	else if(ecalKey == "IDENTITY")
 	  ecalScaleKey = "IDENTITY";
-	else {
+	else { // not identity or null
       
 
 	l1t::OMDSReader::QueryResults ecalScaleKeyResults =
 	  m_omdsReader.basicQuery( "ECAL_LUT_CONFIG_ID",
 				     "CMS_RCT",
 				     "ECAL_SCALE_KEY",
-				     "ECAL_SCALE_KEY.ECAL_TAG",
+				   "ECAL_SCALE_KEY.ECAL_TAG",
 				     ecalKeyResults);
-
+	
 	  if( ecalScaleKeyResults.queryFailed() ||
 	      ecalScaleKeyResults.numberRows() > 1 ) // check query successful)
 	    {
@@ -144,19 +144,38 @@ RCTObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
 	 
 	  ecalScaleKeyResults.fillVariable( ecalScaleTemp );
 
-
+	
 
 
 	 std::stringstream ss;
 	 ss << ecalScaleTemp;
 	 ecalScaleKey = ss.str();
 	}
-      }
-      std::cout << "ecalScaleKey " <<ecalScaleKey <<std::endl;
+      }    
+
+      l1t::OMDSReader::QueryResults hcalKeyResults =
+	m_omdsReader.basicQuery("HCAL_CONF",
+				"CMS_RCT",
+				"RCT_CONF",
+				"RCT_CONF.RCT_KEY",
+				m_omdsReader.singleAttribute(rctKey));
+
+      if( hcalKeyResults.queryFailed() ||
+	  hcalKeyResults.numberRows() > 1 ) // check query successful)	
+	{
+	  edm::LogError( "L1-O2O" ) << "Problem with rct_conf.hcal_conf." ;
+	  return ;
+	}
+      std::string hcalKey;
+      if(!hcalKeyResults.fillVariable(hcalScaleKey))
+	hcalScaleKey = "NULL";
+  
+    
+
       paremKeyResults.fillVariable( paremKey ) ;
       scaleKeyResults.fillVariable( scaleKey ) ;
-
-
+  
+      
       pL1TriggerKey->add( "L1RCTParametersRcd",
 			  "L1RCTParameters",
 			  paremKey ) ;
@@ -166,9 +185,12 @@ RCTObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
       pL1TriggerKey->add( "L1CaloEcalScaleRcd",
 			  "L1CaloEcalScale",
 			  ecalScaleKey ) ;
-
+      pL1TriggerKey->add( "L1CaloHcalScaleRcd",
+			  "L1CaloHcalScale",
+			  hcalScaleKey ) ;
     }
 }
+
 
 //define this as a plug-in
 DEFINE_FWK_EVENTSETUP_MODULE(RCTObjectKeysOnlineProd);
