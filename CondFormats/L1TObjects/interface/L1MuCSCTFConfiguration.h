@@ -26,6 +26,9 @@ public:
 		for(int sp=0;sp<12;sp++) registers[sp] = conf.registers[sp];
 	}
 	~L1MuCSCTFConfiguration(void){}
+
+        /// print all the L1 CSCTF Configuration Parameters
+        void print(std::ostream&) const;
 };
 
 #endif

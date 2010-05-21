@@ -1,8 +1,7 @@
 #include "CondFormats/L1TObjects/interface/L1MuCSCTFConfiguration.h"
 #include <sstream>
 #include <iostream>
-
-using namespace std;
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 edm::ParameterSet L1MuCSCTFConfiguration::parameters(int sp) const {
   
@@ -74,61 +73,59 @@ edm::ParameterSet L1MuCSCTFConfiguration::parameters(int sp) const {
   int eta_cnt=0;
 
   // default printout
-  /*
-    cout << "DEFAULT VALUES FOR DAT_ETA\n";
-    cout << "mindetap     =" << mindetap      << endl;
-    cout << "mindetap_halo=" << mindetap_halo << endl;
-    
-    cout << "etamin[0]=" << etamin[0] << endl;
-    cout << "etamin[1]=" << etamin[1] << endl;
-    cout << "etamin[2]=" << etamin[2] << endl;
-    cout << "etamin[3]=" << etamin[3] << endl;
-    cout << "etamin[4]=" << etamin[4] << endl;
-    cout << "etamin[5]=" << etamin[5] << endl;
-    cout << "etamin[6]=" << etamin[6] << endl;
-    cout << "etamin[7]=" << etamin[7] << endl;
-    
-    cout << "mindeta12_accp =" << mindeta12_accp  << endl; 
-    cout << "mindeta13_accp =" << mindeta13_accp  << endl;
-    cout << "mindeta112_accp=" << mindeta112_accp << endl;
-    cout << "mindeta113_accp=" << mindeta113_accp << endl;
-    
-    cout << "etamax[0]=" << etamax[0] << endl;
-    cout << "etamax[1]=" << etamax[1] << endl;
-    cout << "etamax[2]=" << etamax[2] << endl;
-    cout << "etamax[3]=" << etamax[3] << endl;
-    cout << "etamax[4]=" << etamax[4] << endl;
-    cout << "etamax[5]=" << etamax[5] << endl;
-    cout << "etamax[6]=" << etamax[6] << endl;
-    cout << "etamax[7]=" << etamax[7] << endl;
-    
-    cout << "maxdeta12_accp =" << maxdeta12_accp  << endl;
-    cout << "maxdeta13_accp =" << maxdeta13_accp  << endl;
-    cout << "maxdeta112_accp=" << maxdeta112_accp << endl;
-    cout << "maxdeta113_accp=" << maxdeta113_accp << endl;
-    
-    cout << "etawin[0]=" << etawin[0] << endl;
-    cout << "etawin[1]=" << etawin[1] << endl;
-    cout << "etawin[2]=" << etawin[2] << endl;
-    cout << "etawin[3]=" << etawin[3] << endl;
-    cout << "etawin[4]=" << etawin[4] << endl;
-    cout << "etawin[5]=" << etawin[5] << endl;
-    cout << "etawin[6]=" << etawin[6] << endl;
-    
-    cout << "maxdphi12_accp =" << maxdphi12_accp  << endl;
-    cout << "maxdphi13_accp =" << maxdphi13_accp  << endl;
-    cout << "maxdphi112_accp=" << maxdphi112_accp << endl;
-    cout << "maxdphi113_accp=" << maxdphi113_accp << endl;
-    
-    cout << "mindphip     =" << mindphip      << endl;
-    cout << "mindphip_halo=" << mindphip_halo << endl;
-    
-    cout << "straightp=" << straightp << endl;
-    cout << "curvedp  =" << curvedp   << endl;
-    cout << "mbaPhiOff=" << mbaPhiOff << endl;
-    cout << "mbbPhiOff=" << mbbPhiOff << endl;
-  */
+  LogDebug("L1MuCSCTFParametersTester") << "DEFAULT VALUES FOR DAT_ETA" << std::endl
+                                        << "mindetap     =" << mindetap      << std::endl
+                                        << "mindetap_halo=" << mindetap_halo << std::endl
+      
+                                        << "etamin[0]=" << etamin[0] << std::endl
+                                        << "etamin[1]=" << etamin[1] << std::endl
+                                        << "etamin[2]=" << etamin[2] << std::endl
+                                        << "etamin[3]=" << etamin[3] << std::endl
+                                        << "etamin[4]=" << etamin[4] << std::endl
+                                        << "etamin[5]=" << etamin[5] << std::endl
+                                        << "etamin[6]=" << etamin[6] << std::endl
+                                        << "etamin[7]=" << etamin[7] << std::endl
 
+                                        << "mindeta12_accp =" << mindeta12_accp  << std::endl 
+                                        << "mindeta13_accp =" << mindeta13_accp  << std::endl
+                                        << "mindeta112_accp=" << mindeta112_accp << std::endl
+                                        << "mindeta113_accp=" << mindeta113_accp << std::endl
+      
+                                        << "etamax[0]=" << etamax[0] << std::endl
+                                        << "etamax[1]=" << etamax[1] << std::endl
+                                        << "etamax[2]=" << etamax[2] << std::endl
+                                        << "etamax[3]=" << etamax[3] << std::endl
+                                        << "etamax[4]=" << etamax[4] << std::endl
+                                        << "etamax[5]=" << etamax[5] << std::endl
+                                        << "etamax[6]=" << etamax[6] << std::endl
+                                        << "etamax[7]=" << etamax[7] << std::endl
+
+                                        << "maxdeta12_accp =" << maxdeta12_accp  << std::endl
+                                        << "maxdeta13_accp =" << maxdeta13_accp  << std::endl
+                                        << "maxdeta112_accp=" << maxdeta112_accp << std::endl
+                                        << "maxdeta113_accp=" << maxdeta113_accp << std::endl
+  
+                                        << "etawin[0]=" << etawin[0] << std::endl
+                                        << "etawin[1]=" << etawin[1] << std::endl
+                                        << "etawin[2]=" << etawin[2] << std::endl
+                                        << "etawin[3]=" << etawin[3] << std::endl
+                                        << "etawin[4]=" << etawin[4] << std::endl
+                                        << "etawin[5]=" << etawin[5] << std::endl
+                                        << "etawin[6]=" << etawin[6] << std::endl
+  
+                                        << "maxdphi12_accp =" << maxdphi12_accp  << std::endl
+                                        << "maxdphi13_accp =" << maxdphi13_accp  << std::endl
+                                        << "maxdphi112_accp=" << maxdphi112_accp << std::endl
+                                        << "maxdphi113_accp=" << maxdphi113_accp << std::endl
+                           
+                                        << "mindphip     =" << mindphip      << std::endl
+                                        << "mindphip_halo=" << mindphip_halo << std::endl
+  
+                                        << "straightp=" << straightp << std::endl
+                                        << "curvedp  =" << curvedp   << std::endl
+                                        << "mbaPhiOff=" << mbaPhiOff << std::endl
+                                        << "mbbPhiOff=" << mbbPhiOff << std::endl;
+  
   // start filling the registers with the values in the DBS
   std::stringstream conf(registers[sp]);
   while( !conf.eof() ){
@@ -290,63 +287,75 @@ edm::ParameterSet L1MuCSCTFConfiguration::parameters(int sp) const {
   pset.addParameter<unsigned int>("mbaPhiOff", mbaPhiOff);
   pset.addParameter<unsigned int>("mbbPhiOff", mbbPhiOff);
 
-  /*
-    std::cout<<"eta_cnt:"<<eta_cnt<<endl;
-    cout << "AFTER READING THE DBS VALUES\n";
-    cout << "mindetap     =" << mindetap      << endl;
-    cout << "mindetap_halo=" << mindetap_halo << endl;
-          
-    cout << "etamin[0]=" << etamin[0] << endl;
-    cout << "etamin[1]=" << etamin[1] << endl;
-    cout << "etamin[2]=" << etamin[2] << endl;
-    cout << "etamin[3]=" << etamin[3] << endl;
-    cout << "etamin[4]=" << etamin[4] << endl;
-    cout << "etamin[5]=" << etamin[5] << endl;
-    cout << "etamin[6]=" << etamin[6] << endl;
-    cout << "etamin[7]=" << etamin[7] << endl;
+  
+  LogDebug("L1MuCSCTFParametersTester") << "AFTER READING THE DBS VALUES" << std::endl
+                                        << "mindetap     =" << mindetap      << std::endl
+                                        << "mindetap_halo=" << mindetap_halo << std::endl
+      
+                                        << "etamin[0]=" << etamin[0] << std::endl
+                                        << "etamin[1]=" << etamin[1] << std::endl
+                                        << "etamin[2]=" << etamin[2] << std::endl
+                                        << "etamin[3]=" << etamin[3] << std::endl
+                                        << "etamin[4]=" << etamin[4] << std::endl
+                                        << "etamin[5]=" << etamin[5] << std::endl
+                                        << "etamin[6]=" << etamin[6] << std::endl
+                                        << "etamin[7]=" << etamin[7] << std::endl
 
-    cout << "mindeta12_accp =" << mindeta12_accp  << endl; 
-    cout << "mindeta13_accp =" << mindeta13_accp  << endl;
-    cout << "mindeta112_accp=" << mindeta112_accp << endl;
-    cout << "mindeta113_accp=" << mindeta113_accp << endl;
-          
-    cout << "etamax[0]=" << etamax[0] << endl;
-    cout << "etamax[1]=" << etamax[1] << endl;
-    cout << "etamax[2]=" << etamax[2] << endl;
-    cout << "etamax[3]=" << etamax[3] << endl;
-    cout << "etamax[4]=" << etamax[4] << endl;
-    cout << "etamax[5]=" << etamax[5] << endl;
-    cout << "etamax[6]=" << etamax[6] << endl;
-    cout << "etamax[7]=" << etamax[7] << endl;
+                                        << "mindeta12_accp =" << mindeta12_accp  << std::endl 
+                                        << "mindeta13_accp =" << mindeta13_accp  << std::endl
+                                        << "mindeta112_accp=" << mindeta112_accp << std::endl
+                                        << "mindeta113_accp=" << mindeta113_accp << std::endl
+      
+                                        << "etamax[0]=" << etamax[0] << std::endl
+                                        << "etamax[1]=" << etamax[1] << std::endl
+                                        << "etamax[2]=" << etamax[2] << std::endl
+                                        << "etamax[3]=" << etamax[3] << std::endl
+                                        << "etamax[4]=" << etamax[4] << std::endl
+                                        << "etamax[5]=" << etamax[5] << std::endl
+                                        << "etamax[6]=" << etamax[6] << std::endl
+                                        << "etamax[7]=" << etamax[7] << std::endl
 
-    cout << "maxdeta12_accp =" << maxdeta12_accp  << endl;
-    cout << "maxdeta13_accp =" << maxdeta13_accp  << endl;
-    cout << "maxdeta112_accp=" << maxdeta112_accp << endl;
-    cout << "maxdeta113_accp=" << maxdeta113_accp << endl;
-    
-    cout << "etawin[0]=" << etawin[0] << endl;
-    cout << "etawin[1]=" << etawin[1] << endl;
-    cout << "etawin[2]=" << etawin[2] << endl;
-    cout << "etawin[3]=" << etawin[3] << endl;
-    cout << "etawin[4]=" << etawin[4] << endl;
-    cout << "etawin[5]=" << etawin[5] << endl;
-    cout << "etawin[6]=" << etawin[6] << endl;
-    
-    cout << "maxdphi12_accp =" << maxdphi12_accp  << endl;
-    cout << "maxdphi13_accp =" << maxdphi13_accp  << endl;
-    cout << "maxdphi112_accp=" << maxdphi112_accp << endl;
-    cout << "maxdphi113_accp=" << maxdphi113_accp << endl;
-                               
-    cout << "mindphip     =" << mindphip      << endl;
-    cout << "mindphip_halo=" << mindphip_halo << endl;
-    
-    cout << "straightp=" << straightp << endl;
-    cout << "curvedp  =" << curvedp   << endl;
-    cout << "mbaPhiOff=" << mbaPhiOff << endl;
-    cout << "mbbPhiOff=" << mbbPhiOff << endl;
-  */
+                                        << "maxdeta12_accp =" << maxdeta12_accp  << std::endl
+                                        << "maxdeta13_accp =" << maxdeta13_accp  << std::endl
+                                        << "maxdeta112_accp=" << maxdeta112_accp << std::endl
+                                        << "maxdeta113_accp=" << maxdeta113_accp << std::endl
+  
+                                        << "etawin[0]=" << etawin[0] << std::endl
+                                        << "etawin[1]=" << etawin[1] << std::endl
+                                        << "etawin[2]=" << etawin[2] << std::endl
+                                        << "etawin[3]=" << etawin[3] << std::endl
+                                        << "etawin[4]=" << etawin[4] << std::endl
+                                        << "etawin[5]=" << etawin[5] << std::endl
+                                        << "etawin[6]=" << etawin[6] << std::endl
+  
+                                        << "maxdphi12_accp =" << maxdphi12_accp  << std::endl
+                                        << "maxdphi13_accp =" << maxdphi13_accp  << std::endl
+                                        << "maxdphi112_accp=" << maxdphi112_accp << std::endl
+                                        << "maxdphi113_accp=" << maxdphi113_accp << std::endl
+                           
+                                        << "mindphip     =" << mindphip      << std::endl
+                                        << "mindphip_halo=" << mindphip_halo << std::endl
+  
+                                        << "straightp=" << straightp << std::endl
+                                        << "curvedp  =" << curvedp   << std::endl
+                                        << "mbaPhiOff=" << mbaPhiOff << std::endl
+                                        << "mbbPhiOff=" << mbbPhiOff << std::endl;
+  
   // ---------------------------------------------------------
 
   return pset;
 
+}
+
+
+
+void L1MuCSCTFConfiguration::print(std::ostream& myStr) const {
+  myStr << "\nL1 Mu CSCTF Parameters \n" << std::endl;
+
+  for (int iSP=0;iSP<12;iSP++) {
+    myStr << "============================================="    << std::endl;
+    myStr << "Printing out Global Tag Content for SP " << iSP+1 << std::endl;
+    myStr << registers[iSP];
+    myStr << "============================================="    << std::endl;
+  }
 }
