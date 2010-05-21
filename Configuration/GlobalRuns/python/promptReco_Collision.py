@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.172.2.1 
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: promptReco -s RAW2DIGI,L1Reco,RECO,DQM,ALCAPRODUCER:SiStripCalMinBias+SiStripCalZeroBias+TkAlMinBias+TkAlMuonIsolated+MuAlCalIsolatedMu+MuAlOverlaps+HcalCalIsoTrk+HcalCalDijets+DtCalib+EcalCalElectron --data --magField AutoFromDBCurrent --scenario pp --datatier RECO --eventcontent RECO,ALCARECO --conditions GR10_P_V6::All --customise Configuration/GlobalRuns/reco_TLR_36X.py --no_exec --python_filename=promptReco_Collision.py --custFcn customisePrompt
+# with command line options: promptReco -s RAW2DIGI,L1Reco,RECO,DQM,ALCAPRODUCER:SiStripCalMinBias+SiStripCalZeroBias+TkAlMinBias+TkAlMuonIsolated+MuAlCalIsolatedMu+MuAlOverlaps+HcalCalIsoTrk+HcalCalDijets+DtCalib+EcalCalElectron --data --magField AutoFromDBCurrent --scenario pp --datatier RECO --eventcontent RECO,ALCARECO --conditions GR10_P_V6::All --customise Configuration/GlobalRuns/reco_TLR_36X.py --no_exec --python_filename=promptReco_Collision.py --custFcn customisePrompt --geometry DB
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('RECO')
@@ -11,7 +11,7 @@ process = cms.Process('RECO')
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('Configuration.StandardSequences.GeometryExtended_cff')
+process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
@@ -55,9 +55,11 @@ process.secondOutput = cms.OutputModule("PoolOutputModule",
     outputCommands = process.ALCARECOEventContent.outputCommands,
     fileName = cms.untracked.string('promptReco_RAW2DIGI_L1Reco_RECO_DQM_ALCAPRODUCER_secondary.root'),
     dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string('StreamALCACombined'),
         dataTier = cms.untracked.string('ALCARECO')
     )
 )
+process.secondOutput.outputCommands.extend(cms.untracked.vstring('drop *_MEtoEDMConverter_*_*'))
 
 # Additional output definition
 
