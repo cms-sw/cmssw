@@ -116,10 +116,17 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
 )
 
 process.GEN = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('TestHZZ4tau.root')
+    fileName = cms.untracked.string('Py6_HZZ4tau.root')
 )
 
+process.TFileService = cms.Service("TFileService",
+        fileName = cms.string("HZZ4tau_analysis.root")
+)
+process.TauPhotonTest = cms.EDAnalyzer( "TauPhotonTester" )
+
+
 process.p = cms.Path(process.generator)
+process.p1 = cms.Path(process.TauPhotonTest)
 process.outpath = cms.EndPath(process.GEN)
 
-process.schedule = cms.Schedule(process.p, process.outpath)
+process.schedule = cms.Schedule(process.p, process.p1, process.outpath)
