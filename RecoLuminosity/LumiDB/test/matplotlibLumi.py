@@ -29,7 +29,7 @@ def drawHTTPstring(fig):
     
 def drawBatch(fig,filename):
     canvas=CanvasBackend(fig)    
-    canvas.print_figure("filename")
+    canvas.print_figure(filename)
     
 def drawInteractive(fig):
     if batchonly:
