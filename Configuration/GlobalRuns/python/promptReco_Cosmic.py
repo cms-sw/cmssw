@@ -1,8 +1,8 @@
 # Auto generated configuration file
 # using: 
-# Revision: 1.172.2.1 
+# Revision: 1.172 
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: promptReco -s RAW2DIGI,L1Reco,RECO,DQM,ALCAPRODUCER:SiStripCalZeroBias+RpcCalHLT+HcalCalHOCosmics+MuAlCalIsolatedMu+TkAlBeamHalo+MuAlBeamHalo+MuAlBeamHaloOverlaps+MuAlGlobalCosmics+MuAlStandAloneCosmics --data --magField AutoFromDBCurrent --scenario cosmics --datatier RECO --eventcontent RECO,ALCARECO --conditions GR10_P_V6::All --customise Configuration/GlobalRuns/reco_TLR_36X.py --no_exec --python_filename=promptReco_Cosmic.py --custFcn customiseCosmicData --geometry DB
+# with command line options: promptReco -s RAW2DIGI,L1Reco,RECO,DQM,ALCAPRODUCER:HcalCalHOCosmics+MuAlBeamHalo+MuAlBeamHaloOverlaps+MuAlCalIsolatedMu+MuAlGlobalCosmics+MuAlStandAloneCosmics+TkAlBeamHalo+TkAlCosmics0T --data --magField AutoFromDBCurrent --scenario cosmics --datatier RECO --eventcontent RECO,ALCARECO --conditions GR10_P_V6::All --customise Configuration/GlobalRuns/reco_TLR_36X.py --no_exec --python_filename=promptReco_Cosmic.py --custFcn customiseCosmicData --geometry DB
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('RECO')
@@ -23,19 +23,19 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContentCosmics_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.172.2.1 $'),
+    version = cms.untracked.string('$Revision: 1.172 $'),
     annotation = cms.untracked.string('promptReco nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(100)
 )
 process.options = cms.untracked.PSet(
 
 )
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('promptReco_DIGI2RAW.root')
+    fileNames = cms.untracked.vstring('/store/data/Run2010A/Cosmics/RAW/v1/000/135/809/E4F83AC1-9163-DF11-988E-0030487CD7C6.root')
 )
 
 # Output definition
@@ -115,7 +115,7 @@ process.out_step = cms.EndPath(process.output)
 process.out_stepSecond = cms.EndPath(process.secondOutput)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.dqmoffline_step,process.pathALCARECOMuAlBeamHaloOverlaps,process.pathALCARECOMuAlCalIsolatedMu,process.pathALCARECOMuAlStandAloneCosmics,process.pathALCARECORpcCalHLT,process.pathALCARECOMuAlGlobalCosmics,process.pathALCARECOHcalCalHOCosmics,process.pathALCARECOTkAlBeamHalo,process.pathALCARECOMuAlBeamHalo,process.pathALCARECOSiStripCalZeroBias,process.endjob_step,process.out_step,process.out_stepSecond)
+process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.dqmoffline_step,process.pathALCARECOMuAlBeamHaloOverlaps,process.pathALCARECOMuAlCalIsolatedMu,process.pathALCARECOTkAlCosmicsCTF0T,process.pathALCARECOTkAlCosmicsCosmicTF0T,process.pathALCARECOMuAlStandAloneCosmics,process.pathALCARECOMuAlGlobalCosmics,process.pathALCARECOHcalCalHOCosmics,process.pathALCARECOTkAlBeamHalo,process.pathALCARECOMuAlBeamHalo,process.endjob_step,process.out_step,process.out_stepSecond)
 
 
 # Automatic addition of the customisation function
