@@ -116,7 +116,7 @@ class pp(Scenario):
           addOutputModule(process, tier, tier)        
 
         #add the former top level patches here
-        customisePrompt(process)
+        customiseExpress(process)
         
         return process
 

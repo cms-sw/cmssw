@@ -65,7 +65,7 @@ class hcalnzs(Scenario):
           addOutputModule(process, tier, tier)        
 
         #add the former top level patches here
-        customisePPData(process)
+        customisePrompt(process)
         
         return process
 
