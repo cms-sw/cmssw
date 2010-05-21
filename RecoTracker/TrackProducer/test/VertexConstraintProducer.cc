@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Tue Jul 10 15:05:02 CEST 2007
-// $Id: VertexConstraintProducer.cc,v 1.4 2009/03/04 13:34:31 vlimant Exp $
+// $Id: VertexConstraintProducer.cc,v 1.5 2010/02/16 17:09:48 wmtan Exp $
 //
 //
 
@@ -33,6 +33,9 @@ Implementation:
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "TrackingTools/PatternTools/interface/TrackConstraintAssociation.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 //
 // class decleration
@@ -88,23 +91,33 @@ VertexConstraintProducer::~VertexConstraintProducer()
 void VertexConstraintProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
-  InputTag srcTag = iConfig_.getParameter<InputTag>("src");
+  InputTag srcTag = iConfig_.getParameter<InputTag>("srcTrk");
   Handle<reco::TrackCollection> theTCollection;
   iEvent.getByLabel(srcTag,theTCollection);
-  
+
   std::auto_ptr<std::vector<VertexConstraint> > pairs(new std::vector<VertexConstraint>);
   std::auto_ptr<TrackVtxConstraintAssociationCollection> output(new TrackVtxConstraintAssociationCollection);
-  
   edm::RefProd<std::vector<VertexConstraint> > rPairs = iEvent.getRefBeforePut<std::vector<VertexConstraint> >();
 
   int index = 0;
-  for (reco::TrackCollection::const_iterator i=theTCollection->begin(); i!=theTCollection->end();i++) {
-    VertexConstraint tmp(GlobalPoint(0,0,0),GlobalError(0.01,0,0.01,0,0,0.001));
-    pairs->push_back(tmp);
-    output->insert(reco::TrackRef(theTCollection,index), edm::Ref<std::vector<VertexConstraint> >(rPairs,index) );
-    index++;
-  }
   
+  //primary vertex extraction
+
+  InputTag srcTag2 = iConfig_.getParameter<InputTag>("srcVtx");
+  edm::Handle<reco::VertexCollection> primaryVertexHandle;
+  iEvent.getByLabel(srcTag2,primaryVertexHandle);
+  if(primaryVertexHandle->size()>0){
+  reco::Vertex pv;
+    pv = primaryVertexHandle->front();
+    for (reco::TrackCollection::const_iterator i=theTCollection->begin(); i!=theTCollection->end();i++) {
+      VertexConstraint tmp(GlobalPoint(pv.x(),pv.y(),pv.z()),GlobalError(pv.xError(),0,pv.yError(),0,0,pv.zError()));  
+      pairs->push_back(tmp);
+      output->insert(reco::TrackRef(theTCollection,index), edm::Ref<std::vector<VertexConstraint> >(rPairs,index) );
+      index++;
+    }
+
+  }
+
   iEvent.put(pairs);
   iEvent.put(output);
 }
