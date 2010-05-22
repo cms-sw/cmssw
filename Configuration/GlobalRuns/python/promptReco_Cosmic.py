@@ -23,7 +23,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContentCosmics_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.4 $'),
+    version = cms.untracked.string('$Revision: 1.5 $'),
     annotation = cms.untracked.string('promptReco nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -115,7 +115,7 @@ process.out_step = cms.EndPath(process.output)
 process.out_stepSecond = cms.EndPath(process.secondOutput)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.dqmoffline_step,process.pathALCARECOMuAlBeamHaloOverlaps,process.pathALCARECOMuAlCalIsolatedMu,process.pathALCARECOTkAlCosmicsCTF0T,process.pathALCARECOTkAlCosmicsCosmicTF0T,process.pathALCARECOMuAlStandAloneCosmics,process.pathALCARECOMuAlGlobalCosmics,process.pathALCARECOHcalCalHOCosmics,process.pathALCARECOTkAlBeamHalo,process.pathALCARECOMuAlBeamHalo,process.endjob_step)
+process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.dqmoffline_step,process.pathALCARECOMuAlBeamHaloOverlaps,process.pathALCARECOMuAlCalIsolatedMu,process.pathALCARECOTkAlCosmicsCTF0T,process.pathALCARECOTkAlCosmicsCosmicTF0T,process.pathALCARECOMuAlStandAloneCosmics,process.pathALCARECOMuAlGlobalCosmics,process.pathALCARECOHcalCalHOCosmics,process.pathALCARECOTkAlBeamHalo,process.pathALCARECOMuAlBeamHalo,process.endjob_step,process.out_step,process.out_stepSecond)
 
 
 # Automatic addition of the customisation function

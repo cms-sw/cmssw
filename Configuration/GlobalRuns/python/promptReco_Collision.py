@@ -23,7 +23,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.7 $'),
+    version = cms.untracked.string('$Revision: 1.8 $'),
     annotation = cms.untracked.string('promptReco nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -115,7 +115,7 @@ process.out_step = cms.EndPath(process.output)
 process.out_stepSecond = cms.EndPath(process.secondOutput)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.dqmoffline_step,process.pathALCARECOMuAlCalIsolatedMu,process.pathALCARECOEcalCalElectron,process.pathALCARECOHcalCalIsoTrk,process.pathALCARECOSiStripCalMinBias,process.pathALCARECODtCalib,process.pathALCARECOMuAlOverlaps,process.pathALCARECOTkAlMuonIsolated,process.pathALCARECOTkAlMinBias,process.pathALCARECOSiStripCalZeroBias,process.pathALCARECOHcalCalDijets,process.endjob_step)
+process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.dqmoffline_step,process.pathALCARECOMuAlCalIsolatedMu,process.pathALCARECOEcalCalElectron,process.pathALCARECOHcalCalIsoTrk,process.pathALCARECOSiStripCalMinBias,process.pathALCARECODtCalib,process.pathALCARECOMuAlOverlaps,process.pathALCARECOTkAlMuonIsolated,process.pathALCARECOTkAlMinBias,process.pathALCARECOSiStripCalZeroBias,process.pathALCARECOHcalCalDijets,process.endjob_step,process.out_step,process.out_stepSecond)
 
 
 # Automatic addition of the customisation function
