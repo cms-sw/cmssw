@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_6_0/HIon/V33 (CMSSW_3_6_0_HLT10)
+# /dev/CMSSW_3_6_0/HIon/V34 (CMSSW_3_6_0_HLT10)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/HIon/V33')
+  tableName = cms.string('/dev/CMSSW_3_6_0/HIon/V34')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -23,21 +23,21 @@ process.streams = cms.PSet(
   HLTMON = cms.vstring( 'OfflineMonitor' ),
   DQM = cms.vstring(  ),
   HLTDQM = cms.vstring(  ),
+  EventDisplay = cms.vstring(  ),
+  Express = cms.vstring( 'ExpressPhysics' ),
   A = cms.vstring( 'RandomTriggers',
     'JetMETTauMonitor',
     'MuMonitor',
     'Cosmics',
     'MinimumBias',
-    'Commissioning',
     'HcalHPDNoise',
     'ZeroBias',
     'HcalNZS',
     'EGMonitor',
     'Mu',
+    'EG',
     'JetMETTau',
-    'EG' ),
-  EventDisplay = cms.vstring(  ),
-  Express = cms.vstring( 'ExpressPhysics' )
+    'Commissioning' )
 )
 process.datasets = cms.PSet( 
   LogMonitor = cms.vstring(  ),
@@ -48,20 +48,20 @@ process.datasets = cms.PSet(
   RPCMonitor = cms.vstring(  ),
   AlCaPhiSymEcal = cms.vstring(  ),
   OfflineMonitor = cms.vstring(  ),
+  ExpressPhysics = cms.vstring(  ),
   RandomTriggers = cms.vstring(  ),
   JetMETTauMonitor = cms.vstring(  ),
   MuMonitor = cms.vstring(  ),
   Cosmics = cms.vstring(  ),
   MinimumBias = cms.vstring(  ),
-  Commissioning = cms.vstring(  ),
   HcalHPDNoise = cms.vstring(  ),
   ZeroBias = cms.vstring(  ),
   HcalNZS = cms.vstring(  ),
   EGMonitor = cms.vstring(  ),
   Mu = cms.vstring(  ),
-  JetMETTau = cms.vstring(  ),
   EG = cms.vstring(  ),
-  ExpressPhysics = cms.vstring(  )
+  JetMETTau = cms.vstring(  ),
+  Commissioning = cms.vstring(  )
 )
 
 process.source = cms.Source( "PoolSource",
@@ -1393,8 +1393,9 @@ process.MicroStateService = cms.Service( "MicroStateService",
 process.ModuleWebRegistry = cms.Service( "ModuleWebRegistry",
 )
 process.PrescaleService = cms.Service( "PrescaleService",
-    lvl1DefaultLabel = cms.untracked.string( "1E29" ),
-    lvl1Labels = cms.vstring( '1E29',
+    lvl1DefaultLabel = cms.untracked.string( "2E29" ),
+    lvl1Labels = cms.vstring( '2E29',
+      '1E29',
       '1E28',
       'Cosmics' ),
     prescaleTable = cms.VPSet( 
