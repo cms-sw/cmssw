@@ -23,7 +23,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.6 $'),
+    version = cms.untracked.string('$Revision: 1.7 $'),
     annotation = cms.untracked.string('expressReco nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -37,31 +37,6 @@ process.options = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('expressReco_DIGI2RAW.root')
 )
-
-# Output definition
-process.output = cms.OutputModule("PoolOutputModule",
-    splitLevel = cms.untracked.int32(0),
-    outputCommands = process.RECOEventContent.outputCommands,
-    fileName = cms.untracked.string('expressReco_RAW2DIGI_L1Reco_RECO_DQM_ALCAPRODUCER.root'),
-    dataset = cms.untracked.PSet(
-        dataTier = cms.untracked.string('RECO'),
-        filterName = cms.untracked.string('')
-    )
-)
-
-# Second Output definition
-process.ALCARECOEventContent.outputCommands.extend(cms.untracked.vstring('drop *_MEtoEDMConverter_*_*'))
-process.secondOutput = cms.OutputModule("PoolOutputModule",
-    splitLevel = cms.untracked.int32(0),
-    outputCommands = process.ALCARECOEventContent.outputCommands,
-    fileName = cms.untracked.string('expressReco_RAW2DIGI_L1Reco_RECO_DQM_ALCAPRODUCER_secondary.root'),
-    dataset = cms.untracked.PSet(
-        dataTier = cms.untracked.string('ALCARECO'),
-        filterName = cms.untracked.string('StreamALCACombined')
-    )
-)
-
-# Additional output definition
 
 # Other statements
 process.GlobalTag.globaltag = 'GR10_P_V6::All'
@@ -111,8 +86,6 @@ process.pathALCARECOEcalCalPhiSym = cms.Path(process.seqALCARECOEcalCalPhiSym*pr
 process.pathALCARECOMuAlGlobalCosmics = cms.Path(process.seqALCARECOMuAlGlobalCosmics*process.ALCARECOMuAlGlobalCosmicsDQM)
 process.pathALCARECOTkAlJpsiMuMu = cms.Path(process.seqALCARECOTkAlJpsiMuMu*process.ALCARECOTkAlJpsiMuMuDQM)
 process.endjob_step = cms.Path(process.endOfProcess)
-process.out_step = cms.EndPath(process.output)
-process.out_stepSecond = cms.EndPath(process.secondOutput)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.dqmoffline_step,process.pathALCARECOMuAlCalIsolatedMu,process.pathALCARECODtCalib,process.pathALCARECOTkAlMinBias,process.pathALCARECOSiStripCalZeroBias,process.endjob_step)
