@@ -41,6 +41,7 @@
 #include <fstream>
 
 
+
 double oneOverEtResolEt(double *x, double *par) { 
   double Et = x[0] ;
   if (Et<1e-6) return 1./par[1] ; // to avoid division by 0.
@@ -117,7 +118,9 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   Et_sat_EB_ = pSet.getParameter<double>("Et_sat_EB") ;
   Et_sat_EE_ = pSet.getParameter<double>("Et_sat_EE") ;
   sliding_ = pSet.getParameter<unsigned int>("sliding") ;
+  weight_timeShift_ = pSet.getParameter<double>("weight_timeShift") ;
   sampleMax_ = pSet.getParameter<unsigned int>("weight_sampleMax") ;
+  weight_unbias_recovery_ = pSet.getParameter<bool>("weight_unbias_recovery") ;
 
   forcedPedestalValue_ = pSet.getParameter<int>("forcedPedestalValue") ;
   forceEtaSlice_ = pSet.getParameter<bool>("forceEtaSlice") ;
@@ -145,6 +148,10 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   FG_Threshold_EE_ = pSet.getParameter<double>("FG_Threshold_EE") ;
   FG_lut_strip_EE_ = pSet.getParameter<unsigned int>("FG_lut_strip_EE") ;
   FG_lut_tower_EE_ = pSet.getParameter<unsigned int>("FG_lut_tower_EE") ;
+  SFGVB_Threshold_ = pSet.getParameter<unsigned int>("SFGVB_Threshold") ;
+  SFGVB_lut_ = pSet.getParameter<unsigned int>("SFGVB_lut") ;
+  pedestal_offset_ = pSet.getParameter<unsigned int>("pedestal_offset") ;
+
 }
 
 EcalTPGParamBuilder::~EcalTPGParamBuilder()
@@ -238,8 +245,19 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   TH1F * hshapeEB = new TH1F("shapeEB", "shapeEB", 250, 0., 10.) ;
   TH1F * hshapeEE = new TH1F("shapeEE", "shapeEE", 250, 0., 10.) ;
 
-  string branch("fed:tcc:tower:stripInTower:xtalInStrip:CCU:VFE:xtalInVFE:xtalInCCU:ieta:iphi:ix:iy:iz:hashedId:ic:ietaTT:iphiTT:TCCch") ;
-  TNtuple *ntuple = new TNtuple("tpgmap","TPG geometry map",branch.c_str()) ;
+  TTree * ntuple = new TTree("tpgmap","TPG geometry map") ;
+  char * branchFloat[22] = {"fed","tcc","tower","stripInTower","xtalInStrip",
+			    "CCU","VFE","xtalInVFE","xtalInCCU","ieta","iphi",
+			    "ix","iy","iz","hashedId","ic","ietaTT","iphiTT",
+			    "TCCch","TCCslot","ietaGCT","iphiGCT"} ;
+  ntupleFloats_ = new Float_t[22] ;
+  for (int i=0 ; i<22 ; i++) ntuple->Branch(branchFloat[i],&ntupleFloats_[i],branchFloat[i]) ;
+  ntuple->Branch("det",ntupleDet_,"det/C") ;
+  ntuple->Branch("crate",ntupleCrate_,"crate/C") ;
+
+
+  TNtuple *ntupleSpike = new TNtuple("spikeParam","Spike parameters","gainId:theta:G:g:ped:pedLin") ;
+
 
 
 
@@ -482,8 +500,13 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     float val[] = {dccNb+600,tccNb,towerInTCC,stripInTower,
 		   xtalInStrip,CCUid,VFEid,xtalInVFE,xtalWithinCCUid,id.ieta(),id.iphi(),
 		   -999,-999,towid.ieta()/abs(towid.ieta()),id.hashedIndex(),
-		   id.ic(),towid.ieta(),towid.iphi(), TCCch} ;
-    ntuple->Fill(val) ;
+		   id.ic(),towid.ieta(),towid.iphi(), TCCch, getCrate(tccNb).second,
+		   getGCTRegionEta(towid.ieta()),getGCTRegionPhi(towid.iphi())} ;
+    for (int i=0 ; i<22 ; i++) ntupleFloats_[i] = val[i] ;
+    
+    sprintf(ntupleDet_,getDet(tccNb).c_str()) ;
+    sprintf(ntupleCrate_,getCrate(tccNb).first.c_str()) ;
+    ntuple->Fill() ;
     
     
     if (tccNb == 37 && stripInTower == 3 && xtalInStrip == 3 && (towerInTCC-1)%4==0) {
@@ -504,8 +527,9 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 	}
       }
 
-      if (forcedPedestalValue_ == -2) realignBaseline(lin, true) ;
-
+      bool ok(true) ;
+      if (forcedPedestalValue_ == -2) ok = realignBaseline(lin, 0) ;
+      if (!ok) std::cout<<"SM="<< id.ism()<<" xt="<< id.ic()<<" " <<dec<<id.rawId()<<std::endl ; 
       linEtaSlice[etaSlice] = lin ;	
     }
   }    
@@ -576,6 +600,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     else {
       // general case
       linStruc lin ;
+      int forceBase12 = 0 ;
       for (int i=0 ; i<3 ; i++) {
 	int mult, shift ;
 	bool ok = computeLinearizerParam(theta, coeff.gainRatio_[i], coeff.calibCoeff_, "EB", mult , shift) ;
@@ -589,13 +614,25 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 	  //    if (i==2) {mult = 0xc0 ; shift = 0x0 ;}
 	  //  } 
 	  //PP end
+	  double base = coeff.pedestals_[i] ;
+	  if (forcedPedestalValue_ == -3 && i==0) {
+	    double G = mult*pow(2,-(shift+2)) ;
+	    double g = G/sin(theta) ;
+	    int pedestal = coeff.pedestals_[i] ;
+	    base = double(coeff.pedestals_[i]) - pedestal_offset_/g ;
+	    if (base<0.) base = 0 ;
+	    forceBase12 = int(base) ;
+	  }
 	  lin.pedestal_[i] = coeff.pedestals_[i] ;
 	  lin.mult_[i] = mult ;
 	  lin.shift_[i] = shift ;
 	}
       }
 
-      if (forcedPedestalValue_ == -2) realignBaseline(lin, true) ;
+      bool ok(true) ;
+      if (forcedPedestalValue_ == -2) ok = realignBaseline(lin, 0) ;
+      if (forcedPedestalValue_ == -3) ok = realignBaseline(lin, forceBase12) ;
+      if (!ok) std::cout<<"SM="<< id.ism()<<" xt="<< id.ic()<<" " <<dec<<id.rawId()<<std::endl ; 
       
       for (int i=0 ; i<3 ; i++) {      
 	if (writeToFiles_) (*out_file_) << hex <<" 0x"<<lin.pedestal_[i]<<" 0x"<<lin.mult_[i]<<" 0x"<<lin.shift_[i]<<std::endl; 
@@ -610,6 +647,10 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 	  tpgFactor->Fill(theBarrelGeometry_->getGeometry(id)->getPosition().phi(), 
 			  theBarrelGeometry_->getGeometry(id)->getPosition().eta(), factor) ;			    
 	}
+	double G = lin.mult_[i]*pow(2,-(lin.shift_[i]+2)) ;
+	double g = G/sin(theta) ;
+	float val[] = {i,theta,G,g,coeff.pedestals_[i],lin.pedestal_[i]} ;// first arg = gainId (0 means gain12)
+	ntupleSpike->Fill(val) ;
       }
       linMap[xtalCCU] = lin ;
     }
@@ -678,9 +719,12 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     float val[] = {dccNb+600,tccNb,towerInTCC,stripInTower,
 		   xtalInStrip,CCUid,VFEid,xtalInVFE,xtalWithinCCUid,-999,-999,
 		   id.ix(),id.iy(),towid.ieta()/abs(towid.ieta()),id.hashedIndex(),
-		   id.ic(),towid.ieta(),towid.iphi(),TCCch} ;
-    ntuple->Fill(val) ;    
-
+		   id.ic(),towid.ieta(),towid.iphi(),TCCch, getCrate(tccNb).second,
+		   getGCTRegionEta(towid.ieta()),getGCTRegionPhi(towid.iphi())} ;
+    for (int i=0 ; i<22 ; i++) ntupleFloats_[i] = val[i] ;
+    sprintf(ntupleDet_,getDet(tccNb).c_str()) ;
+    sprintf(ntupleCrate_,getCrate(tccNb).first.c_str()) ;
+    ntuple->Fill() ;
      
     if ((tccNb == 76 || tccNb == 94) && stripInTower == 1 && xtalInStrip == 3 && (towerInTCC-1)%4==0) {
       int etaSlice = towid.ietaAbs() ;
@@ -700,7 +744,9 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 	}
       }
 
-      if (forcedPedestalValue_ == -2) realignBaseline(lin, true) ;
+      bool ok(true) ;
+      if (forcedPedestalValue_ == -2 || forcedPedestalValue_ == -3) ok = realignBaseline(lin, 0) ;
+      if (!ok) std::cout<<"Quadrant="<< id.iquadrant()<<" xt="<< id.ic()<<" " <<dec<<id.rawId()<<std::endl ; 
 
       linEtaSlice[etaSlice] = lin ;
     }
@@ -808,7 +854,9 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 	}
       }
 
-      if (forcedPedestalValue_ == -2) realignBaseline(lin, true) ;
+      bool ok(true) ;
+      if (forcedPedestalValue_ == -2 || forcedPedestalValue_ == -3) ok = realignBaseline(lin, 0) ;
+      if (!ok) std::cout<<"Quadrant="<< id.iquadrant()<<" xt="<< id.ic()<<" " <<dec<<id.rawId()<<std::endl ; 
 
       for (int i=0 ; i<3 ; i++) {
 	if (writeToFiles_) (*out_file_) << hex <<" 0x"<<lin.pedestal_[i]<<" 0x"<<lin.mult_[i]<<" 0x"<<lin.shift_[i]<<std::endl; 
@@ -892,87 +940,92 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   // Compute weights section //
   /////////////////////////////
 
+  const int NWEIGROUPS = 2 ; 
+  std::vector<unsigned int> weights[NWEIGROUPS] ;
+
 #if (CMSSW_VERSION>=340)
-  EBShape shape ;
+  EBShape shapeEB ;
+  EEShape shapeEE ;
+  weights[0] = computeWeights(shapeEB, hshapeEB) ;
+  weights[1] = computeWeights(shapeEE, hshapeEE) ;
 #else
   // loading reference signal representation
   EcalSimParameterMap parameterMap;  
   EBDetId   barrel(1,1);
   double    phase = parameterMap.simParameters(barrel).timePhase();
   EcalShape shape(phase); 
+  weights[0] = computeWeights(shape, hshapeEB) ;
+  weights[1] = weights[0] ;
 #endif
 
-  std::vector<unsigned int> weights = computeWeights(shape, hshapeEB) ;
+  map<EcalLogicID, FEConfigWeightGroupDat> dataset;
 
+  for (int igrp=0 ; igrp<NWEIGROUPS ; igrp++) {
 
-  if (weights.size() == 5) {
-    if (writeToFiles_) {
-      (*out_file_) <<std::endl ;
-      (*out_file_) <<"WEIGHT 0"<<endl ;
-      for (uint sample=0 ; sample<5 ; sample++) (*out_file_) << "0x" <<hex<<weights[sample]<<" " ;
-      (*out_file_)<<std::endl ; 
-    }
-    if (writeToDB_) {
-      std::cout<<"going to write the weights "<< endl;
-      map<EcalLogicID, FEConfigWeightGroupDat> dataset;
-      // we create 1 group
-      int NWEIGROUPS =1; 
-      for (int ich=0; ich<NWEIGROUPS; ich++){
+    if (weights[igrp].size() == 5) {
+
+      if (writeToFiles_) {
+	(*out_file_) <<std::endl ;
+	(*out_file_) <<"WEIGHT "<<igrp<<endl ;
+	for (uint sample=0 ; sample<5 ; sample++) (*out_file_) << "0x" <<hex<<weights[igrp][sample]<<" " ;
+	(*out_file_)<<std::endl ; 
+	(*out_file_) <<std::endl ;
+      }
+      if (writeToDB_) {
+	std::cout<<"going to write the weights for groupe:"<<igrp<<endl;
 	FEConfigWeightGroupDat gut;
-	gut.setWeightGroupId(ich);
+	gut.setWeightGroupId(igrp);
 	//PP WARNING: weights order is reverted when stored in the DB 
-	gut.setWeight0(weights[4] );
-	gut.setWeight1(weights[3]+ 0x80); //0x80 to identify the max of the pulse in the FENIX (doesn't exist in emulator)
-	gut.setWeight2(weights[2] );
-	gut.setWeight3(weights[1] );
-	gut.setWeight4(weights[0] );
-	EcalLogicID ecid = EcalLogicID( "DUMMY", ich,ich);
+	gut.setWeight0(weights[igrp][4] );
+	gut.setWeight1(weights[igrp][3]+ 0x80); //0x80 to identify the max of the pulse in the FENIX (doesn't exist in emulator)
+	gut.setWeight2(weights[igrp][2] );
+	gut.setWeight3(weights[igrp][1] );
+	gut.setWeight4(weights[igrp][0] );
+	EcalLogicID ecid = EcalLogicID( "DUMMY", igrp,igrp); //1 dummy ID per group
 	// Fill the dataset
-	dataset[ecid] = gut; // we use any logic id but different, because it is in any case ignored... 
+	dataset[ecid] = gut;
       }
-      
-      // now we store in the DB the correspondence btw channels and groups 
-      map<EcalLogicID, FEConfigWeightDat> dataset2;
-      // in this case I decide in a stupid way which channel belongs to which group 
-      for (int ich=0; ich<(int)my_StripEcalLogicId.size() ; ich++){
-	FEConfigWeightDat wut;
-	int igroup=0;
-	wut.setWeightGroupId(igroup);
-	// in case of real groups one has to look for the right logic id 
-	// the logic ids are ordered in the vector by SM (EB+ 1,..,18, EB-, 19,..36), TT (1,...68), strip (1,...5)
-	// Fill the dataset
-	dataset2[my_StripEcalLogicId[ich]] = wut;
-      }
-
-      // endcap loop
-      for (int ich=0; ich<(int)my_StripEcalLogicId1_EE.size() ; ich++){
-       	std::cout << " endcap weight = " << ich << std::endl;
-	FEConfigWeightDat wut;
-	int igroup=0;
-	wut.setWeightGroupId(igroup);
-	// Fill the dataset
-	dataset2[my_StripEcalLogicId1_EE[ich]] = wut;
-      }
-      // endcap loop
-      for (int ich=0; ich<(int)my_StripEcalLogicId2_EE.size() ; ich++){
-       	std::cout << " endcap weight = " << ich << std::endl;
-	FEConfigWeightDat wut;
-	int igroup=0;
-	wut.setWeightGroupId(igroup);
-	// Fill the dataset
-	dataset2[my_StripEcalLogicId2_EE[ich]] = wut;
-      }
-
-
-      // Insert the dataset
-      ostringstream wtag;
-      wtag.str(""); wtag<<"Shape_NGroups_"<<NWEIGROUPS;
-      std::string weight_tag=wtag.str();
-      std::cout<< " weight tag "<<weight_tag<<endl; 
-      if(m_write_wei==1) wei_conf_id_=db_->writeToConfDB_TPGWeight(dataset, dataset2, NWEIGROUPS, weight_tag) ;
-      
     }
   }
+
+  if (writeToDB_) {
+
+    // now we store in the DB the correspondence btw channels and groups 
+    map<EcalLogicID, FEConfigWeightDat> dataset2;
+
+    // EB loop
+    for (int ich=0; ich<(int)my_StripEcalLogicId.size() ; ich++){
+      FEConfigWeightDat wut;
+      int igroup = 0; // this group is for EB
+      wut.setWeightGroupId(igroup);
+      dataset2[my_StripEcalLogicId[ich]] = wut;
+    }
+	
+    // EE loop
+    for (int ich=0; ich<(int)my_StripEcalLogicId1_EE.size() ; ich++){
+      FEConfigWeightDat wut;
+      int igroup = 1; // this group is for EE
+      wut.setWeightGroupId(igroup);
+      // Fill the dataset
+      dataset2[my_StripEcalLogicId1_EE[ich]] = wut;
+    }
+    // EE loop 2 (we had to split the ids of EE in 2 vectors to avoid crash!)
+    for (int ich=0; ich<(int)my_StripEcalLogicId2_EE.size() ; ich++){
+      FEConfigWeightDat wut;
+      int igroup = 1; // this group is for EE
+      wut.setWeightGroupId(igroup);
+      // Fill the dataset
+      dataset2[my_StripEcalLogicId2_EE[ich]] = wut;
+    }
+
+    // Insert the datasets
+    ostringstream wtag;
+    wtag.str(""); wtag<<"Shape_NGroups_"<<NWEIGROUPS;
+    std::string weight_tag=wtag.str();
+    std::cout<< " weight tag "<<weight_tag<<endl; 
+    if (m_write_wei==1) wei_conf_id_=db_->writeToConfDB_TPGWeight(dataset, dataset2, NWEIGROUPS, weight_tag) ;
+  }      
+
 
   /////////////////////////
   // Compute FG section //
@@ -1299,6 +1352,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   hshapeEB->Write() ;
   hshapeEE->Write() ;
   ntuple->Write() ;
+  ntupleSpike->Write() ;
   saving.Close () ;
 }
 
@@ -1503,7 +1557,7 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape,
   double sumf2 = 0. ;
   for (uint sample = 0 ; sample<nSample_ ; sample++) {
     double time = timeMax - ((double)sampleMax_-(double)sample)*25. ;
-    //time -= 12. ;
+    time -= weight_timeShift_ ;
     sumf += shape(time)/max ;
     sumf2 += shape(time)/max * shape(time)/max ;
     for (int subtime = 0 ; subtime<25 ; subtime++) histo->Fill(float(sample*25. + subtime)/25., shape(time+subtime)) ;
@@ -1513,7 +1567,7 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape,
   double * weight = new double[nSample_] ;
   for (uint sample = 0 ; sample<nSample_ ; sample++) {
     double time = timeMax - ((double)sampleMax_-(double)sample)*25. ;
-    //time -= 12. ;
+    time -= weight_timeShift_ ;
     weight[sample] = lambda*shape(time)/max + gamma ;
   }
 
@@ -1528,45 +1582,59 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape,
   isumw = (isumw & imax ) ;
 
   double ampl = 0. ;
+  double sumw = 0. ;
   for (uint sample = 0 ; sample<nSample_ ; sample++) {
      double time = timeMax - ((double)sampleMax_-(double)sample)*25. ;
+     time -= weight_timeShift_ ;
      ampl += weight[sample]*shape(time) ;
+     sumw += weight[sample] ;
      std::cout<<"weight="<<weight[sample]<<" shape="<<shape(time)<<std::endl ;
   }
-  std::cout<<"Weights: sum="<<isumw<<std::endl ;
+  std::cout<<"Weights: sum="<<isumw<<" in float ="<<uncodeWeight(isumw, complement2_)<<" sum of floats ="<<sumw<<std::endl ;
   std::cout<<"Weights: sum (weight*shape) = "<<ampl<<std::endl ;
 
 
 
   // Let's correct for bias if any
-  if (isumw != 0) {
-    double min = 99. ;
-    uint index = 0 ;
-    if ( (isumw & (1<<(complement2_-1))) != 0) {
-      // add 1:
-      for (uint sample = 0 ; sample<nSample_ ; sample++) {
-	int new_iweight = iweight[sample]+1 ; 
-	double new_weight = uncodeWeight(new_iweight, complement2_) ;
-	if (fabs(new_weight-weight[sample])<min) {
-	  min = fabs(new_weight-weight[sample]) ;
-	  index = sample ;
+  if (weight_unbias_recovery_) {
+    int count = 0 ;
+    while (isumw != 0 && count<10) {
+      double min = 99. ;
+      uint index = 0 ;
+      if ( (isumw & (1<<(complement2_-1))) != 0) {
+	// add 1:
+	std::cout<<"Correcting for bias: adding 1"<<std::endl ;
+	for (uint sample = 0 ; sample<nSample_ ; sample++) {
+	  int new_iweight = iweight[sample]+1 ; 
+	  double new_weight = uncodeWeight(new_iweight, complement2_) ;
+	  if (fabs(new_weight-weight[sample])<min) {
+	    min = fabs(new_weight-weight[sample]) ;
+	    index = sample ;
+	  }
 	}
-      }
-      iweight[index] ++ ; 
-    } else {
-      // Sub 1:
-      for (uint sample = 0 ; sample<nSample_ ; sample++) {
-        int new_iweight = iweight[sample]-1 ;    
-	double new_weight = uncodeWeight(new_iweight, complement2_) ;
-        if (fabs(new_weight-weight[sample])<min) {
-          min = fabs(new_weight-weight[sample]) ;
-          index = sample ;
-        }
-      }
-      iweight[index] -- ; 
-    } 
+	iweight[index] ++ ; 
+      } else {
+	// Sub 1:
+	std::cout<<"Correcting for bias: subtracting 1"<<std::endl ;
+	for (uint sample = 0 ; sample<nSample_ ; sample++) {
+	  int new_iweight = iweight[sample]-1 ;    
+	  double new_weight = uncodeWeight(new_iweight, complement2_) ;
+	  if (fabs(new_weight-weight[sample])<min) {
+	    min = fabs(new_weight-weight[sample]) ;
+	    index = sample ;
+	  }
+	}
+	iweight[index] -- ; 
+      } 
+      isumw  = 0 ;  
+      for (uint sample = 0 ; sample<nSample_ ; sample++) isumw  += iweight[sample] ; 
+      imax = (uint)(pow(2.,int(complement2_))-1) ;
+      isumw = (isumw & imax ) ;
+      std::cout<<"Correcting weight number: "<<index<<" sum weights = "<<isumw<<std::endl ;
+      count ++ ;
+    }
   }
-
+  
   // let's check again
   isumw  = 0 ;  
   for (uint sample = 0 ; sample<nSample_ ; sample++) isumw  += iweight[sample] ;
@@ -1575,11 +1643,13 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape,
   ampl = 0. ;
   for (uint sample = 0 ; sample<nSample_ ; sample++) {
      double time = timeMax - ((double)sampleMax_-(double)sample)*25. ;
+     time -= weight_timeShift_ ;
      double new_weight = uncodeWeight(iweight[sample], complement2_) ;
+     sumw += uncodeWeight(iweight[sample], complement2_) ;
      ampl += new_weight*shape(time) ;
      std::cout<<"weight unbiased after integer conversion="<<new_weight<<" shape="<<shape(time)<<std::endl ;
   }
-  std::cout<<"Weights: sum="<<isumw<<std::endl ;
+  std::cout<<"Weights: sum="<<isumw<<" in float ="<<uncodeWeight(isumw, complement2_)<<" sum of floats ="<<sumw<<std::endl ;
   std::cout<<"Weights: sum (weight*shape) = "<<ampl<<std::endl ;
 
 
@@ -1752,10 +1822,10 @@ void EcalTPGParamBuilder::computeFineGrainEEParameters(uint & threshold, uint & 
   lut_tower = FG_lut_tower_EE_  ;
 }
 
-void EcalTPGParamBuilder::realignBaseline(linStruc & lin, bool forceBase12to0)
+bool EcalTPGParamBuilder::realignBaseline(linStruc & lin, float forceBase12)
 {
-  float base[3] = {lin.pedestal_[0], lin.pedestal_[1], lin.pedestal_[2]} ;
-  if (forceBase12to0) base[0] = 0 ;
+  bool ok(true) ;
+  float base[3] = {forceBase12, lin.pedestal_[1], lin.pedestal_[2]} ;
   for (int i=1 ; i<3 ; i++)
     base[i] = float(lin.pedestal_[i]) - 
       float(lin.mult_[0])/float(lin.mult_[i])*pow(2., -(lin.shift_[0]-lin.shift_[i]))*(lin.pedestal_[0]-base[0]) ;
@@ -1763,7 +1833,143 @@ void EcalTPGParamBuilder::realignBaseline(linStruc & lin, bool forceBase12to0)
   for (int i=0 ; i<3 ; i++) {
     //cout<<lin.pedestal_[i]<<" "<<base[i]<<endl ;
     lin.pedestal_[i] = base[i] ;
+    if (base[i]<0) {
+      cout<<"WARNING: base= "<<base[i]<<" for gainId[0-2]="<<i<<" ==> forcing at 0"<<endl ;
+      lin.pedestal_[i] = 0 ; 
+      ok = false ;
+    }
   }
+  return ok ;
 
 }
 
+int EcalTPGParamBuilder::getGCTRegionPhi(int ttphi){
+  int gctphi=0;
+  gctphi = (ttphi+1)/4;
+  if(ttphi<=2) gctphi=0;
+  if(ttphi>=71) gctphi=0;
+  return gctphi;
+}
+
+int EcalTPGParamBuilder::getGCTRegionEta(int tteta){
+  int gcteta = 0;
+  if(tteta>0) gcteta = (tteta-1)/4 + 11;
+  else if(tteta<0) gcteta = (tteta+1)/4 + 10;
+  return gcteta;
+}
+
+std::string EcalTPGParamBuilder::getDet(int tcc){
+  std::stringstream sdet ;
+
+  if (tcc>36 && tcc<55) sdet<<"EB-"<<tcc-36 ;
+  else if (tcc>=55 && tcc<73) sdet<<"EB+"<<tcc-54 ;
+  else if (tcc<=36) sdet<<"EE-" ;
+  else sdet<<"EE+" ;
+  
+  if (tcc<=36 || tcc>=73) {
+    if (tcc>=73) tcc-=72 ;
+    if (tcc==1 || tcc==18 || tcc==19 || tcc==36)  sdet<<7 ;
+    else if (tcc==2 || tcc==3 || tcc==20 || tcc==21)  sdet<<8 ;
+    else if (tcc==4 || tcc==5 || tcc==22 || tcc==23)  sdet<<9 ;
+    else if (tcc==6 || tcc==7 || tcc==24 || tcc==25)  sdet<<1 ;
+    else if (tcc==8 || tcc==9 || tcc==26 || tcc==27)  sdet<<2 ;
+    else if (tcc==10 || tcc==11 || tcc==28 || tcc==29)  sdet<<3 ;
+    else if (tcc==12 || tcc==13 || tcc==30 || tcc==31)  sdet<<4 ;
+    else if (tcc==14 || tcc==15 || tcc==32 || tcc==33)  sdet<<5 ;
+    else if (tcc==16 || tcc==17 || tcc==34 || tcc==35)  sdet<<6 ;
+  }
+
+  return sdet.str() ;
+}
+
+std::pair < std::string, int >  EcalTPGParamBuilder::getCrate(int tcc){
+  std::stringstream crate ;
+  std::string pos ;
+  int slot ;
+
+  crate<<"S2D" ;  
+  if (tcc>=40 && tcc<=42) {crate<<"02d" ; slot = 5 + (tcc-40)*6 ;}
+  if (tcc>=43 && tcc<=45) {crate<<"03d" ; slot = 5 + (tcc-43)*6 ;}
+  if (tcc>=37 && tcc<=39) {crate<<"04d" ; slot = 5 + (tcc-37)*6 ;}
+  if (tcc>=52 && tcc<=54) {crate<<"06d" ; slot = 5 + (tcc-52)*6 ;}
+  if (tcc>=46 && tcc<=48) {crate<<"07d" ; slot = 5 + (tcc-46)*6 ;}
+  if (tcc>=49 && tcc<=51) {crate<<"08d" ; slot = 5 + (tcc-49)*6 ;}
+  if (tcc>=58 && tcc<=60) {crate<<"02h" ; slot = 5 + (tcc-58)*6 ;}
+  if (tcc>=61 && tcc<=63) {crate<<"03h" ; slot = 5 + (tcc-61)*6 ;}
+  if (tcc>=55 && tcc<=57) {crate<<"04h" ; slot = 5 + (tcc-55)*6 ;}
+  if (tcc>=70 && tcc<=72) {crate<<"06h" ; slot = 5 + (tcc-70)*6 ;}
+  if (tcc>=64 && tcc<=66) {crate<<"07h" ; slot = 5 + (tcc-64)*6 ;}
+  if (tcc>=67 && tcc<=69) {crate<<"08h" ; slot = 5 + (tcc-67)*6 ;}
+
+  if (tcc>=76 && tcc<=81) {
+    crate<<"02l" ; 
+    if (tcc%2==0) slot = 2 + (tcc-76)*3 ;
+    else slot = 4 + (tcc-77)*3 ;
+  }
+  if (tcc>=94 && tcc<=99) {
+    crate<<"02l" ; 
+    if (tcc%2==0) slot = 3 + (tcc-94)*3 ;
+    else slot = 5 + (tcc-95)*3 ;
+  }
+
+  if (tcc>=22 && tcc<=27) {
+    crate<<"03l" ; 
+    if (tcc%2==0) slot = 2 + (tcc-22)*3 ;
+    else slot = 4 + (tcc-23)*3 ;
+  }
+  if (tcc>=4 && tcc<=9) {
+    crate<<"03l" ; 
+    if (tcc%2==0) slot = 3 + (tcc-4)*3 ;
+    else slot = 5 + (tcc-5)*3 ;
+  }
+
+  if (tcc>=82 && tcc<=87) {
+    crate<<"07l" ; 
+    if (tcc%2==0) slot = 2 + (tcc-82)*3 ;
+    else slot = 4 + (tcc-83)*3 ;
+  }
+  if (tcc>=100 && tcc<=105) {
+    crate<<"07l" ; 
+    if (tcc%2==0) slot = 3 + (tcc-100)*3 ;
+    else slot = 5 + (tcc-101)*3 ;
+  }
+
+  if (tcc>=28 && tcc<=33) {
+    crate<<"08l" ; 
+    if (tcc%2==0) slot = 2 + (tcc-28)*3 ;
+    else slot = 4 + (tcc-29)*3 ;
+  }
+  if (tcc>=10 && tcc<=15) {
+    crate<<"08l" ; 
+    if (tcc%2==0) slot = 3 + (tcc-10)*3 ;
+    else slot = 5 + (tcc-11)*3 ;
+  }
+
+  if (tcc==34) {crate<<"04l" ; slot = 2 ;}
+  if (tcc==16) {crate<<"04l" ; slot = 3 ;}
+  if (tcc==35) {crate<<"04l" ; slot = 4 ;}
+  if (tcc==17) {crate<<"04l" ; slot = 5 ;}
+  if (tcc==36) {crate<<"04l" ; slot = 8 ;}
+  if (tcc==18) {crate<<"04l" ; slot = 9 ;}
+  if (tcc==19) {crate<<"04l" ; slot = 10 ;}
+  if (tcc==1)  {crate<<"04l" ; slot = 11 ;}
+  if (tcc==20) {crate<<"04l" ; slot = 14 ;}
+  if (tcc==2)  {crate<<"04l" ; slot = 15 ;}
+  if (tcc==21) {crate<<"04l" ; slot = 16 ;}
+  if (tcc==3)  {crate<<"04l" ; slot = 17 ;}
+
+  if (tcc==88)  {crate<<"06l" ; slot = 2 ;}
+  if (tcc==106) {crate<<"06l" ; slot = 3 ;}
+  if (tcc==89)  {crate<<"06l" ; slot = 4 ;}
+  if (tcc==107) {crate<<"06l" ; slot = 5 ;}
+  if (tcc==90)  {crate<<"06l" ; slot = 8 ;}
+  if (tcc==108) {crate<<"06l" ; slot = 9 ;}
+  if (tcc==73)  {crate<<"06l" ; slot = 10 ;}
+  if (tcc==91)  {crate<<"06l" ; slot = 11 ;}
+  if (tcc==74)  {crate<<"06l" ; slot = 14 ;}
+  if (tcc==92)  {crate<<"06l" ; slot = 15 ;}
+  if (tcc==75)  {crate<<"06l" ; slot = 16 ;}
+  if (tcc==93)  {crate<<"06l" ; slot = 17 ;}
+
+  return std::pair< std::string, int > (crate.str(),slot) ;
+}

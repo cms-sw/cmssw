@@ -26,43 +26,38 @@ process.CondDBCommon.DBParameters.authenticationPath = '/nfshome0/popcondev/cond
 # process.GlobalTag.connect =cms.string('frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG')
 
 
+
+
+
+
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
                                           process.CondDBCommon,
                                           timetype = cms.untracked.string('runnumber'),
                                           toGet = cms.VPSet(
-         cms.PSet(
+              cms.PSet(
             record = cms.string('EcalPedestalsRcd'),
-                    tag = cms.string('EcalPedestals_v5_online')
-                    ### new: tag = cms.string('EcalPedestals_2009runs_hlt')
+                    #tag = cms.string('EcalPedestals_v5_online')
+                    tag = cms.string('EcalPedestals_2009runs_hlt') ### obviously diff w.r.t previous
                  ),
               cms.PSet(
             record = cms.string('EcalADCToGeVConstantRcd'),
-                    tag = cms.string('EcalADCToGeVConstant_EBg50_EEnoB_new')
-                 ),
-              cms.PSet(
-            record = cms.string('EcalChannelStatusRcd'),
-                    tag = cms.string('EcalChannelStatus_AllCruzet_online')
+                    #tag = cms.string('EcalADCToGeVConstant_EBg50_EEnoB_new')
+                    tag = cms.string('EcalADCToGeVConstant_2009runs_express') ### the 2 ADCtoGEV in EB and EE are diff w.r.t previous
                  ),
               cms.PSet(
             record = cms.string('EcalIntercalibConstantsRcd'),
-                    tag = cms.string('EcalIntercalibConstants_EBg50_EEnoB_new')
+                    #tag = cms.string('EcalIntercalibConstants_EBg50_EEnoB_new')
+                    tag = cms.string('EcalIntercalibConstants_2009runs_express') ### differs from previous
                  ),
               cms.PSet(
             record = cms.string('EcalGainRatiosRcd'),
-                    tag = cms.string('EcalGainRatios_TestPulse_online')
+                    #tag = cms.string('EcalGainRatios_TestPulse_online')
+                    tag = cms.string('EcalGainRatios_TestPulse_express') ### no diff w.r.t previous
                  ),
               cms.PSet(
-            record = cms.string('EcalWeightXtalGroupsRcd'),
-                    tag = cms.string('EcalWeightXtalGroups_mc')
-                 ),
-              cms.PSet(
-            record = cms.string('EcalTBWeightsRcd'),
-                    tag = cms.string('EcalTBWeights_mc')
-                 ),
-          cms.PSet(
                 record = cms.string('EcalMappingElectronicsRcd'),
-                                    tag = cms.string('EcalMappingElectronics_EEMap')
-                                 )
+                    tag = cms.string('EcalMappingElectronics_EEMap')
+                 )
                )
              )
 
@@ -104,35 +99,41 @@ process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
     TPGversion = cms.uint32(1),
                                         
    #### TPG calculation parameters ####
-    useTransverseEnergy = cms.bool(True),   ## true when TPG computes transverse energy, false for energy
-    Et_sat_EB = cms.double(64.0),           ## Saturation value (in GeV) of the TPG before the compressed-LUT (rem: with 35.84 the TPG_LSB = crystal_LSB)
-    Et_sat_EE = cms.double(64.0),           ## Saturation value (in GeV) of the TPG before the compressed-LUT (rem: with 35.84 the TPG_LSB = crystal_LSB)
+    useTransverseEnergy = cms.bool(True),    ## true when TPG computes transverse energy, false for energy
+    Et_sat_EB = cms.double(64.0),            ## Saturation value (in GeV) of the TPG before the compressed-LUT (rem: with 35.84 the TPG_LSB = crystal_LSB)
+    Et_sat_EE = cms.double(64.0),            ## Saturation value (in GeV) of the TPG before the compressed-LUT (rem: with 35.84 the TPG_LSB = crystal_LSB)
 
-    sliding = cms.uint32(0),                ## Parameter used for the FE data format, should'nt be changed
+    sliding = cms.uint32(0),                 ## Parameter used for the FE data format, should'nt be changed
 
-    weight_timeShift = cms.double(-2.),      ## weights are computed shifting the timing of the shape by this amount in ns: val>0 => shape shifted to the right
-    weight_sampleMax = cms.uint32(3),       ## position of the maximum among the 5 samples used by the TPG amplitude filter
+    weight_timeShift = cms.double(0.),       ## weights are computed shifting the timing of the shape by this amount in ns: val>0 => shape shifted to the right
+    weight_sampleMax = cms.uint32(3),        ## position of the maximum among the 5 samples used by the TPG amplitude filter
+    weight_unbias_recovery = cms.bool(True), ## true if weights after int conversion are forced to have sum=0. Pb, in that case it can't have sum f*w = 1
 
-    forcedPedestalValue = cms.int32(-2),    ## use this value instead of getting it from DB or MC
-                                            ## -1: means use value from DB or MC.
-                                            ## -2: ped12 = 0 used to cope with FENIX bug
-                                            ## -3: used with sFGVB
-    forceEtaSlice = cms.bool(False),        ## when true, same linearization coeff for all crystals belonging to a given eta slice (tower)
+    forcedPedestalValue = cms.int32(-2),     ## use this value instead of getting it from DB or MC
+                                             ## -1: means use value from DB or MC.
+                                             ## -2: ped12 = 0 used to cope with FENIX bug
+                                             ## -3: used with sFGVB: baseline subtracted is pedestal-offset*sin(theta)/G with G=mult*2^-(shift+2) 
+    pedestal_offset =  cms.uint32(300),      ## pedestal offset used with option forcedPedestalValue = -3
 
-    LUT_option = cms.string('Linear'),      ## compressed LUT option can be: "Identity", "Linear", "EcalResolution"
-    LUT_threshold_EB = cms.double(0.250),   ## All Trigger Primitives <= threshold (in GeV) will be set to 0 
-    LUT_threshold_EE = cms.double(0.250),   ## All Trigger Primitives <= threshold (in GeV) will be set to 0 
-    LUT_stochastic_EB = cms.double(0.03),   ## Stochastic term of the ECAL-EB ET resolution (used only if LUT_option="EcalResolution")
-    LUT_noise_EB = cms.double(0.2),         ## noise term (GeV) of the ECAL-EB ET resolution (used only if LUT_option="EcalResolution")
-    LUT_constant_EB = cms.double(0.005),    ## constant term of the ECAL-EB ET resolution (used only if LUT_option="EcalResolution")
-    LUT_stochastic_EE = cms.double(0.03),   ## Stochastic term of the ECAL-EE ET resolution (used only if LUT_option="EcalResolution")
-    LUT_noise_EE = cms.double(0.2),         ## noise term (GeV) of the ECAL-EE ET resolution (used only if LUT_option="EcalResolution")
-    LUT_constant_EE = cms.double(0.005),    ## constant term of the ECAL-EE ET resolution (used only if LUT_option="EcalResolution")
+    SFGVB_Threshold = cms.uint32(0),         ## used with option forcedPedestalValue = -3
+    SFGVB_lut = cms.uint32(0),               ## used with option forcedPedestalValue = -3                                
 
-    TTF_lowThreshold_EB = cms.double(1.0),  ## EB Trigger Tower Flag low threshold in GeV
-    TTF_highThreshold_EB = cms.double(2.0), ## EB Trigger Tower Flag high threshold in GeV
-    TTF_lowThreshold_EE = cms.double(1.0),  ## EE Trigger Tower Flag low threshold in GeV
-    TTF_highThreshold_EE = cms.double(2.0), ## EE Trigger Tower Flag high threshold in GeV
+    forceEtaSlice = cms.bool(False),         ## when true, same linearization coeff for all crystals belonging to a given eta slice (tower)
+
+    LUT_option = cms.string('Linear'),       ## compressed LUT option can be: "Identity", "Linear", "EcalResolution"
+    LUT_threshold_EB = cms.double(0.250),    ## All Trigger Primitives <= threshold (in GeV) will be set to 0 
+    LUT_threshold_EE = cms.double(0.250),    ## All Trigger Primitives <= threshold (in GeV) will be set to 0 
+    LUT_stochastic_EB = cms.double(0.03),    ## Stochastic term of the ECAL-EB ET resolution (used only if LUT_option="EcalResolution")
+    LUT_noise_EB = cms.double(0.2),          ## noise term (GeV) of the ECAL-EB ET resolution (used only if LUT_option="EcalResolution")
+    LUT_constant_EB = cms.double(0.005),     ## constant term of the ECAL-EB ET resolution (used only if LUT_option="EcalResolution")
+    LUT_stochastic_EE = cms.double(0.03),    ## Stochastic term of the ECAL-EE ET resolution (used only if LUT_option="EcalResolution")
+    LUT_noise_EE = cms.double(0.2),          ## noise term (GeV) of the ECAL-EE ET resolution (used only if LUT_option="EcalResolution")
+    LUT_constant_EE = cms.double(0.005),     ## constant term of the ECAL-EE ET resolution (used only if LUT_option="EcalResolution")
+
+    TTF_lowThreshold_EB = cms.double(1.0),   ## EB Trigger Tower Flag low threshold in GeV
+    TTF_highThreshold_EB = cms.double(2.0),  ## EB Trigger Tower Flag high threshold in GeV
+    TTF_lowThreshold_EE = cms.double(1.0),   ## EE Trigger Tower Flag low threshold in GeV
+    TTF_highThreshold_EE = cms.double(2.0),  ## EE Trigger Tower Flag high threshold in GeV
 
     FG_lowThreshold_EB = cms.double(0.3125),   ## EB Fine Grain Et low threshold in GeV
     FG_highThreshold_EB = cms.double(0.3125),  ## EB Fine Grain Et high threshold in GeV

@@ -90,7 +90,11 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
 				    uint & lowThreshold, uint & highThreshold, uint & lut) ;
   void computeFineGrainEEParameters(uint & threshold, uint & lut_strip, uint & lut_tower) ;
   int getEtaSlice(int tccId, int towerInTCC) ;
-  void realignBaseline(linStruc & lin, bool forceBase12to0 = false) ;
+  bool realignBaseline(linStruc & lin, float forceBase12) ;
+  int getGCTRegionPhi(int ttphi) ;
+  int getGCTRegionEta(int tteta) ;
+  std::string getDet(int tcc) ;
+  std::pair < std::string, int > getCrate(int tcc) ;
 
   const CaloSubdetectorGeometry * theEndcapGeometry_ ;
   const CaloSubdetectorGeometry * theBarrelGeometry_ ;
@@ -102,6 +106,8 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   double Et_sat_EB_,  Et_sat_EE_ ;
   unsigned int sliding_ ;
   unsigned int sampleMax_ ;
+  double weight_timeShift_ ;
+  bool weight_unbias_recovery_ ;
   unsigned int nSample_ ;
   unsigned int complement2_ ;
   std::string LUT_option_ ;
@@ -116,6 +122,7 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   unsigned int FG_lut_strip_EE_, FG_lut_tower_EE_ ;
   int forcedPedestalValue_ ;
   bool forceEtaSlice_ ;
+  unsigned int SFGVB_Threshold_, SFGVB_lut_, pedestal_offset_ ;
 
   std::ofstream * out_file_ ;
   std::ofstream * geomFile_ ;
@@ -143,6 +150,10 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   int m_write_sli;
   int m_write_bxt;
   int m_write_btt;
+
+  Float_t * ntupleFloats_ ;
+  Char_t ntupleDet_[10] ;
+  Char_t ntupleCrate_[10] ;
 
 };
 #endif
