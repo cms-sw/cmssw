@@ -1,6 +1,6 @@
 /** \file CSCSegment.cc
  *
- *  $Date: 2008/01/22 18:43:44 $
+ *  $Date: 2010/05/11 17:39:51 $
  *  \author Matteo Sani
  */
 
@@ -131,6 +131,18 @@ bool CSCSegment::sharesRecHits(const CSCSegment  & anotherSegment, CSCRecHit2D::
   return testSharesAllInSpecificRecHits( theCSCRecHits , anotherSegment.specificRecHits(), sharesInput);  
 }
 
+//
+bool CSCSegment::sharesRecHits(const CSCSegment  & anotherSegment) const {
+  if(testSharesAllInSpecificRecHits( theCSCRecHits , anotherSegment.specificRecHits(), CSCRecHit2D::someWires) &&
+     testSharesAllInSpecificRecHits( theCSCRecHits , anotherSegment.specificRecHits(), CSCRecHit2D::someStrips)){
+    return true;
+  }
+  else{
+    return false;
+  }
+}
+
+//
 void CSCSegment::print() const {
   std::cout << *this << std::endl;
 }

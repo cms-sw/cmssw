@@ -2105,7 +2105,7 @@ void CSCSegAlgoST::findDuplicates(std::vector<CSCSegment>  & segments ){
       //
       bool allShared = true;
       if(it!=it2){
-	allShared = it->sharesRecHits(*it2, CSCRecHit2D::all);
+	allShared = it->sharesRecHits(*it2);
       }
       else{
         allShared = false;
