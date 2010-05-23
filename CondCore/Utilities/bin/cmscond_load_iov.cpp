@@ -92,10 +92,11 @@ int cond::LoadIOVUtilities::execute(){
   editor.stamp(cond::userInfo(),false);
   iovtoken=editor.token();
   cond::MetaData metadata( session );
-  metadata.addMapping(parser.tag,iovtoken);
+  metadata.addMapping(parser.tag,iovtoken,parser.timetype);
   transaction.commit();
   if(debug){
     std::cout<<"source iov token "<<iovtoken<<std::endl;
+    std::cout<<"source iov timetype "<<parser.timetype<<std::endl;
   }
   return 0;
 }
