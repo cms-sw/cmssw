@@ -97,43 +97,43 @@ goodZToMuMuEdmNtuple = cms.EDProducer(
 
     cms.PSet(
     tag = cms.untracked.string("Dau1Iso"),
-    quantity = cms.untracked.string("daughter(0).masterClone.userIso(3)")
+    quantity = cms.untracked.string("daughter(0).masterClone.userIsolation('pat::User4Iso')")
     ),
     cms.PSet(
     tag = cms.untracked.string("Dau2Iso"),
-    quantity = cms.untracked.string("daughter(1).masterClone.userIso(3)")
+    quantity = cms.untracked.string("daughter(1).masterClone.userIsolation('pat::User4Iso')")
     ),
     cms.PSet(
     tag = cms.untracked.string("Dau1relIso"),
-    quantity = cms.untracked.string("daughter(0).masterClone.userIso(4)")
+    quantity = cms.untracked.string("daughter(0).masterClone.userIsolation('pat::User5Iso')")
     ),
     cms.PSet(
     tag = cms.untracked.string("Dau2relIso"),
-    quantity = cms.untracked.string("daughter(1).masterClone.userIso(4)")
+    quantity = cms.untracked.string("daughter(1).masterClone.userIsolation('pat::User5Iso')")
     ),
     cms.PSet(
     tag = cms.untracked.string("Dau1TrkIso"),
-    quantity = cms.untracked.string("daughter(0).masterClone.userIso(0)")
+    quantity = cms.untracked.string("daughter(0).masterClone.userIsolation('pat::User1Iso')")
     ),
     cms.PSet(
     tag = cms.untracked.string("Dau2TrkIso"),
-    quantity = cms.untracked.string("daughter(1).masterClone.userIso(0)")
+    quantity = cms.untracked.string("daughter(1).masterClone.userIsolation('pat::User1Iso')")
     ),
     cms.PSet(
     tag = cms.untracked.string("Dau1EcalIso"),
-    quantity = cms.untracked.string("daughter(0).masterClone.userIso(1)")
+    quantity = cms.untracked.string("daughter(0).masterClone.userIsolation('pat::User2Iso')")
     ),
     cms.PSet(
     tag = cms.untracked.string("Dau2EcalIso"),
-    quantity = cms.untracked.string("daughter(1).masterClone.userIso(1)")
+    quantity = cms.untracked.string("daughter(1).masterClone.userIsolation('pat::User2Iso')")
     ),
     cms.PSet(
     tag = cms.untracked.string("Dau1HcalIso"),
-    quantity = cms.untracked.string("daughter(0).masterClone.userIso(2)")
+    quantity = cms.untracked.string("daughter(0).masterClone.userIsolation('pat::User3Iso')")
     ),
     cms.PSet(
     tag = cms.untracked.string("Dau2HcalIso"),
-    quantity = cms.untracked.string("daughter(1).masterClone.userIso(2)")
+    quantity = cms.untracked.string("daughter(1).masterClone.userIsolation('pat::User3Iso')")
     ),
     cms.PSet(
     tag = cms.untracked.string("Dau1dxyFromBS"),
@@ -566,8 +566,7 @@ zMuTrk =(
     tag = cms.untracked.string("Dau1TrackerMuonBit"),
     quantity = cms.untracked.string("daughter(0).masterClone.isTrackerMuon")
     )
-
-            
+           
     )
 
 
