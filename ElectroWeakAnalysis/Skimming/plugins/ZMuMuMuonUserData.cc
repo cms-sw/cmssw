@@ -119,7 +119,7 @@ void ZMuMuMuonUserData::produce( Event & evt, const EventSetup & ) {
     //pat::Muon *mu = new pat::Muon(m); 
     vector<double> iso = isolation(m,ptThreshold_, etEcalThreshold_, etHcalThreshold_ ,dRVetoTrk_, dRTrk_, dREcal_ , dRHcal_, alpha_, beta_);
     m.setIsolation(pat::User1Iso, iso[0]);
-    //cout<<"iso1 "<<iso[0]<<endl;
+    //cout<<"muon User1Iso "<<iso[0]<<endl;
     m.setIsolation(pat::User2Iso, iso[1]);
     //cout<<"iso2 "<<iso[1]<<endl;
     m.setIsolation(pat::User3Iso, iso[2]);
