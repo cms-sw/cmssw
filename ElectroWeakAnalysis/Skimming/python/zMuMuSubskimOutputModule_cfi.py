@@ -23,7 +23,7 @@ dimuonsEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring(
       'keep recoTrackExtras_standAloneMuons_*_*',
       'keep recoTracks_standAloneMuons_UpdatedAtVtx_*',
-      'keep recoCaloMuons_calomuons_*_*',
+      #'keep recoCaloMuons_calomuons_*_*',
       #'keep *_selectedPatMuonsTriggerMatch_*_*',
       #'keep *_selectedPatTracks_*_*',
       'keep *_userDataMuons_*_*',
