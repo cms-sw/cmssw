@@ -1,12 +1,56 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ZMuMuMCanalysis")
+#process.load("ElectroWeakAnalysis.Skimming.mcTruthForDimuons_cff")
+#process.load("ElectroWeakAnalysis/Skimming/zMuMu_SubskimPathsWithMCTruth_cff")
+#adapting what we have in zMuMu_SubskimPathsWithMCTruth_cff, we don't need to add user data....
+
+
+process.load("ElectroWeakAnalysis.Skimming.patCandidatesForZMuMuSubskim_cff")
+### temporarly form 31X-->35X reprocessed spring10 data
+process.patTrigger.processName = "REDIGI"
+process.patTriggerEvent.processName = "REDIGI"
+process.patTrigger.triggerResults = cms.InputTag( "TriggerResults::REDIGI" )
+process.patTrigger.triggerEvent = cms.InputTag( "hltTriggerSummaryAOD::REDIGI" )
+
+
+
+process.load("ElectroWeakAnalysis.Skimming.dimuons_cfi")
+process.load("ElectroWeakAnalysis.Skimming.dimuonsOneTrack_cfi")
+process.load("ElectroWeakAnalysis.Skimming.dimuonsGlobal_cfi")
+process.load("ElectroWeakAnalysis.Skimming.dimuonsOneStandAloneMuon_cfi")
+
+# MC matching sequence
 process.load("ElectroWeakAnalysis.Skimming.mcTruthForDimuons_cff")
+process.goodMuonMCMatch.src = 'selectedPatMuonsTriggerMatch'
+process.goodTrackMCMatch.src = 'selectedPatTracks'
+
+
+
+
+
+
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
+process.MessageLogger.cerr.threshold = ''
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+
+
+
+
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+#process.GlobalTag.globaltag = cms.string('START37_V1A::All')
+process.GlobalTag.globaltag = cms.string('MC_3XY_V26::All')
+process.load("Configuration.StandardSequences.MagneticField_cff")
+
+
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-'file:/tmp/degrutto/testDimuonSkim_all.root'
+#'file:/tmp/degrutto/testDimuonSkim_all.root'
 #'rfio:/castor/cern.ch/user/f/fabozzi/testsubskimMC/testZMuMuSubskim.root'
+'rfio:/castor/cern.ch/user/f/fabozzi/mc7tev/spring10/38262142-DF46-DF11-8238-0030487C6A90.root'
 
 #'rfio:/castor/cern.ch/user/f/fabozzi/mc7tev/F8EE38AF-1EBE-DE11-8D19-00304891F14E.root'
 
@@ -22,7 +66,7 @@ process.TFileService = cms.Service("TFileService",
 
 process.zToMuMu = cms.EDFilter("CandViewRefSelector",
     src = cms.InputTag("dimuons"),
-    cut = cms.string('daughter(0).isGlobalMuon = 1 & daughter(1).isGlobalMuon = 1'),
+    cut = cms.string('daughter(0).isGlobalMuon = 1 & daughter(1).isGlobalMuon = 1 & charge=0'),
 )
 
 process.goodZToMuMuOneStandAloneMuon = cms.EDFilter(
@@ -34,7 +78,7 @@ process.goodZToMuMuOneStandAloneMuon = cms.EDFilter(
 process.zToMuMuOneTrack = cms.EDFilter(
     "CandViewRefSelector",
     src = cms.InputTag("dimuonsOneTrack"),
-    cut = cms.string('daughter(0).isGlobalMuon = 1'),
+    cut = cms.string('daughter(0).isGlobalMuon = 1 & charge=0'),
 )
 
 process.goodZToMuMuOneTrack = cms.EDFilter(
@@ -52,7 +96,7 @@ process.zMuMu_MCanalyzer = cms.EDFilter("ZMuMu_MCanalyzer",
     zMuTrack = cms.InputTag("goodZToMuMuOneTrack"),
     zMuMuMatchMap = cms.InputTag("allDimuonsMCMatch"),
     zMuStandAloneMatchMap = cms.InputTag("allDimuonsMCMatch"),
-    zMuTrackMatchMap = cms.InputTag("allDimuonsMCMatch"),
+    zMuTrackMatchMap = cms.InputTag("dimuonsOneTrackMCMatch"),
     genParticles = cms.InputTag("genParticles"),
     bothMuons = cms.bool(True),                              
     zMassMin = cms.untracked.double(60.0),
@@ -77,6 +121,25 @@ process.zMuMu_MCanalyzer = cms.EDFilter("ZMuMu_MCanalyzer",
 
 
 process.eventInfo = cms.OutputModule("AsciiOutputModule")
+
+
+process.dimuonsPath = cms.Path(
+                       process.goodMuonRecoForDimuon *
+                       process.dimuons *
+                       process.mcTruthForDimuons *
+                       process.dimuonsGlobal *
+                       process.dimuonsOneStandAloneMuon 
+                       )
+
+process.dimuonsOneTrackPath = cms.Path(
+                               process.goodMuonRecoForDimuon*
+                               process.dimuonsOneTrack*
+                               process.mcTruthForDimuonsOneTrack 
+                               )
+
+
+
+
 process.p = cms.Path(#process.mcTruthForDimuons *
                      process.zToMuMu *
                      process.goodZToMuMuOneStandAloneMuon *                     
