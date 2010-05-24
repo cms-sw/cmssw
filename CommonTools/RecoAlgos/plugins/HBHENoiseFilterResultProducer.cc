@@ -72,7 +72,7 @@ HBHENoiseFilterResultProducer::HBHENoiseFilterResultProducer(const edm::Paramete
   maxHighEHitTime_ = iConfig.getParameter<double>("maxHighEHitTime");
   maxRBXEMF_ = iConfig.getParameter<double>("maxRBXEMF");
 
-  produces<bool>();
+  produces<bool>("HBHENoiseFilterResult");
 }
 
 
@@ -116,7 +116,7 @@ HBHENoiseFilterResultProducer::produce(edm::Event& iEvent, const edm::EventSetup
   std::auto_ptr<bool> pOut(new bool);
   *pOut=result;
 
-  iEvent.put(pOut);
+  iEvent.put(pOut, "HBHENoiseFilterResult");
   return;
 }
 
