@@ -30,3 +30,9 @@ cmsRun --parameter-set ${LOCAL_TEST_DIR}/poolsource_multiprocess_cfg.py || die '
 cmsRun --parameter-set ${LOCAL_TEST_DIR}/poolsource_multiprocess_gen_file_oneRun_cfg.py || die 'Failure using poolsource_multiprocess_gen_file_oneRun_cfg.py' $?
 
 cmsRun --parameter-set ${LOCAL_TEST_DIR}/poolsource_multiprocess_oneRun_cfg.py || die 'Failure using poolsource_multiprocess_oneRun_cfg.py' $?
+
+#test reading of the old format files
+for file in ${CMSSW_BASE}/src/IOPool/Input/testdata/*.root
+do
+  cmsRun ${LOCAL_TEST_DIR}/test_old_formats_cfg.py "$file" || die 'Failed to read old file $file' $?
+done
