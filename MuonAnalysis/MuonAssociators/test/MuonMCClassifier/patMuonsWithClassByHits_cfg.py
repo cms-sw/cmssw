@@ -33,7 +33,6 @@ process.source = cms.Source("PoolSource",
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
-
 process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
 from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import hltLevel1GTSeed
 hltLevel1GTSeed.L1TechTriggerSeeding = cms.bool(True)
@@ -73,23 +72,6 @@ process.filter = cms.EDFilter("CandViewCountFilter",
     minNumber = cms.uint32(1),
 )
 
-process.classByHitsTM = cms.EDProducer("MuonMCClassifier",
-    muons = cms.InputTag("muons"),
-    trackType = cms.string("segments"),  # or 'inner','outer','global'
-    trackingParticles = cms.InputTag("mergedtruthNoSimHits"),         # RECO Only
-    associatorLabel   = cms.string("muonAssociatorByHits_NoSimHits"), # RECO Only
-    #trackingParticles = cms.InputTag("mergedtruth"),                 # RAW+RECO
-    #associatorLabel = cms.string("muonAssociatorByHits"),            # RAW+RECO
-)
-process.classByHitsGlb = process.classByHitsTM.clone(trackType = "global")
-
-process.classByHits = cms.Sequence(
-    process.mix * 
-    process.trackingParticlesNoSimHits *
-    #process.trackingParticles *
-    ( process.classByHitsTM +
-      process.classByHitsGlb  )
-)
 import PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi
 process.patMuons = PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi.patMuons.clone(
     muonSource = 'muons',
@@ -106,12 +88,10 @@ process.patMuons = PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi.patMuo
     addGenMatch = False,       
     embedGenMatch = False,
 )
-process.patMuons.userData.userInts.src += [
-    cms.InputTag("classByHitsTM"),
-    cms.InputTag("classByHitsTM","hitsPdgId"),
-    cms.InputTag("classByHitsGlb"),
-    cms.InputTag("classByHitsGlb","hitsPdgId"),
-]
+
+process.load("MuonAnalysis.MuonAssociators.muonClassificationByHits_cfi")
+from MuonAnalysis.MuonAssociators.muonClassificationByHits_cfi import addUserData as addClassByHits
+addClassByHits(process.patMuons, extraInfo=True)
 
 process.go = cms.Path(
     process.preFilter +
@@ -119,7 +99,7 @@ process.go = cms.Path(
     ( process.mergedTruth *
       process.genMuons    *
       process.muonMatch   +
-      process.classByHits ) *
+      process.muonClassificationByHits ) *
     process.patMuons  
 )
 
