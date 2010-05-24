@@ -71,7 +71,8 @@ vector<double> ZMuMuTrackUserData::isolation(const T & t, double ptThreshold, do
 
   //double iso =  isovalueTrk + isovalueEcal + isovalueHcal;
   double combIso = alpha*( ((1+beta)/2*isovalueEcal) + ((1-beta)/2*isovalueHcal) ) + ((1-alpha)*isovalueTrk);
-  // inserire anche questo nell'ntupla
+ 
+  iso.push_back(combIso);
   double relIso = combIso /= t.pt();
   iso.push_back(relIso);
   return iso;
@@ -109,10 +110,15 @@ void ZMuMuTrackUserData::produce( Event & evt, const EventSetup & ) {
     pat::GenericParticle & tk = (*tkColl)[i];
     vector<double> iso = isolation(tk,ptThreshold_, etEcalThreshold_, etHcalThreshold_ ,dRVetoTrk_, dRTrk_, dREcal_ , dRHcal_, alpha_, beta_);
     tk.setIsolation(pat::User1Iso, iso[0]);
+    //    cout << "track User1Iso " << iso[0] << endl; 
     tk.setIsolation(pat::User2Iso, iso[1]);
+    //cout << "track User2Iso " << iso[1] << endl; 
     tk.setIsolation(pat::User3Iso, iso[2]);
+    //cout << "track User3Iso " << iso[2] << endl; 
     tk.setIsolation(pat::User4Iso, iso[3]);
+    //cout << "track User4Iso " << iso[3] << endl; 
     tk.setIsolation(pat::User5Iso, iso[4]);
+    //cout << "track User5Iso " << iso[4] << endl; 
   
     
 

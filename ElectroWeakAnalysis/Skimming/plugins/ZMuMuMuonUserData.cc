@@ -79,7 +79,7 @@ vector<double> ZMuMuMuonUserData::isolation(const T & t, double ptThreshold, dou
   double combIso = alpha*( ((1+beta)/2*isovalueEcal) + ((1-beta)/2*isovalueHcal) ) + ((1-alpha)*isovalueTrk);
   iso.push_back(combIso);
   //cout<<"combIso"<<iso[3]<<endl;  
-// inserire anche questo nell'ntupla
+
   double relIso = combIso /= t.pt();
   iso.push_back(relIso);
   //cout<<"relIso"<<iso[4]<<endl;
