@@ -17,9 +17,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 100
 # Input files (on disk)
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-'rfio:/castor/cern.ch/user/f/fabozzi/mc7tev/F8EE38AF-1EBE-DE11-8D19-00304891F14E.root'
-
-   
+'rfio:/castor/cern.ch/user/f/fabozzi/mc7tev/spring10/38262142-DF46-DF11-8238-0030487C6A90.root'
     )
                             )
 #import os
@@ -37,7 +35,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('START3X_V21::All')
+process.GlobalTag.globaltag = cms.string('START3X_V26::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 ### subskim
@@ -45,15 +43,9 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 
 process.load("ElectroWeakAnalysis.Skimming.zMuMuSubskimOutputModule_cfi")
 
-
-
-
-process.zMuMuSubskimOutputModule.fileName = 'testZMuMuSubskim_oneshot_Test.root'
+process.zMuMuSubskimOutputModule.fileName = 'file:testZMuMuSubskim_oneshot_Test.root'
 
 process.outpath = cms.EndPath(process.zMuMuSubskimOutputModule)
-
-
-
 
 
 ### analysis
@@ -61,12 +53,13 @@ from ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesSequences_cff import *
 
 process.TFileService = cms.Service(
     "TFileService",
-    fileName = cms.string("ewkZMuMuCategories_oneshot_all_3_Test.root")
+    fileName = cms.string("file:ewkZMuMuCategories_oneshot_all_3_Test.root")
 )
 
 
 ### vertexing
 process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesVtxed_cff")
+process.vtxedNtuplesOut.fileName = cms.untracked.string('file:VtxedNtupleLoose_test.root')
 
 ### plots
 process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesPlots_cff")
@@ -75,11 +68,7 @@ process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesPlots_cff")
 process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuAnalysisNtupler_cff")
 process.ntuplesOut.fileName = cms.untracked.string('file:NtupleLooseTestNew_oneshot_all_Test.root')
 
-
-
 # SubSkim Output module configuration
-
-
 
 process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuAnalysisSchedules_cff") 
 
