@@ -9,6 +9,7 @@ struct L1RCTChannelMask {
   bool hcalMask[18][2][28];
   bool hfMask[18][2][4];
   void print(std::ostream& s) const{
+    s << "Printing record L1RCTChannelMaskRcd " << std::endl;
     s << "Masked channels in L1RCTChannelMask" <<std::endl;
      for(int i = 0; i< 18; i++)
        for(int j =0; j< 2; j++){

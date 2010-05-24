@@ -15,6 +15,11 @@ struct L1RCTNoisyChannelMask {
 
 
   void print(std::ostream& s) const{
+    s << "Printing record L1RCTNoisyChannelMaskRcd " << std::endl;
+
+     s << "ECAL noise mask threshold: ecalThreshold" << ecalThreshold << std::endl ;
+     s << "HCAL noise mask threshold: hcalThreshold" << hcalThreshold << std::endl ;
+     s << "HF noise mask threshold: hfThreshold" << hfThreshold << std::endl ;
     s << "Noisy Masked channels in L1RCTNoisyChannelMask" <<std::endl;
      for(int i = 0; i< 18; i++)
        for(int j =0; j< 2; j++){
@@ -29,9 +34,6 @@ struct L1RCTNoisyChannelMask {
              s << "HF masked noisy channel: RCT crate " << i << " iphi " << j <<" ieta " <<k <<std::endl; 
        }
 
-     s << "ECAL noise mask threshold: " << ecalThreshold << std::endl ;
-     s << "HCAL noise mask threshold: " << hcalThreshold << std::endl ;
-     s << "HF noise mask threshold: " << hfThreshold << std::endl ;
   }
 };
 

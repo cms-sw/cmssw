@@ -1,7 +1,7 @@
 /**
  * Author: Sridhara Dasu
  * Created: 04 July 2007
- * $Id: L1RCTParameters.cc,v 1.22 2008/12/08 17:59:15 lgray Exp $
+ * $Id: L1RCTParameters.cc,v 1.23 2009/05/05 13:33:21 efron Exp $
  **/
 
 #include <iostream>
@@ -289,39 +289,43 @@ float L1RCTParameters::correctedTPGSum(const float& ecal, const float& hcal, con
 void 
 L1RCTParameters::print(std::ostream& s)  const {
 
-     s << "eGammaLSB = " << eGammaLSB_ << endl ;
-     s << "jetMETLSB = " << jetMETLSB_ << endl ;
-     s << "eMinForFGCut = " << eMinForFGCut_ << endl ;
-     s << "eMaxForFGCut = " << eMaxForFGCut_ << endl ;
-     s << "hOeCut = " << hOeCut_ << endl ;
-     s << "eMinForHoECut = " << eMinForHoECut_ << endl ;
-     s << "eMaxForHoECut = " << eMaxForHoECut_ << endl ;
-     s << "hMinForHoECut = " << hMinForHoECut_ << endl ;
-     s << "eActivityCut = " << eActivityCut_ << endl ;
-     s << "hActivityCut = " << hActivityCut_ << endl ;
-     s << "eicIsolationThreshold = " << eicIsolationThreshold_ << endl ;
-     s << "jscQuietThreshBarrel = " << jscQuietThresholdBarrel_ << endl ;
-     s << "jscQuietThreshEndcap = " << jscQuietThresholdEndcap_ << endl ;
-     s << "noiseVetoHB = " << noiseVetoHB_ << endl ;
-     s << "noiseVetoHEplus = " << noiseVetoHEplus_ << endl ;
-     s << "noiseVetoHEminus = " << noiseVetoHEminus_ << endl ;
+  s << "Printing record L!RCTParametersRcd" <<endl;
+  s << " \"Parameter description\"   \"Parameter name\"  \"Value\" "
+ << endl;
 
-     s << "eGammaECal Scale Factors "<<endl;
+  s << "e/gamma least significant bit energy transmitted from receiver cards to EIC cards. " << "eGammaLSB = " << eGammaLSB_ << endl ;
+  s << "LSB of region Et scale from RCT  to GCT (GeV) "<< " jetMETLSB = " << jetMETLSB_ << endl ;
+  s << "minimum ECAL Et for which fine-grain veto is applied (GeV) " << " eMinForFGCut = " << eMinForFGCut_ << endl ;
+     s << "maximum ECAL Et for which fine-grain veto is applied (GeV) " << "eMaxForFGCut = " << eMaxForFGCut_ << endl ;
+  s << "maximum value of (HCAL Et / ECAL Et) " << "hOeCut = " << hOeCut_ << endl ;
+  s << "minimum ECAL Et for which H/E veto is applied (GeV) " << "eMinForHoECut = " << eMinForHoECut_ << endl ;
+  s << "maximum ECAL Et for which H/E veto is applied (GeV) " << "eMaxForHoECut = " << eMaxForHoECut_ << endl ;
+     s << "minimum HCAL Et for which H/E veto is applied (GeV)  " << "hMinForHoECut = " << hMinForHoECut_ << endl ;
+     s << "ECAL Et threshold above which tau activity bit is set (GeV)  " << "eActivityCut = " << eActivityCut_ << endl ;
+     s << "HCAL Et threshold above which tau activity bit is set (GeV)  " << "hActivityCut = " << hActivityCut_ << endl ;
+     s << "Neighboring trigger tower energy minimum threshold that marks candidate as non-isolated. (LSB bits) " <<"eicIsolationThreshold = " << eicIsolationThreshold_ << endl ;
+     s << "If jetMet energy in RCT  Barrel Region is below this value, a quiet bit is set.LSB bits" <<"jscQuietThreshBarrel = " << jscQuietThresholdBarrel_ << endl ;
+     s << "If jetMet energy in RCT  Endcap Region is below this value, a quiet bit is set.(LSB bits) " << "jscQuietThreshEndcap = " << jscQuietThresholdEndcap_ << endl ;
+     s << "When set to TRUE, HCAL energy is ignored if no ECAL energy is present in corresponding trigger tower for RCT  Barrel " << "noiseVetoHB = " << noiseVetoHB_ << endl ;
+     s << "When set to TRUE, HCAL energy is ignored if no ECAL energy is present in corresponding trigger tower for RCT  Encap+ "<< "noiseVetoHEplus = " << noiseVetoHEplus_ << endl ;
+     s << "When set to TRUE, HCAL energy is ignored if no ECAL energy is present in corresponding trigger tower for RCT  Endcap- " << "noiseVetoHEminus = " << noiseVetoHEminus_ << endl ;
+
+     s << "eta-dependent multiplicative factors for ECAL Et before summation " <<"eGammaECal Scale Factors "<<endl;
      s << "ieta  ScaleFactor" <<endl;
      for(int i = 0 ; i<28; i++)
        s<< setw(4)<< i+1 << "  " << eGammaECalScaleFactors_.at(i) <<endl;
      
-     s << "eGammaHCal Scale Factors "<<endl;
+     s << "eta-dependent multiplicative factors for HCAL Et before summation " <<"eGammaHCal Scale Factors "<<endl;
      s << "ieta  ScaleFactor" <<endl;
      for(int i = 0 ; i<28; i++)
        s << setw(4) << i+1 << "  " << eGammaHCalScaleFactors_.at(i) <<endl;
      
-     s << "jetMETECal Scale Factors "<<endl;
+     s << "eta-dependent multiplicative factors for ECAL Et before summation " <<"jetMETECal Scale Factors "<<endl;
      s << "ieta  ScaleFactor" <<endl;
      for(int i = 0 ; i<28; i++)
        s<< setw(4) << i+1 << "  " << jetMETECalScaleFactors_.at(i) <<endl;
      
-     s << "jetMETHCal Scale Factors "<<endl;
+     s << "eta-dependent multiplicative factors for HCAL Et before summation " <<"jetMETHCal Scale Factors "<<endl;
      s << "ieta  ScaleFactor" <<endl;
      for(int i = 0 ; i<28; i++)
        s << setw(4) <<i+1 << "  " << jetMETHCalScaleFactors_.at(i) <<endl;

@@ -80,9 +80,12 @@ double L1CaloEcalScale::et(unsigned short rank,
 
 // pretty print
 void L1CaloEcalScale::print(ostream& s) const {
-  s << "L1CaloEcalScale" << endl;
+ s << "L1CaloEcalScaleRcd" << endl;
+  s << "Energy for ECAL inputs into the RCT" <<endl;
+  s << "Each new row is for a given value of 8 bit output of ECAL.  Each column is for the respective eta value " << endl;
+
   for (unsigned rank=0; rank<nBinRank; rank++) {
-    s << rank << " ";
+    s << "rank = " <<rank << " ";
     for (unsigned eta=0; eta<2*nBinEta; eta++) {
       s << m_scale[rank][eta] << " " ;
     }
