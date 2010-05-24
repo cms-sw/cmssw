@@ -3,10 +3,13 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.23 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/MinBiasPDSkim_cfg.py,v $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
+    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/ZeroBiasPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Combined ZeroBias skim')
 )
+# selection eff on 1000 events
+# file:/tmp/malgeri/ZB_vertex.root
+# /tmp/malgeri/ZB_vertex.root ( 45 events, 15799040 bytes )
 
 #
 #
@@ -15,17 +18,10 @@ process.configurationMetadata = cms.untracked.PSet(
 #
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-# run 133874
-'/store/data/Commissioning10/ZeroBias/RECO/v9/000/133/874/A4E09DD6-7B4F-DF11-95EA-001D09F29146.root',
-'/store/data/Commissioning10/ZeroBias/RECO/v9/000/133/874/62DA9F76-814F-DF11-9ABC-001D09F25456.root',
-'/store/data/Commissioning10/ZeroBias/RECO/v9/000/133/874/5AFCCDAB-9F4F-DF11-9CA2-001D09F24F1F.root',
-'/store/data/Commissioning10/ZeroBias/RECO/v9/000/133/874/021C6706-804F-DF11-AF31-001D09F27067.root'),
+# run 136066 lumi~500
+'/store/data/Run2010A/ZeroBias/RECO/v1/000/136/066/DE81B1E0-4866-DF11-A76D-0030487CD906.root'),
                            secondaryFileNames = cms.untracked.vstring(
-'/store/data/Commissioning10/ZeroBias/RAW/v4/000/133/874/F0BAD5CA-794F-DF11-9575-0019B9F730D2.root',
-'/store/data/Commissioning10/ZeroBias/RAW/v4/000/133/874/7CEF7709-744F-DF11-ABCA-001D09F29321.root',
-'/store/data/Commissioning10/ZeroBias/RAW/v4/000/133/874/508AC045-714F-DF11-AFD9-000423D8FA38.root',
-'/store/data/Commissioning10/ZeroBias/RAW/v4/000/133/874/5056F04D-8B4F-DF11-9018-001D09F2545B.root',
-'/store/data/Commissioning10/ZeroBias/RAW/v4/000/133/874/0878ECFD-784F-DF11-8D20-0030487CD7EA.root')
+'/store/data/Run2010A/ZeroBias/RAW/v1/000/136/066/FE1DCAEF-3C66-DF11-A903-000423D98E30.root')
 )
 
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*")
@@ -43,7 +39,7 @@ process.load('Configuration/StandardSequences/GeometryIdeal_cff')
 
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'GR10_P_V5::All' 
+process.GlobalTag.globaltag = 'GR10_P_V6::All' 
 
 process.load("Configuration/StandardSequences/RawToDigi_Data_cff")
 process.load("Configuration/StandardSequences/Reconstruction_cff")
