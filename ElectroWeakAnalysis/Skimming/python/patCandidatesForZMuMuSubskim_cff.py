@@ -62,6 +62,9 @@ selectedPatTracks.cut = 'pt > 15.'
 #import RecoMuon.MuonIsolationProducers.muIsolation_cff
 
 # pat muons
+# needed starting from 3_6_1
+from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
+#
 from PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi import *
 patMuons.isoDeposits = cms.PSet(
         tracker = cms.InputTag("muIsoDepositTk"),
