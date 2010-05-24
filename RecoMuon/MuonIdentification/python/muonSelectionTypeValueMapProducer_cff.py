@@ -45,7 +45,7 @@ muidGMTkKinkTight = muonSelectionTypeValueMapProducer.clone()
 muidGMTkKinkTight.selectionType = cms.string("GMTkKinkTight")
 #
 muidTMLastStationAngLoose = muonSelectionTypeValueMapProducer.clone()
-muidTMLastStationAngLoose.selectionType = cms.string("TMLastStationAngLoose*")
+muidTMLastStationAngLoose.selectionType = cms.string("TMLastStationAngLoose")
 #
 muidTMLastStationAngTight = muonSelectionTypeValueMapProducer.clone()
 muidTMLastStationAngTight.selectionType = cms.string("TMLastStationAngTight")
