@@ -6,7 +6,7 @@ isData = False
 process.load("Configuration/StandardSequences/Geometry_cff")
 process.load("Configuration/StandardSequences/MagneticField_cff")
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
-process.load("Configuration/StandardSequences/RawToDigi_cff")
+
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
 process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
@@ -23,21 +23,25 @@ process.load('RecoMET.METAnalyzers.CSCHaloFilter_cfi')
 
 # Expected BX for ALCT Digis is (FOR MC = 6, FOR DATA =3)
 if isData:
+    process.load("Configuration/StandardSequences/RawToDigi_Data_cff")
     process.CSCBasedHaloFilter.ExpectedBX = cms.int32(3)
     process.CSCHaloData.ExpectedBX = cms.int32(3)
     process.GlobalTag.globaltag = 'GR_R_35X_V8::All'
     process.pathCSCBasedHaloFilter = cms.Path( process.L1Tech *process.CSCBasedHaloFilter )
     process.pathCSCHaloFilterTriggerLevel = cms.Path(process.L1Tech *process.CSCHaloFilterTriggerLevel)
     process.pathCSCHaloFilterRecoLevel = cms.Path(process.L1Tech*  process.CSCHaloFilterRecoLevel )
-    process.pathCSCHaloFilterDigiLevel = cms.Path(process.L1Tech*process.CSCHaloFilterDigiLevel )
+    process.pathCSCHaloFilterDigiLevel = cms.Path(process.muonCSCDigis*process.L1Tech*process.CSCHaloFilterDigiLevel )
     process.pathCSCHaloFilterRecoAndTriggerLevel = cms.Path(process.L1Tech*process.CSCHaloFilterRecoAndTriggerLevel ) 
-    process.pathCSCHaloFilterRecoOrTriggerLevel = cms.Path(process.L1Tech*process.CSCHaloFilterRecoLevel*process.CSCHaloFilterTriggerLevel ) 
+    process.pathCSCHaloFilterRecoOrTriggerLevel = cms.Path(process.L1Tech*process.CSCHaloFilterRecoOrTriggerLevel )
     process.pathCSCHaloFilterDigiAndTriggerLevel = cms.Path (process.L1Tech*process.CSCHaloFilterDigiAndTriggerLevel)
-    process.pathCSCHaloFilterDigiOrTriggerLevel = cms.Path(process.L1Tech*process.CSCHaloFilterDigiLevel * process.CSCHaloFilterTriggerLevel )
-    process.pathCSCHaloFilterDigiOrRecoLevel = cms.Path(process.L1Tech*process.CSCHaloFilterDigiLevel *process.CSCHaloFilterRecoLevel)
+    process.pathCSCHaloFilterDigiOrTriggerLevel = cms.Path(process.L1Tech*process.CSCHaloFilterDigiOrTriggerLevel)
     process.pathCSCHaloFilterDigiAndRecoLevel = cms.Path(process.L1Tech*process.CSCHaloFilterDigiAndRecoLevel)
-    process.pathCSCHaloFilterDigiOrTriggerOrRecoLevel = cms.Path(process.L1Tech*process.CSCHaloFilterDigiLevel*process.CSCHaloFilterTriggerLevel*process.CSCHaloFilterRecoLevel)
+    process.pathCSCHaloFilterDigiOrRecoLevel = cms.Path(process.L1Tech*process.CSCHaloFilterDigiOrRecoLevel)
+    process.pathCSCHaloFilterRecoAndDigiAndTriggerLevel = cms.Path( process.L1Tech* process.CSCHaloFilterRecoAndDigiAndTriggerLevel )
+    process.pathCSCHaloFilterLoose = cms.Path(process.L1Tech*process.CSCHaloFilterLoose )
+    process.pathCSCHaloFilterTight = cms.Path(process.L1Tech*process.CSCHaloFilterTight ) 
 else:
+    process.load("Configuration/StandardSequences/RawToDigi_cff")
     process.CSCBasedHaloFilter.ExpectedBX = cms.int32(6)
     process.CSCHaloFilterDigiLevel.ExpectedBX = 6
     process.CSCHaloFilterDigiAndTriggerLevel.ExpectedBX = 6
@@ -49,24 +53,24 @@ else:
     process.pathCSCHaloFilterRecoLevel = cms.Path( process.CSCHaloFilterRecoLevel )
     process.pathCSCHaloFilterDigiLevel = cms.Path(process.muonCSCDigis*process.CSCHaloFilterDigiLevel )
     process.pathCSCHaloFilterRecoAndTriggerLevel = cms.Path( process.CSCHaloFilterRecoAndTriggerLevel ) 
-    process.pathCSCHaloFilterRecoOrTriggerLevel = cms.Path( process.CSCHaloFilterRecoLevel*process.CSCHaloFilterTriggerLevel ) 
+    process.pathCSCHaloFilterRecoOrTriggerLevel = cms.Path( process.CSCHaloFilterRecoOrTriggerLevel)
     process.pathCSCHaloFilterDigiAndTriggerLevel = cms.Path (process.CSCHaloFilterDigiAndTriggerLevel)
-    process.pathCSCHaloFilterDigiOrTriggerLevel = cms.Path( process.CSCHaloFilterDigiLevel * process.CSCHaloFilterTriggerLevel )
-    process.pathCSCHaloFilterDigiOrRecoLevel = cms.Path(process.CSCHaloFilterDigiLevel *process.CSCHaloFilterRecoLevel)
+    process.pathCSCHaloFilterDigiOrTriggerLevel = cms.Path( process.CSCHaloFilterDigiOrTriggerLevel)
     process.pathCSCHaloFilterDigiAndRecoLevel = cms.Path(process.CSCHaloFilterDigiAndRecoLevel)
-    process.pathCSCHaloFilterDigiOrTriggerOrRecoLevel = cms.Path(process.CSCHaloFilterDigiLevel*process.CSCHaloFilterTriggerLevel*process.CSCHaloFilterRecoLevel)
-
+    process.pathCSCHaloFilterDigiOrRecoLevel = cms.Path(process.CSCHaloFilterDigiOrRecoLevel)
+    process.pathCSCHaloFilterRecoAndDigiAndTriggerLevel = cms.Path(process.CSCHaloFilterRecoAndDigiAndTriggerLevel )
+    process.pathCSCHaloFilterLoose = cms.Path(process.CSCHaloFilterLoose )
+    process.pathCSCHaloFilterTight = cms.Path(process.CSCHaloFilterTight ) 
     
-process.pathCSCBasedHaloFilter = cms.Path(process.CSCBasedHaloFilter)
 
 #process.load("Configuration/StandardSequences/ReconstructionCosmics_cff")
-
 process.load("RecoMuon/Configuration/RecoMuon_cff")
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
+
     #'/store/relval/CMSSW_3_5_8/RelValMinBias/GEN-SIM-RECO/START3X_V26-v1/0017/E26CCE65-8F52-DF11-9FA4-00304867901A.root',
     #'/store/relval/CMSSW_3_5_8/RelValMinBias/GEN-SIM-RECO/START3X_V26-v1/0016/C86F45C5-4D52-DF11-9725-001A92810AD4.root'
     #'/store/relval/CMSSW_3_5_8/RelValTTbar/GEN-SIM-RECO/MC_3XY_V26-v1/0017/E608ED1A-8F52-DF11-B455-0030486790BA.root',
@@ -88,7 +92,7 @@ process.source = cms.Source("PoolSource",
  
     
     #'rfio:/castor/cern.ch/user/r/rcr/SkimOutput_SingleMuon_1-10.root'
-    #'file:/afs/cern.ch/user/r/rcr/scratch0/Skim_4.root'
+    'file:/afs/cern.ch/user/r/rcr/scratch0/Skim_4.root'
     #'/store/relval/CMSSW_3_5_8/RelValBeamHalo/GEN-SIM-RECO/START3X_V26-v1/0017/D6AA4854-9052-DF11-9317-0030486791BA.root',
     #'/store/relval/CMSSW_3_5_8/RelValBeamHalo/GEN-SIM-RECO/START3X_V26-v1/0016/9E2F2DEB-6352-DF11-BC8D-002618943951.root'
     
@@ -125,7 +129,8 @@ process.source = cms.Source("PoolSource",
     #'/store/relval/CMSSW_3_5_8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V26-v1/0016/36139940-4F52-DF11-9D71-00261894392C.root',
     #'/store/relval/CMSSW_3_5_8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V26-v1/0016/24BBD52E-4852-DF11-87F0-003048678B00.root',
     #'/store/relval/CMSSW_3_5_8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V26-v1/0016/2085B0B6-4752-DF11-911D-001A92971BCA.root'
-    '/store/relval/CMSSW_3_5_8/RelValBeamHalo/GEN-SIM-DIGI-RAW-HLTDEBUG/START3X_V26-v1/0016/7C8513EA-6352-DF11-9B7D-003048678A7E.root'
+    #'/store/relval/CMSSW_3_5_8/RelValBeamHalo/GEN-SIM-DIGI-RAW-HLTDEBUG/START3X_V26-v1/0016/7C8513EA-6352-DF11-9B7D-003048678A7E.root'
+    
     ),
 )
 
@@ -143,7 +148,9 @@ process.schedule = cms.Schedule(
     process.pathCSCHaloFilterDigiOrTriggerLevel,
     process.pathCSCHaloFilterDigiOrRecoLevel,
     process.pathCSCHaloFilterDigiAndRecoLevel,
-    process.pathCSCHaloFilterDigiOrTriggerOrRecoLevel 
+    process.pathCSCHaloFilterLoose,
+    process.pathCSCHaloFilterTight,
+    process.pathCSCHaloFilterRecoAndDigiAndTriggerLevel
     )
 
 

@@ -72,24 +72,53 @@ CSCBasedHaloFilter = cms.EDFilter("CSCHaloFilter",
                                   )
                              
 
-
+###Trigger Level Only###
 CSCHaloFilterTriggerLevel = CSCBasedHaloFilter.clone()
 CSCHaloFilterTriggerLevel.FilterRecoLevel = False
 CSCHaloFilterTriggerLevel.FilterDigiLevel = False
 
+###Reco Level Only ####
 CSCHaloFilterRecoLevel = CSCBasedHaloFilter.clone()
 CSCHaloFilterRecoLevel.FilterTriggerLevel = False
 CSCHaloFilterRecoLevel.FilterDigiLevel = False
 
+### Digi Level Only ###
 CSCHaloFilterDigiLevel = CSCBasedHaloFilter.clone()
 CSCHaloFilterDigiLevel.FilterTriggerLevel = False
 CSCHaloFilterDigiLevel.FilterRecoLevel = False
 
+### Reco AND Trigger Level ###
 CSCHaloFilterRecoAndTriggerLevel = CSCBasedHaloFilter.clone()
 CSCHaloFilterRecoAndTriggerLevel.FilterDigiLevel = False
+### Digi AND Trigger Level ###
 CSCHaloFilterDigiAndTriggerLevel = CSCBasedHaloFilter.clone()
 CSCHaloFilterDigiAndTriggerLevel.FilterRecoLevel = False
+### Digi AND Reco Level ###
 CSCHaloFilterDigiAndRecoLevel = CSCBasedHaloFilter.clone()
 CSCHaloFilterDigiAndRecoLevel.FilterTriggerLevel = False
 
+### Reco AND Digi AND Trigger Level ###  (Most Restrictive) 
 CSCHaloFilterRecoAndDigiAndTriggerLevel = CSCBasedHaloFilter.clone()
+
+### Sequences ####
+
+### Reco OR Trigger Level ###
+CSCHaloFilterRecoOrTriggerLevel = cms.Sequence( CSCHaloFilterTriggerLevel * CSCHaloFilterRecoLevel )
+
+### Digi OR Trigger Level ###
+CSCHaloFilterDigiOrTriggerLevel = cms.Sequence( CSCHaloFilterDigiLevel * CSCHaloFilterTriggerLevel )
+
+### Digi OR Reco Level ###
+CSCHaloFilterDigiOrRecoLevel = cms.Sequence( CSCHaloFilterDigiLevel * CSCHaloFilterRecoLevel )
+
+### Digi OR Reco OR Trigger Level ###  (Loose Selection)
+CSCHaloFilterDigiOrRecoOrTriggerLevel = cms.Sequence( CSCHaloFilterDigiLevel * CSCHaloFilterRecoLevel * CSCHaloFilterTriggerLevel )
+CSCHaloFilterLoose = cms.Sequence(CSCHaloFilterDigiOrRecoOrTriggerLevel)
+
+### (Digi AND Reco) OR (Digi AND Trigger) OR (Reco AND Trigger)###  (Tight Selection)
+CSCHaloFilter_DigiAndReco_Or_DigiAndTrigger_Or_RecoAndTrigger = cms.Sequence( CSCHaloFilterRecoAndTriggerLevel *
+                                                                              CSCHaloFilterDigiAndTriggerLevel *
+                                                                              CSCHaloFilterDigiAndRecoLevel )
+
+CSCHaloFilterTight = cms.Sequence(CSCHaloFilter_DigiAndReco_Or_DigiAndTrigger_Or_RecoAndTrigger)
+
