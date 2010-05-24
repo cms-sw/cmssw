@@ -171,7 +171,12 @@ bool CSCHaloFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup)
 	    }
 	}
       else
-	FilterTriggerLevel = false;  //NO TRIGGER DECISION CAN BE MADE
+	{
+	  LogWarning("Collection Not Found") << "You have requested Trigger-level filtering, but the L1MuGMTReadoutCollection does not appear"
+					     << "to be in the event! Trigger-level filtering will be disabled" ;
+
+	  FilterTriggerLevel = false;  //NO TRIGGER DECISION CAN BE MADE
+	}
     }
 
   if(FilterDigiLevel)
@@ -246,26 +251,32 @@ bool CSCHaloFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup)
 		}
 	    }
 	}
-      else if( TheCSCDataHandle.isValid() )
+      /*
+	else if( TheCSCDataHandle.isValid() )
 	{
-	  //FOR >= 36X 
-	  /*
-	    If the user wants to use the info from the ALCT digis 
-	    but they aren't in the event, then the reco::CSCHaloData
-	    object can be used, albeit in limited scope,i.e.,
-	    ExpectedBX == 3 and no matching to collision muon hits
-	    is done until CMSSW_3_7_0.  
-	    
-	    //NOTE : THIS BLOCK OF CODE ONLY WORKS FOR >= 3_6_0 
-	    if(TheCSCDataHandle.isValid())
-	    {
-	    const reco::CSCHaloData CSCData = (*TheCSCDataHandle.product());
-	    nHaloDigis = CSCData.NumberOfOutOfTimeTriggers() ;
-	    }
-	  */
+	//FOR >= 36X 
+	
+	If the user wants to use the info from the ALCT digis 
+	but they aren't in the event, then the reco::CSCHaloData
+	object can be used, albeit in limited scope,i.e.,
+	ExpectedBX == 3 and no matching to collision muon hits
+	is done until CMSSW_3_7_0.  
+	
+	//NOTE : THIS BLOCK OF CODE ONLY WORKS FOR >= 3_6_0 
+	if(TheCSCDataHandle.isValid())
+	{
+	const reco::CSCHaloData CSCData = (*TheCSCDataHandle.product());
+	nHaloDigis = CSCData.NumberOfOutOfTimeTriggers() ;
 	}
+	}
+      */
       else
-	FilterDigiLevel = false ; // NO DIGI LEVEL DECISION CAN BE MADE
+	{
+	  LogWarning("Collection Not Found") << "You have requested Digi-level filtering, but the CSCALCTDigiCollection does not appear"
+					     << "to be in the event! Digl-level filtering will be disabled" ;   
+	  
+	  FilterDigiLevel = false ; // NO DIGI LEVEL DECISION CAN BE MADE
+	}
     }
   
   if(FilterRecoLevel)
@@ -372,7 +383,12 @@ bool CSCHaloFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup)
 	    }
 	}
       else
-	FilterRecoLevel = false; //NO RECO LEVEL DECISION CAN BE MADE
+	{
+	  LogWarning("Collection Not Found") << "You have requested Reco-level filtering, but the cosmic stand-alone muon collection does not appear"
+					     << "to be in the event! Reco-level filtering will be disabled" ;   
+
+	  FilterRecoLevel = false; //NO RECO LEVEL DECISION CAN BE MADE
+	}
     }
 
   if(FilterRecoLevel && FilterDigiLevel && FilterTriggerLevel)
