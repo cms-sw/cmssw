@@ -307,7 +307,7 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
 bool CSCValidation::filterEvents(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments,
                                  edm::Handle<reco::TrackCollection> saMuons){
 
-  int  nGoodSAMuons = 0;
+  //int  nGoodSAMuons = 0;
 
   if (recHits->size() < 4 || recHits->size() > 100) return false;
   if (cscSegments->size() < 1 || cscSegments->size() > 15) return false;
@@ -2880,10 +2880,10 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
   // hardcoded examiner mask below to check for DCC and DDU level errors will be used first
   // then examinerMask for CSC level errors will be used during unpacking of each CSC block
   unsigned long dccBinCheckMask = 0x06080016;
-  unsigned int examinerMask = 0x7FB7BF6;
-  unsigned int errorMask = 0xDFCFEFFF;
-  
-  for (int id=FEDNumbering::getCSCFEDIds().first; id<=FEDNumbering::getCSCFEDIds().second; ++id) { 
+  unsigned int examinerMask = 0x1FEBF3F6; 
+  unsigned int errorMask = 0x0;
+
+  for (int id=FEDNumbering::FEDNumbering::MINCSCFEDID; id<=FEDNumbering::MAXCSCFEDID; ++id) {
     // loop over DCCs
     /// uncomment this for regional unpacking
     /// if (id!=SOME_ID) continue;
