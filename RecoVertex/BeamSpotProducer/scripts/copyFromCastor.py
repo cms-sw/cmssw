@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import sys,os,commands
-
+from CommonMethods import *
 def main():
     if len(sys.argv) < 3:
         print "Usage: cpFromCastor fromDir toDir (optional runnumber)"
@@ -16,12 +16,12 @@ def main():
         print output[1]
         exit(0)
     fileList = output[1].split('\n')
-    cpCommand = "rfcp " + castorDir
     destDir = sys.argv[2]
-    for file in fileList:
-        aCommand = cpCommand + file + " " + destDir
-        print ">>" + aCommand
-        output = commands.getstatusoutput(aCommand)
+    copiedFiles = cp(castorDir,destDir,fileList)
+
+    if len(copiedFiles) != len(fileList):
+        error = "ERROR: I couldn't copy all files from castor"
+        exit(error)
         
 if __name__ == "__main__":
     main()

@@ -2,8 +2,35 @@ import math, re, optparse, commands, os, sys
 from BeamSpotObj import BeamSpot
 from IOVObj import IOV
 
+lockFile = ".lock"
+
+###########################################################################################
+def setLockName(name):
+    global lockFile
+    lockFile = name
+    
+###########################################################################################
+def checkLock():
+    global lockFile
+    if os.path.isfile(lockFile):
+        return True
+    else:
+        return False
+    
+###########################################################################################
+def lock():
+    global lockFile
+    commands.getstatusoutput( "touch " + lockFile)
+
+###########################################################################################
+def rmLock():
+    global lockFile
+    if checkLock():
+        commands.getstatusoutput( "rm " + lockFile)
+
 ###########################################################################################
 def exit(msg=""):
+    rmLock()
     raise SystemExit(msg or optionstring.replace("%prog",sys.argv[0]))
 
 ###########################################################################################
@@ -54,6 +81,16 @@ class ParsingError(Exception): pass
 ###########################################################################################
 # General utilities
 ###########################################################################################
+###########################################################################################
+def sendEmail(mailList,error):
+    print "Sending email to " + mailList + " with body: " + error
+    list = mailList.split(',')
+    for email in list:
+        p = os.popen("mail -s \"Automatic workflow error\" " + email ,"w")
+        p.write(error)
+        status = p.close() 
+
+###########################################################################################
 def dirExists(dir):
     if dir.find("castor") != -1:
     	lsCommand = "nsls " + dir
@@ -88,7 +125,12 @@ def cp(fromDir,toDir,listOfFiles,overwrite=False,smallList=False):
     copiedFiles = []
     if fromDir.find('castor') != -1:
     	cpCommand = 'rf'
+    if fromDir[len(fromDir)-1] != '/':
+        fromDir += '/'
 
+    if toDir[len(toDir)-1] != '/':
+        toDir += '/'
+        
     for file in listOfFiles:
         if os.path.isfile(toDir+file):
             if overwrite:
@@ -676,7 +718,7 @@ def readSqliteFile(sqliteFileName,tagName,sqliteTemplateFile,tmpDir="/tmp/"):
 ###########################################################################################
 def appendSqliteFile(combinedSqliteFileName, sqliteFileName, tagName, IOVSince, IOVTill ,tmpDir="/tmp/"):
     aCommand = "cmscond_export_iov -d sqlite_file:" + tmpDir + combinedSqliteFileName + " -s sqlite_file:" + sqliteFileName + " -i " + tagName + " -t " + tagName + " -l sqlite_file:" + tmpDir + "log.db" + " -b " + IOVSince + " -e " + IOVTill
-    #print aCommand
+    print aCommand
     std = commands.getstatusoutput(aCommand)
     print std[1]
     return not std[0]
