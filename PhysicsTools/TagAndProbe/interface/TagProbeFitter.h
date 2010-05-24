@@ -95,7 +95,14 @@ class TagProbeFitter: public TGraphAsymmErrors{
   void saveDistributionsPlot(RooWorkspace* w);
 
   ///saves the efficiency plots
-  void saveEfficiencyPlots(RooDataSet& eff, std::string effName, RooArgSet& binnedVariables, RooArgSet& mappedCategories);
+  void saveEfficiencyPlots(RooDataSet& eff, TString effName, RooArgSet& binnedVariables, RooArgSet& mappedCategories);
+  
+  ///makes the 1D plot
+  void makeEfficiencyPlot1D(RooDataSet& eff, RooRealVar& v, TString plotName, TString plotTitle, TString effName);
+  
+  ///makes the 2D plot
+  void makeEfficiencyPlot2D(RooDataSet& eff, RooRealVar& v1, RooRealVar& v2, TString plotName, TString plotTitle, TString effName);
+  
 };
 
 #endif //TagProbeFitter_h

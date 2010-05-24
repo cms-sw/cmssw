@@ -6,6 +6,8 @@
 #include "TPad.h"
 #include "TText.h"
 #include "TCanvas.h"
+#include "TH2F.h"
+#include "TStyle.h"
 #include "RooWorkspace.h"
 #include "RooDataSet.h"
 #include "RooDataHist.h"
@@ -31,6 +33,7 @@
 #include "RooProdPdf.h"
 #include "RooGenericPdf.h"
 #include "RooExtendPdf.h"
+#include "RooTrace.h"
 
 using namespace RooFit;
 
@@ -45,9 +48,13 @@ TagProbeFitter::TagProbeFitter(vector<string> inputFileNames, string inputDirect
   saveWorkspace = saveWorkspace_;
   floatShapeParameters = floatShapeParameters_;
   fixVars = fixVars_;
-  
   if(!floatShapeParameters && fixVars.empty()) std::cout << "TagProbeFitter: " << "You wnat to fix some variables but do not specify them!";
 
+  gROOT->SetStyle("Plain");
+  gStyle->SetTitleFillColor(0);
+  gStyle->SetPalette(1);
+  gStyle->SetOptStat(0);
+  gStyle->SetPaintTextFormat(".2f");
 }
 
 TagProbeFitter::~TagProbeFitter(){
@@ -124,7 +131,7 @@ string TagProbeFitter::calculateEfficiency(string dirName, string effCat, string
     pdfCategory.map(binToPDFmap[i].c_str(), binToPDFmap[i+1].c_str());
   }
   data.addColumn( pdfCategory );
-
+  
   //create the empty efficiency datasets from the binned variables
   RooRealVar efficiency("efficiency", "Efficiency", 0, 1);
 
@@ -216,6 +223,7 @@ string TagProbeFitter::calculateEfficiency(string dirName, string effCat, string
     //get back to the initial directory
     gDirectory->cd("..");
   }
+  
   //save the efficiency data
   fitEfficiency.Write();
   gDirectory->mkdir("fit_eff_plots")->cd();
@@ -368,9 +376,11 @@ void TagProbeFitter::setInitialValues(RooWorkspace* w){
 void TagProbeFitter::saveFitPlot(RooWorkspace* w){
   // save refferences for convenience
   RooCategory& efficiencyCategory = *w->cat("_efficiencyCategory_");
-  RooAbsData& data = *w->data("data");
+  RooAbsData* dataAll = w->data("data");
+  RooAbsData* dataPass = dataAll->reduce(Cut("_efficiencyCategory_==_efficiencyCategory_::Passed")); 
+  RooAbsData* dataFail = dataAll->reduce(Cut("_efficiencyCategory_==_efficiencyCategory_::Failed")); 
   RooAbsPdf& pdf = *w->pdf("simPdf");
-  RooArgSet *obs = pdf.getObservables(data);
+  RooArgSet *obs = pdf.getObservables(*dataAll);
   RooRealVar* mass = 0;
   TIterator* it = obs->createIterator();
   for(RooAbsArg* v = (RooAbsArg*)it->Next(); v!=0; v = (RooAbsArg*)it->Next() ){
@@ -382,114 +392,173 @@ void TagProbeFitter::saveFitPlot(RooWorkspace* w){
   // make a 2x2 canvas
   TCanvas canvas("fit_canvas");
   canvas.Divide(2,2);
+  vector<RooPlot*> frames;
   // plot the Passing Probes
   canvas.cd(1);
-  RooPlot* passFrame = mass->frame(Name("Passing"), Title("Passing Probes"));
-  data.plotOn(passFrame, Cut("_efficiencyCategory_==_efficiencyCategory_::Passed"));
-  pdf.plotOn(passFrame, Slice(efficiencyCategory, "Passed"), ProjWData(efficiencyCategory, data), LineColor(kGreen));
-  pdf.plotOn(passFrame, Slice(efficiencyCategory, "Passed"), ProjWData(efficiencyCategory, data), LineColor(kGreen), Components("backgroundPass"), LineStyle(kDashed));
-  passFrame->Draw();
+  frames.push_back(mass->frame(Name("Passing"), Title("Passing Probes")));
+  dataPass->plotOn(frames.back());
+  pdf.plotOn(frames.back(), Slice(efficiencyCategory, "Passed"), ProjWData(*dataPass), LineColor(kGreen));
+  pdf.plotOn(frames.back(), Slice(efficiencyCategory, "Passed"), ProjWData(*dataPass), LineColor(kGreen), Components("backgroundPass"), LineStyle(kDashed));
+  frames.back()->Draw();
   // plot the Failing Probes
   canvas.cd(2);
-  RooPlot* failFrame = mass->frame(Name("Failing"), Title("Failing Probes"));
-  data.plotOn(failFrame, Cut("_efficiencyCategory_==_efficiencyCategory_::Failed"));
-  pdf.plotOn(failFrame, Slice(efficiencyCategory, "Failed"), ProjWData(efficiencyCategory, data), LineColor(kRed));
-  pdf.plotOn(failFrame, Slice(efficiencyCategory, "Failed"), ProjWData(efficiencyCategory, data), LineColor(kRed), Components("backgroundFail"), LineStyle(kDashed));
-  failFrame->Draw();
+  frames.push_back(mass->frame(Name("Failing"), Title("Failing Probes")));
+  dataFail->plotOn(frames.back());
+  pdf.plotOn(frames.back(), Slice(efficiencyCategory, "Failed"), ProjWData(*dataFail), LineColor(kRed));
+  pdf.plotOn(frames.back(), Slice(efficiencyCategory, "Failed"), ProjWData(*dataFail), LineColor(kRed), Components("backgroundFail"), LineStyle(kDashed));
+  frames.back()->Draw();
   // plot the All Probes
   canvas.cd(3);
-  RooPlot* allFrame = mass->frame(Name("All"), Title("All Probes"));
-  data.plotOn(allFrame);
-  pdf.plotOn(allFrame, ProjWData(efficiencyCategory, data), LineColor(kBlue));
-  pdf.plotOn(allFrame, ProjWData(efficiencyCategory, data), LineColor(kBlue), Components("backgroundPass,backgroundFail"), LineStyle(kDashed));
-  allFrame->Draw();
-  // plot the Parameters
+  frames.push_back(mass->frame(Name("All"), Title("All Probes")));
+  dataAll->plotOn(frames.back());
+  pdf.plotOn(frames.back(), ProjWData(*dataAll), LineColor(kBlue));
+  pdf.plotOn(frames.back(), ProjWData(*dataAll), LineColor(kBlue), Components("backgroundPass,backgroundFail"), LineStyle(kDashed));
+  frames.back()->Draw();
+  // plot the Fit Results
   canvas.cd(4);
-  RooPlot* statFrame = mass->frame(Name("Parameters"), Title("Parameters"));
-  pdf.paramOn(statFrame, &data, "", 0, "NELU", 0., 1., 1.);
-  statFrame->findObject(Form("%s_paramBox",pdf.GetName()))->Draw();
+  frames.push_back(mass->frame(Name("Fit Results"), Title("Fit Results")));
+  pdf.paramOn(frames.back(), dataAll, "", 0, "NELU", 0.1, 0.9, 0.9);
+  // draw only the parameter box not the whole frame
+  frames.back()->findObject(Form("%s_paramBox",pdf.GetName()))->Draw();
   //save and clean up
   canvas.Write();
-  delete passFrame;
-  delete failFrame;
-  delete allFrame;
-  delete statFrame;
+  for (size_t i=0; i<frames.size(); i++) {
+    delete frames[i];
+  }
+  delete dataPass;
+  delete dataFail;
 }
 
 void TagProbeFitter::saveDistributionsPlot(RooWorkspace* w){
-  // save refferences for convenience
-  RooAbsData& data = *w->data("data");
+  // save pointers to datasets to manage memory
+  RooAbsData* dataAll = w->data("data");
+  RooAbsData* dataPass = dataAll->reduce(Cut("_efficiencyCategory_==_efficiencyCategory_::Passed")); 
+  RooAbsData* dataFail = dataAll->reduce(Cut("_efficiencyCategory_==_efficiencyCategory_::Failed")); 
 
-  const RooArgSet* vars = data.get();
+  const RooArgSet* vars = dataAll->get();
   vector<RooRealVar*> reals;
   TIterator* it = vars->createIterator();
   for(RooAbsArg* v = (RooAbsArg*)it->Next(); v!=0; v = (RooAbsArg*)it->Next() ){
     if(!v->InheritsFrom("RooRealVar")) continue;
     reals.push_back((RooRealVar*)v);
   }
-
   TCanvas canvas("distributions_canvas");
   canvas.Divide(3,reals.size());
+  vector<RooPlot*> frames;
   for(uint i=0; i<reals.size(); i++){
+    // plot the Passing Probes
     canvas.cd(3*i+1);
-    RooPlot* passFrame = reals[i]->frame(Name("Passing"), Title("Passing Probes"), Bins(100));
-    data.plotOn(passFrame, Cut("_efficiencyCategory_==_efficiencyCategory_::Passed"), LineColor(kGreen));
-    data.statOn(passFrame, Cut("_efficiencyCategory_==_efficiencyCategory_::Passed"));
-    passFrame->Draw();
+    frames.push_back(reals[i]->frame(Name("Passing"), Title("Passing Probes"), Bins(100)));
+    dataPass->plotOn(frames.back(), LineColor(kGreen));
+    dataPass->statOn(frames.back());
+    frames.back()->Draw();
+    // plot the Failing Probes
     canvas.cd(3*i+2);
-    RooPlot* failFrame = reals[i]->frame(Name("Failing"), Title("Failing Probes"), Bins(100));
-    data.plotOn(failFrame, Cut("_efficiencyCategory_==_efficiencyCategory_::Failed"), LineColor(kRed));
-    data.statOn(failFrame, Cut("_efficiencyCategory_==_efficiencyCategory_::Failed"));
-    failFrame->Draw();
+    frames.push_back(reals[i]->frame(Name("Failing"), Title("Failing Probes"), Bins(100)));
+    dataFail->plotOn(frames.back(), LineColor(kRed));
+    dataFail->statOn(frames.back());
+    frames.back()->Draw();
     // plot the All Probes
     canvas.cd(3*i+3);
-    RooPlot* allFrame = reals[i]->frame(Name("All"), Title("All Probes"), Bins(100));
-    data.plotOn(allFrame, LineColor(kBlue));
-    data.statOn(allFrame);
-    allFrame->Draw();
+    frames.push_back(reals[i]->frame(Name("All"), Title("All Probes"), Bins(100)));
+    dataAll->plotOn(frames.back(), LineColor(kBlue));
+    dataAll->statOn(frames.back());
+    frames.back()->Draw();
   }
   canvas.Write();
+  for (size_t i=0; i<frames.size(); i++) {
+    delete frames[i];
+  }
+  delete dataPass;
+  delete dataFail;
 }
 
-void TagProbeFitter::saveEfficiencyPlots(RooDataSet& eff, string effName, RooArgSet& binnedVariables, RooArgSet& mappedCategories){
-  const RooArgSet* set = eff.get();
-  RooRealVar* e = (RooRealVar*) set->find("efficiency");
-  TIterator* plotVarIt = binnedVariables.createIterator();
-  for(RooRealVar* plotVar = (RooRealVar*)plotVarIt->Next(); plotVar!=0; plotVar = (RooRealVar*)plotVarIt->Next() ){
-    RooArgSet binCategories;
-    TIterator* it = binnedVariables.createIterator();
-    for(RooRealVar* v = (RooRealVar*)it->Next(); v!=0; v = (RooRealVar*)it->Next() ){
-      if(plotVar==v) continue;
-      binCategories.addClone( RooBinningCategory(TString(v->GetName())+"_bins", TString(v->GetName())+"_bins", *v) );
+void TagProbeFitter::saveEfficiencyPlots(RooDataSet& eff, TString effName, RooArgSet& binnedVariables, RooArgSet& mappedCategories){
+  TIterator* v1it = binnedVariables.createIterator();
+  for(RooRealVar* v1 = (RooRealVar*)v1it->Next(); v1!=0; v1 = (RooRealVar*)v1it->Next() ){
+    RooArgSet binCategories1D;
+    TIterator* v2it = binnedVariables.createIterator();
+    for(RooRealVar* v2 = (RooRealVar*)v2it->Next(); v2!=0; v2 = (RooRealVar*)v2it->Next() ){
+      if(v2 == v1) continue;
+      binCategories1D.addClone( RooBinningCategory(TString(v2->GetName())+"_bins", TString(v2->GetName())+"_bins", *v2) );
+
+      RooArgSet binCategories2D;
+      TIterator* v3it = binnedVariables.createIterator();
+      for(RooRealVar* v3 = (RooRealVar*)v3it->Next(); v3!=0; v3 = (RooRealVar*)v3it->Next() ){
+        if(v3 == v1 || v3 == v2) continue;
+        binCategories2D.addClone( RooBinningCategory(TString(v3->GetName())+"_bins", TString(v3->GetName())+"_bins", *v3) );
+      }  
+      RooMultiCategory allCats2D("allCats2D", "allCats2D", RooArgSet(binCategories2D, mappedCategories));
+      if(allCats2D.numTypes()==0){
+        makeEfficiencyPlot2D(eff, *v1, *v2, TString::Format("%s_%s_PLOT", v1->GetName(), v2->GetName()), "", effName);
+      }else{
+        RooDataSet myEff(eff);
+        myEff.addColumn(allCats2D);
+        TIterator* catIt = allCats2D.typeIterator();
+        for(RooCatType* t = (RooCatType*)catIt->Next(); t!=0; t = (RooCatType*)catIt->Next() ){
+          TString catName = t->GetName();
+          if(catName.Contains("NotMapped")) continue;
+          catName.ReplaceAll("{","").ReplaceAll("}","").ReplaceAll(";","_&_");
+          RooDataSet* eff_bin = (RooDataSet*) myEff.reduce( Cut(TString::Format("allCats2D==%d",t->getVal())) );
+          makeEfficiencyPlot2D(*eff_bin, *v1, *v2, TString::Format("%s_%s_PLOT_%s",v1->GetName(), v2->GetName(), catName.Data()), catName, effName);
+          delete eff_bin;
+        }        
+      }
     }
-    RooMultiCategory allCats("allCats", "allCats", RooArgSet(binCategories, mappedCategories));
-    if(allCats.numTypes()==0){
-      RooPlot* p = plotVar->frame(Name(TString(plotVar->GetName())+"_plot"));
-      eff.plotOnXY(p,YVar(*e));
-      p->SetTitle("");
-      p->SetYTitle(TString("Efficiency of ")+effName.c_str());
-      p->SetAxisRange(0,1,"Y");
-      p->Write();
-      delete p;
-      return;
-    }
-    RooDataSet myEff(eff);
-    myEff.addColumn(allCats);
-    TIterator* catIt = allCats.typeIterator();
-    for(RooCatType* t = (RooCatType*)catIt->Next(); t!=0; t = (RooCatType*)catIt->Next() ){
-      TString catName = t->GetName();
-      if(catName.Contains("NotMapped")) continue;
-      catName.ReplaceAll("{","").ReplaceAll("}","").ReplaceAll(";","__");
-      RooDataSet* data_bin = (RooDataSet*) myEff.reduce( Cut(TString::Format("allCats==%d",t->getVal())) );
-      RooPlot* p = plotVar->frame(Name(TString(plotVar->GetName())+"_plot__"+catName), Title(catName));
-      data_bin->plotOnXY(p,YVar(*e));
-      p->SetYTitle(TString("Efficiency of ")+effName.c_str());
-      p->SetAxisRange(0,1,"Y");
-      p->Write();
-      delete p;
-      delete data_bin;
+    RooMultiCategory allCats1D("allCats1D", "allCats1D", RooArgSet(binCategories1D, mappedCategories));
+    if(allCats1D.numTypes()==0){
+      makeEfficiencyPlot1D(eff, *v1, TString::Format("%s_PLOT", v1->GetName()), "", effName);
+    }else{
+      RooDataSet myEff(eff);
+      myEff.addColumn(allCats1D);
+      TIterator* catIt = allCats1D.typeIterator();
+      for(RooCatType* t = (RooCatType*)catIt->Next(); t!=0; t = (RooCatType*)catIt->Next() ){
+        TString catName = t->GetName();
+        if(catName.Contains("NotMapped")) continue;
+        catName.ReplaceAll("{","").ReplaceAll("}","").ReplaceAll(";","_&_");
+        RooDataSet* eff_bin = (RooDataSet*) myEff.reduce( Cut(TString::Format("allCats1D==%d",t->getVal())) );
+        makeEfficiencyPlot1D(*eff_bin, *v1, TString::Format("%s_PLOT_%s", v1->GetName(), catName.Data()), catName, effName);
+        delete eff_bin;
+      }
     }
   }
+}
+
+void TagProbeFitter::makeEfficiencyPlot1D(RooDataSet& eff, RooRealVar& v, TString plotName, TString plotTitle, TString effName){
+  TCanvas canvas(plotName);
+  const RooArgSet* set = eff.get();
+  RooRealVar* e = (RooRealVar*) set->find("efficiency");
+  RooPlot* p = v.frame(Name(plotName), Title(plotTitle));
+  eff.plotOnXY(p,YVar(*e));
+  p->SetYTitle(TString("Efficiency of ")+effName);
+  p->SetAxisRange(0,1,"Y");
+  p->Draw();
+  canvas.Write();
+  delete p;  
+}
+
+void TagProbeFitter::makeEfficiencyPlot2D(RooDataSet& eff, RooRealVar& v1, RooRealVar& v2, TString plotName, TString plotTitle, TString effName){
+  TCanvas canvas(plotName);
+  canvas.SetRightMargin(0.15);
+  TH2F* h = new TH2F(plotName, plotName, v1.getBinning().numBins(), v1.getBinning().array(), v2.getBinning().numBins(), v2.getBinning().array());
+  const RooArgSet* set = eff.get();
+  RooRealVar* e = (RooRealVar*) set->find("efficiency");
+  RooRealVar* v1_ = (RooRealVar*) set->find(v1.GetName());
+  RooRealVar* v2_ = (RooRealVar*) set->find(v2.GetName());
+  h->SetTitle(TString::Format("%s;%s%s;%s%s;Efficiency of %s", plotTitle.Data(),
+    v1.GetTitle(), TString(v1.getUnit()).Length()==0?"":TString::Format(" (%s)", v1.getUnit()).Data(),
+    v2.GetTitle(), TString(v2.getUnit()).Length()==0?"":TString::Format(" (%s)", v2.getUnit()).Data(), effName.Data()));
+  h->SetOption("colztexte");
+  h->GetZaxis()->SetRangeUser(-0.001,1.001);
+  h->SetStats(kFALSE);
+  for(int i=0; i<eff.numEntries(); i++){
+    eff.get(i);
+    h->SetBinContent(h->FindBin(v1_->getVal(), v2_->getVal()), e->getVal());
+    h->SetBinError(h->FindBin(v1_->getVal(), v2_->getVal()), (e->getErrorHi()-e->getErrorLo())/2.);
+  }
+  h->Draw();
+  canvas.Write();
+  delete h;
 }
 
 void TagProbeFitter::doSBSEfficiency(RooWorkspace* w, RooRealVar& efficiency){
