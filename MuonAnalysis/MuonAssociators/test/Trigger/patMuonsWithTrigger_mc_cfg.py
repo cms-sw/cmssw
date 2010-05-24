@@ -10,21 +10,15 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000 
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
-        
-process.load("SimGeneral.MixingModule.mixNoPU_cfi")
-#process.load("SimGeneral.TrackingAnalysis.trackingParticlesNoSimHits_cfi")    # On RECO
-#process.load("SimMuon.MCTruth.MuonAssociatorByHitsESProducer_NoSimHits_cfi")  # On RECO
-process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")            # On RAW+RECO
-process.load("SimMuon.MCTruth.MuonAssociatorByHitsESProducer_cfi")           # On RAW+RECO
-
 ### global tag
-process.GlobalTag.globaltag = 'START3X_V26A::All'
+#process.GlobalTag.globaltag = 'START3X_V26A::All'
+process.GlobalTag.globaltag = 'START3X_V26::All'
 
 ### source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         #'root://pcmssd12.cern.ch//data/gpetrucc/7TeV/hlt/MuHLT_MinBiasMC357_185_1.root',
-        'file:/tmp/gpetrucc/MuHLT_MinBiasMC357_185_1.root'
+        'root://pcmssd12.cern.ch//data/gpetrucc/7TeV/jpsi/ppMuX_Spring10_REDIGI_START3X_V26_S09_GEN-SIM-RECO_C0AC7DEB-8144-DF11-A1E1-00304867D838.root'
     )
 )
 
@@ -50,7 +44,8 @@ process.noScraping = cms.EDFilter("FilterOutScraping",
     thresh = cms.untracked.double(0.25)
 )
 process.preFilter = cms.Sequence( process.oneGoodVertexFilter * process.noScraping )
-process.Skim_GOODCOLL = cms.Path(process.preFilter)
+process.oneRecoMu = cms.EDFilter("CandViewCountFilter", src = cms.InputTag("muons"), minNumber = cms.uint32(1))
+process.Skim_GOODCOLL = cms.Path(process.preFilter + process.oneRecoMu)
 process.Flag_BSC      = cms.Path(process.noScraping * process.oneGoodVertexFilter + process.bscFilter)
 process.Flag_Bit40    = cms.Path(process.bit40)
 process.Flag_HaloVeto = cms.Path(process.haloVeto)
@@ -58,7 +53,8 @@ process.Flag_HaloVeto = cms.Path(process.haloVeto)
 ### Adding Trigger Info from TriggerResultsSummary to the PATMuon
 process.load("MuonAnalysis.MuonAssociators.patMuonsWithTrigger_8E29_cff")
 from MuonAnalysis.MuonAssociators.patMuonsWithTrigger_8E29_cff import changeTriggerProcessName;
-changeTriggerProcessName(process, "HLT2")
+#changeTriggerProcessName(process, "HLT2")   # Custom re-run HLT
+#changeTriggerProcessName(process, "REDIGI") # Spring10 ReDigi
 #process.muonL1Info.useTrack = 'global'
 #process.muonL1Info.useState = 'outermost'
 #process.muonMatchHLTL1.useTrack = 'global'
@@ -73,27 +69,9 @@ addMCinfo(process)
 #   SimGeneral/TrackingAnalysis V04-01-00-02 (35X) or V04-01-03+ (37X+)
 #   SimTracker/TrackAssociation V01-08-17    (35X+)
 #   SimMuon/MCTruth             V02-05-00-01 (35X) or V02-06-00+ (37X+)
-process.classByHitsTM = cms.EDProducer("MuonMCClassifier",
-    muons = cms.InputTag("muons"),
-    trackType = cms.string("segments"),  # or 'inner','outer','global'
-    #trackingParticles = cms.InputTag("mergedtruthNoSimHits"),         # RECO Only
-    #associatorLabel   = cms.string("muonAssociatorByHits_NoSimHits"), # RECO Only
-    trackingParticles = cms.InputTag("mergedtruth"),                 # RAW+RECO
-    associatorLabel = cms.string("muonAssociatorByHits"),            # RAW+RECO
-)
-process.classByHitsGlb = process.classByHitsTM.clone(trackType = "global")
-
-process.classByHits = cms.Sequence(
-    process.mix * 
-    #process.trackingParticlesNoSimHits *
-    process.trackingParticles *
-    ( process.classByHitsTM +
-      process.classByHitsGlb  )
-)
-process.patMuonsWithoutTrigger.userData.userInts.src += [
-    cms.InputTag("classByHitsTM"),
-    cms.InputTag("classByHitsGlb"),
-]
+process.load("MuonAnalysis.MuonAssociators.muonClassificationByHits_cfi")
+from MuonAnalysis.MuonAssociators.muonClassificationByHits_cfi import addUserData as addClassByHits
+addClassByHits(process.patMuonsWithoutTrigger, extraInfo=True)
 
 ### Adding Info about the Muon Station involved to the PATMuon
 # Requires MuonAnalysis/Examples V00-03-00+
@@ -104,7 +82,8 @@ addStations(process.patMuonsWithoutTrigger)
 
 process.p = cms.Path(
     process.preFilter  +
-    process.classByHits +
+    process.oneRecoMu  +
+    process.muonClassificationByHits +
     process.muonStations +
     process.patMuonsWithTriggerSequence 
 )
