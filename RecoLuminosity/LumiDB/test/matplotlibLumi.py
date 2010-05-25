@@ -65,6 +65,22 @@ def plotDate(fig):
     fig.autofmt_xdate(bottom=0.18)
     fig.subplots_adjust(left=0.18)
 def plotRun(fig):
+    ax=fig.add_subplot(111)
+    ax.set_xlabel(r'Run')
+    ax.set_ylabel(r'Luminosity $\mu$b$^{-1}$')
+    runlist=[136088,136089,136889,136960,137892]
+    lumivalues=[0.3,0.6,0.7,0.8,1.0]
+    #ax.set_xticklabels(runlist)
+    xticklabels=ax.get_xticklabels()
+    for tx in xticklabels:
+        tx.set_rotation(30)
+    minorLocator=matplotlib.ticker.MultipleLocator(100)
+    ax.xaxis.set_minor_locator(minorLocator)
+    #ax.xaxis.set_major_locator(matplotlib.ticker.LinearLocator(7)
+    ax.plot(runlist,lumivalues)
+    ax.plot(runlist,[0.8*x for x in lumivalues])
+    ax.grid(True)
+    fig.subplots_adjust(bottom=0.18,left=0.18)
     
 if __name__=='__main__':
     fig=Figure(figsize=(5,4),dpi=100)
@@ -85,6 +101,7 @@ if __name__=='__main__':
     #a.legend(('delivered','recorded'),loc='upper left')
     
     #drawBatch(fig,'testbatch.png')
-    plotDate(fig)
+    #plotDate(fig)
+    plotRun(fig)
     drawInteractive(fig)
     #print drawHTTPstring()
