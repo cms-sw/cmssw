@@ -20,9 +20,8 @@ dimuonsOneTrackFilter.src = cms.InputTag("userDataDimuonsOneTrack")
 
 # MC matching sequence
 from ElectroWeakAnalysis.Skimming.zMuMu_MCTruth_cfi import *
-from ElectroWeakAnalysis.Skimming.zMuMuMuonUserData import *
 userDataDimuons.zGenParticlesMatch = cms.InputTag("allDimuonsMCMatch")
-userDataDimuonsOneTrack.zGenParticlesMatch = cms.InputTag("allDimuonsMCMatch")
+userDataDimuonsOneTrack.zGenParticlesMatch = cms.InputTag("allDimuonsOneTrackMCMatch")
 
 
 

@@ -14,23 +14,39 @@ from ElectroWeakAnalysis.Skimming.dimuonsMCMatch_cfi import *
 from ElectroWeakAnalysis.Skimming.dimuonsOneTrackMCMatch_cfi import *
 #dimuonsOneTrackMCMatch.src=cms.InputTag("userDataDimuonsOneTrack")
 
+#allDimuonsMCMatch = cms.EDFilter("GenParticleMatchMerger",
+#    src = cms.VInputTag(cms.InputTag("goodMuonMCMatch"), cms.InputTag("goodTrackMCMatch"), cms.InputTag("dimuonsMCMatch")),
+#   filter = cms.bool(False) 
+#)
+
 allDimuonsMCMatch = cms.EDFilter("GenParticleMatchMerger",
-    src = cms.VInputTag(cms.InputTag("goodMuonMCMatch"), cms.InputTag("goodTrackMCMatch"), cms.InputTag("dimuonsMCMatch")),
-   filter = cms.bool(False) 
+   src = cms.VInputTag(cms.InputTag("goodMuonMCMatch"), cms.InputTag("dimuonsMCMatch")),
+   filter = cms.bool(False)
 )
 
-mcTruthForDimuons = cms.Sequence(goodMuonMCMatch+goodTrackMCMatch+dimuonsMCMatch+allDimuonsMCMatch)
-
-mcTruthForDimuonsOneTrack = cms.Sequence(goodMuonMCMatch+goodTrackMCMatch+dimuonsOneTrackMCMatch)
-
-dimuonsMCTruth = cms.Path(dimuonsHLTFilter+
-                          mcTruthForDimuons
+allDimuonsOneTrackMCMatch = cms.EDFilter("GenParticleMatchMerger",
+   src = cms.VInputTag(cms.InputTag("goodMuonMCMatch"), cms.InputTag("goodTrackMCMatch"), cms.InputTag("dimuonsOneTrackMCMatch")),
+   filter = cms.bool(False)
 )
+
+# Different MCtruth sequences for different ZMuMu paths
+mcTruthForDimuons = cms.Sequence(goodMuonMCMatch+dimuonsMCMatch+allDimuonsMCMatch)
+mcTruthForDimuonsOneTrack = cms.Sequence(goodMuonMCMatch+goodTrackMCMatch+dimuonsOneTrackMCMatch+allDimuonsOneTrackMCMatch)
+
+#mcTruthForDimuons = cms.Sequence(goodMuonMCMatch+goodTrackMCMatch+dimuonsMCMatch+allDimuonsMCMatch)
+
+#mcTruthForDimuonsOneTrack = cms.Sequence(goodMuonMCMatch+goodTrackMCMatch+dimuonsOneTrackMCMatch)
+
+
+#dimuonsMCTruth = cms.Path(dimuonsHLTFilter+
+#                          mcTruthForDimuons
+#)
 
 mcEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring(
     ### MC matching infos
     'keep *_genParticles_*_*',
     'keep *_allDimuonsMCMatch_*_*',
-    )
+    'keep *_allDimuonsOneTrackMCMatch_*_*'
+     )
 )
