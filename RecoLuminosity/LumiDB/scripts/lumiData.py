@@ -66,6 +66,7 @@ def main():
     parser.add_argument('-lumiversion',dest='lumiversion',action='store',help='lumi data version, optional')
     parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',help='specific path to site-local-config.xml file, default to $CMS_PATH/SITECONF/local/JobConfig, if path undefined, fallback to cern proxy&server')
     parser.add_argument('action',choices=['listrun'],help='command actions')
+    parser.add_argument('--raw',dest='printraw',action='store_true',help='print raw data' )
     parser.add_argument('--verbose',dest='verbose',action='store_true',help='verbose mode for printing' )
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
     # parse arguments
@@ -113,7 +114,9 @@ def main():
         if args.lumiversion:
             lumiversion=args.lumiversion
         runlist=runListInDB(session,lumiversion)
-        printRunList(runlist)
+	if args.printraw:
+	    print runlist
+	else: printRunList(runlist)
     
     del session
     del svc
