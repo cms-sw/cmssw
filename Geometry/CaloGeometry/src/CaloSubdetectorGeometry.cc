@@ -261,32 +261,34 @@ CaloSubdetectorGeometry::deltaPhi( const DetId& detId ) const
       for( uint32_t i ( 0 ) ; i != kSize ; ++i )
       {
 	 const CaloCellGeometry& cell ( *cellGeometries()[ i ] ) ;
-	 const double dPhi1 ( fabs(
-	    GlobalPoint( ( cell.getCorners()[0].x() + 
-			   cell.getCorners()[1].x() )/2. ,
-			 ( cell.getCorners()[0].y() + 
-			   cell.getCorners()[1].y() )/2. ,
-			 ( cell.getCorners()[0].z() + 
-			   cell.getCorners()[1].z() )/2.  ).phi() -
-	    GlobalPoint( ( cell.getCorners()[2].x() + 
-			   cell.getCorners()[3].x() )/2. ,
-			 ( cell.getCorners()[2].y() + 
-			   cell.getCorners()[3].y() )/2. ,
-			 ( cell.getCorners()[2].z() + 
-			   cell.getCorners()[3].z() )/2.  ).phi() ) ) ;
-	 const double dPhi2 ( fabs(
-	    GlobalPoint( ( cell.getCorners()[0].x() + 
-			   cell.getCorners()[3].x() )/2. ,
-			 ( cell.getCorners()[0].y() + 
-			   cell.getCorners()[3].y() )/2. ,
-			 ( cell.getCorners()[0].z() + 
-			   cell.getCorners()[3].z() )/2.  ).phi() -
-	    GlobalPoint( ( cell.getCorners()[2].x() + 
-			   cell.getCorners()[1].x() )/2. ,
-			 ( cell.getCorners()[2].y() + 
-			   cell.getCorners()[1].y() )/2. ,
-			 ( cell.getCorners()[2].z() + 
-			   cell.getCorners()[1].z() )/2.  ).phi() ) ) ;
+	 double dPhi1 ( fabs(
+			   GlobalPoint( ( cell.getCorners()[0].x() + 
+					  cell.getCorners()[1].x() )/2. ,
+					( cell.getCorners()[0].y() + 
+					  cell.getCorners()[1].y() )/2. ,
+					( cell.getCorners()[0].z() + 
+					  cell.getCorners()[1].z() )/2.  ).phi() -
+			   GlobalPoint( ( cell.getCorners()[2].x() + 
+					  cell.getCorners()[3].x() )/2. ,
+					( cell.getCorners()[2].y() + 
+					  cell.getCorners()[3].y() )/2. ,
+					( cell.getCorners()[2].z() + 
+					  cell.getCorners()[3].z() )/2.  ).phi() ) ) ;
+	 double dPhi2 ( fabs(
+			   GlobalPoint( ( cell.getCorners()[0].x() + 
+					  cell.getCorners()[3].x() )/2. ,
+					( cell.getCorners()[0].y() + 
+					  cell.getCorners()[3].y() )/2. ,
+					( cell.getCorners()[0].z() + 
+					  cell.getCorners()[3].z() )/2.  ).phi() -
+			   GlobalPoint( ( cell.getCorners()[2].x() + 
+					  cell.getCorners()[1].x() )/2. ,
+					( cell.getCorners()[2].y() + 
+					  cell.getCorners()[1].y() )/2. ,
+					( cell.getCorners()[2].z() + 
+					  cell.getCorners()[1].z() )/2.  ).phi() ) ) ;
+	 if( M_PI < dPhi1 ) dPhi1 = fabs( dPhi1 - 2.*M_PI ) ;
+	 if( M_PI < dPhi2 ) dPhi2 = fabs( dPhi2 - 2.*M_PI ) ;
 	 (*m_deltaPhi)[i] = dPhi1>dPhi2 ? dPhi1 : dPhi2 ;
       }
    }
