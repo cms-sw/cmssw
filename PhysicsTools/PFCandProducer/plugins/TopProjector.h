@@ -227,8 +227,8 @@ void TopProjector< Top, Bottom >::processCollection( const edm::Handle< std::vec
     const std::vector<Top>& topCollection = *tops;
     
     if(verbose_) 
-      std::cout<<" processing: "<<objectName
-	       <<" size = "<<topCollection.size()<<std::endl;
+      std::cout<<"******* TopProjector "<<objectName
+	       <<" size = "<<topCollection.size()<<" ******** "<<std::endl;
     
     for(unsigned i=0; i<topCollection.size(); i++) {
       
@@ -310,9 +310,8 @@ TopProjector<Top,Bottom>::ptrToAncestor( reco::CandidatePtr candPtr,
     
     CandidatePtr mother = candPtr->sourceCandidatePtr(i);
     if( verbose_ ) {
-      const Provenance& motherProv = iEvent.getProvenance(mother.id());
-      cout<<"  mother id "<<mother.id()<<endl
-	  <<motherProv<<endl;
+/*       const Provenance& motherProv = iEvent.getProvenance(mother.id()); */
+      cout<<"  mother id "<<mother.id()<<endl;
     }
     if(  mother.id() != ancestorsID ) {
       // the mother is not yet at lowest level
