@@ -138,8 +138,6 @@ namespace{
     std::map< uint32_t, uint16_t > tStatus;
     std::pair< const uint32_t, uint16_t > tStatus_valuetype;
 
-    std::map< uint32_t, uint32_t > dStatus;
-    std::pair< const uint32_t, uint32_t > dStatus_valuetype;
     
     EcalTPGCrystalStatus tpgCrystalStatus;
   };
