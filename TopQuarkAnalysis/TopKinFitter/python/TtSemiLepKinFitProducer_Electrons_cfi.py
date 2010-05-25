@@ -28,6 +28,14 @@ kinFitTtSemiLepEvent = cms.EDProducer("TtSemiLepKinFitProducerElectron",
     useOnlyMatch = cms.bool(False),
 
     # ------------------------------------------------
+    # option to use b-tagging
+    # ------------------------------------------------
+    bTagAlgo          = cms.string("trackCountingHighEffBJetTags"),
+    minBDiscBJets     = cms.double(1.0),
+    maxBDiscLightJets = cms.double(3.0),
+    useBTagging       = cms.bool(False),
+
+    # ------------------------------------------------
     # settings for the KinFitter
     # ------------------------------------------------    
     maxNrIter = cms.uint32(500),
@@ -43,8 +51,8 @@ kinFitTtSemiLepEvent = cms.EDProducer("TtSemiLepKinFitProducerElectron",
 
     # ------------------------------------------------
     # set constraints
-    # 1: Whad-mass, 2: Wlep-mass
-    # 3: thad-mass, 4: tlep-mass, 5: nu-mass
+    # 1: Whad-mass, 2: Wlep-mass, 3: thad-mass,
+    # 4: tlep-mass, 5: nu-mass, 6: equal t-masses
     # ------------------------------------------------                                   
     constraints = cms.vuint32(1, 2),
 
