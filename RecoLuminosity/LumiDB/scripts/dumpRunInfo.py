@@ -81,7 +81,7 @@ def main():
         msg.setMsgVerbosity(coral.message_Level_Debug)
     
     if args.action == 'hltkey':
-        p=re.compile(r'^/cdaq/.+/HLT_7TeV.+')
+        p=re.compile(r'^/cdaq/physics/.+/HLT.+')
         result=hltkeyForRun(session,c,runnumber)
         print 'runnumber hltkey'
         for runnum,hltkey in result.items():
