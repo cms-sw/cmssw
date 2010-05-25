@@ -10,10 +10,10 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 # source
 process.source = cms.Source("PoolSource", 
      fileNames = cms.untracked.vstring(
-    'file:/scratch2/users/fabozzi/8039A1DC-9A5B-DF11-A15E-001A6478706C.root'
+    'file:/scratch2/users/fabozzi/spring10/zmm/38262142-DF46-DF11-8238-0030487C6A90.root'
     )
 )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -21,14 +21,14 @@ process.GlobalTag.globaltag = cms.string('GR_R_35X_V6::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 # Muon filter
-process.goodMuons = cms.EDFilter("CandViewSelector",
+process.goodMuons = cms.EDFilter("MuonSelector",
   src = cms.InputTag("muons"),
-  cut = cms.string('pt > 15.0 && ( isGlobalMuon=1 || (isTrackerMuon =1  && numberOfMatches>=1 ))')
+  cut = cms.string('pt > 15.0 && ( isGlobalMuon=1 || (isTrackerMuon =1  && numberOfMatches>=1 ))'),
   filter = cms.bool(True)
 )
 
 # dxy filter on good muons
-process.dxyFilteredMuons = cms.EDFilter("CandViewSelector",
+process.dxyFilteredMuons = cms.EDFilter("MuonSelector",
   src = cms.InputTag("goodMuons"),
   cut = cms.string('abs(innerTrack().dxy)<1.0'),
   filter = cms.bool(True)                                
