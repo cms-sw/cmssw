@@ -2,8 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("EwkZMuMuCategories")
 
-
-
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 

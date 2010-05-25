@@ -14,12 +14,12 @@ process.MessageLogger.cerr.threshold = ''
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 
-# Input files (on disk)
+# Input files
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-'rfio:/castor/cern.ch/user/f/fabozzi/mc7tev/spring10/38262142-DF46-DF11-8238-0030487C6A90.root'
+    'file:/scratch2/users/fabozzi/spring10/zmm/38262142-DF46-DF11-8238-0030487C6A90.root'
     )
-                            )
+)
 #import os
 #dirname = "/tmp/degrutto/MinBiasMC/"
 #dirlist = os.listdir(dirname)
@@ -31,7 +31,7 @@ process.source = cms.Source("PoolSource",
                 
 
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
