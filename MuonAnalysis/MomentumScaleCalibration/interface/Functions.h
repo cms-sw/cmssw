@@ -1899,7 +1899,7 @@ class backgroundFunctionBase {
   {
     delete functionForIntegral_;
   };
-  virtual double operator()( const double * parval, const double & mass ) const = 0;
+  virtual double operator()( const double * parval, const double & mass, const double & eta ) const = 0;
   virtual int parNum() const { return parNum_; }
   /// This method is used to differentiate parameters among the different functions
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const std::vector<double>::const_iterator & parBgrIt, const std::vector<int>::const_iterator & parBgrOrderIt, const int muonType) = 0;
@@ -1910,6 +1910,7 @@ class backgroundFunctionBase {
                                                   lowerLimit_, upperLimit_, this->parNum_);
     return( backgroundFunctionForIntegral );
   }
+  virtual double fracVsEta(const double * parval, const double & resEta) const { return 1.; }
 
 protected:
   int parNum_;
@@ -1946,7 +1947,8 @@ protected:
     }
     double operator()(const double * mass, const double *) const
     {
-      return( (*function_)(parval_, *mass) );
+      // FIXME: this is a gross approximation. The function should be integrated in eta over the sample.
+      return( (*function_)(parval_, *mass, 0.) );
     }
   protected:
     const backgroundFunctionBase * function_;
@@ -1954,21 +1956,25 @@ protected:
   };
   mutable FunctionForIntegral * functionForIntegral_;
 };
+
 /// Linear
 // -------
-class backgroundFunctionType1 : public backgroundFunctionBase {
+class backgroundFunctionType1 : public backgroundFunctionBase
+{
  public:
   /**
-   * Returns the value of the linear function f(M) = a + b*M for M < -a/b, 0 otherwise. <br>
+   * Returns the value of the linear function f(M) = 1 + b*M for M < -1/b, 0 otherwise. <br>
    * b is chosen to be negative (background decreasing when M increases). <br>
+   * Note that this form describes only cases with a != 0 (keep in mind that the relative height
+   * with respect to the signal is controlled by the fraction parameter).
    */
   backgroundFunctionType1(const double & lowerLimit, const double & upperLimit) :
     backgroundFunctionBase(lowerLimit, upperLimit)
-    { this->parNum_ = 3; }
-  virtual double operator()( const double * parval, const double & mass ) const
+    { this->parNum_ = 2; }
+    virtual double operator()( const double * parval, const double & mass, const double & eta ) const
   {
-    double a = parval[1];
-    double b = parval[2];
+    double a = 1.;
+    double b = parval[1];
 
     double norm = -(a*lowerLimit_ + b*lowerLimit_*lowerLimit_/2.);
 
@@ -1979,15 +1985,15 @@ class backgroundFunctionType1 : public backgroundFunctionBase {
     else return 0;
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const std::vector<double>::const_iterator & parBgrIt, const std::vector<int>::const_iterator & parBgrOrderIt, const int muonType) {
-    double thisStep[] = {0.01, 0.01, 0.01};
+    double thisStep[] = {0.01, 0.01};
     TString thisParName[] = {"Bgr fraction", "Constant", "Linear"};
     if( muonType == 1 ) {
-      double thisMini[] = {0.0,  0., -300.};
-      double thisMaxi[] = {1.0, 300.,   0.};
+      double thisMini[] = {0.0, -300.};
+      double thisMaxi[] = {1.0,    0.};
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parBgrIt, parBgrOrderIt, thisStep, thisMini, thisMaxi, thisParName );
     } else {
-      double thisMini[] = {0.0,  0., -300.};
-      double thisMaxi[] = {1.0, 300.,   0.};
+      double thisMini[] = {0.0, -300.};
+      double thisMaxi[] = {1.0,    0.};
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parBgrIt, parBgrOrderIt, thisStep, thisMini, thisMaxi, thisParName );
     }
   }
@@ -2004,7 +2010,7 @@ class backgroundFunctionType2 : public backgroundFunctionBase {
   backgroundFunctionType2(const double & lowerLimit, const double & upperLimit) :
     backgroundFunctionBase(lowerLimit, upperLimit)
     { this->parNum_ = 2; }
-  virtual double operator()( const double * parval, const double & mass ) const
+  virtual double operator()( const double * parval, const double & mass, const double & eta ) const
   {
     double Bgrp2 = parval[1];
     double norm = -(exp(-Bgrp2*upperLimit_) - exp(-Bgrp2*lowerLimit_))/Bgrp2;
@@ -2024,6 +2030,19 @@ class backgroundFunctionType2 : public backgroundFunctionBase {
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parBgrIt, parBgrOrderIt, thisStep, thisMini, thisMaxi, thisParName );
     }
   }
+
+
+
+
+  // virtual double fracVsEta(const double * parval, const double & resEta) const
+  // {
+  //   // return( 0.6120 - 0.0225*eta*eta );
+  //   return( 1. - 0.0225*resEta*resEta ); // so that a = 1 for eta = 0.
+  // }
+
+
+
+
 };
 ///// Constant + Exponential
 //// -------------------------------------------------------------------------------- //
@@ -2074,6 +2093,89 @@ class backgroundFunctionType2 : public backgroundFunctionBase {
 //  }
 //  virtual TF1* functionForIntegral(const std::vector<double>::const_iterator & parBgrIt) const {return 0;};
 //};
+
+
+
+/// Exponential with eta dependence
+// --------------------------------
+class backgroundFunctionType4 : public backgroundFunctionBase
+{
+ public:
+  /**
+   * In case of an exponential, we normalize it such that it has integral in any window
+   * equal to unity, and then, when adding together all the resonances, one gets a meaningful
+   * result for the overall background fraction.
+   */
+  backgroundFunctionType4(const double & lowerLimit, const double & upperLimit) :
+    backgroundFunctionBase(lowerLimit, upperLimit)
+    { this->parNum_ = 4; }
+  virtual double operator()( const double * parval, const double & mass, const double & eta ) const
+  {
+    double Bgrp2 = parval[1] + parval[2]*eta*eta;
+    double norm = -(exp(-Bgrp2*upperLimit_) - exp(-Bgrp2*lowerLimit_))/Bgrp2;
+    if( norm != 0 ) return exp(-Bgrp2*mass)/norm;
+    else return 0.;
+  }
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const std::vector<double>::const_iterator & parBgrIt, const std::vector<int>::const_iterator & parBgrOrderIt, const int muonType) {
+    double thisStep[] = {0.01, 0.01, 0.01, 0.01};
+    TString thisParName[] = {"Bgr fraction", "Bgr slope", "Bgr slope eta^2 dependence", "background fraction eta dependence"};
+    if( muonType == 1 ) {
+      double thisMini[] = {0.0, 0.,   0., -1.};
+      double thisMaxi[] = {1.0, 10., 10.,  1.};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parBgrIt, parBgrOrderIt, thisStep, thisMini, thisMaxi, thisParName );
+    } else {
+      double thisMini[] = {0.0, 0., -1., -1.};
+      double thisMaxi[] = {1.0, 10., 1.,  1.};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parBgrIt, parBgrOrderIt, thisStep, thisMini, thisMaxi, thisParName );
+    }
+  }
+  virtual double fracVsEta(const double * parval, const double & resEta) const
+  {
+    return( 1. - parval[3]*resEta*resEta ); // so that a = 1 for eta = 0.
+  }
+};
+
+/// Linear with eta dependence
+// ---------------------------
+class backgroundFunctionType5 : public backgroundFunctionBase
+{
+ public:
+  /**
+   * Returns the value of the linear function f(M) = a + b*M for M < -a/b, 0 otherwise. <br>
+   * Where a = 1 + c*eta*eta and b is chosen to be negative (background decreasing when M increases).
+   */
+  backgroundFunctionType5(const double & lowerLimit, const double & upperLimit) :
+    backgroundFunctionBase(lowerLimit, upperLimit)
+    { this->parNum_ = 3; }
+    virtual double operator()( const double * parval, const double & mass, const double & eta ) const
+  {
+    double b = parval[1];
+    // double c = parval[2];
+    double a = 1 + parval[2]*eta*eta;
+
+    double norm = -(a*lowerLimit_ + b*lowerLimit_*lowerLimit_/2.);
+
+    if( -a/b > upperLimit_ ) norm += a*upperLimit_ + b*upperLimit_*upperLimit_/2.;
+    else norm += -a*a/(2*b);
+
+    if( mass < -a/b && norm != 0 ) return (a + b*mass)/norm;
+    else return 0;
+  }
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const std::vector<double>::const_iterator & parBgrIt, const std::vector<int>::const_iterator & parBgrOrderIt, const int muonType) {
+    double thisStep[] = {0.01, 0.01, 0.01};
+    TString thisParName[] = {"Bgr fraction", "Constant", "Linear"};
+    if( muonType == 1 ) {
+      double thisMini[] = {0.0,  0., -300.};
+      double thisMaxi[] = {1.0, 300.,   0.};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parBgrIt, parBgrOrderIt, thisStep, thisMini, thisMaxi, thisParName );
+    } else {
+      double thisMini[] = {0.0,  0., -300.};
+      double thisMaxi[] = {1.0, 300.,   0.};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parBgrIt, parBgrOrderIt, thisStep, thisMini, thisMaxi, thisParName );
+    }
+  }
+};
+
 
 /// Service to build the background functor corresponding to the passed identifier
 backgroundFunctionBase * backgroundFunctionService( const int identifier, const double & lowerLimit, const double & upperLimit );

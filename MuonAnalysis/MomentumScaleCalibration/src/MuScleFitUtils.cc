@@ -1,7 +1,7 @@
 /** See header file for a class description
  *
- *  $Date: 2010/04/15 16:01:28 $
- *  $Revision: 1.35 $
+ *  $Date: 2010/05/10 09:47:12 $
+ *  $Revision: 1.36 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -273,7 +273,7 @@ std::pair<SimTrack,SimTrack> MuScleFitUtils::findBestSimuRes (const std::vector<
       double Y = ((*simMu1).momentum()+(*simMu2).momentum()).Rapidity();
       for (int ires=0; ires<6; ires++) {
 	if (resfind[ires]>0) {
-	  double prob = massProb (mcomb, Y, ires, 0.);
+	  double prob = massProb( mcomb, Y, ires, 0. );
 	  if (prob>maxprob) {
 	    simMuFromBestRes.first = (*simMu1);
 	    simMuFromBestRes.second = (*simMu2);
@@ -310,11 +310,6 @@ std::pair<lorentzVector,lorentzVector> MuScleFitUtils::findBestRecoRes( const st
       if (((*Muon1).charge()*(*Muon2).charge())>0) {
 	continue; // This also gets rid of Muon1==Muon2...
       }
-      // // Accept combinations only if both muons have |eta|<maxMuonEta_ and pt>minMuonPt_
-      // // -------------------------------------------------------------------------------
-      // if( (*Muon1).p4().Pt() > minMuonPt_ && (*Muon2).p4().Pt() > minMuonPt_ &&
-      //     fabs((*Muon1).p4().Eta()) < maxMuonEta_ && fabs((*Muon2).p4().Eta()) < maxMuonEta_ ) {
-
       // To allow the selection of ranges at negative and positive eta independently we define two
       // ranges of eta: (minMuonEtaFirstRange_, maxMuonEtaFirstRange_) and (minMuonEtaSecondRange_, maxMuonEtaSecondRange_).
       // If the interval selected is simmetric, one only needs to specify the first range. The second has
@@ -323,14 +318,6 @@ std::pair<lorentzVector,lorentzVector> MuScleFitUtils::findBestRecoRes( const st
       double pt2 = (*Muon2).p4().Pt();
       double eta1 = (*Muon1).p4().Eta();
       double eta2 = (*Muon2).p4().Eta();
-      // std::cout << "eta1 = " << eta1 << ", eta2 = " << eta2 << ", minMuonEtaFirstRange_ = " << minMuonEtaFirstRange_ << ", maxMuonEtaFirstRange_ = " << maxMuonEtaFirstRange_ << ", minMuonEtaSecondRange_ = " << minMuonEtaSecondRange_ << ", maxMuonEtaSecondRange_ = " << maxMuonEtaSecondRange_ << std::endl;
-      // bool pt1Cut = (pt1 > minMuonPt_ && pt1 < maxMuonPt_);
-      // bool pt2Cut = (pt2 > minMuonPt_ && pt2 < maxMuonPt_);
-      // bool eta1CutFirstRange = (eta1 > minMuonEtaFirstRange_ && eta1 < maxMuonEtaFirstRange_);
-      // bool eta2CutFirstRange = (eta2 > minMuonEtaFirstRange_ && eta2 < maxMuonEtaFirstRange_);
-      // bool eta1CutSecondRange = (eta1 > minMuonEtaSecondRange_ && eta1 < maxMuonEtaSecondRange_);
-      // bool eta2CutSecondRange = (eta2 > minMuonEtaSecondRange_ && eta2 < maxMuonEtaSecondRange_);
-      // if( pt1Cut && pt2Cut && eta1CutFirstRange && eta2CutFirstRange && eta1CutSecondRange && eta2CutSecondRange ) {
       if( pt1 > minMuonPt_ && pt1 < maxMuonPt_ &&
           pt2 > minMuonPt_ && pt2 < maxMuonPt_ &&
           eta1 > minMuonEtaFirstRange_ && eta1 < maxMuonEtaFirstRange_ &&
@@ -338,7 +325,7 @@ std::pair<lorentzVector,lorentzVector> MuScleFitUtils::findBestRecoRes( const st
           eta1 > minMuonEtaSecondRange_ && eta1 < maxMuonEtaSecondRange_ &&
           eta2 > minMuonEtaSecondRange_ && eta2 < maxMuonEtaSecondRange_ ) {
         double mcomb = ((*Muon1).p4()+(*Muon2).p4()).mass();
-        double Y = ((*Muon1).p4()+(*Muon2).p4()).Eta();
+        double Y = ((*Muon1).p4()+(*Muon2).p4()).Rapidity();
         if (debug>1) {
           std::cout<<"muon1 "<<(*Muon1).p4().Px()<<", "<<(*Muon1).p4().Py()<<", "<<(*Muon1).p4().Pz()<<", "<<(*Muon1).p4().E()<<std::endl;
           std::cout<<"muon2 "<<(*Muon2).p4().Px()<<", "<<(*Muon2).p4().Py()<<", "<<(*Muon2).p4().Pz()<<", "<<(*Muon2).p4().E()<<std::endl;
@@ -795,7 +782,7 @@ double MuScleFitUtils::massResolution( const lorentzVector& mu1,
 
 // Mass probability - version with linear background included, accepts std::vector<double> parval
 // -----------------------------------------------------------------------------------------
-double MuScleFitUtils::massProb( const double & mass, const double & rapidity, const double & massResol, const std::vector<double> & parval, const bool doUseBkgrWindow )
+double MuScleFitUtils::massProb( const double & mass, const double & resEta, const double & rapidity, const double & massResol, const std::vector<double> & parval, const bool doUseBkgrWindow )
 {
 #ifdef USE_CALLGRIND
   CALLGRIND_START_INSTRUMENTATION;
@@ -813,7 +800,7 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
     p[id] = *it;
   }
   // p must be passed by value as below:
-  double massProbability = massProb (mass, rapidity, massResol, p, doUseBkgrWindow);
+  double massProbability = massProb( mass, resEta, rapidity, massResol, p, doUseBkgrWindow );
   delete[] p;
 
 #ifdef USE_CALLGRIND
@@ -960,9 +947,7 @@ double MuScleFitUtils::probability( const double & mass, const double & massReso
 
 // Mass probability - version with linear background included
 // ----------------------------------------------------------
-double MuScleFitUtils::massProb( const double & mass, const double & rapidity, const double & massResol, double * parval, const bool doUseBkgrWindow ) {
-
-  // double MuScleFitUtils::massProb (double mass, double massResol,  std::auto_ptr<double> parval) {
+double MuScleFitUtils::massProb( const double & mass, const double & resEta, const double & rapidity, const double & massResol, double * parval, const bool doUseBkgrWindow ) {
 
   // This routine computes the likelihood that a given measured mass "measMass" is
   // the result of a reference mass ResMass[] if the resolution
@@ -1092,8 +1077,8 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
       }
 
       std::pair<double, double> bgrResult = backgroundHandler->backgroundFunction( doBackgroundFit[loopCounter],
-                                                                              &(parval[bgrParShift]), MuScleFitUtils::totalResNum, 0,
-                                                                              resConsidered, ResMass, ResHalfWidth, MuonType, mass, nbins );
+										   &(parval[bgrParShift]), MuScleFitUtils::totalResNum, 0,
+										   resConsidered, ResMass, ResHalfWidth, MuonType, mass, resEta );
       Bgrp1 = bgrResult.first;
       // When fitting the background we have only one Bgrp1
       // When not fitting the background we have many only in a superposition region and this case is treated
@@ -1130,8 +1115,8 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
         PS[ires] = probability(mass, massResol, GLValue, GLNorm, ires, ires);
 
         std::pair<double, double> bgrResult = backgroundHandler->backgroundFunction( doBackgroundFit[loopCounter],
-                                                                                &(parval[bgrParShift]), MuScleFitUtils::totalResNum, ires,
-                                                                                resConsidered, ResMass, ResHalfWidth, MuonType, mass, nbins );
+										     &(parval[bgrParShift]), MuScleFitUtils::totalResNum, ires,
+										     resConsidered, ResMass, ResHalfWidth, MuonType, mass, resEta );
         Bgrp1 = bgrResult.first;
         PB = bgrResult.second;
 
@@ -1815,6 +1800,7 @@ extern "C" void likelihood( int& npar, double* grad, double& fval, double* xval,
       }
       double corrMass = MuScleFitUtils::invDimuonMass(corrMu1, corrMu2);
       double Y = (corrMu1+corrMu2).Rapidity();
+      double resEta = (corrMu1+corrMu2).Eta();
       if( MuScleFitUtils::debug>19 ) {
 	std::cout << "[MuScleFitUtils-likelihood]: Original/Corrected resonance mass = " << mass
 	     << " / " << corrMass << std::endl;
@@ -1830,7 +1816,7 @@ extern "C" void likelihood( int& npar, double* grad, double& fval, double* xval,
       // --------------------------------------------------------------------
       if (MuScleFitUtils::debug>1) std::cout << "calling massProb inside likelihood function" << std::endl;
 
-      double prob = MuScleFitUtils::massProb( corrMass, Y, massResol, xval );
+      double prob = MuScleFitUtils::massProb( corrMass, resEta, Y, massResol, xval );
       if (MuScleFitUtils::debug>1) std::cout << "likelihood:massProb = " << prob << std::endl;
 
       // Compute likelihood

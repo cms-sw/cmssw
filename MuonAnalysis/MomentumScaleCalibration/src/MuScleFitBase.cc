@@ -12,9 +12,13 @@ void MuScleFitBase::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
   double minMass = 0.;
   double maxMass = 200.;
   double maxPt = 100.;
+  double yMaxEta = 4.;
+  double yMaxPt = 2.;
   if( MuScleFitUtils::resfind[0] != 1 ) {
     maxMass = 20.;
     maxPt = 20.;
+    yMaxEta = 0.2;
+    yMaxPt = 0.2;
   }
 
   LogDebug("MuScleFitBase") << "Creating new histograms" << std::endl;
@@ -29,6 +33,7 @@ void MuScleFitBase::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
   //mapHisto_["hRecBestRes_Acc"] = new HParticle   ("hRecBestRes_Acc", minMass, maxMass);
   // If not finding Z, use a smaller mass window
   mapHisto_["hRecBestResVSMu"] = new HMassVSPart ("hRecBestResVSMu", minMass, maxMass, maxPt);
+  mapHisto_["hRecBestResVSRes"] = new HMassVSPart ("hRecBestResVSRes", minMass, maxMass, maxPt);
   //Generated Mass versus pt
   mapHisto_["hGenResVSMu"] = new HMassVSPart ("hGenResVSMu", minMass, maxMass, maxPt);
   // Likelihood values VS muon variables
@@ -39,10 +44,10 @@ void MuScleFitBase::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
 
   //Resolution VS muon kinematic
   //----------------------------
-  mapHisto_["hResolMassVSMu"]         = new HResolutionVSPart( outputFile, "hResolMassVSMu", maxPt, 0, 4 );
+  mapHisto_["hResolMassVSMu"]         = new HResolutionVSPart( outputFile, "hResolMassVSMu", maxPt, 0., yMaxEta, 0., yMaxPt );
   mapHisto_["hFunctionResolMassVSMu"] = new HResolutionVSPart( outputFile, "hFunctionResolMassVSMu", maxPt, 0, 0.1, 0, 0.1, true );
-  mapHisto_["hResolPtGenVSMu"]        = new HResolutionVSPart( outputFile, "hResolPtGenVSMu", maxPt );
-  mapHisto_["hResolPtSimVSMu"]        = new HResolutionVSPart( outputFile, "hResolPtSimVSMu", maxPt );
+  mapHisto_["hResolPtGenVSMu"]        = new HResolutionVSPart( outputFile, "hResolPtGenVSMu", maxPt, -0.1, 0.1, -0.1, 0.1 );
+  mapHisto_["hResolPtSimVSMu"]        = new HResolutionVSPart( outputFile, "hResolPtSimVSMu", maxPt, -0.1, 0.1, -0.1, 0.1 );
   mapHisto_["hResolEtaGenVSMu"]       = new HResolutionVSPart( outputFile, "hResolEtaGenVSMu", maxPt, -0.02, 0.02, -0.02, 0.02 );
   mapHisto_["hResolEtaSimVSMu"]       = new HResolutionVSPart( outputFile, "hResolEtaSimVSMu", maxPt, -0.02, 0.02, -0.02, 0.02 );
   mapHisto_["hResolThetaGenVSMu"]     = new HResolutionVSPart( outputFile, "hResolThetaGenVSMu", maxPt, -0.02, 0.02, -0.02, 0.02 );
@@ -61,11 +66,11 @@ void MuScleFitBase::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
     mapHisto_["hdMdCotgTh2"] = new HResolutionVSPart( outputFile, "hdMdCotgTh2", maxPt, 0, 100, -3.2, 3.2, true );
   }
 
-  HTH2D * recoGenHisto = new HTH2D(outputFile, "hPtRecoVsPtGen", "Pt reco vs Pt gen", 120, 0., 120., 120, 0, 120.);
+  HTH2D * recoGenHisto = new HTH2D(outputFile, "hPtRecoVsPtGen", "Pt reco vs Pt gen", "hPtRecoVsPtGen", 120, 0., 120., 120, 0, 120.);
   (*recoGenHisto)->SetXTitle("Pt gen (GeV)");
   (*recoGenHisto)->SetYTitle("Pt reco (GeV)");
   mapHisto_["hPtRecoVsPtGen"] = recoGenHisto;
-  HTH2D * recoSimHisto = new HTH2D(outputFile, "hPtRecoVsPtSim", "Pt reco vs Pt sim", 120, 0., 120., 120, 0, 120.);
+  HTH2D * recoSimHisto = new HTH2D(outputFile, "hPtRecoVsPtSim", "Pt reco vs Pt sim", "hPtRecoVsPtSim", 120, 0., 120., 120, 0, 120.);
   (*recoSimHisto)->SetXTitle("Pt sim (GeV)");
   (*recoSimHisto)->SetYTitle("Pt reco (GeV)");
   mapHisto_["hPtRecoVsPtSim"] = recoSimHisto;
@@ -82,10 +87,14 @@ void MuScleFitBase::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
   mapHisto_["hMass_fine_P"] = new HTProfile( outputFile, "Mass_fine_P", "Mass probability", 4000, 0., 20., 0., 50. );
   mapHisto_["hMass_Probability"]      = new HTH1D( outputFile, "Mass_Probability", "Mass probability", 4000, 0., 200.);
   mapHisto_["hMass_fine_Probability"] = new HTH1D( outputFile, "Mass_fine_Probability", "Mass probability", 4000, 0., 20.);
+  mapHisto_["hMassProbVsMu"] = new HMassVSPartProfile( "hMassProbVsMu", minMass, maxMass, maxPt );
+  mapHisto_["hMassProbVsRes"] = new HMassVSPartProfile( "hMassProbVsRes", minMass, maxMass, maxPt );
+  mapHisto_["hMassProbVsMu_fine"] = new HMassVSPartProfile( "hMassProbVsMu_fine", minMass, maxMass, maxPt );
+  mapHisto_["hMassProbVsRes_fine"] = new HMassVSPartProfile( "hMassProbVsRes_fine", minMass, maxMass, maxPt );
 
   // (M_reco-M_gen)/M_gen vs (pt, eta) of the muons from MC
-  mapHisto_["hDeltaMassOverGenMassVsPt"] = new HTH2D( outputFile, "DeltaMassOverGenMassVsPt", "DeltaMassOverGenMassVsPt", 200, 0, maxPt, 200, -1., 1. );
-  mapHisto_["hDeltaMassOverGenMassVsEta"] = new HTH2D( outputFile, "DeltaMassOverGenMassVsEta", "DeltaMassOverGenMassVsEta", 60, -3.2, 3.2, 200, -1., 1. );
+  mapHisto_["hDeltaMassOverGenMassVsPt"] = new HTH2D( outputFile, "DeltaMassOverGenMassVsPt", "DeltaMassOverGenMassVsPt", "DeltaMassOverGenMass", 200, 0, maxPt, 200, -1., 1. );
+  mapHisto_["hDeltaMassOverGenMassVsEta"] = new HTH2D( outputFile, "DeltaMassOverGenMassVsEta", "DeltaMassOverGenMassVsEta", "DeltaMassOverGenMass", 60, -3.2, 3.2, 200, -1., 1. );
 
   // Square of mass resolution vs (pt, eta) of the muons from MC
   mapHisto_["hMassResolutionVsPtEta"] = new HCovarianceVSxy( "Mass", "Mass", 100, 0., maxPt, 60, -3, 3, outputFile->mkdir("MassCovariance") );

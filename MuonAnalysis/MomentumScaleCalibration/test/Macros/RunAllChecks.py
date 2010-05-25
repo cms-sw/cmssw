@@ -51,7 +51,7 @@ gROOT.ProcessLine( "macroPlot("+arguments("PhiMinus", resonanceType, fileNum1, f
 # The third parameter is an integer defining the minimum number of entries required to perform a fit
 gROOT.ProcessLine(".x "+macrosDir+"ResolDraw.cc+("+firstFile+", false, 100)")
 gROOT.ProcessLine(".x "+macrosDir+"ResolDraw.cc+("+secondFile+", false, 100)")
-gROOT.ProcessLine(".x "+macrosDir+"ResolCompare.cc("+firstFile+", "+secondFile+")")
+gROOT.ProcessLine(".x "+macrosDir+"ResolCompare.cc("+firstFile+", "+secondFile+", true)")
 # os.system("root -l "+macrosDir+"ResolCompare.cc")
 
 # Pt reco vs Pt gen

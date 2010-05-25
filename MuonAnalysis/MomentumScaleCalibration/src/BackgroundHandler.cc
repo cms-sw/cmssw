@@ -202,6 +202,9 @@ void BackgroundHandler::rescale( std::vector<double> & parBgr, const double * Re
       if( Nrw != 0 ) parBgr[parNumsResonances_[index]] = kOld*Nbw/Nrw*Irw;
       else parBgr[parNumsResonances_[index]] = 0.;
 
+      // Protect against fluctuations of number of events which could cause the fraction to go above 1.
+      if( parBgr[parNumsResonances_[index]] > 1. ) parBgr[parNumsResonances_[index]] = 1.;
+
       double kNew = parBgr[parNumsResonances_[index]];
       std::cout << "For resonance = " << index << std::endl;
       std::cout << "backgroundWindow.lowerBound = " << backgroundWindow.lowerBound() << std::endl;
@@ -221,17 +224,17 @@ void BackgroundHandler::rescale( std::vector<double> & parBgr, const double * Re
 std::pair<double, double> BackgroundHandler::backgroundFunction( const bool doBackgroundFit,
 								 const double * parval, const int resTotNum, const int ires,
 								 const bool * resConsidered, const double * ResMass, const double ResHalfWidth[],
-								 const int MuonType, const double & mass, const int nbins )
+								 const int MuonType, const double & mass, const double & resEta )
 {
   if( doBackgroundFit ) {
     // Return the values for the region
     int iReg = resToReg_[ires];
-    return std::make_pair( parval[parNumsRegions_[iReg]],
-			   (*(backgroundWindow_[iReg].backgroundFunction()))( &(parval[parNumsRegions_[iReg]]), mass ) );
+    return std::make_pair( parval[parNumsRegions_[iReg]] * backgroundWindow_[iReg].backgroundFunction()->fracVsEta(&(parval[parNumsRegions_[iReg]]), resEta),
+			   (*(backgroundWindow_[iReg].backgroundFunction()))( &(parval[parNumsRegions_[iReg]]), mass, resEta ) );
   }
   // Return the values for the resonance
-  return std::make_pair( parval[parNumsResonances_[ires]],
-			 (*(resonanceWindow_[ires].backgroundFunction()))( &(parval[parNumsResonances_[ires]]), mass ) );
+  return std::make_pair( parval[parNumsResonances_[ires]] * resonanceWindow_[ires].backgroundFunction()->fracVsEta(&(parval[parNumsResonances_[ires]]), resEta),
+			 (*(resonanceWindow_[ires].backgroundFunction()))( &(parval[parNumsResonances_[ires]]), mass, resEta ) );
 }
 
 void BackgroundHandler::countEventsInAllWindows(const std::vector<std::pair<reco::Particle::LorentzVector,reco::Particle::LorentzVector> > & muonPairs,

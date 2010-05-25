@@ -145,6 +145,8 @@ void CompareRecoGenPt( const TString & fileNum1 = "0",
   TFile * outputFile = new TFile("CompareRecoGenPt.root", "RECREATE");
 
   TProfile * profile1 = getHistogram( fileNum1+"_MuScleFit.root" );
+  profile1->SetXTitle("gen muon Pt (GeV)");
+  profile1->SetYTitle("reco muon Pt (GeV)");
   TProfile * profile2 = getHistogram( fileNum2+"_MuScleFit.root" );
 
   int xBins = profile1->GetNbinsX();

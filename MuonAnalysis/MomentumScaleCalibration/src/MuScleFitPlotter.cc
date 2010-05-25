@@ -1,8 +1,8 @@
 //  \class MuScleFitPlotter
 //  Plotter for simulated,generated and reco info of muons
 //
-//  $Date: 2010/03/18 15:11:23 $
-//  $Revision: 1.16 $
+//  $Date: 2010/03/29 18:15:57 $
+//  $Revision: 1.17 $
 //  \author  C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 // ----------------------------------------------------------------------------------
@@ -341,14 +341,14 @@ void MuScleFitPlotter::fillHistoMap() {
 
   // Generated Z and muons
   // ---------------------
-  mapHisto["hGenResJPsi"]      = new HParticle   ("hGenResJPsi", 3.09685, 3.09695);
+  mapHisto["hGenResJPsi"]      = new HParticle   ("hGenResJPsi", 3., 3.1);
   mapHisto["hGenResUpsilon1S"] = new HParticle   ("hGenResUpsilon1S", 9., 11.);
   mapHisto["hGenResZ"]         = new HParticle   ("hGenResZ", 60., 120.);
   mapHisto["hGenMu"]      = new HParticle  ("hGenMu");
   mapHisto["hGenMuVSEta"] = new HPartVSEta ("hGenMuVSEta");
 
-  mapHisto["hGenMuMuJPsi"]      = new HParticle   ("hGenMuMuJPsi",3.09685, 3.09695 );
-  mapHisto["hGenResVSMuJPsi"]   = new HMassVSPart ("hGenResVSMuJPsi",3.09685, 3.09695);
+  mapHisto["hGenMuMuJPsi"]      = new HParticle   ("hGenMuMuJPsi",3., 3.1 );
+  mapHisto["hGenResVSMuJPsi"]   = new HMassVSPart ("hGenResVSMuJPsi",3., 3.1);
   mapHisto["hGenMuMuUpsilon1S"]      = new HParticle   ("hGenMuMuUpsilon1S", 9., 11.);
   mapHisto["hGenResVSMuUpsilon1S"]   = new HMassVSPart ("hGenResVSMuUpsilon1S", 9., 11.);
   mapHisto["hGenMuMuZ"]      = new HParticle   ("hGenMuMuZ", 60., 120.);

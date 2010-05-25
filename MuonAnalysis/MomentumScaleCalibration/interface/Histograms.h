@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2010/03/29 18:15:56 $
- *  $Revision: 1.21 $
+ *  $Date: 2010/04/29 14:35:44 $
+ *  $Revision: 1.22 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -21,6 +21,7 @@
 #include "TFile.h"
 #include "TString.h"
 #include "TProfile.h"
+#include "TProfile2D.h"
 #include "TF1.h"
 #include "TGraphErrors.h"
 #include "TFile.h"
@@ -38,14 +39,18 @@ public:
   // Constructor
   // -----------
   Histograms() : theWeight_(1), histoDir_(0) {};
-  Histograms( const TString & name ) : theWeight_(1), name_(name), histoDir_(0) {};
+  Histograms( const TString & name ) : theWeight_(1), name_(name), histoDir_(0) {}
   Histograms( TFile * outputFile, const TString & name ) :
     theWeight_(1),
     name_(name),
     outputFile_(outputFile),
-    histoDir_( outputFile->mkdir(name) ) {
+    histoDir_( outputFile->GetDirectory(name) )
+  {
+    if( histoDir_ == 0 ) {
+      histoDir_ = outputFile->mkdir(name);
+    }
     histoDir_->cd();
-  };
+  }
 
   // Destructor
   // ----------
@@ -110,9 +115,9 @@ private:
 class HTH2D : public Histograms
 {
 public:
-  HTH2D( TFile * outputFile, const TString & name, const TString & title,
+  HTH2D( TFile * outputFile, const TString & name, const TString & title, const TString & dirName,
          const int xBins, const double & xMin, const double & xMax,
-         const int yBins, const double & yMin, const double & yMax ) : Histograms(outputFile, name),
+         const int yBins, const double & yMin, const double & yMax ) : Histograms(outputFile, dirName),
                                                                        tH2d_( new TH2D(name, title, xBins, xMin, xMax, yBins, yMin, yMax) ),
                                                                        tProfile_( new TProfile(name+"Prof", title+" profile", xBins, xMin, xMax, yMin, yMax) ) {}
   ~HTH2D() {
@@ -774,14 +779,87 @@ class HMassVSPart : public Histograms
   //TProfile* hMassVSPhiMinus_prof_;
 };
 
+
+// ---------------------------------------------------
+// A set of histograms of Z mass versus muon variables
+class HMassVSPartProfile : public Histograms
+{
+ public:
+  HMassVSPartProfile( const TString & name, const double & minMass = 0., const double & maxMass = 150., const double maxPt = 100. ) {
+    name_ = name;
+
+    // Kinematical variables
+    // ---------------------
+    hMassVSPt_       = new TProfile2D( name+"_MassVSPt", "resonance mass vs muon transverse momentum", 200, 0., maxPt, 6000, minMass, maxMass, 0., 100. );
+    hMassVSEta_      = new TProfile2D( name+"_MassVSEta", "resonance mass vs muon pseudorapidity", 60, -6., 6., 6000, minMass, maxMass, 0., 100. );
+    hMassVSPhiPlus_  = new TProfile2D( name+"_MassVSPhiPlus", "resonance mass vs muon+ phi angle", 64, -3.2, 3.2, 6000, minMass, maxMass, 0., 100. );
+    hMassVSPhiMinus_ = new TProfile2D( name+"_MassVSPhiMinus", "resonance mass vs muon- phi angle", 64, -3.2, 3.2, 6000, minMass, maxMass, 0., 100. );
+   }
+
+  HMassVSPartProfile(const TString & name, TFile* file){
+    name_=name;
+    hMassVSPt_       = (TProfile2D *) file->Get(name+"_MassVSPt");
+    hMassVSEta_      = (TProfile2D *) file->Get(name+"_MassVSEta");
+    hMassVSPhiPlus_  = (TProfile2D *) file->Get(name+"_MassVSPhiPlus");
+    hMassVSPhiMinus_ = (TProfile2D *) file->Get(name+"_MassVSPhiMinus");
+  }
+
+  ~HMassVSPartProfile(){
+    delete hMassVSPt_;
+    delete hMassVSEta_;
+    delete hMassVSPhiPlus_;
+    delete hMassVSPhiMinus_;
+  }
+
+  virtual void Fill(const reco::Particle::LorentzVector & p41, const reco::Particle::LorentzVector & p42, const int charge, const double & weight = 1.) {
+    Fill(CLHEP::HepLorentzVector(p41.x(),p41.y(),p41.z(),p41.t()),
+	 CLHEP::HepLorentzVector(p42.x(),p42.y(),p42.z(),p42.t()), charge, weight);
+  }
+  
+  virtual void Fill(const CLHEP::HepLorentzVector & momentum1, const CLHEP::HepLorentzVector & momentum2, const int charge, const double & weight = 1.) { 
+    hMassVSPt_->Fill(momentum1.perp(),momentum2.m(), weight); 
+    hMassVSEta_->Fill(momentum1.eta(),momentum2.m(), weight); 
+    if(charge>0){
+      hMassVSPhiPlus_->Fill(momentum1.phi(), momentum2.m(), weight);
+    }
+    else if(charge<0){
+      hMassVSPhiMinus_->Fill(momentum1.phi(), momentum2.m(), weight);
+    }
+    else {
+      LogDebug("Histograms") << "HMassVSPartProfile: wrong charge value = " << charge << std::endl;
+      abort();
+    }
+  }
+
+  virtual void Write() {
+    hMassVSPt_->Write();
+    hMassVSEta_->Write();
+    hMassVSPhiPlus_->Write();
+    hMassVSPhiMinus_->Write();
+  }
+
+  virtual void Clear() {
+    hMassVSPt_->Clear();
+    hMassVSEta_->Clear();    
+    hMassVSPhiPlus_->Clear();
+    hMassVSPhiMinus_->Clear();
+  }
+
+ protected:
+  TProfile2D* hMassVSPt_;
+  TProfile2D* hMassVSEta_;
+  TProfile2D* hMassVSPhiPlus_; 
+  TProfile2D* hMassVSPhiMinus_; 
+};
+
 //---------------------------------------------------------------------------------------
 /// A set of histograms for resolution
 class HResolutionVSPart : public Histograms
 {
  public:
   HResolutionVSPart(TFile * outputFile, const TString & name, const double maxPt = 100,
-                    const double & yMinEta = -1, const double & yMaxEta = 2,
-                    const double & yMinPt = -1, const double & yMaxPt = 2,
+                    const double & yMinEta = 0., const double & yMaxEta = 2.,
+                    const double & yMinPt = 0., const double & yMaxPt = 2.,
                     const bool doProfiles = false) : Histograms(outputFile, name), doProfiles_(doProfiles)
   {
     // Kinematical variables

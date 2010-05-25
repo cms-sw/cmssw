@@ -5,8 +5,8 @@
  *
  *  Provide basic functionalities useful for MuScleFit
  *
- *  $Date: 2010/04/15 15:59:56 $
- *  $Revision: 1.21 $
+ *  $Date: 2010/05/10 09:46:51 $
+ *  $Revision: 1.22 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo - INFN Padova
  */
 
@@ -81,9 +81,8 @@ public:
   static double massResolution( const lorentzVector & mu1, const lorentzVector & mu2, double* parval );
 
   static double massProb( const double & mass, const double & rapidity, const int ires, const double & massResol );
-  static double massProb( const double & mass, const double & rapidity, const double & massResol, const std::vector<double> & parval, const bool doUseBkgrWindow = false );
-  // static double massProb( const double & mass, const double & rapidity, const double & massResol, std::auto_ptr<double> parval );
-  static double massProb( const double & mass, const double & rapidity, const double & massResol, double * parval, const bool doUseBkgrWindow = false );
+  static double massProb( const double & mass, const double & resEta, const double & rapidity, const double & massResol, const std::vector<double> & parval, const bool doUseBkgrWindow = false );
+  static double massProb( const double & mass, const double & resEta, const double & rapidity, const double & massResol, double * parval, const bool doUseBkgrWindow = false );
   static double computeWeight( const double & mass, const int iev, const bool doUseBkgrWindow = false );
 
   static double deltaPhi( const double & phi1, const double & phi2 )
