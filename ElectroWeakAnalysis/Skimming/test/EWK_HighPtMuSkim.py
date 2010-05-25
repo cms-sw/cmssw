@@ -23,14 +23,21 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 # Muon filter
 process.goodMuons = cms.EDFilter("CandViewSelector",
   src = cms.InputTag("muons"),
-  cut = cms.string('pt > 15.0 && abs(innerTrack().dxy)<1.0 &&
-  ( isGlobalMuon=1 || (isTrackerMuon =1  && numberOfMatches>=1 ))')
+  cut = cms.string('pt > 15.0 && ( isGlobalMuon=1 || (isTrackerMuon =1  && numberOfMatches>=1 ))')
   filter = cms.bool(True)
+)
+
+# dxy filter on good muons
+process.dxyFilteredMuons = cms.EDFilter("CandViewSelector",
+  src = cms.InputTag("goodMuons"),
+  cut = cms.string('abs(innerTrack().dxy)<1.0'),
+  filter = cms.bool(True)                                
 )
 
 # Skim path
 process.EWK_HighPtMuSkimPath = cms.Path(
-  process.goodMuons
+  process.goodMuons *
+  process.dxyFilteredMuons
 )
 
 # Output module configuration
@@ -54,7 +61,7 @@ process.EWK_MuSkimOutputModule = cms.OutputModule("PoolOutputModule",
         filterName = cms.untracked.string('EWKHighPtMuSkim'),
         dataTier = cms.untracked.string('USER')
    ),
-   fileName = cms.untracked.string('testEWKHighPtMuSkim.root')
+   fileName = cms.untracked.string('EWK_HighPtMuSkim_SD_Mu.root')
 )
 
 process.outpath = cms.EndPath(process.EWK_MuSkimOutputModule)
