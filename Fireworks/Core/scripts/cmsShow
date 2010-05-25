@@ -27,31 +27,26 @@ if [ ! -n "$SHELLFROMRELEASE" ]; then
   export PATH=${ROOTSYS}/bin:$PATH
 fi
 
-# parse arguments to find ones handled by this script
-softflag=off
-debugflag=off
-rootflag=off
-# NOTE: the while loop removes entries from $@ so need to cache its value
+# NOTE: the shift command at the end of the while loop removes entries from $@
+# so need to cache its value
 originalOptions=$@
 while [ $# -gt 0 ]
 do
     case "$1" in
       --soft)  softflag=on;;
-      -d)  debugflag=on;;
-      --debug) debugflag=on;;
-      --eve) originalOptions="${originalOptions} -r";;
-      --prompt) originalOptions="${originalOptions} -r";;
-      --root-interactive) rootflag=on;;
-      -r) rootflag=on;;
+      -d|--debug) debugflag=on;;
+      -di|--debug-interactive) debuginteractiveflag=on;;
+      --eve|--prompt) originalOptions="${originalOptions} -r";;
+      -r|--root-interactive) rootflag=on;;
     esac
     shift
 done
 
-if [ "$softflag" != "off" ] ; then
+if [ "X$softflag" = "on" ] ; then
   export LIBGL_DRIVERS_PATH=/tmp/
 fi
 
-if [ "$debugflag" != "off" ] ; then
+if [ "X$debugflag" = Xon ] ; then
    tmpfile=`mktemp /tmp/cmsshow-gdb-XXXXXXXX`
    if [ -w . ]; then
       creport=./crash.report
@@ -69,6 +64,8 @@ if [ "$debugflag" != "off" ] ; then
    glxinfo >> $creport
    rm -f $tmpfile
    echo "Crash report saved to '$creport'."
+elif [ "X$debuginteractiveflag" = Xon ] ; then
+  gdb --args $SHELLDIR/cmsShow.exe $originalOptions
 else
    $SHELLDIR/cmsShow.exe $originalOptions
    if [ $? -gt 128 ] ; then
