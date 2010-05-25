@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorDigi.h,v 1.23 2010/03/14 15:32:05 dutta Exp $
+// $Id: SiStripMonitorDigi.h,v 1.25 2010/04/22 16:26:22 dutta Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -19,6 +19,8 @@
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"
 
 class DQMStore;
+class SiStripDCSStatus;
+class SiStripDetCabling;
 
 class SiStripMonitorDigi : public edm::EDAnalyzer {
  public:
@@ -38,7 +40,6 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
     MonitorElement* ADCsCoolestStrip;
     MonitorElement* DigiADCs;
     MonitorElement* StripOccupancy;
-    uint16_t nStrip;	
   };
       
   struct LayerMEs{
@@ -59,6 +60,7 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   };
 
   struct SubDetMEs{
+    int totNDigis;
     MonitorElement* SubDetTotDigiProf;
     MonitorElement* SubDetDigiApvProf;
     MonitorElement* SubDetDigiApvTH2;
@@ -91,19 +93,19 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   std::vector<edm::InputTag> digiProducerList;
   std::map<uint32_t, ModMEs> DigiMEs; // uint32_t me_type: 1=#digis/module; 2=adcs of hottest strip/module; 3= adcs of coolest strips/module.
   bool show_mechanical_structure_view, show_readout_view, show_control_view, select_all_detectors, calculate_strip_occupancy, reset_each_run;
-  unsigned long long m_cacheID_;
 
   std::map<std::string, std::vector< uint32_t > > LayerDetMap;
   std::map<std::string, LayerMEs> LayerMEsMap;
   std::map<std::string, SubDetMEs> SubDetMEsMap;
   std::map<std::string, std::string> SubDetPhasePartMap;
        
-  edm::ESHandle<SiStripDetCabling> SiStripDetCabling_;
   TString name;
   SiStripFolderOrganizer folder_organizer;
   std::map<std::pair<std::string,int32_t>,bool> DetectedLayers;
   std::vector<const edm::DetSetVector<SiStripDigi> *> digi_detset_handles;
 
+  unsigned long long m_cacheID_;
+  edm::ESHandle<SiStripDetCabling> SiStripDetCabling_;
   std::vector<uint32_t> ModulesToBeExcluded_;
 
   TkHistoMap* tkmapdigi;  
@@ -137,6 +139,8 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
 
   edm::InputTag historyProducer_;  
   edm::InputTag apvPhaseProducer_;
+
+  SiStripDCSStatus* dcsStatus_;
 };
 #endif
 

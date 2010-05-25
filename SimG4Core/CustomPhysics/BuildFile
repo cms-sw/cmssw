@@ -1,4 +1,3 @@
-<Flags EDM_PLUGIN=1>
 <export>
  <lib name=SimG4CoreCustomPhysics>
 </export>

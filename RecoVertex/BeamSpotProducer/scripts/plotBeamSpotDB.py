@@ -24,11 +24,15 @@
    -D, --destDB  = DESTDB: destination DB string. online(oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT).
    -i, --initial = INITIAL: First run.
    -f, --final   = FINAL: Last run.
+   -g, --graph : create a TGraphError instead of a TH1 object
    -n, --noplot : Only extract beam spot data, plots are not created..
    -o, --output  = OUTPUT: filename of ROOT file with plots.
-   -t, --tag     = TAG: tag name.
-   -I, --IOVbase = IOVBASE: options: runbase(default), lumibase
+   -p, --payload = PAYLOAD: filename of text file. this output file can be used to create DB payloads.
+   -P, --Print : create PNG plots from canvas.
+   -t, --tag     = TAG: Database tag name.
+   -I, --IOVbase = IOVBASE: options: runbase(default), lumibase, timebase
    -w, --wait : Pause script after plotting a new histograms.
+   -W, --weighted : Create a weighted result for the whole IOV.
    
    Francisco Yumiceva (yumiceva@fnal.gov)
    Fermilab 2010
@@ -51,7 +55,7 @@ except:
         sys.exit()
 
 from ROOT import TFile, TGraphErrors, TGaxis
-from ROOT import TCanvas
+from ROOT import TCanvas, TH1F
 
 #_______________OPTIONS________________
 import optparse
@@ -95,11 +99,42 @@ def parse(docstring, arglist=None):
         raise ParsingError("Cannot parse the option string correctly")
     return p.parse_args(arglist)
 
+def cmp_list_run(a,b):
+    if int(a.IOVfirst) < int(b.IOVfirst): return -1
+    if int(a.IOVfirst) == int(b.IOVfirst): return 0
+    if int(a.IOVfirst) > int(b.IOVfirst): return 1
+
+def cmp_list_lumi(a,b):
+    if int(a.Run) < int(b.Run): return -1
+    if int(a.Run) == int(b.Run):
+	if int(a.IOVfirst) < int(b.IOVfirst): return -1
+	if int(a.IOVfirst) == int(b.IOVfirst): return 0
+	if int(a.IOVfirst) > int(b.IOVfirst): return 1
+    if int(a.Run) > int(b.Run) : return 1
+
+def weight(x1, x1err,x2,x2err):
+    #print "x1 = "+str(x1)+" +/- "+str(x1err)+" x2 = "+str(x2)+" +/- "+str(x2err)
+    x1 = float(x1)
+    x1err = float(x1err)
+    x2 = float(x2)
+    x2err = float(x2err)
+    tmperr = 0.
+    if x1err < 1e-6:
+	x1 = x2/(x2err * x2err)
+	tmperr = 1/(x2err*x2err)
+    else:
+	x1 = x1/(x1err*x1err) + x2/(x2err * x2err)
+	tmperr = 1/(x1err*x1err) + 1/(x2err*x2err)
+    x1 = x1/tmperr
+    x1err = 1/tmperr
+    x1err = math.sqrt(x1err)
+    return (str(x1), str(x1err))
+
 #__________END_OPTIONS_______________________________________________
 
 class BeamSpot:
     def __init__(self):
-        self.type = ""
+        self.Type = -1
         self.X = 0.
 	self.Xerr = 0.
         self.Y = 0.
@@ -113,7 +148,7 @@ class BeamSpot:
         self.dydz = 0.
 	self.dydzerr = 0.
         self.beamWidthX = 0.
-	self.beamWdithXerr = 0.
+	self.beamWidthXerr = 0.
         self.beamWidthY = 0.
 	self.beamWidthYerr = 0.
 	self.EmittanceX = 0.
@@ -121,7 +156,11 @@ class BeamSpot:
 	self.betastar = 0.
 	self.IOVfirst = 0
 	self.IOVlast = 0
+	self.IOVBeginTime = 0
+	self.IOVEndTime = 0
+	self.Run = 0
     def Reset(self):
+	self.Type = -1
 	self.X = self.Y = self.Z = 0.
 	self.Xerr = self.Yerr = self.Zerr = 0.
 	self.sigmaZ = self.sigmaZerr = 0.
@@ -131,7 +170,7 @@ class BeamSpot:
 	self.beamWidthXerr = self.beamWidthYerr = 0.
 	self.EmittanceX = self.EmittanceY = self.betastar = 0.
 	self.IOVfirst = self.IOVlast = 0
-
+	self.Run = 0
 class IOV:
     def __init__(self):
 	self.since = 1
@@ -140,6 +179,56 @@ class IOV:
         self.RunLast  = 1
         self.LumiFirst = 1
         self.LumiLast = 1
+
+def dump( beam, file):
+    end = "\n"
+    file.write("Runnumber "+beam.Run+end)
+    file.write("BeginTimeOfFit "+str(beam.IOVBeginTime)+end)
+    file.write("EndTimeOfFit "+str(beam.IOVEndTime)+end)
+    file.write("LumiRange "+str(beam.IOVfirst)+" - "+str(beam.IOVlast)+end)
+    file.write("Type "+str(beam.Type)+end)
+    file.write("X0 "+str(beam.X)+end)
+    file.write("Y0 "+str(beam.Y)+end)
+    file.write("Z0 "+str(beam.Z)+end)
+    file.write("sigmaZ0 "+str(beam.sigmaZ)+end)
+    file.write("dxdz "+str(beam.dxdz)+end)
+    file.write("dydz "+str(beam.dydz)+end)
+    file.write("BeamWidthX "+beam.beamWidthX+end)
+    file.write("BeamWidthY "+beam.beamWidthY+end)
+    file.write("Cov(0,j) "+str(math.pow(float(beam.Xerr),2))+" 0 0 0 0 0 0"  +end)
+    file.write("Cov(1,j) 0 "+str(math.pow(float(beam.Yerr),2))+" 0 0 0 0 0"  +end)
+    file.write("Cov(2,j) 0 0 "+str(math.pow(float(beam.Zerr),2))+" 0 0 0 0"  +end)
+    file.write("Cov(3,j) 0 0 0 "+str(math.pow(float(beam.sigmaZerr),2))+" 0 0 0"  +end)
+    file.write("Cov(4,j) 0 0 0 0 "+str(math.pow(float(beam.dxdzerr),2))+" 0 0"  +end)
+    file.write("Cov(5,j) 0 0 0 0 0 "+str(math.pow(float(beam.dydzerr),2))+" 0"  +end)
+    file.write("Cov(6,j) 0 0 0 0 0 0 "+str(math.pow(float(beam.beamWidthXerr),2))  +end)
+    file.write("EmittanceX 0"+end)
+    file.write("EmittanceY 0"+end)
+    file.write("BetaStar 0"+end)
+
+def delta(x,xerr,nextx,nextxerr):
+    return math.fabs( float(x) - float(nextx) )/math.sqrt(math.pow(float(xerr),2) + math.pow(float(nextxerr),2))
+
+# lumi tools CondCore/Utilities/python/timeUnitHelper.py
+def pack(high,low):
+    """pack high,low 32bit unsigned int to one unsigned 64bit long long
+       Note:the print value of result number may appear signed, if the sign bit is used.
+    """
+    h=high<<32
+    return (h|low)
+
+def unpack(i):
+    """unpack 64bit unsigned long long into 2 32bit unsigned int, return tuple (high,low)
+    """
+    high=i>>32
+    low=i&0xFFFFFFFF
+    return(high,low)
+
+def unpackLumiid(i):
+    """unpack 64bit lumiid to dictionary {'run','lumisection'}
+    """
+    j=unpack(i)
+    return {'run':j[0],'lumisection':j[1]}
 
 # ROOT STYLE
 #############################
@@ -171,7 +260,7 @@ def SetStyle():
     ROOT.gStyle.SetPadTopMargin(0.04)
     ROOT.gStyle.SetPadRightMargin(0.04)
     ROOT.gStyle.SetPadBottomMargin(0.14)
-    ROOT.gStyle.SetPadLeftMargin(0.16)
+    ROOT.gStyle.SetPadLeftMargin(0.11)
     ROOT.gStyle.SetPadTickX(1)
     ROOT.gStyle.SetPadTickY(1)
 
@@ -181,7 +270,7 @@ def SetStyle():
     ROOT.gStyle.SetTitleFont(42,"xyz")
     ROOT.gStyle.SetLabelSize(0.035,"xyz")
     ROOT.gStyle.SetTitleSize(0.045,"xyz")
-    ROOT.gStyle.SetTitleOffset(1.5,"y")
+    ROOT.gStyle.SetTitleOffset(1.1,"y")
 
     # use bold lines and markers
     ROOT.gStyle.SetMarkerStyle(8)
@@ -189,6 +278,8 @@ def SetStyle():
     ROOT.gStyle.SetLineWidth(1)
     #ROOT.gStyle.SetLineStyleString(2,"[12 12]") // postscript dashes
 
+    ROOT.gStyle.SetMarkerSize(0.6)
+    
     # do not display any of the standard histogram decorations
     ROOT.gStyle.SetOptTitle(0)
     ROOT.gStyle.SetOptStat(0) #("m")
@@ -198,6 +289,7 @@ def SetStyle():
     ROOT.gStyle.cd()
     ROOT.gROOT.ForceStyle()
 #########################################
+
 
 if __name__ == '__main__':
 
@@ -231,22 +323,25 @@ if __name__ == '__main__':
     getDBdata = True
     if option.data:
         getDBdata = False
-    
-    firstRun = 1
-    lastRun  = 4999999999
-
-    if option.initial:
-        firstRun = int(option.initial)
-    if option.final:
-        lastRun = int(option.final)
-    
+   
     IOVbase = 'runbase'
     if option.IOVbase:
         if option.IOVbase != "runbase" and option.IOVbase != "lumibase" and option.IOVbase != "timebase":
             print "\n\n unknown iov base option: "+ option.IOVbase +" \n\n\n"
             exit()
-        IOVbase = option.IOVbase
+	IOVbase = option.IOVbase
     
+    firstRun = "1"
+    lastRun  = "4999999999"
+    if IOVbase == "lumibase":
+	firstRun = "1:1"
+	lastRun = "4999999999:4999999999"
+    
+    if option.initial:
+        firstRun = option.initial
+    if option.final:
+        lastRun = option.final
+        
     # GET IOVs
     ################################
 
@@ -284,9 +379,9 @@ if __name__ == '__main__':
 
         otherArgs = ''
         if option.destDB:
-            otherArgs = option.destDB
+            otherArgs = " -d " + option.destDB
             if option.auth:
-                otherArgs = otherArgs + option.auth
+                otherArgs = otherArgs + " -a "+ option.auth
         
         print " get beam spot data from DB for IOVs. This can take a few minutes ..."
 
@@ -295,14 +390,14 @@ if __name__ == '__main__':
         for iIOV in iovlist:
             passiov = False
 	    #print "since = " + str(iIOV.since) + " till = "+ str(iIOV.till)
-            if iIOV.since >= firstRun and lastRun < 0 and iIOV.since <= firstRun:
+            if iIOV.since >= int(firstRun) and int(lastRun) < 0 and iIOV.since <= int(firstRun):
                 print " IOV: " + str(iIOV.since)
                 passiov = True
-            if iIOV.since >= firstRun and lastRun > 0 and iIOV.till < lastRun:
+            if iIOV.since >= int(firstRun) and int(lastRun) > 0 and iIOV.till < int(lastRun):
                 print " IOV: " + str(iIOV.since) + " to " + str(iIOV.till)
                 passiov = True
             if passiov:
-                acommand = 'getBeamSpotDB.py '+ tag + " " + str(iIOV.since) +otherArgs
+                acommand = 'getBeamSpotDB.py -t '+ tag + " -r " + str(iIOV.since) +otherArgs
                 status = commands.getstatusoutput( acommand )
                 tmpfile.write(status[1])
     
@@ -310,18 +405,25 @@ if __name__ == '__main__':
     
         tmpfile.close()
 
-
-    if option.noplot:
-        print " no plots requested, exit now."
-        sys.exit()
-
     
     # PROCESS DATA
     ###################################
 
     # check if input data exists if given
     if option.data:
-        if os.path.exists(option.data):
+        if os.path.isdir(option.data):
+            tmp = commands.getstatusoutput("ls "+option.data)
+            files = tmp[1].split()
+            datafilename = "combined_all.txt"
+            output = open(datafilename,"w")
+            
+            for f in files:
+                input = open(option.data +"/"+f)
+                output.writelines(input.readlines())
+            output.close()
+            print " data files have been collected in "+datafilename
+            
+        elif os.path.exists(option.data):
             datafilename = option.data
         else:
             print " input beam spot data DOES NOT exist, file " + option.data
@@ -341,7 +443,10 @@ if __name__ == '__main__':
     if inputfiletype ==1:
 	
 	for line in tmpfile:
-	
+
+	    if line.find('Type') != -1:
+		tmpbeam.Type = int(line.split()[1])
+		tmpbeamsize += 1
 	    if line.find('X0') != -1:
 		tmpbeam.X = line.split()[1]
 		#tmpbeam.Xerr = line.split()[4]
@@ -360,6 +465,22 @@ if __name__ == '__main__':
 		tmpbeam.sigmaZ = line.split()[1]
 		#tmpbeam.sigmaZerr = line.split()[5]
 		tmpbeamsize += 1
+            if line.find('dxdz') != -1:
+		tmpbeam.dxdz = line.split()[1]
+		#tmpbeam.dxdzerr = line.split()[4]
+		tmpbeamsize += 1
+	    if line.find('dydz') != -1:
+		tmpbeam.dydz = line.split()[1]
+		#tmpbeam.dydzerr = line.split()[4]
+		tmpbeamsize += 1
+	    if line.find('BeamWidthX') != -1:
+		tmpbeam.beamWidthX = line.split()[1]
+		#tmpbeam.beamWidthXerr = line.split()[6]
+		tmpbeamsize += 1
+	    if line.find('BeamWidthY') != -1:
+		tmpbeam.beamWidthY = line.split()[1]
+		#tmpbeam.beamWidthYerr = line.split()[6]
+		tmpbeamsize += 1
 	    if line.find('Cov(0,j)') != -1:
 		tmpbeam.Xerr = str(math.sqrt( float( line.split()[1] ) ) )
 		tmpbeamsize += 1
@@ -372,23 +493,68 @@ if __name__ == '__main__':
 	    if line.find('Cov(3,j)') != -1:
 		tmpbeam.sigmaZerr = str(math.sqrt( float( line.split()[4] ) ) )
 		tmpbeamsize += 1
+            if line.find('Cov(4,j)') != -1:
+		tmpbeam.dxdzerr = str(math.sqrt( float( line.split()[5] ) ) )
+		tmpbeamsize += 1
+	    if line.find('Cov(5,j)') != -1:
+		tmpbeam.dydzerr = str(math.sqrt( float( line.split()[6] ) ) )
+		tmpbeamsize += 1
+	    if line.find('Cov(6,j)') != -1:
+		tmpbeam.beamWidthXerr = str(math.sqrt( float( line.split()[7] ) ) )
+                tmpbeam.beamWidthYerr = tmpbeam.beamWidthXerr
+		tmpbeamsize += 1
 	    if line.find('LumiRange')  != -1 and IOVbase=="lumibase":
 	    #tmpbeam.IOVfirst = line.split()[6].strip(',')
 		tmpbeam.IOVfirst = line.split()[1]
 		tmpbeam.IOVlast = line.split()[3]
 		tmpbeamsize += 1
-            if line.find('Runnumber') != -1 and IOVbase =="runbase":
-                tmpbeam.IOVfirst = line.split()[1]
-		tmpbeam.IOVlast = line.split()[1]
+            if line.find('Runnumber') != -1:
+		tmpbeam.Run = line.split()[1]
+		if IOVbase == "runbase":
+		    tmpbeam.IOVfirst = line.split()[1]
+		    tmpbeam.IOVlast = line.split()[1]
 		tmpbeamsize += 1
-            if line.find('BeginTimeOfFit') != -1 and IOVbase =="timebase":
-                tmpbeam.IOVfirst =  time.mktime( time.strptime(line.split()[1] +  " " + line.split()[2] + " " + line.split()[3],"%Y.%m.%d %H:%M:%S %Z") )
-            if line.find('EndTimeOfFit') != -1 and IOVbase =="timebase":
-		tmpbeam.IOVlast = time.mktime( time.strptime(line.split()[1] +  " " + line.split()[2] + " " + line.split()[3],"%Y.%m.%d %H:%M:%S %Z") )
+            if line.find('BeginTimeOfFit') != -1:
+		tmpbeam.IOVBeginTime = line.split()[1] +" "+line.split()[2] +" "+line.split()[3]
+		if IOVbase =="timebase":
+		    tmpbeam.IOVfirst =  time.mktime( time.strptime(line.split()[1] +  " " + line.split()[2] + " " + line.split()[3],"%Y.%m.%d %H:%M:%S %Z") )
 		tmpbeamsize += 1
-	    if tmpbeamsize == 9:
-		if int(tmpbeam.IOVfirst) >= firstRun and int(tmpbeam.IOVlast) <= lastRun:
-		    listbeam.append(tmpbeam)
+            if line.find('EndTimeOfFit') != -1:
+		tmpbeam.IOVEndTime = line.split()[1] +" "+line.split()[2] +" "+line.split()[3]
+		if IOVbase =="timebase":
+		    tmpbeam.IOVlast = time.mktime( time.strptime(line.split()[1] +  " " + line.split()[2] + " " + line.split()[3],"%Y.%m.%d %H:%M:%S %Z") )
+		tmpbeamsize += 1
+	    if tmpbeamsize == 20:
+		if IOVbase=="lumibase":
+		    tmprunfirst = int(firstRun.split(":")[0])
+		    tmprunlast  = int(lastRun.split(":")[0])
+		    tmplumifirst = int(firstRun.split(":")[1])
+		    tmplumilast  = int(lastRun.split(":")[1])
+		    acceptiov1 = acceptiov2 = False
+		    # check lumis in the same run
+		    if tmprunfirst == tmprunlast and int(tmpbeam.Run)==tmprunfirst:
+			if int(tmpbeam.IOVfirst) >= tmplumifirst and int(tmpbeam.IOVlast)<=tmplumilast:
+			    acceptiov1 = acceptiov2 = True
+		    # if different runs make sure you select the correct range of lumis
+		    elif int(tmpbeam.Run) == tmprunfirst:
+			if int(tmpbeam.IOVfirst) >= tmplumifirst: acceptiov1 = True
+		    elif int(tmpbeam.Run) == tmprunlast:
+			if int(tmpbeam.IOVlast) <= tmplumilast: acceptiov2 = True
+		    elif tmprunfirst <= int(tmpbeam.Run) and tmprunlast >= int(tmpbeam.Run): 
+			acceptiov1 = acceptiov2 = True
+			
+		    if acceptiov1 and acceptiov2:
+			if tmpbeam.Type != 2:
+			    print "invalid fit, skip Run "+str(tmpbeam.Run)+" IOV: "+str(tmpbeam.IOVfirst) + " to "+ str(tmpbeam.IOVlast)
+			else:
+			    listbeam.append(tmpbeam)
+
+		elif int(tmpbeam.IOVfirst) >= int(firstRun) and int(tmpbeam.IOVlast) <= int(lastRun):
+		    if tmpbeam.Type != 2:
+			print "invalid fit, skip Run "+str(tmpbeam.Run)+" IOV: "+str(tmpbeam.IOVfirst) + " to "+ str(tmpbeam.IOVlast)
+		    else:
+			listbeam.append(tmpbeam)
+	
 		tmpbeamsize = 0
 		tmpbeam = BeamSpot()
     else:
@@ -438,7 +604,7 @@ if __name__ == '__main__':
 		tmpbeamsize += 1
 	    if tmpbeamsize == 9:
             #print " from object " + str(tmpbeam.X)
-		if int(tmpbeam.IOVfirst) >= firstRun and int(tmpbeam.IOVlast) <= lastRun:
+		if int(tmpbeam.IOVfirst) >= int(firstRun) and int(tmpbeam.IOVlast) <= int(lastRun):
 		    listbeam.append(tmpbeam)
 		tmpbeamsize = 0
 		tmpbeam = BeamSpot()
@@ -447,9 +613,147 @@ if __name__ == '__main__':
     print " got total number of IOVs = " + str(len(listbeam)) + " from file "+datafilename
     #print " run " + str(listbeam[3].IOVfirst ) + " " + str( listbeam[3].X )
 
-    # MAKE PLOTS
     ###################################
-   
+    if IOVbase == "lumibase":
+	listbeam.sort( cmp = cmp_list_lumi )
+    else:
+	listbeam.sort( cmp = cmp_list_run )
+    
+    # first clean list of data for consecutive duplicates and bad fits
+    tmpremovelist = []
+    for ii in range(0,len(listbeam)):
+        
+        ibeam = listbeam[ii]
+        datax = ibeam.IOVfirst
+        #print str(ii) + "  " +datax
+        if datax == '1':
+            print " skip IOV = "+ str(ibeam.IOVfirst) + " to " + str(ibeam.IOVlast)
+            tmpremovelist.append(ibeam)
+        
+        if ii < len(listbeam) -1:
+            #print listbeam[ii+1].IOVfirst
+	    if IOVbase =="lumibase":
+		if ibeam.Run == listbeam[ii+1].Run and ibeam.IOVfirst == listbeam[ii+1].IOVfirst:
+		    print " duplicate IOV = "+datax+", keep only last duplicate entry"
+		    tmpremovelist.append(ibeam)
+	    elif datax == listbeam[ii+1].IOVfirst:
+                print " duplicate IOV = "+datax+", keep only last duplicate entry"
+                tmpremovelist.append(ibeam)
+
+    for itmp in tmpremovelist:
+        listbeam.remove(itmp)
+
+    # CREATE FILE FOR PAYLOADS
+    ################################
+    if IOVbase == "lumibase" and option.payload:
+	newlistbeam = []
+	tmpbeam = BeamSpot()
+	docreate = True
+	countlumi = 0
+	tmprun = ""
+	for ii in range(0,len(listbeam)):
+	
+	    ibeam = listbeam[ii]
+	    inextbeam = BeamSpot()
+	    iNNbeam = BeamSpot()
+	    if docreate:
+		tmpbeam.IOVfirst = ibeam.IOVfirst
+		tmpbeam.IOVBeginTime = ibeam.IOVBeginTime
+		tmpbeam.Run = ibeam.Run
+		tmpbeam.Type = 2
+	    docheck = False
+	    docreate = False
+	    # check we run over the same run
+	    if tmprun != ibeam.Run and ii>0:
+		print "close payload because we are in a new run"
+		docreate = True
+	    # check last iov
+	    if ii < len(listbeam) - 1: 
+		inextbeam = listbeam[ii+1]
+		docheck = True
+		if ii < len(listbeam) -2:
+		    iNNbeam = listbeam[ii+2]
+	    else:
+		print "close payload because end of data has been reached"
+		docreate = True
+	    # check maximum lumi counts
+	    if countlumi == 100:
+		print "close payload because maximum lumi sections accumulated"
+		docreate = True
+		countlumi = 0
+	    # weighted average position
+	    (tmpbeam.X, tmpbeam.Xerr) = weight(tmpbeam.X, tmpbeam.Xerr, ibeam.X, ibeam.Xerr)
+	    (tmpbeam.Y, tmpbeam.Yerr) = weight(tmpbeam.Y, tmpbeam.Yerr, ibeam.Y, ibeam.Yerr)
+	    (tmpbeam.Z, tmpbeam.Zerr) = weight(tmpbeam.Z, tmpbeam.Zerr, ibeam.Z, ibeam.Zerr)
+	    (tmpbeam.sigmaZ, tmpbeam.sigmaZerr) = weight(tmpbeam.sigmaZ, tmpbeam.sigmaZerr, ibeam.sigmaZ, ibeam.sigmaZerr)
+	    (tmpbeam.dxdz, tmpbeam.dxdzerr) = weight(tmpbeam.dxdz, tmpbeam.dxdzerr, ibeam.dxdz, ibeam.dxdzerr)
+	    (tmpbeam.dydz, tmpbeam.dydzerr) = weight(tmpbeam.dydz, tmpbeam.dydzerr, ibeam.dydz, ibeam.dydzerr)
+	    #print "wx = " + ibeam.beamWidthX + " err= "+ ibeam.beamWidthXerr
+	    (tmpbeam.beamWidthX, tmpbeam.beamWidthXerr) = weight(tmpbeam.beamWidthX, tmpbeam.beamWidthXerr, ibeam.beamWidthX, ibeam.beamWidthXerr)
+	    (tmpbeam.beamWidthY, tmpbeam.beamWidthYerr) = weight(tmpbeam.beamWidthY, tmpbeam.beamWidthYerr, ibeam.beamWidthY, ibeam.beamWidthYerr)
+
+            if option.weighted:
+                docheck = False
+	    # check offsets
+	    if docheck:
+		deltaX = delta(ibeam.X, ibeam.Xerr, inextbeam.X, inextbeam.Xerr) > 1.5
+		deltaY = delta(ibeam.Y, ibeam.Yerr, inextbeam.Y, inextbeam.Yerr) > 1.5
+		deltaZ = delta(ibeam.Z, ibeam.Zerr, inextbeam.Z, inextbeam.Zerr) > 2.5
+				
+		deltasigmaZ = delta(ibeam.sigmaZ, ibeam.sigmaZerr, inextbeam.sigmaZ, inextbeam.sigmaZerr) > 2.5
+		deltadxdz   = delta(ibeam.dxdz, ibeam.dxdzerr, inextbeam.dxdz, inextbeam.dxdzerr) > 2.5
+		deltadydz   = delta(ibeam.dydz, ibeam.dydzerr, inextbeam.dydz, inextbeam.dydzerr) > 2.5
+		
+		deltawidthX = delta(ibeam.beamWidthX, ibeam.beamWidthXerr, inextbeam.beamWidthX, inextbeam.beamWidthXerr) > 3
+		deltawidthY = delta(ibeam.beamWidthY, ibeam.beamWidthYerr, inextbeam.beamWidthY, inextbeam.beamWidthYerr) > 3
+
+		#if iNNbeam.Type != -1:
+		#    deltaX = deltaX and delta(ibeam.X, ibeam.Xerr, iNNbeam.X, iNNbeam.Xerr) > 1.5
+		#    deltaY = deltaY and delta(ibeam.Y, ibeam.Yerr, iNNbeam.Y, iNNbeam.Yerr) > 1.5
+		#    deltaZ = deltaZ and delta(ibeam.Z, ibeam.Zerr, iNNbeam.Z, iNNbeam.Zerr) > 1.5
+		#		
+		#    deltasigmaZ = deltasigmaZ and delta(ibeam.sigmaZ, ibeam.sigmaZerr, iNNbeam.sigmaZ, iNNbeam.sigmaZerr) > 2.5
+		#    deltadxdz   = deltadxdz and delta(ibeam.dxdz, ibeam.dxdzerr, iNNbeam.dxdz, iNNbeam.dxdzerr) > 2.5
+		#    deltadydz   = deltadydz and delta(ibeam.dydz, ibeam.dydzerr, iNNbeam.dydz, iNNbeam.dydzerr) > 2.5
+		#
+		#    deltawidthX = deltawidthX and delta(ibeam.beamWidthX, ibeam.beamWidthXerr, iNNbeam.beamWidthX, iNNbeam.beamWidthXerr) > 3
+		#    deltawidthY = deltawidthY and delta(ibeam.beamWidthY, ibeam.beamWidthYerr, iNNbeam.beamWidthY, iNNbeam.beamWidthYerr) > 3
+
+		if deltaX or deltaY or deltaZ or deltasigmaZ or deltadxdz or deltadydz or deltawidthX or deltawidthY:
+		    docreate = True
+		    #print "shift here: x="+str(deltaX)+" y="+str(deltaY)
+		    #print "x1 = "+ibeam.X + " x1err = "+ibeam.Xerr
+		    #print "x2 = "+inextbeam.X + " x2err = "+inextbeam.Xerr
+		    #print "Lumi1: "+str(ibeam.IOVfirst) + " Lumi2: "+str(inextbeam.IOVfirst)
+		    #print " x= "+ibeam.X+" +/- "+ibeam.Xerr
+		    #print "weighted average x = "+tmpbeam.X +" +//- "+tmpbeam.Xerr
+		    print "close payload because of movement in X= "+str(deltaX)+", Y= "+str(deltaY) + ", Z= "+str(deltaZ)+", sigmaZ= "+str(deltasigmaZ)+", dxdz= "+str(deltadxdz)+", dydz= "+str(deltadydz)+", widthX= "+str(deltawidthX)+", widthY= "+str(deltawidthY)
+	    if docreate:
+		tmpbeam.IOVlast = ibeam.IOVfirst
+		tmpbeam.IOVEndTime = ibeam.IOVEndTime
+		print "  Lumi1: "+str(tmpbeam.IOVfirst) + " Lumi2: "+str(tmpbeam.IOVlast)
+		newlistbeam.append(tmpbeam)
+		tmpbeam = BeamSpot()
+	    tmprun = ibeam.Run
+	    countlumi += 1
+	
+
+	npayload = 1
+	for iload in newlistbeam:
+            # print new list
+            name = option.payload
+            name = name.replace(".txt","")
+            name = name + "_" +str(npayload) +".txt"
+            payloadfile = open(name,"w")
+	    dump( iload, payloadfile )
+            payloadfile.close()
+            npayload += 1
+
+    if option.noplot:
+        print " no plots requested, exit now."
+        sys.exit()
+    # MAKE PLOTS
+    ###################################    
     TGaxis.SetMaxDigits(8)
 
     graphlist = []
@@ -468,10 +772,14 @@ if __name__ == '__main__':
     cvlist = []
 
     for ig in range(0,8):
-	cvlist.append( TCanvas(graphnamelist[ig],graphtitlelist[ig], 800, 600) )
-	graphlist.append( TGraphErrors( len(listbeam) ) )
+	cvlist.append( TCanvas(graphnamelist[ig],graphtitlelist[ig], 1800, 600) )
+	if option.graph:
+	    graphlist.append( TGraphErrors( len(listbeam) ) )
+        else:
+	    graphlist.append( TH1F("name","title",len(listbeam),0,len(listbeam)) )
+        
 	graphlist[ig].SetName(graphnamelist[ig])
-        graphlist[ig].SetTitle(graphnamelist[ig])
+        graphlist[ig].SetTitle(graphtitlelist[ig])
 	ipoint = 0
 	for ii in range(0,len(listbeam)):
 	    
@@ -504,24 +812,40 @@ if __name__ == '__main__':
 		datayerr = ibeam.beamWidthYerr
 
             datax = ibeam.IOVfirst
+	    if IOVbase=="lumibase":
+		datax = str(ibeam.Run) + ":" + str(ibeam.IOVfirst)
+		if ibeam.IOVfirst != ibeam.IOVlast:
+		    datax = str(ibeam.Run) + ":" + str(ibeam.IOVfirst)+"-"+str(ibeam.IOVlast)
+            #print datax
+	    if option.graph:
+		#datax = pack( int(ibeam.Run) , int(ibeam.IOVfirst) )
+		if IOVbase=="lumibase":
+		    datax = (float(ibeam.IOVlast) - float(ibeam.IOVfirst))/2 + float(ibeam.IOVfirst)
+		    dataxerr =  (float(ibeam.IOVlast) - float(ibeam.IOVfirst))/2
+		graphlist[ig].SetPoint(ipoint, float(datax), float(datay) )
+		graphlist[ig].SetPointError(ipoint, float(dataxerr), float(datayerr) )
+	    else:
+		graphlist[ig].GetXaxis().SetBinLabel(ipoint +1 , str(datax) )
+		graphlist[ig].SetBinContent(ipoint +1, float(datay) )
+		graphlist[ig].SetBinError(ipoint +1, float(datayerr) )
 
-	    if datax == '1':
-		print " skip in plot IOV = "+ str(ibeam.IOVfirst) + " to " + str(ibeam.IOVlast)
-		graphlist[ig].Set( len(listbeam) -1 )
-		continue
-	    #print str(ipoint) + " x = " + str(datax) + " y = " + str(datay)
-	    graphlist[ig].SetPoint(ipoint, float(datax), float(datay) )
-	    graphlist[ig].SetPointError(ipoint, float(dataxerr), float(datayerr) )
-	    ipoint += 1
+            ipoint += 1
 
 
 	if IOVbase=="timebase":
             graphlist[ig].GetXaxis().SetTimeDisplay(1);
-            graphlist[ig].GetXaxis().SetTimeFormat("%Y.%m.%d %H:%M:%S")
-	graphlist[ig].Draw('AP')
-	graphlist[ig].GetXaxis().SetTitle(graphXaxis)
-	graphlist[ig].GetYaxis().SetTitle(graphYaxis[ig])
+            graphlist[ig].GetXaxis().SetTimeFormat("#splitline{%Y/%m/%d}{%H:%M}")
+	if option.graph:
+	    graphlist[ig].Draw('AP')
+        else:
+	    graphlist[ig].Draw('P E1 X0')
+	    graphlist[ig].GetXaxis().SetTitle(graphXaxis)
+	    graphlist[ig].GetYaxis().SetTitle(graphYaxis[ig])
+            #graphlist[ig].Fit('pol1')
 	cvlist[ig].Update()
+        cvlist[ig].SetGrid()
+        if option.Print:
+	    cvlist[ig].Print(graphnamelist[ig]+".png")
         if option.wait:
             raw_input( 'Press ENTER to continue\n ' )
         #graphlist[0].Print('all')

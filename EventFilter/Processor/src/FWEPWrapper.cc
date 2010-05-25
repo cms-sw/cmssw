@@ -89,6 +89,7 @@ namespace evf{
     //some initialization of state data
     epMAltState_ = -1;
     epmAltState_ = -1;
+    pthread_mutex_init(&ep_guard_lock_,0);
   }
 
   FWEPWrapper::~FWEPWrapper() {delete evtProcessor_; evtProcessor_=0;}
@@ -124,7 +125,9 @@ namespace evf{
 	oss << i << "=" << evtProcessor_->stateName((edm::event_processor::State) i) << " ";
 	statmod_.push_back(evtProcessor_->stateName((edm::event_processor::State) i));
       }
-
+    oss << i << "=" << "NotStarted ";
+    statmod_.push_back("NotStarted");
+    notstarted_state_code_ = i;
     std::stringstream oss2;
     oss2 << 0 << "=Invalid ";
     modmap_["Invalid"]=0;
@@ -271,14 +274,13 @@ namespace evf{
     defaultServices.push_back("InitRootHandlers");
     defaultServices.push_back("JobReportService");
     pdesc->addServices(defaultServices, forcedServices);
-    monitorInfoSpace_->lock();
+    pthread_mutex_lock(&ep_guard_lock_);
     if (0!=evtProcessor_) delete evtProcessor_;
     
     evtProcessor_ = new edm::EventProcessor(pdesc,
 					    serviceToken_,
 					    edm::serviceregistry::kTokenOverrides);
-    
-    monitorInfoSpace_->unlock();
+    pthread_mutex_unlock(&ep_guard_lock_);
     //    evtProcessor_->setRunNumber(runNumber_.value_);
     /* removed     
     if(!outPut_)
@@ -449,10 +451,10 @@ namespace evf{
 	
 	if(st == edm::event_processor::sJobReady || st == edm::event_processor::sDone)
 	  evtProcessor_->endJob();
-	monitorInfoSpace_->lock(); //protect monitoring workloop from using ep pointer while it is being deleted
+	pthread_mutex_lock(&ep_guard_lock_);
 	delete evtProcessor_;
 	evtProcessor_ = 0;
-	monitorInfoSpace_->unlock();
+	pthread_mutex_unlock(&ep_guard_lock_);
 	epInitialized_ = false;
       }
     else
@@ -964,9 +966,9 @@ namespace evf{
 	  LOG4CPLUS_INFO(log_,
 			 "exception when trying to get service MicroStateService");
 	}
-	monitorInfoSpace_->lock();
-	micro1 = evtProcessor_->currentStateName();
-	monitorInfoSpace_->unlock();
+	pthread_mutex_lock(&ep_guard_lock_);
+	if(evtProcessor_!=0) micro1 = evtProcessor_->currentStateName();
+	pthread_mutex_unlock(&ep_guard_lock_);
       }
 
     if(mss) {

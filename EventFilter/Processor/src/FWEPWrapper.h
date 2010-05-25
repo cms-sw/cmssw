@@ -24,7 +24,7 @@
 #include "log4cplus/logger.h"
 
 #include <string>
-#include "MsgBuf.h"
+#include "EventFilter/Utilities/interface/MsgBuf.h"
 
 namespace xdaq{
   class ApplicationDescriptor;
@@ -115,7 +115,7 @@ namespace evf{
 	if(i<statmod_.size()) return statmod_[i];
 	else return unknown;
       }
-
+    int notstarted_state_code() const { return notstarted_state_code_;}
     lsTriplet &lastLumi(){return lumiSectionsCtr_[rollingLsIndex_];}
     void resetWaiting(){waitingForLs_ = false;}
     bool isWaitingForLs(){return waitingForLs_;}
@@ -209,7 +209,10 @@ namespace evf{
     xdata::UnsignedInteger32         instance_;
     bool                             hasSubProcesses;
     bool                             waitingForLs_;
+    pthread_mutex_t                  ep_guard_lock_;
+    int                              notstarted_state_code_;
     friend class FUEventProcessor;
+
   };
 }
 #endif

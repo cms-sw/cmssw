@@ -92,9 +92,7 @@ QcdUeDQM::~QcdUeDQM()
 //--------------------------------------------------------------------------------------------------
 void QcdUeDQM::analyze(const Event &iEvent, const EventSetup &iSetup) 
 {
-
   if( ! isHltConfigSuccessful_ ) return;
-
 
   // Analyze the given event.
 
@@ -153,6 +151,8 @@ void QcdUeDQM::beginJob()
 void QcdUeDQM::beginLuminosityBlock(const LuminosityBlock &l, 
                                        const EventSetup &iSetup)
 {
+  if( ! isHltConfigSuccessful_ ) return;
+
   // At the moment, nothing needed to be done.
 }
 
@@ -468,11 +468,12 @@ void QcdUeDQM::endJob(void)
 void QcdUeDQM::endLuminosityBlock(const LuminosityBlock &l, 
                                      const EventSetup &iSetup)
 {
+  if( ! isHltConfigSuccessful_ ) return;
+
   // Update various histograms.
 
   repSummary_->Fill(1.);
   repSumMap_->Fill(0.5,0.5,1.);
-
   
 }
 
@@ -480,6 +481,8 @@ void QcdUeDQM::endLuminosityBlock(const LuminosityBlock &l,
 
 void QcdUeDQM::endRun(const Run &, const EventSetup &)
 {
+  if( ! isHltConfigSuccessful_ ) return;
+
   // End run, cleanup. TODO: can this be called several times in DQM???
 
 }

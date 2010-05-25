@@ -86,7 +86,7 @@ namespace edm {
       */
 
       struct InputFile {
-        typedef std::vector<std::string>   StringVector;
+        typedef std::vector<std::string> StringVector;
 
         std::string     logicalFileName;
         std::string     physicalFileName;
@@ -114,7 +114,7 @@ namespace edm {
 
       struct OutputFile {
 
-        typedef InputFile::StringVector        StringVector;
+        typedef InputFile::StringVector StringVector;
 
         std::string     logicalFileName;
         std::string     physicalFileName;
@@ -244,6 +244,13 @@ namespace edm {
       JobReport(std::ostream* outputStream);
 
       ~JobReport();
+
+      /// New output file for child
+      void childAfterFork(std::string const& jobReportFile, unsigned int childIndex, unsigned int numberOfChildren);
+
+      void parentBeforeFork(std::string const& jobReportFile, unsigned int numberOfChildren);
+
+      void parentAfterFork(std::string const& jobReportFile);
 
       /// Report that an input file has been opened.
       /// The returned Token should be used for later identification

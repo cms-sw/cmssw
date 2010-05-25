@@ -1,6 +1,5 @@
 // This is CSCBaseElectronicsSim.cc
 
-#include "Utilities/Timing/interface/TimingReport.h" 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimMuon/CSCDigitizer/src/CSCBaseElectronicsSim.h"
 #include "SimMuon/CSCDigitizer/src/CSCDetectorHit.h"
@@ -54,7 +53,6 @@ void CSCBaseElectronicsSim::simulate(const CSCLayer * layer,
 {
   theNoiseWasAdded = false;
 
-  TimeMe a("CSCBaseEl:simulate");
   {
     theSignalMap.clear();
     theDetectorHitMap.clear();
@@ -64,7 +62,6 @@ void CSCBaseElectronicsSim::simulate(const CSCLayer * layer,
   }
   
   {
-    TimeMe c("CSCBaseEl:loop");
     size_t nHits = detectorHits.size();
       // turn each detector hit into an analog signal
     for( size_t i = 0; i < nHits; ++i) {

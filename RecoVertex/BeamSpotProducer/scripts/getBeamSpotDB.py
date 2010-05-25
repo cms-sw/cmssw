@@ -12,35 +12,124 @@
 #
 #____________________________________________________________
 
+"""
+   getBeamSpotDB.py
+
+   A very simple script to retrieve from DB a beam spot payload for a given IOV.
+   usage: %prog -t <tag name> -r <run number = 1>
+   -a, --auth     = AUTH: Authorization path: \"/afs/cern.ch/cms/DB/conddb\"(default), \"/nfshome0/popcondev/conddb\"
+   -d, --destDB   = DESTDB: Destination string for DB connection: \"frontier://PromptProd/CMS_COND_31X_BEAMSPOT\"(default), \"oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT\", \"sqlite_file:mysqlitefile.db\"
+   -l, --lumi     = LUMI: Lumi section.
+   -r, --run      = RUN: Run number.
+   -t, --tag      = TAG: Name of DB tag.
+   
+   Francisco Yumiceva (yumiceva@fnal.gov)
+   Fermilab 2010
+   
+"""
 
 
-import sys,os
+import sys,os, re
 import commands
 
-def main():
+#_______________OPTIONS________________
+import optparse
 
-    if len(sys.argv) < 2:
-	print "\n [usage] getBeamSpotDB <tag name> <run number = 1> <destDB = frontier://PromptProd/CMS_COND_31X_BEAMSPOT > <authorization = /afs/cern.ch/cms/DB/conddb> \n"
-	print " e.g. getBeamSpotDB First900GeVCollision_3p9cm_v3_mc_STARTUP \n\n"
-        print "      destDB options \"oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT\""
-        print "                     \"sqlite_file:mysqlitefile.db\" \n"
-        print "      auth options \"/nfshome0/popcondev/conddb\" \n"
-	sys.exit()
+USAGE = re.compile(r'(?s)\s*usage: (.*?)(\n[ \t]*\n|$)')
 
+def nonzero(self): # will become the nonzero method of optparse.Values
+    "True if options were given"
+    for v in self.__dict__.itervalues():
+        if v is not None: return True
+    return False
+
+optparse.Values.__nonzero__ = nonzero # dynamically fix optparse.Values
+
+class ParsingError(Exception): pass
+
+optionstring=""
+
+def exit(msg=""):
+    raise SystemExit(msg or optionstring.replace("%prog",sys.argv[0]))
+
+def parse(docstring, arglist=None):
+    global optionstring
+    optionstring = docstring
+    match = USAGE.search(optionstring)
+    if not match: raise ParsingError("Cannot find the option string")
+    optlines = match.group(1).splitlines()
+    try:
+        p = optparse.OptionParser(optlines[0])
+        for line in optlines[1:]:
+            opt, help=line.split(':')[:2]
+            short,long=opt.split(',')[:2]
+            if '=' in opt:
+                action='store'
+                long=long.split('=')[0]
+            else:
+                action='store_true'
+            p.add_option(short.strip(),long.strip(),
+                         action = action, help = help.strip())
+    except (IndexError,ValueError):
+        raise ParsingError("Cannot parse the option string correctly")
+    return p.parse_args(arglist)
+
+
+
+# lumi tools CondCore/Utilities/python/timeUnitHelper.py
+def pack(high,low):
+    """pack high,low 32bit unsigned int to one unsigned 64bit long long
+       Note:the print value of result number may appear signed, if the sign bit is used.
+    """
+    h=high<<32
+    return (h|low)
+
+def unpack(i):
+    """unpack 64bit unsigned long long into 2 32bit unsigned int, return tuple (high,low)
+    """
+    high=i>>32
+    low=i&0xFFFFFFFF
+    return(high,low)
+
+def unpackLumiid(i):
+    """unpack 64bit lumiid to dictionary {'run','lumisection'}
+    """
+    j=unpack(i)
+    return {'run':j[0],'lumisection':j[1]}
+
+
+if __name__ == '__main__':
+
+
+    # COMMAND LINE OPTIONS
+    #################################
+    option,args = parse(__doc__)
+    if not args and not option: exit()
     
-    tagname = sys.argv[1]
+    tagname = ''
+    if not option.tag and not option.data: 
+	print " need to provide DB tag name or beam spot data file"
+	exit()
+    else:
+	tagname = option.tag
+
     iov_since = ''
     iov_till = ''
     destDB = 'frontier://PromptProd/CMS_COND_31X_BEAMSPOT'
-    auth = '/afs/cern.ch/cms/DB/conddb'
-    run = '1'
-    if len(sys.argv) > 4:
-        auth = sys.argv[4]
-    if len(sys.argv) > 3:
-        destDB = sys.argv[3]
-    if len(sys.argv) > 2:
-        run = sys.argv[2]
+    if option.destDB:
+        destDB = option.destDB
     
+    auth = '/afs/cern.ch/cms/DB/conddb'
+    if option.auth:
+        auth = option.auth
+    
+    run = '1'
+    if option.run:
+        run = option.run
+    lumi = '1'
+    if option.lumi:
+        lumi = option.lumi
+        
     #sqlite_file = "sqlite_file:"+ tagname +".db"
 
     
@@ -109,6 +198,4 @@ process.p = cms.Path(process.beamspot)
     print "DONE.\n"
     
 #_________________________________    
-if __name__ =='__main__':
-        sys.exit(main())
         

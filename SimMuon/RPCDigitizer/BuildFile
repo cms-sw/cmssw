@@ -32,7 +32,6 @@
 <use name=SimDataFormats/TrackingHit>
 <use name=SimGeneral/HepPDTRecord>
 <use name=Utilities/General>
-<use name=Utilities/Timing>
 <flags EDM_PLUGIN=1>
 
 <export>

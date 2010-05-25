@@ -8,6 +8,7 @@ ecalDrivenElectronSeedsParameters = cms.PSet(
     preFilteredSeeds = cms.bool(False),
     useRecoVertex = cms.bool(False),
     vertices = cms.InputTag("offlinePrimaryVerticesWithBS"),
+    beamSpot = cms.InputTag("offlineBeamSpot"),
     dynamicPhiRoad = cms.bool(True),
     searchInTIDTEC = cms.bool(True), ##  possibility to inhibit extended forward coverage
 

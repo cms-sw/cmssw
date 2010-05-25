@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from DQM.HcalMonitorClient.HcalMonitorClient_cfi import *
 from DQM.HcalMonitorClient.ZDCMonitorClient_cfi  import *
 hcalOfflineDQMClient = cms.Sequence(hcalClient
-                                    # + zdcClient  # re-enable once zdc has been tested offline
+                                    + zdcClient  # re-enable once zdc has been tested offline
                                     )
 
 hcalClient.baseHtmlDir       = ''
@@ -20,3 +20,5 @@ hcalClient.enabledClients    = ["DeadCellMonitor",
                                 "DetDiagNoiseMonitor",
                                 "Summary"
                                 ]
+# Enable save-by-lumi-section reportSummaries in offline only for now
+hcalClient.saveByLumiSection=True

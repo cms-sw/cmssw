@@ -10,7 +10,7 @@
 */
 //
 //         Created:  2009/07/22
-// $Id: BuildTrackerMap.cc,v 1.7 2010/03/17 17:29:22 amagnan Exp $
+// $Id: BuildTrackerMap.cc,v 1.9 2010/04/15 16:08:41 amagnan Exp $
 //
 
 #include <sstream>
@@ -62,11 +62,16 @@ class BuildTrackerMapPlugin : public edm::EDAnalyzer
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
 
-  void read(bool aMechView);
+  void read(bool aMechView,
+	    std::string aFile,
+	    std::vector<TkHistoMap*> & aTkMapVec,
+	    std::vector<bool> & aValidVec);
+  void subtractMap(TkHistoMap*& aResult,
+		   TkHistoMap*& aSubtr);
 
 
 
-  //input file name
+  //input file names
   std::string fileName_;
   //do mechanical view or not
   bool mechanicalView_;
@@ -75,14 +80,19 @@ class BuildTrackerMapPlugin : public edm::EDAnalyzer
   //print debug messages when problems are found: 1=error debug, 2=light debug, 3=full debug
   unsigned int printDebug_;
 
-  std::vector<TkHistoMap*> tkHistoMapVec_;
+  bool doDiff_;
+  std::string fileNameDiff_;
 
+  std::vector<TkHistoMap*> tkHistoMapVec_;
+  std::vector<TkHistoMap*> tkHistoMapVecDiff_;
+  
   //name of the tkHistoMap to extract
   std::vector<std::string> tkHistoMapNameVec_;
   std::vector<double> minVal_;
   std::vector<double> maxVal_;
 
   std::vector<bool> isValidMap_;
+  std::vector<bool> isValidMapDiff_;
 
   edm::ParameterSet pset_;
   std::vector<TrackerMap*> tkmap_;
@@ -99,13 +109,17 @@ BuildTrackerMapPlugin::BuildTrackerMapPlugin(const edm::ParameterSet& iConfig)
     mechanicalView_(iConfig.getUntrackedParameter<bool>("MechanicalView",true)),
     folderName_(iConfig.getUntrackedParameter<std::string>("HistogramFolderName","DQMData/")),
     printDebug_(iConfig.getUntrackedParameter<unsigned int>("PrintDebugMessages",1)),
+    doDiff_(iConfig.getUntrackedParameter<bool>("DoDifference",false)),
+    fileNameDiff_(iConfig.getUntrackedParameter<std::string>("InputFileNameForDiff","DQMStore.root")),
     tkHistoMapNameVec_(iConfig.getUntrackedParameter<std::vector<std::string> >("TkHistoMapNameVec")),
     minVal_(iConfig.getUntrackedParameter<std::vector<double> >("MinValueVec")),
     maxVal_(iConfig.getUntrackedParameter<std::vector<double> >("MaxValueVec")),
     pset_(iConfig.getParameter<edm::ParameterSet>("TkmapParameters"))
 {
 
-  read(mechanicalView_);
+  read(mechanicalView_,fileName_,tkHistoMapVec_,isValidMap_);
+  if (doDiff_) read(mechanicalView_,fileNameDiff_,tkHistoMapVecDiff_,isValidMapDiff_);
+
 
 //   for (unsigned int i(0); i<34; i++){
 //     if (i<4) histName_[i] << "TIB/layer_" << i+1 << "/" << tkDetMapName_ << "_TIB_L" << i+1;
@@ -125,6 +139,7 @@ BuildTrackerMapPlugin::~BuildTrackerMapPlugin()
 {
 
   tkHistoMapVec_.clear();
+  if (doDiff_) tkHistoMapVecDiff_.clear();
 }
 
 
@@ -133,33 +148,65 @@ BuildTrackerMapPlugin::~BuildTrackerMapPlugin()
 //
 
 /*Check that is possible to load in tkhistomaps histograms already stored in a DQM root file (if the folder and name are known)*/
-void BuildTrackerMapPlugin::read(bool aMechView){
-
-  edm::Service<DQMStore>().operator->()->open(fileName_);  
+void BuildTrackerMapPlugin::read(bool aMechView,
+				 std::string aFile,
+				 std::vector<TkHistoMap*> & aTkMapVec,
+				 std::vector<bool> & aValidVec)
+{
+  
+  DQMStore * lDqmStore = edm::Service<DQMStore>().operator->();
+  lDqmStore->open(aFile);  
   std::vector<TkHistoMap *> tkHistoMap;
 
   unsigned int nHists = tkHistoMapNameVec_.size();
   tkHistoMap.resize(nHists,0);
-  isValidMap_.resize(nHists,true);
+  aValidVec.resize(nHists,true);
 
+  std::string dirName = folderName_;
+  if (dirName == "") {
+    dirName += "Run ";
+    dirName += aFile.substr(aFile.find_last_of("_")+5,6);
+    dirName += "/SiStrip/Run summary";
+    std::cout << " -- DirName = " << dirName << std::endl;
+   }
+
+  //lDqmStore->setCurrentFolder(dirName);
+  //lDqmStore->showDirStructure();
+  
+  unsigned int nFailTot=0;
+  unsigned int nTotTot = 0;
   for (unsigned int i(0); i<nHists; i++){
 
     tkHistoMap[i] = new TkHistoMap();
-    tkHistoMap[i]->loadTkHistoMap(folderName_,tkHistoMapNameVec_.at(i),aMechView);
+
+    tkHistoMap[i]->loadTkHistoMap(dirName,tkHistoMapNameVec_.at(i),aMechView);
     
     std::vector<MonitorElement*>& lMaps = tkHistoMap[i]->getAllMaps();
+
+    std::cout << " -- map " << i << ", nHistos = " << lMaps.size() << std::endl;
+    unsigned int nFail=0;
+    unsigned int nTot=0;
+ 
     for (unsigned int im(0); im<lMaps.size(); im++){
       if (!lMaps[im]) {
 	std::cout << " -- Failed to get element " << im << " for map " << i << std::endl;
-	isValidMap_[i] = false;
+	nFail++;
+	nFailTot++;
       }
+      nTot++;
+      nTotTot++;
     }
 
-
-    tkHistoMapVec_.push_back(tkHistoMap[i]);
+    if (nFail == nTot) aValidVec[i] = false;
+    aTkMapVec.push_back(tkHistoMap[i]);
   }
 
-  std::cout << " - Maps read with success." << std::endl;
+  if (nFailTot < nTotTot) std::cout << " - " << nTotTot-nFailTot << "/" << nTotTot 
+			      << " histomaps read with success for file ." << aFile << std::endl;
+  else {
+    std::cout << " - Failed to read any map for file " << aFile << ". Exiting line ... " << __LINE__ << std::endl;
+     exit(1);
+  }
 
 //   //get list of detid for which |deltaRMS(APV0-APV1)|>1
 //   unsigned int lHistoNumber = 35;
@@ -312,11 +359,14 @@ BuildTrackerMapPlugin::endJob()
       continue;
     }
 
+    subtractMap(tkHistoMapVec_.at(i),tkHistoMapVecDiff_.at(i));
+
+
     //(pset_,pDD1); 
     lTkMap->setPalette(1);
     lTkMap->showPalette(1);
     if (!tkHistoMapVec_.at(i) || !isValidMap_.at(i)) {
-      std::cout << "tkHistoMap is invalid for element " << i << "... continuing..." << std::endl;
+      std::cout << "Warning, tkHistoMap is invalid for element " << i << "... continuing ..." << std::endl;
       continue;
     }
     tkHistoMapVec_.at(i)->dumpInTkMap(lTkMap);
@@ -334,8 +384,29 @@ BuildTrackerMapPlugin::endJob()
 
   }
 
+}
+
+
+void BuildTrackerMapPlugin::subtractMap(TkHistoMap *& aResult,
+					TkHistoMap *& aSubtr)
+{
+  
+  std::vector<MonitorElement*>& lMaps = aResult->getAllMaps();
+  std::vector<MonitorElement*>& lMapsDiff = aSubtr->getAllMaps();
+
+  assert(lMaps.size() == lMapsDiff.size());  
+
+    for (unsigned int im(0); im<lMaps.size(); im++){
+      if (!lMaps[im] || !lMapsDiff[im]) {
+	std::cout << " -- Failed to get element " << im << " for maps." << std::endl;
+      }
+      else {
+	(lMaps[im]->getTProfile2D())->Add(lMapsDiff[im]->getTProfile2D(),-1);
+      }
+    }
 
 }
+
 
 
 // Define as a plug-in

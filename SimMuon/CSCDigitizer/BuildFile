@@ -17,7 +17,6 @@
 <use name=SimGeneral/HepPDTRecord>
 <use name=SimMuon/Neutron>
 <use name=Utilities/General>
-<use name=Utilities/Timing>
 <use name=boost>
 <use name=clhep>
 <export>

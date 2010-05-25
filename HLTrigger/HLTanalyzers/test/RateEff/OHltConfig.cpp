@@ -27,7 +27,9 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
   cmsEnergy = 10.;
   liveTimeRun = 100.;
   nL1AcceptsRun = 100;
-  lumiSectionLength = 93.;
+  // lumiSectionLength = 93.;
+  lumiSectionLength = 23.3;
+  lumiScaleFactor = 1.0;
   prescaleNormalization = 1;
   isL1Menu = false;
   doL1preloop = true;  
@@ -47,7 +49,7 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
     cout << " ... ok" << endl;
 
     // temporary vars
-    const char* stmp; float ftmp; bool btmp; int itmp;
+    const char* stmp; float ftmp; bool btmp; int itmp; 
 
     /**** General Menu & Run conditions ****/
     cfg.lookupValue("run.nEntries",nEntries);
@@ -76,6 +78,7 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
     cfg.lookupValue("data.liveTimeRun",liveTimeRun);
     cfg.lookupValue("data.nL1AcceptsRun",nL1AcceptsRun); 
     cfg.lookupValue("data.lumiSectionLength",lumiSectionLength);
+    cfg.lookupValue("data.lumiScaleFactor",lumiScaleFactor);
     cfg.lookupValue("data.prescaleNormalization",prescaleNormalization);
     
     getPreFilter();
@@ -209,7 +212,7 @@ void OHltConfig::fillRunBlockList()
 void OHltConfig::fillMenu(OHltMenu *omenu)
 {
   // temporary vars
-  const char* stmp; float ftmp; int itmp; //bool btmp; 
+  const char* stmp; float ftmp; int itmp; int refprescaletmp; //bool btmp; 
   const char* seedstmp;
     
   /**** Menu ****/ 
@@ -256,7 +259,20 @@ void OHltConfig::fillMenu(OHltMenu *omenu)
       ftmp = tt2;
       //cout << "SampleSize: "<< ftmp << endl;
 
-      omenu->AddTrigger(stmp,seedstmp,itmp,ftmp);
+      // JH - testing reference prescale
+      refprescaletmp = 1; 
+      TString ss4 = "menu.triggers.["; ss4 +=i; ss4=ss4+"].[4]"; 
+      if(cfg.exists(ss4.Data())) 
+        { 
+          Setting &tt4 = cfg.lookup(ss4.Data()); 
+          refprescaletmp = tt4; 
+        } 
+      else 
+        { 
+          refprescaletmp = 1; 
+        } 
+
+      omenu->AddTrigger(stmp,seedstmp,itmp,ftmp,refprescaletmp);
 
     }
   }
@@ -299,6 +315,8 @@ void OHltConfig::print()
       cout << "nL1AcceptsRun: " << nL1AcceptsRun << endl;
       cout << "liveTimeRun: " << liveTimeRun << endl;
       cout << "Time of one LumiSection: " << lumiSectionLength << endl;
+      if (fabs(lumiScaleFactor-1.) > 0.001)
+	cout << "Luminosity scaled by: " << lumiScaleFactor << endl;
       cout << "PD prescale factor: " << prescaleNormalization << endl;
     }
   cout << "alcaCondition: " << alcaCondition << endl;

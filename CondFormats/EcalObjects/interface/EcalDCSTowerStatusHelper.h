@@ -9,12 +9,12 @@
 class EcalDCSTowerStatusHelper {
  public:
 
-  static const int HVSTATUS=0;
-  static const int HVNOMINALSTATUS=1;
-  static const int HVTIMESTATUS=2;
-  static const int LVSTATUS=3;
-  static const int LVNOMINALSTATUS=4;
-  static const int LVTIMESTATUS=5;
+  static const int LVSTATUS=0;
+  static const int LVNOMINALSTATUS=1;
+  static const int HVSTATUS=2;
+  static const int HVNOMINALSTATUS=3;
+  static const int HVEEDSTATUS=4;
+  static const int HVEEDNOMINALSTATUS=5;
 
 };
 

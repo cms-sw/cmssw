@@ -30,7 +30,7 @@ particleFlowRecHitHCAL = cms.EDProducer("PFRecHitProducerHCAL",
     LongFibre_Fraction = cms.double(0.05),
 
 # Compensate for ECAL dead channels                                        
-    ECAL_Compensate = cms.bool(True),
+    ECAL_Compensate = cms.bool(False),
     ECAL_Threshold = cms.double(10.),
     ECAL_Compensation = cms.double(0.5),
     ECAL_Dead_Code = cms.uint32(10),

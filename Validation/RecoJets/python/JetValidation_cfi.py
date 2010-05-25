@@ -106,7 +106,7 @@ JetAnalyzerAk5PF = cms.EDAnalyzer("PFJetTester",
 )
 
 ## IC5 JPT jets
-JetAnalyzerIC5JPT = cms.EDFilter("JPTJetTester",
+JetAnalyzerIC5JPT = cms.EDAnalyzer("JPTJetTester",
     src = cms.InputTag("JetPlusTrackZSPCorJetIcone5"),
     srcGen = cms.InputTag("iterativeCone5GenJets"),
 #    TurnOnEverything = cms.untracked.string('yes'),
@@ -120,7 +120,7 @@ JetAnalyzerIC5JPT = cms.EDFilter("JPTJetTester",
 )
 
 ## AntiKt5 JPT jets
-JetAnalyzerAk5JPT = cms.EDFilter("JPTJetTester",
+JetAnalyzerAk5JPT = cms.EDAnalyzer("JPTJetTester",
     src = cms.InputTag("JetPlusTrackZSPCorJetAntiKt5"),
     srcGen = cms.InputTag("ak5GenJets"),
 #    TurnOnEverything = cms.untracked.string('yes'),

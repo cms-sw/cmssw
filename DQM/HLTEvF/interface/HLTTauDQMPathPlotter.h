@@ -70,6 +70,8 @@ class HLTTauDQMPathPlotter  {
   MonitorElement *accepted_events;
   MonitorElement *accepted_events_matched;
 
+  double refTauPt_;
+  double refLeptonPt_;
 
 
 

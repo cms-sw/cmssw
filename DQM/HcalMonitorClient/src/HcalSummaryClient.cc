@@ -15,8 +15,8 @@
 /*
  * \file HcalSummaryClient.cc
  * 
- * $Date: 2010/03/25 21:27:42 $
- * $Revision: 1.92 $
+ * $Date: 2010/05/07 18:05:00 $
+ * $Revision: 1.97 $
  * \author J. Temple
  * \brief Summary Client class
  */
@@ -30,6 +30,8 @@ HcalSummaryClient::HcalSummaryClient(std::string myname)
   badChannelStatusMask_=0;
   ProblemCells=0;
   ProblemCellsByDepth=0;
+  StatusVsLS_=0;
+  reportMap_=0;
 }
 
 HcalSummaryClient::HcalSummaryClient(std::string myname, const edm::ParameterSet& ps)
@@ -57,6 +59,8 @@ HcalSummaryClient::HcalSummaryClient(std::string myname, const edm::ParameterSet
   SummaryMapByDepth=0;
   ProblemCells=0;
   ProblemCellsByDepth=0;
+  StatusVsLS_=0;
+  reportMap_=0;
 }
 
 void HcalSummaryClient::analyze(int LS)
@@ -77,13 +81,13 @@ void HcalSummaryClient::analyze(int LS)
   status_HFlumi_=-1;
   status_global_=-1;
 
-  EnoughEvents_->Reset();
+  if (EnoughEvents_!=0) EnoughEvents_->Reset();
   enoughevents_=true; // assume we have enough events for all tests to have run
   for (std::vector<HcalBaseDQClient*>::size_type i=0;i<clients_.size();++i)
     {
       if (debug_>2) std::cout <<"<HcalSummaryClient::analyze>  CLIENT = "<<clients_[i]->name_<<"  ENOUGH = "<<clients_[i]->enoughevents_<<std::endl;
       enoughevents_&=clients_[i]->enoughevents_;
-      EnoughEvents_->setBinContent(i+1,clients_[i]->enoughevents_);
+      if (EnoughEvents_!=0) EnoughEvents_->setBinContent(i+1,clients_[i]->enoughevents_);
       {
 	if (clients_[i]->enoughevents_==false && debug_>1)
 	  std::cout <<"Failed enoughevents test for monitor "<<clients_[i]->name()<<std::endl;
@@ -95,7 +99,7 @@ void HcalSummaryClient::analyze(int LS)
       fillReportSummary(LS);
       return;
     }
-  EnoughEvents_->setBinContent(clients_.size()+1,1); // summary is good to go!
+  if (EnoughEvents_!=0) EnoughEvents_->setBinContent(clients_.size()+1,1); // summary is good to go!
 
   // check to find which subdetectors are present
   MonitorElement* temp_present;
@@ -138,8 +142,11 @@ void HcalSummaryClient::analyze(int LS)
    status_global_=0;
 
  // reset all depth histograms
- if (SummaryMapByDepth==0 && debug_>0)
-   std::cout <<"<HcalSummaryClient::analyze>  ERROR:  SummaryMapByDepth can't be found!"<<std::endl;
+ if (SummaryMapByDepth==0)
+   {
+      if (debug_>0)
+       std::cout <<"<HcalSummaryClient::analyze>  ERROR:  SummaryMapByDepth can't be found!"<<std::endl;
+   }
  else 
    {
      for (unsigned int i=0;i<(SummaryMapByDepth->depth).size();++i)
@@ -300,13 +307,16 @@ void HcalSummaryClient::fillReportSummary(int LS)
 
   if (LS>0)
     {
-      StatusVsLS_->setBinContent(LS,1,status_HB_);
-      StatusVsLS_->setBinContent(LS,2,status_HE_);
-      StatusVsLS_->setBinContent(LS,3,status_HO_);
-      StatusVsLS_->setBinContent(LS,4,status_HF_);
-      StatusVsLS_->setBinContent(LS,5,status_HO0_);
-      StatusVsLS_->setBinContent(LS,6,status_HO12_);
-      StatusVsLS_->setBinContent(LS,7,status_HFlumi_);
+      if (StatusVsLS_)
+        {
+        StatusVsLS_->setBinContent(LS,1,status_HB_);
+        StatusVsLS_->setBinContent(LS,2,status_HE_);
+        StatusVsLS_->setBinContent(LS,3,status_HO_);
+        StatusVsLS_->setBinContent(LS,4,status_HF_);
+        StatusVsLS_->setBinContent(LS,5,status_HO0_);
+        StatusVsLS_->setBinContent(LS,6,status_HO12_);
+        StatusVsLS_->setBinContent(LS,7,status_HFlumi_);
+      }
     }
 
 
@@ -354,6 +364,135 @@ void HcalSummaryClient::fillReportSummary(int LS)
 } // fillReportSummary()
 
 
+void HcalSummaryClient::fillReportSummaryLSbyLS(int LS)
+{
+
+  MonitorElement* me;
+  dqmStore_->setCurrentFolder(prefixME_+"LSbyLS_Hcal/LSvalues");
+  
+  float status_HB=-1;
+  float status_HE=-1;
+  float status_HO=-1;
+  float status_HF=-1;
+  float status_HO0=-1;
+  float status_HO12=-1;
+  float status_HFlumi=-1;
+  float status_global=-1;
+
+  me=dqmStore_->get(prefixME_+"LSbyLS_Hcal/LSvalues/ProblemsThisLS");
+  if (me!=0)
+    {
+      //check to see if enough events were processed to make tests
+      int events=me->getBinContent(-1);
+      if (events>0)
+	{
+	  std::map<std::string, int>::const_iterator it;
+	  int totalcells=0;
+
+	  status_HB=me->getBinContent(1,1);
+	  status_HE=me->getBinContent(2,1);
+	  status_HO=me->getBinContent(3,1);
+	  status_HF=me->getBinContent(4,1);
+	  status_HO0=me->getBinContent(5,1);
+	  status_HO12=me->getBinContent(6,1);
+	  status_HFlumi=me->getBinContent(7,1);
+
+	  status_global=status_HB+status_HE+status_HO+status_HF;
+
+	  it=subdetCells_.find("HB");
+	  totalcells+=it->second;
+	  if (it->second>0)
+	    status_HB=1-(status_HB)/events/it->second;
+
+	  it=subdetCells_.find("HE");
+	  totalcells+=it->second;
+	  if (it->second>0)
+	    status_HE=1-(status_HE)/events/it->second;
+
+	  it=subdetCells_.find("HO");
+	  totalcells+=it->second;
+	  if (it->second>0)
+	    status_HO=1-(status_HO)/events/it->second;
+
+	  it=subdetCells_.find("HF");
+	  totalcells+=it->second;
+	  if (it->second>0)
+	    status_HF=1-(status_HF)/events/it->second;
+
+	  it=subdetCells_.find("HO0");
+	  if (it->second>0)
+	    status_HO0=1-(status_HO0)/events/it->second;
+
+	  it=subdetCells_.find("HO12");
+	  if (it->second>0)
+	    status_HO12=1-(status_HO12)/events/it->second;
+
+	  it=subdetCells_.find("HFlumi");
+	  if (it->second>0)
+	    status_HFlumi=1-(status_HFlumi)/events/it->second;
+	  if (totalcells>0)
+	    status_global=1-status_global/events/totalcells;
+	  //std::cout <<"STATUS = "<<status_HB<<" "<<status_HE<<" "<<status_HO<<" "<<status_HF<<"  GLOBAL = "<<status_global<<std::endl;
+	} // if (events(>0)
+    } // if (me!=0)
+
+  dqmStore_->setCurrentFolder(subdir_);
+  if (reportMap_)
+    {
+      reportMap_->setBinContent(1,1,status_HB);
+      reportMap_->setBinContent(2,1,status_HE);
+      reportMap_->setBinContent(3,1,status_HO);
+      reportMap_->setBinContent(4,1,status_HF);
+      reportMap_->setBinContent(5,1,status_HO0);
+      reportMap_->setBinContent(6,1,status_HO12);
+      reportMap_->setBinContent(7,1,status_HFlumi);
+    }
+  else if (debug_>0) std::cout <<"<HcalSummaryClient::fillReportSummaryLSbyLS> CANNOT GET REPORT SUMMARY MAP!!!!!"<<std::endl;
+
+  me=dqmStore_->get(subdir_+"reportSummary");
+  // Clear away old versions
+  if (me) me->Fill(status_global);
+
+  // Create floats for each subdetector status
+  std::string subdets[7] = {"HB","HE","HO","HF","HO0","HO12","HFlumi"};
+  for (unsigned int i=0;i<7;++i)
+    {
+      // Create floats showing subtasks status
+      dqmStore_->setCurrentFolder( subdir_+ "reportSummaryContents" );  
+      me=dqmStore_->get(subdir_+"reportSummaryContents/Hcal_"+subdets[i]);
+      if (me==0)
+	{
+	  if (debug_>0) std::cout <<"<HcalSummaryClient::LSbyLS>  Could not get Monitor Element named 'Hcal_"<<subdets[i]<<"'"<<std::endl;
+	  continue;
+	}
+      if (subdets[i]=="HB") me->Fill(status_HB);
+      else if (subdets[i]=="HE") me->Fill(status_HE);
+      else if (subdets[i]=="HO") me->Fill(status_HO);
+      else if (subdets[i]=="HF") me->Fill(status_HF);
+      else if (subdets[i]=="HO0") me->Fill(status_HO0);
+      else if (subdets[i]=="HO12") me->Fill(status_HO12);
+      else if (subdets[i]=="HFlumi") me->Fill(status_HFlumi);
+    } // for (unsigned int i=0;...)
+
+  
+  if (StatusVsLS_)
+    {
+      StatusVsLS_->setBinContent(LS,1,status_HB);
+      StatusVsLS_->setBinContent(LS,2,status_HE);
+      StatusVsLS_->setBinContent(LS,3,status_HO);
+      StatusVsLS_->setBinContent(LS,4,status_HF);
+      StatusVsLS_->setBinContent(LS,5,status_HO0);
+      StatusVsLS_->setBinContent(LS,6,status_HO12);
+      StatusVsLS_->setBinContent(LS,7,status_HFlumi);
+    }
+
+  return;
+
+
+} // void HcalSummaryClient::fillReportSummaryLSbyLS()
+
+
+
 void HcalSummaryClient::beginJob()
 {
   dqmStore_ = edm::Service<DQMStore>().operator->();
@@ -374,7 +513,6 @@ void HcalSummaryClient::beginJob()
   EnoughEvents_=0;
   MinEvents_=0;
   MinErrorRate_=0;
-
 }
 
 void HcalSummaryClient::endJob(){}
@@ -446,6 +584,14 @@ void HcalSummaryClient::beginRun(void)
       MinErrorRate_->setBinContent(i+1,clients_[i]->minerrorrate_);
     }
 
+  // Extra fix provided by Giuseppe
+  
+  if (SummaryMapByDepth!=0)
+    {
+      delete SummaryMapByDepth;
+      SummaryMapByDepth=0;
+    }
+
   if (SummaryMapByDepth==0) 
     {
       SummaryMapByDepth=new EtaPhiHists();
@@ -505,7 +651,7 @@ void HcalSummaryClient::beginRun(void)
   (reportMap_->getTH2F())->GetYaxis()->SetBinLabel(1,"Status");
   (reportMap_->getTH2F())->SetMarkerSize(3);
   (reportMap_->getTH2F())->SetOption("text90colz");
-  (reportMap_->getTH2F())->SetOption("textcolz");
+  //(reportMap_->getTH2F())->SetOption("textcolz");
   (reportMap_->getTH2F())->SetMinimum(-1);
   (reportMap_->getTH2F())->SetMaximum(1);
 

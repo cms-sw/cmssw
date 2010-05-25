@@ -49,7 +49,7 @@ L1GtTrigReportEntry::~L1GtTrigReportEntry() {
 }
 
 // assignment operator
-L1GtTrigReportEntry::L1GtTrigReportEntry& L1GtTrigReportEntry::operator=(
+L1GtTrigReportEntry& L1GtTrigReportEntry::operator=(
     const L1GtTrigReportEntry& repEntry)
 {
 

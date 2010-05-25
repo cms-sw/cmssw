@@ -17,7 +17,8 @@ import RecoTracker.TkSeedGenerator.SeedGeneratorFromRegionHitsEDProducer_cfi
 globalSeedsFromPairsWithVertices = RecoTracker.TkSeedGenerator.SeedGeneratorFromRegionHitsEDProducer_cfi.seedGeneratorFromRegionHitsEDProducer.clone(
     OrderedHitsFactoryPSet = cms.PSet(
       ComponentName = cms.string('StandardHitPairGenerator'),
-      SeedingLayers = cms.string('MixedLayerPairs')
+      SeedingLayers = cms.string('MixedLayerPairs'),
+      maxElement = cms.uint32(10000)
     ),
     RegionFactoryPSet = cms.PSet(
       RegionPSetWithVerticesBlock,

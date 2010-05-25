@@ -14,6 +14,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "CommonTools/UtilAlgos/interface/ExpressionHisto.h"
 
 template<typename C>
@@ -55,7 +57,7 @@ HistoAnalyzer<C>::HistoAnalyzer( const edm::ParameterSet& par ) :
    for (; it!=end; ++it)
    {
       ExpressionHisto<typename C::value_type>* hist = new ExpressionHisto<typename C::value_type>(*it);
-      hist->initialize(fs);
+      hist->initialize(*fs);
       vhistograms.push_back(hist);
    }   
 

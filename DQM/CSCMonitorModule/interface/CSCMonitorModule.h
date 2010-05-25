@@ -40,6 +40,7 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "CondFormats/CSCObjects/interface/CSCCrateMap.h"
 #include "CondFormats/DataRecord/interface/CSCCrateMapRcd.h"
+#include "DataFormats/Scalers/interface/DcsStatus.h"
 
 /// CSCDQM Framework stuff
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Logger.h"
@@ -55,6 +56,11 @@ static const char DIR_EVENTINFO[]        = "CSC/EventInfo/";
 static const char DIR_DCSINFO[]          = "CSC/EventInfo/DCSContents/";
 static const char DIR_DAQINFO[]          = "CSC/EventInfo/DAQContents/";
 static const char DIR_CRTINFO[]          = "CSC/EventInfo/CertificationContents/";
+
+static const unsigned int MIN_CRATE_ID = 1;
+static const unsigned int MAX_CRATE_ID = 60;
+static const unsigned int MIN_DMB_SLOT = 1;
+static const unsigned int MAX_DMB_SLOT = 10;
 
 /**
  * @class CSCMonitorModule
@@ -78,6 +84,7 @@ class CSCMonitorModule: public edm::EDAnalyzer, public cscdqm::MonitorObjectProv
     DQMStore                 *dbe;
     edm::InputTag             inputTag;
     bool                      prebookEffParams;
+    bool                      processDcsScalers;
 
     /** Pointer to crate mapping from database **/
     const CSCCrateMap* pcrate;
@@ -88,9 +95,15 @@ class CSCMonitorModule: public edm::EDAnalyzer, public cscdqm::MonitorObjectProv
 
   public:
 
-    const CSCDetId getCSCDetId(const unsigned int crateId, const unsigned int dmbId) const { 
-      return pcrate->detId(crateId, dmbId, 0, 0); 
+    bool getCSCDetId(const unsigned int crateId, const unsigned int dmbId, CSCDetId& detId) const { 
+      // Check parameter values
+      if (crateId < MIN_CRATE_ID || crateId > MAX_CRATE_ID || dmbId < MIN_DMB_SLOT || dmbId > MAX_DMB_SLOT) {
+        return false;
+      }
+      detId = pcrate->detId(crateId, dmbId, 0, 0);
+      return (detId.rawId() != 0);
     }
+
     cscdqm::MonitorObject *bookMonitorObject (const cscdqm::HistoBookRequest& p_req); 
 
   /** 

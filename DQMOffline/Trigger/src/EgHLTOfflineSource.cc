@@ -107,7 +107,7 @@ void EgHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
     offEvtHelper_.setupTriggers(hltConfig,hltFiltersUsed);
 
     //now book ME's
-
+    dbe_->setCurrentFolder(dirName_);
     //each trigger path with generate object distributions and efficiencies (BUT not trigger efficiencies...)
     for(size_t i=0;i<eleHLTFilterNames_.size();i++) addEleTrigPath(eleHLTFilterNames_[i]);
     for(size_t i=0;i<phoHLTFilterNames_.size();i++) addPhoTrigPath(phoHLTFilterNames_[i]);

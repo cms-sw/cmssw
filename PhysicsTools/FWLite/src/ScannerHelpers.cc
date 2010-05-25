@@ -144,12 +144,20 @@ helper::ScannerBase::print(const void *ptr) const {
                 printf(" : %8s", "#ERR");
             } else {  
                 try {
-                    //printf(" : % 8.6g", (*it)->value(obj)); doesn't enforce max width if there are leading zeros, e.g. 0.00922449f :-(
-                    //so we use a two-step procedure
                     double val = (*it)->value(obj);
-                    char buff[3+8+1];
-                    snprintf(buff,3+8+1," : % 8.6g",val);
-                    printf(buff);
+                    // I found no easy ways to enforce a fixed width from printf that works also with leading zeroes or large exponents (e.g. 1e15 or 1e101)
+                    // So we have to go the ugly way
+                    char buff[255];
+                    int len = sprintf(buff," : % 8.6g",val); // this is usually ok, and should be 3+8 chars long
+                    if (len == 3+8) {
+                        printf(buff);
+                    } else {
+                        if (strchr(buff,'e')) {
+                            printf((len == 3+13 ? " :  % .0e" : " : % .1e"),val);
+                        } else {
+                            printf("%11.11s",buff);
+                        } 
+                    } 
                 } catch (std::exception &ex) {
                     printf(" : %8s", "EXCEPT"); 
                     if (!ignoreExceptions_) std::cerr << "Caught exception " << ex.what() << std::endl;

@@ -240,7 +240,7 @@ void HcalHotCellMonitor::reset()
       d_HOenergyVsNeighbor->Reset();
       d_HFenergyVsNeighbor->Reset();
     }
-}  // reset function is empty for now
+}  
 
 
 
@@ -250,7 +250,7 @@ void HcalHotCellMonitor::beginLuminosityBlock(const edm::LuminosityBlock& lumiSe
   if (LumiInOrder(lumiSeg.luminosityBlock())==false) return;
   HcalBaseDQMonitor::beginLuminosityBlock(lumiSeg,c);
   zeroCounters(); // zero hot cell counters at the start of each luminosity block
-
+  ProblemsCurrentLB->Reset();
   return;
 } // beginLuminosityBlock(...)
 
@@ -767,6 +767,9 @@ void HcalHotCellMonitor::fillNevents_problemCells(void)
   int NumBadHE=0;
   int NumBadHO=0;
   int NumBadHF=0;
+  int NumBadHO0=0;
+  int NumBadHO12=0;
+  int NumBadHFLUMI=0;
 
   unsigned int DEPTH = 0;
   if (test_persistent_)     DEPTH = AbovePersistentThresholdCellsByDepth.depth.size();
@@ -812,8 +815,18 @@ void HcalHotCellMonitor::fillNevents_problemCells(void)
 	      if (isHB(eta,depth+1)) ++NumBadHB;
 	      else if (isHE(eta,depth+1)) 
 		++NumBadHE;
-	      else if (isHO(eta,depth+1)) ++NumBadHO;
-	      else if (isHF(eta,depth+1)) ++NumBadHF;
+	      else if (isHO(eta,depth+1))
+		{
+		  ++NumBadHO;
+		  if (abs(ieta)<5) ++NumBadHO0;
+		  else ++NumBadHO12;
+		}
+	      else if (isHF(eta,depth+1)) 
+		{
+		  ++NumBadHF;
+		  if (depth+1==1 && (abs(ieta)==33 || abs(ieta)==34)) ++NumBadHFLUMI;
+		  else if (depth+1==2 && (abs(ieta)==35 || abs(ieta)==36)) ++NumBadHFLUMI;
+		}
 	    } // for (int phi=0;...)
 	} //for (int eta=0;...)
     } // for (int depth=0;...)
@@ -825,6 +838,15 @@ void HcalHotCellMonitor::fillNevents_problemCells(void)
   ProblemsVsLB_HO->Fill(currentLS,NumBadHO);
   ProblemsVsLB_HF->Fill(currentLS,NumBadHF);
   ProblemsVsLB->Fill(currentLS,NumBadHB+NumBadHE+NumBadHO+NumBadHF);
+
+  ProblemsCurrentLB->Fill(-1,-1,levt_);
+  ProblemsCurrentLB->Fill(0,0,NumBadHB);
+  ProblemsCurrentLB->Fill(1,0,NumBadHE);
+  ProblemsCurrentLB->Fill(2,0,NumBadHO);
+  ProblemsCurrentLB->Fill(3,0,NumBadHF);
+  ProblemsCurrentLB->Fill(4,0,NumBadHO0);
+  ProblemsCurrentLB->Fill(5,0,NumBadHO12);
+  ProblemsCurrentLB->Fill(6,0,NumBadHFLUMI);
 
 } // void HcalHotCellMonitor::fillNevents_problemCells(void)
 
@@ -884,6 +906,8 @@ void HcalHotCellMonitor::cleanup()
       dbe_->setCurrentFolder(subdir_+"hot_rechit_always_above_threshold");
       dbe_->removeContents();
       dbe_->setCurrentFolder(subdir_+"hot_neighbortest");
+      dbe_->removeContents();
+      dbe_->setCurrentFolder(subdir_+"LSvalues");
       dbe_->removeContents();
     }
 } // cleanup

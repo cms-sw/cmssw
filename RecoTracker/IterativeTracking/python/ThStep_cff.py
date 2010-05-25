@@ -89,10 +89,6 @@ thlayertripletsa = cms.ESProducer("SeedingLayersESProducer",
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedTriplets'),
         HitProducer = cms.string('thPixelRecHits'),
         hitErrorRZ = cms.double(0.006)
-    ),
-    TIB = cms.PSet(
-        matchedRecHits = cms.InputTag("thStripRecHits","matchedRecHit"),
-        TTRHBuilder = cms.string('WithTrackAngle')
     )
 )
 
@@ -223,7 +219,7 @@ thStepTrkLoose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clo
     keepAllTracks = False,
     copyExtras = False,
     copyTrajectories = True,
-    chi2n_par = 0.5,
+    chi2n_par = 0.6,
     res_par = ( 0.003, 0.001 ),
     minNumberLayers = 4,
     maxNumberLostLayers = 1,
@@ -232,11 +228,6 @@ thStepTrkLoose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clo
     dz_par1 = ( 1.2, 4.0 ),
     d0_par2 = ( 1.2, 4.0 ),
     dz_par2 = ( 1.2, 4.0 )
-    )
-
-thStepLoose = RecoTracker.FinalTrackSelectors.simpleTrackListMerger_cfi.simpleTrackListMerger.clone(
-    TrackProducer1 = 'thStepVtxLoose',
-    TrackProducer2 = 'thStepTrkLoose'
     )
 
 
@@ -272,26 +263,21 @@ thStepTrkTight = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.clo
     dz_par2 = ( 1.1, 4.0 )
 )
 
-thStepTight = RecoTracker.FinalTrackSelectors.simpleTrackListMerger_cfi.simpleTrackListMerger.clone(
-    TrackProducer1 = 'thStepVtxTight',
-    TrackProducer2 = 'thStepTrkTight'
-    )
-
 
 thStepVtx = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone(
     src = 'thStepVtxTight',
     keepAllTracks = True,
     copyExtras = False,
     copyTrajectories = True,
-    chi2n_par = 0.5,
+    chi2n_par = 0.4,
     res_par = ( 0.003, 0.001 ),
     minNumberLayers = 3,
     maxNumberLostLayers = 1,
     minNumber3DLayers = 3,
-    d0_par1 = ( 1.0, 3.0 ),
-    dz_par1 = ( 1.0, 3.0 ),
-    d0_par2 = ( 1.1, 3.0 ),
-    dz_par2 = ( 1.1, 3.0 )
+    d0_par1 = ( 1.1, 3.0 ),
+    dz_par1 = ( 1.1, 3.0 ),
+    d0_par2 = ( 1.2, 3.0 ),
+    dz_par2 = ( 1.2, 3.0 )
 )
 
 thStepTrk = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone(
@@ -321,6 +307,6 @@ thirdStep = cms.Sequence(secfilter*
                          thTripletsA*thTripletsB*thTriplets*
                          thTrackCandidates*
                          thWithMaterialTracks*
-                         thStepVtxLoose*thStepTrkLoose*thStepLoose*
-                         thStepVtxTight*thStepTrkTight*thStepTight*
+                         thStepVtxLoose*thStepTrkLoose*
+                         thStepVtxTight*thStepTrkTight*
                          thStepVtx*thStepTrk*thStep)

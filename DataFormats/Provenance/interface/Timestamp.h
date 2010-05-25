@@ -34,6 +34,18 @@ class Timestamp {
 
       virtual ~Timestamp();
 
+      /// Time in seconds since January 1, 1970.
+      unsigned int
+      unixTime() const {
+        return timeHigh_;
+      }
+
+      /// Nanoseconds offset within second
+      unsigned int
+      nanosecondOffset() const {
+        return timeLow_;
+      }
+
       TimeValue_t value() const;
 
       // ---------- const member functions ---------------------

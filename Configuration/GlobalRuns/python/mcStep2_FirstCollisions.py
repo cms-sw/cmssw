@@ -21,7 +21,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.8 $'),
+    version = cms.untracked.string('$Revision: 1.9 $'),
     annotation = cms.untracked.string('step2 nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -82,8 +82,8 @@ process.output = cms.OutputModule("PoolOutputModule",
 ## Skip events with HV off
 process.newSeedFromTriplets.ClusterCheckPSet.MaxNumberOfPixelClusters=2000
 process.newSeedFromPairs.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
-process.secTriplets.ClusterCheckPSet.MaxNumberOfPixelClusters=1000
-process.fifthSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 5000
+process.secTriplets.ClusterCheckPSet.MaxNumberOfPixelClusters=2000
+process.fifthSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 10000
 process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
 
 ###### FIXES TRIPLETS FOR LARGE BS DISPLACEMENT ######
@@ -92,11 +92,8 @@ process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
 process.pixelVertices.useBeamConstraint = False
 
 ### pixelTracks
-#---- replaces ----
-process.pixelTracks.RegionFactoryPSet.ComponentName = 'GlobalRegionProducerFromBeamSpot' # was GlobalRegionProducer
 #---- new parameters ----
 process.pixelTracks.RegionFactoryPSet.RegionPSet.nSigmaZ  = cms.double(4.06) # was originHalfLength = 15.9; translated assuming sigmaZ ~ 3.8
-process.pixelTracks.RegionFactoryPSet.RegionPSet.beamSpot = cms.InputTag("offlineBeamSpot")
 
 ### 0th step of iterative tracking
 #---- replaces ----
@@ -118,13 +115,13 @@ process.offlinePrimaryVerticesWithBS.TkFilterParameters.maxNormalizedChi2 = 20
 process.offlinePrimaryVerticesWithBS.TkFilterParameters.minSiliconHits = 6
 process.offlinePrimaryVerticesWithBS.TkFilterParameters.maxD0Significance = 100
 process.offlinePrimaryVerticesWithBS.TkFilterParameters.minPixelHits = 1
-process.offlinePrimaryVerticesWithBS.TkClusParameters.zSeparation = 10
+process.offlinePrimaryVerticesWithBS.TkClusParameters.zSeparation = 1
 process.offlinePrimaryVertices.PVSelParameters.maxDistanceToBeam = 2
 process.offlinePrimaryVertices.TkFilterParameters.maxNormalizedChi2 = 20
 process.offlinePrimaryVertices.TkFilterParameters.minSiliconHits = 6
 process.offlinePrimaryVertices.TkFilterParameters.maxD0Significance = 100
 process.offlinePrimaryVertices.TkFilterParameters.minPixelHits = 1
-process.offlinePrimaryVertices.TkClusParameters.zSeparation = 10
+process.offlinePrimaryVertices.TkClusParameters.zSeparation = 1
 
 ## ECAL 
 process.ecalRecHit.ChannelStatusToBeExcluded = [ 1, 2, 3, 4, 8, 9, 10, 11, 12, 13, 14, 78, 142 ]
@@ -133,9 +130,6 @@ process.ecalRecHit.ChannelStatusToBeExcluded = [ 1, 2, 3, 4, 8, 9, 10, 11, 12, 1
 ## HCAL temporary fixes
 process.hfreco.firstSample  = 1
 process.hfreco.samplesToAdd = 4
-
-process.zdcreco.firstSample = 4
-process.zdcreco.samplesToAdd = 3
 
 ## EGAMMA
 process.gsfElectrons.applyPreselection = cms.bool(False)
@@ -165,7 +159,7 @@ process.GlobalTag.globaltag = 'START3X_V16C::All'
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
 process.L1Reco_step = cms.Path(process.L1Reco)
-process.reconstruction_step = cms.Path(process.reconstruction_withPixellessTk)
+process.reconstruction_step = cms.Path(process.reconstruction)
 process.endjob_step = cms.Path(process.endOfProcess)
 process.out_step = cms.EndPath(process.output)
 

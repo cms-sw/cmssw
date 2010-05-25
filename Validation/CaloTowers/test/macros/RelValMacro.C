@@ -2,27 +2,28 @@
 
 void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int nHist1, const int nHist2, const int nProfInd, const int nHistTot, TString ref_vers, TString val_vers, TString HistDir);
 
-void RelValMacro(TString ref_vers="218", TString val_vers="218", TString rfname, TString vfname, TString InputStream="InputRelVal.txt"){
+void RelValMacro(TString ref_vers="218", TString val_vers="218", TString rfname, TString vfname){
 
-  ifstream RelValStream;
-
-  RelValStream.open(InputStream);
+  ifstream RelValStream("InputRelVal.txt");
   
   TFile Ref_File(rfname); 
   TFile Val_File(vfname); 
 
   //Service variables
   //CaloTowers
-  const int CT_nHistTot = 61;
-  const int CT_nHist1   = 22;
-  const int CT_nHist2   = 6;
-  const int CT_nProf    = 6;
+  const int TTbar_CT_HB_nHist1 = 5;
+  const int TTbar_CT_HE_nHist1 = 5;
+  const int TTbar_CT_HF_nHist1 = 5;
+
+  const int TTbar_CT_HB_nHistTot = 14;
+  const int TTbar_CT_HE_nHistTot = 14;
+  const int TTbar_CT_HF_nHistTot = 14;
   
   //RecHits
-  const int RH_nHistTot = 95; 
-  const int RH_nHist1   = 24;
-  const int RH_nHist2   = 4;
-  const int RH_nProfInd = 12;
+  const int TTbar_RH_nHistTot = 95; 
+  const int TTbar_RH_nHist1   = 20;
+  const int TTbar_RH_nHist2   = 4;
+  const int TTbar_RH_nProfInd = 12;
 
   TString RH_HistDir = "DQMData/HcalRecHitsV/HcalRecHitTask";
 
@@ -32,11 +33,14 @@ void RelValMacro(TString ref_vers="218", TString val_vers="218", TString rfname,
 
   TString RBX_HistDir = "DQMData/NoiseRatesV/NoiseRatesTask";
 
-  ProcessSubDetCT(Ref_File, Val_File, RelValStream, CT_nHist1, CT_nHist2, CT_nProf, CT_nHistTot, ref_vers, val_vers);
+  ProcessSubDetCT(Ref_File, Val_File, RelValStream, TTbar_CT_HB_nHist1, TTbar_CT_HB_nHistTot, ref_vers, val_vers);
+  ProcessSubDetCT(Ref_File, Val_File, RelValStream, TTbar_CT_HE_nHist1, TTbar_CT_HE_nHistTot, ref_vers, val_vers);
+  ProcessSubDetCT(Ref_File, Val_File, RelValStream, TTbar_CT_HF_nHist1, TTbar_CT_HF_nHistTot, ref_vers, val_vers);
 
-  ProcessRelVal(Ref_File, Val_File, RelValStream, RH_nHist1, RH_nHist2, RH_nProfInd, RH_nHistTot, ref_vers, val_vers, RH_HistDir);
+  ProcessRelVal(Ref_File, Val_File, RelValStream, TTbar_RH_nHist1, TTbar_RH_nHist2, TTbar_RH_nProfInd, TTbar_RH_nHistTot, ref_vers, val_vers, RH_HistDir);
 
   ProcessRelVal(Ref_File, Val_File, RelValStream, RBX_nHist1, 0, 0, RBX_nHistTot, ref_vers, val_vers, RBX_HistDir);
+
 
   Ref_File.Close();
   Val_File.Close();
@@ -72,8 +76,6 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
   float xAxisMin, xAxisMax, yAxisMin, yAxisMax;
   TString OutLabel;
   string xTitleCheck;
-
-  float hmax = 0;
 
   int nh1 = 0;
   int nh2 = 0;
@@ -131,19 +133,12 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
       if (xAxisMin == 0) xAxisMin = ref_hist1[nh1]->GetXaxis()->GetXmin();
       if (xAxisMax <  0) xAxisMax = ref_hist1[nh1]->GetXaxis()->GetXmax();
 
-      if (xAxisMax > 0 || xAxisMin != 0){
-	ref_hist1[nh1]->GetXaxis()->SetRangeUser(xAxisMin,xAxisMax);
-	val_hist1[nh1]->GetXaxis()->SetRangeUser(xAxisMin,xAxisMax);
-      }
+      if (xAxisMax > 0 || xAxisMin != 0) ref_hist1[nh1]->GetXaxis()->SetRangeUser(xAxisMin,xAxisMax);
+
       //yAxis
       if (yAxisMin != 0) ref_hist1[nh1]->SetMinimum(yAxisMin);   
       if (yAxisMax  > 0) ref_hist1[nh1]->SetMaximum(yAxisMax);  
-      else if (ref_hist1[nh1]->GetMaximum() < val_hist1[nh1]->GetMaximum() &&
-	       val_hist1[nh1]->GetMaximum() > 0){
-	if (LogSwitch == "Log") ref_hist1[nh1]->SetMaximum(   2 * val_hist1[nh1]->GetMaximum());
-	else                    ref_hist1[nh1]->SetMaximum(1.05 * val_hist1[nh1]->GetMaximum());
-      }
-      
+
       //Title
       if (xTitleCheck != "NoTitle") ref_hist1[nh1]->GetXaxis()->SetTitle(xAxisTitle);
 
@@ -172,8 +167,8 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
 	ref_hist1[nh1]->SetFillColor(48);
 	ref_hist1[nh1]->Draw("hist");   
 	val_hist1[nh1]->SetLineStyle(1);  
-	if (StatSwitch == "Statrv") val_hist1[nh1]->Draw("sames e0");   
-	else                        val_hist1[nh1]->Draw("same e0");   
+	if (StatSwitch == "Statrv") val_hist1[nh1]->Draw("hist sames e0");   
+	else                        val_hist1[nh1]->Draw("hist same e0");   
 
 	//Get p-value from chi2 test
 	const float NCHI2MIN = 0.01;
@@ -266,13 +261,7 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
 	val_prof[npi]->SetMarkerColor(43);
 	val_prof[npi]->SetMarkerStyle(22);
 	val_prof[npi]->SetMarkerSize(1.0);  
-	
-	if (ref_prof[npi]->GetMaximum() < val_prof[npi]->GetMaximum() &&
-	    val_prof[npi]->GetMaximum() > 0){
-	  if (LogSwitch == "Log") ref_prof[npi]->SetMaximum(   2 * val_prof[npi]->GetMaximum());
-	  else                    ref_prof[npi]->SetMaximum(1.05 * val_prof[npi]->GetMaximum());
-	}
-	
+
 	ref_prof[npi]->Draw("hist pl");   
 	val_prof[npi]->Draw("hist pl same");
 
@@ -313,12 +302,6 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
 	val_fp[npi]->SetMarkerColor(4); 
 	val_fp[npi]->SetMarkerStyle(22);
 	val_fp[npi]->SetMarkerSize(0.5);
-
-	if (ref_fp[npi]->GetMaximum() < val_fp[npi]->GetMaximum() &&
-	    val_fp[npi]->GetMaximum() > 0){
-	  if (LogSwitch == "Log") ref_fp[npi]->SetMaximum(   2 * val_fp[npi]->GetMaximum());
-	  else                    ref_fp[npi]->SetMaximum(1.05 * val_fp[npi]->GetMaximum());
-	}
 	
 	ref_fp[npi]->Draw("p9");   
 	val_fp[npi]->Draw("p9same");
@@ -349,24 +332,6 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
       
       val_hist2[nh2] = (TH2F*) gDirectory->Get(HistName);
       val_prof[npi]  = (TProfile*) gDirectory->Get(HistName2);
-
-      //Min/Max Convetion: Default AxisMin = 0. Default AxisMax = -1.
-      //xAxis
-      if (xAxisMin == 0) xAxisMin = ref_hist2[nh2]->GetXaxis()->GetXmin();
-      if (xAxisMax <  0) xAxisMax = ref_hist2[nh2]->GetXaxis()->GetXmax();
-
-      if (xAxisMax > 0 || xAxisMin != 0){
-	ref_hist2[nh2]->GetXaxis()->SetRangeUser(xAxisMin,xAxisMax);
-	val_hist2[nh2]->GetXaxis()->SetRangeUser(xAxisMin,xAxisMax);
-      }
-      //yAxis
-      if (yAxisMin != 0) ref_hist2[nh2]->SetMinimum(yAxisMin);   
-      if (yAxisMax  > 0) ref_hist2[nh2]->SetMaximum(yAxisMax);  
-      else if (ref_hist2[nh2]->GetMaximum() < val_hist2[nh2]->GetMaximum() &&
-	       val_hist2[nh2]->GetMaximum() > 0){
-	if (LogSwitch == "Log") ref_hist2[nh2]->SetMaximum(   2 * val_hist2[nh2]->GetMaximum());
-	else                    ref_hist2[nh2]->SetMaximum(1.05 * val_hist2[nh2]->GetMaximum());
-      }
 
       //Legend
       leg = new TLegend(0.48, 0.91, 0.74, 0.99, "","brNDC");

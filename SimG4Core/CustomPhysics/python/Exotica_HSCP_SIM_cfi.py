@@ -12,6 +12,16 @@ def customise(process):
 	process.load("SimG4Core.CustomPhysics.CustomPhysics_cfi")
 	process.customPhysicsSetup.particlesDef = PARTICLE_FILE
 
+        process.g4SimHits.Watchers = cms.VPSet (
+            cms.PSet(
+            type = cms.string('RHStopTracer'),
+            RHStopTracer = cms.PSet(
+            verbose = cms.untracked.bool (False),
+            traceParticle = cms.string ("(~|tau1).*"),
+            stopRegularParticles = cms.untracked.bool (False)
+            )        
+            )
+            )
 
 	
 	if FLAVOR=="gluino" or FLAVOR=="stop":
@@ -40,8 +50,6 @@ def customise(process):
         )
 		process.g4SimHits.G4Commands = cms.vstring('/tracking/verbose 1')
 
-		return process
-	
 	elif FLAVOR =="stau":
 		process.g4SimHits.Physics = cms.PSet(
         process.customPhysicsSetup,
@@ -53,9 +61,9 @@ def customise(process):
         type = cms.string('SimG4Core/Physics/CustomPhysics'),
         )
 		process.g4SimHits.G4Commands = cms.vstring('/tracking/verbose 1')
-		return process
 	
 	else:
 		print "Wrong flavor %s. Only accepted are gluino, stau, stop." % FLAVOR
-		return process
+
+	return process
 	

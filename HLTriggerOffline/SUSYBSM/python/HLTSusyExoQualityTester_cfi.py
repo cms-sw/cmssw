@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hltSusyExoQualityTester = cms.EDFilter("QualityTester",
+hltSusyExoQualityTester = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath(
         'HLTriggerOffline/SUSYBSM/data/HLTSusyExoQualityTest.xml'
     ),

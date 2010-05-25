@@ -31,10 +31,9 @@
 PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf)
   : theAlgo(conf), theConfig(conf)
 {
-  edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
+  edm::LogInfo("PVDebugInfo") 
     << "Initializing PV producer " << "\n";
   fVerbose=conf.getUntrackedParameter<bool>("verbose", false);
-
   trackLabel = conf.getParameter<edm::InputTag>("TrackLabel");
   beamSpotLabel = conf.getParameter<edm::InputTag>("beamSpotLabel");
  
@@ -58,27 +57,14 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   std::auto_ptr<reco::VertexCollection> result(new reco::VertexCollection);
   reco::VertexCollection vColl;
 
-
-  edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
-    << "Reconstructing event number: " << iEvent.id() << "\n";
-    
   // get the BeamSpot, it will alwys be needed, even when not used as a constraint
   reco::BeamSpot vertexBeamSpot;
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   iEvent.getByLabel(beamSpotLabel,recoBeamSpotHandle);
   if (recoBeamSpotHandle.isValid()){
     vertexBeamSpot = *recoBeamSpotHandle;
-    edm::LogInfo("RecoVertex/PrimaryVertexProducer")
-      << " found BeamSpot"
-      << *recoBeamSpotHandle << "\n";
   }else{
     edm::LogError("UnusableBeamSpot") << "No beam spot available from EventSetup";
-
-/*     vertexBeamSpot.dummy();
-    edm::LogInfo("RecoVertex/PrimaryVertexProducer")
-      << "No beam spot available from EventSetup \n"
-      << "continue using default BeamSpot\n" ;
-*/
   }
 
 
@@ -90,13 +76,9 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
 
   // interface RECO tracks to vertex reconstruction
-  edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
-    << "Found: " << (*tks).size() << " reconstructed tracks" << "\n";
   edm::ESHandle<TransientTrackBuilder> theB;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
   vector<reco::TransientTrack> t_tks = (*theB).build(tks, vertexBeamSpot);
-  edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
-    << "Found: " << t_tks.size() << " reconstructed tracks" << "\n";
   if(fVerbose) {cout << "RecoVertex/PrimaryVertexProducer"
 		     << "Found: " << t_tks.size() << " reconstructed tracks" << "\n";
   }

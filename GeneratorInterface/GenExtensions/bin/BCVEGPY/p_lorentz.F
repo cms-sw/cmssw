@@ -408,7 +408,6 @@ c******************************************************
      . ,c2,c1s2,c1s1
       common/counter/ibcstate,nev
       
-      	c0 = 0
 	if(ibcstate.eq.3) c0=cbc1p1
       if(ibcstate.eq.4) c0=cbcp0
       if(ibcstate.eq.5) c0=cbcp1

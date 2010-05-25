@@ -1,3 +1,4 @@
+
 #ifndef SiStripMonitorTrack_H
 #define SiStripMonitorTrack_H
 
@@ -41,12 +42,11 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 
-#include "TString.h"
-
 //******** Single include for the TkMap *************
 #include "DQM/SiStripCommon/interface/TkHistoMap.h" 
 //***************************************************
 
+class SiStripDCSStatus;
 //
 // class declaration
 //
@@ -64,9 +64,9 @@ public:
 private:
   //booking
   void book();
-  void bookModMEs(TString, uint32_t);
-  void bookTrendMEs(TString, int32_t,uint32_t,std::string flag);
-  void bookSubDetMEs(TString name,TString flag);
+  void bookModMEs(const uint32_t& );
+  void bookLayerMEs(const uint32_t&, std::string&);
+  void bookSubDetMEs(std::string& name);
   MonitorElement * bookME1D(const char*, const char*);
   MonitorElement * bookME2D(const char*, const char*);
   MonitorElement * bookME3D(const char*, const char*);
@@ -80,20 +80,20 @@ private:
   template <class T> void RecHitInfo(const T* tkrecHit, LocalVector LV,reco::TrackRef track_ref, const edm::EventSetup&);
 
   // fill monitorables 
-  void fillModMEs(SiStripClusterInfo*,TString,float);
-  void fillMEs(SiStripClusterInfo*,std::string,float,std::string);
+  void fillModMEs(SiStripClusterInfo*,std::string,float);
+  void fillMEs(SiStripClusterInfo*,uint32_t detid,float,std::string);
   inline void fillME(MonitorElement* ME,float value1){if (ME!=0)ME->Fill(value1);}
   inline void fillME(MonitorElement* ME,float value1,float value2){if (ME!=0)ME->Fill(value1,value2);}
   inline void fillME(MonitorElement* ME,float value1,float value2,float value3){if (ME!=0)ME->Fill(value1,value2,value3);}
   inline void fillME(MonitorElement* ME,float value1,float value2,float value3,float value4){if (ME!=0)ME->Fill(value1,value2,value3,value4);}
-  
+
+  void getSubDetTag(std::string& folder_name, std::string& tag);   
   // ----------member data ---------------------------
   
 private:
   DQMStore * dbe;
   edm::ParameterSet conf_;
   std::string histname; 
-  TString name;
   LocalVector LV;
   float iOrbitSec;
   
@@ -101,16 +101,7 @@ private:
   TkHistoMap *tkhisto_StoNCorrOnTrack, *tkhisto_NumOnTrack, *tkhisto_NumOffTrack;  
   //******** TkHistoMaps
  
-  struct ModMEs{
-    ModMEs():  
-      ClusterStoN(0),
-	 ClusterStoNCorr(0),
-	 ClusterCharge(0),
-	 ClusterChargeCorr(0),
-	 ClusterWidth(0),
-	 ClusterPos(0),
-	 ClusterPGV(0){};
-    MonitorElement* ClusterStoN;
+  struct ModMEs{  
     MonitorElement* ClusterStoNCorr;
     MonitorElement* ClusterCharge;
     MonitorElement* ClusterChargeCorr; 
@@ -120,51 +111,32 @@ private:
   };
 
   struct LayerMEs{
-    LayerMEs():    
-      nClusters(0),
-      nClustersTrend(0),
-      ClusterStoN(0),
-      ClusterStoNCorr(0),
-      ClusterStoNTrend(0),
-      ClusterStoNCorrTrend(0),
-      ClusterCharge(0),
-      ClusterChargeCorr(0),
-      ClusterChargeTrend(0),
-      ClusterChargeCorrTrend(0),
-      ClusterNoise(0),
-      ClusterNoiseTrend(0),
-      ClusterWidth(0),
-      ClusterWidthTrend(0),
-      ClusterPos(0),
-      ClusterPGV(0){};
-    MonitorElement* nClusters;
-    MonitorElement* nClustersTrend;
-    MonitorElement* ClusterStoN;
-    MonitorElement* ClusterStoNCorr;
-    MonitorElement* ClusterStoNTrend;
-    MonitorElement* ClusterStoNCorrTrend;
-    MonitorElement* ClusterCharge;
-    MonitorElement* ClusterChargeCorr; 
-    MonitorElement* ClusterChargeTrend;
-    MonitorElement* ClusterChargeCorrTrend;
-    MonitorElement* ClusterNoise;
-    MonitorElement* ClusterNoiseTrend;
-    MonitorElement* ClusterWidth;
-    MonitorElement* ClusterWidthTrend;
-    MonitorElement* ClusterPos;
-    MonitorElement* ClusterPGV;
+    MonitorElement* ClusterStoNCorrOnTrack;
+    MonitorElement* ClusterChargeCorrOnTrack;
+    MonitorElement* ClusterChargeOnTrack;
+    MonitorElement* ClusterChargeOffTrack;
+    MonitorElement* ClusterNoiseOnTrack;
+    MonitorElement* ClusterNoiseOffTrack;
+    MonitorElement* ClusterWidthOnTrack;
+    MonitorElement* ClusterWidthOffTrack;
+    MonitorElement* ClusterPosOnTrack;
+    MonitorElement* ClusterPosOffTrack;
   };
-  
-  std::map<TString, ModMEs> ModMEsMap;
-  std::map<TString, LayerMEs> LayerMEsMap;
-  std::map<TString, MonitorElement*> MEMap;
-
-  
-  //  edm::Handle< edmNew::DetSetVector<SiStripCluster> > dsv_SiStripCluster;
-  
-  //   edm::Handle<std::vector<Trajectory> > TrajectoryCollection;
-  //  edm::Handle<reco::TrackCollection > trackCollection;
-  //  edm::Handle<TrajTrackAssociationCollection> TItkAssociatorCollection;
+  struct SubDetMEs{
+    int totNClustersOnTrack;
+    int totNClustersOffTrack;
+    MonitorElement* nClustersOnTrack;
+    MonitorElement* nClustersTrendOnTrack;
+    MonitorElement* nClustersOffTrack;
+    MonitorElement* nClustersTrendOffTrack;
+    MonitorElement* ClusterStoNCorrOnTrack;
+    MonitorElement* ClusterChargeOffTrack;
+    MonitorElement* ClusterStoNOffTrack;
+ 
+  };  
+  std::map<std::string, ModMEs> ModMEsMap;
+  std::map<std::string, LayerMEs> LayerMEsMap;
+  std::map<std::string, SubDetMEs> SubDetMEsMap;  
   
   edm::ESHandle<TrackerGeometry> tkgeom;
   edm::ESHandle<SiStripDetCabling> SiStripDetCabling_;
@@ -178,17 +150,24 @@ private:
   bool HistoFlag_On_;
   bool ring_flag;
   bool TkHistoMap_On_;
+  
+  std::string TrackProducer_;
+  std::string TrackLabel_;
 
-  int off_Flag;
   std::vector<uint32_t> ModulesToBeExcluded_;
   std::vector<const SiStripCluster*> vPSiStripCluster;
-  std::map<std::pair<std::string,int32_t>,bool> DetectedLayers;
-  SiStripFolderOrganizer folder_organizer;
   bool tracksCollection_in_EventTree;
   bool trackAssociatorCollection_in_EventTree;
   bool flag_ring;
   int runNb, eventNb;
   int firstEvent;
-  int countOn, countOff, countAll, NClus[4][3];
+
+  bool   applyClusterQuality_;
+  double sToNLowerLimit_;  
+  double sToNUpperLimit_;  
+  double widthLowerLimit_;
+  double widthUpperLimit_;
+
+  SiStripDCSStatus* dcsStatus_;
 };
 #endif

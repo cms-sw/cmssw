@@ -256,4 +256,4 @@ namespace cond
     
 } // namespace cond
 
-DEFINE_CORALSERVICE(cond::SQLMonitoringService::SQLMonitoringService,"COND/Services/SQLMonitoringService");
+DEFINE_CORALSERVICE(cond::SQLMonitoringService,"COND/Services/SQLMonitoringService");

@@ -80,9 +80,9 @@ int FUShmReader::fillRawData(EventID& eID,
   // wait for an event to become available, retrieve it
   FUShmRawCell* newCell=shmBuffer_->rawCellToRead();
   
-  // if the event is 'empty', the reader is being told to shut down!
+  // if the event is 'stop', the reader is being told to shut down!
   evt::State_t state=shmBuffer_->evtState(newCell->index());
-  if (state==evt::EMPTY) {
+  if (state==evt::STOP) {
     edm::LogInfo("ShutDown")<<"Received empty event, shut down."<<endl;
     shmBuffer_->scheduleRawEmptyCellForDiscard(newCell);
     shmdt(shmBuffer_);
@@ -96,6 +96,12 @@ int FUShmReader::fillRawData(EventID& eID,
     //shmBuffer_->setEvtState(newCell->index(),evt::PROCESSING);
     shmBuffer_->scheduleRawCellForDiscard(newCell->index());
     return (-1)*ls;
+  }
+  // getting an 'empty' event here is a pathological condition !!!
+  else if(state==evt::EMPTY){
+    edm::LogError("EmptyRawCell")
+      <<"Received empty event, this should not happen !!!" <<endl;
+    return fillRawData(eID, tstamp, data);
   }
   else assert(state==evt::RAWREADING);
   

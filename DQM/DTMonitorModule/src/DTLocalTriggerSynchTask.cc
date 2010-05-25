@@ -2,8 +2,8 @@
 /*
  * \file DTLocalTriggerSynchTask.cc
  * 
- * $Date: 2010/02/28 21:10:36 $
- * $Revision: 1.5 $
+ * $Date: 2010/03/05 09:11:52 $
+ * $Revision: 1.6 $
  * \author C. Battilana - CIEMAT
  *
 */
@@ -207,11 +207,14 @@ void DTLocalTriggerSynchTask::analyze(const edm::Event& event, const edm::EventS
   for (; bestSegIt!=bestSegEnd; ++bestSegIt ){
 
     float dir = atan((*bestSegIt)->localDirection().x()/ (*bestSegIt)->localDirection().z())*180/Geom::pi(); // CB cerca un modo migliore x farlo
-    int nHitsPhi = (*bestSegIt)->phiSegment()->degreesOfFreedom()+2;	
+    const DTRecSegment2D* seg2D = (*bestSegIt)->phiSegment();
+    int nHitsPhi = seg2D->degreesOfFreedom()+2;	
     DTChamberId chambId = (*bestSegIt)->chamberId();
     map<string, MonitorElement*> &innerME = triggerHistos[chambId.rawId()];
     
-    if (fabs(dir)<angleRange && nHitsPhi>=minHitsPhi){
+    if (fabs(dir)<angleRange && 
+	nHitsPhi>=minHitsPhi && 
+	seg2D->ist0Valid()){
       
       float t0seg = (*bestSegIt)->phiSegment()->t0();
       float tTrig = (tTrigSync->offset(DTWireId(chambId,1,1,2)) + tTrigSync->offset(DTWireId(chambId,3,1,2)) )/2;

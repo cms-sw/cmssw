@@ -11,8 +11,8 @@
 /*
  * \file HcalTrigPrimClient.cc
  * 
- * $Date: 2010/03/25 11:02:26 $
- * $Revision: 1.17 $
+ * $Date: 2010/03/25 21:30:18 $
+ * $Revision: 1.18 $
  * \author J. Temple
  * \brief Hcal Trigger Primitive Client class
  */
@@ -39,9 +39,9 @@ HcalTrigPrimClient::HcalTrigPrimClient(std::string myname, const edm::ParameterS
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
   badChannelStatusMask_   = ps.getUntrackedParameter<int>("TrigPrim_BadChannelStatusMask",
 							  ps.getUntrackedParameter<int>("BadChannelStatusMask",0));
-  
+  // Set error rate to 1%, not (earlier) value of 0.1% -- Jeff, 11 May 2010
   minerrorrate_ = ps.getUntrackedParameter<double>("TrigPrim_minerrorrate",
-						   ps.getUntrackedParameter<double>("minerrorrate",0.001));
+						   ps.getUntrackedParameter<double>("minerrorrate",0.01));
   minevents_    = ps.getUntrackedParameter<int>("TrigPrim_minevents",
 						ps.getUntrackedParameter<int>("minevents",1));
   ProblemCells=0;
@@ -178,23 +178,34 @@ void HcalTrigPrimClient::calculateProblems()
 	  if (badvalNZS>0)
 	    {
 	      problemvalue=badvalNZS*1./(badvalNZS+goodvalNZS);
-	      if (abs(ieta)<29) // Make special case for ieta=16 (HB/HE overlap?)
+	      if (abs(ieta)<29) 
 		{
 		  ProblemsByDepthNZS_->depth[0]->Fill(ieta,iphi,problemvalue);
 		  if (abs(ieta)==28) // TP 28 spans towers 28 and 29
 		    ProblemsByDepthNZS_->depth[0]->Fill(ieta+abs(ieta)/ieta,iphi,problemvalue);
 		}
-	      else
+	      else // HF
 		{
+		  /* HF TPs:
+		     TP29 = ieta 29-31
+		     TP30 = ieta 32-34
+		     TP31 = ieta 35-37
+		     TP38 = ieta 38-41
+		     iphi = 1, 5, ..., with 1 covering iphi=1 and iphi=71, etc.
+		  */
 		  int newieta=-99;
 		  for (int i=0;i<3;++i)
 		    {
 		      newieta=i+29+3*(abs(ieta)-29)+1; // shift values by 1 for HF in EtaPhiHistsplot
 		      if (ieta<0) newieta*=-1;
 		      ProblemsByDepthNZS_->depth[0]->Fill(newieta,iphi,problemvalue);
+		      ProblemsByDepthNZS_->depth[0]->Fill(newieta,(iphi-2+72)%72,problemvalue);
 		    }
 		  if (abs(ieta)==32)
-		    ProblemsByDepthNZS_->depth[0]->Fill(42*abs(ieta)/ieta,iphi,problemvalue);
+		    {
+		      ProblemsByDepthNZS_->depth[0]->Fill(42*abs(ieta)/ieta,iphi,problemvalue);
+		      ProblemsByDepthNZS_->depth[0]->Fill(newieta,(iphi-2+72)%72,problemvalue);
+		    }
 		}
 	    } // errors found in NZS;
 	  if (badvalZS>0)
@@ -214,9 +225,13 @@ void HcalTrigPrimClient::calculateProblems()
 			  newieta=i+29+3*(abs(ieta)-29)+1; // shift values by 1 for HF in EtaPhiHistsplot
 			  if (ieta<0) newieta*=-1;
 			  ProblemsByDepthZS_->depth[0]->Fill(newieta,iphi,problemvalue);
+			  ProblemsByDepthZS_->depth[0]->Fill(newieta,(iphi-2+72)%72,problemvalue);
 			}
 		  if (abs(ieta)==32)
-		    ProblemsByDepthZS_->depth[0]->Fill(42*abs(ieta)/ieta,iphi,problemvalue);
+		    {
+		      ProblemsByDepthZS_->depth[0]->Fill(42*abs(ieta)/ieta,iphi,problemvalue);
+		      ProblemsByDepthZS_->depth[0]->Fill(42*abs(ieta)/ieta,(iphi-2+72)%72,problemvalue);
+		    }
 		}
 	    } // errors found in ZS
 	  if (badvalZS>0 || badvalNZS>0)
@@ -240,7 +255,7 @@ void HcalTrigPrimClient::calculateProblems()
 	      else
 		{
 		  int newieta=-99;
-		  int newiphi=(iphi+2+72)%72;  // forward triggers combine two HF cells; add 2 to the iphi, and allow wraparound
+		  int newiphi=(iphi-2+72)%72;  // forward triggers combine two HF cells; *subtract* 2 to the iphi, and allow wraparound
 		  // FIXME:
 		  // iphi seems to start at 1 in Patrick's plots, continues mod 4;
 		  // adjust in far-forward region, where cells start at iphi=3?  Check with Patrick.
@@ -257,8 +272,8 @@ void HcalTrigPrimClient::calculateProblems()
 		    {
 		      ProblemCellsByDepth->depth[0]->Fill(42*abs(ieta)/ieta,iphi,problemvalue);
 		      ProblemCells->Fill(42*abs(ieta)/ieta,iphi,problemvalue);
-		      ProblemCellsByDepth->depth[0]->Fill(42*abs(ieta),newiphi,problemvalue);
-		      ProblemCells->Fill(42*abs(ieta),newiphi,problemvalue);
+		      ProblemCellsByDepth->depth[0]->Fill(42*abs(ieta)/ieta,newiphi,problemvalue);
+		      ProblemCells->Fill(42*abs(ieta)/ieta,newiphi,problemvalue);
 		    }
 		}
 	    }

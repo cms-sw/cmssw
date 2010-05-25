@@ -6,6 +6,26 @@
 
 #include <map>
 
+
+/*
+ How to use the StringCutObjectSelector<Object>:
+ -----------------------------------------------
+  #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+
+  ...
+  /// string cut selector
+  StringCutObjectSelector<reco::Candidate> select_;
+  ...
+
+  /// assume that reco::Candidate& cand is available from somewhere
+  if(select_(cand)){
+  // do something...
+  }
+
+  For more explanations have a look at: SWGuidePhysicsCutParser
+*/
+
+
 StringResolutionProvider::StringResolutionProvider(const edm::ParameterSet &iConfig) :
     constraints_() 
 { 

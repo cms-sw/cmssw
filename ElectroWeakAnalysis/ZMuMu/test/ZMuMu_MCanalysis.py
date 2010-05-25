@@ -1,14 +1,19 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ZMuMuMCanalysis")
-process.load("ElectroWeakAnalysis.Skimming.mcTruthForDimuons_cff")
+process.load("ElectroWeakAnalysis.ZReco.mcTruthForDimuons_cff")
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-'file:/tmp/degrutto/testDimuonSkim_all.root'
-#'rfio:/castor/cern.ch/user/f/fabozzi/testsubskimMC/testZMuMuSubskim.root'
-
-#'rfio:/castor/cern.ch/user/f/fabozzi/mc7tev/F8EE38AF-1EBE-DE11-8D19-00304891F14E.root'
+'rfio:/dpm/na.infn.it/home/cms/store/user/degruttola/zToMuMuWithoutFilter/degrutto/Zmumu/zToMuMuWithoutFilter/49ffac29c1b9792022f4be1caf28e358/dimuons_1.root', 
+        'rfio:/dpm/na.infn.it/home/cms/store/user/degruttola/zToMuMuWithoutFilter/degrutto/Zmumu/zToMuMuWithoutFilter/49ffac29c1b9792022f4be1caf28e358/dimuons_2.root', 
+        'rfio:/dpm/na.infn.it/home/cms/store/user/degruttola/zToMuMuWithoutFilter/degrutto/Zmumu/zToMuMuWithoutFilter/49ffac29c1b9792022f4be1caf28e358/dimuons_3.root', 
+        'rfio:/dpm/na.infn.it/home/cms/store/user/degruttola/zToMuMuWithoutFilter/degrutto/Zmumu/zToMuMuWithoutFilter/49ffac29c1b9792022f4be1caf28e358/dimuons_4.root', 
+        'rfio:/dpm/na.infn.it/home/cms/store/user/degruttola/zToMuMuWithoutFilter/degrutto/Zmumu/zToMuMuWithoutFilter/49ffac29c1b9792022f4be1caf28e358/dimuons_6.root', 
+        'rfio:/dpm/na.infn.it/home/cms/store/user/degruttola/zToMuMuWithoutFilter/degrutto/Zmumu/zToMuMuWithoutFilter/49ffac29c1b9792022f4be1caf28e358/dimuons_7.root', 
+        'rfio:/dpm/na.infn.it/home/cms/store/user/degruttola/zToMuMuWithoutFilter/degrutto/Zmumu/zToMuMuWithoutFilter/49ffac29c1b9792022f4be1caf28e358/dimuons_8.root', 
+        'rfio:/dpm/na.infn.it/home/cms/store/user/degruttola/zToMuMuWithoutFilter/degrutto/Zmumu/zToMuMuWithoutFilter/49ffac29c1b9792022f4be1caf28e358/dimuons_9.root', 
+        'rfio:/dpm/na.infn.it/home/cms/store/user/degruttola/zToMuMuWithoutFilter/degrutto/Zmumu/zToMuMuWithoutFilter/49ffac29c1b9792022f4be1caf28e358/dimuons_10.root'
 
     )
 )
@@ -45,8 +50,8 @@ process.goodZToMuMuOneTrack = cms.EDFilter(
 
 
 process.zMuMu_MCanalyzer = cms.EDFilter("ZMuMu_MCanalyzer",
-    muons = cms.InputTag("selectedPatMuons"),
-    tracks = cms.InputTag("selectedPatTracks"),
+    muons = cms.InputTag("selectedLayer1Muons"),
+    tracks = cms.InputTag("selectedLayer1TrackCands"),
     zMuMu = cms.InputTag("zToMuMu"),
     zMuStandAlone = cms.InputTag("goodZToMuMuOneStandAloneMuon"),
     zMuTrack = cms.InputTag("goodZToMuMuOneTrack"),
@@ -55,29 +60,17 @@ process.zMuMu_MCanalyzer = cms.EDFilter("ZMuMu_MCanalyzer",
     zMuTrackMatchMap = cms.InputTag("allDimuonsMCMatch"),
     genParticles = cms.InputTag("genParticles"),
     bothMuons = cms.bool(True),                              
-    zMassMin = cms.untracked.double(60.0),
-    zMassMax = cms.untracked.double(120.0),
-    etamin = cms.untracked.double(0.0),                                        
-    etamax = cms.untracked.double(2.1),
-    ptmin = cms.untracked.double(20.0),
-    hltPath = cms.untracked.string("HLT_Mu9"),
- ###isolation block
+    zMassMin = cms.untracked.double(20.0),
+    zMassMax = cms.untracked.double(200.0),
     isomax = cms.untracked.double(3.0),
-    ptThreshold = cms.untracked.double("1.5"),
-    etEcalThreshold = cms.untracked.double("0.2"),
-    etHcalThreshold = cms.untracked.double("0.5"),
-    deltaRVetoTrk = cms.untracked.double("0.015"),
-    deltaRTrk = cms.untracked.double("0.3"),
-    deltaREcal = cms.untracked.double("0.25"),
-    deltaRHcal = cms.untracked.double("0.25"),
-    alpha = cms.untracked.double("0."),
-    beta = cms.untracked.double("-0.75"),
-    relativeIsolation=cms.untracked.bool(False)
+    etamin = cms.untracked.double(0.0),                                        
+    etamax = cms.untracked.double(2.0),
+    ptmin = cms.untracked.double(20.0),
 )
 
-
 process.eventInfo = cms.OutputModule("AsciiOutputModule")
-process.p = cms.Path(#process.mcTruthForDimuons *
+
+process.p = cms.Path(process.mcTruthForDimuons *
                      process.zToMuMu *
                      process.goodZToMuMuOneStandAloneMuon *                     
                      process.zToMuMuOneTrack *

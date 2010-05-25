@@ -281,28 +281,16 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if(debug) std::cout <<"\t Getting the RPC RecHits"<<std::endl;
   Handle<RPCRecHitCollection> rpcHits;
   
-  bool accessTorpcRecHits = true;
-  try {
-    iEvent.getByType(rpcHits);
-  }catch( cms::Exception& exception ) {
-    if(debug) std::cout<<"RPC RecHits were not found"<<std::endl;
-    accessTorpcRecHits = false;
-  }
-
-  if(accessTorpcRecHits && rpcHits.isValid()){
+  iEvent.getByType(rpcHits);
+  
+  if(rpcHits.isValid()){
   if(incldt){
     if(debug) std::cout<<"\t Getting the DT Segments"<<std::endl;
     edm::Handle<DTRecSegment4DCollection> all4DSegments;
 
-    bool accessToDtSegments = true;
-    try {
-      iEvent.getByLabel(dt4DSegments, all4DSegments);
-    }catch( cms::Exception& exception ) {
-      if(debug) std::cout<<"DT Segments were not found"<<std::endl;
-      accessToDtSegments = false;
-    }
-
-    if(accessToDtSegments && all4DSegments.isValid()){
+    iEvent.getByLabel(dt4DSegments, all4DSegments);
+    
+    if(all4DSegments.isValid()){
       if(all4DSegments->size()>0){
 	if(all4DSegments->size()<=16) statistics->Fill(2);
 	
@@ -542,15 +530,9 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     edm::Handle<DTRecSegment4DCollection> all4DSegments;
     iEvent.getByLabel(dt4DSegments, all4DSegments);
     
-    bool accessToDtSegments = true;
-    try {
-      iEvent.getByLabel(dt4DSegments, all4DSegments);
-    }catch( cms::Exception& exception ) {
-      if(debug) std::cout<<"DT Segments were not found"<<std::endl;
-      accessToDtSegments = false;
-    }
-    
-    if(accessToDtSegments && all4DSegments.isValid()){
+    iEvent.getByLabel(dt4DSegments, all4DSegments);
+        
+    if(all4DSegments.isValid()){
     if(all4DSegments->size()>0){
       std::map<DTChamberId,int> DTSegmentCounter;
       DTRecSegment4DCollection::const_iterator segment;  
@@ -859,15 +841,9 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     if(debug) std::cout <<"\t Getting the CSC Segments"<<std::endl;
     edm::Handle<CSCSegmentCollection> allCSCSegments;
     
-    bool accessToCSCSegments = true;
-    try{    
-      iEvent.getByLabel(cscSegments, allCSCSegments);
-    }catch(cms::Exception& exception){
-      if(debug) std::cout<<"CSC Segments were not found"<<std::endl;
-      accessToCSCSegments = false;
-    }   
-    
-    if(accessToCSCSegments && allCSCSegments.isValid()){ 
+    iEvent.getByLabel(cscSegments, allCSCSegments);
+        
+    if(allCSCSegments.isValid()){ 
       if(allCSCSegments->size()>0){
 	statistics->Fill(18);
 	

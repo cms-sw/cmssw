@@ -47,6 +47,9 @@ class SeedFilter {
   FTSFromVertexToPointFactory myFTS; 
   
   int hitsfactoryMode_;
+  
+  edm::InputTag beamSpotTag_;
+
 };
 
 #endif // SeedFilter_H

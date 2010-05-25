@@ -30,7 +30,7 @@ namespace cscdqm {
     * @param  cstr Chamber string
     * @return chamber y-axis position
     */
-  const int Utility::getCSCTypeBin(const std::string& cstr) {
+  int Utility::getCSCTypeBin(const std::string& cstr) {
     if (cstr.compare("ME-4/2") == 0) return 0;
     if (cstr.compare("ME-4/1") == 0) return 1;
     if (cstr.compare("ME-3/2") == 0) return 2;
@@ -59,7 +59,7 @@ namespace cscdqm {
    * @param  ring Ring number
    * @return chamber label
    */
-  const std::string Utility::getCSCTypeLabel(int endcap, int station, int ring ) {
+  std::string Utility::getCSCTypeLabel(int endcap, int station, int ring ) {
     std::string label = "Unknown";
     std::ostringstream st;
     if ((endcap > 0) && (station > 0) && (ring > 0)) {
@@ -84,7 +84,7 @@ namespace cscdqm {
    * @param  delimiters delimiter string, default " "
    * @return 
    */
-  const int Utility::tokenize(const std::string& str, std::vector<std::string>& tokens, const std::string& delimiters) {
+  int Utility::tokenize(const std::string& str, std::vector<std::string>& tokens, const std::string& delimiters) {
     std::string::size_type lastPos = str.find_first_not_of(delimiters, 0);
     std::string::size_type pos = str.find_first_of(delimiters, lastPos);
     while (std::string::npos != pos || std::string::npos != lastPos) {
@@ -102,16 +102,13 @@ namespace cscdqm {
    * @param  results Vector to write results to
    * @return 
    */
-  void Utility::splitString(std::string str, const std::string delim, std::vector<std::string>& results) {
-    unsigned int cutAt;
-    while ((cutAt = str.find_first_of(delim)) != str.npos) {
-      if(cutAt > 0) {
-        results.push_back(str.substr(0, cutAt));
-      }
-      str = str.substr(cutAt + 1);
-    }
-    if(str.length() > 0) {
-      results.push_back(str);
+  void Utility::splitString(const std::string& str, const std::string& delim, std::vector<std::string>& results) {
+    std::string::size_type lastPos = str.find_first_not_of(delim, 0);
+    std::string::size_type pos     = str.find_first_of(delim, lastPos);
+    while (std::string::npos != pos || std::string::npos != lastPos) {
+      results.push_back(str.substr(lastPos, pos - lastPos));
+      lastPos = str.find_first_not_of(delim, pos);
+      pos = str.find_first_of(delim, lastPos);
     }
   }
   
@@ -124,10 +121,12 @@ namespace cscdqm {
     if(pos != std::string::npos) {
       str.erase(pos + 1);
       pos = str.find_first_not_of(' ');
-      if(pos != std::string::npos) 
+      if(pos != std::string::npos) {
         str.erase(0, pos);
-    } else 
+      }
+    } else {
       str.erase(str.begin(), str.end());
+    }
   }
   
   
@@ -137,7 +136,7 @@ namespace cscdqm {
    * @param  message value to check
    * @return true if message matches RegExp expression
    */
-  const bool Utility::regexMatch(const TPRegexp& re_expression, const std::string& message) {
+  bool Utility::regexMatch(const TPRegexp& re_expression, const std::string& message) {
     TPRegexp *re = const_cast<TPRegexp*>(&re_expression);
     return re->MatchB(message);
   }
@@ -148,7 +147,7 @@ namespace cscdqm {
    * @param  message value to check
    * @return true if message matches RegExp expression
    */
-  const bool Utility::regexMatch(const std::string& expression, const std::string& message) {
+  bool Utility::regexMatch(const std::string& expression, const std::string& message) {
     return regexMatch(TPRegexp(expression), message);
   }
 

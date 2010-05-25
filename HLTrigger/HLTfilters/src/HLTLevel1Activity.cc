@@ -8,8 +8,8 @@
  *    - use or ignore the L1 trigger mask
  *    - only look at a subset of the L1 bits
  * 
- *  $Date: 2010/02/11 00:12:15 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/03/15 11:06:10 $
+ *  $Revision: 1.7 $
  *
  *  \author Andrea Bocci
  *
@@ -24,6 +24,9 @@
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
+#define PHYSICS_BITS_SIZE    128
+#define TECHNICAL_BITS_SIZE   64
+
 //
 // class declaration
 //
@@ -36,12 +39,12 @@ public:
 
 private:
   edm::InputTag     m_gtReadoutRecord;
-
   std::vector<int>  m_bunchCrossings;
   std::vector<bool> m_selectPhysics;
   std::vector<bool> m_selectTechnical;
   std::vector<bool> m_maskedPhysics;
   std::vector<bool> m_maskedTechnical;
+  unsigned int      m_daqPartitions;
   bool              m_ignoreL1Mask;
   bool              m_invert;
 
@@ -57,22 +60,19 @@ private:
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
-#define PHTSICS_BITS_SIZE    128
-#define TECHNICAL_BITS_SIZE   64
-#define DAQ_PARTITIONS      0xFF
-
 //
 // constructors and destructor
 //
 HLTLevel1Activity::HLTLevel1Activity(const edm::ParameterSet & config) :
-  m_gtReadoutRecord( config.getParameter<edm::InputTag>("L1GtReadoutRecordTag") ),
-  m_bunchCrossings( config.getParameter<std::vector<int> >("bunchCrossings") ),
-  m_selectPhysics(PHTSICS_BITS_SIZE),
-  m_selectTechnical(TECHNICAL_BITS_SIZE),
-  m_maskedPhysics(PHTSICS_BITS_SIZE),
-  m_maskedTechnical(TECHNICAL_BITS_SIZE),
-  m_ignoreL1Mask(config.getParameter<bool>("ignoreL1Mask")),
-  m_invert(config.getParameter<bool>("invert"))
+  m_gtReadoutRecord( config.getParameter<edm::InputTag>     ("L1GtReadoutRecordTag") ),
+  m_bunchCrossings(  config.getParameter<std::vector<int> > ("bunchCrossings") ),
+  m_selectPhysics(   PHYSICS_BITS_SIZE ),
+  m_selectTechnical( TECHNICAL_BITS_SIZE ),
+  m_maskedPhysics(   PHYSICS_BITS_SIZE ),
+  m_maskedTechnical( TECHNICAL_BITS_SIZE ),
+  m_daqPartitions(   config.getParameter<unsigned int>      ("daqPartitions") ),
+  m_ignoreL1Mask(    config.getParameter<bool>              ("ignoreL1Mask") ),
+  m_invert(          config.getParameter<bool>              ("invert") )
 {
   unsigned long long low  = config.getParameter<unsigned long long>("physicsLoBits");
   unsigned long long high = config.getParameter<unsigned long long>("physicsHiBits");
@@ -104,21 +104,27 @@ bool
 HLTLevel1Activity::filter(edm::Event& event, const edm::EventSetup& setup)
 {
   // apply L1 mask to the physics bits
+  //  - mask & partition == part. --> fully masked
+  //  - mask & partition == 0x00  --> fully unmasked
+  //  - mask & partition != part. --> unmasked in some partitions, consider as unmasked
   if (not m_ignoreL1Mask and m_watchPhysicsMask.check(setup)) {
     edm::ESHandle<L1GtTriggerMask> h_mask;
     setup.get<L1GtTriggerMaskAlgoTrigRcd>().get(h_mask);
     const std::vector<unsigned int> & mask = h_mask->gtTriggerMask();
-    for (unsigned int i = 0; i < PHTSICS_BITS_SIZE; ++i)
-      m_maskedPhysics[i] = m_selectPhysics[i] and ((mask[i] & DAQ_PARTITIONS) != DAQ_PARTITIONS);
+    for (unsigned int i = 0; i < PHYSICS_BITS_SIZE; ++i)
+      m_maskedPhysics[i] = m_selectPhysics[i] and ((mask[i] & m_daqPartitions) != m_daqPartitions);
   }
   
   // apply L1 mask to the technical bits
+  //  - mask & partition == part. --> fully masked
+  //  - mask & partition == 0x00  --> fully unmasked
+  //  - mask & partition != part. --> unmasked in some partitions, consider as unmasked
   if (not m_ignoreL1Mask and m_watchTechnicalMask.check(setup)) {
     edm::ESHandle<L1GtTriggerMask> h_mask;
     setup.get<L1GtTriggerMaskTechTrigRcd>().get(h_mask);
     const std::vector<unsigned int> & mask = h_mask->gtTriggerMask();
     for (unsigned int i = 0; i < TECHNICAL_BITS_SIZE; ++i)
-      m_maskedTechnical[i] = m_selectTechnical[i] and ((mask[i] & DAQ_PARTITIONS) != DAQ_PARTITIONS);
+      m_maskedTechnical[i] = m_selectTechnical[i] and ((mask[i] & m_daqPartitions) != m_daqPartitions);
   }
 
   // access the L1 decisions
@@ -128,7 +134,7 @@ HLTLevel1Activity::filter(edm::Event& event, const edm::EventSetup& setup)
   // compare the results with the requested bits, and return true as soon as the first match is found
   BOOST_FOREACH(int bx, m_bunchCrossings) {
     const std::vector<bool> & physics = h_gtReadoutRecord->decisionWord(bx);
-    for (unsigned int i = 0; i < PHTSICS_BITS_SIZE; ++i)
+    for (unsigned int i = 0; i < PHYSICS_BITS_SIZE; ++i)
       if (m_maskedPhysics[i] and physics[i])
         return not m_invert;
     const std::vector<bool> & technical = h_gtReadoutRecord->technicalTriggerWord(bx);

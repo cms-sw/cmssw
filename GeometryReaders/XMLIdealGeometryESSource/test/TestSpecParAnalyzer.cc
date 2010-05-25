@@ -25,7 +25,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -95,7 +95,7 @@ TestSpecParAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
    using namespace edm;
 
    std::cout << "Here I am " << std::endl;
-   edm::ESTransientHandle<DDCompactView> pDD;
+   edm::ESHandle<DDCompactView> pDD;
    iSetup.get<IdealGeometryRecord>().get("", pDD );
    const DDCompactView& cpv(*pDD);
    if ( specStrValue_ != "frederf" ) {

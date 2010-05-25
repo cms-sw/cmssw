@@ -58,7 +58,8 @@ bool DetStatus::filter( edm::Event & evt, edm::EventSetup const& es) {
       else 
 	{
 	  unsigned int curr_dcs=(*dcsStatus)[0].ready();
-	  std::cout << "curr_dcs = " << curr_dcs << std::endl;
+	  if (verbose_)
+	    std::cout << "curr_dcs = " << curr_dcs << std::endl;
 	  if(AndOr_)
 	    accepted=((DetMap_ & curr_dcs)== DetMap_);
 	  else

@@ -11,7 +11,7 @@ int main(void){
   string tempString;
 
   unsigned long VHDCI[2][2]={{0}};
-  SourceCardRouting::SourceCardRouting temp;
+  SourceCardRouting temp;
 
   unsigned short RC[18][7][2]={{{0}}};
   unsigned short RCof[18][7][2]={{{0}}};

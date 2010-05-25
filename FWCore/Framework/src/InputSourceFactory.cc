@@ -42,11 +42,11 @@ namespace edm {
     }
     catch(edm::Exception& ex) {
       ex << "\nError occurred while creating source " << modtype << "\n";
-      throw ex;
+      throw;
     }
     catch(cms::Exception& e) {
       e << "\nError occurred while creating source " << modtype << "\n";
-      throw e;
+      throw;
     }
     
     if(wm.get()==0) {

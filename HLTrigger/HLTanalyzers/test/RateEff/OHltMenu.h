@@ -34,13 +34,15 @@ class OHltMenu {
   inline float                          GetEventsize(int i) {return eventSizes[names[i]];}
   inline TString  		        GetSeedCondition(int i) {return seedcondition[names[i]];}
   inline TString  		        GetSeedCondition(TString s) {return seedcondition[s];}
+  inline int                            GetReferenceRunPrescale(int i) {return referenceRunPrescales[names[i]];}
+  inline int                            GetReferenceRunPrescale(TString s) {return referenceRunPrescales[s];}
 
   void SetMapL1SeedsOfStandardHLTPath(std::map<TString, std::vector<TString> >);
   std::map<TString, std::vector<TString> >&
     GetL1SeedsOfHLTPathMap() { return map_L1SeedsOfStandardHLTPath; }; // mapping to all seeds
 
   void AddTrigger(TString trigname, int prescale, float eventSize);
-  void AddTrigger(TString trigname, TString seedcond, int prescale, float eventSize);
+  void AddTrigger(TString trigname, TString seedcond, int prescale, float eventSize, int referencePrescale);
   void SetIsL1Menu(bool isL1) {isL1Menu=isL1;};
   void SetDoL1preloop(bool doL1prel) {doL1preloop=doL1prel;};
   void SetIsRealData(bool isRealDataLS) {isRealData=isRealDataLS;}
@@ -63,6 +65,7 @@ class OHltMenu {
   std::map<TString,TString> 	seedcondition;
   std::map<TString,float>       eventSizes;
   std::map<TString,int> 	prescales;	
+  std::map<TString,int>         referenceRunPrescales;
 
   // For L1 prescale preloop to be used in HLT mode only
   std::vector<TString> 		L1names;

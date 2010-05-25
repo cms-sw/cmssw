@@ -14,13 +14,12 @@ void HistogramBase::fillHistogram(HistogramConfig & histogram,
 }
 
 
-void HistogramBase::fillHistogram(MonitorElement* histogram, 
+void HistogramBase::fillHistogram(MonitorElement* histogram,
 				  double value, 
 				  double weight)
 {
   if (histogram) histogram->Fill(value,weight);
 }
-
 
 
 void HistogramBase::fillTkHistoMap(TkHistoMap* aMap,
@@ -105,7 +104,7 @@ void HistogramBase::bookHistogram(HistogramConfig & aConfig,
 }
 
 void HistogramBase::bookHistogram(HistogramConfig & aConfig,
-				  MonitorElement* aHist,
+				  MonitorElement* & aHist,
 				  const std::string& name, 
 				  const std::string& title,
 				  const unsigned int nBins, 
@@ -158,7 +157,7 @@ void HistogramBase::book2DHistogram(HistogramConfig & aConfig,
 
 
 void HistogramBase::book2DHistogram(HistogramConfig & aConfig,
-				    MonitorElement* aHist,
+				    MonitorElement* & aHist,
 				    const std::string& name, 
 				    const std::string& title,
 				    const unsigned int nBins, 

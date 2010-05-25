@@ -7,7 +7,7 @@
 
 #include "FWCore/Framework/interface/TriggerReport.h"
 
-#include "MsgBuf.h"
+#include "EventFilter/Utilities/interface/MsgBuf.h"
 
 #include <vector>
 #include <string>

@@ -189,7 +189,29 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 	const std::vector<DetId>& hits = ct.constituents();
 	const std::vector<DetId>& allConstituents = theTowerConstituentsMap->constituentsOf(ct.id());
 
-
+	/*
+	for(unsigned int i=0;i< hits.size();++i) {
+	  if(hits[i].det()==DetId::Hcal) {
+	    HcalDetId did = hits[i];
+	    if ( did.subdet()==HcalEndcap || did.subdet()==HcalForward ) { 
+	      //double en = hits[i].energy();
+	      int ieta = did.ieta();
+	      const CaloCellGeometry *thisCell = hcalEndcapGeometry->getGeometry(did);
+	      const GlobalPoint& position = thisCell->getPosition();
+	      if ( abs(ieta) > 27 && abs(ieta) < 33 && energy > 10. ) { 
+		std::cout << "HE/HF hit " << i << " at eta = " << ieta 
+			  << " with CT energy = " << energy 
+			  << " at eta, z (hit) = " << position.eta() << " " << position.z()
+			  << " at eta, z (cte) = " << ct.emPosition().eta() << " " << ct.emPosition().z()
+			  << " at eta, z (cth) = " << ct.hadPosition().eta() << " " << ct.hadPosition().z()
+			  << " at eta, z (cto) = " << ct.eta() << " " << ct.vz() 
+			  << std::endl;
+	      }
+	    }
+	  }
+	}
+	*/
+	
 	//Reserve the DetId we are looking for:
 
 	HcalDetId detid;
@@ -215,6 +237,9 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		}
 	      }
 	    } 
+	    // Protection: tower 29 in HF is merged with tower 30. 
+	    // Just take the position of tower 30 in that case. 
+	    if ( detid.subdet() == HcalForward && abs(detid.ieta()) == 29 ) continue; 
 	    break;
 	  }
 	}
