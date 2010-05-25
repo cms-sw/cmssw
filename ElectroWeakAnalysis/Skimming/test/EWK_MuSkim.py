@@ -27,7 +27,7 @@ process.EWK_MuHLTFilter = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clo
 #process.EWK_MuHLTFilter.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT8E29")
 #process.EWK_MuHLTFilter.HLTPaths = ["HLT_Mu3", "HLT_DoubleMu3"]
 # Uncomment this to filter on 1E31 HLT menu
-process.EWK_MuHLTFilter.HLTPaths = ["HLT_L1Mu20", "HLT_L2Mu11", "HLT_Mu9", "HLT_DoubleMu3"]
+process.EWK_MuHLTFilter.HLTPaths = ["HLT_L1Mu20", "HLT_L2Mu9", "HLT_Mu9", "HLT_DoubleMu3"]
 
 # Skim path
 process.EWK_MuSkimPath = cms.Path(
