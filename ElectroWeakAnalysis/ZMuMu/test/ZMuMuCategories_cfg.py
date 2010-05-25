@@ -13,7 +13,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 100
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.globaltag = cms.string('MC_31X_V3::All')
-process.GlobalTag.globaltag = cms.string('START3X_V21::All') 
+process.GlobalTag.globaltag = cms.string('START3X_V26::All') 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 
@@ -25,23 +25,13 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-##    "rfio:/castor/cern.ch/user/f/fabozzi/test354/testZMuMuSubskimUserData_2.root "
-  "file:../../Skimming/test/testZMuMuSubskimWithMC.root"
-  #"testZMuMuSubskimUserData.root"
-#"file:../../Skimming/test/testZMuMuSubskim.root"
-  #  "rfio:/castor/cern.ch/user/f/fabozzi/origZmumuSubSkim.root"
-    #"rfio:/castor/cern.ch/user/f/fabozzi/350ZmumuSubSkim.root"
-   # 'rfio:/castor/cern.ch/cms/store/relval/CMSSW_3_4_0_pre1/RelValZMM/GEN-SIM-RECO/STARTUP31X_V8-v1/0007/CAE2081C-48B5-DE11-9161-001D09F29321.root',
+    "file:../../Skimming/test/testZMuMuSubskim.root"
     )
 )
-
-
 
 # replace ZSelection if wanted......
 ## from ElectroWeakAnalysis.ZMuMu.zSelection_cfi import * 
 ## zSelection.cut = cms.string("charge = 0 & daughter(0).pt > 20 & daughter(1).pt > 20 & abs(daughter(0).eta)<2.1 & abs(daughter(1).eta)<2.1 & mass > 0")
-
-
 
 process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesSequences_cff")
 
