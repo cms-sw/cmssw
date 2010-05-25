@@ -27,7 +27,7 @@ void compute(int n, int N, T& c) {
     double eeffl = eff - c.lower();
     double eeffh = c.upper() - eff;
     cout << "CL = " << 1 - alpha << " (alpha = 1 - CL =" << alpha << ")" << endl; 
-    cout << "eff = n/N = " << eff << " +/-(+" << eeffl << " -" << eeffh << ")" << endl;
+    cout << "eff = n/N = " << eff << " +/-(+" << eeffh << " -" << eeffl << ")" << endl;
     cout << cl[i]*100 << "% CL interval: ["  << c.lower() << ", " << c.upper() <<"]" << endl;
   }
 }
