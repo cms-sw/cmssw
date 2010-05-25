@@ -1,8 +1,8 @@
 /*
  * \file EcalSelectiveReadoutValidation.cc
  *
- * $Date: 2010/04/25 20:42:36 $
- * $Revision: 1.29 $
+ * $Date: 2010/05/05 10:54:53 $
+ * $Revision: 1.30 $
  *
  */
 
@@ -1783,7 +1783,13 @@ EcalSelectiveReadoutValidation::readOutUnitOf(const EBDetId& xtalId) const{
 
 EcalScDetId
 EcalSelectiveReadoutValidation::readOutUnitOf(const EEDetId& xtalId) const{
-  return superCrystalOf(xtalId);
+  //  return superCrystalOf(xtalId);
+  const EcalElectronicsId& EcalElecId = elecMap_->getElectronicsId(xtalId);
+  int iDCC= EcalElecId.dccId();
+  int iDccChan = EcalElecId.towerId();
+  const bool ignoreSingle = true;
+  const vector<EcalScDetId> id = elecMap_->getEcalScDetId(iDCC, iDccChan, ignoreSingle);
+  return id.size()>0?id[0]:EcalScDetId();
 }
 
 void
@@ -2395,11 +2401,11 @@ void EcalSelectiveReadoutValidation::checkSrApplication(const edm::Event& event,
 int EcalSelectiveReadoutValidation::getCrystalCount(int iDcc, int iDccCh){
   if(iDcc < minDccId_ || iDcc > maxDccId_){ //invalid DCC
     return 0;
-  } else {
+  } else if (10 <= iDcc && iDcc <= 45) {//EB
+    return 25;
+  } else { //EE
     int iDccPhi;
     if(iDcc < 10) iDccPhi = iDcc;
-    else if(iDcc < 28) iDccPhi = iDcc - 9;
-    else if(iDcc < 46) iDccPhi = iDcc - 27;
     else iDccPhi = iDcc - 45;
     switch(iDccPhi*100+iDccCh){
     case 110:
