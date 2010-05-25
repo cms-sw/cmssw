@@ -31,6 +31,11 @@ class DataManager
 		     bool isOMDS = false );
 	void setDebug( bool debug ) ;
 
+	cond::DbSession* dbSession()
+	  { return session ; }
+
+	cond::DbConnection* dbConnection()
+	  { return connection ; }
     protected:
         //Returns type object for provided type name
         edm::eventsetup::TypeTag findType (const std::string & type) const;
