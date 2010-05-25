@@ -29,3 +29,9 @@
   <use   name="rootmath"/>
   <use   name="boost_program_options"/>
 </bin>
+<bin   file="hltEffwithCPErrorMCvsDATA.cpp" name="hltEffwithCPErrorMCvsDATA">
+  <use   name="root"/>
+  <use   name="PhysicsTools/RooStatsCms"/>
+  <use   name="rootmath"/>
+  <use   name="boost_program_options"/>
+</bin>
