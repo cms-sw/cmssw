@@ -1,26 +1,25 @@
 # Auto generated configuration file
 # using: 
-# Revision: 1.172 
+# Revision: 1.131 
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: alcareco_AlCaP0 -s ALCAPRODUCER:EcalCalPi0Calib+EcalCalEtaCalib+DQM --conditions GR10_P_V6::All --scenario pp --data --magField AutoFromDBCurrent -n 100 --no_exec --python_filename=alcareco_AlCaP0_cfg.py --geometry DB --filein=/store/data/BeamCommissioning09/AlCaP0/RAW/v1/000/123/596/30ADA9C3-74E2-DE11-9A33-000423D951D4.root --datatier ALCARECO --filtername StreamALCACombined
+# with command line options: alcareco_AlCaP0 -s ALCA:EcalCalPi0Calib+EcalCalEtaCalib+DQM --conditions=FrontierConditions_GlobalTag,GR09_31X_V4P::All --scenario cosmics --data --magField 0T -n 1000 --no_exec
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('RECO')
 
 # import of standard configurations
-process.load('Configuration.StandardSequences.Services_cff')
-process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
-process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('Configuration.StandardSequences.GeometryDB_cff')
-process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
-process.load('Configuration.StandardSequences.AlCaRecoStreams_cff')
-process.load('Configuration.StandardSequences.EndOfProcess_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load('Configuration.EventContent.EventContent_cff')
+process.load('Configuration/StandardSequences/Services_cff')
+process.load('FWCore/MessageService/MessageLogger_cfi')
+process.load('Configuration/StandardSequences/GeometryIdeal_cff')
+process.load('Configuration/StandardSequences/MagneticField_0T_cff')
+process.load('Configuration/StandardSequences/AlCaRecoStreams_cff')
+process.load('Configuration/StandardSequences/EndOfProcess_cff')
+process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+process.load('Configuration/EventContent/EventContentCosmics_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.172 $'),
-    annotation = cms.untracked.string('alcareco_AlCaP0 nevts:100'),
+    version = cms.untracked.string('$Revision: 1.4 $'),
+    annotation = cms.untracked.string('alcareco_AlCaP0 nevts:1000'),
     name = cms.untracked.string('PyReleaseValidation')
 )
 process.maxEvents = cms.untracked.PSet(
@@ -31,24 +30,66 @@ process.options = cms.untracked.PSet(
 )
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/data/Run2010A/AlCaP0/RAW/v1/000/135/809/106D7CBC-9163-DF11-9AD3-0030487A322E.root')
+    fileNames = cms.untracked.vstring('/store/data/Run2010A/AlCaP0/RAW/v1/000/136/154/2CCCAB7F-2968-DF11-BB17-00304879BAB2.root')
 )
 
-# Output definition
-process.output = cms.OutputModule("PoolOutputModule",
-    splitLevel = cms.untracked.int32(0),
-    outputCommands = process.RECOSIMEventContent.outputCommands,
-    fileName = cms.untracked.string('alcareco_AlCaP0_ALCAPRODUCER.root'),
-    dataset = cms.untracked.PSet(
-        dataTier = cms.untracked.string('ALCARECO'),
-        filterName = cms.untracked.string('StreamALCACombined')
-    )
+# Combined AlCaReco output
+process.ALCARECOStreamCombined = cms.OutputModule("PoolOutputModule",
+   outputCommands = process.ALCARECOEventContent.outputCommands,
+   fileName = cms.untracked.string('ALCACombined.root'),
+   dataset = cms.untracked.PSet(
+       filterName = cms.untracked.string('StreamALCACombined'),
+       dataTier = cms.untracked.string('ALCARECO')
+   )
 )
 
-# Additional output definition
+
+#### begin patch S.A. 
+
+#from Configuration.EventContent.AlCaRecoOutput_cff import *
+OutALCARECOEcalCalPi0Calib_noDrop = cms.PSet(
+    # put this if you have a filter
+    SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('pathALCARECOEcalCalPi0Calib')
+    ),
+    outputCommands = cms.untracked.vstring(
+        'keep *_ecalPi0Corrected_pi0EcalRecHitsEB_*',
+        'keep *_ecalPi0Corrected_pi0EcalRecHitsEE_*',
+        'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
+        'keep *_hltAlCaPi0RecHitsFilter_pi0EcalRecHitsES_*',
+        'keep *_MEtoEDMConverter_*_*')
+)
+
+OutALCARECOEcalCalEtaCalib_noDrop = cms.PSet(
+    # put this if you have a filter
+    SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('pathALCARECOEcalCalEtaCalib')
+    ),
+    outputCommands = cms.untracked.vstring(
+        'keep *_ecalEtaCorrected_etaEcalRecHitsEB_*',
+        'keep *_ecalEtaCorrected_etaEcalRecHitsEE_*',
+        'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
+        'keep *_hltAlCaEtaRecHitsFilter_etaEcalRecHitsES_*',
+        'keep *_MEtoEDMConverter_*_*')
+)
+
+#### end patch
+
+process.ALCARECOStreamCombined.outputCommands.extend(OutALCARECOEcalCalPi0Calib_noDrop.outputCommands)
+process.ALCARECOStreamCombined.outputCommands.extend(OutALCARECOEcalCalEtaCalib_noDrop.outputCommands)
 
 # Other statements
 process.GlobalTag.globaltag = 'GR10_P_V6::All'
+
+# Path and EndPath definitions
+
+#### begin patch
+process.ecalPi0Corrected.EERecHitCollection = cms.InputTag("hltAlCaPi0RecHitsFilter","pi0EcalRecHitsEE")
+process.ecalPi0Corrected.EBRecHitCollection = cms.InputTag("hltAlCaPi0RecHitsFilter","pi0EcalRecHitsEB")
+
+process.ecalEtaCorrected.EERecHitCollection = cms.InputTag("hltAlCaEtaRecHitsFilter","etaEcalRecHitsEE")
+process.ecalEtaCorrected.EBRecHitCollection = cms.InputTag("hltAlCaEtaRecHitsFilter","etaEcalRecHitsEB")
+#### end patch
 
 # Path and EndPath definitions
 process.pathALCARECOHcalCalHOCosmics = cms.Path(process.seqALCARECOHcalCalHOCosmics)
@@ -90,8 +131,10 @@ process.pathALCARECOTkAlCosmicsCosmicTF = cms.Path(process.seqALCARECOTkAlCosmic
 process.pathALCARECOEcalCalPhiSym = cms.Path(process.seqALCARECOEcalCalPhiSym*process.ALCARECOEcalCalPhisymDQM)
 process.pathALCARECOMuAlGlobalCosmics = cms.Path(process.seqALCARECOMuAlGlobalCosmics*process.ALCARECOMuAlGlobalCosmicsDQM)
 process.pathALCARECOTkAlJpsiMuMu = cms.Path(process.seqALCARECOTkAlJpsiMuMu*process.ALCARECOTkAlJpsiMuMuDQM)
+
 process.endjob_step = cms.Path(process.endOfProcess)
-process.out_step = cms.EndPath(process.output)
+process.ALCARECOStreamCombinedOutPath = cms.EndPath(process.ALCARECOStreamCombined)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.pathALCARECOEcalCalPi0Calib,process.pathALCARECOEcalCalEtaCalib,process.pathALCARECODQM,process.endjob_step,process.out_step)
+process.schedule = cms.Schedule(process.pathALCARECOEcalCalPi0Calib,process.pathALCARECOEcalCalEtaCalib,process.pathALCARECODQM,process.endjob_step,process.ALCARECOStreamCombinedOutPath)
+
