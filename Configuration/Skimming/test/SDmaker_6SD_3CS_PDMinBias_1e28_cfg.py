@@ -347,6 +347,7 @@ process.outputCsDiJet = cms.OutputModule("PoolOutputModule",
         'keep recoPFJets_ak7PFJets_*_*',
         'keep recoPFJets_iterativeCone5PFJets_*_*',
         #------- JPTJet collections ------
+        'keep *_JetPlusTrackZSPCorJetAntiKt5_*_*',
         #'keep *_ak5JPTJets_*_*',
         #'keep *_iterativeCone5JPTJets_*_*',
         #------- Trigger collections ------
