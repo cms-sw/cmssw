@@ -25,7 +25,7 @@
 //
 // Original Author:  William Badgett
 //         Created:  Mon May 24 14:45:17 CEST 2010
-// $Id: ScalersRecover.cc,v 1.1 2010/05/24 15:02:18 badgett Exp $
+// $Id: ScalersRecover.cc,v 1.2 2010/05/25 15:40:51 badgett Exp $
 //
 //
 
@@ -113,14 +113,13 @@ void ScalersRecover::analyze(const edm::Event& iEvent,
   if ( ( ( lastLumiSection==-1 ) && ( lumiSection == 1 )) || 
        ( ( lastLumiSection>0 )   && ( lastLumiSection != lumiSection )))
   {
-    //TimeSpec zeit = triggerScalers->collectionTimeLumiSeg();
-    timespec zeit;
-    zeit.tv_sec = 0; 
-    zeit.tv_nsec = 0;
-    time_t seconds = zeit.tv_sec;
+    TimeSpec zeit = triggerScalers->collectionTimeLumiSeg();
+    zeit.tv_sec() = 0; 
+    zeit.tv_nsec() = 0;
+    time_t seconds = zeit.tv_sec();
     hora = gmtime(&seconds);
     strftime(heure,sizeof(heure),"%Y.%m.%d %H:%M:%S", hora);
-    sprintf(nanos,"%9.9d", (int)zeit.tv_nsec);
+    sprintf(nanos,"%9.9d", (int)zeit.tv_nsec());
 
     std::ostringstream insert;
     insert <<  
@@ -142,9 +141,9 @@ void ScalersRecover::analyze(const edm::Event& iEvent,
       ",DEADTIMEBEAMACTIVETIMESLOT" << 
       ") VALUES (" << iEvent.run() << 
       "," << lumiSection << 
-      "," << zeit.tv_sec << 
-      "," << zeit.tv_nsec << 
-      ",TO_TIMESTAMP('" << heure << "." << zeit.tv_nsec <<
+      "," << zeit.tv_sec() << 
+      "," << zeit.tv_nsec() << 
+      ",TO_TIMESTAMP('" << heure << "." << zeit.tv_nsec() <<
       "','YYYY.MM.DD HH24:MI:SS.FF')" << 
       "," << triggerScalers->triggersPhysicsGeneratedFDL() <<
       "," << triggerScalers->triggersPhysicsLost() << 
@@ -174,8 +173,8 @@ void ScalersRecover::analyze(const edm::Event& iEvent,
 	iEvent.run() << 
 	"," << i << 
 	"," << lumiSection << 
-	"," << zeit.tv_sec << 
-	"," << zeit.tv_nsec << 
+	"," << zeit.tv_sec() << 
+	"," << zeit.tv_nsec() << 
 	",TO_TIMESTAMP('" << heure << "." <<  nanos << 
 	"','YYYY.MM.DD HH24:MI:SS.FF')," 
 	      << algo[i] << ");";
@@ -192,8 +191,8 @@ void ScalersRecover::analyze(const edm::Event& iEvent,
 	    iEvent.run() << 
 	    "," << i << 
 	    "," << lumiSection << 
-	    "," << zeit.tv_sec << 
-	    "," << zeit.tv_nsec << 
+	    "," << zeit.tv_sec() << 
+	    "," << zeit.tv_nsec() << 
 	    ",TO_TIMESTAMP('" << heure << "." <<  nanos << 
 	    "','YYYY.MM.DD HH24:MI:SS.FF')," 
 	    << tech[i] << ");";
