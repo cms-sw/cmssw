@@ -39,14 +39,20 @@ process.GlobalTag.globaltag = cms.string('START3X_V26::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 ### subskim
-##from ElectroWeakAnalysis.Skimming.zMuMu_SubskimPaths_cff import *
+## to run on data uncomment the following
+#process.load("ElectroWeakAnalysis.Skimming.zMuMu_SubskimPaths_cff")
 
+# output module
 process.load("ElectroWeakAnalysis.Skimming.zMuMuSubskimOutputModule_cfi")
+
+## to run the MC truth uncomment the following
+process.load("ElectroWeakAnalysis.Skimming.zMuMu_SubskimPathsWithMCTruth_cff")
+process.zMuMuSubskimOutputModule.outputCommands.extend(process.mcEventContent.outputCommands)
+####
 
 process.zMuMuSubskimOutputModule.fileName = 'file:testZMuMuSubskim_oneshot_Test.root'
 
 process.outpath = cms.EndPath(process.zMuMuSubskimOutputModule)
-
 
 ### analysis
 from ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesSequences_cff import *
@@ -68,12 +74,6 @@ process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesPlots_cff")
 process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuAnalysisNtupler_cff")
 process.ntuplesOut.fileName = cms.untracked.string('file:NtupleLooseTestNew_oneshot_all_Test.root')
 
-# SubSkim Output module configuration
-
+###
 process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuAnalysisSchedules_cff") 
 
-
-## MC truth
-process.load("ElectroWeakAnalysis.Skimming.zMuMu_SubskimPathsWithMCTruth_cff")
-process.zMuMuSubskimOutputModule.outputCommands.extend(process.mcEventContent.outputCommands)
-####
