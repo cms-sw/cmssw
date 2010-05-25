@@ -5,7 +5,7 @@ import sys,os, re, pprint
 import castortools
 
 parser = OptionParser()
-parser.usage = "%prog <castor dir> <regexp pattern>: place all empty files in a trash.\n\nExample (just try, the -n option negates the command!):\nremoveEmptyFiles.py  /castor/cern.ch/user/c/cbern/CMSSW312/SinglePions '.*\.root' -n"
+parser.usage = "%prog <castor dir> <regexp pattern>: place all empty files in a trash. This script is based on edmFileUtil, so it's pretty slow. The files will be moved to the trash only at the end of the processing. Does anybody know of a fast way to get the number of events in an EDM file? If yes contact Colin.\n\nExample (just try, the -n option negates the command!):\nremoveEmptyFiles.py  /castor/cern.ch/user/c/cbern/CMSSW312/SinglePions '.*\.root' -n"
 parser.add_option("-n", "--negate", action="store_true",
                   dest="negate",
                   help="do not proceed",
