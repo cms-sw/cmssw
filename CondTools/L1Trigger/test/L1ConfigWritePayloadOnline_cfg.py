@@ -137,6 +137,7 @@ process.L1MuGMTParametersOnlineProducer.ignoreVersionMismatch = True
 process.load("L1TriggerConfig.RCTConfigProducers.L1RCTParametersOnline_cfi")
 process.load("L1TriggerConfig.L1ScalesProducers.L1EmEtScaleConfigOnline_cfi")
 process.load("L1TriggerConfig.L1ScalesProducers.L1CaloEcalScaleConfigOnline_cfi")
+process.load("L1TriggerConfig.L1ScalesProducers.L1CaloHcalScaleConfigOnline_cfi")
 
 process.load("L1TriggerConfig.GctConfigProducers.L1GctJetFinderParamsOnline_cfi")
 process.load("L1TriggerConfig.L1ScalesProducers.L1HtMissScaleOnline_cfi")
