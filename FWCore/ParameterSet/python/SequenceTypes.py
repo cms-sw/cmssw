@@ -65,7 +65,8 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
     """Base class for classes which define a sequence of modules"""
     def __init__(self,*arg, **argv):
         self.__dict__["_isFrozen"] = False
-        if len(arg) != 1:
+        self._seq = None
+        if len(arg) > 1:
             typename = format_typename(self)
             msg = format_outerframe(2) 
             msg += "%s takes exactly one input value. But the following ones are given:\n" %typename
@@ -73,8 +74,9 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
                 msg += "    %i) %s \n"  %(i, item._errorstr())
             msg += "Maybe you forgot to combine them via '*' or '+'."     
             raise TypeError(msg)
-        _checkIfSequenceable(self, arg[0])
-        self._seq = arg[0]
+        if len(arg)==1:
+            _checkIfSequenceable(self, arg[0])
+            self._seq = arg[0]
         self._isModified = False
     def isFrozen(self):
         return self._isFrozen
@@ -84,30 +86,47 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         self._placeImpl(name,proc)
     def __imul__(self,rhs):
         _checkIfSequenceable(self, rhs)
-        self._seq = _SequenceOpAids(self._seq,rhs)
+        if self._seq is None:
+            self._seq = rhs
+        else:
+            self._seq = _SequenceOpAids(self._seq,rhs)
         return self
     def __iadd__(self,rhs):
         _checkIfSequenceable(self, rhs)
-        self._seq = _SequenceOpFollows(self._seq,rhs)
+        if self._seq is None:
+            self._seq = rhs
+        else:
+            self._seq = _SequenceOpFollows(self._seq,rhs)
         return self
     def __str__(self):
         return str(self._seq)
     def dumpConfig(self, options):
         return '{'+self._seq.dumpSequenceConfig()+'}\n'
     def dumpPython(self, options):
-        return 'cms.'+type(self).__name__+'('+self._seq.dumpSequencePython()+')\n'
+        s=''
+        if self._seq is not None:
+            s =self._seq.dumpSequencePython()
+        return 'cms.'+type(self).__name__+'('+s+')\n'
     def dumpSequencePython(self):
         # only dump the label, if possible
         if self.label_() != None:
             return _Labelable.dumpSequencePython(self)
         else:
             # dump it verbose
+            if self._seq is None:
+                return ''
             return self._seq.dumpSequencePython()
     def __repr__(self):
-        return "cms."+type(self).__name__+'('+str(self._seq)+')\n'
+        s = ''
+        if self._seq is not None:
+           s = str(self._seq)
+        return "cms."+type(self).__name__+'('+s+')\n'
     def copy(self):
         returnValue =_ModuleSequenceType.__new__(type(self))
-        returnValue.__init__(self._seq)
+        if self._seq is not None:
+            returnValue.__init__(self._seq)
+        else:
+            returnValue.__init__()
         return returnValue
     def expandAndClone(self):
         visitor = ExpandVisitor(type(self))
@@ -125,21 +144,23 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         if self._seq == original:
             self._seq = replacement
         else:
-            self._seq._replace(original,replacement)
+            if self._seq is not None:
+                self._seq._replace(original,replacement)
     def remove(self, something):
         """Remove the leftmost occurrence of 'something' (a sequence or a module)
            It will give an error if removing 'something' leaves a cms.Sequence empty.
            Returns 'True' if the module has been removed, False if it was not found"""
         (seq, found) = self._remove(something)
-        if seq != self:
-            raise RuntimeError("After removing " + something + " the sequence is empty!")
         return found
     def _remove(self, original):
-        if (self._seq == original): return (None, True)
+        if (self._seq == original):
+            self._seq = None
+            return (None, True)
         (self._seq, found) = self._seq._remove(original);
         return (self, found)
     def resolve(self, processDict):
-        self._seq = self._seq.resolve(processDict)
+        if self._seq is not None:
+            self._seq = self._seq.resolve(processDict)
         return self
     def __setattr__(self,name,value):
         if not name.startswith("_"):
@@ -158,7 +179,8 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
     #"""returns whether or not 'item' is in the sequence"""
     #def modules_(self):
     def _findDependencies(self,knownDeps,presentDeps):
-        self._seq._findDependencies(knownDeps,presentDeps)
+        if self._seq is not None:
+            self._seq._findDependencies(knownDeps,presentDeps)
     def moduleDependencies(self):
         deps = dict()
         self._findDependencies(deps,set())
@@ -179,9 +201,11 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         If the item contains 'sub' items then visitor will see those 'sub' items between the
         item's 'enter' and 'leave' calls.
         """
-        self._seq.visitNode(visitor)
+        if self._seq is not None:
+            self._seq.visitNode(visitor)
     def findHardDependencies(self, sequenceName, dependencyDict):
-        self._seq.findHardDependencies(self.label_(), dependencyDict)
+        if self._seq is not None:
+            self._seq.findHardDependencies(self.label_(), dependencyDict)
 
 
 class _SequenceOperator(_Sequenceable):
@@ -380,7 +404,10 @@ class Sequence(_ModuleSequenceType,_Sequenceable):
         if id(self) not in lookuptable:
             #for sequences held by sequences we need to clone
             # on the first reference
-            clone = type(self)(self._seq._clonesequence(lookuptable))
+            if self._seq is not None:
+                clone = type(self)(self._seq._clonesequence(lookuptable))
+            else:
+                clone = type(self)()
             lookuptable[id(self)]=clone
             lookuptable[id(clone)]=clone
         return lookuptable[id(self)]
@@ -743,6 +770,15 @@ if __name__=="__main__":
             namesVisitor = DecoratedNodeNameVisitor(l)
             p.visit(namesVisitor)
             self.assertEqual(l, ['m1', '!m2', 'm3', '-m4'])
+            
+            s4 = Sequence()
+            s4 +=m1
+            l[:]=[]; s1.visit(namesVisitor); self.assertEqual(l,['m1'])
+            self.assertEqual(s4.dumpPython(None),"cms.Sequence(process.m1)\n")
+            s4 = Sequence()
+            s4 *=m1
+            l[:]=[]; s1.visit(namesVisitor); self.assertEqual(l,['m1'])
+            self.assertEqual(s4.dumpPython(None),"cms.Sequence(process.m1)\n")
 
 
         def testRemove(self):
@@ -789,6 +825,21 @@ if __name__=="__main__":
             self.assertEqual(s1.dumpPython(None), "cms.Sequence(process.m1+process.m2*process.m3)\n")
             s1.remove(m2)
             self.assertEqual(s1.dumpPython(None), "cms.Sequence(process.m1+process.m3)\n")
+            s1.remove(m1)
+            s1.remove(m3)
+            l[:]=[]; s1.visit(namesVisitor); self.assertEqual(l,[])
+            self.assertEqual(s1.dumpPython(None), "cms.Sequence()\n")
+            s3 = Sequence(m1)
+            s3.remove(m1)
+            l[:]=[]; s3.visit(namesVisitor); self.assertEqual(l,[])
+            self.assertEqual(s3.dumpPython(None), "cms.Sequence()\n")
+            s3 = Sequence(m1)
+            s4 = Sequence(s3)
+            s4.remove(m1)
+            l[:]=[]; s4.visit(namesVisitor); self.assertEqual(l,[])
+            self.assertEqual(s4.dumpPython(None), "cms.Sequence()\n")
+            
+            
 
         def testDependencies(self):
             m1 = DummyModule("m1")
