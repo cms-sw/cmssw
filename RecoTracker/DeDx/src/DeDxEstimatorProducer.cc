@@ -15,7 +15,7 @@
 //         Created:  Thu May 31 14:09:02 CEST 2007
 //    Code Updates:  loic Quertenmont (querten)
 //         Created:  Thu May 10 14:09:02 CEST 2008
-// $Id: DeDxEstimatorProducer.cc,v 1.25 2010/02/23 07:21:58 querten Exp $
+// $Id: DeDxEstimatorProducer.cc,v 1.26 2010/04/07 10:14:23 querten Exp $
 //
 //
 
@@ -89,11 +89,12 @@ DeDxEstimatorProducer::~DeDxEstimatorProducer()
 // ------------ method called once each job just before starting event loop  ------------
 void  DeDxEstimatorProducer::beginRun(edm::Run & run, const edm::EventSetup& iSetup)
 {
+   if(MODsColl.size()!=0)return;
+
+
    edm::ESHandle<TrackerGeometry> tkGeom;
    iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
-//   const TrackerGeometry* m_tracker = tkGeom.product();
 
-   MODsColl.clear();
    vector<GeomDet*> Det = tkGeom->dets();
    for(unsigned int i=0;i<Det.size();i++){
       DetId  Detid  = Det[i]->geographicalId();
@@ -125,7 +126,11 @@ void  DeDxEstimatorProducer::beginRun(edm::Run & run, const edm::EventSetup& iSe
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void  DeDxEstimatorProducer::endJob() {}
+void  DeDxEstimatorProducer::endJob(){
+   for(unsigned int i=0;i<MODsColl.size();i++){
+      delete MODsColl[i];
+   }
+}
 
 
 
@@ -277,6 +282,7 @@ void DeDxEstimatorProducer::MakeCalibrationMap()
        MOD->Gain = tree_Gain;
    }
 
+   delete t1;
 
 }
 

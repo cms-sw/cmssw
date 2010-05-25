@@ -15,7 +15,7 @@
 //         Created:  Thu May 31 14:09:02 CEST 2007
 //    Code Updates:  loic Quertenmont (querten)
 //         Created:  Thu May 10 14:09:02 CEST 2008
-// $Id: DeDxDiscriminatorProducer.cc,v 1.15 2010/04/07 10:14:22 querten Exp $
+// $Id: DeDxDiscriminatorProducer.cc,v 1.16 2010/04/29 12:36:27 querten Exp $
 //
 //
 
@@ -177,46 +177,52 @@ void  DeDxDiscriminatorProducer::beginRun(edm::Run & run, const edm::EventSetup&
 */
 
 
-   edm::ESHandle<TrackerGeometry> tkGeom;
-   iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
-   m_tracker = tkGeom.product();
 
-   vector<GeomDet*> Det = tkGeom->dets();
-   for(unsigned int i=0;i<Det.size();i++){
-      DetId  Detid  = Det[i]->geographicalId();
-      int    SubDet = Detid.subdetId();
+   if(MODsColl.size()==0){
+      edm::ESHandle<TrackerGeometry> tkGeom;
+      iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
+      m_tracker = tkGeom.product();
 
-      if( SubDet == StripSubdetector::TIB ||  SubDet == StripSubdetector::TID ||
-          SubDet == StripSubdetector::TOB ||  SubDet == StripSubdetector::TEC  ){
+      vector<GeomDet*> Det = tkGeom->dets();
+      for(unsigned int i=0;i<Det.size();i++){
+         DetId  Detid  = Det[i]->geographicalId();
+         int    SubDet = Detid.subdetId();
 
-          StripGeomDetUnit* DetUnit     = dynamic_cast<StripGeomDetUnit*> (Det[i]);
-          if(!DetUnit)continue;
+         if( SubDet == StripSubdetector::TIB ||  SubDet == StripSubdetector::TID ||
+             SubDet == StripSubdetector::TOB ||  SubDet == StripSubdetector::TEC  ){
 
-          const StripTopology& Topo     = DetUnit->specificTopology();
-          unsigned int         NAPV     = Topo.nstrips()/128;
+             StripGeomDetUnit* DetUnit     = dynamic_cast<StripGeomDetUnit*> (Det[i]);
+             if(!DetUnit)continue;
 
-          double Eta     = DetUnit->position().basicVector().eta();
-          double R       = DetUnit->position().basicVector().transverse();
-          double Thick   = DetUnit->surface().bounds().thickness();
+             const StripTopology& Topo     = DetUnit->specificTopology();
+             unsigned int         NAPV     = Topo.nstrips()/128;
 
-          stModInfo* MOD = new stModInfo;
-          MOD->DetId     = Detid.rawId();
-          MOD->SubDet    = SubDet;
-          MOD->Eta       = Eta;
-          MOD->R         = R;
-          MOD->Thickness = Thick;
-          MOD->NAPV      = NAPV;
-          MODsColl[MOD->DetId] = MOD;
+             double Eta     = DetUnit->position().basicVector().eta();
+             double R       = DetUnit->position().basicVector().transverse();
+             double Thick   = DetUnit->surface().bounds().thickness();
+
+             stModInfo* MOD = new stModInfo;
+             MOD->DetId     = Detid.rawId();
+             MOD->SubDet    = SubDet;
+             MOD->Eta       = Eta;
+             MOD->R         = R;
+             MOD->Thickness = Thick;
+             MOD->NAPV      = NAPV;
+             MODsColl[MOD->DetId] = MOD;
+         }
       }
-   }
  
-
-   MakeCalibrationMap();
+      MakeCalibrationMap();
+   }
 
 }
 
 void  DeDxDiscriminatorProducer::endJob()
 {
+   for(unsigned int i=0;i<MODsColl.size();i++){
+      delete MODsColl[i];
+   }
+   
 /*
    TFile* file = new TFile("MipsMap.root", "RECREATE");
    Prob_ChargePath->Write();
@@ -439,6 +445,8 @@ void DeDxDiscriminatorProducer::MakeCalibrationMap(){
        stModInfo* MOD  = MODsColl[tree_DetId];
        MOD->Gain = tree_Gain;
    }
+
+   delete t1;
 
 }
 
