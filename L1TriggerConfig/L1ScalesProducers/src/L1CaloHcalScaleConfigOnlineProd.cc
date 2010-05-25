@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Tue Sep 16 22:43:22 CEST 2008
-// $Id: L1CaloHcalScaleConfigOnlineProd.cc,v 1.1 2009/11/30 12:05:44 efron Exp $
+// $Id: L1CaloHcalScaleConfigOnlineProd.cc,v 1.2 2010/05/21 13:29:27 efron Exp $
 //
 //
 
@@ -26,15 +26,7 @@
 #include "CondFormats/DataRecord/interface/L1CaloHcalScaleRcd.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
 #include "CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.h"
-#include "CondTools/L1Trigger/interface/DataManager.h"
 #include "CondTools/L1Trigger/interface/OMDSReader.h"
-
-
-
-#include "CondCore/DBCommon/interface/DbSession.h"
-#include "CondCore/DBCommon/interface/DbConnection.h"
-#include "CondCore/DBCommon/interface/DbScopedTransaction.h"
-
 
 #include <iostream>
 #include <iomanip>
@@ -60,10 +52,6 @@ class L1CaloHcalScaleConfigOnlineProd :
   CaloTPGTranscoderULUT* caloTPG;
   typedef std::vector<double> RCTdecompression;
   std::vector<RCTdecompression> hcaluncomp;
-  cond::CoralTransaction* m_coralTransaction ;
-  //  DataManager a;
- cond::DBSession * session;
- cond::Connection * connection ;
 
   //  HcaluLUTTPGCoder* tpgCoder;// = new	 HcaluLUTTPGCoder();
 
@@ -90,29 +78,6 @@ L1CaloHcalScaleConfigOnlineProd::L1CaloHcalScaleConfigOnlineProd(
 {
   hcalScale = new L1CaloHcalScale(0);
   caloTPG = new CaloTPGTranscoderULUT();
-  session = new cond::DBSession();
-  session->configuration().setMessageLevel( cond::Info ) ;
-  
- 
-  std::string  connectString =    iConfig.getParameter< std::string >( "onlineDB" );
-  std::string authenticationPath  =   iConfig.getParameter< std::string >( "onlineAuthentication" );
-  
-
-  session->configuration().setAuthenticationMethod(cond::XML);
-  session->configuration().setAuthenticationPath( authenticationPath ) ;
-
-  session->open() ;
-
-
- connection = new cond::Connection( connectString ) ;
-     connection->connect( session ) ;
-
-
-     m_coralTransaction = &( connection->coralTransaction() ) ;
-     m_coralTransaction->start( true ) ;
-
-
-
 }
 
 
@@ -121,14 +86,6 @@ L1CaloHcalScaleConfigOnlineProd::~L1CaloHcalScaleConfigOnlineProd()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-
-
-  connection->disconnect() ;
-
-  if(connection != 0)
-    delete connection ;
-  if(session != 0)
-    delete session ;
 
   if(caloTPG != 0)
     delete caloTPG;
@@ -228,10 +185,8 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
     
  
     std::string schemaName("CMS_HCL_HCAL_COND");
-    coral::ISchema& schema = schemaName.empty() ?
-      m_coralTransaction->nominalSchema() :
-      m_coralTransaction->coralSessionProxy().schema( schemaName ) ;
-     coral::IQuery* query = schema.newQuery(); ;
+    coral::ISchema& schema = m_omdsReader.dbSession()->schema( schemaName ) ;
+    coral::IQuery* query = schema.newQuery(); ;
 
      
     std::vector< std::string > channelStrings;
