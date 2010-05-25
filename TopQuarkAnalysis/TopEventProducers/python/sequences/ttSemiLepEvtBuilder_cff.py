@@ -73,3 +73,11 @@ def setForAllTtSemiLepHypotheses(process, attribute, value):
         object = getattr(process, modules[obj])
         if hasattr(object, attribute):
             setattr(object, attribute, value)
+
+## use electrons instead of muons for the hypotheses
+def useElectronsForAllTtSemiLepHypotheses(process, elecLabel = "selectedPatElectrons"):
+    ## replace lepton InputTags in all modules
+    setForAllTtSemiLepHypotheses(process, "leps", elecLabel)
+    ## use correct KinFitter module
+    import TopQuarkAnalysis.TopKinFitter.TtSemiLepKinFitProducer_Electrons_cfi
+    process.kinFitTtSemiLepEventHypothesis = TopQuarkAnalysis.TopKinFitter.TtSemiLepKinFitProducer_Electrons_cfi.kinFitTtSemiLepEvent.clone()

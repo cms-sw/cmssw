@@ -65,6 +65,9 @@ addTtSemiLepHypotheses(process,
 #process.findTtSemiLepJetCombMVA.maxNComb        = -1
 #process.kinFitTtSemiLepEventHypothesis.maxNComb = -1
 
+## use electrons instead of muons for the hypotheses
+#useElectronsForAllTtSemiLepHypotheses(process)
+
 ## process path
 process.p = cms.Path(process.patDefaultSequence *
                      process.makeGenEvt         *
