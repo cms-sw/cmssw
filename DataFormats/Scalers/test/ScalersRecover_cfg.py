@@ -1,6 +1,6 @@
 #
 #  Example python configuration file for running ScalersRecover
-#  This file examines run 136035
+#  This file examines run 136035            (w.badgett)
 #
 
 import FWCore.ParameterSet.Config as cms
@@ -14,7 +14,9 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 #
 # Query the DBS to find out the file names, given a run number and
 #   the MinBias RECO stream.   Make sure that the file containing
-#   lumi sections 1 and 2 comes first in the list!
+#   lumi sections 1 and 2 comes first in the list!   Note that the
+#   trigger scalers record is generally one lumi section out of phase
+#   with the event data.
 #
 process.source = cms.Source("PoolSource",
   fileNames = cms.untracked.vstring(
