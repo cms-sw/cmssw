@@ -25,7 +25,7 @@
 //
 // Original Author:  William Badgett
 //         Created:  Mon May 24 14:45:17 CEST 2010
-// $Id$
+// $Id: ScalersRecover.cc,v 1.1 2010/05/24 15:02:18 badgett Exp $
 //
 //
 
@@ -36,7 +36,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -93,13 +93,15 @@ void ScalersRecover::analyze(const edm::Event& iEvent,
 
   if ( !ok ) 
   {
-    std::cout << "Could not find Level1TriggerScalersCollection" << std::endl;
+    LogError("ScalersRecover") << 
+      "Could not find Level1TriggerScalersCollection";
     return;
   }
 
   if ( data->size() < 1 )
   {
-    std::cout << "Could not find Level1TriggerScalers element" << std::endl;
+    LogError("ScalersRecover") << 
+      "Could not find Level1TriggerScalers element from Collection";
     return;
   }
 
@@ -111,8 +113,6 @@ void ScalersRecover::analyze(const edm::Event& iEvent,
   if ( ( ( lastLumiSection==-1 ) && ( lumiSection == 1 )) || 
        ( ( lastLumiSection>0 )   && ( lastLumiSection != lumiSection )))
   {
-    //    std::cout << *(triggerScalers) << std::endl;
-
     //TimeSpec zeit = triggerScalers->collectionTimeLumiSeg();
     timespec zeit;
     zeit.tv_sec = 0; 
@@ -163,7 +163,6 @@ void ScalersRecover::analyze(const edm::Event& iEvent,
       "," << triggerScalers->deadtimeBeamActiveTimeSlot() << 
       ");" ;
     
-    std::cout << insert.str() << std::endl;
     if ( sql != NULL ) { fprintf(sql,"%s\n", insert.str().c_str());}
     
     std::vector<unsigned int> algo = triggerScalers->gtAlgoCounts();
