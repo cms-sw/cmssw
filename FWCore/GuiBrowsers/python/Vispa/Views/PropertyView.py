@@ -275,6 +275,8 @@ class PropertyView(QTableWidget, AbstractView):
             propertyWidget=IntegerProperty(property[1], property[2])
         elif property[0] == "Double":
             propertyWidget=DoubleProperty(property[1], property[2])
+        elif property[0] == "DropDown":
+            propertyWidget=DropDownProperty(property[1], property[2], property[6])
         else:
             logging.error(__name__+": propertyWidgetFromProperty() - Unknown property type "+str(property[0]))
             return None
@@ -511,6 +513,39 @@ class BooleanProperty(Property, QCheckBox):
         """ Returns True if check box is checked.
         """
         return self.isChecked()
+
+class DropDownProperty(Property, QComboBox):
+    """ Property holding a check box for boolean values.
+    """
+    
+    USER_INFO = "Drop down field"
+    
+    def __init__(self, name, value, values):
+        """ Constructor.
+        """
+        Property.__init__(self, name)
+        QComboBox.__init__(self)
+        self._values=values
+        for v in values:
+            self.addItem(str(v))
+        if value in values:
+            self.setCurrentIndex(values.index(value))
+        self.connect(self, SIGNAL('currentIndexChanged(int)'), self.valueChanged)
+    
+    def setReadOnly(self, readOnly):
+        """ Disables editing functionality.
+        """
+        if readOnly:
+            self.setEnabled(False)
+            self.disconnect(self, SIGNAL('currentIndexChanged(int)'), self.valueChanged)
+        else:
+            self.setEnabled(True)
+            self.connect(self, SIGNAL('currentIndexChanged(int)'), self.valueChanged)
+        
+    def value(self):
+        """ Returns True if check box is checked.
+        """
+        return self._values[self.currentIndex()]
 
 class TextEdit(QTextEdit):
     def focusOutEvent(self,event):

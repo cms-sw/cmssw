@@ -19,6 +19,7 @@ unsigned PFClusterAlgo::prodNum_ = 1;
 
 PFClusterAlgo::PFClusterAlgo() :
   pfClusters_( new vector<reco::PFCluster> ),
+  pfRecHitsCleaned_( new vector<reco::PFRecHit> ),
   threshBarrel_(0.),
   threshPtBarrel_(0.),
   threshSeedBarrel_(0.2),
@@ -36,6 +37,7 @@ PFClusterAlgo::PFClusterAlgo() :
   posCalcP1_(-1),
   showerSigma_(5),
   useCornerCells_(false),
+  cleanRBXandHPDs_(false),
   debug_(false) 
 {
   file_ = 0;
@@ -67,6 +69,10 @@ void PFClusterAlgo::doClustering( const reco::PFRecHitCollection& rechits ) {
   else 
     pfClusters_.reset( new std::vector<reco::PFCluster> );
 
+  if(pfRecHitsCleaned_.get() ) pfRecHitsCleaned_->clear();
+  else 
+    pfRecHitsCleaned_.reset( new std::vector<reco::PFRecHit> );
+
 
   eRecHits_.clear();
 
@@ -96,7 +102,7 @@ void PFClusterAlgo::doClustering( const reco::PFRecHitCollection& rechits ) {
     usedInTopo_.push_back( false ); 
   }  
 
-  cleanRBXAndHPD( rechits);
+  if ( cleanRBXandHPDs_ ) cleanRBXAndHPD( rechits);
 
   // look for seeds.
   findSeeds( rechits );
@@ -350,6 +356,11 @@ PFClusterAlgo::cleanRBXAndHPD(  const reco::PFRecHitCollection& rechits ) {
 	    } else { 
 	      if ( itEn->first < threshold ) mask_[itEn->second] = false;
 	    }
+	    if ( !mask_[itEn->second] ) { 
+	      reco::PFRecHit theCleanedHit(rechit(itEn->second, rechits));
+	      theCleanedHit.setRescale(0.);
+	      pfRecHitsCleaned_->push_back(theCleanedHit);
+	    }
 	    /*
 	    if ( !mask_[itEn->second] ) 
 	      std::cout << "Hit Energies = " << itEn->first 
@@ -367,6 +378,8 @@ PFClusterAlgo::cleanRBXAndHPD(  const reco::PFRecHitCollection& rechits ) {
   // Loop on hpd's
   std::map<int, std::vector<unsigned> >::iterator neighbour1;
   std::map<int, std::vector<unsigned> >::iterator neighbour2;
+  std::map<int, std::vector<unsigned> >::iterator neighbour0;
+  std::map<int, std::vector<unsigned> >::iterator neighbour3;
   unsigned size1 = 0;
   unsigned size2 = 0;
   for ( std::map<int, std::vector<unsigned> >::iterator ithpd = hpds.begin();
@@ -397,17 +410,42 @@ PFClusterAlgo::cleanRBXAndHPD(  const reco::PFRecHitCollection& rechits ) {
     else if ( ithpd->first == 136 ) neighbour2 = hpds.find(101);
     else if ( ithpd->first == -136 ) neighbour2 = hpds.find(-101);
     else neighbour2 = ithpd->first > 0 ? hpds.find(ithpd->first+1) : hpds.find(ithpd->first-1) ;
-    
+
+    if ( neighbour1 != hpds.end() ) { 
+      if ( neighbour1->first == 1 ) neighbour0 = hpds.find(72);
+      else if ( neighbour1->first == -1 ) neighbour0 = hpds.find(-72);
+      else if ( neighbour1->first == 101 ) neighbour0 = hpds.find(136);
+      else if ( neighbour1->first == -101 ) neighbour0 = hpds.find(-136);
+      else neighbour0 = neighbour1->first > 0 ? hpds.find(neighbour1->first-1) : hpds.find(neighbour1->first+1) ;
+    } 
+
+    if ( neighbour2 != hpds.end() ) { 
+      if ( neighbour2->first == 72 ) neighbour3 = hpds.find(1);
+      else if ( neighbour2->first == -72 ) neighbour3 = hpds.find(-1);
+      else if ( neighbour2->first == 136 ) neighbour3 = hpds.find(101);
+      else if ( neighbour2->first == -136 ) neighbour3 = hpds.find(-101);
+      else neighbour3 = neighbour2->first > 0 ? hpds.find(neighbour2->first+1) : hpds.find(neighbour2->first-1) ;
+    }
+
     size1 = neighbour1 != hpds.end() ? neighbour1->second.size() : 0;
     size2 = neighbour2 != hpds.end() ? neighbour2->second.size() : 0;
+
+    // Also treat the case of two neighbouring HPD's not in the same RBX
+    if ( size1 > 10 ) { 
+      if ( ( abs(neighbour1->first) > 100 && neighbour1->second.size() > 15 ) || 
+	   ( abs(neighbour1->first) < 100 && neighbour1->second.size() > 12 ) ) 
+	size1 = neighbour0 != hpds.end() ? neighbour0->second.size() : 0;
+    }
+    if ( size2 > 10 ) { 
+      if ( ( abs(neighbour2->first) > 100 && neighbour2->second.size() > 15 ) || 
+	   ( abs(neighbour2->first) < 100 && neighbour2->second.size() > 12 ) ) 
+	size2 = neighbour3 != hpds.end() ? neighbour3->second.size() : 0;
+    }
     
-    //if ( ( abs(ithpd->first) > 100 && ithpd->second.size() > 13 ) || 
-    //     ( abs(ithpd->first) < 100 && ithpd->second.size() > 11 ) )
-    //  if ( (float)(size1 + size2)/(float)ithpd->second.size() < 0.5 ) 
     if ( ( abs(ithpd->first) > 100 && ithpd->second.size() > 15 ) || 
          ( abs(ithpd->first) < 100 && ithpd->second.size() > 12 ) )
       if ( (float)(size1 + size2)/(float)ithpd->second.size() < 1.0 ) {
-	/*
+	/* 
 	std::cout << "HPD numero " << ithpd->first 
 		  << " has " << ithpd->second.size() << " hits in it !" << std::endl
 		  << "Neighbours : " << size1 << " " << size2
@@ -427,6 +465,11 @@ PFClusterAlgo::cleanRBXAndHPD(  const reco::PFRecHitCollection& rechits ) {
 	    mask_[itEn->second] = false;
 	  } else { 
 	    if ( itEn->first < threshold ) mask_[itEn->second] = false;
+	  }
+	  if ( !mask_[itEn->second] ) { 
+	    reco::PFRecHit theCleanedHit(rechit(itEn->second, rechits));
+	    theCleanedHit.setRescale(0.);
+	    pfRecHitsCleaned_->push_back(theCleanedHit);
 	  }
 	  /*
 	  if ( !mask_[itEn->second] ) 
@@ -624,6 +667,9 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
 	      ) { 
 	    seedStates_[rhi] = CLEAN;
 	    mask_[rhi] = false;
+	    reco::PFRecHit theCleanedHit(wannaBeSeed);
+	    theCleanedHit.setRescale(0.);
+	    pfRecHitsCleaned_->push_back(theCleanedHit);
 	    /*
 	    std::cout << "A seed with E/pT/eta/phi = " << wannaBeSeed.energy() << " " << wannaBeSeed.energyUp() 
 		      << " " << sqrt(wannaBeSeed.pt2()) << " " << wannaBeSeed.position().eta() << " " << phi 

@@ -1,4 +1,4 @@
-// $Id: MonitoredQuantity.h,v 1.4 2009/08/18 08:54:13 mommsen Exp $
+// $Id: MonitoredQuantity.h,v 1.5 2009/10/13 15:08:33 mommsen Exp $
 /// @file: MonitoredQuantity.h 
 
 #ifndef StorageManager_MonitoredQuantity_h
@@ -22,8 +22,8 @@ namespace stor
    * and provides timing information on the samples.
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2009/08/18 08:54:13 $
+   * $Revision: 1.5 $
+   * $Date: 2009/10/13 15:08:33 $
    */
 
   class MonitoredQuantity
@@ -60,6 +60,12 @@ namespace stor
      * Adds the specified uint64_t valued sample value to the monitor instance.
      */
     void addSample(const uint64_t value = 1);
+
+    /**
+     * Adds the specified double valued sample value to the monitor instance
+     * if it is larger than the previously added value.
+     */
+    void addSampleIfLarger(const double value);
 
     /**
      * Forces a calculation of the statistics for the monitored quantity.

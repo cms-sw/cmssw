@@ -1,6 +1,9 @@
 #include "OHltConfig.h"
 #include "HLTDatasets.h"
 
+using namespace std;
+using namespace libconfig;
+
 OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
 {
 
@@ -24,7 +27,9 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
   cmsEnergy = 10.;
   liveTimeRun = 100.;
   nL1AcceptsRun = 100;
-  lumiSectionLength = 93.;
+  // lumiSectionLength = 93.;
+  lumiSectionLength = 23.3;
+  lumiScaleFactor = 1.0;
   prescaleNormalization = 1;
   isL1Menu = false;
   doL1preloop = true;  
@@ -44,7 +49,7 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
     cout << " ... ok" << endl;
 
     // temporary vars
-    const char* stmp; float ftmp; bool btmp; int itmp;
+    const char* stmp; float ftmp; bool btmp; int itmp; 
 
     /**** General Menu & Run conditions ****/
     cfg.lookupValue("run.nEntries",nEntries);
@@ -73,6 +78,7 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
     cfg.lookupValue("data.liveTimeRun",liveTimeRun);
     cfg.lookupValue("data.nL1AcceptsRun",nL1AcceptsRun); 
     cfg.lookupValue("data.lumiSectionLength",lumiSectionLength);
+    cfg.lookupValue("data.lumiScaleFactor",lumiScaleFactor);
     cfg.lookupValue("data.prescaleNormalization",prescaleNormalization);
     
     getPreFilter();
@@ -98,7 +104,12 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
       itmp = isPS[i];
       pisPhysicsSample.push_back(itmp);
       stmp = pa[i];
-      ppaths.push_back(TString(stmp));
+      // LA add trailing slash to directories if missing
+      string ppath = stmp;
+      string lastChar=ppath.substr(ppath.size()-1);
+      if (lastChar.compare("/") != 0 ) ppath.append("/");
+
+      ppaths.push_back(TString(ppath));
       stmp = fn[i];
       pfnames.push_back(TString(stmp));
       ftmp = xs[i];
@@ -201,7 +212,7 @@ void OHltConfig::fillRunBlockList()
 void OHltConfig::fillMenu(OHltMenu *omenu)
 {
   // temporary vars
-  const char* stmp; float ftmp; int itmp; //bool btmp; 
+  const char* stmp; float ftmp; int itmp; int refprescaletmp; //bool btmp; 
   const char* seedstmp;
     
   /**** Menu ****/ 
@@ -217,46 +228,75 @@ void OHltConfig::fillMenu(OHltMenu *omenu)
     TString ss0 = "menu.triggers.["; ss0 +=i; ss0=ss0+"].[0]";
     Setting &tt0 = cfg.lookup(ss0.Data());
     stmp = tt0;
-    
-    TString ss3 = "menu.triggers.["; ss3 +=i; ss3=ss3+"].[1]";
-    Setting &tt3 = cfg.lookup(ss3.Data());
-    seedstmp = tt3;
+    //cout << "Trigger: " << stmp << endl;
 
-    
-    //cout << stmp << endl;
-    TString ss1 = "menu.triggers.["; ss1 +=i; ss1=ss1+"].[2]";
-    Setting &tt1 = cfg.lookup(ss1.Data());
-    itmp = tt1;
-    //cout << itmp << endl;
-    TString ss2 = "menu.triggers.["; ss2 +=i; ss2=ss2+"].[3]";
-    Setting &tt2 = cfg.lookup(ss2.Data());
-    ftmp = tt2;
-    //cout << ftmp << endl;
-
-    //omenu->AddTrigger(stmp,itmp,ftmp);
-    omenu->AddTrigger(stmp,seedstmp,itmp,ftmp);
-  }
-
-  Setting &lm = cfg.lookup("menu.L1triggers");
-  const int lnm = (const int)lm.getLength();
-  //cout << lnm << endl;
-  for (int i=0;i<lnm;i++) {
-    TString ss0 = "menu.L1triggers.["; ss0 +=i; ss0=ss0+"].[0]";
-    Setting &tt0 = cfg.lookup(ss0.Data());
-    stmp = tt0;
-    //cout << stmp << endl;
-    if (doL1preloop) {
-      TString ss1 = "menu.L1triggers.["; ss1 +=i; ss1=ss1+"].[1]";
+    if (isL1Menu){
+      
+      TString ss1 = "menu.triggers.["; ss1 +=i; ss1=ss1+"].[1]";
       Setting &tt1 = cfg.lookup(ss1.Data());
       itmp = tt1;
       //cout << itmp << endl;
-    } else {
-      itmp = 1;
-    }
-    omenu->AddL1forPreLoop(stmp,itmp);
-  }
-  
+      TString ss2 = "menu.triggers.["; ss2 +=i; ss2=ss2+"].[2]";
+      Setting &tt2 = cfg.lookup(ss2.Data());
+      ftmp = tt2;
+      //cout << ftmp << endl;
 
+      omenu->AddTrigger(stmp,itmp,ftmp);
+      omenu->AddL1forPreLoop(stmp,itmp);
+    } else {
+
+      TString ss3 = "menu.triggers.["; ss3 +=i; ss3=ss3+"].[1]";
+      Setting &tt3 = cfg.lookup(ss3.Data());
+      seedstmp = tt3;
+      //cout << "Seed: " << seedstmp << endl;
+
+      TString ss1 = "menu.triggers.["; ss1 +=i; ss1=ss1+"].[2]";
+      Setting &tt1 = cfg.lookup(ss1.Data());
+      itmp = tt1;
+      //cout << "Prescale: "<< itmp << endl;
+      TString ss2 = "menu.triggers.["; ss2 +=i; ss2=ss2+"].[3]";
+      Setting &tt2 = cfg.lookup(ss2.Data());
+      ftmp = tt2;
+      //cout << "SampleSize: "<< ftmp << endl;
+
+      // JH - testing reference prescale
+      refprescaletmp = 1; 
+      TString ss4 = "menu.triggers.["; ss4 +=i; ss4=ss4+"].[4]"; 
+      if(cfg.exists(ss4.Data())) 
+        { 
+          Setting &tt4 = cfg.lookup(ss4.Data()); 
+          refprescaletmp = tt4; 
+        } 
+      else 
+        { 
+          refprescaletmp = 1; 
+        } 
+
+      omenu->AddTrigger(stmp,seedstmp,itmp,ftmp,refprescaletmp);
+
+    }
+  }
+
+  if (! isL1Menu){
+    Setting &lm = cfg.lookup("menu.L1triggers");
+    const int lnm = (const int)lm.getLength();
+    //cout << lnm << endl;
+    for (int i=0;i<lnm;i++) {
+      TString ss0 = "menu.L1triggers.["; ss0 +=i; ss0=ss0+"].[0]";
+      Setting &tt0 = cfg.lookup(ss0.Data());
+      stmp = tt0;
+      //cout << stmp << endl;
+      if (doL1preloop) {
+	TString ss1 = "menu.L1triggers.["; ss1 +=i; ss1=ss1+"].[1]";
+	Setting &tt1 = cfg.lookup(ss1.Data());
+	itmp = tt1;
+	//cout << itmp << endl;
+      } else {
+	itmp = 1;
+      }
+      omenu->AddL1forPreLoop(stmp,itmp);
+    }
+  }
   /**********************************/
 }
 
@@ -275,6 +315,8 @@ void OHltConfig::print()
       cout << "nL1AcceptsRun: " << nL1AcceptsRun << endl;
       cout << "liveTimeRun: " << liveTimeRun << endl;
       cout << "Time of one LumiSection: " << lumiSectionLength << endl;
+      if (fabs(lumiScaleFactor-1.) > 0.001)
+	cout << "Luminosity scaled by: " << lumiScaleFactor << endl;
       cout << "PD prescale factor: " << prescaleNormalization << endl;
     }
   cout << "alcaCondition: " << alcaCondition << endl;

@@ -25,7 +25,7 @@ class SiStripElectronSeedProducer : public edm::EDProducer
 
  private:
   edm::InputTag superClusters_[2];
-  const edm::ParameterSet conf_;
+  edm::ParameterSet conf_;
   SiStripElectronSeedGenerator *matcher_;
   };
 

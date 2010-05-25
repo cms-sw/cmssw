@@ -43,7 +43,7 @@ process.source = cms.Source("PoolSource",
         '/store/relval/2008/6/6/RelVal-RelValQCD_Pt_80_120-1212531852-IDEAL_V1-2nd-02/0000/A8FCCD3B-E933-DD11-ADC4-000423D986A8.root')
 )
 
-process.jetComp = cms.EDFilter("JetComparison",
+process.jetComp = cms.EDAnalyzer("JetComparison",
     MinEnergy = cms.double(50.0),
     outputFile = cms.untracked.string('fastjet50-120_full.root')
 )

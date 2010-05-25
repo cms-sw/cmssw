@@ -11,11 +11,7 @@
 #include <libconfig.h++>
 #include <TMath.h>
 
-using namespace std;
-using namespace libconfig;
-
 class OHltRateCounter {
-
  public:
 
   OHltRateCounter(unsigned int size);
@@ -55,7 +51,7 @@ class OHltRateCounter {
     float af = float(a),bf = float(b),r = af/bf;
     float unc = sqrt(af + (r*r*bf) )/bf;
     return unc;
-  }
+  } 
   static inline float effErrb(float a, float b){
     if (b==0.){return -1.;}
     float af = float(a),bf = float(b),r = af/bf;
@@ -63,18 +59,43 @@ class OHltRateCounter {
     return unc;
   }
   
+  static inline float errRate2(float a, float b){
+    if (b==0.){return -1.;}
+    float af = float(a),bf = float(b);
+    float unc = af/(bf*bf);
+    
+    //float unc = sqrt(af + (r*r*bf) )/bf;
+    return unc;
+  } 
+  static inline float errRate2(int a, int b){
+    if (b==0.){return -1.;}
+    float af = float(a),bf = float(b);
+    float unc = af/(bf*bf);
+    
+    //float unc = sqrt(af + (r*r*bf) )/bf;
+    return unc;
+  } 
+  static inline float errRate2(int a, float b){
+    if (b==0.){return -1.;}
+    float af = float(a),bf = float(b);
+    float unc = af/(bf*bf);
+    
+    //float unc = sqrt(af + (r*r*bf) )/bf;
+    return unc;
+  } 
   
   // Data
-  vector<int> iCount;
-  vector<int> sPureCount;
-  vector<int> pureCount;
-  vector< vector<int> > overlapCount;
-  vector<int> prescaleCount;
+  std::vector<int> iCount;
+  std::vector<int> sPureCount;
+  std::vector<int> pureCount;
+  std::vector< std::vector<int> > overlapCount;
+  std::vector<int> prescaleCount;
+  std::vector<int> prescaleCountL1;
 
-  vector< vector<int> > perLumiSectionCount;
-  vector<int> perLumiSectionTotCount;
-  vector<int> runID;
-  vector<int> lumiSection;
+  std::vector< std::vector<int> > perLumiSectionCount;
+  std::vector<int> perLumiSectionTotCount;
+  std::vector<int> runID;
+  std::vector<int> lumiSection;
 
 };
 #endif

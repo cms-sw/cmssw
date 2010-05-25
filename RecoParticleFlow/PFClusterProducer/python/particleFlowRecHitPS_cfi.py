@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-particleFlowRecHitPS = cms.EDFilter("PFRecHitProducerPS",
+particleFlowRecHitPS = cms.EDProducer("PFRecHitProducerPS",
     # cell threshold in barrel 
     thresh_Barrel = cms.double(7e-06),
     ecalRecHitsES = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"),

@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2009/06/24 09:22:46 $
- *  $Revision: 1.79 $
+ *  $Date: 2010/03/07 17:30:47 $
+ *  $Revision: 1.81 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -54,6 +54,9 @@ MuonTrackLoader::MuonTrackLoader(ParameterSet &parameterSet, const MuonServicePr
   
   // update at vertex
   theUpdatingAtVtx = parameterSet.getParameter<bool>("VertexConstraint");
+
+  // beam spot input tag
+  theBeamSpotInputTag = parameterSet.getParameter<edm::InputTag>("beamSpot");
   
   // Flag to put the trajectory into the event
   theTrajectoryFlag = parameterSet.getUntrackedParameter<bool>("PutTrajectoryIntoEvent",true);
@@ -126,7 +129,7 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
   }
   
   edm::Handle<reco::BeamSpot> beamSpot;
-  event.getByType(beamSpot);
+  event.getByLabel(theBeamSpotInputTag, beamSpot);
 
   LogTrace(metname) << "Create the collection of Tracks";
   
@@ -606,7 +609,7 @@ pair<bool,reco::Track> MuonTrackLoader::buildTrackAtPCA(const Trajectory& trajec
   math::XYZVector persistentMomentum(p.x(),p.y(),p.z());
 
   bool bon = true;
-  if(abs(theService->magneticField()->inTesla(GlobalPoint(0,0,0)).z()) < 0.01) bon=false;   
+  if(fabs(theService->magneticField()->inTesla(GlobalPoint(0,0,0)).z()) < 0.01) bon=false;   
   double ndof = trajectory.ndof(bon);
   
   reco::Track track(trajectory.chiSquared(), 

@@ -4,8 +4,8 @@
 /*
  * \file EEOccupancyTask.h
  *
- * $Date: 2009/12/08 10:34:45 $
- * $Revision: 1.24 $
+ * $Date: 2009/12/11 20:31:15 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  *
 */
@@ -82,9 +82,9 @@ MonitorElement* meEvent_[18];
 MonitorElement* meOccupancy_[18];
 MonitorElement* meOccupancyMem_[18];
 MonitorElement* meEERecHitEnergy_[18];
+MonitorElement* meSpectrum_[18];
 
 MonitorElement* meEERecHitSpectrum_[2];
-
 MonitorElement* meEEDigiOccupancy_[2];
 MonitorElement* meEEDigiOccupancyProEta_[2];
 MonitorElement* meEEDigiOccupancyProPhi_[2];

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-SiPixelClusterSource = cms.EDFilter("SiPixelClusterSource",
+SiPixelClusterSource = cms.EDAnalyzer("SiPixelClusterSource",
     src = cms.InputTag("siPixelClusters"),
     outputFile = cms.string('Pixel_DQM_Cluster.root'),
     saveFile = cms.untracked.bool(False),
@@ -15,6 +15,7 @@ SiPixelClusterSource = cms.EDFilter("SiPixelClusterSource",
     ringOn = cms.untracked.bool(False),
     bladeOn = cms.untracked.bool(False),
     diskOn = cms.untracked.bool(False),
-    smileyOn = cms.untracked.bool(True)
+    smileyOn = cms.untracked.bool(True),
+    bigEventSize = cms.untracked.int32(100)
 )
 

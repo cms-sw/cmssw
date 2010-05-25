@@ -59,22 +59,22 @@ namespace rpcdqm{
 	  }
 	} else if(_id.station()==4) {//Station 4
 	  if (_id.sector()== 4) {	  
-	    if ( _id.subsector()==1){
+	    if ( _id.subsector()==2){//RB4--
 	      if(_id.roll()==1)
 		_cnr=14;
 	      else
 		_cnr=15;
-	    }else if (_id.subsector()==2){
+	    }else if (_id.subsector()==3){//RB4-
 	      if(_id.roll()==1)
 		_cnr=16;
 	      else
 		_cnr=17;
-	    }else  if ( _id.subsector()==3) {
+	    }else  if ( _id.subsector()==1) {//RB4+
 	      if(_id.roll()==1)
 		_cnr=18;
 	      else
 		_cnr=19;
-	    }else if ( _id.subsector()==4){
+	    }else if ( _id.subsector()==4){//RB4++
 	      if(_id.roll()==1)
 		_cnr=20;
 	      else
@@ -164,12 +164,12 @@ namespace rpcdqm{
       ylabel[11] = "RB3-_F";
       ylabel[12] = "RB3+_B";
       ylabel[13] = "RB3+_F";
-      ylabel[14] = "RB4,-,--_B";
-      ylabel[15] = "RB4,-,--_F";
-      ylabel[16] = "RB4+,-+_B";
-      ylabel[17] = "RB4+,-+_F";
-      ylabel[18] = "RB4+-_B";
-      ylabel[19] = "RB4+-_F";
+      ylabel[14] = "RB4,-_B";
+      ylabel[15] = "RB4,-_F";
+      ylabel[16] = "RB4+_B";
+      ylabel[17] = "RB4+_F";
+      ylabel[18] = "RB4--_B";
+      ylabel[19] = "RB4--_F";
       ylabel[20] = "RB4++_B";
       ylabel[21] = "RB4++_F";
     }

@@ -626,6 +626,14 @@ namespace edm {
     //create the services
     ServiceToken tempToken(ServiceRegistry::createSet(*pServiceSets, iToken, iLegacy));
 
+    //see if any of the Services have to have their PSets stored
+    for(std::vector<ParameterSet>::const_iterator it = pServiceSets->begin(), itEnd = pServiceSets->end();
+        it != itEnd;
+        ++it) {
+      if(it->exists("@save_config")) {
+        parameterSet->addParameter(it->getParameter<std::string>("@service_type"),*it);
+      }
+    }
     // Copy slots that hold all the registered callback functions like
     // PostBeginJob into an ActivityRegistry that is owned by EventProcessor
     tempToken.copySlotsTo(*actReg_); 
@@ -876,10 +884,12 @@ namespace edm {
     
     schedule_->beginJob(es);
     if (!allModuleNames().empty()) {
-      cms::Exception exception("Modules still calling beginJob(EventSetup):\n");
+      cms::Exception exception("The following modules still define beginJob(EventSetup):\n");
       for (std::set<std::string>::const_iterator it = allModuleNames().begin(), itEnd = allModuleNames().end(); it != itEnd; ++it) {
 	exception << *it << "\n";
       }
+      exception << "beginJob(EventSetup) is obsolete. It should be replaced by beginJob() (no arguments).\n";
+      exception << "If the module needs EventSetup, EventSetup must be provided by a different function (e.g. beginRun()).\n";
       throw exception;
     }
     actReg_->postBeginJobSignal_();
@@ -918,6 +928,7 @@ namespace edm {
   namespace {
     volatile bool child_failed = false;
     volatile unsigned int num_children_done = 0;
+    volatile int child_fail_exit_status = 0;
     
     extern "C" {
       void ep_sigchld(int, siginfo_t*, void*) {
@@ -931,6 +942,7 @@ namespace edm {
             ++num_children_done;
             if(0 != WEXITSTATUS(stat_loc)) {
               child_failed = true;
+              child_fail_exit_status = WEXITSTATUS(stat_loc);
             }
           }
           if(WIFSIGNALED(stat_loc)) {
@@ -1097,7 +1109,10 @@ namespace edm {
 	sigsuspend(&unblockingSigSet);
       } 
       pthread_sigmask(SIG_SETMASK, &oldSigSet, NULL);
-    }  
+    }
+    if(child_failed) {
+      throw cms::Exception("ForkedChildFailed")<<"child process ended abnormally with exit code "<<child_fail_exit_status;
+    }
     return false;
   }
 

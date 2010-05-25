@@ -18,7 +18,7 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include <string>
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 namespace edm {
   class ParameterSet;

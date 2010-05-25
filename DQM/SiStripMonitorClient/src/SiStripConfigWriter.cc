@@ -3,8 +3,6 @@
 
 #include "DQMServices/ClientConfig/interface/ParserFunctions.h"
 
-using namespace xercesc;
-using namespace std;
 //
 // -- Constructor
 // 
@@ -19,25 +17,23 @@ SiStripConfigWriter::~SiStripConfigWriter() {
 //
 // -- Initialize XML
 // 
-bool SiStripConfigWriter::init(string main) {
-  try {
-    XMLPlatformUtils::Initialize();
-  }
-  catch (const XMLException& toCatch) {
-    cout << "Problem to initialise XML !!! " << endl;
-    return false;
-  }
-  DOMImplementation* domImpl = DOMImplementationRegistry::getDOMImplementation(qtxml::_toDOMS("Range"));
-  domWriter = (dynamic_cast<DOMImplementation*>(domImpl))->createDOMWriter();
-  domWriter->canSetFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true);
+bool SiStripConfigWriter::init(std::string main) {
+  xercesc::XMLPlatformUtils::Initialize();
+
+  xercesc::DOMImplementation* domImpl = xercesc::DOMImplementationRegistry::getDOMImplementation(qtxml::_toDOMS("Range"));
+  if (!domImpl) return false;
+  domWriter = (dynamic_cast<xercesc::DOMImplementation*>(domImpl))->createDOMWriter();
+  if (!domWriter) return false;
+  domWriter->canSetFeature(xercesc::XMLUni::fgDOMWRTFormatPrettyPrint, true);
   theDoc = domImpl->createDocument(0,qtxml::_toDOMS(main), 0);
+  if (!theDoc) return false;
   theTopElement = theDoc->getDocumentElement();
   return true;
 }
 //
 // -- Add an Element to the top node
 // 
-void SiStripConfigWriter::createElement(string tag) {
+void SiStripConfigWriter::createElement(std::string tag) {
   theTopElement->appendChild(theDoc->createTextNode(qtxml::_toDOMS("\n")));
   lastElement = theDoc->createElement(qtxml::_toDOMS(tag));
   theTopElement->appendChild(lastElement);
@@ -45,7 +41,7 @@ void SiStripConfigWriter::createElement(string tag) {
 //
 // -- Add an Element to the top node
 // 
-void SiStripConfigWriter::createElement(string tag, string name) {
+void SiStripConfigWriter::createElement(std::string tag, std::string name) {
   theTopElement->appendChild(theDoc->createTextNode(qtxml::_toDOMS("\n")));
   lastElement = theDoc->createElement(qtxml::_toDOMS(tag));
   lastElement->setAttribute(qtxml::_toDOMS("name"), qtxml::_toDOMS(name));
@@ -54,7 +50,7 @@ void SiStripConfigWriter::createElement(string tag, string name) {
 //
 // -- Add a child to the last element
 // 
-void SiStripConfigWriter::createChildElement(string tag, string name) {
+void SiStripConfigWriter::createChildElement(std::string tag, std::string name) {
 
   lastElement->appendChild(theDoc->createTextNode(qtxml::_toDOMS("\n")));
   xercesc::DOMElement* newElement = theDoc->createElement(qtxml::_toDOMS(tag));
@@ -64,7 +60,7 @@ void SiStripConfigWriter::createChildElement(string tag, string name) {
 //
 // -- Add a child to the last element
 // 
-void SiStripConfigWriter::createChildElement(string tag, string name, string att_name, string att_val) {
+void SiStripConfigWriter::createChildElement(std::string tag, std::string name, std::string att_name, std::string att_val) {
 
   lastElement->appendChild(theDoc->createTextNode(qtxml::_toDOMS("\n")));
   xercesc::DOMElement* newElement = theDoc->createElement(qtxml::_toDOMS(tag));
@@ -77,8 +73,8 @@ void SiStripConfigWriter::createChildElement(string tag, string name, string att
 //
 // -- Add a child to the last element
 // 
-void SiStripConfigWriter::createChildElement(string tag,string name,string att_name1, string att_val1,
-                                                                      string att_name2, string att_val2) {
+void SiStripConfigWriter::createChildElement(std::string tag,std::string name,std::string att_name1, std::string att_val1,
+                                                                      std::string att_name2, std::string att_val2) {
   lastElement->appendChild(theDoc->createTextNode(qtxml::_toDOMS("\n")));
   xercesc::DOMElement* newElement = theDoc->createElement(qtxml::_toDOMS(tag));
   newElement->setAttribute(qtxml::_toDOMS("name"), qtxml::_toDOMS(name));
@@ -90,9 +86,9 @@ void SiStripConfigWriter::createChildElement(string tag,string name,string att_n
 //
 // -- Add a child to the last element
 // 
-void SiStripConfigWriter::createChildElement(string tag,string name,string att_name1, string att_val1,
-                           					      string att_name2, string att_val2,
-                                                                      string att_name3, string att_val3) {
+void SiStripConfigWriter::createChildElement(std::string tag,std::string name,std::string att_name1, std::string att_val1,
+                           					      std::string att_name2, std::string att_val2,
+                                                                      std::string att_name3, std::string att_val3) {
 
   lastElement->appendChild(theDoc->createTextNode(qtxml::_toDOMS("\n")));
   xercesc::DOMElement* newElement = theDoc->createElement(qtxml::_toDOMS(tag));
@@ -106,8 +102,8 @@ void SiStripConfigWriter::createChildElement(string tag,string name,string att_n
 //
 // -- Write to File
 // 
-void SiStripConfigWriter::write(string fname) {
-  XMLFormatTarget* formTarget = new LocalFileFormatTarget(fname.c_str());
+void SiStripConfigWriter::write(std::string fname) {
+  xercesc::XMLFormatTarget* formTarget = new xercesc::LocalFileFormatTarget(fname.c_str());
   domWriter->writeNode(formTarget, *theTopElement);
   delete formTarget;
   theDoc->release(); 

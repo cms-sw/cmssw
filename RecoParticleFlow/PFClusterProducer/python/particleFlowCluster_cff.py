@@ -65,7 +65,7 @@ towerMakerPF.HcalThreshold = -1000.0
 towerMakerPF.EcutTower = -1000.0
 # parameters for handling of anomalous cells
 # acceptable severity level
-towerMakerPF.HcalAcceptSeverityLevel = 9
+towerMakerPF.HcalAcceptSeverityLevel = 11
 # use of recovered hits
 towerMakerPF.UseHcalRecoveredHits = True
 # flag to allow/disallow missing inputs

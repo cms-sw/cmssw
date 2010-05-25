@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hltEgammaHcalIsol = cms.EDFilter("EgammaHLTHcalIsolationProducersRegional",
+hltEgammaHcalIsol = cms.EDProducer("EgammaHLTHcalIsolationProducersRegional",
     hfRecHitProducer = cms.InputTag("hfreco"),
     recoEcalCandidateProducer = cms.InputTag("hltRecoEcalCandidate"),
     egHcalIsoPtMin = cms.double(0.0),

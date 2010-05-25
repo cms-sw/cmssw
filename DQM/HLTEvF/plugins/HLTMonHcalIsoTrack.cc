@@ -13,7 +13,7 @@
 //
 // Original Author:  Grigory SAFRONOV
 //         Created:  Mon Oct  6 10:10:22 CEST 2008
-// $Id: HLTMonHcalIsoTrack.cc,v 1.2 2009/12/17 12:02:24 safronov Exp $
+// $Id: HLTMonHcalIsoTrack.cc,v 1.3 2010/01/14 20:43:09 wmtan Exp $
 //
 //
 
@@ -47,14 +47,18 @@ std::pair<int,int> HLTMonHcalIsoTrack::towerIndex(double eta, double phi)
 {
   int ieta = 0;
   int iphi = 0;
-  for (int i=1; i<21; i++)
+  if (eta!=0)
     {
-      if (fabs(eta)<(i*0.087)&&fabs(eta)>(i-1)*0.087) ieta=int(fabs(eta)/eta)*i;
+      for (int i=1; i<21; i++)
+	{
+	  if (fabs(eta)<(i*0.087)&&fabs(eta)>(i-1)*0.087) ieta=int(fabs(eta)/eta)*i;
+	}
+      if (fabs(eta)>1.740&&fabs(eta)<=1.830) ieta=int(fabs(eta)/eta)*21;
+      if (fabs(eta)>1.830&&fabs(eta)<=1.930) ieta=int(fabs(eta)/eta)*22;
+      if (fabs(eta)>1.930&&fabs(eta)<=2.043) ieta=int(fabs(eta)/eta)*23;
+      if (fabs(eta)>2.043&&fabs(eta)<=2.172) ieta=int(fabs(eta)/eta)*24;
     }
-  if (fabs(eta)>1.740&&fabs(eta)<1.830) ieta=int(fabs(eta)/eta)*21;
-  if (fabs(eta)>1.830&&fabs(eta)<1.930) ieta=int(fabs(eta)/eta)*22;
-  if (fabs(eta)>1.930&&fabs(eta)<2.043) ieta=int(fabs(eta)/eta)*23;
-
+  
   double delta=phi+0.174532925;
   if (delta<0) delta=delta+2*acos(-1);
   if (fabs(eta)<1.740) 
@@ -71,7 +75,7 @@ std::pair<int,int> HLTMonHcalIsoTrack::towerIndex(double eta, double phi)
 	  if (delta<2*(i+1)*0.087266462&&delta>2*i*0.087266462) iphi=2*i;
 	}
     }
-
+  
   return std::pair<int,int>(ieta,iphi);
 }
 
@@ -80,15 +84,15 @@ HLTMonHcalIsoTrack::HLTMonHcalIsoTrack(const edm::ParameterSet& iConfig)
 {
   folderName_ = iConfig.getParameter<std::string>("folderName");
   outRootFileName_=iConfig.getParameter<std::string>("outputRootFileName");
-
+  
   useProducerCollections_=iConfig.getParameter<bool>("useProducerCollections");
   hltRAWEventTag_=iConfig.getParameter<std::string>("hltRAWTriggerEventLabel");
   hltAODEventTag_=iConfig.getParameter<std::string>("hltAODTriggerEventLabel");
-
+  
   hltProcess_=iConfig.getParameter<std::string>("hltProcessName");
-
+  
   saveToRootFile_=iConfig.getParameter<bool>("SaveToRootFile");
-
+  
   triggers = iConfig.getParameter<std::vector<edm::ParameterSet> >("triggers");
   for (std::vector<edm::ParameterSet>::iterator inTrig = triggers.begin(); inTrig != triggers.end(); inTrig++)
     {
@@ -110,10 +114,7 @@ void HLTMonHcalIsoTrack::analyze(const edm::Event& iEvent, const edm::EventSetup
   edm::Handle<trigger::TriggerEventWithRefs> triggerObj;
   edm::InputTag toLab=edm::InputTag(hltRAWEventTag_,"",hltProcess_);
   iEvent.getByLabel(toLab,triggerObj); 
-  if(!triggerObj.isValid()) 
-    { 
-      return;
-    }
+  if(!triggerObj.isValid()) return;
   
   for (unsigned int trInd=0; trInd<triggers.size(); trInd++)
     {
@@ -131,7 +132,7 @@ void HLTMonHcalIsoTrack::analyze(const edm::Event& iEvent, const edm::EventSetup
 	  triggerObj->getObjects(l1filterIndex, trigger::TriggerL1TauJet, l1TauJets);
 	}
       
-       if (l1CenJets.size()>0||l1ForJets.size()>0||l1CenJets.size()>0) 
+      if (l1CenJets.size()>0||l1ForJets.size()>0||l1TauJets.size()>0) 
 	{
 	  hL2L3acc[trInd]->Fill(1+0.001,1);
 	  l1pass=true;
@@ -142,7 +143,7 @@ void HLTMonHcalIsoTrack::analyze(const edm::Event& iEvent, const edm::EventSetup
       edm::InputTag l2Tag = edm::InputTag(l2filterLabels_[trInd],"",hltProcess_);
       trigger::size_type l2filterIndex=triggerObj->filterIndex(l2Tag);
       if (l2filterIndex<triggerObj->size()) triggerObj->getObjects(l2filterIndex, trigger::TriggerTrack, l2tracks); 
-            
+      
       std::vector<reco::IsolatedPixelTrackCandidateRef> l3tracks;
       edm::InputTag l3Tag = edm::InputTag(l3filterLabels_[trInd], "",hltProcess_);
       trigger::size_type l3filterIndex=triggerObj->filterIndex(l3Tag);
@@ -157,6 +158,7 @@ void HLTMonHcalIsoTrack::analyze(const edm::Event& iEvent, const edm::EventSetup
 	  if (useProducerCollections_)
 	    {
 	      iEvent.getByLabel(l3collectionLabels_[trInd],l3col);
+	      if(!l3col.isValid()) continue;
 	      
 	      for (reco::IsolatedPixelTrackCandidateCollection::const_iterator l3it=l3col->begin(); l3it!=l3col->end(); ++l3it)
 		{
@@ -171,12 +173,12 @@ void HLTMonHcalIsoTrack::analyze(const edm::Event& iEvent, const edm::EventSetup
 			  selL2tr=il2;
 			}
 		    }
-		  if (selL2tr!=-1&&drmin<0.03) hL3candL2rat[trInd]->Fill(l3it->p()/l2tracks[selL2tr]->p(),1);
+		  if (selL2tr!=-1&&drmin<0.03&&l2tracks[selL2tr]->p()!=0) hL3candL2rat[trInd]->Fill(l3it->p()/l2tracks[selL2tr]->p(),1);
 		  if (selL2tr!=-1) hL3L2trackMatch[trInd]->Fill(drmin,1);
 		}
 	    }
 	}
-            
+      
       if (l3tracks.size()>0) hL2L3acc[trInd]->Fill(3+0.0001,1);
       
       l1extra::L1JetParticleRef maxPtJet;
@@ -207,21 +209,21 @@ void HLTMonHcalIsoTrack::analyze(const edm::Event& iEvent, const edm::EventSetup
 	    }
 	}
       
-      hL1eta[trInd]->Fill(maxPtJet->eta(),1);
-      hL1phi[trInd]->Fill(maxPtJet->phi(),1);
+      if (maxPtJet.isNonnull()) hL1eta[trInd]->Fill(maxPtJet->eta(),1);
+      if (maxPtJet.isNonnull()) hL1phi[trInd]->Fill(maxPtJet->phi(),1);
       
-
       edm::Handle<reco::IsolatedPixelTrackCandidateCollection> l2col;
       edm::InputTag l2colTag=edm::InputTag(l2collectionLabels_[trInd],"",hltProcess_);
       if (useProducerCollections_)
 	{
 	  iEvent.getByLabel(l2collectionLabels_[trInd],l2col);
+	  if(!l2col.isValid()) continue;
 	  for (reco::IsolatedPixelTrackCandidateCollection::const_iterator l2it=l2col->begin(); l2it!=l2col->end(); l2it++)
 	    {
 	      hL2isolationP[trInd]->Fill(l2it->maxPtPxl(),1);
 	    }
 	}
-
+      
       for (unsigned int i=0; i<l2tracks.size(); i++)
 	{
 	  std::pair<int, int> tower=towerIndex(l2tracks[i]->eta(), l2tracks[i]->phi());

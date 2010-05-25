@@ -30,7 +30,7 @@
   int i,j,k;
   std::string tab, tab_map, tab_data;
   std::string sqlStmt, sqlStmt1;
-  int rec_id =0, map_id =0, map_index =0;
+  int rec_id, map_id, map_index;
   tm curtime;
   time_t now;
 
@@ -256,7 +256,7 @@ void condbon::cdbon_last_record (std::string obj_name, int *record)
   tab=obj_name;
   tab_map=obj_name+"_map";
   tab_data=obj_name+"_data";
-  int num_var =0;
+  int num_var;
   int vec_index;
 
   std::string sqlStmt,sqlStmt1;

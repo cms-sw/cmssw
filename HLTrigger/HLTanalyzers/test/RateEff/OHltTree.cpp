@@ -24,8 +24,20 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
   if (fChain == 0) {cerr<<"Error: no tree!"<<endl; return;}
 
   Long64_t nentries = (Long64_t)cfg->nEntries; 
+  Long64_t nTotEnt=fChain->GetEntries();
+  if (nTotEnt <=0){
+    cout << "\nTrouble! Number of entries on ntuples is " << nTotEnt 
+	 <<". Please check your input paths and fnames."
+	 << "\nStopping program execution." << endl;
+    exit(EXIT_FAILURE);
+  }
+  cout<<"Succeeded initialising OHltTree. nEntries: "<< nTotEnt <<endl;
+
   if (cfg->nEntries <= 0)
-    nentries = fChain->GetEntries();
+    nentries = nTotEnt;
+  else
+    nentries= cfg->nEntries;
+
   cout<<"Entries to be processed: "<<nentries<<endl;
 
   // Only for experts:
@@ -33,8 +45,14 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
   // Modify only if you know what you do!
   if (cfg->doSelectBranches) {
     fChain->SetBranchStatus("*",kFALSE);
+    fChain->SetBranchStatus("*",kFALSE);
     fChain->SetBranchStatus("MCmu*",kTRUE); // for ppMuX
     fChain->SetBranchStatus("MCel*",kTRUE); // for ppEleX
+    fChain->SetBranchStatus("Run",kTRUE);
+    fChain->SetBranchStatus("Event",kTRUE);
+    fChain->SetBranchStatus("LumiBlock",kTRUE);
+    fChain->SetBranchStatus("Bx",kTRUE);
+    fChain->SetBranchStatus("Orbit",kTRUE);
     // fChain->SetBranchStatus("L1TechnicalTriggerBits",kTRUE);
     if (cfg->selectBranchL1) {
       fChain->SetBranchStatus("L1_*",kTRUE);
@@ -62,6 +80,8 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     fChain->SetBranchStatus("*",kTRUE);
   }
 
+//   TFile*   theHistFile = new TFile("Histograms_Quarkonia.root", "RECREATE");
+//   cout<< "Histogram root file created: Histograms_Quarkonia.root"  << endl;
   
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
     Long64_t ientry = LoadTree(jentry);
@@ -93,11 +113,19 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
 
 	previousLumiSection = currentLumiSection;	
       }
- 
-    SetOpenL1Bits(); 
 
+
+    // Do operations on L1extra quantities before calling SetopenL1Bits, 
+    // so that they can be used in emulation of new L1 triggers, or later 
+    // by HLT paths
+    SetL1MuonQuality();
     RemoveEGOverlaps();
-   
+
+    // Do emulations of any new L1 bits. This is done before calling 
+    // ApplyL1Prescales and looping over the HLT paths, so that 
+    // L1 prescales are applied coherently to real L1 bits and 
+    // "OpenL1" bits
+    SetOpenL1Bits(); 
 
     // ccla example to extract timing info from L1Tech_XXX_5bx bits
     // if (L1Tech_BSC_minBias_OR_v0_5bx >0){
@@ -119,8 +147,6 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
 
     //SetMapL1BitOfStandardHLTPath(menu);
     SetMapL1BitOfStandardHLTPathUsingLogicParser(menu,(int)jentry);
-    SetL1MuonQuality();
-
 
     // Apply prefilter based on bits
     if (!passPreFilterLogicParser(cfg->preFilterLogicString,(int)jentry)) {
@@ -142,8 +168,8 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
       int accMCEle=0;
       if(cfg->selectBranchMC){
 	for(int iMCpart = 0; iMCpart < NMCpart; iMCpart ++){
-	  if((MCpid[iMCpart]==13||MCpid[iMCpart]==-13) && MCstatus[iMCpart]==3 && (MCeta[iMCpart] < 2.1 && MCeta[iMCpart] > -2.1) && (MCpt[iMCpart]>3))accMCMu=accMCMu+1;
-	  if((MCpid[iMCpart]==11||MCpid[iMCpart]==-11 )&& MCstatus[iMCpart]==3 && (MCeta[iMCpart] < 2.5 && MCeta[iMCpart] > -2.5) && (MCpt[iMCpart]>5))accMCEle=accMCEle+1;
+	  if((MCpid[iMCpart]==13||MCpid[iMCpart]==-13) && MCstatus[iMCpart]==1 && (MCeta[iMCpart] < 2.1 && MCeta[iMCpart] > -2.1) && (MCpt[iMCpart]>3))accMCMu=accMCMu+1;
+	  if((MCpid[iMCpart]==11||MCpid[iMCpart]==-11 )&& MCstatus[iMCpart]==1 && (MCeta[iMCpart] < 2.5 && MCeta[iMCpart] > -2.5) && (MCpt[iMCpart]>5))accMCEle=accMCEle+1;
 	}
 	if     ((cfg->pisPhysicsSample[procID]==1 && accMCEle>=1               )){ Den=Den+1;}
 	else if((cfg->pisPhysicsSample[procID]==2 &&                accMCMu >=1)){ Den=Den+1;}
@@ -159,13 +185,14 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     //////////////////////////////////////////////////////////////////
     TString hlteffmode;
     TString ohltobject;
-    //    hlteffmode="GEN";
+    hlteffmode="GEN";
     //    hlteffmode="L1";
-    hlteffmode="RECO";
+    //    hlteffmode="RECO";
     ohltobject="None";
     if (cfg->pisPhysicsSample[procID]==1)ohltobject="electron";
     if (cfg->pisPhysicsSample[procID]==2)ohltobject="muon";
     if (cfg->pisPhysicsSample[procID]==3)ohltobject="ele_mu";
+    if (cfg->pisPhysicsSample[procID]==4)ohltobject=="photon";
     PlotOHltEffCurves(cfg,hlteffmode,ohltobject,h1,h2,h3,h4);
 
 
@@ -180,19 +207,27 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
       //////////////////////////////////////////////////////////////////
       // Standard paths
       TString st = menu->GetTriggerName(i);
-      if (st.BeginsWith("HLT_") || st.BeginsWith("L1_") || st.BeginsWith("AlCa_")) {
+      if (st.BeginsWith("HLT_") || st.BeginsWith("L1_")  || st.BeginsWith("L1Tech_") || st.BeginsWith("AlCa_")) {
 	// Prefixes reserved for Standard HLT&L1	
-	if ( (map_BitOfStandardHLTPath.find(st)->second==1) ) {	
-	  if (map_L1BitOfStandardHLTPath.find(st)->second>0) {
-	    if (prescaleResponse(menu,cfg,rc,i)) { triggerBit[i] = true; }
+	//	if(st.BeginsWith("HLT_")) { cout << st << ", prescalecount = " << rc->prescaleCount[i] << ", "; }
+	if (map_L1BitOfStandardHLTPath.find(st)->second>0) {
+	  //	  if(st.BeginsWith("HLT_")) 
+	  //	    {cout << "L1 passed, "; }
+	  if (prescaleResponse(menu,cfg,rc,i)) {
+	    //	    if(st.BeginsWith("HLT_")) { cout << "Prescale passed, "; }
+	    if ( (map_BitOfStandardHLTPath.find(st)->second==1) ) { 
+	      triggerBit[i] = true; 
+	      //	      if(st.BeginsWith("HLT_")) { cout << "HLT passed"; }
+	    }
 	  }
 	}
       } else {
 	CheckOpenHlt(cfg,menu,rc,i);
       }
+      //      if(st.BeginsWith("HLT_")) { cout << endl; }
     }
     primaryDatasetsDiagnostics.fill(triggerBit);  //SAK -- record primary datasets decisions
-
+    
     /* ******************************** */
     // 2. Loop to check overlaps
     for (int it = 0; it < nTrig; it++){
@@ -220,7 +255,46 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
 
     
   }
-  
+
+//   theHistFile->cd();
+
+//   for(int ihistIdx=0;ihistIdx<10;ihistIdx++){
+
+//      hPixCanddr[ihistIdx]->Write();
+//      hPixCandEta[ihistIdx]->Write();
+//      hPixCandPt[ihistIdx]->Write();
+//      hPixCandP[ihistIdx]->Write();
+
+//      for(int iTrk=0;iTrk<2;iTrk++){
+
+//          hNCand[ihistIdx][iTrk]->Write();
+
+//          for(int i=0;i<2;i++){
+//              hEta[ihistIdx][iTrk][i]->Write();
+//              hPt[ihistIdx][iTrk][i]->Write();
+//              hHits[ihistIdx][iTrk][i]->Write();
+//              hNormChi2[ihistIdx][iTrk][i]->Write();
+//              hDxy[ihistIdx][iTrk][i]->Write();
+//              hDz[ihistIdx][iTrk][i]->Write();
+//              hP[ihistIdx][iTrk][i]->Write();
+//              hP[ihistIdx][iTrk][i]->Write();
+//          }
+
+//          for(int j=0;j<4;j++){
+
+//              //if(iTrk==0) continue;
+//              hOniaEta[ihistIdx][iTrk][j]->Write();
+//              hOniaRap[ihistIdx][iTrk][j]->Write();
+//              hOniaPt[ihistIdx][iTrk][j]->Write();
+//              hOniaP[ihistIdx][iTrk][j]->Write();
+//              hOniaMass[ihistIdx][iTrk][j]->Write();
+//              hOniaEtaPt[ihistIdx][iTrk][j]->Write();
+//              hOniaRapP[ihistIdx][iTrk][j]->Write();
+//           }
+//       }
+//   }
+//   theHistFile->Close();
+
 }
 
 void OHltTree::SetLogicParser(std::string l1SeedsLogicalExpression) {
@@ -248,8 +322,8 @@ bool OHltTree::prescaleResponse(OHltMenu *menu,OHltConfig *cfg,OHltRateCounter *
 
 bool OHltTree::prescaleResponseL1(OHltMenu *menu,OHltConfig *cfg,OHltRateCounter *rc,int i) {
   if (cfg->doDeterministicPrescale) {
-    (rc->prescaleCount[i])++;
-    return ((rc->prescaleCount[i]) % menu->GetL1Prescale(i) == 0); //
+    (rc->prescaleCountL1[i])++;
+    return ((rc->prescaleCountL1[i]) % menu->GetL1Prescale(i) == 0); //
   } else {
     return (GetIntRandom() % menu->GetL1Prescale(i) == 0);
   }

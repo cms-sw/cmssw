@@ -24,26 +24,6 @@ using namespace ROOT::Math::VectorUtil ;
 
 
 ElectronTkIsolation::ElectronTkIsolation (double extRadius,
-					  double intRadius,
-					  double ptLow,
-					  double lip,
-					  double drb,
-					  const reco::TrackCollection* trackCollection,
-					  reco::TrackBase::Point beamPoint) :
-  extRadius_(extRadius),
-  intRadiusBarrel_(intRadius),
-  intRadiusEndcap_(intRadius),
-  stripBarrel_(0.0),
-  stripEndcap_(0.0),
-  ptLow_(ptLow),
-  lip_(lip),
-  drb_(drb),
-  trackCollection_(trackCollection),
-  beamPoint_(beamPoint)
-{
-}
-
-ElectronTkIsolation::ElectronTkIsolation (double extRadius,
                                           double intRadiusBarrel,
                                           double intRadiusEndcap,
                                           double stripBarrel,
@@ -52,7 +32,8 @@ ElectronTkIsolation::ElectronTkIsolation (double extRadius,
                                           double lip,
                                           double drb,
                                           const reco::TrackCollection* trackCollection,
-                                          reco::TrackBase::Point beamPoint) :
+                                          reco::TrackBase::Point beamPoint,
+                                          const std::string &dzOptionString) :
   extRadius_(extRadius),
   intRadiusBarrel_(intRadiusBarrel),
   intRadiusEndcap_(intRadiusEndcap),
@@ -64,6 +45,7 @@ ElectronTkIsolation::ElectronTkIsolation (double extRadius,
   trackCollection_(trackCollection),
   beamPoint_(beamPoint)
 {
+    setDzOption(dzOptionString);
 }
 
 ElectronTkIsolation::~ElectronTkIsolation ()
@@ -84,16 +66,24 @@ std::pair<int,double> ElectronTkIsolation::getIso(const reco::GsfElectron* elect
   for ( reco::TrackCollection::const_iterator itrTr  = (*trackCollection_).begin() ; 
 	itrTr != (*trackCollection_).end()   ; 
 	++itrTr ) {
+
     math::XYZVector tmpTrackMomentumAtVtx = (*itrTr).momentum () ; 
 
     double this_pt  = (*itrTr).pt();
-    if ( this_pt < ptLow_ ) 
-      continue;
-    if (fabs( (*itrTr).dz() - (*tmpTrack).dz() ) > lip_ )
-      continue;
-    if (fabs( (*itrTr).dxy(beamPoint_) ) > drb_   )
-      continue;
-    double dr = ROOT::Math::VectorUtil::DeltaR(tmpTrackMomentumAtVtx,tmpElectronMomentumAtVtx) ;
+    if ( this_pt < ptLow_ ) continue;
+
+
+    double dzCut = 0;
+    switch( dzOption_ ) {
+        case EgammaTrackSelector::dz : dzCut = fabs( (*itrTr).dz() - (*tmpTrack).dz() ); break;
+        case EgammaTrackSelector::vz : dzCut = fabs( (*itrTr).vz() - (*tmpTrack).vz() ); break;
+        case EgammaTrackSelector::bs : dzCut = fabs( (*itrTr).dz(beamPoint_) - (*tmpTrack).dz(beamPoint_) ); break;
+        case EgammaTrackSelector::vtx: dzCut = fabs( (*itrTr).dz(tmpTrack->vertex()) ); break;
+        default : dzCut = fabs( (*itrTr).vz() - (*tmpTrack).vz() ); break;
+    }
+    if (dzCut > lip_ ) continue;
+    if (fabs( (*itrTr).dxy(beamPoint_) ) > drb_   ) continue;
+    double dr = ROOT::Math::VectorUtil::DeltaR(itrTr->momentum(),tmpElectronMomentumAtVtx) ;
     double deta = (*itrTr).eta() - tmpElectronEtaAtVertex;
     if (fabs(tmpElectronEtaAtVertex) < 1.479) { 
     	if ( fabs(dr) < extRadius_ && fabs(dr) >= intRadiusBarrel_ && fabs(deta) >= stripBarrel_)

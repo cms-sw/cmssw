@@ -1,4 +1,4 @@
-// $Id: QueueCollection.h,v 1.4 2009/07/20 13:06:10 mommsen Exp $
+// $Id: QueueCollection.h,v 1.5 2009/08/24 14:31:11 mommsen Exp $
 /// @file: QueueCollection.h 
 
 #ifndef StorageManager_QueueCollection_h
@@ -34,14 +34,15 @@ namespace stor {
    * of QueueIDs of queues the class should be added.
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2009/07/20 13:06:10 $
+   * $Revision: 1.5 $
+   * $Date: 2009/08/24 14:31:11 $
    */
 
   template <class T>
   class QueueCollection
   {
   public:
+    typedef typename ExpirableQueue<T, RejectNewest<T> >::size_type size_type;
 
     /**
        A default-constructed QueueCollection contains no queues
@@ -62,7 +63,7 @@ namespace stor {
     */
     QueueID createQueue(ConsumerID cid,
                         enquing_policy::PolicyTag policy,
-                        size_t max = std::numeric_limits<size_t>::max(),
+                        size_type max = std::numeric_limits<size_type>::max(),
                         utils::duration_t interval = 120.0,
                         utils::time_point_t now = utils::getCurrentTime());
 
@@ -75,7 +76,7 @@ namespace stor {
     /**
        Return the number of queues in the collection.
       */
-    size_t size() const;
+    size_type size() const;
     
     /**
        Add an event to all queues matching the specifications.
@@ -119,7 +120,7 @@ namespace stor {
     /**
        Get number of elements in queue
     */
-    size_t size( QueueID id ) const;
+    size_type size( QueueID id ) const;
 
     /**
        Clear queues which are 'stale'; a queue is stale if it hasn't
@@ -269,7 +270,7 @@ namespace stor {
   QueueID 
   QueueCollection<T>::createQueue(ConsumerID cid,
                                     enquing_policy::PolicyTag policy,
-				    size_t max,
+				    size_type max,
                                     utils::duration_t interval,
                                     utils::time_point_t now)
   {
@@ -317,7 +318,7 @@ namespace stor {
   }
 
   template <class T>
-  size_t
+  typename QueueCollection<T>::size_type
   QueueCollection<T>::size() const
   {
     // We obtain locks not because it is unsafe to read the sizes
@@ -503,10 +504,10 @@ namespace stor {
   }
 
   template <class T>
-  size_t
+  typename QueueCollection<T>::size_type
   QueueCollection<T>::size( QueueID id ) const
   {
-    size_t result = 0;
+    size_type result = 0;
     switch (id.policy()) 
       {
       case enquing_policy::DiscardNew:
@@ -554,15 +555,15 @@ namespace stor {
     read_lock_t lock_discard_old(_protect_discard_new_queues);
     read_lock_t lock_discard_new(_protect_discard_old_queues);
     
-    size_t num_queues = _discard_new_queues.size();
-    for (size_t i = 0; i < num_queues; ++i)
+    size_type num_queues = _discard_new_queues.size();
+    for (size_type i = 0; i < num_queues; ++i)
       {
         if ( _discard_new_queues[i]->clearIfStale(now))
           result.push_back(QueueID(enquing_policy::DiscardNew, i));
       }
 
     num_queues = _discard_old_queues.size();
-    for (size_t i = 0; i < num_queues; ++i)
+    for (size_type i = 0; i < num_queues; ++i)
       {
         if ( _discard_old_queues[i]->clearIfStale(now))
           result.push_back(QueueID(enquing_policy::DiscardOld, i));

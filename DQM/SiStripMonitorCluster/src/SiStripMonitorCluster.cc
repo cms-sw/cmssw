@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.66 2009/09/14 14:13:59 dutta Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.71 2010/03/27 11:26:24 dutta Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -130,7 +130,25 @@ SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig) :
   createTrendMEs = conf_.getParameter<bool>("CreateTrendMEs");
   Mod_On_ = conf_.getParameter<bool>("Mod_On");
 
-  topFolderName_ = conf_.getParameter<string>("TopFolderName");
+  topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
+
+
+  // Poducer name of input StripClusterCollection
+  clusterProducer_ = conf_.getParameter<edm::InputTag>("ClusterProducer");
+  // SiStrip Quality Label
+  qualityLabel_  = conf_.getParameter<std::string>("StripQualityLabel");
+  // cluster quality conditions 
+  edm::ParameterSet cluster_condition = conf_.getParameter<edm::ParameterSet>("ClusterConditions");
+  applyClusterQuality_ = cluster_condition.getParameter<bool>("On");
+  sToNLowerLimit_      = cluster_condition.getParameter<double>("minStoN");
+  sToNUpperLimit_      = cluster_condition.getParameter<double>("maxStoN");
+  widthLowerLimit_     = cluster_condition.getParameter<double>("minWidth"); 
+  widthUpperLimit_     = cluster_condition.getParameter<double>("maxWidth"); 
+
+  // Event History Producer
+  historyProducer_ = conf_.getParameter<edm::InputTag>("HistoryProducer");
+  // Apv Phase Producer
+  apvPhaseProducer_ = conf_.getParameter<edm::InputTag>("ApvPhaseProducer");
 } 
 
 
@@ -255,7 +273,7 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
     if (globalswitchapvcycledbxth2on) {
       dqmStore_->setCurrentFolder(topFolderName_+"/MechanicalView/");
       edm::ParameterSet GlobalTH2Parameters =  conf_.getParameter<edm::ParameterSet>("TH2ApvCycleVsDBxGlobal");
-      string HistoName = "DeltaBx_vs_ApvCycle";
+      std::string HistoName = "DeltaBx_vs_ApvCycle";
       GlobalApvCycleDBxTH2 = dqmStore_->book2D(HistoName,HistoName,
 						GlobalTH2Parameters.getParameter<int32_t>("Nbinsx"),
 						GlobalTH2Parameters.getParameter<double>("xmin"),
@@ -263,7 +281,8 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
 						GlobalTH2Parameters.getParameter<int32_t>("Nbinsy"),
   					        GlobalTH2Parameters.getParameter<double>("ymin"),
 						GlobalTH2Parameters.getParameter<double>("ymax"));
-      GlobalApvCycleDBxTH2->setAxisTitle("Delta Bunch Crossing vs APV Cycle",1);
+      GlobalApvCycleDBxTH2->setAxisTitle("APV Cycle (Corrected Absolute Bx % 70)",1);
+      GlobalApvCycleDBxTH2->setAxisTitle("Delta Bunch Crossing Cycle",2);
     }
   }//end of if
 
@@ -275,9 +294,6 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
 void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-  using namespace edm;
-
-
   runNb   = iEvent.id().run();
   eventNb++;
   float iOrbitSec      = iEvent.orbitNumber()/11223.0;
@@ -288,17 +304,15 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
   edm::ESHandle<SiStripGain> gainHandle;
   iSetup.get<SiStripGainRcd>().get(gainHandle);
 
-  std::string quality_label  = conf_.getParameter<std::string>("StripQualityLabel");
+
   edm::ESHandle<SiStripQuality> qualityHandle;
-  iSetup.get<SiStripQualityRcd>().get(quality_label,qualityHandle);
+  iSetup.get<SiStripQualityRcd>().get(qualityLabel_,qualityHandle);
 
   iSetup.get<SiStripDetCablingRcd>().get(SiStripDetCabling_);
 
-  // retrieve producer name of input StripClusterCollection
-  std::string clusterProducer = conf_.getParameter<std::string>("ClusterProducer");
   // get collection of DetSetVector of clusters from Event
   edm::Handle< edmNew::DetSetVector<SiStripCluster> > cluster_detsetvektor;
-  iEvent.getByLabel(clusterProducer, cluster_detsetvektor);
+  iEvent.getByLabel(clusterProducer_, cluster_detsetvektor);
 
   //if (!cluster_detsetvektor.isValid()) std::cout<<" collection not valid"<<std::endl;
   if (!cluster_detsetvektor.isValid()) return;
@@ -315,7 +329,6 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     
     std::string layer_label = iterLayer->first;
     
-    std::vector< uint32_t > layer_dets = iterLayer->second;
     int ncluster_layer = 0;
     std::map<std::string, LayerMEs>::iterator iLayerME = LayerMEMap.find(layer_label);
     
@@ -329,8 +342,8 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     bool found_module_me = false;
     uint16_t iDet = 0;
     // loop over all modules in the layer
-    for (std::vector< uint32_t >::const_iterator iterDets = layer_dets.begin() ; 
-	 iterDets != layer_dets.end() ; iterDets++) {
+    for (std::vector< uint32_t >::const_iterator iterDets = iterLayer->second.begin() ; 
+	 iterDets != iterLayer->second.end() ; iterDets++) {
       iDet++;
       // detid and type of ME
       uint32_t detid = (*iterDets);
@@ -378,7 +391,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
       SiStripQuality::Range qualityRange = qualityHandle->getRange(detid);
       
       for(edmNew::DetSet<SiStripCluster>::const_iterator clusterIter = cluster_detset.begin(); clusterIter!= cluster_detset.end(); clusterIter++){
-	const  edm::ParameterSet ps = conf_.getParameter<edm::ParameterSet>("ClusterConditions");
+
 	const std::vector<uint8_t>& ampls = clusterIter->amplitudes();
 	// cluster position
 	float cluster_position = clusterIter->barycenter();
@@ -398,13 +411,8 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 	for(uint iamp=0; iamp<ampls.size(); iamp++){
 	  if(ampls[iamp]>0){ // nonzero amplitude
 	    cluster_signal += ampls[iamp];
-	    try{
-	      if(!qualityHandle->IsStripBad(qualityRange, clusterIter->firstStrip()+iamp)){
-		noise = noiseHandle->getNoise(clusterIter->firstStrip()+iamp,detNoiseRange)/gainHandle->getStripGain(clusterIter->firstStrip()+iamp, detGainRange);
-	      }
-	    }
-	    catch(cms::Exception& e){
-	      edm::LogError("SiStripTkDQM|SiStripMonitorCluster|DB")<<" cms::Exception:  detid="<<detid<<" firstStrip="<<clusterIter->firstStrip()<<" iamp="<<iamp<<e.what();
+	    if(!qualityHandle->IsStripBad(qualityRange, clusterIter->firstStrip()+iamp)){
+	      noise = noiseHandle->getNoise(clusterIter->firstStrip()+iamp,detNoiseRange)/gainHandle->getStripGain(clusterIter->firstStrip()+iamp, detGainRange);
 	    }
 	    noise2 += noise*noise;
 	    nrnonzeroamplitudes++;
@@ -413,11 +421,11 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 	
 	if (nrnonzeroamplitudes > 0) cluster_noise = sqrt(noise2/nrnonzeroamplitudes);
 	
-	if( ps.getParameter<bool>("On") &&
-	    (cluster_signal/cluster_noise < ps.getParameter<double>("minStoN") ||
-	     cluster_signal/cluster_noise > ps.getParameter<double>("maxStoN") ||
-	     cluster_width < ps.getParameter<double>("minWidth") ||
-	     cluster_width  > ps.getParameter<double>("maxWidth")) ) continue;  
+	if( applyClusterQuality_ &&
+	    (cluster_signal/cluster_noise < sToNLowerLimit_ ||
+	     cluster_signal/cluster_noise > sToNUpperLimit_ ||
+	     cluster_width < widthLowerLimit_ ||
+	     cluster_width > widthUpperLimit_) ) continue;  
 	
 	ClusterProperties cluster_properties;
 	cluster_properties.charge    = cluster_signal;
@@ -459,17 +467,14 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     else if (layer_label.find("TID") != std::string::npos) nTotClusterTID += ncluster_layer;        
   }
   
-  // get EventHistory 
-  InputTag historyProducer = conf_.getParameter<edm::InputTag>("HistoryProducer");
-  Handle<EventWithHistory> event_history;
+  //  EventHistory 
+  edm::Handle<EventWithHistory> event_history;
+  iEvent.getByLabel(historyProducer_,event_history);
   
+  // Phase of APV
+  edm::Handle<APVCyclePhaseCollection> apv_phase_collection;
+  iEvent.getByLabel(apvPhaseProducer_,apv_phase_collection);
 
-  // get Phase of APV
-  InputTag apvPhaseProducer = conf_.getParameter<edm::InputTag>("ApvPhaseProducer");
-  Handle<APVCyclePhaseCollection> apv_phase_collection;
-
-  iEvent.getByLabel(historyProducer,event_history);
-  iEvent.getByLabel(apvPhaseProducer,apv_phase_collection);
   if (event_history.isValid() 
         && !event_history.failedToGet()
         && apv_phase_collection.isValid() 
@@ -484,7 +489,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
        it != SubDetMEsMap.end(); it++) {
 
       SubDetMEs subdetmes;
-      string subdet = it->first;
+      std::string subdet = it->first;
       subdetmes = it->second;
 
       int the_phase = APVCyclePhaseCollection::invalid;
@@ -783,7 +788,7 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label) {
 							    Parameters.getParameter<double>("ymin"),
 							    Parameters.getParameter<double>("ymax"),
 							    "" );
-      subdetMEs.SubDetClusterApvProf->setAxisTitle("absolute Bx mod(70)",1);
+      subdetMEs.SubDetClusterApvProf->setAxisTitle("Apv Cycle (Corrected Absolute Bx % 70)",1);
     }
     
     // Total Number of Clusters vs ApvCycle - 2D 
@@ -806,7 +811,9 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label) {
 						      Parameters.getParameter<int32_t>("Nbinsy"),
 						      Parameters.getParameter<double>("ymin"),
 						      h2ymax);
-      subdetMEs.SubDetClusterApvTH2->setAxisTitle("absolute Bx mod(70)",1);
+      subdetMEs.SubDetClusterApvTH2->setAxisTitle("Apv Cycle (Corrected Absolute Bx % 70))",1);
+      subdetMEs.SubDetClusterApvTH2->setAxisTitle("Total # of Clusters",2);
+
     }
     // Total Number of Cluster vs DeltaBxCycle - Profile
     if(subdetswitchdbxcycleprofon){
@@ -821,7 +828,7 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label) {
 							    Parameters.getParameter<double>("ymin"),
 							    Parameters.getParameter<double>("ymax"),
 							    "" );
-      subdetMEs.SubDetClusterApvProf->setAxisTitle("Delta Bunch Crossing Cycle",1);
+      subdetMEs.SubDetClusterDBxCycleProf->setAxisTitle("Delta Bunch Crossing Cycle",1);
     }
     // DeltaBx vs ApvCycle - 2DProfile
     if(subdetswitchapvcycledbxprof2on){
@@ -838,10 +845,9 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label) {
 							    Parameters.getParameter<double>("zmin"),
 							    Parameters.getParameter<double>("zmax"),
                                                             "" );
-      subdetMEs.SubDetClusterApvProf->setAxisTitle("Delta Bunch Crossing vs APV Cycle",1);
+      subdetMEs.SubDetApvDBxProf2->setAxisTitle("APV Cycle (Corrected Absolute Bx % 70)",1);
+      subdetMEs.SubDetApvDBxProf2->setAxisTitle("Delta Bunch Crossing Cycle",2);
     }
-
-
     SubDetMEsMap[label]=subdetMEs;
   }
 }

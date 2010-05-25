@@ -3,7 +3,6 @@
 #include <iostream>
 #include <math.h>
 
-using namespace std;
 
 // -----------------------------------------------------------------------------
 /** */
@@ -20,7 +19,7 @@ void UpdateTProfile::setBinContents( TProfile* const prof,
 				     const double& num_of_entries, 
 				     const double& sum_of_contents,
 				     const double& sum_of_squares ) {
-  //   cout << "[UpdateTProfile::setBinContents]" << endl;
+  //   std::cout << "[UpdateTProfile::setBinContents]" << std::endl;
   
   double mean = 0.;
   double spread = 0.;
@@ -85,19 +84,19 @@ void UpdateTProfile::setBinContent( TProfile* const prof,
 				    const double& num_of_entries, 
 				    const double& mean,
 				    const double& spread ) {
-  //   cout << "[UpdateTProfile::setBinContents]" << endl;
+  //   std::cout << "[UpdateTProfile::setBinContents]" << std::endl;
 
   // Check histo exists
   if ( !prof ) {
-    cerr << "[UpdateTProfile::setBinContents]"
-	 << " NULL pointer to TProfile object!" << endl;
+    std::cerr << "[UpdateTProfile::setBinContents]"
+	 << " NULL pointer to TProfile object!" << std::endl;
     return;
   }
 
   // Check bin number is valid
   if ( bin == 0 || bin > static_cast<uint32_t>(prof->GetNbinsX()) ) {
-    cerr << "[UpdateTProfile::setBinContents]"
-	 << " Unexpected bin number!" << endl;
+    std::cerr << "[UpdateTProfile::setBinContents]"
+	 << " Unexpected bin number!" << std::endl;
     return;
   }
 
@@ -110,8 +109,8 @@ void UpdateTProfile::setBinContent( TProfile* const prof,
   const char* default_option = "";
   //   const char* option = prof->GetErrorOption();
   //   if ( option[0] != spread_option[0] ) {
-  //     cout << "[UpdateTProfile::setBinContents]"
-  // 	 << " Setting error option for TProfile to 's'!" << endl;
+  //     std::cout << "[UpdateTProfile::setBinContents]"
+  // 	 << " Setting error option for TProfile to 's'!" << std::endl;
   //     prof->SetErrorOption( "s" );
   //   }
   const char* error_option = prof->GetErrorOption();
@@ -123,8 +122,8 @@ void UpdateTProfile::setBinContent( TProfile* const prof,
   } else if (error_option[0] == default_option[0] ) {
     weight = sqrt( mean*mean*entries + spread*spread*entries*entries );
   } else { 
-    cerr << "[UpdateTProfile::setBinContents]"
-	 << " Unexpected error option for TProfile!" << endl;
+    std::cerr << "[UpdateTProfile::setBinContents]"
+	 << " Unexpected error option for TProfile!" << std::endl;
     weight = 0.; 
   }
   

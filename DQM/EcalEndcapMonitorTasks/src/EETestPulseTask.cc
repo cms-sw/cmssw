@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseTask.cc
  *
- * $Date: 2009/08/23 20:59:52 $
- * $Revision: 1.53 $
+ * $Date: 2010/02/12 21:57:31 $
+ * $Revision: 1.55 $
  * \author G. Della Ricca
  *
 */
@@ -29,17 +29,13 @@
 
 #include <DQM/EcalEndcapMonitorTasks/interface/EETestPulseTask.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EETestPulseTask::EETestPulseTask(const ParameterSet& ps){
+EETestPulseTask::EETestPulseTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -52,11 +48,11 @@ EETestPulseTask::EETestPulseTask(const ParameterSet& ps){
 
   MGPAGains_.reserve(3);
   for ( unsigned int i = 1; i <= 3; i++ ) MGPAGains_.push_back(i);
-  MGPAGains_ = ps.getUntrackedParameter<vector<int> >("MGPAGains", MGPAGains_);
+  MGPAGains_ = ps.getUntrackedParameter<std::vector<int> >("MGPAGains", MGPAGains_);
 
   MGPAGainsPN_.reserve(2);
   for ( unsigned int i = 1; i <= 3; i++ ) MGPAGainsPN_.push_back(i);
-  MGPAGainsPN_ = ps.getUntrackedParameter<vector<int> >("MGPAGainsPN", MGPAGainsPN_);
+  MGPAGainsPN_ = ps.getUntrackedParameter<std::vector<int> >("MGPAGainsPN", MGPAGainsPN_);
 
   for (int i = 0; i < 18; i++) {
     meShapeMapG01_[i] = 0;
@@ -88,7 +84,7 @@ void EETestPulseTask::beginJob(void){
 
 }
 
-void EETestPulseTask::beginRun(const Run& r, const EventSetup& c) {
+void EETestPulseTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, false);
 
@@ -96,7 +92,7 @@ void EETestPulseTask::beginRun(const Run& r, const EventSetup& c) {
 
 }
 
-void EETestPulseTask::endRun(const Run& r, const EventSetup& c) {
+void EETestPulseTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
@@ -312,13 +308,13 @@ void EETestPulseTask::cleanup(void){
 
 void EETestPulseTask::endJob(void){
 
-  LogInfo("EETestPulseTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EETestPulseTask") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
+void EETestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   bool enable = false;
   int runType[18];
@@ -326,7 +322,7 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
   int mgpaGain[18];
   for (int i=0; i<18; i++) mgpaGain[i] = -1;
 
-  Handle<EcalRawDataCollection> dcchs;
+  edm::Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
@@ -346,7 +342,7 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EETestPulseTask") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EETestPulseTask") << EcalRawDataCollection_ << " not available";
 
   }
 
@@ -356,7 +352,7 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  Handle<EEDigiCollection> digis;
+  edm::Handle<EEDigiCollection> digis;
 
   if ( e.getByLabel(EEDigiCollection_, digis) ) {
 
@@ -374,9 +370,6 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
       if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
                runType[ism-1] == EcalDCCHeaderBlock::TESTPULSE_GAP ) ) continue;
-
-      LogDebug("EETestPulseTask") << " det id = " << id;
-      LogDebug("EETestPulseTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
 
       int ic = Numbers::icEE(ism, ix, iy);
 
@@ -408,11 +401,11 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EETestPulseTask") << EEDigiCollection_ << " not available";
+    edm::LogWarning("EETestPulseTask") << EEDigiCollection_ << " not available";
 
   }
 
-  Handle<EcalUncalibratedRecHitCollection> hits;
+  edm::Handle<EcalUncalibratedRecHitCollection> hits;
 
   if ( e.getByLabel(EcalUncalibratedRecHitCollection_, hits) ) {
 
@@ -436,9 +429,6 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
       if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
                runType[ism-1] == EcalDCCHeaderBlock::TESTPULSE_GAP ) ) continue;
 
-      LogDebug("EETestPulseTask") << " det id = " << id;
-      LogDebug("EETestPulseTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
-
       MonitorElement* meAmplMap = 0;
 
       if ( mgpaGain[ism-1] == 3 ) meAmplMap = meAmplMapG01_[ism-1];
@@ -452,21 +442,17 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 //      if ( mgpaGain[ism-1] == 2 ) xval = xval * 1./ 2.;
 //      if ( mgpaGain[ism-1] == 1 ) xval = xval * 1./ 1.;
 
-      LogDebug("EETestPulseTask") << " hit amplitude " << xval;
-
       if ( meAmplMap ) meAmplMap->Fill(xix, xiy, xval);
-
-      LogDebug("EETestPulseTask") << "Crystal " << ix << " " << iy << " Amplitude = " << xval;
 
     }
 
   } else {
 
-    LogWarning("EETestPulseTask") << EcalUncalibratedRecHitCollection_ << " not available";
+    edm::LogWarning("EETestPulseTask") << EcalUncalibratedRecHitCollection_ << " not available";
 
   }
 
-  Handle<EcalPnDiodeDigiCollection> pns;
+  edm::Handle<EcalPnDiodeDigiCollection> pns;
 
   if ( e.getByLabel(EcalPnDiodeDigiCollection_, pns) ) {
 
@@ -483,9 +469,6 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
       if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
                runType[ism-1] == EcalDCCHeaderBlock::TESTPULSE_GAP ) ) continue;
-
-      LogDebug("EETestPulseTask") << " det id = " << pnItr->id();
-      LogDebug("EETestPulseTask") << " sm, num " << ism << " " << num;
 
       float xvalped = 0.;
 
@@ -533,7 +516,7 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EETestPulseTask") << EcalPnDiodeDigiCollection_ << " not available";
+    edm::LogWarning("EETestPulseTask") << EcalPnDiodeDigiCollection_ << " not available";
 
   }
 

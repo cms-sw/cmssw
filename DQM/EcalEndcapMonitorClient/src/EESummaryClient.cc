@@ -1,16 +1,16 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2009/12/11 16:08:56 $
- * $Revision: 1.190 $
+ * $Date: 2010/03/28 09:21:49 $
+ * $Revision: 1.196 $
  * \author G. Della Ricca
  *
 */
 
 #include <memory>
 #include <iostream>
+#include <fstream>
 #include <iomanip>
-#include <map>
 #include <math.h>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -42,11 +42,7 @@
 
 #include <DQM/EcalEndcapMonitorClient/interface/EESummaryClient.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EESummaryClient::EESummaryClient(const ParameterSet& ps) {
+EESummaryClient::EESummaryClient(const edm::ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -58,7 +54,7 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps) {
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // prefixME path
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -66,23 +62,23 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps) {
   // vector of selected Super Modules (Defaults to all 18).
   superModules_.reserve(18);
   for ( unsigned int i = 1; i <= 18; i++ ) superModules_.push_back(i);
-  superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
+  superModules_ = ps.getUntrackedParameter<std::vector<int> >("superModules", superModules_);
 
   laserWavelengths_.reserve(4);
   for ( unsigned int i = 1; i <= 4; i++ ) laserWavelengths_.push_back(i);
-  laserWavelengths_ = ps.getUntrackedParameter<vector<int> >("laserWavelengths", laserWavelengths_);
+  laserWavelengths_ = ps.getUntrackedParameter<std::vector<int> >("laserWavelengths", laserWavelengths_);
 
   ledWavelengths_.reserve(2);
   for ( unsigned int i = 1; i <= 2; i++ ) ledWavelengths_.push_back(i);
-  ledWavelengths_ = ps.getUntrackedParameter<vector<int> >("ledWavelengths", ledWavelengths_);
+  ledWavelengths_ = ps.getUntrackedParameter<std::vector<int> >("ledWavelengths", ledWavelengths_);
 
   MGPAGains_.reserve(3);
   for ( unsigned int i = 1; i <= 3; i++ ) MGPAGains_.push_back(i);
-  MGPAGains_ = ps.getUntrackedParameter<vector<int> >("MGPAGains", MGPAGains_);
+  MGPAGains_ = ps.getUntrackedParameter<std::vector<int> >("MGPAGains", MGPAGains_);
 
   MGPAGainsPN_.reserve(2);
   for ( unsigned int i = 1; i <= 3; i++ ) MGPAGainsPN_.push_back(i);
-  MGPAGainsPN_ = ps.getUntrackedParameter<vector<int> >("MGPAGainsPN", MGPAGainsPN_);
+  MGPAGainsPN_ = ps.getUntrackedParameter<std::vector<int> >("MGPAGainsPN", MGPAGainsPN_);
 
   // summary maps
   meIntegrity_[0]      = 0;
@@ -219,9 +215,9 @@ EESummaryClient::~EESummaryClient() {
 
 void EESummaryClient::beginJob(void) {
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  if ( debug_ ) cout << "EESummaryClient: beginJob" << endl;
+  if ( debug_ ) std::cout << "EESummaryClient: beginJob" << std::endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -274,7 +270,7 @@ void EESummaryClient::beginJob(void) {
 
 void EESummaryClient::beginRun(void) {
 
-  if ( debug_ ) cout << "EESummaryClient: beginRun" << endl;
+  if ( debug_ ) std::cout << "EESummaryClient: beginRun" << std::endl;
 
   jevt_ = 0;
 
@@ -284,7 +280,7 @@ void EESummaryClient::beginRun(void) {
 
 void EESummaryClient::endJob(void) {
 
-  if ( debug_ ) cout << "EESummaryClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) std::cout << "EESummaryClient: endJob, ievt = " << ievt_ << std::endl;
 
   this->cleanup();
 
@@ -292,7 +288,7 @@ void EESummaryClient::endJob(void) {
 
 void EESummaryClient::endRun(void) {
 
-  if ( debug_ ) cout << "EESummaryClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) std::cout << "EESummaryClient: endRun, jevt = " << jevt_ << std::endl;
 
   this->cleanup();
 
@@ -1428,7 +1424,7 @@ void EESummaryClient::analyze(void) {
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( debug_ ) cout << "EESummaryClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) std::cout << "EESummaryClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
   for ( int ix = 1; ix <= 100; ix++ ) {
@@ -2343,7 +2339,13 @@ void EESummaryClient::analyze(void) {
 
           int jx = ix + Numbers::ix0EE(ism);
           int jy = iy + Numbers::iy0EE(ism);
-          int ic = Numbers::icEE(ism, jx, jy);
+
+          int ic = -1;
+          if ( ism >= 1 && ism <= 9 ) {
+            ic = Numbers::icEE(ism, 101 - jx, jy);
+          } else {
+            ic = Numbers::icEE(ism, jx, jy);
+          }
 
           if( ic != -1 ) {
 
@@ -2359,13 +2361,13 @@ void EESummaryClient::analyze(void) {
                 // exclude channels without laser data (yellow in the quality map)
                 if( xval != 2 && xval != 5 ) {
 
-                  MonitorElement *mea01 = eelc->mea01_[ism-1];
-                  MonitorElement *met01 = eelc->met01_[ism-1];
-                  MonitorElement *meaopn01 = eelc->meaopn01_[ism-1];
+                  MonitorElement* mea01 = eelc->mea01_[ism-1];
+                  MonitorElement* met01 = eelc->met01_[ism-1];
+                  MonitorElement* meaopn01 = eelc->meaopn01_[ism-1];
 
                   if( mea01 && met01 && meaopn01 ) {
                     meLaserL1Ampl_->Fill( ism, mea01->getBinContent( ic ) );
-                    meLaserL1Timing_->Fill( ism, met01->getBinContent( ic ) );
+                    if( met01->getBinContent( ic ) > 0. ) meLaserL1Timing_->Fill( ism, met01->getBinContent( ic ) );
                     meLaserL1AmplOverPN_->Fill( ism, meaopn01->getBinContent( ic ) );
                   }
 
@@ -2383,13 +2385,13 @@ void EESummaryClient::analyze(void) {
                 // exclude channels without laser data (yellow in the quality map)
                 if( xval != 2 && xval != 5 ) {
 
-                  MonitorElement *mea02 = eelc->mea02_[ism-1];
-                  MonitorElement *met02 = eelc->met02_[ism-1];
-                  MonitorElement *meaopn02 = eelc->meaopn02_[ism-1];
+                  MonitorElement* mea02 = eelc->mea02_[ism-1];
+                  MonitorElement* met02 = eelc->met02_[ism-1];
+                  MonitorElement* meaopn02 = eelc->meaopn02_[ism-1];
 
                   if( mea02 && met02 && meaopn02 ) {
                     meLaserL2Ampl_->Fill( ism, mea02->getBinContent( ic ) );
-                    meLaserL2Timing_->Fill( ism, met02->getBinContent( ic ) );
+                    if( met02->getBinContent( ic ) > 0. ) meLaserL2Timing_->Fill( ism, met02->getBinContent( ic ) );
                     meLaserL2AmplOverPN_->Fill( ism, meaopn02->getBinContent( ic ) );
                   }
 
@@ -2407,13 +2409,13 @@ void EESummaryClient::analyze(void) {
                 // exclude channels without laser data (yellow in the quality map)
                 if( xval != 2 && xval != 5 ) {
 
-                  MonitorElement *mea03 = eelc->mea03_[ism-1];
-                  MonitorElement *met03 = eelc->met03_[ism-1];
-                  MonitorElement *meaopn03 = eelc->meaopn03_[ism-1];
+                  MonitorElement* mea03 = eelc->mea03_[ism-1];
+                  MonitorElement* met03 = eelc->met03_[ism-1];
+                  MonitorElement* meaopn03 = eelc->meaopn03_[ism-1];
 
                   if( mea03 && met03 && meaopn03 ) {
                     meLaserL3Ampl_->Fill( ism, mea03->getBinContent( ic ) );
-                    meLaserL3Timing_->Fill( ism, met03->getBinContent( ic ) );
+                    if( met03->getBinContent( ic ) > 0. ) meLaserL3Timing_->Fill( ism, met03->getBinContent( ic ) );
                     meLaserL3AmplOverPN_->Fill( ism, meaopn03->getBinContent( ic ) );
                   }
 
@@ -2431,13 +2433,13 @@ void EESummaryClient::analyze(void) {
                 // exclude channels without laser data (yellow in the quality map)
                 if( xval != 2 && xval != 5 ) {
 
-                  MonitorElement *mea04 = eelc->mea04_[ism-1];
-                  MonitorElement *met04 = eelc->met04_[ism-1];
-                  MonitorElement *meaopn04 = eelc->meaopn04_[ism-1];
+                  MonitorElement* mea04 = eelc->mea04_[ism-1];
+                  MonitorElement* met04 = eelc->met04_[ism-1];
+                  MonitorElement* meaopn04 = eelc->meaopn04_[ism-1];
 
                   if( mea04 && met04 && meaopn04 ) {
                     meLaserL4Ampl_->Fill( ism, mea04->getBinContent( ic ) );
-                    meLaserL4Timing_->Fill( ism, met04->getBinContent( ic ) );
+                    if( met04->getBinContent( ic ) > 0. ) meLaserL4Timing_->Fill( ism, met04->getBinContent( ic ) );
                     meLaserL4AmplOverPN_->Fill( ism, meaopn04->getBinContent( ic ) );
                   }
 
@@ -2459,13 +2461,13 @@ void EESummaryClient::analyze(void) {
                 // exclude channels without led data (yellow in the quality map)
                 if( xval != 2 && xval != 5 ) {
 
-                  MonitorElement *mea01 = eeldc->mea01_[ism-1];
-                  MonitorElement *met01 = eeldc->met01_[ism-1];
-                  MonitorElement *meaopn01 = eeldc->meaopn01_[ism-1];
+                  MonitorElement* mea01 = eeldc->mea01_[ism-1];
+                  MonitorElement* met01 = eeldc->met01_[ism-1];
+                  MonitorElement* meaopn01 = eeldc->meaopn01_[ism-1];
 
                   if( mea01 && met01 && meaopn01 ) {
                     meLedL1Ampl_->Fill( ism, mea01->getBinContent( ic ) );
-                    meLedL1Timing_->Fill( ism, met01->getBinContent( ic ) );
+                    if( met01->getBinContent( ic ) > 0. ) meLedL1Timing_->Fill( ism, met01->getBinContent( ic ) );
                     meLedL1AmplOverPN_->Fill( ism, meaopn01->getBinContent( ic ) );
                   }
 
@@ -2483,13 +2485,13 @@ void EESummaryClient::analyze(void) {
                 // exclude channels without led data (yellow in the quality map)
                 if( xval != 2 && xval != 5 ) {
 
-                  MonitorElement *mea02 = eeldc->mea02_[ism-1];
-                  MonitorElement *met02 = eeldc->met02_[ism-1];
-                  MonitorElement *meaopn02 = eeldc->meaopn02_[ism-1];
+                  MonitorElement* mea02 = eeldc->mea02_[ism-1];
+                  MonitorElement* met02 = eeldc->met02_[ism-1];
+                  MonitorElement* meaopn02 = eeldc->meaopn02_[ism-1];
 
                   if( mea02 && met02 && meaopn02 ) {
                     meLedL2Ampl_->Fill( ism, mea02->getBinContent( ic ) );
-                    meLedL2Timing_->Fill( ism, met02->getBinContent( ic ) );
+                    if( met02->getBinContent( ic ) > 0. ) meLedL2Timing_->Fill( ism, met02->getBinContent( ic ) );
                     meLedL2AmplOverPN_->Fill( ism, meaopn02->getBinContent( ic ) );
                   }
 
@@ -2622,8 +2624,8 @@ void EESummaryClient::analyze(void) {
         float val_po = mePedestalOnline_[0]->getBinContent(jx,jy);
         float val_tm = meTiming_[0]->getBinContent(jx,jy);
         float val_sf = meStatusFlags_[0]->getBinContent(jx,jy);
-	// float val_ee = meTriggerTowerEmulError_[0]->getBinContent(jx,jy); // removed temporarily from the global summary
-	float val_ee = 1;
+        // float val_ee = meTriggerTowerEmulError_[0]->getBinContent(jx,jy); // removed temporarily from the global summary
+        float val_ee = 1;
 
         // combine all the available wavelenghts in unique laser status
         // for each laser turn dark color and yellow into bright green
@@ -2697,7 +2699,7 @@ void EESummaryClient::analyze(void) {
         float iEntries=0;
 
         for(int ism = 1; ism <= 9; ism++) {
-          vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+          std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
           if (iter != superModules_.end()) {
             if ( Numbers::validEE(ism, jx, jy) ) {
               validCry = true;
@@ -2745,7 +2747,7 @@ void EESummaryClient::analyze(void) {
         float val_tm = meTiming_[1]->getBinContent(jx,jy);
         float val_sf = meStatusFlags_[1]->getBinContent(jx,jy);
         // float val_ee = meTriggerTowerEmulError_[1]->getBinContent(jx,jy); // removed temporarily from the global summary
-	float val_ee = 1;
+        float val_ee = 1;
 
         // combine all the available wavelenghts in unique laser status
         // for each laser turn dark color and yellow into bright green
@@ -2817,15 +2819,19 @@ void EESummaryClient::analyze(void) {
         // if the SM is entirely not read, the masked channels
         // are reverted back in yellow
         float iEntries=0;
+
         for(int ism = 10; ism <= 18; ism++) {
-          if ( Numbers::validEE(ism, jx, jy) ) {
-            validCry = true;
-            for ( unsigned int i=0; i<clients_.size(); i++ ) {
-              EEIntegrityClient* eeic = dynamic_cast<EEIntegrityClient*>(clients_[i]);
-              if ( eeic ) {
-                TH2F *h2 = eeic->h_[ism-1];
-                if ( h2 ) {
-                  iEntries = h2->GetEntries();
+          std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+          if (iter != superModules_.end()) {
+            if ( Numbers::validEE(ism, jx, jy) ) {
+              validCry = true;
+              for ( unsigned int i=0; i<clients_.size(); i++ ) {
+                EEIntegrityClient* eeic = dynamic_cast<EEIntegrityClient*>(clients_[i]);
+                if ( eeic ) {
+                  TH2F* h2 = eeic->h_[ism-1];
+                  if ( h2 ) {
+                    iEntries = h2->GetEntries();
+                  }
                 }
               }
             }

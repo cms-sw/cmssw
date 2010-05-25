@@ -1,4 +1,4 @@
- var TrackerCrate = {} ;
+var TrackerCrate = {} ;
 TrackerCrate.thisFile = "feccrate.js" ;
 TrackerCrate.init = function()
  {
@@ -10,7 +10,10 @@ TrackerCrate.showData = function (evt) {
        if (evt.type == "mouseover") {
     var myPoly = evt.currentTarget;
        var myTracker = myPoly.getAttribute("POS");
-          var myTracker1 = "  value="+myPoly.getAttribute("value");
+         var id = myPoly.getAttribute("id");
+       var FecCrate = id.substring(0,id.length - 7);  
+	myTracker = "Crate " + FecCrate + " " + myTracker;  
+	  var myTracker1 = "  value="+myPoly.getAttribute("value");
                myTracker1 = myTracker1+"  count="+myPoly.getAttribute("count");
              var textfield=document.getElementById('line1');
         textfield.firstChild.nodeValue=myTracker;

@@ -8,14 +8,20 @@ zMuMuSubskimOutputModule = cms.OutputModule("PoolOutputModule",
 ####   to access the position at the momentum system for global and standalone muons
       'keep recoTrackExtras_standAloneMuons_*_*',
       'keep recoTracks_standAloneMuons_UpdatedAtVtx_*',
-      'keep *_selectedLayer1MuonsTriggerMatch_*_*',
-      'keep *_selectedLayer1TrackCands_*_*',
+      'keep recoCaloMuons_calomuons_*_*',
+      'keep *_selectedPatMuonsTriggerMatch_*_*',
+      'keep *_selectedPatTracks_*_*',
       'keep *_dimuons_*_*',
       'keep *_dimuonsOneTrack_*_*',
       'keep *_dimuonsGlobal_*_*',
       'keep *_dimuonsOneStandAloneMuon_*_*',
-      'keep *_offlineBeamSpot_*_*'
-    ),
+      ### to access vertex information
+      'keep *_offlineBeamSpot_*_*',
+      'keep *_offlinePrimaryVerticesWithBS_*_*',
+      ### to save jet information
+      #'keep *_sisCone5CaloJets_*_*',
+      #'keep *_ak5CaloJets_*_*',
+      ),
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring(
            'dimuonsPath',

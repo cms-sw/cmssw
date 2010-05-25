@@ -4,8 +4,8 @@
  *  class to build trajectories of cosmic muons and beam-halo muons
  *
  *
- *  $Date: 2009/04/15 10:16:59 $
- *  $Revision: 1.48 $
+ *  $Date: 2010/02/11 00:14:16 $
+ *  $Revision: 1.50 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -22,7 +22,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "RecoMuon/Navigation/interface/DirectMuonNavigation.h"
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
@@ -202,7 +202,7 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
       measL =
         findBestMeasurements(*rnxtlayer, lastTsos, propagator(), (updator()->estimator()));
 
-     if ( measL.empty() &&  (abs(theService->magneticField()->inTesla(GlobalPoint(0,0,0)).z()) < 0.01) && (theService->propagator("StraightLinePropagator").isValid() ) )  {
+     if ( measL.empty() &&  (fabs(theService->magneticField()->inTesla(GlobalPoint(0,0,0)).z()) < 0.01) && (theService->propagator("StraightLinePropagator").isValid() ) )  {
        LogTrace(category_)<<"try straight line propagator ";
        measL = findBestMeasurements(*rnxtlayer, lastTsos, &*theService->propagator("StraightLinePropagator"), (updator()->estimator()));
      }

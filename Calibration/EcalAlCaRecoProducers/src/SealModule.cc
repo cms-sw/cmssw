@@ -3,8 +3,8 @@
 #include "Calibration/EcalAlCaRecoProducers/interface/AlCaElectronsProducer.h"
 #include "Calibration/EcalAlCaRecoProducers/src/AlCaElectronsTest.h"
 
-DEFINE_SEAL_MODULE();
 
-DEFINE_ANOTHER_FWK_MODULE(AlCaElectronsProducer);
-DEFINE_ANOTHER_FWK_MODULE(AlCaElectronsTest);
+
+DEFINE_FWK_MODULE(AlCaElectronsProducer);
+DEFINE_FWK_MODULE(AlCaElectronsTest);
 

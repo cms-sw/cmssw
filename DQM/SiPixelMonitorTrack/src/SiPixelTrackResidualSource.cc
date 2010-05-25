@@ -10,7 +10,7 @@
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
 //         Updated by Lukas Wehrli (plots for clusters on/off track added)
-// $Id: SiPixelTrackResidualSource.cc,v 1.12 2010/01/07 17:11:44 merkelp Exp $
+// $Id: SiPixelTrackResidualSource.cc,v 1.13 2010/01/11 16:53:37 merkelp Exp $
 
 
 #include <iostream>
@@ -88,6 +88,8 @@ SiPixelTrackResidualSource::~SiPixelTrackResidualSource() {
 void SiPixelTrackResidualSource::beginJob() {
   LogInfo("PixelDQM") << "SiPixelTrackResidualSource beginJob()" << endl;
   firstRun = true;
+  NTotal=0;
+  NLowProb=0;
 }
 
 
@@ -463,6 +465,11 @@ void SiPixelTrackResidualSource::beginRun(const edm::Run& r, edm::EventSetup con
   meNClustersNotOnTrack_diskm2 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Disk_m2","Number of Clusters (off track, diskm2)",50,0.,50.);
   meNClustersNotOnTrack_diskm2->setAxisTitle("Number of Clusters",1);
 
+  //HitProbability
+  //on track
+  dbe_->setCurrentFolder("Pixel/Clusters/OnTrack");
+  meHitProbability = dbe_->book1D("FractionLowProb","Fraction of hits with low probability;FractionLowProb;#HitsOnTrack",100,0.,1.);
+
   if (debug_) {
     // book summary residual histograms in a debugging folder - one (x,y) pair of histograms per subdetector 
     dbe_->setCurrentFolder("debugging"); 
@@ -697,6 +704,16 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 	  if ((persistentHit != 0) && (typeid(*persistentHit) == typeid(SiPixelRecHit))) {
 	    // tell the C++ compiler that the hit is a pixel hit
 	    const SiPixelRecHit* pixhit = dynamic_cast<const SiPixelRecHit*>( hit->hit() );
+	    //Hit probability:
+	    float hit_prob = -1.;
+	    if(pixhit->hasFilledProb()){
+	      hit_prob = pixhit->clusterProbability(0);
+	      //std::cout<<"HITPROB= "<<hit_prob<<std::endl;
+	      if(hit_prob<pow(10.,-15.)) NLowProb++;
+	      NTotal++;
+	      if(NTotal>0) meHitProbability->Fill(float(NLowProb/NTotal));
+	    }
+	    
 	    // get the edm::Ref to the cluster
  	    edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> const& clust = (*pixhit).cluster();
 	    //  check if the ref is not null

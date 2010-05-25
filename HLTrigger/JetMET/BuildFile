@@ -9,5 +9,6 @@
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/PluginManager>
+<use name=RecoMET/METAlgorithms>
 <use name=HLTrigger/HLTcore>
 <flags EDM_PLUGIN=1>

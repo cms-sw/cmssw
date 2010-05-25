@@ -46,16 +46,16 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf, const HFDataFrame
 	}
       
       // Find largest overall pulse
-      if (digi.sample(i).adc()-3>maxval) // need to make pedestal subtraction at some point
+      if (digi.sample(i).nominal_fC()-3>maxval) // need to make pedestal subtraction at some point
 	{
 	  maxtime=i;
-	  maxval=digi.sample(i).adc()-3;  // assume all pedestal means are 3 ADC counts;  some day we can be more clever about pedestal subtraction
+	  maxval=digi.sample(i).nominal_fC()-3;  // assume pedestal is ~ 3 fC  (3 ADC counts = 2.5 - 3.5 fC bin, according to HcalQIESample.cc)
 	}
     }
   
   // Compare size of peak in reco window to charge in TS immediately before peak
   int TSfrac_counter=1; 
-  // assume that fC pedestal ~=3
+  // assume that fC pedestal ~=3 for Shuichi's code  
   if (maxInWindow>0 && digi[maxInWindow].nominal_fC()!=3)
     TSfrac_counter=int(50*((digi[maxInWindow-1].nominal_fC()-3)/(digi[maxInWindow].nominal_fC()-3))+1); // 6-bit counter to hold peak ratio info
   hf.setFlagField(TSfrac_counter, HcalCaloFlagLabels::Fraction2TS,6);
@@ -67,7 +67,7 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf, const HFDataFrame
     status=1;
     
   // Check that peak is >= time slice prior to peak
-  else if (maxtime>0 && (float)(digi.sample(maxtime-1).adc()-3)/maxval>=HFratio_beforepeak_)
+  else if (maxtime>0 &&  (float)(digi.sample(maxtime-1).nominal_fC()-3)/maxval>=HFratio_beforepeak_)
     status=1;
 
   // Check that peak is >= time slice after peak
@@ -75,7 +75,7 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf, const HFDataFrame
      require >= so that a hot cell (where all digi sample values are the same)
      will still get marked as noisy if HFratio_afterpeak_ ==1 
   */
-  else if (maxtime<(digi.size()-1) && (float)(digi.sample(maxtime+1).adc()-3)/maxval>=HFratio_afterpeak_)
+  else if (maxtime<(digi.size()-1) &&  (float)(digi.sample(maxtime+1).nominal_fC()-3)/maxval>=HFratio_afterpeak_)
     status=1;
 
   // set flag starting at index HFDigiTime, with index of 1

@@ -41,16 +41,22 @@ namespace reco {
                       const std::string &name, 
                       const std::vector<AnyMethodArgument> &args)  ;
         ~SingleInvoker();
-        Reflex::Object invoke(const Reflex::Object & o) const;
+
+        /// If the member is found in object o, evaluate and return (value,true)
+        /// If the member is not found but o is a Ref/RefToBase/Ptr, (return o.get(), false)
+        std::pair<Reflex::Object,bool> invoke(const Reflex::Object & o) const;
         
         // convert the output of invoke to a double, if possible
         double retToDouble(const Reflex::Object & o) const;
         void   throwFailedConversion(const Reflex::Object & o) const;
       private:
         method::TypeCode            retType_;
-        mutable std::vector<Reflex::Object> objects_;
         std::vector<MethodInvoker>  invokers_;
+        mutable Reflex::Object      storage_;
+        /// true if this invoker just pops out a ref and returns (ref.get(), false)
+        bool isRefGet_;
     };
+
 
     /// Keeps different SingleInvokers for each dynamic type of the objects passed to invoke()
     struct LazyInvoker {

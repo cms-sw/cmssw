@@ -76,7 +76,7 @@
  </Polyhedra>
 <!-- shape to be used for Intersection to create C3TF,C4TF semi-trapezoid solids   -->
 <!-- dz=Height of plate/2 + 3 mm (arbitrary) ; dy = B/2 -->
- <Box name="C2EF" dz="76.890*mm" dy="28.79*mm" dx="1.495*mm"/>
+ <Box name="C2EF" dz="76.890*mm" dy="28.79*mm" dx="1.000*mm"/>
  <IntersectionSolid name="castor:C3EF" > 
 	 <rSolid name="castor:CAEF"/>
 	 <rSolid name="castor:C2EF"/>
@@ -145,7 +145,7 @@
 <!--  -->
 <!--  -->
 <!-- shape to be used for Intersection to create C3TF,C4TF solids   -->
-<Box name="C2HF" dz="100.865*mm" dy="36.35*mm" dx="2.980*mm"/> 
+<Box name="C2HF" dz="100.865*mm" dy="36.35*mm" dx="2.000*mm"/> 
  <IntersectionSolid name="castor:C3HF" > 
   <rSolid name="castor:CAHF"/>
   <rSolid name="castor:C2HF"/>

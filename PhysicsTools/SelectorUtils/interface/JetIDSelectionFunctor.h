@@ -13,7 +13,7 @@
   for a general overview of the selectors. 
 
   \author Salvatore Rappoccio
-  \version  $Id: JetIDSelectionFunctor.h,v 1.3 2010/01/08 15:27:07 srappocc Exp $
+  \version  $Id: JetIDSelectionFunctor.h,v 1.5 2010/02/10 20:06:25 srappocc Exp $
 */
 
 
@@ -23,6 +23,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "PhysicsTools/SelectorUtils/interface/Selector.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <TMath.h>
 class JetIDSelectionFunctor : public Selector<pat::Jet>  {
@@ -33,9 +34,31 @@ class JetIDSelectionFunctor : public Selector<pat::Jet>  {
   enum Quality_t { MINIMAL, LOOSE_AOD, LOOSE, TIGHT, N_QUALITY};
   
 
- JetIDSelectionFunctor( Version_t version, Quality_t quality ) :
-  version_(version), quality_(quality)
+  JetIDSelectionFunctor( edm::ParameterSet const & parameters ) {
+    std::string versionStr = parameters.getParameter<std::string>("version");
+    std::string qualityStr = parameters.getParameter<std::string>("quality");
+    Quality_t quality = N_QUALITY;
+
+    if ( versionStr == "CRAFT08" ) {
+      if      ( qualityStr == "MINIMAL" )   quality = MINIMAL;
+      else if ( qualityStr == "LOOSE_AOD" ) quality = LOOSE_AOD;
+      else if ( qualityStr == "LOOSE" )     quality = LOOSE;
+      else                                  quality = TIGHT;
+      
+      initialize( CRAFT08, quality );
+    } else {
+      throw cms::Exception("InvalidInput") << "Expect version to be one of SUMMER08, FIRSTDATA," << std::endl;
+    }
+  }
+
+  JetIDSelectionFunctor( Version_t version, Quality_t quality ) {
+    initialize(version, quality);
+  }
+
+ void initialize( Version_t version, Quality_t quality )
   {
+    version_ = version;
+    quality_ = quality;
 
     push_back("MINIMAL_EMF");
 
@@ -91,7 +114,8 @@ class JetIDSelectionFunctor : public Selector<pat::Jet>  {
       set("LOOSE_AOD_N90Hits", false );
       set("LOOSE_AOD_EMF", false );
     }
-    
+  
+    retInternal_ = getBitTemplate();
   }
 
   // 
@@ -104,6 +128,8 @@ class JetIDSelectionFunctor : public Selector<pat::Jet>  {
       return false;
     }
   }
+  // accessor from PAT jets without the ret
+  using Selector<pat::Jet>::operator();
 
   // 
   // Accessor from *CORRECTED* 4-vector, EMF, and Jet ID. 
@@ -119,6 +145,39 @@ class JetIDSelectionFunctor : public Selector<pat::Jet>  {
       return false;
     }
   }
+  /// accessor like previous, without the ret
+  virtual bool operator()( reco::Candidate::LorentzVector const & correctedP4, 
+			   double emEnergyFraction, 
+			   reco::JetID const & jetID )
+  {
+    retInternal_.set(false);
+    operator()(correctedP4,emEnergyFraction, jetID, retInternal_);
+    setIgnored(retInternal_);
+    return (bool)retInternal_;
+  }
+
+  // 
+  // Accessor from *CORRECTED* CaloJet and Jet ID. 
+  // This can be used with reco quantities. 
+  // 
+  bool operator()( reco::CaloJet const & jet,
+		   reco::JetID const & jetID,
+		   std::strbitset & ret )  
+  {
+    if ( version_ == CRAFT08 ) return craft08Cuts( jet.p4(), jet.emEnergyFraction(), jetID, ret );
+    else {
+      return false;
+    }
+  }
+  /// accessor like previous, without the ret
+  virtual bool operator()( reco::CaloJet const & jet,
+			   reco::JetID const & jetID )
+  {
+    retInternal_.set(false);
+    operator()(jet, jetID, retInternal_);
+    setIgnored(retInternal_);
+    return (bool)retInternal_;
+  }
   
   // 
   // cuts based on craft 08 analysis. 
@@ -128,6 +187,8 @@ class JetIDSelectionFunctor : public Selector<pat::Jet>  {
 		    reco::JetID const & jetID,
 		    std::strbitset & ret) 
   {
+
+    ret.set(false);
 
     // cache some variables
     double abs_eta = TMath::Abs( correctedP4.eta() );

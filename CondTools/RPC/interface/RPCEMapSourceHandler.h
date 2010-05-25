@@ -56,7 +56,9 @@ namespace popcon
     void getNewObjects();
     std::string id() const {return m_name;}
     void ConnectOnlineDB(string connect, string authPath);
+    void ConnectOnlineDB(string host, string sid, string user, string pass, int port);
     void DisconnectOnlineDB();
+    void readEMap0();
     void readEMap1();
     int Compare2EMaps(Ref map1, RPCEMap* map2);
 
@@ -72,6 +74,11 @@ namespace popcon
     int m_validate;
     std::string m_connect;
     std::string m_authpath;
+    std::string m_host;
+    std::string m_sid;
+    std::string m_user;
+    std::string m_pass;
+    int m_port;
 
   // utilities
     string IntToString(int num)

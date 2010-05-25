@@ -118,7 +118,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.AdaptorConfig = cms.Service("AdaptorConfig")
 
-process.sipixelEDAClient = cms.EDFilter("SiPixelEDAClient",
+process.sipixelEDAClient = cms.EDAnalyzer("SiPixelEDAClient",
     EventOffsetForInit = cms.untracked.int32(10),
     ActionOnLumiSection = cms.untracked.bool(False),
     ActionOnRunEnd = cms.untracked.bool(True),
@@ -127,7 +127,7 @@ process.sipixelEDAClient = cms.EDFilter("SiPixelEDAClient",
     
 )
 
-process.qTester = cms.EDFilter("QualityTester",
+process.qTester = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/SiPixelMonitorClient/test/sipixel_qualitytest_config.xml'),
     QualityTestPrescaler = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True)

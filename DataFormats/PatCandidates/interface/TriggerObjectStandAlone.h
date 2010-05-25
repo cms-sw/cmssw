@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerObjectStandAlone
 //
-// $Id: TriggerObjectStandAlone.h,v 1.2 2009/04/01 10:45:51 vadler Exp $
+// $Id: TriggerObjectStandAlone.h,v 1.3 2009/06/24 15:49:28 vadler Exp $
 //
 /**
   \class    pat::TriggerObjectStandAlone TriggerObjectStandAlone.h "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
@@ -19,7 +19,7 @@
    - [to be filled]
 
   \author   Volker Adler
-  \version  $Id: TriggerObjectStandAlone.h,v 1.2 2009/04/01 10:45:51 vadler Exp $
+  \version  $Id: TriggerObjectStandAlone.h,v 1.3 2009/06/24 15:49:28 vadler Exp $
 */
 
 
@@ -27,9 +27,9 @@
 
 
 namespace pat {
- 
+
   class TriggerObjectStandAlone : public TriggerObject {
-                                           
+
       /// data members
       std::vector< std::string > filterLabels_; // used for trigger match definition
       std::vector< std::string > pathNames_;    // used for trigger match definition
@@ -37,11 +37,12 @@ namespace pat {
     public:
 
       /// constructors and desctructor
-      TriggerObjectStandAlone()                                                             : TriggerObject()          {};
-      TriggerObjectStandAlone( const TriggerObject & trigObj )                              : TriggerObject( trigObj ) {};
-      TriggerObjectStandAlone( const reco::Particle::LorentzVector & vec, int id = 0 )      : TriggerObject( vec, id ) {};
-      TriggerObjectStandAlone( const reco::Particle::PolarLorentzVector & vec, int id = 0 ) : TriggerObject( vec, id ) {};
-      TriggerObjectStandAlone( const trigger::TriggerObject & trigObj )                     : TriggerObject( trigObj ) {};
+      TriggerObjectStandAlone()                                                             : TriggerObject()           {};
+      TriggerObjectStandAlone( const TriggerObject & trigObj )                              : TriggerObject( trigObj )  {};
+      TriggerObjectStandAlone( const reco::Particle::LorentzVector & vec, int id = 0 )      : TriggerObject( vec, id )  {};
+      TriggerObjectStandAlone( const reco::Particle::PolarLorentzVector & vec, int id = 0 ) : TriggerObject( vec, id )  {};
+      TriggerObjectStandAlone( const trigger::TriggerObject & trigObj )                     : TriggerObject( trigObj )  {};
+      TriggerObjectStandAlone( const reco::LeafCandidate & leafCand )                       : TriggerObject( leafCand ) {};
       virtual ~TriggerObjectStandAlone() {};
 
       /// methods
@@ -54,7 +55,7 @@ namespace pat {
       TriggerObject              triggerObject(); // returns "pure" pat::TriggerObject w/o add-on
 
   };
-  
+
 
   /// collection of TriggerObjectStandAlone
   typedef std::vector< TriggerObjectStandAlone >                       TriggerObjectStandAloneCollection;

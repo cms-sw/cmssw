@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2009/10/26 17:33:48 $
- * $Revision: 1.94 $
+ * $Date: 2010/03/28 14:00:03 $
+ * $Revision: 1.101 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -18,22 +18,19 @@
 #include "DQM/EcalCommon/interface/Numbers.h"
 
 #include "DQM/EcalBarrelMonitorTasks/interface/EBTriggerTowerTask.h"
-
-using namespace cms;
-using namespace edm;
-using namespace std;
+#include "FWCore/Common/interface/TriggerNames.h"
 
 const int EBTriggerTowerTask::nTTEta = 17;
 const int EBTriggerTowerTask::nTTPhi = 4;
 const int EBTriggerTowerTask::nSM = 36;
 
-EBTriggerTowerTask::EBTriggerTowerTask(const ParameterSet& ps) {
+EBTriggerTowerTask::EBTriggerTowerTask(const edm::ParameterSet& ps) {
 
   init_ = false;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -57,15 +54,15 @@ EBTriggerTowerTask::EBTriggerTowerTask(const ParameterSet& ps) {
   reserveArray(meEmulMatch_);
   reserveArray(meVetoEmulError_);
 
-  realCollection_ =  ps.getParameter<InputTag>("EcalTrigPrimDigiCollectionReal");
-  emulCollection_ =  ps.getParameter<InputTag>("EcalTrigPrimDigiCollectionEmul");
-  EBDigiCollection_ = ps.getParameter<InputTag>("EBDigiCollection");
-  HLTResultsCollection_ = ps.getParameter<InputTag>("HLTResultsCollection");
+  realCollection_ =  ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollectionReal");
+  emulCollection_ =  ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollectionEmul");
+  EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
+  HLTResultsCollection_ = ps.getParameter<edm::InputTag>("HLTResultsCollection");
 
   HLTCaloHLTBit_ = ps.getUntrackedParameter<std::string>("HLTCaloHLTBit", "");
   HLTMuonHLTBit_ = ps.getUntrackedParameter<std::string>("HLTMuonHLTBit", "");
 
-  outputFile_ = ps.getUntrackedParameter<string>("OutputRootFile", "");
+  outputFile_ = ps.getUntrackedParameter<std::string>("OutputRootFile", "");
 
   LogDebug("EBTriggerTowerTask") << "REAL     digis: " << realCollection_;
   LogDebug("EBTriggerTowerTask") << "EMULATED digis: " << emulCollection_;
@@ -94,7 +91,7 @@ void EBTriggerTowerTask::beginJob(void){
 
 }
 
-void EBTriggerTowerTask::beginRun(const Run& r, const EventSetup& c) {
+void EBTriggerTowerTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, false);
 
@@ -102,7 +99,7 @@ void EBTriggerTowerTask::beginRun(const Run& r, const EventSetup& c) {
 
 }
 
-void EBTriggerTowerTask::endRun(const Run& r, const EventSetup& c) {
+void EBTriggerTowerTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
@@ -144,7 +141,7 @@ void EBTriggerTowerTask::setup(void){
            (prefixME_ + "/EBTriggerTowerTask/Emulated").c_str(), true);
   }
   else {
-    LogError("EBTriggerTowerTask") << "Bad DQMStore, cannot book MonitorElements.";
+    edm::LogError("EBTriggerTowerTask") << "Bad DQMStore, cannot book MonitorElements.";
   }
 }
 
@@ -272,19 +269,19 @@ void EBTriggerTowerTask::cleanup(void) {
 
 void EBTriggerTowerTask::endJob(void){
 
-  LogInfo("EBTriggerTowerTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EBTriggerTowerTask") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
+void EBTriggerTowerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   if ( ! init_ ) this->setup();
 
   ievt_++;
 
-  Handle<EcalTrigPrimDigiCollection> realDigis;
+  edm::Handle<EcalTrigPrimDigiCollection> realDigis;
 
   if ( e.getByLabel(realCollection_, realDigis) ) {
 
@@ -297,21 +294,21 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
                   meVetoReal_);
 
   } else {
-    LogWarning("EBTriggerTowerTask") << realCollection_ << " not available";
+    edm::LogWarning("EBTriggerTowerTask") << realCollection_ << " not available";
   }
 
-  Handle<EcalTrigPrimDigiCollection> emulDigis;
+  edm::Handle<EcalTrigPrimDigiCollection> emulDigis;
 
   if ( e.getByLabel(emulCollection_, emulDigis) ) {
 
-    Handle<TriggerResults> hltResults;
+    edm::Handle<edm::TriggerResults> hltResults;
 
     if ( !e.getByLabel(HLTResultsCollection_, hltResults) ) {
-      HLTResultsCollection_ = InputTag(HLTResultsCollection_.label(), HLTResultsCollection_.instance(), "HLT");
+      HLTResultsCollection_ = edm::InputTag(HLTResultsCollection_.label(), HLTResultsCollection_.instance(), "HLT");
     }
 
     if ( !e.getByLabel(HLTResultsCollection_, hltResults) ) {
-      HLTResultsCollection_ = InputTag(HLTResultsCollection_.label(), HLTResultsCollection_.instance(), "FU");
+      HLTResultsCollection_ = edm::InputTag(HLTResultsCollection_.label(), HLTResultsCollection_.instance(), "FU");
     }
 
     if ( e.getByLabel(HLTResultsCollection_, hltResults) ) {
@@ -324,21 +321,21 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
                     hltResults);
 
     } else {
-      LogWarning("EBTriggerTowerTask") << HLTResultsCollection_ << " not available";
+      edm::LogWarning("EBTriggerTowerTask") << HLTResultsCollection_ << " not available";
     }
 
   } else {
-    LogWarning("EBTriggerTowerTask") << emulCollection_ << " not available";
+    edm::LogWarning("EBTriggerTowerTask") << emulCollection_ << " not available";
   }
 
 }
 
 void
-EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiCollection>& digis,
+EBTriggerTowerTask::processDigis( const edm::Event& e, const edm::Handle<EcalTrigPrimDigiCollection>& digis,
                                   array1& meEtMap,
                                   array1& meVeto,
-                                  const Handle<EcalTrigPrimDigiCollection>& compDigis,
-                                  const Handle<TriggerResults> & hltResults) {
+                                  const edm::Handle<EcalTrigPrimDigiCollection>& compDigis,
+                                  const edm::Handle<edm::TriggerResults> & hltResults) {
 
   int bx = e.bunchCrossing();
   int nTP = 0;
@@ -351,7 +348,7 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
 
   if ( compDigis.isValid() ) {
 
-    Handle<EBDigiCollection> crystalDigis;
+    edm::Handle<EBDigiCollection> crystalDigis;
 
     if ( e.getByLabel(EBDigiCollection_, crystalDigis) ) {
 
@@ -368,7 +365,7 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
       }
 
     } else {
-      LogWarning("EBTriggerTowerTask") << EBDigiCollection_ << " not available";
+      edm::LogWarning("EBTriggerTowerTask") << EBDigiCollection_ << " not available";
     }
 
   }
@@ -381,8 +378,7 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
     int ntrigs = hltResults->size();
     if ( ntrigs!=0 ) {
 
-      TriggerNames triggerNames;
-      triggerNames.init( *hltResults );
+      const edm::TriggerNames & triggerNames = e.triggerNames(*hltResults);
 
       for ( int itrig = 0; itrig != ntrigs; ++itrig ) {
         std::string trigName = triggerNames.triggerName(itrig);
@@ -395,7 +391,7 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
       }
 
     } else {
-      LogWarning("EBTriggerTowerTask") << " zero size trigger names in input TriggerResults";
+      edm::LogWarning("EBTriggerTowerTask") << " zero size trigger names in input TriggerResults";
     }
 
   }
@@ -425,14 +421,20 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
     int itcc = Numbers::iTCC( tpdigiItr->id() );
 
     float xvalEt = tpdigiItr->compressedEt();
-    if ( meEtMap[ismt-1] ) meEtMap[ismt-1]->Fill(xiet, xipt, xvalEt);
-
     float xvalVeto = 0.5 + tpdigiItr->fineGrain();
-    if ( meVeto[ismt-1] ) meVeto[ismt-1]->Fill(xiet, xipt, xvalVeto);
+
+    bool good = true;
+    bool goodVeto = true;
+
+    int compDigiInterest = -1;
+
+    bool matchSample[6];
+    for (int j=0; j<6; j++) matchSample[j]=false;
 
     if ( compDigis.isValid() ) {
 
       if ( meEtSpectrumEmul_ ) meEtSpectrumEmul_->Fill( xvalEt );
+
       float maxEt = 0;
       int maxTPIndex = -1;
       for (int j=0; j<5; j++) {
@@ -442,77 +444,80 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
           maxTPIndex = j+1;
         }
       }
+
       if ( meEtSpectrumEmulMax_ ) meEtSpectrumEmulMax_->Fill( maxEt );
       if ( meEmulMatchMaxIndex1D_ && maxEt > 0 ) meEmulMatchMaxIndex1D_->Fill( maxTPIndex );
 
-      bool good = true;
-      bool goodVeto = true;
-
       EcalTrigPrimDigiCollection::const_iterator compDigiItr = compDigis->find( tpdigiItr->id().rawId() );
       if ( compDigiItr != compDigis->end() ) {
+        int compDigiEt = compDigiItr->compressedEt();
+        compDigiInterest = (compDigiItr->ttFlag() & 0x3);
 
-        if ( compDigiItr->compressedEt() > 0 ) nTP++;
-
-        if ( meEtSpectrumReal_ ) meEtSpectrumReal_->Fill( compDigiItr->compressedEt() );
-
-        if ( meEtBxReal_ && compDigiItr->compressedEt() > 0 ) meEtBxReal_->Fill( bx, compDigiItr->compressedEt() );
+        if ( compDigiEt > 0 ) nTP++;
+        if ( meEtSpectrumReal_ ) meEtSpectrumReal_->Fill( compDigiEt );
+        if ( meEtBxReal_ && compDigiEt > 0 ) meEtBxReal_->Fill( bx, compDigiEt );
 
         // compare the 5 TPs with different time-windows
         // sample 0 means no match, 1-5: sample of the TP that matches
-        bool matchSample[6];
-        for (int j=0; j<6; j++) matchSample[j] = false;
+        matchSample[0]=false;
         bool matchedAny=false;
 
         for (int j=0; j<5; j++) {
-          if ((*tpdigiItr)[j].compressedEt() == compDigiItr->compressedEt() ) {
+          if ((*tpdigiItr)[j].compressedEt() == compDigiEt ) {
             matchSample[j+1]=true;
             matchedAny=true;
+          } else {
+            matchSample[j+1]=false;
           }
         }
+
         if (!matchedAny) matchSample[0]=true;
 
-        //        if (readoutCrystalsInTower[itcc-1][itt-1]==25 && compDigiItr->compressedEt()>0) {
-
         // check if the tower has been readout completely and if it is medium or high interest
-        if (readoutCrystalsInTower[itcc-1][itt-1]==25 && 
-            ((compDigiItr->ttFlag() & 0x3) == 1 || (compDigiItr->ttFlag() & 0x3) == 3) ) {
+        if (readoutCrystalsInTower[itcc-1][itt-1] == 25 &&
+            (compDigiInterest == 1 || compDigiInterest == 3) && compDigiEt > 0) {
+
+          if ( tpdigiItr->compressedEt() != compDigiEt ) {
+            good = false;
+          }
+          if ( tpdigiItr->fineGrain() != compDigiItr->fineGrain() ) {
+            goodVeto = false;
+          }
 
           for (int j=0; j<6; j++) {
             if (matchSample[j]) {
-              
-              meEmulMatch_[ismt-1]->Fill(xiet, xipt, j+0.5);
-              
+
               int index = ( j==0 ) ? -1 : j;
 
               meEmulMatchIndex1D_->Fill(index+0.5);
-              
+
+              meEmulMatch_[ismt-1]->Fill(xiet, xipt, j+0.5);
               if ( meTCCTimingCalo_ && caloTrg ) meTCCTimingCalo_->Fill( itcc, index+0.5 );
-              
               if ( meTCCTimingMuon_ && muonTrg ) meTCCTimingMuon_->Fill( itcc, index+0.5 );
-              
+
             }
           }
 
-          if ( tpdigiItr->compressedEt() != compDigiItr->compressedEt() ) good = false;
-          
-          if ( tpdigiItr->fineGrain() != compDigiItr->fineGrain() ) goodVeto = false;
+        } // check readout
 
-        }
-
-      }
-      else {
+      } else {
         good = false;
         goodVeto = false;
       }
+
       if (!good ) {
         if ( meEmulError_[ismt-1] ) meEmulError_[ismt-1]->Fill(xiet, xipt);
       }
       if (!goodVeto) {
         if ( meVetoEmulError_[ismt-1] ) meVetoEmulError_[ismt-1]->Fill(xiet, xipt);
       }
-    }
 
-  }
+    } // compDigis.isValid
+
+    if ( meEtMap[ismt-1] ) meEtMap[ismt-1]->Fill(xiet, xipt, xvalEt);
+    if ( meVeto[ismt-1] ) meVeto[ismt-1]->Fill(xiet, xipt, xvalVeto);
+
+  } // loop on TP
 
   if ( meOccupancyBxReal_ ) meOccupancyBxReal_->Fill( bx, nTP );
 

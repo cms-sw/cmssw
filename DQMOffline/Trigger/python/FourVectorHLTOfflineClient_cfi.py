@@ -1,10 +1,10 @@
-# $Id: FourVectorHLTOfflineClient_cfi.py,v 1.7 2009/06/11 20:22:08 rekovic Exp $
+# $Id: FourVectorHLTOfflineClient_cfi.py,v 1.9 2010/02/17 17:47:24 wmtan Exp $
 
 import FWCore.ParameterSet.Config as cms
 
-hltFourVectorClient = cms.EDFilter("FourVectorHLTClient",
-    hltClientDir = cms.untracked.string('HLT/FourVector/client/'),
-    hltSourceDir = cms.untracked.string('HLT/FourVector/source/'),
+hltFourVectorClient = cms.EDAnalyzer("FourVectorHLTClient",
+    hltClientDir = cms.untracked.string('HLT/FourVector/paths/'),
+    hltSourceDir = cms.untracked.string('HLT/FourVector/paths/'),
     prescaleLS = cms.untracked.int32(-1),
     prescaleEvt = cms.untracked.int32(1),
     customEffDir = cms.untracked.string('custom-eff'),

@@ -1,15 +1,14 @@
 /*
  * \file EEPedestalOnlineTask.cc
  *
- * $Date: 2008/12/03 15:03:17 $
- * $Revision: 1.28 $
+ * $Date: 2010/02/12 21:34:03 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  *
 */
 
 #include <iostream>
 #include <fstream>
-#include <vector>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -26,17 +25,13 @@
 
 #include <DQM/EcalEndcapMonitorTasks/interface/EEPedestalOnlineTask.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EEPedestalOnlineTask::EEPedestalOnlineTask(const ParameterSet& ps){
+EEPedestalOnlineTask::EEPedestalOnlineTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -65,7 +60,7 @@ void EEPedestalOnlineTask::beginJob(void){
 
 }
 
-void EEPedestalOnlineTask::beginRun(const Run& r, const EventSetup& c) {
+void EEPedestalOnlineTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, false);
 
@@ -73,7 +68,7 @@ void EEPedestalOnlineTask::beginRun(const Run& r, const EventSetup& c) {
 
 }
 
-void EEPedestalOnlineTask::endRun(const Run& r, const EventSetup& c) {
+void EEPedestalOnlineTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
@@ -128,19 +123,19 @@ void EEPedestalOnlineTask::cleanup(void){
 
 void EEPedestalOnlineTask::endJob(void){
 
-  LogInfo("EEPedestalOnlineTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EEPedestalOnlineTask") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EEPedestalOnlineTask::analyze(const Event& e, const EventSetup& c){
+void EEPedestalOnlineTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   if ( ! init_ ) this->setup();
 
   ievt_++;
 
-  Handle<EEDigiCollection> digis;
+  edm::Handle<EEDigiCollection> digis;
 
   if ( e.getByLabel(EEDigiCollection_, digis) ) {
 
@@ -160,9 +155,6 @@ void EEPedestalOnlineTask::analyze(const Event& e, const EventSetup& c){
 
       float xix = ix - 0.5;
       float xiy = iy - 0.5;
-
-      LogDebug("EEPedestalOnlineTask") << " det id = " << id;
-      LogDebug("EEPedestalOnlineTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
 
       EEDataFrame dataframe = (*digiItr);
 
@@ -186,7 +178,7 @@ void EEPedestalOnlineTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EEPedestalOnlineTask") << EEDigiCollection_ << " not available";
+    edm::LogWarning("EEPedestalOnlineTask") << EEDigiCollection_ << " not available";
 
   }
 

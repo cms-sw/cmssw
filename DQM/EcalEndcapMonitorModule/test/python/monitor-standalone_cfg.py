@@ -246,7 +246,7 @@ process.ecalUncalibHit.EEdigiCollection = 'ecalEBunpacker:eeDigis'
 process.ecalRecHit.EBuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEB'
 process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEE'
 
-process.ecalEndcapMonitorClient.maskFile = '../data/maskfile.dat'
+process.ecalEndcapMonitorClient.maskFile = 'DQM/EcalEndcapMonitorModule/test/data/maskfile.dat'
 process.ecalEndcapMonitorClient.location = 'H4'
 process.ecalEndcapMonitorClient.superModules = [10]
 #process.ecalEndcapMonitorClient.superModules = [4, 5, 6]

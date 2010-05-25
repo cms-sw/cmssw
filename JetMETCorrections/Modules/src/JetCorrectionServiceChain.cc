@@ -1,7 +1,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Dec. 28, 2006
-// $Id: JetCorrectionServiceChain.cc,v 1.2 2009/09/24 13:16:36 bainbrid Exp $
+// $Id: JetCorrectionServiceChain.cc,v 1.1 2008/02/29 22:58:45 fedor Exp $
 //
 //
 
@@ -13,16 +13,14 @@
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 
 
-using namespace std;
 
-JetCorrectionServiceChain::JetCorrectionServiceChain(const edm::ParameterSet& fParameters) 
-  : mCorrectors (fParameters.getParameter < vector<string> > ("correctors")),
+JetCorrectionServiceChain::JetCorrectionServiceChain (const edm::ParameterSet& fParameters) 
+  : mCorrectors (fParameters.getParameter <std::vector <std::string> > ("correctors")),
     mChainCorrector (new ChainedJetCorrector ())
 {
-  string label(fParameters.getParameter<string>("@module_label"));
-  if (std::find(mCorrectors.begin(),mCorrectors.end(),label)!=mCorrectors.end ()) {
-    throw cms::Exception("Recursion is not allowed")
-      <<"JetCorrectionServiceChain: corrector "<<label<<" is chained to itself";
+  std::string label = fParameters.getParameter <std::string> ("label");
+  if (std::find (mCorrectors.begin(), mCorrectors.end(), label) != mCorrectors.end ()) {
+    throw cms::Exception("Recursion is not allowed") << "JetCorrectionServiceChain: corrector " << label << " is chained to itself";
   }
   setWhatProduced (this, label);
   findingRecord <JetCorrectionsRecord> ();

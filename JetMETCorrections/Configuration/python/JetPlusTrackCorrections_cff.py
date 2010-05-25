@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+from JetMETCorrections.Configuration.JetCorrectionsRecord_cfi import *
 from RecoJets.Configuration.RecoJetAssociations_cff import *
 
 # ---------- Tight Electron ID
@@ -64,7 +65,7 @@ JetPlusTrackZSPCorJetAntiKt5 = cms.EDProducer(
 # ---------- Jet-Track association
 
 # IC
-from RecoJets.JetAssociationProducers.iterativeCone5JTA_cff import *
+from RecoJets.JetAssociationProducers.iterativeCone5JTA_cff import*
 
 ZSPiterativeCone5JetTracksAssociatorAtVertex = iterativeCone5JetTracksAssociatorAtVertex.clone() 
 ZSPiterativeCone5JetTracksAssociatorAtVertex.jets = cms.InputTag("ZSPJetCorJetIcone5")
@@ -78,7 +79,7 @@ ZSPiterativeCone5JetExtender.jet2TracksAtCALO = cms.InputTag("ZSPiterativeCone5J
 ZSPiterativeCone5JetExtender.jet2TracksAtVX = cms.InputTag("ZSPiterativeCone5JetTracksAssociatorAtVertex")
 
 # SisCone
-from RecoJets.JetAssociationProducers.sisCone5JTA_cff import *
+from RecoJets.JetAssociationProducers.sisCone5JTA_cff import*
 
 ZSPSisCone5JetTracksAssociatorAtVertex = sisCone5JetTracksAssociatorAtVertex.clone()
 ZSPSisCone5JetTracksAssociatorAtVertex.jets = cms.InputTag("ZSPJetCorJetSiscone5")
@@ -92,7 +93,7 @@ ZSPSisCone5JetExtender.jet2TracksAtCALO = cms.InputTag("ZSPSisCone5JetTracksAsso
 ZSPSisCone5JetExtender.jet2TracksAtVX = cms.InputTag("ZSPSisCone5JetTracksAssociatorAtVertex")
 
 # Anti-Kt
-from RecoJets.JetAssociationProducers.ak5JTA_cff import *
+from RecoJets.JetAssociationProducers.ak5JTA_cff import*
 
 ZSPAntiKt5JetTracksAssociatorAtVertex = ak5JetTracksAssociatorAtVertex.clone()
 ZSPAntiKt5JetTracksAssociatorAtVertex.jets = cms.InputTag("ZSPJetCorJetAntiKt5")

@@ -1,4 +1,4 @@
-// $Id: DQMEventConsumerRegistrationInfo.cc,v 1.3 2009/07/20 13:07:27 mommsen Exp $
+// $Id: DQMEventConsumerRegistrationInfo.cc,v 1.4 2009/09/16 09:53:24 dshpakov Exp $
 /// @file: DQMEventConsumerRegistrationInfo.cc
 
 #include "EventFilter/StorageManager/interface/DQMEventConsumerRegistrationInfo.h"
@@ -12,7 +12,7 @@ namespace stor
   DQMEventConsumerRegistrationInfo::DQMEventConsumerRegistrationInfo
   ( const std::string& consumerName,
     const string& topLevelFolderName,
-    const size_t& queueSize,
+    const int& queueSize,
     const enquing_policy::PolicyTag& queuePolicy,
     const utils::duration_t& secondsToStale,
     const std::string& remoteHost ) :
@@ -73,7 +73,7 @@ namespace stor
     _common._consumerId = id;
   }
 
-  size_t
+  int
   DQMEventConsumerRegistrationInfo::do_queueSize() const
   {
     return _common._queueSize;

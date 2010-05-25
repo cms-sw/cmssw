@@ -1,4 +1,4 @@
-// $Id: FourVectorHLT.cc,v 1.10 2008/08/22 21:49:54 wittich Exp $
+// $Id: FourVectorHLT.cc,v 1.12 2010/02/16 17:03:12 wmtan Exp $
 // See header file for information. 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -9,7 +9,6 @@
 #include "DQM/HLTEvF/interface/FourVectorHLT.h"
 
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"

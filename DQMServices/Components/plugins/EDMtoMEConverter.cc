@@ -2,14 +2,16 @@
  *
  *  See header file for description of class
  *
- *  $Date: 2010/01/29 12:01:17 $
- *  $Revision: 1.28 $
+ *  $Date: 2010/02/02 13:13:35 $
+ *  $Revision: 1.29 $
  *  \author M. Strang SUNY-Buffalo
  */
 
 #include <cassert>
 
 #include "DQMServices/Components/plugins/EDMtoMEConverter.h"
+
+using namespace lat;
 
 EDMtoMEConverter::EDMtoMEConverter(const edm::ParameterSet & iPSet) :
   verbosity(0), frequency(0)

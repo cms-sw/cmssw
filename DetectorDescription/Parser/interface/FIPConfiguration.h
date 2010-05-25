@@ -7,9 +7,6 @@
 #include "DetectorDescription/Parser/interface/DDLDocumentProvider.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
 
-// From DD Core
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-
 class DDLParser;
 class DDLSAX2Handler;
 class DDLSAX2ConfigHandler;
@@ -33,7 +30,7 @@ class FIPConfiguration : public DDLDocumentProvider {
 
  public:
 
-  FIPConfiguration( DDCompactView& cpv);
+  FIPConfiguration();
   virtual ~FIPConfiguration();
 
   /// Read in the configuration file.
@@ -63,7 +60,7 @@ class FIPConfiguration : public DDLDocumentProvider {
   DDLSAX2ConfigHandler configHandler_;
   std::vector<std::string> files_;
   std::vector<std::string> urls_;
-  DDCompactView& cpv_;
+
 };
 
 #endif

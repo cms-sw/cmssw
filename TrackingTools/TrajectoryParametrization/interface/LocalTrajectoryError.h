@@ -20,18 +20,18 @@
 
 class LocalTrajectoryError {
 public:
-  // construct
-  LocalTrajectoryError();
-  // destruct
-  ~LocalTrajectoryError();
+// construct
+  LocalTrajectoryError() {}
 
   /** Constructing class from a full covariance matrix. The sequence of the parameters is
    *  the same as the one described above.
    */
 
-  LocalTrajectoryError(const AlgebraicSymMatrix55& aCovarianceMatrix);
+  LocalTrajectoryError(const AlgebraicSymMatrix55& aCovarianceMatrix) :
+    theCovarianceMatrix(aCovarianceMatrix), theWeightMatrixPtr() { }
+  LocalTrajectoryError(const AlgebraicSymMatrix& aCovarianceMatrix) :
+    theCovarianceMatrix(asSMatrix<5>(aCovarianceMatrix)), theWeightMatrixPtr() {}
 
-  LocalTrajectoryError(const AlgebraicSymMatrix& aCovarianceMatrix);
 
   /** Constructing class from standard deviations of the individual parameters, making
    *  the covariance matrix diagonal. The sequence of the input parameters is sigma(x), sigma(y),
@@ -58,16 +58,24 @@ public:
     return asHepMatrix(theCovarianceMatrix);
   }
 
-  const AlgebraicSymMatrix55 &weightMatrix() const;
+  const AlgebraicSymMatrix55 &weightMatrix() const {
+        if (theWeightMatrixPtr.get() == 0) {
+                int ifail;
+                boost::shared_ptr<AlgebraicSymMatrix55> inv(
+                          new AlgebraicSymMatrix55(theCovarianceMatrix.Inverse(ifail))
+                );
+                theWeightMatrixPtr = inv;
+        }
+        return *theWeightMatrixPtr;
+  }
 
 
   /** Enables the multiplication of the covariance matrix with the scalar "factor".
    */
 
-  LocalTrajectoryError & operator *= (double factor) {
+  void operator *= (double factor) {
     theCovarianceMatrix *= factor;
     if ((theWeightMatrixPtr.get() != 0) && (factor != 0.0)) { (*theWeightMatrixPtr) /= factor; } 
-    return *this;
   }
 
   /** Returns the two-by-two submatrix of the covariance matrix which yields the local

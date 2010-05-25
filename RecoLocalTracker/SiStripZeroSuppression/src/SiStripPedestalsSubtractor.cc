@@ -30,10 +30,10 @@ subtract_(const uint32_t& id, const uint16_t& firstStrip, const input_t& input, 
 
     while( inDigi != input.end() ) {
 
-      *outDigi = ( *ped > 895 ) 
+      *outDigi = std::max(0,  ( *ped > 895 )        //FED bottoms out at 0
 	? eval(*inDigi) - *ped + 1024
-	: eval(*inDigi) - *ped;
-
+	: eval(*inDigi) - *ped	);
+      
       ++inDigi; 
       ++ped; 
       ++outDigi;

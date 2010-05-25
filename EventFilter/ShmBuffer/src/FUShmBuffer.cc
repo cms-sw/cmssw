@@ -305,7 +305,10 @@ FUShmRawCell* FUShmBuffer::rawCellToRead()
   unsigned int iCell=nextRawReadIndex();
   FUShmRawCell* cell=rawCell(iCell);
   evt::State_t  state=evtState(iCell);
-  assert(state==evt::RAWWRITTEN||state==evt::EMPTY||state==evt::LUMISECTION);
+  assert(state==evt::RAWWRITTEN
+	 ||state==evt::EMPTY
+	 ||state==evt::STOP
+	 ||state==evt::LUMISECTION);
   if (state==evt::RAWWRITTEN) {
     setEvtPrcId(iCell,getpid());
     setEvtState(iCell,evt::RAWREADING);
@@ -349,8 +352,15 @@ FUShmRawCell* FUShmBuffer::rawCellToDiscard()
   waitRawDiscarded();
   FUShmRawCell* cell=rawCell(rawDiscardIndex_);
   evt::State_t  state=evtState(cell->index());
-  assert(state==evt::PROCESSED||state==evt::SENT||state==evt::EMPTY||state==evt::LUMISECTION);
-  if (state!=evt::EMPTY && state!=evt::LUMISECTION) 
+  assert(state==evt::PROCESSED
+	 ||state==evt::SENT
+	 ||state==evt::EMPTY
+	 ||state==evt::STOP
+	 ||state==evt::LUMISECTION);
+  if (state!=evt::EMPTY 
+      && state!=evt::LUMISECTION
+      && state!=evt::STOP
+      ) 
     setEvtState(cell->index(),evt::DISCARDING);
   return cell;
 }
@@ -411,7 +421,12 @@ void FUShmBuffer::scheduleRawCellForDiscard(unsigned int iCell)
   if (rawCellReadyForDiscard(iCell)) {
     rawDiscardIndex_=iCell;
     evt::State_t  state=evtState(iCell);
-    assert(state==evt::PROCESSING||state==evt::SENT||state==evt::EMPTY||state==evt::LUMISECTION);
+    assert(state==evt::PROCESSING
+	   ||state==evt::SENT
+	   ||state==evt::EMPTY
+	   ||state==evt::STOP
+	   ||state==evt::LUMISECTION
+	   );
     if (state==evt::PROCESSING) setEvtState(iCell,evt::PROCESSED);
     postRawDiscarded();
   }
@@ -463,7 +478,13 @@ void FUShmBuffer::discardDqmCell(unsigned int iCell)
 void FUShmBuffer::releaseRawCell(FUShmRawCell* cell)
 {
   evt::State_t state=evtState(cell->index());
-  assert(state==evt::DISCARDING||state==evt::RAWWRITING||state==evt::EMPTY||state==evt::LUMISECTION);
+  assert(
+	 state==evt::DISCARDING
+	 ||state==evt::RAWWRITING
+	 ||state==evt::EMPTY
+	 ||state==evt::STOP
+	 ||state==evt::LUMISECTION
+	 );
   setEvtState(cell->index(),evt::EMPTY);
   setEvtDiscard(cell->index(),0);
   setEvtNumber(cell->index(),0xffffffff);
@@ -482,7 +503,7 @@ void FUShmBuffer::writeRawEmptyEvent()
   FUShmRawCell* cell=rawCellToWrite();
   evt::State_t state=evtState(cell->index());
   assert(state==evt::RAWWRITING);
-  setEvtState(cell->index(),evt::EMPTY);
+  setEvtState(cell->index(),evt::STOP);
   postRawIndexToRead(cell->index());
   if (segmentationMode_) shmdt(cell);
   postRawRead();
@@ -533,7 +554,7 @@ void FUShmBuffer::scheduleRawEmptyCellForDiscard()
 {
   FUShmRawCell* cell=rawCellToWrite();
   rawDiscardIndex_=cell->index();
-  setEvtState(cell->index(),evt::EMPTY);
+  setEvtState(cell->index(),evt::STOP);
   setEvtNumber(cell->index(),0xffffffff);
   setEvtPrcId(cell->index(),0);
   setEvtTimeStamp(cell->index(),0);
@@ -547,7 +568,7 @@ void FUShmBuffer::scheduleRawEmptyCellForDiscard(FUShmRawCell* cell)
   waitRawDiscard();
   if (rawCellReadyForDiscard(cell->index())) {
     rawDiscardIndex_=cell->index();
-    setEvtState(cell->index(),evt::EMPTY);
+    setEvtState(cell->index(),evt::STOP);
     setEvtNumber(cell->index(),0xffffffff);
     setEvtPrcId(cell->index(),0);
     setEvtTimeStamp(cell->index(),0);
@@ -743,6 +764,7 @@ void FUShmBuffer::printEvtState(unsigned int index)
   evt::State_t state=evtState(index);
   std::string stateName;
   if      (state==evt::EMPTY)      stateName="EMPTY";
+  else if (state==evt::STOP)       stateName="STOP";
   else if (state==evt::RAWWRITING) stateName="RAWWRITING";
   else if (state==evt::RAWWRITTEN) stateName="RAWRITTEN";
   else if (state==evt::RAWREADING) stateName="RAWREADING";
@@ -1590,7 +1612,7 @@ void FUShmBuffer::sem_init(int isem,int value)
 
 
 //______________________________________________________________________________
-void FUShmBuffer::sem_wait(int isem)
+int FUShmBuffer::sem_wait(int isem)
 {
   struct sembuf sops[1];
   sops[0].sem_num=isem;
@@ -1598,7 +1620,9 @@ void FUShmBuffer::sem_wait(int isem)
   sops[0].sem_flg=   0;
   if (semop(semid(),sops,1)==-1) {
     cout<<"FUShmBuffer: ERROR in semaphore operation sem_wait."<<endl;
+    return -1;
   }
+  return 0;
 }
 
 

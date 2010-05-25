@@ -9,14 +9,13 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/TrackingMonitor/interface/TrackBuildingAnalyzer.h"
 #include <string>
 #include "TMath.h"
 
 #include <iostream>
-using namespace std;
 
 TrackBuildingAnalyzer::TrackBuildingAnalyzer(const edm::ParameterSet& iConfig) 
     : conf_( iConfig )
@@ -39,15 +38,13 @@ TrackBuildingAnalyzer::~TrackBuildingAnalyzer()
 
 void TrackBuildingAnalyzer::beginJob(DQMStore * dqmStore_) 
 {
-    using namespace edm;
-    using std::string;
 
     // parameters from the configuration
-    string AlgoName       = conf_.getParameter<string>("AlgoName");
-    string MEFolderName   = conf_.getParameter<string>("FolderName"); 
+    std::string AlgoName       = conf_.getParameter<std::string>("AlgoName");
+    std::string MEFolderName   = conf_.getParameter<std::string>("FolderName"); 
 
     // use the AlgoName and Quality Name 
-    string CatagoryName = AlgoName;
+    std::string CatagoryName = AlgoName;
 
     // get binning from the configuration
     int    TrackPtBin = conf_.getParameter<int>(   "TrackPtBin");
@@ -217,8 +214,6 @@ void TrackBuildingAnalyzer::analyze
     const edm::ESHandle<TransientTrackingRecHitBuilder>& theTTRHBuilder
 )
 {
-    using namespace edm;
-    using std::string;
 
     TrajectoryStateTransform tsTransform;
     TSCBLBuilderNoMaterial tscblBuilder;
@@ -273,8 +268,6 @@ void TrackBuildingAnalyzer::analyze
     const edm::ESHandle<TransientTrackingRecHitBuilder>& theTTRHBuilder
 )
 {
-    using namespace edm;
-    using std::string;
 
     TrajectoryStateTransform tsTransform;
     TSCBLBuilderNoMaterial tscblBuilder;

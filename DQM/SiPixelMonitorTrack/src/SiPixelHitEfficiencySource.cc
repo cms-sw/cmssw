@@ -180,15 +180,12 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::Ev
 
   //Get the geometry
   ESHandle<TrackerGeometry> TG;
-  try {iSetup.get<TrackerDigiGeometryRecord>().get(TG);}
-  catch (...) { throw cms::Exception("LogicError") << "Didn't find the Tracker geometry specified";}
+  iSetup.get<TrackerDigiGeometryRecord>().get(TG);
   const TrackerGeometry* theTrackerGeometry = TG.product();
   
   //get the map
   edm::Handle<TrajTrackAssociationCollection> match;
-  try {iEvent.getByLabel(tracksrc_,match);}
-  catch (...) { throw cms::Exception("LogicError") << "Didn't find the TrajTrackAssociationCollection specified";}
-  
+  iEvent.getByLabel(tracksrc_,match);  
   const TrajTrackAssociationCollection ttac = *(match.product());
 
   if(debug_){

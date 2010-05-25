@@ -1394,7 +1394,7 @@ DQMNet::run(void)
         logme ()
 	  << "WARNING: source not responding in " << (waitMax_.ns() * 1e-9)
 	  << "s to retrieval, releasing '" << i->name << "' from wait, have "
-	  << o->rawdata.size() << " data available\n";
+	  << (o ? o->rawdata.size() : 0) << " data available\n";
 	releaseFromWait(i++, o);
       }
       else if (i->time < waitstale && o && (o->flags & DQM_PROP_STALE))

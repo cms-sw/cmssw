@@ -9,6 +9,8 @@
 #include "OHltRatePrinter.h"
 #include "OHltTree.h"
 
+using namespace std;
+
 void OHltRatePrinter::SetupAll(vector<float> tRate,vector<float> tRateErr,vector<float> tspureRate,
 			       vector<float> tspureRateErr,vector<float> tpureRate,
 			       vector<float> tpureRateErr,vector< vector<float> >tcoMa,
@@ -47,9 +49,9 @@ void OHltRatePrinter::printRatesASCII(OHltConfig *cfg, OHltMenu *menu) {
   float cumulRateErr = 0.;
   for (unsigned int i=0;i<menu->GetTriggerSize();i++) {
     cumulRate += spureRate[i];
-    cumulRateErr += pow(spureRateErr[i],2.);
+    cumulRateErr += pow(spureRateErr[i],fTwo);
     cout<<setw(50)<<menu->GetTriggerName(i)<<" ("
-	<<setw(8)<<menu->GetPrescale(i)<<")  "
+	<<setw(8)<<(int)(menu->GetPrescale(i) * menu->GetReferenceRunPrescale(i))<<")  "
 	<<setw(8)<<Rate[i]<<" +- "
 	<<setw(7)<<RateErr[i]<<"  "
 	<<setw(8)<<spureRate[i]<<"  "
@@ -109,15 +111,15 @@ void OHltRatePrinter::printHltRatesTwiki(OHltConfig *cfg, OHltMenu *menu) {
 
   for (unsigned int i=0;i<menu->GetTriggerSize();i++) { 
     cumulRate += spureRate[i]; 
-    cumulRateErr += pow(spureRateErr[i],2.); 
+    cumulRateErr += pow(spureRateErr[i],fTwo); 
     cuThru += spureRate[i] * menu->GetEventsize(i); 
-    cuThruErr += pow(spureRateErr[i]*menu->GetEventsize(i),2.); 
+    cuThruErr += pow(spureRateErr[i]*menu->GetEventsize(i),fTwo); 
  
     if (!(menu->GetTriggerName(i).Contains("AlCa"))) { 
       cuPhysRate += spureRate[i]; 
-      cuPhysRateErr += pow(spureRateErr[i],2.); 
+      cuPhysRateErr += pow(spureRateErr[i],fTwo); 
       physCutThru += spureRate[i]*menu->GetEventsize(i); 
-      physCutThruErr += pow(spureRateErr[i]*menu->GetEventsize(i),2.); 
+      physCutThruErr += pow(spureRateErr[i]*menu->GetEventsize(i),fTwo); 
     } 
 
     TString tempTrigSeedPrescales; 
@@ -139,19 +141,20 @@ void OHltRatePrinter::printHltRatesTwiki(OHltConfig *cfg, OHltMenu *menu) {
         } 
       } 
     } 
+
     for (unsigned int j=0;j<vtmp.size();j++) { 
-      tempTrigSeeds = tempTrigSeeds + vtmp[j]; 
       tempTrigSeedPrescales += itmp[j]; 
       if (j<(vtmp.size()-1)) { 
-	tempTrigSeeds = tempTrigSeeds + " or "; 
 	tempTrigSeedPrescales = tempTrigSeedPrescales + ", "; 
       } 
     } 
 
+    tempTrigSeeds = menu->GetSeedCondition(menu->GetTriggerName(i));
+
     outFile << "| !"<< menu->GetTriggerName(i)
 	    << " | !" << tempTrigSeeds
 	    << " | " << tempTrigSeedPrescales
-	    << " | " << menu->GetPrescale(i)
+	    << " | " << (int)(menu->GetPrescale(i) * menu->GetReferenceRunPrescale(i))
 	    << " | " << Rate[i] << "+-" << RateErr[i]
 	    << " | " << cumulRate
 	    << " | " << menu->GetEventsize(i)
@@ -195,12 +198,12 @@ void OHltRatePrinter::printL1RatesTwiki(OHltConfig *cfg, OHltMenu *menu) {
   float cumulRateErr = 0.; 
   for (unsigned int i=0;i<menu->GetTriggerSize();i++) { 
     cumulRate += spureRate[i]; 
-    cumulRateErr += pow(spureRateErr[i],2.); 
+    cumulRateErr += pow(spureRateErr[i],fTwo); 
      
     TString tempTrigName = menu->GetTriggerName(i); 
  
     outFile << "| !" << tempTrigName 
-            << " | " <<  menu->GetPrescale(i)  
+            << " | " <<  (int)(menu->GetPrescale(i) * menu->GetReferenceRunPrescale(i))  
             << " | " << Rate[i] << "+-" << RateErr[i] 
             << " | " << cumulRate << " |" << endl; 
   } 
@@ -272,9 +275,9 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu) {
   float cuThruErr = 0.;
   for (unsigned int i=0;i<menu->GetTriggerSize();i++) {
     cumulRate += spureRate[i];
-    cumulRateErr += pow(spureRateErr[i],2.);
+    cumulRateErr += pow(spureRateErr[i],fTwo);
     cuThru += spureRate[i] * menu->GetEventsize(i);
-    cuThruErr += pow(spureRate[i]*menu->GetEventsize(i),2.);
+    cuThruErr += pow(spureRate[i]*menu->GetEventsize(i),fTwo);
 
     individual->SetBinContent(i+1,Rate[i]);
     individual->GetXaxis()->SetBinLabel(i+1,menu->GetTriggerName(i));
@@ -301,7 +304,7 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu) {
 
   for (unsigned int i=0;i<menu->GetTriggerSize();i++) { 
     for (unsigned int j=0;j<menu->GetTriggerSize();j++) { 
-      overlap->SetBinContent(i,j,coMa[i][j]);
+      overlap->SetBinContent(i+1,j+1,coMa[i][j]);
       overlap->GetXaxis()->SetBinLabel(i+1,menu->GetTriggerName(i));
       overlap->GetYaxis()->SetBinLabel(j+1,menu->GetTriggerName(j));
     }
@@ -421,13 +424,13 @@ void OHltRatePrinter::printL1RatesTex(OHltConfig *cfg, OHltMenu *menu) {
   float cumulRateErr = 0.;
   for (unsigned int i=0;i<menu->GetTriggerSize();i++) {
     cumulRate += spureRate[i];
-    cumulRateErr += pow(spureRateErr[i],2.);
+    cumulRateErr += pow(spureRateErr[i],fTwo);
     
     TString tempTrigName = menu->GetTriggerName(i);
     tempTrigName.ReplaceAll("_","\\_");
 
     outFile << "\\color{blue}"  << tempTrigName
-	    << " & " <<  menu->GetPrescale(i) 
+	    << " & " <<  (int)(menu->GetPrescale(i) * menu->GetReferenceRunPrescale(i)) 
 	    << " & " << Rate[i] << " {$\\pm$ " << RateErr[i]
 	    << "} & " << cumulRate << "\\\\" << endl;
   }
@@ -512,15 +515,15 @@ void OHltRatePrinter::printHltRatesTex(OHltConfig *cfg, OHltMenu *menu) {
   vector<TString> footTrigNames;
   for (unsigned int i=0;i<menu->GetTriggerSize();i++) {
     cumulRate += spureRate[i];
-    cumulRateErr += pow(spureRateErr[i],2.);
+    cumulRateErr += pow(spureRateErr[i],fTwo);
     cuThru += spureRate[i] * menu->GetEventsize(i);
-    cuThruErr += pow(spureRateErr[i]*menu->GetEventsize(i),2.);
+    cuThruErr += pow(spureRateErr[i]*menu->GetEventsize(i),fTwo);
 
     if (!(menu->GetTriggerName(i).Contains("AlCa"))) {
       cuPhysRate += spureRate[i];
-      cuPhysRateErr += pow(spureRateErr[i],2.);
+      cuPhysRateErr += pow(spureRateErr[i],fTwo);
       physCutThru += spureRate[i]*menu->GetEventsize(i);
-      physCutThruErr += pow(spureRateErr[i]*menu->GetEventsize(i),2.);
+      physCutThruErr += pow(spureRateErr[i]*menu->GetEventsize(i),fTwo);
     }
     
     TString tempTrigName = menu->GetTriggerName(i);
@@ -583,7 +586,7 @@ void OHltRatePrinter::printHltRatesTex(OHltConfig *cfg, OHltMenu *menu) {
     outFile << "\\color{blue}"  << tempTrigName
 	    << " & " << tempTrigSeeds
 	    << " & " << tempTrigSeedPrescales
-	    << " & " <<  menu->GetPrescale(i) 
+	    << " & " <<  (int)(menu->GetPrescale(i) * menu->GetReferenceRunPrescale(i)) 
 	    << " & " << Rate[i] << " {$\\pm$ " << RateErr[i]
 	    << "} & " << cumulRate
       	    << " & " << menu->GetEventsize(i)
@@ -647,7 +650,7 @@ void OHltRatePrinter::printPrescalesCfg(OHltConfig *cfg, OHltMenu *menu) {
   
   for (unsigned int i=0;i<menu->GetTriggerSize();i++) { 
     outFile << "\tcms.PSet(  pathName = cms.string( \"" << menu->GetTriggerName(i) << "\" )," << endl;
-    outFile << "\t\tprescales = cms.vuint32( " << menu->GetPrescale(i) << " )" << endl;
+    outFile << "\t\tprescales = cms.vuint32( " << (int)(menu->GetPrescale(i) * menu->GetReferenceRunPrescale(i)) << " )" << endl;
     outFile << "\t\t)," << endl;
   }
 
@@ -710,17 +713,16 @@ void OHltRatePrinter::printHLTDatasets(OHltConfig *cfg, OHltMenu *menu
 						} 
 					} 
 					for (unsigned int j=0;j<vtmp.size();j++) { 
-						tempTrigSeeds = tempTrigSeeds + vtmp[j]; 
 						tempTrigSeedPrescales += itmp[j]; 
 						if (j<(vtmp.size()-1)) { 
-							tempTrigSeeds = tempTrigSeeds + " or "; 
 							tempTrigSeedPrescales = tempTrigSeedPrescales + ", "; 
 						} 
 					} 
+					tempTrigSeeds = menu->GetSeedCondition(menu->GetTriggerName(i));
 
 					TString iMenuTriggerName(menu->GetTriggerName(i));
 					if (DStriggerName.CompareTo(iMenuTriggerName)==0) {
-						printf("%-40s\t%-30s\t%40s\t%10d\t%10.2lf\n",(menu->GetTriggerName(i)).Data(), tempTrigSeeds.Data(), tempTrigSeedPrescales.Data(), menu->GetPrescale(i), Rate[i]);
+						printf("%-40s\t%-30s\t%40s\t%10d\t%10.2lf\n",(menu->GetTriggerName(i)).Data(), tempTrigSeeds.Data(), tempTrigSeedPrescales.Data(), (int)(menu->GetPrescale(i) * menu->GetReferenceRunPrescale(i)), Rate[i]);
 					}
 				}
 			}

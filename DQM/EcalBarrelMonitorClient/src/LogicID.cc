@@ -1,14 +1,14 @@
 #ifdef WITH_ECAL_COND_DB
 
-// $Id: LogicID.cc,v 1.1 2009/10/01 10:17:57 dellaric Exp $
+// $Id: LogicID.cc,v 1.3 2010/02/15 22:26:41 dellaric Exp $
 
 /*!
   \file LogicID.cc
   \brief Construct EcalLogicIDs
   \author G. Della Ricca
   \author B. Gobbo
-  \version $Revision: 1.1 $
-  \date $Date: 2009/10/01 10:17:57 $
+  \version $Revision: 1.3 $
+  \date $Date: 2010/02/15 22:26:41 $
 */
 
 #include "DQM/EcalCommon/interface/LogicID.h"
@@ -79,18 +79,27 @@ EcalLogicID LogicID::getEcalLogicID( const char* name,
   }
   if( strcmp(name, "EE_readout_tower") == 0 ) {
     return( EcalLogicID( "EE_readout_tower",
-                         2110000000UL+100*((id1>=1&&id1<=9)?(646+(id1-1)):(601+(id1-9)))+id2,
-                         ((id1>=1&&id1<=9)?(646+(id1-1)):(601+(id1-9))),
+                         2110000000UL+100*((id1>=1&&id1<=9)?(646+(id1-1)):(601+(id1-10)))+id2,
+                         ((id1>=1&&id1<=9)?(646+(id1-1)):(601+(id1-10))),
                          id2 ) );
   }
   if( strcmp(name, "EE_mem_channel") == 0 ) {
-    return( EcalLogicID( "EE_mem_channel", EcalLogicID::NULLID ) );
+    return( EcalLogicID( "EE_mem_channel",
+                         100*((id1>=1&&id1<=9)?(646+(id1-1)):(601+(id1-10)))+id2,
+                         ((id1>=1&&id1<=9)?(646+(id1-1)):(601+(id1-10))),
+                         id2 ) );
   }
   if( strcmp(name, "EE_mem_TT") == 0 ) {
-    return( EcalLogicID( "EE_mem_TT", EcalLogicID::NULLID ) );
+    return( EcalLogicID( "EE_mem_TT",
+                         100*((id1>=1&&id1<=9)?(646+(id1-1)):(601+(id1-10)))+id2,
+                         ((id1>=1&&id1<=9)?(646+(id1-1)):(601+(id1-10))),
+                         id2 ) );
   }
   if( strcmp(name, "EE_LM_PN") == 0 ) {
-    return( EcalLogicID( "EE_mem_TT", EcalLogicID::NULLID ) );
+    return( EcalLogicID( "EE_LM_PN",
+                         100*((id1>=1&&id1<=9)?(646+(id1-1)):(601+(id1-10)))+id2,
+                         ((id1>=1&&id1<=9)?(646+(id1-1)):(601+(id1-10))),
+                         id2 ) );
   }
 
   throw( std::runtime_error( "Unknown 'name': " + std::string( name ) ) );

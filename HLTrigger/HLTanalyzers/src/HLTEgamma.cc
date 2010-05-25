@@ -547,13 +547,13 @@ void HLTEgamma::MakeL1IsolatedPhotons(
       pho.phi        = recoecalcand->phi();
 
       //Get the cluster shape
-      std::vector<float> vCov = lazyTools.covariances( *(recoecalcand->superCluster()->seed()) );
-      //      std::vector<float> vCov = lazyTools.localCovariances( *(recoecalcand->superCluster()->seed()) );
+      //      std::vector<float> vCov = lazyTools.covariances( *(recoecalcand->superCluster()->seed()) );
+      std::vector<float> vCov = lazyTools.localCovariances( *(recoecalcand->superCluster()->seed()) );
       double sigmaee = sqrt(vCov[0]);
-      float EtaSC = fabs(recoecalcand->eta());
-      if(EtaSC > 1.479 ) {//Endcap
-        sigmaee = sigmaee - 0.02*(EtaSC - 2.3);
-      }
+      //      float EtaSC = fabs(recoecalcand->eta());
+      //      if(EtaSC > 1.479 ) {//Endcap
+      //        sigmaee = sigmaee - 0.02*(EtaSC - 2.3);
+      //      }
       pho.clusterShape = sigmaee;
 
       // Method to get the reference to the candidate
@@ -607,13 +607,13 @@ void HLTEgamma::MakeL1NonIsolatedPhotons(
       pho.phi        = recoecalcand->phi();
 
       //Get the cluster shape
-      std::vector<float> vCov = lazyTools.covariances( *(recoecalcand->superCluster()->seed()) );
-      //      std::vector<float> vCov = lazyTools.localCovariances( *(recoecalcand->superCluster()->seed()) );
+      //      std::vector<float> vCov = lazyTools.covariances( *(recoecalcand->superCluster()->seed()) );
+      std::vector<float> vCov = lazyTools.localCovariances( *(recoecalcand->superCluster()->seed()) );
       double sigmaee = sqrt(vCov[0]);
-      float EtaSC = fabs(recoecalcand->eta());
-      if(EtaSC > 1.479 ) {//Endcap
-        sigmaee = sigmaee - 0.02*(EtaSC - 2.3);
-      }
+      //      float EtaSC = fabs(recoecalcand->eta());
+      //      if(EtaSC > 1.479 ) {//Endcap
+      //        sigmaee = sigmaee - 0.02*(EtaSC - 2.3);
+      //      }
       pho.clusterShape = sigmaee;
 
       reco::RecoEcalCandidateRef ref = reco::RecoEcalCandidateRef(recoNonIsolecalcands, distance(recoNonIsolecalcands->begin(), recoecalcand));

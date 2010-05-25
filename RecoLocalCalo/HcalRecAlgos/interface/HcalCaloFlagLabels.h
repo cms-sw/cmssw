@@ -27,6 +27,7 @@ namespace HcalCaloFlagLabels
   enum HFStatusFlag{HFLongShort=0,
 		    HFDigiTime=1};
 
+
   enum ZDCStatusFlag{ZDCBit=0};
 
   enum CalibrationFlag{CalibrationBit=0};
@@ -36,7 +37,12 @@ namespace HcalCaloFlagLabels
 		   TimingAddedBit=17,      // latency shift correction, recovered
 		   TimingErrorBit=18,      // latency shift error, unrecovered
 		   ADCSaturationBit=19,
-                   Fraction2TS=20}; 
+                   Fraction2TS=20,
+		   // The following bits are all user-defined; reverse-order them so that UserDefinedBit0 will be the last removed
+		   UserDefinedBit2 = 29,
+		   UserDefinedBit1 = 30,
+		   UserDefinedBit0 = 31
+}; 
   
 }
 

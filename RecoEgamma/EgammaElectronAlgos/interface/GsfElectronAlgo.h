@@ -297,9 +297,9 @@ class GsfElectronAlgo {
     edm::InputTag reducedEndcapRecHitCollection_ ;
     edm::InputTag pfMVA_;
     edm::InputTag seedsTag_;
-
     bool ctfTracksCheck_ ;
     edm::InputTag ctfTracks_;
+    edm::InputTag beamSpotTag_;
 
     edm::ESHandle<MagneticField>                theMagField;
     edm::ESHandle<CaloGeometry>                 theCaloGeom;

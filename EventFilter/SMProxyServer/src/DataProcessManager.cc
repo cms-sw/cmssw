@@ -1,4 +1,4 @@
-// $Id: DataProcessManager.cc,v 1.21 2009/08/18 09:45:41 mommsen Exp $
+// $Id: DataProcessManager.cc,v 1.22 2009/12/01 14:25:25 mommsen Exp $
 
 #include "EventFilter/SMProxyServer/interface/DataProcessManager.h"
 #include "EventFilter/StorageManager/interface/SMCurlInterface.h"
@@ -518,6 +518,7 @@ namespace stor
       }
       else allRegistered = false;
     }
+    setExpectedUpdatesDQM( DQMsmRegMap_.size() );
     return allRegistered;
   }
 
@@ -536,6 +537,7 @@ namespace stor
         anyRegistered = true;
       }
     }
+    setExpectedUpdatesDQM( DQMsmRegMap_.size() );
     return anyRegistered;
   }
 

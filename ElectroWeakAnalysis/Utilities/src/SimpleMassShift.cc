@@ -1,6 +1,6 @@
 ////////// Header section /////////////////////////////////////////////
 #include "FWCore/Framework/interface/EDFilter.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class SimpleMassShift: public edm::EDFilter {
 public:
@@ -31,7 +31,7 @@ private:
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -98,8 +98,7 @@ bool SimpleMassShift::filter(edm::Event & ev, const edm::EventSetup&){
             return false;
       }
 
-      edm::TriggerNames trigNames;
-      trigNames.init(*triggerResults);
+      const edm::TriggerNames & trigNames = ev.triggerNames(*triggerResults);
       unsigned int pathIndex = trigNames.triggerIndex(selectorPath_);
       bool pathFound = (pathIndex>=0 && pathIndex<trigNames.size());
       if (pathFound) {

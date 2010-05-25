@@ -65,6 +65,10 @@ class ElectronSeedGenerator
   bool fromTrackerSeeds_;
   //  edm::InputTag initialSeeds_;
 
+  double zmin1_, zmax1_;
+  edm::Handle<reco::BeamSpot> theBeamSpot;
+  edm::InputTag beamSpotTag_;
+
   float lowPtThreshold_;
   float highPtThreshold_;
   float nSigmasDeltaZ1_;
@@ -72,9 +76,6 @@ class ElectronSeedGenerator
   float phimin2_,phimax2_;
   float deltaPhi1Low_, deltaPhi1High_;
   float deltaPhi2_;
-
-  double zmin1_, zmax1_;
-  edm::Handle<reco::BeamSpot> theBeamSpot;
 
   PixelHitMatcher *myMatchEle;
   PixelHitMatcher *myMatchPos;

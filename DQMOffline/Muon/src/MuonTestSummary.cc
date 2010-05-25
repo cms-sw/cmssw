@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/02/02 18:25:58 $
- *  $Revision: 1.30 $
+ *  $Date: 2010/02/02 18:45:28 $
+ *  $Revision: 1.31 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -148,9 +148,9 @@ void MuonTestSummary::beginJob(void){
   muonIdSummaryMap->setAxisTitle("tests",2);
   muonIdSummaryMap->setBinLabel(1,"#assSeg",2);
   muonIdSummaryMap->setBinLabel(2,"x mean",2);
-  muonIdSummaryMap->setBinLabel(3,"x resid",2);
+  muonIdSummaryMap->setBinLabel(3,"x rms",2);
   muonIdSummaryMap->setBinLabel(4,"y mean",2);
-  muonIdSummaryMap->setBinLabel(5,"y resid",2);
+  muonIdSummaryMap->setBinLabel(5,"y rms",2);
 
   // energy test report
   energySummaryMap = dbe->book2D("energySummaryMap","Energy deposits test summary",3,1,4,3,1,4);
@@ -399,15 +399,21 @@ void MuonTestSummary::endRun(Run const& run, EventSetup const& eSetup) {
   //-- modified GH
   float idtest=0;
   for(int i=1; i<=2; i++)
-    for(int j=1; j<=5; j++)
+    for(int j=1; j<=5; j++) {
+      if(j==3 || j==5) continue; //ignore pull widths for now
       idtest+=muonIdSummaryMap->getBinContent(i,j);
-  idtest/=10.;
+    }
+  //  idtest/=10.;
+   idtest/=6.;
   summaryReportMap->setBinContent(1,5, idtest);
   idtest=0;
   for(int i=3; i<=4; i++)
-    for(int j=1; j<=5; j++)
+    for(int j=1; j<=5; j++) {
+      if(j==3 || j==5) continue; //ignore pull widths for now
       idtest+=muonIdSummaryMap->getBinContent(i,j);
-  idtest/=10.;
+    }
+  //  idtest/=10.;
+  idtest/=6.;
   summaryReportMap->setBinContent(2,5,idtest);
   summaryReportMap->setBinContent(3,5,-1.0/6.0);
   //--
@@ -459,27 +465,40 @@ void MuonTestSummary::endRun(Run const& run, EventSetup const& eSetup) {
 
   //global barrel:
   float muonIDsummary=0;
-  for(int i=2; i<=5; i++)
-    muonIDsummary += muonIdSummaryMap->getBinContent(1, i);
-  summaryCertificationMap->setBinContent(4, 5, muonIDsummary/4.);
+  //  for(int i=2; i<=5; i++) 
+  //     muonIDsummary += muonIdSummaryMap->getBinContent(2, i);
+  //  summaryCertificationMap->setBinContent(4, 5, muonIDsummary/4.);
+  //for now, just report the mean:
+  muonIDsummary += muonIdSummaryMap->getBinContent(1, 2);
+  muonIDsummary += muonIdSummaryMap->getBinContent(1, 4);
+  summaryCertificationMap->setBinContent(4, 5, muonIDsummary/2.);
   
   //global EC:
   muonIDsummary=0;
-  for(int i=2; i<=5; i++)
-    muonIDsummary += muonIdSummaryMap->getBinContent(2, i);
-  summaryCertificationMap->setBinContent(7, 5, muonIDsummary/4.);
+  //  for(int i=2; i<=5; i++)
+  //  muonIDsummary += muonIdSummaryMap->getBinContent(2, i);
+  // summaryCertificationMap->setBinContent(7, 5, muonIDsummary/4.);
+  muonIDsummary += muonIdSummaryMap->getBinContent(2, 2);
+  muonIDsummary += muonIdSummaryMap->getBinContent(2, 4);
+  summaryCertificationMap->setBinContent(7, 5, muonIDsummary/2.);
   
   //tracker barrel:
   muonIDsummary=0;
-  for(int i=2; i<=5; i++)
-    muonIDsummary += muonIdSummaryMap->getBinContent(3, i);
-  summaryCertificationMap->setBinContent(5, 5, muonIDsummary/4.);
+  //  for(int i=2; i<=5; i++)
+  //    muonIDsummary += muonIdSummaryMap->getBinContent(3, i);
+  //  summaryCertificationMap->setBinContent(5, 5, muonIDsummary/4.);
+  muonIDsummary += muonIdSummaryMap->getBinContent(3, 2);
+  muonIDsummary += muonIdSummaryMap->getBinContent(3, 4);
+  summaryCertificationMap->setBinContent(5, 5, muonIDsummary/2.);
     
   //tracker EC:
    muonIDsummary=0;
-  for(int i=2; i<=5; i++)
-    muonIDsummary += muonIdSummaryMap->getBinContent(4, i);
-  summaryCertificationMap->setBinContent(8, 5, muonIDsummary/4.);
+   //  for(int i=2; i<=5; i++)
+   //    muonIDsummary += muonIdSummaryMap->getBinContent(4, i);
+   //  summaryCertificationMap->setBinContent(8, 5, muonIDsummary/4.);
+  muonIDsummary += muonIdSummaryMap->getBinContent(4, 2);
+  muonIDsummary += muonIdSummaryMap->getBinContent(4, 4);
+  summaryCertificationMap->setBinContent(8, 5, muonIDsummary/2.);
     
 
   double muonId_GLB_B = double(summaryCertificationMap->getBinContent(4,5));

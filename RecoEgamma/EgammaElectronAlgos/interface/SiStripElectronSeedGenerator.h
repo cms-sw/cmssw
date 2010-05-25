@@ -70,7 +70,7 @@ public:
   typedef TransientTrackingRecHit::RecHitPointer       RecHitPointer;
   typedef TransientTrackingRecHit::RecHitContainer     RecHitContainer;
 
-  SiStripElectronSeedGenerator();
+  SiStripElectronSeedGenerator(const edm::ParameterSet& );
 
   ~SiStripElectronSeedGenerator();
 
@@ -123,6 +123,7 @@ private:
   edm::ESHandle<MagneticField> theMagField;
   edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
   edm::Handle<reco::BeamSpot> theBeamSpot;
+  edm::InputTag beamSpotTag_;
 
   KFUpdator* theUpdator;
   PropagatorWithMaterial* thePropagator;	

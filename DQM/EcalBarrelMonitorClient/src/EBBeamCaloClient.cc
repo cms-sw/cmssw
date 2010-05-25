@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2009/10/28 08:18:21 $
- * $Revision: 1.92 $
+ * $Date: 2010/01/25 21:12:24 $
+ * $Revision: 1.93 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -29,11 +29,7 @@
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBBeamCaloClient.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EBBeamCaloClient::EBBeamCaloClient(const ParameterSet& ps) {
+EBBeamCaloClient::EBBeamCaloClient(const edm::ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -45,7 +41,7 @@ EBBeamCaloClient::EBBeamCaloClient(const ParameterSet& ps) {
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // prefixME path
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -53,7 +49,7 @@ EBBeamCaloClient::EBBeamCaloClient(const ParameterSet& ps) {
   // vector of selected Super Modules (Defaults to all 36).
   superModules_.reserve(36);
   for ( unsigned int i = 1; i <= 36; i++ ) superModules_.push_back(i);
-  superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
+  superModules_ = ps.getUntrackedParameter<std::vector<int> >("superModules", superModules_);
 
   checkedSteps_.reserve(86);
   // there should be not more than a eta row in an autoscan
@@ -103,9 +99,9 @@ EBBeamCaloClient::~EBBeamCaloClient() {
 
 void EBBeamCaloClient::beginJob(void) {
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  if ( debug_ ) cout << "EBBeamCaloClient: beginJob" << endl;
+  if ( debug_ ) std::cout << "EBBeamCaloClient: beginJob" << std::endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -114,7 +110,7 @@ void EBBeamCaloClient::beginJob(void) {
 
 void EBBeamCaloClient::beginRun(void) {
 
-  if ( debug_ ) cout << "EBBeamCaloClient: beginRun" << endl;
+  if ( debug_ ) std::cout << "EBBeamCaloClient: beginRun" << std::endl;
 
   jevt_ = 0;
 
@@ -124,7 +120,7 @@ void EBBeamCaloClient::beginRun(void) {
 
 void EBBeamCaloClient::endJob(void) {
 
-  if ( debug_ ) cout << "EBBeamCaloClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) std::cout << "EBBeamCaloClient: endJob, ievt = " << ievt_ << std::endl;
 
   this->cleanup();
 
@@ -132,7 +128,7 @@ void EBBeamCaloClient::endJob(void) {
 
 void EBBeamCaloClient::endRun(void) {
 
-  if ( debug_ ) cout << "EBBeamCaloClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) std::cout << "EBBeamCaloClient: endRun, jevt = " << jevt_ << std::endl;
 
   this->cleanup();
 
@@ -250,8 +246,8 @@ bool EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
     int ism = superModules_[i];
 
     if ( verbose_ ) {
-      cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-      cout << endl;
+      std::cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << std::endl;
+      std::cout << std::endl;
     }
 
     const float n_min_tot = 1000.;
@@ -292,11 +288,11 @@ bool EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
           if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
             if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-              cout << "CryOnBeam (" << ie << "," << ip << ") " << num01  << endl;
-              cout << "MaxEneCry (" << ie << "," << ip << ") " << num02  << endl;
-              cout << "E1 ("        << ie << "," << ip << ") " << mean01 << endl;
-              cout << endl;
+              std::cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << std::endl;
+              std::cout << "CryOnBeam (" << ie << "," << ip << ") " << num01  << std::endl;
+              std::cout << "MaxEneCry (" << ie << "," << ip << ") " << num02  << std::endl;
+              std::cout << "E1 ("        << ie << "," << ip << ") " << mean01 << std::endl;
+              std::cout << std::endl;
             }
 
           }
@@ -320,11 +316,11 @@ bool EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
   if ( econn ) {
     try {
-      if ( verbose_ ) cout << "Inserting MonOccupancyDat ..." << endl;
+      if ( verbose_ ) std::cout << "Inserting MonOccupancyDat ..." << std::endl;
       if ( dataset.size() != 0 ) econn->insertDataArraySet(&dataset, moniov);
-      if ( verbose_ ) cout << "done." << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
     } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      cerr << e.what() << std::endl;
     }
   }
 
@@ -338,7 +334,7 @@ void EBBeamCaloClient::analyze(void) {
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( debug_ ) cout << "EBBeamCaloClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) std::cout << "EBBeamCaloClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
   char histo[200];

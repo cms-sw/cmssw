@@ -12,7 +12,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcClassed.cc,v 1.2 2007/05/17 15:04:08 saout Exp $
+// $Id: ProcClassed.cc,v 1.3 2007/07/15 22:31:46 saout Exp $
 //
 
 #include "PhysicsTools/MVAComputer/interface/VarProcessor.h"
@@ -63,7 +63,7 @@ void ProcClassed::eval(ValueIterator iter, unsigned int n) const
 {
 	unsigned int value = (unsigned int)(*iter + 0.5);
 
-	for(unsigned int i = 1; i < nClasses; i++)
+	for(unsigned int i = 0; i < nClasses; i++)
 		iter(i == value ? 1.0 : 0.0);
 }
 

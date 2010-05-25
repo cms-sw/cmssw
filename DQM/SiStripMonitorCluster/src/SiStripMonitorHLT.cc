@@ -18,8 +18,6 @@
 #include "DQM/SiStripMonitorCluster/interface/SiStripMonitorHLT.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-using namespace std;
-using namespace edm;
 
 SiStripMonitorHLT::SiStripMonitorHLT(const edm::ParameterSet& iConfig)
 {
@@ -30,7 +28,6 @@ SiStripMonitorHLT::SiStripMonitorHLT(const edm::ParameterSet& iConfig)
 
 
 void SiStripMonitorHLT::beginJob(){
-  using namespace edm;
 
   dqmStore_->setCurrentFolder(HLTDirectory);
   std::string HLTProducer = conf_.getParameter<std::string>("HLTProducer");
@@ -52,15 +49,13 @@ void SiStripMonitorHLT::beginJob(){
 
 void SiStripMonitorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  using namespace edm;
-  using namespace std;
 
   // get from event
-  string HLTProducer = conf_.getParameter<string>("HLTProducer");
-  Handle<int> filter_decision; iEvent.getByLabel(HLTProducer, "", filter_decision); // filter decision
-  Handle<uint> sum_of_clustch; iEvent.getByLabel(HLTProducer, "", sum_of_clustch); // sum of cluster charges
+  std::string HLTProducer = conf_.getParameter<std::string>("HLTProducer");
+  edm::Handle<int> filter_decision; iEvent.getByLabel(HLTProducer, "", filter_decision); // filter decision
+  edm::Handle<uint> sum_of_clustch; iEvent.getByLabel(HLTProducer, "", sum_of_clustch); // sum of cluster charges
   // first element of pair: layer: TIB1, ...., TEC; second element: nr of clusters above threshold
-  Handle<map<uint,vector<SiStripCluster> > > clusters_in_subcomponents;
+  edm::Handle<std::map<uint,std::vector<SiStripCluster> > > clusters_in_subcomponents;
   if(HLTProducer=="ClusterMTCCFilter") iEvent.getByLabel(HLTProducer, "", clusters_in_subcomponents);
 
   // trigger decision
@@ -73,16 +68,16 @@ void SiStripMonitorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup&
   //clusters in different layers
   if(HLTProducer=="ClusterMTCCFilter"){
     // loop over layers ("subcomponents")
-    for(map<uint,vector<SiStripCluster> >::const_iterator it = clusters_in_subcomponents->begin(); it != clusters_in_subcomponents->end(); it++){
+    for(std::map<uint,std::vector<SiStripCluster> >::const_iterator it = clusters_in_subcomponents->begin(); it != clusters_in_subcomponents->end(); it++){
       int generalized_layer = it->first;
-      vector<SiStripCluster> theclusters = it->second;
+      std::vector<SiStripCluster> theclusters = it->second;
       NumberOfClustersAboveThreshold_all->Fill( generalized_layer, theclusters.size() ); // number of clusters in this generalized layer
       if(*filter_decision) NumberOfClustersAboveThreshold_hlt->Fill( generalized_layer, theclusters.size() );
       //loop over clusters (and detids)
-      for(vector<SiStripCluster>::const_iterator icluster = theclusters.begin(); icluster != theclusters.end(); icluster++){
+      for(std::vector<SiStripCluster>::const_iterator icluster = theclusters.begin(); icluster != theclusters.end(); icluster++){
         // calculate sum of amplitudes
         unsigned int amplclus=0;
-        for(vector<uint8_t>::const_iterator ia=icluster->amplitudes().begin(); ia!=icluster->amplitudes().end(); ia++) {
+        for(std::vector<uint8_t>::const_iterator ia=icluster->amplitudes().begin(); ia!=icluster->amplitudes().end(); ia++) {
           if ((*ia)>0) amplclus+=(*ia); // why should this be negative?
         }
         if(generalized_layer==31 || generalized_layer==32 || generalized_layer==33){ // you can also ask the detid here whether is TIB
@@ -103,9 +98,9 @@ void SiStripMonitorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup&
 }
 
 void SiStripMonitorHLT::endJob(void){
-  LogInfo("DQM|SiStripMonitorHLT")<<"Events rejected/accepted "<<HLTDecision->getBinContent(1)<<"/"<<HLTDecision->getBinContent(2);
+  edm::LogInfo("DQM|SiStripMonitorHLT")<<"Events rejected/accepted "<<HLTDecision->getBinContent(1)<<"/"<<HLTDecision->getBinContent(2);
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
-  string outputFileName = conf_.getParameter<string>("OutputFileName");
+  std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
   if(outputMEsInRootFile){
     dqmStore_->save(outputFileName);
   }

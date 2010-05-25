@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedGenerator.cc,v 1.4 2009/06/30 14:24:40 chamont Exp $
+// $Id: ElectronSeedGenerator.cc,v 1.5 2010/01/29 21:15:05 chamont Exp $
 //
 //
 
@@ -58,6 +58,7 @@
 ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset)
   :   dynamicphiroad_(pset.getParameter<bool>("dynamicPhiRoad")),
       fromTrackerSeeds_(pset.getParameter<bool>("fromTrackerSeeds")),
+      beamSpotTag_("offlineBeamSpot"),
       lowPtThreshold_(pset.getParameter<double>("LowPtThreshold")),
       highPtThreshold_(pset.getParameter<double>("HighPtThreshold")),
       nSigmasDeltaZ1_(pset.getParameter<double>("nSigmasDeltaZ1")),
@@ -72,8 +73,11 @@ ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset)
       theSetup(0), pts_(0),
       cacheIDMagField_(0),/*cacheIDGeom_(0),*/cacheIDNavSchool_(0),cacheIDCkfComp_(0),cacheIDTrkGeom_(0)
 {
-     // Instantiate the pixel hit matchers
+  // new beamSpot tag
+  if (pset.exists("beamSpot"))
+   { beamSpotTag_ = pset.getParameter<edm::InputTag>("beamSpot") ; }
 
+  // Instantiate the pixel hit matchers
   myMatchEle = new PixelHitMatcher( pset.getParameter<double>("ePhiMin1"),
 				    pset.getParameter<double>("ePhiMax1"),
 				    pset.getParameter<double>("PhiMin2"),
@@ -166,8 +170,8 @@ void  ElectronSeedGenerator::run(edm::Event& e, const edm::EventSetup& setup, co
   // get initial TrajectorySeeds if necessary
   //  if (fromTrackerSeeds_) e.getByLabel(initialSeeds_, theInitialSeedColl);
 
-  // get the beamspot from the Event:
-  e.getByType(theBeamSpot);
+  //e.getByType(theBeamSpot);
+  e.getByLabel(beamSpotTag_,theBeamSpot);
 
   // define 1st z window
   double sigmaZ=theBeamSpot->sigmaZ();

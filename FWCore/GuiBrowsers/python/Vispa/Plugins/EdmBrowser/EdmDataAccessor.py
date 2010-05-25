@@ -377,7 +377,7 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
         logging.debug(__name__ + ": readObjectsRecursive (levels="+str(levels)+"): "+label)
         # save object information
         if not id(edmobject) in self._edmLabel.keys():
-            if not type(edmobject) in (int,float,long,complex,str,unicode,bool):
+            if not isinstance(edmobject,(int,float,long,complex,str,unicode,bool)):
                 # override comparison operator of object
                 try:
                     type(edmobject).__eq__=eq
@@ -434,10 +434,13 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
                 self._events.getByLabel(object.branchtuple[2],object.branchtuple[3],object.branchtuple[4],object.branchtuple[1])
                 if object.branchtuple[1].isValid():
                     product=object.branchtuple[1].product()
-                    if not type(product) in (int,float,long,complex,str,unicode,bool):
+                    if not isinstance(product,(int,float,long,complex,str,unicode,bool)):
                         # override comparison operator of object
-                        type(product).__eq__=eq
-                        type(product).__ne__=ne
+                        try:
+                            type(product).__eq__=eq
+                            type(product).__ne__=ne
+                        except:
+                            pass
                     self._dataObjects.insert(self._dataObjects.index(object),product)
                     self._dataObjects.remove(object)
                     self._edmLabel[id(product)]=object.branchtuple[0]
@@ -445,7 +448,7 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
                     object=product
                 else:
                     self._edmChildrenObjects[id(object)]=[("ERROR","ERROR: Branch is not valid.",False,True)]
-                    logging.warning("Branch is not valid: "+object.branchtuple[0]+".")
+                    logging.info("Branch is not valid: "+object.branchtuple[0]+".")
                     object.invalid=True
                     return object
             except Exception, e:

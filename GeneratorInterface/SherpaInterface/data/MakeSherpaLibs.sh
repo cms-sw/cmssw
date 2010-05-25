@@ -6,8 +6,8 @@
 #  uses:        the required SHERPA data cards (+ libraries) [see below]
 #
 #  author:      Markus Merschmeyer, RWTH Aachen
-#  date:        2009/07/20
-#  version:     2.8
+#  date:        2009/01/14
+#  version:     2.7
 #
 
 
@@ -18,9 +18,9 @@
 
 print_help() {
     echo "" && \
-    echo "MakeSherpaLibs version 2.8" && echo && \
-    echo "options: -d  path       (optional) path to your SHERPA installation (otherwise the SHERPA" && \
-    echo "                         package belonging to the release under '\$CMSSW_BASE' is used)" && \
+    echo "MakeSherpaLibs version 2.7" && echo && \
+    echo "options: -d  path       path to your SHERPA installation OR '\$CMSSW_BASE'" && \
+    echo "                         (if you want to use the SHERPA package of that release)" && \
     echo "                         -> ( "${shr}" )" && \
     echo "         -i  path       path to SHERPA datacard (and library, see -o) files" && \
     echo "                         -> ( "${inc}" )" && \
@@ -146,7 +146,6 @@ shr=${HDIR}/SHERPA-MC-1.1.2        # path to SHERPA installation
 scrloc=`which scramv1 &> tmp.tmp; cat tmp.tmp | cut -f1 -d"/"; rm tmp.tmp`
 if [ "${scrloc}" = "" ]; then
   shr=`scramv1 tool info sherpa | grep "SHERPA_BASE" | cut -f2 -d"="`
-  shrinit=$shr
 fi
 pth="TMP"                          # name of SHERPA data card directory
 prc="XXX"                          # SHERPA process name
@@ -191,9 +190,21 @@ cd ${inc} && inc=`pwd`; cd ${HDIR}
 cd ${fin} && fin=`pwd`; cd ${HDIR}
 
 # test whether to take $shr from CMSSW installation
-if [ ! "$CMSSW_BASE" = "" ] && [ "$shr" = "$shrinit" ]; then
+mmtmp="xxx"
+mmcnt=1
+while [ ! "${mmtmp}" = "" ]; do
+  let mmcnt=$mmcnt+1
+  mmtmp=`echo ${shr} | cut -f ${mmcnt} -d "/"`
+#  echo "mmtmp: "$mmtmp
+#  echo "mmcnt: "$mmcnt
+done
+let mmcnt=$mmcnt-1
+mmtmp=`echo ${shr} | cut -f ${mmcnt} -d "/"`
+#echo "final mmtmp: "$mmtmp
+#echo "final mmcnt: "$mmcnt
+if [ `echo ${mmtmp} | grep -c "CMSSW_"` -gt 0 ]; then
   newshr=""
-  cd $CMSSW_BASE &&
+  cd ${shr} &&
   newshr=`scramv1 tool info sherpa | grep BASE | cut -f 2 -d "="`
   if [ "${newshr}" = "" ]; then
     echo " <E> no 'sherpa' tool defined in CMSSW, are you sure that"
@@ -202,13 +213,12 @@ if [ ! "$CMSSW_BASE" = "" ] && [ "$shr" = "$shrinit" ]; then
     echo " <E>  3. there exists a SHERPA package in your CMSSW ?"
     exit 0
   fi
-  shr=${newshr}
+  if [ "${SHERPA_SHARE_PATH=$}"   = "" ]; then export SHERPA_SHARE_PATH=${newshr}/share/SHERPA-MC;     fi
+  if [ "${SHERPA_INCLUDE_PATH=$}" = "" ]; then export SHERPA_INCLUDE_PATH=${newshr}/include/SHERPA-MC; fi
+  if [ "${SHERPA_LIBRARY_PATH=$}" = "" ]; then export SHERPA_LIBRARY_PATH=${newshr}/lib/SHERPA-MC;     fi
   cd ${HDIR}
+  shr=${newshr}
 fi
-if [ "${SHERPA_SHARE_PATH}"   = "" ]; then export SHERPA_SHARE_PATH=${shr}/share/SHERPA-MC;     fi
-if [ "${SHERPA_INCLUDE_PATH}" = "" ]; then export SHERPA_INCLUDE_PATH=${shr}/include/SHERPA-MC; fi
-if [ "${SHERPA_LIBRARY_PATH}" = "" ]; then export SHERPA_LIBRARY_PATH=${shr}/lib/SHERPA-MC;     fi
-
 
 # find 'Run' directory
 shrun=${HDIR}/SHERPATMP
@@ -269,7 +279,7 @@ logefile=${outflbs}_logE.tgz              # output messages (-> from event gener
 #
 dir1="Process"                            # SHERPA process directory name
 dir2="Result"                             # SHERPA results directory name
-dir3="Analysis"                           # SHERPA analysis directory name
+
 
 ### clean up existing xsection files
 for FILE in `ls xsections_*.dat 2> /dev/null`; do
@@ -288,9 +298,7 @@ else
   echo "  -> creating path '"${pth}"'"
   mkdir ${pth}
 fi
-#MM() pth="./"$pth
 cd ${pth}
-#MM() pth=`pwd`
 
 
 ### get data card (+ library) tarball(s) from include path
@@ -396,13 +404,7 @@ fi
 ## second pass (save integration results)
 if [ "${lbo}" = "LBCR" ] || [ "${lbo}" = "CRSS" ]; then
   echo " <I> calculating cross sections..."
-  ${sherpaexe} "PATH="${pth} "RESULT_DIRECTORY="${dir2} 1>${shrun}/${outflbs}_pass2.out 2>${shrun}/${outflbs}_pass2.err
-#  ${sherpaexe} -p ${pth} -g -r ${pth}/${dir2} 1>${shrun}/${outflbs}_pass2.out 2>${shrun}/${outflbs}_pass2.err
-  if [ -d ${dir3} ]; then
-    mv ${dir3} ${pth}/
-  else
-    mkdir ${pth}/${dir3}
-  fi
+  ${sherpaexe} "PATH="${pth} "RESULT_DIRECTORY="${pth}/${dir2} 1>${shrun}/${outflbs}_pass2.out 2>${shrun}/${outflbs}_pass2.err
 fi
 ## third pass (event generation)
 if [ "${lbo}" = "EVTS" ]; then
@@ -413,77 +415,58 @@ fi
 
 ## generate tar balls with data cards, libraries, cross sections, events
 cd ${shrun}/${pth}
-#MM() cd ${pth}
 
-#if [ "${lbo}" = "LBCR" ] || [ "${lbo}" = "CRSS" ]; then
-#  mv ../Weights*.*      ./${dir2}/
-#  mv ../xsections_*.dat ./${dir2}/
-#fi
+if [ "${lbo}" = "LBCR" ] || [ "${lbo}" = "CRSS" ]; then
+  mv ../Weights*.*      ./${dir2}/
+  mv ../xsections_*.dat ./${dir2}/
+fi
 
 ## libraries & cross sections
 if [ "${lbo}" = "LIBS" ]; then
-  find ./${dir1}/lib/ -name '*.*' -exec md5sum {} \; > ${libsmd5s}
-  touch ${libsfile}.tmp
-  find ./         -name '*.md5' > tmp.lst && tar --no-recursion -rf ${libsfile}.tmp -T tmp.lst; rm tmp.lst
-  find ./${dir1}/ -name '*'     > tmp.lst && tar --no-recursion -rf ${libsfile}.tmp -T tmp.lst; rm tmp.lst
-  gzip -9 ${libsfile}.tmp && mv ${libsfile}.tmp.gz ${libsfile}
+  md5sum ${dir1}/lib/*.* > ${libsmd5s}
+  tar -czf ${libsfile} *.md5 ${dir1}/*
   md5sum ${libsfile} > ${libfmd5s}
   mv ${libsfile} ${shrun}/
 elif [ "${lbo}" = "LBCR" ]; then
-  find ./${dir1}/lib/ -name '*.*' -exec md5sum {} \; > ${libsmd5s}
-  touch ${libsfile}.tmp
-  find ./         -name '*.md5' > tmp.lst && tar --no-recursion -rf ${libsfile}.tmp -T tmp.lst; rm tmp.lst
-  find ./${dir1}/ -name '*'     > tmp.lst && tar --no-recursion -rf ${libsfile}.tmp -T tmp.lst; rm tmp.lst
-  gzip -9 ${libsfile}.tmp && mv ${libsfile}.tmp.gz ${libsfile}
+  md5sum ${dir1}/lib/*.* > ${libsmd5s}
+  tar -czf ${libsfile} *.md5 ${dir1}/*
   md5sum ${libsfile} > ${libfmd5s}
-  find ./${dir2}/ -name '*.*' -exec md5sum {} \; > ${crssmd5s}
-  touch ${crssfile}.tmp
-  find ./         -name '*.md5' > tmp.lst && tar --no-recursion -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
-  find ./${dir2}/ -name '*'     > tmp.lst && tar --no-recursion -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
-  if [ -e ${dir3} ]; then
-  find ./${dir3}/ -name '*'     > tmp.lst && tar --no-recursion -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
-  fi
-  gzip -9 ${crssfile}.tmp && mv ${crssfile}.tmp.gz ${crssfile}
+  md5sum ${dir2}/*.* > ${crssmd5s}
+  tar -czf ${crssfile} *.md5 ${dir2}/*
   md5sum ${crssfile} > ${crsfmd5s}
   mv ${libsfile} ${shrun}/
   mv ${crssfile} ${shrun}/
 elif [ "${lbo}" = "CRSS" ]; then
-  find ./${dir1}/lib/ -name '*.*' -exec md5sum {} \; > ${libsmd5s}
+  md5sum ${dir1}/lib/*.* > ${libsmd5s}
   md5sum ${libsfile} > ${libfmd5s}
   rm ${libsfile}
-  find ${dir2}/ -name '*.*' -exec md5sum {} \; > ${crssmd5s}
-  touch ${crssfile}.tmp
-  find ./         -name '*.md5' > tmp.lst && tar --no-recursion -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
-  find ./${dir2}/ -name '*'     > tmp.lst && tar --no-recursion -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
-  if [ -e ${dir3} ]; then
-  find ./${dir3}/ -name '*'     > tmp.lst && tar --no-recursion -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
-  fi
-  gzip -9 ${crssfile}.tmp && mv ${crssfile}.tmp.gz ${crssfile}
+  md5sum ${dir2}/*.* > ${crssmd5s}
+  tar -czf ${crssfile} *.md5 ${dir2}/*
   md5sum ${crssfile} > ${crsfmd5s}
   mv ${crssfile} ${shrun}/
 elif [ "${lbo}" = "EVTS" ]; then
-  find ./${dir1}/lib/ -name '*.*' -exec md5sum {} \; > ${libsmd5s}
+  md5sum ${dir1}/lib/*.* > ${libsmd5s}
   md5sum ${libsfile} > ${libfmd5s}
   rm ${libsfile}
-  find ./${dir2}/ -name '*.*' -exec md5sum {} \; > ${crssmd5s}
+  md5sum ${dir2}/*.* > ${crssmd5s}
   md5sum ${crssfile} > ${crsfmd5s}
   rm ${crssfile}
   md5sum *.*         > ${evtsmd5s}
+#  tar -czf ${evtsfile} *.md5 *.*
   tar -czf ${evtsfile} *.*
   md5sum ${evtsfile} > ${evtfmd5s}
   mv ${evtsfile} ${shrun}/
 fi
 #rm -rf ${dir1}/*
 #rm -rf ${dir2}/*
-#rm -rf ${dir3}/*
 #rm *.md5
 
 ## data cards
 touch ${crdsmd5s}
-for FILE in `ls *.dat *slha.out 2> /dev/null`; do
+for FILE in `ls *.dat *.slha 2> /dev/null`; do
   md5sum ${FILE} >> ${crdsmd5s}
 done
-FILES=`ls *.md5 *.dat *slha.out 2> /dev/null`
+FILES=`ls *.md5 *.dat *.slha 2> /dev/null`
 if [ "${lbo}" = "LIBS" ]; then
 #  tar -czf ${crdlfile} ${FILES}
 #  md5sum ${crdlfile} > ${crdfmd5s}

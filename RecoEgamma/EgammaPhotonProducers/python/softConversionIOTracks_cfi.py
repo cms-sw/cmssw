@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 from TrackingTools.KalmanUpdators.KFUpdatorESProducer_cfi import *
 from RecoEgamma.EgammaPhotonProducers.propAlongMomentumWithMaterialForElectrons_cfi import *
 from RecoEgamma.EgammaPhotonProducers.KFFittingSmootherForInOut_cfi import *
-softConversionIOTracks = cms.EDFilter("TrackProducerWithSCAssociation",
+softConversionIOTracks = cms.EDProducer("TrackProducerWithSCAssociation",
     src = cms.InputTag("softConversionTrackCandidates","softIOTrackCandidates"),
     recoTrackSCAssociationCollection = cms.string('inOutTrackClusterAssociationCollection'),
     producer = cms.string('softConversionTrackCandidates'),

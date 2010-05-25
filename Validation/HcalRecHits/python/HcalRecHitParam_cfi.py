@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
+hcalRecoAnalyzer = cms.EDFilter("HcalRecHitsValidation",
     outputFile = cms.untracked.string(''),
     eventype = cms.untracked.string('single'),
     mc = cms.untracked.string('yes'),

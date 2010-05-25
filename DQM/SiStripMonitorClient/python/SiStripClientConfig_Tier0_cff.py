@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #  SiStripOfflineDQM (for Tier0 Harvesting Step) ####
-siStripOfflineAnalyser = cms.EDFilter("SiStripOfflineDQM",
+siStripOfflineAnalyser = cms.EDAnalyzer("SiStripOfflineDQM",
     GlobalStatusFilling      = cms.untracked.int32(2),
     CreateSummary            = cms.untracked.bool(False),
     SummaryConfigPath        = cms.untracked.string("DQM/SiStripMonitorClient/data/sistrip_monitorelement_config.xml"),
@@ -10,7 +10,7 @@ siStripOfflineAnalyser = cms.EDFilter("SiStripOfflineDQM",
     CreateTkMap              = cms.untracked.bool(False) 
 )
 
-siStripQTester = cms.EDFilter("QualityTester",
+siStripQTester = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/SiStripMonitorClient/data/sistrip_qualitytest_config_tier0.xml'),
     prescaleFactor = cms.untracked.int32(1),                               
     getQualityTestsFromFile = cms.untracked.bool(True)

@@ -42,7 +42,6 @@ options.parseArguments()
 
 # Generate dummy L1TriggerKey and L1TriggerKeyList
 process.load("CondTools.L1Trigger.L1TriggerKeyDummy_cff")
-process.load("CondTools.L1Trigger.L1TriggerKeyListDummy_cff")
 
 # Input DB
 from CondTools.L1Trigger.L1CondDBSource_cff import initCondDBSource
@@ -59,6 +58,7 @@ initPayloadWriter( process,
                    outputDBConnect = options.outputDBConnect,
                    outputDBAuth = options.outputDBAuth,
                    tagBase = options.tagBase )
+process.L1CondDBPayloadWriter.newL1TriggerKeyList = True
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)

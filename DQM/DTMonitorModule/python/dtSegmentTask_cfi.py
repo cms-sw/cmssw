@@ -12,7 +12,7 @@ dtSegmentAnalysisMonitor = cms.EDAnalyzer("DTSegmentAnalysisTask",
                                           # # of bins in the time histos
                                           nTimeBins = cms.untracked.int32(100),
                                           # # of LS per bin in the time histos
-                                          nLSTimeBin = cms.untracked.int32(5),
+                                          nLSTimeBin = cms.untracked.int32(15),
                                           # switch on/off sliding bins in time histos
                                           slideTimeBins = cms.untracked.bool(True),
                                           # top folder for the histograms in DQMStore

@@ -25,6 +25,7 @@ RPCDeadChannelTest::RPCDeadChannelTest(const ParameterSet& ps ){
   globalFolder_ = ps.getUntrackedParameter<string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms");
   prescaleFactor_ = ps.getUntrackedParameter<int>("DiagnosticPrescale", 1);
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
+  numberOfRings_ = ps.getUntrackedParameter<int>("NumberOfEndcapRings", 2);
 }
 
 RPCDeadChannelTest::~RPCDeadChannelTest(){dbe_ = 0;}
@@ -72,20 +73,18 @@ void RPCDeadChannelTest::endRun(const Run& r, const EventSetup& iSetup,vector<Mo
    if (i>0) offset --; //used to skip case equale to zero
   
    histoName.str("");
-   histoName<<"DeadChannelFraction_Roll_vs_Sector_Disk"<<i;
+   histoName<<"DeadChannelFraction_Ring_vs_Segment_Disk"<<i;
    me = 0;
    me = dbe_->get(globalFolder_ +"/"+ histoName.str());
    if (0!=me ) {
      dbe_->removeElement(me->getName());
    }
   
-   DEADDisk[i+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(), 6, 0.5, 6.5, 54, 0.5, 54.5);
+   DEADDisk[i+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5);
    
-   for (int x = 1; x<=6; x++)
-     for(int y=1; y<=54; y++)
-       DEADDisk[i+offset]->setBinContent(x,y,-1);
-   rpcUtils.labelXAxisSector( DEADDisk[i+offset]);
-   rpcUtils.labelYAxisRoll( DEADDisk[i+offset], 1, i);
+   rpcUtils.labelXAxisSegment(DEADDisk[i+offset]);
+   rpcUtils.labelYAxisRing(DEADDisk[i+offset], numberOfRings_);
+
   
  }//end loop on wheels and disks
 
@@ -155,21 +154,35 @@ void  RPCDeadChannelTest::CalculateDeadChannelPercentage(RPCDetId & detId, Monit
      
      if (detId.region()==0)   DEAD = DEADWheel[detId.ring() + 2] ;
      else{
-       if(((detId.station() * detId.region() ) + numberOfDisks_) >= 0 ){
+       if(-detId.station()+ numberOfDisks_ >= 0 ){
 	 
 	 if(detId.region()<0){
-	   DEAD  = DEADDisk[(detId.station() * detId.region() ) + numberOfDisks_];
+	   DEAD  = DEADDisk[-detId.station() + numberOfDisks_];
 	 }else{
-	   DEAD = DEADDisk[(detId.station() * detId.region() ) + numberOfDisks_-1];
+	   DEAD = DEADDisk[detId.station() + numberOfDisks_-1];
 	 }
        }
      }
-     
+
      if (DEAD){
-       rpcdqm::utils rollNumber;
-       int nr = rollNumber.detId2RollNr(detId);
-       DEAD->setBinContent(detId.sector(),nr, (float)badChannels.size()/nstrips );
+       int xBin,yBin;
+       if(detId.region()==0){//Barrel
+	 xBin= detId.sector();
+	 rpcdqm::utils rollNumber;
+	 yBin = rollNumber.detId2RollNr(detId);
+       }else{//Endcap
+	 //get segment number
+	 RPCGeomServ RPCServ(detId);
+	 xBin = RPCServ.segment();
+	 (numberOfRings_ == 3 ? yBin= detId.ring()*3-detId.roll()+1 : yBin= (detId.ring()-1)*3-detId.roll()+1);
      }
+       DEAD->setBinContent(xBin,yBin, (float)badChannels.size()/nstrips );
+
+     }
+
+
+     
+ 
    }
 }
 

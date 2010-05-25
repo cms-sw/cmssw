@@ -48,7 +48,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 
 
@@ -83,6 +83,9 @@ namespace cms
     PixelClusterizerBase * clusterizer_;    // what we got (for now, one ptr to base class)
     bool readyToCluster_;                   // needed clusterizers valid => good to go!
     edm::InputTag src_;
+
+    //! Optional limit on the total number of clusters
+    int32_t maxTotalClusters_;
   };
 }
 

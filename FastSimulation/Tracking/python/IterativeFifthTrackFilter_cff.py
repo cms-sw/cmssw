@@ -18,7 +18,7 @@ d0_par2 = ( 1.2, 4.0 ),
 dz_par2 = ( 1.1, 4.0 )
 )
 
-fifthfilter = cms.EDFilter("QualityFilter",
+fifthfilter = cms.EDProducer("QualityFilter",
     TrackQuality = cms.string('highPurity'),
     recTracks = cms.InputTag("fifthStep")
 )

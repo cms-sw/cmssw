@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -20,15 +21,11 @@
 
 #include "DQM/EcalEndcapMonitorTasks/interface/EEDaqInfoTask.h"
 
-using namespace cms;
-using namespace edm;
-using namespace std;
+EEDaqInfoTask::EEDaqInfoTask(const edm::ParameterSet& ps) {
 
-EEDaqInfoTask::EEDaqInfoTask(const ParameterSet& ps) {
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  dqmStore_ = Service<DQMStore>().operator->();
-
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -154,7 +151,7 @@ void EEDaqInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
     
   } else {
     
-    LogWarning("EEDaqInfoTask") << "Cannot find any RunInfoRcd" << endl;
+    edm::LogWarning("EEDaqInfoTask") << "Cannot find any edm::RunInfoRcd";
     
   }
 
@@ -197,6 +194,6 @@ void EEDaqInfoTask::cleanup(void){
 
 }
 
-void EEDaqInfoTask::analyze(const Event& e, const EventSetup& c){ 
+void EEDaqInfoTask::analyze(const edm::Event& e, const edm::EventSetup& c){ 
 
 }

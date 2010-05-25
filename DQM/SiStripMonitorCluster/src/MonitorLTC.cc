@@ -18,9 +18,6 @@
 
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
 
-using namespace std;
-using namespace edm;
-
 MonitorLTC::MonitorLTC(const edm::ParameterSet& iConfig)
 {
   HLTDirectory="HLTResults";
@@ -30,7 +27,6 @@ MonitorLTC::MonitorLTC(const edm::ParameterSet& iConfig)
 
 
 void MonitorLTC::beginJob(){
-  using namespace edm;
   dqmStore_->setCurrentFolder(HLTDirectory);
   // 0 DT
   // 1 CSC
@@ -94,7 +90,7 @@ void MonitorLTC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
 void MonitorLTC::endJob(void){
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
-  string outputFileName = conf_.getParameter<string>("OutputFileName");
+  std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
   if(outputMEsInRootFile){
     dqmStore_->save(outputFileName);
   }

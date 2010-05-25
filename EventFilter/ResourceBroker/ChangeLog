@@ -1,3 +1,39 @@
+2010-04-28  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-15-03
+	* adjust shift of rack id to fit it in 16 bits
+	
+2010-04-27  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-15-02
+	* remove more printout
+	
+2010-04-27  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-15-01
+	* remove printout causing compilation warnings 
+	
+2010-04-26  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-15-00
+	* addition and filling of EvF pseudo-fed 
+	* small change in rt timeout logic to try and fix timeouts
+
+2010-04-06  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-14-01
+	* some fixes for handling of corrupted FED data
+	
+2010-03-05  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-14-00
+	* more fixes for DQM event accounting
+
+2010-02-15  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-13-04
+	* fixes to make sure all DQM messages are sent before stop
+	
 2010-01-20  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V00-13-03

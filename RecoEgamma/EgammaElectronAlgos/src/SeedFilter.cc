@@ -43,7 +43,9 @@
 using namespace std;
 using namespace reco;
 
-SeedFilter::SeedFilter(const edm::ParameterSet& conf) {
+SeedFilter::SeedFilter(const edm::ParameterSet& conf)
+ : beamSpotTag_("offlineBeamSpot")
+ {
 
   edm::LogInfo ("EtaPhiRegionSeedFactory") << "Enter the EtaPhiRegionSeedFactory";
   edm::ParameterSet regionPSet = conf.getParameter<edm::ParameterSet>("RegionPSet");
@@ -71,6 +73,11 @@ SeedFilter::SeedFilter(const edm::ParameterSet& conf) {
 
   // start seed generator
   combinatorialSeedGenerator = new SeedGeneratorFromRegionHits(hitsGenerator,0,new SeedFromConsecutiveHitsCreator());
+
+  // new beamSpot tag
+  if (conf.exists("beamSpot"))
+   { beamSpotTag_ = conf.getParameter<edm::InputTag>("beamSpot") ; }
+
 }
 
 SeedFilter::~SeedFilter() {
@@ -112,7 +119,8 @@ void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::
 
   } else {
     edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-    e.getByType(recoBeamSpotHandle);
+    //e.getByType(recoBeamSpotHandle);
+    e.getByLabel(beamSpotTag_,recoBeamSpotHandle);
     // gets its position
     const reco::BeamSpot::Point& BSPosition = recoBeamSpotHandle->position();
     double sigmaZ = recoBeamSpotHandle->sigmaZ();

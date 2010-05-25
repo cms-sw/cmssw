@@ -26,9 +26,9 @@ RPCDCSSummary::RPCDCSSummary(const ParameterSet& ps) {
 
 RPCDCSSummary::~RPCDCSSummary() {}
 
-void RPCDCSSummary::beginJob(const EventSetup& setup){
+void RPCDCSSummary::beginJob() {}
 
-
+void RPCDCSSummary::beginRun(const edm::Run& r, const edm::EventSetup& setup){
  edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
 
  int defaultValue = 1;

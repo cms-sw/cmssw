@@ -16,21 +16,22 @@
 #include "TrackingTools/IPTools/interface/IPTools.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "RecoTauTag/RecoTau/interface/PFRecoTauAlgorithmBase.h"
 
 using namespace std;
 using namespace reco;
 using namespace edm;
 
-class  PFRecoTauAlgorithm  : public PFRecoTauAlgorithmBase {
+class  PFRecoTauAlgorithm  {
  public:
   PFRecoTauAlgorithm();
   PFRecoTauAlgorithm(const ParameterSet&);
   ~PFRecoTauAlgorithm(){}
+  void setTransientTrackBuilder(const TransientTrackBuilder*);
   
   // PFRecTrackCollection: Temporary until integrated to PFCandidate
   PFTau buildPFTau(const PFTauTagInfoRef&,const Vertex&); 
  private:
+  const TransientTrackBuilder* TransientTrackBuilder_;
   bool checkPos(std::vector<math::XYZPoint>,math::XYZPoint) const;
 
   double   LeadPFCand_minPt_;
