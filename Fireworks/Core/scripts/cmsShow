@@ -27,17 +27,18 @@ if [ ! -n "$SHELLFROMRELEASE" ]; then
   export PATH=${ROOTSYS}/bin:$PATH
 fi
 
-# NOTE: the shift command at the end of the while loop removes entries from $@
-# so need to cache its value
-originalOptions=$@
+# We store in originalOptions all the options that need to be passed to the
+# actual cmsShow.exe executable but not those that are specific for the wrapper
+# file itself.
 while [ $# -gt 0 ]
 do
     case "$1" in
-      --soft)  softflag=on;;
+      --soft)  softflag=on ; originalOptions="${originalOptions} --soft";;
       -d|--debug) debugflag=on;;
       -di|--debug-interactive) debuginteractiveflag=on;;
       --eve|--prompt) originalOptions="${originalOptions} -r";;
-      -r|--root-interactive) rootflag=on;;
+      -r|--root-interactive) rootflag=on; originalOptions="${originalOptions} -r";;
+      *) originalOptions="$originalOptions $1";;
     esac
     shift
 done
@@ -65,6 +66,7 @@ if [ "X$debugflag" = Xon ] ; then
    rm -f $tmpfile
    echo "Crash report saved to '$creport'."
 elif [ "X$debuginteractiveflag" = Xon ] ; then
+  echo $originalOptions
   gdb --args $SHELLDIR/cmsShow.exe $originalOptions
 else
    $SHELLDIR/cmsShow.exe $originalOptions
