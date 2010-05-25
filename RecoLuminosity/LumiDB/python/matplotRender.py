@@ -24,7 +24,24 @@ class matplotRender():
     def __init__(self,fig):
         self.__fig=fig
         self.__canvas=''
-    
+    def plotX_Run(self,xdata,ydata):
+        ax=self.__fig.add_subplot(111)
+        ax.set_xlabel(r'Run')
+        ax.set_ylabel(r'Luminosity $\mu$b$^{-1}$')
+        xticklabels=ax.get_xticklabels()
+        for tx in xticklabels:
+            tx.set_rotation(30)
+        majorLocator=matplotlib.ticker.MultipleLocator( (max(xdata)-min(xdata))/10 )
+        majorFormatter=matplotlib.ticker.FormatStrFormatter('%d')
+        minorLocator=matplotlib.ticker.MultipleLocator(5)
+        ax.xaxis.set_major_locator(majorLocator)
+        ax.xaxis.set_major_formatter(majorFormatter)
+        ax.xaxis.set_minor_locator(minorLocator)
+        ax.grid(True)
+        for ylabel,yvalue in ydata.items():
+            ax.plot(xdata,yvalue,label=ylabel)
+        ax.legend(tuple(ydata.keys()),loc='upper left')
+        self.__fig.subplots_adjust(bottom=0.18,left=0.18)
     def drawHTTPstring(self):
         self.__canvas=CanvasBackend(self.__fig)    
         cherrypy.response.headers['Content-Type']='image/png'
