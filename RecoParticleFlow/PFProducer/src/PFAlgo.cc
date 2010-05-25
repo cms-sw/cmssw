@@ -151,13 +151,16 @@ PFAlgo::setPFMuonAndFakeParameters(std::vector<double> muonHCAL,
 				   std::vector<double> muonECAL,
 				   double nSigmaTRACK,
 				   double ptError,
-				   std::vector<double> factors45) 
+				   std::vector<double> factors45,
+				   bool usePFMuonMomAssign) 
 {
   muonHCAL_ = muonHCAL;
   muonECAL_ = muonECAL;
   nSigmaTRACK_ = nSigmaTRACK;
   ptError_ = ptError;
   factors45_ = factors45;
+  usePFMuonMomAssign_ = usePFMuonMomAssign;
+  cout<<" usePFMuonMomAssign "<<usePFMuonMomAssign<<endl;
 }
   
 void 
@@ -1707,7 +1710,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	      std::cout << "\tElement  " << elements[iTrack] << std::endl 
 			<< "PFAlgo: particle type set to muon (global, loose)" <<"muon pT "<<elements[it->second.first].muonRef()->pt()<<std::endl; 
 	      PFMuonAlgo::printMuonProperties(elements[it->second.first].muonRef());
-	    }
+	      }
 	  }
 	  else{
 	    if (debug_){
@@ -2645,7 +2648,7 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
 	else if(thisIsAnIsolatedMuon) cout << "PFAlgo: particle type set to muon (isolated), pT = " <<muonRef->pt()<< endl; 
 	else cout<<" problem with muon assignment "<<endl;
 	PFMuonAlgo::printMuonProperties( muonRef );
-      }
+	}
     }
   }  
 
