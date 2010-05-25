@@ -23,7 +23,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 # Muon filter
 process.goodMuons = cms.EDFilter("MuonSelector",
   src = cms.InputTag("muons"),
-  cut = cms.string('pt > 15.0 && ( isGlobalMuon=1 || (isTrackerMuon =1  && numberOfMatches>=1 ))'),
+  cut = cms.string('pt > 15.0 && ( isGlobalMuon=1 || isTrackerMuon=1)'),
   filter = cms.bool(True)
 )
 
