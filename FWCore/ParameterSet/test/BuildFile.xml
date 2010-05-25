@@ -9,3 +9,8 @@
   <use   name="DataFormats/Provenance"/>
   <use   name="boost"/>
 </bin>
+<bin file="TestFWCoreParameterSetDriver.cpp"> 
+  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/ParameterSet/test runPythonTests.sh"/>
+  <use name="FWCore/Utilities"/>
+</bin>
+
