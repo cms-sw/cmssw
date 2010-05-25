@@ -15,7 +15,10 @@ void fixcolz(){
 void fixcolzRange(TH1* h){
   double xmin = h->GetMinimum(0);
   double xmax = h->GetMaximum();
-  h->GetZaxis()->SetRangeUser(xmin, xmax);
+  double eps = 1.e-9;
+  if(xmax-xmin > eps){
+    h->GetZaxis()->SetRangeUser(xmin, xmax);
+  }
 }
 
 /** Macro to plot histograms produce by the EcalSelectiveReadoutValidation package
@@ -168,6 +171,7 @@ struct Plot{
     plotAndSave("hEeFROCnt", ext, "", true);
     plotAndSave("hFROCnt", ext);
     plotAndSave("hIncompleteFROMap", ext, "colz", false, true, 1);
+    plotAndSave("hIncompleteFRORateMap", ext, "colz", false, true, 1);
     plotAndSave("hSRAlgoErrorMap", ext, "colz", false, false, 1);
 
 
