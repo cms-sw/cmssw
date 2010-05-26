@@ -86,9 +86,6 @@ def customisePPData(process):
     ##Preshower
     process.ecalPreshowerRecHit.ESBaseline = 0
 
-    ##Preshower algo for data is different than for MC
-    process.ecalPreshowerRecHit.ESRecoAlgo = 1
-
     return process
 
 
@@ -102,7 +99,6 @@ def customisePPMC(process):
 ##############################################################################
 def customiseCosmicData(process):
     process.ecalPreshowerRecHit.ESBaseline = 0
-    process.ecalPreshowerRecHit.ESRecoAlgo = 1
     
     return process
 

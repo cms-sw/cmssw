@@ -60,9 +60,6 @@ def customise(process):
     ##Preshower
     process.ecalPreshowerRecHit.ESBaseline = 0
 
-    ##Preshower algo for data is different than for MC
-    process.ecalPreshowerRecHit.ESRecoAlgo = 1
-
     ## HCAL temporary fixes
     process.hfreco.firstSample  = 3
     process.hfreco.samplesToAdd = 4
