@@ -80,9 +80,6 @@ def customisePPData(process):
     process= customiseCommon(process)
     process.hfreco.firstSample=3
 
-    ##Preshower algo for data is different than for MC
-    process.ecalPreshowerRecHit.ESRecoAlgo = cms.int32(1)
-
     ## particle flow HF cleaning
     process.particleFlowRecHitHCAL.LongShortFibre_Cut = 30.
     
@@ -98,8 +95,7 @@ def customisePPMC(process):
 
 ##############################################################################
 def customiseCosmicData(process):
-    process.ecalPreshowerRecHit.ESRecoAlgo = cms.int32(1)
-    
+
     return process
 
 ##############################################################################

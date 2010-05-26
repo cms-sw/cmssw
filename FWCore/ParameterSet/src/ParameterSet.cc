@@ -96,6 +96,27 @@ namespace edm {
 
   ParameterSet::~ParameterSet() {}
 
+  ParameterSet::ParameterSet(ParameterSet const& other)
+  : tbl_(other.tbl_),
+    psetTable_(other.psetTable_),
+    vpsetTable_(other.vpsetTable_),
+    id_(other.id_)
+  {
+  }
+
+  ParameterSet const& ParameterSet::operator=(ParameterSet const& other) {
+    ParameterSet temp(other);
+    swap(temp);
+    return *this;
+  }
+
+  void ParameterSet::swap(ParameterSet& other) {
+    tbl_.swap(other.tbl_);
+    psetTable_.swap(other.psetTable_);
+    vpsetTable_.swap(other.vpsetTable_);
+    std::swap(id_, other.id_);
+  }
+
   ParameterSet const& ParameterSet::registerIt() {
     if(!isRegistered()) {
       calculateID();

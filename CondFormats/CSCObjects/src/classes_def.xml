@@ -6,10 +6,6 @@
  <class name="CSCDBPedestals"/>
  <class name="CSCDBPedestals::Item"/>
  <class name="std::vector<CSCDBPedestals::Item>"/>
-
- <class name="CSCDBChipSpeedCorrection"/>
- <class name="CSCDBChipSpeedCorrection::Item"/>
- <class name="std::vector<CSCDBChipSpeedCorrection::Item>"/>
  
  <class name="CSCGains" id="24647172-BE30-DA11-888A-0008743F7CC7"/>
  <class name="CSCGains::Item"/>
@@ -60,17 +56,11 @@
  <class name="CSCChamberIndex"/>
  <class name="std::vector< CSCMapItem::MapItem >"/>
 
- <class name="CSCChamberTimeCorrections"/>
- <class name="CSCChamberTimeCorrections::ChamberTimeCorrections"/>
- <class name="std::vector< CSCChamberTimeCorrections::ChamberTimeCorrections >"/>
-
  <class name="CSCCrateMap"/>
 
  <class name="CSCDDUMap"/>
  
  <class name="CSCL1TPParameters"/>
-
- <class name="CSCDBL1TPParameters"/>
 
  <class name="CSCIdentifier" id="DC949595-1360-DA11-86C4-000E0C4DE689"/>
  <class name="CSCIdentifier::Item"/>

@@ -299,7 +299,7 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
 
 
 
-  // 1)If only two 
+  // 1)If only two track are found do not prefit
 
 
   if ( transTracksRaw.size() == 2 ){
@@ -310,9 +310,13 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
 
     theVertexAdaptiveRaw = TransientVertex(seedPoint,  globalError, transTracksRaw, 1.);
 
+
+
   } else {
 
-    if (debug_) cout << "Raw fit done" << endl;
+
+
+    if (debug_) cout << "Raw fit done." << endl;
     
     AdaptiveVertexFitter theAdaptiveFitterRaw(GeometricAnnealing(sigmacut_, t_ini_, ratio_),
 					      DefaultLinearizationPointFinder(),
@@ -320,12 +324,49 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
 					      KalmanVertexTrackCompatibilityEstimator<5>(), 
 					      KalmanVertexSmoother() );
 
+    /// This prefit procedure allow to reduce the Warning rate from Adaptive Vertex fitter
+    /// It reject also many fake tracks
+
   
-    try{
+    if ( transTracksRaw.size() < 10 ){
+
+      if (debug_) cout << "First test with KFT" << endl;
+
+      KalmanVertexFitter theKalmanFitter(true);
+      theVertexAdaptiveRaw = theKalmanFitter.vertex(transTracksRaw, seedPoint);
+      
+      if( !theVertexAdaptiveRaw.isValid() || theVertexAdaptiveRaw.totalChiSquared() < 0. ) {
+	if(debug_) cout << "Prefit failed : valid? " << theVertexAdaptiveRaw.isValid() 
+			<< " totalChi2 = " << theVertexAdaptiveRaw.totalChiSquared() << endl;
+	return true;
+      }
+
+      if (debug_) cout << "We use KFT instead of seed point to set up a point for AVF "
+		       << " x = " << theVertexAdaptiveRaw.position().x() 
+		       << " y = " << theVertexAdaptiveRaw.position().y() 
+		       << " z = " << theVertexAdaptiveRaw.position().z() 
+		       << endl;
+
+      // To save time: reject the Displaced vertex if it is too close to the beam pipe. 
+      // Frequently it is very big vertices, with some dosens of tracks
+
+      Vertex vtx =  theVertexAdaptiveRaw;
+      rho = vtx.position().rho();
+
+      if (rho < primaryVertexCut_) {
+	if (debug_) cout << "KFT Vertex geometrically rejected with  tracks #rho = " << rho << endl;
+	return true;
+      }
+
+
+      theVertexAdaptiveRaw = theAdaptiveFitterRaw.vertex(transTracksRaw, theVertexAdaptiveRaw.position());
+
+
+    } else {
+
+
       theVertexAdaptiveRaw = theAdaptiveFitterRaw.vertex(transTracksRaw, seedPoint);
-    }catch( cms::Exception& exception ){
-      if(debug_) cout << "Fit Crashed" << endl;
-      return true;
+
     }
 
     if( !theVertexAdaptiveRaw.isValid() || theVertexAdaptiveRaw.totalChiSquared() < 0. ) {
@@ -337,9 +378,8 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
     // To save time: reject the Displaced vertex if it is too close to the beam pipe. 
     // Frequently it is very big vertices, with some dosens of tracks
 
-    Vertex theVtxAdaptiveRaw = theVertexAdaptiveRaw;
-
-    rho =  theVtxAdaptiveRaw.position().rho();
+    Vertex vtx =  theVertexAdaptiveRaw;
+    rho = vtx.position().rho();
 
     if (rho < primaryVertexCut_)  {
       if (debug_) cout << "Vertex " << " geometrically rejected with " <<  transTracksRaw.size() << " tracks #rho = " << rho << endl;
@@ -401,23 +441,25 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
 
 
   // ---- Refit ---- //
-
-  string vtxFitter;
+  FitterType vtxFitter = F_NOTDEFINED;
 
   if (transTracks.size() < 2) return true;
-  else if (transTracks.size() == 2) vtxFitter = "KalmanVertexFitter";
-  else if (transTracks.size() > 2 && transTracksRaw.size() > transTracks.size()) vtxFitter = "AdaptiveVertexFitter";
-  else if (transTracks.size() > 2 && transTracksRaw.size() == transTracks.size())  vtxFitter = "NoNeedToRefit";
+  else if (transTracks.size() == 2) 
+    vtxFitter = F_KALMAN;
+  else if (transTracks.size() > 2 && transTracksRaw.size() > transTracks.size()) 
+    vtxFitter = F_ADAPTIVE;
+  else if (transTracks.size() > 2 && transTracksRaw.size() == transTracks.size())  
+    vtxFitter = F_DONOTREFIT;
   else return true;
 
-  if (debug_) cout << "Vertex Fitter " << vtxFitter.data() << endl;
+  if (debug_) cout << "Vertex Fitter " << vtxFitter << endl;
 
-  if(vtxFitter == string("KalmanVertexFitter")){
+  if(vtxFitter == F_KALMAN){
 
     KalmanVertexFitter theKalmanFitter(true);
     theRecoVertex = theKalmanFitter.vertex(transTracks, seedPoint);
 
-  } else if(vtxFitter == string("AdaptiveVertexFitter")){
+  } else if(vtxFitter == F_ADAPTIVE){
 
     AdaptiveVertexFitter theAdaptiveFitter( 
 					 GeometricAnnealing(sigmacut_, t_ini_, ratio_),
@@ -428,7 +470,7 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
 
     theRecoVertex = theAdaptiveFitter.vertex(transTracks, seedPoint);
 
-  } else if (vtxFitter == string("NoNeedToRefit")) {
+  } else if (vtxFitter == F_DONOTREFIT) {
     theRecoVertex = theVertexAdaptiveRaw;
   } else {
     return true;
@@ -461,12 +503,6 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
 
   // ---- Create and fill vector of refitted TransientTracks ---- //
 
-  vector<TransientTrack> transientRefittedTracks;
-  if( theRecoVertex.hasRefittedTracks() ) {
-    transientRefittedTracks = theRecoVertex.refittedTracks();
-  }
-
-
   // -----------------------------------------------//
   // ---- Prepare and Fill the Displaced Vertex ----//
   // -----------------------------------------------//
@@ -480,9 +516,18 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
     PFTrackHitFullInfo pattern = hitPattern_.analyze(tkerGeomHandle_, transTracksRef[i], theRecoVertex);
 
     PFDisplacedVertex::VertexTrackType vertexTrackType = getVertexTrackType(pattern);
-    
+
+    Track refittedTrack;
     float weight =  theRecoVertex.trackWeight(transTracks[i]);
 
+
+    if (weight < minAdaptWeight_) continue;
+
+    try{
+      refittedTrack =  theRecoVertex.refittedTrack(transTracks[i]).track();
+    }catch( cms::Exception& exception ){
+      continue;
+    }
 
     if (debug_){
       cout << "Vertex Track Type = " << vertexTrackType << endl;
@@ -495,7 +540,7 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
     }
 
     displacedVertex.addElement(transTracksRef[i], 
-			       theRecoVertex.refittedTrack(transTracks[i]).track(), 
+			       refittedTrack, 
 			       pattern, vertexTrackType, weight);
 
 

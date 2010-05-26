@@ -17,7 +17,7 @@ from Configuration.PyReleaseValidation.ConfigBuilder import Options
 from Configuration.PyReleaseValidation.ConfigBuilder import defaultOptions
 from Configuration.PyReleaseValidation.ConfigBuilder import installFilteredStream
 from Configuration.PyReleaseValidation.ConfigBuilder import addOutputModule
-from Configuration.DataProcessing.RecoTLR import customisePPData
+from Configuration.GlobalRuns.reco_TLR import reco_TLR
 
 class pp(Scenario):
     """
@@ -29,7 +29,7 @@ class pp(Scenario):
     """
 
 
-    def promptReco(self, globalTag, writeTiers = ['RECO'], **options):
+    def promptReco(self, globalTag, writeTiers = ['RECO','ALCARECO']):
         """
         _promptReco_
 
@@ -43,15 +43,12 @@ class pp(Scenario):
                  'MuAlCalIsolatedMu',
                  'MuAlOverlaps',
                  'HcalCalIsoTrk',
-                 'HcalCalDijets',
-                 'SiStripCalMinBias',
-                 'EcalCalElectron',
-                 'DtCalib']
+                 'HcalCalDijets']
         step = stepALCAPRODUCER(skims)
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
-        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',L1HwVal,DQM,ENDJOB'
+        options.step = 'RAW2DIGI,L1Reco,RECO:reconstruction_withPixellessTk'+step+',L1HwVal,DQM,ENDJOB'
         options.isMC = False
         options.isData = True
         options.beamspot = None
@@ -59,6 +56,7 @@ class pp(Scenario):
         options.magField = 'AutoFromDBCurrent'
         options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
         options.relval = False
+        
         
         process = cms.Process('RECO')
         cb = ConfigBuilder(options, process = process)
@@ -69,59 +67,62 @@ class pp(Scenario):
         )
         cb.prepare()
 
+
         for tier in writeTiers: 
           addOutputModule(process, tier, tier)        
 
         #add the former top level patches here
-        customisePPData(process)
+        reco_TLR(process)
         
         return process
 
-
-    def expressProcessing(self, globalTag, writeTiers = [], **options):
+    def expressProcessing(self, globalTag,  writeTiers = [],
+                          datasets = [], alcaDataset = None):
         """
         _expressProcessing_
 
-        Proton collision data taking express processing
+        Implement proton collision Express processing
 
         """
 
-        skims = ['SiStripCalZeroBias',
-                 'TkAlMinBias',
-                 'DtCalib',
-                 'MuAlCalIsolatedMu']
-        step = stepALCAPRODUCER(skims)
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
-        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',L1HwVal,DQM,ENDJOB'
+        options.step = \
+          """RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+TkAlMinBias+MuAlCalIsolatedMu+RpcCalHLT,ENDJOB"""
         options.isMC = False
         options.isData = True
-        options.beamspot = None
         options.eventcontent = None
-        options.magField = 'AutoFromDBCurrent'
+        options.relval = None
+        options.beamspot = None
         options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
-        options.relval = False
         
-        process = cms.Process('RECO')
+        process = cms.Process('EXPRESS')
         cb = ConfigBuilder(options, process = process)
 
-        # Input source
-        process.source = cms.Source("NewEventStreamFileReader",
-            fileNames = cms.untracked.vstring()
+        process.source = cms.Source(
+           "NewEventStreamFileReader",
+           fileNames = cms.untracked.vstring()
         )
+        
         cb.prepare()
 
-        for tier in writeTiers: 
-          addOutputModule(process, tier, tier)        
-
-        #add the former top level patches here
-        customisePPData(process)
+        #  //
+        # // Install the OutputModules for everything but ALCA
+        #//
+        self.addExpressOutputModules(process, writeTiers, datasets)
         
+        #  //
+        # // TODO: Install Alca output
+        #//
+        
+        #add the former top level patches here
+        reco_TLR(process)
+
         return process
+    
 
-
-    def alcaSkim(self, skims, **options):
+    def alcaSkim(self, skims):
         """
         _alcaSkim_
 
@@ -134,7 +135,7 @@ class pp(Scenario):
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
-        options.step = step.rstrip('+')
+        options.step = step+'DQM,ENDJOB'
         options.isMC = False
         options.isData = True
         options.beamspot = None
@@ -154,9 +155,14 @@ class pp(Scenario):
         cb.prepare() 
 
         return process
+                
+
+        
+
+        
 
 
-    def dqmHarvesting(self, datasetName, runNumber, globalTag, **options):
+    def dqmHarvesting(self, datasetName, runNumber,  globalTag, **options):
         """
         _dqmHarvesting_
 

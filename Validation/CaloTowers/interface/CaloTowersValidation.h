@@ -44,18 +44,13 @@ class CaloTowersValidation : public edm::EDAnalyzer {
   DQMStore* dbe_;
   std::string outputFile_;
   std::string hcalselector_;
-  std::string mc_;
-  bool        useAllHistos_;
 
   typedef math::RhoEtaPhiVector Vector;
 
-  edm::InputTag theCaloTowerCollectionLabel;
+  std::string theCaloTowerCollectionLabel;
 
   int isub;
   int nevent;
-
-  int imc;
-
   // eta limits to calcualte MET, SET (not to include HF if not needed)
   double etaMax[3];
   double etaMin[3];
@@ -79,24 +74,6 @@ class CaloTowersValidation : public edm::EDAnalyzer {
   MonitorElement*  mapEnergy_EH;
   MonitorElement*  mapEnergy_N;
 
-  // for number of bad, recovered and problematic Ecal and Hcal cells
-  MonitorElement* numBadCellsEcal_EB;
-  MonitorElement* numBadCellsEcal_EE;
-  MonitorElement* numRcvCellsEcal_EB;
-  MonitorElement* numRcvCellsEcal_EE;
-  MonitorElement* numPrbCellsEcal_EB;
-  MonitorElement* numPrbCellsEcal_EE;
-
-  MonitorElement* numBadCellsHcal_HB;
-  MonitorElement* numBadCellsHcal_HE;
-  MonitorElement* numBadCellsHcal_HF;
-  MonitorElement* numRcvCellsHcal_HB;
-  MonitorElement* numRcvCellsHcal_HE;
-  MonitorElement* numRcvCellsHcal_HF;
-  MonitorElement* numPrbCellsHcal_HB;
-  MonitorElement* numPrbCellsHcal_HE;
-  MonitorElement* numPrbCellsHcal_HF; 
-
   // HB
   MonitorElement* meEnergyHcalvsEcal_HB;
   MonitorElement* meEnergyHO_HB; 
@@ -114,13 +91,6 @@ class CaloTowersValidation : public edm::EDAnalyzer {
   MonitorElement* MET_HB;
   MonitorElement* SET_HB;
   MonitorElement* phiMET_HB;
-
-  MonitorElement* emTiming_HB;
-  MonitorElement* hadTiming_HB;
-  MonitorElement* emEnergyTiming_HB;
-  MonitorElement* hadEnergyTiming_HB;
-  MonitorElement* emEnergyTiming_profile_HB;
-  MonitorElement* hadEnergyTiming_profile_HB;
 
   // HE
   MonitorElement* meEnergyHcalvsEcal_HE;
@@ -140,13 +110,6 @@ class CaloTowersValidation : public edm::EDAnalyzer {
   MonitorElement* SET_HE;
   MonitorElement* phiMET_HE;
 
-  MonitorElement* emTiming_HE;
-  MonitorElement* hadTiming_HE;
-  MonitorElement* emEnergyTiming_HE;
-  MonitorElement* hadEnergyTiming_HE;
-  MonitorElement* emEnergyTiming_profile_HE;
-  MonitorElement* hadEnergyTiming_profile_HE;
-
   // HF
   MonitorElement* meEnergyHcalvsEcal_HF;
   MonitorElement* meEnergyHO_HF; 
@@ -165,12 +128,6 @@ class CaloTowersValidation : public edm::EDAnalyzer {
   MonitorElement* SET_HF;
   MonitorElement* phiMET_HF;
 
-  MonitorElement* emTiming_HF;
-  MonitorElement* hadTiming_HF;
-  MonitorElement* emEnergyTiming_HF;
-  MonitorElement* hadEnergyTiming_HF;
-  MonitorElement* emEnergyTiming_profile_HF;
-  MonitorElement* hadEnergyTiming_profile_HF;
 
 };
 

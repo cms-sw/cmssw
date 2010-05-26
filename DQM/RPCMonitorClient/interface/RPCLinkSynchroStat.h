@@ -18,8 +18,6 @@ public:
 
   void add(const RPCRawSynchro::ProdItem & counts, std::vector<LinkBoardElectronicIndex> & problems);
 
-  void add(const std::string & lbName, const unsigned int *hits);
-
   std::string dumpDelays();
 
 private:
@@ -44,8 +42,6 @@ private:
   class SynchroCounts {
   public:
     SynchroCounts() : theCounts(std::vector<unsigned int>(8,0)) {}
-    SynchroCounts(const unsigned int *hits) : theCounts(std::vector<unsigned int>(hits,hits+8)) {}
-    
     void increment(unsigned int bxDiff);
     void set(unsigned int bxDiff);
     unsigned int firstHit() const;
@@ -70,6 +66,7 @@ private:
   struct ShortLinkInfo{ unsigned int idx; std::vector<unsigned int> hit_paths; SynchroCounts counts; };
 
   bool theUseFirstHitOnly;
+
 
   static const unsigned int MAXDCCINDEX=2;
   static const unsigned int DCCINDEXSHIFT=790;

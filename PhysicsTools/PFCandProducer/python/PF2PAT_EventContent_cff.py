@@ -1,29 +1,6 @@
 
 import FWCore.ParameterSet.Config as cms
 
-ModifiedPF2PATEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring(
-    # Gen information
-    'keep *_generalTracks_*_*',    
-    'keep *_electronGsfTracks_*_*',    
-    'keep *_genParticles_*_*',
-    'keep *_genMetTrue_*_*',
-    'keep recoGenJets_*_*_*',
-    'keep recoGsfElectronCores_gsfElectronCores_*_*', 
-    # isolated electrons and muons
-    'keep patMuons_*_*_*',
-    'keep patElectrons_*_*_*',
-    'keep patJets_*_*_*',
-    'keep patTaus_*_*_*',
-    'keep recoPFCandidates_particleFlow_*_*',   
-    'keep recoVertexs_offlinePrimaryVerticesWithBS_*_*',
-
-    # Trigger
-    'keep *_TriggerResults_*_*',
-    'keep *_hltTriggerSummaryAOD_*_*',
-    'keep *_pfElectronTranslator_*_*',
-          )
-)
 
 PF2PATEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring(
@@ -46,8 +23,7 @@ PF2PATEventContent = cms.PSet(
     # MET
     'keep *_pfMET_*_*',
     # Trigger
-    'keep *_TriggerResults_*_*',
-    'keep *_hltTriggerSummaryAOD_*_*'
+    'keep *_TriggerResults_*_*'
     )
 )
 
@@ -64,8 +40,7 @@ PATEventContent = cms.PSet(
     'keep patTaus_selectedLayer1Taus_*_*',
 # iso deposits are embedded in the pat objects, and do not need to be kept
 #    'keep recoIsoDepositedmValueMap_iso*_*_*',
-    'keep *_TriggerResults_*_*',
-    'keep *_hltTriggerSummaryAOD_*_*'
+    'keep *_TriggerResults_*_*'
     )
 )
 
@@ -121,9 +96,6 @@ prunedAODForPF2PATEventContent = cms.PSet(
         'drop *_hfRecoEcalCandidate_*_*',
         'drop recoSuperClusters_*_*_*',
         'keep *_pfElectronTranslator_*_*',
-        'keep recoSuperClusters_corrected*_*_*',
-         'keep *_TriggerResults_*_*',
-    'keep *_hltTriggerSummaryAOD_*_*'
-
+        'keep recoSuperClusters_corrected*_*_*'
         )
 )

@@ -12,11 +12,6 @@ process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = "MC_3XY_V15::All"
 
-process.load("Configuration.StandardSequences.Services_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
-
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
@@ -29,18 +24,14 @@ process.source = cms.Source("PoolSource",
 
 
 process.load("RecoLocalMuon.RPCRecHit.rpcPointProducer_cfi")
-process.rpcPointProducer.tracks = cms.InputTag("cosmicMuons") # for cosmicMuons
 
 process.out = cms.OutputModule("PoolOutputModule",
   outputCommands = cms.untracked.vstring('drop *',
         'keep *_dt4DSegments_*_*',
         'keep *_cscSegments_*_*',
         'keep *_rpcPointProducer_*_*',
-        'keep *_rpcRecHits_*_*',
-        'keep *_standAloneMuons_*_*',
-        'keep *_cosmicMuons_*_*',
-        'keep *_globalMuons_*_*'),
- fileName = cms.untracked.string('/tmp/carrillo/outs/output.root')
+        'keep *_rpcRecHits_*_*'),
+  fileName = cms.untracked.string('/tmp/carrillo/outs/output.root')
 )
   
 process.p = cms.Path(process.rpcPointProducer)

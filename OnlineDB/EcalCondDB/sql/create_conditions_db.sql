@@ -18,7 +18,7 @@
 @create_laser_core
 @create_laser_data
 */
-@create_laser_new_2010
+@create_laser_new
 
 @create_calibration_core
 @create_calibration_data

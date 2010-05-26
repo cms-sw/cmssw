@@ -2,7 +2,7 @@
 #define TtFullLepKinSolutionProducer_h
 
 //
-// $Id: TtFullLepKinSolutionProducer.h,v 1.7 2010/03/25 09:22:18 snaumann Exp $
+// $Id: TtFullLepKinSolutionProducer.h,v 1.8 2010/04/30 12:53:46 dammann Exp $
 //
 #include <memory>
 #include <string>
@@ -27,6 +27,7 @@ class TtFullLepKinSolutionProducer : public edm::EDProducer {
     
     virtual void beginJob();
     virtual void produce(edm::Event & evt, const edm::EventSetup & iSetup);
+    virtual void endJob();
 
   private:  
 
@@ -104,6 +105,11 @@ TtFullLepKinSolutionProducer::~TtFullLepKinSolutionProducer()
 void TtFullLepKinSolutionProducer::beginJob()
 {
   solver = new TtFullLepKinSolver(tmassbegin_, tmassend_, tmassstep_, nupars_);
+}
+
+void TtFullLepKinSolutionProducer::endJob()
+{
+  delete solver;
 }
 
 void TtFullLepKinSolutionProducer::produce(edm::Event & evt, const edm::EventSetup & iSetup) 

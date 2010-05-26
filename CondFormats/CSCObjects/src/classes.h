@@ -17,9 +17,6 @@
 #include "CondFormats/CSCObjects/interface/CSCDDUMap.h"
 #include "CondFormats/CSCObjects/interface/CSCChamberIndex.h"
 #include "CondFormats/CSCObjects/interface/CSCDQM_DCSData.h"
-#include "CondFormats/CSCObjects/interface/CSCDBChipSpeedCorrection.h"
-#include "CondFormats/CSCObjects/interface/CSCChamberTimeCorrections.h"
-
 
 namespace {
   struct dictionary {
@@ -46,10 +43,6 @@ namespace {
     std::vector<CSCBadWires::BadChamber> bwchmcontainer;
     std::vector<CSCBadWires::BadChannel> bwchncontainer;
 
-    std::vector<CSCDBChipSpeedCorrection::Item> chipCorrcontainer1;
-    std::map< int, std::vector<CSCDBChipSpeedCorrection::Item> > chipCorrmap;
-    std::vector<CSCDBChipSpeedCorrection::Item> chipCorrcontainer2;
-
     std::map< int, CSCMapItem::MapItem > chmap;
     std::pair< const int, CSCMapItem::MapItem > chmapvalue;
 
@@ -69,4 +62,3 @@ namespace {
 #include "CondFormats/CSCObjects/interface/CSCReadoutMapping.h"
 #include "CondFormats/CSCObjects/interface/CSCTriggerMapping.h"
 #include "CondFormats/CSCObjects/interface/CSCL1TPParameters.h"
-#include "CondFormats/CSCObjects/interface/CSCDBL1TPParameters.h"

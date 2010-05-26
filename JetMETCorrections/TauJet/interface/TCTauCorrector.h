@@ -1,7 +1,7 @@
 #ifndef TCTauCorrector_h
 #define TCTauCorrector_h
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
-#include "JetMETCorrections/TauJet/interface/TCTauAlgorithm.h"
+#include "RecoTauTag/RecoTau/interface/TCTauAlgorithm.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -31,9 +31,9 @@ class TCTauCorrector :  public JetCorrector {
 
 	math::XYZTLorentzVector correctedP4(const reco::CaloTau&) const;
 
-	virtual double correction(const reco::Jet&,const edm::Event&,const edm::EventSetup&) const;
+//	virtual double correction(const reco::Jet&,const edm::Event&,const edm::EventSetup&) const;
 	virtual double correction(const math::XYZTLorentzVector&) const;
-	virtual double correction(const reco::Jet&) const;
+//	virtual double correction(const reco::Jet&) const;
         double correction(const reco::CaloJet&) const;
         double correction(const reco::CaloTau&) const;
 

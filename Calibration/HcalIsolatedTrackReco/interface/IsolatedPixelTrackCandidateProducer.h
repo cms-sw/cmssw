@@ -31,6 +31,7 @@ class IsolatedPixelTrackCandidateProducer : public edm::EDProducer {
 
 
   virtual void beginJob ();
+  virtual void beginRun(edm::Run&, const edm::EventSetup&);
   virtual void produce(edm::Event& evt, const edm::EventSetup& es);
 
   double getDistInCM(double eta1, double phi1, double eta2, double phi2);

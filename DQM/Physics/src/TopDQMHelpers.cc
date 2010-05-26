@@ -1,7 +1,7 @@
 #include "DQM/Physics/interface/TopDQMHelpers.h"
 
-Calculate::Calculate(int maxNJets, double wMass, const JetCorrector* corrector): 
-  failed_(false), maxNJets_(maxNJets), wMass_(wMass), massWBoson_(-1.), massTopQuark_(-1.), corrector_(corrector)
+Calculate::Calculate(int maxNJets, double wMass): 
+  failed_(false), maxNJets_(maxNJets), wMass_(wMass), massWBoson_(-1.), massTopQuark_(-1.)
 {
 }
 

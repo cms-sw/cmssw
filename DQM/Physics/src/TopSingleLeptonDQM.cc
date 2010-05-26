@@ -1,8 +1,9 @@
-#include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
+#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
 #include "DQM/Physics/src/TopSingleLeptonDQM.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 namespace TopSingleLepton {
 
@@ -139,15 +140,15 @@ namespace TopSingleLepton {
     // multiplicity of jets with pt>20 (corrected to L2+L3)
     hists_["jetMult_"    ] = store_->book1D("JetMult"    , "N_{30}(jet)"      ,     10,     0.,     10.);   
     // trigger efficiency estimates for single lepton triggers
-    hists_["triggerEff_" ] = store_->book1D("triggerEff" , "Eff(trigger)"     , nPaths,     0.,  nPaths);
+    hists_["triggerEff_" ] = store_->book1D("TriggerEff" , "Eff(trigger)"     , nPaths,     0.,  nPaths);
     // monitored trigger occupancy for single lepton triggers
-    hists_["triggerMon_" ] = store_->book1D("triggerMon" , "Mon(trigger)"     , nPaths,     0.,  nPaths);
+    hists_["triggerMon_" ] = store_->book1D("TriggerMon" , "Mon(trigger)"     , nPaths,     0.,  nPaths);
     // MET (calo)
     hists_["metCalo_"    ] = store_->book1D("METCalo"    , "MET_{Calo}"       ,     50,     0.,    200.);   
     // W mass estimate
-    hists_["massW_"      ] = store_->book1D("MassW"      , "M(W)"             ,     50,    50.,    300.);   
+    hists_["massW_"      ] = store_->book1D("MassW"      , "M(W)"             ,     60,     0.,    300.);   
     // Top mass estimate
-    hists_["massTop_"    ] = store_->book1D("MassTop"    , "M(Top)"           ,     50,    50.,    550.);   
+    hists_["massTop_"    ] = store_->book1D("MassTop"    , "M(Top)"           ,     50,     0.,    500.);   
 
     // set bin labels for trigger monitoring
     triggerBinLabels(std::string("trigger"), triggerPaths_);
@@ -207,13 +208,13 @@ namespace TopSingleLepton {
     // btag discriminator for simple secondary vertex
     hists_["jetBDiscVtx_"] = store_->book1D("JetBDiscVtx", "Disc_{b/vtx}(Jet)",     35,    -1.,      6.);   
     // pt of the 1. leading jet (uncorrected)
-    hists_["jet1PtRaw_"  ] = store_->book1D("Jet1PtRaw"  , "pt_{Raw}(jet1)"   ,     60,     0.,    200.);   
+    hists_["jet1PtRaw_"  ] = store_->book1D("Jet1PtRaw"  , "pt_{Raw}(jet1)"   ,     60,     0.,    300.);   
     // pt of the 2. leading jet (uncorrected)
-    hists_["jet2PtRaw_"  ] = store_->book1D("Jet2PtRaw"  , "pt_{Raw}(jet2)"   ,     60,     0.,    200.);   
+    hists_["jet2PtRaw_"  ] = store_->book1D("Jet2PtRaw"  , "pt_{Raw}(jet2)"   ,     60,     0.,    300.);   
     // pt of the 3. leading jet (uncorrected)
-    hists_["jet3PtRaw_"  ] = store_->book1D("Jet3PtRaw"  , "pt_{Raw}(jet3)"   ,     60,     0.,    200.);   
+    hists_["jet3PtRaw_"  ] = store_->book1D("Jet3PtRaw"  , "pt_{Raw}(jet3)"   ,     60,     0.,    300.);   
     // pt of the 4. leading jet (uncorrected)
-    hists_["jet4PtRaw_"  ] = store_->book1D("Jet4PtRaw"  , "pt_{Raw}(jet4)"   ,     60,     0.,    200.);   
+    hists_["jet4PtRaw_"  ] = store_->book1D("Jet4PtRaw"  , "pt_{Raw}(jet4)"   ,     60,     0.,    300.);   
     return;
   }
 
@@ -324,7 +325,25 @@ namespace TopSingleLepton {
     // load jet corrector if configured such
     const JetCorrector* corrector=0;
     if(!jetCorrector_.empty()){
-      corrector = JetCorrector::getJetCorrector(jetCorrector_, setup);
+      // check whether a jet correcto is in the event setup or not
+      if(setup.find( edm::eventsetup::EventSetupRecordKey::makeKey<JetCorrectionsRecord>() )){
+	corrector = JetCorrector::getJetCorrector(jetCorrector_, setup);
+      }
+      else{
+	//edm::LogVerbatim( "TopSingleLeptonDQM" ) 
+	//  << "\n"
+	//  << "------------------------------------------------------------------------------------- \n"
+	//  << " No JetCorrectionsRecord available from EventSetup:                                   \n" 
+	//  << "  - Jets will not be corrected.                                                       \n"
+	//  << "  - If you want to change this add the following                                      \n"
+	//  << "    lines to your cfg file:                                                           \n"
+	//  << "                                                                                      \n"
+	//  << "  ## load jet corrections                                                             \n"
+	//  << "  process.load(\"JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff\") \n"
+	//  << "  process.prefer(\"ak5CaloL2L3\")                                                     \n"
+	//  << "                                                                                      \n"
+	//  << "------------------------------------------------------------------------------------- \n";
+      }
     }
 
     // loop jet collection
@@ -345,6 +364,9 @@ namespace TopSingleLepton {
 	  correctedJet.scaleEnergy(corrector->correction(*jet));
 	  correctedJets.push_back(correctedJet);
 	  ptL2L3 = correctedJet.pt();
+	}
+	else{
+	  correctedJets.push_back(*jet);
 	}
 	if(ptL2L3>30){ ++mult30; // determine jet multiplicity
 	  if( includeBTag_ ){
@@ -396,7 +418,7 @@ namespace TopSingleLepton {
     */
 
     // fill W boson and top mass estimates
-    Calculate eventKinematics(MAXJETS, WMASS, corrector);
+    Calculate eventKinematics(MAXJETS, WMASS);
     double wMass   = eventKinematics.massWBoson  (correctedJets);
     double topMass = eventKinematics.massTopQuark(correctedJets);
     fill("massW_" , wMass  ); fill("massTop_" , topMass);

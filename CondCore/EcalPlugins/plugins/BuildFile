@@ -10,6 +10,7 @@
 <library file="EcalPedestalsPyWrapper.cc" name=EcalPedestalsPyInterface>
 <use name=CondCore/Utilities>
 <use name=CondFormats/EcalObjects>
+<use name=CondTools/Ecal>
 <use name=boost>
 <use name=boost_filesystem>
 <use name=boost_python>

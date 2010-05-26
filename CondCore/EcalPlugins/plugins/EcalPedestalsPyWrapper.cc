@@ -1,4 +1,6 @@
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
+#include "CondTools/Ecal/interface/EcalPedestalsXMLTranslator.h"
+#include "CondTools/Ecal/interface/EcalCondHeader.h"
 
 #include "CondCore/Utilities/interface/PayLoadInspector.h"
 #include "CondCore/Utilities/interface/InspectorPythonWrapper.h"
@@ -117,24 +119,22 @@ namespace cond {
   template<>
   std::string
   PayLoadInspector<EcalPedestals>::dump() const {
-    Printer p;
-    std::for_each(object().barrelItems().begin(),object().barrelItems().end(),boost::bind(&Printer::doit,boost::ref(p),_1));
-    p.ss <<"\n";
-    std::for_each(object().endcapItems().begin(),object().endcapItems().end(),boost::bind(&Printer::doit,boost::ref(p),_1));
-    p.ss << std::endl;
-    return p.ss.str();
+    std::stringstream ss;
+    EcalCondHeader header;
+    ss<<EcalPedestalsXMLTranslator::dumpXML(header,object());
+    return ss.str();
   }
 
-   template<>
-   std::string PayLoadInspector<EcalPedestals>::summary() const {
-     std::cout << "***************************************"<< std::endl;
-     std::stringstream ss;
-     ss << "sizes="
-	<< object().barrelItems().size() <<","
-	<< object().endcapItems().size() <<";";
-     ss << std::endl;
-     return ss.str();
-   }
+  template<>
+  std::string PayLoadInspector<EcalPedestals>::summary() const {
+    std::cout << "***************************************"<< std::endl;
+    std::stringstream ss;
+    ss << "sizes="
+       << object().barrelItems().size() <<","
+       << object().endcapItems().size() <<";";
+    ss << std::endl;
+    return ss.str();
+  }
 
 
   // return the real name of the file including extension...

@@ -69,16 +69,16 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
   
   ////////////////////////////////////////////////////
   // check that expected fe_id==fe_expected is on
-  if (checkFeId_              &&
+  if( checkFeId_              &&
       expTowerID_ != towerId_ &&
       expTowerID_ <= mapper_->getNumChannelsInDcc(activeDCC) ){ // fe_id must be within range foreseen in the FED 
-    if (! DCCDataUnpacker::silentMode_) {
+    if( ! DCCDataUnpacker::silentMode_ ){
       edm::LogWarning("IncorrectBlock")
-        << "Expected tower ID is " << expTowerID_ << " while " << towerId_ << " was found"
-        << " (L1A " << event_->l1A() << " fed " << mapper_->getActiveDCC() << ")\n"
-        << "  => Skipping to next FE block...";
-    }
-    
+        <<"\n For event "<<event_->l1A()<<" and fed "<<mapper_->getActiveDCC()
+        <<"\n Expected FE_id is "<<expTowerID_<<" while "<<towerId_<<" was found "
+        <<"\n => Skipping to next FE block...";
+     } 
+   
     fillEcalElectronicsError(invalidTTIds_); 
     
     updateEventPointers();
@@ -88,7 +88,7 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
   //////////////////////////////////////////////////////////
   // check that expected fe_id==fe_expected is off
   else if( (!checkFeId_) && 
-           towerId_ > mapper_->getNumChannelsInDcc(activeDCC) ){ // fe_id must still be within range foreseen in the FED 
+	   towerId_ > mapper_->getNumChannelsInDcc(activeDCC) ){ // fe_id must still be within range foreseen in the FED 
     if( ! DCCDataUnpacker::silentMode_ ){
       edm::LogWarning("IncorrectBlock")
         <<"\n For event "<<event_->l1A()<<" and fed "<<mapper_->getActiveDCC()<<" (there's no check fe_id==dcc_channel)"
@@ -100,27 +100,30 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
     return SKIP_BLOCK_UNPACKING;
   }
   
+  
+  
   // Check synchronization
-  if (sync_) {
-    const uint dccBx = (event_->bx()) & TCC_BX_MASK;
-    const uint dccL1 = (event_->l1A()) & TCC_L1_MASK;
-    
+  if(sync_){
+
+    uint dccBx = (event_->bx())&TCC_BX_MASK;
+    uint dccL1 = (event_->l1A())&TCC_L1_MASK; 
     // accounting for counters starting from 0 in ECAL FE, while from 1 in CSM
-    if (dccBx != bx_ || dccL1 != (l1_+1) ) {
-      if (! DCCDataUnpacker::silentMode_) {
+    if( dccBx != bx_ || dccL1 != (l1_+1) ){
+      if( ! DCCDataUnpacker::silentMode_ ){
         edm::LogWarning("IncorrectBlock")
-          << "Synchronization error for Tower Block"
-          << " (L1A " << event_->l1A() << " bx " << event_->bx() << " fed " << mapper_->getActiveDCC() << " tower " << towerId_ << ")\n"
-          << "  TCC local l1A is " << l1_ << " and local bx is " << bx_ << "\n"
-          << "  => Skipping to next tower block...";
-      }
-      
-      //Note : add to error collection ?                 
+	  <<"\n Synchronization error for Tower Block "<<towerId_<<" in event "<<event_->l1A()
+	  <<" with bx "<<event_->bx()<<" in fed "<<mapper_->getActiveDCC()
+          <<"\n TCC local l1A is  "<<l1_<<" and local bx is "<<bx_
+          <<"\n => Skipping to next tower block...";
+       }
+      //Note : add to error collection ?		 
       updateEventPointers();
       return SKIP_BLOCK_UNPACKING;
     }
   }
-  
+
+
+
   // check number of samples
   if( nTSamples_ != expXtalTSamples_ ){
     if( ! DCCDataUnpacker::silentMode_ ){
@@ -130,7 +133,7 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
         <<"\n Number of time samples "<<nTSamples_<<" is not the same as expected ("<<expXtalTSamples_<<")"
         <<"\n => Skipping to next tower block...";
      } 
-    //Note : add to error collection ?                 
+    //Note : add to error collection ?		 
     updateEventPointers();
     return SKIP_BLOCK_UNPACKING;
   }
@@ -152,7 +155,7 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
 
 
   if(!zs_ && !forceToKeepFRdata_){
-         
+	 
     if ( unfilteredDataBlockLength_ != blockLength_ ){
       if( ! DCCDataUnpacker::silentMode_ ){ 
         edm::LogWarning("IncorrectEvent")
@@ -164,7 +167,7 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
       fillEcalElectronicsError(invalidBlockLengths_) ;
 
       //Safer approach...  - why pointers do not navigate in this case?
-      return STOP_EVENT_UNPACKING;          
+      return STOP_EVENT_UNPACKING;	  
 
       
     }
@@ -189,7 +192,7 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
     if( ! DCCDataUnpacker::silentMode_ ){
       edm::LogWarning("IncorrectEvent")
         <<"\n For event L1A "<<event_->l1A()<<" and fed "<<mapper_->getActiveDCC()
-        <<"\n The tower "<<towerId_<<" has a wrong number of bytes : "<<(blockLength_*8)           
+        <<"\n The tower "<<towerId_<<" has a wrong number of bytes : "<<(blockLength_*8)	   
         <<"\n => Skipping to next fed block...";
      }
 
@@ -226,7 +229,7 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
 
     
     if(!zs_ && ! forceToKeepFRdata_){
-      expStripID  = ( numbXtal-1)/5 + 1;        
+      expStripID  = ( numbXtal-1)/5 + 1;	
       expXtalID   =  numbXtal - (expStripID-1)*5;
     }
     
@@ -234,16 +237,16 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
     if (statusUnpackXtal== SKIP_BLOCK_UNPACKING)
       {
         if( ! DCCDataUnpacker::silentMode_ ){
-            edm::LogWarning("IncorrectBlock")
-            <<"\n For event L1A "<<event_->l1A()<<" and fed "<<mapper_->getActiveDCC()
-            <<"\n The tower "<<towerId_<<" won't be unpacked further";
+  	  edm::LogWarning("IncorrectBlock")
+	    <<"\n For event L1A "<<event_->l1A()<<" and fed "<<mapper_->getActiveDCC()
+	    <<"\n The tower "<<towerId_<<" won't be unpacked further";
         }
       }
 
   }// end loop over xtals of given FE 
 
   updateEventPointers();
-  return BLOCK_UNPACKED;                
+  return BLOCK_UNPACKED;		
   
 }
 

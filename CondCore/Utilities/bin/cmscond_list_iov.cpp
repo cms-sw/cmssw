@@ -8,11 +8,13 @@
 #include "CondFormats/Common/interface/TimeConversions.h"
 
 #include "CondCore/IOVService/interface/IOVProxy.h"
-#include "CondFormats/Common/interface/PayloadWrapper.h"
 
 #include <boost/program_options.hpp>
 #include <iterator>
 #include <iostream>
+#include <sstream>
+#include "TFile.h"
+#include "Cintex/Cintex.h"
 
 namespace cond {
   class ListIOVUtilities : public Utilities {
@@ -30,6 +32,9 @@ cond::ListIOVUtilities::ListIOVUtilities():Utilities("cmscond_list_iov"){
   addOption<bool>("all","a","list all tags(default mode)");
   addOption<bool>("summary","s","print also the summary for each payload");
   addOption<std::string>("tag","t","list info of the specified tag");
+
+  ROOT::Cintex::Cintex::Enable();
+ 
 }
 
 cond::ListIOVUtilities::~ListIOVUtilities(){
@@ -62,6 +67,10 @@ int cond::ListIOVUtilities::execute(){
     {
       bool verbose = hasOptionValue("verbose");
       bool details = hasOptionValue("summary");
+      TFile * xml=0;
+      if (details) {
+	xml =  TFile::Open(std::string(tag+".xml").c_str(),"recreate");
+      } 
       cond::IOVProxy iov( session, token, !details, details);
       unsigned int counter=0;
       std::string payloadContainer=iov.payloadContainerName();
@@ -75,13 +84,14 @@ int cond::ListIOVUtilities::execute(){
       for (cond::IOVProxy::const_iterator ioviterator=iov.begin(); ioviterator!=iov.end(); ioviterator++) {
         std::cout<<ioviterator->since() << " \t "<<ioviterator->till() <<" \t "<<ioviterator->wrapperToken();
         if (details) {
-          pool::Ref<cond::PayloadWrapper> wrapper =
-            session.getTypedObject<cond::PayloadWrapper>(ioviterator->wrapperToken());
-          if (wrapper.ptr()) std::cout << " \t "<< wrapper->summary();
+	  pool::RefBase ref = session.getObject(ioviterator->wrapperToken());
+	  std::ostringstream ss; ss << tag << '_' << ioviterator->since(); 
+	  xml->WriteObjectAny(ref.object().get(),ref.objectType().Name(ROOT::Reflex::SCOPED).c_str(), ss.str().c_str());
         }
         std::cout<<std::endl;
         ++counter;
       }
+      if (xml) xml->Close();
       std::cout<<"Total # of payload objects: "<<counter<<std::endl;
     }
   }

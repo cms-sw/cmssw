@@ -39,7 +39,8 @@
 import sys,os
 import commands, re, time
 import datetime
-from CommonMethods import *
+#_______________OPTIONS________________
+import optparse
 
 workflowdir             = 'test/workflow/'
 workflowdirLastPayloads = workflowdir + 'lastPayloads/'
@@ -47,6 +48,44 @@ workflowdirTmp          = workflowdir + 'tmp/'
 workflowdirArchive      = workflowdir + 'archive/'
 optionstring            = ''
 tagType                 = ''
+USAGE = re.compile(r'(?s)\s*usage: (.*?)(\n[ \t]*\n|$)')
+
+def nonzero(self): # will become the nonzero method of optparse.Values
+    "True if options were given"
+    for v in self.__dict__.itervalues():
+        if v is not None: return True
+    return False
+
+optparse.Values.__nonzero__ = nonzero # dynamically fix optparse.Values
+
+class ParsingError(Exception): pass
+
+
+def exit(msg=""):
+    raise SystemExit(msg or optionstring.replace("%prog",sys.argv[0]))
+
+def parse(docstring, arglist=None):
+    global optionstring
+    global tagType
+    optionstring = docstring
+    match = USAGE.search(optionstring)
+    if not match: raise ParsingError("Cannot find the option string")
+    optlines = match.group(1).splitlines()
+    try:
+        p = optparse.OptionParser(optlines[0])
+        for line in optlines[1:]:
+            opt, help=line.split(':')[:2]
+            short,long=opt.split(',')[:2]
+            if '=' in opt:
+                action='store'
+                long=long.split('=')[0]
+            else:
+                action='store_true'
+            p.add_option(short.strip(),long.strip(),
+                         action = action, help = help.strip())
+    except (IndexError,ValueError):
+        raise ParsingError("Cannot parse the option string correctly")
+    return p.parse_args(arglist)
 
 def copyToWorkflowdir(path):
     global workflowdirArchive
@@ -144,7 +183,29 @@ def mkWorkflowdir():
     if not os.path.isdir(workflowdirArchive):
     	os.mkdir(workflowdirArchive)
 
-###############################################################################################3
+#__________END_OPTIONS_______________________________________________
+
+# lumi tools CondCore/Utilities/python/timeUnitHelper.py
+def pack(high,low):
+    """pack high,low 32bit unsigned int to one unsigned 64bit long long
+       Note:the print value of result number may appear signed, if the sign bit is used.
+    """
+    h=high<<32
+    return (h|low)
+
+def unpack(i):
+    """unpack 64bit unsigned long long into 2 32bit unsigned int, return tuple (high,low)
+    """
+    high=i>>32
+    low=i&0xFFFFFFFF
+    return(high,low)
+
+def unpackLumiid(i):
+    """unpack 64bit lumiid to dictionary {'run','lumisection'}
+    """
+    j=unpack(i)
+    return {'run':j[0],'lumisection':j[1]}
+
 if __name__ == '__main__':
     #if len(sys.argv) < 2:
 #	print "\n [usage] createPayload <beamspot file> <tag name> <IOV since> <IOV till=-1=inf> <IOV comment> <destDB=oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT>"
@@ -216,7 +277,7 @@ if __name__ == '__main__':
             alllines = mergedfile.readlines()
             npayloads = len(alllines)/23
             for i in range(0,npayloads):
-                block = alllines[i * 23: (i+1)*23]
+                block = alllines[i * 23, (i+1)*23]
                 line = block[2]
                 atime = time.strptime(line.split()[1] +  " " + line.split()[2] + " " + line.split()[3],"%Y.%m.%d %H:%M:%S %Z")
                 sortedlist[atime] = block
@@ -233,14 +294,14 @@ if __name__ == '__main__':
 	    if line.find("EndTimeOfFit") != -1:
 		atime = time.strptime(line.split()[1] +  " " + line.split()[2] + " " + line.split()[3],"%Y.%m.%d %H:%M:%S %Z")
 	    if line.find("LumiRange") != -1:
-		alumi = line.split()[3]
+		alumis = line.strip('LumiRange ')
 	    if line.find('Type') != -1 and line.split()[1] == '0':
 		skip = True		
 	if skip:
 	    print " zero fit result, skip file " + beam_file + " with time stamp:"
 	    print " run " + arun + " lumis " + alumis
 	else:
-	    sortedlist[int(pack(int(arun), int(alumi)))] = beam_file
+	    sortedlist[atime] = beam_file
 		
 	tmpfile.close()
 
@@ -263,7 +324,6 @@ if __name__ == '__main__':
     
     nfile = 0
     iov_since_first = '1'
-    total_files = len(keys)
     
     for key in keys:
 	
@@ -289,10 +349,10 @@ if __name__ == '__main__':
         tmp_datafilename = workflowdirTmp+"tmp_datafile.txt"
         if option.merged:
             tmpfile = file(tmp_datafilename,'w')
-            tmpfile.writelines(sortedlist[key])
+            tmpfile.write(sortedlist[key])
             tmpfile.close()
             beam_file = tmp_datafilename
-
+            
 	print "read input beamspot file: " + beam_file
 	tmpfile = open(beam_file)
         beam_file_tmp = workflowdirTmp + beam_file[beam_file.rfind('/')+1:] + ".tmp"
@@ -332,32 +392,117 @@ if __name__ == '__main__':
         
 	beam_file = beam_file_tmp
 
-        if not writeSqliteFile(sqlite_file,tagname,timetype,beam_file,writedb_template,workflowdirTmp):
-            print "An error occurred while writing the sqlite file: " + sqlite_file
+	writedb_out = workflowdirTmp + "write2DB_" + tagname + suffix + ".py"
+	wfile = open(writedb_template)
+	wnewfile = open(writedb_out,'w')
+	
+	writedb_tags = [('SQLITEFILE','sqlite_file:' + sqlite_file),
+			('TAGNAME',tagname),
+                        ('TIMETYPE',timetype),
+			('BEAMSPOTFILE',beam_file)]
+    
+	for line in wfile:
 
-	commands.getstatusoutput('rm -f ' + beam_file)
-        ##### READ and check sqlite file
-        readSqliteFile(sqlite_file,tagname,readdb_template,workflowdirTmp)
+	    for itag in writedb_tags:
+
+		line = line.replace(itag[0],itag[1])
+
+	    wnewfile.write(line)
+
+	wnewfile.close()
+	print "writing sqlite file ..."
+    	status_wDB = commands.getstatusoutput('cmsRun '+ writedb_out)
+        #print status_wDB[1]
         
+	commands.getstatusoutput('rm -f ' + beam_file)
+	os.system("rm "+ writedb_out)
+    ##### READ and check sqlite file
+	
+	print "read back sqlite file to check content ..."
+    
+	readdb_out = workflowdirTmp + "readDB_" + tagname + ".py"
+    
+	rfile = open(readdb_template)
+	rnewfile = open(readdb_out,'w')
+    
+	readdb_tags = [('SQLITEFILE','sqlite_file:' + sqlite_file),
+		       ('TAGNAME',tagname)]
+
+	for line in rfile:
+
+	    for itag in readdb_tags:
+
+		line = line.replace(itag[0],itag[1])
+
+	    rnewfile.write(line)
+
+	rnewfile.close()
+	status_rDB = commands.getstatusoutput('cmsRun '+ readdb_out)
+    
+	outtext = status_rDB[1]
+	print outtext
+	os.system("rm "+ readdb_out)
+	
         #### Merge sqlite files
         if not os.path.isdir(workflowdirArchive + 'payloads'):
             os.mkdir(workflowdirArchive + 'payloads')
         
         print " merge sqlite file ..."
-        appendSqliteFile("Combined.db", sqlite_file, tagname, iov_since, iov_till ,workflowdirTmp)
+        acmd = "cmscond_export_iov -d sqlite_file:"+workflowdirArchive+"payloads/Combined.db -s sqlite_file:"+sqlite_file+ " -i "+tagname+" -t "+tagname+" -l sqlite_file:"+workflowdirTmp+"log.db"+" -b "+iov_since+" -e "+iov_till
+        print acmd
+        std = commands.getstatusoutput(acmd)
+        print std[1]
         
-        # keep last payload for express, and prompt tags
-        if nfile == total_files:
-            print " this is the last IOV. You can use this payload for express and prompt conditions."
-            os.system("cp "+sqlite_file+ " "+workflowdirArchive+"payloads/express.db")
-            print "a copy of this payload has been placed at:"
-            print workflowdirArchive+"payloads/express.db"
-        
-        # clean up
-	os.system("rm "+ sqlite_file)
-        print " clean up done."
+	os.system("rm "+sqlite_file)
 
-    os.system("mv " + workflowdirTmp + "Combined.db " + workflowdirArchive + "payloads/")
+    #### CREATE payload files for dropbox
+            
+        #print " create payload card for dropbox ..."
+        #dfile = open(metadata_file,'w')
+        
+        #dfile.write('destDB '+ destDB +'\n')
+        #dfile.write('tag '+ tagname +'\n')
+        #dfile.write('inputtag' +'\n')
+        #dfile.write('since ' + iov_since +'\n')
+        #if IOVbase == "runbase":
+        #    dfile.write('Timetype runnumber\n')
+        #elif IOVbase == "lumibase":
+        #    dfile.write('Timetype lumiid\n')
+        #checkType = tagType
+        #if tagType == "express":
+        #    checkType = "hlt"
+        #dfile.write('IOVCheck ' + checkType + '\n')
+        #dfile.write('usertext ' + iov_comment +'\n')
+        
+        #dfile.close()
+        
+        #uuid = commands.getstatusoutput('uuidgen -t')[1]
+        #final_sqlite_file_name = tagname + '@' + uuid
+        
+        #if not os.path.isdir(workflowdirArchive + 'payloads'):
+        #    os.mkdir(workflowdirArchive + 'payloads')
+        #commands.getstatusoutput('cp ' + sqlite_file   + ' ' + workflowdirArchive + 'payloads/' + final_sqlite_file_name + '.db')
+        #commands.getstatusoutput('cp ' + metadata_file + ' ' + workflowdirArchive + 'payloads/' + final_sqlite_file_name + '.txt')
+
+        #commands.getstatusoutput('mv ' + sqlite_file   + ' ' + workflowdirLastPayloads + final_sqlite_file_name + '.db')
+        #commands.getstatusoutput('mv ' + metadata_file + ' ' + workflowdirLastPayloads + final_sqlite_file_name + '.txt')
+
+        #print workflowdirLastPayloads + final_sqlite_file_name + '.db'
+        #print workflowdirLastPayloads + final_sqlite_file_name + '.txt'
+        
+        #if option.upload:
+        #    print " scp files to offline Drop Box"
+        #    commands.getstatusoutput("scp " + workflowdirLastPayloads + final_sqlite_file_name + ".db  webcondvm.cern.ch:/DropBox")
+        #    commands.getstatusoutput("scp " + workflowdirLastPayloads + final_sqlite_file_name + ".txt webcondvm.cern.ch:/DropBox")
+
+        print " clean up done."
+    #### CLEAN up
+	
+	#print "DONE.\n"
+	#print "Files ready to be move to beamspot dropbox:"
+	#print tagname+"@"+uuid+".db"
+	#print tagname+"@"+uuid+".txt"
+    
     allfile.close()
             
     #### CREATE payload for merged output
@@ -405,4 +550,25 @@ if __name__ == '__main__':
         if option.Test:
             dropbox = "/DropBox_test"
 
-        uploadSqliteFile(workflowdirLastPayloads,final_sqlite_file_name,dropbox)
+        acmd = "chmod a+w " + workflowdirLastPayloads + final_sqlite_file_name + ".txt"
+        outcmd = commands.getstatusoutput(acmd)
+        print acmd
+        print outcmd[1]
+        acmd = "scp -p" + workflowdirLastPayloads + final_sqlite_file_name + ".db  webcondvm.cern.ch:/tmp"
+        outcmd = commands.getstatusoutput(acmd)
+        print acmd
+        print outcmd[1]
+        acmd = "scp -p" + workflowdirLastPayloads + final_sqlite_file_name + ".txt webcondvm.cern.ch:/tmp"
+        outcmd = commands.getstatusoutput(acmd)
+        print acmd
+        print outcmd[1]
+        acmd = "ssh webcondvm.cern.ch \"mv /tmp/" + final_sqlite_file_name + ".db "+dropbox +"\""
+        outcmd = commands.getstatusoutput(acmd)
+        print acmd
+        print outcmd[1]
+        acmd = "ssh webcondvm.cern.ch \"mv /tmp/" + final_sqlite_file_name + ".txt "+dropbox +"\""
+        outcmd = commands.getstatusoutput(acmd)
+        print acmd
+        print outcmd[1]
+        
+

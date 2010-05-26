@@ -57,7 +57,6 @@ class EcalEndcapGeometry : public CaloSubdetectorGeometry
       void setNumberOfCrystalPerModule( const int nncrys ) { _nncrys=nncrys ; }
 
       const OrderedListOfEBDetId* getClosestBarrelCells( EEDetId id ) const ;
-
       // Get closest cell, etc...
       virtual DetId getClosestCell( const GlobalPoint& r ) const ;
 

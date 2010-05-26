@@ -20,12 +20,12 @@ PedestalsAlgorithm::PedestalsAlgorithm( const edm::ParameterSet & pset, Pedestal
     deadStripMax_(pset.getParameter<double>("DeadStripMax")),
     noisyStripMin_(pset.getParameter<double>("NoisyStripMin"))
 {
-  LogDebug(mlCommissioning_)
+  edm::LogInfo(mlCommissioning_)
     << "[PedestalsAlgorithm::" << __func__ << "]"
     << " Set maximum noise deviation for dead strip determination to: " << deadStripMax_;
-  LogDebug(mlCommissioning_)
+  edm::LogInfo(mlCommissioning_)
     << "[PedestalsAlgorithm::" << __func__ << "]"
-    << " Set minimal noise deviation for noisy strip determination to: " << noisyStripMin_;
+    << " Set minimal noise deviation for dead strip determination to: " << noisyStripMin_;
 }
 
 // ----------------------------------------------------------------------------

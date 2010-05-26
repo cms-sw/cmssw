@@ -204,7 +204,7 @@ void SiPixelActionExecutor::createSummary(DQMStore* bei) {
   //bei->cd();
   fillSummary(bei, endcap_structure_name, endcap_me_names, false); // Endcap
   bei->setCurrentFolder("Pixel/");
-  if(!Tier0Flag_) fillDeviations(bei);
+  //if(!Tier0Flag_) fillDeviations(bei);
   bei->setCurrentFolder("Pixel/");
   //bei->cd();
   if(source_type_==0||source_type_==5 || source_type_ == 20){//do this only if RawData source is present
@@ -769,22 +769,28 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
 	if((*iv)=="FedChLErrArray") temp = bei->book2D("FedChLErrArray","Type of last error",40,-0.5,39.5,37,0.,37.);
 	if((*iv)=="FedChNErrArray") temp = bei->book2D("FedChNErrArray","Total number of errors",40,-0.5,39.5,37,0.,37.);
 	if((*iv)=="FedETypeNErrArray"){
-	  temp = bei->book2D("FedETypeNErrArray","Number of each error type",40,-0.5,39.5,15,24.5,39.5);
+	  temp = bei->book2D("FedETypeNErrArray","Number of each error type",40,-0.5,39.5,21,0.,21.);
 	  temp->setBinLabel(1,"ROC of 25",2);
 	  temp->setBinLabel(2,"Gap word",2);
 	  temp->setBinLabel(3,"Dummy word",2);
 	  temp->setBinLabel(4,"FIFO full",2);
 	  temp->setBinLabel(5,"Timeout",2);
-	  temp->setBinLabel(6,"TBM trailer",2);
-	  temp->setBinLabel(7,"Event number",2);
-	  temp->setBinLabel(8,"Slink header",2);
-	  temp->setBinLabel(9,"Slink trailer",2);
-	  temp->setBinLabel(10,"Event size",2);
-	  temp->setBinLabel(11,"FED channel",2);
-	  temp->setBinLabel(12,"ROC value",2);
-	  temp->setBinLabel(13,"Dcol or pixel value",2);
-	  temp->setBinLabel(14,"Readout order",2);
-	  temp->setBinLabel(15,"CRC error",2);
+	  temp->setBinLabel(6,"Stack full",2);
+	  temp->setBinLabel(7,"Pre-cal issued",2);
+	  temp->setBinLabel(8,"Trigger clear or sync",2);
+	  temp->setBinLabel(9,"No token bit",2);
+	  temp->setBinLabel(10,"Overflow",2);
+	  temp->setBinLabel(11,"FSM error",2);
+	  temp->setBinLabel(12,"Invalid #ROCs",2);
+	  temp->setBinLabel(13,"Event number",2);
+	  temp->setBinLabel(14,"Slink header",2);
+	  temp->setBinLabel(15,"Slink trailer",2);
+	  temp->setBinLabel(16,"Event size",2);
+	  temp->setBinLabel(17,"Invalid channel#",2);
+	  temp->setBinLabel(18,"ROC value",2);
+	  temp->setBinLabel(19,"Dcol or pixel value",2);
+	  temp->setBinLabel(20,"Readout order",2);
+	  temp->setBinLabel(21,"CRC error",2);
         }	  
 	sum_mes.push_back(temp);
       }
@@ -823,7 +829,7 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
 		int channel=-1;
 		jsst>>channel;
 	        if(channel==i){
-		  if((*im).find("FedETypeNErrArray_")!=std::string::npos) (*isum)->Fill(ndet-1,i+25,me->getIntValue());
+		  if((*im).find("FedETypeNErrArray_")!=std::string::npos && i<21) (*isum)->Fill(ndet-1,i,me->getIntValue());
 		  else (*isum)->Fill(ndet-1,i,me->getIntValue());
 		}
 	      }

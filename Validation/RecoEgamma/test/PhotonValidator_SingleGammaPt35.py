@@ -13,7 +13,7 @@ process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 process.load("Validation.RecoEgamma.photonValidationSequence_cff")
 process.load("Validation.RecoEgamma.photonPostprocessing_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'MC_37Y_V2::All'
+process.GlobalTag.globaltag = 'MC_3XY_V15::All'
 
 process.DQMStore = cms.Service("DQMStore");
 process.load("DQMServices.Components.DQMStoreStats_cfi")
@@ -32,8 +32,7 @@ from Validation.RecoEgamma.photonValidationSequence_cff import *
 from Validation.RecoEgamma.photonPostprocessing_cfi import *
 
 photonValidation.OutputMEsInRootFile = True
-photonValidation.OutputFileName = 'PhotonValidationRelVal370pre3_SingleGammaPt35.root'
-
+photonValidation.OutputFileName = 'PhotonValidationRelVal350pre3_SingleGammaPt35.root'
 photonPostprocessing.batch = cms.bool(True)
 photonPostprocessing.InputFileName = photonValidation.OutputFileName
 
@@ -42,20 +41,21 @@ noEventSort = cms.untracked.bool(True),
 duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
                             
     fileNames = cms.untracked.vstring(
-# official RelVal 370pre3 single Photons pt=35GeV
-        '/store/relval/CMSSW_3_7_0_pre3/RelValSingleGammaPt35/GEN-SIM-RECO/MC_37Y_V2-v1/0019/94FC5CBA-0058-DF11-8DD7-0018F3D09612.root',
-        '/store/relval/CMSSW_3_7_0_pre3/RelValSingleGammaPt35/GEN-SIM-RECO/MC_37Y_V2-v1/0019/80755AA5-FE57-DF11-9E17-001A92971B56.root',
-        '/store/relval/CMSSW_3_7_0_pre3/RelValSingleGammaPt35/GEN-SIM-RECO/MC_37Y_V2-v1/0019/0EE5A19D-3458-DF11-A03C-003048678A6A.root'
+# official RelVal 350pre3 single Photons pt=35GeV            
+        '/store/relval/CMSSW_3_5_0_pre3/RelValSingleElectronPt35/GEN-SIM-RECO/MC_3XY_V15-v1/0005/88FF1000-F702-DF11-B13F-003048D2BE08.root',
+        '/store/relval/CMSSW_3_5_0_pre3/RelValSingleElectronPt35/GEN-SIM-RECO/MC_3XY_V15-v1/0005/7C2AC862-D103-DF11-B64D-0030487CAF0E.root'
 
     ),
                             
+                            
     secondaryFileNames = cms.untracked.vstring(
-# official RelVal 370pre3 single Photons pt=35GeV
-        '/store/relval/CMSSW_3_7_0_pre3/RelValSingleGammaPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_37Y_V2-v1/0019/F4FAFE28-0058-DF11-B924-002618FDA216.root',
-        '/store/relval/CMSSW_3_7_0_pre3/RelValSingleGammaPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_37Y_V2-v1/0019/B8E9F11F-FF57-DF11-AB8B-001A92810AC6.root',
-        '/store/relval/CMSSW_3_7_0_pre3/RelValSingleGammaPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_37Y_V2-v1/0019/AA008020-FE57-DF11-BC33-003048678F06.root',
-        '/store/relval/CMSSW_3_7_0_pre3/RelValSingleGammaPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_37Y_V2-v1/0019/008765FA-3458-DF11-85B8-003048678A6A.root'
     
+# official RelVal 350pre3 single Photons pt=35GeV
+        '/store/relval/CMSSW_3_5_0_pre3/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V15-v1/0006/3401F929-D203-DF11-B317-0030487CD162.root',
+        '/store/relval/CMSSW_3_5_0_pre3/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V15-v1/0005/AE565DFA-F602-DF11-852F-003048D37580.root',
+        '/store/relval/CMSSW_3_5_0_pre3/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V15-v1/0005/88F7ECA9-F602-DF11-A8D5-003048D374F2.root',
+        '/store/relval/CMSSW_3_5_0_pre3/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V15-v1/0005/184EEC0A-F602-DF11-B1F9-001D09F29619.root'
+
     )
  )
 

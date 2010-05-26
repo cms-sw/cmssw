@@ -295,6 +295,20 @@ bool HitPattern::hasValidHitInFirstPixelBarrel() const {
   return false;
 }
 
+bool HitPattern::hasValidHitInFirstPixelEndcap() const {
+  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
+    uint32_t pattern = getHitPattern(i);
+    if (pixelEndcapHitFilter(pattern)) {
+      if (getLayer(pattern) == 1) {
+        if (validHitFilter(pattern)) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
 int HitPattern::numberOfHits() const {
   int count = 0;
   for (int i=0; i<(PatternSize * 32) / HitSize; i++) {

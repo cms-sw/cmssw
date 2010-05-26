@@ -47,6 +47,14 @@ class PFDisplacedVertexFinder {
   typedef std::pair <unsigned int, unsigned int> PFTrackHitInfo;
   typedef std::pair <PFTrackHitInfo, PFTrackHitInfo> PFTrackHitFullInfo;
 
+  /// Fitter Type
+  enum FitterType {
+    F_NOTDEFINED,
+    F_DONOTREFIT,
+    F_KALMAN,
+    F_ADAPTIVE
+  };
+
 
   /// -------- Set different algo parameters -------- ///
 

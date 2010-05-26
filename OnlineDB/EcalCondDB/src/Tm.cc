@@ -1,3 +1,5 @@
+
+
 #include <time.h>
 #include <iostream>
 #include <string>
@@ -8,12 +10,6 @@
 #include "OnlineDB/EcalCondDB/interface/Tm.h"
 
 using namespace std;
-
-/**
- * GO: the maximum UNIX time is restricted to INT_MAX, corresponding to
- *     2038-01-19 03:14:07. Take it into account in str()
- * 
- */
 
 // Default Constructor
 Tm::Tm()
@@ -32,9 +28,6 @@ Tm::Tm(struct tm* initTm)
 Tm::Tm(uint64_t micros)
 {
   this->setNull();
-  if (micros > PLUS_INF_MICROS) {
-    micros = PLUS_INF_MICROS;
-  }
   this->setToMicrosTime(micros);
 }
 
@@ -94,17 +87,19 @@ string Tm::str() const
    *   is always in GMT / UTC.
    *   [1] https://hypernews.cern.ch/HyperNews/CMS/get/ecalDB/66.html
    */
+  Tm dummy_Tm;
+  dummy_Tm.setToGMTime(this->microsTime()/1000000);
+  struct tm dummy_tm = dummy_Tm.c_tm();
+   
   char timebuf[20] = "";
-  if (this->microsTime() >= PLUS_INF_MICROS) {
-    sprintf(timebuf, "9999-12-12 23:59:59");
-  } else {
-    Tm dummy_Tm;
-    dummy_Tm.setToGMTime(this->microsTime()/1000000);
-    struct tm dummy_tm = dummy_Tm.c_tm();
-    strftime(timebuf, 20, "%Y-%m-%d %H:%M:%S", &dummy_tm);
-  }
+  /*
+  strftime(timebuf, 20, "%Y-%m-%d %H:%M:%S", &m_tm);
+  */
+  strftime(timebuf, 20, "%Y-%m-%d %H:%M:%S", &dummy_tm);
   return string(timebuf);
 }
+
+
 
 uint64_t Tm::microsTime() const
 {
@@ -141,9 +136,6 @@ uint64_t Tm::microsTime() const
 void Tm::setToMicrosTime(uint64_t micros)
 {
   time_t t = micros / 1000000;
-  if (t >= INT_MAX) {
-    t = INT_MAX;
-  }
   m_tm = *gmtime(&t);
 }
 
@@ -191,25 +183,6 @@ void Tm::setToString(const string s)
       throw(runtime_error("Day out of bounds"));
     }
 
-    if (m_tm.tm_year >= 2038) {
-      // take into account UNIX time limits
-      m_tm.tm_year = 2038;
-      if (m_tm.tm_mon > 1) {
-	m_tm.tm_mon = 1;
-      }
-      if (m_tm.tm_mday > 19) {
-	m_tm.tm_mday = 19;
-      }
-      if (m_tm.tm_hour > 3) {
-	m_tm.tm_hour = 3;
-      }
-      if (m_tm.tm_min > 14) {
-	m_tm.tm_min = 14;
-      }
-      if (m_tm.tm_sec > 7) {
-	m_tm.tm_sec = 7;
-      }
-    }
     m_tm.tm_year -= 1900;
     m_tm.tm_mon -= 1;
   } catch (runtime_error &e) {

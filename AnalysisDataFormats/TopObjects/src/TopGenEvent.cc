@@ -151,9 +151,9 @@ TopGenEvent::daughterQuarkOfTop(bool invertCharge) const
 {
   const reco::GenParticle* cand=0;
   for(reco::GenParticleCollection::const_iterator top = parts_->begin(); top<parts_->end(); ++top){
-    if( top->pdgId()==(invertCharge?TopDecayID::tID:-TopDecayID::tID) ){
+    if( top->pdgId()==(invertCharge?-TopDecayID::tID:TopDecayID::tID) ){
       for(reco::GenParticle::const_iterator quark = top->begin(); quark<top->end(); ++quark){
-	if( abs(quark->pdgId())>= TopDecayID::bID ){
+	if( abs(quark->pdgId())<= TopDecayID::bID ){
 	  cand = dynamic_cast<const reco::GenParticle* > (&(*quark));
 	  if(cand == 0){
 	    throw edm::Exception( edm::errors::InvalidReference, "Not a GenParticle" );

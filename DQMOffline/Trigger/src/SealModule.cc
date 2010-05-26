@@ -1,4 +1,4 @@
-// $Id: SealModule.cc,v 1.24 2010/02/28 19:59:56 wmtan Exp $
+// $Id: SealModule.cc,v 1.22 2010/01/22 15:03:40 bachtis Exp $
 
 #include "DQMOffline/Trigger/interface/FourVectorHLTClient.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -11,8 +11,7 @@
 #include "DQMOffline/Trigger/interface/JetMETHLTOfflineSource.h"
 #include "DQMOffline/Trigger/interface/JetMETHLTOfflineClient.h"
 #include "DQMOffline/Trigger/interface/DQMOfflineHLTEventInfoClient.h"
-#include "DQMOffline/Trigger/interface/TopElectronHLTOfflineSource.h"
-#include "DQMOffline/Trigger/interface/TopElectronHLTOfflineClient.h"
+#include "DQMOffline/Trigger/interface/HLTTauCertifier.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(FourVectorHLTClient);
@@ -26,6 +25,6 @@ DEFINE_FWK_MODULE(HLTTauPostProcessor);
 DEFINE_FWK_MODULE(JetMETHLTOfflineSource);
 DEFINE_FWK_MODULE(JetMETHLTOfflineClient);
 DEFINE_FWK_MODULE(DQMOfflineHLTEventInfoClient);
-DEFINE_FWK_MODULE(TopElectronHLTOfflineSource);
-DEFINE_FWK_MODULE(TopElectronHLTOfflineClient);
+DEFINE_FWK_MODULE(HLTTauCertifier);
+
 

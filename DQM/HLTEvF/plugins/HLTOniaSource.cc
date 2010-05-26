@@ -159,10 +159,10 @@ void HLTOniaSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     mytrackCands =  * trackCands;   
     sort(mytrackCands.begin(),mytrackCands.end(),PtGreater());  
     this->fillOniaTriggerMEs(trackCands ,  trackTag_.label(), trackME_ );   
-  }else {
+   }else {
     LogVerbatim ("oniatriggermonitor") << "[HLTOniaSource]: Could not access track collection with tag "<<trackTag_;
-  }
-  
+   }
+    
   //Get Beamspot 
   Handle<BeamSpot> recoBeamSpotHandle;
   iEvent.getByLabel(beamSpotTag_, recoBeamSpotHandle);
@@ -171,8 +171,8 @@ void HLTOniaSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   }else {
     LogVerbatim ("oniatriggermonitor") << "[HLTOniaSource]: Could not access beam spot info with tag "<<beamSpotTag_;
   }  
-  
-  
+
+
   //Get Trigger Summary RA
   Handle<TriggerEventWithRefs> rawTriggerEvent;
   iEvent.getByLabel(triggerSummaryRAWTag_, rawTriggerEvent );
@@ -407,25 +407,29 @@ void  HLTOniaSource::fillOniaTriggerMEs( Handle<TrackCollection> &  collection, 
 
 void  HLTOniaSource::fillOniaTriggerMEs(std::vector<reco::RecoChargedCandidateRef>  &  candidateVector, string collectionLabel,  map<string, MonitorElement *>  & mapME ){
     
-  for (size_t  i=0; i<candidateVector.size(); i++) {
-    const Track* tk = candidateVector[i]->get<TrackRef>().get();
-    if(tk) {
-      //Fill MEs  
-      if(mapME[collectionLabel+"pt"]){ mapME[collectionLabel+"pt"]->Fill(tk->pt()); }
-      if(mapME[collectionLabel+"p"])  { mapME[collectionLabel+"p"]->Fill(tk->p()); }
-      if(mapME[collectionLabel+"eta"]) { mapME[collectionLabel+"eta"]->Fill(tk->eta()); }
-      if(mapME[collectionLabel+"phi"]) { mapME[collectionLabel+"phi"]->Fill(tk->phi()); }
-      if(mapME[collectionLabel+"etaphi"]){ mapME[collectionLabel+"etaphi"]->Fill(tk->phi(),tk->eta()); }
-      if(mapME[collectionLabel+"etapt"]){ mapME[collectionLabel+"etapt"]->Fill(tk->pt(),tk->eta()); }
-      if(mapME[collectionLabel+"charge"]){ mapME[collectionLabel+"charge"]->Fill(tk->charge()); }
-      
-      if(mapME[collectionLabel+"dxy"]){ mapME[collectionLabel+"dxy"]->Fill(tk->dxy(BSPosition_)); }
-      if(mapME[collectionLabel+"dz"]){ mapME[collectionLabel+"dz"]->Fill(tk->dz(BSPosition_)); }
-      
-      if(mapME[collectionLabel+"validhits"]) { mapME[collectionLabel+"validhits"]->Fill(tk->numberOfValidHits()); }
-      if(mapME[collectionLabel+"normchi"]){  mapME[collectionLabel+"normchi"]->Fill(tk->normalizedChi2()); }
-    }
+  for (unsigned int  i=0; i!=candidateVector.size(); i++) {
+   TrackRef tk = candidateVector[i]->get<TrackRef>();
+   if(!tk.isAvailable()){ 
+     LogWarning ("oniatriggermonitor") << "[HLTOniaSource]: Could not access TrackRef for collection  "<<collectionLabel<<" for cand "<<i;
+     continue;
+
   }
+   //Fill MEs  
+   if(mapME[collectionLabel+"pt"]){  mapME[collectionLabel+"pt"]->Fill(tk->pt()); }
+   if(mapME[collectionLabel+"p"])  { mapME[collectionLabel+"p"]->Fill(tk->p()); }
+   if(mapME[collectionLabel+"eta"]) { mapME[collectionLabel+"eta"]->Fill(tk->eta()); }
+   if(mapME[collectionLabel+"phi"]) { mapME[collectionLabel+"phi"]->Fill(tk->phi()); }
+   if(mapME[collectionLabel+"etaphi"]){ mapME[collectionLabel+"etaphi"]->Fill(tk->phi(),tk->eta()); }
+   if(mapME[collectionLabel+"etapt"]){ mapME[collectionLabel+"etapt"]->Fill(tk->pt(),tk->eta()); }
+   if(mapME[collectionLabel+"charge"]){ mapME[collectionLabel+"charge"]->Fill(tk->charge()); }
+   
+   if(mapME[collectionLabel+"dxy"]){ mapME[collectionLabel+"dxy"]->Fill(tk->dxy(BSPosition_)); }
+   if(mapME[collectionLabel+"dz"]){ mapME[collectionLabel+"dz"]->Fill(tk->dz(BSPosition_)); }
+   
+   if(mapME[collectionLabel+"validhits"]) { mapME[collectionLabel+"validhits"]->Fill(tk->numberOfValidHits()); }
+   if(mapME[collectionLabel+"normchi"]){  mapME[collectionLabel+"normchi"]->Fill(tk->normalizedChi2()); }
+  }
+ 
   if(mapME[collectionLabel+"nrcand"]){  mapME[collectionLabel+"nrcand"]->Fill( candidateVector.size());}
 }
 
@@ -440,24 +444,26 @@ void  HLTOniaSource::fillOniaTriggerMEs( Handle<RecoChargedCandidateCollection> 
     int num = 0;
     typedef RecoChargedCandidateCollection::const_iterator cand;
     for (cand i=myCollection.begin(); i!=myCollection.end(); i++) {
-      const Track* tk = i->get<TrackRef>().get();
-      if(tk) {
-	num++; 
-	//Fill MEs  
-	if(mapME[collectionLabel+"pt"]){  mapME[collectionLabel+"pt"]->Fill(tk->pt()); }
-	if(mapME[collectionLabel+"p"])  { mapME[collectionLabel+"p"]->Fill(tk->p()); }
-	if(mapME[collectionLabel+"eta"]) { mapME[collectionLabel+"eta"]->Fill(tk->eta()); }
-	if(mapME[collectionLabel+"phi"]) { mapME[collectionLabel+"phi"]->Fill(tk->phi()); }
-	if(mapME[collectionLabel+"etaphi"]){ mapME[collectionLabel+"etaphi"]->Fill(tk->phi(),tk->eta()); }
-	if(mapME[collectionLabel+"etapt"]){ mapME[collectionLabel+"etapt"]->Fill(tk->pt(),tk->eta()); }
-	if(mapME[collectionLabel+"charge"]){ mapME[collectionLabel+"charge"]->Fill(tk->charge()); }
-	
-	if(mapME[collectionLabel+"dxy"]){ mapME[collectionLabel+"dxy"]->Fill(tk->dxy(BSPosition_)); }
-	if(mapME[collectionLabel+"dz"]){ mapME[collectionLabel+"dz"]->Fill(tk->dz(BSPosition_)); }
-	
-	if(mapME[collectionLabel+"validhits"]) { mapME[collectionLabel+"validhits"]->Fill(tk->numberOfValidHits()); }
-	if(mapME[collectionLabel+"normchi"]){  mapME[collectionLabel+"normchi"]->Fill(tk->normalizedChi2()); }
+      TrackRef tk = i->get<TrackRef>();
+      if(!tk.isAvailable()){ 
+	LogWarning ("oniatriggermonitor") << "[HLTOniaSource]: Could not access TrackRef for collection  "<<collectionLabel;
+	return;
       }
+      num++; 
+     //Fill MEs  
+      if(mapME[collectionLabel+"pt"]){  mapME[collectionLabel+"pt"]->Fill(tk->pt()); }
+      if(mapME[collectionLabel+"p"])  { mapME[collectionLabel+"p"]->Fill(tk->p()); }
+      if(mapME[collectionLabel+"eta"]) { mapME[collectionLabel+"eta"]->Fill(tk->eta()); }
+      if(mapME[collectionLabel+"phi"]) { mapME[collectionLabel+"phi"]->Fill(tk->phi()); }
+      if(mapME[collectionLabel+"etaphi"]){ mapME[collectionLabel+"etaphi"]->Fill(tk->phi(),tk->eta()); }
+      if(mapME[collectionLabel+"etapt"]){ mapME[collectionLabel+"etapt"]->Fill(tk->pt(),tk->eta()); }
+      if(mapME[collectionLabel+"charge"]){ mapME[collectionLabel+"charge"]->Fill(tk->charge()); }
+
+      if(mapME[collectionLabel+"dxy"]){ mapME[collectionLabel+"dxy"]->Fill(tk->dxy(BSPosition_)); }
+      if(mapME[collectionLabel+"dz"]){ mapME[collectionLabel+"dz"]->Fill(tk->dz(BSPosition_)); }
+
+      if(mapME[collectionLabel+"validhits"]) { mapME[collectionLabel+"validhits"]->Fill(tk->numberOfValidHits()); }
+      if(mapME[collectionLabel+"normchi"]){  mapME[collectionLabel+"normchi"]->Fill(tk->normalizedChi2()); }
     }
     if(mapME[collectionLabel+"nrcand"]){  mapME[collectionLabel+"nrcand"]->Fill(num);}
   }
@@ -478,11 +484,15 @@ void HLTOniaSource::fillInvariantMass(vector<RecoChargedCandidateRef> & cand1,  
 	  massME_[cand1Label+cand2Label+chargeLabel+"highestpt"]->Fill((cand1[i]->p4()+cand2[0]->p4()).mass());
 	}
 	if(massME_[cand1Label+cand2Label+chargeLabel+"highestpt"+"maxdzmuontrack"]){
-	  const Track* tk1 = cand1[i]->get<TrackRef>().get();
-	  const Track* tk2 = cand2[0]->get<TrackRef>().get();
-	  if(tk1 && tk2) massME_[cand1Label+cand2Label+chargeLabel+"highestpt"+"maxdzmuontrack"]->Fill(fabs(tk1->dz(BSPosition_) - tk2->dz(BSPosition_)));
+	  TrackRef tk1 = cand1[i]->get<TrackRef>();
+	  TrackRef tk2 = cand2[0]->get<TrackRef>();
+	  if(tk1.isAvailable() && tk2.isAvailable()) {
+	    massME_[cand1Label+cand2Label+chargeLabel+"highestpt"+"maxdzmuontrack"]->Fill(fabs(tk1->dz(BSPosition_) - tk2->dz(BSPosition_)));
+	  }else { 
+	    LogWarning ("oniatriggermonitor") << "[HLTOniaSource]: Could not access TrackRef for collection  "<<cand1Label<<" or "<< cand2Label;
+	    return;
+	  }
 	}
-
       }
 
       for (size_t j= 0; j< cand2.size(); j++) {
@@ -495,9 +505,14 @@ void HLTOniaSource::fillInvariantMass(vector<RecoChargedCandidateRef> & cand1,  
 	   massME_[cand1Label+cand2Label+chargeLabel]->Fill((cand1[i]->p4()+cand2[j]->p4()).mass());
 	}
 	if(massME_[cand1Label+cand2Label+chargeLabel+"maxdzmuontrack"]){
-	  const Track* tk1 = cand1[i]->get<TrackRef>().get();
-	  const Track* tk2 = cand2[j]->get<TrackRef>().get();
-	  if(tk1 && tk2)  massME_[cand1Label+cand2Label+chargeLabel+"maxdzmuontrack"]->Fill(fabs(tk1->dz(BSPosition_) - tk2->dz(BSPosition_)));
+	  TrackRef tk1 = cand1[i]->get<TrackRef>();
+	  TrackRef tk2 = cand2[j]->get<TrackRef>();
+	  if(tk1.isAvailable() && tk2.isAvailable()) {
+	  massME_[cand1Label+cand2Label+chargeLabel+"maxdzmuontrack"]->Fill(fabs(tk1->dz(BSPosition_) - tk2->dz(BSPosition_)));
+	}else { 
+	    LogWarning ("oniatriggermonitor") << "[HLTOniaSource]: Could not access TrackRef for collection  "<<cand1Label<<" or "<< cand2Label;
+	    return;
+	  }
 	}
       }
     }
@@ -523,11 +538,15 @@ void HLTOniaSource::fillInvariantMass(std::vector<reco::RecoChargedCandidateRef>
 	}
 	
 	if(massME_[cand1Label+cand2Label+chargeLabel+"highestpt"+"maxdzmuontrack"]){
-	  const Track* tk1 = cand1[i]->get<TrackRef>().get();
-	  const Track* tk2 = candItr->get<TrackRef>().get();
-	  if(tk1 && tk2 )massME_[cand1Label+cand2Label+chargeLabel+"highestpt"+"maxdzmuontrack"]->Fill(fabs(tk1->dz(BSPosition_) - tk2->dz(BSPosition_)));
+	  TrackRef tk1 = cand1[i]->get<TrackRef>();
+	  TrackRef tk2 = candItr->get<TrackRef>();
+	  if(tk1.isAvailable() && tk2.isAvailable()) {
+	    massME_[cand1Label+cand2Label+chargeLabel+"highestpt"+"maxdzmuontrack"]->Fill(fabs(tk1->dz(BSPosition_) - tk2->dz(BSPosition_)));
+	  }else { 
+	    LogWarning ("oniatriggermonitor") << "[HLTOniaSource]: Could not access TrackRef for collection  "<<cand1Label<<" or "<< cand2Label;
+	    return;
+	  }
 	}
-
       }
 
       for (cand candIter= cand2.begin(); candIter!=cand2.end(); candIter++) {
@@ -539,9 +558,14 @@ void HLTOniaSource::fillInvariantMass(std::vector<reco::RecoChargedCandidateRef>
 	   massME_[cand1Label+cand2Label+chargeLabel]->Fill((cand1[i]->p4()+candIter->p4()).mass());
 	}
 	if(massME_[cand1Label+cand2Label+chargeLabel+"maxdzmuontrack"]){
-	  const Track* tk1 = cand1[i]->get<TrackRef>().get();
-	  const Track* tk2 = candIter->get<TrackRef>().get();
-	  if(tk1 && tk2 )  massME_[cand1Label+cand2Label+chargeLabel+"maxdzmuontrack"]->Fill(fabs(tk1->dz(BSPosition_) - tk2->dz(BSPosition_)));
+	  TrackRef tk1 = cand1[i]->get<TrackRef>();
+	  TrackRef tk2 = candIter->get<TrackRef>();
+	  if(tk1.isAvailable() && tk2.isAvailable()) {
+	  massME_[cand1Label+cand2Label+chargeLabel+"maxdzmuontrack"]->Fill(fabs(tk1->dz(BSPosition_) - tk2->dz(BSPosition_)));
+	  }else { 
+	    LogWarning ("oniatriggermonitor") << "[HLTOniaSource]: Could not access TrackRef for collection  "<<cand1Label<<" or "<< cand2Label;
+	    return;
+	  }
 	}
       }
     }
@@ -569,8 +593,13 @@ void HLTOniaSource::fillInvariantMass(std::vector<reco::RecoChargedCandidateRef>
 	}
 	
 	if(massME_[cand1Label+cand2Label+chargeLabel+"highestpt"+"maxdzmuontrack"]){
-	  const Track* tk1 = cand1[i]->get<TrackRef>().get();
-	  if(tk1)massME_[cand1Label+cand2Label+chargeLabel+"highestpt"+"maxdzmuontrack"]->Fill(fabs(tk1->dz(BSPosition_) - candItr->dz(BSPosition_)));
+	  TrackRef tk = cand1[i]->get<TrackRef>();
+	  if(tk.isAvailable() ) {
+	    massME_[cand1Label+cand2Label+chargeLabel+"highestpt"+"maxdzmuontrack"]->Fill(fabs(tk->dz(BSPosition_) - candItr->dz(BSPosition_)));
+	  }else { 
+	    LogWarning ("oniatriggermonitor") << "[HLTOniaSource]: Could not access TrackRef for collection  "<<cand1Label;
+	    return;
+	  }
 	}
       }
 
@@ -587,10 +616,14 @@ void HLTOniaSource::fillInvariantMass(std::vector<reco::RecoChargedCandidateRef>
 	   massME_[cand1Label+cand2Label+chargeLabel]->Fill((cand1[i]->p4()+candLVector).mass());
 	}
 	if(massME_[cand1Label+cand2Label+chargeLabel+"maxdzmuontrack"]){
-	  const Track* tk1 = cand1[i]->get<TrackRef>().get();
-	  if(tk1) massME_[cand1Label+cand2Label+chargeLabel+"maxdzmuontrack"]->Fill(fabs(tk1->dz(BSPosition_) - candIter->dz(BSPosition_)));
+	  TrackRef tk = cand1[i]->get<TrackRef>();
+	  if(tk.isAvailable() ) {
+	    massME_[cand1Label+cand2Label+chargeLabel+"maxdzmuontrack"]->Fill(fabs(tk->dz(BSPosition_) - candIter->dz(BSPosition_)));
+	  }else { 
+	    LogWarning ("oniatriggermonitor") << "[HLTOniaSource]: Could not access TrackRef for collection  "<<cand1Label;
+	    return;	    
+	  }
 	}
-
       }
     }
 }

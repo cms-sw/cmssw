@@ -415,7 +415,8 @@ particle_flow   useConvBremPFRecTracks  1
 particle_flow	useEGammaSupercluster   1
 particle_flow	useEGammaElectrons      0
 
-
+//PF Muon Momentum Assignment
+particle_flow   usePFMuonMomAssign      0
 
 // rejectTracks_Bad
 particle_flow   rejectTracks_Bad   1

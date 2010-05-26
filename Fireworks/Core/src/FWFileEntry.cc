@@ -307,7 +307,7 @@ FWFileEntry::filterEventsWithCustomParser(Filter* filterEntry)
    }
    catch(...)
    {
-      fwLog(fwlog::kWarning) << " failed to get trigger results with process name HLT." << std::endl;
+      std::cout << "Warning: failed to get trigger results with process name HLT." << std::endl;
       return false;
    }
    

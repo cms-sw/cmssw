@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_6_0/1E31/V24 (CMSSW_3_6_0_HLT8)
+# /dev/CMSSW_3_6_0/1E31/V34 (CMSSW_3_6_0_HLT10)
 # Begin replace statements specific to the FastSim HLT
 # For all HLTLevel1GTSeed objects, make the following replacements:
 #   - L1GtReadoutRecordTag changed from hltGtDigis to gtDigis
@@ -30,7 +30,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/1E31/V24')
+  tableName = cms.string('/dev/CMSSW_3_6_0/1E31/V34')
 )
 
 
@@ -1303,7 +1303,7 @@ hltL1sL1SingleMuOpenL1SingleMu0 = cms.EDFilter( "HLTLevel1GTSeed",
     L1CollectionsTag = cms.InputTag( "l1extraParticles" ),
     L1MuonCollectionTag = cms.InputTag( "l1extraParticles" )
 )
-hltPreL1MuOpen = cms.EDFilter( "HLTPrescaler" )
+hltPreL1MuOpen_BPTX = cms.EDFilter( "HLTPrescaler" )
 hltL1MuOpenL1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
     CandTag = cms.InputTag( "l1extraParticles" ),
     PreviousCandTag = cms.InputTag( "hltL1sL1SingleMuOpenL1SingleMu0" ),
@@ -1483,6 +1483,7 @@ hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
 hltCsc2DRecHits = cms.EDProducer( "CSCRecHitDProducer",
     CSCUseCalibrations = cms.bool( True ),
     CSCUseStaticPedestals = cms.bool( False ),
+    CSCUseTimingCorrections = cms.bool( False ),
     stripDigiTag = cms.InputTag( 'simMuonCSCDigis','MuonCSCStripDigi' ),
     wireDigiTag = cms.InputTag( 'simMuonCSCDigis','MuonCSCWireDigi' ),
     CSCstripWireDeltaTime = cms.int32( 8 ),
@@ -2841,7 +2842,8 @@ hltL1IsoStartUpElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
       hOverEConeSize = cms.double( 0.0 ),
       hOverEHBMinE = cms.double( 999999.0 ),
       applyHOverECut = cms.bool( False ),
-      hOverEHFMinE = cms.double( 999999.0 )
+      hOverEHFMinE = cms.double( 999999.0 ),
+      beamSpot = cms.InputTag( "offlineBeamSpot" )
     )
 )
 hltL1NonIsoStartUpElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
@@ -2895,7 +2897,8 @@ hltL1NonIsoStartUpElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
       hOverEConeSize = cms.double( 0.0 ),
       hOverEHBMinE = cms.double( 999999.0 ),
       applyHOverECut = cms.bool( False ),
-      hOverEHFMinE = cms.double( 999999.0 )
+      hOverEHFMinE = cms.double( 999999.0 ),
+      beamSpot = cms.InputTag( "offlineBeamSpot" )
     )
 )
 hltL1NonIsoHLTNonIsoSingleElectronEt10PixelMatchFilter = cms.EDFilter( "HLTElectronPixelMatchFilter",
@@ -3596,6 +3599,7 @@ hltL1NonIsoDoubleElectronEt5JpsiPixelMatchFilter = cms.EDFilter( "HLTElectronPix
 )
 hltL1NonIsoDoubleElectronEt5JpsiPMMassFilter = cms.EDFilter( "HLTPMMassFilter",
     candTag = cms.InputTag( "hltL1NonIsoDoubleElectronEt5JpsiPixelMatchFilter" ),
+    beamSpot = cms.InputTag( "offlineBeamSpot" ),
     lowerMassCut = cms.double( 2.0 ),
     upperMassCut = cms.double( 4.6 ),
     nZcandcut = cms.int32( 1 ),
@@ -3692,6 +3696,7 @@ hltL1NonIsoDoubleElectronEt5UpsPixelMatchFilter = cms.EDFilter( "HLTElectronPixe
 )
 hltL1NonIsoDoubleElectronEt5UpsPMMassFilter = cms.EDFilter( "HLTPMMassFilter",
     candTag = cms.InputTag( "hltL1NonIsoDoubleElectronEt5UpsPixelMatchFilter" ),
+    beamSpot = cms.InputTag( "offlineBeamSpot" ),
     lowerMassCut = cms.double( 8.0 ),
     upperMassCut = cms.double( 11.0 ),
     nZcandcut = cms.int32( 1 ),
@@ -5676,7 +5681,8 @@ hltL1IsoLargeWindowElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
       hOverEConeSize = cms.double( 0.0 ),
       hOverEHBMinE = cms.double( 999999.0 ),
       applyHOverECut = cms.bool( False ),
-      hOverEHFMinE = cms.double( 999999.0 )
+      hOverEHFMinE = cms.double( 999999.0 ),
+      beamSpot = cms.InputTag( "offlineBeamSpot" )
     )
 )
 hltL1NonIsoLargeWindowElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
@@ -5730,7 +5736,8 @@ hltL1NonIsoLargeWindowElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer
       hOverEConeSize = cms.double( 0.0 ),
       hOverEHBMinE = cms.double( 999999.0 ),
       applyHOverECut = cms.bool( False ),
-      hOverEHFMinE = cms.double( 999999.0 )
+      hOverEHFMinE = cms.double( 999999.0 ),
+      beamSpot = cms.InputTag( "offlineBeamSpot" )
     )
 )
 hltEle10LWL1RHT200ElePixelMatchFilter = cms.EDFilter( "HLTElectronPixelMatchFilter",
@@ -6088,7 +6095,7 @@ HLT_MET100 = cms.Path( HLTBeginSequenceBPTX + hltL1sMET100 + hltPreMET100 + HLTR
 HLT_HT200 = cms.Path( HLTBeginSequenceBPTX + hltL1sHT200 + hltPreHT200 + HLTRecoJetSequence + HLTDoJet30HTRecoSequence + hltHT200 + cms.SequencePlaceholder("HLTEndSequence") )
 HLT_HT240 = cms.Path( HLTBeginSequenceBPTX + hltL1sHT240 + hltPreHT240 + HLTRecoJetSequence + HLTDoJet30HTRecoSequence + hltHT240 + cms.SequencePlaceholder("HLTEndSequence") )
 HLT_HT300_MHT100 = cms.Path( HLTBeginSequenceBPTX + hltL1sHTMHT + hltPreHTMHT + HLTRecoJetSequence + HLTDoJet30HTRecoSequence + hltHT300 + hltMhtHtFilter + cms.SequencePlaceholder("HLTEndSequence") )
-HLT_L1MuOpen = cms.Path( HLTBeginSequence + hltL1sL1SingleMuOpenL1SingleMu0 + hltPreL1MuOpen + hltL1MuOpenL1Filtered0 + cms.SequencePlaceholder("HLTEndSequence") )
+HLT_L1MuOpen = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleMuOpenL1SingleMu0 + hltPreL1MuOpen_BPTX + hltL1MuOpenL1Filtered0 + cms.SequencePlaceholder("HLTEndSequence") )
 HLT_L1Mu = cms.Path( HLTBeginSequenceBPTX + hltL1sL1Mu + hltPreL1Mu + hltL1MuL1Filtered0 + cms.SequencePlaceholder("HLTEndSequence") )
 HLT_L1Mu20HQ = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleMu20 + hltPreL1Mu20HQ + hltL1Mu20HQL1Filtered20 + cms.SequencePlaceholder("HLTEndSequence") )
 HLT_L1Mu30 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleMu20 + hltPreL1Mu30 + hltL1Mu30L1Filtered30 + cms.SequencePlaceholder("HLTEndSequence") )

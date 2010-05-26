@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Andres Carrillo Montoya
 //         Created:  Wed Sep 16 14:56:18 CEST 2009
-// $Id: RPCPointProducer.cc,v 1.3 2010/02/23 08:08:32 carrillo Exp $
+// $Id: RPCPointProducer.cc,v 1.2 2010/02/11 10:04:10 carrillo Exp $
 //
 //
 
@@ -30,12 +30,10 @@ RPCPointProducer::RPCPointProducer(const edm::ParameterSet& iConfig)
 {
   cscSegments=iConfig.getParameter<edm::InputTag>("cscSegments");
   dt4DSegments=iConfig.getParameter<edm::InputTag>("dt4DSegments");
-  tracks=iConfig.getParameter<edm::InputTag>("tracks");
 
   debug=iConfig.getUntrackedParameter<bool>("debug",false);
   incldt=iConfig.getUntrackedParameter<bool>("incldt",true);
   inclcsc=iConfig.getUntrackedParameter<bool>("inclcsc",true);
-  incltrack=iConfig.getUntrackedParameter<bool>("incltrack",true);
   MinCosAng=iConfig.getUntrackedParameter<double>("MinCosAng",0.95);
   MaxD=iConfig.getUntrackedParameter<double>("MaxD",80.);
   MaxDrb4=iConfig.getUntrackedParameter<double>("MaxDrb4",150.);
@@ -43,8 +41,7 @@ RPCPointProducer::RPCPointProducer(const edm::ParameterSet& iConfig)
 
   produces<RPCRecHitCollection>("RPCDTExtrapolatedPoints");
   produces<RPCRecHitCollection>("RPCCSCExtrapolatedPoints");
-  produces<RPCRecHitCollection>("RPCTrackExtrapolatedPoints");
-  trackTransformerParam = iConfig.getParameter<ParameterSet>("TrackTransformer");  
+  
 }
 
 
@@ -85,18 +82,7 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       if(debug) std::cout<<"RPCHLT Invalid CSCSegments collection"<<std::endl;
     }
   }
-  if(incltrack){
-    edm::Handle<reco::TrackCollection> alltracks;
-    iEvent.getByLabel(tracks,alltracks);
-    if(!(alltracks->empty())){
-      TracktoRPC TrackClass(alltracks,iSetup,iEvent,debug,trackTransformerParam,tracks);
-      std::auto_ptr<RPCRecHitCollection> TheTrackPoints(TrackClass.thePoints());
-      iEvent.put(TheTrackPoints,"RPCTrackExtrapolatedPoints");
-    }else{
-      std::cout<<"RPCHLT Invalid Tracks collection"<<std::endl;
-    }
-  }
- 
+  
 }
 
 // ------------ method called once each job just before starting event loop  ------------

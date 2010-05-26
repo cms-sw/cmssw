@@ -21,6 +21,8 @@ pushd ${LOCAL_TMP_DIR}
 
   cmsRun -p ${LOCAL_TEST_DIR}/${test}PROD2TEST_cfg.py || die "cmsRun ${test}PROD2TEST_cfg.py" $?
 
+  cmsRun -p ${LOCAL_TEST_DIR}/${test}PROD3TEST_cfg.py || die "cmsRun ${test}PROD3TEST_cfg.py" $?
+
   cmsRun -p ${LOCAL_TEST_DIR}/${test}PROD2TEST_unscheduled_cfg.py || die "cmsRun ${test}PROD2TEST_cfg.py" $?
 
 popd

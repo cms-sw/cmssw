@@ -6,9 +6,11 @@
 #include "TH2F.h"
 #include "TROOT.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <stdexcept>
 #include <string>
+#include <sstream>
 
 using namespace std;
 
@@ -1160,8 +1162,14 @@ PFClusterAlgo::calculateClusterPosition(reco::PFCluster& cluster,
       seedIndexFound = true;
     }
 
-
     double recHitEnergy = rh.energy() * fraction;
+
+    // is nan ? 
+    if( recHitEnergy!=recHitEnergy ) {
+      ostringstream ostr;
+      edm::LogError("PFClusterAlgo")<<"rechit "<<rh.detId()<<" has a NaN energy... The input of the particle flow clustering seems to be corrupted.";
+    }
+
     cluster.energy_ += recHitEnergy;
 
     // sum energy in each layer

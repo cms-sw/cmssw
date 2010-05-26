@@ -30,6 +30,16 @@ namespace reco {
     typedef std::pair <unsigned int, unsigned int> PFTrackHitInfo;
     typedef std::pair <PFTrackHitInfo, PFTrackHitInfo> PFTrackHitFullInfo;
 
+    /// Mass hypothesis enum
+    enum M_Hypo {
+      M_CUSTOM,
+      M_MASSLESS,
+      M_PION,
+      M_KAON,
+      M_LAMBDA
+    };
+
+
     /// Classification of tracks according to the position with respect 
     /// to the Vertex. A Merged track is a track which has at least 
     /// two hits before and two hits after the vertex. It may come from 
@@ -196,6 +206,23 @@ namespace reco {
 
     
 
+    /// Momentum of secondary tracks calculated with a mass hypothesis. Some of those
+    /// hypothesis are default: "PI" , "KAON", "LAMBDA", "MASSLESS", "CUSTOM"
+    /// the value of custom shall be then provided in mass variable
+    const math::XYZTLorentzVector 
+      secondaryMomentum(M_Hypo massHypo, 
+			bool useRefitted = true, double mass = 0.0) const 
+      {return momentum(massHypo, T_FROM_VERTEX, useRefitted, mass);}
+
+    /// Momentum of primary or merged track calculated with a mass hypothesis.
+    const math::XYZTLorentzVector 
+      primaryMomentum(M_Hypo massHypo, 
+		      bool useRefitted = true, double mass = 0.0) const
+      {return momentum(massHypo, T_TO_VERTEX, useRefitted, mass);}
+
+
+
+
     /// Total Charge
     const int totalCharge() const;
 
@@ -246,8 +273,13 @@ namespace reco {
 					    VertexTrackType,
 					    bool, double mass) const;
 
+    /// Common tool to calculate the momentum vector of tracks with a given Kind
+    const  math::XYZTLorentzVector momentum(M_Hypo massHypo, 
+					    VertexTrackType,
+					    bool, double mass) const;
+
     /// Get the mass with a given hypothesis
-    const double getMass2(std::string, double) const;
+    const double getMass2(M_Hypo, double) const;
 
     const size_t trackPosition(const reco::TrackBaseRef& originalTrack) const;
 
@@ -255,15 +287,6 @@ namespace reco {
       return  trackTypes_[itrk] == T;
     }
 
-    /*
-      class TrackEqual {
-      public:
-      TrackEqual( const Track & t) : track_( t ) { }
-      bool operator()( const Track & t ) const { return t.pt()==track_.pt();}
-      private:
-      const Track & track_;
-      };
-    */
 
     /// -------- MEMBERS -------- ///
 

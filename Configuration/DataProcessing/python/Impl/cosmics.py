@@ -17,7 +17,7 @@ from Configuration.PyReleaseValidation.ConfigBuilder import Options
 from Configuration.PyReleaseValidation.ConfigBuilder import defaultOptions
 from Configuration.PyReleaseValidation.ConfigBuilder import installFilteredStream
 from Configuration.PyReleaseValidation.ConfigBuilder import addOutputModule
-from Configuration.DataProcessing.RecoTLR import customiseCosmicData
+
 
 class cosmics(Scenario):
     """
@@ -29,7 +29,7 @@ class cosmics(Scenario):
     """
 
 
-    def promptReco(self, globalTag, writeTiers = ['RECO'], **options):
+    def promptReco(self, globalTag, writeTiers = ['RECO','ALCARECO']):
         """
         _promptReco_
 
@@ -44,8 +44,7 @@ class cosmics(Scenario):
                  'MuAlStandAloneCosmics',
                  'MuAlGlobalCosmics',
                  'MuAlCalIsolatedMu',
-                 'HcalCalHOCosmics',
-                 'DtCalib']
+                 'HcalCalHOCosmics']
         step = stepALCAPRODUCER(skims)
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
@@ -70,53 +69,53 @@ class cosmics(Scenario):
 
         for tier in writeTiers: 
           addOutputModule(process, tier, tier)        
-
-        customiseCosmicData(process)  
+ 
         return process
 
-
-    def expressProcessing(self, globalTag, writeTiers = [], **options):
+    def expressProcessing(self, globalTag,  writeTiers = [],
+                          datasets = [], alcaDataset = None):
         """
         _expressProcessing_
 
-        Cosmic data taking express processing
+        Implement Cosmics Express processing
 
         """
 
-        skims = ['SiStripCalZeroBias',
-                 'TkAlMinBias',
-                 'DtCalib',
-                 'MuAlCalIsolatedMu']
-        step = stepALCAPRODUCER(skims)
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "cosmics"
-        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',L1HwVal,DQM,ENDJOB'
+        options.step = \
+          """RAW2DIGI,L1Reco,RECO:reconstructionCosmics,ALCA:MuAlCalIsolatedMu+RpcCalHLT+TkAlCosmicsHLT+TkAlCosmics0T+MuAlStandAloneCosmics+MuAlGlobalCosmics+HcalCalHOCosmics,ENDJOB"""
         options.isMC = False
         options.isData = True
-        options.beamspot = None
         options.eventcontent = None
-        options.magField = 'AutoFromDBCurrent'
+        options.relval = None
+        options.beamspot = None
         options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
-        options.relval = False
         
-        process = cms.Process('RECO')
+        process = cms.Process('EXPRESS')
         cb = ConfigBuilder(options, process = process)
 
-        # Input source
-        process.source = cms.Source("NewEventStreamFileReader",
-            fileNames = cms.untracked.vstring()
+        process.source = cms.Source(
+           "NewEventStreamFileReader",
+           fileNames = cms.untracked.vstring()
         )
+        
         cb.prepare()
 
-        for tier in writeTiers: 
-          addOutputModule(process, tier, tier)        
-
-        customiseCosmicData(process)  
+        #  //
+        # // Install the OutputModules for everything but ALCA
+        #//
+        self.addExpressOutputModules(process, writeTiers, datasets)
+        
+        #  //
+        # // TODO: Install Alca output
+        #//
+        
         return process
+    
 
-
-    def alcaSkim(self, skims, **options):
+    def alcaSkim(self, skims):
         """
         _alcaSkim_
 
@@ -128,8 +127,8 @@ class cosmics(Scenario):
             step += (skim+"+")
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
-        options.scenario = "cosmics"        
-        options.step = step.rstrip('+')
+        options.scenario = 'cosmics'        
+        options.step = step+'DQM,ENDJOB'
         options.isMC = False
         options.isData = True
         options.beamspot = None
@@ -149,9 +148,14 @@ class cosmics(Scenario):
         cb.prepare() 
 
         return process
+                
+
+        
+
+        
 
 
-    def dqmHarvesting(self, datasetName, runNumber, globalTag, **options):
+    def dqmHarvesting(self, datasetName, runNumber,  globalTag, **options):
         """
         _dqmHarvesting_
 

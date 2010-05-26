@@ -58,7 +58,18 @@ void SiStripNoisesDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_){
     else
       gainFactor=1;
 
+    try{
       stripnoise=noiseHandle_->getNoise(istrip,noiseRange)/gainFactor;
+    }catch(cms::Exception& e){
+      edm::LogError("SiStripNoisesDQM")          
+	 << "[SiStripNoisesDQM::fillMEsForDet] cms::Exception accessing noiseHandle_->getNoise(istrip,noiseRange) for strip "  
+	 << istrip 
+	 << " and detid " 
+	 << selDetId_  
+	 << " :  " 
+	 << e.what() ;
+      stripnoise=-1.;
+    }
     if( CondObj_fillId_ =="onlyProfile" || CondObj_fillId_ =="ProfileAndCumul"){
       selModME_.ProfileDistr->Fill(istrip+1,stripnoise);
     }
@@ -144,8 +155,21 @@ void SiStripNoisesDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, u
       gainFactor=1.;
     }
     
+    try{ 
       stripnoise=noiseHandle_->getNoise(istrip,noiseRange)/gainFactor;
       meanNoise+=stripnoise;
+    } 
+    catch(cms::Exception& e){
+      edm::LogError("SiStripNoisesDQM")          
+	<< "[SiStripNoisesDQM::fillMEsForLayer] cms::Exception accessing noiseHandle_->getNoise(istrip,noiseRange) for strip "  
+	<< istrip 
+	<< " and detid " 
+	<< selDetId_  
+	<< " :  " 
+	<< e.what() ;
+      stripnoise=-1;
+      Nbadstrips++;
+    }      
     if(hPSet_.getParameter<bool>("FillSummaryProfileAtLayerLevel")){
       if( CondObj_fillId_ =="onlyProfile" || CondObj_fillId_ =="ProfileAndCumul"){	
 	selME_.SummaryOfProfileDistr->Fill(istrip+1,stripnoise);

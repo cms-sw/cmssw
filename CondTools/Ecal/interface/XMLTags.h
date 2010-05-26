@@ -46,6 +46,13 @@ namespace xuti{
   const std::string Gain6Over1_tag("Gain6Over1");
   const std::string Gain12Over6_tag("Gain12Over6");
 
+  const std::string Pedestals_tag("EcalPedestals");
+  const std::string mean12_tag("mean_x12");
+  const std::string mean6_tag("mean_x6");
+  const std::string mean1_tag("mean_x1");
+  const std::string rms12_tag("rms_x12");
+  const std::string rms6_tag("rms_x6");
+  const std::string rms1_tag("rms_x1");
    
   const std::string ChannelStatus_tag("EcalChannelStatus");
   const std::string ChannelStatusCode_tag("ChannelStatusCode");

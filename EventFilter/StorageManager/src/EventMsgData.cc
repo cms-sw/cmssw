@@ -1,11 +1,9 @@
-// $Id: EventMsgData.cc,v 1.6 2010/05/12 12:22:06 mommsen Exp $
+// $Id: EventMsgData.cc,v 1.3 2010/04/30 07:44:56 mommsen Exp $
 /// @file: EventMsgData.cc
 
 #include "EventFilter/StorageManager/src/ChainData.h"
 
 #include "IOPool/Streamer/interface/EventMessage.h"
-
-#include <stdlib.h>
 
 namespace stor
 {
@@ -28,10 +26,10 @@ namespace stor
 
     unsigned long EventMsgData::do_headerSize() const
     {
-      if ( !headerOkay() )
-      {
-        return 0;
-      }
+      if (faulty() || !complete())
+        {
+          return 0;
+        }
 
       if (! _headerFieldsCached) {cacheHeaderFields();}
       return _headerSize;
@@ -39,10 +37,10 @@ namespace stor
 
     unsigned char* EventMsgData::do_headerLocation() const
     {
-      if ( !headerOkay() )
-      {
-        return 0;
-      }
+      if (faulty() || !complete())
+        {
+          return 0;
+        }
 
       if (! _headerFieldsCached) {cacheHeaderFields();}
       return _headerLocation;
@@ -51,41 +49,41 @@ namespace stor
     inline unsigned char*
     EventMsgData::do_fragmentLocation(unsigned char* dataLoc) const
     {
-      if ( parsable() )
-      {
-        I2O_SM_DATA_MESSAGE_FRAME *smMsg =
-          (I2O_SM_DATA_MESSAGE_FRAME*) dataLoc;
-        return (unsigned char*) smMsg->dataPtr();
-      }
+      if (parsable())
+        {
+          I2O_SM_DATA_MESSAGE_FRAME *smMsg =
+            (I2O_SM_DATA_MESSAGE_FRAME*) dataLoc;
+          return (unsigned char*) smMsg->dataPtr();
+        }
       else
-      {
-        return dataLoc;
-      }
+        {
+          return dataLoc;
+        }
     }
 
-    uint32_t EventMsgData::do_outputModuleId() const
+    uint32 EventMsgData::do_outputModuleId() const
     {
-      if ( !headerOkay() )
-      {
-        std::stringstream msg;
-        msg << "An output module ID can not be determined from a ";
-        msg << "faulty or incomplete Event message.";
-        XCEPT_RAISE(stor::exception::IncompleteEventMessage, msg.str());
-      }
+      if (faulty() || !complete())
+        {
+          std::stringstream msg;
+          msg << "An output module ID can not be determined from a ";
+          msg << "faulty or incomplete Event message.";
+          XCEPT_RAISE(stor::exception::IncompleteEventMessage, msg.str());
+        }
 
       if (! _headerFieldsCached) {cacheHeaderFields();}
       return _outputModuleId;
     }
 
-    uint32_t EventMsgData::do_hltTriggerCount() const
+    uint32 EventMsgData::do_hltTriggerCount() const
     {
-      if ( !headerOkay() )
-      {
-        std::stringstream msg;
-        msg << "The number of HLT trigger bits can not be determined ";
-        msg << "from a faulty or incomplete Event message.";
-        XCEPT_RAISE(stor::exception::IncompleteEventMessage, msg.str());
-      }
+      if (faulty() || !complete())
+        {
+          std::stringstream msg;
+          msg << "The number of HLT trigger bits can not be determined ";
+          msg << "from a faulty or incomplete Event message.";
+          XCEPT_RAISE(stor::exception::IncompleteEventMessage, msg.str());
+        }
 
       if (! _headerFieldsCached) {cacheHeaderFields();}
       return _hltTriggerCount;
@@ -94,22 +92,22 @@ namespace stor
     void
     EventMsgData::do_hltTriggerBits(std::vector<unsigned char>& bitList) const
     {
-      if ( !headerOkay() )
-      {
-        std::stringstream msg;
-        msg << "The HLT trigger bits can not be determined from a ";
-        msg << "faulty or incomplete Event message.";
-        XCEPT_RAISE(stor::exception::IncompleteEventMessage, msg.str());
-      }
+      if (faulty() || !complete())
+        {
+          std::stringstream msg;
+          msg << "The HLT trigger bits can not be determined from a ";
+          msg << "faulty or incomplete Event message.";
+          XCEPT_RAISE(stor::exception::IncompleteEventMessage, msg.str());
+        }
 
       if (! _headerFieldsCached) {cacheHeaderFields();}
       bitList = _hltTriggerBits;
     }
 
     void 
-    EventMsgData::do_assertRunNumber(uint32_t runNumber)
+    EventMsgData::do_assertRunNumber(uint32 runNumber)
     {
-      if ( headerOkay() && do_runNumber() != runNumber )
+      if ( !faulty() && do_runNumber() != runNumber )
       {
         std::ostringstream errorMsg;
         errorMsg << "Run number " << do_runNumber() 
@@ -122,57 +120,57 @@ namespace stor
       }
     }
 
-    uint32_t EventMsgData::do_runNumber() const
+    uint32 EventMsgData::do_runNumber() const
     {
-      if ( !headerOkay() )
-      {
-        std::stringstream msg;
-        msg << "A run number can not be determined from a ";
-        msg << "faulty or incomplete Event message.";
-        XCEPT_RAISE(stor::exception::IncompleteEventMessage, msg.str());
-      }
+      if (faulty() || !complete())
+        {
+          std::stringstream msg;
+          msg << "A run number can not be determined from a ";
+          msg << "faulty or incomplete Event message.";
+          XCEPT_RAISE(stor::exception::IncompleteEventMessage, msg.str());
+        }
 
       if (! _headerFieldsCached) {cacheHeaderFields();}
       return _runNumber;
     }
 
-    uint32_t EventMsgData::do_lumiSection() const
+    uint32 EventMsgData::do_lumiSection() const
     {
-      if ( !headerOkay() )
-      {
-        std::stringstream msg;
-        msg << "A luminosity section can not be determined from a ";
-        msg << "faulty or incomplete Event message.";
-        XCEPT_RAISE(stor::exception::IncompleteEventMessage, msg.str());
-      }
+      if (faulty() || !complete())
+        {
+          std::stringstream msg;
+          msg << "A luminosity section can not be determined from a ";
+          msg << "faulty or incomplete Event message.";
+          XCEPT_RAISE(stor::exception::IncompleteEventMessage, msg.str());
+        }
 
       if (! _headerFieldsCached) {cacheHeaderFields();}
       return _lumiSection;
     }
 
-    uint32_t EventMsgData::do_eventNumber() const
+    uint32 EventMsgData::do_eventNumber() const
     {
-      if ( !headerOkay() )
-      {
-        std::stringstream msg;
-        msg << "An event number can not be determined from a ";
-        msg << "faulty or incomplete Event message.";
-        XCEPT_RAISE(stor::exception::IncompleteEventMessage, msg.str());
-      }
+      if (faulty() || !complete())
+        {
+          std::stringstream msg;
+          msg << "An event number can not be determined from a ";
+          msg << "faulty or incomplete Event message.";
+          XCEPT_RAISE(stor::exception::IncompleteEventMessage, msg.str());
+        }
 
       if (! _headerFieldsCached) {cacheHeaderFields();}
       return _eventNumber;
     }
 
-    uint32_t EventMsgData::do_adler32Checksum() const
+    uint32 EventMsgData::do_adler32Checksum() const
     {
-      if ( !headerOkay() )
-      {
-        std::stringstream msg;
-        msg << "An adler32 checksum can not be determined from a ";
-        msg << "faulty or incomplete Event message.";
-        XCEPT_RAISE(stor::exception::IncompleteEventMessage, msg.str());
-      }
+      if (faulty() || !complete())
+        {
+          std::stringstream msg;
+          msg << "An adler32 checksum can not be determined from a ";
+          msg << "faulty or incomplete Event message.";
+          XCEPT_RAISE(stor::exception::IncompleteEventMessage, msg.str());
+        }
 
       if (! _headerFieldsCached) {cacheHeaderFields();}
       return _adler32;
@@ -180,23 +178,23 @@ namespace stor
 
     inline void EventMsgData::parseI2OHeader()
     {
-      if ( parsable() )
-      {
-        I2O_SM_DATA_MESSAGE_FRAME *smMsg =
-          (I2O_SM_DATA_MESSAGE_FRAME*) _ref->getDataLocation();
-        _fragKey.code_ = _messageCode;
-        _fragKey.run_ = smMsg->runID;
-        _fragKey.event_ = smMsg->eventID;
-        _fragKey.secondaryId_ = smMsg->outModID;
-        _fragKey.originatorPid_ = smMsg->fuProcID;
-        _fragKey.originatorGuid_ = smMsg->fuGUID;
-        _rbBufferId = smMsg->rbBufferID;
-        _hltLocalId = smMsg->hltLocalId;
-        _hltInstance = smMsg->hltInstance;
-        _hltTid = smMsg->hltTid;
-        _fuProcessId = smMsg->fuProcID;
-        _fuGuid = smMsg->fuGUID;
-      }
+      if (parsable())
+        {
+          I2O_SM_DATA_MESSAGE_FRAME *smMsg =
+            (I2O_SM_DATA_MESSAGE_FRAME*) _ref->getDataLocation();
+          _fragKey.code_ = _messageCode;
+          _fragKey.run_ = smMsg->runID;
+          _fragKey.event_ = smMsg->eventID;
+          _fragKey.secondaryId_ = smMsg->outModID;
+          _fragKey.originatorPid_ = smMsg->fuProcID;
+          _fragKey.originatorGuid_ = smMsg->fuGUID;
+          _rbBufferId = smMsg->rbBufferID;
+          _hltLocalId = smMsg->hltLocalId;
+          _hltInstance = smMsg->hltInstance;
+          _hltTid = smMsg->hltTid;
+          _fuProcessId = smMsg->fuProcID;
+          _fuGuid = smMsg->fuGUID;
+        }
     }
 
     void EventMsgData::cacheHeaderFields() const
@@ -207,32 +205,32 @@ namespace stor
 
       // if there is only one fragment, use it
       if (_fragmentCount == 1)
-      {
-        useFirstFrag = true;
-      }
+        {
+          useFirstFrag = true;
+        }
       // otherwise, check if the first fragment is large enough to hold
       // the full Event message header  (we require some minimal fixed
       // size in the hope that we don't parse garbage when we overlay
       // the EventMsgView on the buffer)
       else if (firstFragSize > (sizeof(EventHeader) + 4096))
-      {
-        EventMsgView view(firstFragLoc);
-        if (view.headerSize() <= firstFragSize)
         {
-          useFirstFrag = true;
+          EventMsgView view(firstFragLoc);
+          if (view.headerSize() <= firstFragSize)
+            {
+              useFirstFrag = true;
+            }
         }
-      }
 
       boost::shared_ptr<EventMsgView> msgView;
       if (useFirstFrag)
-      {
-        msgView.reset(new EventMsgView(firstFragLoc));
-      }
+        {
+          msgView.reset(new EventMsgView(firstFragLoc));
+        }
       else
-      {
-        copyFragmentsIntoBuffer(_headerCopy);
-        msgView.reset(new EventMsgView(&_headerCopy[0]));
-      }
+        {
+          copyFragmentsIntoBuffer(_headerCopy);
+          msgView.reset(new EventMsgView(&_headerCopy[0]));
+        }
 
       _headerSize = msgView->headerSize();
       _headerLocation = msgView->startAddress();
@@ -250,20 +248,6 @@ namespace stor
       _adler32 = msgView->adler32_chksum();
 
       _headerFieldsCached = true;
-
-      #ifdef STOR_DEBUG_WRONG_ADLER
-      double r = rand()/static_cast<double>(RAND_MAX);
-      if (r < 0.01)
-      {
-        std::cout << "Simulating corrupt Adler calculation" << std::endl;
-        _headerSize += 3;
-      }
-      else if (r < 0.02)
-      {
-        std::cout << "Simulating corrupt Adler entry" << std::endl;
-        _adler32 += r*10000;
-      }
-      #endif // STOR_DEBUG_WRONG_ADLER
     }
 
   } // namespace detail

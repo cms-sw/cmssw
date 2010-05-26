@@ -10,11 +10,8 @@ process = cms.Process("JEC")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 process.source = cms.Source(
     'PoolSource',
-    fileNames = cms.untracked.vstring(
-    #'/store/relval/CMSSW_3_6_0_pre6/RelValQCD_Pt_3000_3500/GEN-SIM-RECO/START36_V4-v1/0011/FE30B408-D044-DF11-92FC-0026189438C1.root'
-    'file:///data/kkousour/FE30B408-D044-DF11-92FC-0026189438C1.root'
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_6_0_pre6/RelValQCD_Pt_3000_3500/GEN-SIM-RECO/START36_V4-v1/0011/FE30B408-D044-DF11-92FC-0026189438C1.root')
     )
-)
 
 #!
 #! SERVICES
@@ -73,3 +70,11 @@ process.ak5JPTJetsL2L3 * process.ak5JPTL2L3Histos *
 #------ create the corrected trackjet collection and run the histogram module -----
 process.ak5TrackJetsL2L3 * process.ak5TrackL2L3Histos
 )
+
+
+
+
+
+
+
+

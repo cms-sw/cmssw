@@ -24,6 +24,7 @@
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositVetoFactory.h"
 
 using namespace edm;
+using namespace std;
 using namespace reco;
 using namespace reco::isodeposit;
 
@@ -49,7 +50,6 @@ CandIsolatorFromDeposits::SingleDeposit::SingleDeposit(const edm::ParameterSet &
   else if (mode == "sum2Relative") mode_ = Sum2Relative;
   else if (mode == "max") mode_ = Max;                  
   else if (mode == "maxRelative") mode_ = MaxRelative;
-  else if (mode == "nearestDR") mode_ = NearestDR;
   else if (mode == "count") mode_ = Count;
   else throw cms::Exception("Not Implemented") << "Mode '" << mode << "' not implemented. " <<
     "Supported modes are 'sum', 'sumRelative', 'count'." << 
@@ -103,7 +103,6 @@ double CandIsolatorFromDeposits::SingleDeposit::compute(const reco::CandidateBas
         case Sum2:         return weight * dep.sum2Within(deltaR_, vetos_, skipDefaultVeto_);
         case Sum2Relative: return weight * dep.sum2Within(deltaR_, vetos_, skipDefaultVeto_) / (dep.candEnergy() * dep.candEnergy()) ;
         case Max:          return weight * dep.maxWithin(deltaR_, vetos_, skipDefaultVeto_);
-        case NearestDR:    return weight * dep.nearestDR(deltaR_, vetos_, skipDefaultVeto_);
         case MaxRelative:  return weight * dep.maxWithin(deltaR_, vetos_, skipDefaultVeto_) / dep.candEnergy() ;
     }
     throw cms::Exception("Logic error") << "Should not happen at " << __FILE__ << ", line " << __LINE__; // avoid gcc warning
@@ -123,23 +122,23 @@ CandIsolatorFromDeposits::CandIsolatorFromDeposits(const ParameterSet& par) {
 
 /// destructor
 CandIsolatorFromDeposits::~CandIsolatorFromDeposits() {
-  std::vector<SingleDeposit>::iterator it, begin = sources_.begin(), end = sources_.end();
+  vector<SingleDeposit>::iterator it, begin = sources_.begin(), end = sources_.end();
   for (it = begin; it != end; ++it) it->cleanup();
 }
 
 /// build deposits
 void CandIsolatorFromDeposits::produce(Event& event, const EventSetup& eventSetup){
 
-  std::vector<SingleDeposit>::iterator it, begin = sources_.begin(), end = sources_.end();
+  vector<SingleDeposit>::iterator it, begin = sources_.begin(), end = sources_.end();
   for (it = begin; it != end; ++it) it->open(event, eventSetup);
 
   const IsoDepositMap & map = begin->map();
 
   if (map.size()==0) { // !!???
-        event.put(std::auto_ptr<CandDoubleMap>(new CandDoubleMap()));
+        event.put(auto_ptr<CandDoubleMap>(new CandDoubleMap()));
         return;
   }
-  std::auto_ptr<CandDoubleMap> ret(new CandDoubleMap());
+  auto_ptr<CandDoubleMap> ret(new CandDoubleMap());
   CandDoubleMap::Filler filler(*ret);
 
   typedef reco::IsoDepositMap::const_iterator iterator_i; 

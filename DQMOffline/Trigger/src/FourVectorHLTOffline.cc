@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.74 2010/04/23 16:35:39 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.76 2010/05/18 11:23:11 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -21,6 +21,9 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig):
 
   fIsSetup = false;
   fSelectedMuons = new reco::MuonCollection;
+  fSelectedElectrons = new reco::GsfElectronCollection;
+  fSelectedPhotons = new reco::PhotonCollection;
+  fSelectedJets = new reco::CaloJetCollection;
 
   dbe_ = Service < DQMStore > ().operator->();
   if ( ! dbe_ ) {
@@ -2249,14 +2252,17 @@ void FourVectorHLTOffline::selectMuons(const edm::Handle<reco::MuonCollection> &
             fSelectedMuons->push_back(*iter);
        }
    } // end for
+  
+    edm::Handle<reco::MuonCollection> fSelMuonsHandle(fSelectedMuons,muonHandle.provenance());
+
   } // end if
 
-  edm::Handle<reco::MuonCollection> fSelMuonsHandle(fSelectedMuons,muonHandle.provenance());
 
 }
 
 void FourVectorHLTOffline::selectElectrons(const edm::Handle<reco::GsfElectronCollection> & eleHandle)
 {
+
   // for every event, first clear vector of selected objects
   fSelectedElectrons->clear();
 
@@ -2277,9 +2283,11 @@ void FourVectorHLTOffline::selectElectrons(const edm::Handle<reco::GsfElectronCo
        */
 
     } // end for
+  
+    edm::Handle<reco::GsfElectronCollection> fSelElectronsHandle(fSelectedElectrons,eleHandle.provenance());
+
   } // end if
 
-  edm::Handle<reco::GsfElectronCollection> fSelElectronsHandle(fSelectedElectrons,eleHandle.provenance());
 
 }
 
@@ -2305,9 +2313,11 @@ void FourVectorHLTOffline::selectPhotons(const edm::Handle<reco::PhotonCollectio
        */
 
     } // end for
+  
+    edm::Handle<reco::PhotonCollection> fSelPhotonsHandle(fSelectedPhotons,phoHandle.provenance());
+
   } // end if
 
-  edm::Handle<reco::PhotonCollection> fSelPhotonsHandle(fSelectedPhotons,phoHandle.provenance());
 
 }
 
@@ -2333,8 +2343,10 @@ void FourVectorHLTOffline::selectJets(const edm::Handle<reco::CaloJetCollection>
        */
 
     } // end for
+  
+    edm::Handle<reco::CaloJetCollection> fSelJetsHandle(fSelectedJets,jetHandle.provenance());
+
   } // end if
 
-  edm::Handle<reco::CaloJetCollection> fSelJetsHandle(fSelectedJets,jetHandle.provenance());
 
 }

@@ -59,9 +59,6 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
 #include "CalibTracker/Records/interface/SiStripGainRcd.h"
 
-#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
-#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
-
 
 #include "TFile.h"
 #include "TObjString.h"
@@ -107,7 +104,6 @@ struct stAPVGain{
    double 	NEntries;
    TH1F*	HCharge;
    TH1F*        HChargeN;
-   bool         isMasked;
 };
 
 class SiStripGainFromCalibTree : public ConditionDBWriter<SiStripApvGain> {
@@ -120,9 +116,7 @@ class SiStripGainFromCalibTree : public ConditionDBWriter<SiStripApvGain> {
       virtual void algoBeginJob      (const edm::EventSetup&);
       virtual void algoEndJob        ();
       virtual void algoAnalyze       (const edm::Event &, const edm::EventSetup &);
-
               void algoAnalyzeTheTree();
-              void algoComputeMPVandGain();
 
               void getPeakOfLandau(TH1* InputHisto, double* FitResults, double LowRange=50, double HighRange=5400);
               bool IsGoodLandauFit(double* FitResults); 
@@ -239,10 +233,6 @@ SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
    iSetup.get<SiStripGainRcd>().get(gainHandle);
    if(!gainHandle.isValid()){printf("\n#####################\n\nERROR --> gainHandle is not valid\n\n#####################\n\n");exit(0);}
 
-   edm::ESHandle<SiStripQuality> SiStripQuality_;
-   iSetup.get<SiStripQualityRcd>().get(SiStripQuality_);
-
-
    unsigned int Index=0;
    for(unsigned int i=0;i<Det.size();i++){
       DetId  Detid  = Det[i]->geographicalId(); 
@@ -278,7 +268,6 @@ SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
                 APV->R             = DetUnit->position().basicVector().transverse();
                 APV->Thickness     = DetUnit->surface().bounds().thickness();
 		APV->NEntries	   = 0;
-                APV->isMasked      = SiStripQuality_->IsApvBad(Detid.rawId(),j);
 
                 APVsCollOrdered.push_back(APV);
 		APVsColl[(APV->DetId<<3) | APV->APVId] = APV;
@@ -299,59 +288,20 @@ SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
    BAD        = 0;
 
    algoAnalyzeTheTree();
-   algoComputeMPVandGain();
 }
 
 
 void
-SiStripGainFromCalibTree::algoAnalyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-}
-
-void 
-SiStripGainFromCalibTree::algoEndJob() {
-}
-
-
-void SiStripGainFromCalibTree::getPeakOfLandau(TH1* InputHisto, double* FitResults, double LowRange, double HighRange)
-{ 
-   FitResults[0]         = -0.5;  //MPV
-   FitResults[1]         =  0;    //MPV error
-   FitResults[2]         = -0.5;  //Width
-   FitResults[3]         =  0;    //Width error
-   FitResults[4]         = -0.5;  //Fit Chi2/NDF
-
-   if( InputHisto->GetEntries() < MinNrEntries)return;
-
-   // perform fit with standard landau
-   TF1* MyLandau = new TF1("MyLandau","landau",LowRange, HighRange);
-   MyLandau->SetParameter(1,300);
-   InputHisto->Fit("MyLandau","0QR WW");
-
-   // MPV is parameter 1 (0=constant, 1=MPV, 2=Sigma)
-   FitResults[0]         = MyLandau->GetParameter(1);  //MPV
-   FitResults[1]         = MyLandau->GetParError(1);   //MPV error
-   FitResults[2]         = MyLandau->GetParameter(2);  //Width
-   FitResults[3]         = MyLandau->GetParError(2);   //Width error
-   FitResults[4]         = MyLandau->GetChisquare() / MyLandau->GetNDF();  //Fit Chi2/NDF
-
-   delete MyLandau;
-}
-
-bool SiStripGainFromCalibTree::IsGoodLandauFit(double* FitResults){
-   if(FitResults[0] < 2             )return false;
-   if(FitResults[1] > MaxMPVError   )return false;
-   if(FitResults[4] > MaxChi2OverNDF)return false;
-   return true;   
-}
-
-
-void SiStripGainFromCalibTree::algoAnalyzeTheTree()
+SiStripGainFromCalibTree::algoAnalyzeTheTree()
 {
       TChain* tree = new TChain("gainCalibrationTree/tree");
       for(unsigned int i=0;i<VInputFiles.size();i++){
          tree->Add(VInputFiles[i].c_str());
       }
+//      tree->Add("rfio:/castor/cern.ch/user/k/kaschube/calibration/calibTree_run123592.root");
+//      tree->Add("rfio:/castor/cern.ch/user/k/kaschube/calibration/calibTree_run123596.root");
+//      tree->Add("rfio:/castor/cern.ch/user/k/kaschube/calibration/calibTree_run123615.root");
+//      tree->Add("rfio:/castor/cern.ch/user/k/kaschube/calibration/calibTree_run123732.root");
 
       TString EventPrefix("");
       TString EventSuffix("");
@@ -485,12 +435,50 @@ void SiStripGainFromCalibTree::algoAnalyzeTheTree()
             }
 
          }// END OF ON-CLUSTER LOOP
-      }printf("\n");// END OF EVENT LOOP
+      }// END OF EVENT LOOP
 }
 
 
 
-void SiStripGainFromCalibTree::algoComputeMPVandGain() {
+void
+SiStripGainFromCalibTree::algoAnalyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+}
+
+void SiStripGainFromCalibTree::getPeakOfLandau(TH1* InputHisto, double* FitResults, double LowRange, double HighRange)
+{ 
+   FitResults[0]         = -0.5;  //MPV
+   FitResults[1]         =  0;    //MPV error
+   FitResults[2]         = -0.5;  //Width
+   FitResults[3]         =  0;    //Width error
+   FitResults[4]         = -0.5;  //Fit Chi2/NDF
+
+   if( InputHisto->GetEntries() < MinNrEntries)return;
+
+   // perform fit with standard landau
+   TF1* MyLandau = new TF1("MyLandau","landau",LowRange, HighRange);
+   MyLandau->SetParameter(1,300);
+   InputHisto->Fit("MyLandau","0QR WW");
+
+   // MPV is parameter 1 (0=constant, 1=MPV, 2=Sigma)
+   FitResults[0]         = MyLandau->GetParameter(1);  //MPV
+   FitResults[1]         = MyLandau->GetParError(1);   //MPV error
+   FitResults[2]         = MyLandau->GetParameter(2);  //Width
+   FitResults[3]         = MyLandau->GetParError(2);   //Width error
+   FitResults[4]         = MyLandau->GetChisquare() / MyLandau->GetNDF();  //Fit Chi2/NDF
+
+   delete MyLandau;
+}
+
+bool SiStripGainFromCalibTree::IsGoodLandauFit(double* FitResults){
+   if(FitResults[0] < 2             )return false;
+   if(FitResults[1] > MaxMPVError   )return false;
+   if(FitResults[4] > MaxChi2OverNDF)return false;
+   return true;   
+}
+
+void 
+SiStripGainFromCalibTree::algoEndJob() {
    unsigned int I=0;
    TH1D* Proj = NULL;
    double FitResults[5];
@@ -507,8 +495,7 @@ void SiStripGainFromCalibTree::algoComputeMPVandGain() {
       Proj = (TH1D*)(Charge_Vs_Index->ProjectionY("",APV->Bin,APV->Bin,"e"));
       if(!Proj)continue;
 
-      if(CalibrationLevel==0){
-      }else if(CalibrationLevel==1){
+      if(CalibrationLevel==1){
          int SecondAPVId = APV->APVId;
          if(SecondAPVId%2==0){    SecondAPVId = SecondAPVId+1; }else{ SecondAPVId = SecondAPVId-1; }
 	 stAPVGain* APV2 = APVsColl[(APV->DetId<<3) | SecondAPVId];
@@ -522,12 +509,11 @@ void SiStripGainFromCalibTree::algoComputeMPVandGain() {
             stAPVGain* APV2 = tmpit->second;
 	    if(APV2->DetId != APV->DetId || APV2->APVId == APV->APVId)continue;            
             TH1D* Proj2 = (TH1D*)(Charge_Vs_Index->ProjectionY("",APV2->Bin,APV2->Bin,"e"));
-//            if(Proj2 && APV->DetId==369171124)printf("B) DetId %6i APVId %1i --> NEntries = %f\n",APV2->DetId, APV2->APVId, Proj2->GetEntries());
+            if(Proj2 && APV->DetId==369171124)printf("B) DetId %6i APVId %1i --> NEntries = %f\n",APV2->DetId, APV2->APVId, Proj2->GetEntries());
             if(Proj2){Proj->Add(Proj2,1);delete Proj2;}
           }          
       }else{
-         CalibrationLevel = 0;
-         printf("Unknown Calibration Level, will assume %i\n",CalibrationLevel);
+         printf("Unknown Calibration Level, will assume 0");
       }
 
       getPeakOfLandau(Proj,FitResults);
@@ -551,7 +537,7 @@ void SiStripGainFromCalibTree::algoComputeMPVandGain() {
 
       //printf("%5i/%5i:  %6i - %1i  %5E Entries --> MPV = %f +- %f\n",I,APVsColl.size(),APV->DetId, APV->APVId, Proj->GetEntries(), FitResults[0], FitResults[1]);fflush(stdout);
       delete Proj;
-   }printf("\n");
+   }
 
    storeOnTree();
 }
@@ -579,7 +565,6 @@ void SiStripGainFromCalibTree::storeOnTree()
    double        tree_Gain;
    double        tree_PrevGain;
    double        tree_NEntries;
-   bool          tree_isMasked;
 
    TTree*         MyTree;
    MyTree = tfs->make<TTree> ("APVGain","APVGain");
@@ -603,7 +588,7 @@ void SiStripGainFromCalibTree::storeOnTree()
    MyTree->Branch("Gain"              ,&tree_Gain       ,"Gain/D");
    MyTree->Branch("PrevGain"          ,&tree_PrevGain   ,"PrevGain/D");
    MyTree->Branch("NEntries"          ,&tree_NEntries   ,"NEntries/D");
-   MyTree->Branch("isMasked"          ,&tree_isMasked   ,"isMasked/O");
+
 
 
    FILE* Gains = fopen(OutputGains.c_str(),"w");
@@ -639,7 +624,6 @@ void SiStripGainFromCalibTree::storeOnTree()
       tree_Gain       = APV->Gain;
       tree_PrevGain   = APV->PreviousGain;
       tree_NEntries   = APV->NEntries;
-      tree_isMasked   = APV->isMasked;
 
       MyTree->Fill();
    }

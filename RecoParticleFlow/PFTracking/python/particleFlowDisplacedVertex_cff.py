@@ -4,4 +4,4 @@ from RecoParticleFlow.PFTracking.particleFlowDisplacedVertex_cfi import *
 
 from FWCore.MessageLogger.MessageLogger_cfi import *
 #MessageLogger.suppressWarning = cms.untracked.vstring("particleFlowDisplacedVertexCandidate", "particleFlowDisplacedVertex");
-MessageLogger.suppressWarning.extend(cms.untracked.vstring("particleFlowDisplacedVertex"));
+#MessageLogger.suppressWarning.extend(cms.untracked.vstring("particleFlowDisplacedVertex"));

@@ -48,7 +48,6 @@ accept(const edm::Event& event, const edm::TriggerResults& triggerTable, const s
 
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
 /**
    \class   Calculate TopDQMHelpers.h "DQM/Physics/interface/TopDQMHelpers.h"
@@ -64,14 +63,14 @@ accept(const edm::Event& event, const edm::TriggerResults& triggerTable, const s
 class Calculate {
  public:
   /// default constructor
-  Calculate(int maxNJets, double wMass, const JetCorrector* corrector);
+  Calculate(int maxNJets, double wMass);
   /// default destructor
   ~Calculate(){};
      
   /// calculate W boson mass estimate
-    double massWBoson(const std::vector<reco::Jet>& jets);
+  double massWBoson(const std::vector<reco::Jet>& jets);
   /// calculate W boson mass estimate
-      double massTopQuark(const std::vector<reco::Jet>& jets); 
+  double massTopQuark(const std::vector<reco::Jet>& jets); 
   
  private:
   /// do the calculation; this is called only once per event by the first 
@@ -90,9 +89,6 @@ class Calculate {
   double massWBoson_;
   /// cache of top quark mass estimate
   double massTopQuark_;
-  /// jet corrector to improve the correlation 
-  /// between parton level and reco level
-  const JetCorrector* corrector_;
 };
 
 
@@ -104,6 +100,7 @@ class Calculate {
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 
 /**
    \class   SelectionStep TopDQMHelpers.h "DQM/Physics/interface/TopDQMHelpers.h"
@@ -248,9 +245,26 @@ bool SelectionStep<Object>::select(const edm::Event& event, const edm::EventSetu
   // load jet corrector if configured such
   const JetCorrector* corrector=0;
   if(!jetCorrector_.empty()){
-    corrector = JetCorrector::getJetCorrector(jetCorrector_, setup);
+    // check whether a jet correcto is in the event setup or not
+    if(setup.find( edm::eventsetup::EventSetupRecordKey::makeKey<JetCorrectionsRecord>() )){
+      corrector = JetCorrector::getJetCorrector(jetCorrector_, setup);
+    }
+    else{
+      //edm::LogVerbatim( "TopDQMHelpers" ) 
+      //  << "\n"
+      //  << "------------------------------------------------------------------------------------- \n"
+      //  << " No JetCorrectionsRecord available from EventSetup:                                   \n" 
+      //  << "  - Jets will not be corrected.                                                       \n"
+      //  << "  - If you want to change this add the following                                      \n"
+      //  << "    lines to your cfg file:                                                           \n"
+      //  << "                                                                                      \n"
+      //  << "  ## load jet corrections                                                             \n"
+      //  << "  process.load(\"JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff\") \n"
+      //  << "  process.prefer(\"ak5CaloL2L3\")                                                     \n"
+      //  << "                                                                                      \n"
+      //  << "------------------------------------------------------------------------------------- \n";
+    }
   }
-
   // determine multiplicity of selected objects
   int n=0;
   for(typename edm::View<Object>::const_iterator obj=src->begin(); obj!=src->end(); ++obj){

@@ -113,6 +113,22 @@ PFDisplacedVertex::nameVertexType() const {
 const math::XYZTLorentzVector 
 PFDisplacedVertex::momentum(string massHypo, VertexTrackType T, bool useRefitted, double mass) const {
 
+  M_Hypo mHypo = M_CUSTOM;
+
+  if (massHypo.find("PI")!=string::npos) mHypo = M_PION;
+  else if (massHypo.find("KAON")!=string::npos) mHypo = M_KAON;
+  else if (massHypo.find("LAMBDA")!=string::npos) mHypo = M_LAMBDA;
+  else if (massHypo.find("MASSLESS")!=string::npos) mHypo = M_MASSLESS; 
+  else if (massHypo.find("CUSTOM")!=string::npos) mHypo = M_CUSTOM;
+
+  return momentum(mHypo, T, useRefitted, mass);
+
+}
+
+
+const math::XYZTLorentzVector 
+PFDisplacedVertex::momentum(M_Hypo massHypo, VertexTrackType T, bool useRefitted, double mass) const {
+
   const double m2 = getMass2(massHypo, mass);
 
 
@@ -195,7 +211,7 @@ PFDisplacedVertex::angle_io() const {
 
 
 const double 
-PFDisplacedVertex::getMass2(string massHypo, double mass) const {
+PFDisplacedVertex::getMass2(M_Hypo massHypo, double mass) const {
 
   // pion_mass = 0.1396 GeV
   double pion_mass2 = 0.0194;
@@ -204,11 +220,11 @@ PFDisplacedVertex::getMass2(string massHypo, double mass) const {
   // lambda0_mass = 1.116 GeV
   double lambda_mass2 = 1.267;
 	
-  if (massHypo.find("PI")!=string::npos) return pion_mass2;
-  else if (massHypo.find("KAON")!=string::npos) return kaon_mass2;
-  else if (massHypo.find("LAMBDA")!=string::npos) return lambda_mass2;
-  else if (massHypo.find("MASSLESS")!=string::npos) return 0;
-  else if (massHypo.find("CUSTOM")!=string::npos) return mass*mass;
+  if (massHypo == M_PION) return pion_mass2;
+  else if (massHypo == M_KAON) return kaon_mass2;
+  else if (massHypo == M_LAMBDA) return lambda_mass2;
+  else if (massHypo == M_MASSLESS) return 0;
+  else if (massHypo == M_CUSTOM) return mass*mass;
 
   cout << "Warning: undefined mass hypothesis" << endl;
   return 0;
@@ -272,18 +288,6 @@ void PFDisplacedVertex::Dump( ostream& out ) const {
       << " eta = " << primaryDirection().eta() 
       << " phi = " << primaryDirection().phi() << endl;
 
-  /*
-  math::XYZVector dir_prim(mom_prim.px(), mom_prim.py(), mom_prim.pz());
-  math::XYZVector dir_sec(mom_sec.px(), mom_sec.py(), mom_sec.pz());
-  math::XYZVector primDir = primaryDirection();
-
-  double angle_primMom_pd = acos( dir_prim.Dot(primDir) / sqrt(dir_prim.Mag2()*primDir.Mag2()) ) / TMath::Pi()*180.0;
-  double angle_secMom_pd = acos( dir_sec.Dot(primDir) / sqrt(dir_sec.Mag2()*primDir.Mag2()) ) / TMath::Pi()*180.0;
-  double angle_secMom_primMom = acos( dir_sec.Dot(dir_prim) / sqrt(dir_sec.Mag2()*dir_prim.Mag2()) ) / TMath::Pi()*180.0;
-
-  out << " Angle primary track - primary direction = " << angle_primMom_pd << " deg" << endl;
-  out << " Angle secondary tracks - primary direction = " << angle_secMom_pd << " deg" << endl;
-  out << " Angle primary track - secondary tracks = " << angle_secMom_primMom << " deg" << endl;*/
   out << " Angle_io = " << angle_io() << " deg" << endl << endl;
   
 }

@@ -10,8 +10,6 @@
 #include "CondFormats/DataRecord/interface/CSCBadStripsRcd.h"
 #include "CondFormats/DataRecord/interface/CSCBadWiresRcd.h"
 #include "CondFormats/DataRecord/interface/CSCBadChambersRcd.h"
-#include "CondFormats/DataRecord/interface/CSCDBChipSpeedCorrectionRcd.h"
-#include "CondFormats/DataRecord/interface/CSCChamberTimeCorrectionsRcd.h"
 #include <vector>
 #include <bitset>
 
@@ -21,8 +19,6 @@ class CSCDBCrosstalk;
 class CSCBadStrips;
 class CSCBadWires;
 class CSCBadChambers;
-class CSCDBChipSpeedCorrection;
-class CSCChamberTimeCorrections;
 
 /**  Encapsulates a user interface into the CSC conditions
  *
@@ -60,12 +56,6 @@ public:
   /// fill vector (dim 4, must be allocated by caller) with crosstalk sl, il, sr, ir
   void crossTalk( const CSCDetId& id, int channel, std::vector<float>& ct ) const;
 
-  // returns chip speed correction in ns given detId (w/layer) and strip channel
-  float chipCorrection( const CSCDetId & detId, int channel ) const;
-
-  //return chamber timing correction in ns given detId of chamber 
-  float chamberTimingCorrection( const CSCDetId & detId) const;
-
   /// return  bad channel words per CSCLayer - 1 bit per channel
   const std::bitset<80>& badStripWord( const CSCDetId& id ) const;
   const std::bitset<112>& badWireWord( const CSCDetId& id ) const;
@@ -80,9 +70,6 @@ public:
 
   /// did we request reading bad chamber info from db?
   bool readBadChambers() const { return readBadChambers_; }
-
-  /// did we request reading timing correction info from db?
-  bool useTimingCorrections() const { return useTimingCorrections_; }
 
   /// fill bad channel words
   void fillBadStripWords();
@@ -100,12 +87,9 @@ private:
   edm::ESHandle<CSCBadStrips> theBadStrips;
   edm::ESHandle<CSCBadWires> theBadWires;
   edm::ESHandle<CSCBadChambers> theBadChambers;
-  edm::ESHandle<CSCDBChipSpeedCorrection> theChipCorrections;
-  edm::ESHandle<CSCChamberTimeCorrections> theChamberTimingCorrections;
 
   bool readBadChannels_; // flag whether or not to even attempt reading bad channel info from db
   bool readBadChambers_; // flag whether or not to even attempt reading bad chamber info from db
-  bool useTimingCorrections_; // flag whether or not to even attempt reading timing correction info from db
 
   // cache bad channel words once created
   std::vector< std::bitset<80> > badStripWords;

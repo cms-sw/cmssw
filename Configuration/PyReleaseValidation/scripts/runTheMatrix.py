@@ -70,10 +70,11 @@ class WorkFlowRunner(Thread):
 
         inFile = 'file:raw.root'
         if 'REALDATA' in self.wf.cmdStep1:
-            realDataRe = re.compile('REALDATA:\s*(/[A-Za-z].*),\s*RUN:\s*(?P<run>\d+)(,\s*FILES:\s*(?P<files>\d+))?(,\s*EVENTS:\s*(?P<events>\d+))?,\s*LABEL:\s*(?P<label>.*)')
+            realDataRe = re.compile('REALDATA:\s*(/[A-Za-z].*?),(\s*RUN:\s*(?P<run>\d+),)?(\s*FILES:\s*(?P<files>\d+),)?(\s*EVENTS:\s*(?P<events>\d+))?,\s*LABEL:\s*(?P<label>.*)')
             realDataMatch = realDataRe.match(self.wf.cmdStep1)
             if realDataMatch:
-                run    = realDataMatch.group("run")
+                run = None
+                if realDataMatch.group("run") : run = realDataMatch.group("run")
                 label  = realDataMatch.group("label")
 
                 files  = None
@@ -82,9 +83,10 @@ class WorkFlowRunner(Thread):
                 if realDataMatch.group("events"): events=realDataMatch.group("events")
 
                 print "run, files, events, label", run, files, events, label 
-                cmd += 'dbs search --noheader --url=http://cmst0dbs.cern.ch/cms_dbs_prod_tier0/servlet/DBSServlet '
+                cmd += 'dbs search --noheader --url=http://cmsdbsprod.cern.ch/cms_dbs_prod_global/servlet/DBSServlet '
                 cmd += "--query='find file where dataset like "+realDataMatch.group(1)
-                cmd += " and run=" + run+ "' "
+                if run: cmd += " and run=" + run
+                cmd += "' "
                 cmd += ' > %s 2>&1; ' % ('step1_'+self.wf.nameId+'-dbsquery.log',)
                 retStep1 = self.doCmd(cmd)
                 if retStep1 == 0:

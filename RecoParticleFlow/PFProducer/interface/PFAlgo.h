@@ -72,7 +72,8 @@ class PFAlgo {
 				  std::vector<double> muonECAL,
 				  double nSigmaTRACK,
 				  double ptError,
-				  std::vector<double> factors45);   
+				  std::vector<double> factors45,
+				  bool usePFMuonMomAssign);   
 
   void setPFEleParameters(double mvaEleCut,
 			  std::string mvaWeightFileEleID,
@@ -262,6 +263,9 @@ class PFAlgo {
   double coneTrackIsoForEgammaSC_;
   unsigned int nTrackIsoForEgammaSC_;
   PFElectronAlgo *pfele_;
+
+  // Option to let PF decide the muon momentum
+  bool usePFMuonMomAssign_;
 
   /// Flags to use the protection against fakes 
   /// and not reconstructed displaced vertices

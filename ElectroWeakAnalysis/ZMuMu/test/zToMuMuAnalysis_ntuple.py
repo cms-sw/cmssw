@@ -693,9 +693,7 @@ process.goodZToMuMuEdmNtuple = cms.EDProducer(
         deltaRHcal = cms.double("0.25"),
         alpha = cms.double("0."),
         beta = cms.double("-0.75"),
-        relativeIsolation = cms.bool(False),
-        hltPath = cms.string("HLT_Mu9")
-        
+        relativeIsolation = cms.bool(False)
       ),
      )
 )

@@ -1,4 +1,4 @@
-// $Id: I2OChain.cc,v 1.20 2010/05/03 13:51:09 mommsen Exp $
+// $Id: I2OChain.cc,v 1.18.2.2 2010/04/22 14:09:35 mommsen Exp $
 /// @file: I2OChain.cc
 
 #include <algorithm>
@@ -62,11 +62,13 @@ namespace stor
               break;
             }
 
+          #if (INTERFACESHARED_VERSION_MAJOR*1000 + INTERFACESHARED_VERSION_MINOR)>1010
           case I2O_EVM_LUMISECTION:
             {
               _data.reset(new detail::EndLumiSectMsgData(pRef));
               break;
             }
+          #endif
 
           case I2O_SM_ERROR:
             {
@@ -480,7 +482,7 @@ namespace stor
     return _data->dqmKey();
   }
 
-  uint32_t I2OChain::outputModuleId() const
+  uint32 I2OChain::outputModuleId() const
   {
     if (!_data)
       {
@@ -520,7 +522,7 @@ namespace stor
     _data->l1TriggerNames(nameList);
   }
 
-  uint32_t I2OChain::hltTriggerCount() const
+  uint32 I2OChain::hltTriggerCount() const
   {
     if (!_data)
       {
@@ -540,7 +542,7 @@ namespace stor
     _data->hltTriggerBits(bitList);
   }
 
-  void I2OChain::assertRunNumber(uint32_t runNumber)
+  void I2OChain::assertRunNumber(uint32 runNumber)
   {
     if (!_data)
       {
@@ -550,7 +552,7 @@ namespace stor
     return _data->assertRunNumber(runNumber);
   }
 
-  uint32_t I2OChain::runNumber() const
+  uint32 I2OChain::runNumber() const
   {
     if (!_data)
       {
@@ -560,7 +562,7 @@ namespace stor
     return _data->runNumber();
   }
 
-  uint32_t I2OChain::lumiSection() const
+  uint32 I2OChain::lumiSection() const
   {
     if (!_data)
       {
@@ -570,7 +572,7 @@ namespace stor
     return _data->lumiSection();
   }
 
-  uint32_t I2OChain::eventNumber() const
+  uint32 I2OChain::eventNumber() const
   {
     if (!_data)
       {
@@ -580,7 +582,7 @@ namespace stor
     return _data->eventNumber();
   }
 
-  uint32_t I2OChain::adler32Checksum() const
+  uint32 I2OChain::adler32Checksum() const
   {
     if (!_data)
       {

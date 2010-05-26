@@ -5,6 +5,9 @@
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 #include "CondTools/Ecal/interface/EcalGainRatiosXMLTranslator.h"
 
+#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
+#include "CondTools/Ecal/interface/EcalPedestalsXMLTranslator.h"
+
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondTools/Ecal/interface/EcalADCToGeVXMLTranslator.h"
 
@@ -33,6 +36,10 @@ typedef EcalCondHandler<EcalGainRatios,
 typedef popcon::PopConAnalyzer<EcalGainRatiosHandler>  
                                          EcalGainRatiosAnalyzer;
 
+typedef EcalCondHandler<EcalPedestals,
+			EcalPedestalsXMLTranslator> EcalPedestalsHandler;
+typedef popcon::PopConAnalyzer<EcalPedestalsHandler>
+                                         EcalPedestalsAnalyzer;
 
 typedef EcalCondHandler<EcalADCToGeVConstant,
 			EcalADCToGeVXMLTranslator> EcalADCToGeVConstantHandler;

@@ -24,8 +24,6 @@ private:
   TGHorizontalFrame   *fHframe1;
   TGVerticalFrame   *fVframe1;
   TGVerticalFrame   *fVframe2;
-  TGVerticalFrame   *fVframe3;
-  TGVerticalFrame   *fVframe4;
   
   TGLayoutHints* fHint1;
   TGLayoutHints* fHint2;

@@ -58,9 +58,9 @@ TrapezoidalStripTopology::localError(float strip, float stripErr2) const {
   float sl2,sp2;
   // angle from strip to local frame (see CMS TN / 95-170)
   lt = -(strip*thePitch + theOffset)*theYAxOr/theDistToBeam;
-  lc2 = 1.f/(1.+lt*lt);
+  lc2 = 1./(1.+lt*lt);
   lslc = lt*lc2;
-  ls2 = 1.f-lc2;
+  ls2 = 1.-lc2;
   localL2 = theDetHeight*theDetHeight / lc2;
   localP2 = thePitch*thePitch*lc2;
   sl2 = localL2/12.;
@@ -80,8 +80,8 @@ TrapezoidalStripTopology::localError(const MeasurementPoint& mp,
   lt = -(mp.x()*thePitch + theOffset)*theYAxOr/theDistToBeam;
   lc2 = 1./(1.+lt*lt);
   lslc = lt*lc2;
-  ls2 = 1.f-lc2;
-  localL = theDetHeight / std::sqrt(lc2);
+  ls2 = 1.-lc2;
+  localL = theDetHeight / sqrt(lc2);
   localP = localPitch(localPosition(mp));
   sp2 = merr.uu() * localP*localP;
   sl2 = merr.vv() * localL*localL;
@@ -95,7 +95,7 @@ float
 TrapezoidalStripTopology::strip(const LocalPoint& lp) const {
   float aStrip =
      ((lp.x()*theDistToBeam/(theYAxOr*lp.y()+theDistToBeam))-theOffset)/thePitch;
-   if (aStrip < 0 ) aStrip = 0;
+   if (aStrip < 0. ) aStrip = 0.;
   else if (aStrip > theNumberOfStrips)  aStrip = theNumberOfStrips;
   return aStrip;
 }
@@ -117,14 +117,14 @@ TrapezoidalStripTopology::measurementError(const LocalPoint& lp,
   lc2 = 1./(1.+lt*lt);
   lslc = lt*lc2;
   ls2 = 1.-lc2;
-  localL = theDetHeight / std::sqrt(lc2);
+  localL = theDetHeight / sqrt(lc2);
   localP = localPitch(lp);
   sp2 = lc2*lerr.xx()+ls2*lerr.yy()+2*lslc*lerr.xy();
   sl2 = ls2*lerr.xx()+lc2*lerr.yy()-2*lslc*lerr.xy();
   spl = lslc*(lerr.yy()-lerr.xx())+(lc2-ls2)*lerr.xy();
-  return MeasurementError(sp2/(localP*localP),
-                          spl/(localP*localL),
-			  sl2/(localL*localL));
+  return MeasurementError(sp2/localP/localP,
+                          spl/localP/localL,
+                          sl2/localL/localL);
 
 }
 
@@ -142,12 +142,12 @@ float
 TrapezoidalStripTopology::localPitch(const LocalPoint& lp) const {
   float x=lp.x();
   float y=theYAxOr*lp.y()+theDistToBeam;
-  return thePitch*y/(theDistToBeam*std::sqrt(1.f+x*x/(y*y)));
+  return thePitch*y/theDistToBeam/sqrt(1.+x*x/(y*y));
 }
 
 float
 TrapezoidalStripTopology::stripAngle(float strip) const {
-  return std::atan( -(strip*thePitch + theOffset)*theYAxOr/theDistToBeam );
+  return atan( -(strip*thePitch + theOffset)*theYAxOr/theDistToBeam );
 }
 
 int
@@ -163,9 +163,8 @@ float TrapezoidalStripTopology::shiftOffset( float pitch_fraction) {
 float TrapezoidalStripTopology::localStripLength(const LocalPoint& lp) 
   const {
   float ltan = -lp.x()/(theYAxOr*lp.y()+theDistToBeam)*theYAxOr;
-  float localL = theDetHeight * std::sqrt(1.f+ltan*ltan);
-  //  float lcos2 = 1.f/(1.f+ltan*ltan);
-  //  float localL = theDetHeight / std::sqrt(lcos2);
+  float lcos2 = 1./(1.+ltan*ltan);
+  float localL = theDetHeight / sqrt(lcos2);
 
   return localL;
 }

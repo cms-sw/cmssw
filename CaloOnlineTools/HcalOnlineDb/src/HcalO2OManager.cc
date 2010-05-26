@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Sun Aug 16 20:44:05 CEST 2009
-// $Id: HcalO2OManager.cc,v 1.34 2010/04/19 17:12:00 kukartse Exp $
+// $Id: HcalO2OManager.cc,v 1.30 2010/03/07 23:01:33 kukartse Exp $
 //
 
 
@@ -25,7 +25,13 @@
 #include "CondFormats/Common/interface/PayloadWrapper.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 
+#include "CondCore/DBCommon/interface/PoolTransaction.h"
+#include "CondCore/DBCommon/interface/DBSession.h"
+#include "CondCore/DBCommon/interface/ConnectionHandler.h"
+#include "CondCore/DBCommon/interface/Connection.h"
+#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 #include "CondCore/DBCommon/interface/Exception.h"
+#include "CondCore/DBCommon/interface/TypedRef.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/IOVService/interface/IOVService.h"
 
@@ -248,112 +254,32 @@ int HcalO2OManager::getListOfNewIovs(std::vector<uint32_t> & iovs,
 				     const std::vector<uint32_t> & orcon_iovs){
   int result = -1; // default fail
   iovs.clear();
-
-  // OMDS tag may not have the first IOV=1
-  int _orcon_index_offset = 0;
-  if (omds_iovs.size() > 0 &&
-      orcon_iovs.size() > 0 &&
-      orcon_iovs[0] == 1 &&
-      omds_iovs[0] != 1){
-    std::cout << std::endl << "HcalO2OManager: First IOV in the OMDS tag is not 1," << std::endl;
-    std::cout << "HcalO2OManager: while it must be 1 in the offline tag." << std::endl;
-    std::cout << "HcalO2OManager: O2O will assume that IOV=1 in the offline tag" << std::endl;
-    std::cout << "HcalO2OManager: is filled with some safe default." << std::endl;
-    std::cout << "HcalO2OManager: IOV=1 will be ignored, and O2O will proceeed" << std::endl;
-    std::cout << "HcalO2OManager: as long as other inconsistencies are not detected." << std::endl << std::endl;
-    _orcon_index_offset = 1; // skip the first IOV in ORCON because it
-    //                       // is 1 while OMDS doesn't have IOV=1
-  } 
-  if (omds_iovs.size()+_orcon_index_offset < orcon_iovs.size()){
-    std::cout << "HcalO2OManager: too many IOVs in the Pool tag, cannot sync, exiting..." << std::endl;
-    return result;
-  }
-
-  // loop over all OMDS IOVs
+  if (omds_iovs.size() < orcon_iovs.size()) return result; // more IOVs in ORCON than in OMDS
   unsigned int _index = 0;
-
-  bool enforce_strict_matching = false; // set to true if the strict IOV matching is desired, see description in the comments below
-
- // use this to keep track of how well the existing OMDS and offline IOV sets match
-  unsigned int _sync_status = 0;
   for (std::vector<uint32_t>::const_iterator _iov = orcon_iovs.begin();
        _iov != orcon_iovs.end();
        ++_iov){
     _index = (int)(_iov - orcon_iovs.begin());
-
-    // special case when the first Pool IOV = 1 (must always be true)
-    // but OMDS IOVs do not start with IOV = 1
-    // This can be a ligitimate mismatch when the OMDS tag is created for
-    // current conditions without regard to the history
-    // In such cases, when creating a copy of this tag in offline,
-    // O2O copies the first IOV from OMDS and assigns it as IOV=1.
-    // With later sync passes, O2O must skip the first offline IOV = 1
-    if (_orcon_index_offset == 1 && _index == 0) continue;
-
-    // current pair of OMDS-offline IOVs does not match
-    // There are several options in such case:
-    //
-    //   - with strict matching, the program should quit, as it is not possible
-    //     to keep the tag in sync between OMDS and offline because
-    //     offline tags do not allow fixes, only updates
-    //
-    //   - intermediate solution is to find the latest IOV in the offline tag
-    //     and append any IOVs from the OMDS tag that come after it
-    //
-
-    if (omds_iovs[_index-_orcon_index_offset] != orcon_iovs[_index]){
-
-      std::cout << std::endl;
-      std::cout << "HcalO2OManager: existing IOVs do not match, cannot sync in the strict sense." << std::endl;
-      std::cout << "HcalO2OManager: mismatched pair is (OMDS/offline): " << omds_iovs[_index-_orcon_index_offset] << "/" << orcon_iovs[_index] << std::endl;
-      std::cout << "HcalO2OManager: In the strict sense, the SYNCHRONIZATION OF THIS TAG HAS FAILED!" << std::endl;
-      std::cout << "HcalO2OManager: As an interim solution, I will still copy to the offline tag" << std::endl;
-      std::cout << "HcalO2OManager: those IOV from the OMDS tag that are newer than the last IOV" << std::endl;
-      std::cout << "HcalO2OManager: currently in the offline tag. " << std::endl;
-
-      _sync_status = 1; // dunno what for, may be handy in future
-
-      // existing IOVs do not match
-
-      if (enforce_strict_matching){
-	return result;
-      }
-      else{
-	break; // _index now contains the last "valid" OMDS IOV
-      }
-
+    if (omds_iovs[_index] != orcon_iovs[_index]){
+      return result; // existing IOVs do not match
     }
     ++_index;
   }
-
-
   //
   //_____ loop over remaining OMDS IOVs
   //
-  //std::cout << "HcalO2OManager: DEBUG: " << std::endl;
   int _counter = 0; // count output IOVs
-  uint32_t _lastOrconIov = orcon_iovs[orcon_iovs.size()-1];
-
   for (;_index < omds_iovs.size();++_index){
-
-    uint32_t _aIov = omds_iovs[_index];
-
-    if (_index == 0 && _aIov > _lastOrconIov){ // can only copy later IOVs
-      iovs.push_back(_aIov);
+    if (_index == 0){
+      iovs.push_back(omds_iovs[_index]);
       ++_counter;
     }
-    else if (omds_iovs[_index]>omds_iovs[_index-1] &&
-	     _aIov > _lastOrconIov){  // can only copy later IOVs
+    else if (omds_iovs[_index]>omds_iovs[_index-1]){
       iovs.push_back(omds_iovs[_index]);
       ++_counter;
     }
     else{
-      if (enforce_strict_matching){
-	return result;
-      }
-      else{
-	continue;
-      }
+      return result;
     }
   }
   //if (_counter != 0) result = _counter;

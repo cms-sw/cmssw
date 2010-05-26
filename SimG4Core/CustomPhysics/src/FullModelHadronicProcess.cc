@@ -604,12 +604,10 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
 	     CustomPDGParser::s_isMesonino(theRhadron->GetDefinition()->GetPDGEncoding())
 	     !=CustomPDGParser::s_isMesonino(theIncidentPDG)
 	     ) {
-
-	    G4cout<<"Rm: "<<CustomPDGParser::s_isRMeson(theRhadron->GetDefinition()->GetPDGEncoding())
-		     <<" vs: "<<CustomPDGParser::s_isRMeson(theIncidentPDG)<<G4endl;
-	    G4cout<<"Sm: "<<CustomPDGParser::s_isMesonino(theRhadron->GetDefinition()->GetPDGEncoding())
-		     <<" vs: "<<CustomPDGParser::s_isMesonino(theIncidentPDG)<<G4endl;
-
+	    std::cout<<"Rm: "<<CustomPDGParser::s_isRMeson(theRhadron->GetDefinition()->GetPDGEncoding())
+		     <<" vs: "<<CustomPDGParser::s_isRMeson(theIncidentPDG)<<std::endl;
+	    std::cout<<"Sm: "<<CustomPDGParser::s_isMesonino(theRhadron->GetDefinition()->GetPDGEncoding())
+		     <<" vs: "<<CustomPDGParser::s_isMesonino(theIncidentPDG)<<std::endl;
 	  }
 	}
       

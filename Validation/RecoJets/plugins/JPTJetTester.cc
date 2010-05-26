@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: JPTJetTester.cc,v 1.5 2010/04/06 20:16:11 chjeong Exp $
+// $Id: JPTJetTester.cc,v 1.2 2010/03/24 01:20:26 hatake Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -59,8 +59,7 @@ JPTJetTester::JPTJetTester(const edm::ParameterSet& iConfig)
     numberofevents
     = mEta = mEtaFineBin = mPhi = mPhiFineBin = mE = mE_80 = mE_3000
     = mP = mP_80 = mP_3000 = mPt = mPt_80 = mPt_3000
-    = mMass = mMass_80 = mMass_3000
-      //    = mConstituents = mConstituents_80
+    = mMass = mMass_80 = mMass_3000 = mConstituents = mConstituents_80
     = mEtaFirst = mPhiFirst = mEFirst = mEFirst_80 = mEFirst_3000 = mPtFirst = mPtFirst_80 = mPtFirst_3000
     = mMjj = mMjj_3000 = mDelEta = mDelPhi = mDelPt 
     /*  
@@ -142,8 +141,8 @@ JPTJetTester::JPTJetTester(const edm::ParameterSet& iConfig)
     mMass_80          = dbe->book1D("Mass_80", "Mass_80", 100, 0, 120); 
     mMass_3000        = dbe->book1D("Mass_3000", "Mass_3000", 100, 0, 500); 
     //
-    //    mConstituents     = dbe->book1D("Constituents", "# of Constituents", 100, 0, 100); 
-    //    mConstituents_80  = dbe->book1D("Constituents_80", "# of Constituents_80", 40, 0, 40); 
+    mConstituents     = dbe->book1D("Constituents", "# of Constituents", 100, 0, 100); 
+    mConstituents_80  = dbe->book1D("Constituents_80", "# of Constituents_80", 40, 0, 40); 
     //
     mEtaFirst         = dbe->book1D("EtaFirst", "EtaFirst", 100, -5, 5); 
     mPhiFirst         = dbe->book1D("PhiFirst", "PhiFirst", 70, -3.5, 3.5);     
@@ -173,16 +172,16 @@ JPTJetTester::JPTJetTester(const edm::ParameterSet& iConfig)
     mPtFractionElecOutVertexInCalo = dbe->book1D("PtFractionElecOutVertexInCalo","PtFractionElecOutVertexInCalo",51,0.,1.02);
     //
     mMultiplicityPionInVertexInCalo  = dbe->book1D("MultiplicityPionInVertexInCalo","MultiplicityPionInVertexInCalo",100,0.,100.);
-    mMultiplicityPionInVertexOutCalo = dbe->book1D("MultiplicityPionInVertexOutCalo","MultiplicityPionInVertexOutCalo",100,0.,100.);
-    mMultiplicityPionOutVertexInCalo = dbe->book1D("MultiplicityPionOutVertexInCalo","MultiplicityPionOutVertexInCalo",100,0.,100.);
+    mMultiplicityPionInVertexOutCalo = dbe->book1D("MultiplicityPionInVertexInCalo","MultiplicityPionInVertexOutCalo",100,0.,100.);
+    mMultiplicityPionOutVertexInCalo = dbe->book1D("MultiplicityPionInVertexInCalo","MultiplicityPionOutVertexInCalo",100,0.,100.);
 
     mMultiplicityMuonInVertexInCalo  = dbe->book1D("MultiplicityMuonInVertexInCalo","MultiplicityMuonInVertexInCalo",100,0.,100.);
-    mMultiplicityMuonInVertexOutCalo = dbe->book1D("MultiplicityMuonInVertexOutCalo","MultiplicityMuonInVertexOutCalo",100,0.,100.);
-    mMultiplicityMuonOutVertexInCalo = dbe->book1D("MultiplicityMuonOutVertexInCalo","MultiplicityMuonOutVertexInCalo",100,0.,100.);
+    mMultiplicityMuonInVertexOutCalo = dbe->book1D("MultiplicityMuonInVertexInCalo","MultiplicityMuonInVertexOutCalo",100,0.,100.);
+    mMultiplicityMuonOutVertexInCalo = dbe->book1D("MultiplicityMuonInVertexInCalo","MultiplicityMuonOutVertexInCalo",100,0.,100.);
 
     mMultiplicityElecInVertexInCalo  = dbe->book1D("MultiplicityElecInVertexInCalo","MultiplicityElecInVertexInCalo",100,0.,100.);
-    mMultiplicityElecInVertexOutCalo = dbe->book1D("MultiplicityElecInVertexOutCalo","MultiplicityElecInVertexOutCalo",100,0.,100.);
-    mMultiplicityElecOutVertexInCalo = dbe->book1D("MultiplicityElecOutVertexInCalo","MultiplicityElecOutVertexInCalo",100,0.,100.);
+    mMultiplicityElecInVertexOutCalo = dbe->book1D("MultiplicityElecInVertexInCalo","MultiplicityElecInVertexOutCalo",100,0.,100.);
+    mMultiplicityElecOutVertexInCalo = dbe->book1D("MultiplicityElecInVertexInCalo","MultiplicityElecOutVertexInCalo",100,0.,100.);
     /*
     mMaxEInEmTowers   = dbe->book1D("MaxEInEmTowers", "MaxEInEmTowers", 100, 0, 100); 
     mMaxEInHadTowers  = dbe->book1D("MaxEInHadTowers", "MaxEInHadTowers", 100, 0, 100); 
@@ -623,8 +622,8 @@ void JPTJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
     if (mMass) mMass->Fill (jet->mass());
     if (mMass_80) mMass_80->Fill (jet->mass());
     if (mMass_3000) mMass_3000->Fill (jet->mass());
-    //    if (mConstituents) mConstituents->Fill (jet->nConstituents());
-    //    if (mConstituents_80) mConstituents_80->Fill (jet->nConstituents());
+    if (mConstituents) mConstituents->Fill (jet->nConstituents());
+    if (mConstituents_80) mConstituents_80->Fill (jet->nConstituents());
     if (jet == jptJets->begin ()) { // first jet
       if (mEtaFirst) mEtaFirst->Fill (jet->eta());
       if (mPhiFirst) mPhiFirst->Fill (jet->phi());

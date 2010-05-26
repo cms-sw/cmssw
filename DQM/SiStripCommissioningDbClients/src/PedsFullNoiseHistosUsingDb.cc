@@ -1,4 +1,4 @@
-// Last commit: $Id: PedsFullNoiseHistosUsingDb.cc,v 1.3 2009/11/15 16:42:16 lowette Exp $
+// Last commit: $Id: PedsFullNoiseHistosUsingDb.cc,v 1.2 2009/11/10 14:49:02 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/PedsFullNoiseHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/PedsFullNoiseAnalysis.h"
@@ -34,7 +34,6 @@ PedsFullNoiseHistosUsingDb::PedsFullNoiseHistosUsingDb( const edm::ParameterSet 
     << highThreshold_ << "/" << lowThreshold_;
   disableBadStrips_ = this->pset().getParameter<bool>("DisableBadStrips");
   keepStripsDisabled_ = this->pset().getParameter<bool>("KeepStripsDisabled");
-  addBadStrips_ = this->pset().getParameter<bool>("AddBadStrips");
   LogTrace(mlDqmClient_)
     << "[PedestalsHistosUsingDb::" << __func__ << "]"
     << " Disabling strips: " << disableBadStrips_
@@ -96,7 +95,7 @@ void PedsFullNoiseHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange f
 
       // Build FED and FEC keys
       const FedChannelConnection& conn = cabling()->connection( (*ifed)->getFedId(), ichan );
-      if ( conn.fecCrate()== sistrip::invalid_ ||
+      if ( conn.fecCrate() == sistrip::invalid_ ||
            conn.fecSlot() == sistrip::invalid_ ||
            conn.fecRing() == sistrip::invalid_ ||
            conn.ccuAddr() == sistrip::invalid_ ||
@@ -116,7 +115,13 @@ void PedsFullNoiseHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange f
       // Locate appropriate analysis object 
       Analyses::const_iterator iter = data().find( fec_key.key() );
       if ( iter != data().end() ) {
-      
+
+        // Check if analysis is valid
+        if ( !iter->second->isValid() ) { 
+          addProblemDevice( fec_key ); //@@ Remove problem device
+          continue; 
+        }
+
         PedsFullNoiseAnalysis* anal = dynamic_cast<PedsFullNoiseAnalysis*>( iter->second );
         if ( !anal ) { 
           edm::LogError(mlDqmClient_)
@@ -139,69 +144,16 @@ void PedsFullNoiseHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange f
             // get the information on the strip as it was on the db
             Fed9U::Fed9UAddress addr( ichan, iapv, istr );
             Fed9U::Fed9UStripDescription temp = (*ifed)->getFedStrips().getStrip( addr );
-						if(temp.getDisable()) {
-            	std::cout<<"Already Disabled: "<<conn.fecCrate()
-							<<" "<<conn.fecSlot()
-							<<" "<<conn.fecRing()
-							<<" "<<conn.ccuAddr()
-							<<" "<<conn.ccuChan()
-							<<" "<<conn.lldChannel()
-              <<" "<<iapv*128+istr<<std::endl;
-            }
+
             // determine whether we need to disable the strip
             bool disableStrip = false;
-            if ( addBadStrips_ ) {
-              disableStrip = temp.getDisable();
-              SiStripFedKey fed_key(anal->fedKey());              
-              if(!disableStrip){
-              	PedsFullNoiseAnalysis::VInt dead = anal->dead()[iapv];
-              	if ( find( dead.begin(), dead.end(), istr ) != dead.end() ) {
-                	disableStrip = true;
-                  std::cout<<"Disabling Dead: "<<conn.fecCrate()
-									<<" "<<conn.fecSlot()
-									<<" "<<conn.fecRing()
-									<<" "<<conn.ccuAddr()
-									<<" "<<conn.ccuChan()
-									<<" "<<conn.lldChannel()
-              		<<" "<<iapv*128+istr<<std::endl;
-                }
-              	PedsFullNoiseAnalysis::VInt noisy = anal->noisy()[iapv];
-              	if ( find( noisy.begin(), noisy.end(), istr ) != noisy.end() ) {
-                	disableStrip = true;
-                  std::cout<<"Disabling Noisy: "<<conn.fecCrate()
-									<<" "<<conn.fecSlot()
-									<<" "<<conn.fecRing()
-									<<" "<<conn.ccuAddr()
-									<<" "<<conn.ccuChan()
-									<<" "<<conn.lldChannel()
-              		<<" "<<iapv*128+istr<<std::endl;
-                }
-              }
-            } else if ( keepStripsDisabled_ ) {
+            if ( keepStripsDisabled_ ) {
               disableStrip = temp.getDisable();
             } else if (disableBadStrips_) {
               PedsFullNoiseAnalysis::VInt dead = anal->dead()[iapv];
-              if ( find( dead.begin(), dead.end(), istr ) != dead.end() ) {
-              	disableStrip = true;              
-                std::cout<<"Disabling Dead: "<<conn.fecCrate()
-								<<" "<<conn.fecSlot()
-								<<" "<<conn.fecRing()
-								<<" "<<conn.ccuAddr()
-								<<" "<<conn.ccuChan()
-								<<" "<<conn.lldChannel()
-              	<<" "<<iapv*128+istr<<std::endl;
-              }
+              if ( find( dead.begin(), dead.end(), istr ) != dead.end() ) disableStrip = true;
               PedsFullNoiseAnalysis::VInt noisy = anal->noisy()[iapv];
-              if ( find( noisy.begin(), noisy.end(), istr ) != noisy.end() ) {
-              	disableStrip = true;                
-                std::cout<<"Disabling Noisy: "<<conn.fecCrate()
-								<<" "<<conn.fecSlot()
-								<<" "<<conn.fecRing()
-								<<" "<<conn.ccuAddr()
-								<<" "<<conn.ccuChan()
-								<<" "<<conn.lldChannel()
-              	<<" "<<iapv*128+istr<<std::endl;
-              }
+              if ( find( noisy.begin(), noisy.end(), istr ) != noisy.end() ) disableStrip = true;
             }
 
             Fed9U::Fed9UStripDescription data( static_cast<uint32_t>( anal->peds()[iapv][istr]-pedshift ),

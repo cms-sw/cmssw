@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-_relvalmcfs_
+_pp_
 
 Scenario supporting RelVal MC FastSim production
 
@@ -27,7 +27,7 @@ class relvalmcfs(Scenario):
     """
 
 
-    def promptReco(self, globalTag, writeTiers = ['RECO'], **options):
+    def promptReco(self, globalTag, writeTiers = ['RECO']):
         """
         _promptReco_
 
@@ -46,6 +46,8 @@ class relvalmcfs(Scenario):
         options.magField = 'AutoFromDBCurrent'
         options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
 
+        
+        
         process = cms.Process('RECO')
         cb = ConfigBuilder(options, process = process)
 
@@ -60,8 +62,50 @@ class relvalmcfs(Scenario):
  
         return process
 
+    def expressProcessing(self, globalTag,  writeTiers = [],
+                          datasets = [], alcaDataset = None):
+        """
+        _expressProcessing_
 
-    def alcaReco(self, skims, **options):
+        Express processing for RelVal MC production
+
+        """
+
+        options = Options()
+        options.__dict__.update(defaultOptions.__dict__)
+        options.scenario = "pp"
+        options.step = \
+          """RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+TkAlMinBias+MuAlCalIsolatedMu+RpcCalHLT,ENDJOB"""
+        options.isMC = True
+        options.isData = False
+        options.eventcontent = None
+        options.relval = None
+        options.beamspot = None
+        options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
+        
+        process = cms.Process('EXPRESS')
+        cb = ConfigBuilder(options, process = process)
+
+        process.source = cms.Source(
+           "NewEventStreamFileReader",
+           fileNames = cms.untracked.vstring()
+        )
+        
+        cb.prepare()
+
+        #  //
+        # // Install the OutputModules for everything but ALCA
+        #//
+        self.addExpressOutputModules(process, writeTiers, datasets)
+        
+        #  //
+        # // TODO: Install Alca output
+        #//
+        
+        return process
+    
+
+    def alcaReco(self, *skims):
         """
         _alcaReco_
 
@@ -113,9 +157,14 @@ class relvalmcfs(Scenario):
                 self.dropOutputModule(process, availSkim)
 
         return process
+                
+
+        
+
+        
 
 
-    def dqmHarvesting(self, datasetName, runNumber, globalTag, **options):
+    def dqmHarvesting(self, datasetName, runNumber,  globalTag, **options):
         """
         _dqmHarvesting_
 

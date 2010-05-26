@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
- version $Id: BeamSpotAnalyzer.cc,v 1.24 2010/05/03 22:07:16 yumiceva Exp $
+ version $Id: BeamSpotAnalyzer.cc,v 1.20 2010/03/20 14:40:56 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -43,8 +43,6 @@ BeamSpotAnalyzer::BeamSpotAnalyzer(const edm::ParameterSet& iConfig)
   ftotalevents = 0;
   ftmprun0 = ftmprun = -1;
   countLumi_ = 0;
-  beginLumiOfBSFit_ = endLumiOfBSFit_ = -1;
-  
 }
 
 
@@ -60,7 +58,6 @@ BeamSpotAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	ftotalevents++;
 	theBeamFitter->readEvent(iEvent);
 	ftmprun = iEvent.id().run();
-
 }
 
 
@@ -75,19 +72,13 @@ void
 BeamSpotAnalyzer::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
 									   const edm::EventSetup& context) {
 
-    const edm::TimeValue_t fbegintimestamp = lumiSeg.beginTime().value();
-    const std::time_t ftmptime = fbegintimestamp >> 32;
-
-    if ( countLumi_ == 0 || (resetFitNLumi_ > 0 && countLumi_%resetFitNLumi_ == 0) ) {
-        ftmprun0 = lumiSeg.run();
-        ftmprun = ftmprun0;
-        beginLumiOfBSFit_ = lumiSeg.luminosityBlock();
-        refBStime[0] = ftmptime;
-    }
-    
-    countLumi_++;
-    //std::cout << "Lumi # " << countLumi_ << std::endl;
-
+  if ( countLumi_ == 0 || (resetFitNLumi_ > 0 && countLumi_%resetFitNLumi_ == 0) ) {
+    ftmprun0 = lumiSeg.run();
+    ftmprun = ftmprun0;
+  }
+  countLumi_++;
+  //std::cout << "Lumi # " << countLumi_ << std::endl;
+  
 }
 
 //--------------------------------------------------------
@@ -95,23 +86,12 @@ void
 BeamSpotAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
 									 const edm::EventSetup& iSetup) {
 
-    const edm::TimeValue_t fendtimestamp = lumiSeg.endTime().value();
-    const std::time_t fendtime = fendtimestamp >> 32;
-    refBStime[1] = fendtime;
-    
-    endLumiOfBSFit_ = lumiSeg.luminosityBlock();
-    
 	if ( fitNLumi_ == -1 && resetFitNLumi_ == -1 ) return;
 	
 	if (fitNLumi_ > 0 && countLumi_%fitNLumi_!=0) return;
 
-    theBeamFitter->setFitLSRange(beginLumiOfBSFit_,endLumiOfBSFit_);
-    theBeamFitter->setRefTime(refBStime[0],refBStime[1]);
-    theBeamFitter->setRun(ftmprun0);
-    
-    int * LSRange = theBeamFitter->getFitLSRange();
-
-    if (theBeamFitter->runFitter()){
+	int * LSRange = theBeamFitter->getFitLSRange();
+	if (theBeamFitter->runFitter()){
 		reco::BeamSpot bs = theBeamFitter->getBeamSpot();
 		std::cout << "\n RESULTS OF DEFAULT FIT " << std::endl;
 		std::cout << " for runs: " << ftmprun0 << " - " << ftmprun << std::endl;

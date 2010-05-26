@@ -108,3 +108,4 @@ setenv SMDEV_BIG_HLT_CONFIG 0
 
 # 08-JUL-2009 - define the configuration to be used
 setenv STMGR_CONFIG $STMGR_DIR/cfg/sm_autobu_8fu.xml
+#setenv STMGR_CONFIG $STMGR_DIR/cfg/sm_autobu_8fu_atcp.xml

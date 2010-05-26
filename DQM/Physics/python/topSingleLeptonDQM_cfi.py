@@ -24,7 +24,7 @@ topSingleLeptonDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ),
     ## [optional] : when omitted the verbosity level is set to STANDARD
     monitoring = cms.PSet(
-      verbosity = cms.string("STANDARD")
+      verbosity = cms.string("DEBUG")
     ),
     ## [optional] : when omitted all monitoring plots for the electron
     ## will be filled w/o preselection
@@ -41,9 +41,8 @@ topSingleLeptonDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ),
     ## [optional] : when omitted all monitoring plots for jets will
     ## be filled from uncorrected jets
-### COMMENTED - CRASHES RELVALS
     jetExtras = cms.PSet(
-#      jetCorrector = cms.string("ak5CaloL2L3")
+      jetCorrector = cms.string("ak5CaloL2L3")
     ),
     ## [optional] : when omitted no mass window will be applied
     ## for the W mass befor filling the event monitoring plots

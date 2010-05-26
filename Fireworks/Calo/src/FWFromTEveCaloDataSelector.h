@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Oct 23 14:44:32 CDT 2009
-// $Id: FWFromTEveCaloDataSelector.h,v 1.3 2009/10/28 18:03:46 amraktad Exp $
+// $Id: FWFromTEveCaloDataSelector.h,v 1.2 2009/10/28 14:39:59 chrjones Exp $
 //
 
 // system include files
@@ -37,7 +37,6 @@ public:
    void doSelect(const TEveCaloData::CellId_t&);
    void doUnselect(const TEveCaloData::CellId_t&);
    void clear();
-   void reset();
    FWModelChangeManager* changeManager() const;
 private:
     TH2F* m_hist;
@@ -57,10 +56,9 @@ public:
    
    // ---------- member functions ---------------------------
    void doSelect();
-   void doUnselect();   
-
+   void doUnselect();
+   
    void addSliceSelector(int iSlice, const FWFromSliceSelector&);
-   void resetSliceSelector(int iSlice);
 private:
    FWFromTEveCaloDataSelector(const FWFromTEveCaloDataSelector&); // stop default
    
@@ -68,9 +66,10 @@ private:
    
    // ---------- member data --------------------------------
    std::vector<FWFromSliceSelector> m_sliceSelectors;
-   TEveCaloData* m_data; // cached
+   TEveCaloData* m_data;
    FWModelChangeManager* m_changeManager;
-  
+   
+
 };
 
 

@@ -14,8 +14,8 @@ Base class for a geometry container for a specific calorimetry
 subdetector.
 
 
-$Date: 2009/03/24 18:31:04 $
-$Revision: 1.22 $
+$Date: 2009/08/25 21:10:52 $
+$Revision: 1.23 $
 \author J. Mans - Minnesota
 */
 class CaloSubdetectorGeometry {
@@ -34,10 +34,7 @@ class CaloSubdetectorGeometry {
       typedef std::vector<unsigned int>   IVec   ;
       typedef std::vector<double>         DimVec ;
 
-      CaloSubdetectorGeometry() : 
-	 m_parMgr ( 0 ) ,
-	 m_cmgr   ( 0 ) ,
-	 m_sortedIds (false) {}
+      CaloSubdetectorGeometry() ;
 
       /// The base class DOES assume that it owns the CaloCellGeometry objects
       virtual ~CaloSubdetectorGeometry();
@@ -72,6 +69,13 @@ class CaloSubdetectorGeometry {
       eta/phi and ieta/iphi and test on the boundaries.
       */
       virtual DetIdSet getCells( const GlobalPoint& r, double dR ) const ;
+
+
+      double deltaPhi( const DetId& detId ) const ;
+
+      double deltaEta( const DetId& detId ) const ;
+
+
 
       void allocateCorners( CaloCellGeometry::CornersVec::size_type n ) ;
 
@@ -120,6 +124,9 @@ class CaloSubdetectorGeometry {
       mutable bool m_sortedIds ;
 
       mutable std::vector<DetId> m_validIds ;
+
+      mutable std::vector<double>*  m_deltaPhi ;
+      mutable std::vector<double>*  m_deltaEta ;
 };
 
 

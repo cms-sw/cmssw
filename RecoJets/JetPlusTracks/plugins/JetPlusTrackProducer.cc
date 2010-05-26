@@ -13,7 +13,7 @@
 //
 // Original Author:  Olga Kodolova,40 R-A12,+41227671273,
 //         Created:  Fri Feb 19 10:14:02 CET 2010
-// $Id: JetPlusTrackProducer.cc,v 1.3 2010/05/05 13:58:08 kodolova Exp $
+// $Id: JetPlusTrackProducer.cc,v 1.1 2010/03/04 13:12:36 kodolova Exp $
 //
 //
 
@@ -183,7 +183,6 @@ JetPlusTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    double Pout2 = 0.;
    double Pout = 0.;
    double denominator_tracks = 0.;
-   int ntracks = 0;
 
    for( reco::TrackRefVector::const_iterator it = pions.inVertexInCalo_.begin(); it != pions.inVertexInCalo_.end(); it++) { 
     double deR = deltaR((*it)->eta(), (*it)->phi(), p4.eta(), p4.phi());
@@ -194,15 +193,12 @@ JetPlusTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        deEta2Tr = deEta2Tr + deEta*deEta*(*it)->pt();
        dePhi2Tr = dePhi2Tr + dePhi*dePhi*(*it)->pt();
        denominator_tracks = denominator_tracks + (*it)->pt();
-       Zch    =  Zch +
+       Zch    = 
        ((*it)->px()*p4.Px()+(*it)->py()*p4.Py()+(*it)->pz()*p4.Pz())/(p4.P()*p4.P());
-       Pout2 = Pout2 + (**it).p()*(**it).p() - (Zch*p4.P())*(Zch*p4.P());
-       ntracks++;
+       Pout2 = (**it).p()*(**it).p() - (Zch*p4.P())*(Zch*p4.P());
+       Pout   = sqrt(fabs(Pout2)); 
      }
    }
-
-
-
    for( reco::TrackRefVector::const_iterator it = muons.inVertexInCalo_.begin(); it != muons.inVertexInCalo_.end(); it++) {
     double deR = deltaR((*it)->eta(), (*it)->phi(), p4.eta(), p4.phi());
     double deEta = (*it)->eta() - p4.eta();
@@ -212,10 +208,10 @@ JetPlusTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        deEta2Tr = deEta2Tr + deEta*deEta*(*it)->pt();
        dePhi2Tr = dePhi2Tr + dePhi*dePhi*(*it)->pt();
        denominator_tracks = denominator_tracks + (*it)->pt();
-       Zch    = Zch +
+       Zch    =
        ((*it)->px()*p4.Px()+(*it)->py()*p4.Py()+(*it)->pz()*p4.Pz())/(p4.P()*p4.P());
-       Pout2 = Pout2 + (**it).p()*(**it).p() - (Zch*p4.P())*(Zch*p4.P());
-       ntracks++;
+       Pout2 = (**it).p()*(**it).p() - (Zch*p4.P())*(Zch*p4.P());
+       Pout   = sqrt(fabs(Pout2));
      }
    }
    for( reco::TrackRefVector::const_iterator it = elecs.inVertexInCalo_.begin(); it != elecs.inVertexInCalo_.end(); it++) {
@@ -227,17 +223,13 @@ JetPlusTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        deEta2Tr = deEta2Tr + deEta*deEta*(*it)->pt();
        dePhi2Tr = dePhi2Tr + dePhi*dePhi*(*it)->pt();
        denominator_tracks = denominator_tracks + (*it)->pt();
-       Zch    = Zch + 
+       Zch    =
        ((*it)->px()*p4.Px()+(*it)->py()*p4.Py()+(*it)->pz()*p4.Pz())/(p4.P()*p4.P());
-       Pout2 = Pout2 + (**it).p()*(**it).p() - (Zch*p4.P())*(Zch*p4.P());
-       ntracks++;
+       Pout2 = (**it).p()*(**it).p() - (Zch*p4.P())*(Zch*p4.P());
+       Pout   = sqrt(fabs(Pout2));
      }
    }
 
-        if(ntracks > 0) {
-          Pout   = sqrt(fabs(Pout2))/ntracks;
-          Zch    = Zch/ntracks;
-        }
           if (denominator_tracks!=0){
             deR2Tr  = deR2Tr/denominator_tracks;
             deEta2Tr= deEta2Tr/denominator_tracks;

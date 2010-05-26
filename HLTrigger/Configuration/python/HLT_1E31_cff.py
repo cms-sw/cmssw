@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_6_0/1E31/V27 (CMSSW_3_6_0_HLT9)
+# /dev/CMSSW_3_6_0/1E31/V35 (CMSSW_3_6_0_HLT10)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/1E31/V27')
+  tableName = cms.string('/dev/CMSSW_3_6_0/1E31/V35')
 )
 
 streams = cms.PSet( 
@@ -21,19 +21,19 @@ streams = cms.PSet(
   HLTDQM = cms.vstring(  ),
   EventDisplay = cms.vstring(  ),
   Express = cms.vstring( 'ExpressPhysics' ),
-  A = cms.vstring( 'JetMETTauMonitor',
+  A = cms.vstring( 'RandomTriggers',
+    'JetMETTauMonitor',
     'MuMonitor',
     'Cosmics',
     'MinimumBias',
-    'Commissioning',
     'HcalHPDNoise',
     'ZeroBias',
     'HcalNZS',
-    'RandomTriggers',
     'EGMonitor',
     'Mu',
+    'EG',
     'JetMETTau',
-    'EG' )
+    'Commissioning' )
 )
 datasets = cms.PSet( 
   RPCMonitor = cms.vstring( 'AlCa_RPCMuonNormalisation',
@@ -83,12 +83,13 @@ datasets = cms.PSet(
     'HLT_L1MuOpen',
     'HLT_MET100',
     'HLT_PixelTracks_Multiplicity70' ),
-  ExpressPhysics = cms.vstring( 'HLT_L1DoubleMuOpen',
-    'HLT_L1Mu',
-    'HLT_L1MuOpen',
+  ExpressPhysics = cms.vstring( 'HLT_L1MuOpen',
     'HLT_MET100',
     'HLT_ZeroBias',
-    'HLT_L1SingleEG5' ),
+    'HLT_L1SingleEG5',
+    'HLT_L2DoubleMu0',
+    'HLT_TrackerCosmics' ),
+  RandomTriggers = cms.vstring(  ),
   JetMETTauMonitor = cms.vstring( 'HLT_L1MET20' ),
   MuMonitor = cms.vstring( 'HLT_L1Mu',
     'HLT_L1MuOpen' ),
@@ -101,11 +102,9 @@ datasets = cms.PSet(
   MinimumBias = cms.vstring( 'HLT_L1Tech_BSC_HighMultiplicity',
     'HLT_ZeroBiasPixel_SingleTrack',
     'HLT_PixelTracks_Multiplicity70' ),
-  Commissioning = cms.vstring(  ),
   HcalHPDNoise = cms.vstring(  ),
   ZeroBias = cms.vstring( 'HLT_ZeroBias' ),
   HcalNZS = cms.vstring( 'HLT_HcalPhiSym' ),
-  RandomTriggers = cms.vstring(  ),
   EGMonitor = cms.vstring( 'HLT_L1SingleEG5' ),
   Mu = cms.vstring( 'HLT_L1Mu14_L1SingleEG10',
     'HLT_Mu0_L1MuOpen',
@@ -124,11 +123,12 @@ datasets = cms.PSet(
     'HLT_Mu5',
     'HLT_Mu9',
     'HLT_L2Mu11' ),
-  JetMETTau = cms.vstring( 'HLT_MET100' ),
   EG = cms.vstring( 'HLT_DoublePhoton10_L1R',
     'HLT_Photon15_L1R',
     'HLT_Photon10_L1R',
-    'HLT_Ele15_SiStrip_L1R' )
+    'HLT_Ele15_SiStrip_L1R' ),
+  JetMETTau = cms.vstring( 'HLT_MET100' ),
+  Commissioning = cms.vstring(  )
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -1126,6 +1126,13 @@ hltBPTXCoincidence = cms.EDFilter( "HLTLevel1Activity",
 )
 hltScalersRawToDigi = cms.EDProducer( "ScalersRawToDigi",
     scalersInputTag = cms.InputTag( "rawDataCollector" )
+)
+hltOnlineBeamSpot = cms.EDProducer( "BeamSpotOnlineProducer",
+    label = cms.InputTag( "hltScalersRawToDigi" ),
+    changeToCMSCoordinates = cms.bool( False ),
+    maxRadius = cms.double( 2.0 ),
+    maxZ = cms.double( 40.0 ),
+    setSigmaZ = cms.double( 10.0 )
 )
 hltOfflineBeamSpot = cms.EDProducer( "BeamSpotProducer" )
 hltPreFirstPath = cms.EDFilter( "HLTPrescaler" )
@@ -4690,12 +4697,56 @@ hltL1NonIsoHLTNonIsoSingleElectronSiStripEt15HcalIsolFilter = cms.EDFilter( "HLT
 hltL1IsoSiStripElectronPixelSeeds = cms.EDProducer( "SiStripElectronSeedProducer",
     barrelSuperClusters = cms.InputTag( "hltCorrectedHybridSuperClustersL1Isolated" ),
     endcapSuperClusters = cms.InputTag( "hltCorrectedMulti5x5EndcapSuperClustersWithPreshowerL1Isolated" ),
-    SeedConfiguration = cms.PSet(  )
+    SeedConfiguration = cms.PSet( 
+      beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
+      tibOriginZCut = cms.double( 20.0 ),
+      tidOriginZCut = cms.double( 20.0 ),
+      tecOriginZCut = cms.double( 20.0 ),
+      monoOriginZCut = cms.double( 20.0 ),
+      tibDeltaPsiCut = cms.double( 0.1 ),
+      tidDeltaPsiCut = cms.double( 0.1 ),
+      tecDeltaPsiCut = cms.double( 0.1 ),
+      monoDeltaPsiCut = cms.double( 0.1 ),
+      tibPhiMissHit2Cut = cms.double( 0.0060 ),
+      tidPhiMissHit2Cut = cms.double( 0.0060 ),
+      tecPhiMissHit2Cut = cms.double( 0.0070 ),
+      monoPhiMissHit2Cut = cms.double( 0.02 ),
+      tibZMissHit2Cut = cms.double( 0.35 ),
+      tidRMissHit2Cut = cms.double( 0.3 ),
+      tecRMissHit2Cut = cms.double( 0.3 ),
+      tidEtaUsage = cms.double( 1.2 ),
+      tidMaxHits = cms.int32( 4 ),
+      tecMaxHits = cms.int32( 2 ),
+      monoMaxHits = cms.int32( 4 ),
+      maxSeeds = cms.int32( 5 )
+    )
 )
 hltL1NonIsoSiStripElectronPixelSeeds = cms.EDProducer( "SiStripElectronSeedProducer",
     barrelSuperClusters = cms.InputTag( "hltCorrectedHybridSuperClustersL1NonIsolated" ),
     endcapSuperClusters = cms.InputTag( "hltCorrectedMulti5x5EndcapSuperClustersWithPreshowerL1NonIsolated" ),
-    SeedConfiguration = cms.PSet(  )
+    SeedConfiguration = cms.PSet( 
+      beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
+      tibOriginZCut = cms.double( 20.0 ),
+      tidOriginZCut = cms.double( 20.0 ),
+      tecOriginZCut = cms.double( 20.0 ),
+      monoOriginZCut = cms.double( 20.0 ),
+      tibDeltaPsiCut = cms.double( 0.1 ),
+      tidDeltaPsiCut = cms.double( 0.1 ),
+      tecDeltaPsiCut = cms.double( 0.1 ),
+      monoDeltaPsiCut = cms.double( 0.1 ),
+      tibPhiMissHit2Cut = cms.double( 0.0060 ),
+      tidPhiMissHit2Cut = cms.double( 0.0060 ),
+      tecPhiMissHit2Cut = cms.double( 0.0070 ),
+      monoPhiMissHit2Cut = cms.double( 0.02 ),
+      tibZMissHit2Cut = cms.double( 0.35 ),
+      tidRMissHit2Cut = cms.double( 0.3 ),
+      tecRMissHit2Cut = cms.double( 0.3 ),
+      tidEtaUsage = cms.double( 1.2 ),
+      tidMaxHits = cms.int32( 4 ),
+      tecMaxHits = cms.int32( 2 ),
+      monoMaxHits = cms.int32( 4 ),
+      maxSeeds = cms.int32( 5 )
+    )
 )
 hltL1NonIsoHLTNonIsoSingleElectronSiStripEt15PixelMatchFilter = cms.EDFilter( "HLTElectronPixelMatchFilter",
     candTag = cms.InputTag( "hltL1NonIsoHLTNonIsoSingleElectronSiStripEt15HcalIsolFilter" ),
@@ -5083,6 +5134,7 @@ hltL1NonIsoDoubleElectronEt5JpsiPixelMatchFilter = cms.EDFilter( "HLTElectronPix
 )
 hltL1NonIsoDoubleElectronEt5JpsiPMMassFilter = cms.EDFilter( "HLTPMMassFilter",
     candTag = cms.InputTag( "hltL1NonIsoDoubleElectronEt5JpsiPixelMatchFilter" ),
+    beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
     lowerMassCut = cms.double( 2.0 ),
     upperMassCut = cms.double( 4.6 ),
     nZcandcut = cms.int32( 1 ),
@@ -5179,6 +5231,7 @@ hltL1NonIsoDoubleElectronEt5UpsPixelMatchFilter = cms.EDFilter( "HLTElectronPixe
 )
 hltL1NonIsoDoubleElectronEt5UpsPMMassFilter = cms.EDFilter( "HLTPMMassFilter",
     candTag = cms.InputTag( "hltL1NonIsoDoubleElectronEt5UpsPixelMatchFilter" ),
+    beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
     lowerMassCut = cms.double( 8.0 ),
     upperMassCut = cms.double( 11.0 ),
     nZcandcut = cms.int32( 1 ),
@@ -8477,7 +8530,7 @@ hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
 )
 
 HLTL1UnpackerSequence = cms.Sequence( hltGtDigis + hltGctDigis + hltL1GtObjectMap + hltL1extraParticles )
-HLTBeamSpot = cms.Sequence( hltScalersRawToDigi + hltOfflineBeamSpot )
+HLTBeamSpot = cms.Sequence( hltScalersRawToDigi + hltOnlineBeamSpot + hltOfflineBeamSpot )
 HLTBeginSequenceBPTX = cms.Sequence( hltTriggerType + HLTL1UnpackerSequence + hltBPTXCoincidence + HLTBeamSpot )
 HLTEndSequence = cms.Sequence( hltBoolEnd )
 HLTDoLocalHcalSequence = cms.Sequence( hltHcalDigis + hltHbhereco + hltHfreco + hltHoreco )

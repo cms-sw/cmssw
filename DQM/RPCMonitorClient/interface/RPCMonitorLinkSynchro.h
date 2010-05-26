@@ -27,7 +27,7 @@ public:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);  
   virtual void endJob();
 
-protected:
+private:
   edm::ParameterSet theConfig;
   edm::ESWatcher<RPCEMapRcd> theCablingWatcher;
   RPCLinkSynchroStat theSynchroStat;
@@ -41,3 +41,5 @@ protected:
 };
 
 #endif
+
+

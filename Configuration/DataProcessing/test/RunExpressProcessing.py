@@ -18,19 +18,27 @@ class RunExpressProcessing:
 
     def __init__(self):
         self.scenario = None
-        self.globalTag = None
+        self.dataTiers = []
+        self.datasets = []
+        self.alcaDataset = None
+        self.globalTag = 'UNSPECIFIED::All'
         self.inputLFN = None
 
     def __call__(self):
         if self.scenario == None:
             msg = "No --scenario specified"
             raise RuntimeError, msg
-        if self.globalTag == None:
-            msg = "No --globaltag specified"
-            raise RuntimeError, msg
         if self.inputLFN == None:
             msg = "No --lfn specified"
             raise RuntimeError, msg
+        if len(self.dataTiers) == 0:
+            msg = "No --data-tiers provided, need at least one"
+            raise RuntimeError, msg
+        if len(self.datasets) == 0:
+            msg = "No --datasets provided, need at least one"
+            raise RuntimeError, msg
+        
+
         
         try:
             scenario = getScenario(self.scenario)
@@ -42,47 +50,40 @@ class RunExpressProcessing:
 
         print "Retrieved Scenario: %s" % self.scenario
         print "Using Global Tag: %s" % self.globalTag
+        print "Writing Data Tiers :"
+        for tier in self.dataTiers:
+            print " => %s" % tier
+        print "Into Datasets:"
+        for dataset in self.datasets:
+            print " => %s" % dataset
+        print "Alca Dataset set to: %s" % self.alcaDataset
 
         try:
-            process = scenario.expressProcessing(self.globalTag, writeTiers = ['RECO'])
-        except NotImplementedError, ex:
-            print "This scenario does not support Express Processing:\n"
-            return
+
+            process = scenario.expressProcessing(
+                self.globalTag,  self.dataTiers,
+                self.datasets, self.alcaDataset)
         except Exception, ex:
-            msg = "Error creating Express Processing config:\n"
+            msg = "Error creating Express processing config:\n"
             msg += str(ex)
             raise RuntimeError, msg
 
         process.source.fileNames.append(self.inputLFN)
 
-        import FWCore.ParameterSet.Config as cms
-
-        process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
         psetFile = open("RunExpressProcessingCfg.py", "w")
         psetFile.write(process.dumpPython())
         psetFile.close()
-        cmsRun = "cmsRun -e RunExpressProcessingCfg.py"
+        cmsRun = "cmsRun -f FrameworkJobReport.xml RunExpressProcessingCfg.py"
         print "Now do:\n%s" % cmsRun
+        
 
 
 
 if __name__ == '__main__':
-    valid = ["scenario=", "global-tag=", "lfn="]
-    usage = \
-"""
-RunExpressProcessing.py <options>
-
-Where options are:
- --scenario=ScenarioName
- --global-tag=GlobalTag
- --lfn=/store/input/lfn
-
-
-Example:
-python2.4 RunPromptReco.py --scenario=Cosmics --global-tag GLOBALTAG::ALL --lfn=/store/whatever
-
-"""
+    valid = ["scenario=", "data-tiers=", "datasets=", "alca-dataset=",
+             "global-tag=", "lfn="]
+    usage = """RunPromptReco.py <options>"""
     try:
         opts, args = getopt.getopt(sys.argv[1:], "", valid)
     except getopt.GetoptError, ex:
@@ -100,5 +101,13 @@ python2.4 RunPromptReco.py --scenario=Cosmics --global-tag GLOBALTAG::ALL --lfn=
             expressinator.globalTag = arg
         if opt == "--lfn" :
             expressinator.inputLFN = arg
+        if opt == "--data-tiers":
+            expressinator.dataTiers = [
+                x for x in arg.split(",") if len(x) > 0 ]
+        if opt == "--datasets":
+            expressinator.datasets = [
+                x for x in arg.split(",") if len(x) > 0 ]
+        if opt == "--alca-dataset":
+            expressinator.alcaDataset = arg
 
     expressinator()
