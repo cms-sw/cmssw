@@ -7,7 +7,7 @@ const string zmmName = "Analysis_zmm_2_4.root";
 const string wmnName = "Analysis_wmn_2_4.root";     
 const string ttbarName = "Analysis_ttbar_2_4.root"; 
 const string qcdName = "Analysis_qcd_2_4_all.root";  
-const string dataName = "data133XXX.root";  
+const string dataName = "data13XXXX.root";  
 
 const int canvasSizeX = 500;
 const int canvasSizeY = 500;
@@ -21,7 +21,7 @@ const Color_t qcdFillColor = kGreen+1;
 const Color_t ttFillColor =  kRed+1;
 const Color_t ttLineColor = kRed+3;
 
-const double lumi =.001 ;
+const double lumi =.020 ;
 const double lumiZ = 10. ;
 const double lumiW = 10.;
 const double lumiQ = 10.;
@@ -51,7 +51,7 @@ void stat(TH1 * h1, TH1 * h2, TH1 * h3, TH1 * h4, TH1 * hdata, int rebin) {
   double i2 = h2->Integral(a, b);
   double i3 = h3->Integral(a, b);
   double i4 = h4->Integral(a, b);
-  double idata = hdata != 0 ? hdata->Integral(a, b) : 0;
+  double idata = hdata != 0 ? hdata->Integral(mMin, mMax) : 0;
   std::cout.setf(0,ios::floatfield);
   std::cout.setf(ios::fixed,ios::floatfield);
   std::cout.precision(1);
@@ -147,8 +147,15 @@ void makePlots(const char * name, int rebin, const char * plot,
   TH1F *h2 = (TH1F*)w.Get(name);
   TH1F *h3 = (TH1F*)tt.Get(name);
   TH1F *h4 = (TH1F*)qcd.Get(name);
-  TH1F *hdata = doData? (TH1F*)data.Get(name) : 0;
-
+  //  TH1F *hdata = doData? (TH1F*)data.Get(name) : 0;
+  if (doData) { 
+ TH1F *hdat = (TH1F*)data.Get(name) ;
+TH1F *hdata = new TH1F ("hdata", "hdata", 200, 0, 200);
+  for ( size_t i =60 ; i<120 ; i++  ){
+ int val = hdat->GetBinContent(i) ;
+    hdata->SetBinContent(i , val );
+  }
+  } else {TH1F * hdata=0;}
   makeStack(h1, h2, h3, h4, hdata, min, rebin);
   c1->SaveAs((std::string(plot)+".eps").c_str());
   c1->SaveAs((std::string(plot)+".gif").c_str());

@@ -6,7 +6,7 @@
 #include "stack_common.h"
 
 void stack_zGolden() {
-  const int rebin = 1;
+  const int rebin = 2;
   int nbins = 0;
   // sum oh 1HLT+2HLT+1HLTAB
   TH1F *hZ_1HLT = (TH1F*)z.Get("goodZToMuMu1HLTPlots/zMass");
@@ -48,7 +48,18 @@ void stack_zGolden() {
     int val = hQ_1HLT->GetBinContent(i) + hQ_2HLT->GetBinContent(i) + hQ_1HLTAB->GetBinContent(i);
     h4->SetBinContent(i , val );
   }
-  TH1F *hdata = 0;
+
+  TH1F *hD_1HLT = (TH1F*)data.Get("goodZToMuMu1HLTPlots/zMass");
+  TH1F *hD_2HLT = (TH1F*)data.Get("goodZToMuMu2HLTPlots/zMass");
+  TH1F *hD_1HLTAB = (TH1F*)data.Get("goodZToMuMuAB1HLTPlots/zMass");
+  nbins = hD_1HLT->GetNbinsX();
+  TH1F *hdata = new TH1F ("hdata", "hdata", nbins, 0, nbins);
+  for ( size_t i =60 ; i<120 ; i++  ){
+    int val = hD_1HLT->GetBinContent(i) + hD_2HLT->GetBinContent(i) + hD_1HLTAB->GetBinContent(i);
+    hdata->SetBinContent(i , val );
+  }
+
+  //  TH1F *hdata = 0;
 
 
   makeStack(h1, h2, h3, h4, hdata, 0.0001, rebin);
