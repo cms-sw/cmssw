@@ -9,13 +9,14 @@ class EcalSeverityLevelAlgo {
         public:
                 // give the severity level from the EcalRecHit flags + the DB information stored in EcalChannelStatus
                 // Levels of severity:
-                // - 0 --> good
-                // - 1 --> problematic (e.g. noisy)
-                // - 2 --> recovered (e.g. an originally dead or saturated)
-                // - 3 --> weird (e.g. spike)
-                // - 4 --> bad, not suitable to be used in the reconstruction
+                // - kGood        --> good channel
+                // - kProblematic --> problematic (e.g. noisy)
+                // - kRecovered   --> recovered (e.g. an originally dead or saturated)
+                // - kTime        --> the channel is out of time (e.g. spike)
+                // - kWeird       --> weird (e.g. spike)
+                // - kBad         --> bad, not suitable to be used in the reconstruction
 
-                enum EcalSeverityLevel { kGood=0, kProblematic, kRecovered, kWeird, kBad };
+                enum EcalSeverityLevel { kGood=0, kProblematic, kRecovered, kTime, kWeird, kBad };
 
                 enum SpikeId { kE1OverE9=0, kSwissCross, kSwissCrossBordersIncluded };
 
@@ -27,8 +28,7 @@ class EcalSeverityLevelAlgo {
                                           float recHitEtThreshold = 5.,
                                           SpikeId spId = kSwissCross,
                                           float spIdThreshold = 0.95,
-					  bool useTiming = false,
-					  float recHitEnergyThreshold = -999.
+					  float recHitEnergyThresholdForTiming = -999.
                                           );
 
                 /** return the estimator of the signal being a spike
