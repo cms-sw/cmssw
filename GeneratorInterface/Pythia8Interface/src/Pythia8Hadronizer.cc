@@ -12,6 +12,8 @@
 
 #include "GeneratorInterface/Pythia8Interface/interface/RandomP8.h"
 
+#include "GeneratorInterface/Pythia8Interface/interface/UserHooks.h"
+
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -98,9 +100,13 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
 	//Pythia8::Rndm::init(seed);
 
     RandomP8* RP8 = new RandomP8();
+    //UserHooks* UH = new PtHatReweightUserHook();
 
 	pythia.reset(new Pythia);
+
     pythia->setRndmEnginePtr(RP8);
+    //pythia->setUserHooksPtr(UH);
+
 	pythiaEvent = &pythia->event;
 
 	for(ParameterCollector::const_iterator line = parameters.begin();
@@ -141,7 +147,9 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
     RandomP8* RP8 = new RandomP8();
 
     pythia.reset(new Pythia);
+
     pythia->setRndmEnginePtr(RP8);
+
     pythiaEvent = &pythia->event;
 
     for(ParameterCollector::const_iterator line = parameters.begin();
