@@ -606,6 +606,7 @@ void ConvertedPhotonProducer::cleanCollections(const edm::Handle<edm::View<reco:
 	  reco::ConversionRef cpRef(reco::ConversionRef(conversionHandle,icp));
 	  if (!( aClus.id() == cpRef->caloCluster()[0].id() && aClus.key() == cpRef->caloCluster()[0].key() )) continue; 
 	  if ( !cpRef->isConverted() ) continue;  
+	  if ( cpRef->nTracks() <2 ) continue;
 	  newCandidate= (&(*cpRef))->clone();	 
 	  outputConversionCollection.push_back(*newCandidate);
 	  delete newCandidate;
@@ -633,6 +634,7 @@ std::vector<reco::ConversionRef>  ConvertedPhotonProducer::solveAmbiguity(const 
     if (!( scRef.id() == cpRef->caloCluster()[0].id() && scRef.key() == cpRef->caloCluster()[0].key() )) continue;    
     if ( !cpRef->isConverted() ) continue;  
     double like = cpRef->MVAout();
+    if ( cpRef->nTracks() <2 ) continue;
     //    std::cout << " Like " << like << std::endl;
     convMap.insert ( std::make_pair(like,cpRef) );
     
