@@ -1,7 +1,7 @@
 /**
  * Author: Sridhara Dasu
  * Created: 04 July 2007
- * $Id: L1RCTParameters.cc,v 1.23 2009/05/05 13:33:21 efron Exp $
+ * $Id: L1RCTParameters.cc,v 1.24 2010/05/24 11:54:35 efron Exp $
  **/
 
 #include <iostream>
@@ -289,110 +289,131 @@ float L1RCTParameters::correctedTPGSum(const float& ecal, const float& hcal, con
 void 
 L1RCTParameters::print(std::ostream& s)  const {
 
-  s << "Printing record L!RCTParametersRcd" <<endl;
-  s << " \"Parameter description\"   \"Parameter name\"  \"Value\" "
- << endl;
+    s << "\nPrinting record L1RCTParametersRcd" <<endl;
+    s << "\n\"Parameter description\" \n  \"Parameter name\"  \"Value\" "
+            << endl;
+    s << "\ne/gamma least significant bit energy transmitted from receiver cards to EIC cards. \n  "
+            << "eGammaLSB = " << eGammaLSB_ << endl ;
+    s << "\nLSB of region Et scale from RCT to GCT (GeV) \n  "
+            << "jetMETLSB = " << jetMETLSB_ << endl ;
+    s << "\nminimum ECAL Et for which fine-grain veto is applied (GeV) \n  "
+            << " eMinForFGCut = " << eMinForFGCut_ << endl ;
+    s << "\nmaximum ECAL Et for which fine-grain veto is applied (GeV) \n  "
+            << "eMaxForFGCut = " << eMaxForFGCut_ << endl ;
+    s << "\nmaximum value of (HCAL Et / ECAL Et) \n  "
+            << "hOeCut = " << hOeCut_ << endl ;
+    s << "\nminimum ECAL Et for which H/E veto is applied (GeV) \n  "
+            << "eMinForHoECut = " << eMinForHoECut_ << endl ;
+    s << "\nmaximum ECAL Et for which H/E veto is applied (GeV) \n  "
+            << "eMaxForHoECut = " << eMaxForHoECut_ << endl ;
+    s << "\nminimum HCAL Et for which H/E veto is applied (GeV)  \n  "
+            << "hMinForHoECut = " << hMinForHoECut_ << endl ;
+    s << "\nECAL Et threshold above which tau activity bit is set (GeV)  \n  "
+            << "eActivityCut = " << eActivityCut_ << endl ;
+    s << "\nHCAL Et threshold above which tau activity bit is set (GeV)  \n  "
+            << "hActivityCut = " << hActivityCut_ << endl ;
+    s << "\nNeighboring trigger tower energy minimum threshold that marks candidate as non-isolated. (LSB bits) \n  "
+            << "eicIsolationThreshold = " << eicIsolationThreshold_ << endl ;
+    s << "\nIf jetMet energy in RCT Barrel Region is below this value, a quiet bit is set. (LSB bits)\n  "
+            << "jscQuietThreshBarrel = " << jscQuietThresholdBarrel_ << endl ;
+    s << "\nIf jetMet energy in RCT Endcap Region is below this value, a quiet bit is set. (LSB bits) \n  "
+            << "jscQuietThreshEndcap = " << jscQuietThresholdEndcap_ << endl ;
+    s << "\nWhen set to TRUE, HCAL energy is ignored if no ECAL energy is present in corresponding trigger tower for RCT Barrel \n  "
+            << "noiseVetoHB = " << noiseVetoHB_ << endl ;
+    s << "\nWhen set to TRUE, HCAL energy is ignored if no ECAL energy is present in corresponding trigger tower for RCT Encap+ \n  "
+            << "noiseVetoHEplus = " << noiseVetoHEplus_ << endl ;
+    s << "\nWhen set to TRUE, HCAL energy is ignored if no ECAL energy is present in corresponding trigger tower for RCT Endcap- \n  "
+            << "noiseVetoHEminus = " << noiseVetoHEminus_ << endl ;
 
-  s << "e/gamma least significant bit energy transmitted from receiver cards to EIC cards. " << "eGammaLSB = " << eGammaLSB_ << endl ;
-  s << "LSB of region Et scale from RCT  to GCT (GeV) "<< " jetMETLSB = " << jetMETLSB_ << endl ;
-  s << "minimum ECAL Et for which fine-grain veto is applied (GeV) " << " eMinForFGCut = " << eMinForFGCut_ << endl ;
-     s << "maximum ECAL Et for which fine-grain veto is applied (GeV) " << "eMaxForFGCut = " << eMaxForFGCut_ << endl ;
-  s << "maximum value of (HCAL Et / ECAL Et) " << "hOeCut = " << hOeCut_ << endl ;
-  s << "minimum ECAL Et for which H/E veto is applied (GeV) " << "eMinForHoECut = " << eMinForHoECut_ << endl ;
-  s << "maximum ECAL Et for which H/E veto is applied (GeV) " << "eMaxForHoECut = " << eMaxForHoECut_ << endl ;
-     s << "minimum HCAL Et for which H/E veto is applied (GeV)  " << "hMinForHoECut = " << hMinForHoECut_ << endl ;
-     s << "ECAL Et threshold above which tau activity bit is set (GeV)  " << "eActivityCut = " << eActivityCut_ << endl ;
-     s << "HCAL Et threshold above which tau activity bit is set (GeV)  " << "hActivityCut = " << hActivityCut_ << endl ;
-     s << "Neighboring trigger tower energy minimum threshold that marks candidate as non-isolated. (LSB bits) " <<"eicIsolationThreshold = " << eicIsolationThreshold_ << endl ;
-     s << "If jetMet energy in RCT  Barrel Region is below this value, a quiet bit is set.LSB bits" <<"jscQuietThreshBarrel = " << jscQuietThresholdBarrel_ << endl ;
-     s << "If jetMet energy in RCT  Endcap Region is below this value, a quiet bit is set.(LSB bits) " << "jscQuietThreshEndcap = " << jscQuietThresholdEndcap_ << endl ;
-     s << "When set to TRUE, HCAL energy is ignored if no ECAL energy is present in corresponding trigger tower for RCT  Barrel " << "noiseVetoHB = " << noiseVetoHB_ << endl ;
-     s << "When set to TRUE, HCAL energy is ignored if no ECAL energy is present in corresponding trigger tower for RCT  Encap+ "<< "noiseVetoHEplus = " << noiseVetoHEplus_ << endl ;
-     s << "When set to TRUE, HCAL energy is ignored if no ECAL energy is present in corresponding trigger tower for RCT  Endcap- " << "noiseVetoHEminus = " << noiseVetoHEminus_ << endl ;
+    s << "\n\neta-dependent multiplicative factors for ECAL Et before summation \n  "
+            << "eGammaECal Scale Factors " << endl;
+    s << "ieta  ScaleFactor" <<endl;
+    for(int i = 0 ; i<28; i++)
+        s << setw(4) << i+1 << "  " << eGammaECalScaleFactors_.at(i) <<endl;
 
-     s << "eta-dependent multiplicative factors for ECAL Et before summation " <<"eGammaECal Scale Factors "<<endl;
-     s << "ieta  ScaleFactor" <<endl;
-     for(int i = 0 ; i<28; i++)
-       s<< setw(4)<< i+1 << "  " << eGammaECalScaleFactors_.at(i) <<endl;
+    s << "\n\neta-dependent multiplicative factors for HCAL Et before summation \n  "
+            <<"eGammaHCal Scale Factors "<<endl;
+    s << "ieta  ScaleFactor" <<endl;
+    for(int i = 0 ; i<28; i++)
+        s << setw(4) << i+1 << "  " << eGammaHCalScaleFactors_.at(i) <<endl;
      
-     s << "eta-dependent multiplicative factors for HCAL Et before summation " <<"eGammaHCal Scale Factors "<<endl;
-     s << "ieta  ScaleFactor" <<endl;
-     for(int i = 0 ; i<28; i++)
-       s << setw(4) << i+1 << "  " << eGammaHCalScaleFactors_.at(i) <<endl;
+    s << "\n\neta-dependent multiplicative factors for ECAL Et before summation \n  "
+            <<"jetMETECal Scale Factors "<<endl;
+    s << "ieta  ScaleFactor" <<endl;
+    for(int i = 0 ; i<28; i++)
+        s<< setw(4) << i+1 << "  " << jetMETECalScaleFactors_.at(i) <<endl;
      
-     s << "eta-dependent multiplicative factors for ECAL Et before summation " <<"jetMETECal Scale Factors "<<endl;
-     s << "ieta  ScaleFactor" <<endl;
-     for(int i = 0 ; i<28; i++)
-       s<< setw(4) << i+1 << "  " << jetMETECalScaleFactors_.at(i) <<endl;
-     
-     s << "eta-dependent multiplicative factors for HCAL Et before summation " <<"jetMETHCal Scale Factors "<<endl;
-     s << "ieta  ScaleFactor" <<endl;
-     for(int i = 0 ; i<28; i++)
-       s << setw(4) <<i+1 << "  " << jetMETHCalScaleFactors_.at(i) <<endl;
+    s << "\n\neta-dependent multiplicative factors for HCAL Et before summation \n"
+            <<"jetMETHCal Scale Factors "<<endl;
+    s << "ieta  ScaleFactor" <<endl;
+    for(int i = 0 ; i<28; i++)
+        s << setw(4) <<i+1 << "  " << jetMETHCalScaleFactors_.at(i) <<endl;
 
 
-     if(useCorrections_) {
-       s<< "USING calibration variables " <<endl;
+    if(useCorrections_) {
+        s<< "\n\nUSING calibration variables " <<endl;
 
 
-       s << "H over E smear low Correction Factors "<<endl;
-       s << "ieta  Correction Factor" <<endl;
-       for(int i = 0 ; i<28; i++)
-         s << setw(4) <<i+1 << "  " << HoverE_smear_low_.at(i) <<endl;
+        s << "\n\nH over E smear low Correction Factors "<<endl;
+        s << "ieta  Correction Factor" <<endl;
+        for(int i = 0 ; i<28; i++)
+            s << setw(4) <<i+1 << "  " << HoverE_smear_low_.at(i) <<endl;
 
 
-       s << "H over E smear high Correction Factors "<<endl;
-       s <<"ieta  Correction Factor" <<endl;
-       for(int i = 0 ; i<28; i++)
-	 s << setw(4) <<i+1 << "  " << HoverE_smear_high_.at(i) <<endl;
+        s << "\n\nH over E smear high Correction Factors "<<endl;
+        s <<"ieta  Correction Factor" <<endl;
+        for(int i = 0 ; i<28; i++)
+            s << setw(4) <<i+1 << "  " << HoverE_smear_high_.at(i) <<endl;
 
-       s <<"ecal calibrations "<<endl;
-       s <<"ieta  CorrFactor1  CorrFactor2  CorrFactor3" <<endl;
-       int end =  ecal_calib_[0].size();
-       for(int i = 0 ; i<28; i++) {
-	 s << setw(4) << i;
-	 for(int j = 0; j< end ; j++)
-	   s << setw(11) << setprecision(8) << ecal_calib_[i][j] ;
+        s << "\n\necal calibrations "<<endl;
+        s << "ieta  CorrFactor1  CorrFactor2  CorrFactor3" <<endl;
+        int end =  ecal_calib_[0].size();
+        for(int i = 0 ; i<28; i++) {
+            s << setw(4) << i;
+            for(int j = 0; j< end ; j++)
+                s << setw(11) << setprecision(8) << ecal_calib_[i][j] ;
 	 
-	 s << endl;
+            s << endl;
 
-       }
+        }
 
-       s <<"hcal calibrations "<<endl;
-       s <<"ieta  CorrFactor1  CorrFactor2  CorrFactor3" <<endl;
-       end =  hcal_calib_[0].size();
-       for(int i = 0 ; i<28; i++) {
-	 s << setw(4) << i;
-	 for(int j = 0; j< end ; j++)
-	   s << setw(11) << setprecision(8) << hcal_calib_[i][j] ;
+        s <<"\n\nhcal calibrations "<<endl;
+        s <<"ieta  CorrFactor1  CorrFactor2  CorrFactor3" <<endl;
+        end =  hcal_calib_[0].size();
+        for(int i = 0 ; i<28; i++) {
+            s << setw(4) << i;
+            for(int j = 0; j< end ; j++)
+                s << setw(11) << setprecision(8) << hcal_calib_[i][j] ;
 	 
-	 s << endl;
+            s << endl;
 
-       }
-       s <<"hcal_high calibrations "<<endl;
-       s <<"ieta  CorrFactor1  CorrFactor2  CorrFactor3" <<endl;
-       end =  hcal_high_calib_[0].size();
-       for(int i = 0 ; i<28; i++) {
-	 s << setw(4) << i;
-	 for(int j = 0; j< end ; j++)
-	   s << setw(11) << setprecision(8) << hcal_high_calib_[i][j] ;
+        }
+        s <<"\n\nhcal_high calibrations "<<endl;
+        s <<"ieta  CorrFactor1  CorrFactor2  CorrFactor3" <<endl;
+        end =  hcal_high_calib_[0].size();
+        for(int i = 0 ; i<28; i++) {
+            s << setw(4) << i;
+            for(int j = 0; j< end ; j++)
+                s << setw(11) << setprecision(8) << hcal_high_calib_[i][j] ;
 	 
-	 s << endl;
+            s << endl;
 
-       }
-       end = cross_terms_[0].size();
-       s <<"cross terms calibrations "<<endl;
-       s <<"ieta  CorrFactor1  CorrFactor2  CorrFactor3  CorrFactor4  CorrFactor5  CorrFactor6" <<endl;
-       for(int i = 0 ; i<28; i++) {
-	 s << setw(4) << i;
-	 for(int j = 0; j< end ; j++)
-	   s << setw(11) << setprecision(8) << cross_terms_[i][j] ;
+        }
+        end = cross_terms_[0].size();
+        s <<"\n\ncross terms calibrations "<<endl;
+        s <<"ieta  CorrFactor1  CorrFactor2  CorrFactor3  CorrFactor4  CorrFactor5  CorrFactor6" <<endl;
+        for(int i = 0 ; i<28; i++) {
+            s << setw(4) << i;
+            for(int j = 0; j< end ; j++)
+                s << setw(11) << setprecision(8) << cross_terms_[i][j] ;
 	 
-	 s << endl;
+            s << endl;
 
-       }
+        }
  
-     } else
-       s<< "NOT USING calibration variables " <<endl;
+    } else
+        s<< "\n\nNOT USING calibration variables " <<endl;
+
+    s << "\n\n" <<endl;
 
 }
