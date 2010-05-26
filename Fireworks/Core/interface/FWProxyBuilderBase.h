@@ -16,10 +16,11 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:12 CET 2010
-// $Id: FWProxyBuilderBase.h,v 1.9 2010/05/03 18:40:45 amraktad Exp $
+// $Id: FWProxyBuilderBase.h,v 1.10 2010/05/11 12:39:06 amraktad Exp $
 //
 
 // system include files
+#include "sigc++/connection.h"
 
 // user include files
 
@@ -52,6 +53,7 @@ public:
       FWViewType::EType     m_viewType;
       const FWViewContext*  m_viewContext;
       TEveElementList*      m_elements;
+      sigc::connection      m_scaleConnection;
 
       Product(FWViewType::EType t, const FWViewContext* c);
       ~Product();

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:00 CET 2010
-// $Id: FWProxyBuilderBase.cc,v 1.13 2010/05/04 13:24:41 amraktad Exp $
+// $Id: FWProxyBuilderBase.cc,v 1.14 2010/05/11 12:39:06 amraktad Exp $
 //
 
 // system include files
@@ -104,6 +104,8 @@ FWProxyBuilderBase::itemBeingDestroyed(const FWEventItem* iItem)
    m_item=0;
    for (Product_it i = m_products.begin(); i!= m_products.end(); i++)
    {
+
+      (*i)->m_scaleConnection.disconnect();
       delete (*i);
    }
 
@@ -268,7 +270,7 @@ FWProxyBuilderBase::createProduct(const FWViewType::EType viewType, const FWView
    m_products.push_back(product);
    if (viewContext)
    {
-      viewContext->scaleChanged_.connect(boost::bind(&FWProxyBuilderBase::scaleChanged, this, _1));
+      product->m_scaleConnection = viewContext->scaleChanged_.connect(boost::bind(&FWProxyBuilderBase::scaleChanged, this, _1));
    }
 
    if (item()) 

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.22 2010/05/11 12:39:06 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.23 2010/05/26 11:21:38 amraktad Exp $
 //
 
 // system include files
@@ -478,8 +478,7 @@ FWEveViewManager::itemChanged(const FWEventItem* item)
 void
 FWEveViewManager::removeItem(const FWEventItem* item)
 {
-   gEve->GetSelection()->Disconnect("SelectionCleared()", this, "selectionCleared()");
-
+   bool last = gEve->GetSelection()->BlockSignals(kTRUE);
    for ( std::map<int, BuilderVec>::iterator i = m_builders.begin(); i!=  m_builders.end(); ++i)
    {
       BuilderVec_it bIt = i->second.begin();
@@ -505,8 +504,7 @@ FWEveViewManager::removeItem(const FWEventItem* item)
       m_interactionLists.erase(it);
    }
 
-   gSystem->ProcessEvents();
-   gEve->GetSelection()->Connect("SelectionCleared()","FWEveViewManager",this,"selectionCleared()");
+   gEve->GetSelection()->BlockSignals(last);
 }
 
 void
@@ -543,7 +541,8 @@ FWEveViewManager::eventEnd()
 void
 FWEveViewManager::selectionAdded(TEveElement* iElement)
 {
-   // std::cout <<"selection added "<<iElement<< std::endl;
+   // std::cout <<"FWEveViewManager selection added "<<iElement<< std::endl;
+
    if(0!=iElement) {
       //std::cout <<"  non null"<<std::endl;
       void* userData=iElement->GetUserData();
@@ -562,7 +561,8 @@ FWEveViewManager::selectionAdded(TEveElement* iElement)
 void
 FWEveViewManager::selectionRemoved(TEveElement* iElement)
 {
-   //std::cout <<"selection removed"<<std::endl;
+   //  std::cout <<"FWEveViewManager selection removed"<<std::endl;
+
    if(0!=iElement) {
       void* userData=iElement->GetUserData();
       if(0 != userData) {
