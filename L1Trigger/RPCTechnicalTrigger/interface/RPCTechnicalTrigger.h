@@ -150,6 +150,8 @@ private:
     int m_trigWheel2;
     int m_wedge;
   
+    
+
     int getTriggerForWheel( int wheel ) 
     {
       if( abs(wheel) > 1 ) return m_trigWheel2;
