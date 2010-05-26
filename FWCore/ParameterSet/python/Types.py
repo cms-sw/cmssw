@@ -1042,6 +1042,14 @@ if __name__ == "__main__":
             self.assertFalse(p4.b.isTracked())
             self.assertFalse(p4.a.b.isTracked())
             self.assert_(p4.b.b.isTracked())
+        def testVPSet(self):
+            p1 = VPSet(PSet(anInt = int32(1)), PSet(anInt=int32(2)))
+            self.assertEqual(len(p1),2)
+            self.assertEqual(p1[0].anInt.value(), 1)
+            self.assertEqual(p1[1].anInt.value(), 2)
+            self.assertRaises(TypeError, lambda : VPSet(3))
+            self.assertRaises(TypeError, lambda : VPSet(int32(3)))
+            self.assertRaises(SyntaxError, lambda : VPSet(foo=PSet()))
 
         def testFileInPath(self):
             f = FileInPath("FWCore/ParameterSet/python/Types.py")
