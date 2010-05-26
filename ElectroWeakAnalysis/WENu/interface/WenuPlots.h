@@ -40,24 +40,24 @@ class WenuPlots : public edm::EDAnalyzer {
       virtual void endJob() ;
 
       // ----------member data ---------------------------
-      bool CheckCuts( const pat::Electron * ele);
-      bool CheckCut( const pat::Electron *wenu, int i);
-      bool CheckCutsInverse(const pat::Electron *ele);
-      bool CheckCutInv( const pat::Electron *wenu, int i);
-      bool CheckCutsNminusOne(const pat::Electron *ele, int jj);
-      double ReturnCandVar(const pat::Electron *ele, int i);
-      bool   PassPreselectionCriteria(const pat::Electron *ele);
+      Bool_t CheckCuts( const pat::Electron * ele);
+      Bool_t CheckCut( const pat::Electron *wenu, Int_t i);
+      Bool_t CheckCutsInverse(const pat::Electron *ele);
+      Bool_t CheckCutInv( const pat::Electron *wenu, Int_t i);
+      Bool_t CheckCutsNminusOne(const pat::Electron *ele, Int_t jj);
+      Double_t ReturnCandVar(const pat::Electron *ele, Int_t i);
+      Bool_t   PassPreselectionCriteria(const pat::Electron *ele);
   // for the extra identifications and selections
-  bool   usePrecalcID_;
+  Bool_t   usePrecalcID_;
   std::string usePrecalcIDSign_;
   std::string usePrecalcIDType_;
-  double usePrecalcIDValue_;
+  Double_t usePrecalcIDValue_;
   // for extra preselection criteria:
-  bool useValidFirstPXBHit_;
-  bool useConversionRejection_;
-  bool useExpectedMissingHits_;
-  int  maxNumberOfExpectedMissingHits_;
-  bool usePreselection_;
+  Bool_t useValidFirstPXBHit_;
+  Bool_t useConversionRejection_;
+  Bool_t useExpectedMissingHits_;
+  Int_t  maxNumberOfExpectedMissingHits_;
+  Bool_t usePreselection_;
   std::string outputFile_;
   edm::InputTag wenuCollectionTag_;
   TFile *histofile;
@@ -120,7 +120,7 @@ class WenuPlots : public edm::EDAnalyzer {
   Double_t deta_EB_;
   Double_t dphi_EB_;
   Double_t hoe_EB_;
-  Double_t userIso_EB_;
+  Double_t cIso_EB_;
   Double_t tip_bspot_EB_;
   Double_t eop_EB_;
   //
@@ -128,39 +128,53 @@ class WenuPlots : public edm::EDAnalyzer {
   Double_t deta_EE_;
   Double_t dphi_EE_;
   Double_t hoe_EE_;
-  Double_t userIso_EE_;
+  Double_t cIso_EE_;
   Double_t tip_bspot_EE_;
   Double_t eop_EE_;
   //
-  bool trackIso_EB_inv;
-  bool ecalIso_EB_inv;
-  bool hcalIso_EB_inv;
+  Double_t trackIsoUser_EB_;
+  Double_t ecalIsoUser_EB_;
+  Double_t hcalIsoUser_EB_;
+  Double_t trackIsoUser_EE_;
+  Double_t ecalIsoUser_EE_;
+  Double_t hcalIsoUser_EE_;
   //
-  bool trackIso_EE_inv;
-  bool ecalIso_EE_inv;
-  bool hcalIso_EE_inv;
+  Bool_t trackIso_EB_inv;
+  Bool_t ecalIso_EB_inv;
+  Bool_t hcalIso_EB_inv;
   //
-  bool sihih_EB_inv;
-  bool deta_EB_inv;
-  bool dphi_EB_inv;
-  bool hoe_EB_inv;
-  bool userIso_EB_inv;
-  bool tip_bspot_EB_inv;
-  bool eop_EB_inv;
+  Bool_t trackIso_EE_inv;
+  Bool_t ecalIso_EE_inv;
+  Bool_t hcalIso_EE_inv;
   //
-  bool sihih_EE_inv;
-  bool deta_EE_inv;
-  bool dphi_EE_inv;
-  bool hoe_EE_inv;
-  bool userIso_EE_inv;
-  bool tip_bspot_EE_inv;
-  bool eop_EE_inv;
+  Bool_t sihih_EB_inv;
+  Bool_t deta_EB_inv;
+  Bool_t dphi_EB_inv;
+  Bool_t hoe_EB_inv;
+  Bool_t cIso_EB_inv;
+  Bool_t tip_bspot_EB_inv;
+  Bool_t eop_EB_inv;
+  //
+  Bool_t sihih_EE_inv;
+  Bool_t deta_EE_inv;
+  Bool_t dphi_EE_inv;
+  Bool_t hoe_EE_inv;
+  Bool_t cIso_EE_inv;
+  Bool_t tip_bspot_EE_inv;
+  Bool_t eop_EE_inv;
+  //
+  Bool_t trackIsoUser_EB_inv;
+  Bool_t ecalIsoUser_EB_inv;
+  Bool_t hcalIsoUser_EB_inv;
+  Bool_t trackIsoUser_EE_inv;
+  Bool_t ecalIsoUser_EE_inv;
+  Bool_t hcalIsoUser_EE_inv;
   //
   //
-  int nBarrelVars_;
+  Int_t nBarrelVars_;
   //
   std::vector<Double_t> CutVars_;
-  std::vector<Double_t> InvVars_;
+  std::vector<Bool_t> InvVars_;
 };
 
 #endif

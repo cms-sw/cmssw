@@ -81,7 +81,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 //
-
+#include "DataFormats/Scalers/interface/DcsStatus.h"
 //
 // class declaration
 //
@@ -92,14 +92,14 @@ class WenuCandidateFilter : public edm::EDFilter {
       ~WenuCandidateFilter();
 
    private:
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual Bool_t filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
-      bool isInFiducial(double eta);
-  bool passEleIDCuts(pat::Electron *ele);
+      Bool_t isInFiducial(Double_t eta);
+  Bool_t passEleIDCuts(pat::Electron *ele);
       // ----------member data ---------------------------
-  double ETCut_;
-  double METCut_;
-  double ETCut2ndEle_;
+  Double_t ETCut_;
+  Double_t METCut_;
+  Double_t ETCut2ndEle_;
   edm::InputTag triggerCollectionTag_;
   edm::InputTag triggerEventTag_;
   std::string hltpath_;
@@ -107,24 +107,27 @@ class WenuCandidateFilter : public edm::EDFilter {
   edm::InputTag electronCollectionTag_;
   edm::InputTag metCollectionTag_;
 
-  double BarrelMaxEta_;
-  double EndCapMaxEta_;
-  double EndCapMinEta_;
-  bool useTriggerInfo_;
-  bool electronMatched2HLT_;
-  double electronMatched2HLT_DR_;
-  bool vetoSecondElectronEvents_;
-  bool useVetoSecondElectronID_;
+  Double_t BarrelMaxEta_;
+  Double_t EndCapMaxEta_;
+  Double_t EndCapMinEta_;
+  Bool_t useTriggerInfo_;
+  Bool_t electronMatched2HLT_;
+  Double_t electronMatched2HLT_DR_;
+  Bool_t vetoSecondElectronEvents_;
+  Bool_t useVetoSecondElectronID_;
   std::string vetoSecondElectronIDType_;
   std::string vetoSecondElectronIDSign_;
-  double vetoSecondElectronIDValue_;
-  bool useValidFirstPXBHit_;
-  bool calculateValidFirstPXBHit_;
-  bool useConversionRejection_;
-  bool calculateConversionRejection_;
-  bool useExpectedMissingHits_;
-  bool calculateExpectedMissingHits_;
-  int  maxNumberOfExpectedMissingHits_;
+  Double_t vetoSecondElectronIDValue_;
+  Bool_t useValidFirstPXBHit_;
+  Bool_t calculateValidFirstPXBHit_;
+  Bool_t useConversionRejection_;
+  Bool_t calculateConversionRejection_;
+  Double_t dist_, dcot_;
+  Bool_t useExpectedMissingHits_;
+  Bool_t calculateExpectedMissingHits_;
+  Int_t  maxNumberOfExpectedMissingHits_;
+  Bool_t dataMagneticFieldSetUp_;
+  edm::InputTag dcsTag_;
 };
 #endif
 //
@@ -145,11 +148,11 @@ WenuCandidateFilter::WenuCandidateFilter(const edm::ParameterSet& iConfig)
   // I N P U T      P A R A M E T E R S  *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
   // *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
   // Cuts
-  double ETCut_D = 30.;
+  Double_t ETCut_D = 30.;
   ETCut_ = iConfig.getUntrackedParameter<double>("ETCut",ETCut_D);
-  double METCut_D = 0.;
+  Double_t METCut_D = 0.;
   METCut_ = iConfig.getUntrackedParameter<double>("METCut",METCut_D);
-  double ETCut2ndEle_D = 20.;
+  Double_t ETCut2ndEle_D = 20.;
   ETCut2ndEle_ = iConfig.getUntrackedParameter<double>("ETCut2ndEle",
 						       ETCut2ndEle_D);
   vetoSecondElectronEvents_ = iConfig.getUntrackedParameter<bool>("vetoSecondElectronEvents",false);
@@ -173,6 +176,12 @@ WenuCandidateFilter::WenuCandidateFilter(const edm::ParameterSet& iConfig)
     iConfig.getUntrackedParameter<Bool_t>("useConversionRejection",false);
   calculateConversionRejection_ =
     iConfig.getUntrackedParameter<Bool_t>("calculateConversionRejection",false);
+  dist_ = iConfig.getUntrackedParameter<Double_t>("conversionRejectionDist", 0.02);
+  dcot_ = iConfig.getUntrackedParameter<Double_t>("conversionRejectionDcot", 0.02);
+  dataMagneticFieldSetUp_ = iConfig.getUntrackedParameter<Bool_t>("dataMagneticFieldSetUp",false);
+  if (dataMagneticFieldSetUp_) {
+    dcsTag_ = iConfig.getUntrackedParameter<edm::InputTag>("dcsTag");
+  }
   useExpectedMissingHits_ = 
     iConfig.getUntrackedParameter<Bool_t>("useExpectedMissingHits",false);
   calculateExpectedMissingHits_ = 
@@ -182,9 +191,9 @@ WenuCandidateFilter::WenuCandidateFilter(const edm::ParameterSet& iConfig)
   //
   //
   //
-  double BarrelMaxEta_D = 1.4442;
-  double EndCapMinEta_D = 1.56;
-  double EndCapMaxEta_D = 2.5;
+  Double_t BarrelMaxEta_D = 1.4442;
+  Double_t EndCapMinEta_D = 1.56;
+  Double_t EndCapMaxEta_D = 2.5;
   BarrelMaxEta_ = iConfig.getUntrackedParameter<double>("BarrelMaxEta",
                                                         BarrelMaxEta_D);
   EndCapMaxEta_ = iConfig.getUntrackedParameter<double>("EndCapMaxEta",
@@ -327,11 +336,11 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // the event should pass the trigger, otherwise no wenu candidate -*-*
    edm::Handle<edm::TriggerResults> HLTResults;
    iEvent.getByLabel(triggerCollectionTag_, HLTResults);
-   int passTrigger = 0;  
+   Int_t passTrigger = 0;  
    if (HLTResults.isValid()) {
      const edm::TriggerNames & triggerNames = iEvent.triggerNames(*HLTResults);
-     unsigned int trigger_size = HLTResults->size();
-     unsigned int trigger_position = triggerNames.triggerIndex(hltpath_);
+     UInt_t trigger_size = HLTResults->size();
+     UInt_t trigger_position = triggerNames.triggerIndex(hltpath_);
      if (trigger_position < trigger_size)
        passTrigger = (int) HLTResults->accept(trigger_position);
    }
@@ -345,17 +354,17 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      //     <<std::endl;
      return false; // RETURN if event fails the trigger
    }
-   int numberOfHLTFilterObjects = 0;
+   Int_t numberOfHLTFilterObjects = 0;
    //
    edm::Handle<trigger::TriggerEvent> pHLT;
    iEvent.getByLabel(triggerEventTag_, pHLT);
-   const int nF(pHLT->sizeFilters());
-   const int filterInd = pHLT->filterIndex(hltpathFilter_);
+   const Int_t nF(pHLT->sizeFilters());
+   const Int_t filterInd = pHLT->filterIndex(hltpathFilter_);
    if (nF != filterInd) {
      const trigger::Vids& VIDS (pHLT->filterIds(filterInd));
      const trigger::Keys& KEYS(pHLT->filterKeys(filterInd));
-     const int nI(VIDS.size());
-     const int nK(KEYS.size());
+     const Int_t nI(VIDS.size());
+     const Int_t nK(KEYS.size());
      numberOfHLTFilterObjects = (nI>nK)? nI:nK;
    }
    else {
@@ -364,11 +373,6 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (useTriggerInfo_)
        return false; // RETURN if event fails the trigger
    }
-   //std::cout << "==> HLT Filter " << hltpathFilter_.label() 
-   //	     << " was found in this event..." << std::endl;
-   // for trigger object matching   
-   //const int nF(pHLT->sizeFilters());
-   //const int iF = pHLT->filterIndex(hltpathFilter_);
    const trigger::TriggerObjectCollection& TOC(pHLT->getObjects());
    // *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    // ET CUT: at least one electron in the event with ET>ETCut_-*-*-*-*-*
@@ -395,47 +399,47 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //  ------------------------------------------------------------------
    pat::ElectronCollection::const_iterator elec;
    // check how many electrons there are in the event
-   const int Nelecs = pElecs->size();
+   const Int_t Nelecs = pElecs->size();
    if (Nelecs == 0) {
      //std::cout << "No electrons found in this event" << std::endl;
      return false; // RETURN if no elecs in the event
    }
    //
-   int  counter = 0;
+   Int_t  counter = 0;
    std::vector<int> indices;
    std::vector<double> ETs;
    pat::ElectronCollection myElectrons;
    for (elec = pElecs->begin(); elec != pElecs->end(); ++elec) {
      if (isInFiducial(elec->caloPosition().eta())) {
-       double sc_et = elec->caloEnergy()/cosh(elec->caloPosition().eta());
+       Double_t sc_et = elec->caloEnergy()/cosh(elec->caloPosition().eta());
        indices.push_back(counter); ETs.push_back(sc_et);
        myElectrons.push_back(*elec);
        ++counter;
      }
    }
-   const int  event_elec_number = (int) indices.size();
+   const Int_t  event_elec_number = (int) indices.size();
    if (event_elec_number == 0) {
      //std::cout << "No electrons in fiducial were found" << std::endl;
      return false; // RETURN if none of the electron in fiducial
    }
    // be careful now: you allocate some memory with new ...................
    // so whenever you return you must release this memory .................
-   int *sorted = new int[event_elec_number];
-   double *et = new double[event_elec_number];
-   for (int i=0; i<event_elec_number; ++i) {
+   Int_t *sorted = new int[event_elec_number];
+   Double_t *et = new double[event_elec_number];
+   for (Int_t i=0; i<event_elec_number; ++i) {
      et[i] = ETs[i];
    }
    // array sorted now has the indices of the highest ET electrons
    TMath::Sort(event_elec_number, et, sorted, true);
    //
    // if the highest electron in the event has ET < ETCut_ return
-   int max_et_index = sorted[0];
+   Int_t max_et_index = sorted[0];
    if (ETs[max_et_index] < ETCut_) {
      //std::cout << "Highest ET electron is " << ETs[max_et_index]<<std::endl;
      delete [] sorted;  delete [] et;
      return false; // RETURN if the highest ET elec has ET< ETcut
    }
-   //for (int i=0; i< event_elec_number; ++i) {
+   //for (Int_t i=0; i< event_elec_number; ++i) {
    //  cout << "elec #"<<i << " " << myElectrons[ sorted[i] ].et() << endl;
    //}
    //
@@ -465,7 +469,7 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    // hit pattern and conversion rejection
    if (useValidFirstPXBHit_ || calculateValidFirstPXBHit_) {
-     bool fail = 
+     Bool_t fail = 
        not maxETelec.gsfTrack()->hitPattern().hasValidHitInFirstPixelBarrel();
     if(useValidFirstPXBHit_ && fail) 
       {
@@ -482,14 +486,14 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
    }
    if (useExpectedMissingHits_ || calculateExpectedMissingHits_) {
-     int numberOfLostInnerHits = (int) maxETelec.gsfTrack()->trackerExpectedHitsInner().numberOfLostHits();
-     if (numberOfLostInnerHits > maxNumberOfExpectedMissingHits_
+     Int_t numberOfInnerHits = (Int_t) maxETelec.gsfTrack()->trackerExpectedHitsInner().numberOfHits();
+     if (numberOfInnerHits > maxNumberOfExpectedMissingHits_
 	 && useExpectedMissingHits_) {
        delete [] sorted;  delete [] et;
        return false;
      }
      if (calculateExpectedMissingHits_) {
-       maxETelec.addUserInt("NumberOfExpectedMissingHits",numberOfLostInnerHits);
+       maxETelec.addUserInt("NumberOfExpectedMissingHits",numberOfInnerHits);
      }
    }
    if (useConversionRejection_ || calculateConversionRejection_) {
@@ -497,16 +501,27 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      // you have to get the general track collection to do that
      // WARNING! you have to supply the correct B-field in Tesla
      // the magnetic field
-     edm::ESHandle<MagneticField> magneticField;
-     iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
-     const  MagneticField *mField = magneticField.product();
+     Double_t bfield;
+     if (dataMagneticFieldSetUp_) {
+       edm::Handle<DcsStatusCollection> dcsHandle;
+       iEvent.getByLabel(dcsTag_, dcsHandle);
+       // scale factor = 3.801/18166.0 which are
+       // average values taken over a stable two
+       // week period
+       Double_t currentToBFieldScaleFactor = 2.09237036221512717e-04;
+       Double_t current = (*dcsHandle)[0].magnetCurrent();
+       bfield = current*currentToBFieldScaleFactor;
+     } else {
+       edm::ESHandle<MagneticField> magneticField;
+       iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+       const  MagneticField *mField = magneticField.product();
+       bfield = mField->inTesla(GlobalPoint(0.,0.,0.)).z();
+     }
      edm::Handle<reco::TrackCollection> ctfTracks;
      if ( iEvent.getByLabel("generalTracks", ctfTracks) ) {
        ConversionFinder cf;
-       const math::XYZPoint tpoint = maxETelec.gsfTrack()->referencePoint();
-       const GlobalPoint gp(tpoint.x(), tpoint.y(), tpoint.z());
-       double bfield = mField->inTesla(gp).mag();  
-       bool isConv = cf.isElFromConversion(maxETelec, ctfTracks, bfield);
+       //Double_t bfield = mField->inTesla(GlobalPoint(0.,0.,0.)).z();
+       Bool_t isConv = cf.isElFromConversion(maxETelec, ctfTracks, bfield, dist_,dcot_);
        //std::cout << "Filter: for this elec the conversion says " << isConv << std::endl;
        if (isConv && useConversionRejection_) {
        	 delete [] sorted;  delete [] et;
@@ -525,27 +540,16 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
 
    }
-   // these 3 objects have been declared outside the loop
-   //const int nF(pHLT->sizeFilters());
-   //const int iF = pHLT->filterIndex(hltpathFilter_);
-   //const trigger::TriggerObjectCollection& TOC(pHLT->getObjects());
    //
    if (electronMatched2HLT_ && useTriggerInfo_) {
-     int trigger_int_probe = 0;
+     Int_t trigger_int_probe = 0;
      if (nF != filterInd) {
        const trigger::Keys& KEYS(pHLT->filterKeys(filterInd));
-       const int nK(KEYS.size());
+       const Int_t nK(KEYS.size());
        //std::cout << "Found trig objects #" << nK << std::endl;
-       for (int iTrig = 0;iTrig <nK; ++iTrig ) {
+       for (Int_t iTrig = 0;iTrig <nK; ++iTrig ) {
 	 const trigger::TriggerObject& TO(TOC[KEYS[iTrig]]);
-	 //std::cout << "..TO#" << iTrig << ", phi= "  << TO.phi()
-	 //	   << ", eta=" << TO.eta() << ", id: " << TO.id()
-	 //	   << std::endl;
-	 // it has to be checked!! why some times TO.id()==0
-	 // should not be like that ?!?!
-	 //if (abs(TO.id())==11 || TO.id()==0) { // demand it to be an electron
-	 // no demand for an electron in the HLT object
-	 double dr_ele_HLT = 
+	 Double_t dr_ele_HLT = 
 	   reco::deltaR(maxETelec.eta(),maxETelec.phi(),TO.eta(),TO.phi());
 	 //std::cout << "-->found dr=" << dr_ele_HLT << std::endl;
 	 if (fabs(dr_ele_HLT) < electronMatched2HLT_DR_) {
@@ -567,45 +571,15 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
    }
    //
-   // demand that this electron is matched to an HLT object
-   /* //custom PAT way: this may need some extra tags for TAG
-      // for this reason I have set up the default to be 
-      // without PAT (see previous lines)
-   const pat::TriggerObjectStandAloneCollection  trigFilter = 
-     maxETelec.triggerObjectMatchesByFilter(hltpathFilter_.label());
-   if ((int) trigFilter.size()==0) {
-     delete [] sorted; delete [] et;
-     std::cout << "Electron is not an HLT object" << std::endl;
-     return false; // RETURN if elec fails the trigger
-   }
-   */
-   /*
-   // this is how to access the trigger info related to that electron in pat
-   vector<pat::TriggerPrimitive> trigPrim = maxETelec.triggerMatches();
-   for (int i=0; i< (int) trigPrim.size(); ++i) {
-     cout << trigPrim[i].filterName() << ", type: " 
-	  << trigPrim[i].triggerObjectType() << ", id: " 
-	  << trigPrim[i].triggerObjectId() << endl;
-   }
-   vector<pat::TriggerPrimitive> trigFilter = 
-     maxETelec.triggerMatchesByFilter(hltpathFilter_.label());
-   cout << "Test " << hltpathFilter_ << endl;
-   for (int i=0; i< (int) trigFilter.size(); ++i) {
-     cout << trigFilter[i].filterName() << ", type: " 
-	  << trigFilter[i].triggerObjectType() << ", id: " 
-	  << trigFilter[i].triggerObjectId() << endl;
-   }
-   */
-
    // get the met now:
    const pat::METCollection *pMet = patMET.product();
    const pat::METCollection::const_iterator met = pMet->begin();
    const pat::MET theMET = *met;
-   double metEt = met->et();
-   //double metEta = met->eta();
-   //double metMt = met->mt();
-   //double metPhi = met->phi();
-   //double metSig = met->mEtSig();
+   Double_t metEt = met->et();
+   //Double_t metEta = met->eta();
+   //Double_t metMt = met->mt();
+   //Double_t metPhi = met->phi();
+   //Double_t metSig = met->mEtSig();
    //std::cout<<"met properties: et=" << met->et() << ", eta: " <<  met->eta()
    //	     << std::endl;
    // 
@@ -642,7 +616,7 @@ void
 WenuCandidateFilter::endJob() {
 }
 
-bool WenuCandidateFilter::isInFiducial(double eta)
+Bool_t WenuCandidateFilter::isInFiducial(Double_t eta)
 {
   if (fabs(eta) < BarrelMaxEta_) return true;
   else if (fabs(eta) < EndCapMaxEta_ && fabs(eta) > EndCapMinEta_)
@@ -651,7 +625,7 @@ bool WenuCandidateFilter::isInFiducial(double eta)
 
 }
 
-bool WenuCandidateFilter::passEleIDCuts(pat::Electron *ele)
+Bool_t WenuCandidateFilter::passEleIDCuts(pat::Electron *ele)
 {
   if (not useVetoSecondElectronID_)  return true;
   if (not ele->isElectronIDAvailable(vetoSecondElectronIDType_)) {

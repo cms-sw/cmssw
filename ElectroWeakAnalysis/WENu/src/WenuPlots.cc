@@ -87,19 +87,19 @@ WenuPlots::WenuPlots(const edm::ParameterSet& iConfig)
   } else { usePreselection_ = false; }
   //
   // the selection cuts:
-  trackIso_EB_ = iConfig.getUntrackedParameter<Double_t>("trackIso_EB");
-  ecalIso_EB_ = iConfig.getUntrackedParameter<Double_t>("ecalIso_EB");
-  hcalIso_EB_ = iConfig.getUntrackedParameter<Double_t>("hcalIso_EB");
+  trackIso_EB_ = iConfig.getUntrackedParameter<Double_t>("trackIso_EB", 1000.);
+  ecalIso_EB_ = iConfig.getUntrackedParameter<Double_t>("ecalIso_EB", 1000.);
+  hcalIso_EB_ = iConfig.getUntrackedParameter<Double_t>("hcalIso_EB", 1000.);
   //
-  trackIso_EE_ = iConfig.getUntrackedParameter<Double_t>("trackIso_EE");
-  ecalIso_EE_ = iConfig.getUntrackedParameter<Double_t>("ecalIso_EE");
-  hcalIso_EE_ = iConfig.getUntrackedParameter<Double_t>("hcalIso_EE");
+  trackIso_EE_ = iConfig.getUntrackedParameter<Double_t>("trackIso_EE", 1000.);
+  ecalIso_EE_ = iConfig.getUntrackedParameter<Double_t>("ecalIso_EE", 1000.);
+  hcalIso_EE_ = iConfig.getUntrackedParameter<Double_t>("hcalIso_EE", 1000.);
   //
   sihih_EB_ = iConfig.getUntrackedParameter<Double_t>("sihih_EB");
   dphi_EB_ = iConfig.getUntrackedParameter<Double_t>("dphi_EB");
   deta_EB_ = iConfig.getUntrackedParameter<Double_t>("deta_EB");
   hoe_EB_ = iConfig.getUntrackedParameter<Double_t>("hoe_EB");
-  userIso_EB_ = iConfig.getUntrackedParameter<Double_t>("userIso_EB", 1000.);
+  cIso_EB_ = iConfig.getUntrackedParameter<Double_t>("cIso_EB", 1000.);
   tip_bspot_EB_=iConfig.getUntrackedParameter<Double_t>("tip_bspot_EB", 1000.);
   eop_EB_=iConfig.getUntrackedParameter<Double_t>("eop_EB", 1000.);
   //
@@ -107,53 +107,47 @@ WenuPlots::WenuPlots(const edm::ParameterSet& iConfig)
   dphi_EE_ = iConfig.getUntrackedParameter<Double_t>("dphi_EE");
   deta_EE_ = iConfig.getUntrackedParameter<Double_t>("deta_EE");
   hoe_EE_ = iConfig.getUntrackedParameter<Double_t>("hoe_EE");
-  userIso_EE_ = iConfig.getUntrackedParameter<Double_t>("userIso_EE", 1000.);
+  cIso_EE_ = iConfig.getUntrackedParameter<Double_t>("cIso_EE", 1000.);
   tip_bspot_EE_=iConfig.getUntrackedParameter<Double_t>("tip_bspot_EE", 1000.);
   eop_EE_=iConfig.getUntrackedParameter<Double_t>("eop_EE", 1000.);
   //
-  trackIso_EB_inv = iConfig.getUntrackedParameter<Bool_t>("trackIso_EB_inv", 
-							    false);
-  ecalIso_EB_inv = iConfig.getUntrackedParameter<Bool_t>("ecalIso_EB_inv",
-							   false);
-  hcalIso_EB_inv = iConfig.getUntrackedParameter<Bool_t>("hcalIso_EB_inv",
-							   false);
+  trackIsoUser_EB_ = iConfig.getUntrackedParameter<Double_t>("trackIsoUser_EB", 1000.);
+  ecalIsoUser_EB_ = iConfig.getUntrackedParameter<Double_t>("ecalIsoUser_EB", 1000.);
+  hcalIsoUser_EB_ = iConfig.getUntrackedParameter<Double_t>("hcalIsoUser_EB", 1000.);
+  trackIsoUser_EE_ = iConfig.getUntrackedParameter<Double_t>("trackIsoUser_EE", 1000.);
+  ecalIsoUser_EE_ = iConfig.getUntrackedParameter<Double_t>("ecalIsoUser_EE", 1000.);
+  hcalIsoUser_EE_ = iConfig.getUntrackedParameter<Double_t>("hcalIsoUser_EE", 1000.);
   //
-  trackIso_EE_inv = iConfig.getUntrackedParameter<Bool_t>("trackIso_EE_inv",
-							    false);
-  ecalIso_EE_inv = iConfig.getUntrackedParameter<Bool_t>("ecalIso_EE_inv",
-							   false);
-  hcalIso_EE_inv = iConfig.getUntrackedParameter<Bool_t>("hcalIso_EE_inv",
-							   false);
-
+  trackIso_EB_inv = iConfig.getUntrackedParameter<Bool_t>("trackIso_EB_inv", false);
+  ecalIso_EB_inv = iConfig.getUntrackedParameter<Bool_t>("ecalIso_EB_inv", false);
+  hcalIso_EB_inv = iConfig.getUntrackedParameter<Bool_t>("hcalIso_EB_inv", false);
   //
-  sihih_EB_inv = iConfig.getUntrackedParameter<Bool_t>("sihih_EB_inv",
-							 false);
-  dphi_EB_inv = iConfig.getUntrackedParameter<Bool_t>("dphi_EB_inv",
-							false);
-  deta_EB_inv = iConfig.getUntrackedParameter<Bool_t>("deta_EB_inv",
-							false);
-  hoe_EB_inv = iConfig.getUntrackedParameter<Bool_t>("hoe_EB_inv",
-							false);
-  userIso_EB_inv = iConfig.getUntrackedParameter<Bool_t>("userIso_EB_inv",
-							 false);
-  tip_bspot_EB_inv=iConfig.getUntrackedParameter<Bool_t>("tip_bspot_EB_inv", 
-							 false);
+  trackIso_EE_inv = iConfig.getUntrackedParameter<Bool_t>("trackIso_EE_inv", false);
+  ecalIso_EE_inv = iConfig.getUntrackedParameter<Bool_t>("ecalIso_EE_inv", false);
+  hcalIso_EE_inv = iConfig.getUntrackedParameter<Bool_t>("hcalIso_EE_inv", false);
+  //
+  sihih_EB_inv = iConfig.getUntrackedParameter<Bool_t>("sihih_EB_inv", false);
+  dphi_EB_inv = iConfig.getUntrackedParameter<Bool_t>("dphi_EB_inv", false);
+  deta_EB_inv = iConfig.getUntrackedParameter<Bool_t>("deta_EB_inv", false);
+  hoe_EB_inv = iConfig.getUntrackedParameter<Bool_t>("hoe_EB_inv", false);
+  cIso_EB_inv = iConfig.getUntrackedParameter<Bool_t>("cIso_EB_inv", false);
+  tip_bspot_EB_inv=iConfig.getUntrackedParameter<Bool_t>("tip_bspot_EB_inv", false);
   eop_EB_inv=iConfig.getUntrackedParameter<Bool_t>("eop_EB_inv", false);
   //
-  sihih_EE_inv = iConfig.getUntrackedParameter<Bool_t>("sihih_EE_inv",
-							 false);
-  dphi_EE_inv = iConfig.getUntrackedParameter<Bool_t>("dphi_EE_inv",
-							false);
-  deta_EE_inv = iConfig.getUntrackedParameter<Bool_t>("deta_EE_inv",
-							false);
-  hoe_EE_inv = iConfig.getUntrackedParameter<Bool_t>("hoe_EE_inv",
-							false);
-  userIso_EE_inv = iConfig.getUntrackedParameter<Bool_t>("userIso_EE_inv",
-							 false);
-  tip_bspot_EE_inv=iConfig.getUntrackedParameter<Bool_t>("tip_bspot_EE_inv", 
-							 false);
+  sihih_EE_inv = iConfig.getUntrackedParameter<Bool_t>("sihih_EE_inv", false);
+  dphi_EE_inv = iConfig.getUntrackedParameter<Bool_t>("dphi_EE_inv", false);
+  deta_EE_inv = iConfig.getUntrackedParameter<Bool_t>("deta_EE_inv", false);
+  hoe_EE_inv = iConfig.getUntrackedParameter<Bool_t>("hoe_EE_inv", false);
+  cIso_EE_inv = iConfig.getUntrackedParameter<Bool_t>("cIso_EE_inv", false);
+  tip_bspot_EE_inv=iConfig.getUntrackedParameter<Bool_t>("tip_bspot_EE_inv", false);
   eop_EE_inv=iConfig.getUntrackedParameter<Bool_t>("eop_EE_inv", false);
-
+  //
+  trackIsoUser_EB_inv = iConfig.getUntrackedParameter<Bool_t>("trackIsoUser_EB_inv", false);
+  ecalIsoUser_EB_inv = iConfig.getUntrackedParameter<Bool_t>("ecalIsoUser_EB_inv", false);
+  hcalIsoUser_EB_inv = iConfig.getUntrackedParameter<Bool_t>("hcalIsoUser_EB_inv", false);
+  trackIsoUser_EE_inv = iConfig.getUntrackedParameter<Bool_t>("trackIsoUser_EE_inv", false);
+  ecalIsoUser_EE_inv = iConfig.getUntrackedParameter<Bool_t>("ecalIsoUser_EE_inv", false);
+  hcalIsoUser_EE_inv = iConfig.getUntrackedParameter<Bool_t>("hcalIsoUser_EE_inv", false);
 
 }
 
@@ -222,20 +216,20 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   }
   //
   // some variables here
-  double scEta = myElec->superCluster()->eta();
-  double scPhi = myElec->superCluster()->phi();
-  double scEt = myElec->superCluster()->energy()/cosh(scEta);
-  double met    = myMet->et();
-  double metPhi = myMet->phi();
-  double mt  = sqrt(2.0*scEt*met*(1.0-(cos(scPhi)*cos(metPhi)+sin(scPhi)*sin(metPhi))));
+  Double_t scEta = myElec->superCluster()->eta();
+  Double_t scPhi = myElec->superCluster()->phi();
+  Double_t scEt = myElec->superCluster()->energy()/cosh(scEta);
+  Double_t met    = myMet->et();
+  Double_t metPhi = myMet->phi();
+  Double_t mt  = sqrt(2.0*scEt*met*(1.0-(cos(scPhi)*cos(metPhi)+sin(scPhi)*sin(metPhi))));
 
-  double trackIso = myElec->userIsolation(pat::TrackIso);
-  double ecalIso = myElec->userIsolation(pat::EcalIso);
-  double hcalIso = myElec->userIsolation(pat::HcalIso);
-  double sihih = myElec->scSigmaIEtaIEta();
-  double dphi = myElec->deltaPhiSuperClusterTrackAtVtx();
-  double deta = myElec->deltaEtaSuperClusterTrackAtVtx();
-  double HoE = myElec->hadronicOverEm();
+  Double_t trackIso = myElec->userIsolation(pat::TrackIso);
+  Double_t ecalIso = myElec->userIsolation(pat::EcalIso);
+  Double_t hcalIso = myElec->userIsolation(pat::HcalIso);
+  Double_t sihih = myElec->scSigmaIEtaIEta();
+  Double_t dphi = myElec->deltaPhiSuperClusterTrackAtVtx();
+  Double_t deta = myElec->deltaEtaSuperClusterTrackAtVtx();
+  Double_t HoE = myElec->hadronicOverEm();
   //
   //
   //
@@ -309,14 +303,27 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
 
   }
   // uncomment for debugging purposes
-  //std::cout << "tracIso: " <<  trackIso << ", " << myElec->trackIso() << ", ecaliso: " << ecalIso 
-  //    << ", " << myElec->ecalIso() << ", hcaliso: " << hcalIso << ", "  << myElec->hcalIso() 
-  //    << std::endl;
-  //std::cout << "Electron ID: robLoose=" << myElec->electronID("eidRobustLoose")  
-  //    << " robTight=" << myElec->electronID("eidRobustTight") << ", CatLoose=" 
-  //    << myElec->electronID("eidLoose") << ", CatTight=" << myElec->electronID("eidTight")
-  //    << std::endl;
-
+  /*
+  std::cout << "tracIso: " <<  trackIso << ", " << myElec->trackIso() << ", ecaliso: " << ecalIso 
+	    << ", " << myElec->ecalIso() << ", hcaliso: " << hcalIso << ", "  << myElec->hcalIso() 
+	    << ", mishits: " 
+	    << myElec->gsfTrack()->trackerExpectedHitsInner().numberOfHits()
+	    << std::endl;
+  std::cout << "Electron ID: 95relIso=" << myElec->electronID("simpleEleId95relIso")  
+	    << " 90relIso=" << myElec->electronID("simpleEleId90relIso") 
+	    << " 85relIso=" << myElec->electronID("simpleEleId85relIso") 
+	    << " 80relIso=" << myElec->electronID("simpleEleId80relIso") 
+	    << " 70relIso=" << myElec->electronID("simpleEleId70relIso") 
+	    << " 60relIso=" << myElec->electronID("simpleEleId60relIso") 
+	    << " 95cIso=" << myElec->electronID("simpleEleId95cIso") 
+	    << " 90cIso=" << myElec->electronID("simpleEleId90cIso") 
+	    << " 85cIso=" << myElec->electronID("simpleEleId85cIso") 
+	    << " 80cIso=" << myElec->electronID("simpleEleId80cIso") 
+	    << " 70cIso=" << myElec->electronID("simpleEleId70cIso") 
+	    << " 60cIso=" << myElec->electronID("simpleEleId60cIso") 
+	    << std::endl;
+  std::cout << "mySelection: " << (CheckCuts(myElec) && PassPreselectionCriteria(myElec)) << endl;
+  */
   h_scEt->Fill(scEt);
   h_scEta->Fill(scEta);
   h_scPhi->Fill(scPhi);
@@ -329,16 +336,16 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
  *  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
  *  all the available methods take input a pointer to a  pat::Electron
  *
- *  bool  CheckCuts(const pat::Electron *): 
- *                               true if the input selection is satisfied
- *  bool  CheckCutsInverse(const pat::Electron *ele):
- *               true if the cuts with inverted the ones specified in the
- *               cfg are satisfied
- *  bool  CheckCutsNminusOne(const pat::Electron *ele, int jj):
- *               true if all the cuts with cut #jj ignored are satisfied
+ *  Bool_t  CheckCuts(const pat::Electron *): 
+ *                            true if the input selection is satisfied
+ *  Bool_t  CheckCutsInverse(const pat::Electron *ele):
+ *            true if the cuts with inverted the ones specified in the
+ *            cfg are satisfied
+ *  Bool_t  CheckCutsNminusOne(const pat::Electron *ele, int jj):
+ *             true if all the cuts with cut #jj ignored are satisfied
  *
  ***********************************************************************/
-bool WenuPlots::CheckCuts( const pat::Electron *ele)
+Bool_t WenuPlots::CheckCuts( const pat::Electron *ele)
 {
   if (usePrecalcID_) {
     if (not ele-> isElectronIDAvailable(usePrecalcIDType_)) {
@@ -347,7 +354,7 @@ bool WenuPlots::CheckCuts( const pat::Electron *ele)
 		<< std::endl;
       return true;
     }
-    double val = ele->electronID(usePrecalcIDType_);
+    Double_t val = ele->electronID(usePrecalcIDType_);
     if (usePrecalcIDSign_ == "<") {
       return val < usePrecalcIDValue_;
     }
@@ -367,7 +374,7 @@ bool WenuPlots::CheckCuts( const pat::Electron *ele)
 }
 /////////////////////////////////////////////////////////////////////////
 
-bool WenuPlots::CheckCutsInverse(const pat::Electron *ele)
+Bool_t WenuPlots::CheckCutsInverse(const pat::Electron *ele)
 {
   for (int i=0; i<nBarrelVars_; ++i){
     if ( CheckCutInv(ele, i) == false) return false;
@@ -376,7 +383,7 @@ bool WenuPlots::CheckCutsInverse(const pat::Electron *ele)
 
 }
 /////////////////////////////////////////////////////////////////////////
-bool WenuPlots::CheckCutsNminusOne(const pat::Electron *ele, int jj)
+Bool_t WenuPlots::CheckCutsNminusOne(const pat::Electron *ele, int jj)
 {
   for (int i=0; i<nBarrelVars_; ++i){
     if (i==jj) continue;
@@ -385,16 +392,16 @@ bool WenuPlots::CheckCutsNminusOne(const pat::Electron *ele, int jj)
   return true;
 }
 /////////////////////////////////////////////////////////////////////////
-bool WenuPlots::CheckCut(const pat::Electron *ele, int i) {
-  double fabseta = fabs(ele->superCluster()->eta());
+Bool_t WenuPlots::CheckCut(const pat::Electron *ele, int i) {
+  Double_t fabseta = fabs(ele->superCluster()->eta());
   if ( fabseta<1.479) {
     return fabs(ReturnCandVar(ele, i)) < CutVars_[i];
   }
   return fabs(ReturnCandVar(ele, i)) < CutVars_[i+nBarrelVars_];
 }
 /////////////////////////////////////////////////////////////////////////
-bool WenuPlots::CheckCutInv(const pat::Electron *ele, int i) {
-  double fabseta = fabs(ele->superCluster()->eta());
+Bool_t WenuPlots::CheckCutInv(const pat::Electron *ele, int i) {
+  Double_t fabseta = fabs(ele->superCluster()->eta());
   if ( fabseta<1.479) {
     if (InvVars_[i]) 
     return fabs(ReturnCandVar(ele, i))>CutVars_[i];
@@ -407,27 +414,37 @@ bool WenuPlots::CheckCutInv(const pat::Electron *ele, int i) {
   return fabs(ReturnCandVar(ele, i)) < CutVars_[i+nBarrelVars_];
 }
 ////////////////////////////////////////////////////////////////////////
-double WenuPlots::ReturnCandVar(const pat::Electron *ele, int i) {
-  if (i==0) return ele->userIsolation(pat::TrackIso);
-  else if (i==1) return ele->userIsolation(pat::EcalIso);
-  else if (i==2) return ele->userIsolation(pat::HcalIso);
+Double_t WenuPlots::ReturnCandVar(const pat::Electron *ele, int i) {
+  if (i==0) return ele->dr03TkSumPt()/ele->p4().Pt();
+  else if (i==1) return ele->dr03EcalRecHitSumEt()/ele->p4().Pt();
+  else if (i==2) return ele->dr03HcalTowerSumEt()/ele->p4().Pt();
   else if (i==3) return ele->scSigmaIEtaIEta();
   else if (i==4) return ele->deltaPhiSuperClusterTrackAtVtx();
   else if (i==5) return ele->deltaEtaSuperClusterTrackAtVtx();
   else if (i==6) return ele->hadronicOverEm();
-  else if (i==7) return ele->userIsolation(pat::User1Iso);
+  else if (i==7) {
+    if (ele->isEB()){
+      return ( ele->dr03TkSumPt()+std::max(float(0.),ele->dr03EcalRecHitSumEt()-1)
+	       + ele->dr03HcalTowerSumEt())/ele->p4().Pt(); }
+    else { // pedestal subtraction is only in barrel
+      return ( ele->dr03TkSumPt()+ele->dr03EcalRecHitSumEt()
+	       + ele->dr03HcalTowerSumEt())/ele->p4().Pt(); }
+  }
   //  else if (i==8) return ele->gsfTrack()->dxy(bspotPosition_);
   else if (i==8) return ele->dB();
   else if (i==9) return ele->eSuperClusterOverP();
+  else if (i==10) return ele->userIsolation(pat::TrackIso);
+  else if (i==11) return ele->userIsolation(pat::EcalIso);
+  else if (i==12) return ele->userIsolation(pat::HcalIso);  
   std::cout << "Error in WenuPlots::ReturnCandVar" << std::endl;
   return -1.;
 
 }
 /////////////////////////////////////////////////////////////////////////
-bool WenuPlots::PassPreselectionCriteria(const pat::Electron *ele) {
-  bool passConvRej = true;
-  bool passPXB = true;
-  bool passEMH = true;
+Bool_t WenuPlots::PassPreselectionCriteria(const pat::Electron *ele) {
+  Bool_t passConvRej = true;
+  Bool_t passPXB = true;
+  Bool_t passEMH = true;
   if (useConversionRejection_) {
     if (ele->hasUserInt("PassConversionRejection")) {
       //std::cout << "con rej: " << ele->userInt("PassConversionRejection") << std::endl;
@@ -442,7 +459,7 @@ bool WenuPlots::PassPreselectionCriteria(const pat::Electron *ele) {
   if (useValidFirstPXBHit_) {
     if (ele->hasUserInt("PassValidFirstPXBHit")) {
       //std::cout << "valid1stPXB: " << ele->userInt("PassValidFirstPXBHit") << std::endl;
-      if (not (ele->userInt("PassValidPXBHit")==1)) passPXB = false;
+      if (not (ele->userInt("PassValidFirstPXBHit")==1)) passPXB = false;
     }
     else {
       std::cout << "WenuPlots: WARNING: Valid First PXB Hit Request Disregarded: "
@@ -453,7 +470,7 @@ bool WenuPlots::PassPreselectionCriteria(const pat::Electron *ele) {
   if (useExpectedMissingHits_) {
     if (ele->hasUserInt("NumberOfExpectedMissingHits")) {
       //std::cout << "missing hits: " << ele->userInt("NumberOfExpectedMissingHits") << std::endl;
-      if (not (ele->userInt("NumberOfExpectedMissingHits")<=maxNumberOfExpectedMissingHits_)) 
+      if (ele->userInt("NumberOfExpectedMissingHits")>maxNumberOfExpectedMissingHits_) 
 	passEMH = false;
     }
     else {
@@ -529,7 +546,7 @@ WenuPlots::beginJob()
   // if you add some new variable change the nBarrelVars_ accordingly
   // reminder: in the current implementation you must have the same number
   //  of vars in both barrel and endcaps
-  nBarrelVars_ = 10;
+  nBarrelVars_ = 13;
   //
   // Put EB variables together and EE variables together
   // number of barrel variables = number of endcap variable
@@ -541,10 +558,13 @@ WenuPlots::beginJob()
   CutVars_.push_back( dphi_EB_ );    //4
   CutVars_.push_back( deta_EB_ );    //5
   CutVars_.push_back( hoe_EB_ );     //6
-  CutVars_.push_back( userIso_EB_ ); //7
+  CutVars_.push_back( cIso_EB_ );    //7
   CutVars_.push_back( tip_bspot_EB_);//8
   CutVars_.push_back( eop_EB_ );     //9
-  
+  CutVars_.push_back( trackIsoUser_EB_ );//10
+  CutVars_.push_back( ecalIsoUser_EB_  );//11
+  CutVars_.push_back( hcalIsoUser_EB_  );//12
+  //
   CutVars_.push_back( trackIso_EE_);//0
   CutVars_.push_back( ecalIso_EE_); //1
   CutVars_.push_back( hcalIso_EE_); //2
@@ -552,9 +572,12 @@ WenuPlots::beginJob()
   CutVars_.push_back( dphi_EE_);    //4
   CutVars_.push_back( deta_EE_);    //5
   CutVars_.push_back( hoe_EE_ );    //6 
-  CutVars_.push_back( userIso_EE_ );//7 
+  CutVars_.push_back( cIso_EE_ );   //7 
   CutVars_.push_back(tip_bspot_EE_);//8
   CutVars_.push_back( eop_EE_ );    //9
+  CutVars_.push_back( trackIsoUser_EE_ );//10
+  CutVars_.push_back( ecalIsoUser_EE_  );//11
+  CutVars_.push_back( hcalIsoUser_EE_  );//12
   //
   InvVars_.push_back( trackIso_EB_inv);//0
   InvVars_.push_back( ecalIso_EB_inv); //1
@@ -563,9 +586,12 @@ WenuPlots::beginJob()
   InvVars_.push_back( dphi_EB_inv);    //4
   InvVars_.push_back( deta_EB_inv);    //5
   InvVars_.push_back( hoe_EB_inv);     //6
-  InvVars_.push_back( userIso_EB_inv); //7
+  InvVars_.push_back( cIso_EB_inv);    //7
   InvVars_.push_back(tip_bspot_EB_inv);//8
   InvVars_.push_back( eop_EB_inv);     //9
+  InvVars_.push_back( trackIsoUser_EB_inv );//10
+  InvVars_.push_back( ecalIsoUser_EB_inv  );//11
+  InvVars_.push_back( hcalIsoUser_EB_inv  );//12
   //
   InvVars_.push_back( trackIso_EE_inv);//0
   InvVars_.push_back( ecalIso_EE_inv); //1
@@ -574,9 +600,12 @@ WenuPlots::beginJob()
   InvVars_.push_back( dphi_EE_inv);    //4
   InvVars_.push_back( deta_EE_inv);    //5
   InvVars_.push_back( hoe_EE_inv);     //6
-  InvVars_.push_back( userIso_EE_inv); //7
+  InvVars_.push_back( cIso_EE_inv);    //7
   InvVars_.push_back(tip_bspot_EE_inv);//8
   InvVars_.push_back( eop_EE_inv);     //9
+  InvVars_.push_back( trackIsoUser_EE_inv );//10
+  InvVars_.push_back( ecalIsoUser_EE_inv  );//11
+  InvVars_.push_back( hcalIsoUser_EE_inv  );//12
   //
 
 
