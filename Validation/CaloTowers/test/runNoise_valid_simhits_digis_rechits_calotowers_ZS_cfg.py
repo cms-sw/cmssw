@@ -1,3 +1,4 @@
+import os
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
@@ -21,6 +22,9 @@ process.load("Configuration.StandardSequences.GeometryECALHCAL_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.g4SimHits.UseMagneticField = False
 
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
+
 process.load("DQMServices.Core.DQM_cfg")
 process.DQM.collectorHost = ''
 
@@ -42,6 +46,11 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1000)
 )
 
+process.FEVT = cms.OutputModule("PoolOutputModule",
+     outputCommands = cms.untracked.vstring('drop *', 'keep *_MEtoEDMConverter_*_*'),
+     fileName = cms.untracked.string("HcalValHarvestingEDM.root")
+)
+
 
 process.hcalDigiAnalyzer = cms.EDAnalyzer("HcalDigiTester",
     digiLabel = cms.InputTag("hcalDigis"),
@@ -59,13 +68,15 @@ process.hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
     mc = cms.untracked.string('yes'),
     sign = cms.untracked.string('*'),
     hcalselector = cms.untracked.string('noise'),
-    ecalselector = cms.untracked.string('no')
+    ecalselector = cms.untracked.string('no'),
+    useAllHistos              = cms.untracked.bool(True) 
 )
 
 process.hcalTowerAnalyzer = cms.EDAnalyzer("CaloTowersValidation",
     outputFile = cms.untracked.string('CaloTowersValidation.root'),
     CaloTowerCollectionLabel = cms.untracked.InputTag('towerMaker'),
-    hcalselector = cms.untracked.string('all')
+    hcalselector = cms.untracked.string('all'),
+    useAllHistos             = cms.untracked.bool(True) 
 )
 
 #------------------------------------
@@ -103,6 +114,24 @@ process.ecalPreshowerDigis.sourceTag = 'rawDataCollector'
 # RecoLocalCalo.Configuration.ecalLocalRecoSequence_cff
 # RecoLocalCalo.Configuration.hcalLocalReco_cff
 
+#------------------------------------------------ processing
+
+process.load('Configuration/StandardSequences/EDMtoMEAtRunEnd_cff')
+process.dqmSaver.referenceHandling = cms.untracked.string('all')
+
+cmssw_version = os.environ.get('CMSSW_VERSION','CMSSW_X_Y_Z')
+Workflow = '/HcalValidation/'+'Harvesting/'+str(cmssw_version)
+process.dqmSaver.workflow = Workflow
+
+process.calotowersClient = cms.EDAnalyzer("CaloTowersClient", 
+     outputFile = cms.untracked.string('CaloTowersHarvestingME.root'),
+     DQMDirName = cms.string("/") # root directory
+)
+
+process.hcalrechitsClient = cms.EDAnalyzer("HcalRecHitsClient", 
+     outputFile = cms.untracked.string('HcalRecHitsHarvestingME.root'),
+     DQMDirName = cms.string("/") # root directory
+)
 
 process.g4SimHits.Generator.HepMCProductLabel = 'generator'
 process.p = cms.Path(
@@ -121,5 +150,7 @@ process.p = cms.Path(
  process.caloTowersRec *
  process.hcalDigiAnalyzer *
  process.hcalTowerAnalyzer *
- process.hcalRecoAnalyzer 
-)
+ process.hcalRecoAnalyzer *
+ process.calotowersClient * 
+ process.hcalrechitsClient * 
+ process.dqmSaver)
