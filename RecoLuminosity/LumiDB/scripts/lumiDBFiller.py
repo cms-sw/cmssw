@@ -5,7 +5,7 @@ import commands
 
 def isCollisionRun(run):
     itIs = False
-    command = 'dumpRunInfo.py -c oracle://cms_omds_lb/cms_runinfo -P /nfshome0/hcallumipro  -r '+run+' --collision-only hltkey | wc'
+    command = 'dumpRunInfo.py -c oracle://cms_omds_lb/cms_runinfo -P /nfshome0/hcallumipro  -r '+run+' --collision-only l1key | wc'
     statusAndOutput = commands.getstatusoutput(command)
     if statusAndOutput[1].split('   ')[2] == '2': itIs = True
     return itIs
