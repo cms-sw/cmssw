@@ -17,14 +17,16 @@ classByHitsTM = cms.EDProducer("MuonMCClassifier",
     #associatorLabel = cms.string("muonAssociatorByHits"),            # RAW+RECO
 )
 classByHitsGlb = classByHitsTM.clone(trackType = "global")
+classByHitsSta = classByHitsTM.clone(trackType = "outer")
 
 muonClassificationByHits = cms.Sequence(
     mix +
     trackingParticlesNoSimHits +
-    ( classByHitsTM +
-      classByHitsGlb  )
+    ( classByHitsTM  +
+      classByHitsGlb +  
+      classByHitsSta )
 )
-def addUserData(patMuonProducer,labels=['classByHitsGlb', 'classByHitsTM'], extraInfo = False):
+def addUserData(patMuonProducer,labels=['classByHitsGlb', 'classByHitsTM', 'classByHitsSta'], extraInfo = False):
     for label in labels:
         patMuonProducer.userData.userInts.src.append( cms.InputTag(label) )
         if extraInfo:
