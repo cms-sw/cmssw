@@ -5,9 +5,9 @@
  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
  *  using a ratio method
  *
- *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.4 2009/03/06 09:27:50 ferriff Exp $
- *  $Date: 2009/03/06 09:27:50 $
- *  $Revision: 1.4 $
+ *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.5 2009/10/25 23:28:39 franzoni Exp $
+ *  $Date: 2009/10/25 23:28:39 $
+ *  $Revision: 1.5 $
  *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
  */
 
@@ -115,12 +115,17 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::init( const C &dataFrame, const double
           GainId = dataFrame.sample(iSample).gainId();
 
           if (GainId == 1) {
-            sample = double (dataFrame.sample(iSample).adc() - pedestal_);
+            sample      = double (dataFrame.sample(iSample).adc() - pedestal_);
             sampleError = pedestalRMSes[0];
-          } else {
-            sample = (double (dataFrame.sample(iSample).adc() - pedestals[GainId - 1])) *gainRatios[GainId - 1];
+          } else if (GainId == 2 || GainId == 3){
+            sample      = (double (dataFrame.sample(iSample).adc() - pedestals[GainId - 1])) *gainRatios[GainId - 1];
             sampleError = pedestalRMSes[GainId-1]*gainRatios[GainId-1];
-          }
+          } else {
+	    sample      = 1e-9;  // GainId=0 case falls here, from saturation
+	    sampleError = 1e+9;  // inflate error so won't generate ratio considered for the measurement 
+	  }
+
+
           if(sampleError>0){
             amplitudes_.push_back(sample);
             amplitudeErrors_.push_back(sampleError);
