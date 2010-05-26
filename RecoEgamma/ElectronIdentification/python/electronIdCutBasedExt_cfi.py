@@ -5,7 +5,7 @@ eidCutBasedExt = cms.EDProducer("EleIdCutBasedExtProducer",
     src = cms.InputTag("gsfElectrons"),
     reducedBarrelRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     reducedEndcapRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
-    verticesCollection = cms.InputTag("offlinePrimaryVerticesWithBS"),                                
+    verticesCollection = cms.InputTag("offlinePrimaryVerticesWithBS"),
     algorithm = cms.string('eIDCB'),
 
     #electronIDType can be robust or classbased
@@ -14,7 +14,9 @@ eidCutBasedExt = cms.EDProducer("EleIdCutBasedExtProducer",
     electronIDType  = cms.string('robust'),
     electronQuality = cms.string('loose'),
     electronVersion = cms.string(''),
-
+    etBinning = cms.bool(True),
+    additionalCategories = cms.bool(False),
+                                
     # variables H/E sigmaietaieta deltaphiin deltaetain e2x5/e5X5 e1x5/e5x5 isoTk ecalIso hcalIso (barrel/endcap)
     # for the robust (no highenergy in flavor)
     #Robust Loose Cuts

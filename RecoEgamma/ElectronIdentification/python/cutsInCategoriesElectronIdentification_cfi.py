@@ -6,6 +6,8 @@ eidVeryLoose = eidCutBasedExt.clone()
 eidVeryLoose.electronIDType = 'classbased'
 eidVeryLoose.electronQuality = 'veryloose'
 eidVeryLoose.electronVersion = 'V03'
+eidVeryLoose.etBinning = True
+eidVeryLoose.additionalCategories = False
 eidVeryLoose.classbasedverylooseEleIDCutsV03 = cms.PSet(
 cutdcotdist = cms.vdouble(
 3.95e-02, 3.94e-02, 3.98e-02, 3.96e-02, 3.94e-02, 3.92e-02, 3.80e-02, 3.90e-02, 3.98e-02,
@@ -68,6 +70,8 @@ eidLoose = eidCutBasedExt.clone()
 eidLoose.electronIDType = 'classbased'
 eidLoose.electronQuality = 'loose'
 eidLoose.electronVersion = 'V03'
+eidLoose.etBinning = True
+eidLoose.additionalCategories = False
 eidLoose.classbasedlooseEleIDCutsV03 = cms.PSet(
 cutdcotdist = cms.vdouble(
 3.93e-02, 3.92e-02, 3.97e-02, 3.94e-02, 3.93e-02, 3.90e-02, 3.78e-02, 3.88e-02, 3.82e-02,
@@ -130,6 +134,8 @@ eidMedium = eidCutBasedExt.clone()
 eidMedium.electronIDType = 'classbased'
 eidMedium.electronQuality = 'medium'
 eidMedium.electronVersion = 'V03'
+eidMedium.etBinning = True
+eidMedium.additionalCategories = False
 eidMedium.classbasedmediumEleIDCutsV03 = cms.PSet(
 cutdcotdist = cms.vdouble(
 3.93e-02, 2.91e-02, 3.23e-02, 3.94e-02, 3.90e-02, 3.90e-02, 3.75e-02, 3.88e-02, 3.82e-02,
@@ -192,6 +198,8 @@ eidTight = eidCutBasedExt.clone()
 eidTight.electronIDType = 'classbased'
 eidTight.electronQuality = 'tight'
 eidTight.electronVersion = 'V03'
+eidTight.etBinning = True
+eidTight.additionalCategories = False
 eidTight.classbasedtightEleIDCutsV03 = cms.PSet(
 cutdcotdist = cms.vdouble(
 3.93e-02, 2.56e-02, 6.91e-03, 3.94e-02, 3.86e-02, 3.90e-02, 3.25e-02, 3.84e-02, 3.82e-02,
@@ -254,6 +262,8 @@ eidSuperTight = eidCutBasedExt.clone()
 eidSuperTight.electronIDType = 'classbased'
 eidSuperTight.electronQuality = 'supertight'
 eidSuperTight.electronVersion = 'V03'
+eidSuperTight.etBinning = True
+eidSuperTight.additionalCategories = False
 eidSuperTight.classbasedsupertightEleIDCutsV03 = cms.PSet(
 cutdcotdist = cms.vdouble(
 3.44e-02, 2.37e-02, 6.91e-03, 3.93e-02, 3.64e-02, 2.44e-02, 2.85e-02, 3.84e-02, 3.82e-02,
@@ -316,6 +326,8 @@ eidHyperTight1 = eidCutBasedExt.clone()
 eidHyperTight1.electronIDType = 'classbased'
 eidHyperTight1.electronQuality = 'hypertight1'
 eidHyperTight1.electronVersion = 'V03'
+eidHyperTight1.etBinning = True
+eidHyperTight1.additionalCategories = False
 eidHyperTight1.classbasedhypertight1EleIDCutsV03 = cms.PSet(
 cutdcotdist = cms.vdouble(
 2.85e-02, 2.37e-02, 1.93e-04, 3.81e-02, 3.26e-02, 2.14e-02, 2.85e-02, 3.82e-02, 3.82e-02,
@@ -378,6 +390,8 @@ eidHyperTight2 = eidCutBasedExt.clone()
 eidHyperTight2.electronIDType = 'classbased'
 eidHyperTight2.electronQuality = 'hypertight2'
 eidHyperTight2.electronVersion = 'V03'
+eidHyperTight2.etBinning = True
+eidHyperTight2.additionalCategories = False
 eidHyperTight2.classbasedhypertight2EleIDCutsV03 = cms.PSet(
 cutdcotdist = cms.vdouble(
 2.71e-02, 2.37e-02, 6.96e-05, 1.13e-02, 2.00e-02, 1.07e-02, 2.85e-02, 3.81e-02, 3.82e-02,
@@ -440,6 +454,8 @@ eidHyperTight3 = eidCutBasedExt.clone()
 eidHyperTight3.electronIDType = 'classbased'
 eidHyperTight3.electronQuality = 'hypertight3'
 eidHyperTight3.electronVersion = 'V03'
+eidHyperTight3.etBinning = True
+eidHyperTight3.additionalCategories = False
 eidHyperTight3.classbasedhypertight3EleIDCutsV03 = cms.PSet(
 cutdcotdist = cms.vdouble(
 2.28e-02, 2.37e-02, 6.96e-05, 3.15e-04, 2.00e-02, 1.07e-02, 2.85e-02, 3.81e-02, 3.82e-02,
@@ -502,6 +518,8 @@ eidHyperTight4 = eidCutBasedExt.clone()
 eidHyperTight4.electronIDType = 'classbased'
 eidHyperTight4.electronQuality = 'hypertight4'
 eidHyperTight4.electronVersion = 'V03'
+eidHyperTight4.etBinning = True
+eidHyperTight4.additionalCategories = False
 eidHyperTight4.classbasedhypertight4EleIDCutsV03 = cms.PSet(
 cutdcotdist = cms.vdouble(
 6.38e-04, 6.64e-04, 6.96e-05, 8.83e-06, 2.00e-02, 3.05e-03, 2.76e-02, 3.81e-02, 3.82e-02,
