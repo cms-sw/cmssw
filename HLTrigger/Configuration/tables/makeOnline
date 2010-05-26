@@ -5,8 +5,8 @@
 # usage: ./runMe.sh
 #
 
-MASTER="/dev/CMSSW_3_5_5/HLT"                       # no version, take the latest one
-TARGET="/online/collisions/2010/week19/HLT"         # where to store the online-compliant menu
+MASTER="/dev/CMSSW_3_6_0/HLT"                       # no version, take the latest one
+TARGET="/online/collisions/2010/week21/HLT"         # where to store the online-compliant menu
 
 # hltdev
 DBHOST="cmsr1-v.cern.ch"
