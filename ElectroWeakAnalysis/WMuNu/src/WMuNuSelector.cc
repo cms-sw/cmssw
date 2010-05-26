@@ -386,7 +386,10 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
 
       // Select Ws by charge:
 
-      if (selectByCharge_*WMuNu.charge()==-1){ ncharge++;}
+
+      if (selectByCharge_*WMuNu.charge()!=-1){ ncharge++;}
+      else{return 0;}
+
 
 
       // W->mu nu selection criteria
