@@ -429,6 +429,8 @@ class _ValidatingListBase(list):
     """Base class for a list which enforces that its entries pass a 'validity' test"""
     def __init__(self,*arg,**args):        
         super(_ValidatingListBase,self).__init__(arg)
+        if 0 != len(args):
+            raise SyntaxError("named arguments ("+','.join([x for x in args])+") passsed to "+str(type(self)))
         if not self._isValid(iter(self)):
             raise TypeError("wrong types ("+','.join([str(type(value)) for value in iter(self)])+
                             ") added to "+str(type(self)))
