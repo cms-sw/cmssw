@@ -12,8 +12,8 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load('Configuration/StandardSequences/DigiToRaw_cff')
 process.load('Configuration/StandardSequences/RawToDigi_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'MC_3XY_V14::All'
-
+from Configuration.PyReleaseValidation.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['mc']
 process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
 process.load("Configuration.StandardSequences.GeometryECALHCAL_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
@@ -25,14 +25,18 @@ process.DQM.collectorHost = ''
 # Input source
 process.source = cms.Source("PoolSource",
     firstEvent = cms.untracked.uint32(XXXXX),
-    debugFlag = cms.untracked.bool(True),
-    debugVebosity = cms.untracked.uint32(2),
     fileNames = cms.untracked.vstring('file:mc.root')
 )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(2000)
 )
+
+process.FEVT = cms.OutputModule("PoolOutputModule",
+     outputCommands = cms.untracked.vstring('drop *', 'keep *_MEtoEDMConverter_*_*'),
+     fileName = cms.untracked.string("output.root")
+)
+
 
 process.VtxSmeared.SigmaX = 0.00001
 process.VtxSmeared.SigmaY = 0.00001
@@ -48,39 +52,28 @@ process.VtxSmeared.SigmaZ = 0.00001
 #process.simHcalDigis.HFlevel = 9
 
 process.HcalSimHitsAnalyser = cms.EDAnalyzer("HcalSimHitsValidation",
-    outputFile = cms.untracked.string('HcalSimHitsValidation.root'),
+    outputFile = cms.untracked.string('HcalSimHitsValidation.root')
 )   
 
-process.hcalDigiAnalyzer = cms.EDAnalyzer("HcalDigiTester",
-    digiLabel = cms.InputTag("simHcalUnsuppressedDigis"),
-    outputFile = cms.untracked.string('HcalDigisValidationHB.root'),
-    hcalselector = cms.untracked.string('HB'),
-    zside = cms.untracked.string('*')
-)
-
 process.hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
-    outputFile = cms.untracked.string('output.root'),
-    eventype = cms.untracked.string('single'),
-    mc = cms.untracked.string('yes'),
-    sign = cms.untracked.string('*'),
-    hcalselector = cms.untracked.string('all'),
-    ecalselector = cms.untracked.string('yes')
+    outputFile                = cms.untracked.string('HcalRecHitValidationRelVal.root'),
+    HBHERecHitCollectionLabel = cms.untracked.InputTag("hbhereco"),
+    HFRecHitCollectionLabel   = cms.untracked.InputTag("hfreco"),
+    HORecHitCollectionLabel   = cms.untracked.InputTag("horeco"),
+    eventype                  = cms.untracked.string('single'),
+    ecalselector              = cms.untracked.string('yes'),
+    hcalselector              = cms.untracked.string('all'),
+    mc                        = cms.untracked.string('yes')  # default !
 )
 
 process.hcalTowerAnalyzer = cms.EDAnalyzer("CaloTowersValidation",
-    outputFile = cms.untracked.string('CaloTowersValidationHB.root'),
-    CaloTowerCollectionLabel = cms.untracked.string('towerMaker'), # noHO!
-    hcalselector = cms.untracked.string('all')
+    outputFile               = cms.untracked.string('CaloTowersValidationRelVal.root'),
+    CaloTowerCollectionLabel = cms.untracked.InputTag('towerMaker'),
+    
+    hcalselector             = cms.untracked.string('all'),
+    mc                       = cms.untracked.string('yes')  # default!
 )
 
-
-process.FEVT = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('full_output.root'),
-    dataset = cms.untracked.PSet(
-    dataTier = cms.untracked.string('GEN-SIM-RECO'),
-    filterName = cms.untracked.string('')
-    )
-)
 
 ### Special - CaloOnly ------------------------------------
 
@@ -93,7 +86,6 @@ process.ecalPacker.labelEESRFlags = "simEcalDigis:eeSrFlags"
 #
 #- hcalRawData (EventFilter/HcalRawToDigi/python/HcalDigiToRaw_cfi.py
 #                 uses simHcalDigis by default...
-
 
 #--- to force RAW->Digi 
 process.ecalDigis.InputLabel = 'rawDataCollector'
@@ -119,9 +111,9 @@ process.p = cms.Path(
  process.calolocalreco *
  process.caloTowersRec *
  process.HcalSimHitsAnalyser *
+ process.hcalTowerAnalyzer *
  process.hcalRecoAnalyzer *
- process.hcalTowerAnalyzer
+ process.MEtoEDMConverter
 )
 
-### process.outpath = cms.EndPath(process.FEVT)
-
+process.outpath = cms.EndPath(process.FEVT)
