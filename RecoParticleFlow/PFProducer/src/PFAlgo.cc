@@ -160,7 +160,6 @@ PFAlgo::setPFMuonAndFakeParameters(std::vector<double> muonHCAL,
   ptError_ = ptError;
   factors45_ = factors45;
   usePFMuonMomAssign_ = usePFMuonMomAssign;
-  cout<<" usePFMuonMomAssign "<<usePFMuonMomAssign<<endl;
 }
   
 void 
