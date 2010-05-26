@@ -2,10 +2,10 @@
 # using: 
 # Revision: 1.178 
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: reco -s RAW2DIGI,L1Reco,RECO,DQM --data --magField AutoFromDBCurrent --scenario pp --datatier RECO --eventcontent RECO --customise Configuration/GlobalRuns/customise_Collision_36X.py --no_exec --python_filename=rereco_Collision_36X.py --conditions auto:com10
+# with command line options: reco -s RAW2DIGI,L1Reco,RECO,DQM --data --magField AutoFromDBCurrent --scenario pp --datatier RECO --eventcontent RECO --customise Configuration/GlobalRuns/customise_Collision_36X.py --no_exec --python_filename=rereco_Collision_36X.py --conditions auto:com10 --process RERECO
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('RECO')
+process = cms.Process('RERECO')
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -22,7 +22,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.178 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('reco nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
