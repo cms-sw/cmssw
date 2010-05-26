@@ -4,8 +4,11 @@
 
 // print info via MessageLogger
 void
-TtFullHadronicEvent::print()
+TtFullHadronicEvent::print(const int verbosity)
 {
+  if(verbosity<=0)
+    return;
+
   edm::LogInfo log("TtFullHadronicEvent");
 
   log << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ \n";

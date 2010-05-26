@@ -21,6 +21,10 @@ namespace TtSemiLepDaughter{
    provides access and administration.
 */
 
+namespace edm{
+  class LogInfo;
+}
+
 class TtSemiLeptonicEvent: public TtEvent {
   
  public:
@@ -94,7 +98,10 @@ class TtSemiLeptonicEvent: public TtEvent {
 
   /// print full content of the structure as formated 
   /// LogInfo to the MessageLogger output for debugging
-  void print();
+  void print(const int verbosity=1);
+  /// print pt, eta, phi, mass of a given candidate into an existing LogInfo
+  void printParticle(edm::LogInfo &log, const char* name, const reco::Candidate* cand);
+
 };
 
 #endif

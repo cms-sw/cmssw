@@ -4,8 +4,11 @@
 
 // print info via MessageLogger
 void
-TtFullLeptonicEvent::print()
+TtFullLeptonicEvent::print(const int verbosity)
 {
+  if(verbosity<=0)
+    return;
+
   edm::LogInfo log("TtFullLeptonicEvent");
 
   log << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ \n";

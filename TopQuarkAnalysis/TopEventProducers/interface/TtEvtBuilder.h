@@ -45,7 +45,7 @@ class TtEvtBuilder : public edm::EDProducer {
 
  private:
 
-  /// vebosity level (0 and 1 are supported)
+  /// vebosity level
   int verbosity_;
   /// vector of hypothesis class names
   std::vector<std::string> hyps_;
@@ -193,8 +193,7 @@ TtEvtBuilder<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
   }
 
   // print summary via MessageLogger if verbosity_>0
-  if(verbosity_ > 0)
-    event.print();
+  event.print(verbosity_);
 
   // write object to root file 
   std::auto_ptr<C> pOut(new C);
