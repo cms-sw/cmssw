@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.21 2010/05/11 10:52:27 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.22 2010/05/11 12:39:06 amraktad Exp $
 //
 
 // system include files
@@ -20,6 +20,7 @@
 #include "TEveCompound.h"
 #include "TEveCalo.h"
 #include "TGLViewer.h"
+#include "TSystem.h"
 
 // common
 #include "Fireworks/Core/interface/FWEveViewManager.h"
@@ -477,6 +478,8 @@ FWEveViewManager::itemChanged(const FWEventItem* item)
 void
 FWEveViewManager::removeItem(const FWEventItem* item)
 {
+   gEve->GetSelection()->Disconnect("SelectionCleared()", this, "selectionCleared()");
+
    for ( std::map<int, BuilderVec>::iterator i = m_builders.begin(); i!=  m_builders.end(); ++i)
    {
       BuilderVec_it bIt = i->second.begin();
@@ -500,7 +503,10 @@ FWEveViewManager::removeItem(const FWEventItem* item)
    {
       delete it->second;
       m_interactionLists.erase(it);
-   }  
+   }
+
+   gSystem->ProcessEvents();
+   gEve->GetSelection()->Connect("SelectionCleared()","FWEveViewManager",this,"selectionCleared()");
 }
 
 void
