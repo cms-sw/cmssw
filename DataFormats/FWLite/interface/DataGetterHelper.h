@@ -16,7 +16,7 @@
 //
 // Original Author: Eric Vaandering
 //         Created:  Fri Jan 29 12:45:17 CST 2010
-// $Id: DataGetterHelper.h,v 1.4 2010/03/04 02:47:09 dsr Exp $
+// $Id: DataGetterHelper.h,v 1.5 2010/03/23 16:19:21 chrjones Exp $
 //
 
 #if !defined(__CINT__) && !defined(__MAKECINT__)
@@ -98,7 +98,7 @@ namespace fwlite {
             mutable std::map<edm::ProductID,boost::shared_ptr<internal::Data> > idToData_;
             boost::shared_ptr<fwlite::HistoryGetterBase> historyGetter_;
             boost::shared_ptr<edm::EDProductGetter> getter_;
-            mutable TTreeCache* tcache_;
+            mutable std::auto_ptr<TTreeCache> tcache_;
             mutable bool tcTrained_;
     };
 

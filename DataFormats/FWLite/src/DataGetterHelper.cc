@@ -8,7 +8,7 @@
 //
 // Original Author: Eric Vaandering
 //         Created:  Fri Jan 29 11:58:01 CST 2010
-// $Id: DataGetterHelper.cc,v 1.3 2010/03/04 02:47:09 dsr Exp $
+// $Id: DataGetterHelper.cc,v 1.4 2010/05/10 20:13:23 chrjones Exp $
 //
 
 // system include files
@@ -44,6 +44,10 @@ namespace fwlite {
     // constants, enums and typedefs
     //
 
+    //
+    // DataGetterHelper takes ownership of the TTreeCache, so make use of it by
+    // the file exception safe
+    //
     class withTCache {
     public:
         withTCache(TFile* file, TTreeCache* tc) : f_(file) { f_->SetCacheRead(tc); }
@@ -80,7 +84,7 @@ namespace fwlite {
         if (useCache) {
             tree_->SetCacheSize(TTCACHE_SIZE);
             TFile* iFile(branchMap_->getFile());
-            tcache_ = dynamic_cast<TTreeCache*>(iFile->GetCacheRead());
+            tcache_.reset(dynamic_cast<TTreeCache*>(iFile->GetCacheRead()));
             iFile->SetCacheRead(0);
             //std::cout << "In const " << iFile << " " << tcache_ << " " << iFile->GetCacheRead() << std::endl;
         }
@@ -91,7 +95,7 @@ namespace fwlite {
     //    // do actual copying here;
     // }
 
-    DataGetterHelper::~DataGetterHelper() { }
+    DataGetterHelper::~DataGetterHelper() {    }
 
     //
     // assignment operators
@@ -152,7 +156,7 @@ namespace fwlite {
         obj.Destruct();
         //END OF WORK AROUND
 
-        if (0 == tcache_) {
+        if (0 == tcache_.get()) {
             iData.branch_->GetEntry(index);
         } else {
             if (!tcTrained_) {
@@ -160,7 +164,7 @@ namespace fwlite {
                 tcache_->SetEntryRange(0, tree_->GetEntries());
                 tcTrained_ = true;
             }
-            withTCache tcguard(branchMap_->getFile(), tcache_);
+            withTCache tcguard(branchMap_->getFile(), tcache_.get());
             tree_->LoadTree(index);
             iData.branch_->GetEntry(index);
        }
