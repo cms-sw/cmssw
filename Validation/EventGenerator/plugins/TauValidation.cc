@@ -2,7 +2,7 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2010/05/18 15:34:49 $
+ *  $Date: 2010/04/28 18:48:40 $
  *  $Revision: 1.1 $
  */
  
@@ -18,7 +18,8 @@
 using namespace edm;
 
 TauValidation::TauValidation(const edm::ParameterSet& iPSet):  
-  hepmcCollection_(iPSet.getParameter<edm::InputTag>("hepmcCollection"))
+  hepmcCollection_(iPSet.getParameter<edm::InputTag>("hepmcCollection")),
+  tauEtCut(iPSet.getParameter<double>("tauEtCutForRtau"))
 {    
   dbe = 0;
   dbe = edm::Service<DQMStore>().operator->();
@@ -39,6 +40,7 @@ void TauValidation::beginJob()
     	TauDecayChannels->setBinLabel(1+electron,"e");
     	TauDecayChannels->setBinLabel(1+muon,"mu");
     	TauDecayChannels->setBinLabel(1+pi,"#pi^{#pm}");
+	TauDecayChannels->setBinLabel(1+pi1pi0,"#pi^{#pm}#pi^{0}");
     	TauDecayChannels->setBinLabel(1+pinpi0,"#pi^{#pm}n#pi^{0}");
     	TauDecayChannels->setBinLabel(1+tripi,"3#pi^{#pm}");
     	TauDecayChannels->setBinLabel(1+tripinpi0,"3#pi^{#pm}n#pi^{0}");
@@ -181,7 +183,8 @@ int TauValidation::tauDecayChannel(const HepMC::GenParticle* tau){
 	}
 
 	if(piCount == 1 && pi0Count == 0) channel = pi;
-        if(piCount == 1 && pi0Count > 0)  channel = pinpi0;
+	if(piCount == 1 && pi0Count == 1)  channel = pi1pi0;
+        if(piCount == 1 && pi0Count > 1)  channel = pinpi0;
 
         if(piCount == 3 && pi0Count == 0) channel = tripi;
         if(piCount == 3 && pi0Count > 0)  channel = tripinpi0;
@@ -195,7 +198,9 @@ int TauValidation::tauDecayChannel(const HepMC::GenParticle* tau){
 
 void TauValidation::rtau(const HepMC::GenParticle* tau,int mother, int decay){
 
-	if(decay != pi) return; // polarization only for 1-prong hadronic taus with no neutral pions
+	if(decay != pi1pi0) return; // polarization only for 1-prong hadronic taus with one neutral pion to make a clean case
+
+	if(tau->momentum().perp() < tauEtCut) return; // rtau visible only for boosted taus
 	
 	double rTau = 0;
 	double ltrack = leadingPionMomentum(tau);

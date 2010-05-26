@@ -5,7 +5,7 @@
  *  
  *  Class to fill Event Generator dqm monitor elements; works on HepMCProduct
  *
- *  $Date: 2010/05/18 15:34:46 $
+ *  $Date: 2010/04/28 18:48:40 $
  *  $Revision: 1.1 $
  *
  */
@@ -40,6 +40,7 @@ class TauValidation : public edm::EDAnalyzer
                muon,
                pi,
                K,
+	       pi1pi0,
                pinpi0,
                tripi,
                tripinpi0};
@@ -74,6 +75,8 @@ class TauValidation : public edm::EDAnalyzer
 	TLorentzVector motherP4(const HepMC::GenParticle*);
 
     	edm::InputTag hepmcCollection_;
+
+	double tauEtCut;
 
   	/// PDT table
   	edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable ;
