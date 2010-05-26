@@ -5,5 +5,8 @@ function die { echo $1: status $2 ;  exit $2; }
 
 for file in ${CMSSW_BASE}/src/FWCore/ParameterSet/python/*.py
 do
-  python "$file" || die 'unit tests for $file failed' $?
+  bn=`basename $file`
+  if [ "$bn" != "__init__.py" ]; then
+     python "$file" || die 'unit tests for $file failed' $?
+  fi
 done
