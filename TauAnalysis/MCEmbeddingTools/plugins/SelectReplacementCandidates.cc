@@ -88,7 +88,7 @@ int SelectReplacementCandidates::determineMuonsToUse(const edm::Event& iEvent, c
 	  std::cout << "Objekt nicht gefunden: dimuonsGloal\n";
 	  return -1;
 	}
-	std::cout << zCandidate_handle->size() << " Kandidaten gefunden!\n";
+//	std::cout << zCandidate_handle->size() << " Kandidaten gefunden!\n";
 
 	uint nMuons = zCandidate_handle->size();
 	if (nMuons==0)

@@ -13,7 +13,7 @@
 //
 // Original Author:  Manuel Zeise
 //         Created:  Wed Oct 17 10:06:52 CEST 2007
-// $Id: EmptyEventsFilter.cc,v 1.3 2010/04/21 14:47:23 fruboes Exp $
+// $Id: EmptyEventsFilter.cc,v 1.4 2010/05/21 07:52:36 veelken Exp $
 //
 //
 
@@ -104,7 +104,7 @@ EmptyEventsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 			std::vector< Handle<edm::HepMCProduct> > dataHandles ;
 			iEvent.getManyByType( dataHandles ) ;
 			num = dataHandles.size();
-	  	cout << dataHandles.size() << " Produkte gefunden ******************* ^_^ ***\n";
+ //	  	cout << dataHandles.size() << " Produkte gefunden ******************* ^_^ ***\n";
 			break;
 		}
 		case 0:
@@ -113,7 +113,7 @@ EmptyEventsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 			std::vector< Handle<std::vector<reco::Muon> >  > dataHandles;
 			iEvent.getManyByType( dataHandles ) ;
 			num = dataHandles.size();
-	  	cout << dataHandles.size() << " Produkte gefunden ******************* ^_^ ***\n";
+	//  	cout << dataHandles.size() << " Produkte gefunden ******************* ^_^ ***\n";
 		}
 	}
 

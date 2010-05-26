@@ -56,7 +56,8 @@ process.newSource.ZTauTau.minVisibleTransverseMomentum = cms.untracked.double(0)
 
 process.source = cms.Source("PoolSource",
         skipEvents = cms.untracked.uint32(0),
-        fileNames = cms.untracked.vstring('file:/tmp/fruboes/OneFileFromEmbSkim/patLayer1_fromAOD_PF2PAT_full_9_2.root')
+#        fileNames = cms.untracked.vstring('file:/tmp/fruboes/Zmumu/CC467FDE-3F83-DE11-8605-001E4F1BC725.root')
+        fileNames = cms.untracked.vstring('file:/tmp/fruboes/Zmumu/patLayer1_fromAOD_PF2PAT_full_1.root')
 )
 
 process.load("Configuration.EventContent.EventContent_cff")
@@ -74,8 +75,8 @@ process.OUTPUT = cms.OutputModule("PoolOutputModule",
 #         "keep recoMuons_*_*_*"
 #         ),
         SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('p1')),
-        fileName = cms.untracked.string('file:zMuMuEmbed_output.root')
-#         fileName = cms.untracked.string('/tmp/fruboes/Zmumu/zMuMuEmbed_output.root')
+#        fileName = cms.untracked.string('file:zMuMuEmbed_output.root')
+         fileName = cms.untracked.string('/tmp/fruboes/Zmumu/zMuMuEmbed_output.root')
 )
 
 
@@ -85,11 +86,6 @@ process.dump = cms.EDAnalyzer("PrintGenMuons")
 #    _ptMin(iConfig.getUntrackedParameter<double>("ptMin")),
 #    _pfColl(iConfig.getUntrackedParameter<edm::InputTag>("pfCol"))
 
-process.filter = cms.EDFilter("SelectZmumuevents",
-    etaMax = cms.untracked.double(2.2),
-    ptMin = cms.untracked.double(10),
-    pfCol = cms.untracked.InputTag("particleFlow")
-)
 
 #process.raw2digi_step = cms.Path(process.RawToDigi)
 #process.reconstruction_step = cms.Path(process.reconstruction)
