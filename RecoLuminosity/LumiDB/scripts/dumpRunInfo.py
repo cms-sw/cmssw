@@ -12,6 +12,7 @@ class constants(object):
         self.runinfoschema='CMS_RUNINFO'
         self.runsessionparameterTable='RUNSESSION_PARAMETER'
         self.hltconfname='CMS.LVL0:HLT_KEY_DESCRIPTION'
+        self.tsckeyname='CMS.TRG:TSC_KEY'
         
 def hltkeyForRun(dbsession,c,runnum):
     '''
@@ -57,14 +58,59 @@ def hltkeyForRun(dbsession,c,runnum):
         print str(e)
         dbsession.transaction().rollback()
         del dbsession
-    
+        
+def l1keyForRun(dbsession,c,runnum):
+    '''
+    select runnumber,string_value from cms_runinfo.runsession_parameter where name=:runsessionparametername and runnumber=:runnum 
+    '''
+    result={}
+    try:
+        dbsession.transaction().start(True)
+        schema=dbsession.schema(c.runinfoschema)
+        if not schema:
+            raise Exception, 'cannot connect to schema '+c.runinfoschema
+        if not schema.existsTable(c.runsessionparameterTable):
+            raise Exception, 'non-existing table '+c.runsessionparameterTable
+
+        l1keyOutput=coral.AttributeList()
+        l1keyOutput.extend("runnum","unsigned int")
+        l1keyOutput.extend("l1key","string")
+        
+        bindVarList=coral.AttributeList()
+        bindVarList.extend("name","string")
+        bindVarList.extend("runnumber","unsigned int")
+
+        bindVarList["name"].setData(c.tsckeyname)
+        bindVarList["runnumber"].setData(int(runnum))
+        
+        query=schema.newQuery()
+        query.addToTableList(c.runsessionparameterTable)
+        query.addToOutputList('RUNNUMBER','runnumber')
+        query.addToOutputList('STRING_VALUE','value')
+        query.setCondition('NAME=:name AND RUNNUMBER=:runnumber',bindVarList)
+        query.defineOutput(l1keyOutput)
+        
+        cursor=query.execute()
+        while cursor.next():
+            runnum=cursor.currentRow()['runnum'].data()
+            l1key=cursor.currentRow()['l1key'].data()
+            result[runnum]=l1key
+        del query
+        dbsession.transaction().commit()
+        #print result
+        return result
+    except Exception,e:
+        print str(e)
+        dbsession.transaction().rollback()
+        del dbsession
+        
 def main():
     c=constants()
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description="Dump Run info")
     parser.add_argument('-c',dest='connect',action='store',required=True,help='connect string to trigger DB(required)')
     parser.add_argument('-P',dest='authpath',action='store',required=True,help='path to authentication file')
     parser.add_argument('-r',dest='runnumber',action='store',required=True,help='run number')
-    parser.add_argument('action',choices=['hltkey'],help='dump hltconf key')
+    parser.add_argument('action',choices=['hltkey','l1key'],help='information to show')
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
     parser.add_argument('--collision-only',dest='collisiononly',action='store_true',help='return only collision runs')
     args=parser.parse_args()
@@ -88,7 +134,16 @@ def main():
             if not args.collisiononly:
                 print runnum,hltkey
             if args.collisiononly and re.match(p,hltkey):
-                print runnum,hltkey                               
+                print runnum,hltkey
+    if args.action == 'l1key':
+        p=re.compile(r'^TSC_.+_collisions_.+')
+        result=l1keyForRun(session,c,runnumber)
+        print 'runnumber tsc_key'
+        for runnum,l1key in result.items():
+            if not args.collisiononly:
+                print runnum,l1key
+            if args.collisiononly and re.match(p,l1key):
+                print runnum,l1key
     del session
     del svc
         
