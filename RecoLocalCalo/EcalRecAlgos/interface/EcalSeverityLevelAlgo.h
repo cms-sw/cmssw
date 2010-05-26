@@ -28,7 +28,7 @@ class EcalSeverityLevelAlgo {
                                           float recHitEtThreshold = 5.,
                                           SpikeId spId = kSwissCross,
                                           float spIdThreshold = 0.95,
-					  float recHitEnergyThresholdForTiming = -999.
+					  float recHitEnergyThresholdForTiming = 2.
                                           );
 
                 /** return the estimator of the signal being a spike
