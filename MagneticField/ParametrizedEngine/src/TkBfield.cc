@@ -24,8 +24,8 @@ TkBfield::TkBfield(std::string fld) {
   if (fld=="4_0T") for (int i=0; i<9; i++) prm[i]=p5[i];
   //  cout<<std::endl<<"Instantiation of TkBfield with key "<<fld<<endl;
   if (!prm[0]) {
-    throw cms::Exception("BadParameters") << "Undefined key - " // abort!"<<endl;
-    <<"Defined keys are: \"2_0T\" \"3_0T\" \"3_5T\" \"3_8T\" and \"4_0T\""<<endl;
+    throw cms::Exception("BadParameters") << "Undefined key - " // abort!\n";
+    <<"Defined keys are: \"2_0T\" \"3_0T\" \"3_5T\" \"3_8T\" and \"4_0T\"\n";
     // exit(1);
   }
   ap2=4*prm[0]*prm[0]/(prm[1]*prm[1]);  
@@ -74,8 +74,6 @@ void  TkBfield::Bcyl(double r, double z, double * __restrict__ Bw)  const{
 			); // double Gaussian
   Bw[0]+=corBr;
   Bw[2]+=corBz;
-  //   } else {
-  //     cout <<"TkBfield: The point is outside the region r<1.15m && |z|<2.8m"<<endl;
 }
 
 #else
