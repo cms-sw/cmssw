@@ -11,7 +11,7 @@ process.DQM.collectorHost = ''
 process.dqmSaver.workflow = cms.untracked.string('/Physics/TopSingleLeptonDQM/DataSet')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(10000)
 )
 
 process.source = cms.Source(
@@ -45,7 +45,10 @@ process.MessageLogger.cerr.TopDiLeptonOfflineDQM = cms.untracked.PSet(limit = cm
 #process.content = cms.EDAnalyzer("EventContentAnalyzer")
 
 process.p = cms.Path(#process.content *
+                     process.topSingleMuonMediumDQM +
+                     process.topSingleElectronMediumDQM +
                      process.topSingleMuonLooseDQM +
+                     process.topSingleElectronLooseDQM +
                      process.topDiLeptonOfflineDQM +
                      process.topSingleLeptonDQM +
                      process.dqmSaver
