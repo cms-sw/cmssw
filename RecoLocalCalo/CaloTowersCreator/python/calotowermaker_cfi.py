@@ -99,7 +99,7 @@ calotowermaker = cms.EDProducer("CaloTowersCreator",
 # 
     # acceptable severity level
     HcalAcceptSeverityLevel = cms.uint32(9),
-    EcalAcceptSeverityLevel = cms.uint32(1),
+    EcalAcceptSeverityLevel = cms.uint32(3),
        
     # use of recovered hits
     UseHcalRecoveredHits = cms.bool(True),
