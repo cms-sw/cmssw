@@ -10,8 +10,6 @@
 
 #include "CondFormats/EcalObjects/interface/EcalDAQTowerStatus.h"
 #include "CondFormats/DataRecord/interface/EcalDAQTowerStatusRcd.h"
-#include "CondFormats/RunInfo/interface/RunSummary.h"
-#include "CondFormats/RunInfo/interface/RunInfo.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
