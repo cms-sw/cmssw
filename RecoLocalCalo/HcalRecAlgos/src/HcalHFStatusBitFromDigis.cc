@@ -137,7 +137,7 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
 	  for (unsigned int i=0;i<HFlongwindowMinTime_.size();++i)
 	    {
 	      mintime+=HFlongwindowMinTime_[i]*enPow;
-	      maxtime+=HFlongwindowMinTime_[i]*enPow;
+	      maxtime+=HFlongwindowMaxTime_[i]*enPow;
 	      enPow*=mult;
 	    }
 	  if (hf.time()<mintime || hf.time()>maxtime)
@@ -155,7 +155,7 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
 	  for (unsigned int i=0;i<HFshortwindowMinTime_.size();++i)
 	    {
 	      mintime+=HFshortwindowMinTime_[i]*enPow;
-	      maxtime+=HFshortwindowMinTime_[i]*enPow;
+	      maxtime+=HFshortwindowMaxTime_[i]*enPow;
 	      enPow*=mult;
 	    }
 	  if (hf.time()<mintime || hf.time()>maxtime)
