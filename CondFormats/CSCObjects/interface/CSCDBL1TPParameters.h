@@ -78,27 +78,27 @@ class CSCDBL1TPParameters
   inline unsigned int clctMinSeparation() const {return m_clct_min_separation;}
 
   /** returns TMB mpc_block_me1a */
-  inline unsigned int tmbMpcBlockMe1a() const {return m_tmb_mpc_block_me1a;}
+  inline unsigned int tmbMpcBlockMe1a() const {return m_mpc_block_me1a;}
 
   /** returns TMB alct_trig_enable */
   inline unsigned int tmbAlctTrigEnable() const
-                                           {return m_tmb_alct_trig_enable;}
+                                           {return m_alct_trig_enable;}
 
   /** returns TMB clct_trig_enable */
   inline unsigned int tmbClctTrigEnable() const
-                                           {return m_tmb_clct_trig_enable;}
+                                           {return m_clct_trig_enable;}
 
   /** returns TMB match_trig_enable */
   inline unsigned int tmbMatchTrigEnable() const
-                                           {return m_tmb_match_trig_enable;}
+                                           {return m_match_trig_enable;}
 
   /** returns TMB match_trig_window_size */
   inline unsigned int tmbMatchTrigWindowSize() const
-                                         {return m_tmb_match_trig_window_size;}
+                                         {return m_match_trig_window_size;}
 
   /** returns TMB tmb_l1a_window_size */
   inline unsigned int tmbTmbL1aWindowSize() const
-                                           {return m_tmb_tmb_l1a_window_size;}
+                                           {return m_tmb_l1a_window_size;}
 
   /** sets ALCT fifo_tbins */
   void setAlctFifoTbins(const unsigned int theValue) {
@@ -192,32 +192,32 @@ class CSCDBL1TPParameters
 
   /** sets TMB mpc_block_me1a */
   void setTmbMpcBlockMe1a(const unsigned int theValue) {
-    m_tmb_mpc_block_me1a = theValue;
+    m_mpc_block_me1a = theValue;
   }
 
   /** sets TMB alct_trig_enable */
   void setTmbAlctTrigEnable(const unsigned int theValue) {
-    m_tmb_alct_trig_enable = theValue;
+    m_alct_trig_enable = theValue;
   }
 
   /** sets TMB clct_trig_enable */
   void setTmbClctTrigEnable(const unsigned int theValue) {
-    m_tmb_clct_trig_enable = theValue;
+    m_clct_trig_enable = theValue;
   }
 
   /** sets TMB match_trig_enable */
   void setTmbMatchTrigEnable(const unsigned int theValue) {
-    m_tmb_match_trig_enable = theValue;
+    m_match_trig_enable = theValue;
   }
 
   /** sets TMB match_trig_window_size */
   void setTmbMatchTrigWindowSize(const unsigned int theValue) {
-    m_tmb_match_trig_window_size = theValue;
+    m_match_trig_window_size = theValue;
   }
 
   /** sets TMB tmb_l1a_window_size */
   void setTmbTmbL1aWindowSize(const unsigned int theValue) {
-    m_tmb_tmb_l1a_window_size = theValue;
+    m_tmb_l1a_window_size = theValue;
   }
 
  private:
@@ -236,10 +236,10 @@ class CSCDBL1TPParameters
   unsigned int m_clct_min_separation;
 
   /** TMB configuration parameters. */
-  unsigned int m_tmb_mpc_block_me1a;
-  unsigned int m_tmb_alct_trig_enable, m_tmb_clct_trig_enable;
-  unsigned int m_tmb_match_trig_enable;
-  unsigned int m_tmb_match_trig_window_size, m_tmb_tmb_l1a_window_size;
+  unsigned int m_mpc_block_me1a;
+  unsigned int m_alct_trig_enable, m_clct_trig_enable;
+  unsigned int m_match_trig_enable;
+  unsigned int m_match_trig_window_size, m_tmb_l1a_window_size;
 };
 
 #endif
