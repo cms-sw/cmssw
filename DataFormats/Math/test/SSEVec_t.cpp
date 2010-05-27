@@ -118,6 +118,7 @@ void go2d() {
 
   std::cout << 3.*x2 << std::endl;
   std::cout << y2*0.1 << std::endl;
+  std::cout << mathSSE::sqrt(x2) << std::endl;
 
 
   std::cout << dot(x2,y2) << " = 2?"<< std::endl; 
@@ -125,6 +126,9 @@ void go2d() {
 
   double z = cross(x2,y2);
   std::cout << z  << " = 16?" << std::endl;
+
+  std::cout <<  mathSSE::sqrt(z)  << " = 4?" << std::endl;
+
 }
 
 template<typename T> 
@@ -143,6 +147,7 @@ void go() {
   std::cout << y << std::endl;
   std::cout << 3.*x << std::endl;
   std::cout << y*0.1 << std::endl;
+  std::cout <<  mathSSE::sqrt(x) << std::endl;
 
 
   std::cout << dot(x,y) << std::endl; 

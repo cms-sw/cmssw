@@ -383,6 +383,16 @@ inline mathSSE::Vec3D cross(mathSSE::Vec3D a, mathSSE::Vec3D b) {
 
 
 
+// sqrt
+namespace mathSSE {
+  template<typename T> inline T sqrt(T t) { return std::sqrt(t);}
+  template<> inline Vec3F operator*(Vec3F v) { return _mm_sqrt_ps(v.vec);}
+  template<> inline Vec2D operator*(Vec2D v) { return _mm_sqrt_pd(v.vec);}
+  template<> inline Vec3D operator*(Vec3D v) { 
+    return Vec3D(_mm_sqrt_pd(v.vec[0]),_mm_sqrt_pd(v.vec[1]));
+  }
+}
+
 
 #include <iosfwd>
 std::ostream & operator<<(std::ostream & out, mathSSE::Vec2D const & v);
