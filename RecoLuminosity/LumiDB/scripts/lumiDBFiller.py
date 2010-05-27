@@ -63,6 +63,7 @@ def main():
         # filling the DB
         command = '$LOCALRT/test/$SCRAM_ARCH/loadLumiDB '+run+' "file:/dropbox/hcallumipro/'+runsToBeAnalyzed[run]+'"'
         statusAndOutput = commands.getstatusoutput(command)
+        logFile.write(command+'\n')
         logFile.write(statusAndOutput[1])
         if not statusAndOutput[0] == 0:
             print 'ERROR while loading info onto DB for run ' + run
@@ -71,6 +72,7 @@ def main():
         # applying normalization
         command = 'applyCalibration.py -c '+args.connect+' -norm '+ args.normalization +' -r '+run+' -P /nfshome0/hcallumipro/ run'
         statusAndOutput = commands.getstatusoutput(command)
+        logFile.write(command+'\n')
         logFile.write(statusAndOutput[1])
         logFile.close()
         if not statusAndOutput[0] == 0:
