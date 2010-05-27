@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.27 2010/05/27 08:39:34 eulisse Exp $
+// $Id: FWEventItemsManager.cc,v 1.28 2010/05/27 08:45:00 eulisse Exp $
 //
 
 // system include files
@@ -126,13 +126,15 @@ FWEventItemsManager::newEvent(const fwlite::Event* iEvent)
 void
 FWEventItemsManager::clearItems(void)
 {
-   goingToClearItems_();
    for (size_t i = 0, e = m_items.size(); i != e; ++i)
    {
       FWEventItem *item = m_items[i];
-      if (item)
+      if (item) {
          item->destroy();
+      }
+      m_items[i]=0;
    }
+   goingToClearItems_();
 
    m_items.clear();
 }
