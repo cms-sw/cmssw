@@ -51,11 +51,36 @@ process.TFileService = cms.Service("TFileService",
         fileName = cms.string('tfile_out.root')
 )
 
+#Used for MC (Skimmed) or Data Sample
 process.p = cms.Path(process.HSCParticleProducerSeq + process.HSCPTreeBuilder)
 
+#Used for Signal Sample
+#process.p = cms.Path(process.genParticles + process.exoticaHSCPSeq + process.HSCParticleProducerSeq + process.HSCPTreeBuilder)
+
+
 process.OUT = cms.OutputModule("PoolOutputModule",
-    outputCommands = cms.untracked.vstring("drop *", "keep *_*_*_EXOHSCPAnalysis"),
-    fileName = cms.untracked.string('out.root')
+     outputCommands = cms.untracked.vstring(
+         "drop *",
+         "keep *_genParticles_*_*",
+         "keep *_offlinePrimaryVertices_*_*",
+         "keep *_csc2DRecHits_*_*",
+         "keep *_cscSegments_*_*",
+         "keep *_dt1DRecHits_*_*",
+         "keep *_rpcRecHits_*_*",
+         "keep *_dt4DSegments_*_*",
+         "keep SiStripClusteredmNewDetSetVector_generalTracksSkim_*_*",
+         "keep SiPixelClusteredmNewDetSetVector_generalTracksSkim_*_*",
+         "keep *_reducedHSCPhbhereco_*_*",
+         "keep *_reducedHSCPEcalRecHitsEB_*_*",
+         "keep *_TrackRefitter_*_*",
+         "keep *_standAloneMuons_*_*",
+         "keep *_globalMuons_*_*",
+         "keep *_muonsSkim_*_*",
+         "keep L1GlobalTriggerReadoutRecord_gtDigis_*_*",
+         "keep edmTriggerResults_TriggerResults_*_*",
+         "keep *_HSCParticleProducer_*_*",
+    ),
+    fileName = cms.untracked.string('HSCP.root')
 )
 
 process.endPath = cms.EndPath(process.OUT)
