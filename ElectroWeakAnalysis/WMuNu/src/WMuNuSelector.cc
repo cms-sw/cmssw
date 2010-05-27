@@ -280,7 +280,6 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
       // Trigger
       Handle<TriggerResults> triggerResults;
       if (!ev.getByLabel(trigTag_, triggerResults)) {
-            cout<<" Hey"<<endl;
             LogError("") << ">>> TRIGGER collection does not exist !!!";
             return 0;
       }
