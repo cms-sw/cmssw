@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.23 2010/05/26 11:21:38 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.24 2010/05/26 17:47:25 amraktad Exp $
 //
 
 // system include files
@@ -48,6 +48,23 @@
 
 class DetIdToMatrix;
 class FWViewContext;
+
+// sentry class block TEveSelection signals when call TEveSelection::Remove/AddElement and
+// when process its callbacks
+class EveSelectionSentry {
+public:
+   EveSelectionSentry()
+   {
+      m_blocked = gEve->GetSelection()->BlockSignals(true);
+   }
+   ~EveSelectionSentry()
+   {
+     gEve->GetSelection()->BlockSignals(m_blocked);
+   }
+private:
+   bool m_blocked;
+};
+
 //
 //
 // constants, enums and typedefs
@@ -437,6 +454,8 @@ FWEveViewManager::modelChanges(const FWModelIds& iIds)
 
    if (itemHaveWindow)
    {
+      EveSelectionSentry();
+
       std::map<const FWEventItem*, FWInteractionList*>::iterator it =  m_interactionLists.find(item);
       if (it != m_interactionLists.end())
       {
@@ -478,7 +497,8 @@ FWEveViewManager::itemChanged(const FWEventItem* item)
 void
 FWEveViewManager::removeItem(const FWEventItem* item)
 {
-   bool last = gEve->GetSelection()->BlockSignals(kTRUE);
+   EveSelectionSentry();
+
    for ( std::map<int, BuilderVec>::iterator i = m_builders.begin(); i!=  m_builders.end(); ++i)
    {
       BuilderVec_it bIt = i->second.begin();
@@ -503,8 +523,6 @@ FWEveViewManager::removeItem(const FWEventItem* item)
       delete it->second;
       m_interactionLists.erase(it);
    }
-
-   gEve->GetSelection()->BlockSignals(last);
 }
 
 void
@@ -550,10 +568,9 @@ FWEveViewManager::selectionAdded(TEveElement* iElement)
       if(0 != userData) {
          //std::cout <<"    have userData"<<std::endl;
          //std::cout <<"      calo"<<std::endl;
-         bool last = gEve->GetSelection()->BlockSignals(kTRUE);
+         EveSelectionSentry();
          FWFromEveSelectorBase* base = reinterpret_cast<FWFromEveSelectorBase*> (userData);
          base->doSelect();
-         gEve->GetSelection()->BlockSignals(last);
       }
    }
 }
@@ -566,11 +583,10 @@ FWEveViewManager::selectionRemoved(TEveElement* iElement)
    if(0!=iElement) {
       void* userData=iElement->GetUserData();
       if(0 != userData) {
+         EveSelectionSentry();
          FWFromEveSelectorBase* base = static_cast<FWFromEveSelectorBase*>(userData);
-         bool last = gEve->GetSelection()->BlockSignals(kTRUE);
          //std::cout <<"   removing"<<std::endl;
          base->doUnselect();
-         gEve->GetSelection()->BlockSignals(last);
       }
    }
 }
