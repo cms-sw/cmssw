@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2010/02/16 10:53:19 $
- * $Revision: 1.46 $
+ * $Date: 2010/03/27 20:08:01 $
+ * $Revision: 1.47 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -484,7 +484,7 @@ void EESelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
 
           float xiy = iy+0.5;
 
-          float fraction = float(nEvtFullReadout[ix][iy][iz] / nEvtAnyReadout[ix][iy][iz]);
+          float fraction = float(nEvtFullReadout[ix][iy][iz]) / float(nEvtAnyReadout[ix][iy][iz]);
           float error = sqrt(fraction*(1-fraction)/float(nEvtAnyReadout[ix][iy][iz]));
 
           TH2F *h2d = EEFullReadoutSRFlagMap_[iz]->getTH2F();
@@ -499,7 +499,7 @@ void EESelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
           EEFullReadoutSRFlagMap_[iz]->setBinContent(binx, biny, fraction);
           EEFullReadoutSRFlagMap_[iz]->setBinError(binx, biny, error);
 
-          fraction = float(nEvtRUForced[ix][iy][iz] / nEvtAnyReadout[ix][iy][iz]);
+          fraction = float(nEvtRUForced[ix][iy][iz]) / float(nEvtAnyReadout[ix][iy][iz]);
           error = sqrt(fraction*(1-fraction)/float(nEvtAnyReadout[ix][iy][iz]));
 
           h2d = EEReadoutUnitForcedBitMap_[iz]->getTH2F();
@@ -643,7 +643,7 @@ void EESelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
 
           float xiy = iy+0.5;
 
-          float fraction = float(nEvtHighInterest[ix][iy][iz] / nEvtAnyInterest[ix][iy][iz]);
+          float fraction = float(nEvtHighInterest[ix][iy][iz]) / float(nEvtAnyInterest[ix][iy][iz]);
           float error = sqrt(fraction*(1-fraction)/float(nEvtAnyInterest[ix][iy][iz]));
 
           TH2F *h2d = EEHighInterestTriggerTowerFlagMap_[iz]->getTH2F();
@@ -658,7 +658,7 @@ void EESelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
           EEHighInterestTriggerTowerFlagMap_[iz]->setBinContent(binx, biny, fraction);
           EEHighInterestTriggerTowerFlagMap_[iz]->setBinError(binx, biny, error);
 
-          fraction = float(nEvtLowInterest[ix][iy][iz] / nEvtAnyInterest[ix][iy][iz]);
+          fraction = float(nEvtLowInterest[ix][iy][iz]) / float(nEvtAnyInterest[ix][iy][iz]);
           error = sqrt(fraction*(1-fraction)/float(nEvtAnyInterest[ix][iy][iz]));
 
           h2d = EELowInterestTriggerTowerFlagMap_[iz]->getTH2F();
