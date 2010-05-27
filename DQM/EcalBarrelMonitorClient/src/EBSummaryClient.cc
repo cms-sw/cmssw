@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2010/04/14 14:55:49 $
- * $Revision: 1.209 $
+ * $Date: 2010/05/03 14:54:48 $
+ * $Revision: 1.210 $
  * \author G. Della Ricca
  *
 */
@@ -1477,14 +1477,21 @@ void EBSummaryClient::analyze(void) {
 
           if ( ebsfc ) {
 
+            me = dqmStore_->get(prefixME_ + "/EcalInfo/EBMM DCC");
+
+            float xval = 6;
+
+            if ( me ) {
+
+              xval = 2;
+              if ( me->getBinContent( ism ) > 0 ) xval = 1;
+
+            }
+
             me = ebsfc->meh01_[ism-1];
 
             if ( me ) {
 
-              float xval = 6;
-
-              if ( me->getBinContent( ie, ip ) < 0 ) xval = 2;
-              if ( me->getBinContent( ie, ip ) == 0 ) xval = 1;
               if ( me->getBinContent( ie, ip ) > 0 ) xval = 0;
 
               meStatusFlags_->setBinContent( ipx, iex, xval );

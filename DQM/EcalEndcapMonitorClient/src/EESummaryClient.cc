@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2010/05/03 14:54:48 $
- * $Revision: 1.198 $
+ * $Date: 2010/05/04 12:35:08 $
+ * $Revision: 1.199 $
  * \author G. Della Ricca
  *
 */
@@ -2028,14 +2028,21 @@ void EESummaryClient::analyze(void) {
 
           if ( eesfc ) {
 
+            me = dqmStore_->get(prefixME_ + "/EcalInfo/EEMM DCC");
+
+            float xval = 6;
+
+            if ( me ) {
+
+              xval = 2;
+              if ( me->getBinContent( ism ) > 0 ) xval = 1;
+
+            }
+
             me = eesfc->meh01_[ism-1];
 
             if ( me ) {
 
-              float xval = 6;
-
-              if ( me->getBinContent( ix, iy ) < 0 ) xval = 2;
-              if ( me->getBinContent( ix, iy ) == 0 ) xval = 1;
               if ( me->getBinContent( ix, iy ) > 0 ) xval = 0;
 
               if ( ism >= 1 && ism <= 9 ) {
