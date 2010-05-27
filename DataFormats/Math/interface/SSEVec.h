@@ -17,7 +17,7 @@
 
 #endif
 
-
+#include<cmath>
 
 namespace mathSSE {
 

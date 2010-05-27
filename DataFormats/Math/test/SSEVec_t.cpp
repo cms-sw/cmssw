@@ -147,7 +147,7 @@ void go() {
   std::cout << y << std::endl;
   std::cout << 3.*x << std::endl;
   std::cout << y*0.1 << std::endl;
-  std::cout << Vec(1) - y*0.1 << std::endl;
+  std::cout << (Vec(1) - y*0.1) << std::endl;
   std::cout <<  mathSSE::sqrt(x) << std::endl;
 
 
