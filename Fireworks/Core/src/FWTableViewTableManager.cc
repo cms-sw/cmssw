@@ -1,4 +1,4 @@
-// $Id: FWTableViewTableManager.cc,v 1.14 2010/04/23 21:36:28 chrjones Exp $
+// $Id: FWTableViewTableManager.cc,v 1.15 2010/05/06 18:03:08 amraktad Exp $
 
 #include <math.h>
 #include <sstream>
@@ -204,18 +204,20 @@ namespace {
 
 void FWTableViewTableManager::implSort(int iCol, bool iSortOrder)
 {
-     static const bool sort_down = true;
-     if (iCol >= (int)m_evaluators.size())
-	  return;
-//      printf("sorting %s\n", iSortOrder == sort_down ? "down" : "up");
-     if (iSortOrder == sort_down) {
-	  std::multimap<std::pair<bool, double>, int, itemOrderGt> s;
-	  doSort(*m_view->item(), iCol, m_evaluators, s, m_sortedToUnsortedIndices);
-     } else {
-	  std::multimap<std::pair<bool, double>, int, itemOrderLt> s;
-	  doSort(*m_view->item(), iCol, m_evaluators, s, m_sortedToUnsortedIndices);
-     }
-     m_view->m_tableWidget->dataChanged();
+   static const bool sort_down = true;
+   if (iCol >= (int)m_evaluators.size())
+      return;
+   if (0!=m_view->item()) {
+      //      printf("sorting %s\n", iSortOrder == sort_down ? "down" : "up");
+      if (iSortOrder == sort_down) {
+         std::multimap<std::pair<bool, double>, int, itemOrderGt> s;
+         doSort(*m_view->item(), iCol, m_evaluators, s, m_sortedToUnsortedIndices);
+      } else {
+         std::multimap<std::pair<bool, double>, int, itemOrderLt> s;
+         doSort(*m_view->item(), iCol, m_evaluators, s, m_sortedToUnsortedIndices);
+      }
+   }
+   m_view->m_tableWidget->dataChanged();
 }
 
 void
