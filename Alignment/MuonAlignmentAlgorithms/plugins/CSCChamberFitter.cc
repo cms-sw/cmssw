@@ -1,9 +1,11 @@
 #include <iostream>
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "CLHEP/Matrix/Matrix.h"
 #include "TMatrixDEigen.h"
 
-#include "Alignment/MuonAlignmentAlgorithms/interface/CSCChamberFitter.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "Alignment/MuonAlignmentAlgorithms/plugins/CSCChamberFitter.h"
 
 const double infinity = 0.1;  // this is huge because all alignments are angles in radians; but we need a not-too-large value for numerical stability
                               // should become a parameter someday

@@ -1,7 +1,8 @@
-#include "Alignment/MuonAlignmentAlgorithms/interface/CSCAlignmentCorrections.h"
-#include "Alignment/MuonAlignmentAlgorithms/interface/CSCPairResidualsConstraint.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+
+#include "Alignment/MuonAlignmentAlgorithms/plugins/CSCAlignmentCorrections.h"
+#include "Alignment/MuonAlignmentAlgorithms/plugins/CSCPairResidualsConstraint.h"
 
 void CSCAlignmentCorrections::plot() {
   edm::Service<TFileService> tFileService;

@@ -2,10 +2,14 @@
 #define Alignment_MuonAlignmentAlgorithms_CSCAlignmentCorrections_H
 
 /** \class CSCAlignmentCorrections
- *  $Date: 2010/05/04 01:16:04 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/05/12 21:57:51 $
+ *  $Revision: 1.2 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
+
+#include <fstream>
+
+#include "TH1F.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -15,8 +19,6 @@
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"  
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
-#include "TH1F.h"
-#include <fstream>
 
 class CSCAlignmentCorrections {
 public:

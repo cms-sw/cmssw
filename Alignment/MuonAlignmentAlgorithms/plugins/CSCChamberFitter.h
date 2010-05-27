@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_CSCChamberFitter_H
 
 /** \class CSCChamberFitter
- *  $Date: 2010/05/04 01:16:04 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/05/06 05:57:33 $
+ *  $Revision: 1.2 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -18,8 +18,8 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 
 #include "Alignment/MuonAlignmentAlgorithms/interface/CSCPairConstraint.h"
-#include "Alignment/MuonAlignmentAlgorithms/interface/CSCPairResidualsConstraint.h"
-#include "Alignment/MuonAlignmentAlgorithms/interface/CSCAlignmentCorrections.h"
+#include "Alignment/MuonAlignmentAlgorithms/plugins/CSCPairResidualsConstraint.h"
+#include "Alignment/MuonAlignmentAlgorithms/plugins/CSCAlignmentCorrections.h"
 
 class CSCChamberFitter {
 public:

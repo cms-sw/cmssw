@@ -3,7 +3,7 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
 
-<library   name="CSCOverlapsAlignmentAlgorithm" file="CSCOverlapsAlignmentAlgorithm.cc,CSCOverlapsTrackPreparation.cc,CSCOverlapsBeamSplashCut.cc">
+<library   name="CSCOverlapsAlignmentAlgorithm" file="CSCOverlapsAlignmentAlgorithm.cc,CSCOverlapsTrackPreparation.cc,CSCOverlapsBeamSplashCut.cc,CSCPairResidualsConstraint.cc,CSCChamberFitter.cc,CSCAlignmentCorrections.cc">
   <use   name="Geometry/CommonDetUnit"/>
   <use   name="Geometry/Records"/>
   <use   name="Geometry/CSCGeometry"/>
@@ -25,7 +25,6 @@
   <use   name="Alignment/CommonAlignment"/>
   <use   name="Alignment/CommonAlignmentAlgorithm"/>
   <use   name="Alignment/MuonAlignment"/>
-  <use   name="Alignment/MuonAlignmentAlgorithms"/>
   <use   name="CommonTools/UtilAlgos"/>
   <use   name="clhep"/>
   <use   name="root"/>

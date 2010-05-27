@@ -1,10 +1,10 @@
-#include "Alignment/MuonAlignmentAlgorithms/interface/CSCPairResidualsConstraint.h"
+#include <iomanip>
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "Alignment/MuonAlignmentAlgorithms/plugins/CSCOverlapsAlignmentAlgorithm.h"
-#include <iomanip>
+#include "Alignment/MuonAlignmentAlgorithms/plugins/CSCPairResidualsConstraint.h"
 
 double CSCPairResidualsConstraint::value() const {
   double delta = (m_sum1*m_sumxx) - (m_sumx*m_sumx);

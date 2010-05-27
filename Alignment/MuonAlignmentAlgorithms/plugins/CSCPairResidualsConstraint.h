@@ -2,10 +2,14 @@
 #define Alignment_MuonAlignmentAlgorithms_CSCPairResidualsConstraint_H
 
 /** \class CSCPairResidualsConstraint
- *  $Date: 2010/05/06 03:09:31 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/05/06 05:57:33 $
+ *  $Revision: 1.4 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
+
+#include <fstream>
+
+#include "TH1F.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -17,8 +21,6 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
-#include <fstream>
-#include "TH1F.h"
 
 class CSCOverlapsAlignmentAlgorithm;
 
