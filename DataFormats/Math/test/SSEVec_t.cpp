@@ -147,6 +147,7 @@ void go() {
   std::cout << y << std::endl;
   std::cout << 3.*x << std::endl;
   std::cout << y*0.1 << std::endl;
+  std::cout << Vec(1) - y*0.1 << std::endl;
   std::cout <<  mathSSE::sqrt(x) << std::endl;
 
 
@@ -167,8 +168,8 @@ void go() {
   T sa = std::sin(a);
 
   Rot3<T> r1( ca, sa, 0,
-		 -sa, ca, 0,
-		   0,  0, 1);
+	      -sa, ca, 0,
+	      0,  0, 1);
 
   Rot3<T> r2(Vec( 0, 1 ,0), Vec( 0, 0, 1), Vec( 1, 0, 0));
 

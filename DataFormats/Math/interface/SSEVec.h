@@ -64,14 +64,17 @@ namespace mathSSE {
     Vec2() {
       arr[0] = 0; arr[1] = 0;
     }
-    Vec2(float f1, float f2) {
+    Vec2(T f1, T f2) {
       arr[0] = f1; arr[1] = f2;
     }
-    void set(float f1, float f2) {
+    explicit Vec2(T f1) {
+      arr[0] = f1; arr[1] = f1;
+    }
+    void set(T f1, T f2) {
       arr[0] = f1; arr[1] = f2;
     }
     Vec2 get1(unsigned int n) const {
-      return Vec3(arr[n],arr[n]);
+      return Vec2(arr[n],arr[n]);
     }
 
     T __attribute__ ((aligned(16))) arr[2];
@@ -84,6 +87,9 @@ namespace mathSSE {
     }
     Vec3(float f1, float f2, float f3, float f4=0) {
       arr[0] = f1; arr[1] = f2; arr[2] = f3; arr[3]=f4;
+    }
+    explicit Vec3(float f1) {
+      set1(f1);
     }
     void set(float f1, float f2, float f3, float f4=0) {
       arr[0] = f1; arr[1] = f2; arr[2] = f3; arr[3]=f4;
@@ -112,6 +118,11 @@ namespace mathSSE {
     Vec3() {
       vec = _mm_setzero_ps();
     }
+
+    explicit Vec3(float f1) {
+      set1(f1);
+    }
+
     Vec3(float f1, float f2, float f3, float f4=0) {
       arr[0] = f1; arr[1] = f2; arr[2] = f3; arr[3]=f4;
     }
@@ -145,6 +156,10 @@ namespace mathSSE {
     Vec2(double f1, double f2) {
       arr[0] = f1; arr[1] = f2;
     }
+
+    explicit Vec2(double f1) {
+      set1(f1);
+    }
     
     void set(double f1, double f2) {
       arr[0] = f1; arr[1] = f2;
@@ -157,6 +172,9 @@ namespace mathSSE {
     Vec2 get1(unsigned int n) const {
       return Vec2(arr[n],arr[n]);
     }
+   
+    double operator[](unsigned int n) const {
+      return arr[n];
   };
  
 
@@ -179,6 +197,10 @@ namespace mathSSE {
     Vec3() {
       vec[0] = _mm_setzero_pd();
       vec[1] = _mm_setzero_pd();
+    }
+
+    explicit Vec3(double f1) {
+      set1(f1);
     }
 
     Vec3(double f1, double f2, double f3, double f4=0) {
@@ -386,9 +408,9 @@ inline mathSSE::Vec3D cross(mathSSE::Vec3D a, mathSSE::Vec3D b) {
 // sqrt
 namespace mathSSE {
   template<typename T> inline T sqrt(T t) { return std::sqrt(t);}
-  template<> inline Vec3F operator*(Vec3F v) { return _mm_sqrt_ps(v.vec);}
-  template<> inline Vec2D operator*(Vec2D v) { return _mm_sqrt_pd(v.vec);}
-  template<> inline Vec3D operator*(Vec3D v) { 
+  template<> inline Vec3F sqrt(Vec3F v) { return _mm_sqrt_ps(v.vec);}
+  template<> inline Vec2D sqrt(Vec2D v) { return _mm_sqrt_pd(v.vec);}
+  template<> inline Vec3D sqrt(Vec3D v) { 
     return Vec3D(_mm_sqrt_pd(v.vec[0]),_mm_sqrt_pd(v.vec[1]));
   }
 }
