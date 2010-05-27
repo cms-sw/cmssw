@@ -62,6 +62,7 @@ HcalHFStatusBitFromDigis::~HcalHFStatusBitFromDigis(){}
 
 void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf, 
 						 const HFDataFrame& digi,
+						 const HcalCoder& coder,
 						 const HcalCalibrations& calib)
 {
   // The following 3 values are computed using the default reconstruction window (for Shuichi's algorithm)
@@ -75,12 +76,15 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
   double RecomputedEnergy=0;
 
 
+  CaloSamples tool;
+  coder.adc2fC(digi,tool);
+
   // Compute quantities needed for HFDigiTime, Fraction2TS FLAGS
   for (int i=0;i<digi.size();++i)
     {
       int capid=digi.sample(i).capid();
-      double value = digi.sample(i).nominal_fC()-calib.pedestal(capid);
-
+      //double value = digi.sample(i).nominal_fC()-calib.pedestal(capid);
+      double value = tool[i]-calib.pedestal(capid);
       // Find largest value within reconstruction window
       if (i>=recoFirstSample_ && i <recoFirstSample_+recoSamplesToAdd_)
 	{
@@ -109,8 +113,8 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
   // get pedestals for each capid -- add 4 to each capid, and then check mod 4.
   // (This takes care of the case where max capid =0 , and capid-1 would then be negative)
   if (maxTS>0 &&
-      digi[maxTS].nominal_fC()!=calib.pedestal(maxCapid))
-    TSfrac_counter=int(50*((digi[maxTS-1].nominal_fC()-calib.pedestal((maxCapid+3)%4))/(digi[maxTS].nominal_fC()-calib.pedestal((maxCapid+4)%4)))+1); // 6-bit counter to hold peak ratio info
+      tool[maxTS]!=calib.pedestal(maxCapid))
+    TSfrac_counter=int(50*((tool[maxTS-1]-calib.pedestal((maxCapid+3)%4))/(tool[maxTS]-calib.pedestal((maxCapid+4)%4)))+1); // 6-bit counter to hold peak ratio info
   hf.setFlagField(TSfrac_counter, HcalCaloFlagLabels::Fraction2TS,6);
 
   // FLAG:  HcalCaloLabels::HFDigiTime
