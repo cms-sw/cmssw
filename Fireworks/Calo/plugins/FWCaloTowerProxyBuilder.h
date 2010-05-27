@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:08 EST 2008
-// $Id: FWCaloTowerProxyBuilder.h,v 1.5 2010/05/03 15:47:33 amraktad Exp $
+// $Id: FWCaloTowerProxyBuilder.h,v 1.8 2010/05/10 11:49:40 amraktad Exp $
 //
 
 #include "Rtypes.h"
@@ -57,13 +57,13 @@ private:
    virtual void applyChangesToAllModels(Product*);
    virtual void itemBeingDestroyed(const FWEventItem*);
 
+   void clearCaloDataSelection();
+
    // ---------- member data --------------------------------
    TEveCaloDataHist* m_caloData;
    TH2F* m_hist;
    Int_t m_sliceIndex;
    const CaloTowerCollection* m_towers;
-
-   TEveCaloDataHist* caloData() const;
 };
 
 //
