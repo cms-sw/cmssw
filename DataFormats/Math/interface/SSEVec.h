@@ -175,6 +175,7 @@ namespace mathSSE {
    
     double operator[](unsigned int n) const {
       return arr[n];
+    }
   };
  
 
