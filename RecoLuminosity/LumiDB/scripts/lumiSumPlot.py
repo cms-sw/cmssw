@@ -4,6 +4,13 @@ import os,sys
 import coral
 from RecoLuminosity.LumiDB import argparse,nameDealer,selectionParser,hltTrgSeedMapper,connectstrParser,cacheconfigParser,matplotRender
 from matplotlib.figure import Figure
+def findInList(mylist,element):
+    pos=-1
+    try:
+        pos=mylist.index(element)
+    except ValueError:
+        pos=-1
+    return pos!=-1
 class constants(object):
     def __init__(self):
         self.NORM=1.0
@@ -14,9 +21,224 @@ class constants(object):
     def defaultfrontierConfigString(self):
         return """<frontier-connect><proxy url="http://cmst0frontier.cern.ch:3128"/><proxy url="http://cmst0frontier.cern.ch:3128"/><proxy url="http://cmst0frontier1.cern.ch:3128"/><proxy url="http://cmst0frontier2.cern.ch:3128"/><server url="http://cmsfrontier.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier1.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier2.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier3.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier4.cern.ch:8000/FrontierInt"/></frontier-connect>"""
     
-def plot(deliveredDict,recordedDict,hltpath=''):
-    
-    return fig
+def getLumiInfoForRuns(dbsession,c,runDict,hltpath=''):
+    '''
+    output:{ runnumber:[delivered,recorded,recorded_hltpath] }
+    '''
+    result={}#runnumber:[lumisumoverlumils,lumisumovercmsls-deadtimecorrected,lumisumovercmsls-deadtimecorrected*hltcorrection_hltpath]
+    #
+    #delivered: select runnum,instlumi,numorbit from lumisummary where runnum>=:runMin and runnum<=runMax and lumiversion=:lumiversion order by runnum
+    #calculate lslength = numorbit*numbx*25e-09
+    #recorded: need instlumi and deadtime
+    #select lumisummary.cmslsnum,lumisummary.runnum,lumisummary.instlumi,trg.deadtime,trg.trgcount from lumisummary,trg where lumisummary.runnum=trg.runnum and trg.cmslsnum=lumisummary.cmslsnum and trg.bitnum=0 and lumisummary.lumiversion='0001' and lumisummary.runnum>=133511 and lumisummary.runnum<=133877 order by lumisummary.runnum,lumisummary.cmslsnum;
+    #          if hltpath is specified, need prescale L1 and hlt
+    #          select trg.runnum,trg.bitnum,trg.bitname,trg.prescale,trghltmap.hltpathname,trghltgmap.l1seed,hlt.prescale from trg,trghltmap,hlt where hlt.hltpathname=:hltpathname and hlt.hltpathname=trghltmap.hltpathname and trg.cmslsnum=0 and hlt.runnum=trg.runnum and trghltmap.runnum=trg.runnum and trg.bitname=trghltmap.l1seed and trg.runnum>=:begRun and trg.runnum<=:endRun
+    try:
+        dbsession.transaction().start(True)
+        schema=dbsession.nominalSchema()
+        begRun=min(runDict.keys())
+        endRun=max(runDict.keys())
+        #delivered doesn't care about cmsls
+        print 'begRun ',begRun,'endRun ',endRun
+        deliveredQuery=schema.newQuery()
+        deliveredQuery=schema.tableHandle(nameDealer.lumisummaryTableName()).newQuery()
+        deliveredQuery.addToOutputList('RUNNUM','runnum')
+        deliveredQuery.addToOutputList('INSTLUMI','instlumi')
+        deliveredQuery.addToOutputList('NUMORBIT','numorbit')
+        
+        deliveredQueryCondition=coral.AttributeList()
+        deliveredQueryCondition.extend('begRun','unsigned int')
+        deliveredQueryCondition.extend('endRun','unsigned int')
+        deliveredQueryCondition.extend('lumiversion','string')
+        deliveredQueryCondition['begRun'].setData(int(begRun))
+        deliveredQueryCondition['endRun'].setData(int(endRun))
+        deliveredQueryCondition['lumiversion'].setData(c.LUMIVERSION)
+        deliveredQueryResult=coral.AttributeList()
+        deliveredQueryResult.extend('runnum','unsigned int')
+        deliveredQueryResult.extend('instlumi','float')
+        deliveredQueryResult.extend('numorbit','unsigned int')
+        deliveredQuery.defineOutput(deliveredQueryResult)
+        deliveredQuery.setCondition('RUNNUM>=:begRun and RUNNUM<=:endRun and LUMIVERSION=:lumiversion',deliveredQueryCondition)
+        deliveredQuery.addToOrderList('RUNNUM')
+        deliveredQueryCursor=deliveredQuery.execute()
+        deliveredDict={}
+        #print 'runDict',runDict
+        while deliveredQueryCursor.next():
+            print 'hello'
+            runnum=deliveredQueryCursor.currentRow()['runnum'].data()
+            instlumi=deliveredQueryCursor.currentRow()['instlumi'].data()
+            numorbit=deliveredQueryCursor.currentRow()['numorbit'].data()
+            lslength=numorbit*c.NBX*25e-09
+            print runnum,instlumi,numorbit,lslength
+            if runDict.has_key(runnum) and not deliveredDict.has_key(runnum):
+                deliveredDict[runnum]=float(instlumi*lslength*c.NORM)
+            elif runDict.has_key(runnum) and deliveredDict.has_key(runnum):
+                deliveredDict[runnum]=deliveredDict[runnum]+float(instlumi*lslength*c.NORM)
+        del deliveredQuery
+        print 'got delivered : ',deliveredDict
+        
+        lumiquery=schema.newQuery()
+        lumiquery.addToTableList(nameDealer.lumisummaryTableName(),'lumisummary')
+        lumiquery.addToTableList(nameDealer.trgTableName(),'trg')
+        lumiqueryCondition=coral.AttributeList()
+        lumiqueryCondition.extend('bitnum','unsigned int')
+        lumiqueryCondition.extend('lumiversion','string')
+        lumiqueryCondition.extend('begrun','unsigned int')
+        lumiqueryCondition.extend('endrun','unsigned int')
+        lumiqueryCondition['bitnum'].setData(int(0))
+        lumiqueryCondition['lumiversion'].setData(c.LUMIVERSION)
+        lumiqueryCondition['begrun'].setData(int(begRun))
+        lumiqueryCondition['endrun'].setData(int(endRun))
+        lumiquery.setCondition('lumisummary.RUNNUM=trg.RUNNUM and trg.CMSLSNUM=lumisummary.CMSLSNUM and trg.BITNUM=:bitnum and lumisummary.LUMIVERSION=:lumiversion and lumisummary.RUNNUM>=:begrun and lumisummary.RUNNUM<=:endrun',lumiqueryCondition)
+        lumiquery.addToOrderList('lumisummary.runnum')
+        lumiquery.addToOrderList('lumisummary.cmslsnum')
+        lumiquery.addToOutputList('lumisummary.cmslsnum','cmsls')
+        lumiquery.addToOutputList('lumisummary.runnum','runnum')
+        lumiquery.addToOutputList('lumisummary.instlumi','instlumi')
+        lumiquery.addToOutputList('trg.deadtime','deadtime')
+        lumiquery.addToOutputList('trg.trgcount','trgcount')
+        lumiqueryResult=coral.AttributeList()
+        lumiqueryResult.extend('cmsls','unsigned int')
+        lumiqueryResult.extend('runnum','unsigned int')
+        lumiqueryResult.extend('instlumi','float')
+        lumiqueryResult.extend('deadtime','unsigned long long')
+        lumiqueryResult.extend('trgcount','unsigned int')
+        lumiquery.defineOutput(lumiqueryResult)
+        lumiqueryCursor=lumiquery.execute()
+        correctedlumiSum=0.0
+        recordedPerRun={}
+        while lumiqueryCursor.next():
+            cmsls=lumiqueryCursor.currentRow()['cmsls'].data()
+            runnum=lumiqueryCursor.currentRow()['runnum'].data()
+            instlumi=lumiqueryCursor.currentRow()['instlumi'].data()
+            deadtime=lumiqueryCursor.currentRow()['deadtime'].data()
+            bitzero=lumiqueryCursor.currentRow()['trgcount'].data()
+            deadfraction=0.0
+            if bitzero==0:
+                deadfraction=1.0
+            else:
+                deadfraction=float(deadtime)/float(bitzero)
+                
+            if runDict.has_key(runnum) and len(runDict[runnum])==0:
+                if not recordedPerRun.has_key(runnum):
+                    recordedPerRun[runnum]=float(instlumi*(1.0-deadfraction)*lslength*c.NORM)
+                else:
+                    recordedPerRun[runnum]=float(recordedPerRun[runnum]+instlumi*(1.0-deadfraction)*lslength*c.NORM)
+            elif runDict.has_key(runnum) and findInList(runDict[runnum],cmsls):
+                if not recordedPerRun.has_key(runnum):
+                    recordedPerRun[runnum]=float(instlumi*(1.0-deadfraction)*lslength*c.NORM)
+                else:
+                    recordedPerRun[runnum]=float(recordedPerRun[runnum]+instlumi*(1.0-deadfraction)*lslength*c.NORM)
+        print 'got recorded : ',recordedPerRun
+        del lumiquery
+
+        if len(hltpath)!=0 and hltpath!='all':
+            #
+            #select l1seed from trghltmap where trghltmap.hltpathname =:hltpathname
+            #
+            seedQuery=schema.newQuery()
+            seedQuery.addToTableList(nameDealer.trghltMapTableName(),'trghltmap')
+            seedQueryCondition=coral.AttributeList()
+            seedQueryCondition.extend('hltpathname','string')
+            seedQueryCondition['hltpathname'].setData(hltpath)
+            seedQueryResult=coral.AttributeList()
+            seedQueryResult.addToOutputList('l1seed','string')
+            seedQuery.defineOutput(seedQueryResult)
+            seedQueryCursor=seedQuery.execute()
+            l1seed=''
+            l1bitname=''
+            while seedQueryCursor.next():
+                l1seed=seedQueryCursor.currentRow()['l1seed'].data()
+            if len(l1seed)!=0:
+                l1bitname=hltTrgSeedMapper.findUniqueSeed(hltpath,l1seed)
+            del seedQuery
+            #
+            #select runnum,prescale from hlt where pathname=:hltpathname and cmslsnum=1 and runnum>=:begRun and runnum<=:endRun order by runnum
+            #
+            hltprescQuery=schema.newQuery()
+            hltprescQuery.addToTableList(nameDealer.trgTableName(),'trg')
+            hltprescQuery.addToTableList(nameDealer.hltTableName(),'hlt')
+            hltprescQueryCondition=coral.AttributeList()
+            hltprescQueryCondition.extend('hltpathname','string')
+            hltprescQueryCondition.extend('begRun','unsigned int')
+            hltprescQueryCondition.extend('endRun','unsigned int')
+            hltprescQueryCondition.extend('cmslsnum','unsigned int')
+            hltprescQueryCondition['hltpathname'].setData( hltpath )
+            hltprescQueryCondition['begRun'].setData( begRun )
+            hltprescQueryCondition['endRun'].setData( endRun )
+            hltprescQueryCondition['cmslsnum'].setData( 1 )
+            hltprescQuery.setCondition('PATHNAME=:hltpathname and RUNNUM>=:begRun and RUNNUM<=:endRun and CMSLSNUM=:cmslsnum')
+            hltprescQueryResult=coral.AttributeList()
+            hltprescQueryResult.addToOutputList('RUNNUM','runnum')
+            hltprescQueryResult.addToOutputList('PRESCALE','hltprescale')
+            hltprescQuery.addToOrderList('RUNNUM')
+            hltprescQueryCursor=hltprescQuery.execute()
+            hltprescaleDict={}
+            while hltprescQueryCursor.next():
+                runnum=hltprescQueryCursor.currentRow()['runnum'].data()
+                hltprescale=hltprescQueryCursor.currentRow()['hltprescale'].data()
+                if runDict.has_key(runnum):
+                    hltrescaleDict[runnum]=hltprescale
+            print 'got hlt pescale ',hltprescaleDict
+            del hltprescQuery
+            #
+            #select runnum,bitnum,bitname,prescale from trg where cmslsnum=1 and bitname=:bitname and runnum>=:begRun and runnum<=:endRun order by runnum
+            #
+            if not l1bitname or len(l1bitname)==0:
+                print 'no l1bit found for hltpath : ',hltpath,' setting trg prescale to 1'
+                
+            else:
+                trgprescQuery=schema.newQuery()
+                trgprescQuery.addToTableList(nameDealer.trgTableName(),'trg')
+                trgprescQueryCondition=coral.AttributeList()
+                trgprescQueryCondition.extend('cmslsnum','unsigned int')
+                trgprescQueryCondition.extend('bitname','string')
+                trgprescQueryCondition.extend('begRun','unsigned int')
+                trgprescQueryCondition.extend('endRun','unsigned int')
+                trgprescQuery.setCondition('CMSLSNUM=:cmslsnum and BITNAME=:bitname and RUNNUM>=:begRun and RUNNUM<=:endRun')
+                trgprescQueryResult=coral.AttributeList()
+                trgprescQueryResult.addToOutputList('RUNNUM','runnum')
+                trgprescQueryResult.addToOutputList('BITNUM','bitnum')
+                trgprescQueryResult.addToOutputList('PRESCALE','trgprescale')
+                trgprescQuery.defineOutput(trgprescQueryResult)
+                trgprescQueryCursor=trgprescQuery.execute()
+                trgprescaleDict={}
+                while trgprescQueryCursor.next():
+                    runnum=trgprescQueryCursor.currentRow()['runnum'].data()
+                    bitnum=trgprescQueryCursor.currentRow()['bitnum'].data()
+                    trgprescale=trgprescQueryCursor.currentRow()['trgprescale'].data()
+                    if runDict.has_key(runnum):
+                        trgprescaleDict[runnum]=trgprescale
+                del trgprescQuery
+                print trgprescaleDict
+            prescaledRecordedPerRun={}
+            for runnum,recorded in recordedPerRun.items():
+                hltprescale=1.0
+                trgprescale=1.0
+                if hltprescQuery.has_key(runnum):
+                    hltprescale=hltprescaleDict[runnum]
+                if trgprescaleDict.has_key(runnum):
+                    trgprescale=trgprescaleDict[runnum]
+                prescaledRecordedPerRun[runnum]=recorded/(hltprescale*trgprescale)
+        dbsession.transaction().commit()
+        for runnum in runDict.keys():
+            if deliveredDict.has_key(runnum):
+                result[runnum].append(deliveredDict[runnum])
+            else:
+                result[runnum].append(0)
+            if recordedPerRun.has_key(runnum):
+                result[runnum].append(recordedPerRun[runnum])
+            else:
+                result[runnum].append(0)
+            if prescaledRecordedPerRun.has_key(runnum):
+                result[runnum].append(prescaledRecordedPerRun[runnum])
+            else:
+                result[runnum].append(0)
+    except Exception,e:
+        print str(e)
+        dbsession.transaction().rollback()
+        del dbsession
+    return result
 
 def main():
     c=constants()
@@ -68,10 +290,12 @@ def main():
     #print 'connectstring',connectstring
     runnumber=0
     svc = coral.ConnectionService()
+    hltpath=''
+    if args.hltpath:
+        hltpath=args.hltpath
     if args.debug :
         msg=coral.MessageStream('')
         msg.setMsgVerbosity(coral.message_Level_Debug)
-    hpath=''
     ifilename=''
     ofilename='integratedlumi.png'
     beammode='stable'
@@ -94,17 +318,30 @@ def main():
     session.typeConverter().setCppTypeForSqlType("unsigned long long","NUMBER(20)")
     inputfilecontent=''
     fileparsingResult=''
+    runDict={}
     if len(ifilename)!=0 :
         f=open(ifilename,'r')
         inputfilecontent=f.read()
-        fileparsingResult=selectionParser.selectionParser(inputfilecontent)
-
+        sparser=selectionParser.selectionParser(inputfilecontent)
+        runDict=sparser.runsandls()
+    else:
+        for r in range(int(args.begin),int(args.end)+1):
+            runDict[r]=[]
+    result={}
+    result=getLumiInfoForRuns(session,c,runDict,hltpath)
+    print result
     fig=Figure(figsize=(5,4),dpi=100)
     m=matplotRender.matplotRender(fig)
-    xdata=[132440,132442,132471,132473,132474,132477,132478,132513]
+    #xdata=[132440,132442,132471,132473,132474,132477,132478,132513]
+    xdata=[]
     ydata={}
-    ydata['Delivered']=[0.5,0.6,0.8,1.5,1.7,1.9,2.0,2.1]
-    ydata['Recorded']=[0.7*y for y in ydata['Delivered']]
+    for run,values in result:
+        xdata.append(run)
+        ydata['Delivered']=values[0]
+        ydata['Recorded']=values[1]
+    #ydata={}
+    #ydata['Delivered']=[0.5,0.6,0.8,1.5,1.7,1.9,2.0,2.1]
+    #ydata['Recorded']=[0.7*y for y in ydata['Delivered']]
     m.plotX_Run(xdata,ydata)
     if args.interactive:
         m.drawInteractive()
