@@ -3,11 +3,9 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-//#include "DataFormats/TrackReco/interface/Track.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
-//#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-//#include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "DataFormats/Scalers/interface/DcsStatus.h"
 
 #include <algorithm>
 
@@ -20,7 +18,12 @@ void CutBasedElectronID::setup(const edm::ParameterSet& conf) {
   quality_ = conf.getParameter<std::string>("electronQuality");
   version_ = conf.getParameter<std::string>("electronVersion");
   verticesCollection_ = conf.getParameter<edm::InputTag>("verticesCollection");
-  
+
+  dataMagneticFieldSetUp_ = conf.getParameter<Bool_t>("dataMagneticFieldSetUp");
+  if (dataMagneticFieldSetUp_) {
+    dcsTag_ = conf.getParameter<edm::InputTag>("dcsTag");
+  }
+
   if (type_ == "classbased" and (version_ == "V03" or version_ == "V04" or version_ == "V05" or version_ == "")) {
     wantBinning_ = conf.getParameter<bool>("etBinning");
     newCategories_ = conf.getParameter<bool>("additionalCategories");
@@ -147,13 +150,24 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
 
   // calculate the conversion track partner related criteria
   const math::XYZPoint tpoint = electron->gsfTrack()->referencePoint();
-  //const GlobalPoint gp(tpoint.x(), tpoint.y(), tpoint.z());
   // calculate the magnetic field for that point
-  edm::ESHandle<MagneticField> magneticField;
-  es.get<IdealMagneticFieldRecord>().get(magneticField);
-  const  MagneticField *mField = magneticField.product();
-  double bfield = mField->inTesla(GlobalPoint(0.,0.,0.)).z();//mField->inTesla(gp).mag();
-  //
+  Double_t bfield = 0;
+  if (dataMagneticFieldSetUp_) {
+    edm::Handle<DcsStatusCollection> dcsHandle;
+    e.getByLabel(dcsTag_, dcsHandle);
+    // scale factor = 3.801/18166.0 which are
+    // average values taken over a stable two
+    // week period
+    Double_t currentToBFieldScaleFactor = 2.09237036221512717e-04;
+    Double_t current = (*dcsHandle)[0].magnetCurrent();
+    bfield = current*currentToBFieldScaleFactor;
+  } else {
+    edm::ESHandle<MagneticField> magneticField;
+    es.get<IdealMagneticFieldRecord>().get(magneticField);
+    const  MagneticField *mField = magneticField.product();
+    bfield = mField->inTesla(GlobalPoint(0.,0.,0.)).z();
+  }
+
   edm::Handle<reco::TrackCollection> ctfTracks;
   e.getByLabel("generalTracks", ctfTracks); 
   ConversionFinder convFinder;
@@ -397,13 +411,24 @@ double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron ,
   // calculate the conversion track partner related criteria
   // calculate the reference point of the track
   const math::XYZPoint tpoint = electron->gsfTrack()->referencePoint();
-  //const GlobalPoint gp(tpoint.x(), tpoint.y(), tpoint.z());
   // calculate the magnetic field for that point
-  edm::ESHandle<MagneticField> magneticField;
-  es.get<IdealMagneticFieldRecord>().get(magneticField);
-  const  MagneticField *mField = magneticField.product();
-  double bfield = mField->inTesla(GlobalPoint(0.,0.,0.)).z();//mField->inTesla(gp).mag();
-  //
+  Double_t bfield = 0;
+  if (dataMagneticFieldSetUp_) {
+    edm::Handle<DcsStatusCollection> dcsHandle;
+    e.getByLabel(dcsTag_, dcsHandle);
+    // scale factor = 3.801/18166.0 which are
+    // average values taken over a stable two
+    // week period
+    Double_t currentToBFieldScaleFactor = 2.09237036221512717e-04;
+    Double_t current = (*dcsHandle)[0].magnetCurrent();
+    bfield = current*currentToBFieldScaleFactor;
+  } else {
+    edm::ESHandle<MagneticField> magneticField;
+    es.get<IdealMagneticFieldRecord>().get(magneticField);
+    const  MagneticField *mField = magneticField.product();
+    bfield = mField->inTesla(GlobalPoint(0.,0.,0.)).z();
+  }
+
   edm::Handle<reco::TrackCollection> ctfTracks;
   e.getByLabel("generalTracks", ctfTracks); 
   ConversionFinder convFinder;
