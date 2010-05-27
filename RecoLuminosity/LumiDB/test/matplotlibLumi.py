@@ -64,6 +64,7 @@ def plotDate(fig):
     ax2.xaxis.set_minor_locator(hoursLoc)
     fig.autofmt_xdate(bottom=0.18)
     fig.subplots_adjust(left=0.18)
+
 def plotRun(fig):
     ax=fig.add_subplot(111)
     ax.set_xlabel(r'Run')
