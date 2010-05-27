@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.43 2010/05/03 16:25:53 matevz Exp $
+// $Id: FWEventItem.cc,v 1.44 2010/05/11 16:39:41 eulisse Exp $
 //
 
 // system include files
@@ -636,6 +636,17 @@ FWEventItem::destroy() const
    // not properly release their connection to that signal after they
    // are destroyed via a connection to goingToBeDestroyed_
    const_cast<FWEventItem*>(this)->unselectItem();
+   {
+      FWChangeSentry sentry(*(changeManager()));
+   
+      for(int index=0; index <static_cast<int>(size()); ++index) {
+         if(m_itemInfos.at(index).m_isSelected) {
+            FWModelId id(this,index);
+            selectionManager()->unselect(id);
+            changeManager()->changed(id);
+         }
+      }
+   }
    goingToBeDestroyed_(this);
    delete this;
 }
