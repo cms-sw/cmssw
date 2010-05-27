@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Tue Sep 16 22:43:22 CEST 2008
-// $Id: L1HtMissScaleOnlineProd.cc,v 1.2 2009/03/27 13:18:48 jbrooke Exp $
+// $Id: L1HtMissScaleOnlineProd.cc,v 1.3 2009/10/15 15:32:13 jbrooke Exp $
 //
 //
 
@@ -306,7 +306,7 @@ L1HtMissScaleOnlineProd::newObject( const std::string& objectKey )
      }
 
      // return object
-     return boost::shared_ptr< L1CaloEtScale >( new L1CaloEtScale( rgnEtLsb, thresholds ) );
+     return boost::shared_ptr< L1CaloEtScale >( new L1CaloEtScale( 0, 0x7, rgnEtLsb, thresholds ) );
 
 }
 
