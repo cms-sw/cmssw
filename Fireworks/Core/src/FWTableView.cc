@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWTableView.cc,v 1.21 2010/05/06 18:03:08 amraktad Exp $
+// $Id: FWTableView.cc,v 1.22 2010/05/27 08:45:00 eulisse Exp $
 //
 
 // system include files
@@ -516,7 +516,6 @@ void FWTableView::updateItems(void)
    for (size_t i = 0, e = m_manager->items().size(); i != e; ++i)
    {
       const FWEventItem *item = m_manager->items()[i];
-      printf("Adding item at index %d\n", (int) i);
       if (item) 
          m_collection->AddEntry(item->name().c_str(), i);
 
