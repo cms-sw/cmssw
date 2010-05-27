@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWTableView.cc,v 1.20 2010/04/22 17:29:52 amraktad Exp $
+// $Id: FWTableView.cc,v 1.21 2010/05/06 18:03:08 amraktad Exp $
 //
 
 // system include files
@@ -504,30 +504,37 @@ FWTableView::toggleShowHide ()
      m_columnUIButton->swapIcons(picture,down,disabled);
 }
 
-void FWTableView::updateItems ()
+/** Reconstructs the combo box using the information
+    coming from FWEventItemsManager.
+  */
+void FWTableView::updateItems(void)
 {
-     int selected = m_collection->GetSelected();
-     m_collection->RemoveAll();
-     int index =0;
-     for (std::vector<const FWEventItem *>::const_iterator it = m_manager->items().begin(), 
-	       itEnd = m_manager->items().end();
-	  it != itEnd; ++it,++index) {
-        if(*it) {
-           m_collection->AddEntry((*it)->name().c_str(), it - m_manager->items().begin());
-        }
-        if(m_iColl == index && 0 == *it) {
-           //the collection we were showing is now gone
-           m_iColl = -1;
-           selected = -1;
-        }
-     }
-     if (selected != -1 && selected < m_collection->GetNumberOfEntries())
-	  m_collection->Select(selected, false);
+   int selected = m_collection->GetSelected();
+   m_collection->RemoveAll();
+   int index = 0;
+
+   for (size_t i = 0, e = m_manager->items().size(); i != e; ++i)
+   {
+      const FWEventItem *item = m_manager->items()[i];
+      printf("Adding item at index %d\n", (int) i);
+      if (item) 
+         m_collection->AddEntry(item->name().c_str(), i);
+
+      if (m_iColl == index && 0 == item) 
+      {
+         //the collection we were showing is now gone
+         m_iColl = -1;
+         selected = -1;
+      }
+   }
+
+   if (selected != -1 && selected < m_collection->GetNumberOfEntries())
+      m_collection->Select(selected, false);
 }
 
 void FWTableView::updateEvaluators ()
 {
-     m_tableManager->updateEvaluators();
+   m_tableManager->updateEvaluators();
 }
 
 const FWEventItem *FWTableView::item () const
@@ -553,8 +560,12 @@ void FWTableView::dataChanged ()
 //      fflush(stdout);
 }
 
-
-void FWTableView::selectCollection (Int_t i_coll)
+/** Select the collection to be displayed by the table view and
+    updates the evaluators required to retrieve the data from the
+    event.
+ */
+void 
+FWTableView::selectCollection(Int_t i_coll)
 {
 //      printf("selected collection %d, ", i_coll);
      const FWEventItem *item = m_manager->items()[i_coll];

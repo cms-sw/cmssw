@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.162 2010/05/18 12:48:59 eulisse Exp $
+// $Id: CmsShowMain.cc,v 1.163 2010/05/18 14:40:28 eulisse Exp $
 //
 
 // system include files
@@ -563,7 +563,8 @@ CmsShowMain::setupViewManagers()
 
    boost::shared_ptr<FWTableViewManager> tableViewManager( new FWTableViewManager(m_guiManager.get()) );
    m_configurationManager->add(std::string("Tables"), tableViewManager.get());
-   m_viewManager->add( tableViewManager );
+   m_viewManager->add(tableViewManager);
+   m_eiManager->goingToClearItems_.connect(boost::bind(&FWTableViewManager::removeAllItems, tableViewManager.get()));
 
    boost::shared_ptr<FWTriggerTableViewManager> triggerTableViewManager( new FWTriggerTableViewManager(m_guiManager.get()) );
    m_configurationManager->add(std::string("TriggerTables"), triggerTableViewManager.get());
@@ -584,9 +585,9 @@ CmsShowMain::reloadConfiguration(const std::string &config)
                                + config + "...";
    fwLog(fwlog::kDebug) << msg << std::endl;
    m_guiManager->updateStatus(msg.c_str());
+   m_guiManager->subviewDestroyAll();
    m_eiManager->clearItems();
    m_configFileName = config;
-   m_guiManager->subviewDestroyAll();
    try
    {
       m_configurationManager->readFromFile(config);

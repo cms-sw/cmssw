@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWTableViewManager.cc,v 1.16 2010/05/06 18:03:08 amraktad Exp $
+// $Id: FWTableViewManager.cc,v 1.17 2010/05/06 18:57:44 chrjones Exp $
 //
 
 // system include files
@@ -353,6 +353,17 @@ FWTableViewManager::destroyItem(const FWEventItem *iItem)
       m_items[i] = 0;
    }
 
+   notifyViews();
+}
+
+/** Remove all items present in the view.
+    
+    This should watch the FWEventItemsManager::goingToClearItems_ signal.
+  */
+void
+FWTableViewManager::removeAllItems(void)
+{
+   m_items.clear();
    notifyViews();
 }
 

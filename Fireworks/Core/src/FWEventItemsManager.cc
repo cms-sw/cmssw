@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.26 2010/05/11 09:24:55 eulisse Exp $
+// $Id: FWEventItemsManager.cc,v 1.27 2010/05/27 08:39:34 eulisse Exp $
 //
 
 // system include files
@@ -53,13 +53,16 @@ FWEventItemsManager::FWEventItemsManager(FWModelChangeManager* iManager) :
 //    // do actual copying here;
 // }
 
+/** FWEventItemsManager has ownership of the items it contains.
+
+    Note that because of the way we keep track of removed items,
+    m_items[i] could actually be 0 for indices corresponding
+    to removed items.
+ */
 FWEventItemsManager::~FWEventItemsManager()
 {
-   for(std::vector<FWEventItem*>::iterator it = m_items.begin();
-       it != m_items.end();
-       ++it) {
-      delete *it;
-   }
+   for (size_t i = 0, e = m_items.size(); i != e; ++i)
+      delete m_items[i];
 
    m_items.clear();
 }
