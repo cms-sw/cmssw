@@ -92,6 +92,7 @@ class Calculate {
 };
 
 
+#include "DataFormats/JetReco/interface/JetID.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
@@ -122,8 +123,10 @@ class Calculate {
                      the selection (optional).
     - electronId   : input tag of an electronId association map (optional). 
     - jetCorrector : label of jet corrector (optional).
-    - jetBTagger   : parameters defining the btag algorith amd working point of choice
+    - jetBTagger   : parameters defining the btag algorithm and working point of choice
                      (optional).
+    - jetID        : parameters defining the jetID value map and selection (optional).
+
 
    The parameters _src_ and _select_ are mandatory. The parameters _min_ and _max_ are 
    optional. The parameters _electronId_ and _jetCorrector_ are optional. They are added 
@@ -165,15 +168,21 @@ private:
   edm::InputTag btagLabel_;
   /// choice of b-tag working point as extra selection type
   double btagWorkingPoint_;
+  /// jetID as an extra selection type 
+  edm::InputTag jetIDLabel_;
+
   /// string cut selector
   StringCutObjectSelector<Object> select_;
+  /// selection string on the jetID
+  StringCutObjectSelector<reco::JetID>* jetIDSelect_;
 };
 
 /// default constructor
 template <typename Object> 
 SelectionStep<Object>::SelectionStep(const edm::ParameterSet& cfg) :
   src_( cfg.getParameter<edm::InputTag>( "src"   )),
-  select_( cfg.getParameter<std::string>("select"))
+  select_( cfg.getParameter<std::string>("select")),
+  jetIDSelect_(0)
 {
   // construct min/max if the corresponding params
   // exist otherwise they are initialized with -1
@@ -185,10 +194,15 @@ SelectionStep<Object>::SelectionStep(const edm::ParameterSet& cfg) :
   if(cfg.exists("jetCorrector")){ jetCorrector_= cfg.getParameter<std::string>("jetCorrector"); }
   // read btag information if it exists
   if(cfg.existsAs<edm::ParameterSet>("jetBTagger")){
-    // read btag label
-    btagLabel_=(cfg.getParameter<edm::ParameterSet>("jetBTagger")).getParameter<edm::InputTag>("label");
-    // read btag working point
-    btagWorkingPoint_=(cfg.getParameter<edm::ParameterSet>("jetBTagger")).getParameter<double>("workingPoint");
+    edm::ParameterSet jetBTagger=cfg.getParameter<edm::ParameterSet>("jetBTagger");
+    btagLabel_=jetBTagger.getParameter<edm::InputTag>("label");
+    btagWorkingPoint_=jetBTagger.getParameter<double>("workingPoint");
+  }
+  // read jetID information if it exists
+  if(cfg.existsAs<edm::ParameterSet>("jetID")){
+    edm::ParameterSet jetID=cfg.getParameter<edm::ParameterSet>("jetID");
+    jetIDLabel_ =jetID.getParameter<edm::InputTag>("label");
+    jetIDSelect_= new StringCutObjectSelector<reco::JetID>(jetID.getParameter<std::string>("select"));
   }
 }
 
@@ -242,6 +256,12 @@ bool SelectionStep<Object>::select(const edm::Event& event, const edm::EventSetu
     event.getByLabel(btagLabel_, btagger);
   }
   
+  // load jetID value map if configured such 
+  edm::Handle<reco::JetIDValueMap> jetID;
+  if ( jetIDSelect_ ){
+    event.getByLabel( jetIDLabel_, jetID );
+  }
+
   // load jet corrector if configured such
   const JetCorrector* corrector=0;
   if(!jetCorrector_.empty()){
@@ -272,9 +292,16 @@ bool SelectionStep<Object>::select(const edm::Event& event, const edm::EventSetu
     // corresponding working point if configured such 
     unsigned int idx = obj-src->begin();
     if( btagLabel_.label().empty() ? true : (*btagger)[bjets->refAt(idx)]>btagWorkingPoint_ ){   
-      // scale jet energy if configured such
-      Object jet=*obj; jet.scaleEnergy(corrector ? corrector->correction(*obj) : 1.);
-      if(select_(jet))++n;
+      bool passedJetID=true;
+      // check jetID for calo jets
+      if( jetIDSelect_ && dynamic_cast<const reco::CaloJet*>(src->refAt(idx).get())){
+	passedJetID=(*jetIDSelect_)((*jetID)[src->refAt(idx)]);
+      }
+      if(passedJetID){
+	// scale jet energy if configured such
+	Object jet=*obj; jet.scaleEnergy(corrector ? corrector->correction(*obj) : 1.);
+	if(select_(jet))++n;
+      }
     }
   }
   bool accept=(min_>=0 ? n>=min_:true) && (max_>=0 ? n<=max_:true);
