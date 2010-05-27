@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.25 2010/04/29 17:52:29 amraktad Exp $
+// $Id: FWEventItemsManager.cc,v 1.26 2010/05/11 09:24:55 eulisse Exp $
 //
 
 // system include files
@@ -99,34 +99,39 @@ FWEventItemsManager::add(const FWPhysicsObjectDesc& iItem)
    return m_items.back();
 }
 
+/** Prepare to handle a new event by associating
+    all the items to watch it.
+  */
 void
 FWEventItemsManager::newEvent(const fwlite::Event* iEvent)
 {
    FWChangeSentry sentry(*m_changeManager);
    m_event = iEvent;
-   for(std::vector<FWEventItem*>::iterator it = m_items.begin();
-       it != m_items.end();
-       ++it) {
-      if(*it) {
-         (*it)->setEvent(iEvent);
-      }
+   for(size_t i = 0, e = m_items.size(); i != e; ++i)
+   {
+      FWEventItem *item = m_items[i];
+      if(item)
+         item->setEvent(iEvent);
    }
 }
 
-
+/** Clear all the items in the model. 
+    
+    Notice that a previous implementation was setting all the items to 0, I
+    guess to track accessing delete items.
+  */
 void
 FWEventItemsManager::clearItems(void)
 {
    goingToClearItems_();
-   for(std::vector<FWEventItem*>::iterator it = m_items.begin();
-       it != m_items.end();
-       ++it) {
-      if (*it)
-      {
-         (*it)->destroy();
-      }
-      *it = 0;
+   for (size_t i = 0, e = m_items.size(); i != e; ++i)
+   {
+      FWEventItem *item = m_items[i];
+      if (item)
+         item->destroy();
    }
+
+   m_items.clear();
 }
 
 static const std::string kType("type");
@@ -234,10 +239,21 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
    }
 }
 
+/** Remove one item. 
+  
+    Notice that rather than erasing the item from the list, it is preferred to
+    set it to zero, I guess to catch accesses to remove items and to avoid 
+    having to recalculate the current selection.
+    
+    GE: I think this is a broken way of handling removal of objects.  The object
+        should be properly deleted and the current selection should be updated
+        accordingly.
+  */
 void
 FWEventItemsManager::removeItem(const FWEventItem* iItem)
 {
-   m_items[iItem->id()]=0;
+   assert(iItem->id() < m_items.size());
+   m_items[iItem->id()] = 0;
 }
 
 void
@@ -260,15 +276,16 @@ FWEventItemsManager::end() const
    return m_items.end();
 }
 
+/** Look up an item by name.
+  */
 const FWEventItem*
 FWEventItemsManager::find(const std::string& iName) const
 {
-   for(std::vector<FWEventItem*>::const_iterator it = m_items.begin();
-       it != m_items.end();
-       ++it) {
-      if( *it && (*it)->name() == iName) {
-         return *it;
-      }
+   for (size_t i = 0, e = m_items.size(); i != e; ++i)
+   {
+      const FWEventItem *item = m_items[i];
+      if (item && item->name() == iName)
+         return item;
    }
    return 0;
 }

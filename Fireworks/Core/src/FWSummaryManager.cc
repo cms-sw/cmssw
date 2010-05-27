@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar  4 09:35:32 EST 2008
-// $Id: FWSummaryManager.cc,v 1.18 2009/11/03 00:05:03 chrjones Exp $
+// $Id: FWSummaryManager.cc,v 1.19 2010/04/28 13:55:48 eulisse Exp $
 //
 
 // system include files
@@ -56,8 +56,8 @@ m_itemChanged(false)
    sm->selectionChanged_.connect(boost::bind(&FWSummaryManager::selectionChanged,this,_1));
    eim->newItem_.connect(boost::bind(&FWSummaryManager::newItem,
                                      this, _1) );
-   eim->goingToClearItems_.connect(boost::bind(&FWSummaryManager::removeAllItems,this));
-
+   eim->goingToClearItems_.connect(boost::bind(&FWSummaryManager::removeAllItems, this));
+   eim->goingToClearItems_.connect(boost::bind(&FWModelChangeManager::itemsGoingToBeClearedSlot, cm));
 
    m_pack = new TGVerticalFrame(iParent);
    m_pack->SetLayoutManager( new FWCompactVerticalLayout(m_pack));

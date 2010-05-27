@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan 17 19:13:46 EST 2008
-// $Id: FWModelChangeManager.cc,v 1.11 2009/01/23 21:35:43 amraktad Exp $
+// $Id: FWModelChangeManager.cc,v 1.12 2010/05/10 19:20:35 amraktad Exp $
 //
 
 // system include files
@@ -133,33 +133,48 @@ FWModelChangeManager::endChanges()
       }
       m_itemChanges.clear();
 
-      std::vector<FWModelChangeSignal>::iterator itSignal = m_changeSignals.begin();
-      for(std::vector<FWModelIds>::iterator itChanges = m_changes.begin();
-          itChanges != m_changes.end();
-          ++itChanges,++itSignal) {
-         if(not itChanges->empty()) {
-            if( !guard ) {
+      for (size_t ci = 0, ce = m_changes.size(), si = 0; ci != ce; ++ci, ++si)
+      {
+         FWModelIds &changes = m_changes[ci];
+         FWModelChangeSignal &signal = m_changeSignals[si];
+
+         if (not changes.empty()) 
+         {
+            if (!guard) 
+            {
                // boost::shared_ptr<FWModelChangeManager> done(this, &sendChangeSignalsAreDone);
                guard = true;
                changeSignalsAreComing_();
             }
             //loop over the slots ourself so we can control the behavior in case of a failure
-            FWModelChangeSignal::slot_list_type slots = itSignal->slots();
-            for(FWModelChangeSignal::slot_list_type::iterator itSlot=slots.begin(), itEnd = slots.end();
+            FWModelChangeSignal::slot_list_type slots = signal.slots();
+            for(FWModelChangeSignal::slot_list_type::iterator itSlot = slots.begin(), itEnd = slots.end();
                 itSlot != itEnd;
-                ++itSlot) {
-               try {
-                  (*itSlot)(*itChanges);
-               } catch(const cms::Exception& iE) {
-                 fwLog(fwlog::kError) <<(*itChanges).begin()->item()->name()<<" had the failure in process FWModelChangeSignals\n"<<iE.what()<<std::endl;
-               } catch(const std::bad_alloc& iE) {
-                  std::cerr <<"Ran out of memory while processing "<<(*itChanges).begin()->item()->name()<<std::endl;
+                ++itSlot) 
+            {
+               try 
+               {
+                  (*itSlot)(changes);
+               } 
+               catch(const cms::Exception& iE) 
+               {
+                  fwLog(fwlog::kError) << changes.begin()->item()->name()<<" had the failure in process FWModelChangeSignals\n" 
+                                      << iE.what() << "\n";
+               } 
+               catch(const std::bad_alloc& iE) 
+               {
+                  // GE: if we run out of memory why do we assume that we will be able to print?
+                  fwLog(fwlog::kError) << "Ran out of memory while processing " << changes.begin()->item()->name() << "\n";
                   exit(1);
-               } catch(const std::exception& iE) {
-                  fwLog(fwlog::kError) <<(*itChanges).begin()->item()->name()<<" had the failure in process FWModelChangeSignals (2)\n"<<iE.what()<<std::endl;
+               } 
+               catch(const std::exception& iE) 
+               {
+                  fwLog(fwlog::kError) << changes.begin()->item()->name()
+                                       << " had the failure in process FWModelChangeSignals (2)\n"
+                                       << iE.what() << "\n";
                }
             }
-            itChanges->clear();
+            changes.clear();
          }
       }
    }
@@ -178,6 +193,16 @@ FWModelChangeManager::newItemSlot(FWEventItem* iItem)
    //propagate our signal to the item
    m_changeSignals.back().connect(iItem->changed_);
    m_itemChangeSignals.back().connect(iItem->itemChanged_);
+}
+
+/** Whenever all the items are removed from the FWItemsManager
+    clean also the associated vectors here.
+  */
+void
+FWModelChangeManager::itemsGoingToBeClearedSlot(void)
+{
+   m_changes.clear();
+   m_changeSignals.clear();
 }
 
 //
