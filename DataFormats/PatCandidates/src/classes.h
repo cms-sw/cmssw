@@ -131,8 +131,8 @@ namespace {
   edm::reftobase::RefHolder<pat::CompositeCandidateRef>	rb_rh_p_cc;
   edm::reftobase::RefHolder<pat::PFParticleRef>	 	rb_rh_p_pfp;
   edm::reftobase::RefHolder<pat::GenericParticleRef>    rb_rh_p_gp;
-  /*   RefToBaseVector<Candidate> from PATObjects, not yet provided. Useful?   */
     /*   With direct VectorHolder   */
+  /*   RefToBaseVector<Candidate> from PATObjects, not yet provided. Useful?   */
   /*
   edm::reftobase::VectorHolder<reco::Candidate, pat::ElectronRefVector>	        rb_cand_vh_p_e;
   edm::reftobase::VectorHolder<reco::Candidate, pat::MuonRefVector>	        rb_cand_vh_p_mu;
@@ -179,6 +179,8 @@ namespace {
   /*   ==========================================================================================================================
               PAT Dataformats beyond PatObjects
        ==========================================================================================================================   */
+  std::vector<edm::Ptr<CaloTower> > v_p_ct;
+
   edm::Wrapper<edm::ValueMap<pat::JetCorrFactors> >  w_vm_jcf;
 
   edm::Wrapper<StringMap>   w_sm;
