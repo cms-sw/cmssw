@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-
-
 topSingleLeptonDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
   ## ------------------------------------------------------
   ## SETUP
@@ -336,6 +334,10 @@ topElecPlusJetsOfflineDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       label  = cms.string("jets/calo:step0"),
       src    = cms.InputTag("ak5CaloJets"),
       select = cms.string("pt>30 & abs(eta)<2.1 & 0.05<emEnergyFraction & emEnergyFraction<0.95"),
+      jetID  = cms.PSet(
+        label  = cms.InputTag("ak5JetID"),
+        select = cms.string("n90Hits>1 & restrictedEMF<1")
+      ),
       jetCorrector = cms.string("ak5CaloL2L3"),
       min    = cms.int32(4),
     ),
