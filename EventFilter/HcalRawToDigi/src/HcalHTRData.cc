@@ -1,7 +1,7 @@
 //#include "Utilities/Configuration/interface/Architecture.h"
 /*  
- *  $Date: 2009/11/05 21:51:15 $
- *  $Revision: 1.14 $
+ *  $Date: 2010/05/27 13:32:15 $
+ *  $Revision: 1.15 $
  *  \author J. Mans -- UMD
  */
 #ifndef HTBDAQ_DATA_STANDALONE
@@ -249,7 +249,7 @@ void HcalHTRData::pack(unsigned char* daq_lengths, unsigned short* daq_samples,
     m_ownData[totalLen-4]=daq_words_total;
   }
   if (trailerWords==12) { // initialize extra trailer words if present
-    for (int i=12; i<4; i--)
+    for (int i=12; i>4; i--)
       m_ownData[totalLen-i]=0;
   }
 
