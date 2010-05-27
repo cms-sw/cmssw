@@ -123,6 +123,11 @@ class cosmics(Scenario):
         AlcaReco processing & skims for cosmics
 
         """
+    
+        globalTag = None
+        if 'globaltag' in  options:
+            globalTag = options['globaltag']
+        
         step = "ALCAOUTPUT:"
         for skim in skims:
             step += (skim+"+")
@@ -135,6 +140,8 @@ class cosmics(Scenario):
         options.beamspot = None
         options.eventcontent = None
         options.relval = None
+        if globalTag != None :
+            options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
         options.triggerResultsProcess = 'RECO' 
                  
         process = cms.Process('ALCA')
