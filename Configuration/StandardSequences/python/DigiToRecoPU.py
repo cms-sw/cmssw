@@ -2,8 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 def customise(process):
     REDIGIInputEventSkimming= cms.PSet(
-        inputCommands=cms.untracked.vstring('drop *',
-                                            'keep edmTriggerResults_*_*_*')        
+        inputCommands=cms.untracked.vstring('drop *')
         )
 
 #    HLTCleaning= cms.PSet(
