@@ -54,7 +54,11 @@ void HBHEStatusBitSetter::Clear()
   for (unsigned int i=0;i<hpdMultiplicity_.size();i++) hpdMultiplicity_[i]=0;
 }
 
-void HBHEStatusBitSetter::SetFlagsFromDigi(HBHERecHit& hbhe, const HBHEDataFrame& digi)
+void HBHEStatusBitSetter::SetFlagsFromDigi(HBHERecHit& hbhe, 
+					   const HBHEDataFrame& digi,
+					   const HcalCoder& coder,
+					   const HcalCalibrations& calib
+					   )
 {
   //clear status
   hbhe.setFlags(0);
@@ -72,26 +76,33 @@ void HBHEStatusBitSetter::SetFlagsFromDigi(HBHERecHit& hbhe, const HBHEDataFrame
   unsigned int slice_max3=0;
   unsigned int size=digi.size();
  
+  CaloSamples tool;
+  coder.adc2fC(digi,tool);
+
   double max2TS=-99.; // largest 2-TS sum found in reco window so far
   int max2TS_counter=1; // default value is 1
-  double running2TS=0; // tracks current 2-TS sum
-  for (unsigned int iSlice=0;iSlice<size;iSlice++) {
-    charge_total+=digi[iSlice].nominal_fC()-nominalPedestal_;
-    if (iSlice>=firstSample_ && 
-	iSlice<(firstSample_ + samplesToAdd_-1) && 
-	iSlice<(size-1))
-      {
-	running2TS=digi[iSlice].nominal_fC()+digi[iSlice+1].nominal_fC()-2*nominalPedestal_;
-	if (running2TS>max2TS)
-	  max2TS=running2TS;
+  double running2TS=0; // tracks current 2-TS sum, using "correct" charge and pedestal
+  int capid=-1, capid2=-1;
+  for (unsigned int iSlice=0;iSlice<size;iSlice++) 
+    {
+      charge_total+=digi[iSlice].nominal_fC()-nominalPedestal_;
+      if (iSlice>=firstSample_ && 
+	  iSlice<(firstSample_ + samplesToAdd_-1) && 
+	  iSlice<(size-1))
+	{
+	  capid  = digi.sample(iSlice).capid();
+	  capid2 = digi.sample(iSlice+1).capid();
+	  running2TS=tool[iSlice]+tool[iSlice+1]-calib.pedestal(capid)-calib.pedestal(capid2);
+	  if (running2TS>max2TS)
+	    max2TS=running2TS;
+	}
+      if (iSlice<2) continue;
+      double qsum3=digi[iSlice].nominal_fC() + digi[iSlice-1].nominal_fC() + digi[iSlice-2].nominal_fC() - 3*nominalPedestal_;
+      if (qsum3>charge_max3) {
+	charge_max3=qsum3;
+	slice_max3=iSlice;
       }
-    if (iSlice<2) continue;
-    double qsum3=digi[iSlice].nominal_fC() + digi[iSlice-1].nominal_fC() + digi[iSlice-2].nominal_fC() - 3*nominalPedestal_;
-    if (qsum3>charge_max3) {
-      charge_max3=qsum3;
-      slice_max3=iSlice;
     }
-  }
 
   // max2TS counter will be set from 1->63, indicating the fraction of total charge
   // contained within the largest 2 time slices within the reco window.

@@ -220,7 +220,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	if (hbheTimingShapedFlagSetter_!=0)
 	  hbheTimingShapedFlagSetter_->SetTimingShapedFlags(rec->back());
 	if (setNoiseFlags_)
-	  hbheFlagSetter_->SetFlagsFromDigi(rec->back(),*i);
+	  hbheFlagSetter_->SetFlagsFromDigi(rec->back(),*i,coder,calibrations);
 	if (setSaturationFlags_)
 	  saturationFlagSetter_->setSaturationFlag(rec->back(),*i);
 	if (correctTiming_)
