@@ -14,7 +14,8 @@ namespace TopSingleLepton {
   // be used for the top mass estimate
   static const double WMASS = 80.4;
 
-  MonitorEnsemble::MonitorEnsemble(const char* label, const edm::ParameterSet& cfg) : label_(label), includeBTag_(false)
+  MonitorEnsemble::MonitorEnsemble(const char* label, const edm::ParameterSet& cfg) : 
+   label_(label), muonSelect_(0), muonIso_(0), elecSelect_(0), elecIso_(0), includeBTag_(false)
   {
     // sources have to be given; this PSet is not optional
     edm::ParameterSet sources=cfg.getParameter<edm::ParameterSet>("sources");
@@ -43,6 +44,7 @@ namespace TopSingleLepton {
 	electronId_= elecExtras.getParameter<edm::InputTag>("electronId");
       }
     }
+
     // muonExtras are optional; they may be omitted or empty
     if( cfg.existsAs<edm::ParameterSet>("muonExtras") ){
       edm::ParameterSet muonExtras=cfg.getParameter<edm::ParameterSet>("muonExtras");
@@ -57,6 +59,7 @@ namespace TopSingleLepton {
 	muonIso_= new StringCutObjectSelector<reco::Muon>(muonExtras.getParameter<std::string>("isolation"));
       }
     }
+    
     // jetExtras are optional; they may be omitted or 
     // empty
     if( cfg.existsAs<edm::ParameterSet>("jetExtras") ){
@@ -246,7 +249,7 @@ namespace TopSingleLepton {
     for(edm::View<reco::GsfElectron>::const_iterator elec=elecs->begin(); elec!=elecs->end(); ++elec){
       // restrict to electrons with good electronId
       if( electronId_.label().empty() ? true : (*electronId)[elecs->refAt(eMult)]>0.99 ){
-	if((*elecSelect_)(*elec)){
+	if(!elecSelect_ || (*elecSelect_)(*elec)){
 	  double isolationTrk = elec->pt()/(elec->pt()+elec->dr03TkSumPt());
 	  double isolationCal = elec->pt()/(elec->pt()+elec->dr04EcalRecHitSumEt()+elec->dr04HcalTowerSumEt());
 	  double isolationRel = (elec->dr03TkSumPt()+elec->dr04EcalRecHitSumEt()+elec->dr04HcalTowerSumEt())/elec->pt();
@@ -258,7 +261,9 @@ namespace TopSingleLepton {
 	    fill("elecTrkIso_" , isolationTrk );
 	    fill("elecCalIso_" , isolationCal );
 	  }
-	  ++eMult; if((*elecIso_)(*elec)){ isoElecs.push_back(&(*elec)); ++eMultIso;}
+	  // in addition to the multiplicity counter buffer the iso 
+	  // electron candidates for later overlap check with jets
+	  ++eMult; if(!elecIso_ || (*elecIso_)(*elec)){ isoElecs.push_back(&(*elec)); ++eMultIso;}
 	}
       }
     }
@@ -285,7 +290,7 @@ namespace TopSingleLepton {
 	fill("muonDelZ_" , muon->globalTrack()->vz());
 	fill("muonDelXY_", muon->globalTrack()->vx(), muon->globalTrack()->vy());
 	// apply preselection
-	if((*muonSelect_)(*muon)){
+	if(!muonSelect_ || (*muonSelect_)(*muon)){
 	  double isolationTrk = muon->pt()/(muon->pt()+muon->isolationR03().sumPt);
 	  double isolationCal = muon->pt()/(muon->pt()+muon->isolationR03().emEt+muon->isolationR03().hadEt);
 	  double isolationRel = (muon->isolationR03().sumPt+muon->isolationR03().emEt+muon->isolationR03().hadEt)/muon->pt();
@@ -297,7 +302,7 @@ namespace TopSingleLepton {
 	    fill("muonTrkIso_" , isolationTrk );
 	    fill("muonCalIso_" , isolationCal );
 	  }
-	   ++mMult; if((*muonIso_)(*muon)) ++mMultIso;
+	   ++mMult; if(!muonIso_ || (*muonIso_)(*muon)) ++mMultIso;
 	}
       }
     }

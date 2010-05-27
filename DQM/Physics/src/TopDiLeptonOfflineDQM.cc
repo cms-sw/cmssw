@@ -8,7 +8,8 @@
 
 namespace TopDiLeptonOffline {
 
-  MonitorEnsemble::MonitorEnsemble(const char* label, const edm::ParameterSet& cfg) : label_(label), lowerEdge_(-1.), upperEdge_(-1.)
+  MonitorEnsemble::MonitorEnsemble(const char* label, const edm::ParameterSet& cfg) : 
+   label_(label), muonSelect_(0), muonIso_(0), elecSelect_(0), elecIso_(0), lowerEdge_(-1.), upperEdge_(-1.)
   {
     // sources have to be given; this PSet is not optional
     edm::ParameterSet sources=cfg.getParameter<edm::ParameterSet>("sources");
@@ -244,12 +245,12 @@ namespace TopDiLeptonOffline {
 	fill("muonDelZ_" , muon->globalTrack()->vz());
 	fill("muonDelXY_", muon->globalTrack()->vx(), muon->globalTrack()->vy());
 	// apply preselection
-	if((*muonSelect_)(*muon)){
+	if(!muonSelect_ || (*muonSelect_)(*muon)){
 	  double isolationTrk = muon->pt()/(muon->pt()+muon->isolationR03().sumPt);
 	  double isolationCal = muon->pt()/(muon->pt()+muon->isolationR03().emEt+muon->isolationR03().hadEt);
 	  double isolationRel = (muon->isolationR03().sumPt+muon->isolationR03().emEt+muon->isolationR03().hadEt)/muon->pt();
 	  fill("muonTrkIso_" , isolationTrk); fill("muonCalIso_" , isolationCal); fill("muonRelIso_" , isolationRel);
-	  if((*muonIso_)(*muon)) isoMuons.push_back(&(*muon));
+	  if(!muonIso_ || (*muonIso_)(*muon)) isoMuons.push_back(&(*muon));
 	}
       }
     }
@@ -273,12 +274,12 @@ namespace TopDiLeptonOffline {
       int index = elec-elecs->begin();
       if( electronId_.label().empty() ? true : (*electronId)[elecs->refAt(index)]>0.99 ){
 	// apply preselection
-	if((*elecSelect_)(*elec)){
+	if(!elecSelect_ || (*elecSelect_)(*elec)){
 	  double isolationTrk = elec->pt()/(elec->pt()+elec->dr03TkSumPt());
 	  double isolationCal = elec->pt()/(elec->pt()+elec->dr04EcalRecHitSumEt()+elec->dr04HcalTowerSumEt());
 	  double isolationRel = (elec->dr03TkSumPt()+elec->dr04EcalRecHitSumEt()+elec->dr04HcalTowerSumEt())/elec->pt();
 	  fill("elecTrkIso_" , isolationTrk); fill("elecCalIso_" , isolationCal); fill("elecRelIso_" , isolationRel);
-	  if((*elecIso_)(*elec)) isoElecs.push_back(&(*elec));
+	  if(!elecIso_ || (*elecIso_)(*elec)) isoElecs.push_back(&(*elec));
 	}
       }
     }
