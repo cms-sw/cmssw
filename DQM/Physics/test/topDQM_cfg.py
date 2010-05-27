@@ -11,7 +11,7 @@ process.DQM.collectorHost = ''
 process.dqmSaver.workflow = cms.untracked.string('/Physics/TopSingleLeptonDQM/DataSet')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(1000)
 )
 
 process.source = cms.Source(
@@ -31,8 +31,8 @@ process.source = cms.Source(
 )
 
 ## load jet corrections
-#process.load("JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff")
-#process.prefer("ak5CaloL2L3")
+process.load("JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff")
+process.prefer("ak5CaloL2L3")
 
 ## configure message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -45,6 +45,7 @@ process.MessageLogger.cerr.TopDiLeptonOfflineDQM = cms.untracked.PSet(limit = cm
 #process.content = cms.EDAnalyzer("EventContentAnalyzer")
 
 process.p = cms.Path(#process.content *
+                     process.topSingleMuonLooseDQM +
                      process.topDiLeptonOfflineDQM +
                      process.topSingleLeptonDQM +
                      process.dqmSaver
