@@ -97,7 +97,7 @@ void EBDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
   // evaluate the DQM quality of observables checked by lumi
   float DQMVal[36];
   for (int i = 0; i < 36; i++) {
-    DQMVal[i] = 0.;
+    DQMVal[i] = -1.;
   }
 
   sprintf(histo, (prefixME_ + "/EBIntegrityTask/EBIT weighted integrity errors by lumi").c_str());
@@ -133,11 +133,10 @@ void EBDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
     me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo );
 
     if( me ) {
-      for( int iett=0; iett<17; iett++ ) {
-        for( int iptt=0; iptt<4; iptt++ ) {
-          int iettx = (i-1)*17 + iett + 1;
-          int ipttx = (i-1)*4 + iptt + 1;
-          me->setBinContent( ipttx, iettx, DQMVal[i]);
+      for ( int iett = 0; iett < 34; iett++ ) {
+        for ( int iptt = 0; iptt < 72; iptt++ ) {
+          int ism = ( iett<17 ) ? iptt/4+1 : 18+iptt/4+1;
+          if(i == ism-1) me->setBinContent( iptt, iett, DQMVal[ism-1]);
         }
       }
     }
