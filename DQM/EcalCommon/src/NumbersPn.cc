@@ -34,6 +34,35 @@ int NumbersPn::ipnEE( const int ism, const int ipnid ) throw( std::runtime_error
 
 }
 
+int NumbersPn::getPN( const int ism, const int ix, const int iy ) throw( std::runtime_error ) {
+
+  int ilm = NumbersPn::iLM(ism, ix, iy );
+
+  if( ilm ==  0 ) return 25;
+  if( ilm ==  1 ) return 25;
+  if( ilm ==  2 ) return 20;
+  if( ilm ==  3 ) return 20;
+  if( ilm ==  4 ) return 20;
+  if( ilm ==  5 ) return  0;
+  if( ilm ==  6 ) return  0;
+  if( ilm ==  7 ) return  0;
+  if( ilm ==  8 ) return  5;
+  if( ilm ==  9 ) return  5;
+  if( ilm == 10 ) return 65;
+  if( ilm == 11 ) return 65;
+  if( ilm == 12 ) return 60;
+  if( ilm == 13 ) return 60;
+  if( ilm == 14 ) return 60;
+  if( ilm == 15 ) return 40;
+  if( ilm == 16 ) return 40;
+  if( ilm == 17 ) return 40;
+  if( ilm == 18 ) return 45;
+  if( ilm == 19 ) return 45;
+
+  return -1;
+
+}
+
 std::vector<int> NumbersPn::getPNs( const int ism, const int ix, const int iy ) throw( std::runtime_error ) {
 
   int ilm = NumbersPn::iLM(ism, ix, iy );
