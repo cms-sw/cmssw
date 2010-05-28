@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
    Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
-   version $Id: AlcaBeamSpotProducer.cc,v 1.1 2010/05/28 19:51:47 uplegger Exp $
+   version $Id: AlcaBeamSpotProducer.cc,v 1.2 2010/05/28 20:00:55 uplegger Exp $
 
    ________________________________________________________________**/
 
@@ -52,7 +52,7 @@ AlcaBeamSpotProducer::AlcaBeamSpotProducer(const edm::ParameterSet& iConfig){
   beginLumiOfBSFit_ = endLumiOfBSFit_ = -1;
 
   produces<reco::BeamSpot>();
-  produces<reco::BeamSpot, edm::InLumi>("endLumi");
+  produces<reco::BeamSpot, edm::InLumi>("alcaBeamSpot");
 }
 
 //--------------------------------------------------------------------------------------------------
