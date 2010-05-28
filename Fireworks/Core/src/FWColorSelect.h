@@ -1,54 +1,33 @@
-// -*- C++ -*-
 #ifndef Fireworks_Core_FWColorSelect_h
 #define Fireworks_Core_FWColorSelect_h
 
-#include <vector>
-#include <TQObject.h>
-#include <RQ_OBJECT.h>
 #include "TGLabel.h"
 #include "TGButton.h"
 #include "TGColorSelect.h"
-#include "Rtypes.h"
+
+#include <vector>
 
 class FWColorManager;
 class TGColorPopup;
 
-enum FWCSelConstants
-{
-   kCFWidth  = 15, kCFPadLeft =  4, kCFPadAbove = 8,
-   kCFHeight = 15, kCFPadRight = 4, kCFPadBelow = 8,
-
-   kHLOffsetX = 3,  kHLExtraWidth  = 5,
-   kHLOffsetY = 3,  kHLExtraHeight = 5,
-
-   kCROffsetX = 5,   kCRPadAbove = 3,
-   kCROffsetY = 5,   kCRPadBelow = 6,
-
-   kColorPopupGray = 0xcccccc
-};
 
 //------------------------------FWColorFrame------------------------------//
-class FWColorFrame : public TGColorFrame {
 
-   RQ_OBJECT("FWColorFrame")
-
+class FWColorFrame : public TGColorFrame
+{
 protected:
    Int_t fIndex;
 
 public:
    FWColorFrame(const TGWindow *p = 0, Pixel_t c = 0, Int_t i = 0);
-   virtual ~FWColorFrame() {
-   }
+   virtual ~FWColorFrame() {}
 
-   virtual Bool_t  HandleButton(Event_t *event);
-   virtual void DrawBorder() {
-   };
+   virtual Bool_t HandleButton(Event_t *event);
+   virtual void   DrawBorder() {}
 
    void SetColor(Pixel_t);
 
-   Int_t GetIndex() const {
-      return fIndex;
-   }
+   Int_t GetIndex() const { return fIndex; }
    //sends the index
    void ColorSelected(Int_t frameindex); // *SIGNAL*
 
@@ -56,20 +35,20 @@ public:
 
 };
 
+
 //------------------------------FWColorRow------------------------------//
-class FWColorRow : public TGCompositeFrame {
 
-   RQ_OBJECT("FWColorRow")
-
+class FWColorRow : public TGHorizontalFrame
+{
 private:
    Int_t fRowIndex;
 
    void DrawHighlight();
 
 protected:
-   Bool_t fIsActive;
-   Bool_t fBackgroundIsBlack;
-   Int_t fSelectedIndex;
+   Bool_t  fIsActive;
+   Bool_t  fBackgroundIsBlack;
+   Int_t   fSelectedIndex;
    Pixel_t fSelectedColor;
    std::vector<FWColorFrame *>  fCc;
 
@@ -107,20 +86,20 @@ public:
 
 };
 
+
 //------------------------------FWColorPopup------------------------------//
-class FWColorPopup : public TGCompositeFrame {
 
-   RQ_OBJECT("FWColorPopup")
-
+class FWColorPopup : public TGVerticalFrame
+{
 private:
    void SetColors(const std::vector<Pixel_t>& colors, bool backgroundIsBlack);
 
 protected:
-   Pixel_t fSelectedColor;
+   Pixel_t     fSelectedColor;
    FWColorRow *fFirstRow, *fSecondRow, *fSelectedRow;
-   Int_t fSelectedIndex;
-   TGLabel *fLabel;
-   Int_t fNumColors;
+   Int_t       fSelectedIndex;
+   TGLabel    *fLabel;
+   Int_t       fNumColors;
 
 public:
    FWColorPopup(const TGWindow *p = 0, Pixel_t color = 0);
@@ -143,18 +122,21 @@ public:
 
 };
 
-//------------------------------FWColorSelect------------------------------//
-class FWColorSelect : public TGColorSelect {
 
+//------------------------------FWColorSelect------------------------------//
+
+class FWColorSelect : public TGColorSelect
+{
 private:
-   std::string fLabel;
-   UInt_t fIndex;
-   std::vector<Color_t> fPalette;
-   FWColorPopup *fFireworksPopup;
-   const FWColorManager* fColorManager;
+   std::string           fLabel;
+   UInt_t                fIndex;
+   std::vector<Color_t>  fPalette;
+   FWColorPopup         *fFireworksPopup;
+   const FWColorManager *fColorManager;
 
 public:
-   FWColorSelect(const TGWindow *p, const char *label, UInt_t colorIndex, const FWColorManager*, Int_t id);
+   FWColorSelect(const TGWindow *p, const char *label, UInt_t colorIndex,
+                 const FWColorManager*, Int_t id);
    ~FWColorSelect();
 
    virtual Bool_t HandleButton(Event_t *event);
