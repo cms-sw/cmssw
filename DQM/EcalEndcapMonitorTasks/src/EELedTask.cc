@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2010/05/28 14:50:08 $
- * $Revision: 1.58 $
+ * $Date: 2010/05/28 14:55:21 $
+ * $Revision: 1.59 $
  * \author G. Della Ricca
  *
 */
@@ -476,9 +476,9 @@ void EELedTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       }
 
-      int refPn = NumbersPn::getPN( ism, ix, iy );
+      int ipn = NumbersPn::getPN( ism, ix, iy );
 
-      if ( refPn >= 0 && refPn < 80 ) numPN[refPn] = true;
+      if ( ipn >= 0 && ipn < 80 ) numPN[ipn] = true;
 
     }
 
@@ -639,11 +639,11 @@ void EELedTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       float wval = 0.;
 
-      int refPn = NumbersPn::getPN( ism, ix, iy );
+      int ipn = NumbersPn::getPN( ism, ix, iy );
 
-      if ( refPn >= 0 && refPn < 80 ) {
+      if ( ipn >= 0 && ipn < 80 ) {
 
-        if ( adcPN[refPn] != 0. ) wval = xval / adcPN[refPn];
+        if ( adcPN[ipn] != 0. ) wval = xval / adcPN[ipn];
 
       }
 
