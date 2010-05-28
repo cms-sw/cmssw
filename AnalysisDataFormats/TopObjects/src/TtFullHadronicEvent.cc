@@ -6,7 +6,7 @@
 void
 TtFullHadronicEvent::print(const int verbosity)
 {
-  if(verbosity<=0)
+  if(verbosity%10<=0)
     return;
 
   edm::LogInfo log("TtFullHadronicEvent");
@@ -65,7 +65,7 @@ TtFullHadronicEvent::print(const int verbosity)
     // if verbosity level is smaller than 10, never show more than the best jet combination
     if(verbosity < 10)
       nOfHyp = 1;
-    for(unsigned cmb=0; cmb<nOfHyp; cmb++) {
+    for(unsigned cmb=0; cmb<nOfHyp; ++cmb) {
       // check if hypothesis is valid
       if( !this->isHypoValid(hypKey, cmb) )
 	log << " * Not valid! \n";
@@ -73,19 +73,19 @@ TtFullHadronicEvent::print(const int verbosity)
       else {
 	// jetLepComb
 	log << " * JetLepComb:";
-	std::vector<int> jets = this->jetLeptonCombination( hypKey );
+	std::vector<int> jets = this->jetLeptonCombination( hypKey , cmb );
 	for(unsigned int iJet = 0; iJet < jets.size(); iJet++) {
 	  log << "     " << jets[iJet] << "    ";
 	}
 	log << "\n";
 	// specialties for some hypotheses
 	switch(hypKey) {
-	case kGenMatch : log << " * Sum(DeltaR) : " << this->genMatchSumDR()   << " \n"
-			     << " * Sum(DeltaPt): " << this->genMatchSumPt()   << " \n"; break;      
-	case kMVADisc  : log << " * Method  : "     << this->mvaMethod()     << " \n"
-			     << " * Discrim.: "     << this->mvaDisc()       << " \n"; break;
-	case kKinFit   : log << " * Chi^2      : "  << this->fitChi2()       << " \n"
-			     << " * Prob(Chi^2): "  << this->fitProb()       << " \n"; break;
+	case kGenMatch : log << " * Sum(DeltaR) : " << this->genMatchSumDR(cmb) << " \n"
+			     << " * Sum(DeltaPt): " << this->genMatchSumPt(cmb) << " \n"; break;      
+	case kMVADisc  : log << " * Method  : "     << this->mvaMethod()        << " \n"
+			     << " * Discrim.: "     << this->mvaDisc(cmb)       << " \n"; break;
+	case kKinFit   : log << " * Chi^2      : "  << this->fitChi2(cmb)       << " \n"
+			     << " * Prob(Chi^2): "  << this->fitProb(cmb)       << " \n"; break;
 	default        : break;
 	}
 	// kinematic quantities of particles (if last digit of verbosity level > 1)
