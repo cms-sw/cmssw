@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: SimpleZSPJPTJetCorrector.cc,v 1.4 2010/05/01 19:49:47 kodolova Exp $
+// $Id: SimpleZSPJPTJetCorrector.cc,v 1.5 2010/05/01 20:04:10 kodolova Exp $
 //
 // ZSP Jet Corrector
 //
@@ -32,7 +32,7 @@ SimpleZSPJPTJetCorrector::SimpleZSPJPTJetCorrector (const std::string& fDataFile
 {
   mParameters = new JetCorrectorParameters (fDataFile,"");
 
-  std::cout<<" Formula "<<((mParameters->definitions()).formula()).c_str()<<std::endl;
+  //std::cout<<" Formula "<<((mParameters->definitions()).formula()).c_str()<<std::endl;
 
   mFunc            = new TFormula("function",((mParameters->definitions()).formula()).c_str());
 
