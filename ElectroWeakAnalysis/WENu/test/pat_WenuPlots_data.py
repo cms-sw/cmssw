@@ -16,17 +16,17 @@ process.options = cms.untracked.PSet(
 # source
 process.source = cms.Source("PoolSource", 
      fileNames = cms.untracked.vstring(
-    'file:rfio:/castor/cern.ch/user/r/rompotis/DATA_STUDIES/Spring10/sample_WenuSpring10START3X_V26_S09-v1_AODSIM.root',
-
+    #'file:rfio:/castor/cern.ch/user/r/rompotis/DATA_STUDIES/Spring10/sample_WenuSpring10START3X_V26_S09-v1_AODSIM.root',
+    "dcap://gfe02:22128/pnfs/hep.ph.ic.ac.uk/data/cms/store/data/Commissioning10/MinimumBias/RECO/May6thPDSkim2_SD_EG-v1/0135/FCC2FA5A-BB5D-DF11-8246-002618943978.root"
     )
 )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 ## Load additional processes
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 ## global tags:
-process.GlobalTag.globaltag = cms.string('START3X_V26A::All')
+process.GlobalTag.globaltag = cms.string('GR_R_35X_V8B::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 
@@ -105,15 +105,18 @@ process.patDefaultSequence = cms.Sequence(process.makePatCandidates)
 ##
 ##
 ## WARNING: you may want to modify this item:
-HLT_process_name = "REDIGI"   # 
+HLT_process_name = "HLT"   # 
 # trigger path selection
 HLT_path_name    = "HLT_Ele15_LW_L1R"
 # trigger filter name
 HLT_filter_name  =  "hltL1NonIsoHLTNonIsoSingleElectronLWEt15PixelMatchFilter"
 #
 process.wenuFilter = cms.EDFilter('WenuCandidateFilter',
+                                  # cfg for data
+                                  dataMagneticFieldSetUp = cms.untracked.bool(True),
+                                  dcsTag = cms.untracked.InputTag("scalersRawToDigi"),
                                   # cuts
-                                  ETCut = cms.untracked.double(25.),
+                                  ETCut = cms.untracked.double(5.),
                                   METCut = cms.untracked.double(0.),
                                   # 2nd electron in W events
                                   vetoSecondElectronEvents = cms.untracked.bool(False),
@@ -122,7 +125,7 @@ process.wenuFilter = cms.EDFilter('WenuCandidateFilter',
                                   vetoSecondElectronIDSign = cms.untracked.string("="),
                                   vetoSecondElectronIDValue = cms.untracked.double(7.),
                                   # trigger 
-                                  useTriggerInfo = cms.untracked.bool(True),
+                                  useTriggerInfo = cms.untracked.bool(False),
                                   triggerCollectionTag = cms.untracked.InputTag("TriggerResults","",HLT_process_name),
                                   triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","",HLT_process_name),
                                   hltpath = cms.untracked.string(HLT_path_name), 
@@ -152,13 +155,38 @@ selection_inverse = cms.PSet (
     deta_EB_inv = cms.untracked.bool(True),
     deta_EE_inv = cms.untracked.bool(True)
     )
+# dummy selection for debugging
+selection_dummy = cms.PSet (
+    trackIso_EB = cms.untracked.double(100.),
+    ecalIso_EB =  cms.untracked.double(100.),
+    hcalIso_EB =  cms.untracked.double(100.),
+    sihih_EB =    cms.untracked.double(0.1 ),
+    dphi_EB =     cms.untracked.double(0.1 ),
+    deta_EB =     cms.untracked.double(0.1 ),
+    hoe_EB =      cms.untracked.double(0.1 ),
+    cIso_EB =     cms.untracked.double(100.),
+    
+    trackIso_EE = cms.untracked.double(100.),
+    ecalIso_EE =  cms.untracked.double(100.),
+    hcalIso_EE =  cms.untracked.double(100.),
+    sihih_EE =    cms.untracked.double(0.1 ),
+    dphi_EE =     cms.untracked.double(0.1 ),
+    deta_EE =     cms.untracked.double(0.1 ),
+    hoe_EE =      cms.untracked.double(0.1 ),
+    cIso_EE =     cms.untracked.double(100.),
+    useConversionRejection = cms.untracked.bool(False),
+    useExpectedMissingHits = cms.untracked.bool(False),
+    maxNumberOfExpectedMissingHits = cms.untracked.int32(99),
+    )
+
+
 
 ####################################################################################
 ##
 ## and the plot creator
 process.plotter = cms.EDAnalyzer('WenuPlots',
                                  # selection in use
-                                 selection_95cIso,
+                                 selection_dummy,
                                  selection_inverse,
                                  # if usePrecalcID the precalculated ID will be used only
                                  usePrecalcID = cms.untracked.bool(False),
