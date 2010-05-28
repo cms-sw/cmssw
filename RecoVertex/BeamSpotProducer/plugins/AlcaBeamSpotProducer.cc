@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
    Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
-   version $Id: AlcaBeamSpotProducer.cc,v 1.25 2010/05/05 16:43:27 yumiceva Exp $
+   version $Id: AlcaBeamSpotProducer.cc,v 1.1 2010/05/28 19:51:47 uplegger Exp $
 
    ________________________________________________________________**/
 
@@ -33,11 +33,11 @@
 //--------------------------------------------------------------------------------------------------
 AlcaBeamSpotProducer::AlcaBeamSpotProducer(const edm::ParameterSet& iConfig){
   // get parameter
-  write2DB_        = iConfig.getParameter<edm::ParameterSet>("BSAnalyzerParameters").getParameter<bool>("WriteToDB");
-  runallfitters_   = iConfig.getParameter<edm::ParameterSet>("BSAnalyzerParameters").getParameter<bool>("RunAllFitters");
-  fitNLumi_        = iConfig.getParameter<edm::ParameterSet>("BSAnalyzerParameters").getUntrackedParameter<int>("fitEveryNLumi",-1);
-  resetFitNLumi_   = iConfig.getParameter<edm::ParameterSet>("BSAnalyzerParameters").getUntrackedParameter<int>("resetEveryNLumi",-1);
-  runbeamwidthfit_ = iConfig.getParameter<edm::ParameterSet>("BSAnalyzerParameters").getParameter<bool>("RunBeamWidthFit");
+  write2DB_        = iConfig.getParameter<edm::ParameterSet>("AlcaBeamSpotProducerParameters").getParameter<bool>("WriteToDB");
+  runallfitters_   = iConfig.getParameter<edm::ParameterSet>("AlcaBeamSpotProducerParameters").getParameter<bool>("RunAllFitters");
+  fitNLumi_        = iConfig.getParameter<edm::ParameterSet>("AlcaBeamSpotProducerParameters").getUntrackedParameter<int>("fitEveryNLumi",-1);
+  resetFitNLumi_   = iConfig.getParameter<edm::ParameterSet>("AlcaBeamSpotProducerParameters").getUntrackedParameter<int>("resetEveryNLumi",-1);
+  runbeamwidthfit_ = iConfig.getParameter<edm::ParameterSet>("AlcaBeamSpotProducerParameters").getParameter<bool>("RunBeamWidthFit");
   
   theBeamFitter = new BeamFitter(iConfig);
   theBeamFitter->resetTrkVector();
