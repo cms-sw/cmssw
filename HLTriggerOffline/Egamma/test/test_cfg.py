@@ -9,7 +9,8 @@ process.maxEvents = cms.untracked.PSet(
 
 process.load("HLTriggerOffline.Egamma.EgammaValidation_cff")
 process.post=cms.EDAnalyzer("EmDQMPostProcessor",
-                            subDir = cms.untracked.string("HLT/HLTEgammaValidation")                   
+                            subDir = cms.untracked.string("HLT/HLTEgammaValidation"),
+                            dataSet = cms.untracked.string("unknown"),
     )
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
