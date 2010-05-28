@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
- version $Id: BeamSpotAnalyzer.cc,v 1.24 2010/05/03 22:07:16 yumiceva Exp $
+ version $Id: BeamSpotAnalyzer.cc,v 1.25 2010/05/05 16:43:27 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -111,7 +111,7 @@ BeamSpotAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
     
     int * LSRange = theBeamFitter->getFitLSRange();
 
-    if (theBeamFitter->runFitter()){
+    if (theBeamFitter->runPVandTrkFitter()){
 		reco::BeamSpot bs = theBeamFitter->getBeamSpot();
 		std::cout << "\n RESULTS OF DEFAULT FIT " << std::endl;
 		std::cout << " for runs: " << ftmprun0 << " - " << ftmprun << std::endl;
@@ -155,7 +155,7 @@ BeamSpotAnalyzer::endJob() {
 
   if ( fitNLumi_ == -1 && resetFitNLumi_ == -1 ) {
 	  
-	  if(theBeamFitter->runFitter()){
+	  if(theBeamFitter->runPVandTrkFitter()){
 		  reco::BeamSpot beam_default = theBeamFitter->getBeamSpot();
 		  int * LSRange = theBeamFitter->getFitLSRange();
 

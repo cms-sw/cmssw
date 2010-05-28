@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.30 2010/05/03 22:09:23 yumiceva Exp $
+ version $Id: BeamFitter.h,v 1.31 2010/05/03 22:26:40 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -40,6 +40,9 @@ class BeamFitter {
 
   bool runFitter();
   bool runBeamWidthFitter();
+  bool runPVandTrkFitter();
+  bool runFitterNoTxt();
+  
   reco::BeamSpot getBeamWidth() { return fbeamWidthFit; }
   void runAllFitter();
   void resetTrkVector() { fBSvector.clear(); }

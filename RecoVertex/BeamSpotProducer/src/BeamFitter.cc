@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.55 2010/05/03 22:17:03 yumiceva Exp $
+   version $Id: BeamFitter.cc,v 1.56 2010/05/03 22:26:42 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -372,7 +372,74 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
 
 }
 
-bool BeamFitter::runFitter() {
+bool BeamFitter::runPVandTrkFitter() {
+// run both PV and track fitters
+    bool fit_ok = false;
+    reco::BeamSpot bspotPV;
+    reco::BeamSpot bspotTrk;
+        
+    // First run PV fitter
+    if ( MyPVFitter->runFitter() ) {
+
+        bspotPV = MyPVFitter->getBeamSpot();
+
+        // take beam width from PV fit and pass it to track fitter
+        // assume circular transverse beam width
+        inputBeamWidth_ = sqrt( pow(bspotPV.BeamWidthX(),2) + pow(bspotPV.BeamWidthY(),2) )/sqrt(2);
+        fit_ok = true;
+    } else {
+        // problems with PV fit
+        bspotPV.setType(reco::BeamSpot::Unknown);
+        bspotTrk.setType(reco::BeamSpot::Unknown); //propagate error to trk beam spot
+    }
+
+    if ( runFitterNoTxt() ) {
+       
+        bspotTrk = fbeamspot;
+        fit_ok = true;
+    } else {
+        // beamfit failed, flagged as empty beam spot
+		bspotTrk.setType(reco::BeamSpot::Fake);
+        fit_ok = false;
+    }
+
+    // combined results into one single beam spot
+    
+    // to pass errors I have to create another beam spot object
+    reco::BeamSpot::CovarianceMatrix matrix;
+    for (int j = 0 ; j < 7 ; ++j) {
+        for(int k = j ; k < 7 ; ++k) {
+            matrix(j,k) = bspotTrk.covariance(j,k);
+        }
+    }
+    // change beam width error to one from PV
+    matrix(6,6) = MyPVFitter->getWidthXerr() * MyPVFitter->getWidthXerr();
+    
+    // get Z and sigmaZ from PV fit
+    matrix(2,2) = bspotPV.covariance(2,2);
+    matrix(3,3) = bspotPV.covariance(3,3);
+    
+    reco::BeamSpot tmpbs(reco::BeamSpot::Point(bspotTrk.x0(), bspotTrk.y0(),
+                                               bspotPV.z0() ),
+                         bspotPV.sigmaZ() ,
+                         bspotTrk.dxdz(),
+                         bspotTrk.dydz(),
+                         bspotPV.BeamWidthX(),
+                         matrix,
+                         bspotTrk.type() );
+    tmpbs.setBeamWidthY( bspotPV.BeamWidthY() );
+
+    // overwrite beam spot result
+    fbeamspot = tmpbs;
+    
+    if(writeTxt_ ) dumpTxtFile(outputTxt_,true); // all reaults
+    if(writeDIPTxt_ && fasciiDIP.is_open()) dumpTxtFile(outputDIPTxt_,false); // for DQM/DIP
+    
+    return fit_ok;
+}
+
+bool BeamFitter::runFitterNoTxt() {
+
   const char* fbeginTime = formatTime(freftime[0]);
   sprintf(fbeginTimeOfFit,"%s",fbeginTime);
   const char* fendTime = formatTime(freftime[1]);
@@ -397,47 +464,7 @@ bool BeamFitter::runFitter() {
 
     fbeamspot = myalgo->Fit();
 
-    if ( fbeamspot.type() != 0 && MyPVFitter->runFitter() ) { // Run PVFitter if d0-phi fit returns non zero results
-
-      fbeamspot.setBeamWidthX( MyPVFitter->getWidthX() );
-      fbeamspot.setBeamWidthY( MyPVFitter->getWidthY() );
-      // to pass errors I have to create another beam spot object
-      reco::BeamSpot::CovarianceMatrix matrix;
-      for (int j = 0 ; j < 7 ; ++j) {
-          for(int k = j ; k < 7 ; ++k) {
-              matrix(j,k) = fbeamspot.covariance(j,k);
-          }
-      }
-      matrix(6,6) = MyPVFitter->getWidthXerr() * MyPVFitter->getWidthXerr();
-
-      // get Z and sigmaZ from PV fit
-      matrix(2,2) = MyPVFitter->getBeamSpot().covariance(2,2);
-      matrix(3,3) = MyPVFitter->getBeamSpot().covariance(3,3);
-      
-      reco::BeamSpot tmpbs(reco::BeamSpot::Point(fbeamspot.x0(), fbeamspot.y0(),
-                                                 MyPVFitter->getBeamSpot().z0() ),
-                           MyPVFitter->getBeamSpot().sigmaZ() ,
-			   fbeamspot.dxdz(),
-			   fbeamspot.dydz(),
-			   fbeamspot.BeamWidthX(),
-			   matrix,
-			   fbeamspot.type() );
-      tmpbs.setBeamWidthY( fbeamspot.BeamWidthY() );
-
-      fbeamspot = tmpbs;
-      
-    }
-    else{ // PVFitter returns false
-      fbeamspot.setType(reco::BeamSpot::Unknown);
-      //       if (fbeamspot.type() == 2)
-      // 	fbeamspot.setType(reco::BeamSpot::BadPVFit); // bad PV fit ==> FIXME: Add type to BeamSpot.h?
-      //       else
-      // 	fbeamspot.setType(reco::BeamSpot::Bad); // bad d0-phi and PV fits ==> FIXME: Add type to BeamSpot.h?
-    }
-
-    if(writeTxt_ ) dumpTxtFile(outputTxt_,true); // all reaults
-    if(writeDIPTxt_ && fasciiDIP.is_open()) dumpTxtFile(outputDIPTxt_,false); // for DQM/DIP
-
+    
     // retrieve histogram for Vz
     h1z = (TH1F*) myalgo->GetVzHisto();
 
@@ -470,11 +497,21 @@ bool BeamFitter::runFitter() {
     fbeamspot = tmpbs;
     fbeamspot.setType(reco::BeamSpot::Fake);
     if(debug_) std::cout << "Not enough good tracks selected! No beam fit!" << std::endl;
-    if(writeTxt_) dumpTxtFile(outputTxt_,true);  // all results
-    if(writeDIPTxt_ && fasciiDIP.is_open()) dumpTxtFile(outputDIPTxt_,false);// for DQM/DIP
+    
   }
   fitted_ = true;
-  return fit_ok;
+  return fit_ok;    
+
+}
+
+bool BeamFitter::runFitter() {
+ 
+    bool fit_ok = runFitterNoTxt();
+    
+    if(writeTxt_ ) dumpTxtFile(outputTxt_,true); // all reaults
+    if(writeDIPTxt_ && fasciiDIP.is_open()) dumpTxtFile(outputDIPTxt_,false); // for DQM/DIP
+
+    return fit_ok;
 }
 
 bool BeamFitter::runBeamWidthFitter() {
@@ -518,11 +555,7 @@ void BeamFitter::dumpBWTxtFile(std::string & fileName ){
     outFile<<"-------------------------------------------------------------------------------------------------------------------------------------------------------------"<<std::endl;
     outFile<<"Beam width(in cm) from Log-likelihood fit (Here we assume a symmetric beam(SigmaX=SigmaY)!)"<<std::endl;
     outFile<<"   "<<std::endl;
-    if (inputBeamWidth_ > 0 ) {
-        outFile<< "BeamWidth= " << inputBeamWidth_ << std::endl;
-    } else {
-        outFile << "BeamWidth =  " <<fbeamWidthFit.BeamWidthX() <<" +/- "<<fbeamWidthFit.BeamWidthXError() << std::endl;
-    }
+    outFile << "BeamWidth =  " <<fbeamWidthFit.BeamWidthX() <<" +/- "<<fbeamWidthFit.BeamWidthXError() << std::endl;
     outFile.close();
 }
 
@@ -554,13 +587,13 @@ void BeamFitter::dumpTxtFile(std::string & fileName, bool append){
   outFile << "sigmaZ0 " << fbeamspot.sigmaZ() << std::endl;
   outFile << "dxdz " << fbeamspot.dxdz() << std::endl;
   outFile << "dydz " << fbeamspot.dydz() << std::endl;
-  if (inputBeamWidth_ > 0 ) {
-    outFile << "BeamWidthX " << inputBeamWidth_ << std::endl;
-    outFile << "BeamWidthY " << inputBeamWidth_ << std::endl;
-  } else {
+//  if (inputBeamWidth_ > 0 ) {
+//    outFile << "BeamWidthX " << inputBeamWidth_ << std::endl;
+//    outFile << "BeamWidthY " << inputBeamWidth_ << std::endl;
+//  } else {
     outFile << "BeamWidthX " << fbeamspot.BeamWidthX() << std::endl;
     outFile << "BeamWidthY " << fbeamspot.BeamWidthY() << std::endl;
-  }
+//  }
 	
   for (int i = 0; i<6; ++i) {
     outFile << "Cov("<<i<<",j) ";
@@ -570,11 +603,11 @@ void BeamFitter::dumpTxtFile(std::string & fileName, bool append){
     outFile << std::endl;
   }
   // beam width error
-  if (inputBeamWidth_ > 0 ) {
-    outFile << "Cov(6,j) 0 0 0 0 0 0 " << "1e-4" << std::endl;
-  } else {
+  //if (inputBeamWidth_ > 0 ) {
+  //  outFile << "Cov(6,j) 0 0 0 0 0 0 " << "1e-4" << std::endl;
+  //} else {
     outFile << "Cov(6,j) 0 0 0 0 0 0 " << fbeamspot.covariance(6,6) << std::endl;
-  }
+    //}
   outFile << "EmittanceX " << fbeamspot.emittanceX() << std::endl;
   outFile << "EmittanceY " << fbeamspot.emittanceY() << std::endl;
   outFile << "BetaStar " << fbeamspot.betaStar() << std::endl;
@@ -589,17 +622,16 @@ void BeamFitter::write2DB(){
   pBSObjects->SetSigmaZ(fbeamspot.sigmaZ());
   pBSObjects->Setdxdz(fbeamspot.dxdz());
   pBSObjects->Setdydz(fbeamspot.dydz());
-  if (inputBeamWidth_ > 0 ) {
-    std::cout << " beam width value forced to be " << inputBeamWidth_ << std::endl;
-    pBSObjects->SetBeamWidthX(inputBeamWidth_);
-    pBSObjects->SetBeamWidthY(inputBeamWidth_);
-  } else {
+  //if (inputBeamWidth_ > 0 ) {
+  //  std::cout << " beam width value forced to be " << inputBeamWidth_ << std::endl;
+  //  pBSObjects->SetBeamWidthX(inputBeamWidth_);
+  //  pBSObjects->SetBeamWidthY(inputBeamWidth_);
+  //} else {
     // need to fix this
-    std::cout << " using default value, 15e-4, for beam width!!!"<<std::endl;
-    pBSObjects->SetBeamWidthX(15.0e-4);
-    pBSObjects->SetBeamWidthY(15.0e-4);
-    
-  }
+    //std::cout << " using default value, 15e-4, for beam width!!!"<<std::endl;
+  pBSObjects->SetBeamWidthX(fbeamspot.BeamWidthX() );
+  pBSObjects->SetBeamWidthY(fbeamspot.BeamWidthY() );
+  //}
 		
   for (int i = 0; i<7; ++i) {
     for (int j=0; j<7; ++j) {
