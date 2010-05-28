@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2010/05/10 09:47:56 $
-//  $Revision: 1.83 $
+//  $Date: 2010/05/25 10:26:53 $
+//  $Revision: 1.84 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -155,7 +155,7 @@ MuScleFit::MuScleFit( const edm::ParameterSet& pset ) : MuScleFitBase( pset ), t
   edm::ParameterSet serviceParameters = pset.getParameter<edm::ParameterSet>("ServiceParameters");
   theService = new MuonServiceProxy(serviceParameters);
 
-  if ((theMuonType_<-1 || theMuonType_>5) && theMuonType_!=10) {
+  if ((theMuonType_<-4 || theMuonType_>5) && theMuonType_!=10) {
     std::cout << "[MuScleFit]: Unknown muon type! Aborting." << std::endl;
     abort();
   }
@@ -289,7 +289,7 @@ MuScleFit::MuScleFit( const edm::ParameterSet& pset ) : MuScleFitBase( pset ), t
     MuScleFitUtils::MuonTypeForCheckMassWindow = theMuonType_-1;
     MuScleFitUtils::MuonType = theMuonType_-1;
   }
-  else if(theMuonType_ == 4 || theMuonType_ ==10 || theMuonType_==-1 ) {
+  else if(theMuonType_ == 4 || theMuonType_ ==10 || theMuonType_==-1 || theMuonType_==-2 || theMuonType_==-3 || theMuonType_==-4) {
     MuScleFitUtils::MuonTypeForCheckMassWindow = 2;
     MuScleFitUtils::MuonType = 2;
   }
@@ -578,7 +578,7 @@ void MuScleFit::selectMuons(const edm::Event & event)
 
   //================onia cuts===========================/
 
-  if( theMuonType_ == -1 && PATmuons_) { 
+  if( theMuonType_ <= -1 && PATmuons_) { 
     edm::Handle<pat::CompositeCandidateCollection > collAll;
     try {event.getByLabel("onia2MuMuPatTrkTrk",collAll);} 
     catch (...) {std::cout << "J/psi not present in event!" << std::endl;}
@@ -587,26 +587,26 @@ void MuScleFit::selectMuons(const edm::Event & event)
     std::vector<const pat::CompositeCandidate*> collSelTT;
     if (collAll.isValid()) {
 
-     for(std::vector<pat::CompositeCandidate>::const_iterator it=collAll->begin();
-	 it!=collAll->end();++it) {
+      for(std::vector<pat::CompositeCandidate>::const_iterator it=collAll->begin();
+	  it!=collAll->end();++it) {
       
-      const pat::CompositeCandidate* cand = &(*it);	
-      // cout << "Now checking candidate of type " << theJpsiCat << " with pt = " << cand->pt() << endl;
-      const pat::Muon* muon1 = dynamic_cast<const pat::Muon*>(cand->daughter("muon1"));
-      const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(cand->daughter("muon2"));
+	const pat::CompositeCandidate* cand = &(*it);	
+	// cout << "Now checking candidate of type " << theJpsiCat << " with pt = " << cand->pt() << endl;
+	const pat::Muon* muon1 = dynamic_cast<const pat::Muon*>(cand->daughter("muon1"));
+	const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(cand->daughter("muon2"));
       
-      if((muon1->charge() * muon2->charge())>0)
-	continue;
+	if((muon1->charge() * muon2->charge())>0)
+	  continue;
 
-      // global + global?
-      if (muon1->isGlobalMuon() && muon2->isGlobalMuon() ) {
-	if (selGlobalMuon(muon1) && selGlobalMuon(muon2) && cand->userFloat("vProb") > 0.001 ) {
-	  collSelGG.push_back(cand);
-            continue;
+	// global + global?
+	if (muon1->isGlobalMuon() && muon2->isGlobalMuon() ) {
+	  if (selGlobalMuon(muon1) && selGlobalMuon(muon2) && cand->userFloat("vProb") > 0.001 ) {
+	    collSelGG.push_back(cand);
+	    continue;
 	  }
 	}
-	
-        // global + tracker? (x2)    
+
+	// global + tracker? (x2)    
 	if (muon1->isGlobalMuon() && muon2->isTrackerMuon() ) {
 	  if (selGlobalMuon(muon1) &&  selTrackerMuon(muon2) && cand->userFloat("vProb") > 0.001 ) {
 	    collSelGT.push_back(cand);
@@ -614,15 +614,15 @@ void MuScleFit::selectMuons(const edm::Event & event)
 	  }
 	}
 
-        if (muon2->isGlobalMuon() && muon1->isTrackerMuon() ) {
+	if (muon2->isGlobalMuon() && muon1->isTrackerMuon() ) {
 	  if (selGlobalMuon(muon2) && selTrackerMuon(muon1) && cand->userFloat("vProb") > 0.001) {
 	    collSelGT.push_back(cand);
 	    continue;
 	  }
 	}
 
-        // tracker + tracker?  
-        if (muon1->isTrackerMuon() && muon2->isTrackerMuon() ) {
+	// tracker + tracker?  
+	if (muon1->isTrackerMuon() && muon2->isTrackerMuon() ) {
 	  if (selTrackerMuon(muon1) && selTrackerMuon(muon2) && cand->userFloat("vProb") > 0.001) {
 	    collSelTT.push_back(cand);
 	    continue;
@@ -630,27 +630,34 @@ void MuScleFit::selectMuons(const edm::Event & event)
 	}
       }
     }
+    // Split them in independent collections if using theMuonType_ == -2, -3 or -4. Take them all if theMuonType_ == -1.
     std::vector<reco::Track> tracks;
     if(collSelGG.size()){
       //CHECK THAT THEY ARE ORDERED BY PT !!!!!!!!!!!!!!!!!!!!!!!
       const pat::Muon* muon1 = dynamic_cast<const pat::Muon*>(collSelGG[0]->daughter("muon1"));
       const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(collSelGG[0]->daughter("muon2"));
-      tracks.push_back(*(muon1->innerTrack()));
-      tracks.push_back(*(muon2->innerTrack()));   
+      if( theMuonType_ == -1 || theMuonType_ == -2 ) {
+	tracks.push_back(*(muon1->innerTrack()));
+	tracks.push_back(*(muon2->innerTrack()));   
+      }
     }
     else if(!collSelGG.size() && collSelGT.size()){
       //CHECK THAT THEY ARE ORDERED BY PT !!!!!!!!!!!!!!!!!!!!!!!
       const pat::Muon* muon1 = dynamic_cast<const pat::Muon*>(collSelGT[0]->daughter("muon1"));
       const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(collSelGT[0]->daughter("muon2"));
-      tracks.push_back(*(muon1->innerTrack()));
-      tracks.push_back(*(muon2->innerTrack()));   
+      if( theMuonType_ == -1 || theMuonType_ == -3 ) {
+	tracks.push_back(*(muon1->innerTrack()));
+	tracks.push_back(*(muon2->innerTrack()));   
+      }
     }
    else if(!collSelGG.size() && !collSelGT.size() && collSelTT.size()){
       //CHECK THAT THEY ARE ORDERED BY PT !!!!!!!!!!!!!!!!!!!!!!!
       const pat::Muon* muon1 = dynamic_cast<const pat::Muon*>(collSelTT[0]->daughter("muon1"));
       const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(collSelTT[0]->daughter("muon2"));
-      tracks.push_back(*(muon1->innerTrack()));
-      tracks.push_back(*(muon2->innerTrack()));   
+      if( theMuonType_ == -1 || theMuonType_ == -4 ) {
+	tracks.push_back(*(muon1->innerTrack()));
+	tracks.push_back(*(muon2->innerTrack()));   
+      }
     }
     if (tracks.size() != 2 && tracks.size() != 0){
       std::cout<<"ERROR strange number of muons selected by onia cuts!"<<std::endl;
@@ -1039,7 +1046,6 @@ void MuScleFit::duringFastLoop()
           }
           // Fill with mass resolution from resolution function
           double massRes = MuScleFitUtils::massResolution(recMu1, recMu2, MuScleFitUtils::parResol);
-          // The value given by massRes is already divided by the mass, since the derivative functions have mass at the denominator.
           mapHisto_["hFunctionResolMass"]->Fill( recMu1, pow(massRes,2), -1 );
           mapHisto_["hFunctionResolMass"]->Fill( recMu2, pow(massRes,2), +1 );
         }

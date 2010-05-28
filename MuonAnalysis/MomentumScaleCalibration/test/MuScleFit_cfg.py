@@ -198,6 +198,10 @@ process.looper = cms.Looper(
     MuonLabel = cms.InputTag("patMuons"),
     # Defines what type of muons to use:
     # -1 = onia guys selection
+    # -2 = onia guys selection - only GG
+    # -3 = onia guys selection - only GT
+    # -4 = onia guys selection - only TT
+    # Note that the above samples are independent and represente the composition of the inclusive sample
     # 1 = global muon
     # 2 = standalone muon
     # 3 = tracker muon
