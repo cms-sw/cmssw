@@ -20,8 +20,9 @@
 #include "interface/shared/i2oXFunctionCodes.h"
 #include "interface/evb/i2oEVBMsgs.h"
 
-#include "toolbox/mem/Reference.h"
 
+#include "xdaq/Application.h"
+#include "toolbox/mem/Reference.h"
 #include "xcept/tools.h"
 
 #include <sstream>
@@ -54,7 +55,10 @@ unsigned int FUResource::gtpeId_ =  FEDNumbering::MINTriggerEGTPFEDID;
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-FUResource::FUResource(UInt_t fuResourceId,log4cplus::Logger logger, EvffedFillerRB *frb)
+FUResource::FUResource(UInt_t fuResourceId
+		       , log4cplus::Logger logger
+		       , EvffedFillerRB *frb
+		       , xdaq::Application *app)
   : log_(logger)
   , fuResourceId_(fuResourceId)
   , superFragHead_(0)
@@ -62,6 +66,8 @@ FUResource::FUResource(UInt_t fuResourceId,log4cplus::Logger logger, EvffedFille
   , nbBytes_(0)
   , superFragSize_(0)
   , frb_(frb)
+  , app_(app)
+  , nextEventWillHaveCRCError_(false)
 {
   release();
 }
@@ -623,7 +629,8 @@ void FUResource::findFEDs() throw (evf::Exception)
   
   fedt_t  *fedTrailer    =0;
   fedh_t  *fedHeader     =0;
-  
+
+
   
   superFragAddr =shmCell_->superFragAddr(iSuperFrag_);
   superFragSize =shmCell_->superFragSize(iSuperFrag_);
@@ -729,13 +736,21 @@ void FUResource::findFEDs() throw (evf::Exception)
       fedTrailer->conscheck &= (~FED_CRCS_MASK);
       fedTrailer->conscheck &= (~FED_RBIT_MASK);
       crcChk=compute_crc(fedHeaderAddr,fedSize);
-      
+      if(nextEventWillHaveCRCError_ && random() > RAND_MAX/2){
+	crc--;
+	nextEventWillHaveCRCError_ = false;
+      }
       if (crc!=crcChk) {
-	LOG4CPLUS_INFO(log_,"crc check failed."
-		       <<" evtNumber:"<<evtNumber_
-		       <<" fedid:"<<fedId
-		       <<" crc:"<<crc
-		       <<" chk:"<<crcChk);
+	std::ostringstream oss;
+	oss << "crc check failed."
+	    <<" evtNumber:"<<evtNumber_
+	    <<" fedid:"<<fedId
+	    <<" crc:"<<crc
+	    <<" chk:"<<crcChk;
+	LOG4CPLUS_INFO(log_,oss.str());
+	XCEPT_DECLARE(evf::Exception,
+		      sentinelException, oss.str());
+	app_->notifyQualified("error",sentinelException);
 	nbErrors_++;
 	nbCrcErrors_++;
       }

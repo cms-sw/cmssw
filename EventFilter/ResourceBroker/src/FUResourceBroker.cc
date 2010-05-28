@@ -36,6 +36,7 @@
 
 #include "cgicc/CgiDefs.h"
 #include "cgicc/Cgicc.h"
+#include "cgicc/FormEntry.h"
 #include "cgicc/HTMLClasses.h"
 
 #include <signal.h>
@@ -209,7 +210,10 @@ bool FUResourceBroker::configuring(toolbox::task::WorkLoop* wl)
 				       recoCellSize_.value_,
 				       dqmCellSize_.value_,
 				       bu_,sm_,
-				       log_, shmResourceTableTimeout_.value_, frb_);
+				       log_, 
+				       shmResourceTableTimeout_.value_, 
+				       frb_,
+				       this);
     FUResource::doFedIdCheck(doFedIdCheck_);
     FUResource::useEvmBoard(useEvmBoard_);
     resourceTable_->setDoCrcCheck(doCrcCheck_);
@@ -787,7 +791,13 @@ void FUResourceBroker::customWebPage(xgi::Input*in,xgi::Output*out)
   throw (xgi::exception::Exception)
 {
   using namespace cgicc;
-  
+  Cgicc cgi(in);
+  std::vector<FormEntry> els = cgi.getElements() ;
+  for(std::vector<FormEntry>::iterator it = els.begin(); it != els.end(); it++)
+    std::cout << "form entry " << (*it).getValue() << std::endl;
+
+  std::vector<FormEntry> el1;
+  cgi.getElement("crcError",el1);
   *out<<"<html>"<<endl;
   gui_->htmlHead(in,out,sourceId_);
   *out<<"<body>"<<endl;
@@ -796,7 +806,13 @@ void FUResourceBroker::customWebPage(xgi::Input*in,xgi::Output*out)
   lock();
   
   if (0!=resourceTable_) {
-
+    if(el1.size()!=0) {
+      resourceTable_->injectCRCError();
+    }
+    *out << "<form method=\"GET\" action=\"customWebPage\" >";
+    *out << "<button name=\"crcError\" type=\"submit\" value=\"injCRC\">Inject CRC</button>" << endl;
+    *out << "</form>" << endl;
+    *out << "<hr/>" << std::endl;
     vector<pid_t> client_prc_ids = resourceTable_->clientPrcIds();
     *out<<table().set("frame","void").set("rules","rows")
                  .set("class","modules").set("width","250")<<endl

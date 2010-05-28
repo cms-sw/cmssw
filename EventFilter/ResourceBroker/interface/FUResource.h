@@ -11,6 +11,10 @@
 
 #include <vector>
 
+namespace xdaq {
+  class Application;
+}
+
 
 namespace evf {
 
@@ -22,7 +26,10 @@ namespace evf {
     //
     // construction/destruction
     //
-    FUResource(UInt_t fuResourceId,log4cplus::Logger, EvffedFillerRB *);
+    FUResource(UInt_t fuResourceId
+	       , log4cplus::Logger
+	       , EvffedFillerRB *
+	       , xdaq::Application *);
     virtual ~FUResource();
     
     
@@ -69,7 +76,7 @@ namespace evf {
 
     evf::FUShmRawCell* shmCell() { return shmCell_; }
 
-    
+    void scheduleCRCError(){nextEventWillHaveCRCError_ = true;}
     
   private:
     //
@@ -112,6 +119,10 @@ namespace evf {
     
     evf::FUShmRawCell* shmCell_;
     EvffedFillerRB *frb_;    
+
+    xdaq::Application *app_;
+
+    bool      nextEventWillHaveCRCError_;
 
     static unsigned int gtpDaqId_;
     static unsigned int gtpEvmId_;

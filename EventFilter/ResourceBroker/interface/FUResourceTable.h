@@ -35,7 +35,10 @@ namespace evf {
 		    UInt_t nbRawCells, UInt_t nbRecoCells, UInt_t nbDqmCells,
 		    UInt_t rawCellSize,UInt_t recoCellSize,UInt_t dqmCellSize,
 		    BUProxy* bu,SMProxy* sm,
-		    log4cplus::Logger logger, unsigned int, EvffedFillerRB*frb) throw (evf::Exception);
+		    log4cplus::Logger logger, 
+		    unsigned int, 
+		    EvffedFillerRB*frb,
+		    xdaq::Application*) throw (evf::Exception);
     virtual ~FUResourceTable();
     
     
@@ -186,6 +189,8 @@ namespace evf {
     
     bool   isLastMessageOfEvent(MemRef_t* bufRef);
     
+    void   injectCRCError();
+    
     void   lock()      { lock_.take(); }
     void   unlock()    { lock_.give(); }
     //void   lockShm()   { shmBuffer_->lock(); }
@@ -253,6 +258,7 @@ namespace evf {
     
     toolbox::BSem      lock_;
     EvffedFillerRB    *frb_;    
+    xdaq::Application *app_;
   };
   
 } // namespace evf

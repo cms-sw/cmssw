@@ -42,7 +42,8 @@ FUResourceTable::FUResourceTable(bool              segmentationMode,
 				 SMProxy          *sm,
 				 log4cplus::Logger logger,
 				 unsigned int      timeout,
-				 EvffedFillerRB   *frb)
+				 EvffedFillerRB   *frb,
+				 xdaq::Application*app)
   throw (evf::Exception)
   : bu_(bu)
   , sm_(sm)
@@ -68,6 +69,7 @@ FUResourceTable::FUResourceTable(bool              segmentationMode,
   , runNumber_(0xffffffff)
   , lock_(toolbox::BSem::FULL)
   , frb_(frb)
+  , app_(app)
 {
   initialize(segmentationMode,
 	     nbRawCells,nbRecoCells,nbDqmCells,
@@ -113,7 +115,7 @@ void FUResourceTable::initialize(bool   segmentationMode,
   }
   
   for (UInt_t i=0;i<nbRawCells_;i++) {
-    resources_.push_back(new FUResource(i,log_,frb_));
+    resources_.push_back(new FUResource(i,log_,frb_,app_));
     freeResourceIds_.push(i);
   }
 
@@ -954,4 +956,12 @@ bool FUResourceTable::isLastMessageOfEvent(MemRef_t* bufRef)
   UInt_t nSuperFrag=block->nbSuperFragmentsInEvent;
 
   return ((iSuperFrag==nSuperFrag-1)&&(iBlock==nBlock-1));
+}
+
+//______________________________________________________________________________
+void FUResourceTable::injectCRCError()
+{
+  for (UInt_t i=0;i<resources_.size();i++) {
+    resources_[i]->scheduleCRCError();
+  }
 }
