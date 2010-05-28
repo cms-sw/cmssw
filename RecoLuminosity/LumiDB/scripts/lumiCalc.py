@@ -99,7 +99,7 @@ def recordedLumiForRun(dbsession,c,runnum,lslist=[]):
         schema=dbsession.nominalSchema()
         query=schema.newQuery()
         query.addToTableList(nameDealer.cmsrunsummaryTableName(),'cmsrunsummary')
-        query.addToTableList(nameDealer.trghltMapTableName(),'trghltmap')
+        query.addToTableList(nameDealer.trghltMapTableName(),'trghltmap')#small table first
         queryCondition=coral.AttributeList()
         queryCondition.extend("runnumber","unsigned int")
         queryCondition["runnumber"].setData(int(runnum))
@@ -156,8 +156,8 @@ def recordedLumiForRun(dbsession,c,runnum,lslist=[]):
         dbsession.transaction().start(True)
         schema=dbsession.nominalSchema()
         query=schema.newQuery()
-        query.addToTableList(nameDealer.lumisummaryTableName(),'lumisummary')
         query.addToTableList(nameDealer.trgTableName(),'trg')
+        query.addToTableList(nameDealer.lumisummaryTableName(),'lumisummary')#small table first--right-most
         queryCondition=coral.AttributeList()
         queryCondition.extend("runnumber","unsigned int")
         queryCondition.extend("lumiversion","string")
@@ -165,7 +165,7 @@ def recordedLumiForRun(dbsession,c,runnum,lslist=[]):
         queryCondition["runnumber"].setData(int(runnum))
         queryCondition["lumiversion"].setData(c.LUMIVERSION)
         #queryCondition["alive"].setData(True)
-        query.setCondition("trg.RUNNUM =:runnumber AND lumisummary.RUNNUM=:runnumber and lumisummary.LUMIVERSION =:lumiversion AND lumisummary.CMSLSNUM=trg.CMSLSNUM",queryCondition)
+        query.setCondition("lumisummary.RUNNUM=:runnumber and lumisummary.LUMIVERSION =:lumiversion AND lumisummary.CMSLSNUM=trg.CMSLSNUM and lumisummary.RUNNUM=trg.RUNNUM",queryCondition)
         #query.setCondition("trg.RUNNUM =:runnumber AND lumisummary.RUNNUM=:runnumber and lumisummary.LUMIVERSION =:lumiversion AND lumisummary.CMSLSNUM=trg.CMSLSNUM AND lumisummary.cmsalive=:alive AND trg.BITNUM=:bitnum",queryCondition)
         #query.addToOutputList("sum(lumisummary.INSTLUMI*(1-trg.DEADTIME/(lumisummary.numorbit*3564)))","recorded")
         query.addToOutputList("lumisummary.CMSLSNUM","cmsls")
