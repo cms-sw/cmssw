@@ -1,8 +1,8 @@
 /*
  * \file EELaserTask.cc
  *
- * $Date: 2010/05/28 14:55:21 $
- * $Revision: 1.67 $
+ * $Date: 2010/05/28 19:51:51 $
+ * $Revision: 1.68 $
  * \author G. Della Ricca
  *
 */
@@ -762,7 +762,7 @@ void EELaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       int ipn = NumbersPn::ipnEE( ism, num );
 
-      if ( ipn >= 0 && ipn < 80 && numPN[ipn] == 0 ) continue;
+      if ( ipn >= 0 && ipn < 80 && numPN[ipn] == false ) continue;
 
       float xvalped = 0.;
 
