@@ -117,7 +117,7 @@ void SiPixelRawDataErrorSource::analyze(const edm::Event& iEvent, const edm::Eve
   DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
    
   //float iOrbitSec = iEvent.orbitNumber()/11223.;
-  int bx = iEvent.bunchCrossing();
+  //int bx = iEvent.bunchCrossing();
   //long long tbx = (long long)iEvent.orbitNumber() * 3564 + bx;
   int lumiSection = (int)iEvent.luminosityBlock();
   
