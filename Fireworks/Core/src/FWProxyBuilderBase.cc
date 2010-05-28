@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:00 CET 2010
-// $Id: FWProxyBuilderBase.cc,v 1.14 2010/05/11 12:39:06 amraktad Exp $
+// $Id: FWProxyBuilderBase.cc,v 1.15 2010/05/26 17:47:25 amraktad Exp $
 //
 
 // system include files
@@ -393,6 +393,7 @@ FWProxyBuilderBase::setupElement(TEveElement* el, bool color) const
    {
       el->CSCApplyMainColorToMatchingChildren();
       el->SetMainColor(m_item->defaultDisplayProperties().color());
+      el->SetMainTransparency(50);
    }
 }
 
