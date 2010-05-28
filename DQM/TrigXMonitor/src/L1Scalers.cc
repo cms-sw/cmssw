@@ -1,4 +1,4 @@
-// $Id: L1Scalers.cc,v 1.20 2010/03/31 22:10:53 wteo Exp $
+// $Id: L1Scalers.cc,v 1.21 2010/04/10 09:46:11 dellaric Exp $
 #include <iostream>
 
 
@@ -38,6 +38,8 @@ L1Scalers::L1Scalers(const edm::ParameterSet &ps):
   l1GtDataSource_( ps.getParameter< edm::InputTag >("l1GtData")),
   denomIsTech_(ps.getUntrackedParameter <bool> ("denomIsTech", true)),
   denomBit_(ps.getUntrackedParameter <unsigned int> ("denomBit", 40)),
+  tfIsTech_(ps.getUntrackedParameter <bool> ("tfIsTech", true)),
+  tfBit_(ps.getUntrackedParameter <unsigned int> ("tfBit", 41)),
   algoSelected_(ps.getUntrackedParameter<std::vector<unsigned int> >("algoMonitorBits", std::vector<unsigned int>())),
   techSelected_(ps.getUntrackedParameter<std::vector<unsigned int> >("techMonitorBits", std::vector<unsigned int>())),
   folderName_( ps.getUntrackedParameter< std::string>("dqmFolder", 
@@ -114,7 +116,7 @@ void L1Scalers::beginJob(void)
     l1TtCounter_ = dbe_->bookInt("l1TtCounter");
 
 
-    int maxNbins = 1001;
+    int maxNbins = 2000;
 
     //timing plots
     std::stringstream sdenom;
@@ -131,14 +133,14 @@ void L1Scalers::beginJob(void)
       ss << algoSelected_[ibit] << "_" << sdenom.str() << denomBit_;
       algoBxDiff_.push_back(dbe_->book1D("BX_diff_algo"+ ss.str(),"BX_diff_algo"+ ss.str(),9,-4,5));
       algoBxDiffLumi_.push_back(dbe_->book2D("BX_diffvslumi_algo"+ ss.str(),"BX_diff_algo"+ss.str(),maxNbins,-0.5,double(maxNbins)-0.5,9,-4,5));
-      algoBxDiffLumi_[ibit]->setAxisTitle("Lumi Section", 1);
+      //algoBxDiffLumi_[ibit]->setAxisTitle("Lumi Section", 1);
     }
     for(uint ibit = 0; ibit < techSelected_.size(); ibit++){
       std::stringstream ss;
       ss << techSelected_[ibit] << "_" << sdenom.str() << denomBit_;
       techBxDiff_.push_back(dbe_->book1D("BX_diff_tech"+ ss.str(),"BX_diff_tech"+ ss.str(),9,-4,5));
       techBxDiffLumi_.push_back(dbe_->book2D("BX_diffvslumi_tech"+ ss.str(),"BX_diff_tech"+ss.str(),maxNbins,-0.5,double(maxNbins)-0.5,9,-4,5));
-      techBxDiffLumi_[ibit]->setAxisTitle("Lumi Section", 1);
+      //techBxDiffLumi_[ibit]->setAxisTitle("Lumi Section", 1);
     }
 
 
@@ -185,10 +187,13 @@ void L1Scalers::analyze(const edm::Event &e, const edm::EventSetup &iSetup)
     bxNum_->Fill(gtfeBx);
     myGTFEbx = gtfeBx;
     
+    bool tfBitGood = false;
+
     // First, the default
     // vector of bool
     for(int iebx=0; iebx<=4; iebx++) {
 
+      //Algorithm Bits
       DecisionWord gtDecisionWord = gtRecord->decisionWord(iebx-2);
       //    DecisionWord gtDecisionWord = gtRecord->decisionWord();
       if ( ! gtDecisionWord.empty() ) { // if board not there this is zero
@@ -213,14 +218,11 @@ void L1Scalers::analyze(const edm::Event &e, const edm::EventSetup &iSetup)
 	    }
 	  }
 	}
-      }//!empty 
-    }//bx
+      }//!empty DecisionWord
+ 
 
-    // loop over technical triggers
-    // vector of bool again. 
-
-
-    for(int iebx=0; iebx<=4; iebx++) {
+      // loop over technical triggers
+      // vector of bool again. 
       TechnicalTriggerWord tw = gtRecord->technicalTriggerWord(iebx-2);
       //    TechnicalTriggerWord tw = gtRecord->technicalTriggerWord();
       if ( ! tw.empty() ) {
@@ -238,7 +240,16 @@ void L1Scalers::analyze(const edm::Event &e, const edm::EventSetup &iSetup)
 	    l1techScalersBx_->Fill(gtfeBx-2+iebx, i);
 	  }
 	} 
+
+	// check if bit used to filter timing plots fired in this event 
+	// (anywhere in the bx window)
+	if(tfIsTech_){
+	  if(tfBit_ < tw.size()){
+	    if( tw[tfBit_] ) tfBitGood = true;
+	  }
+	}
       } // ! tw.empty
+
     }//bx
 
 
@@ -249,22 +260,44 @@ void L1Scalers::analyze(const edm::Event &e, const edm::EventSetup &iSetup)
     for(uint i=0; i < techSelected_.size(); i++) earliestTech_.push_back(-1);
     for(uint i=0; i < algoSelected_.size(); i++) earliestAlgo_.push_back(-1);
 
-    for(int iebx=0; iebx<=4; iebx++) {
-      TechnicalTriggerWord tw = gtRecord->technicalTriggerWord(iebx-2);
-      DecisionWord gtDecisionWord = gtRecord->decisionWord(iebx-2);
+    if(tfBitGood){//to avoid single BSC hits
 
-      if(denomIsTech_){
-	if ( ! tw.empty() ) {
-	  if( denomBit_ < tw.size() ){	
-	    if( tw[denomBit_] && earliestDenom_==-1 ) earliestDenom_ = iebx; 
-	  }
+      for(int iebx=0; iebx<=4; iebx++) {
+	TechnicalTriggerWord tw = gtRecord->technicalTriggerWord(iebx-2);
+	DecisionWord gtDecisionWord = gtRecord->decisionWord(iebx-2);
 
-	  for(uint ibit = 0; ibit < techSelected_.size(); ibit++){	  
-	    if(techSelected_[ibit] < tw.size()){
-	      if(tw[techSelected_[ibit]] && earliestTech_[ibit] == -1) earliestTech_[ibit] = iebx;
+	bool denomBitGood = false;
+
+	//check if reference bit is valid
+	if(denomIsTech_){
+	  if ( ! tw.empty() ) {
+	    if( denomBit_ < tw.size() ){
+	      denomBitGood = true;
+	      if( tw[denomBit_] && earliestDenom_==-1 ) earliestDenom_ = iebx; 
 	    }
 	  }
-	  
+	}
+	else{
+	  if ( ! gtDecisionWord.empty() ) { 
+	    if( denomBit_ < gtDecisionWord.size() ){
+	      denomBitGood = true;
+	      if( gtDecisionWord[denomBit_] && earliestDenom_==-1 ) earliestDenom_ = iebx; 
+	    }
+	  }
+	}
+
+	if(denomBitGood){
+
+	  //get earliest tech bx's
+	  if ( ! tw.empty() ) {
+	    for(uint ibit = 0; ibit < techSelected_.size(); ibit++){	  
+	      if(techSelected_[ibit] < tw.size()){
+		if(tw[techSelected_[ibit]] && earliestTech_[ibit] == -1) earliestTech_[ibit] = iebx;
+	      }
+	    }
+	  }
+
+	  //get earliest algo bx's
 	  if(!gtDecisionWord.empty()){	    
 	    for(uint ibit = 0; ibit < algoSelected_.size(); ibit++){	  
 	      if(algoSelected_[ibit] < gtDecisionWord.size()){
@@ -273,27 +306,29 @@ void L1Scalers::analyze(const edm::Event &e, const edm::EventSetup &iSetup)
 	    }
 	  }
 
-	}//!empty
-      }//denomIsTech
-    }//bx
+	}//denomBitGood
 
-    //calculated bx difference
-    if(earliestDenom_ != -1){
-      for(uint ibit = 0; ibit < techSelected_.size(); ibit++){	  
-	if(earliestTech_[ibit] != -1){
-	  int diff = earliestTech_[ibit] - earliestDenom_ ;
-	  techBxDiff_[ibit]->Fill(diff);
-	  techBxDiffLumi_[ibit]->Fill(e.luminosityBlock(), diff);
+      }//bx
+
+      //calculated bx difference
+      if(earliestDenom_ != -1){
+	for(uint ibit = 0; ibit < techSelected_.size(); ibit++){	  
+	  if(earliestTech_[ibit] != -1){
+	    int diff = earliestTech_[ibit] - earliestDenom_ ;
+	    techBxDiff_[ibit]->Fill(diff);
+	    techBxDiffLumi_[ibit]->Fill(e.luminosityBlock(), diff);
+	  }
+	}
+	for(uint ibit = 0; ibit < algoSelected_.size(); ibit++){	  
+	  if(earliestAlgo_[ibit] != -1){
+	    int diff = earliestAlgo_[ibit] - earliestDenom_ ;
+	    algoBxDiff_[ibit]->Fill(diff);
+	    algoBxDiffLumi_[ibit]->Fill(e.luminosityBlock(), diff);
+	  }
 	}
       }
-      for(uint ibit = 0; ibit < algoSelected_.size(); ibit++){	  
-	if(earliestAlgo_[ibit] != -1){
-	  int diff = earliestAlgo_[ibit] - earliestDenom_ ;
-	  algoBxDiff_[ibit]->Fill(diff);
-	  algoBxDiffLumi_[ibit]->Fill(e.luminosityBlock(), diff);
-	}
-      }
-    }
+
+    }//tt41Good
 
   } // getbylabel succeeded
   
