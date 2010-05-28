@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/03/17 07:15:17 $
- *  $Revision: 1.45 $
+ *  $Date: 2010/03/31 07:44:25 $
+ *  $Revision: 1.46 $
  *
  *  \author Martin Grunewald
  *
@@ -17,18 +17,18 @@
 #include <algorithm>
 #include <iostream>
 
-bool HLTConfigProvider::init(const std::string& processName)
+bool HLTConfigProvider::init(const std::string& processName) {
+  return init(processName,true);
+}
+
+bool HLTConfigProvider::init(const std::string& processName, const bool& msg)
 {
    using namespace std;
    using namespace edm;
 
-   LogInfo("HLTConfigProvider") << "Called (N) with processName '"
-				<< processName << "'." << endl;
-
-   LogVerbatim("HLTConfigProvider")
-     << "This 1-parameter init method fails (returns false) when processing "
-     << "file(s) containing events accepted by different HLT tables - "
-     << "for such cases use the 3-parameter init method called each event!"
+   if (msg) LogError("HLTConfigProvider")
+     << "Deprecated init() method (N) - update your code to call "
+     << "init(iRun,iSetup,processName,changed) from your beginRun()!"
      << endl;
 
    // Obtain ParameterSetID for requested process (with name
@@ -116,8 +116,10 @@ bool HLTConfigProvider::init(const edm::Event& iEvent, const std::string& proces
    using namespace std;
    using namespace edm;
 
-   LogInfo("HLTConfigProvider") << "Called (E) with processName '"
-				<< processName << "'." << endl;
+   LogError("HLTConfigProvider")
+     << "Deprecated init() method (E) - update your code to call "
+     << "init(iRun,iSetup,processName,changed) from your beginRun()!"
+     << endl;
 
    const ProcessHistory& processHistory(iEvent.processHistory());
    return init(processHistory,processName,changed);
@@ -155,6 +157,18 @@ bool HLTConfigProvider::init(const edm::Event& iEvent, const std::string& proces
 
 }
 */
+
+bool HLTConfigProvider::init(const edm::Run& iRun, const edm::EventSetup& iSetup, const std::string& processName, bool& changed) {
+
+   using namespace std;
+   using namespace edm;
+
+   LogInfo("HLTConfigProvider") << "Called (R) with processName '"
+				<< processName << "'." << endl;
+
+   const ProcessHistory& processHistory(iRun.processHistory());
+   return init(processHistory,iSetup,processName,changed);
+}
 
 bool HLTConfigProvider::init(const edm::ProcessHistory& iHistory, const edm::EventSetup& iSetup, const std::string& processName, bool& changed) {
   const bool result(init(iHistory,processName,changed));
@@ -214,25 +228,13 @@ bool HLTConfigProvider::init(const edm::ProcessHistory& iHistory, const std::str
    } else {
      clear();
      changed=true;
-     if (init(processName)) {
+     if (init(processName,false)) {
        return true;
      } else {
        LogError("HLTConfigProvider") << "ProcessName not found in history!";
        return false;
      }
    }
-}
-
-bool HLTConfigProvider::init(const edm::Run& iRun, const edm::EventSetup& iSetup, const std::string& processName, bool& changed) {
-
-   using namespace std;
-   using namespace edm;
-
-   LogInfo("HLTConfigProvider") << "Called (R) with processName '"
-				<< processName << "'." << endl;
-
-   const ProcessHistory& processHistory(iRun.processHistory());
-   return init(processHistory,iSetup,processName,changed);
 }
 
 void HLTConfigProvider::clear()
