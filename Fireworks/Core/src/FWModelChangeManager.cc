@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan 17 19:13:46 EST 2008
-// $Id: FWModelChangeManager.cc,v 1.12 2010/05/10 19:20:35 amraktad Exp $
+// $Id: FWModelChangeManager.cc,v 1.13 2010/05/27 08:39:34 eulisse Exp $
 //
 
 // system include files
@@ -203,6 +203,9 @@ FWModelChangeManager::itemsGoingToBeClearedSlot(void)
 {
    m_changes.clear();
    m_changeSignals.clear();
+
+   m_itemChangeSignals.clear();
+   m_itemChanges.clear();
 }
 
 //
