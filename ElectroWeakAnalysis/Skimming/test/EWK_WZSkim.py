@@ -29,7 +29,7 @@ process.EWK_MuHLTFilter.HLTPaths = ["HLT_Mu9"]
 # Muon candidates filters 
 process.goodMuons = cms.EDFilter("MuonSelector",
   src = cms.InputTag("muons"),
-  cut = cms.string('pt > 20 && abs(eta)<2.4 && isGlobalMuon = 1'),
+  cut = cms.string('pt > 20 && abs(dxy)<1.0 && abs(eta)<2.4 && isGlobalMuon = 1 && isTrackerMuon && isolationR03().sumPt<3.0'),
   filter = cms.bool(True)                                
 )
 
@@ -50,30 +50,16 @@ process.dimuonsFilter = cms.EDFilter("CandViewCountFilter",
 process.load("ElectroWeakAnalysis.WMuNu.wmunusProducer_cfi")
 # WMuNu candidates selectors
 process.load("ElectroWeakAnalysis.WMuNu.WMuNuSelection_cff")
-process.selcorMet.JetTag = cms.untracked.InputTag("ak5CaloJets")
+
 process.seltcMet.JetTag = cms.untracked.InputTag("ak5CaloJets")
-process.selpfMet.JetTag = cms.untracked.InputTag("ak5CaloJets")
-process.selcorMet.TrigTag = cms.untracked.InputTag("TriggerResults::HLT")
 process.seltcMet.TrigTag = cms.untracked.InputTag("TriggerResults::HLT")
+process.seltcMet.IsCombinedIso = cms.untracked.bool(True)
+process.seltcMet.IsoCut03 = cms.untracked.double(0.15),
+
+process.selpfMet.JetTag = cms.untracked.InputTag("ak5CaloJets")
 process.selpfMet.TrigTag = cms.untracked.InputTag("TriggerResults::HLT")
-
-# W filters
-#
-#process.pfMetWMuNusFilter = cms.EDFilter("CandViewCountFilter",
-#    src = cms.InputTag("pfMetWMuNus"),
-#    minNumber = cms.uint32(1)
-#)
-#
-#process.tcMetWMuNusFilter = cms.EDFilter("CandViewCountFilter",
-#    src = cms.InputTag("tcMetWMuNus"),
-#    minNumber = cms.uint32(1)
-#)
-#
-#process.corMetWMuNusFilter = cms.EDFilter("CandViewCountFilter",
-#    src = cms.InputTag("corMetWMuNus"),
-#    minNumber = cms.uint32(1)
-#)
-
+process.selpfMet.IsCombinedIso = cms.untracked.bool(True)
+process.selpfMet.IsoCut03 = cms.untracked.double(0.15),
 
 # Skim paths
 process.EWK_dimuonsPath = cms.Path(
@@ -81,11 +67,6 @@ process.EWK_dimuonsPath = cms.Path(
     process.dimuons *
     process.dimuonsFilter
     )
-
-process.EWK_corMetWMuNusPath = cms.Path(
-    process.corMetWMuNus *
-    process.selcorMet
-)
 
 process.EWK_tcMetWMuNusPath = cms.Path(
     process.tcMetWMuNus *
@@ -102,13 +83,12 @@ from Configuration.EventContent.EventContent_cff import *
 EWK_WZSkimEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring()
 )
-EWK_WZSkimEventContent.outputCommands.extend(AODEventContent.outputCommands)
+EWK_WZSkimEventContent.outputCommands.extend(FEVTEventContent.outputCommands)
 
 EWK_WZSkimEventSelection = cms.PSet(
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring(
            'EWK_dimuonsPath',
-           'EWK_corMetWMuNusPath',
            'EWK_tcMetWMuNusPath',
            'EWK_pfMetWMuNusPath')
     )
