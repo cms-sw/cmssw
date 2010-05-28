@@ -386,12 +386,13 @@ topSingleMuonLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ## [optional] : when omitted all monitoring plots for the muon
     ## will be filled w/o preselection                                           
     muonExtras = cms.PSet(
-      isolation = cms.string("(isolationR03.sumPt+isolationR03.emEt+isolationR03.hadEt)/pt<0.2"),
+      select = cms.string("pt > 10 & abs(eta)<2.1 & isGlobalMuon & innerTrack.numberOfValidHits > 10 & globalTrack.normalizedChi2 > -1 & globalTrack.normalizedChi2 < 10"),
     ),
     ## [optional] : when omitted all monitoring plots for the electron
     ## will be filled w/o preselection
     jetExtras = cms.PSet(
-      jetCorrector = cms.string("ak5CaloL2L3")
+      jetCorrector = cms.string("ak5CaloL2L3"),
+      select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction> 0.01 & emEnergyFraction<0.95 ")
     ),
     ## [optional] : when omitted no mass window will be applied
     ## for the W mass befor filling the event monitoring plots
@@ -448,6 +449,10 @@ topSingleMuonLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       jetCorrector = cms.string("ak5CaloL2L3"),
       select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction> 0.01 & emEnergyFraction<0.95 "),
       min    = cms.int32(1),
+      jetID  = cms.PSet(
+        label  = cms.InputTag("ak5JetID"),
+        select = cms.string("n90Hits>1 & restrictedEMF<1")
+      ),
     ), 
     cms.PSet(
       label  = cms.string("jets/calo:step2"),
@@ -455,6 +460,10 @@ topSingleMuonLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       jetCorrector = cms.string("ak5CaloL2L3"),
       select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction> 0.01 & emEnergyFraction<0.95 "),
       min    = cms.int32(2),
+      jetID  = cms.PSet(
+        label  = cms.InputTag("ak5JetID"),
+        select = cms.string("n90Hits>1 & restrictedEMF<1")
+      ),
     ), 
     cms.PSet(
       label  = cms.string("jets/calo:step3"),
@@ -462,6 +471,10 @@ topSingleMuonLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       jetCorrector = cms.string("ak5CaloL2L3"),
       select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction> 0.01 & emEnergyFraction<0.95 "),
       min    = cms.int32(3),
+      jetID  = cms.PSet(
+        label  = cms.InputTag("ak5JetID"),
+        select = cms.string("n90Hits>1 & restrictedEMF<1")
+      ),
     ), 
     cms.PSet(
       label  = cms.string("jets/calo:step4"),
@@ -469,6 +482,10 @@ topSingleMuonLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       jetCorrector = cms.string("ak5CaloL2L3"),
       select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction> 0.01 & emEnergyFraction<0.95 "),
       min    = cms.int32(4),
+      jetID  = cms.PSet(
+        label  = cms.InputTag("ak5JetID"),
+        select = cms.string("n90Hits>1 & restrictedEMF<1")
+      ),
     ), 
   )
 )
@@ -502,12 +519,14 @@ topSingleMuonMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ## [optional] : when omitted all monitoring plots for the muon
     ## will be filled w/o preselection                                           
     muonExtras = cms.PSet(
-      isolation = cms.string("(isolationR03.sumPt+isolationR03.emEt+isolationR03.hadEt)/pt<0.2"),
+      select = cms.string("pt > 20 & abs(eta)<2.1 & isGlobalMuon & innerTrack.numberOfValidHits > 10 & globalTrack.normalizedChi2 > -1 & globalTrack.normalizedChi2 < 10"),  
+      isolation = cms.string("(isolationR03.sumPt+isolationR03.emEt+isolationR03.hadEt)/pt<0.1")
     ),
     ## [optional] : when omitted all monitoring plots for the electron
     ## will be filled w/o preselection
     jetExtras = cms.PSet(
-      jetCorrector = cms.string("ak5CaloL2L3")
+      jetCorrector = cms.string("ak5CaloL2L3"),
+      select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction> 0.01 & emEnergyFraction<0.95 ")
     ),
     ## [optional] : when omitted no mass window will be applied
     ## for the W mass befor filling the event monitoring plots
@@ -565,6 +584,10 @@ topSingleMuonMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       jetCorrector = cms.string("ak5CaloL2L3"),
       select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction> 0.01 & emEnergyFraction<0.95 "),
       min    = cms.int32(1),
+      jetID  = cms.PSet(
+        label  = cms.InputTag("ak5JetID"),
+        select = cms.string("n90Hits>1 & restrictedEMF<1")
+      ),
     ), 
     cms.PSet(
       label  = cms.string("jets/calo:step2"),
@@ -572,6 +595,10 @@ topSingleMuonMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       jetCorrector = cms.string("ak5CaloL2L3"),
       select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction> 0.01 & emEnergyFraction<0.95 "),
       min    = cms.int32(2),
+      jetID  = cms.PSet(
+        label  = cms.InputTag("ak5JetID"),
+        select = cms.string("n90Hits>1 & restrictedEMF<1")
+      ),
     ), 
     cms.PSet(
       label  = cms.string("jets/calo:step3"),
@@ -579,6 +606,10 @@ topSingleMuonMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       jetCorrector = cms.string("ak5CaloL2L3"),
       select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction> 0.01 & emEnergyFraction<0.95 "),
       min    = cms.int32(3),
+      jetID  = cms.PSet(
+        label  = cms.InputTag("ak5JetID"),
+        select = cms.string("n90Hits>1 & restrictedEMF<1")
+      ),
     ), 
     cms.PSet(
       label  = cms.string("jets/calo:step4"),
@@ -586,6 +617,10 @@ topSingleMuonMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       jetCorrector = cms.string("ak5CaloL2L3"),
       select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction> 0.01 & emEnergyFraction<0.95 "),
       min    = cms.int32(4),
+      jetID  = cms.PSet(
+        label  = cms.InputTag("ak5JetID"),
+        select = cms.string("n90Hits>1 & restrictedEMF<1")
+      ),
     ), 
   )
 )
@@ -617,13 +652,14 @@ topSingleElectronLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ),
     ## [optional] : when omitted all monitoring plots for the muon
     ## will be filled w/o preselection                                           
-    muonExtras = cms.PSet(
-      isolation = cms.string("(isolationR03.sumPt+isolationR03.emEt+isolationR03.hadEt)/pt<0.2"),
+    electronExtras = cms.PSet(
+      select = cms.string("pt > 15 & abs(eta)<2.5 &  SigmaIetaIeta > 0.002")
     ),
     ## [optional] : when omitted all monitoring plots for the electron
     ## will be filled w/o preselection
     jetExtras = cms.PSet(
-      jetCorrector = cms.string("ak5CaloL2L3")
+      jetCorrector = cms.string("ak5CaloL2L3"),
+      select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction> 0.01 & emEnergyFraction<0.95 "),
     ),
     ## [optional] : when omitted no mass window will be applied
     ## for the W mass befor filling the event monitoring plots
@@ -680,6 +716,10 @@ topSingleElectronLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       jetCorrector = cms.string("ak5CaloL2L3"),
       select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction> 0.01 & emEnergyFraction<0.95 "),
       min    = cms.int32(1),
+      jetID  = cms.PSet(
+        label  = cms.InputTag("ak5JetID"),
+        select = cms.string("n90Hits>1 & restrictedEMF<1")
+      ),
     ), 
     cms.PSet(
       label  = cms.string("jets/calo:step2"),
@@ -687,6 +727,10 @@ topSingleElectronLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       jetCorrector = cms.string("ak5CaloL2L3"),
       select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction> 0.01 & emEnergyFraction<0.95 "),
       min    = cms.int32(2),
+      jetID  = cms.PSet(
+        label  = cms.InputTag("ak5JetID"),
+        select = cms.string("n90Hits>1 & restrictedEMF<1")
+      ),
     ), 
     cms.PSet(
       label  = cms.string("jets/calo:step3"),
@@ -694,6 +738,10 @@ topSingleElectronLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       jetCorrector = cms.string("ak5CaloL2L3"),
       select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction> 0.01 & emEnergyFraction<0.95 "),
       min    = cms.int32(3),
+      jetID  = cms.PSet(
+        label  = cms.InputTag("ak5JetID"),
+        select = cms.string("n90Hits>1 & restrictedEMF<1")
+      ),
     ), 
     cms.PSet(
       label  = cms.string("jets/calo:step4"),
@@ -701,6 +749,10 @@ topSingleElectronLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       jetCorrector = cms.string("ak5CaloL2L3"),
       select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction> 0.01 & emEnergyFraction<0.95 "),
       min    = cms.int32(4),
+      jetID  = cms.PSet(
+        label  = cms.InputTag("ak5JetID"),
+        select = cms.string("n90Hits>1 & restrictedEMF<1")
+      ),
     ), 
   )
 )
@@ -732,13 +784,15 @@ topSingleElectronMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ),
     ## [optional] : when omitted all monitoring plots for the muon
     ## will be filled w/o preselection                                           
-    muonExtras = cms.PSet(
-      isolation = cms.string("(isolationR03.sumPt+isolationR03.emEt+isolationR03.hadEt)/pt<0.2"),
+    electronExtras = cms.PSet(
+      isolation = cms.string("(isolationR03.sumPt+isolationR03.emEt+isolationR03.hadEt)/pt<0.1"),
+      select = cms.string("pt > 25 & abs(eta)<2.5"),
     ),
     ## [optional] : when omitted all monitoring plots for the electron
     ## will be filled w/o preselection
     jetExtras = cms.PSet(
-      jetCorrector = cms.string("ak5CaloL2L3")
+      jetCorrector = cms.string("ak5CaloL2L3"),
+      select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction> 0.01 & emEnergyFraction<0.95 ")
     ),
     ## [optional] : when omitted no mass window will be applied
     ## for the W mass befor filling the event monitoring plots
@@ -786,7 +840,7 @@ topSingleElectronMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     cms.PSet(
       label  = cms.string("electrons:step0"),
       src    = cms.InputTag("gsfElectrons"),
-      select = cms.string("pt > 25 & abs(eta)<2.5 &  "),
+      select = cms.string("pt > 25 & abs(eta)<2.5 &  (isolationR03.sumPt+isolationR03.emEt+isolationR03.hadEt)/pt<0.1"),
       min    = cms.int32(1),
       electronId = cms.InputTag("eidRobustLoose"), 
       max    = cms.int32(1),
@@ -797,6 +851,10 @@ topSingleElectronMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       jetCorrector = cms.string("ak5CaloL2L3"),
       select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction> 0.01 & emEnergyFraction<0.95 "),
       min    = cms.int32(1),
+      jetID  = cms.PSet(
+        label  = cms.InputTag("ak5JetID"),
+        select = cms.string("n90Hits>1 & restrictedEMF<1")
+      ),
     ), 
     cms.PSet(
       label  = cms.string("jets/calo:step2"),
@@ -804,6 +862,10 @@ topSingleElectronMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       jetCorrector = cms.string("ak5CaloL2L3"),
       select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction> 0.01 & emEnergyFraction<0.95 "),
       min    = cms.int32(2),
+      jetID  = cms.PSet(
+        label  = cms.InputTag("ak5JetID"),
+        select = cms.string("n90Hits>1 & restrictedEMF<1")
+      ),
     ), 
     cms.PSet(
       label  = cms.string("jets/calo:step3"),
@@ -811,6 +873,10 @@ topSingleElectronMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       jetCorrector = cms.string("ak5CaloL2L3"),
       select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction> 0.01 & emEnergyFraction<0.95 "),
       min    = cms.int32(3),
+      jetID  = cms.PSet(
+        label  = cms.InputTag("ak5JetID"),
+        select = cms.string("n90Hits>1 & restrictedEMF<1")
+      ),
     ), 
     cms.PSet(
       label  = cms.string("jets/calo:step4"),
@@ -818,6 +884,10 @@ topSingleElectronMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       jetCorrector = cms.string("ak5CaloL2L3"),
       select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction> 0.01 & emEnergyFraction<0.95 "),
       min    = cms.int32(4),
+      jetID  = cms.PSet(
+        label  = cms.InputTag("ak5JetID"),
+        select = cms.string("n90Hits>1 & restrictedEMF<1")
+      ),
     ), 
   )
 )
