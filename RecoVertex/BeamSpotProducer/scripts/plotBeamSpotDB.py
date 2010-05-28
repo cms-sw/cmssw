@@ -29,6 +29,7 @@
    -o, --output  = OUTPUT: filename of ROOT file with plots.
    -p, --payload = PAYLOAD: filename of output text file. Combine and splits lumi IOVs.
    -P, --Print : create PNG plots from canvas.
+   -s, --suffix = SUFFIX: Suffix will be added to plots filename.
    -t, --tag     = TAG: Database tag name.
    -I, --IOVbase = IOVBASE: options: runbase(default), lumibase, timebase
    -w, --wait : Pause script after plotting a new histograms.
@@ -386,7 +387,10 @@ if __name__ == '__main__':
 	cvlist[ig].Update()
         cvlist[ig].SetGrid()
         if option.Print:
-	    cvlist[ig].Print(graphnamelist[ig]+".png")
+            suffix = ''
+            if option.suffix:
+                suffix = option.suffix
+	    cvlist[ig].Print(graphnamelist[ig]+"_"+suffix+".png")
         if option.wait:
             raw_input( 'Press ENTER to continue\n ' )
         #graphlist[0].Print('all')
