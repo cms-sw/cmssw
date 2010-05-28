@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2010/03/27 20:08:01 $
- * $Revision: 1.56 $
+ * $Date: 2010/05/28 12:12:12 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  *
 */
@@ -631,17 +631,11 @@ void EELedTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       float wval = 0.;
 
-      std::vector<int> PNsInLM = NumbersPn::getPNs( ism, ix, iy );
+      int refPn = NumbersPn::getPN( ism, ix, iy );
 
-      if ( PNsInLM.size() > 0 ) {
+      if ( refPn >= 0 && refPn < 80 ) {
 
-        int refPn = PNsInLM[0];
-
-        if ( refPn >= 0 && refPn < 80 ) {
-
-          if ( adcPN[refPn] != 0. ) wval = xval / adcPN[refPn];
-
-        }
+        if ( adcPN[refPn] != 0. ) wval = xval / adcPN[refPn];
 
       }
 
