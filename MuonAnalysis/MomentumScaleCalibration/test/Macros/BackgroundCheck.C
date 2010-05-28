@@ -129,11 +129,11 @@ void BackgroundCheck()
 
   // Exponential
   backgroundType = 0;
-  Bgrp1.push_back(0.740986);
-  a.push_back(0.394166);
+  Bgrp1.push_back(0.730566);
+  a.push_back(0.826053);
   a.push_back(0);
-  leftWindowBorder.push_back(2);
-  rightWindowBorder.push_back(4);
+  leftWindowBorder.push_back(2.5);
+  rightWindowBorder.push_back(5.);
 
   // // Linear
   // backgroundType.push_back(1);
@@ -212,8 +212,8 @@ TH1F * buildHistogram(const double * ResMass, const double * ResHalfWidth, const
 		      const TH1F* allHisto, const int backgroundType, const double & b)
 {
   // For J/Psi exclude the Upsilon from the background normalization as the bin is not used by the fit.
-  double lowWindowValue = ResMass[ires]-leftWindowBorder;
-  double upWindowValue = ResMass[ires]+rightWindowBorder;
+  double lowWindowValue = leftWindowBorder;
+  double upWindowValue = rightWindowBorder;
 
   int lowBin = int((lowWindowValue)*xBins/deltaX);
   int upBin = int((upWindowValue)*xBins/deltaX);
