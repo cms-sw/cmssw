@@ -16,7 +16,7 @@ Implementation:
 //                   Maria Spiropulu
 //         Created:  Wed Aug 29 15:10:56 CEST 2007
 //  Philip Hebda, July 2009
-// $Id: TriggerValidator.cc,v 1.20 2010/02/26 17:17:16 wdd Exp $
+// $Id: TriggerValidator.cc,v 1.21 2010/05/28 10:35:59 chiorbo Exp $
 //
 //
 
@@ -281,6 +281,11 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   // ******************************************************** 
   edm::Handle<TriggerResults> trhv;
   iEvent.getByLabel(hltLabel,trhv);
+  if( ! trhv.isValid() ) {
+    LogDebug("") << "HL TriggerResults with label ["+hltLabel.encode()+"] not found!";
+    return;
+  }  
+
   std::vector<int> hltbits;
 
 //   if(!trhv.isValid()) {
@@ -414,36 +419,36 @@ void TriggerValidator::beginRun(const edm::Run& run, const edm::EventSetup& c)
   
   bool changed(true);
   //  cout << "hltConfig_.init(run,c,processName_,changed) = " << (int) hltConfig_.init(run,c,processName_,changed) << endl;
-  cout << "changed = " << (int) changed << endl;
+  //  cout << "changed = " << (int) changed << endl;
   if (hltConfig_.init(run,c,processName_,changed)) {
-    cout << "AAAA" << endl;
+    //    cout << "AAAA" << endl;
     if (changed) {
-     cout << "BBBBBBB" << endl;
+      //     cout << "BBBBBBB" << endl;
      // check if trigger name in (new) config
       if (triggerName_!="@") { // "@" means: analyze all triggers in config
-	cout << "hltConfig_.size() = " << hltConfig_.size() << endl;
+	//	cout << "hltConfig_.size() = " << hltConfig_.size() << endl;
 	nHltPaths = hltConfig_.size();
 	const unsigned int triggerIndex(hltConfig_.triggerIndex(triggerName_));
 	if (triggerIndex>=nHltPaths) {
-	  cout << "HLTriggerOffline/SUSYBSM"
-	       << " TriggerName " << triggerName_ 
-	       << " not available in (new) config!" << endl;
-	  cout << "Available TriggerNames are: " << endl;
+// 	  cout << "HLTriggerOffline/SUSYBSM"
+// 	       << " TriggerName " << triggerName_ 
+// 	       << " not available in (new) config!" << endl;
+// 	  cout << "Available TriggerNames are: " << endl;
 	  hltConfig_.dump("Triggers");
 	}
       }
       else {
-     cout << "CCCCCCCC" << endl;
+	//     cout << "CCCCCCCC" << endl;
 	nHltPaths = hltConfig_.size();
       }
     }
   } else {
-    cout << "HLTriggerOffline/SUSYBSM"
-	 << " config extraction failure with process name "
-	 << processName_ << endl;
+//     cout << "HLTriggerOffline/SUSYBSM"
+// 	 << " config extraction failure with process name "
+// 	 << processName_ << endl;
   }
 
-  cout << "nHltPaths = " << nHltPaths << endl;
+  //  cout << "nHltPaths = " << nHltPaths << endl;
   nL1Bits = 128; 
 
   
