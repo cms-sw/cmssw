@@ -310,6 +310,8 @@ HLTSusyExoValFastSim = cms.EDAnalyzer("TriggerValidator",
     l1_flag = cms.untracked.bool(False), ## put l1_flag = false if you don't want the plots for the L1 objects. 
                                          ## Put false for usage in the DQM framework (reduce the number of bins).
     triggerTag = cms.InputTag("hltTriggerSummaryAOD"),
+    hltConfigName = cms.string("HLT"),
+    triggerName = cms.string("@"),
     muonTag = cms.InputTag('muons'),
     histoFileName = cms.untracked.string('MonElements_LM1_IDEAL_30x_v1_300pre7.root'),
     PlotMakerL1Input = cms.PSet(

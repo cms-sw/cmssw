@@ -18,7 +18,7 @@
 //                   Maurizio Pierini
 //                   Maria Spiropulu
 //         Created:  Wed Aug 29 15:10:56 CEST 2007
-// $Id: TriggerValidator.h,v 1.12 2010/02/25 11:13:11 chiorbo Exp $
+// $Id: TriggerValidator.h,v 1.13 2010/02/26 17:17:16 wdd Exp $
 //
 //
 
@@ -80,7 +80,7 @@ class TriggerValidator : public edm::EDAnalyzer {
 
 
 
-      int nHltPaths;
+      unsigned int nHltPaths;
       int nL1Bits;
 
 
@@ -112,7 +112,8 @@ class TriggerValidator : public edm::EDAnalyzer {
 
       edm::InputTag muonTag_;
       edm::InputTag triggerTag_;
-
+      std::string processName_;
+      std::string triggerName_;
       // name of each L1 algorithm
       std::vector<std::string> l1Names_;    
       // name of each hlt algorithm

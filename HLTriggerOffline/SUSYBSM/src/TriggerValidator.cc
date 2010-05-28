@@ -16,7 +16,7 @@ Implementation:
 //                   Maria Spiropulu
 //         Created:  Wed Aug 29 15:10:56 CEST 2007
 //  Philip Hebda, July 2009
-// $Id: TriggerValidator.cc,v 1.19 2010/02/25 11:13:11 chiorbo Exp $
+// $Id: TriggerValidator.cc,v 1.20 2010/02/26 17:17:16 wdd Exp $
 //
 //
 
@@ -99,7 +99,9 @@ TriggerValidator::TriggerValidator(const edm::ParameterSet& iConfig):
   plotMakerL1Input(iConfig.getParameter<ParameterSet>("PlotMakerL1Input")),
   plotMakerRecoInput(iConfig.getParameter<ParameterSet>("PlotMakerRecoInput")),
   muonTag_(iConfig.getParameter<edm::InputTag>("muonTag")),
-  triggerTag_(iConfig.getParameter<edm::InputTag>("triggerTag"))
+  triggerTag_(iConfig.getParameter<edm::InputTag>("triggerTag")),
+  processName_(iConfig.getParameter<std::string>("hltConfigName")),
+  triggerName_(iConfig.getParameter<std::string>("triggerName"))
 {
   //now do what ever initialization is needed
   theHistoFile = 0;
@@ -387,9 +389,13 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 }
 
 
+void TriggerValidator::beginJob(){
+}
+
+
+
 // ------------ method called once each job just before starting event loop  ------------
-void 
-TriggerValidator::beginJob()
+void TriggerValidator::beginRun(const edm::Run& run, const edm::EventSetup& c)
 {
 
 
@@ -406,12 +412,38 @@ TriggerValidator::beginJob()
   }  
   
   
-  if (hltConfig_.init("HLT")) {
-    nHltPaths = hltConfig_.size(); 
+  bool changed(true);
+  //  cout << "hltConfig_.init(run,c,processName_,changed) = " << (int) hltConfig_.init(run,c,processName_,changed) << endl;
+  cout << "changed = " << (int) changed << endl;
+  if (hltConfig_.init(run,c,processName_,changed)) {
+    cout << "AAAA" << endl;
+    if (changed) {
+     cout << "BBBBBBB" << endl;
+     // check if trigger name in (new) config
+      if (triggerName_!="@") { // "@" means: analyze all triggers in config
+	cout << "hltConfig_.size() = " << hltConfig_.size() << endl;
+	nHltPaths = hltConfig_.size();
+	const unsigned int triggerIndex(hltConfig_.triggerIndex(triggerName_));
+	if (triggerIndex>=nHltPaths) {
+	  cout << "HLTriggerOffline/SUSYBSM"
+	       << " TriggerName " << triggerName_ 
+	       << " not available in (new) config!" << endl;
+	  cout << "Available TriggerNames are: " << endl;
+	  hltConfig_.dump("Triggers");
+	}
+      }
+      else {
+     cout << "CCCCCCCC" << endl;
+	nHltPaths = hltConfig_.size();
+      }
+    }
   } else {
-    edm::LogInfo("HLTriggerOfflineSusyBSM") << "HLTCONFIG NOT INT";
-    nHltPaths = 150;
+    cout << "HLTriggerOffline/SUSYBSM"
+	 << " config extraction failure with process name "
+	 << processName_ << endl;
   }
+
+  cout << "nHltPaths = " << nHltPaths << endl;
   nL1Bits = 128; 
 
   
@@ -813,12 +845,6 @@ TriggerValidator::endJob()
    return;
 }
 
-
-// BeginRun
-void TriggerValidator::beginRun(const edm::Run& run, const edm::EventSetup& c)
-{
-  LogDebug("TriggerValidator") << "beginRun, run " << run.id();
-}
 
 
 
