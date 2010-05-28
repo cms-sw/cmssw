@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2010/04/14 16:13:39 $
- * $Revision: 1.263 $
+ * $Date: 2010/05/03 14:25:42 $
+ * $Revision: 1.264 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -2489,7 +2489,7 @@ void EBLaserClient::analyze(void) {
         std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
         if (iter == superModules_.end()) continue;
 
-        int i = ecid.getID2() - 1;
+        int i = ecid.getID2() + 1;
 
         UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
         UtilsClient::maskBinContent( meg06_[ism-1], i, 1 );
@@ -2507,7 +2507,7 @@ void EBLaserClient::analyze(void) {
         std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
         if (iter == superModules_.end()) continue;
 
-        int i = ecid.getID2() - 1;
+        int i = ecid.getID2() + 1;
 
         UtilsClient::maskBinContent( meg09_[ism-1], i, 1 );
         UtilsClient::maskBinContent( meg10_[ism-1], i, 1 );

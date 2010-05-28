@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2010/04/14 16:13:40 $
- * $Revision: 1.114 $
+ * $Date: 2010/04/14 16:24:42 $
+ * $Revision: 1.115 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1291,7 +1291,7 @@ void EETestPulseClient::analyze(void) {
         std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
         if (iter == superModules_.end()) continue;
 
-        int i = ecid.getID2() - 1;
+        int i = ecid.getID2() + 1;
 
         UtilsClient::maskBinContent( meg04_[ism-1], i, 1 );
 
@@ -1310,7 +1310,7 @@ void EETestPulseClient::analyze(void) {
         std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
         if (iter == superModules_.end()) continue;
 
-        int i = ecid.getID2() - 1;
+        int i = ecid.getID2() + 1;
 
         UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
 

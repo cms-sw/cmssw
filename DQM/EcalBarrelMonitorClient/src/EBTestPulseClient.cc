@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2010/03/27 20:30:37 $
- * $Revision: 1.226 $
+ * $Date: 2010/04/14 16:13:39 $
+ * $Revision: 1.227 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1181,7 +1181,7 @@ void EBTestPulseClient::analyze(void) {
         std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
         if (iter == superModules_.end()) continue;
 
-        int i = ecid.getID2() - 1;
+        int i = ecid.getID2() + 1;
 
         UtilsClient::maskBinContent( meg04_[ism-1], i, 1 );
 
@@ -1196,7 +1196,7 @@ void EBTestPulseClient::analyze(void) {
         std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
         if (iter == superModules_.end()) continue;
 
-        int i = ecid.getID2() - 1;
+        int i = ecid.getID2() + 1;
 
         UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
 

@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2010/04/14 16:24:42 $
- * $Revision: 1.128 $
+ * $Date: 2010/05/03 14:25:44 $
+ * $Revision: 1.129 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -2625,7 +2625,7 @@ void EELaserClient::analyze(void) {
         std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
         if (iter == superModules_.end()) continue;
 
-        int i = ecid.getID2() - 1;
+        int i = ecid.getID2() + 1;
 
         UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
         UtilsClient::maskBinContent( meg06_[ism-1], i, 1 );
@@ -2647,7 +2647,7 @@ void EELaserClient::analyze(void) {
         std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
         if (iter == superModules_.end()) continue;
 
-        int i = ecid.getID2() - 1;
+        int i = ecid.getID2() + 1;
 
         UtilsClient::maskBinContent( meg09_[ism-1], i, 1 );
         UtilsClient::maskBinContent( meg10_[ism-1], i, 1 );
