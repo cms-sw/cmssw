@@ -20,7 +20,7 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-#define DebugLog
+//#define DebugLog
 
 HFShowerParam::HFShowerParam(std::string & name, const DDCompactView & cpv,
 			     edm::ParameterSet const & p) : showerLibrary(0),
@@ -243,16 +243,18 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep) {
 #endif
 	}
       }
+#ifdef DebugLog
       for (unsigned int ii=0; ii<hits.size(); ii++) {
 	double zv = std::abs(hits[ii].position.z());
 	if (zv > 12790)
-	edm::LogInfo("HFShower") << "HFShowerParam: Abnormal hit along " <<path
-				 << " in " << preStepPoint->GetPhysicalVolume()->GetLogicalVolume()->GetName()
-				 << " at " << hits[ii].position << " zz " 
-				 << zv << " Edep " << edep << " due to " 
-				 << track->GetDefinition()->GetParticleName()
-				 << " time " << hit.time;
+	  LogDebug("HFShower") << "HFShowerParam: Abnormal hit along " << path
+			       << " in " << preStepPoint->GetPhysicalVolume()->GetLogicalVolume()->GetName()
+			       << " at " << hits[ii].position << " zz " 
+			       << zv << " Edep " << edep << " due to " 
+			       << track->GetDefinition()->GetParticleName()
+			       << " time " << hit.time;
       }
+#endif
       if (kill) {
 	track->SetTrackStatus(fStopAndKill);
 	G4TrackVector tv = *(aStep->GetSecondary());

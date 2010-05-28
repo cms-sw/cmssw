@@ -12,6 +12,7 @@
 #include "SimG4CMS/Calo/interface/HFShowerLibrary.h"
 #include "SimG4CMS/Calo/interface/HFShowerParam.h"
 #include "SimG4CMS/Calo/interface/HFShowerPMT.h"
+#include "SimG4CMS/Calo/interface/HFShowerFibreBundle.h"
 #include "SimG4CMS/Calo/interface/HcalNumberingScheme.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
@@ -55,11 +56,14 @@ private:
   bool                          isItFibre(G4LogicalVolume*);
   bool                          isItFibre(G4String);
   bool                          isItPMT(G4LogicalVolume*);
+  bool                          isItStraightBundle(G4LogicalVolume*);
+  bool                          isItConicalBundle(G4LogicalVolume*);
   bool                          isItScintillator(G4Material*);
   void                          getFromLibrary(G4Step * step);
   void                          hitForFibre(G4Step * step);
   void                          getFromParam(G4Step * step);
   void                          getHitPMT(G4Step * step);
+  void                          getHitFibreBundle(G4Step * step, bool type);
   int                           setTrackID(G4Step * step);
   void                          readWeightFromFile(std::string);
   double                        layerWeight(int, G4ThreeVector, int, int);
@@ -72,7 +76,8 @@ private:
   HFShower *                    hfshower;
   HFShowerParam *               showerParam;
   HFShowerPMT *                 showerPMT;
-  bool                          useBirk, useLayerWt;
+  HFShowerFibreBundle *         showerBundle;
+  bool                          useBirk, useLayerWt, useFibreBundle;
   double                        birk1, birk2, birk3, betaThr;
   bool                          useHF, useShowerLibrary, useParam, usePMTHit;
   double                        eminHitHB, eminHitHE, eminHitHO, eminHitHF;
@@ -85,8 +90,7 @@ private:
   std::vector<G4String>         fibreNames;
   std::vector<G4String>         matNames;
   std::vector<G4Material*>      materials;
-  std::vector<G4LogicalVolume*> pmtLV;
-  std::vector<G4String>         pmtNames;
+  std::vector<G4LogicalVolume*> pmtLV, fibre1LV, fibre2LV;
   std::map<uint32_t,double>     layerWeights;
   TH1F                          *hit_[9], *time_[9], *dist_[9];
 

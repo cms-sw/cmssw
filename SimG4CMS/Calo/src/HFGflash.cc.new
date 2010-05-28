@@ -29,7 +29,7 @@
 
 #include <math.h>
 
-#define DebugLog
+//#define DebugLog
 
 HFGflash::HFGflash(edm::ParameterSet const & p) {
 
