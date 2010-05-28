@@ -1,8 +1,8 @@
 /*
  * \file EELaserTask.cc
  *
- * $Date: 2010/05/28 12:12:12 $
- * $Revision: 1.65 $
+ * $Date: 2010/05/28 14:50:08 $
+ * $Revision: 1.66 $
  * \author G. Della Ricca
  *
 */
@@ -667,6 +667,13 @@ void EELaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt_++;
 
+  bool numPN[80];
+  float adcPN[80];
+  for ( int i = 0; i < 80; i++ ) {
+    numPN[i] = false;
+    adcPN[i] = 0.;
+  }
+
   edm::Handle<EEDigiCollection> digis;
 
   if ( e.getByLabel(EEDigiCollection_, digis) ) {
@@ -723,17 +730,16 @@ void EELaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       }
 
+      int refPn = NumbersPn::getPN( ism, ix, iy );
+
+      if ( refPn >= 0 && refPn < 80 ) numPN[refPn] = true;
+
     }
 
   } else {
 
     edm::LogWarning("EELaserTask") << EEDigiCollection_ << " not available";
 
-  }
-
-  float adcPN[80];
-  for ( int i = 0; i < 80; i++ ) {
-    adcPN[i] = 0.;
   }
 
   edm::Handle<EcalPnDiodeDigiCollection> pns;
@@ -753,6 +759,10 @@ void EELaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::LASER_STD ||
                runType[ism-1] == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
+
+      int ipn = NumbersPn::ipnEE( ism, num );
+
+      if ( ipn >= 0 && ipn < 80 && numPN[ipn] == 0 ) continue;
 
       float xvalped = 0.;
 
@@ -815,8 +825,6 @@ void EELaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
 
       if ( mePN ) mePN->Fill(num - 0.5, xvalmax);
-
-      int ipn = NumbersPn::ipnEE( ism, num );
 
       if ( ipn >= 0 && ipn < 80 ) adcPN[ipn] = xvalmax;
 
