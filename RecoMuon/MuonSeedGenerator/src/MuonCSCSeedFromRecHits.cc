@@ -15,30 +15,6 @@
 MuonCSCSeedFromRecHits::MuonCSCSeedFromRecHits()
 : MuonSeedFromRecHits()
 {
-  //FIXME make configurable
-  // parameters for the fit of dphi between chambers vs. eta
-  // pt = (c1 + c2 abs(eta))/ dphi
-  fillConstants(1,5, 0.6640, -0.2253);
-  fillConstants(1,7, 0.6255, -0.1955);
-  fillConstants(2,5, 0.6876, -0.2379);
-  fillConstants(2,7, 0.6404, -0.2009);
-  //fillConstants(2,8, 0.7972, -0.3032);
-  fillConstants(3,5, 0.2773, -0.1017);
-  fillConstants(3,6, -0.05597, 0.11840);
-  fillConstants(3,8, -0.09705, 0.15916);
-  // numbers from Shih-Chuam's May 2007 talk
-  fillConstants(4,6, -0.123,   0.167);
-  fillConstants(5,7, 0.035, 0.);
-  fillConstants(6,8, 0.025, 0.);
-
-
-
-}
-
-
-void MuonCSCSeedFromRecHits::fillConstants(int chamberType1, int chamberType2, double c1, double c2)
-{
-  theConstantsMap[std::make_pair(chamberType1,chamberType2)] = std::make_pair(c1, c2);
 }
 
 
