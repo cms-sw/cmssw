@@ -34,6 +34,14 @@ ErrorsAnalyzer::ErrorsAnalyzer(const edm::ParameterSet& iConfig) :
   sigmaPtVsEta_ = new TProfile("sigmaPtVsEtaProfile", "sigmaPtVsEta", etaBins_, etaMin_, etaMax_);
   sigmaPtVsEtaPlusErr_ = new TProfile("sigmaPtVsEtaPlusErrProfile", "sigmaPtVsEtaPlusErr", etaBins_, etaMin_, etaMax_);
   sigmaPtVsEtaMinusErr_ = new TProfile("sigmaPtVsEtaMinusErrProfile", "sigmaPtVsEtaMinusErr", etaBins_, etaMin_, etaMax_);
+
+  sigmaMassVsPt_ = new TProfile("sigmaMassVsPtProfile", "sigmaMassVsPt", ptBins_, ptMin_, ptMax_);
+  sigmaMassVsPtPlusErr_ = new TProfile("sigmaMassVsPtPlusErrProfile", "sigmaMassVsPtPlusErr", ptBins_, ptMin_, ptMax_);
+  sigmaMassVsPtMinusErr_ = new TProfile("sigmaMassVsPtMinusErrProfile", "sigmaMassVsPtMinusErr", ptBins_, ptMin_, ptMax_);
+
+  sigmaMassVsEta_ = new TProfile("sigmaMassVsEtaProfile", "sigmaMassVsEta", etaBins_, etaMin_, etaMax_);
+  sigmaMassVsEtaPlusErr_ = new TProfile("sigmaMassVsEtaPlusErrProfile", "sigmaMassVsEtaPlusErr", etaBins_, etaMin_, etaMax_);
+  sigmaMassVsEtaMinusErr_ = new TProfile("sigmaMassVsEtaMinusErrProfile", "sigmaMassVsEtaMinusErr", etaBins_, etaMin_, etaMax_);
 }
 
 void ErrorsAnalyzer::fillValueError()
@@ -59,8 +67,11 @@ ErrorsAnalyzer::~ErrorsAnalyzer()
 
   TFile * outputFile = new TFile(outputFileName_, "RECREATE");
 
-  drawHistograms(sigmaPtVsEta_, sigmaPtVsEtaPlusErr_, sigmaPtVsEtaMinusErr_, "Eta");
-  drawHistograms(sigmaPtVsPt_, sigmaPtVsPtPlusErr_, sigmaPtVsPtMinusErr_, "Pt");
+  drawHistograms(sigmaPtVsEta_, sigmaPtVsEtaPlusErr_, sigmaPtVsEtaMinusErr_, "sigmaPtVsEta");
+  drawHistograms(sigmaPtVsPt_, sigmaPtVsPtPlusErr_, sigmaPtVsPtMinusErr_, "sigmaPtVsPt");
+
+  drawHistograms(sigmaMassVsEta_, sigmaMassVsEtaPlusErr_, sigmaMassVsEtaMinusErr_, "sigmaMassVsEta");
+  drawHistograms(sigmaMassVsPt_, sigmaMassVsPtPlusErr_, sigmaMassVsPtMinusErr_, "sigmaMassVsPt");
 
   outputFile->Write();
   outputFile->Close();
@@ -69,12 +80,20 @@ ErrorsAnalyzer::~ErrorsAnalyzer()
 void ErrorsAnalyzer::drawHistograms(const TProfile * histo, const TProfile * histoPlusErr,
 				    const TProfile * histoMinusErr, const TString & type)
 {
-  TH1D * sigmaPtVsEtaTH1D = new TH1D("sigmaPtVs"+type, "sigmaPtVs"+type, histo->GetNbinsX(),
+  TH1D * sigmaPtVsEtaTH1D = new TH1D(type, type, histo->GetNbinsX(),
 				     histo->GetXaxis()->GetXmin(), histo->GetXaxis()->GetXmax());
-  TH1D * sigmaPtVsEtaPlusErrTH1D = new TH1D("sigmaPtVs"+type+"PlusErr", "sigmaPtVs"+type+"PlusErr", histo->GetNbinsX(),
+  TH1D * sigmaPtVsEtaPlusErrTH1D = new TH1D(type+"PlusErr", type+"PlusErr", histo->GetNbinsX(),
 					    histo->GetXaxis()->GetXmin(), histo->GetXaxis()->GetXmax());
-  TH1D * sigmaPtVsEtaMinusErrTH1D = new TH1D("sigmaPtVs"+type+"MinusErr", "sigmaPtVs"+type+"MinusErr", histo->GetNbinsX(),
+  TH1D * sigmaPtVsEtaMinusErrTH1D = new TH1D(type+"MinusErr", type+"MinusErr", histo->GetNbinsX(),
 					     histo->GetXaxis()->GetXmin(), histo->GetXaxis()->GetXmax());
+
+  TH1D * sigmaMassVsEtaTH1D = new TH1D(type, type, histo->GetNbinsX(),
+				       histo->GetXaxis()->GetXmin(), histo->GetXaxis()->GetXmax());
+  TH1D * sigmaMassVsEtaPlusErrTH1D = new TH1D(type+"PlusErr", type+"PlusErr", histo->GetNbinsX(),
+					      histo->GetXaxis()->GetXmin(), histo->GetXaxis()->GetXmax());
+  TH1D * sigmaMassVsEtaMinusErrTH1D = new TH1D(type+"MinusErr", type+"MinusErr", histo->GetNbinsX(),
+					       histo->GetXaxis()->GetXmin(), histo->GetXaxis()->GetXmax());
+
   TCanvas * canvas = new TCanvas("canvas"+type, "canvas"+type, 1000, 800);
   for( int iBin = 1; iBin <= histo->GetNbinsX(); ++iBin ) {
     sigmaPtVsEtaTH1D->SetBinContent(iBin, histo->GetBinContent(iBin));
@@ -139,6 +158,15 @@ void ErrorsAnalyzer::drawHistograms(const TProfile * histo, const TProfile * his
   sigmaPtVsEta_->Write();
   sigmaPtVsEtaMinusErr_->Write();
 
+  // Mass
+  sigmaMassVsEtaPlusErrTH1D->Write();
+  sigmaMassVsEtaTH1D->Write();
+  sigmaMassVsEtaMinusErrTH1D->Write();
+
+  sigmaMassVsEtaPlusErr_->Write();
+  sigmaMassVsEta_->Write();
+  sigmaMassVsEtaMinusErr_->Write();
+
   canvas->Write();
 }
 
@@ -158,6 +186,10 @@ void ErrorsAnalyzer::fillHistograms()
   // rootTreeHandler.readTree(maxEvents, inputRootTreeFileName_, &savedPair, &(MuScleFitUtils::genPair));
 
   resolutionFunctionBase<std::vector<double> > * resolutionFunctionForVec = resolutionFunctionVecService( resolFitType_ );
+  MuScleFitUtils::resolutionFunction = resolutionFunctionService( resolFitType_ );
+  MuScleFitUtils::debugMassResol_ = false;
+  MuScleFitUtils::debug = 0;
+  MuScleFitUtils::resfind = std::vector<int>(6, 0);
 
   // Loop on all the pairs
   unsigned int i = 0;
@@ -178,6 +210,12 @@ void ErrorsAnalyzer::fillHistograms()
     double sigmaPtMinusErr1 = resolutionFunctionForVec->sigmaPt( pt1,eta1,valueMinusError_ );
     double sigmaPtMinusErr2 = resolutionFunctionForVec->sigmaPt( pt2,eta2,valueMinusError_ );
 
+
+    double sigmaMass = MuScleFitUtils::massResolution( it->first, it->second, parameters_ );
+    double sigmaMassPlusErr = MuScleFitUtils::massResolution( it->first, it->second, valuePlusError_ );
+    double sigmaMassMinusErr = MuScleFitUtils::massResolution( it->first, it->second, valueMinusError_ );
+
+
     if( pt1 != pt1 ) continue;
     if( pt2 != pt2 ) continue;
     if( eta1 != eta1 ) continue;
@@ -188,6 +226,10 @@ void ErrorsAnalyzer::fillHistograms()
     if( sigmaPtPlusErr2 != sigmaPtPlusErr2 ) continue;
     if( sigmaPtMinusErr1 != sigmaPtMinusErr1 ) continue;
     if( sigmaPtMinusErr2 != sigmaPtMinusErr2 ) continue;
+
+    if( sigmaMass != sigmaMass ) continue;
+    if( sigmaMassPlusErr != sigmaMassPlusErr ) continue;
+    if( sigmaMassMinusErr != sigmaMassMinusErr ) continue;
 
     std::cout << "Muon pair number " << i << std::endl;
 
@@ -208,6 +250,21 @@ void ErrorsAnalyzer::fillHistograms()
     sigmaPtVsEtaPlusErr_->Fill(eta2, sigmaPtPlusErr2);
     sigmaPtVsEtaMinusErr_->Fill(eta1, sigmaPtMinusErr1);
     sigmaPtVsEtaMinusErr_->Fill(eta2, sigmaPtMinusErr2);
+
+
+    sigmaMassVsPt_->Fill(pt1, sigmaMass);
+    sigmaMassVsPt_->Fill(pt2, sigmaMass);
+    sigmaMassVsPtPlusErr_->Fill(pt1, sigmaMassPlusErr);
+    sigmaMassVsPtPlusErr_->Fill(pt2, sigmaMassPlusErr);
+    sigmaMassVsPtMinusErr_->Fill(pt1, sigmaMassMinusErr);
+    sigmaMassVsPtMinusErr_->Fill(pt2, sigmaMassMinusErr);
+
+    sigmaMassVsEta_->Fill(eta1, sigmaMass);
+    sigmaMassVsEta_->Fill(eta2, sigmaMass);
+    sigmaMassVsEtaPlusErr_->Fill(eta1, sigmaMassPlusErr);
+    sigmaMassVsEtaPlusErr_->Fill(eta2, sigmaMassPlusErr);
+    sigmaMassVsEtaMinusErr_->Fill(eta1, sigmaMassMinusErr);
+    sigmaMassVsEtaMinusErr_->Fill(eta2, sigmaMassMinusErr);
   }
 }
 

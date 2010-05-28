@@ -16,7 +16,7 @@
 //
 // Original Author:  Marco De Mattia
 //         Created:  Thu Sep 11 12:16:00 CEST 2008
-// $Id: ErrorsAnalyzer.h,v 1.2 2010/03/24 18:11:06 demattia Exp $
+// $Id: ErrorsAnalyzer.h,v 1.3 2010/03/29 18:15:57 demattia Exp $
 //
 //
 
@@ -40,6 +40,7 @@
 
 #include "MuonAnalysis/MomentumScaleCalibration/interface/Functions.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/RootTreeHandler.h"
+#include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitUtils.h"
 
 //
 // class declaration
@@ -84,6 +85,15 @@ private:
   TProfile * sigmaPtVsPt_;
   TProfile * sigmaPtVsPtPlusErr_;
   TProfile * sigmaPtVsPtMinusErr_;
+
+  // Mass resolution
+  TProfile * sigmaMassVsEta_;
+  TProfile * sigmaMassVsEtaPlusErr_;
+  TProfile * sigmaMassVsEtaMinusErr_;
+
+  TProfile * sigmaMassVsPt_;
+  TProfile * sigmaMassVsPtPlusErr_;
+  TProfile * sigmaMassVsPtMinusErr_;
 };
 
 #endif // RESOLUTIONANALYZER_HH
