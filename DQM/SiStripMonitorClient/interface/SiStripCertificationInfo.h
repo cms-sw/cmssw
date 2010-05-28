@@ -79,6 +79,8 @@ private:
   void fillDummySiStripCertification();
   void fillDummyTrackingCertification();
 
+  void fillSiStripCertificationMEsAtLumi();
+
   DQMStore* dqmStore_;
 
 
@@ -93,12 +95,10 @@ private:
   MonitorElement * SiStripCertification;
   MonitorElement * SiStripCertificationMap; 
   std::map<std::string, SubDetMEs> SubDetMEsMap;
+  std::map<std::string, MonitorElement*> TrackingMEsMap;
   MonitorElement * SiStripCertificationSummaryMap;
 
   MonitorElement * TrackingCertification;  
-  MonitorElement * TrackingCertificationRate;
-  MonitorElement * TrackingCertificationChi2overDoF;
-  MonitorElement * TrackingCertificationRecHits;
 
   bool trackingCertificationBooked_;
   bool sistripCertificationBooked_;
@@ -106,5 +106,6 @@ private:
 
   edm::ESHandle< SiStripDetCabling > detCabling_;
 
+  int nFEDConnected_;
 };
 #endif

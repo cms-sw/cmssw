@@ -64,6 +64,7 @@ void GeometryAligner::applyAlignments( C* geometry,
 
   const AlignTransform::Translation &globalShift = globalCoordinates.translation();
   const AlignTransform::Rotation globalRotation = globalCoordinates.rotation(); // by value!
+  const AlignTransform::Rotation inverseGlobalRotation = globalRotation.inverse();
 
   // Parallel loop on alignments, alignment errors and geomdets
   std::vector<AlignTransform>::const_iterator iAlign = alignments->m_align.begin();
@@ -89,7 +90,7 @@ void GeometryAligner::applyAlignments( C* geometry,
 
 	  // Apply global correction
 	  CLHEP::Hep3Vector positionHep = globalRotation * CLHEP::Hep3Vector( (*iAlign).translation() ) + globalShift;
-	  CLHEP::HepRotation rotationHep = globalRotation * CLHEP::HepRotation( (*iAlign).rotation() );
+	  CLHEP::HepRotation rotationHep = CLHEP::HepRotation( (*iAlign).rotation() )  * inverseGlobalRotation;
 
 	  // Define new position/rotation objects and apply
 	  Surface::PositionType position( positionHep.x(), positionHep.y(), positionHep.z() );
@@ -166,7 +167,7 @@ void GeometryAligner::removeGlobalTransform( const Alignments* alignments,
     
     // Remove global position transformation from alignment
     newPosition = inverseGlobalRotation * ( (*iAlign).translation() - globalShift );
-    newRotation = inverseGlobalRotation * (*iAlign).rotation();
+    newRotation = globalRotation * (*iAlign).rotation();
     
     newAlignments->m_align.push_back( AlignTransform(newPosition,
                                                      newRotation,

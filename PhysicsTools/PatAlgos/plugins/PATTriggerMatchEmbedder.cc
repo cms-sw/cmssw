@@ -10,10 +10,10 @@
    .
 
   \author   Volker Adler
-  \version  $Id: PATTriggerMatchEmbedder.cc,v 1.2 2009/04/20 18:13:47 vadler Exp $
+  \version  $Id: PATTriggerMatchEmbedder.cc,v 1.3 2009/07/04 13:15:29 vadler Exp $
 */
 //
-// $Id: PATTriggerMatchEmbedder.cc,v 1.2 2009/04/20 18:13:47 vadler Exp $
+// $Id: PATTriggerMatchEmbedder.cc,v 1.3 2009/07/04 13:15:29 vadler Exp $
 //
 
 
@@ -66,6 +66,7 @@ namespace pat {
 
 using namespace pat;
 
+
 template< class PATObjectType >
 PATTriggerMatchEmbedder< PATObjectType >::PATTriggerMatchEmbedder( const edm::ParameterSet & iConfig ) :
   src_( iConfig.getParameter< edm::InputTag >( "src" ) ),
@@ -76,9 +77,9 @@ PATTriggerMatchEmbedder< PATObjectType >::PATTriggerMatchEmbedder( const edm::Pa
 
 template< class PATObjectType >
 void PATTriggerMatchEmbedder< PATObjectType >::produce( edm::Event & iEvent, const edm::EventSetup & iSetup )
-{  
+{
   std::auto_ptr< std::vector< PATObjectType > > output( new std::vector< PATObjectType >() );
-  
+
   edm::Handle< edm::View< PATObjectType > > candidates;
   iEvent.getByLabel( src_, candidates );
   if ( ! candidates.isValid() ) {

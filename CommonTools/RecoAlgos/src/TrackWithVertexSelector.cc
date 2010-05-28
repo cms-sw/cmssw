@@ -44,22 +44,23 @@ bool TrackWithVertexSelector::testTrack(const reco::Track &t) const {
 
 bool TrackWithVertexSelector::testVertices(const reco::Track &t, const reco::VertexCollection &vtxs) const {
   bool ok = false;
-  const Point &pca = t.vertex();
   if (vtxs.size() > 0) {
     unsigned int tested = 1;
     for (reco::VertexCollection::const_iterator it = vtxs.begin(), ed = vtxs.end();
 	 it != ed; ++it) {
-      if (testPoint(pca, it->position())) { ok = true; break; }
+      if ((std::abs(t.dxy(it->position())) < rhoVtx_) && 
+          (std::abs(t.dz(it->position())) < zetaVtx_)) {
+        ok = true; break; 
+      }
       if (tested++ >= nVertices_) break;
     }
   } else if (vtxFallback_) {
-    return ( (std::abs(pca.z()) < 15.9) && (pca.Rho() < 0.2) );
+    return ( (std::abs(t.vertex().z()) < 15.9) && (t.vertex().Rho() < 0.2) );
   }
   return ok;
 } 
 
 bool TrackWithVertexSelector::operator()(const reco::Track &t, const edm::Event &evt) const {
-  using std::abs;
   if (!testTrack(t)) return false;
   if (nVertices_ == 0) return true;
   edm::Handle<reco::VertexCollection> hVtx;
@@ -68,14 +69,7 @@ bool TrackWithVertexSelector::operator()(const reco::Track &t, const edm::Event 
 } 
 
 bool TrackWithVertexSelector::operator()(const reco::Track &t, const reco::VertexCollection &vtxs) const {
-  using std::abs;
   if (!testTrack(t)) return false;
   if (nVertices_ == 0) return true;
   return testVertices(t, vtxs);
-}
-
-bool TrackWithVertexSelector::testPoint(const Point &point, const Point &vtx) const {
-  using std::abs;
-  math::XYZVector d = point - vtx;
-  return ((abs(d.z()) < zetaVtx_) && (abs(d.Rho()) < rhoVtx_));
 }

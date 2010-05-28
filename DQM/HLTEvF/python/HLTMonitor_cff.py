@@ -16,6 +16,8 @@ from DQM.HLTEvF.HLTLocalRecoDT_cff import *
 from DQM.HLTEvF.HLTLocalRecoRPC_cff import *
 from DQM.HLTEvF.HLTLocalRecoSiStrip_cff import *
 from DQM.HLTEvF.HLTLocalRecoSiPixel_cff import *
+# onia
+from DQM.HLTEvF.HLTMonOnia_cff import *
 # alca
 from DQM.HLTEvF.HLTMonAlCaPi0_cff import *
 from DQM.HLTEvF.HLTMonAlCaPhySim_cff import *

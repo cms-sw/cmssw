@@ -3,7 +3,6 @@
  *  CMSSW
  *
  *  Created by Chris Jones on 8/8/05.
- *  Copyright 2005 __MyCompanyName__. All rights reserved.
  *
  */
 
@@ -53,8 +52,8 @@ void testEventID::comparisonTest()
    const EventID small(1, 4, 1);
    const EventID med(2, 3, 2);
    const EventID med2(2, 3, 2);
-   const EventID large(3, 2, 2);
-   const EventID largest(3, 1, 3);
+   const EventID large(3, 1, 3);
+   const EventID largest(3, 2, 2);
    
    CPPUNIT_ASSERT(small < med);
    CPPUNIT_ASSERT(small <= med);

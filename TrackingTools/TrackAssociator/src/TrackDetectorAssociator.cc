@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.cc,v 1.41 2009/10/19 22:26:09 dmytro Exp $
+// $Id: TrackDetectorAssociator.cc,v 1.42 2010/03/12 13:51:28 gpetrucc Exp $
 //
 //
 
@@ -905,7 +905,7 @@ bool TrackDetectorAssociator::addTAMuonSegmentMatch(TAMuonChamberMatch& matchedC
 	  int hits=0;
 	  double t0=0.;
 	  // TODO: cuts on hit numbers not optimized in any way yet...
-	  if (phiHits>5) {
+	  if (phiHits>5 && dtseg->phiSegment()->ist0Valid()) {
 	    t0+=dtseg->phiSegment()->t0()*phiHits;
 	    hits+=phiHits;
 	    LogTrace("TrackAssociator") << " Phi t0: " << dtseg->phiSegment()->t0() << " hits: " << phiHits;

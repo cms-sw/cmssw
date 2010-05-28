@@ -84,7 +84,7 @@ class CSCOfflineClient: public edm::EDAnalyzer, public cscdqm::MonitorObjectProv
 
   public:
 
-    const CSCDetId getCSCDetId(const unsigned int crateId, const unsigned int dmbId) const { return CSCDetId(); }
+    bool getCSCDetId(const unsigned int crateId, const unsigned int dmbId, CSCDetId& detId) const { return false; }
     cscdqm::MonitorObject *bookMonitorObject (const cscdqm::HistoBookRequest& p_req);
 
   /** 

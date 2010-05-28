@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
 
- version $Id: BSFitter.cc,v 1.16 2010/03/17 20:31:29 yumiceva Exp $
+ version $Id: BSFitter.cc,v 1.18 2010/04/16 13:33:06 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -500,7 +500,7 @@ reco::BeamSpot BSFitter::Fit_d0phi() {
 		
 		
 		// average transverse beam width
-		double sigmabeam2 = 0.03 * 0.03;
+		double sigmabeam2 = 0.006 * 0.006;
 		if (finputBeamWidth > 0 ) sigmabeam2 = finputBeamWidth * finputBeamWidth;
 
 		//double sigma2 = sigmabeam2 +  (iparam->sigd0())* (iparam->sigd0()) / iparam->weight2;
@@ -761,7 +761,7 @@ reco::BeamSpot BSFitter::Fit_d_z_likelihood(double *inipar, double *error_par) {
 
      //Here remove the tracks which give low pdf and fill into a new vector
      //std::cout<<"Size of Old vector = "<<(fBSvector.size())<<std::endl;
-     double junk=scanPDF(inipar,tracksFailed,2);
+     /* double junk= */ scanPDF(inipar,tracksFailed,2);
      //std::cout<<"Size of New vector = "<<(fBSvectorBW.size())<<std::endl;
 
      //Refill the fBSVector again with new sets of tracks
@@ -819,7 +819,7 @@ reco::BeamSpot BSFitter::Fit_d_z_likelihood(double *inipar, double *error_par) {
 
 
     tracksFailed=0;
-    double lastIter_scan=scanPDF(lastIter_pars,tracksFailed,2);
+    /* double lastIter_scan= */ scanPDF(lastIter_pars,tracksFailed,2);
 
    
     std::cout<<"WARNING: # of tracks which have very low pdf value (pdf_d < 1.0e-05) are  = "<<tracksFailed<<std::endl;

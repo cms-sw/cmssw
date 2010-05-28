@@ -62,13 +62,15 @@
 #include "G4GenericIon.hh"
 
 CMSEmStandardPhysics::CMSEmStandardPhysics(const G4String& name,  const HepPDT::ParticleDataTable * table_, G4int ver, G4double charge_) :
-  G4VPhysicsConstructor(name), verbose(ver) {
+  G4VPhysicsConstructor(name), verbose(ver), monopolePhysics(0) {
   G4LossTableManager::Instance();
-  monopolePhysics = new CMSMonopolePhysics(table_, charge_, ver);
+  if (table_->particle("Monopole")) 
+    monopolePhysics = new CMSMonopolePhysics(table_->particle("Monopole"), 
+					     charge_, ver);
 }
 
 CMSEmStandardPhysics::~CMSEmStandardPhysics() {
-  delete monopolePhysics;
+  if (monopolePhysics) delete monopolePhysics;
 }
 
 void CMSEmStandardPhysics::ConstructParticle() {

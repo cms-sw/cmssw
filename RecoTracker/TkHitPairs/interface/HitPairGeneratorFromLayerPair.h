@@ -16,7 +16,11 @@ public:
   typedef CombinedHitPairGenerator::LayerCacheType       LayerCacheType;
   typedef ctfseeding::SeedingLayer Layer;
  
-  HitPairGeneratorFromLayerPair(const Layer& inner, const Layer& outer, LayerCacheType* layerCache, unsigned int nSize=30000);
+  HitPairGeneratorFromLayerPair(const Layer& inner,
+				const Layer& outer,
+				LayerCacheType* layerCache,
+				unsigned int nSize=30000,
+				unsigned int max=0);
 
   virtual ~HitPairGeneratorFromLayerPair() { }
 

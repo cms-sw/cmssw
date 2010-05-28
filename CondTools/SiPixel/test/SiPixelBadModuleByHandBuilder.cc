@@ -5,24 +5,18 @@
 #include <fstream>
 
 
-SiPixelBadModuleByHandBuilder::SiPixelBadModuleByHandBuilder(const edm::ParameterSet& iConfig) : ConditionDBWriter<SiPixelQuality>::ConditionDBWriter<SiPixelQuality>(iConfig){
+SiPixelBadModuleByHandBuilder::SiPixelBadModuleByHandBuilder(const edm::ParameterSet& iConfig) : ConditionDBWriter<SiPixelQuality>(iConfig){
 
-  edm::LogInfo("SiPixelBadModuleByHandBuilder") << " ctor ";
   printdebug_ = iConfig.getUntrackedParameter<bool>("printDebug",false);
   BadModuleList_ = iConfig.getUntrackedParameter<Parameters>("BadModuleList");
-
-
  
 }
 
 
 SiPixelBadModuleByHandBuilder::~SiPixelBadModuleByHandBuilder(){
-  edm::LogInfo("SiPixelBadModuleByHandBuilder") << " dtor";
 }
 
 SiPixelQuality* SiPixelBadModuleByHandBuilder::getNewObject(){
-  
-  edm::LogInfo("SiPixelBadModuleByHandBuilder") <<"SiPixelBadModuleByHandBuilder::getNewObject called"<<std::endl;
   
   SiPixelQuality* obj = new SiPixelQuality();
 

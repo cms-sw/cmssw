@@ -44,10 +44,9 @@ class WorkFlowRunner(Thread):
         wfDir = self.wf.numId+'_'+self.wf.nameId
         if not os.path.exists(wfDir):
             os.makedirs(wfDir)
-        # os.chdir(wfDir)
 
         # clean up first:
-        cmd = 'rm -f step*.py *.root;'
+        cmd = 'cd '+wfDir+';rm -f step*.py *.root;'
         self.doCmd(cmd)
 
         preamble = ''
@@ -57,6 +56,7 @@ class WorkFlowRunner(Thread):
             preamble = 'source $CMS_PATH/sw/cmsset_default.sh; '
         preamble += 'eval `scram run -sh`; '
         preamble += 'cd '+wfDir+'; '
+        preamble += 'ulimit -v 4069000;' # make sure processes keep within limits ...
         
         startime='date %s' %time.asctime()
 

@@ -5,8 +5,8 @@
  *
  * Class for DT Data Integrity.
  *  
- *  $Date: 2009/10/19 15:51:49 $
- *  $Revision: 1.26 $
+ *  $Date: 2009/11/15 11:58:53 $
+ *  $Revision: 1.27 $
  *
  * \author Marco Zanetti (INFN Padova), Gianluca Cerminara (INFN Torino)
  *
@@ -73,7 +73,7 @@ private:
   void channelsInCEROS(int cerosId, int chMask, std::vector<int>& channels);
   void channelsInROS(int cerosMask, std::vector<int>& channels);
 
-  std::string topFolder() const;
+  std::string topFolder(bool isFEDIntegrity) const;
 
   std::multimap<std::string, std::string> names;
   std::multimap<std::string, std::string>::iterator it;

@@ -70,6 +70,14 @@ namespace cscdqm {
       
         if (crateID == 255) { continue; }
 
+        // Check if in standby!
+        { 
+          CSCDetId cid;
+          if (!config->fnGetCSCDetId(crateID, dmbSlot, cid)) {
+            continue;
+          } 
+        }
+
         /** Update counters */
         config->incChamberCounter(DMB_EVENTS, crateID, dmbSlot);
         long DMBEvents = config->getChamberCounterValue(DMB_EVENTS, crateID, dmbSlot);
@@ -259,6 +267,14 @@ namespace cscdqm {
         ExaminerStatusType chStatus = digi.getCSCStatus(chamberID);
 
         if (crateID == 255) { continue; }
+         
+        // Check if in standby!
+        { 
+          CSCDetId cid;
+          if (!config->fnGetCSCDetId(crateID, dmbSlot, cid)) {
+            continue;
+          } 
+        }
 
         unsigned int cscType   = 0;
         unsigned int cscPosition = 0;
@@ -323,6 +339,14 @@ namespace cscdqm {
 
         if (crateID > 60 || dmbSlot > 10) { continue; }
  
+        // Check if in standby!
+        { 
+          CSCDetId cid;
+          if (!config->fnGetCSCDetId(crateID, dmbSlot, cid)) {
+            continue;
+          } 
+        }
+
         if ((chErr & config->getBINCHECK_MASK()) != 0) {
           config->incChamberCounter(BAD_EVENTS, crateID , dmbSlot);
         }

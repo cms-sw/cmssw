@@ -18,16 +18,10 @@ class SiGaussianTailNoiseAdder : public SiNoiseAdder{
   SiGaussianTailNoiseAdder(float,CLHEP::HepRandomEngine&);
   ~SiGaussianTailNoiseAdder();
   void addNoise(std::vector<double>&, size_t&, size_t&, int, float);
-  //void createRaw(std::vector<double>&, size_t&, size_t&, int, float, float);
-  
-  void addNoiseVR(std::vector<double> &, std::vector<float> &);
-  void addPedestals(std::vector<double> &, std::vector<float> &);
-  void addCMNoise(std::vector<double> &, float, std::vector<bool> &);
-  void addBaselineShift(std::vector<double> &, std::vector<bool> &);
-  
+  void createRaw(std::vector<double>&, size_t&, size_t&, int, float, float);
  private:
-  //int numStrips;
-  //float noiseRMS;
+  int numStrips;
+  float noiseRMS;
   float pedValue;
   float threshold;
   CLHEP::HepRandomEngine& rndEngine;
@@ -35,4 +29,3 @@ class SiGaussianTailNoiseAdder : public SiNoiseAdder{
   GaussianTailNoiseGenerator* genNoise;
 };
 #endif
- 

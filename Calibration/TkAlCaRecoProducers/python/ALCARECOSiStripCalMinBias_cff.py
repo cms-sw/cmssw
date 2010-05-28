@@ -13,12 +13,9 @@ ALCARECOSiStripCalMinBiasHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLeve
     )
 
 # Select only events where tracker had HV on (according to DCS bit information)
-import DPGAnalysis.Skims.DetStatus_cfi
-DCSStatusForSiStripCalMinBias = DPGAnalysis.Skims.DetStatus_cfi.dcsstatus.clone()
-DCSStatusForSiStripCalMinBias.DetectorType = cms.vstring('TIBTID','TOB','TECp','TECm')
-DCSStatusForSiStripCalMinBias.ApplyFilter  = cms.bool(True)
-DCSStatusForSiStripCalMinBias.AndOr        = cms.bool(False) # Take the "or" of the detector types from above
-DCSStatusForSiStripCalMinBias.DebugOn      = cms.untracked.bool(False)
+# AND respective partition is in the run (according to FED information)
+import CalibTracker.SiStripCommon.SiStripDCSFilter_cfi
+DCSStatusForSiStripCalMinBias = CalibTracker.SiStripCommon.SiStripDCSFilter_cfi.siStripDCSFilter.clone()
 
 # Select only good tracks
 import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi

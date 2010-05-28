@@ -156,7 +156,7 @@ void SiStripCommissioningSource::beginRun( edm::Run const & run, const edm::Even
 
 // -----------------------------------------------------------------------------
 //
-void SiStripCommissioningSource::endJob() {
+void SiStripCommissioningSource::endRun() {
   LogTrace(mlDqmSource_)
     << "[SiStripCommissioningSource::" << __func__ << "]"
     << " Halting..." << std::endl;

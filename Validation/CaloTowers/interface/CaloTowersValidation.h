@@ -44,7 +44,6 @@ class CaloTowersValidation : public edm::EDAnalyzer {
   DQMStore* dbe_;
   std::string outputFile_;
   std::string hcalselector_;
-  std::string mc_;
 
   typedef math::RhoEtaPhiVector Vector;
 
@@ -52,9 +51,6 @@ class CaloTowersValidation : public edm::EDAnalyzer {
 
   int isub;
   int nevent;
-
-  int imc;
-
   // eta limits to calcualte MET, SET (not to include HF if not needed)
   double etaMax[3];
   double etaMin[3];
@@ -96,13 +92,6 @@ class CaloTowersValidation : public edm::EDAnalyzer {
   MonitorElement* SET_HB;
   MonitorElement* phiMET_HB;
 
-  MonitorElement* emTiming_HB;
-  MonitorElement* hadTiming_HB;
-  MonitorElement* emEnergyTiming_HB;
-  MonitorElement* hadEnergyTiming_HB;
-  MonitorElement* emEnergyTiming_profile_HB;
-  MonitorElement* hadEnergyTiming_profile_HB;
-
   // HE
   MonitorElement* meEnergyHcalvsEcal_HE;
   MonitorElement* meEnergyHO_HE; 
@@ -120,13 +109,6 @@ class CaloTowersValidation : public edm::EDAnalyzer {
   MonitorElement* MET_HE;
   MonitorElement* SET_HE;
   MonitorElement* phiMET_HE;
-
-  MonitorElement* emTiming_HE;
-  MonitorElement* hadTiming_HE;
-  MonitorElement* emEnergyTiming_HE;
-  MonitorElement* hadEnergyTiming_HE;
-  MonitorElement* emEnergyTiming_profile_HE;
-  MonitorElement* hadEnergyTiming_profile_HE;
 
   // HF
   MonitorElement* meEnergyHcalvsEcal_HF;
@@ -146,12 +128,6 @@ class CaloTowersValidation : public edm::EDAnalyzer {
   MonitorElement* SET_HF;
   MonitorElement* phiMET_HF;
 
-  MonitorElement* emTiming_HF;
-  MonitorElement* hadTiming_HF;
-  MonitorElement* emEnergyTiming_HF;
-  MonitorElement* hadEnergyTiming_HF;
-  MonitorElement* emEnergyTiming_profile_HF;
-  MonitorElement* hadEnergyTiming_profile_HF;
 
 };
 

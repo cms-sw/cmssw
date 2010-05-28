@@ -97,19 +97,12 @@ l3MuonMuTrackV.usemuon = True
 
 # # Muon HLT validation sequence
 muonValidationHLT_seq = cms.Sequence(
-     l2MuonTrackV
-     +l2UpdMuonTrackV
-     +l3MuonTrackV
-     +l3TkMuonTrackV
-     +l3TkMuonMuTrackV
-     +l2MuonMuTrackV
-     +l2UpdMuonMuTrackV
-     +l3MuonMuTrackV
-     )
+    l2MuonMuTrackV+l2UpdMuonMuTrackV+l3TkMuonMuTrackV+l3MuonMuTrackV
+    )
 
 
 # The muon HLT association and validation sequence
 recoMuonValidationHLT_seq = cms.Sequence(
-     muonAssociationHLT_seq
-     *muonValidationHLT_seq
-     )
+    muonAssociationHLT_seq
+    *muonValidationHLT_seq
+    )

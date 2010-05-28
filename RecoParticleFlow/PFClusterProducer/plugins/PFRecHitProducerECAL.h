@@ -120,6 +120,10 @@ class PFRecHitProducerECAL : public PFRecHitProducer {
   edm::InputTag    inputTagEcalRecHitsEB_;
   edm::InputTag    inputTagEcalRecHitsEE_;
 
+  // ---- Perform timing cleaning
+  bool timingCleaning_;
+  double threshCleaning_;
+
 };
 
 #endif

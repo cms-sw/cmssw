@@ -58,6 +58,7 @@ class RemoveMCMatching(ConfigToolBase):
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'names',['All'], "collection name; supported are 'Photons', 'Electrons','Muons', 'Taus', 'Jets', 'METs', 'All', 'PFAll', 'PFElectrons','PFTaus','PFMuons'", allowedValues=['Photons', 'Electrons','Muons', 'Taus', 'Jets', 'METs', 'All', 'PFAll', 'PFElectrons','PFTaus','PFMuons'])
+        self.addParameter(self._defaultParameters,'postfix',"", "postfix of default sequence")
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._comment = ""
 
@@ -65,46 +66,57 @@ class RemoveMCMatching(ConfigToolBase):
         return self._defaultParameters
 
     def __call__(self,process,
-                 names     = None) :
+                 names     = None,
+                 postfix   = None) :
         if  names is None:
             names=self._defaultParameters['names'].value
+        if postfix  is None:
+            postfix=self._defaultParameters['postfix'].value
         self.setParameter('names',names)
+        self.setParameter('postfix',postfix)
         self.apply(process) 
         
     def toolCode(self, process):        
         names=self._parameters['names'].value
+        postfix=self._parameters['postfix'].value
 
         print "************** MC dependence removal ************"
         for obj in range(len(names)):    
             if( names[obj] == 'Photons'   or names[obj] == 'All' ):
                 print "removing MC dependencies for photons"
-                _removeMCMatchingForPATObject(process, 'photonMatch', 'patPhotons') 
+                _removeMCMatchingForPATObject(process, 'photonMatch', 'patPhotons', postfix) 
             if( names[obj] == 'Electrons' or names[obj] == 'All' ):
                 print "removing MC dependencies for electrons"
-                _removeMCMatchingForPATObject(process, 'electronMatch', 'patElectrons') 
+                _removeMCMatchingForPATObject(process, 'electronMatch', 'patElectrons', postfix) 
             if( names[obj] == 'Muons'     or names[obj] == 'All' ):
                 print "removing MC dependencies for muons"
-                _removeMCMatchingForPATObject(process, 'muonMatch', 'patMuons') 
+                _removeMCMatchingForPATObject(process, 'muonMatch', 'patMuons', postfix) 
             if( names[obj] == 'Taus'      or names[obj] == 'All' ):
                 print "removing MC dependencies for taus"
-                _removeMCMatchingForPATObject(process, 'tauMatch', 'patTaus')
+                _removeMCMatchingForPATObject(process, 'tauMatch', 'patTaus', postfix)
                 ## remove mc extra modules for taus
-                process.patDefaultSequence.remove(process.tauGenJets)
-                process.patDefaultSequence.remove(process.tauGenJetsSelectorAllHadrons)
-                process.patDefaultSequence.remove(process.tauGenJetMatch)
+                getattr(process,"patDefaultSequence"+postfix).remove(
+                    applyPostfix(process, "tauGenJets", postfix))
+                getattr(process,"patDefaultSequence"+postfix).remove(
+                    applyPostfix(process, "tauGenJetsSelectorAllHadrons", postfix))
+                getattr(process,"patDefaultSequence"+postfix).remove(
+                    applyPostfix(process, "tauGenJetMatch", postfix))
                 ## remove mc extra configs for taus
-                tauProducer = getattr(process, 'patTaus')
+                tauProducer = getattr(process, 'patTaus'+postfix)
                 tauProducer.addGenJetMatch      = False
                 tauProducer.embedGenJetMatch    = False
                 tauProducer.genJetMatch         = ''         
             if( names[obj] == 'Jets'      or names[obj] == 'All' ):
                 print "removing MC dependencies for jets"
                 ## remove mc extra modules for jets
-                process.patDefaultSequence.remove(process.patJetPartonMatch)
-                process.patDefaultSequence.remove(process.patJetGenJetMatch)
-                process.patDefaultSequence.remove(process.patJetFlavourId)
+                getattr(process,"patDefaultSequence"+postfix).remove(
+                    applyPostfix(process, "patJetPartonMatch", postfix))
+                getattr(process,"patDefaultSequence"+postfix).remove(
+                    applyPostfix(process, "patJetGenJetMatch", postfix))
+                getattr(process,"patDefaultSequence"+postfix).remove(
+                    applyPostfix(process, "patJetFlavourId", postfix))
                 ## remove mc extra configs for jets
-                jetProducer = getattr(process, jetCollectionString())
+                jetProducer = getattr(process, jetCollectionString()+postfix)
                 jetProducer.addGenPartonMatch   = False
                 jetProducer.embedGenPartonMatch = False
                 jetProducer.genPartonMatch      = ''
@@ -114,22 +126,23 @@ class RemoveMCMatching(ConfigToolBase):
                 jetProducer.JetPartonMapSource  = ''       
             if( names[obj] == 'METs'      or names[obj] == 'All' ):
                 ## remove mc extra configs for jets
-                metProducer = getattr(process, 'patMETs')        
+                metProducer = getattr(process, 'patMETs'+postfix)        
                 metProducer.addGenMET           = False
                 metProducer.genMETSource        = ''
             
 removeMCMatching=RemoveMCMatching()
 
-def _removeMCMatchingForPATObject(process, matcherName, producerName):
+def _removeMCMatchingForPATObject(process, matcherName, producerName, postfix=""):
     ## remove mcMatcher from the default sequence
-    objectMatcher = getattr(process, matcherName)
+    objectMatcher = getattr(process, matcherName+postfix)
     if (producerName=='pfPatMuons'or producerName=='pfPatTaus'):
-        process.PFPATafterPAT.remove(objectMatcher)
+        #no idea what this should do: there is no other occurance of 'PFPATafterPAT' in CMSSW other than here...
+        getattr(process,"PFPATafterPAT"+postfix).remove(objectMatcher)
     if (producerName=='patMuons'or producerName=='patTaus'or
         producerName=='patPhotons' or producerName=='patElectrons'):
-        process.patDefaultSequence.remove(objectMatcher)
+        getattr(process,"patDefaultSequence"+postfix).remove(objectMatcher)
     ## straighten photonProducer
-    objectProducer = getattr(process, producerName)
+    objectProducer = getattr(process, producerName+postfix)
     objectProducer.addGenMatch      = False
     objectProducer.embedGenMatch    = False
     objectProducer.genParticleMatch = ''

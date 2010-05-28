@@ -29,7 +29,7 @@ db_client = cms.EDAnalyzer("SiStripCommissioningOfflineDbClient",
   ),
   NoiseParameters          = cms.PSet(),
   OptoScanParameters       = cms.PSet(
-    TargetGain = cms.double(0.863),   # target gain (0.863 ~ 690ADC for tickmark)
+    TargetGain = cms.double(0.8),     # target gain (0.8 ~ 640ADC for tickmark)
     SkipGainUpdate = cms.bool(False)  # wether to keep the gain the same as already on the db
   ),
   PedestalsParameters      = cms.PSet(
@@ -42,7 +42,7 @@ db_client = cms.EDAnalyzer("SiStripCommissioningOfflineDbClient",
   ),
   PedsOnlyParameters       = cms.PSet(),
   PedsFullNoiseParameters  = cms.PSet(
-    DeadStripMax        = cms.double(10),    # number times the noise spread below mean noise
+    DeadStripMax        = cms.double(5),    # number times the noise spread below mean noise
     NoisyStripMin       = cms.double(5),    # number times the noise spread above mean noise
     HighThreshold       = cms.double(5),    # analysis-wide high threshold for the fed zero suppression
     LowThreshold        = cms.double(2),    # analysis-wide low threshold for the fed zero suppression

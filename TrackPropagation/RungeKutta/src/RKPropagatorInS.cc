@@ -133,7 +133,8 @@ RKPropagatorInS::propagateParametersOnPlane( const FreeTrajectoryState& ts,
 
   // in magVolume frame
   RKVector start( CartesianStateAdaptor::rkstate( rkPosition(gpos), rkMomentum(gmom)));
-  while (true) {
+  int safeGuard = 0;
+  while (safeGuard++<100) {
     CartesianStateAdaptor startState(start);
 
     std::pair<bool,double> path = pathLength( plane, startState.position(), 
@@ -185,6 +186,8 @@ RKPropagatorInS::propagateParametersOnPlane( const FreeTrajectoryState& ts,
     }
     startZ = remainingZ;
   }
+  edm::LogError("FailedPropagation") << " too many iterations trying to reach plane ";
+  return GlobalParametersWithPath();
 }
 
 GlobalParametersWithPath
@@ -255,7 +258,8 @@ RKPropagatorInS::propagateParametersOnCylinder( const FreeTrajectoryState& ts,
     PropagationDirection currentDirection = propagationDirection();
 
     RKVector start( CartesianStateAdaptor::rkstate( pos.basicVector(), mom.basicVector()));
-    while (true) {
+    int safeGuard = 0;
+    while (safeGuard++<100) {
       CartesianStateAdaptor startState(start);
       StraightLineCylinderCrossing pathLength( LocalPoint(startState.position()), 
 					       LocalVector(startState.momentum()), 
@@ -313,6 +317,8 @@ RKPropagatorInS::propagateParametersOnCylinder( const FreeTrajectoryState& ts,
       }
       startR = remainingR;
     }
+  edm::LogError("FailedPropagation") << " too many iterations trying to reach cylinder ";
+  return GlobalParametersWithPath();
 }
 
 TrajectoryStateOnSurface 

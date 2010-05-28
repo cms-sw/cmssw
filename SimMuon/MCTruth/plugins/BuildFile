@@ -5,6 +5,7 @@
 <use name=FWCore/MessageLogger>
 <use name=DataFormats/GeometryVector>
 <use name=DataFormats/CSCRecHit>
+<use name=DataFormats/MuonReco>
 <use name=Geometry/CSCGeometry>
 <use name=Geometry/Records>
 <use name=SimDataFormats/Track>

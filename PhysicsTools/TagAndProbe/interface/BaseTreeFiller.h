@@ -153,9 +153,6 @@ class BaseTreeFiller : boost::noncopyable {
         WeightMode weightMode_;
         edm::InputTag weightSrc_;
 
-        /// Ignore exceptions when evaluating variables
-        bool ignoreExceptions_;
-
         //implementation notice: these two are 'mutable' because we will fill them from a 'const' method
         mutable TTree * tree_;
         mutable float weight_;

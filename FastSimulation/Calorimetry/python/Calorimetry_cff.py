@@ -20,7 +20,7 @@ FamosCalorimetryBlock = cms.PSet(
             GridSize = cms.int32(7),
             # change globally the Moliere radius 
             RadiusFactor = cms.double(1.096),
-            RadiusFactorBehindPreshower = cms.double(1.26),
+            RadiusPreshowerCorrections = cms.vdouble(0.137, 10.3), # default value for maxshower depth dependence-->works fine 
             #SpotFraction < 0 <=> deactivated. In the case, CoreIntervals and 
             #TailIntervals are used   
             SpotFraction = cms.double(-1.0),

@@ -12,6 +12,9 @@
 
 #include <toolbox/lang/Class.h>
 
+#include "EventFilter/Utilities/interface/MasterQueue.h"
+#include "EventFilter/Utilities/interface/SlaveQueue.h"
+
 namespace toolbox{
   namespace task{
     class WorkLoop;
@@ -22,28 +25,44 @@ namespace toolbox{
 namespace evf{
 
   class CurlPoster;
+  
+  static const int VULTURE_START_MESSAGE_URL_SIZE = 128;
+
+  struct vulture_start_message{
+    char url_[VULTURE_START_MESSAGE_URL_SIZE];
+    int  run_;
+  };
 
   class Vulture : public toolbox::lang::Class {
 
   public:
 
-    Vulture(std::string &, bool);
-    virtual ~Vulture(){}
-    pid_t start(int=0);
+    Vulture(bool);
+    virtual ~Vulture();
+    pid_t makeProcess();
+    int start(std::string,int=0);
     int stop();
+    int  hasStarted();
+    int  hasStopped();
+    pid_t kill();
     void retrieve_corefile(char *, char *, uint64_t);
 
 
   private:
     
-    void startPreying();
-    bool preying(toolbox::task::WorkLoop*);
+    static const int vulture_queue_offset = 400;
+    void startProwling();
+    bool control(toolbox::task::WorkLoop*);
+    bool prowling(toolbox::task::WorkLoop*);
     void analyze();
 
     static const std::string FS;
-    toolbox::task::WorkLoop         *wlPrey_;      
-    toolbox::task::ActionSignature  *asPrey_;
-    bool                             preying_;
+    toolbox::task::WorkLoop         *wlCtrl_;      
+    toolbox::task::ActionSignature  *asCtrl_;
+    bool                             running_;
+    toolbox::task::WorkLoop         *wlProwl_;      
+    toolbox::task::ActionSignature  *asProwl_;
+    bool                             prowling_;
     std::string                      iDieUrl_;
     bool                             updateMode_;
     pid_t                            vulturePid_;
@@ -52,6 +71,11 @@ namespace evf{
     time_t                           lastUpdate_;
     unsigned int                     newCores_;
     CurlPoster                      *poster_;
+    MasterQueue                     *mq_;
+    SlaveQueue                      *sq_;
+    int                              started_;
+    int                              stopped_;
+    bool                             handicapped_;
   };
 }
 #endif

@@ -2,8 +2,8 @@
  *
  * Class for RPC Monitoring using RPCDigi and DT and CSC Segments.
  *
- *  $Date: 2010/01/13 15:27:43 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/02/24 08:22:50 $
+ *  $Revision: 1.3 $
  *
  * \author Camilo Carrillo (Uniandes)
  *
@@ -22,6 +22,7 @@
 
 
 #include<string>
+#include<vector>
 #include<map>
 #include<fstream>
 
@@ -39,6 +40,7 @@ class RPCEfficiencySecond : public edm::EDAnalyzer {
    public:
       explicit RPCEfficiencySecond(const edm::ParameterSet&);
       ~RPCEfficiencySecond();
+      int rollY(std::string shortname,std::vector<std::string> rollNames);
   
   TFile * theFile;
   TFile * theFileout;

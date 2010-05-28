@@ -16,7 +16,7 @@ cmsRunRelease = 'CMSSW_3_6_X'
 #cmsRunRelease = 'CMSSW_3_5_X'
 
 # choose (pre)release used to produce the event samples
-sampleFromRelease = 'CMSSW_3_6_0_pre2'
+sampleFromRelease = 'CMSSW_3_5_6'
 #sampleFromRelease = 'CMSSW_3_5_2'
 #sampleFromRelease = 'CMSSW_3_5_0'
 #sampleFromRelease = 'CMSSW_3_4_1'
@@ -32,20 +32,21 @@ useRelValSample = True
 #
 # comment/uncomment the next line to choose sample type 
 # (un-commented selects data)
-useRelValSample=False 
+#useRelValSample=False 
 
 if useRelValSample == True :
     
     #globalTag = 'MC'
-    #globalTag = 'START'
-    globalTag = 'CRAFT'
+    globalTag = 'START'
+    #globalTag = 'CRAFT'
     
     # RelVals samples 
     # not all combinations (sampleFromRelease, useSample, dataType) are included
     #
+    useSample = 'MinBias'
     #useSample = 'RelValTTbar'
     #useSample = 'RelValQCD_Pt_80_120'
-    useSample = 'Cosmics_CRAFT09_R_V10'
+    #useSample = 'Cosmics_CRAFT09_R_V10'
      
     # data type
     dataType = 'RECO'
@@ -55,15 +56,18 @@ else :
 
     # data type: StreamFile is not associated to these runs (no available files)
     #           for RAW data, the unpacker sequence RawToDigi will be also run
-    dataType = 'RAW'
+    #dataType = 'RAW'
     #dataType = 'StreamFile'
-    #dataType = 'RECO'
+    dataType = 'RECO'
     
-    #runNumber = 123596
-    #runNumber = 116035
-    #runNumber = 121560
-    runNumber = 127715
-
+    #runNumber = '123596'
+    #runNumber = '116035'
+    #runNumber = '121560'
+    #runNumber = '127715'
+    #runNumber = '132440_132439_Cosmics'
+    #runNumber = '132442_132440_MinimumBias_small'
+    runNumber = 'Commissioning10-Apr1Skim_Muon_skim-v1' 
+        
 # change to True to use local files
 #     the type of file must be matched by hand
 #     useGlobalTag must be also defined here
@@ -89,9 +93,9 @@ if (useRelValSample == True) and (useLocalFiles == False) :
     
     if cmsRunRelease == 'CMSSW_3_6_X' :
         if globalTag == 'MC' :
-            useGlobalTag = 'MC_3XY_V25'
+            useGlobalTag = 'MC_36Y_V7A'
         elif globalTag == 'START' :
-            useGlobalTag = 'START3X_V25'
+            useGlobalTag = 'START36_V7'
         elif globalTag == 'CRAFT' :
             useGlobalTag = 'CRAFT09_R_V10'
         else :
@@ -133,9 +137,9 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
     # global tag
     
     if cmsRunRelease == 'CMSSW_3_6_X' :
-        useGlobalTag = 'GR10_P_V3'
+        useGlobalTag = 'GR10_P_V4'
     elif cmsRunRelease == 'CMSSW_3_5_X' :
-        useGlobalTag = 'GR10_P_V3'
+        useGlobalTag = 'GR10_P_V4'
     elif cmsRunRelease == 'CMSSW_3_4_1' :
         useGlobalTag = 'GR10_P_V3'
     elif cmsRunRelease == 'CMSSW_3_3_6' :
@@ -387,6 +391,19 @@ if (useRelValSample == True) and (useLocalFiles == False) :
                 '/store/relval/CMSSW_3_6_0_pre2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START3X_V24-v1/0000/04A74FCB-2727-DF11-BFE5-001731AF68B9.root'
                 ]);
 
+        elif (sampleFromRelease == 'CMSSW_3_5_6') and (useSample == 'MinBias') and (dataType == 'RAW') :
+
+            dataset = '/MinBias/Spring10-START3X_V25B-v1/GEN-SIM-RAW'
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', useGlobalTag  
+        
+            readFiles.extend( [
+                '/store/mc/Spring10/MinBias/GEN-SIM-RAW/START3X_V25B-v1/0104/FECFDECD-9739-DF11-A00E-001A92971AAA.root',
+                '/store/mc/Spring10/MinBias/GEN-SIM-RAW/START3X_V25B-v1/0104/FE747EEC-9D39-DF11-BD36-0018F3D09636.root',
+                '/store/mc/Spring10/MinBias/GEN-SIM-RAW/START3X_V25B-v1/0104/FE706011-9139-DF11-8F2A-0018F3D096B6.root',
+                '/store/mc/Spring10/MinBias/GEN-SIM-RAW/START3X_V25B-v1/0104/FE476F57-9239-DF11-BA70-002618943950.root',
+                '/store/mc/Spring10/MinBias/GEN-SIM-RAW/START3X_V25B-v1/0104/FE12184C-8E39-DF11-89F8-00304867905A.root'
+               ]);
+
         elif (sampleFromRelease == 'CMSSW_3_5_2') and (useSample == 'RelValTTbar') and (dataType == 'RAW') :
 
             dataset = '/RelValTTbar/CMSSW_3_5_2-START3X_V21-v1/GEN-SIM-DIGI-RAW-HLTDEBUG'
@@ -452,23 +469,6 @@ if (useRelValSample == True) and (useLocalFiles == False) :
                 '/store/relval/CMSSW_2_2_4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V8_v1/0000/0AF5B676-5AF3-DD11-A22F-001617DBCF1E.root'
                 ]);
 
-        elif (sampleFromRelease == 'CMSSW_3_5_0') and (useSample == 'RelValQCD_Pt_80_120') and (dataType == 'RECO') :
-        
-            dataset = '/RelValQCD_Pt_80_120/CMSSW_3_5_0-START3X_V21-v1/GEN-SIM-RECO'
-            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', useGlobalTag  
-
-            readFiles.extend( [
-                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0013/B27E46BF-3E13-DF11-A7EE-001A9281172C.root',
-                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0013/44E856CB-3F13-DF11-8B01-001A92971B7C.root',
-                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0013/3ACDFD75-4013-DF11-A204-001A92971BDC.root',
-                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0013/3A52592E-3E13-DF11-8EAE-001A92810AEA.root',
-                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0013/38DA44B8-3D13-DF11-B10D-0018F3D09642.root',
-                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0013/14004A7D-6213-DF11-B250-001A92810AEE.root',
-                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0012/EA2B34EC-3913-DF11-8E34-0026189438BC.root',
-                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0012/DA4420C6-3813-DF11-84CC-003048679000.root' 
-                ] );
-
-
         elif (sampleFromRelease == 'CMSSW_3_6_0_pre2') and (useSample == 'RelValTTbar') and (dataType == 'RECO') :
         
             dataset = '/RelValTTbar/CMSSW_3_6_0_pre2-START3X_V24-v1/GEN-SIM-RECO'
@@ -486,6 +486,36 @@ if (useRelValSample == True) and (useLocalFiles == False) :
                 '/store/relval/CMSSW_3_6_0_pre2/RelValTTbar/GEN-SIM-RECO/START3X_V24-v1/0000/306EBF32-2127-DF11-8865-003048678D86.root',
                 '/store/relval/CMSSW_3_6_0_pre2/RelValTTbar/GEN-SIM-RECO/START3X_V24-v1/0000/0069AC5F-2827-DF11-8986-001731AF698F.root'
                 ] );
+
+        elif (sampleFromRelease == 'CMSSW_3_5_6') and (useSample == 'MinBias') and (dataType == 'RECO') :
+            
+            dataset = '/MinBias/Spring10-START3X_V26A_356ReReco-v1/GEN-SIM-RECO'
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', useGlobalTag  
+
+            readFiles.extend( [
+                '/store/mc/Spring10/MinBias/GEN-SIM-RECO/START3X_V26A_356ReReco-v1/0009/FEFC70B6-F53D-DF11-B57E-003048679150.root',
+                '/store/mc/Spring10/MinBias/GEN-SIM-RECO/START3X_V26A_356ReReco-v1/0009/FED8673E-F53D-DF11-9E58-0026189437EB.root',
+                '/store/mc/Spring10/MinBias/GEN-SIM-RECO/START3X_V26A_356ReReco-v1/0009/FEBF7874-EF3D-DF11-910D-002354EF3BDF.root',
+                '/store/mc/Spring10/MinBias/GEN-SIM-RECO/START3X_V26A_356ReReco-v1/0009/FEA8ECD8-F13D-DF11-8EBD-00304867BFAE.root',
+                '/store/mc/Spring10/MinBias/GEN-SIM-RECO/START3X_V26A_356ReReco-v1/0009/FE838E9F-F43D-DF11-BEBA-00261894393B.root'
+                ] );
+
+        elif (sampleFromRelease == 'CMSSW_3_5_0') and (useSample == 'RelValQCD_Pt_80_120') and (dataType == 'RECO') :
+        
+            dataset = '/RelValQCD_Pt_80_120/CMSSW_3_5_0-START3X_V21-v1/GEN-SIM-RECO'
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', useGlobalTag  
+
+            readFiles.extend( [
+                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0013/B27E46BF-3E13-DF11-A7EE-001A9281172C.root',
+                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0013/44E856CB-3F13-DF11-8B01-001A92971B7C.root',
+                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0013/3ACDFD75-4013-DF11-A204-001A92971BDC.root',
+                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0013/3A52592E-3E13-DF11-8EAE-001A92810AEA.root',
+                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0013/38DA44B8-3D13-DF11-B10D-0018F3D09642.root',
+                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0013/14004A7D-6213-DF11-B250-001A92810AEE.root',
+                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0012/EA2B34EC-3913-DF11-8E34-0026189438BC.root',
+                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0012/DA4420C6-3813-DF11-84CC-003048679000.root' 
+                ] );
+
 
         elif (sampleFromRelease == 'CMSSW_3_5_0') and (useSample == 'RelValTTbar') and (dataType == 'RECO') :
         
@@ -584,7 +614,7 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
 
     if dataType == 'RAW' : 
 
-        if runNumber == 123596 :
+        if runNumber == '123596' :
             dataset = '/Cosmics/BeamCommissioning09-v1/RAW'
             print '   Running on dataset:', dataset, 'with global tag ', useGlobalTag 
     
@@ -596,7 +626,7 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
                 ])
 
     
-        elif runNumber == 116035 :
+        elif runNumber == '116035' :
             dataset = '/Cosmics/Commissioning09-v3/RAW'
             print '   Running on dataset:', dataset, 'with global tag ', useGlobalTag 
     
@@ -607,7 +637,7 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
             secFiles.extend([
                 ])
         
-        elif runNumber == 121560 :
+        elif runNumber == '121560' :
             dataset = '/Cosmics/Commissioning09-v3/RAW'
             print '   Running on dataset:', dataset, 'with global tag ', useGlobalTag 
     
@@ -618,12 +648,36 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
             secFiles.extend([
                 ])
 
-        elif runNumber == 127715 :
+        elif runNumber == '127715' :
             dataset = '/Cosmics/Commissioning10-v3/RAW'
             print '   Running on dataset:', dataset, 'with global tag ', useGlobalTag 
     
             readFiles.extend( [                        
                 '/store/data/Commissioning10/Cosmics/RAW/v3/000/127/715/FCB12D5F-6C18-DF11-AB4B-000423D174FE.root'
+                ]);                                                                                               
+
+            secFiles.extend([
+                ])
+
+        elif runNumber == '132440_132439_Cosmics' :
+            dataset = '/Cosmics/Commissioning10-v4/RAW'
+            print '   Running on dataset:', dataset, 'with global tag ', useGlobalTag 
+    
+            readFiles.extend( [                        
+                '/store/data/Commissioning10/Cosmics/RAW/v4/000/132/440/72DAEFC2-1A3C-DF11-A352-0030487A195C.root',
+                '/store/data/Commissioning10/Cosmics/RAW/v4/000/132/439/A689F088-EE3B-DF11-A241-000423D99896.root'
+                ]);                                                                                               
+
+            secFiles.extend([
+                ])
+
+        elif runNumber == 'Commissioning10-Apr1Skim_Muon_skim-v1' :
+            dataset = '/MinimumBias/Commissioning10-Apr1Skim_Muon_skim-v1/RAW-RECO'
+            print '   Running on dataset:', dataset, 'run', runNumber, 'with global tag ', useGlobalTag 
+    
+            readFiles.extend( [                        
+                '/store/data/Commissioning10/MinimumBias/RAW-RECO/Apr1Skim_Muon_skim-v1/0139/047E236C-B03E-DF11-8A23-002618FDA204.root',
+                '/store/data/Commissioning10/MinimumBias/RAW-RECO/Apr1Skim_Muon_skim-v1/0139/040A2472-C83E-DF11-85C6-002618FDA259.root' 
                 ]);                                                                                               
 
             secFiles.extend([
@@ -636,7 +690,7 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
 
     elif dataType == 'RECO' : 
         # data dat
-        if runNumber == 123596 :
+        if runNumber == '123596' :
             dataset = '/Cosmics/BeamCommissioning09-v2/RECO'
             print '   Running on dataset:', dataset, 'run', runNumber, 'with global tag ', useGlobalTag 
 
@@ -644,12 +698,40 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
                 '/store/data/BeamCommissioning09/Cosmics/RECO/v2/000/123/596/FC5C3B0F-8AE2-DE11-A905-003048D37456.root'
         
                 ] );
-        elif runNumber == 127715 :
+        elif runNumber == '127715' :
             dataset = '/Cosmics/Commissioning10-v3/RECO'
             print '   Running on dataset:', dataset, 'run', runNumber, 'with global tag ', useGlobalTag 
     
             readFiles.extend( [                        
                 '/store/data/Commissioning10/Cosmics/RECO/v3/000/127/715/261A3141-9F18-DF11-883E-001D09F24493.root'
+                ]);                                                                                               
+
+            secFiles.extend([
+                ])
+
+        elif runNumber == '132442_132440_MinimumBias_small' :
+            dataset = '/MinimumBias/Commissioning10-PromptReco-v7/RECO'
+            print '   Running on dataset:', dataset, 'run', runNumber, 'with global tag ', useGlobalTag 
+    
+            readFiles.extend( [                        
+                '/store/data/Commissioning10/MinimumBias/RECO/v7/000/132/442/102D0664-273C-DF11-A013-00304879FA4C.root',
+                '/store/data/Commissioning10/MinimumBias/RECO/v7/000/132/440/F4C92A98-163C-DF11-9788-0030487C7392.root',
+                '/store/data/Commissioning10/MinimumBias/RECO/v7/000/132/440/F427D642-173C-DF11-A909-0030487C60AE.root',
+                '/store/data/Commissioning10/MinimumBias/RECO/v7/000/132/440/E27821C3-0C3C-DF11-9BD9-0030487CD718.root'
+                ]);                                                                                               
+
+            secFiles.extend([
+                ])
+
+        elif runNumber == 'Commissioning10-Apr1Skim_Muon_skim-v1' :
+            dataset = '/MinimumBias/Commissioning10-Apr1Skim_Muon_skim-v1/RAW-RECO'
+            print '   Running on dataset:', dataset, 'run', runNumber, 'with global tag ', useGlobalTag 
+    
+            readFiles.extend( [
+                '/store/data/Commissioning10/MinimumBias/RAW-RECO/Apr1Skim_Muon_skim-v1/0140/E0740811-8E40-DF11-AA5E-0026189438ED.root',
+                '/store/data/Commissioning10/MinimumBias/RAW-RECO/Apr1Skim_Muon_skim-v1/0139/EE8A4C75-C83E-DF11-9116-002618943983.root',
+                '/store/data/Commissioning10/MinimumBias/RAW-RECO/Apr1Skim_Muon_skim-v1/0139/E8557E88-B43E-DF11-9882-00248C0BE005.root',
+                '/store/data/Commissioning10/MinimumBias/RAW-RECO/Apr1Skim_Muon_skim-v1/0139/E618AD7F-C83E-DF11-B8BE-002618943915.root'               
                 ]);                                                                                               
 
             secFiles.extend([

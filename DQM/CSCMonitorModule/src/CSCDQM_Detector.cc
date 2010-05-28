@@ -564,44 +564,12 @@ namespace cscdqm {
   }
   
   /**
-   * @brief  Get the full name of the address prefixed with CSC_. It is being used by summaryReportContent variables
-   * @param  adr Address
-   * @return Address name as string
-   */
-  const std::string Detector::AddressName(const Address& adr) const {
-    std::ostringstream oss;
-    oss << "CSC";
-    if (adr.mask.side) {
-      oss << "_Side" << (adr.side == 1 ? "Plus" : "Minus");
-      if (adr.mask.station) {
-        oss << "_Station" << std::setfill('0') << std::setw(2) << adr.station;
-        if (adr.mask.ring) {
-          oss << "_Ring" << std::setfill('0') << std::setw(2) << adr.ring;
-          if (adr.mask.chamber) {
-            oss << "_Chamber" << std::setfill('0') << std::setw(2) << adr.chamber;
-            if (adr.mask.layer) {
-              oss << "_Layer" << std::setfill('0') << std::setw(2) << adr.layer;
-              if (adr.mask.cfeb) {
-                oss << "_CFEB" << std::setfill('0') << std::setw(2) << adr.cfeb;
-                if (adr.mask.hv) {
-                  oss << "_HV" << std::setfill('0') << std::setw(2) << adr.hv;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    return oss.str();
-  }
-  
-  /**
    * @brief  Construct address from string
    * @param  str_address Address in string
    * @param  adr Address to return
    * @return true if address was successfully created, false - otherwise
    */
-  const bool Detector::AddressFromString(const std::string str_address, Address& adr) const {
+  const bool Detector::AddressFromString(const std::string& str_address, Address& adr) const {
     
     std::vector<std::string> tokens;
     Utility::splitString(str_address, ",", tokens);

@@ -18,8 +18,8 @@
  * 2D means that this segment has information about position and direction in
  * one projection (r-phi or r-theta/zeta).
  *
- * $Date: 2009/03/02 09:38:08 $
- * $Revision: 1.14 $
+ * $Date: 2009/09/21 10:13:37 $
+ * $Revision: 1.15 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -120,6 +120,7 @@ class DTRecSegment2D : public RecSegment{
 
   /// Get the segment t0 (if recomputed, 0 is returned otherwise)
   double t0() const {return theT0;}
+  bool ist0Valid() const {return (theT0 > -998.) ? true : false;}
 
   /// Get the vDirft as computed by the algo for the computation of the segment t0
   /// (if recomputed, 0 is returned otherwise)

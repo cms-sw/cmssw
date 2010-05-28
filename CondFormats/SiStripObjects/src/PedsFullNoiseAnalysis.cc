@@ -18,8 +18,7 @@ PedsFullNoiseAnalysis::PedsFullNoiseAnalysis( const uint32_t& key )
     ksProb_(2,VFloat(0,sistrip::invalid_)),
     chi2Prob_(2,VFloat(0,sistrip::invalid_)),
     noiseGaus_(2,VFloat(0,sistrip::invalid_)),
-    noiseBin84_(2,VFloat(0,sistrip::invalid_)),
-    noiseRMS_(2,VFloat(0,sistrip::invalid_)),
+    bin84Percent_(2,VFloat(0,sistrip::invalid_)),
     noiseSignif_(2,VFloat(0,sistrip::invalid_)),
     dead_(2,VInt(0,sistrip::invalid_)), 
     noisy_(2,VInt(0,sistrip::invalid_)),
@@ -42,8 +41,7 @@ PedsFullNoiseAnalysis::PedsFullNoiseAnalysis( const uint32_t& key )
   ksProb_[0].reserve(128); ksProb_[1].reserve(128);
   chi2Prob_[0].reserve(128); chi2Prob_[1].reserve(128);
   noiseGaus_[0].reserve(128); noiseGaus_[1].reserve(128);
-  noiseBin84_[0].reserve(128); noiseBin84_[1].reserve(128);
-  noiseRMS_[0].reserve(128); noiseRMS_[1].reserve(128);
+  bin84Percent_[0].reserve(128); bin84Percent_[1].reserve(128);
   noiseSignif_[0].reserve(128); noiseSignif_[1].reserve(128);
 }
 
@@ -57,8 +55,7 @@ PedsFullNoiseAnalysis::PedsFullNoiseAnalysis()
     ksProb_(2,VFloat(0,sistrip::invalid_)),
     chi2Prob_(2,VFloat(0,sistrip::invalid_)),
     noiseGaus_(2,VFloat(0,sistrip::invalid_)),
-    noiseBin84_(2,VFloat(0,sistrip::invalid_)),
-    noiseRMS_(2,VFloat(0,sistrip::invalid_)),
+    bin84Percent_(2,VFloat(0,sistrip::invalid_)),
     noiseSignif_(2,VFloat(0,sistrip::invalid_)),
     dead_(2,VInt(0,sistrip::invalid_)), 
     noisy_(2,VInt(0,sistrip::invalid_)),
@@ -81,8 +78,7 @@ PedsFullNoiseAnalysis::PedsFullNoiseAnalysis()
   ksProb_[0].reserve(128); ksProb_[1].reserve(128);
   chi2Prob_[0].reserve(128); chi2Prob_[1].reserve(128);
   noiseGaus_[0].reserve(128); noiseGaus_[1].reserve(128);
-  noiseBin84_[0].reserve(128); noiseBin84_[1].reserve(128);
-  noiseRMS_[0].reserve(128); noiseRMS_[1].reserve(128);
+  bin84Percent_[0].reserve(128); bin84Percent_[1].reserve(128);
   noiseSignif_[0].reserve(128); noiseSignif_[1].reserve(128);
 }
 
@@ -95,8 +91,7 @@ void PedsFullNoiseAnalysis::reset() {
   ksProb_      = VVFloat(2,VFloat(0,sistrip::invalid_));
   chi2Prob_    = VVFloat(2,VFloat(0,sistrip::invalid_));
   noiseGaus_   = VVFloat(2,VFloat(0,sistrip::invalid_));
-  noiseBin84_	= VVFloat(2,VFloat(0,sistrip::invalid_));
-  noiseRMS_		= VVFloat(2,VFloat(0,sistrip::invalid_));
+  bin84Percent_= VVFloat(2,VFloat(0,sistrip::invalid_));
   noiseSignif_ = VVFloat(2,VFloat(0,sistrip::invalid_));
   dead_        = VVInt(2,VInt(0,sistrip::invalid_)); 
   noisy_       = VVInt(2,VInt(0,sistrip::invalid_));
@@ -112,14 +107,20 @@ void PedsFullNoiseAnalysis::reset() {
   noiseMin_    = VFloat(2,sistrip::invalid_);
   rawMax_      = VFloat(2,sistrip::invalid_);
   rawMin_      = VFloat(2,sistrip::invalid_);
-  dead_[0].reserve(128);   dead_[1].reserve(128); 
-  noisy_[0].reserve(128);  noisy_[1].reserve(128);
-  ksProb_[0].reserve(128);  ksProb_[1].reserve(128);
-  chi2Prob_[0].reserve(128);   chi2Prob_[1].reserve(128);
-  noiseGaus_[0].reserve(128);  noiseGaus_[1].reserve(128);
-  noiseBin84_[0].reserve(128);  noiseBin84_[1].reserve(128);
-  noiseRMS_[0].reserve(128);  noiseRMS_[1].reserve(128);
-  noiseSignif_[0].reserve(128);  noiseSignif_[1].reserve(128);
+  dead_[0].reserve(128); 
+  dead_[1].reserve(128); 
+  noisy_[0].reserve(128); 
+  noisy_[1].reserve(128);
+  ksProb_[0].reserve(128); 
+  ksProb_[1].reserve(128);
+  chi2Prob_[0].reserve(128); 
+  chi2Prob_[1].reserve(128);
+  noiseGaus_[0].reserve(128); 
+  noiseGaus_[1].reserve(128);
+  bin84Percent_[0].reserve(128); 
+  bin84Percent_[1].reserve(128);
+  noiseSignif_[0].reserve(128); 
+  noiseSignif_[1].reserve(128);
   legacy_ = false;
 }
 

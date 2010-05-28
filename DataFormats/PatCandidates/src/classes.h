@@ -23,6 +23,7 @@
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "DataFormats/PatCandidates/interface/TriggerFilter.h"
 #include "DataFormats/PatCandidates/interface/TriggerPath.h"
+#include "DataFormats/PatCandidates/interface/TriggerAlgorithm.h"
 #include "DataFormats/PatCandidates/interface/TriggerEvent.h"
 
 #include "DataFormats/PatCandidates/interface/Vertexing.h"
@@ -132,7 +133,7 @@ namespace {
   edm::reftobase::RefHolder<pat::GenericParticleRef>    rb_rh_p_gp;
   /*   RefToBaseVector<Candidate> from PATObjects, not yet provided. Useful?   */
     /*   With direct VectorHolder   */
-  /*  
+  /*
   edm::reftobase::VectorHolder<reco::Candidate, pat::ElectronRefVector>	        rb_cand_vh_p_e;
   edm::reftobase::VectorHolder<reco::Candidate, pat::MuonRefVector>	        rb_cand_vh_p_mu;
   edm::reftobase::VectorHolder<reco::Candidate, pat::TauRefVector>	        rb_cand_vh_p_t;
@@ -145,7 +146,7 @@ namespace {
   */
   edm::reftobase::VectorHolder<reco::Candidate, pat::CompositeCandidateRefVector>	rb_cand_vh_p_cc;
     /*   With indirect holder (RefVectorHolder)   */
-  /*  
+  /*
   edm::reftobase::RefVectorHolder<pat::ElectronRefVector>	 rb_rvh_p_e;
   edm::reftobase::RefVectorHolder<pat::MuonRefVector>	         rb_rvh_p_mu;
   edm::reftobase::RefVectorHolder<pat::TauRefVector>	         rb_rvh_p_t;
@@ -159,7 +160,7 @@ namespace {
   edm::reftobase::RefVectorHolder<pat::CompositeCandidateRefVector> rb_rvh_p_cc;
 
   /*   RefToBase<AODType> from PATObjects. In addition to the ones for Candidate    */
-  /*  
+  /*
   edm::reftobase::Holder<reco::GsfElectron, pat::ElectronRef>	rb_e_h_p_e;
   edm::reftobase::Holder<reco::Muon, pat::MuonRef>	        rb_mu_h_p_mu;
   edm::reftobase::Holder<reco::BaseTau, pat::TauRef>	        rb_t_h_p_t;
@@ -240,7 +241,16 @@ namespace {
   edm::Wrapper<pat::TriggerPathRefProd> w_rp_p_tp;
   pat::TriggerPathRefVector rv_p_tp;
   pat::TriggerPathRefVectorIterator rv_p_tp_i;
-  
+
+  pat::TriggerAlgorithmCollection v_p_ta;
+  pat::TriggerAlgorithmCollection::const_iterator v_p_ta_ci;
+  edm::Wrapper<pat::TriggerAlgorithmCollection> w_v_p_ta;
+  pat::TriggerAlgorithmRef r_p_ta;
+  pat::TriggerAlgorithmRefProd rp_p_ta;
+  edm::Wrapper<pat::TriggerAlgorithmRefProd> w_rp_p_ta;
+  pat::TriggerAlgorithmRefVector rv_p_ta;
+  pat::TriggerAlgorithmRefVectorIterator rv_p_ta_i;
+
   edm::Wrapper<pat::TriggerEvent> w_p_te;
 
   std::vector<std::pair<pat::IsolationKeys,reco::IsoDeposit> >	 v_p_ik_id;

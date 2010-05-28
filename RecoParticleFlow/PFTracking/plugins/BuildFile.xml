@@ -1,5 +1,4 @@
-<library   name="RecoParticleFlowPFTrackingPlugins" file="ElectronSeedMerger.cc,LightPFTrackProducer.cc,PFConversionProducer.cc,PFElecTkProducer.cc,PFNuclearProducer.cc,PFV0Producer.cc, GoodSeedProducer.cc, PFDisplacedVertexCandidateProducer.cc, PFDisplacedVertexProducer.cc, PFDisplacedTrackerVertexProducer.cc, PFDisplacedVertexSelector.cc, modules.cc">
-  <use   name="CommonTools/UtilAlgos"/>
+<library   name="RecoParticleFlowPFTrackingPlugins" file="ElectronSeedMerger.cc,LightPFTrackProducer.cc,PFConversionProducer.cc,PFElecTkProducer.cc,PFNuclearProducer.cc,PFV0Producer.cc, GoodSeedProducer.cc, PFDisplacedVertexCandidateProducer.cc, PFDisplacedVertexProducer.cc, PFDisplacedTrackerVertexProducer.cc, modules.cc">
   <use   name="DataFormats/Common"/>
   <use   name="DataFormats/EgammaCandidates"/>
   <use   name="DataFormats/EgammaReco"/>

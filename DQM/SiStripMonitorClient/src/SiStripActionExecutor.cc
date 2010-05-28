@@ -127,6 +127,12 @@ void SiStripActionExecutor::fillStatus(DQMStore* dqm_store, const edm::ESHandle<
   qualityChecker_->fillStatus(dqm_store, detcabling);
 }
 //
+// -- Fill Lumi Status
+//
+void SiStripActionExecutor::fillStatusAtLumi(DQMStore* dqm_store) {
+  qualityChecker_->fillStatusAtLumi(dqm_store);
+}
+//
 // -- 
 //
 void SiStripActionExecutor::createDummyShiftReport(){

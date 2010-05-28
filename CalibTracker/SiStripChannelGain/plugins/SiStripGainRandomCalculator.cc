@@ -3,7 +3,7 @@
 // Class:      SiStripGainRandomCalculator
 // Original Author:  G. Bruno
 //         Created:  Mon May 20 10:04:31 CET 2007
-// $Id: SiStripGainRandomCalculator.cc,v 1.5 2008/01/22 18:49:04 muzaffar Exp $
+// $Id: SiStripGainRandomCalculator.cc,v 1.6 2009/05/27 11:40:29 fabiocos Exp $
 
 #include "CalibTracker/SiStripChannelGain/plugins/SiStripGainRandomCalculator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -23,7 +23,7 @@ using namespace cms;
 using namespace std;
 
 
-SiStripGainRandomCalculator::SiStripGainRandomCalculator(const edm::ParameterSet& iConfig) : ConditionDBWriter<SiStripApvGain>::ConditionDBWriter<SiStripApvGain>(iConfig), m_cacheID_(0){
+SiStripGainRandomCalculator::SiStripGainRandomCalculator(const edm::ParameterSet& iConfig) : ConditionDBWriter<SiStripApvGain>(iConfig), m_cacheID_(0){
 
   
   edm::LogInfo("SiStripGainRandomCalculator::SiStripGainRandomCalculator");

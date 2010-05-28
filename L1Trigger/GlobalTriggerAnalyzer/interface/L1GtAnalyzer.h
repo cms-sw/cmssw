@@ -54,6 +54,10 @@ private:
     void analyzeDecisionLiteRecord(const edm::Event&, const edm::EventSetup&);
 
     /// analyze: usage of L1GtUtils
+    void analyzeL1GtUtilsCore(const edm::Event&, const edm::EventSetup&);
+    ///   for tests, use only one of the following methods
+    void analyzeL1GtUtilsMenuLite(const edm::Event&, const edm::EventSetup&);
+    void analyzeL1GtUtilsEventSetup(const edm::Event&, const edm::EventSetup&);
     void analyzeL1GtUtils(const edm::Event&, const edm::EventSetup&);
 
     /// analyze: object map product
@@ -95,6 +99,8 @@ private:
     unsigned int m_bitNumber;
 
     L1GtUtils m_l1GtUtils;
+
+    unsigned int m_l1GtUtilsConfiguration;
 
 };
 

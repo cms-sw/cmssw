@@ -26,6 +26,7 @@
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "RecoJets/JetAlgorithms/interface/JetIDHelper.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -82,12 +83,12 @@ class JetMETHLTOfflineSource : public edm::EDAnalyzer {
         virtual bool isTriggerObjectFound(std::string objectName);
         virtual double TriggerPosition(std::string trigName);
         virtual void fillMEforMonTriggerSummary();
-        virtual void fillMEforMonAllTrigger();
-        virtual void fillMEforMonAllTriggerwrtMuonTrigger();
+        virtual void fillMEforMonAllTrigger(const edm::Event & iEvent);
+        virtual void fillMEforMonAllTriggerwrtMuonTrigger(const edm::Event & iEvent);
    
-        virtual void fillMEforEffAllTrigger();
-        virtual void fillMEforEffWrtMuTrigger();
-        virtual void fillMEforEffWrtMBTrigger();
+        virtual void fillMEforEffAllTrigger(const edm::Event & iEvent);
+        virtual void fillMEforEffWrtMuTrigger(const edm::Event & iEvent);
+        virtual void fillMEforEffWrtMBTrigger(const edm::Event & iEvent);
         virtual void fillMEforTriggerNTfired();
       // ----------member data --------------------------- 
       int nev_;
@@ -103,18 +104,29 @@ class JetMETHLTOfflineSource : public edm::EDAnalyzer {
 
       std::string dirname_;
       std::string processname_;
+      // JetID helper
+      reco::helper::JetIDHelper *jetID;
+
       bool verbose_;
       bool plotAll_;
       bool plotAllwrtMu_;
       bool plotEff_ ; 
       bool isSetup_;
-      
+      bool nameForEff_;  
+     
+      double _fEMF;
+      double _feta;
+      double _fHPD;
+      double _n90Hits; 
       edm::InputTag triggerSummaryLabel_;
       edm::InputTag triggerResultsLabel_;
       edm::InputTag caloJetsTag_;
       edm::InputTag caloMETTag_;
       edm::Handle<reco::CaloJetCollection> calojetColl_;
-      edm::Handle<reco::CaloMETCollection> calometColl_;
+      edm::Handle<reco::CaloMETCollection> calometColl_; 
+      std::vector<std::string> custompathname;
+      std::vector<std::pair<std::string, std::string> > custompathnamepairs_;
+        
       CaloJetCollection calojet; 
       HLTConfigProvider hltConfig_;
       edm::Handle<edm::TriggerResults> triggerResults_;
@@ -524,13 +536,12 @@ class JetMETHLTOfflineSource : public edm::EDAnalyzer {
         return std::find(begin(), end(), pathName);
        }
    };
-
+      PathInfoCollection hltPathsAllTriggerSummary_;
       PathInfoCollection hltPathsAll_;
+      PathInfoCollection hltPathsAllWrtMu_;
       PathInfoCollection hltPathsEff_;
       PathInfoCollection hltPathsEffWrtMu_;
       PathInfoCollection hltPathsEffWrtMB_;
-      PathInfoCollection hltPathsWrtMu_;
-      PathInfoCollection hltPathsNTfired_;
       
       MonitorElement* rate_All;
       MonitorElement* rate_AllWrtMu;

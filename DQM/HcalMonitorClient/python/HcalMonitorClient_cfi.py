@@ -15,6 +15,9 @@ hcalClient = cms.EDAnalyzer("HcalMonitorClient",
                             databaseDir = cms.untracked.string(""),
                             databaseUpdateTime = cms.untracked.int32(0),
                             databaseFirstUpdate = cms.untracked.int32(10), # database updates have a 10 minute offset, if updatetime>0
+
+                            # Specify whether LS-by-LS certification should be created
+                            saveByLumiSection = cms.untracked.bool(False),
                             
                             # each client has a 'minerrror' (double) rate
                             # (minimum fraction of events that must be bad to be considered a problem),
@@ -31,7 +34,7 @@ hcalClient = cms.EDAnalyzer("HcalMonitorClient",
                             # BadChannelStatusMask = cms.untracked.int32(0),
 
                             # dead cell min events controlled by task in online running
-                            DeadCell_minerrorrate = cms.untracked.double(0.25),
+                            DeadCell_minerrorrate = cms.untracked.double(0.05),
                             #DeadCell_minevents    = cms.untracked.int32(10),
                             HotCell_minerrrorate  = cms.untracked.double(0.25),
                             

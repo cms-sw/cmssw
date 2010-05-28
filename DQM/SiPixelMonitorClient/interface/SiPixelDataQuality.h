@@ -59,6 +59,12 @@ class SiPixelDataQuality {
 				 int                                      nFEDs,
 				 bool                                     Tier0Flag);
   
+  void computeGlobalQualityFlagByLumi (DQMStore                         * bei,
+                                       bool                               init,
+				       int                                nFEDs,
+				       bool                               Tier0Flag,
+				       int                                nEvents_lastLS_);
+  
   void fillGlobalQualityPlot    (DQMStore                               * bei,
                                  bool                                     init,
                                  edm::EventSetup const                  & eSetup,

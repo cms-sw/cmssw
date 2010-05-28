@@ -14,7 +14,6 @@
 // user include files
 #include "RecoParticleFlow/PFTracking/interface/PFElecTkProducer.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
-#include "RecoParticleFlow/PFTracking/interface/ConvBremPFTrackFinder.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -29,19 +28,8 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFDisplacedTrackerVertex.h"
-#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertex.h"
-#include "DataFormats/ParticleFlowReco/interface/PFConversionFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFConversion.h"
-#include "DataFormats/ParticleFlowReco/interface/PFV0Fwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFV0.h"
+
+
 
 #include "TMath.h"
 using namespace std;
@@ -49,8 +37,7 @@ using namespace edm;
 using namespace reco;
 PFElecTkProducer::PFElecTkProducer(const ParameterSet& iConfig):
   conf_(iConfig),
-  pfTransformer_(0),
-  convBremFinder_(0)
+  pfTransformer_(0)
 {
   LogInfo("PFElecTkProducer")<<"PFElecTkProducer started";
 
@@ -59,26 +46,6 @@ PFElecTkProducer::PFElecTkProducer(const ParameterSet& iConfig):
 
   pfTrackLabel_ = iConfig.getParameter<InputTag>
     ("PFRecTrackLabel");
-
-  primVtxLabel_ = iConfig.getParameter<InputTag>
-    ("PrimaryVertexLabel");
-
-  pfEcalClusters_ = iConfig.getParameter<InputTag>
-    ("PFEcalClusters");
-
-  pfNuclear_ = iConfig.getParameter<InputTag>
-    ("PFNuclear");
-  
-  pfConv_ = iConfig.getParameter<InputTag>
-    ("PFConversions");
-  
-  pfV0_ = iConfig.getParameter<InputTag>
-    ("PFV0");
-
-  useNuclear_ = iConfig.getParameter<bool>("useNuclear");
-  useConversions_ = iConfig.getParameter<bool>("useConversions");
-  useV0_ = iConfig.getParameter<bool>("useV0");
-
 
   produces<GsfPFRecTrackCollection>();
   produces<GsfPFRecTrackCollection>( "Secondary" ).setBranchAlias( "secondary" );
@@ -95,18 +62,6 @@ PFElecTkProducer::PFElecTkProducer(const ParameterSet& iConfig):
   dphiGsfSC_ = iConfig.getParameter<double>("MinDPhiGsfSC");
   SCEne_ = iConfig.getParameter<double>("MinSCEnergy");
   
-  // set parameter for convBremFinder
-  useConvBremFinder_ =     iConfig.getParameter<bool>("useConvBremFinder");
-  mvaConvBremFinderID_
-    = iConfig.getParameter<double>("pf_convBremFinderID_mvaCut");
-  
-  string mvaWeightFileConvBrem
-    = iConfig.getParameter<string>("pf_convBremFinderID_mvaWeightFile");
-  
-  
-  if(useConvBremFinder_) 
-    path_mvaWeightFileConvBrem_ = edm::FileInPath ( mvaWeightFileConvBrem.c_str() ).fullPath();
-
 }
 
 
@@ -114,7 +69,6 @@ PFElecTkProducer::~PFElecTkProducer()
 {
  
   delete pfTransformer_;
-  delete convBremFinder_;
 }
 
 
@@ -147,53 +101,7 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
   //read pfrectrack collection
   Handle<PFRecTrackCollection> thePfRecTrackCollection;
   iEvent.getByLabel(pfTrackLabel_,thePfRecTrackCollection);
-  const PFRecTrackCollection& PfRTkColl = *(thePfRecTrackCollection.product());
-
-  // PFClusters
-  Handle<PFClusterCollection> theECPfClustCollection;
-  iEvent.getByLabel(pfEcalClusters_,theECPfClustCollection);
-  const PFClusterCollection& theEcalClusters = *(theECPfClustCollection.product());
-
-  //Primary Vertexes
-  Handle<reco::VertexCollection> thePrimaryVertexColl;
-  iEvent.getByLabel(primVtxLabel_,thePrimaryVertexColl);
-
-
-
-  // Displaced Vertex
-  Handle< reco::PFDisplacedTrackerVertexCollection > pfNuclears; 
-  if( useNuclear_ ) {
-    bool found = iEvent.getByLabel(pfNuclear_, pfNuclears);
-    
-    
-    if(!found )
-      LogError("PFElecTkProducer")<<" cannot get PFNuclear : "
-				  <<  pfNuclear_
-				  << " please set useNuclear=False in RecoParticleFlow/PFTracking/python/pfTrackElec_cfi.py" << endl;
-  }
-
-  // Conversions 
-  Handle< reco::PFConversionCollection > pfConversions;
-  if( useConversions_ ) {
-    bool found = iEvent.getByLabel(pfConv_,pfConversions);
-    if(!found )
-      LogError("PFElecTkProducer")<<" cannot get PFConversions : "
-				  << pfConv_ 
-				  << " please set useConversions=False in RecoParticleFlow/PFTracking/python/pfTrackElec_cfi.py" << endl;
-  }
-
-  // V0
-  Handle< reco::PFV0Collection > pfV0;
-  if( useV0_ ) {
-    bool found = iEvent.getByLabel(pfV0_, pfV0);
-    
-    if(!found )
-      LogError("PFElecTkProducer")<<" cannot get PFV0 : "
-				  << pfV0_
-				  << " please set useV0=False  RecoParticleFlow/PFTracking/python/pfTrackElec_cfi.py" << endl;
-  }
-  
-
+  const PFRecTrackCollection PfRTkColl = *(thePfRecTrackCollection.product());
 
   if (trajinev_){
     iEvent.getByLabel(gsfTrackLabel_,TrajectoryCollection); 
@@ -262,21 +170,9 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	    }
 	  }
 	  
-
-	  // Find kf tracks from converted brem photons
-	  if(convBremFinder_->foundConvBremPFRecTrack(thePfRecTrackCollection,thePrimaryVertexColl,
-						      pfNuclears,pfConversions,pfV0,
-						      useNuclear_,useConversions_,useV0_,
-						      theEcalClusters,selGsfPFRecTracks[ipfgsf])) {
-	    const vector<PFRecTrackRef>& convBremPFRecTracks (convBremFinder_->getConvBremPFRecTracks());
-	    for(unsigned int ii = 0; ii<convBremPFRecTracks.size(); ii++) {
-	      selGsfPFRecTracks[ipfgsf].addConvBremPFRecTrackRef(convBremPFRecTracks[ii]);
-	    }
-	  }
-
 	  // save primaries gsf tracks
 	  gsfPFRecTrackCollection->push_back(selGsfPFRecTracks[ipfgsf]);
-	  
+
 
 
 	  // NOTE:: THE TRACKID IS USED TO LINK THE PRIMARY GSF TRACK. THIS NEEDS 
@@ -509,8 +405,8 @@ PFElecTkProducer::resolveGsfTracks(const vector<reco::GsfPFRecTrack>  & GsfPFVec
   }
 
   float nchi2 = nGsfTrack->chi2();
-  float neta = nGsfTrack->innerMomentum().eta();
-  float nphi = nGsfTrack->innerMomentum().phi();
+  float neta = nGsfTrack->etaMode();
+  float nphi = nGsfTrack->phiMode();
   float ndist = sqrt(nxyz.x()*nxyz.x()+
 		     nxyz.y()*nxyz.y()+
 		     nxyz.z()*nxyz.z());
@@ -522,8 +418,8 @@ PFElecTkProducer::resolveGsfTracks(const vector<reco::GsfPFRecTrack>  & GsfPFVec
 
       reco::GsfTrackRef iGsfTrack = GsfPFVec[igsf].gsfTrackRef();
 
-      float ieta = iGsfTrack->innerMomentum().eta();
-      float iphi = iGsfTrack->innerMomentum().phi();
+      float ieta = iGsfTrack->etaMode();
+      float iphi = iGsfTrack->phiMode();
       float feta = fabs(neta - ieta);
       float fphi = fabs(nphi - iphi);
       if (fphi>TMath::Pi()) fphi-= TMath::TwoPi();     
@@ -533,7 +429,6 @@ PFElecTkProducer::resolveGsfTracks(const vector<reco::GsfPFRecTrack>  & GsfPFVec
 			 ixyz.z()*ixyz.z());
       
       float minBremDphi =  selectSecondaries(GsfPFVec[ngsf],GsfPFVec[igsf]);
-  
       if(feta < 0.05 && (fabs(fphi) < 0.3 ||  minBremDphi < 0.05)) {
 
 	TrajectoryStateOnSurface i_outTSOS = mtsTransform_.outerStateOnSurface((*iGsfTrack));
@@ -610,7 +505,7 @@ PFElecTkProducer::resolveGsfTracks(const vector<reco::GsfPFRecTrack>  & GsfPFVec
 	}
 	else {
 	  // Second Case: One Gsf has reference to a SC and the other one not or both not
-	  // Cleaning using: radious first hit
+	  // Cleaning using: starting point 
 	 
 	  int ihits=iGsfTrack->numberOfValidHits();
 	  float ichi2 = iGsfTrack->chi2();
@@ -777,26 +672,8 @@ PFElecTkProducer::beginRun(edm::Run& run,
   
 
   pfTransformer_= new PFTrackTransformer(math::XYZVector(magneticField->inTesla(GlobalPoint(0,0,0))));
-  
-  
-  edm::ESHandle<TransientTrackBuilder> builder;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
-  TransientTrackBuilder thebuilder = *(builder.product());
-  
 
-  if(useConvBremFinder_) {
-    FILE * fileConvBremID = fopen(path_mvaWeightFileConvBrem_.c_str(), "r");
-    if (fileConvBremID) {
-      fclose(fileConvBremID);
-    }
-    else {
-      string err = "PFElecTkProducer: cannot open weight file '";
-      err += path_mvaWeightFileConvBrem_;
-      err += "'";
-      throw invalid_argument( err );
-    }
-  }
-  convBremFinder_ = new ConvBremPFTrackFinder(thebuilder,mvaConvBremFinderID_,path_mvaWeightFileConvBrem_);
+  
 
 }
 

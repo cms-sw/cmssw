@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2010/03/27 20:30:37 $
- * $Revision: 1.206 $
+ * $Date: 2010/05/03 14:54:48 $
+ * $Revision: 1.210 $
  * \author G. Della Ricca
  *
 */
@@ -1477,14 +1477,21 @@ void EBSummaryClient::analyze(void) {
 
           if ( ebsfc ) {
 
+            me = dqmStore_->get(prefixME_ + "/EcalInfo/EBMM DCC");
+
+            float xval = 6;
+
+            if ( me ) {
+
+              xval = 2;
+              if ( me->getBinContent( ism ) > 0 ) xval = 1;
+
+            }
+
             me = ebsfc->meh01_[ism-1];
 
             if ( me ) {
 
-              float xval = 6;
-
-              if ( me->getBinContent( ie, ip ) < 0 ) xval = 2;
-              if ( me->getBinContent( ie, ip ) == 0 ) xval = 1;
               if ( me->getBinContent( ie, ip ) > 0 ) xval = 0;
 
               meStatusFlags_->setBinContent( ipx, iex, xval );
@@ -1545,9 +1552,11 @@ void EBSummaryClient::analyze(void) {
 
               if ( h2 && h3 ) {
 
-                float emulErrorVal = h2->GetBinContent( ie, ip ) + h3->GetBinContent( ie, ip );
-                if( emulErrorVal!=0 && hadNonZeroInterest ) xval = 0;
+                // float emulErrorVal = h2->GetBinContent( ie, ip ) + h3->GetBinContent( ie, ip );
+                float emulErrorVal = h2->GetBinContent( ie, ip );
 
+                if( emulErrorVal!=0 && hadNonZeroInterest ) xval = 0;
+                
               }
 
               if ( xval!=0 && hadNonZeroInterest ) xval = 1;
@@ -1899,8 +1908,8 @@ void EBSummaryClient::analyze(void) {
         float val_po = mePedestalOnline_->getBinContent(ipx,iex);
         float val_tm = meTiming_->getBinContent(ipx,iex);
         float val_sf = meStatusFlags_->getBinContent((ipx-1)/5+1,(iex-1)/5+1);
-	// float val_ee = meTriggerTowerEmulError_->getBinContent((ipx-1)/5+1,(iex-1)/5+1); // removed from the global summary temporarily
-	float val_ee = 1;
+        // float val_ee = meTriggerTowerEmulError_->getBinContent((ipx-1)/5+1,(iex-1)/5+1); // removed from the global summary temporarily
+        float val_ee = 1;
 
         // combine all the available wavelenghts in unique laser status
         // for each laser turn dark color and yellow into bright green

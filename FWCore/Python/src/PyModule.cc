@@ -3,7 +3,6 @@
  *  CMSSW
  *
  *  Created by Chris Jones on 3/22/06.
- *  Copyright 2006 __MyCompanyName__. All rights reserved.
  *
  */
 #include <boost/python/module.hpp>

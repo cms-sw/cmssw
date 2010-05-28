@@ -34,7 +34,7 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi)
   char suffix[64];
   sprintf(suffix, "R%09d", run);
 
-  char rewrite[64];
+  char rewrite[128];
   if (lumi == 0) // save for run
     sprintf(rewrite, "\\1Run %d/\\2/Run summary", run);
   else
@@ -48,27 +48,42 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi)
     wflow.replace(pos++, 1, "__");
 
   if (lumi == 0) // save for run
+  {
+    // set run end flag
+    dbe_->cd();
+    dbe_->setCurrentFolder("Info/ProvInfo");
+ 
+    MonitorElement* me = dbe_->get("Info/ProvInfo/runIsComplete");
+     
+    if (!me) me = dbe_->bookFloat("runIsComplete");
+
+    if (me)
+    { 
+      if (runIsComplete_)
+        me->Fill(1.);
+      else
+        me->Fill(0.);
+    }
+
     dbe_->save(fileBaseName_ + suffix + wflow + ".root",
 	     "", "^(Reference/)?([^/]+)", rewrite,
 	     (DQMStore::SaveReferenceTag) saveReference_,
 	     saveReferenceQMin_);
+  }
   else // save EventInfo folders for luminosity sections
   {
     std::vector<std::string> systems = (dbe_->cd(), dbe_->getSubdirs());
- 
+
     std::cout << " DQMFileSaver: storing EventInfo folders for Run: " 
               << irun_ << ", Lumi Section: " << ilumi_ << ", Subsystems: " ;
     for (size_t i = 0, e = systems.size(); i != e; ++i) {
       if (systems[i] != "Reference") {
         dbe_->cd();
-        if (dbe_->get(systems[i] + "/EventInfo/processName"))
-        {
-	  std::cout << systems[i] << "  " ;
-          dbe_->save(fileBaseName_ + suffix + wflow + ".root",
-	     systems[i]+"/EventInfo", "^(Reference/)?([^/]+)", rewrite,
-	     (DQMStore::SaveReferenceTag) saveReference_,
-	     saveReferenceQMin_);
-        }
+	std::cout << systems[i] << "  " ;
+        dbe_->save(fileBaseName_ + suffix + wflow + ".root",
+	   systems[i]+"/EventInfo", "^(Reference/)?([^/]+)", rewrite,
+	   DQMStore::SaveWithoutReference,
+	   dqm::qstatus::STATUS_OK);
       }
     }
     std::cout << "\n";

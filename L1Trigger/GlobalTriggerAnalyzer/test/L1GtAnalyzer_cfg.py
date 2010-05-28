@@ -51,8 +51,8 @@ process.load("L1Trigger.GlobalTriggerAnalyzer.l1GtAnalyzer_cfi")
 #process.l1GtAnalyzer.L1GtObjectMapTag = 'hltL1GtObjectMap'
 
 # physics algorithm name or alias, technical trigger name 
-#process.l1GtAnalyzer.AlgorithmName = 'L1_SingleEG5'
-process.l1GtAnalyzer.AlgorithmName = 'L1_BscMinBiasOR_BptxPlusORMinus'
+process.l1GtAnalyzer.AlgorithmName = 'L1_SingleEG5'
+#process.l1GtAnalyzer.AlgorithmName = 'L1_BscMinBiasOR_BptxPlusORMinus'
 #process.l1GtAnalyzer.AlgorithmName = 'L1Tech_BPTX_plus_AND_minus_instance1.v0'
 #process.l1GtAnalyzer.AlgorithmName = 'L1Tech_BPTX_quiet.v0'
 #process.l1GtAnalyzer.AlgorithmName = 'L1Tech_BPTX_plus_AND_minus.v0'
@@ -63,6 +63,10 @@ process.l1GtAnalyzer.ConditionName = 'SingleNoIsoEG_0x0A'
 # a bit number
 process.l1GtAnalyzer.BitNumber = 10
 
+# select the L1 configuration use: 0 (default), 100000, 200000
+process.l1GtAnalyzer.L1GtUtilsConfiguration = 0
+#process.l1GtAnalyzer.L1GtUtilsConfiguration = 100000
+#process.l1GtAnalyzer.L1GtUtilsConfiguration = 200000
 
 
 
@@ -117,7 +121,7 @@ process.MessageLogger.debugs = cms.untracked.PSet(
         WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         L1GtAnalyzer = cms.untracked.PSet( limit = cms.untracked.int32(-1) ), 
-        L1GtUtils = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
+        L1GtUtils = cms.untracked.PSet( limit = cms.untracked.int32(0) ) 
         )
 
 process.MessageLogger.warnings = cms.untracked.PSet( 

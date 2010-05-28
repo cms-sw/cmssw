@@ -120,6 +120,42 @@ struct Address {
     return this;
   };
 
+  friend ostream& operator<<(ostream& out, const Address& adr) {
+    out << adr.name();
+    return out;
+  }
+
+  /**
+   * @brief  Get the full name of the address prefixed with CSC_. It is being used by summaryReportContent variables
+   * @return Address name as string
+   */
+  const std::string name() const {
+    std::ostringstream oss;
+    oss << "CSC";
+    if (mask.side) {
+      oss << "_Side" << (side == 1 ? "Plus" : "Minus");
+      if (mask.station) {
+        oss << "_Station" << std::setfill('0') << std::setw(2) << station;
+        if (mask.ring) {
+          oss << "_Ring" << std::setfill('0') << std::setw(2) << ring;
+          if (mask.chamber) {
+            oss << "_Chamber" << std::setfill('0') << std::setw(2) << chamber;
+            if (mask.layer) {
+              oss << "_Layer" << std::setfill('0') << std::setw(2) << layer;
+              if (mask.cfeb) {
+                oss << "_CFEB" << std::setfill('0') << std::setw(2) << cfeb;
+                if (mask.hv) {
+                  oss << "_HV" << std::setfill('0') << std::setw(2) << hv;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    return oss.str();
+  }
+  
 };
 
 /**
@@ -159,8 +195,7 @@ class Detector {
     const float Area(const Address& adr) const;
 
     void PrintAddress(const Address& adr) const;
-    const std::string AddressName(const Address& adr) const;
-    const bool AddressFromString(const std::string str_address, Address& adr) const;
+    const bool AddressFromString(const std::string& str_address, Address& adr) const;
 
     const unsigned int NumberOfRings(const unsigned int station) const;
     const unsigned int NumberOfChambers(const unsigned int station, const unsigned int ring) const;

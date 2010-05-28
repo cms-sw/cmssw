@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsTask.cc
  *
- * $Date: 2010/04/02 08:18:10 $
- * $Revision: 1.27 $
+ * $Date: 2010/04/02 08:20:44 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  *
 */
@@ -146,22 +146,11 @@ void EBStatusFlagsTask::setup(void){
       meFEchErrors_[i][0]->setAxisTitle("iphi'", 2);
       dqmStore_->tag(meFEchErrors_[i][0], i+1);
 
-      for ( int ie = 1; ie <= 17; ie++ ) {
-        for ( int ip = 1; ip <= 4; ip++ ) {
-          meFEchErrors_[i][0]->setBinContent( ie, ip, -1. );
-        }
-      }
-      meFEchErrors_[i][0]->setEntries( 0 );
-
       sprintf(histo, "EBSFT MEM front-end status %s", Numbers::sEB(i+1).c_str());
       meFEchErrors_[i][1] = dqmStore_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
       meFEchErrors_[i][1]->setAxisTitle("pseudo-strip", 1);
       meFEchErrors_[i][1]->setAxisTitle("channel", 2);
       dqmStore_->tag(meFEchErrors_[i][1], i+1);
-
-      meFEchErrors_[i][1]->setBinContent( 1, 1, -1. );
-      meFEchErrors_[i][1]->setBinContent( 2, 1, -1. );
-      meFEchErrors_[i][1]->setEntries( 0 );
 
       sprintf(histo, "EBSFT front-end status bits %s", Numbers::sEB(i+1).c_str());
       meFEchErrors_[i][2] = dqmStore_->book1D(histo, histo, 16, 0., 16.);
@@ -274,24 +263,12 @@ void EBStatusFlagsTask::analyze(const edm::Event& e, const edm::EventSetup& c){
           float xiet = iet - 0.5;
           float xipt = ipt - 0.5;
 
-          if ( meFEchErrors_[ism-1][0] ) {
-            if ( meFEchErrors_[ism-1][0]->getBinContent(iet, ipt) == -1 ) {
-              meFEchErrors_[ism-1][0]->setBinContent(iet, ipt, 0);
-            }
-          }
-
           if ( ! ( status[itt-1] == 0 || status[itt-1] == 1 || status[itt-1] == 7 || status[itt-1] == 8 || status[itt-1] == 15 ) ) {
             if ( meFEchErrors_[ism-1][0] ) meFEchErrors_[ism-1][0]->Fill(xiet, xipt);
             if ( meFEchErrorsByLumi_ ) meFEchErrorsByLumi_->Fill(xism, 1./68.);
           }
 
         } else if ( itt == 69 || itt == 70 ) {
-
-          if ( meFEchErrors_[ism-1][1] ) {
-            if ( meFEchErrors_[ism-1][1]->getBinContent(itt-68, 1) == -1 ) {
-              meFEchErrors_[ism-1][1]->setBinContent(itt-68, 1, 0);
-            }
-          }
 
           if ( ! ( status[itt-1] == 0 || status[itt-1] == 1 || status[itt-1] == 7 || status[itt-1] == 8 || status[itt-1] == 15 ) ) {
             if ( meFEchErrors_[ism-1][1] ) meFEchErrors_[ism-1][1]->Fill(itt-68-0.5, 0);

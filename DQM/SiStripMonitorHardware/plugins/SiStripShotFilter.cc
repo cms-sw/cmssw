@@ -7,7 +7,7 @@
 */
 //
 //         Created:  2009/12/07
-// $Id: SiStripShotFilter.cc,v 1.1 2010/01/08 14:14:47 amagnan Exp $
+// $Id: SiStripShotFilter.cc,v 1.2 2010/02/20 20:59:09 wmtan Exp $
 //
 
 #include <sstream>

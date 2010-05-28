@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 # Configuration of the MC match for generic tracks candidates
 # (following the configuration for muons)
 
-trackMuMatch = cms.EDFilter("MCMatcher", # cut on deltaR, deltaPt/Pt; pick best by deltaR
+trackMuMatch = cms.EDProducer("MCMatcher", # cut on deltaR, deltaPt/Pt; pick best by deltaR
     src     = cms.InputTag("patAODTrackCands"), # RECO objects to match  
     matched = cms.InputTag("genParticles"),   # mc-truth particle collection
     mcPdgId     = cms.vint32(13), # one or more PDG ID (13 = muon); absolute values (see below)

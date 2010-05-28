@@ -17,7 +17,7 @@ import FWCore.ParameterSet.Config as cms
 #    include reconstruction, simulation and analysis
 #  FEVTSIMDIGIHLTDEBUG FEVTSIMHLTDEBUG
 #
-#  $Id: EventContentCosmics_cff.py,v 1.17 2009/11/04 12:18:40 futyand Exp $
+#  $Id: EventContentCosmics_cff.py,v 1.18 2009/11/19 20:45:20 futyand Exp $
 #
 #
 #
@@ -67,8 +67,8 @@ from Configuration.EventContent.AlCaRecoOutput_cff import *
 #
 FEVTEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
-        'keep *_logErrorHarvester_*_*',
-    splitLevel = cms.untracked.int32(0))
+        'keep *_logErrorHarvester_*_*'),
+    splitLevel = cms.untracked.int32(0)
 )
 FEVTHLTALLEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),

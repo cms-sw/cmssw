@@ -312,6 +312,8 @@ HLTSusyExoVal = cms.EDAnalyzer("TriggerValidator",
     l1_flag = cms.untracked.bool(False), ## put l1_flag = false if you don't want the plots for the L1 objects. 
                                          ## Put false for usage in the DQM framework (reduce the number of bins).
     triggerTag = cms.InputTag("hltTriggerSummaryAOD"),
+    hltConfigName = cms.string("HLT"),
+    triggerName = cms.string("@"),
     muonTag = cms.InputTag('muons'),
     histoFileName = cms.untracked.string('MonElements_LM1_IDEAL_30x_v1_300pre7.root'),
     PlotMakerL1Input = cms.PSet(
@@ -328,6 +330,6 @@ HLTSusyExoVal = cms.EDAnalyzer("TriggerValidator",
         def_jetPtMin = cms.double(30.0),
         photons = cms.string(''),
         photonProducer = cms.string('photons'),
-        BinFactor = cms.int32(10) #put a number >1 to have a larger number of bins for eta and phi distributions. Put 1 for DQM.
+        BinFactor = cms.int32(1) #put a number >1 to have a larger number of bins for eta and phi distributions. Put 1 for DQM.
     )
 )

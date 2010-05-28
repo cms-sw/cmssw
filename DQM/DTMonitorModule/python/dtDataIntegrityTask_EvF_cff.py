@@ -22,7 +22,7 @@ dtunpacker = cms.EDProducer("DTUnpackingModule",
 )
 
 from DQM.DTMonitorModule.dtDataIntegrityTask_cfi import *
-DTDataIntegrityTask.hltMode = True
+DTDataIntegrityTask.processingMode = "HLT"
 
 dtDQMEvF = cms.Sequence(dtunpacker)
 

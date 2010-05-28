@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.26 2010/03/23 22:16:10 jengbou Exp $
+ version $Id: BeamFitter.h,v 1.27 2010/03/30 19:18:13 jengbou Exp $
 
  ________________________________________________________________**/
 
@@ -46,6 +46,10 @@ class BeamFitter {
   void resetTotTrk() { ftotal_tracks=0; }
   void resetLSRange() { fbeginLumiOfFit=fendLumiOfFit=-1; }
   void resetRefTime() { freftime[0] = freftime[1] = 0; }
+  void setRefTime(std::time_t t0,std::time_t t1) {
+    freftime[0] = t0;
+    freftime[1] = t1;
+  }
   void resetPVFitter() { MyPVFitter->resetAll(); }
   void dumpTxtFile(std::string &,bool);
   void dumpBWTxtFile(std::string &);
@@ -56,14 +60,18 @@ class BeamFitter {
   void resetCutFlow() {
     h1cutFlow->Reset();
     for (unsigned int i=0; i<sizeof(countPass)/sizeof(countPass[0]); i++) countPass[i]=0;
-  };
+  }
   int* getFitLSRange() {
     int *tmp=new int[2];
     tmp[0] = fbeginLumiOfFit;
     tmp[1] = fendLumiOfFit;
     return tmp;
   }
-  
+  void setFitLSRange(int ls0,int ls1) {
+    fbeginLumiOfFit = ls0;
+    fendLumiOfFit = ls1;
+  }
+
  private:
 
   std::vector<BSTrkParameters> fBSvector;
