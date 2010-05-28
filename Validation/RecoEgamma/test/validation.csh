@@ -21,8 +21,8 @@ setenv CMSSWver1 3_7_0
 setenv CMSSWver2 3_7_0
 setenv OLDRELEASE 370
 setenv NEWRELEASE 370
-setenv OLDPRERELEASE pre3
-setenv NEWPRERELEASE pre4
+setenv OLDPRERELEASE pre4
+setenv NEWPRERELEASE pre5
 
 setenv OLDRELEASE ${OLDRELEASE}${OLDPRERELEASE}
 setenv NEWRELEASE ${NEWRELEASE}${NEWPRERELEASE}
@@ -55,8 +55,8 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 #setenv SAMPLE SingleGammaPt10IDEAL
 #setenv SAMPLE SingleGammaPt35IDEAL
 #setenv SAMPLE SingleGammaFlatPt10_100
-#setenv SAMPLE H130GGgluonfusionSTARTUP
-setenv SAMPLE PhotonJets_Pt_10
+setenv SAMPLE H130GGgluonfusionSTARTUP
+#setenv SAMPLE PhotonJets_Pt_10
 #setenv SAMPLE GammaJets_Pt_80_120STARTUP
 #setenv SAMPLE QCD_Pt_80_120STARTUP
 #TYPE must be one ofPixelMatchGsfElectron, Photon 
