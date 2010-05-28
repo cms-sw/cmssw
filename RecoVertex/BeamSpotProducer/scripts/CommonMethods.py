@@ -34,6 +34,11 @@ def exit(msg=""):
     raise SystemExit(msg or optionstring.replace("%prog",sys.argv[0]))
 
 ###########################################################################################
+def isnan(num):
+    fnum = float(num)
+    return fnum != fnum
+
+###########################################################################################
 # OPTIONS
 ###########################################################################################
 USAGE = re.compile(r'(?s)\s*usage: (.*?)(\n[ \t]*\n|$)')
@@ -378,12 +383,16 @@ def readBeamSpotFile(fileName,listbeam=[],IOVbase="runbase", firstRun='1',lastRu
 		    if acceptiov1 and acceptiov2:
 			if tmpbeam.Type != 2:
 			    print "invalid fit, skip Run "+str(tmpbeam.Run)+" IOV: "+str(tmpbeam.IOVfirst) + " to "+ str(tmpbeam.IOVlast)
+                        elif isnan(tmpbeam.Z) or isnan(tmpbeam.Zerr) or isnan(tmpbeam.sigmaZerr) or isnan(tmpbeam.beamWidthXerr) or isnan(tmpbeam.beamWidthYerr):
+                            print "invalid fit, NaN values!! skip Run "+str(tmpbeam.Run)+" IOV: "+str(tmpbeam.IOVfirst) + " to "+ str(tmpbeam.IOVlast)                       
 			else:
 			    listbeam.append(tmpbeam)
 
 		elif int(tmpbeam.IOVfirst) >= int(firstRun) and int(tmpbeam.IOVlast) <= int(lastRun):
 		    if tmpbeam.Type != 2:
 			print "invalid fit, skip Run "+str(tmpbeam.Run)+" IOV: "+str(tmpbeam.IOVfirst) + " to "+ str(tmpbeam.IOVlast)
+                    elif isnan(tmpbeam.Z) or isnan(tmpbeam.Zerr) or isnan(tmpbeam.sigmaZerr) or isnan(tmpbeam.beamWidthXerr) or isnan(tmpbeam.beamWidthYerr):
+                        print "invalid fit, NaN values!! skip Run "+str(tmpbeam.Run)+" IOV: "+str(tmpbeam.IOVfirst) + " to "+ str(tmpbeam.IOVlast)
 		    else:
 			listbeam.append(tmpbeam)
                         
@@ -534,7 +543,8 @@ def createWeightedPayloads(fileName,listbeam=[],weighted=True):
         if weighted:
             docheck = False
         # check offsets
-        if docheck:
+        #if docheck:
+        if False:
             deltaX = delta(ibeam.X, ibeam.Xerr, inextbeam.X, inextbeam.Xerr) > 2.0
             deltaY = delta(ibeam.Y, ibeam.Yerr, inextbeam.Y, inextbeam.Yerr) > 2.0
             deltaZ = delta(ibeam.Z, ibeam.Zerr, inextbeam.Z, inextbeam.Zerr) > 2.5
