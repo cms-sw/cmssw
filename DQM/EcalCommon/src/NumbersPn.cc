@@ -36,7 +36,7 @@ int NumbersPn::ipnEE( const int ism, const int ipnid ) throw( std::runtime_error
 
 std::vector<int> NumbersPn::getPNs( const int ism, const int ix, const int iy ) throw( std::runtime_error ) {
 
-  int ilm = iLM(ism, ix, iy );
+  int ilm = NumbersPn::iLM(ism, ix, iy );
 
   std::vector<int> PNsInLM;
   PNsInLM.clear();
