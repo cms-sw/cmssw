@@ -9,15 +9,11 @@ class NumbersPn {
 
  public:
 
-  static std::vector<int> getPNs( const int ism, const int ix, const int iy );
+  static std::vector<int> getPNs( const int ism, const int ix, const int iy ) throw( std::runtime_error );
 
-  static int ipnEE( const int ism, const int ipnid );
-
- private:
+  static int ipnEE( const int ism, const int ipnid ) throw( std::runtime_error );
 
   static int iLM( const int ism, const int ix, const int iy ) throw( std::runtime_error );
-
-  static std::vector<int> getPNs( const int ilm ) throw( std::runtime_error );
 
 };
 

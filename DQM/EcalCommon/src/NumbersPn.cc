@@ -6,23 +6,17 @@
 
 #include "DQM/EcalCommon/interface/NumbersPn.h"
 
-std::vector<int> NumbersPn::getPNs( const int ism, const int ix, const int iy ) {
-
-  int ilm = iLM(ism, ix, iy );
-  return getPNs( ilm );
-
-}
-
 // return the PN index from 0-79 from EcalPnDiodeDetId.id().iPnId() [ranging in 0-9];
-int NumbersPn::ipnEE( const int ism, const int ipnid ) {
+int NumbersPn::ipnEE( const int ism, const int ipnid ) throw( std::runtime_error ) {
   
-  if( ism < 18 ) {
+  if( ism >=1 && ism <= 18 ) {
 
-    int myFED = -100;
-    if( ism == 1 ) myFED = 0;
-    if( ism == 2 ) myFED = 1;
-    if( ism == 5 ) myFED = 2;
-    if( ism == 6 ) myFED = 3;
+    int myFED = -1;
+
+    if( ism ==  1 ) myFED = 0;
+    if( ism ==  2 ) myFED = 1;
+    if( ism ==  5 ) myFED = 2;
+    if( ism ==  6 ) myFED = 3;
     if( ism == 10 ) myFED = 4;
     if( ism == 11 ) myFED = 5;
     if( ism == 14 ) myFED = 6;
@@ -32,60 +26,17 @@ int NumbersPn::ipnEE( const int ism, const int ipnid ) {
 
   } else {
 
-    return( -1 );
+    std::ostringstream s;
+    s << "Wrong SM id determination: iSM = " << ism;
+    throw( std::runtime_error( s.str() ) );
 
   }
 
 }
 
+std::vector<int> NumbersPn::getPNs( const int ism, const int ix, const int iy ) throw( std::runtime_error ) {
 
-int NumbersPn::iLM( const int ism, const int ix, const int iy ) throw( std::runtime_error ) {
-
-  int iz = 0;
-
-  if( ism >=  1 && ism <=  9 ) iz = -1;
-  if( ism >= 10 && ism <= 18 ) iz = +1;
-
-  if( EEDetId::validDetId(ix, iy, iz) ) {
-
-    // EE-
-    if( ism == 1 ) return 7;
-    if( ism == 2 ) return 8;
-    if( ism == 3 ) return 9;
-    if( ism == 4 ) return 0;
-    if( ism == 5 ) return 1;
-    if( ism == 6 ) return 2;
-    if( ism == 7 ) return 3;
-    if( ism == 8 ) {
-      if(ix<=50) return 4;
-      else return 5;
-    }
-    if( ism == 9 ) return 6;
-  
-    // EE+
-    if( ism == 10 ) return 17;
-    if( ism == 11 ) return 18;
-    if( ism == 12 ) return 19;
-    if( ism == 13 ) return 10;
-    if( ism == 14 ) return 11;
-    if( ism == 15 ) return 12;
-    if( ism == 16 ) return 13;
-    if( ism == 17 ) {
-      if(ix<=50) return 14;
-      else return 15;
-    }
-    if( ism == 18 ) return 16;
-
-  }
-
-  std::ostringstream s;
-  s << "Wrong LM id determination: iSM = " << ism << " ix = " << ix << " iy = " << iy;
-  throw( std::runtime_error( s.str() ) );
-
-}
-
-
-std::vector<int> NumbersPn::getPNs( const int ilm ) throw( std::runtime_error ) {
+  int ilm = iLM(ism, ix, iy );
 
   std::vector<int> PNsInLM;
   PNsInLM.clear();
@@ -379,5 +330,50 @@ std::vector<int> NumbersPn::getPNs( const int ilm ) throw( std::runtime_error ) 
   s << "Wrong LM id determination: iLM = " << ilm;
   throw( std::runtime_error( s.str() ) );
   
+}
+
+int NumbersPn::iLM( const int ism, const int ix, const int iy ) throw( std::runtime_error ) {
+
+  int iz = 0;
+
+  if( ism >=  1 && ism <=  9 ) iz = -1;
+  if( ism >= 10 && ism <= 18 ) iz = +1;
+
+  if( EEDetId::validDetId(ix, iy, iz) ) {
+
+    // EE-
+    if( ism == 1 ) return 7;
+    if( ism == 2 ) return 8;
+    if( ism == 3 ) return 9;
+    if( ism == 4 ) return 0;
+    if( ism == 5 ) return 1;
+    if( ism == 6 ) return 2;
+    if( ism == 7 ) return 3;
+    if( ism == 8 ) {
+      if(ix<=50) return 4;
+      else return 5;
+    }
+    if( ism == 9 ) return 6;
+  
+    // EE+
+    if( ism == 10 ) return 17;
+    if( ism == 11 ) return 18;
+    if( ism == 12 ) return 19;
+    if( ism == 13 ) return 10;
+    if( ism == 14 ) return 11;
+    if( ism == 15 ) return 12;
+    if( ism == 16 ) return 13;
+    if( ism == 17 ) {
+      if(ix<=50) return 14;
+      else return 15;
+    }
+    if( ism == 18 ) return 16;
+
+  }
+
+  std::ostringstream s;
+  s << "Wrong LM id determination: iSM = " << ism << " ix = " << ix << " iy = " << iy;
+  throw( std::runtime_error( s.str() ) );
+
 }
 

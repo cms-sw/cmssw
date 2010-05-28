@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2010/02/12 21:45:20 $
- * $Revision: 1.55 $
+ * $Date: 2010/03/27 20:08:01 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  *
 */
@@ -556,7 +556,7 @@ void EELedTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       int ipn = NumbersPn::ipnEE( ism, num );
 
-      adcPN[ipn] = xvalmax;
+      if ( ipn >= 0 && ipn < 80 ) adcPN[ipn] = xvalmax;
 
     }
 
@@ -632,9 +632,18 @@ void EELedTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       float wval = 0.;
 
       std::vector<int> PNsInLM = NumbersPn::getPNs( ism, ix, iy );
-      int refPn = PNsInLM[0];
 
-      if ( adcPN[refPn] != 0. ) wval = xval /  adcPN[refPn];
+      if ( PNsInLM.size() > 0 ) {
+
+        int refPn = PNsInLM[0];
+
+        if ( refPn >= 0 && refPn < 80 ) {
+
+          if ( adcPN[refPn] != 0. ) wval = xval / adcPN[refPn];
+
+        }
+
+      }
 
       if ( meAmplPNMap ) meAmplPNMap->Fill(xix, xiy, wval);
 
