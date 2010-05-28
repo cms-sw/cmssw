@@ -1,3 +1,8 @@
+Indices:
+create index hlt_runnum on hlt(runnum);
+create index trg_runnum on trg(runnum);
+create index lumisummary_runnum on lumisummary(runnum);
+
 Glossary: FK=Foreign Key, PK=Primary Key
           lumiversion represents each lumi (re)processing
 
