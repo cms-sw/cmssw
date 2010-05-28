@@ -100,7 +100,10 @@ void EBDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
     DQMVal[i] = -1.;
   }
 
-  sprintf(histo, (prefixME_ + "/EBSummaryClient/EB global summary");
+  float integrityErrSum, frontendErrSum;
+  integrityErrSum = frontendErrSum = 0.;
+
+  sprintf(histo, (prefixME_ + "/EBSummaryClient/EB global summary").c_str());
   me = dqmStore_->get(histo);
 
   if( me ) {
@@ -112,8 +115,6 @@ void EBDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
     me = dqmStore_->get(histo);
     hFrontendByLumi_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hFrontendByLumi_ );
 
-    float integrityErrSum, frontendErrSum;
-    integrityErrSum = frontendErrSum = 0.;
     for ( int i=0; i<36; i++) {
       float ismIntegrityQual = 1.0;
       if( hIntegrityByLumi_ && hIntegrityByLumi_->GetBinContent(0) > 0 ) {
