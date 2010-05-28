@@ -26,6 +26,9 @@ def getLumiInfoForRuns(dbsession,c,runDict,hltpath=''):
     output:{ runnumber:[delivered,recorded,recorded_hltpath] }
     '''
     result={}#runnumber:[lumisumoverlumils,lumisumovercmsls-deadtimecorrected,lumisumovercmsls-deadtimecorrected*hltcorrection_hltpath]
+    deliveredDict={}
+    recordedPerRun={}
+    prescaledRecordedPerRun={}
     #
     #delivered: select runnum,instlumi,numorbit from lumisummary where runnum>=:runMin and runnum<=runMax and lumiversion=:lumiversion order by runnum
     #calculate lslength = numorbit*numbx*25e-09
@@ -39,7 +42,7 @@ def getLumiInfoForRuns(dbsession,c,runDict,hltpath=''):
         begRun=min(runDict.keys())
         endRun=max(runDict.keys())
         #delivered doesn't care about cmsls
-        print 'begRun ',begRun,'endRun ',endRun
+        #print 'begRun ',begRun,'endRun ',endRun
         deliveredQuery=schema.newQuery()
         deliveredQuery=schema.tableHandle(nameDealer.lumisummaryTableName()).newQuery()
         deliveredQuery.addToOutputList('RUNNUM','runnum')
@@ -61,21 +64,19 @@ def getLumiInfoForRuns(dbsession,c,runDict,hltpath=''):
         deliveredQuery.setCondition('RUNNUM>=:begRun and RUNNUM<=:endRun and LUMIVERSION=:lumiversion',deliveredQueryCondition)
         deliveredQuery.addToOrderList('RUNNUM')
         deliveredQueryCursor=deliveredQuery.execute()
-        deliveredDict={}
         #print 'runDict',runDict
         while deliveredQueryCursor.next():
-            print 'hello'
             runnum=deliveredQueryCursor.currentRow()['runnum'].data()
             instlumi=deliveredQueryCursor.currentRow()['instlumi'].data()
             numorbit=deliveredQueryCursor.currentRow()['numorbit'].data()
             lslength=numorbit*c.NBX*25e-09
-            print runnum,instlumi,numorbit,lslength
+            #print runnum,instlumi,numorbit,lslength
             if runDict.has_key(runnum) and not deliveredDict.has_key(runnum):
                 deliveredDict[runnum]=float(instlumi*lslength*c.NORM)
             elif runDict.has_key(runnum) and deliveredDict.has_key(runnum):
                 deliveredDict[runnum]=deliveredDict[runnum]+float(instlumi*lslength*c.NORM)
         del deliveredQuery
-        print 'got delivered : ',deliveredDict
+        #print 'got delivered : ',deliveredDict
         
         lumiquery=schema.newQuery()
         lumiquery.addToTableList(nameDealer.lumisummaryTableName(),'lumisummary')
@@ -106,7 +107,6 @@ def getLumiInfoForRuns(dbsession,c,runDict,hltpath=''):
         lumiquery.defineOutput(lumiqueryResult)
         lumiqueryCursor=lumiquery.execute()
         correctedlumiSum=0.0
-        recordedPerRun={}
         while lumiqueryCursor.next():
             cmsls=lumiqueryCursor.currentRow()['cmsls'].data()
             runnum=lumiqueryCursor.currentRow()['runnum'].data()
@@ -129,9 +129,9 @@ def getLumiInfoForRuns(dbsession,c,runDict,hltpath=''):
                     recordedPerRun[runnum]=float(instlumi*(1.0-deadfraction)*lslength*c.NORM)
                 else:
                     recordedPerRun[runnum]=float(recordedPerRun[runnum]+instlumi*(1.0-deadfraction)*lslength*c.NORM)
-        print 'got recorded : ',recordedPerRun
+        #print 'got recorded : ',recordedPerRun
         del lumiquery
-
+        #print 'hltpath ',hltpath
         if len(hltpath)!=0 and hltpath!='all':
             #
             #select l1seed from trghltmap where trghltmap.hltpathname =:hltpathname
@@ -179,7 +179,7 @@ def getLumiInfoForRuns(dbsession,c,runDict,hltpath=''):
                 hltprescale=hltprescQueryCursor.currentRow()['hltprescale'].data()
                 if runDict.has_key(runnum):
                     hltrescaleDict[runnum]=hltprescale
-            print 'got hlt pescale ',hltprescaleDict
+            #print 'got hlt pescale ',hltprescaleDict
             del hltprescQuery
             #
             #select runnum,bitnum,bitname,prescale from trg where cmslsnum=1 and bitname=:bitname and runnum>=:begRun and runnum<=:endRun order by runnum
@@ -210,8 +210,7 @@ def getLumiInfoForRuns(dbsession,c,runDict,hltpath=''):
                     if runDict.has_key(runnum):
                         trgprescaleDict[runnum]=trgprescale
                 del trgprescQuery
-                print trgprescaleDict
-            prescaledRecordedPerRun={}
+                #print trgprescaleDict
             for runnum,recorded in recordedPerRun.items():
                 hltprescale=1.0
                 trgprescale=1.0
@@ -223,14 +222,16 @@ def getLumiInfoForRuns(dbsession,c,runDict,hltpath=''):
         dbsession.transaction().commit()
         for runnum in runDict.keys():
             if deliveredDict.has_key(runnum):
+                result[runnum]=[]
                 result[runnum].append(deliveredDict[runnum])
             else:
+                result[runnum]=[]
                 result[runnum].append(0)
-            if recordedPerRun.has_key(runnum):
+            if recordedPerRun.has_key(runnum) and result.has_key(runnum):
                 result[runnum].append(recordedPerRun[runnum])
             else:
-                result[runnum].append(0)
-            if prescaledRecordedPerRun.has_key(runnum):
+                result[runnum].append(0)              
+            if prescaledRecordedPerRun.has_key(runnum) and recordedPerRun.has_key(runnum) and result.has_key(runnum):
                 result[runnum].append(prescaledRecordedPerRun[runnum])
             else:
                 result[runnum].append(0)
@@ -319,30 +320,29 @@ def main():
     inputfilecontent=''
     fileparsingResult=''
     runDict={}
+    for r in range(int(args.begin),int(args.end)+1):
+        runDict[r]=[]
     if len(ifilename)!=0 :
         f=open(ifilename,'r')
         inputfilecontent=f.read()
         sparser=selectionParser.selectionParser(inputfilecontent)
-        runDict=sparser.runsandls()
-    else:
-        for r in range(int(args.begin),int(args.end)+1):
-            runDict[r]=[]
+        for run,lslist in sparser.runsandls().items():
+            if runDict.has_key(run):
+                runDict[run]=lslist
+                
     result={}
     result=getLumiInfoForRuns(session,c,runDict,hltpath)
-    print result
     fig=Figure(figsize=(5,4),dpi=100)
     m=matplotRender.matplotRender(fig)
-    #xdata=[132440,132442,132471,132473,132474,132477,132478,132513]
     xdata=[]
     ydata={}
-    for run,values in result:
+    ydata['Delivered']=[]
+    ydata['Recorded']=[]
+    for run,values in result.items():
         xdata.append(run)
-        ydata['Delivered']=values[0]
-        ydata['Recorded']=values[1]
-    #ydata={}
-    #ydata['Delivered']=[0.5,0.6,0.8,1.5,1.7,1.9,2.0,2.1]
-    #ydata['Recorded']=[0.7*y for y in ydata['Delivered']]
-    m.plotX_Run(xdata,ydata)
+        ydata['Delivered'].append(values[0])
+        ydata['Recorded'].append(values[1])
+    m.plotSumX_Run(xdata,ydata)
     if args.interactive:
         m.drawInteractive()
     else:
