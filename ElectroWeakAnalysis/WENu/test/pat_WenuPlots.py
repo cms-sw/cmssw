@@ -161,7 +161,7 @@ process.plotter = cms.EDAnalyzer('WenuPlots',
                                  selection_95cIso,
                                  selection_inverse,
                                  # if usePrecalcID the precalculated ID will be used only
-                                 usePrecalcID = cms.untracked.bool(False),
+                                 usePrecalcID = cms.untracked.bool(True),
                                  usePrecalcIDType = cms.untracked.string('simpleEleId95cIso'),
                                  usePrecalcIDSign = cms.untracked.string('='),
                                  usePrecalcIDValue = cms.untracked.double(7),
