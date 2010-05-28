@@ -1,7 +1,7 @@
 // -*-c++-*-
 #ifndef L1Scalers_H
 #define L1Scalers_H
-// $Id: L1Scalers.h,v 1.12 2010/02/18 18:18:36 wittich Exp $
+// $Id: L1Scalers.h,v 1.13 2010/03/31 22:09:31 wteo Exp $
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -51,6 +51,8 @@ private:
   
   bool denomIsTech_;
   unsigned int denomBit_;
+  bool tfIsTech_;
+  unsigned int tfBit_;
   std::vector<unsigned int> algoSelected_;
   std::vector<unsigned int> techSelected_;
 
