@@ -20,6 +20,10 @@
    provides access and administration.
 */
 
+namespace edm{
+  class LogInfo;
+}
+
 class TtEvent {
 
  public:
@@ -90,6 +94,9 @@ class TtEvent {
   int correspondingHypo(const std::string& key1, const unsigned& hyp1, const std::string& key2) const { return correspondingHypo(hypoClassKeyFromString(key1), hyp1, hypoClassKeyFromString(key2) ); };
   /// return the hypothesis in hypothesis class 'key2', which corresponds to hypothesis 'hyp1' in hypothesis class 'key1'
   int correspondingHypo(const HypoClassKey& key1, const unsigned& hyp1, const HypoClassKey& key2) const;
+
+  /// print pt, eta, phi, mass of a given candidate into an existing LogInfo
+  void printParticle(edm::LogInfo &log, const char* name, const reco::Candidate* cand);
 
   /// set leptonic decay channels
   void setLepDecays(const WDecay::LeptonType& lepDecTop1, const WDecay::LeptonType& lepDecTop2) { lepDecays_=std::make_pair(lepDecTop1, lepDecTop2); };

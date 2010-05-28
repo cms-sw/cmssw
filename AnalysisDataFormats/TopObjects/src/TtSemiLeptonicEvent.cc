@@ -2,28 +2,11 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiLepEvtPartons.h"
 
-void
-TtSemiLeptonicEvent::printParticle(edm::LogInfo &log, const char* name, const reco::Candidate* cand)
-{
-  if(!cand) {
-    log << std::setw(15) << name << ": not available!\n";
-    return;
-  }
-  log << std::setprecision(3) << setiosflags(std::ios::fixed | std::ios::showpoint);
-  log << std::setw(15) << name         << ": "
-      << std::setw( 7) << cand->pt()   << "; "
-      << std::setw( 7) << cand->eta()  << "; "
-      << std::setw( 7) << cand->phi()  << "; "
-      << resetiosflags(std::ios::fixed | std::ios::showpoint) << setiosflags(std::ios::scientific)
-      << std::setw(10) << cand->mass() << "\n";
-  log << resetiosflags(std::ios::scientific);
-}
-
 // print info via MessageLogger
 void
 TtSemiLeptonicEvent::print(const int verbosity)
 {
-  if(verbosity<=0)
+  if(verbosity%10 <= 0)
     return;
 
   edm::LogInfo log("TtSemiLeptonicEvent");
@@ -82,48 +65,55 @@ TtSemiLeptonicEvent::print(const int verbosity)
     default             : log << " Unknown";
     }
     log << "-Hypothesis: \n";
-    if( this->numberOfAvailableHypos(hypKey) > 1 ) {
-      log << " * Number of available jet combinations: "
-	  << this->numberOfAvailableHypos(hypKey) << " \n"
-	  << " The following was found to be the best one: \n";
+    unsigned nOfHyp = this->numberOfAvailableHypos(hypKey);
+    if(nOfHyp > 1) {
+      log << " * Number of available jet combinations: " << nOfHyp << "\n";
+      if(verbosity < 10)
+	log << " The following was found to be the best one:\n";
     }
-    // check if hypothesis is valid
-    if( !this->isHypoValid( hypKey ) )
-      log << " * Not valid! \n";
-    // get meta information for valid hypothesis
-    else {
-      // jetLepComb
-      log << " * JetLepComb:";
-      std::vector<int> jets = this->jetLeptonCombination( hypKey );
-      for(unsigned int iJet = 0; iJet < jets.size(); iJet++) {
-	log << "   " << jets[iJet] << "   ";
-      }
-      log << "\n";
-      // specialties for some hypotheses
-      switch(hypKey) {
-      case kGenMatch : log << " * Sum(DeltaR) : " << this->genMatchSumDR() << " \n"
-			   << " * Sum(DeltaPt): " << this->genMatchSumPt() << " \n"; break;
-      case kMVADisc  : log << " * Method  : "     << this->mvaMethod()     << " \n"
-			   << " * Discrim.: "     << this->mvaDisc()       << " \n"; break;
-      case kKinFit   : log << " * Chi^2      : "  << this->fitChi2()       << " \n"
-			   << " * Prob(Chi^2): "  << this->fitProb()       << " \n"; break;
-      default        : break;
-      }
-      if(verbosity>=2) {
-	log << " * Candidates (pt; eta; phi; mass):\n";
-	printParticle(log, "hadronic top", this->hadronicDecayTop(hypKey));
-	printParticle(log, "hadronic W  ", this->hadronicDecayW  (hypKey));
-	if(verbosity>=3) {
-	  printParticle(log, "hadronic b  ", this->hadronicDecayB       (hypKey));
-	  printParticle(log, "hadronic p  ", this->hadronicDecayQuark   (hypKey));
-	  printParticle(log, "hadronic q  ", this->hadronicDecayQuarkBar(hypKey));
+    // if verbosity level is smaller than 10, never show more than the best jet combination
+    if(verbosity < 10)
+      nOfHyp = 1;
+    for(unsigned cmb=0; cmb<nOfHyp; cmb++) {
+      // check if hypothesis is valid
+      if( !this->isHypoValid(hypKey, cmb) )
+	log << " * Not valid! \n";
+      // get meta information for valid hypothesis
+      else {
+	// jetLepComb
+	log << " * JetLepComb:";
+	std::vector<int> jets = this->jetLeptonCombination(hypKey, cmb);
+	for(unsigned int iJet = 0; iJet < jets.size(); iJet++) {
+	  log << "   " << jets[iJet] << "   ";
 	}
-	printParticle(log, "leptonic top", this->leptonicDecayTop(hypKey));
-	printParticle(log, "leptonic W  ", this->leptonicDecayW  (hypKey));
-	if(verbosity>=3) {
-	  printParticle(log, "leptonic b  ", this->leptonicDecayB       (hypKey));
-	  printParticle(log, "lepton      ", this->singleLepton         (hypKey));
-	  printParticle(log, "neutrino    ", this->singleNeutrino       (hypKey));
+	log << "\n";
+	// specialties for some hypotheses
+	switch(hypKey) {
+	case kGenMatch : log << " * Sum(DeltaR) : " << this->genMatchSumDR(cmb) << " \n"
+			     << " * Sum(DeltaPt): " << this->genMatchSumPt(cmb) << " \n"; break;
+	case kMVADisc  : log << " * Method  : "     << this->mvaMethod()        << " \n"
+			     << " * Discrim.: "     << this->mvaDisc(cmb)       << " \n"; break;
+	case kKinFit   : log << " * Chi^2      : "  << this->fitChi2(cmb)       << " \n"
+			     << " * Prob(Chi^2): "  << this->fitProb(cmb)       << " \n"; break;
+	default        : break;
+	}
+	// kinematic quantities of particles (if last digit of verbosity level > 1)
+	if(verbosity%10 >= 2) {
+	  log << " * Candidates (pt; eta; phi; mass):\n";
+	  printParticle(log, "hadronic top", this->hadronicDecayTop(hypKey, cmb));
+	  printParticle(log, "hadronic W  ", this->hadronicDecayW  (hypKey, cmb));
+	  if(verbosity%10 >= 3) {
+	    printParticle(log, "hadronic b  ", this->hadronicDecayB       (hypKey, cmb));
+	    printParticle(log, "hadronic p  ", this->hadronicDecayQuark   (hypKey, cmb));
+	    printParticle(log, "hadronic q  ", this->hadronicDecayQuarkBar(hypKey, cmb));
+	  }
+	  printParticle(log, "leptonic top", this->leptonicDecayTop(hypKey, cmb));
+	  printParticle(log, "leptonic W  ", this->leptonicDecayW  (hypKey, cmb));
+	  if(verbosity%10 >= 3) {
+	    printParticle(log, "leptonic b  ", this->leptonicDecayB(hypKey, cmb));
+	    printParticle(log, "lepton      ", this->singleLepton  (hypKey, cmb));
+	    printParticle(log, "neutrino    ", this->singleNeutrino(hypKey, cmb));
+	  }
 	}
       }
     }
