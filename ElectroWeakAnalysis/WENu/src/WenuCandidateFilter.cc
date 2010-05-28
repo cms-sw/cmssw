@@ -294,6 +294,10 @@ IsolFilter","","HLT");
 	      << "myElec.userInt(\"PassConversionRejection\")==1"
 	      << std::endl;
   }
+  if (dataMagneticFieldSetUp_) {
+    std::cout << "WenuCandidateFilter: Data Configuration for Magnetic Field DCS tag " 
+	      << dcsTag_  << std::endl;
+  }
   std::cout << "WenuCandidateFilter: Fiducial Cut: " << std::endl;
   std::cout << "WenuCandidateFilter:    BarrelMax: "<<BarrelMaxEta_<<std::endl;
   std::cout << "WenuCandidateFilter:    EndcapMin: " << EndCapMinEta_
@@ -411,7 +415,7 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    pat::ElectronCollection myElectrons;
    for (elec = pElecs->begin(); elec != pElecs->end(); ++elec) {
      if (isInFiducial(elec->caloPosition().eta())) {
-       Double_t sc_et = elec->caloEnergy()/cosh(elec->caloPosition().eta());
+       Double_t sc_et = elec->caloEnergy()/TMath::CosH(elec->caloPosition().eta());
        indices.push_back(counter); ETs.push_back(sc_et);
        myElectrons.push_back(*elec);
        ++counter;
@@ -459,7 +463,7 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //std::cout << "** selected ele phi: " << maxETelec.phi()
    //	     << ", eta=" << maxETelec.eta() << ", sihih="
    //	     << maxETelec.scSigmaIEtaIEta() << ", hoe=" 
-   //	     << maxETelec.hadronicOverEm() << ", trackIso: " 
+   // 	     << maxETelec.hadronicOverEm() << ", trackIso: " 
    //	     << maxETelec.trackIso() << ", ecalIso: " << maxETelec.ecalIso()
    //	     << ", hcalIso: " << maxETelec.hcalIso()
    //	     << std::endl;
@@ -552,7 +556,7 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 Double_t dr_ele_HLT = 
 	   reco::deltaR(maxETelec.eta(),maxETelec.phi(),TO.eta(),TO.phi());
 	 //std::cout << "-->found dr=" << dr_ele_HLT << std::endl;
-	 if (fabs(dr_ele_HLT) < electronMatched2HLT_DR_) {
+	 if (TMath::Abs(dr_ele_HLT) < electronMatched2HLT_DR_) {
 	   ++trigger_int_probe; break;}
 	 //}
        }
@@ -618,8 +622,8 @@ WenuCandidateFilter::endJob() {
 
 Bool_t WenuCandidateFilter::isInFiducial(Double_t eta)
 {
-  if (fabs(eta) < BarrelMaxEta_) return true;
-  else if (fabs(eta) < EndCapMaxEta_ && fabs(eta) > EndCapMinEta_)
+  if (TMath::Abs(eta) < BarrelMaxEta_) return true;
+  else if (TMath::Abs(eta) < EndCapMaxEta_ && TMath::Abs(eta) > EndCapMinEta_)
     return true;
   return false;
 
@@ -644,7 +648,7 @@ Bool_t WenuCandidateFilter::passEleIDCuts(pat::Electron *ele)
     else return false;
   }
   else {
-    if (fabs(ele->electronID(vetoSecondElectronIDType_)-
+    if (TMath::Abs(ele->electronID(vetoSecondElectronIDType_)-
 	     vetoSecondElectronIDValue_) < 0.1)
       return true;
     else return false;    

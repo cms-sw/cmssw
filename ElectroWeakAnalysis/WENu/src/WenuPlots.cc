@@ -34,6 +34,10 @@
   23Feb09  added option to include extra IDs that are in CMSSW, such as
            categorized, likehood etc
            added extra variables TIP and E/P  
+  27May10  changes to apply the Spring10 selections, relative isolations
+           the 3 default ones, pat user isolations added in the end
+           change to framework independent variable definitions 
+	   double->Double_t etc and math.h functions from TMath
   Contact: 
   Nikolaos Rompotis  -  Nikolaos.Rompotis@Cern.ch
   Imperial College London
@@ -218,10 +222,10 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   // some variables here
   Double_t scEta = myElec->superCluster()->eta();
   Double_t scPhi = myElec->superCluster()->phi();
-  Double_t scEt = myElec->superCluster()->energy()/cosh(scEta);
+  Double_t scEt = myElec->superCluster()->energy()/TMath::CosH(scEta);
   Double_t met    = myMet->et();
   Double_t metPhi = myMet->phi();
-  Double_t mt  = sqrt(2.0*scEt*met*(1.0-(cos(scPhi)*cos(metPhi)+sin(scPhi)*sin(metPhi))));
+  Double_t mt  = TMath::Sqrt(2.0*scEt*met*(1.0-(TMath::Cos(scPhi)*TMath::Cos(metPhi)+TMath::Sin(scPhi)*TMath::Sin(metPhi))));
 
   Double_t trackIso = myElec->userIsolation(pat::TrackIso);
   Double_t ecalIso = myElec->userIsolation(pat::EcalIso);
@@ -240,11 +244,11 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
       //std::cout << "-----------------INVERSION-----------passed" << std::endl;
       h_met_inverse->Fill(met);
       h_mt_inverse->Fill(mt);
-      if(fabs(scEta)<1.479){
+      if(TMath::Abs(scEta)<1.479){
 	h_met_inverse_EB->Fill(met);
 	h_mt_inverse_EB->Fill(mt);
       }
-      if(fabs(scEta)>1.479){
+      if(TMath::Abs(scEta)>1.479){
 	h_met_inverse_EE->Fill(met);
 	h_mt_inverse_EE->Fill(mt);
       }
@@ -257,7 +261,7 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   //
   // make these plots only if you have the normal selection, not pre-calced
   if (not usePrecalcID_) {
-    if ( fabs(scEta) < 1.479) { // reminder: the precise fiducial cuts are in
+    if ( TMath::Abs(scEta) < 1.479) { // reminder: the precise fiducial cuts are in
       // in the filter
       if (CheckCutsNminusOne(myElec, 0)) 
 	h_trackIso_eb_NmOne->Fill(trackIso);
@@ -276,7 +280,7 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
 
   h_met->Fill(met);
   h_mt->Fill(mt);
-  if(fabs(scEta)<1.479){
+  if(TMath::Abs(scEta)<1.479){
     h_met_EB->Fill(met);
     h_mt_EB->Fill(mt);
 
@@ -289,7 +293,7 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
     h_EB_HoE->Fill( HoE );
 
   }
-  if(fabs(scEta)>1.479){
+  if(TMath::Abs(scEta)>1.479){
     h_met_EE->Fill(met);
     h_mt_EE->Fill(mt);
 
@@ -362,7 +366,7 @@ Bool_t WenuPlots::CheckCuts( const pat::Electron *ele)
       return val > usePrecalcIDValue_;
     }
     else { // equality: it returns 0,1,2,3 but as float
-      return fabs(val-usePrecalcIDValue_)<0.1;
+      return TMath::Abs(val-usePrecalcIDValue_)<0.1;
     }
   } 
   else {
@@ -393,25 +397,25 @@ Bool_t WenuPlots::CheckCutsNminusOne(const pat::Electron *ele, int jj)
 }
 /////////////////////////////////////////////////////////////////////////
 Bool_t WenuPlots::CheckCut(const pat::Electron *ele, int i) {
-  Double_t fabseta = fabs(ele->superCluster()->eta());
+  Double_t fabseta = TMath::Abs(ele->superCluster()->eta());
   if ( fabseta<1.479) {
-    return fabs(ReturnCandVar(ele, i)) < CutVars_[i];
+    return TMath::Abs(ReturnCandVar(ele, i)) < CutVars_[i];
   }
-  return fabs(ReturnCandVar(ele, i)) < CutVars_[i+nBarrelVars_];
+  return TMath::Abs(ReturnCandVar(ele, i)) < CutVars_[i+nBarrelVars_];
 }
 /////////////////////////////////////////////////////////////////////////
 Bool_t WenuPlots::CheckCutInv(const pat::Electron *ele, int i) {
-  Double_t fabseta = fabs(ele->superCluster()->eta());
+  Double_t fabseta = TMath::Abs(ele->superCluster()->eta());
   if ( fabseta<1.479) {
     if (InvVars_[i]) 
-    return fabs(ReturnCandVar(ele, i))>CutVars_[i];
-    return fabs(ReturnCandVar(ele, i)) < CutVars_[i];
+    return TMath::Abs(ReturnCandVar(ele, i))>CutVars_[i];
+    return TMath::Abs(ReturnCandVar(ele, i)) < CutVars_[i];
   }
   if (InvVars_[i+nBarrelVars_]) {
     if (InvVars_[i])
-      return fabs(ReturnCandVar(ele, i))>CutVars_[i+nBarrelVars_];    
+      return TMath::Abs(ReturnCandVar(ele, i))>CutVars_[i+nBarrelVars_];    
   }
-  return fabs(ReturnCandVar(ele, i)) < CutVars_[i+nBarrelVars_];
+  return TMath::Abs(ReturnCandVar(ele, i)) < CutVars_[i+nBarrelVars_];
 }
 ////////////////////////////////////////////////////////////////////////
 Double_t WenuPlots::ReturnCandVar(const pat::Electron *ele, int i) {
