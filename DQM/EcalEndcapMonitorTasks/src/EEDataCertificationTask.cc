@@ -102,6 +102,10 @@ void EEDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
   float integrityErrSum, frontendErrSum;
   integrityErrSum = frontendErrSum = 0.;
 
+  float totDQMVal = 0.;
+  float integrityQual = 1.0;
+  float frontendQual = 1.0;
+  
   sprintf(histo, (prefixME_ + "/EESummaryClient/EE global summary").c_str());
   me = dqmStore_->get(histo);
 
@@ -129,6 +133,9 @@ void EEDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
       }
       DQMVal[i] = std::min(ismIntegrityQual,ismFrontendQual);
     }
+    if( hIntegrityByLumi_ && hIntegrityByLumi_->GetBinContent(0) > 0 ) integrityQual = 1.0 - integrityErrSum/hIntegrityByLumi_->GetBinContent(0);
+    if( hFrontendByLumi_ && hFrontendByLumi_->GetBinContent(0) > 0 ) frontendQual = 1.0 - frontendErrSum/hFrontendByLumi_->GetBinContent(0);
+    totDQMVal = std::min(integrityQual,frontendQual);
   }
 
   for ( int i=0; i<18; i++) {
@@ -154,16 +161,6 @@ void EEDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
       }
     }
   }
-
-  float totDQMVal = 0.;
-  
-  float integrityQual = 1.0;
-  if( hIntegrityByLumi_ && hIntegrityByLumi_->GetBinContent(0) > 0 ) integrityQual = 1.0 - integrityErrSum/hIntegrityByLumi_->GetBinContent(0);
-  float frontendQual = 1.0;
-  if( hFrontendByLumi_ && hFrontendByLumi_->GetBinContent(0) > 0 ) frontendQual = 1.0 - frontendErrSum/hFrontendByLumi_->GetBinContent(0);
-  
-  totDQMVal = std::min(integrityQual,frontendQual);
-
   sprintf(histo, (prefixME_ + "/EventInfo/reportSummary").c_str());
   me = dqmStore_->get(histo);
   if( me ) me->Fill(totDQMVal);
