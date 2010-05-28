@@ -13,10 +13,16 @@
 #include <math.h>
 
 
+//----------------------------------------------------------------------
+
 EmDQMPostProcessor::EmDQMPostProcessor(const edm::ParameterSet& pset)
 {
   subDir_ = pset.getUntrackedParameter<std::string>("subDir");
+
+  dataSet_ = pset.getUntrackedParameter<std::string>("dataSet","unknown");
 }
+
+//----------------------------------------------------------------------
 
 void EmDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
 {
@@ -43,6 +49,19 @@ void EmDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
   //////////////////////////////////
   //loop over all triggers/samples//
   //////////////////////////////////
+
+  // store dataset name (if defined) in output file
+  // DQMStore:bookString seems to put a key in the file which is
+  // of the form <dataSet>s=....</dataSet> which is not very convenient
+  // (it points to a null pointer, one would have to loop over
+  // all keys of the corresponding directory in the ROOT file
+  // and check whether it is of the desired form and then parse
+  // it from this string...).
+  //
+  // So we store the name of the dataset as the title of a histogram,
+  // which is much easier to access...
+  // TH1D *dataSetNameHisto = 
+  dqm->book1D("DataSetNameHistogram",dataSet_,1,0,1);
 
   std::vector<std::string> subdirectories = dqm->getSubdirs();
   for(std::vector<std::string>::iterator dir = subdirectories.begin() ;dir!= subdirectories.end(); dir++ ){
@@ -190,6 +209,7 @@ void EmDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
   
 }
 
+//----------------------------------------------------------------------
 
 TProfile* EmDQMPostProcessor::dividehistos(DQMStore * dqm, const std::string& numName, const std::string& denomName, const std::string& outName,const std::string& label,const std::string& titel){
   //std::cout << numName <<std::endl;
@@ -225,5 +245,8 @@ TProfile* EmDQMPostProcessor::dividehistos(DQMStore * dqm, const std::string& nu
   return out;
 }
 
+//----------------------------------------------------------------------
 
 DEFINE_FWK_MODULE(EmDQMPostProcessor);
+
+//----------------------------------------------------------------------
