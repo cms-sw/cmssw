@@ -94,7 +94,7 @@ ZeePlots::ZeePlots(const edm::ParameterSet& iConfig)
   dphi_EB_ = iConfig.getUntrackedParameter<Double_t>("dphi_EB");
   deta_EB_ = iConfig.getUntrackedParameter<Double_t>("deta_EB");
   hoe_EB_ = iConfig.getUntrackedParameter<Double_t>("hoe_EB");
-  userIso_EB_ = iConfig.getUntrackedParameter<Double_t>("userIso_EB",1000.);
+  cIso_EB_ = iConfig.getUntrackedParameter<Double_t>("cIso_EB",1000.);
   tip_bspot_EB_=iConfig.getUntrackedParameter<Double_t>("tip_bspot_EB", 1000.);
   eop_EB_=iConfig.getUntrackedParameter<Double_t>("eop_EB", 1000.);
   //
@@ -102,9 +102,16 @@ ZeePlots::ZeePlots(const edm::ParameterSet& iConfig)
   dphi_EE_ = iConfig.getUntrackedParameter<Double_t>("dphi_EE");
   deta_EE_ = iConfig.getUntrackedParameter<Double_t>("deta_EE");
   hoe_EE_ = iConfig.getUntrackedParameter<Double_t>("hoe_EE");
-  userIso_EE_ = iConfig.getUntrackedParameter<Double_t>("userIso_EE",1000.);
+  cIso_EE_ = iConfig.getUntrackedParameter<Double_t>("cIso_EE",1000.);
   tip_bspot_EE_=iConfig.getUntrackedParameter<Double_t>("tip_bspot_EE", 1000.);
   eop_EE_=iConfig.getUntrackedParameter<Double_t>("eop_EE", 1000.);
+  //
+  trackIsoUser_EB_ = iConfig.getUntrackedParameter<Double_t>("trackIsoUser_EB", 1000.);
+  ecalIsoUser_EB_ = iConfig.getUntrackedParameter<Double_t>("ecalIsoUser_EB", 1000.);
+  hcalIsoUser_EB_ = iConfig.getUntrackedParameter<Double_t>("hcalIsoUser_EB", 1000.);
+  trackIsoUser_EE_ = iConfig.getUntrackedParameter<Double_t>("trackIsoUser_EE", 1000.);
+  ecalIsoUser_EE_ = iConfig.getUntrackedParameter<Double_t>("ecalIsoUser_EE", 1000.);
+  hcalIsoUser_EE_ = iConfig.getUntrackedParameter<Double_t>("hcalIsoUser_EE", 1000.);
   //
   trackIso_EB_inv = iConfig.getUntrackedParameter<Bool_t>("trackIso_EB_inv", 
 							    false);
@@ -124,7 +131,7 @@ ZeePlots::ZeePlots(const edm::ParameterSet& iConfig)
   dphi_EB_inv = iConfig.getUntrackedParameter<Bool_t>("dphi_EB_inv",false);
   deta_EB_inv = iConfig.getUntrackedParameter<Bool_t>("deta_EB_inv",false);
   hoe_EB_inv = iConfig.getUntrackedParameter<Bool_t>("hoe_EB_inv",false);
-  userIso_EB_inv=iConfig.getUntrackedParameter<Bool_t>("userIso_EB_inv",false);
+  cIso_EB_inv=iConfig.getUntrackedParameter<Bool_t>("cIso_EB_inv",false);
   tip_bspot_EB_inv=iConfig.getUntrackedParameter<Bool_t>("tip_bspot_EB_inv", 
 							 false);
   eop_EB_inv=iConfig.getUntrackedParameter<Bool_t>("eop_EB_inv", false);
@@ -133,10 +140,17 @@ ZeePlots::ZeePlots(const edm::ParameterSet& iConfig)
   dphi_EE_inv = iConfig.getUntrackedParameter<Bool_t>("dphi_EE_inv", false);
   deta_EE_inv = iConfig.getUntrackedParameter<Bool_t>("deta_EE_inv",false);
   hoe_EE_inv = iConfig.getUntrackedParameter<Bool_t>("hoe_EE_inv",false);
-  userIso_EE_inv=iConfig.getUntrackedParameter<Bool_t>("userIso_EE_inv",false);
+  cIso_EE_inv=iConfig.getUntrackedParameter<Bool_t>("cIso_EE_inv",false);
   tip_bspot_EE_inv=iConfig.getUntrackedParameter<Bool_t>("tip_bspot_EE_inv", 
 							 false);
   eop_EE_inv=iConfig.getUntrackedParameter<Bool_t>("eop_EE_inv", false);
+  //
+  trackIsoUser_EB_inv = iConfig.getUntrackedParameter<Bool_t>("trackIsoUser_EB_inv", false);
+  ecalIsoUser_EB_inv = iConfig.getUntrackedParameter<Bool_t>("ecalIsoUser_EB_inv", false);
+  hcalIsoUser_EB_inv = iConfig.getUntrackedParameter<Bool_t>("hcalIsoUser_EB_inv", false);
+  trackIsoUser_EE_inv = iConfig.getUntrackedParameter<Bool_t>("trackIsoUser_EE_inv", false);
+  ecalIsoUser_EE_inv = iConfig.getUntrackedParameter<Bool_t>("ecalIsoUser_EE_inv", false);
+  hcalIsoUser_EE_inv = iConfig.getUntrackedParameter<Bool_t>("hcalIsoUser_EE_inv", false);
   //
   useDifferentSecondLegSelection_ = iConfig.getUntrackedParameter<Bool_t>
     ("useDifferentSecondLegSelection",false);
@@ -155,7 +169,7 @@ ZeePlots::ZeePlots(const edm::ParameterSet& iConfig)
     dphi2_EB_ = iConfig.getUntrackedParameter<Double_t>("dphi2_EB");
     deta2_EB_ = iConfig.getUntrackedParameter<Double_t>("deta2_EB");
     hoe2_EB_ = iConfig.getUntrackedParameter<Double_t>("hoe2_EB");
-    userIso2_EB_=iConfig.getUntrackedParameter<Double_t>("userIso2_EB", 1000.);
+    cIso2_EB_=iConfig.getUntrackedParameter<Double_t>("cIso2_EB", 1000.);
     tip_bspot2_EB_=iConfig.getUntrackedParameter<Double_t>("tip_bspot2_EB", 
 							   1000.);
     eop2_EB_=iConfig.getUntrackedParameter<Double_t>("eop2_EB", 1000.);
@@ -164,7 +178,7 @@ ZeePlots::ZeePlots(const edm::ParameterSet& iConfig)
     dphi2_EE_ = iConfig.getUntrackedParameter<Double_t>("dphi2_EE");
     deta2_EE_ = iConfig.getUntrackedParameter<Double_t>("deta2_EE");
     hoe2_EE_ = iConfig.getUntrackedParameter<Double_t>("hoe2_EE");
-    userIso2_EE_=iConfig.getUntrackedParameter<Double_t>("userIso2_EE", 1000.);
+    cIso2_EE_=iConfig.getUntrackedParameter<Double_t>("cIso2_EE", 1000.);
     tip_bspot2_EE_=iConfig.getUntrackedParameter<Double_t>("tip_bspot2_EE", 
 							   1000.);
     eop2_EE_=iConfig.getUntrackedParameter<Double_t>("eop2_EE", 1000.);
@@ -197,7 +211,7 @@ ZeePlots::ZeePlots(const edm::ParameterSet& iConfig)
     dphi2_EB_ = dphi_EB_;
     deta2_EB_ = deta_EB_;
     hoe2_EB_ = hoe_EB_;
-    userIso2_EB_ = userIso_EB_;
+    cIso2_EB_ = cIso_EB_;
     tip_bspot2_EB_ = tip_bspot_EB_;
     eop2_EB_ = eop_EB_;
     //
@@ -205,9 +219,17 @@ ZeePlots::ZeePlots(const edm::ParameterSet& iConfig)
     dphi2_EE_ = dphi_EE_;
     deta2_EE_ = deta_EE_;
     hoe2_EE_ = hoe_EE_;
-    userIso2_EE_ = userIso_EE_;
+    cIso2_EE_ = cIso_EE_;
     tip_bspot2_EE_ = tip_bspot_EE_;
     eop2_EE_ = eop_EE_;
+    //
+    trackIsoUser2_EB_ = trackIsoUser_EB_;
+    ecalIsoUser2_EB_ = ecalIsoUser_EB_;
+    hcalIsoUser2_EB_ = hcalIsoUser_EB_;
+    //
+    trackIsoUser2_EE_ = trackIsoUser_EE_;
+    ecalIsoUser2_EE_ = ecalIsoUser_EE_;
+    hcalIsoUser2_EE_ = hcalIsoUser_EE_;
   }
 
 }
@@ -259,11 +281,11 @@ ZeePlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   //  const pat::MET * myMet=
   //  dynamic_cast<const pat::MET*> (zee.daughter("met"));
 
-  //double met = myMet->et();
+  //Double_t met = myMet->et();
   // extra preselection criteria
   if (usePreselection_) {
-    bool a1 = PassPreselectionCriteria(myElec1);
-    bool a2 = PassPreselectionCriteria2(myElec2);  
+    Bool_t a1 = PassPreselectionCriteria(myElec1);
+    Bool_t a2 = PassPreselectionCriteria2(myElec2);  
     if (not (a1 && a2)) return;
   }
   TLorentzVector e1;
@@ -280,9 +302,9 @@ ZeePlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
 
  
   TLorentzVector Z = e1+e2;
-  double mee = Z.M();
+  Double_t mee = Z.M();
   // the selection plots:
-  bool pass = CheckCuts(myElec1) && CheckCuts2(myElec2);
+  Bool_t pass = CheckCuts(myElec1) && CheckCuts2(myElec2);
   //cout << "This event passes? " << pass << ", mee is: " << mee
   //   << " and the histo is filled." << endl;
   if (not pass) return;
@@ -301,18 +323,18 @@ ZeePlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   h_e_PHI->Fill(e1.Phi()); h_e_PHI->Fill(e2.Phi()); 
 
    if(fabs(myElec1->eta())<1.479){
-      h_EB_trkiso->Fill( myElec1->userIsolation(pat::TrackIso) );
-      h_EB_ecaliso->Fill( myElec1->userIsolation(pat::EcalIso) );
-      h_EB_hcaliso->Fill( myElec1->userIsolation(pat::HcalIso) );
+      h_EB_trkiso->Fill( ReturnCandVar(myElec1, 0) );
+      h_EB_ecaliso->Fill(ReturnCandVar(myElec1, 1)  );
+      h_EB_hcaliso->Fill(ReturnCandVar(myElec1, 2)  );
       h_EB_sIetaIeta->Fill( myElec1->scSigmaIEtaIEta() );
       h_EB_dphi->Fill( myElec1->deltaPhiSuperClusterTrackAtVtx() );
       h_EB_deta->Fill( myElec1->deltaEtaSuperClusterTrackAtVtx() );
       h_EB_HoE->Fill( myElec1->hadronicOverEm() );
     }
     else{
-      h_EE_trkiso->Fill( myElec1->userIsolation(pat::TrackIso) );
-      h_EE_ecaliso->Fill( myElec1->userIsolation(pat::EcalIso) );
-      h_EE_hcaliso->Fill( myElec1->userIsolation(pat::HcalIso) );
+      h_EE_trkiso->Fill( ReturnCandVar(myElec1, 0)  );
+      h_EE_ecaliso->Fill(ReturnCandVar(myElec1, 1)  );
+      h_EE_hcaliso->Fill(ReturnCandVar(myElec1, 2)  );
       h_EE_sIetaIeta->Fill( myElec1->scSigmaIEtaIEta() );
       h_EE_dphi->Fill( myElec1->deltaPhiSuperClusterTrackAtVtx() );
       h_EE_deta->Fill( myElec1->deltaEtaSuperClusterTrackAtVtx() );
@@ -321,18 +343,18 @@ ZeePlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
 
 
  if(fabs(myElec2->eta())<1.479){
-      h_EB_trkiso->Fill( myElec2->userIsolation(pat::TrackIso) );
-      h_EB_ecaliso->Fill( myElec2->userIsolation(pat::EcalIso) );
-      h_EB_hcaliso->Fill( myElec2->userIsolation(pat::HcalIso) );
+      h_EB_trkiso->Fill( ReturnCandVar(myElec2, 0) );
+      h_EB_ecaliso->Fill(ReturnCandVar(myElec2, 1) );
+      h_EB_hcaliso->Fill(ReturnCandVar(myElec2, 2) );
       h_EB_sIetaIeta->Fill( myElec2->scSigmaIEtaIEta() );
       h_EB_dphi->Fill( myElec2->deltaPhiSuperClusterTrackAtVtx() );
       h_EB_deta->Fill( myElec2->deltaEtaSuperClusterTrackAtVtx() );
       h_EB_HoE->Fill( myElec2->hadronicOverEm() );
     }
     else{
-      h_EE_trkiso->Fill( myElec2->userIsolation(pat::TrackIso) );
-      h_EE_ecaliso->Fill( myElec2->userIsolation(pat::EcalIso) );
-      h_EE_hcaliso->Fill( myElec2->userIsolation(pat::HcalIso) );
+      h_EE_trkiso->Fill( ReturnCandVar(myElec2, 0) );
+      h_EE_ecaliso->Fill(ReturnCandVar(myElec2, 1) );
+      h_EE_hcaliso->Fill(ReturnCandVar(myElec2, 2) );
       h_EE_sIetaIeta->Fill( myElec2->scSigmaIEtaIEta() );
       h_EE_dphi->Fill( myElec2->deltaPhiSuperClusterTrackAtVtx() );
       h_EE_deta->Fill( myElec2->deltaEtaSuperClusterTrackAtVtx() );
@@ -342,9 +364,9 @@ ZeePlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
 
 
 
-  //double scEta = myElec->superCluster()->eta();
-  //double scPhi = myElec->superCluster()->phi();
-  //double scEt = myElec->superCluster()->energy()/cosh(scEta);
+  //Double_t scEta = myElec->superCluster()->eta();
+  //Double_t scPhi = myElec->superCluster()->phi();
+  //Double_t scEt = myElec->superCluster()->energy()/cosh(scEta);
 
 }
 
@@ -364,7 +386,7 @@ ZeePlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
  *               true if all the cuts with cut #jj ignored are satisfied
  *
  ***********************************************************************/
-bool ZeePlots::CheckCuts( const pat::Electron *ele)
+Bool_t ZeePlots::CheckCuts( const pat::Electron *ele)
 {
   if (usePrecalcID_) {
     if (not ele-> isElectronIDAvailable(usePrecalcIDType_)) {
@@ -373,7 +395,7 @@ bool ZeePlots::CheckCuts( const pat::Electron *ele)
 		<< std::endl;
       return true;
     }
-    double val = ele->electronID(usePrecalcIDType_);
+    Double_t val = ele->electronID(usePrecalcIDType_);
     if (usePrecalcIDSign_ == "<") {
       return val < usePrecalcIDValue_;
     }
@@ -393,7 +415,7 @@ bool ZeePlots::CheckCuts( const pat::Electron *ele)
 }
 /////////////////////////////////////////////////////////////////////////
 
-bool ZeePlots::CheckCutsInverse(const pat::Electron *ele)
+Bool_t ZeePlots::CheckCutsInverse(const pat::Electron *ele)
 {
   for (int i=0; i<nBarrelVars_; ++i){
     if ( CheckCutInv(ele, i) == false) return false;
@@ -402,7 +424,7 @@ bool ZeePlots::CheckCutsInverse(const pat::Electron *ele)
 
 }
 /////////////////////////////////////////////////////////////////////////
-bool ZeePlots::CheckCutsNminusOne(const pat::Electron *ele, int jj)
+Bool_t ZeePlots::CheckCutsNminusOne(const pat::Electron *ele, int jj)
 {
   for (int i=0; i<nBarrelVars_; ++i){
     if (i==jj) continue;
@@ -411,16 +433,16 @@ bool ZeePlots::CheckCutsNminusOne(const pat::Electron *ele, int jj)
   return true;
 }
 /////////////////////////////////////////////////////////////////////////
-bool ZeePlots::CheckCut(const pat::Electron *ele, int i) {
-  double fabseta = fabs(ele->superCluster()->eta());
+Bool_t ZeePlots::CheckCut(const pat::Electron *ele, int i) {
+  Double_t fabseta = fabs(ele->superCluster()->eta());
   if ( fabseta<1.479) {
     return fabs(ReturnCandVar(ele, i)) < CutVars_[i];
   }
   return fabs(ReturnCandVar(ele, i)) < CutVars_[i+nBarrelVars_];
 }
 /////////////////////////////////////////////////////////////////////////
-bool ZeePlots::CheckCutInv(const pat::Electron *ele, int i) {
-  double fabseta = fabs(ele->superCluster()->eta());
+Bool_t ZeePlots::CheckCutInv(const pat::Electron *ele, int i) {
+  Double_t fabseta = fabs(ele->superCluster()->eta());
   if ( fabseta<1.479) {
     if (InvVars_[i]) return fabs(ReturnCandVar(ele, i))>CutVars_[i];
     return fabs(ReturnCandVar(ele, i)) < CutVars_[i];
@@ -432,26 +454,36 @@ bool ZeePlots::CheckCutInv(const pat::Electron *ele, int i) {
   return fabs(ReturnCandVar(ele, i)) < CutVars_[i+nBarrelVars_];
 }
 ////////////////////////////////////////////////////////////////////////
-double ZeePlots::ReturnCandVar(const pat::Electron *ele, int i) {
-  if (i==0) return ele->userIsolation(pat::TrackIso);
-  else if (i==1) return ele->userIsolation(pat::EcalIso);
-  else if (i==2) return ele->userIsolation(pat::HcalIso);
+Double_t ZeePlots::ReturnCandVar(const pat::Electron *ele, int i) {
+  if (i==0) return ele->dr03TkSumPt()/ele->p4().Pt();
+  else if (i==1) return ele->dr03EcalRecHitSumEt()/ele->p4().Pt();
+  else if (i==2) return ele->dr03HcalTowerSumEt()/ele->p4().Pt();
   else if (i==3) return ele->scSigmaIEtaIEta();
   else if (i==4) return ele->deltaPhiSuperClusterTrackAtVtx();
   else if (i==5) return ele->deltaEtaSuperClusterTrackAtVtx();
   else if (i==6) return ele->hadronicOverEm();
-  else if (i==7) return ele->userIsolation(pat::User1Iso);
+  else if (i==7) {
+    if (ele->isEB()){
+      return ( ele->dr03TkSumPt()+std::max(float(0.),ele->dr03EcalRecHitSumEt()-1)
+	       + ele->dr03HcalTowerSumEt())/ele->p4().Pt(); }
+    else { // pedestal subtraction is only in barrel
+      return ( ele->dr03TkSumPt()+ele->dr03EcalRecHitSumEt()
+	       + ele->dr03HcalTowerSumEt())/ele->p4().Pt(); }
+  }
   //  else if (i==8) return ele->gsfTrack()->dxy(bspotPosition_);
   else if (i==8) return ele->dB();
   else if (i==9) return ele->eSuperClusterOverP();
-  std::cout << "Error in ZeePlots::ReturnCandVar" << std::endl;
+  else if (i==10) return ele->userIsolation(pat::TrackIso);
+  else if (i==11) return ele->userIsolation(pat::EcalIso);
+  else if (i==12) return ele->userIsolation(pat::HcalIso);  
+  std::cout << "Error in WenuPlots::ReturnCandVar" << std::endl;
   return -1.;
 
 }
 /////////////////////////////////////////////////////////////////////////
 // option for a second selection with the option to be used for the second
 // Z leg is added - NR 09Dec09
-bool ZeePlots::CheckCuts2( const pat::Electron *ele)
+Bool_t ZeePlots::CheckCuts2( const pat::Electron *ele)
 {
   if (usePrecalcID2_) {
     if (not ele-> isElectronIDAvailable(usePrecalcIDType2_)) {
@@ -460,7 +492,7 @@ bool ZeePlots::CheckCuts2( const pat::Electron *ele)
 		<< std::endl;
       return true;
     }
-    double val = ele->electronID(usePrecalcIDType2_);
+    Double_t val = ele->electronID(usePrecalcIDType2_);
     if (usePrecalcIDSign2_ == "<") {
       return val < usePrecalcIDValue2_;
     }
@@ -478,7 +510,7 @@ bool ZeePlots::CheckCuts2( const pat::Electron *ele)
     return true;
   }
 }
-//bool ZeePlots::CheckCuts2( const pat::Electron *ele)
+//Bool_t ZeePlots::CheckCuts2( const pat::Electron *ele)
 //{
 //  for (int i=0; i<nBarrelVars_; ++i) {
 //    if (not CheckCut2(ele, i)) return false;
@@ -487,7 +519,7 @@ bool ZeePlots::CheckCuts2( const pat::Electron *ele)
 //}
 /////////////////////////////////////////////////////////////////////////
 
-bool ZeePlots::CheckCuts2Inverse(const pat::Electron *ele)
+Bool_t ZeePlots::CheckCuts2Inverse(const pat::Electron *ele)
 {
   for (int i=0; i<nBarrelVars_; ++i){
     if ( CheckCut2Inv(ele, i) == false) return false;
@@ -496,7 +528,7 @@ bool ZeePlots::CheckCuts2Inverse(const pat::Electron *ele)
 
 }
 /////////////////////////////////////////////////////////////////////////
-bool ZeePlots::CheckCuts2NminusOne(const pat::Electron *ele, int jj)
+Bool_t ZeePlots::CheckCuts2NminusOne(const pat::Electron *ele, int jj)
 {
   for (int i=0; i<nBarrelVars_; ++i){
     if (i==jj) continue;
@@ -505,16 +537,16 @@ bool ZeePlots::CheckCuts2NminusOne(const pat::Electron *ele, int jj)
   return true;
 }
 /////////////////////////////////////////////////////////////////////////
-bool ZeePlots::CheckCut2(const pat::Electron *ele, int i) {
-  double fabseta = fabs(ele->superCluster()->eta());
+Bool_t ZeePlots::CheckCut2(const pat::Electron *ele, int i) {
+  Double_t fabseta = fabs(ele->superCluster()->eta());
   if ( fabseta<1.479) {
     return fabs(ReturnCandVar(ele, i)) < CutVars2_[i];
   }
   return fabs(ReturnCandVar(ele, i)) < CutVars2_[i+nBarrelVars_];
 }
 /////////////////////////////////////////////////////////////////////////
-bool ZeePlots::CheckCut2Inv(const pat::Electron *ele, int i) {
-  double fabseta = fabs(ele->superCluster()->eta());
+Bool_t ZeePlots::CheckCut2Inv(const pat::Electron *ele, int i) {
+  Double_t fabseta = fabs(ele->superCluster()->eta());
   if ( fabseta<1.479) {
     if (InvVars_[i]) return fabs(ReturnCandVar(ele, i))>CutVars2_[i];
     return fabs(ReturnCandVar(ele, i)) < CutVars2_[i];
@@ -527,10 +559,10 @@ bool ZeePlots::CheckCut2Inv(const pat::Electron *ele, int i) {
 }
 //
 // special preselection criteria
-bool ZeePlots::PassPreselectionCriteria(const pat::Electron *ele) {
-  bool passConvRej = true;
-  bool passPXB = true;
-  bool passEMH = true;
+Bool_t ZeePlots::PassPreselectionCriteria(const pat::Electron *ele) {
+  Bool_t passConvRej = true;
+  Bool_t passPXB = true;
+  Bool_t passEMH = true;
   if (useConversionRejection_) {
     if (ele->hasUserInt("PassConversionRejection")) {
       //std::cout << "con rej: " << ele->userInt("PassConversionRejection") << std::endl;
@@ -568,10 +600,10 @@ bool ZeePlots::PassPreselectionCriteria(const pat::Electron *ele) {
   return passConvRej && passPXB && passEMH;
 }
 //
-bool ZeePlots::PassPreselectionCriteria2(const pat::Electron *ele) {
-  bool passConvRej = true;
-  bool passPXB = true;
-  bool passEMH = true;
+Bool_t ZeePlots::PassPreselectionCriteria2(const pat::Electron *ele) {
+  Bool_t passConvRej = true;
+  Bool_t passPXB = true;
+  Bool_t passEMH = true;
   if (useConversionRejection2_) {
     if (ele->hasUserInt("PassConversionRejection")) {
       //std::cout << "con rej2: " << ele->userInt("PassConversionRejection") << std::endl;
@@ -586,7 +618,7 @@ bool ZeePlots::PassPreselectionCriteria2(const pat::Electron *ele) {
   if (useValidFirstPXBHit2_) {
     if (ele->hasUserInt("PassValidFirstPXBHit")) {
       //std::cout << "valid1stPXB2: " << ele->userInt("PassValidFirstPXBHit") << std::endl;
-      if (not (ele->userInt("PassValidPXBHit")==1)) passPXB = false;
+      if (not (ele->userInt("PassValidFirstPXBHit")==1)) passPXB = false;
     }
     else {
       std::cout << "ZeePlots: WARNING: Valid First PXB Hit Request Disregarded: "
@@ -634,7 +666,7 @@ ZeePlots::beginJob()
   h_EB_trkiso = new TH1F("h_EB_trkiso","h_EB_trkiso",200 , 0.0, 9.0);
   h_EB_ecaliso = new TH1F("h_EB_ecaliso","h_EB_ecaliso",200, 0.0 , 9.0);
   h_EB_hcaliso = new TH1F("h_EB_hcaliso","h_EB_hcaliso",200, 0.0 , 9.0);
-  h_EB_sIetaIeta = new TH1F("h_EB_sIetaIeta","h_EB_sIetaIeta",200, 0.0 , 0.02 );
+  h_EB_sIetaIeta = new TH1F("h_EB_sIetaIeta","h_EB_sIetaIeta",200, 0.0, 0.02 );
   h_EB_dphi = new TH1F("h_EB_dphi","h_EB_dphi",200, -0.03 , 0.03 );
   h_EB_deta = new TH1F("h_EB_deta","h_EB_deta",200, -0.01 , 0.01) ;
   h_EB_HoE = new TH1F("h_EB_HoE","h_EB_HoE",200, 0.0 , 0.2 );
@@ -642,7 +674,7 @@ ZeePlots::beginJob()
   h_EE_trkiso = new TH1F("h_EE_trkiso","h_EE_trkiso",200 , 0.0, 9.0);
   h_EE_ecaliso = new TH1F("h_EE_ecaliso","h_EE_ecaliso",200, 0.0 , 9.0);
   h_EE_hcaliso = new TH1F("h_EE_hcaliso","h_EE_hcaliso",200, 0.0 , 9.0);
-  h_EE_sIetaIeta = new TH1F("h_EE_sIetaIeta","h_EE_sIetaIeta",200, 0.0 , 0.1 );
+  h_EE_sIetaIeta = new TH1F("h_EE_sIetaIeta","h_EE_sIetaIeta",200, 0.0, 0.1 );
   h_EE_dphi = new TH1F("h_EE_dphi","h_EE_dphi",200, -0.03 , 0.03 );
   h_EE_deta = new TH1F("h_EE_deta","h_EE_deta",200, -0.01 , 0.01) ;
   h_EE_HoE = new TH1F("h_EE_HoE","h_EE_HoE",200, 0.0 , 0.2 );
@@ -653,7 +685,7 @@ ZeePlots::beginJob()
 
   //
   // if you add some new variable change the nBarrelVars_ accordingly
-  nBarrelVars_ = 10;
+  nBarrelVars_ = 13;
   //
   // Put EB variables together and EE variables together
   // number of barrel variables = number of endcap variable
@@ -665,9 +697,12 @@ ZeePlots::beginJob()
   CutVars_.push_back( dphi_EB_ );    //4
   CutVars_.push_back( deta_EB_ );    //5
   CutVars_.push_back( hoe_EB_ );     //6
-  CutVars_.push_back( userIso_EB_ ); //7
+  CutVars_.push_back( cIso_EB_ );    //7
   CutVars_.push_back( tip_bspot_EB_);//8
   CutVars_.push_back( eop_EB_ );     //9
+  CutVars_.push_back( trackIsoUser_EB_ );//10
+  CutVars_.push_back( ecalIsoUser_EB_  );//11
+  CutVars_.push_back( hcalIsoUser_EB_  );//12
 
   CutVars_.push_back( trackIso_EE_);//0
   CutVars_.push_back( ecalIso_EE_); //1
@@ -676,10 +711,12 @@ ZeePlots::beginJob()
   CutVars_.push_back( dphi_EE_);    //4
   CutVars_.push_back( deta_EE_);    //5
   CutVars_.push_back( hoe_EE_ );    //6 
-  CutVars_.push_back( userIso_EE_ );//7 
+  CutVars_.push_back( cIso_EE_ );   //7 
   CutVars_.push_back(tip_bspot_EE_);//8
   CutVars_.push_back( eop_EE_ );    //9
-
+  CutVars_.push_back( trackIsoUser_EE_ );//10
+  CutVars_.push_back( ecalIsoUser_EE_  );//11
+  CutVars_.push_back( hcalIsoUser_EE_  );//12
   //
   // 2nd leg variables
   CutVars2_.push_back( trackIso2_EB_ );//0
@@ -689,9 +726,12 @@ ZeePlots::beginJob()
   CutVars2_.push_back( dphi2_EB_ );    //4
   CutVars2_.push_back( deta2_EB_ );    //5
   CutVars2_.push_back( hoe2_EB_ );     //6
-  CutVars2_.push_back( userIso2_EB_ ); //7
+  CutVars2_.push_back( cIso2_EB_ );    //7
   CutVars2_.push_back( tip_bspot2_EB_);//8
   CutVars2_.push_back( eop2_EB_ );     //9
+  CutVars_.push_back( trackIsoUser2_EB_ );//10
+  CutVars_.push_back( ecalIsoUser2_EB_  );//11
+  CutVars_.push_back( hcalIsoUser2_EB_  );//12
 
   CutVars2_.push_back( trackIso2_EE_);//0
   CutVars2_.push_back( ecalIso2_EE_); //1
@@ -700,9 +740,12 @@ ZeePlots::beginJob()
   CutVars2_.push_back( dphi2_EE_);    //4
   CutVars2_.push_back( deta2_EE_);    //5
   CutVars2_.push_back( hoe2_EE_ );    //6 
-  CutVars2_.push_back( userIso2_EE_ );//7 
+  CutVars2_.push_back( cIso2_EE_ );   //7 
   CutVars2_.push_back(tip_bspot2_EE_);//8
   CutVars2_.push_back( eop2_EE_ );    //9
+  CutVars_.push_back( trackIsoUser2_EE_ );//10
+  CutVars_.push_back( ecalIsoUser2_EE_  );//11
+  CutVars_.push_back( hcalIsoUser2_EE_  );//12
   //...........................................
   InvVars_.push_back( trackIso_EB_inv);//0
   InvVars_.push_back( ecalIso_EB_inv); //1
@@ -711,9 +754,12 @@ ZeePlots::beginJob()
   InvVars_.push_back( dphi_EB_inv);    //4
   InvVars_.push_back( deta_EB_inv);    //5
   InvVars_.push_back( hoe_EB_inv);     //6
-  InvVars_.push_back( userIso_EB_inv); //7
+  InvVars_.push_back( cIso_EB_inv);    //7
   InvVars_.push_back(tip_bspot_EB_inv);//8
   InvVars_.push_back( eop_EB_inv);     //9
+  InvVars_.push_back( trackIsoUser_EB_inv );//10
+  InvVars_.push_back( ecalIsoUser_EB_inv  );//11
+  InvVars_.push_back( hcalIsoUser_EB_inv  );//12
   //
   InvVars_.push_back( trackIso_EE_inv);//0
   InvVars_.push_back( ecalIso_EE_inv); //1
@@ -722,9 +768,12 @@ ZeePlots::beginJob()
   InvVars_.push_back( dphi_EE_inv);    //4
   InvVars_.push_back( deta_EE_inv);    //5
   InvVars_.push_back( hoe_EE_inv);     //6
-  InvVars_.push_back( userIso_EE_inv); //7
+  InvVars_.push_back( cIso_EE_inv); //7
   InvVars_.push_back(tip_bspot_EE_inv);//8
   InvVars_.push_back( eop_EE_inv);     //9
+  InvVars_.push_back( trackIsoUser_EE_inv );//10
+  InvVars_.push_back( ecalIsoUser_EE_inv  );//11
+  InvVars_.push_back( hcalIsoUser_EE_inv  );//12
   //
 
 
