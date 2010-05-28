@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2010/05/11 00:03:13 $
- *  $Revision: 1.18 $
+ *  $Date: 2010/05/20 00:53:51 $
+ *  $Revision: 1.19 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -474,54 +474,16 @@ void MuonSeedOrcaPatternRecognition::complete(MuonRecHitContainer& seedSegments,
     // be a little more lenient in cracks
     bool crack = isCrack(recHit) || isCrack(first);
     //float detaWindow = 0.3;
-float detaWindow = crack ? 0.25 : 0.2;
+    float detaWindow = crack ? 0.25 : 0.2;
     if ( deta > detaWindow || dphi > .25 ) {
       continue;
     }   // +vvp!!!
 
-    if( eta2 < 1.0 ) {     //  barrel only
-      LocalPoint pt1 = first->det()->toLocal(ptg1); // local pos of rechit in seed's det
-
-      LocalVector dir1 = first->localDirection();
-
-      LocalPoint pt2 = first->localPosition();
-
-      float m = dir1.z()/dir1.x();   // seed's slope in local xz
-      float yf = pt1.z();            // local z of rechit
-      float yi = pt2.z();            // local z of seed
-      float xi = pt2.x();            // local x of seed
-      float xf = (yf-yi)/m + xi;     // x of linear extrap alone seed direction to z of rechit
-      float dist = fabs ( xf - pt1.x() ); // how close is actual to predicted local x ?
-
-      float d_cut = sqrt((yf-yi)*(yf-yi)+(pt1.x()-pt2.x())*(pt1.x()-pt2.x()))/10.;
-
-
-      //@@ Tim asks: what is the motivation for this cut?
-      //@@ It requires (xpred-xrechit)< 0.1 * distance between rechit and seed in xz plane
-      if ( dist < d_cut ) {
-	good_rhit.push_back(recHit);
-	if (used) markAsUsed(nr, recHits, used);
-      }
-
-    }  // eta  < 1.0
-
-    else {    //  endcap & overlap.
-      // allow a looser dphi cut where bend is greatest, so we get those little 5-GeV muons
-      // watch out for ghosts from ME1/A, below 2.0.
-      //float dphicut = (eta2 > 1.6 && eta2 < 2.0) ? 0.2 : 0.2;
-      float dphicut = (isME1A(first) || isME1A(recHit)) ? 0.25 : 0.25;
-      // segments at the edge of the barrel may not have a good eta measurement
-     // float detacut = (first->isDT() || recHit->isDT()) ? 0.1 : 0.2;
-      if ( dphi < dphicut ) {
-	good_rhit.push_back(recHit);
-	if (used) markAsUsed(nr, recHits, used);
-      }
-
-    }  // eta > 1.0
+    good_rhit.push_back(recHit);
+    if (used) markAsUsed(nr, recHits, used);
   }  // recHits iter
 
   // select the best rhit among the compatible ones (based on Dphi Glob & Dir)
-
   MuonRecHitPointer best=bestMatch(first, good_rhit);
   if(best && best->isValid() ) seedSegments.push_back(best);
 }
@@ -556,13 +518,11 @@ double MuonSeedOrcaPatternRecognition::discriminator(const ConstMuonRecHitPointe
   GlobalVector gd1 = first->globalDirection();
   GlobalVector gd2 = other->globalDirection();
   if(first->isDT() || other->isDT()) {
-    return deltaPhi(gd1.phi(), gd2.phi());
+    return fabs(deltaPhi(gd1.phi(), gd2.phi()));
   }
 
   float dphig = deltaPhi(gp1.phi(), gp2.phi());
   float dthetag = gp1.theta()-gp2.theta();
-  //float dphid12 = deltaPhi(gd1.phi(), gd2.phi());
-  //float dthetad12 = gd1.theta()-gd2.theta();
   float dphid2 = deltaPhi(gd2.phi(), gp2.phi());
   float dthetad2 = gp2.theta()-gd2.theta();
   // for CSC, make a big chi-squared of relevant variables
@@ -651,7 +611,7 @@ void MuonSeedOrcaPatternRecognition::dumpLayer(const char * name, const MuonRecH
   for(MuonRecHitContainer::const_iterator segmentItr = segments.begin();
       segmentItr != segments.end(); ++segmentItr)
   {
-    LogTrace(metname)  << theDumper.dumpMuonId((**segmentItr).geographicalId());
+    LogTrace(metname) << theDumper.dumpMuonId((**segmentItr).geographicalId());
   }
 }
 
