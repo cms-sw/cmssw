@@ -28,6 +28,8 @@ import FWCore.ParameterSet.Config as cms
 #
 #  https://twiki.cern.ch/twiki/bin/view/CMS/SimpleCutBasedEleID
 #
+#  this version of the file needs 
+#  V00-03-07-03   RecoEgamma/ElectronIdentification
 
 simpleCutBasedElectronID = cms.EDProducer("EleIdCutBasedExtProducer",
 
@@ -39,7 +41,9 @@ simpleCutBasedElectronID = cms.EDProducer("EleIdCutBasedExtProducer",
     reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
     reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
     # if you want the vertices or the offline beam spot
-    verticesCollection = cms.InputTag("offlineBeamSpot"),   
+    verticesCollection = cms.InputTag("offlineBeamSpot"),
+    dataMagneticFieldSetUp = cms.bool(False),
+    dcsTag = cms.InputTag("scalersRawToDigi"),                                          
     algorithm = cms.string('eIDCB'),
 
     #electronIDType: robust  for the simple Cut-Based
