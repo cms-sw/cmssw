@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski,,,
 //         Created:  Tue Oct  7 14:56:49 CDT 2008
-// $Id: CSCOverlapsAlignmentAlgorithm.h,v 1.3 2010/05/05 04:00:39 pivarski Exp $
+// $Id: CSCOverlapsAlignmentAlgorithm.h,v 1.4 2010/05/06 03:09:31 pivarski Exp $
 //
 //
 
@@ -47,8 +47,8 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 #include "Alignment/MuonAlignmentAlgorithms/interface/CSCPairConstraint.h"
-#include "Alignment/MuonAlignmentAlgorithms/interface/CSCChamberFitter.h"
-#include "Alignment/MuonAlignmentAlgorithms/interface/CSCAlignmentCorrections.h"
+#include "Alignment/MuonAlignmentAlgorithms/plugins/CSCChamberFitter.h"
+#include "Alignment/MuonAlignmentAlgorithms/plugins/CSCAlignmentCorrections.h"
 
 #include "TH1F.h"
 #include "TH2F.h"
