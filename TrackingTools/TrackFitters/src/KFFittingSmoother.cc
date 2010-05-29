@@ -73,7 +73,6 @@ vector<Trajectory> KFFittingSmoother::fit(const TrajectorySeed& aSeed,
       
       double log_pixel_prob_cut = theLogPixelProbabilityCut;  // ggiurgiu@fnal.gov
       
-      //cout << "theLogPixelProbabilityCut = " << theLogPixelProbabilityCut << endl;
       
       unsigned int outlierId = 0;
       const GeomDet* outlierDet = 0;
@@ -146,6 +145,7 @@ vector<Trajectory> KFFittingSmoother::fit(const TrajectorySeed& aSeed,
 	    {
 	      double estimate = tm->estimate();
 	      
+	      // --- here is the block of code about generic chi2-based Outlier Rejection ---
 	      if ( estimate > cut ) 
 		{
 		  hasoutliers = true;
@@ -153,52 +153,63 @@ vector<Trajectory> KFFittingSmoother::fit(const TrajectorySeed& aSeed,
 		  outlierId  = tm->recHit()->geographicalId().rawId();
 		  outlierDet = tm->recHit()->det();
 		}
-	      
-	      // ggiurgiu@fnal.gov: Get pixel hit probability here ------------------------------------------------------
+	      // --- here the block of code about generic chi2-based Outlier Rejection ends ---
 
-	      TransientTrackingRecHit::ConstRecHitPointer hit = tm->recHit();
-	      uint testSubDetID = ( hit->geographicalId().subdetId() );
-	      
-	      if ( hit->isValid() && 
-		   hit->geographicalId().det() == DetId::Tracker && 
-		   ( testSubDetID == PixelSubdetector::PixelBarrel || 
-		     testSubDetID == PixelSubdetector::PixelEndcap )
-		   )
-		{
-		  // get the enclosed persistent hit
-		  const TrackingRecHit* persistentHit = hit->hit();
-		  
-		  // check if it's not null, and if it's a valid pixel hit
-		  if ( !persistentHit == 0 && 
-		       typeid(*persistentHit) == typeid(SiPixelRecHit) ) 
-		    {
-		      
-		      // tell the C++ compiler that the hit is a pixel hit
-		      const SiPixelRecHit* pixhit = dynamic_cast<const SiPixelRecHit*>( hit->hit() );
-		      
-		      double pixel_hit_probability = (float)pixhit->clusterProbability(0);
+
+	      // --- here is the block of code about PXL Outlier Rejection ---
+	      if(log_pixel_prob_cut > log_pixel_probability_lower_limit){ 
+		// TO BE FIXED: the following code should really be moved into an external class or 
+		// at least in a separate function. Current solution is ugly!
+		// The KFFittingSmoother shouldn't handle the details of 
+		// Outliers identification and rejection. It shoudl just fit tracks.
+
+		// ggiurgiu@fnal.gov: Get pixel hit probability here 
+		TransientTrackingRecHit::ConstRecHitPointer hit = tm->recHit();
+		uint testSubDetID = ( hit->geographicalId().subdetId() );
+		
+		if ( hit->isValid() && 
+		     hit->geographicalId().det() == DetId::Tracker && 
+		     ( testSubDetID == PixelSubdetector::PixelBarrel || 
+		       testSubDetID == PixelSubdetector::PixelEndcap )
+		     )
+		  {
+		    // get the enclosed persistent hit
+		    const TrackingRecHit* persistentHit = hit->hit();
+		    
+		    // check if it's not null, and if it's a valid pixel hit
+		    if ( !persistentHit == 0 && 
+			 typeid(*persistentHit) == typeid(SiPixelRecHit) ) 
+		      {
+			
+			// tell the C++ compiler that the hit is a pixel hit
+			const SiPixelRecHit* pixhit = dynamic_cast<const SiPixelRecHit*>( hit->hit() );
+			
+			double pixel_hit_probability = (float)pixhit->clusterProbability(0);
 		     	
-		      if ( pixel_hit_probability < 0.0 )
-			LogDebug("From KFFittingSmoother.cc") 
-			  << "Wraning : Negative pixel hit probability !!!! Will set the probability to 10^{-15} !!!" << endl;
-
-		      if ( pixel_hit_probability <= 0.0 || log10( pixel_hit_probability ) < log_pixel_probability_lower_limit )  
-			log_pixel_hit_probability = log_pixel_probability_lower_limit; 
-		      else 
-			log_pixel_hit_probability = log10( pixel_hit_probability );
-		      		      
-		      if ( log_pixel_hit_probability < log_pixel_prob_cut )
-			{
-			  has_low_pixel_prob = true;
-			  log_pixel_prob_cut = log_pixel_hit_probability;
-			  low_pixel_prob_Id  = tm->recHit()->geographicalId().rawId();
-			  low_pixel_prob_Det = tm->recHit()->det();
-			}	    
-		      
-		    } // if ( !persistentHit == 0 && ... )
+			if ( pixel_hit_probability < 0.0 )
+			  LogDebug("From KFFittingSmoother.cc") 
+			    << "Wraning : Negative pixel hit probability !!!! Will set the probability to 10^{-15} !!!" << endl;
+			
+			if ( pixel_hit_probability <= 0.0 || log10( pixel_hit_probability ) < log_pixel_probability_lower_limit )  
+			  log_pixel_hit_probability = log_pixel_probability_lower_limit; 
+			else 
+			  log_pixel_hit_probability = log10( pixel_hit_probability );
+			
+			if ( log_pixel_hit_probability < log_pixel_prob_cut )
+			  {
+			    has_low_pixel_prob = true;
+			    log_pixel_prob_cut = log_pixel_hit_probability;
+			    low_pixel_prob_Id  = tm->recHit()->geographicalId().rawId();
+			    low_pixel_prob_Det = tm->recHit()->det();
+			  }	    
+			
+		      } // if ( !persistentHit == 0 && ... )
 		  
-		} // if ( hit->isValid() && ... )
+		  } // if ( hit->isValid() && ... )
+	      }	      
+	      // --- here the block of code about PXL Outlier Rejection ends --- 
 	      
+
 	    } // for (std::vector<TrajectoryMeasurement>::const_iterator tm=vtm.begin(); tm!=vtm.end(); tm++)
 	  
       
@@ -208,14 +219,14 @@ vector<Trajectory> KFFittingSmoother::fit(const TrajectorySeed& aSeed,
 	      // Replace outlier hit or low probability pixel hit with invalid hit
 	      for ( unsigned int j=0; j<myHits.size(); ++j ) 
 		{ 
-		  if ( outlierId == myHits[j]->geographicalId().rawId() )
+		  if ( hasoutliers && outlierId == myHits[j]->geographicalId().rawId() )
 		    {
 		      LogTrace("TrackFitters") << "Rejecting outlier hit  with estimate " << cut << " at position " 
 					       << j << " with rawId=" << myHits[j]->geographicalId().rawId();
 		      LogTrace("TrackFitters") << "The fit will be repeated without the outlier";
 		      myHits[j] = InvalidTransientRecHit::build(outlierDet, TrackingRecHit::missing);
 		    }
-		  else if ( low_pixel_prob_Id == myHits[j]->geographicalId().rawId() )
+		  else if ( has_low_pixel_prob && low_pixel_prob_Id == myHits[j]->geographicalId().rawId() )
 		    {
 		      LogTrace("TrackFitters") << "Rejecting low proability pixel hit with log_pixel_prob_cut = " 
 					       << log_pixel_prob_cut << " at position " 
