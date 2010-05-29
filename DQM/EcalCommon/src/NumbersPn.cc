@@ -6,7 +6,7 @@
 
 #include "DQM/EcalCommon/interface/NumbersPn.h"
 
-// return the PN index from 0-79 from EcalPnDiodeDetId.id().iPnId() [ranging in 0-9];
+// return the PN index [0-79] from EcalPnDiodeDetId.id().iPnId() [0-9];
 int NumbersPn::ipnEE( const int ism, const int ipnid ) throw( std::runtime_error ) {
   
   if( ism >=1 && ism <= 18 ) {
@@ -34,40 +34,11 @@ int NumbersPn::ipnEE( const int ism, const int ipnid ) throw( std::runtime_error
 
 }
 
-int NumbersPn::getPN( const int ism, const int ix, const int iy ) throw( std::runtime_error ) {
+// return the list of PNs for a given crystal
+void NumbersPn::getPNs( const int ism, const int ix, const int iy, std::vector<int>& PNsInLM ) throw( std::runtime_error ) {
 
   int ilm = NumbersPn::iLM(ism, ix, iy );
 
-  if( ilm ==  0 ) return 25;
-  if( ilm ==  1 ) return 25;
-  if( ilm ==  2 ) return 20;
-  if( ilm ==  3 ) return 20;
-  if( ilm ==  4 ) return 20;
-  if( ilm ==  5 ) return  0;
-  if( ilm ==  6 ) return  0;
-  if( ilm ==  7 ) return  0;
-  if( ilm ==  8 ) return  5;
-  if( ilm ==  9 ) return  5;
-  if( ilm == 10 ) return 65;
-  if( ilm == 11 ) return 65;
-  if( ilm == 12 ) return 60;
-  if( ilm == 13 ) return 60;
-  if( ilm == 14 ) return 60;
-  if( ilm == 15 ) return 40;
-  if( ilm == 16 ) return 40;
-  if( ilm == 17 ) return 40;
-  if( ilm == 18 ) return 45;
-  if( ilm == 19 ) return 45;
-
-  return -1;
-
-}
-
-std::vector<int> NumbersPn::getPNs( const int ism, const int ix, const int iy ) throw( std::runtime_error ) {
-
-  int ilm = NumbersPn::iLM(ism, ix, iy );
-
-  std::vector<int> PNsInLM;
   PNsInLM.clear();
 
   if( ilm == 0 ) {
@@ -81,7 +52,7 @@ std::vector<int> NumbersPn::getPNs( const int ism, const int ix, const int iy ) 
     PNsInLM.push_back(32);
     PNsInLM.push_back(33);
 
-    return PNsInLM;
+    return;
   }
   if( ilm == 1 ) {
     PNsInLM.push_back(25);
@@ -94,7 +65,7 @@ std::vector<int> NumbersPn::getPNs( const int ism, const int ix, const int iy ) 
     PNsInLM.push_back(32);
     PNsInLM.push_back(33);
 
-    return PNsInLM;
+    return;
   }
   if( ilm == 2 ) {
     PNsInLM.push_back(20);
@@ -108,8 +79,8 @@ std::vector<int> NumbersPn::getPNs( const int ism, const int ix, const int iy ) 
     PNsInLM.push_back(37);
     PNsInLM.push_back(38);
     PNsInLM.push_back(39);
-    
-    return PNsInLM;
+
+    return;
   } 
   if( ilm == 3 ) {
     PNsInLM.push_back(20);
@@ -123,8 +94,8 @@ std::vector<int> NumbersPn::getPNs( const int ism, const int ix, const int iy ) 
     PNsInLM.push_back(37);
     PNsInLM.push_back(38);
     PNsInLM.push_back(39);
-      
-    return PNsInLM;
+
+    return;
   }
   if( ilm == 4 ) {
     PNsInLM.push_back(20);
@@ -139,7 +110,7 @@ std::vector<int> NumbersPn::getPNs( const int ism, const int ix, const int iy ) 
     PNsInLM.push_back(38);
     PNsInLM.push_back(39);
 
-    return PNsInLM;
+    return;
   }
   if( ilm == 5 ) {
     PNsInLM.push_back(0);
@@ -153,8 +124,8 @@ std::vector<int> NumbersPn::getPNs( const int ism, const int ix, const int iy ) 
     PNsInLM.push_back(16);
     PNsInLM.push_back(17);
     PNsInLM.push_back(18);
-  
-    return PNsInLM;
+
+    return;
   }
   if( ilm == 6 ) {
     PNsInLM.push_back(0);
@@ -168,8 +139,8 @@ std::vector<int> NumbersPn::getPNs( const int ism, const int ix, const int iy ) 
     PNsInLM.push_back(16);
     PNsInLM.push_back(17);
     PNsInLM.push_back(18);
-  
-    return PNsInLM;
+
+    return;
   }
   if( ilm == 7 ) {
     PNsInLM.push_back(0);
@@ -182,7 +153,7 @@ std::vector<int> NumbersPn::getPNs( const int ism, const int ix, const int iy ) 
     PNsInLM.push_back(17);
     PNsInLM.push_back(18);
 
-    return PNsInLM;
+    return;
   }
   if( ilm == 8 ) {
     PNsInLM.push_back(5);
@@ -193,7 +164,7 @@ std::vector<int> NumbersPn::getPNs( const int ism, const int ix, const int iy ) 
     PNsInLM.push_back(11);
     PNsInLM.push_back(12);
 
-    return PNsInLM;
+    return;
   }
   if( ilm == 9 ) {
     PNsInLM.push_back(5);
@@ -203,8 +174,8 @@ std::vector<int> NumbersPn::getPNs( const int ism, const int ix, const int iy ) 
 
     PNsInLM.push_back(11);
     PNsInLM.push_back(12);
-  
-    return PNsInLM;
+
+    return;
   }
   if( ilm == 10 ) {
     PNsInLM.push_back(65);
@@ -217,7 +188,7 @@ std::vector<int> NumbersPn::getPNs( const int ism, const int ix, const int iy ) 
     PNsInLM.push_back(72);
     PNsInLM.push_back(73);
 
-    return PNsInLM;
+    return;
   }
   if( ilm == 11 ) {
     PNsInLM.push_back(65);
@@ -230,7 +201,7 @@ std::vector<int> NumbersPn::getPNs( const int ism, const int ix, const int iy ) 
     PNsInLM.push_back(72);
     PNsInLM.push_back(73);
 
-    return PNsInLM;
+    return;
   }
   if( ilm == 12 ) {
     PNsInLM.push_back(60);
@@ -244,7 +215,7 @@ std::vector<int> NumbersPn::getPNs( const int ism, const int ix, const int iy ) 
     PNsInLM.push_back(78);
     PNsInLM.push_back(79);
 
-    return PNsInLM;
+    return;
   }
   if( ilm == 13 ) {
     PNsInLM.push_back(60);
@@ -261,7 +232,7 @@ std::vector<int> NumbersPn::getPNs( const int ism, const int ix, const int iy ) 
     PNsInLM.push_back(78);
     PNsInLM.push_back(79);
 
-    return PNsInLM;
+    return;
   }
   if( ilm == 14 ) {
     PNsInLM.push_back(60);
@@ -278,7 +249,7 @@ std::vector<int> NumbersPn::getPNs( const int ism, const int ix, const int iy ) 
     PNsInLM.push_back(78);
     PNsInLM.push_back(79);
 
-    return PNsInLM;
+    return;
   }
   if( ilm == 15 ) {
     PNsInLM.push_back(40);
@@ -294,8 +265,8 @@ std::vector<int> NumbersPn::getPNs( const int ism, const int ix, const int iy ) 
     PNsInLM.push_back(57);
     PNsInLM.push_back(58);
     PNsInLM.push_back(59);
-  
-    return PNsInLM;
+
+    return;
   }
   if( ilm == 16 ) {
     PNsInLM.push_back(40);
@@ -312,7 +283,7 @@ std::vector<int> NumbersPn::getPNs( const int ism, const int ix, const int iy ) 
     PNsInLM.push_back(58);
     PNsInLM.push_back(59);
 
-    return PNsInLM;
+    return;
   }
   if( ilm == 17 ) {
     PNsInLM.push_back(40);
@@ -326,7 +297,7 @@ std::vector<int> NumbersPn::getPNs( const int ism, const int ix, const int iy ) 
     PNsInLM.push_back(58);
     PNsInLM.push_back(59);
 
-    return PNsInLM;
+    return;
   }
   if( ilm == 18 ) {
     PNsInLM.push_back(45);
@@ -339,7 +310,7 @@ std::vector<int> NumbersPn::getPNs( const int ism, const int ix, const int iy ) 
     PNsInLM.push_back(52);
     PNsInLM.push_back(53);
 
-    return PNsInLM;
+    return;
   }
   if( ilm == 19 ) {
     PNsInLM.push_back(45);
@@ -352,7 +323,7 @@ std::vector<int> NumbersPn::getPNs( const int ism, const int ix, const int iy ) 
     PNsInLM.push_back(52);
     PNsInLM.push_back(53);
 
-    return PNsInLM;
+    return;
   }
 
   std::ostringstream s;
@@ -361,6 +332,7 @@ std::vector<int> NumbersPn::getPNs( const int ism, const int ix, const int iy ) 
   
 }
 
+// return the LM for a given crystal
 int NumbersPn::iLM( const int ism, const int ix, const int iy ) throw( std::runtime_error ) {
 
   int iz = 0;

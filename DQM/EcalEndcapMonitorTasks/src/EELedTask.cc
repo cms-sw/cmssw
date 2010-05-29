@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2010/05/28 19:51:51 $
- * $Revision: 1.60 $
+ * $Date: 2010/05/28 19:57:57 $
+ * $Revision: 1.61 $
  * \author G. Della Ricca
  *
 */
@@ -421,6 +421,9 @@ void EELedTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     adcPN[i] = 0.;
   }
 
+  std::vector<int> PNs;
+  PNs.reserve(12);
+
   edm::Handle<EEDigiCollection> digis;
 
   if ( e.getByLabel(EEDigiCollection_, digis) ) {
@@ -476,9 +479,12 @@ void EELedTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       }
 
-      int ipn = NumbersPn::getPN( ism, ix, iy );
+      NumbersPn::getPNs( ism, ix, iy, PNs );
 
-      if ( ipn >= 0 && ipn < 80 ) numPN[ipn] = true;
+      for (unsigned int i=0; i<PNs.size(); i++) {
+        int ipn = PNs[i];
+        if ( ipn >= 0 && ipn < 80 ) numPN[ipn] = true;
+      }
 
     }
 
@@ -639,12 +645,13 @@ void EELedTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       float wval = 0.;
 
-      int ipn = NumbersPn::getPN( ism, ix, iy );
+      NumbersPn::getPNs( ism, ix, iy, PNs );
 
-      if ( ipn >= 0 && ipn < 80 ) {
-
-        if ( adcPN[ipn] != 0. ) wval = xval / adcPN[ipn];
-
+      if ( PNs.size() > 0 ) {
+        int ipn = PNs[0];
+        if ( ipn >= 0 && ipn < 80 ) {
+          if ( adcPN[ipn] != 0. ) wval = xval / adcPN[ipn];
+        }
       }
 
       if ( meAmplPNMap ) meAmplPNMap->Fill(xix, xiy, wval);
