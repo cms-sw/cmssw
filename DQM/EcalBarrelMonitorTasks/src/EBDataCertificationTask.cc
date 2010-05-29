@@ -144,7 +144,7 @@ void EBDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
         for ( int iett = 0; iett < 34; iett++ ) {
           for ( int iptt = 0; iptt < 72; iptt++ ) {
             int ism = ( iett<17 ) ? iptt/4+1 : 18+iptt/4+1;
-            if( i == (ism-1) ) me->setBinContent( iptt, iett, DQMVal[ism-1]);
+            if( i == (ism-1) ) me->setBinContent( iptt+1, iett+1, DQMVal[ism-1]);
           }
         }
       }
