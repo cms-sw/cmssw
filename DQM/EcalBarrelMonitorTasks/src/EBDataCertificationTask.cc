@@ -100,13 +100,6 @@ void EBDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
     DQMVal[i] = -1.;
   }
 
-  float integrityErrSum, frontendErrSum;
-  integrityErrSum = frontendErrSum = 0.;
-
-  float totDQMVal = -1.;
-  float integrityQual = 1.0;
-  float frontendQual = 1.0;
-
   sprintf(histo, (prefixME_ + "/EBSummaryClient/EB global summary").c_str());
   me = dqmStore_->get(histo);
 
@@ -118,6 +111,11 @@ void EBDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
     sprintf(histo, (prefixME_ + "/EBStatusFlagsTask/FEStatus/EBSFT weighted frontend errors by lumi").c_str());
     me = dqmStore_->get(histo);
     hFrontendByLumi_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hFrontendByLumi_ );
+
+    float integrityErrSum = 0.;
+    float integrityQual = 1.0;
+    float frontendErrSum = 0.;
+    float frontendQual = 1.0;
 
     for ( int i=0; i<36; i++) {
       float ismIntegrityQual = 1.0;
@@ -134,30 +132,33 @@ void EBDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
       }
       DQMVal[i] = std::min(ismIntegrityQual,ismFrontendQual);
     }
-    if( hIntegrityByLumi_ && hIntegrityByLumi_->GetBinContent(0) > 0 ) integrityQual = 1.0 - integrityErrSum/hIntegrityByLumi_->GetBinContent(0);
-    if( hFrontendByLumi_ && hFrontendByLumi_->GetBinContent(0) > 0 ) frontendQual = 1.0 - frontendErrSum/hFrontendByLumi_->GetBinContent(0);
-    totDQMVal = std::min(integrityQual,frontendQual);
-  }
 
-  for ( int i=0; i<36; i++) {
-    sprintf(histo, "EcalBarrel_%s", Numbers::sEB(i+1).c_str());
-    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
-    if( me ) me->Fill(DQMVal[i]);
+    for ( int i=0; i<36; i++) {
+      sprintf(histo, "EcalBarrel_%s", Numbers::sEB(i+1).c_str());
+      me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
+      if( me ) me->Fill(DQMVal[i]);
 
-    sprintf(histo, "reportSummaryMap");
-    me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo );
-    if( me ) {
-      for ( int iett = 0; iett < 34; iett++ ) {
-        for ( int iptt = 0; iptt < 72; iptt++ ) {
-          int ism = ( iett<17 ) ? iptt/4+1 : 18+iptt/4+1;
-          if( i == (ism-1) ) me->setBinContent( iptt, iett, DQMVal[ism-1]);
+      sprintf(histo, "reportSummaryMap");
+      me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo );
+      if( me ) {
+        for ( int iett = 0; iett < 34; iett++ ) {
+          for ( int iptt = 0; iptt < 72; iptt++ ) {
+            int ism = ( iett<17 ) ? iptt/4+1 : 18+iptt/4+1;
+            if( i == (ism-1) ) me->setBinContent( iptt, iett, DQMVal[ism-1]);
+          }
         }
       }
     }
+
+    if( hIntegrityByLumi_ && hIntegrityByLumi_->GetBinContent(0) > 0 ) integrityQual = 1.0 - integrityErrSum/hIntegrityByLumi_->GetBinContent(0);
+    if( hFrontendByLumi_ && hFrontendByLumi_->GetBinContent(0) > 0 ) frontendQual = 1.0 - frontendErrSum/hFrontendByLumi_->GetBinContent(0);
+    float totDQMVal = std::min(integrityQual,frontendQual);
+
+    sprintf(histo, (prefixME_ + "/EventInfo/reportSummary").c_str());
+    me = dqmStore_->get(histo);
+    if( me ) me->Fill(totDQMVal);
+
   }
-  sprintf(histo, (prefixME_ + "/EventInfo/reportSummary").c_str());
-  me = dqmStore_->get(histo);
-  if( me ) me->Fill(totDQMVal);
 
   // now combine reduced DQM with DCS and DAQ
   sprintf(histo, (prefixME_ + "/EventInfo/DAQSummaryMap").c_str());

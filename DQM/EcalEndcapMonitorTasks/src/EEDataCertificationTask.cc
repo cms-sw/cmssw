@@ -99,13 +99,6 @@ void EEDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
     DQMVal[i] = -1.;
   }
 
-  float integrityErrSum, frontendErrSum;
-  integrityErrSum = frontendErrSum = 0.;
-
-  float totDQMVal = -1.;
-  float integrityQual = 1.0;
-  float frontendQual = 1.0;
-  
   sprintf(histo, (prefixME_ + "/EESummaryClient/EE global summary").c_str());
   me = dqmStore_->get(histo);
 
@@ -118,6 +111,11 @@ void EEDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
     me = dqmStore_->get(histo);
     hFrontendByLumi_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hFrontendByLumi_ );
   
+    float integrityErrSum = 0.;
+    float integrityQual = 1.0;
+    float frontendErrSum = 0.;
+    float frontendQual = 1.0;
+
     for ( int i=0; i<18; i++) {
       float ismIntegrityQual = 1.0;
       if( hIntegrityByLumi_ && hIntegrityByLumi_->GetBinContent(0) > 0 ) {
@@ -133,37 +131,40 @@ void EEDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
       }
       DQMVal[i] = std::min(ismIntegrityQual,ismFrontendQual);
     }
-    if( hIntegrityByLumi_ && hIntegrityByLumi_->GetBinContent(0) > 0 ) integrityQual = 1.0 - integrityErrSum/hIntegrityByLumi_->GetBinContent(0);
-    if( hFrontendByLumi_ && hFrontendByLumi_->GetBinContent(0) > 0 ) frontendQual = 1.0 - frontendErrSum/hFrontendByLumi_->GetBinContent(0);
-    totDQMVal = std::min(integrityQual,frontendQual);
-  }
 
-  for ( int i=0; i<18; i++) {
-    sprintf(histo, "EcalEndcap_%s", Numbers::sEE(i+1).c_str());
-    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
-    if( me ) me->Fill(DQMVal[i]);
+    for ( int i=0; i<18; i++) {
+      sprintf(histo, "EcalEndcap_%s", Numbers::sEE(i+1).c_str());
+      me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
+      if( me ) me->Fill(DQMVal[i]);
 
-    sprintf(histo, "reportSummaryMap");
-    me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo );
-    if( me ) {
-      for ( int iz = -1; iz < 2; iz+=2 ) {
-        for ( int ix = 1; ix <= 100; ix++ ) {
-          for ( int iy = 1; iy <= 100; iy++ ) {
-            int jx = (iz==1) ? 100 + ix : ix;
-            int jy = iy;
-            if( EEDetId::validDetId(ix, iy, iz) ) {
-              if ( Numbers::validEE(i+1, ix, iy) ) me->setBinContent( jx, jy, DQMVal[i] );
-            } else {
-              me->setBinContent( jx, jy, -1.0 );
+      sprintf(histo, "reportSummaryMap");
+      me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo );
+      if( me ) {
+        for ( int iz = -1; iz < 2; iz+=2 ) {
+          for ( int ix = 1; ix <= 100; ix++ ) {
+            for ( int iy = 1; iy <= 100; iy++ ) {
+              int jx = (iz==1) ? 100 + ix : ix;
+              int jy = iy;
+              if( EEDetId::validDetId(ix, iy, iz) ) {
+                if ( Numbers::validEE(i+1, ix, iy) ) me->setBinContent( jx, jy, DQMVal[i] );
+              } else {
+                me->setBinContent( jx, jy, -1.0 );
+              }
             }
           }
         }
       }
     }
+
+    if( hIntegrityByLumi_ && hIntegrityByLumi_->GetBinContent(0) > 0 ) integrityQual = 1.0 - integrityErrSum/hIntegrityByLumi_->GetBinContent(0);
+    if( hFrontendByLumi_ && hFrontendByLumi_->GetBinContent(0) > 0 ) frontendQual = 1.0 - frontendErrSum/hFrontendByLumi_->GetBinContent(0);
+    float totDQMVal = std::min(integrityQual,frontendQual);
+
+    sprintf(histo, (prefixME_ + "/EventInfo/reportSummary").c_str());
+    me = dqmStore_->get(histo);
+    if( me ) me->Fill(totDQMVal);
+
   }
-  sprintf(histo, (prefixME_ + "/EventInfo/reportSummary").c_str());
-  me = dqmStore_->get(histo);
-  if( me ) me->Fill(totDQMVal);
 
   // now combine reduced DQM with DCS and DAQ
   sprintf(histo, (prefixME_ + "/EventInfo/DAQSummaryMap").c_str());
