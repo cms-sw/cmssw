@@ -102,7 +102,7 @@ void EEDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
   float integrityErrSum, frontendErrSum;
   integrityErrSum = frontendErrSum = 0.;
 
-  float totDQMVal = 0.;
+  float totDQMVal = -1.;
   float integrityQual = 1.0;
   float frontendQual = 1.0;
   
