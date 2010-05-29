@@ -6,8 +6,8 @@
  *  This is necessary e.g. when the seed introduced a bias (by using
  *  a beam contraint etc.). Ported from ORCA
  *
- *  $Date: 2008/06/05 13:15:29 $
- *  $Revision: 1.12 $
+ *  $Date: 2010/01/14 22:26:11 $
+ *  $Revision: 1.13 $
  *  \author todorov, cerati
  */
 
@@ -23,7 +23,7 @@ public:
   KFFittingSmoother(const TrajectoryFitter& aFitter,
                     const TrajectorySmoother& aSmoother,
 		    double estimateCut = -1,
-		    double logPixelProbabilityCut = -14.0, 
+		    double logPixelProbabilityCut = -16.0, 
 		    int minNumberOfHits = 5,
 		    bool rejectTracks = false,
 		    bool BreakTrajWith2ConsecutiveMissing = false,
