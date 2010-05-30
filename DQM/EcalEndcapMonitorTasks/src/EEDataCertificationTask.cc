@@ -270,7 +270,7 @@ void EEDataCertificationTask::endRun(const edm::Run& r, const edm::EventSetup& c
   int nValidChannelsEE[18];
 
   for (int i = 0; i < 18; i++) {
-    sumCertEE[i] = 0;
+    sumCertEE[i] = 0.;
     nValidChannelsEE[i] = 0;
   }
 
@@ -283,7 +283,7 @@ void EEDataCertificationTask::endRun(const edm::Run& r, const edm::EventSetup& c
 
           float xvalDQM, xvalDAQ, xvalDCS;
           xvalDQM = xvalDAQ = xvalDCS = -1.;
-          float xcert = -1;
+          float xcert = -1.;
           
           if ( hDQM_ ) xvalDQM = hDQM_->GetBinContent( jx, jy );
           if ( hDAQ_ ) xvalDAQ = hDAQ_->GetBinContent( jx, jy );
