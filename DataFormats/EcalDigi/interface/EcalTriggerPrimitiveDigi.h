@@ -19,7 +19,14 @@ class EcalTriggerPrimitiveDigi {
 
   EcalTriggerPrimitiveDigi(); // for persistence
   explicit EcalTriggerPrimitiveDigi(const EcalTrigTowerDetId& id);
-    
+  
+
+  void swap(EcalTriggerPrimitiveDigi& rh) {
+    std::swap(id_,rh.id_);
+    std::swap(size_,rh.size_);
+    std::swap(data_,rh.data_);
+  }
+  
   const EcalTrigTowerDetId& id() const { return id_; }
   int size() const { return size_; }
     
@@ -61,6 +68,10 @@ private:
   std::vector<EcalTriggerPrimitiveSample> data_;
 };
 
+
+inline void swap(EcalTriggerPrimitiveDigi& lh, EcalTriggerPrimitiveDigi& rh) {
+  lh.swap(rh);
+}
 
 std::ostream& operator<<(std::ostream& s, const EcalTriggerPrimitiveDigi& digi);
 
