@@ -1,11 +1,14 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2010/04/05 11:34:58 $
- * $Revision: 1.48 $
+ * $Date: 2010/04/30 12:50:22 $
+ * $Revision: 1.49 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.49  2010/04/30 12:50:22  tapper
+ * Fixed number of bins and range for MHT phi.
+ *
  * Revision 1.48  2010/04/05 11:34:58  tapper
  * Changed scales on 2D HF correlation plots. No idea why they had eta phi scales when they only have 3 bits....
  *
@@ -277,22 +280,22 @@ void L1TGCT::beginJob(void)
 
     dbe->setCurrentFolder("L1T/L1TGCT");
 
-    l1GctAllJetsEtEtaPhi_ = dbe->book2D("AllJetsEtEtaPhi", "CENTRAL AND FORWARD JET RANK",
+    l1GctAllJetsEtEtaPhi_ = dbe->book2D("AllJetsEtEtaPhi", "CENTRAL AND FORWARD JET E_{T}",
 					JETETABINS, JETETAMIN, JETETAMAX,
                                         PHIBINS, PHIMIN, PHIMAX);
-    l1GctCenJetsEtEtaPhi_ = dbe->book2D("CenJetsEtEtaPhi", "CENTRAL JET RANK",
+    l1GctCenJetsEtEtaPhi_ = dbe->book2D("CenJetsEtEtaPhi", "CENTRAL JET E_{T}",
 					JETETABINS, JETETAMIN, JETETAMAX,
                                         PHIBINS, PHIMIN, PHIMAX); 
-    l1GctForJetsEtEtaPhi_ = dbe->book2D("ForJetsEtEtaPhi", "FORWARD JET RANK",
+    l1GctForJetsEtEtaPhi_ = dbe->book2D("ForJetsEtEtaPhi", "FORWARD JET E_{T}",
 					JETETABINS, JETETAMIN, JETETAMAX,
 					PHIBINS, PHIMIN, PHIMAX); 
-    l1GctTauJetsEtEtaPhi_ = dbe->book2D("TauJetsEtEtaPhi", "TAU JET RANK", 
+    l1GctTauJetsEtEtaPhi_ = dbe->book2D("TauJetsEtEtaPhi", "TAU JET E_{T}", 
 					EMETABINS, EMETAMIN, EMETAMAX,
 					PHIBINS, PHIMIN, PHIMAX); 
-    l1GctIsoEmRankEtaPhi_ = dbe->book2D("IsoEmRankEtaPhi", "ISO EM RANK", 
+    l1GctIsoEmRankEtaPhi_ = dbe->book2D("IsoEmRankEtaPhi", "ISO EM E_{T}", 
 					EMETABINS, EMETAMIN, EMETAMAX,
                                         PHIBINS, PHIMIN, PHIMAX); 		    
-    l1GctNonIsoEmRankEtaPhi_ = dbe->book2D("NonIsoEmRankEtaPhi", "NON-ISO EM RANK",
+    l1GctNonIsoEmRankEtaPhi_ = dbe->book2D("NonIsoEmRankEtaPhi", "NON-ISO EM E_{T}",
                                            EMETABINS, EMETAMIN, EMETAMAX,
                                            PHIBINS, PHIMIN, PHIMAX); 
     l1GctAllJetsOccEtaPhi_ = dbe->book2D("AllJetsOccEtaPhi", "CENTRAL AND FORWARD JET OCCUPANCY",
@@ -314,62 +317,65 @@ void L1TGCT::beginJob(void)
                                           EMETABINS, EMETAMIN, EMETAMAX,
 					  PHIBINS, PHIMIN, PHIMAX); 
   
-    l1GctHFRing1PosEtaNegEta_ = dbe->book2D("HFRing1Corr", "HF RING1 CORRELATION NEG POS ETA",
+    l1GctHFRing1PosEtaNegEta_ = dbe->book2D("HFRing1Corr", "HF RING1 E_{T} CORRELATION +/- #eta",
                                             R3BINS, R3MIN, R3MAX, R3BINS, R3MIN, R3MAX); 
-    l1GctHFRing2PosEtaNegEta_ = dbe->book2D("HFRing2Corr", "HF RING2 CORRELATION NEG POS ETA",
+    l1GctHFRing2PosEtaNegEta_ = dbe->book2D("HFRing2Corr", "HF RING2 E_{T} CORRELATION +/- #eta",
                                             R3BINS, R3MIN, R3MAX, R3BINS, R3MIN, R3MAX);
-    l1GctHFRing1TowerCountPosEtaNegEta_ = dbe->book2D("HFRing1TowerCountCorr", "HF RING1 TOWER COUNT CORRELATION NEG POS ETA",
+    l1GctHFRing1TowerCountPosEtaNegEta_ = dbe->book2D("HFRing1TowerCountCorr", "HF RING1 TOWER COUNT CORRELATION +/- #eta",
                                                       R3BINS, R3MIN, R3MAX, R3BINS, R3MIN, R3MAX);
-    l1GctHFRing2TowerCountPosEtaNegEta_ = dbe->book2D("HFRing2TowerCountCorr", "HF RING2 TOWER COUNT CORRELATION NEG POS ETA",
+    l1GctHFRing2TowerCountPosEtaNegEta_ = dbe->book2D("HFRing2TowerCountCorr", "HF RING2 TOWER COUNT CORRELATION +/- #eta",
                                                       R3BINS, R3MIN, R3MAX, R3BINS, R3MIN, R3MAX);
 
     //HF Ring stuff
-    l1GctHFRing1TowerCountPosEta_ = dbe->book1D("HFRing1TowerCountPosEta", "POS ETA RING1 HFRING BIT", R3BINS, R3MIN, R3MAX);
-    l1GctHFRing1TowerCountNegEta_ = dbe->book1D("HFRing1TowerCountNegEta", "NEG ETA RING1 HFRING BIT", R3BINS, R3MIN, R3MAX);
-    l1GctHFRing2TowerCountPosEta_ = dbe->book1D("HFRing2TowerCountPosEta", "POS ETA RING2 HFRING BIT", R3BINS, R3MIN, R3MAX);
-    l1GctHFRing2TowerCountNegEta_ = dbe->book1D("HFRing2TowerCountNegEta", "NEG ETA RING2 HFRING BIT", R3BINS, R3MIN, R3MAX);
+    l1GctHFRing1TowerCountPosEta_ = dbe->book1D("HFRing1TowerCountPosEta", "HF RING1 TOWER COUNT #eta +", R3BINS, R3MIN, R3MAX);
+    l1GctHFRing1TowerCountNegEta_ = dbe->book1D("HFRing1TowerCountNegEta", "HF RING1 TOWER COUNT #eta -", R3BINS, R3MIN, R3MAX);
+    l1GctHFRing2TowerCountPosEta_ = dbe->book1D("HFRing2TowerCountPosEta", "HF RING2 TOWER COUNT #eta +", R3BINS, R3MIN, R3MAX);
+    l1GctHFRing2TowerCountNegEta_ = dbe->book1D("HFRing2TowerCountNegEta", "HF RING2 TOWER COUNT #eta -", R3BINS, R3MIN, R3MAX);
 
-    l1GctHFRing1ETSumPosEta_ = dbe->book1D("HFRing1ETSumPosEta", "POS ETA RING1 ET SUM", R3BINS, R3MIN, R3MAX);
-    l1GctHFRing1ETSumNegEta_ = dbe->book1D("HFRing1ETSumNegEta", "NEG ETA RING1 ET SUM", R3BINS, R3MIN, R3MAX);
-    l1GctHFRing2ETSumPosEta_ = dbe->book1D("HFRing2ETSumPosEta", "POS ETA RING2 ET SUM", R3BINS, R3MIN, R3MAX);
-    l1GctHFRing2ETSumNegEta_ = dbe->book1D("HFRing2ETSumNegEta", "NEG ETA RING2 ET SUM", R3BINS, R3MIN, R3MAX);
-    l1GctHFRingRatioPosEta_  = dbe->book1D("HFRingRatioPosEta", "RING RATIO POS ETA", R5BINS, R5MIN, R5MAX);
-    l1GctHFRingRatioNegEta_  = dbe->book1D("HFRingRatioNegEta", "RING RATIO NEG ETA", R5BINS, R5MIN, R5MAX);
+    l1GctHFRing1ETSumPosEta_ = dbe->book1D("HFRing1ETSumPosEta", "HF RING1 E_{T} #eta +", R3BINS, R3MIN, R3MAX);
+    l1GctHFRing1ETSumNegEta_ = dbe->book1D("HFRing1ETSumNegEta", "HF RING1 E_{T} #eta -", R3BINS, R3MIN, R3MAX);
+    l1GctHFRing2ETSumPosEta_ = dbe->book1D("HFRing2ETSumPosEta", "HF RING2 E_{T} #eta +", R3BINS, R3MIN, R3MAX);
+    l1GctHFRing2ETSumNegEta_ = dbe->book1D("HFRing2ETSumNegEta", "HF RING2 E_{T} #eta -", R3BINS, R3MIN, R3MAX);
+    l1GctHFRingRatioPosEta_  = dbe->book1D("HFRingRatioPosEta", "HF RING E_{T} RATIO #eta +", R5BINS, R5MIN, R5MAX);
+    l1GctHFRingRatioNegEta_  = dbe->book1D("HFRingRatioNegEta", "HF RING E_{T} RATIO #eta -", R5BINS, R5MIN, R5MAX);
 
-    l1GctHFRingTowerCountOccBx_ = dbe->book2D("HFRingTowerCountOccBx", "HF RING BIT PER BX",BXBINS, BXMIN, BXMAX, R3BINS, R3MIN, R3MAX);
-    l1GctHFRingETSumOccBx_ = dbe->book2D("HFRingETSumOccBx", "HF RING ET SUM PER BX",BXBINS, BXMIN, BXMAX, R3BINS, R3MIN, R3MAX);
+    l1GctHFRingTowerCountOccBx_ = dbe->book2D("HFRingTowerCountOccBx", "HF RING TOWER COUNT PER BX",BXBINS, BXMIN, BXMAX, R3BINS, R3MIN, R3MAX);
+    l1GctHFRingETSumOccBx_ = dbe->book2D("HFRingETSumOccBx", "HF RING E_{T} PER BX",BXBINS, BXMIN, BXMAX, R3BINS, R3MIN, R3MAX);
     
     // Rank histograms
-    l1GctCenJetsRank_  = dbe->book1D("CenJetsRank", "CENTRAL JET RANK", R6BINS, R6MIN, R6MAX);
-    l1GctForJetsRank_  = dbe->book1D("ForJetsRank", "FORWARD JET RANK", R6BINS, R6MIN, R6MAX);
-    l1GctTauJetsRank_  = dbe->book1D("TauJetsRank", "TAU JET RANK", R6BINS, R6MIN, R6MAX);
-    l1GctIsoEmRank_    = dbe->book1D("IsoEmRank", "ISO EM RANK", R6BINS, R6MIN, R6MAX);
-    l1GctNonIsoEmRank_ = dbe->book1D("NonIsoEmRank", "NON-ISO EM RANK", R6BINS, R6MIN, R6MAX);
+    l1GctCenJetsRank_  = dbe->book1D("CenJetsRank", "CENTRAL JET E_{T}", R6BINS, R6MIN, R6MAX);
+    l1GctForJetsRank_  = dbe->book1D("ForJetsRank", "FORWARD JET E_{T}", R6BINS, R6MIN, R6MAX);
+    l1GctTauJetsRank_  = dbe->book1D("TauJetsRank", "TAU JET E_{T}", R6BINS, R6MIN, R6MAX);
+    l1GctIsoEmRank_    = dbe->book1D("IsoEmRank", "ISO EM E_{T}", R6BINS, R6MIN, R6MAX);
+    l1GctNonIsoEmRank_ = dbe->book1D("NonIsoEmRank", "NON-ISO EM E_{T}", R6BINS, R6MIN, R6MAX);
 
-    l1GctAllJetsOccRankBx_ = dbe->book2D("AllJetsOccRankBx","ALL JETS RANK PER BX",BXBINS,BXMIN,BXMAX,R6BINS,R6MIN,R6MAX);
-    l1GctAllEmOccRankBx_   = dbe->book2D("AllEmOccRankBx","ALL EM RANK PER BX",BXBINS,BXMIN,BXMAX,R6BINS,R6MIN,R6MAX);
+    l1GctAllJetsOccRankBx_ = dbe->book2D("AllJetsOccRankBx","ALL JETS E_{T} PER BX",BXBINS,BXMIN,BXMAX,R6BINS,R6MIN,R6MAX);
+    l1GctAllEmOccRankBx_   = dbe->book2D("AllEmOccRankBx","ALL EM E_{T} PER BX",BXBINS,BXMIN,BXMAX,R6BINS,R6MIN,R6MAX);
 
     // Energy sums
-    l1GctEtMiss_    = dbe->book1D("EtMiss", "MISSING E_{T}", R12BINS, R12MIN, R12MAX);
-    l1GctEtMissPhi_ = dbe->book1D("EtMissPhi", "MISSING E_{T} #phi", METPHIBINS, METPHIMIN, METPHIMAX);
-    l1GctEtMissOf_  = dbe->book1D("EtMissOf", "MISSING E_{T} OVERFLOW", OFBINS, OFMIN, OFMAX);
-    l1GctEtMissOccBx_ = dbe->book2D("EtMissOccBx","MISSING E_{T} PER BX",BXBINS,BXMIN,BXMAX,R12BINS,R12MIN,R12MAX);
-    l1GctHtMiss_    = dbe->book1D("HtMiss", "MISSING H_{T}", R7BINS, R7MIN, R7MAX);
-    l1GctHtMissPhi_ = dbe->book1D("HtMissPhi", "MISSING H_{T} #phi", MHTPHIBINS, MHTPHIMIN, MHTPHIMAX);
-    l1GctHtMissOf_  = dbe->book1D("HtMissOf", "MISSING H_{T} OVERFLOW", OFBINS, OFMIN, OFMAX);
-    l1GctHtMissOccBx_ = dbe->book2D("HtMissOccBx","MISSING H_{T} PER BX",BXBINS,BXMIN,BXMAX,R7BINS,R7MIN,R7MAX);
-    l1GctEtMissHtMissCorr_ = dbe->book2D("EtMissHtMissCorr", "MISSING E_{T} MISSING H_{T} CORRELATION",
+    l1GctEtMiss_    = dbe->book1D("EtMiss", "MET", R12BINS, R12MIN, R12MAX);
+    l1GctEtMissPhi_ = dbe->book1D("EtMissPhi", "MET #phi", METPHIBINS, METPHIMIN, METPHIMAX);
+    l1GctEtMissOf_  = dbe->book1D("EtMissOf", "MET OVERFLOW", OFBINS, OFMIN, OFMAX);
+    l1GctEtMissOccBx_ = dbe->book2D("EtMissOccBx","MET PER BX",BXBINS,BXMIN,BXMAX,R12BINS,R12MIN,R12MAX);
+    l1GctHtMiss_    = dbe->book1D("HtMiss", "MHT", R7BINS, R7MIN, R7MAX);
+    l1GctHtMissPhi_ = dbe->book1D("HtMissPhi", "MHT #phi", MHTPHIBINS, MHTPHIMIN, MHTPHIMAX);
+    l1GctHtMissOf_  = dbe->book1D("HtMissOf", "MHT OVERFLOW", OFBINS, OFMIN, OFMAX);
+    l1GctHtMissOccBx_ = dbe->book2D("HtMissOccBx","MHT PER BX",BXBINS,BXMIN,BXMAX,R7BINS,R7MIN,R7MAX);
+    l1GctEtMissHtMissCorr_ = dbe->book2D("EtMissHtMissCorr", "MET MHT CORRELATION",
                                          R12BINS, R12MIN, R12MAX,
                                          R7BINS, R7MIN, R7MAX); 
-    l1GctEtMissHtMissCorrPhi_ = dbe->book2D("EtMissHtMissPhiCorr", "MISSING E_{T} MISSING H_{T} #phi CORRELATION",
+    l1GctEtMissHtMissCorrPhi_ = dbe->book2D("EtMissHtMissPhiCorr", "MET MHT #phi CORRELATION",
                                             METPHIBINS, METPHIMIN, METPHIMAX,
                                             MHTPHIBINS, MHTPHIMIN, MHTPHIMAX);
-    l1GctEtTotal_   = dbe->book1D("EtTotal", "TOTAL E_{T}", R12BINS, R12MIN, R12MAX);
-    l1GctEtTotalOf_ = dbe->book1D("EtTotalOf", "TOTAL E_{T} OVERFLOW", OFBINS, OFMIN, OFMAX);
-    l1GctEtTotalOccBx_ = dbe->book2D("EtTotalOccBx","TOTAL E_{T} PER BX",BXBINS,BXMIN,BXMAX,R12BINS,R12MIN,R12MAX);
-    l1GctEtHad_     = dbe->book1D("EtHad", "TOTAL HAD E_{T}", R12BINS, R12MIN, R12MAX);
-    l1GctEtHadOf_   = dbe->book1D("EtHadOf", "TOTAL HAD E_{T} OVERFLOW", OFBINS, OFMIN, OFMAX);
-    l1GctEtHadOccBx_ = dbe->book2D("EtHadOccBx","TOTAL HAD E_{T} PER BX",BXBINS,BXMIN,BXMAX,R12BINS,R12MIN,R12MAX);
+    l1GctEtTotal_   = dbe->book1D("EtTotal", "SUM E_{T}", R12BINS, R12MIN, R12MAX);
+    l1GctEtTotalOf_ = dbe->book1D("EtTotalOf", "SUM E_{T} OVERFLOW", OFBINS, OFMIN, OFMAX);
+    l1GctEtTotalOccBx_ = dbe->book2D("EtTotalOccBx","SUM E_{T} PER BX",BXBINS,BXMIN,BXMAX,R12BINS,R12MIN,R12MAX);
+    l1GctEtHad_     = dbe->book1D("EtHad", "H_{T}", R12BINS, R12MIN, R12MAX);
+    l1GctEtHadOf_   = dbe->book1D("EtHadOf", "H_{T} OVERFLOW", OFBINS, OFMIN, OFMAX);
+    l1GctEtHadOccBx_ = dbe->book2D("EtHadOccBx","H_{T} PER BX",BXBINS,BXMIN,BXMAX,R12BINS,R12MIN,R12MAX);
+    l1GctEtTotalEtHadCorr_ = dbe->book2D("EtTotalEtHadCorr", "Sum E_{T} H_{T} CORRELATION",
+                                         R12BINS, R12MIN, R12MAX,
+                                         R12BINS, R12MIN, R12MAX); 
   }
 
 }
@@ -558,6 +564,21 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
     }
   } else {
     edm::LogWarning("DataNotFound") << " Could not find l1EtTotal label was " << gctEnergySumsSource_ ;    
+  }
+
+  // Total ET HT correlations
+  if (l1EtTotal.isValid() && l1EtHad.isValid()) { 
+    if (l1EtTotal->size() == l1EtHad->size()) {
+      for (unsigned i=0; i<l1EtHad->size(); i++) {
+        if (l1EtHad->at(i).overFlow() == 0 && l1EtTotal->at(i).overFlow() == 0 && 
+            l1EtHad->at(i).bx() == 0 && l1EtTotal->at(i).bx() == 0) {
+          // Avoid problems overflows and only plot central BX
+          l1GctEtTotalEtHadCorr_->Fill(l1EtTotal->at(i).et(),l1EtHad->at(i).et());
+        }
+      }
+    }
+  } else {
+    edm::LogWarning("DataNotFound") << " Could not find l1EtTotal or l1EtHad label was " << gctEnergySumsSource_ ;    
   }
 
   //HF Ring Et Sums

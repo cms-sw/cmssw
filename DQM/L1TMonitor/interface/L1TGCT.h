@@ -5,11 +5,14 @@
 /*
  * \file L1TGCT.h
  *
- * $Date: 2009/11/02 17:00:04 $
- * $Revision: 1.21 $
+ * $Date: 2009/11/19 14:33:13 $
+ * $Revision: 1.22 $
  * \author J. Berryhill
- * $Id: L1TGCT.h,v 1.21 2009/11/02 17:00:04 tapper Exp $
+ * $Id: L1TGCT.h,v 1.22 2009/11/19 14:33:13 puigh Exp $
  * $Log: L1TGCT.h,v $
+ * Revision 1.22  2009/11/19 14:33:13  puigh
+ * modify beginJob
+ *
  * Revision 1.21  2009/11/02 17:00:04  tapper
  * Changes to L1TdeGCT (to include energy sums), to L1TDEMON (should not make any difference now) and L1TGCT to add multiple BXs.
  *
@@ -183,6 +186,7 @@ private:
   MonitorElement* l1GctEtHad_;
   MonitorElement* l1GctEtHadOf_;
   MonitorElement* l1GctEtHadOccBx_;
+  MonitorElement* l1GctEtTotalEtHadCorr_;
   
   // HF Rings stuff
   MonitorElement* l1GctHFRing1PosEtaNegEta_;
