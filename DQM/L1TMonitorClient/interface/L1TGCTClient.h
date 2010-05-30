@@ -51,6 +51,9 @@ class L1TGCTClient: public edm::EDAnalyzer {
 
  private:
 
+  void makeXProjection(TH2D* input, MonitorElement* output);
+  void makeYProjection(TH2D* input, MonitorElement* output);
+
   DQMStore* dbe_;   
   std::string monitorDir_; 
   int counterLS_;      ///counter 
@@ -58,14 +61,18 @@ class L1TGCTClient: public edm::EDAnalyzer {
   int prescaleLS_;     ///units of lumi sections 
   int prescaleEvt_;    ///prescale on number of events
 
-  MonitorElement *l1GctIsoEmHotChannelEtaPhiMap_; 
-  MonitorElement *l1GctIsoEmDeadChannelEtaPhiMap_;
-  MonitorElement *l1GctNonIsoEmHotChannelEtaPhiMap_;
-  MonitorElement *l1GctNonIsoEmDeadChannelEtaPhiMap_; 
-  MonitorElement *l1GctAllJetsHotChannelEtaPhiMap_;
-  MonitorElement *l1GctAllJetsDeadChannelEtaPhiMap_;
-  MonitorElement *l1GctTauJetsHotChannelEtaPhiMap_;
-  MonitorElement *l1GctTauJetsDeadChannelEtaPhiMap_;
+  MonitorElement *l1GctIsoEmOccEta_;
+  MonitorElement *l1GctIsoEmOccPhi_;
+  MonitorElement *l1GctNonIsoEmOccEta_;
+  MonitorElement *l1GctNonIsoEmOccPhi_;
+  MonitorElement *l1GctAllJetsOccEta_;
+  MonitorElement *l1GctAllJetsOccPhi_;
+  MonitorElement *l1GctCenJetsOccEta_;
+  MonitorElement *l1GctCenJetsOccPhi_;
+  MonitorElement *l1GctForJetsOccEta_;
+  MonitorElement *l1GctForJetsOccPhi_;
+  MonitorElement *l1GctTauJetsOccEta_;
+  MonitorElement *l1GctTauJetsOccPhi_;
 
 };
 
