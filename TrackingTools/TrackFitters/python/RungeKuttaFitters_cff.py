@@ -24,6 +24,6 @@ KFFittingSmootherWithOutliersRejectionAndRK = RKFittingSmoother.clone(
     EstimateCut = cms.double(20.0),
     # ggiurgiu@fnal.gov : Any value lower than -15 turns off this cut.
     # Recommended default value: -14.0. This will reject only the worst hits with negligible loss in track efficiency.  
-    LogPixelProbabilityCut = cms.double(-14.0),                               
+    LogPixelProbabilityCut = cms.double(-16.0),                               
     MinNumberOfHits = cms.int32(3)
 )
