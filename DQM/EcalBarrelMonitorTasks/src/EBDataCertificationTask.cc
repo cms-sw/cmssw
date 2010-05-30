@@ -191,8 +191,8 @@ void EBDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
       if ( hDAQ_ ) xvalDAQ = hDAQ_->GetBinContent( iptt+1, iett+1 );
       if ( hDCS_ ) xvalDCS = hDCS_->GetBinContent( iptt+1, iett+1 );
 
-      if ( xvalDQM == -1 && xvalDAQ == -1 && xvalDCS == -1) {
-        // all white means problems: DAQ and DCS not available and DQM empty
+      if ( xvalDQM == -1  || ( xvalDAQ == -1 && xvalDCS == -1 ) ) {
+        // problems: DQM empty or DAQ and DCS not available
         xcert = 0.0;
       } else {
         // do not consider the white value of DAQ and DCS (problems with DB)
@@ -271,9 +271,10 @@ void EBDataCertificationTask::endRun(const edm::Run& r, const edm::EventSetup& c
       if ( hDAQ_ ) xvalDAQ = hDAQ_->GetBinContent( iptt+1, iett+1 );
       if ( hDCS_ ) xvalDCS = hDCS_->GetBinContent( iptt+1, iett+1 );
 
-      // all white means problems: DAQ and DCS not available and DQM empty
-      if ( xvalDQM == -1 && xvalDAQ == -1 && xvalDCS == -1) xcert = 0.0;
-      else {
+      if ( xvalDQM == -1 || ( xvalDAQ == -1 && xvalDCS == -1 ) ) {
+        // problems: DQM empty or DAQ and DCS not available 
+        xcert = 0.0;
+      } else {
         // do not consider the white value of DAQ and DCS (problems with DB)
         xcert = fabs(xvalDQM) * fabs(xvalDAQ) * fabs(xvalDCS);
       }
@@ -292,14 +293,20 @@ void EBDataCertificationTask::endRun(const edm::Run& r, const edm::EventSetup& c
   }
 
   if( meEBDataCertificationSummary_ ) {
-    if( nValidChannels>0 ) meEBDataCertificationSummary_->Fill( sumCert/nValidChannels );
-    else meEBDataCertificationSummary_->Fill( 0.0 );
+    if( nValidChannels>0 ) {
+      meEBDataCertificationSummary_->Fill( sumCert/nValidChannels );
+    } else {
+      meEBDataCertificationSummary_->Fill( 0.0 );
+    }
   }
 
   for (int i = 0; i < 36; i++) {
     if( meEBDataCertification_[i] ) {
-      if( nValidChannelsEB[i]>0 ) meEBDataCertification_[i]->Fill( sumCertEB[i]/nValidChannelsEB[i] );
-      else meEBDataCertification_[i]->Fill( 0.0 );
+      if( nValidChannelsEB[i]>0 ) {
+        meEBDataCertification_[i]->Fill( sumCertEB[i]/nValidChannelsEB[i] );
+      } else {
+        meEBDataCertification_[i]->Fill( 0.0 );
+      }
     }
   }
 

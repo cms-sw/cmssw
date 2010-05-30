@@ -207,8 +207,8 @@ void EEDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
           if ( hDAQ_ ) xvalDAQ = hDAQ_->GetBinContent( jx, jy );
           if ( hDCS_ ) xvalDCS = hDCS_->GetBinContent( jx, jy );
 
-          if ( xvalDQM == -1 && xvalDAQ == -1 && xvalDCS == -1) {
-            // all white means problems: DAQ and DCS not available and DQM empty
+          if ( xvalDQM == -1 || ( xvalDAQ == -1 && xvalDCS == -1 ) ) {
+            // problems: DQM empty or DAQ and DCS not available 
             xcert = 0.0;
           } else {
             // do not consider the white value of DAQ and DCS (problems with DB)
@@ -295,9 +295,10 @@ void EEDataCertificationTask::endRun(const edm::Run& r, const edm::EventSetup& c
           if ( hDAQ_ ) xvalDAQ = hDAQ_->GetBinContent( jx, jy );
           if ( hDCS_ ) xvalDCS = hDCS_->GetBinContent( jx, jy );
 
-          // all white means problems: DAQ and DCS not available and DQM empty
-          if ( xvalDQM == -1 && xvalDAQ == -1 && xvalDCS == -1) xcert = 0.0;
-          else {
+          if ( xvalDQM == -1 || ( xvalDAQ == -1 && xvalDCS == -1 ) ) {
+            // problems: DQM empty or DAQ and DCS not available
+            xcert = 0.0;
+          } else {
             // do not consider the white value of DAQ and DCS (problems with DB)
             xcert = fabs(xvalDQM) * fabs(xvalDAQ) * fabs(xvalDCS);
           }
@@ -325,14 +326,20 @@ void EEDataCertificationTask::endRun(const edm::Run& r, const edm::EventSetup& c
   }
 
   if( meEEDataCertificationSummary_ ) { 
-    if( nValidChannels>0 ) meEEDataCertificationSummary_->Fill( sumCert/nValidChannels );
-    else meEEDataCertificationSummary_->Fill( 0.0 );
+    if( nValidChannels>0 ) {
+      meEEDataCertificationSummary_->Fill( sumCert/nValidChannels );
+    } else {
+      meEEDataCertificationSummary_->Fill( 0.0 );
+    }
   }
 
   for (int i = 0; i < 18; i++) {
     if( meEEDataCertification_[i] ) {
-      if( nValidChannelsEE[i]>0 ) meEEDataCertification_[i]->Fill( sumCertEE[i]/nValidChannelsEE[i] );
-      else meEEDataCertification_[i]->Fill( 0.0 );
+      if( nValidChannelsEE[i]>0 ) {
+        meEEDataCertification_[i]->Fill( sumCertEE[i]/nValidChannelsEE[i] );
+      } else {
+        meEEDataCertification_[i]->Fill( 0.0 );
+      }
     }
   }
 
