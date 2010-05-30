@@ -84,6 +84,11 @@ void  HLTOniaSource::beginJob(){
     LogVerbatim ("oniatriggermonitor") << "[HLTOniaSource]: Could not access DQM Store.";
     return;
   }
+}
+
+void HLTOniaSource::beginRun(const edm::Run & run, const edm::EventSetup & setup) {
+
+  if (!dbe_) return;
 
   // Book Pixel Histos
   if (pixelTag_.label()!= ""){
@@ -130,14 +135,17 @@ void  HLTOniaSource::beginJob(){
       this->bookOniaTriggerInvariantMassMEs( massME_, oniaMuonTag_[i].label(), trackTagsAfterFilter_[i].label() );
     }
   }
-  //Check HLT Trigger Configuration
-  if(hltProcessName_ != "" ) this->checkHLTConfiguration(hltProcessName_);
+
+  hltConfigInit_ = this->checkHLTConfiguration(run , setup , hltProcessName_);
   
 }
 
 
+
 void HLTOniaSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
-   
+
+  if(!hltConfigInit_) return;
+
   //Get Pixel Tracks
   Handle<TrackCollection> pixelCands;
   iEvent.getByLabel(pixelTag_, pixelCands);
@@ -628,26 +636,31 @@ void HLTOniaSource::fillInvariantMass(std::vector<reco::RecoChargedCandidateRef>
     }
 }
 
-void HLTOniaSource::checkHLTConfiguration(string triggerProcessName){
+bool HLTOniaSource::checkHLTConfiguration(const edm::Run & run, const edm::EventSetup & setup, std::string triggerProcessName){
 
   HLTConfigProvider hltConfig;
-  if(hltConfig.init(triggerProcessName)){
+  bool changed(false);
+  if(hltConfig.init(run , setup, triggerProcessName, changed)){
     LogVerbatim("hltoniasource") << "Successfully initialized HLTConfigProvider with process name: "<<triggerProcessName<<endl;
+
+    stringstream os;
+    vector<string> triggerNames = hltConfig.triggerNames();
+    
+    for( size_t i = 0; i < triggerNames.size(); i++) {
+      if (find(triggerPath_.begin(), triggerPath_.end(), triggerNames[i]) == triggerPath_.end()) continue; 
+      LogVerbatim("hltoniasource") << "[HLTOniaSource]: Trigger Path: "<<triggerNames[i]<<endl;
+      vector<string> moduleNames = hltConfig.moduleLabels( triggerNames[i] );
+      for( size_t j = 0; j < moduleNames.size(); j++) {
+	TString name = moduleNames[j];
+	LogVerbatim("hltoniasource") << "\t  Fliter Name: "<<moduleNames[j]<<endl;
+      }
+    }
+
+    return true;
+
   }else{
     LogVerbatim("hltoniasource") << "Could not initialize HLTConfigProvider with process name: "<<triggerProcessName<<endl;
+    return false;  
   }
-
-  stringstream os;
-  vector<string> triggerNames = hltConfig.triggerNames();
-
-  for( size_t i = 0; i < triggerNames.size(); i++) {
-    if (find(triggerPath_.begin(), triggerPath_.end(), triggerNames[i]) == triggerPath_.end()) continue; 
-    LogVerbatim("hltoniasource") << "[HLTOniaSource]: Trigger Path: "<<triggerNames[i]<<endl;
-    vector<string> moduleNames = hltConfig.moduleLabels( triggerNames[i] );
-    for( size_t j = 0; j < moduleNames.size(); j++) {
-      TString name = moduleNames[j];
-      LogVerbatim("hltoniasource") << "\t  Fliter Name: "<<moduleNames[j]<<endl;
-    }
-  }
-
+  return true;
 }

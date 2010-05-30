@@ -33,6 +33,7 @@ class HLTOniaSource : public edm::EDAnalyzer {
 
    private:
       virtual void beginJob() ;
+      virtual void beginRun(const edm::Run &, const edm::EventSetup &);
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -44,7 +45,7 @@ class HLTOniaSource : public edm::EDAnalyzer {
       //user defined 
       void bookOniaTriggerInvariantMassMEs( std::map<std::string, MonitorElement *> & , std::string , std::string  );
       void bookOniaTriggerMEs( std::map<std::string, MonitorElement *> & , std::string);
-      void checkHLTConfiguration(std::string);
+      bool  checkHLTConfiguration(const edm::Run &, const edm::EventSetup &,std::string);
       void fillOniaTriggerMEs( edm::Handle<reco::RecoChargedCandidateCollection> &, std::string ,  std::map<std::string, MonitorElement *> & );
       void fillOniaTriggerMEs( edm::Handle<reco::TrackCollection> &, std::string ,  std::map<std::string, MonitorElement *> & );
       void fillOniaTriggerMEs( std::vector<reco::RecoChargedCandidateRef> &, std::string ,  std::map<std::string, MonitorElement *> & );
@@ -69,6 +70,7 @@ class HLTOniaSource : public edm::EDAnalyzer {
       std::map<std::string, MonitorElement *> muonME_;
       std::map<std::string, MonitorElement *> trackME_;
       std::map<std::string, MonitorElement *> massME_;
+      bool hltConfigInit_;
     
 };
 
