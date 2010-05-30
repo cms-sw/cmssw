@@ -32,7 +32,6 @@ std::ostream & TRandomAdaptor::put (std::ostream& os) const {
 
 std::vector<unsigned long> TRandomAdaptor::put () const {
   std::vector<unsigned long> v;
-  v.push_back (CLHEP::engineIDulong<TRandomAdaptor>());
 
   int32_t itemSize = sizeof(uint32_t);
   TBufferFile buffer(TBuffer::kWrite, 2048 * itemSize);
@@ -40,6 +39,8 @@ std::vector<unsigned long> TRandomAdaptor::put () const {
   buffer.SetReadMode();
   char* bufferPtr = buffer.Buffer();
   int32_t numItems = (buffer.Length() + itemSize - 1) / itemSize;
+  v.reserve(numItems + 1);
+  v.push_back (CLHEP::engineIDulong<TRandomAdaptor>());
   for( int i = 0; i < numItems; ++i) {
 
     // Here we do some ugly manipulations to the data to match the format

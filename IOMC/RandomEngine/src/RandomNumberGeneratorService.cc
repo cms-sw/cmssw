@@ -1031,6 +1031,7 @@ RandomNumberGeneratorService::restoreVector(std::istream &is, const int32_t numI
   std::ostringstream sstr;
   int i = 0;
   is >> std::ws;
+  v.reserve(numItems);
   while(i<numItems)  {
     if(!(is >> value)) {
       sstr << "Configuration: Unable to read the random engine state vector from file, "
