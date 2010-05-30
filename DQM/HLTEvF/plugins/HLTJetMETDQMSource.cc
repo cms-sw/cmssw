@@ -50,7 +50,7 @@ HLTJetMETDQMSource::HLTJetMETDQMSource(const edm::ParameterSet& iConfig):
   if (dbe_ != 0 ) {
     dbe_->setCurrentFolder(dirname_);
   }
-  hltconfigchanged=false;
+  //hltconfigchanged=false;
   
   processname_ = iConfig.getParameter<std::string>("processname");
   //HLTPathNamesConfigPreVal_= iConfig.getParameter<std::vector<std::string > >("HLTPaths"),
@@ -891,10 +891,14 @@ HLTJetMETDQMSource::beginJob(){
   }
   if (dbe) {
     dbe->setCurrentFolder(dirname_);
-  } 
-  if (!hltConfig_.init(processname_)) {
+  }
+  /*
+ hltconfigchanged=false;
+  //if (!hltConfig_.init(processname_)) {
+  if (!hltConfig_.init(run, c, processname_, hltconfigchanged)) {
     processname_ = "FU";
-    if (!hltConfig_.init(processname_)){
+    // if (!hltConfig_.init(processname_)){
+    if (!hltConfig_.init(run, c, processname_, hltconfigchanged)) 
       LogError("HLTJetMETDQMSource") << "HLTConfigProvider failed to initialize." << std::endl;
     }
     //	hltConfig_.dump("Triggers");
@@ -1501,16 +1505,21 @@ HLTJetMETDQMSource::beginJob(){
     if (verbose_) cout << "Done  booking histos for Efficiency " << endl;
   }
  
+
+  */
 }
 
 // BeginRun
 void HLTJetMETDQMSource::beginRun(const edm::Run& run, const edm::EventSetup& c){
 
   if (verbose_) std::cout << "beginRun, run " << run.id() << std::endl;
-  // HLT config does not change within runs!
 
-  bool changed(true);
-  //if (hltConfig_.init(iEvent,processname_,changed)) {
+  /*
+  // HLT config does not change within runs!
+   bool changed(true);
+ 
+
+ //if (hltConfig_.init(iEvent,processname_,changed)) {
   if (hltConfig_.init(run,c,processname_,changed)) {
     if (changed) {
       hltconfigchanged=true;
@@ -1532,6 +1541,632 @@ void HLTJetMETDQMSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
   }
   // if ( currun != runno) runchanged=true;
  
+*/
+  ///from begin job
+
+ hltconfigchanged=false;
+  //if (!hltConfig_.init(processname_)) {
+  if (!hltConfig_.init(run, c, processname_, hltconfigchanged)) {
+    processname_ = "FU";
+    // if (!hltConfig_.init(processname_)){
+    if (!hltConfig_.init(run, c, processname_, hltconfigchanged)) {
+      LogError("HLTJetMETDQMSource") << "HLTConfigProvider failed to initialize." << std::endl;
+    }
+    //	hltConfig_.dump("Triggers");
+  }
+ 
+ DQMStore *dbe = 0;
+    dbe = Service<DQMStore>().operator->();
+  
+    if (dbe) {
+      dbe->setCurrentFolder(dirname_);
+    }
+
+ const unsigned int n(hltConfig_.size());
+  if (verbose_) cout << " hltConfig_.size()  " << n << endl;
+  //-------------if plot all jetmet trigger pt,eta, phi-------------------
+
+
+ if (plotAll_){
+    if (verbose_) cout << " booking histos All " << endl;
+    std::string foldernm = "/All/";
+    
+    if (dbe) {
+    
+      dbe->setCurrentFolder(dirname_ + foldernm);
+    }
+    for (unsigned int j=0; j!=n; ++j) {
+      std::string pathname = hltConfig_.triggerName(j);  
+      std::string l1pathname = "dummy";
+      //for (unsigned int i=0; i!=n; ++i) {
+      // cout << hltConfig_.triggerName(i) << endl;
+    
+      //std::string denompathname = hltConfig_.triggerName(i);  
+      std::string denompathname = "";  
+      unsigned int usedPresscale = 1;  
+      unsigned int objectType = 0;
+      //int denomobjectType = 0;
+      //parse pathname to guess object type
+      
+      if ( pathname.find("Mu") && (pathname=="HLT_L1MuOpen")) 
+	objectType = trigger::TriggerMuon; 
+      else if (pathname.find("MET") != std::string::npos) objectType = trigger::TriggerMET;    
+      else if (pathname.find("L1MET") != std::string::npos) objectType = trigger::TriggerL1ETM;    
+      else if (pathname.find("SumET") != std::string::npos) objectType = trigger::TriggerTET;    
+      else if (pathname.find("Jet") != std::string::npos) objectType = trigger::TriggerJet;    
+      //if (pathname.find("HLT_Jet30") != std::string::npos) objectType = trigger::TriggerJet;    
+      //if (pathname.find("HLT_Jet50") != std::string::npos) objectType = trigger::TriggerJet;    
+      //if ((pathname.find("HLT_Mu3") != std::string::npos) || (pathname.find("HLT_L2Mu9") != std::string::npos)  ) objectType = trigger::TriggerMuon;    
+      
+      else continue;
+      //std::cout << "objecttye " << objectType << std::endl;
+      // find L1 condition for numpath with numpath objecttype 
+
+      // find PSet for L1 global seed for numpath, 
+      // list module labels for numpath
+      std::vector<std::string> numpathmodules = hltConfig_.moduleLabels(pathname);
+    
+      for(std::vector<std::string>::iterator numpathmodule = numpathmodules.begin();
+	  numpathmodule!= numpathmodules.end(); 
+	  ++numpathmodule ) {
+     
+	//  cout << pathname << "\t" << *numpathmodule << "\t" 
+	//<< hltConfig_.moduleType(*numpathmodule) << endl;
+	if (hltConfig_.moduleType(*numpathmodule) == "HLTLevel1GTSeed") {
+	  edm::ParameterSet l1GTPSet = hltConfig_.modulePSet(*numpathmodule);
+	  //cout << l1GTPSet.getParameter<std::string>("L1SeedsLogicalExpression") << endl;
+	  //  l1pathname = l1GTPSet.getParameter<std::string>("L1SeedsLogicalExpression");
+	  l1pathname = *numpathmodule; 
+	  break; 
+	}
+      } 
+      std::string filtername("dummy");
+      std::string Denomfiltername("denomdummy");
+      float ptMin = 0.0;
+      float ptMax = 300.0;
+      if (objectType != 0 )
+	hltPathsAll_.push_back(PathInfo(usedPresscale, denompathname,
+					pathname, l1pathname, filtername,
+					Denomfiltername, processname_, 
+					objectType, ptMin, ptMax));
+    }
+    std::string histonm="JetMET_rate_All";
+    std::string histonmL1="JetMET_rate_All_L1";
+    std::string histot="JetMET Rate Summary";
+    std::string histoL1t="JetMET L1 Rate Summary";
+    rate_All = dbe->book1D(histonm.c_str(),histot.c_str(),
+			   hltPathsAll_.size()+1,-0.5,hltPathsAll_.size()+1-0.5);
+
+    rate_All_L1 = dbe->book1D(histonmL1.c_str(),histoL1t.c_str(),
+			      hltPathsAll_.size()+1,-0.5,hltPathsAll_.size()+1-0.5);
+    
+    //rate_All->setBinLabel(hltPathsAll_.size()+1,"Rate",1);
+    unsigned int nname=0;
+    unsigned int nnameL1=0;
+    for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v ){
+      std::string labelnm("dummy");
+      labelnm = v->getPath();
+      rate_All->setBinLabel(nname+1,labelnm); 
+      nname++;
+
+      std::string labelnml1("dummyl1");
+      labelnml1 = v->getl1Path();
+      rate_All_L1->setBinLabel(nnameL1+1,labelnml1); 
+      nnameL1++;
+    }
+    // now set up all of the histos for each path
+    for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v ) {
+      MonitorElement *N = 0;
+      MonitorElement *Et = 0;
+      MonitorElement *EtaPhi = 0;
+      MonitorElement *Eta = 0;
+      MonitorElement *Phi = 0;
+      MonitorElement *NL1 = 0;
+      MonitorElement *l1Et = 0;
+      MonitorElement *l1EtaPhi = 0;
+      MonitorElement *l1Eta = 0;
+      MonitorElement *l1Phi = 0;
+    	
+      std::string labelname("dummy");
+      labelname = v->getPath();
+      std::string histoname(labelname+"");
+      std::string title(labelname+"");
+
+      double histEtaMax = 2.5;
+      if (v->getObjectType() == trigger::TriggerMuon  
+	  || v->getObjectType() == trigger::TriggerL1Mu)  {
+	histEtaMax = muonEtaMax_;
+	nBins_ = 25 ;
+      }
+        
+      else if (v->getObjectType() == trigger::TriggerJet 
+	       || v->getObjectType() == trigger::TriggerL1CenJet 
+	       || v->getObjectType() == trigger::TriggerL1ForJet ) {
+	histEtaMax = jetEtaMax_; 
+	nBins_ = 60 ;
+      }
+        
+      else if (v->getObjectType() == trigger::TriggerMET 
+	       || v->getObjectType() == trigger::TriggerL1ETM ) {
+	histEtaMax = 5.0; 
+	nBins_ = 60 ;
+      }
+        
+      TString pathfolder = dirname_ + foldernm + v->getPath();
+      dbe_->setCurrentFolder(pathfolder.Data());
+      if (verbose_) cout << "Booking Histos in Directory " << pathfolder.Data() << endl;
+      int nBins2D = 10;
+      
+
+      histoname = labelname+"_Et";
+      title = labelname+" E_t";
+      Et =  dbe->book1D(histoname.c_str(),
+			title.c_str(),nBins_, 
+			v->getPtMin(),
+			v->getPtMax());
+
+      histoname = labelname+"_l1Et";
+      title = labelname+" L1 E_t";
+      l1Et =  dbe->book1D(histoname.c_str(),
+			  title.c_str(),nBins_, 
+			  v->getPtMin(),
+			  v->getPtMax());
+ 
+      if (labelname.find("Jet") != std::string::npos
+	  || labelname.find("Mu") != std::string::npos) {
+      
+	histoname = labelname+"_EtaPhi";
+	title = labelname+" #eta vs #phi";
+	EtaPhi =  dbe->book2D(histoname.c_str(),
+			      title.c_str(),
+			      nBins2D,-histEtaMax,histEtaMax,
+			      nBins2D,-TMath::Pi(), TMath::Pi());
+	
+	histoname = labelname+"_l1EtaPhi";
+	title = labelname+"L1 #eta vs L1 #phi";
+	l1EtaPhi =  dbe->book2D(histoname.c_str(),
+				title.c_str(),
+				nBins2D,-histEtaMax,histEtaMax,
+				nBins2D,-TMath::Pi(), TMath::Pi());
+
+	histoname = labelname+"_Phi";
+	title = labelname+" #phi";
+	Phi =  dbe->book1D(histoname.c_str(),
+			   title.c_str(),
+			   nBins_,-TMath::Pi(), TMath::Pi());
+	
+	histoname = labelname+"_l1Phi";
+	title = labelname+"L1 #phi";
+	l1Phi =  dbe->book1D(histoname.c_str(),
+			     title.c_str(),
+			     nBins_,-TMath::Pi(), TMath::Pi());
+	histoname = labelname+"_Eta";
+	title = labelname+" #eta";
+	Eta =  dbe->book1D(histoname.c_str(),
+			   title.c_str(),
+			   nBins_,-histEtaMax,histEtaMax
+			   );
+	
+	histoname = labelname+"_l1Eta";
+	title = labelname+"L1 #eta";
+	l1Eta =  dbe->book1D(histoname.c_str(),
+			     title.c_str(),
+			     nBins_,-histEtaMax,histEtaMax);
+      } 
+      else if( (labelname.find("MET") != std::string::npos)
+	       || (labelname.find("SumET") != std::string::npos)    ){
+	histoname = labelname+"_phi";
+	title = labelname+" #phi";
+	Phi =  dbe->book1D(histoname.c_str(),
+			   title.c_str(),
+			   nBins_,-TMath::Pi(), TMath::Pi());
+	
+	histoname = labelname+"_l1Phi";
+	title = labelname+"L1 #phi";
+	l1Phi =  dbe->book1D(histoname.c_str(),
+			     title.c_str(),
+			     nBins_,-TMath::Pi(), TMath::Pi());
+	
+      }
+      v->setHistos( N, Et, EtaPhi, Eta, Phi, NL1, l1Et, l1EtaPhi,l1Eta, l1Phi);
+    }
+    if (verbose_) cout << "Done  booking histos All  " << endl;
+  }
+  //----------------plot all jetmet trigger wrt some muon trigger-----
+  if  (plotwrtMu_){
+    if (verbose_) cout << " booking histos wrt Muon " << endl;
+    std::string foldernm = "/wrtMuon/";
+    if (dbe)   {
+      dbe->setCurrentFolder(dirname_ + foldernm);
+    }
+ 
+    for (unsigned int j=0; j!=n; ++j)  {
+      std::string pathname = hltConfig_.triggerName(j);  
+      std::string l1pathname = "dummy";
+      //for (unsigned int i=0; i!=n; ++i) 
+      //{
+      if (verbose_) cout << hltConfig_.triggerName(j) << endl;
+      std::string denompathname = custompathnamemu_ ;  
+      int objectType = 0;
+      int usedPresscale = 1;
+      //int denomobjectType = 0;
+      //parse pathname to guess object type
+       	    
+      if ( pathname.find("Mu") && (pathname=="HLT_L1MuOpen")) 
+	objectType = trigger::TriggerMuon; 
+      else if (pathname.find("MET") != std::string::npos) objectType = trigger::TriggerMET;    
+      else if (pathname.find("L1MET") != std::string::npos) objectType = trigger::TriggerL1ETM;    
+      else if (pathname.find("SumET") != std::string::npos) objectType = trigger::TriggerTET;    
+      else if (pathname.find("Jet") != std::string::npos) objectType = trigger::TriggerJet;    
+      //if (pathname.find("HLT_Jet30") != std::string::npos) objectType = trigger::TriggerJet;    
+      //if (pathname.find("HLT_Jet50") != std::string::npos) objectType = trigger::TriggerJet;    
+      //if ((pathname.find("HLT_Mu3") != std::string::npos) || (pathname.find("HLT_L2Mu9") != std::string::npos)  ) objectType = trigger::TriggerMuon;    
+      else continue;
+      
+      // find L1 condition for numpath with numpath objecttype 
+      // find PSet for L1 global seed for numpath, 
+      // list module labels for numpath
+      std::vector<std::string> numpathmodules = hltConfig_.moduleLabels(pathname);
+
+      for(std::vector<std::string>::iterator numpathmodule = numpathmodules.begin();
+	  numpathmodule!= numpathmodules.end(); ++numpathmodule ) {
+	//  cout << pathname << "\t" << *numpathmodule << "\t" << hltConfig_.moduleType(*numpathmodule) << endl;
+	if (hltConfig_.moduleType(*numpathmodule) == "HLTLevel1GTSeed") {
+	  edm::ParameterSet l1GTPSet = hltConfig_.modulePSet(*numpathmodule);
+	  //cout << l1GTPSet.getParameter<std::string>("L1SeedsLogicalExpression") << endl;
+	  //  l1pathname = l1GTPSet.getParameter<std::string>("L1SeedsLogicalExpression");
+	  l1pathname = *numpathmodule; 
+	  break; 
+	}
+      } 
+	      
+      std::string filtername("dummy");
+      std::string Denomfiltername("denomdummy");
+      float ptMin = 0.0;
+      float ptMax = 300.0;
+      if ( objectType != 0){
+	//	if (verbose_) cout << " wrt muon PathInfo(denompathname, pathname, l1pathname, filtername,  denomfiltername, processname_, objectType, ptMin, ptMax  " << denompathname << " "<< pathname << " "<< l1pathname << " " << filtername  << " " << Denomfiltername << " " <<  processname_ << " " <<  objectType << " " <<  ptMin << " " <<  ptMax<< endl;
+	
+	hltPathswrtMu_.push_back(PathInfo(usedPresscale, denompathname, pathname, l1pathname, 
+					  filtername,  Denomfiltername, processname_, 
+					  objectType, ptMin, ptMax));
+      }
+    }
+
+    std::string histonm="JetMET_rate_wrt_" + custompathnamemu_ + "_Summary";
+    std::string histt="JetMET Rate wrt " + custompathnamemu_ + "Summary";
+    rate_wrtMu = dbe->book1D(histonm.c_str(),histt.c_str(),
+			     hltPathswrtMu_.size()+1,-0.5,hltPathswrtMu_.size()+1.0-0.5);
+
+    
+    int nname=0;
+    for(PathInfoCollection::iterator v = hltPathswrtMu_.begin(); v!= hltPathswrtMu_.end(); ++v ){
+      std::string labelnm("dummy");
+      labelnm = v->getPath();
+      
+      rate_wrtMu->setBinLabel(nname+1,labelnm);
+            
+      nname++;
+    }
+     // now set up all of the histos for each path
+    for(PathInfoCollection::iterator v = hltPathswrtMu_.begin(); v!= hltPathswrtMu_.end(); ++v )  {
+      MonitorElement *NwrtMu = 0;
+      MonitorElement *EtwrtMu = 0;
+      MonitorElement *EtaPhiwrtMu = 0;
+      MonitorElement *PhiwrtMu = 0;
+      
+      std::string labelname("dummy");
+      labelname = v->getPath() + "_wrt_" + v->getDenomPath();
+      std::string histoname(labelname+"");
+      std::string title(labelname+"");
+
+      double histEtaMax = 2.5;
+      if (v->getObjectType() == trigger::TriggerMuon 
+	  || v->getObjectType() == trigger::TriggerL1Mu)  {
+	histEtaMax = muonEtaMax_;nBins_ = 20 ;
+      }
+        
+      else if (v->getObjectType() == trigger::TriggerJet 
+	       || v->getObjectType() == trigger::TriggerL1CenJet 
+	       || v->getObjectType() == trigger::TriggerL1ForJet ){
+	histEtaMax = jetEtaMax_; nBins_ = 60 ;
+      }
+        
+      else if (v->getObjectType() == trigger::TriggerMET 
+	       || v->getObjectType() == trigger::TriggerL1ETM )  {
+	histEtaMax = 5.0; nBins_ = 60 ;
+      }
+        
+      TString pathfolder = dirname_ + foldernm + v->getPath();
+      dbe_->setCurrentFolder(pathfolder.Data());
+      if (verbose_) cout << "Booking Histos in Directory " << pathfolder.Data() << endl;
+      int nBins2D = 10;
+	 
+      //pathfolder = dirname_ + TString("/wrtMuon/") + v->getPath();
+      
+
+      histoname = labelname+"_Et_wrtMu";
+      title = labelname+" E_t";
+      EtwrtMu =  dbe->book1D(histoname.c_str(),
+			     title.c_str(),nBins_, 
+			     v->getPtMin(),
+			     v->getPtMax());
+
+      if ((v->getPath()).find("Jet") != std::string::npos
+	  || (v->getPath()).find("Mu") != std::string::npos) {
+	histoname = labelname+"_EtaPhi_wrtMu";
+	title = labelname+" #eta vs #phi";
+	EtaPhiwrtMu =  dbe->book2D(histoname.c_str(),
+				   title.c_str(),
+				   nBins2D,-histEtaMax,histEtaMax,
+				   nBins2D,-TMath::Pi(), TMath::Pi());
+     	
+
+      }
+      else if( ((v->getPath()).find("MET") != std::string::npos) 
+	       || ((v->getPath()).find("SumET") != std::string::npos)    ){
+	histoname = labelname+"_phi_wrtMu";
+	title = labelname+" #phi";
+	PhiwrtMu =  dbe->book1D(histoname.c_str(),
+				title.c_str(),
+				nBins_,-TMath::Pi(), TMath::Pi());
+      }
+
+      v->setHistoswrtMu( NwrtMu, EtwrtMu, EtaPhiwrtMu, PhiwrtMu);
+    }
+    if (verbose_) cout << "Done  booking histos wrt Muon " << endl;
+  }
+  //////////////////////////////////////////////////////////////////
+
+  if (plotEff_)	{
+    // plot efficiency for specified HLT path pairs
+    if (verbose_) cout << " booking histos for Efficiency " << endl;
+
+    std::string foldernm = "/Efficiency/";
+    if (dbe) {
+	
+      dbe->setCurrentFolder(dirname_ + foldernm);
+    }
+    // now loop over denom/num path pairs specified in cfg, 
+    int countN = 0;  
+    for (std::vector<std::pair<std::string, std::string> >::iterator
+	   custompathnamepair = custompathnamepairs_.begin(); 
+	 custompathnamepair != custompathnamepairs_.end(); 
+	 ++custompathnamepair) {
+	     
+      std::string denompathname = custompathnamepair->second;  
+      std::string pathname = custompathnamepair->first;  
+      int usedPrescale = prescUsed_[countN];
+      if (verbose_) std::cout << " ------prescale used -----" << usedPrescale << std::endl; 
+      // check that these exist
+      bool foundfirst = false;
+      bool foundsecond = false;
+      for (unsigned int i=0; i!=n; ++i) {
+	if (hltConfig_.triggerName(i) == denompathname) foundsecond = true;
+	if (hltConfig_.triggerName(i) == pathname) foundfirst = true;
+      } 
+      if (!foundfirst) {
+	edm::LogInfo("HLTJetMETDQMSource") 
+	  << "pathname not found, ignoring "
+	  << pathname;
+	continue;
+      }
+      if (!foundsecond) {
+	edm::LogInfo("HLTJetMETDQMSource") 
+	  << "denompathname not found, ignoring "
+	  << pathname;
+	continue;
+      }
+      //if (verbose_) cout << pathname << "\t" << denompathname << endl;
+      std::string l1pathname = "dummy";
+      int objectType = 0;
+      //int denomobjectType = 0;
+      //parse pathname to guess object type
+      if ( pathname.find("Mu") && (pathname=="HLT_L1MuOpen")) 
+	objectType = trigger::TriggerMuon; 
+      else if (pathname.find("MET") != std::string::npos) objectType = trigger::TriggerMET;    
+      else if (pathname.find("L1MET") != std::string::npos) objectType = trigger::TriggerL1ETM;    
+      else if (pathname.find("SumET") != std::string::npos) objectType = trigger::TriggerTET;    
+      else if (pathname.find("Jet") != std::string::npos) objectType = trigger::TriggerJet;    
+      //if (pathname.find("HLT_Jet30") != std::string::npos) objectType = trigger::TriggerJet;    
+      //if (pathname.find("HLT_Jet50") != std::string::npos) objectType = trigger::TriggerJet;    
+      //if ((pathname.find("HLT_Mu3") != std::string::npos) || (pathname.find("HLT_L2Mu9") != std::string::npos)  ) objectType = trigger::TriggerMuon;    
+      else continue;
+   
+      // find L1 condition for numpath with numpath objecttype 
+      // find PSet for L1 global seed for numpath, 
+      // list module labels for numpath
+  
+      std::vector<std::string> numpathmodules = hltConfig_.moduleLabels(pathname);
+    
+      for(std::vector<std::string>::iterator numpathmodule = numpathmodules.begin();
+	  numpathmodule!= numpathmodules.end(); 
+	  ++numpathmodule ) {
+	//  if (verbose_) cout << pathname << "\t" << *numpathmodule << "\t" << hltConfig_.moduleType(*numpathmodule) << endl;
+	if (hltConfig_.moduleType(*numpathmodule) == "HLTLevel1GTSeed"){
+	  edm::ParameterSet l1GTPSet = hltConfig_.modulePSet(*numpathmodule);
+	  //                if (verbose_)   cout << l1GTPSet.getParameter<std::string>("L1SeedsLogicalExpression") << endl;
+	  // l1pathname = l1GTPSet.getParameter<std::string>("L1SeedsLogicalExpression");
+	  l1pathname = *numpathmodule;
+	  //if (verbose_) cout << *numpathmodule << endl; 
+	  break; 
+	}
+      }
+    
+      std::string filtername("dummy");
+      std::string Denomfiltername("denomdummy");
+      float ptMin = 0.0;
+      float ptMax = 300.0;
+      if (objectType == trigger::TriggerMuon) ptMax = 300.0;
+      if (objectType == trigger::TriggerJet) ptMax = 300.0;
+      if (objectType == trigger::TriggerMET) ptMax = 300.0;
+      if (objectType == trigger::TriggerTET) ptMax = 300.0;
+		 
+      
+      if (objectType != 0){
+	if (verbose_) cout << " PathInfo(denompathname, pathname, l1pathname, filtername,  Denomfiltername, processname_, objectType, ptMin, ptMax  " << denompathname << " "<< pathname << " "<< l1pathname << " " << filtername << " " << Denomfiltername << " " <<  processname_ << " " <<  objectType << " " <<  ptMin << " " <<  ptMax<< endl;
+	
+	
+	hltPathsEff_.push_back(PathInfo(usedPrescale, denompathname, pathname, l1pathname, filtername, Denomfiltername, processname_, objectType, ptMin, ptMax));
+      }
+
+      countN++;
+    }
+    
+    std::string histonm="JetMET_Efficiency_Summary";
+    std::string histonmDenom="Denom_passed_Summary";
+    std::string histonmNum="Num_passed_Summary";
+    rate_Denom = dbe->book1D(histonmDenom.c_str(),histonmDenom.c_str(),
+			     hltPathsEff_.size(),0,hltPathsEff_.size());
+    rate_Num = dbe->book1D(histonmNum.c_str(),histonmNum.c_str(),
+    			   hltPathsEff_.size(),-0.5,hltPathsEff_.size()+1-0.5);
+    rate_Eff = dbe->book1D(histonm.c_str(),histonm.c_str(),
+    			   hltPathsEff_.size(),-0.5,hltPathsEff_.size()+1-0.5);
+
+    //rate_Eff = dbe_->bookProfile("Efficiency_Summary","Efficiency_Summary", hltPathsEff_.size(), -0.5, hltPathsEff_.size()-0.5, 1000, 0.0, 1.0);
+    int nname=0;
+    for(PathInfoCollection::iterator v = hltPathsEff_.begin(); v!= hltPathsEff_.end(); ++v ){
+      std::string labelnm("dummy");
+      std::string labeldenom("dummy");
+      labelnm = v->getPath();
+      labeldenom = v->getDenomPath();
+      //rate_Eff->getTProfile()->GetXaxis()->SetBinLabel(nname+1,labelnm.c_str());
+ 
+      rate_Eff->setBinLabel(nname+1,labelnm);
+      rate_Denom->setBinLabel(nname+1,labeldenom);
+      rate_Num->setBinLabel(nname+1,labelnm);
+      nname++;
+    }
+    for(PathInfoCollection::iterator v = hltPathsEff_.begin(); v!= hltPathsEff_.end(); ++v ) {
+      MonitorElement *NEff=0;
+      MonitorElement *EtEff=0;
+      MonitorElement *EtaEff=0;
+      MonitorElement *PhiEff=0;
+      MonitorElement *NNum =0;
+      MonitorElement *EtNum =0;
+      MonitorElement *EtaNum =0;
+      MonitorElement *PhiNum =0; 
+      MonitorElement *NDenom=0;
+      MonitorElement *EtDenom=0;
+      MonitorElement *EtaDenom=0;
+      MonitorElement *PhiDenom=0;
+      std::string labelname("dummy");
+      labelname = "Eff_" + v->getPath() + "_wrt_" + v->getDenomPath();
+      std::string histoname(labelname+"");
+      std::string title(labelname+"");
+      
+      double histEtaMax = 5.0;
+      if (v->getObjectType() == trigger::TriggerMuon 
+	  || v->getObjectType() == trigger::TriggerL1Mu) {
+	histEtaMax = muonEtaMax_; nBins_ = 20 ;
+      }
+        
+      else if (v->getObjectType() == trigger::TriggerJet 
+	       || v->getObjectType() == trigger::TriggerL1CenJet 
+	       || v->getObjectType() == trigger::TriggerL1ForJet ){
+	histEtaMax = jetEtaMax_; nBins_ = 60 ;
+      }
+        
+      else if (v->getObjectType() == trigger::TriggerMET 
+	       || v->getObjectType() == trigger::TriggerL1ETM ) {
+	histEtaMax = 5.0; nBins_ = 60 ;
+      }
+        
+      TString pathfolder = dirname_ + foldernm + v->getPath();
+      dbe_->setCurrentFolder(pathfolder.Data());
+      if (verbose_) cout << "Booking Histos in Directory " << pathfolder.Data() << endl;
+	    
+      //pathfolder = dirname_ + TString("/Eff/") + v->getPath(); 
+      //int nBins2D = 10;
+      histoname = labelname+"_Et_Eff";
+      title = labelname+" E_t Eff";
+      EtEff =  dbe->book1D(histoname.c_str(),
+			   title.c_str(),nBins_, 
+			   v->getPtMin(),
+			   v->getPtMax());
+
+      histoname = labelname+"_Et_Num";
+      title = labelname+" E_t Num";
+      EtNum =  dbe->book1D(histoname.c_str(),
+			   title.c_str(),nBins_, 
+			   v->getPtMin(),
+			   v->getPtMax());
+
+
+      histoname = labelname+"_Et_Denom";
+      title = labelname+" E_t Denom";
+      EtDenom =  dbe->book1D(histoname.c_str(),
+			     title.c_str(),nBins_, 
+			     v->getPtMin(),
+			     v->getPtMax());
+      
+      if ((v->getPath()).find("Jet") != std::string::npos
+	  || (v->getPath()).find("Mu") != std::string::npos) {
+	histoname = labelname+"_Eta_Eff";
+	title = labelname+" #eta  Eff";
+	EtaEff =  dbe->book1D(histoname.c_str(),
+			      title.c_str(),
+			      nBins_,-histEtaMax,histEtaMax);
+	histoname = labelname+"_Phi_Eff";
+	title = labelname+" #phi Eff";
+	PhiEff =  dbe->book1D(histoname.c_str(),
+			      title.c_str(),
+			      nBins_,-TMath::Pi(), TMath::Pi());
+
+	histoname = labelname+"_Eta_Num";
+	title = labelname+" #eta  Num";
+	EtaNum =  dbe->book1D(histoname.c_str(),
+			      title.c_str(),
+			      nBins_,-histEtaMax,histEtaMax);
+	histoname = labelname+"_Phi_Num";
+	title = labelname+" #phi Num";
+	PhiNum =  dbe->book1D(histoname.c_str(),
+			      title.c_str(),
+			      nBins_,-TMath::Pi(), TMath::Pi());
+
+	histoname = labelname+"_Eta_Denom";
+	title = labelname+" #eta  Denom";
+	EtaDenom =  dbe->book1D(histoname.c_str(),
+				title.c_str(),
+				nBins_,-histEtaMax,histEtaMax);
+	histoname = labelname+"_Phi_Denom";
+	title = labelname+" #phi Denom";
+	PhiDenom =  dbe->book1D(histoname.c_str(),
+				title.c_str(),
+				nBins_,-TMath::Pi(), TMath::Pi());
+      }
+
+
+      else if( ((v->getPath()).find("MET") != std::string::npos) 
+	       || ((v->getPath()).find("SumET") != std::string::npos)    ){
+	
+     	histoname = labelname+"_Phi_Eff";
+	title = labelname+" #phi Eff";
+	PhiEff =  dbe->book1D(histoname.c_str(),
+			      title.c_str(),
+			      nBins_,-TMath::Pi(), TMath::Pi());
+
+	histoname = labelname+"_Phi_Num";
+	title = labelname+" #phi Num";
+	PhiNum =  dbe->book1D(histoname.c_str(),
+			      title.c_str(),
+			      nBins_,-TMath::Pi(), TMath::Pi());
+	
+	histoname = labelname+"_Phi_Denom";
+	title = labelname+" #phi Denom";
+	PhiDenom =  dbe->book1D(histoname.c_str(),
+				title.c_str(),
+				nBins_,-TMath::Pi(), TMath::Pi());
+	
+      }
+     
+      v->setHistosEff( NEff, EtEff, EtaEff, PhiEff, NNum, EtNum, EtaNum, PhiNum, NDenom, EtDenom, EtaDenom, PhiDenom);
+      
+    }
+    if (verbose_) cout << "Done  booking histos for Efficiency " << endl;
+  }
+//end from begin job
+
 
   if (verbose_) cout << "End BeginRun ---------------- " << endl;
  
