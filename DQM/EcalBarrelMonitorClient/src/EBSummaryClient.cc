@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2010/05/03 14:54:48 $
- * $Revision: 1.210 $
+ * $Date: 2010/05/27 09:51:31 $
+ * $Revision: 1.211 $
  * \author G. Della Ricca
  *
 */
@@ -172,50 +172,6 @@ void EBSummaryClient::beginJob(void) {
 
   ievt_ = 0;
   jevt_ = 0;
-
-  // summary for DQM GUI
-
-  char histo[200];
-
-  MonitorElement* me;
-
-  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
-
-  sprintf(histo, "reportSummary");
-  me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo);
-  if ( me ) {
-    dqmStore_->removeElement(me->getName());
-  }
-  me = dqmStore_->bookFloat(histo);
-  me->Fill(-1.0);
-
-  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
-
-  for (int i = 0; i < 36; i++) {
-    sprintf(histo, "EcalBarrel_%s", Numbers::sEB(i+1).c_str());
-    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
-    if ( me ) {
-      dqmStore_->removeElement(me->getName());
-    }
-    me = dqmStore_->bookFloat(histo);
-    me->Fill(-1.0);
-  }
-
-  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
-
-  sprintf(histo, "reportSummaryMap");
-  me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo);
-  if ( me ) {
-    dqmStore_->removeElement(me->getName());
-  }
-  me = dqmStore_->book2D(histo, histo, 72, 0., 72., 34, 0., 34);
-  for ( int iettx = 0; iettx < 34; iettx++ ) {
-    for ( int ipttx = 0; ipttx < 72; ipttx++ ) {
-      me->setBinContent( ipttx+1, iettx+1, -1.0 );
-    }
-  }
-  me->setAxisTitle("jphi", 1);
-  me->setAxisTitle("jeta", 2);
 
 }
 
