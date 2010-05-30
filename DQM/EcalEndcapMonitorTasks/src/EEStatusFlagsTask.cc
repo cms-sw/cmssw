@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsTask.cc
  *
- * $Date: 2010/04/02 08:20:45 $
- * $Revision: 1.32 $
+ * $Date: 2010/05/27 09:52:33 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  *
 */
@@ -280,7 +280,7 @@ void EEStatusFlagsTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
           if ( ! ( status[itt-1] == 0 || status[itt-1] == 1 || status[itt-1] == 7 || status[itt-1] == 8 || status[itt-1] == 15 ) ) {
             if ( meFEchErrors_[ism-1][0] ) meFEchErrors_[ism-1][0]->Fill(xix, xiy);
-            if ( meFEchErrorsByLumi_ ) meFEchErrorsByLumi_->Fill(xism, 1./34.);
+            if ( meFEchErrorsByLumi_ ) meFEchErrorsByLumi_->Fill(xism, 1./34./crystals->size());
           }
 
           }

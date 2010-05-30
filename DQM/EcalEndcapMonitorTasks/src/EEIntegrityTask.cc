@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2010/04/02 08:18:12 $
- * $Revision: 1.52 $
+ * $Date: 2010/04/02 08:20:45 $
+ * $Revision: 1.53 $
  * \author G. Della Ricca
  *
  */
@@ -468,7 +468,7 @@ void EEIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       float xiy = iy - 0.5;
 
       if ( meIntegrityTTId[ism-1] ) meIntegrityTTId[ism-1]->Fill(xix, xiy);
-      if ( meIntegrityErrorsByLumi ) meIntegrityErrorsByLumi->Fill(xism, 1./34.);
+      if ( meIntegrityErrorsByLumi ) meIntegrityErrorsByLumi->Fill(xism, 1./34./crystals->size());
 
       }
 
@@ -506,7 +506,7 @@ void EEIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       float xiy = iy - 0.5;
 
       if ( meIntegrityTTBlockSize[ism-1] ) meIntegrityTTBlockSize[ism-1]->Fill(xix, xiy);
-      if ( meIntegrityErrorsByLumi ) meIntegrityErrorsByLumi->Fill(xism, 1./34.);
+      if ( meIntegrityErrorsByLumi ) meIntegrityErrorsByLumi->Fill(xism, 1./34./crystals->size());
 
       }
 
