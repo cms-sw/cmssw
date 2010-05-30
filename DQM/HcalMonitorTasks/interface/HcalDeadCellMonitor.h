@@ -11,8 +11,8 @@
 
 /** \class HcalDeadCellMonitor
   *
-  * $Date: 2010/03/25 16:58:27 $
-  * $Revision: 1.44 $
+  * $Date: 2010/05/07 09:33:01 $
+  * $Revision: 1.45 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -92,6 +92,8 @@ class HcalDeadCellMonitor: public HcalBaseDQMonitor {
   edm::InputTag hbheRechitLabel_, hoRechitLabel_, hfRechitLabel_;
 
   bool endLumiProcessed_;
+
+  bool excludeHORing2_;
 };
 
 #endif

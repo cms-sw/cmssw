@@ -29,6 +29,8 @@ HcalDeadCellMonitor::HcalDeadCellMonitor(const edm::ParameterSet& ps)
   // minimum number of events required for lumi section-based dead cell checks
   minDeadEventCount_    = ps.getUntrackedParameter<int>("minDeadEventCount",1000);
 
+  excludeHORing2_       = ps.getUntrackedParameter<bool>("excludeHORing2",false);
+
   // Set which dead cell checks will be performed
   /* Dead cells can be defined in the following ways:
      1)  never present digi -- digi is never present in run
@@ -159,9 +161,6 @@ void HcalDeadCellMonitor::setup()
   (NumberOfNeverPresentDigisHO->getTProfile())->SetMarkerStyle(20);
   (NumberOfNeverPresentDigisHF->getTProfile())->SetMarkerStyle(20);
 
-  for (unsigned int depth=0;depth<DigiPresentByDepth.depth.size();++depth)
-    DigiPresentByDepth.depth[depth]->Reset();
-      
   FillUnphysicalHEHFBins(DigiPresentByDepth);
 
   if (deadmon_test_digis_)
@@ -360,6 +359,22 @@ void HcalDeadCellMonitor::reset()
   ProblemsVsLB->Reset(); ProblemsVsLB_HB->Reset(); ProblemsVsLB_HE->Reset(); ProblemsVsLB_HO->Reset(); ProblemsVsLB_HF->Reset();
   NumberOfNeverPresentDigis->Reset(); NumberOfNeverPresentDigisHB->Reset(); NumberOfNeverPresentDigisHE->Reset(); NumberOfNeverPresentDigisHO->Reset(); NumberOfNeverPresentDigisHF->Reset();
 
+  for (unsigned int depth=0;depth<DigiPresentByDepth.depth.size();++depth)
+    DigiPresentByDepth.depth[depth]->Reset();
+  
+  // Mark HORing2 channels as present  (fill with a 2, rather than a 1, to distinguish between this setting and actual presence)
+  if (excludeHORing2_==true && DigiPresentByDepth.depth.size()>3)
+    {
+      for (int ieta=11;ieta<=15;++ieta)
+	for (int iphi=1;iphi<=72;++iphi)
+	  {
+	    DigiPresentByDepth.depth[3]->Fill(ieta,iphi,2);
+	    DigiPresentByDepth.depth[3]->Fill(-1*ieta,iphi,2);
+	  }
+    }
+  FillUnphysicalHEHFBins(DigiPresentByDepth);
+
+
   if (deadmon_test_digis_)
     {
       NumberOfRecentMissingDigis->Reset(); NumberOfRecentMissingDigisHB->Reset(); NumberOfRecentMissingDigisHE->Reset(); NumberOfRecentMissingDigisHO->Reset(); NumberOfRecentMissingDigisHF->Reset();
@@ -372,13 +387,28 @@ void HcalDeadCellMonitor::reset()
       NumberOfRecentMissingRecHitsHE->Reset();
       NumberOfRecentMissingRecHitsHO->Reset(); 
       NumberOfRecentMissingRecHitsHF->Reset();
-      NumberOfNeverPresentRecHits->Reset(); NumberOfNeverPresentRecHitsHB->Reset(); NumberOfNeverPresentRecHitsHE->Reset(); NumberOfNeverPresentRecHitsHO->Reset(); NumberOfNeverPresentRecHitsHF->Reset();
+      NumberOfNeverPresentRecHits->Reset(); 
+      NumberOfNeverPresentRecHitsHB->Reset(); 
+      NumberOfNeverPresentRecHitsHE->Reset(); 
+      NumberOfNeverPresentRecHitsHO->Reset(); 
+      NumberOfNeverPresentRecHitsHF->Reset();
       RecentMissingRecHitsByDepth.Reset();
       RecHitPresentByDepth.Reset();
+      
+      // Mark HORing2 channels as present  (fill with a 2, rather than a 1, to distinguish between this setting and actual presence)
+      if (excludeHORing2_==true && RecHitPresentByDepth.depth.size()>3)
+	{
+	  for (int ieta=11;ieta<=15;++ieta)
+	    for (int iphi=1;iphi<=72;++iphi)
+	      {
+		RecHitPresentByDepth.depth[3]->Fill(ieta,iphi,2);
+		RecHitPresentByDepth.depth[3]->Fill(-1*ieta,iphi,2);
+	      }
+	}
+      FillUnphysicalHEHFBins(RecHitPresentByDepth);
     }
 
   Nevents->Reset();
-  DigiPresentByDepth.Reset();
 }  // reset function is empty for now
 
 /* ------------------------------------------------------------------------- */
@@ -622,7 +652,7 @@ void HcalDeadCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	      else if (d==2) ++hepresent;
 	      else if (d==1)
 		{
-		  ieta=binmapd2[eta];//JEFF
+		  ieta=binmapd2[eta];
 		  //if (abs(ieta)>29) continue;
 		  if (abs(ieta)>29) ++hfpresent;
 		  else if (abs(ieta)<17) ++hbpresent; //depths 15&16
@@ -788,7 +818,12 @@ void HcalDeadCellMonitor::fillNevents_recentdigis()
 			  std::cout <<"\t RAW COORDINATES:  eta = "<<eta<< " phi = "<<phi<<" depth = "<<depth<<std::endl;
  			  std::cout <<"\t Present? "<<present_digi[eta][phi][depth]<<std::endl;
 			}
-			     // no digi was found for the N events; Fill cell as bad for all N events (N = checkN);
+		      
+		      // Don't fill HORing2 if boolean enabled
+		      if (excludeHORing2_==true && abs(ieta)>10 && isSiPM(ieta,iphi,depth+1)==false)
+			continue;
+
+		      // no digi was found for the N events; Fill cell as bad for all N events (N = checkN);
 		      if (RecentMissingDigisByDepth.depth[depth]) RecentMissingDigisByDepth.depth[depth]->Fill(ieta+zside,iphi,deadevt_);
 		    }
 		} // for (int subdet=1;subdet<=4;++subdet)
@@ -862,7 +897,9 @@ void HcalDeadCellMonitor::fillNevents_recentrechits()
 		  
 		  if (debug_>2) 
 		    std::cout <<"DEAD CELL; BELOW ENERGY THRESHOLD; subdet = "<<subdet<<" ieta = "<<ieta<<", phi = "<<iphi<<" depth = "<<depth+1<<std::endl;
-			  
+		  if (excludeHORing2_==true && abs(ieta)>10 && isSiPM(ieta,iphi,depth+1)==false)
+		    continue;
+	  
 		  if (RecentMissingRecHitsByDepth.depth[depth]) RecentMissingRecHitsByDepth.depth[depth]->Fill(ieta+zside,iphi,deadevt_);
 		} // loop on phi bins
 	    } // for (unsigned int depth=1;depth<=4;++depth)
@@ -966,6 +1003,12 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
 			  ++NumBadHO;
 			  if (abs(ieta)<5) ++NumBadHO0;
 			  else ++NumBadHO12;
+			  // Don't include HORing2 if boolean set; subtract away those counters
+			  if (excludeHORing2_==true && abs(ieta)>10 && isSiPM(ieta,iphi,depth+1)==false)
+			    {
+			      --NumBadHO;
+			      --NumBadHO12;
+			    }
 			}
 		      else if (subdet==HcalForward)
 			{
@@ -980,7 +1023,12 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
 		    {
 		      if (subdet==HcalBarrel) ++neverpresentHB;
 		      else if (subdet==HcalEndcap) ++neverpresentHE;
-		      else if (subdet==HcalOuter) ++neverpresentHO;
+		      else if (subdet==HcalOuter) 
+			{
+			  ++neverpresentHO;
+			  if (excludeHORing2_==true && abs(ieta)>10 && isSiPM(ieta,iphi,depth+1)==false)
+			    --neverpresentHO;
+			}
 		      else if (subdet==HcalForward) ++neverpresentHF;
 		    }
 		  // Count recent unoccupied digis if the total events in this lumi section is > minEvents_
@@ -988,7 +1036,12 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
 		    {
 		      if (subdet==HcalBarrel) ++unoccupiedHB;
 		      else if (subdet==HcalEndcap) ++unoccupiedHE;
-		      else if (subdet==HcalOuter) ++unoccupiedHO;
+		      else if (subdet==HcalOuter) 
+			{
+			  ++unoccupiedHO;
+			  if (excludeHORing2_==true && abs(ieta)>10 && isSiPM(ieta,iphi,depth+1)==false)
+			    --unoccupiedHO;
+			}
 		      else if (subdet==HcalForward) ++unoccupiedHF;
 		    }
 		  // Look at rechit checks
@@ -998,14 +1051,24 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
 			{
 			  if (subdet==HcalBarrel) ++energyneverpresentHB;
 			  else if (subdet==HcalEndcap) ++energyneverpresentHE;
-			  else if (subdet==HcalOuter) ++energyneverpresentHO;
+			  else if (subdet==HcalOuter) 
+			    {
+			      ++energyneverpresentHO;
+			      if (excludeHORing2_==true && abs(ieta)>10 && isSiPM(ieta,iphi,depth+1)==false)
+				--energyneverpresentHO; 
+			    }
 			  else if (subdet==HcalForward) ++energyneverpresentHF;
 			}
 		      if (recentoccupancy_rechit[eta][phi][depth]==0 && (deadevt_>=minDeadEventCount_))
 			{
 			  if (subdet==HcalBarrel) ++belowenergyHB;
 			  else if (subdet==HcalEndcap) ++belowenergyHE;
-			  else if (subdet==HcalOuter) ++belowenergyHO;
+			  else if (subdet==HcalOuter) 
+			    {
+			      ++belowenergyHO;
+			      if (excludeHORing2_==true && abs(ieta)>10 && isSiPM(ieta,iphi,depth+1)==false)
+				--belowenergyHO;
+			    }
 			  else if (subdet==HcalForward) ++belowenergyHF;
 			}
 		    }
