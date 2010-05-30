@@ -48,6 +48,7 @@ class HcalSummaryClient : public HcalBaseDQClient {
   MonitorElement* MinEvents_;
   MonitorElement* MinErrorRate_;
   MonitorElement* reportMap_;
+  MonitorElement* certificationMap_;
 
   double status_global_, status_HB_, status_HE_, status_HO_, status_HF_;
   double status_HO0_, status_HO12_, status_HFlumi_;
@@ -56,7 +57,6 @@ class HcalSummaryClient : public HcalBaseDQClient {
   std::vector<HcalBaseDQClient*> clients_;
   std::map<std::string, int> subdetCells_;
   int HBpresent_, HEpresent_, HOpresent_, HFpresent_;
-
 };
 
 #endif

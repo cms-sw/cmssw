@@ -15,8 +15,8 @@
 /*
  * \file HcalSummaryClient.cc
  * 
- * $Date: 2010/05/07 18:05:00 $
- * $Revision: 1.97 $
+ * $Date: 2010/05/10 19:45:47 $
+ * $Revision: 1.98 $
  * \author J. Temple
  * \brief Summary Client class
  */
@@ -31,6 +31,7 @@ HcalSummaryClient::HcalSummaryClient(std::string myname)
   ProblemCells=0;
   ProblemCellsByDepth=0;
   StatusVsLS_=0;
+  certificationMap_=0;
   reportMap_=0;
 }
 
@@ -60,6 +61,7 @@ HcalSummaryClient::HcalSummaryClient(std::string myname, const edm::ParameterSet
   ProblemCells=0;
   ProblemCellsByDepth=0;
   StatusVsLS_=0;
+  certificationMap_=0;
   reportMap_=0;
 }
 
@@ -141,6 +143,16 @@ void HcalSummaryClient::analyze(int LS)
      HOpresent_!=0 || HFpresent_!=0 ) 
    status_global_=0;
 
+ // don't want to fool with variable-sized arrays at the moment; revisit later
+ //const unsigned int csize=clients_.size();
+ double localHB[20]={0};
+ double localHE[20]={0};
+ double localHF[20]={0};
+ double localHO[20]={0};
+ double localHFlumi[20]={0};
+ double localHO0[20]={0};
+ double localHO12[20]={0};
+
  // reset all depth histograms
  if (SummaryMapByDepth==0)
    {
@@ -151,7 +163,7 @@ void HcalSummaryClient::analyze(int LS)
    {
      for (unsigned int i=0;i<(SummaryMapByDepth->depth).size();++i)
        SummaryMapByDepth->depth[i]->Reset();
-     
+ 
      int etabins=-9999;
      int phibins=-9999;
      for (int d=0;d<4;++d)
@@ -197,14 +209,39 @@ void HcalSummaryClient::analyze(int LS)
 			 else if (isHO(eta-1,d+1)) 
 			   {
 			     ++status_HO_;
-			     if (abs(ieta)<5) ++status_HO0_;
-			     else ++status_HO12_;
+			     if (abs(ieta)<5) ++status_HO0_; 
+			     else ++status_HO12_; 
 			   }
 			 else if (isHB(eta-1,d+1)) ++status_HB_;
 			 else if (isHE(eta-1,d+1)) ++status_HE_;
-			 break;
+			 break; // man, this break causes problems for certificationMap!!!
 		       }
-		   }
+		   } // for (1st loop on clients_.size()
+
+		 for (unsigned int cl=0;cl<clients_.size();++cl)
+		   {
+		     if (clients_[cl]->ProblemCellsByDepth==0) continue;
+
+		     if ((clients_[cl]->ProblemCellsByDepth)->depth[d]==0) continue;
+		     if ((clients_[cl]->ProblemCellsByDepth)->depth[d]->getBinContent(eta,phi)>clients_[cl]->minerrorrate_)
+		       {
+			 if (isHF(eta-1,d+1)) 
+			   {
+			     ++localHF[cl];
+			     if ((d==0 && (abs(ieta)==33 || abs(ieta)==34)) ||   // depth 1, rings 33,34
+				 (d==1 && (abs(ieta)==35 || abs(ieta)==36)))     // depth 2, rings 35,36
+			       ++localHFlumi[cl]; 
+			   }
+			 else if (isHO(eta-1,d+1)) 
+			   {
+			     ++localHO[cl];
+			     if (abs(ieta)<5) ++localHO0[cl]; 
+			     else ++localHO12[cl]; 
+			   }
+			 else if (isHB(eta-1,d+1)) ++localHB[cl];
+			 else if (isHE(eta-1,d+1)) ++localHE[cl];
+		       }
+		   } // for (2nd loop on clients_.size()
 	       }
 	   }
        } // for (int d=0;d<4;++d)
@@ -222,6 +259,11 @@ void HcalSummaryClient::analyze(int LS)
      it=subdetCells_.find("HB");
      totalcells+=it->second;
      status_HB_= 1-(status_HB_/it->second);
+     for (unsigned int i=0;i<clients_.size();++i)
+       {
+	 localHB[i]=1-(1.*localHB[i]/it->second);
+	 localHB[i]=std::max(0.,localHB[i]);
+       }
      status_HB_=std::max(0.,status_HB_); // converts fraction of bad channels to good fraction
    }
  else status_HB_=-1;
@@ -232,6 +274,11 @@ void HcalSummaryClient::analyze(int LS)
      it=subdetCells_.find("HE");
      totalcells+=it->second;
      status_HE_= 1-(status_HE_/it->second);
+     for (unsigned int i=0;i<clients_.size();++i)
+       {
+	 localHE[i]=1-(1.*localHE[i]/it->second);
+	 localHE[i]=std::max(0.,localHE[i]);
+       }
      status_HE_=std::max(0.,status_HE_); // converts fraction of bad channels to good fraction
    }
  else status_HE_=-1;
@@ -243,13 +290,27 @@ void HcalSummaryClient::analyze(int LS)
      totalcells+=it->second;
      status_HO_= 1-(status_HO_/it->second);
      status_HO_=std::max(0.,status_HO_); // converts fraction of bad channels to good fraction
-     
+     for (unsigned int i=0;i<clients_.size();++i)
+       {
+	 localHO[i]=1-(1.*localHO[i]/it->second);
+	 localHO[i]=std::max(0.,localHO[i]);
+       }
      it=subdetCells_.find("HO0");
      status_HO0_= 1-(status_HO0_/it->second);
+     for (unsigned int i=0;i<clients_.size();++i)
+       {
+	 localHO0[i]=1-(1.*localHO0[i]/it->second);
+	 localHO0[i]=std::max(0.,localHO0[i]);
+       }
      status_HO0_=std::max(0.,status_HO0_); // converts fraction of bad channels to good fraction
      it=subdetCells_.find("HO12");
      status_HO12_= 1-(status_HO12_/it->second);
      status_HO12_=std::max(0.,status_HO12_); // converts fraction of bad channels to good fraction
+     for (unsigned int i=0;i<clients_.size();++i)
+       {
+	 localHO12[i]=1-(1.*localHO12[i]/it->second);
+	 localHO12[i]=std::max(0.,localHO12[i]);
+       }
    }
  else
    {
@@ -264,9 +325,19 @@ void HcalSummaryClient::analyze(int LS)
       totalcells+=it->second;
       status_HF_= 1-(status_HF_/it->second);
       status_HF_=std::max(0.,status_HF_); // converts fraction of bad channels to good fraction
+      for (unsigned int i=0;i<clients_.size();++i)
+       {
+	 localHF[i]=1-(1.*localHF[i]/it->second);
+	 localHF[i]=std::max(0.,localHF[i]);
+       }
       it=subdetCells_.find("HFlumi");
       status_HFlumi_= 1-(status_HFlumi_/it->second);
       status_HFlumi_=std::max(0.,status_HFlumi_); // converts fraction of bad channels to good fraction
+      for (unsigned int i=0;i<clients_.size();++i)
+       {
+	 localHFlumi[i]=1-(1.*localHFlumi[i]/it->second);
+	 localHFlumi[i]=std::max(0.,localHFlumi[i]);
+       }
     }
   else
     {
@@ -281,6 +352,50 @@ void HcalSummaryClient::analyze(int LS)
       status_global_=1-status_global_/totalcells;
       status_global_=std::max(0.,status_global_); // convert to good fraction
     }
+
+  // Fill certification map here
+
+  dqmStore_->setCurrentFolder(prefixME_+"HcalInfo");
+  certificationMap_=dqmStore_->get(prefixME_+"HcalInfo/CertificationMap");
+  if (certificationMap_) dqmStore_->removeElement(certificationMap_->getName());
+  certificationMap_=dqmStore_->book2D("CertificationMap","Certification Map",7,0,7,
+				      clients_.size()+1,0,clients_.size()+1);
+
+  certificationMap_->getTH2F()->GetYaxis()->SetBinLabel(1,"Summary");
+  (certificationMap_->getTH2F())->SetOption("textcolz");
+
+  for (int i=0;i<(int)clients_.size();++i)
+    {
+      certificationMap_->getTH2F()->GetYaxis()->SetBinLabel(i+2,(clients_[i]->name()).c_str());
+    }
+  certificationMap_->getTH2F()->GetYaxis()->SetLabelSize(0.02);
+  certificationMap_->getTH2F()->GetXaxis()->SetBinLabel(1,"HB");
+  certificationMap_->getTH2F()->GetXaxis()->SetBinLabel(2,"HE");
+  certificationMap_->getTH2F()->GetXaxis()->SetBinLabel(3,"HO");
+  certificationMap_->getTH2F()->GetXaxis()->SetBinLabel(4,"HF");
+  certificationMap_->getTH2F()->GetXaxis()->SetBinLabel(5,"HO0");
+  certificationMap_->getTH2F()->GetXaxis()->SetBinLabel(6,"HO12");
+  certificationMap_->getTH2F()->GetXaxis()->SetBinLabel(7,"HFlumi");
+  certificationMap_->getTH2F()->SetMinimum(-1);
+  certificationMap_->getTH2F()->SetMaximum(1);
+
+  for (unsigned int i=0;i<clients_.size();++i)
+    {
+      certificationMap_->setBinContent(1,i+2,localHB[i]);
+      certificationMap_->setBinContent(2,i+2,localHE[i]);
+      certificationMap_->setBinContent(3,i+2,localHO[i]);
+      certificationMap_->setBinContent(4,i+2,localHF[i]);
+      certificationMap_->setBinContent(5,i+2,localHO0[i]);
+      certificationMap_->setBinContent(6,i+2,localHO12[i]);
+      certificationMap_->setBinContent(7,i+2,localHF[i]);
+    }
+  certificationMap_->setBinContent(1,1,status_HB_);
+  certificationMap_->setBinContent(2,1,status_HE_);
+  certificationMap_->setBinContent(3,1,status_HO_);
+  certificationMap_->setBinContent(4,1,status_HF_);
+  certificationMap_->setBinContent(5,1,status_HO0_);
+  certificationMap_->setBinContent(6,1,status_HO12_);
+  certificationMap_->setBinContent(7,1,status_HF_);
   fillReportSummary(LS);
 } // analyze
 
@@ -318,7 +433,6 @@ void HcalSummaryClient::fillReportSummary(int LS)
         StatusVsLS_->setBinContent(LS,7,status_HFlumi_);
       }
     }
-
 
   MonitorElement* me;
   dqmStore_->setCurrentFolder(subdir_);

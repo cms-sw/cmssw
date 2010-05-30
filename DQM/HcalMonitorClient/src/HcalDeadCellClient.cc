@@ -11,8 +11,8 @@
 /*
  * \file HcalDeadCellClient.cc
  * 
- * $Date: 2010/04/29 13:15:12 $
- * $Revision: 1.68 $
+ * $Date: 2010/05/07 09:09:12 $
+ * $Revision: 1.69 $
  * \author J. Temple
  * \brief Dead Cell Client class
  */
@@ -176,12 +176,12 @@ void HcalDeadCellClient::calculateProblems()
 
 	      // If cell is never-present in all runs, then problemvalue = event
 	      if (DigiPresentByDepth[d]!=0 && DigiPresentByDepth[d]->GetBinContent(eta+1,phi+1)==0) 
-		problemvalue=totalevents;
+		  problemvalue=totalevents;
 	      // Rec Hit presence test
 	      else if (RecHitsPresentByDepth[d]!=0)
 		{
 		  if (RecHitsPresentByDepth[d]->GetBinContent(eta+1,phi+1)==0)
-		    problemvalue=totalevents;
+		      problemvalue=totalevents;
 		  else if (RecHitsPresentByDepth[d]->GetBinContent(eta+1,phi+1)>1)
 		    RecHitsPresentByDepth[d]->SetBinContent(eta+1,phi+1,1);
 		}
@@ -213,8 +213,6 @@ void HcalDeadCellClient::calculateProblems()
 		  if (badstatusmap.find(hcalid)!=badstatusmap.end())
 		    problemvalue=999;
 		}
-
-
 	      ProblemCellsByDepth->depth[d]->setBinContent(eta+1,phi+1,problemvalue);
 	      if (ProblemCells!=0) ProblemCells->Fill(ieta+zside,phi+1,problemvalue);
 	    } // loop on phi
