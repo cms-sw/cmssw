@@ -37,9 +37,9 @@ regexp = args[1]
 
 castor = castortools.isCastorDir( dir )
 
-protocol = 'file'
+protocol = 'file:'
 if castor:
-    protocol = 'rfio'
+    protocol = 'root://castorcms/'
 
 files = castortools.matchingFiles( dir, regexp,
                                    protocol=protocol, castor=castor)
