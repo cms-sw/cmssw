@@ -146,17 +146,11 @@ void EEDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
       sprintf(histo, "reportSummaryMap");
       me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo );
       if( me ) {
-        for ( int iz = -1; iz < 2; iz+=2 ) {
-          for ( int ix = 1; ix <= 100; ix++ ) {
-            for ( int iy = 1; iy <= 100; iy++ ) {
-              int jx = (iz==1) ? 100 + ix : ix;
-              int jy = iy;
-              if( EEDetId::validDetId(ix, iy, iz) ) {
-                if ( Numbers::validEE(i+1, ix, iy) ) me->setBinContent( jx, jy, DQMVal[i] );
-              } else {
-                me->setBinContent( jx, jy, -1.0 );
-              }
-            }
+        for ( int ix = 1; ix <= 100; ix++ ) {
+          for ( int iy = 1; iy <= 100; iy++ ) {
+            int jx = ( i < 9 ) ? ix : 100 + ix;
+            int jy = iy;
+            if ( Numbers::validEE(i+1, ix, iy) ) me->setBinContent(jx, jy, DQMVal[i]);
           }
         }
       }
