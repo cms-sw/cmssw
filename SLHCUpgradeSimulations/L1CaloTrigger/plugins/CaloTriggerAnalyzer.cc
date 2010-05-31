@@ -60,8 +60,14 @@ CaloTriggerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
     if(src->size()>0)
       highestPt->Fill(src->at(0).pt());
+    else
+      highestPt->Fill(0.0);
+
+
     if(src->size()>1)
       secondPt->Fill(src->at(1).pt());
+    else
+      secondPt->Fill(0.0);
 
   }
 
