@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.177 $"
-__source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
+__version__ = "$Revision: 1.178 $"
+__source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Modules import _Module 
@@ -373,6 +373,7 @@ class ConfigBuilder(object):
 	self.RECODefaultCFF="Configuration/StandardSequences/Reconstruction_cff"
 	self.POSTRECODefaultCFF="Configuration/StandardSequences/PostRecoGenerator_cff"
 	self.VALIDATIONDefaultCFF="Configuration/StandardSequences/Validation_cff"
+	self.GENVALIDATIONDefaultCFF="Configuration/StandardSequences/GenValidation_cff"
 	self.L1HwValDefaultCFF = "Configuration/StandardSequences/L1HwVal_cff"
 	self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOffline_cff"
 	self.HARVESTINGDefaultCFF="Configuration/StandardSequences/Harvesting_cff"
@@ -408,6 +409,7 @@ class ConfigBuilder(object):
 	self.DQMDefaultSeq='DQMOffline'
 	self.FASTSIMDefaultSeq='all'
 	self.VALIDATIONDefaultSeq='validation'
+	self.GENVALIDATIONDefaultSeq='genvalidation'
 	self.PATLayer0DefaultSeq='all'
 	self.ENDJOBDefaultSeq='endOfProcess'
 	
@@ -739,6 +741,17 @@ class ConfigBuilder(object):
             self.executeAndRemember("process.mix.playback = True")      
         return
 
+    def prepare_GENVALIDATION(self, sequence = 'basicGenTest'):
+        valConfig = self.loadAndRemember(self.GENVALIDATIONDefaultCFF)
+        name=sequence.split(',')[0]
+        if name in valConfig.__dict__:
+	    self.process.genvalidation_step = cms.Path( getattr(self.process, name) )
+        else: 
+	    raise Exception("The following genval could not be found "+str( name ))
+        self.schedule.append(self.process.genvalidation_step)
+        return
+
+
     def prepare_DQM(self, sequence = 'DQMOffline'):
         # this one needs replacement
 
@@ -761,6 +774,12 @@ class ConfigBuilder(object):
         else:
             harvestingConfig = self.loadAndRemember(sequence.split(',')[0])
             sequence = sequence.split(',')[1]				
+
+	    if 'GenOnly' in sequence:
+	        self.process.dqmsave_step = cms.Path(self.process.DQMSaver)
+		self.schedule.append(self.process.dqmsave_step)   
+		return
+
         # decide which HARVESTING paths to use
         harvestingList = sequence.split("+")
         for name in harvestingConfig.__dict__:
@@ -859,7 +878,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.177 $"),
+              (version=cms.untracked.string("$Revision: 1.178 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
