@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.30 2010/05/03 16:25:53 matevz Exp $
+// $Id: CmsShowEDI.cc,v 1.31 2010/05/31 09:44:45 eulisse Exp $
 //
 
 // system include files
@@ -442,6 +442,20 @@ void
 CmsShowEDI::toggleItemVisible(Bool_t on) {
    FWDisplayProperties changeProperties = m_item->defaultDisplayProperties();
    changeProperties.setIsVisible(on);
+   m_item->setDefaultDisplayProperties(changeProperties);
+}
+
+/** Changes selected item opacity. Notice that we use opacity rather than
+    transparency because this way the slider is by default 100% rather than 0.
+    This is more a more natural and positive way of looking at things. 
+    
+    Glass is full! 
+    
+    See changeItemColor for additional details.*/
+void
+CmsShowEDI::changeItemOpacity(Int_t opacity) {
+   FWDisplayProperties changeProperties = m_item->defaultDisplayProperties();
+   changeProperties.setOpacity(opacity);
    m_item->setDefaultDisplayProperties(changeProperties);
 }
 

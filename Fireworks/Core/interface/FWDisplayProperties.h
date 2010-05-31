@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:22:36 EST 2008
-// $Id: FWDisplayProperties.h,v 1.7 2009/01/23 21:35:41 amraktad Exp $
+// $Id: FWDisplayProperties.h,v 1.8 2010/05/31 09:44:45 eulisse Exp $
 //
 
 // system include files
@@ -43,12 +43,17 @@ public:
        changing updating only one value.
      */
    FWDisplayProperties(const Color_t& iColor,
-                       bool isVisible);
+                       bool isVisible,
+                       Int_t opacity);
    //virtual ~FWDisplayProperties();
 
    // ---------- const member functions ---------------------
    const Color_t& color() const {
       return m_color;
+   }
+   
+   const Int_t opacity() const {
+      return m_opacity;
    }
 
    bool isVisible() const {
@@ -56,7 +61,9 @@ public:
    }
 
    bool operator==(const FWDisplayProperties& iRHS) const {
-      return m_color == iRHS.m_color && m_isVisible == iRHS.m_isVisible;
+      return m_color == iRHS.m_color 
+             && m_isVisible == iRHS.m_isVisible
+             && m_opacity == iRHS.m_opacity;
    }
    bool operator!=(const FWDisplayProperties& iRHS) const {
       return not (*this == iRHS);
@@ -65,11 +72,19 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
+   /** Notice that opacity in root is in the range [0, 100] */
+   void setOpacity(Int_t opacity) {
+      opacity = opacity < 0 ? 0 : opacity; 
+      opacity = opacity > 100 ? 100 : opacity; 
+      m_opacity = opacity;
+   }
+
    void setIsVisible(bool iSet) {
       m_isVisible = iSet;
    }
 
    void setColor(Color_t iColor);
+
 private:
    //FWDisplayProperties(const FWDisplayProperties&); // stop default
 
@@ -78,7 +93,7 @@ private:
    // ---------- member data --------------------------------
    Color_t m_color;
    bool m_isVisible;
+   Int_t m_opacity;
 };
-
 
 #endif

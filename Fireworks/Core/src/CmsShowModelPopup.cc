@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jun 27 11:23:08 EDT 2008
-// $Id: CmsShowModelPopup.cc,v 1.21 2009/10/31 22:37:35 chrjones Exp $
+// $Id: CmsShowModelPopup.cc,v 1.22 2010/05/31 15:24:45 eulisse Exp $
 //
 
 // system include file
@@ -25,6 +25,7 @@
 #include "TColor.h"
 #include "TG3DLine.h"
 #include "TGFont.h"
+#include "TGSlider.h"
 
 // user include files
 #include "Fireworks/Core/interface/CmsShowModelPopup.h"
@@ -83,7 +84,12 @@ CmsShowModelPopup::CmsShowModelPopup(FWDetailViewManager* iManager,
           .newRow(3)
           .addColorPicker(iColorMgr, 0, &m_colorSelectWidget)
           .addHSeparator()
+          .addLabel("Opacity", 8, 2)
+          .newRow(3)
+          .addHSlider(150, 0, &m_opacitySlider)
+          .addHSeparator()
           .addCheckbox("Visible", 0, &m_isVisibleButton)
+          .newRow(15)
           .addHSeparator()
           .addTextButton("Open Detailed View", 0, &detailedViewButton)
           .newRow(15);
@@ -96,7 +102,8 @@ CmsShowModelPopup::CmsShowModelPopup(FWDetailViewManager* iManager,
 
    m_colorSelectWidget->Connect("ColorChosen(Color_t)", "CmsShowModelPopup", this, "changeModelColor(Color_t)");
    m_isVisibleButton->Connect("Toggled(Bool_t)", "CmsShowModelPopup", this, "toggleModelVisible(Bool_t)");
-
+   m_opacitySlider->Connect("PositionChanged(Int_t)", "CmsShowModelPopup",
+                            this, "changeModelOpacity(Int_t)");
 
    SetWindowName("Object Display Controller");
    Resize(GetDefaultSize());
@@ -115,6 +122,7 @@ CmsShowModelPopup::~CmsShowModelPopup()
 {
    m_changes.disconnect();
    m_colorSelectWidget->Disconnect("ColorSelected(Pixel_t)", this, "changeModelColor(Pixel_t)");
+   m_opacitySlider->Disconnect("PositionChanged(Int_t)", this, "changeModelOpacity(Int_t)");
    m_isVisibleButton->Disconnect("Toggled(Bool_t)", this, "toggleModelVisible(Bool_t)");
    disconnectAll();
    
@@ -150,7 +158,8 @@ CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr)
       return;
    
    // Handle the case in which the selection is not empty.
-   bool multipleNames = false, multipleColors = false, multipleVis = false;
+   bool multipleNames = false, multipleColors = false, multipleVis = false,
+        multipleOpacity = false;
 
    m_models = iSelMgr.selected();
    std::set<FWModelId>::const_iterator id = m_models.begin();
@@ -172,6 +181,7 @@ CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr)
       multipleNames = multipleNames || (item->name() != i->item()->name());
       multipleColors = multipleColors || (props.color() != nextProps.color());
       multipleVis = multipleVis || (props.isVisible() != nextProps.isVisible());
+      multipleOpacity = multipleOpacity || (props.opacity() != nextProps.opacity());
    }
    
    // Handle the name.
@@ -245,6 +255,8 @@ CmsShowModelPopup::updateDisplay()
          m_isVisibleButton->SetState(kButtonDown, kFALSE);
       else
          m_isVisibleButton->SetState(kButtonUp, kFALSE);
+      
+      m_opacitySlider->SetPosition(p.opacity());
    }
 }
 
@@ -268,6 +280,7 @@ CmsShowModelPopup::disconnectAll() {
    for(size_t i = 1, e = m_openDetailedViewButtons.size(); i != e; ++i)
       HideFrame(m_openDetailedViewButtons[i]);
 }
+
 /** Change the color of the selected objects.
 
     NOTES:
@@ -287,6 +300,25 @@ CmsShowModelPopup::changeModelColor(Color_t color)
       const FWEventItem::ModelInfo &info = i->item()->modelInfo(i->index());
       FWDisplayProperties changeProperties = info.displayProperties();
       changeProperties.setColor(color);
+      i->item()->setDisplayProperties(i->index(), changeProperties);
+   }
+}
+
+/** Change the opacity of the selected objects. See above in changeModelColor 
+    for additional notes.
+  */
+void
+CmsShowModelPopup::changeModelOpacity(Int_t opacity) 
+{
+   if (m_models.empty())
+      return;
+      
+   FWChangeSentry sentry(*(m_models.begin()->item()->changeManager()));
+   for (std::set<FWModelId>::iterator i = m_models.begin(), e = m_models.end(); i != e; ++i)
+   {
+      const FWEventItem::ModelInfo &info = i->item()->modelInfo(i->index());
+      FWDisplayProperties changeProperties = info.displayProperties();
+      changeProperties.setOpacity(opacity);
       i->item()->setDisplayProperties(i->index(), changeProperties);
    }
 }
