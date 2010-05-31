@@ -35,7 +35,7 @@ def getLumiInfoForRuns(dbsession,c,runDict,hltpath=''):
     #recorded: need instlumi and deadtime
     #select lumisummary.cmslsnum,lumisummary.runnum,lumisummary.instlumi,trg.deadtime,trg.trgcount from lumisummary,trg where lumisummary.runnum=trg.runnum and trg.cmslsnum=lumisummary.cmslsnum and trg.bitnum=0 and lumisummary.lumiversion='0001' and lumisummary.runnum>=133511 and lumisummary.runnum<=133877 order by lumisummary.runnum,lumisummary.cmslsnum;
     #          if hltpath is specified, need prescale L1 and hlt
-    #          select trg.runnum,trg.bitnum,trg.bitname,trg.prescale,trghltmap.hltpathname,trghltgmap.l1seed,hlt.prescale from trg,trghltmap,hlt where hlt.hltpathname=:hltpathname and hlt.hltpathname=trghltmap.hltpathname and trg.cmslsnum=0 and hlt.runnum=trg.runnum and trghltmap.runnum=trg.runnum and trg.bitname=trghltmap.l1seed and trg.runnum>=:begRun and trg.runnum<=:endRun
+    #          select trg.runnum,trg.bitnum,trg.bitname,trg.prescale,trghltmap.hltpathname,trghltgmap.l1seed,hlt.prescale from trg,trghltmap,hlt where hlt.hltpathname=:hltpathname and hlt.hltpathname=trghltmap.hltpathname and trg.cmslsnum=0 and hlt.runnum=trg.runnum and trghltmap.runnum=trg.runnum and trg.bitname=trghltmap.l1seed and trg.runnum>=:begRun and trg.runnum<=:endRun 
     try:
         dbsession.transaction().start(True)
         schema=dbsession.nominalSchema()
@@ -43,7 +43,6 @@ def getLumiInfoForRuns(dbsession,c,runDict,hltpath=''):
         endRun=max(runDict.keys())
         #delivered doesn't care about cmsls
         #print 'begRun ',begRun,'endRun ',endRun
-        deliveredQuery=schema.newQuery()
         deliveredQuery=schema.tableHandle(nameDealer.lumisummaryTableName()).newQuery()
         deliveredQuery.addToOutputList('RUNNUM','runnum')
         deliveredQuery.addToOutputList('INSTLUMI','instlumi')
@@ -220,7 +219,9 @@ def getLumiInfoForRuns(dbsession,c,runDict,hltpath=''):
                     trgprescale=trgprescaleDict[runnum]
                 prescaledRecordedPerRun[runnum]=recorded/(hltprescale*trgprescale)
         dbsession.transaction().commit()
-        for runnum in runDict.keys():
+        keylist=runDict.keys()
+        keylist.sort()
+        for runnum in keylist:
             if deliveredDict.has_key(runnum):
                 result[runnum]=[]
                 result[runnum].append(deliveredDict[runnum])
@@ -240,6 +241,48 @@ def getLumiInfoForRuns(dbsession,c,runDict,hltpath=''):
         dbsession.transaction().rollback()
         del dbsession
     return result
+
+def getRunsForFills(dbsession,minFill,maxFill):
+    '''
+    output:{ runnumber:[delivered,recorded,recorded_hltpath] }
+    '''
+    #find all runs in the fill range
+    #select runnum,fillnum from cmsrunsummary where fillnum>=minFill and fillnum<=maxFill order by fillnum
+    #
+    fillDict={} #{fillnum:[runlist]}
+    try:
+        dbsession.transaction().start(True)
+        schema=dbsession.nominalSchema()
+        fillQuery=schema.tableHandle(nameDealer.cmsrunsummaryTableName()).newQuery()
+        fillQuery.addToOutputList('RUNNUM','runnum')
+        fillQuery.addToOutputList('FILLNUM','fillnum')
+        
+        fillQueryCondition=coral.AttributeList()
+        fillQueryCondition.extend('begFill','unsigned int')
+        fillQueryCondition.extend('endFill','unsigned int')
+        fillQueryCondition['begFill'].setData(int(minFill))
+        fillQueryCondition['endFill'].setData(int(maxFill))
+        fillQueryResult=coral.AttributeList()
+        fillQueryResult.extend('runnum','unsigned int')
+        fillQueryResult.extend('fillnum','unsigned int')
+
+        fillQuery.defineOutput(fillQueryResult)
+        fillQuery.setCondition('FILLNUM>=:begFill and FILLNUM<=:endFill',fillQueryCondition)
+        fillQuery.addToOrderList('FILLNUM')
+        fillQueryCursor=fillQuery.execute()
+        while fillQueryCursor.next():
+            runnum=fillQueryCursor.currentRow()['runnum'].data()
+            fillnum=fillQueryCursor.currentRow()['fillnum'].data()
+            if not fillDict.has_key(fillnum):
+                fillDict[fillnum]=[runnum]
+            else:
+                fillDict[fillnum].append(runnum)
+        del fillQuery
+    except Exception,e:
+        print str(e)
+        dbsession.transaction().rollback()
+        del dbsession
+    return fillDict
 
 def main():
     c=constants()
@@ -320,29 +363,65 @@ def main():
     inputfilecontent=''
     fileparsingResult=''
     runDict={}
-    for r in range(int(args.begin),int(args.end)+1):
-        runDict[r]=[]
-    if len(ifilename)!=0 :
-        f=open(ifilename,'r')
-        inputfilecontent=f.read()
-        sparser=selectionParser.selectionParser(inputfilecontent)
-        for run,lslist in sparser.runsandls().items():
-            if runDict.has_key(run):
-                runDict[run]=lslist
+    fillDict={}
+    if args.action == 'run':
+        for r in range(int(args.begin),int(args.end)+1):
+            runDict[r]=[]
+    elif args.action == 'fill':
+        fillDict=getRunsForFills(session,int(args.begin),int(args.end))
+        #print 'fillDict ',fillDict
+        for fill in range(int(args.begin),int(args.end)+1):
+            if fillDict.has_key(fill): #fill exists
+                for run in fillDict[fill]:
+                    runDict[run]=[]
                 
-    result={}
-    result=getLumiInfoForRuns(session,c,runDict,hltpath)
+    if len(ifilename)!=0 :
+            f=open(ifilename,'r')
+            inputfilecontent=f.read()
+            sparser=selectionParser.selectionParser(inputfilecontent)
+            runsandls=sparser.runsandls()
+            keylist=runsandls.keys()
+            keylist.sort()
+            for run in keylist:
+                if runDict.has_key(run):
+                    lslist=runsandls[run]
+                    lslist.sort()
+                    runDict[run]=lslist
+    #print 'runDict ', runDict               
     fig=Figure(figsize=(5,4),dpi=100)
     m=matplotRender.matplotRender(fig)
-    xdata=[]
-    ydata={}
-    ydata['Delivered']=[]
-    ydata['Recorded']=[]
-    for run,values in result.items():
-        xdata.append(run)
-        ydata['Delivered'].append(values[0])
-        ydata['Recorded'].append(values[1])
-    m.plotSumX_Run(xdata,ydata)
+    
+    if args.action == 'run':
+        result={}        
+        result=getLumiInfoForRuns(session,c,runDict,hltpath)
+        xdata=[]
+        ydata={}
+        ydata['Delivered']=[]
+        ydata['Recorded']=[]
+        keylist=result.keys()
+        keylist.sort() #must be sorted in order
+        for run in keylist:
+            xdata.append(run)
+            ydata['Delivered'].append(result[run][0])
+            ydata['Recorded'].append(result[run][1])
+        m.plotSumX_Run(xdata,ydata)
+    elif args.action == 'fill':        
+        lumiDict={}
+        lumiDict=getLumiInfoForRuns(session,c,runDict,hltpath)
+        xdata=[]
+        ydata={}
+        ydata['Delivered']=[]
+        ydata['Recorded']=[]
+        keylist=lumiDict.keys()
+        keylist.sort()
+        for run in keylist:
+            xdata.append(run)
+            ydata['Delivered'].append(lumiDict[run][0])
+            ydata['Recorded'].append(lumiDict[run][1])
+        m.plotSumX_Fill(xdata,ydata,fillDict)
+    else:
+        raise Exception,'must specify the type of x-axi'
+
     if args.interactive:
         m.drawInteractive()
     else:

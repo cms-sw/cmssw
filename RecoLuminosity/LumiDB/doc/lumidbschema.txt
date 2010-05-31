@@ -73,7 +73,7 @@ table 6: TRGHLTMAP (insert 1 row per hltpath-l1seed / populated from ConfDB+L1Se
          l1seed(string)         NOT NULL
 	 
 
- ====== result tables======
+ ====== result tables not there======
 table 7: INTLUMI (insert 1 row per combinatorial of run+lumiversion)
 columns:  
          runnum(uint32),
