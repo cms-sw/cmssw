@@ -70,11 +70,9 @@ TransientTrackKinematicStateBuilder::buildState(const FreeTrajectoryState & stat
 //   cout <<"Transformation\n"<<curvFts.cartesianError().matrix()<<endl;
  cov.Place_at(curvFts.cartesianError().matrix(),0,0);
  cov(6,6) = m_sigma * m_sigma;
- cout << cov<<endl;
 
 //making parameters & error
  KinematicParameters wPar(par);
  KinematicParametersError wEr(cov);
- cout << wEr.matrix()<<endl;
  return KinematicState(wPar,wEr,state.charge(), &state.parameters().magneticField());
 }
