@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2010/04/14 16:24:42 $
- * $Revision: 1.115 $
+ * $Date: 2010/05/28 09:02:48 $
+ * $Revision: 1.116 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -125,8 +125,8 @@ EETestPulseClient::EETestPulseClient(const edm::ParameterSet& ps) {
   pedPnDiscrepancyMean_[0] = 100.0;
   pedPnDiscrepancyMean_[1] = 100.0;
 
-  pedPnRMSThreshold_[0] = 10.;
-  pedPnRMSThreshold_[1] = 10.;
+  pedPnRMSThreshold_[0] = 999.;
+  pedPnRMSThreshold_[1] = 999.;
 
 }
 
