@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 16:41:27 CEST 2010
-// $Id$
+// $Id: FWHFTowerProxyBuilder.cc,v 1.1 2010/05/31 15:35:00 amraktad Exp $
 //
 
 // system include files
@@ -100,7 +100,7 @@ FWHFShortTowerProxyBuilder::fillCaloData()
                   break;
                }
                HcalDetId id ((*it).detid().rawId()); 
-               if(id.depth()==1)(m_hist)->Fill(corners.at(0).Eta(),corners.at(0).Phi(), energy*0.2); 
+	       if(id.depth()==2)(m_hist)->Fill(corners.at(0).Eta(),corners.at(0).Phi(), energy*0.2); 
 
                if(info.isSelected())
                {
@@ -134,7 +134,7 @@ FWHFLongTowerProxyBuilder::fillCaloData()
                   break;
                }
                HcalDetId id ((*it).detid().rawId()); 
-               if(id.depth()==1)(m_hist)->Fill(corners.at(0).Eta(),corners.at(0).Phi(), energy*rnd.Uniform(0.01, 1)); 
+	       if(id.depth()==1)(m_hist)->Fill(corners.at(0).Eta(),corners.at(0).Phi(), energy*0.2); 
 
                if(info.isSelected())
                {
