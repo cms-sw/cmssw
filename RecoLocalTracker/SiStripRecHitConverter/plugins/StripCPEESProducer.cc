@@ -1,7 +1,6 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/plugins/StripCPEESProducer.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPE.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEfromTrackAngle.h"
-#include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEfromTrackAngle2.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEgeometric.h"
 #include "CondFormats/SiStripObjects/interface/SiStripConfObject.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLatency.h"
@@ -30,13 +29,11 @@ produce(const TkStripCPERecord & iRecord)
   edm::ESHandle<SiStripBadStrip> bad;  iRecord.getRecord<SiStripBadChannelRcd>().get(bad);
 
   if(name_=="SimpleStripCPE") 
-    cpe_ = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPE(               pset_, magfield.product(), pDD.product(), lorentzAngle.product() ));  
+    cpe_ = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPE( pset_, magfield.product(), pDD.product(), lorentzAngle.product(), confObj.product(), latency.product() ));  
   else if(name_=="StripCPEfromTrackAngle")
-    cpe_ = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPEfromTrackAngle( pset_, magfield.product(), pDD.product(), lorentzAngle.product() ));
-  else if(name_=="StripCPEfromTrackAngle2")
-    cpe_ = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPEfromTrackAngle2(pset_, magfield.product(), pDD.product(), lorentzAngle.product() ));
+    cpe_ = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPEfromTrackAngle( pset_, magfield.product(), pDD.product(), lorentzAngle.product(), confObj.product(), latency.product() ));
   else if(name_=="StripCPEgeometric")
-    cpe_ = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPEgeometric(pset_, magfield.product(), pDD.product(), lorentzAngle.product() ));
+    cpe_ = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPEgeometric(pset_, magfield.product(), pDD.product(), lorentzAngle.product(), confObj.product(), latency.product() ));
   else throw cms::Exception("Unknown StripCPE type") << name_;
 
   return cpe_;

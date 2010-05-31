@@ -7,6 +7,8 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
+#include "CondFormats/SiStripObjects/interface/SiStripConfObject.h"
+#include "CondFormats/SiStripObjects/interface/SiStripLatency.h"
 #include <ext/hash_map>
 class StripTopology;
 
@@ -17,7 +19,12 @@ public:
   StripClusterParameterEstimator::LocalValues localParameters( const SiStripCluster&) const; 
   StripClusterParameterEstimator::LocalValues localParameters( const SiStripCluster& cl, const GeomDetUnit&) const {return localParameters(cl);}
   
-  StripCPE(edm::ParameterSet & conf, const MagneticField * mag, const TrackerGeometry* geom, const SiStripLorentzAngle* LorentzAngle);    
+  StripCPE( edm::ParameterSet & conf, 
+	    const MagneticField*, 
+	    const TrackerGeometry*, 
+	    const SiStripLorentzAngle*,
+	    const SiStripConfObject*,
+	    const SiStripLatency*);    
   LocalVector driftDirection(const StripGeomDetUnit* det) const;
   void clearCache() {m_Params.clear();}
 

@@ -7,7 +7,9 @@
 StripCPE::StripCPE( edm::ParameterSet & conf, 
 		    const MagneticField * mag, 
 		    const TrackerGeometry* geom, 
-		    const SiStripLorentzAngle* LorentzAngle)
+		    const SiStripLorentzAngle* LorentzAngle,
+		    const SiStripConfObject* confObj,
+		    const SiStripLatency* latency)
   : geom_(geom),
     magfield_(mag),
     LorentzAngleMap_(LorentzAngle)

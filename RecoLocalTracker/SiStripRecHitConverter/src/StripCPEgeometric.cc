@@ -7,8 +7,10 @@
 StripCPEgeometric::StripCPEgeometric( edm::ParameterSet& conf, 
 				      const MagneticField* mag, 
 				      const TrackerGeometry* geom, 
-				      const SiStripLorentzAngle* LorentzAngle)
-  : StripCPE(conf, mag, geom, LorentzAngle ),
+				      const SiStripLorentzAngle* LorentzAngle,
+				      const SiStripConfObject* confObj,
+				      const SiStripLatency* latency)
+  : StripCPE(conf, mag, geom, LorentzAngle, confObj, latency ),
     tan_diffusion_angle(conf.getParameter<double>("TanDiffusionAngle")),    
     thickness_rel_err2(pow(conf.getParameter<double>("ThicknessRelativeUncertainty"), 2)),
     noise_threshold(conf.getParameter<double>("NoiseThreshold")),

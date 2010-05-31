@@ -15,10 +15,13 @@ class StripCPEgeometric : public StripCPE
   StripClusterParameterEstimator::LocalValues 
     localParameters( const SiStripCluster&, const GeomDetUnit&, const LocalTrajectoryParameters&) const;
 
-  StripCPEgeometric( edm::ParameterSet& conf, 
-		     const MagneticField* mag, 
-		     const TrackerGeometry* geom, 
-		     const SiStripLorentzAngle* LorentzAngle);
+  StripCPEgeometric(edm::ParameterSet &, 
+		    const MagneticField *, 
+		    const TrackerGeometry*, 
+		    const SiStripLorentzAngle*,
+		    const SiStripConfObject*,
+		    const SiStripLatency*);    
+
  private:
 
   class WrappedCluster {

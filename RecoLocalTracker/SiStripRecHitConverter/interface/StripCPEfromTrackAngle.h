@@ -14,11 +14,13 @@ class StripCPEfromTrackAngle : public StripCPE
   StripClusterParameterEstimator::LocalValues 
     localParameters( const SiStripCluster&, const GeomDetUnit&, const LocalTrajectoryParameters&) const;
 
-  StripCPEfromTrackAngle( edm::ParameterSet& conf, 
-			  const MagneticField* mag, 
+  StripCPEfromTrackAngle( edm::ParameterSet & conf, 
+			  const MagneticField * mag, 
 			  const TrackerGeometry* geom, 
-			  const SiStripLorentzAngle* LorentzAngle)
-    : StripCPE(conf, mag, geom, LorentzAngle ) {}
+			  const SiStripLorentzAngle* lorentz,
+			  const SiStripConfObject* confObj,
+			  const SiStripLatency* latency) 
+  : StripCPE(conf, mag, geom, lorentz, confObj, latency ) {}
   
  private:
   
