@@ -48,10 +48,10 @@ void TrackHistory::newEvent (
         setup.get<TrackAssociatorRecord>().get(trackAssociator_, associator);
 
         // Calculate the map between recotracks -> tp
-        if ( enableRecoToSim_ ) recoToSim_ = associator->associateRecoToSim(trackCollection, TPCollection, &event);
+        if ( enableRecoToSim_ ) recoToSim_ = associator->associateRecoToSim(trackCollection, TPCollection, &event, &setup);
 
         // Calculate the map between recotracks <- tp
-        if ( enableSimToReco_ ) simToReco_ = associator->associateSimToReco(trackCollection, TPCollection, &event);
+        if ( enableSimToReco_ ) simToReco_ = associator->associateSimToReco(trackCollection, TPCollection, &event, &setup);
     }
 }
 
