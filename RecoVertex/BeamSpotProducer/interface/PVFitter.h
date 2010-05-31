@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: PVFitter.h,v 1.3 2010/03/30 19:18:13 jengbou Exp $
+ version $Id: PVFitter.h,v 1.4 2010/04/13 08:43:43 adamwo Exp $
 
  ________________________________________________________________**/
 
@@ -50,6 +50,8 @@ class PVFitter {
   double getWidthYerr() { return fwidthYerr; }
   double getWidthZerr() { return fwidthZerr; }
   
+  void FitPerBunchCrossing() { fFitPerBunchCrossing = true; }
+  bool runBXFitter();
   bool runFitter(); 
   void resetLSRange() { fbeginLumiOfFit=fendLumiOfFit=-1; }
   void resetRefTime() { freftime[0] = freftime[1] = 0; }
@@ -63,6 +65,8 @@ class PVFitter {
     hPVy->Reset();
   };
   reco::BeamSpot getBeamSpot() { return fbeamspot; }
+  std::map<int, reco::BeamSpot> getBeamSpotMap() { return fbspotMap; }
+  bool IsFitPerBunchCrossing() { return fFitPerBunchCrossing; }
   int* getFitLSRange() {
     int *tmp=new int[2];
     tmp[0] = fbeginLumiOfFit;
@@ -79,6 +83,9 @@ class PVFitter {
  private:
 
   reco::BeamSpot fbeamspot;
+  std::map<int,reco::BeamSpot> fbspotMap;
+  bool fFitPerBunchCrossing;
+
   std::ofstream fasciiFile;
 
   bool debug_;
@@ -138,6 +145,7 @@ class PVFitter {
   double fdydzErr;
 
   std::vector<BeamSpotFitPVData> pvStore_; //< cache for PV data
+  std::map< int, std::vector<BeamSpotFitPVData> > bxMap_; // store PV data as a function of bunch crossings
   double dynamicQualityCut_;               //< quality cut for vertices (dynamic adjustment)
   std::vector<double> pvQualities_;        //< working space for PV store adjustement
 };

@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.31 2010/05/03 22:26:40 yumiceva Exp $
+ version $Id: BeamFitter.h,v 1.32 2010/05/28 22:53:00 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -82,6 +82,7 @@ class BeamFitter {
   std::vector<BSTrkParameters> fBSvector;
   reco::BeamSpot fbeamspot;
   reco::BeamSpot fbeamWidthFit;
+  std::map< int, reco::BeamSpot> fbspotPVMap;
   BSFitter *fmyalgo;
   std::ofstream fasciiFile;
   std::ofstream fasciiDIP;

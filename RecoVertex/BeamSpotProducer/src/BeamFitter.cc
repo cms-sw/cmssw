@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.56 2010/05/03 22:26:42 yumiceva Exp $
+   version $Id: BeamFitter.cc,v 1.57 2010/05/28 22:53:01 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -379,7 +379,11 @@ bool BeamFitter::runPVandTrkFitter() {
     reco::BeamSpot bspotTrk;
         
     // First run PV fitter
-    if ( MyPVFitter->runFitter() ) {
+    if ( MyPVFitter->IsFitPerBunchCrossing() && MyPVFitter->runBXFitter() ) {
+
+      fbspotPVMap = MyPVFitter->getBeamSpotMap();
+
+    } else if ( MyPVFitter->runFitter() ) {
 
         bspotPV = MyPVFitter->getBeamSpot();
 
@@ -576,41 +580,78 @@ void BeamFitter::dumpTxtFile(std::string & fileName, bool append){
   else
     outFile.open(fileName.c_str(),std::ios::app);
 
-  outFile << "Runnumber " << frun << std::endl;
-  outFile << "BeginTimeOfFit " << fbeginTimeOfFit << std::endl;
-  outFile << "EndTimeOfFit " << fendTimeOfFit << std::endl;
-  outFile << "LumiRange " << fbeginLumiOfFit << " - " << fendLumiOfFit << std::endl;
-  outFile << "Type " << fbeamspot.type() << std::endl;
-  outFile << "X0 " << fbeamspot.x0() << std::endl;
-  outFile << "Y0 " << fbeamspot.y0() << std::endl;
-  outFile << "Z0 " << fbeamspot.z0() << std::endl;
-  outFile << "sigmaZ0 " << fbeamspot.sigmaZ() << std::endl;
-  outFile << "dxdz " << fbeamspot.dxdz() << std::endl;
-  outFile << "dydz " << fbeamspot.dydz() << std::endl;
-//  if (inputBeamWidth_ > 0 ) {
-//    outFile << "BeamWidthX " << inputBeamWidth_ << std::endl;
-//    outFile << "BeamWidthY " << inputBeamWidth_ << std::endl;
-//  } else {
+  if ( MyPVFitter->IsFitPerBunchCrossing() ) {
+
+    for (std::map<int,reco::BeamSpot>::const_iterator abspot = fbspotPVMap.begin(); abspot!= fbspotPVMap.end(); ++abspot) {
+      reco::BeamSpot beamspottmp = abspot->second;
+      int bx = abspot->first;
+
+      outFile << "Runnumber " << frun << " bx " << bx << std::endl;
+      outFile << "BeginTimeOfFit " << fbeginTimeOfFit << std::endl;
+      outFile << "EndTimeOfFit " << fendTimeOfFit << std::endl;
+      outFile << "LumiRange " << fbeginLumiOfFit << " - " << fendLumiOfFit << std::endl;
+      outFile << "Type " << beamspottmp.type() << std::endl;
+      outFile << "X0 " << beamspottmp.x0() << std::endl;
+      outFile << "Y0 " << beamspottmp.y0() << std::endl;
+      outFile << "Z0 " << beamspottmp.z0() << std::endl;
+      outFile << "sigmaZ0 " << beamspottmp.sigmaZ() << std::endl;
+      outFile << "dxdz " << beamspottmp.dxdz() << std::endl;
+      outFile << "dydz " << beamspottmp.dydz() << std::endl;
+      outFile << "BeamWidthX " << beamspottmp.BeamWidthX() << std::endl;
+      outFile << "BeamWidthY " << beamspottmp.BeamWidthY() << std::endl;
+      for (int i = 0; i<6; ++i) {
+	outFile << "Cov("<<i<<",j) ";
+	for (int j=0; j<7; ++j) {
+	  outFile << fbeamspot.covariance(i,j) << " ";
+	}
+	outFile << std::endl;
+      }
+      outFile << "Cov(6,j) 0 0 0 0 0 0 " << fbeamspot.covariance(6,6) << std::endl;
+      //}
+      outFile << "EmittanceX " << fbeamspot.emittanceX() << std::endl;
+      outFile << "EmittanceY " << fbeamspot.emittanceY() << std::endl;
+      outFile << "BetaStar " << fbeamspot.betaStar() << std::endl;
+
+    }
+  }
+  else {
+    outFile << "Runnumber " << frun << std::endl;
+    outFile << "BeginTimeOfFit " << fbeginTimeOfFit << std::endl;
+    outFile << "EndTimeOfFit " << fendTimeOfFit << std::endl;
+    outFile << "LumiRange " << fbeginLumiOfFit << " - " << fendLumiOfFit << std::endl;
+    outFile << "Type " << fbeamspot.type() << std::endl;
+    outFile << "X0 " << fbeamspot.x0() << std::endl;
+    outFile << "Y0 " << fbeamspot.y0() << std::endl;
+    outFile << "Z0 " << fbeamspot.z0() << std::endl;
+    outFile << "sigmaZ0 " << fbeamspot.sigmaZ() << std::endl;
+    outFile << "dxdz " << fbeamspot.dxdz() << std::endl;
+    outFile << "dydz " << fbeamspot.dydz() << std::endl;
+    //  if (inputBeamWidth_ > 0 ) {
+    //    outFile << "BeamWidthX " << inputBeamWidth_ << std::endl;
+    //    outFile << "BeamWidthY " << inputBeamWidth_ << std::endl;
+    //  } else {
     outFile << "BeamWidthX " << fbeamspot.BeamWidthX() << std::endl;
     outFile << "BeamWidthY " << fbeamspot.BeamWidthY() << std::endl;
-//  }
-	
-  for (int i = 0; i<6; ++i) {
-    outFile << "Cov("<<i<<",j) ";
-    for (int j=0; j<7; ++j) {
-      outFile << fbeamspot.covariance(i,j) << " ";
+    //  }
+  
+    for (int i = 0; i<6; ++i) {
+      outFile << "Cov("<<i<<",j) ";
+      for (int j=0; j<7; ++j) {
+	outFile << fbeamspot.covariance(i,j) << " ";
+      }
+      outFile << std::endl;
     }
-    outFile << std::endl;
-  }
-  // beam width error
-  //if (inputBeamWidth_ > 0 ) {
-  //  outFile << "Cov(6,j) 0 0 0 0 0 0 " << "1e-4" << std::endl;
-  //} else {
+
+    // beam width error
+    //if (inputBeamWidth_ > 0 ) {
+    //  outFile << "Cov(6,j) 0 0 0 0 0 0 " << "1e-4" << std::endl;
+    //} else {
     outFile << "Cov(6,j) 0 0 0 0 0 0 " << fbeamspot.covariance(6,6) << std::endl;
     //}
-  outFile << "EmittanceX " << fbeamspot.emittanceX() << std::endl;
-  outFile << "EmittanceY " << fbeamspot.emittanceY() << std::endl;
-  outFile << "BetaStar " << fbeamspot.betaStar() << std::endl;
+    outFile << "EmittanceX " << fbeamspot.emittanceX() << std::endl;
+    outFile << "EmittanceY " << fbeamspot.emittanceY() << std::endl;
+    outFile << "BetaStar " << fbeamspot.betaStar() << std::endl;
+  }
   outFile.close();
 }
 

@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: PVFitter.cc,v 1.8 2010/04/16 19:09:30 yumiceva Exp $
+   version $Id: PVFitter.cc,v 1.9 2010/04/21 22:32:37 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -64,6 +64,8 @@ PVFitter::PVFitter(const edm::ParameterSet& iConfig)
   maxVtxZ_           = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<double>("maxVertexZ");
   errorScale_        = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<double>("errorScale");
   sigmaCut_          = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<double>("nSigmaCut");
+  fFitPerBunchCrossing=iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<bool>("FitPerBunchCrossing");
+
   // preset quality cut to "infinite"
   dynamicQualityCut_ = 1.e30;
 
@@ -149,7 +151,9 @@ void PVFitter::readEvent(const edm::Event& iEvent)
           //
           // copy PV to store
           //
+	  int bx = iEvent.bunchCrossing();
           BeamSpotFitPVData pvData;
+	  pvData.bunchCrossing = bx;
           pvData.position[0] = pv->x();
           pvData.position[1] = pv->y();
           pvData.position[2] = pv->z();
@@ -161,6 +165,8 @@ void PVFitter::readEvent(const edm::Event& iEvent)
           pvData.posCorr[2] = pv->covariance(1,2)/pv->yError()/pv->zError();
           pvStore_.push_back(pvData);
 
+	  if (fFitPerBunchCrossing) bxMap_[bx].push_back(pvData);
+
       }
     
   }
@@ -169,6 +175,134 @@ void PVFitter::readEvent(const edm::Event& iEvent)
   
 
 }
+
+bool PVFitter::runBXFitter() {
+
+  std::cout << " Number of bunch crossings: " << bxMap_.size() << std::endl;
+
+  for ( std::map<int,std::vector<BeamSpotFitPVData> >::const_iterator pvStore = bxMap_.begin(); 
+	pvStore!=bxMap_.end(); ++pvStore) {
+
+
+    std::cout << " Number of PVs collected for PVFitter: " << (pvStore->second).size() << " in bx: " << pvStore->first << std::endl;
+
+    if ( (pvStore->second).size() <= minNrVertices_ ) {
+      std::cout << " not enough PVs, continue" << std::endl;
+      continue;
+    }
+
+    //bool fit_ok = false;
+    if(debug_){
+      std::cout << "Calculating beam spot with PVs ..." << std::endl;
+    }
+
+    //
+    // LL function and fitter
+    //
+    FcnBeamSpotFitPV* fcn = new FcnBeamSpotFitPV(pvStore->second);
+    TFitterMinuit minuitx;
+    minuitx.SetMinuitFCN(fcn);
+    //
+    // fit parameters: positions, widths, x-y correlations, tilts in xz and yz
+    //
+    minuitx.SetParameter(0,"x",0.,0.02,-10.,10.);
+    minuitx.SetParameter(1,"y",0.,0.02,-10.,10.);
+    minuitx.SetParameter(2,"z",0.,0.20,-30.,30.);
+    minuitx.SetParameter(3,"ex",0.015,0.01,0.,10.);
+    minuitx.SetParameter(4,"corrxy",0.,0.02,-1.,1.);
+    minuitx.SetParameter(5,"ey",0.015,0.01,0.,10.);
+    minuitx.SetParameter(6,"dxdz",0.,0.0002,-0.1,0.1);
+    minuitx.SetParameter(7,"dydz",0.,0.0002,-0.1,0.1);
+    minuitx.SetParameter(8,"ez",1.,0.1,0.,30.);
+    minuitx.SetParameter(9,"scale",errorScale_,errorScale_/10.,errorScale_/2.,errorScale_*2.);
+    //
+    // first iteration without correlations
+    //
+    int ierr(0);
+    minuitx.FixParameter(4);
+    minuitx.FixParameter(6);
+    minuitx.FixParameter(7);
+    minuitx.FixParameter(9);
+    minuitx.SetMaxIterations(100);
+    //       minuitx.SetPrintLevel(3);
+    minuitx.SetPrintLevel(0);
+    minuitx.CreateMinimizer();
+    ierr = minuitx.Minimize();
+    if ( ierr ) {
+      if ( debug_ )
+	std::cout << "3D beam spot fit failed in 1st iteration" << std::endl;
+      continue;
+    }
+    //
+    // refit with harder selection on vertices
+    //
+    fcn->setLimits(minuitx.GetParameter(0)-sigmaCut_*minuitx.GetParameter(3),
+		   minuitx.GetParameter(0)+sigmaCut_*minuitx.GetParameter(3),
+		   minuitx.GetParameter(1)-sigmaCut_*minuitx.GetParameter(5),
+		   minuitx.GetParameter(1)+sigmaCut_*minuitx.GetParameter(5),
+		   minuitx.GetParameter(2)-sigmaCut_*minuitx.GetParameter(8),
+		   minuitx.GetParameter(2)+sigmaCut_*minuitx.GetParameter(8));
+    ierr = minuitx.Minimize();
+    if ( ierr ) {
+      if ( debug_ )
+	std::cout << "3D beam spot fit failed in 2nd iteration" << std::endl;
+      continue;
+    }
+    //
+    // refit with correlations
+    //
+    minuitx.ReleaseParameter(4);
+    minuitx.ReleaseParameter(6);
+    minuitx.ReleaseParameter(7);
+   
+    ierr = minuitx.Minimize();
+    if ( ierr ) {
+      if ( debug_ )
+	std::cout << "3D beam spot fit failed in 3rd iteration" << std::endl;
+      continue;
+    }
+    // refit with floating scale factor
+    //   minuitx.ReleaseParameter(9);
+    //   minuitx.Minimize();
+  
+    minuitx.PrintResults(0,0);
+
+    fwidthX = minuitx.GetParameter(3);
+    fwidthY = minuitx.GetParameter(5);
+    fwidthZ = minuitx.GetParameter(8);
+    fwidthXerr = minuitx.GetParError(3);
+    fwidthYerr = minuitx.GetParError(5);
+    fwidthZerr = minuitx.GetParError(8);
+
+    reco::BeamSpot::CovarianceMatrix matrix;
+    // need to get the full cov matrix
+    matrix(0,0) = pow( minuitx.GetParError(0), 2);
+    matrix(1,1) = pow( minuitx.GetParError(1), 2);
+    matrix(2,2) = pow( minuitx.GetParError(2), 2);
+    matrix(3,3) = fwidthZerr * fwidthZerr;
+    matrix(6,6) = fwidthXerr * fwidthXerr;
+
+    fbeamspot = reco::BeamSpot( reco::BeamSpot::Point(minuitx.GetParameter(0),
+						      minuitx.GetParameter(1),
+						      minuitx.GetParameter(2) ),
+				fwidthZ,
+				minuitx.GetParameter(6), minuitx.GetParameter(7),
+				fwidthX,
+				matrix );
+    fbeamspot.setBeamWidthX( fwidthX );
+    fbeamspot.setBeamWidthY( fwidthY );
+
+    fbspotMap[pvStore->first] = fbeamspot;
+    if (debug_)
+      std::cout<< "3D PV fit done for this bunch crossing."<<std::endl;
+    minuitx.Clear();
+    //delete fcn;
+
+  }
+
+  return true;
+}
+
 
 bool PVFitter::runFitter() {
 
