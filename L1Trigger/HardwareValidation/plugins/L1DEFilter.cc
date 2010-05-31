@@ -16,10 +16,10 @@ void
 L1DEFilter::endJob() 
 {
   //compute rate of d|e disagreeing events
-  double rate = (nEvt_>0) ? nAgree_ / nEvt_ : 0;
+  double rate = (nEvt_>0) ? (double)nAgree_ / (double)nEvt_ : 0;
   std::cout << "[L1DEFilter] Data|Emul mismatch event rate: "
 	    << rate 
-	    << std::cout;
+	    << std::endl;
 }
 
 // ------------ method called on each new Event  ------------
