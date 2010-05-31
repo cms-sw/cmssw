@@ -18,7 +18,11 @@ except ImportError:
 
 from matplotlib.figure import Figure
 from matplotlib.font_manager import fontManager,FontProperties
-
+matplotlib.rcParams['lines.linewidth']=1.3
+matplotlib.rcParams['grid.linewidth']=0.2
+matplotlib.rcParams['xtick.labelsize']='medium'
+matplotlib.rcParams['ytick.labelsize']='medium'
+matplotlib.rcParams['font.weight']='demibold'
 def myinclusiveRange(start,stop,step):
     v=start
     while v<stop:
@@ -34,10 +38,15 @@ class matplotRender():
     def __init__(self,fig):
         self.__fig=fig
         self.__canvas=''
-        
-    def plotSumX_Run(self,rawxdata,rawydata,sampleinterval=5,nticks=10):
+        self.colormap={}
+        self.colormap['Delivered']='r'
+        self.colormap['Recorded']='b'
+        self.colormap['Effective']='g'
+
+    def plotSumX_Run(self,rawxdata,rawydata,sampleinterval=2,nticks=6):
         xpoints=[]
         ypoints={}
+        ytotal={}
         xidx=[]
         #print 'max rawxdata ',max(rawxdata)
         #print 'min rawxdata ',min(rawxdata)
@@ -49,34 +58,36 @@ class matplotRender():
         for ylabel,yvalues in rawydata.items():
             ypoints[ylabel]=[]
             for i in xidx:
-                ypoints[ylabel].append(sum(yvalues[0:i])/1000.0)                
+                ypoints[ylabel].append(sum(yvalues[0:i])/1000.0)
+            ytotal[ylabel]=sum(yvalues)/1000.0    
         ax=self.__fig.add_subplot(111)
-        ax.set_xlabel(r'Run')
-        ax.set_ylabel(r'L nb$^{-1}$')
+        ax.set_xlabel(r'Run',position=(0.95,0))
+        ax.set_ylabel(r'L nb$^{-1}$',position=(0,0.9))
         xticklabels=ax.get_xticklabels()
         for tx in xticklabels:
             tx.set_rotation(30)
-        #majorLocator=matplotlib.ticker.MultipleLocator( nticks )
         majorLocator=matplotlib.ticker.LinearLocator( nticks )
         majorFormatter=matplotlib.ticker.FormatStrFormatter('%d')
-        #minorLocator=matplotlib.ticker.MultipleLocator(5)
+        minorLocator=matplotlib.ticker.LinearLocator(numticks=6)
         ax.xaxis.set_major_locator(majorLocator)
         ax.xaxis.set_major_formatter(majorFormatter)
-        #ax.xaxis.set_minor_locator(minorLocator)
-        ax.grid(False)
-        for ylabel,yvalue in ypoints.items():
-            #print 'plotting x ',xpoints
-            #print 'plotting y ',yvalue
-            ax.plot(xpoints,yvalue,label=ylabel)
+        ax.xaxis.set_minor_locator(minorLocator)
+        ax.grid(True)
+        keylist=ypoints.keys()
+        keylist.sort()
+        legendlist=[]
+        for ylabel in keylist:
+            cl='k'
+            if self.colormap.has_key(ylabel):
+                cl=self.colormap[ylabel]
+            ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl)
+            legendlist.append(ylabel+' '+'%.2f'%(ytotal[ylabel])+' '+'nb$^{-1}$')
+        #font=FontProperties(size='medium',weight='demibold')
 
-        font=FontProperties(size='small')
-        ax.legend(tuple(ypoints.keys()),loc='best',prop=font)
-
-        #legtxt=leg.get_texts()
-        #legtxt.size='xx-small'
+        ax.legend(tuple(legendlist),loc='best')
         self.__fig.subplots_adjust(bottom=0.18,left=0.18)
         
-    def plotSumX_Fill(self,rawxdata,rawydata,rawfillDict,sampleinterval=2,nticks=5):
+    def plotSumX_Fill(self,rawxdata,rawydata,rawfillDict,sampleinterval=2,nticks=6):
         #rawxdata,rawydata must be equal size
         #calculate tick values
         print 'rawxdata : ',rawxdata
@@ -88,6 +99,7 @@ class matplotRender():
         fillboundaries=[]
         xpoints=[]
         ypoints={}
+        ytotal={}
         for ylabel in rawydata.keys():
             ypoints[ylabel]=[]
         xidx=[]
@@ -106,12 +118,15 @@ class matplotRender():
                     xidx=rawxdata.index(max(runlist))
                     #break
             print 'max runnum for fillboundary ',fillboundary, rawxdata[xidx]
-            for ylabel in ypoints:
-                ypoints[ylabel].append(sum(rawydata[ylabel][0:xidx])/1000.0)        
-        print 'ypoints : ',ypoints            
+            
+            for ylabel in ypoints.keys():
+                ypoints[ylabel].append(sum(rawydata[ylabel][0:xidx])/1000.0)
+        print 'ypoints : ',ypoints
+        for ylabel,yvalue in rawydata.items():
+            ytotal[ylabel]=sum(rawydata[ylabel])/1000.0
         ax=self.__fig.add_subplot(111)
-        ax.set_xlabel(r'Fill')
-        ax.set_ylabel(r'L nb$^{-1}$')
+        ax.set_xlabel(r'LHC Fill Number',position=(0.84,0))
+        ax.set_ylabel(r'L nb$^{-1}$',position=(0,0.9))
         xticklabels=ax.get_xticklabels()
         majorLocator=matplotlib.ticker.LinearLocator( nticks )
         majorFormatter=matplotlib.ticker.FormatStrFormatter('%d')
@@ -120,11 +135,18 @@ class matplotRender():
         ax.xaxis.set_major_formatter(majorFormatter)
         #ax.xaxis.set_minor_locator(minorLocator)
         ax.grid(True)
-        for ylabel,yvalue in ypoints.items():
-            ax.plot(xpoints,yvalue,label=ylabel)
-        font=FontProperties(size='small')
-        ax.legend(tuple(ypoints.keys()),loc='best',prop=font)
-        self.__fig.subplots_adjust(bottom=0.18,left=0.18)
+        keylist=ypoints.keys()
+        keylist.sort()
+        legendlist=[]
+        for ylabel in keylist:
+            cl='k'
+            if self.colormap.has_key(ylabel):
+                cl=self.colormap[ylabel]
+            ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl)
+            legendlist.append(ylabel+' '+'%.2f'%(ytotal[ylabel])+' '+'nb$^{-1}$')
+        #font=FontProperties(size='medium',weight='demibold')
+        ax.legend(tuple(legendlist),loc='best')
+        self.__fig.subplots_adjust(bottom=0.18,left=0.3)
         
     def drawHTTPstring(self):
         self.__canvas=CanvasBackend(self.__fig)    
