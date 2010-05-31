@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerProducer.cc,v 1.15 2010/04/20 21:39:47 vadler Exp $
+// $Id: PATTriggerProducer.cc,v 1.16 2010/05/18 12:33:28 vadler Exp $
 //
 
 
@@ -137,35 +137,6 @@ void PATTriggerProducer::beginRun( Run & iRun, const EventSetup & iSetup )
         hltPrescaleTableRun_ = trigger::HLTPrescaleTable( handleHltPrescaleTable->set(), handleHltPrescaleTable->labels(), handleHltPrescaleTable->table() );
       }
     }
-    // Try parameter set, if no run product (products preferred, if configured explicitly)
-    if ( hltPrescaleTableRun_.size() == 0 ) {
-      std::string prescaleName( "" );
-      const std::string preS( "PrescaleService" ); // FIXME hard-coding
-      const std::string preT( "PrescaleTable" );   // FIXME hard-coding
-      if ( hltConfig_.processPSet().exists( preS ) ) {
-        prescaleName = preS;
-      } else if ( hltConfig_.processPSet().exists( preT ) ) {
-        prescaleName = preT;
-      }
-      if ( prescaleName.size() > 0 ) {
-        const ParameterSet parameterSet( hltConfig_.processPSet().getParameter< ParameterSet >( prescaleName ) );
-        const std::string hltPrescaleLabel( parameterSet.getUntrackedParameter< std::string >( "lvl1DefaultLabel", "" ) ); // FIXME Is the untracked parameter available?
-        const std::vector< std::string > prescaleLabels( parameterSet.getParameter< std::vector< std::string > >( "lvl1Labels" ) );
-        unsigned set( 0 );
-        for ( unsigned iLabel = 0; iLabel < prescaleLabels.size(); ++iLabel ) {
-          if ( prescaleLabels.at( iLabel ) == hltPrescaleLabel ) {
-            set = iLabel;
-            break;
-          }
-        }
-        std::map< std::string, std::vector< unsigned > > prescaleTable;
-        const std::vector< ParameterSet > prescaleParameters( parameterSet.getParameter< std::vector< ParameterSet > >( "prescaleTable" ) );
-        for ( std::vector< ParameterSet >::const_iterator iPSet = prescaleParameters.begin(); iPSet != prescaleParameters.end(); ++iPSet ) {
-          prescaleTable.insert( make_pair( iPSet->getParameter< std::string >( "pathName" ), iPSet->getParameter< std::vector< unsigned > >( "prescales" ) ) );
-        }
-        hltPrescaleTableRun_ = trigger::HLTPrescaleTable( set, prescaleLabels, prescaleTable );
-      }
-    }
   }
 
 }
@@ -210,11 +181,11 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
   if ( goodHlt ) {
     if( ! handleTriggerResults.isValid() ) {
       LogError( "errorTriggerResultsValid" ) << "TriggerResults product with InputTag " << tagTriggerResults_.encode() << " not in event" << std::endl
-                                                  << "No HLT information produced.";
+                                             << "No HLT information produced.";
       goodHlt = false;
     } else if ( ! handleTriggerEvent.isValid() ) {
       LogError( "errorTriggerEventValid" ) << "trigger::TriggerEvent product with InputTag " << tagTriggerEvent_.encode() << " not in event" << std::endl
-                                                << "No HLT information produced.";
+                                           << "No HLT information produced.";
       goodHlt = false;
     }
   }
@@ -243,22 +214,37 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         hltPrescaleTable = trigger::HLTPrescaleTable( handleHltPrescaleTable->set(), handleHltPrescaleTable->labels(), handleHltPrescaleTable->table() );
       }
     }
-    unsigned set( 0 );
-    bool foundPrescaleLabel( false );
-    if ( hltPrescaleLabel_.size() > 0 ) {
-      const std::vector< std::string > prescaleLabels( hltPrescaleTable.labels() );
-      for ( unsigned iLabel = 0; iLabel <  prescaleLabels.size(); ++iLabel ) {
-        if ( prescaleLabels.at( iLabel ) == hltPrescaleLabel_ ) {
-          set   = iLabel;
-          foundPrescaleLabel = true;
-          break;
+    // Try event setup, if no product
+    if ( hltPrescaleTable.size() == 0 ) {
+      if ( ! labelHltPrescaleTable_.empty() ) {
+        LogWarning( "hltPrescaleInputTag" ) << "HLTPrescaleTable product with label '" << labelHltPrescaleTable_ << "' not found in process '" << nameProcess_ << "'; using default from event setup";
+      }
+      if ( hltConfig_.prescaleSize() > 0 ) {
+        if ( hltConfig_.prescaleSet( iEvent, iSetup ) != -1 ) {
+          hltPrescaleTable = trigger::HLTPrescaleTable( hltConfig_.prescaleSet( iEvent, iSetup ), hltConfig_.prescaleLabels(), hltConfig_.prescaleTable() );
+        } else {
+          LogWarning( "hltPrescaleSet" ) << "HLTPrescaleTable from event setup has error";
         }
       }
-      if ( ! foundPrescaleLabel ) {
-        LogWarning( "hltPrescaleLabel" ) << "HLT prescale label '" << hltPrescaleLabel_ << "' not in prescale table; using default";
-      }
     }
-    if ( ! foundPrescaleLabel ) set = hltPrescaleTable.set();
+    unsigned set( hltPrescaleTable.set() );
+    if ( hltPrescaleTable.size() > 0 ) {
+      if ( hltPrescaleLabel_.size() > 0 ) {
+        bool foundPrescaleLabel( false );
+        for ( unsigned iLabel = 0; iLabel <  hltPrescaleTable.labels().size(); ++iLabel ) {
+          if ( hltPrescaleTable.labels().at( iLabel ) == hltPrescaleLabel_ ) {
+            set                = iLabel;
+            foundPrescaleLabel = true;
+            break;
+          }
+        }
+        if ( ! foundPrescaleLabel ) {
+          LogWarning( "hltPrescaleLabel" ) << "HLT prescale label '" << hltPrescaleLabel_ << "' not in prescale table; using default";
+        }
+      }
+    } else {
+      LogWarning( "hltPrescaleTable" ) << "No HLT prescale table found; using default empty table with all prescales 1";
+    }
 
     for ( size_t iP = 0; iP < sizePaths; ++iP ) {
       const std::string namePath( hltConfig_.triggerName( iP ) );
