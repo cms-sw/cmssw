@@ -29,7 +29,14 @@ process.EWK_MuHLTFilter.HLTPaths = ["HLT_Mu9"]
 # Muon candidates filters 
 process.goodMuons = cms.EDFilter("MuonSelector",
   src = cms.InputTag("muons"),
-  cut = cms.string('pt > 20 && abs(dxy)<1.0 && abs(eta)<2.4 && isGlobalMuon = 1 && isTrackerMuon && isolationR03().sumPt<3.0'),
+  cut = cms.string('pt > 20 && abs(eta)<2.4 && isGlobalMuon = 1 && isTrackerMuon = 1 && isolationR03().sumPt<3.0'),
+  filter = cms.bool(True)                                
+)
+
+# dxy filter on good muons
+process.dxyFilteredMuons = cms.EDFilter("MuonSelector",
+  src = cms.InputTag("goodMuons"),
+  cut = cms.string('abs(innerTrack().dxy)<1.0'),
   filter = cms.bool(True)                                
 )
 
@@ -37,7 +44,7 @@ process.goodMuons = cms.EDFilter("MuonSelector",
 process.dimuons = cms.EDProducer("CandViewShallowCloneCombiner",
     checkCharge = cms.bool(True),
     cut = cms.string('mass > 60'),
-    decay = cms.string("goodMuons@+ goodMuons@-")
+    decay = cms.string("dxyFilteredMuons@+ dxyFilteredMuons@-")
 )
 
 # Z filters
@@ -54,26 +61,30 @@ process.load("ElectroWeakAnalysis.WMuNu.WMuNuSelection_cff")
 process.seltcMet.JetTag = cms.untracked.InputTag("ak5CaloJets")
 process.seltcMet.TrigTag = cms.untracked.InputTag("TriggerResults::HLT")
 process.seltcMet.IsCombinedIso = cms.untracked.bool(True)
-process.seltcMet.IsoCut03 = cms.untracked.double(0.15),
+process.seltcMet.IsoCut03 = cms.untracked.double(0.15)
 
 process.selpfMet.JetTag = cms.untracked.InputTag("ak5CaloJets")
 process.selpfMet.TrigTag = cms.untracked.InputTag("TriggerResults::HLT")
 process.selpfMet.IsCombinedIso = cms.untracked.bool(True)
-process.selpfMet.IsoCut03 = cms.untracked.double(0.15),
+process.selpfMet.IsoCut03 = cms.untracked.double(0.15)
 
 # Skim paths
 process.EWK_dimuonsPath = cms.Path(
+    process.EWK_MuHLTFilter *
     process.goodMuons *
+    process.dxyFilteredMuons *
     process.dimuons *
     process.dimuonsFilter
     )
 
 process.EWK_tcMetWMuNusPath = cms.Path(
+    process.EWK_MuHLTFilter *
     process.tcMetWMuNus *
     process.seltcMet
 )
 
 process.EWK_pfMetWMuNusPath = cms.Path(
+    process.EWK_MuHLTFilter *
     process.pfMetWMuNus *
     process.selpfMet
 )
