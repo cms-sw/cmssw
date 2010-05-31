@@ -291,13 +291,7 @@ void L1Scalers::analyze(const edm::Event &e, const edm::EventSetup &iSetup)
 
     // remember the bx of 1st candidate of each system (9=none)
     int bx1st[4] = {9, 9, 9, 9};
-    // get GMT readout collection
-    L1MuGMTReadoutCollection const* gmtrc = gmtCollection.product();
-    // get record vector
-    std::vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
-    // loop over records of individual bx's
-    std::vector<L1MuGMTReadoutRecord>::const_iterator RRItr;
-  
+      
     if(tfBitGood){//to avoid single BSC hits
 
       for(int iebx=0; iebx<=4; iebx++) {
@@ -344,34 +338,45 @@ void L1Scalers::analyze(const edm::Event &e, const edm::EventSetup &iSetup)
 	    }
 	  }
 
-	  //get earliest single muon trigger system bx's
-	  if (gmtCollection.isValid()) {
-	    for( RRItr = gmt_records.begin(); RRItr != gmt_records.end(); RRItr++ ) {//loop from BX=-2 to BX=2
-	      std::vector<L1MuRegionalCand> INPCands[4] = {
-		RRItr->getDTBXCands(),
-		RRItr->getBrlRPCCands(),
-		RRItr->getCSCCands(),
-		RRItr->getFwdRPCCands()
-	      };
-	      std::vector<L1MuRegionalCand>::const_iterator INPItr;
-	      int BxInEvent = RRItr->getBxInEvent();
-	      // find the first non-empty candidate in this bx
-	      for(int i=0; i<4; i++) {//for each single muon trigger system
-		for( INPItr = INPCands[i].begin(); INPItr != INPCands[i].end(); ++INPItr ) {
-		  if(!INPItr->empty()) {
-		    if(bx1st[i]==9) bx1st[i]=BxInEvent;
-		  }
-		}      
-	      }
-	      //for(int i=0; i<4; i++) 
-	      //	std::cout << "bx1st[" << i << "] = " << bx1st[i];
-	      //std::cout << std::endl;
-	    }
-	  }
-
 	}//denomBitGood
 
       }//bx
+
+
+      //get earliest single muon trigger system bx's
+      if (gmtCollection.isValid()) {
+
+	// get GMT readout collection
+	L1MuGMTReadoutCollection const* gmtrc = gmtCollection.product();
+	// get record vector
+	std::vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
+	// loop over records of individual bx's
+	std::vector<L1MuGMTReadoutRecord>::const_iterator RRItr;
+
+	for( RRItr = gmt_records.begin(); RRItr != gmt_records.end(); RRItr++ ) {//loop from BX=-2 to BX=2
+	  std::vector<L1MuRegionalCand> INPCands[4] = {
+	    RRItr->getDTBXCands(),
+	    RRItr->getBrlRPCCands(),
+	    RRItr->getCSCCands(),
+	    RRItr->getFwdRPCCands()
+	  };
+	  std::vector<L1MuRegionalCand>::const_iterator INPItr;
+	  int BxInEvent = RRItr->getBxInEvent();
+	  
+	  // find the first non-empty candidate in this bx
+	  for(int i=0; i<4; i++) {//for each single muon trigger system
+	    for( INPItr = INPCands[i].begin(); INPItr != INPCands[i].end(); ++INPItr ) {
+	      if(!INPItr->empty()) {
+		if(bx1st[i]==9) bx1st[i]=BxInEvent+2;//must go from 0 to 4 (consistent with above)
+	      }
+	    }      
+	  }
+	  //for(int i=0; i<4; i++) 
+	  //	std::cout << "bx1st[" << i << "] = " << bx1st[i];
+	  //std::cout << std::endl;
+	}
+
+      }//gmtCollection.isValid
 
 
       //calculated bx difference
