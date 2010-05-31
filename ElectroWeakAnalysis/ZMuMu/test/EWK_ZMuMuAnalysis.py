@@ -1,5 +1,3 @@
-
-
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ZMuMuSubskim")
@@ -35,7 +33,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('START3X_V26::All')
+process.GlobalTag.globaltag = cms.string('START36_V8::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 ### subskim
@@ -59,13 +57,19 @@ from ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesSequences_cff import *
 
 process.TFileService = cms.Service(
     "TFileService",
-    fileName = cms.string("file:ewkZMuMuCategories_oneshot_all_3_Test.root")
+    fileName = cms.string("file:ewkZMuMuCategories_oneshot_Test.root")
 )
 
 
 ### vertexing
 process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesVtxed_cff")
 process.vtxedNtuplesOut.fileName = cms.untracked.string('file:VtxedNtupleLoose_test.root')
+
+### to process REDIGI HLT tables uncomment the following
+process.patTrigger.processName = "REDIGI"
+process.patTriggerEvent.processName = "REDIGI"
+process.patTrigger.triggerResults = cms.InputTag( "TriggerResults::REDIGI" )
+process.patTrigger.triggerEvent = cms.InputTag( "hltTriggerSummaryAOD::REDIGI" )
 
 ### plots
 process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesPlots_cff")
