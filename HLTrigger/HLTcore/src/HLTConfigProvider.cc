@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/03/31 07:44:25 $
- *  $Revision: 1.46 $
+ *  $Date: 2010/05/28 11:10:23 $
+ *  $Revision: 1.47 $
  *
  *  \author Martin Grunewald
  *
@@ -671,9 +671,9 @@ int HLTConfigProvider::prescaleSet(const edm::Event& iEvent, const edm::EventSet
   // return hltPrescaleTable_.set();
   l1GtUtils_->retrieveL1EventSetup(iSetup);
   int errorTech(0);
-  const int psfsiTech(l1GtUtils_->prescaleFactorSetIndex(iEvent,"TechnicalTriggers",errorTech));
+  const int psfsiTech(l1GtUtils_->prescaleFactorSetIndex(iEvent,L1GtUtils::TechnicalTrigger,errorTech));
   int errorPhys(0);
-  const int psfsiPhys(l1GtUtils_->prescaleFactorSetIndex(iEvent,"PhysicsAlgorithms",errorPhys));
+  const int psfsiPhys(l1GtUtils_->prescaleFactorSetIndex(iEvent,L1GtUtils::AlgorithmTrigger,errorPhys));
   assert(psfsiTech==psfsiPhys);
   if ( (errorTech==0) && (errorPhys==0) &&
        (psfsiTech>=0) && (psfsiPhys>=0) && (psfsiTech==psfsiPhys) ) {
