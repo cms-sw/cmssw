@@ -290,36 +290,7 @@
      <string>recoMET</string>
    </config>
   </config>
-  <config name="ESRecHit" version="3">
-   <config name="type" version="0">
-     <string>edm::SortedCollection&lt;EcalRecHit,edm::StrictWeakOrdering&lt;EcalRecHit&gt; &gt;</string>
-   </config>
-   <config name="moduleLabel" version="0">
-     <string>ecalPreshowerRecHit</string>
-   </config>
-   <config name="productInstanceLabel" version="0">
-     <string>EcalRecHitsES</string>
-   </config>
-   <config name="processName" version="0">
-     <string></string>
-   </config>
-   <config name="filterExpression" version="0">
-     <string></string>
-   </config>
-   <config name="color" version="0">
-     <string>8</string>
-   </config>
-   <config name="isVisible" version="0">
-     <string>t</string>
-   </config>
-   <config name="layer" version="0">
-     <string>14</string>
-   </config>
-   <config name="purpose" version="0">
-     <string>Calo RecHit</string>
-   </config>
-  </config>
-  <config name="EBRecHits" version="3">
+  <config name="EB RecHits" version="3">
    <config name="type" version="0">
      <string>edm::SortedCollection&lt;EcalRecHit,edm::StrictWeakOrdering&lt;EcalRecHit&gt; &gt;</string>
    </config>
@@ -342,13 +313,13 @@
      <string>t</string>
    </config>
    <config name="layer" version="0">
-     <string>15</string>
+     <string>20</string>
    </config>
    <config name="purpose" version="0">
-     <string>Calo RecHit</string>
+     <string>Ecal RecHit</string>
    </config>
   </config>
-  <config name="EERecHits" version="3">
+  <config name="EE RecHits" version="3">
    <config name="type" version="0">
      <string>edm::SortedCollection&lt;EcalRecHit,edm::StrictWeakOrdering&lt;EcalRecHit&gt; &gt;</string>
    </config>
@@ -371,13 +342,42 @@
      <string>t</string>
    </config>
    <config name="layer" version="0">
-     <string>16</string>
+     <string>21</string>
    </config>
    <config name="purpose" version="0">
-     <string>Calo RecHit</string>
+     <string>Ecal RecHit</string>
    </config>
   </config>
-  <config name="HCalRecHits" version="3">
+  <config name="ES RecHits" version="3">
+   <config name="type" version="0">
+     <string>edm::SortedCollection&lt;EcalRecHit,edm::StrictWeakOrdering&lt;EcalRecHit&gt; &gt;</string>
+   </config>
+   <config name="moduleLabel" version="0">
+     <string>ecalPreshowerRecHit</string>
+   </config>
+   <config name="productInstanceLabel" version="0">
+     <string>EcalRecHitsES</string>
+   </config>
+   <config name="processName" version="0">
+     <string></string>
+   </config>
+   <config name="filterExpression" version="0">
+     <string>energy&gt;0.001</string>
+   </config>
+   <config name="color" version="0">
+     <string>11</string>
+   </config>
+   <config name="isVisible" version="0">
+     <string>t</string>
+   </config>
+   <config name="layer" version="0">
+     <string>22</string>
+   </config>
+   <config name="purpose" version="0">
+     <string>Ecal RecHit</string>
+   </config>
+  </config>
+  <config name="HBHE RecHits" version="3">
    <config name="type" version="0">
      <string>edm::SortedCollection&lt;HBHERecHit,edm::StrictWeakOrdering&lt;HBHERecHit&gt; &gt;</string>
    </config>
@@ -391,7 +391,7 @@
      <string></string>
    </config>
    <config name="filterExpression" version="0">
-     <string>energy&gt;0.5</string>
+     <string>energy&gt;0.65</string>
    </config>
    <config name="color" version="0">
      <string>5</string>
@@ -400,13 +400,13 @@
      <string>t</string>
    </config>
    <config name="layer" version="0">
-     <string>17</string>
+     <string>23</string>
    </config>
    <config name="purpose" version="0">
      <string>HBHE RecHit</string>
    </config>
   </config>
-  <config name="HORecHits" version="3">
+  <config name="HO RecHits" version="3">
    <config name="type" version="0">
      <string>edm::SortedCollection&lt;HORecHit,edm::StrictWeakOrdering&lt;HORecHit&gt; &gt;</string>
    </config>
@@ -429,13 +429,13 @@
      <string>t</string>
    </config>
    <config name="layer" version="0">
-     <string>18</string>
+     <string>24</string>
    </config>
    <config name="purpose" version="0">
      <string>HO RecHit</string>
    </config>
   </config>
-  <config name="hfreco" version="3">
+  <config name="HF RecHits" version="3">
    <config name="type" version="0">
      <string>edm::SortedCollection&lt;HFRecHit,edm::StrictWeakOrdering&lt;HFRecHit&gt; &gt;</string>
    </config>
@@ -452,13 +452,13 @@
      <string>energy&gt;10</string>
    </config>
    <config name="color" version="0">
-     <string>23</string>
+     <string>1</string>
    </config>
    <config name="isVisible" version="0">
      <string>t</string>
    </config>
    <config name="layer" version="0">
-     <string>19</string>
+     <string>25</string>
    </config>
    <config name="purpose" version="0">
      <string>HF RecHit</string>
@@ -530,7 +530,7 @@
       <string>1</string>
     </config>
     <config name="Line width" version="0">
-      <string>1</string>
+      <string>2</string>
     </config>
     <config name="Show Muon Barrel" version="0">
       <string>1</string>
@@ -557,40 +557,40 @@
       <string>98</string>
     </config>
     <config name="EventInfoTextSize" version="0">
-      <string>0.0215528</string>
+      <string>0.0329312</string>
     </config>
     <config name="EventInfoPosX" version="0">
-      <string>0.134583</string>
+      <string>0.129932</string>
     </config>
     <config name="EventInfoPosY" version="0">
-      <string>0.974217</string>
+      <string>0.995493</string>
     </config>
     <config name="LogoSize" version="0">
-      <string>0.0864318</string>
+      <string>0.122418</string>
     </config>
     <config name="LogoPosX" version="0">
-      <string>0.02</string>
+      <string>0.00449612</string>
     </config>
     <config name="LogoPosY" version="0">
-      <string>0.98</string>
+      <string>0.996717</string>
     </config>
     <config name="cameraMatrix0Plain3D" version="0">
-      <string>0.347343</string>
+      <string>-0.423957</string>
     </config>
     <config name="cameraMatrix1Plain3D" version="0">
-      <string>-0.870001</string>
+      <string>-0.819568</string>
     </config>
     <config name="cameraMatrix2Plain3D" version="0">
-      <string>0.349931</string>
+      <string>0.385448</string>
     </config>
     <config name="cameraMatrix3Plain3D" version="0">
       <string>0</string>
     </config>
     <config name="cameraMatrix4Plain3D" version="0">
-      <string>0.928719</string>
+      <string>0.888199</string>
     </config>
     <config name="cameraMatrix5Plain3D" version="0">
-      <string>0.370785</string>
+      <string>-0.45946</string>
     </config>
     <config name="cameraMatrix6Plain3D" version="0">
       <string>0</string>
@@ -599,25 +599,25 @@
       <string>0</string>
     </config>
     <config name="cameraMatrix8Plain3D" version="0">
-      <string>-0.129749</string>
+      <string>0.177097</string>
     </config>
     <config name="cameraMatrix9Plain3D" version="0">
-      <string>0.324987</string>
+      <string>0.342354</string>
     </config>
     <config name="cameraMatrix10Plain3D" version="0">
-      <string>0.936776</string>
+      <string>0.92273</string>
     </config>
     <config name="cameraMatrix11Plain3D" version="0">
       <string>0</string>
     </config>
     <config name="cameraMatrix12Plain3D" version="0">
-      <string>1128.34</string>
+      <string>-1313.49</string>
     </config>
     <config name="cameraMatrix13Plain3D" version="0">
-      <string>-2949.26</string>
+      <string>-2833.66</string>
     </config>
     <config name="cameraMatrix14Plain3D" version="0">
-      <string>1110.42</string>
+      <string>1211.87</string>
     </config>
     <config name="cameraMatrix15Plain3D" version="0">
       <string>1</string>
@@ -671,7 +671,7 @@
       <string>1</string>
     </config>
     <config name="Plain3D FOV" version="0">
-      <string>16.1555</string>
+      <string>27.4742</string>
     </config>
    </config>
    <config name="Rho Phi" version="2">
