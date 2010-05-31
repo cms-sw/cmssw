@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:12 CET 2010
-// $Id: FWProxyBuilderBase.h,v 1.10 2010/05/11 12:39:06 amraktad Exp $
+// $Id: FWProxyBuilderBase.h,v 1.11 2010/05/26 17:47:25 amraktad Exp $
 //
 
 // system include files
@@ -106,8 +106,15 @@ protected:
       return m_ids;
    }
    
-   //Override this if you need to special handle selection or other changes
-   virtual bool specialModelChangeHandling(const FWModelId&, TEveElement*, FWViewType::EType, const FWViewContext*);
+   // Override this if visibility changes can cause (re)-creation of proxies.
+   // Returns true if new proxies were created.
+   virtual bool visibilityModelChanges(const FWModelId&, TEveElement*, FWViewType::EType,
+                                       const FWViewContext*);
+
+   // Override this if you need special handling of selection or other changes.
+   virtual void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
+                                  FWViewType::EType viewType, const FWViewContext* vc);
+
    virtual void applyChangesToAllModels(Product*);
 
    virtual void modelChanges(const FWModelIds&, Product*);
@@ -124,7 +131,7 @@ protected:
    virtual void cleanLocal();
 
    // utility
-   TEveCompound* createCompound(bool set_color = true, bool propagate_color_to_all_children = true) const;
+   TEveCompound* createCompound(bool set_color=true, bool propagate_color_to_all_children=false) const;
 
 
 private:

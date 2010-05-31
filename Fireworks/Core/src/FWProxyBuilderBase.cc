@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:00 CET 2010
-// $Id: FWProxyBuilderBase.cc,v 1.18 2010/05/31 15:24:45 eulisse Exp $
+// $Id: FWProxyBuilderBase.cc,v 1.19 2010/05/31 15:44:01 eulisse Exp $
 //
 
 // system include files
@@ -197,9 +197,13 @@ FWProxyBuilderBase::modelChanges(const FWModelIds& iIds, Product* p)
          ++index;
          assert(itElement != elms->EndChildren());
       }
-      if (specialModelChangeHandling(*it, *itElement, p->m_viewType, p->m_viewContext))
+      if (visibilityModelChanges(*it, *itElement, p->m_viewType, p->m_viewContext))
       {
          elms->ProjectChild(*itElement);
+      }
+      else
+      {
+        localModelChanges(*it, *itElement, p->m_viewType, p->m_viewContext);
       }
    }
 }
@@ -312,10 +316,18 @@ FWProxyBuilderBase::setInteractionList(FWInteractionList* l, const std::string& 
 
 
 bool
-FWProxyBuilderBase::specialModelChangeHandling(const FWModelId&, TEveElement*, FWViewType::EType, const FWViewContext*)
+FWProxyBuilderBase::visibilityModelChanges(const FWModelId&, TEveElement*, FWViewType::EType, const FWViewContext*)
 {
    return false;
 }
+
+void
+FWProxyBuilderBase::localModelChanges(const FWModelId&, TEveElement*, FWViewType::EType, const FWViewContext*)
+{
+   // Nothing to be done in base class.
+   // Visibility, main color and main transparency are handled through FWInteractionList.
+}
+
 
 void
 FWProxyBuilderBase::scaleChanged(const FWViewContext* vc)
@@ -395,6 +407,7 @@ FWProxyBuilderBase::setupElement(TEveElement* el, bool color) const
    if (color)
    {
       el->CSCApplyMainColorToMatchingChildren();
+      el->CSCApplyMainTransparencyToMatchingChildren();
       el->SetMainColor(m_item->defaultDisplayProperties().color());
       assert((100 - m_item->defaultDisplayProperties().opacity() >= 0)
              && (100 - m_item->defaultDisplayProperties().opacity() <= 100));
@@ -417,9 +430,15 @@ FWProxyBuilderBase::createCompound(bool set_color, bool propagate_color_to_all_c
       c->SetMainTransparency(100 - m_item->defaultDisplayProperties().opacity());
    }
    if (propagate_color_to_all_children)
+   {
       c->CSCApplyMainColorToAllChildren();
+      c->CSCApplyMainTransparencyToAllChildren();
+   }
    else
+   {
       c->CSCApplyMainColorToMatchingChildren();
+      c->CSCApplyMainTransparencyToMatchingChildren();
+   }
    return c;
 }
 

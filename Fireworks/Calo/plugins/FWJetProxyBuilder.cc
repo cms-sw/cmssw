@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWJetProxyBuilder.cc,v 1.8 2010/04/22 13:05:49 yana Exp $
+// $Id: FWJetProxyBuilder.cc,v 1.9 2010/05/03 15:47:34 amraktad Exp $
 //
 #include "TGeoArb8.h"
 #include "TEveGeoNode.h"
@@ -36,22 +36,43 @@ public:
 
    REGISTER_PROXYBUILDER_METHODS();
    
+protected:
+   virtual void build(const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder,
+                      const FWViewContext*);
+   virtual void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
+                                  FWViewType::EType viewType, const FWViewContext* vc);
+
 private:
    FWJetProxyBuilder( const FWJetProxyBuilder& ); // stop default
    const FWJetProxyBuilder& operator=( const FWJetProxyBuilder& ); // stop default
-
-   virtual void build( const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*);
 };
 
 void
 FWJetProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*) 
 {
-   FW3DEveJet* cone = new FW3DEveJet( iData, "jet" );
-   cone->SetPickable( kTRUE );
-   cone->SetMainTransparency( 75 );
+   FW3DEveJet* cone = new FW3DEveJet(iData, "cone");
+   cone->SetPickable(kTRUE);
+   setupAddElement(cone, &oItemHolder);
 
-   setupAddElement( cone, &oItemHolder );
+   UChar_t transp = 100 - item()->defaultDisplayProperties().opacity();
+   cone->SetMainTransparency(TMath::Min(100, 80 + transp / 5));
 }
+
+void
+FWJetProxyBuilder::localModelChanges(const FWModelId& iId, TEveElement* iCompound,
+                                           FWViewType::EType viewType, const FWViewContext* vc)
+{
+  const FWDisplayProperties& dp = item()->modelInfo(iId.index()).displayProperties();
+
+  TEveElement* cone = iCompound->FindChild("cone");
+  if (cone)
+  {
+     UChar_t transp = 100 - dp.opacity();
+     UChar_t cone_transp = TMath::Min(100, 80 + transp / 5);
+     cone->SetMainTransparency(cone_transp);
+  }
+}
+
 
 //------------------------------------------------------------------------------
 
@@ -98,30 +119,36 @@ public:
    virtual ~FWJetRhoPhiProxyBuilder() {}
    REGISTER_PROXYBUILDER_METHODS();
 
+protected:
+   virtual void build(const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder,
+                      const FWViewContext* vc);
+   virtual void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
+                                  FWViewType::EType viewType, const FWViewContext* vc);
+
 private:
    FWJetRhoPhiProxyBuilder( const FWJetRhoPhiProxyBuilder& ); // stop default
    const FWJetRhoPhiProxyBuilder& operator=( const FWJetRhoPhiProxyBuilder& ); // stop default
-
-   virtual void build( const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*);
 };
 
 void
-FWJetRhoPhiProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext* vc) 
+FWJetRhoPhiProxyBuilder::build(const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder,
+                               const FWViewContext* vc) 
 {
    float ecalR = fireworks::Context::s_ecalR;
    double phi = iData.phi();
    
    std::vector<double> phis;
-   double phiSize = sqrt( iData.phiphiMoment() );
-   phis.push_back( phi+phiSize );
-   phis.push_back( phi-phiSize );
-   std::pair<double, double> phiRange = fw::getPhiRange( phis, iData.phi() );
+   double phiSize = sqrt(iData.phiphiMoment() );
+   phis.push_back(phi + phiSize);
+   phis.push_back(phi - phiSize);
+   std::pair<double, double> phiRange = fw::getPhiRange(phis, iData.phi());
 
-   double min_phi = phiRange.first-M_PI/36/2;
-   double max_phi = phiRange.second+M_PI/36/2;
-   if( fabs(phiRange.first-phiRange.second)<1e-3 ) {
-      min_phi = phi-M_PI/36/2;
-      max_phi = phi+M_PI/36/2;
+   double min_phi = phiRange.first  - M_PI / 72;
+   double max_phi = phiRange.second + M_PI / 72;
+   if (fabs(phiRange.first-phiRange.second) < 1e-3)
+   {
+      min_phi = phi - M_PI / 72;
+      max_phi = phi + M_PI / 72;
    }
  
    double size = iData.et();
@@ -135,26 +162,43 @@ FWJetRhoPhiProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEv
    points[5] = ecalR*sin(max_phi);
    points[6] = points[0];
    points[7] = points[1];
-   for( int i = 0; i<8; ++i ) {
+   for (int i = 0; i<8; ++i) {
       points[i+8] = points[i];
    }
-   
+
    TEveGeoManagerHolder gmgr( TEveGeoShape::GetGeoMangeur() );
-   TEveGeoShape *element = fw::getShape( "cone", 
-					 new TGeoArb8( 0, points ),
-					 item()->defaultDisplayProperties().color() );
-   element->SetMainTransparency( 90 );
-   setupAddElement( element, &oItemHolder );
+   TEveGeoShape *element = fw::getShape("cone", new TGeoArb8(0, points),
+                                        item()->defaultDisplayProperties().color());
+   setupAddElement(element, &oItemHolder);
+
+   UChar_t transp = 100 - item()->defaultDisplayProperties().opacity();
+   element->SetMainTransparency(TMath::Min(100, 90 + transp / 10));
 
    TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
    marker->SetLineWidth(4);
-   marker->SetLineColor(  item()->defaultDisplayProperties().color() );
+   marker->SetLineColor(item()->defaultDisplayProperties().color());
 
-   marker->SetScaleCenter( ecalR*cos(phi), ecalR*sin(phi), 0 );
-   marker->AddLine( ecalR*cos(phi), ecalR*sin(phi), 0, (ecalR+size)*cos(phi), (ecalR+size)*sin(phi), 0);
+   marker->SetScaleCenter(ecalR*cos(phi), ecalR*sin(phi), 0);
+   marker->AddLine(ecalR*cos(phi), ecalR*sin(phi), 0, (ecalR+size)*cos(phi), (ecalR+size)*sin(phi), 0);
    marker->SetScale(vc->getEnergyScale());
-   setupAddElement( marker, &oItemHolder );
-} 
+   setupAddElement(marker, &oItemHolder);
+}
+
+void
+FWJetRhoPhiProxyBuilder::localModelChanges(const FWModelId& iId, TEveElement* iCompound,
+                                           FWViewType::EType viewType, const FWViewContext* vc)
+{
+  const FWDisplayProperties& dp = item()->modelInfo(iId.index()).displayProperties();
+
+  TEveElement* cone = iCompound->FindChild("cone");
+  if (cone)
+  {
+     UChar_t transp = 100 - dp.opacity();
+     UChar_t cone_transp = TMath::Min(100, 90 + transp / 10);
+     cone->SetMainTransparency(cone_transp);
+  }
+}
+
 
 //______________________________________________________________________________
 
@@ -167,11 +211,15 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
+protected:
+   virtual void build(const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder,
+                      const FWViewContext*);
+   virtual void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
+                                  FWViewType::EType viewType, const FWViewContext* vc);
+
 private:
    FWJetRhoZProxyBuilder( const FWJetRhoZProxyBuilder& ); // stop default
    const FWJetRhoZProxyBuilder& operator=( const FWJetRhoZProxyBuilder& ); // stop default
-
-   virtual void build( const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*);
 };
 
 
@@ -265,15 +313,32 @@ FWJetRhoZProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveE
    for( int i = 0; i<8; ++i ) {
      points[i+8] = points[i];
    }
-   TEveGeoManagerHolder gmgr( TEveGeoShape::GetGeoMangeur() );
-   TEveGeoShape *element = fw::getShape( "cone2", 
-					 new TGeoArb8( 0, points ),
-					 item()->defaultDisplayProperties().color() );
+   TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
+   TEveGeoShape *element = fw::getShape("cone", new TGeoArb8( 0, points ),
+                                        item()->defaultDisplayProperties().color());
    element->RefMainTrans().RotateLF( 1, 3, M_PI/2 );
-   element->SetMainTransparency( 90 );
+   setupAddElement(element, &oItemHolder);
 
-   setupAddElement( element, &oItemHolder );
+   UChar_t transp = 100 - item()->defaultDisplayProperties().opacity();
+   element->SetMainTransparency(TMath::Min(100, 90 + transp / 10));
+
 }
+
+void
+FWJetRhoZProxyBuilder::localModelChanges(const FWModelId& iId, TEveElement* iCompound,
+                                         FWViewType::EType viewType, const FWViewContext* vc)
+{
+  const FWDisplayProperties& dp = item()->modelInfo(iId.index()).displayProperties();
+
+  TEveElement* cone = iCompound->FindChild("cone");
+  if (cone)
+  {
+     UChar_t transp = 100 - dp.opacity();
+     UChar_t cone_transp = TMath::Min(100, 90 + transp / 10);
+     cone->SetMainTransparency(cone_transp);
+  }
+}
+
 
 //______________________________________________________________________________
 
@@ -316,29 +381,33 @@ public:
   
    REGISTER_PROXYBUILDER_METHODS();
 
+protected:
+   virtual void build(const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder,
+                      const FWViewContext*);
+
 private:
    FWJetLegoProxyBuilder( const FWJetLegoProxyBuilder& ); // stop default
    const FWJetLegoProxyBuilder& operator=( const FWJetLegoProxyBuilder& ); // stop default
-
-   virtual void build( const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*);
 };
 
 void
-FWJetLegoProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*) 
+FWJetLegoProxyBuilder::build(const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder,
+                             const FWViewContext*) 
 {
    TEveStraightLineSet* container = new TEveStraightLineSet( "circle" );
 
    const unsigned int nLineSegments = 20;
    const double jetRadius = 0.5;
-   for( unsigned int iphi = 0; iphi < nLineSegments; ++iphi ) {
-      container->AddLine( iData.eta()+jetRadius*cos(2*M_PI/nLineSegments*iphi),
-			  iData.phi()+jetRadius*sin(2*M_PI/nLineSegments*iphi),
-			  0.1,
-			  iData.eta()+jetRadius*cos(2*M_PI/nLineSegments*(iphi+1)),
-			  iData.phi()+jetRadius*sin(2*M_PI/nLineSegments*(iphi+1)),
-			  0.1 );
+   for (unsigned int iphi = 0; iphi < nLineSegments; ++iphi)
+   {
+      container->AddLine(iData.eta()+jetRadius*cos(2*M_PI/nLineSegments*iphi),
+                         iData.phi()+jetRadius*sin(2*M_PI/nLineSegments*iphi),
+                         0.1,
+                         iData.eta()+jetRadius*cos(2*M_PI/nLineSegments*(iphi+1)),
+                         iData.phi()+jetRadius*sin(2*M_PI/nLineSegments*(iphi+1)),
+                         0.1);
    }
-   setupAddElement( container, &oItemHolder );
+   setupAddElement(container, &oItemHolder);
 }
 
 REGISTER_FWPROXYBUILDER( FWJetProxyBuilder, reco::Jet, "Jets", FWViewType::kAll3DBits );

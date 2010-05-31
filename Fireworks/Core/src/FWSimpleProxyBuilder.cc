@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Tue March 28 09:46:41 EST 2010
-// $Id: FWSimpleProxyBuilder.cc,v 1.5 2010/04/23 21:02:00 amraktad Exp $
+// $Id: FWSimpleProxyBuilder.cc,v 1.6 2010/05/03 15:47:38 amraktad Exp $
 //
 
 // system include files
@@ -109,11 +109,13 @@ FWSimpleProxyBuilder::buildViewType(const FWEventItem* iItem,
 
 
 bool
-FWSimpleProxyBuilder::specialModelChangeHandling(const FWModelId& iId, TEveElement* iCompound, FWViewType::EType viewType, const FWViewContext* vc)
+FWSimpleProxyBuilder::visibilityModelChanges(const FWModelId& iId, TEveElement* iCompound,
+                                             FWViewType::EType viewType, const FWViewContext* vc)
 {
    const FWEventItem::ModelInfo& info = iId.item()->modelInfo(iId.index());
    bool returnValue = false;
-   if(info.displayProperties().isVisible() && iCompound->NumChildren()==0) {
+   if (info.displayProperties().isVisible() && iCompound->NumChildren()==0)
+   {
       const void* modelData = iId.item()->modelData(iId.index());
       if (haveSingleProduct())      
          build(m_helper.offsetObject(modelData),iId.index(),*iCompound, vc);

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones, AljaMrak-Tadel
 //         Created:  Tue March 28  2 09:46:36 EST 2010
-// $Id: FWSimpleProxyBuilder.h,v 1.5 2010/04/27 18:08:28 amraktad Exp $
+// $Id: FWSimpleProxyBuilder.h,v 1.6 2010/05/03 15:47:37 amraktad Exp $
 //
 
 // system include files
@@ -54,7 +54,7 @@ private:
 
    virtual void itemChangedImp(const FWEventItem*);
    
-   virtual bool specialModelChangeHandling(const FWModelId&, TEveElement*, FWViewType::EType, const FWViewContext*);
+   virtual bool visibilityModelChanges(const FWModelId&, TEveElement*, FWViewType::EType, const FWViewContext*);
 
    //called once for each item in collection, the void* points to the
    // object properly offset in memory
