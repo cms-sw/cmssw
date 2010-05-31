@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2010/05/03 14:25:42 $
- * $Revision: 1.264 $
+ * $Date: 2010/05/28 09:02:47 $
+ * $Revision: 1.265 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1881,7 +1881,7 @@ void EBLaserClient::analyze(void) {
         update04 = UtilsClient::getBinStatistics(h07_[ism-1], ie, ip, num04, mean04, rms04);
 
         // special correction for EB+04
-       if ( ism == 4 && ie <= 5 ) {
+       if ( ism == 22 && ie <= 5 ) {
           mean01 = mean01 * 2.0;
           mean02 = mean02 * 2.0;
           mean03 = mean03 * 2.0;
@@ -1889,7 +1889,7 @@ void EBLaserClient::analyze(void) {
         }
 
         // special correction for EB+09
-        if ( ism == 9 && ie > 5 && ip <= 10 ) {
+        if ( ism == 27 && ie > 5 && ip <= 10 ) {
           mean01 = mean01 * 2.0;
           mean02 = mean02 * 2.0;
           mean03 = mean03 * 2.0;
