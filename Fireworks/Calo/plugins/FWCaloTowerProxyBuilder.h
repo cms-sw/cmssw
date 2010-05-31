@@ -16,53 +16,42 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:08 EST 2008
-// $Id: FWCaloTowerProxyBuilder.h,v 1.8 2010/05/10 11:49:40 amraktad Exp $
+// $Id: FWCaloTowerProxyBuilder.h,v 1.9 2010/05/27 10:33:54 amraktad Exp $
 //
 
 #include "Rtypes.h"
 #include <string>
 
-#include "Fireworks/Core/interface/FWProxyBuilderBase.h"
+#include "Fireworks/Calo/interface/FWCaloDataHistProxyBuilder.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 
 class TH2F;
 
-class FWCaloTowerProxyBuilderBase : public FWProxyBuilderBase {
+class FWCaloTowerProxyBuilderBase : public FWCaloDataHistProxyBuilder {
 
 public:
    FWCaloTowerProxyBuilderBase();
    virtual ~FWCaloTowerProxyBuilderBase();
 
    // ---------- const member functions ---------------------
-   virtual const std::string histName() const = 0;
    virtual double getEt(const CaloTower&) const = 0;
 
-   virtual bool willHandleInteraction() const { return true; }
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
 
+protected:
+   virtual void setCaloData(const fireworks::Context&);
+   virtual void fillCaloData(); 
+
 private:
    FWCaloTowerProxyBuilderBase(const FWCaloTowerProxyBuilderBase&); // stop default
-
    const FWCaloTowerProxyBuilderBase& operator=(const FWCaloTowerProxyBuilderBase&); // stop default
-
-
    virtual void build(const FWEventItem* iItem,
                       TEveElementList* product, const FWViewContext*);
 
-
-   virtual void modelChanges(const FWModelIds&, Product*);
-   virtual void applyChangesToAllModels(Product*);
-   virtual void itemBeingDestroyed(const FWEventItem*);
-
-   void clearCaloDataSelection();
-
    // ---------- member data --------------------------------
-   TEveCaloDataHist* m_caloData;
-   TH2F* m_hist;
-   Int_t m_sliceIndex;
    const CaloTowerCollection* m_towers;
 };
 
