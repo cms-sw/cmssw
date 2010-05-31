@@ -15,7 +15,7 @@
 //         Created:  Thu May 31 14:09:02 CEST 2007
 //    Code Updates:  loic Quertenmont (querten)
 //         Created:  Thu May 10 14:09:02 CEST 2008
-// $Id: DeDxDiscriminatorProducer.cc,v 1.16 2010/04/29 12:36:27 querten Exp $
+// $Id: DeDxDiscriminatorProducer.cc,v 1.17 2010/05/25 14:40:08 querten Exp $
 //
 //
 
@@ -219,9 +219,7 @@ void  DeDxDiscriminatorProducer::beginRun(edm::Run & run, const edm::EventSetup&
 
 void  DeDxDiscriminatorProducer::endJob()
 {
-   for(unsigned int i=0;i<MODsColl.size();i++){
-      delete MODsColl[i];
-   }
+   MODsColl.clear();
    
 /*
    TFile* file = new TFile("MipsMap.root", "RECREATE");
