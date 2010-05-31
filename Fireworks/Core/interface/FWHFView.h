@@ -1,11 +1,11 @@
-#ifndef Fireworks_Core_FWEveLegoView_h
-#define Fireworks_Core_FWEveLegoView_h
+#ifndef Fireworks_Core_FWHFView_h
+#define Fireworks_Core_FWHFView_h
 // -*- C++ -*-
 //
 // Package:     Core
-// Class  :     FWEveLegoView
+// Class  :     FWHFView
 // 
-/**\class FWEveLegoView FWEveLegoView.h Fireworks/Core/interface/FWEveLegoView.h
+/**\class FWHFView FWHFView.h Fireworks/Core/interface/FWHFView.h
 
  Description: [one line class summary]
 
@@ -14,8 +14,8 @@
 
 */
 //
-// Original Author:  Alja Mrak-Tadel
-//         Created:  Mon May 31 13:09:38 CEST 2010
+// Original Author:  Yanjun
+//         Created:  Mon May 31 13:42:21 CEST 2010
 // $Id$
 //
 
@@ -26,28 +26,27 @@
 
 // forward declarations
 
-class FWEveLegoView: public FWLegoViewBase
+class FWHFView : public FWLegoViewBase
 {
 public:
-   FWEveLegoView(TEveWindowSlot*, FWViewType::EType);
-   virtual ~FWEveLegoView();
+   FWHFView(TEveWindowSlot*, FWViewType::EType);
+   virtual ~FWHFView();
 
    virtual void setContext(fireworks::Context&);
-
    // ---------- const member functions ---------------------
 
    virtual TEveCaloDataHist* getCaloData(fireworks::Context&) const;
-
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
 
 private:
-   FWEveLegoView(const FWEveLegoView&); // stop default
+   FWHFView(const FWHFView&); // stop default
 
-   const FWEveLegoView& operator=(const FWEveLegoView&); // stop default
+   const FWHFView& operator=(const FWHFView&); // stop default
 
    // ---------- member data --------------------------------
+
 };
 
 

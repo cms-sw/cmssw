@@ -16,14 +16,14 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Mon Mar 22 12:08:40 CET 2010
-// $Id: FWViewType.h,v 1.7 2010/04/20 19:35:19 chrjones Exp $
+// $Id: FWViewType.h,v 1.8 2010/05/03 15:47:37 amraktad Exp $
 //
 #include <string>
 
 class  FWViewType
 {
 public:
-   enum EType { k3D, kRhoPhi, kRhoZ, kISpy, kLego, kGlimpse, kSize };
+   enum EType { k3D, kRhoPhi, kRhoZ, kISpy, kLego, kLegoHF, kGlimpse, kSize };
 
    enum EBit
    {
@@ -32,6 +32,7 @@ public:
       kRhoZBit     = 1 << kRhoZ,
       kISpyBit     = 1 << kISpy,
       kLegoBit     = 1 << kLego,
+      kLegoHFBit   = 1 << kLegoHF,
       kGlimpseBit  = 1 << kGlimpse
    };
 
@@ -44,6 +45,7 @@ public:
    static  std::string  kRhoZName;
    static  std::string  kISpyName;
    static  std::string  kLegoName;
+   static  std::string  kLegoHFName;
    static  std::string  kGlimpseName;
    
    const static std::string& idToName(int);

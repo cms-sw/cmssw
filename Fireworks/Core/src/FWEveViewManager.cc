@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.24 2010/05/26 17:47:25 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.25 2010/05/27 18:45:32 amraktad Exp $
 //
 
 // system include files
@@ -43,6 +43,7 @@
 #include "Fireworks/Core/interface/FW3DView.h"
 #include "Fireworks/Core/interface/FWGlimpseView.h"
 #include "Fireworks/Core/interface/FWEveLegoView.h"
+#include "Fireworks/Core/interface/FWHFView.h"
 #include "Fireworks/Core/interface/FWRPZView.h"
 
 
@@ -120,6 +121,7 @@ FWEveViewManager::FWEveViewManager(FWGUIManager* iGUIMgr) :
    f[FWViewType::kISpy     ] = boost::bind(&FWEveViewManager::createISpyView     , this, _1);
    f[FWViewType::k3D       ] = boost::bind(&FWEveViewManager::create3DView       , this, _1);
    f[FWViewType::kLego     ] = boost::bind(&FWEveViewManager::createLegoView     , this, _1);
+   f[FWViewType::kLegoHF   ] = boost::bind(&FWEveViewManager::createLegoHFView   , this, _1);
    f[FWViewType::kGlimpse  ] = boost::bind(&FWEveViewManager::createGlimpseView  , this, _1);
 
    for (int i = 0; i < FWViewType::kSize; i++)
@@ -281,6 +283,14 @@ FWEveViewManager::createLegoView(TEveWindowSlot* iParent)
 {
    FWViewType::EType t = FWViewType::kLego;
    m_views[t].push_back(boost::shared_ptr<FWEveView> (new FWEveLegoView(iParent, t)));
+   return finishViewCreate(m_views[t].back());
+}
+
+FWViewBase*
+FWEveViewManager::createLegoHFView(TEveWindowSlot* iParent)
+{
+   FWViewType::EType t = FWViewType::kLegoHF;
+   m_views[t].push_back(boost::shared_ptr<FWEveView> (new FWHFView(iParent, t)));
    return finishViewCreate(m_views[t].back());
 }
 

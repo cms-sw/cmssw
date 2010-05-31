@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Mar 26 12:25:02 CET 2010
-// $Id: FWViewType.cc,v 1.8 2010/04/20 19:35:19 chrjones Exp $
+// $Id: FWViewType.cc,v 1.9 2010/05/03 15:47:38 amraktad Exp $
 //
 
 // system include files
@@ -31,6 +31,7 @@ std::string   FWViewType::kRhoPhiName   = "Rho Phi";
 std::string   FWViewType::kRhoZName     = "Rho Z";
 std::string   FWViewType::kISpyName     = "iSpy";
 std::string   FWViewType::kLegoName     = "Lego";
+std::string   FWViewType::kLegoHFName   = "Lego HF";
 std::string   FWViewType::kGlimpseName  = "Glimpse";
 
 const int FWViewType::kAllRPZBits = kRhoPhiBit | kRhoZBit;
@@ -97,6 +98,8 @@ FWViewType::idToName(int id)
          return  kGlimpseName;
       case kLego:
          return  kLegoName;
+      case kLegoHF:
+         return  kLegoHFName;
       default:
          return errName;
    }

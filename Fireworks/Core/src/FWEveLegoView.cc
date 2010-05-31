@@ -1,43 +1,24 @@
-
 // -*- C++ -*-
 //
 // Package:     Core
 // Class  :     FWEveLegoView
-//
+// 
 // Implementation:
-//     <Notes on implementation>
+//     [Notes on implementation]
 //
-// Original Author:  Chris Jones
-//         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.79 2010/05/05 14:48:49 amraktad Exp $
+// Original Author:  
+//         Created:  Mon May 31 13:09:53 CEST 2010
+// $Id$
 //
 
 // system include files
-#include <boost/bind.hpp>
-
-#include "TAxis.h"
-
-#include "TGLViewer.h"
-#include "TGLPerspectiveCamera.h"
-#include "TGLOrthoCamera.h"
-#include "TGLWidget.h"
-
-#include "TEveElement.h"
-#include "TEveManager.h"
-#include "TEveScene.h"
-#include "TEveViewer.h"
-#include "TEveCalo.h"
-#include "TEveTrans.h"
-#include "TEveStraightLineSet.h"
-#include "TEveCaloLegoOverlay.h"
 
 // user include files
-#include "Fireworks/Core/interface/FWGLEventHandler.h"
-#include "Fireworks/Core/interface/FWConfiguration.h"
-#include "Fireworks/Core/interface/BuilderUtils.h"
+#include "TEveCalo.h"
+#include "TEveStraightLineSet.h"
 #include "Fireworks/Core/interface/FWEveLegoView.h"
-#include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/Context.h"
+#include "Fireworks/Core/interface/FWColorManager.h"
 
 
 //
@@ -51,51 +32,54 @@
 //
 // constructors and destructor
 //
-FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, FWViewType::EType typeId) :
-   FWEveView(iParent, typeId),
-   m_lego(0),
-   m_overlay(0),
-   m_plotEt(this,"Plot Et",true),   
-   m_autoRebin(this,"Auto rebin on zoom",true),
-   m_pixelsPerBin(this, "Pixels per bin", 10., 1., 20.),
-   m_showScales(this,"Show scales", true),
-   m_legoFixedScale(this,"Lego scale GeV)",100.,1.,1000.),
-   m_legoAutoScale (this,"Lego auto scale",true)
+FWEveLegoView::FWEveLegoView(TEveWindowSlot* slot, FWViewType::EType typeId):
+FWLegoViewBase(slot, typeId)
 {
-   viewerGL()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
-
-   m_autoRebin.changed_.connect(boost::bind(&FWEveLegoView::setAutoRebin,this));
-   m_pixelsPerBin.changed_.connect(boost::bind(&FWEveLegoView::setPixelsPerBin,this));
-   m_plotEt.changed_.connect(boost::bind(&FWEveLegoView::plotEt,this));
-   m_showScales.changed_.connect(boost::bind(&FWEveLegoView::showScales,this));
-   m_legoFixedScale.changed_.connect(boost::bind(&FWEveLegoView::updateLegoScale, this));
-   m_legoAutoScale .changed_.connect(boost::bind(&FWEveLegoView::updateLegoScale, this));
 }
+
+// FWEveLegoView::FWEveLegoView(const FWEveLegoView& rhs)
+// {
+//    // do actual copying here;
+// }
 
 FWEveLegoView::~FWEveLegoView()
 {
-   m_lego->Destroy();
 }
 
-void FWEveLegoView::setContext(fireworks::Context& context)
-{ 
-   // get lego if exist
-   TEveCaloData* data = context.getCaloData();
+//
+// assignment operators
+//
+// const FWEveLegoView& FWEveLegoView::operator=(const FWEveLegoView& rhs)
+// {
+//   //An exception safe implementation is
+//   FWEveLegoView temp(rhs);
+//   swap(rhs);
+//
+//   return *this;
+// }
 
-   m_lego = new TEveCaloLego(data);
-   m_lego->InitMainTrans();
-   m_lego->RefMainTrans().SetScale(TMath::TwoPi(), TMath::TwoPi(), TMath::Pi());
-   m_lego->Set2DMode(TEveCaloLego::kValSize);
-   m_lego->SetDrawNumberCellPixels(20);
+//
+// member functions
+//
 
-   data->GetEtaBins()->SetTitleFont(120);
-   data->GetEtaBins()->SetTitle("h");
-   data->GetPhiBins()->SetTitleFont(120);
-   data->GetPhiBins()->SetTitle("f");
-   data->GetPhiBins()->SetLabelSize(0.02);
-   data->GetEtaBins()->SetLabelSize(0.02);
-   data->GetPhiBins()->SetTitleSize(0.03);
-   data->GetEtaBins()->SetTitleSize(0.03);
+//
+// const member functions
+//
+
+//
+// static member functions
+//
+
+TEveCaloDataHist*
+FWEveLegoView::getCaloData(fireworks::Context& c) const
+{
+   return c.getCaloData();
+}
+
+void
+FWEveLegoView::setContext(fireworks::Context& context)
+{  
+   FWLegoViewBase::setContext(context); 
 
    // add calorimeter boundaries
    TEveStraightLineSet* boundaries = new TEveStraightLineSet("boundaries");
@@ -108,112 +92,4 @@ void FWEveLegoView::setContext(fireworks::Context& context)
    boundaries->AddLine(2.964,-3.1416,0.001,2.964,3.1416,0.001);
    boundaries->SetLineColor(context.colorManager()->geomColor(kFWLegoBoundraryColorIndex));
    m_lego->AddElement(boundaries);
-
-   eventScene()->AddElement(m_lego);
-
-   TEveLegoEventHandler* eh = dynamic_cast<TEveLegoEventHandler*>( viewerGL()->GetEventHandler());
-   eh->SetLego(m_lego);
-  
-   m_overlay = new TEveCaloLegoOverlay();
-   m_overlay->SetCaloLego(m_lego);
-   m_overlay->SetShowPlane(kFALSE);
-   m_overlay->SetScalePosition(0.8, 0.6);
-   m_overlay->SetShowScales(1); //temporary
-   viewerGL()->AddOverlayElement(m_overlay);
 }
-   
-void
-FWEveLegoView::setAutoRebin()
-{
-   m_lego->SetAutoRebin(m_autoRebin.value());
-   m_lego->ElementChanged(kTRUE,kTRUE);
-}
-
-void
-FWEveLegoView::setPixelsPerBin()
-{
-   m_lego->SetPixelsPerBin((Int_t) (m_pixelsPerBin.value()));
-   m_lego->ElementChanged(kTRUE,kTRUE);
-}
-
-void
-FWEveLegoView::plotEt()
-{
-   m_lego->SetPlotEt(m_plotEt.value());
-   viewerGL()->RequestDraw();
-}
-
-void
-FWEveLegoView::showScales()
-{
-   if (m_overlay) m_overlay->SetShowScales(m_showScales.value());
-   viewerGL()->RequestDraw();
-}
-
-void
-FWEveLegoView::updateLegoScale()
-{
-   m_lego->SetMaxValAbs( m_legoFixedScale.value() );
-   m_lego->SetScaleAbs ( ! m_legoAutoScale.value() );
-   m_lego->ElementChanged(kTRUE,kTRUE);
-}
-
-//_______________________________________________________________________________
-
-void
-FWEveLegoView::setFrom(const FWConfiguration& iFrom)
-{
-   FWEveView::setFrom(iFrom);
-
-   if (iFrom.version() > 1)
-   {
-      bool topView = true;
-      std::string stateName("topView"); stateName += typeName();
-      assert( 0 != iFrom.valueForKey(stateName));
-      std::istringstream s(iFrom.valueForKey(stateName)->value());
-      s >> topView;
-   
-      if (topView)
-      {
-         viewerGL()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
-         TGLOrthoCamera* camera = dynamic_cast<TGLOrthoCamera*>( &(viewerGL()->RefCamera(TGLViewer::kCameraOrthoXOY)) );
-         setFromOrthoCamera(camera, iFrom);
-      }
-      else
-      {
-         viewerGL()->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
-         TGLPerspectiveCamera* camera = dynamic_cast<TGLPerspectiveCamera*>(&(viewerGL()->RefCamera(TGLViewer::kCameraPerspXOY)));
-         setFromPerspectiveCamera(camera, typeName(), iFrom);
-      }
-   }
-   else
-   {
-      // reset camera if version not supported    
-      viewerGL()->ResetCamerasAfterNextUpdate();
-   }
-   
-}
-
-void
-FWEveLegoView::addTo(FWConfiguration& iTo) const
-{
-   FWEveView::addTo(iTo);
-   
-   bool topView =  viewerGL()->CurrentCamera().IsOrthographic();
-   std::ostringstream s;
-   s << topView;
-   std::string name = "topView";
-   iTo.addKeyValue(name+typeName(),FWConfiguration(s.str()));
-   
-   if (topView)
-   {
-      TGLOrthoCamera* camera = dynamic_cast<TGLOrthoCamera*>(&(viewerGL()->RefCamera(TGLViewer::kCameraOrthoXOY)));
-      addToOrthoCamera(camera, iTo);  
-   }
-   else
-   {
-      TGLPerspectiveCamera* camera = dynamic_cast<TGLPerspectiveCamera*>(&(viewerGL()->RefCamera(TGLViewer::kCameraPerspXOY)));
-      addToPerspectiveCamera(camera, typeName(), iTo);   
-   }
-}
-
