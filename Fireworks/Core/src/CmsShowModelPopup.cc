@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jun 27 11:23:08 EDT 2008
-// $Id: CmsShowModelPopup.cc,v 1.20 2009/08/12 19:19:12 chrjones Exp $
+// $Id: CmsShowModelPopup.cc,v 1.21 2009/10/31 22:37:35 chrjones Exp $
 //
 
 // system include file
@@ -30,6 +30,7 @@
 #include "Fireworks/Core/interface/CmsShowModelPopup.h"
 #include "Fireworks/Core/interface/FWDisplayProperties.h"
 #include "Fireworks/Core/src/FWColorSelect.h"
+#include "Fireworks/Core/src/FWDialogBuilder.h"
 #include "Fireworks/Core/interface/FWModelChangeSignal.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
@@ -66,34 +67,31 @@ CmsShowModelPopup::CmsShowModelPopup(FWDetailViewManager* iManager,
    m_changes = iSelMgr->selectionChanged_.connect(boost::bind(&CmsShowModelPopup::fillModelPopup, this, _1));
 
    SetCleanup(kDeepCleanup);
-   TGHorizontalFrame* objectFrame = new TGHorizontalFrame(this);
-   m_modelLabel = new TGLabel(objectFrame, " ");
-   TGFont* defaultFont = gClient->GetFontPool()->GetFont(m_modelLabel->GetDefaultFontStruct());
-   m_modelLabel->SetTextFont(gClient->GetFontPool()->GetFont(defaultFont->GetFontAttributes().fFamily, 14, defaultFont->GetFontAttributes().fWeight + 2, defaultFont->GetFontAttributes().fSlant));
-   m_modelLabel->SetTextJustify(kTextLeft);
-   objectFrame->AddFrame(m_modelLabel, new TGLayoutHints(kLHintsExpandX));
-   AddFrame(objectFrame, new TGLayoutHints(kLHintsExpandX, 2, 2, 0, 0));
-   TGHorizontal3DLine* nameObjectSeperator = new TGHorizontal3DLine(this, 200, 5);
-   AddFrame(nameObjectSeperator, new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
-   TGHorizontalFrame* colorSelectFrame = new TGHorizontalFrame(this, 200, 100);
-   TGLabel* colorSelectLabel = new TGLabel(colorSelectFrame, "Color:");
-   colorSelectFrame->AddFrame(colorSelectLabel, new TGLayoutHints(kLHintsNormal, 0, 50, 0, 0));
-   const char* graphicsLabel = " ";
-   m_colorSelectWidget = new FWColorSelect(colorSelectFrame, graphicsLabel, 0, iColorMgr, -1);
-   m_colorSelectWidget->SetEnabled(kFALSE);
-   colorSelectFrame->AddFrame(m_colorSelectWidget);
-   AddFrame(colorSelectFrame);
-   TGHorizontal3DLine* colorVisSeperator = new TGHorizontal3DLine(this, 200, 5);
-   AddFrame(colorVisSeperator, new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
-   m_isVisibleButton = new TGCheckButton(this, "Visible");
-   m_isVisibleButton->SetState(kButtonDown, kFALSE);
-   m_isVisibleButton->SetEnabled(kFALSE);
-   AddFrame(m_isVisibleButton);
-   AddFrame(new TGHorizontal3DLine(this, 200, 5), new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
-   m_openDetailedViewButtons.push_back(new TGTextButton(this,"Open Detailed View"));
+
+   FWDialogBuilder builder(this);
+
+   // Dummy button for detail views. Can be overidden.
+   TGTextButton *detailedViewButton;
+   
+   // Do the layouting of the various widgets.
+   builder.newRow(3)
+          .indent(3)
+          .addLabel(" ", 14, 1, &m_modelLabel)
+          .indent(4)
+          .newRow(15)
+          .addLabel("Color", 8, 2)
+          .newRow(3)
+          .addColorPicker(iColorMgr, 0, &m_colorSelectWidget)
+          .addHSeparator()
+          .addCheckbox("Visible", 0, &m_isVisibleButton)
+          .addHSeparator()
+          .addTextButton("Open Detailed View", 0, &detailedViewButton)
+          .newRow(15);
+
+   m_openDetailedViewButtons.push_back(detailedViewButton);
    m_openDetailedViewButtons.back()->SetEnabled(kFALSE);
-   AddFrame(m_openDetailedViewButtons.back());
-   m_adapters.push_back( new CmsShowModelPopupDetailViewButtonAdapter(this,0));
+
+   m_adapters.push_back(new CmsShowModelPopupDetailViewButtonAdapter(this, 0));
    m_openDetailedViewButtons.back()->Connect("Clicked()","CmsShowModelPopupDetailViewButtonAdapter", m_adapters.back(), "wasClicked()");
 
    m_colorSelectWidget->Connect("ColorChosen(Color_t)", "CmsShowModelPopup", this, "changeModelColor(Color_t)");
@@ -120,10 +118,8 @@ CmsShowModelPopup::~CmsShowModelPopup()
    m_isVisibleButton->Disconnect("Toggled(Bool_t)", this, "toggleModelVisible(Bool_t)");
    disconnectAll();
    
-   for(std::vector<CmsShowModelPopupDetailViewButtonAdapter*>::iterator it = m_adapters.begin(), itEnd = m_adapters.end();
-       it != itEnd; ++it) {
-      delete *it;
-   }
+   for(size_t i = 0, e = m_adapters.size(); i != e; ++i)
+      delete m_adapters[i];
 }
 
 //
@@ -141,98 +137,120 @@ CmsShowModelPopup::~CmsShowModelPopup()
 //
 // member functions
 //
+/** this updates the dialog when selection changes. It also handles multiple
+    Selections by updating only the widgets which have non controversial 
+    (i.e. different across selected objects) values.
+  */
 void
-CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr) {
+CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr)
+{
    disconnectAll();
-   if (iSelMgr.selected().size() > 0) {
-      bool multipleNames(false);
-      bool multipleColors(false);
-      bool multipleVis(false);
-      m_models = iSelMgr.selected();
-      FWModelId id;
-      FWModelId prevId;
-      const FWEventItem* item = 0;
-      const FWEventItem* prevItem = 0;
-      for (std::set<FWModelId>::iterator it_mod = m_models.begin(); it_mod != m_models.end(); ++it_mod) {
-         if (it_mod != m_models.begin()) {
-            item = (*it_mod).item();
-            if (item->name() != prevItem->name()) multipleNames = true;
-            if (item->modelInfo((*it_mod).index()).displayProperties().color() != prevItem->modelInfo(prevId.index()).displayProperties().color())
-               multipleColors = true;
-            if (item->modelInfo((*it_mod).index()).displayProperties().isVisible() != prevItem->modelInfo(prevId.index()).displayProperties().isVisible())
-               multipleVis = true;
-         }
-         prevId = *it_mod;
-         prevItem = (*it_mod).item();
-      }
-      id = *m_models.begin();
-      item = (*(m_models.begin())).item();
-      if (multipleNames) {
-         std::ostringstream s;
-         s<<m_models.size()<<" objects";
-         m_modelLabel->SetText(s.str().c_str());
-      } else {
-         std::ostringstream s;
-         s<<m_models.size()<<" "<<item->name();
-         m_modelLabel->SetText(s.str().c_str());
-      }
-      if(m_models.size()==1) {
-         m_modelLabel->SetText(item->modelName(id.index()).c_str());
-         std::vector<std::string> viewChoices = m_detailViewManager->detailViewsFor(id);
-         m_openDetailedViewButtons.front()->SetEnabled(viewChoices.size()>0);
-         //be sure we show just the right number of buttons
-         if(m_openDetailedViewButtons.size()<=viewChoices.size()) {
-            for(std::vector<TGTextButton*>::iterator it = m_openDetailedViewButtons.begin()+1, itEnd = m_openDetailedViewButtons.end();
-                it != itEnd; ++it) {
-               ShowFrame(*it);
-            }
-            //now we make additional buttons
-            for(unsigned int index=m_openDetailedViewButtons.size(); index < viewChoices.size();++index){ 
-               m_openDetailedViewButtons.push_back(new TGTextButton(this,"Open Detailed View"));
-               AddFrame(m_openDetailedViewButtons.back());
-               m_adapters.push_back( new CmsShowModelPopupDetailViewButtonAdapter(this,index));
-               m_openDetailedViewButtons.back()->Connect("Clicked()","CmsShowModelPopupDetailViewButtonAdapter", m_adapters.back(), "wasClicked()");               
-            }
-         } else {
-            if(viewChoices.size()>0) {
-               for(std::vector<TGTextButton*>::iterator it = m_openDetailedViewButtons.begin()+1, itEnd = m_openDetailedViewButtons.begin()+viewChoices.size();
-                   it != itEnd; ++it) {
-                  ShowFrame(*it);
-               }
-            }
-         }
-         //set the names
-         unsigned int index=0;
-         std::string kBegin("Open ");
-         std::string kEnd(" Detail View ...");
-         for(std::vector<std::string>::iterator it = viewChoices.begin(), itEnd = viewChoices.end();
-             it != itEnd;
-             ++it,++index) {
-            m_openDetailedViewButtons[index]->SetText((kBegin+*it+kEnd).c_str());
-         }
-      }
-      m_colorSelectWidget->SetColorByIndex(m_colorManager->colorToIndex(item->modelInfo(id.index()).displayProperties().color()), kFALSE);
-      m_isVisibleButton->SetDisabledAndSelected(item->modelInfo(id.index()).displayProperties().isVisible());
-      m_colorSelectWidget->SetEnabled(kTRUE);
-      m_isVisibleButton->SetEnabled(kTRUE);
-      //    m_displayChangedConn = m_item->defaultDisplayPropertiesChanged_.connect(boost::bind(&CmsShowEDI::updateDisplay, this));
-      m_modelChangedConn = item->changed_.connect(boost::bind(&CmsShowModelPopup::updateDisplay, this));
-      //    m_selectionChangedConn = m_selectionManager->selectionChanged_.connect(boost::bind(&CmsShowEDI::updateSelection, this));
-      m_destroyedConn = item->goingToBeDestroyed_.connect(boost::bind(&CmsShowModelPopup::disconnectAll, this));
-      Layout();
+   // Handles the case in which the selection is empty.
+   if (iSelMgr.selected().empty())
+      return;
+   
+   // Handle the case in which the selection is not empty.
+   bool multipleNames = false, multipleColors = false, multipleVis = false;
+
+   m_models = iSelMgr.selected();
+   std::set<FWModelId>::const_iterator id = m_models.begin();
+   const FWEventItem* item = id->item();
+   const FWEventItem::ModelInfo info = item->modelInfo(id->index());
+   const FWDisplayProperties &props = info.displayProperties();
+   
+   // The old logic was broken here. It was enought that the last item
+   // was the same as the first one, and all of them would have been considered
+   // equal. This should fix it. The idea is that if any of the elements in
+   // models in [1, N] are different from the first, then we consider the
+   // set with multipleXYZ.
+   for (std::set<FWModelId>::const_iterator i = ++(m_models.begin()),
+                                            e = m_models.end(); i != e; ++i) 
+   {
+      const FWEventItem::ModelInfo &nextInfo = i->item()->modelInfo(i->index());
+      const FWDisplayProperties &nextProps = nextInfo.displayProperties();
+      
+      multipleNames = multipleNames || (item->name() != i->item()->name());
+      multipleColors = multipleColors || (props.color() != nextProps.color());
+      multipleVis = multipleVis || (props.isVisible() != nextProps.isVisible());
    }
+   
+   // Handle the name.
+   std::ostringstream s;
+   if (multipleNames) 
+      s << m_models.size() << " objects";
+   else
+      s << m_models.size() << " " << item->name();
+   m_modelLabel->SetText(s.str().c_str());
+
+   if (m_models.size()==1)
+   {
+      m_modelLabel->SetText(item->modelName(id->index()).c_str());
+      std::vector<std::string> viewChoices = m_detailViewManager->detailViewsFor(*id);
+      m_openDetailedViewButtons.front()->SetEnabled(viewChoices.size()>0);
+      //be sure we show just the right number of buttons
+      if(m_openDetailedViewButtons.size()<=viewChoices.size()) 
+      {
+         for(size_t i = 1, e = m_openDetailedViewButtons.size(); i != e; ++i)
+            ShowFrame(m_openDetailedViewButtons[i]);
+
+         //now we make additional buttons
+         for(size_t index = m_openDetailedViewButtons.size(); index < viewChoices.size(); ++index)
+         { 
+            TGTextButton *button = new TGTextButton(this,"Open Detailed View");
+            m_openDetailedViewButtons.push_back(button);
+            AddFrame(button);
+            m_adapters.push_back(new CmsShowModelPopupDetailViewButtonAdapter(this, index));
+            button->Connect("Clicked()",
+                            "CmsShowModelPopupDetailViewButtonAdapter", 
+                            m_adapters.back(), "wasClicked()");
+         }
+      }
+      else if (viewChoices.size()>0)
+      {
+         for (size_t i = 1, e = viewChoices.size(); i != e; ++i)
+            ShowFrame(m_openDetailedViewButtons[i]);
+      }
+      
+      //set the names
+      for (size_t i = 0, e = viewChoices.size(); i != e; ++i)
+         m_openDetailedViewButtons[i]->SetText(("Open " + viewChoices[i] + " Detail View ...").c_str());
+   }
+   
+   // Set the various widgets.
+   // FIXME: what whall we do here with the opacity slider?
+   m_colorSelectWidget->SetColorByIndex(m_colorManager->colorToIndex(props.color()), kFALSE);
+   m_isVisibleButton->SetDisabledAndSelected(props.isVisible());
+   
+   m_colorSelectWidget->SetEnabled(kTRUE);
+   m_isVisibleButton->SetEnabled(kTRUE);
+   
+   m_modelChangedConn = item->changed_.connect(boost::bind(&CmsShowModelPopup::updateDisplay, this));
+   m_destroyedConn = item->goingToBeDestroyed_.connect(boost::bind(&CmsShowModelPopup::disconnectAll, this));
+   Layout();
 }
 
+/** Based on the actual models properties, update the GUI. 
+  */
 void
-CmsShowModelPopup::updateDisplay() {
-   const FWEventItem* item;
-   for (std::set<FWModelId>::iterator it_mod = m_models.begin(); it_mod != m_models.end(); ++it_mod) {
-      item = (*it_mod).item();
-      m_colorSelectWidget->SetColor(gVirtualX->GetPixel(item->modelInfo((*it_mod).index()).displayProperties().color()),kFALSE);
-      m_isVisibleButton->SetState(item->modelInfo((*it_mod).index()).displayProperties().isVisible() ? kButtonDown : kButtonUp, kFALSE);
+CmsShowModelPopup::updateDisplay()
+{
+   for (std::set<FWModelId>::iterator i = m_models.begin(), e = m_models.end(); 
+        i != e; ++i)
+   {
+      const FWEventItem::ModelInfo &info = i->item()->modelInfo(i->index());
+      const FWDisplayProperties &p = info.displayProperties();
+      m_colorSelectWidget->SetColor(gVirtualX->GetPixel(p.color()), kFALSE);
+      
+      if (p.isVisible())
+         m_isVisibleButton->SetState(kButtonDown, kFALSE);
+      else
+         m_isVisibleButton->SetState(kButtonUp, kFALSE);
    }
 }
 
+/** This is invoked to when no object is selected and sets the dialog in
+    a disabled look.
+  */
 void
 CmsShowModelPopup::disconnectAll() {
    m_modelChangedConn.disconnect();
@@ -246,38 +264,49 @@ CmsShowModelPopup::disconnectAll() {
    m_isVisibleButton->SetEnabled(kFALSE);
    m_openDetailedViewButtons.front()->SetEnabled(kFALSE);
    m_openDetailedViewButtons.front()->SetText("Open Detail View ...");
-   for(std::vector<TGTextButton*>::iterator it = m_openDetailedViewButtons.begin()+1, itEnd = m_openDetailedViewButtons.end();
-       it != itEnd; ++it) {
-      HideFrame(*it);
-   }
+   assert(m_openDetailedViewButtons.size() > 0);
+   for(size_t i = 1, e = m_openDetailedViewButtons.size(); i != e; ++i)
+      HideFrame(m_openDetailedViewButtons[i]);
 }
+/** Change the color of the selected objects.
 
+    NOTES:
+    - Notice that the whole thing works with a "Copy old properties and modify"
+      paradigm.
+      
+  */
 void
-CmsShowModelPopup::changeModelColor(Color_t color) {
-   const FWEventItem* item;
-   if(m_models.size()) {
-      FWChangeSentry sentry(*(m_models.begin()->item()->changeManager()));
-      for (std::set<FWModelId>::iterator it_mod = m_models.begin(); it_mod != m_models.end(); ++it_mod) {
-         item = (*it_mod).item();
-         const FWDisplayProperties changeProperties(color, item->modelInfo((*it_mod).index()).displayProperties().isVisible());
-         item->setDisplayProperties((*it_mod).index(), changeProperties);
-      }
+CmsShowModelPopup::changeModelColor(Color_t color)
+{
+   if (m_models.empty())
+      return;
+      
+   FWChangeSentry sentry(*(m_models.begin()->item()->changeManager()));
+   for (std::set<FWModelId>::iterator i = m_models.begin(), e = m_models.end(); i != e; ++i)
+   {
+      const FWEventItem::ModelInfo &info = i->item()->modelInfo(i->index());
+      FWDisplayProperties changeProperties = info.displayProperties();
+      changeProperties.setColor(color);
+      i->item()->setDisplayProperties(i->index(), changeProperties);
    }
 }
 
+/** Change (not toggle actually) the visibility of selected objects. 
+    See changeModelColor for additional notes.
+  */
 void
 CmsShowModelPopup::toggleModelVisible(Bool_t on) {
-   const FWEventItem* item;
-   if(m_models.size()) {
-      FWChangeSentry sentry(*(m_models.begin()->item()->changeManager()));
-      for (std::set<FWModelId>::iterator it_mod = m_models.begin(); it_mod != m_models.end(); ++it_mod) {
-         item = (*it_mod).item();
-         const FWDisplayProperties changeProperties(item->modelInfo((*it_mod).index()).displayProperties().color(), on);
-         item->setDisplayProperties((*it_mod).index(), changeProperties);
-      }
+   if(m_models.empty())
+      return;
+   
+   FWChangeSentry sentry(*(m_models.begin()->item()->changeManager()));
+   for (std::set<FWModelId>::iterator i = m_models.begin(); i != m_models.end(); ++i) 
+   {
+      const FWEventItem::ModelInfo &info = i->item()->modelInfo(i->index());
+      FWDisplayProperties changeProperties = info.displayProperties();
+      changeProperties.setIsVisible(on);
+      i->item()->setDisplayProperties(i->index(), changeProperties);
    }
-   //  const FWDisplayProperties changeProperties(m_item->modelInfo(m_model->index()).displayProperties().color(), on);
-   //  m_item->setDisplayProperties(m_model->index(), changeProperties);
 }
 
 void

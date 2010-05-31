@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.28 2010/05/27 08:45:00 eulisse Exp $
+// $Id: FWEventItemsManager.cc,v 1.29 2010/05/27 16:58:27 chrjones Exp $
 //
 
 // system include files
@@ -185,6 +185,8 @@ FWEventItemsManager::addTo(FWConfiguration& iTo) const
    }
 }
 
+/** This is responsible for resetting the status of items from configuration  
+  */
 void
 FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
 {

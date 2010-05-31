@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:00 CET 2010
-// $Id: FWProxyBuilderBase.cc,v 1.16 2010/05/28 15:46:55 matevz Exp $
+// $Id: FWProxyBuilderBase.cc,v 1.17 2010/05/28 15:49:41 matevz Exp $
 //
 
 // system include files
@@ -383,6 +383,9 @@ FWProxyBuilderBase::setupAddElement(TEveElement* el, TEveElement* parent, bool c
    parent->AddElement(el);
 }
 
+/** This method is invoked to setup the per element properties of the various
+    objects being drawn.
+  */
 void
 FWProxyBuilderBase::setupElement(TEveElement* el, bool color) const
 {

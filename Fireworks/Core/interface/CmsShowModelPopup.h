@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Fri Jun 27 11:23:31 EDT 2008
-// $Id: CmsShowModelPopup.h,v 1.12 2009/05/27 15:40:13 chrjones Exp $
+// $Id: CmsShowModelPopup.h,v 1.13 2009/10/31 22:37:35 chrjones Exp $
 //
 
 // system include files
@@ -62,7 +62,9 @@ class CmsShowModelPopup : public TGTransientFrame
 public:
    friend class CmsShowModelPopupDetailViewButtonAdapter;
    
-   CmsShowModelPopup(FWDetailViewManager*, FWSelectionManager*, const FWColorManager*, const TGWindow* p = 0, UInt_t w = 1, UInt_t h = 1);
+   CmsShowModelPopup(FWDetailViewManager*, FWSelectionManager*, 
+                     const FWColorManager*, const TGWindow* p = 0, 
+                     UInt_t w = 1, UInt_t h = 1);
    virtual ~CmsShowModelPopup();
 
   virtual void CloseWindow() { UnmapWindow(); }
