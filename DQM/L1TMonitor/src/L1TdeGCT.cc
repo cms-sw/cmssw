@@ -118,6 +118,12 @@ L1TdeGCT::beginJob(void) {
 			      etaNBins, etaMinim, etaMaxim,
 			      phiNBins, phiMinim, phiMaxim
 			      );
+      lbl.clear();
+      title.clear();
+      lbl+=cLabel[j];lbl+="Rank";
+      title+=cLabel[j];title+=" RANK OF COMPARISON FAILURES"; 
+      rnk[j] = dbe->book1D(lbl.data(),title.data(),
+			       rnkNBins, rnkMinim, rnkMaxim);
       //
       lbl.clear();
       title.clear();
@@ -176,6 +182,7 @@ L1TdeGCT::beginJob(void) {
     etaphi [i]->setAxisTitle("GCT #phi",2);
     eta    [i]->setAxisTitle("GCT #eta");
     phi    [i]->setAxisTitle("GCT #phi");
+    rnk    [i]->setAxisTitle("Rank");
     etaData[i]->setAxisTitle("GCT #eta");
     phiData[i]->setAxisTitle("GCT #phi");
     rnkData[i]->setAxisTitle("Rank");
@@ -333,20 +340,20 @@ void
 
     wei=1.; if(!type) wei=0.;
     if(etav!=nullVal && phiv!=nullVal)
-      etaphi[sid]->Fill(etav,phiv,wei);
+      etaphi[ccid]->Fill(etav,phiv,wei);
     if(etav!=nullVal)
-      eta   [sid]->Fill(etav,wei);
+      eta   [ccid]->Fill(etav,wei);
     if(phiv!=nullVal)
-      phi   [sid]->Fill(phiv,wei);
-    
+      phi   [ccid]->Fill(phiv,wei);
+    rnk[ccid]->Fill(rnkv,wei);    
 
     //exclude e-only cands (only data)
     wei=1.;if(type==4) wei=0.;
     if(etav!=nullVal)
-      etaData[sid]->Fill(etav,wei);
+      etaData[ccid]->Fill(etav,wei);
     if(phiv!=nullVal)
-      phiData[sid]->Fill(phiv,wei);
-    rnkData[sid]->Fill(rnkv,wei);
+      phiData[ccid]->Fill(phiv,wei);
+    rnkData[ccid]->Fill(rnkv,wei);
     wei=1;
 
     // GCT trigger bits

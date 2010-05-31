@@ -72,6 +72,7 @@ class L1TdeGCT : public edm::EDAnalyzer {
   MonitorElement* etaphi [nGctColl_];
   MonitorElement* eta    [nGctColl_];
   MonitorElement* phi    [nGctColl_];
+  MonitorElement* rnk    [nGctColl_];
   MonitorElement* etaData[nGctColl_];
   MonitorElement* phiData[nGctColl_];
   MonitorElement* rnkData[nGctColl_];
