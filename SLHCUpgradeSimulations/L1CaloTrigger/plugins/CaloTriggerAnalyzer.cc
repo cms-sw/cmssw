@@ -20,6 +20,8 @@ CaloTriggerAnalyzer::CaloTriggerAnalyzer(const edm::ParameterSet& iConfig):
   etaNum   = fs->make<TH1F>( "etaNum"  , "etaNum"  , 20  ,  -2.5, 2.5 );
   etaDenom = fs->make<TH1F>( "etaDenom", "etaDenom", 20  ,  -2.5, 2.5 );
   pt       = fs->make<TH1F>( "pt"      , "pt", 20  ,  0. , 100. );
+  highestPt= fs->make<TH1F>( "highestPt"      , "highestPt", 20  ,  0. , 100. );
+  secondPt = fs->make<TH1F>( "secondHighestPt", "secondHighestPt", 20  ,  0. , 100. );
   dPt      = fs->make<TH1F>( "dPt"      , "dPt", 50  , -1  , 1 );
   dEta     = fs->make<TH1F>( "dEta"      , "dEta", 50  , -0.5  , 0.5 );
   dPhi     = fs->make<TH1F>( "dPhi"      , "dPhi", 50  , -0.5  , 0.5 );
@@ -50,12 +52,18 @@ CaloTriggerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   bool gotRef = iEvent.getByLabel(ref_,ref);
   bool gotSrc = iEvent.getByLabel(src_,src);
 
-  if(gotSrc)
+  if(gotSrc) {
     for(edm::View<reco::Candidate>::const_iterator i = src->begin(); i!= src->end();++i)
       {
 	pt->Fill(i->pt());
       }
-  
+
+    if(src->size()>0)
+      highestPt->Fill(src->at(0).pt());
+    if(src->size()>1)
+      secondPt->Fill(src->at(1).pt());
+
+  }
 
   if(gotRef)
     for(edm::View<reco::Candidate>::const_iterator i = ref->begin(); i!= ref->end();++i)

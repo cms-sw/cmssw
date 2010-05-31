@@ -1,7 +1,7 @@
 //
 // Original Author:  Michail BACHTIS
 //         Created:  Tue Jul 22 12:21:36 CEST 2008
-// $Id: SLHCCaloTriggerAnalysis.h,v 1.1.1.1 2009/08/03 12:57:18 bachtis Exp $
+// $Id: CaloTriggerAnalyzer.h,v 1.1 2010/04/27 00:36:37 bachtis Exp $
 
 
 
@@ -45,6 +45,9 @@ class CaloTriggerAnalyzer : public edm::EDAnalyzer {
       TH1F * dPt;
       TH1F * dEta;
       TH1F * dPhi;
+      TH1F * highestPt;
+      TH1F * secondPt;
+
 };
 
 
