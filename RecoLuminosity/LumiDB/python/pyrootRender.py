@@ -35,6 +35,28 @@ class interactiveRender(Tk.Frame):
         button=Tk.Button(master=root,text='Quit',command=sys.exit)
         button.pack(side=Tk.BOTTOM)
         Tk.mainloop()
+class batchRender():
+    def __init__(self,outputfilename):
+        ROOT.gStyle.SetOptStat(0)
+        ROOT.gROOT.SetBatch(ROOT.kTRUE)
+        self.__canvas=TCanvas("Luminosity","",1)
+        self.__canvas.SetHighLightColor(2);
+        self.__canvas.Range(-125.6732,-0.1364721,1123.878,1.178117)
+        self.__canvas.SetFillColor(0)
+        self.__canvas.SetBorderMode(0)
+        self.__canvas.SetBorderSize(2)
+        self.__canvas.SetGridx()
+        self.__canvas.SetGridy()
+        self.__canvas.SetFrameFillColor(19)
+        self.__canvas.SetFrameBorderMode(0)
+        self.__canvas.SetFrameBorderMode(0)
+        self.__outfile=outputfilename
+    def draw(self,rootobj):
+        rootobj.Draw()
+        self.__canvas.Modified()
+        self.__canvas.cd()
+        self.__canvas.SetSelected(rootobj)
+        self.__canvas.SaveAs(self.__outfile)
 if __name__=='__main__':
       
     da = TDatime(2010,03,30,13,10,00)
@@ -57,7 +79,7 @@ if __name__=='__main__':
         #h1f.GetXaxis().FindBin() ## Ricordati di calcolare il bin corretto per il tuo tempo
         h1f.SetBinContent(i,20.2+i)
     
-    m=interactiveRender()
-    m.draw(h1f)
-    
-
+    #m=interactiveRender()
+    #m.draw(h1f)
+    bat=batchRender('testroot.jpg')
+    bat.draw(h1f)
