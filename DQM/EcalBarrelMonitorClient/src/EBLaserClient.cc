@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2010/05/31 10:35:00 $
- * $Revision: 1.266 $
+ * $Date: 2010/05/31 12:06:02 $
+ * $Revision: 1.267 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1882,18 +1882,18 @@ void EBLaserClient::analyze(void) {
 
         // special correction for EB+04
        if ( ism == 22 && ie <= 5 ) {
-          mean01 = mean01 * 2.0;
-          mean02 = mean02 * 2.0;
-          mean03 = mean03 * 2.0;
-          mean04 = mean04 * 2.0;
+          mean01 = mean01 * 1.5;
+          mean02 = mean02 * 1.5;
+          mean03 = mean03 * 1.5;
+          mean04 = mean04 * 1.5;
         }
 
         // special correction for EB+09
         if ( ism == 27 && ie > 5 && ip <= 10 ) {
-          mean01 = mean01 * 2.0;
-          mean02 = mean02 * 2.0;
-          mean03 = mean03 * 2.0;
-          mean04 = mean04 * 2.0;
+          mean01 = mean01 * 1.5;
+          mean02 = mean02 * 1.5;
+          mean03 = mean03 * 1.5;
+          mean04 = mean04 * 1.5;
         }
 
         if ( update01 ) {
@@ -1964,6 +1964,22 @@ void EBLaserClient::analyze(void) {
         update10 = UtilsClient::getBinStatistics(h10_[ism-1], ie, ip, num10, mean10, rms10);
         update11 = UtilsClient::getBinStatistics(h11_[ism-1], ie, ip, num11, mean11, rms11);
         update12 = UtilsClient::getBinStatistics(h12_[ism-1], ie, ip, num12, mean12, rms12);
+
+        // special correction for EB+04
+       if ( ism == 22 && ie <= 5 ) {
+          mean01 = mean01 * 1.5;
+          mean02 = mean02 * 1.5;
+          mean03 = mean03 * 1.5;
+          mean04 = mean04 * 1.5;
+        }
+
+        // special correction for EB+09
+        if ( ism == 27 && ie > 5 && ip <= 10 ) {
+          mean01 = mean01 * 1.5;
+          mean02 = mean02 * 1.5;
+          mean03 = mean03 * 1.5;
+          mean04 = mean04 * 1.5;
+        }
 
         if ( update01 ) {
 
