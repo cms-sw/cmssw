@@ -6,8 +6,6 @@
 Several fillView function templates, to provide View support for 
 Standard Library containers.
 
-$Id: FillView.h,v 1.8 2007/10/22 18:52:37 chrjones Exp $
-
 ----------------------------------------------------------------------*/
 
 #include <string>
@@ -65,6 +63,8 @@ namespace edm {
 	typename refhelper::ValueTrait<product_type>::value>::value>::type ref_type;
       typedef reftobase::RefHolder<ref_type>        holder_type;
       
+      ptrs.reserve(ptrs.size() + coll.size());
+      helpers.reserve(helpers.size() + coll.size());
       size_type key = 0;
       for (iter i = coll.begin(), e = coll.end(); i!=e; ++i, ++key) {
 	element_type const* address = GetProduct<product_type>::address(i);
