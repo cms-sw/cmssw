@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2010/05/31 12:06:02 $
- * $Revision: 1.267 $
+ * $Date: 2010/05/31 15:16:52 $
+ * $Revision: 1.268 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1968,17 +1968,17 @@ void EBLaserClient::analyze(void) {
         // special correction for EB+04
        if ( ism == 22 && ie <= 5 ) {
           mean01 = mean01 * 1.5;
-          mean02 = mean02 * 1.5;
           mean03 = mean03 * 1.5;
-          mean04 = mean04 * 1.5;
+          mean05 = mean05 * 1.5;
+          mean07 = mean07 * 1.5;
         }
 
         // special correction for EB+09
         if ( ism == 27 && ie > 5 && ip <= 10 ) {
           mean01 = mean01 * 1.5;
-          mean02 = mean02 * 1.5;
           mean03 = mean03 * 1.5;
-          mean04 = mean04 * 1.5;
+          mean05 = mean05 * 1.5;
+          mean07 = mean07 * 1.5;
         }
 
         if ( update01 ) {
