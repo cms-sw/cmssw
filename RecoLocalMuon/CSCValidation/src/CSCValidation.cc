@@ -14,7 +14,7 @@ using namespace edm;
 ///////////////////
 //  CONSTRUCTOR  //
 ///////////////////
-CSCValidation::CSCValidation(const ParameterSet& pset){
+CSCValidation::CSCValidation(const ParameterSet& pset){ 
 
   // Get the various input parameters
   rootFileName         = pset.getUntrackedParameter<string>("rootFileName","valHists.root");
@@ -862,19 +862,19 @@ void CSCValidation::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::E
     if (kStation == 1 && (kRing == 1 || kRing == 4)) histos->fill1DHistByType(rHSumQ,"hRHSumQ","Sum 3x3 recHit Charge",idrec,125,0,4000,"recHits");
     else histos->fill1DHistByType(rHSumQ,"hRHSumQ","Sum 3x3 recHit Charge",idrec,125,0,2000,"recHits");
     histos->fill1DHistByType(rHratioQ,"hRHRatioQ","Charge Ratio (Ql+Qr)/Qt",idrec,120,-0.1,1.1,"recHits");
-    histos->fill1DHistByType(rHtime,"hRHTiming","recHit Timing",idrec,100,0,10,"recHits");
+    histos->fill1DHistByType(rHtime,"hRHTiming","recHit Timing",idrec,200,-10,10,"recHits");
     histos->fill1DHistByType(sqrt(xxerr),"hRHxerr","RecHit Error on Local X",idrec,100,-0.1,2,"recHits");
     histos->fill1DHistByType(sqrt(yyerr),"hRHyerr","RecHit Error on Local Y",idrec,100,-0.1,2,"recHits");
     histos->fill1DHistByType(xyerr,"hRHxyerr","Corr. RecHit XY Error",idrec,100,-1,2,"recHits");
     if (adcsize == 12) histos->fill1DHistByType(stpos,"hRHstpos","Reconstructed Position on Strip",idrec,120,-0.6,0.6,"recHits");
     histos->fill1DHistByType(sterr,"hRHsterr","Estimated Error on Strip Measurement",idrec,120,-0.05,0.25,"recHits");
     histos->fillProfile(chamberSerial(idrec),rHSumQ,"hRHSumQProfile","Sum 3x3 recHit Charge",601,-0.5,600.5,0,4000,"recHits");
-    histos->fillProfile(chamberSerial(idrec),rHtime,"hRHTimingProfile","recHit Timing",601,-0.5,600.5,-1,11,"recHits");
+    histos->fillProfile(chamberSerial(idrec),rHtime,"hRHTimingProfile","recHit Timing",601,-0.5,600.5,-11,11,"recHits");
     if (detailedAnalysis){
       if (kStation == 1 && (kRing == 1 || kRing == 4)) histos->fill1DHistByLayer(rHSumQ,"hRHSumQ","Sum 3x3 recHit Charge",idrec,125,0,4000,"RHQByLayer");
       else histos->fill1DHistByLayer(rHSumQ,"hRHSumQ","Sum 3x3 recHit Charge",idrec,125,0,2000,"RHQByLayer");
       histos->fill1DHistByLayer(rHratioQ,"hRHRatioQ","Charge Ratio (Ql+Qr)/Qt",idrec,120,-0.1,1.1,"RHQByLayer");
-      histos->fill1DHistByLayer(rHtime,"hRHTiming","recHit Timing",idrec,100,0,10,"RHTimingByLayer");
+      histos->fill1DHistByLayer(rHtime,"hRHTiming","recHit Timing",idrec,200,-10,10,"RHTimingByLayer");
       histos->fill2DHistByLayer(xreco,yreco,"hRHLocalXY","recHit Local Position",idrec,50,-100.,100.,75,-150.,150.,"RHLocalXYByLayer");
       histos->fill1DHistByLayer(sqrt(xxerr),"hRHxerr","RecHit Error on Local X",idrec,100,-0.1,2,"RHErrorsByLayer");
       histos->fill1DHistByLayer(sqrt(yyerr),"hRHyerr","RecHit Error on Local Y",idrec,100,-0.1,2,"RHErrorsByLayer");
@@ -1971,7 +1971,7 @@ void CSCValidation::findNonAssociatedRecHits(edm::ESHandle<CSCGeometry> cscGeom,
     if (kStation == 1 && (kRing == 1 || kRing == 4)) histos->fill1DHistByType(rHSumQ,"hNARHSumQ","Sum 3x3 recHit Charge",idrec,250,0,4000,"NonAssociatedRechits");
     else histos->fill1DHistByType(rHSumQ,"hNARHSumQ","Sum 3x3 recHit Charge",idrec,250,0,2000,"NonAssociatedRechits");
     histos->fill1DHistByType(rHratioQ,"hNARHRatioQ","Ratio (Ql+Qr)/Qt)",idrec,120,-0.1,1.1,"NonAssociatedRechits");
-    histos->fill1DHistByType(rHtime,"hNARHTiming","recHit Timing",idrec,100,0,10,"NonAssociatedRechits");
+    histos->fill1DHistByType(rHtime,"hNARHTiming","recHit Timing",idrec,200,-10,10,"NonAssociatedRechits");
     histos->fill2DHistByStation(grecx,grecy,"hNARHGlobal","recHit Global Position",idrec,400,-800.,800.,400,-800.,800.,"NonAssociatedRechits");
     histos->fill1DHistByType(rHwidth,"hNARHwidth","width for Non associated recHit",idrec,21,-0.5,20.5,"NonAssociatedRechits");
     
@@ -2047,7 +2047,7 @@ void CSCValidation::findNonAssociatedRecHits(edm::ESHandle<CSCGeometry> cscGeom,
            if (kStation == 1 && (kRing == 1 || kRing == 4)) histos->fill1DHistByType(rHSumQ,"hSegRHSumQ","Sum 3x3 recHit Charge",idrec,250,0,4000,"AssociatedRechits");
            else histos->fill1DHistByType(rHSumQ,"hSegRHSumQ","Sum 3x3 recHit Charge",idrec,250,0,2000,"AssociatedRechits");
            histos->fill1DHistByType(rHratioQ,"hSegRHRatioQ","Ratio (Ql+Qr)/Qt)",idrec,120,-0.1,1.1,"AssociatedRechits");
-           histos->fill1DHistByType(rHtime,"hSegRHTiming","recHit Timing",idrec,100,0,10,"AssociatedRechits");
+           histos->fill1DHistByType(rHtime,"hSegRHTiming","recHit Timing",idrec,200,-10,10,"AssociatedRechits");
            histos->fill2DHistByStation(grecx,grecy,"hSegRHGlobal","recHit Global Position",idrec,400,-800.,800.,400,-800.,800.,"AssociatedRechits");
            histos->fill1DHistByType(rHwidth,"hSegRHwidth","width for Non associated recHit",idrec,21,-0.5,20.5,"AssociatedRechits");
 	   
@@ -2620,7 +2620,7 @@ void CSCValidation::doADCTiming(const CSCRecHit2DCollection& rechitcltn) {
 
                  cfeb=(centerStrip-1)/16+1;
                  x=cfeb; y=adc_3_3_wtbin;
-                 histos->fill2DHist(x,y,name.c_str(),title.c_str(),5,1.,6.,40,0.,8.,"ADCTiming");                                     
+                 histos->fill2DHist(x,y,name.c_str(),title.c_str(),5,1.,6.,80,-8.,8.,"ADCTiming");                                     
                  } // end of if flag==0
                 } // end of if (adc_3_3_sum > 100.0)
             } // end of if if(m_strip.size()==3
@@ -2704,12 +2704,12 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
     segment_position_map[id]=globalPosition;
     
     double distToIP = sqrt(globalPosition.x()*globalPosition.x()+globalPosition.y()*globalPosition.y()+globalPosition.z()*globalPosition.z());
-    
-    histos->fillProfile(chamberSerial(id),average_two,"timeChamber","Segment mean time",601,-0.5,600.5,0.,400.,"TimeMonitoring");
-    histos->fillProfileByType(id.chamber(),average_two,"timeChamberByType","Segment mean time by chamber",id,36,0.5,36.5,0.,400.,"TimeMonitoring");
-    histos->fill2DHist(distToIP,average_two,"seg_time_vs_distToIP","Segment time vs. Distance to IP",80,600.,1400.,400,0.,400.,"TimeMonitoring");
-    histos->fill2DHist(globalPosition.z(),average_two,"seg_time_vs_globZ","Segment time vs. z position",240,-1200,1200,400,0.,400.,"TimeMonitoring");
-    histos->fill2DHist(fabs(globalPosition.z()),average_two,"seg_time_vs_absglobZ","Segment time vs. abs(z position)",120,0.,1200.,400,0.,400.,"TimeMonitoring");
+     
+    histos->fillProfile(chamberSerial(id),average_two,"timeChamber","Segment mean time",601,-0.5,600.5,-400.,400.,"TimeMonitoring");
+    histos->fillProfileByType(id.chamber(),average_two,"timeChamberByType","Segment mean time by chamber",id,36,0.5,36.5,-400,400.,"TimeMonitoring");
+    histos->fill2DHist(distToIP,average_two,"seg_time_vs_distToIP","Segment time vs. Distance to IP",80,600.,1400.,800,-400,400.,"TimeMonitoring");
+    histos->fill2DHist(globalPosition.z(),average_two,"seg_time_vs_globZ","Segment time vs. z position",240,-1200,1200,800,-400.,400.,"TimeMonitoring");
+    histos->fill2DHist(fabs(globalPosition.z()),average_two,"seg_time_vs_absglobZ","Segment time vs. abs(z position)",120,0.,1200.,800,-400.,400.,"TimeMonitoring");
     
   }//end segment loop
   
@@ -2883,7 +2883,7 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
   unsigned int examinerMask = 0x1FEBF3F6; 
   unsigned int errorMask = 0x0;
 
-  for (int id=FEDNumbering::FEDNumbering::MINCSCFEDID; id<=FEDNumbering::MAXCSCFEDID; ++id) {
+  for (int id=FEDNumbering::MINCSCFEDID; id<=FEDNumbering::MAXCSCFEDID; ++id) {
     // loop over DCCs
     /// uncomment this for regional unpacking
     /// if (id!=SOME_ID) continue;
