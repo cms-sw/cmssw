@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2010/05/03 14:25:44 $
- * $Revision: 1.129 $
+ * $Date: 2010/05/28 09:02:48 $
+ * $Revision: 1.130 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -2048,7 +2048,7 @@ void EELaserClient::analyze(void) {
           val = 1.;
           if ( fabs(mean03 - meanAmplL2) > fabs(percentVariation_ * meanAmplL2) || mean03 < amplitudeThreshold_ || rms03 > rmsThresholdRelative_ * mean03 )
             val = 0.;
-          if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, val);
+          if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, val );
 
           int ic = Numbers::icEE(ism, jx, jy);
 

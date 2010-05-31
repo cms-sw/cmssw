@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2010/04/14 16:24:42 $
- * $Revision: 1.117 $
+ * $Date: 2010/05/28 09:02:48 $
+ * $Revision: 1.118 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1312,7 +1312,7 @@ void EELedClient::analyze(void) {
           val = 1.;
           if (  mean03 < amplitudeThreshold03_ || rms03 > rmsThreshold03_ )
             val = 0.;
-          if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, val);
+          if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, val );
 
           int ic = Numbers::icEE(ism, jx, jy);
 
