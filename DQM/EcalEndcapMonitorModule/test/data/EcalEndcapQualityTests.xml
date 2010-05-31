@@ -177,7 +177,7 @@
         <PARAM name="minMean">175.0</PARAM>
         <PARAM name="maxMean">225.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
-        <PARAM name="maxRMS">2.0</PARAM>
+        <PARAM name="maxRMS">4.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">17000</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
@@ -211,7 +211,7 @@
         <PARAM name="minMean">175.0</PARAM>
         <PARAM name="maxMean">225.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
-        <PARAM name="maxRMS">1.2</PARAM>
+        <PARAM name="maxRMS">1.5</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">17000</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
@@ -228,7 +228,7 @@
         <PARAM name="minMean">175.0</PARAM>
         <PARAM name="maxMean">225.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
-        <PARAM name="maxRMS">2.0</PARAM>
+        <PARAM name="maxRMS">2.5</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">17000</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
@@ -245,7 +245,7 @@
         <PARAM name="minMean">650.0</PARAM>
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
-        <PARAM name="maxRMS">1.0</PARAM>
+        <PARAM name="maxRMS">999.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
@@ -262,7 +262,7 @@
         <PARAM name="minMean">650.0</PARAM>
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
-        <PARAM name="maxRMS">3.0</PARAM>
+        <PARAM name="maxRMS">999.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
@@ -276,11 +276,11 @@
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
-        <PARAM name="minMean">10.0</PARAM>
+        <PARAM name="minMean">100.0</PARAM>
         <PARAM name="maxMean">49152.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.40</PARAM>
+        <PARAM name="toleranceMean">-1.00</PARAM>
         <PARAM name="minEntries">100</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
@@ -296,7 +296,7 @@
         <PARAM name="minMean">650.0</PARAM>
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
-        <PARAM name="maxRMS">1.0</PARAM>
+        <PARAM name="maxRMS">999.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
@@ -313,7 +313,7 @@
         <PARAM name="minMean">650.0</PARAM>
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
-        <PARAM name="maxRMS">3.0</PARAM>
+        <PARAM name="maxRMS">999.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
@@ -327,11 +327,11 @@
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
-        <PARAM name="minMean">50.0</PARAM>
+        <PARAM name="minMean">100.0</PARAM>
         <PARAM name="maxMean">4096.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">4096.0</PARAM>
-        <PARAM name="toleranceMean">0.20</PARAM>
+        <PARAM name="toleranceMean">-1.00</PARAM>
         <PARAM name="minEntries">100</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
@@ -348,7 +348,7 @@
         <PARAM name="maxMean">4096.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">4096.0</PARAM>
-        <PARAM name="toleranceMean">0.20</PARAM>
+        <PARAM name="toleranceMean">-1.00</PARAM>
         <PARAM name="minEntries">100</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
@@ -361,11 +361,11 @@
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
-        <PARAM name="minMean">10.0</PARAM>
+        <PARAM name="minMean">100.0</PARAM>
         <PARAM name="maxMean">49152.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.40</PARAM>
+        <PARAM name="toleranceMean">-1.00</PARAM>
         <PARAM name="minEntries">100</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
@@ -381,7 +381,7 @@
         <PARAM name="minMean">650.0</PARAM>
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
-        <PARAM name="maxRMS">1.0</PARAM>
+        <PARAM name="maxRMS">999.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
@@ -398,7 +398,7 @@
         <PARAM name="minMean">650.0</PARAM>
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
-        <PARAM name="maxRMS">3.0</PARAM>
+        <PARAM name="maxRMS">999.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
@@ -412,11 +412,11 @@
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
-        <PARAM name="minMean">50.0</PARAM>
+        <PARAM name="minMean">100.0</PARAM>
         <PARAM name="maxMean">4096.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">4096.0</PARAM>
-        <PARAM name="toleranceMean">0.20</PARAM>
+        <PARAM name="toleranceMean">-1.00</PARAM>
         <PARAM name="minEntries">100</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
@@ -429,11 +429,11 @@
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
-        <PARAM name="minMean">50.0</PARAM>
+        <PARAM name="minMean">100.0</PARAM>
         <PARAM name="maxMean">4096.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">4096.0</PARAM>
-        <PARAM name="toleranceMean">0.20</PARAM>
+        <PARAM name="toleranceMean">-1.00</PARAM>
         <PARAM name="minEntries">100</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
@@ -446,11 +446,11 @@
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
-        <PARAM name="minMean">10.0</PARAM>
+        <PARAM name="minMean">100.0</PARAM>
         <PARAM name="maxMean">49152.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.40</PARAM>
+        <PARAM name="toleranceMean">-1.00</PARAM>
         <PARAM name="minEntries">100</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
@@ -466,7 +466,7 @@
         <PARAM name="minMean">650.0</PARAM>
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
-        <PARAM name="maxRMS">1.0</PARAM>
+        <PARAM name="maxRMS">999.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
@@ -483,7 +483,7 @@
         <PARAM name="minMean">650.0</PARAM>
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
-        <PARAM name="maxRMS">3.0</PARAM>
+        <PARAM name="maxRMS">999.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
@@ -497,11 +497,11 @@
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
-        <PARAM name="minMean">50.0</PARAM>
+        <PARAM name="minMean">100.0</PARAM>
         <PARAM name="maxMean">4096.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">4096.0</PARAM>
-        <PARAM name="toleranceMean">0.20</PARAM>
+        <PARAM name="toleranceMean">-1.00</PARAM>
         <PARAM name="minEntries">100</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
@@ -514,11 +514,11 @@
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
-        <PARAM name="minMean">50.0</PARAM>
+        <PARAM name="minMean">100.0</PARAM>
         <PARAM name="maxMean">4096.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">4096.0</PARAM>
-        <PARAM name="toleranceMean">0.20</PARAM>
+        <PARAM name="toleranceMean">-1.00</PARAM>
         <PARAM name="minEntries">100</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
@@ -531,11 +531,11 @@
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
-        <PARAM name="minMean">10.0</PARAM>
+        <PARAM name="minMean">100.0</PARAM>
         <PARAM name="maxMean">49152.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.40</PARAM>
+        <PARAM name="toleranceMean">-1.00</PARAM>
         <PARAM name="minEntries">100</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
@@ -551,7 +551,7 @@
         <PARAM name="minMean">650.0</PARAM>
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
-        <PARAM name="maxRMS">1.0</PARAM>
+        <PARAM name="maxRMS">999.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
@@ -568,7 +568,7 @@
         <PARAM name="minMean">650.0</PARAM>
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
-        <PARAM name="maxRMS">3.0</PARAM>
+        <PARAM name="maxRMS">999.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
@@ -586,7 +586,7 @@
         <PARAM name="maxMean">4096.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">4096.0</PARAM>
-        <PARAM name="toleranceMean">0.20</PARAM>
+        <PARAM name="toleranceMean">-1.00</PARAM>
         <PARAM name="minEntries">100</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
@@ -599,11 +599,11 @@
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
-        <PARAM name="minMean">50.0</PARAM>
+        <PARAM name="minMean">100.0</PARAM>
         <PARAM name="maxMean">4096.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">4096.0</PARAM>
-        <PARAM name="toleranceMean">0.20</PARAM>
+        <PARAM name="toleranceMean">-1.00</PARAM>
         <PARAM name="minEntries">100</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
@@ -616,11 +616,11 @@
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
-        <PARAM name="minMean">100.0</PARAM>
+        <PARAM name="minMean">2.0</PARAM>
         <PARAM name="maxMean">49152.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
-        <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.40</PARAM>
+        <PARAM name="maxRMS">10.0</PARAM>
+        <PARAM name="toleranceMean">-1.00</PARAM>
         <PARAM name="minEntries">100</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
@@ -636,7 +636,7 @@
         <PARAM name="minMean">650.0</PARAM>
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
-        <PARAM name="maxRMS">1.0</PARAM>
+        <PARAM name="maxRMS">10.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
@@ -653,7 +653,7 @@
         <PARAM name="minMean">650.0</PARAM>
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
-        <PARAM name="maxRMS">3.0</PARAM>
+        <PARAM name="maxRMS">10.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
@@ -667,11 +667,11 @@
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
-        <PARAM name="minMean">50.0</PARAM>
+        <PARAM name="minMean">100.0</PARAM>
         <PARAM name="maxMean">4096.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
-        <PARAM name="maxRMS">4096.0</PARAM>
-        <PARAM name="toleranceMean">0.20</PARAM>
+        <PARAM name="maxRMS">10.0</PARAM>
+        <PARAM name="toleranceMean">-1.00</PARAM>
         <PARAM name="minEntries">100</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
@@ -684,11 +684,11 @@
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
-        <PARAM name="minMean">50.0</PARAM>
+        <PARAM name="minMean">100.0</PARAM>
         <PARAM name="maxMean">4096.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
-        <PARAM name="maxRMS">4096.0</PARAM>
-        <PARAM name="toleranceMean">0.20</PARAM>
+        <PARAM name="maxRMS">10.0</PARAM>
+        <PARAM name="toleranceMean">-1.00</PARAM>
         <PARAM name="minEntries">100</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
@@ -701,11 +701,11 @@
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
-        <PARAM name="minMean">100.0</PARAM>
+        <PARAM name="minMean">2.0</PARAM>
         <PARAM name="maxMean">49152.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
-        <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.40</PARAM>
+        <PARAM name="maxRMS">10.0</PARAM>
+        <PARAM name="toleranceMean">-1.00</PARAM>
         <PARAM name="minEntries">100</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
@@ -721,7 +721,7 @@
         <PARAM name="minMean">650.0</PARAM>
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
-        <PARAM name="maxRMS">1.0</PARAM>
+        <PARAM name="maxRMS">999.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
@@ -738,7 +738,7 @@
         <PARAM name="minMean">650.0</PARAM>
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
-        <PARAM name="maxRMS">3.0</PARAM>
+        <PARAM name="maxRMS">999.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
@@ -752,10 +752,10 @@
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
-        <PARAM name="minMean">50.0</PARAM>
+        <PARAM name="minMean">100.0</PARAM>
         <PARAM name="maxMean">4096.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
-        <PARAM name="maxRMS">4096.0</PARAM>
+        <PARAM name="maxRMS">10.0</PARAM>
         <PARAM name="toleranceMean">0.20</PARAM>
         <PARAM name="minEntries">100</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
@@ -769,10 +769,10 @@
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
-        <PARAM name="minMean">50.0</PARAM>
+        <PARAM name="minMean">100.0</PARAM>
         <PARAM name="maxMean">4096.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
-        <PARAM name="maxRMS">4096.0</PARAM>
+        <PARAM name="maxRMS">10.0</PARAM>
         <PARAM name="toleranceMean">0.20</PARAM>
         <PARAM name="minEntries">100</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
@@ -840,7 +840,7 @@
         <PARAM name="minMean">650.0</PARAM>
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
-        <PARAM name="maxRMS">1.0</PARAM>
+        <PARAM name="maxRMS">999.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
@@ -857,7 +857,7 @@
         <PARAM name="minMean">650.0</PARAM>
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
-        <PARAM name="maxRMS">3.0</PARAM>
+        <PARAM name="maxRMS">999.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
