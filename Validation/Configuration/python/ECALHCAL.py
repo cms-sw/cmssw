@@ -58,6 +58,11 @@ def customise(process):
 
     process.schedule.append(process.local_digireco)
 
+    # add HcalNoiseRBXCollection product for Validation/CaloTowers Validation/HcalRecHits  
+    process.load( "RecoMET.METProducers.hcalnoiseinfoproducer_cfi" )
+    process.hcalnoise_path = cms.Path( process.hcalnoise )
+    process.schedule.append( process.hcalnoise_path )
+
     process.load("Validation/Configuration/ecalSimValid_cff") 
     process.load("Validation/Configuration/hcalSimValid_cff") 
     process.local_validation = cms.Path(process.ecalSimValid+process.hcalSimValid)
