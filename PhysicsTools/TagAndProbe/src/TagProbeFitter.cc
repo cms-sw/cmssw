@@ -46,6 +46,7 @@ TagProbeFitter::TagProbeFitter(vector<string> inputFileNames, string inputDirect
   outputDirectory = outputFile->mkdir(inputDirectoryName.c_str());
   numCPU = numCPU_;
   saveWorkspace = saveWorkspace_;
+  massBins = 0; // automatic default
   floatShapeParameters = floatShapeParameters_;
   fixVars = fixVars_;
   if(!floatShapeParameters && fixVars.empty()) std::cout << "TagProbeFitter: " << "You wnat to fix some variables but do not specify them!";
@@ -82,6 +83,10 @@ bool TagProbeFitter::addCategory(string name, string title, string expression){
 
 void TagProbeFitter::addPdf(string name, vector<string>& pdfCommands){
   pdfs[name] = pdfCommands;
+}
+
+void TagProbeFitter::setBinsForMassPlots(int bins){
+  massBins = bins;
 }
 
 string TagProbeFitter::calculateEfficiency(string dirName, string effCat, string effState, vector<string>& unbinnedVariables, map<string, vector<double> >& binnedReals, map<string, std::vector<string> >& binnedCategories, vector<string>& binToPDFmap, bool saveWorkspace){
@@ -395,21 +400,27 @@ void TagProbeFitter::saveFitPlot(RooWorkspace* w){
   vector<RooPlot*> frames;
   // plot the Passing Probes
   canvas.cd(1);
-  frames.push_back(mass->frame(Name("Passing"), Title("Passing Probes")));
-  dataPass->plotOn(frames.back());
-  pdf.plotOn(frames.back(), Slice(efficiencyCategory, "Passed"), ProjWData(*dataPass), LineColor(kGreen));
-  pdf.plotOn(frames.back(), Slice(efficiencyCategory, "Passed"), ProjWData(*dataPass), LineColor(kGreen), Components("backgroundPass"), LineStyle(kDashed));
-  frames.back()->Draw();
+  if (massBins == 0) {
+      frames.push_back(mass->frame(Name("Passing"), Title("Passing Probes")));
+      frames.push_back(mass->frame(Name("Failing"), Title("Failing Probes")));
+      frames.push_back(mass->frame(Name("All"),     Title("All Probes")));
+  } else {
+      frames.push_back(mass->frame(Name("Passing"), Title("Passing Probes"), Bins(massBins)));
+      frames.push_back(mass->frame(Name("Failing"), Title("Failing Probes"), Bins(massBins)));
+      frames.push_back(mass->frame(Name("All"),     Title("All Probes"), Bins(massBins)));
+  }
+  dataPass->plotOn(frames[0]);
+  pdf.plotOn(frames[0], Slice(efficiencyCategory, "Passed"), ProjWData(*dataPass), LineColor(kGreen));
+  pdf.plotOn(frames[0], Slice(efficiencyCategory, "Passed"), ProjWData(*dataPass), LineColor(kGreen), Components("backgroundPass"), LineStyle(kDashed));
+  frames[0]->Draw();
   // plot the Failing Probes
   canvas.cd(2);
-  frames.push_back(mass->frame(Name("Failing"), Title("Failing Probes")));
-  dataFail->plotOn(frames.back());
-  pdf.plotOn(frames.back(), Slice(efficiencyCategory, "Failed"), ProjWData(*dataFail), LineColor(kRed));
-  pdf.plotOn(frames.back(), Slice(efficiencyCategory, "Failed"), ProjWData(*dataFail), LineColor(kRed), Components("backgroundFail"), LineStyle(kDashed));
-  frames.back()->Draw();
+  dataFail->plotOn(frames[1]);
+  pdf.plotOn(frames[1], Slice(efficiencyCategory, "Failed"), ProjWData(*dataFail), LineColor(kRed));
+  pdf.plotOn(frames[1], Slice(efficiencyCategory, "Failed"), ProjWData(*dataFail), LineColor(kRed), Components("backgroundFail"), LineStyle(kDashed));
+  frames[1]->Draw();
   // plot the All Probes
   canvas.cd(3);
-  frames.push_back(mass->frame(Name("All"), Title("All Probes")));
   dataAll->plotOn(frames.back());
   pdf.plotOn(frames.back(), ProjWData(*dataAll), LineColor(kBlue));
   pdf.plotOn(frames.back(), ProjWData(*dataAll), LineColor(kBlue), Components("backgroundPass,backgroundFail"), LineStyle(kDashed));

@@ -32,6 +32,9 @@ class TagProbeFitter: public TGraphAsymmErrors{
   ///calculate the efficiency for a particular binning of the data; it saves everything in the directory "dirName", uses the previously defined PDF with name "pdfName"
   std::string calculateEfficiency(std::string dirName, std::string efficiencyCategory, std::string efficiencyState, std::vector<std::string>& unbinnedVariables, std::map<std::string, std::vector<double> >& binnedReals, std::map<std::string, std::vector<std::string> >& binnedCategories, std::vector<std::string>& binToPDFmap, bool saveWork);
 
+  /// set number of bins to use when making the plots; 0 = automatic
+  void setBinsForMassPlots(int bins) ;
+
   protected:
   ///pointer to the input TTree Chain of data
   TChain* inputTree;
@@ -47,6 +50,9 @@ class TagProbeFitter: public TGraphAsymmErrors{
 
   ///the default option wether to save the workspace for each bin
   bool saveWorkspace;
+
+  ///number of bins to use in mass shape plots; 0 = automatic
+  int massBins;
 
   ///the map of pdf names to the vector of commands to build the pdf
   std::map<std::string, std::vector<std::string> > pdfs;
