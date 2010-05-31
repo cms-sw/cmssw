@@ -638,9 +638,11 @@ if [ "$HEPMC" = "TRUE" ]; then
 echo " <I> HepMC2 version "${HEPMC2VER}" installed in "${HEPMC2DIR}
 fi
 if [ "$LHAPDF" = "TRUE" ]; then
+echo "\n\n\n\n\n\n\n\n\n"
 echo " <I> LHAPDF version "${LHAPDFVER}" installed in "${LHAPDFDIR}
 echo " <I>  -> before using SHERPA please define"
 echo " <I>  -> export LHAPATH="${pdfdir}
+echo "\n\n\n\n\n\n\n\n\n"
 fi
 echo " <I> SHERPA version "${SHERPAVER}" installed in "${SHERPADIR}
 
