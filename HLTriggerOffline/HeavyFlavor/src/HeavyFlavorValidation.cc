@@ -54,7 +54,7 @@ class HeavyFlavorValidation : public edm::EDAnalyzer {
     explicit HeavyFlavorValidation(const edm::ParameterSet&);
     ~HeavyFlavorValidation();
   private:
-    virtual void beginJob();
+    virtual void beginRun(const Run & iRun, const EventSetup & iSetup);
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
     virtual void endJob();
     int getMotherId( const Candidate * p );
@@ -124,13 +124,15 @@ HeavyFlavorValidation::HeavyFlavorValidation(const ParameterSet& pset):
   muonMass(0.106)
 {}
   
-void HeavyFlavorValidation::beginJob(){
+void HeavyFlavorValidation::beginRun(const Run & iRun, const EventSetup & iSetup){
 //discover HLT configuration
   HLTConfigProvider hltConfig;
-  if(hltConfig.init(triggerProcessName)){
+  bool isChanged;
+  if(hltConfig.init(iRun, iSetup, triggerProcessName, isChanged)){
     LogDebug("HLTriggerOfflineHeavyFlavor") << "Successfully initialized HLTConfigProvider with process name: "<<triggerProcessName<<endl;
   }else{
     LogWarning("HLTriggerOfflineHeavyFlavor") << "Could not initialize HLTConfigProvider with process name: "<<triggerProcessName<<endl;
+    return;
   }
   stringstream os;
   vector<string> triggerNames = hltConfig.triggerNames();
