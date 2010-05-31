@@ -70,13 +70,13 @@ class matplotRender():
             ax.plot(xpoints,yvalue,label=ylabel)
 
         font=FontProperties(size='small')
-        ax.legend(tuple(ypoints.keys().sort()),loc='best',prop=font)
+        ax.legend(tuple(ypoints.keys()),loc='best',prop=font)
 
         #legtxt=leg.get_texts()
         #legtxt.size='xx-small'
         self.__fig.subplots_adjust(bottom=0.18,left=0.18)
         
-    def plotSumX_Fill(self,rawxdata,rawydata,rawfillDict,sampleinterval=5,nticks=5):
+    def plotSumX_Fill(self,rawxdata,rawydata,rawfillDict,sampleinterval=2,nticks=5):
         #rawxdata,rawydata must be equal size
         #calculate tick values
         print 'rawxdata : ',rawxdata
@@ -92,18 +92,19 @@ class matplotRender():
             ypoints[ylabel]=[]
         xidx=[]
         for x in myinclusiveRange(min(rawfillDict.keys()),max(rawfillDict.keys()),sampleinterval):
-            xpoints.append(x)
+            if rawfillDict.has_key(x):
+                xpoints.append(x)
         print 'xpoints',xpoints
         
         for fillboundary in xpoints:
             keylist=rawfillDict.keys()
             keylist.sort()
             for fill in keylist:
-                if fill>=fillboundary:
+                if fill==fillboundary:
                     runlist=rawfillDict[fill]
                     runlist.sort()
                     xidx=rawxdata.index(max(runlist))
-                    break
+                    #break
             print 'max runnum for fillboundary ',fillboundary, rawxdata[xidx]
             for ylabel in ypoints:
                 ypoints[ylabel].append(sum(rawydata[ylabel][0:xidx])/1000.0)        
@@ -114,10 +115,10 @@ class matplotRender():
         xticklabels=ax.get_xticklabels()
         majorLocator=matplotlib.ticker.LinearLocator( nticks )
         majorFormatter=matplotlib.ticker.FormatStrFormatter('%d')
-        minorLocator=matplotlib.ticker.MultipleLocator(sampleinterval)
+        #minorLocator=matplotlib.ticker.MultipleLocator(sampleinterval)
         ax.xaxis.set_major_locator(majorLocator)
         ax.xaxis.set_major_formatter(majorFormatter)
-        ax.xaxis.set_minor_locator(minorLocator)
+        #ax.xaxis.set_minor_locator(minorLocator)
         ax.grid(True)
         for ylabel,yvalue in ypoints.items():
             ax.plot(xpoints,yvalue,label=ylabel)

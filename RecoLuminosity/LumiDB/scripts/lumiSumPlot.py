@@ -70,10 +70,12 @@ def getLumiInfoForRuns(dbsession,c,runDict,hltpath=''):
             numorbit=deliveredQueryCursor.currentRow()['numorbit'].data()
             lslength=numorbit*c.NBX*25e-09
             #print runnum,instlumi,numorbit,lslength
+            intlumiperls=float(instlumi*lslength*c.NORM)
+            if intlumiperls<0.0: intlumiperls=0.0
             if runDict.has_key(runnum) and not deliveredDict.has_key(runnum):
-                deliveredDict[runnum]=float(instlumi*lslength*c.NORM)
+                deliveredDict[runnum]=intlumiperls
             elif runDict.has_key(runnum) and deliveredDict.has_key(runnum):
-                deliveredDict[runnum]=deliveredDict[runnum]+float(instlumi*lslength*c.NORM)
+                deliveredDict[runnum]=deliveredDict[runnum]+intlumiperls
         del deliveredQuery
         #print 'got delivered : ',deliveredDict
         
@@ -117,17 +119,20 @@ def getLumiInfoForRuns(dbsession,c,runDict,hltpath=''):
                 deadfraction=1.0
             else:
                 deadfraction=float(deadtime)/float(bitzero)
-                
+
+            intlumiperls=float(instlumi*(1.0-deadfraction)*lslength*c.NORM)
+            if intlumiperls<0.0:
+                intlumiperls=0.0 #filter out negative numbers
             if runDict.has_key(runnum) and len(runDict[runnum])==0:
                 if not recordedPerRun.has_key(runnum):
-                    recordedPerRun[runnum]=float(instlumi*(1.0-deadfraction)*lslength*c.NORM)
+                    recordedPerRun[runnum]=intlumiperls
                 else:
-                    recordedPerRun[runnum]=float(recordedPerRun[runnum]+instlumi*(1.0-deadfraction)*lslength*c.NORM)
+                    recordedPerRun[runnum]=recordedPerRun[runnum]+intlumiperls
             elif runDict.has_key(runnum) and findInList(runDict[runnum],cmsls):
                 if not recordedPerRun.has_key(runnum):
-                    recordedPerRun[runnum]=float(instlumi*(1.0-deadfraction)*lslength*c.NORM)
+                    recordedPerRun[runnum]=intlumiperls
                 else:
-                    recordedPerRun[runnum]=float(recordedPerRun[runnum]+instlumi*(1.0-deadfraction)*lslength*c.NORM)
+                    recordedPerRun[runnum]=recordedPerRun[runnum]+intlumiperls
         #print 'got recorded : ',recordedPerRun
         del lumiquery
         #print 'hltpath ',hltpath
