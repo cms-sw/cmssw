@@ -65,7 +65,7 @@ process.TFileService = cms.Service("TFileService",
 process.p = cms.Path(process.l1GctHwDigis*
                      process.valGctDigis*
                      process.l1compare*
-                     process.l1defilter*
+                     ~process.l1defilter*
                      process.dumpGctDigis*
                      process.gctErrorAnalyzer)
 
