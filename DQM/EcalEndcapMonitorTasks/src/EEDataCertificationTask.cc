@@ -130,8 +130,8 @@ void EEDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
       DQMVal[i] = std::min(ismIntegrityQual,ismFrontendQual);
     }
 
-    if( hIntegrityByLumi_->GetBinContent(0) > 0 ) integrityQual = 1.0 - integrityErrSum/hIntegrityByLumi_->GetBinContent(0);
-    if( hFrontendByLumi_->GetBinContent(0) > 0 ) frontendQual = 1.0 - frontendErrSum/hFrontendByLumi_->GetBinContent(0);
+    if( hIntegrityByLumi_->GetBinContent(0) > 0 ) integrityQual = 1.0 - integrityErrSum/hIntegrityByLumi_->GetBinContent(0)/18.;
+    if( hFrontendByLumi_->GetBinContent(0) > 0 ) frontendQual = 1.0 - frontendErrSum/hFrontendByLumi_->GetBinContent(0)/18.;
     float totDQMVal = std::min(integrityQual,frontendQual);
 
     sprintf(histo, (prefixME_ + "/EventInfo/reportSummary").c_str());
