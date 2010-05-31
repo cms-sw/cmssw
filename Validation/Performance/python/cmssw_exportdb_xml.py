@@ -225,6 +225,13 @@ def exportRunInfo(xml_doc, run_info, release = None, print_out = False):
 	if print_out:
 		print xml_doc.toprettyxml(indent="\t")
 
+	#IgSummary
+	IgSummaryNode = createNode(node_name="IgSummaries", xml_doc=xml_doc, parent=runInfoNode, values = {})
+	for iginfo in run_info["IgSummary"]:
+		createNode(node_name="IgSummary", xml_doc=xml_doc, parent=IgSummaryNode, values=iginfo)
+	if print_out:
+		print xml_doc.toprettyxml(indent="\t")
+
 def exportECRules(xml_doc, rules):
 	node_xml = _getXMLNode(xml_doc)
 	runInfoNode = createNode(node_name= "EventContentRules", xml_doc=xml_doc, parent=node_xml, 

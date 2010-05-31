@@ -2,6 +2,8 @@ import re
 import os, sys
 import time
 import parsingRulesHelper
+import glob
+from commands import getstatusoutput
 
 class parserPerfsuiteMetadata:
 	""" 
@@ -503,6 +505,7 @@ class parserPerfsuiteMetadata:
 			#Fixing here the compatibility with new cmsdriver.py --conditions option (for which now FrontierConditions_GlobalTag, is now optional):
 			if 'FrontierConditions_GlobalTag' in info['conditions']:
 				info['conditions']=info['conditions'].split(",")[1]
+
 			#DEBUG:
 			#print "CONDITIONS are: %s"%info['conditions']
 			#start time - the index after which comes the time stamp
@@ -591,8 +594,43 @@ class parserPerfsuiteMetadata:
 		return csimark
 		#print csimark
 
+	#get IgProf summary information from the sql3 files
+	def getIgSummary(self):
+		igresult = []
+		globbed = glob.glob("../*/IgProfData/*/*/*.sql3")
 
+		for f in globbed:
+			#print f
+			profileInfo = self.getSummaryInfo(f)
+			if not profileInfo:
+				continue
+			cumCounts, cumCalls = profileInfo
+			dump, architecture, release, rest = f.rsplit("/", 3)
+			candle, sequence, pileup, conditions, process, counterType, events = rest.split("___")
+			events = events.replace(".sql3", "")
+			igresult.append({"counter_type": counterType, "event": events, "cumcounts": cumCounts, "cumcalls": cumCalls})
 
+		return igresult 
+
+	def getSummaryInfo(self, database):
+		summary_query="""SELECT counter, total_count, total_freq, tick_period
+	                         FROM summary;"""
+		error, output = self.doQuery(summary_query, database)
+		if error or not output or output.count("\n") > 1:
+			return None
+		counter, total_count, total_freq, tick_period = output.split("@@@")
+		if counter == "PERF_TICKS":
+			return float(tick_period) * float(total_count), int(total_freq)
+		else:
+			return int(total_count), int(total_freq)
+
+	def doQuery(self, query, database):
+		if os.path.exists("/usr/bin/sqlite3"):
+		        sqlite="/usr/bin/sqlite3"
+		else:
+		        sqlite="/afs/cern.ch/user/e/eulisse/www/bin/sqlite"
+		return getstatusoutput("echo '%s' | %s -separator @@@ %s" % (query, sqlite, database))
+		    
 	def parseTheCompletion(self):
 		"""
 		 checks if the suite has successfully finished  
@@ -659,7 +697,7 @@ class parserPerfsuiteMetadata:
 		return castor_tarball
 
 	def parseAll(self):
-		result = {"General": {}, "TestResults":{}, "cmsSciMark":{}, 'unrecognized_jobs': []}
+		result = {"General": {}, "TestResults":{}, "cmsSciMark":{}, "IgSummary":{}, 'unrecognized_jobs': []}
 
 		""" all the general info - start, arguments, host etc """
 		result["General"].update(self.parseGeneralInfo())
@@ -693,10 +731,12 @@ class parserPerfsuiteMetadata:
 
 		# THE MAHCINE SCIMARKS
 		result["cmsSciMark"] = self.readCmsScimark(main_cores = main_cores)
+		result["IgSummary"] = self.getIgSummary()
+		
 
 
 		if self.missing_fields:
-			self.handleParsingError("========== SOME REQUIRED FIELDS WERE NOT FOUND DURING PARSING ======= "+ str( self.missing_fields))
+			self.handleParsingError("========== SOME REQUIRED FIELDS WERE NOT FOUND DURING PARSING ======= "+ str(self.missing_fields))
 
 		return result
 		
