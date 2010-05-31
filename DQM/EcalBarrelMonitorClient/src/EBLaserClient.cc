@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2010/05/28 09:02:47 $
- * $Revision: 1.265 $
+ * $Date: 2010/05/31 10:35:00 $
+ * $Revision: 1.266 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1994,7 +1994,7 @@ void EBLaserClient::analyze(void) {
           val = 1.;
           if ( fabs(mean03 - meanAmplL2) > fabs(percentVariation_ * meanAmplL2) || mean03 < amplitudeThreshold_ || rms03 > rmsThresholdRelative_ * mean03 )
             val = 0.;
-          if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, val);
+          if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, val );
 
           int ic = Numbers::icEB(ism, ie, ip);
 
