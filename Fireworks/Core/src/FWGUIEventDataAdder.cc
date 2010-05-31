@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.32 2010/05/11 09:24:55 eulisse Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.33 2010/05/11 16:48:10 matevz Exp $
 //
 
 // system include files
@@ -319,7 +319,7 @@ FWGUIEventDataAdder::addNewItem()
       processName="";
    }
    FWPhysicsObjectDesc desc(name, theClass, m_purpose,
-                            FWDisplayProperties(),
+                            FWDisplayProperties::defaultProperties,
                             moduleLabel,
                             m_productInstanceLabel,
                             processName,

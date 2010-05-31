@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 22 13:26:04 CDT 2009
-// $Id: FWModelContextMenuHandler.cc,v 1.11 2009/11/04 13:30:08 amraktad Exp $
+// $Id: FWModelContextMenuHandler.cc,v 1.12 2010/03/17 13:02:40 matevz Exp $
 //
 
 // system include files
@@ -99,7 +99,7 @@ namespace  {
       void operator()(const FWModelId& iID) const {
          FWDisplayProperties p = iID.item()->modelInfo(iID.index()).displayProperties();
          p.setIsVisible(m_isVisible);
-         iID.item()->setDisplayProperties(iID.index(),p);
+         iID.item()->setDisplayProperties(iID.index(), p);
       }
       bool m_isVisible; 
    };
@@ -188,8 +188,9 @@ FWModelContextMenuHandler::colorChangeRequested(Int_t iIndex)
        itEnd = m_selectionManager->selected().end();
        it != itEnd;
        ++it) {
-      const FWDisplayProperties changeProperties(color, it->item()->modelInfo(it->index()).displayProperties().isVisible());
-      it->item()->setDisplayProperties(it->index(),changeProperties);
+      FWDisplayProperties changeProperties = it->item()->modelInfo(it->index()).displayProperties();
+      changeProperties.setColor(color);
+      it->item()->setDisplayProperties(it->index(), changeProperties);
    }
 }
 

@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:22:36 EST 2008
-// $Id: FWDisplayProperties.h,v 1.6 2008/11/06 22:05:22 amraktad Exp $
+// $Id: FWDisplayProperties.h,v 1.7 2009/01/23 21:35:41 amraktad Exp $
 //
 
 // system include files
@@ -30,8 +30,20 @@ class FWDisplayProperties
 {
 
 public:
-   FWDisplayProperties(const Color_t& iColor = kWhite,
-                       bool isVisible = true );
+   static const FWDisplayProperties defaultProperties;
+   /** Note that I removed the default values to make sure that properties do
+       not get copied around via the not so uncommon paradigm:
+       
+       FWDisplayProperties new(old.color(), old.isVisible());
+       
+       or similar which has the drawback of not carring over transparency 
+       information.
+       
+       In general it's a good idea to have a copy and modify approach when
+       changing updating only one value.
+     */
+   FWDisplayProperties(const Color_t& iColor,
+                       bool isVisible);
    //virtual ~FWDisplayProperties();
 
    // ---------- const member functions ---------------------

@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 17:05:44 EST 2008
-// $Id: FWDisplayProperties.cc,v 1.3 2008/11/06 22:05:25 amraktad Exp $
+// $Id: FWDisplayProperties.cc,v 1.4 2009/01/23 21:35:42 amraktad Exp $
 //
 
 // system include files
@@ -17,14 +17,20 @@
 #include "Fireworks/Core/interface/FWDisplayProperties.h"
 #include "TColor.h"
 #include "TROOT.h"
-FWDisplayProperties::FWDisplayProperties(const Color_t& iColor /*= kWhite*/,
-                                         bool isVisible /*= true*/ ) :
-   m_isVisible(isVisible)
+
+// A static default property.
+const FWDisplayProperties FWDisplayProperties::defaultProperties(kWhite, true);
+
+FWDisplayProperties::FWDisplayProperties(const Color_t& iColor,
+                                         bool isVisible) 
+: m_isVisible(isVisible)
 {
    setColor(iColor);
 }
 
-void FWDisplayProperties::setColor(Color_t iColor) {
+void 
+FWDisplayProperties::setColor(Color_t iColor) 
+{
    // make sure the color is availabe in ROOT
    // for colors above 100
    if ( !gROOT->GetColor(iColor) && iColor >= 100 ){

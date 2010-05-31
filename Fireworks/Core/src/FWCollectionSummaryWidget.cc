@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 14 10:02:32 CST 2009
-// $Id: FWCollectionSummaryWidget.cc,v 1.20 2010/03/16 20:19:36 matevz Exp $
+// $Id: FWCollectionSummaryWidget.cc,v 1.21 2010/03/17 13:02:37 matevz Exp $
 //
 
 // system include files
@@ -440,15 +440,18 @@ void
 FWCollectionSummaryWidget::colorChangeRequested(Int_t iIndex)
 {
    FWColorManager* cm = m_collection->colorManager();
-   Color_t color =cm->indexToColor(iIndex);
+   Color_t color = cm->indexToColor(iIndex);
+   
    if(-1 == m_indexForColor) {
-      const FWDisplayProperties changeProperties(color, m_collection->defaultDisplayProperties().isVisible());
+      FWDisplayProperties changeProperties = m_collection->defaultDisplayProperties();
+      changeProperties.setColor(color);
       m_collection->setDefaultDisplayProperties(changeProperties);
       return;
    }
-   const FWDisplayProperties changeProperties(color, m_collection->modelInfo(m_indexForColor).displayProperties().isVisible());
-   m_collection->setDisplayProperties(m_indexForColor,changeProperties);
 
+   FWDisplayProperties changeProperties = m_collection->modelInfo(m_indexForColor).displayProperties();
+   changeProperties.setColor(color);
+   m_collection->setDisplayProperties(m_indexForColor,changeProperties);
 }
 
 void
@@ -461,7 +464,8 @@ void
 FWCollectionSummaryWidget::toggleItemVisible() 
 {
    m_isVisibleCheckBox->setChecked(!m_isVisibleCheckBox->isChecked());
-   const FWDisplayProperties changeProperties(m_collection->defaultDisplayProperties().color(), m_isVisibleCheckBox->isChecked());
+   FWDisplayProperties changeProperties = m_collection->defaultDisplayProperties();
+   changeProperties.setIsVisible(m_isVisibleCheckBox->isChecked());
    m_collection->setDefaultDisplayProperties(changeProperties);
    fClient->NeedRedraw(m_isVisibleButton);
 }

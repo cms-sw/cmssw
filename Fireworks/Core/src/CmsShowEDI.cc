@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.29 2009/11/20 17:57:21 chrjones Exp $
+// $Id: CmsShowEDI.cc,v 1.30 2010/05/03 16:25:53 matevz Exp $
 //
 
 // system include files
@@ -424,15 +424,24 @@ CmsShowEDI::disconnectAll() {
    }
 }
 
+/** Set the item color. 
+    
+    Notice that I changed this to use a "Copy and modify approach", rather
+    than a "create with old properties" method which was not propagating 
+    transparency.
+  */
 void
 CmsShowEDI::changeItemColor(Color_t color) {
-   const FWDisplayProperties changeProperties(color, m_item->defaultDisplayProperties().isVisible());
+   FWDisplayProperties changeProperties = m_item->defaultDisplayProperties();
+   changeProperties.setColor(color);
    m_item->setDefaultDisplayProperties(changeProperties);
 }
 
+/** See changeItemColor for additional details.*/
 void
 CmsShowEDI::toggleItemVisible(Bool_t on) {
-   const FWDisplayProperties changeProperties(m_item->defaultDisplayProperties().color(), on);
+   FWDisplayProperties changeProperties = m_item->defaultDisplayProperties();
+   changeProperties.setIsVisible(on);
    m_item->setDefaultDisplayProperties(changeProperties);
 }
 
