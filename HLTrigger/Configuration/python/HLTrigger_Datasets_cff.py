@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_6_0/GRun/V37
+# /dev/CMSSW_3_6_0/GRun/V38
 
 import FWCore.ParameterSet.Config as cms
 
@@ -190,6 +190,7 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetMuMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMuMonitor_selector.l1tResults = cms.InputTag('')
 streamA_datasetMuMonitor_selector.throw      = cms.bool(False)
-streamA_datasetMuMonitor_selector.triggerConditions = cms.vstring('HLT_L1Mu', 
+streamA_datasetMuMonitor_selector.triggerConditions = cms.vstring('HLT_L1MuOpen_DT', 
+    'HLT_L1Mu', 
     'HLT_L1MuOpen')
 
