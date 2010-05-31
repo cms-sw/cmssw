@@ -24,7 +24,7 @@ from Validation.RecoMuon.muonValidation_cff import *
 from Validation.MuonIsolation.MuIsoVal_cff import *
 from Validation.MuonIdentification.muonIdVal_cff import *
 from Validation.RecoMuon.muonValidationHLT_cff import *
-from Validation.Generator.BasicGenValidation_cff import *
+from Validation.EventGenerator.BasicGenValidation_cff import *
 
 validation = cms.Sequence(cms.SequencePlaceholder("mix")
                          +basicGenTest_seq
