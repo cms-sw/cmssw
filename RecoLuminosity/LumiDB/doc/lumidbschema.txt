@@ -12,13 +12,15 @@ columns:  runnum(uint32,PK), NOT NULL
           fillnum(uint32),   NOT NULL
           sequence(string),  NOT NULL
           hltkey(string),    NOT NULL
+          startime(timestamp(6)) 
+          stoptime(timestamp(6))
 
 =======
 table 2:  LUMISUMMARY (insert one row per run+lumiLS+lumiversion from LUMI_RAW file)
 columns:  
 	  lumisummary_id(uint64, PK) NOT NULL
-          runnum(uint32),            NOT NULL
-          cmslsnum(uint32),	     NOT NULL
+          runnum(uint32),            NOT NULL range index
+          cmslsnum(uint32),	     
           lumilsnum(uint32),         NOT NULL
           lumiversion(string),       NOT NULL
           dtnorm(float),             NOT NULL
@@ -47,7 +49,7 @@ columns:
 table 4:  TRG (insert 192 rows per run+cmsls/populate from GT-DB)
 columns:  
           trg_id(uint64, PK),   NOT NULL
-          runnum(uint32),       NOT NULL
+          runnum(uint32),       NOT NULL range index
           cmslsnum(uint32),     NOT NULL 
                                //lumi section id taken by cmsdaq,count from 1
           bitnum(uint32),       NOT NULL //range : 0-127 algo;128-192 tech
@@ -59,7 +61,7 @@ columns:
 ======
 table 5: HLT (insert n-hltpath rows per run+cmsls/populate from RunInfo-HLT)
          hlt_id(uint64, PK),    NOT NULL
-	 runnum(uint32),        NOT NULL
+	 runnum(uint32),        NOT NULL range index
          cmslsnum(uint32),    NOT NULL
          pathname(string),      NOT NULL
          inputcount(uint32),    NOT NULL
