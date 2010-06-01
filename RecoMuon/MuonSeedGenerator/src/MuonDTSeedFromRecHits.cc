@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2010/04/08 23:40:33 $
- *  $Revision: 1.17 $
+ *  $Date: 2010/04/09 00:59:14 $
+ *  $Revision: 1.18 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -14,13 +14,9 @@
 
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 
-//#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-//#include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
-//#include "DataFormats/MuonDetId/interface/CSCDetId.h"
-//#include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -29,7 +25,6 @@
 using namespace std;
 
 
-template <class T> T sqr(const T& t) {return t*t;}
 
 MuonDTSeedFromRecHits::MuonDTSeedFromRecHits()
 : MuonSeedFromRecHits()
@@ -62,12 +57,11 @@ TrajectorySeed MuonDTSeedFromRecHits::seed() const {
 		    << " Pt MB4-MB2 " << pt[6] << " w: " << spt[6]<< "\n" 
 		    << " Pt MB4-MB3 " << pt[7] << " w: " << spt[7]<< endl  ;
   
-
   /// now combine all pt estimate
   float ptmean=0.;
   float sptmean=0.;
   //@@ Use Shih-Chuan's
-  computeBestPt(pt+8, spt, ptmean, sptmean);
+  computeBestPt(pt, spt, ptmean, sptmean);
   
   // add an extra term to the error in quadrature, 30% of pT per point
   int npoints = 0;
@@ -78,7 +72,6 @@ TrajectorySeed MuonDTSeedFromRecHits::seed() const {
   }
 
   LogTrace(metname) << " Seed Pt: " << ptmean << " +/- " << sptmean << endl;
-  
   // take the best candidate
   ConstMuonRecHitPointer last = bestBarrelHit(theRhits);
   return createSeed(ptmean, sptmean,last);
@@ -184,54 +177,24 @@ void MuonDTSeedFromRecHits::computePtWithVtx(double* pt, double* spt) const {
  //+vvp !:
 
     float eta1= (*iter)->globalPosition().eta(); 
-
     if ( fabs (eta1-eta0) > .2 ) continue;  //   !!! +vvp
 
     // assign Pt from MB1 & vtx   
-    float radius = (*iter)->det()->position().perp();
-    unsigned int stat = 0;
-    if ( radius>450 && radius<550 ) stat=2;
-    if ( radius<450 ) stat=1;
+    unsigned int stat = DTChamberId((**iter).geographicalId()).station();
+    if(stat > 2) continue;
 
-    if(stat == 0) continue;
-
-    GlobalPoint pos = (*iter)->globalPosition();
-    GlobalVector dir = (*iter)->globalDirection();
-
-    float dphi = deltaPhi(dir.phi(), pos.phi());
-    int ch = (dphi<0) ? 1 : -1;
+    double thispt = thePtExtractor->pT_extract(*iter, *iter)[0];
+    float ptmax = 2000.;
+    if(thispt > ptmax) thispt = ptmax;
+    if(thispt < -ptmax) thispt = -ptmax;
 
     if( stat==1 ) {
-      pt[0]=(-1.0+1.46/fabs(dphi)) * ch; 
-      if ( fabs(pos.z()) > 500 ) {
-        // overlap 
-        float a1 = dir.y()/dir.x(); float a2 = pos.y()/pos.x();
-        dphi = fabs((a1-a2)/(1+a1*a2));
-
-        pt[0] = fabs(-3.3104+(1.2373/dphi)) * ch;
-      }
-      pt[8] = thePtExtractor->pT_extract(*iter, *iter)[0];
-
+      pt[0] = thispt;
     }
     // assign Pt from MB2 & vtx
     if( stat==2 ) {
-      pt[1]=(-1.0+0.9598/fabs(dphi))*ch;
-      if ( fabs(pos.z()) > 600 ) {
-        // overlap 
-        float a1 = dir.y()/dir.x(); float a2 = pos.y()/pos.x();
-        dphi = fabs((a1-a2)/(1+a1*a2));
-
-        pt[1] = fabs(10.236+(0.5766/dphi)) * ch;
-      }
-      pt[9] = thePtExtractor->pT_extract(*iter, *iter)[0];
-
-    }
-    float ptmax = 2000.;
-    if(pt[0] > ptmax) pt[0] = ptmax;
-    if(pt[0] < -ptmax) pt[0] = -ptmax;
-    if(pt[1] > ptmax) pt[1] = ptmax;
-    if(pt[1] < -ptmax) pt[1] = -ptmax;
-
+      pt[1] = thispt;
+    } 
   }
 }
 
@@ -245,88 +208,51 @@ void MuonDTSeedFromRecHits::computePtWithoutVtx(double* pt, double* spt) const {
     float eta1= (*iter)->globalPosition().eta(); 
     if ( fabs (eta1-eta0) > .2 ) continue;  //   !!! +vvp
 
-    float radius1= (*iter)->det()->position().perp(); 
-
     for (MuonRecHitContainer::const_iterator iter2=theRhits.begin(); 
           iter2!=iter; iter2++ ) {
       //+vvp !:
       float eta2= (*iter2)->globalPosition().eta(); 
       if ( fabs (eta2-eta0) > .2 ) continue;  //   !!! +vvp
 
-      float radius2= (*iter2)->det()->position().perp();
-
-      unsigned int stat1(0), stat2(0);
-
-      if ( radius1>450 && radius1<550 ) stat1=2;
-      if ( radius1>550 && radius1<650 ) stat1=3;
-      if ( radius1>650 ) stat1=4;
-      if ( radius1<450 ) stat1=1;
-
-      if ( radius2>450 && radius2<550 ) stat2=2;
-      if ( radius2>550 && radius2<650 ) stat2=3;
-      if ( radius2<450 ) stat2=1;
-      if ( radius2>650 ) stat2=4;
-
-      GlobalVector globalDir1 = (*iter)->globalDirection();
-      GlobalVector globalDir2 = (*iter2)->globalDirection();
-      float dphi = deltaPhi(globalDir2.phi(), -globalDir1.phi());
-      // assume we're going inward, so + dphi means + charge
-      int ch = (dphi > 0) ? 1 : -1;
+      unsigned int stat1 = DTChamberId((*iter)->geographicalId()).station();
+      unsigned int stat2 = DTChamberId((*iter2)->geographicalId()).station();
 
       if ( stat1>stat2) {
-        ch = -ch;
         int tmp = stat1;
         stat1 = stat2;
         stat2 = tmp;
       }
       unsigned int st = stat1*10+stat2;
-      if ( dphi ) {
-        dphi = fabs(dphi);
-        switch (st) {
-	case  12 : {//MB1-MB2
-          pt[10] = thePtExtractor->pT_extract(*iter, *iter2)[0];
-
-	  pt[2]=(12.802+0.38647/dphi)*ch ; 
-	  GlobalPoint pos_iter = (*iter)->globalPosition();
-	  if (  (*iter)->det()->position().perp() <450 ) {
-	    if ( fabs(pos_iter.z())>500. ) {
-	      pt[2]=(12.802+0.16647/dphi)*ch ; 
-	    }
-	  } else {
-	    if ( fabs(pos_iter.z())>600. ) {
-	      pt[2]=(12.802+0.16647/dphi)*ch ; 
-	    }
-	  }
-	  ;break;
-	}
-	case  13 : {//MB1-MB3
-          pt[11] = thePtExtractor->pT_extract(*iter, *iter2)[0];
-
-           pt[3]=(0.0307+0.99111/dphi)*ch ; ;break;
-	}
-	case  14 : {//MB1-MB4
-          pt[13] = thePtExtractor->pT_extract(*iter, *iter2)[0];
-
-	  pt[5]=(2.7947+1.1991/dphi)*ch ; ;break;
-	}
-	case  23 : {//MB2-MB3
-          pt[12] = thePtExtractor->pT_extract(*iter, *iter2)[0];
-
-	  pt[4]=(2.4583+0.69044/dphi)*ch ;;break; 
-	}
-	case  24 : {//MB2-MB4
-          pt[14] = thePtExtractor->pT_extract(*iter, *iter2)[0];
-
-	  pt[6]=(2.5267+1.1375/dphi)*ch ; ;break; 
-	}
-	case  34 : {//MB3-MB4
-          pt[15] = thePtExtractor->pT_extract(*iter, *iter2)[0];
-
-	  pt[7]=(4.06444+0.59189/dphi)*ch ; ;break;
-	}
-	default: break;
-        }  
+      double thispt = thePtExtractor->pT_extract(*iter, *iter2)[0];
+      switch (st) {
+      case  12 : {//MB1-MB2
+        pt[2] = thispt;
+        break;
       }
+      case  13 : {//MB1-MB3
+        pt[3] = thispt;
+        break;
+      }
+      case  14 : {//MB1-MB4
+        pt[5] = thispt;
+        break;
+      }
+      case  23 : {//MB2-MB3
+        pt[4] = thispt;
+        break;
+      }
+      case  24 : {//MB2-MB4
+        pt[6] = thispt;
+        break;
+      }
+      case  34 : {//MB3-MB4
+        pt[7] = thispt;
+        break;
+      }
+      default: {
+        break;
+      }
+      }  
     }
   }
 }
@@ -412,7 +338,6 @@ void MuonDTSeedFromRecHits::computeMean(const double* pt, const double * weights
       ++n;
     }
   }
-
   if(n != 0) 
   {
     if (n==1) {
