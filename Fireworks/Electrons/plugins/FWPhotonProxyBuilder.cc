@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 26 14:52:01 EST 2008
-// $Id: FWPhotonProxyBuilder.cc,v 1.11 2010/05/06 14:13:26 mccauley Exp $
+// $Id: FWPhotonProxyBuilder.cc,v 1.12 2010/05/07 09:04:32 mccauley Exp $
 //
 
 #include "TEveCompound.h"
@@ -77,7 +77,16 @@ FWPhotonProxyBuilder::buildViewType(const reco::Photon& photon, unsigned int iIn
         continue;
       }
       
-      fireworks::drawEnergyTower3D(corners, (*id).second, &oItemHolder, this);
+      TEveBox* box = new TEveBox();
+      box->SetPickable(true);
+      
+      // FIXME: Scale so that they don't impinge upon the rec hits
+      // and make wireframe?
+      for ( size_t i = 0; i < 8; ++i )
+        box->SetVertex(i, corners[i]);
+      
+      box->SetDrawFrame(false);
+      setupAddElement(box, &oItemHolder);
     }
   }
 }
