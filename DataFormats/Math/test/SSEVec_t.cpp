@@ -1,4 +1,6 @@
 #include "DataFormats/Math/interface/SSEVec.h"
+#ifdef  CMS_USE_SSE
+
 #include "DataFormats/Math/interface/SSERot.h"
 #include<cmath>
 #include<iostream>
@@ -204,3 +206,9 @@ int main() {
 
   return 0;
 };
+
+#else
+int main() {
+  return 0;
+}
+#endif
