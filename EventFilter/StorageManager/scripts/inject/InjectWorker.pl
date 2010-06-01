@@ -1,813 +1,626 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.39 2009/11/15 16:38:57 loizides Exp $
+# $Id$
+# --
+# InjectWorker.pl
+# Monitors a directory, and inserts data in the database
+# according to entries in the files
+# --
+# Original script by Olivier Raginel <babar@cern.ch>
 
-use warnings;
 use strict;
+use warnings;
+
+use Linux::Inotify2;
+use POE qw( Wheel::FollowTail Component::Log4perl );
+use POSIX qw( strftime );
+use File::Basename;
 use DBI;
 use Getopt::Long;
-use File::Basename;
-use Cwd;
-use Cwd 'abs_path';
 
-##############################################################################################################
-my $debug       = 0;  # toggled by SM_DEBUG              (enable debug printouts)
-my $nodbint     = 0;  # toggled by SM_DONTACCESSDB       (dont access any DB at all)
-my $nodbwrite   = 0;  # toggled by SM_DONTWRITEDB        (dont write to DB but retrieve HLT key from RunInfo)
-my $justnoti    = 0;  # toggled by SM_JUSTNOTI           (only notify Tier0)
-my $nofilecheck = 0;  # toggled by SM_NOFILECHECK        (dont do checks if files are locally accessible)
-my $ignorednso  = 0;  # toggled by SM_IGNOREDONTNOTIFYT0 (ignore DONTNOTIFYT0 stream option)
-##############################################################################################################
+# Configuration
+my $savedelay      = 300; # Frequency to save offset file, in seconds
+my $log4perlConfig = '/opt/injectworker/log4perl.conf';
+
+################################################################################
+my $nodbint     = 0; # SM_DONTACCESSDB: no access any DB at all
+my $nodbwrite   = 0; # SM_DONTWRITEDB : no write to DB but retrieve HLT key
+my $nofilecheck = 0; # SM_NOFILECHECK : no check if files are locally accessible
+################################################################################
 
 # global vars
-my $endflag = 0; 
-my $host    = ""; 
+chomp( my $host = `hostname -s` );
 
-
-# printout syntax and die
-sub printsyntax()
-{
-    die "Syntax: ./InjectWorker.pl inputpath/file outputpath logpath configfile instance(not needed for file)";
-}
-
-# date routine for log file finding / writing
-sub getdatestr()
-{
-    my @ltime = localtime(time);
-    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = @ltime;
-    $year += 1900;
-    $mon++;
-
-    my $datestr=$year;
-    if ($mon < 10) {
-        $datestr=$datestr . "0";
-    }
-
-    $datestr=$datestr . $mon;
-    if ($mday < 10) {
-        $datestr=$datestr . "0";
-    }
-    $datestr=$datestr . $mday;
-    return $datestr;
-}
-
-#time routine for SQL commands timestamp
-sub gettimestamp($)
-{
-    my $stime = shift;
-    my @ltime = localtime($stime);
-    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = @ltime;
-
-    $year += 1900;
-    $mon++;
-
-    my $timestr = $year."-";
-    if ($mon < 10) {
-	$timestr=$timestr . "0";
-    }
-
-    $timestr=$timestr . $mon . "-";
-
-    if ($mday < 10) {
-	$timestr=$timestr . "0";
-    }
-
-    $timestr=$timestr . $mday . " " . $hour . ":" . $min . ":" . $sec;
-    return $timestr;
-}
-
-# time routine for printouts
-sub gettimestr()
-{
-    my @ltime = localtime(time);
-    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = @ltime;
-    $year += 1900;
-    $mon++;
-
-    my $timestr="";
-    if ($hour < 10) {
-	$timestr=$timestr . "0";
-    }
-    $timestr=$timestr . $hour;
-    $timestr=$timestr . ":";
-    if ($min < 10) {
-	$timestr=$timestr . "0";
-    }
-    $timestr=$timestr . $min;
-    $timestr=$timestr . ":";
-    if ($sec < 10) {
-	$timestr=$timestr . "0";
-    }
-    $timestr=$timestr . $sec;
-    return $timestr;
-}
-
-# execute instead of die
-sub mydie($$) 
-{
-    my $msg = $_[0];
-    my $lf = $_[1];
-
-    if (length($lf)>0) {
-        system("rm -f $lf");
-    }
-    my $timestr = gettimestr();
-    print "$timestr: $msg"; 
-    die "Aborted\n";
-}
-
-# execute on terminate
-sub TERMINATE 
-{
-    my $timestr = gettimestr();
-    if ($endflag!=1) {
-        print "$timestr: Terminating on request\n"; 
-        $endflag=1;
-    }
-}
-
-# reset environment variables for next input
-sub initenv
-{
-    $ENV{'SM_FILENAME'}    = "unspecified";
-    $ENV{'SM_FILECOUNTER'} = "unspecified";
-    $ENV{'SM_NEVENTS'}     = "unspecified";
-    $ENV{'SM_FILESIZE'}    = "unspecified";
-    $ENV{'SM_STARTTIME'}   = "unspecified";
-    $ENV{'SM_STOPTIME'}    = "unspecified";
-    $ENV{'SM_STATUS'}      = "unspecified";
-    $ENV{'SM_RUNNUMBER'}   = "unspecified";
-    $ENV{'SM_LUMISECTION'} = "unspecified";
-    $ENV{'SM_PATHNAME'}    = "unspecified";
-    $ENV{'SM_HOSTNAME'}    = "unspecified";
-    $ENV{'SM_SETUPLABEL'}  = "unspecified";
-    $ENV{'SM_STREAM'}      = "unspecified";
-    $ENV{'SM_INSTANCE'}    = "unspecified";
-    $ENV{'SM_SAFETY'}      = "unspecified";
-    $ENV{'SM_APPVERSION'}  = "unspecified";
-    $ENV{'SM_APPNAME'}     = "unspecified";
-    $ENV{'SM_TYPE'}        = "unspecified";
-    $ENV{'SM_CHECKSUM'}    = "unspecified";
-    $ENV{'SM_HLTKEY'}      = "unspecified";
-}
-
-# injection subroutine 
-# if called from insertFile, 2nd arg is 0: insert into DB, no notify
-# if called from closeFile msg, 2nd arg is 1: updates DB, notifies file to be transferred
-sub inject($$)
-{
-    my $sth = $_[0];      #shift;
-    my $doNotify = $_[1]; #shift;
-    my $runNotiS = $doNotify;
-
-    my $filename    = $ENV{'SM_FILENAME'};
-    my $count       = $ENV{'SM_FILECOUNTER'};
-    my $nevents     = $ENV{'SM_NEVENTS'};;
-    my $filesize    = $ENV{'SM_FILESIZE'};
-    my $starttime   = $ENV{'SM_STARTTIME'};
-    my $stoptime    = $ENV{'SM_STOPTIME'};
-    my $status      = $ENV{'SM_STATUS'};
-    my $runnumber   = $ENV{'SM_RUNNUMBER'};
-    my $lumisection = $ENV{'SM_LUMISECTION'};
-    my $pathname    = $ENV{'SM_PATHNAME'};
-    my $hostname    = $ENV{'SM_HOSTNAME'};
-    my $setuplabel  = $ENV{'SM_SETUPLABEL'};
-    my $stream      = $ENV{'SM_STREAM'};
-    my $instance    = $ENV{'SM_INSTANCE'};
-    my $safety      = $ENV{'SM_SAFETY'};
-    my $appversion  = $ENV{'SM_APPVERSION'};
-    my $appname     = $ENV{'SM_APPNAME'};
-    my $type        = $ENV{'SM_TYPE'};
-    my $checksum    = $ENV{'SM_CHECKSUM'};
-    my $hltkey      = $ENV{'SM_HLTKEY'};
-    my $producer    = 'StorageManager';
-    my $destination = 'Global';
-    my $commentstr  = 'HLTKEY=' . $hltkey;
-
-    if ( ($filename   eq "unspecified") || ($count     eq "unspecified") || ($nevents     eq "unspecified") ||
-         ($filesize   eq "unspecified") || ($starttime eq "unspecified") || ($stoptime    eq "unspecified") ||
-         ($status     eq "unspecified") || ($runnumber eq "unspecified") || ($lumisection eq "unspecified") ||
-         ($pathname   eq "unspecified") || ($hostname  eq "unspecified") || ($setuplabel  eq "unspecified") ||
-         ($stream     eq "unspecified") || ($instance  eq "unspecified") || ($safety      eq "unspecified") ||
-         ($appversion eq "unspecified") || ($appname   eq "unspecified") || ($type        eq "unspecified") ||
-         ($checksum   eq "unspecified") ) {
-
-        print "Error in obtained parameters\n";
-        return -1;
-    }
-
-    # index file name and size
-    my $indfile     = $filename;
-    $indfile =~ s/\.dat$/\.ind/;
-    my $indfilesize = -1;
-    if ($host eq $hostname) {
-        if (-e "$pathname/$indfile") {
-            $indfilesize = -s "$pathname/$indfile";
-        }
-
-        if ($nofilecheck==0) {
-            if (not -e "$pathname/$indfile") {
-                $indfile = '';
-            }
-        }
-    }
-    
-    # fix a left over bug from CMSSW_2_0_4
-    $appversion=$1 if $appversion =~ /\"(.*)'/; #'for emacs syntax highlighting
-    $appversion=$1 if $appversion =~ /\"(.*)\"/;
-
-    # redirect setuplabel/streams to different destinations according to 
-    # https://twiki.cern.ch/twiki/bin/view/CMS/SMT0StreamTransferOptions
-    return 0 if ($stream eq 'EcalCalibration' || $stream =~ '_EcalNFS$'); #skip EcalCalibration
-    return 0 if ($stream =~ '_NoTransfer$'); #skip if NoTransfer option is set
-
-    if ($setuplabel =~ 'TransferTest' || $stream =~ '_TransferTest$') {
-	$destination = 'TransferTest'; # transfer but delete after
-    } elsif ($stream =~ '_NoRepack$'|| $stream eq 'Error') {
-	$destination = 'GlobalNoRepacking'; # do not repack 
-        $indfile     = '';
-        $indfilesize = -1;
-    }
-
-    if ($doNotify==1 && $ignorednso==0) {
-        if ($stream =~ '_DontNotifyT0$') {
-            $runNotiS = 0;
-        }
-    }
-
-    if ($doNotify==0) {
-	my $stime = gettimestamp($starttime);
-
-        if (defined $sth) {
-	    $sth->bind_param(1,$filename);
-	    $sth->bind_param(2,$pathname);
-	    $sth->bind_param(3,$hostname);
-	    $sth->bind_param(4,$setuplabel);
-	    $sth->bind_param(5,$stream);
-	    $sth->bind_param(6,$type);
-	    $sth->bind_param(7,$producer);
-	    $sth->bind_param(8,$appname);
-	    $sth->bind_param(9,$appversion);
-	    $sth->bind_param(10,$runnumber);
-	    $sth->bind_param(11,$lumisection);
-	    $sth->bind_param(12,$count);
-	    $sth->bind_param(13,$instance);
-	    $sth->bind_param(14,$stime);
-        }
-    } else {
-        my $stime = gettimestamp($stoptime);
-
-        if (defined $sth) {
-    	    $sth->bind_param(1,$filename);
-	    $sth->bind_param(2,$pathname);
-	    $sth->bind_param(3,$destination);
-	    $sth->bind_param(4,$nevents);
-	    $sth->bind_param(5,$filesize);
-	    $sth->bind_param(6,$checksum);
-	    $sth->bind_param(7,$stime);
-	    $sth->bind_param(8,$indfile);
-	    $sth->bind_param(9,$indfilesize);
-	    $sth->bind_param(10,$commentstr);
-        }
-    }
-
-    my $notscript = $ENV{'SM_NOTIFYSCRIPT'};
-    if (!defined $notscript) {
-        $notscript = "/nfshome0/cmsprod/TransferTest/injection/sendNotification.sh";
-    }
-
-    my $TIERZERO = "$notscript --APP_NAME=$appname --APP_VERSION=$appversion --RUNNUMBER $runnumber " . 
-        "--LUMISECTION $lumisection --START_TIME $starttime --STOP_TIME $stoptime --FILENAME $filename " .
-        "--PATHNAME $pathname --HOSTNAME $hostname --DESTINATION $destination --SETUPLABEL $setuplabel " .
-        "--STREAM $stream --TYPE $type --NEVENTS $nevents --FILESIZE $filesize --CHECKSUM $checksum " . 
-        "--HLTKEY $hltkey";
-
-    if ($indfile ne '') {
-      $TIERZERO .= " --INDEX $indfile"; # --INDEXFILESIZE $indfilesize"
-    }
-
-    if (!defined $sth) { 
-        if ($debug) { 
-            print "DB not defined, just returning 0\n";
-            if ($runNotiS) {
-                print "$TIERZERO\n";
-                if ($justnoti) {
-                    system($TIERZERO);
-                }
-            }
-        } else {
-            if ($runNotiS) {
-                if ($justnoti) {
-                    system($TIERZERO);
-                }
-            }
-        }
-        return 0;
-    }
-
-    my $errflag=0;
-    my $rows = $sth->execute() or $errflag=1;
-
-
-    if ($errflag>0) {
-        print "Error in DB access when executing, DB returned $sth->errstr\n";
-        return -1;
-    }
-    
-    if ($rows!=1) {
-        print "Strange error related to DB access when executing , DB returned rows=$rows\n";
-        if ($doNotify) {
-            print "Error related to DB: Since rows!=1, did not execute $TIERZERO\n";
-        }
-        return -1; 
-    }
-
-    if ($runNotiS) {
-	if ($debug) {print "Executing notification: $TIERZERO\n";}
-        system($TIERZERO);
-    }
-    return 0;
-}
-
-############################################################################################################
-# Main starts here                                                                                         #
-############################################################################################################
-
-
-
- 
+my $heartbeat = 300;                        # Print a heartbeat every 5 minutes
 
 # get options from environment
-if (defined $ENV{'SM_DEBUG'}) { 
-    $debug=1;
+# XXX Do we really need to test for existence???
+if ( defined $ENV{'SM_NOFILECHECK'} ) {
+    $nofilecheck = 1;
 }
 
-if (defined $ENV{'SM_NOFILECHECK'}) { 
-    $nofilecheck=1;
+if ( defined $ENV{'SM_DONTACCESSDB'} ) {
+    $nodbint   = 1;
+    $nodbwrite = 1;
 }
 
-if (defined $ENV{'SM_DONTACCESSDB'}) { 
-    $nodbint=1;
-    $nodbwrite=1;
+if ( defined $ENV{'SM_DONTWRITEDB'} ) {
+    $nodbwrite = 1;
 }
-
-if (defined $ENV{'SM_DONTWRITEDB'}) { 
-    $nodbwrite=1;
-}
-
-if (defined $ENV{'SM_JUSTNOTI'}) { 
-    $justnoti=1;
-}
-
-if (defined $ENV{'SM_IGNOREDONTNOTIFYT0'}) { 
-    $ignorednso=1;
-}
-
-# redirect signals
-$SIG{ABRT} = \&TERMINATE;
-$SIG{INT}  = \&TERMINATE;
-$SIG{KILL} = \&TERMINATE;
-$SIG{QUIT} = \&TERMINATE;
-$SIG{TERM} = \&TERMINATE;
-
-# figure out how I am called
-my $mycall = abs_path($0);
-
-
 
 # check arguments
-if (!defined $ARGV[3]) {
-    printsyntax();
+unless ( $#ARGV == 2 ) {
+    die "Syntax: ./InjectWorker.pl inputpath logpath configfile";
 }
 
-
-
-
-my $infile;
-my $inpath;
-my $fileflag=0;
-my $sminstance;
-if (-d $ARGV[0]) {
-    $inpath="$ARGV[0]";
-    if (!defined $ARGV[4]) {
-        printsyntax();
-    }
-    $sminstance=$ARGV[4];
-} elsif (-e $ARGV[0] ) {
-    $infile="$ARGV[0]";
-    $fileflag=1;
-} else {
-    mydie("Error: Specified input \"$ARGV[0]\" does not exist","");
+my ( $inpath, $logpath, $config ) = @ARGV;
+if ( -f $inpath ) {
+    die "Error: this version of InjectWorker only supports path.\n"
+      . "You might want to simply: cat yourFile > /\$inpath/\$date-manual.log";
+}
+elsif ( ! -d _ ) {
+    die "Error: Specified input path \"$inpath\" does not exist";
+}
+if ( ! -d $logpath ) {
+    die "Error: Specified logpath \"$logpath\" does not exist";
+}
+if ( ! -e $config ) {
+    die "Error: Specified config file \"$config\" does not exist";
 }
 
-my $outpath="$ARGV[1]";
-if (!-d $outpath) {
-    mydie("Error: Specified output path \"$outpath\" does not exist","");
+#########################################################################################
+
+# To rotate logfiles daily
+sub get_logfile { return strftime "$logpath/$_[0]-%Y%m%d-$host.log", localtime time; }
+
+# Create logger
+Log::Log4perl->init_and_watch( $log4perlConfig, 'HUP');
+POE::Component::Log4perl->spawn(
+    Alias      => 'logger',
+    Category   => 'InjectWorker',
+    ConfigFile => $log4perlConfig,
+    GetLogfile => \&get_logfile,
+);
+
+# Create notifier logger
+POE::Component::Log4perl->spawn(
+    Alias      => 'notify',
+    Category   => 'Notify',
+    ConfigFile => $log4perlConfig,
+    GetLogfile => \&get_logfile,
+);
+
+# Start POE Session, which will do everything
+POE::Session->create(
+    inline_states => {
+        _start       => \&start,
+        inotify_poll => sub {
+            $_[HEAP]{inotify}->poll;
+        },
+        watch_hdlr       => \&watch_hdlr,
+        save_offsets     => \&save_offsets,
+        update_db        => \&update_db,
+        read_db_config   => \&read_db_config,
+        setup_db         => \&setup_db,
+        setup_main_db    => \&setup_main_db,
+        setup_hlt_db     => \&setup_hlt_db,
+        get_hlt_key      => \&get_hlt_key,
+        parse_line       => \&parse_line,
+        read_offsets     => \&read_offsets,
+        read_changes     => \&read_changes,
+        got_log_line     => \&got_log_line,
+        got_log_rollover => \&got_log_rollover,
+        insert_file      => \&insert_file,
+        close_file       => \&close_file,
+        shutdown         => \&shutdown,
+        heartbeat        => \&heartbeat,
+        setup_lock       => \&setup_lock,
+        _default         => \&handle_default,
+    },
+);
+
+POE::Kernel->run();
+
+exit 0;
+
+# Program subs
+
+# time routine for SQL commands timestamp
+sub gettimestamp($) {
+    return strftime "%Y-%m-%d %H:%M:%S", localtime time;
 }
-my $errpath="$ARGV[2]";
-if (!-d $errpath) {
-    mydie("Error: Specified output path \"$errpath\" does not exist","");
+
+# POE events
+sub start {
+    my ( $kernel, $heap, $session ) = @_[ KERNEL, HEAP, SESSION ];
+
+    $kernel->yield('setup_db');
+    $kernel->yield('setup_lock');
+    $kernel->yield('read_offsets');
+
+    # Setup the notify thread
+    $kernel->alias_set('notify');
+    $heap->{inotify} = new Linux::Inotify2
+      or die "Unable to create new inotify object: $!";
+
+    $heap->{inotify}
+      ->watch( $inpath, IN_MODIFY, $session->postback("watch_hdlr") )
+      or die "Unable to watch dir $inpath: $!";
+
+    open my $inotify_FH, '<&=', $heap->{inotify}->fileno
+      or die "Can't fdopen: $!\n";
+    $kernel->select_read( $inotify_FH, "inotify_poll" );
+    $kernel->alarm( save_offsets => time() + 5 );
+    $kernel->call( 'logger', info => "Entering main while loop now" );
 }
-my $config="$ARGV[3]";
-if (!-e $config) {
-    mydie("Error: Specified config file \"$config\" does not exist","");
-}
-
-
-
-my $reader = "xxx";
-my $phrase = "xxx";
-if (-r $config) {
-    eval `cat $config`;
-} else {
-    mydie("Error: Can not read config file \"$config\"","");
-    usageShort();
-}
-
-
-
-my $errfile;
-my $outfile;
-my $thedate  = getdatestr();
-my $hostname = `hostname -f`;
-my @harray   = split(/\./,$hostname);
-$host        = $harray[0];
-
-my $waiting = -1;
-if ($fileflag==0) {
-    $infile  = "$inpath/$thedate-$host-$sminstance.log";
-    $outfile = "$outpath/$thedate-$host-$sminstance.log";
-    $errfile = "$errpath/$thedate-$host-$sminstance.log";
-} else {
-    my $inbase = basename($infile);
-    $outfile = "$outpath/$inbase";
-    $errfile = "$errpath/$inbase";
-}
-
-
 
 # lockfile
-my $lockfile = "/tmp/." . basename($outfile) . ".lock";
-if (-e $lockfile) {
-    mydie("Error: Lock \"$lockfile\" exists.","");
-} else {
-    system("touch $lockfile");
-}
-
-
-
-## redirecting output
-open(STDOUT, ">>$errfile") or
-    mydie("Error: Cannot open log file \"$errfile\"\n",$lockfile);
-open(STDERR, ">>&STDOUT");
-if ($debug) {print "Infile = $infile\nOutfile = $outfile\nLogfile = $errfile\n";}
-
-
-
-# if input file does not exist - we will wait for it
-while (!(-e "$infile") && !$endflag) {
-    if ($debug) {print "Input file \"$infile\" does not already exist, sleeping\n";} 
-    sleep(30);
-    # if day changes we can immediately spawn a new process for a new file for the new day 
-    # (since old file never showed up dont wait)
-    if (!(-e "$infile") && ($thedate ne getdatestr())) {
-        if ($debug) {print "Spawning new process: $mycall $inpath $outpath $errpath $config $sminstance\n";}
-	system("$mycall $inpath $outpath $errpath $config $sminstance &"); 
-    	$endflag=1;
+sub setup_lock {
+    my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
+    my $lockfile = "/tmp/." . basename($0, '.pl') . ".lock";
+    if ( -e $lockfile ) {
+        open my $fh, '<', $lockfile
+          or die "Error: Lock \"$lockfile\" exists and is unreadable: $!";
+        chomp( my $pid = <$fh> );
+        close $fh;
+        chomp( my $process = `ps -p $pid -o comm=` );
+        if( $process && $0 =~ /$process/ ) {
+            die "Error: Lock \"$lockfile\" exists, pid $pid (running).";
+        }
+        elsif( $process ) {
+            die "Error: Lock \"$lockfile\" exists, pid $pid (running: $process). Stale lock file?";
+        }
+        else {
+            $kernel->call( 'logger', warn => "Warning: Lock \"$lockfile\""
+            . "exists, pid $pid (NOT running). Removing stale lock file?" );
+        }
     }
-}
+    open my $fh, '>', $lockfile or die "Cannot create $lockfile: $!";
+    print $fh "$$\n";    # Fill it with pid
+    close $fh;
+    $kernel->call( 'logger', info => "Set lock to $lockfile for $$" );
 
-
-
-
-# if told to exit while waiting for input, we exit here
-if ($endflag) {
-    system("rm -f $lockfile");
-    open(STDOUT,">>/dev/null");
-    open(STDERR,">>/dev/null");
-    system("rm -f $errfile");
-    exit 0;
-}
-
-# if the output file exists (has been worked on before) then find what the last thing done was
-my $line;
-my $lastline;
-if (-e $outfile) {
-    open QUICKSEARCH, "<$outfile" or mydie("Error: Cannot open output file \"$outfile\"\n",$lockfile);
-    if ($debug) {print "Found old output file \"$outfile\": Searching for last line.\n";}
-    while($line=<QUICKSEARCH>) {$lastline=$line;}
-    close QUICKSEARCH;
-    if ($debug) {
-        if (defined($lastline)) {print "Last line done was:\n $lastline\n";}
+    # Cleanup at the end
+    END {
+        unlink $lockfile if $lockfile;
     }
+    $SIG{TERM} = $SIG{INT} = $SIG{QUIT} = $SIG{HUP} = sub {
+        print STDERR "Caught a SIG$_[0] -- Shutting down\n";
+        exit 0; # Ensure END block is called
+    };
 }
 
-open(INDATA, $infile) or 
-    mydie("Error: Cannot open input file \"$infile\"\n",$lockfile);
+# Setup the DB connections, unless NOWRITEDB or NOACCESSDB are set
+sub setup_db {
+    my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
 
-# find the last thing done in a previously opened outfile - then read till that point
-if (defined($lastline)) {
-    if ($debug) {print "Last line done was:\n $lastline\n"; print "Skipping previously done work\n";}
-    while($line = <INDATA>) {
-        if ($lastline =~ /$line/) {
-            if ($debug) {print "Found last line previously done\n";} 
-            last;
+    # overwrite TNS to be sure it points to new DB
+    $ENV{'TNS_ADMIN'} = '/etc/tnsnames.ora';
+
+    if ($nodbint) {
+        $kernel->call( 'logger', warning => "No DB (even!) access flag set" );
+    }
+    else {
+        $kernel->yield( 'read_db_config', $config );
+        $kernel->yield('setup_hlt_db');
+        if ($nodbwrite) {
+            $kernel->call( 'logger',
+                warning => "Don't write access DB flag set" );
+            $kernel->call( 'logger',
+                debug => "Following commands would have been processed:" );
+        }
+        else {
+            $kernel->yield('setup_main_db');
         }
     }
 }
 
-# open output file
-open(OUTDATA, ">>$outfile") or 
-    mydie("Error: Cannot open output file \"$outfile\"\n",$lockfile);
-    
-# make the output file hot so that buffer is flushed on every printed line
-my $ofh = select OUTDATA;
-$| = 1;
-select $ofh;
+sub setup_main_db {
+    my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
 
-# overwrite TNS to be sure it points to new DB
-$ENV{'TNS_ADMIN'} = '/etc/tnsnames.ora';
-
-# connect to DB
-my $dbh;          #my DB handle
-my $newHandle;    #for new files
-my $injectHandle; #for injections
-my $SQLn;
-my $SQLi;
-my $dbi    = "DBI:Oracle:cms_rcms";
-my $dbhlt;        #my DB handle for HLT key
-my $dbihlt = "DBI:Oracle:cms_omds_lb";
-my $hltHandle;    #for HLT key queries
-my $SQLh;
-my %hltkeys;      #cache hlt keys
-
-if ($nodbwrite==0) { 
-
-    if ($debug) {print "Setting up DB connection for $dbi and $reader write access\n";}
-    my $retry = 0;
-    while (!$retry) {
-        $retry=1;
-        $dbh = DBI->connect($dbi,$reader,$phrase) or $retry=0;
-        if ($retry == 0) {
-            print("Error: Connection to Oracle failed: $DBI::errstr\n",$lockfile);
-            sleep(10);
-        }
+    $kernel->call( 'logger',
+        debug =>
+          "Setting up DB connection for $heap->{dbi} and $heap->{reader} write access"
+    );
+    my $failed = 0;
+    $heap->{dbh} = DBI->connect_cached( @$heap{ qw( dbi reader phrase ) } )
+      or $failed++;
+    if ($failed) {
+        $kernel->call( 'logger',
+            error => "Connection to $heap->{dbi} failed: $DBI::errstr" );
+        $kernel->alarm( setup_main_db => time() + 10 );
+        return;
     }
-    
-    my $timestr = gettimestr();
-    print "$timestr: Setup main DB connection\n";
 
-    $dbh->func( 1000000, 'dbms_output_enable' );
+    # Enable DBMS to get statistics
+    $heap->{dbh}->func( 1000000, 'dbms_output_enable' );
 
+    my $sql =
+        "INSERT INTO CMS_STOMGR.FILES_CREATED ("
+      . "FILENAME,CPATH,HOSTNAME,SETUPLABEL,STREAM,TYPE,PRODUCER,APP_NAME,APP_VERSION,"
+      . "RUNNUMBER,LUMISECTION,COUNT,INSTANCE,CTIME) "
+      . "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,"
+      . "TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'))";
+    $heap->{insertFile} = $heap->{dbh}->prepare($sql)
+      or die "Error: Prepare failed for $sql: " . $heap->{dbh}->errstr;
 
-    $SQLn = "INSERT INTO CMS_STOMGR.FILES_CREATED (" .
-        "FILENAME,CPATH,HOSTNAME,SETUPLABEL,STREAM,TYPE,PRODUCER,APP_NAME,APP_VERSION," .
-        "RUNNUMBER,LUMISECTION,COUNT,INSTANCE,CTIME) " .
-        "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?," .
-        "TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'))";
-    $newHandle = $dbh->prepare($SQLn) or mydie("Error: Prepare failed for $SQLn: $dbh->errstr \n",$lockfile);
-    
-    $SQLi = "INSERT INTO CMS_STOMGR.FILES_INJECTED (" .
-        "FILENAME,PATHNAME,DESTINATION,NEVENTS,FILESIZE,CHECKSUM,ITIME,INDFILENAME,INDFILESIZE,COMMENT_STR) " .
-        "VALUES (?,?,?,?,?,?," . 
-        "TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'),?,?,?)";
-    $injectHandle = $dbh->prepare($SQLi) or mydie("Error: Prepare failed for $SQLi: $dbh->errstr \n",$lockfile);
+    $sql =
+        "INSERT INTO CMS_STOMGR.FILES_INJECTED ("
+      . "FILENAME,PATHNAME,DESTINATION,NEVENTS,FILESIZE,CHECKSUM,ITIME,INDFILENAME,INDFILESIZE,COMMENT_STR) "
+      . "VALUES (?,?,?,?,?,?,"
+      . "TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'),?,?,?)";
+    $heap->{closeFile} = $heap->{dbh}->prepare($sql)
+      or die "Error: Prepare failed for $sql: " . $heap->{dbh}->errstr;
 
-} else { # no DB write interaction
-    if ($debug) {
-        print "Don't write access DB flag set \n".
-            "Following commands would have been processed: \n";
-    }
 }
 
-if ($nodbint==0) {
+# Setup the HLT DB connection
+sub setup_hlt_db {
+    my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
 
     # this is for HLT key queries
-    if ($debug) {print "Setting up DB connection for $dbihlt and $reader read access\n";}
-    my $retry = 0;
-    while (!$retry) {
-        $retry=1;
-        $dbhlt = DBI->connect($dbihlt,$reader,$phrase) or $retry=0;
-        if ($retry == 0) {
-            print("Error: Connection to Oracle failed: $DBI::errstr\n",$lockfile);
-            sleep(10);
-        }
+    $kernel->call( 'logger',
+        debug =>
+          "Setting up DB connection for $heap->{hltdbi} and $heap->{hltreader} read access"
+    );
+
+    my $failed = 0;
+    $heap->{dbhlt} =
+      DBI->connect_cached( @$heap{ map { "hlt$_" } qw( dbi reader phrase ) } )
+      or $failed++;
+    if ($failed) {
+        $kernel->call( 'logger',
+            error => "Connection to $heap->{hltdbi} failed: $DBI::errstr" );
+        $kernel->alarm( setup_hlt_db => time() + 10 );
+        return;
     }
 
-    my $timestr = gettimestr();
-    print "$timestr: Setup DB connection for HLT key retrieval\n";
-    
-    $SQLh = "SELECT STRING_VALUE FROM CMS_RUNINFO.RUNSESSION_PARAMETER " . 
-        "WHERE RUNNUMBER=? and NAME='CMS.LVL0:HLT_KEY_DESCRIPTION'";
-    $hltHandle = $dbhlt->prepare($SQLh) or mydie("Error: Prepare failed for $SQLh: $dbh->errstr \n",$lockfile);
+    my $sql = "SELECT STRING_VALUE FROM CMS_RUNINFO.RUNSESSION_PARAMETER "
+      . "WHERE RUNNUMBER=? and NAME='CMS.LVL0:HLT_KEY_DESCRIPTION'";
+    $heap->{hltHandle} = $heap->{dbhlt}->prepare($sql)
+      or die "Error: Prepare failed for $sql: " . $heap->{dbhlt}->errstr;
+}
 
-} else { # no DB read interaction
-    if ($debug) {
-        print "Don't even read access DB flag set";
+# Retrieve the HLT key for a given run
+sub get_hlt_key {
+    my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
+
+    my $runnumber = $heap->{args}->{RUNNUMBER};
+    unless ( defined $runnumber ) {
+        $kernel->call( 'logger', error => "Trying to get HLT key without RUNNUMBER!" );
+        return;
     }
-}
+    my $hltkey = $heap->{hltkeys}->{$runnumber};
 
-#loop over input files: sleep and try to reread file once end is reached
-my $lnum=0;
-my $livecounter=0;
-
-if (1) {
-    my $timestr = gettimestr();
-    print "$timestr: Entering main while loop now\n";
-}
-
-while(!$endflag) {
-
-    while($line=<INDATA>) {
-        
-        if ($endflag) {last;}
-
-        if ($debug) {print $line;}
-	chomp($line);
-        my $type=-1;
-	my $useHandle;
-	if ($line =~ m/insertFile/i) {
-	    if ($debug) {print "Found file insert\n";}
-            $type=0;
-	    $useHandle=$newHandle;
-	} elsif ($line =~ m/closeFile/i) {
-	    if ($debug) {print "Found file close\n";}
-            $type=1;
-	    $useHandle=$injectHandle;
-        } else {
-	    if ($debug) {print "Unknown line: $line\n";}
-            next;
+    # query hlt db if hlt was not already obtained
+    unless ( defined $hltkey and $heap->{dbhlt} ) {
+        my $errflag = 0;
+        $kernel->call( 'logger',
+            debug => "Quering DB for runnumber $runnumber" );
+        $heap->{hltHandle}->execute($runnumber) or $errflag = 1;
+        if ($errflag) {
+            $kernel->call( 'logger',
+                error => "DB query get HLT KEY for run $runnumber returned "
+                . $heap->{hltHandle}->errstr );
         }
-
-        initenv;
-
-        my @exports = split(' ', $line);
-        my $lexports = scalar(@exports);
-        for (my $count = 0; $count < $lexports; $count++) {
-
-            my $field = "$exports[$count]=$exports[$count+1]";
-            if ($field =~ m/^\-\-(.*)=(.*)/i) {    
-                my $fname = "SM_$1";
-                if    ($1 eq "COUNT")       { $fname = "SM_FILECOUNTER";}
-                elsif ($1 eq "DATASET")     { $fname = "SM_SETUPLABEL";}
-                elsif ($1 eq "START_TIME")  { $fname = "SM_STARTTIME";}
-                elsif ($1 eq "STOP_TIME")   { $fname = "SM_STOPTIME";}
-                elsif ($1 eq "APP_VERSION") { $fname = "SM_APPVERSION";}
-                elsif ($1 eq "APP_NAME")    { $fname = "SM_APPNAME";}
-                $ENV{$fname}=$2;
-                if ($debug) {print "$fname = $ENV{$fname}\n";}
-                $count++;
+        else {
+            ($heap->{hltkeys}->{$runnumber}) = ($hltkey) =
+                $heap->{hltHandle}->fetchrow_array
+            or $errflag = 1;
+            if ($errflag) {
+                $kernel->call( 'logger',
+                    error => "Fetching HLT KEY for run $runnumber returned "
+                    . $heap->{hltHandle}->errstr );
             }
-        } 
+            else {
+                $kernel->call( 'logger',
+                    debug => "Obtained HLT key $hltkey for run $runnumber" );
+            }
+        }
+        $heap->{hltHandle}->finish;
+    }
+    unless( defined $hltkey ) {
+        $kernel->call( 'logger', error => "Could not get an HLTKEY for run
+            $runnumber" );
+    }
+    else {
+        $heap->{args}->{COMMENT} = 'HLTKEY=' . $hltkey;
+    }
+}
 
-        # query hlt db if hlt was not already obtained
-        $ENV{'SM_HLTKEY'} = "UNKNOWN";
-        if (defined $dbhlt) {
-            my $runnumq = $ENV{'SM_RUNNUMBER'};
-            my $hltkey = $hltkeys{$runnumq};
-            if (defined $hltkey) {
-                $ENV{'SM_HLTKEY'}=$hltkey;
-            } else {
-                my $errflag = 0;
-                if ($debug) {print "Quering DB for runnumber $runnumq\n";}
-                $hltHandle->execute($runnumq) or $errflag=1;
-                if ($errflag>0) {
-                    print "Error in DB for HLT KEY when executing, DB returned $hltHandle->errstr\n";
-                } else {
-                    my @row = $hltHandle->fetchrow_array or $errflag=1;
-                    if ($errflag>0) {
-                        print "Error in DB for HLT KEY when fetching, DB returned $hltHandle->errstr\n";
-                    } else {
-                        if (defined $row[0]) {
-                            $hltkey = $row[0];
-                            $ENV{'SM_HLTKEY'}=$hltkey;
-                            $hltkeys{$runnumq} = $hltkey;
-                            if ($debug) {print "Obtained $hltkey for run $runnumq\n";}
-                        }
-                    }
+# Parse lines like
+#./closeFile.pl  --FILENAME Data.00133697.0135.Express.storageManager.00.0000.dat --FILECOUNTER 0 --NEVENTS 21 --FILESIZE 1508412 --STARTTIME 1271857503 --STOPTIME 1271857518 --STATUS closed --RUNNUMBER 133697 --LUMISECTION 135 --PATHNAME /store/global//02/closed/ --HOSTNAME srv-C2C06-12 --SETUPLABEL Data --STREAM Express --INSTANCE 0 --SAFETY 0 --APPVERSION CMSSW_3_5_4_onlpatch3_ONLINE --APPNAME CMSSW --TYPE streamer --DEBUGCLOSE 1 --CHECKSUM c8b5a624 --CHECKSUMIND 8912d364
+sub parse_line {
+    my ( $kernel, $heap, $line ) = @_[ KERNEL, HEAP, ARG0 ];
+    my @args = split / +/, $line;
+    shift @args;    # remove ./closeFile.pl or ./insertFile.pl
+    my %args;
+    if ( @args % 2 ) {
+        $kernel->call( 'logger', error => "Could not parse line $line!" );
+    }
+    else {
+
+        # Even number of arguments, processing
+        delete $heap->{args};
+        for ( my $i = 0 ; $i < $#args ; $i += 2 ) {
+            my $value = $args[ $i + 1 ];
+            for( $args[$i] ) {
+                s/^--//;
+                s/_//g;
+                s/^COUNT$/FILECOUNTER/;
+                s/^DATASET$/SETUPLABEL/;
+                $heap->{args}->{$_} = $value;
+            }
+        }
+    }
+}
+
+# injection subroutine
+sub update_db {
+    my ( $kernel, $heap, $handler, @params ) = @_[ KERNEL, HEAP, ARG0 .. $#_ ];
+
+    # Check that all required parameters are there
+    my @bind_params;
+    for ( @params) {
+        if ( exists $heap->{args}->{$_} ) {
+            my $value = $heap->{args}->{$_};
+            if (/TIME$/) {
+                $value = gettimestamp $value;
+            }
+            push @bind_params, $value;
+        }
+        else {
+            $kernel->call( 'logger', error => "$handler failed: Could not obtain parameter $_" );
+            return;
+        }
+    }
+    # redirect setuplabel/streams to different destinations according to
+    # https://twiki.cern.ch/twiki/bin/view/CMS/SMT0StreamTransferOptions
+    my $stream = $heap->{args}->{STREAM};
+    return
+      if ( $stream eq 'EcalCalibration'
+        || $stream =~ '_EcalNFS$' )    #skip EcalCalibration
+      || $stream =~ '_NoTransfer$';    #skip if NoTransfer option is set
+
+    my $errflag = 0;
+    my $rows = $heap->{$handler}->execute( @bind_params ) or $errflag = 1;
+
+    # Print any messages from the DB's dbms output
+    for ( $heap->{dbh}->func('dbms_output_get') ) {
+        $kernel->call( 'logger', info => $_ );
+    }
+
+    if ($errflag) {
+        $kernel->call( 'logger',
+            error => "DB access error for $handler when executing, DB returned "
+              . $heap->{$handler}->errstr );
+        return;
+    }
+
+    if ( $rows != 1 ) {
+        $kernel->call( 'logger',
+            error => "DB did not return one row for $handler, but $rows" );
+        return;
+    }
+    $kernel->call( 'logger', debug => "Inserted event, notifying: " . join( ' ', $handler, map { "--$_=$heap->{args}->{$_}" } sort keys %{ $heap->{args} } ) );
+}
+
+sub insert_file {
+    my ( $kernel, $session, $heap ) = @_[ KERNEL, SESSION, HEAP ];
+
+    $heap->{args}->{PRODUCER} = 'StorageManager';
+    $kernel->call( $session, 'update_db', insertFile => qw(
+        FILENAME PATHNAME HOSTNAME SETUPLABEL STREAM TYPE
+        PRODUCER APPVERSION APPNAME RUNNUMBER LUMISECTION
+        FILECOUNTER INSTANCE STARTTIME
+        ) );
+}
+
+sub close_file {
+    my ( $kernel, $session, $heap ) = @_[ KERNEL, SESSION, HEAP ];
+
+    # index file name and size
+    $heap->{args}->{INDFILE} = $heap->{args}->{FILENAME};
+    $heap->{args}->{INDFILE} =~ s/\.dat$/\.ind/;
+    $heap->{args}->{INDFILESIZE} = -1;
+    if ( $host eq $heap->{args}->{HOSTNAME} ) {
+        if ( -e "$heap->{args}->{PATHNAME}/$heap->{args}->{INDFILE}" ) {
+            $heap->{args}->{INDFILESIZE} = -s _;
+        }
+        elsif ( $nofilecheck == 0 ) {
+            $heap->{args}->{INDFILE} = '';
+        }
+    }
+
+    $heap->{args}->{DESTINATION} = 'Global';
+    my $setuplabel                  = $heap->{args}->{SETUPLABEL};
+    my $stream                      = $heap->{args}->{STREAM};
+    if (   $setuplabel =~ 'TransferTest'
+        || $stream =~ '_TransferTest$' )
+    {
+        $heap->{args}->{DESTINATION} =
+          'TransferTest';    # transfer but delete after
+    }
+    elsif ( $stream =~ '_NoRepack$' || $stream eq 'Error' ) {
+        $heap->{args}->{DESTINATION} = 'GlobalNoRepacking';    # do not repack
+        $heap->{args}->{INDFILE}     = '';
+        $heap->{args}->{INDFILESIZE} = -1;
+    }
+
+    $kernel->call( $session, 'update_db', closeFile => qw(
+        FILENAME PATHNAME DESTINATION NEVENTS FILESIZE
+        CHECKSUM STOPTIME INDFILE INDFILESIZE COMMENT
+        ) );
+
+    # XXX Write a proper log for the notification part
+    $kernel->post( 'notify', info => join( ' ', 'closeFile.pl', map { "--$_=$heap->{args}->{$_}" } sort keys %{ $heap->{args} } ) );
+}
+
+sub got_log_line {
+    my ( $kernel, $session, $heap, $line, $wheelID ) = @_[ KERNEL, SESSION, HEAP, ARG0, ARG1 ];
+    my $file = $heap->{watchlist}{$wheelID};
+    $kernel->call( 'logger', debug => "In $file, got line: $line" );
+    if ( $line =~ /(?:(insert|close)File)/i ) {
+        $kernel->call( $session, parse_line => $line );
+        $kernel->call( $session, 'get_hlt_key' );
+        $kernel->call( 'logger', debug => "Yielding ${1}_file" );
+        $kernel->call( $session, "${1}_file" );
+    }
+}
+
+sub got_log_rollover {
+    my ( $kernel, $heap, $wheelID ) = @_[ KERNEL, HEAP, ARG0 ];
+    my $file = $heap->{watchlist}{$wheelID};
+    $kernel->call( 'logger', info => "$file rolled over" );
+}
+
+# Create a watcher for a file, if none exist already
+sub read_changes {
+    my ( $kernel, $heap, $file ) = @_[ KERNEL, HEAP, ARG0 ];
+
+    return if $heap->{watchlist}{$file};    # File is already monitored
+    my $seek = $heap->{offsets}{$file} || 0;
+    my $size = ( stat $file )[7];
+    if ( $seek > $size ) {
+        $kernel->call( 'logger',
+            warning =>
+"Saved seek ($seek) is greater than current filesize ($size) for $file"
+        );
+        $seek = 0;
+    }
+    $kernel->call( 'logger', info => "Watching $file, starting at $seek" );
+    my $wheel = POE::Wheel::FollowTail->new(
+        Filename   => $file,
+        InputEvent => "got_log_line",
+        ResetEvent => "got_log_rollover",
+        Seek       => $seek,
+    );
+    $heap->{watchlist}{ $wheel->ID } = $file;
+    $heap->{watchlist}{$file} = $wheel;
+}
+
+# Clean shutdown
+sub shutdown {
+    my ( $kernel, $heap, $session ) = @_[ KERNEL, HEAP, SESSION ];
+    for ( qw( insertFile closeFile hltHandle ) ) {
+        $heap->{$_}->finish;
+    }
+    for ( dbh dbhlt ) {
+        $kernel->call( 'logger', info => "Disconnecting $_" );
+        $heap->{$_}->disconnect
+          or $kernel->call( 'logger',
+            warning => "Disconnection from Oracle $_ failed: $DBI::errstr" );
+    }
+    die "Shutting down!";
+}
+
+# postback called when some iNotify event is raised
+# XXX Filter files?
+sub watch_hdlr {
+    my $kernel = $_[KERNEL];
+    my $event  = $_[ARG1][0];
+    my $name   = $event->fullname;
+
+    if ( $event->IN_MODIFY ) {
+        $kernel->call( 'logger', debug => "$name was modified\n" );
+        $kernel->yield( read_changes => $name );
+    }
+    else {
+        $kernel->call( 'logger', warning => "$name is no longer mounted" )
+          if $event->IN_UNMOUNT;
+        $kernel->call( 'logger', error => "events for $name have been lost" )
+          if $event->IN_Q_OVERFLOW;
+    }
+}
+
+# Read DB configuration properly
+sub read_db_config {
+    my ( $kernel, $heap, $config ) = @_[ KERNEL, HEAP, ARG0 ];
+    if ( $config && -r $config ) {
+        open my $fh, '<', $config or die "Cannot open $config: $!";
+        while (<$fh>) {
+            next if /^\s*#/;
+            if ( my ( $key, $value ) = /^\s*\$(\w+)\s*=\s*"?(\S+?)"?\s*;/ ) {
+                if( $key =~ /^(?:hlt)?(?:dbi|reader|phrase)$/ ) {
+                    $heap->{$key} = $value;
+                    next;
                 }
-                $hltHandle->finish;
-            }
-	}
-
-        # inject and possibly notify
-        my $ret=inject($useHandle,$type);
-	    
-
-#       Print any messages from the DB's dbms output
-        my @dbtext = $dbh->func('dbms_output_get');
-        foreach (@dbtext) {
-           print "$_\n";
-        }
-
-
-        if ($ret == 0) {
-            print OUTDATA "$line\n";
-            if ($type == 1) {
-              my $cmd=$ENV{'SM_HOOKSCRIPT'};
-              if (defined $cmd) {
-                  system($cmd);
-              }
-            }
-        } else {
-            my $timestr = gettimestr();
-            print "$timestr: Inject returned error ($ret) for $line\n"; 
-            print OUTDATA "Error for $line\n";
-        }
-
-	$lnum++;
-        $livecounter=0;
-    }
-
-    if ($fileflag==1) {
-        $endflag=1;
-        last;
-    }
-
-    # when the date changes (next day), we want to spawn a new copy of this process 
-    # that goes to work on the new log. But need to check also that we got everything 
-    # from the old file!
-    if ($waiting<0 && $thedate ne getdatestr()) {
-        sleep(5);
-        if ($debug) {print "Spawning new process: $mycall $inpath $outpath $errpath $config $sminstance\n";}
-	system("$mycall $inpath $outpath $errpath $config $sminstance &"); 
-        $waiting=0; #start the waiting counter
-    } elsif ($waiting>=0) {
-        $waiting++;
-        if ($waiting>50) {
-            $endflag=1;
-            last;
-        }
-    }
-
-    # sleep a little bit
-    sleep(20);
-
-    # seek nowhere in file to reset EOF flag
-    seek(INDATA,0,1);
-
-    #If can't ping the db will reconnect and re-prepare statements
-    unless(defined($dbh) && $dbh->ping()) {
-        my $retry = 0;
-        while (!$retry) {
-            $retry=1;
-            $dbh = DBI->connect($dbi,$reader,$phrase) or $retry=0;
-            if ($retry == 0) {
-                print("Error: Re-Connection to Oracle failed: $DBI::errstr\n",$lockfile);
-                sleep(10);
+                #$heap->{$key} = $value and next if $key =~ /^(?:hlt)?(?:dbi|reader|phrase)$/;
+                $kernel->call( 'logger',
+                    warning =>
+                      "Ignoring unknown configuration variable: $key" );
             }
         }
-
-        $dbh->func( 1000000, 'dbms_output_enable' );
-	$newHandle = $dbh->prepare($SQLn) or mydie("Error: Prepare failed for $SQLn: $dbh->errstr \n",$lockfile);
-	$injectHandle = $dbh->prepare($SQLi) or mydie("Error: Prepare failed for $SQLi: $dbh->errstr \n",$lockfile);
+        close $fh;
     }
-
-    unless(defined($dbhlt) && $dbhlt->ping()) {
-        my $retry = 0;
-        while (!$retry) {
-            $retry=1;
-            $dbhlt = DBI->connect($dbihlt,$reader,$phrase) or $retry=0;
-            if ($retry == 0) {
-                print("Error: Re-Connection to Oracle failed: $DBI::errstr\n",$lockfile);
-                sleep(10);
-            }
-        }
-        $hltHandle = $dbhlt->prepare($SQLh) or mydie("Error: Prepare failed for $SQLh: $dbh->errstr \n",$lockfile);
+    unless ( $heap->{reader} && $heap->{phrase} ) {
+        die "No DB configuration. Aborting.";
     }
-
-    # check live counter
-    $livecounter++;
-    if ($livecounter>60) {
-        my $timestr = gettimestr();
-        print "$timestr: Still alive in main loop\n";
-        $livecounter = 0;
-    }
+    $kernel->call( 'logger', info => "Read DB configuration from $config" );
 }
 
-# disconnect from DB
-if (defined $dbh) { 
-    my $timestr = gettimestr();
-    print "$timestr: Disconnect from main DB connection\n";
-    $dbh->disconnect or 
-        warn "Warning: Disconnection from Oracle failed: $DBI::errstr\n";
+# Save the offset for each file so processing can be resumed at any time
+sub save_offsets {
+    my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
+    $kernel->call( 'logger', debug => "Saving offsets" );
+    $kernel->alarm( save_offsets => time() + $savedelay );
+    for my $tailor ( grep { /^[0-9]+$/ } keys %{ $heap->{watchlist} } ) {
+        my $file   = $heap->{watchlist}{$tailor};
+        my $wheel  = $heap->{watchlist}{$file};
+        my $offset = $wheel->tell;
+        $heap->{offsets}{$file} = $offset;
+    }
+    my $savefile = $logpath . '/offset.txt';
+    open my $save, '>', $savefile or die "Can't open $savefile: $!";
+    while ( my ( $file, $offset ) = each %{ $heap->{offsets} } ) {
+        $kernel->call( 'logger',
+            debug => "Saving session information for $file: $offset" );
+        print $save "$file $offset\n";
+    }
+    close $save;
 }
-if (defined $dbhlt) { 
-    my $timestr = gettimestr();
-    print "$timestr: Disconnect from DB connection for HLT key retrieval\n";
-    $dbhlt->disconnect or 
-        warn "Warning: Disconnect from Oracle for HLT failed: $DBI::errstr\n";
+
+# Read offsets, that is set the offset for each file to continue
+# processing
+sub read_offsets {
+    my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
+    my $savefile = $logpath . '/offset.txt';
+    return unless -r $savefile;
+    $kernel->call( 'logger', debug => "Reading offset file $savefile..." );
+    open my $save, '<', $savefile or die "Can't open $savefile: $!";
+    while (<$save>) {
+        my ( $file, $offset ) = /^(\S+) ([0-9]+)$/;
+        if( -f $file ) {
+            my $fsize = (stat(_))[7];
+            if( $offset != $fsize ) {
+                $kernel->call( 'logger',
+                    debug => "File $file has a different size: $offset != $size" );
+                $kernel->yield( read_changes => $file );
+            }
+            $heap->{offsets}{$file} = $offset;
+            $kernel->call( 'logger',
+                debug => "Setting session information for $file: $offset" );
+        }
+        else {
+            $kernel->call( 'logger',
+                debug => "Discarding session information for non-existing $file: $offset" );
+        }
+    }
+    close $save;
 }
 
-# close files
-close INDATA;
-close OUTDATA;
+# Print some heartbeat at fixed interval
+sub heartbeat {
+    my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
+    $kernel->call( 'logger', info => "Still alive in main loop" );
+    $kernel->alarm( heartbeat => time() + $heartbeat );
+}
 
-# remove lock file
-system("rm -f $lockfile");
-
-# reset signal
-$SIG{ABRT} = 'DEFAULT';
-$SIG{INT}  = 'DEFAULT';
-$SIG{KILL} = 'DEFAULT';
-$SIG{QUIT} = 'DEFAULT';
-$SIG{TERM} = 'DEFAULT';
+# Do something with all POE events which are not caught
+sub handle_default {
+    my ( $kernel, $event, $args ) = @_[ KERNEL, ARG0, ARG1 ];
+    print STDERR "WARNING: Session ".$_[SESSION]->ID."caught unhandled event $event with (@$args).";
+    $kernel->call( 'logger',
+            warning => "Session "
+          . $_[SESSION]->ID
+          . " caught unhandled event $event with (@$args)." );
+}
