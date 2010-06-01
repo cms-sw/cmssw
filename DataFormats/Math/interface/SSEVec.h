@@ -3,11 +3,15 @@
 
 #if defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 4)
 #include <x86intrin.h>
+#define CMS_USE_SSE
 
 #else
+#ifdef __SSE2__
+#define CMS_USE_SSE
 
 #include <mmintrin.h>
 #include <emmintrin.h>
+#endif
 #ifdef __SSE3__
 #include <pmmintrin.h>
 #endif
@@ -20,7 +24,7 @@
 #include<cmath>
 
 namespace mathSSE {
-
+#ifdef  CMS_USE_SSE
   //dot
   inline __m128 _mm_dot_ps(__m128 v1, __m128 v2) {
 #ifdef __SSE4_1__
@@ -54,6 +58,9 @@ namespace mathSSE {
     const  __m128 neg = _mm_set_ps(0.0f,0.0f,-0.0f,0.0f);
     return _mm_xor_ps(_mm_sub_ps(v5, v3), neg);
   }
+
+
+#endif // CMS_USE_SSE
 
 
   template<typename T>
@@ -105,6 +112,9 @@ namespace mathSSE {
     OldVec<T> o;
   };
 
+
+#ifdef CMS_USE_SSE
+
   template<>
   union Vec3<float> {
     __m128 vec;
@@ -139,9 +149,6 @@ namespace mathSSE {
 
   };
   
-  typedef Vec3<float> Vec3F;
-
-
   template<>
   union Vec2<double> {
     __m128d vec;
@@ -227,11 +234,17 @@ namespace mathSSE {
     Vec2<double> zw() const { return vec[1];}
 
   };
+
+#endif // CMS_USE_SSE
   
+  typedef Vec3<float> Vec3F;
   typedef Vec2<double> Vec2D;
   typedef Vec3<double> Vec3D;
 
 }
+
+#ifdef CMS_USE_SSE
+
 
 //float op
 
@@ -415,6 +428,8 @@ namespace mathSSE {
     return Vec3D(_mm_sqrt_pd(v.vec[0]),_mm_sqrt_pd(v.vec[1]));
   }
 }
+
+#endif // CMS_USE_SSE
 
 
 #include <iosfwd>
