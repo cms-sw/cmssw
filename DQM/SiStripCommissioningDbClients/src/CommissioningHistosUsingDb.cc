@@ -1,4 +1,4 @@
-// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.23 2010/02/02 18:53:39 lowette Exp $
+// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.24 2010/04/21 14:26:26 dstrom Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
 #include "CalibFormats/SiStripObjects/interface/NumberOfDevices.h"
@@ -127,23 +127,25 @@ void CommissioningHistosUsingDb::uploadAnalyses() {
     // Update analysis descriptions with new commissioning results
     if ( uploadAnal_ ) {
       if ( uploadConf_ ) { 
-	edm::LogVerbatim(mlDqmClient_)
-	  << "[CommissioningHistosUsingDb::" << __func__ << "]"
-	  << " Uploading major version of analysis descriptions to DB"
-	  << " (will be used for physics)...";
-      } else {
-	edm::LogVerbatim(mlDqmClient_)
-	  << "[CommissioningHistosUsingDb::" << __func__ << "]"
-	  << " Uploading minor version of analysis descriptions to DB"
-	  << " (will not be used for physics)...";
+				edm::LogVerbatim(mlDqmClient_)
+	  		<< "[CommissioningHistosUsingDb::" << __func__ << "]"
+	  		<< " Uploading major version of analysis descriptions to DB"
+	  		<< " (will be used for physics)...";
+      } 
+      else {
+				edm::LogVerbatim(mlDqmClient_)
+	 			<< "[CommissioningHistosUsingDb::" << __func__ << "]"
+	  		<< " Uploading minor version of analysis descriptions to DB"
+	  		<< " (will not be used for physics)...";
       }
       db_->clearAnalysisDescriptions( ip->second.partitionName() );
       db_->addAnalysisDescriptions( ip->second.partitionName(), anals ); 
       db_->uploadAnalysisDescriptions( uploadConf_, ip->second.partitionName() ); 
       edm::LogVerbatim(mlDqmClient_) 
-	<< "[CommissioningHistosUsingDb::" << __func__ << "]"
+			<< "[CommissioningHistosUsingDb::" << __func__ << "]"
       << " Upload of analysis descriptions to DB finished!";
-    } else {
+    } 
+    else {
       edm::LogWarning(mlDqmClient_) 
         << "[CommissioningHistosUsingDb::" << __func__ << "]"
         << " TEST! No analysis descriptions will be uploaded to DB...";
