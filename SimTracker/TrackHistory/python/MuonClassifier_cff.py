@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
 
-from SimTracker.TrackAssociation.TrackAssociatorByHits_cfi import *
 from SimTracker.TrackHistory.MuonHistory_cff import *
 from SimTracker.TrackHistory.TrackQuality_cff import *
 

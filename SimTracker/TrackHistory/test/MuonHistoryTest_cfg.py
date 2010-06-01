@@ -22,7 +22,7 @@ process.muonHistoryAnalyzer = cms.EDAnalyzer("TrackHistoryAnalyzer",
     pset = process.MuonClassifier
 )
 
-process.GlobalTag.globaltag = 'MC_3XY_V25::All'
+process.GlobalTag.globaltag = 'MC_36Y_V7A::All'
 
 process.p = cms.Path(process.playback * process.muonHistoryAnalyzer)
 
