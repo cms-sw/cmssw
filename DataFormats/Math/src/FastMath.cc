@@ -1,5 +1,3 @@
-#ifdef __SSE2__
-
 #include "DataFormats/Math/interface/FastMath.h"
 namespace fastmath_details {
   float atanbuf_[257 * 2];
@@ -29,5 +27,3 @@ namespace fastmath_details {
     static Initatan initAtan;
   }
 }
-
-#endif
