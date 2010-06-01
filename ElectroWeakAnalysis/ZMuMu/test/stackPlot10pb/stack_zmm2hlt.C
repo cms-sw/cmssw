@@ -6,5 +6,5 @@
 
 void stack_zmm2hlt() {
   makePlots("goodZToMuMu2HLTPlots/zMass",  2, "zmm2hlt", 
-	    0.0001, true);
+	    0.001, true);
 }

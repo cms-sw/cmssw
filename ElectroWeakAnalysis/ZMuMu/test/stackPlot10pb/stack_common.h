@@ -21,7 +21,7 @@ const Color_t qcdFillColor = kGreen+1;
 const Color_t ttFillColor =  kRed+1;
 const Color_t ttLineColor = kRed+3;
 
-const double lumi =.020 ;
+const double lumi =.017 ;
 const double lumiZ = 10. ;
 const double lumiW = 10.;
 const double lumiQ = 10.;
@@ -124,7 +124,7 @@ void makeStack(TH1 * h1, TH1 * h2, TH1 * h3, TH1 * h4, TH1 * hdata,
   hs->GetYaxis()->SetLabelOffset(0);
   hs->GetXaxis()->SetLabelSize(.05);
   hs->GetYaxis()->SetLabelSize(.05);
-  leg = new TLegend(0.7,0.7,0.89,0.89);
+  leg = new TLegend(0.8,0.8,0.95,0.95);
   if(hdata != 0)
     leg->AddEntry(hdata,"data");
   leg->AddEntry(h1,"Z#rightarrow#mu #mu","f");
@@ -141,7 +141,7 @@ void makeStack(TH1 * h1, TH1 * h2, TH1 * h3, TH1 * h4, TH1 * hdata,
 }
 
 void makePlots(const char * name, int rebin, const char * plot,
-	       double min = 0.0001,
+	       double min = 0.001,
 	       bool doData = false) {
   TH1F *h1 = (TH1F*)z.Get(name);
   TH1F *h2 = (TH1F*)w.Get(name);
@@ -156,6 +156,7 @@ TH1F *hdata = new TH1F ("hdata", "hdata", 200, 0, 200);
     hdata->SetBinContent(i , val );
   }
   } else {TH1F * hdata=0;}
+  hdata->Rebin(rebin);
   makeStack(h1, h2, h3, h4, hdata, min, rebin);
   c1->SaveAs((std::string(plot)+".eps").c_str());
   c1->SaveAs((std::string(plot)+".gif").c_str());
