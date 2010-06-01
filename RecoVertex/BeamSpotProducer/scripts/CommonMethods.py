@@ -543,8 +543,9 @@ def createWeightedPayloads(fileName,listbeam=[],weighted=True):
         if weighted:
             docheck = False
         # check offsets
-        #if docheck:
-        if False:
+        #if False:
+        if docheck:
+        
             deltaX = delta(ibeam.X, ibeam.Xerr, inextbeam.X, inextbeam.Xerr) > 2.0
             deltaY = delta(ibeam.Y, ibeam.Yerr, inextbeam.Y, inextbeam.Yerr) > 2.0
             deltaZ = delta(ibeam.Z, ibeam.Zerr, inextbeam.Z, inextbeam.Zerr) > 2.5
