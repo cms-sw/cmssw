@@ -76,7 +76,7 @@ from DQMOffline.Trigger.EgHLTOfflineSource_cfi import *
 # Muon
 from DQMOffline.Trigger.MuonOffline_Trigger_cff import *
 # Top
-from DQMOffline.Trigger.QuadJetAna_cfi import *
+#from DQMOffline.Trigger.QuadJetAna_cfi import *
 # Tau
 from DQMOffline.Trigger.HLTTauDQMOffline_cff import *
 # JetMET
