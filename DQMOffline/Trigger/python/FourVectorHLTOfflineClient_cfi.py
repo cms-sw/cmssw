@@ -1,4 +1,4 @@
-# $Id: FourVectorHLTOfflineClient_cfi.py,v 1.11 2010/03/25 08:39:17 rekovic Exp $
+# $Id: FourVectorHLTOfflineClient_cfi.py,v 1.12 2010/03/26 07:58:54 rekovic Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -16,8 +16,41 @@ hltFourVectorClient = cms.EDAnalyzer("FourVectorHLTClient",
              ),
              cms.PSet(
               pathname = cms.string("HLT_"),
-              denompathname = cms.string("HLT_MinBiasBSC")  
+              denompathname = cms.string("MinBias")
+             ),
+             cms.PSet(
+              pathname = cms.string("EG"),
+              denompathname = cms.string("Mu")  
+             ),
+             cms.PSet(
+              pathname = cms.string("Jet"),
+              denompathname = cms.string("Mu")
+             ),
+             cms.PSet(
+              pathname = cms.string("Ele"),
+              denompathname = cms.string("Mu")
+             ),
+             cms.PSet(
+              pathname = cms.string("Pho"),
+              denompathname = cms.string("Mu")  
+             ),
+             cms.PSet(
+              pathname = cms.string("Tau"),
+              denompathname = cms.string("Mu")  
+             ),
+             cms.PSet(
+              pathname = cms.string("MET"),
+              denompathname = cms.string("Mu")  
+             ),
+             cms.PSet(
+              pathname = cms.string("Mu"),
+              denompathname = cms.string("Jet")
+             ),
+             cms.PSet(
+              pathname = cms.string("Mu"),
+              denompathname = cms.string("Jet15U")
              )
+
 #             cms.PSet(
 #              pathname = cms.string("HLT_Mu5"),
 #              denompathname = cms.string(""),  
