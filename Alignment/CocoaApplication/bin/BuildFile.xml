@@ -1,0 +1,11 @@
+<use   name="meschach"/>
+<use   name="clhep"/>
+<use   name="root"/>
+<use   name="rootcore"/>
+<use   name="Alignment/CocoaModel"/>
+<use   name="Alignment/CocoaFit"/>
+<use   name="Alignment/CocoaUtilities"/>
+<use   name="Alignment/CocoaToDDL"/>
+<use   name="Alignment/CocoaDDLObjects"/>
+<bin   file="cocoa.cpp" name="cocoa">
+</bin>
