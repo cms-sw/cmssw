@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/03/18 16:06:54 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2010/05/14 11:43:08 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -554,7 +554,7 @@ void DTKeyedConfigHandler::chkConfigList() {
     }
     cond::KeyedElement k( brickData, brickConfigId );
     std::cout << "now writing brick: " << brickConfigId << std::endl;
-    outdb->writeOne( k.m_obj, k.m_sum, k.m_key, brickContainer );
+    outdb->writeOne( k.m_obj, 0, k.m_key, brickContainer );
   }
 
   return;
