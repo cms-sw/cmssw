@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Mon Apr 19 12:48:18 CEST 2010
-// $Id: FWInteractionList.cc,v 1.4 2010/04/22 17:52:28 amraktad Exp $
+// $Id: FWInteractionList.cc,v 1.5 2010/05/31 19:49:22 matevz Exp $
 //
 
 // system include files
@@ -97,6 +97,7 @@ FWInteractionList::added(TEveElement* el, unsigned int idx)
       c->SetMainColor(m_item->defaultDisplayProperties().color());
       c->CSCImplySelectAllChildren();
       c->CSCApplyMainColorToAllChildren();
+      c->CSCApplyMainTransparencyToAllChildren();
 
       c->IncDenyDestroy();
       c->SetUserData(new FWModelIdFromEveSelector(FWModelId(m_item,idx)));
@@ -125,6 +126,7 @@ FWInteractionList::modelChanges(const FWModelIds& iIds)
       TEveElement* comp = m_compounds[(*it).index()];
       comp->EnableListElements(info.displayProperties().isVisible(), info.displayProperties().isVisible());
       comp->SetMainColor(info.displayProperties().color());
+      comp->SetMainTransparency(100 - info.displayProperties().opacity());
 
       if (info.isSelected())
       {
