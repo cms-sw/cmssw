@@ -2,37 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 ### genjet cleaning for improved matching in HI environment
 
-iterativeCone5HiCleanedGenJets = cms.EDProducer('HiGenJetCleaner',
-  src    = cms.untracked.InputTag('iterativeCone5HiGenJets'),
-  deltaR = cms.untracked.double(0.25),
-  ptCut  = cms.untracked.double(20),
-  createNewCollection = cms.untracked.bool(True),
-  fillDummyEntries = cms.untracked.bool(True)
-)
+from RecoHI.HiJetAlgos.HiGenCleaner_cff import *
 
-iterativeCone7HiCleanedGenJets = cms.EDProducer('HiGenJetCleaner',
-  src    = cms.untracked.InputTag('iterativeCone7HiGenJets'),
-  deltaR = cms.untracked.double(0.25),
-  ptCut  = cms.untracked.double(20),
-  createNewCollection = cms.untracked.bool(True),
-  fillDummyEntries = cms.untracked.bool(True)
-)
-
-ak5HiCleanedGenJets = cms.EDProducer('HiGenJetCleaner',
-  src    = cms.untracked.InputTag('ak5HiGenJets'),
-  deltaR = cms.untracked.double(0.25),
-  ptCut  = cms.untracked.double(20),
-  createNewCollection = cms.untracked.bool(True),
-  fillDummyEntries = cms.untracked.bool(True)
-)
-
-ak7HiCleanedGenJets = cms.EDProducer('HiGenJetCleaner',
-  src    = cms.untracked.InputTag('ak7HiGenJets'),
-  deltaR = cms.untracked.double(0.25),
-  ptCut  = cms.untracked.double(20),
-  createNewCollection = cms.untracked.bool(True),
-  fillDummyEntries = cms.untracked.bool(True)
-)
+iterativeCone5HiCleanedGenJets = heavyIonCleanedGenJets.clone( src = cms.InputTag('iterativeCone5HiGenJets'))
+iterativeCone7HiCleanedGenJets = heavyIonCleanedGenJets.clone( src = cms.InputTag('iterativeCone7HiGenJets'))
+ak5HiCleanedGenJets = heavyIonCleanedGenJets.clone( src = cms.InputTag('ak5HiGenJets'))
+ak7HiCleanedGenJets = heavyIonCleanedGenJets.clone( src = cms.InputTag('ak7HiGenJets'))
 
 ### jet analyzer for two radii (0.5, 0.7) and three algorithms:
 ### iterative cone with PU, anti-kt with PU, anti-kt with fastjet PU
