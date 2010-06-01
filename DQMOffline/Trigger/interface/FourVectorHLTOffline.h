@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.52 2010/04/29 12:24:51 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.53 2010/05/17 10:32:11 rekovic Exp $
 //
 //
 
@@ -75,6 +75,7 @@
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
+#include "RecoJets/JetAlgorithms/interface/JetIDHelper.h"
 
 
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
@@ -141,7 +142,9 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       void selectMuons(const edm::Handle<reco::MuonCollection> & muonHandle);
       void selectElectrons(const edm::Handle<reco::GsfElectronCollection> & eleHandle);
       void selectPhotons(const edm::Handle<reco::PhotonCollection> & phoHandle);
-      void selectJets(const edm::Handle<reco::CaloJetCollection> & jetHandle);
+      void selectJets(const edm::Event& iEvent,const edm::Handle<reco::CaloJetCollection> & jetHandle);
+      void selectMet(const edm::Handle<reco::CaloMETCollection> & metHandle);
+      void selectTaus(const edm::Handle<reco::CaloTauCollection> & tauHandle);
       void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);   
       void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);   
 
@@ -150,6 +153,10 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       DQMStore * dbe_;
       bool fLumiFlag;
       bool fIsSetup;
+
+      // JetID helper
+      reco::helper::JetIDHelper *jetID;
+
 
 
       MonitorElement* ME_HLTAll_LS;
@@ -181,6 +188,12 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 
       reco::CaloJetCollection * fSelectedJets;
       edm::Handle<reco::CaloJetCollection> fSelJetsHandle;
+
+      reco::CaloMETCollection * fSelectedMet;
+      edm::Handle<reco::CaloMETCollection> fSelMetHandle;
+
+      reco::CaloTauCollection * fSelectedTaus;
+      edm::Handle<reco::CaloTauCollection> fSelTausHandle;
 
       unsigned int nLS_; 
       double LSsize_ ;
