@@ -27,7 +27,12 @@ cmsRun $runbasedir/src/CondCore/ESSources/test/python/print_ped_cfg.py
 
 echo "test blob"
 cmsRun $runbasedir/src/CondCore/DBOutputService/test/python/writeBlob_cfg.py
-cmscond_list_iov -c sqlite_file:blob.db  -t noise_tag 
+cmscond_list_iov -c sqlite_file:blob.db  -t noise_tag
+echo "XML dump"
+echo " " 
+cmscond_2XML -c sqlite_file:blob.db -t noise_tag
+cat noise_tag.xml
+echo " "
 pool_retrieve_object_relational_mapping -c sqlite_file:blob.db -n mySiStripNoises -d CondFormatsCalibration -o mapping.xml
 cat mapping.xml
 echo "read back blob"
