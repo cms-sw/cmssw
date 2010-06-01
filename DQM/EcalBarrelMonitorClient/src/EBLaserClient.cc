@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2010/05/31 16:09:02 $
- * $Revision: 1.269 $
+ * $Date: 2010/05/31 19:05:42 $
+ * $Revision: 1.270 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1880,39 +1880,44 @@ void EBLaserClient::analyze(void) {
         update03 = UtilsClient::getBinStatistics(h05_[ism-1], ie, ip, num03, mean03, rms03);
         update04 = UtilsClient::getBinStatistics(h07_[ism-1], ie, ip, num04, mean04, rms04);
 
+        float xmean01 = mean01;
+        float xmean02 = mean02;
+        float xmean03 = mean03;
+        float xmean04 = mean04;
+
         // special correction for EB+04
         if ( ism == 22 && ie <= 5 ) {
-          mean01 = mean01 * 1.5;
-          mean02 = mean02 * 1.5;
-          mean03 = mean03 * 1.5;
-          mean04 = mean04 * 1.5;
+          xmean01 = xmean01 * 1.5;
+          xmean02 = xmean02 * 1.5;
+          xmean03 = xmean03 * 1.5;
+          xmean04 = xmean04 * 1.5;
         }
 
         // special correction for EB+09
         if ( ism == 27 && ie > 5 && ip <= 10 ) {
-          mean01 = mean01 * 1.5;
-          mean02 = mean02 * 1.5;
-          mean03 = mean03 * 1.5;
-          mean04 = mean04 * 1.5;
+          xmean01 = xmean01 * 1.5;
+          xmean02 = xmean02 * 1.5;
+          xmean03 = xmean03 * 1.5;
+          xmean04 = xmean04 * 1.5;
         }
 
         if ( update01 ) {
-          meanAmplL1 += mean01;
+          meanAmplL1 += xmean01;
           nCryL1++;
         }
 
         if ( update02 ) {
-          meanAmplL2 += mean02;
+          meanAmplL2 += xmean02;
           nCryL2++;
         }
 
         if ( update03 ) {
-          meanAmplL3 += mean03;
+          meanAmplL3 += xmean03;
           nCryL3++;
         }
 
         if ( update04 ) {
-          meanAmplL4 += mean04;
+          meanAmplL4 += xmean04;
           nCryL4++;
         }
 
@@ -1965,20 +1970,25 @@ void EBLaserClient::analyze(void) {
         update11 = UtilsClient::getBinStatistics(h11_[ism-1], ie, ip, num11, mean11, rms11);
         update12 = UtilsClient::getBinStatistics(h12_[ism-1], ie, ip, num12, mean12, rms12);
 
+        float xmean01 = mean01;
+        float xmean03 = mean03;
+        float xmean05 = mean05;
+        float xmean07 = mean07;
+
         // special correction for EB+04
         if ( ism == 22 && ie <= 5 ) {
-          mean01 = mean01 * 1.5;
-          mean03 = mean03 * 1.5;
-          mean05 = mean05 * 1.5;
-          mean07 = mean07 * 1.5;
+          xmean01 = xmean01 * 1.5;
+          xmean03 = xmean03 * 1.5;
+          xmean05 = xmean05 * 1.5;
+          xmean07 = xmean07 * 1.5;
         }
 
         // special correction for EB+09
         if ( ism == 27 && ie > 5 && ip <= 10 ) {
-          mean01 = mean01 * 1.5;
-          mean03 = mean03 * 1.5;
-          mean05 = mean05 * 1.5;
-          mean07 = mean07 * 1.5;
+          xmean01 = xmean01 * 1.5;
+          xmean03 = xmean03 * 1.5;
+          xmean05 = xmean05 * 1.5;
+          xmean07 = xmean07 * 1.5;
         }
 
         if ( update01 ) {
@@ -1986,7 +1996,7 @@ void EBLaserClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean01 - meanAmplL1) > fabs(percentVariation_ * meanAmplL1) || mean01 < amplitudeThreshold_ || rms01 > rmsThresholdRelative_ * mean01 )
+          if ( fabs(mean01 - meanAmplL1) > fabs(percentVariation_ * meanAmplL1) || xmean01 < amplitudeThreshold_ || rms01 > rmsThresholdRelative_ * mean01 )
             val = 0.;
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, val );
 
@@ -2008,7 +2018,7 @@ void EBLaserClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean03 - meanAmplL2) > fabs(percentVariation_ * meanAmplL2) || mean03 < amplitudeThreshold_ || rms03 > rmsThresholdRelative_ * mean03 )
+          if ( fabs(mean03 - meanAmplL2) > fabs(percentVariation_ * meanAmplL2) || xmean03 < amplitudeThreshold_ || rms03 > rmsThresholdRelative_ * mean03 )
             val = 0.;
           if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, val );
 
@@ -2030,7 +2040,7 @@ void EBLaserClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean05 - meanAmplL3) > fabs(percentVariation_ * meanAmplL3) || mean05 < amplitudeThreshold_ || rms05 > rmsThresholdRelative_ * mean05 )
+          if ( fabs(mean05 - meanAmplL3) > fabs(percentVariation_ * meanAmplL3) || xmean05 < amplitudeThreshold_ || rms05 > rmsThresholdRelative_ * mean05 )
             val = 0.;
           if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, val );
 
@@ -2052,7 +2062,7 @@ void EBLaserClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean07 - meanAmplL4) > fabs(percentVariation_ * meanAmplL4) || mean07 < amplitudeThreshold_ || rms07 > rmsThresholdRelative_ * mean07 )
+          if ( fabs(mean07 - meanAmplL4) > fabs(percentVariation_ * meanAmplL4) || xmean07 < amplitudeThreshold_ || rms07 > rmsThresholdRelative_ * mean07 )
             val = 0.;
           if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( ie, ip, val );
 
