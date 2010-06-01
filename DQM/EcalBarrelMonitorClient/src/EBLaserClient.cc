@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2010/05/31 19:05:42 $
- * $Revision: 1.270 $
+ * $Date: 2010/06/01 10:47:52 $
+ * $Revision: 1.271 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1996,7 +1996,7 @@ void EBLaserClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean01 - meanAmplL1) > fabs(percentVariation_ * meanAmplL1) || xmean01 < amplitudeThreshold_ || rms01 > rmsThresholdRelative_ * mean01 )
+          if ( fabs(xmean01 - meanAmplL1) > fabs(percentVariation_ * meanAmplL1) || xmean01 < amplitudeThreshold_ || rms01 > rmsThresholdRelative_ * mean01 )
             val = 0.;
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, val );
 
@@ -2018,7 +2018,7 @@ void EBLaserClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean03 - meanAmplL2) > fabs(percentVariation_ * meanAmplL2) || xmean03 < amplitudeThreshold_ || rms03 > rmsThresholdRelative_ * mean03 )
+          if ( fabs(xmean03 - meanAmplL2) > fabs(percentVariation_ * meanAmplL2) || xmean03 < amplitudeThreshold_ || rms03 > rmsThresholdRelative_ * mean03 )
             val = 0.;
           if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, val );
 
@@ -2040,7 +2040,7 @@ void EBLaserClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean05 - meanAmplL3) > fabs(percentVariation_ * meanAmplL3) || xmean05 < amplitudeThreshold_ || rms05 > rmsThresholdRelative_ * mean05 )
+          if ( fabs(xmean05 - meanAmplL3) > fabs(percentVariation_ * meanAmplL3) || xmean05 < amplitudeThreshold_ || rms05 > rmsThresholdRelative_ * mean05 )
             val = 0.;
           if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, val );
 
@@ -2062,7 +2062,7 @@ void EBLaserClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean07 - meanAmplL4) > fabs(percentVariation_ * meanAmplL4) || xmean07 < amplitudeThreshold_ || rms07 > rmsThresholdRelative_ * mean07 )
+          if ( fabs(xmean07 - meanAmplL4) > fabs(percentVariation_ * meanAmplL4) || xmean07 < amplitudeThreshold_ || rms07 > rmsThresholdRelative_ * mean07 )
             val = 0.;
           if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( ie, ip, val );
 
