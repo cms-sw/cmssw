@@ -57,7 +57,7 @@ from ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesSequences_cff import *
 
 process.TFileService = cms.Service(
     "TFileService",
-    fileName = cms.string("file:ewkZMuMuCategories_oneshot_Test.root")
+    fileName = cms.string('ewkZMuMuCategories_oneshot_Test.root')
 )
 
 
