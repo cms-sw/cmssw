@@ -1,7 +1,7 @@
 //#include "Utilities/Configuration/interface/Architecture.h"
 /*  
- *  $Date: 2010/05/27 13:32:15 $
- *  $Revision: 1.15 $
+ *  $Date: 2010/05/27 13:33:19 $
+ *  $Revision: 1.16 $
  *  \author J. Mans -- UMD
  */
 #ifndef HTBDAQ_DATA_STANDALONE
@@ -229,16 +229,16 @@ void HcalHTRData::pack(unsigned char* daq_lengths, unsigned short* daq_samples,
       daq_words_total++;
     }
   }
-
+  unsigned short totalLen;
   if (m_formatVersion==-1) {
     m_ownData[5]=(tp_words_total<<8)|0x1;
-    unsigned short totalLen=headerLen+tp_words_total+daq_words_total+trailerLen;
+    totalLen=headerLen+tp_words_total+daq_words_total+trailerLen;
     m_rawLength=totalLen;
     m_ownData[totalLen-3]=totalLen;
     m_ownData[totalLen-4]=(tp_words_total/CHANNELS_PER_SPIGOT)|((daq_words_total/CHANNELS_PER_SPIGOT)<<8);
   } else {
     m_ownData[5]=(tp_words_total<<8)|0x1;
-    unsigned short totalLen=headerLen+tp_words_total+daq_words_total+trailerLen;
+    totalLen=headerLen+tp_words_total+daq_words_total+trailerLen;
     if ((totalLen%2)==1) {
       m_ownData[totalLen-4]=0xFFFF; // parity word
       totalLen++; // round to even number of 16-bit words
@@ -248,7 +248,7 @@ void HcalHTRData::pack(unsigned char* daq_lengths, unsigned short* daq_samples,
     m_ownData[totalLen-3]=totalLen;
     m_ownData[totalLen-4]=daq_words_total;
   }
-  if (trailerWords==12) { // initialize extra trailer words if present
+  if (trailerLen==12) { // initialize extra trailer words if present
     for (int i=12; i>4; i--)
       m_ownData[totalLen-i]=0;
   }
