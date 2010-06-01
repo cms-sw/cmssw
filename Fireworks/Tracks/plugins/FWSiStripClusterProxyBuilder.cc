@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWSiStripClusterProxyBuilder.cc,v 1.9 2010/05/03 15:47:45 amraktad Exp $
+// $Id: FWSiStripClusterProxyBuilder.cc,v 1.10 2010/05/06 14:14:10 mccauley Exp $
 //
 
 #include "TEveCompound.h"
@@ -23,11 +23,15 @@ public:
 
    REGISTER_PROXYBUILDER_METHODS();
 
+protected:
+   virtual void build(const SiStripCluster& iData, unsigned int iIndex,
+                      TEveElement& oItemHolder, const FWViewContext*);
+   virtual void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
+                                  FWViewType::EType viewType, const FWViewContext* vc);
+
 private:
    FWSiStripClusterProxyBuilder(const FWSiStripClusterProxyBuilder&);
    const FWSiStripClusterProxyBuilder& operator=(const FWSiStripClusterProxyBuilder&);              
-  
-   void build(const SiStripCluster& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*);
 };
 
 void
@@ -38,10 +42,11 @@ FWSiStripClusterProxyBuilder::build(const SiStripCluster& iData,
  
   TEveGeoShape* shape = item()->getGeom()->getShape(detid);
   
-  if ( shape ) 
+  if (shape) 
   {
-    shape->SetMainTransparency(75);  // FIXME: Magic number
     setupAddElement(shape, &oItemHolder);
+    Char_t transp = 100 - item()->defaultDisplayProperties().opacity();
+    shape->SetMainTransparency(TMath::Min(100, 80 + transp / 5));
   }
 
   else
@@ -69,5 +74,20 @@ FWSiStripClusterProxyBuilder::build(const SiStripCluster& iData,
   setupAddElement(scposition, &oItemHolder);
 }
 
+void
+FWSiStripClusterProxyBuilder::localModelChanges(const FWModelId& iId, TEveElement* iCompound,
+                                                FWViewType::EType viewType, const FWViewContext* vc)
+{
+  const FWDisplayProperties& dp = item()->modelInfo(iId.index()).displayProperties();
 
-REGISTER_FWPROXYBUILDER( FWSiStripClusterProxyBuilder, SiStripCluster, "SiStripCluster", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
+  TEveElement* det = iCompound->FirstChild();
+  if (det)
+  {
+     Char_t transp = 100 - dp.opacity();
+     Char_t det_transp = TMath::Min(100, 80 + transp / 5);
+     det->SetMainTransparency(det_transp);
+  }
+}
+
+
+REGISTER_FWPROXYBUILDER(FWSiStripClusterProxyBuilder, SiStripCluster, "SiStripCluster", FWViewType::kAll3DBits | FWViewType::kAllRPZBits);

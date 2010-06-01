@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWJetProxyBuilder.cc,v 1.9 2010/05/03 15:47:34 amraktad Exp $
+// $Id: FWJetProxyBuilder.cc,v 1.10 2010/05/31 19:44:02 matevz Exp $
 //
 #include "TGeoArb8.h"
 #include "TEveGeoNode.h"
@@ -54,7 +54,7 @@ FWJetProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveEleme
    cone->SetPickable(kTRUE);
    setupAddElement(cone, &oItemHolder);
 
-   UChar_t transp = 100 - item()->defaultDisplayProperties().opacity();
+   Char_t transp = 100 - item()->defaultDisplayProperties().opacity();
    cone->SetMainTransparency(TMath::Min(100, 80 + transp / 5));
 }
 
@@ -67,8 +67,8 @@ FWJetProxyBuilder::localModelChanges(const FWModelId& iId, TEveElement* iCompoun
   TEveElement* cone = iCompound->FindChild("cone");
   if (cone)
   {
-     UChar_t transp = 100 - dp.opacity();
-     UChar_t cone_transp = TMath::Min(100, 80 + transp / 5);
+     Char_t transp = 100 - dp.opacity();
+     Char_t cone_transp = TMath::Min(100, 80 + transp / 5);
      cone->SetMainTransparency(cone_transp);
   }
 }
@@ -171,7 +171,7 @@ FWJetRhoPhiProxyBuilder::build(const reco::Jet& iData, unsigned int iIndex, TEve
                                         item()->defaultDisplayProperties().color());
    setupAddElement(element, &oItemHolder);
 
-   UChar_t transp = 100 - item()->defaultDisplayProperties().opacity();
+   Char_t transp = 100 - item()->defaultDisplayProperties().opacity();
    element->SetMainTransparency(TMath::Min(100, 90 + transp / 10));
 
    TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
@@ -193,8 +193,8 @@ FWJetRhoPhiProxyBuilder::localModelChanges(const FWModelId& iId, TEveElement* iC
   TEveElement* cone = iCompound->FindChild("cone");
   if (cone)
   {
-     UChar_t transp = 100 - dp.opacity();
-     UChar_t cone_transp = TMath::Min(100, 90 + transp / 10);
+     Char_t transp = 100 - dp.opacity();
+     Char_t cone_transp = TMath::Min(100, 90 + transp / 10);
      cone->SetMainTransparency(cone_transp);
   }
 }
@@ -319,7 +319,7 @@ FWJetRhoZProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveE
    element->RefMainTrans().RotateLF( 1, 3, M_PI/2 );
    setupAddElement(element, &oItemHolder);
 
-   UChar_t transp = 100 - item()->defaultDisplayProperties().opacity();
+   Char_t transp = 100 - item()->defaultDisplayProperties().opacity();
    element->SetMainTransparency(TMath::Min(100, 90 + transp / 10));
 
 }
@@ -333,8 +333,8 @@ FWJetRhoZProxyBuilder::localModelChanges(const FWModelId& iId, TEveElement* iCom
   TEveElement* cone = iCompound->FindChild("cone");
   if (cone)
   {
-     UChar_t transp = 100 - dp.opacity();
-     UChar_t cone_transp = TMath::Min(100, 90 + transp / 10);
+     Char_t transp = 100 - dp.opacity();
+     Char_t cone_transp = TMath::Min(100, 90 + transp / 10);
      cone->SetMainTransparency(cone_transp);
   }
 }
