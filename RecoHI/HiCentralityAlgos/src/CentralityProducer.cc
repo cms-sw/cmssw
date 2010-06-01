@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.15 2010/03/04 17:35:01 yilmaz Exp $
+// $Id: CentralityProducer.cc,v 1.16 2010/03/20 12:23:00 yilmaz Exp $
 //
 //
 
@@ -149,11 +149,12 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      iEvent.getByLabel(srcHFhits_,hits);
      for( size_t ihit = 0; ihit<hits->size(); ++ ihit){
 	const HFRecHit & rechit = (*hits)[ ihit ];
-	creco->etHFhitSumPlus_ += rechit.energy()/2;
-	creco->etHFhitSumMinus_ += rechit.energy()/2;
+        if(rechit.id().ieta() > 0 )
+	   creco->etHFhitSumPlus_ += rechit.energy();
+        if(rechit.id().ieta() < 0)
+	   creco->etHFhitSumMinus_ += rechit.energy();
      }       
-     
-  }
+   }
   
   if(produceHFtowers_){
      creco->etHFtowerSumPlus_ = 0;
