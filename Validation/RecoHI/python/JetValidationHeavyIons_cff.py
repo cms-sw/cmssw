@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 ### genjet cleaning for improved matching in HI environment
 
 iterativeCone5HiCleanedGenJets = cms.EDProducer('HiGenJetCleaner',
-  src    = cms.untracked.string('iterativeCone5HiGenJets'),
+  src    = cms.untracked.InputTag('iterativeCone5HiGenJets'),
   deltaR = cms.untracked.double(0.25),
   ptCut  = cms.untracked.double(20),
   createNewCollection = cms.untracked.bool(True),
@@ -11,7 +11,7 @@ iterativeCone5HiCleanedGenJets = cms.EDProducer('HiGenJetCleaner',
 )
 
 iterativeCone7HiCleanedGenJets = cms.EDProducer('HiGenJetCleaner',
-  src    = cms.untracked.string('iterativeCone7HiGenJets'),
+  src    = cms.untracked.InputTag('iterativeCone7HiGenJets'),
   deltaR = cms.untracked.double(0.25),
   ptCut  = cms.untracked.double(20),
   createNewCollection = cms.untracked.bool(True),
@@ -19,7 +19,7 @@ iterativeCone7HiCleanedGenJets = cms.EDProducer('HiGenJetCleaner',
 )
 
 ak5HiCleanedGenJets = cms.EDProducer('HiGenJetCleaner',
-  src    = cms.untracked.string('ak5HiGenJets'),
+  src    = cms.untracked.InputTag('ak5HiGenJets'),
   deltaR = cms.untracked.double(0.25),
   ptCut  = cms.untracked.double(20),
   createNewCollection = cms.untracked.bool(True),
@@ -27,7 +27,7 @@ ak5HiCleanedGenJets = cms.EDProducer('HiGenJetCleaner',
 )
 
 ak7HiCleanedGenJets = cms.EDProducer('HiGenJetCleaner',
-  src    = cms.untracked.string('ak7HiGenJets'),
+  src    = cms.untracked.InputTag('ak7HiGenJets'),
   deltaR = cms.untracked.double(0.25),
   ptCut  = cms.untracked.double(20),
   createNewCollection = cms.untracked.bool(True),
