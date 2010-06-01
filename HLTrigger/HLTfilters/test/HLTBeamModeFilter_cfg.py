@@ -70,10 +70,18 @@ process.hltBeamModeFilter.AllowedBeamMode = cms.vuint32(9, 10, 11)
 # for RAW data, run first the RAWTODIGI 
 if (dataType == 'RAW') and not (useRelValSample) :
     process.load('Configuration/StandardSequences/RawToDigi_Data_cff')
+    process.gtEvmDigis.UnpackBxInEvent = cms.int32(1)
+    # set EVM unpacker to verbose
+    process.gtEvmDigis.Verbosity = cms.untracked.int32(1)
+
     process.p = cms.Path(process.RawToDigi * process.hltBeamModeFilter)
 
 elif (dataType == 'RAW') and (useRelValSample) :
     process.load('Configuration/StandardSequences/RawToDigi_cff')
+    process.gtEvmDigis.UnpackBxInEvent = cms.int32(1)
+    # set EVM unpacker to verbose
+    process.gtEvmDigis.Verbosity = cms.untracked.int32(1)
+
     process.p = cms.Path(process.RawToDigi * process.hltBeamModeFilter)
     
 else :        
@@ -84,7 +92,8 @@ else :
 
 # Message Logger
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.MessageLogger.debugModules = ['hltBeamModeFilter']
+process.MessageLogger.debugModules = ['gtEvmDigis', 'hltBeamModeFilter']
+process.MessageLogger.categories.append('L1GlobalTriggerEvmRawToDigi')
 process.MessageLogger.categories.append('HLTBeamModeFilter')
 #process.MessageLogger.destinations = ['cerr']
 
@@ -98,6 +107,7 @@ process.MessageLogger.cerr.INFO = cms.untracked.PSet( limit = cms.untracked.int3
 process.MessageLogger.cerr.WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) )
 process.MessageLogger.cerr.ERROR = cms.untracked.PSet( limit = cms.untracked.int32(0) )
 
+process.MessageLogger.cerr.L1GlobalTriggerEvmRawToDigi = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
 process.MessageLogger.cerr.HLTBeamModeFilter = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
 
 
