@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.51 2010/03/12 13:53:44 gpetrucc Exp $
+// $Id: MuonIdProducer.cc,v 1.52 2010/03/25 14:08:49 jribnik Exp $
 //
 //
 
@@ -542,7 +542,9 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	LogDebug("MuonIdentification");
 
 	// timers.push("MuonIdProducer::produce::fillCaloCompatibility");
-	if ( fillCaloCompatibility_ ) muon->setCaloCompatibility( muonCaloCompatibility_.evaluate(*muon) );
+	if ( fillCaloCompatibility_ ) {
+	  muon->setCaloCompatibility( muonCaloCompatibility_.evaluate(*muon) );
+	}
 	// timers.pop();
 	
 	// timers.push("MuonIdProducer::produce::fillIsolation");
@@ -652,8 +654,10 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
       muonEnergy.towerS9 = info.nXnEnergy(TrackDetMatchInfo::TowerTotal,1);  // 3x3 energy
       muonEnergy.ecal_position = info.trkGlobPosAtEcal;
       muonEnergy.hcal_position = info.trkGlobPosAtHcal;
+      muonEnergy.ho_position = info.trkGlobPosAtHO;
       if (! info.crossedEcalIds.empty() ) muonEnergy.ecal_id = info.crossedEcalIds.front();
       if (! info.crossedHcalIds.empty() ) muonEnergy.hcal_id = info.crossedHcalIds.front();
+      if (! info.crossedHOIds.empty() ) muonEnergy.ho_id = info.crossedHOIds.front();
       // find maximal energy depositions and their time
       DetId emMaxId      = info.findMaxDeposition(TrackDetMatchInfo::EcalRecHits,2); // max energy deposit in 5x5 shape
       for(std::vector<const EcalRecHit*>::const_iterator hit=info.ecalRecHits.begin(); 
@@ -668,6 +672,13 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
 	 if ((*hit)->id() != hadMaxId) continue;
 	 muonEnergy.hadMax   = (*hit)->energy();
 	 muonEnergy.hcal_time = (*hit)->time();
+      }
+      DetId hoMaxId = info.findMaxDeposition(TrackDetMatchInfo::HORecHits,1);
+      for(std::vector<const HORecHit*>::const_iterator hit=info.hoRecHits.begin();
+	  hit != info.hoRecHits.end(); ++hit) {
+	if ((*hit)->id() != hoMaxId) continue;
+	muonEnergy.hoMax = (*hit)->energy();
+	muonEnergy.ho_time = (*hit)->time();
       }
       aMuon.setCalEnergy( muonEnergy );
    }

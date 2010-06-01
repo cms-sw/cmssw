@@ -13,6 +13,7 @@
 <use name="roothistmatrix">
 <use name="RecoMuon/TrackingTools">
 <use name="DataFormats/CSCRecHit">
+<use Name=RecoLocalCalo/HcalRecAlgos>
 <export>
   <use name="DataFormats/DetId">
   <use name="DataFormats/MuonDetId">
