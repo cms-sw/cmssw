@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.55 2010/05/12 16:35:11 amraktad Exp $
+// $Id: FWDetailViewManager.cc,v 1.56 2010/06/01 19:02:09 amraktad Exp $
 //
 
 #include <stdio.h>
@@ -49,7 +49,6 @@ FWDetailViewManager::FWDetailViewManager(FWColorManager* colMng):
    m_eveFrame(0),
    m_detailView(0)
 {  
-   TQObject::Connect(gEve->GetWindowManager(), "WindowDeleted(TEveWindow*)", "FWDetailViewManager", this, "eveWindowDestroyed(TEveWindow*)");   
    m_colorManager->colorsHaveChanged_.connect(boost::bind(&FWDetailViewManager::colorsChanged,this));
 }
 
@@ -177,7 +176,7 @@ FWDetailViewManager::newEventCallback()
    if (m_detailView)
    {
       TGMainFrame* mf = (TGMainFrame*)m_eveFrame->GetParent();
-      mf->UnmapWindow();
+      mf->CloseWindow();
    }
 }
 
