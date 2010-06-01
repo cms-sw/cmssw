@@ -12,8 +12,8 @@
  *  which had a problem with directories more than one level deep.
  *  (see macro hadd_old.C for this previous implementation).
  *
- *  $Date: 2008/02/25 10:06:47 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/06/08 17:48:23 $
+ *  $Revision: 1.7 $
  *
  *  Authors:
  *  A. Everett Purdue University
@@ -68,7 +68,8 @@ int main(int argc, char *argv[] )
   desc.add_options()
     ("help,h","Print this help message")
     ("infile,i",   boost::program_options::value<std::string>(),
-     "Input file name (Default is validation.root)") 
+     //     "Input file name (Default is validation.root)") 
+     "Input file name") 
     ("outfile,o",  boost::program_options::value<std::string>(),
      "Sets output files to <outfile>.root/.pdf (default is canvas)")
     ("pdf,p",
@@ -117,7 +118,7 @@ int main(int argc, char *argv[] )
     makeGraphic = true ; 
   } 
   if (vmap.count("infile")) {
-    infileName = vmap["infile"].as<std::string>() ;     
+    infileName = vmap["infile"].as<std::string>() ;
     /*
     ifstream inFile(infileName.c_str()) ;
     if (inFile.is_open()) { //--- input files listed in a file ---//
@@ -128,7 +129,7 @@ int main(int argc, char *argv[] )
       }
     } else 
     */
-{ //--- Assume the file is a space-separated list of files -//
+    { //--- Assume the file is a space-separated list of files -//
       unsigned int strStart = 0 ; 
       for (unsigned int itr=infileName.find(" ",0); itr!=std::string::npos;
 	   itr=infileName.find(" ",itr)) {
@@ -140,7 +141,11 @@ int main(int argc, char *argv[] )
       inFileVector.push_back( infileName.substr(strStart,infileName.length()) ); 
     }
   }
-  
+  else {
+    cout << " *** No input file given: please define one " << endl;
+    return 0;
+  }
+
   TDirectory *target = TFile::Open(TString(outname),"RECREATE");
   
   baseName = new TString(outbase);
