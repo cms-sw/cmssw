@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.52 2010/04/27 01:59:13 gbauer Exp $
+# $Id: setup_sm.sh,v 1.53 2010/04/27 09:58:15 gbauer Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh
@@ -49,6 +49,11 @@ fi
 t0inject="~smpro/scripts/t0inject.sh"
 if test -e "/opt/injectworker/inject/t0inject.sh"; then
     t0inject="/opt/injectworker/inject/t0inject.sh"
+fi
+
+t0notify="~smpro/scripts/t0notify.sh"
+if test -e "/opt/injectworker/inject/t0notify.sh"; then
+    t0notify="/opt/injectworker/inject/t0notify.sh"
 fi
 
 # For xfs_admin
@@ -189,6 +194,44 @@ startinjectworker () {
     su - smpro -c "$t0inject start"
 }
 
+startnotifyworker () {
+    checkSLCversion
+    local local_file="/opt/injectworker/.db.conf"
+    local reference_file="/nfshome0/smpro/configuration/db.conf"
+
+    if test -f "$reference_file"; then
+        if test -s "$local_file"; then
+            local local_time=`stat -t $local_file 2>/dev/null | cut -f13 -d' '`
+            local reference_time=`stat -t $reference_file 2>/dev/null | cut -f13 -d' '`
+            if test $reference_time -gt $local_time; then
+                logger -s -t "SM INIT" "INFO: $reference_file is more recent than $local_file"
+                logger -s -t "SM INIT" "INFO: I will overwrite the local configuration"
+                mv $local_file $local_file.old.$local_time
+                su - smpro -c "cp $reference_file $local_file"
+                sed -i "1i# File copied from $reference_file on `date`" $local_file
+                chmod 400 $local_file
+                chown smpro.smpro $local_file
+            fi
+        else
+            if [ -f "$local_file" ]; then
+                logger -s -t "SM INIT" "WARNING: $local_file is empty, copying from $reference_file"
+                rm -f "$local_file"
+            else
+                logger -s -t "SM INIT" "WARNING: $local_file doesn't exist, copying from $reference_file"
+            fi
+            su - smpro -c "cp $reference_file $local_file"
+            sed -i "1i# File copied from $reference_file on `date`" $local_file
+            chmod 400 $local_file
+            chown smpro.smpro $local_file
+        fi
+    else
+        logger -s -t "SM INIT" "WARNING: Can not read $reference_file"
+    fi
+
+    su - smpro -c "$t0notify stop" >/dev/null 2>&1
+    su - smpro -c "$t0notify start"
+}
+
 startcopymanager () {
     checkSLCversion
     local local_file="/opt/copymanager/TransferSystem_Cessy.cfg"
@@ -326,6 +369,7 @@ start () {
     startcopymanager
     startcopyworker
     startinjectworker
+    startnotifyworker
 
     return 0
 }
@@ -349,6 +393,10 @@ stopcopyworker () {
 stopinjectworker () {
     su - smpro -c "$t0inject stop"
     rm -f /tmp/.20*-${hname}-*.log.lock
+}
+
+stopnotifyworker () {
+    su - smpro -c "$t0notify stop"
 }
 
 stopcopymanager () {
@@ -504,6 +552,18 @@ case "$1" in
         su - smpro -c "$t0inject status"
         RETVAL=$?
         ;;
+    startnotify)
+        startnotifyworker
+        RETVAL=$?
+        ;;
+    stopnotify)
+        stopnotifyworker
+        RETVAL=$?
+        ;;
+    statusnotify)
+        su - smpro -c "$t0notify status"
+        RETVAL=$?
+        ;;
     startcopy)
         startcopyworker
         RETVAL=$?
@@ -529,7 +589,8 @@ case "$1" in
         RETVAL=$?
         ;;
     *)
-        echo $"Usage: $0 {start|stop|status|startinject|stopinject|statusinject|startcopy|stopcopy|statuscopy|startmanager|stopmanager|statusmanager}"
+        echo $"Usage: $0
+        {start|stop|status|startinject|stopinject|statusinject|startnotify|stopnotify|statusnotify|startcopy|stopcopy|statuscopy|startmanager|stopmanager|statusmanager}"
         RETVAL=1
         ;;
 esac

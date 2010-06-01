@@ -1,5 +1,5 @@
 #!/bin/sh
-#$Id: t0inject.sh,v 1.18 2008/11/08 19:30:44 loizides Exp $
+#$Id$
 
 . /etc/init.d/functions
 
@@ -27,10 +27,10 @@ if [ ! -d $SMT0_BASE_DIR ]; then
 fi
 
 # main perl script
-SMT0_IW=$SMT0_BASE_DIR/InjectWorker.pl
+SMT0_NW=$SMT0_BASE_DIR/NotifyWorker.pl
 
-if [ ! -x $SMT0_IW ]; then
-    echo "SMT0_IW ($SMT0_IW)does not exist or is not executable"
+if [ ! -x $SMT0_NW ]; then
+    echo "SMT0_NW ($SMT0_NW)does not exist or is not executable"
     exit
 fi
 
@@ -68,14 +68,14 @@ start(){
 
     cd ${SMT0_LOCAL_RUN_DIR}/workdir
 
-    echo "Starting $SMT0_IW"
-    nohup ${SMT0_IW} ${SMT0_MONDIR} ${SMT0_LOCAL_RUN_DIR}/logs \
+    echo "Starting $SMT0_NW"
+    nohup ${SMT0_NW} ${SMT0_MONDIR} ${SMT0_LOCAL_RUN_DIR}/logs \
         ${SMT0_CONFIG} > `hostname`.$$ 2>&1 &
-        sleep 1
+    sleep 1
 }
 
 stop(){
-    for pid in `ps ax | grep ${SMT0_IW} | grep -v grep | cut -b1-6 | tr -d " "`; do
+    for pid in `ps ax | grep ${SMT0_NW} | grep -v grep | cut -b1-6 | tr -d " "`; do
 	echo "Attempting to stop worker with pid $pid"
 	kill -s 15 $pid
     done
@@ -84,7 +84,7 @@ stop(){
 }
 
 status(){
-    for pid in `ps ax | grep ${SMT0_IW} | grep -v grep | cut -b1-6 | tr -d " "`; do
+    for pid in `ps ax | grep ${SMT0_NW} | grep -v grep | cut -b1-6 | tr -d " "`; do
 	echo `/bin/ps $pid | grep $pid`
     done
 }
