@@ -35,8 +35,6 @@ public:
    virtual ~FWDetailViewBase ();
 
    void  build (const FWModelId&);
-   TEveWindow*  getEveWindow() { return m_eveWindow; }
-   void         setEveWindow(TEveWindow* w) { m_eveWindow = w;} 
 
    virtual void init(TEveWindowSlot*) = 0;
    virtual void setBackgroundColor(Color_t col) {}
@@ -58,8 +56,7 @@ private:
 
    virtual void build(const FWModelId&, const void*) = 0;
   
-   const FWEventItem        *m_item;   
-   TEveWindow         *m_eveWindow;
+   const FWEventItem  *m_item;   
    FWSimpleProxyHelper m_helper;
 };
 

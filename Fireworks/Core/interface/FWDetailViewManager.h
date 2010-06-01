@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:43 EST 2008
-// $Id: FWDetailViewManager.h,v 1.21 2009/10/31 22:37:35 chrjones Exp $
+// $Id: FWDetailViewManager.h,v 1.22 2010/05/12 16:35:10 amraktad Exp $
 //
 #include <map>
 #include <string>
@@ -32,11 +32,13 @@ class FWDetailViewManager
 public:
    FWDetailViewManager(FWColorManager*);
    virtual ~FWDetailViewManager();
+
    std::vector<std::string> detailViewsFor(const FWModelId&) const;
+   void assertMainFrame();
    void openDetailViewFor(const FWModelId&, const std::string&);
    void colorsChanged();
    void newEventCallback();
-
+   void eveWindowDestroyed();
 private:
    FWDetailViewManager(const FWDetailViewManager&);    // stop default
    const FWDetailViewManager& operator=(const FWDetailViewManager&);    // stop default
@@ -44,12 +46,10 @@ private:
 
 protected:
    FWColorManager                *m_colorManager;
-
-   TGMainFrame                   *m_mainFrame;
-   TEveCompositeFrameInMainFrame *m_eveFrame; // cached
+   TEveCompositeFrameInMainFrame *m_eveFrame;
    FWDetailViewBase              *m_detailView;
-
    std::map<std::string, FWDetailViewBase *>  m_detailViews;
+
    mutable std::map<std::string, std::vector<std::string> > m_typeToViewers;
 };
 #endif

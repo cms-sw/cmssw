@@ -6,6 +6,7 @@
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Core/interface/TEveElementIter.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
+#include "Fireworks/Core/interface/FWDetailViewManager.h"
 #include "Fireworks/Core/interface/FWEveViewManager.h"
 #include "Fireworks/Core/interface/CmsShowEDI.h"
 #include "Fireworks/Core/interface/CmsShowColorPopup.h"

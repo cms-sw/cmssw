@@ -6,6 +6,7 @@
   <class name="DetIdToMatrix::Range"/>
   <class name="TEveElementIter"/>
   <class name="FWGUIManager"/>
+  <class name="FWDetailViewManager"/>
   <class name="FWEveViewManager"/>
   <class name="CmsShowEDI"/>
   <class name="FWGUIValidatingTextEntry"/>

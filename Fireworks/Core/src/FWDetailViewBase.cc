@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan  9 13:35:56 EST 2009
-// $Id: FWDetailViewBase.cc,v 1.20 2010/01/14 15:55:13 amraktad Exp $
+// $Id: FWDetailViewBase.cc,v 1.21 2010/01/21 21:01:33 amraktad Exp $
 //
 
 // system include files
@@ -32,15 +32,14 @@
 
 FWDetailViewBase::FWDetailViewBase(const std::type_info& iInfo) :
    m_item(0),
-   m_eveWindow(0),
    m_helper(iInfo)
 {
 }
 
 FWDetailViewBase::~FWDetailViewBase()
 {
-   if (m_eveWindow) m_eveWindow->DestroyWindow();
 }
+
 
 void
 FWDetailViewBase::build (const FWModelId &iID)

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.54 2010/05/06 18:03:08 amraktad Exp $
+// $Id: FWDetailViewManager.cc,v 1.55 2010/05/12 16:35:11 amraktad Exp $
 //
 
 #include <stdio.h>
@@ -32,20 +32,6 @@
 #include "Fireworks/Core/interface/FWRepresentationInfo.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
-class DetailViewFrame : public TGMainFrame
-{
-public:
-   DetailViewFrame():
-      TGMainFrame(gClient->GetRoot(), 790, 450)
-   {
-   };
-
-   virtual void CloseWindow()
-   {
-      UnmapWindow();
-   }
-};
-
 
 static
 std::string viewNameFrom(const std::string& iFull)
@@ -60,27 +46,11 @@ std::string viewNameFrom(const std::string& iFull)
 //
 FWDetailViewManager::FWDetailViewManager(FWColorManager* colMng):
    m_colorManager(colMng),
-   m_mainFrame(0),
    m_eveFrame(0),
    m_detailView(0)
-{
+{  
+   TQObject::Connect(gEve->GetWindowManager(), "WindowDeleted(TEveWindow*)", "FWDetailViewManager", this, "eveWindowDestroyed(TEveWindow*)");   
    m_colorManager->colorsHaveChanged_.connect(boost::bind(&FWDetailViewManager::colorsChanged,this));
-   m_mainFrame = new DetailViewFrame();
-   m_mainFrame->SetCleanup(kLocalCleanup);
-
-   m_eveFrame = new TEveCompositeFrameInMainFrame(m_mainFrame, 0, m_mainFrame);
-   // For now we want to keep a single detailed-view main-frame.
-   // As TGMainFrame very reasonably emits the CloseWindow signal even if CloseWindow() is
-   // overriden and does not close the window (DetailViewFrame does that and just unmaps the window).
-   // So ... as we want to keep the main-frame, eve-frame-in-main-frame must not listen
-   // to this signal as it gets emitted erroneously.
-   // Probably the right place to fix this is in ROOT - but API and signal logick would have to change.
-   m_mainFrame->Disconnect("CloseWindow()", m_eveFrame, "MainFrameClosed()");
-
-   TEveWindowSlot* ew_slot = TEveWindow::CreateDefaultWindowSlot();
-   ew_slot->PopulateEmptyFrame(m_eveFrame);
-
-   m_mainFrame->AddFrame(m_eveFrame, new TGLayoutHints(kLHintsNormal | kLHintsExpandX | kLHintsExpandY));
 }
 
 FWDetailViewManager::~FWDetailViewManager()
@@ -94,8 +64,11 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id, const std::string& i
 {
    if (m_detailView != 0)
    {
+      m_eveFrame->GetEveWindow()->DestroyWindow();
       delete m_detailView;
    }
+   assertMainFrame();
+   
 
    // find the right viewer for this item
    std::string typeName = ROOT::Reflex::Type::ByTypeInfo(*(id.item()->modelType()->GetTypeInfo())).Name(ROOT::Reflex::SCOPED);
@@ -123,12 +96,9 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id, const std::string& i
    TEveWindowSlot* ws  = (TEveWindowSlot*)(m_eveFrame->GetEveWindow());
    m_detailView->init(ws);
    m_detailView->build(id);
-   m_mainFrame->SetWindowName(Form("%s Detail View [%d]", id.item()->name().c_str(), id.index()));
-   m_mainFrame->MapSubwindows();
-   m_mainFrame->Layout();
-   m_mainFrame->MapRaised();
 
-   colorsChanged();
+   TGMainFrame* mf = (TGMainFrame*)(m_eveFrame->GetParent());
+   mf->MapRaised();
 }
 
 std::vector<std::string>
@@ -181,7 +151,6 @@ FWDetailViewManager::findViewersFor(const std::string& iType) const
    return returnValue;
 }
 
-
 void
 FWDetailViewManager::colorsChanged()
 {
@@ -191,8 +160,31 @@ FWDetailViewManager::colorsChanged()
 }
 
 void
-FWDetailViewManager::newEventCallback()
+FWDetailViewManager::assertMainFrame()
 {
-   m_mainFrame->UnmapWindow();
+   if (m_eveFrame == 0)
+   {
+      TEveWindowSlot* slot = TEveWindow::CreateWindowMainFrame();
+      m_eveFrame = (TEveCompositeFrameInMainFrame*)slot->GetEveFrame();
+      TGMainFrame* mf = (TGMainFrame*)m_eveFrame->GetParent();
+      mf->Connect( "Destroyed()", "FWDetailViewManager", this, "eveWindowDestroyed()");   
+   }
 }
 
+void
+FWDetailViewManager::newEventCallback()
+{
+   if (m_detailView)
+   {
+      TGMainFrame* mf = (TGMainFrame*)m_eveFrame->GetParent();
+      mf->UnmapWindow();
+   }
+}
+
+void
+FWDetailViewManager::eveWindowDestroyed()
+{
+   delete  m_detailView;
+   m_detailView = 0;
+   m_eveFrame =0 ;
+}
