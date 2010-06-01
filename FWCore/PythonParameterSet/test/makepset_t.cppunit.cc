@@ -5,7 +5,7 @@
  *  Created by Chris Jones on 5/18/05.
  *  Changed by Viji Sundararajan on 11-Jul-05.
  *
- * $Id: makepset_t.cppunit.cc,v 1.3 2009/11/06 02:44:31 wmtan Exp $
+ * $Id: makepset_t.cppunit.cc,v 1.4 2010/02/04 02:20:53 rpw Exp $
  */
 
 #include <algorithm>
@@ -221,7 +221,10 @@ void testmakepset::fileinpathAux()
   edm::FileInPath ufip = innerps.getUntrackedParameter<edm::FileInPath>("ufip");
   CPPUNIT_ASSERT( innerps.existsAs<int>("extraneous") );
   CPPUNIT_ASSERT( !innerps.existsAs<int>("absent") );
-  CPPUNIT_ASSERT( fip.isLocal() == true );
+  if(0!=getenv("CMSSW_RELEASE_BASE")) {
+    //if the above is not true then local becomes release and the following is false
+    CPPUNIT_ASSERT( fip.isLocal() == true );
+  }
   CPPUNIT_ASSERT( fip.relativePath()  == "FWCore/ParameterSet/python/Config.py" );
   CPPUNIT_ASSERT( ufip.relativePath() == "FWCore/ParameterSet/python/Types.py" );
   std::string fullpath = fip.fullPath();
