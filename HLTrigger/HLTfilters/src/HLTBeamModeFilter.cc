@@ -75,6 +75,18 @@ HLTBeamModeFilter::~HLTBeamModeFilter() {
 bool HLTBeamModeFilter::filter(edm::Event& iEvent,
         const edm::EventSetup& evSetup) {
 
+    // for MC samples, return always true (not even checking validity of L1GlobalTriggerEvmReadoutRecord)
+    // eventually, the BST information will be filled also in MC simulation to spare this check
+
+    if (!(iEvent.isRealData())) {
+        //LogDebug("HLTBeamModeFilter") << "\nRunning on MC sample."
+        //        << "\nAll events are automatically selected, without testing the beam mode"
+        //        << "\n" << std::endl;
+        return true;
+    }
+
+    // data
+
     // initialize filter result
     bool filterResult = false;
 
