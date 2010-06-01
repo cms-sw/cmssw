@@ -77,5 +77,6 @@ muonValidationFastSim_seq = cms.Sequence(trkMuonTrackVTrackAssocFS
 
 
 # The muon association and validation sequence
-recoMuonValidationFastSim = cms.Sequence(muonAssociationFastSim_seq*muonValidationFastSim_seq)
+recoMuonAssociationFastSim = cms.Sequence(muonAssociationFastSim_seq)
+recoMuonValidationFastSim = cms.Sequence(muonValidationFastSim_seq)
 

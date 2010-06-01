@@ -16,6 +16,10 @@ HLTMuonVal = cms.Sequence(
     relvalMuonBits
     )
 
+HLTMuonAss_FastSim = cms.Sequence(
+    recoMuonValidationHLTFastSim_seq
+    )
+
 HLTMuonVal_FastSim = cms.Sequence(
     recoMuonValidationHLTFastSim_seq +
     hltMuonValidator

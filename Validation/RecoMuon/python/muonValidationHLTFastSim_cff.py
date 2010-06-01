@@ -59,7 +59,5 @@ muonValidationHLTFastSim_seq = cms.Sequence(
 
 
 # The muon HLT association and validation sequence
-recoMuonValidationHLTFastSim_seq = cms.Sequence(
-     muonAssociationHLTFastSim_seq
-     *muonValidationHLTFastSim_seq
-     )
+recoMuonAssociationHLTFastSim_seq = cms.Sequence(muonAssociationHLTFastSim_seq)
+recoMuonValidationHLTFastSim_seq = cms.Sequence(muonValidationHLTFastSim_seq)
