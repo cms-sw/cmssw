@@ -4,6 +4,7 @@
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeSpecification.h"
 #include "CoralBase/Exception.h"
+#include "CoralBase/TimeStamp.h"
 #include "RelationalAccess/ConnectionService.h"
 #include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/ITransaction.h"
@@ -44,6 +45,8 @@ namespace lumi{
       std::string sequence;
       std::string hltkey;
       std::string fillnumber; //convert to number when write into lumi
+      coral::TimeStamp startT;
+      coral::TimeStamp stopT;
     };
   };//cl CMSRunSummary2DB
   //
@@ -56,6 +59,9 @@ namespace lumi{
        sequence: select string_value from cms_runinfo.runsession_parameter where runnumber=129265 and name='CMS.LVL0:SEQ_NAME'
        hltkey: select string_value from cms_runinfo.runsession_parameter where runnumber=129265 and name='CMS.LVL0:HLT_KEY_DESCRIPTION';
        fillnumber: select string_value from cms_runinfo.runsession_parameter where runnumber=129265 and name='CMS.SCAL:FILLN' and rownum<=1;
+       start/stop time:
+       select time from cms_runinfo.runsession_parameter where runnumber=129265 and name='CMS.LVL0:START_TIME_T';
+       select time from cms_runinfo.runsession_parameter where runnumber=129265 and name='CMS.LVL0:STOP_TIME_T';
     **/
     cmsrunsum result;
     std::string runinfoschema("CMS_RUNINFO");
@@ -127,6 +133,40 @@ namespace lumi{
       result.fillnumber=row["STRING_VALUE"].data<std::string>();
     }
     delete fillQuery;
+
+    coral::IQuery* startTQuery=runinfoschemaHandle.tableHandle(runsessionParamTable).newQuery();
+    coral::AttributeList startTVariableList;
+    startTVariableList.extend("runnumber",typeid(unsigned int));
+    startTVariableList.extend("name",typeid(std::string));
+
+    startTVariableList["runnumber"].data<unsigned int>()=runnumber;
+    startTVariableList["name"].data<std::string>()=std::string("CMS.LVL0:START_TIME_T");
+    startTQuery->setCondition("RUNNUMBER =:runnumber AND NAME =:name",startTVariableList);
+    startTQuery->addToOutputList("TIME"); 
+    coral::ICursor& startTCursor=startTQuery->execute();
+    
+    while( startTCursor.next() ){
+      const coral::AttributeList& row=startTCursor.currentRow();
+      result.startT=row["TIME"].data<coral::TimeStamp>();
+    }
+    delete startTQuery;
+
+    coral::IQuery* stopTQuery=runinfoschemaHandle.tableHandle(runsessionParamTable).newQuery();
+    coral::AttributeList stopTVariableList;
+    stopTVariableList.extend("runnumber",typeid(unsigned int));
+    stopTVariableList.extend("name",typeid(std::string));
+
+    stopTVariableList["runnumber"].data<unsigned int>()=runnumber;
+    stopTVariableList["name"].data<std::string>()=std::string("CMS.LVL0:STOP_TIME_T");
+    stopTQuery->setCondition("RUNNUMBER =:runnumber AND NAME =:name",stopTVariableList);
+    stopTQuery->addToOutputList("TIME"); 
+    coral::ICursor& stopTCursor=stopTQuery->execute();
+    
+    while( stopTCursor.next() ){
+      const coral::AttributeList& row=stopTCursor.currentRow();
+      result.stopT=row["TIME"].data<coral::TimeStamp>();
+    }
+    delete stopTQuery;
     }catch( const coral::Exception& er){
       runinfosession->transaction().rollback();
       delete runinfosession;
@@ -153,6 +193,8 @@ namespace lumi{
       runData["FILLNUM"].data<unsigned int>()=str2int(result.fillnumber);
       runData["SEQUENCE"].data<std::string>()=result.sequence;
       runData["HLTKEY"].data<std::string>()=result.hltkey;
+      runData["STARTTIME"].data<coral::TimeStamp>()=result.startT;
+      runData["STOPTIME"].data<coral::TimeStamp>()=result.stopT;
       destruntable.dataEditor().insertRow(runData);
     }catch( const coral::Exception& er){
       std::cout<<"database problem "<<er.what()<<std::endl;

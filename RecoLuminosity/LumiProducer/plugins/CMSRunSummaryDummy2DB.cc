@@ -7,6 +7,7 @@
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ITable.h"
 #include "RelationalAccess/ITableDataEditor.h"
+#include "CoralBase/TimeStamp.h"
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/AttributeSpecification.h"
 #include "CoralBase/Attribute.h"
@@ -52,6 +53,9 @@ namespace lumi{
       runData["FILLNUM"].data<unsigned int>()=8973344;
       runData["SEQUENCE"].data<std::string>()="run sequence key";
       runData["HLTKEY"].data<std::string>()=fakehltkey;
+      runData["STARTTIME"].data<coral::TimeStamp>()=coral::TimeStamp::now();
+      runData["STOPTIME"].data<coral::TimeStamp>()=coral::TimeStamp::now();
+      
       runtable.dataEditor().insertRow(runData);
     }catch( const coral::Exception& er){
       std::cout<<"database problem "<<er.what()<<std::endl;
