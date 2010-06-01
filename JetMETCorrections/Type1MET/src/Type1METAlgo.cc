@@ -117,10 +117,21 @@ namespace {
 
 
      UDeltaP = sqrt(UDeltaPx*UDeltaPx+UDeltaPy*UDeltaPy);
-     if(UDeltaP<2.) UDeltaP = 2.;
-     double Uscale = 1.+(pow(UscaleA,2.)
-                        +pow(UscaleB,2.)*log(UDeltaP)
-                        +pow((UscaleC*log(UDeltaP)),2.) ) / UDeltaP;
+//  Ulla's Zee additive corection
+//     if(UDeltaP<2.) UDeltaP = 2.;
+//     double Uscale = 1.+(pow(UscaleA,2.)
+//                        +pow(UscaleB,2.)*log(UDeltaP)
+//                        +pow((UscaleC*log(UDeltaP)),2.) ) / UDeltaP;
+
+//  Ulla's Zee multiplicative correction 28May1
+//  UscaleA=1.5,UscaleB=1.8,UscaleC=-0.06 - external parameters
+    double Uscale = UscaleA+UscaleB*exp(UscaleC*UDeltaP);
+
+//  Dayong dijet multiplicative correction 28May10
+//  UscaleA=5.0,UscaleB=1.36,UscaleC=10.79 - external parameters
+//  double Uscale = UscaleA;
+//  if (UDeltaP>3.) Uscale = UscaleB + UscaleC/UDeltaP;
+
      if(useTypeII){
        delta.mex += (Uscale-1.)*UDeltaPx;
        delta.mey += (Uscale-1.)*UDeltaPy;
