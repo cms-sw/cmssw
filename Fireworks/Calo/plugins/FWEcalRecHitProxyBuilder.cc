@@ -11,39 +11,43 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Calo/interface/CaloUtils.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "TEveCompound.h"
 
 class FWEcalRecHitProxyBuilder : public FWSimpleProxyBuilderTemplate<EcalRecHit>
 {
 public:
-	FWEcalRecHitProxyBuilder(void) 
+	FWEcalRecHitProxyBuilder( void ) 
     {}
 	
-	virtual ~FWEcalRecHitProxyBuilder(void) 
+	virtual ~FWEcalRecHitProxyBuilder( void ) 
     {}
 	
 	REGISTER_PROXYBUILDER_METHODS();
 	
 private:
 	// Disable default copy constructor
-	FWEcalRecHitProxyBuilder(const FWEcalRecHitProxyBuilder&);
+	FWEcalRecHitProxyBuilder( const FWEcalRecHitProxyBuilder& );
 	// Disable default assignment operator
-	const FWEcalRecHitProxyBuilder& operator=(const FWEcalRecHitProxyBuilder&);
+	const FWEcalRecHitProxyBuilder& operator=( const FWEcalRecHitProxyBuilder& );
 	
-	void build(const EcalRecHit& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*);
+	void build( const EcalRecHit& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* );
 };
 
 void
-FWEcalRecHitProxyBuilder::build(const EcalRecHit& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) 
+FWEcalRecHitProxyBuilder::build( const EcalRecHit& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) 
 {
-	std::vector<TEveVector> corners = item()->getGeom()->getPoints(iData.detid());
+	std::vector<TEveVector> corners = item()->getGeom()->getPoints( iData.detid() );
 	if( corners.empty() ) {
 		return;
 	}
-	Float_t scale = 10.0; 	// FIXME: The scale should be taken form somewhere else
-	
-	fireworks::drawEnergyTower3D(corners, iData.energy() * scale, &oItemHolder, this);
+	Float_t scale = 10.0;
+	if( EcalSubdetector( iData.detid().subdetId() ) == EcalPreshower )
+		scale = 1000.0; 	// FIXME: The scale should be taken form somewhere else
+
+	fireworks::drawEnergyTower3D( corners, iData.energy() * scale, &oItemHolder, this );
 }
 
-REGISTER_FWPROXYBUILDER(FWEcalRecHitProxyBuilder, EcalRecHit, "Ecal RecHit", FWViewType::kISpyBit );
+REGISTER_FWPROXYBUILDER( FWEcalRecHitProxyBuilder, EcalRecHit, "Ecal RecHit", FWViewType::kISpyBit );
