@@ -4,15 +4,19 @@
 
 #include<cmath>
 #include<utility>
-
+#ifdef __SSE2__
 # include <emmintrin.h>
+#endif
 namespace fastmath {
   inline float invSqrt( float in ) {
-    // return 1.f/std::sqrt(in);
+#ifndef __SSE2__
+    return 1.f/std::sqrt(in);
+#else
     float out;
     _mm_store_ss( &out, _mm_rsqrt_ss( _mm_load_ss( &in ) ) ); // compiles to movss, rsqrtss, movss
     // return out; // already good enough!
     return out * (1.5f - 0.5f * in * out * out); // One (more?) round of Newton's method
+#endif
   }
 
   inline double invSqrt(double in ) {
