@@ -7,15 +7,17 @@
 // 
 //
 // Description: performs phi-symmetry calibration
-//
+// 
 //
 // Original Author:  David Futyan
+//
+// Responsible    :  Stefano Argiro, Valentina Sola
+//
 
 #include <vector>
 
-// obsolete #include "Geometry/Vector/interface/GlobalPoint.h"
+#include "Calibration/EcalCalibAlgos/interface/EcalGeomPhiSymHelper.h"
 
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 // Framework
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -24,16 +26,11 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibMapEcal.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-#include "TFile.h"
-#include "TTree.h"
-#include "TH1F.h"
-#include "TF1.h"
-#include "TGraph.h"
-#include "TCanvas.h"
+
+class TH1F;
 
 class PhiSymmetryCalibration :  public edm::EDAnalyzer
 {
@@ -48,7 +45,7 @@ class PhiSymmetryCalibration :  public edm::EDAnalyzer
 
   /// Called at beginning of job
   virtual void beginJob();
-  virtual void beginRun(edm::Run const &, edm::EventSetup const &){}
+
 
   /// Called at end of job
   virtual void endJob();
@@ -64,27 +61,17 @@ class PhiSymmetryCalibration :  public edm::EDAnalyzer
   // private member functions
 
   void getKfactors();
-  void fillHistos();
-  void fillConstantsHistos();
+
 
   // private data members
-
-
-  static const int  kBarlRings  = 85;
-  static const int  kBarlWedges = 360;
-  static const int  kSides      = 2;
-
-  static const int  kEndcWedgesX = 100;
-  static const int  kEndcWedgesY = 100;
-
-  static const int  kEndcEtaRings  = 39;
 
   static const int  kNMiscalBinsEB = 21;
   static const float  kMiscalRangeEB;
 
-  //  static const int  kNMiscalBinsEE = 81;
-  static const int  kNMiscalBinsEE = 41; //VS
+  static const int  kNMiscalBinsEE = 41; 
   static const float  kMiscalRangeEE;
+
+  EcalGeomPhiSymHelper e_; 
 
   // Transverse energy sum arrays
   double etsum_barl_[kBarlRings]  [kBarlWedges] [kSides];
@@ -99,30 +86,9 @@ class PhiSymmetryCalibration :  public edm::EDAnalyzer
   double etsum_barl_miscal_[kNMiscalBinsEB][kBarlRings];
   double etsum_endc_miscal_[kNMiscalBinsEE][kEndcEtaRings];
 
-  double esum_barl_[kBarlRings]  [kBarlWedges] [kSides];
-  double esum_endc_[kEndcWedgesX][kEndcWedgesX][kSides];
-  double eta_barl_[kBarlRings]  [kBarlWedges] [kSides];
-  double eta_endc_[kEndcWedgesX][kEndcWedgesX][kSides];
-  double phi_barl_[kBarlRings]  [kBarlWedges] [kSides];
-  double phi_endc_[kEndcWedgesX][kEndcWedgesX][kSides];
+
   double esumMean_barl_[kBarlRings];
   double esumMean_endc_[kEndcEtaRings];
-
-
-  // crystal geometry information
-  double cellEta_[kBarlRings];
-  double cellPhiB_[kBarlWedges];
-
-  GlobalPoint cellPos_[kEndcWedgesX][kEndcWedgesY];
-  double cellPhi_     [kEndcWedgesX][kEndcWedgesY];
-  double cellArea_    [kEndcWedgesX][kEndcWedgesY];
-  double meanCellArea_[kEndcEtaRings];
-  double etaBoundary_ [kEndcEtaRings+1];
-  int endcapRing_     [kEndcWedgesX][kEndcWedgesY];
-  int nRing_          [kEndcEtaRings];
-
-  float delta_Eta[kEndcWedgesX][kEndcWedgesY];
-  float delta_Phi[kEndcWedgesX][kEndcWedgesY];
 
 
   // factors to convert from ET sum deviation to miscalibration
@@ -139,7 +105,7 @@ class PhiSymmetryCalibration :  public edm::EDAnalyzer
   double oldCalibs_endc[kEndcWedgesX][kEndcWedgesY][kSides];
 
   // new calibration constants
-  double newCalibs_barl[kEndcWedgesX][kEndcWedgesX][kSides];
+  double newCalibs_barl[kBarlRings  ][kBarlWedges][kSides];
   double newCalibs_endc[kEndcWedgesX][kEndcWedgesX][kSides];
 
   // calibration constants not multiplied by old ones
@@ -150,24 +116,19 @@ class PhiSymmetryCalibration :  public edm::EDAnalyzer
   float rawconst_barl[kBarlRings][kBarlWedges][kSides];
   float rawconst_endc[kEndcWedgesX][kEndcWedgesX][kSides];   
 
-  // informations about good cells
-  Bool_t goodCell_barl[kBarlRings][kBarlWedges][kSides];
-  Bool_t goodCell_endc[kEndcWedgesX][kEndcWedgesX][kSides];   
-  int nBads_barl[kBarlRings];
-  int nBads_endc[kEndcEtaRings];
-
+ 
   // steering parameters
 
   std::string ecalHitsProducer_;
   std::string barrelHits_;
   std::string endcapHits_;
+
+  // energy cut in the barrel
   double eCut_barl_;
-  double eCut_endc_;  
   
-  // parametrized energy cut EE+ : e_cut = ap + eta_ring*b
-  //                         EE- : e_cut = ap + eta_ring*b
+
+  // parametrized energy cut EE : e_cut = ap + eta_ring*b
   double ap_;
-  double am_;
   double b_;
 
   int eventSet_;
@@ -180,11 +141,22 @@ class PhiSymmetryCalibration :  public edm::EDAnalyzer
   
 
   bool reiteration_;
-  std::string reiterationXMLFileEB_;
-  std::string reiterationXMLFileEE_;
-  CaloMiscalibMapEcal newCalibs_;
-  EcalIntercalibConstants previousCalibs_;
+  std::string oldcalibfile_;
+  
+  /// the old calibration constants (when reiterating, the last ones derived)
+  EcalIntercalibConstants oldCalibs_;
+
   bool isfirstpass_;
+
+
+  // Et and E spectra
+  std::vector<TH1F*> et_spectrum_b_histos; //kBarlEtaRings
+  std::vector<TH1F*> e_spectrum_b_histos;
+  std::vector<TH1F*> et_spectrum_e_histos; //kEndcEtaRings
+  std::vector<TH1F*> e_spectrum_e_histos;
+
+  bool spectra;
+  int  nevents_;
 };
 
 #endif
