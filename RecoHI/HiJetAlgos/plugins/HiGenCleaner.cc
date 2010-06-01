@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Tue Jul 21 04:26:01 EDT 2009
-// $Id: HiGenCleaner.cc,v 1.1 2010/05/04 14:17:24 yilmaz Exp $
+// $Id: HiGenCleaner.cc,v 1.2 2010/05/17 14:50:16 yilmaz Exp $
 //
 //
 
@@ -82,11 +82,11 @@ public:
 
 template <class T2>
 HiGenCleaner<T2>::HiGenCleaner(const edm::ParameterSet& iConfig) :
-   jetSrc_(iConfig.getUntrackedParameter<InputTag>( "src",InputTag("iterativeCone5HiGenJets"))),
-   deltaR_(iConfig.getUntrackedParameter<double>("deltaR",0.125)),
-   ptCut_(iConfig.getUntrackedParameter<double>("ptCut",20)),
-   makeNew_(iConfig.getUntrackedParameter<bool>("createNewCollection",true)),
-   fillDummy_(iConfig.getUntrackedParameter<bool>("fillDummyEntries",true))
+  jetSrc_(iConfig.getParameter<InputTag>( "src")),
+  deltaR_(iConfig.getParameter<double>("deltaR")),
+  ptCut_(iConfig.getParameter<double>("ptCut")),
+  makeNew_(iConfig.getUntrackedParameter<bool>("createNewCollection",true)),
+  fillDummy_(iConfig.getUntrackedParameter<bool>("fillDummyEntries",true))
 {
    std::string alias = jetSrc_.label();
    produces<T2Collection>().setBranchAlias (alias);
