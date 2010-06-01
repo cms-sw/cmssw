@@ -9,6 +9,7 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "RecoEgamma/ElectronIdentification/interface/ElectronIDAlgo.h"
 #include "RecoEgamma/ElectronIdentification/interface/PTDRElectronID.h"
+#include "RecoEgamma/ElectronIdentification/interface/ClassBasedElectronID.h"
 #include "RecoEgamma/ElectronIdentification/interface/CutBasedElectronID.h"
 
 class ElectronIDSelectorCutBased
