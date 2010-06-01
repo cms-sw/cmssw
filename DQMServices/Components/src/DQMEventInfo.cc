@@ -2,9 +2,9 @@
  * \file DQMEventInfo.cc
  * \author M. Zanetti - CERN PH
  * Last Update:
- * $Date: 2009/11/06 09:54:55 $
- * $Revision: 1.26 $
- * $Author: lat $
+ * $Date: 2010/06/01 17:47:10 $
+ * $Revision: 1.27 $
+ * $Author: dellaric $
  *
  */
 
@@ -113,9 +113,14 @@ void DQMEventInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
   
 } 
 
+void DQMEventInfo::beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) {
+
+  lumisecId_->Fill(l.id().luminosityBlock());
+
+}
+
 void DQMEventInfo::analyze(const Event& e, const EventSetup& c){
  
-  lumisecId_->Fill(e.luminosityBlock());
   eventId_->Fill(int64_t(e.id().event()));
 //  eventTimeStamp_->Fill(e.time().value()/(double)0xffffffff);
   eventTimeStamp_->Fill(stampToReal(e.time()));
