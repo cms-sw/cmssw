@@ -5,7 +5,6 @@
  *  Created by Chris Jones on 5/18/05.
  *  Changed by Viji Sundararajan on 11-Jul-05.
  *
- * $Id: makepset_t.cppunit.cc,v 1.4 2010/02/04 02:20:53 rpw Exp $
  */
 
 #include <algorithm>
@@ -221,8 +220,9 @@ void testmakepset::fileinpathAux()
   edm::FileInPath ufip = innerps.getUntrackedParameter<edm::FileInPath>("ufip");
   CPPUNIT_ASSERT( innerps.existsAs<int>("extraneous") );
   CPPUNIT_ASSERT( !innerps.existsAs<int>("absent") );
-  if(0!=getenv("CMSSW_RELEASE_BASE")) {
-    //if the above is not true then local becomes release and the following is false
+  char *releaseBase = getenv("CMSSW_RELEASE_BASE");
+  bool localArea = (releaseBase != 0 && strlen(releaseBase) != 0);
+  if(localArea) {
     CPPUNIT_ASSERT( fip.isLocal() == true );
   }
   CPPUNIT_ASSERT( fip.relativePath()  == "FWCore/ParameterSet/python/Config.py" );
@@ -276,7 +276,9 @@ void testmakepset::fileinpathAux()
 
   edm::ParameterSet const& innerps2 = ps2->getParameterSet("main");
   edm::FileInPath fip2 = innerps2.getParameter<edm::FileInPath>("fip2");
-  CPPUNIT_ASSERT( fip2.isLocal() == true );
+  if (localArea) {
+    CPPUNIT_ASSERT( fip2.isLocal() == true );
+  }
   CPPUNIT_ASSERT( fip2.relativePath() == "tmp.py" );
   std::string fullpath2 = fip2.fullPath();
   std::cerr << "fullPath is: " << fip2.fullPath() << std::endl;
