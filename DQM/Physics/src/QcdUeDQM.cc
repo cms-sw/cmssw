@@ -210,25 +210,31 @@ void QcdUeDQM::beginRun(const Run &run, const EventSetup &iSetup)
   
 
 
-  bool isinit = false;
-  string teststr;
-  for(size_t i=0; i<hltProcNames_.size(); ++i) {
-    if (i>0) 
-      teststr += ", ";
-    teststr += hltProcNames_.at(i);
-    if (hltConfig.init(hltProcNames_.at(i))) {
-      isinit = true;
-      hltUsedResName_ = hltResName_;
-      if (hltResName_.find(':')==string::npos)
-        hltUsedResName_ += "::";
-      else 
-        hltUsedResName_ += ":";
-      hltUsedResName_ += hltProcNames_.at(i);
-      break;
-    }
-  }
 
-  if (!isinit)return;
+
+ // indicating change of HLT cfg at run boundries
+ // for HLTConfigProvider::init()
+ bool isHltCfgChange = false; // currently unused
+
+ bool isinit = false;
+ string teststr;
+ for(size_t i=0; i<hltProcNames_.size(); ++i) {
+   if (i>0) 
+     teststr += ", ";
+   teststr += hltProcNames_.at(i);
+   if ( hltConfig.init( run, iSetup, hltProcNames_.at(i), isHltCfgChange ) ) {
+     isinit = true;
+     hltUsedResName_ = hltResName_;
+     if (hltResName_.find(':')==string::npos)
+       hltUsedResName_ += "::";
+     else 
+       hltUsedResName_ += ":";
+     hltUsedResName_ += hltProcNames_.at(i);
+     break;
+   }
+ }
+ 
+ if (!isinit)return;
 
   // setup "Any" bit
   hltTrgBits_.clear();
