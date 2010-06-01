@@ -5,7 +5,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h" 
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "../interface/CocoaDBMgr.h"
+#include "Alignment/CocoaFit/interface/CocoaDBMgr.h"
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurementInfo.h" 
 #include "CondFormats/DataRecord/interface/OpticalAlignmentsRcd.h" 
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h" 
