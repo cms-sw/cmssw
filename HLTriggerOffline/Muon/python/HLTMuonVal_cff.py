@@ -17,7 +17,7 @@ HLTMuonVal = cms.Sequence(
     )
 
 HLTMuonAss_FastSim = cms.Sequence(
-    recoMuonValidationHLTFastSim_seq
+    recoMuonAssociationHLTFastSim_seq
     )
 
 HLTMuonVal_FastSim = cms.Sequence(
