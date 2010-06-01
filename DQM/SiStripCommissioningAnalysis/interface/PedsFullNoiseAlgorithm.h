@@ -49,7 +49,8 @@ class PedsFullNoiseAlgorithm : public CommissioningAlgorithm {
   /** Analysis parameters */
   float deadStripMax_;
   float noisyStripMin_;
-  
+  float ksProbCut_;
+  std::string noiseDef_;
 };
 
 const PedsFullNoiseAlgorithm::Histo& PedsFullNoiseAlgorithm::hPeds() const { return hPeds_; }
