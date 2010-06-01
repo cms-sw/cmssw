@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 15:09:39 CEST 2010
-// $Id$
+// $Id: FWCaloDataHistProxyBuilder.cc,v 1.1 2010/05/31 15:35:00 amraktad Exp $
 //
 
 // system include files
@@ -93,6 +93,7 @@ FWCaloDataHistProxyBuilder::build(const FWEventItem* iItem,
 
    m_caloData->SetSliceColor(m_sliceIndex,item()->defaultDisplayProperties().color());
    m_caloData->DataChanged();
+   m_caloData->CellSelectionChanged();
 }
 
 //______________________________________________________________________________
@@ -124,6 +125,7 @@ FWCaloDataHistProxyBuilder::applyChangesToAllModels(Product* p)
 
       m_caloData->SetSliceColor(m_sliceIndex,item()->defaultDisplayProperties().color());
       m_caloData->DataChanged();
+      m_caloData->CellSelectionChanged();
    }
 }
 
