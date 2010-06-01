@@ -43,7 +43,7 @@ allPatTracks = patGenericParticles.clone(
 )
 
 from PhysicsTools.PatAlgos.selectionLayer1.trackSelector_cfi import *
-selectedPatTracks.cut = 'pt > 15.'
+selectedPatTracks.cut = 'pt > 15. & track.dxy()<1.0'
 
 # PAT MUONS
 
@@ -97,7 +97,7 @@ patMuons.embedTpfmsMuon = cms.bool(False)
 patMuons.embedPFCandidate = cms.bool(False)
 
 from PhysicsTools.PatAlgos.selectionLayer1.muonSelector_cfi import *
-selectedPatMuons.cut = 'pt > 15. & abs(eta) < 100.0'
+selectedPatMuons.cut = 'pt > 15. & abs(eta) < 100.0 & ( (isGlobalMuon==1  & innerTrack.dxy()<1.0)  | ((isTrackerMuon==1  & innerTrack.dxy()<1.0) | (isStandAloneMuon==1  & outerTrack.dxy()<1.0) ))'
 
 # trigger info
 from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import *
