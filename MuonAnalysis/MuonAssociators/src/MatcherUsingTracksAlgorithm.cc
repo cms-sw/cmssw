@@ -30,7 +30,9 @@ inline double deltaR2<GlobalVector>(const GlobalVector &v1, const GlobalVector &
 
 MatcherUsingTracksAlgorithm::MatcherUsingTracksAlgorithm(const edm::ParameterSet & iConfig) :
     whichTrack1_(None),     whichTrack2_(None), 
-    whichState1_(AtVertex), whichState2_(AtVertex)
+    whichState1_(AtVertex), whichState2_(AtVertex),
+    srcCut_(iConfig.existAs<std::string>("srcPreselection") ? iConfig.getParameter<std::string>("srcPreselection") : ""),
+    matchedCut_(iConfig.existAs<std::string>("matchedPreselection") ? iConfig.getParameter<std::string>("matchedPreselection") : "")
 {
     std::string algo = iConfig.getParameter<std::string>("algorithm");
     if      (algo == "byTrackRef")           { algo_ = ByTrackRef; }
@@ -126,6 +128,7 @@ MatcherUsingTracksAlgorithm::getConf(const edm::ParameterSet & iConfig, const st
 /// For matches not by ref, it will update deltaR, deltaLocalPos and deltaPtRel if the match suceeded
 bool 
 MatcherUsingTracksAlgorithm::match(const reco::Candidate &c1, const reco::Candidate &c2, float &deltR, float &deltEta, float &deltPhi, float &deltaLocalPos, float &deltaPtRel, float &chi2) const {
+    if (!(srcCut_(c1) && matchedCut_(c2))) return false;
     switch (algo_) {
         case ByTrackRef: { 
             reco::TrackRef t1 = getTrack(c1, whichTrack1_); 
@@ -170,6 +173,7 @@ MatcherUsingTracksAlgorithm::match(const reco::Candidate &c1, const reco::Candid
 /// Returns -1 if the match fails
 int 
 MatcherUsingTracksAlgorithm::match(const reco::Candidate &c1, const edm::View<reco::Candidate> &c2s, float &deltR, float &deltEta, float &deltPhi, float &deltaLocalPos, float &deltaPtRel, float &chi2) const {
+    if (!srcCut_(c1)) return -1;
     
     // working and output variables
     FreeTrajectoryState start; TrajectoryStateOnSurface target;
@@ -183,6 +187,7 @@ MatcherUsingTracksAlgorithm::match(const reco::Candidate &c1, const edm::View<re
     // loop on the  collection
     edm::View<reco::Candidate>::const_iterator it, ed; int i;
     for (it = c2s.begin(), ed = c2s.end(), i = 0; it != ed; ++it, ++i) {
+        if (!matchedCut_(*it)) continue;
         bool exit = false;
         switch (algo_) {
             case ByTrackRef: {

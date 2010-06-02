@@ -1,7 +1,7 @@
 #ifndef MuonAnalysis_MuonAssociators_MatcherUsingTracksAlgorithm_h
 #define MuonAnalysis_MuonAssociators_MatcherUsingTracksAlgorithm_h
 //
-// $Id: MatcherUsingTracksAlgorithm.h,v 1.4 2009/09/05 17:03:38 gpetrucc Exp $
+// $Id: MatcherUsingTracksAlgorithm.h,v 1.5 2009/09/23 07:41:00 gpetrucc Exp $
 //
 
 /**
@@ -9,7 +9,7 @@
   \brief    Matcher of reconstructed objects to other reconstructed objects using the tracks inside them 
             
   \author   Giovanni Petrucciani
-  \version  $Id: MatcherUsingTracksAlgorithm.h,v 1.4 2009/09/05 17:03:38 gpetrucc Exp $
+  \version  $Id: MatcherUsingTracksAlgorithm.h,v 1.5 2009/09/23 07:41:00 gpetrucc Exp $
 */
 
 
@@ -26,6 +26,7 @@
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 class MatcherUsingTracksAlgorithm {
     public:
@@ -92,6 +93,9 @@ class MatcherUsingTracksAlgorithm {
         bool  useChi2_, chi2UseVertex_, chi2DiagonalOnly_, chi2FirstMomentum_;
         enum  SortBy { LocalPosDiff, GlobalMomDeltaR, GlobalMomDeltaEta, GlobalMomDeltaPhi, GlobalDPtRel, Chi2};
         SortBy sortBy_;
+
+        // Preselection cuts on both sides
+        StringCutObjectSelector<reco::Candidate,true> srcCut_, matchedCut_;
 
         //- Tools
         edm::ESHandle<MagneticField>          magfield_;
