@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 16:41:23 CEST 2010
-// $Id$
+// $Id: FWHFTowerProxyBuilder.h,v 1.1 2010/05/31 15:35:00 amraktad Exp $
 //
 
 // system include files
@@ -24,12 +24,13 @@
 // user include files
 
 #include "Fireworks/Calo/interface/FWCaloDataHistProxyBuilder.h"
+#include "Fireworks/Calo/src/FWFromTEveCaloDataSelector.h"
 #include "DataFormats/HcalRecHit/interface/HFRecHit.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
-
-// forward declarations
-
+//
+// base
+//
 class FWHFTowerProxyBuilder : public FWCaloDataHistProxyBuilder
 {
 public:
@@ -44,6 +45,7 @@ public:
 
 protected:
    virtual void setCaloData(const fireworks::Context&);
+   virtual void addSliceSelector();
    const HFRecHitCollection* m_hits;
 
 private:
@@ -75,11 +77,9 @@ public:
    virtual const std::string histName() const {
       return "HFShort";
    }
-
    virtual void fillCaloData(); 
 
    REGISTER_PROXYBUILDER_METHODS();
-
 
 private:
    FWHFShortTowerProxyBuilder(const FWHFShortTowerProxyBuilder&); // stop default

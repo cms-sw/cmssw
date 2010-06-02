@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 16:41:27 CEST 2010
-// $Id: FWHFTowerProxyBuilder.cc,v 1.1 2010/05/31 15:35:00 amraktad Exp $
+// $Id: FWHFTowerProxyBuilder.cc,v 1.2 2010/05/31 17:51:08 yanjuntu Exp $
 //
 
 // system include files
@@ -17,50 +17,24 @@
 #include "TEveCaloData.h"
 #include "TEveCalo.h"
 #include "TH2F.h"
-#include "TRandom.h" /// remove when complete !!
 
 #include "Fireworks/Calo/plugins/FWHFTowerProxyBuilder.h"
+#include "Fireworks/Calo/plugins/FWHFTowerSliceSelector.h"
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/FWModelChangeManager.h"
 
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 FWHFTowerProxyBuilder::FWHFTowerProxyBuilder():
    m_hits(0)
 {
 }
 
-// FWHFTowerProxyBuilder::FWHFTowerProxyBuilder(const FWHFTowerProxyBuilder& rhs)
-// {
-//    // do actual copying here;
-// }
 
 FWHFTowerProxyBuilder::~FWHFTowerProxyBuilder()
 {
 }
-
-//
-// assignment operators
-//
-// const FWHFTowerProxyBuilder& FWHFTowerProxyBuilder::operator=(const FWHFTowerProxyBuilder& rhs)
-// {
-//   //An exception safe implementation is
-//   FWHFTowerProxyBuilder temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
 
 //
 // member functions
@@ -72,6 +46,13 @@ FWHFTowerProxyBuilder::setCaloData(const fireworks::Context&)
 }
 
 void
+FWHFTowerProxyBuilder::addSliceSelector()
+{
+   FWFromTEveCaloDataSelector* sel = reinterpret_cast<FWFromTEveCaloDataSelector*>(context().getCaloData()->GetUserData());
+   sel->addSliceSelector(m_sliceIndex, FWHFTowerSliceSelector(m_hist,item()));
+}
+
+void
 FWHFTowerProxyBuilder::build(const FWEventItem* iItem,
                                   TEveElementList* el, const FWViewContext* ctx)
 {
@@ -79,6 +60,8 @@ FWHFTowerProxyBuilder::build(const FWEventItem* iItem,
    if (iItem) iItem->get(m_hits);
    FWCaloDataHistProxyBuilder::build(iItem, el, ctx);
 }
+
+//==============================================================================
 
 void
 FWHFShortTowerProxyBuilder::fillCaloData()
@@ -117,7 +100,6 @@ void
 FWHFLongTowerProxyBuilder::fillCaloData()
 { 
    m_hist->Reset();
-   TRandom rnd(0); //test
    if (m_hits)
    {
       TEveCaloData::vCellId_t& selected = m_caloData->GetCellsSelected();

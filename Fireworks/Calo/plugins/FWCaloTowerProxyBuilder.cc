@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:28 EST 2008
-// $Id: FWCaloTowerProxyBuilder.cc,v 1.12 2010/05/27 10:33:54 amraktad Exp $
+// $Id: FWCaloTowerProxyBuilder.cc,v 1.13 2010/05/31 15:35:00 amraktad Exp $
 //
 
 // system includes
@@ -21,11 +21,14 @@
 
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/FWModelChangeManager.h"
 
 #include "Fireworks/Calo/plugins/FWCaloTowerProxyBuilder.h"
-#include "Fireworks/Calo/src/FWFromTEveCaloDataSelector.h"
+#include "Fireworks/Calo/plugins/FWCaloTowerSliceSelector.h"
 
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
+
+
 
 //
 // constructors , dectructors
@@ -50,6 +53,13 @@ FWCaloTowerProxyBuilderBase::setCaloData(const fireworks::Context&)
 }
 
 void
+FWCaloTowerProxyBuilderBase::addSliceSelector()
+{
+   FWFromTEveCaloDataSelector* sel = reinterpret_cast<FWFromTEveCaloDataSelector*>(context().getCaloData()->GetUserData());
+   sel->addSliceSelector(m_sliceIndex, FWCaloTowerSliceSelector(m_hist,item()));
+}
+
+void
 FWCaloTowerProxyBuilderBase::build(const FWEventItem* iItem,
                                   TEveElementList* el, const FWViewContext* ctx)
 {
@@ -57,7 +67,6 @@ FWCaloTowerProxyBuilderBase::build(const FWEventItem* iItem,
    if (iItem) iItem->get(m_towers);
    FWCaloDataHistProxyBuilder::build(iItem, el, ctx);
 }
-
 
 
 void
@@ -88,6 +97,7 @@ FWCaloTowerProxyBuilderBase::fillCaloData()
    }
 
 }
+
 
 REGISTER_FWPROXYBUILDER(FWECalCaloTowerProxyBuilder,CaloTowerCollection,"ECal",FWViewType::k3DBit|FWViewType::kAllRPZBits|FWViewType::kLegoBit);
 REGISTER_FWPROXYBUILDER(FWHCalCaloTowerProxyBuilder,CaloTowerCollection,"HCal",FWViewType::k3DBit|FWViewType::kAllRPZBits|FWViewType::kLegoBit );

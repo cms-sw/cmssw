@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 15:09:19 CEST 2010
-// $Id$
+// $Id: FWCaloDataHistProxyBuilder.h,v 1.1 2010/05/31 15:35:00 amraktad Exp $
 //
 
 // system include files
@@ -53,6 +53,7 @@ protected:
 
    virtual void setCaloData(const fireworks::Context&) = 0;
    virtual void fillCaloData() = 0; 
+   virtual void addSliceSelector() = 0;
 
    // ---------- member data --------------------------------
    TEveCaloDataHist* m_caloData;

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Oct 23 14:44:32 CDT 2009
-// $Id: FWFromTEveCaloDataSelector.h,v 1.3 2009/10/28 18:03:46 amraktad Exp $
+// $Id: FWFromTEveCaloDataSelector.h,v 1.5 2010/05/10 11:49:40 amraktad Exp $
 //
 
 // system include files
@@ -24,25 +24,13 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWFromEveSelectorBase.h"
+#include "Fireworks/Calo/src/FWFromSliceSelector.h"
 
 // forward declarations
-class TH2F;
 class FWEventItem;
 class FWModelChangeManager;
 
-class FWFromSliceSelector {
-public:
-   FWFromSliceSelector( TH2F* iHist,
-                       const FWEventItem*);
-   void doSelect(const TEveCaloData::CellId_t&);
-   void doUnselect(const TEveCaloData::CellId_t&);
-   void clear();
-   void reset();
-   FWModelChangeManager* changeManager() const;
-private:
-    TH2F* m_hist;
-   const FWEventItem* m_item;
-};
+//==============================================================================
 
 class FWFromTEveCaloDataSelector : public FWFromEveSelectorBase
 {

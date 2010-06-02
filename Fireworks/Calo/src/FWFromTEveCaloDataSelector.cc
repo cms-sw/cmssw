@@ -8,102 +8,18 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Oct 23 14:44:33 CDT 2009
-// $Id: FWFromTEveCaloDataSelector.cc,v 1.8 2010/05/10 11:49:40 amraktad Exp $
+// $Id: FWFromTEveCaloDataSelector.cc,v 1.9 2010/05/10 19:13:40 amraktad Exp $
 //
 
 // system include files
 #include <boost/bind.hpp>
 #include <algorithm>
-#include "TH2.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
 // user include files
 #include "Fireworks/Calo/src/FWFromTEveCaloDataSelector.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 
-
-//
-// constants, enums and typedefs
-//
-
-FWFromSliceSelector::FWFromSliceSelector(TH2F* iHist,
-                                         const FWEventItem* iItem) :
-m_hist(iHist),
-m_item(iItem)
-{
-}
-
-void
-FWFromSliceSelector::doSelect(const TEveCaloData::CellId_t& iCell)
-{
-   if (!m_item) return;
-
-   const CaloTowerCollection* towers=0;
-   m_item->get(towers);
-   assert(0!=towers);
-   int index = 0;
-   FWChangeSentry sentry(*(m_item->changeManager()));
-   for(CaloTowerCollection::const_iterator tower = towers->begin(); tower != towers->end(); ++tower,++index) {
-      if (m_hist->FindBin(tower->eta(),tower->phi()) == iCell.fTower && 
-          m_item->modelInfo(index).m_displayProperties.isVisible() &&
-          !m_item->modelInfo(index).isSelected()) {
-         //std::cout <<"  doSelect "<<index<<std::endl;
-         m_item->select(index);
-      }
-   }
-}
-
-void 
-FWFromSliceSelector::clear()
-{
-   if (!m_item) return;
-
-   const CaloTowerCollection* towers=0;
-   m_item->get(towers);
-   
-   int index = 0;
-   
-   for(CaloTowerCollection::const_iterator tower = towers->begin(); tower != towers->end(); ++tower,++index) {
-      if( m_item->modelInfo(index).m_displayProperties.isVisible() &&
-         m_item->modelInfo(index).isSelected()) {
-         m_item->unselect(index);
-      }
-   }
-}
-
-FWModelChangeManager* 
-FWFromSliceSelector::changeManager() const {
-   return m_item->changeManager();
-}
-
-
-void
-FWFromSliceSelector::doUnselect(const TEveCaloData::CellId_t& iCell)
-{
-   if (!m_item) return;
-
-   const CaloTowerCollection* towers=0;
-   m_item->get(towers);
-   assert(0!=towers);
-   int index = 0;
-   FWChangeSentry sentry(*(m_item->changeManager()));
-   for(CaloTowerCollection::const_iterator tower = towers->begin(); tower != towers->end(); ++tower,++index) {
-      if (m_hist->FindBin(tower->eta(),tower->phi()) == iCell.fTower && 
-          m_item->modelInfo(index).m_displayProperties.isVisible() &&
-          m_item->modelInfo(index).isSelected()) {
-         //std::cout <<"  doUnselect "<<index<<std::endl;
-         m_item->unselect(index);
-      }
-   }
-}
-
-void
-FWFromSliceSelector::reset()
-{
-   m_item = 0;
-   m_hist = 0;
-}
 
 //
 // static data member definitions
