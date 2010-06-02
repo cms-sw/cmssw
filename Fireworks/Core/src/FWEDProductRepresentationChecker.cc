@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 11 15:20:10 EST 2008
-// $Id: FWEDProductRepresentationChecker.cc,v 1.3 2009/04/27 16:19:15 chrjones Exp $
+// $Id: FWEDProductRepresentationChecker.cc,v 1.4 2010/06/02 22:37:41 chrjones Exp $
 //
 
 // system include files
@@ -74,7 +74,7 @@ FWEDProductRepresentationChecker::infoFor(const std::string& iTypeName) const
       return FWRepresentationInfo();
    }
    if(clss->GetTypeInfo()->name() == m_typeidName) {
-      return FWRepresentationInfo(purpose(),0,representsSubPart());
+      return FWRepresentationInfo(purpose(),0,bitPackedViews(), representsSubPart());
    }
    return FWRepresentationInfo();
 }

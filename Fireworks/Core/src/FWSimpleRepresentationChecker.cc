@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 25 10:54:28 EST 2008
-// $Id: FWSimpleRepresentationChecker.cc,v 1.4 2009/04/27 16:19:15 chrjones Exp $
+// $Id: FWSimpleRepresentationChecker.cc,v 1.5 2010/06/02 22:37:41 chrjones Exp $
 //
 
 // system include files
@@ -121,7 +121,7 @@ FWSimpleRepresentationChecker::infoFor(const std::string& iTypeName) const
    //see if the modelType inherits from our type
 
    if(inheritsFrom(modelType,m_typeidName,distance) ) {
-      return FWRepresentationInfo(purpose(),distance,representsSubPart());
+      return FWRepresentationInfo(purpose(),distance,bitPackedViews(), representsSubPart());
    }
    return FWRepresentationInfo();
 }
