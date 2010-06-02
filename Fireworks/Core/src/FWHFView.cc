@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 13:42:13 CEST 2010
-// $Id$
+// $Id: FWHFView.cc,v 1.1 2010/05/31 13:01:25 amraktad Exp $
 //
 
 // system include files
@@ -78,6 +78,4 @@ void
 FWHFView::setContext(fireworks::Context& context)
 {  
    FWLegoViewBase::setContext(context); 
-
-   m_lego->SetEta(-4, -1);
 }
