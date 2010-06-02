@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Wed May  2 21:41:30 EDT 2007
-// $Id: CentralityTableProducer.cc,v 1.8 2010/03/23 12:40:53 yilmaz Exp $
+// $Id: CentralityTableProducer.cc,v 1.9 2010/03/23 21:56:39 yilmaz Exp $
 //
 //
 
@@ -70,6 +70,7 @@ class CentralityTableProducer : public edm::EDAnalyzer {
 
    bool makeDBFromTFile_;
    bool makeTFileFromDB_;
+  bool firstRunOnly_;
 
    edm::ESHandle<CentralityTable> inputDB_;
    TFile* inputTFile_;
@@ -104,6 +105,7 @@ CentralityTableProducer::CentralityTableProducer(const edm::ParameterSet& iConfi
    //now do what ever initialization is needed
    makeDBFromTFile_ = iConfig.getUntrackedParameter<bool>("makeDBFromTFile",1);
    makeTFileFromDB_ = iConfig.getUntrackedParameter<bool>("makeTFileFromDB",0);
+   firstRunOnly_ = iConfig.getUntrackedParameter<bool>("firstRunOnly",true);
    if(makeDBFromTFile_){
       inputTFileName_ = iConfig.getParameter<string>("inputTFile");
       rootTag_ = iConfig.getParameter<string>("rootTag");
@@ -133,7 +135,9 @@ CentralityTableProducer::~CentralityTableProducer()
 void
 CentralityTableProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   runnum_ = iEvent.id().run();
+  if(!firstRunOnly_) runnum_ = iEvent.id().run();
+  else runnum_ = 1;
+  
    cout<<"Adding table for run : "<<runnum_<<endl;
    if(makeTFileFromDB_ && !inputDB_.isValid()){
       iSetup.get<HeavyIonRcd>().get(inputDB_);
