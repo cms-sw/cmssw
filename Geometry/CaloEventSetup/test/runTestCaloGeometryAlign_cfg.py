@@ -29,10 +29,10 @@ process.cga = cms.EDAnalyzer("CaloGeometryAnalyzer",
 process.mfa = cms.EDAnalyzer("testMagneticField")
 
 
-#process.EcalBarrelGeometryFromDBEP.applyAlignment = True
-#process.EcalEndcapGeometryFromDBEP.applyAlignment = True
-#process.EcalPreshowerGeometryFromDBEP.applyAlignment = True
-#process.load("Geometry.CaloEventSetup.TestCaloAlignments_cff")
+process.EcalBarrelGeometryFromDBEP.applyAlignment = True
+process.EcalEndcapGeometryFromDBEP.applyAlignment = True
+process.EcalPreshowerGeometryFromDBEP.applyAlignment = True
+process.load("Geometry.CaloEventSetup.TestCaloAlignments_cff")
 
 process.Timing = cms.Service("Timing")
 

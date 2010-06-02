@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    FakeCaloAlignmentEP
-// Class:      FakeCaloAlignmentEP
+// Package:    TestCaloAlignmentEP
+// Class:      TestCaloAlignmentEP
 // 
-/**\class FakeCaloAlignmentEP FakeCaloAlignmentEP.h Alignment/FakeCaloAlignmentEP/interface/FakeCaloAlignmentEP.h
+/**\class TestCaloAlignmentEP TestCaloAlignmentEP.h Alignment/TestCaloAlignmentEP/interface/TestCaloAlignmentEP.h
 
 Description: Producer of fake alignment data for calo geometries
 
@@ -57,7 +57,7 @@ The alignment objects are filled with fixed alignments.
 #include "CondFormats/AlignmentRecord/interface/CastorAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CastorAlignmentErrorRcd.h"
 
-class FakeCaloAlignmentEP : public edm::ESProducer 
+class TestCaloAlignmentEP : public edm::ESProducer 
 {
    public:
 
@@ -67,29 +67,29 @@ class FakeCaloAlignmentEP : public edm::ESProducer
       typedef AlignTransform::Translation Trl ;
       typedef AlignTransform::Rotation    Rot ;
 
-      FakeCaloAlignmentEP(const edm::ParameterSet&)
+      TestCaloAlignmentEP(const edm::ParameterSet&)
       {
-	 setWhatProduced( this, &FakeCaloAlignmentEP::produceEBAli    ) ;
-	 setWhatProduced( this, &FakeCaloAlignmentEP::produceEBAliErr ) ;
-	 setWhatProduced( this, &FakeCaloAlignmentEP::produceEEAli    ) ;
-	 setWhatProduced( this, &FakeCaloAlignmentEP::produceEEAliErr ) ;
-	 setWhatProduced( this, &FakeCaloAlignmentEP::produceESAli    ) ;
-	 setWhatProduced( this, &FakeCaloAlignmentEP::produceESAliErr ) ;
-	 setWhatProduced( this, &FakeCaloAlignmentEP::produceHBAli    ) ;
-	 setWhatProduced( this, &FakeCaloAlignmentEP::produceHBAliErr ) ;
-	 setWhatProduced( this, &FakeCaloAlignmentEP::produceHEAli    ) ;
-	 setWhatProduced( this, &FakeCaloAlignmentEP::produceHEAliErr ) ;
-	 setWhatProduced( this, &FakeCaloAlignmentEP::produceHOAli    ) ;
-	 setWhatProduced( this, &FakeCaloAlignmentEP::produceHOAliErr ) ;
-	 setWhatProduced( this, &FakeCaloAlignmentEP::produceHFAli    ) ;
-	 setWhatProduced( this, &FakeCaloAlignmentEP::produceHFAliErr ) ;
-	 setWhatProduced( this, &FakeCaloAlignmentEP::produceZdcAli    ) ;
-	 setWhatProduced( this, &FakeCaloAlignmentEP::produceZdcAliErr ) ;
-	 setWhatProduced( this, &FakeCaloAlignmentEP::produceCastorAli    ) ;
-	 setWhatProduced( this, &FakeCaloAlignmentEP::produceCastorAliErr ) ;
+	 setWhatProduced( this, &TestCaloAlignmentEP::produceEBAli    ) ;
+	 setWhatProduced( this, &TestCaloAlignmentEP::produceEBAliErr ) ;
+	 setWhatProduced( this, &TestCaloAlignmentEP::produceEEAli    ) ;
+	 setWhatProduced( this, &TestCaloAlignmentEP::produceEEAliErr ) ;
+	 setWhatProduced( this, &TestCaloAlignmentEP::produceESAli    ) ;
+	 setWhatProduced( this, &TestCaloAlignmentEP::produceESAliErr ) ;
+	 setWhatProduced( this, &TestCaloAlignmentEP::produceHBAli    ) ;
+	 setWhatProduced( this, &TestCaloAlignmentEP::produceHBAliErr ) ;
+	 setWhatProduced( this, &TestCaloAlignmentEP::produceHEAli    ) ;
+	 setWhatProduced( this, &TestCaloAlignmentEP::produceHEAliErr ) ;
+	 setWhatProduced( this, &TestCaloAlignmentEP::produceHOAli    ) ;
+	 setWhatProduced( this, &TestCaloAlignmentEP::produceHOAliErr ) ;
+	 setWhatProduced( this, &TestCaloAlignmentEP::produceHFAli    ) ;
+	 setWhatProduced( this, &TestCaloAlignmentEP::produceHFAliErr ) ;
+	 setWhatProduced( this, &TestCaloAlignmentEP::produceZdcAli    ) ;
+	 setWhatProduced( this, &TestCaloAlignmentEP::produceZdcAliErr ) ;
+	 setWhatProduced( this, &TestCaloAlignmentEP::produceCastorAli    ) ;
+	 setWhatProduced( this, &TestCaloAlignmentEP::produceCastorAliErr ) ;
       }
 
-      ~FakeCaloAlignmentEP() {}
+      ~TestCaloAlignmentEP() {}
 
 //-------------------------------------------------------------------
  
@@ -103,7 +103,7 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 	 {
 	    const EBDetId id ( EcalBarrelGeometry::detIdFromLocalAlignmentIndex( i ) ) ;
 	    vtr.push_back( AlignTransform( ( 1==id.ism() ? Trl( 0, 0, 0 ) : //-0.3 ) :
-					     Trl(0,0,0) ) , 
+					     Trl(0.2,0.3,  -0.4 ) ) , 
 					   Rot(),
 					   id              ) ) ;
 	 }
@@ -126,7 +126,7 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 	 for( unsigned int i ( 0 ) ; i != nA ; ++i )
 	 {
 	    const EEDetId id (  EcalEndcapGeometry::detIdFromLocalAlignmentIndex( i ) ) ;
-	    vtr.push_back( AlignTransform( Trl( 0, 0, 0 ), 
+	    vtr.push_back( AlignTransform( Trl( 0.6, -0.7, -0.8 ), 
 					   Rot(),
 					   id              ) ) ;
 	 }
@@ -149,7 +149,7 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 	 for( unsigned int i ( 0 ) ; i != nA ; ++i )
 	 {
 	    const ESDetId id ( EcalPreshowerGeometry::detIdFromLocalAlignmentIndex( i ) ) ;
-	    vtr.push_back( AlignTransform( Trl( 0, 0, 0 ), 
+	    vtr.push_back( AlignTransform( Trl( -0.5, 0.8, -0.9 ), 
 					   Rot(),
 					   id           ) ) ;
 	 }
@@ -303,4 +303,4 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 
 
 //define this as a plug-in
-DEFINE_FWK_EVENTSETUP_MODULE(FakeCaloAlignmentEP);
+DEFINE_FWK_EVENTSETUP_MODULE(TestCaloAlignmentEP);
