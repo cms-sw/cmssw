@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2010/04/14 14:54:57 $
- * $Revision: 1.484 $
+ * $Date: 2010/05/30 13:13:24 $
+ * $Revision: 1.485 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -884,7 +884,7 @@ void EcalBarrelMonitorClient::beginLuminosityBlock(const edm::LuminosityBlock &l
 
   if ( verbose_ ) {
     std::cout << std::endl;
-    std::cout << "Standard beginLuminosityBlock() for run " << l.id().run() << std::endl;
+    std::cout << "Standard beginLuminosityBlock() " << l.id().luminosityBlock() << " for run " << l.id().run() << std::endl;
     std::cout << std::endl;
   }
 
@@ -896,7 +896,7 @@ void EcalBarrelMonitorClient::endLuminosityBlock(const edm::LuminosityBlock &l, 
 
   if ( verbose_ ) {
     std::cout << std::endl;
-    std::cout << "Standard endluminosityBlock() for run " << l.id().run() << std::endl;
+    std::cout << "Standard endluminosityBlock() " << l.id().luminosityBlock() << " for run " << l.id().run() << std::endl;
     std::cout << std::endl;
   }
 
