@@ -1,7 +1,6 @@
 #include "DQMOffline/RecoB/interface/TagCorrelationPlotter.h"
 #include "DQMOffline/RecoB/interface/Tools.h"
 
-#include <TString.h>
 #include <string>
 
 using namespace std;
@@ -17,7 +16,7 @@ TagCorrelationPlotter::TagCorrelationPlotter(const std::string& tagName1, const 
   					     upperBound2_(pSet.getParameter<double>("Discr2End")),
                                              createProfile_(pSet.getParameter<bool>("CreateProfile"))
   {
-  correlationHisto_ = new FlavourHistograms2D<double, double>(TString("correlation" + theExtensionString), TString(tagName2 + " discr vs " + tagName1 + " discr"),
+  correlationHisto_ = new FlavourHistograms2D<double, double>("correlation" + theExtensionString, tagName2 + " discr vs " + tagName1 + " discr",
                                                               50, lowerBound1_, upperBound1_, 50, lowerBound2_, upperBound2_, false, update, 
                                                               "TagCorrelation" + theExtensionString, mc, createProfile_);
   correlationHisto_->settitle(tagName1.c_str(), tagName2.c_str());
