@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Wed Jun  2 17:39:44 CEST 2010
-// $Id$
+// $Id: FWHFTowerSliceSelector.cc,v 1.1 2010/06/02 17:34:03 amraktad Exp $
 //
 
 // system include files
@@ -23,8 +23,6 @@
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "DataFormats/HcalRecHit/interface/HFRecHit.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-
-
 
 
 //

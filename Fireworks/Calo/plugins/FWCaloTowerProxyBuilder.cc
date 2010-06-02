@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:28 EST 2008
-// $Id: FWCaloTowerProxyBuilder.cc,v 1.13 2010/05/31 15:35:00 amraktad Exp $
+// $Id: FWCaloTowerProxyBuilder.cc,v 1.14 2010/06/02 17:34:03 amraktad Exp $
 //
 
 // system includes
@@ -55,8 +55,8 @@ FWCaloTowerProxyBuilderBase::setCaloData(const fireworks::Context&)
 void
 FWCaloTowerProxyBuilderBase::addSliceSelector()
 {
-   FWFromTEveCaloDataSelector* sel = reinterpret_cast<FWFromTEveCaloDataSelector*>(context().getCaloData()->GetUserData());
-   sel->addSliceSelector(m_sliceIndex, FWCaloTowerSliceSelector(m_hist,item()));
+   FWFromTEveCaloDataSelector* sel = reinterpret_cast<FWFromTEveCaloDataSelector*>(m_caloData->GetUserData());
+   sel->addSliceSelector(m_sliceIndex, new FWCaloTowerSliceSelector(m_hist,item()));
 }
 
 void

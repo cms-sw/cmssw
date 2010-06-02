@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 16:41:27 CEST 2010
-// $Id: FWHFTowerProxyBuilder.cc,v 1.2 2010/05/31 17:51:08 yanjuntu Exp $
+// $Id: FWHFTowerProxyBuilder.cc,v 1.3 2010/06/02 17:34:03 amraktad Exp $
 //
 
 // system include files
@@ -48,8 +48,8 @@ FWHFTowerProxyBuilder::setCaloData(const fireworks::Context&)
 void
 FWHFTowerProxyBuilder::addSliceSelector()
 {
-   FWFromTEveCaloDataSelector* sel = reinterpret_cast<FWFromTEveCaloDataSelector*>(context().getCaloData()->GetUserData());
-   sel->addSliceSelector(m_sliceIndex, FWHFTowerSliceSelector(m_hist,item()));
+   FWFromTEveCaloDataSelector* sel = reinterpret_cast<FWFromTEveCaloDataSelector*>(m_caloData->GetUserData());
+   sel->addSliceSelector(m_sliceIndex, new FWHFTowerSliceSelector(m_hist,item()));
 }
 
 void
