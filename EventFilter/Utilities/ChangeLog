@@ -1,3 +1,10 @@
+2010-06-02  Emilio Meschi <emilio.meschi@cern.ch>
+	
+	* tag V00-18-04
+	* new features of edmConfigFromDB script
+	(as per Philipp's info)
+
+
 2010-05-17  Emilio Meschi <emilio.meschi@cern.ch>
 	
 	* tag V00-18-03
