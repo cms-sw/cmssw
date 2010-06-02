@@ -1,6 +1,7 @@
 #include "CSCTFanalyzer.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
+#include "DataFormats/L1CSCTrackFinder/interface/TrackStub.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
 #include <DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h>
 #include <DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h>
@@ -10,6 +11,7 @@ CSCTFanalyzer::CSCTFanalyzer(edm::ParameterSet const& pset):edm::EDAnalyzer(){
 	dataTrackProducer = pset.getUntrackedParameter<edm::InputTag>("dataTrackProducer",edm::InputTag("csctfDigis"));
 	emulTrackProducer = pset.getUntrackedParameter<edm::InputTag>("emulTrackProducer",edm::InputTag("csctfTrackDigis"));
 	lctProducer       = pset.getUntrackedParameter<edm::InputTag>("lctProducer",edm::InputTag("csctfDigis"));
+	mbProducer        = pset.getUntrackedParameter<edm::InputTag>("mbProducer", edm::InputTag("csctfDigis"));
 	file = new TFile("qwe.root","RECREATE");
 	tree = new TTree("dy","QWE");
 	tree->Branch("nDataMuons", &nDataMuons, "nDataMuons/I");
@@ -98,6 +100,21 @@ void CSCTFanalyzer::analyze(edm::Event const& e, edm::EventSetup const& es){
 		}
 	}
 
+	if( mbProducer.label() != "null" ){
+		edm::Handle<CSCTriggerContainer<csctf::TrackStub> > dtStubs;
+		e.getByLabel(mbProducer.label(),mbProducer.instance(),dtStubs);
+		if( dtStubs.isValid() ){
+			std::vector<csctf::TrackStub> vstubs = dtStubs->get();
+			for(std::vector<csctf::TrackStub>::const_iterator stub=vstubs.begin(); stub!=vstubs.end(); stub++){
+				int dtSector =(stub->sector()-1)*2 + stub->subsector()-1;
+				int dtEndcap = stub->endcap()-1;
+				std::cout<<"   DT data: tbin="<<stub->BX()<<" (CSC) sector="<<stub->sector()<<" (CSC) subsector="<<stub->subsector()<<" station="<<stub->station()<<" endcap="<<stub->endcap()
+					<<" phi="<<stub->phiPacked()<<" phiBend="<<stub->getBend()<<" quality="<<stub->getQuality()<<" id="<<stub->getMPCLink()<<" mb_bxn="<<stub->cscid()<<std::cout;
+			}
+
+		} else edm::LogInfo("CSCTFAnalyzer")<<"  No valid CSCTriggerContainer<csctf::TrackStub> products found";
+	}
+
 	nDataMuons = 0; nEmulMuons = 0;
 	dphi1=-1; deta1=-1; dpt1=-1; dch1=-1, dbx1=-10;
 	dphi2=-1; deta2=-1; dpt2=-1; dch2=-1, dbx2=-10;
@@ -145,7 +162,8 @@ void CSCTFanalyzer::analyze(edm::Event const& e, edm::EventSetup const& es){
 				if(!itr->empty()) result.push_back(*itr);
 			}
 		}
-		for(std::vector<csc::L1Track>::const_iterator trk=result.begin(); trk!=result.end(); trk++){
+//		for(std::vector<csc::L1Track>::const_iterator trk=result.begin(); trk!=result.end(); trk++){
+		for(L1CSCTrackCollection::const_iterator _trk=tracks->begin(); _trk!=tracks->end(); _trk++){ const csc::L1Track *trk = &(_trk->first);
 			switch(nDataMuons){
 				case 0:
 					dphi1 = ts->getPhiScale()->getLowEdge( trk->phi_packed() );
@@ -183,11 +201,13 @@ void CSCTFanalyzer::analyze(edm::Event const& e, edm::EventSetup const& es){
 				std::cout<<"Data: TRK in endcap="<<trk->endcap()<<" sector="<<trk->sector()<<" bx="<<trk->BX()
 					<<" (rank="<<trk->rank()
 					<<" localPhi="<<trk->localPhi()
+					<<" etaPacked="<<trk->eta_packed()
 					<<" me1D="<<trk->me1ID()
 					<<" me2D="<<trk->me2ID()
 					<<" me3D="<<trk->me3ID()
 					<<" me4D="<<trk->me4ID()
 					<<" mb1D="<<trk->mb1ID()
+					<<" pTaddr="<<std::hex<<trk->ptLUTAddress()<<std::dec
 					<<")"<<std::endl;
 			nDataMuons++;
 		}
@@ -225,11 +245,13 @@ void CSCTFanalyzer::analyze(edm::Event const& e, edm::EventSetup const& es){
 				std::cout<<"Emulator: TRK in endcap="<<trk->first.endcap()<<" sector="<<trk->first.sector()<<" bx="<<trk->first.BX()
 					<<" (rank="<<trk->first.rank()
 					<<" localPhi="<<trk->first.localPhi()
+					<<" etaPacked="<<trk->first.eta_packed()
 					<<" me1D="<<trk->first.me1ID()
 					<<" me2D="<<trk->first.me2ID()
 					<<" me3D="<<trk->first.me3ID()
 					<<" me4D="<<trk->first.me4ID()
 					<<" mb1D="<<trk->first.mb1ID()
+					<<" pTaddr="<<std::hex<<trk->first.ptLUTAddress()<<std::dec
 					<<")"<<std::endl;
 			nEmulMuons++;
 		}

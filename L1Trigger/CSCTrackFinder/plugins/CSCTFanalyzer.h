@@ -15,7 +15,7 @@
 
 class CSCTFanalyzer : public edm::EDAnalyzer {
 private:
-	edm::InputTag lctProducer, dataTrackProducer, emulTrackProducer;
+	edm::InputTag lctProducer, mbProducer, dataTrackProducer, emulTrackProducer;
 	TTree *tree;
 	TFile *file;
 	int nDataMuons, nEmulMuons, verbose;
