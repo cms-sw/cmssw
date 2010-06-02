@@ -9,9 +9,9 @@
  *
  * \author Valerie Halyo
  *         David Dagenhart
- *
+ *         Zhen Xie
  * \version   1st Version June 7 2007
- * $Id: LumiSummary.h,v 1.14 2010/03/23 11:05:04 xiezhen Exp $
+ * $Id: LumiSummary.h,v 1.15 2010/03/23 15:02:13 xiezhen Exp $
  *
  ************************************************************/
  
@@ -49,7 +49,7 @@ class LumiSummary {
       numorbit_(0)
     { 
       hltdata_.reserve(100);
-      l1data_.reserve(128);
+      l1data_.reserve(192);
     }
     
     /// set default constructor
@@ -78,19 +78,36 @@ class LumiSummary {
     float avgInsDelLumi() const;
     float avgInsDelLumiErr() const;
     short lumiSecQual() const ;
+    /** trigger DeadtimeBeamActive count **/
     unsigned long long deadcount() const;
+    /** the fraction trigger is not active=
+	trigger DeadtimeBeamActive/BitZero
+	special values:
+	if trigger data absent for this LS, return deadfraction 1.0
+	if bitzero=0 return -1.0 meaning no beam
+    **/
     float deadFrac() const ;
+    /** the fraction trigger is active=
+	1-deadfraction
+	special values:
+	if deadfraction<0(no beam) livefraction=0
+	
+     **/
     float liveFrac() const;
+    /**lumi section length in seconds
+       numorbits*3564*25e-09
+     **/
+    unsigned int lumiSectionLength() const;
     unsigned int lsNumber() const;
     unsigned int startOrbit() const;
     unsigned int numOrbit() const;
+    /**data are valid only if run exists from all sources lumi,trg ,hlt
+     **/
     bool isValid() const;
-
-    // other inline have to be made to return 
-    // the rate counter and scalers based on the label
+    //retrieve trigger bit by bit number 0-191(algo,tech)
     L1 l1info(unsigned int idx)const;
+    //retrieve trigger bit by bit name
     L1 l1info(const std::string& name) const;
-    
     HLT hltinfo(unsigned int idx)const;
     HLT hltinfo(const std::string& pathname) const;
     size_t nTriggerLine()const;
@@ -99,8 +116,11 @@ class LumiSummary {
     float avgInsRecLumi() const;
     float avgInsRecLumiErr() const;
     bool isProductEqual(LumiSummary const& next) const;
+    /** lumi data version.
+	special values:
+	"-1" means not all lumi,trigger,hlt data exist, therefore invalid
+     **/
     std::string lumiVersion()const;
-
     //
     //setters
     //
@@ -130,6 +150,7 @@ class LumiSummary {
     std::vector<L1> l1data_;
     //first orbit number of this LS
     unsigned int startorbit_;
+    //number of orbits in this LS
     unsigned int numorbit_;
 }; 
 
