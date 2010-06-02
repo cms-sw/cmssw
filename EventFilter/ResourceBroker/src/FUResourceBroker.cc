@@ -122,6 +122,7 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , sumOfSizesLast_(0)
   , lock_(toolbox::BSem::FULL)
   , frb_(0)
+  , shmInconsistent_(false)
 {
   // setup finite state machine (binding relevant callbacks)
   fsm_.initialize<evf::FUResourceBroker>(this);
@@ -222,6 +223,7 @@ bool FUResourceBroker::configuring(toolbox::task::WorkLoop* wl)
     resourceTable_->setDoCrcCheck(doCrcCheck_);
     resourceTable_->setDoDumpEvents(doDumpEvents_);
     reset();
+    shmInconsistent_ = false;
     if(resourceTable_->nbResources() != nbRawCells_.value_ || 
        resourceTable_->nbFreeSlots() != nbRawCells_.value_){
       std::ostringstream ost;
@@ -230,6 +232,7 @@ bool FUResourceBroker::configuring(toolbox::task::WorkLoop* wl)
 	  << " and nbFreeSlots=" << resourceTable_->nbFreeSlots();
       reasonForFailed_ = ost.str();
       fsm_.fireFailed(ost.str(),this);
+      shmInconsistent_ = true;
     }else{
       
       LOG4CPLUS_INFO(log_, "Finished configuring!");
@@ -688,8 +691,8 @@ bool FUResourceBroker::watching(toolbox::task::WorkLoop* wl)
       }
     }
   }
-  if(resourceTable_->nbResources() != nbRawCells_.value_ || 
-     resourceTable_->nbFreeSlots() != nbRawCells_.value_){
+  if((resourceTable_->nbResources() != nbRawCells_.value_ || 
+     resourceTable_->nbFreeSlots() != nbRawCells_.value_) && !shmInconsistent_){
     std::ostringstream ost;
     ost << "Watchdog spotted inconsistency in ResourceTable - nbRaw=" 
 	<< nbRawCells_.value_ << " but nbResources=" << resourceTable_->nbResources()
@@ -697,6 +700,7 @@ bool FUResourceBroker::watching(toolbox::task::WorkLoop* wl)
     XCEPT_DECLARE(evf::Exception,
 		  sentinelException, ost.str());
     notifyQualified("error",sentinelException);
+    shmInconsistent_ = true;
   }
 
   unlock();

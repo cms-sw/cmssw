@@ -234,7 +234,7 @@ namespace evf {
     // lock
     toolbox::BSem            lock_;
     EvffedFillerRB          *frb_;
-    
+    bool                     shmInconsistent_;
 
     friend class evf::EvffedFillerRB;
   };

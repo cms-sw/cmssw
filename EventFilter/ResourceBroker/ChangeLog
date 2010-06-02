@@ -1,5 +1,11 @@
 2010-06-02  Emilio Meschi  <emilio.meschi@cern.ch>
 
+	* tag V00-15-07
+	* latch shmem inconsistent state to avoid multiple sentinel messages
+
+
+2010-06-02  Emilio Meschi  <emilio.meschi@cern.ch>
+
 	* tag V00-15-06
 	* double check consistency of shmem at configure
 	* counter and flag for data errors in flashlist
