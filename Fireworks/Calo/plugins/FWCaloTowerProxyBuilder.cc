@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:28 EST 2008
-// $Id: FWCaloTowerProxyBuilder.cc,v 1.14 2010/06/02 17:34:03 amraktad Exp $
+// $Id: FWCaloTowerProxyBuilder.cc,v 1.15 2010/06/02 19:08:33 amraktad Exp $
 //
 
 // system includes
@@ -41,7 +41,7 @@ FWCaloTowerProxyBuilderBase::FWCaloTowerProxyBuilderBase():
 FWCaloTowerProxyBuilderBase::~FWCaloTowerProxyBuilderBase()
 {
 }
- 
+
 //
 // member functions
 //
@@ -98,6 +98,11 @@ FWCaloTowerProxyBuilderBase::fillCaloData()
 
 }
 
+bool
+FWCaloTowerProxyBuilderBase::representsSubPart()
+{
+   return true;
+}
 
 REGISTER_FWPROXYBUILDER(FWECalCaloTowerProxyBuilder,CaloTowerCollection,"ECal",FWViewType::k3DBit|FWViewType::kAllRPZBits|FWViewType::kLegoBit);
 REGISTER_FWPROXYBUILDER(FWHCalCaloTowerProxyBuilder,CaloTowerCollection,"HCal",FWViewType::k3DBit|FWViewType::kAllRPZBits|FWViewType::kLegoBit );

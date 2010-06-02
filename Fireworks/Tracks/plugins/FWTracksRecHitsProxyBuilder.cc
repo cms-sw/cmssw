@@ -17,6 +17,8 @@ public:
   
    REGISTER_PROXYBUILDER_METHODS();
   
+   static bool representsSubPart();
+   
 private:
    void build(const reco::Track& iData, unsigned int iIndex,TEveElement& oItemHolder, const FWViewContext*);
 
@@ -31,6 +33,11 @@ FWTracksRecHitsProxyBuilder::build(const reco::Track& iData, unsigned int iIndex
       fireworks::addHits(iData, item(), &oItemHolder, false);
 }
 
+bool FWTracksRecHitsProxyBuilder::representsSubPart()
+{
+   return true;
+}
+
 class FWTracksModulesProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Track>
 {
 public:
@@ -39,6 +46,7 @@ public:
 
    REGISTER_PROXYBUILDER_METHODS();
   
+   static bool representsSubPart();
 private:
    void build(const reco::Track& iData, unsigned int iIndex,TEveElement& oItemHolder, const FWViewContext*);
 
@@ -51,6 +59,11 @@ FWTracksModulesProxyBuilder::build(const reco::Track& iData, unsigned int iIndex
 {
    if( iData.extra().isAvailable() )
       fireworks::addModules(iData, item(), &oItemHolder, false);
+}
+
+bool FWTracksModulesProxyBuilder::representsSubPart()
+{
+   return true;
 }
 
 REGISTER_FWPROXYBUILDER(FWTracksRecHitsProxyBuilder, reco::Track, "TrackHits", FWViewType::kAll3DBits | FWViewType::kAllRPZBits);

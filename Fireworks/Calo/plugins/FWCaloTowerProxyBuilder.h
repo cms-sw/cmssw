@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:08 EST 2008
-// $Id: FWCaloTowerProxyBuilder.h,v 1.10 2010/05/31 15:35:00 amraktad Exp $
+// $Id: FWCaloTowerProxyBuilder.h,v 1.11 2010/06/02 17:34:03 amraktad Exp $
 //
 
 #include "Rtypes.h"
@@ -41,6 +41,7 @@ public:
    virtual double getEt(const CaloTower&) const = 0;
 
    // ---------- static member functions --------------------
+   static bool representsSubPart();
 
    // ---------- member functions ---------------------------
 
