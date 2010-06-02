@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 11 13:12:28 EST 2008
-// $Id: FWRepresentationInfo.h,v 1.1 2008/11/14 16:29:30 chrjones Exp $
+// $Id: FWRepresentationInfo.h,v 1.2 2009/01/23 21:35:41 amraktad Exp $
 //
 
 // system include files
@@ -29,13 +29,15 @@
 class FWRepresentationInfo {
 
 public:
-   FWRepresentationInfo(const std::string& iPurpose, unsigned int iProximity) :
+   FWRepresentationInfo(const std::string& iPurpose, unsigned int iProximity, bool iRepresentsSubPart) :
       m_purpose(iPurpose),
-      m_proximity(iProximity) {
+      m_proximity(iProximity),
+      m_representsSubPart(iRepresentsSubPart){
    }
    FWRepresentationInfo() :
       m_purpose(),
-      m_proximity(0xFFFFFFFF) {
+      m_proximity(0xFFFFFFFF),
+      m_representsSubPart(false) {
    }
    //virtual ~FWRepresentationInfo();
 
@@ -50,6 +52,10 @@ public:
    bool isValid() const {
       return !m_purpose.empty();
    }
+   
+   bool representsSubPart() const {
+      return m_representsSubPart;
+   }
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
@@ -62,6 +68,7 @@ private:
    // ---------- member data --------------------------------
    std::string m_purpose;
    unsigned int m_proximity;
+   bool m_representsSubPart;
 
 };
 

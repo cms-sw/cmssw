@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 25 10:54:22 EST 2008
-// $Id: FWSimpleRepresentationChecker.h,v 1.2 2009/01/23 21:35:41 amraktad Exp $
+// $Id: FWSimpleRepresentationChecker.h,v 1.3 2009/04/27 16:19:16 chrjones Exp $
 //
 
 // system include files
@@ -31,7 +31,9 @@ class FWSimpleRepresentationChecker : public FWRepresentationCheckerBase {
 
 public:
    FWSimpleRepresentationChecker(const std::string& iTypeidName,
-                                 const std::string& iPurpose);
+                                 const std::string& iPurpose,
+                                 unsigned int iBitPackedViews,
+                                 bool iRepresentsSubPart);
    virtual ~FWSimpleRepresentationChecker();
 
    // ---------- const member functions ---------------------

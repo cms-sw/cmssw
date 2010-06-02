@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 11 13:12:35 EST 2008
-// $Id: FWRepresentationCheckerBase.h,v 1.1 2008/11/14 16:29:31 chrjones Exp $
+// $Id: FWRepresentationCheckerBase.h,v 1.2 2009/01/23 21:35:41 amraktad Exp $
 //
 
 // system include files
@@ -29,7 +29,7 @@ class FWRepresentationInfo;
 class FWRepresentationCheckerBase {
 
 public:
-   FWRepresentationCheckerBase(const std::string& iPurpose);
+   FWRepresentationCheckerBase(const std::string& iPurpose, unsigned int iBitPackedViews, bool iRepresentsSubPart);
    virtual ~FWRepresentationCheckerBase();
 
    // ---------- const member functions ---------------------
@@ -37,6 +37,8 @@ public:
    //virtual bool canWorkWith(const std::string& iTypeName) const = 0;
    virtual FWRepresentationInfo infoFor(const std::string& iTypeName) const = 0;
 
+   unsigned int bitPackedViews() const;
+   bool representsSubPart() const;
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
@@ -48,6 +50,8 @@ private:
 
    // ---------- member data --------------------------------
    const std::string m_purpose;
+   const unsigned int m_bitPackedViews;
+   const bool  m_representsSubPart;
 
 };
 
