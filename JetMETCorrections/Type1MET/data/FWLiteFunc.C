@@ -18,7 +18,7 @@ namespace reco {
 };
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "JetMETCorrections/Type1MET/interface/MuonMETInfo.h"
+#include "RecoMET/METAlgorithms/interface/MuonMETInfo.h"
 
 #include <vector>
 #include "TMath.h"

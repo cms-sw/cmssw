@@ -24,7 +24,7 @@
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-#include "JetMETCorrections/Type1MET/interface/MuonMETInfo.h"
+#include "RecoMET/METAlgorithms/interface/MuonMETInfo.h"
 
 #include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
 
