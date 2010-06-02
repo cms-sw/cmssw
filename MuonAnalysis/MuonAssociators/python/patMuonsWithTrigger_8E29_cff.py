@@ -92,8 +92,8 @@ muonMatchL1 = muonHLTL1Match.clone(
 
 ### Single Mu L1
 muonMatchHLTL1 = muonMatchL1.clone(collectionTags = [ 'hltL1extraParticles::HLT' ])
-muonMatchHLTL2 = muonTriggerMatchHLT.clone(collectionTags = [ 'hltL2MuonCandidates::HLT' ], maxDeltaR = 0.7, maxDPtRel = 1.0) # L2 muons have poor resolution
-muonMatchHLTL3 = muonTriggerMatchHLT.clone(collectionTags = [ 'hltL3MuonCandidates::HLT' ], maxDeltaR = 0.3)
+muonMatchHLTL2 = muonTriggerMatchHLT.clone(collectionTags = [ 'hltL2MuonCandidates::HLT' ], maxDeltaR = 1.2, maxDPtRel = 10.0) # L2 muons have poor resolution
+muonMatchHLTL3 = muonTriggerMatchHLT.clone(collectionTags = [ 'hltL3MuonCandidates::HLT' ], maxDeltaR = 0.5, maxDPtRel = 10.0)
 muonMatchHLTCtfTrack  = muonTriggerMatchHLT.clone(collectionTags = ['hltMuTrackJpsiCtfTrackCands::HLT'])
 
 patTriggerMatchers1Mu = cms.Sequence(
