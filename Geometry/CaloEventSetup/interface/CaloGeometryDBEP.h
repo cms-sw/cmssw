@@ -181,7 +181,7 @@ class CaloGeometryDBEP : public edm::ESProducer
 	    // now prepend alignment(s) for final transform
 	    const HepGeom::Transform3D atr ( 0 == at ? tr :
 				       ( 0 == gt ? at->transform()*tr :
-					 gt->transform()*at->transform()*tr ) ) ;
+					 at->transform()*gt->transform()*tr ) ) ;
 	    //--------------------------------- done making transform  ---------------
 
 	    const HepGeom::Point3D<double>   gRef ( atr*lRef ) ;
