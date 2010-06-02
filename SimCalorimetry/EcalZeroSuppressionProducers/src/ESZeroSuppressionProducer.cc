@@ -20,6 +20,9 @@ void ESZeroSuppressionProducer::produce(edm::Event& event, const edm::EventSetup
   eventSetup.get<ESThresholdsRcd>().get(esthresholds_);
   const ESThresholds *thresholds = esthresholds_.product();
 
+  eventSetup.get<ESPedestalsRcd>().get(espeds_);
+  const ESPedestals *pedestals = espeds_.product();
+
   float ts2Threshold = thresholds->getTS2Threshold();
 
   edm::Handle<ESDigiCollection> ESDigis;
@@ -38,7 +41,13 @@ void ESZeroSuppressionProducer::produce(edm::Event& event, const edm::EventSetup
     for (i=ESDigis->begin(); i!=ESDigis->end(); ++i) {            
 
       ESDataFrame dataframe = (*i);
-      if (dataframe.sample(1).adc() > ts2Threshold) (*ESZSDigis).push_back(*i);
+
+      ESPedestals::const_iterator it_ped = pedestals->find(dataframe.id());
+
+      if (dataframe.sample(1).adc() > (ts2Threshold+it_ped->getMean())) {
+	//std::cout<<dataframe.sample(1).adc()<<" "<<ts2Threshold+it_ped->getMean()<<std::endl;
+	(*ESZSDigis).push_back(*i);
+      }
     }
   }     
   

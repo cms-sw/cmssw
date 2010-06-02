@@ -14,6 +14,8 @@
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "CondFormats/ESObjects/interface/ESThresholds.h"
 #include "CondFormats/DataRecord/interface/ESThresholdsRcd.h"
+#include "CondFormats/ESObjects/interface/ESPedestals.h"
+#include "CondFormats/DataRecord/interface/ESPedestalsRcd.h"
 
 class ESZeroSuppressionProducer : public edm::EDProducer
 {
@@ -33,6 +35,7 @@ class ESZeroSuppressionProducer : public edm::EDProducer
   std::string ESZSdigiCollection_;
 
   edm::ESHandle<ESThresholds> esthresholds_;
+  edm::ESHandle<ESPedestals> espeds_;
 };
 
 #endif 
