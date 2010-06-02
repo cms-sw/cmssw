@@ -25,9 +25,9 @@ process.options = cms.untracked.PSet(
 ##
 process.source = cms.Source(
     "PoolSource",
-    fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/k/kaschube/cms/CMSSW_2_2_10/src/Alignment/LaserAlignment/tkLasBeams_dataCRAFT.root' # tkLasBeams_dataCRAFT.root, tkLasBeams_CRAFT_2_2_9.root
-                                      )
+    fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/k/kaschube/cms/CMSSW_3_2_4/src/Alignment/LaserAlignment/test/tkLasBeams_ideal_newtest.root' # tkLasBeams_noATs_CRAFT08.root # tkLasBeams_CRAFT09.root # tkLasBeams_Run123353_39.root # tkLasBeams_Craft09_goodHits.root
     )
+)
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
 ##
@@ -40,32 +40,42 @@ process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_noesprefer_cff") # for 22X when using db object
-process.GlobalTag.globaltag = "IDEAL_V12::All"
+process.GlobalTag.globaltag = "DESIGN_31X_V5::All" # DESIGN_31X_V5::All # MC_31X_V5::All # CRAFT09_R2_V2::All # CRAFT0831X_V4::All
+
+# output file
+process.TFileService = cms.Service("TFileService", 
+                                   fileName = cms.string("histograms.root"),
+                                   closeFileFast = cms.untracked.bool(True)
+)
+
 
 # using database file
 
-from CondCore.DBCommon.CondDBSetup_cfi import *
-process.trackerAlignment = cms.ESSource("PoolDBESSource",CondDBSetup,
-#                                        connect = cms.string("sqlite_file:/afs/cern.ch/user/k/kaschube/cms/CMSSW_2_2_10/src/LasReader/TestProducer/alignments_MP.db"),
-                                        connect = cms.string("frontier://FrontierProd/CMS_COND_21X_ALIGNMENT"),
-                                        toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"),
-                                                                   tag = cms.string("Tracker_Geometry_v5_offline")), #"Alignments"
-                                                          cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"),
-                                                                   tag = cms.string("Tracker_GeometryErr_v5_offline")) #"AlignmentErrors"
-                                       )
-)
+#from CondCore.DBCommon.CondDBSetup_cfi import *
+#process.trackerAlignment = cms.ESSource("PoolDBESSource",CondDBSetup,
+#                                        connect = cms.string("frontier://FrontierProd/CMS_COND_31X_FROM21X"),
+#                                        connect = cms.string("sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/data/commonValidation/alignmentObjects/kaschube/LAS_CRAFT08_fixDisks19.db"),
+#                                        connect = cms.string("sqlite_file:/afs/cern.ch/user/k/kaschube/cms/CMSSW_3_2_4/src/Alignment/MillePedeAlignmentAlgorithm/test/LAS_Ideal_Gaussian.db"),
+#                                        toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"),
+#                                                                   tag = cms.string("Alignments"))#, #"Alignments"
+#                                                          cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"),
+#                                                                   tag = cms.string("")) #"AlignmentErrors"
+#                                        )
+#)
 #process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","trackerAlignment")
 
 ##
 ## My module(s)
 ##
 process.load("Alignment.LaserAlignment.TkLasBeamFitter_cfi")
+process.TkLasBeamFitter.fitBeamSplitters = True
+process.TkLasBeamFitter.numberOfFittedAtParameters = 6 # '3' or '5', default is '6'
 
 process.out = cms.OutputModule(
     "PoolOutputModule",
     outputCommands = cms.untracked.vstring('drop *', 'keep Tk*Beams_*_*_*'),
     fileName = cms.untracked.string('./tkFittedLasBeams.root')
-    )
+)
 
 
 ##
