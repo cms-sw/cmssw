@@ -138,6 +138,13 @@ patMuonsWithTriggerSequence = cms.Sequence(
 )
 
 
+
+def switchOffAmbiguityResolution(process):
+    process.muonMatchHLTL1.resolveAmbiguities = False
+    process.muonMatchHLTL2.resolveAmbiguities = False
+    process.muonMatchHLTL3.resolveAmbiguities = False
+    process.muonMatchHLTCtfTrack.resolveAmbiguities = False
+
 def changeTriggerProcessName(process, triggerProcessName, oldProcessName="HLT"):
     "Change the process name under which the trigger was run"
     patTrigger.processName = triggerProcessName
