@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.25 2010/05/27 18:45:32 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.26 2010/05/31 13:01:25 amraktad Exp $
 //
 
 // system include files
@@ -626,16 +626,18 @@ FWEveViewManager::supportedTypesAndRepresentations() const
       for ( std::vector<BuilderInfo>::iterator bIt= blist.begin(); bIt != blist.end(); ++bIt)
       {
          std::string name = (*bIt).m_name;
+         unsigned int bitPackedViews = (*bIt).m_viewBit;
+         bool representsSubPart = (name.substr(name.find_first_of('@')-1, 1)=="!");
      
          if(name.substr(0,kSimple.size()) == kSimple)
          {
-            name = name.substr(kSimple.size(), name.find_first_of('@')-kSimple.size());
-            returnValue.add(boost::shared_ptr<FWRepresentationCheckerBase>( new FWSimpleRepresentationChecker(name, it->first)) );
+            name = name.substr(kSimple.size(), name.find_first_of('@')-kSimple.size()-1);
+            returnValue.add(boost::shared_ptr<FWRepresentationCheckerBase>( new FWSimpleRepresentationChecker(name, it->first,bitPackedViews,representsSubPart)) );
          }
          else
          {
-            name = name.substr(0, name.find_first_of('@'));
-            returnValue.add(boost::shared_ptr<FWRepresentationCheckerBase>( new FWEDProductRepresentationChecker(name, it->first)) );
+            name = name.substr(0, name.find_first_of('@')-1);
+            returnValue.add(boost::shared_ptr<FWRepresentationCheckerBase>( new FWEDProductRepresentationChecker(name, it->first,bitPackedViews,representsSubPart)) );
          }
       }
    }
