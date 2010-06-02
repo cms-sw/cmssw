@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.57 2010/05/28 22:53:01 yumiceva Exp $
+   version $Id: BeamFitter.cc,v 1.58 2010/05/31 20:28:55 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -402,9 +402,9 @@ bool BeamFitter::runPVandTrkFitter() {
         bspotTrk = fbeamspot;
         fit_ok = true;
     } else {
-        // beamfit failed, flagged as empty beam spot
-		bspotTrk.setType(reco::BeamSpot::Fake);
-        fit_ok = false;
+      // beamfit failed, flagged as empty beam spot
+      bspotTrk.setType(reco::BeamSpot::Fake);
+      fit_ok = false;
     }
 
     // combined results into one single beam spot
@@ -430,7 +430,7 @@ bool BeamFitter::runPVandTrkFitter() {
                          bspotTrk.dydz(),
                          bspotPV.BeamWidthX(),
                          matrix,
-                         bspotTrk.type() );
+                         bspotPV.type() );
     tmpbs.setBeamWidthY( bspotPV.BeamWidthY() );
 
     // overwrite beam spot result

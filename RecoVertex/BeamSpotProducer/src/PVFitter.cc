@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: PVFitter.cc,v 1.9 2010/04/21 22:32:37 yumiceva Exp $
+   version $Id: PVFitter.cc,v 1.10 2010/05/31 20:28:55 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -291,6 +291,7 @@ bool PVFitter::runBXFitter() {
 				matrix );
     fbeamspot.setBeamWidthX( fwidthX );
     fbeamspot.setBeamWidthY( fwidthY );
+    fbeamspot.setType( reco::BeamSpot::Tracker );
 
     fbspotMap[pvStore->first] = fbeamspot;
     if (debug_)
@@ -349,6 +350,7 @@ bool PVFitter::runFitter() {
                                   matrix );
       fbeamspot.setBeamWidthX( fwidthX );
       fbeamspot.setBeamWidthY( fwidthY );
+      fbeamspot.setType(reco::BeamSpot::Tracker);
 
     }
     else { // do 3D fit
@@ -446,7 +448,7 @@ bool PVFitter::runFitter() {
                                   matrix );
       fbeamspot.setBeamWidthX( fwidthX );
       fbeamspot.setBeamWidthY( fwidthY );
-      
+      fbeamspot.setType(reco::BeamSpot::Tracker);
     }
     return true; //FIXME: Need to add quality test for the fit results!
 }
