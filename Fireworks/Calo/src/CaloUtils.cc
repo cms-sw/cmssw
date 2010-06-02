@@ -55,6 +55,7 @@ void drawEnergyTower3D( std::vector<TEveVector> &corners, float scale, TEveEleme
    {
       TEveVector diff = corners[i] - corners[i-4];
       diff.Normalize();
+		corners[i-4] = corners[i];
       corners[i] = corners[i] + (diff * scale);
    }
    addBox( corners, comp, pb );
