@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForCommissioningAnalysis.h,v 1.12 2009/02/10 21:45:54 lowette Exp $
+// Last commit: $Id: ConstantsForCommissioningAnalysis.h,v 1.14 2010/02/03 18:28:43 dstrom Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForCommissioningAnalysis_H
 #define DataFormats_SiStripCommon_ConstantsForCommissioningAnalysis_H
@@ -46,6 +46,7 @@ namespace sistrip {
   static const char invalidRefTime_[]      = "InvalidRefTime";
   static const char invalidDelayTime_[]    = "InvalidDelayTime";
   static const char tickMarkRecovered_[]   = "TickMarkRecovered";
+
 
   // ---------- Opto scan ----------
   
