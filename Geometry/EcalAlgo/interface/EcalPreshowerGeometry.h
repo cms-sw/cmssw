@@ -40,15 +40,10 @@ class EcalPreshowerGeometry : public CaloSubdetectorGeometry
       /// The EcalPreshowerGeometry will delete all its cell geometries at destruction time
       virtual ~EcalPreshowerGeometry();
 
-      int getNumberOfWafers() const { return _nnwafers ; }
-
-      int getNumberOfStripsPerWafer() const { return _nnstrips ; }
-
-      void setzPlanes( float z1, float z2 ) { _zplane[0] = z1 ; _zplane[1] = z2 ; }
-
-      void setNumberOfWafers( int nnwafers ) { _nnwafers=nnwafers ; }
-
-      void setNumberOfStripsPerWafer( int nnstrips ) { _nnstrips=nnstrips ; }
+      void setzPlanes( float z1minus, 
+		       float z2minus,
+		       float z1plus, 
+		       float z2plus ) ;
 
       // Get closest cell
       virtual DetId getClosestCell( const GlobalPoint& r ) const ;
@@ -72,6 +67,8 @@ class EcalPreshowerGeometry : public CaloSubdetectorGeometry
 
       static unsigned int alignmentTransformIndexGlobal( const DetId& id ) ;
 
+      static DetId detIdFromLocalAlignmentIndex( unsigned int iLoc ) ;
+
       static std::vector<HepGeom::Point3D<double> > localCorners( const double* pv,
 						   unsigned int  i,
 						   HepGeom::Point3D<double> &   ref ) ;
@@ -85,15 +82,14 @@ class EcalPreshowerGeometry : public CaloSubdetectorGeometry
 
    private:
 
-      /// number of modules
-      int _nnwafers;
-  
-      /// number of crystals per module
-      int _nnstrips; 
+      const double m_xWidWaf      ;
+      const double m_xInterLadGap ;
+      const double m_xIntraLadGap ;
 
-      double _act_w,_waf_w,_pitch,_intra_lad_gap,_inter_lad_gap,_centre_gap;
-      double _zplane[2];
-      
+      const double m_yWidAct      ;
+      const double m_yCtrOff      ;
+
+      double m_zplane[4];
 };
 
 

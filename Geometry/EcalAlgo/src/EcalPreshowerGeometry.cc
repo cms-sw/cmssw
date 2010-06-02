@@ -6,23 +6,12 @@
 #include <iostream>
 
 EcalPreshowerGeometry::EcalPreshowerGeometry() :
-   _nnwafers( 0 ) ,
-   _nnstrips( 0 )
+   m_xWidWaf      ( 6.3  ) ,
+   m_xInterLadGap ( 0.05 ) , // additional gap between wafers in adj ladders
+   m_xIntraLadGap ( 0.04 ) , // gap between wafers in same ladder
+   m_yWidAct      ( 6.1  ) ,
+   m_yCtrOff      ( 0.05 )   // gap at center
 {
-  //PM 20060518 FOR THE MOMENT USING HARDCODED NUMBERS
-  //TODO: TAKE THEM FOR XML GEOMETRY
-
-//  _zplane[0]=303.16;
-//  _zplane[1]=307.13;
-  _zplane[0]=303.353;
-  _zplane[1]=307.838;
-  _pitch = 0.190625; //strip pitch
-  _waf_w = 6.3; // wafer width
-  _act_w = 6.1; //wafer active area
-  //new geometry
-  _intra_lad_gap = 0.04; // gap between wafers in same ladder
-  _inter_lad_gap = 0.05;// additional gap between wafers in adj ladders
-  _centre_gap = 0.05;  // gap at center
 }
 
 
@@ -68,6 +57,12 @@ EcalPreshowerGeometry::alignmentTransformIndexLocal( const DetId& id )
 		( !negz && !top ? lrr + 4 : lrl + 4 ) ) ) ) ; // opposite at positive z
 }
 
+DetId 
+EcalPreshowerGeometry::detIdFromLocalAlignmentIndex( unsigned int iLoc )
+{
+   return ESDetId( 1, 10 + 20*( iLoc%2 ), 10, 2>iLoc || 5<iLoc ? 2 : 1, 2*( iLoc/4 ) - 1 ) ;
+}
+
 unsigned int
 EcalPreshowerGeometry::alignmentTransformIndexGlobal( const DetId& id )
 {
@@ -79,34 +74,81 @@ void
 EcalPreshowerGeometry::initializeParms() 
 {
    typedef CaloSubdetectorGeometry::CellCont Cont ;
-   unsigned int n1 ( 0 ) ;
-   unsigned int n2 ( 0 ) ;
-   double z1 ( 0 ) ;
-   double z2 ( 0 ) ;
+   unsigned int n1minus ( 0 ) ;
+   unsigned int n2minus ( 0 ) ;
+   unsigned int n1plus ( 0 ) ;
+   unsigned int n2plus ( 0 ) ;
+   double z1minus ( 0 ) ;
+   double z2minus ( 0 ) ;
+   double z1plus ( 0 ) ;
+   double z2plus ( 0 ) ;
    const Cont& con ( cellGeometries() ) ;
    for( unsigned int i ( 0 ) ; i != con.size() ; ++i )
    {
       const ESDetId esid ( getValidDetIds()[i] ) ;
       if( 1 == esid.plane() )
       {
-	 z1 += fabs( con[i]->getPosition().z() ) ;
-	 ++n1 ;
+	 if( 0 > esid.zside() )
+	 {
+	    z1minus += con[i]->getPosition().z() ;
+	    ++n1minus ;
+	 }
+	 else
+	 {
+	    z1plus += con[i]->getPosition().z() ;
+	    ++n1plus ;
+	 }
       }
       if( 2 == esid.plane() )
       {
-	 z2 += fabs( con[i]->getPosition().z() ) ;
-	 ++n2 ;
+	 if( 0 > esid.zside() )
+	 {
+	    z2minus += con[i]->getPosition().z() ;
+	    ++n2minus ;
+	 }
+	 else
+	 {
+	    z2plus += con[i]->getPosition().z() ;
+	    ++n2plus ;
+	 }
       }
 //      if( 0 == z1 && 1 == esid.plane() ) z1 = fabs( i->second->getPosition().z() ) ;
 //      if( 0 == z2 && 2 == esid.plane() ) z2 = fabs( i->second->getPosition().z() ) ;
 //      if( 0 != z1 && 0 != z2 ) break ;
    }
-   assert( 0 != n1 && 0 != n2 ) ;
-   z1 /= (1.*n1) ;
-   z2 /= (1.*n2) ;
-   assert( 0 != z1 && 0 != z2 ) ;
-   setzPlanes( z1, z2 ) ;
+   assert( 0 != n1minus &&
+	   0 != n2minus &&
+	   0 != n1plus  &&
+	   0 != n2plus     ) ;
+   z1minus /= (1.*n1minus) ;
+   z2minus /= (1.*n2minus) ;
+   z1plus /= (1.*n1plus) ;
+   z2plus /= (1.*n2plus) ;
+   assert( 0 != z1minus &&
+	   0 != z2minus &&
+	   0 != z1plus  &&
+	   0 != z2plus     ) ;
+   setzPlanes( z1minus, z2minus, z1plus, z2plus ) ;
 }
+
+
+void 
+EcalPreshowerGeometry::setzPlanes( float z1minus, 
+				   float z2minus,
+				   float z1plus, 
+				   float z2plus ) 
+{
+   assert( 0 > z1minus &&
+	   0 > z2minus &&
+	   0 < z1plus  &&
+	   0 < z2plus     ) ;
+
+   m_zplane[0] = z1minus ;
+   m_zplane[1] = z2minus ;
+   m_zplane[2] = z1plus ;
+   m_zplane[3] = z2plus ;
+}
+
 
 // Get closest cell, etc...
 DetId 
@@ -119,84 +161,61 @@ DetId
 EcalPreshowerGeometry::getClosestCellInPlane( const GlobalPoint& point,
 					      int                plane          ) const
 {
-   float x = point.x();
-   float y = point.y();
-   float z = point.z();
+   const double x ( point.x() ) ;
+   const double y ( point.y() ) ;
+   const double z ( point.z() ) ;
 
-   if (z == 0.0) 
-   { 
-      return DetId(0);
+   if( 0 == z    ||
+       1 > plane ||
+       2 < plane    ) return DetId( 0 ) ;
+
+   const unsigned int iz ( ( 0>z ? 0 : 2 ) + plane - 1 ) ;
+
+   const double ze ( m_zplane[iz] ) ;
+   const double xe ( x * ze/z ) ;
+   const double ye ( y * ze/z ) ;
+
+   const double x0 ( 1 == plane ? xe : ye ) ;
+   const double y0 ( 1 == plane ? ye : xe ) ;
+
+   static const double xWid ( m_xWidWaf + m_xIntraLadGap + m_xInterLadGap ) ;
+
+   const int row ( 1 + int( y0 + 20.*m_yWidAct - m_yCtrOff )/m_yWidAct ) ;
+   const int col ( 1 + int( ( x0 + 20.*xWid )/xWid ) ) ;
+
+   double closest ( 1e9 ) ; 
+
+   DetId detId ( 0 ) ;
+
+   const int jz ( 0 > ze ? -1 : 1 ) ;
+
+
+//   std::cout<<"** p="<<point<<", ("<<xe<<", "<<ye<<", "<<ze<<"), row="<<row<<", col="<<col<<std::endl;
+
+   for( int ix ( -1 ); ix != 2 ; ++ix ) // search within +-1 in row and col
+   {
+      for( int iy ( -1 ); iy != 2 ; ++iy )
+      {
+	 for( int jstrip ( ESDetId::ISTRIP_MIN ) ; jstrip <= ESDetId::ISTRIP_MAX ; ++jstrip )
+	 {
+	    const int jx ( 1 == plane ? col + ix : row + iy ) ;
+	    const int jy ( 1 == plane ? row + iy : col + ix ) ;
+	    if( ESDetId::validDetId( jstrip, jx, jy, plane, jz ) )
+	    {
+	       const ESDetId esId ( jstrip, jx, jy, plane, jz ) ;
+	       const unsigned int index ( esId.denseIndex() ) ;
+	       const GlobalPoint& p ( cellGeometries()[ index ]->getPosition() ) ;
+	       const double dist2 ( (p.x()-xe)*(p.x()-xe) + (p.y()-ye)*(p.y()-ye) ) ;
+	       if( dist2 < closest && present( esId ) )
+	       {
+		  closest = dist2 ;
+		  detId   = esId  ;
+	       }
+	    }
+	 }
+      }
    }
-
-  // extrapolate to plane on this side
-  float xe = x * fabs(_zplane[plane-1]/z) ;
-  float ye = y * fabs(_zplane[plane-1]/z) ;
-
-  float x0,y0;
-
-  if (plane == 1) {
-    x0=xe;
-    y0=ye;
-  }
-  else{
-    y0=xe;
-    x0=ye;
-  }
-
-  //find row
-
-  int imul = (y0 < 0.) ? +1 : -1 ; 
-  float yr = -(y0 + imul*_centre_gap )/_act_w;
-  int row = (yr < 0.) ? (19 + int(yr) ) : (20 + int(yr));
-  row= 40 - row;
-
-  if (row < 1 || row > 40 ) {
-    return DetId(0);
-  }
-  //find col
-  int col = 40 ;
-  int nlad = (col < 20 ) ? (20-col)/2 :(19-col)/2 ;
-  float edge =  (20-col) * (_waf_w + _intra_lad_gap)+ nlad * _inter_lad_gap;
-  edge = -edge;
-  while (x0 < edge && col > 0){
-    col--;
-    nlad = (col < 20 ) ? (20-col)/2 :(19-col)/2 ;
-    edge = (20-col) * (_waf_w + _intra_lad_gap) +          // complete wafer
-      nlad * _inter_lad_gap;    // extra gap 
-    edge = -edge;
-  }
-
-  col++;
-  
-
-  if ( col < 1 || col > 40 || x0 < edge) { 
-    return DetId(0);
-  }
-
-  //Find strip
-  float stredge = edge + (_waf_w + _intra_lad_gap)/2. -    // + half a wafer
-    _act_w/2.  ;                                   // - half active area
-  
-  int istr = int((x0-stredge)/_pitch) + 1 ;
-  if (istr > 32) istr=32;
-  if (istr <1) istr=1;
-  //Find zside
-  int zside = ( z > 0.) ? +1 : -1;
-  
-  const DetId esid ( ESDetId::validDetId( istr,
-					  1 == plane ? col : row,
-					  1 == plane ? row : col,
-					  plane,
-					  zside  ) ?
-		     DetId( ESDetId(             istr,
-						 1 == plane ? col : row,
-						 1 == plane ? row : col,
-						 plane,
-						 zside  ) ) :
-		     DetId(0) ) ;
-
-  return ( !esid.null()    &&
-	   present( esid )    ? esid : DetId(0) ) ;
+   return detId ;
 }
 
 std::vector<HepGeom::Point3D<double> > 

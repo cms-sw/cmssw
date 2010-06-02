@@ -79,6 +79,8 @@ class EcalBarrelGeometry : public CaloSubdetectorGeometry
 
       static unsigned int alignmentTransformIndexGlobal( const DetId& id ) ;
 
+      static DetId detIdFromLocalAlignmentIndex( unsigned int iLoc ) ;
+
       static std::vector<HepGeom::Point3D<double> > localCorners( const double* pv, 
 						   unsigned int  i,
 						   HepGeom::Point3D<double> &   ref ) ;

@@ -43,6 +43,12 @@ EcalBarrelGeometry::alignmentTransformIndexLocal( const DetId& id )
    return index ;
 }
 
+DetId 
+EcalBarrelGeometry::detIdFromLocalAlignmentIndex( unsigned int iLoc )
+{
+   return EBDetId( iLoc + 1, 1, EBDetId::SMCRYSTALMODE ) ;
+}
+
 unsigned int
 EcalBarrelGeometry::alignmentTransformIndexGlobal( const DetId& id )
 {
@@ -308,8 +314,8 @@ EcalBarrelGeometry::getCells( const GlobalPoint& r,
 	    const int    iphi_center ( int( phi*scale + 11. ) ) ; // phi=-9.4deg is iphi=1
 
 	    const double fr    ( dR*scale    ) ; // # crystal widths in dR
-	    const double frp   ( 1.05*fr + 1. ) ; // conservatively above fr 
-	    const double frm   ( 0.95*fr - 1. ) ; // conservatively below fr
+	    const double frp   ( 1.08*fr + 1. ) ; // conservatively above fr 
+	    const double frm   ( 0.92*fr - 1. ) ; // conservatively below fr
 	    const int    idr   ( (int)frp        ) ; // integerize
 	    const int    idr2p ( (int)(frp*frp)     ) ;
 	    const int    idr2m ( frm > 0 ? int(frm*frm) : 0 ) ;

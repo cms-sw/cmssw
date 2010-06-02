@@ -31,6 +31,12 @@ EcalEndcapGeometry::alignmentTransformIndexLocal( const DetId& id )
    return index ;
 }
 
+DetId 
+EcalEndcapGeometry::detIdFromLocalAlignmentIndex( unsigned int iLoc )
+{
+   return EEDetId( 20 + 50*( iLoc%2 ), 50, 2*( iLoc/2 ) - 1 ) ;
+}
+
 unsigned int
 EcalEndcapGeometry::alignmentTransformIndexGlobal( const DetId& id )
 {
@@ -51,7 +57,7 @@ EcalEndcapGeometry::initializeParms()
      if( 0 != cellGeometries()[i] )
      {
 //      addCrystalToZGridmap(i->first,dynamic_cast<const TruncatedPyramid*>(i->second));
-	float z=dynamic_cast<const TruncatedPyramid*>(cellGeometries()[i])->getPosition(0.).z();
+	const double z ( cellGeometries()[i]->getPosition().z() ) ;
 	if(z>0.)
 	{
 	   zeP+=z;
@@ -69,51 +75,91 @@ EcalEndcapGeometry::initializeParms()
 	if( iy > m_nref ) m_nref = iy ;
      }
   }
-  if( 0 > nP ) zeP/=(float)nP;
-  if( 0 > nN ) zeN/=(float)nN;
+  if( 0 < nP ) zeP/=(double)nP;
+  if( 0 < nN ) zeN/=(double)nN;
 
-  m_href = 0 ;
+  m_xlo[0] =  999 ;
+  m_xhi[0] = -999 ;
+  m_ylo[0] =  999 ;
+  m_yhi[0] = -999 ;
+  m_xlo[1] =  999 ;
+  m_xhi[1] = -999 ;
+  m_ylo[1] =  999 ;
+  m_yhi[1] = -999 ;
   for( uint32_t i ( 0 ) ; i != cellGeometries().size() ; ++i )
   {
-     if( 0 != cellGeometries()[i] )
-     {
-	const EEDetId myId ( EEDetId::detIdFromDenseIndex(i) ) ;
-	const unsigned int ix ( myId.ix() ) ;
-	const unsigned int iy ( myId.iy() ) ;
-	if( ix == m_nref ) 
-	{
-	   const GlobalPoint p ( dynamic_cast<const TruncatedPyramid*>
-				 (cellGeometries()[i])->getPosition(0.)  ) ;
-	   const float x ( p.x()*fabs(zeP/p.z()) ) ;
-	   if( m_href < x ) m_href = x ;
-	}
-	if( iy == m_nref ) 
-	{
-	   const GlobalPoint p ( dynamic_cast<const TruncatedPyramid*>
-				 (cellGeometries()[i])->getPosition(0.)  ) ;
-	   const float x ( p.y()*fabs(zeP/p.z()) ) ;
-	   if( m_href < x ) m_href = x ;
-	}
-     }
+     const GlobalPoint p ( cellGeometries()[i]->getPosition()  ) ;
+     const double z ( p.z() ) ;
+     const double zz ( 0 > z ? zeN : zeP ) ;
+     const double x ( p.x()*zz/z ) ;
+     const double y ( p.y()*zz/z ) ;
+
+     if( 0 > z && x < m_xlo[0] ) m_xlo[0] = x ;
+     if( 0 < z && x < m_xlo[1] ) m_xlo[1] = x ;
+     if( 0 > z && y < m_ylo[0] ) m_ylo[0] = y ;
+     if( 0 < z && y < m_ylo[1] ) m_ylo[1] = y ;
+
+     if( 0 > z && x > m_xhi[0] ) m_xhi[0] = x ;
+     if( 0 < z && x > m_xhi[1] ) m_xhi[1] = x ;
+     if( 0 > z && y > m_yhi[0] ) m_yhi[0] = y ;
+     if( 0 < z && y > m_yhi[1] ) m_yhi[1] = y ;
   }
-  m_href = m_href*(1.*m_nref)/( 1.*m_nref - 1. ) ;
-  m_wref = m_href/(0.5*m_nref) ;
+
+  m_xoff[0] = ( m_xhi[0] + m_xlo[0] )/2. ;
+  m_xoff[1] = ( m_xhi[1] + m_xlo[1] )/2. ;
+  m_yoff[0] = ( m_yhi[0] + m_ylo[0] )/2. ;
+  m_yoff[1] = ( m_yhi[1] + m_ylo[1] )/2. ;
+
+  m_del = ( m_xhi[0] - m_xlo[0] + m_xhi[1] - m_xlo[1] +
+	    m_yhi[0] - m_ylo[0] + m_yhi[1] - m_ylo[1]   ) ;
+
+  m_wref = m_del/(4.*(m_nref-1)) ;
+
+  m_xlo[0] -= m_wref/2 ;
+  m_xlo[1] -= m_wref/2 ;
+  m_xhi[0] += m_wref/2 ;
+  m_xhi[1] += m_wref/2 ;
+
+  m_ylo[0] -= m_wref/2 ;
+  m_ylo[1] -= m_wref/2 ;
+  m_yhi[0] += m_wref/2 ;
+  m_yhi[1] += m_wref/2 ;
+
+  m_del += m_wref ;
+/*
+  std::cout<<"zeP="<<zeP<<", zeN="<<zeN<<", nP="<<nP<<", nN="<<nN<<std::endl ;
+
+  std::cout<<"xlo[0]="<<m_xlo[0]<<", xlo[1]="<<m_xlo[1]<<", xhi[0]="<<m_xhi[0]<<", xhi[1]="<<m_xhi[1]
+	   <<"\nylo[0]="<<m_ylo[0]<<", ylo[1]="<<m_ylo[1]<<", yhi[0]="<<m_yhi[0]<<", yhi[1]="<<m_yhi[1]<<std::endl ;
+
+  std::cout<<"xoff[0]="<<m_xoff[0]<<", xoff[1]"<<m_xoff[1]<<", yoff[0]="<<m_yoff[0]<<", yoff[1]"<<m_yoff[1]<<std::endl ;
+
+  std::cout<<"nref="<<m_nref<<", m_wref="<<m_wref<<std::endl ;
+*/  
 }
 
 
 unsigned int 
-EcalEndcapGeometry::index( float x ) const
+EcalEndcapGeometry::xindex( double x,
+			    double z ) const
 {
-   int i ( 1 + (int)floor( ( x + m_href )/m_wref ) ) ;
-   if( 1      > i )
-   {
-      i = 1 ;
-   }
-   else
-   {
-      if( m_nref < (unsigned int)i ) i = m_nref ;
-   }
-   return i ;
+   const double xlo ( 0 > z ? m_xlo[0]  : m_xlo[1]  ) ;
+   const int i ( 1 + int( ( x - xlo )/m_wref ) ) ;
+
+   return ( 1 > i ? 1 :
+	    ( m_nref < (unsigned int) i ? m_nref : (unsigned int) i ) ) ;
+
+}
+
+unsigned int 
+EcalEndcapGeometry::yindex( double y,
+			    double z  ) const
+{
+   const double ylo ( 0 > z ? m_ylo[0]  : m_ylo[1]  ) ;
+   const int i ( 1 + int( ( y - ylo )/m_wref ) ) ;
+
+   return ( 1 > i ? 1 :
+	    ( m_nref < (unsigned int) i ? m_nref : (unsigned int) i ) ) ;
 }
 
 EEDetId 
@@ -121,9 +167,9 @@ EcalEndcapGeometry::gId( float x,
 			 float y, 
 			 float z ) const
 {
-   const double       fac ( fabs(zeP/z) ) ;
-   const unsigned int ix  ( index( x*fac ) ) ; 
-   const unsigned int iy  ( index( y*fac ) ) ; 
+   const double       fac ( fabs( ( 0 > z ? zeN : zeP )/z ) ) ;
+   const unsigned int ix  ( xindex( x*fac, z ) ) ; 
+   const unsigned int iy  ( yindex( y*fac, z ) ) ; 
    const unsigned int iz  ( z>0 ? 1 : -1 ) ;
 
    if( EEDetId::validDetId( ix, iy, iz ) ) 
@@ -298,13 +344,18 @@ EcalEndcapGeometry::getCells( const GlobalPoint& r,
 	 const double lowY  ( zz>0 ? zz*tan( yang - dR ) : zz*tan( yang + dR ) ) ;
 	 const double highY ( zz>0 ? zz*tan( yang + dR ) : zz*tan( yang - dR ) ) ;
 
-	 if( lowX  <  m_href &&   // proceed if any possible overlap with the endcap
-	     lowY  <  m_href &&
-	     highX > -m_href &&
-	     highY > -m_href    )
+	 const double refxlo ( 0 > rz ? m_xlo[0] : m_xlo[1] ) ;
+	 const double refxhi ( 0 > rz ? m_xhi[0] : m_xhi[1] ) ;
+	 const double refylo ( 0 > rz ? m_ylo[0] : m_ylo[1] ) ;
+	 const double refyhi ( 0 > rz ? m_yhi[0] : m_yhi[1] ) ;
+
+	 if( lowX  <  refxhi &&   // proceed if any possible overlap with the endcap
+	     lowY  <  refyhi &&
+	     highX >  refxlo &&
+	     highY >  refylo    )
 	 {
-	    const int ix_ctr ( 1 + (int)floor( ( xx + m_href )/m_wref ) ) ;
-	    const int iy_ctr ( 1 + (int)floor( ( yy + m_href )/m_wref ) ) ;
+	    const int ix_ctr ( xindex( xx, rz ) ) ;
+	    const int iy_ctr ( yindex( yy, rz ) ) ;
 	    const int iz     ( rz>0 ? 1 : -1 ) ;
 	    
 	    const int ix_hi  ( ix_ctr + int( ( highX - xx )/m_wref ) + 2 ) ;

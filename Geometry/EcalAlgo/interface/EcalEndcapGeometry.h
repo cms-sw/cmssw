@@ -75,6 +75,8 @@ class EcalEndcapGeometry : public CaloSubdetectorGeometry
 
       static unsigned int alignmentTransformIndexGlobal( const DetId& id ) ;
 
+      static DetId detIdFromLocalAlignmentIndex( unsigned int iLoc ) ;
+
       static std::vector<HepGeom::Point3D<double> > localCorners( const double* pv,
 						   unsigned int  i,
 						   HepGeom::Point3D<double> &   ref ) ;
@@ -96,13 +98,15 @@ class EcalEndcapGeometry : public CaloSubdetectorGeometry
       /// number of crystals per module
       int _nncrys; 
 
-      float zeP, zeN;
+      double zeP, zeN;
 
-      float m_wref, m_href ;
+      double m_wref, m_xlo[2], m_xhi[2], m_ylo[2], m_yhi[2], m_xoff[2], m_yoff[2], m_del ;
 
       unsigned int m_nref ;
 
-      unsigned int index( float x ) const ;
+      unsigned int xindex( double x, double z ) const ;
+      unsigned int yindex( double y, double z ) const ;
+
       EEDetId gId( float x, float y, float z ) const ;
 
       mutable EZMgrFL<EBDetId>*     m_borderMgr ;
