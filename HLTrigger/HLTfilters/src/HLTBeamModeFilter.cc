@@ -107,8 +107,7 @@ bool HLTBeamModeFilter::filter(edm::Event& iEvent,
     const boost::uint16_t beamModeValue =
             (gtEvmReadoutRecord->gtfeWord()).beamMode();
 
-    //LogDebug("HLTBeamModeFilter") << "\nBeam mode: " << beamModeValue
-    //        << std::endl;
+    edm::LogInfo("HLTBeamModeFilter") << "Beam mode: " << beamModeValue;
 
     for (std::vector<unsigned int>::const_iterator itMode =
             m_allowedBeamMode.begin(); itMode != m_allowedBeamMode.end(); ++itMode) {
