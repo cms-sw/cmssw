@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.33 2010/05/11 16:48:10 matevz Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.34 2010/05/31 09:44:45 eulisse Exp $
 //
 
 // system include files
@@ -474,11 +474,25 @@ FWGUIEventDataAdder::fillData(const TFile* iFile)
             = m_typeAndReps->representationsForType(desc.fullClassName());
    
          //std::cout <<"try to find match "<<itBranch->fullClassName()<<std::endl;
+         //For each view we need to find the non-sub-part builder whose proximity is smallest and 
+         // then register only that purpose
+         //NOTE: for now, we will ignore the view and only look for the closest proximity
+         unsigned int minProx = ~(0U);
+         for (size_t ii = 0, ei = infos.size(); ii != ei; ++ii) {
+            if (!infos[ii].representsSubPart() && minProx > infos[ii].proximity()) {
+               minProx = infos[ii].proximity();
+            }
+         }
+         
          //the infos list can contain multiple items with the same purpose so we will just find
          // the unique ones
          purposes.clear();
-         for (size_t ii = 0, ei = infos.size(); ii != ei; ++ii)
+         for (size_t ii = 0, ei = infos.size(); ii != ei; ++ii) {
+            if(!infos[ii].representsSubPart() && minProx != infos[ii].proximity()) {
+               continue;
+            }
             purposes.insert(infos[ii].purpose());
+         }
    
          if (purposes.empty())
             purposes.insert("Table");
