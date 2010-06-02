@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/04/15 15:29:22 $
- * $Revision: 1.44 $
+ * $Date: 2010/05/11 23:55:02 $
+ * $Revision: 1.45 $
  *
  */
 
@@ -89,7 +89,7 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
   maxZ_ = fabs(maxZ_);
   lastlumi_ = 0;
   nextlumi_ = 0;
-
+  processed_ = false;
 }
 
 
@@ -428,11 +428,12 @@ void BeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
 
   if (onlineMode_) {
     if (nthlumi > nextlumi_) {
-      if (countLumi_ != 0) FitAndFill(lumiSeg,lastlumi_,nextlumi_,nthlumi);
+      if (countLumi_ != 0 && processed_) FitAndFill(lumiSeg,lastlumi_,nextlumi_,nthlumi);
       nextlumi_ = nthlumi;
       cout << "Next Lumi to Fit: " << nextlumi_ << endl;
       if (refBStime[0] == 0) refBStime[0] = ftmptime;
       if (refPVtime[0] == 0) refPVtime[0] = ftmptime;
+      processed_ = false;
     }
   }
   else{
@@ -505,6 +506,7 @@ void BeamMonitor::analyze(const Event& iEvent,
       }
       if (nPVcount>0) h_nVtx->Fill(nPVcount*1.);
     }
+    processed_ = true;
   }//end of read event
 
 }
@@ -751,7 +753,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
     //theBeamFitter->setRefTime(refBStime[0],refBStime[1]); // Testing, overwrite Fit time
   }
 
-  if (doFitting && theBeamFitter->runFitter()){
+  if (doFitting && theBeamFitter->runPVandTrkFitter()){
     reco::BeamSpot bs = theBeamFitter->getBeamSpot();
     if (bs.type() > 0) // with good beamwidth fit
       preBS = bs; // cache good fit results
@@ -860,7 +862,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
       theBeamFitter->setFitLSRange(beginLumiOfBSFit_,endLumiOfBSFit_);
       theBeamFitter->setRefTime(refBStime[0],refBStime[1]);
     }
-    if (theBeamFitter->runFitter()) {} // Dump fake beam spot for DIP
+    if (theBeamFitter->runPVandTrkFitter()) {} // Dump fake beam spot for DIP
     reco::BeamSpot bs = theBeamFitter->getBeamSpot();
     if (debug_) {
       cout << "[BeamMonitor] No fitting \n" << endl;

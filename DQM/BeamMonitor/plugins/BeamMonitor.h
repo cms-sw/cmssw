@@ -3,8 +3,8 @@
 
 /** \class BeamMonitor
  * *
- *  $Date: 2010/04/13 17:07:51 $
- *  $Revision: 1.24 $
+ *  $Date: 2010/05/11 23:56:07 $
+ *  $Revision: 1.1 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -96,6 +96,7 @@ class BeamMonitor : public edm::EDAnalyzer {
   double minVtxWgt_;
 
   bool resetHistos_;
+  bool processed_;
   // ----------member data ---------------------------
   
   //   std::vector<BSTrkParameters> fBSvector;
