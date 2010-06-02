@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jun  5 20:13:55 EDT 2008
-// $Id: FWProxyBuilderFactory.h,v 1.4 2009/04/27 14:42:33 chrjones Exp $
+// $Id: FWProxyBuilderFactory.h,v 1.1 2010/04/06 20:00:35 amraktad Exp $
 //
 
 // system include files
@@ -33,7 +33,7 @@ typedef edmplugin::PluginFactory<FWProxyBuilderBase*()> FWProxyBuilderFactory;
 
 #define REGISTER_FWPROXYBUILDER(_name_,_type_,_purpose_,_view_) \
    DEFINE_PROXYBUILDER_METHODS(_name_,_type_,_purpose_,_view_); \
-   DEFINE_EDM_PLUGIN(FWProxyBuilderFactory,_name_,_name_::typeOfBuilder()+_name_::classRegisterTypeName()+"@"+_name_::classPurpose()+"@"+_name_::classView()+"#" # _name_)
+   DEFINE_EDM_PLUGIN(FWProxyBuilderFactory,_name_,_name_::typeOfBuilder()+_name_::classRegisterTypeName()+(_name_::representsSubPart()?"!":"_")+"@"+_name_::classPurpose()+"@"+_name_::classView()+"#" # _name_)
 
 
 #endif
