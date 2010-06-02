@@ -183,7 +183,8 @@ process.BeamSpotDBSource = cms.ESSource("PoolDBESSource",
 process.source = cms.Source("EmptySource",
         numberEventsInRun = cms.untracked.uint32(1),
 ''')
-    rnewfile.write('  firstRun = cms.untracked.uint32('+ run + ')\n')
+    rnewfile.write('  firstRun = cms.untracked.uint32('+ run + '),\n')
+    rnewfile.write('  firstLuminosityBlock = cms.untracked.uint32('+ lumi + ')\n')
     rnewfile.write('''               
 )
 
@@ -204,7 +205,7 @@ process.p = cms.Path(process.beamspot)
     print outtext
 
     #### CLEAN up
-    os.system("rm "+ readdb_out)
+    #os.system("rm "+ readdb_out)
 
     print "DONE.\n"
     
