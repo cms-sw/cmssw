@@ -205,7 +205,7 @@ int main() {
   go2d();
 
   return 0;
-};
+}
 
 #else
 int main() {
