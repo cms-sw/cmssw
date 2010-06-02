@@ -10,10 +10,10 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
 process.TagProbeFitTreeAnalyzer = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
     # IO parameters:
-    InputFileNames = cms.vstring("testTagProbeFitTreeProducer.root"),
+    InputFileNames = cms.vstring("testTagProbeFitTreeProducer_JPsiMuMu.root"),
     InputDirectoryName = cms.string("MuonID"),
     InputTreeName = cms.string("fitter_tree"),
-    OutputFileName = cms.string("testTagProbeFitTreeAnalyzer.root"),
+    OutputFileName = cms.string("testTagProbeFitTreeAnalyzer_JPsiMuMu.root"),
     #numbrer of CPUs to use for fitting
     NumCPU = cms.uint32(1),
     # specifies wether to save the RooWorkspace containing the data for each bin and
@@ -66,7 +66,7 @@ process.TagProbeFitTreeAnalyzer = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
             #specifies the binning of parameters
             BinnedVariables = cms.PSet(
                 pt = cms.vdouble(3.0, 6.0, 20.0),
-                abseta = cms.vdouble(0.0, 1,2, 2.4),
+                abseta = cms.vdouble(0.0, 1.2, 2.4),
             ),
             #first string is the default followed by binRegExp - PDFname pairs
             BinToPDFmap = cms.vstring("gaussPlusLinear", "*pt_bin0*", "gaussPlusQuadratic")
@@ -77,7 +77,7 @@ process.TagProbeFitTreeAnalyzer = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
             BinnedVariables = cms.PSet(
                 mcTrue = cms.vstring("true"),
                 pt = cms.vdouble(3.0, 6.0, 20.0),
-                abseta = cms.vdouble(0.0, 1,2, 2.4),
+                abseta = cms.vdouble(0.0, 1.2, 2.4),
             )
             #unspecified binToPDFmap means no fitting
         ),
