@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:00 CET 2010
-// $Id: FWProxyBuilderBase.cc,v 1.19 2010/05/31 15:44:01 eulisse Exp $
+// $Id: FWProxyBuilderBase.cc,v 1.20 2010/05/31 19:44:03 matevz Exp $
 //
 
 // system include files
@@ -465,4 +465,9 @@ FWProxyBuilderBase::layer() const
 std::string FWProxyBuilderBase::typeOfBuilder()
 {
    return std::string();
+}
+
+bool FWProxyBuilderBase::representsSubPart()
+{
+   return false;
 }

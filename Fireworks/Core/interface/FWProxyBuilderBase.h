@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:12 CET 2010
-// $Id: FWProxyBuilderBase.h,v 1.11 2010/05/26 17:47:25 amraktad Exp $
+// $Id: FWProxyBuilderBase.h,v 1.12 2010/05/31 19:44:02 matevz Exp $
 //
 
 // system include files
@@ -72,6 +72,10 @@ public:
    ///Used by the plugin system to determine how the proxy uses the data from FWEventItem
    static std::string typeOfBuilder();
 
+   ///Used by the plugin system to determine precidence of different proxy builders for same type
+   /// this returns 'true' if the proxy builder is specialized to only show a sub-part of the object
+   /// as opposed to showing the object as a whole
+   static bool representsSubPart();
    // ---------- member functions ---------------------------
    void setItem(const FWEventItem* iItem);
    void setHaveWindow(bool iFlag);
