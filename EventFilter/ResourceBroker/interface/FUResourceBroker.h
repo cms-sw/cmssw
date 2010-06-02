@@ -95,6 +95,14 @@ namespace evf {
     bool watching(toolbox::task::WorkLoop* wl);
     
     unsigned int instanceNumber() const {return instance_.value_;}
+
+  public:
+    static const int CRC_ERROR_SHIFT            = 0x0;
+    static const int DATA_ERROR_SHIFT           = 0x1;
+    static const int LOST_ERROR_SHIFT           = 0x2;
+    static const int TIMEOUT_NOEVENT_ERROR_SHIFT= 0x3;
+    static const int TIMEOUT_EVENT_ERROR_SHIFT  = 0x4;
+    static const int SENT_ERREVENT_ERROR_SHIFT  = 0x5;
     
   private:
     //
@@ -175,6 +183,9 @@ namespace evf {
     xdata::UnsignedInteger32 nbLostEvents_;
     xdata::UnsignedInteger32 nbDataErrors_;
     xdata::UnsignedInteger32 nbCrcErrors_;
+    xdata::UnsignedInteger32 nbTimeoutsWithEvent_;
+    xdata::UnsignedInteger32 nbTimeoutsWithoutEvent_;
+    xdata::UnsignedInteger32 dataErrorFlag_;
     
     // standard parameters
     xdata::Boolean           segmentationMode_;

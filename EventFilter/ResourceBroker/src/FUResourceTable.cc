@@ -592,17 +592,21 @@ void FUResourceTable::dropEvent()
 
 
 //______________________________________________________________________________
-void FUResourceTable::handleCrashedEP(UInt_t runNumber,pid_t pid)
+bool FUResourceTable::handleCrashedEP(UInt_t runNumber,pid_t pid)
 {
+  bool retval = false;
   vector<pid_t> pids=cellPrcIds();
   UInt_t iRawCell=pids.size();
   for (UInt_t i=0;i<pids.size();i++) { if (pid==pids[i]) { iRawCell=i; break; } }
   
-  if (iRawCell<pids.size())
+  if (iRawCell<pids.size()){
     shmBuffer_->writeErrorEventData(runNumber,pid,iRawCell);
+    retval = true;
+  }
   else
     LOG4CPLUS_WARN(log_,"No raw data to send to error stream for process " << pid);
   shmBuffer_->removeClientPrcId(pid);
+  return retval;
 }
 
 

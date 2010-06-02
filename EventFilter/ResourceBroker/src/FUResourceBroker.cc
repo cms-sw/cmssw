@@ -86,6 +86,9 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , nbLostEvents_(0)
   , nbDataErrors_(0)
   , nbCrcErrors_(0)
+  , nbTimeoutsWithEvent_(0)
+  , nbTimeoutsWithoutEvent_(0)
+  , dataErrorFlag_(0)
   , segmentationMode_(false)
   , nbClients_(0)
   , clientPrcIds_("")
@@ -219,9 +222,19 @@ bool FUResourceBroker::configuring(toolbox::task::WorkLoop* wl)
     resourceTable_->setDoCrcCheck(doCrcCheck_);
     resourceTable_->setDoDumpEvents(doDumpEvents_);
     reset();
-    LOG4CPLUS_INFO(log_, "Finished configuring!");
-    
-    fsm_.fireEvent("ConfigureDone",this);
+    if(resourceTable_->nbResources() != nbRawCells_.value_ || 
+       resourceTable_->nbFreeSlots() != nbRawCells_.value_){
+      std::ostringstream ost;
+      ost << "configuring FAILED: Inconsistency in ResourceTable - nbRaw=" 
+	  << nbRawCells_.value_ << " but nbResources=" << resourceTable_->nbResources()
+	  << " and nbFreeSlots=" << resourceTable_->nbFreeSlots();
+      reasonForFailed_ = ost.str();
+      fsm_.fireFailed(ost.str(),this);
+    }else{
+      
+      LOG4CPLUS_INFO(log_, "Finished configuring!");
+      fsm_.fireEvent("ConfigureDone",this);
+    }
   }
   catch (xcept::Exception &e) {
     std::string msg  = "configuring FAILED: " + (string)e.what();
@@ -246,6 +259,11 @@ bool FUResourceBroker::enabling(toolbox::task::WorkLoop* wl)
     resourceTable_->startSendDataWorkLoop();
     resourceTable_->startSendDqmWorkLoop();
     resourceTable_->sendAllocate();
+    
+    nbTimeoutsWithEvent_         = 0;
+    nbTimeoutsWithoutEvent_      = 0;
+    dataErrorFlag_               = 0;
+
     LOG4CPLUS_INFO(log_, "Finished enabling!");
     fsm_.fireEvent("EnableDone",this);
   }
@@ -464,6 +482,13 @@ void FUResourceBroker::actionPerformed(xdata::Event& e)
       nbDataErrors_       =resourceTable_->nbErrors();
       nbCrcErrors_        =resourceTable_->nbCrcErrors();
       nbAllocateSent_     =resourceTable_->nbAllocSent();
+      dataErrorFlag_.value_ = (nbCrcErrors_.value_ != 0u + 
+			       ((nbDataErrors_.value_ != 0u) << 1) +
+			       ((nbLostEvents_.value_ != 0u) << 2) +
+			       ((nbTimeoutsWithEvent_.value_ != 0u) << 3) +
+			       ((nbTimeoutsWithoutEvent_.value_ != 0u) << 4) +
+			       ((nbSentErrorEvents_.value_ != 0u) << 5)
+			       );
     }
     else if (e.type()=="ItemChangedEvent") {
       
@@ -636,7 +661,8 @@ bool FUResourceBroker::watching(toolbox::task::WorkLoop* wl)
     int   status=kill(pid,0);
     if (status!=0) {
       LOG4CPLUS_ERROR(log_,"EP prc "<<pid<<" died, send to error stream if processing.");
-      resourceTable_->handleCrashedEP(runNumber_,pid);
+      if(!resourceTable_->handleCrashedEP(runNumber_,pid))
+	nbTimeoutsWithoutEvent_++;
     }
   }
   
@@ -654,6 +680,7 @@ bool FUResourceBroker::watching(toolbox::task::WorkLoop* wl)
       if(processKillerEnabled_)	{
 	LOG4CPLUS_ERROR(log_,"evt "<<evt<<" timed out, "<<"kill prc "<<pid);
 	kill(pid,9);
+	nbTimeoutsWithEvent_++;
       }
       else {
 	LOG4CPLUS_INFO(log_,"evt "<<evt<<" under processing for more than "
@@ -661,7 +688,17 @@ bool FUResourceBroker::watching(toolbox::task::WorkLoop* wl)
       }
     }
   }
-  
+  if(resourceTable_->nbResources() != nbRawCells_.value_ || 
+     resourceTable_->nbFreeSlots() != nbRawCells_.value_){
+    std::ostringstream ost;
+    ost << "Watchdog spotted inconsistency in ResourceTable - nbRaw=" 
+	<< nbRawCells_.value_ << " but nbResources=" << resourceTable_->nbResources()
+	<< " and nbFreeSlots=" << resourceTable_->nbFreeSlots();
+    XCEPT_DECLARE(evf::Exception,
+		  sentinelException, ost.str());
+    notifyQualified("error",sentinelException);
+  }
+
   unlock();
   
   ::sleep(watchSleepSec_.value_);
@@ -689,6 +726,7 @@ void FUResourceBroker::exportParameters()
   gui_->addMonitorParam("rate",                     &rate_);
   gui_->addMonitorParam("average",                  &average_);
   gui_->addMonitorParam("rms",                      &rms_);
+  gui_->addMonitorParam("dataErrorFlag",            &dataErrorFlag_);
   
   gui_->addMonitorCounter("nbAllocatedEvents",      &nbAllocatedEvents_);
   gui_->addMonitorCounter("nbPendingRequests",      &nbPendingRequests_);
@@ -700,6 +738,8 @@ void FUResourceBroker::exportParameters()
   gui_->addMonitorCounter("nbLostEvents",           &nbLostEvents_);
   gui_->addMonitorCounter("nbDataErrors",           &nbDataErrors_);
   gui_->addMonitorCounter("nbCrcErrors",            &nbCrcErrors_);
+  gui_->addMonitorCounter("nbTimeoutsWithEvent",    &nbTimeoutsWithEvent_);
+  gui_->addMonitorCounter("nbTimeoutsWithoutEvent", &nbTimeoutsWithoutEvent_);
 
   gui_->addStandardParam("segmentationMode",        &segmentationMode_);
   gui_->addStandardParam("nbClients",               &nbClients_);

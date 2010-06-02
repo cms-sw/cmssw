@@ -87,9 +87,12 @@ namespace evf {
 
     // drop next available event
     void   dropEvent();
-    
+
+    // send event belonging to crashed process to error stream (return false
+    // if no event is found)    
+    bool   handleCrashedEP(UInt_t runNumber,pid_t pid);
+
     // dump event to ascii file
-    void   handleCrashedEP(UInt_t runNumber,pid_t pid);
     void   dumpEvent(evf::FUShmRawCell* cell);
     
     // send empty events to notify clients to shutdown
