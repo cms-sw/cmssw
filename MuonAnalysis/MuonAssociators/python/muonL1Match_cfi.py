@@ -5,6 +5,8 @@ from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi i
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cfi import *
 from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
 
+from math import pi
+
 muonL1Match = cms.EDProducer("L1MuonMatcher",
     src = cms.InputTag("muons"),
 
@@ -20,6 +22,7 @@ muonL1Match = cms.EDProducer("L1MuonMatcher",
     # Matching Criteria
     maxDeltaPhi = cms.double(6),
     maxDeltaR   = cms.double(0.3),
+    l1PhiOffset = cms.double(1.25 * pi/180.), ## Offset to add to L1 phi before matching (according to L1 experts)
 
     # Fake filter lavels for output
     setL1Label = cms.string("l1"),

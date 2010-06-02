@@ -1,7 +1,7 @@
 #ifndef MuonAnalysis_MuonAssociators_interface_L1MuonMatcherAlgo_h
 #define MuonAnalysis_MuonAssociators_interface_L1MuonMatcherAlgo_h
 //
-// $Id: L1MuonMatcherAlgo.h,v 1.5 2010/02/22 13:28:00 gpetrucc Exp $
+// $Id: L1MuonMatcherAlgo.h,v 1.6 2010/04/21 17:19:18 gpetrucc Exp $
 //
 
 /**
@@ -9,7 +9,7 @@
   \brief    Matcher of reconstructed objects to L1 Muons 
             
   \author   Giovanni Petrucciani
-  \version  $Id: L1MuonMatcherAlgo.h,v 1.5 2010/02/22 13:28:00 gpetrucc Exp $
+  \version  $Id: L1MuonMatcherAlgo.h,v 1.6 2010/04/21 17:19:18 gpetrucc Exp $
 */
 
 
@@ -135,6 +135,9 @@ class L1MuonMatcherAlgo {
         int matchGeneric(TrajectoryStateOnSurface &propagated, const Collection &l1, const Selector &sel, float &deltaR, float &deltaPhi) const ;
 
 
+        /// Add this offset to the L1 phi before doing the match, to correct for different scales in L1 vs offline
+        void setL1PhiOffset(double l1PhiOffset) { l1PhiOffset_ = l1PhiOffset; }
+
     private:
         PropagateToMuon prop_;
 
@@ -147,6 +150,9 @@ class L1MuonMatcherAlgo {
 
         /// Sort by deltaPhi instead of deltaR
         bool sortByDeltaPhi_;
+
+        /// offset to be added to the L1 phi before the match
+        double l1PhiOffset_;
 };
 
 template<typename Collection, typename Selector>
@@ -160,8 +166,8 @@ L1MuonMatcherAlgo::matchGeneric(TrajectoryStateOnSurface &propagated, const Coll
     for (int i = 0, n = l1s.size(); i < n; ++i) {
         const obj &l1 = l1s[i];
         if (sel(l1)) {
-            double thisDeltaPhi = ::deltaPhi(double(pos.phi()),  l1.phi());
-            double thisDeltaR2  = ::deltaR2(double(pos.eta()), double(pos.phi()), l1.eta(), l1.phi());
+            double thisDeltaPhi = ::deltaPhi(double(pos.phi()),  l1.phi()+l1PhiOffset_);
+            double thisDeltaR2  = ::deltaR2(double(pos.eta()), double(pos.phi()), l1.eta(), l1.phi()+l1PhiOffset_);
             if ((fabs(thisDeltaPhi) < deltaPhi_) && (thisDeltaR2 < deltaR2_)) { // check both
                 if (sortByDeltaPhi_ ? (fabs(thisDeltaPhi) < fabs(minDeltaPhi)) : (thisDeltaR2 < minDeltaR2)) { // sort on one
                     match = i;

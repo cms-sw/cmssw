@@ -28,6 +28,7 @@ muonHLTL1Match = cms.EDProducer("HLTL1MuonMatcher",
 
     # Matching Criteria
     maxDeltaR = cms.double(0.3),
+    l1PhiOffset = cms.double(1.25 * pi/180.), ## Offset to add to L1 phi before matching (according to L1 experts)
 
     # Fake filter lavels for the object propagated to the second muon station
     setPropLabel = cms.string("propagatedToM2"),
