@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-
 /*
- * $Id: LaserSorter.cc,v 1.11 2010/02/12 17:40:32 pgras Exp $
+ * $Id: LaserSorter.cc,v 1.10 2010/02/12 14:01:27 pgras Exp $
  */
 
 /***************************************************
@@ -97,7 +97,6 @@ LaserSorter::LaserSorter(const edm::ParameterSet& pset)
     maxFullReadoutDccError_(pset.getParameter<int>("maxFullReadoutDccError")),
     iNoEcalDataMess_(0),
     maxNoEcalDataMess_(pset.getParameter<int>("maxNoEcalDataMess")),
-    lumiBlockSpan_(pset.getParameter<int>("lumiBlockSpan")),
     stats_(stats_init)
 {
 
@@ -268,15 +267,18 @@ LaserSorter::analyze(const edm::Event& event, const edm::EventSetup& es){
   int assignedLB = -1;
   
   if(event.luminosityBlock()!=lumiBlock_){
-    //lumi block change => need for stream garbage collection
-    const int lb = event.luminosityBlock();
-    closeOldStreams(lb);
-    int minLumi = event.luminosityBlock() - lumiBlockSpan_;
-    int maxLumi = event.luminosityBlock() + lumiBlockSpan_;
-    for(int lb1 = minLumi; lb1 <= maxLumi; ++lb1){
-      restoreStreamsOfLumiBlock(lb1);
+      //lumi block change => need for stream garbage collection
+      closeOldStreams(event.luminosityBlock());
+//       if(event.luminosityBlock()!=lumiBlock_+1){
+//         //ASSUMES lumi block initialized to 0 => will proceed either if
+//         //job started with a lumi block different than 0 or when
+//         //switching to a lumi block other than N+1
+      int prevLumi = event.luminosityBlock()-1;
+      if(prevLumi>=1) restoreStreamsOfLumiBlock(prevLumi);
+      int nextLumi = event.luminosityBlock()+1;
+      restoreStreamsOfLumiBlock(nextLumi);
+      //      }
     }
-  }
     
 //     if(event.luminosityBlock() < lumiBlock_){
 //       throw cms::Exception("LaserSorter") 
@@ -411,8 +413,8 @@ void LaserSorter::closeAllStreams(){
 }
 
 void LaserSorter::closeOldStreams(edm::LuminosityBlockNumber_t lumiBlock){
-  const edm::LuminosityBlockNumber_t minLumiBlock = lumiBlock - lumiBlockSpan_;
-  const edm::LuminosityBlockNumber_t maxLumiBlock = lumiBlock + lumiBlockSpan_;
+  const edm::LuminosityBlockNumber_t minLumiBlock = lumiBlock - 1;
+  const edm::LuminosityBlockNumber_t maxLumiBlock = lumiBlock + 1;
   //If container type is ever changed, beware that
   //closeOutStream call in the loop removes it from outStreamList
   for(boost::ptr_list<OutStreamRecord>::iterator it = outStreamList_.begin();
@@ -451,7 +453,7 @@ LaserSorter::getStream(int fedId,
       it != outStreamList_.end();
       ++it){
     if(it->fedId()==fedId && 
-       (abs((int)it->startingLumiBlock()-(int)lumiBlock)<=lumiBlockSpan_)){
+       (abs((int)it->startingLumiBlock()-(int)lumiBlock)<=1)){
       //stream found!
       return &(*it);
     }

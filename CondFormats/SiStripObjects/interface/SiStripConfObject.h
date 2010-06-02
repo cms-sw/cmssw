@@ -3,10 +3,8 @@
 
 #include <iostream>
 #include <vector>
-#include <map>
 #include <algorithm>
 #include <iterator>
-#include <sstream>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -27,41 +25,16 @@ class SiStripConfObject
  public:
   SiStripConfObject() {}
 
-  template <class valueType>
-  bool put( const std::string & name, const valueType & inputValue )
-  {
-    std::stringstream ss;
-    ss << inputValue;
-    if( parameters.insert(std::make_pair(name, ss.str())).second ) return true;
-    return false;
-  }
-
-  int getInt( const std::string & name );
-  double getDouble( const std::string & name );
-  std::string getString( const std::string & name );
-
-  template <class valueType>
-  void get( const std::string & name, valueType * value )
-  {
-    parMap::const_iterator it = parameters.find(name);
-    std::stringstream ss;
-    if( it != parameters.end() ) {
-      ss << it->second;
-      ss >> (*value);
-    }
-    else {
-      std::cout << "WARNING: parameter " << name << " not found. Returning default value" << std::endl;
-    }
-  }
+  bool put( const std::string & name, const int & value );
+  int get( const std::string & name );
 
   /// Prints the full list of parameters
   void printSummary(std::stringstream & ss) const;
   /// Prints the full list of parameters
   void printDebug(std::stringstream & ss) const;
 
-  typedef std::map<std::string, std::string> parMap;
-
-  parMap parameters;
+  std::vector<std::string> names;
+  std::vector<int> values;
 };
 
 #endif

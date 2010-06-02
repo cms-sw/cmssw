@@ -162,6 +162,6 @@ REGISTER_PLUGIN(EcalDCSTowerStatusRcd,EcalDCSTowerStatus);
 REGISTER_PLUGIN(EcalDAQTowerStatusRcd,EcalDAQTowerStatus);
 
 REGISTER_PLUGIN(EcalDQMChannelStatusRcd,EcalDQMChannelStatus);
-REGISTER_PLUGIN(EcalDQMTowerStatusRcd,EcalDQMChannelStatus);
+REGISTER_PLUGIN(EcalDQMTowerStatusRcd,EcalDQMTowerStatus);
 
 

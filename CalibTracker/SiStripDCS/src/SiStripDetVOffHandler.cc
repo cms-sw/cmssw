@@ -3,8 +3,7 @@
 popcon::SiStripDetVOffHandler::SiStripDetVOffHandler (const edm::ParameterSet& pset) :
   name_(pset.getUntrackedParameter<std::string>("name","SiStripDetVOffHandler")),
   deltaTmin_(pset.getParameter<uint32_t>("DeltaTmin")),
-  maxIOVlength_(pset.getParameter<uint32_t>("MaxIOVlength")),
-  debug_(pset.getUntrackedParameter<bool>("Debug", false))
+  maxIOVlength_(pset.getParameter<uint32_t>("MaxIOVlength"))
 { }
 
 popcon::SiStripDetVOffHandler::~SiStripDetVOffHandler() { 
@@ -20,18 +19,13 @@ void popcon::SiStripDetVOffHandler::getNewObjects()
 	<< " - > getNewObjects\n"; 
   if (tagInfo().size){
     //check whats already inside of database
-    std::string userText("No data");
-    size_t splitPoint = logDBEntry().usertext.find_last_of("@");
-    if( splitPoint != std::string::npos ) {
-      userText = logDBEntry().usertext.substr(splitPoint);
-    }
     dbstr << "got offlineInfo" << tagInfo().name << ", size " << tagInfo().size << " " << tagInfo().token 
 	  << " , last object valid since " 
 	  << tagInfo().lastInterval.first << " token "   
 	  << tagInfo().lastPayloadToken << "\n\n UserText " << userTextLog() 
 	  << "\n LogDBEntry \n" 
 	  << logDBEntry().logId            << "\n"
-	  << logDBEntry().destinationDB    << "\n"
+	  << logDBEntry().destinationDB    << "\n"   
 	  << logDBEntry().provenance       << "\n"
 	  << logDBEntry().usertext         << "\n"
 	  << logDBEntry().iovtag           << "\n"
@@ -42,7 +36,7 @@ void popcon::SiStripDetVOffHandler::getNewObjects()
 	  << logDBEntry().payloadContainer << "\n"
 	  << logDBEntry().exectime         << "\n"
 	  << logDBEntry().execmessage      << "\n"
-	  << "\n\n-- user text " << userText;
+	  << "\n\n-- user text " << logDBEntry().usertext.substr(logDBEntry().usertext.find_last_of("@")) ;
   } else {
     dbstr << " First object for this tag ";
   }
@@ -106,23 +100,14 @@ void popcon::SiStripDetVOffHandler::setForTransfer() {
 }
 
 
-void popcon::SiStripDetVOffHandler::setUserTextLog()
-{
+void popcon::SiStripDetVOffHandler::setUserTextLog(){
   std::stringstream ss;
-  ss << "@@@ Number of payloads transferred " << resultVec.size() << "." << std::endl;
-  std::vector< std::pair<SiStripDetVOff*,cond::Time_t> >::const_iterator it = resultVec.begin();
-  ss << "time \t #LV off \t #HV off" << std::endl;
-  for( ; it != resultVec.end(); ++it ) {
-    ss << boost::posix_time::to_iso_extended_string( cond::time::to_boost(it->second) );
-    ss << "\t\t  " << it->first->getLVoffCounts() << "\t\t  " << it->first->getHVoffCounts() << std::endl;
-  }
-
-  if( debug_ ) {
-    ss << "PayloadNo/Badmodules/NoAdded/NoRemoved: ";
-    std::vector< std::vector<uint32_t> > payloadStats = modHVBuilder->getPayloadStats();
-    for (unsigned int j = 0; j < payloadStats.size(); j++) {
-      ss << j << "/" << payloadStats[j][0] << "/" << payloadStats[j][1] << "/" << payloadStats[j][2] << "\t ";
-    }
+  
+  std::vector< std::vector<uint32_t> > payloadStats = modHVBuilder->getPayloadStats();
+  ss << "@@@ Number of payloads transferred " << resultVec.size() << ". "
+     << "PayloadNo/Badmodules/NoAdded/NoRemoved: ";
+  for (unsigned int j = 0; j < payloadStats.size(); j++) {
+    ss << j << "/" << payloadStats[j][0] << "/" << payloadStats[j][1] << "/" << payloadStats[j][2] << "\t ";
   }
   
   this->m_userTextLog = ss.str();

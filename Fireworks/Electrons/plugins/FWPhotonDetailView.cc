@@ -1,7 +1,7 @@
 //
-// Package:     Electrons
+// Package:     Calo
 // Class  :     FWPhotonDetailView
-// $Id: FWPhotonDetailView.cc,v 1.25 2010/05/12 12:36:13 amraktad Exp $
+// $Id: FWPhotonDetailView.cc,v 1.22 2009/11/06 06:34:07 dmytro Exp $
 
 #include "TLatex.h"
 #include "TEveCalo.h"
@@ -35,8 +35,6 @@ m_builder(0)
 
 FWPhotonDetailView::~FWPhotonDetailView()
 {
-   m_eveViewer->GetGLViewer()->DeleteOverlayElements(TGLOverlayElement::kUser);
-
    if (m_data) m_data->DecDenyDestroy();
    delete m_builder;
 }
@@ -55,15 +53,12 @@ void FWPhotonDetailView::build (const FWModelId &id, const reco::Photon* iPhoton
 
    if ( iPhoton->superCluster().isAvailable() )
       m_builder->showSuperCluster(*(iPhoton->superCluster()), kYellow);
-
    TEveCaloLego* lego = m_builder->build();
    m_data = lego->GetData();
-   m_data->IncDenyDestroy();
    m_eveScene->AddElement(lego);
 
    // add Photon specific details
-   if( iPhoton->superCluster().isAvailable() ) 
-      addSceneInfo(iPhoton, m_eveScene);
+   addSceneInfo(iPhoton, m_eveScene);
 
    // draw axis at the window corners
    TEveCaloLegoOverlay* overlay = new TEveCaloLegoOverlay();

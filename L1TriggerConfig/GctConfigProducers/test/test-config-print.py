@@ -13,11 +13,6 @@ options.register('sqlite',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "SQLite file")
-options.register('run',
-                 '1', #default value
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.int,
-                 "run number")
 options.parseArguments()
 
 # the job
@@ -33,8 +28,8 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("EmptyIOVSource",
     timetype = cms.string('runnumber'),
-    firstValue = cms.uint64(options.run),
-    lastValue = cms.uint64(options.run),
+    firstValue = cms.uint64(1),
+    lastValue = cms.uint64(1),
     interval = cms.uint64(1)
 )
 

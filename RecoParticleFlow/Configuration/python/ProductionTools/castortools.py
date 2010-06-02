@@ -45,46 +45,6 @@ def matchingFiles( dir, regexp, protocol=None, castor=True):
 
     return matchingFiles
 
-# does not work
-def rootEventNumber( file ):
-    tmp = open("nEvents.C", "w")
-    tmp.write('''
-void nEvents(const char* f) {
-  loadFWLite();
-  TFile* fp = TFile::Open(f);
-  cout<<Events->GetEntries()<<endl;
-  gApplication->Terminate();
-}
-''')
-    command = 'root -b \'nEvents.C(\"%s\")\' ' % file
-    print command
-    output = os.popen('root -b \'nEvents.C(\"%s\")\' ' % file)
-    print 'done'
-    output.close()
-    print 'closed'
-
-# returns the number of events in a file 
-def numberOfEvents( file ):
-    output = os.popen('edmFileUtil -f rfio:%s' % file)
-    
-    pattern = re.compile( '\( (\d+) events,' )
-
-    for line in output.readlines():
-        m = pattern.search( line )
-        if m:
-            return int(m.group(1))
-
-def emptyFiles( dir, regexp, castor=True):
-    allFiles = matchingFiles( dir, regexp)
-    emptyFiles = []
-    for file in allFiles:
-        print 'file ',file
-        num = numberOfEvents(file)
-        print 'nEvents = ', num
-        if num==0:
-            emptyFiles.append( file )
-    return emptyFiles 
-
 # cleanup files with a size that is too small, out of a given tolerance. 
 def cleanFiles( castorDir, regexp, tolerance = 999999.):
 
@@ -232,16 +192,12 @@ def sync( regexp1, files1, regexp2, files2):
 # create a subdirectory in an existing directory 
 def createSubDir( castorDir, subDir ):
     absName = '%s/%s' % (castorDir, subDir)
-    return createCastorDir( absName )
-
-# create castor directory, if it does not already exist
-def createCastorDir( absName ):
     out = os.system( 'rfdir %s' % absName )
+    print out
     if out!=0:
         # dir does not exist
         os.system( 'rfmkdir %s' % absName )
     return absName
-    
 
 # move a set of files to another directory on castor
 def move( absDestDir, files ):
@@ -264,8 +220,7 @@ def cp( absDestDir, files ):
     destIsCastorDir = isCastorDir(absDestDir)
     if destIsCastorDir: 
         cp = 'rfcp'
-        createCastorDir( absDestDir )
-        
+
     for file in files:
 
         if destIsCastorDir == False:
@@ -274,7 +229,7 @@ def cp( absDestDir, files ):
             else:
                 cp = 'cp'
         
-        cpfile = '%s %s %s' % (cp, file,absDestDir)
+        cpfile = '%s %s %s &' % (cp, file,absDestDir)
         print cpfile
         os.system(cpfile)
         

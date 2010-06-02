@@ -112,7 +112,7 @@ class parserPerfsuiteMetadata:
 		return [job_lines.index(line) 
 			for line in job_lines 
 			if line.startswith(start_of_line)][0]
-	
+
 	def findLineBefore(self, line_index, lines, test_condition):
 		""" finds a line satisfying the `test_condition` comming before the `line_index` """
 		# we're going backwards the lines list
@@ -157,12 +157,9 @@ class parserPerfsuiteMetadata:
 
 	""" reads the input cmsPerfsuite.log file  """
 	def readInput(self, path, fileName = "cmsPerfSuite.log"):
-		try:
-			f = open(os.path.join(path, fileName), "r")
-			lines =  [s.strip() for s in f.readlines()]
-			f.close()
-		except IOError:
-			lines = []
+		f = open(os.path.join(path, fileName), "r")
+		lines =  [s.strip() for s in f.readlines()]
+		f.close()
 
 		#print self._lines
 		return lines
@@ -258,7 +255,6 @@ class parserPerfsuiteMetadata:
 		parsing_rules = (
 			(("", "num_cores", "run_on_cpus"), r"""^This machine \((.+)\) is assumed to have (\d+) cores, and the suite will be run on cpu \[(.+)\]$"""),
 			(("start_time", "host", "local_workdir", "user"), r"""^Performance Suite started running at (.+) on (.+) in directory (.+), run by user (.+)$""", "req"),
-			(("architecture",) ,r"""^Current Architecture is (.+)$"""),
 			(("test_release_based_on",), r"""^Test Release based on: (.+)$""", "req"),
 			(("base_release_path",) , r"""^Base Release in: (.+)$"""),
 			(("test_release_local_path",) , r"""^Your Test release in: (.+)$"""),
@@ -316,19 +312,12 @@ class parserPerfsuiteMetadata:
 		---------------------------------------
 		total packages: 2 (2 displayed)
 		"""
-		tags_start_index = -1 # set some default
-		try:
-			tags_start_index = [i for i in xrange(0, len(lines)) if lines[i].startswith("--- Tag ---")][0]
-		except:
-			pass
-		if tags_start_index > -1:
-			tags_end_index = [i for i in xrange(tags_start_index + 1, len(lines)) if lines[i].startswith("---------------------------------------")][0]
-			# print "tags start index: %s, end index: %s" % (tags_start_index, tags_end_index)
-			tags = lines[tags_start_index:tags_end_index+2]
-			# print [tag.split("  ") for tag in tags]
-			# print "\n".join(tags)
-	        else: # no tags found, make an empty list ...
-			tags = []
+		tags_start_index = [i for i in xrange(0, len(lines)) if lines[i].startswith("--- Tag ---")][0]
+		tags_end_index = [i for i in xrange(tags_start_index + 1, len(lines)) if lines[i].startswith("---------------------------------------")][0]
+		#print "tags start index: %s, end index: %s" % (tags_start_index, tags_end_index)
+		tags = lines[tags_start_index:tags_end_index+2]
+		#print [tag.split("  ") for tag in tags]
+		#print "\n".join(tags)
 		""" we join the tags with separator to store as simple string """
 		info["tags"] = self._LINE_SEPARATOR.join(tags)
 		#FILES/PATHS
@@ -343,15 +332,9 @@ class parserPerfsuiteMetadata:
 				print e
 			info["command_line"] = 	""
 		
-		try:
-			cmd_parsed_start = self.findFirstIndex_ofStartsWith(lines, "Initial PerfSuite Arguments:") + 1
-			cmd_parsed_end = self.findFirstIndex_ofStartsWith(lines, "Running cmsDriver.py")
-			info["command_line_parsed"] = self._LINE_SEPARATOR.join(lines[cmd_parsed_start:cmd_parsed_end])
-		except IndexError, e:
-			if self._DEBUG:
-				print e
-			info["command_line"] = 	""
-
+		cmd_parsed_start = self.findFirstIndex_ofStartsWith(lines, "Initial PerfSuite Arguments:") + 1
+		cmd_parsed_end = self.findFirstIndex_ofStartsWith(lines, "Running cmsDriver.py")
+		info["command_line_parsed"] = self._LINE_SEPARATOR.join(lines[cmd_parsed_start:cmd_parsed_end])
 		return  info
 
 	
@@ -696,7 +679,7 @@ class parserPerfsuiteMetadata:
 
 
 		if self.missing_fields:
-			self.handleParsingError("========== SOME REQUIRED FIELDS WERE NOT FOUND DURING PARSING ======= "+ str( self.missing_fields))
+			self.handleParsingError("========== SOME REQUIRED FIELDS WERE NOT FOUND DURING PARSING ======= "+ str( missing_fields))
 
 		return result
 		

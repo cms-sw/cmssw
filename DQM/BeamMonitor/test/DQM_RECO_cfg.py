@@ -53,7 +53,7 @@ process.dqmBeamMonitor.resetEveryNLumi = 10
 process.dqmBeamMonitor.resetPVEveryNLumi = 5
 
 ### TKStatus
-process.dqmTKStatus = cms.EDAnalyzer("TKStatus",
+process.dqmTKStatus = cms.EDFilter("TKStatus",
 	BeamFitter = cms.PSet(
 	DIPFileName = process.dqmBeamMonitor.BeamFitter.DIPFileName
 	)

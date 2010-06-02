@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2010/04/14 14:55:49 $
- * $Revision: 1.209 $
+ * $Date: 2010/05/27 09:51:31 $
+ * $Revision: 1.211 $
  * \author G. Della Ricca
  *
 */
@@ -172,50 +172,6 @@ void EBSummaryClient::beginJob(void) {
 
   ievt_ = 0;
   jevt_ = 0;
-
-  // summary for DQM GUI
-
-  char histo[200];
-
-  MonitorElement* me;
-
-  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
-
-  sprintf(histo, "reportSummary");
-  me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo);
-  if ( me ) {
-    dqmStore_->removeElement(me->getName());
-  }
-  me = dqmStore_->bookFloat(histo);
-  me->Fill(-1.0);
-
-  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
-
-  for (int i = 0; i < 36; i++) {
-    sprintf(histo, "EcalBarrel_%s", Numbers::sEB(i+1).c_str());
-    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
-    if ( me ) {
-      dqmStore_->removeElement(me->getName());
-    }
-    me = dqmStore_->bookFloat(histo);
-    me->Fill(-1.0);
-  }
-
-  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
-
-  sprintf(histo, "reportSummaryMap");
-  me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo);
-  if ( me ) {
-    dqmStore_->removeElement(me->getName());
-  }
-  me = dqmStore_->book2D(histo, histo, 72, 0., 72., 34, 0., 34);
-  for ( int iettx = 0; iettx < 34; iettx++ ) {
-    for ( int ipttx = 0; ipttx < 72; ipttx++ ) {
-      me->setBinContent( ipttx+1, iettx+1, -1.0 );
-    }
-  }
-  me->setAxisTitle("jphi", 1);
-  me->setAxisTitle("jeta", 2);
 
 }
 
@@ -1477,14 +1433,21 @@ void EBSummaryClient::analyze(void) {
 
           if ( ebsfc ) {
 
+            me = dqmStore_->get(prefixME_ + "/EcalInfo/EBMM DCC");
+
+            float xval = 6;
+
+            if ( me ) {
+
+              xval = 2;
+              if ( me->getBinContent( ism ) > 0 ) xval = 1;
+
+            }
+
             me = ebsfc->meh01_[ism-1];
 
             if ( me ) {
 
-              float xval = 6;
-
-              if ( me->getBinContent( ie, ip ) < 0 ) xval = 2;
-              if ( me->getBinContent( ie, ip ) == 0 ) xval = 1;
               if ( me->getBinContent( ie, ip ) > 0 ) xval = 0;
 
               meStatusFlags_->setBinContent( ipx, iex, xval );

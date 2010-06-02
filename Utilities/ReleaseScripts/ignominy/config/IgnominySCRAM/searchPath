@@ -194,6 +194,8 @@ sub parse_project ()
   foreach my $libdir (keys %uniqToolLibdir)
   {
     my $from=$uniqToolLibdir{$libdir}{from};
+    my $count=$uniqToolLibdir{$libdir}{count};
+    if ($count>1){$from="${from}_EXTRA";}
     my $libdirq=quotemeta("${libdir}/");
     print "match ^$libdirq.+\$:'$from'\n";
   }

@@ -19,6 +19,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "PhysicsTools/KinFitter/interface/TFitParticleECart.h"
 
+ClassImp(TFitParticleECart)
 
 //----------------
 // Constructor --

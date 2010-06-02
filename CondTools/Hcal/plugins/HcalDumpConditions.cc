@@ -121,8 +121,6 @@ namespace edmtest
       dumpIt(new HcalDcsValues, new HcalDcsRcd, e,context,"DcsValues");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("DcsMap")) != mDumpRequest.end())
       dumpIt(new HcalDcsMap, new HcalDcsMapRcd, e,context,"DcsMap");
-    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("CholeskyMatrices")) != mDumpRequest.end())
-      dumpIt(new HcalCholeskyMatrices, new HcalCholeskyMatricesRcd, e,context,"CholeskyMatrices");
     
   }
   DEFINE_FWK_MODULE(HcalDumpConditions);

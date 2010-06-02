@@ -142,7 +142,6 @@ private:
   /// helpers for ctors, dtor, and op=
   /// zeroes all pointers
   void init();
-  void unpack_data(unsigned short * buf);
   void copy(const CSCEventData &);
   void destroy();
 

@@ -19,9 +19,9 @@ from RecoMET.METProducers.HTMET_cfi import *
 from RecoMET.METProducers.CaloMETSignif_cfi import *
 from RecoMET.METProducers.TCMET_cfi import *
 from RecoMET.METProducers.hcalnoiseinfoproducer_cfi import *
-from RecoMET.METProducers.MuonMETValueMapProducer_cff import *
-from RecoMET.METProducers.MuonTCMETValueMapProducer_cff import *
-from RecoMET.METProducers.MetMuonCorrections_cff import *
+from RecoMET.METAlgorithms.MuonMETValueMapProducer_cff import *
+from RecoMET.METAlgorithms.MuonTCMETValueMapProducer_cff import *
+from RecoMET.METAlgorithms.MetMuonCorrections_cff import *
 from RecoMET.Configuration.RecoMET_BeamHaloId_cff import *
 
 metreco = cms.Sequence(

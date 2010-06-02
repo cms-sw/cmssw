@@ -4,57 +4,43 @@
 #include <string>
 #include <stdexcept>
 
-/*
- Copyright (c) Giovanni.Organtini@roma1.infn.it 2010
-*/
+#include "OnlineDB/EcalCondDB/interface/ITag.h"
 
-#include "OnlineDB/EcalCondDB/interface/LMFUnique.h"
 
 /**
- *   Tag for LMF Run
+ *   Tag for Monitoring Sub-Run information
  */
-class LMFRunTag : public LMFUnique {
+class LMFRunTag : public ITag {
  public:
   friend class LMFRunIOV;  // needs permission to write
+  friend class EcalCondDBInterface;
 
   LMFRunTag();
-  LMFRunTag(oracle::occi::Environment* env,
-	    oracle::occi::Connection* conn);
-  LMFRunTag(EcalDBConnection *c);
   ~LMFRunTag();
 
   // Methods for user data
   std::string getGeneralTag() const;
-  int getVersion() const;
+  void setGeneralTag(std::string tag);
 
-  LMFRunTag& setGeneralTag(const std::string &tag);
-  LMFRunTag& setVersion(int v);
-  LMFRunTag& set(const std::string &tag, int vers) {
-    setGeneralTag(tag);
-    setVersion(vers);
-    return *this;
-  }
-  
-  bool isValid();
+  // Methods using ID
+  int fetchID() throw(std::runtime_error);
+  void setByID(int id) throw(std::runtime_error);
 
   // Operators
-  inline bool operator==(const LMFRunTag &t) const { 
-    return ((getGeneralTag() == t.getGeneralTag()) &&
-	    (getVersion()    == t.getVersion())); 
-  }
-  inline bool operator!=(const LMFRunTag &t) const { 
-    return ((getGeneralTag() != t.getGeneralTag()) ||
-	    (getVersion()    != t.getVersion())); 
-  }
+  inline bool operator==(const LMFRunTag &t) const { return m_genTag == t.m_genTag; }
+  inline bool operator!=(const LMFRunTag &t) const { return m_genTag != t.m_genTag; }
+
 
  private:
+  // User data for this tag
+  std::string m_genTag;
 
-  // Methods from LMFUnique
-  std::string fetchIdSql(Statement *stmt);
-  std::string fetchAllSql(Statement *stmt) const;
-  std::string setByIDSql(Statement *stmt, int id);
-  void getParameters(ResultSet *rset);
-  LMFUnique *createObject() const;
+  // Methods from ITag
+  int writeDB() throw(std::runtime_error);
+
+  // Access methods
+  void fetchAllTags( std::vector<LMFRunTag>* fillVec) throw(std::runtime_error);
+
 
 };
 

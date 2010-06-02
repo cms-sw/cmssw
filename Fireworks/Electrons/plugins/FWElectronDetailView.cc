@@ -1,8 +1,8 @@
 // -*- C++ -*-
 //
-// Package:     Electrons
+// Package:     Calo
 // Class  :     FWElectronDetailView
-// $Id: FWElectronDetailView.cc,v 1.50 2010/05/12 12:36:13 amraktad Exp $
+// $Id: FWElectronDetailView.cc,v 1.47 2009/11/15 14:19:00 dmytro Exp $
 //
 
 #include "TEveLegoEventHandler.h"
@@ -15,7 +15,6 @@
 #include "TEveScene.h"
 #include "TEveViewer.h"
 #include "TGLViewer.h"
-#include "TGLOverlay.h"
 #include "TCanvas.h"
 #include "TEveCaloLegoOverlay.h"
 #include "TRootEmbeddedCanvas.h"
@@ -42,95 +41,75 @@ FWElectronDetailView::FWElectronDetailView() :
 }
 
 FWElectronDetailView::~FWElectronDetailView()
-{  
-   m_eveViewer->GetGLViewer()->DeleteOverlayElements(TGLOverlayElement::kUser);
-
-   delete m_builder;
+{
    if (m_data) m_data->DecDenyDestroy();
+   delete m_builder;
 }
 
 //
 // member functions
 //
-void
-FWElectronDetailView::build( const FWModelId &id, const reco::GsfElectron* iElectron )
+void FWElectronDetailView::build(const FWModelId &id, const reco::GsfElectron* iElectron)
 {
-   if( !iElectron ) return;
-   // If SuperCluster reference is not stored,
-   // take eta and phi of a Candidate
-   double eta = 0;
-   double phi = 0;
-   if( iElectron->superCluster().isAvailable() ) {
-      eta = iElectron->caloPosition().eta();
-      phi = iElectron->caloPosition().phi();
-   }
-   else 
-   {
-      eta = iElectron->eta();
-      phi = iElectron->phi();
-   }
+   if (!iElectron) return;
 
    // build ECAL objects
-   m_builder = new FWECALDetailViewBuilder( id.item()->getEvent(), id.item()->getGeom(),
-					    eta, phi, 25);
+   m_builder = new FWECALDetailViewBuilder(id.item()->getEvent(), id.item()->getGeom(),
+                                           iElectron->caloPosition().eta(), iElectron->caloPosition().phi(), 25);
  
-   m_builder->showSuperClusters( kGreen+2, kGreen+4 );
-   if( iElectron->superCluster().isAvailable() )
-      m_builder->showSuperCluster( *(iElectron->superCluster() ), kYellow );
+   m_builder->showSuperClusters(kGreen+2, kGreen+4);
+   if ( iElectron->superCluster().isAvailable() )
+      m_builder->showSuperCluster(*(iElectron->superCluster()), kYellow);
    TEveCaloLego* lego = m_builder->build();
    m_data = lego->GetData();
-   m_eveScene->AddElement( lego );
-   
+   m_eveScene->AddElement(lego->GetData());
+   m_eveScene->AddElement(lego);
    // add Electron specific details
-   if( iElectron->superCluster().isAvailable() ) {
-      addTrackPointsInCaloData( iElectron, lego );
-      drawCrossHair( iElectron, lego, m_eveScene );
-      addSceneInfo( iElectron, m_eveScene );
-   }
-   
+   addTrackPointsInCaloData( iElectron, lego);
+   drawCrossHair(iElectron, lego, m_eveScene);
+   addSceneInfo(iElectron, m_eveScene);
+
    // draw axis at the window corners
-   if (1)
-   {
    TEveCaloLegoOverlay* overlay = new TEveCaloLegoOverlay();
-   overlay->SetShowPlane( kFALSE );
-   overlay->SetShowPerspective( kFALSE );
-   overlay->SetCaloLego( lego );
-   overlay->SetShowScales( 1 ); // temporary
-   viewerGL()->AddOverlayElement( overlay );
-   }
+   overlay->SetShowPlane(kFALSE);
+   overlay->SetShowPerspective(kFALSE);
+   overlay->SetCaloLego(lego);
+   overlay->SetShowScales(1); // temporary
+   viewerGL()->AddOverlayElement(overlay);
+
    // set event handler and flip camera to top view at beginning
-   viewerGL()->SetCurrentCamera( TGLViewer::kCameraOrthoXOY );
+   viewerGL()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
    TEveLegoEventHandler* eh =
-      new TEveLegoEventHandler( (TGWindow*)viewerGL()->GetGLWidget(), (TObject*)viewerGL(), lego );
-   viewerGL()->SetEventHandler( eh );
+      new TEveLegoEventHandler((TGWindow*)viewerGL()->GetGLWidget(), (TObject*)viewerGL(), lego);
+   viewerGL()->SetEventHandler(eh);
    viewerGL()->UpdateScene();
    viewerGL()->CurrentCamera().Reset();
-   viewerGL()->RequestDraw( TGLRnrCtx::kLODHigh );
+
+
+   viewerGL()->RequestDraw(TGLRnrCtx::kLODHigh);
    gEve->Redraw3D();
 
-   setTextInfo( id, iElectron );
+   setTextInfo(id, iElectron);
 }
 
-math::XYZPoint
-FWElectronDetailView::trackPositionAtCalo( const reco::GsfElectron &electron )
+
+math::XYZPoint FWElectronDetailView::trackPositionAtCalo (const reco::GsfElectron &t)
 {
-   return electron.TrackPositionAtCalo();
+   return t.TrackPositionAtCalo();
 }
 
-double
-FWElectronDetailView::deltaEtaSuperClusterTrackAtVtx( const reco::GsfElectron &electron )
+double FWElectronDetailView::deltaEtaSuperClusterTrackAtVtx (const reco::GsfElectron &t)
 {
-   return electron.deltaEtaSuperClusterTrackAtVtx();
+   return t.deltaEtaSuperClusterTrackAtVtx();
 }
 
-double
-FWElectronDetailView::deltaPhiSuperClusterTrackAtVtx( const reco::GsfElectron &electron )
+double FWElectronDetailView::deltaPhiSuperClusterTrackAtVtx (const reco::GsfElectron &t)
 {
-   return electron.deltaPhiSuperClusterTrackAtVtx();
+   return t.deltaPhiSuperClusterTrackAtVtx();
 }
 
 void
-FWElectronDetailView::setTextInfo( const FWModelId& id, const reco::GsfElectron *electron )
+FWElectronDetailView::setTextInfo(const FWModelId& id, const reco::GsfElectron *electron)
 {
    m_infoCanvas->cd();
 
@@ -138,59 +117,56 @@ FWElectronDetailView::setTextInfo( const FWModelId& id, const reco::GsfElectron 
    float_t x2 = 0.52;
    float   y  = 0.95;
 
-   TLatex* latex = new TLatex( x, y, "" );
-   const double textsize( 0.05 );
-   latex->SetTextSize( 2*textsize );
+   TLatex* latex = new TLatex(x, y, "");
+   const double textsize(0.05);
+   latex->SetTextSize(2*textsize);
 
-   latex->DrawLatex( x, y, id.item()->modelName( id.index() ).c_str() );
+   latex->DrawLatex(x, y, id.item()->modelName(id.index()).c_str() );
    y -= latex->GetTextSize()*0.6;
 
-   latex->SetTextSize( textsize );
+   latex->SetTextSize(textsize);
    float lineH = latex->GetTextSize()*0.6;
 
-   latex->DrawLatex( x, y, Form( " E_{T} = %.1f GeV, #eta = %0.2f, #varphi = %0.2f",
-				 electron->et(), electron->eta(), electron->phi()) );
+   latex->DrawLatex(x, y, Form(" E_{T} = %.1f GeV, #eta = %0.2f, #varphi = %0.2f",
+                               electron->et(), electron->eta(), electron->phi()) );
    y -= lineH;
    // summary
-   if( electron->charge() > 0 )
-      latex->DrawLatex( x, y, " charge = +1" );
+   if (electron->charge() > 0)
+      latex->DrawLatex(x, y, " charge = +1");
    else
-      latex->DrawLatex( x, y, " charge = -1" );
+      latex->DrawLatex(x, y, " charge = -1");
    y -= lineH;
 
-   if( electron->superCluster().isAvailable() ) {     
-      // delta phi/eta in
-      latex->DrawLatex( x, y, "SuperCluster vs inner state extrapolation" );
-      y -= lineH;
-      latex->DrawLatex( x, y,  Form( " #Delta#eta_{in} = %.3f",
-				     electron->deltaEtaSuperClusterTrackAtVtx()) );
-      latex->DrawLatex( x2, y, Form( "#Delta#varphi_{in} = %.3f",
-				     electron->deltaPhiSuperClusterTrackAtVtx()) );
-      y -= lineH;
+   // delta phi/eta in
+   latex->DrawLatex(x, y, "SuperCluster vs inner state extrapolation");
+   y -= lineH;
+   latex->DrawLatex(x, y,  Form(" #Delta#eta_{in} = %.3f",
+                                electron->deltaEtaSuperClusterTrackAtVtx()) );
+   latex->DrawLatex(x2, y, Form("#Delta#varphi_{in} = %.3f",
+                                electron->deltaPhiSuperClusterTrackAtVtx()) );
+   y -= lineH;
 
-      // delta phi/eta out
-      latex->DrawLatex( x, y, "SeedCluster vs outer state extrapolation" );
-      y -= lineH;
-      char dout[128];
-      sprintf( dout, " #Delta#eta_{out} = %.3f",
-	       electron->deltaEtaSeedClusterTrackAtCalo() );
-      latex->DrawLatex( x, y, dout );
-      sprintf( dout, " #Delta#varphi_{out} = %.3f",
-	       electron->deltaPhiSeedClusterTrackAtCalo() );
-      latex->DrawLatex( x2, y, dout );
-      y -= 2*lineH;
-   } else
-     latex->DrawLatex( x, y, "Ref to SuperCluster is not available" );
-   
-   m_builder->makeLegend( 0.02, y, kGreen+2, kGreen+4, kYellow );
+   // delta phi/eta out
+   latex->DrawLatex(x, y, "SeedCluster vs outer state extrapolation");
+   y -= lineH;
+   char dout[128];
+   sprintf(dout, " #Delta#eta_{out} = %.3f",
+           electron->deltaEtaSeedClusterTrackAtCalo());
+   latex->DrawLatex(x, y, dout);
+   sprintf(dout, " #Delta#varphi_{out} = %.3f",
+           electron->deltaPhiSeedClusterTrackAtCalo());
+   latex->DrawLatex(x2, y, dout);
+   y -= 2*lineH;
+
+
+   m_builder->makeLegend(0.02,y,kGreen+2,kGreen+4,kYellow);
 }
 
 void
 FWElectronDetailView::drawCrossHair (const reco::GsfElectron* i, TEveCaloLego *lego, TEveElementList* tList)
 {
-   unsigned int subdetId( 0 );
-   
-   if( !i->superCluster()->seed()->hitsAndFractions().empty() )
+   unsigned int subdetId(0);
+   if ( !i->superCluster()->seed()->hitsAndFractions().empty() )
       subdetId = i->superCluster()->seed()->hitsAndFractions().front().first.subdetId();
 
    double ymax = lego->GetPhiMax();
@@ -251,11 +227,12 @@ FWElectronDetailView::drawCrossHair (const reco::GsfElectron* i, TEveCaloLego *l
       pinposition->SetLineColor(kRed);
       tList->AddElement(pinposition);
    }
+
+
 }
 
-Bool_t
-FWElectronDetailView::checkRange( Double_t &em, Double_t& eM, Double_t &pm, Double_t& pM,
-				  Double_t eta, Double_t phi )
+Bool_t FWElectronDetailView::checkRange(Double_t &em, Double_t& eM, Double_t &pm, Double_t& pM,
+                                        Double_t eta, Double_t phi)
 {
    Bool_t changed = kFALSE;
 
@@ -286,10 +263,9 @@ FWElectronDetailView::checkRange( Double_t &em, Double_t& eM, Double_t &pm, Doub
 }
 
 void
-FWElectronDetailView::addTrackPointsInCaloData( const reco::GsfElectron *i, TEveCaloLego* lego )
+FWElectronDetailView::addTrackPointsInCaloData (const reco::GsfElectron *i, TEveCaloLego* lego)
 {
    unsigned int subdetId(0);
-
    if ( !i->superCluster()->seed()->hitsAndFractions().empty() )
       subdetId = i->superCluster()->seed()->hitsAndFractions().front().first.subdetId();
 
@@ -355,7 +331,6 @@ void
 FWElectronDetailView::addSceneInfo(const reco::GsfElectron *i, TEveElementList* tList)
 {
    unsigned int subdetId(0);
-
    if ( !i->superCluster()->seed()->hitsAndFractions().empty() )
       subdetId = i->superCluster()->seed()->hitsAndFractions().front().first.subdetId();
 

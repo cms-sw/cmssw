@@ -206,9 +206,10 @@ clustering thresh_Seed_Ecal_Endcap      0.60
 clustering thresh_Pt_Seed_Ecal_Endcap   0.15
 
 // cleaning thresholds for ECAL end-caps seeds
-//clustering thresh_Clean_Ecal_Endcap     15.
-clustering thresh_Clean_Ecal_Endcap     1E5
-clustering minS4S1_Clean_Ecal_Endcap    0.04 -0.025
+clustering thresh_Clean_Ecal_Endcap     15.
+clustering minS4S1_Clean_Ecal_Endcap    0.02 -0.0125
+//clustering thresh_Clean_Ecal_Endcap     1E5
+//clustering minS4S1_Clean_Ecal_Endcap    0.04 -0.025
 
 // build topo-cluster from cells with 1 common side or corner
 clustering useCornerCells_Ecal 1
@@ -415,7 +416,8 @@ particle_flow   useConvBremPFRecTracks  1
 particle_flow	useEGammaSupercluster   1
 particle_flow	useEGammaElectrons      0
 
-
+//PF Muon Momentum Assignment
+particle_flow   usePFMuonMomAssign      0
 
 // rejectTracks_Bad
 particle_flow   rejectTracks_Bad   1

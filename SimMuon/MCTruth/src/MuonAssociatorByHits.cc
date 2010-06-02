@@ -16,7 +16,6 @@
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegment.h"
-#include "SimMuon/MCTruth/interface/TrackerMuonHitExtractor.h"
 #include <sstream>
 
 using namespace reco;
@@ -46,7 +45,49 @@ MuonAssociatorByHits::MuonAssociatorByHits (const edm::ParameterSet& conf) :
   simtracksXFTag(conf.getParameter<edm::InputTag>("simtracksXFTag")),
   conf_(conf)
 {
+  edm::LogVerbatim("MuonAssociatorByHits") << "constructing  MuonAssociatorByHits" << conf_.dump();
+  edm::InputTag tracksTag = conf.getParameter<edm::InputTag>("tracksTag");
+  edm::InputTag tpTag = conf.getParameter<edm::InputTag>("tpTag");
+  edm::LogVerbatim("MuonAssociatorByHits") << "\n MuonAssociatorByHits will associate reco::Tracks with "<<tracksTag
+					   << "\n\t\t and TrackingParticles with "<<tpTag;
+  const std::string recoTracksLabel = tracksTag.label();
+  const std::string recoTracksInstance = tracksTag.instance();
 
+  // check and fix inconsistent input settings
+  // tracks with hits only on muon detectors
+  if (recoTracksLabel == "standAloneMuons" || recoTracksLabel == "standAloneSETMuons" ||
+      recoTracksLabel == "cosmicMuons" || recoTracksLabel == "hltL2Muons") {
+    if (UseTracker) {
+      edm::LogWarning("MuonAssociatorByHits") 
+	<<"\n*** WARNING : inconsistent input tracksTag = "<<tracksTag
+	<<"\n with UseTracker = true"<<"\n ---> setting UseTracker = false ";
+      UseTracker = false;
+    }
+    if (!UseMuon) {
+      edm::LogWarning("MuonAssociatorByHits") 
+	<<"\n*** WARNING : inconsistent input tracksTag = "<<tracksTag
+	<<"\n with UseMuon = false"<<"\n ---> setting UseMuon = true ";
+      UseMuon = true;
+    }
+  }
+  // tracks with hits only on tracker
+  if (recoTracksLabel == "generalTracks" || recoTracksLabel == "ctfWithMaterialTracksP5LHCNavigation" ||
+      recoTracksLabel == "hltL3TkTracksFromL2" || 
+      (recoTracksLabel == "hltL3Muons" && recoTracksInstance == "L2Seeded")) {
+    if (UseMuon) {
+      edm::LogWarning("MuonAssociatorByHits") 
+	<<"\n*** WARNING : inconsistent input tracksTag = "<<tracksTag
+	<<"\n with UseMuon = true"<<"\n ---> setting UseMuon = false ";
+      UseMuon = false;
+    }
+    if (!UseTracker) {
+      edm::LogWarning("MuonAssociatorByHits") 
+	<<"\n*** WARNING : inconsistent input tracksTag = "<<tracksTag
+	<<"\n with UseTracker = false"<<"\n ---> setting UseTracker = true ";
+      UseTracker = true;
+    }
+  }
+  
   // up to the user in the other cases - print a message
   if (UseTracker) edm::LogVerbatim("MuonAssociatorByHits")<<"\n UseTracker = TRUE  : Tracker SimHits and RecHits WILL be counted";
   else edm::LogVerbatim("MuonAssociatorByHits") <<"\n UseTracker = FALSE : Tracker SimHits and RecHits WILL NOT be counted";
@@ -72,30 +113,8 @@ MuonAssociatorByHits::~MuonAssociatorByHits()
 }
 
 RecoToSimCollection  
-MuonAssociatorByHits::associateRecoToSim( const edm::RefToBaseVector<reco::Track>& tC,
-					  const edm::RefVector<TrackingParticleCollection>& TPCollectionH,
-    					  const edm::Event * e, const edm::EventSetup * setup) const{
-  RecoToSimCollection  outputCollection;
-
-  TrackHitsCollection tH;
-  for (edm::RefToBaseVector<reco::Track>::const_iterator it = tC.begin(), ed = tC.end(); it != ed; ++it) {
-    tH.push_back(std::make_pair((*it)->recHitsBegin(), (*it)->recHitsEnd()));
-  }
-  
-  IndexAssociation bareAssoc = associateRecoToSimIndices(tH, TPCollectionH, e, setup);
-  for (IndexAssociation::const_iterator it = bareAssoc.begin(), ed = bareAssoc.end(); it != ed; ++it) {
-    for (std::vector<IndexMatch>::const_iterator itma = it->second.begin(), edma = it->second.end(); itma != edma; ++itma) {
-        outputCollection.insert(tC[it->first], std::make_pair(edm::Ref<TrackingParticleCollection>(TPCollectionH, itma->idx), itma->quality));
-    }
-  }
-
-  outputCollection.post_insert(); // perhaps not even necessary
-  return outputCollection;
-}
-
-MuonAssociatorByHits::IndexAssociation
-MuonAssociatorByHits::associateRecoToSimIndices(const TrackHitsCollection & tC,
-					  const edm::RefVector<TrackingParticleCollection>& TPCollectionH,
+MuonAssociatorByHits::associateRecoToSim(edm::RefToBaseVector<reco::Track>& tC,
+					  edm::RefVector<TrackingParticleCollection>& TPCollectionH,
 					  const edm::Event * e, const edm::EventSetup * setup) const{
 
   int tracker_nshared = 0;
@@ -117,7 +136,7 @@ MuonAssociatorByHits::associateRecoToSimIndices(const TrackHitsCollection & tC,
   MapOfMatchedIds tracker_matchedIds_valid, muon_matchedIds_valid;
   MapOfMatchedIds tracker_matchedIds_INVALID, muon_matchedIds_INVALID;
 
-  IndexAssociation     outputCollection;
+  RecoToSimCollection  outputCollection;
   bool printRtS(true);
 
   // Tracker hit association  
@@ -136,7 +155,12 @@ MuonAssociatorByHits::associateRecoToSimIndices(const TrackHitsCollection & tC,
   if (dumpInputCollections) {
     // reco::Track collection
     edm::LogVerbatim("MuonAssociatorByHits")<<"\n"<<"reco::Track collection --- size = "<<tC.size();
-
+    int i = 0;
+    for (edm::RefToBaseVector<reco::Track>::const_iterator ITER=tC.begin(); ITER!=tC.end(); ITER++, i++) {
+      edm::LogVerbatim("MuonAssociatorByHits")
+	<<"Track "<<i<<" : p = "<<(*ITER)->p()<<", charge = "<<(*ITER)->charge()
+	<<", pT = "<<(*ITER)->pt()<<", eta = "<<(*ITER)->eta()<<", phi = "<<(*ITER)->phi();    
+    }
 
     // TrackingParticle collection
     edm::LogVerbatim("MuonAssociatorByHits")<<"\n"<<"TrackingParticle collection --- size = "<<tPC.size();
@@ -217,10 +241,12 @@ MuonAssociatorByHits::associateRecoToSimIndices(const TrackHitsCollection & tC,
   }
   
   int tindex=0;
-  for (TrackHitsCollection::const_iterator track=tC.begin(); track!=tC.end(); track++, tindex++) {
+  for (edm::RefToBaseVector<reco::Track>::const_iterator track=tC.begin(); track!=tC.end(); track++, tindex++) {
     edm::LogVerbatim("MuonAssociatorByHits")
       <<"\n"<<"reco::Track "<<tindex
-      <<", number of RecHits = "<< (track->second - track->first) << "\n";
+      <<", pT = " << (*track)->pt()<<", eta = "<<(*track)->momentum().eta()<<", phi = "<<(*track)->momentum().phi()
+      <<", number of RecHits = "<<(*track)->recHitsSize()<<" ("<<(*track)->numberOfValidHits()<<" valid hits, "<<(*track)->numberOfLostHits()<<" lost hits) \n";
+    
     tracker_matchedIds_valid.clear();
     muon_matchedIds_valid.clear();
 
@@ -273,7 +299,7 @@ MuonAssociatorByHits::associateRecoToSimIndices(const TrackHitsCollection & tC,
 		  n_tracker_matched_valid, n_dt_matched_valid, n_csc_matched_valid, n_rpc_matched_valid,
 		  n_tracker_INVALID, n_dt_INVALID, n_csc_INVALID, n_rpc_INVALID,
 		  n_tracker_matched_INVALID, n_dt_matched_INVALID, n_csc_matched_INVALID, n_rpc_matched_INVALID,
-                  track->first, track->second,
+		  (*track)->recHitsBegin(), (*track)->recHitsEnd(),
 		  trackertruth, dttruth, csctruth, rpctruth,
 		  printRtS);
     
@@ -335,7 +361,7 @@ MuonAssociatorByHits::associateRecoToSimIndices(const TrackHitsCollection & tC,
     int n_matched = n_tracker_matched + n_muon_matched;
 
     edm::LogVerbatim("MuonAssociatorByHits")
-      <<"\n"<<"# TrackingRecHits: "<<(track->second - track->first) 
+      <<"\n"<<"# TrackingRecHits: "<<(*track)->recHitsSize()
       <<"\n"<< "# used RecHits     = " << n_all <<" ("<<n_tracker_all<<"/"
       <<n_dt_all<<"/"<<n_csc_all<<"/"<<n_rpc_all<<" in Tracker/DT/CSC/RPC)"<<", obtained from " << n_matching_simhits << " SimHits"
       <<"\n"<< "# selected RecHits = " <<n_selected_hits <<" (" <<n_tracker_selected_hits<<"/"
@@ -350,7 +376,8 @@ MuonAssociatorByHits::associateRecoToSimIndices(const TrackHitsCollection & tC,
     if (n_matching_simhits != 0) {
       edm::LogVerbatim("MuonAssociatorByHits")
 	<<"\n"<< "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-	<<"\n"<< "reco::Track "<<tindex<<ZeroHitMuon
+	<<"\n"<< "reco::Track "<<tindex<<ZeroHitMuon<<", q = "<<(*track)->charge()<<", p = " << (*track)->p()<<", pT = " << (*track)->pt()
+	<<", eta = "<<(*track)->momentum().eta()<<", phi = "<<(*track)->momentum().phi()
 	<<"\n\t"<< "made of "<<n_selected_hits<<" selected RecHits (tracker:"<<n_tracker_selected_hits<<"/muons:"<<n_muon_selected_hits<<")";
 
       int tpindex = 0;
@@ -372,12 +399,8 @@ MuonAssociatorByHits::associateRecoToSimIndices(const TrackHitsCollection & tC,
 	else muon_quality = 0;
 
 	// global_quality used to order the matching TPs
-	if (n_selected_hits != 0) {
-            if (AbsoluteNumberOfHits_muon && AbsoluteNumberOfHits_track) 
-                global_quality = global_nshared;
-            else
-                global_quality = (static_cast<double>(global_nshared)/static_cast<double>(n_selected_hits));
-        } else global_quality = 0;
+	if (n_selected_hits != 0) global_quality = (static_cast<double>(global_nshared)/static_cast<double>(n_selected_hits));
+	else global_quality = 0;
 
 	bool trackerOk = false;
 	if (n_tracker_selected_hits != 0) {
@@ -400,7 +423,9 @@ MuonAssociatorByHits::associateRecoToSimIndices(const TrackHitsCollection & tC,
 	
 	if (matchOk) {
 
-          outputCollection[tindex].push_back(IndexMatch(tpindex, global_quality));
+	  outputCollection.insert(tC[tindex],
+				  std::make_pair(edm::Ref<TrackingParticleCollection>(TPCollectionH, tpindex),
+						 global_quality));
 	  this_track_matched = true;
 
 	  edm::LogVerbatim("MuonAssociatorByHits")
@@ -409,6 +434,7 @@ MuonAssociatorByHits::associateRecoToSimIndices(const TrackHitsCollection & tC,
 	    <<"\n"<< "   to: TrackingParticle " <<tpindex<<", q = "<<(*trpart).charge()<<", p = "<<(*trpart).p()
 	    <<", pT = "<<(*trpart).pt()<<", eta = "<<(*trpart).eta()<<", phi = "<<(*trpart).phi()
 	    <<"\n\t"<< " pdg code = "<<(*trpart).pdgId()<<", made of "<<(*trpart).trackPSimHit().size()<<" PSimHits"
+	    //	    <<" (in "<<(*trpart).matchedHit()<<" layers)"
 	    <<" from "<<(*trpart).g4Tracks().size()<<" SimTrack:";
 	  for(TrackingParticle::g4t_iterator g4T=(*trpart).g4Track_begin(); 
 	      g4T!=(*trpart).g4Track_end(); 
@@ -444,41 +470,15 @@ MuonAssociatorByHits::associateRecoToSimIndices(const TrackHitsCollection & tC,
     edm::LogVerbatim("MuonAssociatorByHits")<<"0 reconstructed tracks (-->> 0 associated !)";
 
   delete trackertruth;
-  for (IndexAssociation::iterator it = outputCollection.begin(), ed = outputCollection.end(); it != ed; ++it) {
-    std::sort(it->second.begin(), it->second.end());
-  }
+  outputCollection.post_insert();
   return outputCollection;
 }
 
 
 SimToRecoCollection  
-MuonAssociatorByHits::associateSimToReco( const edm::RefToBaseVector<reco::Track>& tC, 
-					  const edm::RefVector<TrackingParticleCollection>& TPCollectionH,
+MuonAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC, 
+					  edm::RefVector<TrackingParticleCollection>& TPCollectionH,
 					  const edm::Event * e, const edm::EventSetup * setup) const{
-
-  SimToRecoCollection  outputCollection;
-  TrackHitsCollection tH;
-  for (edm::RefToBaseVector<reco::Track>::const_iterator it = tC.begin(), ed = tC.end(); it != ed; ++it) {
-    tH.push_back(std::make_pair((*it)->recHitsBegin(), (*it)->recHitsEnd()));
-  }
-  
-  IndexAssociation bareAssoc = associateSimToRecoIndices(tH, TPCollectionH, e, setup);
-  for (IndexAssociation::const_iterator it = bareAssoc.begin(), ed = bareAssoc.end(); it != ed; ++it) {
-    for (std::vector<IndexMatch>::const_iterator itma = it->second.begin(), edma = it->second.end(); itma != edma; ++itma) {
-        outputCollection.insert(edm::Ref<TrackingParticleCollection>(TPCollectionH, it->first),
-                                std::make_pair(tC[itma->idx], itma->quality));
-    }
-  }
-
-  outputCollection.post_insert(); // perhaps not even necessary
-  return outputCollection;
-}
-
-MuonAssociatorByHits::IndexAssociation
-MuonAssociatorByHits::associateSimToRecoIndices( const TrackHitsCollection & tC, 
-					  const edm::RefVector<TrackingParticleCollection>& TPCollectionH,
-					  const edm::Event * e, const edm::EventSetup * setup) const{
-
 
   int tracker_nshared = 0;
   int muon_nshared = 0;
@@ -503,7 +503,7 @@ MuonAssociatorByHits::associateSimToRecoIndices( const TrackHitsCollection & tC,
   MapOfMatchedIds tracker_matchedIds_valid, muon_matchedIds_valid;
   MapOfMatchedIds tracker_matchedIds_INVALID, muon_matchedIds_INVALID;
 
-  IndexAssociation  outputCollection;
+  SimToRecoCollection  outputCollection;
 
   bool printRtS(true);
 
@@ -523,10 +523,11 @@ MuonAssociatorByHits::associateSimToRecoIndices( const TrackHitsCollection & tC,
   bool any_trackingParticle_matched = false;
   
   int tindex=0;
-  for (TrackHitsCollection::const_iterator track=tC.begin(); track!=tC.end(); track++, tindex++) {
+  for (edm::RefToBaseVector<reco::Track>::const_iterator track=tC.begin(); track!=tC.end(); track++, tindex++) {
     if (printRtS) edm::LogVerbatim("MuonAssociatorByHits")
       <<"\n"<<"reco::Track "<<tindex
-      <<", number of RecHits = "<< (track->second - track->first) << "\n";
+      <<", pT = " << (*track)->pt()<<", eta = "<<(*track)->momentum().eta()<<", phi = "<<(*track)->momentum().phi()
+      <<", number of RecHits = "<<(*track)->recHitsSize()<<" ("<<(*track)->numberOfValidHits()<<" valid hits, "<<(*track)->numberOfLostHits()<<" lost hits)";
     
     tracker_matchedIds_valid.clear();
     muon_matchedIds_valid.clear();
@@ -579,8 +580,8 @@ MuonAssociatorByHits::associateSimToRecoIndices( const TrackHitsCollection & tC,
 		  n_tracker_matched_valid, n_dt_matched_valid, n_csc_matched_valid, n_rpc_matched_valid,
 		  n_tracker_INVALID, n_dt_INVALID, n_csc_INVALID, n_rpc_INVALID,
 		  n_tracker_matched_INVALID, n_dt_matched_INVALID, n_csc_matched_INVALID, n_rpc_matched_INVALID,
-                  track->first, track->second,
-		  trackertruth, dttruth, csctruth, rpctruth,
+		  (*track)->recHitsBegin(), (*track)->recHitsEnd(),
+		  trackertruth, dttruth, csctruth, rpctruth, 
 		  printRtS);
     
     n_matching_simhits = tracker_matchedIds_valid.size() + muon_matchedIds_valid.size() + 
@@ -641,7 +642,7 @@ MuonAssociatorByHits::associateSimToRecoIndices( const TrackHitsCollection & tC,
     int n_matched = n_tracker_matched + n_muon_matched;
 
     if (printRtS) edm::LogVerbatim("MuonAssociatorByHits")
-      <<"\n"<<"# TrackingRecHits: "<<(track->second - track->first) 
+      <<"\n"<<"# TrackingRecHits: "<<(*track)->recHitsSize()
       <<"\n"<< "# used RecHits     = " <<n_all    <<" ("<<n_tracker_all<<"/"
       <<n_dt_all<<"/"<<n_csc_all<<"/"<<n_rpc_all<<" in Tracker/DT/CSC/RPC)"<<", obtained from " << n_matching_simhits << " SimHits"
       <<"\n"<< "# selected RecHits = " <<n_selected_hits  <<" (" <<n_tracker_selected_hits<<"/"
@@ -734,14 +735,8 @@ MuonAssociatorByHits::associateSimToRecoIndices( const TrackHitsCollection & tC,
 	    
 	  }
 	}
-
+	
 	n_tracker_recounted_simhits = tphits.size();
-        // Handle the case of TrackingParticles that don't have PSimHits inside, e.g. because they were made on RECOSIM only.
-        if (trpart->trackPSimHit().empty()) {
-            // FIXME this can be made better, counting the digiSimLinks associated to this TP, but perhaps it's not worth it
-            n_tracker_recounted_simhits = tracker_nshared;
-            n_muon_simhits = muon_nshared;
-        }	
 	n_global_simhits = n_tracker_recounted_simhits + n_muon_simhits;
 
 	if (UseMuon) {
@@ -800,7 +795,8 @@ MuonAssociatorByHits::associateSimToRecoIndices( const TrackHitsCollection & tC,
 	
 	if (matchOk) {
 	  
-          outputCollection[tpindex].push_back(IndexMatch(tindex,global_quality));
+	  outputCollection.insert(edm::Ref<TrackingParticleCollection>(TPCollectionH, tpindex), 
+				  std::make_pair(tC[tindex],global_quality));
 	  any_trackingParticle_matched = true;
 	  
 	  edm::LogVerbatim("MuonAssociatorByHits")
@@ -823,7 +819,8 @@ MuonAssociatorByHits::associateSimToRecoIndices( const TrackHitsCollection & tC,
 	    << "\n\t **MATCHED** with quality = "<<global_quality<<" (tracker: "<<tracker_quality<<" / muon: "<<muon_quality<<")"
 	    << "\n\t               and purity = "<<global_purity<<" (tracker: "<<tracker_purity<<" / muon: "<<muon_purity<<")"
 	    << "\n\t   N shared hits = "<<global_nshared<<" (tracker: "<<tracker_nshared<<" / muon: "<<muon_nshared<<")"
-	    <<"\n" <<"   to: reco::Track "<<tindex<<ZeroHitMuon
+	    <<"\n" <<"   to: reco::Track "<<tindex<<ZeroHitMuon<<", q = "<<(*track)->charge()<<", p = " << (*track)->p()<<", pT = " << (*track)->pt()
+	    <<", eta = "<<(*track)->momentum().eta()<<", phi = "<<(*track)->momentum().phi()
 	    <<"\n\t"<< " made of "<<n_selected_hits<<" RecHits (tracker:"<<n_tracker_valid<<"/muons:"<<n_muon_selected_hits<<")";
 	}
 	else {
@@ -868,9 +865,7 @@ MuonAssociatorByHits::associateSimToRecoIndices( const TrackHitsCollection & tC,
   }
   
   delete trackertruth;
-  for (IndexAssociation::iterator it = outputCollection.begin(), ed = outputCollection.end(); it != ed; ++it) {
-    std::sort(it->second.begin(), it->second.end());
-  }
+  outputCollection.post_insert();
   return outputCollection;
 }
 
@@ -1354,111 +1349,4 @@ std::string MuonAssociatorByHits::write_matched_simtracks(const std::vector<SimH
   } else hitlog = "  *** UNMATCHED ***";
 
   return hitlog;
-}
-
-void MuonAssociatorByHits::associateMuons(MuonToSimCollection & recToSim, SimToMuonCollection & simToRec,
-                                          const edm::Handle<edm::View<reco::Muon> > &tCH, MuonTrackType type,
-                                          const edm::Handle<TrackingParticleCollection>&tPCH,
-                                          const edm::Event * event, const edm::EventSetup * setup) const  {
-
-    edm::RefVector<TrackingParticleCollection> tpc(tPCH.id());
-    for (unsigned int j=0; j<tPCH->size();j++)
-      tpc.push_back(edm::Ref<TrackingParticleCollection>(tPCH,j));
-    
-    associateMuons(recToSim, simToRec, tCH->refVector(),type,tpc,event,setup);
-}
-
-void MuonAssociatorByHits::associateMuons(MuonToSimCollection & recToSim, SimToMuonCollection & simToRec,
-                      const edm::RefToBaseVector<reco::Muon> & muons, MuonTrackType trackType,
-                      const edm::RefVector<TrackingParticleCollection>& tPC,
-                      const edm::Event * event, const edm::EventSetup * setup) const {
-
-    /// PART 1: Fill MuonAssociatorByHits::TrackHitsCollection
-    MuonAssociatorByHits::TrackHitsCollection muonHitRefs;
-    edm::OwnVector<TrackingRecHit> allTMRecHits;  // this I will fill in only for tracker muon hits from segments
-    TrackingRecHitRefVector hitRefVector;              // same as above, plus used to get null iterators for muons without a track
-    switch (trackType) {
-        case InnerTk: 
-            for (edm::RefToBaseVector<reco::Muon>::const_iterator it = muons.begin(), ed = muons.end(); it != ed; ++it) {
-                edm::RefToBase<reco::Muon> mur = *it;
-                if (mur->track().isNonnull()) { 
-                    muonHitRefs.push_back(std::make_pair(mur->track()->recHitsBegin(), mur->track()->recHitsEnd()));
-                } else {
-                    muonHitRefs.push_back(std::make_pair(hitRefVector.begin(), hitRefVector.end()));
-                }
-            }
-            break;
-        case OuterTk: 
-            for (edm::RefToBaseVector<reco::Muon>::const_iterator it = muons.begin(), ed = muons.end(); it != ed; ++it) {
-                edm::RefToBase<reco::Muon> mur = *it;
-                if (mur->outerTrack().isNonnull()) { 
-                    muonHitRefs.push_back(std::make_pair(mur->outerTrack()->recHitsBegin(), mur->outerTrack()->recHitsEnd()));
-                } else {
-                    muonHitRefs.push_back(std::make_pair(hitRefVector.begin(), hitRefVector.end()));
-                }
-            }
-            break;
-        case GlobalTk: 
-            for (edm::RefToBaseVector<reco::Muon>::const_iterator it = muons.begin(), ed = muons.end(); it != ed; ++it) {
-                edm::RefToBase<reco::Muon> mur = *it;
-                if (mur->globalTrack().isNonnull()) { 
-                    muonHitRefs.push_back(std::make_pair(mur->globalTrack()->recHitsBegin(), mur->globalTrack()->recHitsEnd()));
-                } else {
-                    muonHitRefs.push_back(std::make_pair(hitRefVector.begin(), hitRefVector.end()));
-                }
-            }
-            break;
-        case Segments: {
-                TrackerMuonHitExtractor hitExtractor(conf_); 
-                hitExtractor.init(*event, *setup);
-                // puts hits in the vector, and record indices
-                std::vector<std::pair<size_t, size_t> >   muonHitIndices;
-                for (edm::RefToBaseVector<reco::Muon>::const_iterator it = muons.begin(), ed = muons.end(); it != ed; ++it) {
-                    edm::RefToBase<reco::Muon> mur = *it;
-                    std::pair<size_t, size_t> indices(allTMRecHits.size(), allTMRecHits.size());
-                    if (mur->isTrackerMuon()) {
-                        std::vector<const TrackingRecHit *> hits = hitExtractor.getMuonHits(*mur);
-                        for (std::vector<const TrackingRecHit *>::const_iterator ith = hits.begin(), edh = hits.end(); ith != edh; ++ith) {
-                            allTMRecHits.push_back(**ith);
-                        }
-                        indices.second += hits.size();
-                    }
-                    muonHitIndices.push_back(indices);  
-                }
-                // puts hits in the ref-vector
-                for (size_t i = 0, n = allTMRecHits.size(); i < n; ++i) {
-                    hitRefVector.push_back(TrackingRecHitRef(& allTMRecHits, i)); 
-                }
-                // convert indices into pairs of iterators to references
-                typedef std::pair<size_t, size_t> index_pair;
-                trackingRecHit_iterator hitRefBegin = hitRefVector.begin();
-                for (std::vector<std::pair<size_t, size_t> >::const_iterator idxs = muonHitIndices.begin(), idxend = muonHitIndices.end(); idxs != idxend; ++idxs) {
-                    muonHitRefs.push_back(std::make_pair(hitRefBegin+idxs->first, 
-                                                         hitRefBegin+idxs->second));
-                }
-                
-            }
-            break;
-    }
-
-    /// PART 2: call the association routines 
-    MuonAssociatorByHits::IndexAssociation recSimColl = associateRecoToSimIndices(muonHitRefs,tPC,event,setup);
-    for (MuonAssociatorByHits::IndexAssociation::const_iterator it = recSimColl.begin(), ed = recSimColl.end(); it != ed; ++it) {
-        edm::RefToBase<reco::Muon> rec = muons[it->first];
-        const std::vector<MuonAssociatorByHits::IndexMatch>  & idxAss = it->second;
-        std::vector<std::pair<TrackingParticleRef, double> > & tpAss  = recToSim[rec];
-        for (std::vector<MuonAssociatorByHits::IndexMatch>::const_iterator ita = idxAss.begin(), eda = idxAss.end(); ita != eda; ++ita) {
-            tpAss.push_back(std::make_pair(tPC[ita->idx], ita->quality));
-        }
-    }
-    MuonAssociatorByHits::IndexAssociation simRecColl = associateSimToRecoIndices(muonHitRefs,tPC,event,setup);
-    for (MuonAssociatorByHits::IndexAssociation::const_iterator it = simRecColl.begin(), ed = simRecColl.end(); it != ed; ++it) {
-        TrackingParticleRef sim = tPC[it->first];
-        const std::vector<MuonAssociatorByHits::IndexMatch>  & idxAss = it->second;
-        std::vector<std::pair<edm::RefToBase<reco::Muon>, double> > & recAss = simToRec[sim];
-        for (std::vector<MuonAssociatorByHits::IndexMatch>::const_iterator ita = idxAss.begin(), eda = idxAss.end(); ita != eda; ++ita) {
-            recAss.push_back(std::make_pair(muons[ita->idx], ita->quality));
-        }
-    }
-
 }

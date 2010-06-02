@@ -13,8 +13,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2009/05/15 16:29:52 $
- * $Revision: 1.19 $
+ * $Date: 2009/03/27 17:04:52 $
+ * $Revision: 1.18 $
  *
  */
 
@@ -97,7 +97,6 @@ class CSCAnodeLCTProcessor
   int numWireGroups;
   int MESelection;
 
-
   int first_bx[CSCConstants::MAX_NUM_WIRES];
   int quality[CSCConstants::MAX_NUM_WIRES][3];
   std::vector<CSCWireDigi> digiV[CSCConstants::NUM_LAYERS];
@@ -108,8 +107,6 @@ class CSCAnodeLCTProcessor
 
   /** Use TMB07 flag for DAQ-2006 version (implemented in late 2007). */
   bool isTMB07;
-
-  int fail_oneshot;
 
   /** Configuration parameters. */
   unsigned int fifo_tbins, fifo_pretrig, drift_delay;

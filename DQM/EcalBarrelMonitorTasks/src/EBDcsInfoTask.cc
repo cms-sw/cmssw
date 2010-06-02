@@ -7,9 +7,6 @@
 
 #include "CondFormats/EcalObjects/interface/EcalDCSTowerStatus.h"
 #include "CondFormats/DataRecord/interface/EcalDCSTowerStatusRcd.h"
-#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
-#include "CondFormats/RunInfo/interface/RunSummary.h"
-#include "CondFormats/RunInfo/interface/RunInfo.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -83,7 +80,12 @@ void EBDcsInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
       readyLumi[iptt][iett] = 1;
     }
   }
-  
+
+  if ( !iSetup.find( edm::eventsetup::EventSetupRecordKey::makeKey<EcalDCSTowerStatusRcd>() ) ) {
+    edm::LogWarning("EBDcsInfoTask") << "EcalDAQTowerStatus record not found";
+    return;
+  }
+
   edm::ESHandle<EcalDCSTowerStatus> pDCSStatus;
   iSetup.get<EcalDCSTowerStatusRcd>().get(pDCSStatus);
   if ( !pDCSStatus.isValid() ) {

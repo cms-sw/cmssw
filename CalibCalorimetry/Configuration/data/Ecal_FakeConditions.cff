@@ -1,5 +1,0 @@
-#
-# Ecal fake calibrations
-#
- include "CalibCalorimetry/EcalTrivialCondModules/data/EcalTrivialCondRetriever.cfi"
- include "CalibCalorimetry/EcalLaserCorrection/data/ecalLaserCorrectionService.cfi"

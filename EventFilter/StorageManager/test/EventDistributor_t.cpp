@@ -204,10 +204,6 @@ void testEventDistributor::testStreamSelection()
   EvtStrConfigListPtr evtCfgList(new EvtStrConfigList);
   ErrStrConfigListPtr errCfgList(new ErrStrConfigList);
   parseStreamConfiguration(getSampleStreamConfig(), evtCfgList, errCfgList);
-  evtCfgList->at(0).setStreamId(1);
-  evtCfgList->at(1).setStreamId(2);
-  evtCfgList->at(2).setStreamId(3);
-  errCfgList->at(0).setStreamId(4);
   _eventDistributor->registerEventStreams(evtCfgList);
   _eventDistributor->registerErrorStreams(errCfgList);
 
@@ -245,8 +241,8 @@ void testEventDistributor::testStreamSelection()
 
   // *** first event message (should pass) ***
 
-  uint32_t eventNumber = 1;
-  uint32_t hltBitCount = 9;
+  uint32 eventNumber = 1;
+  uint32 hltBitCount = 9;
   clear_trigger_bits(hltBits);
   set_trigger_bit(hltBits, 0, edm::hlt::Pass);
 
@@ -271,7 +267,6 @@ void testEventDistributor::testStreamSelection()
 
   std::vector<StreamID> streamIdList = eventMsgFrag.getStreamTags();
   CPPUNIT_ASSERT(streamIdList.size() == 1);
-  std::cout << streamIdList[0] << std::endl;
   CPPUNIT_ASSERT(streamIdList[0] == 2);
 
   // *** second event message (should not pass) ***
@@ -436,8 +431,8 @@ void testEventDistributor::testConsumerSelection()
   std::vector<unsigned char> hltBits;
   set_trigger_bit(hltBits, 8, edm::hlt::Ready);
 
-  uint32_t eventNumber = 1;
-  uint32_t hltBitCount = 9;
+  uint32 eventNumber = 1;
+  uint32 hltBitCount = 9;
   clear_trigger_bits(hltBits);
   set_trigger_bit(hltBits, 0, edm::hlt::Pass);
   set_trigger_bit(hltBits, 2, edm::hlt::Pass);

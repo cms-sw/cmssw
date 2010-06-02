@@ -11,8 +11,8 @@
  *
  * \author Slava Valuev, UCLA.
  *
- * $Date: 2009/05/20 14:59:13 $
- * $Revision: 1.6 $
+ * $Date: 2008/07/06 05:17:01 $
+ * $Revision: 1.5 $
  *
  */
 
@@ -22,7 +22,6 @@
 #include <DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCCLCTPreTriggerCollection.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 class CSCL1TPParameters;
@@ -51,7 +50,6 @@ class CSCTriggerPrimitivesBuilder
 	     const CSCWireDigiCollection* wiredc,
 	     const CSCComparatorDigiCollection* compdc,
 	     CSCALCTDigiCollection& oc_alct, CSCCLCTDigiCollection& oc_clct,
-             CSCCLCTPreTriggerCollection & oc_pretrig,
 	     CSCCorrelatedLCTDigiCollection& oc_lct,
 	     CSCCorrelatedLCTDigiCollection& oc_sorted_lct);
 

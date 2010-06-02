@@ -109,9 +109,6 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     ### Track settings
     PixelTracksL3               = cms.InputTag("hltPixelCands"),                         
 
-    ### Calo tower settings
-    caloTowerThreshold          = cms.double( 2.0 ),
-
     ### AlCa pi0 settings
     clusSeedThr                 = cms.double( 0.5 ),
     clusSeedThrEndCap           = cms.double( 1.0 ),

@@ -20,8 +20,8 @@ JacobianLocalToCurvilinear(const Surface& surface,
   // GlobalVector dj = surface.toGlobal(LocalVector(1., 0., 0.));
   // GlobalVector dk = surface.toGlobal(LocalVector(0., 1., 0.));
   Surface::RotationType const & rot = surface.rotation();
-  GlobalVector dj(rot.x());
-  GlobalVector dk(rot.y());
+  GlobalVector dj(rot.xx(),rot.xy(),rot.xz());
+  GlobalVector dk(rot.yx(),rot.yy(),rot.yz());
  
   // GlobalVector p = surface.toGlobal(localParameters.momentum());
   // GlobalVector pt(p.x(), p.y(), 0.);
@@ -60,8 +60,8 @@ JacobianLocalToCurvilinear(const Surface& surface,
  
   theJacobian(1,3) = -q*tvw.y()*sinz;
   theJacobian(1,4) = -q*tvw.z()*sinz;
-  theJacobian(2,3) = -q*tvw.y()*(cosz*cosl1);
-  theJacobian(2,4) = -q*tvw.z()*(cosz*cosl1);
+  theJacobian(2,3) = -q*tvw.y()*cosz*cosl1;
+  theJacobian(2,4) = -q*tvw.z()*cosz*cosl1;
   // end of TRSDSC
 
   //dbg::dbg_trace(1,"Loc2Cu", localParameters.vector(),x,dj,dk,theJacobian);

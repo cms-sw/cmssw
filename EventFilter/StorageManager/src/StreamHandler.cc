@@ -1,4 +1,4 @@
-// $Id: StreamHandler.cc,v 1.18 2010/05/11 18:02:30 mommsen Exp $
+// $Id: StreamHandler.cc,v 1.16 2010/03/19 13:24:05 mommsen Exp $
 /// @file: StreamHandler.cc
 
 #include <sstream>
@@ -18,7 +18,6 @@ StreamHandler::StreamHandler(
   const SharedResourcesPtr sharedResources,
   const DbFileHandlerPtr dbFileHandler
 ) :
-_sharedResources(sharedResources),
 _statReporter(sharedResources->_statisticsReporter),
 _streamRecord(_statReporter->getStreamsMonitorCollection().getNewStreamRecord()),
 _diskWritingParams(sharedResources->_configuration->getDiskWritingParams()),
@@ -135,19 +134,11 @@ StreamHandler::getNewFileRecord(const I2OChain& event)
   FilesMonitorCollection::FileRecordPtr fileRecord =
     _statReporter->getFilesMonitorCollection().getNewFileRecord();
   
-  try
-  {
-    fileRecord->runNumber = event.runNumber();
-    fileRecord->lumiSection = event.lumiSection();
-  }
-  catch(stor::exception::IncompleteEventMessage &e)
-  {
-    fileRecord->runNumber = _sharedResources->_configuration->getRunNumber();
-    fileRecord->lumiSection = 0;
-  }
+  fileRecord->runNumber = event.runNumber();
+  fileRecord->lumiSection = event.lumiSection();
   fileRecord->streamLabel = streamLabel();
-  fileRecord->baseFilePath = getBaseFilePath(fileRecord->runNumber, fileRecord->entryCounter);
-  fileRecord->coreFileName = getCoreFileName(fileRecord->runNumber, fileRecord->lumiSection);
+  fileRecord->baseFilePath = getBaseFilePath(event.runNumber(), fileRecord->entryCounter);
+  fileRecord->coreFileName = getCoreFileName(event.runNumber(), event.lumiSection());
   fileRecord->fileCounter = getFileCounter(fileRecord->coreFileName);
   fileRecord->whyClosed = FilesMonitorCollection::FileRecord::notClosed;
   fileRecord->isOpen = true;
@@ -158,13 +149,13 @@ StreamHandler::getNewFileRecord(const I2OChain& event)
 }
 
 
-std::string StreamHandler::getBaseFilePath(const uint32_t& runNumber, uint32_t fileCount) const
+std::string StreamHandler::getBaseFilePath(const uint32& runNumber, uint32_t fileCount) const
 {
   return _diskWritingParams._filePath + getFileSystem(runNumber, fileCount);
 }
 
 
-std::string StreamHandler::getFileSystem(const uint32_t& runNumber, uint32_t fileCount) const
+std::string StreamHandler::getFileSystem(const uint32& runNumber, uint32_t fileCount) const
 {
   // if the number of logical disks is not specified, don't
   // add a file system subdir to the path
@@ -185,8 +176,8 @@ std::string StreamHandler::getFileSystem(const uint32_t& runNumber, uint32_t fil
 
 std::string StreamHandler::getCoreFileName
 (
-  const uint32_t& runNumber,
-  const uint32_t& lumiSection
+  const uint32& runNumber,
+  const uint32& lumiSection
 ) const
 {
   std::ostringstream coreFileName;

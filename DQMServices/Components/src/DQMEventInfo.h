@@ -4,8 +4,8 @@
 /*
  * \file DQMEventInfo.h
  *
- * $Date: 2009/11/05 11:44:47 $
- * $Revision: 1.12 $
+ * $Date: 2009/11/06 09:54:55 $
+ * $Revision: 1.13 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -45,6 +45,7 @@ protected:
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
   void beginRun(const edm::Run& r, const edm::EventSetup& c) ;
+  void beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c);
 
 private:
 

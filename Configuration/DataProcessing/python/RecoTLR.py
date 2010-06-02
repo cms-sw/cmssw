@@ -65,3 +65,8 @@ def customiseCosmicMC(process):
 def customiseExpress(process):
     myname=sys._getframe().f_code.co_name
     return getCustomProcess(process,myname)
+
+##############################################################################
+def customisePrompt(process):
+    myname=sys._getframe().f_code.co_name
+    return getCustomProcess(process,myname)

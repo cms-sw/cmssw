@@ -75,7 +75,7 @@ process.SiStripQualityESProducer = cms.ESProducer("SiStripQualityESProducer",
 #process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 ####
 
-process.stat = cms.EDAnalyzer("SiStripQualityStatistics",
+process.stat = cms.EDFilter("SiStripQualityStatistics",
     #TkMapFileName = cms.untracked.string('TkMaps/TkMapBadComponents_full.png'),
     TkMapFileName = cms.untracked.string(''),
     dataLabel = cms.untracked.string('test')

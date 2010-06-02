@@ -34,7 +34,6 @@ process.db_client = cms.EDAnalyzer(
     UploadAnalyses   = cms.untracked.bool(False),
     DisableDevices   = cms.untracked.bool(False),
     DisableBadStrips = cms.untracked.bool(False),
-    AddBadStrips 		= cms.untracked.bool(False),
     SaveClientFile = cms.untracked.bool(True)
     )
 

@@ -2,9 +2,9 @@
  * \file DQMEventInfo.cc
  * \author M. Zanetti - CERN PH
  * Last Update:
- * $Date: 2009/11/05 11:44:47 $
- * $Revision: 1.25 $
- * $Author: ameyer $
+ * $Date: 2010/06/01 17:47:10 $
+ * $Revision: 1.27 $
+ * $Author: dellaric $
  *
  */
 
@@ -97,6 +97,8 @@ DQMEventInfo::~DQMEventInfo(){
 
 void DQMEventInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
     
+  runId_->Fill(r.id().run());
+
 //   const edm::Timestamp time = r.beginTime();
 // 
 //   float sec = time.value() >> 32; 
@@ -111,10 +113,14 @@ void DQMEventInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
   
 } 
 
+void DQMEventInfo::beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) {
+
+  lumisecId_->Fill(l.id().luminosityBlock());
+
+}
+
 void DQMEventInfo::analyze(const Event& e, const EventSetup& c){
  
-  runId_->Fill(e.id().run());
-  lumisecId_->Fill(e.luminosityBlock());
   eventId_->Fill(int64_t(e.id().event()));
 //  eventTimeStamp_->Fill(e.time().value()/(double)0xffffffff);
   eventTimeStamp_->Fill(stampToReal(e.time()));

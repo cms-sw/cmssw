@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2010/04/14 16:13:40 $
- * $Revision: 1.116 $
+ * $Date: 2010/05/28 09:02:48 $
+ * $Revision: 1.118 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1312,7 +1312,7 @@ void EELedClient::analyze(void) {
           val = 1.;
           if (  mean03 < amplitudeThreshold03_ || rms03 > rmsThreshold03_ )
             val = 0.;
-          if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, val);
+          if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, val );
 
           int ic = Numbers::icEE(ism, jx, jy);
 
@@ -1655,7 +1655,7 @@ void EELedClient::analyze(void) {
         std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
         if (iter == superModules_.end()) continue;
 
-        int i = ecid.getID2() - 1;
+        int i = ecid.getID2() + 1;
 
         UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
         UtilsClient::maskBinContent( meg06_[ism-1], i, 1 );
@@ -1675,7 +1675,7 @@ void EELedClient::analyze(void) {
         std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
         if (iter == superModules_.end()) continue;
 
-        int i = ecid.getID2() - 1;
+        int i = ecid.getID2() + 1;
 
         UtilsClient::maskBinContent( meg09_[ism-1], i, 1 );
         UtilsClient::maskBinContent( meg10_[ism-1], i, 1 );

@@ -21,7 +21,7 @@ void BaseTagInfoPlotter::analyzeTag(const vector<const BaseTagInfo *> &tagInfos,
     throw cms::Exception("MismatchedTagInfos")
     	<< tagInfos.size() << " BaseTagInfos passed, but only one expected." << endl;
 
-  analyzeTag(tagInfos.front(), jetFlavour);
+  analyzeTag(tagInfos[0], jetFlavour);
 }
 
 void BaseTagInfoPlotter::setEventSetup(const edm::EventSetup & setup)

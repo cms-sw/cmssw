@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWTableView.cc,v 1.20 2010/04/22 17:29:52 amraktad Exp $
+// $Id: FWTableView.cc,v 1.18 2009/10/29 09:56:04 chrjones Exp $
 //
 
 // system include files
@@ -21,6 +21,13 @@
 #include <sstream>
 #include <stdexcept>
 
+// FIXME
+// need camera parameters
+#define private public
+#include "TGLPerspectiveCamera.h"
+#undef private
+
+
 #include "TRootEmbeddedCanvas.h"
 #include "THStack.h"
 #include "TCanvas.h"
@@ -31,6 +38,10 @@
 #include "TEveScene.h"
 #include "TGLViewer.h"
 #include "TSystem.h"
+//EVIL, but only way I can avoid a double delete of TGLEmbeddedViewer::fFrame
+#define private public
+#include "TGLEmbeddedViewer.h"
+#undef private
 #include "TGComboBox.h"
 #include "TGLabel.h"
 #include "TGTextView.h"
@@ -65,7 +76,6 @@
 #include "Fireworks/Core/interface/BuilderUtils.h"
 #include "Fireworks/Core/interface/FWExpressionEvaluator.h"
 #include "Fireworks/Core/interface/FWTableViewTableManager.h"
-#include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/src/FWGUIValidatingTextEntry.h"
 #include "Fireworks/Core/src/FWExpressionValidator.h"
 #include "Fireworks/TableWidget/interface/FWTableWidget.h"
@@ -571,7 +581,8 @@ void FWTableView::selectCollection (Int_t i_coll)
      }
      if (not m_useColumnsFromConfig) {
 	  if (m_manager->tableFormats(*item->modelType()) == m_manager->m_tableFormats.end()) {
-               fwLog(fwlog::kInfo) << "No table format for objects of this type " << item->modelType()->GetName() << std::endl;
+	       printf("No table format for objects of this type (%s)\n",
+		      item->modelType()->GetName());
 	       m_tableManager->m_tableFormats->clear();
 	  } else {
 	       m_tableManager->m_tableFormats = &m_manager->tableFormats(*item->modelType())->second;
@@ -623,11 +634,12 @@ void FWTableView::addColumn ()
      long int prec = strtol(m_column_prec_field->GetText(), &endptr, 0);
      if (name == "" || expr == "" || 
 	 m_column_prec_field->GetText() == 0 || *endptr != 0) {
-        fwLog(fwlog::kInfo) << "bad input\n";
+	  printf("bad input\n");
 	  fflush(stdout);
 	  return;
      }
-     fwLog(fwlog::kInfo) << "adding column "<<  name << ": " << expr << ", precision " << prec << std::endl;
+     printf("adding column %s: %s, precision %ld\n", name.c_str(), expr.c_str(), 
+	    prec);
      fflush(stdout);
 //      m_manager->tableFormats(*item->modelType())
      FWTableViewManager::TableEntry e = { expr, name, prec };
@@ -663,11 +675,12 @@ void FWTableView::modifyColumn ()
      long int prec = strtol(m_column_prec_field->GetText(), &endptr, 0);
      if (name == "" || expr == "" || 
 	 m_column_prec_field->GetText() == 0 || *endptr != 0) {
-        fwLog(fwlog::kInfo) << "bad input\n";
+	  printf("bad input\n");
 	  fflush(stdout);
 	  return;
      }
-     fwLog(fwlog::kInfo) << "modify column "<<  name << ": " << expr << ", precision " << prec << std::endl;
+     printf("modifying column %s: %s, precision %ld\n", name.c_str(), expr.c_str(), 
+	    prec);
      fflush(stdout);
 //      m_manager->tableFormats(*item->modelType())
      FWTableViewManager::TableEntry e = { expr, name, prec };

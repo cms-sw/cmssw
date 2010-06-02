@@ -1,4 +1,4 @@
-// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.30 2010/02/02 18:31:57 lowette Exp $
+// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.28 2009/11/10 14:49:02 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/ApvTimingHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/ApvTimingAnalysis.h"
@@ -167,6 +167,11 @@ bool ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange de
       Analyses::const_iterator iter = data().find( fec_key.key() );
       if ( iter != data().end() ) { 
 	
+	if ( !iter->second->isValid() ) { 
+	  addProblemDevice( fec_key ); //@@ Remove problem device
+	  continue; 
+	}
+	
 	ApvTimingAnalysis* anal = dynamic_cast<ApvTimingAnalysis*>( iter->second );
 	if ( !anal ) { 
 	  edm::LogError(mlDqmClient_)
@@ -177,10 +182,9 @@ bool ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange de
 	
 	// Calculate coarse and fine delays
         int32_t delay = static_cast<int32_t>( rint( anal->delay() )*24./25 );
-        // first set course delay
-	coarse = static_cast<uint16_t>( desc->getDelayCoarse() + (delay/24) ) 
-             + ( static_cast<uint16_t>( desc->getDelayFine() ) + (delay%24) ) / 24;
-        delay = delay % 24; // only bother with fine delay now
+
+	coarse = static_cast<uint16_t>( desc->getDelayCoarse() ) 
+             + ( static_cast<uint16_t>( desc->getDelayFine() ) + delay ) / 24;
         if ( ( static_cast<uint16_t>( desc->getDelayFine() ) + delay ) % 24 < 0 ) {
           coarse -= 1;
 	  delay += 24;
@@ -241,9 +245,7 @@ bool ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange de
     } else {
       edm::LogWarning(mlDqmClient_) 
 	<< "[ApvTimingHistosUsingDb::" << __func__ << "]"
-	<< " Invalid PLL delay settings course/fine = "
-        << coarse << "/" << fine
-        << " for crate/FEC/ring/CCU/module " 
+	<< " Invalid PLL delay settings for crate/FEC/ring/CCU/module " 
 	<< fec_path.fecCrate() << "/"
 	<< fec_path.fecSlot() << "/"
 	<< fec_path.fecRing() << "/"

@@ -19,8 +19,6 @@
 #include "CondFormats/CSCObjects/interface/CSCDBCrosstalk.h"
 #include "CondFormats/DataRecord/interface/CSCcrosstalkRcd.h"
 #include "CondFormats/DataRecord/interface/CSCDBCrosstalkRcd.h"
-#include "CondFormats/CSCObjects/interface/CSCDBChipSpeedCorrection.h"
-#include "CondFormats/DataRecord/interface/CSCDBChipSpeedCorrectionRcd.h"
 #include "CondFormats/CSCObjects/interface/CSCIdentifier.h"
 #include "CondFormats/DataRecord/interface/CSCIdentifierRcd.h"
 #include "CondFormats/CSCObjects/interface/CSCNoiseMatrix.h"
@@ -35,8 +33,6 @@
 #include "CondFormats/DataRecord/interface/CSCCrateMapRcd.h"
 #include "CondFormats/CSCObjects/interface/CSCDDUMap.h"
 #include "CondFormats/DataRecord/interface/CSCDDUMapRcd.h"
-#include "CondFormats/CSCObjects/interface/CSCChamberTimeCorrections.h"
-#include "CondFormats/DataRecord/interface/CSCChamberTimeCorrectionsRcd.h"
 #include "CondFormats/CSCObjects/interface/CSCBadChambers.h"
 #include "CondFormats/DataRecord/interface/CSCBadChambersRcd.h"
 #include "CondFormats/CSCObjects/interface/CSCBadStrips.h"
@@ -47,8 +43,6 @@
 #include "CondFormats/DataRecord/interface/CSCReadoutMappingRcd.h"
 #include "CondFormats/CSCObjects/interface/CSCL1TPParameters.h"
 #include "CondFormats/DataRecord/interface/CSCL1TPParametersRcd.h"
-#include "CondFormats/CSCObjects/interface/CSCDBL1TPParameters.h"
-#include "CondFormats/DataRecord/interface/CSCDBL1TPParametersRcd.h"
 #include "CondFormats/CSCObjects/interface/CSCDQM_DCSData.h"
 #include "CondFormats/DataRecord/interface/CSCDCSDataRcd.h"
 
@@ -61,17 +55,14 @@ REGISTER_PLUGIN(CSCcrosstalkRcd,CSCcrosstalk);
 REGISTER_PLUGIN(CSCDBCrosstalkRcd,CSCDBCrosstalk);
 REGISTER_PLUGIN(CSCNoiseMatrixRcd,CSCNoiseMatrix);
 REGISTER_PLUGIN(CSCDBNoiseMatrixRcd,CSCDBNoiseMatrix);
-REGISTER_PLUGIN(CSCDBChipSpeedCorrectionRcd,CSCDBChipSpeedCorrection);
 REGISTER_PLUGIN(CSCChamberMapRcd,CSCChamberMap);
 REGISTER_PLUGIN(CSCChamberIndexRcd,CSCChamberIndex);
 REGISTER_PLUGIN(CSCCrateMapRcd,CSCCrateMap);
 REGISTER_PLUGIN(CSCDDUMapRcd,CSCDDUMap);
-REGISTER_PLUGIN(CSCChamberTimeCorrectionsRcd,CSCChamberTimeCorrections);
 REGISTER_PLUGIN(CSCBadChambersRcd,CSCBadChambers);
 REGISTER_PLUGIN(CSCBadStripsRcd,CSCBadStrips);
 REGISTER_PLUGIN(CSCBadWiresRcd,CSCBadWires);
 REGISTER_PLUGIN(CSCIdentifierRcd,CSCIdentifier);
 REGISTER_PLUGIN(CSCReadoutMappingRcd,CSCReadoutMapping);
 REGISTER_PLUGIN(CSCL1TPParametersRcd,CSCL1TPParameters);
-REGISTER_PLUGIN(CSCDBL1TPParametersRcd,CSCDBL1TPParameters);
 REGISTER_PLUGIN(CSCDCSDataRcd,  cscdqm::DCSData);

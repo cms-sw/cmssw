@@ -31,10 +31,7 @@ private:
   virtual void endJob() ;
   
   DQMStore *dbe_;  
-  edm::ParameterSet pset_;
-
   std::vector<std::string > filenames_;
-  std::string referenceFileName_;
 
 };
 

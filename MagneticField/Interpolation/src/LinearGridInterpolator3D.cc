@@ -10,10 +10,9 @@ LinearGridInterpolator3D::throwGridInterpolator3DException(void)
                                     grida.upper(),gridb.upper(),gridc.upper());
 }
 
-LinearGridInterpolator3D::ReturnType 
+LinearGridInterpolator3D::ValueType 
 LinearGridInterpolator3D::interpolate( Scalar a, Scalar b, Scalar c) 
 {
-  /*
   int i = grida.index(a);
   int j = gridb.index(b);
   int k = gridc.index(c);
@@ -23,23 +22,9 @@ LinearGridInterpolator3D::interpolate( Scalar a, Scalar b, Scalar c)
     throwGridInterpolator3DException();
   }
 
-
   Scalar s = (a - grida.node(i)) / grida.step();
   Scalar t = (b - gridb.node(j)) / gridb.step();
   Scalar u = (c - gridc.node(k)) / gridc.step();
-
-  */
-
-  Scalar s, t, u;
-  int i = grida.index(a,s);
-  int j = gridb.index(b,t);
-  int k = gridc.index(c,u);
-  
-  // test range??
-
-  grida.normalize(i,s);
-  gridb.normalize(j,t);
-  gridc.normalize(k,u);
 
 #ifdef DEBUG_LinearGridInterpolator3D
   if (InterpolationDebug::debug) {
@@ -68,57 +53,19 @@ LinearGridInterpolator3D::interpolate( Scalar a, Scalar b, Scalar c)
 
 #endif
 
-  int ind = grid.index(i,j,k);
-  int s1 = grid.stride1(); 
-  int s2 = grid.stride2(); 
-  int s3 = grid.stride3(); 
   //chances are this is more numerically precise this way
-
-
-#if defined(USE_SSEVECT)
-  
-  ValueType result = ((1.f-s)*(1.f-t)*u)*(grid(ind      +s3) - grid(ind      ));
-  result =  result + ((1.f-s)*     t *u)*(grid(ind   +s2+s3) - grid(ind   +s2));
-  result =  result + (s      *(1.f-t)*u)*(grid(ind+s1   +s3) - grid(ind+s1   ));
-  result =  result + (s      *     t *u)*(grid(ind+s1+s2+s3) - grid(ind+s1+s2)); 
-  result =  result + (        (1.f-s)*t)*(grid(ind   +s2   ) - grid(ind      ));
-  result =  result + (      s        *t)*(grid(ind+s1+s2   ) - grid(ind+s1   ));
-  result =  result + (                s)*(grid(ind+s1      ) - grid(ind      ));
-  result =  result +                                           grid(ind      );
-
-#else
-
-  __m128 resultSIMD =                 _mm_mul_ps(_mm_set1_ps((1.f - s) * (1.f - t) * u), _mm_sub_ps(grid(ind           + s3).vec, grid(ind          ).vec));
-  resultSIMD = _mm_add_ps(resultSIMD, _mm_mul_ps(_mm_set1_ps((1.f - s) *         t * u), _mm_sub_ps(grid(ind      + s2 + s3).vec, grid(ind      + s2).vec)));
-  resultSIMD = _mm_add_ps(resultSIMD, _mm_mul_ps(_mm_set1_ps(        s * (1.f - t) * u), _mm_sub_ps(grid(ind + s1      + s3).vec, grid(ind + s1     ).vec)));
-  resultSIMD = _mm_add_ps(resultSIMD, _mm_mul_ps(_mm_set1_ps(        s *         t * u), _mm_sub_ps(grid(ind + s1 + s2 + s3).vec, grid(ind + s1 + s2).vec)));
-  resultSIMD = _mm_add_ps(resultSIMD, _mm_mul_ps(_mm_set1_ps((1.f - s) *         t    ), _mm_sub_ps(grid(ind      + s2     ).vec, grid(ind          ).vec)));
-  resultSIMD = _mm_add_ps(resultSIMD, _mm_mul_ps(_mm_set1_ps(        s *         t    ), _mm_sub_ps(grid(ind + s1 + s2     ).vec, grid(ind + s1     ).vec)));
-  resultSIMD = _mm_add_ps(resultSIMD, _mm_mul_ps(_mm_set1_ps(        s                ), _mm_sub_ps(grid(ind + s1          ).vec, grid(ind          ).vec)));
-  resultSIMD = _mm_add_ps(resultSIMD,                                                                                             grid(ind          ).vec);
-  
-  ValueType result(resultSIMD);
-
-
-#endif
-
-
-
-  //   ReturnType result = (1-s)*(1-t)*u*(grid(i,  j,  k+1) - grid(i,  j,  k));
-  //   result +=          (1-s)*   t *u*(grid(i,  j+1,k+1) - grid(i,  j+1,k));
-  //   result +=          s    *(1-t)*u*(grid(i+1,j,  k+1) - grid(i+1,j,  k));
-  //   result +=          s    *   t *u*(grid(i+1,j+1,k+1) - grid(i+1,j+1,k)); 
-  //   result +=                (1-s)*t*(grid(i,  j+1,k  ) - grid(i,  j,  k));
-  //   result +=                s    *t*(grid(i+1,j+1,k  ) - grid(i+1,j,  k));
-  //   result +=                      s*(grid(i+1,j,  k  ) - grid(i,  j,  k));
-  //   result +=                                             grid(i,  j,  k);
-
-
-
+  ValueType result = (1-s)*(1-t)*u*(grid(i,  j,  k+1) - grid(i,  j,  k));
+  result +=      (1-s)*   t *u*(grid(i,  j+1,k+1) - grid(i,  j+1,k));
+  result +=      s    *(1-t)*u*(grid(i+1,j,  k+1) - grid(i+1,j,  k));
+  result +=      s    *   t *u*(grid(i+1,j+1,k+1) - grid(i+1,j+1,k)); 
+  result += (1-s)*t*(grid(i,  j+1,k)-grid(i,  j,  k));
+  result += s    *t*(grid(i+1,j+1,k)-grid(i+1,j,  k));
+  result += s*(grid(i+1,j,  k)-grid(i,  j,  k));
+  result += grid(i,  j,  k);
   //      (1-s)*(1-t)*(1-u)*grid(i,  j,  k) + (1-s)*(1-t)*u*grid(i,  j,  k+1) + 
   //      (1-s)*   t *(1-u)*grid(i,  j+1,k) + (1-s)*   t *u*grid(i,  j+1,k+1) +
   //      s    *(1-t)*(1-u)*grid(i+1,j,  k) + s    *(1-t)*u*grid(i+1,j,  k+1) + 
   //      s    *   t *(1-u)*grid(i+1,j+1,k) + s    *   t *u*grid(i+1,j+1,k+1);
 
-  return ReturnType(result);
+  return result;
 }

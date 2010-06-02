@@ -8,14 +8,13 @@
 //
 // Original Author:
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.25 2010/04/29 17:52:29 amraktad Exp $
+// $Id: FWEventItemsManager.cc,v 1.21 2009/07/26 17:19:01 chrjones Exp $
 //
 
 // system include files
 #include <sstream>
 #include <boost/bind.hpp>
 #include "TClass.h"
-#include "TEveManager.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
@@ -28,8 +27,6 @@
 #include "Fireworks/Core/interface/FWDisplayProperties.h"
 
 #include "Fireworks/Core/interface/FWItemAccessorFactory.h"
-#include "Fireworks/Core/interface/fwLog.h"
-
 //
 // constants, enums and typedefs
 //
@@ -44,6 +41,7 @@
 FWEventItemsManager::FWEventItemsManager(FWModelChangeManager* iManager) :
    m_changeManager(iManager),
    m_event(0),
+   m_geom(0),
    m_accessorFactory(new FWItemAccessorFactory())
 {
 }
@@ -60,8 +58,6 @@ FWEventItemsManager::~FWEventItemsManager()
        ++it) {
       delete *it;
    }
-
-   m_items.clear();
 }
 
 //
@@ -92,6 +88,7 @@ FWEventItemsManager::add(const FWPhysicsObjectDesc& iItem)
                                      temp) );
    newItem_(m_items.back());
    m_items.back()->goingToBeDestroyed_.connect(boost::bind(&FWEventItemsManager::removeItem,this,_1));
+   m_items.back()->setGeom(m_geom);
    if(m_event) {
       FWChangeSentry sentry(*m_changeManager);
       m_items.back()->setEvent(m_event);
@@ -113,20 +110,30 @@ FWEventItemsManager::newEvent(const fwlite::Event* iEvent)
    }
 }
 
+void
+FWEventItemsManager::setGeom(const DetIdToMatrix* geom)
+{
+   // cache the geometry (in case items are added later)
+   m_geom = geom;
+   for(std::vector<FWEventItem*>::iterator it = m_items.begin();
+       it != m_items.end();
+       ++it) {
+      if(*it) {
+         (*it)->setGeom(geom);
+      }
+   }
+}
 
 void
-FWEventItemsManager::clearItems(void)
+FWEventItemsManager::clearItems()
 {
    goingToClearItems_();
    for(std::vector<FWEventItem*>::iterator it = m_items.begin();
        it != m_items.end();
        ++it) {
-      if (*it)
-      {
-         (*it)->destroy();
-      }
-      *it = 0;
+      delete *it;
    }
+   m_items.clear();
 }
 
 static const std::string kType("type");

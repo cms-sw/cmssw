@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Oct 23 14:44:33 CDT 2009
-// $Id: FWFromTEveCaloDataSelector.cc,v 1.8 2010/05/10 11:49:40 amraktad Exp $
+// $Id: FWFromTEveCaloDataSelector.cc,v 1.5 2009/10/28 15:37:04 chrjones Exp $
 //
 
 // system include files
@@ -37,8 +37,6 @@ m_item(iItem)
 void
 FWFromSliceSelector::doSelect(const TEveCaloData::CellId_t& iCell)
 {
-   if (!m_item) return;
-
    const CaloTowerCollection* towers=0;
    m_item->get(towers);
    assert(0!=towers);
@@ -57,8 +55,6 @@ FWFromSliceSelector::doSelect(const TEveCaloData::CellId_t& iCell)
 void 
 FWFromSliceSelector::clear()
 {
-   if (!m_item) return;
-
    const CaloTowerCollection* towers=0;
    m_item->get(towers);
    
@@ -81,8 +77,6 @@ FWFromSliceSelector::changeManager() const {
 void
 FWFromSliceSelector::doUnselect(const TEveCaloData::CellId_t& iCell)
 {
-   if (!m_item) return;
-
    const CaloTowerCollection* towers=0;
    m_item->get(towers);
    assert(0!=towers);
@@ -98,13 +92,6 @@ FWFromSliceSelector::doUnselect(const TEveCaloData::CellId_t& iCell)
    }
 }
 
-void
-FWFromSliceSelector::reset()
-{
-   m_item = 0;
-   m_hist = 0;
-}
-
 //
 // static data member definitions
 //
@@ -116,9 +103,7 @@ FWFromTEveCaloDataSelector::FWFromTEveCaloDataSelector(TEveCaloData* iData):
 m_data(iData),
 m_changeManager(0)
 {
-   // reserve 3 , first slice is background
-   m_sliceSelectors.reserve(3);
-   m_sliceSelectors.push_back(FWFromSliceSelector(0, 0));
+   m_sliceSelectors.reserve(2);
 }
 
 // FWFromTEveCaloDataSelector::FWFromTEveCaloDataSelector(const FWFromTEveCaloDataSelector& rhs)
@@ -181,25 +166,23 @@ FWFromTEveCaloDataSelector::doUnselect()
 void 
 FWFromTEveCaloDataSelector::addSliceSelector(int iSlice, const FWFromSliceSelector& iSelector)
 {
-   assert(iSlice>0 && (iSlice <= static_cast<int>(m_sliceSelectors.size())));
-
+   assert(iSlice>-1);
    if(0==m_changeManager) {
       m_changeManager = iSelector.changeManager();
    }
-
    if(iSlice ==static_cast<int>(m_sliceSelectors.size())) {
       m_sliceSelectors.push_back(iSelector);
+   } else if (iSlice>static_cast<int>(m_sliceSelectors.size())) {
+      //insert dummies
+      while (iSlice >=static_cast<int>(m_sliceSelectors.size())) {
+         m_sliceSelectors.push_back(iSelector);         
+      }
    } else {
       assert(iSlice<static_cast<int>(m_sliceSelectors.size()));
       m_sliceSelectors[iSlice]=iSelector;
    }
 }
 
-void 
-FWFromTEveCaloDataSelector::resetSliceSelector(int iSlice)
-{
-   m_sliceSelectors[iSlice].reset();
-}
 //
 // const member functions
 //

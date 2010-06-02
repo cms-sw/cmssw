@@ -9,10 +9,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.92 2010/05/06 18:03:07 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.88 2010/01/25 16:05:21 amraktad Exp $
 //
 // hacks
+// #define private public
 #include "DataFormats/FWLite/interface/Event.h"
+// #undef private
 
 // system include files
 #include <sigc++/sigc++.h>
@@ -52,7 +54,6 @@
 #include "Fireworks/Core/interface/FWCustomIconsButton.h"
 
 #include "Fireworks/Core/interface/FWIntValueListener.h"
-#include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/src/FWCheckBoxIcon.h"
 
 #include <fstream>
@@ -85,10 +86,10 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    CSGAction *openData   = new CSGAction(this, cmsshow::sOpenData.c_str());
    CSGAction *appendData = new CSGAction(this, cmsshow::sAppendData.c_str());
    CSGAction *loadConfig = new CSGAction(this, cmsshow::sLoadConfig.c_str());
+   loadConfig->disable(); //NOTE: All disables happen again later in this routine
    CSGAction *saveConfig   = new CSGAction(this, cmsshow::sSaveConfig.c_str());
    CSGAction *saveConfigAs = new CSGAction(this, cmsshow::sSaveConfigAs.c_str());
-   CSGAction *exportImage  = new CSGAction(this, cmsshow::sExportImage.c_str());
-   CSGAction *exportImages = new CSGAction(this, cmsshow::sExportAllImages.c_str());
+   CSGAction *exportImage   = new  CSGAction(this, cmsshow::sExportImage.c_str());
    CSGAction *quit = new CSGAction(this, cmsshow::sQuit.c_str());
    CSGAction *undo = new CSGAction(this, cmsshow::sUndo.c_str());
    undo->disable(); //NOTE: All disables happen again later in this routine
@@ -157,7 +158,6 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    fileMenu->AddSeparator();
     
    exportImage->createMenuEntry(fileMenu);
-   exportImages->createMenuEntry(fileMenu);
    fileMenu->AddSeparator();
 
    quit->createMenuEntry(fileMenu);
@@ -167,7 +167,6 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    saveConfig->createShortcut(kKey_S, "CTRL", GetId());
    saveConfigAs->createShortcut(kKey_S, "CTRL+SHIFT", GetId());
    exportImage->createShortcut(kKey_P, "CTRL", GetId());
-   exportImages->createShortcut(kKey_P, "CTRL+SHIFT", GetId());
    quit->createShortcut(kKey_Q, "CTRL", GetId());
 
    TGPopupMenu *editMenu = new TGPopupMenu(gClient->GetRoot());
@@ -456,6 +455,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    //NOTE: There appears to be a bug in ROOT such that creating a menu item and setting it as
    // disabled immediately is ignored.  Therefore we have to wait till here to actually get ROOT
    // to disable these menu items
+   loadConfig->disable();
    undo->disable();
    redo->disable();
    cut->disable();
@@ -622,7 +622,7 @@ void CmsShowMainFrame::HandleMenu(Int_t id) {
       }
       break;
       default:
-         fwLog(fwlog::kInfo) << "Invalid menu id\n";
+         printf("Invalid menu id\n");
          break;
    }
 }

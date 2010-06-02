@@ -18,7 +18,6 @@ class MERun
 {
   // only a run manager can create one of those
   friend class MERunManager;
-
   MERun( ME::Header header, ME::Settings settings, TString fname );
 
 public:
@@ -33,21 +32,15 @@ public:
   ME::TimeStamp timestamp() const    { return _header.ts_beg; }
   TString rundir() const  { return _header.rundir; }
 
-  TFile* laserPrimFile( bool refresh=false ); 
-  TFile* NLSFile( bool& doesExist, bool refresh=true ); 
-
+  TFile* laserPrimFile( bool refresh=false );
   void closeLaserPrimFile();
-  void closeNLSFile();
 
-  double getVal( int table, int var, int ix=0, int iy=0 );
+  float getVal( int table, int var, int ix=0, int iy=0 );
 
   const ME::Header   header()   const { return _header;   }
   const ME::Settings settings() const { return _settings; }
 
   void print( std::ostream& o ) const;
-
-  TH2* NLSHist( int var, bool& doesExist);
-  TH2* NLSRefHist( int var, bool& doesExist);
 
 private :
 
@@ -57,10 +50,7 @@ private :
   int _color;
 
   TString _fname;
-  TFile*  _file; 
-
-  TString _fnlsname;
-  TFile*  _nlsfile;  
+  TFile*  _file;  
 
   // get 2-D histogram from the file
   TH2* APDHist( int var );
@@ -74,10 +64,7 @@ private :
   TTree* MTQTable();
   TTree* mtq_t;
   std::map< TString, unsigned int    > mtq_i;
-  std::map< TString, float > mtq_d;  
-
-  std::map< TString, TH2* > _hnls;
-  std::map< TString, TH2* > _hnlsref;
+  std::map< TString, float > mtq_d;
 
   ClassDef( MERun, 0 ) // MERun -- a Laser monitoring run
 };

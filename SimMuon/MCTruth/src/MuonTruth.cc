@@ -54,7 +54,7 @@ MuonTruth::MuonTruth(const edm::Event& event, const edm::EventSetup& setup, cons
 	theSimHitMap[hitItr->detUnitId()].push_back(*hitItr);
       }
     
-  } else if (!CSCsimHitsTag.label().empty()){
+  } else {
 
     edm::Handle<edm::PSimHitContainer> CSCsimhits;
     LogTrace("MuonTruth") <<"getting PSimHit collection - "<<CSCsimHitsTag;

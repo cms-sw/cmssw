@@ -3,7 +3,6 @@
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianCurvilinearToCartesian.h"
 #include "TrackingTools/AnalyticalJacobians/interface/AnalyticalCurvilinearJacobian.h"
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
-#include "DataFormats/GeometrySurface/interface/OpenBounds.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
@@ -19,7 +18,7 @@ TrackKinematicStatePropagator::propagateToTheTransversePCA
   }
 }
 
-pair<HelixBarrelPlaneCrossingByCircle, BoundPlane::BoundPlanePointer>
+pair<HelixBarrelPlaneCrossingByCircle,BoundPlane *>
 TrackKinematicStatePropagator::planeCrossing(const FreeTrajectoryState& state,
 	const GlobalPoint& point) const
 {
@@ -41,12 +40,12 @@ TrackKinematicStatePropagator::planeCrossing(const FreeTrajectoryState& state,
  GlobalVector X(ndeltax.x(), ndeltax.y(), ndeltax.z());
  GlobalVector Y(0.,0.,1.);
  Surface::RotationType rot(X,Y);
- BoundPlane::BoundPlanePointer plane = BoundPlane::build(pos,rot,OpenBounds());
+ BoundPlane* plane = new BoundPlane(pos,rot);
  HelixBarrelPlaneCrossingByCircle 
    planeCrossing(HelixPlaneCrossing::PositionType(inPos.x(), inPos.y(), inPos.z()),
 		 HelixPlaneCrossing::DirectionType(inMom.x(), inMom.y(), inMom.z()), 
 		 kappa, direction);
- return pair<HelixBarrelPlaneCrossingByCircle,BoundPlane::BoundPlanePointer>(planeCrossing,plane);
+ return pair<HelixBarrelPlaneCrossingByCircle,BoundPlane *>(planeCrossing,plane);
 }
 
 
@@ -71,10 +70,10 @@ TrackKinematicStatePropagator::propagateToTheTransversePCACharged
 //for helix barrel plane crossing  
   FreeTrajectoryState fState = state.freeTrajectoryState();		
   GlobalPoint iP = referencePoint;					  
-  pair<HelixBarrelPlaneCrossingByCircle, BoundPlane::BoundPlanePointer> cros = planeCrossing(fState,iP);	   
+  pair<HelixBarrelPlaneCrossingByCircle, BoundPlane *> cros = planeCrossing(fState,iP);	   
   
   HelixBarrelPlaneCrossingByCircle planeCrossing = cros.first; 
-  BoundPlane::BoundPlanePointer plane = cros.second;
+  BoundPlane * plane = cros.second;
   pair<bool,double> propResult = planeCrossing.pathLength(*plane);
   if ( !propResult.first ) {
     LogDebug("RecoVertex/TrackKinematicStatePropagator") 

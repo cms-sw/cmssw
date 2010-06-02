@@ -12,8 +12,8 @@
 
 #include "DQM/RPCMonitorClient/interface/RPCLinkSynchroStat.h"
 
+
 class MonitorElement;
-#include "TObjArray.h"
 namespace edm { class Event; class EventSetup; class Run;}
 
 
@@ -25,11 +25,9 @@ public:
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
   virtual void endLuminosityBlock(const edm::LuminosityBlock&,const edm::EventSetup&);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);  
-  virtual  const RPCRawSynchro::ProdItem & select(const RPCRawSynchro::ProdItem &v, const edm::Event&, const edm::EventSetup&) { return v; };
   virtual void endJob();
 
-protected:
-  virtual TObjArray histos() const;
+private:
   edm::ParameterSet theConfig;
   edm::ESWatcher<RPCEMapRcd> theCablingWatcher;
   RPCLinkSynchroStat theSynchroStat;

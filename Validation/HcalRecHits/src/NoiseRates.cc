@@ -32,31 +32,26 @@ NoiseRates::NoiseRates(const edm::ParameterSet& iConfig)
   }
 
   // set parameters
-  rbxCollName_   = iConfig.getUntrackedParameter<edm::InputTag>("rbxCollName");
-  minRBXEnergy_  = iConfig.getUntrackedParameter<double>("minRBXEnergy");
-  minHitEnergy_  = iConfig.getUntrackedParameter<double>("minHitEnergy");
-
-  useAllHistos_  = iConfig.getUntrackedParameter<bool>("useAllHistos", false);
+  rbxCollName_      = iConfig.getParameter<std::string>("rbxCollName");
+  minRBXEnergy_     = iConfig.getParameter<double>("minRBXEnergy");
+  minHitEnergy_     = iConfig.getParameter<double>("minHitEnergy");
 
   // book histograms
 
-  //Lumi block is not drawn; the rest are
-  if (useAllHistos_){
-    sprintf  (histo, "hLumiBlockCount" );
-    hLumiBlockCount_ = dbe_->book1D(histo, histo, 1, -0.5, 0.5);
-  }
-  
+  sprintf  (histo, "hLumiBlockCount" );
+  hLumiBlockCount_ = dbe_->book1D(histo, histo, 1, -0.5, 0.5);
+
   sprintf  (histo, "hRBXEnergy" );
-  hRBXEnergy_ = dbe_->book1D(histo, histo, 300, 0, 3000);
+  hRBXEnergy_ = dbe_->book1D(histo, histo, 100, 0, 1000);
 
   sprintf  (histo, "hRBXEnergyType1" );
-  hRBXEnergyType1_ = dbe_->book1D(histo, histo, 300, 0, 3000);
+  hRBXEnergyType1_ = dbe_->book1D(histo, histo, 100, 0, 1000);
 
   sprintf  (histo, "hRBXEnergyType2" );
-  hRBXEnergyType2_ = dbe_->book1D(histo, histo, 300, 0, 3000);
+  hRBXEnergyType2_ = dbe_->book1D(histo, histo, 100, 0, 1000);
 
   sprintf  (histo, "hRBXEnergyType3" );
-  hRBXEnergyType3_ = dbe_->book1D(histo, histo, 300, 0, 3000);
+  hRBXEnergyType3_ = dbe_->book1D(histo, histo, 100, 0, 1000);
 
   sprintf  (histo, "hRBXNHits" );
   hRBXNHits_ = dbe_->book1D(histo, histo, 73,-0.5,72.5);
@@ -121,11 +116,11 @@ NoiseRates::beginJob(){}
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 NoiseRates::endJob() {
-/*  
-  if (useAllHistos_) hLumiBlockCount_->Fill(0.0, lumiCountMap_.size());
-  
+
+  hLumiBlockCount_->Fill(0.0, lumiCountMap_.size());
+
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
-*/
+
 }
 
 

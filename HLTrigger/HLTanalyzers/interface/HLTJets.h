@@ -63,7 +63,6 @@ public:
 	       const edm::Handle<METCollection>          & ht,
 	       const edm::Handle<reco::HLTTauCollection> & myHLTTau,
 	       const edm::Handle<CaloTowerCollection>    & caloTowers,
-	       double thresholdForSavingTowers,
 	       TTree * tree);
 
 private:

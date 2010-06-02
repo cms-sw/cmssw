@@ -60,9 +60,13 @@ process.load("RecoLocalCalo.Configuration.hcalLocalReco_cff")
 process.DQMStore = cms.Service("DQMStore")
 
 process.source = cms.Source("PoolSource",
+    debugFlag = cms.untracked.bool(True),
+    debugVebosity = cms.untracked.uint32(10),
     fileNames = cms.untracked.vstring(
 
-    '/store/relval/CMSSW_3_7_0_pre2/RelValZMM/GEN-SIM-RECO/START37_V1-v1/0017/78448BF0-A252-DF11-B3DC-00261894392B.root'
+    '/store/relval/CMSSW_3_4_0_pre5/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_3XY_V12-v1/0002/78943293-EACB-DE11-BA89-001D09F2462D.root',
+
+
     )
                             
 
@@ -73,7 +77,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(8000) )
 
 
 process.fileSaver = cms.EDFilter("METFileSaver",
-    OutputFile = cms.untracked.string('Test.root') )
+    OutputFile = cms.untracked.string('METTester_data_QCD_Pt_80_120.root')
+) 
 process.p = cms.Path(process.fileSaver*
                      process.calotoweroptmaker*
                      process.calotoweroptmakerWithHO*

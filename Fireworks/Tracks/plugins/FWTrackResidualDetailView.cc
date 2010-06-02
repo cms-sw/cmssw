@@ -23,7 +23,6 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWDetailView.h"
-#include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Tracks/plugins/FWTrackResidualDetailView.h"
 
 using reco::Track;
@@ -103,7 +102,7 @@ void
 FWTrackResidualDetailView::build (const FWModelId &id, const reco::Track* track)
 {
    if (!track->extra().isAvailable()) {
-      fwLog(fwlog::kError) << " no track extra information is available.\n";
+     printf("Error: no track extra information is available.\n");
      m_viewCanvas->cd();
      TLatex* latex = new TLatex();
      latex->SetTextSize(0.1);

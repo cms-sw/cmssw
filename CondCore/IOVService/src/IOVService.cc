@@ -8,6 +8,7 @@
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "POOLCore/Token.h"
 
+#include "CondFormats/Common/interface/PayloadWrapper.h"
 #include "CondCore/DBCommon/interface/IOVInfo.h"
 
 
@@ -74,7 +75,7 @@ cond::IOVService::validity( const std::string& iovToken, cond::Time_t currenttim
   else {
     since=iov.lastTill();
   }
-  return std::pair<cond::Time_t, cond::Time_t>(since,till);
+  return std::make_pair<cond::Time_t, cond::Time_t>(since,till);
 }
 
 std::string 
@@ -188,6 +189,9 @@ cond::IOVService::exportIOVRangeWithPayload( cond::DbSession& destDB,
 	it!=isecondTill; ++it, lsince=it->sinceTime()){
     // first since overwritten by global since...
     
+    // FIXME need option to load Ptr unconditionally....
+    pool::Ref<cond::PayloadWrapper> payloadTRef = m_pooldb.getTypedObject<cond::PayloadWrapper>(it->wrapperToken());
+    if(payloadTRef.ptr()) payloadTRef->loadAll();
     std::string newPtoken = destDB.importObject( m_pooldb,it->wrapperToken());
     newiovref->add(lsince, newPtoken);
     /// commit to avoid HUGE memory footprint

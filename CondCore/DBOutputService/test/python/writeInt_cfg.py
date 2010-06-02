@@ -15,12 +15,14 @@ process.source = cms.Source("EmptyIOVSource",
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDBCommon,
     timetype = cms.untracked.string('runnumber'),
+    withWrapper = cms.untracked.bool(False),
     outOfOrder = cms.untracked.bool(True),
     toPut = cms.VPSet(
     cms.PSet(
     record = cms.string('oneInt'),
     tag = cms.string('OneInt'),
     timetype = cms.untracked.string('runnumber'),
+    withWrapper = cms.untracked.bool(True),
     outOfOrder = cms.untracked.bool(False)
     )
     )

@@ -4,10 +4,11 @@
 // #include "BTagPlotPrintC.h"
 
 #include "TH1F.h"
+#include "TString.h"
 #include "TCanvas.h"
 
 #include <vector>
-#include <string>
+using namespace std ;
 
 #include "DQMOffline/RecoB/interface/EtaPtBin.h"
 #include "DQMOffline/RecoB/interface/JetTagPlotter.h"
@@ -18,7 +19,7 @@ class BTagDifferentialPlot {
 
   enum ConstVarType {constPT, constETA };
 
-  BTagDifferentialPlot (const double& bEff, const ConstVarType& constVariable, const std::string & tagName) ;
+  BTagDifferentialPlot ( double bEff, ConstVarType constVariable, const TString & tagName) ;
 
   ~BTagDifferentialPlot () ;
 
@@ -28,13 +29,13 @@ class BTagDifferentialPlot {
   void process () ;
 
 
-  void epsPlot(const std::string & name);
+  void epsPlot(const TString & name);
 
-  void psPlot(const std::string & name);
+  void psPlot(const TString & name);
 
   void plot (TCanvas & theCanvas) ;
 
-  void plot(const std::string & name, const std::string & ext);
+  void plot(const TString & name, const TString & ext);
 
 
 // 
@@ -62,7 +63,7 @@ class BTagDifferentialPlot {
 
 
   void fillHisto () ;
-  std::pair<double, double> getMistag(const double& fixedBEfficiency, TH1F * effPurHist);
+  pair<double, double> getMistag(double fixedBEfficiency, TH1F * effPurHist);
 
 
   // the fixed b-efficiency (later: allow more than one) for which the misids have to be plotted
@@ -74,19 +75,19 @@ class BTagDifferentialPlot {
 
   ConstVarType constVar;
   // the name for the variable with constant value
-  std::string constVariableName ;
+  TString constVariableName ;
   // the name of the variable to be plotted on the x-axis (e.g. "eta", "pt")
-  std::string diffVariableName ;
+  TString diffVariableName ;
 
   // value of the constant variable (lower/upper edge of interval)
-  std::pair<double,double> constVariableValue ;
+  pair<double,double> constVariableValue ;
 
   // the common name to describe histograms
-  std::string commonName ;
+  TString commonName ;
 
 
   // the input
-  std::vector<JetTagPlotter *> theBinPlotters ;
+  vector<JetTagPlotter *> theBinPlotters ;
 
   // the histo to create/fill
   MonitorElement * theDifferentialHistoB_d    ;

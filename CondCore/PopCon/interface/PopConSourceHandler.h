@@ -17,6 +17,7 @@ namespace cond {
   class Summary;
 }
 
+#include "CondFormats/Common/interface/PayloadWrapper.h"
 #include "CondFormats/Common/interface/GenericSummary.h"
 
 
@@ -38,6 +39,7 @@ namespace popcon {
     typedef PopConSourceHandler<T> self;
     typedef cond::Time_t Time_t;
     typedef cond::Summary Summary;
+    typedef cond::DataWrapper<value_type> Wrapper;
     
     struct Triplet {
       value_type * payload;
@@ -56,6 +58,7 @@ namespace popcon {
       Ref(cond::DbSession& dbsession, std::string token) : 
         m_dbsession(dbsession){
 	      m_dbsession.transaction().start(true);
+	      m_dw = m_dbsession.getTypedObject<Wrapper>(token);
 	      m_d = m_dbsession.getTypedObject<T>(token);
       }
       ~Ref() {
@@ -64,18 +67,20 @@ namespace popcon {
       }
       
       Ref(const Ref & ref) :
-        m_dbsession(ref.m_dbsession), m_d(ref.m_d) {
+        m_dbsession(ref.m_dbsession), m_dw(ref.m_dw), m_d(ref.m_d) {
         //ref.m_dbsession=0; // avoid commit;
       }
       
       Ref & operator=(const Ref & ref) {
         m_dbsession = ref.m_dbsession;
+        m_dw = ref.m_dw;
         m_d = ref.m_d;
         //ref.m_dbsession=0; // avoid commit;
         return *this;
       }
       
       T const * ptr() const {
+        if(m_dw) return &m_dw->data();
         return m_d.ptr();
       }
       
@@ -91,6 +96,7 @@ namespace popcon {
     private:
       
       cond::DbSession m_dbsession;
+      pool::Ref<Wrapper> m_dw;
       pool::Ref<T> m_d;
     };
     

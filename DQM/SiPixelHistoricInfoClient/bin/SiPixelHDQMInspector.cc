@@ -11,28 +11,22 @@ using namespace std;
 
 string const Condition = "0@SUMOFF_nclusters_OffTrack@yMean > 0";
 string const BlackList = "";
-// string const WhiteList = ""; // set a runs & range such as: "123,321,456,108000-109000";
 
 /**
  * Extraction of the summary information using DQMServices/Diagnostic/test/HDQMInspector. <br>
  * The sqlite database should have been filled using the new SiPixelHistoryDQMService.   
  */
-void runSiPixelInspector( const string & dbName, const string &tagName, const string & Password, const string & whiteListFile,
-			  const int Start, const int End, const int nRuns )
+void runSiPixelInspector( const string &tagName, const string & Password, const int Start, const int End, const int nRuns )
 {
   HDQMInspectorConfigSiPixel PixelConfig;
   DQMHistoryCreateTrend makeTrend(&PixelConfig);
 
   // Database and output configuration
-  //makeTrend.setDB("sqlite_file:dbfile.db","HDQM_SiPixel","cms_cond_strip","w3807dev","");
-  makeTrend.setDB(dbName,tagName,"cms_dqm_31x_offline", Password,"");
+  makeTrend.setDB("oracle://cms_orcoff_prep/CMS_DQM_31X_OFFLINE",tagName,"cms_dqm_31x_offline", Password,"");
   makeTrend.setDebug(0);
   makeTrend.setDoStat(1);
   makeTrend.setSkip99s(true);
   makeTrend.setBlackList(BlackList);
-  // makeTrend.setWhiteList(WhiteList);
-  //makeTrend.setSeparator("@@#@@");  // TO change the seperator
-  makeTrend.setWhiteListFromFile(whiteListFile);
 
   // Definition of trends
   typedef DQMHistoryTrendsConfig Trend;
@@ -48,8 +42,8 @@ void runSiPixelInspector( const string & dbName, const string &tagName, const st
   config.push_back(Trend( "0@SUMOFF_ndigis@yMean", "ndigis_yMean.gif", 0, Condition, "", Start, End, nRuns ));
   config.push_back(Trend( "0@SUMOFF_size_OffTrack@yMean", "size_OffTrack_yMean.gif", 0, Condition, "", Start, End, nRuns ));
   config.push_back(Trend( "0@SUMOFF_size_OnTrack@yMean", "size_OnTrack_yMean.gif", 0, Condition, "", Start, End, nRuns ));
-  config.push_back(Trend( "0@ntracks_generalTracks@NTracksPixOverAll", "NTracksPixOverAll.gif", 0, Condition, "", Start, End, nRuns ));
-  config.push_back(Trend( "0@ntracks_generalTracks@NTracksFPixOverBPix", "NTracksFPixOverBPix.gif", 0, Condition, "", Start, End, nRuns ));
+  config.push_back(Trend( "0@ntracks_rsWithMaterialTracksP5@NTracksPixOverAll", "NTracksPixOverAll.gif", 0, Condition, "", Start, End, nRuns ));
+  config.push_back(Trend( "0@ntracks_rsWithMaterialTracksP5@NTracksFPixOverBPix", "NTracksFPixOverBPix.gif", 0, Condition, "", Start, End, nRuns ));
 
   // Creation of trends
   for_each(config.begin(), config.end(), makeTrend);
@@ -59,33 +53,31 @@ void runSiPixelInspector( const string & dbName, const string &tagName, const st
 }
 
 /// Simple method to create the trends. The actual operations are performed in runSiPixelInspector.
-void SiPixelHDQMInspector( const string & dbName, const string &tagName, const string & password, const std::string & whiteListFile,
-			   const int start, const int end )
+void SiPixelHDQMInspector( const string &tagName, const string & password, const int start, const int end )
 {
-  runSiPixelInspector( dbName, tagName, password, whiteListFile, start, end, 0 );
+  runSiPixelInspector( tagName, password, start, end, 0 );
 }
 
 /// Simple method to create the trends. The actual operations are performed in runSiPixelInspector.
-void SiPixelHDQMInspector( const string & dbName, const string & tagName, const string & password, const std::string & whiteListFile,
-			   const int nRuns )
+void SiPixelHDQMInspector( const string & tagName, const string & password, const int nRuns )
 {
-  runSiPixelInspector( dbName, tagName, password, whiteListFile, 0, 0, nRuns );
+  runSiPixelInspector( tagName, password, 0, 0, nRuns );
 }
 
 int main (int argc, char* argv[])
 {
-  if (argc != 6 && argc != 7) {
-    cerr << "Usage: " << argv[0] << " [Database] [TagName] [Password] [WhiteListFile] [NRuns] " << endl;
-    cerr << "Or:    " << argv[0] << " [Database] [TagName] [Password] [WhiteListFile] [FirstRun] [LastRun] " << endl;
+  if (argc != 4 && argc != 5) {
+    cerr << "Usage: " << argv[0] << " [TagName] [Password] [NRuns] " << endl;
+    cerr << "Or:    " << argv[0] << " [TagName] [Password] [FirstRun] [LastRun] " << endl;
     return 1;
   }
 
-  if (argc == 6) {
-    cout << "Creating trends for NRuns = " << argv[5] << " for tag: " << argv[2] << endl;
-    SiPixelHDQMInspector( argv[1], argv[2], argv[3], argv[4], atoi(argv[5]) );
-  } else if(argc == 7) {
-    cout << "Creating trends for range:  " << argv[5] << " " << argv[6] << " for tag: " << argv[2] << endl;
-    SiPixelHDQMInspector( argv[1], argv[2], argv[3], argv[4], atoi(argv[5]), atoi(argv[6]) );
+  if (argc == 4) {
+    cout << "Creating trends for NRuns = " << argv[3] << " for tag: " << argv[1] << endl;
+    SiPixelHDQMInspector( argv[1], argv[2], atoi(argv[3]) );
+  } else if(argc == 5) {
+    cout << "Creating trends for range:  " << argv[3] << " " << argv[4] << " for tag: " << argv[1] << endl;
+    SiPixelHDQMInspector( argv[1], argv[2], atoi(argv[3]), atoi(argv[4]) );
   }
 
   return 0;

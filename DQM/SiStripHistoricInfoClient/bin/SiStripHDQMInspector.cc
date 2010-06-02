@@ -29,15 +29,11 @@ string multiItems(const vector<string> & subDetectors, const string & item)
  * Extraction of the summary information using DQMServices/Diagnostic/test/HDQMInspector. <br>
  * The sqlite database should have been filled using the new SiPixelHistoryDQMService.   
  */
-void runTrackingInspector( const string &dbName, const string &tagName, const string & Password, const string & whiteListFile,
-			   const int Start, const int End, const int nRuns )
+void runTrackingInspector( const string &tagName, const string & Password, const int Start, const int End, const int nRuns )
 {
   // IMPORTANT SETTINGS:
-  string condition = "";
-  // string condition = "369098752@Summary_TotalNumberOfClusters_OffTrack@entries > 10000 || 436207616@Summary_TotalNumberOfClusters_OffTrack@entries > 10000 || 402653184@Summary_TotalNumberOfClusters_OffTrack@entries > 10000 || 469762048@Summary_TotalNumberOfClusters_OffTrack@entries > 10000";
+  string condition = "369098752@Summary_TotalNumberOfClusters_OffTrack@entries > 10000 || 436207616@Summary_TotalNumberOfClusters_OffTrack@entries > 10000 || 402653184@Summary_TotalNumberOfClusters_OffTrack@entries > 10000 || 469762048@Summary_TotalNumberOfClusters_OffTrack@entries > 10000";
   string blackList = "109468";
-
-  // string whiteList = readListFromFile(whiteListFile);
 
   string siStripTracker = "268435456";
   vector<string> subDetectors;
@@ -54,14 +50,11 @@ void runTrackingInspector( const string &dbName, const string &tagName, const st
   DQMHistoryCreateTrend makeTrend(&siStripConfig);
 
   // Database and output configuration
-  // makeTrend.setDB("oracle://cms_orcoff_prep/CMS_DQM_31X_OFFLINE",tagName,"cms_dqm_31x_offline", Password,"");
-  makeTrend.setDB(dbName,tagName,"cms_dqm_31x_offline", Password,"");
+  makeTrend.setDB("oracle://cms_orcoff_prep/CMS_DQM_31X_OFFLINE",tagName,"cms_dqm_31x_offline", Password,"");
   makeTrend.setDebug(0);
   makeTrend.setDoStat(1);
   makeTrend.setSkip99s(true);
   makeTrend.setBlackList(blackList);
-  // makeTrend.setWhiteList(whiteList);
-  makeTrend.setWhiteListFromFile(whiteListFile);
 
   // Definition of trends
   typedef DQMHistoryTrendsConfig Trend;
@@ -71,7 +64,7 @@ void runTrackingInspector( const string &dbName, const string &tagName, const st
   config.push_back(Trend( multiItems(subDetectors, "Summary_TotalNumberOfClusters_OnTrack@entries"), "OnTrackClusters_entries.gif", 0,
                           condition+"&& 369098752@Summary_TotalNumberOfClusters_OnTrack@entries > 0", "", Start, End, nRuns, 0 ));
   config.push_back(Trend( multiItems(subDetectors, "Summary_TotalNumberOfClusters_OffTrack@mean"), "TotalNumberOfClusters_OffTrack_mean.gif", 0,
-                          condition+"&& 369098752@Summary_TotalNumberOfClusters_OffTrack@mean > 0", "", Start, End, nRuns, 0, 1000 ));
+                          condition+"&& 369098752@Summary_TotalNumberOfClusters_OffTrack@mean > 0", "", Start, End, nRuns, 0, 50 ));
   config.push_back(Trend( multiItems(subDetectors, "Summary_TotalNumberOfClusters_OffTrack@entries"), "TotalNumberOfClusters_OffTrack_entries.gif", 0,
                           condition+"&& 369098752@Summary_TotalNumberOfClusters_OffTrack@entries > 0", "", Start, End, nRuns, 0 ));
   config.push_back(Trend( multiItems(subDetectors, "Summary_ClusterChargeCorr_OnTrack@landauPeak"), "ClusterChargeCorr_OnTrack_landau.gif", 0,
@@ -89,15 +82,13 @@ void runTrackingInspector( const string &dbName, const string &tagName, const st
   config.push_back(Trend( multiItems(subDetectors, "Summary_ClusterStoNCorr_OnTrack@mean"), "ClusterStoNCorr_OnTrack_mean.gif", 0,
                           condition+"&& 369098752@Summary_ClusterStoNCorr_OnTrack@mean > 0", "", Start, End, nRuns, 0 ));
   config.push_back(Trend( multiItems(subDetectors, "Summary_ClusterStoN_OffTrack@landauPeak"), "ClusterStoN_OffTrack_landauPeak.gif", 0,
-                          condition+"&& 369098752@Summary_ClusterStoN_OffTrack@entries > 10000", "", Start, End, nRuns, 0, 60 ));
+                          condition+"&& 369098752@Summary_ClusterStoN_OffTrack@entries > 10000", "", Start, End, nRuns, 0, 20 ));
   config.push_back(Trend( multiItems(subDetectors, "Summary_ClusterStoN_OffTrack@mean"), "ClusterStoN_OffTrack_mean.gif", 0,
-                          condition+"&& 369098752@Summary_ClusterStoN_OffTrack@entries > 10000", "", Start, End, nRuns, 0, 80 ));
+                          condition+"&& 369098752@Summary_ClusterStoN_OffTrack@entries > 10000", "", Start, End, nRuns, 0, 25 ));
   config.push_back(Trend( multiItems(subDetectors, "Summary_ClusterWidth_OnTrack@mean"), "ClusterWidth_OnTrack_mean.gif", 0,
                           condition+"&& 369098752@Summary_ClusterWidth_OnTrack@mean > 0", "", Start, End, nRuns, 0 ));
   config.push_back(Trend( multiItems(subDetectors, "Summary_ClusterWidth_OffTrack@mean"), "ClusterWidth_OffTrack_mean.gif", 0,
                           condition+"", "", Start, End, nRuns, 0, 7 ));
-  config.push_back(Trend( multiItems(subDetectors, "TotalNumberOfClusterProfile@yMean"), "TotalNumberOfClusterProfile_ymean.gif", 0,
-                          condition+"", "", Start, End, nRuns, 0, 15 ));
 
   // FED errors entries
   config.push_back(Trend( siStripTracker+"@nFEDErrors@entries", "nFEDErrors.gif", 0,
@@ -134,32 +125,30 @@ void runTrackingInspector( const string &dbName, const string &tagName, const st
   makeTrend.closeFile();
 }
 
-void SiStripHDQMInspector( const string & dbName, const string & tagName, const string & password, const std::string & whiteListFile,
-			   const int start, const int end )
+void SiStripHDQMInspector( const string & tagName, const string & password, const int start, const int end )
 {
-  runTrackingInspector(dbName, tagName, password, whiteListFile, start, end, 0);
+  runTrackingInspector(tagName, password, start, end, 0);
 }
 
-void SiStripHDQMInspector( const string & dbName, const string & tagName, const string & password, const std::string & whiteListFile,
-			   const int nRuns )
+void SiStripHDQMInspector( const string & tagName, const string & password, const int nRuns )
 {
-  runTrackingInspector(dbName, tagName, password, whiteListFile, 0, 0, nRuns);
+  runTrackingInspector(tagName, password, 0, 0, nRuns);
 }
 
 int main (int argc, char* argv[])
 {
-  if (argc != 6 && argc != 7) {
-    std::cerr << "Usage: " << argv[0] << " [Database] [TagName] [Password] [WhiteListFile] [NRuns] " << std::endl;
-    std::cerr << "Or:    " << argv[0] << " [Database] [TagName] [Password] [WhiteListFile] [FirstRun] [LastRun] " << std::endl;
+  if (argc != 4 && argc != 5) {
+    std::cerr << "Usage: " << argv[0] << " [TagName] [Password] [NRuns] " << std::endl;
+    std::cerr << "Or:    " << argv[0] << " [TagName] [Password] [FirstRun] [LastRun] " << std::endl;
     return 1;
   }
 
-  if (argc == 6) {
-    std::cout << "Creating trends for NRuns = " << argv[5] << " for tag: " << argv[2] << std::endl;
-    SiStripHDQMInspector( argv[1], argv[2], argv[3], argv[4], atoi(argv[5]) );
-  } else if(argc == 7) {
-    std::cout << "Creating trends for range:  " << argv[5] << " " << argv[6] << " for tag: " << argv[2] << std::endl;
-    SiStripHDQMInspector( argv[1], argv[2], argv[3], argv[4], atoi(argv[5]), atoi(argv[6]) );
+  if (argc == 4) {
+    std::cout << "Creating trends for NRuns = " << argv[3] << " for tag: " << argv[1] << std::endl;
+    SiStripHDQMInspector( argv[1], argv[2], atoi(argv[3]) );
+  } else if(argc == 5) {
+    std::cout << "Creating trends for range:  " << argv[3] << " " << argv[4] << " for tag: " << argv[1] << std::endl;
+    SiStripHDQMInspector( argv[1], argv[2], atoi(argv[3]), atoi(argv[4]) );
   }
 
   return 0;

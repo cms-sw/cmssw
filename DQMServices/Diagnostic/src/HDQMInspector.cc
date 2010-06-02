@@ -201,32 +201,6 @@ void  HDQMInspector::setWhiteList(std::string const & ListItems)
   return;
 }
 
-std::string HDQMInspector::readListFromFile(const std::string & listFileName)
-{
-  std::ifstream listFile;
-  listFile.open(listFileName.c_str());
-  std::string listString;
-  if( !listFile ) {
-    std::cout << "Warning: list file" << listFileName << " not found" << std::endl;
-    return listString;
-  }
-  while( !listFile.eof() ) {
-    std::string line;
-    listFile >> line;
-    if( line != "" ) {
-      listString += line;
-      listString += ",";
-    }
-  }
-  // Remove the last ","
-  std::string::size_type pos = listString.find_last_of(",");
-  if( pos != std::string::npos ) {
-    listString.erase(pos);
-  }
-  std::cout << "whiteList = " << listString << std::endl;
-  return listString;
-}
-
 bool  HDQMInspector::isListed(unsigned int run, std::vector<unsigned int>& vList)
 {
   // This routine expectes a sorted list and returns true if the run is in the list,
@@ -558,13 +532,6 @@ void HDQMInspector::plot(size_t& nPads, std::string CanvasName, int logy, std::s
 
     // put the graph in the vector eh.
     VectorOfGraphs.push_back(graph);
-
-    // dhidas
-    // Want to get some values into file... testing
-    //for (int iDean = 0; iDean != graph.GetN(); ++iDean) {
-    //  static std::ofstream OutFile("DeanOut.txt");
-    //  fprintf("%9i %9i %12.3f\n", iDean, graph.GetX()[iDean], graph.GetY()[iDean]);
-    //}
 
     if (itemForIntegration)
     {  

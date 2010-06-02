@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripCondObjBuilderFromDb.h,v 1.9 2010/02/10 13:54:54 alinn Exp $
-// Latest tag:  $Name: V05-00-04 $
+// Last commit: $Id: SiStripCondObjBuilderFromDb.h,v 1.7 2009/07/02 13:55:44 alinn Exp $
+// Latest tag:  $Name: HEAD $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/interface/SiStripCondObjBuilderFromDb.h,v $
 
 #ifndef OnlineDB_SiStripESSources_SiStripCondObjBuilderFromDb_H
@@ -115,10 +115,9 @@ class SiStripCondObjBuilderFromDb {
 
  
   //methods used by BuildStripRelatedObjects
-  bool setValuesApvLatency(SiStripLatency & latency_, SiStripConfigDb* const db, FedChannelConnection &ipair, uint32_t detid, uint16_t apvnr, SiStripConfigDb::DeviceDescriptionsRange apvs);
+  bool setValuesApvLatency(SiStripLatency & latency_, SiStripConfigDb* const db, FedChannelConnection &ipair, uint32_t detid, uint16_t apvnr);
   bool setValuesApvTiming(SiStripConfigDb* const db, FedChannelConnection &ipair);
-  //  bool setValuesCabling(SiStripConfigDb* const db, FedChannelConnection &ipair, uint32_t detid);
-  bool setValuesCabling(SiStripConfigDb::FedDescriptionsRange &descriptions, FedChannelConnection &ipair, uint32_t detid);
+  bool setValuesCabling(SiStripConfigDb* const db, FedChannelConnection &ipair, uint32_t detid);
   bool retrieveFedDescriptions(SiStripConfigDb* const db);
   bool retrieveTimingAnalysisDescriptions( SiStripConfigDb* const db);
   vector<uint32_t> retrieveActiveDetIds(const SiStripDetCabling& det_cabling);
@@ -128,7 +127,7 @@ class SiStripCondObjBuilderFromDb {
   //set and store data
   void setDefaultValuesCabling(uint16_t apvPair);
   void setDefaultValuesApvTiming();
-  void setDefaultValuesApvLatency(SiStripLatency & latency_, FedChannelConnection ipair, uint32_t detid, uint16_t apvnr);
+  void setDefaultValuesApvLatency(SiStripLatency & latency_, FedChannelConnection ipair, uint16_t apvnr);
   void storePedestals(uint32_t det_id);
   void storeNoise(uint32_t det_id);
   void storeThreshold(uint32_t det_id);

@@ -1,26 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.HepMCCandAlgos.goodMuonMCMatch_cfi import *
-goodMuonMCMatch.src = 'userDataMuons'
-
+goodMuonMCMatch.src = 'selectedPatMuonsTriggerMatch'
 from PhysicsTools.HepMCCandAlgos.goodTrackMCMatch_cfi import *
-goodTrackMCMatch.src = 'userDataTracks'
+goodTrackMCMatch.src = 'selectedPatTracks'
 
 from ElectroWeakAnalysis.Skimming.dimuonsMCMatch_cfi import *
-#dimuonsMCMatch.src=cms.InputTag("userDataDimuons")
-
 from ElectroWeakAnalysis.Skimming.dimuonsOneTrackMCMatch_cfi import *
-#dimuonsOneTrackMCMatch.src=cms.InputTag("userDataDimuonsOneTrack")
-
 allDimuonsMCMatch = cms.EDFilter("GenParticleMatchMerger",
-    src = cms.VInputTag(cms.InputTag("goodMuonMCMatch"), cms.InputTag("goodTrackMCMatch"), cms.InputTag("dimuonsMCMatch")),
-   filter = cms.bool(False) 
+    src = cms.VInputTag(cms.InputTag("goodMuonMCMatch"), cms.InputTag("goodTrackMCMatch"), cms.InputTag("dimuonsMCMatch"), cms.InputTag("dimuonsOneTrackMCMatch"))
 )
 
-
-
-
-mcTruthForDimuons = cms.Sequence(goodMuonMCMatch+goodTrackMCMatch+dimuonsMCMatch+allDimuonsMCMatch)
-
-mcTruthForDimuonsOneTrack = cms.Sequence(goodMuonMCMatch+goodTrackMCMatch+dimuonsOneTrackMCMatch)
+mcTruthForDimuons = cms.Sequence(goodMuonMCMatch+goodTrackMCMatch+dimuonsMCMatch+dimuonsOneTrackMCMatch+allDimuonsMCMatch)
 

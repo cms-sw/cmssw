@@ -5,20 +5,23 @@
 // Package:     Muons
 // Class  :     FWMuonBuilder
 //
-// $Id: FWMuonBuilder.h,v 1.7 2010/04/20 20:49:43 amraktad Exp $
+// $Id: FWMuonBuilder.h,v 1.4 2009/08/24 04:54:33 dmytro Exp $
 //
 #include "Fireworks/Core/interface/FWEvePtr.h"
 
 // forward declarations
 namespace reco {
    class Muon;
+   class TrackExtra;
+}
+namespace fw {
+   class NamedCounter;
 }
 
 class FWEventItem;
 class TEveElementList;
 class TEveTrackPropagator;
 class FWMagField;
-class FWPRoxyBuilderBase;
 
 class FWMuonBuilder
 {
@@ -32,11 +35,12 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   void buildMuon(FWProxyBuilderBase*,
+   void buildMuon(const FWEventItem* iItem,
                   const reco::Muon* muon,
                   TEveElement* tList,
                   bool showEndcap,
                   bool onlyTracks = false);
+
 
 private:
    FWMuonBuilder(const FWMuonBuilder&);    // stop default
@@ -46,6 +50,7 @@ private:
    void calculateField(const reco::Muon& iData, FWMagField* field);
 
    // ---------- member data --------------------------------
+   FWEvePtr<TEveTrackPropagator> m_trackerPropagator;
 };
 
 #endif

@@ -411,10 +411,10 @@ coral::TimeStamp SiStripDetVOffBuilder::getCoralTime(cond::Time_t iovTime)
   // - adds the time0 that is the time from begin of times (boost::posix_time::from_time_t(0);)
   coral::TimeStamp coralTime(cond::time::to_boost(iovTime));
 
+  unsigned long long iovSec = iovTime >> 32;
+  uint32_t iovNanoSec = uint32_t(iovTime);
+  cond::Time_t testTime=getCondTime(coralTime);
   if( debug_ ) {
-    unsigned long long iovSec = iovTime >> 32;
-    uint32_t iovNanoSec = uint32_t(iovTime);
-    cond::Time_t testTime=getCondTime(coralTime);
     cout << "[SiStripDetVOffBuilder::getCoralTime] Converting CondTime into CoralTime: "
 	 << " condTime = " <<  iovSec << " - " << iovNanoSec 
 	 << " getCondTime(coralTime) = " << (testTime>>32) << " - " << (testTime&0xFFFFFFFF)  << endl;
@@ -645,7 +645,7 @@ void SiStripDetVOffBuilder::lastValueFromFile(TimesAndValues & tStruct)
 string SiStripDetVOffBuilder::timeToStream(const cond::Time_t & condTime, const string & comment)
 {
   stringstream ss;
-  ss << comment << (condTime>> 32) << " - " << (condTime & 0xFFFFFFFF) << std::endl;
+  ss << comment << (condTime>> 32) << " - " << (condTime & 0xFFFFFFFF) << endl;
   return ss.str();
 }
 
@@ -658,7 +658,7 @@ string SiStripDetVOffBuilder::timeToStream(const coral::TimeStamp & coralTime, c
      << ", hour = " << coralTime.hour()
      << ", minute = " << coralTime.minute()
      << ", second = " << coralTime.second()
-     << ", nanosecond = " << coralTime.nanosecond() << std::endl;
+     << ", nanosecond = " << coralTime.nanosecond() << endl;
   return ss.str();
 }
 
@@ -690,7 +690,7 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues & psuStruct, DetIdLi
       // now store!
       std::vector<uint32_t> ids = map_.getDetID(psuStruct.dpname[dp]);
 
-      if( debug_ ) cout << "dbname["<<dp<<"] = " << psuStruct.dpname[dp] << ", for time = " << timeToStream(psuStruct.changeDate[dp]) << std::endl;
+      if( debug_ ) cout << "dbname["<<dp<<"] = " << psuStruct.dpname[dp] << ", for time = " << timeToStream(psuStruct.changeDate[dp]) << endl;
 
       if (!ids.empty()) {
 	// DCU-PSU maps only channel000 and channel000 and channel001 switch on and off together

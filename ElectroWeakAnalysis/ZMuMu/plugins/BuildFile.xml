@@ -1,7 +1,6 @@
 <export>
 </export>
 <library   name="ElectroWeakAnalysisZMuMu_plugins" file="*.cc">
-  <use   name="PhysicsTools/RooStatsCms"/>
   <use   name="CommonTools/Utils"/>
   <use   name="FWCore/Framework"/>
   <use   name="CommonTools/UtilAlgos"/>
@@ -11,5 +10,4 @@
   <use   name="DataFormats/Candidate"/>
   <use   name="DataFormats/PatCandidates"/>
   <use   name="root"/>
-  <use name="DataFormats/BTauReco"/> 
 </library>
