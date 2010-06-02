@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Oct 23 14:44:33 CDT 2009
-// $Id: FWFromTEveCaloDataSelector.cc,v 1.9 2010/05/10 19:13:40 amraktad Exp $
+// $Id: FWFromTEveCaloDataSelector.cc,v 1.10 2010/06/02 17:34:04 amraktad Exp $
 //
 
 // system include files
@@ -34,7 +34,7 @@ m_changeManager(0)
 {
    // reserve 3 , first slice is background
    m_sliceSelectors.reserve(3);
-   m_sliceSelectors.push_back(FWFromSliceSelector(0, 0));
+   m_sliceSelectors.push_back(new FWFromSliceSelector(0, 0));
 }
 
 // FWFromTEveCaloDataSelector::FWFromTEveCaloDataSelector(const FWFromTEveCaloDataSelector& rhs)
@@ -42,9 +42,14 @@ m_changeManager(0)
 //    // do actual copying here;
 // }
 
-//FWFromTEveCaloDataSelector::~FWFromTEveCaloDataSelector()
-//{
-//}
+FWFromTEveCaloDataSelector::~FWFromTEveCaloDataSelector()
+{
+   for (std::vector<FWFromSliceSelector*>::iterator i = m_sliceSelectors.begin(); i != m_sliceSelectors.end(); ++i)
+   {
+      delete *i;
+   }
+   m_sliceSelectors.clear();
+}
 
 //
 // assignment operators
@@ -74,7 +79,7 @@ FWFromTEveCaloDataSelector::doSelect()
        it != itEnd;
        ++it) {
       assert(it->fSlice < static_cast<int>(m_sliceSelectors.size()));
-      m_sliceSelectors[it->fSlice].doSelect(*it);
+      m_sliceSelectors[it->fSlice]->doSelect(*it);
    }
 }
 
@@ -90,17 +95,17 @@ FWFromTEveCaloDataSelector::doUnselect()
        it != itEnd;
        ++it) {
       assert(it->fSlice < static_cast<int>(m_sliceSelectors.size()));
-      m_sliceSelectors[it->fSlice].doUnselect(*it);
+      m_sliceSelectors[it->fSlice]->doUnselect(*it);
    }
 }
 
 void 
-FWFromTEveCaloDataSelector::addSliceSelector(int iSlice, const FWFromSliceSelector& iSelector)
+FWFromTEveCaloDataSelector::addSliceSelector(int iSlice, FWFromSliceSelector* iSelector)
 {
    assert(iSlice>0 && (iSlice <= static_cast<int>(m_sliceSelectors.size())));
 
    if(0==m_changeManager) {
-      m_changeManager = iSelector.changeManager();
+      m_changeManager = iSelector->changeManager();
    }
 
    if(iSlice ==static_cast<int>(m_sliceSelectors.size())) {
@@ -114,7 +119,7 @@ FWFromTEveCaloDataSelector::addSliceSelector(int iSlice, const FWFromSliceSelect
 void 
 FWFromTEveCaloDataSelector::resetSliceSelector(int iSlice)
 {
-   m_sliceSelectors[iSlice].reset();
+   m_sliceSelectors[iSlice]->reset();
 }
 //
 // const member functions

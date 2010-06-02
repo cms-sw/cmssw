@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Oct 23 14:44:32 CDT 2009
-// $Id: FWFromTEveCaloDataSelector.h,v 1.5 2010/05/10 11:49:40 amraktad Exp $
+// $Id: FWFromTEveCaloDataSelector.h,v 1.6 2010/06/02 17:34:04 amraktad Exp $
 //
 
 // system include files
@@ -37,7 +37,7 @@ class FWFromTEveCaloDataSelector : public FWFromEveSelectorBase
 
 public:
    FWFromTEveCaloDataSelector(TEveCaloData*);
-   //virtual ~FWFromTEveCaloDataSelector();
+   virtual ~FWFromTEveCaloDataSelector();
    
    // ---------- const member functions ---------------------
    
@@ -47,7 +47,7 @@ public:
    void doSelect();
    void doUnselect();   
 
-   void addSliceSelector(int iSlice, const FWFromSliceSelector&);
+   void addSliceSelector(int iSlice, FWFromSliceSelector*);
    void resetSliceSelector(int iSlice);
 private:
    FWFromTEveCaloDataSelector(const FWFromTEveCaloDataSelector&); // stop default
@@ -55,7 +55,7 @@ private:
    const FWFromTEveCaloDataSelector& operator=(const FWFromTEveCaloDataSelector&); // stop default
    
    // ---------- member data --------------------------------
-   std::vector<FWFromSliceSelector> m_sliceSelectors;
+   std::vector<FWFromSliceSelector*> m_sliceSelectors;
    TEveCaloData* m_data; // cached
    FWModelChangeManager* m_changeManager;
   

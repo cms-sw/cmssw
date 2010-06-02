@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jun  2 17:30:49 CEST 2010
-// $Id$
+// $Id: FWFromSliceSelector.cc,v 1.1 2010/06/02 17:34:03 amraktad Exp $
 //
 
 // system include files
@@ -37,31 +37,13 @@ m_item(iItem)
 {
 }
 
-// FWFromSliceSelector::FWFromSliceSelector(const FWFromSliceSelector& rhs)
-// {
-//    // do actual copying here;
-// }
-
 FWFromSliceSelector::~FWFromSliceSelector()
 {
 }
 
 //
-// assignment operators
-//
-// const FWFromSliceSelector& FWFromSliceSelector::operator=(const FWFromSliceSelector& rhs)
-// {
-//   //An exception safe implementation is
-//   FWFromSliceSelector temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
-
-//
 // member functions
 //
-
 
 void 
 FWFromSliceSelector::clear()

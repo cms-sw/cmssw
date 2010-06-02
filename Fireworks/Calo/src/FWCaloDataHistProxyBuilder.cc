@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 15:09:39 CEST 2010
-// $Id: FWCaloDataHistProxyBuilder.cc,v 1.1 2010/05/31 15:35:00 amraktad Exp $
+// $Id: FWCaloDataHistProxyBuilder.cc,v 1.2 2010/06/01 10:16:40 amraktad Exp $
 //
 
 // system include files
@@ -182,7 +182,7 @@ FWCaloDataHistProxyBuilder::assertHistogram()
          m_caloData->SetUserData(static_cast<FWFromEveSelectorBase*>(sel));
       }
 
-      sel->addSliceSelector(m_sliceIndex,FWFromSliceSelector(m_hist,item()));   
+      addSliceSelector();   
 
       return true;
    }
