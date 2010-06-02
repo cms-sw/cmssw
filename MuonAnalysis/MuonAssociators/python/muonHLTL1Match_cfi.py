@@ -29,7 +29,7 @@ muonHLTL1Match = cms.EDProducer("HLTL1MuonMatcher",
     useSimpleGeometry = cms.bool(True), # just use a cylinder plus two disks.
 
     # Matching Criteria
-    maxDeltaR = cms.double(0.3),
+    maxDeltaR = cms.double(0.5),
     l1PhiOffset = cms.double(1.25 * pi/180.), ## Offset to add to L1 phi before matching (according to L1 experts)
 
     # Fake filter lavels for the object propagated to the second muon station

@@ -41,6 +41,7 @@ muonL1Info.src = "muons"
 muonL1Info.matched = "l1extraParticles"
 muonL1Info.preselection = ""
 muonL1Info.writeExtraInfo = True
+muonL1Info.maxDeltaR = 0.5
 
 ## Define a generic function, so that it can be used with existing PAT Muons
 def addL1UserData(patMuonProducer, l1ModuleLabel = "muonL1Info"):
@@ -92,7 +93,7 @@ from MuonAnalysis.MuonAssociators.muonHLTL1Match_cfi import muonHLTL1Match
 muonMatchL1 = muonHLTL1Match.clone(
     src     = muonTriggerMatchHLT.src,
     matched = muonTriggerMatchHLT.matched,
-    maxDeltaR   = cms.double(0.3),
+    maxDeltaR   = cms.double(0.5),
 )
 
 ### Single Mu L1

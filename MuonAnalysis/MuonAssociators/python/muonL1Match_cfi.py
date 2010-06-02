@@ -21,7 +21,7 @@ muonL1Match = cms.EDProducer("L1MuonMatcher",
 
     # Matching Criteria
     maxDeltaPhi = cms.double(6),
-    maxDeltaR   = cms.double(0.3),
+    maxDeltaR   = cms.double(0.5),
     l1PhiOffset = cms.double(1.25 * pi/180.), ## Offset to add to L1 phi before matching (according to L1 experts)
 
     # Fake filter lavels for output
