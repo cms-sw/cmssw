@@ -5,6 +5,8 @@ from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi i
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cfi import *
 from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
 
+from math import pi
+
 muonHLTL1Match = cms.EDProducer("HLTL1MuonMatcher",
     src = cms.InputTag("muons"),
 
