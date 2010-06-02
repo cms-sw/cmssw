@@ -33,5 +33,5 @@ muonHLTL1Match = cms.EDProducer("HLTL1MuonMatcher",
     setPropLabel = cms.string("propagatedToM2"),
 
     # Write extra ValueMaps
-    writeExtraInfo = cms.bool(False),
+    writeExtraInfo = cms.bool(True),
 )

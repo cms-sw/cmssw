@@ -9,8 +9,8 @@ muonL1Match = cms.EDProducer("L1MuonMatcher",
     src = cms.InputTag("muons"),
 
     # L1 Muon collection, and preselection on that collection
-    matched      = cms.InputTag("hltL1extraParticles"),
-    preselection = cms.string("pt >= 3"),
+    matched      = cms.InputTag("l1extraParticles"),
+    preselection = cms.string(""),
 
     # Choice of matching algorithm
     useTrack = cms.string("tracker"),  # 'none' to use Candidate P4; or 'tracker', 'muon', 'global'
@@ -19,12 +19,12 @@ muonL1Match = cms.EDProducer("L1MuonMatcher",
 
     # Matching Criteria
     maxDeltaPhi = cms.double(6),
-    maxDeltaR   = cms.double(0.5),
+    maxDeltaR   = cms.double(0.3),
 
     # Fake filter lavels for output
     setL1Label = cms.string("l1"),
     setPropLabel = cms.string("propagated"),
 
     # Write extra ValueMaps
-    writeExtraInfo = cms.bool(False),
+    writeExtraInfo = cms.bool(True),
 )
