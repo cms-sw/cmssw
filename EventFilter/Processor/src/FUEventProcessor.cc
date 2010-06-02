@@ -1029,50 +1029,52 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 		  try{
 		    subs_[i].post(msg1,true);
 		    
-		    subs_[i].rcvNonBlocking(msg2,true);
-		    prg* p = (struct prg*)(msg2->mtext);
-		    subs_[i].setParams(p);
-		    spMStates_[i] = p->Ms;
-		    spmStates_[i] = p->ms;
-		    if(p->Ms == edm::event_processor::sError || p->Ms == edm::event_processor::sInvalid
-		       || p->Ms == edm::event_processor::sStopping){
-		      std::ostringstream ost;
-		      ost << "edm::eventprocessor slot " << i << " process id " 
-			  << subs_[i].pid() << " not in Running state : Mstate=" 
-			  << evtProcessor_.stateNameFromIndex(p->Ms) << " mstate="
-			  << evtProcessor_.moduleNameFromIndex(p->ms) 
-			  << " - this will likely cause a problem at Stop";
-		      XCEPT_DECLARE(evf::Exception,
-				    sentinelException, ost.str());
-		      notifyQualified("error",sentinelException);
+		    unsigned long retval = subs_[i].rcvNonBlocking(msg2,true);
+		    if(retval == msg2->mtype){
+		      prg* p = (struct prg*)(msg2->mtext);
+		      subs_[i].setParams(p);
+		      spMStates_[i] = p->Ms;
+		      spmStates_[i] = p->ms;
+		      if(p->Ms == edm::event_processor::sError || p->Ms == edm::event_processor::sInvalid
+			 || p->Ms == edm::event_processor::sStopping){
+			std::ostringstream ost;
+			ost << "edm::eventprocessor slot " << i << " process id " 
+			    << subs_[i].pid() << " not in Running state : Mstate=" 
+			    << evtProcessor_.stateNameFromIndex(p->Ms) << " mstate="
+			    << evtProcessor_.moduleNameFromIndex(p->ms) 
+			    << " - this will likely cause a problem at Stop";
+			XCEPT_DECLARE(evf::Exception,
+				      sentinelException, ost.str());
+			notifyQualified("error",sentinelException);
+		      }
+		      ((xdata::UnsignedInteger32*)nbProcessed)->value_ += p->nbp;
+		      ((xdata::UnsignedInteger32*)nbAccepted)->value_  += p->nba;
+		      if(dqm)dqm->value_ += p->dqm;
+		      nbTotalDQM_ +=  p->dqm;
+		      scalersUpdates_ += p->trp;
+		      if(p->ls > ls->value_) ls->value_ = p->ls;
+		      if(p->ps != ps->value_) ps->value_ = p->ps;
 		    }
-		    ((xdata::UnsignedInteger32*)nbProcessed)->value_ += p->nbp;
-		    ((xdata::UnsignedInteger32*)nbAccepted)->value_  += p->nba;
-		    if(dqm)dqm->value_ += p->dqm;
-		    nbTotalDQM_ +=  p->dqm;
-		    scalersUpdates_ += p->trp;
-		    if(p->ls > ls->value_) ls->value_ = p->ls;
-		    if(p->ps != ps->value_) ps->value_ = p->ps;
 		  } 
 		  catch(evf::Exception &e){
 		    LOG4CPLUS_INFO(getApplicationLogger(),
 				   "could not send/receive msg on slot " 
 				   << i << " - " << e.what());    
 		  }
-
+		    
 		}
 	      else
 		nbdead_++;
 	    }
-	  }
-
-      }
-      catch(std::exception &e){
-	LOG4CPLUS_INFO(getApplicationLogger(),"std exception - " << e.what());    
-      }
-      catch(...){
-	LOG4CPLUS_INFO(getApplicationLogger(),"unknown exception ");    
-      }
+	}
+      
+    }
+    catch(std::exception &e){
+      LOG4CPLUS_INFO(getApplicationLogger(),"std exception - " << e.what());    
+    }
+    catch(...){
+      LOG4CPLUS_INFO(getApplicationLogger(),"unknown exception ");    
+    }
   }
   else{
     for(unsigned int i = 0; i < subs_.size(); i++)
