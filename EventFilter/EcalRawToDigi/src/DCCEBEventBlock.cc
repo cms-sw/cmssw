@@ -152,9 +152,6 @@ void DCCEBEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   // debugging
   //display(cout);
   
-  // pointer for the 
-  std::vector<short>::iterator it;
-  
   // Update number of available dwords
   dwToEnd_ = blockLength_ - HEADERLENGTH ;
    
@@ -199,10 +196,11 @@ void DCCEBEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   //          The checks are doing f.e. by f.e. only.
   
   if( feUnpacking_ || memUnpacking_ ){
-    it = feChStatus_.begin();
+    // pointer for the
+    std::vector<short>::iterator it = feChStatus_.begin();
     
     // looping over FE channels, i.e. tower blocks
-    for( uint chNumber=1; chNumber<= numbChannels && STATUS!=STOP_EVENT_UNPACKING; chNumber++, it++ ){                        
+    for (uint chNumber=1; chNumber<= numbChannels && STATUS!=STOP_EVENT_UNPACKING; chNumber++, it++ ){
       //for( uint i=1; chNumber<= numbChannels; chNumber++, it++ ){                        
 
       const short chStatus(*it);
@@ -222,11 +220,14 @@ void DCCEBEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
       // issuiung messages for problematic cases, even though handled by the DCC
       if (problematic) {
         if (! DCCDataUnpacker::silentMode_ ) {
+          const int val = unpacker_->getCCUValue(fedId_, chNumber);
+          const bool ttProblem = (val == 13) || (val == 14);
+          if (! ttProblem) {
             edm::LogWarning("IncorrectBlock")
-              << "Bad channel status: " << chStatus
-              << " in the DCC channel: " << chNumber
-              << " (LV1 " << l1_ << " fed " << fedId_ << ")\n"
+              << "Bad DCC channel status: " << chStatus
+              << " (LV1 " << l1_ << " fed " << fedId_ << " tower " << chNumber << ")\n"
               << "  => DCC channel is not being unpacked";
+          }
         }
       }
       

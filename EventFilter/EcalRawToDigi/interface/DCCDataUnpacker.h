@@ -11,8 +11,8 @@
  *
  * \file DCCDataUnpacker.h
  *
- * $Date: 2009/07/01 17:16:24 $
- * $Revision: 1.2 $
+ * $Date: 2009/07/27 20:32:22 $
+ * $Revision: 1.3 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -39,6 +39,8 @@
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 #include <DataFormats/FEDRawData/interface/FEDNumbering.h>
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
+
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 
 class EcalElectronicsMapper;
 class DCCEventBlock;
@@ -201,7 +203,22 @@ public :
   /**
    Get the ECAL electronics Mapper
   */
-  EcalElectronicsMapper * electronicsMapper(){return electronicsMapper_;}
+  const EcalElectronicsMapper * electronicsMapper() const { return electronicsMapper_; }
+  
+  
+  /**
+   Functions to work with Channel Status DB
+  */
+  void setChannelStatusDB(const EcalChannelStatusMap* chdb) { chdb_ = chdb; }
+  // return status of given crystal
+  // https://twiki.cern.ch/twiki/bin/view/CMS/EcalChannelStatus#Assigning_Channel_status
+  uint16_t getChannelStatus(const DetId& id) const;
+  // return low 5 bits of status word
+  uint16_t getChannelValue(const DetId& id) const;
+  uint16_t getChannelValue(const int fed, const int ccu, const int strip, const int xtal) const;
+  // return status of given CCU
+  uint16_t getCCUValue(const int fed, const int ccu) const;
+  
   
   /**
   Get the associated event
@@ -239,6 +256,7 @@ protected :
   std::auto_ptr<EcalPnDiodeDigiCollection>   * pnDiodeDigis_;
 
   EcalElectronicsMapper  * electronicsMapper_;
+  const EcalChannelStatusMap* chdb_;
   DCCEventBlock          * currentEvent_;
   DCCEBEventBlock        * ebEventBlock_;
   DCCEEEventBlock        * eeEventBlock_;

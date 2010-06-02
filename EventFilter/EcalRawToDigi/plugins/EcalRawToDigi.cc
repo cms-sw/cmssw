@@ -6,10 +6,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
-
-
 #include "DataFormats/EcalRawData/interface/EcalListOfFEDS.h"
-
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
 EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf):
   
@@ -73,7 +72,7 @@ EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf):
   if( numbXtalTSamples_ <6 || numbXtalTSamples_>64 || (numbXtalTSamples_-2)%4 ){
     std::ostringstream output;
     output      <<"\n Unsuported number of xtal time samples : "<<numbXtalTSamples_
-		<<"\n Valid Number of xtal time samples are : 6,10,14,18,...,62"; 
+                <<"\n Valid Number of xtal time samples are : 6,10,14,18,...,62"; 
     edm::LogError("IncorrectConfiguration")<< output.str();
     // todo : throw an execption
   }
@@ -81,7 +80,7 @@ EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf):
   if( numbTriggerTSamples_ !=1 && numbTriggerTSamples_ !=4 && numbTriggerTSamples_ !=8  ){
     std::ostringstream output;
     output      <<"\n Unsuported number of trigger time samples : "<<numbTriggerTSamples_
-		<<"\n Valid number of trigger time samples are :  1, 4 or 8"; 
+                <<"\n Valid number of trigger time samples are :  1, 4 or 8"; 
     edm::LogError("IncorrectConfiguration")<< output.str();
     // todo : throw an execption
   }
@@ -169,8 +168,80 @@ EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf):
    
 }
 
-void EcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
 
+// print list of crystals with non-zero statuses
+// this functions is only for debug purposes
+void printStatusRecords(const DCCDataUnpacker* unpacker,
+                        const EcalElectronicsMapping* mapping)
+{
+  // Endcap
+  std::cout << "===> ENDCAP" << std::endl;
+  for (int i = 0; i < EEDetId::kSizeForDenseIndexing; ++i) {
+    const EEDetId id = EEDetId::unhashIndex(i);
+    if (!id.null()) {
+      // channel status
+      const uint16_t code = unpacker->getChannelValue(id);
+      
+      if (code) {
+        const EcalElectronicsId ei = mapping->getElectronicsId(id);
+        
+        // convert DCC ID (1 - 54) to FED ID (601 - 654)
+        const int fed_id = unpacker->electronicsMapper()->getDCCId(ei.dccId());
+        
+        std::cout
+          << " id " << id.rawId()
+          << " -> (" << id.ix() << ", " << id.iy() << ", " << id.zside() << ") "
+          << "(" << ei.dccId() << " : " << fed_id << ", " << ei.towerId() << ", " << ei.stripId() << ", " << ei.xtalId() << ") "
+          << "status = " << code
+          << std::endl;
+      }
+    }
+  }
+  std::cout << "<=== ENDCAP" << std::endl;
+  
+  std::cout << "===> BARREL" << std::endl;
+  for (int i = 0; i < EBDetId::kSizeForDenseIndexing; ++i) {
+    const EBDetId id = EBDetId::unhashIndex(i);
+    if (!id.null()) {
+      // channel status
+      const uint16_t code = unpacker->getChannelValue(id);
+      
+      if (code) {
+        const EcalElectronicsId ei = mapping->getElectronicsId(id);
+        
+        // convert DCC ID (1 - 54) to FED ID (601 - 654)
+        const int fed_id = unpacker->electronicsMapper()->getDCCId(ei.dccId());
+        
+        std::cout
+          << " id " << id.rawId()
+          << " -> (" << id.ieta() << ", " << id.iphi() << ", " << id.zside() << ") "
+          << "(" << ei.dccId() << " : " << fed_id << ", " << ei.towerId() << ", " << ei.stripId() << ", " << ei.xtalId() << ") "
+          << "status = " << code
+          << std::endl;
+      }
+    }
+  }
+  std::cout << "<=== BARREL" << std::endl;
+}
+
+void EcalRawToDigi::beginRun(edm::Run&, const edm::EventSetup& es)
+{
+  // channel status database
+  edm::ESHandle<EcalChannelStatusMap> pChStatus;
+  es.get<EcalChannelStatusRcd>().get(pChStatus);
+  theUnpacker_->setChannelStatusDB(pChStatus.product());
+  
+  // uncomment following line to print list of crystals with bad status
+  //edm::ESHandle<EcalElectronicsMapping> pEcalMapping;
+  //es.get<EcalMappingRcd>().get(pEcalMapping);
+  //const EcalElectronicsMapping* mapping = pEcalMapping.product();
+  //printStatusRecords(theUnpacker_, mapping);
+}
+
+
+void EcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
+{
+  
   //double TIME_START = clock();
   //nevts_++; //NUNO
 
@@ -328,11 +399,11 @@ void EcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
       
       if(myMap_->setActiveDCC(*i)){
 
-	int smId = myMap_->getActiveSM();
-	LogDebug("EcalRawToDigi") << "Getting FED = " << *i <<"(SM = "<<smId<<")"<<" data size is: " << length;
+        int smId = myMap_->getActiveSM();
+        LogDebug("EcalRawToDigi") << "Getting FED = " << *i <<"(SM = "<<smId<<")"<<" data size is: " << length;
 
-	uint64_t * pData = (uint64_t *)(fedData.data());
-	theUnpacker_->unpack( pData, static_cast<uint>(length),smId,*i);
+        uint64_t * pData = (uint64_t *)(fedData.data());
+        theUnpacker_->unpack( pData, static_cast<uint>(length),smId,*i);
       }
     }
     
@@ -393,7 +464,8 @@ void EcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
   
 }
 
-EcalRawToDigi::~EcalRawToDigi() { 
+EcalRawToDigi::~EcalRawToDigi()
+{
   
   //cout << "EcalDCCUnpackingModule  " << "N events        " << (nevts_-1)<<endl;
   //cout << "EcalDCCUnpackingModule  " << " --- SETUP time " << endl;

@@ -221,11 +221,15 @@ void DCCEEEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
           chStatus == CH_IFIFOFULL || chStatus == CH_L1AIFIFOFULL)
       {
         if (! DCCDataUnpacker::silentMode_) {
+          const int val = unpacker_->getCCUValue(fedId_, chNumber);
+          const bool ttProblem = (val == 13) || (val == 14);
+          if (! ttProblem) {
             edm::LogWarning("IncorrectBlock")
               << "Bad channel status: " << chStatus
               << " in the DCC channel: " << chNumber
               << " (LV1 " << l1_ << " fed " << fedId_ << ")\n"
               << "  => DCC channel is not being unpacked";
+          }
         }
         continue;
       }

@@ -45,7 +45,7 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
 
     if( ! DCCDataUnpacker::silentMode_ ){         
       edm::LogWarning("IncorrectBlock")
-        <<"\n For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
+        <<"For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
         <<"\n The expected strip is "<<expStripID<<" and "<<stripId<<" was found"
         <<"\n The expected xtal  is "<<expXtalID <<" and "<<xtalId<<" was found";        
      }
@@ -75,7 +75,7 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
       
       if (! DCCDataUnpacker::silentMode_ ) {
         edm::LogWarning("IncorrectBlock")
-          <<"\n For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
+          <<"For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
           <<"\n Invalid strip : "<<stripId<<" or xtal : "<<xtalId
           <<" ids ( last strip was: " << lastStripId_ << " last ch was: " << lastXtalId_ << ")";
        }
@@ -190,10 +190,12 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
     if(firstGainZeroSampID<3) {isSaturation=false; }
 
     if (! DCCDataUnpacker::silentMode_) {
-      edm::LogWarning("IncorrectBlock")
-        << "Gain zero " << (isSaturation ? "with features of saturation" : "" )
-        << " was found for SC Block in strip " << stripId << " and xtal " << xtalId
-        << " (L1A " << event_->l1A() << " bx " << event_->bx() << " fed " << mapper_->getActiveDCC() << " tower " << towerId_ << ")";
+      if (unpacker_->getChannelValue(mapper_->getActiveDCC(), towerId_, stripId, xtalId) != 10) {
+        edm::LogWarning("IncorrectBlock")
+          << "Gain zero" << (isSaturation ? " with features of saturation" : "" ) << " was found in SC Block"
+          << " (L1A " << event_->l1A() << " bx " << event_->bx() << " fed " << mapper_->getActiveDCC()
+          << " tower " << towerId_ << " strip " << stripId << " xtal " << xtalId << ")";
+      }
     }
     
     if (! isSaturation)
@@ -279,7 +281,7 @@ void DCCSCBlock::fillEcalElectronicsError( std::auto_ptr<EcalElectronicsIdCollec
   }else{
      if( ! DCCDataUnpacker::silentMode_ ){
        edm::LogWarning("IncorrectBlock")
-         <<"\n For event "<<event_->l1A()<<" there's fed: "<< activeDCC
+         <<"For event "<<event_->l1A()<<" there's fed: "<< activeDCC
          <<" activeDcc: "<<mapper_->getActiveSM()
          <<" but that activeDcc is not valid in EE.";
      }
