@@ -671,9 +671,7 @@ topSingleElectronLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ## will be empty
     triggerExtras = cms.PSet(
       src   = cms.InputTag("TriggerResults","","HLT"),
-      paths = cms.vstring(['HLT_Mu9:HLT_QuadJet30',
-                           'HLT_Mu15:HLT_QuadJet30',
-                           'HLT_Ele15_SW_L1R:HLT_QuadJet30'])
+      paths = cms.vstring(['HLT_Ele15_LW_L1R'])
     )
   ),
   ## ------------------------------------------------------
@@ -687,7 +685,7 @@ topSingleElectronLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ## [optional] : when omitted no preselection is applied
     trigger = cms.PSet(
       src    = cms.InputTag("TriggerResults","","HLT"),
-      select = cms.vstring(['HLT_Mu9'])
+      select = cms.vstring(['HLT_Ele15_LW_L1R'])
     ),
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(
@@ -804,9 +802,7 @@ topSingleElectronMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ## will be empty
     triggerExtras = cms.PSet(
       src   = cms.InputTag("TriggerResults","","HLT"),
-      paths = cms.vstring(['HLT_Mu9:HLT_QuadJet30',
-                           'HLT_Mu15:HLT_QuadJet30',
-                           'HLT_Ele15_SW_L1R:HLT_QuadJet30'])
+      paths = cms.vstring([ 'HLT_Ele15_LW_L1R'])
     )
   ),
   ## ------------------------------------------------------
@@ -820,7 +816,7 @@ topSingleElectronMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ## [optional] : when omitted no preselection is applied
     trigger = cms.PSet(
       src    = cms.InputTag("TriggerResults","","HLT"),
-      select = cms.vstring(['HLT_Mu9'])
+      select = cms.vstring(['HLT_Ele15_LW_L1R'])
     ),
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(
