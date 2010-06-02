@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:43:54 EST 2009
-// $Id: FWFramedTextTableCellRenderer.cc,v 1.1 2010/04/16 19:46:46 chrjones Exp $
+// $Id: FWFramedTextTableCellRenderer.cc,v 1.1 2010/04/23 21:36:27 chrjones Exp $
 //
 
 // system include files
@@ -70,14 +70,13 @@ FWFramedTextTableCellRenderer::~FWFramedTextTableCellRenderer()
 void 
 FWFramedTextTableCellRenderer::draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight)
 {
-   GContext_t c = m_frameContext->GetGC();
+   // GContext_t c = m_frameContext->GetGC();
 
    gVirtualX->DrawLine(iID,m_frameContext->GetGC(),iX-1,iY-1,iX-1,iY+iHeight);
    gVirtualX->DrawLine(iID,m_frameContext->GetGC(),iX+iWidth,iY-1,iX+iWidth,iY+iHeight);
    gVirtualX->DrawLine(iID,m_frameContext->GetGC(),iX-1,iY-1,iX+iWidth,iY-1);
    gVirtualX->DrawLine(iID,m_frameContext->GetGC(),iX-1,iY+iHeight,iX+iWidth,iY+iHeight);
-   
-   
+
    FontMetrics_t metrics;
    m_font->GetFontMetrics(&metrics);
    int dX=2;
@@ -92,7 +91,6 @@ FWFramedTextTableCellRenderer::draw(Drawable_t iID, int iX, int iY, unsigned int
    }
 
    gVirtualX->DrawString(iID,m_context->GetGC(),iX+dX,iY+metrics.fAscent, m_data.c_str(),m_data.size());
-
 }
 
 void
