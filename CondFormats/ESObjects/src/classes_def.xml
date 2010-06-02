@@ -25,6 +25,8 @@
 
 <class name="ESIntercalibConstants"/>
 
+<class name="ESAngleCorrectionFactors"/>
+
 <class name="ESEEIntercalibConstants"/>
 
 <class name="ESRecHitRatioCuts"/>

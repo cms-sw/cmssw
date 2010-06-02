@@ -10,8 +10,9 @@
 #include "CondFormats/ESObjects/interface/ESADCToGeVConstant.h"
 #include "CondFormats/ESObjects/interface/ESMIPToGeVConstant.h"
 #include "CondFormats/ESObjects/interface/ESIntercalibConstants.h"
+#include "CondFormats/ESObjects/interface/ESAngleCorrectionFactors.h"
 #include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
-#include "CondFormats/ESObjects/interface/ESChannelStatus.h"
+#include "CondFormats/ESObjects/interface/ESChannelStatus.h" 
 #include "CondFormats/ESObjects/interface/ESChannelStatusCode.h"
 #include "CondFormats/ESObjects/interface/ESThresholds.h"
 #include "CondFormats/ESObjects/interface/ESGain.h"
@@ -38,6 +39,8 @@ namespace{
     ESMIPToGeVConstant mipfactor;
  
     ESIntercalibConstants intercalib;
+
+    ESAngleCorrectionFactors anglecorrection;
  
     ESEEIntercalibConstants eseeintercalib;
 
