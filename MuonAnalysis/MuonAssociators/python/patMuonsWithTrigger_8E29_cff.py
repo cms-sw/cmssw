@@ -23,6 +23,11 @@ patMuonsWithoutTrigger = PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi.
     isoDeposits = cms.PSet(), # no heavy isodeposits
     addGenMatch = False,       # no mc: T&P doesn't take it from here anyway.
 )
+# Reset all these; the default in muonProducer_cfi is not empty, but wrong
+patMuonsWithoutTrigger.userData.userInts.src    = []
+patMuonsWithoutTrigger.userData.userFloats.src  = []
+patMuonsWithoutTrigger.userData.userCands.src   = []
+patMuonsWithoutTrigger.userData.userClasses.src = []
 
 ##    __  __       _       _       ____      ___        __  _     _ 
 ##   |  \/  | __ _| |_ ___| |__   |  _ \    / \ \      / / | |   / |
@@ -153,9 +158,14 @@ def changeTriggerProcessName(process, triggerProcessName, oldProcessName="HLT"):
     process.muonMatchHLTL3.collectionTags[0] = process.muonMatchHLTL3.collectionTags[0].replace('::'+oldProcessName,'::'+triggerProcessName)
     process.muonMatchHLTCtfTrack.collectionTags[0] = process.muonMatchHLTCtfTrack.collectionTags[0].replace('::'+oldProcessName,'::'+triggerProcessName)
 
+def changeRecoMuonInput(process, recoMuonCollectionTag):
+    process.patMuonsWithoutTrigger.muonSource = recoMuonCollectionTag
+    process.muonL1Info.src = recoMuonCollectionTag
+
 def useExistingPATMuons(process, newPatMuonTag, addL1Info=False):
     "Start from existing pat Muons instead of producing them"
     process.patMuonsWithTriggerSequence.remove(process.patMuonsWithoutTrigger)
+    process.patMuonsWithTriggerSequence.remove(process.muonL1Info)
     process.patMuonsWithTrigger.src = newPatMuonTag
     from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceParam
     massSearchReplaceParam(process.patMuonsWithTriggerSequence, 'src', cms.InputTag('patMuonsWithTrigger'), newPatMuonTag)
