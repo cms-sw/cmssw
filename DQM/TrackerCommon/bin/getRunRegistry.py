@@ -20,7 +20,7 @@ for argument in sys.argv[ 1:-1 ]:
 
 # Data extraction and local storage
 server = xmlrpclib.ServerProxy( dArguments[ '-s' ] )                            # initialise API access to defined RunRegistry proxy
-data = server.DataExporter.export( dArguments[ '-w' ], dArguments[ '-t' ], {} ) # get data according to defined workspave and output format type
+data = server.DataExporter.export( 'RUN', dArguments[ '-w' ], dArguments[ '-t' ], {} ) # get data according to defined workspave and output format type
 file = open( dArguments[ '-f' ], 'w' )                                          # open defined output file in (over-)write mode
 file.write( data )
 file.close()
