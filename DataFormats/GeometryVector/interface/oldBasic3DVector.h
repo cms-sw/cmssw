@@ -1,12 +1,14 @@
 #ifndef GeometryVector_oldBasic3DVector_h
 #define GeometryVector_oldBasic3DVector_h
-
+#ifdef __CINT__ 
+#define __REFLEX__
+#endif
 #include "DataFormats/GeometryVector/interface/Basic2DVector.h"
 #include "DataFormats/GeometryVector/interface/Theta.h"
 #include "DataFormats/GeometryVector/interface/Phi.h"
 #include "DataFormats/GeometryVector/interface/PreciseFloatType.h"
 #include "DataFormats/GeometryVector/interface/CoordinateSets.h"
-#ifndef __REFLEX__
+#ifndef __REFLEX__ 
 #include "DataFormats/Math/interface/SSEVec.h"
 #endif
 #include <iosfwd>
@@ -197,6 +199,7 @@ public:
 			  x()*v.y() - v.x()*y());
   }
 
+
   /** Vector (or cross) product with a vector of different precision.
    *  The product is computed without loss of precision. The type
    *  of the returned vector is the more precise of the types 
@@ -215,7 +218,11 @@ private:
   T theY;
   T theZ;
   T theW;
-}  __attribute__ ((aligned (16)));
+}  
+#ifndef __CINT__
+__attribute__ ((aligned (16)))
+#endif
+;
 
 
 namespace geometryDetails {
