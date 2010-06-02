@@ -31,8 +31,8 @@ inline double deltaR2<GlobalVector>(const GlobalVector &v1, const GlobalVector &
 MatcherUsingTracksAlgorithm::MatcherUsingTracksAlgorithm(const edm::ParameterSet & iConfig) :
     whichTrack1_(None),     whichTrack2_(None), 
     whichState1_(AtVertex), whichState2_(AtVertex),
-    srcCut_(iConfig.existAs<std::string>("srcPreselection") ? iConfig.getParameter<std::string>("srcPreselection") : ""),
-    matchedCut_(iConfig.existAs<std::string>("matchedPreselection") ? iConfig.getParameter<std::string>("matchedPreselection") : "")
+    srcCut_(iConfig.existsAs<std::string>("srcPreselection") ? iConfig.getParameter<std::string>("srcPreselection") : ""),
+    matchedCut_(iConfig.existsAs<std::string>("matchedPreselection") ? iConfig.getParameter<std::string>("matchedPreselection") : "")
 {
     std::string algo = iConfig.getParameter<std::string>("algorithm");
     if      (algo == "byTrackRef")           { algo_ = ByTrackRef; }
