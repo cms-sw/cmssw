@@ -16,6 +16,7 @@
 
 #include "CondFormats/ESObjects/interface/ESCondObjectContainer.h"
 #include "CondFormats/DataRecord/interface/ESIntercalibConstantsRcd.h"
+#include "CondFormats/DataRecord/interface/ESAngleCorrectionFactorsRcd.h"
 
 #include "CondFormats/ESObjects/interface/ESADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/ESADCToGeVConstantRcd.h"
@@ -45,6 +46,7 @@ REGISTER_PLUGIN(ESGainRcd,ESGain);
 REGISTER_PLUGIN(ESPedestalsRcd,ESPedestals);
 REGISTER_PLUGIN(ESTimeSampleWeightsRcd,ESTimeSampleWeights);
 REGISTER_PLUGIN(ESIntercalibConstantsRcd,ESFloatCondObjectContainer);
+REGISTER_PLUGIN(ESAngleCorrectionFactorsRcd,ESFloatCondObjectContainer);
 REGISTER_PLUGIN(ESADCToGeVConstantRcd,ESADCToGeVConstant);
 REGISTER_PLUGIN(ESMIPToGeVConstantRcd,ESMIPToGeVConstant);
 REGISTER_PLUGIN(ESThresholdsRcd,ESThresholds);
