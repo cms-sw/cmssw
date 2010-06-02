@@ -87,4 +87,4 @@ process.tagAndProbe = cms.Path(
     process.MuonID
 )
 
-process.TFileService = cms.Service("TFileService", fileName = cms.string("testTagProbeFitTreeProducer.root"))
+process.TFileService = cms.Service("TFileService", fileName = cms.string("testTagProbeFitTreeProducer_JPsiMuMu.root"))
