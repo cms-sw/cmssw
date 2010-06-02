@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.56 2010/06/01 19:02:09 amraktad Exp $
+// $Id: FWDetailViewManager.cc,v 1.57 2010/06/01 19:30:15 amraktad Exp $
 //
 
 #include <stdio.h>
@@ -139,7 +139,7 @@ FWDetailViewManager::findViewersFor(const std::string& iType) const
          returnValue.push_back(viewNameFrom(*it));
       }
       //see if we match via inheritance
-      FWSimpleRepresentationChecker checker(type,"");
+      FWSimpleRepresentationChecker checker(type,"",0,false);
       FWRepresentationInfo info = checker.infoFor(iType);
       if(closestMatch > info.proximity()) {
          //closestMatch = info.proximity();
