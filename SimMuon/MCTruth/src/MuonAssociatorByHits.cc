@@ -46,6 +46,7 @@ MuonAssociatorByHits::MuonAssociatorByHits (const edm::ParameterSet& conf) :
   simtracksXFTag(conf.getParameter<edm::InputTag>("simtracksXFTag")),
   conf_(conf)
 {
+  edm::LogVerbatim("MuonAssociatorByHits") << "constructing  MuonAssociatorByHits" << conf_.dump();
 
   // up to the user in the other cases - print a message
   if (UseTracker) edm::LogVerbatim("MuonAssociatorByHits")<<"\n UseTracker = TRUE  : Tracker SimHits and RecHits WILL be counted";
@@ -343,7 +344,7 @@ MuonAssociatorByHits::associateRecoToSimIndices(const TrackHitsCollection & tC,
       <<"\n"<< "# matched RecHits  = " <<n_matched<<" ("<<n_tracker_matched<<"/"
       <<n_dt_matched<<"/"<<n_csc_matched<<"/"<<n_rpc_matched<<" in Tracker/DT/CSC/RPC)";
 
-    if (n_matching_simhits == 0)
+    if (n_all>0 && n_matching_simhits == 0)
       edm::LogWarning("MuonAssociatorByHits")
 	<<"*** WARNING in MuonAssociatorByHits::associateRecoToSim: no matching PSimHit found for this reco::Track !";
 
@@ -649,7 +650,7 @@ MuonAssociatorByHits::associateSimToRecoIndices( const TrackHitsCollection & tC,
       <<"\n"<< "# matched RecHits = " <<n_matched<<" ("<<n_tracker_matched<<"/"
       <<n_dt_matched<<"/"<<n_csc_matched<<"/"<<n_rpc_matched<<" in Tracker/DT/CSC/RPC)";
     
-    if (printRtS && n_matching_simhits==0)
+    if (printRtS && n_all>0 && n_matching_simhits==0)
       edm::LogWarning("MuonAssociatorByHits")
 	<<"*** WARNING in MuonAssociatorByHits::associateSimToReco: no matching PSimHit found for this reco::Track !";
     
@@ -764,19 +765,30 @@ MuonAssociatorByHits::associateSimToRecoIndices( const TrackHitsCollection & tC,
 	else muon_quality = 0;
 
 	// global_quality used to order the matching tracks
-	if (n_global_selected_simhits!=0) 
-	  global_quality = static_cast<double>(global_nshared)/static_cast<double>(n_global_selected_simhits);
+	if (n_global_selected_simhits != 0) {
+	  if (AbsoluteNumberOfHits_muon && AbsoluteNumberOfHits_track)
+	    global_quality = global_nshared;
+	  else 
+	    global_quality = static_cast<double>(global_nshared)/static_cast<double>(n_global_selected_simhits);
+	} 
 	else global_quality = 0;
 
 	// global purity
-	if (n_selected_hits != 0) global_purity = static_cast<double>(global_nshared)/static_cast<double>(n_selected_hits);
+	if (n_selected_hits != 0) {
+	  if (AbsoluteNumberOfHits_muon && AbsoluteNumberOfHits_track)
+	    global_purity = global_nshared;
+	  else
+	    global_purity = static_cast<double>(global_nshared)/static_cast<double>(n_selected_hits);
+	}
 	else global_purity = 0;
-
+	
 	bool trackerOk = false;
 	if (n_tracker_selected_hits != 0) {
 	  if (tracker_quality > tracker_quality_cut) trackerOk = true;
 	  
 	  tracker_purity = static_cast<double>(tracker_nshared)/static_cast<double>(n_tracker_selected_hits);
+	  if (AbsoluteNumberOfHits_track) tracker_purity = static_cast<double>(tracker_nshared);
+
 	  if ((!AbsoluteNumberOfHits_track) && tracker_purity <= PurityCut_track) trackerOk = false;
 	  
 	  //if a track has just 3 hits in the Tracker we require that all 3 hits are shared
@@ -788,6 +800,8 @@ MuonAssociatorByHits::associateSimToRecoIndices( const TrackHitsCollection & tC,
 	  if (muon_quality > muon_quality_cut) muonOk = true;
 	  
 	  muon_purity = static_cast<double>(muon_nshared)/static_cast<double>(n_muon_selected_hits);
+	  if (AbsoluteNumberOfHits_muon) muon_purity = static_cast<double>(muon_nshared);
+
 	  if ((!AbsoluteNumberOfHits_muon) &&  muon_purity <= PurityCut_muon) muonOk = false;
 	}
 
