@@ -101,6 +101,8 @@ namespace ora {
     void override(const MappingTree& source);
 
     std::vector<TableInfo> tables() const;
+
+    void printXML( std::ostream& outputStream ) const;
     
   private:
     /**

@@ -31,7 +31,7 @@ namespace ora {
 
     void reset( T* ptr );
 
-        // dereference operator
+    // dereference operator
     T* operator->() const;
 
     // dereference operator
@@ -39,6 +39,9 @@ namespace ora {
 
     // implicit bool conversion
     operator bool () const;
+
+    // not operator
+    bool operator!() const;
 
     // return the real pointer
     T* get() const;
@@ -108,7 +111,9 @@ void ora::Handle<T>::reset( T* ptr ){
 template <typename T>
 inline
 void ora::Handle<T>::validate() const{
-  if(!m_holder->ptr.get()) throwException( "Handle is not valid.","Handle<T>::validate");
+  if(!m_holder->ptr.get()) {
+    throwException( "Handle is not valid.",typeid(Handle<T>),"validate");
+  }
 }
 
 template <typename T>
@@ -129,6 +134,12 @@ template <typename T>
 inline
 ora::Handle<T>::operator bool () const {
   return m_holder->ptr.get()!=0;  
+}
+
+template <typename T>
+inline
+bool ora::Handle<T>::operator!() const {
+  return m_holder->ptr.get()==0;  
 }
 
 template <typename T>

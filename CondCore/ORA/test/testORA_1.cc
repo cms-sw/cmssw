@@ -33,7 +33,9 @@ int main(){
       iC != conts.end(); iC++ ){
     std::cout << "############# CONT=\""<<*iC<<"\""<<std::endl;
   }
+  std::cout <<" ############# Creating container Cont0."<<std::endl;
   db.createContainer<SimpleClass>("Cont0");
+  std::cout <<" ############# Created container Cont0."<<std::endl;
   ora::Container contH0 = db.containerHandle( "Cont0" );
   SimpleClass s0(4);
   int oid0 = contH0.insert( s0 );

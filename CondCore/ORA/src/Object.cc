@@ -43,6 +43,10 @@ const Reflex::Type& ora::Object::type() const {
   return m_type;
 }
 
+std::string ora::Object::typeName() const {
+  return m_type.Name( Reflex::SCOPED );
+}
+
 void* ora::Object::cast( const std::type_info& typeInfo ) const{
   Reflex::Type castType = ClassUtils::lookupDictionary( typeInfo );
   if( ! m_type ){

@@ -169,10 +169,6 @@ namespace ora {
     void alterTableName( const std::string& tableName );
 
     /**
-     * Sets the variable name for the table-column name generation
-     */
-    //void setVariableNameForSchema(const std::string& scopeName,const std::string& variableName);
-    /**
      * Sets the column names. It is propagated to objects having the same associated table.
      * @param columns The names of the associated columns.
      */
@@ -211,6 +207,8 @@ namespace ora {
      * replace present data with the provided source
      */
     void override(const MappingElement& source);
+
+    void printXML( std::ostream& outputStream, std::string indentation="" ) const;
 
   private:
     /**

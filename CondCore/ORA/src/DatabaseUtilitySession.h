@@ -4,6 +4,7 @@
 #include "CondCore/ORA/interface/Handle.h"
 //
 #include <set>
+#include <map>
 
 namespace ora {
 
@@ -16,7 +17,11 @@ namespace ora {
 
     virtual ~DatabaseUtilitySession();
 
-    std::set<std::string> listMappingVersions( const std::string& containerName );
+    std::set<std::string> listMappingVersions( int containerId );
+
+    std::map<std::string,std::string> listMappings( int containerId );
+
+    bool dumpMapping( const std::string& mappingVersion, std::ostream& outputStream );
 
     void importContainerSchema( const std::string& sourceConnectionString, const std::string& containerName );
 
@@ -24,6 +29,8 @@ namespace ora {
 
     void eraseMapping( const std::string& mappingVersion );
 
+    Handle<DatabaseContainer> containerHandle( const std::string& name );
+    
     private:
 
     Handle<ora::DatabaseContainer> importContainerSchema( const std::string& containerName, DatabaseSession& sourceDbSession );

@@ -94,6 +94,7 @@ boost::shared_ptr<void> ora::Container::fetchItemAsType(int itemId,
                                                         const std::type_info& asTypeInfo){
   Reflex::Type asType = ClassUtils::lookupDictionary( asTypeInfo );
   void* ptr = m_dbContainer->fetchItemAsType(itemId, asType );
+  if(!ptr) return boost::shared_ptr<void>();
   return boost::shared_ptr<void>( ptr, RflxDeleter( m_dbContainer->type() ) );
 }
 

@@ -105,7 +105,7 @@ ora::MappingRules::newMappingVersion( const std::string& itemName,
 std::string
 ora::MappingRules::newMappingVersionForContainer( const std::string& containerName,
                                                   int iteration ){
-  return newMappingVersion( containerName, iteration, 'C' );
+  return newMappingVersion( containerName, iteration, 'M' );
 }
 
 std::string
@@ -350,7 +350,7 @@ std::string ora::MappingRules::nameFromTemplate( const std::string templateClass
 std::string
 ora::MappingRules::tableNameForItem( const std::string& itemName )
 {
-  return "ORA_C"+nameForSchema(formatName( itemName, MaxTableNameLength-5 ));
+  return "ORA_C_"+nameForSchema(formatName( itemName, MaxTableNameLength-5 ));
 }
 
 std::string

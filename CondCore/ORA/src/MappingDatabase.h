@@ -54,6 +54,8 @@ namespace ora {
 
     bool getClassVersionListForMappingVersion( const std::string& mappingVersion, std::set<std::string>& destination );
 
+    bool getClassVersionListForContainer( int containerId, std::map<std::string,std::string>& versionMap );
+
     void insertClassVersion( const Reflex::Type& dictionaryEntry, int dependencyIndex, int containerId, const std::string& mappingVersion, bool asBase=false );
 
     void insertClassVersion( const std::string& className, const std::string& classVersion, int dependencyIndex, int containerId, const std::string& mappingVersion, bool asBase=false );

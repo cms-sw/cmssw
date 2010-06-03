@@ -480,7 +480,7 @@ bool ora::PoolContainerHeaderTable::getContainerData( std::map<std::string,
   while ( cursor.next() ) {
     ret = true;
     const coral::AttributeList& row = cursor.currentRow();
-    int containerId = row[ containerIdColumn() ].data< int >();
+    int containerId = row[ containerIdColumn() ].data< int >() - 1; //POOL starts counting from 1!
     std::string containerName = row[ containerNameColumn()].data< std::string >();
     std::string className = row[ classNameColumn()].data< std::string >();
     std::string baseMappingVersion = row[ baseMappingVersionColumn()].data< std::string >();
@@ -497,6 +497,7 @@ bool ora::PoolContainerHeaderTable::getContainerData( std::map<std::string,
 void ora::PoolContainerHeaderTable::addContainer( int containerId,
                                                   const std::string& containerName,
                                                   const std::string& className ){
+  /**
   if(!m_dbCache){
     throwException("Container Table handle has not been initialized.","PoolContainerHeaderTable::addContainer");
   }
@@ -520,7 +521,7 @@ void ora::PoolContainerHeaderTable::addContainer( int containerId,
   dataToInsert[ numberOfDeletedObjectsColumn() ].data<unsigned int>() = nobj;
   coral::ITable& containerTable = m_schema.tableHandle( tableName() );
   containerTable.dataEditor().insertRow( dataToInsert );
-  
+  **/
   throwException( "Cannot create new Containers into POOL database.","PoolContainerHeaderTable::addContainer");  
 }
 
@@ -533,7 +534,7 @@ void ora::PoolContainerHeaderTable::removeContainer( int id ){
   whereClause << containerIdColumn() << "= :" <<containerIdColumn();
   coral::AttributeList whereData;
   whereData.extend< int >( containerIdColumn() );
-  whereData.begin()->data< int >() = id;
+  whereData.begin()->data< int >() = id + 1; //POOL starts counting from 1!;
   coral::ITable& containerTable = m_schema.tableHandle( tableName() );
   containerTable.dataEditor().deleteRows(whereClause.str(),whereData);
 }
@@ -573,7 +574,7 @@ void ora::PoolContainerHeaderTable::updateNumberOfObjects( const std::map<int,un
       unsigned int nwrt = contData.m_nobjWr;
       unsigned int ndel = nwrt-iCont->second;
 
-      updateData[containerIdColumn()].data<int>() = iCont->first;
+      updateData[containerIdColumn()].data<int>() = iCont->first + 1; //POOL starts counting from 1!;
       updateData[numberOfWrittenObjectsColumn()].data<unsigned int>() = nwrt;
       updateData[numberOfDeletedObjectsColumn()].data<unsigned int>() = ndel;
       bulkUpdate->processNextIteration();
@@ -641,6 +642,21 @@ void ora::PoolClassVersionTable::create(){
 
 void ora::PoolClassVersionTable::drop(){
   m_schema.dropIfExistsTable( tableName() );
+}
+
+namespace ora {
+  std::string mappingTypeFromPool( const std::string& mappingType ){
+    if( mappingType == "PoolArray" ) return MappingElement::OraArrayMappingElementType();
+    return mappingType;
+  }
+
+  std::string variableNameFromPool( const std::string& variableName ){
+    size_t ind = variableName.find("pool::PVector");
+    if( ind != std::string::npos ){
+      return "ora::PVector"+variableName.substr(13);
+    }
+    return variableName;
+  }
 }
 
 std::string ora::PoolMappingSchema::emptyScope(){
@@ -733,9 +749,9 @@ bool ora::PoolMappingSchema::getMapping( const std::string& version,
     if( iE == elementsByVarName.end() ) {
       iE = elementsByVarName.insert( std::make_pair( elemId, MappingRawElement())).first;
       MappingRawElement& elem = iE->second;
-      elem.elementType = currentRow[ PoolMappingElementTable::elementTypeColumn() ].data<std::string>();
+      elem.elementType = mappingTypeFromPool( currentRow[ PoolMappingElementTable::elementTypeColumn() ].data<std::string>() );
       elem.scopeName = scope;
-      elem.variableName = varName;
+      elem.variableName = variableNameFromPool( varName );
       elem.variableType = currentRow[ PoolMappingElementTable::variableTypeColumn() ].data<std::string>();
       elem.tableName = currentRow[ PoolMappingElementTable::tableNameColumn() ].data<std::string>();
       if(elem.scopeName == emptyScope()) {
@@ -851,19 +867,26 @@ bool ora::PoolMappingSchema::getContainerTableMap( std::map<std::string, int>&){
 
 bool ora::PoolMappingSchema::getMappingVersionListForContainer( int containerId,
                                                                 std::set<std::string>& dest,
-                                                                bool ){
+                                                                bool onlyDependency ){
   bool ret = false;
   std::auto_ptr<coral::IQuery> query( m_schema.newQuery() );
   query->addToTableList( PoolClassVersionTable::tableName(), "T0" );
   query->addToTableList( PoolContainerHeaderTable::tableName(), "T1" );
+  query->addToTableList( PoolMappingElementTable::tableName(), "T2" );
   query->addToOutputList( "T0."+PoolClassVersionTable::mappingVersionColumn() );
   query->setDistinct();
   std::ostringstream condition;
   condition <<"T0."<<PoolClassVersionTable::containerNameColumn()<<" = "<<"T1."<<PoolContainerHeaderTable::containerNameColumn();
+  condition <<" AND T0."<<PoolClassVersionTable::mappingVersionColumn()<<" = "<<"T2."<<PoolMappingElementTable::mappingVersionColumn();
   condition <<" AND T1."<<PoolContainerHeaderTable::containerIdColumn()<<" =:"<<PoolContainerHeaderTable::containerIdColumn();
   coral::AttributeList condData;
   condData.extend< int >( PoolContainerHeaderTable::containerIdColumn() );
-  condData[ PoolContainerHeaderTable::containerIdColumn() ].data< int >() = containerId;
+  condData[ PoolContainerHeaderTable::containerIdColumn() ].data< int >() = containerId + 1; //POOL starts counting from 1!;
+  if( onlyDependency ){
+    condition <<" AND T2."<<PoolMappingElementTable::elementTypeColumn() <<" = :"<<PoolMappingElementTable::elementTypeColumn();
+    condData.extend< std::string >( PoolMappingElementTable::elementTypeColumn() );
+    condData[PoolMappingElementTable::elementTypeColumn() ].data<std::string>() = MappingElement::dependencyMappingElementType();
+  }
   query->setCondition(condition.str(),condData);
   coral::ICursor& cursor = query->execute();
   while ( cursor.next() ) {
@@ -905,6 +928,34 @@ bool ora::PoolMappingSchema::getClassVersionListForMappingVersion( const std::st
   return ret;
 }
 
+bool ora::PoolMappingSchema::getClassVersionListForContainer( int containerId,
+                                                              std::map<std::string,std::string>& versionMap ){
+  
+  bool ret = false;
+  std::auto_ptr<coral::IQuery> query( m_schema.newQuery() );
+  query->addToTableList( PoolClassVersionTable::tableName(), "T0" );
+  query->addToTableList( PoolContainerHeaderTable::tableName(), "T1" );
+  query->addToOutputList( "T0."+PoolClassVersionTable::mappingVersionColumn() );
+  query->addToOutputList( "T0."+PoolClassVersionTable::mappingVersionColumn() );
+  query->setDistinct();
+  std::ostringstream condition;
+  condition <<"T0."<<PoolClassVersionTable::containerNameColumn()<<" = "<<"T1."<<PoolContainerHeaderTable::containerNameColumn();
+  condition <<" AND T1."<<PoolContainerHeaderTable::containerIdColumn()<<" =:"<<PoolContainerHeaderTable::containerIdColumn();
+  coral::AttributeList condData;
+  condData.extend< int >( PoolContainerHeaderTable::containerIdColumn() );
+  condData[ PoolContainerHeaderTable::containerIdColumn() ].data< int >() = containerId + 1; //POOL starts counting from 1!;
+  query->setCondition(condition.str(),condData);
+  coral::ICursor& cursor = query->execute();
+  while ( cursor.next() ) {
+    ret = true;
+    const coral::AttributeList& currentRow = cursor.currentRow();
+    std::string classVersion = currentRow[ "T0."+PoolClassVersionTable::classVersionColumn() ].data<std::string>();
+    std::string mappingVersion = currentRow[ "T0."+PoolClassVersionTable::mappingVersionColumn() ].data<std::string>();
+    versionMap.insert( std::make_pair(classVersion, mappingVersion ) );
+  }
+  return ret;
+}
+
 bool ora::PoolMappingSchema::getMappingVersionListForTable( const std::string&,
                                                             std::set<std::string>& ){
   // not implemented for the moment
@@ -930,7 +981,7 @@ bool ora::PoolMappingSchema::selectMappingVersion( const std::string& classId,
   coral::AttributeList::iterator iAttribute = condData.begin();
   iAttribute->data< std::string >() = MappingRules::classVersionFromId( classId );
   ++iAttribute;
-  iAttribute->data< int >() = containerId;
+  iAttribute->data< int >() = containerId + 1; //POOL starts counting from 1!;
   query->setCondition( condition.str(), condData );
   coral::ICursor& cursor = query->execute();
   while ( cursor.next() ) {

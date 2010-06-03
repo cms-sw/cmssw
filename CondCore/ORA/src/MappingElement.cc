@@ -172,7 +172,9 @@ ora::MappingElement::elementTypeAsString( ora::MappingElement::ElementType eleme
     break;
   };
 
-  throwException( "Undefined mapping element type",
+  std::stringstream ms;
+  ms <<"Undefined mapping element type code="<< elementType;
+  throwException( ms.str(),
                   "MappingElement::elementTypeAsString" );
   return "";
 }
@@ -264,6 +266,10 @@ namespace ora {
     const std::string& tableName = element.tableName();
     std::set<std::string>::iterator iT = tableRegister.find( tableName );
     if( iT == tableRegister.end() ){
+      if( element.columnNames().empty() ){
+        throwException( "Mapping element for variable \""+element.variableName()+"\" does not specify column names.",
+                        "MappingElement::tableHierarchy");
+      }
       tableRegister.insert( tableName );
       tableList.push_back( std::make_pair(tableName,element.columnNames()[0]) );
     }
@@ -405,16 +411,6 @@ ora::MappingElement::alterTableName( const std::string& tableName )
   m_tableName = tableName;
 }
 
-//void
-//ora::MappingElement::setVariableNameForSchema(const std::string& scopeName,
-//                                              const std::string& variableName){
-//  if ( scopeName.empty() ) {
-//    m_variableNameForSchema = variableName;
-//  } else {
-//    m_variableNameForSchema = scopeName + "_" + variableName;
-//  }
-//}
-
 void
 ora::MappingElement::setColumnNames( const std::vector< std::string >& columns )
 {
@@ -437,5 +433,24 @@ void ora::MappingElement::override(const MappingElement& source){
     }
   }  
 
+}
+
+void ora::MappingElement::printXML( std::ostream& outputStream, std::string indentation ) const {
+  outputStream << indentation << "<"<<elementTypeString()<<" name=\""<<m_variableName<<"\" type=\""<<m_variableType<<
+    "\" table=\""<<m_tableName<<"\"";
+  if( !m_columnNames.empty()) {
+    outputStream << " columns=\"";
+    for( std::vector<std::string>::const_iterator iC=m_columnNames.begin(); iC != m_columnNames.end(); ++iC ){
+      if( iC != m_columnNames.begin() ) outputStream << ",";
+      outputStream << *iC;
+    }
+    outputStream << "\"";
+  }
+  outputStream << " >"<< std::endl;
+  for( std::map< std::string, MappingElement >::const_iterator iM = m_subElements.begin();
+       iM != m_subElements.end(); ++iM ){
+    iM->second.printXML( outputStream, indentation+" " );
+  }
+  outputStream <<  indentation << "</"<<elementTypeString()<<">"<< std::endl;
 }
 

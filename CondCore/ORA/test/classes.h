@@ -80,22 +80,22 @@ class SimpleClass : public BaseClass {
 
  public:
 
-  //SimpleClass():m_intData(0),m_stringData(""),m_objectData(),m_arrayData(),m_map(),m_code(ZERO){}
-  //SimpleClass(unsigned int id):m_intData(id),m_stringData(""),m_objectData(),m_arrayData(),m_map(),m_code(ZERO){
-  SimpleClass():BaseClass(),m_intData(0),m_stringData(""),m_objectData(),m_code(ZERO){}
-  SimpleClass(unsigned int id):BaseClass(id),m_intData(id),m_stringData(""),m_objectData(),m_code(ZERO){
+  SimpleClass():BaseClass(),m_intData(0),m_stringData(""),m_objectData(),m_arrayData(),m_map(),m_code(ZERO){}
+  SimpleClass(unsigned int id):BaseClass(id),m_intData(id),m_stringData(""),m_objectData(),m_arrayData(),m_map(),m_code(ZERO){
+  //SimpleClass():BaseClass(),m_intData(0),m_stringData(""),m_objectData(),m_code(ZERO){}
+  //SimpleClass(unsigned int id):BaseClass(id),m_intData(id),m_stringData(""),m_objectData(),m_code(ZERO){
     m_intData = id;
     std::ostringstream os;
     os << "SimpleClass_"<<id; 
     m_stringData = os.str();
     m_objectData.m_flag = true;
     m_objectData.m_id = id;
-    //for(int i=0;i<(int)id;i++){
-    //  m_arrayData.push_back(i);
-    //}
-    //for(unsigned long long i=0;i<(unsigned long long)id;i++){
-    //   m_map.insert(std::make_pair(i,i));
-    //}
+    for(int i=0;i<(int)id;i++){
+      m_arrayData.push_back(i);
+    }
+    for(unsigned long long i=0;i<(unsigned long long)id;i++){
+       m_map.insert(std::make_pair(i,i));
+    }
     m_code = ONE;
     if(id % 2 !=0 ){
       m_code = TWO;
@@ -106,16 +106,16 @@ class SimpleClass : public BaseClass {
     m_intData = obj.m_intData;
     m_stringData = obj.m_stringData;
     m_objectData = obj.m_objectData;
-    //m_arrayData = obj.m_arrayData;
-    //m_map = obj.m_map;
+    m_arrayData = obj.m_arrayData;
+    m_map = obj.m_map;
     m_code = obj.m_code;
   }
   SimpleClass& operator=(const SimpleClass& obj){
     m_intData = obj.m_intData;
     m_stringData = obj.m_stringData;
     m_objectData = obj.m_objectData;
-    //m_arrayData = obj.m_arrayData;
-    //m_map = obj.m_map;
+    m_arrayData = obj.m_arrayData;
+    m_map = obj.m_map;
     m_code = obj.m_code;
     return *this;
   }
@@ -126,8 +126,8 @@ class SimpleClass : public BaseClass {
     if(m_stringData!=rhs.m_stringData) return false;
     if(m_objectData.m_flag!=rhs.m_objectData.m_flag) return false;
     if(m_objectData.m_id!=rhs.m_objectData.m_id) return false;
-    //if(m_arrayData!=rhs.m_arrayData) return false;
-    //if(m_map!=rhs.m_map) return false;
+    if(m_arrayData!=rhs.m_arrayData) return false;
+    if(m_map!=rhs.m_map) return false;
     if(m_code!=rhs.m_code) return false;
     return true;
   }
@@ -155,8 +155,8 @@ class SimpleClass : public BaseClass {
   unsigned int m_intData;
   std::string m_stringData;
   SimpleMember m_objectData;
-  //std::vector<int> m_arrayData;
-  //std::map<unsigned long long,unsigned long long> m_map;
+  std::vector<int> m_arrayData;
+  std::map<unsigned long long,unsigned long long> m_map;
   MySimpleClassCode m_code;
 };
 

@@ -9,7 +9,7 @@ int main(){
     // writing...  
   ora::Database db;
   db.configuration().setMessageVerbosity( coral::Debug );
-  try {
+  //try {
 
     //std::string connStr( "oracle://devdb10/giacomo" );
     std::string connStr( "sqlite_file:test.db" );
@@ -180,8 +180,8 @@ int main(){
     }
   db.transaction().commit();
   db.disconnect();  
-  } catch ( const ora::Exception& exc ){
-    std::cout << "### ############# ERROR: "<<exc.what()<<std::endl;
-  }
+  //} catch ( const ora::Exception& exc ){
+  //  std::cout << "### ############# ERROR: "<<exc.what()<<std::endl;
+  //}
 }
 

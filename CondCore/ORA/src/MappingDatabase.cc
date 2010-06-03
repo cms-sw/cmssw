@@ -20,8 +20,8 @@ ora::MappingDatabase::versionOfClass( const Reflex::Type& dictionary ){
 }
 
 void ora::MappingDatabase::buildElement( MappingElement& parentElement,
-                                          const std::string& scopeName,
-                                          std::map<std::string, std::vector<MappingRawElement> >& innerElements ){
+                                         const std::string& scopeName,
+                                         std::map<std::string, std::vector<MappingRawElement> >& innerElements ){
   std::map<std::string,std::vector<MappingRawElement> >::iterator iScope = innerElements.find(scopeName);
   if(iScope != innerElements.end()){
     for( std::vector<MappingRawElement>::const_iterator iM = iScope->second.begin();
@@ -258,7 +258,11 @@ void ora::MappingDatabase::insertClassVersion( const std::string& className,
   }
 }
 
-
+bool ora::MappingDatabase::getClassVersionListForContainer( int containerId,
+                                                            std::map<std::string,std::string>& versionMap ){
+  
+  return m_schema.mappingSchema().getClassVersionListForContainer( containerId, versionMap );
+}
 
 void ora::MappingDatabase::insertClassVersion( const Reflex::Type& dictionaryEntry,
                                                int depIndex,

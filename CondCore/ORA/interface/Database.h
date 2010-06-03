@@ -25,6 +25,8 @@ namespace ora {
 
     // 
     static std::string nameForContainer( const std::type_info& typeInfo );
+    //
+    static std::string nameForContainer( const std::string& className );
 
     public:
 
@@ -78,6 +80,9 @@ namespace ora {
     
     ///
     template <typename T> Container createContainer();
+
+    ///
+    Container createContainer( const std::string& className, std::string name="" );
 
     /// 
     bool dropContainer( const std::string& name );

@@ -128,4 +128,12 @@ std::vector<ora::TableInfo> ora::MappingTree::tables() const {
   return ret;
 }
 
-
+void ora::MappingTree::printXML( std::ostream& outputStream ) const {
+  outputStream << "<?xml version=\'1.0\' encoding=\"UTF-8\"?>" << std::endl;
+  outputStream << "<!DOCTYPE OraDatabase SYSTEM \"InMemory\">" << std::endl;
+  outputStream << " <OraDatabase>" << std::endl;
+  outputStream << "  <Mapping version=\""<<m_version<<"\" >"<< std::endl;
+  m_element.printXML( outputStream, "   " );
+  outputStream << "  </Mapping >"<< std::endl;
+  outputStream << " </OraDatabase>" << std::endl;
+}

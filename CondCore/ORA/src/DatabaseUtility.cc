@@ -3,6 +3,7 @@
 #include "CondCore/ORA/interface/Exception.h"
 #include "CondCore/ORA/interface/Handle.h"
 #include "DatabaseUtilitySession.h"
+#include "DatabaseContainer.h"
 
 ora::DatabaseUtility::DatabaseUtility( Handle<DatabaseUtilitySession>& utilitySession ):
   m_session( utilitySession ){
@@ -21,7 +22,26 @@ ora::DatabaseUtility& ora::DatabaseUtility::operator=( const DatabaseUtility& rh
 }
 
 std::set<std::string> ora::DatabaseUtility::listMappingVersions( const std::string& containerName ){
-  return m_session->listMappingVersions( containerName );
+  Handle<DatabaseContainer> cont = m_session->containerHandle( containerName );
+  if( !cont ){
+    throwException("Container \""+containerName+"\" does not exist in the database.",
+                   "DatabaseUtility::listMappingVersions");
+  }
+  return m_session->listMappingVersions( cont->id() );
+}
+
+std::map<std::string,std::string> ora::DatabaseUtility::listMappings( const std::string& containerName ){
+  Handle<DatabaseContainer> cont = m_session->containerHandle( containerName );
+  if( !cont ){
+    throwException("Container \""+containerName+"\" does not exist in the database.",
+                   "DatabaseUtility::listMappings");
+  }
+  return m_session->listMappings( cont->id() );  
+}
+
+bool ora::DatabaseUtility::dumpMapping( const std::string& mappingVersion,
+                                        std::ostream& outputStream ){
+  return m_session->dumpMapping( mappingVersion,outputStream );
 }
 
 void ora::DatabaseUtility::importContainerSchema( const std::string& sourceConnectionString,

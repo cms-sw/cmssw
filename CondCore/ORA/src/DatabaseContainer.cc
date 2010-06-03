@@ -394,26 +394,29 @@ void* ora::DatabaseContainer::fetchItem(int itemId){
 
 void* ora::DatabaseContainer::fetchItemAsType(int itemId,
                                               const Reflex::Type& asType){
+  if(!m_readBuffer.get()){
+    m_readBuffer.reset( new ReadBuffer( *m_schema ) );
+  }
   if( !ClassUtils::isType( type(), asType ) ){
     throwException("Provided output object type \""+asType.Name(Reflex::SCOPED)+"\" does not match with the container type \""+
                    type().Name(Reflex::SCOPED)+"\"","DatabaseContainer::fetchItemAsType");
   } 
-  return fetchItem( itemId );
+  return m_readBuffer->read( itemId );
 }
 
 int ora::DatabaseContainer::insertItem( const void* data,
                                         const Reflex::Type& dataType ){
+  if(!m_writeBuffer.get()){
+    m_writeBuffer.reset( new WriteBuffer( *m_schema ) );
+  }
   Reflex::Type inputResType = ClassUtils::resolvedType( dataType );
   Reflex::Type contType = ClassUtils::resolvedType(m_schema->type());
   if( inputResType.Name()!= contType.Name() && !inputResType.HasBase( contType ) ){
     throwException( "Provided input object type=\""+inputResType.Name()+
-                    "\" does not match with the container type=\""+contType.Name()+"\".",
+                    "\" does not match with the container type=\""+contType.Name()+"\"",
                     "DatabaseContainer::insertItem" );
   }
 
-  if(!m_writeBuffer.get()){
-    m_writeBuffer.reset( new WriteBuffer( *m_schema ) );
-  }
   int newId = m_schema->containerSequences().getNextId( MappingRules::sequenceNameForContainer( m_schema->containerName()) );
   m_writeBuffer->registerForWrite( newId, data );
   return newId;
@@ -422,16 +425,17 @@ int ora::DatabaseContainer::insertItem( const void* data,
 void ora::DatabaseContainer::updateItem( int itemId,
                                          const void* data,
                                          const Reflex::Type& dataType ){
-  Reflex::Type inputResType = ClassUtils::resolvedType( dataType );
-  Reflex::Type contType = ClassUtils::resolvedType(m_schema->type());
-  if( inputResType.Name()!= contType.Name() && !inputResType.HasBase( contType ) ){
-    throwException( "Provided input object type does not match with the container type.",
-                    "DatabaseContainer::updateItem" );
-  }
-
   if(!m_updateBuffer.get()){
     m_updateBuffer.reset( new UpdateBuffer( *m_schema ) );
   }
+  Reflex::Type inputResType = ClassUtils::resolvedType( dataType );
+  Reflex::Type contType = ClassUtils::resolvedType(m_schema->type());
+  if( inputResType.Name()!= contType.Name() && !inputResType.HasBase( contType ) ){
+    throwException( "Provided input object type=\""+inputResType.Name()+"\" does not match with the container type=\""+
+                    contType.Name()+"\".",
+                    "DatabaseContainer::updateItem" );
+  }
+
   m_updateBuffer->registerForUpdate( itemId, data );
 }
 

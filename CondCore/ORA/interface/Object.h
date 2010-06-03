@@ -18,6 +18,7 @@ namespace ora {
     bool operator!=( const Object& rhs) const;
     void* address() const;
     const Reflex::Type& type() const;
+    std::string typeName() const;
     void* cast( const std::type_info& asType ) const;
     template <typename T> T* cast() const;
     void destruct();

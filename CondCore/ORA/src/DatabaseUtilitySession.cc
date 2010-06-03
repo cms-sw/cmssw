@@ -17,10 +17,26 @@ ora::DatabaseUtilitySession::DatabaseUtilitySession(  DatabaseSession& dbSession
 ora::DatabaseUtilitySession::~DatabaseUtilitySession(){
 }
 
-std::set<std::string> ora::DatabaseUtilitySession::listMappingVersions( const std::string& containerName ){
+std::set<std::string> ora::DatabaseUtilitySession::listMappingVersions( int containerId ){
   std::set<std::string> mappingList;
-  m_session.mappingDatabase().getMappingVersionsForContainer( m_session.containerHandle( containerName )->id(), mappingList );
+  m_session.mappingDatabase().getMappingVersionsForContainer( containerId, mappingList );
   return mappingList;
+}
+
+std::map<std::string,std::string> ora::DatabaseUtilitySession::listMappings( int containerId ){
+  std::map<std::string,std::string> versionMap;
+  m_session.mappingDatabase().getClassVersionListForContainer( containerId, versionMap );
+  return versionMap;
+}
+
+bool ora::DatabaseUtilitySession::dumpMapping( const std::string& mappingVersion,
+                                               std::ostream& outputStream ){
+  MappingTree dest;
+  if(m_session.mappingDatabase().getMappingByVersion( mappingVersion, dest )){
+    dest.printXML( outputStream );
+    return true;
+  }
+  return false;
 }
 
 ora::Handle<ora::DatabaseContainer> ora::DatabaseUtilitySession::importContainerSchema( const std::string& containerName,
@@ -193,6 +209,21 @@ void ora::DatabaseUtilitySession::importContainer( const std::string& sourceConn
 }
 
 void ora::DatabaseUtilitySession::eraseMapping( const std::string& mappingVersion ){
+  if( !m_session.exists() ){
+    throwException( "ORA Database not found in \""+m_session.connectionString()+"\".",
+                    "DatabaseUtilitySession::eraseMapping");      
+
+  }
   m_session.mappingDatabase().removeMapping( mappingVersion );
+}
+
+ora::Handle<ora::DatabaseContainer> ora::DatabaseUtilitySession::containerHandle( const std::string& name ){
+  if( !m_session.exists() ){
+    throwException( "ORA Database not found in \""+m_session.connectionString()+"\".",
+                    "DatabaseUtilitySession::containerHandle");      
+
+  }
+  m_session.open();
+  return m_session.containerHandle( name );
 }
 

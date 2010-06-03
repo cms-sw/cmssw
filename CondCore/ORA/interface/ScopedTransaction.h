@@ -1,21 +1,24 @@
-#ifndef INCLUDE_ORA_TRANSACTION_H
-#define INCLUDE_ORA_TRANSACTION_H
+#ifndef INCLUDE_ORA_SCOPEDTRANSACTION_H
+#define INCLUDE_ORA_SCOPEDTRANSACTION_H
 
 namespace ora {
 
-  class DatabaseSession;
+  class Transaction;
   
-  /** @class Transaction Transaction.h 
+  /** @class ScopedTransaction ScopedTransaction.h 
    *
    */
 
-  class Transaction {
+  class ScopedTransaction {
 
     public:
-    explicit Transaction( DatabaseSession& session );
+    explicit ScopedTransaction( Transaction& dbTransaction );
+
+    ///
+    ScopedTransaction( const ScopedTransaction& trans );
     
     /// Default destructor
-    virtual ~Transaction();
+    virtual ~ScopedTransaction();
 
     /// Starts a new transaction. Returns the success of the operation
     bool start( bool readOnly=true );
@@ -28,10 +31,9 @@ namespace ora {
 
     /// Checks if the transaction is active
     bool isActive( bool checkIfReadOnly=false ) const;
-    
+
     private:
-    DatabaseSession& m_session;
-    bool m_localActive;
+    Transaction& m_dbTransaction;
   };
 
 }

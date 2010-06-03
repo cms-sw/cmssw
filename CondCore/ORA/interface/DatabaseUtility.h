@@ -5,6 +5,7 @@
 #include <boost/shared_ptr.hpp>
 //
 #include <set>
+#include <map>
 
 namespace ora {
 
@@ -27,6 +28,12 @@ namespace ora {
     ///
     std::set<std::string> listMappingVersions( const std::string& containerName );
 
+    ///
+    std::map<std::string,std::string> listMappings( const std::string& containerName );
+
+    ///
+    bool dumpMapping( const std::string& mappingVersion, std::ostream& outputStream );
+    
     ///
     void importContainerSchema( const std::string& sourceConnectionString, const std::string& containerName );
 

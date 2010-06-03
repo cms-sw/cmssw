@@ -1,5 +1,6 @@
 #include "TransactionCache.h"
 #include "DatabaseContainer.h"
+#include "DatabaseUtilitySession.h"
 
 ora::TransactionCache::TransactionCache():
   m_dbExists(false,false),

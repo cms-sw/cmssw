@@ -16,6 +16,8 @@ namespace ora {
 
   void throwException( const std::string& message, const std::string& methodName );
 
+  void throwException( const std::string& message, const std::type_info& sourceType, const std::string& methodName  );
+
 }
 
 #endif

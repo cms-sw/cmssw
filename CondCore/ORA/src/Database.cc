@@ -59,6 +59,10 @@ std::string ora::Database::nameForContainer( const std::type_info& typeInfo ){
   return nameFromClass( contType );
 }
 
+std::string ora::Database::nameForContainer( const std::string& className ){
+  return className;
+}
+
 ora::Database::Database():
   m_impl( new DatabaseImpl ){
 }
@@ -185,6 +189,19 @@ ora::Container ora::Database::createContainer( const std::type_info& typeInfo ){
   open();
   Reflex::Type contType = ClassUtils::lookupDictionary( typeInfo );
   std::string name = nameFromClass( contType );
+  if( m_impl->m_session->containerHandle( name ) ){
+    throwException("Container with name \""+name+"\" already exists in the database.",
+                   "Database::createContainer");
+  }  
+  Handle<DatabaseContainer> cont = m_impl->m_session->createContainer( name, contType );
+  return Container( cont );
+}
+
+ora::Container ora::Database::createContainer( const std::string& className,
+                                               std::string name ){
+  open();
+  Reflex::Type contType =  ClassUtils::lookupDictionary( className );
+  if( name.empty() ) name = nameForContainer( className );
   if( m_impl->m_session->containerHandle( name ) ){
     throwException("Container with name \""+name+"\" already exists in the database.",
                    "Database::createContainer");

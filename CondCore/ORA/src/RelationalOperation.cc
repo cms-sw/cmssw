@@ -189,13 +189,13 @@ ora::DeleteOperation::~DeleteOperation(){
 }
 
 bool ora::DeleteOperation::execute(){
-  bool ret = false;
   if( whereClause().size() ){
     coral::ITable& table = m_schema.tableHandle( m_tableName );
-    long nr = table.dataEditor().deleteRows( whereClause(), whereData() );
-    ret = nr > 0;
+    table.dataEditor().deleteRows( whereClause(), whereData() );
+    //long nr = table.dataEditor().deleteRows( whereClause(), whereData() );
+    //ret = nr > 0;
   }
-  return ret;
+  return true;
 }
 
 void ora::DeleteOperation::reset(){

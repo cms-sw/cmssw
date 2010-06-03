@@ -93,24 +93,26 @@ int main(){
   std::cout << "############# ContID="<<contHR0.id()<<std::endl;
   boost::shared_ptr<SimpleClass> sr0 = contHR0.fetch<SimpleClass>( oid0);
   if( sr0 ){
-    std::cout << "############# Read out data0=";
+    std::cout << "############# (0) Read out data0=";
     sr0->print();
   } else {
-    std::cout << "############# No data for oid="<<oid0<<std::endl;
+    std::cout << "############# (0) No data for oid="<<oid0<<std::endl;
   } 
   boost::shared_ptr<SimpleClass> sr1 = contHR0.fetch<SimpleClass>( oid01);
   if( sr0 ){
-    std::cout << "############# Read out data1=";
+    std::cout << "############# (0) Read out data1=";
     sr1->print();
   } else {
-    std::cout << "############# No data for oid="<<oid01<<std::endl;
+    std::cout << "############# (0) No data for oid="<<oid01<<std::endl;
   } 
   db.transaction().commit();
   db.disconnect();
   db.configuration().properties().setFlag( ora::Configuration::automaticDatabaseCreation() );
   db.connect( connStr2 );
   db.transaction().start( false );
+  std::cout << "############# (0) getting utility..."<<std::endl;
   util = db.utility();
+  std::cout << "############# (0) importing..."<<std::endl;
   util.importContainer( connStr1, "Cont0" );
   db.transaction().commit();
   db.disconnect(); 
@@ -133,17 +135,17 @@ int main(){
   std::cout << "############# ContID="<<contHR0.id()<<std::endl;
   sr0 = contHR0.fetch<SimpleClass>( oid0);
   if( sr0 ){
-    std::cout << "############# Read out data0=";
+    std::cout << "############# (1) Read out data0=";
     sr0->print();
   } else {
-    std::cout << "############# No data for oid="<<oid0<<std::endl;
+    std::cout << "############# (1) No data for oid="<<oid0<<std::endl;
   } 
   sr1 = contHR0.fetch<SimpleClass>( oid01);
   if( sr0 ){
-    std::cout << "############# Read out data1=";
+    std::cout << "############# (1) Read out data1=";
     sr1->print();
   } else {
-    std::cout << "############# No data for oid="<<oid01<<std::endl;
+    std::cout << "############# (1) No data for oid="<<oid01<<std::endl;
   } 
   db.transaction().commit();
   db.disconnect();

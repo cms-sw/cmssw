@@ -24,6 +24,8 @@ namespace ora {
     
   namespace ClassUtils {
 
+    void loadDictionary(  const std::string& className );
+
     void* upCast( const Reflex::Type& type, void* ptr, const Reflex::Type& asType );
 
     bool isType( const Reflex::Type& type, const Reflex::Type& baseType );

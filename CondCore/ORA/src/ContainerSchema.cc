@@ -85,7 +85,6 @@ ora::ContainerSchema::ContainerSchema( int containerId,
   m_containerSchemaSequences( session.schema() ),
   m_mapping(),
   m_dependentMappings(){
-  m_classDict = ClassUtils::lookupDictionary( className, false );
 }
 
 ora::ContainerSchema::~ContainerSchema(){
@@ -95,14 +94,15 @@ ora::ContainerSchema::~ContainerSchema(){
   }
 }
 
-void ora::ContainerSchema::checkClassDict(){
+void ora::ContainerSchema::initClassDict(){
+  if( !m_classDict ) m_classDict = ClassUtils::lookupDictionary( m_className, false );
   if( !m_classDict ) throwException("Container class \""+m_className+"\" has not been found in the dictionary.",
-                                    "ContainerSchema::checkClassDict");
+                                    "ContainerSchema::initClassDict");
 }
 
 void ora::ContainerSchema::create(){
 
-  checkClassDict();
+  initClassDict();
   std::string newMappingVersion = m_session.mappingDatabase().newMappingVersionForContainer( m_containerName );
   MappingGenerator mapGen( m_session.schema().storageSchema() );
   mapGen.createNewMapping( m_containerName, m_classDict, m_mapping );
@@ -191,7 +191,7 @@ const Reflex::Type& ora::ContainerSchema::type(){
 }
 
 ora::MappingTree& ora::ContainerSchema::mapping( bool writeEnabled ){
-  checkClassDict();
+  initClassDict();
   if(!m_loaded ){
     if( !m_session.mappingDatabase().getMappingForContainer( m_classDict, m_containerId, m_mapping ) ){
       // if enabled, invoke the evolution

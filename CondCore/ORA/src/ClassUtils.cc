@@ -1,5 +1,6 @@
 #include "CondCore/ORA/interface/Exception.h"
 #include "CondCore/ORA/interface/Reference.h"
+#include "FWCore/PluginManager/interface/PluginCapabilities.h"
 #include "ClassUtils.h"
 //
 #include <cxxabi.h>
@@ -19,6 +20,15 @@ ora::RflxDeleter::~RflxDeleter(){
 
 void ora::RflxDeleter::operator()( void* ptr ){
   m_type.Destruct( ptr );
+}
+
+void ora::ClassUtils::loadDictionary( const std::string& className ){
+  try {
+    static std::string const prefix("LCGReflex/");
+    edmplugin::PluginCapabilities::get()->load(prefix + className);
+  } catch (...){
+    throwException( "Failure while loading dictionary for class \""+className+"\".","ClassUtils::loadDictionary" );
+  }
 }
 
 void* ora::ClassUtils::upCast( const Reflex::Type& type,
@@ -60,6 +70,10 @@ Reflex::Type ora::ClassUtils::lookupDictionary( const std::type_info& typeInfo, 
     // ugly, but no other way with Reflex...
     type = Reflex::Type::ByName("std::string");
   }
+  if( !type ){
+    loadDictionary( demangledName(typeInfo) );
+    type = Reflex::Type::ByTypeInfo( typeInfo );
+  }
   if( !type && throwFlag ){
     throwException( "Class \""+demangledName(typeInfo)+"\" has not been found in the dictionary.",
                     "ClassUtils::lookupDictionary" );
@@ -72,6 +86,10 @@ Reflex::Type ora::ClassUtils::lookupDictionary( const std::string& className, bo
   if( className == "std::basic_string<char>" ){
     // ugly, but no other way with Reflex...
     type = Reflex::Type::ByName("std::string");
+  }
+  if( !type ){
+    loadDictionary( className );
+    type = Reflex::Type::ByName( className );
   }
   if( !type && throwFlag ){
     throwException( "Class \""+className+"\" has not been found in the dictionary.",

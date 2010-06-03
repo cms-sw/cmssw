@@ -22,7 +22,7 @@ ora::Configuration::Configuration():
   m_referenceHandler(),
   m_properties(){
   
-  coral::MessageStream::setMsgVerbosity( coral::Info );
+  //coral::MessageStream::setMsgVerbosity( coral::Info );
 
 }
 

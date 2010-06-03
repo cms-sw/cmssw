@@ -185,6 +185,7 @@ namespace ora {
     bool getMappingVersionListForTable( const std::string& tableName, std::set<std::string>& destination );
     bool getDependentClassesInContainerMapping( int containerId, std::set<std::string>& destination );
     bool getClassVersionListForMappingVersion( const std::string& mappingVersion, std::set<std::string>& destination );
+    bool getClassVersionListForContainer( int containerId, std::map<std::string,std::string>& versionMap );
     bool selectMappingVersion( const std::string& classId, int containerId, std::string& destination );
     bool containerForMappingVersion( const std::string& mappingVersion, int& destination );
     void insertClassVersion( const std::string& className, const std::string& classVersion, const std::string& classId,
