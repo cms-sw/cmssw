@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.44 2010/05/11 16:39:41 eulisse Exp $
+// $Id: FWEventItem.cc,v 1.45 2010/05/27 16:53:08 chrjones Exp $
 //
 
 // system include files
@@ -158,13 +158,20 @@ FWEventItem::setName(const std::string& iName)
    m_name = iName;
 }
 
+/** This is the place where not only display properties are changed,
+    but which is also responsible to notify the FWModelChangeManager about
+    the change. If you've just added some property, you have a nice GUI for
+    it and still nothing works, this is probably the place where you want to 
+    look. 
+  */
 void
 FWEventItem::setDefaultDisplayProperties(const FWDisplayProperties& iProp)
 {
    bool visChange = m_displayProperties.isVisible() != iProp.isVisible();
    bool colorChanged = m_displayProperties.color() != iProp.color();
+   bool transparencyChanged = m_displayProperties.transparency() != iProp.transparency();
 
-   if(!visChange && !colorChanged) {
+   if(!visChange && !colorChanged && !transparencyChanged) {
       return;
    }
    //If the default visibility is changed, we want to also change the the visibility of the children
@@ -178,14 +185,21 @@ FWEventItem::setDefaultDisplayProperties(const FWDisplayProperties& iProp)
       bool vis=prp.isVisible();
       bool changed = false;
       changed = visChange && vis;
+
       if(colorChanged) {
          if(m_displayProperties.color()==prp.color()) {
             prp.setColor(iProp.color());
-            m_itemInfos[index].m_displayProperties=prp;
+            changed = true;
+         }
+      }
+      if (transparencyChanged) {
+         if(m_displayProperties.transparency() == prp.transparency()) {
+            prp.setTransparency(iProp.transparency());
             changed = true;
          }
       }
       if(changed) {
+         m_itemInfos[index].m_displayProperties=prp;
          FWModelId id(this,index);
          changeManager()->changed(id);
       }

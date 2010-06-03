@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWSiStripClusterProxyBuilder.cc,v 1.10 2010/05/06 14:14:10 mccauley Exp $
+// $Id: FWSiStripClusterProxyBuilder.cc,v 1.11 2010/06/01 11:15:30 matevz Exp $
 //
 
 #include "TEveCompound.h"
@@ -45,7 +45,7 @@ FWSiStripClusterProxyBuilder::build(const SiStripCluster& iData,
   if (shape) 
   {
     setupAddElement(shape, &oItemHolder);
-    Char_t transp = 100 - item()->defaultDisplayProperties().opacity();
+    Char_t transp = item()->defaultDisplayProperties().transparency();
     shape->SetMainTransparency(TMath::Min(100, 80 + transp / 5));
   }
 
@@ -83,8 +83,7 @@ FWSiStripClusterProxyBuilder::localModelChanges(const FWModelId& iId, TEveElemen
   TEveElement* det = iCompound->FirstChild();
   if (det)
   {
-     Char_t transp = 100 - dp.opacity();
-     Char_t det_transp = TMath::Min(100, 80 + transp / 5);
+     Char_t det_transp = TMath::Min(100, 80 + dp.transparency() / 5);
      det->SetMainTransparency(det_transp);
   }
 }

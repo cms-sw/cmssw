@@ -7,36 +7,47 @@
 #include "TG3DLine.h"
 #include "TGLViewer.h"
 #include "TGSlider.h"
+#include "TGTab.h"
+#include "TGTextView.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
+#include "Fireworks/Core/src/FWGUIValidatingTextEntry.h"
+#include "TGNumberEntry.h"
 
 class FWLayoutBuilder
 {
 public:
    FWLayoutBuilder(TGCompositeFrame *window)
       : m_window(window),
-        m_currentFrame(0)
+        m_currentFrame(0),
+        m_floatLeft(false),
+        m_topSpacing(0),
+        m_leftSpacing(0),
+        m_currentHints(0)
    {
       TGVerticalFrame *mainFrame = new TGVerticalFrame(window);
-      m_window->AddFrame(mainFrame);
+      TGLayoutHints *hints = new TGLayoutHints(kLHintsExpandX|kLHintsExpandY, 
+                                               0, 0, 0, 0);
+      m_window->AddFrame(mainFrame, hints);
       m_framesStack.push_back(mainFrame);
-      newRow(0);
+      newRow();
    }
-
 protected:
-   FWLayoutBuilder &newRow(size_t spacing = 2)
+   FWLayoutBuilder &newRow()
    {
-      TGLayoutHints *hints = new TGLayoutHints(kLHintsExpandX, 
-                                               0, 0, spacing, 0);
       m_currentFrame = new TGHorizontalFrame(m_framesStack.back());
-      m_framesStack.back()->AddFrame(m_currentFrame, hints);
+      m_framesStack.back()->AddFrame(m_currentFrame, new TGLayoutHints(kLHintsExpandX));
       return *this;
    }
    
-   FWLayoutBuilder &indent(size_t indentation = 2)
+   FWLayoutBuilder &indent(int left = 2, int right = -1)
    {
+      if (right < 0)
+         right = left;
+         
       TGVerticalFrame *parent = m_framesStack.back();
-      TGLayoutHints *hints = new TGLayoutHints(kLHintsExpandX, 
-                                               indentation, 0, 0, 0);
+      TGLayoutHints *hints = new TGLayoutHints(kLHintsExpandX, left, right, 
+                                               0, 0);
+      m_currentHints = 0;
       m_framesStack.push_back(new TGVerticalFrame(parent));
       parent->AddFrame(m_framesStack.back(), hints);
       return *this;
@@ -50,12 +61,84 @@ protected:
       return *this;
    }
 
-   TGCompositeFrame *currentFrame(void) {return m_currentFrame; }
+   /** Return the current layout element
+     */
+   TGCompositeFrame *currentFrame(void) { return m_currentFrame; }
+
+   /** Make sure that the current layout element is going to float on the 
+       left of the next one.
+     */
+   FWLayoutBuilder &floatLeft(size_t spacing)
+   {
+      m_floatLeft = true;
+      m_leftSpacing = spacing;
+      return *this;
+   }
    
-private:
-   std::vector<TGVerticalFrame *> m_framesStack;
+   FWLayoutBuilder &spaceDown(size_t spacing)
+   {
+      m_topSpacing = spacing;
+      return *this;
+   }
+   
+   /** Set whether or not the previous layout element should expand and
+       in which direction.
+     */
+   FWLayoutBuilder &expand(bool expandX = true, bool expandY = false)
+   {
+      UInt_t style = 0;
+      style |= expandX ? kLHintsExpandX : 0;
+      style |= expandY ? kLHintsExpandY : 0;
+      
+      if (m_currentHints)
+         m_currentHints->SetLayoutHints(style);
+      return *this;
+   }
+
+protected:
+   bool isFloatingLeft() { return m_floatLeft; }
+
+   // Returns the next layout to be used.
+   TGLayoutHints *nextHints()
+   {
+      if (m_floatLeft)
+      {
+         size_t left = m_leftSpacing;
+         m_floatLeft = false;
+         m_leftSpacing = 0;
+//         if (m_currentHints)
+//            m_currentHints->SetLayoutHints(kLHintsNormal);
+         m_currentHints = new TGLayoutHints(kLHintsExpandX, left, 0, 
+                                            m_currentHints->GetPadTop(), 0);
+      }
+      else
+      {
+         size_t top = m_topSpacing;
+         m_topSpacing = 3;
+         m_currentHints = new TGLayoutHints(kLHintsExpandX, 0, 0, top, 0);
+      }
+      return m_currentHints;
+   }
+   
+   TGCompositeFrame *nextFrame()
+   {
+      if (!isFloatingLeft())
+         newRow();
+   
+      return currentFrame();
+   }
+   
+private:   
    TGCompositeFrame *m_window;
+
+   std::vector<TGVerticalFrame *> m_framesStack;
+   TGCompositeFrame *m_lastFrame;
    TGCompositeFrame *m_currentFrame;
+
+   bool             m_floatLeft;
+   size_t           m_topSpacing;
+   size_t           m_leftSpacing;
+   TGLayoutHints    *m_currentHints;
 };
 
 /** Helper class to construct dialogs in a more readable ways.
@@ -68,13 +151,13 @@ private:
       FWDialogBuilder builder(parent);
       parent.newRow(2)              // New row which has a 2 pixel padding on top.
             .addLabel("MyLabel:")    // A new label.
-            .newRow(2)
             .indent(20)             // Whatever follows is indented 20 pixels 
                                     // on the right.
             .addLabel("MyLabel2")   // Another label.
-            .newRow(4)
-            .addTextButton("Aligned to ")
-            .unindex()              // back one level in the indentation.
+            .spaceDown(4)
+            .addTextButton("Aligned to MyLabel2 ").floatLeft()
+            .addTextButton("Same Row as previous")
+            .unindent()              // back one level in the indentation.
             .addLabel("Aligned to MyLabel:")
             
     Because in ROOT layout and parenting of widgets are mixed we need to take
@@ -90,13 +173,15 @@ private:
 class FWDialogBuilder : public FWLayoutBuilder
 {
 public:
-   FWDialogBuilder(TGCompositeFrame *window)
-      : FWLayoutBuilder(window)
+   FWDialogBuilder(TGCompositeFrame *window, FWDialogBuilder *parent = 0)
+      : FWLayoutBuilder(window),
+        m_parent(parent),
+        m_tabs(0)
    {}
 
-   FWDialogBuilder &newRow(size_t spacing = 2)
+   FWDialogBuilder &newRow()
    {
-      FWLayoutBuilder::newRow(spacing);
+      FWLayoutBuilder::newRow();
       return *this;
    }
 
@@ -117,7 +202,7 @@ public:
                              size_t weight = 0,
                              TGLabel **out = 0)
    {
-      TGLabel *label = new TGLabel(currentFrame(), text);
+      TGLabel *label = new TGLabel(nextFrame(), text);
       
       FontStruct_t defaultFontStruct = label->GetDefaultFontStruct();
       TGFontPool *pool = gClient->GetFontPool();
@@ -127,63 +212,92 @@ public:
                                        attributes.fWeight, attributes.fSlant));
       label->SetTextJustify(kTextLeft);
       
-      currentFrame()->AddFrame(label, new TGLayoutHints(kLHintsExpandX));
+      currentFrame()->AddFrame(label, nextHints());
       
       return extract(label, out);
    }
    
+   FWDialogBuilder &addTextView(const char *defaultText = 0,
+                                TGTextView **out = 0)
+   {
+      TGTextView *view = new TGTextView(nextFrame(), 100, 100);
+      if (defaultText)
+         view->AddLine(defaultText);
+      currentFrame()->AddFrame(view, nextHints());
+      expand(true, true);
+      return extract(view, out);
+   }
+   
    FWDialogBuilder &addColorPicker(const FWColorManager *manager,
-                                   size_t horizontalPadding = 0,
                                    FWColorSelect **out = 0)
    {
-      TGLayoutHints *hints = new TGLayoutHints(kLHintsNormal, 
-                                               horizontalPadding, 0, 0, 0);
       const char* graphicsLabel = " ";
-      FWColorSelect *widget = new FWColorSelect(currentFrame(), graphicsLabel,
+      FWColorSelect *widget = new FWColorSelect(nextFrame(), graphicsLabel,
                                                 0, manager, -1);
       
-      currentFrame()->AddFrame(widget, hints);
+      currentFrame()->AddFrame(widget, nextHints());
       widget->SetEnabled(kFALSE);
       
       return extract(widget, out);
    }
    
-   FWDialogBuilder &addHSlider(size_t size, size_t horizontalPadding = 0, 
-                               TGHSlider **out = 0)
+   FWDialogBuilder &addHSlider(size_t size, TGHSlider **out = 0)
    {
-      TGLayoutHints *hints = new TGLayoutHints(kLHintsNormal,
-                                               horizontalPadding, 0, 0, 0);
-      
-      TGHSlider *slider = new TGHSlider(currentFrame(), size, kSlider1);
-      currentFrame()->AddFrame(slider, hints);
+      TGHSlider *slider = new TGHSlider(nextFrame(), size, kSlider1);
+      currentFrame()->AddFrame(slider, nextHints());
       slider->SetRange(0, 100);
       slider->SetPosition(100);
       
       return extract(slider, out);
    }
    
-   FWDialogBuilder &addTextButton(const char *text, size_t horizontalPadding = 0, 
-                                  TGTextButton **out = 0)
+   FWDialogBuilder &addTextButton(const char *text, TGTextButton **out = 0)
    {
-      TGLayoutHints *hints = new TGLayoutHints(kLHintsNormal, 
-                                               horizontalPadding, 0, 0, 0);
-      
-      TGTextButton *button = new TGTextButton(currentFrame(), text);
-      currentFrame()->AddFrame(button, hints);
+      TGTextButton *button = new TGTextButton(nextFrame(), text);
+      currentFrame()->AddFrame(button, nextHints());
       
       return extract(button, out);
    }
    
-   FWDialogBuilder &addCheckbox(const char *text, size_t horizontalPadding = 0,
-                                TGCheckButton **out = 0)
+   FWDialogBuilder &addValidatingTextEntry(const char *defaultText, 
+                                           FWGUIValidatingTextEntry **out)
    {
-      TGLayoutHints *hints = new TGLayoutHints(kLHintsNormal, 
-                                               horizontalPadding, 0, 0, 0);
+      FWGUIValidatingTextEntry *entry = new FWGUIValidatingTextEntry(nextFrame());
+      currentFrame()->AddFrame(entry, nextHints());
       
-      TGCheckButton *button = new TGCheckButton(currentFrame(), text);
+      return extract(entry, out);
+   }
+
+   FWDialogBuilder &addTextEntry(const char *defaultText, 
+                                 TGTextEntry **out)
+   {
+      TGTextEntry *entry = new TGTextEntry(nextFrame());
+      currentFrame()->AddFrame(entry, nextHints());
+      entry->SetEnabled(kFALSE);
+      
+      return extract(entry, out);
+   }
+
+   FWDialogBuilder &addNumberEntry(float defaultValue, size_t digits,
+                                   TGNumberFormat::EStyle style,
+                                   size_t min, size_t max,
+                                   TGNumberEntry **out)
+   {
+      TGNumberEntry *entry = new TGNumberEntry(nextFrame(), defaultValue, 
+                                               digits, -1, style,
+                                               TGNumberFormat::kNEAAnyNumber,
+                                               TGNumberFormat::kNELLimitMinMax,
+                                               min, max);
+      currentFrame()->AddFrame(entry, nextHints());
+      return extract(entry, out);
+   }
+   
+   FWDialogBuilder &addCheckbox(const char *text, TGCheckButton **out = 0)
+   {
+      TGCheckButton *button = new TGCheckButton(nextFrame(), text);
       button->SetState(kButtonDown, kFALSE);
       button->SetEnabled(kFALSE);
-      currentFrame()->AddFrame(button, hints);
+      currentFrame()->AddFrame(button, nextHints());
       
       return extract(button, out);
    }
@@ -198,16 +312,100 @@ public:
    FWDialogBuilder &addHSeparator(size_t horizontalPadding = 4, 
                                   size_t verticalPadding = 3)
    {
-      newRow();
-      TGLayoutHints *hints = new TGLayoutHints(kLHintsExpandX, 
-                                               horizontalPadding, horizontalPadding, 
-                                               verticalPadding, 
+      TGLayoutHints *hints = new TGLayoutHints(kLHintsExpandX,
+                                               horizontalPadding,
+                                               horizontalPadding,
+                                               verticalPadding,
                                                verticalPadding);
 
-      TGHorizontal3DLine* separator = new TGHorizontal3DLine(currentFrame(), 200, 2);
+      TGHorizontal3DLine* separator = new TGHorizontal3DLine(nextFrame(), 200, 2);
       currentFrame()->AddFrame(separator, hints);
       return newRow();
    }
+
+   /** Support for tabs.
+    
+       This is done by creating a new DialogBuilder and returning it for each
+       of the added tabs.
+       
+       builder.tabs()               // Adds a TGTab widget to the current frame.
+              .beginTab("Foo")      // Add a tab to the TGTab.
+              .textButton("In Foo") // This is inside the tab "Foo", the layouting
+                                    // is independent from previous calls
+                                    // since a separate builder was returned by
+                                    // 
+              .endTab("Foo")        // End of the tab.
+              .beginTab("Bar")
+              .endTab("")
+              .untabs();            // Tabs completed.
+              .textButton("Main scope") // This is on the same level as the TGTab.
+       
+     */
+   FWDialogBuilder &tabs(void)
+   {
+      // Calls to tabs cannot be nested within the same builder. Multiple
+      // builders are used to support nested tabs.
+      assert(!m_tabs);
+      m_tabs = new TGTab(nextFrame());
+      currentFrame()->AddFrame(m_tabs, nextHints());
+      return *this;
+   }
+   
+   FWDialogBuilder &untabs(void)
+   {
+      // No untabs() without tabs().
+      assert(m_tabs);
+      m_tabs = 0;
+      return *this;
+   }
+   
+   /** Adds a new tab called @a label.
+       A new tab gets a new builder so that tab building is completely scoped.
+     */
+   FWDialogBuilder &beginTab(const char *label)
+   {
+      TGCompositeFrame *tab = m_tabs->AddTab(label);
+      FWDialogBuilder *builder = new FWDialogBuilder(tab, this);
+      return builder->newRow();
+   }
+   
+   /** When we are done with the tab, we delete ourself and return the parent.
+     */
+   FWDialogBuilder &endTab(void)
+   {
+      FWDialogBuilder *parent = m_parent;
+      delete this;
+      return *parent;
+   }
+   
+   FWDialogBuilder &floatLeft(size_t spacing = 3)
+   {
+      FWLayoutBuilder::floatLeft(spacing);
+      return *this;
+   }
+   
+   FWDialogBuilder &spaceDown(size_t spacing = 3)
+   {
+      FWLayoutBuilder::spaceDown(spacing);
+      return *this;
+   }
+   
+   FWDialogBuilder &expand(size_t expandX = true, size_t expandY = false)
+   {
+      FWLayoutBuilder::expand(expandX, expandY);
+      return *this;
+   }
+   
+   FWDialogBuilder &vSpacer(size_t size)
+   {
+      FWLayoutBuilder::spaceDown(size);
+      FWLayoutBuilder::newRow();
+      return *this;
+   }
+   
+private:
+   FWDialogBuilder *m_parent;
+   TGTab           *m_tabs;
 };
 
 #endif

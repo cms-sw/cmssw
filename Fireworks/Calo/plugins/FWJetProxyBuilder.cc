@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWJetProxyBuilder.cc,v 1.10 2010/05/31 19:44:02 matevz Exp $
+// $Id: FWJetProxyBuilder.cc,v 1.11 2010/06/01 11:15:30 matevz Exp $
 //
 #include "TGeoArb8.h"
 #include "TEveGeoNode.h"
@@ -54,7 +54,7 @@ FWJetProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveEleme
    cone->SetPickable(kTRUE);
    setupAddElement(cone, &oItemHolder);
 
-   Char_t transp = 100 - item()->defaultDisplayProperties().opacity();
+   Char_t transp = item()->defaultDisplayProperties().transparency();
    cone->SetMainTransparency(TMath::Min(100, 80 + transp / 5));
 }
 
@@ -67,8 +67,7 @@ FWJetProxyBuilder::localModelChanges(const FWModelId& iId, TEveElement* iCompoun
   TEveElement* cone = iCompound->FindChild("cone");
   if (cone)
   {
-     Char_t transp = 100 - dp.opacity();
-     Char_t cone_transp = TMath::Min(100, 80 + transp / 5);
+     Char_t cone_transp = TMath::Min(100, 80 + dp.transparency() / 5);
      cone->SetMainTransparency(cone_transp);
   }
 }
@@ -167,16 +166,16 @@ FWJetRhoPhiProxyBuilder::build(const reco::Jet& iData, unsigned int iIndex, TEve
    }
 
    TEveGeoManagerHolder gmgr( TEveGeoShape::GetGeoMangeur() );
+   const FWDisplayProperties &dp = item()->defaultDisplayProperties();
    TEveGeoShape *element = fw::getShape("cone", new TGeoArb8(0, points),
-                                        item()->defaultDisplayProperties().color());
+                                        dp.color());
    setupAddElement(element, &oItemHolder);
 
-   Char_t transp = 100 - item()->defaultDisplayProperties().opacity();
-   element->SetMainTransparency(TMath::Min(100, 90 + transp / 10));
+   element->SetMainTransparency(TMath::Min(100, 90 + dp.transparency() / 10));
 
    TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
    marker->SetLineWidth(4);
-   marker->SetLineColor(item()->defaultDisplayProperties().color());
+   marker->SetLineColor(dp.color());
 
    marker->SetScaleCenter(ecalR*cos(phi), ecalR*sin(phi), 0);
    marker->AddLine(ecalR*cos(phi), ecalR*sin(phi), 0, (ecalR+size)*cos(phi), (ecalR+size)*sin(phi), 0);
@@ -192,11 +191,7 @@ FWJetRhoPhiProxyBuilder::localModelChanges(const FWModelId& iId, TEveElement* iC
 
   TEveElement* cone = iCompound->FindChild("cone");
   if (cone)
-  {
-     Char_t transp = 100 - dp.opacity();
-     Char_t cone_transp = TMath::Min(100, 90 + transp / 10);
-     cone->SetMainTransparency(cone_transp);
-  }
+     cone->SetMainTransparency(TMath::Min(100, 90 + dp.transparency() / 10));
 }
 
 
@@ -314,13 +309,13 @@ FWJetRhoZProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveE
      points[i+8] = points[i];
    }
    TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
+   const FWDisplayProperties &p = item()->defaultDisplayProperties();
    TEveGeoShape *element = fw::getShape("cone", new TGeoArb8( 0, points ),
-                                        item()->defaultDisplayProperties().color());
+                                        p.color());
    element->RefMainTrans().RotateLF( 1, 3, M_PI/2 );
    setupAddElement(element, &oItemHolder);
 
-   Char_t transp = 100 - item()->defaultDisplayProperties().opacity();
-   element->SetMainTransparency(TMath::Min(100, 90 + transp / 10));
+   element->SetMainTransparency(TMath::Min(100, 90 + p.transparency() / 10));
 
 }
 
@@ -332,11 +327,7 @@ FWJetRhoZProxyBuilder::localModelChanges(const FWModelId& iId, TEveElement* iCom
 
   TEveElement* cone = iCompound->FindChild("cone");
   if (cone)
-  {
-     Char_t transp = 100 - dp.opacity();
-     Char_t cone_transp = TMath::Min(100, 90 + transp / 10);
-     cone->SetMainTransparency(cone_transp);
-  }
+     cone->SetMainTransparency(TMath::Min(100, 90 + dp.transparency() / 10));
 }
 
 

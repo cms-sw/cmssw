@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:00 CET 2010
-// $Id: FWProxyBuilderBase.cc,v 1.20 2010/05/31 19:44:03 matevz Exp $
+// $Id: FWProxyBuilderBase.cc,v 1.21 2010/06/02 22:35:17 chrjones Exp $
 //
 
 // system include files
@@ -409,9 +409,9 @@ FWProxyBuilderBase::setupElement(TEveElement* el, bool color) const
       el->CSCApplyMainColorToMatchingChildren();
       el->CSCApplyMainTransparencyToMatchingChildren();
       el->SetMainColor(m_item->defaultDisplayProperties().color());
-      assert((100 - m_item->defaultDisplayProperties().opacity() >= 0)
-             && (100 - m_item->defaultDisplayProperties().opacity() <= 100));
-      el->SetMainTransparency(100 - m_item->defaultDisplayProperties().opacity());
+      assert((m_item->defaultDisplayProperties().transparency() >= 0)
+             && (m_item->defaultDisplayProperties().transparency() <= 100));
+      el->SetMainTransparency(m_item->defaultDisplayProperties().transparency());
    }
 }
 
@@ -427,7 +427,7 @@ FWProxyBuilderBase::createCompound(bool set_color, bool propagate_color_to_all_c
    if (set_color)
    {
       c->SetMainColor(m_item->defaultDisplayProperties().color());
-      c->SetMainTransparency(100 - m_item->defaultDisplayProperties().opacity());
+      c->SetMainTransparency(m_item->defaultDisplayProperties().transparency());
    }
    if (propagate_color_to_all_children)
    {

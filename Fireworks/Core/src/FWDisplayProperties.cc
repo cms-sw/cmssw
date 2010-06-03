@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 17:05:44 EST 2008
-// $Id: FWDisplayProperties.cc,v 1.5 2010/05/31 09:44:45 eulisse Exp $
+// $Id: FWDisplayProperties.cc,v 1.6 2010/05/31 15:44:01 eulisse Exp $
 //
 
 // system include files
@@ -23,9 +23,9 @@ const FWDisplayProperties FWDisplayProperties::defaultProperties(kWhite, true, 1
 
 FWDisplayProperties::FWDisplayProperties(const Color_t& iColor,
                                          bool isVisible,
-                                         Int_t opacity) 
+                                         Int_t transparency) 
 : m_isVisible(isVisible),
-  m_opacity(100)
+  m_transparency(0)
 {
    setColor(iColor);
 }

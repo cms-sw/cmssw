@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.30 2010/05/31 15:24:45 eulisse Exp $
+// $Id: FWEventItemsManager.cc,v 1.31 2010/05/31 15:44:01 eulisse Exp $
 //
 
 // system include files
@@ -223,7 +223,7 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
       }
       
       // FIXME: read opacity from file.
-      FWDisplayProperties disp(cm->indexToColor(colorIndex), isVisible, 100);
+      FWDisplayProperties disp(cm->indexToColor(colorIndex), isVisible, 0);
 
       unsigned int layer;
       const std::string& sLayer =(*keyValues)[7].second.value();
