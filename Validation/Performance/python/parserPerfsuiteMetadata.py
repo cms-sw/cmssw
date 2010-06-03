@@ -266,6 +266,7 @@ class parserPerfsuiteMetadata:
 			(("test_release_local_path",) , r"""^Your Test release in: (.+)$"""),
 
 			(("castor_dir",) , r"""^The performance suite results tarball will be stored in CASTOR at (.+)$"""),
+			(("castor_md5",) , r"""^The md5 checksum of the tarball: (.+)$"""),			
 			
 			(("TimeSize_events",) , r"""^(\d+) TimeSize events$"""),
 			(("IgProf_events",) , r"""^(\d+) IgProf events$"""),
