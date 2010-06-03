@@ -44,10 +44,14 @@ FWEcalRecHitProxyBuilder::build( const EcalRecHit& iData, unsigned int iIndex, T
 		return;
 	}
 	Float_t scale = 10.0;
+	bool reflect = false;
 	if( EcalSubdetector( iData.detid().subdetId() ) == EcalPreshower )
+	{
 		scale = 1000.0; 	// FIXME: The scale should be taken form somewhere else
-
-	fireworks::drawEnergyTower3D( corners, iData.energy() * scale, &oItemHolder, this );
+		( corners[0].fZ < 0.0 ) ? reflect = true : reflect = false;
+	}
+	
+	fireworks::drawEnergyTower3D( corners, iData.energy() * scale, &oItemHolder, this, reflect );
 }
 
 REGISTER_FWPROXYBUILDER( FWEcalRecHitProxyBuilder, EcalRecHit, "Ecal RecHit", FWViewType::kISpyBit );

@@ -7,34 +7,32 @@
 class FWCaloClusterProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::CaloCluster>
 {
 public:
-   FWCaloClusterProxyBuilder(void) {}  
-   virtual ~FWCaloClusterProxyBuilder(void) {}
+   FWCaloClusterProxyBuilder( void ) {}  
+   virtual ~FWCaloClusterProxyBuilder( void ) {}
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWCaloClusterProxyBuilder(const FWCaloClusterProxyBuilder&); 			// stop default
-   const FWCaloClusterProxyBuilder& operator=(const FWCaloClusterProxyBuilder&); 	// stop default
+   FWCaloClusterProxyBuilder( const FWCaloClusterProxyBuilder& ); 			// stop default
+   const FWCaloClusterProxyBuilder& operator=( const FWCaloClusterProxyBuilder& ); 	// stop default
 
-   void build(const reco::CaloCluster& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*);
+   void build( const reco::CaloCluster& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* );
 };
 
 void
-FWCaloClusterProxyBuilder::build(const reco::CaloCluster& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) 
+FWCaloClusterProxyBuilder::build( const reco::CaloCluster& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) 
 {
-   std::vector<std::pair<DetId, float> > clusterDetIds = iData.hitsAndFractions ();
-   Float_t scale = 10.0; 	// FIXME: The scale should be taken form somewhere else
+	std::vector<std::pair<DetId, float> > clusterDetIds = iData.hitsAndFractions();
    
-   for(std::vector<std::pair<DetId, float> >::iterator id = clusterDetIds.begin (), idend = clusterDetIds.end ();
-       id != idend; ++id)
+	for( std::vector<std::pair<DetId, float> >::iterator it = clusterDetIds.begin(), itEnd = clusterDetIds.end();
+       it != itEnd; ++it )
    {
-      std::vector<TEveVector> corners = item()->getGeom()->getPoints((*id).first);
+      std::vector<TEveVector> corners = item()->getGeom()->getPoints( (*it).first );
       if( corners.empty() ) {
-	 continue;
+			continue;
       }
-
-      fireworks::drawEnergyTower3D(corners, (*id).second * scale, &oItemHolder, this);
+      fireworks::drawEnergyTower3D( corners, (*it).second, &oItemHolder, this, false );
    }
 }
 
-REGISTER_FWPROXYBUILDER(FWCaloClusterProxyBuilder, reco::CaloCluster, "Calo Cluster", FWViewType::kISpyBit );
+REGISTER_FWPROXYBUILDER( FWCaloClusterProxyBuilder, reco::CaloCluster, "Calo Cluster", FWViewType::kISpyBit );

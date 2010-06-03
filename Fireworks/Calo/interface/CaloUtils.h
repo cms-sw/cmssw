@@ -12,7 +12,7 @@ namespace fireworks
    void addBox( const std::vector<TEveVector> &corners, TEveElement*,  FWProxyBuilderBase*);
 
    void drawEnergyScaledBox3D( std::vector<TEveVector> &corners, float scale, TEveElement*,  FWProxyBuilderBase*, bool invert);
-   void drawEnergyTower3D( std::vector<TEveVector> &corners, float scale, TEveElement*, FWProxyBuilderBase*);
+   void drawEnergyTower3D( std::vector<TEveVector> &corners, float scale, TEveElement*, FWProxyBuilderBase*, bool reflect);
 }
 
 #endif

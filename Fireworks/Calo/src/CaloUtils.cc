@@ -48,16 +48,30 @@ void drawEnergyScaledBox3D( std::vector<TEveVector> &corners, float scale, TEveE
    addBox( corners, comp, pb );
 }
 
-void drawEnergyTower3D( std::vector<TEveVector> &corners, float scale, TEveElement* comp, FWProxyBuilderBase* pb)
+void drawEnergyTower3D( std::vector<TEveVector> &corners, float scale, TEveElement* comp, FWProxyBuilderBase* pb, bool reflect)
 {
-   // Coordinates of a back face scaled 
-   for( size_t i = 4; i < 8; ++i )
-   {
-      TEveVector diff = corners[i] - corners[i-4];
-      diff.Normalize();
-		corners[i-4] = corners[i];
-      corners[i] = corners[i] + (diff * scale);
-   }
+	// Coordinates of a front face scaled 
+	if( reflect )
+	{
+		// We know, that an ES rechit geometry in -Z needs correction. 
+		// The back face is actually its front face.
+		for( size_t i = 0; i < 4; ++i )
+		{
+			TEveVector diff = corners[i] - corners[i+4];
+			diff.Normalize();
+			corners[i] = corners[i] + (diff * scale);
+		}
+	} 
+	else
+	{
+		for( size_t i = 4; i < 8; ++i )
+		{
+			TEveVector diff = corners[i] - corners[i-4];
+			diff.Normalize();
+			corners[i-4] = corners[i];
+			corners[i] = corners[i] + (diff * scale);
+		}
+	}
    addBox( corners, comp, pb );
 }
 
