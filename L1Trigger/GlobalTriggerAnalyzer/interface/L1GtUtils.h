@@ -70,11 +70,18 @@ public:
     void retrieveL1EventSetup(const edm::EventSetup&);
 
     /// retrieve L1GtTriggerMenuLite (per run product) and cache it to improve the speed
+    ///    input tag explicitly given
     void retrieveL1GtTriggerMenuLite(const edm::Event&, edm::InputTag&);
+    ///    input tag found from provenance
+    void retrieveL1GtTriggerMenuLite(const edm::Event&);
 
     /// get the input tags for L1GlobalTriggerRecord and L1GlobalTriggerReadoutRecord
     void getInputTag(const edm::Event& iEvent, edm::InputTag& l1GtRecordInputTag,
             edm::InputTag& l1GtReadoutRecordInputTag) const;
+
+    /// get the input tags for L1GtTriggerMenuLite
+    void getL1GtTriggerMenuLiteInputTag(const edm::Event& iEvent,
+            edm::InputTag& l1GtTriggerMenuLiteInputTag) const;
 
     /// return the trigger "category" trigCategory
     ///    algorithm trigger alias or algorithm trigger name AlgorithmTrigger = 0,
@@ -348,6 +355,10 @@ private:
 
     const edm::RunID* m_runIDCache;
 
+    //
+    const edm::RunID* m_provRunIDCache;
+
+    //
     bool m_l1GtMenuLiteValid;
 
 private:

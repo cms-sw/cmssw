@@ -73,8 +73,10 @@ process.l1GtAnalyzer.BitNumber = 10
 process.l1GtAnalyzer.L1GtUtilsConfiguration = 0
 #process.l1GtAnalyzer.L1GtUtilsConfiguration = 100000
 #process.l1GtAnalyzer.L1GtUtilsConfiguration = 200000
-
-
+ 
+# if true, use methods in L1GtUtils with the input tag for L1GtTriggerMenuLite
+# from provenance (default: True)
+#process.l1GtAnalyzer.L1GtTmLInputTagProv = False
 
 process.load("L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi")
 

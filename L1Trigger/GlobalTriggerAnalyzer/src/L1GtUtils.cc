@@ -261,6 +261,25 @@ void L1GtUtils::retrieveL1EventSetup(const edm::EventSetup& evSetup) {
 
 }
 
+void L1GtUtils::retrieveL1GtTriggerMenuLite(const edm::Event& iEvent) {
+
+    // cache the L1GtTriggerMenuLite
+
+    const edm::Run& iRun = iEvent.getRun();
+    const edm::RunID* runID = &(iRun.runAuxiliary().id());
+
+    if (runID != m_provRunIDCache) {
+
+        edm::InputTag l1GtTriggerMenuLiteInputTag;
+        getL1GtTriggerMenuLiteInputTag(iEvent, l1GtTriggerMenuLiteInputTag);
+
+        retrieveL1GtTriggerMenuLite(iEvent, l1GtTriggerMenuLiteInputTag);
+
+        m_provRunIDCache = runID;
+
+    }
+}
+
 void L1GtUtils::retrieveL1GtTriggerMenuLite(const edm::Event& iEvent,
         edm::InputTag& l1GtMenuLiteInputTag) {
 
@@ -388,6 +407,66 @@ void L1GtUtils::getInputTag(const edm::Event& iEvent,
 
 }
 
+void L1GtUtils::getL1GtTriggerMenuLiteInputTag(const edm::Event& iEvent,
+        edm::InputTag& l1GtTriggerMenuLiteInputTag) const {
+
+    typedef std::vector<edm::Provenance const*> Provenances;
+    Provenances provenances;
+    std::string friendlyName;
+    std::string modLabel;
+    std::string instanceName;
+    std::string processName;
+
+    // to be sure that the input tag is correctly initialized
+    edm::InputTag l1GtTriggerMenuLiteInputTagVal;
+    bool foundL1GtTriggerMenuLite = false;
+
+    // get Run Data
+    const edm::Run& iRun = iEvent.getRun();
+
+    //edm::LogVerbatim("L1GtUtils") << "\nTry to get AllProvenance for run "
+    //        << iRun.runAuxiliary().run() << " event " << iEvent.id().event()
+    //        << std::endl;
+
+    iRun.getAllProvenance(provenances);
+
+    //edm::LogVerbatim("L1GtUtils") << "\n" << "Run contains "
+    //        << provenances.size() << " product"
+    //        << (provenances.size() == 1 ? "" : "s")
+    //        << " with friendlyClassName, moduleLabel, productInstanceName and processName:"
+    //        << std::endl;
+
+    for (Provenances::iterator itProv = provenances.begin(), itProvEnd =
+            provenances.end(); itProv != itProvEnd; ++itProv) {
+
+        friendlyName = (*itProv)->friendlyClassName();
+        modLabel = (*itProv)->moduleLabel();
+        instanceName = (*itProv)->productInstanceName();
+        processName = (*itProv)->processName();
+
+        //edm::LogVerbatim("L1GtUtils") << friendlyName << " \"" << modLabel
+        //        << "\" \"" << instanceName << "\" \"" << processName << "\""
+        //        << std::endl;
+
+        if (friendlyName == "L1GtTriggerMenuLite") {
+            l1GtTriggerMenuLiteInputTagVal = edm::InputTag(modLabel,
+                    instanceName, processName);
+            foundL1GtTriggerMenuLite = true;
+        }
+
+    }
+
+    // copy the input tags found to the returned arguments
+    l1GtTriggerMenuLiteInputTag = l1GtTriggerMenuLiteInputTagVal;
+
+    //if (foundL1GtTriggerMenuLite) {
+    //    edm::LogVerbatim("L1GtUtils")
+    //            << "\nL1GtTriggerMenuLite found in the event with \n  "
+    //            << l1GtTriggerMenuLiteInputTag << std::endl;
+    //}
+
+}
+
 const bool L1GtUtils::l1AlgoTechTrigBitNumber(
         const std::string& nameAlgoTechTrig, TriggerCategory& trigCategory,
         int& bitNumber) const {
@@ -508,6 +587,10 @@ const bool L1GtUtils::l1AlgoTechTrigBitNumber(
         return false;
 
     }
+
+    // all possibilities already tested, so it should not arrive here
+    return false;
+
 
 }
 

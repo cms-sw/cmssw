@@ -83,7 +83,8 @@ L1GtAnalyzer::L1GtAnalyzer(const edm::ParameterSet& parSet) :
             m_condName(parSet.getParameter<std::string> ("ConditionName")),
             m_bitNumber(parSet.getParameter<unsigned int> ("BitNumber")),
 
-            m_l1GtUtilsConfiguration(parSet.getParameter<unsigned int> ("L1GtUtilsConfiguration"))
+            m_l1GtUtilsConfiguration(parSet.getParameter<unsigned int> ("L1GtUtilsConfiguration")),
+            m_l1GtTmLInputTagProv(parSet.getParameter<bool> ("L1GtTmLInputTagProv"))
 
 {
     LogDebug("L1GtAnalyzer")
@@ -101,6 +102,9 @@ L1GtAnalyzer::L1GtAnalyzer(const edm::ParameterSet& parSet) :
             << "\n   Algorithm name or alias, technical trigger name:  " << m_nameAlgTechTrig
             << "\n   Condition, if a physics algorithm is requested:   " << m_condName
             << "\n   Bit number for an algorithm or technical trigger: " << m_bitNumber
+            << "\n   Requested L1 trigger configuration: " << m_l1GtUtilsConfiguration
+            << "\n   Retrieve input tag from provenance for L1 trigger menu lite in the L1GtUtils: "
+            << m_l1GtTmLInputTagProv
             << " \n" << std::endl;
 
 }
@@ -1148,7 +1152,17 @@ void L1GtAnalyzer::analyzeL1GtUtilsMenuLite(const edm::Event& iEvent,
     // add this call in the analyze / produce / filter method of your
     // analyzer / producer / filter
 
-    m_l1GtUtils.retrieveL1GtTriggerMenuLite(iEvent, m_l1GtTmLInputTag);
+    if (m_l1GtTmLInputTagProv) {
+
+        // input tag for L1GtTriggerMenuLite retrieved from provenance
+        m_l1GtUtils.retrieveL1GtTriggerMenuLite(iEvent);
+
+    } else {
+
+        // input tag for L1GtTriggerMenuLite explicitly given
+        m_l1GtUtils.retrieveL1GtTriggerMenuLite(iEvent, m_l1GtTmLInputTag);
+
+    }
 
     analyzeL1GtUtilsCore(iEvent, evSetup);
 
@@ -1183,7 +1197,18 @@ void L1GtAnalyzer::analyzeL1GtUtils(const edm::Event& iEvent,
     // analyzer / producer / filter
 
     m_l1GtUtils.retrieveL1EventSetup(evSetup);
-    m_l1GtUtils.retrieveL1GtTriggerMenuLite(iEvent, m_l1GtTmLInputTag);
+
+    if (m_l1GtTmLInputTagProv) {
+
+        // input tag for L1GtTriggerMenuLite retrieved from provenance
+        m_l1GtUtils.retrieveL1GtTriggerMenuLite(iEvent);
+
+    } else {
+
+        // input tag for L1GtTriggerMenuLite explicitly given
+        m_l1GtUtils.retrieveL1GtTriggerMenuLite(iEvent, m_l1GtTmLInputTag);
+
+    }
 
     analyzeL1GtUtilsCore(iEvent, evSetup);
 
@@ -1493,7 +1518,7 @@ void L1GtAnalyzer::analyzeConditionsInRunBlock(const edm::Run& iRun,
     // print via supplied "print" function
     myCoutStream << "\nLHC quantities in run " << iRun.run()
             << "\n  Beam Mode = " << beamModeVal
-            << "\n  Beam Momentum = " << beamMomentumVal << "Gev"
+            << "\n  Beam Momentum = " << beamMomentumVal << " GeV"
             << "\n  LHC Fill Number = " << lhcFillNumberVal
             << std::endl;
 

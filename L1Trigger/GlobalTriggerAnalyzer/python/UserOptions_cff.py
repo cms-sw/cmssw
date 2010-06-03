@@ -12,7 +12,8 @@ import sys
 ###################### user choices ######################
 
 # (pre)release (cycle) to be run - it is used to choose a correct global tag
-cmsRunRelease = 'CMSSW_3_6_X'
+cmsRunRelease = 'CMSSW_3_7_X'
+#cmsRunRelease = 'CMSSW_3_6_X'
 #cmsRunRelease = 'CMSSW_3_5_X'
 
 # choose (pre)release used to produce the RelVal samples (data are independent)
@@ -92,7 +93,18 @@ errorUserOptions = False
 # global tags for the release used to run
 if (useRelValSample == True) and (useLocalFiles == False) :
     
-    if cmsRunRelease == 'CMSSW_3_6_X' :
+    if cmsRunRelease == 'CMSSW_3_7_X' :
+        if globalTag == 'MC' :
+            useGlobalTag = 'MC_37Y_V4'
+        elif globalTag == 'START' :
+            useGlobalTag = 'START37_V4'
+        elif globalTag == 'CRAFT' :
+            useGlobalTag = 'CRFT9_36R_V03'
+        else :
+            print '\nError: no global tag defined for release', cmsRunRelease, 'of type', globalTag, 'used with RelVal sample'
+            errorUserOptions = True
+            
+    elif cmsRunRelease == 'CMSSW_3_6_X' :
         if globalTag == 'MC' :
             useGlobalTag = 'MC_36Y_V7A'
         elif globalTag == 'START' :
@@ -137,7 +149,9 @@ if (useRelValSample == True) and (useLocalFiles == False) :
 elif (useRelValSample == False) and (useLocalFiles == False) :
     # global tag
     
-    if cmsRunRelease == 'CMSSW_3_6_X' :
+    if cmsRunRelease == 'CMSSW_3_7_X' :
+        useGlobalTag = 'GR_R_37X_V4'
+    elif cmsRunRelease == 'CMSSW_3_6_X' :
         useGlobalTag = 'GR10_P_V4'
     elif cmsRunRelease == 'CMSSW_3_5_X' :
         useGlobalTag = 'GR10_P_V4'

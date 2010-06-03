@@ -118,9 +118,16 @@ private:
     /// a bit number to retrieve the name and the alias
     unsigned int m_bitNumber;
 
-    L1GtUtils m_l1GtUtils;
-
+    /// L1 configuration code for L1GtUtils
     unsigned int m_l1GtUtilsConfiguration;
+
+    /// if true, use methods in L1GtUtils with the input tag for L1GtTriggerMenuLite
+    /// from provenance
+    bool m_l1GtTmLInputTagProv;
+
+private:
+
+    L1GtUtils m_l1GtUtils;
 
 };
 

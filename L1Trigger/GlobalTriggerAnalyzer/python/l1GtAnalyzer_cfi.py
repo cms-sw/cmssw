@@ -34,7 +34,12 @@ l1GtAnalyzer = cms.EDAnalyzer("L1GtAnalyzer",
     BitNumber = cms.uint32(0),
     
     # select the L1 configuration use: 0, 100000, 200000
-    L1GtUtilsConfiguration = cms.uint32(0)
+    L1GtUtilsConfiguration = cms.uint32(0),
+    
+    # if true, use methods in L1GtUtils with the input tag for L1GtTriggerMenuLite
+    # from provenance
+    L1GtTmLInputTagProv = cms.bool(True)
+    
 )
 
 
