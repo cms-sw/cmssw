@@ -8,13 +8,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.34 2010/05/31 09:44:45 eulisse Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.35 2010/06/02 22:41:59 chrjones Exp $
 //
 
 // system include files
 #include <iostream>
 #include <sigc++/signal.h>
 #include <boost/bind.hpp>
+#include <boost/regex.hpp>
 #include <algorithm>
 #include "TGFrame.h"
 #include "TGTextEntry.h"
@@ -235,7 +236,7 @@ FWGUIEventDataAdder::FWGUIEventDataAdder(
    m_typeAndReps( new FWTypeToRepresentations(iTypeAndReps))
 {
    createWindow();
-   update(iFile,iEvent);
+   update(iFile, iEvent);
 }
 
 // FWGUIEventDataAdder::FWGUIEventDataAdder(const FWGUIEventDataAdder& rhs)
@@ -343,6 +344,7 @@ void
 FWGUIEventDataAdder::windowIsClosing()
 {
    m_name->SetText("");
+   m_search->SetText("");
    m_purpose.clear();
    m_type.clear();
    m_moduleLabel.clear();
@@ -354,12 +356,12 @@ FWGUIEventDataAdder::windowIsClosing()
    m_frame->DontCallClose();
 }
 
-
 void
 FWGUIEventDataAdder::createWindow()
 {
    m_frame = new TGTransientFrame(gClient->GetDefaultRoot(),m_parentFrame,600,400);
    m_frame->Connect("CloseWindow()","FWGUIEventDataAdder",this,"windowIsClosing()");
+
    TGVerticalFrame* vf = new TGVerticalFrame(m_frame);
    m_frame->AddFrame(vf, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY,10,10,10,10));
 
@@ -367,39 +369,75 @@ FWGUIEventDataAdder::createWindow()
    std::vector<TGLayoutHints*> hints(1);
    std::vector<unsigned int> widths(1);
    assert(1==hints.size());
+
    unsigned int index = 0;
-   hints[index]=addToFrame(vf, "Name:", m_name,widths[index]);
-   if(widths[index] > maxWidth) {maxWidth = widths[index];}
+
+   hints[index] = addToFrame(vf, "", m_search, widths[index]);
+   
+   if ( widths[index] > maxWidth ) 
+   {
+     maxWidth = widths[index];
+   }
+
    ++index;
-   m_doNotUseProcessName= new TGCheckButton(vf,"Do not use Process Name and instead only get this data from the most recent Process",1);
-   m_doNotUseProcessName->SetState(kButtonDown);
-   vf->AddFrame(m_doNotUseProcessName);
+    
+   TGHorizontalFrame* searchButtonFrame = new TGHorizontalFrame(vf);
+   vf->AddFrame(searchButtonFrame, new TGLayoutHints(kLHintsTop | kLHintsCenterX));
+
+   TGTextButton* searchButton = new TGTextButton(searchButtonFrame, "Search");
+   searchButtonFrame->AddFrame(searchButton, new TGLayoutHints(kLHintsNormal, 0, 0, 5, 0));
+   searchButton->Connect("Clicked()", "FWGUIEventDataAdder", this, "searchData()");
+  
    std::vector<unsigned int>::iterator itW = widths.begin();
-   for(std::vector<TGLayoutHints*>::iterator itH = hints.begin(), itEnd = hints.end();
-       itH != itEnd;
-       ++itH,++itW) {
-      (*itH)->SetPadLeft(maxWidth - *itW);
+   
+   for ( std::vector<TGLayoutHints*>::iterator itH = hints.begin(), itEnd = hints.end();
+         itH != itEnd; ++itH,++itW ) 
+   {
+     (*itH)->SetPadLeft(maxWidth - *itW);
    }
 
    TGLabel* label = new TGLabel(vf,"Viewable Collections");
    vf->AddFrame(label,new TGLayoutHints(kLHintsNormal,0,0,10));
+
    m_tableManager= new DataAdderTableManager(&m_useableData);
    m_tableManager->indexSelected_.connect(boost::bind(&FWGUIEventDataAdder::newIndexSelected,this,_1));
+
    m_tableWidget = new FWTableWidget(m_tableManager,vf);
    m_tableWidget->Resize(200,200);
-   vf->AddFrame(m_tableWidget, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
+
+   // tpm: my modifications
+   m_tableWidget->SetBackgroundColor(0xffffff);
+   m_tableWidget->SetLineSeparatorColor(0x000000);
+   m_tableWidget->SetHeaderBackgroundColor(0xececec);
+
+   vf->AddFrame(m_tableWidget, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
    m_tableWidget->Connect("rowClicked(Int_t,Int_t,Int_t,Int_t,Int_t)","FWGUIEventDataAdder",this,"rowClicked(Int_t,Int_t,Int_t,Int_t,Int_t)");
 
-   TGHorizontalFrame* buttonFrame = new TGHorizontalFrame(vf);
-   vf->AddFrame(buttonFrame,new TGLayoutHints(kLHintsBottom|kLHintsCenterX));
-   TGTextButton* cancelButton = new TGTextButton(buttonFrame,"Cancel");
+   hints[index] = addToFrame(vf, "", m_name, widths[index]);
+   
+   if ( widths[index] > maxWidth ) 
+   {
+     maxWidth = widths[index];
+   }
+
+   ++index;
+
+   m_doNotUseProcessName= new TGCheckButton(vf,"Do not use Process Name and instead only get this data from the most recent Process",1);
+   m_doNotUseProcessName->SetState(kButtonDown);
+   vf->AddFrame(m_doNotUseProcessName);
+
+   TGHorizontalFrame* dataButtonFrame = new TGHorizontalFrame(vf);
+   vf->AddFrame(dataButtonFrame,new TGLayoutHints(kLHintsBottom|kLHintsCenterX));
+  
+   TGTextButton* cancelButton = new TGTextButton(dataButtonFrame,"Cancel");
    cancelButton->Connect("Clicked()","FWGUIEventDataAdder",this, "windowIsClosing()");
-   buttonFrame->AddFrame(cancelButton, new TGLayoutHints(kLHintsLeft,0,5,0,0));
-   m_apply = new TGTextButton(buttonFrame,"Add Data");
-   buttonFrame->AddFrame(m_apply, new TGLayoutHints(kLHintsRight,5,0,0,0));
+   dataButtonFrame->AddFrame(cancelButton, new TGLayoutHints(kLHintsLeft,0,5,5,0));
+   
+   m_apply = new TGTextButton(dataButtonFrame,"Add Data");
+   dataButtonFrame->AddFrame(m_apply, new TGLayoutHints(kLHintsRight,5,0,5,0));
    m_apply->Connect("Clicked()","FWGUIEventDataAdder",this,"addNewItem()");
    m_apply->SetEnabled(false);
-
+   
    // Set a name to the main frame
    m_frame->SetWindowName("Add Collection");
 
@@ -408,7 +446,6 @@ FWGUIEventDataAdder::createWindow()
 
    // Initialize the layout algorithm
    m_frame->Layout();
-
 }
 
 void
@@ -419,6 +456,45 @@ FWGUIEventDataAdder::update(const TFile* iFile, const fwlite::Event* iEvent)
       assert(0!=iFile);
       fillData(iFile);
    }
+}
+
+void 
+FWGUIEventDataAdder::searchData()
+{
+  boost::regex re;
+ 
+  try
+  {  
+    re.assign(m_search->GetText(), boost::regex_constants::icase);  
+  }
+
+  catch (boost::regex_error& e)
+  {
+    fwLog(fwlog::kInfo)<< m_search->GetText() <<" is not a valid regular expression."<<std::endl;
+    fwLog(fwlog::kInfo)<< e.what() <<std::endl;
+    return;
+  }
+  
+  for ( std::vector<Data>::const_iterator di = m_useableData.begin(),
+                                       diEnd = m_useableData.end();
+        di != diEnd; ++di )
+  {
+    if ( boost::regex_search((*di).purpose_, re) ||       
+         boost::regex_search((*di).moduleLabel_, re) ||
+         boost::regex_search((*di).productInstanceLabel_, re) ||
+         boost::regex_search((*di).type_, re) ||
+         boost::regex_search((*di).processName_, re) )
+    {
+      std::cout<< (*di).purpose_ <<" "
+               << (*di).type_ <<" "
+               << (*di).moduleLabel_ <<" "
+               << (*di).productInstanceLabel_ <<" "
+               << (*di).processName_ <<std::endl;
+    }
+  }
+
+  //m_tableManager->reset();
+  //m_tableManager->sort(0, true);
 }
 
 /** This method inspects the opened TFile @a iFile and for each branch containing 

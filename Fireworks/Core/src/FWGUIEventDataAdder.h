@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:12:36 EDT 2008
-// $Id: FWGUIEventDataAdder.h,v 1.11 2009/10/09 15:06:05 chrjones Exp $
+// $Id: FWGUIEventDataAdder.h,v 1.12 2010/05/10 11:52:17 matevz Exp $
 //
 
 // system include files
@@ -75,10 +75,12 @@ public:
    
    void rowClicked(Int_t iRow,Int_t iButton,Int_t iKeyMod,Int_t,Int_t);
 
+  void searchData();
+
 private:
    FWGUIEventDataAdder(const FWGUIEventDataAdder&); // stop default
    void createWindow();
-
+ 
    void fillData(const TFile*);
    void newIndexSelected(int);
    const FWGUIEventDataAdder& operator=(const FWGUIEventDataAdder&); // stop default
@@ -92,6 +94,7 @@ private:
    TGTextEntry*      m_name;
    TGCheckButton*    m_doNotUseProcessName;
    TGTextButton*     m_apply;
+   TGTextEntry*      m_search;
 
    std::string m_purpose;
 
@@ -99,6 +102,8 @@ private:
    std::string m_moduleLabel;
    std::string m_productInstanceLabel;
    std::string m_processName;
+
+   std::string m_expr; // this the search term for use in searchData()
 
    std::vector<std::string> m_processNamesInFile;
    

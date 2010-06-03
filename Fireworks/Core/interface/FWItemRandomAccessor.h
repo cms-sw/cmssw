@@ -7,7 +7,7 @@
 //
 // Original Author:  Giulio Eulisse
 //         Created:  Thu Feb 18 15:19:44 EDT 2008
-// $Id: FWItemRandomAccessor.h,v 1.4 2010/03/17 11:34:01 mccauley Exp $
+// $Id: FWItemRandomAccessor.h,v 1.5 2010/04/29 10:03:52 eulisse Exp $
 //
 
 // system include files
@@ -256,6 +256,7 @@ public:
             size_t i = iIndex - collectionOffset;
 
             typename container_type::DigiRangeIterator::value_type vt = *ci;
+
 
             if (i < std::distance(vt.second.first, vt.second.second))
                return &(*(vt.second.first + i));
