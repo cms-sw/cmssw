@@ -1,0 +1,5 @@
+<bin name="cmsShow.exe" file="cmsShow.cc">
+ <use name="FWCore/MessageLogger"/>
+ <use name="Fireworks/Core"/>
+ <use name="rootinteractive"/>
+</bin>

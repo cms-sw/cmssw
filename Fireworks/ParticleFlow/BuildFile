@@ -1,6 +1,0 @@
-<use name=DataFormats/ParticleFlowCandidate>
-<use name=rootrflx>
-<lib name=Eve>
-<export>
-  <lib name=FireworksParticleFlow>
-</export>

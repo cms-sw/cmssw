@@ -1,0 +1,7 @@
+<library name="FireworksVerticesPlugins" file="*.cc">
+ <use name="DataFormats/BTauReco"/>
+ <use name="DataFormats/VertexReco"/>
+ <use name="Fireworks/Core"/>
+ <use name="roothistmatrix"/>
+ <flags EDM_PLUGIN="1"/>
+</library>

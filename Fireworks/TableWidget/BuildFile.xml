@@ -1,0 +1,5 @@
+<use name="rootcintex"/>
+<use name="rootinteractive"/>
+<export>
+  <lib name="1"/>
+</export>
