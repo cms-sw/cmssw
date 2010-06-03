@@ -1,4 +1,4 @@
-// $Id: RunMonitorCollection.h,v 1.10 2010/03/31 12:34:27 mommsen Exp $
+// $Id: RunMonitorCollection.h,v 1.11 2010/05/17 15:59:09 mommsen Exp $
 /// @file: RunMonitorCollection.h 
 
 #ifndef StorageManager_RunMonitorCollection_h
@@ -21,8 +21,8 @@ namespace stor {
    * in the current run
    *
    * $Author: mommsen $
-   * $Revision: 1.10 $
-   * $Date: 2010/03/31 12:34:27 $
+   * $Revision: 1.11 $
+   * $Date: 2010/05/17 15:59:09 $
    */
   
   class RunMonitorCollection : public MonitorCollection
@@ -125,6 +125,8 @@ namespace stor {
     void alarmUnwantedEvents(UnwantedEventsMap::value_type&);
 
     xdata::UnsignedInteger32 _runNumber;       // The current run number
+    xdata::UnsignedInteger32 _dataEvents;      // Number of data events received
+    xdata::UnsignedInteger32 _errorEvents;     // Number of error events received
     xdata::UnsignedInteger32 _unwantedEvents;  // Number of events not consumed
 
     AlarmParams _alarmParams;

@@ -1,4 +1,4 @@
-// $Id: RunMonitorCollection.cc,v 1.11 2010/04/30 07:44:56 mommsen Exp $
+// $Id: RunMonitorCollection.cc,v 1.12 2010/05/17 15:59:10 mommsen Exp $
 /// @file: RunMonitorCollection.cc
 
 #include <string>
@@ -68,6 +68,8 @@ void RunMonitorCollection::do_reset()
 void RunMonitorCollection::do_appendInfoSpaceItems(InfoSpaceItems& infoSpaceItems)
 {
   infoSpaceItems.push_back(std::make_pair("runNumber", &_runNumber));
+  infoSpaceItems.push_back(std::make_pair("dataEvents", &_dataEvents));
+  infoSpaceItems.push_back(std::make_pair("errorEvents", &_errorEvents));
   infoSpaceItems.push_back(std::make_pair("unwantedEvents", &_unwantedEvents));
 }
 
@@ -78,6 +80,16 @@ void RunMonitorCollection::do_updateInfoSpaceItems()
   _runNumbersSeen.getStats(runNumberStats);
   _runNumber = static_cast<xdata::UnsignedInteger32>(
     static_cast<unsigned int>(runNumberStats.getLastSampleValue()));
+
+  MonitoredQuantity::Stats eventIDsReceivedStats;
+  _eventIDsReceived.getStats(eventIDsReceivedStats);
+  _dataEvents = static_cast<xdata::UnsignedInteger32>(
+    static_cast<unsigned int>(eventIDsReceivedStats.getSampleCount()));
+
+  MonitoredQuantity::Stats errorEventIDsReceivedStats;
+  _errorEventIDsReceived.getStats(errorEventIDsReceivedStats);
+  _errorEvents = static_cast<xdata::UnsignedInteger32>(
+    static_cast<unsigned int>(errorEventIDsReceivedStats.getSampleCount()));
 
   MonitoredQuantity::Stats unwantedEventStats;
   _unwantedEventIDsReceived.getStats(unwantedEventStats);
