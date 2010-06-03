@@ -1,63 +1,50 @@
-
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("standalonetest")
-process.load("FWCore.MessageService.MessageLogger_cfi")
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
-process.load("RecoLuminosity.LumiProducer.nonGlobalTagLumiProducerPrep_cff")
+process = cms.Process("dbprodtest")
 
 import FWCore.Framework.test.cmsExceptionsFatalOption_cff
 process.options = cms.untracked.PSet(
 #  wantSummary = cms.untracked.bool(True),
   Rethrow = FWCore.Framework.test.cmsExceptionsFatalOption_cff.Rethrow
 )
-
-process.maxLuminosityBlocks=cms.untracked.PSet(
-    input=cms.untracked.int32(-1)
+process.maxEvents = cms.untracked.PSet(
+  input = cms.untracked.int32(10)
 )
-
-
-#process.source = cms.Source("EmptySource",
-#     numberEventsInRun = cms.untracked.uint32(21),
-#     firstRun = cms.untracked.uint32(83037),
-#     numberEventsInLuminosityBlock = cms.untracked.uint32(1),
-#     firstLuminosityBlock = cms.untracked.uint32(1)
-#)
-
-#process.source = cms.Source("EmptyIOVSource",
-#    timetype = cms.string('lumiid'),
-#    firstValue = cms.uint64(515481974865922),
-#    lastValue = cms.uint64(515481974866107),
-#    interval = cms.uint64(1)
-#)
-
 process.source= cms.Source("PoolSource",
              processingMode=cms.untracked.string('RunsAndLumis'),        
-             #fileNames=cms.untracked.vstring('/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/PromptSkimCommissioning_v1/000/122/314/10D7BE65-3FD9-DE11-BED4-0026189438F4.root'),
-             fileNames=cms.untracked.vstring('/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/PromptSkimCommissioning_v1/000/124/025/3CBFB201-B5E7-DE11-8648-0026189438E8.root'),
-             firstRun=cms.untracked.uint32(124025),
-             firstLuminosityBlock = cms.untracked.uint32(1),                           
-             firstEvent=cms.untracked.uint32(1),
-             numberEventsInLuminosityBlock=cms.untracked.uint32(1)
-             )
-
-process.LumiESSource.DBParameters.authenticationPath=cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
-process.LumiESSource.BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService')
-process.LumiESSource.connect=cms.string('sqlite_file:/afs/cern.ch/user/x/xiezhen/w1/offlinelumi.db')
-process.LumiESSource.toGet=cms.VPSet(
-    cms.PSet(
-      record = cms.string('LumiSectionDataRcd'),
-      tag = cms.string('collision')
-    )
+             fileNames=cms.untracked.vstring(
+'/store/data/Commissioning10/MinimumBias/RAW/v4/000/135/149/00E988DE-095B-DF11-B111-001D09F2A465.root',
+'/store/data/Commissioning10/MinimumBias/RAW/v4/000/135/149/00AFE4C3-395B-DF11-969C-0030486733D8.root',
+'/store/data/Commissioning10/MinimumBias/RAW/v4/000/135/149/00AC9715-5B5B-DF11-B18A-003048D37538.root',
+'/store/data/Commissioning10/MinimumBias/RAW/v4/000/135/149/00948B8C-305B-DF11-B879-0030487CD906.root',
+'/store/data/Commissioning10/MinimumBias/RAW/v4/000/135/149/0084A8A0-375B-DF11-9616-0019B9F730D2.root',
+'/store/data/Commissioning10/MinimumBias/RAW/v4/000/135/149/006996D6-4C5B-DF11-BC60-000423D98750.root',
+'/store/data/Commissioning10/MinimumBias/RAW/v4/000/135/149/005EEFFC-1E5B-DF11-B014-000423D99AA2.root',
+'/store/data/Commissioning10/MinimumBias/RAW/v4/000/135/149/00538ED8-6D5B-DF11-8028-001D09F2910A.root',
+'/store/data/Commissioning10/MinimumBias/RAW/v4/000/135/149/003228A4-835B-DF11-AFBA-001D09F25217.root',
+'/store/data/Commissioning10/MinimumBias/RAW/v4/000/135/149/002C392D-FF5A-DF11-A933-000423D99CEE.root',
+'/store/data/Commissioning10/MinimumBias/RAW/v4/000/135/149/00237363-655B-DF11-BE4E-001D09F28EA3.root',
+'/store/data/Commissioning10/MinimumBias/RAW/v4/000/135/149/0021FA08-775B-DF11-82A0-000423D6C8EE.root',
+'/store/data/Commissioning10/MinimumBias/RAW/v4/000/135/149/00100ABE-0E5B-DF11-97AF-001D09F24664.root',
+'/store/data/Commissioning10/MinimumBias/RAW/v4/000/135/149/00078CCF-155B-DF11-8A09-001D09F290CE.root',
+'/store/data/Commissioning10/MinimumBias/RAW/v4/000/135/149/0005236B-715B-DF11-8EB5-0030486730C6.root'),            
+             #firstRun=cms.untracked.uint32(125149),
+             #firstLuminosityBlock = cms.untracked.uint32(1),                           
+             #firstEvent=cms.untracked.uint32(1)
+)
+process.DBService=cms.Service("DBService",
+           authPath=cms.untracked.string('/afs/cern.ch/cms/DB/lumi')
+)
+process.lumiProducer=cms.EDProducer("LumiProducer",
+#connect=cms.string('frontier://cmsfrontier.cern.ch:8000/LumiPrep/CMS_LUMI_DEV_OFFLINE'),
+   connect=cms.string('oracle://cms_orcoff_prep/cms_lumi_dev_offline'),                                 
+   lumiversion=cms.untracked.string('0001') 
 )
 
-process.lumiProducer=cms.EDProducer("LumiProducer")
 process.test = cms.EDAnalyzer("TestLumiProducer")
 
 process.out = cms.OutputModule("PoolOutputModule",
-  fileName = cms.untracked.string('MinBiasPromptSkimProcessed-124025.root')
+  fileName = cms.untracked.string('testLumiProd-125149.root')
 )
-
 process.p1 = cms.Path(process.lumiProducer * process.test)
-
 process.e = cms.EndPath(process.out)
