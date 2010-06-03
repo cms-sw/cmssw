@@ -132,7 +132,7 @@ def switchToPFTauHPS(process,
     # PFTauDecayMode objects produced only for shrinking cone reco::PFTaus
     applyPostfix(process,"patTaus",postfix).addDecayMode = cms.bool(False)
     ## adapt cleanPatTaus
-    applyPostfix(process,"cleanPatTaus",postfix).preselection = 'tauID("leadingTrackFinding") > 0.5 & tauID("byMediumIsolation") > 0.5 & tauID("againstMuon") > 0.5 & tauID("againstElectron") > 0.5'
+    getattr(process, "cleanPatTaus"+postfix).preselection = 'tauID("leadingTrackFinding") > 0.5 & tauID("byMediumIsolation") > 0.5 & tauID("againstMuon") > 0.5 & tauID("againstElectron") > 0.5'
 
 # switch to PFTau collection produced for shrinking signal cone of size dR = 5.0/Et(PFTau)
 def switchToPFTauShrinkingCone(process,

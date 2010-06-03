@@ -127,6 +127,7 @@ def reconfigurePF2PATTaus(process,
    applyPostfix(process,"pfTaus", postfix).src = producerName+postfix
    # Start our pf2pat taus base sequence
    setattr(process,producerName+postfix,getattr(process,producerName).clone())
+   getattr(process,producerName+postfix).PFTauTagInfoProducer="pfRecoTauTagInfoProducer"+postfix
    setattr(process,"pfTausBaseSequence"+postfix, cms.Sequence(getattr(process,
       producerName+postfix)))
    baseSequence = getattr(process,"pfTausBaseSequence"+postfix)
