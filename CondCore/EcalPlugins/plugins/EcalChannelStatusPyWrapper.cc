@@ -122,7 +122,7 @@ namespace cond {
   PayLoadInspector<EcalChannelStatus>::dump() const {
     std::stringstream ss;
     EcalCondHeader h;
-    EcalChannelStatusXMLTranslator::dumpXML(h,object());
+    ss << EcalChannelStatusXMLTranslator::dumpXML(h,object());
     return ss.str();
     
   }
