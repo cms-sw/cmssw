@@ -35,11 +35,17 @@ class SiStripDetId : public DetId {
   /** Enumerated type for tracker sub-deteector systems. */
   enum SubDetector { UNKNOWN=0, TIB=3, TID=4, TOB=5, TEC=6 };
   
+  /** Enumerated type for tracker module geometries. */
+  enum ModuleGeometry {UNKNOWNGEOMETRY, IB1, IB2, OB1, OB2, W1A, W2A, W3A, W1B, W2B, W3B, W4, W5, W6, W7};
+
   // ---------- Common methods ----------
 
   /** Returns enumerated type specifying sub-detector. */
   inline SubDetector subDetector() const;
   
+  /** Returns enumerated type specifying sub-detector. */
+  inline ModuleGeometry moduleGeometry() const;
+
   /** A non-zero value means a glued module, null means not glued. */
   inline virtual uint32_t glued() const;
   
@@ -81,6 +87,13 @@ class SiStripDetId : public DetId {
 
   /** */
   static const uint32_t sterMask_ = 0x3;
+
+  static const unsigned layerStartBit_ = 14;
+  static const unsigned layerMask_ = 0x7;
+  static const unsigned ringStartBitTID_= 9;
+  static const unsigned ringMaskTID_= 0x3;
+  static const unsigned ringStartBitTEC_= 5;
+  static const unsigned ringMaskTEC_= 0x7;
   
 };
 
@@ -101,6 +114,28 @@ SiStripDetId::SubDetector SiStripDetId::subDetector() const {
     return SiStripDetId::TEC;
   } else {
     return SiStripDetId::UNKNOWN;
+  }
+}
+
+SiStripDetId::ModuleGeometry SiStripDetId::moduleGeometry() const {
+  switch(subDetector()) {
+  case TIB: return int((id_>>layerStartBit_) & layerMask_)<3? IB1 : IB2;
+  case TOB: return int((id_>>layerStartBit_) & layerMask_)<5? OB2 : OB1;
+  case TID: switch ((id_>>ringStartBitTID_) & ringMaskTID_) {
+    case 1: return W1A;
+    case 2: return W2A;
+    case 3: return W3A;
+    }
+  case TEC: switch ((id_>>ringStartBitTEC_) & ringMaskTEC_) {
+    case 1: return W1B;
+    case 2: return W2B;
+    case 3: return W3B;
+    case 4: return W4;
+    case 5: return W5;
+    case 6: return W6;
+    case 7: return W7;
+    }
+  case UNKNOWN: default: return UNKNOWNGEOMETRY;
   }
 }
 
