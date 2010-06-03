@@ -13,7 +13,7 @@
 //
 // Original Author:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: TrackerOnlyConversionProducer.cc,v 1.29 2010/03/19 09:32:17 hlliu Exp $
+// $Id: TrackerOnlyConversionProducer.cc,v 1.20 2010/03/23 14:31:33 nancy Exp $
 //
 //
 
@@ -418,37 +418,8 @@ bool TrackerOnlyConversionProducer::checkTrackPair(const std::pair<reco::TrackRe
     return true;
 }
 
-//back port to 3_3_5 from Thomas' 3_4_x kinematic vertex class
-reco::Vertex TrackerOnlyConversionProducer::transVertex(const RefCountedKinematicTree & tree, const RefCountedKinematicVertex& kvertex){
-    //If the vertex is invalid, return an invalid TV !
-    if (!kvertex->vertexIsValid() || tree==0) return reco::Vertex();
 
-    //accessing the tree components, move pointer to top
-    if (!tree->findDecayVertex(kvertex)) return reco::Vertex();
-    vector<RefCountedKinematicParticle> daughters = tree->daughterParticles();
 
-    reco::Vertex vertex(reco::Vertex::Point(kvertex->position()),
-	    // 	RecoVertex::convertError(theVertexState.error()), 
-	    kvertex->error().matrix_new(), 
-	    kvertex->chiSquared(), kvertex->degreesOfFreedom(), daughters.size() );
-
-    /*
-    for (vector<RefCountedKinematicParticle>::const_iterator i = daughters.begin();
-	    i != daughters.end(); ++i) {
-
-	const TransientTrackKinematicParticle * ttkp = dynamic_cast<const TransientTrackKinematicParticle * >(&(**i));
-	if(ttkp != 0) {
-	    const reco::TrackTransientTrack * ttt = dynamic_cast<const reco::TrackTransientTrack*>(ttkp->initialTransientTrack());
-	    if ((ttt!=0) && (ttt->persistentTrackRef().isNonnull())) {
-		reco::TrackRef tr = ttt->persistentTrackRef();
-		vertex.add(reco::TrackBaseRef(tr), ttkp->refittedTransientTrack().track(), 1.);
-	    }
-	}
-    }
-    */
-    return vertex;
-
-}
 //because reco::vertex uses track ref, so have to keep them
 bool TrackerOnlyConversionProducer::checkVertex(const reco::TrackRef& tk_l, const reco::TrackRef& tk_r, 
 	const MagneticField* magField,
@@ -491,11 +462,8 @@ bool TrackerOnlyConversionProducer::checkVertex(const reco::TrackRef& tk_l, cons
 		const float chi2Prob = ChiSquaredProbability(gamma_dec_vertex->chiSquared(), gamma_dec_vertex->degreesOfFreedom());
 		if (chi2Prob>0.){// no longer cut here, only ask positive probability here 
 		    //const math::XYZPoint vtxPos(gamma_dec_vertex->position());                                           
-		    the_vertex = transVertex(myTree, gamma_dec_vertex);
-		    //TODO should add refitted tracks
-		    the_vertex.add(reco::TrackBaseRef(tk_l));
-		    the_vertex.add(reco::TrackBaseRef(tk_r));
-		    found = true;
+		  the_vertex = *gamma_dec_vertex;
+		  found = true;
 		}
 	    }
 	}

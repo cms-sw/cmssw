@@ -4,7 +4,7 @@
  **
  **
  **  $Id:
- **  $Date: 2010/03/19 09:32:15 $
+ **  $Date: 2010/03/23 14:31:28 $
  **  $Revision: 1.12 $
  **  \author H. Liu, UC of Riverside US
  **
@@ -117,7 +117,7 @@ class TrackerOnlyConversionProducer : public edm::EDProducer {
 	      const math::XYZPoint& trackImpactPosition,
 	      reco::CaloClusterPtr& closestBC);
 
-      reco::Vertex transVertex(const RefCountedKinematicTree & tree, const RefCountedKinematicVertex& vertex);
+
 
    private:
 
