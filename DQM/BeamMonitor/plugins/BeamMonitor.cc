@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/05/11 23:55:02 $
- * $Revision: 1.45 $
+ * $Date: 2010/06/02 05:02:40 $
+ * $Revision: 1.46 $
  *
  */
 
@@ -433,15 +433,17 @@ void BeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
       cout << "Next Lumi to Fit: " << nextlumi_ << endl;
       if (refBStime[0] == 0) refBStime[0] = ftmptime;
       if (refPVtime[0] == 0) refPVtime[0] = ftmptime;
-      processed_ = false;
     }
   }
   else{
-    FitAndFill(lumiSeg,lastlumi_,nextlumi_,nthlumi);
+    if (processed_) FitAndFill(lumiSeg,lastlumi_,nextlumi_,nthlumi);
+    nextlumi_ = nthlumi;
+    cout << "Next Lumi to Fit: " << nextlumi_ << endl;
     if (refBStime[0] == 0) refBStime[0] = ftmptime;
     if (refPVtime[0] == 0) refPVtime[0] = ftmptime;
   }
   countLumi_++;
+  if (processed_) processed_ = false;
   //if (debug_)
   cout << "Begin of Lumi: " << nthlumi << endl;
 }
@@ -564,9 +566,6 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
     const int previousLS = h_nTrk_lumi->getTH1()->GetEntries();
     for (int i=1;i < (currentlumi - previousLS);i++)
       h_nTrk_lumi->ShiftFillLast(nthBSTrk_);
-  }
-  else { // not online mode
-    h_nTrk_lumi->ShiftFillLast(nthBSTrk_);
   }
 
   if (debug_) std::cout << "Time lapsed since last LS = " << tmpTime - refTime << std:: endl;
@@ -701,9 +700,9 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
   vector<BSTrkParameters> theBSvector = theBeamFitter->getBSvector();
   h_nTrk_lumi->ShiftFillLast( theBSvector.size() );
   
-  bool doFitting = false;
+  bool countFitting = false;
   if (theBSvector.size() > nthBSTrk_ && theBSvector.size() >= min_Ntrks_) {
-    doFitting = true;
+    countFitting = true;
   }
 
   if (resetHistos_) {
@@ -734,7 +733,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
     }
   }
   nthBSTrk_ = theBSvector.size(); // keep track of num of tracks filled so far
-  if (debug_ && doFitting) cout << "Num of tracks collected = " << nthBSTrk_ << endl;
+  if (debug_ && countFitting) cout << "Num of tracks collected = " << nthBSTrk_ << endl;
 
   if (fitNLumi_ > 0) {
     if (onlineMode_){
@@ -744,16 +743,14 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
       if (countLumi_%fitNLumi_!=0) return;
   }
 
-  if (doFitting) {
+  if (countFitting) {
     nFits_++;
     int * fitLS = theBeamFitter->getFitLSRange();
     if (debug_) std::cout << "[BeamFitter] Do BeamSpot Fit for LS = " << fitLS[0] << " to " << fitLS[1] << std::endl;
     if (debug_) std::cout << "[BeamMonitor] Do BeamSpot Fit for LS = " << beginLumiOfBSFit_ << " to " << endLumiOfBSFit_ << std::endl;
-    //theBeamFitter->setFitLSRange(beginLumiOfBSFit_,endLumiOfBSFit_); // Testing, overwrite Fit LS
-    //theBeamFitter->setRefTime(refBStime[0],refBStime[1]); // Testing, overwrite Fit time
   }
 
-  if (doFitting && theBeamFitter->runPVandTrkFitter()){
+  if (countFitting && theBeamFitter->runPVandTrkFitter()) {
     reco::BeamSpot bs = theBeamFitter->getBeamSpot();
     if (bs.type() > 0) // with good beamwidth fit
       preBS = bs; // cache good fit results
@@ -846,6 +843,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
       fitResults->setBinContent(2,1,preBS.BeamWidthYError());
     }
 
+    // count good fit
 //     if (fabs(refBS.x0()-bs.x0())/bs.x0Error() < deltaSigCut_) { // disabled temporarily
       summaryContent_[0] += 1.;
 //     }
@@ -857,7 +855,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
 //     }
   }
   else {
-    if (!doFitting) {
+    if (!countFitting) {
       // Overwrite Fit LS and fit time when no event processed or no track selected
       theBeamFitter->setFitLSRange(beginLumiOfBSFit_,endLumiOfBSFit_);
       theBeamFitter->setRefTime(refBStime[0],refBStime[1]);
@@ -887,7 +885,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
   }
   
   // Fill summary report
-  if (doFitting) {
+  if (countFitting) {
     for (int n = 0; n < nFitElements_; n++) {
       reportSummaryContents[n]->Fill( summaryContent_[n] / (float)nFits_ );
     }
