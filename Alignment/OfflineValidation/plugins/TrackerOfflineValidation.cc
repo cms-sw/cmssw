@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.35 2010/03/31 14:41:09 mussgill Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.36 2010/05/12 14:19:06 jdraeger Exp $
 //
 //
 
@@ -940,7 +940,6 @@ TrackerOfflineValidation::endJob()
 
 
   AlignableTracker aliTracker(&(*tkGeom_));
-  edm::Service<TFileService> fs;
   
   AlignableObjectId aliobjid;
   
@@ -957,7 +956,8 @@ TrackerOfflineValidation::endJob()
   if(dqmMode_)return;
   // Should be excluded in dqmMode, since TTree is not usable
   // In dqmMode tree operations are are sourced out to the additional module TrackerOfflineValidationSummary
-
+  
+  edm::Service<TFileService> fs;
   TTree *tree = fs->make<TTree>("TkOffVal","TkOffVal");
  
   TkOffTreeVariables *treeMemPtr = new TkOffTreeVariables;
