@@ -38,6 +38,8 @@ namespace spr{
       vdet.okECAL = info.second;
       if (vdet.okECAL) {
 	const GlobalPoint point(info.first.x(),info.first.y(),info.first.z());
+	vdet.etaECAL = point.eta();
+	vdet.phiECAL = point.phi();
 	if (std::abs(point.eta())<1.479) {
 	  vdet.detIdECAL = barrelGeom->getClosestCell(point);
 	} else {
@@ -48,6 +50,8 @@ namespace spr{
       vdet.okHCAL = info.second;
       if (vdet.okHCAL) {
 	const GlobalPoint point(info.first.x(),info.first.y(),info.first.z());
+	vdet.etaHCAL = point.eta();
+	vdet.phiHCAL = point.phi();
 	vdet.detIdHCAL = gHB->getClosestCell(point);
       }
 

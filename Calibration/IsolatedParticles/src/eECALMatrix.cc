@@ -31,20 +31,18 @@ namespace spr{
         }
         if (debug) std::cout << "Xtal 0x" <<std::hex << vdets[i1]() <<std::dec;
         double ener=0, ethr=ebThr;
-	if (ok) {
-	  for (unsigned int ihit=0; ihit<hit.size(); ihit++) {
-	    double en=0;
-	    if (vdets[i1].subdetId()==EcalBarrel) {
-	      if (hit[ihit] != hitsEB->end()) en = hit[ihit]->energy();
-	    } else if (vdets[i1].subdetId()==EcalEndcap) {
-	      if (hit[ihit] != hitsEE->end()) {
-		en = hit[ihit]->energy(); ethr=eeThr;
-	      }
-	    }
-	    if (debug) std::cout << " " << ihit << " " << en;
-	    ener += en;
+	if (vdets[i1].subdetId() !=EcalBarrel) ethr = eeThr;
+	for (unsigned int ihit=0; ihit<hit.size(); ihit++) {
+	  double en=0;
+	  if (vdets[i1].subdetId()==EcalBarrel) {
+	    if (hit[ihit] != hitsEB->end()) en = hit[ihit]->energy();
+	  } else if (vdets[i1].subdetId()==EcalEndcap) {
+	    if (hit[ihit] != hitsEE->end()) en = hit[ihit]->energy();
 	  }
-	} else {
+	  if (debug) std::cout << " " << ihit << " " << en;
+	  ener += en;
+	}
+	if (!ok) {
 	  flag = false;
 	  if (debug) std::cout << " detected to be a spike";
 	}

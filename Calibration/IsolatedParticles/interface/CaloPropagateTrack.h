@@ -26,6 +26,8 @@ namespace spr{
     propagatedTrackID() {ok=false; okECAL=false; okHCAL=false;}
     bool                                  ok, okECAL, okHCAL;
     DetId                                 detIdECAL, detIdHCAL;
+    double                                etaECAL, phiECAL;
+    double                                etaHCAL, phiHCAL;
     reco::TrackCollection::const_iterator trkItr;
   };
 

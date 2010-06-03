@@ -24,6 +24,7 @@
 #include "Calibration/IsolatedParticles/interface/eHCALMatrixExtra.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
 IsolatedTracksNxN::IsolatedTracksNxN(const edm::ParameterSet& iConfig) {
 
@@ -236,13 +237,13 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
       t_PVNTracksHPWt    ->push_back( vtxTrkNHPWt );
       t_PVTracksSumPtHP  ->push_back( vtxTrkSumPtHP );
       t_PVTracksSumPtHPWt->push_back( vtxTrkSumPtHPWt );
-      /*
-      std::cout<<"PV "<<ind<<" isValid "<<(*recVtxs)[ind].isValid()<<" isFake "<<(*recVtxs)[ind].isFake()
-	       <<" hasRefittedTracks() "<<ind<<" "<<(*recVtxs)[ind].hasRefittedTracks()
-	       <<" refittedTrksSize "<<(*recVtxs)[ind].refittedTracks().size()
-	       <<"  tracksSize() "<<(*recVtxs)[ind].tracksSize()<<" sumPt "<<vtxTrkSumPt
-	       <<std::endl;
-      */
+      if(myverbose_==4) {
+	std::cout<<"PV "<<ind<<" isValid "<<(*recVtxs)[ind].isValid()<<" isFake "<<(*recVtxs)[ind].isFake()
+		 <<" hasRefittedTracks() "<<ind<<" "<<(*recVtxs)[ind].hasRefittedTracks()
+		 <<" refittedTrksSize "<<(*recVtxs)[ind].refittedTracks().size()
+		 <<"  tracksSize() "<<(*recVtxs)[ind].tracksSize()<<" sumPt "<<vtxTrkSumPt
+		 <<std::endl;
+      }
     }
   }
 
@@ -251,7 +252,6 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
   iEvent.getByLabel("offlineBeamSpot", beamSpotH);
   math::XYZPoint bspot;
   bspot = ( beamSpotH.isValid() ) ? beamSpotH->position() : math::XYZPoint(0, 0, 0);
-  
 
   //===================
 
@@ -362,9 +362,6 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
   const CaloGeometry* geo = pG.product();
-  //const CaloSubdetectorGeometry* gEB = geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
-  //const CaloSubdetectorGeometry* gEE = geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
-  //const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
   
   edm::ESHandle<CaloTopology> theCaloTopology;
   iSetup.get<CaloTopologyRecord>().get(theCaloTopology); 
@@ -378,7 +375,12 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
   edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
   iEvent.getByLabel("ecalRecHit","EcalRecHitsEB",barrelRecHitsHandle);
   iEvent.getByLabel("ecalRecHit","EcalRecHitsEE",endcapRecHitsHandle);
-  
+
+  // Retrieve the good/bad ECAL channels from the DB
+  edm::ESHandle<EcalChannelStatus> ecalChStatus;
+  iSetup.get<EcalChannelStatusRcd>().get(ecalChStatus);
+  const EcalChannelStatus* theEcalChStatus = ecalChStatus.product();
+
   edm::Handle<HBHERecHitCollection> hbhe;
   iEvent.getByLabel("hbhereco",hbhe);
   const HBHERecHitCollection Hithbhe = *(hbhe.product());
@@ -449,6 +451,10 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
     
     double eta1        = pTrack->momentum().eta();
     double phi1        = pTrack->momentum().phi();
+    double etaEcal1    = trkDetItr->etaECAL;
+    double phiEcal1    = trkDetItr->phiECAL;
+    double etaHcal1    = trkDetItr->etaHCAL;
+    double phiHcal1    = trkDetItr->phiHCAL;
     double pt1         = pTrack->pt();
     double p1          = pTrack->p();
     double dxy1        = pTrack->dxy();
@@ -476,7 +482,7 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
     }
     
     if( ! ifGood[nTracks] ) continue;
-
+    
     t_trackPAll             ->push_back( p1 );
     t_trackEtaAll           ->push_back( eta1 );
     t_trackPhiAll           ->push_back( phi1 );
@@ -484,7 +490,6 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
     if (doMC) {
       edm::SimTrackContainer::const_iterator matchedSimTrkAll = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, *associate, false); 
       if( matchedSimTrkAll != SimTk->end())     t_trackPdgIdAll->push_back( matchedSimTrkAll->type() );
-      //std::cout <<"Any Good Track : Sim " << matchedSimTrkAll->type()  << " " << matchedSimTrkAll->momentum().P() << std::endl;
     }
     
     if( p1>minTrackP_ && std::abs(eta1)<maxTrackEta_ && trkDetItr->okECAL) { 
@@ -493,13 +498,13 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
       double maxNearP13x13=999.0, maxNearP11x11=999.0, maxNearP9x9  =999.0, maxNearP7x7  =999.0;
 
       maxNearP31x31 = spr::chargeIsolationEcal(nTracks, trkCaloDets, geo, caloTopology, 15,15);
-      maxNearP25x25 = spr::chargeIsolationEcal(nTracks, trkCaloDets, geo, caloTopology, 12,12);
-      maxNearP21x21 = spr::chargeIsolationEcal(nTracks, trkCaloDets, geo, caloTopology, 10,10);
-      maxNearP15x15 = spr::chargeIsolationEcal(nTracks, trkCaloDets, geo, caloTopology,  7, 7);
-      maxNearP13x13 = spr::chargeIsolationEcal(nTracks, trkCaloDets, geo, caloTopology,  6, 6);
-      maxNearP11x11 = spr::chargeIsolationEcal(nTracks, trkCaloDets, geo, caloTopology,  5, 5);
-      maxNearP9x9   = spr::chargeIsolationEcal(nTracks, trkCaloDets, geo, caloTopology,  4, 4);
-      maxNearP7x7   = spr::chargeIsolationEcal(nTracks, trkCaloDets, geo, caloTopology,  3, 3);
+      //maxNearP25x25 = spr::chargeIsolationEcal(nTracks, trkCaloDets, geo, caloTopology, 12,12);
+      //maxNearP21x21 = spr::chargeIsolationEcal(nTracks, trkCaloDets, geo, caloTopology, 10,10);
+      //maxNearP15x15 = spr::chargeIsolationEcal(nTracks, trkCaloDets, geo, caloTopology,  7, 7);
+      //maxNearP13x13 = spr::chargeIsolationEcal(nTracks, trkCaloDets, geo, caloTopology,  6, 6);
+      //maxNearP11x11 = spr::chargeIsolationEcal(nTracks, trkCaloDets, geo, caloTopology,  5, 5);
+      //maxNearP9x9   = spr::chargeIsolationEcal(nTracks, trkCaloDets, geo, caloTopology,  4, 4);
+      //maxNearP7x7   = spr::chargeIsolationEcal(nTracks, trkCaloDets, geo, caloTopology,  3, 3);
 
       if( maxNearP31x31<0.0 && nLayersCrossed>7 && nOuterHits>4) {
 	h_recEtaPt_2->Fill(eta1, pt1);
@@ -511,7 +516,8 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
       }
       
       // if isolated in 7x7 then store the further quantities
-      if( maxNearP7x7<0.0) {
+      //if( maxNearP7x7<0.0) {
+      if( maxNearP31x31<0.0) {
 	
 	// get the matching simTrack
 	double simTrackP = -1;
@@ -520,19 +526,26 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	  if( matchedSimTrk != SimTk->end() )simTrackP = matchedSimTrk->momentum().P();
 	}
 	// get ECal Tranverse Profile
-	double e3x3=0, e5x5=0, e7x7=0, e9x9=0, e11x11=0, e13x13=0, e15x15=0, e21x21=0, e25x25=0, e31x31=0;
+	//double e3x3=0, e5x5=0, e7x7=0, e9x9=0, e11x11=0, e13x13=0, e15x15=0, e21x21=0, e25x25=0, e31x31=0;
+	//double e7x7_10Sig=0, e9x9_10Sig=0, e11x11_10Sig=0, e15x15_10Sig=0;
+	//double e7x7_15Sig=0, e9x9_15Sig=0, e11x11_15Sig=0, e15x15_15Sig=0;
+	//double e7x7_20Sig=0, e9x9_20Sig=0, e11x11_20Sig=0, e15x15_20Sig=0;
+	//double e7x7_25Sig=0, e9x9_25Sig=0, e11x11_25Sig=0, e15x15_25Sig=0;
+	//double e7x7_30Sig=0, e9x9_30Sig=0, e11x11_30Sig=0, e15x15_30Sig=0;
 
-	double e7x7_10Sig=0, e9x9_10Sig=0, e11x11_10Sig=0, e15x15_10Sig=0;
-	double e7x7_15Sig=0, e9x9_15Sig=0, e11x11_15Sig=0, e15x15_15Sig=0;
-	double e7x7_20Sig=0, e9x9_20Sig=0, e11x11_20Sig=0, e15x15_20Sig=0;
-	double e7x7_25Sig=0, e9x9_25Sig=0, e11x11_25Sig=0, e15x15_25Sig=0;
-	double e7x7_30Sig=0, e9x9_30Sig=0, e11x11_30Sig=0, e15x15_30Sig=0;
+	std::pair<double, bool>  e3x3P, e5x5P, e7x7P, e9x9P, e11x11P, e13x13P, e15x15P, e21x21P, e25x25P, e31x31P;
+	std::pair<double, bool>  e7x7_10SigP, e9x9_10SigP, e11x11_10SigP, e15x15_10SigP;
+	std::pair<double, bool>  e7x7_15SigP, e9x9_15SigP, e11x11_15SigP, e15x15_15SigP;
+	std::pair<double, bool>  e7x7_20SigP, e9x9_20SigP, e11x11_20SigP, e15x15_20SigP;
+	std::pair<double, bool>  e7x7_25SigP, e9x9_25SigP, e11x11_25SigP, e15x15_25SigP;
+	std::pair<double, bool>  e7x7_30SigP, e9x9_30SigP, e11x11_30SigP, e15x15_30SigP;
 
 	std::map<std::string, double> simInfo3x3,   simInfo5x5,   simInfo7x7,   simInfo9x9;
 	std::map<std::string, double> simInfo11x11, simInfo13x13, simInfo15x15, simInfo21x21, simInfo25x25, simInfo31x31;
 	double trkEcalEne=0;
 
 	const DetId isoCell = trkDetItr->detIdECAL;
+	/*
 	e3x3         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,1,1,   -100.0, -100.0);
 	e5x5         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,2,2,   -100.0, -100.0);
 	e7x7         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,3,3,   -100.0, -100.0);
@@ -568,6 +581,52 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	e9x9_30Sig   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,4,4,   0.090,  0.450);
 	e11x11_30Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,5,5,   0.090,  0.450);
 	e15x15_30Sig = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology,7,7,   0.090,  0.450);
+
+	std::cout << "default ecal rechit " << std::endl;
+	std::cout<<"e3x3 "<<e3x3<<" e9x9 "<<e9x9<<" e15x15 " << e15x15 << " e31x31 "<<e31x31<<std::endl;
+	std::cout<<"e7x7_10Sig "<<e7x7_10Sig<<" e11x11_10Sig "<<e11x11_10Sig<<" e15x15_10Sig "<<e15x15_10Sig<<std::endl;
+	*/
+
+	//e3x3P         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,1,1,   -100.0, -100.0);
+	//e5x5P         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,2,2,   -100.0, -100.0);
+	e7x7P         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,3,3,   -100.0, -100.0);
+	e9x9P         = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,4,4,   -100.0, -100.0);
+	e11x11P       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,5,5,   -100.0, -100.0);
+	//e13x13P       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,6,6,   -100.0, -100.0);
+	e15x15P       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,7,7,   -100.0, -100.0);
+	//e21x21P       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,10,10, -100.0, -100.0);
+	//e25x25P       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,12,12, -100.0, -100.0);
+	//e31x31P       = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,15,15, -100.0, -100.0);
+	
+	e7x7_10SigP   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,3,3,   0.030,  0.150);
+	e9x9_10SigP   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,4,4,   0.030,  0.150);
+	e11x11_10SigP = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,5,5,   0.030,  0.150);
+	e15x15_10SigP = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,7,7,   0.030,  0.150);
+	
+	e7x7_15SigP   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,3,3,   0.045,  0.225);
+	e9x9_15SigP   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,4,4,   0.045,  0.225);
+	e11x11_15SigP = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,5,5,   0.045,  0.225);
+	e15x15_15SigP = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,7,7,   0.045,  0.225);
+	
+	e7x7_20SigP   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,3,3,   0.060,  0.300);
+	e9x9_20SigP   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,4,4,   0.060,  0.300);
+	e11x11_20SigP = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,5,5,   0.060,  0.300);
+	e15x15_20SigP = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,7,7,   0.060,  0.300);
+	
+	e7x7_25SigP   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,3,3,   0.075,  0.375);
+	e9x9_25SigP   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,4,4,   0.075,  0.375);
+	e11x11_25SigP = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,5,5,   0.075,  0.375);
+	e15x15_25SigP = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,7,7,   0.075,  0.375);
+	
+	e7x7_30SigP   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,3,3,   0.090,  0.450);
+	e9x9_30SigP   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,4,4,   0.090,  0.450);
+	e11x11_30SigP = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,5,5,   0.090,  0.450);
+	e15x15_30SigP = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,7,7,   0.090,  0.450);
+	/*
+	std::cout << "clean  ecal rechit " << std::endl;
+	std::cout<<"e3x3 "<<e3x3P.first<<" e9x9 "<<e9x9P.first<<" e15x15 " << e15x15P.first << " e31x31 "<<e31x31P.first<<std::endl;
+	std::cout<<"e7x7_10Sig "<<e7x7_10SigP.first<<" e11x11_10Sig "<<e11x11_10SigP.first<<" e15x15_10Sig "<<e15x15_10SigP.first<<std::endl;
+	*/
 
 	if (doMC) {
 	  // check the energy from SimHits
@@ -662,6 +721,10 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	t_trackPt               ->push_back( pt1 );
 	t_trackEta              ->push_back( eta1 );
 	t_trackPhi              ->push_back( phi1 );
+	t_trackEcalEta          ->push_back( etaEcal1 );
+	t_trackEcalPhi          ->push_back( phiEcal1 );
+	t_trackHcalEta          ->push_back( etaHcal1 );
+	t_trackHcalPhi          ->push_back( phiHcal1 );
 	t_trackDxy              ->push_back( dxy1 );	
 	t_trackDz               ->push_back( dz1 );	
 	t_trackDxyBS            ->push_back( dxybs1 );	
@@ -694,113 +757,114 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	t_trackOutPosOutHitDr   ->push_back( trackOutPosOutHitDr                     );
 	t_trackL                ->push_back( trackL                                  );
 
-	t_maxNearP15x15         ->push_back( maxNearP15x15 );
-	t_maxNearP21x21         ->push_back( maxNearP21x21 );
-	t_maxNearP25x25         ->push_back( maxNearP25x25 );
 	t_maxNearP31x31         ->push_back( maxNearP31x31 );
-	t_maxNearP13x13         ->push_back( maxNearP13x13 );
-	t_maxNearP11x11         ->push_back( maxNearP11x11 );
-	t_maxNearP9x9           ->push_back( maxNearP9x9   );
-	t_maxNearP7x7           ->push_back( maxNearP7x7   );
+	//t_maxNearP25x25         ->push_back( maxNearP25x25 );
+	//t_maxNearP21x21         ->push_back( maxNearP21x21 );
+	//t_maxNearP15x15         ->push_back( maxNearP15x15 );
+	//t_maxNearP13x13         ->push_back( maxNearP13x13 );
+	//t_maxNearP11x11         ->push_back( maxNearP11x11 );
+	//t_maxNearP9x9           ->push_back( maxNearP9x9   );
+	//t_maxNearP7x7           ->push_back( maxNearP7x7   );
 	
-	t_e3x3                  ->push_back( e3x3 );
-	t_e5x5                  ->push_back( e5x5 );
-	t_e7x7                  ->push_back( e7x7 );
-	t_e9x9                  ->push_back( e9x9 );
-	t_e11x11                ->push_back( e11x11 );
-	t_e13x13                ->push_back( e13x13 );
-	t_e15x15                ->push_back( e15x15 );
-	t_e21x21                ->push_back( e21x21 );
-	t_e25x25                ->push_back( e25x25 );
-	t_e31x31                ->push_back( e31x31 );
+	t_ecalSpike11x11        ->push_back( e11x11P.second );
+	//t_e3x3                  ->push_back( e3x3P.first );
+	//t_e5x5                  ->push_back( e5x5P.first );
+	t_e7x7                  ->push_back( e7x7P.first );
+	t_e9x9                  ->push_back( e9x9P.first );
+	t_e11x11                ->push_back( e11x11P.first );
+	//t_e13x13                ->push_back( e13x13P.first );
+	t_e15x15                ->push_back( e15x15P.first );
+	//t_e21x21                ->push_back( e21x21P.first );
+	//t_e25x25                ->push_back( e25x25P.first );
+	//t_e31x31                ->push_back( e31x31P.first );
 
-	t_e7x7_10Sig            ->push_back( e7x7_10Sig   ); 
-	t_e9x9_10Sig            ->push_back( e9x9_10Sig   ); 
-	t_e11x11_10Sig          ->push_back( e11x11_10Sig ); 
-	t_e15x15_10Sig          ->push_back( e15x15_10Sig );
-	t_e7x7_15Sig            ->push_back( e7x7_15Sig   ); 
-	t_e9x9_15Sig            ->push_back( e9x9_15Sig   ); 
-	t_e11x11_15Sig          ->push_back( e11x11_15Sig ); 
-	t_e15x15_15Sig          ->push_back( e15x15_15Sig );
-	t_e7x7_20Sig            ->push_back( e7x7_20Sig   ); 
-	t_e9x9_20Sig            ->push_back( e9x9_20Sig   ); 
-	t_e11x11_20Sig          ->push_back( e11x11_20Sig ); 
-	t_e15x15_20Sig          ->push_back( e15x15_20Sig );
-	t_e7x7_25Sig            ->push_back( e7x7_25Sig   ); 
-	t_e9x9_25Sig            ->push_back( e9x9_25Sig   ); 
-	t_e11x11_25Sig          ->push_back( e11x11_25Sig ); 
-	t_e15x15_25Sig          ->push_back( e15x15_25Sig );
-	t_e7x7_30Sig            ->push_back( e7x7_30Sig   ); 
-	t_e9x9_30Sig            ->push_back( e9x9_30Sig   ); 
-	t_e11x11_30Sig          ->push_back( e11x11_30Sig ); 
-	t_e15x15_30Sig          ->push_back( e15x15_30Sig );
+	t_e7x7_10Sig            ->push_back( e7x7_10SigP.first   ); 
+	t_e9x9_10Sig            ->push_back( e9x9_10SigP.first   ); 
+	t_e11x11_10Sig          ->push_back( e11x11_10SigP.first ); 
+	t_e15x15_10Sig          ->push_back( e15x15_10SigP.first );
+	t_e7x7_15Sig            ->push_back( e7x7_15SigP.first   ); 
+	t_e9x9_15Sig            ->push_back( e9x9_15SigP.first   ); 
+	t_e11x11_15Sig          ->push_back( e11x11_15SigP.first ); 
+	t_e15x15_15Sig          ->push_back( e15x15_15SigP.first );
+	t_e7x7_20Sig            ->push_back( e7x7_20SigP.first   ); 
+	t_e9x9_20Sig            ->push_back( e9x9_20SigP.first   ); 
+	t_e11x11_20Sig          ->push_back( e11x11_20SigP.first ); 
+	t_e15x15_20Sig          ->push_back( e15x15_20SigP.first );
+	t_e7x7_25Sig            ->push_back( e7x7_25SigP.first   ); 
+	t_e9x9_25Sig            ->push_back( e9x9_25SigP.first   ); 
+	t_e11x11_25Sig          ->push_back( e11x11_25SigP.first ); 
+	t_e15x15_25Sig          ->push_back( e15x15_25SigP.first );
+	t_e7x7_30Sig            ->push_back( e7x7_30SigP.first   ); 
+	t_e9x9_30Sig            ->push_back( e9x9_30SigP.first   ); 
+	t_e11x11_30Sig          ->push_back( e11x11_30SigP.first ); 
+	t_e15x15_30Sig          ->push_back( e15x15_30SigP.first );
 
 	if (doMC) {
-	  t_esim3x3               ->push_back( simInfo3x3["eTotal"] );
-	  t_esim5x5               ->push_back( simInfo5x5["eTotal"] );
+	  //t_esim3x3               ->push_back( simInfo3x3["eTotal"] );
+	  //t_esim5x5               ->push_back( simInfo5x5["eTotal"] );
 	  t_esim7x7               ->push_back( simInfo7x7["eTotal"] );
 	  t_esim9x9               ->push_back( simInfo9x9["eTotal"] );
 	  t_esim11x11             ->push_back( simInfo11x11["eTotal"] );
-	  t_esim13x13             ->push_back( simInfo13x13["eTotal"] );
+	  //t_esim13x13             ->push_back( simInfo13x13["eTotal"] );
 	  t_esim15x15             ->push_back( simInfo15x15["eTotal"] );
-	  t_esim21x21             ->push_back( simInfo21x21["eTotal"] );
-	  t_esim25x25             ->push_back( simInfo25x25["eTotal"] );
-	  t_esim31x31             ->push_back( simInfo31x31["eTotal"] );
+	  //t_esim21x21             ->push_back( simInfo21x21["eTotal"] );
+	  //t_esim25x25             ->push_back( simInfo25x25["eTotal"] );
+	  //t_esim31x31             ->push_back( simInfo31x31["eTotal"] );
 	
-	  t_esim3x3Matched        ->push_back( simInfo3x3["eMatched"] );
-	  t_esim5x5Matched        ->push_back( simInfo5x5["eMatched"] );
+	  //t_esim3x3Matched        ->push_back( simInfo3x3["eMatched"] );
+	  //t_esim5x5Matched        ->push_back( simInfo5x5["eMatched"] );
 	  t_esim7x7Matched        ->push_back( simInfo7x7["eMatched"] );
 	  t_esim9x9Matched        ->push_back( simInfo9x9["eMatched"] );
 	  t_esim11x11Matched      ->push_back( simInfo11x11["eMatched"] );
-	  t_esim13x13Matched      ->push_back( simInfo13x13["eMatched"] );
+	  //t_esim13x13Matched      ->push_back( simInfo13x13["eMatched"] );
 	  t_esim15x15Matched      ->push_back( simInfo15x15["eMatched"] );
-	  t_esim21x21Matched      ->push_back( simInfo21x21["eMatched"] );
-	  t_esim25x25Matched      ->push_back( simInfo25x25["eMatched"] );
-	  t_esim31x31Matched      ->push_back( simInfo31x31["eMatched"] );
+	  //t_esim21x21Matched      ->push_back( simInfo21x21["eMatched"] );
+	  //t_esim25x25Matched      ->push_back( simInfo25x25["eMatched"] );
+	  //t_esim31x31Matched      ->push_back( simInfo31x31["eMatched"] );
 	
-	  t_esim3x3Rest           ->push_back( simInfo3x3["eRest"] );
-	  t_esim5x5Rest           ->push_back( simInfo5x5["eRest"] );
+	  //t_esim3x3Rest           ->push_back( simInfo3x3["eRest"] );
+	  //t_esim5x5Rest           ->push_back( simInfo5x5["eRest"] );
 	  t_esim7x7Rest           ->push_back( simInfo7x7["eRest"] );
 	  t_esim9x9Rest           ->push_back( simInfo9x9["eRest"] );
 	  t_esim11x11Rest         ->push_back( simInfo11x11["eRest"] );
-	  t_esim13x13Rest         ->push_back( simInfo13x13["eRest"] );
+	  //t_esim13x13Rest         ->push_back( simInfo13x13["eRest"] );
 	  t_esim15x15Rest         ->push_back( simInfo15x15["eRest"] );
-	  t_esim21x21Rest         ->push_back( simInfo21x21["eRest"] );
-	  t_esim25x25Rest         ->push_back( simInfo25x25["eRest"] );
-	  t_esim31x31Rest         ->push_back( simInfo31x31["eRest"] );
+	  //t_esim21x21Rest         ->push_back( simInfo21x21["eRest"] );
+	  //t_esim25x25Rest         ->push_back( simInfo25x25["eRest"] );
+	  //t_esim31x31Rest         ->push_back( simInfo31x31["eRest"] );
 	
-	  t_esim3x3Photon         ->push_back( simInfo3x3["eGamma"] );
-	  t_esim5x5Photon         ->push_back( simInfo5x5["eGamma"] );
+	  //t_esim3x3Photon         ->push_back( simInfo3x3["eGamma"] );
+	  //t_esim5x5Photon         ->push_back( simInfo5x5["eGamma"] );
 	  t_esim7x7Photon         ->push_back( simInfo7x7["eGamma"] );
 	  t_esim9x9Photon         ->push_back( simInfo9x9["eGamma"] );
 	  t_esim11x11Photon       ->push_back( simInfo11x11["eGamma"] );
-	  t_esim13x13Photon       ->push_back( simInfo13x13["eGamma"] );
+	  //t_esim13x13Photon       ->push_back( simInfo13x13["eGamma"] );
 	  t_esim15x15Photon       ->push_back( simInfo15x15["eGamma"] );
-	  t_esim21x21Photon       ->push_back( simInfo21x21["eGamma"] );
-	  t_esim25x25Photon       ->push_back( simInfo25x25["eGamma"] );
-	  t_esim31x31Photon       ->push_back( simInfo31x31["eGamma"] );
+	  //t_esim21x21Photon       ->push_back( simInfo21x21["eGamma"] );
+	  //t_esim25x25Photon       ->push_back( simInfo25x25["eGamma"] );
+	  //t_esim31x31Photon       ->push_back( simInfo31x31["eGamma"] );
 	
-	  t_esim3x3NeutHad        ->push_back( simInfo3x3["eNeutralHad"] );
-	  t_esim5x5NeutHad        ->push_back( simInfo5x5["eNeutralHad"] );
+	  //t_esim3x3NeutHad        ->push_back( simInfo3x3["eNeutralHad"] );
+	  //t_esim5x5NeutHad        ->push_back( simInfo5x5["eNeutralHad"] );
 	  t_esim7x7NeutHad        ->push_back( simInfo7x7["eNeutralHad"] );
 	  t_esim9x9NeutHad        ->push_back( simInfo9x9["eNeutralHad"] );
 	  t_esim11x11NeutHad      ->push_back( simInfo11x11["eNeutralHad"] );
-	  t_esim13x13NeutHad      ->push_back( simInfo13x13["eNeutralHad"] );
+	  //t_esim13x13NeutHad      ->push_back( simInfo13x13["eNeutralHad"] );
 	  t_esim15x15NeutHad      ->push_back( simInfo15x15["eNeutralHad"] );
-	  t_esim21x21NeutHad      ->push_back( simInfo21x21["eNeutralHad"] );
-	  t_esim25x25NeutHad      ->push_back( simInfo25x25["eNeutralHad"] );
-	  t_esim31x31NeutHad      ->push_back( simInfo31x31["eNeutralHad"] );
+	  //t_esim21x21NeutHad      ->push_back( simInfo21x21["eNeutralHad"] );
+	  //t_esim25x25NeutHad      ->push_back( simInfo25x25["eNeutralHad"] );
+	  //t_esim31x31NeutHad      ->push_back( simInfo31x31["eNeutralHad"] );
 	
-	  t_esim3x3CharHad        ->push_back( simInfo3x3["eChargedHad"] );
-	  t_esim5x5CharHad        ->push_back( simInfo5x5["eChargedHad"] );
+	  //t_esim3x3CharHad        ->push_back( simInfo3x3["eChargedHad"] );
+	  //t_esim5x5CharHad        ->push_back( simInfo5x5["eChargedHad"] );
 	  t_esim7x7CharHad        ->push_back( simInfo7x7["eChargedHad"] );
 	  t_esim9x9CharHad        ->push_back( simInfo9x9["eChargedHad"] );
 	  t_esim11x11CharHad      ->push_back( simInfo11x11["eChargedHad"] );
-	  t_esim13x13CharHad      ->push_back( simInfo13x13["eChargedHad"] );
+	  //t_esim13x13CharHad      ->push_back( simInfo13x13["eChargedHad"] );
 	  t_esim15x15CharHad      ->push_back( simInfo15x15["eChargedHad"] );
-	  t_esim21x21CharHad      ->push_back( simInfo21x21["eChargedHad"] );
-	  t_esim25x25CharHad      ->push_back( simInfo25x25["eChargedHad"] );
-	  t_esim31x31CharHad      ->push_back( simInfo31x31["eChargedHad"] );
+	  //t_esim21x21CharHad      ->push_back( simInfo21x21["eChargedHad"] );
+	  //t_esim25x25CharHad      ->push_back( simInfo25x25["eChargedHad"] );
+	  //t_esim31x31CharHad      ->push_back( simInfo31x31["eChargedHad"] );
 	
 	  t_trkEcalEne            ->push_back( trkEcalEne );
 	  t_simTrackP             ->push_back( simTrackP );
@@ -976,6 +1040,10 @@ void IsolatedTracksNxN::clearTreeVectors() {
   t_trackPt           ->clear();
   t_trackEta          ->clear();
   t_trackPhi          ->clear();
+  t_trackEcalEta      ->clear();
+  t_trackEcalPhi      ->clear();
+  t_trackHcalEta      ->clear();
+  t_trackHcalPhi      ->clear();
   t_NLayersCrossed    ->clear();
   t_trackNOuterHits   ->clear();
   t_trackDxy          ->clear();
@@ -1016,6 +1084,7 @@ void IsolatedTracksNxN::clearTreeVectors() {
   t_maxNearP9x9       ->clear();
   t_maxNearP7x7       ->clear();
 
+  t_ecalSpike11x11    ->clear();
   t_e3x3              ->clear();
   t_e5x5              ->clear();
   t_e7x7              ->clear();
@@ -1308,15 +1377,19 @@ void IsolatedTracksNxN::BookHistograms(){
   t_trackEtaAll      = new std::vector<double>();
   t_trackPhiAll      = new std::vector<double>();
   t_trackPdgIdAll    = new std::vector<double>();
-  tree->Branch("t_trackPAll",         "vector<double>", &t_trackPAll    );
-  tree->Branch("t_trackPhiAll",       "vector<double>", &t_trackPhiAll  );
-  tree->Branch("t_trackEtaAll",       "vector<double>", &t_trackEtaAll  );
-  tree->Branch("t_trackPdgIdAll",     "vector<double>", &t_trackPdgIdAll);
+  //tree->Branch("t_trackPAll",         "vector<double>", &t_trackPAll    );
+  //tree->Branch("t_trackPhiAll",       "vector<double>", &t_trackPhiAll  );
+  //tree->Branch("t_trackEtaAll",       "vector<double>", &t_trackEtaAll  );
+  //tree->Branch("t_trackPdgIdAll",     "vector<double>", &t_trackPdgIdAll);
 
   t_trackP            = new std::vector<double>();
   t_trackPt           = new std::vector<double>();
   t_trackEta          = new std::vector<double>();
   t_trackPhi          = new std::vector<double>();
+  t_trackEcalEta      = new std::vector<double>();
+  t_trackEcalPhi      = new std::vector<double>();
+  t_trackHcalEta      = new std::vector<double>();
+  t_trackHcalPhi      = new std::vector<double>();
   t_trackNOuterHits   = new std::vector<int>();
   t_NLayersCrossed    = new std::vector<int>();
   t_trackDxy          = new std::vector<double>();
@@ -1352,6 +1425,11 @@ void IsolatedTracksNxN::BookHistograms(){
   tree->Branch("t_trackPt",           "vector<double>", &t_trackPt           );
   tree->Branch("t_trackEta",          "vector<double>", &t_trackEta          );
   tree->Branch("t_trackPhi",          "vector<double>", &t_trackPhi          );
+  tree->Branch("t_trackEcalEta",      "vector<double>", &t_trackEcalEta      );
+  tree->Branch("t_trackEcalPhi",      "vector<double>", &t_trackEcalPhi      );
+  tree->Branch("t_trackHcalEta",      "vector<double>", &t_trackHcalEta      );
+  tree->Branch("t_trackHcalPhi",      "vector<double>", &t_trackHcalPhi      );
+
   tree->Branch("t_trackNOuterHits",   "vector<int>",    &t_trackNOuterHits   );
   tree->Branch("t_NLayersCrossed",    "vector<int>",    &t_NLayersCrossed    );
   tree->Branch("t_trackHitsTOB",       "vector<int>",   &t_trackHitsTOB      ); 
@@ -1394,14 +1472,15 @@ void IsolatedTracksNxN::BookHistograms(){
   t_maxNearP7x7       = new std::vector<double>();
 
   tree->Branch("t_maxNearP31x31",     "vector<double>", &t_maxNearP31x31);
-  tree->Branch("t_maxNearP25x25",     "vector<double>", &t_maxNearP25x25);
+  //tree->Branch("t_maxNearP25x25",     "vector<double>", &t_maxNearP25x25);
   tree->Branch("t_maxNearP21x21",     "vector<double>", &t_maxNearP21x21);
-  tree->Branch("t_maxNearP15x15",     "vector<double>", &t_maxNearP15x15);
-  tree->Branch("t_maxNearP13x13",     "vector<double>", &t_maxNearP13x13);
-  tree->Branch("t_maxNearP11x11",     "vector<double>", &t_maxNearP11x11);
-  tree->Branch("t_maxNearP9x9",       "vector<double>", &t_maxNearP9x9);
-  tree->Branch("t_maxNearP7x7",       "vector<double>", &t_maxNearP7x7);
+  //tree->Branch("t_maxNearP15x15",     "vector<double>", &t_maxNearP15x15);
+  //tree->Branch("t_maxNearP13x13",     "vector<double>", &t_maxNearP13x13);
+  //tree->Branch("t_maxNearP11x11",     "vector<double>", &t_maxNearP11x11);
+  //tree->Branch("t_maxNearP9x9",       "vector<double>", &t_maxNearP9x9);
+  //tree->Branch("t_maxNearP7x7",       "vector<double>", &t_maxNearP7x7);
 
+  t_ecalSpike11x11    = new std::vector<int>();
   t_e3x3              = new std::vector<double>();
   t_e5x5              = new std::vector<double>();
   t_e7x7              = new std::vector<double>();
@@ -1414,16 +1493,17 @@ void IsolatedTracksNxN::BookHistograms(){
   t_e31x31            = new std::vector<double>();
   //t_e11x11Xtals       = new std::vector<std::vector<double> >(); 
 
-  tree->Branch("t_e3x3",              "vector<double>", &t_e3x3);
-  tree->Branch("t_e5x5",              "vector<double>", &t_e5x5);
+  tree->Branch("t_ecalSpike11x11",    "vector<int>",    &t_ecalSpike11x11);
+  //tree->Branch("t_e3x3",              "vector<double>", &t_e3x3);
+  //tree->Branch("t_e5x5",              "vector<double>", &t_e5x5);
   tree->Branch("t_e7x7",              "vector<double>", &t_e7x7);
   tree->Branch("t_e9x9",              "vector<double>", &t_e9x9);
   tree->Branch("t_e11x11",            "vector<double>", &t_e11x11);
-  tree->Branch("t_e13x13",            "vector<double>", &t_e13x13);
+  //tree->Branch("t_e13x13",            "vector<double>", &t_e13x13);
   tree->Branch("t_e15x15",            "vector<double>", &t_e15x15);
-  tree->Branch("t_e21x21",            "vector<double>", &t_e21x21);
-  tree->Branch("t_e25x25",            "vector<double>", &t_e25x25);
-  tree->Branch("t_e31x31",            "vector<double>", &t_e31x31);
+  //tree->Branch("t_e21x21",            "vector<double>", &t_e21x21);
+  //tree->Branch("t_e25x25",            "vector<double>", &t_e25x25);
+  //tree->Branch("t_e31x31",            "vector<double>", &t_e31x31);
   //tree->Branch("t_e11x11Xtals",       "vector<vector<double> >", &t_e11x11Xtals);
 
   t_e7x7_10Sig        = new std::vector<double>();
@@ -1539,71 +1619,71 @@ void IsolatedTracksNxN::BookHistograms(){
     t_simTrackP            = new std::vector<double>();
     t_esimPdgId            = new std::vector<double>();
 
-    tree->Branch("t_esim3x3",             "vector<double>", &t_esim3x3);
-    tree->Branch("t_esim5x5",             "vector<double>", &t_esim5x5);
+    //tree->Branch("t_esim3x3",             "vector<double>", &t_esim3x3);
+    //tree->Branch("t_esim5x5",             "vector<double>", &t_esim5x5);
     tree->Branch("t_esim7x7",             "vector<double>", &t_esim7x7);
     tree->Branch("t_esim9x9",             "vector<double>", &t_esim9x9);
     tree->Branch("t_esim11x11",           "vector<double>", &t_esim11x11);
-    tree->Branch("t_esim13x13",           "vector<double>", &t_esim13x13);
+    //tree->Branch("t_esim13x13",           "vector<double>", &t_esim13x13);
     tree->Branch("t_esim15x15",           "vector<double>", &t_esim15x15);
-    tree->Branch("t_esim21x21",           "vector<double>", &t_esim21x21);
-    tree->Branch("t_esim25x25",           "vector<double>", &t_esim25x25);
-    tree->Branch("t_esim31x31",           "vector<double>", &t_esim31x31);
+    //tree->Branch("t_esim21x21",           "vector<double>", &t_esim21x21);
+    //tree->Branch("t_esim25x25",           "vector<double>", &t_esim25x25);
+    //tree->Branch("t_esim31x31",           "vector<double>", &t_esim31x31);
 
-    tree->Branch("t_esim3x3Matched",      "vector<double>", &t_esim3x3Matched);
-    tree->Branch("t_esim5x5Matched",      "vector<double>", &t_esim5x5Matched);
+    //tree->Branch("t_esim3x3Matched",      "vector<double>", &t_esim3x3Matched);
+    //tree->Branch("t_esim5x5Matched",      "vector<double>", &t_esim5x5Matched);
     tree->Branch("t_esim7x7Matched",      "vector<double>", &t_esim7x7Matched);
     tree->Branch("t_esim9x9Matched",      "vector<double>", &t_esim9x9Matched);
     tree->Branch("t_esim11x11Matched",    "vector<double>", &t_esim11x11Matched);
-    tree->Branch("t_esim13x13Matched",    "vector<double>", &t_esim13x13Matched);
+    //tree->Branch("t_esim13x13Matched",    "vector<double>", &t_esim13x13Matched);
     tree->Branch("t_esim15x15Matched",    "vector<double>", &t_esim15x15Matched);
-    tree->Branch("t_esim21x21Matched",    "vector<double>", &t_esim21x21Matched);
-    tree->Branch("t_esim25x25Matched",    "vector<double>", &t_esim25x25Matched);
-    tree->Branch("t_esim31x31Matched",    "vector<double>", &t_esim31x31Matched);
+    //tree->Branch("t_esim21x21Matched",    "vector<double>", &t_esim21x21Matched);
+    //tree->Branch("t_esim25x25Matched",    "vector<double>", &t_esim25x25Matched);
+    //tree->Branch("t_esim31x31Matched",    "vector<double>", &t_esim31x31Matched);
 
-    tree->Branch("t_esim3x3Rest",         "vector<double>", &t_esim3x3Rest);
-    tree->Branch("t_esim5x5Rest",         "vector<double>", &t_esim5x5Rest);
+    //tree->Branch("t_esim3x3Rest",         "vector<double>", &t_esim3x3Rest);
+    //tree->Branch("t_esim5x5Rest",         "vector<double>", &t_esim5x5Rest);
     tree->Branch("t_esim7x7Rest",         "vector<double>", &t_esim7x7Rest);
     tree->Branch("t_esim9x9Rest",         "vector<double>", &t_esim9x9Rest);
     tree->Branch("t_esim11x11Rest",       "vector<double>", &t_esim11x11Rest);
-    tree->Branch("t_esim13x13Rest",       "vector<double>", &t_esim13x13Rest);
+    //tree->Branch("t_esim13x13Rest",       "vector<double>", &t_esim13x13Rest);
     tree->Branch("t_esim15x15Rest",       "vector<double>", &t_esim15x15Rest);
-    tree->Branch("t_esim21x21Rest",       "vector<double>", &t_esim21x21Rest);
-    tree->Branch("t_esim25x25Rest",       "vector<double>", &t_esim25x25Rest);
-    tree->Branch("t_esim31x31Rest",       "vector<double>", &t_esim31x31Rest);
+    //tree->Branch("t_esim21x21Rest",       "vector<double>", &t_esim21x21Rest);
+    //tree->Branch("t_esim25x25Rest",       "vector<double>", &t_esim25x25Rest);
+    //tree->Branch("t_esim31x31Rest",       "vector<double>", &t_esim31x31Rest);
 
-    tree->Branch("t_esim3x3Photon",       "vector<double>", &t_esim3x3Photon);
-    tree->Branch("t_esim5x5Photon",       "vector<double>", &t_esim5x5Photon);
+    //tree->Branch("t_esim3x3Photon",       "vector<double>", &t_esim3x3Photon);
+    //tree->Branch("t_esim5x5Photon",       "vector<double>", &t_esim5x5Photon);
     tree->Branch("t_esim7x7Photon",       "vector<double>", &t_esim7x7Photon);
     tree->Branch("t_esim9x9Photon",       "vector<double>", &t_esim9x9Photon);
     tree->Branch("t_esim11x11Photon",     "vector<double>", &t_esim11x11Photon);
-    tree->Branch("t_esim13x13Photon",     "vector<double>", &t_esim13x13Photon);
+    //tree->Branch("t_esim13x13Photon",     "vector<double>", &t_esim13x13Photon);
     tree->Branch("t_esim15x15Photon",     "vector<double>", &t_esim15x15Photon);
-    tree->Branch("t_esim21x21Photon",     "vector<double>", &t_esim21x21Photon);
-    tree->Branch("t_esim25x25Photon",     "vector<double>", &t_esim25x25Photon);
-    tree->Branch("t_esim31x31Photon",     "vector<double>", &t_esim31x31Photon);
+    //tree->Branch("t_esim21x21Photon",     "vector<double>", &t_esim21x21Photon);
+    //tree->Branch("t_esim25x25Photon",     "vector<double>", &t_esim25x25Photon);
+    //tree->Branch("t_esim31x31Photon",     "vector<double>", &t_esim31x31Photon);
 
-    tree->Branch("t_esim3x3NeutHad",      "vector<double>", &t_esim3x3NeutHad);
-    tree->Branch("t_esim5x5NeutHad",      "vector<double>", &t_esim5x5NeutHad);
+    //tree->Branch("t_esim3x3NeutHad",      "vector<double>", &t_esim3x3NeutHad);
+    //tree->Branch("t_esim5x5NeutHad",      "vector<double>", &t_esim5x5NeutHad);
     tree->Branch("t_esim7x7NeutHad",      "vector<double>", &t_esim7x7NeutHad);
     tree->Branch("t_esim9x9NeutHad",      "vector<double>", &t_esim9x9NeutHad);
     tree->Branch("t_esim11x11NeutHad",    "vector<double>", &t_esim11x11NeutHad);
-    tree->Branch("t_esim13x13NeutHad",    "vector<double>", &t_esim13x13NeutHad);
+    //tree->Branch("t_esim13x13NeutHad",    "vector<double>", &t_esim13x13NeutHad);
     tree->Branch("t_esim15x15NeutHad",    "vector<double>", &t_esim15x15NeutHad);
-    tree->Branch("t_esim21x21NeutHad",    "vector<double>", &t_esim21x21NeutHad);
-    tree->Branch("t_esim25x25NeutHad",    "vector<double>", &t_esim25x25NeutHad);
-    tree->Branch("t_esim31x31NeutHad",    "vector<double>", &t_esim31x31NeutHad);
+    //tree->Branch("t_esim21x21NeutHad",    "vector<double>", &t_esim21x21NeutHad);
+    //tree->Branch("t_esim25x25NeutHad",    "vector<double>", &t_esim25x25NeutHad);
+    //tree->Branch("t_esim31x31NeutHad",    "vector<double>", &t_esim31x31NeutHad);
 
-    tree->Branch("t_esim3x3CharHad",      "vector<double>", &t_esim3x3CharHad);
-    tree->Branch("t_esim5x5CharHad",      "vector<double>", &t_esim5x5CharHad);
+    //tree->Branch("t_esim3x3CharHad",      "vector<double>", &t_esim3x3CharHad);
+    //tree->Branch("t_esim5x5CharHad",      "vector<double>", &t_esim5x5CharHad);
     tree->Branch("t_esim7x7CharHad",      "vector<double>", &t_esim7x7CharHad);
     tree->Branch("t_esim9x9CharHad",      "vector<double>", &t_esim9x9CharHad);
     tree->Branch("t_esim11x11CharHad",    "vector<double>", &t_esim11x11CharHad);
-    tree->Branch("t_esim13x13CharHad",    "vector<double>", &t_esim13x13CharHad);
+    //tree->Branch("t_esim13x13CharHad",    "vector<double>", &t_esim13x13CharHad);
     tree->Branch("t_esim15x15CharHad",    "vector<double>", &t_esim15x15CharHad);
-    tree->Branch("t_esim21x21CharHad",    "vector<double>", &t_esim21x21CharHad);
-    tree->Branch("t_esim25x25CharHad",    "vector<double>", &t_esim25x25CharHad);
-    tree->Branch("t_esim31x31CharHad",    "vector<double>", &t_esim31x31CharHad);
+    //tree->Branch("t_esim21x21CharHad",    "vector<double>", &t_esim21x21CharHad);
+    //tree->Branch("t_esim25x25CharHad",    "vector<double>", &t_esim25x25CharHad);
+    //tree->Branch("t_esim31x31CharHad",    "vector<double>", &t_esim31x31CharHad);
 
     tree->Branch("t_trkEcalEne",          "vector<double>", &t_trkEcalEne);
     tree->Branch("t_simTrackP",           "vector<double>", &t_simTrackP);

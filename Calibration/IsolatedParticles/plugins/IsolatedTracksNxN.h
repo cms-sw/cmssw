@@ -197,6 +197,7 @@ private:
   std::vector<double> *t_trackPAll,     *t_trackEtaAll,    *t_trackPhiAll,  *t_trackPdgIdAll;
 
   std::vector<double> *t_trackP,        *t_trackPt,        *t_trackEta,      *t_trackPhi;
+  std::vector<double> *t_trackEcalEta,  *t_trackEcalPhi,   *t_trackHcalEta,  *t_trackHcalPhi;   
   std::vector<double> *t_trackDxy,      *t_trackDxyBS,     *t_trackDz,       *t_trackDzBS;  
   std::vector<double> *t_trackDxyPV,    *t_trackDzPV;
   std::vector<double> *t_trackChiSq;
@@ -219,6 +220,7 @@ private:
   std::vector<double> *t_maxNearP9x9;
   std::vector<double> *t_maxNearP7x7;
 
+  std::vector<int>    *t_ecalSpike11x11;
   std::vector<double> *t_e3x3,              *t_e5x5,              *t_e7x7,              *t_e9x9,             *t_e11x11; 
   std::vector<double> *t_e13x13,            *t_e15x15,            *t_e21x21,            *t_e25x25,           *t_e31x31;
   //std::vector< std::vector<double> > *t_e11x11Xtals;
