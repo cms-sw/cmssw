@@ -28,23 +28,20 @@ process.source= cms.Source("PoolSource",
 '/store/data/Commissioning10/MinimumBias/RAW/v4/000/135/149/00100ABE-0E5B-DF11-97AF-001D09F24664.root',
 '/store/data/Commissioning10/MinimumBias/RAW/v4/000/135/149/00078CCF-155B-DF11-8A09-001D09F290CE.root',
 '/store/data/Commissioning10/MinimumBias/RAW/v4/000/135/149/0005236B-715B-DF11-8EB5-0030486730C6.root'),            
-             #firstRun=cms.untracked.uint32(125149),
-             #firstLuminosityBlock = cms.untracked.uint32(1),                           
-             #firstEvent=cms.untracked.uint32(1)
 )
 process.DBService=cms.Service("DBService",
            authPath=cms.untracked.string('/afs/cern.ch/cms/DB/lumi')
 )
 process.lumiProducer=cms.EDProducer("LumiProducer",
-#connect=cms.string('frontier://cmsfrontier.cern.ch:8000/LumiPrep/CMS_LUMI_DEV_OFFLINE'),
-   connect=cms.string('oracle://cms_orcoff_prep/cms_lumi_dev_offline'),                                 
+   connect=cms.string('frontier://cmsfrontier.cern.ch:8000/LumiPrep/CMS_LUMI_DEV_OFFLINE'),
+   #connect=cms.string('oracle://cms_orcoff_prep/cms_lumi_dev_offline'),                                 
    lumiversion=cms.untracked.string('0001') 
 )
 
 process.test = cms.EDAnalyzer("TestLumiProducer")
 
 process.out = cms.OutputModule("PoolOutputModule",
-  fileName = cms.untracked.string('testLumiProd-125149.root')
+  fileName = cms.untracked.string('testLumiProd-135149.root')
 )
 process.p1 = cms.Path(process.lumiProducer * process.test)
 process.e = cms.EndPath(process.out)
