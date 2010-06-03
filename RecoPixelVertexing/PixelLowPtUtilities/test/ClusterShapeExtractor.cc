@@ -405,8 +405,7 @@ void ClusterShapeExtractor::analyzeSimHits
   (const edm::Event& ev, const edm::EventSetup& es)
 {
   // Get associator
-  theHitAssociator = new
-    TrackerHitAssociator::TrackerHitAssociator(ev,theConfig);
+  theHitAssociator = new TrackerHitAssociator(ev,theConfig);
 
   // Pixel hits
   {
