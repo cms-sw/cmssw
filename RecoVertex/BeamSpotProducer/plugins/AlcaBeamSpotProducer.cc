@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
    Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
-   version $Id: AlcaBeamSpotProducer.cc,v 1.2 2010/05/28 20:00:55 uplegger Exp $
+   version $Id: AlcaBeamSpotProducer.cc,v 1.3 2010/05/28 21:20:23 uplegger Exp $
 
    ________________________________________________________________**/
 
@@ -124,7 +124,7 @@ void AlcaBeamSpotProducer::endLuminosityBlock(edm::LuminosityBlock& lumiSeg, con
 
   std::auto_ptr<reco::BeamSpot> result(new reco::BeamSpot);
   *result = bs;
-  lumiSeg.put(result, std::string("endLumi"));
+  lumiSeg.put(result, std::string("alcaBeamSpot"));
 	
   if (resetFitNLumi_ > 0 && countLumi_%resetFitNLumi_ == 0) {
     std::vector<BSTrkParameters> theBSvector = theBeamFitter->getBSvector();
