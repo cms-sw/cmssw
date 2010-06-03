@@ -28,7 +28,7 @@
 //
 // Original Author:  Nov 16 16:12 (lxplus231.cern.ch)
 //         Created:  Sun Nov 16 16:14:09 CET 2008
-// $Id: MuonMCClassifier.cc,v 1.2 2010/05/21 07:39:37 gpetrucc Exp $
+// $Id: MuonMCClassifier.cc,v 1.3 2010/05/24 22:17:04 gpetrucc Exp $
 //
 //
 
@@ -52,11 +52,14 @@
 #include "DataFormats/Common/interface/View.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "SimMuon/MCTruth/interface/MuonAssociatorByHits.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include <SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h>
+
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include <boost/foreach.hpp>
 #define foreach BOOST_FOREACH
@@ -72,6 +75,11 @@ class MuonMCClassifier : public edm::EDProducer {
         virtual void produce(edm::Event&, const edm::EventSetup&);
         /// The RECO objects
         edm::InputTag muons_;
+
+        /// A preselection cut for the muon. 
+        /// I pass through pat::Muon so that I can access muon id selectors
+        bool hasMuonCut_;
+        StringCutObjectSelector<pat::Muon> muonCut_;
  
         /// Track to use
         MuonAssociatorByHits::MuonTrackType trackType_;
@@ -116,6 +124,8 @@ class MuonMCClassifier : public edm::EDProducer {
 
 MuonMCClassifier::MuonMCClassifier(const edm::ParameterSet &iConfig) :
     muons_(iConfig.getParameter<edm::InputTag>("muons")),
+    hasMuonCut_(iConfig.existsAs<std::string>("muonPreselection")),
+    muonCut_(hasMuonCut_ ? iConfig.getParameter<std::string>("muonPreselection") : ""),
     trackingParticles_(iConfig.getParameter<edm::InputTag>("trackingParticles")),
     associatorLabel_(iConfig.getParameter< std::string >("associatorLabel"))
 {
@@ -133,8 +143,10 @@ MuonMCClassifier::MuonMCClassifier(const edm::ParameterSet &iConfig) :
     produces<edm::ValueMap<int> >("momFlav"); 
     produces<edm::ValueMap<int> >("gmomPdgId"); 
     produces<edm::ValueMap<int> >("gmomFlav"); 
+    produces<edm::ValueMap<int> >("tpId");
     produces<edm::ValueMap<float> >("prodRho"); 
     produces<edm::ValueMap<float> >("prodZ"); 
+    produces<edm::ValueMap<float> >("tpAssoQuality");
 }
 
 MuonMCClassifier::~MuonMCClassifier() 
@@ -144,7 +156,7 @@ MuonMCClassifier::~MuonMCClassifier()
 void
 MuonMCClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  edm::LogVerbatim("MuonMCClassifier") <<"\n sono in MuonMCClassifier !";
+    edm::LogVerbatim("MuonMCClassifier") <<"\n sono in MuonMCClassifier !";
   
     edm::Handle<edm::View<reco::Muon> > muons; 
     iEvent.getByLabel(muons_, muons);
@@ -162,7 +174,26 @@ MuonMCClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::LogVerbatim("MuonMCClassifier") <<"\n ***************************************************************** ";
     edm::LogVerbatim("MuonMCClassifier") <<  " RECO MUON association, type:  "<< trackType_;
     edm::LogVerbatim("MuonMCClassifier") <<  " ***************************************************************** \n";
-    assoByHits->associateMuons(recSimColl, simRecColl, muons, trackType_, trackingParticles, &iEvent, &iSetup);
+
+    edm::RefToBaseVector<reco::Muon> selMuons;
+    if (!hasMuonCut_) {
+        // all muons
+        selMuons = muons->refVector();
+    } else {
+        // filter, fill refvectors, associate
+        // I pass through pat::Muon so that I can access muon id selectors
+        for (size_t i = 0, n = muons->size(); i < n; ++i) {
+            edm::RefToBase<reco::Muon> rmu = muons->refAt(i);
+            if (muonCut_(pat::Muon(rmu))) selMuons.push_back(rmu);
+        }
+    }
+
+    edm::RefVector<TrackingParticleCollection> allTPs;
+    for (size_t i = 0, n = trackingParticles->size(); i < n; ++i) {
+        allTPs.push_back(TrackingParticleRef(trackingParticles,i));
+    }
+
+    assoByHits->associateMuons(recSimColl, simRecColl, selMuons, trackType_, allTPs, &iEvent, &iSetup);
 
     // for global muons without hits on muon detectors, look at the linked standalone muon
     MuonAssociatorByHits::MuonToSimCollection UpdSTA_recSimColl;
@@ -171,8 +202,8 @@ MuonMCClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       edm::LogVerbatim("MuonMCClassifier") <<"\n ***************************************************************** ";
       edm::LogVerbatim("MuonMCClassifier") <<  " STANDALONE (UpdAtVtx) MUON association ";
       edm::LogVerbatim("MuonMCClassifier") <<  " ***************************************************************** \n";
-      assoByHits->associateMuons(UpdSTA_recSimColl, UpdSTA_simRecColl, muons, MuonAssociatorByHits::OuterTk, 
-				 trackingParticles, &iEvent, &iSetup);
+      assoByHits->associateMuons(UpdSTA_recSimColl, UpdSTA_simRecColl, selMuons, MuonAssociatorByHits::OuterTk, 
+				 allTPs, &iEvent, &iSetup);
     }
 
     typedef MuonAssociatorByHits::MuonToSimCollection::const_iterator r2s_it;
@@ -184,10 +215,17 @@ MuonMCClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::vector<int> classif(nmu, 0);
     std::vector<int> hitsPdgId(nmu, 0), momPdgId(nmu, 0), gmomPdgId(nmu, 0);
     std::vector<int> flav(nmu, 0),      momFlav(nmu, 0),  gmomFlav(nmu, 0);
+    std::vector<int> tpId(nmu, -1);
     std::vector<float> prodRho(nmu, 0.0), prodZ(nmu, 0.0);
+    std::vector<float> tpAssoQuality(nmu, -1);
     for(size_t i = 0; i < nmu; ++i) {
-      edm::LogVerbatim("MuonMCClassifier") <<"\n reco::Muons # "<<i;
+        edm::LogVerbatim("MuonMCClassifier") <<"\n reco::Muons # "<<i;
         edm::RefToBase<reco::Muon> mu = muons->refAt(i);
+        if (hasMuonCut_ && (std::find(selMuons.begin(), selMuons.end(), mu) == selMuons.end()) ) {
+            edm::LogVerbatim("MuonMCClassifier") <<"\t muon didn't pass the selection. classified as -99 and skipped";
+            classif[i] = -99; continue;
+        }
+
         TrackingParticleRef        tp;
         edm::RefToBase<reco::Muon> muMatchBack;
         r2s_it match = recSimColl.find(mu);
@@ -196,6 +234,8 @@ MuonMCClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             edm::LogVerbatim("MuonMCClassifier") <<"\t RtS matched Ok...";
             // match->second is vector, front is first element, first is the ref (second would be the quality)
             tp = match->second.front().first;
+            tpId[i]          = tp.isNonnull() ? tp.key() : -1; // we check, even if null refs should not appear here at all
+            tpAssoQuality[i] = match->second.front().second;
             s2r_it matchback = simRecColl.find(tp);
             if (matchback != simRecColl.end()) {
                 muMatchBack = matchback->second.front().first;
@@ -209,6 +249,8 @@ MuonMCClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             if (matchSta != UpdSTA_recSimColl.end()) {
                 edm::LogVerbatim("MuonMCClassifier") <<"\t RtS matched Ok... from the UpdSTA_recSimColl ";
                 tp    = matchSta->second.front().first;
+                tpId[i]          = tp.isNonnull() ? tp.key() : -1; // we check, even if null refs should not appear here at all
+                tpAssoQuality[i] = matchSta->second.front().second;
                 s2r_it matchback = UpdSTA_simRecColl.find(tp);
                 if (matchback != UpdSTA_simRecColl.end()) {
                     muMatchBack = matchback->second.front().first;
@@ -232,6 +274,7 @@ MuonMCClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                 const HepMC::GenParticle * genMom = getGpMother(tp->genParticle()[0].get());
                 if (genMom) {
                     momPdgId[i] = genMom->pdg_id();
+                    edm::LogVerbatim("MuonMCClassifier") << "\t Particle pdgId = "<<hitsPdgId[i] << " produced at rho = " << prodRho[i] << ", z = " << prodZ[i] << ", has GEN mother pdgId = " << momPdgId[i];
                     const HepMC::GenParticle * genGMom = getGpMother(genMom);
                     if (genGMom) gmomPdgId[i] = genGMom->pdg_id();
                 }
@@ -239,6 +282,7 @@ MuonMCClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                 TrackingParticleRef simMom = getTpMother(tp);
                 if (simMom.isNonnull()) {
                     momPdgId[i] = simMom->pdgId();
+                    edm::LogVerbatim("MuonMCClassifier") << "\t Particle pdgId = "<<hitsPdgId[i] << " produced at rho = " << prodRho[i] << ", z = " << prodZ[i] << ", has SIM mother pdgId = " << momPdgId[i];
                     if (!simMom->genParticle().empty()) {
                         const HepMC::GenParticle * genGMom = getGpMother(simMom->genParticle()[0].get());
                         if (genGMom) gmomPdgId[i] = genGMom->pdg_id();
@@ -246,6 +290,8 @@ MuonMCClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                         TrackingParticleRef simGMom = getTpMother(simMom);
                         if (simGMom.isNonnull()) gmomPdgId[i] = simGMom->pdgId();
                     }
+                } else {
+                  edm::LogVerbatim("MuonMCClassifier") << "\t Particle pdgId = "<<hitsPdgId[i] << " produced at rho = " << prodRho[i] << ", z = " << prodZ[i] << ", has NO mother!";
                 }
             }
             momFlav[i]  = flavour(momPdgId[i]);
@@ -283,6 +329,7 @@ MuonMCClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     writeValueMap(iEvent, muons, classif,   "");
     writeValueMap(iEvent, muons, flav,      "flav");
+    writeValueMap(iEvent, muons, tpId,      "tpId");
     writeValueMap(iEvent, muons, hitsPdgId, "hitsPdgId");
     writeValueMap(iEvent, muons, momPdgId,  "momPdgId");
     writeValueMap(iEvent, muons, momFlav,   "momFlav");
@@ -290,6 +337,7 @@ MuonMCClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     writeValueMap(iEvent, muons, gmomFlav,  "gmomFlav");
     writeValueMap(iEvent, muons, prodRho,   "prodRho");
     writeValueMap(iEvent, muons, prodZ,     "prodZ");
+    writeValueMap(iEvent, muons, tpAssoQuality, "tpAssoQuality");
 }    
 
 template<typename T>

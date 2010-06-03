@@ -90,8 +90,17 @@ process.patMuons = PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi.patMuo
 )
 
 process.load("MuonAnalysis.MuonAssociators.muonClassificationByHits_cfi")
+
 from MuonAnalysis.MuonAssociators.muonClassificationByHits_cfi import addUserData as addClassByHits
 addClassByHits(process.patMuons, extraInfo=True)
+
+# now we define yet another classification, only for TMLastStationAngTight.
+# (the selection matters when you define ghosts)
+process.classByHitsTMLSAT = process.classByHitsTM.clone(
+    muonPreselection = cms.string("muonID('TMLastStationAngTight')")
+)
+addClassByHits(process.patMuons, labels=["classByHitsTMLSAT"], extraInfo=True)
+
 
 process.go = cms.Path(
     process.preFilter +
@@ -99,7 +108,8 @@ process.go = cms.Path(
     ( process.mergedTruth *
       process.genMuons    *
       process.muonMatch   +
-      process.muonClassificationByHits ) *
+      process.muonClassificationByHits +
+      process.classByHitsTMLSAT ) *
     process.patMuons  
 )
 

@@ -19,6 +19,7 @@ classByHitsTM = cms.EDProducer("MuonMCClassifier",
 classByHitsGlb = classByHitsTM.clone(trackType = "global")
 classByHitsSta = classByHitsTM.clone(trackType = "outer")
 
+
 muonClassificationByHits = cms.Sequence(
     mix +
     trackingParticlesNoSimHits +
@@ -30,9 +31,7 @@ def addUserData(patMuonProducer,labels=['classByHitsGlb', 'classByHitsTM', 'clas
     for label in labels:
         patMuonProducer.userData.userInts.src.append( cms.InputTag(label) )
         if extraInfo:
-            for ins in ("flav", "hitsPdgId", "momPdgId", "gmomPdgId", "momFlav", "gmomFlav"):
+            for ins in ("flav", "hitsPdgId", "momPdgId", "gmomPdgId", "momFlav", "gmomFlav", "tpId"):
                 patMuonProducer.userData.userInts.src.append(cms.InputTag(label, ins))
-            for ins in ("prodRho", "prodZ"):
+            for ins in ("prodRho", "prodZ", "tpAssoQuality"):
                 patMuonProducer.userData.userFloats.src.append(cms.InputTag(label, ins))
-
-
