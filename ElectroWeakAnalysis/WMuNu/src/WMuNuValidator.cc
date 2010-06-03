@@ -51,7 +51,9 @@ private:
   double dxyCut_;
   double normalizedChi2Cut_;
   int trackerHitsCut_;
+  int muonHitsCut_;     
   bool isAlsoTrackerMuon_;
+  int nSegCut_;
 
   double ptThrForZ1_;
   double ptThrForZ2_;
@@ -65,7 +67,8 @@ private:
   unsigned int nhlt;
   unsigned int nmet;
   unsigned int nsel;
-
+  unsigned int nid;
+ 
   std::map<std::string,TH1D*> h1_;
 };
 
@@ -124,7 +127,9 @@ WMuNuValidator::WMuNuValidator( const ParameterSet & cfg ) :
       dxyCut_(cfg.getUntrackedParameter<double>("DxyCut", 0.2)),
       normalizedChi2Cut_(cfg.getUntrackedParameter<double>("NormalizedChi2Cut", 10.)),
       trackerHitsCut_(cfg.getUntrackedParameter<int>("TrackerHitsCut", 11)),
+      muonHitsCut_(cfg.getUntrackedParameter<int>("MuonHitsCut", 1)),
       isAlsoTrackerMuon_(cfg.getUntrackedParameter<bool>("IsAlsoTrackerMuon", true)),
+      nSegCut_(cfg.getUntrackedParameter<int>("NSegmentsCut", 1)),
 
       // Z rejection
       ptThrForZ1_(cfg.getUntrackedParameter<double>("PtThrForZ1", 20.)),
@@ -185,6 +190,10 @@ void WMuNuValidator::init_histograms() {
             snprintf(chname, 255, "TKMU%s", chsuffix[i].data());
             snprintf(chtitle, 255, "Tracker-muon flag (for global muons)");
             h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,2,-0.5,1.5);
+
+            snprintf(chname, 255, "MUONSEGMENTS%s", chsuffix[i].data());
+            snprintf(chtitle, 255, "Number Of Segments Matched to the Muon");
+            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,10,0,10);
 
             snprintf(chname, 255, "GOODEWKMU%s", chsuffix[i].data());
             snprintf(chtitle, 255, "Quality-muon flag");
@@ -270,22 +279,32 @@ void WMuNuValidator::endJob() {
 
       if (!fastOption_) {
         double erec = nrec/all;
+        double eid  = nid/all;    
         double eiso = niso/all;
         double ehlt = nhlt/all;
         double emet = nmet/all;
-
+        
         double num = nrec;
         double eff = erec;
         double err = sqrt(eff*(1-eff)/all);
         LogVerbatim("") << "Passing Pt/Eta/Quality cuts:    " << num << " [events], (" << setprecision(4) << eff*100. <<" +/- "<< setprecision(2) << err*100. << ")%";
 
-        num = niso;
-        eff = eiso;
+        num = nid;
+        eff = eid;
         err = sqrt(eff*(1-eff)/all);
         double effstep = 0.;
         double errstep = 0.;
-        if (nrec>0) effstep = eiso/erec;
+        if (nrec>0) effstep = eid/erec;
         if (nrec>0) errstep = sqrt(effstep*(1-effstep)/nrec);
+        LogVerbatim("") << "Passing isolation cuts:         " << num << " [events], (" << setprecision(4) << eff*100. <<" +/- "<< setprecision(2) << err*100. << ")%, to previous step: (" <<  setprecision(4) << effstep*100. << " +/- "<< setprecision(2) << errstep*100. <<")%";
+
+        num = niso;
+        eff = eiso;
+        err = sqrt(eff*(1-eff)/all);
+        effstep = 0.;
+        errstep = 0.;
+        if (nid>0) effstep = eiso/eid;
+        if (nid>0) errstep = sqrt(effstep*(1-effstep)/nid);
         LogVerbatim("") << "Passing isolation cuts:         " << num << " [events], (" << setprecision(4) << eff*100. <<" +/- "<< setprecision(2) << err*100. << ")%, to previous step: (" <<  setprecision(4) << effstep*100. << " +/- "<< setprecision(2) << errstep*100. <<")%";
   
         num = nhlt;
@@ -323,6 +342,7 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
 
       // Reset global event selection flags
       bool rec_sel = false;
+      bool id_sel  = false;
       bool iso_sel = false;
       bool hlt_sel = false;
       bool met_sel = false;
@@ -456,7 +476,7 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
       bool njets_hist_done = false;
 
       // Central W->mu nu selection criteria
-      const int NFLAGS = 13;
+      const int NFLAGS = 15;
       bool muon_sel[NFLAGS];
       bool muon4Z=true;
 
@@ -486,13 +506,18 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
             // d0, chi2, nhits quality cuts
             double dxy = gm->dxy(beamSpotHandle->position());
             double normalizedChi2 = gm->normalizedChi2();
-            double validmuonhits=gm->hitPattern().numberOfValidMuonHits();
-            double trackerHits = gm->hitPattern().numberOfValidTrackerHits(); 
-            LogTrace("") << "\t... dxy, normalizedChi2, trackerHits, isTrackerMuon?: " << dxy << " [cm], " << normalizedChi2 << ", " << trackerHits << ", " << mu.isTrackerMuon();
+            int validmuonhits=gm->hitPattern().numberOfValidMuonHits();
+            int trackerHits = gm->hitPattern().numberOfValidTrackerHits(); 
+            int    nSeg = mu.numberOfMatches();
+
+            LogTrace("") << "\t... dxy, normalizedChi2, muonhits, trackerHits, isTrackerMuon?, nsegments: " << dxy << " [cm], " << normalizedChi2 << ", " <<validmuonhits<<" , "<< trackerHits << ", " << mu.isTrackerMuon()<<", "<<nSeg;
             if (fabs(dxy)<dxyCut_) muon_sel[2] = true; 
-            if (muon::isGoodMuon(mu,muon::GlobalMuonPromptTight)) muon_sel[3] = true; 
-            if (trackerHits>=trackerHitsCut_) muon_sel[4] = true; 
-            if (mu.isTrackerMuon()) muon_sel[5] = true; 
+            if (normalizedChi2<normalizedChi2Cut_) muon_sel[3] = true; 
+            if (validmuonhits<muonHitsCut_) muon_sel[4] = true;
+            if (trackerHits>=trackerHitsCut_) muon_sel[5] = true; 
+            if (mu.isTrackerMuon()) muon_sel[6] = true;
+            if (nSeg<nSegCut_) muon_sel[7] = true;
+ 
 
             fill_histogram("PT_BEFORECUTS",pt);
             fill_histogram("ETA_BEFORECUTS",eta);
@@ -501,8 +526,9 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
             fill_histogram("NHITS_BEFORECUTS",trackerHits);
             fill_histogram("ValidMuonHits_BEFORECUTS",validmuonhits);
             fill_histogram("TKMU_BEFORECUTS",mu.isTrackerMuon());
+            fill_histogram("MUONSEGMENTS_BEFORECUTS",mu.isTrackerMuon());
 
-            bool quality = muon_sel[4]*muon_sel[2]* muon_sel[3]* muon_sel[5];
+            bool quality = muon_sel[4]*muon_sel[2]* muon_sel[3]* muon_sel[5]*muon_sel[6]*muon_sel[7];
             fill_histogram("GOODEWKMU_BEFORECUTS",quality);
 
             // Isolation cuts
@@ -512,14 +538,14 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
                   isovar += mu.isolationR03().hadEt;
             }
             if (isRelativeIso_) isovar /= pt;
-            if (isovar<isoCut03_) muon_sel[6] = true; 
+            if (isovar<isoCut03_) muon_sel[8] = true; 
             if (isovar>=isoCut03_) { muon4Z = false;}
 
-            LogTrace("") << "\t... isolation value" << isovar <<", isolated? " << muon_sel[6];
+            LogTrace("") << "\t... isolation value" << isovar <<", isolated? " << muon_sel[8];
             fill_histogram("ISO_BEFORECUTS",isovar);
 
             // HLT (not mtched to muon for the time being)
-            if (trigger_fired) muon_sel[7] = true; 
+            if (trigger_fired) muon_sel[9] = true; 
             else { muon4Z = false;}
 
             // MET/MT cuts
@@ -530,9 +556,9 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
             massT = (massT>0) ? sqrt(massT) : 0;
 
             LogTrace("") << "\t... W mass, W_et, W_px, W_py: " << massT << ", " << w_et << ", " << w_px << ", " << w_py << " [GeV]";
-            if (massT>mtMin_ && massT<mtMax_) muon_sel[8] = true; 
+            if (massT>mtMin_ && massT<mtMax_) muon_sel[10] = true; 
             fill_histogram("MT_BEFORECUTS",massT);
-            if (met_et>metMin_ && met_et<metMax_) muon_sel[9] = true; 
+            if (met_et>metMin_ && met_et<metMax_) muon_sel[11] = true; 
 
             // Acoplanarity cuts
             Geom::Phi<double> deltaphi(mu.phi()-atan2(met_py,met_px));
@@ -540,31 +566,35 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
             if (acop<0) acop = - acop;
             acop = M_PI - acop;
             LogTrace("") << "\t... acoplanarity: " << acop;
-            if (acop<acopCut_) muon_sel[10] = true; 
+            if (acop<acopCut_) muon_sel[12] = true; 
             fill_histogram("ACOP_BEFORECUTS",acop);
 
             // Remaining flags (from global event information)
-            if (nmuonsForZ1<1 || nmuonsForZ2<2) muon_sel[11] = true; 
-            if (njets<=nJetMax_) muon_sel[12] = true; 
+            if (nmuonsForZ1<1 || nmuonsForZ2<2) muon_sel[13] = true; 
+            if (njets<=nJetMax_) muon_sel[14] = true; 
 
               // Collect necessary flags "per muon"
               int flags_passed = 0;
               bool rec_sel_this = true;
+              bool id_sel_this = true;
               bool iso_sel_this = true;
               bool hlt_sel_this = true;
               bool met_sel_this = true;
               bool all_sel_this = true;
               for (int j=0; j<NFLAGS; ++j) {
                   if (muon_sel[j]) flags_passed += 1;
-                  if (j<6 && !muon_sel[j]) rec_sel_this = false;
-                  if (j<7 && !muon_sel[j]) iso_sel_this = false;
-                  if (j<8 && !muon_sel[j]) hlt_sel_this = false;
-                  if (j<11 && !muon_sel[j]) met_sel_this = false;
+                  if (j<2 && !muon_sel[j]) rec_sel_this = false;
+                  if (j<8 && !muon_sel[j]) id_sel_this = false;
+                  if (j<9 && !muon_sel[j]) iso_sel_this = false;
+                  if (j<10 && !muon_sel[j]) hlt_sel_this = false;
+                  if (j<13 && !muon_sel[j]) met_sel_this = false;
                   if (!muon_sel[j]) all_sel_this = false;
               }
 
               // "rec" => pt,eta and quality cuts are satisfied
               if (rec_sel_this) rec_sel = true;
+              // "id" => id cuts are satisfied
+              if (id_sel_this) id_sel = true;
               // "iso" => "rec" AND "muon is isolated"
               if (iso_sel_this) iso_sel = true;
               // "hlt" => "iso" AND "event is triggered"
@@ -582,39 +612,40 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
                         fill_histogram("ETA_LASTCUT",eta);
                   if (!muon_sel[2] || flags_passed==NFLAGS) 
                         fill_histogram("DXY_LASTCUT",dxy);
-                  if (!muon_sel[3] || flags_passed==NFLAGS){ 
+                  if (!muon_sel[3] || flags_passed==NFLAGS) 
                         fill_histogram("CHI2_LASTCUT",normalizedChi2);
-                        fill_histogram("ValidMuonHits_LASTCUT",validmuonhits);
-                        }
                   if (!muon_sel[4] || flags_passed==NFLAGS) 
-                        fill_histogram("NHITS_LASTCUT",trackerHits);
+                        fill_histogram("ValidMuonHits_LASTCUT",validmuonhits);
                   if (!muon_sel[5] || flags_passed==NFLAGS) 
-                        fill_histogram("TKMU_LASTCUT",mu.isTrackerMuon());
-                  if (!muon_sel[2]||!muon_sel[3] || !muon_sel[4] || !muon_sel[5] || flags_passed==NFLAGS) 
-                        fill_histogram("GOODEWKMU_LASTCUT",muon_sel[4]*muon_sel[2]* muon_sel[3]* muon_sel[5]);
+                        fill_histogram("NHITS_LASTCUT",trackerHits);
                   if (!muon_sel[6] || flags_passed==NFLAGS) 
+                        fill_histogram("TKMU_LASTCUT",mu.isTrackerMuon());
+                  if (!muon_sel[7] || flags_passed==NFLAGS)
+                        fill_histogram("MUONSEGMENTS_LASTCUT",nSeg);
+                  if (!quality || flags_passed==NFLAGS) 
+                        fill_histogram("GOODEWKMU_LASTCUT",quality);
+                  if (!muon_sel[8] || flags_passed==NFLAGS) 
                         fill_histogram("ISO_LASTCUT",isovar);
-                  if (!muon_sel[7] || flags_passed==NFLAGS) 
+                  if (!muon_sel[9] || flags_passed==NFLAGS) 
                         if (!hlt_hist_done) fill_histogram("TRIG_LASTCUT",trigger_fired);
                         hlt_hist_done = true;
-                  if (!muon_sel[8] || flags_passed==NFLAGS) 
+                  if (!muon_sel[10] || flags_passed==NFLAGS) 
                         fill_histogram("MT_LASTCUT",massT);
-                  if (!muon_sel[9] || flags_passed==NFLAGS) 
+                  if (!muon_sel[11] || flags_passed==NFLAGS) 
                         if (!met_hist_done) fill_histogram("MET_LASTCUT",met_et);
                         met_hist_done = true;
-                  if (!muon_sel[10] || flags_passed==NFLAGS) 
+                  if (!muon_sel[12] || flags_passed==NFLAGS) 
                         fill_histogram("ACOP_LASTCUT",acop);
-                  if (!muon_sel[11] || flags_passed==NFLAGS){ 
+                  if (!muon_sel[13] || flags_passed==NFLAGS){ 
                         if (!nz1_hist_done) fill_histogram("NZ1_LASTCUT",nmuonsForZ1);
                         nz1_hist_done = true;
                         if (!nz2_hist_done) fill_histogram("NZ2_LASTCUT",nmuonsForZ2);
                         nz2_hist_done = true;
                   }
-                  if ( flags_passed==NFLAGS ) fill_histogram("NMuons_LASTCUT",muonCollectionSize); 
-                  if (!muon_sel[12] || flags_passed==NFLAGS) 
+                  if (!muon_sel[14] || flags_passed==NFLAGS) 
                         if (!njets_hist_done) fill_histogram("NJETS_LASTCUT",njets);
                         njets_hist_done = true;
-                        
+                  if ( flags_passed==NFLAGS ) fill_histogram("NMuons_LASTCUT",muonCollectionSize);
               }
 
             // The cases in which the event is rejected as a Z are considered independently:
@@ -661,6 +692,7 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
 
       // Collect final flags
             if (rec_sel) nrec++;
+            if (id_sel)  nid++;
             if (iso_sel) niso++;
             if (hlt_sel) nhlt++;
             if (met_sel) nmet++;

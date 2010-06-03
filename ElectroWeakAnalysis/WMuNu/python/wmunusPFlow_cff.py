@@ -56,6 +56,7 @@ selPFWMuNus = cms.EDFilter("WMuNuSelector",
       TrackerHitsCut = cms.untracked.int32(11),
       MuonHitsCut = cms.untracked.int32(1),
       IsAlsoTrackerMuon = cms.untracked.bool(True),
+      NSegmentsCut = cms.untracked.int32(1),
 
       # Select only W-, W+ ( default is all Ws)  
       SelectByCharge=cms.untracked.int32(0)

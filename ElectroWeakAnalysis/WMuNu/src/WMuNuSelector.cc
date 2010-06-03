@@ -58,6 +58,7 @@ private:
   int trackerHitsCut_;
   int muonHitsCut_;
   bool isAlsoTrackerMuon_;
+  int nSegCut_;
 
   int selectByCharge_;
 
@@ -142,6 +143,8 @@ WMuNuSelector::WMuNuSelector( const ParameterSet & cfg ) :
       trackerHitsCut_(cfg.getUntrackedParameter<int>("TrackerHitsCut", 11)),
       muonHitsCut_(cfg.getUntrackedParameter<int>("MuonHitsCut", 1)),
       isAlsoTrackerMuon_(cfg.getUntrackedParameter<bool>("IsAlsoTrackerMuon", true)),
+      nSegCut_(cfg.getUntrackedParameter<int>("nSegCut", 1)),
+
 
       // W+/W- Selection
       selectByCharge_(cfg.getUntrackedParameter<int>("SelectByCharge", 0))
@@ -172,7 +175,8 @@ void WMuNuSelector::beginJob() {
      h1_["hNHits"]                   =fs->make<TH1D>("NumberOfValidHits","Number of Hits in Silicon",100,0.,100.);
      h1_["hNMuonHits"]               =fs->make<TH1D>("NumberOfValidMuonHits","Number of Hits in Silicon",100,0.,100.);
      h1_["hNormChi2"]                =fs->make<TH1D>("NormChi2","Chi2/ndof of global track",1000,0.,50.);
-     h1_["hTracker"]                 =fs->make<TH1D>("isTrackerMuon","is Tracker Muon?",2,0.,2.); 
+     h1_["hTracker"]                 =fs->make<TH1D>("isTrackerMuon","is Tracker Muon?",2,0.,2.);
+     h1_["hNSegments"]               =fs->make<TH1D>("NumberOfMatchedSegments","Number of MuonSegments matched to the muon",10,0,10);
      h1_["hMET"]                     =fs->make<TH1D>("MET","Missing Transverse Energy (GeV)", 200,0,200);
      h1_["hTMass"]                   =fs->make<TH1D>("TMass","Rec. Transverse Mass (GeV)",200,0,200);
      h1_["hAcop"]                    =fs->make<TH1D>("Acop","Mu-MET acoplanarity",50,0.,M_PI);
@@ -233,7 +237,7 @@ void WMuNuSelector::endJob() {
       LogVerbatim("") << "Total number of events triggered                         : " << ntrig << " [events]";
       LogVerbatim("") << "Total number of events pre-selected (jets/Z rejection)   : " << npresel << " [events]";
       LogVerbatim("") << "Total number of events after kinematic cuts (pt,eta)     : " << nkin << " [events]";
-      LogVerbatim("") << "Total number of events after Muon ID cuts (d0,chi2,NHits): " << nid << " [events]";
+      LogVerbatim("") << "Total number of events after Muon ID cuts                : " << nid << " [events]";
       LogVerbatim("") << "Total number of events after Acop cut                    : " << nacop << " [events]";
       LogVerbatim("") << "Total number of events after iso cut                     : " << niso << " [events]";
       LogVerbatim("") << "Total number of events after MET/MT cut                  : " << nsel << " [events]";
@@ -417,8 +421,10 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             // d0, chi2, nhits quality cuts
             double dxy = gm->dxy(beamSpotHandle->position());
             double normalizedChi2 = gm->normalizedChi2(); 
-            double trackerHits = gm->hitPattern().numberOfValidTrackerHits();
-            double muonHits = gm->hitPattern().numberOfValidMuonHits();
+            int trackerHits = gm->hitPattern().numberOfValidTrackerHits();
+            int muonHits = gm->hitPattern().numberOfValidMuonHits();
+            int    nSeg = mu.numberOfMatches(); 
+       
             LogTrace("") << "\t... Muon dxy, normalizedChi2, trackerHits, muonhits, isTrackerMuon?: " << dxy << " [cm], "<<normalizedChi2 << ", "<<trackerHits << ", " <<", "<<muonHits << ", " << mu.isTrackerMuon();
 
                   if(plotHistograms_){ h1_["hd0"]->Fill(dxy);}
@@ -431,6 +437,9 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             if (muonHits<muonHitsCut_) return 0;
                   if(plotHistograms_){ h1_["hTracker"]->Fill(mu.isTrackerMuon());}
             if (!mu.isTrackerMuon()) return 0;
+                  if(plotHistograms_){ h1_["hNSegments"]->Fill(nSeg);}
+            if (nSeg<nSegCut_) return 0;
+            
 
             nid++;
 
