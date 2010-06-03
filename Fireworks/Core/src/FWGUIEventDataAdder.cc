@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.36 2010/06/03 11:46:06 mccauley Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.37 2010/06/03 15:48:26 chrjones Exp $
 //
 
 // system include files
@@ -594,10 +594,11 @@ FWGUIEventDataAdder::fillData(const TFile* iFile)
             
             std::string accessorName;
             TClass *member = 0;
+            size_t offset=0;
             
             // This is pretty much the same thing that happens 
             if (!FWItemAccessorFactory::hasTVirtualCollectionProxy(theClass) 
-                && !FWItemAccessorFactory::hasMemberTVirtualCollectionProxy(theClass, member)
+                && !FWItemAccessorFactory::hasMemberTVirtualCollectionProxy(theClass, member,offset)
 		          && !FWItemAccessorFactory::hasAccessor(theClass, accessorName))
 	         {
 		         fwLog(fwlog::kDebug) << theClass->GetName() 
