@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.58 2010/05/31 20:28:55 yumiceva Exp $
+   version $Id: BeamFitter.cc,v 1.59 2010/06/02 03:45:27 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -168,7 +168,8 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
 
   // check filename
   ffilename_changed = false;
-  
+  if (writeDIPTxt_)
+    fasciiDIP.open(outputDIPTxt_.c_str());
 }
 
 BeamFitter::~BeamFitter() {
@@ -417,12 +418,13 @@ bool BeamFitter::runPVandTrkFitter() {
         }
     }
     // change beam width error to one from PV
-    matrix(6,6) = MyPVFitter->getWidthXerr() * MyPVFitter->getWidthXerr();
+    if (fit_ok) {
+      matrix(6,6) = MyPVFitter->getWidthXerr() * MyPVFitter->getWidthXerr();
     
-    // get Z and sigmaZ from PV fit
-    matrix(2,2) = bspotPV.covariance(2,2);
-    matrix(3,3) = bspotPV.covariance(3,3);
-    
+      // get Z and sigmaZ from PV fit
+      matrix(2,2) = bspotPV.covariance(2,2);
+      matrix(3,3) = bspotPV.covariance(3,3);
+    }
     reco::BeamSpot tmpbs(reco::BeamSpot::Point(bspotTrk.x0(), bspotTrk.y0(),
                                                bspotPV.z0() ),
                          bspotPV.sigmaZ() ,
@@ -437,7 +439,7 @@ bool BeamFitter::runPVandTrkFitter() {
     fbeamspot = tmpbs;
     
     if(writeTxt_ ) dumpTxtFile(outputTxt_,true); // all reaults
-    if(writeDIPTxt_ && fasciiDIP.is_open()) dumpTxtFile(outputDIPTxt_,false); // for DQM/DIP
+    if(writeDIPTxt_) dumpTxtFile(outputDIPTxt_,false); // for DQM/DIP
     
     return fit_ok;
 }
@@ -513,7 +515,7 @@ bool BeamFitter::runFitter() {
     bool fit_ok = runFitterNoTxt();
     
     if(writeTxt_ ) dumpTxtFile(outputTxt_,true); // all reaults
-    if(writeDIPTxt_ && fasciiDIP.is_open()) dumpTxtFile(outputDIPTxt_,false); // for DQM/DIP
+    if(writeDIPTxt_) dumpTxtFile(outputDIPTxt_,false); // for DQM/DIP
 
     return fit_ok;
 }
