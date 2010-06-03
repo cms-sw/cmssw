@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 14:48:14 EDT 2008
-// $Id: FWItemAccessorFactory.cc,v 1.8 2010/05/11 09:24:55 eulisse Exp $
+// $Id: FWItemAccessorFactory.cc,v 1.9 2010/06/03 19:26:59 chrjones Exp $
 //
 
 // system include files
@@ -153,8 +153,11 @@ FWItemAccessorFactory::hasTVirtualCollectionProxy(const TClass *iClass)
 /** Helper method which checks if the object has only one data member and 
     if that data memeber can be accessed via a TVirtualCollectionProxy.
     
-    @a member a reference to the pointer which will hold the actual TClass
+    @a oMember a reference to the pointer which will hold the actual TClass
      of the datamember to be used to build the TVirtualCollectionProxy.
+ 
+    @oOffset a reference which will hold the offset of the member relative
+     to the beginning address of a class instance.
     
     @return true if this is the case, false otherwise.
 */
@@ -211,6 +214,23 @@ FWItemAccessorFactory::hasAccessor(const TClass *iClass, std::string &result)
       }
    }
    return false; 
+}
+
+/** Helper method which checks if the object will be treated as a collection.
+ 
+ @return true if this is the case, false otherwise.
+ */
+
+bool FWItemAccessorFactory::classAccessedAsCollection(const TClass* iClass)
+{
+   std::string accessorName;
+   TClass *member = 0;
+   size_t offset=0;
+   
+   // This is pretty much the same thing that happens 
+   return (FWItemAccessorFactory::hasTVirtualCollectionProxy(iClass) 
+           || FWItemAccessorFactory::hasMemberTVirtualCollectionProxy(iClass, member,offset)
+           || FWItemAccessorFactory::hasAccessor(iClass, accessorName));
 }
 
 //

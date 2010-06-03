@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 14:47:03 EDT 2008
-// $Id: FWItemAccessorFactory.h,v 1.4 2010/05/11 09:24:55 eulisse Exp $
+// $Id: FWItemAccessorFactory.h,v 1.5 2010/06/03 19:26:58 chrjones Exp $
 //
 
 // system include files
@@ -42,6 +42,8 @@ public:
    static bool hasMemberTVirtualCollectionProxy(const TClass *iClass,
                                                 TClass *&oMember,
                                                 size_t& oOffset);
+   
+   static bool classAccessedAsCollection(const TClass*);
    
    // ---------- static member functions --------------------
 

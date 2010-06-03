@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.37 2010/06/03 15:48:26 chrjones Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.38 2010/06/03 19:27:59 chrjones Exp $
 //
 
 // system include files
@@ -592,14 +592,8 @@ FWGUIEventDataAdder::fillData(const TFile* iFile)
             if (!theClass->GetTypeInfo())
                continue;
             
-            std::string accessorName;
-            TClass *member = 0;
-            size_t offset=0;
-            
             // This is pretty much the same thing that happens 
-            if (!FWItemAccessorFactory::hasTVirtualCollectionProxy(theClass) 
-                && !FWItemAccessorFactory::hasMemberTVirtualCollectionProxy(theClass, member,offset)
-		          && !FWItemAccessorFactory::hasAccessor(theClass, accessorName))
+            if (!FWItemAccessorFactory::classAccessedAsCollection(theClass))
 	         {
 		         fwLog(fwlog::kDebug) << theClass->GetName() 
                           << " will not be displayed in table." << std::endl;
