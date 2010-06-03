@@ -1,3 +1,10 @@
+2010-06-03 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-02-00
+	* Use uint32_t consistently.
+	* Add number of received data and error events to info space.
+	* Fix FU configuration for demoSystem.
+
 2010-05-12 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V06-01-00
