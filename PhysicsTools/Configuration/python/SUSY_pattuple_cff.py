@@ -1,14 +1,14 @@
 #
 #  SUSY-PAT configuration fragment
 #
-#  PAT configuration for the SUSY group - 35X/36X series
+#  PAT configuration for the SUSY group - 37X series
 #  More information here:
-#  https://twiki.cern.ch/twiki/bin/view/CMS/SusyPatLayer1DefV8
+#  https://twiki.cern.ch/twiki/bin/view/CMS/SusyPatLayer1DefV9
 
 
 import FWCore.ParameterSet.Config as cms
 
-def addDefaultSUSYPAT(process, mcInfo=True, HLTMenu='HLT', JetMetCorrections='Spring10', mcVersion='' ,theJetNames = ['IC5Calo','AK5JPT']):
+def addDefaultSUSYPAT(process, mcInfo=True, HLTMenu='HLT', JetMetCorrections='Spring10', mcVersion='' ,theJetNames = ['IC5Calo','AK5JPT'],doValidation=False):
     loadPF2PAT(process,mcInfo,JetMetCorrections,'PF')
     if not mcInfo:
 	removeMCDependence(process)
@@ -23,11 +23,15 @@ def addDefaultSUSYPAT(process, mcInfo=True, HLTMenu='HLT', JetMetCorrections='Sp
     # Full path
     process.susyPatDefaultSequence = cms.Sequence( process.eventCountProducer 
                                                    * process.patDefaultSequence * process.patPF2PATSequencePF
-                                                   * process.patTrigger * process.patTriggerEvent
+                                                   #* process.patTrigger * process.patTriggerEvent
                                                     )
 
     if mcVersion == '35x' and 'JPT' in ''.join(theJetNames): 
     	process.susyPatDefaultSequence.replace(process.eventCountProducer, process.eventCountProducer * process.recoJPTJets)
+    if doValidation:
+        loadSusyValidation(process)
+        process.susyPatDefaultSequence.replace(process.patPF2PATSequencePF, process.patPF2PATSequencePF * process.ak5CaloJetsL2L3 * process.metJESCorAK5CaloJet  * process.RecoSusyValidation * process.PatSusyValidation*process.MEtoEDMConverter)
+
 
 def loadMCVersion(process, mcVersion, mcInfo):
     #-- To be able to run on 35X input samples ---------------------------------------
@@ -88,8 +92,8 @@ def loadPATTriggers(process,HLTMenu):
     #-- Trigger matching ----------------------------------------------------------
     from PhysicsTools.PatAlgos.tools.trigTools import switchOnTrigger
     switchOnTrigger( process )
-    process.patTriggerSequence.remove( process.patTriggerMatcher )
-    process.patTriggerEvent.patTriggerMatches  = []
+    #process.patTriggerSequence.remove( process.patTriggerMatcher )
+    #process.patTriggerEvent.patTriggerMatches  = []
     # If we have to rename the default trigger menu
     process.patTrigger.processName = HLTMenu
     process.patTriggerEvent.processName = HLTMenu
@@ -198,53 +202,35 @@ def removeMCDependence( process ):
     from PhysicsTools.PatAlgos.tools.coreTools import removeMCMatching
     removeMCMatching(process, ['All'])
 
+def loadSusyValidation(process):
+    process.load("JetMETCorrections.Configuration.JetCorrectionProducers_cff")
+    process.load("DQM.Physics.susyValidation_cfi")
+    process.load("DQMServices.Components.MEtoEDMConverter_cfi")
+    process.load("DQMServices.Core.DQM_cfg")
+    process.load("DQMServices.Components.DQMEnvironment_cfi")
+    process.DQMStore = cms.Service("DQMStore")
+    process.DQMStore.collateHistograms = cms.untracked.bool(True)
+    process.options = cms.untracked.PSet(
+ 	fileMode = cms.untracked.string('NOMERGE')
+    )
+
 def getSUSY_pattuple_outputCommands( process ):
-    return [ # PAT Objects
-        'keep *_cleanPatPhotons_*_*',
-        'keep *_cleanPatElectrons_*_*',
-        'keep *_cleanPatMuons_*_*',
-        'keep *_cleanPatTaus_*_*',
-        'keep *_cleanPatJets*_*_*',       # All Jets
-        'keep *_patMETs*_*_*',            # All METs
-        'keep *_patMHTs*_*_*',            # All MHTs
-        'keep *_cleanPatHemispheres_*_*',
-        'keep *_cleanPatPFParticles_*_*',
+	from PhysicsTools.PatAlgos.patEventContent_cff import patEventContent, patExtraAodEventContent, patTriggerEventContent, patTriggerStandAloneEventContent, patEventContentTriggerMatch
+	keepList = []
+    	susyAddEventContent = [ # PAT Objects
 	# Keep PF2PAT output
         'keep *_selectedPatMuonsPF_*_*',         
         'keep *_selectedPatElectronsPF_*_*',         
         'keep *_selectedPatTausPF_*_*',         
-        'keep *_selectedPatJetsPF_*_*',         
+        'keep *_selectedPatJetsPF_*_*',
+	#L1 trigger info         
+	'keep L1GlobalTriggerObjectMapRecord_*_*_*',
+        'keep L1GlobalTriggerReadoutRecord_*_*_*',
         # Generator information
-        'keep GenEventInfoProduct_generator_*_*',
-        'keep GenRunInfoProduct_generator_*_*',
-        # Generator particles/jets/MET
-        'keep recoGenParticles_genParticles_*_*',
         'keep recoGenJets_*GenJets*_*_*',
         'keep recoGenMETs_*_*_*',
-        # Trigger information
-        'keep edmTriggerResults_TriggerResults_*_*',
-        'keep *_hltTriggerSummaryAOD_*_*',
-        'keep L1GlobalTriggerObjectMapRecord_*_*_*',
-        'keep L1GlobalTriggerReadoutRecord_*_*_*',
-        #Pat trigger matching
-        #'keep patTriggerObjects_patTrigger_*_*',
-        #'keep patTriggerFilters_patTrigger_*_*',
-        #'keep patTriggerPaths_patTrigger_*_*',
-        #'keep patTriggerEvent_patTriggerEvent_*_*',
-        #'keep *_cleanPatPhotonsTriggerMatch_*_*',
-        #'keep *_cleanPatElectronsTriggerMatch_*_*',
-        #'keep *_cleanPatMuonsTriggerMatch_*_*',
-        #'keep *_cleanPatTausTriggerMatch_*_*',
-        #'keep *_cleanPatJetsTriggerMatch_*_*',
-        #'keep *_patMETsTriggerMatch_*_*',
-        #'keep patTriggerObjectStandAlones_patTrigger_*_*',
-        #'keep patTriggerObjectStandAlonesedmAssociation_*_*_*',
-        'keep *_muon*METValueMapProducer_*_*',   # Muon corrections to MET
-        'keep *_offlinePrimaryVertices_*_*',
-        'keep *_offlineBeamSpot_*_*',
-        'keep *_towerMaker_*_*',                 # Keep CaloTowers for cross-cleaning
+	#Number of processed events
         'keep edmMergeableCounter_eventCountProducer_*_*',
-        'keep recoTracks_generalTracks_*_*',
 	'keep recoRecoChargedRefCandidates_trackRefsForJets_*_*',
 	'keep recoTrackJets_ak5TrackJets_*_*',
 	'keep *_electronMergedSeeds_*_*',
@@ -256,10 +242,19 @@ def getSUSY_pattuple_outputCommands( process ):
         'keep *_photonCore_*_*',        #Keep electron core
         'keep recoConversions_conversions_*_*',
         'keep recoTracks_*onversions_*_*',
-'keep EcalRecHitsSorted_reducedEcalRecHits*_*_*',
-#        'keep recoPFRecHits_particleFlowCluster*_Cleaned_*',
-        'keep HcalNoiseSummary_*_*_*' #Keep the one in RECO
+        'keep HcalNoiseSummary_*_*_*', #Keep the one in RECO
+	'keep *BeamHaloSummary_*_*_*',
+	#DQM
+	'keep *_MEtoEDMConverter_*_PAT',
+	#'drop *_towerMaker_*_*'
         ] 
+	keepList.extend(patEventContent)
+	keepList.extend(patExtraAodEventContent)
+	keepList.extend(patTriggerEventContent)
+	keepList.extend(patEventContentTriggerMatch)
+	keepList.extend(susyAddEventContent)
+	return keepList
+
 
 def run36xOnReRecoMC( process ):
     """
