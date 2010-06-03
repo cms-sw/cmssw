@@ -265,9 +265,6 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
   io_.resize(train_length + latency);
   std::vector<SPio>::iterator io;
 
-	bool orDtIn = false;
-	int inArray[30][19][5];
-	int outArray[30][6][6];
   // run over enough clock cycles to get tracks from input stubs.
   for( io = io_.begin(); io != io_.end() && runme; io++)
   {
@@ -323,71 +320,43 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 			(m_preTrigger<<7)|(m_allowCLCTonly<<5)|(m_allowALCTonly<<4)|(m_extend_length<<1)|(m_widePhi)
 	 	);
 		
-		inArray[bx][0][0] = io->me1aVp, inArray[bx][0][1] = io->me1aQp, inArray[bx][0][2] = io->me1aEtap, inArray[bx][0][3] = io->me1aPhip, inArray[bx][0][4] = io->me1aCSCIdp;
-	 	inArray[bx][1][0] = io->me1bVp, inArray[bx][1][1] = io->me1bQp, inArray[bx][1][2] = io->me1bEtap, inArray[bx][1][3] = io->me1bPhip, inArray[bx][1][4] = io->me1bCSCIdp;
-	 	inArray[bx][2][0] = io->me1cVp, inArray[bx][2][1] = io->me1cQp, inArray[bx][2][2] = io->me1cEtap, inArray[bx][2][3] = io->me1cPhip, inArray[bx][2][4] = io->me1cCSCIdp;
+		/*std::cout << io->me1aVp << " " << io->me1aQp << " " << io->me1aEtap << " " << io->me1aPhip << " " << io->me1aCSCIdp << std::endl;
+	 	std::cout << io->me1bVp << " " << io->me1bQp << " " << io->me1bEtap << " " << io->me1bPhip << " " << io->me1bCSCIdp << std::endl;
+	 	std::cout << io->me1cVp << " " << io->me1cQp << " " << io->me1cEtap << " " << io->me1cPhip << " " << io->me1cCSCIdp << std::endl;
 
-	 	inArray[bx][3][0] = io->me1dVp, inArray[bx][3][1] = io->me1dQp, inArray[bx][3][2] = io->me1dEtap, inArray[bx][3][3] = io->me1dPhip, inArray[bx][3][4] = io->me1dCSCIdp;
-	 	inArray[bx][4][0] = io->me1eVp, inArray[bx][4][1] = io->me1eQp, inArray[bx][4][2] = io->me1eEtap, inArray[bx][4][3] = io->me1ePhip, inArray[bx][4][4] = io->me1eCSCIdp;
-	 	inArray[bx][5][0] = io->me1fVp, inArray[bx][5][1] = io->me1fQp, inArray[bx][5][2] = io->me1fEtap, inArray[bx][5][3] = io->me1fPhip, inArray[bx][5][4] = io->me1fCSCIdp;
+	 	std::cout << io->me1dVp << " " << io->me1dQp << " " << io->me1dEtap << " " << io->me1dPhip << " " << io->me1dCSCIdp << std::endl;
+	 	std::cout << io->me1eVp << " " << io->me1eQp << " " << io->me1eEtap << " " << io->me1ePhip << " " << io->me1eCSCIdp << std::endl;
+	 	std::cout << io->me1fVp << " " << io->me1fQp << " " << io->me1fEtap << " " << io->me1fPhip << " " << io->me1fCSCIdp << std::endl;
 
-	 	inArray[bx][6][0] = io->me2aVp, inArray[bx][6][1] = io->me2aQp, inArray[bx][6][2] = io->me2aEtap, inArray[bx][6][3] = io->me2aPhip, inArray[bx][6][4] = 0;
-	 	inArray[bx][7][0] = io->me2bVp, inArray[bx][7][1] = io->me2bQp, inArray[bx][7][2] = io->me2bEtap, inArray[bx][7][3] = io->me2bPhip, inArray[bx][7][4] = 0;
-	 	inArray[bx][8][0] = io->me2cVp, inArray[bx][8][1] = io->me2cQp, inArray[bx][8][2] = io->me2cEtap, inArray[bx][8][3] = io->me2cPhip, inArray[bx][8][4] = 0;
+	 	std::cout << io->me2aVp << " " << io->me2aQp << " " << io->me2aEtap << " " << io->me2aPhip << " " << 0 << std::endl;
+	 	std::cout << io->me2bVp << " " << io->me2bQp << " " << io->me2bEtap << " " << io->me2bPhip << " " << 0 << std::endl;
+	 	std::cout << io->me2cVp << " " << io->me2cQp << " " << io->me2cEtap << " " << io->me2cPhip << " " << 0 << std::endl;
 
-	 	inArray[bx][9][0] = io->me3aVp, inArray[bx][9][1] = io->me3aQp, inArray[bx][9][2] = io->me3aEtap, inArray[bx][9][3] = io->me3aPhip, inArray[bx][9][4] = 0;
-	 	inArray[bx][10][0] = io->me3bVp, inArray[bx][10][1] = io->me3bQp, inArray[bx][10][2] = io->me3bEtap, inArray[bx][10][3] = io->me3bPhip, inArray[bx][10][4] = 0;
-	 	inArray[bx][11][0] = io->me3cVp, inArray[bx][11][1] = io->me3cQp, inArray[bx][11][2] = io->me3cEtap, inArray[bx][11][3] = io->me3cPhip, inArray[bx][11][4] = 0;
+	 	std::cout << io->me3aVp << " " << io->me3aQp << " " << io->me3aEtap << " " << io->me3aPhip << " " << 0 << std::endl;
+	 	std::cout << io->me3bVp << " " << io->me3bQp << " " << io->me3bEtap << " " << io->me3bPhip << " " << 0 << std::endl;
+	 	std::cout << io->me3cVp << " " << io->me3cQp << " " << io->me3cEtap << " " << io->me3cPhip << " " << 0 << std::endl;
 
-	 	inArray[bx][12][0] = io->me4aVp, inArray[bx][12][1] = io->me4aQp, inArray[bx][12][2] = io->me4aEtap, inArray[bx][12][3] = io->me4aPhip, inArray[bx][12][4] = 0;
-	 	inArray[bx][13][0] = io->me4bVp, inArray[bx][13][1] = io->me4bQp, inArray[bx][13][2] = io->me4bEtap, inArray[bx][13][3] = io->me4bPhip, inArray[bx][13][4] = 0;
-	 	inArray[bx][14][0] = io->me4cVp, inArray[bx][14][1] = io->me4cQp, inArray[bx][14][2] = io->me4cEtap, inArray[bx][14][3] = io->me4cPhip, inArray[bx][14][4] = 0;
+	 	std::cout << io->me4aVp << " " << io->me4aQp << " " << io->me4aEtap << " " << io->me4aPhip << " " << 0 << std::endl;
+	 	std::cout << io->me4bVp << " " << io->me4bQp << " " << io->me4bEtap << " " << io->me4bPhip << " " << 0 << std::endl;
+	 	std::cout << io->me4cVp << " " << io->me4cQp << " " << io->me4cEtap << " " << io->me4cPhip << " " << 0 << std::endl;
 
-	 	inArray[bx][15][0] = io->mb1aVp, inArray[bx][15][1] = io->mb1aQp, inArray[bx][15][2] = io->mb1aPhip, inArray[bx][15][3] = 0, inArray[bx][15][4] = 0;
-	 	inArray[bx][16][0] = io->mb1bVp, inArray[bx][16][1] = io->mb1bQp, inArray[bx][16][2] = io->mb1bPhip, inArray[bx][16][3] = 0, inArray[bx][16][4] = 0;
-	 	inArray[bx][17][0] = io->mb1cVp, inArray[bx][17][1] = io->mb1cQp, inArray[bx][17][2] = io->mb1cPhip, inArray[bx][17][3] = 0, inArray[bx][17][4] = 0;
-	 	inArray[bx][18][0] = io->mb1dVp, inArray[bx][18][1] = io->mb1dQp, inArray[bx][18][2] = io->mb1dPhip, inArray[bx][18][3] = 0, inArray[bx][18][4] = 0;
+	 	std::cout << io->mb1aVp << " " << io->mb1aQp << " " << 0 << " " << io->mb1aPhip <<" " << 0 << std::endl;
+	 	std::cout << io->mb1bVp << " " << io->mb1bQp << " " << 0 << " " << io->mb1aPhip <<" " << 0 << std::endl;
+	 	std::cout << io->mb1cVp << " " << io->mb1cQp << " " << 0 << " " << io->mb1aPhip <<" " << 0 << std::endl;
+	 	std::cout << io->mb1dVp << " " << io->mb1dQp << " " << 0 << " " << io->mb1aPhip <<" " << 0 << std::endl;
 
-		outArray[bx][0][0] = io->ptHp, outArray[bx][0][1] = io->signHp, outArray[bx][0][2] = io->modeMemHp, outArray[bx][0][3] = io->etaPTHp, outArray[bx][0][4] = io->FRHp, outArray[bx][0][5] = io->phiHp;
-	 	outArray[bx][1][0] = io->ptMp, outArray[bx][1][1] = io->signMp, outArray[bx][1][2] = io->modeMemMp, outArray[bx][1][3] = io->etaPTMp, outArray[bx][1][4] = io->FRMp, outArray[bx][1][5] = io->phiMp;
-	 	outArray[bx][2][0] = io->ptLp, outArray[bx][2][1] = io->signLp, outArray[bx][2][2] = io->modeMemLp, outArray[bx][2][3] = io->etaPTLp, outArray[bx][2][4] = io->FRLp, outArray[bx][2][5] = io->phiLp;
+	 	std::cout << io->ptHp  << " " << io->signHp  << " " << io->modeMemHp << " " << io->etaPTHp << " " << io->FRHp << " " << io->phiHp << std::endl;
+	 	std::cout << io->ptMp  << " " << io->signMp  << " " << io->modeMemMp << " " << io->etaPTMp << " " << io->FRMp << " " << io->phiMp << std::endl;
+	 	std::cout << io->ptLp  << " " << io->signLp  << " " << io->modeMemLp << " " << io->etaPTLp << " " << io->FRLp << " " << io->phiLp << std::endl;
 
-	 	outArray[bx][3][0] = io->me1idH, outArray[bx][3][1] = io->me2idH, outArray[bx][3][2] = io->me3idH, outArray[bx][3][3] = io->me4idH, outArray[bx][3][4] = io->mb1idH, outArray[bx][3][5] = io->mb2idH;
-	 	outArray[bx][4][0] = io->me1idM, outArray[bx][4][1] = io->me2idM, outArray[bx][4][2] = io->me3idM, outArray[bx][4][3] = io->me4idM, outArray[bx][4][4] = io->mb1idM, outArray[bx][4][5] = io->mb2idM;
-	 	outArray[bx][5][0] = io->me1idL, outArray[bx][5][1] = io->me2idL, outArray[bx][5][2] = io->me3idL, outArray[bx][5][3] = io->me4idL, outArray[bx][5][4] = io->mb1idL, outArray[bx][5][5] = io->mb2idL;
-	 		
-		if( 0 != (io->mb1aVp | io->mb1bVp | io->mb1cVp | io->mb1dVp)) orDtIn = true;
-		
+	 	std::cout << io->me1idH << " " << io->me2idH << " " << io->me3idH << " " << io->me4idH << " " << io->mb1idH << " " << io->mb2idH << std::endl;
+	 	std::cout << io->me1idM << " " << io->me2idM << " " << io->me3idM << " " << io->me4idM << " " << io->mb1idM << " " << io->mb2idM << std::endl;
+	 	std::cout << io->me1idL << " " << io->me2idL << " " << io->me3idL << " " << io->me4idL << " " << io->mb1idL << " " << io->mb2idL << std::endl << std::endl;
+		*/
 		++bx;
 	}
 
-/*	if( orDtIn == true )
-	{
-		for(int ii=0; ii!=bx; ii++){
-			for(int jj=0; jj!=19; jj++)
-			{
-				for(int jjj=0; jjj!=5; jjj++)
-				{
-					std::cout << inArray[ii][jj][jjj];
-					if(jjj!=4) std::cout << " ";
-					else std::cout << std::endl;
-				}
-			}
-			for(int kk=0; kk!=6; kk++)
-			{
-				for(int kkk=0; kkk!=6; kkk++)
-				{
-					std::cout << outArray[ii][kk][kkk];
-					if(kkk!=5) std::cout << " ";
-					else std::cout << std::endl;
-				}
-				if(kk == 5) std::cout << std::endl;
-			}
-			if( ii == (bx-1) ) std::cout << std::endl;
-		}
-			
-	}
-*/
+
   bx = 0;
 
   //int nmuons = 0;

@@ -504,7 +504,7 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
                  //CSCCorrelatedLCTDigiCollection singles;
                  std::vector<csctf::TrackStub> stubs = myStubContainer[bx].get();
                  // Select best quality stub, and assign its eta/phi coordinates to the track
-                 int qualityME=0, qualityMB=0, ME=100, MB=100;
+                 int qualityME=0, qualityMB=0, ME=100, MB=100, linkME=7;
                  std::vector<csctf::TrackStub>::const_iterator bestStub=stubs.end();
                  for(std::vector<csctf::TrackStub>::const_iterator st_iter=stubs.begin(); st_iter!=stubs.end(); st_iter++){
                      int station = st_iter->station()-1;
@@ -517,9 +517,13 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
                          if(ME>4) bestStub = st_iter; // do not select this stub if ME already had any candidate
                      }
                      // Sort ME stubs (priority: quality OR ME1a > ME1b > ME2 > ME3 > ME4 for the same quality)
-                     if( mpc<5  && (st_iter->getQuality()>qualityME || (st_iter->getQuality()==qualityME && mpc<ME)) ) {
+                     if( mpc<5  && (st_iter->getQuality()>qualityME 
+										 	|| (st_iter->getQuality()==qualityME && mpc<ME)
+											|| (st_iter->getQuality()==qualityME && mpc==ME && st_iter->getMPCLink()<linkME))) 
+										{
                          qualityME = st_iter->getQuality();
                          ME        = mpc;
+												 linkME    = st_iter->getMPCLink();
                          bestStub  = st_iter;
                      }
                  }
