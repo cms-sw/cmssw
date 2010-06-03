@@ -3,7 +3,7 @@
 CommonHcalNoiseRBXData::CommonHcalNoiseRBXData(const reco::HcalNoiseRBX& rbx, double minRecHitE, double minLowHitE, double minHighHitE)
 {
   // energy
-  energy_ = rbx.caloTowerHadE();
+  energy_ = rbx.recHitEnergy(minRecHitE);
 
   // ratio
   e2ts_ = rbx.allChargeHighest2TS();
@@ -49,10 +49,13 @@ CommonHcalNoiseRBXData::CommonHcalNoiseRBXData(const reco::HcalNoiseRBX& rbx, do
   // emf
   HPDEMF_ = 999.;
   for(std::vector<reco::HcalNoiseHPD>::const_iterator it1=rbx.HPDsBegin(); it1!=rbx.HPDsEnd(); ++it1) {
-    double emf=it1->caloTowerEmFraction();
+    double eme=it1->caloTowerEmE();
+    double hade=it1->recHitEnergy(minRecHitE);
+    double emf=(eme+hade)==0 ? 999 : eme/(eme+hade);
     if(HPDEMF_ > emf) emf = HPDEMF_;
   }
-  RBXEMF_ = rbx.caloTowerEmFraction();
+  double eme=rbx.caloTowerEmE();
+  RBXEMF_ = (eme+energy_)==0 ? 999 : eme/(eme+energy_);
 
   // calotowers
   rbxtowers_.clear();
