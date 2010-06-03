@@ -18,7 +18,7 @@ from the configuration file, the DB is not implemented yet)
 //                   David Dagenhart
 //       
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.7 2010/04/13 16:34:56 xiezhen Exp $
+// $Id: LumiProducer.cc,v 1.8 2010/06/03 17:11:48 xiezhen Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -518,7 +518,7 @@ void LumiProducer::endLuminosityBlock(edm::LuminosityBlock & iLBlock,
       pIn2->swapQualData(bxqualitymap);
     }
     //
-    //select trgcount,deadtime,prescale,bitname from TRG where runnum=:runnumber  AND cmslsnum between :lsnum and :lsnum+4 order by cmslsnum,bitnum; 
+    //select trgcount,deadtime,prescale,bitname from TRG where runnum=:runnumber  AND cmslsnum=:cmslsnum order by cmslsnum,bitnum; 
     //
     coral::AttributeList trgBindVariables;
     trgBindVariables.extend("runnumber",typeid(unsigned int));
@@ -563,7 +563,7 @@ void LumiProducer::endLuminosityBlock(edm::LuminosityBlock & iLBlock,
     delete trgQuery;
     
     //
-    //select pathname,inputcount,acceptcount,prescale from HLT where runnum=:runnumber  AND cmslsnum between :lsnum and :lsnum+4 order by cmslsnum;
+    //select pathname,inputcount,acceptcount,prescale from HLT where runnum=:runnumber  AND cmslsnum=:cmslsnum order by cmslsnum;
     //
     coral::AttributeList hltBindVariables;
     hltBindVariables.extend("runnumber",typeid(unsigned int));

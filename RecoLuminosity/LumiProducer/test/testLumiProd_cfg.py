@@ -33,8 +33,9 @@ process.DBService=cms.Service("DBService",
            authPath=cms.untracked.string('/afs/cern.ch/cms/DB/lumi')
 )
 process.lumiProducer=cms.EDProducer("LumiProducer",
-   connect=cms.string('frontier://cmsfrontier.cern.ch:8000/LumiPrep/CMS_LUMI_DEV_OFFLINE'),
-   #connect=cms.string('oracle://cms_orcoff_prep/cms_lumi_dev_offline'),                                 
+   #connect=cms.string('frontier://cmsfrontier.cern.ch:8000/LumiPrep/CMS_LUMI_DEV_OFFLINE'),
+   #connect=cms.string('oracle://cms_orcoff_prep/cms_lumi_dev_offline'),
+   connect=cms.string('frontier://LumiPrep/CMS_LUMI_DEV_OFFLINE'),                                 
    lumiversion=cms.untracked.string('0001') 
 )
 
