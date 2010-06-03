@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 14:47:03 EDT 2008
-// $Id: FWItemAccessorFactory.h,v 1.3 2009/01/23 21:35:41 amraktad Exp $
+// $Id: FWItemAccessorFactory.h,v 1.4 2010/05/11 09:24:55 eulisse Exp $
 //
 
 // system include files
@@ -40,7 +40,8 @@ public:
    static bool hasAccessor(const TClass *iClass, std::string &result);
    static bool hasTVirtualCollectionProxy(const TClass *iClass);
    static bool hasMemberTVirtualCollectionProxy(const TClass *iClass,
-                                                TClass *&member);
+                                                TClass *&oMember,
+                                                size_t& oOffset);
    
    // ---------- static member functions --------------------
 

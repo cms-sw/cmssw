@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 08:43:47 EDT 2008
-// $Id: FWItemTVirtualCollectionProxyAccessor.cc,v 1.2 2008/11/06 22:05:25 amraktad Exp $
+// $Id: FWItemTVirtualCollectionProxyAccessor.cc,v 1.3 2009/01/23 21:35:43 amraktad Exp $
 //
 
 // system include files
@@ -33,10 +33,12 @@
 //
 FWItemTVirtualCollectionProxyAccessor::FWItemTVirtualCollectionProxyAccessor(
    const TClass* iType,
-   boost::shared_ptr<TVirtualCollectionProxy> iProxy)
+   boost::shared_ptr<TVirtualCollectionProxy> iProxy,
+   size_t iOffset)
    : m_type(iType),
      m_colProxy(iProxy),
-     m_data(0)
+     m_data(0),
+     m_offset(iOffset)
 {
 }
 
@@ -76,7 +78,7 @@ FWItemTVirtualCollectionProxyAccessor::setWrapper(const ROOT::Reflex::Object& iW
       }
       m_data = product.Address();
       assert(0!=m_data);
-      m_colProxy->PushProxy(static_cast<char*>(const_cast<void*>(m_data)));
+      m_colProxy->PushProxy(static_cast<char*>(const_cast<void*>(m_data))+m_offset);
    } else {
       reset();
    }

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 14:48:14 EDT 2008
-// $Id: FWItemAccessorFactory.cc,v 1.7 2010/03/04 18:06:19 eulisse Exp $
+// $Id: FWItemAccessorFactory.cc,v 1.8 2010/05/11 09:24:55 eulisse Exp $
 //
 
 // system include files
@@ -95,6 +95,7 @@ boost::shared_ptr<FWItemAccessorBase>
 FWItemAccessorFactory::accessorFor(const TClass* iClass) const
 {
    TClass *member = 0;
+   size_t offset=0;
 
    if(hasTVirtualCollectionProxy(iClass)) 
    {
@@ -104,7 +105,7 @@ FWItemAccessorFactory::accessorFor(const TClass* iClass) const
          new FWItemTVirtualCollectionProxyAccessor(iClass,
             boost::shared_ptr<TVirtualCollectionProxy>(iClass->GetCollectionProxy()->Generate())));
    } 
-   else if (hasMemberTVirtualCollectionProxy(iClass, member)) 
+   else if (hasMemberTVirtualCollectionProxy(iClass, member,offset)) 
    {
       fwLog(fwlog::kDebug) << "class "<< iClass->GetName()
                            << " only contains data member " << member->GetName()
@@ -113,7 +114,8 @@ FWItemAccessorFactory::accessorFor(const TClass* iClass) const
    	   
       return boost::shared_ptr<FWItemAccessorBase>(
          new FWItemTVirtualCollectionProxyAccessor(iClass,
-            boost::shared_ptr<TVirtualCollectionProxy>(member->GetCollectionProxy()->Generate())));
+            boost::shared_ptr<TVirtualCollectionProxy>(member->GetCollectionProxy()->Generate()),
+                                                   offset));
    }
    
    // Iterate on the available plugins and use the one which handles 
@@ -158,7 +160,8 @@ FWItemAccessorFactory::hasTVirtualCollectionProxy(const TClass *iClass)
 */
 bool
 FWItemAccessorFactory::hasMemberTVirtualCollectionProxy(const TClass *iClass,
-                                                        TClass *&member)
+                                                        TClass *&oMember,
+                                                        size_t& oOffset)
 {
    assert(iClass->GetTypeInfo());
    ROOT::Reflex::Type dataType(ROOT::Reflex::Type::ByTypeInfo(*(iClass->GetTypeInfo())));
@@ -172,12 +175,13 @@ FWItemAccessorFactory::hasMemberTVirtualCollectionProxy(const TClass *iClass,
    assert(memType != ROOT::Reflex::Type());
    //make sure this is the real type and not a typedef
    memType = memType.FinalType();
-   member = TClass::GetClass(memType.TypeInfo());
+   oMember = TClass::GetClass(memType.TypeInfo());
+   oOffset = dataType.DataMemberAt(0).Offset();
    
    // Check if this is a collection known by ROOT but also that the item held by
    // the colletion actually has a dictionary  
             
-   if (!hasTVirtualCollectionProxy(member))
+   if (!hasTVirtualCollectionProxy(oMember))
       return false;
 
    return true;
