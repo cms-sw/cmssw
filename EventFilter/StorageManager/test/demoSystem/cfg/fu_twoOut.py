@@ -113,7 +113,7 @@ process.hltOutputDQM = cms.OutputModule("ShmStreamConsumer",
 process.end2 = cms.EndPath(process.hltOutputDQM)
 
 
-process.DQMTester = cms.EDProducer("SMDQMSourceExample")
+process.DQMTester = cms.EDAnalyzer("SMDQMSourceExample")
 process.DQMpath = cms.Path(process.DQMTester)
 
 process.FUShmDQMOutputService = cms.Service("FUShmDQMOutputService",
