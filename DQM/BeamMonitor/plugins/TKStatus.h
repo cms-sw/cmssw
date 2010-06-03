@@ -3,7 +3,7 @@
 
 /** \class TKStatus
  * *
- *  $Date: 2010/04/02 12:26:02 $
+ *  $Date: 2010/05/11 23:56:07 $
  *  $Revision: 1.1 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
@@ -70,7 +70,7 @@ class TKStatus : public edm::EDAnalyzer {
   std::time_t tmpTime;
   std::time_t refTime;
   edm::TimeValue_t ftimestamp;
-
+  int runnum;
 };
 
 #endif
