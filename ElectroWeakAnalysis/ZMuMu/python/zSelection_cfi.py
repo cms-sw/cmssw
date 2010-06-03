@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 zSelectionLoose = cms.PSet(
-    cut = cms.string("charge = 0 & daughter(0).pt > 15 & daughter(1).pt > 15 & abs(daughter(0).eta)<2.1 & abs(daughter(1).eta)<2.1 & mass > 0"),
+    cut = cms.string("charge = 0 & daughter(0).pt > 15 & daughter(1).pt > 15 & abs(daughter(0).eta)<2.4 & abs(daughter(1).eta)<2.4 & mass > 0"),
     isoCut = cms.double(1000.),
     ptThreshold = cms.untracked.double("1.5"),
     etEcalThreshold = cms.untracked.double("0.2"),
