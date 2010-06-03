@@ -20,6 +20,7 @@
 #include <iosfwd>
 #include <string>
 #include <vector>
+#include <boost/cstdint.hpp>
 
 class L1GtPatternMap;
 class L1GtPatternLine;
@@ -41,8 +42,8 @@ public:
    */
   L1GtPatternWriter(std::ostream& destination, const std::string& header,
 		    const std::string& footer, const std::vector<std::string> columns,
-		    const std::vector<uint32_t>& lengths, 
-		    const std::vector<uint32_t>& defaultValues, 
+		    const std::vector<boost::uint32_t>& lengths,
+		    const std::vector<boost::uint32_t>& defaultValues,
 		    const std::vector<int>& bx,
 		    bool debug = false);
 
@@ -57,9 +58,9 @@ public:
 
   virtual ~L1GtPatternWriter();
 protected:
-  /** Returns an and-mask to truncate an uint32_t to a specified
+  /** Returns an and-mask to truncate an boost::uint32_t to a specified
       length. */
-  static uint32_t mask(uint32_t length);
+  static boost::uint32_t mask(boost::uint32_t length);
 
 
 private:
@@ -67,12 +68,12 @@ private:
   std::string m_header;
   std::string m_footer;
   std::vector<std::string> m_columns;
-  std::vector<uint32_t> m_lengths;
-  std::vector<uint32_t> m_defaults;
+  std::vector<boost::uint32_t> m_lengths;
+  std::vector<boost::uint32_t> m_defaults;
   std::vector<int> m_bx;
   bool m_debug;
 
-  uint32_t m_lineNo;
+  boost::uint32_t m_lineNo;
 };
 
 
