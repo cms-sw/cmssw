@@ -54,7 +54,7 @@ topSingleLeptonDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       src   = cms.InputTag("TriggerResults","","HLT"),
       paths = cms.vstring(['HLT_Mu9:HLT_QuadJet30',
                            'HLT_Mu15:HLT_QuadJet30',
-                           'HLT_Ele15_SW_L1R:HLT_QuadJet30'])
+                           'HLT_Ele15_LW_L1R:HLT_QuadJet30'])
     )                                            
   ),
                                   
@@ -296,7 +296,7 @@ topElecPlusJetsOfflineDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ## will be empty
     triggerExtras = cms.PSet(
       src   = cms.InputTag("TriggerResults","","HLT"),
-      paths = cms.vstring(['HLT_Ele15_SW_L1R:HLT_QuadJet30'])                                                   
+      paths = cms.vstring(['HLT_Ele15_LW_L1R:HLT_QuadJet30'])                                                   
     )    
   ),
                                   
@@ -406,7 +406,7 @@ topSingleMuonLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       src   = cms.InputTag("TriggerResults","","HLT"),
       paths = cms.vstring(['HLT_Mu9:HLT_QuadJet30',
                            'HLT_Mu15:HLT_QuadJet30',
-                           'HLT_Ele15_SW_L1R:HLT_QuadJet30'])
+                           'HLT_Ele15_LW_L1R:HLT_QuadJet30'])
     )
   ),
   ## ------------------------------------------------------
@@ -540,7 +540,7 @@ topSingleMuonMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       src   = cms.InputTag("TriggerResults","","HLT"),
       paths = cms.vstring(['HLT_Mu9:HLT_QuadJet30',
                            'HLT_Mu15:HLT_QuadJet30',
-                           'HLT_Ele15_SW_L1R:HLT_QuadJet30'])
+                           'HLT_Ele15_LW_L1R:HLT_QuadJet30'])
     )
   ),
   ## ------------------------------------------------------
