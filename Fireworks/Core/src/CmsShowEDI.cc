@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.32 2010/05/31 15:44:01 eulisse Exp $
+// $Id: CmsShowEDI.cc,v 1.33 2010/06/03 13:38:32 eulisse Exp $
 //
 
 // system include files
@@ -75,7 +75,7 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
 
    builder.indent(4)
           .addLabel(" ", 14, 2, &m_objectLabel)
-          .tabs()
+          .tabs(&m_tabs)
           .beginTab("Graphics")
             .indent(3)
             .addLabel("Color", 8)
@@ -131,23 +131,13 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
          .endTab()
        .untabs();
 
-    m_filterError->SetForegroundColor(gVirtualX->GetPixel(kRed));
-    m_filterError->SetBackgroundColor(TGFrame::GetDefaultFrameBackground());
-    m_filterError->ChangeOptions(0);
-
-    m_selectError->SetForegroundColor(gVirtualX->GetPixel(kRed));
-    m_selectError->SetBackgroundColor(TGFrame::GetDefaultFrameBackground());
-    m_selectError->ChangeOptions(0);
-
-   /**
-   {
-      hf->AddFrame(m_backButton);
-      m_layerEntry = new TGNumberEntry(hf, 0.0, 4, -1, TGNumberFormat::kNESInteger,
-                                       TGNumberFormat::kNEAAnyNumber, TGNumberFormat::kNELLimitMinMax,
-                                       FWEventItem::minLayerValue(), FWEventItem::maxLayerValue());
-      hf->AddFrame(m_layerEntry);
-   }
-   */
+   m_filterError->SetForegroundColor(gVirtualX->GetPixel(kRed));
+   m_filterError->SetBackgroundColor(TGFrame::GetDefaultFrameBackground());
+   m_filterError->ChangeOptions(0);
+   
+   m_selectError->SetForegroundColor(gVirtualX->GetPixel(kRed));
+   m_selectError->SetBackgroundColor(TGFrame::GetDefaultFrameBackground());
+   m_selectError->ChangeOptions(0);
 
    m_colorSelectWidget->Connect("ColorChosen(Color_t)", "CmsShowEDI", this, "changeItemColor(Color_t)");
    m_opacitySlider->Connect("PositionChanged(Int_t)", "CmsShowEDI", this, "changeItemOpacity(Int_t)");

@@ -341,14 +341,14 @@ public:
               .textButton("Main scope") // This is on the same level as the TGTab.
        
      */
-   FWDialogBuilder &tabs(void)
+   FWDialogBuilder &tabs(TGTab **out)
    {
       // Calls to tabs cannot be nested within the same builder. Multiple
       // builders are used to support nested tabs.
       assert(!m_tabs);
       m_tabs = new TGTab(nextFrame());
       currentFrame()->AddFrame(m_tabs, nextHints());
-      return *this;
+      return extract(m_tabs, out);
    }
    
    FWDialogBuilder &untabs(void)
