@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.32 2010/05/28 22:53:00 yumiceva Exp $
+ version $Id: BeamFitter.h,v 1.33 2010/05/31 20:28:48 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -58,6 +58,7 @@ class BeamFitter {
   void dumpBWTxtFile(std::string &);
   void write2DB();
   reco::BeamSpot getBeamSpot() { return fbeamspot; }
+  std::map<int, reco::BeamSpot> getBeamSpotMap() { return fbspotPVMap; }
   std::vector<BSTrkParameters> getBSvector() { return fBSvector; }
   TH1F * getCutFlow() { return h1cutFlow; }
   void resetCutFlow() {
