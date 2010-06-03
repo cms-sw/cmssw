@@ -92,43 +92,5 @@ namespace edm {
       result.push_back(eventVector);
     }
   }
-  
-    void
-  PileUp::readPileUp(std::vector<EventPrincipalVector> & result,std::vector<edm::EventID> &ids, std::vector<int> &fileNrs,std::vector<unsigned int> & nrEvents) {
-    for (int i = minBunch_; i <= maxBunch_; ++i) {
-      EventPrincipalVector eventVector;
-      int n;
-      
-      if (playback_){
-	n=nrEvents[i-minBunch_];
-      } else if (sequential_) {
-	// For now, the use case for sequential read reads only one event at a time.
-	n = 1;
-      } else {
-	n = (none_ ? 0 : (poisson_ ? poissonDistribution_->fire() : intAverage_));
-	nrEvents[i-minBunch_]=n;
-      }
-      eventVector.reserve(n);
-      while (n > 0) {
-        EventPrincipalVector oneResult;
-        oneResult.reserve(n);
-	if (playback_)   {
-	  input_->readMany(n, oneResult,ids[i-minBunch_],fileNrs[i-minBunch_]);  // playback
-	} else if (sequential_) {
-	  unsigned int file;
-	  input_->readManySequential(n, oneResult, file);  // sequential
-	} else  {
-	  unsigned int file;   //FIXME: need unsigned filenr?
-	  input_->readManyRandom(n, oneResult,file);     //no playback
-          ids[i-minBunch_]=oneResult[0]->id(); 
-	  fileNrs[i-minBunch_]=file;
-	}
-        LogDebug("readPileup") << "READ: " << oneResult.size();
-        std::copy(oneResult.begin(), oneResult.end(), std::back_inserter(eventVector));
-	n -= oneResult.size();
-      }
-      result.push_back(eventVector);
-    }
-  }
 
 } //namespace edm

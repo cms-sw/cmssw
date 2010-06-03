@@ -18,7 +18,6 @@ namespace edm {
     explicit PileUp(ParameterSet const& pset, int const minb, int const maxb, double averageNumber, const bool playback);
     ~PileUp();
 
-    void readPileUp(std::vector<EventPrincipalVector> & result,std::vector<edm::EventID> &ids, std::vector<int> &fileNrs,std::vector<unsigned int> & nrEvents);
     void readPileUp(std::vector<EventPrincipalVector> & result,std::vector<std::vector<edm::EventID> > &ids);
 
     double averageNumber() const {return averageNumber_;}
