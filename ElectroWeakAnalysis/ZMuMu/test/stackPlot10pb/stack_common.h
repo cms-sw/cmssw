@@ -92,17 +92,18 @@ void makeStack(TH1 * h1, TH1 * h2, TH1 * h3, TH1 * h4, TH1 * hdata,
   hs->Draw("HIST");
   if(hdata != 0) {
     hdata->SetMarkerStyle(20);
-    hdata->SetMarkerSize(1.4);
+    hdata->SetMarkerSize(1.3);
     hdata->SetMarkerColor(kBlack);
     hdata->SetLineWidth(2);
     hdata->SetLineColor(kBlack);
-    hdata->Draw("epsame"); 
+    gStyle->SetErrorX(1); 
+    hdata->Draw("epsame");
     hdata->GetXaxis()->SetLabelSize(0);
     hdata->GetYaxis()->SetLabelSize(0);
     hs->SetMaximum( hdata->GetMaximum() + 1);
-  }
+}
   hs->SetMinimum(min);
-  hs->GetXaxis()->SetTitle("m_{#mu #mu} (GeV/c^{2})");
+  hs->GetXaxis()->SetTitle("m_{#mu^{+} #mu^{-}} (GeV/c^{2})");
 
   std::string yTag = "";
   switch(rebin) {
@@ -124,7 +125,7 @@ void makeStack(TH1 * h1, TH1 * h2, TH1 * h3, TH1 * h4, TH1 * hdata,
   hs->GetYaxis()->SetLabelOffset(0);
   hs->GetXaxis()->SetLabelSize(.05);
   hs->GetYaxis()->SetLabelSize(.05);
-  leg = new TLegend(0.8,0.8,0.95,0.95);
+  leg = new TLegend(0.7,0.6,0.9,0.8);
   if(hdata != 0)
     leg->AddEntry(hdata,"data");
   leg->AddEntry(h1,"Z#rightarrow#mu #mu","f");
@@ -133,12 +134,24 @@ void makeStack(TH1 * h1, TH1 * h2, TH1 * h3, TH1 * h4, TH1 * hdata,
   leg->AddEntry(h3,"t#bar{t}","f"); 
   leg->SetFillColor(kWhite);
   leg->SetFillColor(kWhite);
-  leg->SetShadowColor(kWhite);
+  leg->SetShadowColor(kBlack);
   leg->Draw();
   c1->SetLogy();
-
+  TPaveText *pave = new TPaveText(100,1, 200 , 4 );
+  pave->SetFillColor(kWhite);
+  pave->SetBorderSize(0);
+  TText * t1 = pave->AddText("CMS Preliminary 2010");
+  TText * t2 = pave->AddText("L_{int} = 17 nb^{-1}  #sqrt{s} = 7 TeV");
+  t1->SetTextColor(kBlack);
+  t2->SetTextColor(kBlack);
+  pave->Draw(); 
   stat(h1, h2, h3, h4, hdata, rebin);
-}
+ c1->Update();}
+
+
+
+
+
 
 void makePlots(const char * name, int rebin, const char * plot,
 	       double min = 0.001,
