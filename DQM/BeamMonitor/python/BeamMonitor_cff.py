@@ -52,7 +52,8 @@ dqmBeamMonitor = cms.EDAnalyzer("BeamMonitor",
                                 maxVertexR = cms.untracked.double(2),
                                 maxVertexZ = cms.untracked.double(10),
                                 errorScale = cms.untracked.double(0.9),
-                                nSigmaCut = cms.untracked.double(5.)
+                                nSigmaCut = cms.untracked.double(5.),
+				FitPerBunchCrossing = cms.untracked.bool(False)
                                 ),
                               dxBin = cms.int32(200),
                               dxMin = cms.double(-1.0),
