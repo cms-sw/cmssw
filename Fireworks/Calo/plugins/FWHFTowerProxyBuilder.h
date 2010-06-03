@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 16:41:23 CEST 2010
-// $Id: FWHFTowerProxyBuilder.h,v 1.1 2010/05/31 15:35:00 amraktad Exp $
+// $Id: FWHFTowerProxyBuilder.h,v 1.2 2010/06/02 17:34:03 amraktad Exp $
 //
 
 // system include files
@@ -46,7 +46,9 @@ public:
 protected:
    virtual void setCaloData(const fireworks::Context&);
    virtual void addSliceSelector();
+   virtual void fillCaloData();
    const HFRecHitCollection* m_hits;
+   int   m_depth;
 
 private:
 
@@ -69,6 +71,7 @@ class FWHFShortTowerProxyBuilder : public FWHFTowerProxyBuilder
 {
 public:
    FWHFShortTowerProxyBuilder() {
+      m_depth = 1;
    }
    virtual ~FWHFShortTowerProxyBuilder() {
    }
@@ -76,8 +79,7 @@ public:
    // ---------- const member functions ---------------------
    virtual const std::string histName() const {
       return "HFShort";
-   }
-   virtual void fillCaloData(); 
+   }; 
 
    REGISTER_PROXYBUILDER_METHODS();
 
@@ -95,6 +97,7 @@ class FWHFLongTowerProxyBuilder : public FWHFTowerProxyBuilder
 {
 public:
    FWHFLongTowerProxyBuilder() {
+      m_depth = 2;
    }
    virtual ~FWHFLongTowerProxyBuilder(){
    }
@@ -104,7 +107,6 @@ public:
       return "HFLong";
    }
 
-   virtual void fillCaloData(); 
 
    REGISTER_PROXYBUILDER_METHODS();
 private:

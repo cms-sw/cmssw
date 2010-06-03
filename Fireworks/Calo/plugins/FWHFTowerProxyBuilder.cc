@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 16:41:27 CEST 2010
-// $Id: FWHFTowerProxyBuilder.cc,v 1.3 2010/06/02 17:34:03 amraktad Exp $
+// $Id: FWHFTowerProxyBuilder.cc,v 1.4 2010/06/02 19:08:33 amraktad Exp $
 //
 
 // system include files
@@ -24,10 +24,12 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
+#include "Fireworks/Core/interface/fwLog.h"
 
 
 FWHFTowerProxyBuilder::FWHFTowerProxyBuilder():
-   m_hits(0)
+   m_hits(0),
+   m_depth(-1)
 {
 }
 
@@ -61,10 +63,8 @@ FWHFTowerProxyBuilder::build(const FWEventItem* iItem,
    FWCaloDataHistProxyBuilder::build(iItem, el, ctx);
 }
 
-//==============================================================================
-
 void
-FWHFShortTowerProxyBuilder::fillCaloData()
+FWHFTowerProxyBuilder::fillCaloData()
 {
    m_hist->Reset();
    if (m_hits)
@@ -83,51 +83,25 @@ FWHFShortTowerProxyBuilder::fillCaloData()
                   break;
                }
                HcalDetId id ((*it).detid().rawId()); 
-	       if(id.depth()==2)(m_hist)->Fill(corners.at(0).Eta(),corners.at(0).Phi(), energy*0.2); 
-
-               if(info.isSelected())
+	       TEveVector centre = corners[0] + corners[1] + corners[2] + corners[3] + corners[4] + corners[5] + corners[6] + corners[7];
+	       centre *= 1.0f / 8.0f;
+               if(id.depth() == m_depth)
                {
-                  selected.push_back(TEveCaloData::CellId_t(m_hist->FindBin(corners.at(0).Eta(),corners.at(0).Phi()),m_sliceIndex));
-               } 
-            }
-         }
-      }
-   }
+                  int bin = (m_hist)->Fill(centre.Eta(),centre.Phi(), energy*0.2);  
+                  int sbin = m_hist->FindBin(centre.Eta(),centre.Phi());
+                  if (bin != sbin) fwLog(fwlog::kWarning) << "FWHFShortTowerProxyBuilder::fillHistogram() "<< histName() <<" for depth ["<< m_depth <<"]: discrepancy between filled and search bin "<< bin << " != " << sbin << std::endl;
 
-}
-
-void
-FWHFLongTowerProxyBuilder::fillCaloData()
-{ 
-   m_hist->Reset();
-   if (m_hits)
-   {
-      TEveCaloData::vCellId_t& selected = m_caloData->GetCellsSelected();
-
-      if(item()->defaultDisplayProperties().isVisible()) {
-         assert(item()->size() >= m_hits->size());
-         unsigned int index=0;
-         for(HFRecHitCollection::const_iterator it = m_hits->begin(); it != m_hits->end(); ++it,++index) {
-            const FWEventItem::ModelInfo& info = item()->modelInfo(index);
-            if(info.displayProperties().isVisible()) {
-               Float_t energy = (*it).energy();
-               std::vector<TEveVector> corners = item()->getGeom()->getPoints((*it).detid().rawId());
-               if( corners.empty() ) {
-                  break;
+                  if(info.isSelected())
+                  {
+                     fwLog(fwlog::kDebug) << " [" << m_depth <<"]  fiber selected at (" <<centre.Eta() << ", " << centre.Phi() << "value "<< energy << "\n";
+                     selected.push_back(TEveCaloData::CellId_t(m_hist->FindBin(centre.Eta(),centre.Phi()),m_sliceIndex));
+                  } 
                }
-               HcalDetId id ((*it).detid().rawId()); 
-	       if(id.depth()==1)(m_hist)->Fill(corners.at(0).Eta(),corners.at(0).Phi(), energy*0.2); 
-
-               if(info.isSelected())
-               {
-                  selected.push_back(TEveCaloData::CellId_t(m_hist->FindBin(corners.at(0).Eta(),corners.at(0).Phi()),m_sliceIndex));
-               } 
             }
          }
       }
    }
 }
-
 
 
 REGISTER_FWPROXYBUILDER(FWHFShortTowerProxyBuilder, HFRecHitCollection, "HFShort", FWViewType::kLegoHFBit);

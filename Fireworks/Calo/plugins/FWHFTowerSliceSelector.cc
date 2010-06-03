@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Wed Jun  2 17:39:44 CEST 2010
-// $Id: FWHFTowerSliceSelector.cc,v 1.1 2010/06/02 17:34:03 amraktad Exp $
+// $Id: FWHFTowerSliceSelector.cc,v 1.2 2010/06/02 19:08:33 amraktad Exp $
 //
 
 // system include files
@@ -21,6 +21,7 @@
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/fwLog.h"
 #include "DataFormats/HcalRecHit/interface/HFRecHit.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
@@ -43,7 +44,9 @@ FWHFTowerSliceSelector::doSelect(const TEveCaloData::CellId_t& iCell)
    for(HFRecHitCollection::const_iterator it = hits->begin(); it != hits->end(); ++it,++index)
    {
       std::vector<TEveVector> corners = m_item->getGeom()->getPoints((*it).detid().rawId());
-      if (m_hist->FindBin(corners.at(0).Eta(),corners.at(0).Phi()) == iCell.fTower && 
+
+      HcalDetId id ((*it).detid().rawId());
+      if (findBinFromId(id, iCell.fTower) && 
           m_item->modelInfo(index).m_displayProperties.isVisible() &&
           !m_item->modelInfo(index).isSelected()) {
          //std::cout <<"  doSelect "<<index<<std::endl;
@@ -66,7 +69,9 @@ FWHFTowerSliceSelector::doUnselect(const TEveCaloData::CellId_t& iCell)
    for(HFRecHitCollection::const_iterator it = hits->begin(); it != hits->end(); ++it,++index)
    {
       std::vector<TEveVector> corners = m_item->getGeom()->getPoints((*it).detid().rawId());
-      if (m_hist->FindBin(corners.at(0).Eta(),corners.at(0).Phi())  == iCell.fTower && 
+
+      HcalDetId id ((*it).detid().rawId());
+      if (findBinFromId(id, iCell.fTower) && 
           m_item->modelInfo(index).m_displayProperties.isVisible() &&
           m_item->modelInfo(index).isSelected()) {
          //std::cout <<"  doUnselect "<<index<<std::endl;
@@ -75,3 +80,22 @@ FWHFTowerSliceSelector::doUnselect(const TEveCaloData::CellId_t& iCell)
    }
 }
 
+bool
+FWHFTowerSliceSelector::findBinFromId( HcalDetId& id, int tower) const
+{
+   std::vector<TEveVector> corners = m_item->getGeom()->getPoints(id);
+   TEveVector centre = corners[0] + corners[1] + corners[2] + corners[3] + corners[4] + corners[5] + corners[6] + corners[7];
+   centre *= 1.0f / 8.0f;
+   int bin = m_hist->FindBin(centre.Eta(),centre.Phi());
+   if (bin == -1)
+   {
+      fwLog(fwlog::kWarning) << "FWHFTowerSliceSelector could not find a valid bin for eta: " << centre.Eta() << " phi: " << centre.Phi() << std::endl;
+      fflush(stdout);
+   }
+   if (m_hist->FindBin(centre.Eta(),centre.Phi()) == tower)
+   {
+      fwLog(fwlog::kDebug) << "Secondary Selection "<< m_hist->GetName() <<"::  FWHFTowerSliceSelector find detId for tower: " << centre.Eta() << " phi: " << centre.Phi() << "val: " << m_hist->GetBinContent(bin) << std::endl;
+      return true;
+   }
+   return false;
+}
