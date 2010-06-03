@@ -17,10 +17,6 @@ def customiseCommon(process):
     process.thTripletsA.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000
     process.thTripletsB.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000
 
-    ## local tracker strip reconstruction
-    process.OutOfTime.TOBlateBP=0.071
-    process.OutOfTime.TIBlateBP=0.036
-
     ###### FIXES TRIPLETS FOR LARGE BS DISPLACEMENT ######
 
     ### prevent bias in pixel vertex
@@ -85,6 +81,10 @@ def customisePPData(process):
     process.hfreco.firstSample=3
     ##Preshower
     process.ecalPreshowerRecHit.ESBaseline = 0
+
+    ## local tracker strip reconstruction
+    process.OutOfTime.TOBlateBP=0.071
+    process.OutOfTime.TIBlateBP=0.036
 
     return process
 
