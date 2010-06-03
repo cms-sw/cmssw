@@ -499,7 +499,6 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
                  track.setPtPacked(singlesTrackPt&0x1F);
                  track.setQualityPacked((singlesTrackPt&0x60)>>5);
                  track.setChargeValidPacked((singlesTrackPt&0x80)>>7);
-                 track.setPtLUTAddress(11<<16);
                  track.setOutputLink(singlesTrackOutput);
                  //CSCCorrelatedLCTDigiCollection singles;
                  std::vector<csctf::TrackStub> stubs = myStubContainer[bx].get();
@@ -542,6 +541,7 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
                  //   singles.insertDigi(CSCDetId(st_iter->getDetId().rawId()),*st_iter);
                  //tracksFromSingles.push_back(L1CSCTrack(track,singles));
                  tracksFromSingles.push_back(track);
+								 track.setPtLUTAddress( (11<<16) | ((bestStub->etaPacked()<<9)&0xf000) );
              }
        }
 	std::vector<csc::L1Track> single_tracks = tracksFromSingles.get();
