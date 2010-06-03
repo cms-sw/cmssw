@@ -139,12 +139,11 @@ implements Runnable,DipPublicationErrorHandler
 	  if (lastFitTime == 0)
 	      lastFitTime = lastModTime;
 	  if (logFile.length() == 0) {
-	      lastFitTime = lastModTime;
-	      if (!alive.get(6)) {
+	      if (lastModTime > lastFitTime) {
 		  System.out.println("New run starts");
 		  if (verbose) System.out.println("Initial lastModTime = " + getDateTime(lastModTime));
-		  alive.flip(6);
 	      }
+	      lastFitTime = lastModTime;
 	  }
 
 	  if (lastModTime > lastFitTime) {
@@ -158,7 +157,6 @@ implements Runnable,DipPublicationErrorHandler
 		  if (readRcd(br)) {
 		      trueRcd(true);
 		      alive.clear();
-		      alive.flip(6);
 		      alive.flip(7);
 		  }
 		  else fakeRcd();
@@ -224,8 +222,6 @@ implements Runnable,DipPublicationErrorHandler
 	String warnMsg = "No new data for " + idleTime + "seconds: ";
 	warnMsg += tkStatus();
 	publishRcd("Bad",warnMsg,false,false);
-	if (alive.get(6))
-	    alive.flip(6);
     }
   }
 
@@ -253,7 +249,7 @@ implements Runnable,DipPublicationErrorHandler
 		if (!tmp[1].contains("Yes"))
 		    outstr = "CMS Tracker OFF.";
 		else
-		    outstr = "CMS not taking data.";
+		    outstr = "CMS not taking data or No beam.";
 		break;
 	    default:
 		break;
