@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jun 27 11:23:08 EDT 2008
-// $Id: CmsShowModelPopup.cc,v 1.22 2010/05/31 15:24:45 eulisse Exp $
+// $Id: CmsShowModelPopup.cc,v 1.23 2010/05/31 15:44:01 eulisse Exp $
 //
 
 // system include file
@@ -75,24 +75,19 @@ CmsShowModelPopup::CmsShowModelPopup(FWDetailViewManager* iManager,
    TGTextButton *detailedViewButton;
    
    // Do the layouting of the various widgets.
-   builder.newRow(3)
-          .indent(3)
+   builder.indent(4)
           .addLabel(" ", 14, 1, &m_modelLabel)
           .indent(4)
-          .newRow(15)
-          .addLabel("Color", 8, 2)
-          .newRow(3)
-          .addColorPicker(iColorMgr, 0, &m_colorSelectWidget)
+          .addLabel("Color", 8)
+          .addColorPicker(iColorMgr, &m_colorSelectWidget).expand(false)
           .addHSeparator()
-          .addLabel("Opacity", 8, 2)
-          .newRow(3)
-          .addHSlider(150, 0, &m_opacitySlider)
+          .addLabel("Opacity", 8)
+          .addHSlider(150, &m_opacitySlider)
           .addHSeparator()
-          .addCheckbox("Visible", 0, &m_isVisibleButton)
-          .newRow(15)
+          .addCheckbox("Visible", &m_isVisibleButton)
           .addHSeparator()
-          .addTextButton("Open Detailed View", 0, &detailedViewButton)
-          .newRow(15);
+          .addTextButton("Open Detailed View", &detailedViewButton)
+          .vSpacer(15);
 
    m_openDetailedViewButtons.push_back(detailedViewButton);
    m_openDetailedViewButtons.back()->SetEnabled(kFALSE);
@@ -159,7 +154,7 @@ CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr)
    
    // Handle the case in which the selection is not empty.
    bool multipleNames = false, multipleColors = false, multipleVis = false,
-        multipleOpacity = false;
+        multipleTransparecy = false;
 
    m_models = iSelMgr.selected();
    std::set<FWModelId>::const_iterator id = m_models.begin();
@@ -181,7 +176,8 @@ CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr)
       multipleNames = multipleNames || (item->name() != i->item()->name());
       multipleColors = multipleColors || (props.color() != nextProps.color());
       multipleVis = multipleVis || (props.isVisible() != nextProps.isVisible());
-      multipleOpacity = multipleOpacity || (props.opacity() != nextProps.opacity());
+      multipleTransparecy = multipleTransparecy 
+                            || (props.transparency() != nextProps.transparency());
    }
    
    // Handle the name.
@@ -227,8 +223,8 @@ CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr)
    }
    
    // Set the various widgets.
-   // FIXME: what whall we do here with the opacity slider?
    m_colorSelectWidget->SetColorByIndex(m_colorManager->colorToIndex(props.color()), kFALSE);
+   m_opacitySlider->SetPosition(100 - props.transparency());
    m_isVisibleButton->SetDisabledAndSelected(props.isVisible());
    
    m_colorSelectWidget->SetEnabled(kTRUE);
@@ -255,8 +251,8 @@ CmsShowModelPopup::updateDisplay()
          m_isVisibleButton->SetState(kButtonDown, kFALSE);
       else
          m_isVisibleButton->SetState(kButtonUp, kFALSE);
-      
-      m_opacitySlider->SetPosition(p.opacity());
+
+      m_opacitySlider->SetPosition(100 - p.transparency());
    }
 }
 
@@ -312,13 +308,13 @@ CmsShowModelPopup::changeModelOpacity(Int_t opacity)
 {
    if (m_models.empty())
       return;
-      
+   
    FWChangeSentry sentry(*(m_models.begin()->item()->changeManager()));
    for (std::set<FWModelId>::iterator i = m_models.begin(), e = m_models.end(); i != e; ++i)
    {
       const FWEventItem::ModelInfo &info = i->item()->modelInfo(i->index());
       FWDisplayProperties changeProperties = info.displayProperties();
-      changeProperties.setOpacity(opacity);
+      changeProperties.setTransparency(100 - opacity);
       i->item()->setDisplayProperties(i->index(), changeProperties);
    }
 }
