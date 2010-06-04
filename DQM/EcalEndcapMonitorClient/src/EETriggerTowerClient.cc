@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2010/02/15 18:01:26 $
- * $Revision: 1.93 $
+ * $Date: 2010/03/27 20:08:00 $
+ * $Revision: 1.94 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -127,8 +127,8 @@ void EETriggerTowerClient::setup(void) {
     if ( me_o02_[ism-1] ) dqmStore_->removeElement( me_o02_[ism-1]->getName() );
     sprintf(histo, "EETTT Non Single Timing %s", Numbers::sEE(ism).c_str());
     me_o02_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-    me_o02_[ism-1]->setAxisTitle("ieta'", 1);
-    me_o02_[ism-1]->setAxisTitle("iphi'", 2);
+    me_o02_[ism-1]->setAxisTitle("jx", 1);
+    me_o02_[ism-1]->setAxisTitle("jy", 2);
     me_o02_[ism-1]->setAxisTitle("fraction", 3);
 
   }
