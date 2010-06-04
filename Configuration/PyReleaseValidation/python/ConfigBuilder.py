@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.181 $"
+__version__ = "$Revision: 1.182 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -188,7 +188,7 @@ class ConfigBuilder(object):
 	if 'DQM' in self.eventcontent.split(','):
 		dqmOutput = cms.OutputModule("PoolOutputModule",
 					     outputCommands = cms.untracked.vstring('drop *','keep *_MEtoEDMConverter_*_*'),
-					     fileName = cms.untracked.string('DQMStream.root'),
+					     fileName = cms.untracked.string(self._options.dirout+'DQMStream.root'),
 					     dataset = cms.untracked.PSet(filterName = cms.untracked.string(''),dataTier = cms.untracked.string('DQM'))
 					     )
 		self.additionalOutputs['DQMStream'] = dqmOutput
@@ -870,7 +870,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.181 $"),
+              (version=cms.untracked.string("$Revision: 1.182 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
