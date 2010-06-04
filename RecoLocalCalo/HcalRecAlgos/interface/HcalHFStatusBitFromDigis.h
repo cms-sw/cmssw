@@ -31,8 +31,7 @@ public:
   // The important stuff!  Methods for setting the status flag values
   void hfSetFlagFromDigi(HFRecHit& hf, const HFDataFrame& digi,
 			 const HcalCoder& coder,
-			 const HcalCalibrations& calib,
-			 bool isData);
+			 const HcalCalibrations& calib);
 
 private:
   // variables for cfg files
