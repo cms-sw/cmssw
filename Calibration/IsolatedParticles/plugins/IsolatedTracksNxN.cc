@@ -406,7 +406,7 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
   
   //associates tracker rechits/simhits to a track
   TrackerHitAssociator* associate=0;
-  if (doMC) associate = new TrackerHitAssociator::TrackerHitAssociator(iEvent);
+  if (doMC) associate = new TrackerHitAssociator(iEvent);
   
   std::vector<int>  ifGood(trkCollection->size(), 1);
 
@@ -494,8 +494,9 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
     
     if( p1>minTrackP_ && std::abs(eta1)<maxTrackEta_ && trkDetItr->okECAL) { 
       
-      double maxNearP31x31=999.0, maxNearP25x25=999.0, maxNearP21x21=999.0, maxNearP15x15=999.0;
-      double maxNearP13x13=999.0, maxNearP11x11=999.0, maxNearP9x9  =999.0, maxNearP7x7  =999.0;
+      double maxNearP31x31=999.0;
+      //double maxNearP25x25=999.0, maxNearP21x21=999.0, maxNearP15x15=999.0;
+      //double maxNearP13x13=999.0, maxNearP11x11=999.0, maxNearP9x9  =999.0, maxNearP7x7  =999.0;
 
       maxNearP31x31 = spr::chargeIsolationEcal(nTracks, trkCaloDets, geo, caloTopology, 15,15);
       //maxNearP25x25 = spr::chargeIsolationEcal(nTracks, trkCaloDets, geo, caloTopology, 12,12);

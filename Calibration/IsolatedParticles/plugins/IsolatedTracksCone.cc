@@ -284,7 +284,7 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
   // Primary loop over tracks
   ////////////////////////////
   TrackerHitAssociator* associate=0;
-  if (doMC) associate = new TrackerHitAssociator::TrackerHitAssociator(iEvent);
+  if (doMC) associate = new TrackerHitAssociator(iEvent);
   
 
   nTRK      = 0;

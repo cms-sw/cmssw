@@ -19,6 +19,7 @@
 
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/L1TObjects>
+<use name=CondFormats/EcalObjects>
 
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
