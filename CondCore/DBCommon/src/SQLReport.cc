@@ -1,5 +1,4 @@
 #include "CondCore/DBCommon/interface/SQLReport.h"
-#include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "RelationalAccess/IMonitoringReporter.h"
 #include <fstream>
