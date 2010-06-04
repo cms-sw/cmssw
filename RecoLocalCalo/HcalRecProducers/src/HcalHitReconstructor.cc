@@ -162,6 +162,8 @@ HcalHitReconstructor::~HcalHitReconstructor() {
 
 void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 {
+  bool isData=e.isRealData(); // some flags should only be applied to real data
+
   // get conditions
   edm::ESHandle<HcalDbService> conditions;
   eventSetup.get<HcalDbRecord>().get(conditions);
@@ -323,7 +325,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	rec->push_back(reco_.reconstruct(*i,coder,calibrations));
 	(rec->back()).setFlags(0);
 	// This calls the code for setting the HF noise bit determined from digi shape
-	if (setNoiseFlags_) hfdigibit_->hfSetFlagFromDigi(rec->back(),*i,coder,calibrations);
+	if (setNoiseFlags_) hfdigibit_->hfSetFlagFromDigi(rec->back(),*i,coder,calibrations, isData);
 	if (setSaturationFlags_)
 	  saturationFlagSetter_->setSaturationFlag(rec->back(),*i);
 	if (setTimingTrustFlags_)
