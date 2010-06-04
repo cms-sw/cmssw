@@ -140,7 +140,8 @@ implements Runnable,DipPublicationErrorHandler
 	      lastFitTime = lastModTime;
 	  if (logFile.length() == 0) {
 	      if (lastModTime > lastFitTime) {
-		  System.out.println("New run starts");
+		  String tmp = tkStatus();
+		  System.out.println("New run starts. Run number: " + runnum);
 		  if (verbose) System.out.println("Initial lastModTime = " + getDateTime(lastModTime));
 	      }
 	      lastFitTime = lastModTime;
@@ -250,6 +251,9 @@ implements Runnable,DipPublicationErrorHandler
 		    outstr = "CMS Tracker OFF.";
 		else
 		    outstr = "CMS not taking data or No beam.";
+		break;
+	    case 8:
+		runnum = new Integer(tmp[1]);
 		break;
 	    default:
 		break;
