@@ -2,8 +2,8 @@
  * \file BeamMonitorBx.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/06/03 02:25:20 $
- * $Revision: 1.47 $
+ * $Date: 2010/06/04 05:37:30 $
+ * $Revision: 1.1 $
  *
  */
 
@@ -61,12 +61,12 @@ BeamMonitorBx::~BeamMonitorBx() {
 
 //--------------------------------------------------------
 void BeamMonitorBx::beginJob() {
-  varMap["x0"] = "x_{0}";
-  varMap["y0"] = "y_{0}";
-  varMap["z0"] = "z_{0}";
-  varMap["sigmaX"] = "#sigma_{X}";
-  varMap["sigmaY"] = "#sigma_{Y}";
-  varMap["sigmaZ"] = "#sigma_{Z}";
+  varMap["x0_bx"] = "x_{0}";
+  varMap["y0_bx"] = "y_{0}";
+  varMap["z0_bx"] = "z_{0}";
+  varMap["sigmaX_bx"] = "#sigma_{X}";
+  varMap["sigmaY_bx"] = "#sigma_{Y}";
+  varMap["sigmaZ_bx"] = "#sigma_{Z}";
 
   // create and cd into new folder
   dbe_->setCurrentFolder(monitorName_+"FitBx");
@@ -231,19 +231,19 @@ void BeamMonitorBx::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int 
 	   varName != varMap.end(); ++varName) {
 	hs[varName->first]->setBinContent(1,nthBin,bx);
       }
-      hs["x0"]->setBinContent(2,nthBin,bs.x0());
-      hs["y0"]->setBinContent(2,nthBin,bs.y0());
-      hs["z0"]->setBinContent(2,nthBin,bs.z0());
-      hs["sigmaZ"]->setBinContent(2,nthBin,bs.sigmaZ());
-      hs["sigmaX"]->setBinContent(2,nthBin,bs.BeamWidthX());
-      hs["sigmaY"]->setBinContent(2,nthBin,bs.BeamWidthY());
+      hs["x0_bx"]->setBinContent(2,nthBin,bs.x0());
+      hs["y0_bx"]->setBinContent(2,nthBin,bs.y0());
+      hs["z0_bx"]->setBinContent(2,nthBin,bs.z0());
+      hs["sigmaZ_bx"]->setBinContent(2,nthBin,bs.sigmaZ());
+      hs["sigmaX_bx"]->setBinContent(2,nthBin,bs.BeamWidthX());
+      hs["sigmaY_bx"]->setBinContent(2,nthBin,bs.BeamWidthY());
 
-      hs["x0"]->setBinContent(3,nthBin,bs.x0Error());
-      hs["y0"]->setBinContent(3,nthBin,bs.y0Error());
-      hs["z0"]->setBinContent(3,nthBin,bs.z0Error());
-      hs["sigmaZ"]->setBinContent(3,nthBin,bs.sigmaZ0Error());
-      hs["sigmaX"]->setBinContent(3,nthBin,bs.BeamWidthXError());
-      hs["sigmaY"]->setBinContent(3,nthBin,bs.BeamWidthYError());
+      hs["x0_bx"]->setBinContent(3,nthBin,bs.x0Error());
+      hs["y0_bx"]->setBinContent(3,nthBin,bs.y0Error());
+      hs["z0_bx"]->setBinContent(3,nthBin,bs.z0Error());
+      hs["sigmaZ_bx"]->setBinContent(3,nthBin,bs.sigmaZ0Error());
+      hs["sigmaX_bx"]->setBinContent(3,nthBin,bs.BeamWidthXError());
+      hs["sigmaY_bx"]->setBinContent(3,nthBin,bs.BeamWidthYError());
     }
   }
 
