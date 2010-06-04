@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.179 $"
+__version__ = "$Revision: 1.180 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -338,7 +338,7 @@ class ConfigBuilder(object):
         
         final_snippet += '\n\n# End of customisation function definition'
 
-        return final_snippet + "\n\nprocess = customise(process)\n"
+	return final_snippet + "\n\nprocess = %s(process)\n"%(self._options.cust_function,)
 
     #----------------------------------------------------------------------------
     # here the methods to define the python includes for each step or
@@ -861,7 +861,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.179 $"),
+              (version=cms.untracked.string("$Revision: 1.180 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
