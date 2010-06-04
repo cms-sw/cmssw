@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/06/02 05:02:40 $
- * $Revision: 1.46 $
+ * $Date: 2010/06/03 02:25:20 $
+ * $Revision: 1.47 $
  *
  */
 
@@ -568,7 +568,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
       h_nTrk_lumi->ShiftFillLast(nthBSTrk_);
   }
 
-  if (debug_) std::cout << "Time lapsed since last LS = " << tmpTime - refTime << std:: endl;
+  if (debug_) std::cout << "Time lapsed since last scroll = " << tmpTime - refTime << std:: endl;
 
   if (testScroll(tmpTime,refTime)) {
     scrollTH1(hs["x0_time"]->getTH1(),refTime);
