@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.62 2010/06/04 20:54:38 uplegger Exp $
+   version $Id: BeamFitter.cc,v 1.63 2010/06/04 22:20:25 uplegger Exp $
 
 ________________________________________________________________**/
 
@@ -382,14 +382,19 @@ bool BeamFitter::runPVandTrkFitter() {
         
     // First run PV fitter
     if ( MyPVFitter->IsFitPerBunchCrossing() ){
+      const char* fbeginTime = formatTime(freftime[0]);
+      sprintf(fbeginTimeOfFit,"%s",fbeginTime);
+      const char* fendTime = formatTime(freftime[1]);
+      sprintf(fendTimeOfFit,"%s",fendTime);
       if ( MyPVFitter->runBXFitter() ) {
 	fbspotPVMap = MyPVFitter->getBeamSpotMap();
-	return true;
+	pv_fit_ok = true;
       }
-      else{
-	return false;
-      }
+      if(writeTxt_ ) dumpTxtFile(outputTxt_,true); // all reaults
+      if(writeDIPTxt_) dumpTxtFile(outputDIPTxt_,false); // for DQM/DIP
+      return pv_fit_ok;
     }
+
     if ( MyPVFitter->runFitter() ) {
 
         bspotPV = MyPVFitter->getBeamSpot();
