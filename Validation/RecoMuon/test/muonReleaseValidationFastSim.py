@@ -10,7 +10,7 @@ import string
 ######### User variables
 
 #Run on FastSim events if true
-FastSimUse="True"
+FastSimUse="False"
 
 #(post) process only recoMuon related histos
 onlyRecoMuons="False"
