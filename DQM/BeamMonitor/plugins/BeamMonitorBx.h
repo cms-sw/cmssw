@@ -3,8 +3,8 @@
 
 /** \class BeamMonitorBx
  * *
- *  $Date: 2010/06/02 05:02:40 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/06/04 05:37:30 $
+ *  $Revision: 1.1 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -54,7 +54,7 @@ class BeamMonitorBx : public edm::EDAnalyzer {
  private:
 
   void FitAndFill(const edm::LuminosityBlock& lumiSeg,int&,int&,int&);
-  void BookHistos(int, std::string);
+  void BookHistos(int, std::map<std::string,std::string>&);
 
   edm::ParameterSet parameters_;
   std::string monitorName_;
