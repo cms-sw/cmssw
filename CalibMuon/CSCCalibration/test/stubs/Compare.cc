@@ -13,10 +13,13 @@
 //
 // Original Author:  Thomas Nummy,Bld. 32 Room 4-C21,+41227671337,
 //         Created:  Thu Oct 29 13:55:15 CET 2009
-// $Id$
+// $Id: Compare.cc,v 1.1 2009/11/03 14:45:29 nummy Exp $
 //
 //
-
+//////////////////////////////////READ THIS FIRST//////////////////////////////////////////////////////////
+//////////////////"std::bad_alloc exception caught in cmsRun" ERROR when you have text inside the .dat///// 
+/////////////////files ---->Check them first before running this code!/////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // system include files
 #include <memory>
@@ -72,7 +75,8 @@ Compare::Compare(const edm::ParameterSet& iConfig)
 
  */
 
-  //=========== Compare Pedesdtals =================
+  //=========== Compare Pedestals =================
+  std::cout<<"Comparing PEDESTALS, please wait!"<<std::endl;
 
   const int MAX_SIZE = 252288;
 
@@ -80,19 +84,13 @@ Compare::Compare(const edm::ParameterSet& iConfig)
   float old_ped, old_rms;
   std::vector<int> old_index_id;
   std::vector<float> old_peds;
-  //std::vector<float> old_pedrms;
   int new_index;
   float new_ped,new_rms;
   std::vector<int> new_index_id;
   std::vector<float> new_peds;
-  //std::vector<float> new_pedrms;
-  std::vector<float> diff;
-  //std::vector<float> myoldpeds;
-
-  //int counter,counter1;
-  //int old_nrlines=0;
-  //int new_nrlines=0;
-
+  std::vector<float> diffPeds;
+  std::vector<float> diffGains;
+  
   std::ifstream olddata; 
   olddata.open("old_dbpeds.dat",std::ios::in); 
   if(!olddata) {
@@ -104,16 +102,14 @@ Compare::Compare(const edm::ParameterSet& iConfig)
     olddata >> old_index >> old_ped >> old_rms ; 
     old_index_id.push_back(old_index);
     old_peds.push_back(old_ped);
-    //old_pedrms.push_back(old_rms);
-    //old_nrlines++;
   }
   olddata.close();
-
+  
   std::ifstream newdata;
   std::ofstream myPedsFile("diffPedsTest.dat",std::ios::out);
-  newdata.open("goodPeds2009_08_31_run112487.dat",std::ios::in); 
+  newdata.open("goodPeds.dat",std::ios::in); 
   if(!newdata) {
-    std::cerr <<"Error: goodPeds2009_08_31_run112487.dat -> no such file!"<< std::endl;
+    std::cerr <<"Error: goodPeds.dat -> no such file!"<< std::endl;
     exit(1);
   }
   
@@ -121,30 +117,25 @@ Compare::Compare(const edm::ParameterSet& iConfig)
     newdata >> new_index >> new_ped >> new_rms ; 
     new_index_id.push_back(new_index);
     new_peds.push_back(new_ped);
-    //new_pedrms.push_back(new_rms);
-    //new_nrlines++;
   }
   newdata.close();
-  diff.resize(MAX_SIZE);
-  //myoldpeds.resize(MAX_SIZE); // is myoldpeds needed?
+
+  diffPeds.resize(MAX_SIZE);
   
   for(int i=0; i<MAX_SIZE;++i){
-    // counter=old_index_id[i];  //are counter and counter1 needed?
-    //myoldpeds[i]=old_peds[i];
-
     for (unsigned int k=0;k<new_index_id.size()-1;++k){
-      //counter1=new_index_id[k];
       if(old_index_id[i] == new_index_id[k]){
-	diff[k]=old_peds[i] - new_peds[k];
+	diffPeds[k]=old_peds[i] - new_peds[k];
 	new_peds.erase(new_peds.begin());
 	new_index_id.erase(new_index_id.begin());
-	//std::cout<<old_peds[i]<<" new_peds[k]"<<new_peds[k]<<std::endl;
-	myPedsFile<<old_index_id[i]<<"  "<<diff[k]<<std::endl;	
+	myPedsFile<<old_index_id[i]<<"  "<<diffPeds[k]<<std::endl;	
       }
     }
   }
-
-  // ============= Comparing Crosstalk ===================
+  
+  
+  // ============= Compare Crosstalk ===================
+  std::cout<<"Comparing CROSSTALK, please wait!"<<std::endl;
 
   old_index = 0;
   float old_xtalk_left, old_xtalk_right, old_int_left, old_int_right;
@@ -193,9 +184,9 @@ Compare::Compare(const edm::ParameterSet& iConfig)
   std::ifstream newdata1;
   std::ofstream myXtalkFile("diffXtalkTest.dat",std::ios::out);
 
-  newdata1.open("goodXtalk2009_08_31_run112486.dat",std::ios::in); 
+  newdata1.open("goodXtalk.dat",std::ios::in); 
   if(!newdata1) {
-    std::cerr <<"Error: goodXtalk2009_08_31_run112486.dat  -> no such file!"<< std::endl;
+    std::cerr <<"Error: goodXtalk.dat  -> no such file!"<< std::endl;
     exit(1);
   }
 
@@ -232,18 +223,17 @@ Compare::Compare(const edm::ParameterSet& iConfig)
 	diffXtalkL[k]=old_Lxtalk[i] - new_Lxtalk[k];
 	diffIntR[k]=old_Rint[i] - new_Rint[k];
 	diffIntL[k]=old_Rint[i] - new_Rint[k];
-
-	//	std::cout<<counter<<" "<<counter1<<"  "<<old_Rxtalk[i]<<" new_Rxtalk[k] "<<new_Rxtalk[k]<<std::endl;
 	myXtalkFile<<counter<<"  "<<diffXtalkL[k]<<"  "<<diffIntL[k]<<"  "<<diffXtalkR[k]<<"  "<<diffIntR[k]<<"  "<<std::endl;	
       }
     }
   }
 
 
-// ================= Comapring Gains ===============
+  // ================= Compare Gains ===============
+  std::cout<<"Comparing GAINS, please wait!"<<std::endl;
 
   old_index=0;
-  float old_slope, old_int, old_chi2;
+  float old_slope;
   old_index_id.clear();
   std::vector<float> old_gains;
   std::vector<float> old_intercept;
@@ -256,7 +246,6 @@ Compare::Compare(const edm::ParameterSet& iConfig)
   std::vector<float> new_intercept;
   std::vector<float> new_chi;
  
-  diff.clear();
   std::vector<float> myoldgains;
 
   counter=0;
@@ -272,20 +261,18 @@ Compare::Compare(const edm::ParameterSet& iConfig)
   }
   
   while (!olddata2.eof() ) { 
-    olddata2 >> old_index >> old_slope; // >> old_int >> old_chi2 ; 
+    olddata2 >> old_index >> old_slope; 
     old_index_id.push_back(old_index);
     old_gains.push_back(old_slope);
-    //old_intercept.push_back(old_int);
-    //old_chi.push_back(old_chi2);
     old_nrlines++;
   }
   olddata2.close();
 
   std::ifstream newdata2;
   std::ofstream myGainsFile("diffGainsTest.dat",std::ios::out);
-  newdata2.open("goodGains2009_08_31_run112484.dat",std::ios::in); 
+  newdata2.open("goodGains.dat",std::ios::in); 
   if(!newdata2) {
-    std::cerr <<"Error: goodGains2009_08_31_run112484.dat -> no such file!"<< std::endl;
+    std::cerr <<"Error: goodGains.dat -> no such file!"<< std::endl;
     exit(1);
   }
   
@@ -298,25 +285,25 @@ Compare::Compare(const edm::ParameterSet& iConfig)
     new_nrlines++;
   }
   newdata2.close();
-  diff.resize(MAX_SIZE);
+  diffGains.resize(MAX_SIZE);
   myoldgains.resize(MAX_SIZE);
   
   for(int i=0; i<MAX_SIZE;++i){
     counter=old_index_id[i];  
     myoldgains[i]=old_gains[i];
 
-    for (int k=0;k<new_index_id.size()-1;k++){
+    for (unsigned int k=0;k<new_index_id.size()-1;k++){
       counter1=new_index_id[k];
       if(counter == counter1){
-	diff[k]=old_gains[i] - new_gains[k];
-	//std::cout<<old_gains[i]<<" new_gains[k]"<<new_gains[k]<<std::endl;
-	myGainsFile<<counter<<"  "<<diff[k]<<std::endl;	
+	diffGains[k]=old_gains[i] - new_gains[k];
+	myGainsFile<<counter<<"  "<<diffGains[k]<<std::endl;	
       }
     }
   }
 
 
-//=================== Comparing Noise Matrix ===============
+  //=================== Compare Noise Matrix ===============
+  std::cout<<"Comparing NOISE MATRIX, please wait!"<<std::endl;
 
   old_index=0;
   float old_elem33, old_elem34,old_elem35,old_elem44,old_elem45,old_elem46,old_elem55,old_elem56;
@@ -413,9 +400,9 @@ Compare::Compare(const edm::ParameterSet& iConfig)
 
   std::ifstream newdata3;
   std::ofstream myMatrixFile("diffMatrixTest.dat",std::ios::out);
-  newdata3.open("goodMatrix2009_08_31_run112487.dat",std::ios::in); 
+  newdata3.open("goodMatrix.dat",std::ios::in); 
   if(!newdata3) {
-    std::cerr <<"Error: goodMatrix2009_08_31_run112487.dat -> no such file!"<< std::endl;
+    std::cerr <<"Error: goodMatrix.dat -> no such file!"<< std::endl;
     exit(1);
   }
   
@@ -495,12 +482,11 @@ Compare::Compare(const edm::ParameterSet& iConfig)
 	diff_el66[k]=old_el66[i] - new_el66[k];
 	diff_el67[k]=old_el67[i] - new_el67[k];
 	diff_el77[k]=old_el77[i] - new_el77[k];
-	//std::cout<<old_el33[i]<<" new_el33[k]"<<new_el33[k]<<std::endl;
 	myMatrixFile<<counter<<"  "<<diff_el33[k]<<"  "<< diff_el34[k]<<"  "<<diff_el35[k]<<"  "<<diff_el44[k]<<"  "<<diff_el45[k]<<"  "<<diff_el46[k]<<"  "<<diff_el55[k]<<"  "<<diff_el56[k]<<"  "<<diff_el57[k]<<"  "<<diff_el66[k]<<"  "<<diff_el67[k]<<"  "<<diff_el77[k]<<"  "<<std::endl;	
       }
     }
   }
-
+  std::cout<<"DONE with comparison!"<<std::endl; 
 }
 
 
