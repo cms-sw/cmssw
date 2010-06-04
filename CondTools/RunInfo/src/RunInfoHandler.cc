@@ -1,17 +1,14 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CondTools/RunInfo/interface/TestBase.h"
 #include "CondTools/RunInfo/interface/RunInfoHandler.h"
 #include "CondTools/RunInfo/interface/RunInfoRead.h"
 #include<iostream>
-#include<sstream>
 #include<vector>
 
 RunInfoHandler::RunInfoHandler(const edm::ParameterSet& pset) :
-  m_name(pset.getUntrackedParameter<std::string>("name","RunInfoHandler")),
-  m_user(pset.getUntrackedParameter<std::string>("OnlineDBUser","CMS_RUNINFO_R")), 
-  m_pass(pset.getUntrackedParameter<std::string>("OnlineDBPass","PASSWORD")) {
+  m_name(pset.getUntrackedParameter<std::string>("name","RunInfoHandler"))
+  ,m_user(pset.getUntrackedParameter<std::string>("OnlineDBUser","CMS_RUNINFO_R")) 
+  ,m_pass(pset.getUntrackedParameter<std::string>("OnlineDBPass","PASSWORD")) {
   m_connectionString= "oracle://cms_omds_lb/CMS_RUNINFO";
 }
 

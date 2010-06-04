@@ -1,18 +1,9 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondTools/RunInfo/interface/L1TriggerScalerHandler.h"
 #include "CondTools/RunInfo/interface/L1TriggerScalerRead.h"
-
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CondTools/RunInfo/interface/TestBase.h"
-
-
 #include<iostream>
-#include<sstream>
 #include<vector>
-
-
 
 L1TriggerScalerHandler::L1TriggerScalerHandler(const edm::ParameterSet& pset) :
   m_name(pset.getUntrackedParameter<std::string>("name","L1TriggerScalerHandler")),

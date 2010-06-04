@@ -1,15 +1,9 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondTools/RunInfo/interface/RunSummaryHandler.h"
 #include "CondTools/RunInfo/interface/RunSummaryRead.h"
 
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CondTools/RunInfo/interface/TestBase.h"
-
-
 #include<iostream>
-#include<sstream>
 #include<vector>
 
 RunSummaryHandler::RunSummaryHandler(const edm::ParameterSet& pset) :
