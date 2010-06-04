@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.180 $"
+__version__ = "$Revision: 1.181 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -185,6 +185,15 @@ class ConfigBuilder(object):
 					   dataset = cms.untracked.PSet(dataTier = cms.untracked.string(evtContent))
 					   ) 
 
+	if 'DQM' in self.eventcontent.split(','):
+		dqmOutput = cms.OutputModule("PoolOutputModule",
+					     outputCommands = cms.untracked.vstring('drop *','keep *_MEtoEDMConverter_*_*'),
+					     fileName = cms.untracked.string('DQMStream.root'),
+					     dataset = cms.untracked.PSet(filterName = cms.untracked.string(''),dataTier = cms.untracked.string('DQM'))
+					     )
+		self.additionalOutputs['DQMStream'] = dqmOutput
+		setattr(self.process,'DQMStream',dqmOutput)
+	
         # if there is a generation step in the process, that one should be used as filter decision
         if hasattr(self.process,"generation_step"):
             output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('generation_step')) 
@@ -861,7 +870,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.180 $"),
+              (version=cms.untracked.string("$Revision: 1.181 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -919,7 +928,11 @@ class ConfigBuilder(object):
 
         # dump all additional outputs (e.g. alca or skim streams)
 	self.pythonCfgCode += "\n# Additional output definition\n"
-	for name, output in self.additionalOutputs.iteritems():
+	#I do not understand why the keys are not normally ordered.
+	nl=self.additionalOutputs.keys()
+	nl.sort()
+	for name in nl:
+		output = self.additionalOutputs[name]
 		self.pythonCfgCode += "process.%s = %s" %(name, output.dumpPython())
                 tmpOut = cms.EndPath(output)  
                 setattr(self.process,name+'OutPath',tmpOut)
