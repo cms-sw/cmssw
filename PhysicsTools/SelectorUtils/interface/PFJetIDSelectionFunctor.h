@@ -13,7 +13,7 @@
   for a general overview of the selectors. 
 
   \author Salvatore Rappoccio
-  \version  $Id: PFJetIDSelectionFunctor.h,v 1.7.2.1 2010/04/27 14:56:32 srappocc Exp $
+  \version  $Id: PFJetIDSelectionFunctor.h,v 1.8 2010/04/28 17:32:56 srappocc Exp $
 */
 
 
@@ -31,6 +31,8 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
 
   enum Version_t { FIRSTDATA, N_VERSIONS };
   enum Quality_t { LOOSE, TIGHT, N_QUALITY};
+
+
   
  PFJetIDSelectionFunctor( edm::ParameterSet const & params ) 
  {
@@ -84,6 +86,41 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     retInternal_ = getBitTemplate();
     
   }
+
+
+ PFJetIDSelectionFunctor( Version_t version,
+			  Quality_t quality ) :
+  version_(version), quality_(quality)
+ {
+
+    push_back("CHF" );
+    push_back("NHF" );
+    push_back("CEF" );
+    push_back("NEF" );
+    push_back("NCH" );
+    push_back("nConstituents");
+
+
+    // Set some default cuts for LOOSE, TIGHT
+    if ( quality_ == LOOSE ) {
+      set("CHF", 0.0);
+      set("NHF", 1.0);
+      set("CEF", 1.0);
+      set("NEF", 1.0);
+      set("NCH", 0);
+      set("nConstituents", 1);
+    } else if ( quality_ == TIGHT ) {
+      set("CHF", 0.0);
+      set("NHF", 0.9);
+      set("CEF", 1.0);
+      set("NEF", 0.9);
+      set("NCH", 0);
+      set("nConstituents", 1);      
+    }
+
+    retInternal_ = getBitTemplate();   
+ }
+			   
 
   // 
   // Accessor from PAT jets
