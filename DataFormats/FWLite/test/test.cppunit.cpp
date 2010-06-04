@@ -2,7 +2,7 @@
 
 Test program for edm::Ref use in ROOT.
 
-$Id: test.cppunit.cpp,v 1.9 2009/03/02 20:24:27 wmtan Exp $
+$Id: test.cppunit.cpp,v 1.10 2009/09/03 22:07:37 chrjones Exp $
  ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -16,6 +16,7 @@ $Id: test.cppunit.cpp,v 1.9 2009/03/02 20:24:27 wmtan Exp $
 
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/FWLite/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 static char* gArgV = 0;
 
 extern "C" char** environ;
@@ -36,6 +37,7 @@ class testRefInROOT: public CppUnit::TestFixture
    CPPUNIT_TEST(testMissingRef);
    CPPUNIT_TEST(testMissingData);
    CPPUNIT_TEST(testEventBase);
+   CPPUNIT_TEST(testSometimesMissingData);
 
   // CPPUNIT_TEST_EXCEPTION(failChainWithMissingFile,std::exception);
   //failTwoDifferentFiles
@@ -71,9 +73,10 @@ public:
   void failOneBadFile();
   void testGoodChain();
   void testHandleErrors();
-   void testMissingRef();
-   void testMissingData();
-   void testEventBase();
+  void testMissingRef();
+  void testMissingData();
+  void testEventBase();
+  void testSometimesMissingData();
   // void failChainWithMissingFile();
   //void failDidNotCallGetEntryForEvents();
 
@@ -251,6 +254,40 @@ void testRefInROOT::testMissingData()
       CPPUNIT_ASSERT(pOthers.failedToGet());
       CPPUNIT_ASSERT_THROW(pOthers.product(), cms::Exception);
    }
+}
+
+void testRefInROOT::testSometimesMissingData()
+{
+  TFile file("partialEvent.root");
+  fwlite::Event events(&file);
+  
+  unsigned int index=0;
+  edm::InputTag tag("OtherThing","testUserTag");
+  for(events.toBegin(); not events.atEnd(); ++events,++index) {
+    
+    fwlite::Handle<edmtest::OtherThingCollection> pOthers;
+    pOthers.getByLabel(events,"OtherThing","testUserTag");
+    
+    if(0==index) {
+      CPPUNIT_ASSERT(not pOthers.isValid());
+      CPPUNIT_ASSERT(pOthers.failedToGet());
+      CPPUNIT_ASSERT_THROW(pOthers.product(), cms::Exception);
+    } else {
+      CPPUNIT_ASSERT(pOthers.isValid());
+    }
+    
+    edm::Handle<edmtest::OtherThingCollection> edmPOthers;
+    events.getByLabel(tag, edmPOthers);
+    if(0==index) {
+      CPPUNIT_ASSERT(not edmPOthers.isValid());
+      CPPUNIT_ASSERT(edmPOthers.failedToGet());
+      CPPUNIT_ASSERT_THROW(edmPOthers.product(), cms::Exception);
+    } else {
+      CPPUNIT_ASSERT(edmPOthers.isValid());
+    }
+    
+    
+  }
 }
 
 void testRefInROOT::testHandleErrors()

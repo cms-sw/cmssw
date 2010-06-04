@@ -4,3 +4,4 @@ rm -f good.root good2.root empty.root other_only.root good_delta5.root
 cmsRun ${LOCAL_TEST_DIR}/RefTest_cfg.py
 cmsRun ${LOCAL_TEST_DIR}/RefTest2_cfg.py
 cmsRun ${LOCAL_TEST_DIR}/EmptyFile_cfg.py
+cmsRun ${LOCAL_TEST_DIR}/PartialEventTest_cfg.py
