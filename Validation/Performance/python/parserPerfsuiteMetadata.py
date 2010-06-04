@@ -503,10 +503,14 @@ class parserPerfsuiteMetadata:
 		for job_lines in jobs:
 			""" we apply the defined parsing rules to extract the required fields of information into the dictionary (as defined in parsing rules) """
 			info = self._applyParsingRules(parsing_rules, job_lines)
-			#Fixing here the compatibility with new cmsdriver.py --conditions option (for which now FrontierConditions_GlobalTag, is now optional):
-			if 'FrontierConditions_GlobalTag' in info['conditions']:
-				info['conditions']=info['conditions'].split(",")[1]
-
+			#Fixing here the compatibility with new cmsdriver.py --conditions option (for which now we have autoconditions and FrontierConditions_GlobalTag is optional):
+			if 'auto:' in info['conditions']:
+				from Configuration.PyReleaseValidation.autoCond import autoCond
+				info['conditions'] = autoCond[ info['conditions'].split(':')[1] ].split("::")[0]
+			else:
+				if 'FrontierConditions_GlobalTag' in info['conditions']:
+					info['conditions']=info['conditions'].split(",")[1]
+																
 			#DEBUG:
 			#print "CONDITIONS are: %s"%info['conditions']
 			#start time - the index after which comes the time stamp

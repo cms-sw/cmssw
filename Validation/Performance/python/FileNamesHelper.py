@@ -72,7 +72,7 @@ def read_ConfigurationFromSimulationCandles(path, step, is_pileup):
 		#Massaging the info dictionary conditions entry to allow for new cmsDriver.py --conditions option:
 		if 'auto:' in info['conditions']:
 			from Configuration.PyReleaseValidation.autoCond import autoCond
-			Conditions = autoCond[ info['conditions'].split(':')[1] ].split("::")[0] 
+			info['conditions'] = autoCond[ info['conditions'].split(':')[1] ].split("::")[0] 
 		else:
 			if 'FrontierConditions_GlobalTag' in info['conditions']:
 				info['conditions']=info['conditions'].split(",")[1]
