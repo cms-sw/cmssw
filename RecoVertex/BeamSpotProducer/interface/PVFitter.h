@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: PVFitter.h,v 1.4 2010/04/13 08:43:43 adamwo Exp $
+ version $Id: PVFitter.h,v 1.5 2010/05/31 20:28:48 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -60,6 +60,7 @@ class PVFitter {
     resetLSRange();
     resetRefTime();
     pvStore_.clear();
+    bxMap_.clear();
     dynamicQualityCut_ = 1.e30;
     hPVx->Reset();
     hPVy->Reset();
