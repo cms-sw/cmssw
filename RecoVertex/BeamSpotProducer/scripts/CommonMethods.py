@@ -40,7 +40,6 @@ def timeoutManager(type,timeout=-1,fileName=".timeout"):
                     isTimeout = True
                     timeoutType = 1    
                     print "Timeout! " + str(elapsedTime) + " seconds passed since the " + type + " timeout was set and you can't tolerate more than " + str(timeout) + " seconds!"
-                    text = text.replace(line,'')
                 else:
                     timeoutType = 0
                     print "Timeout of type " + type + " already exist and was generated " + str(elapsedTime) + " seconds ago at " + fields[1]
