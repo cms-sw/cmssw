@@ -11156,6 +11156,10 @@ process.DQMOutput = cms.EndPath( process.hltDQML1Scalers + process.hltDQML1SeedL
 process.HLTDQMOutput = cms.EndPath( process.hltPreHLTDQM + process.hltPreHLTDQMSmart + process.hltOutputHLTDQM )
 process.HLTMONOutput = cms.EndPath( process.hltPreHLTMON + process.hltPreHLTMONSmart + process.hltOutputHLTMON )
 
+
+# override the preshower baseline setting for MC
+if 'ESUnpackerWorkerESProducer' in process.__dict__:
+    process.ESUnpackerWorkerESProducer.RHAlgo.ESBaseline = 1000
 process.setName_('HLT')
 
 process.maxEvents = cms.untracked.PSet(

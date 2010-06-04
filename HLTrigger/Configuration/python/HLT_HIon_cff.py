@@ -1870,3 +1870,7 @@ HLTAnalyzerEndpath = cms.EndPath( hltL1GtTrigReport + hltTrigReport )
 
 
 HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_HIMinBiasCalo, HLT_HIJet35U, HLT_HIPhoton15, HLT_HIDoubleMu, HLTriggerFinalPath, HLTAnalyzerEndpath ))
+
+# override the preshower baseline setting for MC
+if 'ESUnpackerWorkerESProducer' in locals():
+    ESUnpackerWorkerESProducer.RHAlgo.ESBaseline = 1000

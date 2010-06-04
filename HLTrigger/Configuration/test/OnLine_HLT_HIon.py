@@ -2354,6 +2354,10 @@ process.HLTAnalyzerEndpath = cms.EndPath( process.hltL1GtTrigReport + process.hl
 process.HLTOutput = cms.EndPath( process.hltOutputA )
 process.AlCaOutput = cms.EndPath( process.hltOutputCalibration + process.hltOutputEcalCalibration + process.hltOutputALCAP0 + process.hltOutputALCAPHISYM + process.hltOutputRPCMON + process.hltOutputOnlineErrors )
 
+
+# override the preshower baseline setting for MC
+if 'ESUnpackerWorkerESProducer' in process.__dict__:
+    process.ESUnpackerWorkerESProducer.RHAlgo.ESBaseline = 1000
 process.setName_('HLT')
 
 process.maxEvents = cms.untracked.PSet(
