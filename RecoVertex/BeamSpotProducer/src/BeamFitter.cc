@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.61 2010/06/04 00:50:18 jengbou Exp $
+   version $Id: BeamFitter.cc,v 1.62 2010/06/04 20:54:38 uplegger Exp $
 
 ________________________________________________________________**/
 
@@ -381,11 +381,16 @@ bool BeamFitter::runPVandTrkFitter() {
     reco::BeamSpot bspotTrk;
         
     // First run PV fitter
-    if ( MyPVFitter->IsFitPerBunchCrossing() && MyPVFitter->runBXFitter() ) {
-
-      fbspotPVMap = MyPVFitter->getBeamSpotMap();
-
-    } else if ( MyPVFitter->runFitter() ) {
+    if ( MyPVFitter->IsFitPerBunchCrossing() ){
+      if ( MyPVFitter->runBXFitter() ) {
+	fbspotPVMap = MyPVFitter->getBeamSpotMap();
+	return true;
+      }
+      else{
+	return false;
+      }
+    }
+    if ( MyPVFitter->runFitter() ) {
 
         bspotPV = MyPVFitter->getBeamSpot();
 
@@ -420,7 +425,7 @@ bool BeamFitter::runPVandTrkFitter() {
         }
     }
     // change beam width error to one from PV
-    if (pv_fit_ok) {
+    if (pv_fit_ok && fit_ok ) {
       matrix(6,6) = MyPVFitter->getWidthXerr() * MyPVFitter->getWidthXerr();
     
       // get Z and sigmaZ from PV fit
