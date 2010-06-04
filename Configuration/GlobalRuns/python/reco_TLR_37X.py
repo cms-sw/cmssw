@@ -83,6 +83,11 @@ def customisePPData(process):
     ## particle flow HF cleaning
     process.particleFlowRecHitHCAL.LongShortFibre_Cut = 30.
     process.particleFlowRecHitHCAL.ApplyPulseDPG = True
+
+    ## HF cleaning for data only
+    process.hcalRecAlgos.SeverityLevels[3].RecHitFlags.remove("HFDigiTime")
+    process.hcalRecAlgos.SeverityLevels[4].RecHitFlags.append("HFDigiTime")
+    
     
     return process
 
