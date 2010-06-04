@@ -1,5 +1,3 @@
-#include "CondFormats/Calibration/interface/BitArray.h"
-
 #include "CondFormats/Calibration/interface/Pedestals.h"
 #include "CondFormats/Calibration/interface/BlobPedestals.h"
 #include "CondFormats/Calibration/interface/BlobNoises.h"
@@ -21,6 +19,5 @@ namespace {
   struct dictionary {
     fixedArray<unsigned short,2097> d;
     std::map<std::string, Algo> e;
-    BitArray<9> f;
   };
 }
