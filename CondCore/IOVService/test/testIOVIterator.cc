@@ -14,7 +14,6 @@
 #include <algorithm>
 #include <boost/bind.hpp>
 
-#include "CondCore/DBCommon/interface/TypedRef.h"
 #include "CondCore/IOVService/interface/PayloadProxy.h"
 
 
