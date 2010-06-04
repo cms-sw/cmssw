@@ -28,29 +28,30 @@ class TestSiStripConfObject : public CppUnit::TestFixture
     CPPUNIT_ASSERT( conf.put("par2", 1.1) == true );
     CPPUNIT_ASSERT( conf.put("par3", "one") == true);
 
-    CPPUNIT_ASSERT( conf.getInt("par1") == 1 );
-    CPPUNIT_ASSERT( float(conf.getDouble("par2")) == float(1.1) );
-    CPPUNIT_ASSERT( conf.getString("par3") == "one" );
+    CPPUNIT_ASSERT( conf.get<int>("par1") == 1 );
+    CPPUNIT_ASSERT( conf.get<float>("par2") == float(1.1) );
+    CPPUNIT_ASSERT( conf.get<std::string>("par3") == "one" );
 
-    // std::cout << "par1 int = " << conf.getInt("par1") << std::endl;
-    // std::cout << "par1 float = " << conf.getFloat("par1") << std::endl;
-    // std::cout << "par1 string = " << conf.getString("par1") << std::endl;
+    // std::cout << "par1 int = " << conf.get<int>("par1") << std::endl;
+    // std::cout << "par1 float = " << conf.get<float>("par1") << std::endl;
+    // std::cout << "par1 string = " << conf.get<std::string>("par1") << std::endl;
 
-    // std::cout << "par2 int = " << conf.getInt("par2") << std::endl;
-    // std::cout << "par2 float = " << conf.getFloat("par2") << std::endl;
-    // std::cout << "par2 string = " << conf.getString("par2") << std::endl;
+    // std::cout << "par2 int = " << conf.get<int>("par2") << std::endl;
+    // std::cout << "par2 float = " << conf.get<float>("par2") << std::endl;
+    // std::cout << "par2 string = " << conf.get<std::string>("par2") << std::endl;
 
-    // std::cout << "par3 int = " << conf.getInt("par3") << std::endl;
-    // std::cout << "par3 float = " << conf.getFloat("par3") << std::endl;
-    // std::cout << "par3 string = " << conf.getString("par3") << std::endl;
+    // std::cout << "par3 int = " << conf.get<int>("par3") << std::endl;
+    // std::cout << "par3 float = " << conf.get<float>("par3") << std::endl;
+    // std::cout << "par3 string = " << conf.get<std::string>("par3") << std::endl;
 
     // Insertion of already existing parameter
     CPPUNIT_ASSERT( conf.put("par1", 2) == false );
 
-    // Retrieval of inexistent parameter
-    CPPUNIT_ASSERT( conf.getInt("par4") == 0 );
-    CPPUNIT_ASSERT( conf.getDouble("par4") == 0. );
-    CPPUNIT_ASSERT( conf.getString("par4") == "" );
+    // Check if the parameter is there
+    CPPUNIT_ASSERT( conf.isParameter("par1") );
+    CPPUNIT_ASSERT( conf.isParameter("par2") );
+    CPPUNIT_ASSERT( conf.isParameter("par3") );
+    CPPUNIT_ASSERT( !(conf.isParameter("par4")) );
   }
 
   CPPUNIT_TEST_SUITE( TestSiStripConfObject );

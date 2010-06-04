@@ -14,12 +14,12 @@
  * Author M. De Mattia - 16/11/2009
  *
  * Simple class used to store configuration values. <br>
- * It stores a vector<string> and a vector<int> containing the name and value of the parameter. <br>
- * The put and get methods are provied to store and access the parameters. <br>
+ * It stores a map<std::string, std::string> with all the parameters and their values. <br>
+ * The put and get methods are provided to store and access the parameters. <br>
+ * The put method retuns a bool which is true if the insertion was successuful. If the parameter
+ * is already existing the insertion will not happen and the return value will be false. <br>
+ * The get method is templated and works like the getParameter<type> of the framework. <br>
  * The printSummary and printDebug method return both the full list of parameters. <br>
- * The vectors with names and parameters are public. <br>
- * WARNING: the get method assumes that the elements in the two vectors correspond (vector<string>[i] <-> vector<int>[i]).
- * This is the case if the values are input with the put method.
  */
 
 class SiStripConfObject
@@ -36,22 +36,25 @@ class SiStripConfObject
     return false;
   }
 
-  int getInt( const std::string & name );
-  double getDouble( const std::string & name );
-  std::string getString( const std::string & name );
-
   template <class valueType>
-  void get( const std::string & name, valueType * value )
+  valueType get( const std::string & name ) const
   {
+    valueType returnValue;
     parMap::const_iterator it = parameters.find(name);
     std::stringstream ss;
     if( it != parameters.end() ) {
       ss << it->second;
-      ss >> (*value);
+      ss >> returnValue;
     }
     else {
       std::cout << "WARNING: parameter " << name << " not found. Returning default value" << std::endl;
     }
+    return returnValue;
+  }
+
+  bool isParameter( const std::string & name ) const
+  {
+    return( parameters.find(name) != parameters.end() );
   }
 
   /// Prints the full list of parameters
