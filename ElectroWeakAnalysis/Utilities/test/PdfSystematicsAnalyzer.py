@@ -25,10 +25,10 @@ process.source = cms.Source("PoolSource",
 
 # Produce PDF weights (maximum is 3)
 process.pdfWeights = cms.EDProducer("PdfWeightProducer",
-      FixPOWHEG = cms.untracked.bool(False), # fix POWHEG (it requires cteq6m* PDFs in the list)
+      FixPOWHEG = cms.untracked.bool(False), # fix POWHEG (it requires cteq66* PDFs in the list)
       PdfInfoTag = cms.untracked.InputTag("generator"),
       PdfSetNames = cms.untracked.vstring(
-              "cteq65.LHgrid"
+              "cteq66.LHgrid"
             #, "MRST2006nnlo.LHgrid"
             #, "MRST2007lomod.LHgrid"
       )
@@ -48,7 +48,7 @@ process.load("ElectroWeakAnalysis.WMuNu.WMuNuSelection_cff")
 process.pdfSystematics = cms.EDFilter("PdfSystematicsAnalyzer",
       SelectorPath = cms.untracked.string('pdfana'),
       PdfWeightTags = cms.untracked.VInputTag(
-              "pdfWeights:cteq65"
+              "pdfWeights:cteq66"
             #, "pdfWeights:MRST2006nnlo"
             #, "pdfWeights:MRST2007lomod"
       )

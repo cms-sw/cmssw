@@ -58,14 +58,12 @@ PdfWeightProducer::PdfWeightProducer(const edm::ParameterSet& pset) :
             size_t dot = pdfSetNames_[k].find_first_of('.');
             pdfShortNames_.push_back(pdfSetNames_[k].substr(0,dot));
             produces<std::vector<double> >(pdfShortNames_[k].data());
-            if (fixPOWHEG_ && pdfShortNames_[k]=="cteq6mE") {
+            if (fixPOWHEG_ && pdfShortNames_[k]=="cteq66") {
                   powhegPdfIndex_ = k+1;
-            } else if (fixPOWHEG_ && powhegPdfIndex_<0 && pdfShortNames_[k]=="cteq6m"){
-                   powhegPdfIndex_ = k+1;
             }
       }
       if (fixPOWHEG_ && powhegPdfIndex_<0) {
-            edm::LogWarning("") << " You have requested to fix POWHEG PDFs, but a cteq6m set has not be found in the list";
+            edm::LogWarning("") << " You have requested to fix POWHEG PDFs, but a cteq66 set has not be found in the list";
             edm::LogWarning("") << " We will use the first PDF set found in the list as reference !!";
             powhegPdfIndex_ = 1;
       }

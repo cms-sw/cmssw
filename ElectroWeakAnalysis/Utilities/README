@@ -33,7 +33,7 @@ src/PdfWeightProducer.cc
             FixPOWHEG = cms.untracked.bool(False), # fix buggy POWHEG
             PdfInfoTag = cms.untracked.InputTag("generator"),
             PdfSetNames = cms.untracked.vstring(
-                    "cteq65.LHgrid"
+                    "cteq66.LHgrid"
                   , "MRST2006nnlo.LHgrid"
                   , "MRST2007lomod.LHgrid"
             )
@@ -49,7 +49,7 @@ src/PdfWeightProducer.cc
       process.pdfSystematics = cms.EDFilter("PdfSystematicsAnalyzer",
             SelectorPath = cms.untracked.string('pdfana'), # put here the selection path
             PdfWeightTags = cms.untracked.VInputTag(
-                    "pdfWeights:cteq65"
+                    "pdfWeights:cteq66"
                   , "pdfWeights:MRST2006nnlo"
                   , "pdfWeights:MRST2007lomod"
             )
