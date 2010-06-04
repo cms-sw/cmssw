@@ -63,7 +63,8 @@ HcalHFStatusBitFromDigis::~HcalHFStatusBitFromDigis(){}
 void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf, 
 						 const HFDataFrame& digi,
 						 const HcalCoder& coder,
-						 const HcalCalibrations& calib)
+						 const HcalCalibrations& calib,
+						 bool isData)
 {
   // The following 3 values are computed using the default reconstruction window (for Shuichi's algorithm)
   double maxInWindow=-10; // maximum value found in reco window
@@ -124,7 +125,7 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
       // Calculate allowed minimum value of (TS4/TS3+4+5+6):
       double cutoff=coef0_-exp(coef1_+coef2_*RecomputedEnergy);
       
-      if (peakCharge/totalCharge<cutoff)
+      if (peakCharge/totalCharge<cutoff && isData==true)
 	hf.setFlagField(1,HcalCaloFlagLabels::HFDigiTime);
     }
   
@@ -144,7 +145,7 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
 	      maxtime+=HFlongwindowMaxTime_[i]*enPow;
 	      enPow*=mult;
 	    }
-	  if (hf.time()<mintime || hf.time()>maxtime)
+	  if ((hf.time()<mintime || hf.time()>maxtime) && isData==true)
 	    hf.setFlagField(1,HcalCaloFlagLabels::HFInTimeWindow);
 	}
     }
@@ -162,7 +163,7 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
 	      maxtime+=HFshortwindowMaxTime_[i]*enPow;
 	      enPow*=mult;
 	    }
-	  if (hf.time()<mintime || hf.time()>maxtime)
+	  if ((hf.time()<mintime || hf.time()>maxtime) && isData==true)
 	    hf.setFlagField(1,HcalCaloFlagLabels::HFInTimeWindow);
 	}
     }
