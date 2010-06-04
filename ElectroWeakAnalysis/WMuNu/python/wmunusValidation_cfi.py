@@ -5,7 +5,7 @@ wmnVal_corMet = cms.EDFilter("WMuNuValidator",
       FastOption = cms.untracked.bool(False),
 
       # Input collections ->
-      TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
+      TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),# CAREFUL --> In Summer08 and in data, "HLT". In Spring10 --> REDIGI
       MuonTag = cms.untracked.InputTag("muons"),
       METTag = cms.untracked.InputTag("corMetGlobalMuons"),
       METIncludesMuons = cms.untracked.bool(True),
@@ -28,8 +28,9 @@ wmnVal_corMet = cms.EDFilter("WMuNuValidator",
       # Muon quality cuts ->
       DxyCut = cms.untracked.double(0.2),
       NormalizedChi2Cut = cms.untracked.double(10.),
-      TrackerHitsCut = cms.untracked.int32(11),
+      TrackerHitsCut = cms.untracked.int32(10),
       IsAlsoTrackerMuon = cms.untracked.bool(True),
+      NMatchesCut = cms.untracked.int32(2),
       
       # To suppress Zmm ->
       PtThrForZ1 = cms.untracked.double(20.0),

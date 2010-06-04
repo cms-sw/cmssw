@@ -56,10 +56,11 @@ private:
   double dxyCut_;
   double normalizedChi2Cut_;
   int trackerHitsCut_;
+  int pixelHitsCut_;    
   int muonHitsCut_;
   bool isAlsoTrackerMuon_;
-  int nSegCut_;
-
+  int nMatchesCut_;
+      
   int selectByCharge_;
 
   double nall; 
@@ -135,15 +136,16 @@ WMuNuSelector::WMuNuSelector( const ParameterSet & cfg ) :
       mtMax_(cfg.getUntrackedParameter<double>("MtMax", 9999999.)),
       metMin_(cfg.getUntrackedParameter<double>("MetMin", -999999.)),
       metMax_(cfg.getUntrackedParameter<double>("MetMax", 999999.)),
-      acopCut_(cfg.getUntrackedParameter<double>("AcopCut", 2.)),
+      acopCut_(cfg.getUntrackedParameter<double>("AcopCut", 2.)),   
 
       // Muon quality cuts
-      dxyCut_(cfg.getUntrackedParameter<double>("DxyCut", 0.2)),
-      normalizedChi2Cut_(cfg.getUntrackedParameter<double>("NormalizedChi2Cut", 10.)),
-      trackerHitsCut_(cfg.getUntrackedParameter<int>("TrackerHitsCut", 11)),
-      muonHitsCut_(cfg.getUntrackedParameter<int>("MuonHitsCut", 1)),
+      dxyCut_(cfg.getUntrackedParameter<double>("DxyCut", 0.2)),   // dxy <= 0.2 cm 
+      normalizedChi2Cut_(cfg.getUntrackedParameter<double>("NormalizedChi2Cut", 10.)), // chi2/ndof (of global fit) <=10
+      trackerHitsCut_(cfg.getUntrackedParameter<int>("TrackerHitsCut", 10)),  // Tracker Hits >=10 
+      pixelHitsCut_(cfg.getUntrackedParameter<int>("PixelHitsCut", 1)), // Pixel Hits >=1
+      muonHitsCut_(cfg.getUntrackedParameter<int>("MuonHitsCut", 1)),  // Valid Muon Hits >= 1 
       isAlsoTrackerMuon_(cfg.getUntrackedParameter<bool>("IsAlsoTrackerMuon", true)),
-      nSegCut_(cfg.getUntrackedParameter<int>("nSegCut", 1)),
+      nMatchesCut_(cfg.getUntrackedParameter<int>("NMatchesCut", 2)), // Chambers with matches >= 2
 
 
       // W+/W- Selection
@@ -172,11 +174,12 @@ void WMuNuSelector::beginJob() {
      h1_["hPtMu"]                    =fs->make<TH1D>("ptMu","Pt mu",100,0.,100.);
      h1_["hEtaMu"]                   =fs->make<TH1D>("etaMu","Eta mu",50,-2.5,2.5);
      h1_["hd0"]                      =fs->make<TH1D>("d0","Impact parameter",1000,-1.,1.);
-     h1_["hNHits"]                   =fs->make<TH1D>("NumberOfValidHits","Number of Hits in Silicon",100,0.,100.);
+     /*h1_["hNHits"]                   =fs->make<TH1D>("NumberOfValidHits","Number of Hits in Silicon",100,0.,100.);
      h1_["hNMuonHits"]               =fs->make<TH1D>("NumberOfValidMuonHits","Number of Hits in Silicon",100,0.,100.);
      h1_["hNormChi2"]                =fs->make<TH1D>("NormChi2","Chi2/ndof of global track",1000,0.,50.);
      h1_["hTracker"]                 =fs->make<TH1D>("isTrackerMuon","is Tracker Muon?",2,0.,2.);
-     h1_["hNSegments"]               =fs->make<TH1D>("NumberOfMatchedSegments","Number of MuonSegments matched to the muon",10,0,10);
+     h1_["hNMatches"]                =fs->make<TH1D>("NumberOfMatches","Number of Chambers with matched Segments",10,0,10);*/
+     h1_["hMuonIDCuts"]              =fs->make<TH1D>("MuonID","Muon Passes all the VBTF Quality Criteria",2,-0.5,1.5);
      h1_["hMET"]                     =fs->make<TH1D>("MET","Missing Transverse Energy (GeV)", 200,0,200);
      h1_["hTMass"]                   =fs->make<TH1D>("TMass","Rec. Transverse Mass (GeV)",200,0,200);
      h1_["hAcop"]                    =fs->make<TH1D>("Acop","Mu-MET acoplanarity",50,0.,M_PI);
@@ -400,6 +403,8 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             if (!mu.isGlobalMuon()) return 0; 
 
             reco::TrackRef gm = mu.globalTrack();
+            reco::TrackRef tk = mu.innerTrack();
+
 
             // Pt,eta cuts
             double pt = mu.pt();
@@ -418,28 +423,36 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             nkin++;
                    if(plotHistograms_) h1_["hCutFlowSummary"]->Fill(7.);
 
-            // d0, chi2, nhits quality cuts
+            // Quality cuts
             double dxy = gm->dxy(beamSpotHandle->position());
             double normalizedChi2 = gm->normalizedChi2(); 
-            int trackerHits = gm->hitPattern().numberOfValidTrackerHits();
+            int trackerHits = tk->hitPattern().numberOfValidTrackerHits();
+            int pixelHits = tk->hitPattern().numberOfValidPixelHits();
             int muonHits = gm->hitPattern().numberOfValidMuonHits();
-            int    nSeg = mu.numberOfMatches(); 
+            int nMatches = mu.numberOfMatches(); 
        
-            LogTrace("") << "\t... Muon dxy, normalizedChi2, trackerHits, muonhits, isTrackerMuon?: " << dxy << " [cm], "<<normalizedChi2 << ", "<<trackerHits << ", " <<", "<<muonHits << ", " << mu.isTrackerMuon();
+
+            bool quality = (dxy>dxyCut_)*(normalizedChi2>normalizedChi2Cut_)*(trackerHits<trackerHitsCut_)*(pixelHits<pixelHitsCut_)*(muonHits<muonHitsCut_)*(!mu.isTrackerMuon())*(nMatches<nMatchesCut_);
+
+                 if(plotHistograms_){ h1_["hMuonIdCuts"]->Fill(quality);}
+
+            LogTrace("") << "\t... dxy, normalizedChi2, muonhits, trackerHits, pixelHits, isTrackerMuon?, nMatches: " << dxy << " [cm], " << normalizedChi2 << ", " <<muonHits<<" , "<< trackerHits <<" , "<< pixelHits <<  ", " << mu.isTrackerMuon()<<", "<<nMatches;
+            LogTrace("") << "\t... muon passes the quality cuts? "<<quality<<endl;
 
                   if(plotHistograms_){ h1_["hd0"]->Fill(dxy);}
             if (dxy>dxyCut_) return 0;
-                  if(plotHistograms_){ h1_["hNormChi2"]->Fill(normalizedChi2);}
+            //               if(plotHistograms_){ h1_["hNormChi2"]->Fill(normalizedChi2);}
             if (normalizedChi2>normalizedChi2Cut_) return 0;
-                  if(plotHistograms_){ h1_["hNHits"]->Fill(trackerHits);}
+            //               if(plotHistograms_){ h1_["hNHits"]->Fill(trackerHits);}
             if (trackerHits<trackerHitsCut_) return 0;
-                  if(plotHistograms_){ h1_["hNMuonHits"]->Fill(muonHits);}
+            //               if(plotHistograms_){ h1_["hNMuonHits"]->Fill(muonHits);}
+            if (pixelHits<pixelHitsCut_) return 0;
+            //               if(plotHistograms_){ h1_["hNPixelHits"]->Fill(pixelHits);}
             if (muonHits<muonHitsCut_) return 0;
-                  if(plotHistograms_){ h1_["hTracker"]->Fill(mu.isTrackerMuon());}
+            //               if(plotHistograms_){ h1_["hTracker"]->Fill(mu.isTrackerMuon());}
             if (!mu.isTrackerMuon()) return 0;
-                  if(plotHistograms_){ h1_["hNSegments"]->Fill(nSeg);}
-            if (nSeg<nSegCut_) return 0;
-            
+            //               if(plotHistograms_){ h1_["hNMatches"]->Fill(nMatches);}
+            if (nMatches<nMatchesCut_) return 0;
 
             nid++;
 

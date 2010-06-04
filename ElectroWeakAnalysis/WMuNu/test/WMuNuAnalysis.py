@@ -11,7 +11,7 @@ process.load("ElectroWeakAnalysis.WMuNu.wmunusValidation_cfi")
 
 process.source = cms.Source("PoolSource",
       fileNames = cms.untracked.vstring(
-        'file:/ciet3b/data4/Spring10_10invpb_AODRED/Wmunu_Wminus-powheg_1.root'
+        'file:/ciet3b/data4/Spring10_10invpb_AODRED/Wmunu/Wmunu_1.root'
       ),
       inputCommands = cms.untracked.vstring(
       'keep *', 'drop *_lumiProducer_*_*', 'drop *_MEtoEDMConverter_*_*', 'drop *_l1GtTriggerMenuLite_*_*' 
