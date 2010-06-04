@@ -29,8 +29,8 @@
 #include "CondFormats/RPCObjects/interface/ChamberStripSpec.h"
 #include "CondFormats/RPCObjects/interface/DBSpecToDetUnit.h"
 
-#include "CondCore/DBCommon/interface/SessionConfiguration.h"
-#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
+
+
 #include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/DBCommon/interface/DbSession.h"
 #include "CondCore/DBCommon/interface/DbConnection.h"

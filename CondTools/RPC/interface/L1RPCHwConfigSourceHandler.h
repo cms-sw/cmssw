@@ -19,8 +19,8 @@
 #include "CondFormats/RPCObjects/interface/L1RPCHwConfig.h"
 #include "CondFormats/DataRecord/interface/L1RPCHwConfigRcd.h"
 
-#include "CondCore/DBCommon/interface/SessionConfiguration.h"
-#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
+
+
 #include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/DBCommon/interface/DbSession.h"
 #include "CondCore/DBCommon/interface/DbConnection.h"

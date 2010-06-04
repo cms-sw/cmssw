@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/05/21 07:06:44 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/06/01 10:34:12 $
+ *  $Revision: 1.4 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -17,7 +17,7 @@
 //-------------------------------
 #include "CondFormats/DTObjects/interface/DTCCBConfig.h"
 #include "CondFormats/DTObjects/interface/DTKeyedConfig.h"
-#include "CondCore/DBCommon/interface/AuthenticationMethod.h"
+
 
 #include "CondCore/DBCommon/interface/DbConnection.h"
 #include "CondCore/DBCommon/interface/DbSession.h"

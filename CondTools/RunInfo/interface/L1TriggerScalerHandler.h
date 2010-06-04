@@ -11,8 +11,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 
-#include "CondCore/DBCommon/interface/SessionConfiguration.h"
-#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
+
+
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/Connection.h"

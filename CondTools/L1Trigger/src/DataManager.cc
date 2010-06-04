@@ -2,8 +2,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CondCore/DBCommon/interface/SessionConfiguration.h"
-#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
+
+
 
 
 namespace l1t

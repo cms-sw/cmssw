@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/03/26 14:11:04 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/05/14 11:43:09 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -16,7 +16,7 @@
 // Collaborating Class Headers --
 //-------------------------------
 #include "CondFormats/DTObjects/interface/DTLVStatus.h"
-#include "CondCore/DBCommon/interface/AuthenticationMethod.h"
+
 
 #include "CondCore/DBCommon/interface/DbConnection.h"
 #include "CondCore/DBCommon/interface/DbSession.h"

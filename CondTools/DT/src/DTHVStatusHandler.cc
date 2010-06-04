@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/04/02 10:31:44 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/05/14 11:43:08 $
+ *  $Revision: 1.8 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -17,7 +17,7 @@
 //-------------------------------
 #include "CondTools/DT/interface/DTHVAbstractCheck.h"
 #include "CondFormats/DTObjects/interface/DTHVStatus.h"
-#include "CondCore/DBCommon/interface/AuthenticationMethod.h"
+
 
 #include "CondCore/DBCommon/interface/DbConnection.h"
 #include "CondCore/DBCommon/interface/DbSession.h"

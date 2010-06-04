@@ -14,7 +14,7 @@ objects from OMDS to ORCON.
 //
 // Original Author:  Michael Eads
 //         Created:  8 Feb 2008
-// $Id: PixelPopConCalibSourceHandler.h,v 1.2.2.1 2008/09/03 16:41:57 meads Exp $
+// $Id: PixelPopConCalibSourceHandler.h,v 1.4 2010/01/21 21:11:45 meads Exp $
 //
 //
 
@@ -24,8 +24,6 @@ objects from OMDS to ORCON.
 #include "CondFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
 #include "CondTools/SiPixel/interface/PixelPopConSourceHandler.h"
 
-#include "CondCore/DBCommon/interface/DBSession.h"
-#include "CondCore/DBCommon/interface/CoralTransaction.h"
 
 // class definition
 class PixelPopConCalibSourceHandler : public PixelPopConSourceHandler<SiPixelCalibConfiguration> {
