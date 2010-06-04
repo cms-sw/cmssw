@@ -1,8 +1,65 @@
-import math, re, optparse, commands, os, sys
+import math, re, optparse, commands, os, sys, time, datetime
 from BeamSpotObj import BeamSpot
 from IOVObj import IOV
 
 lockFile = ".lock"
+
+###########################################################################################
+def timeoutManager(type,timeout=-1,fileName=".timeout"):
+    timeFormat = "%a,%Y/%m/%d,%H:%M:%S"
+    currentTime = time.gmtime()
+    timeoutLine = type + ' ' + time.strftime(timeFormat, currentTime) + '\n'
+    isTimeout = False
+    alreadyThere = False
+    timeoutType = -1;
+    fileExist = os.path.isfile(fileName)
+    text = ''
+    fields = []
+    reset = False
+    if timeout == -1:
+        reset = True
+    if fileExist:
+        file = open(fileName)
+        for line in file:
+            text += line
+            fields = line.strip('\n').split(' ')
+            if fields[0] == type:
+                alreadyThere = True
+                if reset:
+                    text = text.replace(line,'')
+                    continue
+                    
+                fileTime = time.strptime(fields[1],timeFormat)
+                myTime = time.mktime(fileTime)
+                referenceTime = time.mktime(time.gmtime())
+                daylight = 0
+                if currentTime.tm_isdst == 0:
+                    daylight = 3600
+                elapsedTime = referenceTime-myTime-daylight
+                if elapsedTime > timeout:
+                    isTimeout = True
+                    timeoutType = 1    
+                    print "Timeout! " + str(elapsedTime) + " seconds passed since the " + type + " timeout was set and you can't tolerate more than " + str(timeout) + " seconds!"
+                    text = text.replace(line,'')
+                else:
+                    timeoutType = 0
+                    print "Timeout of type " + type + " already exist and was generated " + str(elapsedTime) + " seconds ago at " + fields[1]
+
+        file.close()
+
+    if not fileExist or not alreadyThere and not reset:
+        timeoutType = -1    
+        text += timeoutLine
+
+    if not fileExist or not alreadyThere or isTimeout or (reset and alreadyThere):
+        if fileExist:
+            commands.getstatusoutput("rm -rf " + fileName)
+        file = open(fileName,'w')
+        file.write(text)
+        file.close()
+                                 
+    return timeoutType
+
 
 ###########################################################################################
 def setLockName(name):
@@ -263,9 +320,9 @@ def readBeamSpotFile(fileName,listbeam=[],IOVbase="runbase", firstRun='1',lastRu
     
     #firstRun = "1"
     #lastRun  = "4999999999"
-    #if IOVbase == "lumibase":
-    #	firstRun = "1:1"
-    #   lastRun = "4999999999:4999999999"
+    if IOVbase == "lumibase":
+    	firstRun = "1:1"
+        lastRun = "4999999999:4999999999"
 
     inputfiletype = 0
     #print "first = " +firstRun
@@ -532,6 +589,8 @@ def createWeightedPayloads(fileName,listbeam=[],weighted=True):
         # weighted average position
         (tmpbeam.X, tmpbeam.Xerr) = weight(tmpbeam.X, tmpbeam.Xerr, ibeam.X, ibeam.Xerr)
         (tmpbeam.Y, tmpbeam.Yerr) = weight(tmpbeam.Y, tmpbeam.Yerr, ibeam.Y, ibeam.Yerr)
+        print "Run: " + str(ibeam.Run) + " lumi: " + str(ibeam.IOVfirst)
+        print str(tmpbeam.Zerr) + " " + str(ibeam.Zerr)
         (tmpbeam.Z, tmpbeam.Zerr) = weight(tmpbeam.Z, tmpbeam.Zerr, ibeam.Z, ibeam.Zerr)
         (tmpbeam.sigmaZ, tmpbeam.sigmaZerr) = weight(tmpbeam.sigmaZ, tmpbeam.sigmaZerr, ibeam.sigmaZ, ibeam.sigmaZerr)
         (tmpbeam.dxdz, tmpbeam.dxdzerr) = weight(tmpbeam.dxdz, tmpbeam.dxdzerr, ibeam.dxdz, ibeam.dxdzerr)

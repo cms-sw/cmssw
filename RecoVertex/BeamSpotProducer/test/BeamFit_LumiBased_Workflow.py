@@ -34,12 +34,11 @@ process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_
 process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
 process.hltLevel1GTSeed.L1TechTriggerSeeding = cms.bool(True)
 process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('0 AND ( 40 OR 41 )')
-##
-
+                                                                                                                                         
 ## reco PV
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'GR10_P_V5::All'
+process.GlobalTag.globaltag = 'GR_R_36X_V11::All' #'GR10_P_V5::All'
 
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
@@ -65,10 +64,10 @@ process.MessageLogger.debugModules = ['BeamSpotAnalyzer']
 ################### Primary Vertex
 process.offlinePrimaryVertices.PVSelParameters.maxDistanceToBeam = 2
 process.offlinePrimaryVertices.TkFilterParameters.maxNormalizedChi2 = 20
-process.offlinePrimaryVertices.TkFilterParameters.minSiliconHits = 6
+process.offlinePrimaryVertices.TkFilterParameters.minSiliconLayersWithHits = 5
 process.offlinePrimaryVertices.TkFilterParameters.maxD0Significance = 100
-process.offlinePrimaryVertices.TkFilterParameters.minPixelHits = 1
-process.offlinePrimaryVertices.TkClusParameters.zSeparation = 1
+process.offlinePrimaryVertices.TkFilterParameters.minPixelLayersWithHits = 1
+process.offlinePrimaryVertices.TkClusParameters.TkGapClusParameters.zSeparation = 1
 
 
 #######################
@@ -76,11 +75,10 @@ process.d0_phi_analyzer.BeamFitter.TrackCollection = 'ALCARECOTkAlMinBias'
 process.d0_phi_analyzer.BeamFitter.MinimumTotalLayers = 6
 process.d0_phi_analyzer.BeamFitter.MinimumPixelLayers = -1
 process.d0_phi_analyzer.BeamFitter.MaximumNormChi2 = 10
-process.d0_phi_analyzer.BeamFitter.MinimumInputTracks = 2
+process.d0_phi_analyzer.BeamFitter.MinimumInputTracks = 50
 process.d0_phi_analyzer.BeamFitter.MinimumPt = 1.0
 process.d0_phi_analyzer.BeamFitter.MaximumImpactParameter = 1.0
 process.d0_phi_analyzer.BeamFitter.TrackAlgorithm =  cms.untracked.vstring()
-process.d0_phi_analyzer.BeamFitter.InputBeamWidth = -1 # 0.0400
 #process.d0_phi_analyzer.BeamFitter.Debug = True
 
 process.d0_phi_analyzer.PVFitter.Apply3DFit = True

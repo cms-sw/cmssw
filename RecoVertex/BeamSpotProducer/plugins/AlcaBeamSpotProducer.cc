@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
    Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
-   version $Id: AlcaBeamSpotProducer.cc,v 1.3 2010/05/28 21:20:23 uplegger Exp $
+   version $Id: AlcaBeamSpotProducer.cc,v 1.4 2010/06/03 21:12:44 uplegger Exp $
 
    ________________________________________________________________**/
 
@@ -103,7 +103,7 @@ void AlcaBeamSpotProducer::endLuminosityBlock(edm::LuminosityBlock& lumiSeg, con
   int * LSRange = theBeamFitter->getFitLSRange();
 
   reco::BeamSpot bs;
-  if (theBeamFitter->runFitter()){
+  if (theBeamFitter->runPVandTrkFitter()){
     bs = theBeamFitter->getBeamSpot();
     std::cout << "\n RESULTS OF DEFAULT FIT " << std::endl;
     std::cout << " for runs: " << ftmprun0 << " - " << ftmprun << std::endl;

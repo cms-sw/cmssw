@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.60 2010/06/03 02:18:19 jengbou Exp $
+   version $Id: BeamFitter.cc,v 1.61 2010/06/04 00:50:18 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -376,6 +376,7 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
 bool BeamFitter::runPVandTrkFitter() {
 // run both PV and track fitters
     bool fit_ok = false;
+    bool pv_fit_ok = false; 
     reco::BeamSpot bspotPV;
     reco::BeamSpot bspotTrk;
         
@@ -391,7 +392,8 @@ bool BeamFitter::runPVandTrkFitter() {
         // take beam width from PV fit and pass it to track fitter
         // assume circular transverse beam width
         inputBeamWidth_ = sqrt( pow(bspotPV.BeamWidthX(),2) + pow(bspotPV.BeamWidthY(),2) )/sqrt(2);
-        fit_ok = true;
+        pv_fit_ok = true;
+	
     } else {
         // problems with PV fit
         bspotPV.setType(reco::BeamSpot::Unknown);
@@ -418,30 +420,41 @@ bool BeamFitter::runPVandTrkFitter() {
         }
     }
     // change beam width error to one from PV
-    if (fit_ok) {
+    if (pv_fit_ok) {
       matrix(6,6) = MyPVFitter->getWidthXerr() * MyPVFitter->getWidthXerr();
     
       // get Z and sigmaZ from PV fit
       matrix(2,2) = bspotPV.covariance(2,2);
       matrix(3,3) = bspotPV.covariance(3,3);
+      reco::BeamSpot tmpbs(reco::BeamSpot::Point(bspotTrk.x0(), bspotTrk.y0(),
+						 bspotPV.z0() ),
+			   bspotPV.sigmaZ() ,
+			   bspotTrk.dxdz(),
+			   bspotTrk.dydz(),
+			   bspotPV.BeamWidthX(),
+			   matrix,
+			   bspotPV.type() );
+      tmpbs.setBeamWidthY( bspotPV.BeamWidthY() );
+      // overwrite beam spot result
+      fbeamspot = tmpbs;
     }
-    reco::BeamSpot tmpbs(reco::BeamSpot::Point(bspotTrk.x0(), bspotTrk.y0(),
-                                               bspotPV.z0() ),
-                         bspotPV.sigmaZ() ,
-                         bspotTrk.dxdz(),
-                         bspotTrk.dydz(),
-                         bspotPV.BeamWidthX(),
-                         matrix,
-                         bspotPV.type() );
-    tmpbs.setBeamWidthY( bspotPV.BeamWidthY() );
-
-    // overwrite beam spot result
-    fbeamspot = tmpbs;
+    if (pv_fit_ok && fit_ok) {
+      fbeamspot.setType(bspotPV.type());
+    }
+    else if(!pv_fit_ok && fit_ok){
+      fbeamspot.setType(reco::BeamSpot::Unknown);
+    }
+    else if(pv_fit_ok && !fit_ok){
+      fbeamspot.setType(reco::BeamSpot::Unknown);
+    }
+    else if(!pv_fit_ok && !fit_ok){
+      fbeamspot.setType(reco::BeamSpot::Fake);
+    }
     
     if(writeTxt_ ) dumpTxtFile(outputTxt_,true); // all reaults
     if(writeDIPTxt_) dumpTxtFile(outputDIPTxt_,false); // for DQM/DIP
     
-    return fit_ok;
+    return fit_ok && pv_fit_ok;
 }
 
 bool BeamFitter::runFitterNoTxt() {
