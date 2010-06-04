@@ -146,10 +146,10 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     }
 
     //SetMapL1BitOfStandardHLTPath(menu);
-    SetMapL1BitOfStandardHLTPathUsingLogicParser(menu,(int)jentry);
+    SetMapL1BitOfStandardHLTPathUsingLogicParser(menu,nEventsProcessed);
 
     // Apply prefilter based on bits
-    if (!passPreFilterLogicParser(cfg->preFilterLogicString,(int)jentry)) {
+    if (!passPreFilterLogicParser(cfg->preFilterLogicString,nEventsProcessed)) {
       //cout<<"Event rejected due to prefilter!!!"<<endl;
       continue;
     }
@@ -253,7 +253,7 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     }
     /* ******************************** */
 
-    
+    nEventsProcessed++;
   }
 
 //   theHistFile->cd();

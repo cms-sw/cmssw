@@ -1818,6 +1818,7 @@ private:
   int nLumiSections;
   int previousLumiSection;
   int currentLumiSection;
+  int nEventsProcessed;
   std::vector<int> triggerBit;
   std::vector<int> previousBitsFired;
   std::vector<int> allOtherBitsFired;
