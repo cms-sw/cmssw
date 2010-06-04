@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.59 2010/06/02 03:45:27 yumiceva Exp $
+   version $Id: BeamFitter.cc,v 1.60 2010/06/03 02:18:19 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -604,15 +604,15 @@ void BeamFitter::dumpTxtFile(std::string & fileName, bool append){
       for (int i = 0; i<6; ++i) {
 	outFile << "Cov("<<i<<",j) ";
 	for (int j=0; j<7; ++j) {
-	  outFile << fbeamspot.covariance(i,j) << " ";
+	  outFile << beamspottmp.covariance(i,j) << " ";
 	}
 	outFile << std::endl;
       }
-      outFile << "Cov(6,j) 0 0 0 0 0 0 " << fbeamspot.covariance(6,6) << std::endl;
+      outFile << "Cov(6,j) 0 0 0 0 0 0 " << beamspottmp.covariance(6,6) << std::endl;
       //}
-      outFile << "EmittanceX " << fbeamspot.emittanceX() << std::endl;
-      outFile << "EmittanceY " << fbeamspot.emittanceY() << std::endl;
-      outFile << "BetaStar " << fbeamspot.betaStar() << std::endl;
+      outFile << "EmittanceX " << beamspottmp.emittanceX() << std::endl;
+      outFile << "EmittanceY " << beamspottmp.emittanceY() << std::endl;
+      outFile << "BetaStar " << beamspottmp.betaStar() << std::endl;
 
     }
   }

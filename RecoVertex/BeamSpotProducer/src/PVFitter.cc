@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: PVFitter.cc,v 1.10 2010/05/31 20:28:55 yumiceva Exp $
+   version $Id: PVFitter.cc,v 1.11 2010/06/02 03:45:27 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -280,6 +280,8 @@ bool PVFitter::runBXFitter() {
     matrix(1,1) = pow( minuitx.GetParError(1), 2);
     matrix(2,2) = pow( minuitx.GetParError(2), 2);
     matrix(3,3) = fwidthZerr * fwidthZerr;
+    matrix(4,4) = pow( minuitx.GetParError(6), 2);
+    matrix(5,5) = pow( minuitx.GetParError(7), 2);
     matrix(6,6) = fwidthXerr * fwidthXerr;
 
     fbeamspot = reco::BeamSpot( reco::BeamSpot::Point(minuitx.GetParameter(0),
