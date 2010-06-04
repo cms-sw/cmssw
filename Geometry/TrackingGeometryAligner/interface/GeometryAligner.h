@@ -157,7 +157,7 @@ void GeometryAligner::removeGlobalTransform( const Alignments* alignments,
   
   AlignTransform::Translation newPosition;
   AlignTransform::Rotation newRotation;
-
+  
   std::vector<AlignTransform>::const_iterator iAlign = alignments->m_align.begin();
   std::vector<AlignTransformError>::const_iterator iAlignError = alignmentErrors->m_alignError.begin();
   unsigned int nAPE = 0;
@@ -167,7 +167,7 @@ void GeometryAligner::removeGlobalTransform( const Alignments* alignments,
     
     // Remove global position transformation from alignment
     newPosition = inverseGlobalRotation * ( (*iAlign).translation() - globalShift );
-    newRotation = globalRotation * (*iAlign).rotation();
+    newRotation = (*iAlign).rotation() * globalRotation;
     
     newAlignments->m_align.push_back( AlignTransform(newPosition,
                                                      newRotation,
