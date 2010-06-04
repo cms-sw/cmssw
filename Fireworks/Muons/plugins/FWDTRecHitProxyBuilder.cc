@@ -3,9 +3,10 @@
 // Package:     Muons
 // Class  :     FWDTRecHitProxyBuilder
 //
-// $Id: FWDTRecHitProxyBuilder.cc,v 1.4 2010/05/03 15:47:42 amraktad Exp $
+// $Id: FWDTRecHitProxyBuilder.cc,v 1.5 2010/05/06 18:03:08 amraktad Exp $
 //
 
+#include "TEvePointSet.h"
 #include "TEveStraightLineSet.h"
 
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
@@ -16,93 +17,109 @@
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 
+namespace 
+{
+	void 
+	addLineWithMarkers( TEveStraightLineSet* recHitSet, TEvePointSet* pointSet, 
+							 const TGeoHMatrix* matrix, double lLocalPos[3], double rLocalPos[3] ) 
+	{
+		double leftGlobalPoint[3];
+		double rightGlobalPoint[3];
+		
+		matrix->LocalToMaster( lLocalPos, leftGlobalPoint );
+		matrix->LocalToMaster( rLocalPos, rightGlobalPoint );
+		
+		pointSet->SetNextPoint( leftGlobalPoint[0],  leftGlobalPoint[1],  leftGlobalPoint[2] ); 
+		pointSet->SetNextPoint( rightGlobalPoint[0], rightGlobalPoint[1], rightGlobalPoint[2] );
+		
+		recHitSet->AddLine( leftGlobalPoint[0],  leftGlobalPoint[1],  leftGlobalPoint[2], 
+								  rightGlobalPoint[0], rightGlobalPoint[1], rightGlobalPoint[2] );		
+	}
+}
+
 using namespace DTEnums;
 
 class FWDTRecHitProxyBuilder : public FWSimpleProxyBuilderTemplate<DTRecHit1DPair>
 {
 public:
-   FWDTRecHitProxyBuilder() {}
-   virtual ~FWDTRecHitProxyBuilder() {}
-
-   REGISTER_PROXYBUILDER_METHODS();
+   FWDTRecHitProxyBuilder( void ) {}
+   virtual ~FWDTRecHitProxyBuilder( void ) {}
+	
+	virtual bool haveSingleProduct() const { return false; }
+   
+	REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWDTRecHitProxyBuilder(const FWDTRecHitProxyBuilder&); 
-   const FWDTRecHitProxyBuilder& operator=(const FWDTRecHitProxyBuilder&);
+	// Disable default copy constructor
+   FWDTRecHitProxyBuilder( const FWDTRecHitProxyBuilder& );
+	// Disable default assignment operator
+   const FWDTRecHitProxyBuilder& operator=( const FWDTRecHitProxyBuilder& );
 
-  void build(const DTRecHit1DPair& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*);
+	virtual void buildViewType(const DTRecHit1DPair& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*);
 };
 
 void
-FWDTRecHitProxyBuilder::build(const DTRecHit1DPair& iData,           
-                              unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*)
+FWDTRecHitProxyBuilder::buildViewType( const DTRecHit1DPair& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type, const FWViewContext* )
 {
-  DTChamberId chamberId(iData.geographicalId());
+	int superLayer = iData.wireId().layerId().superlayerId().superLayer();
 
-  const TGeoHMatrix* matrix = item()->getGeom()->getMatrix(chamberId);
+	// FIXME: These magic numbers should be gone 
+	// as soon as we have 
+	// access to proper geometry.
+	// Note: radial thickness - almost constant about 5 cm
+	
+	float superLayerShift = 10.5;
+	if( superLayer == 2 )
+	{
+		superLayerShift = -5.0;
+	} 
+	else if( superLayer == 3 ) 
+	{
+		superLayerShift = -10.5;
+	}
+	
+	DTChamberId chamberId( iData.geographicalId() );
+		
+	const TGeoHMatrix* matrix = item()->getGeom()->getMatrix( chamberId );
     
    if( ! matrix ) 
    {
-     fwLog(fwlog::kError) << " failed get geometry of DT chamber with detid: " 
-               << chamberId << std::endl;
-     return;
+		fwLog( fwlog::kError ) << " failed get geometry of DT chamber with detid: " 
+			<< chamberId << std::endl;
+		return;
    }
 
-   std::stringstream s;
-   s << "layer" << iIndex;
+   TEveStraightLineSet* recHitSet = new TEveStraightLineSet;
+   setupAddElement( recHitSet, &oItemHolder );
 
-   TEveStraightLineSet* recHitSet = new TEveStraightLineSet(s.str().c_str());
-   recHitSet->SetLineWidth(3);
-   setupAddElement(recHitSet, &oItemHolder);
-
-   double localCenterPoint[3] = 
-     {
-       0.0, 0.0, 0.0
-     };
-   
-   double globalCenterPoint[3];
-      
-   double localPos[3] = 
-     {
-       iData.localPosition().x(), iData.localPosition().y(), iData.localPosition().z()
-     };
-   
-   double globalPos[3];
+	TEvePointSet* pointSet = new TEvePointSet();
+	pointSet->SetMarkerSize( 2 );
+	pointSet->SetMarkerStyle( 3 );
+	setupAddElement( pointSet, &oItemHolder );
 	 
-   const DTRecHit1D* lrechit = iData.componentRecHit(Left);
-   const DTRecHit1D* rrechit = iData.componentRecHit(Right);
+   const DTRecHit1D* leftRecHit = iData.componentRecHit( Left );
+   const DTRecHit1D* rightRecHit = iData.componentRecHit( Right );
+	double lLocalPos[3] = { 0.0, 0.0, superLayerShift };
+	double rLocalPos[3] = { 0.0, 0.0, superLayerShift };
 
-   double lLocalPos[3] = 
-     {
-       lrechit->localPosition().x(), lrechit->localPosition().y(), lrechit->localPosition().z()
-     };
-  
-   double rLocalPos[3] = 
-     {
-       rrechit->localPosition().x(), rrechit->localPosition().y(), rrechit->localPosition().z()
-     };
-
-   double lGlobalPoint[3];
-   double rGlobalPoint[3];
-
-   matrix->LocalToMaster(lLocalPos, lGlobalPoint);
-   matrix->LocalToMaster(rLocalPos, rGlobalPoint);
-   matrix->LocalToMaster(localCenterPoint, globalCenterPoint);
-   matrix->LocalToMaster(localPos, globalPos);
-	 
-   recHitSet->AddLine(lGlobalPoint[0], lGlobalPoint[1], lGlobalPoint[2], 
-                      rGlobalPoint[0], rGlobalPoint[1], rGlobalPoint[2]);
-   
-   recHitSet->AddLine(globalCenterPoint[0], globalCenterPoint[1], globalCenterPoint[2], 
-                      rGlobalPoint[0],      rGlobalPoint[1],      rGlobalPoint[2]);
-   
-   recHitSet->AddLine(lGlobalPoint[0],      lGlobalPoint[1],      lGlobalPoint[2], 
-                      globalCenterPoint[0], globalCenterPoint[1], globalCenterPoint[2]);
-   
-   recHitSet->AddLine(globalPos[0],         globalPos[1],         globalPos[2], 
-                      globalCenterPoint[0], globalCenterPoint[1], globalCenterPoint[2]);
+	if( type == FWViewType::kRhoPhi && superLayer != 2 )
+	{
+		// FIXME: This position is valid only for RhoPhi View
+		// and not for superLayer 2.
+		lLocalPos[0] = leftRecHit->localPosition().x();
+		rLocalPos[0] = rightRecHit->localPosition().x();
+		addLineWithMarkers( recHitSet, pointSet, matrix, lLocalPos, rLocalPos );
+	}
+	else if( type == FWViewType::kRhoZ && superLayer == 2 )
+	{
+		// FIXME: This position is valid only for RhoZ View
+		// and only for superLayer 2.
+		lLocalPos[1] = -leftRecHit->localPosition().x();
+		rLocalPos[1] = -rightRecHit->localPosition().x();
+		addLineWithMarkers( recHitSet, pointSet, matrix, lLocalPos, rLocalPos );
+	}
 }
 
-REGISTER_FWPROXYBUILDER( FWDTRecHitProxyBuilder, DTRecHit1DPair, "DT RecHits", FWViewType::kISpyBit );
+REGISTER_FWPROXYBUILDER( FWDTRecHitProxyBuilder, DTRecHit1DPair, "DT RecHits", FWViewType::kAllRPZBits );
 
 
