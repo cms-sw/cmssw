@@ -82,6 +82,7 @@ def customisePPData(process):
 
     ## particle flow HF cleaning
     process.particleFlowRecHitHCAL.LongShortFibre_Cut = 30.
+    process.particleFlowRecHitHCAL.ApplyPulseDPG = True
     
     return process
 
