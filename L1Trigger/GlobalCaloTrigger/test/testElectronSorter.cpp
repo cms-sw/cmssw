@@ -183,6 +183,7 @@ int main()
   catch (cms::Exception& e)
     {
       if (e.category() == "ErrorOpenFile") {
+	std::cout << "No input file - exiting" << std::endl;
       } else {
 	cerr << e.what() << endl;
       }

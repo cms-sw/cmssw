@@ -129,7 +129,11 @@ int main(int argc, char **argv)
   }
   catch (cms::Exception& e)
   {
-    cerr << e.what() << endl;
+    if (e.category() == "FileReadError") {
+      std::cout << "No input file - exiting" << std::endl;
+    } else {
+      cerr << e.what() << endl;
+    }
   }
   catch(...)
   {
