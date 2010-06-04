@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2010/03/27 20:08:01 $
- * $Revision: 1.73 $
+ * $Date: 2010/05/06 07:51:11 $
+ * $Revision: 1.74 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -392,43 +392,43 @@ void EEOccupancyTask::setup(void){
 
     sprintf(histo, "EEOT test pulse digi occupancy EE -");
     meEETestPulseDigiOccupancy_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meEETestPulseDigiOccupancy_[0]->setAxisTitle("jx'", 1);
-    meEETestPulseDigiOccupancy_[0]->setAxisTitle("jy'", 2);
+    meEETestPulseDigiOccupancy_[0]->setAxisTitle("jx", 1);
+    meEETestPulseDigiOccupancy_[0]->setAxisTitle("jy", 2);
 
     sprintf(histo, "EEOT test pulse digi occupancy EE +");
     meEETestPulseDigiOccupancy_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meEETestPulseDigiOccupancy_[1]->setAxisTitle("jx'", 1);
-    meEETestPulseDigiOccupancy_[1]->setAxisTitle("jy'", 2);
+    meEETestPulseDigiOccupancy_[1]->setAxisTitle("jx", 1);
+    meEETestPulseDigiOccupancy_[1]->setAxisTitle("jy", 2);
 
     sprintf(histo, "EEOT led digi occupancy EE -");
     meEELedDigiOccupancy_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meEELedDigiOccupancy_[0]->setAxisTitle("jx'", 1);
-    meEELedDigiOccupancy_[0]->setAxisTitle("jy'", 2);
+    meEELedDigiOccupancy_[0]->setAxisTitle("jx", 1);
+    meEELedDigiOccupancy_[0]->setAxisTitle("jy", 2);
 
     sprintf(histo, "EEOT led digi occupancy EE +");
     meEELedDigiOccupancy_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meEELedDigiOccupancy_[1]->setAxisTitle("jx'", 1);
-    meEELedDigiOccupancy_[1]->setAxisTitle("jy'", 2);
+    meEELedDigiOccupancy_[1]->setAxisTitle("jx", 1);
+    meEELedDigiOccupancy_[1]->setAxisTitle("jy", 2);
 
     sprintf(histo, "EEOT laser digi occupancy EE -");
     meEELaserDigiOccupancy_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meEELaserDigiOccupancy_[0]->setAxisTitle("jx'", 1);
-    meEELaserDigiOccupancy_[0]->setAxisTitle("jy'", 2);
+    meEELaserDigiOccupancy_[0]->setAxisTitle("jx", 1);
+    meEELaserDigiOccupancy_[0]->setAxisTitle("jy", 2);
 
     sprintf(histo, "EEOT laser digi occupancy EE +");
     meEELaserDigiOccupancy_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meEELaserDigiOccupancy_[1]->setAxisTitle("jx'", 1);
-    meEELaserDigiOccupancy_[1]->setAxisTitle("jy'", 2);
+    meEELaserDigiOccupancy_[1]->setAxisTitle("jx", 1);
+    meEELaserDigiOccupancy_[1]->setAxisTitle("jy", 2);
 
     sprintf(histo, "EEOT pedestal digi occupancy EE -");
     meEEPedestalDigiOccupancy_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meEEPedestalDigiOccupancy_[0]->setAxisTitle("jx'", 1);
-    meEEPedestalDigiOccupancy_[0]->setAxisTitle("jy'", 2);
+    meEEPedestalDigiOccupancy_[0]->setAxisTitle("jx", 1);
+    meEEPedestalDigiOccupancy_[0]->setAxisTitle("jy", 2);
 
     sprintf(histo, "EEOT pedestal digi occupancy EE +");
     meEEPedestalDigiOccupancy_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meEEPedestalDigiOccupancy_[1]->setAxisTitle("jx'", 1);
-    meEEPedestalDigiOccupancy_[1]->setAxisTitle("jy'", 2);
+    meEEPedestalDigiOccupancy_[1]->setAxisTitle("jx", 1);
+    meEEPedestalDigiOccupancy_[1]->setAxisTitle("jy", 2);
 
   }
 

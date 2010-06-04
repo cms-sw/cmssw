@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2010/03/29 12:18:39 $
- * $Revision: 1.72 $
+ * $Date: 2010/05/02 15:26:51 $
+ * $Revision: 1.73 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -299,8 +299,8 @@ void EETriggerTowerTask::setup( const char* nameext,
                                           50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
                                           50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
                                           6, 0., 6.);
-      meEmulMatch_[i]->setAxisTitle("jx'", 1);
-      meEmulMatch_[i]->setAxisTitle("jy'", 2);
+      meEmulMatch_[i]->setAxisTitle("jx", 1);
+      meEmulMatch_[i]->setAxisTitle("jy", 2);
       dqmStore_->tag(meEmulMatch_[i], i+1);
 
       sprintf(histo, "EETTT EmulFineGrainVetoError %s", Numbers::sEE(i+1).c_str());
