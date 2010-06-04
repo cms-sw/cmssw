@@ -103,7 +103,7 @@ class TestCaloAlignmentEP : public edm::ESProducer
 	 {
 	    const EBDetId id ( EcalBarrelGeometry::detIdFromLocalAlignmentIndex( i ) ) ;
 	    vtr.push_back( AlignTransform( ( 1==id.ism() ? Trl( 0, 0, 0 ) : //-0.3 ) :
-					     Trl(0.2,0.3,  -0.4 ) ) , 
+					     Trl(0,0,0 ) ) , 
 					   Rot(),
 					   id              ) ) ;
 	 }
@@ -126,7 +126,8 @@ class TestCaloAlignmentEP : public edm::ESProducer
 	 for( unsigned int i ( 0 ) ; i != nA ; ++i )
 	 {
 	    const EEDetId id (  EcalEndcapGeometry::detIdFromLocalAlignmentIndex( i ) ) ;
-	    vtr.push_back( AlignTransform( Trl( 0.6, -0.7, -0.8 ), 
+	    vtr.push_back( AlignTransform(  ( 2 > i ? Trl( -0.02, -0.81, -0.94 ) :
+					      Trl( +0.52, -0.81, +0.81 ) ) ,
 					   Rot(),
 					   id              ) ) ;
 	 }
@@ -149,7 +150,8 @@ class TestCaloAlignmentEP : public edm::ESProducer
 	 for( unsigned int i ( 0 ) ; i != nA ; ++i )
 	 {
 	    const ESDetId id ( EcalPreshowerGeometry::detIdFromLocalAlignmentIndex( i ) ) ;
-	    vtr.push_back( AlignTransform( Trl( -0.5, 0.8, -0.9 ), 
+	    vtr.push_back( AlignTransform( ( 4 > i ? Trl( -0.02, -0.81, -0.94 ) :
+					     Trl( +0.52, -0.81, +0.81 ) ) ,  
 					   Rot(),
 					   id           ) ) ;
 	 }

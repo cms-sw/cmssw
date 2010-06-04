@@ -15,5 +15,15 @@
 <library   file="testEcalGetWindow.cc" name="testEcalGetWindow">
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library   file="CaloAlignmentRcdRead.cc" name="CaloAlignmentRcdRead">
+  <use name="Utilities/General"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="CaloAlignmentRcdWrite.cc" name="CaloAlignmentRcdWrite">
+  <use name="Utilities/General"/>
+  <use name="CondCore/DBOutputService"/>
+  <use name="CondFormats/Alignment"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
 <bin   file="dumpEEIndices2D.cpp">
 </bin>
