@@ -26,12 +26,14 @@ wmnVal_corMet = cms.EDFilter("WMuNuValidator",
       AcopCut = cms.untracked.double(2.),     # Remember to take this out if you are looking for High-Pt Bosons! (V+Jets)
 
       # Muon quality cuts ->
-      DxyCut = cms.untracked.double(0.2),
-      NormalizedChi2Cut = cms.untracked.double(10.),
-      TrackerHitsCut = cms.untracked.int32(10),
+      DxyCut = cms.untracked.double(0.2), # dxy <= 0.2 cm (cosmics)
+      NormalizedChi2Cut = cms.untracked.double(10.), # chi2/ndof <= 10 
+      TrackerHitsCut = cms.untracked.int32(10),  # Hits in inner track >= 10
+      PixelHitsCut = cms.untracked.int32(1),  # Pixel Hits  >=1 
+      MuonHitsCut = cms.untracked.int32(1),  # Valid Muon Hits  >=1 
       IsAlsoTrackerMuon = cms.untracked.bool(True),
-      NMatchesCut = cms.untracked.int32(2),
-      
+      NMatchesCut = cms.untracked.int32(2),  # Number of Chambers matched with segments >= 2
+ 
       # To suppress Zmm ->
       PtThrForZ1 = cms.untracked.double(20.0),
       PtThrForZ2 = cms.untracked.double(10.0),

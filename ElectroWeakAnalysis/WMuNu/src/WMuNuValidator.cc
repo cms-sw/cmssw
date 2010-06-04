@@ -187,7 +187,7 @@ void WMuNuValidator::init_histograms() {
 
             snprintf(chname, 255, "NPIXELHITS%s", chsuffix[i].data());
             snprintf(chtitle, 255, "Number of pixel hits, inner track");
-            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,40,-0.5,39.5);
+            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,10,-0.5,10.5);
 
             snprintf(chname, 255, "ValidMuonHits%s", chsuffix[i].data());
             snprintf(chtitle, 255, "number Of Valid Muon Hits");

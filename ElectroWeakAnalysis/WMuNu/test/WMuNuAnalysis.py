@@ -31,7 +31,6 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.TFileService = cms.Service("TFileService", fileName = cms.string('WMuNu.root') )
 
-
 # Steering the process
 process.path1 = cms.Path(process.wmnVal_corMet)
 process.path2 = cms.Path(process.wmnVal_pfMet)

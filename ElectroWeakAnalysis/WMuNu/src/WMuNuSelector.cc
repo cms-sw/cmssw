@@ -174,7 +174,8 @@ void WMuNuSelector::beginJob() {
      h1_["hPtMu"]                    =fs->make<TH1D>("ptMu","Pt mu",100,0.,100.);
      h1_["hEtaMu"]                   =fs->make<TH1D>("etaMu","Eta mu",50,-2.5,2.5);
      h1_["hd0"]                      =fs->make<TH1D>("d0","Impact parameter",1000,-1.,1.);
-     /*h1_["hNHits"]                   =fs->make<TH1D>("NumberOfValidHits","Number of Hits in Silicon",100,0.,100.);
+     /*h1_["hNHits"]                 =fs->make<TH1D>("NumberOfValidHits","Number of Hits in Silicon",100,0.,100.);
+     h1_["hNPixelHits"]              =fs->make<TH1D>("NumberOfValidPixelHits","Number of Hits in Pixel",10,0.,10.);
      h1_["hNMuonHits"]               =fs->make<TH1D>("NumberOfValidMuonHits","Number of Hits in Silicon",100,0.,100.);
      h1_["hNormChi2"]                =fs->make<TH1D>("NormChi2","Chi2/ndof of global track",1000,0.,50.);
      h1_["hTracker"]                 =fs->make<TH1D>("isTrackerMuon","is Tracker Muon?",2,0.,2.);
