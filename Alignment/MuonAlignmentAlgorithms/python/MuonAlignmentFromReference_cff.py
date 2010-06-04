@@ -13,12 +13,13 @@ del CSCGeometryESModule
 from TrackingTools.TrackRefitter.globalMuonTrajectories_cff import *
 MuonAlignmentFromReferenceGlobalMuonRefit = globalMuons.clone()
 MuonAlignmentFromReferenceGlobalMuonRefit.Tracks = cms.InputTag("ALCARECOMuAlCalIsolatedMu:GlobalMuon")
-MuonAlignmentFromReferenceGlobalMuonRefit.RefitRPCHits = cms.bool(False)
+MuonAlignmentFromReferenceGlobalMuonRefit.TrackTransformer.RefitRPCHits = cms.bool(False)
 
 ### Track refitter for global cosmic muons
 from TrackingTools.TrackRefitter.globalCosmicMuonTrajectories_cff import *
 MuonAlignmentFromReferenceGlobalCosmicRefit = globalCosmicMuons.clone()
 MuonAlignmentFromReferenceGlobalCosmicRefit.Tracks = cms.InputTag("ALCARECOMuAlGlobalCosmics:GlobalMuon")
+MuonAlignmentFromReferenceGlobalCosmicRefit.TrackTransformer.RefitRPCHits = cms.bool(False)
 
 ### AlignmentProducer with basic options for muon alignment
 from Alignment.CommonAlignmentProducer.AlignmentProducer_cff import *
