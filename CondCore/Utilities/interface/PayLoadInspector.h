@@ -1,6 +1,5 @@
 #ifndef  PayLoadInspector_H
 #define  PayLoadInspector_H
-#include "CondCore/DBCommon/interface/TypedRef.h"
 #include "CondCore/IOVService/interface/IOVProxy.h"
 #include "CondCore/DBCommon/interface/DbTransaction.h"
 
