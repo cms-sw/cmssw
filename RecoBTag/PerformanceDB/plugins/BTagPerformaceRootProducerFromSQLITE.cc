@@ -13,7 +13,7 @@
 //
 // Original Author:  "Salvatore Rappoccio"
 //         Created:  Thu Feb 11 14:21:59 CST 2010
-// $Id: BTagPerformaceRootProducerFromSQLITE.cc,v 1.1.2.2 2010/06/02 21:13:11 srappocc Exp $
+// $Id: BTagPerformaceRootProducerFromSQLITE.cc,v 1.2 2010/06/03 14:38:09 srappocc Exp $
 //
 //
 
@@ -62,7 +62,7 @@ class BTagPerformaceRootProducerFromSQLITE : public edm::EDAnalyzer {
       virtual void endJob() ;
 
       // ----------member data ---------------------------
-  std::string  name_;
+  std::vector<std::string>  names_;
   edm::ESWatcher<BTagPerformanceRecord> recWatcher_;
   std::auto_ptr<fwlite::RecordWriter> writer_;
   edm::IOVSyncValue lastValue_;
@@ -80,7 +80,7 @@ class BTagPerformaceRootProducerFromSQLITE : public edm::EDAnalyzer {
 // constructors and destructor
 //
 BTagPerformaceRootProducerFromSQLITE::BTagPerformaceRootProducerFromSQLITE(const edm::ParameterSet& iConfig) :
-  name_(iConfig.getParameter<std::string>("name"))
+  names_(iConfig.getParameter< std::vector<std::string> >("names"))
 {
 }
 
@@ -101,22 +101,27 @@ BTagPerformaceRootProducerFromSQLITE::analyze(const edm::Event& iEvent, const ed
 
   std::cout << "Hello from BTagPerformaceRootProducerFromSQLITE!" << std::endl;
   if(recWatcher_.check(iSetup)) {
-    edm::ESHandle<BtagPerformance> perfH;
-    std::cout <<" Studying performance with label " << name_ <<std::endl;
     const BTagPerformanceRecord& r = iSetup.get<BTagPerformanceRecord>();
-    r.get(name_,perfH);
 
-    const BtagPerformance & perf = *(perfH.product());
     if(! writer_.get()) {
       edm::Service<TFileService> fs ;
       TFile * f = &(fs->file());
       writer_ = std::auto_ptr<fwlite::RecordWriter>(new fwlite::RecordWriter(r.key().name(), f ));
     }
-    writer_->update(&(perf.payload()), typeid(PerformancePayload),name_.c_str());
-    writer_->update(&(perf.workingPoint()), typeid(PerformanceWorkingPoint),name_.c_str());
-    writer_->fill(edm::ESRecordAuxiliary(r.validityInterval().first().eventID(),
-                                         r.validityInterval().first().time()));
     lastValue_ = r.validityInterval().last();
+
+    for( size_t i=0;  i<names_.size(); i++ )
+    {
+       edm::ESHandle<BtagPerformance> perfH;
+       std::cout <<" Studying performance with label " << names_.at(i) <<std::endl;
+       r.get( names_.at(i), perfH );
+       const BtagPerformance & perf = *(perfH.product());
+
+       writer_->update(&(perf.payload()), typeid(PerformancePayload),names_.at(i).c_str());
+       writer_->update(&(perf.workingPoint()), typeid(PerformanceWorkingPoint),names_.at(i).c_str());
+    }
+    writer_->fill(edm::ESRecordAuxiliary(r.validityInterval().first().eventID(),
+                                      r.validityInterval().first().time()));
   }
 }
 

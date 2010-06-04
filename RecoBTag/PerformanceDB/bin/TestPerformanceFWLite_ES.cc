@@ -19,7 +19,7 @@ int main(int argc, char ** argv)
   AutoLibraryLoader::enable();
   
 
-  TFile f("PTRELSSVM.root","READ");
+  TFile f("performance_ssvm.root","READ");
       
   fwlite::EventSetup es(&f);
 

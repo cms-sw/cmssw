@@ -8,15 +8,26 @@ process.load ("RecoBTag.PerformanceDB.BTagPerformanceDB100426")
 process.PoolDBESSource.connect = 'frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS'
 process.PoolDBESSource.toGet = cms.VPSet(
     cms.PSet(
-    record = cms.string('PerformanceWPRecord'),
-    tag = cms.string('BTagPTRELSSVMwp_v1_offline'),
-    label = cms.untracked.string('BTagPTRELSSVMwp_v1_offline')
-    ),
-                                                        cms.PSet(
-    record = cms.string('PerformancePayloadRecord'),
-    tag = cms.string('BTagPTRELSSVMtable_v1_offline'),
-    label = cms.untracked.string('BTagPTRELSSVMtable_v1_offline')
-    ))
+        record = cms.string('PerformanceWPRecord'),
+        tag = cms.string('BTagPTRELSSVMwp_v1_offline'),
+        label = cms.untracked.string('BTagPTRELSSVMwp_v1_offline')
+        ),
+    cms.PSet(
+        record = cms.string('PerformancePayloadRecord'),
+        tag = cms.string('BTagPTRELSSVMtable_v1_offline'),
+        label = cms.untracked.string('BTagPTRELSSVMtable_v1_offline')
+        ),
+    cms.PSet(
+        record = cms.string('PerformanceWPRecord'),
+        tag = cms.string('BTagMISTAGSSVMwp_v1_offline'),
+        label = cms.untracked.string('BTagMISTAGSSVMwp_v1_offline')
+        ),
+    cms.PSet(
+        record = cms.string('PerformancePayloadRecord'),
+        tag = cms.string('BTagMISTAGSSVMtable_v1_offline'),
+        label = cms.untracked.string('BTagMISTAGSSVMtable_v1_offline')
+        )
+    )
 
 
 process.maxEvents = cms.untracked.PSet(
@@ -24,11 +35,11 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("EmptySource")
 
-process.TFileService = cms.Service("TFileService", fileName = cms.string("PTRELSSVM.root") )
+process.TFileService = cms.Service("TFileService", fileName = cms.string("performance_ssvm.root") )
 
 
 process.myrootwriter = cms.EDAnalyzer("BTagPerformaceRootProducerFromSQLITE",
-                                  name = cms.string('PTRELSSVM'),
+                                  names = cms.vstring('PTRELSSVM', 'MISTAGSSVM'),
                                   index = cms.uint32(1001)
                                   )
 
