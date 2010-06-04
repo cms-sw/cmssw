@@ -296,3 +296,94 @@ void RunList::fetchRunsByLocation (int min_run, int max_run, const LocationDef l
 
 
 }
+
+void RunList::fetchGlobalRunsByLocation (int min_run, int max_run, const LocationDef locDef )
+  throw(runtime_error)
+{
+
+  this->checkConnection();
+  int nruns=0;
+
+  int my_min_run=min_run-1;
+  int my_max_run=max_run+1;
+  try {
+    Statement* stmt0 = m_conn->createStatement();
+    stmt0->setSQL("SELECT count(iov_id) FROM run_iov r , run_tag t, location_def l "
+                 " WHERE r.tag_id=t.tag_id and t.LOCATION_ID=l.def_id AND l.LOCATION= :1 " 
+		  "  and t.gen_tag='GLOBAL' "
+		  "  and r.run_num> :2 and r.run_num< :3 ");
+    stmt0->setString(1,locDef.getLocation() );
+    stmt0->setInt(2, my_min_run);
+    stmt0->setInt(3, my_max_run);
+  
+    ResultSet* rset0 = stmt0->executeQuery();
+    if (rset0->next()) {
+      nruns = rset0->getInt(1);
+    }
+    m_conn->terminateStatement(stmt0);
+
+    cout <<"number of runs="<< nruns << endl;
+    
+    m_vec_runiov.reserve(nruns);
+    
+    Statement* stmt = m_conn->createStatement();
+    stmt->setSQL("SELECT  r.iov_id, r.tag_id, r.run_num, r.run_start, r.run_end, r.DB_TIMESTAMP , "
+                 " t.gen_tag, rt.RUN_TYPE "
+		 " FROM run_iov r , run_tag t, location_def l, run_type_def rt "
+		 " WHERE r.tag_id=t.tag_id and t.LOCATION_ID=l.def_id and t.run_type_id=rt.DEF_ID "
+		 " AND l.LOCATION= :1 "
+		 " and t.gen_tag='GLOBAL' "
+		 " and r.run_num> :2 and r.run_num< :3 "
+		 " order by run_num " );
+    stmt->setString(1,locDef.getLocation() );
+    stmt->setInt(2, my_min_run);
+    stmt->setInt(3, my_max_run);
+
+    DateHandler dh(m_env, m_conn);
+    Tm runStart;
+    Tm runEnd;
+    Tm dbtime;
+  
+    ResultSet* rset = stmt->executeQuery();
+    int i=0;
+    while (i<nruns) {
+      rset->next();
+      int iovID = rset->getInt(1);
+      //       int tagID = rset->getInt(2);
+       int runNum = rset->getInt(3);
+       Date startDate = rset->getDate(4);
+       Date endDate = rset->getDate(5);
+       Date dbDate = rset->getDate(6);
+	 
+       runStart = dh.dateToTm( startDate );
+       runEnd = dh.dateToTm( endDate );
+       dbtime = dh.dateToTm( dbDate );
+       
+       RunTag atag;
+       atag.setLocationDef(locDef);
+       atag.setGeneralTag(rset->getString(7));
+       RunTypeDef rundef;
+       rundef.setRunType(rset->getString(8));
+       atag.setRunTypeDef(rundef);
+
+       RunIOV r ;
+       r.setRunNumber(runNum);
+       r.setRunStart(runStart);
+       r.setRunEnd(runEnd);
+       r.setDBInsertionTime(dbtime);
+       r.setRunTag(atag);
+       r.setID(iovID);
+       m_vec_runiov.push_back(r);
+      
+      i++;
+    }
+   
+
+    m_conn->terminateStatement(stmt);
+
+  } catch (SQLException &e) {
+    throw(runtime_error("RunList::fetchRunsByLocation:  "+e.getMessage()));
+  }
+
+
+}

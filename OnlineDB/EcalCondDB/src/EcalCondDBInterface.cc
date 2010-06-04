@@ -1,4 +1,4 @@
-// $Id: EcalCondDBInterface.cc,v 1.20 2009/11/19 08:46:39 fra Exp $
+// $Id: EcalCondDBInterface.cc,v 1.21 2010/04/29 11:07:54 organtin Exp $
 
 #include <iostream>
 #include <string>
@@ -603,6 +603,15 @@ RunList EcalCondDBInterface::fetchRunListByLocation(RunTag tag, int min_run, int
   r.setConnection(env, conn);
   r.setRunTag(tag);
   r.fetchRunsByLocation( min_run,  max_run, locDef);
+  return r;
+}
+
+RunList EcalCondDBInterface::fetchGlobalRunListByLocation(RunTag tag, int min_run, int max_run , const LocationDef locDef) 
+  throw(std::runtime_error) {
+  RunList r;
+  r.setConnection(env, conn);
+  r.setRunTag(tag);
+  r.fetchGlobalRunsByLocation( min_run,  max_run, locDef);
   return r;
 }
 
