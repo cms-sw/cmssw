@@ -85,6 +85,7 @@
   (( bool, FRAEFF_AUTO_UPDATE,  false , "start fractional and efficiency histogram update automatically (Dispatcher flag)" )) \
   (( bool, FRAEFF_SEPARATE_THREAD,  false , "start fractional and efficiency histogram update on separate thread (EventProcessor flag)" )) \
   (( bool, PRINT_STATS_ON_EXIT,  true , "print statistics on exit (destruction)" )) \
+  (( bool, IN_FULL_STANDBY,  true , "full detector is in standby mode from the beginning of the run" )) \
   (( std::string, BOOKING_XML_FILE, "" , "histogram description (booking) file in XML format (Collection)" )) \
   (( std::string, FOLDER_EMU, "" , "root file folder name to be used for EMU histograms (EventProcessor)" )) \
   (( std::string, FOLDER_DDU, "" , "root file folder name to be used for DDU histograms (EventProcessor)" )) \
@@ -262,7 +263,7 @@ namespace cscdqm {
       boost::function< MonitorObject* (const HistoBookRequest&) > fnBook;
 
       /** Pointer to CSC Det Id function */
-      boost::function< CSCDetId (const unsigned int, const unsigned int) > fnGetCSCDetId;
+      boost::function< bool (const unsigned int, const unsigned int, CSCDetId&) > fnGetCSCDetId;
 
       /** Parameter Getters */
       BOOST_PP_SEQ_FOR_EACH_I(CONFIG_PARAMETER_GETTER_MACRO, _, CONFIG_PARAMETERS_SEQ)

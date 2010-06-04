@@ -8,8 +8,8 @@
  * impact angle and position (also along the wire) and perform linear fit on
  * improved hits.
  *
- * $Date: 2009/03/19 16:02:20 $
- * $Revision: 1.15 $
+ * $Date: 2010/04/15 12:04:46 $
+ * $Revision: 1.17 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -99,11 +99,9 @@ class DTSegmentUpdator{
 
     void Fit4Var(const std::vector<float>& xfit,
                  const std::vector<float>& yfit,
-                 const std::vector<float>& sigy,
                  const std::vector<int>& lfit,
                  const std::vector<double>& tfit,
-                 const int nptfit, int& nppar,
-                 float& aminf, float& bminf,
+                 const int nptfit,
                  float& cminf, double& vminf,
                  double& chi2fit) const;
 

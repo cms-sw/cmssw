@@ -59,6 +59,12 @@ class SiPixelDataQuality {
 				 int                                      nFEDs,
 				 bool                                     Tier0Flag);
   
+  void computeGlobalQualityFlagByLumi (DQMStore                         * bei,
+                                       bool                               init,
+				       int                                nFEDs,
+				       bool                               Tier0Flag,
+				       int                                nEvents_lastLS_);
+  
   void fillGlobalQualityPlot    (DQMStore                               * bei,
                                  bool                                     init,
                                  edm::EventSetup const                  & eSetup,
@@ -149,5 +155,15 @@ class SiPixelDataQuality {
   
   // Track Cuts:
   MonitorElement * NPixelTracks;
+    
+  int count1;
+  int count2;
+  int count3;
+  int count4;
+  int count5;
+  int count6;
+  
+  int timeoutCounter_;
+  int modCounter_;
 };
 #endif

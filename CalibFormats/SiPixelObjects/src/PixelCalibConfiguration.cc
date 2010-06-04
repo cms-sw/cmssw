@@ -8,7 +8,6 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelCalibConfiguration.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelTimeFormatter.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelDACNames.h"
-//#include "PixelUtilities/PixelTestStandUtilities/include/PixelTimer.h"
 #include <fstream>
 #include <iostream>
 #include <ios>
@@ -554,248 +553,205 @@ PixelCalibConfiguration::~PixelCalibConfiguration(){}
 
 void PixelCalibConfiguration::buildROCAndModuleLists(const PixelNameTranslation* translation, const PixelDetectorConfig* detconfig)
 {
-  assert( translation != 0 );
-  assert( detconfig != 0 );
-
-  if ( rocAndModuleListsBuilt_ )
-    {
-      buildObjectsDependingOnTheNameTranslation(translation);
-      return;
-    }
-  
-  // Build the ROC set from the instructions.
-  std::set<PixelROCName> rocSet;
-  bool addNext = true;
-  const map<PixelROCName, PixelROCStatus>& iroclist=detconfig->getROCsList();
-  for(std::vector<std::string>::iterator rocListInstructions_itr = rocListInstructions_.begin(); rocListInstructions_itr != rocListInstructions_.end(); rocListInstructions_itr++)
+	assert( translation != 0 );
+	assert( detconfig != 0 );
+	
+	if ( rocAndModuleListsBuilt_ )
 	{
-	  std::string instruction = *rocListInstructions_itr;
-	  
-	  if ( instruction == "+" )
-	    {
-	      addNext = true;
-	      continue;
-		}
-	  if ( instruction == "-" )
-	    {
-	      addNext = false;
-	      continue;
-	    }
-		
-	  if ( instruction == "all" )
-	    {
-	      if ( addNext ) // add all ROCs in the configuration
-		{
-		  const std::vector <PixelModuleName>& moduleList = detconfig->getModuleList();
-		  for ( std::vector <PixelModuleName>::const_iterator moduleList_itr = moduleList.begin(); moduleList_itr != moduleList.end(); moduleList_itr++ )
-		    {
-		      std::vector<PixelROCName> ROCsOnThisModule = translation->getROCsFromModule( *moduleList_itr );
-		      for ( std::vector<PixelROCName>::const_iterator ROCsOnThisModule_itr = ROCsOnThisModule.begin(); ROCsOnThisModule_itr != ROCsOnThisModule.end(); ROCsOnThisModule_itr++ ) {
-			map<PixelROCName, PixelROCStatus>::const_iterator it=
-			  iroclist.find(*ROCsOnThisModule_itr);
-			assert(it!=iroclist.end());
-			PixelROCStatus istatus =  it->second;
-			if ( !istatus.get(PixelROCStatus::noAnalogSignal) )
-			  rocSet.insert(*ROCsOnThisModule_itr);
-		      }
-		    }
-		}
-	      else // remove all ROCs
-		{
-		  rocSet.clear();
-		}
-	      addNext = true;
-	      continue;
-	    }
-		
-	  // Assume it's a ROC or module name.
-	  PixelModuleName modulename(instruction);
-	  
-	  // Skip if this module (or the module this ROC is on) isn't in the detector config.
-	  if ( !(detconfig->containsModule(modulename)) )
-	    {
-	      addNext = true;
-	      continue;
-	    }
-	  
-	  if ( modulename.modulename() == instruction ) // it's a module
-	    {
-	      std::vector<PixelROCName> ROCsOnThisModule = translation->getROCsFromModule( modulename );
-	      for ( std::vector<PixelROCName>::iterator ROCsOnThisModule_itr = ROCsOnThisModule.begin(); ROCsOnThisModule_itr != ROCsOnThisModule.end(); ROCsOnThisModule_itr++ )
-		{
-		  if ( addNext ) {
-		    map<PixelROCName, PixelROCStatus>::const_iterator it= iroclist.find(*ROCsOnThisModule_itr);
-		    assert(it!=iroclist.end());
-		    PixelROCStatus istatus =  it->second;
-		    if ( !istatus.get(PixelROCStatus::noAnalogSignal) )  rocSet.insert(*ROCsOnThisModule_itr);
-		  }
-		  else           rocSet.erase( *ROCsOnThisModule_itr);
-		}
-	      addNext = true;
-	      continue;
-	    }
-	  else // it's a ROC
-	    {
-	      PixelROCName rocname(instruction);
-	      if ( addNext )
-		{
-		  // Only add this ROC if it's in the configuration.
-		  bool foundIt = false;
-		  std::list<const PixelROCName*> allROCs = translation->getROCs();
-		  for ( std::list<const PixelROCName*>::iterator allROCs_itr = allROCs.begin(); allROCs_itr != allROCs.end(); allROCs_itr++ )
-		    {
-		      if ( (*(*allROCs_itr)) == rocname )
-			{
-			  foundIt = true;
-			  break;
-			}
-		    }
-		  if (foundIt) {
-		    map<PixelROCName, PixelROCStatus>::const_iterator it= iroclist.find(rocname);
-		    assert(it!=iroclist.end());
-		    PixelROCStatus istatus =  it->second;
-		    if ( !istatus.get(PixelROCStatus::noAnalogSignal) ) rocSet.insert(rocname);
-		  }
-		}
-	      else
-		{
-		  rocSet.erase(rocname);
-		}
-	      addNext = true;
-	      continue;
-	    }
-	  
-	  // should never get here
-	  assert(0);
+		buildObjectsDependingOnTheNameTranslation(translation);
+		return;
 	}
-  // done building ROC set
-
-  buildROCAndModuleListsFromROCSet(rocSet);
-
-  buildObjectsDependingOnTheNameTranslation(translation);
-       
+	
+	// Build the ROC set from the instructions.
+	std::set<PixelROCName> rocSet;
+	bool addNext = true;
+	for(std::vector<std::string>::iterator rocListInstructions_itr = rocListInstructions_.begin(); rocListInstructions_itr != rocListInstructions_.end(); rocListInstructions_itr++)
+	{
+		std::string instruction = *rocListInstructions_itr;
+		
+		if ( instruction == "+" )
+		{
+			addNext = true;
+			continue;
+		}
+		if ( instruction == "-" )
+		{
+			addNext = false;
+			continue;
+		}
+		
+		if ( instruction == "all" )
+		{
+			if ( addNext ) // add all ROCs in the configuration
+			{
+				const std::vector <PixelModuleName>& moduleList = detconfig->getModuleList();
+				map<PixelROCName, PixelROCStatus> iroclist=detconfig->getROCsList();
+				for ( std::vector <PixelModuleName>::const_iterator moduleList_itr = moduleList.begin(); moduleList_itr != moduleList.end(); moduleList_itr++ )
+				{
+					std::vector<PixelROCName> ROCsOnThisModule = translation->getROCsFromModule( *moduleList_itr );
+					for ( std::vector<PixelROCName>::iterator ROCsOnThisModule_itr = ROCsOnThisModule.begin(); ROCsOnThisModule_itr != ROCsOnThisModule.end(); ROCsOnThisModule_itr++ ) {
+					  PixelROCStatus istatus =  iroclist[*ROCsOnThisModule_itr];
+					  if ( !istatus.get(PixelROCStatus::noAnalogSignal) )
+					    rocSet.insert(*ROCsOnThisModule_itr);
+					}
+				}
+			}
+			else // remove all ROCs
+			{
+				rocSet.clear();
+			}
+			addNext = true;
+			continue;
+		}
+		
+		// Assume it's a ROC or module name.
+		PixelModuleName modulename(instruction);
+		
+		// Skip if this module (or the module this ROC is on) isn't in the detector config.
+		if ( !(detconfig->containsModule(modulename)) )
+		{
+			addNext = true;
+			continue;
+		}
+		
+		if ( modulename.modulename() == instruction ) // it's a module
+		{
+			std::vector<PixelROCName> ROCsOnThisModule = translation->getROCsFromModule( modulename );
+			for ( std::vector<PixelROCName>::iterator ROCsOnThisModule_itr = ROCsOnThisModule.begin(); ROCsOnThisModule_itr != ROCsOnThisModule.end(); ROCsOnThisModule_itr++ )
+			{
+				if ( addNext ) rocSet.insert(*ROCsOnThisModule_itr);
+				else           rocSet.erase( *ROCsOnThisModule_itr);
+			}
+			addNext = true;
+			continue;
+		}
+		else // it's a ROC
+		{
+			PixelROCName rocname(instruction);
+			if ( addNext )
+			{
+				// Only add this ROC if it's in the configuration.
+				bool foundIt = false;
+				std::list<const PixelROCName*> allROCs = translation->getROCs();
+				for ( std::list<const PixelROCName*>::iterator allROCs_itr = allROCs.begin(); allROCs_itr != allROCs.end(); allROCs_itr++ )
+				{
+					if ( (*(*allROCs_itr)) == rocname )
+					{
+						foundIt = true;
+						break;
+					}
+				}
+				if (foundIt) rocSet.insert(rocname);
+			}
+			else
+			{
+				rocSet.erase(rocname);
+			}
+			addNext = true;
+			continue;
+		}
+		
+		// should never get here
+		assert(0);
+	}
+	// done building ROC set
+	
+	buildROCAndModuleListsFromROCSet(rocSet);
+	buildObjectsDependingOnTheNameTranslation(translation);
 }
 
 void PixelCalibConfiguration::buildROCAndModuleListsFromROCSet(const std::set<PixelROCName>& rocSet)
 {
-  assert( !rocAndModuleListsBuilt_ );
-
-  std::string mthn = "[PixelCalibConfiguration::buildROCAndModuleListsFromROCSet()]    " ;
-  // Build the ROC list from the ROC set.
-  for (std::set<PixelROCName>::iterator rocSet_itr = rocSet.begin(); 
-       rocSet_itr != rocSet.end(); 
-       rocSet_itr++ ) {
-    rocs_.push_back(*rocSet_itr);
-  }
-
-  //t.stop();
-  //cout << "buildROCAndModuleListsFromROCSet 1 time="<<t.tottime()<<endl;
-  //t.start();
-
-  // Build the module set from the ROC set.
-  std::map <PixelModuleName,unsigned int> countROC;
-  for (std::set<PixelROCName>::iterator rocSet_itr = rocSet.begin(); rocSet_itr != rocSet.end(); rocSet_itr++ ){
-    //t1.start();
-    PixelModuleName modulename(*rocSet_itr);
-    //t1.stop();
-    //t2.start();
-    modules_.insert( modulename );
-    countROC[modulename]++;
-    //t2.stop();
-  }
-
-  //t.stop();
-  //cout << "buildROCAndModuleListsFromROCSet 2 time="<<t.tottime()<<endl;
-  //cout << "buildROCAndModuleListsFromROCSet t1="<<t1.tottime()<<endl;
-  //cout << "buildROCAndModuleListsFromROCSet t2="<<t2.tottime()<<endl;
-  //t.start();
-  
-  // Test printout.
-  /*cout << "\nROC list:\n";
-    for ( std::vector<PixelROCName>::iterator rocs_itr = rocs_.begin(); 
-    rocs_itr != rocs_.end(); 
-    rocs_itr++ ){
-    cout << rocs_itr->rocname() << "\n";
-    }    cout << "\nModule list:\n";
-    for ( std::set<PixelModuleName>::iterator modules_itr = modules_.begin(); modules_itr != modules_.end(); modules_itr++ )
+	assert( !rocAndModuleListsBuilt_ );
+	
+        std::string mthn = "[PixelCalibConfiguration::buildROCAndModuleListsFromROCSet()]    " ;
+	// Build the ROC list from the ROC set.
+	for (std::set<PixelROCName>::iterator rocSet_itr = rocSet.begin(); rocSet_itr != rocSet.end(); rocSet_itr++ )
 	{
-	cout << modules_itr->modulename() << "\n";
+		rocs_.push_back(*rocSet_itr);
+	}
+	
+	// Build the module set from the ROC set.
+	std::map <PixelModuleName,unsigned int> countROC;
+	for (std::set<PixelROCName>::iterator rocSet_itr = rocSet.begin(); rocSet_itr != rocSet.end(); rocSet_itr++ )
+	{
+		PixelModuleName modulename(rocSet_itr->rocname());
+		modules_.insert( modulename );
+		countROC[modulename]++;
+	}
+	
+	// Test printout.
+	/*cout << "\nROC list:\n";
+	for ( std::vector<PixelROCName>::iterator rocs_itr = rocs_.begin(); rocs_itr != rocs_.end(); rocs_itr++ )
+	{
+		cout << rocs_itr->rocname() << "\n";
+	}
+	cout << "\nModule list:\n";
+	for ( std::set<PixelModuleName>::iterator modules_itr = modules_.begin(); modules_itr != modules_.end(); modules_itr++ )
+	{
+		cout << modules_itr->modulename() << "\n";
 	}
 	cout << "\n";*/
-  
-  // Determine max ROCs on a module for singleROC mode.
-  nROC_=1;
-  if (singleROC_) {
-    unsigned maxROCs=0;
-    for (std::map<PixelModuleName,unsigned int>::iterator imodule=countROC.begin();imodule!=countROC.end();++imodule) {
-      if (imodule->second>maxROCs) maxROCs=imodule->second;
-    }
-    nROC_=maxROCs;
-		
-    std::cout << __LINE__ << "]\t" << mthn << "Max ROCs on a module="<<nROC_<<std::endl;
-  }
-	
-  for(unsigned int irocs=0;irocs<rocs_.size();irocs++){
-    old_irows.push_back(-1);
-    old_icols.push_back(-1);
-  }
-  
-  rocAndModuleListsBuilt_ = true;
 
+	// Determine max ROCs on a module for singleROC mode.
+	nROC_=1;
+	if (singleROC_)
+	{
+		unsigned maxROCs=0;
+		for (std::map<PixelModuleName,unsigned int>::iterator imodule=countROC.begin();imodule!=countROC.end();++imodule)
+		{
+			if (imodule->second>maxROCs) maxROCs=imodule->second;
+      }
+		nROC_=maxROCs;
+
+		std::cout << __LINE__ << "]\t" << mthn << "Max ROCs on a module="<<nROC_<<std::endl;
+	}
+	
+	for(unsigned int irocs=0;irocs<rocs_.size();irocs++){
+		old_irows.push_back(-1);
+		old_icols.push_back(-1);
+	}
+	
+	rocAndModuleListsBuilt_ = true;
 }
 
 void PixelCalibConfiguration::buildObjectsDependingOnTheNameTranslation(const PixelNameTranslation* aNameTranslation)
 {
-  assert( !objectsDependingOnTheNameTranslationBuilt_ );
-  assert( rocAndModuleListsBuilt_ );
-  assert( aNameTranslation != 0 );
-  
-  // Build the channel list.
-  assert ( channels_.empty() );
-  for (std::vector<PixelROCName>::const_iterator rocs_itr = rocs_.begin(); rocs_itr != rocs_.end(); ++rocs_itr)
-    {
-      channels_.insert( aNameTranslation->getChannelForROC(*rocs_itr) );
-    }
-  
-  // Build the maps from ROC to ROC number.
-
-  assert ( ROCNumberOnChannelAmongThoseCalibrated_.empty() && numROCsCalibratedOnChannel_.empty() );
-  
-  std::set<PixelROCName> tempROCs;
-  
-  for(std::vector<PixelROCName>::const_iterator it=rocs_.begin();it!=rocs_.end();it++){
-    tempROCs.insert(*it);
-  }
-
-
-  for ( std::set<PixelChannel>::const_iterator channels_itr = channels_.begin(); 
-	channels_itr != channels_.end(); 
-	channels_itr++ ) {
-
-    std::vector<PixelROCName> rocsOnChannel = 
-      aNameTranslation->getROCsFromChannel(*channels_itr);
-
-    std::set<PixelROCName> foundROCs;
-
-    for ( std::vector<PixelROCName>::const_iterator rocsOnChannel_itr = rocsOnChannel.begin(); 
-	  rocsOnChannel_itr != rocsOnChannel.end(); 
-	  rocsOnChannel_itr++ ) {
-
-      if ( tempROCs.find(*rocsOnChannel_itr) != tempROCs.end() ){
-	ROCNumberOnChannelAmongThoseCalibrated_[*rocsOnChannel_itr] = foundROCs.size();
-	foundROCs.insert(*rocsOnChannel_itr);
-      }
-    }
-
-    for ( std::set<PixelROCName>::const_iterator foundROCs_itr = foundROCs.begin(); 
-	  foundROCs_itr != foundROCs.end(); 
-	  foundROCs_itr++ ) {
-      numROCsCalibratedOnChannel_[*foundROCs_itr] = foundROCs.size();
-    }
-
-  }
-
-  objectsDependingOnTheNameTranslationBuilt_ = true;
+	assert( !objectsDependingOnTheNameTranslationBuilt_ );
+	assert( rocAndModuleListsBuilt_ );
+	assert( aNameTranslation != 0 );
+	
+	// Build the channel list.
+	assert ( channels_.empty() );
+	for (std::vector<PixelROCName>::const_iterator rocs_itr = rocs_.begin(); rocs_itr != rocs_.end(); ++rocs_itr)
+	{
+		channels_.insert( aNameTranslation->getChannelForROC(*rocs_itr) );
+	}
+	
+	// Build the maps from ROC to ROC number.
+	assert ( ROCNumberOnChannelAmongThoseCalibrated_.empty() && numROCsCalibratedOnChannel_.empty() );
+	for ( std::set<PixelChannel>::const_iterator channels_itr = channels_.begin(); channels_itr != channels_.end(); channels_itr++ )
+	{
+		std::vector<PixelROCName> rocsOnChannel = aNameTranslation->getROCsFromChannel(*channels_itr);
+		std::sort( rocsOnChannel.begin(), rocsOnChannel.end() );
+	
+		std::set<PixelROCName> foundROCs;
+		for ( std::vector<PixelROCName>::const_iterator rocsOnChannel_itr = rocsOnChannel.begin(); rocsOnChannel_itr != rocsOnChannel.end(); rocsOnChannel_itr++ )
+		{
+			if ( std::find(rocs_.begin(), rocs_.end(), *rocsOnChannel_itr) != rocs_.end() )
+			{
+				ROCNumberOnChannelAmongThoseCalibrated_[*rocsOnChannel_itr] = foundROCs.size();
+				foundROCs.insert(*rocsOnChannel_itr);
+			}
+		}
+		
+		for ( std::set<PixelROCName>::const_iterator foundROCs_itr = foundROCs.begin(); foundROCs_itr != foundROCs.end(); foundROCs_itr++ )
+		{
+			numROCsCalibratedOnChannel_[*foundROCs_itr] = foundROCs.size();
+		}
+	}
+	
+	objectsDependingOnTheNameTranslationBuilt_ = true;
 }
 
 unsigned int PixelCalibConfiguration::iScan(std::string dac) const{
@@ -1704,15 +1660,15 @@ void PixelCalibConfiguration::writeXMLHeader(pos::PixelConfigKey key,
   *outstream << "   <RUN_TYPE>Gain Calibration</RUN_TYPE>"                                                << std::endl ; 
   *outstream << "   <RUN_NUMBER>1</RUN_NUMBER>"                                                           << std::endl ; 
   *outstream << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>"   << std::endl ; 
-  *outstream << "   <LOCATION>CERN P5</LOCATION>"                                                         << std::endl ; 
+  *outstream << "   <COMMENT_DESCRIPTION>Calibration Object Clob</COMMENT_DESCRIPTION>"                   << std::endl ; 
+  *outstream << "   <LOCATION>CERN TAC</LOCATION>"                                                        << std::endl ; 
+  *outstream << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"                                 << std::endl ; 
   *outstream << "  </RUN>"                                                                                << std::endl ; 
   *outstream << " </HEADER>"                                                                              << std::endl ; 
   *outstream << ""                                                                                        << std::endl ; 
   *outstream << " <DATA_SET>"                                                                             << std::endl ;
   *outstream << ""                                                                                        << std::endl ;
   *outstream << "  <VERSION>" << version << "</VERSION>"                                                  << std::endl ;
-  *outstream << "  <COMMENT_DESCRIPTION>" << getComment() << "</COMMENT_DESCRIPTION>"			  << std::endl ;
-  *outstream << "  <CREATED_BY_USER>"     << getAuthor()  << "</CREATED_BY_USER>"  			  << std::endl ; 
   *outstream << ""                                                                                        << std::endl ;
   *outstream << "  <PART>"                                                                                << std::endl ;
   *outstream << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                              << std::endl ;      

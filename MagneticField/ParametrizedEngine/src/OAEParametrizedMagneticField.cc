@@ -1,5 +1,7 @@
 /** \file
  *
+ *  $Date: 2008/05/06 12:11:37 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - CERN
  */
 
@@ -13,14 +15,18 @@ using namespace std;
 using namespace magfieldparam;
 
 OAEParametrizedMagneticField::OAEParametrizedMagneticField(string T) : 
-  theParam(T){}
+  theParam(new TkBfield(T))
+{}
 
 
-OAEParametrizedMagneticField::OAEParametrizedMagneticField(const edm::ParameterSet& parameters) : 
-  theParam(parameters.getParameter<string>("BValue")) {}
+OAEParametrizedMagneticField::OAEParametrizedMagneticField(const edm::ParameterSet& parameters) {
+  theParam = new TkBfield(parameters.getParameter<string>("BValue"));
+}
 
 
-OAEParametrizedMagneticField::~OAEParametrizedMagneticField() {}
+OAEParametrizedMagneticField::~OAEParametrizedMagneticField() {
+  delete theParam;
+}
 
 
 GlobalVector
@@ -33,20 +39,16 @@ OAEParametrizedMagneticField::inTesla(const GlobalPoint& gp) const {
   }
 }
 
-namespace {
-  double ooh = 1./100;
-}
-
 GlobalVector
 OAEParametrizedMagneticField::inTeslaUnchecked(const GlobalPoint& gp) const {
-  double x[3] = {gp.x()*ooh, gp.y()*ooh, gp.z()*ooh};
+  double x[3] = {gp.x()/100., gp.y()/100., gp.z()/100.};
   double B[3];
-  theParam.getBxyz(x,B);
+  theParam->getBxyz(x,B);
   return GlobalVector(B[0], B[1], B[2]);
 }
 
 
 bool
 OAEParametrizedMagneticField::isDefined(const GlobalPoint& gp) const {
-  return (gp.perp2()<(115.*115.) && fabs(gp.z())<280.);
+  return (gp.perp()<115. && fabs(gp.z())<280.);
 }

@@ -343,29 +343,15 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
  
   ////---- try to get raw data and unpacker report
   edm::Handle<FEDRawDataCollection> RawData;  
- 
-  try{
-    iEvent.getByType(RawData);
-  }
-  catch(...)
-    {
-      rawOK_=false;
-    }
-  if (rawOK_&&!RawData.isValid()) {
+  iEvent.getByType(RawData);
+  if (!RawData.isValid()) {
     rawOK_=false;
   }
   
   
-  edm::Handle<HcalUnpackerReport> report;  
-  try{
-    iEvent.getByType(report);
-  }
-  catch(...)
-    {
-      rawOK_=false;
-    }
-  
-  if (rawOK_&&!report.isValid()) {
+  edm::Handle<HcalUnpackerReport> report; 
+  iEvent.getByType(report);  
+  if (!report.isValid()) {
     rawOK_=false;
   }
   else 
@@ -385,15 +371,8 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
   //---------------------------------------------------------------//
 
   edm::Handle<CastorDigiCollection> CastorDigi;
-
-  try{
-      iEvent.getByLabel(inputLabelDigi_,CastorDigi);
-    }
-  catch(...) {
-      digiOK_=false;
-    }
-
-  if (digiOK_ && !CastorDigi.isValid()) {
+  iEvent.getByLabel(inputLabelDigi_,CastorDigi);
+  if (!CastorDigi.isValid()) {
     digiOK_=false;
   }
   
@@ -409,29 +388,26 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
   //------------------- try to get RecHits ------------------------//
   //---------------------------------------------------------------//
   edm::Handle<CastorRecHitCollection> CastorHits;
-
-  try{
   iEvent.getByLabel(inputLabelRecHitCASTOR_,CastorHits);
-  }
-  catch(...) {
-  rechitOK_=false;
-  }
-  
-  if (rechitOK_&&!CastorHits.isValid()) {
+  if (!CastorHits.isValid()) {
     rechitOK_ = false;
   }
 
 
   ////---- fill CastorEventProduct every 10 events
  if(ievt_%10 == 0) {
-   cout << "    RAW Data   ==> " << rawOK_<< endl;
-   cout << "    Digis      ==> " << digiOK_<< endl;
-   cout << "    RecHits    ==> " << rechitOK_<< endl;
 
   TH2F* hCastorEventProduct=CastorEventProduct->getTH2F();
   hCastorEventProduct->SetBinContent(1,1,int(rawOK_));
   hCastorEventProduct->SetBinContent(2,1,int(digiOK_));
   hCastorEventProduct->SetBinContent(3,1,int(rechitOK_));
+
+   if(fVerbosity>0) {
+   cout << "    RAW Data   ==> " << rawOK_<< endl;
+   cout << "    Digis      ==> " << digiOK_<< endl;
+   cout << "    RecHits    ==> " << rechitOK_<< endl;
+   }
+ 
  }
 
   //------------------------------------------------------------//
@@ -495,7 +471,6 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
       if (PSMon_!=NULL) cout <<"TIMER:: PULSE SHAPE  ->"<<cpu_timer.cpuTime()<<endl;
       cpu_timer.reset(); cpu_timer.start();
     }
-  
 
 
   if(fVerbosity>0 && ievt_%100 == 0)

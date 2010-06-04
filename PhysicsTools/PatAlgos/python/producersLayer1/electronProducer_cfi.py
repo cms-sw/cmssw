@@ -72,5 +72,7 @@ patElectrons = cms.EDProducer("PATElectronProducer",
 
     # high level selections
     embedHighLevelSelection = cms.bool(True),
-    beamLineSrc             = cms.InputTag("offlineBeamSpot")
+    usePV                   = cms.bool(True),                          
+    beamLineSrc             = cms.InputTag("offlineBeamSpot"),
+    pvSrc                   = cms.InputTag("offlinePrimaryVertices")
 )

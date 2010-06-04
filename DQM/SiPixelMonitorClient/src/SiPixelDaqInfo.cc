@@ -168,6 +168,10 @@ void SiPixelDaqInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     // check if any Pixel FED is in readout:
     edm::Handle<FEDRawDataCollection> rawDataHandle;
     iEvent.getByLabel("source", rawDataHandle);
+    if(!rawDataHandle.isValid()){
+      edm::LogInfo("SiPixelDaqInfo") << "source" << " is empty!";
+      return;
+    }
     const FEDRawDataCollection& rawDataCollection = *rawDataHandle;
     nFEDsBarrel_ = 0; nFEDsEndcap_ = 0;
     for(int i = 0; i != 40; i++){

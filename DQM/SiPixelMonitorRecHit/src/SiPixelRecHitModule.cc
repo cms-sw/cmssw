@@ -35,11 +35,11 @@ SiPixelRecHitModule::~SiPixelRecHitModule() {}
 void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type, 
                                bool twoD, bool reducedSet) {
 
-  bool barrel = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
-  bool endcap = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
+  bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
+  bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
   bool isHalfModule = false;
   if(barrel){
-    isHalfModule = PixelBarrelName::PixelBarrelName(DetId::DetId(id_)).isHalfModule(); 
+    isHalfModule = PixelBarrelName(DetId(id_)).isHalfModule(); 
   }
 
   std::string hid;
@@ -90,7 +90,7 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type,
   }
 
   if(type==1 && barrel){
-    uint32_t DBladder = PixelBarrelName::PixelBarrelName(DetId::DetId(id_)).ladderName();
+    uint32_t DBladder = PixelBarrelName(DetId(id_)).ladderName();
     char sladder[80]; sprintf(sladder,"Ladder_%02i",DBladder);
     hid = src.label() + "_" + sladder;
     if(isHalfModule) hid += "H";
@@ -125,7 +125,7 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type,
 
   if(type==2 && barrel){
     
-    uint32_t DBlayer = PixelBarrelName::PixelBarrelName(DetId::DetId(id_)).layerName();
+    uint32_t DBlayer = PixelBarrelName(DetId(id_)).layerName();
     char slayer[80]; sprintf(slayer,"Layer_%i",DBlayer);
     hid = src.label() + "_" + slayer;
     
@@ -159,7 +159,7 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type,
   }
 
   if(type==3 && barrel){
-    uint32_t DBmodule = PixelBarrelName::PixelBarrelName(DetId::DetId(id_)).moduleName();
+    uint32_t DBmodule = PixelBarrelName(DetId(id_)).moduleName();
     char smodule[80]; sprintf(smodule,"Ring_%i",DBmodule);
     hid = src.label() + "_" + smodule;
     
@@ -192,7 +192,7 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type,
   }
 
   if(type==4 && endcap){
-    uint32_t blade= PixelEndcapName::PixelEndcapName(DetId::DetId(id_)).bladeName();
+    uint32_t blade= PixelEndcapName(DetId(id_)).bladeName();
     
     char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
     hid = src.label() + "_" + sblade;
@@ -213,7 +213,7 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type,
 
   }
   if(type==5 && endcap){
-    uint32_t disk = PixelEndcapName::PixelEndcapName(DetId::DetId(id_)).diskName();
+    uint32_t disk = PixelEndcapName(DetId(id_)).diskName();
     
     char sdisk[80]; sprintf(sdisk, "Disk_%i",disk);
     hid = src.label() + "_" + sdisk;
@@ -235,8 +235,8 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type,
   }
 
   if(type==6 && endcap){
-    uint32_t panel= PixelEndcapName::PixelEndcapName(DetId::DetId(id_)).pannelName();
-    uint32_t module= PixelEndcapName::PixelEndcapName(DetId::DetId(id_)).plaquetteName();
+    uint32_t panel= PixelEndcapName(DetId(id_)).pannelName();
+    uint32_t module= PixelEndcapName(DetId(id_)).plaquetteName();
     char slab[80]; sprintf(slab, "Panel_%i_Ring_%i",panel, module);
     hid = src.label() + "_" + slab;
     
@@ -279,8 +279,8 @@ void SiPixelRecHitModule::fill(const float& rechit_x, const float& rechit_y,
 			       bool bladeon, bool diskon, bool ringon, 
 			       bool twoD, bool reducedSet) {
 
-  bool barrel = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
-  bool endcap = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
+  bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
+  bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
 
   //std::cout << rechit_x << " " << rechit_y << " " << sizeX << " " << sizeY << std::endl;
   if(modon){
@@ -378,8 +378,8 @@ void SiPixelRecHitModule::fill(const float& rechit_x, const float& rechit_y,
 
 void SiPixelRecHitModule::nfill(const int& nrec, bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon) {
   
-  bool barrel = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
-  bool endcap = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
+  bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
+  bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
 
   if(modon) menRecHits_->Fill(nrec);
   //barrel

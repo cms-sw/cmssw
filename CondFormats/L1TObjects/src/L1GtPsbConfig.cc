@@ -74,7 +74,7 @@ L1GtPsbConfig::L1GtPsbConfig(const L1GtPsbConfig& gtb)
 }
 
 // assignment operator
-L1GtPsbConfig::L1GtPsbConfig& L1GtPsbConfig::operator=(const L1GtPsbConfig& gtb)
+L1GtPsbConfig& L1GtPsbConfig::operator=(const L1GtPsbConfig& gtb)
 {
 
     if (this != &gtb) {

@@ -442,11 +442,6 @@ class Process(object):
                 #now put in proper bucket
                 newSeq._place(name,self)
         self.__dict__['_Process__InExtendCall'] = False
-    def include(self,filename):
-        """include the content of a configuration language file into the process
-             this is identical to calling process.extend(include('filename'))
-        """
-        self.extend(include(filename))
     def _dumpConfigNamedList(self,items,typeName,options):
         returnValue = ''
         for name,item in items:
@@ -667,15 +662,15 @@ class Process(object):
         p.addVString(True, "@trigger_paths", triggerPaths)
         processPSet.addPSet(True, "@trigger_paths", p)
         # add all these paths
-        pathValidator = PathValidator()
-        endpathValidator = EndPathValidator()
+        #pathValidator = PathValidator()
+        #endpathValidator = EndPathValidator()
         for triggername in triggerPaths:
             #self.paths_()[triggername].insertInto(processPSet, triggername, self.sequences_())
-            self.paths_()[triggername].visit(pathValidator)
+            #self.paths_()[triggername].visit(pathValidator)
             self.paths_()[triggername].insertInto(processPSet, triggername, self.__dict__)
         for endpathname in endpaths:
             #self.endpaths_()[endpathname].insertInto(processPSet, endpathname, self.sequences_())
-            self.endpaths_()[endpathname].visit(endpathValidator)
+            #self.endpaths_()[endpathname].visit(endpathValidator)
             self.endpaths_()[endpathname].insertInto(processPSet, endpathname, self.__dict__)
         # all the placeholders should be resolved now, so...
         if self.schedule_() != None:
@@ -787,17 +782,6 @@ class Process(object):
                   found = True
                   self.__setattr__(esname+"_prefer",  ESPrefer(d[esname].type_()) )
             return found
-
-def include(fileName):
-    """Parse a configuration file language file and return a 'module like' object"""
-    from FWCore.ParameterSet.parseConfig import importConfig
-    return importConfig(fileName)
-
-def processFromString(processString):
-    """Reads a string containing the equivalent content of a .cfg file and
-    creates a Process object"""
-    from FWCore.ParameterSet.parseConfig import processFromString
-    return processFromString(processString)
 
 class FilteredStream(dict):
     """a dictionary with fixed keys"""
@@ -1225,14 +1209,6 @@ process.prefer("juicer",
             self.assertEqual(deps['c'],set(['a']))
             #deps= path.moduleDependencies()
             #print deps['a']
-        def testProcessFromString(self):
-            process = processFromString(
-"""process Test = {
-   source = PoolSource {}
-   module out = OutputModule {}
-   endpath o = {out}
-}""")
-            self.assertEqual(process.source.type_(),"PoolSource")
         def testFreeze(self):
             process = Process("Freeze")
             m = EDProducer("M", p=PSet(i = int32(1)))

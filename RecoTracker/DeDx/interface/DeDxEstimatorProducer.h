@@ -17,6 +17,13 @@
 
 #include <ext/hash_map>
 
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+
+#include "TFile.h"
+#include "TChain.h"
+
 
 //
 // class declaration
@@ -34,6 +41,11 @@ private:
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
+  int    getCharge(const SiStripCluster*   Cluster, int& Saturating_Strips);
+//  int    getCharge(const SiStripRecHit2D* sistripsimplehit, int& Saturating_Strips);
+  void   MakeCalibrationMap();
+
+
   // ----------member data ---------------------------
   BaseDeDxEstimator*                m_estimator;
 
@@ -48,8 +60,11 @@ private:
   unsigned int MaxNrStrips;
   unsigned int MinTrackHits;
 
+  std::string                       m_calibrationPath;
+  bool                              useCalibration;
+
    private : 
-      struct stModInfo{int DetId; float Thickness; float Distance; float Normalization;};
+      struct stModInfo{int DetId; float Thickness; float Distance; float Normalization; double Gain;};
 
       class isEqual{
          public:

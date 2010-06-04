@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.40 2010/03/08 17:09:46 mommsen Exp $
+// $Id: SMProxyServer.cc,v 1.41 2010/03/17 16:47:02 smorovic Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -149,7 +149,7 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("esSelectedHLTOutputModule",&esSelectedHLTOutputModule_);
   esSelectedEventSelection_.clear();
   ispace->fireItemAvailable("esSelectedEventSelection",&esSelectedEventSelection_);
-  TriggerSelector_ = xdata::String::String();
+  TriggerSelector_ = xdata::String();
   ispace->fireItemAvailable("TriggerSelector",&TriggerSelector_);
   selectionFromClient_=false;
   ispace->fireItemAvailable("selectionFromClient",&selectionFromClient_);

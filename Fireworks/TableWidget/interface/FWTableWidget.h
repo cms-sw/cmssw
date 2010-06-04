@@ -18,7 +18,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:47 EST 2009
-// $Id: FWTableWidget.h,v 1.9 2009/09/23 20:24:19 chrjones Exp $
+// $Id: FWTableWidget.h,v 1.8 2009/06/03 14:24:19 jmuelmen Exp $
 //
 
 // system include files
@@ -48,8 +48,9 @@ class FWTableWidget : public TGCompositeFrame
 
       // ---------- member functions ---------------------------
       using  TGFrame::Resize;
-      virtual void Resize(UInt_t w, UInt_t h);
-      virtual void MoveResize(Int_t x, Int_t y, UInt_t w = 0, UInt_t h = 0);
+      void Resize(UInt_t w, UInt_t h);
+      void SetSize(const TGDimension &s);
+      virtual void    MoveResize(Int_t x, Int_t y, UInt_t w = 0, UInt_t h = 0);
       void SetBackgroundColor(Pixel_t);
       void SetHeaderBackgroundColor(Pixel_t);
       void SetHeaderForegroundColor(Pixel_t);

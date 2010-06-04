@@ -1,4 +1,4 @@
-// $Id: StatisticsReporter.cc,v 1.16 2010/02/16 09:59:18 mommsen Exp $
+// $Id: StatisticsReporter.cc,v 1.17 2010/03/16 17:55:57 mommsen Exp $
 /// @file: StatisticsReporter.cc
 
 #include <sstream>
@@ -29,6 +29,7 @@ StatisticsReporter::StatisticsReporter
 ) :
 _app(app),
 _alarmHandler(new AlarmHandler(app)),
+_sharedResources(sr),
 _monitoringSleepSec(sr->_configuration->
   getWorkerThreadParams()._monitoringSleepSec),
 _runMonCollection(_monitoringSleepSec, _alarmHandler, sr),
@@ -37,7 +38,7 @@ _filesMonCollection(5*_monitoringSleepSec),
 _streamsMonCollection(_monitoringSleepSec),
 _dataSenderMonCollection(_monitoringSleepSec, _alarmHandler),
 _dqmEventMonCollection(5*_monitoringSleepSec),
-_resourceMonCollection(900*_monitoringSleepSec, _alarmHandler),
+_resourceMonCollection(600*_monitoringSleepSec, _alarmHandler),
 _stateMachineMonCollection(_monitoringSleepSec),
 _eventConsumerMonCollection(_monitoringSleepSec),
 _dqmConsumerMonCollection(_monitoringSleepSec),
@@ -207,6 +208,10 @@ bool StatisticsReporter::monitorAction(toolbox::task::WorkLoop* wl)
   {
     calculateStatistics();
     updateInfoSpace();
+  }
+  catch(exception::DiskSpaceAlarm &e)
+  {
+    _sharedResources->moveToFailedState(e);
   }
   catch(xcept::Exception &e)
   {

@@ -178,6 +178,8 @@ namespace edm {
     virtual edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const;
     virtual TriggerResultsByName triggerResultsByName(std::string const& process) const;
 
+    typedef std::vector<std::pair<EDProduct*, ConstBranchDescription const*> > ProductPtrVec;
+
   private:
     EventPrincipal const&
     eventPrincipal() const;
@@ -202,7 +204,6 @@ namespace edm {
     friend class EDFilter;
     friend class EDProducer;
 
-    typedef std::vector<std::pair<EDProduct*, ConstBranchDescription const*> > ProductPtrVec;
     void commit_(std::vector<BranchID>* previousParentage=0, ParentageID* previousParentageId=0);
     void commit_aux(ProductPtrVec& products, bool record_parents, std::vector<BranchID>* previousParentage=0, ParentageID* previousParentageId=0);
 

@@ -5,8 +5,8 @@
  *  Class to load the tracks in the event, it provide some common functionalities
  *  both for all the RecoMuon producers.
  *
- *  $Date: 2008/11/25 15:44:41 $
- *  $Revision: 1.27 $
+ *  $Date: 2008/11/30 23:06:03 $
+ *  $Revision: 1.28 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -18,6 +18,8 @@
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
 
@@ -78,6 +80,8 @@ class MuonTrackLoader {
     bool theSmoothingStep;
     std::string theSmootherName;
     edm::ESHandle<TrajectorySmoother> theSmoother;
+
+    edm::InputTag theBeamSpotInputTag; 
 
     /// Label for L2SeededTracks
     std::string theL2SeededTkLabel; 

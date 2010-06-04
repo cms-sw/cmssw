@@ -5,7 +5,6 @@
  *  CMSSW
  *
  *  Created by Chris Jones on 2/24/06.
- *  Copyright 2006 __MyCompanyName__. All rights reserved.
  *
  */
 #include <string>

@@ -15,7 +15,7 @@
 //         Created:  Thu May 31 14:09:02 CEST 2007
 //    Code Updates:  loic Quertenmont (querten)
 //         Created:  Thu May 10 14:09:02 CEST 2008
-// $Id: DeDxEstimatorProducer.cc,v 1.24 2010/01/21 08:30:45 querten Exp $
+// $Id: DeDxEstimatorProducer.cc,v 1.25 2010/02/23 07:21:58 querten Exp $
 //
 //
 
@@ -39,6 +39,10 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+
+#include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
+
 
 using namespace reco;
 using namespace std;
@@ -66,6 +70,9 @@ DeDxEstimatorProducer::DeDxEstimatorProducer(const edm::ParameterSet& iConfig)
    useStrip = iConfig.getParameter<bool>("UseStrip");
    MeVperADCPixel = iConfig.getParameter<double>("MeVperADCPixel"); 
    MeVperADCStrip = iConfig.getParameter<double>("MeVperADCStrip"); 
+
+   useCalibration = iConfig.getParameter<bool>("UseCalibration");
+   m_calibrationPath = iConfig.getParameter<string>("calibrationPath");
 
    if(!usePixel && !useStrip)
    edm::LogWarning("DeDxHitsProducer") << "Pixel Hits AND Strip Hits will not be used to estimate dEdx --> BUG, Please Update the config file";
@@ -110,8 +117,11 @@ void  DeDxEstimatorProducer::beginRun(edm::Run & run, const edm::EventSetup& iSe
        MOD->Thickness       = Thick;
        MOD->Distance        = Dist;
        MOD->Normalization   = Norma;
+       MOD->Gain            = 1;
        MODsColl[MOD->DetId] = MOD;
    }
+
+   MakeCalibrationMap();
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -120,8 +130,8 @@ void  DeDxEstimatorProducer::endJob() {}
 
 
 
-void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
+void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
   auto_ptr<ValueMap<DeDxData> > trackDeDxEstimateAssociation(new ValueMap<DeDxData> );  
   ValueMap<DeDxData>::Filler filler(*trackDeDxEstimateAssociation);
 
@@ -144,8 +154,76 @@ void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
      DeDxHitCollection dedxHits;
      vector<DeDxTools::RawHits> hits; 
-     DeDxTools::trajectoryRawHits(traj, hits, usePixel, useStrip);
- 
+//     DeDxTools::trajectoryRawHits(traj, hits, usePixel, useStrip);
+
+    const vector<TrajectoryMeasurement> & measurements = traj->measurements();
+    for(vector<TrajectoryMeasurement>::const_iterator it = measurements.begin(); it!=measurements.end(); it++){
+      TrajectoryStateOnSurface trajState=it->updatedState();
+      if( !trajState.isValid()) continue;
+     
+      const TrackingRecHit * recHit=(*it->recHit()).hit();
+      LocalVector trackDirection = trajState.localDirection();
+      double cosine = trackDirection.z()/trackDirection.mag();
+              
+       if(const SiStripMatchedRecHit2D* matchedHit=dynamic_cast<const SiStripMatchedRecHit2D*>(recHit)){
+	   if(!useStrip) continue;
+	   DeDxTools::RawHits mono,stereo; 
+	   mono.trajectoryMeasurement = &(*it);
+	   stereo.trajectoryMeasurement = &(*it);
+	   mono.angleCosine = cosine; 
+	   stereo.angleCosine = cosine;
+
+           mono.charge = getCharge((matchedHit->monoHit()->cluster()).get(),mono.NSaturating);
+           stereo.charge = getCharge((matchedHit->stereoHit()->cluster()).get(),stereo.NSaturating);
+
+	   mono.detId= matchedHit->monoHit()->geographicalId();
+	   stereo.detId= matchedHit->stereoHit()->geographicalId();
+
+	   hits.push_back(mono);
+	   hits.push_back(stereo);
+        }else if(const ProjectedSiStripRecHit2D* projectedHit=dynamic_cast<const ProjectedSiStripRecHit2D*>(recHit)) {
+           if(!useStrip) continue;
+           const SiStripRecHit2D* singleHit=&(projectedHit->originalHit());
+           DeDxTools::RawHits mono;
+
+           mono.trajectoryMeasurement = &(*it);
+           mono.angleCosine = cosine;
+           mono.charge = getCharge((singleHit->cluster()).get(),mono.NSaturating);
+           mono.detId= singleHit->geographicalId();
+           hits.push_back(mono);
+        }else if(const SiStripRecHit2D* singleHit=dynamic_cast<const SiStripRecHit2D*>(recHit)){
+           if(!useStrip) continue;
+           DeDxTools::RawHits mono;
+	       
+           mono.trajectoryMeasurement = &(*it);
+           mono.angleCosine = cosine; 
+           mono.charge = getCharge((singleHit->cluster()).get(),mono.NSaturating);
+           mono.detId= singleHit->geographicalId();
+           hits.push_back(mono); 
+        }else if(const SiStripRecHit1D* single1DHit=dynamic_cast<const SiStripRecHit1D*>(recHit)){
+           if(!useStrip) continue;
+           DeDxTools::RawHits mono;
+               
+           mono.trajectoryMeasurement = &(*it);
+           mono.angleCosine = cosine; 
+           mono.charge = getCharge((single1DHit->cluster()).get(),mono.NSaturating);
+           mono.detId= single1DHit->geographicalId();
+           hits.push_back(mono); 
+        }else if(const SiPixelRecHit* pixelHit=dynamic_cast<const SiPixelRecHit*>(recHit)){
+           if(!usePixel) continue;
+
+           DeDxTools::RawHits pixel;
+
+           pixel.trajectoryMeasurement = &(*it);
+           pixel.angleCosine = cosine; 
+           pixel.charge = pixelHit->cluster()->charge();
+           pixel.NSaturating=-1;
+           pixel.detId= pixelHit->geographicalId();
+           hits.push_back(pixel);
+       } 
+    }
+     ///////////////////////////////////////
+
      int NClusterSaturating = 0; 
      for(size_t i=0; i < hits.size(); i++)
      {
@@ -156,10 +234,9 @@ void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
          if(hits[i].NSaturating>0)NClusterSaturating++;
      }
-  
+
      sort(dedxHits.begin(),dedxHits.end(),less<DeDxHit>());   
      std::pair<float,float> val_and_error = m_estimator->dedx(dedxHits);
-
 
      //WARNING: Since the dEdX Error is not properly computed for the moment
      //It was decided to store the number of saturating cluster in that dataformat
@@ -174,6 +251,71 @@ void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
    // put into the event 
   iEvent.put(trackDeDxEstimateAssociation);   
 }
+
+
+
+void DeDxEstimatorProducer::MakeCalibrationMap()
+{
+   if(!useCalibration)return;
+
+   TChain* t1 = new TChain("SiStripCalib/APVGain");
+   t1->Add(m_calibrationPath.c_str());
+
+   unsigned int  tree_DetId;
+   unsigned char tree_APVId;
+   double        tree_Gain;
+
+   t1->SetBranchAddress("DetId"             ,&tree_DetId      );
+   t1->SetBranchAddress("APVId"             ,&tree_APVId      );
+   t1->SetBranchAddress("Gain"              ,&tree_Gain       );
+
+
+
+   for (unsigned int ientry = 0; ientry < t1->GetEntries(); ientry++) {
+       t1->GetEntry(ientry);
+       stModInfo* MOD  = MODsColl[tree_DetId];
+       MOD->Gain = tree_Gain;
+   }
+
+
+}
+
+
+int DeDxEstimatorProducer::getCharge(const SiStripCluster*   Cluster, int& Saturating_Strips)
+{
+   const vector<uint8_t>&  Ampls       = Cluster->amplitudes();
+   uint32_t                DetId       = Cluster->geographicalId();
+
+//   float G=1.0f;
+
+   int toReturn = 0;
+   Saturating_Strips = 0;
+   for(unsigned int i=0;i<Ampls.size();i++){
+      int CalibratedCharge = Ampls[i];
+
+      if(useCalibration){
+         stModInfo* MOD = MODsColl[DetId];
+//         G = MOD->Gain;
+         CalibratedCharge = (int)(CalibratedCharge / MOD->Gain );
+         if(CalibratedCharge>=1024){
+            CalibratedCharge = 255;
+         }else if(CalibratedCharge>=255){
+            CalibratedCharge = 254;
+         } 
+      }
+
+      toReturn+=CalibratedCharge;
+      if(CalibratedCharge>=254)Saturating_Strips++;
+   }
+
+//   printf("Charge = %i --> %i  (Gain=%f)\n", accumulate(Ampls.begin(), Ampls.end(), 0), toReturn, G);         
+
+
+   return toReturn;
+}
+
+
+
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(DeDxEstimatorProducer);

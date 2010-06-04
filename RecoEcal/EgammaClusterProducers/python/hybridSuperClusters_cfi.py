@@ -43,9 +43,5 @@ hybridSuperClusters = cms.EDProducer("HybridClusterProducer",
         ecalRecHitFlag_kNeighboursRecovered,
         ecalRecHitFlag_kTowerRecovered,
         ecalRecHitFlag_kDead
-    ),
-    RecHitSeverityToBeExcluded = cms.vint32(999),
-    severityRecHitThreshold = cms.double(0.08),
-    severitySpikeId = cms.int32(1),
-    severitySpikeThreshold = cms.double(0)
+    )
  ) 

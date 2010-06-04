@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterSource.cc,v 1.23 2010/01/11 16:18:43 merkelp Exp $
+// $Id: SiPixelClusterSource.cc,v 1.26 2010/04/19 20:36:53 merkelp Exp $
 //
 //
 // Updated by: Lukas Wehrli
@@ -102,6 +102,18 @@ void SiPixelClusterSource::beginRun(const edm::Run& r, const edm::EventSetup& iS
     buildStructure(iSetup);
     // Book Monitoring Elements
     bookMEs();
+    // Book occupancy maps in global coordinates for all clusters:
+    theDMBE->setCurrentFolder("Pixel/Clusters/OffTrack");
+    //bpix
+    meClPosLayer1 = theDMBE->book2D("position_siPixelClusters_Layer_1","Clusters Layer1;Global Z (cm);Global #phi",200,-30.,30.,128,-3.2,3.2);
+    meClPosLayer2 = theDMBE->book2D("position_siPixelClusters_Layer_2","Clusters Layer2;Global Z (cm);Global #phi",200,-30.,30.,128,-3.2,3.2);
+    meClPosLayer3 = theDMBE->book2D("position_siPixelClusters_Layer_3","Clusters Layer3;Global Z (cm);Global #phi",200,-30.,30.,128,-3.2,3.2);
+    //fpix
+    meClPosDisk1pz = theDMBE->book2D("position_siPixelClusters_pz_Disk_1","Clusters +Z Disk1;Global X (cm);Global Y (cm)",80,-20.,20.,80,-20.,20.);
+    meClPosDisk2pz = theDMBE->book2D("position_siPixelClusters_pz_Disk_2","Clusters +Z Disk2;Global X (cm);Global Y (cm)",80,-20.,20.,80,-20.,20.);
+    meClPosDisk1mz = theDMBE->book2D("position_siPixelClusters_mz_Disk_1","Clusters -Z Disk1;Global X (cm);Global Y (cm)",80,-20.,20.,80,-20.,20.);
+    meClPosDisk2mz = theDMBE->book2D("position_siPixelClusters_mz_Disk_2","Clusters -Z Disk2;Global X (cm);Global Y (cm)",80,-20.,20.,80,-20.,20.);
+    
     firstRun = false;
   }
 }
@@ -200,11 +212,11 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup& iSetup){
 	  thePixelStructure.insert(pair<uint32_t,SiPixelClusterModule*> (id,theModule));
         }else if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
 	  LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
-          PixelEndcapName::HalfCylinder side = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).halfCylinder();
-          int disk   = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).diskName();
-          int blade  = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).bladeName();
-          int panel  = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).pannelName();
-          int module = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).plaquetteName();
+          PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(id)).halfCylinder();
+          int disk   = PixelEndcapName(DetId(id)).diskName();
+          int blade  = PixelEndcapName(DetId(id)).bladeName();
+          int panel  = PixelEndcapName(DetId(id)).pannelName();
+          int module = PixelEndcapName(DetId(id)).plaquetteName();
           char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
           char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);
           char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
@@ -235,7 +247,7 @@ void SiPixelClusterSource::bookMEs(){
   DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
   theDMBE->setCurrentFolder("Pixel");
   char title[80]; sprintf(title, "Rate of events with >%i FPIX clusters;LumiSection;Rate of large FPIX events per LS [Hz]",bigEventSize);
-  bigFpixClusterEventRate = theDMBE->book1D("bigFpixClusterEventRate",title,2000,0.,2000.);
+  bigFpixClusterEventRate = theDMBE->book1D("bigFpixClusterEventRate",title,5000,0.,5000.);
 
 
   std::map<uint32_t,SiPixelClusterModule*>::iterator struct_iter;
@@ -296,7 +308,6 @@ void SiPixelClusterSource::bookMEs(){
 	LogDebug ("PixelDQM") << "PROBLEM WITH RING-FOLDER\n";
       }
     }
-    //**
     if(smileyOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,7)){
         (*struct_iter).second->book( conf_,7,twoDimOn,reducedSet);

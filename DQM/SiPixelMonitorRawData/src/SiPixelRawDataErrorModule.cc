@@ -17,6 +17,8 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
+using namespace std;
+
 const int SiPixelRawDataErrorModule::LINK_bits = 6;
 const int SiPixelRawDataErrorModule::ROC_bits  = 5;
 const int SiPixelRawDataErrorModule::DCOL_bits = 5;
@@ -59,15 +61,30 @@ const long long SiPixelRawDataErrorModule::TRLRBGN_mask = ~(~(long long)(0) << T
 //
 // Constructors
 //
-SiPixelRawDataErrorModule::SiPixelRawDataErrorModule() : id_(0),
-					 ncols_(416),
-					 nrows_(160) { }
+SiPixelRawDataErrorModule::SiPixelRawDataErrorModule() : 
+  id_(0),
+  ncols_(416),
+  nrows_(160) 
+{ 
+  _debug_ = false;
+  for(int i=0; i!=40; i++) for(int j=0; j!=37; j++){
+    FedChNErrArray[i][j]=0; 
+    FedChLErrArray[i][j]=0; 
+    if(j<21) FedETypeNErrArray[i][j]=0;
+  }
+}
 //
 SiPixelRawDataErrorModule::SiPixelRawDataErrorModule(const uint32_t& id) : 
   id_(id),
   ncols_(416),
   nrows_(160)
 { 
+  _debug_ = false;
+  for(int i=0; i!=40; i++) for(int j=0; j!=37; j++){
+    FedChNErrArray[i][j]=0; 
+    FedChLErrArray[i][j]=0; 
+    if(j<21) FedETypeNErrArray[i][j]=0;
+  }
 }
 //
 SiPixelRawDataErrorModule::SiPixelRawDataErrorModule(const uint32_t& id, const int& ncols, const int& nrows) : 
@@ -75,7 +92,13 @@ SiPixelRawDataErrorModule::SiPixelRawDataErrorModule(const uint32_t& id, const i
   ncols_(ncols),
   nrows_(nrows)
 { 
-}
+  _debug_ = false;
+  for(int i=0; i!=40; i++) for(int j=0; j!=37; j++){
+    FedChNErrArray[i][j]=0; 
+    FedChLErrArray[i][j]=0; 
+    if(j<21) FedETypeNErrArray[i][j]=0;
+  }
+} 
 //
 // Destructor
 //
@@ -88,11 +111,11 @@ void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig, bool redu
   std::string hid;
   // Get collection name and instantiate Histo Id builder
   edm::InputTag src = iConfig.getParameter<edm::InputTag>( "src" );
-  bool barrel = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
-  bool endcap = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
+  bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
+  bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
   bool isHalfModule = false;
   if(barrel){
-    isHalfModule = PixelBarrelName::PixelBarrelName(DetId::DetId(id_)).isHalfModule(); 
+    isHalfModule = PixelBarrelName(DetId(id_)).isHalfModule(); 
   }
 
   // Get DQM interface
@@ -138,7 +161,7 @@ void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig, bool redu
     }
     delete theHistogramId;
   } else if(type==1 && barrel){
-    uint32_t DBladder = PixelBarrelName::PixelBarrelName(DetId::DetId(id_)).ladderName();
+    uint32_t DBladder = PixelBarrelName(DetId(id_)).ladderName();
     char sladder[80]; sprintf(sladder,"Ladder_%02i",DBladder);
     hid = src.label() + "_" + sladder;
     if(isHalfModule) hid += "H";
@@ -171,7 +194,7 @@ void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig, bool redu
       meROCNmbrLad_ = theDMBE->bookInt("ROCNmbr_"+hid);
     }
   } else if(type==4 && endcap){
-    uint32_t blade= PixelEndcapName::PixelEndcapName(DetId::DetId(id_)).bladeName();
+    uint32_t blade= PixelEndcapName(DetId(id_)).bladeName();
     char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
     hid = src.label() + "_" + sblade;
     // Types of errors
@@ -270,7 +293,7 @@ void SiPixelRawDataErrorModule::bookFED(const edm::ParameterSet& iConfig) {
       hid = "FedChLErrArray_" + temp.str();
       meFedChLErrArray_[j] = theDMBE->bookInt(hid);
       hid = "FedETypeNErrArray_" + temp.str();
-      if(j<15) meFedETypeNErrArray_[j] = theDMBE->bookInt(hid);
+      if(j<21) meFedETypeNErrArray_[j] = theDMBE->bookInt(hid);
     //}
   }
   delete theHistogramId;
@@ -279,38 +302,53 @@ void SiPixelRawDataErrorModule::bookFED(const edm::ParameterSet& iConfig) {
 //
 // Fill histograms
 //
-void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>& input, bool reducedSet, bool modon, bool ladon, bool bladeon) {
+int SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>& input, bool reducedSet, bool modon, bool ladon, bool bladeon) {
 //std::cout<<"Entering SiPixelRawDataErrorModule::fill: "<<std::endl;
-  bool barrel = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
-  bool endcap = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
+  bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
+  bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
   bool isHalfModule = false;
   uint32_t DBladder = 0;
   if(barrel){
-    isHalfModule = PixelBarrelName::PixelBarrelName(DetId::DetId(id_)).isHalfModule(); 
-    DBladder = PixelBarrelName::PixelBarrelName(DetId::DetId(id_)).ladderName();
+    isHalfModule = PixelBarrelName(DetId(id_)).isHalfModule(); 
+    DBladder = PixelBarrelName(DetId(id_)).ladderName();
+//    int FedId = DetId(id_).getFedId();                  // FED the error came from
+
   }
+  
+  // Get DQM interface
+  DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
+  
+  unsigned int numberOfErrors = 0;  
+  unsigned int numberOfSeriousErrors = 0;
   
   edm::DetSetVector<SiPixelRawDataError>::const_iterator isearch = input.find(id_); // search  errors of detid
   
   if( isearch != input.end() ) {  // Not at empty iterator
-    
-    unsigned int numberOfErrors = 0;
-    
     // Look at errors now
     edm::DetSet<SiPixelRawDataError>::const_iterator  di;
     for(di = isearch->data.begin(); di != isearch->data.end(); di++) {
       numberOfErrors++;
+      int FedId = di->getFedId();                  // FED the error came from
+      int chanNmbr = -1;
       int errorType = di->getType();               // type of error
+      int TBMType=-1; int TBMMessage=-1; int evtSize=-1; int evtNbr=-1; int ROCId=-1; 
+      int DCOLId=-1; int PXId=-1; int ROCNmbr=-1;
       if(modon){
         (meErrorType_)->Fill((int)errorType);
+	bool notReset = true;
+	const int LINK_bits = 6;
+	const int LINK_shift = 26;
+	const uint32_t LINK_mask = ~(~(uint32_t)(0) << LINK_bits);
         if(!reducedSet && (errorType == 32 || errorType == 33 || errorType == 34) ) {
 	  long long errorWord = di->getWord64();     // for 64-bit error words
+	  chanNmbr = (errorWord >> LINK_shift) & LINK_mask;
 	  if(errorType == 34) {
-	    int evtSize = (errorWord >> EVTLGT_shift) & EVTLGT_mask;
+	    evtSize = (errorWord >> EVTLGT_shift) & EVTLGT_mask;
 	    (meEvtSize_)->Fill((int)evtSize); 
 	  }
         } else {
 	  uint32_t errorWord = di->getWord32();      // for 32-bit error words
+	  chanNmbr = (errorWord >> LINK_shift) & LINK_mask;
 	  switch(errorType) {  // fill in the appropriate monitorables based on the information stored in the error word
 	  case(30) : {
 	    int T0 = (errorWord >> DB0_shift) & DataBit_mask;
@@ -321,7 +359,6 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
 	    int T5 = (errorWord >> DB5_shift) & DataBit_mask;
 	    int T6 = (errorWord >> DB6_shift) & DataBit_mask;
 	    int T7 = (errorWord >> DB7_shift) & DataBit_mask;
-	    int TBMMessage;
 	    if (T0==1) { TBMMessage=0; (meTBMMessage_)->Fill((int)TBMMessage); }
 	    if (T1==1) { TBMMessage=1; (meTBMMessage_)->Fill((int)TBMMessage); }
 	    if (T2==1) { TBMMessage=2; (meTBMMessage_)->Fill((int)TBMMessage); }
@@ -330,16 +367,17 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
 	    if (T5==1) { TBMMessage=5; (meTBMMessage_)->Fill((int)TBMMessage); }
 	    if (T6==1) { TBMMessage=6; (meTBMMessage_)->Fill((int)TBMMessage); }
 	    if (T7==1) { TBMMessage=7; (meTBMMessage_)->Fill((int)TBMMessage); }
+	    if(TBMMessage==5 || TBMMessage==6) notReset=false;
+	    //std::cout<<"MODULESs: "<<TBMMessage<<std::endl;
 	    int StateMach_bits      = 4;
 	    int StateMach_shift     = 8;
 	    uint32_t StateMach_mask = ~(~uint32_t(0) << StateMach_bits);
 	    int StateMach = (errorWord >> StateMach_shift) & StateMach_mask;
-	    int TBMType;
 	    switch(StateMach) {
 	    case(0) : {
 	      TBMType = 0;
 	      break; }
-	    case(1) : {
+	    case(1) : case(9) : {
 	      TBMType = 1;
 	      break; }
 	    case(2) : case(4) : case(6) : {
@@ -351,37 +389,92 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
 	    default : TBMType = 4;
 	    };
 	    (meTBMType_)->Fill((int)TBMType);
+	    //std::cout<<"TBMType: "<<(int)TBMType<<std::endl;
 	    break; }
 	  case(31) : {
             if(!reducedSet){
-	      int evtNbr = (errorWord >> ADC_shift) & ADC_mask;
+	      evtNbr = (errorWord >> ADC_shift) & ADC_mask;
 	      (meEvtNbr_)->Fill((int)evtNbr);
 	    }
 	    break; }
 	  case(36) : {
             if(!reducedSet){
-	      int ROCId = (errorWord >> ROC_shift) & ROC_mask;
+	      ROCId = (errorWord >> ROC_shift) & ROC_mask;
 	      (meROCId_)->Fill((int)ROCId);
 	    }
 	    break; }
 	  case(37) : {
             if(!reducedSet){
-	      int DCOLId = (errorWord >> DCOL_shift) & DCOL_mask;
+	      DCOLId = (errorWord >> DCOL_shift) & DCOL_mask;
 	      (meDCOLId_)->Fill((int)DCOLId);
-	      int PXId = (errorWord >> PXID_shift) & PXID_mask;
+	      PXId = (errorWord >> PXID_shift) & PXID_mask;
 	      (mePXId_)->Fill((int)PXId);
 	    }
 	    break; }
 	  case(38) : {
             if(!reducedSet){
-	      int ROCNmbr = (errorWord >> ROC_shift) & ROC_mask;
+	      ROCNmbr = (errorWord >> ROC_shift) & ROC_mask;
 	      (meROCNmbr_)->Fill((int)ROCNmbr);
 	    }
 	    break; }
 	  default : break;
 	  };
-	}  
-      }
+	}//end if not double precision  
+	//std::cout<<"INFO: "<<FedId<<" , "<<chanNmbr<<" , "<<errorType<<std::endl;
+	//std::cout<<"Error: "<<errorType<<" , "<<notReset<<std::endl;
+	if(!(errorType==30) || notReset){
+	  numberOfSeriousErrors++;
+	  FedChNErrArray[FedId][chanNmbr]++;
+	  FedChLErrArray[FedId][chanNmbr] = errorType;
+	  if(errorType<30) FedETypeNErrArray[FedId][errorType-25]++;
+	  else if(errorType>30) FedETypeNErrArray[FedId][errorType-19]++;
+	  else if(errorType==30 && TBMMessage==0) FedETypeNErrArray[FedId][errorType-25]++;
+	  else if(errorType==30 && TBMMessage==1) FedETypeNErrArray[FedId][errorType-24]++;
+	  else if(errorType==30 && (TBMMessage==2 || TBMMessage==3 || TBMMessage==4)) FedETypeNErrArray[FedId][errorType-23]++;
+	  else if(errorType==30 && TBMMessage==7) FedETypeNErrArray[FedId][errorType-22]++;
+	  else if(errorType==30 && TBMType==1) FedETypeNErrArray[FedId][errorType-21]++;
+	  else if(errorType==30 && TBMType==2) FedETypeNErrArray[FedId][errorType-20]++;
+	  else if(errorType==30 && TBMType==3) FedETypeNErrArray[FedId][errorType-19]++;
+	}
+	//std::cout<<"ERRORS on module level: FED= "<<FedId<<" , channel= "<<chanNmbr<<std::endl;
+	std::string currDir = theDMBE->pwd();
+        static const char buf[] = "Pixel/AdditionalPixelErrors/FED_%d";
+        char feddir[sizeof(buf)+2]; 
+        sprintf(feddir,buf,FedId);
+        theDMBE->cd(feddir);
+	MonitorElement* me;
+        static const char buf1[] = "Pixel/AdditionalPixelErrors/FED_%d/NErrors_siPixelDigis_%d";
+	char hname1[sizeof(buf1)+4];
+	sprintf(hname1,buf1,FedId,FedId);
+	me = theDMBE->get(hname1);
+	if(me) me->Fill((int)numberOfErrors);
+        static const char buf2[] = "Pixel/AdditionalPixelErrors/FED_%d/TBMMessage_siPixelDigis_%d";
+	char hname2[sizeof(buf2)+4];
+	sprintf(hname2,buf2,FedId,FedId);
+	me = theDMBE->get(hname2);
+	if(me) me->Fill((int)TBMMessage);
+        static const char buf3[] = "Pixel/AdditionalPixelErrors/FED_%d/TBMType_siPixelDigis_%d";
+	char hname3[sizeof(buf3)+4];
+	sprintf(hname3,buf3,FedId,FedId);
+	me = theDMBE->get(hname3);
+	if(me) me->Fill((int)TBMType);
+        static const char buf4[] = "Pixel/AdditionalPixelErrors/FED_%d/Type36Hitmap_siPixelDigis_%d";
+	char hname4[sizeof(buf4)+4];
+	sprintf(hname4,buf4,FedId,FedId);
+	me = theDMBE->get(hname4);
+	if(me) me->Fill((float)chanNmbr,(float)ROCId);
+        static const char buf5[] = "Pixel/AdditionalPixelErrors/FED_%d/chanNmbr_siPixelDigis_%d";
+	char hname5[sizeof(buf5)+4];
+	sprintf(hname5,buf5,FedId,FedId);
+	me = theDMBE->get(hname5);
+	if(me) me->Fill((int)chanNmbr);
+        static const char buf6[] = "Pixel/AdditionalPixelErrors/FED_%d/errorType_siPixelDigis_%d";
+	char hname6[sizeof(buf6)+4];
+	sprintf(hname6,buf6,FedId,FedId);
+	me = theDMBE->get(hname6);
+	if(me) me->Fill((int)errorType);
+        theDMBE->cd(currDir);
+      }//end if modon
       
       if(ladon && barrel){
         (meErrorTypeLad_)->Fill((int)errorType);
@@ -421,7 +514,7 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
 	    case(0) : {
 	      TBMType = 0;
 	      break; }
-	    case(1) : {
+	    case(1) : case(9) : {
 	      TBMType = 1;
 	      break; }
 	    case(2) : case(4) : case(6) : {
@@ -463,7 +556,7 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
 	  default : break;
 	  };
 	}
-      }
+      }//end if ladon
 
       if(bladeon && endcap){
         (meErrorTypeBlade_)->Fill((int)errorType);
@@ -503,7 +596,7 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
 	    case(0) : {
 	      TBMType = 0;
 	      break; }
-	    case(1) : {
+	    case(1) : case(9) : {
 	      TBMType = 1;
 	      break; }
 	    case(2) : case(4) : case(6) : {
@@ -545,7 +638,7 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
 	  default : break;
 	  };
 	}
-      }
+      }//end if bladeon
     }//for loop
     
     if(modon && numberOfErrors>0) (meNErrors_)->Fill((float)numberOfErrors);
@@ -553,25 +646,56 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
     if(bladeon && endcap && numberOfErrors>0) (meNErrorsBlade_)->Fill((float)numberOfErrors);
     //std::cout<<"number of errors="<<numberOfErrors<<std::endl;
     
-  }
+    std::string hid;
+    for(int i=0; i!=40; i++){
+      for(int j=0; j!=37; j++){
+        if(FedChNErrArray[i][j]>0){
+          static const char fmt[] = "Pixel/AdditionalPixelErrors/FED_%d/FedChNErrArray_%d";
+          char buf[sizeof(fmt) + 2*32]; // 32 digits is enough for up to 2^105 + sign.
+          sprintf(buf, fmt, i, j);
+          hid = buf;
+          meFedChNErrArray_[j] = theDMBE->get(hid); 
+          if(meFedChNErrArray_[j]) meFedChNErrArray_[j]->Fill(FedChNErrArray[i][j]); 
+        }
+        if(FedChLErrArray[i][j]>0){
+          static const char fmt[] = "Pixel/AdditionalPixelErrors/FED_%d/FedChLErrArray_%d";
+          char buf[sizeof(fmt) + 2*32]; // 32 digits is enough for up to 2^105 + sign.
+          sprintf(buf, fmt, i, j);
+          hid = buf;
+          meFedChLErrArray_[j] = theDMBE->get(hid); 
+          if(meFedChLErrArray_[j]) meFedChLErrArray_[j]->Fill(FedChLErrArray[i][j]); 
+        }
+        if(j<=14 && FedETypeNErrArray[i][j]>0){
+          static const char fmt[] = "Pixel/AdditionalPixelErrors/FED_%d/FedETypeNErrArray_%d";
+          char buf[sizeof(fmt) + 2*32]; // 32 digits is enough for up to 2^105 + sign.
+          sprintf(buf, fmt, i, j);
+          hid = buf;
+          meFedETypeNErrArray_[j] = theDMBE->get(hid); 
+          if(meFedETypeNErrArray_[j]) meFedETypeNErrArray_[j]->Fill(FedETypeNErrArray[i][j]); 
+        }
+      }//end for j
+    }//end for i
+  }//end if not an empty iterator
   
   //std::cout<<"number of detector units="<<numberOfDetUnits<<std::endl;
 //std::cout<<"...leaving SiPixelRawDataErrorModule::fill. "<<std::endl;
-  
+  return numberOfSeriousErrors;
 }
 
-void SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataError>& input) {
-//std::cout<<"Entering   SiPixelRawDataErrorModule::fillFED: "<<std::endl;
-  edm::DetSetVector<SiPixelRawDataError>::const_iterator isearch = input.find(0xffffffff); // search  errors of detid
+int SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataError>& input) {
+  //std::cout<<"Entering   SiPixelRawDataErrorModule::fillFED: "<<static_cast<int>(id_)<<std::endl;
+  unsigned int numberOfErrors = 0;
+  unsigned int numberOfSeriousErrors = 0;
   
+  edm::DetSetVector<SiPixelRawDataError>::const_iterator isearch = input.find(0xffffffff); // search  errors of detid
   if( isearch != input.end() ) {  // Not an empty iterator
-    
-    unsigned int numberOfErrors = 0;
+    //std::cout<<"FED has some errors!"<<std::endl;    
     
     // Look at FED errors now
-    int FedChNErrArray[40][37]={{0}}, FedChLErrArray[40][37]={{0}}, FedETypeNErrArray[40][15]={{0}};
+    int TBMType=-1;
     edm::DetSet<SiPixelRawDataError>::const_iterator  di;
     for(di = isearch->data.begin(); di != isearch->data.end(); di++) {
+      //std::cout<<"Looping over errors now!"<<std::endl;
       int FedId = di->getFedId();                  // FED the error came from
       int chanNmbr = -1;
       int errorType = 0;
@@ -579,6 +703,7 @@ void SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataEr
 	numberOfErrors++;
 	errorType = di->getType();               // type of error
 	(meErrorType_)->Fill((int)errorType);
+	bool notReset=true;
 	int TBMMessage = -1;
 	if((errorType == 32)||(errorType == 33)||(errorType == 34)) {
 	  long long errorWord = di->getWord64();     // for 64-bit error words
@@ -598,6 +723,7 @@ void SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataEr
 	  };
 	} else {
 	  uint32_t errorWord = di->getWord32();      // for 32-bit error words
+  //std::cout<<"error word "<< hex << errorWord << dec << std::endl;
 	  switch(errorType) {  // fill in the appropriate monitorables based on the information stored in the error word
 	  case(25) : {
 	    chanNmbr = 0;
@@ -632,9 +758,10 @@ void SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataEr
 	    int BLOCK = (errorWord >> BLOCK_shift) & BLOCK_mask;
 	    int localCH = 1*CH1+2*CH2+3*CH3+4*CH4+5*CH5;
 	    if (BLOCK%2==0) chanNmbr=(BLOCK/2)*9+localCH;
-	    else chanNmbr = (BLOCK-1)/2+4+localCH;
+	    else chanNmbr = ((BLOCK-1)/2)*9+4+localCH;
 	    if ((chanNmbr<1)||(chanNmbr>36)) chanNmbr=0;  // signifies unexpected result
 	    (meChanNmbr_)->Fill((int)chanNmbr);
+	    //if(FedId==5||FedId==7||FedId==18)std::cout<<"TIMEOUT! "<<FedId<<","<<chanNmbr<<","<<CH1<<","<<CH2<<","<<CH3<<","<<CH4<<","<<CH5<<","<<BLOCK_mask<<","<<BLOCK<<","<<localCH<<std::endl;
 	    break; }
 	  case(30) : {
 	    int T0 = (errorWord >> DB0_shift) & DataBit_mask;
@@ -653,16 +780,17 @@ void SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataEr
 	    if (T5==1) { TBMMessage=5; (meTBMMessage_)->Fill((int)TBMMessage); }
 	    if (T6==1) { TBMMessage=6; (meTBMMessage_)->Fill((int)TBMMessage); }
 	    if (T7==1) { TBMMessage=7; (meTBMMessage_)->Fill((int)TBMMessage); }
+	    if(TBMMessage==5 || TBMMessage==6) notReset=false;
+	    //std::cout<<"FEDs: "<<TBMMessage<<std::endl;
 	    int StateMach_bits      = 4;
 	    int StateMach_shift     = 8;
 	    uint32_t StateMach_mask = ~(~uint32_t(0) << StateMach_bits);
 	    int StateMach = (errorWord >> StateMach_shift) & StateMach_mask;
-	    int TBMType;
 	    switch(StateMach) {
 	    case(0) : {
 	      TBMType = 0;
 	      break; }
-	    case(1) : {
+	    case(1) : case(9) : {
 	      TBMType = 1;
 	      break; }
 	    case(2) : case(4) : case(6) : {
@@ -674,6 +802,7 @@ void SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataEr
 	    default : TBMType = 4;
 	    };
 	    (meTBMType_)->Fill((int)TBMType);
+	    //std::cout<<"TBMType: "<<(int)TBMType<<std::endl;
 	    const int LINK_bits = 6;
 	    const int LINK_shift = 26;
 	    const uint32_t LINK_mask = ~(~(uint32_t)(0) << LINK_bits);
@@ -718,10 +847,21 @@ void SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataEr
 	  default : break;
 	  };
 	}// end if errorType
-	if(!(errorType==30&&(TBMMessage==5||TBMMessage==6))) FedChNErrArray[FedId][chanNmbr]++;
-	FedChLErrArray[FedId][chanNmbr] = errorType;
-	FedETypeNErrArray[FedId][errorType-25]++;
-	
+	//std::cout<<"Error: "<<errorType<<" , "<<notReset<<std::endl;
+	if(!(errorType==30) || notReset){
+	  numberOfSeriousErrors++;
+	  FedChNErrArray[FedId][chanNmbr]++;
+	  FedChLErrArray[FedId][chanNmbr] = errorType;
+	  if(errorType<30) FedETypeNErrArray[FedId][errorType-25]++;
+	  else if(errorType>30) FedETypeNErrArray[FedId][errorType-19]++;
+	  else if(errorType==30 && TBMMessage==0) FedETypeNErrArray[FedId][errorType-25]++;
+	  else if(errorType==30 && TBMMessage==1) FedETypeNErrArray[FedId][errorType-24]++;
+	  else if(errorType==30 && (TBMMessage==2 || TBMMessage==3 || TBMMessage==4)) FedETypeNErrArray[FedId][errorType-23]++;
+	  else if(errorType==30 && TBMMessage==7) FedETypeNErrArray[FedId][errorType-22]++;
+	  else if(errorType==30 && TBMType==1) FedETypeNErrArray[FedId][errorType-21]++;
+	  else if(errorType==30 && TBMType==2) FedETypeNErrArray[FedId][errorType-20]++;
+	  else if(errorType==30 && TBMType==3) FedETypeNErrArray[FedId][errorType-19]++;
+	}
       }// end if FedId
     }// end for loop over all error words
     
@@ -760,9 +900,9 @@ void SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataEr
         }//end for
       }//end if
     }//end for
-  }// end if empty iterator
+  }// end if not an empty iterator
   
 //  std::cout<<"number of detector units="<<numberOfDetUnits<<std::endl;
 //std::cout<<"...leaving   SiPixelRawDataErrorModule::fillFED. "<<std::endl;
-  
+  return numberOfSeriousErrors;
 }

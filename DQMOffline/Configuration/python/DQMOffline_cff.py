@@ -48,5 +48,12 @@ DQMOffline = cms.Sequence( DQMOfflinePreDPG *
                            DQMOfflinePrePOG *
                            DQMMessageLogger )
 
+DQMOfflinePrePOGMC = cms.Sequence( pvMonitor *
+                                   bTagPlots *
+                                   dqmPhysics )
+
+DQMOfflinePOGMC = cms.Sequence( DQMOfflinePrePOGMC *
+                                DQMMessageLogger )
+    
 DQMOfflinePhysics = cms.Sequence( dqmPhysics )
 

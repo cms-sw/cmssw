@@ -1,11 +1,12 @@
 //
-// $Id: TriggerObject.cc,v 1.4 2009/04/27 20:45:18 vadler Exp $
+// $Id: TriggerObject.cc,v 1.5 2010/02/25 16:15:32 vadler Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/TriggerObject.h"
 
 
 using namespace pat;
+
 
 /// default constructor
 

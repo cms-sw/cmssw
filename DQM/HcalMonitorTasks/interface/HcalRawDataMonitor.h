@@ -12,6 +12,10 @@
 #define  THREE_SPG   (1+((3+1)*NUMSPIGS)  ) 
 #define  TWO_CHANN   (1+((2+1)*HTRCHANMAX))
 
+#define ETABINS   85
+#define PHIBINS   72
+#define DEPTHBINS  4
+
 #include "DQM/HcalMonitorTasks/interface/HcalBaseDQMonitor.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalUnpacker.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalHTRData.h"
@@ -23,8 +27,8 @@
 
 /** \class HcalRawDataMonitor
  *
- * $Date: 2010/03/19 20:18:16 $
- * $Revision: 1.1.2.8 $
+ * $Date: 2010/03/25 11:00:58 $
+ * $Revision: 1.2 $
  * \author J. St. John - Boston University
  */
 class HcalRawDataMonitor: public HcalBaseDQMonitor {
@@ -64,6 +68,12 @@ class HcalRawDataMonitor: public HcalBaseDQMonitor {
 	     ?(HcalDetId::Undefined)
 	     :(hashedHcalDetId_[thehash]));
   };
+  uint64_t problemcount[ETABINS][PHIBINS][DEPTHBINS]; // HFd1,2 at 'depths' 3,4 to avoid collision with HE
+  bool     problemfound[ETABINS][PHIBINS][DEPTHBINS]; // HFd1,2 at 'depths' 3,4 to avoid collision with HE
+  void mapDCCproblem  (int dcc);                          // Set problemfound[][][] = true for the hardware's ieta/iphi/depth's
+  void mapHTRproblem  (int dcc, int spigot);              // Set problemfound[][][] = true for the hardware's ieta/iphi/depth's
+  void mapChannproblem(int dcc, int spigot, int htrchan); // Set problemfound[][][] = true for the hardware's ieta/iphi/depth 
+  void whosebad(int subdet);        //Increment the NumBad counter for this LS, for this Hcal subdet
 
  private:
   MonitorElement* meCh_DataIntegrityFED00_;   //DataIntegrity for channels in FED 00
@@ -192,6 +202,8 @@ class HcalRawDataMonitor: public HcalBaseDQMonitor {
   MonitorElement* meFib6OrbMsgBCN_;  //BCN of Fiber 6 Orb Msg
   MonitorElement* meFib7OrbMsgBCN_;  //BCN of Fiber 7 Orb Msg
   MonitorElement* meFib8OrbMsgBCN_;  //BCN of Fiber 8 Orb Msg
+
+  int NumBadHB, NumBadHE, NumBadHO, NumBadHF, NumBadHFLUMI, NumBadHO0, NumBadHO12;
 
   void HTRPrint(const HcalHTRData& htr,int prtlvl);
 

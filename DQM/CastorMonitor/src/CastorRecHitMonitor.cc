@@ -154,8 +154,6 @@ void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits 
   CastorRecHitCollection::const_iterator CASTORiter;
   if (showTiming)  { cpu_timer.reset(); cpu_timer.start(); } 
 
-  try
-  {
      if(castorHits.size()>0)
     {    
        if(fVerbosity>0) cout << "==>CastorRecHitMonitor::processEvent: castorHits.size()>0 !!!" << endl; 
@@ -173,7 +171,6 @@ void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits 
       float module = id.module(); float sector = id.sector(); //-- get module & sector from id
       float channel = 16*(module-1)+sector; //-- define channel
 
-      
       if (energy>1.0) { 
       ////---- fill histograms with energy and time for every hit:
       castorHists.meRECHIT_E_all->Fill(energy);
@@ -200,8 +197,8 @@ void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits 
       }
 	
    }
-  }
-  catch (...) { if(fVerbosity>0) cout<<"CastorRecHitMonitor::Error in processEvent !!!"<<endl; }
+
+  else { if(fVerbosity>0) cout<<"CastorRecHitMonitor::processEvent NO Castor RecHits !!!"<<endl; }
 
   if (showTiming) { 
       cpu_timer.stop(); cout << " TIMER::CastorRecHit -> " << cpu_timer.cpuTime() << endl; 

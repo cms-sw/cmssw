@@ -21,7 +21,6 @@ class SiStripSummaryCreator {
 
   void createSummary(DQMStore* dqm_store);
 
-  void createLayout(DQMStore * dqm_store);
   void fillLayout(DQMStore * dqm_store);
   void setSummaryMENames( std::map<std::string, std::string>& me_names);
   int getFrequency() { return summaryFrequency_;}
@@ -38,9 +37,7 @@ class SiStripSummaryCreator {
 
 
   std::map<std::string, std::string> summaryMEMap;
-
-  
-  SiStripConfigWriter* configWriter_;
+ 
   int summaryFrequency_;
 
 

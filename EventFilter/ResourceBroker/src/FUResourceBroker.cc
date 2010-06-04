@@ -8,11 +8,14 @@
 
 
 #include "EventFilter/ResourceBroker/interface/FUResourceBroker.h"
+
 #include "EventFilter/ResourceBroker/interface/FUResource.h"
 #include "EventFilter/ResourceBroker/interface/BUProxy.h"
 #include "EventFilter/ResourceBroker/interface/SMProxy.h"
 
 #include "FWCore/Utilities/interface/CRC16.h"
+
+#include "EvffedFillerRB.h"
 
 #include "i2o/Method.h"
 #include "interface/shared/i2oXFunctionCodes.h"
@@ -33,6 +36,7 @@
 
 #include "cgicc/CgiDefs.h"
 #include "cgicc/Cgicc.h"
+#include "cgicc/FormEntry.h"
 #include "cgicc/HTMLClasses.h"
 
 #include <signal.h>
@@ -114,6 +118,7 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , sumOfSquaresLast_(0)
   , sumOfSizesLast_(0)
   , lock_(toolbox::BSem::FULL)
+  , frb_(0)
 {
   // setup finite state machine (binding relevant callbacks)
   fsm_.initialize<evf::FUResourceBroker>(this);
@@ -196,6 +201,7 @@ bool FUResourceBroker::configuring(toolbox::task::WorkLoop* wl)
   try {
     LOG4CPLUS_INFO(log_, "Start configuring ...");
     connectToBUandSM();
+    frb_ = new EvffedFillerRB(this);
     resourceTable_=new FUResourceTable(segmentationMode_.value_,
 				       nbRawCells_.value_,
 				       nbRecoCells_.value_,
@@ -204,7 +210,10 @@ bool FUResourceBroker::configuring(toolbox::task::WorkLoop* wl)
 				       recoCellSize_.value_,
 				       dqmCellSize_.value_,
 				       bu_,sm_,
-				       log_, shmResourceTableTimeout_.value_);
+				       log_, 
+				       shmResourceTableTimeout_.value_, 
+				       frb_,
+				       this);
     FUResource::doFedIdCheck(doFedIdCheck_);
     FUResource::useEvmBoard(useEvmBoard_);
     resourceTable_->setDoCrcCheck(doCrcCheck_);
@@ -219,7 +228,7 @@ bool FUResourceBroker::configuring(toolbox::task::WorkLoop* wl)
     reasonForFailed_ = e.what();
     fsm_.fireFailed(msg,this);
   }
-  
+
   return false;
 }
 
@@ -256,27 +265,23 @@ bool FUResourceBroker::stopping(toolbox::task::WorkLoop* wl)
   try {
     LOG4CPLUS_INFO(log_, "Start stopping :) ...");
     resourceTable_->stop();
-    UInt_t count = 0;
-    while (count<100) {
-      if (resourceTable_->isReadyToShutDown()) {
-	LOG4CPLUS_INFO(log_,"ResourceTable successfully shutdown ("<<count<<").");
+    timeval now;
+    timeval then;
+    gettimeofday(&then,0);
+    while (!resourceTable_->isReadyToShutDown()) {
+      ::usleep(shmResourceTableTimeout_.value_*10);
+      gettimeofday(&now,0);
+      if ((unsigned int)(now.tv_sec-then.tv_sec) > shmResourceTableTimeout_.value_/10000) {
+	std::string msg  = "stopping FAILED: ResourceTable shutdown timed out.";
+	reasonForFailed_ = "RESOURCETABLE SHUTDOWN TIMED OUT.";
+	fsm_.fireFailed(msg,this);
 	break;
-      }
-      else {
-	count++;
-	LOG4CPLUS_INFO(log_,"Waiting for ResourceTable to shutdown ("<<count<<")");
-	::usleep(shmResourceTableTimeout_.value_);
       }
     }
     
-    if (count<100) {
+    if (resourceTable_->isReadyToShutDown()) {
       LOG4CPLUS_INFO(log_, "Finished stopping!");
       fsm_.fireEvent("StopDone",this);
-    }
-    else {
-      std::string msg  = "stopping FAILED: ResourceTable shutdown timed out.";
-      reasonForFailed_ = "RESOURCETABLE SHUTDOWN TIMED OUT.";
-      fsm_.fireFailed(msg,this);
     }
   }
   catch (xcept::Exception &e) {
@@ -335,7 +340,7 @@ bool FUResourceBroker::halting(toolbox::task::WorkLoop* wl)
     reasonForFailed_ = e.what();
     fsm_.fireFailed(msg,this);
   }
-  
+  if(frb_) delete frb_;
   return false;
 }
 
@@ -660,7 +665,6 @@ bool FUResourceBroker::watching(toolbox::task::WorkLoop* wl)
   unlock();
   
   ::sleep(watchSleepSec_.value_);
-  
   return true;
 }
     
@@ -787,7 +791,13 @@ void FUResourceBroker::customWebPage(xgi::Input*in,xgi::Output*out)
   throw (xgi::exception::Exception)
 {
   using namespace cgicc;
-  
+  Cgicc cgi(in);
+  std::vector<FormEntry> els = cgi.getElements() ;
+  for(std::vector<FormEntry>::iterator it = els.begin(); it != els.end(); it++)
+    std::cout << "form entry " << (*it).getValue() << std::endl;
+
+  std::vector<FormEntry> el1;
+  cgi.getElement("crcError",el1);
   *out<<"<html>"<<endl;
   gui_->htmlHead(in,out,sourceId_);
   *out<<"<body>"<<endl;
@@ -796,7 +806,13 @@ void FUResourceBroker::customWebPage(xgi::Input*in,xgi::Output*out)
   lock();
   
   if (0!=resourceTable_) {
-
+    if(el1.size()!=0) {
+      resourceTable_->injectCRCError();
+    }
+    *out << "<form method=\"GET\" action=\"customWebPage\" >";
+    *out << "<button name=\"crcError\" type=\"submit\" value=\"injCRC\">Inject CRC</button>" << endl;
+    *out << "</form>" << endl;
+    *out << "<hr/>" << std::endl;
     vector<pid_t> client_prc_ids = resourceTable_->clientPrcIds();
     *out<<table().set("frame","void").set("rules","rows")
                  .set("class","modules").set("width","250")<<endl

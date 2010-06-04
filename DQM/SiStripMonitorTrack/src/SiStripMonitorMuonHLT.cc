@@ -13,7 +13,7 @@
 //
 // Original Author:  Eric Chabert
 //         Created:  Wed Sep 23 17:26:42 CEST 2009
-// $Id: SiStripMonitorMuonHLT.cc,v 1.9 2010/02/27 00:23:42 dutta Exp $
+// $Id: SiStripMonitorMuonHLT.cc,v 1.10 2010/03/27 11:38:43 dutta Exp $
 //
 
 #include "DQM/SiStripMonitorTrack/interface/SiStripMonitorMuonHLT.h"
@@ -147,43 +147,19 @@ SiStripMonitorMuonHLT::analyze (const edm::Event & iEvent, const edm::EventSetup
   //Access to L3MuonCand
   edm::Handle < reco::RecoChargedCandidateCollection > l3mucands;
   bool accessToL3Muons = true;
-  try
-     {
-        iEvent.getByLabel (l3collectionTag_, l3mucands);
-     }
-     catch (cms::Exception& exception)
-     {
-        LogDebug ("SiStripMonitorHLTMuon") <<  "   ===> no access to L3MuonCandidates, cannot run on the event: "<<iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
-        accessToL3Muons = false;
-     }
+  iEvent.getByLabel (l3collectionTag_, l3mucands);
   reco::RecoChargedCandidateCollection::const_iterator cand;
 
   //Access to clusters
   edm::Handle < edm::LazyGetter < SiStripCluster > >clusters;
   bool accessToClusters = true;
-  try
-     {
-        iEvent.getByLabel (clusterCollectionTag_, clusters);
-     }
-     catch (cms::Exception& exception)
-     {
-        LogDebug ("SiStripMonitorHLTMuon") <<  "   ===> no access to LazzyGetterClusters, cannot run on the event: "<<iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
-        accessToClusters = false;
-     }
+  iEvent.getByLabel (clusterCollectionTag_, clusters);
   edm::LazyGetter < SiStripCluster >::record_iterator clust;
  
   //Access to Tracks
   edm::Handle<reco::TrackCollection > trackCollection;
   bool accessToTracks = true;
-  try
-     {
-        iEvent.getByLabel (TrackCollectionTag_, trackCollection);
-     }
-     catch (cms::Exception& exception)
-     {
-        LogDebug ("SiStripMonitorHLTMuon") <<  "   ===> no access to tracks, cannot run on the event: "<<iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
-        accessToTracks = false;
-     }
+  iEvent.getByLabel (TrackCollectionTag_, trackCollection);
   reco::TrackCollection::const_iterator track;
    /////////////////////////////////////////////////////
 

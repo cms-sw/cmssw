@@ -2,6 +2,16 @@ from FWCore.GuiBrowsers.ConfigToolBase import *
 
 from PhysicsTools.PatAlgos.tools.helpers import *
 
+def sisCone5Warning():
+    print "NOTE TO USER: YOU HAVE SELECTED SC5 JETS IN YOUR CONFIGURATION FILE."
+    print "              this jet collection is not any longer officially sup- "
+    print "              ported. It is not part of the CMSSW_3_6_X definition  "
+    print "              of the RECO event content. There are also no JEC fac- "
+    print "              tors more recent then 'Summer09_7TeV_ReReco332' for   "
+    print "              this jet algorithm. Please contact SWGuidePAT#Support "
+    print "              if you still want/need to use this jet collection or  "
+    print "              move on to more supported algorithms like AK5.        "
+
 def patchJetCorrFactors_(jetCorrFactors, newAlgo):
     """
     ------------------------------------------------------------------
@@ -187,14 +197,14 @@ class RunBTagging(ConfigToolBase):
         ipTILabel = 'impactParameterTagInfos'     + label
         svTILabel = 'secondaryVertexTagInfos'     + label
         #nvTILabel = 'secondaryVertexNegativeTagInfos'     + label
-        seTILabel = 'softElectronTagInfos'        + label
+        #seTILabel = 'softElectronTagInfos'        + label
         smTILabel = 'softMuonTagInfos'            + label
     
         ## produce tag infos
         setattr( process, ipTILabel, btag.impactParameterTagInfos.clone(jetTracks = cms.InputTag(jtaLabel)) )
         setattr( process, svTILabel, btag.secondaryVertexTagInfos.clone(trackIPTagInfos = cms.InputTag(ipTILabel)) )
         #setattr( process, nvTILabel, nbtag.secondaryVertexNegativeTagInfos.clone(trackIPTagInfos = cms.InputTag(ipTILabel)) )
-        setattr( process, seTILabel, btag.softElectronTagInfos.clone(jets = jetCollection) )
+        #setattr( process, seTILabel, btag.softElectronTagInfos.clone(jets = jetCollection) )
         setattr( process, smTILabel, btag.softMuonTagInfos.clone(jets = jetCollection) )
 
         ## make VInputTag from strings
@@ -205,29 +215,32 @@ class RunBTagging(ConfigToolBase):
         setattr( process, 'jetProbabilityBJetTags' +label, btag.jetProbabilityBJetTags.clone (tagInfos = vit(ipTILabel)) )
         setattr( process, 'trackCountingHighPurBJetTags'+label, btag.trackCountingHighPurBJetTags.clone(tagInfos = vit(ipTILabel)) )
         setattr( process, 'trackCountingHighEffBJetTags'+label, btag.trackCountingHighEffBJetTags.clone(tagInfos = vit(ipTILabel)) )
-        setattr( process, 'simpleSecondaryVertexBJetTags'+label, btag.simpleSecondaryVertexBJetTags.clone(tagInfos = vit(svTILabel)) )
+        setattr( process, 'simpleSecondaryVertexHighEffBJetTags'+label, btag.simpleSecondaryVertexHighEffBJetTags.clone(tagInfos = vit(svTILabel)) )
+        setattr( process, 'simpleSecondaryVertexHighPurBJetTags'+label, btag.simpleSecondaryVertexHighPurBJetTags.clone(tagInfos = vit(svTILabel)) )
         #setattr( process, 'simpleSecondaryVertexNegativeBJetTags'+label, nbtag.simpleSecondaryVertexNegativeBJetTags.clone(tagInfos = vit(nvTILabel)) )
         setattr( process, 'combinedSecondaryVertexBJetTags'+label, btag.combinedSecondaryVertexBJetTags.clone(tagInfos = vit(ipTILabel, svTILabel)) )
         setattr( process, 'combinedSecondaryVertexMVABJetTags'+label, btag.combinedSecondaryVertexMVABJetTags.clone(tagInfos = vit(ipTILabel, svTILabel)) )
-        setattr( process, 'softElectronByPtBJetTags'+label, btag.softElectronByPtBJetTags.clone(tagInfos = vit(seTILabel)) )
-        setattr( process, 'softElectronByIP3dBJetTags'+label, btag.softElectronByIP3dBJetTags.clone(tagInfos = vit(seTILabel)) )
+        #setattr( process, 'softElectronByPtBJetTags'+label, btag.softElectronByPtBJetTags.clone(tagInfos = vit(seTILabel)) )
+        #setattr( process, 'softElectronByIP3dBJetTags'+label, btag.softElectronByIP3dBJetTags.clone(tagInfos = vit(seTILabel)) )
         setattr( process, 'softMuonBJetTags'+label, btag.softMuonBJetTags.clone(tagInfos = vit(smTILabel)) )
         setattr( process, 'softMuonByPtBJetTags'+label, btag.softMuonByPtBJetTags.clone(tagInfos = vit(smTILabel)) )
         setattr( process, 'softMuonByIP3dBJetTags'+label, btag.softMuonByIP3dBJetTags.clone(tagInfos = vit(smTILabel)) )
         
         ## define vector of (output) labels
         labels = { 'jta'      : jtaLabel, 
-                   'tagInfos' : (ipTILabel,svTILabel,seTILabel,smTILabel), 
+                   #'tagInfos' : (ipTILabel,svTILabel,seTILabel,smTILabel),
+                   'tagInfos' : (ipTILabel,svTILabel,smTILabel), 
                    'jetTags'  : [ (x + label) for x in ('jetBProbabilityBJetTags',
                                                         'jetProbabilityBJetTags',
                                                         'trackCountingHighPurBJetTags',
                                                         'trackCountingHighEffBJetTags',
-                                                        'simpleSecondaryVertexBJetTags',
                                                         #'simpleSecondaryVertexNegativeBJetTags',
+                                                        'simpleSecondaryVertexHighEffBJetTags',
+                                                        'simpleSecondaryVertexHighPurBJetTags',
                                                         'combinedSecondaryVertexBJetTags',
                                                         'combinedSecondaryVertexMVABJetTags',
-                                                        'softElectronByPtBJetTags',
-                                                        'softElectronByIP3dBJetTags',
+                                                        #'softElectronByPtBJetTags',
+                                                        #'softElectronByIP3dBJetTags',
                                                         'softMuonBJetTags',
                                                         'softMuonByPtBJetTags',
                                                         'softMuonByIP3dBJetTags'
@@ -307,7 +320,7 @@ class AddJetCollection(ConfigToolBase):
                  jetIdLabel         = None,
                  standardAlgo       = None,
                  standardType       = None):
-    
+
         if jetCollection  is None:
             jetCollection=self._defaultParameters['jetCollection'].value
         if algoLabel is None:
@@ -369,10 +382,11 @@ class AddJetCollection(ConfigToolBase):
         jetIdLabel=self._parameters['jetIdLabel'].value
         standardAlgo=self._parameters['standardAlgo'].value
         standardType=self._parameters['standardType'].value
-     
-        ## define common label for pre pat jet 
-        ## creation steps in makePatJets    
-        #label=standardAlgo+standardType
+
+        ## voice a warning for users that still want to
+        ## use sc5 jets, which are not suipported anymore
+        ## from 36X on
+        if (algoLabel=='SC5'): sisCone5Warning()
 
         ## create old module label from standardAlgo
         ## and standardType and return
@@ -493,7 +507,7 @@ class AddJetCollection(ConfigToolBase):
                 raise ValueError, "In addJetCollection 'jetCorrLabel' must be set to 'None' (without quotes)"
             ## check for the correct format
             if type(jetCorrLabel) != type(('AK5','Calo')): 
-                raise ValueError, "In switchJetCollection 'jetCorrLabel' must be 'None', or of type ('Algo','Type')"
+                raise ValueError, "In addJetCollection 'jetCorrLabel' must be 'None', or of type ('Algo','Type')"
 
             ## add clone of jetCorrFactors
             addClone('patJetCorrFactors', jetSource = jetCollection)
@@ -504,7 +518,8 @@ class AddJetCollection(ConfigToolBase):
             if( jetCollection.__str__().find('PFJets')>=0 ):
                 print '================================================='
                 print 'Type1MET corrections are switched off for PFJets.'
-                print 'Users are recommened to use pfMET together with'
+                print 'of type %s%s.' % (jetCorrLabel[0].swapcase(), jetCorrLabel[1])
+                print 'Users are recommened to use pfMET together with  '
                 print 'PFJets.'
                 print '================================================='            
                 doType1MET=False
@@ -513,19 +528,18 @@ class AddJetCollection(ConfigToolBase):
             if (doType1MET):
                 ## in case there is no jet correction service in the paths add it
                 ## as L2L3 if possible, as combined from L2 and L3 otherwise
-                if not hasattr( process, 'L2L3JetCorrector%s%s' % jetCorrLabel ):
-                    setattr( process, 
-                             'L2L3JetCorrector%s%s' % jetCorrLabel, 
+                if not hasattr( process, '%s%sL2L3' % (jetCorrLabel[0].swapcase(), jetCorrLabel[1]) ):
+                    setattr( process, '%s%sL2L3' % (jetCorrLabel[0].swapcase(), jetCorrLabel[1]),
                              cms.ESSource("JetCorrectionServiceChain",
-                                          correctors = cms.vstring('L2RelativeJetCorrector%s%s' % jetCorrLabel,
-                                                                   'L3AbsoluteJetCorrector%s%s' % jetCorrLabel),
-                                          label= cms.string('L2L3JetCorrector%s%s' % jetCorrLabel)
+                                          correctors = cms.vstring('%s%sL2Relative' % (jetCorrLabel[0].swapcase(), jetCorrLabel[1]),
+                                                                   '%s%sL3Absolute' % (jetCorrLabel[0].swapcase(), jetCorrLabel[1])
+                                                                   )
                                           )
                              )
                 ## add a clone of the type1MET correction
                 ## and the following muonMET correction  
                 addClone('metJESCorAK5CaloJet', inputUncorJetsLabel = jetCollection.value(),
-                         corrector = cms.string('L2L3JetCorrector%s%s' % jetCorrLabel)
+                         corrector = cms.string('%s%sL2L3' % (jetCorrLabel[0].swapcase(), jetCorrLabel[1]))
                          )
                 addClone('metJESCorAK5CaloJetMuons', uncorMETInputTag = cms.InputTag(newLabel('metJESCorAK5CaloJet')))
                 addClone('patMETs', metSource = cms.InputTag(newLabel('metJESCorAK5CaloJetMuons')))
@@ -619,7 +633,6 @@ class SwitchJetCollection(ConfigToolBase):
         jetIdLabel=self._parameters['jetIdLabel'].value
         postfix=self._parameters['postfix'].value
 
-
         ## save label of old input jet collection
         oldLabel = applyPostfix(process, "patJets", postfix).jetSource;
     
@@ -697,44 +710,54 @@ class SwitchJetCollection(ConfigToolBase):
             if (type(jetCorrLabel)!=type(('AK5','Calo'))): 
                 raise ValueError, "In switchJetCollection 'jetCorrLabel' must be 'None', or of type ('Algo','Type')"
 
+            ## voice a warning for users that still want to
+            ## use sc5 jets, which are not suipported anymore
+            ## from 36X on
+            if (jetCorrLabel[0]=='SC5'): sisCone5Warning()
+
             ## switch JEC parameters to the new jet collection
-            applyPostfix(process, "patJetCorrFactors", postfix).jetSource = jetCollection            
+            applyPostfix(process, "patJetCorrFactors", postfix).jetSource = jetCollection
+            typeBuffer='Calo'  
+            if(oldLabel.__str__().find('PFJets' )>=0):
+                typeBuffer='PF'
+            if(oldLabel.__str__().find('JPTJets')>=0):
+                typeBuffer='JPT'
             switchJECParameters(applyPostfix(process, "patJetCorrFactors", postfix), jetCorrLabel[0], jetCorrLabel[1], oldAlgo='AK5',oldType='Calo')
 
             ## switch type1MET corrections off for PFJets
             if( jetCollection.__str__().find('PFJets')>=0 ):
                 print '================================================='
                 print 'Type1MET corrections are switched off for PFJets.'
-                print 'Users are recommened to use pfMET together with'
+                print 'of type %s%s.' % (jetCorrLabel[0].swapcase(), jetCorrLabel[1])
+                print 'Users are recommened to use pfMET together with  '
                 print 'PFJets.'
-                print '================================================='            
+                print '================================================='                   
                 doType1MET=False
 
             ## redo the type1MET correction for the new jet collection
             if (doType1MET):
                 ## in case there is no jet correction service in the paths add it
                 ## as L2L3 if possible, as combined from L2 and L3 otherwise
-                if (not hasattr( process, 'L2L3JetCorrector%s%s' % jetCorrLabel )):
-                    setattr( process, 
-                             'L2L3JetCorrector%s%s' % jetCorrLabel, 
+                if not hasattr( process, '%s%sL2L3' % (jetCorrLabel[0].swapcase(), jetCorrLabel[1]) ):
+                    setattr( process, '%s%sL2L3' % (jetCorrLabel[0].swapcase(), jetCorrLabel[1]),
                              cms.ESSource("JetCorrectionServiceChain",
-                                          correctors = cms.vstring('L2RelativeJetCorrector%s%s' % jetCorrLabel,
-                                                                   'L3AbsoluteJetCorrector%s%s' % jetCorrLabel),
-                                          label = cms.string('L2L3JetCorrector%s%s' % jetCorrLabel)
+                                          correctors = cms.vstring('%s%sL2Relative' % (jetCorrLabel[0].swapcase(), jetCorrLabel[1]),
+                                                                   '%s%sL3Absolute' % (jetCorrLabel[0].swapcase(), jetCorrLabel[1])
+                                                                   )
                                           )
                              )
                 ## configure the type1MET correction the following muonMET
-                ## corrections have the corMetType1Icone5 as input and are
-                ## automatically correct  
+                ## corrections have the metJESCorAK5CaloJet as input and 
+                ## are automatically correct  
                 applyPostfix(process, "metJESCorAK5CaloJet", postfix).inputUncorJetsLabel = jetCollection.value()
-                applyPostfix(process, "metJESCorAK5CaloJet", postfix).corrector = 'L2L3JetCorrector%s%s' % jetCorrLabel
+                applyPostfix(process, "metJESCorAK5CaloJet", postfix).corrector = '%s%sL2L3' % (jetCorrLabel[0].swapcase(), jetCorrLabel[1])
         else:
             ## remove the jetCorrFactors from the std sequence
-	    removeFromSequence(process, process.jetCorrFactors, postfix)
+            process.patJetMETCorrections.remove(process.patJetCorrFactors)
             ## switch embedding of jetCorrFactors off
             ## for pat jet production
             applyPostfix(process, "patJets", postfix).addJetCorrFactors = False
-        
+            applyPostfix(process, "patJets", postfix).jetCorrFactorsSource=[]        
 
 switchJetCollection=SwitchJetCollection()
 

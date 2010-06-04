@@ -33,9 +33,9 @@ class HcalZDCMonitor: public HcalBaseMonitor
   //void zeroCounters();
   //void fillHistos();
   //void setZDClabels(MonitorElement* h);
-  double getTime(std::vector<double> fData, double& fSum);
-  int getTSMax(std::vector<double> fData);
-  bool isGood(std::vector<double> fData, double fCut, double fPercentage);
+  double getTime(std::vector<double> fData, unsigned int ts_min, unsigned int ts_max, double& fSum);
+  //int getTSMax(std::vector<double> fData);
+  //bool isGood(std::vector<double> fData, double fCut, double fPercentage);
 
   bool checkZDC_;
   int NumBadZDC;

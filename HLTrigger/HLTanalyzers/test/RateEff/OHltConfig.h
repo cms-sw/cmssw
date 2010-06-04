@@ -8,6 +8,7 @@
 #define OHltConfig_h
 
 #include <iostream>
+#include <cmath>
 #include <vector>
 #include <TString.h>
 #include <libconfig.h++>
@@ -53,6 +54,7 @@ class OHltConfig {
   float liveTimeRun;
   int nL1AcceptsRun;
   float lumiSectionLength;
+  float lumiScaleFactor;
   int prescaleNormalization;
   std::vector < std::vector <int> > runLumiblockList; // format: (runnr, minLumiBlock, maxLumiBlock)
 

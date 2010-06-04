@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2010/03/18 12:50:55 $
- * $Revision: 1.72 $
+ * $Date: 2010/03/27 20:08:01 $
+ * $Revision: 1.73 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -115,6 +115,11 @@ EEOccupancyTask::EEOccupancyTask(const edm::ParameterSet& ps){
 
   recHitEnergyMin_ = 0.500; // GeV
   trigPrimEtMin_ = 4.; // 4 ADCs == 1 GeV
+
+  for (int i = 0; i < EEDetId::kSizeForDenseIndexing; i++) {
+    geometryEE[i][0] = 0;
+    geometryEE[i][1] = 0;
+  }
 
 }
 
@@ -611,9 +616,16 @@ void EEOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       int ix = id.ix();
       int iy = id.iy();
 
-      const GlobalPoint pos = pGeometry_->getGeometry(id)->getPosition();
-      float eta = pos.eta();
-      float phi = pos.phi();
+      int hi = id.hashedIndex();
+
+      if ( geometryEE[hi][0] == 0 ) {
+        const GlobalPoint& pos = pGeometry_->getGeometry(id)->getPosition();
+        geometryEE[hi][0] = pos.eta();
+        geometryEE[hi][1] = pos.phi();
+      }
+
+      float eta = geometryEE[hi][0];
+      float phi = geometryEE[hi][1];
 
       int ism = Numbers::iSM( id );
 
@@ -750,9 +762,16 @@ void EEOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       int eex = id.ix();
       int eey = id.iy();
 
-      const GlobalPoint pos = pGeometry_->getGeometry(id)->getPosition();
-      float eta = pos.eta();
-      float phi = pos.phi();
+      int hi = id.hashedIndex();
+
+      if ( geometryEE[hi][0] == 0 ) {
+        const GlobalPoint& pos = pGeometry_->getGeometry(id)->getPosition();
+        geometryEE[hi][0] = pos.eta();
+        geometryEE[hi][1] = pos.phi();
+      }
+
+      float eta = geometryEE[hi][0];
+      float phi = geometryEE[hi][1];
 
       int ism = Numbers::iSM( id );
 
@@ -831,9 +850,16 @@ void EEOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
         int eex = id.ix();
         int eey = id.iy();
 
-        const GlobalPoint pos = pGeometry_->getGeometry(id)->getPosition();
-        float eta = pos.eta();
-        float phi = pos.phi();
+        int hi = id.hashedIndex();
+
+        if ( geometryEE[hi][0] == 0 ) {
+          const GlobalPoint& pos = pGeometry_->getGeometry(id)->getPosition();
+          geometryEE[hi][0] = pos.eta();
+          geometryEE[hi][1] = pos.phi();
+        }
+
+        float eta = geometryEE[hi][0];
+        float phi = geometryEE[hi][1];
 
         float xeex = eex - 0.5;
         float xeey = eey - 0.5;

@@ -19,7 +19,7 @@ ESIntegrityClient::ESIntegrityClient(const ParameterSet& ps) {
   debug_         = ps.getUntrackedParameter<bool>("debug", false);
   prefixME_      = ps.getUntrackedParameter<string>("prefixME", "");
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
-  lookup_        = ps.getUntrackedParameter<FileInPath>("LookupTable");
+  lookup_        = ps.getUntrackedParameter<FileInPath>("LookupTable", edm::FileInPath("EventFilter/ESDigiToRaw/data/ES_lookup_table.dat"));
 
   // read in look-up table
   for (int i=0; i<2; ++i) 
@@ -58,6 +58,20 @@ ESIntegrityClient::ESIntegrityClient(const ParameterSet& ps) {
     cout<<"ESIntegrityClient : Look up table file can not be found in "<<lookup_.fullPath().c_str()<<endl;
   }
 
+  hFED_ = 0;
+  hFiberOff_ = 0;
+  hFiberBadStatus_ = 0;
+  hKF1_ = 0;
+  hKF2_ = 0;
+  hKBC_ = 0;
+  hKEC_ = 0; 
+  hL1ADiff_ = 0;
+  hBXDiff_ = 0;
+  hOrbitNumberDiff_ = 0;
+  hSLinkCRCErr_ = 0; 
+
+  ievt_ = 0;
+  jevt_ = 0;
 }
 
 ESIntegrityClient::~ESIntegrityClient() {
@@ -130,10 +144,10 @@ void ESIntegrityClient::analyze(void) {
 
   char histo[200];
 
-  Double_t nDI_FedErr[56];
+  double nDI_FedErr[56];
   for (int i=0; i<56; ++i) nDI_FedErr[i] = 0;
 
-  MonitorElement* me;
+  MonitorElement* me = 0;
   
   sprintf(histo, (prefixME_ + "/ESIntegrityTask/ES FEDs used for data taking").c_str());
   me = dqmStore_->get(histo);

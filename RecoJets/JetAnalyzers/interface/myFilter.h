@@ -19,7 +19,6 @@ public:
 private:
 
   int _nEvent;
-  int _nTotal;
 
   int _acceptedEvt;
 
@@ -33,9 +32,6 @@ private:
   int _passHighPtTower;
   int _passNRBX;
   int _passHLT;
-  int _passNPMTHits;
-  int _passNMultiPMTHits;
-  int _passPKAM;
 
   std::string CaloJetAlgorithm;
   edm::InputTag theTriggerResultsLabel;

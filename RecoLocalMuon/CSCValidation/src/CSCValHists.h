@@ -89,12 +89,6 @@ class CSCValHists{
 
   // fill 2D histogram
   // a histogram is created for every station
-  void fill1DHistByStation(float x, string name, string title, CSCDetId id,
-                           int bins, float xmin, float xmax, string folder);
-
-
-  // fill 2D histogram
-  // a histogram is created for every station
   void fill2DHistByStation(float x, float y, string name, string title, CSCDetId id,
                            int binsx, float xmin, float xmax,
                            int binsy, float ymin, float ymax, string folder);

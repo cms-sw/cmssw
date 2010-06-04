@@ -1,43 +1,35 @@
 #! /bin/bash
 
 # ConfDB configurations to use
-MASTER="/dev/CMSSW_3_6_0/pre4/HLT"         # no explicit version, take te most recent 
-TARGET="/dev/CMSSW_3_6_0/pre4/\$TABLE"     # no explicit version, take te most recent 
+MASTER="/dev/CMSSW_3_6_0/HLT"         # no explicit version, take te most recent 
+TARGET="/dev/CMSSW_3_6_0/\$TABLE"     # no explicit version, take te most recent 
 TABLES="8E29 1E31 GRun HIon"               # $TABLE in the above variable will be expanded to these TABLES
 
-# getHLT.py
-PACKAGE="HLTrigger/Configuration"
-if [ -f "./getHLT.py" ]; then
-  GETHLT="./getHLT.py"
-elif [ -f "$CMSSW_BASE/src/$PACKAGE/test/getHLT.py" ]; then
-  GETHLT="$CMSSW_BASE/src/$PACKAGE/test/getHLT.py"
-elif [ -f "$CMSSW_RELEASE_BASE/src/$PACKAGE/test/getHLT.py" ]; then
-  GETHLT="$CMSSW_RELEASE_BASE/src/$PACKAGE/test/getHLT.py"
-else
-  echo "cannot find getHLT.py, aborting"
-  exit 1
-fi
+function findHltScript() {
+  local PACKAGE="HLTrigger/Configuration"
+  local SCRIPT="$1"
 
-if [ -f "./getEventContent.py" ]; then
-  GETCONTENT="./getEventContent.py"
-elif [ -f "$CMSSW_BASE/src/$PACKAGE/test/getEventContent.py" ]; then
-  GETCONTENT="$CMSSW_BASE/src/$PACKAGE/test/getEventContent.py"
-elif [ -f "$CMSSW_RELEASE_BASE/src/$PACKAGE/test/getEventContent.py" ]; then
-  GETCONTENT="$CMSSW_RELEASE_BASE/src/$PACKAGE/test/getEventContent.py"
-else
-  echo "cannot find getEventContent.py, aborting"
-  exit 1
-fi
+  if [ -f "$SCRIPT" ]; then
+    echo "./$SCRIPT"
+  elif [ -f "$CMSSW_BASE/src/$PACKAGE/test/$SCRIPT" ]; then
+    echo "$CMSSW_BASE/src/$PACKAGE/test/$SCRIPT"
+  elif [ -f "$CMSSW_RELEASE_BASE/src/$PACKAGE/test/$SCRIPT" ]; then
+    echo "$CMSSW_RELEASE_BASE/src/$PACKAGE/test/$SCRIPT"
+  else
+    echo "cannot find $SCRIPT, aborting" 
+    exit 1
+  fi
+}
+
+GETHLT=$(findHltScript getHLT.py)
+GETCONTENT=$(findHltScript getEventContent.py)
+GETDATASETS=$(findHltScript getDatasets.py)
 
 function getConfigForCVS() {
   # for things in CMSSW CVS
   local CONFIG="$1"
   local NAME="$2"
-  if [ "${NAME}" == "8E29" ] || [ "${NAME}" == "GRun" ]; then
-   $GETHLT --cff --mc --l1 L1GtTriggerMenu_L1Menu_Commissioning2010_v1_mc $CONFIG $NAME
-  else
-   $GETHLT --cff --mc $CONFIG $NAME
-  fi
+  $GETHLT --cff --mc $CONFIG $NAME
 }
 
 function getContentForCVS() {
@@ -47,17 +39,25 @@ function getContentForCVS() {
   rm -f hltOutput*_cff.py*
 }
 
+function getDatasetsForCVS() {
+  local CONFIG="$1"
+  local TARGET="$2"
+
+  $GETDATASETS $CONFIG $TARGET
+}
+
 function getConfigForOnline() {
   # for things NOT in CMSSW CVS:
   local CONFIG="$1"
   local NAME="$2"
-  if [ "${NAME}" == "8E29" ] || [ "${NAME}" == "GRun" ]; then
-   $GETHLT --full --offline --data --l1 L1GtTriggerMenu_L1Menu_Commissioning2010_v1_mc $CONFIG $NAME
-   $GETHLT --full --offline --mc   --l1 L1GtTriggerMenu_L1Menu_Commissioning2010_v1_mc $CONFIG $NAME
+  if [ "$NAME" == "8E29" ] || [ "$NAME" == "GRun" ]; then
+    $GETHLT --full --offline --data $CONFIG $NAME --l1 L1Menu_Commissioning2010_v2
+  elif [ "$NAME" == "1E31" ] || [ "$NAME" == "HIon" ]; then
+    $GETHLT --full --offline --data $CONFIG $NAME --l1 L1Menu_MC2010_v0
   else
-   $GETHLT --full --offline --data $CONFIG $NAME
-   $GETHLT --full --offline --mc   $CONFIG $NAME
+    $GETHLT --full --offline --data $CONFIG $NAME
   fi
+  $GETHLT --full --offline --mc   $CONFIG $NAME
 }
 
 # make sure we're using *this* working area
@@ -72,8 +72,11 @@ getContentForCVS $MASTER
 for TABLE in $TABLES; do
   getConfigForCVS $(eval echo $TARGET) $TABLE
 done
-ls -l HLT_*_cff.py HLTrigger_EventContent_cff.py
-mv -f HLT_*_cff.py HLTrigger_EventContent_cff.py ../python
+for TABLE in "GRun"; do
+  getDatasetsForCVS $(eval echo $TARGET) HLTrigger_Datasets_cff.py
+done
+ls -l HLT_*_cff.py HLTrigger_EventContent_cff.py HLTrigger_Datasets_cff.py
+mv -f HLT_*_cff.py HLTrigger_EventContent_cff.py HLTrigger_Datasets_cff.py ../python/
 echo
 
 # for things now also in CMSSW CVS:

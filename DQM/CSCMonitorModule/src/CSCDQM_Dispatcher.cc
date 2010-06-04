@@ -47,7 +47,7 @@ namespace cscdqm {
     config->fnGetHisto = boost::bind(&Dispatcher::getHisto, this, _1, _2);
 
     /** Link/share getCSCDetId function */
-    config->fnGetCSCDetId = boost::bind(&MonitorObjectProvider::getCSCDetId, provider, _1, _2);
+    config->fnGetCSCDetId = boost::bind(&MonitorObjectProvider::getCSCDetId, provider, _1, _2, _3);
 
     /** Link/share booking function */
     config->fnBook = boost::bind(&MonitorObjectProvider::bookMonitorObject, provider, _1);
@@ -143,6 +143,24 @@ namespace cscdqm {
     }
   }
 
+  /**
+   * @brief  Set HW Standby modes
+   * @return 
+   */
+  void Dispatcher::processStandby(HWStandbyType& standby) {
+    LockType lock(processorFract.mutex);
+    if (config->getFRAEFF_SEPARATE_THREAD()) { 
+      boost::function<void (HWStandbyType&)> fnUpdate = boost::bind(&EventProcessorMutex::processStandby, &processorFract, _1);
+#ifdef DQMMT
+      threads.create_thread(boost::ref(fnUpdate));
+#else
+      fnUpdate(standby);
+#endif 
+    } else {
+      processorFract.processStandby(standby);
+    }
+  }
+
 #ifdef DQMLOCAL
 
   /**
@@ -170,11 +188,36 @@ namespace cscdqm {
    * @param  inputTag Tag to search Event Data in
    * @return 
    */
-  void Dispatcher::processEvent(const edm::Event& e, const edm::InputTag& inputTag) {
+  void Dispatcher::processEvent(const edm::Event& e, const edm::InputTag& inputTag, HWStandbyType& standby) {
     config->eventProcessTimer(true);
+     
+    // Consider standby information
+    if (standby.process) {
+
+      // Set in full standby once at the start. Afterwards - no!
+      // i.e. if we ever in the run have gone off standby - this value is false 
+      config->setIN_FULL_STANDBY(config->getIN_FULL_STANDBY() && standby.fullStandby());
+
+      //std::cout << "standby.MeP = " << standby.MeP << "\n";
+      //std::cout << "standby.MeM = " << standby.MeM << "\n";
+      //std::cout << "standby.fullStandby() = " << standby.fullStandby() << "\n";
+      //std::cout << "config->getIN_FULL_STANDBY = " << config->getIN_FULL_STANDBY() << "\n";
+
+      processStandby(standby);
+
+      // We do not fill histograms in full standby!
+      if (standby.fullStandby()) {
+        return;
+      }
+
+    }
+
     processor.processEvent(e, inputTag);
+
     config->eventProcessTimer(false);
+
     updateFractionAndEfficiencyHistosAuto();
+
   }
 
 #endif      

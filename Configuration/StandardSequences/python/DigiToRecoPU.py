@@ -5,23 +5,36 @@ def customise(process):
         inputCommands=cms.untracked.vstring('drop *')
         )
 
-    HLTCleaning= cms.PSet(
-        inputCommands=cms.untracked.vstring('drop FEDRawDataCollection_*_*_*')
-        )
+#    HLTCleaning= cms.PSet(
+#        inputCommands=cms.untracked.vstring('drop FEDRawDataCollection_*_*_*')
+#        )
 
-    REDIGIInputEventSkimming.inputCommands.extend(process.RecoGenJetsFEVT.outputCommands)
-    REDIGIInputEventSkimming.inputCommands.extend(process.RecoGenMETFEVT.outputCommands)
+#    REDIGIInputEventSkimming.inputCommands.extend(process.RecoGenJetsFEVT.outputCommands)
+#    REDIGIInputEventSkimming.inputCommands.extend(process.RecoGenMETFEVT.outputCommands)
     REDIGIInputEventSkimming.inputCommands.extend(process.SimG4CoreRAW.outputCommands) 
     REDIGIInputEventSkimming.inputCommands.extend(process.GeneratorInterfaceRAW.outputCommands) 
     REDIGIInputEventSkimming.inputCommands.extend(process.IOMCRAW.outputCommands) 
-    REDIGIInputEventSkimming.inputCommands.extend(process.HLTriggerRAW.outputCommands) 
-    REDIGIInputEventSkimming.inputCommands.extend(HLTCleaning.inputCommands)
+
+#    REDIGIInputEventSkimming.inputCommands.extend(process.HLTriggerRAW.outputCommands) 
+#    REDIGIInputEventSkimming.inputCommands.extend(HLTCleaning.inputCommands)
 
     process.source.inputCommands = REDIGIInputEventSkimming.inputCommands
     process.source.dropDescendantsOfDroppedBranches=cms.untracked.bool(False)
 
     process.RandomNumberGeneratorService.restoreStateLabel = cms.untracked.string('randomEngineStateProducer')
     process.mix.playback = cms.untracked.bool(True)
+
+    # Remove the old RNGState product on output
+    RNGStateCleaning= cms.PSet(
+        outputCommands=cms.untracked.vstring('drop RandomEngineStates_*_*_*',
+                                             'keep RandomEngineStates_*_*_'+process.name_())
+        )
+    process.output.outputCommands.extend(RNGStateCleaning.outputCommands)
+
+    # REDO the GenJets etc. in case labels have been changed
+    process.load('Configuration/StandardSequences/Generator_cff')
+    process.fixGenInfo = cms.Path(process.genJetMET)
+    process.schedule.append(process.fixGenInfo)
     
     # Output definition for RAW
     #process.outputRaw = cms.OutputModule("PoolOutputModule",
@@ -34,4 +47,5 @@ def customise(process):
     
     #process.out_step_raw = cms.EndPath(process.outputRaw)
     #process.schedule.append(process.out_step_raw)
+
     return(process)
