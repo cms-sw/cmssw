@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Sun Aug 16 20:44:05 CEST 2009
-// $Id: HcalO2OManager.cc,v 1.34 2010/04/19 17:12:00 kukartse Exp $
+// $Id: HcalO2OManager.cc,v 1.35 2010/04/28 22:10:20 kukartse Exp $
 //
 
 
@@ -23,7 +23,6 @@
 #include "CondCore/DBCommon/interface/DbScopedTransaction.h"
 
 #include "CondFormats/Common/interface/PayloadWrapper.h"
-#include "CondCore/DBCommon/interface/CoralTransaction.h"
 
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
