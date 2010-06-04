@@ -182,7 +182,10 @@ int main()
     }
   catch (cms::Exception& e)
     {
-      cerr << e.what() << endl;
+      if (e.category() == "ErrorOpenFile") {
+      } else {
+	cerr << e.what() << endl;
+      }
     }
   return 0;   
 }
