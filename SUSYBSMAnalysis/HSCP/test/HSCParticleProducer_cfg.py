@@ -52,10 +52,10 @@ process.TFileService = cms.Service("TFileService",
 )
 
 #Used for MC (Skimmed) or Data Sample
-process.p = cms.Path(process.HSCParticleProducerSeq + process.HSCPTreeBuilder)
+process.p = cms.Path(process.HSCParticleProducerSeq)# + process.HSCPTreeBuilder) #Uncomment the last part if you want to produce NTUPLE
 
 #Used for Signal Sample
-#process.p = cms.Path(process.genParticles + process.exoticaHSCPSeq + process.HSCParticleProducerSeq + process.HSCPTreeBuilder)
+#process.p = cms.Path(process.genParticles + process.exoticaHSCPSeq + process.HSCParticleProducerSeq)# + process.HSCPTreeBuilder) #Uncomment the last part if you want to produce NTUPLE
 
 
 process.OUT = cms.OutputModule("PoolOutputModule",
