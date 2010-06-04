@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.95 2010/04/30 13:54:23 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.96 2010/05/14 23:04:09 chamont Exp $
 //
 //
 
@@ -224,10 +224,14 @@ GsfElectronAlgo::GsfElectronAlgo
      = EcalClusterFunctionFactory::get()->create(superClusterErrorFunctionName,conf) ;
    }
 
-  if     ( !spikeIdString_.compare("kE1OverE9") )   spId_ = EcalSeverityLevelAlgo::kE1OverE9;
-  else if( !spikeIdString_.compare("kSwissCross") ) spId_ = EcalSeverityLevelAlgo::kSwissCross;
-  else                                              spId_ = EcalSeverityLevelAlgo::kSwissCross;
-
+  if     (!spikeIdString_.compare("kE1OverE9"))   spId_ = EcalSeverityLevelAlgo::kE1OverE9;
+  else if(!spikeIdString_.compare("kSwissCross")) spId_ = EcalSeverityLevelAlgo::kSwissCross;
+  else if(!spikeIdString_.compare("kSwissCrossBordersIncluded")) spId_ = EcalSeverityLevelAlgo::kSwissCrossBordersIncluded;
+  else {
+    spId_ = EcalSeverityLevelAlgo::kSwissCrossBordersIncluded;
+    edm::LogWarning("GsfElectronAlgo|SpikeRemovalForIsolation")
+      << "Cannot find the requested method. kSwissCross set instead.";
+  }
 }
 
 GsfElectronAlgo::~GsfElectronAlgo() {
