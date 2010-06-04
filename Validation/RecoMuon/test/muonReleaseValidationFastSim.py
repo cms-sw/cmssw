@@ -10,13 +10,13 @@ import string
 ######### User variables
 
 #Run on FastSim events if true
-FastSimUse="False"
+FastSimUse="True"
 
 #(post) process only recoMuon related histos
 onlyRecoMuons="False"
 
 #Release to be validated:
-NewRelease='CMSSW_3_6_1'
+NewRelease='CMSSW_3_8_0_pre1'
 
 # startup and ideal sample list
 if (FastSimUse=="True"):
@@ -56,8 +56,8 @@ OneAtATime=False
 IdealTag='MC'
 StartupTag='STARTUP'
 
-IdealTagUse='MC_36Y_V7'
-StartupTagUse='START36_V7'
+IdealTagUse='MC_37Y_V5'
+StartupTagUse='START37_V5'
 VersionTag='v1'
 #UnwantedTag=''
 

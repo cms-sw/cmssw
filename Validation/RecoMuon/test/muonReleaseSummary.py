@@ -5,19 +5,19 @@ import sys
 import fileinput
 import string
 
-NewVersion='3_6_1'
-RefVersion='3_6_0'
+NewVersion='3_8_0_pre1'
+RefVersion='3_8_0_pre1'
 NewRelease='CMSSW_'+NewVersion
 RefRelease='CMSSW_'+RefVersion
 #NewRelease='Summer09'
 #RefRelease='Summer09_pre1'
 
-NewCondition='MC'
-RefCondition='MC'
-#NewCondition='STARTUP'
-#RefCondition='STARTUP'
+#NewCondition='MC'
+#RefCondition='MC'
+NewCondition='STARTUP'
+RefCondition='STARTUP'
 
-NewFastSim=False
+NewFastSim=True
 RefFastSim=False
 
 if (NewCondition=='MC'):
@@ -35,8 +35,8 @@ elif (NewCondition=='STARTUP'):
 Submit=True
 Publish=False
 
-GetFilesFromCastor=True
-GetRefsFromCastor=True
+GetFilesFromCastor=False
+GetRefsFromCastor=False
 #CastorRepository = '/castor/cern.ch/cms/store/temp/dqm/offline/harvesting_output/mc/relval'
 CastorRepository = '/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'
 ### Older repositories:
