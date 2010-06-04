@@ -93,8 +93,8 @@ Nominal7TeVCollisionVtxSmearingParameters = cms.PSet(
     X0 = cms.double(0.0322),
     Z0 = cms.double(0.0)
 )
-# 900 GeV realistic collisions, transverse beam size is 200 microns
-2010Realistic900GeVCollisionVtxSmearingParameters = cms.PSet(
+# 900 GeV realistic 2010 collisions, transverse beam size is 200 microns
+Realistic900GeVCollisionVtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
     BetaStar = cms.double(1000.0),
     Emittance = cms.double(4.17e-07),
