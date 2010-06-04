@@ -95,6 +95,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   } else if (!strcasecmp(subd.c_str(),"HF")) {
     subdet_=HcalForward;
     HFNoiseAlgo_=conf.getParameter<int>("HFNoiseAlgo"); // get noise algorithm type
+    HFsetTimingFlagsInMC_ = cms.getParameter<bool>("HFsetTimingFlagsInMC");
 
     if (setTimingTrustFlags_) {
       
@@ -298,6 +299,8 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
       // run the algorithm
       HFDigiCollection::const_iterator i;
 
+      bool setTimeFlag= HFsetTimingFlagsInMC_||isData;
+
       // Vote on majority TS0 CapId
       int favorite_capid = 0; 
       if (correctTiming_) {
@@ -325,7 +328,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	rec->push_back(reco_.reconstruct(*i,coder,calibrations));
 	(rec->back()).setFlags(0);
 	// This calls the code for setting the HF noise bit determined from digi shape
-	if (setNoiseFlags_) hfdigibit_->hfSetFlagFromDigi(rec->back(),*i,coder,calibrations, isData);
+	if (setNoiseFlags_) hfdigibit_->hfSetFlagFromDigi(rec->back(),*i,coder,calibrations, setTimeFlag);
 	if (setSaturationFlags_)
 	  saturationFlagSetter_->setSaturationFlag(rec->back(),*i);
 	if (setTimingTrustFlags_)

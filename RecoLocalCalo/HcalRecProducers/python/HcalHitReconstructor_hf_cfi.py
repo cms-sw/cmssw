@@ -14,6 +14,12 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                         correctTiming = cms.bool(True),
                         setNoiseFlags = cms.bool(True),
 
+                        # Set Timing Flags for MC (as well as data)
+                        # As of June 2010, we don't trust MC timing
+                        # enough to apply the same timing cuts in MC
+                        # that we do in data
+                        HFsetTimingFlagsInMC = cms.bool(False),
+                        
                         # HF Noise algorithm choices:
                         #  1 = flat energy/ET cut; flag channel if R=|(L-S)/(L+S)| is greater than a fixed threshold;
                         #  2 = PET algorithm:  still flag if R> threshold, but allow energy/ET cuts to be parameterized functions of ieta;
