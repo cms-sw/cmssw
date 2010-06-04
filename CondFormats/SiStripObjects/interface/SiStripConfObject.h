@@ -19,6 +19,8 @@
  * The put method retuns a bool which is true if the insertion was successuful. If the parameter
  * is already existing the insertion will not happen and the return value will be false. <br>
  * The get method is templated and works like the getParameter<type> of the framework. <br>
+ * The isParameter method can be used to check whether a parameter exists. It will return a
+ * bool with the result. <br>
  * The printSummary and printDebug method return both the full list of parameters. <br>
  */
 
