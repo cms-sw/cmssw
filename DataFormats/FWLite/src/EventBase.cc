@@ -67,6 +67,19 @@ namespace fwlite
          edm::BasicHandle failed(whyFailed);
          return failed;
       }
+      if(!prod->isPresent()) {
+         edm::TypeID productType(iWrapperInfo);
+         boost::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound));
+         *whyFailed
+         << "getByLabel: Found zero products matching all criteria\n"
+         << "Looking for type: " << productType << "\n"
+         << "Looking for module label: " << iTag.label() << "\n"
+         << "Looking for productInstanceName: " << iTag.instance() << "\n"
+         << (iTag.process().empty() ? "" : "Looking for process: ") << iTag.process() << "\n"
+         << "The data is registered in the file but is not available for this event\n";
+         edm::BasicHandle failed(whyFailed);
+         return failed;
+      }
       edm::BasicHandle value(boost::shared_ptr<edm::EDProduct>(prod,null_deleter()),&s_prov);
       return value;
    }
