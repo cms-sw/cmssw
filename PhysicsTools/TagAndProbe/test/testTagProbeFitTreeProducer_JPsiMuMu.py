@@ -75,6 +75,7 @@ process.MuonID = cms.EDAnalyzer("TagProbeFitTreeProducer",
     makeMCUnbiasTree = cms.bool(False),
     #checkMotherInUnbiasEff = cms.bool(True),
     #allProbes     = cms.InputTag("trkProbes"),
+    addRunLumiInfo = cms.bool(True),
 )
 
 process.tagAndProbe = cms.Path( 
