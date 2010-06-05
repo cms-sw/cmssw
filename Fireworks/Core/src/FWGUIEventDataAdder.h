@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:12:36 EDT 2008
-// $Id: FWGUIEventDataAdder.h,v 1.12 2010/05/10 11:52:17 matevz Exp $
+// $Id: FWGUIEventDataAdder.h,v 1.13 2010/06/03 11:46:06 mccauley Exp $
 //
 
 // system include files
@@ -72,10 +72,8 @@ public:
 
    void windowIsClosing();
    void update(const TFile*, const fwlite::Event*);
-   
+   void updateFilterString(const char *str);   
    void rowClicked(Int_t iRow,Int_t iButton,Int_t iKeyMod,Int_t,Int_t);
-
-  void searchData();
 
 private:
    FWGUIEventDataAdder(const FWGUIEventDataAdder&); // stop default

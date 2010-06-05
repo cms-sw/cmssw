@@ -28,7 +28,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:40:52 EST 2009
-// $Id: FWTableManagerBase.h,v 1.2 2009/03/04 15:25:03 chrjones Exp $
+// $Id: FWTableManagerBase.h,v 1.3 2010/04/16 19:47:35 chrjones Exp $
 //
 
 // system include files
@@ -96,7 +96,12 @@ class FWTableManagerBase : public TQObject
       void visualPropertiesChanged(); //*SIGNAL*
       
       ClassDef(FWTableManagerBase,0);
+
+      /// The current sort order for the table.
+      bool sortOrder(void) { return m_sortOrder; }
       
+      /// The current sort column
+      int sortColumn(void) { return m_sortColumn; }
 
    protected:
       ///Called by 'sort' method to actually handle the sorting of the rows. Arguments are the same as 'sort'

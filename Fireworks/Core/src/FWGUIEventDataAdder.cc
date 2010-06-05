@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.38 2010/06/03 19:27:59 chrjones Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.39 2010/06/03 19:38:31 chrjones Exp $
 //
 
 // system include files
@@ -17,6 +17,8 @@
 #include <boost/bind.hpp>
 #include <boost/regex.hpp>
 #include <algorithm>
+#include <cctype>
+
 #include "TGFrame.h"
 #include "TGTextEntry.h"
 #include "TGLabel.h"
@@ -75,15 +77,21 @@ static const unsigned int kNColumns = 5;
 class DataAdderTableManager : public FWTableManagerBase {
 public:
    DataAdderTableManager(const std::vector<FWGUIEventDataAdder::Data>* iData) :
-      m_data(iData), m_selectedRow(-1) {
+      m_data(iData), m_selectedRow(-1), m_filter() {
       reset();
    }
 
    virtual int numberOfRows() const {
-      return m_data->size();
+      return m_row_to_index.size();
    }
    virtual int numberOfColumns() const {
       return kNColumns;
+   }
+   
+   virtual void sortWithFilter(const char *filter)
+   {
+      m_filter = filter;
+      sort(sortColumn(), sortOrder());
    }
    
    virtual int unsortedRowNumber(int iSortedRowNumber) const {
@@ -162,45 +170,155 @@ private:
    const std::vector<FWGUIEventDataAdder::Data>* m_data;
    std::vector<int> m_row_to_index;
    int m_selectedRow;
+   std::string    m_filter;
    mutable FWTextTableCellRenderer m_renderer;
 };
 
 namespace {
-   template <typename TMap>
-   void doSort(int col,
+   /** Helper classes to handle sorting and filtering.
+   
+       The idea is that we sort things so that:
+   
+       - An item that matches is always less than one that does not.
+       - If two items both match they are sorted according to the sorting 
+         criteria.
+       - If two items both do not match, the are always sorted (so that we
+         do not waste time in sorting non matching items).
+      
+       Then we tell the table that the size of the available data is only
+       the size of the matching items.
+       
+       Notice that the matching here does not work with regular expressions 
+       but it tries to find all the characters in the filter string
+       in order in the target string.
+        
+       This is usually a better approach than the "match subparts of the
+       string" one.
+     */
+   struct SortAndFilter
+   {
+   public:
+      SortAndFilter(const char *filter, size_t column, bool order, 
+                    const std::vector<FWGUIEventDataAdder::Data> &data)
+         : m_filter(filter),
+           m_column(column),
+           m_order(order),
+           m_data(data)
+      {
+         std::transform(m_filter.begin(), m_filter.end(), m_filter.begin(), tolower);
+      }
+      
+      bool matches(const std::string &str) const
+         {
+            std::string up;
+            up.resize(str.size());
+            std::transform(str.begin(), str.end(), up.begin(), tolower);
+            
+            const char *begin = up.c_str();
+            
+            // If the filter is empty, we consider anything as matching 
+            // (i.e. it will not loop).
+            // If the filter is not empty but the string to be matched is, we 
+            // consider it as if it was not matching.
+            if ((!m_filter.empty()) && str.empty())
+               return false;
+               
+            for (size_t ci = 0, ce = m_filter.size(); ci != ce; ++ci)
+            {
+               int c = m_filter[ci];
+               // We simply ignore spaces, tabs, punctuation and alikes.
+               if (!isalnum(c))
+                  continue;
+               
+               begin = strchr(begin, c);
+               if (!begin)
+                  return false;
+            }
+            return true;
+         }
+      
+      bool matchesFilter(const FWGUIEventDataAdder::Data &data) const
+      {
+         return matches(data.type_) 
+                || matches(data.moduleLabel_)
+                || matches(data.productInstanceLabel_) 
+                || matches(data.processName_);
+      }
+      
+      bool operator()(const int &aIndex, const int &bIndex)
+         {
+            const FWGUIEventDataAdder::Data &a = m_data[aIndex];
+            const FWGUIEventDataAdder::Data &b = m_data[bIndex];
+            // This is not particularly smart because it will check for 
+            // filtering every time...Lets get it right first and then we
+            // can optimize it if needed. It's only an handful of types,
+            // after all.
+            bool aMatches = matchesFilter(a);
+            bool bMatches = matchesFilter(b);
+            
+            if (!aMatches && !bMatches)
+               return true;
+            
+            if (aMatches && !bMatches)
+               return true;
+            
+            if (!aMatches && bMatches)
+               return false;
+            
+            if (m_order)
+               return dataForColumn(a, m_column) < dataForColumn(b, m_column);
+            else
+               return dataForColumn(a, m_column) > dataForColumn(b, m_column);
+         }
+   private:
+      std::string m_filter;
+      size_t      m_column;
+      bool        m_order;
+      const std::vector<FWGUIEventDataAdder::Data> &m_data;
+   };
+
+   void doSort(int column,
+               const char *filter,
+               bool descentSort,
                const std::vector<FWGUIEventDataAdder::Data>& iData,
-               TMap& iOrdered,
                std::vector<int>& oRowToIndex)
    {
-      unsigned int index=0;
-      for(std::vector<FWGUIEventDataAdder::Data>::const_iterator it = iData.begin(),
-                                                                 itEnd = iData.end();
-          it!=itEnd;
-          ++it,++index) {
-         iOrdered.insert(std::make_pair(dataForColumn(*it,col),index));
-      }
-      unsigned int row = 0;
-      for(typename TMap::iterator it = iOrdered.begin(),
-          itEnd = iOrdered.end();
-          it != itEnd;
-          ++it,++row) {
-         oRowToIndex[row]=it->second;
-      }
+      static int called = 0;
+      // Check if we override.
+      assert(++called == 1);
+      
+      std::vector<int> ordered;
+      ordered.reserve(iData.size());
+      
+      for (size_t i = 0, e = iData.size(); i != e; ++i)
+         ordered.push_back(i);
+      
+      SortAndFilter sorter(filter, column, descentSort, iData);
+      // GE: Using std::sort does not work for some reason... Bah...
+      std::stable_sort(ordered.begin(), ordered.end(), sorter);
+
+      // Only keep track of the rows that match.
+      for (size_t i = 0, e = ordered.size(); i != e; ++i)
+         if (!sorter.matchesFilter(iData[ordered[i]]))
+         {
+            ordered.resize(i);
+            break;
+         }
+      
+      oRowToIndex.resize(ordered.size());
+      
+      for(size_t i = 0, e = ordered.size(); i != e; ++i)
+         oRowToIndex[i] = ordered[i];
+      
+      called--;
    }
 }
 
 void
-DataAdderTableManager::implSort(int col, bool sortOrder)
+DataAdderTableManager::implSort(int column, bool sortOrder)
 {
-   if(sortOrder) {
-      std::multimap<std::string,int> ordered;
-      doSort(col,*m_data, ordered, m_row_to_index);
-   } else {
-      std::multimap<std::string,int,std::greater<std::string> > ordered;
-      doSort(col,*m_data, ordered, m_row_to_index);
-   }
+   doSort(column, m_filter.c_str(), sortOrder, *m_data, m_row_to_index);
 }
-
 
 //
 // static data member definitions
@@ -357,6 +475,12 @@ FWGUIEventDataAdder::windowIsClosing()
 }
 
 void
+FWGUIEventDataAdder::updateFilterString(const char *str)
+{
+   m_tableManager->sortWithFilter(str);
+}
+
+void
 FWGUIEventDataAdder::createWindow()
 {
    m_frame = new TGTransientFrame(gClient->GetDefaultRoot(),m_parentFrame,600,400);
@@ -371,8 +495,11 @@ FWGUIEventDataAdder::createWindow()
    assert(1==hints.size());
 
    unsigned int index = 0;
-
-   hints[index] = addToFrame(vf, "", m_search, widths[index]);
+   
+   hints[index] = addToFrame(vf, "Search:", m_search, widths[index]);
+   
+   m_search->Connect("TextChanged(const char *)", "FWGUIEventDataAdder", 
+                     this, "updateFilterString(const char *)");
    
    if ( widths[index] > maxWidth ) 
    {
@@ -380,13 +507,6 @@ FWGUIEventDataAdder::createWindow()
    }
 
    ++index;
-    
-   TGHorizontalFrame* searchButtonFrame = new TGHorizontalFrame(vf);
-   vf->AddFrame(searchButtonFrame, new TGLayoutHints(kLHintsTop | kLHintsCenterX));
-
-   TGTextButton* searchButton = new TGTextButton(searchButtonFrame, "Search");
-   searchButtonFrame->AddFrame(searchButton, new TGLayoutHints(kLHintsNormal, 0, 0, 5, 0));
-   searchButton->Connect("Clicked()", "FWGUIEventDataAdder", this, "searchData()");
   
    std::vector<unsigned int>::iterator itW = widths.begin();
    
@@ -456,45 +576,6 @@ FWGUIEventDataAdder::update(const TFile* iFile, const fwlite::Event* iEvent)
       assert(0!=iFile);
       fillData(iFile);
    }
-}
-
-void 
-FWGUIEventDataAdder::searchData()
-{
-  boost::regex re;
- 
-  try
-  {  
-    re.assign(m_search->GetText(), boost::regex_constants::icase);  
-  }
-
-  catch (boost::regex_error& e)
-  {
-    fwLog(fwlog::kInfo)<< m_search->GetText() <<" is not a valid regular expression."<<std::endl;
-    fwLog(fwlog::kInfo)<< e.what() <<std::endl;
-    return;
-  }
-  
-  for ( std::vector<Data>::const_iterator di = m_useableData.begin(),
-                                       diEnd = m_useableData.end();
-        di != diEnd; ++di )
-  {
-    if ( boost::regex_search((*di).purpose_, re) ||       
-         boost::regex_search((*di).moduleLabel_, re) ||
-         boost::regex_search((*di).productInstanceLabel_, re) ||
-         boost::regex_search((*di).type_, re) ||
-         boost::regex_search((*di).processName_, re) )
-    {
-      std::cout<< (*di).purpose_ <<" "
-               << (*di).type_ <<" "
-               << (*di).moduleLabel_ <<" "
-               << (*di).productInstanceLabel_ <<" "
-               << (*di).processName_ <<std::endl;
-    }
-  }
-
-  //m_tableManager->reset();
-  //m_tableManager->sort(0, true);
 }
 
 /** This method inspects the opened TFile @a iFile and for each branch containing 
