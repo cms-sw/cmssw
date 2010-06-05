@@ -34,28 +34,6 @@ tnp::BaseTreeFiller::BaseTreeFiller(const char *name, const edm::ParameterSet iC
 
     // add the branches
     addBranches_(tree_, iConfig, "");
-
-    // set up weights, if needed
-    if (iConfig.existsAs<double>("eventWeight")) { 
-        weightMode_ = Fixed;
-        weight_ = iConfig.getParameter<double>("eventWeight");
-    } else if (iConfig.existsAs<edm::InputTag>("eventWeight")) { 
-        weightMode_ = External;
-        weightSrc_ = iConfig.getParameter<edm::InputTag>("eventWeight");
-    } else {
-        weightMode_ = None;
-    }
-    if (weightMode_ != None) {
-        tree_->Branch("weight", &weight_, "weight/F");
-    }
-
-    addRunLumiInfo_ = iConfig.existsAs<bool>("addRunLumiInfo") ? iConfig.getParameter<bool>("addRunLumiInfo") : false;
-    if (addRunLumiInfo_) {
-         tree_->Branch("run",  &run_,  "run/i");
-         tree_->Branch("lumi", &lumi_, "lumi/i");
-    }
-
-    ignoreExceptions_ = iConfig.existsAs<bool>("ignoreExceptions") ? iConfig.getParameter<bool>("ignoreExceptions") : false;
 }
 
 tnp::BaseTreeFiller::BaseTreeFiller(BaseTreeFiller &main, const edm::ParameterSet &iConfig, const std::string &branchNamePrefix) :
