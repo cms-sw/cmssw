@@ -1022,8 +1022,6 @@ class PerfSuite:
                 if script in self.Scripts:
                     for cpu in range(cmsCpuInfo.get_NumOfCores()):#FIXME use the actual number of cores of the machine here!
                         command="taskset -c %s %s" % (cpu,script)
-                        if 'RunMemcheck' in command:
-                           command = command.replace('--customise Validation/Performance/TimeMemoryInfo.py', '')
                         self.Commands[cpu].append(command)
                         
             #First submit the cmsScimark benchmarks on the unused cores:
