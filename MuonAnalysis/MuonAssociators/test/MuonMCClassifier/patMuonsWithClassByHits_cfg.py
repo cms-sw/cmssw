@@ -12,8 +12,6 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("SimGeneral.MixingModule.mixNoPU_cfi")
 process.load("SimGeneral.TrackingAnalysis.trackingParticlesNoSimHits_cfi")    # On RECO
 process.load("SimMuon.MCTruth.MuonAssociatorByHitsESProducer_NoSimHits_cfi")  # On RECO
-#process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")            # On RAW+RECO
-#process.load("SimMuon.MCTruth.MuonAssociatorByHitsESProducer_cfi")           # On RAW+RECO
 
 process.GlobalTag.globaltag = 'START3X_V26A::All'
 
@@ -24,7 +22,6 @@ process.source = cms.Source("PoolSource",
         #'rfio:/castor/cern.ch/user/g/gpetrucc/900GeV/MC/Feb9Skims/MC_CollisionEvents_MuonSkim_2.root',
         #'rfio:/castor/cern.ch/user/g/gpetrucc/900GeV/MC/Feb9Skims/MC_CollisionEvents_MuonSkim_3.root',
         'root://pcmssd12.cern.ch//data/gpetrucc/Feb9Skims/MC_CollisionEvents_MuonSkim_1.root'
-        #'file:/data/gpetrucc/Feb9Skims/MC_CollisionEvents_MuonSkim_1.root'
     ),
     inputCommands = RECOSIMEventContent.outputCommands,            # keep only RECO out of RAW+RECO, for tests
     dropDescendantsOfDroppedBranches = cms.untracked.bool(False),  # keep only RECO out of RAW+RECO, for tests
@@ -94,12 +91,12 @@ process.load("MuonAnalysis.MuonAssociators.muonClassificationByHits_cfi")
 from MuonAnalysis.MuonAssociators.muonClassificationByHits_cfi import addUserData as addClassByHits
 addClassByHits(process.patMuons, extraInfo=True)
 
-# now we define yet another classification, only for TMLastStationAngTight.
+# as an example, now we define yet another classification, only for TMLastStationLoose.
 # (the selection matters when you define ghosts)
-process.classByHitsTMLSAT = process.classByHitsTM.clone(
-    muonPreselection = cms.string("muonID('TMLastStationAngTight')")
+process.classByHitsTMLSLoose = process.classByHitsTM.clone(
+    muonPreselection = cms.string("muonID('TMLastStationLoose')")
 )
-addClassByHits(process.patMuons, labels=["classByHitsTMLSAT"], extraInfo=True)
+addClassByHits(process.patMuons, labels=["classByHitsTMLSLoose"], extraInfo=True)
 
 
 process.go = cms.Path(
@@ -109,7 +106,7 @@ process.go = cms.Path(
       process.genMuons    *
       process.muonMatch   +
       process.muonClassificationByHits +
-      process.classByHitsTMLSAT ) *
+      process.classByHitsTMLSLoose ) *
     process.patMuons  
 )
 
