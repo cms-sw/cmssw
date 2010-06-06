@@ -768,11 +768,10 @@ def writeCommands(simcandles,
                     if 'valgrind' in prof:
                         #I think the if is safer even though all commands in this "else" (i.e. non EdmSize) should be OK.
                         if 'TimeMemoryInfo.py' in Command:
-                            Command=Command.replace('--customise Validation/Performance/TimeMemoryInfo.py', '')
+                            Command=Command.replace('--customise=Validation/Performance/TimeMemoryInfo.py', '')
                         #There is actually also the SIM case to take care of:
                         elif 'TimeMemoryG4Info.py' in Command:
-                            Command=Command.replace('--customise Validation/Performance/TimeMemoryG4Info.py', '')
-                            
+                            Command=Command.replace('--customise=Validation/Performance/TimeMemoryG4Info.py', '')
                     stepLabel=stepToWrite
                     #print "stepLabel is %s"%stepLabel
                     if '--pileup' in cmsDriverOptions and not "_PILEUP" in stepToWrite:
