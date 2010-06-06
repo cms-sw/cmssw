@@ -439,12 +439,18 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
         {
           titr->setRank(thePtData.front_rank);
           titr->setChargeValidPacked(thePtData.charge_valid_front);
-	    }
+	    	}
         else
         {
           titr->setRank(thePtData.rear_rank);
           titr->setChargeValidPacked(thePtData.charge_valid_rear);
         }
+				
+				if( ((titr->ptLUTAddress()>>16)&0xf)==15 )
+				{
+					int unmodBx = titr->bx();
+					titr->setBx(unmodBx+2);
+				}
     }
   } //end of if(run_core)
 
