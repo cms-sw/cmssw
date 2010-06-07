@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 22 10:13:39 CST 2009
-// $Id: FWCollectionSummaryTableManager.cc,v 1.3 2009/05/18 04:55:55 dmytro Exp $
+// $Id: FWCollectionSummaryTableManager.cc,v 1.4 2009/05/18 17:30:56 dmytro Exp $
 //
 
 // system include files
@@ -50,12 +50,12 @@ m_widget(iWidget)
    ROOT::Reflex::Type type = ROOT::Reflex::Type::ByTypeInfo(*(m_collection->modelType()->GetTypeInfo()));
 
    if ( type.Name() == "CaloTower" ){
-     if ( m_collection->name() == "ECal" ){
+     if ( m_collection->purpose() == "ECal" ){
        s_names.push_back(std::pair<std::string,std::string>("emEt","GeV"));
        boost::shared_ptr<FWItemValueGetter> trans( new FWItemValueGetter(type,s_names));
        if(trans->isValid()) m_valueGetters.push_back(trans);
      }
-     if ( m_collection->name() == "HCal" ){
+     if ( m_collection->purpose() == "HCal" ){
        s_names.push_back(std::pair<std::string,std::string>("hadEt","GeV"));
        boost::shared_ptr<FWItemValueGetter> hadEt( new FWItemValueGetter(type,s_names));
        if(hadEt->isValid()) m_valueGetters.push_back(hadEt);
