@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.184 $"
+__version__ = "$Revision: 1.185 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -686,11 +686,11 @@ class ConfigBuilder(object):
             for file in listOfImports:
                 self.loadAndRemember(file)
 
-	if 'HLT' in self._options.step:
-		self.schedule.append(self.process.HLTSchedule)
-        [self.blacklist_paths.append(path) for path in self.process.HLTSchedule if isinstance(path,(cms.Path,cms.EndPath))]
-	if (fastSim):
-		self.process.HLTSchedule.remove(self.process.HLTAnalyzerEndpath)
+	self.schedule.append(self.process.HLTSchedule)
+	[self.blacklist_paths.append(path) for path in self.process.HLTSchedule if isinstance(path,(cms.Path,cms.EndPath))]
+	if (fastSim and 'HLT' in self._options.step):
+		self.finalizeFastSimHLT()
+		
   
     def prepare_RAW2DIGI(self, sequence = "RawToDigi"):
         if ( len(sequence.split(','))==1 ):
@@ -820,6 +820,11 @@ class ConfigBuilder(object):
 
         self.schedule.append(self.process.endjob_step)
 
+    def finalizeFastSimHLT(self):
+	    self.process.HLTSchedule.remove(self.process.HLTAnalyzerEndpath)
+	    self.process.reconstruction = cms.Path(self.process.reconstructionWithFamos)
+	    self.schedule.append(self.process.reconstruction)
+	    
     def prepare_FASTSIM(self, sequence = "all"):
         """Enrich the schedule with fastsim"""
         self.loadAndRemember("FastSimulation/Configuration/FamosSequences_cff")
@@ -841,10 +846,8 @@ class ConfigBuilder(object):
             self._options.name = "HLT"
 
             # if we don't want to filter after HLT but simulate everything regardless of what HLT tells, we have to add reconstruction explicitly
-            if sequence == 'all' and not 'HLT' in self._options.step:
-                self.schedule.append(self.process.HLTSchedule)
-                self.process.reconstruction = cms.Path(self.process.reconstructionWithFamos)
-                self.schedule.append(self.process.reconstruction)
+	    if sequence == 'all' and not 'HLT' in self._options.step: #(a)
+	        self.finalizeFastSimHLT()
         elif sequence == 'famosWithEverything': 
             self.process.fastsim_step = cms.Path( getattr(self.process, "famosWithEverything") )
             self.schedule.append(self.process.fastsim_step)
@@ -873,7 +876,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.184 $"),
+              (version=cms.untracked.string("$Revision: 1.185 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -974,7 +977,7 @@ class ConfigBuilder(object):
 			self.process.schedule.extend(item) 
 
 	if hasattr(self.process,"HLTSchedule"):
-   	    beforeHLT = self.schedule[:self.schedule.index(self.process.HLTSchedule)] 
+   	    beforeHLT = self.schedule[:self.schedule.index(self.process.HLTSchedule)]
 	    afterHLT = self.schedule[self.schedule.index(self.process.HLTSchedule)+1:]
             pathNames = ['process.'+p.label_() for p in beforeHLT]
 	    result += ','.join(pathNames)+')\n'
