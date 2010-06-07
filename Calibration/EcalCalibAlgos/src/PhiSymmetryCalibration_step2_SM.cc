@@ -66,8 +66,10 @@ void PhiSymmetryCalibration_step2_SM::setUp(const edm::EventSetup& se){
     for (int ieta=0; ieta<kBarlRings; ieta++) {
       for (int iphi=0; iphi<kBarlWedges; iphi++) {
 	int iphi_r=int(iphi/nscx);
-	if( !e_.goodCell_barl[ieta][iphi][sign] )
+	if( !e_.goodCell_barl[ieta][iphi][sign] ){
 	  nBads_barl_SM_[ieta][iphi_r][sign]++;
+	  // std::cout << "N BAD CELL " << nBads_barl_SM_[ieta][iphi_r][sign] << endl; 
+         }
       }
     }
   }
@@ -85,7 +87,7 @@ void PhiSymmetryCalibration_step2_SM::setUp(const edm::EventSetup& se){
     
     int ret=
       EcalIntercalibConstantsXMLTranslator::readXML(initialmiscalibfile_,h,miscalib_);    
-    if (ret) edm::LogError("PhiSym")<<"Error reading XML files"<<endl;;
+    if (ret) edm::LogError("PhiSym")<<"Error reading XML files"<<endl;
   } else {
 
     for (vector<DetId>::iterator it=barrelCells.begin(); it!=barrelCells.end(); ++it){
@@ -221,8 +223,13 @@ void PhiSymmetryCalibration_step2_SM::endJob(){
 	
 	// sc 
 	int iphi_r = int(iphi/nscx);
+      
+      //if(nBads_barl_SM_[ieta][iphi_r][sign]>0){
+      //  std::cout << "ETSUM" << etsum_barl_SM_[ieta][iphi_r][sign] << "  " <<ieta << " " << iphi_r << " " << sign << "  " << nBads_barl_SM_[ieta][iphi_r][sign]<< endl;
+      //}      
+		
 	float epsilon_T_SM = 
-	  etsum_barl_SM_[ieta][iphi_r][sign] /etsumMean_barl_SM_[ieta] -1.;
+	   etsum_barl_SM_[ieta][iphi_r][sign] /etsumMean_barl_SM_[ieta] -1.;
 	
 	epsilon_M_barl_SM_[ieta][iphi_r][sign] = epsilon_T_SM/k_barl_[ieta];
 	
@@ -495,18 +502,21 @@ void PhiSymmetryCalibration_step2_SM::fillHistos()
     // fill barrel ET sum histos
     etsumMean_barl_[ieta]=0.;
     esumMean_barl_[ieta]=0.;
+    
     for (int iphi=0; iphi<kBarlWedges; iphi++) {
       for (int sign=0; sign<kSides; sign++) {
-
-
 	
 	// mean for the SC
 	int iphi_r = int(iphi/nscx);
 	
-	if( !(iphi%nscx)) 
-	  etsumMean_barl_SM_[ieta] += 
+	if( !(iphi%nscx)){ 
+	 // bad channel correction
+         etsum_barl_SM_[ieta][iphi_r][sign] = etsum_barl_SM_[ieta][iphi_r][sign]*nscx/(nscx- nBads_barl_SM_[ieta][iphi_r][sign]);      
+//         std::cout << "ETSUM M " << ieta << " " << iphi_r << " " << 
+//	     sign << " " << etsum_barl_SM_[ieta][iphi_r][sign] << "  " << nBads_barl_SM_[ieta][iphi_r][sign]<< endl;
+	 etsumMean_barl_SM_[ieta] += 
 	    etsum_barl_SM_[ieta][iphi_r][sign]/(2*int(kBarlWedges/nscx));
-	
+	}
 	if(e_.goodCell_barl[ieta][iphi][sign]){
 	  float etsum = etsum_barl_[ieta][iphi][sign];
 	  float esum  = esum_barl_[ieta][iphi][sign];
@@ -834,10 +844,11 @@ void PhiSymmetryCalibration_step2_SM::readEtSums(){
     
     // fill etsums for the SM calibration
     int iphi_r = int(iphi/nscx);
-    etsum_barl_SM_[ieta][iphi_r][sign]+= 
-      etsum*nscx/(nscx- nBads_barl_SM_[ieta][iphi_r][sign]);
-
-
+    etsum_barl_SM_[ieta][iphi_r][sign]+= etsum;
+//      etsum*nscx/(nscx- nBads_barl_SM_[ieta][iphi_r][sign]);
+ //     if(nBads_barl_SM_[ieta][iphi_r][sign]>0){
+ //       std::cout << "ETSUM" << etsum_barl_SM_[ieta][iphi_r][sign] << "  " << nscx << "  " << nBads_barl_SM_[ieta][iphi_r][sign]<< endl;
+ //     }      
   }
  
   std::ifstream etsum_endc_in("etsum_endc.dat", ios::in);
