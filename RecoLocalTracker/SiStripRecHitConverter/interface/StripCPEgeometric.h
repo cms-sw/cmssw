@@ -15,14 +15,30 @@ class StripCPEgeometric : public StripCPE
   StripClusterParameterEstimator::LocalValues 
     localParameters( const SiStripCluster&, const GeomDetUnit&, const LocalTrajectoryParameters&) const;
 
-  StripCPEgeometric(edm::ParameterSet &, 
-		    const MagneticField *, 
-		    const TrackerGeometry*, 
-		    const SiStripLorentzAngle*,
-		    const SiStripConfObject*,
-		    const SiStripLatency*);    
+  StripCPEgeometric( edm::ParameterSet& conf, 
+		     const MagneticField& mag, 
+		     const TrackerGeometry& geom, 
+		     const SiStripLorentzAngle& LorentzAngle,
+		     const SiStripConfObject& confObj,
+		     const SiStripLatency& latency)
+    : StripCPE(conf, mag, geom, LorentzAngle, confObj, latency ),
+    tan_diffusion_angle(conf.getParameter<double>("TanDiffusionAngle")),    
+    thickness_rel_err2(pow(conf.getParameter<double>("ThicknessRelativeUncertainty"), 2)),
+    noise_threshold(conf.getParameter<double>("NoiseThreshold")),
+    maybe_noise_threshold(conf.getParameter<double>("MaybeNoiseThreshold")),
+    scaling_squared(pow(conf.getParameter<double>("UncertaintyScaling"), 2)),
+    minimum_uncertainty_squared(pow(conf.getParameter<double>("MinimumUncertainty"),2))
+      {}
 
  private:
+
+  const float 
+    tan_diffusion_angle, 
+    thickness_rel_err2, 
+    noise_threshold, 
+    maybe_noise_threshold, 
+    scaling_squared, 
+    minimum_uncertainty_squared;
 
   class WrappedCluster {
   public:
@@ -48,9 +64,6 @@ class StripCPEgeometric : public StripCPE
   bool useNPlusOne(const WrappedCluster&, const stats_t<float>&) const;
   bool useNMinusOne(const WrappedCluster&, const stats_t<float>&) const;
   bool ambiguousSize(const WrappedCluster&, const stats_t<float>&) const;
-
-  std::vector<float> crosstalk;
-  const float tan_diffusion_angle, thickness_rel_err2, noise_threshold, maybe_noise_threshold, scaling_squared, minimum_uncertainty_squared;
 
 };
 

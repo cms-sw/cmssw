@@ -20,28 +20,31 @@ public:
   StripClusterParameterEstimator::LocalValues localParameters( const SiStripCluster& cl, const GeomDetUnit&) const {return localParameters(cl);}
   
   StripCPE( edm::ParameterSet & conf, 
-	    const MagneticField*, 
-	    const TrackerGeometry*, 
-	    const SiStripLorentzAngle*,
-	    const SiStripConfObject*,
-	    const SiStripLatency*);    
+	    const MagneticField&, 
+	    const TrackerGeometry&, 
+	    const SiStripLorentzAngle&,
+	    const SiStripConfObject&,
+	    const SiStripLatency&);    
   LocalVector driftDirection(const StripGeomDetUnit* det) const;
   void clearCache() {m_Params.clear();}
 
  protected:  
 
-  edm::ParameterSet conf_;
-  const TrackerGeometry * geom_;
-  const MagneticField * magfield_ ;
-  const SiStripLorentzAngle* LorentzAngleMap_;
+  const bool peakMode_;
+  const TrackerGeometry & geom_;
+  const MagneticField& magfield_ ;
+  const SiStripLorentzAngle& LorentzAngleMap_;
+  std::vector<double> shift;
+  std::vector<double> xtalk1;
+  std::vector<double> xtalk2;
 
   struct Param {
     Param() : topology(0) {}
     StripTopology const * topology;
     LocalVector drift;
-    float thickness, pitch_rel_err2, maxLength, lfp,lbp;
+    float thickness, pitch_rel_err2, maxLength;
     int nstrips;
-    SiStripDetId::SubDetector subdet;
+    SiStripDetId::ModuleGeometry moduleGeom;
     float coveredStrips(const LocalVector&, const LocalPoint&) const;
   };
   Param const & param(const uint32_t detid) const;
@@ -51,7 +54,6 @@ private:
   Param & fillParam(Param & p, const GeomDetUnit *  det);
   typedef  __gnu_cxx::hash_map< unsigned int, Param> Params;  
   Params m_Params;
-  std::vector<std::pair<float,float> > late;
 
 };
 #endif

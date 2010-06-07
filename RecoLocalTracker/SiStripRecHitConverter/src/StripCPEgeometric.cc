@@ -1,30 +1,7 @@
-
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEgeometric.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/CrosstalkInversion.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include <numeric>
-
-StripCPEgeometric::StripCPEgeometric( edm::ParameterSet& conf, 
-				      const MagneticField* mag, 
-				      const TrackerGeometry* geom, 
-				      const SiStripLorentzAngle* LorentzAngle,
-				      const SiStripConfObject* confObj,
-				      const SiStripLatency* latency)
-  : StripCPE(conf, mag, geom, LorentzAngle, confObj, latency ),
-    tan_diffusion_angle(conf.getParameter<double>("TanDiffusionAngle")),    
-    thickness_rel_err2(pow(conf.getParameter<double>("ThicknessRelativeUncertainty"), 2)),
-    noise_threshold(conf.getParameter<double>("NoiseThreshold")),
-    maybe_noise_threshold(conf.getParameter<double>("MaybeNoiseThreshold")),
-    scaling_squared(pow(conf.getParameter<double>("UncertaintyScaling"), 2)),
-    minimum_uncertainty_squared(pow(conf.getParameter<double>("MinimumUncertainty"),2))
-{
-  std::string mode = conf.getParameter<bool>("APVpeakmode") ? "Peak" : "Dec";
-  crosstalk.resize(7,0);
-  crosstalk[SiStripDetId::TIB] = conf.getParameter<double>("CouplingConstant"+mode+"TIB");
-  crosstalk[SiStripDetId::TID] = conf.getParameter<double>("CouplingConstant"+mode+"TID");
-  crosstalk[SiStripDetId::TOB] = conf.getParameter<double>("CouplingConstant"+mode+"TOB");
-  crosstalk[SiStripDetId::TEC] = conf.getParameter<double>("CouplingConstant"+mode+"TEC");
-}
 
 StripClusterParameterEstimator::LocalValues StripCPEgeometric::
 localParameters( const SiStripCluster& cluster, const GeomDetUnit& det, const LocalTrajectoryParameters& ltp) const {
@@ -44,16 +21,16 @@ localParameters( const SiStripCluster& cluster, const LocalTrajectoryParameters&
   const float fullProjection = p.coveredStrips( track+p.drift, pos );
   stats_t<float> projection;
   {
-    const float absProj = fabs( (1-p.lfp-p.lbp) * fullProjection );
+    const float absProj = fabs( fullProjection );
     const float minProj = 2*p.thickness*tan_diffusion_angle/p.topology->localPitch(pos);
     const float projection_rel_err2 = thickness_rel_err2 + p.pitch_rel_err2;
     projection = stats_t<float>::from_relative_uncertainty2( std::max(absProj, minProj), projection_rel_err2);
   }
 
-  const std::vector<stats_t<float> > Q = reco::InverseCrosstalkMatrix::unfold( cluster.amplitudes(), crosstalk[p.subdet] );
+  const std::vector<stats_t<float> > Q = reco::InverseCrosstalkMatrix::unfold( cluster.amplitudes(), xtalk1[p.moduleGeom] );
   const stats_t<float> strip = cluster.firstStrip() + offset_from_firstStrip( Q, projection );
 
-  const float corrected = strip() -  0.5*(1-p.lbp+p.lfp) * fullProjection
+  const float corrected = strip() -  0.5*(1-shift[p.moduleGeom]) * fullProjection
     + 0.5*p.coveredStrips(track, ltp.position());
   const float error2 = std::max( strip.error2(), minimum_uncertainty_squared );  
 

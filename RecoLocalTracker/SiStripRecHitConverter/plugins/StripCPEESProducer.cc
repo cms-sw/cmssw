@@ -11,9 +11,17 @@
 
 StripCPEESProducer::StripCPEESProducer(const edm::ParameterSet & p) 
 {
-  name_ = p.getParameter<std::string>("ComponentName");
-  pset_ = p;
-  setWhatProduced(this,name_);
+  std::string name = p.getParameter<std::string>("ComponentName");
+
+  enumMap[std::string("SimpleStripCPE")]=SIMPLE;
+  enumMap[std::string("StripCPEfromTrackAngle")]=TRACKANGLE;
+  enumMap[std::string("StripCPEgeometric")]=GEOMETRIC;
+  if(enumMap.find(name)==enumMap.end()) 
+    throw cms::Exception("Unknown StripCPE type") << name;
+
+  cpeNum = enumMap[name];
+  pset = p;
+  setWhatProduced(this,name);
 }
 
 boost::shared_ptr<StripClusterParameterEstimator> StripCPEESProducer::
@@ -27,14 +35,22 @@ produce(const TkStripCPERecord & iRecord)
   edm::ESHandle<SiStripNoises> noise;  iRecord.getRecord<SiStripNoisesRcd>().get(noise);
   edm::ESHandle<SiStripApvGain> gain;  iRecord.getRecord<SiStripApvGainRcd>().get(gain);
   edm::ESHandle<SiStripBadStrip> bad;  iRecord.getRecord<SiStripBadChannelRcd>().get(bad);
+  
+  switch(cpeNum) {
 
-  if(name_=="SimpleStripCPE") 
-    cpe_ = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPE( pset_, magfield.product(), pDD.product(), lorentzAngle.product(), confObj.product(), latency.product() ));  
-  else if(name_=="StripCPEfromTrackAngle")
-    cpe_ = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPEfromTrackAngle( pset_, magfield.product(), pDD.product(), lorentzAngle.product(), confObj.product(), latency.product() ));
-  else if(name_=="StripCPEgeometric")
-    cpe_ = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPEgeometric(pset_, magfield.product(), pDD.product(), lorentzAngle.product(), confObj.product(), latency.product() ));
-  else throw cms::Exception("Unknown StripCPE type") << name_;
+  case SIMPLE:     
+    cpe = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPE( pset, *magfield, *pDD, *lorentzAngle, *confObj, *latency ));  
+    break;
+    
+  case TRACKANGLE: 
+    cpe = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPEfromTrackAngle( pset, *magfield, *pDD, *lorentzAngle, *confObj, *latency )); 
+    break;
+    
+  case GEOMETRIC:  
+    cpe = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPEgeometric(pset, *magfield, *pDD, *lorentzAngle, *confObj, *latency )); 
+    break;  
 
-  return cpe_;
+  }
+
+  return cpe;
 }

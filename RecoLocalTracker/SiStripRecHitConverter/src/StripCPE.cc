@@ -1,35 +1,67 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPE.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/CommonTopologies/interface/RadialStripTopology.h"
+#include "boost/lambda/lambda.hpp"
 #include <algorithm>
 #include<cmath>
 
 StripCPE::StripCPE( edm::ParameterSet & conf, 
-		    const MagneticField * mag, 
-		    const TrackerGeometry* geom, 
-		    const SiStripLorentzAngle* LorentzAngle,
-		    const SiStripConfObject* confObj,
-		    const SiStripLatency* latency)
-  : geom_(geom),
+		    const MagneticField& mag, 
+		    const TrackerGeometry& geom, 
+		    const SiStripLorentzAngle& LorentzAngle,
+		    const SiStripConfObject& confObj,
+		    const SiStripLatency& latency)
+  : peakMode_( 47==latency.singleMode() ), 
+    geom_(geom),
     magfield_(mag),
     LorentzAngleMap_(LorentzAngle)
 {
-  edm::ParameterSet outoftime = conf.getParameter<edm::ParameterSet>("OutOfTime");
-  late.push_back( std::make_pair(outoftime.getParameter<double>("TIBlateFP"),outoftime.getParameter<double>("TIBlateBP")));
-  late.push_back( std::make_pair(outoftime.getParameter<double>("TIDlateFP"),outoftime.getParameter<double>("TIDlateBP")));
-  late.push_back( std::make_pair(outoftime.getParameter<double>("TOBlateFP"),outoftime.getParameter<double>("TOBlateBP")));
-  late.push_back( std::make_pair(outoftime.getParameter<double>("TEClateFP"),outoftime.getParameter<double>("TEClateBP")));
-  late.push_back( std::make_pair(outoftime.getParameter<double>("teclateFP"),outoftime.getParameter<double>("teclateBP")));
-}
+  typedef std::map<std::string,SiStripDetId::ModuleGeometry> map_t;
+  map_t modules;
+  modules["IB1"]=SiStripDetId::IB1;  
+  modules["IB2"]=SiStripDetId::IB2;
+  modules["OB1"]=SiStripDetId::OB1;  
+  modules["OB2"]=SiStripDetId::OB2;
+  modules["W1A"]=SiStripDetId::W1A;    
+  modules["W2A"]=SiStripDetId::W2A;  
+  modules["W3A"]=SiStripDetId::W3A;  
+  modules["W1B"]=SiStripDetId::W1B;
+  modules["W2B"]=SiStripDetId::W2B;
+  modules["W3B"]=SiStripDetId::W3B;
+  modules["W4"] =SiStripDetId::W4;
+  modules["W5"] =SiStripDetId::W5;
+  modules["W6"] =SiStripDetId::W6;
+  modules["W7"] =SiStripDetId::W7;
+  
+  const unsigned size = max_element( modules.begin(),modules.end(),
+				     boost::bind(&map_t::value_type::second,boost::lambda::_1) < 
+				     boost::bind(&map_t::value_type::second,boost::lambda::_2) )->second;
+  shift.resize(size);
+  xtalk1.resize(size);
+  xtalk2.resize(size);
 
+  for(map_t::const_iterator it=modules.begin(); it!=modules.end(); it++) {
+    const std::string 
+      shiftS("shift_"+it->first),
+      xtalk1S("xtalk1_"+it->first+(peakMode_?"Peak":"Deco")),
+      xtalk2S("xtalk2_"+it->first+(peakMode_?"Peak":"Deco"));
+
+    if(!confObj.isParameter(shiftS)) throw cms::Exception("SiStripConfObject does not contain: ") << shiftS;
+    if(!confObj.isParameter(xtalk1S)) throw cms::Exception("SiStripConfObject does not contain: ") << xtalk1S;
+    if(!confObj.isParameter(xtalk2S)) throw cms::Exception("SiStripConfObject does not contain: ") << xtalk2S;
+
+    shift[it->second] = confObj.get<double>(shiftS);
+    xtalk1[it->second] = confObj.get<double>(xtalk1S);
+    xtalk2[it->second] = confObj.get<double>(xtalk2S);
+  }
+}
 
 StripClusterParameterEstimator::LocalValues StripCPE::
 localParameters( const SiStripCluster& cluster) const {
   StripCPE::Param const & p = param(cluster.geographicalId());
   const float barycenter = cluster.barycenter();
   const float fullProjection = p.coveredStrips( p.drift + LocalVector(0,0,-p.thickness), LocalPoint(barycenter,0,0));
-  const float strip = barycenter - 0.5 * (1-p.lbp+p.lfp) * fullProjection;
-  // + 0.5*p.coveredStrips(track, ltp.position()); unnecessary, since hypothesized perpendicular track covers no strips.
+  const float strip = barycenter - 0.5 * (1-shift[p.moduleGeom]) * fullProjection;
 
   return std::make_pair( p.topology->localPosition(strip),
 			 p.topology->localError(strip, 1/12.) );
@@ -44,9 +76,9 @@ coveredStrips(const LocalVector& lvec, const LocalPoint& lpos) const {
 
 LocalVector StripCPE::
 driftDirection(const StripGeomDetUnit* det) const { 
-  LocalVector lbfield = (det->surface()).toLocal(magfield_->inTesla(det->surface().position()));  
+  LocalVector lbfield = (det->surface()).toLocal(magfield_.inTesla(det->surface().position()));  
   
-  float tanLorentzAnglePerTesla = LorentzAngleMap_->getLorentzAngle(det->geographicalId().rawId());
+  float tanLorentzAnglePerTesla = LorentzAngleMap_.getLorentzAngle(det->geographicalId().rawId());
   
   float dir_x = -tanLorentzAnglePerTesla * lbfield.y();
   float dir_y =  tanLorentzAnglePerTesla * lbfield.x();
@@ -59,7 +91,7 @@ StripCPE::Param const & StripCPE::
 param(const uint32_t detid) const {
   Param & p = const_cast<StripCPE*>(this)->m_Params[detid];
   if (p.topology) return p;
-  else return const_cast<StripCPE*>(this)->fillParam(p, geom_->idToDetUnit(detid));
+  else return const_cast<StripCPE*>(this)->fillParam(p, geom_.idToDetUnit(detid));
 }
 
 StripCPE::Param & StripCPE::
@@ -72,10 +104,7 @@ fillParam(StripCPE::Param & p, const GeomDetUnit *  det) {
   p.drift = driftDirection(stripdet) * p.thickness;
   p.topology=(StripTopology*)(&stripdet->topology());    
   p.nstrips = p.topology->nstrips(); 
-  p.subdet = SiStripDetId(stripdet->geographicalId()).subDetector();
-  const int lateIndex = p.subdet-SiStripDetId::TIB + (p.subdet==SiStripDetId::TEC && TECDetId(p.subdet).ring() < 4) ? 1 : 0;
-  p.lfp = late[lateIndex].first;
-  p.lbp = late[lateIndex].second;
+  p.moduleGeom = SiStripDetId(stripdet->geographicalId()).moduleGeometry();
   
   const RadialStripTopology* rtop = dynamic_cast<const RadialStripTopology*>(p.topology);
   p.pitch_rel_err2 = (rtop) 
