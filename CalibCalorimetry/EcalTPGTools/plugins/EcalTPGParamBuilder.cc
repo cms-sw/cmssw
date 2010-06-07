@@ -247,7 +247,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   TH1F * hshapeEE = new TH1F("shapeEE", "shapeEE", 250, 0., 10.) ;
 
   TTree * ntuple = new TTree("tpgmap","TPG geometry map") ;
-  char * branchFloat[24] = {"fed","tcc","tower","stripInTower","xtalInStrip",
+  const char * branchFloat[24] = {"fed","tcc","tower","stripInTower","xtalInStrip",
 			    "CCU","VFE","xtalInVFE","xtalInCCU","ieta","iphi",
 			    "ix","iy","iz","hashedId","ic","ietaTT","iphiTT",
 			    "TCCch","TCCslot","SLBch","SLBslot","ietaGCT","iphiGCT"} ;
