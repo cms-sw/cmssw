@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/06/04 05:37:30 $
- * $Revision: 1.48 $
+ * $Date: 2010/06/04 23:17:26 $
+ * $Revision: 1.49 $
  *
  */
 
@@ -851,21 +851,20 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
 //     if (fabs(refBS.z0()-bs.z0())/bs.z0Error() < deltaSigCut_) { // disabled temporarily
       summaryContent_[2] += 1.;
 //     }
-  }
-  else {
-    if (!countFitting) {
+  } // beam fit is good
+  else { // no fit or fit fails
+    if (!countFitting) { // when no fit
       // Overwrite Fit LS and fit time when no event processed or no track selected
       theBeamFitter->setFitLSRange(beginLumiOfBSFit_,endLumiOfBSFit_);
       theBeamFitter->setRefTime(refBStime[0],refBStime[1]);
+      if (theBeamFitter->runPVandTrkFitter()) {} // Dump fake beam spot for DIP
     }
-    if (theBeamFitter->runPVandTrkFitter()) {} // Dump fake beam spot for DIP
+
+    // common for no fit or fit fails
     reco::BeamSpot bs = theBeamFitter->getBeamSpot();
     edm::LogInfo("BeamMonitor") << "[BeamMonitor] No fitting \n" << endl;
     edm::LogInfo("BeamMonitor") << "[BeamMonitor] Output fake beam spot for DIP \n" << endl;
     edm::LogInfo("BeamMonitor") << bs << endl;
-//       edm::LogInfo("BeamMonitor") << "[BeamMonitor] Fill histograms with previous fitted results:" << endl;
-//       if (nFits_ == 0) preBS.setType(reco::BeamSpot::Fake);
-//       edm::LogInfo("BeamMonitor") << preBS << endl;
 
     h_sigmaX0_lumi->ShiftFillLast( bs.BeamWidthX(), bs.BeamWidthXError(), fitNLumi_ );
     h_sigmaY0_lumi->ShiftFillLast( bs.BeamWidthY(), bs.BeamWidthYError(), fitNLumi_ );
@@ -873,12 +872,6 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
     hs["x0_lumi"]->ShiftFillLast( bs.x0(), bs.x0Error(), fitNLumi_ );
     hs["y0_lumi"]->ShiftFillLast( bs.y0(), bs.y0Error(), fitNLumi_ );
     hs["z0_lumi"]->ShiftFillLast( bs.z0(), bs.z0Error(), fitNLumi_ );
-//     h_sigmaX0_lumi->ShiftFillLast( preBS.BeamWidthX(), preBS.BeamWidthXError(), fitNLumi_ );
-//     h_sigmaY0_lumi->ShiftFillLast( preBS.BeamWidthY(), preBS.BeamWidthYError(), fitNLumi_ );
-//     h_sigmaZ0_lumi->ShiftFillLast( preBS.sigmaZ(), preBS.sigmaZ0Error(), fitNLumi_ );
-//     hs["x0_lumi"]->ShiftFillLast( preBS.x0(), preBS.x0Error(), fitNLumi_ );
-//     hs["y0_lumi"]->ShiftFillLast( preBS.y0(), preBS.y0Error(), fitNLumi_ );
-//     hs["z0_lumi"]->ShiftFillLast( preBS.z0(), preBS.z0Error(), fitNLumi_ );
   }
   
   // Fill summary report
