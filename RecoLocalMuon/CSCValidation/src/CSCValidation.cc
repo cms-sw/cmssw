@@ -2641,36 +2641,13 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
 
   map<CSCDetId, float > segment_median_map; //structure for storing the median time for segments in a chamber 
   map<CSCDetId, GlobalPoint > segment_position_map; //structure for storing the global position for segments in a chamber 
-  vector<CSCDetId>  chambers_w_segments; // structure for keeping track of which chambers have segments 
   
-  // -----------------------
-  // loop over segments to check that there are not multiple segments per chamber
-  // -----------------------
-  bool multiple_segments_perChamber = false;
-  for(CSCSegmentCollection::const_iterator dSiter=cscSegments->begin(); dSiter != cscSegments->end(); dSiter++) {
-    
-    CSCDetId id  = (CSCDetId)(*dSiter).cscDetId();
-    
-    //If we haven't seen this chamber before, add it to the list of chambers with segments
-    if(find(chambers_w_segments.begin(),chambers_w_segments.end(),id) == chambers_w_segments.end())
-      chambers_w_segments.push_back(id);
-    //If we have already seen this chamber, set a flag
-    else{
-      multiple_segments_perChamber = true;;
-    }
-
-  }// end segment loop
-
-  //If any chambers have multiple segments, none of the segment plots will be filled.
   // -----------------------
   // loop over segments
   // -----------------------
   int iSegment = 0; 
   for(CSCSegmentCollection::const_iterator dSiter=cscSegments->begin(); dSiter != cscSegments->end(); dSiter++) {
     iSegment++;
-    
-    if (multiple_segments_perChamber)
-      continue;
     
     CSCDetId id  = (CSCDetId)(*dSiter).cscDetId();
     LocalPoint localPos = (*dSiter).localPosition();
@@ -2683,7 +2660,7 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
     // try to get the CSC recHits that contribute to this segment.
     std::vector<CSCRecHit2D> theseRecHits = (*dSiter).specificRecHits();
     int nRH = (*dSiter).nRecHits();
-    if (nRH !=6 ) continue;
+    if (nRH < 4 ) continue;
     
     //Store the recHit times of a segment in a vector for later sorting
     vector<float> non_zero;
@@ -2698,7 +2675,9 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
     sort(non_zero.begin(),non_zero.end());
     int middle_index = non_zero.size()/2;
     float average_two = (non_zero.at(middle_index-1) + non_zero.at(middle_index))/2.;
-    
+    if(non_zero.size()%2)
+      average_two = non_zero.at(middle_index);
+
     //If we've vetoed events with multiple segments per chamber, this should never overwrite informations
     segment_median_map[id]=average_two;
     segment_position_map[id]=globalPosition;
