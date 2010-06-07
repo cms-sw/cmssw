@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 22 10:13:39 CST 2009
-// $Id: FWCollectionSummaryTableManager.cc,v 1.4 2009/05/18 17:30:56 dmytro Exp $
+// $Id: FWCollectionSummaryTableManager.cc,v 1.5 2010/06/07 21:08:10 chrjones Exp $
 //
 
 // system include files
@@ -117,7 +117,7 @@ namespace {
    template<typename S>
    void doSort(const FWEventItem& iItem,
                FWItemValueGetter& iGetter,
-               std::map<double,int,S>& iMap,
+               std::multimap<double,int,S>& iMap,
                std::vector<int>& oNewSort) {
       int size = iItem.size();
       for(int index = 0; index < size; ++index) {
@@ -137,10 +137,10 @@ void
 FWCollectionSummaryTableManager::implSort(int iCol, bool iSortOrder)
 {
    if(iSortOrder) {
-      std::map<double,int, std::greater<double> > s;
+      std::multimap<double,int, std::greater<double> > s;
       doSort(*m_collection, *(m_valueGetters[iCol]), s, m_sortedToUnsortedIndicies);
    } else {
-      std::map<double,int, std::less<double> > s;
+      std::multimap<double,int, std::less<double> > s;
       doSort(*m_collection, *(m_valueGetters[iCol]), s, m_sortedToUnsortedIndicies);
    }
 }
