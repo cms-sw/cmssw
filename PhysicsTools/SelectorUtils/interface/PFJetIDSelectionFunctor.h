@@ -13,7 +13,7 @@
   for a general overview of the selectors. 
 
   \author Salvatore Rappoccio
-  \version  $Id: PFJetIDSelectionFunctor.h,v 1.8 2010/04/28 17:32:56 srappocc Exp $
+  \version  $Id: PFJetIDSelectionFunctor.h,v 1.9 2010/06/04 19:17:53 srappocc Exp $
 */
 
 
@@ -168,16 +168,16 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
 
     if ( patJet != 0 ) {
       chf = patJet->chargedHadronEnergyFraction();
-      nhf = patJet->neutralHadronEnergyFraction();
+      nhf = ( patJet->neutralHadronEnergy() + patJet->HFHadronEnergy() ) / patJet->energy();
       cef = patJet->chargedEmEnergyFraction();
-      nef = patJet->neutralEmEnergyFraction();
+      nef = ( patJet->neutralEmEnergyFraction() + patJet->HFEMEnergy() ) / patJet->energy();
       nch = patJet->chargedMultiplicity();
       nconstituents = patJet->numberOfDaughters();
     } else if ( pfJet != 0 ) {
       chf = pfJet->chargedHadronEnergyFraction();
-      nhf = pfJet->neutralHadronEnergyFraction();
+      nhf = ( pfJet->neutralHadronEnergy() + pfJet->HFHadronEnergy() ) / pfJet->energy();
       cef = pfJet->chargedEmEnergyFraction();
-      nef = pfJet->neutralEmEnergyFraction();
+      nef = ( pfJet->neutralEmEnergyFraction() + pfJet->HFEMEnergy() ) / pfJet->energy();
       nch = pfJet->chargedMultiplicity();
       nconstituents = pfJet->numberOfDaughters();
     }
