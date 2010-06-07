@@ -247,6 +247,7 @@ public:
       currentFrame()->AddFrame(slider, nextHints());
       slider->SetRange(0, 100);
       slider->SetPosition(100);
+      slider->SetEnabled(kFALSE);
       
       return extract(slider, out);
    }
@@ -255,6 +256,7 @@ public:
    {
       TGTextButton *button = new TGTextButton(nextFrame(), text);
       currentFrame()->AddFrame(button, nextHints());
+      button->SetEnabled(false);
       
       return extract(button, out);
    }

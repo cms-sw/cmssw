@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.33 2010/06/03 13:38:32 eulisse Exp $
+// $Id: CmsShowEDI.cc,v 1.34 2010/06/03 14:23:36 eulisse Exp $
 //
 
 // system include files
@@ -233,6 +233,7 @@ CmsShowEDI::fillEDIFrame() {
          m_processEntry->SetText(iItem->processName().c_str());
          //  else m_isVisibleButton->SetState(kButtonDown, kFALSE);
          m_colorSelectWidget->SetEnabled(kTRUE);
+         m_opacitySlider->SetEnabled(kTRUE);
          m_isVisibleButton->SetEnabled(kTRUE);
          m_filterExpressionEntry->SetEnabled(kTRUE);
          m_selectExpressionEntry->SetEnabled(kTRUE);
@@ -339,6 +340,7 @@ CmsShowEDI::disconnectAll() {
       m_processEntry->SetText(0);
       //  else m_isVisibleButton->SetState(kButtonDown, kFALSE);
       m_colorSelectWidget->SetEnabled(kFALSE);
+      m_opacitySlider->SetEnabled(kFALSE);
       m_isVisibleButton->SetEnabled(kFALSE);
       m_filterExpressionEntry->SetEnabled(kFALSE);
       m_filterButton->SetEnabled(kFALSE);
