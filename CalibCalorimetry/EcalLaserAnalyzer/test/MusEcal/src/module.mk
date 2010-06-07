@@ -16,13 +16,9 @@ DICTFILES := $(FILES) LinkDef
 # Executable files
 PROGRAMS := createEBHist
 PROGRAMS += getChannel
-PROGRAMS += runPatrick
-PROGRAMS += runMatthieu
-#PROGRAMS += runTest2
 PROGRAMS += runStab
 PROGRAMS += runTest
+
 PROGRAMS += runGUI
 #PROGRAMS += runGeom
 PROGRAMS += writePrim
-#PROGRAMS += plot
-
