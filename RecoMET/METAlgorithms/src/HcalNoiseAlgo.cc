@@ -3,7 +3,7 @@
 CommonHcalNoiseRBXData::CommonHcalNoiseRBXData(const reco::HcalNoiseRBX& rbx, double minRecHitE, double minLowHitE, double minHighHitE)
 {
   // energy
-  energy_ = rbx.recHitEnergy(minRecHitE);
+  energy_ = rbx.recHitEnergy(minRecHitE); 
 
   // ratio
   e2ts_ = rbx.allChargeHighest2TS();
