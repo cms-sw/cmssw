@@ -190,7 +190,7 @@ void HcalRecHitMonitor::setup()
 							60,0,150,60,0,150);
   h_LumiPlot_timeHFPlus_vs_timeHFMinus = dbe_->book2D("timeHFplus_vs_timeHFminus",
 						      "Energy-weighted time average of HF+ vs HF-",
-						      120,-120,120,120,-120,120);
+						      60,-60,60,60,-60,60);
   h_LumiPlot_BX_MinBiasEvents = dbe_->book1D("BX_MinBias_Events_TimeCut",
 					  "BX # of MinBias events (HFM & HFP HT>1 & HFM-HFP time cut)",
 					  3600,0,3600);
@@ -393,7 +393,7 @@ void HcalRecHitMonitor::setup()
   // hb
   dbe_->setCurrentFolder(subdir_+"diagnostics/hb");
   
-  h_HBTimeVsEnergy=dbe_->book2D("HBTimeVsEnergy","HB Time Vs Energy (All RecHits);Energy (GeV); time(nS)",100,0,500,300,-150,150);
+  h_HBTimeVsEnergy=dbe_->book2D("HBTimeVsEnergy","HB Time Vs Energy (All RecHits);Energy (GeV); time(nS)",100,0,500,40,-100,100);
 
   h_HBsizeVsLS=dbe_->bookProfile("HBRecHitsVsLB","HB RecHits vs Luminosity Block",
 				 NLumiBlocks_,0.5,NLumiBlocks_+0.5,
@@ -407,7 +407,7 @@ void HcalRecHitMonitor::setup()
   //he
   dbe_->setCurrentFolder(subdir_+"diagnostics/he");
 
-  h_HETimeVsEnergy=dbe_->book2D("HETimeVsEnergy","HE Time Vs Energy (All RecHits);Energy (GeV); time(nS)",100,0,500,300,-150,150);
+  h_HETimeVsEnergy=dbe_->book2D("HETimeVsEnergy","HE Time Vs Energy (All RecHits);Energy (GeV); time(nS)",100,0,500,40,-100,100);
 
   h_HEsizeVsLS=dbe_->bookProfile("HERecHitsVsLB","HE RecHits vs Luminosity Block",
 				 NLumiBlocks_,0.5,NLumiBlocks_+0.5,
@@ -420,7 +420,7 @@ void HcalRecHitMonitor::setup()
   // ho
   dbe_->setCurrentFolder(subdir_+"diagnostics/ho");	
 
-  h_HOTimeVsEnergy=dbe_->book2D("HOTimeVsEnergy","HO Time Vs Energy (All RecHits);Energy (GeV); time(nS)",100,0,500,300,-150,150);
+  h_HOTimeVsEnergy=dbe_->book2D("HOTimeVsEnergy","HO Time Vs Energy (All RecHits);Energy (GeV); time(nS)",100,0,500,40,-100,100);
 
   h_HOsizeVsLS=dbe_->bookProfile("HORecHitsVsLB","HO RecHits vs Luminosity Block",
 				 NLumiBlocks_,0.5,NLumiBlocks_+0.5,
@@ -434,7 +434,7 @@ void HcalRecHitMonitor::setup()
   // hf
   dbe_->setCurrentFolder(subdir_+"diagnostics/hf");
 
-  h_HFTimeVsEnergy=dbe_->book2D("HFTimeVsEnergy","HF Time Vs Energy (All RecHits);Energy (GeV); time(nS)",100,0,500,300,-150,150);
+  h_HFTimeVsEnergy=dbe_->book2D("HFTimeVsEnergy","HF Time Vs Energy (All RecHits);Energy (GeV); time(nS)",100,0,500,40,-100,100);
 
   h_HFsizeVsLS=dbe_->bookProfile("HFRecHitsVsLB",
 				 "HF RecHits vs Luminosity Block",
