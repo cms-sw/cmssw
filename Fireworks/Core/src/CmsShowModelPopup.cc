@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jun 27 11:23:08 EDT 2008
-// $Id: CmsShowModelPopup.cc,v 1.23 2010/05/31 15:44:01 eulisse Exp $
+// $Id: CmsShowModelPopup.cc,v 1.24 2010/06/03 13:47:06 eulisse Exp $
 //
 
 // system include file
@@ -226,7 +226,8 @@ CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr)
    m_colorSelectWidget->SetColorByIndex(m_colorManager->colorToIndex(props.color()), kFALSE);
    m_opacitySlider->SetPosition(100 - props.transparency());
    m_isVisibleButton->SetDisabledAndSelected(props.isVisible());
-   
+
+   m_opacitySlider->SetEnabled(kTRUE);
    m_colorSelectWidget->SetEnabled(kTRUE);
    m_isVisibleButton->SetEnabled(kTRUE);
    
@@ -269,6 +270,7 @@ CmsShowModelPopup::disconnectAll() {
    m_colorSelectWidget->SetColor(gVirtualX->GetPixel(kRed),kFALSE);
    m_isVisibleButton->SetDisabledAndSelected(kTRUE);
    m_colorSelectWidget->SetEnabled(kFALSE);
+   m_opacitySlider->SetEnabled(kFALSE);
    m_isVisibleButton->SetEnabled(kFALSE);
    m_openDetailedViewButtons.front()->SetEnabled(kFALSE);
    m_openDetailedViewButtons.front()->SetText("Open Detail View ...");
