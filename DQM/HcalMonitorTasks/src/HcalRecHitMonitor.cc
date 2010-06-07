@@ -726,7 +726,8 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 
       if (subdet==HcalBarrel)
 	{
-	  h_HBTimeVsEnergy->Fill(en,ti);
+	  if (en>HBenergyThreshold_)
+	    h_HBTimeVsEnergy->Fill(en,ti);
 	  //Looping over HB searching for flags --- cris
 	  for (int f=0;f<32;f++)
 	    {
@@ -787,7 +788,8 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 
       else if (subdet==HcalEndcap)
 	{
-	  h_HETimeVsEnergy->Fill(en,ti);
+	  if (en>HEenergyThreshold_)
+	    h_HETimeVsEnergy->Fill(en,ti);
 	  //Looping over HE searching for flags --- cris
 	  for (int f=0;f<32;f++)
             {
@@ -865,7 +867,8 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
     { // loop over all hits
       float en = HOiter->energy();
       float ti = HOiter->time();
-      h_HOTimeVsEnergy->Fill(en,ti);
+      if (en>HOenergyThreshold_)
+	h_HOTimeVsEnergy->Fill(en,ti);
 
       HcalDetId id(HOiter->detid().rawId());
       int ieta = id.ieta();
@@ -937,7 +940,8 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
     { // loop over all hits
       float en = HFiter->energy();
       float ti = HFiter->time();
-      h_HFTimeVsEnergy->Fill(en,ti);
+      if (en> HFenergyThreshold_)
+	h_HFTimeVsEnergy->Fill(en,ti);
 
       HcalDetId id(HFiter->detid().rawId());
       int ieta = id.ieta();
