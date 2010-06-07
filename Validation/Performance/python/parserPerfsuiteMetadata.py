@@ -266,7 +266,6 @@ class parserPerfsuiteMetadata:
 			(("test_release_local_path",) , r"""^Your Test release in: (.+)$"""),
 
 			(("castor_dir",) , r"""^The performance suite results tarball will be stored in CASTOR at (.+)$"""),
-			(("castor_md5",) , r"""^The md5 checksum of the tarball: (.+)$"""),			
 			
 			(("TimeSize_events",) , r"""^(\d+) TimeSize events$"""),
 			(("IgProf_events",) , r"""^(\d+) IgProf events$"""),
@@ -643,9 +642,11 @@ class parserPerfsuiteMetadata:
 
 		parsing_rules = (
 			(("finishing_time", "", ""), r"""^Performance Suite finished running at (.+) on (.+) in directory (.+)$"""),
+			(("castor_md5",) , r"""^The md5 checksum of the tarball: (.+)$"""),	
 			(("successfully_archived_tarball", ), r"""^Successfully archived the tarball (.+) in CASTOR!$"""),
 			#TODO: WE MUST HAVE THE CASTOR URL, but for some of files it's not included [probably crashed]
-			(("", "", "castor_file_url"), r"""^rfcp ([^\s]+)(\s+)(.+)$"""),
+			(("castor_file_url",), r"""^The tarball can be found: (.+)$"""),			
+			(("castor_logfile_url",), r"""^The logfile can be found: (.+)$"""),
 		)
 
 		

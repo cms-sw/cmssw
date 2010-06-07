@@ -1556,11 +1556,27 @@ class PerfSuite:
                #self.printFlush("Eventcontent label to add to the tarball name is %s"%fileEventContentOption)
                      #FIXME:
                      #Could add the allowed event contents in the cmsPerfCommons.py file and use those to match in the command line options... This assumes maintenance of cmsPerfCommons.py
-                  
+
+
+               #Create a tarball with just the logfiles
+               subprocess.Popen("ls -R | grep .root > rootFiles",shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stderr.read()
+               LogFile = "%s_%s_%s_%s_%s_%s_%s_%s_log.tgz" % (self.cmssw_arch, self.cmssw_version, fileStepOption, fileConditionsOption, fileEventContentOption.split()[0], fileWorkingDir, self.host, self.user)
+               AbsTarFileLOG = os.path.join(perfsuitedir,LogFile)
+               tarcmd  = "tar zcfX %s %s %s" %(AbsTarFileLOG, "rootFiles", os.path.join(perfsuitedir,"*"))
+               self.printFlush("Creating a tarball for the logfiles")
+               self.printFlush(tarcmd)
+               self.printFlush(subprocess.Popen(tarcmd,shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stderr.read())
+               self.printFlush(subprocess.Popen("rm rootFiles",shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stderr.read())               
+
+               fullcastorpathlog=os.path.join(castordir,LogFile)
+
+
+               #Create the tarball with the contents of the directory + md5 checksum
                TarFile = "%s_%s_%s_%s_%s_%s_%s_%s.tgz" % (self.cmssw_arch, self.cmssw_version, fileStepOption, fileConditionsOption, fileEventContentOption.split()[0], fileWorkingDir, self.host, self.user)
                AbsTarFile = os.path.join(perfsuitedir,TarFile)
-               tarcmd  = "tar -zcf %s %s" %(AbsTarFile,os.path.join(perfsuitedir,"*"))
+               tarcmd  = "tar -zcf %s %s" %(AbsTarFile, os.path.join(perfsuitedir,"*"))
                md5cmd = "md5sum %s" %(AbsTarFile)
+               self.printFlush("Creating a tarball with the content of the directory")               
                self.printFlush(tarcmd)
                self.printFlush(md5cmd)               
                #FIXME:
@@ -1578,6 +1594,8 @@ class PerfSuite:
                #Archive it on CASTOR
                #Before archiving check if it already exist if it does print a message, but do not overwrite, so do not delete it from local dir:
                fullcastorpathfile=os.path.join(castordir,TarFile)
+               fullcastorpathmd5=os.path.join(castordir,TarFile + ".md5")
+               
                checkcastor="nsls  %s" % fullcastorpathfile
                #Obsolete os.popen-> subprocess.Popen                
                #checkcastorout=os.popen3(checkcastor)[1].read()
@@ -1586,13 +1604,16 @@ class PerfSuite:
                   castorcmdstderr="File %s is already on CASTOR! Will NOT OVERWRITE!!!"%fullcastorpathfile
                else:
                   castorcmd="rfcp %s %s" % (AbsTarFile,fullcastorpathfile)
-                  castormd5cmd="rfcp %s %s" % (AbsTarFileMD5,fullcastorpathfile)                  
+                  castormd5cmd="rfcp %s %s" % (AbsTarFileMD5,fullcastorpathmd5)
+                  castorlogcmd="rfcp %s %s" % (AbsTarFileLOG,fullcastorpathlog)
                   self.printFlush(castorcmd)
-                  self.printFlush(castormd5cmd)                  
+                  self.printFlush(castormd5cmd)
+                  self.printFlush(castorlogcmd)
                   #Obsolete os.popen-> subprocess.Popen
                   #castorcmdstderr=os.popen3(castorcmd)[2].read()
                   castorcmdstderr=subprocess.Popen(castorcmd,shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stderr.read()
                   subprocess.Popen(castormd5cmd,shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stderr.read()
+                  subprocess.Popen(castorlogcmd,shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stderr.read()                  
                #Checking the stderr of the rfcp command to copy the tarball (.tgz) on CASTOR:
                if castorcmdstderr:
                    #If it failed print the stderr message to the log and tell the user the tarball (.tgz) is kept in the working directory
@@ -1600,14 +1621,21 @@ class PerfSuite:
                    self.printFlush("Since the CASTOR archiving for the tarball failed the file %s is kept in directory %s"%(TarFile, perfsuitedir))
                else:
                    #If it was successful then remove the tarball from the working directory:
-                   self.printFlush("Successfully archived the tarball %s in CASTOR!\nDeleting the local copy of the tarball"%(TarFile))
+                   self.printFlush("Successfully archived the tarball %s in CASTOR!"%(TarFile))
+                   self.printFlush("The tarball can be found: %s"%(fullcastorpathfile))
+                   self.printFlush("The logfile can be found: %s"%(fullcastorpathlog))                   
+                   self.printFlush("Deleting the local copy of the tarballs")
                    rmtarballcmd="rm -Rf %s"%(AbsTarFile)
                    rmtarballmd5cmd="rm -Rf %s"%(AbsTarFileMD5)
+                   rmtarballlogcmd="rm -Rf %s"%(AbsTarFileLOG)
                    self.printFlush(rmtarballcmd)
+                   self.printFlush(rmtarballmd5cmd)
+                   self.printFlush(rmtarballlogcmd)                   
                    #Obsolete os.popen-> subprocess.Popen
                    #self.printFlush(os.popen4(rmtarballcmd)[1].read())
                    self.printFlush(subprocess.Popen(rmtarballcmd,shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.read() )
                    self.printFlush(subprocess.Popen(rmtarballmd5cmd,shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.read() )
+                   self.printFlush(subprocess.Popen(rmtarballlogcmd,shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.read() )
                tarballTime.set_end(datetime.datetime.now())
             else:
                self.printFlush("Performance Suite directory will not be archived in a tarball since --no_tarball option was chosen")
