@@ -1307,7 +1307,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
    int conf_id_=db_->writeToConfDB_TPGMain(ped_conf_id_,lin_conf_id_, lut_conf_id_, fgr_conf_id_, 
 					sli_conf_id_, wei_conf_id_, bxt_conf_id_, btt_conf_id_, tag_, version_) ;
    
-   std::cout << "\n Conf ID = " << conf_id << std::endl;
+   std::cout << "\n Conf ID = " << conf_id_ << std::endl;
 
  }
 
