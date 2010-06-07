@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.183 $"
+__version__ = "$Revision: 1.184 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -660,24 +660,37 @@ class ConfigBuilder(object):
         self.process.L1simulation_step = cms.Path(self.process.SimL1Emulator)
         self.schedule.append(self.process.L1simulation_step)
 
+    def hardCodedTriggerMenuFromConditions(self):
+	    #horible hack!!! hardwire based on global tag to sync with l1
+	    if 'MC' in self._options.conditions or 'DESIGN' in self._options.conditions or 'IDEAL' in self._options.conditions: 	
+		    return '1E31'
+	    else:
+		    return '8E29'
+
     def prepare_HLT(self, sequence = None):
         """ Enrich the schedule with the HLT simulation step"""
+	loadDir='HLTrigger'
+	fastSim=False
+	if 'FASTSIM' in self._options.step:
+		fastSim=True
+		loadDir='FastSimulation'
 	if not sequence:
-	    #horible hack!!! hardwire based on global tag to sync with l1 
-	    if 'MC' in self._options.conditions or 'DESIGN' in self._options.conditions or 'IDEAL' in self._options.conditions: 	
-		print 'loading 1e31 menu'    
-		self.loadAndRemember("HLTrigger/Configuration/HLT_1E31_cff")
-	    else:
-		print 'loading 8e29 menu'    
-		self.loadAndRemember("HLTrigger/Configuration/HLT_8E29_cff")
+	    menu=self.hardCodedTriggerMenuFromConditions()
+	    print 'loading %s menu'%(menu,)
+	    self.loadAndRemember("%s/Configuration/HLT_%s_cff"%(loadDir,menu))
         else:
             # let the HLT package decide for the scenarios available
-            from HLTrigger.Configuration.ConfigBuilder import getConfigsForScenario
-            listOfImports = getConfigsForScenario(sequence)
+	    listOfImports=[]
+	    t=__import__('%s.Configuration.ConfigBuilder'%(loadDir,),globals(),locals(),['getConfigsForScenario'])
+	    listOfImports = t.getConfigsForScenario(sequence)
             for file in listOfImports:
                 self.loadAndRemember(file)
-        self.schedule.append(self.process.HLTSchedule)
+
+	if 'HLT' in self._options.step:
+		self.schedule.append(self.process.HLTSchedule)
         [self.blacklist_paths.append(path) for path in self.process.HLTSchedule if isinstance(path,(cms.Path,cms.EndPath))]
+	if (fastSim):
+		self.process.HLTSchedule.remove(self.process.HLTAnalyzerEndpath)
   
     def prepare_RAW2DIGI(self, sequence = "RawToDigi"):
         if ( len(sequence.split(','))==1 ):
@@ -812,21 +825,9 @@ class ConfigBuilder(object):
         self.loadAndRemember("FastSimulation/Configuration/FamosSequences_cff")
 
         if sequence in ('all','allWithHLTFiltering',''):
-	    #horible hack!!! hardwire based on global tag to sync with l1 
-	    if 'MC' in self._options.conditions or 'DESIGN' in self._options.conditions or 'IDEAL' in self._options.conditions:	
-		print 'loading 1e31 menu'    
-		self.loadAndRemember("FastSimulation/Configuration/HLT_1E31_cff")
-	    else:
-		print 'loading 8e29 menu'    
-		self.loadAndRemember("FastSimulation/Configuration/HLT_8E29_cff")
+	    if not 'HLT' in self._options.step:
+		    self.prepare_HLT(sequence=None)
 
-            # no need to repeat the definition later on in the created file 
-            [self.blacklist_paths.append(path) for path in self.process.HLTSchedule if isinstance(path,(cms.Path,cms.EndPath))]
-
-            # endpaths do logging only which should be suppressed in production
-            self.process.HLTSchedule.remove(self.process.HLTAnalyzerEndpath)
-
-#            self.loadAndRemember("Configuration.StandardSequences.L1TriggerDefaultMenu_cff")
             self.executeAndRemember("process.famosSimHits.SimulateCalorimetry = True")
             self.executeAndRemember("process.famosSimHits.SimulateTracking = True")
 
@@ -840,7 +841,7 @@ class ConfigBuilder(object):
             self._options.name = "HLT"
 
             # if we don't want to filter after HLT but simulate everything regardless of what HLT tells, we have to add reconstruction explicitly
-            if sequence == 'all':
+            if sequence == 'all' and not 'HLT' in self._options.step:
                 self.schedule.append(self.process.HLTSchedule)
                 self.process.reconstruction = cms.Path(self.process.reconstructionWithFamos)
                 self.schedule.append(self.process.reconstruction)
@@ -872,7 +873,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.183 $"),
+              (version=cms.untracked.string("$Revision: 1.184 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
