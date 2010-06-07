@@ -285,8 +285,7 @@ void PhiSymmetryCalibration::analyze( const edm::Event& event, const edm::EventS
     LogError("") << "[PhiSymmetryCalibration] Error! Can't get product!" << std::endl;
   }
   
-  nevents_++;
-
+ 
   // get the ecal geometry
   edm::ESHandle<CaloGeometry> geoHandle;
   setup.get<CaloGeometryRecord>().get(geoHandle);
@@ -294,7 +293,8 @@ void PhiSymmetryCalibration::analyze( const edm::Event& event, const edm::EventS
     geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   const CaloSubdetectorGeometry *endcapGeometry = 
     geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-
+ 
+  bool pass=false;
   // select interesting EcalRecHits (barrel)
   EBRecHitCollection::const_iterator itb;
   for (itb=barrelRecHitsHandle->begin(); itb!=barrelRecHitsHandle->end(); itb++) {
@@ -318,7 +318,7 @@ void PhiSymmetryCalibration::analyze( const edm::Event& event, const edm::EventS
     if (e >  eCut_barl_ && et < et_thr && e_.goodCell_barl[abs(hit.ieta())-1][hit.iphi()-1][sign]) {
       etsum_barl_[abs(hit.ieta())-1][hit.iphi()-1][sign] += et;
       nhits_barl_[abs(hit.ieta())-1][hit.iphi()-1][sign] ++;
-
+      pass =true;
     }//if energy
 
     if (eventSet_==1) {
@@ -381,8 +381,11 @@ void PhiSymmetryCalibration::analyze( const edm::Event& event, const edm::EventS
     if (e > eCut_endc && et < et_thr && e_.goodCell_endc[hit.ix()-1][hit.iy()-1][sign]){
       etsum_endc_[hit.ix()-1][hit.iy()-1][sign] += et;
       nhits_endc_[hit.ix()-1][hit.iy()-1][sign] ++;
+      pass=true;
     }
  
+    if (pass) nevents_++;
+
     if (eventSet_==1) {
       // apply a miscalibration to all crystals and increment the 
       // ET sum, combined for all crystals
