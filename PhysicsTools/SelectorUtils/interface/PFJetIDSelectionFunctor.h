@@ -170,14 +170,14 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
       chf = patJet->chargedHadronEnergyFraction();
       nhf = ( patJet->neutralHadronEnergy() + patJet->HFHadronEnergy() ) / patJet->energy();
       cef = patJet->chargedEmEnergyFraction();
-      nef = ( patJet->neutralEmEnergyFraction() + patJet->HFEMEnergy() ) / patJet->energy();
+      nef = patJet->neutralEmEnergyFraction();
       nch = patJet->chargedMultiplicity();
       nconstituents = patJet->numberOfDaughters();
     } else if ( pfJet != 0 ) {
       chf = pfJet->chargedHadronEnergyFraction();
       nhf = ( pfJet->neutralHadronEnergy() + pfJet->HFHadronEnergy() ) / pfJet->energy();
       cef = pfJet->chargedEmEnergyFraction();
-      nef = ( pfJet->neutralEmEnergyFraction() + pfJet->HFEMEnergy() ) / pfJet->energy();
+      nef = pfJet->neutralEmEnergyFraction();
       nch = pfJet->chargedMultiplicity();
       nconstituents = pfJet->numberOfDaughters();
     }
