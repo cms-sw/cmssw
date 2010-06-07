@@ -20,6 +20,10 @@ from RecoHI.HiMuonAlgos.HiRecoMuon_cff import *
 from RecoHI.HiCentralityAlgos.HiCentrality_cfi import *
 from RecoHI.HiEvtPlaneAlgos.HiEvtPlane_cfi import *
 
+# HCAL noise producer
+from RecoMET.METProducers.hcalnoiseinfoproducer_cfi import *
+hcalnoise.trackCollName = 'hiSelectedTracks'
+
 # Global + High-Level Reco Sequence
 globalRecoPbPb = cms.Sequence(heavyIonTracking
                               * hiEcalClusters
@@ -28,6 +32,7 @@ globalRecoPbPb = cms.Sequence(heavyIonTracking
                               * hiEgammaSequence
                               * hiCentrality
                               * hiEvtPlane
+                              * hcalnoise
                               )
 
 #--------------------------------------------------------------------------
