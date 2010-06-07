@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:57:12 EDT 2008
-// $Id: Context.cc,v 1.19 2010/05/31 13:01:25 amraktad Exp $
+// $Id: Context.cc,v 1.20 2010/06/07 17:54:01 amraktad Exp $
 //
 
 // system include files
@@ -106,7 +106,7 @@ Context::initEveElements()
       TH1::AddDirectory(kFALSE); //Keeps histogram from going into memory
       TH2F* dummy = new TH2F("background",
                              "background",
-                             82, fw3dlego::xbins,
+                             fw3dlego::xbins_n - 1, fw3dlego::xbins,
                              72, -1*TMath::Pi(), TMath::Pi());
       
       TH1::AddDirectory(status);
@@ -119,8 +119,8 @@ Context::initEveElements()
       m_caloDataHF->IncDenyDestroy();
       
       m_caloDataHF->RefSliceInfo(0).Setup("bg", 0.3, kRed);
-      m_caloDataHF->SetEtaBins(new TAxis(82, fw3dlego::xbins));
-      m_caloDataHF->SetPhiBins(new TAxis( 72, -1*TMath::Pi(), TMath::Pi()));
+      m_caloDataHF->SetEtaBins(new TAxis(fw3dlego::xbins_hf_n - 1, fw3dlego::xbins_hf));
+      m_caloDataHF->SetPhiBins(new TAxis(36, -TMath::Pi(), TMath::Pi()));
    }
 }
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:28 EST 2008
-// $Id: FWCaloTowerProxyBuilder.cc,v 1.16 2010/06/02 22:38:40 chrjones Exp $
+// $Id: FWCaloTowerProxyBuilder.cc,v 1.17 2010/06/07 17:54:00 amraktad Exp $
 //
 
 // system includes
@@ -104,7 +104,7 @@ FWCaloTowerProxyBuilderBase::assertCaloDataSlice()
       TH1::AddDirectory(kFALSE); //Keeps histogram from going into memory
       m_hist = new TH2F(sliceName().c_str(),
                         sliceName().c_str(),
-                        82, fw3dlego::xbins,
+                        fw3dlego::xbins_n - 1, fw3dlego::xbins,
                         72, -M_PI, M_PI);
       TH1::AddDirectory(status);
       TEveCaloDataHist* ch = static_cast<TEveCaloDataHist*>(m_caloData);
