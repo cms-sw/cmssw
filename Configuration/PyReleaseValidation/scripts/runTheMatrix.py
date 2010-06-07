@@ -117,11 +117,14 @@ class WorkFlowRunner(Thread):
             print '=====>>> ', self.wf.nameId, self.wf.numId
 
             # for HI B0 step2 use a file from a previous relval production as step1 doesn't write
-            # any output in 1 hour.
+            # any output in 1 hour. Add himix flag here as this is only needed when run on the mixed
+            # input files (the relvals are OK)
             if ( '40.0' in str(self.wf.numId) ) :
-                inFile = '/store/relval/CMSSW_3_5_0/RelValPyquen_ZeemumuJets_pt10_4TeV/GEN-SIM-RAW/MC_3XY_V21-v1/0011/FA9779D6-D714-DF11-88D3-0030487CAEAC.root'
+                fullcmd += ' --himix '
+                inFile = '/store/relval/CMSSW_3_8_0_pre1/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM-RAW/MC_37Y_V5-v1/0001/E0DE7C01-2C6F-DF11-B61F-0026189438F4.root'
             if ( '41.0' in str(self.wf.numId) ) : 
-                inFile = '/store/relval/CMSSW_3_4_0/RelValPyquen_GammaJet_pt20_4TeV/GEN-SIM-RAW/MC_3XY_V14-v1/0008/46F11B87-37EA-DE11-9337-00248C0BE005.root'
+                fullcmd += ' --himix '
+                inFile = '/store/relval/CMSSW_3_8_0_pre1/RelValPyquen_GammaJet_pt20_2760GeV/GEN-SIM-RAW/MC_37Y_V5-v1/0001/F68A53A5-2B6F-DF11-8958-003048678FE6.root'
 
             fullcmd += ' --filein '+inFile+ ' '
             fullcmd += ' > %s 2>&1; ' % ('step2_'+self.wf.nameId+'.log ',)
