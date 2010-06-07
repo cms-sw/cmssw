@@ -46,6 +46,7 @@ accept(const edm::Event& event, const edm::TriggerResults& triggerTable, const s
   return passed;
 }
 
+
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -76,7 +77,7 @@ class Calculate {
   /// do the calculation; this is called only once per event by the first 
   /// function call to return a mass estimate. The once calculated values 
   /// are cached afterwards
-   void operator()(const std::vector<reco::Jet>& jets);
+  void operator()(const std::vector<reco::Jet>& jets);
 
  private:
   /// indicate failed associations
@@ -258,8 +259,8 @@ bool SelectionStep<Object>::select(const edm::Event& event, const edm::EventSetu
   
   // load jetID value map if configured such 
   edm::Handle<reco::JetIDValueMap> jetID;
-  if ( jetIDSelect_ ){
-    event.getByLabel( jetIDLabel_, jetID );
+  if(jetIDSelect_){
+    event.getByLabel(jetIDLabel_, jetID);
   }
 
   // load jet corrector if configured such
@@ -270,19 +271,18 @@ bool SelectionStep<Object>::select(const edm::Event& event, const edm::EventSetu
       corrector = JetCorrector::getJetCorrector(jetCorrector_, setup);
     }
     else{
-      //edm::LogVerbatim( "TopDQMHelpers" ) 
-      //  << "\n"
-      //  << "------------------------------------------------------------------------------------- \n"
-      //  << " No JetCorrectionsRecord available from EventSetup:                                   \n" 
-      //  << "  - Jets will not be corrected.                                                       \n"
-      //  << "  - If you want to change this add the following                                      \n"
-      //  << "    lines to your cfg file:                                                           \n"
-      //  << "                                                                                      \n"
-      //  << "  ## load jet corrections                                                             \n"
-      //  << "  process.load(\"JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff\") \n"
-      //  << "  process.prefer(\"ak5CaloL2L3\")                                                     \n"
-      //  << "                                                                                      \n"
-      //  << "------------------------------------------------------------------------------------- \n";
+      edm::LogVerbatim( "TopDQMHelpers" ) 
+        << "\n"
+        << "------------------------------------------------------------------------------------- \n"
+        << " No JetCorrectionsRecord available from EventSetup:                                   \n" 
+        << "  - Jets will not be corrected.                                                       \n"
+        << "  - If you want to change this add the following lines to your cfg file               \n"
+        << "                                                                                      \n"
+        << "  ## load jet corrections                                                             \n"
+        << "  process.load(\"JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff\") \n"
+        << "  process.prefer(\"ak5CaloL2L3\")                                                     \n"
+        << "                                                                                      \n"
+        << "------------------------------------------------------------------------------------- \n";
     }
   }
   // determine multiplicity of selected objects
