@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Mon May 31 13:09:38 CEST 2010
-// $Id$
+// $Id: FWEveLegoView.h,v 1.27 2010/05/31 13:01:24 amraktad Exp $
 //
 
 // system include files
@@ -36,7 +36,7 @@ public:
 
    // ---------- const member functions ---------------------
 
-   virtual TEveCaloDataHist* getCaloData(fireworks::Context&) const;
+   virtual TEveCaloData* getCaloData(fireworks::Context&) const;
 
    // ---------- static member functions --------------------
 

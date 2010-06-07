@@ -16,22 +16,24 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:08 EST 2008
-// $Id: FWCaloTowerProxyBuilder.h,v 1.11 2010/06/02 17:34:03 amraktad Exp $
+// $Id: FWCaloTowerProxyBuilder.h,v 1.12 2010/06/02 22:38:40 chrjones Exp $
 //
 
 #include "Rtypes.h"
 #include <string>
 
-#include "Fireworks/Calo/interface/FWCaloDataHistProxyBuilder.h"
+#include "Fireworks/Calo/interface/FWCaloDataProxyBuilderBase.h"
 #include "Fireworks/Calo/src/FWFromTEveCaloDataSelector.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 
+
+class TH2F;
 //
 // base
 //
 
-class FWCaloTowerProxyBuilderBase : public FWCaloDataHistProxyBuilder {
+class FWCaloTowerProxyBuilderBase : public FWCaloDataProxyBuilderBase {
 
 public:
    FWCaloTowerProxyBuilderBase();
@@ -41,14 +43,12 @@ public:
    virtual double getEt(const CaloTower&) const = 0;
 
    // ---------- static member functions --------------------
-   static bool representsSubPart();
-
    // ---------- member functions ---------------------------
 
 protected:
    virtual void setCaloData(const fireworks::Context&);
    virtual void fillCaloData();
-   virtual void addSliceSelector();
+   bool assertCaloDataSlice();
 
 private:
    FWCaloTowerProxyBuilderBase(const FWCaloTowerProxyBuilderBase&); // stop default
@@ -57,7 +57,8 @@ private:
                       TEveElementList* product, const FWViewContext*);
 
    // ---------- member data --------------------------------
-   const CaloTowerCollection* m_towers;
+  const CaloTowerCollection* m_towers;
+  TH2F* m_hist;
 };
 
 //
@@ -72,7 +73,7 @@ public:
    }
 
    // ---------- const member functions ---------------------
-   virtual const std::string histName() const {
+   virtual const std::string sliceName() const {
       return "ECal";
    }
 
@@ -99,7 +100,7 @@ public:
    }
 
    // ---------- const member functions ---------------------
-   virtual const std::string histName() const {
+   virtual const std::string sliceName() const {
       return "HCal";
    }
 

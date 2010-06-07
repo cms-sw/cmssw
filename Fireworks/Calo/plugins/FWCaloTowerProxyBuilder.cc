@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:28 EST 2008
-// $Id: FWCaloTowerProxyBuilder.cc,v 1.15 2010/06/02 19:08:33 amraktad Exp $
+// $Id: FWCaloTowerProxyBuilder.cc,v 1.16 2010/06/02 22:38:40 chrjones Exp $
 //
 
 // system includes
@@ -23,6 +23,7 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 
+#include "Fireworks/Core/interface/fw3dlego_xbins.h"
 #include "Fireworks/Calo/plugins/FWCaloTowerProxyBuilder.h"
 #include "Fireworks/Calo/plugins/FWCaloTowerSliceSelector.h"
 
@@ -34,7 +35,8 @@
 // constructors , dectructors
 //
 FWCaloTowerProxyBuilderBase::FWCaloTowerProxyBuilderBase():
-   m_towers(0)
+m_towers(0),
+m_hist(0)
 {
 }
 
@@ -52,12 +54,6 @@ FWCaloTowerProxyBuilderBase::setCaloData(const fireworks::Context&)
   m_caloData = context().getCaloData();
 }
 
-void
-FWCaloTowerProxyBuilderBase::addSliceSelector()
-{
-   FWFromTEveCaloDataSelector* sel = reinterpret_cast<FWFromTEveCaloDataSelector*>(m_caloData->GetUserData());
-   sel->addSliceSelector(m_sliceIndex, new FWCaloTowerSliceSelector(m_hist,item()));
-}
 
 void
 FWCaloTowerProxyBuilderBase::build(const FWEventItem* iItem,
@@ -65,7 +61,7 @@ FWCaloTowerProxyBuilderBase::build(const FWEventItem* iItem,
 {
    m_towers=0;
    if (iItem) iItem->get(m_towers);
-   FWCaloDataHistProxyBuilder::build(iItem, el, ctx);
+   FWCaloDataProxyBuilderBase::build(iItem, el, ctx);
 }
 
 
@@ -97,13 +93,49 @@ FWCaloTowerProxyBuilderBase::fillCaloData()
    }
 
 }
-
+//______________________________________________________________________________
 bool
-FWCaloTowerProxyBuilderBase::representsSubPart()
+FWCaloTowerProxyBuilderBase::assertCaloDataSlice()
 {
-   return true;
+   if (m_hist == 0)
+   {
+      // add new slice
+      Bool_t status = TH1::AddDirectoryStatus();
+      TH1::AddDirectory(kFALSE); //Keeps histogram from going into memory
+      m_hist = new TH2F(sliceName().c_str(),
+                        sliceName().c_str(),
+                        82, fw3dlego::xbins,
+                        72, -M_PI, M_PI);
+      TH1::AddDirectory(status);
+      TEveCaloDataHist* ch = static_cast<TEveCaloDataHist*>(m_caloData);
+      m_sliceIndex = ch->AddHistogram(m_hist);
+      m_caloData->RefSliceInfo(m_sliceIndex).Setup(sliceName().c_str(), 0., item()->defaultDisplayProperties().color());
+
+      // add new selector
+      FWFromTEveCaloDataSelector* sel = 0;
+      if (m_caloData->GetUserData())
+      {
+         FWFromEveSelectorBase* base = reinterpret_cast<FWFromEveSelectorBase*>(m_caloData->GetUserData());
+         assert(0!=base);
+         sel = dynamic_cast<FWFromTEveCaloDataSelector*> (base);
+         assert(0!=sel);
+      }
+      else
+      {
+         sel = new FWFromTEveCaloDataSelector(m_caloData);
+         //make sure it is accessible via the base class
+         m_caloData->SetUserData(static_cast<FWFromEveSelectorBase*>(sel));
+      }
+     
+     sel->addSliceSelector(m_sliceIndex, new FWCaloTowerSliceSelector(m_hist,item()));
+     
+     return true;
+   }
+  return false;
 }
 
 REGISTER_FWPROXYBUILDER(FWECalCaloTowerProxyBuilder,CaloTowerCollection,"ECal",FWViewType::k3DBit|FWViewType::kAllRPZBits|FWViewType::kLegoBit);
 REGISTER_FWPROXYBUILDER(FWHCalCaloTowerProxyBuilder,CaloTowerCollection,"HCal",FWViewType::k3DBit|FWViewType::kAllRPZBits|FWViewType::kLegoBit );
+
+
 

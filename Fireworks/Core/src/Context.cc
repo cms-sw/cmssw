@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:57:12 EDT 2008
-// $Id: Context.cc,v 1.18 2010/05/10 11:49:41 amraktad Exp $
+// $Id: Context.cc,v 1.19 2010/05/31 13:01:25 amraktad Exp $
 //
 
 // system include files
@@ -97,36 +97,30 @@ Context::initEveElements()
    m_muonPropagator->SetRnrPTBMarkers(kTRUE);
    m_muonPropagator->IncDenyDestroy();
 
-   // calo data
+   // general calo data
    {
       m_caloData = new TEveCaloDataHist();
       m_caloData->IncDenyDestroy();
-
+      
       Bool_t status = TH1::AddDirectoryStatus();
       TH1::AddDirectory(kFALSE); //Keeps histogram from going into memory
       TH2F* dummy = new TH2F("background",
                              "background",
                              82, fw3dlego::xbins,
                              72, -1*TMath::Pi(), TMath::Pi());
-
+      
       TH1::AddDirectory(status);
       Int_t sliceIndex = m_caloData->AddHistogram(dummy);
       (m_caloData)->RefSliceInfo(sliceIndex).Setup("background", 0., 0);
    }
+   // HF calo data
    {
-      m_caloDataHF = new TEveCaloDataHist();
+      m_caloDataHF = new TEveCaloDataVec(1);
       m_caloDataHF->IncDenyDestroy();
-
-      Bool_t status = TH1::AddDirectoryStatus();
-      TH1::AddDirectory(kFALSE); //Keeps histogram from going into memory
-      TH2F* dummy = new TH2F("background",
-                             "background",
-                             82, fw3dlego::xbins,
-                             72, -1*TMath::Pi(), TMath::Pi());
-
-      TH1::AddDirectory(status);
-      Int_t sliceIndex = m_caloDataHF->AddHistogram(dummy);
-      (m_caloDataHF)->RefSliceInfo(sliceIndex).Setup("background", 0., 0);
+      
+      m_caloDataHF->RefSliceInfo(0).Setup("bg", 0.3, kRed);
+      m_caloDataHF->SetEtaBins(new TAxis(82, fw3dlego::xbins));
+      m_caloDataHF->SetPhiBins(new TAxis( 72, -1*TMath::Pi(), TMath::Pi()));
    }
 }
 

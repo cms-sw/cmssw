@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWJetProxyBuilder.cc,v 1.11 2010/06/01 11:15:30 matevz Exp $
+// $Id: FWJetProxyBuilder.cc,v 1.12 2010/06/03 13:38:31 eulisse Exp $
 //
 #include "TGeoArb8.h"
 #include "TEveGeoNode.h"
@@ -405,4 +405,4 @@ REGISTER_FWPROXYBUILDER( FWJetProxyBuilder, reco::Jet, "Jets", FWViewType::kAll3
 REGISTER_FWPROXYBUILDER( FWJetRhoPhiProxyBuilder, reco::Jet, "Jets", FWViewType::kRhoPhiBit );
 REGISTER_FWPROXYBUILDER( FWJetRhoZProxyBuilder, reco::Jet, "Jets", FWViewType::kRhoZBit );
 REGISTER_FWPROXYBUILDER( FWJetGlimpseProxyBuilder, reco::Jet, "Jets", FWViewType::kGlimpseBit );
-REGISTER_FWPROXYBUILDER( FWJetLegoProxyBuilder, reco::Jet, "Jets", FWViewType::kLegoBit );
+REGISTER_FWPROXYBUILDER( FWJetLegoProxyBuilder, reco::Jet, "Jets", FWViewType::kLegoBit | FWViewType::kLegoHFBit );

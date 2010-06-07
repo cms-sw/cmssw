@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jun  2 17:30:49 CEST 2010
-// $Id: FWFromSliceSelector.cc,v 1.1 2010/06/02 17:34:03 amraktad Exp $
+// $Id: FWFromSliceSelector.cc,v 1.2 2010/06/02 18:49:07 amraktad Exp $
 //
 
 // system include files
@@ -30,9 +30,7 @@
 //
 // constructors and destructor
 //
-FWFromSliceSelector::FWFromSliceSelector(TH2F* iHist,
-                                         const FWEventItem* iItem) :
-m_hist(iHist),
+FWFromSliceSelector::FWFromSliceSelector(const FWEventItem* iItem) :
 m_item(iItem)
 {
 }
@@ -64,7 +62,6 @@ void
 FWFromSliceSelector::reset()
 {
    m_item = 0;
-   m_hist = 0;
 }
 
 //

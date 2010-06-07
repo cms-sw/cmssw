@@ -1,14 +1,14 @@
 // -*- C++ -*-
 //
 // Package:     Calo
-// Class  :     FWCaloDataHistProxyBuilder
+// Class  :     FWCaloDataProxyBuilderBase
 // 
 // Implementation:
 //     [Notes on implementation]
 //
 // Original Author:  
 //         Created:  Mon May 31 15:09:39 CEST 2010
-// $Id: FWCaloDataHistProxyBuilder.cc,v 1.2 2010/06/01 10:16:40 amraktad Exp $
+// $Id: FWCaloDataProxyBuilderBase.cc,v 1.3 2010/06/02 18:49:07 amraktad Exp $
 //
 
 // system include files
@@ -24,9 +24,8 @@
 
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/fw3dlego_xbins.h"
 
-#include "Fireworks/Calo/interface/FWCaloDataHistProxyBuilder.h"
+#include "Fireworks/Calo/interface/FWCaloDataProxyBuilderBase.h"
 #include "Fireworks/Calo/src/FWFromTEveCaloDataSelector.h"
 
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
@@ -43,28 +42,28 @@
 //
 // constructors and destructor
 //
-FWCaloDataHistProxyBuilder::FWCaloDataHistProxyBuilder() :
+FWCaloDataProxyBuilderBase::FWCaloDataProxyBuilderBase() :
    m_caloData(0),
-   m_hist(0)
+   m_sliceIndex(-1)
 {
 }
 
-// FWCaloDataHistProxyBuilder::FWCaloDataHistProxyBuilder(const FWCaloDataHistProxyBuilder& rhs)
+// FWCaloDataProxyBuilderBase::FWCaloDataProxyBuilderBase(const FWCaloDataProxyBuilderBase& rhs)
 // {
 //    // do actual copying here;
 // }
 
-FWCaloDataHistProxyBuilder::~FWCaloDataHistProxyBuilder()
+FWCaloDataProxyBuilderBase::~FWCaloDataProxyBuilderBase()
 {
 }
 
 //
 // assignment operators
 //
-// const FWCaloDataHistProxyBuilder& FWCaloDataHistProxyBuilder::operator=(const FWCaloDataHistProxyBuilder& rhs)
+// const FWCaloDataProxyBuilderBase& FWCaloDataProxyBuilderBase::operator=(const FWCaloDataProxyBuilderBase& rhs)
 // {
 //   //An exception safe implementation is
-//   FWCaloDataHistProxyBuilder temp(rhs);
+//   FWCaloDataProxyBuilderBase temp(rhs);
 //   swap(rhs);
 //
 //   return *this;
@@ -75,20 +74,12 @@ FWCaloDataHistProxyBuilder::~FWCaloDataHistProxyBuilder()
 //
 
 void
-FWCaloDataHistProxyBuilder::build(const FWEventItem* iItem,
+FWCaloDataProxyBuilderBase::build(const FWEventItem* iItem,
                                   TEveElementList*, const FWViewContext*)
 {
    setCaloData(iItem->context());
 
-   if(!item()) {
-      if(0!=m_hist) {
-         m_hist->Reset();
-         m_caloData->DataChanged();
-      }
-      return;
-   }
-
-   assertHistogram();
+   assertCaloDataSlice();
    fillCaloData();
 
    m_caloData->SetSliceColor(m_sliceIndex,item()->defaultDisplayProperties().color());
@@ -99,13 +90,13 @@ FWCaloDataHistProxyBuilder::build(const FWEventItem* iItem,
 //______________________________________________________________________________
 
 void
-FWCaloDataHistProxyBuilder::modelChanges(const FWModelIds&, Product* p)
+FWCaloDataProxyBuilderBase::modelChanges(const FWModelIds&, Product* p)
 {
    applyChangesToAllModels(p);
 }
 
 void
-FWCaloDataHistProxyBuilder::applyChangesToAllModels(Product* p)
+FWCaloDataProxyBuilderBase::applyChangesToAllModels(Product* p)
 {
    if(m_caloData && item())
    {      
@@ -132,65 +123,24 @@ FWCaloDataHistProxyBuilder::applyChangesToAllModels(Product* p)
 //______________________________________________________________________________
 
 void
-FWCaloDataHistProxyBuilder::itemBeingDestroyed(const FWEventItem* iItem)
+FWCaloDataProxyBuilderBase::itemBeingDestroyed(const FWEventItem* iItem)
 {
    FWProxyBuilderBase::itemBeingDestroyed(iItem);
-   if(0!=m_hist) 
-   {
       clearCaloDataSelection();
-      m_hist->Reset();
-   }
 
    FWFromTEveCaloDataSelector* sel = reinterpret_cast<FWFromTEveCaloDataSelector*>(iItem->context().getCaloData()->GetUserData());
    sel->resetSliceSelector(m_sliceIndex);
+
 
    if(m_caloData) {
       m_caloData->DataChanged();
    }
 }
 
-//______________________________________________________________________________
-bool
-FWCaloDataHistProxyBuilder::assertHistogram()
-{
-   if (m_hist == 0)
-   {
-      // add new slice
-      Bool_t status = TH1::AddDirectoryStatus();
-      TH1::AddDirectory(kFALSE); //Keeps histogram from going into memory
-      m_hist = new TH2F(histName().c_str(),
-                        histName().c_str(),
-                        82, fw3dlego::xbins,
-                        72, -M_PI, M_PI);
-      TH1::AddDirectory(status);
-      m_sliceIndex = m_caloData->AddHistogram(m_hist);
-      m_caloData->RefSliceInfo(m_sliceIndex).Setup(histName().c_str(), 0., item()->defaultDisplayProperties().color());
 
-      // add new selector
-      FWFromTEveCaloDataSelector* sel = 0;
-      if (m_caloData->GetUserData())
-      {
-         FWFromEveSelectorBase* base = reinterpret_cast<FWFromEveSelectorBase*>(m_caloData->GetUserData());
-         assert(0!=base);
-         sel = dynamic_cast<FWFromTEveCaloDataSelector*> (base);
-         assert(0!=sel);
-      }
-      else
-      {
-         sel = new FWFromTEveCaloDataSelector(m_caloData);
-         //make sure it is accessible via the base class
-         m_caloData->SetUserData(static_cast<FWFromEveSelectorBase*>(sel));
-      }
-
-      addSliceSelector();   
-
-      return true;
-   }
-   return false;
-}
 
 void
-FWCaloDataHistProxyBuilder::clearCaloDataSelection()
+FWCaloDataProxyBuilderBase::clearCaloDataSelection()
 {
    //find all selected cell ids which are not from this FWEventItem and preserve only them
    // do this by moving them to the end of the list and then clearing only the end of the list

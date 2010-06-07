@@ -16,13 +16,14 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Wed Jun  2 19:21:13 CEST 2010
-// $Id: FWHFTowerSliceSelector.h,v 1.1 2010/06/02 17:34:03 amraktad Exp $
+// $Id: FWHFTowerSliceSelector.h,v 1.2 2010/06/03 14:48:22 amraktad Exp $
 //
 
 // system include files
 
 // user include files
 class HcalDetId;
+class TEveCaloDataVec;
 
 #include "Fireworks/Calo/src/FWFromSliceSelector.h"
 
@@ -31,7 +32,9 @@ class HcalDetId;
 class FWHFTowerSliceSelector : public FWFromSliceSelector
 {
 public:
-   FWHFTowerSliceSelector(TH2F* h, const FWEventItem* i) : FWFromSliceSelector(h, i) {}
+   FWHFTowerSliceSelector(const FWEventItem* i, TEveCaloDataVec* data) : 
+      FWFromSliceSelector(i), m_vecData(data) {}
+
    virtual ~FWHFTowerSliceSelector() {}
 
    virtual void doSelect(const TEveCaloData::CellId_t&);
@@ -39,6 +42,7 @@ public:
    
 private:
    bool findBinFromId(HcalDetId& id, int tower) const;
+   TEveCaloDataVec* m_vecData;
 };
 
 

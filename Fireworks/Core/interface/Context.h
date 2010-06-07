@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:21:45 EDT 2008
-// $Id: Context.h,v 1.12 2010/04/30 12:29:28 amraktad Exp $
+// $Id: Context.h,v 1.13 2010/05/31 13:01:24 amraktad Exp $
 //
 
 // system include files
@@ -26,6 +26,7 @@
 // forward declarations
 class TEveTrackPropagator;
 class TEveCaloDataHist;
+class TEveCaloDataVec;
 
 class FWModelChangeManager;
 class FWSelectionManager;
@@ -68,8 +69,8 @@ public:
 
    FWMagField*          getField()             const { return m_magField; }
 
-   TEveCaloDataHist*    getCaloData()  const { return m_caloData; }
-   TEveCaloDataHist*    getCaloDataHF()  const { return m_caloDataHF; }
+   TEveCaloDataHist*    getCaloData()   const { return m_caloData; }
+   TEveCaloDataVec*     getCaloDataHF() const { return m_caloDataHF; }
 
   const  DetIdToMatrix* getGeom()  const { return m_geom; }   
 
@@ -103,7 +104,7 @@ private:
    FWMagField           *m_magField;
 
    TEveCaloDataHist     *m_caloData;
-   TEveCaloDataHist     *m_caloDataHF;
+   TEveCaloDataVec      *m_caloDataHF;
 };
 }
 

@@ -8,13 +8,14 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Wed Jun  2 17:39:44 CEST 2010
-// $Id: FWHFTowerSliceSelector.cc,v 1.2 2010/06/02 19:08:33 amraktad Exp $
+// $Id: FWHFTowerSliceSelector.cc,v 1.3 2010/06/03 14:48:22 amraktad Exp $
 //
 
 // system include files
 
 // user include files
 #include "TEveVector.h"
+#include "TEveCaloData.h"
 #include "TH2F.h"
 
 #include "Fireworks/Calo/plugins/FWHFTowerSliceSelector.h"
@@ -49,7 +50,7 @@ FWHFTowerSliceSelector::doSelect(const TEveCaloData::CellId_t& iCell)
       if (findBinFromId(id, iCell.fTower) && 
           m_item->modelInfo(index).m_displayProperties.isVisible() &&
           !m_item->modelInfo(index).isSelected()) {
-         //std::cout <<"  doSelect "<<index<<std::endl;
+         // std::cout <<"  doSelect "<<index<<std::endl;
          m_item->select(index);
       }
    }
@@ -74,28 +75,29 @@ FWHFTowerSliceSelector::doUnselect(const TEveCaloData::CellId_t& iCell)
       if (findBinFromId(id, iCell.fTower) && 
           m_item->modelInfo(index).m_displayProperties.isVisible() &&
           m_item->modelInfo(index).isSelected()) {
-         //std::cout <<"  doUnselect "<<index<<std::endl;
+         // std::cout <<"  doUnselect "<<index<<std::endl;
          m_item->unselect(index);
       }
    }
 }
 
 bool
-FWHFTowerSliceSelector::findBinFromId( HcalDetId& id, int tower) const
-{
-   std::vector<TEveVector> corners = m_item->getGeom()->getPoints(id);
-   TEveVector centre = corners[0] + corners[1] + corners[2] + corners[3] + corners[4] + corners[5] + corners[6] + corners[7];
-   centre *= 1.0f / 8.0f;
-   int bin = m_hist->FindBin(centre.Eta(),centre.Phi());
-   if (bin == -1)
+FWHFTowerSliceSelector::findBinFromId( HcalDetId& detId, int tower) const
+{    
+   TEveCaloData::vCellId_t cellIds;
+   std::vector<TEveVector> pnts = m_item->getGeom()->getPoints(detId.rawId());
+   float eta = 0, phi = 0;
+   for (int i = 0; i < 4; ++i)
    {
-      fwLog(fwlog::kWarning) << "FWHFTowerSliceSelector could not find a valid bin for eta: " << centre.Eta() << " phi: " << centre.Phi() << std::endl;
-      fflush(stdout);
+      eta += pnts[i].Eta();
+      phi += pnts[i].Phi();
    }
-   if (m_hist->FindBin(centre.Eta(),centre.Phi()) == tower)
+   eta /= 4;
+   phi /= 4;
+
+   const TEveCaloData::CellGeom_t &cg = m_vecData->GetCellGeom()[tower] ;
+   if ((eta >= cg.fEtaMin && eta <= cg.fEtaMax) && (phi >= cg.fPhiMin && phi <= cg.fPhiMax))
    {
-      fwLog(fwlog::kDebug) << "Secondary Selection "<< m_hist->GetName() <<"::  FWHFTowerSliceSelector find detId for tower: " << centre.Eta() << " phi: " << centre.Phi() << "val: " << m_hist->GetBinContent(bin) << std::endl;
       return true;
    }
-   return false;
 }

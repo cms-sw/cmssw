@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWLegoViewBase.h,v 1.26 2010/04/16 13:44:06 amraktad Exp $
+// $Id: FWLegoViewBase.h,v 1.1 2010/05/31 13:01:24 amraktad Exp $
 //
 
 // system include files
@@ -49,7 +49,7 @@ public:
    // ---------- const member functions ---------------------
 
    virtual void addTo(FWConfiguration&) const;
-   virtual TEveCaloDataHist* getCaloData(fireworks::Context&) const = 0;
+   virtual TEveCaloData* getCaloData(fireworks::Context&) const = 0;
 
    // ---------- member functions ---------------------------
    void finishSetup();

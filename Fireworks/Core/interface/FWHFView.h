@@ -16,7 +16,7 @@
 //
 // Original Author:  Yanjun
 //         Created:  Mon May 31 13:42:21 CEST 2010
-// $Id$
+// $Id: FWHFView.h,v 1.1 2010/05/31 13:01:24 amraktad Exp $
 //
 
 // system include files
@@ -35,7 +35,7 @@ public:
    virtual void setContext(fireworks::Context&);
    // ---------- const member functions ---------------------
 
-   virtual TEveCaloDataHist* getCaloData(fireworks::Context&) const;
+   virtual TEveCaloData* getCaloData(fireworks::Context&) const;
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------

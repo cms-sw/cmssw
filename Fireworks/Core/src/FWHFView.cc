@@ -8,13 +8,16 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 13:42:13 CEST 2010
-// $Id: FWHFView.cc,v 1.1 2010/05/31 13:01:25 amraktad Exp $
+// $Id: FWHFView.cc,v 1.2 2010/06/02 17:35:40 amraktad Exp $
 //
 
 // system include files
 
 // user include files
+#include "TAxis.h"
 #include "TEveCalo.h"
+#include "TEveCaloData.h"
+#include "TEveScene.h"
 
 #include "Fireworks/Core/interface/FWHFView.h"
 #include "Fireworks/Core/interface/FWEveLegoView.h"
@@ -61,7 +64,7 @@ FWHFView::~FWHFView()
 // member functions
 //
 
-TEveCaloDataHist*
+TEveCaloData*
 FWHFView::getCaloData(fireworks::Context& c) const
 {
    return c.getCaloDataHF();
@@ -73,9 +76,12 @@ FWHFView::getCaloData(fireworks::Context& c) const
 //
 // static member functions
 //
+   
 
 void
 FWHFView::setContext(fireworks::Context& context)
 {  
-   FWLegoViewBase::setContext(context); 
+   FWLegoViewBase::setContext(context);
+   m_lego->Set2DMode(TEveCaloLego::kValSizeOutline);
 }
+   

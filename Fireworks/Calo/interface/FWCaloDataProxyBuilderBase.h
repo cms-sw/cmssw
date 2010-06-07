@@ -1,11 +1,11 @@
-#ifndef Fireworks_Calo_FWCaloDataHistProxyBuilder_h
-#define Fireworks_Calo_FWCaloDataHistProxyBuilder_h
+#ifndef Fireworks_Calo_FWCaloDataProxyBuilderBase_h
+#define Fireworks_Calo_FWCaloDataProxyBuilderBase_h
 // -*- C++ -*-
 //
 // Package:     Calo
-// Class  :     FWCaloDataHistProxyBuilder
+// Class  :     FWCaloDataProxyBuilderBase
 // 
-/**\class FWCaloDataHistProxyBuilder FWCaloDataHistProxyBuilder.h Fireworks/Calo/interface/FWCaloDataHistProxyBuilder.h
+/**\class FWCaloDataProxyBuilderBase FWCaloDataProxyBuilderBase.h Fireworks/Calo/interface/FWCaloDataProxyBuilderBase.h
 
  Description: [one line class summary]
 
@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 15:09:19 CEST 2010
-// $Id: FWCaloDataHistProxyBuilder.h,v 1.1 2010/05/31 15:35:00 amraktad Exp $
+// $Id: FWCaloDataProxyBuilderBase.h,v 1.2 2010/06/02 17:34:02 amraktad Exp $
 //
 
 // system include files
@@ -31,15 +31,15 @@
 
 // forward declarations
 
-class FWCaloDataHistProxyBuilder : public FWProxyBuilderBase
+class FWCaloDataProxyBuilderBase : public FWProxyBuilderBase
 {
 public:
-   FWCaloDataHistProxyBuilder();
-   virtual ~FWCaloDataHistProxyBuilder();
+   FWCaloDataProxyBuilderBase();
+   virtual ~FWCaloDataProxyBuilderBase();
 
    // ---------- const member functions ---------------------
 
-   virtual const std::string histName() const { return "sliceHist"; }
+   virtual const std::string sliceName() const  = 0;
 
    virtual bool willHandleInteraction() const { return true; }
 
@@ -53,17 +53,16 @@ protected:
 
    virtual void setCaloData(const fireworks::Context&) = 0;
    virtual void fillCaloData() = 0; 
-   virtual void addSliceSelector() = 0;
+   virtual bool assertCaloDataSlice() = 0;
 
    // ---------- member data --------------------------------
-   TEveCaloDataHist* m_caloData;
-   TH2F* m_hist;
+   TEveCaloData* m_caloData;
    Int_t m_sliceIndex;
 
 private:
-   FWCaloDataHistProxyBuilder(const FWCaloDataHistProxyBuilder&); // stop default
+   FWCaloDataProxyBuilderBase(const FWCaloDataProxyBuilderBase&); // stop default
 
-   const FWCaloDataHistProxyBuilder& operator=(const FWCaloDataHistProxyBuilder&); // stop default
+   const FWCaloDataProxyBuilderBase& operator=(const FWCaloDataProxyBuilderBase&); // stop default
 
    // ---------- member data --------------------------------
 
@@ -73,7 +72,6 @@ private:
    virtual void itemBeingDestroyed(const FWEventItem*);
 
    void clearCaloDataSelection();
-   bool assertHistogram();
 
 };
 

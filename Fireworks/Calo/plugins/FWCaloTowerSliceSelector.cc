@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Wed Jun  2 17:36:23 CEST 2010
-// $Id$
+// $Id: FWCaloTowerSliceSelector.cc,v 1.1 2010/06/02 17:34:03 amraktad Exp $
 //
 
 // system include files
@@ -22,6 +22,15 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 
 
+FWCaloTowerSliceSelector::FWCaloTowerSliceSelector(TH2F* h, const FWEventItem* i):
+   FWFromSliceSelector(i),
+   m_hist(h)
+{
+}
+
+FWCaloTowerSliceSelector::~FWCaloTowerSliceSelector()
+{
+}
 
 //
 // member functions

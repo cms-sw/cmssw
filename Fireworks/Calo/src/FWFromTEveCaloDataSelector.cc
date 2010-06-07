@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Oct 23 14:44:33 CDT 2009
-// $Id: FWFromTEveCaloDataSelector.cc,v 1.10 2010/06/02 17:34:04 amraktad Exp $
+// $Id: FWFromTEveCaloDataSelector.cc,v 1.11 2010/06/02 18:49:07 amraktad Exp $
 //
 
 // system include files
@@ -31,10 +31,10 @@
 FWFromTEveCaloDataSelector::FWFromTEveCaloDataSelector(TEveCaloData* iData):
 m_data(iData),
 m_changeManager(0)
-{
+{                       
    // reserve 3 , first slice is background
    m_sliceSelectors.reserve(3);
-   m_sliceSelectors.push_back(new FWFromSliceSelector(0, 0));
+   m_sliceSelectors.push_back(new FWFromSliceSelector(0));
 }
 
 // FWFromTEveCaloDataSelector::FWFromTEveCaloDataSelector(const FWFromTEveCaloDataSelector& rhs)

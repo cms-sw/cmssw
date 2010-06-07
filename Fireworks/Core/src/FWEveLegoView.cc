@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 13:09:53 CEST 2010
-// $Id$
+// $Id: FWEveLegoView.cc,v 1.81 2010/05/31 13:01:25 amraktad Exp $
 //
 
 // system include files
@@ -70,10 +70,10 @@ FWEveLegoView::~FWEveLegoView()
 // static member functions
 //
 
-TEveCaloDataHist*
+TEveCaloData*
 FWEveLegoView::getCaloData(fireworks::Context& c) const
 {
-   return c.getCaloData();
+   return (TEveCaloData*)c.getCaloData();
 }
 
 void

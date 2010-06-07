@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWLegoViewBase.cc,v 1.80 2010/05/11 18:26:03 amraktad Exp $
+// $Id: FWLegoViewBase.cc,v 1.1 2010/05/31 13:01:25 amraktad Exp $
 //
 
 // system include files
@@ -54,7 +54,7 @@ FWLegoViewBase::FWLegoViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId
    m_lego(0),
    m_overlay(0),
    m_plotEt(this,"Plot Et",true),   
-   m_autoRebin(this,"Auto rebin on zoom",true),
+   m_autoRebin(this,"Auto rebin on zoom",false),
    m_pixelsPerBin(this, "Pixels per bin", 10., 1., 20.),
    m_showScales(this,"Show scales", true),
    m_legoFixedScale(this,"Lego scale GeV)",100.,1.,1000.),
@@ -77,7 +77,6 @@ FWLegoViewBase::~FWLegoViewBase()
 
 void FWLegoViewBase::setContext(fireworks::Context& context)
 { 
-   // get lego if exist
    TEveCaloData* data = getCaloData(context);
    data->GetEtaBins()->SetTitleFont(120);
    data->GetEtaBins()->SetTitle("h");
@@ -94,7 +93,6 @@ void FWLegoViewBase::setContext(fireworks::Context& context)
    m_lego->Set2DMode(TEveCaloLego::kValSize);
    m_lego->SetDrawNumberCellPixels(20);
    eventScene()->AddElement(m_lego);
-
  
    TEveLegoEventHandler* eh = dynamic_cast<TEveLegoEventHandler*>( viewerGL()->GetEventHandler());
    eh->SetLego(m_lego);
