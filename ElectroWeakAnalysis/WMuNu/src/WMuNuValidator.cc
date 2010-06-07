@@ -125,13 +125,13 @@ WMuNuValidator::WMuNuValidator( const ParameterSet & cfg ) :
       acopCut_(cfg.getUntrackedParameter<double>("AcopCut", 2.)),
 
       // Muon quality cuts
-      dxyCut_(cfg.getUntrackedParameter<double>("DxyCut", 0.2)),  // dxy <= 0.2
-      normalizedChi2Cut_(cfg.getUntrackedParameter<double>("NormalizedChi2Cut", 10.)), // chi2/ndof <= 10
-      trackerHitsCut_(cfg.getUntrackedParameter<int>("TrackerHitsCut", 10)),  // NHits >= 10
-      pixelHitsCut_(cfg.getUntrackedParameter<int>("PixelHitsCut", 1)),       // PixelHits >=1
-      muonHitsCut_(cfg.getUntrackedParameter<int>("MuonHitsCut", 1)),         // MuonHits >=1
+      dxyCut_(cfg.getUntrackedParameter<double>("DxyCut", 0.2)),  // dxy < 0.2
+      normalizedChi2Cut_(cfg.getUntrackedParameter<double>("NormalizedChi2Cut", 10.)), // chi2/ndof < 10.
+      trackerHitsCut_(cfg.getUntrackedParameter<int>("TrackerHitsCut", 11)),  // NHits > 10
+      pixelHitsCut_(cfg.getUntrackedParameter<int>("PixelHitsCut", 1)),       // PixelHits > 0 
+      muonHitsCut_(cfg.getUntrackedParameter<int>("MuonHitsCut", 1)),         // MuonHits > 0
       isAlsoTrackerMuon_(cfg.getUntrackedParameter<bool>("IsAlsoTrackerMuon", true)), 
-      nMatchesCut_(cfg.getUntrackedParameter<int>("NMatchesCut", 2)),         // NMatches > = 2
+      nMatchesCut_(cfg.getUntrackedParameter<int>("NMatchesCut", 2)),         // At least 2 Matches 
 
       // Z rejection
       ptThrForZ1_(cfg.getUntrackedParameter<double>("PtThrForZ1", 20.)),

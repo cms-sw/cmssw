@@ -37,7 +37,7 @@ selWMuNu_MuonIDonly = cms.EDFilter("WMuNuSelector",
       # Muon quality cuts ->
       DxyCut = cms.untracked.double(0.2),
       NormalizedChi2Cut = cms.untracked.double(10.),
-      TrackerHitsCut = cms.untracked.int32(10),
+      TrackerHitsCut = cms.untracked.int32(11),
       MuonHitsCut = cms.untracked.int32(1),
       IsAlsoTrackerMuon = cms.untracked.bool(True),
       NMatchesCut = cms.untracked.int32(2),
