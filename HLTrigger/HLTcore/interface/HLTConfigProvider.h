@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2010/03/31 07:44:25 $
- *  $Revision: 1.26 $
+ *  $Date: 2010/05/28 11:10:23 $
+ *  $Revision: 1.27 $
  *
  *  \author Martin Grunewald
  *
@@ -32,24 +32,19 @@
 
 class HLTConfigProvider {
   
- public:
 
-  /// init method: call from beginRun of your plugin
-  /// the parameter "changed" indicates whether the config has
-  /// actually changed
+ public:
+  /// init method: call from beginRun(.) of your plugin
+  /// the parameter "changed" indicates whether the config has actually changed
   bool init(const edm::Run& iRun, const edm::EventSetup& iSetup, const std::string& processName, bool& changed);
 
-  /// old, inefficient, potentially failing, and thus deprecated, init methods:
-  bool init(const edm::Event& iEvent, const std::string& processName, bool& changed);
-  bool init(const std::string& processName);
 
  private:
-
   /// real init methods
   bool init(const edm::ProcessHistory& iHistory, const edm::EventSetup& iSetup, const std::string& processName, bool& changed);
   bool init(const edm::ProcessHistory& iHistory, const std::string& processName, bool& changed);
-  /// only for migration to Run-based init method:
-  bool init(const std::string& processName, const bool& msg);
+  /// only for fallback on buggy old files:
+  bool init(const std::string& processNamey);
 
   /// clear data members - called by init() methods
   void clear();
