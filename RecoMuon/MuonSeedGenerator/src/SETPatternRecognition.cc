@@ -148,7 +148,7 @@ void SETPatternRecognition::produce(const edm::Event& event, const edm::EventSet
   //std::cout<<"RPC done"<<std::endl;
   //
   if(int(chambers_DT.size() + chambers_CSC.size()) > maxActiveChambers){
-    // std::cout <<" Too much active chambers : nDT = "<<chambers_DT.size()<<
+    // std::cout <<" Too many active chambers : nDT = "<<chambers_DT.size()<<
     // " nCSC = "<<chambers_CSC.size()<<"  Skip them all."<<std::endl;
     muonRecHits.clear();                                
     muonRecHits_DT2D_hasPhi.clear();    
