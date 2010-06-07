@@ -1,6 +1,6 @@
 #! /bin/bash
 
-HLT='/online/collisions/2010/week19/HLT'
+HLT='/online/collisions/2010/week21/HLT'
 L1T='L1Menu_Commissioning2010_v2'
 
 rm -f OnData_HLT_TEST.py
