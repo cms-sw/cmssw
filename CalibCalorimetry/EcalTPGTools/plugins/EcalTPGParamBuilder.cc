@@ -630,7 +630,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 	  if (forcedPedestalValue_ == -3 && i==0) {
 	    double G = mult*pow(2,-(shift+2)) ;
 	    double g = G/sin(theta) ;
-	    int pedestal = coeff.pedestals_[i] ;
+	    // int pedestal = coeff.pedestals_[i] ;
 	    base = double(coeff.pedestals_[i]) - pedestal_offset_/g ;
 	    if (base<0.) base = 0 ;
 	    forceBase12 = int(base) ;
@@ -1307,6 +1307,8 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
    int conf_id_=db_->writeToConfDB_TPGMain(ped_conf_id_,lin_conf_id_, lut_conf_id_, fgr_conf_id_, 
 					sli_conf_id_, wei_conf_id_, bxt_conf_id_, btt_conf_id_, tag_, version_) ;
    
+   std::cout << "\n Conf ID = " << conf_id << std::endl;
+
  }
 
 
@@ -1925,7 +1927,7 @@ std::string EcalTPGParamBuilder::getDet(int tcc){
 std::pair < std::string, int >  EcalTPGParamBuilder::getCrate(int tcc){
   std::stringstream crate ;
   std::string pos ;
-  int slot ;
+  int slot = 0 ;
 
   crate<<"S2D" ;  
   if (tcc>=40 && tcc<=42) {crate<<"02d" ; slot = 5 + (tcc-40)*6 ;}
