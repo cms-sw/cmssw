@@ -152,6 +152,7 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   SFGVB_lut_ = pSet.getParameter<unsigned int>("SFGVB_lut") ;
   pedestal_offset_ = pSet.getParameter<unsigned int>("pedestal_offset") ;
 
+  useInterCalibration_  = pSet.getParameter<bool>("useInterCalibration") ;
 }
 
 EcalTPGParamBuilder::~EcalTPGParamBuilder()
@@ -246,12 +247,12 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   TH1F * hshapeEE = new TH1F("shapeEE", "shapeEE", 250, 0., 10.) ;
 
   TTree * ntuple = new TTree("tpgmap","TPG geometry map") ;
-  char * branchFloat[22] = {"fed","tcc","tower","stripInTower","xtalInStrip",
+  char * branchFloat[24] = {"fed","tcc","tower","stripInTower","xtalInStrip",
 			    "CCU","VFE","xtalInVFE","xtalInCCU","ieta","iphi",
 			    "ix","iy","iz","hashedId","ic","ietaTT","iphiTT",
-			    "TCCch","TCCslot","ietaGCT","iphiGCT"} ;
-  ntupleFloats_ = new Float_t[22] ;
-  for (int i=0 ; i<22 ; i++) ntuple->Branch(branchFloat[i],&ntupleFloats_[i],branchFloat[i]) ;
+			    "TCCch","TCCslot","SLBch","SLBslot","ietaGCT","iphiGCT"} ;
+  ntupleFloats_ = new Float_t[24] ;
+  for (int i=0 ; i<24 ; i++) ntuple->Branch(branchFloat[i],&ntupleFloats_[i],branchFloat[i]) ;
   ntuple->Branch("det",ntupleDet_,"det/C") ;
   ntuple->Branch("crate",ntupleCrate_,"crate/C") ;
 
@@ -269,6 +270,9 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   list<uint32_t> towerListEE ;
   list<uint32_t> stripListEE ;
   list<uint32_t>::iterator itList ;
+  
+  map<int, uint32_t> stripMapEB ; // <EcalLogicId.hashed, strip elec id>
+  map<uint32_t, uint32_t> stripMapEBsintheta ; // <strip elec id, sintheta>
 
 
   // Pedestals
@@ -353,7 +357,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 						    1, 68,
 						    EcalLogicID::NULLID,EcalLogicID::NULLID,
 						    "EB_trigger_tower",12 );
-    my_StripEcalLogicId = db_->getEcalLogicIDSetOrdered( "EB_VFE",   1, 36,   1, 68,   1,5 ,  "EB_VFE",12 );
+    my_StripEcalLogicId = db_->getEcalLogicIDSetOrdered( "EB_VFE",   1, 36,   1, 68,   1,5 ,  "EB_VFE",123 ); //last digi means ordered 1st by SM,then TT, then strip 
     std::cout<<"got the 3 ecal barrel logic id set"<< endl;
 
     // EE crystals identifiers
@@ -497,12 +501,15 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 		<<" ietaTT = "<<towid.ieta()<<" iphiTT = "<<towid.iphi()<<endl ;
 
     int TCCch = towerInTCC ;
+    int SLBslot = int((towerInTCC-1)/8.) + 1 ;
+    int SLBch = (towerInTCC-1)%8 + 1 ;
     float val[] = {dccNb+600,tccNb,towerInTCC,stripInTower,
 		   xtalInStrip,CCUid,VFEid,xtalInVFE,xtalWithinCCUid,id.ieta(),id.iphi(),
 		   -999,-999,towid.ieta()/abs(towid.ieta()),id.hashedIndex(),
-		   id.ic(),towid.ieta(),towid.iphi(), TCCch, getCrate(tccNb).second,
+		   id.ic(),towid.ieta(),towid.iphi(), TCCch, getCrate(tccNb).second, 
+		   SLBch, SLBslot, 
 		   getGCTRegionEta(towid.ieta()),getGCTRegionPhi(towid.iphi())} ;
-    for (int i=0 ; i<22 ; i++) ntupleFloats_[i] = val[i] ;
+    for (int i=0 ; i<24 ; i++) ntupleFloats_[i] = val[i] ;
     
     sprintf(ntupleDet_,getDet(tccNb).c_str()) ;
     sprintf(ntupleCrate_,getCrate(tccNb).first.c_str()) ;
@@ -545,7 +552,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     stripListEB.push_back(elId.rawId() & 0xfffffff8) ;
     int dccNb = theMapping_->DCCid(towid) ;
     //int tccNb = theMapping_->TCCid(towid) ;
-    //int towerInTCC = theMapping_->iTT(towid) ; // from 1 to 68 (EB)
+    int towerInTCC = theMapping_->iTT(towid) ; // from 1 to 68 (EB)
     //int stripInTower = elId.pseudoStripId() ;  // from 1 to 5
     //int xtalInStrip = elId.channelId() ;       // from 1 to 5
     const EcalElectronicsId Id = theMapping_->getElectronicsId(id) ;
@@ -554,6 +561,11 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     int xtalInVFE = Id.xtalId() ;
     int xtalWithinCCUid = 5*(VFEid-1) + xtalInVFE -1 ; // Evgueni expects [0,24]
     int etaSlice = towid.ietaAbs() ;
+
+    // hashed index of strip EcalLogicID:
+    int hashedStripLogicID = 68*5*(id.ism()-1) + 5*(towerInTCC-1) +  (VFEid-1) ;
+    stripMapEB[hashedStripLogicID] = elId.rawId() & 0xfffffff8 ;
+    stripMapEBsintheta[elId.rawId() & 0xfffffff8] = SFGVB_Threshold_ + abs(int(sin(theta)*pedestal_offset_)) ;
 
     FEConfigPedDat pedDB ;
     FEConfigLinDat linDB ;
@@ -715,13 +727,23 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 		<<" ietaTT = "<<towid.ieta()<<" iphiTT = "<<towid.iphi()<<endl ;
 
     int TCCch = stripInTower ;
+    int SLBslot, SLBch ;
+    if (towerInTCC<5) {
+      SLBslot = 1 ;
+      SLBch = 4 + towerInTCC ;
+    }
+    else {
+      SLBslot = int((towerInTCC-5)/8.) + 2 ;
+      SLBch = (towerInTCC-5)%8 + 1 ;
+    } 
     for (int j=0 ; j<towerInTCC-1 ; j++) TCCch += NbOfStripPerTCC[tccNb-1][j] ;
     float val[] = {dccNb+600,tccNb,towerInTCC,stripInTower,
 		   xtalInStrip,CCUid,VFEid,xtalInVFE,xtalWithinCCUid,-999,-999,
 		   id.ix(),id.iy(),towid.ieta()/abs(towid.ieta()),id.hashedIndex(),
 		   id.ic(),towid.ieta(),towid.iphi(),TCCch, getCrate(tccNb).second,
+		   SLBch, SLBslot, 
 		   getGCTRegionEta(towid.ieta()),getGCTRegionPhi(towid.iphi())} ;
-    for (int i=0 ; i<22 ; i++) ntupleFloats_[i] = val[i] ;
+    for (int i=0 ; i<24 ; i++) ntupleFloats_[i] = val[i] ;
     sprintf(ntupleDet_,getDet(tccNb).c_str()) ;
     sprintf(ntupleCrate_,getCrate(tccNb).first.c_str()) ;
     ntuple->Fill() ;
@@ -1102,6 +1124,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       }
 
       // endcap strip loop for the FEfgr EE strip
+      // and barrel strip loop for the spike parameters (same structure than EE FGr)
       map<EcalLogicID, FEConfigFgrEEStripDat> dataset4;
       for (int ich=0; ich<(int)my_StripEcalLogicId1_EE.size() ; ich++){
 	FEConfigFgrEEStripDat zut;
@@ -1116,7 +1139,22 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 	// Fill the dataset
 	dataset4[my_StripEcalLogicId2_EE[ich]] = zut;
       }
-	
+      for (int ich=0; ich<(int)my_StripEcalLogicId.size() ; ich++){
+	// EB
+	FEConfigFgrEEStripDat zut;
+	EcalLogicID thestrip = my_StripEcalLogicId[ich] ;
+	uint32_t elStripId = stripMapEB[ich] ;
+	map<uint32_t, uint32_t>::const_iterator it = stripMapEBsintheta.find(elStripId) ;
+	if (it != stripMapEBsintheta.end()) zut.setThreshold(it->second);
+	else {
+	  cout<<"ERROR: strip SFGVB threshold parameter not found for that strip:"<<thestrip.getID1()<<" "<<thestrip.getID3()<<" "<<thestrip.getID3()<<endl ; 
+	  cout<<" using value = "<<SFGVB_Threshold_+pedestal_offset_<<endl ;
+	  zut.setThreshold(SFGVB_Threshold_+pedestal_offset_) ;
+	}
+	zut.setLutFgr(SFGVB_lut_);
+	// Fill the dataset
+	dataset4[thestrip] = zut;
+      }
 
       // Insert the dataset
       ostringstream wtag;
@@ -1239,14 +1277,13 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       FEConfigLUTDat lut;
       int igroup=0;
       lut.setLUTGroupId(igroup);
-      // calculate the right TT - in the vector they are ordere by SM and by TT 
+      // calculate the right TT - in the vector they are ordered by SM and by TT 
       // Fill the dataset
       dataset2[my_TTEcalLogicId[ich]] = lut;
     }
 
     // endcap loop 
     for (int ich=0; ich<(int)my_TTEcalLogicId_EE.size() ; ich++){
-      std::cout << " endcap LUTDat" << std::endl;
       FEConfigLUTDat lut;
       int igroup=1;
       lut.setLUTGroupId(igroup);
@@ -1273,9 +1310,9 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
  }
 
 
-  ///////////////////////////////////////////////////////////
-  // loop on strips and associate them with default values //
-  ///////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////
+  // loop on strips and associate them with  values //
+  ////////////////////////////////////////////////////
 
   // Barrel
   stripListEB.sort() ;
@@ -1286,7 +1323,8 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     for (itList = stripListEB.begin(); itList != stripListEB.end(); itList++ ) {
       (*out_file_) <<"STRIP_EB "<<dec<<(*itList)<<endl ;
       (*out_file_) << hex << "0x" <<sliding_<<std::endl ;
-      (*out_file_) <<" 0" << std::endl ;
+      (*out_file_) <<"0" <<std::endl ;
+      (*out_file_) <<"0x"<<stripMapEBsintheta[(*itList)] << " 0x" << SFGVB_lut_ <<std::endl ;
     }
   }
 
@@ -1465,6 +1503,7 @@ void EcalTPGParamBuilder::create_header()
   (*out_file_) <<"COMMENT"<<std::endl ;
   (*out_file_) <<"COMMENT  sliding_window"<<std::endl ;
   (*out_file_) <<"COMMENT  weightGroupId"<<std::endl ;
+  (*out_file_) <<"COMMENT  threshold_sfg lut_sfg"<<std::endl ;
   (*out_file_) <<"COMMENT ================================="<<std::endl ;
   (*out_file_) <<"COMMENT"<<std::endl ;
 
@@ -1473,7 +1512,7 @@ void EcalTPGParamBuilder::create_header()
   (*out_file_) <<"COMMENT"<<std::endl ;
   (*out_file_) <<"COMMENT  sliding_window"<<std::endl ;
   (*out_file_) <<"COMMENT  weightGroupId"<<std::endl ;
-  (*out_file_) <<"COMMENT  threshold_fg strip_lut_fg"<<std::endl ;
+  (*out_file_) <<"COMMENT  threshold_fg lut_fg"<<std::endl ;
   (*out_file_) <<"COMMENT ================================="<<std::endl ;
   (*out_file_) <<"COMMENT"<<std::endl ;
 
@@ -1725,6 +1764,7 @@ void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff, const EcalIntercalibConst
 {
   // get current intercalibration coeff
   coeff.calibCoeff_ = 1. ;
+  if (!useInterCalibration_) return ;
   EcalIntercalibConstantMap::const_iterator icalit = calibMap.find(rawId);
   if( icalit != calibMap.end() ) coeff.calibCoeff_ = (*icalit) ;
   else std::cout<<"getCoeff: "<<rawId<<" not found in EcalIntercalibConstantMap"<<std::endl ;

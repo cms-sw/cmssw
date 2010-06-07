@@ -123,6 +123,8 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   int forcedPedestalValue_ ;
   bool forceEtaSlice_ ;
   unsigned int SFGVB_Threshold_, SFGVB_lut_, pedestal_offset_ ;
+  bool useInterCalibration_ ;
+
 
   std::ofstream * out_file_ ;
   std::ofstream * geomFile_ ;

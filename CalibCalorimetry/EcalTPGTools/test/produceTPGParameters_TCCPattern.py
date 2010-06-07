@@ -109,9 +109,20 @@ process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
 
     sliding = cms.uint32(0),                ## Parameter used for the FE data format, should'nt be changed
 
-    weight_sampleMax = cms.uint32(3),       ## position of the maximum among the 5 samples used by the TPG amplitude filter
+    weight_sampleMax = cms.uint32(3),        ## position of the maximum among the 5 samples used by the TPG amplitude filter
+    weight_unbias_recovery = cms.bool(True), ## true if weights after int conversion are forced to have sum=0. Pb, in that case it can't have sum f*w = 1
 
-    forcedPedestalValue = cms.int32(-2),    ## use this value instead of getting it from DB or MC (-1 means use DB or MC. -2 used to cope with FENIX bug)
+    forcedPedestalValue = cms.int32(-2),     ## use this value instead of getting it from DB or MC
+                                             ## -1: means use value from DB or MC.
+                                             ## -2: ped12 = 0 used to cope with FENIX bug
+                                             ## -3: used with sFGVB: baseline subtracted is pedestal-offset*sin(theta)/G with G=mult*2^-(shift+2) 
+    pedestal_offset =  cms.uint32(300),      ## pedestal offset used with option forcedPedestalValue = -3
+
+    useInterCalibration = cms.bool(True),    ## use or not values from DB. If not, 1 is assumed
+
+    SFGVB_Threshold = cms.uint32(50),        ## used with option forcedPedestalValue = -3
+    SFGVB_lut = cms.uint32(0xfffefee8),      ## used with option forcedPedestalValue = -3                                
+
     forceEtaSlice = cms.bool(False),        ## when true, same linearization coeff for all crystals belonging to a given eta slice (tower)
 
     LUT_option = cms.string('Identity'),    ## compressed LUT option can be: "Identity", "Linear", "EcalResolution"

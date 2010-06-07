@@ -50,15 +50,15 @@ process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
     TPGWriteBtt = cms.uint32(0), #do not change
 
     writeToFiles = cms.bool(True),
-    outFile = cms.string('TPG_linear.txt'),
+    outFile = cms.string('TPG_H2.txt'),
    #### TPG config tag and version (if not given it will be automatically given ) ####
-    TPGtag = cms.string('ENERGY'),
+    TPGtag = cms.string('H2'),
     TPGversion = cms.uint32(1),
                                         
    #### TPG calculation parameters ####
     useTransverseEnergy = cms.bool(False),   ## true when TPG computes transverse energy, false for energy
-    Et_sat_EB = cms.double(400.0),           ## Saturation value (in GeV) of the TPG before the compressed-LUT (rem: with 35.84 the TPG_LSB = crystal_LSB)
-    Et_sat_EE = cms.double(400.0),           ## Saturation value (in GeV) of the TPG before the compressed-LUT (rem: with 35.84 the TPG_LSB = crystal_LSB)
+    Et_sat_EB = cms.double(256.0),           ## Saturation value (in GeV) of the TPG before the compressed-LUT (rem: with 35.84 the TPG_LSB = crystal_LSB)
+    Et_sat_EE = cms.double(256.0),           ## Saturation value (in GeV) of the TPG before the compressed-LUT (rem: with 35.84 the TPG_LSB = crystal_LSB)
 
     sliding = cms.uint32(0),                 ## Parameter used for the FE data format, should'nt be changed
 
@@ -71,6 +71,8 @@ process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
                                              ## -2: ped12 = 0 used to cope with FENIX bug
                                              ## -3: used with sFGVB: baseline subtracted is pedestal-offset*sin(theta)/G with G=mult*2^-(shift+2) 
     pedestal_offset =  cms.uint32(300),      ## pedestal offset used with option forcedPedestalValue = -3
+
+    useInterCalibration = cms.bool(False),   ## use or not values from DB. If not, 1 is assumed
 
     SFGVB_Threshold = cms.uint32(0),         ## used with option forcedPedestalValue = -3
     SFGVB_lut = cms.uint32(0),               ## used with option forcedPedestalValue = -3                                
@@ -89,8 +91,8 @@ process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
 
     TTF_lowThreshold_EB = cms.double(1.0),   ## EB Trigger Tower Flag low threshold in GeV
     TTF_highThreshold_EB = cms.double(2.0),  ## EB Trigger Tower Flag high threshold in GeV
-    TTF_lowThreshold_EE = cms.double(1.0),  ## EE Trigger Tower Flag low threshold in GeV
-    TTF_highThreshold_EE = cms.double(2.0), ## EE Trigger Tower Flag high threshold in GeV
+    TTF_lowThreshold_EE = cms.double(1.0),   ## EE Trigger Tower Flag low threshold in GeV
+    TTF_highThreshold_EE = cms.double(2.0),  ## EE Trigger Tower Flag high threshold in GeV
 
     FG_lowThreshold_EB = cms.double(0.3125),   ## EB Fine Grain Et low threshold in GeV
     FG_highThreshold_EB = cms.double(0.3125),  ## EB Fine Grain Et high threshold in GeV
