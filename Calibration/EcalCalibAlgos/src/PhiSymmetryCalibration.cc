@@ -384,7 +384,7 @@ void PhiSymmetryCalibration::analyze( const edm::Event& event, const edm::EventS
       pass=true;
     }
  
-    if (pass) nevents_++;
+   
 
     if (eventSet_==1) {
       // apply a miscalibration to all crystals and increment the 
@@ -417,6 +417,8 @@ void PhiSymmetryCalibration::analyze( const edm::Event& event, const edm::EventS
 
     }//if eventSet_==1
   }//for endc
+
+  if (pass) nevents_++;
 
 }
 
