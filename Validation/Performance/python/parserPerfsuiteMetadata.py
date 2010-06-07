@@ -602,7 +602,7 @@ class parserPerfsuiteMetadata:
 	#get IgProf summary information from the sql3 files
 	def getIgSummary(self):
 		igresult = []
-		globbed = glob.glob("../*/IgProfData/*/*/*.sql3")
+		globbed = glob.glob(os.path.join(self._path, "../*/IgProfData/*/*/*.sql3"))
 
 		for f in globbed:
 			#print f
