@@ -22,6 +22,7 @@ public:
 		       const double& chi2, const int& ndf);
 
 private:
+  int maxActiveChambers;
   bool useRPCs; 
 
   edm::InputTag DTRecSegmentLabel;

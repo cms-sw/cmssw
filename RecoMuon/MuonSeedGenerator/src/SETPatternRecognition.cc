@@ -27,7 +27,7 @@ SETPatternRecognition::SETPatternRecognition(const ParameterSet& parameterSet)
   ParameterSet trajectoryBuilderParameters = parameterSet.getParameter<ParameterSet>("SETTrajBuilderParameters");
   // The inward-outward fitter (starts from seed state)
   ParameterSet filterPSet = trajectoryBuilderParameters.getParameter<ParameterSet>("FilterParameters");
-
+  maxActiveChambers = filterPSet.getParameter<int>("maxActiveChambers"); 
   useRPCs = filterPSet.getParameter<bool>("EnableRPCMeasurement");
   DTRecSegmentLabel  = filterPSet.getParameter<edm::InputTag>("DTRecSegmentLabel");
   CSCRecSegmentLabel  = filterPSet.getParameter<edm::InputTag>("CSCRecSegmentLabel");
@@ -57,8 +57,20 @@ void SETPatternRecognition::produce(const edm::Event& event, const edm::EventSet
 
   edm::Handle<DTRecSegment4DCollection> dtRecHits;
   event.getByLabel(DTRecSegmentLabel, dtRecHits);
+  std::vector<DTChamberId> chambers_DT;
+  std::vector<DTChamberId>::const_iterator chIt_DT;
   for (DTRecSegment4DCollection::const_iterator rechit = dtRecHits->begin(); rechit!=dtRecHits->end();++rechit) {
-
+    bool insert = true;
+    for(chIt_DT=chambers_DT.begin(); chIt_DT != chambers_DT.end(); ++chIt_DT){
+      if (((*rechit).chamberId().wheel() == (*chIt_DT).wheel()) &&
+	  ((*rechit).chamberId().station() == (*chIt_DT).station()) &&
+	  ((*rechit).chamberId().sector() == (*chIt_DT).sector())){
+	insert = false;
+      }
+    }
+    if (insert){
+      chambers_DT.push_back((*rechit).chamberId());
+    }
     if(segmentCleaning((*rechit).geographicalId(), 
 		       rechit->localPosition(), rechit->localPositionError(),
 		       rechit->localDirection(), rechit->localDirectionError(),
@@ -86,7 +98,21 @@ void SETPatternRecognition::produce(const edm::Event& event, const edm::EventSet
 
   edm::Handle<CSCSegmentCollection> cscSegments;
   event.getByLabel(CSCRecSegmentLabel, cscSegments);
+  std::vector<CSCDetId> chambers_CSC;
+  std::vector<CSCDetId>::const_iterator chIt_CSC;
   for(CSCSegmentCollection::const_iterator rechit=cscSegments->begin(); rechit != cscSegments->end(); ++rechit) {
+    bool insert = true;
+    for(chIt_CSC=chambers_CSC.begin(); chIt_CSC != chambers_CSC.end(); ++chIt_CSC){
+      if (((*rechit).cscDetId().chamber() == (*chIt_CSC).chamber()) &&
+	  ((*rechit).cscDetId().station() == (*chIt_CSC).station()) &&
+	  ((*rechit).cscDetId().ring() == (*chIt_CSC).ring()) &&
+	  ((*rechit).cscDetId().endcap() == (*chIt_CSC).endcap())){
+	insert = false;
+      }
+    }
+    if (insert){
+      chambers_CSC.push_back((*rechit).cscDetId().chamberId());
+    }
     if(segmentCleaning((*rechit).geographicalId(), 
 		       rechit->localPosition(), rechit->localPositionError(),
 		       rechit->localDirection(), rechit->localDirectionError(),
@@ -120,7 +146,15 @@ void SETPatternRecognition::produce(const edm::Event& event, const edm::EventSet
     }
   }
   //std::cout<<"RPC done"<<std::endl;
-
+  //
+  if(int(chambers_DT.size() + chambers_CSC.size()) > maxActiveChambers){
+    // std::cout <<" Too much active chambers : nDT = "<<chambers_DT.size()<<
+    // " nCSC = "<<chambers_CSC.size()<<"  Skip them all."<<std::endl;
+    muonRecHits.clear();                                
+    muonRecHits_DT2D_hasPhi.clear();    
+    muonRecHits_DT2D_hasZed.clear();
+    muonRecHits_RPC.clear();
+  }
   //---- Find "pre-clusters" from all segments; these contain potential muon candidates
 
   //---- From all the hits (i.e. segments; sometimes "rechits" is also used with the same meaning;

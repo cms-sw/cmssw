@@ -21,7 +21,8 @@ SETMuonSeed  = cms.EDProducer("SETMuonSeedProducer",
             CSCRecSegmentLabel = cms.InputTag("cscSegments"),
             RPCRecSegmentLabel = cms.InputTag("rpcRecHits"),
             Propagator = cms.string('SteppingHelixPropagatorAny'),
-
+# DT + CSC chambers here           
+            maxActiveChambers = cms.int32(100),   
             EnableRPCMeasurement = cms.bool(True),
 # Check the position of the segment including errors 
             OutsideChamberErrorScale = cms.double(1.0), 
