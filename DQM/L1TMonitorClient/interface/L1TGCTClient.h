@@ -51,8 +51,8 @@ class L1TGCTClient: public edm::EDAnalyzer {
 
  private:
 
-  void makeXProjection(TH2D* input, MonitorElement* output);
-  void makeYProjection(TH2D* input, MonitorElement* output);
+  void makeXProjection(TH2F* input, MonitorElement* output);
+  void makeYProjection(TH2F* input, MonitorElement* output);
 
   DQMStore* dbe_;   
   std::string monitorDir_; 
