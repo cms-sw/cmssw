@@ -16,7 +16,7 @@ DICTFILES := $(FILES) LinkDef
 # Executable files
 PROGRAMS := createEBHist
 PROGRAMS += getChannel
-PROGRAMS += runStab
+#PROGRAMS += runStab
 PROGRAMS += runTest
 
 PROGRAMS += runGUI
