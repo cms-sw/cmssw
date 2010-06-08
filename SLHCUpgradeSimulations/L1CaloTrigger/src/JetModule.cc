@@ -62,8 +62,8 @@ JetModule::clusterize(L1CaloJetCollection& jets,const edm::Handle<L1CaloRegionCo
 
       L1CaloJet jet(p.first,p.second);
 
-      for(unsigned int bin_phi=phi;bin_phi<=phi+4;bin_phi+=4)
-	for(unsigned int bin_eta=eta;bin_eta<=eta+4;bin_eta+=4)
+      for(int bin_phi=phi;bin_phi<=phi+4;bin_phi+=4)
+	for(int bin_eta=eta;bin_eta<=eta+4;bin_eta+=4)
 	  {
 	    int bin = s.getBin(bin_eta,bin_phi);
 	    if(isValid(bin))

@@ -84,5 +84,6 @@ L1CaloClusterIsolator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    iEvent.put(isolatedClusters);
 
 }
-
-DEFINE_ANOTHER_FWK_MODULE(L1CaloClusterIsolator);
+//#define DEFINE_ANOTHER_FWK_MODULE(type) DEFINE_EDM_PLUGIN (edm::MakerPluginFactory,edm::WorkerMaker<type>,#type); DEFINE_FWK_PSET_DESC_FILLER(type)
+DEFINE_EDM_PLUGIN(edm::MakerPluginFactory,edm::WorkerMaker<L1CaloClusterIsolator>,"L1CaloClusterIsolator");DEFINE_FWK_PSET_DESC_FILLER(L1CaloClusterIsolator);
+//DEFINE_ANOTHER_FWK_MODULE(L1CaloClusterIsolator);

@@ -89,5 +89,6 @@ L1CaloJetExpander::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    iEvent.put(jets);
 }
-
-DEFINE_ANOTHER_FWK_MODULE(L1CaloJetExpander);
+//#define DEFINE_ANOTHER_FWK_MODULE(type) DEFINE_EDM_PLUGIN (edm::MakerPluginFactory,edm::WorkerMaker<type>,#type); DEFINE_FWK_PSET_DESC_FILLER(type)
+DEFINE_EDM_PLUGIN (edm::MakerPluginFactory,edm::WorkerMaker<L1CaloJetExpander>,"L1CaloJetExpander"); DEFINE_FWK_PSET_DESC_FILLER(L1CaloJetExpander);
+//DEFINE_ANOTHER_FWK_MODULE(L1CaloJetExpander);

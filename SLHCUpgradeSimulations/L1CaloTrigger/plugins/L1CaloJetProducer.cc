@@ -91,5 +91,6 @@ L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 
-
-DEFINE_ANOTHER_FWK_MODULE(L1CaloJetProducer);
+//#define DEFINE_ANOTHER_FWK_MODULE(type) DEFINE_EDM_PLUGIN (edm::MakerPluginFactory,edm::WorkerMaker<type>,#type); DEFINE_FWK_PSET_DESC_FILLER(type)
+DEFINE_EDM_PLUGIN (edm::MakerPluginFactory,edm::WorkerMaker<L1CaloJetProducer>,"L1CaloJetProducer"); DEFINE_FWK_PSET_DESC_FILLER(L1CaloJetProducer);
+//DEFINE_ANOTHER_FWK_MODULE(L1CaloJetProducer);

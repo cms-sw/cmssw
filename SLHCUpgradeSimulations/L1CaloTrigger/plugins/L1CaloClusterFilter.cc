@@ -82,5 +82,6 @@ L1CaloClusterFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    iEvent.put(filteredClusters);
 }
-
-DEFINE_ANOTHER_FWK_MODULE(L1CaloClusterFilter);
+//#define DEFINE_ANOTHER_FWK_MODULE(type) DEFINE_EDM_PLUGIN (edm::MakerPluginFactory,edm::WorkerMaker<type>,#type); DEFINE_FWK_PSET_DESC_FILLER(type)
+DEFINE_EDM_PLUGIN (edm::MakerPluginFactory,edm::WorkerMaker<L1CaloClusterFilter>,"L1CaloClusterFilter"); DEFINE_FWK_PSET_DESC_FILLER(L1CaloClusterFilter);
+//DEFINE_ANOTHER_FWK_MODULE(L1CaloClusterFilter);

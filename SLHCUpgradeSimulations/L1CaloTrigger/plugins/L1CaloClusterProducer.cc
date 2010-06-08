@@ -94,5 +94,6 @@ L1CaloClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 }
 
 
-
-DEFINE_ANOTHER_FWK_MODULE(L1CaloClusterProducer);
+//#define DEFINE_ANOTHER_FWK_MODULE(type) DEFINE_EDM_PLUGIN (edm::MakerPluginFactory,edm::WorkerMaker<type>,#type); DEFINE_FWK_PSET_DESC_FILLER(type)
+DEFINE_EDM_PLUGIN (edm::MakerPluginFactory,edm::WorkerMaker<L1CaloClusterProducer>,"L1CaloClusterProducer"); DEFINE_FWK_PSET_DESC_FILLER(L1CaloClusterProducer);
+//DEFINE_ANOTHER_FWK_MODULE(L1CaloClusterProducer);

@@ -142,7 +142,7 @@ L1ExtraTranslator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      {
        
        size_t N=nJets_;
-       if(jets->size()<nJets_)
+       if(int(jets->size())< nJets_)
        N=jets->size();
        
        for(size_t i = 0;i<N;++i)
@@ -160,6 +160,7 @@ void
 L1ExtraTranslator::endJob() {
 }
 
-
-DEFINE_ANOTHER_FWK_MODULE(L1ExtraTranslator);
+//#define DEFINE_ANOTHER_FWK_MODULE(type) DEFINE_EDM_PLUGIN (edm::MakerPluginFactory,edm::WorkerMaker<type>,#type); DEFINE_FWK_PSET_DESC_FILLER(type)
+DEFINE_EDM_PLUGIN (edm::MakerPluginFactory,edm::WorkerMaker<L1ExtraTranslator>,"L1ExtraTranslator"); DEFINE_FWK_PSET_DESC_FILLER(L1ExtraTranslator);
+//DEFINE_ANOTHER_FWK_MODULE(L1ExtraTranslator);
 

@@ -160,4 +160,6 @@ void
 L1CaloTowerProducer::endJob() {
 
 }
-DEFINE_ANOTHER_FWK_MODULE(L1CaloTowerProducer);
+//#define DEFINE_ANOTHER_FWK_MODULE(type) DEFINE_EDM_PLUGIN (edm::MakerPluginFactory,edm::WorkerMaker<type>,#type); DEFINE_FWK_PSET_DESC_FILLER(type)
+DEFINE_EDM_PLUGIN (edm::MakerPluginFactory,edm::WorkerMaker<L1CaloTowerProducer>,"L1CaloTowerProducer"); DEFINE_FWK_PSET_DESC_FILLER(L1CaloTowerProducer);
+//DEFINE_ANOTHER_FWK_MODULE(L1CaloTowerProducer);
