@@ -210,7 +210,7 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
       
       // create rechits
       typedef CaloTowerCollection::const_iterator ICT;
-      
+    
       for(ICT ict=caloTowers->begin(); ict!=caloTowers->end();ict++) {
 	  
 	const CaloTower& ct = (*ict);
@@ -418,15 +418,29 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		typedef HFRecHitCollection::const_iterator iHF;
 		iHF theLongHit = hfHandle->find(theLongDetId); 
 		iHF theShortHit = hfHandle->find(theShortDetId); 
-		double theLongHitEnergy = theLongHit != hfHandle->end() ? theLongHit->energy() : 0.;
-		double theShortHitEnergy = theShortHit != hfHandle->end() ? theShortHit->energy() : 0.;
-
-		bool flagShortDPG = applyLongShortDPG_ && theShortHit->flagField(HcalCaloFlagLabels::HFLongShort);
-		bool flagLongDPG = applyLongShortDPG_ && theLongHit->flagField(HcalCaloFlagLabels::HFLongShort);
-		bool flagShortTimeDPG = applyTimeDPG_ && theShortHit->flagField(HcalCaloFlagLabels::HFInTimeWindow);
-		bool flagLongTimeDPG = applyTimeDPG_ && theLongHit->flagField(HcalCaloFlagLabels::HFInTimeWindow);
-		bool flagShortPulseDPG = applyPulseDPG_ && theShortHit->flagField(HcalCaloFlagLabels::HFDigiTime);
-		bool flagLongPulseDPG = applyPulseDPG_ && theLongHit->flagField(HcalCaloFlagLabels::HFDigiTime);
+		// 
+		double theLongHitEnergy = 0.;
+		double theShortHitEnergy = 0.;
+		bool flagShortDPG =  false; 
+		bool flagLongDPG = false; 
+		bool flagShortTimeDPG = false; 
+		bool flagLongTimeDPG = false;
+		bool flagShortPulseDPG = false;
+		bool flagLongPulseDPG = false;
+		//
+		if ( theLongHit != hfHandle->end() ) { 
+		  theLongHitEnergy = theLongHit->energy();
+		  flagLongDPG = applyLongShortDPG_ && theLongHit->flagField(HcalCaloFlagLabels::HFLongShort)==1;
+		  flagLongTimeDPG = applyTimeDPG_ && theLongHit->flagField(HcalCaloFlagLabels::HFInTimeWindow)==1;
+		  flagShortPulseDPG = applyPulseDPG_ && theShortHit->flagField(HcalCaloFlagLabels::HFDigiTime)==1;
+		}
+		//
+		if ( theShortHit != hfHandle->end() ) { 
+		  theShortHitEnergy = theShortHit->energy();
+		  flagShortDPG =  applyLongShortDPG_ && theShortHit->flagField(HcalCaloFlagLabels::HFLongShort)==1;
+		  flagShortTimeDPG = applyTimeDPG_ && theShortHit->flagField(HcalCaloFlagLabels::HFInTimeWindow)==1;
+		  flagLongPulseDPG = applyPulseDPG_ && theLongHit->flagField(HcalCaloFlagLabels::HFDigiTime)==1;
+		}
 
 		// Then check the timing in short and long fibres in all other towers.
 		if ( theShortHitEnergy > longShortFibre_Cut && 
@@ -603,15 +617,29 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		  HcalDetId theShortDetId29 (HcalForward, ieta29, iphi, 2);
 		  iHF theLongHit29 = hfHandle->find(theLongDetId29); 
 		  iHF theShortHit29 = hfHandle->find(theShortDetId29); 
-		  double theLongHitEnergy29 = theLongHit29 != hfHandle->end() ? theLongHit29->energy() : 0.;
-		  double theShortHitEnergy29 = theShortHit29 != hfHandle->end() ? theShortHit29->energy() : 0.;
-		  
-		  int flagShortDPG29 = theShortHit29->flagField(HcalCaloFlagLabels::HFLongShort);
-		  int flagLongDPG29 = theLongHit29->flagField(HcalCaloFlagLabels::HFLongShort);
-		  int flagShortTimeDPG29 = theShortHit29->flagField(HcalCaloFlagLabels::HFInTimeWindow);
-		  int flagLongTimeDPG29 = theLongHit29->flagField(HcalCaloFlagLabels::HFInTimeWindow);
-		  int flagShortPulseDPG29 = theShortHit29->flagField(HcalCaloFlagLabels::HFDigiTime);
-		  int flagLongPulseDPG29 = theLongHit29->flagField(HcalCaloFlagLabels::HFDigiTime);
+		  // 
+		  double theLongHitEnergy29 = 0.;
+		  double theShortHitEnergy29 = 0.;
+		  bool flagShortDPG29 =  false; 
+		  bool flagLongDPG29 = false; 
+		  bool flagShortTimeDPG29 = false; 
+		  bool flagLongTimeDPG29 = false;
+		  bool flagShortPulseDPG29 = false;
+		  bool flagLongPulseDPG29 = false;
+		  //
+		  if ( theLongHit29 != hfHandle->end() ) { 		    
+		    theLongHitEnergy29 = theLongHit29->energy() ;
+		    flagLongDPG29 = applyLongShortDPG_ && theLongHit29->flagField(HcalCaloFlagLabels::HFLongShort)==1;
+		    flagLongTimeDPG29 = applyTimeDPG_ && theLongHit29->flagField(HcalCaloFlagLabels::HFInTimeWindow)==1;
+		    flagLongPulseDPG29 = applyPulseDPG_ && theLongHit29->flagField(HcalCaloFlagLabels::HFDigiTime)==1;
+		  }
+		  //
+		  if ( theShortHit29 != hfHandle->end() ) { 		    
+		    theShortHitEnergy29 = theShortHit29->energy();		  
+		    flagShortDPG29 = applyLongShortDPG_ && theShortHit29->flagField(HcalCaloFlagLabels::HFLongShort)==1;
+		    flagShortTimeDPG29 = applyTimeDPG_ && theShortHit29->flagField(HcalCaloFlagLabels::HFInTimeWindow)==1;
+		    flagShortPulseDPG29 = applyPulseDPG_ && theShortHit29->flagField(HcalCaloFlagLabels::HFDigiTime)==1;
+		  }
 
 		  if ( theLongHitEnergy29 > longShortFibre_Cut && 
 		       ( theLongHit29->time() < minLongTiming_Cut ||
@@ -885,7 +913,7 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
   else if( !(inputTagHcalRecHitsHBHE_ == InputTag()) ) { 
     // clustering is not done on CaloTowers but on HCAL rechits.
        
-
+  
     // get the hcal topology
     HcalTopology hcalTopology;
     
