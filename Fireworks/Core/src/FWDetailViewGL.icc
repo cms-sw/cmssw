@@ -61,15 +61,14 @@ void  FWDetailViewGL<T>::init(TEveWindowSlot* slot)
    cf->MapWindow();
 
    // viewer GL 
-   TEveWindowSlot* glSlot = pack->NewSlotWithWeight(3);
    m_eveViewer = new TEveViewer("DetailView");
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,25,4)
    m_eveViewer->SpawnGLEmbeddedViewer(0);
 #else
    m_eveViewer->SpawnGLEmbeddedViewer();
 #endif
-   glSlot->ReplaceWindow(m_eveViewer);
-   glSlot->SetShowTitleBar(kFALSE);
+   pack->NewSlotWithWeight(3)->ReplaceWindow(m_eveViewer);
+   m_eveViewer->SetShowTitleBar(kFALSE);
    gEve->GetViewers()->AddElement(m_eveViewer);
   
    
