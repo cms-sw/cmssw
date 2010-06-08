@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.40 2010/06/05 15:27:43 eulisse Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.41 2010/06/08 08:34:31 eulisse Exp $
 //
 
 // system include files
@@ -499,12 +499,12 @@ FWGUIEventDataAdder::createWindow()
    m_frame->AddFrame(vf, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY,10,10,10,10));
 
    unsigned int maxWidth = 0;
-   std::vector<TGLayoutHints*> hints(1);
-   std::vector<unsigned int> widths(1);
-   assert(1==hints.size());
+   std::vector<TGLayoutHints*> hints;
+   std::vector<unsigned int>   widths;
 
    unsigned int index = 0;
-   
+
+   hints.push_back(0); widths.push_back(0);
    hints[index] = addToFrame(vf, "Search:", m_search, widths[index]);
    
    m_search->Connect("TextChanged(const char *)", "FWGUIEventDataAdder", 
@@ -542,6 +542,7 @@ FWGUIEventDataAdder::createWindow()
    vf->AddFrame(m_tableWidget, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
    m_tableWidget->Connect("rowClicked(Int_t,Int_t,Int_t,Int_t,Int_t)","FWGUIEventDataAdder",this,"rowClicked(Int_t,Int_t,Int_t,Int_t,Int_t)");
 
+   hints.push_back(0); widths.push_back(0);
    hints[index] = addToFrame(vf, "", m_name, widths[index]);
    
    if ( widths[index] > maxWidth ) 
