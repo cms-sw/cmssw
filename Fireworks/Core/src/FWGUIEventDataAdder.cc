@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.39 2010/06/03 19:38:31 chrjones Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.40 2010/06/05 15:27:43 eulisse Exp $
 //
 
 // system include files
@@ -195,7 +195,7 @@ namespace {
        This is usually a better approach than the "match subparts of the
        string" one.
      */
-   struct SortAndFilter
+   class SortAndFilter
    {
    public:
       SortAndFilter(const char *filter, size_t column, bool order, 
@@ -204,9 +204,16 @@ namespace {
            m_column(column),
            m_order(order),
            m_data(data)
-      {
-         std::transform(m_filter.begin(), m_filter.end(), m_filter.begin(), tolower);
-      }
+         {
+            std::transform(m_filter.begin(), m_filter.end(), m_filter.begin(), tolower);
+            m_weights.resize(data.size());
+            
+            // Calculate whether or not all the entries match the given filter.
+            // This is done only once, since it's invariant under permutations
+            // of the data.
+            for (size_t i = 0, e = m_weights.size(); i != e; ++i)
+               m_weights[i] = matchesFilter(m_data[i]);
+         }
       
       bool matches(const std::string &str) const
          {
@@ -237,33 +244,34 @@ namespace {
             return true;
          }
       
+      /** If any of the columns (including "Purpose"!!) matches, we consider
+          the row valid.
+        */
       bool matchesFilter(const FWGUIEventDataAdder::Data &data) const
-      {
-         return matches(data.type_) 
-                || matches(data.moduleLabel_)
-                || matches(data.productInstanceLabel_) 
-                || matches(data.processName_);
-      }
+         {
+            return matches(data.purpose_)
+                   || matches(data.type_) 
+                   || matches(data.moduleLabel_)
+                   || matches(data.productInstanceLabel_) 
+                   || matches(data.processName_);
+         }
       
+      /** Have a look at the class description to see the rationale behind 
+          this.
+        */
       bool operator()(const int &aIndex, const int &bIndex)
          {
+            if (!m_weights[aIndex] && !m_weights[bIndex])
+               return true;
+            
+            if (m_weights[aIndex] && !m_weights[bIndex])
+               return true;
+            
+            if (!m_weights[aIndex] && m_weights[bIndex])
+               return false;
+
             const FWGUIEventDataAdder::Data &a = m_data[aIndex];
             const FWGUIEventDataAdder::Data &b = m_data[bIndex];
-            // This is not particularly smart because it will check for 
-            // filtering every time...Lets get it right first and then we
-            // can optimize it if needed. It's only an handful of types,
-            // after all.
-            bool aMatches = matchesFilter(a);
-            bool bMatches = matchesFilter(b);
-            
-            if (!aMatches && !bMatches)
-               return true;
-            
-            if (aMatches && !bMatches)
-               return true;
-            
-            if (!aMatches && bMatches)
-               return false;
             
             if (m_order)
                return dataForColumn(a, m_column) < dataForColumn(b, m_column);
@@ -275,6 +283,7 @@ namespace {
       size_t      m_column;
       bool        m_order;
       const std::vector<FWGUIEventDataAdder::Data> &m_data;
+      std::vector<bool>                             m_weights;
    };
 
    void doSort(int column,
