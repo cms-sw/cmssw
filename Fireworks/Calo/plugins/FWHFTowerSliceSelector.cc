@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Wed Jun  2 17:39:44 CEST 2010
-// $Id: FWHFTowerSliceSelector.cc,v 1.3 2010/06/03 14:48:22 amraktad Exp $
+// $Id: FWHFTowerSliceSelector.cc,v 1.4 2010/06/07 17:54:00 amraktad Exp $
 //
 
 // system include files
@@ -100,4 +100,6 @@ FWHFTowerSliceSelector::findBinFromId( HcalDetId& detId, int tower) const
    {
       return true;
    }
+
+   return false;
 }
