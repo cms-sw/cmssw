@@ -128,7 +128,7 @@ namespace edm {
   }
   
   
-  
+  void
   FileLocator::parseRule (DOMNode *ruleNode, 
 			  ProtocolRules &rules)
   {
