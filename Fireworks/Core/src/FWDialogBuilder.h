@@ -291,6 +291,9 @@ public:
                                                TGNumberFormat::kNELLimitMinMax,
                                                min, max);
       currentFrame()->AddFrame(entry, nextHints());
+      entry->GetNumberEntry()->SetEnabled(kFALSE);
+      entry->GetButtonUp()->SetEnabled(kFALSE);
+      entry->GetButtonDown()->SetEnabled(kFALSE);
       return extract(entry, out);
    }
    

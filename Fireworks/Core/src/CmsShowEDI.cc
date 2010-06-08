@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.34 2010/06/03 14:23:36 eulisse Exp $
+// $Id: CmsShowEDI.cc,v 1.35 2010/06/07 15:58:02 eulisse Exp $
 //
 
 // system include files
@@ -341,6 +341,7 @@ CmsShowEDI::disconnectAll() {
       //  else m_isVisibleButton->SetState(kButtonDown, kFALSE);
       m_colorSelectWidget->SetEnabled(kFALSE);
       m_opacitySlider->SetEnabled(kFALSE);
+      
       m_isVisibleButton->SetEnabled(kFALSE);
       m_filterExpressionEntry->SetEnabled(kFALSE);
       m_filterButton->SetEnabled(kFALSE);
@@ -352,7 +353,9 @@ CmsShowEDI::disconnectAll() {
       m_frontButton->SetEnabled(kFALSE);
       m_layerEntry->SetIntNumber(0);
       m_layerEntry->SetState(kFALSE);
-
+      m_layerEntry->GetNumberEntry()->SetEnabled(kFALSE);
+      m_layerEntry->GetButtonUp()->SetEnabled(kFALSE);
+      m_layerEntry->GetButtonDown()->SetEnabled(kFALSE);
    }
 }
 
