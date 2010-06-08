@@ -72,4 +72,20 @@ def customise(process):
     ###
     ###############################################################################################
 
+    #add the DQM stream for this time only
+    # DQMStream output definition
+    process.outputDQMStream = cms.OutputModule("PoolOutputModule",
+                                               outputCommands = cms.untracked.vstring('drop *',
+                                                                                      'keep *_MEtoEDMConverter_*_*'),
+                                               fileName = cms.untracked.string('DQMStream.root'),
+                                               dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string('DQM'),
+        dataTier = cms.untracked.string('DQM')
+        )
+    )
+    process.outputDQMStreamOutPath = cms.EndPath(process.outputDQMStream)
+    process.schedule.append( process.outputDQMStreamOutPath )
+
+
+
     return (process)
