@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWLegoViewBase.cc,v 1.1 2010/05/31 13:01:25 amraktad Exp $
+// $Id: FWLegoViewBase.cc,v 1.2 2010/06/07 17:54:01 amraktad Exp $
 //
 
 // system include files
@@ -56,6 +56,7 @@ FWLegoViewBase::FWLegoViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId
    m_plotEt(this,"Plot Et",true),   
    m_autoRebin(this,"Auto rebin on zoom",false),
    m_pixelsPerBin(this, "Pixels per bin", 10., 1., 20.),
+   m_drawValuesIn2D(this,"pixel font size in 2D)",40l,16l,200l),
    m_showScales(this,"Show scales", true),
    m_legoFixedScale(this,"Lego scale GeV)",100.,1.,1000.),
    m_legoAutoScale (this,"Lego auto scale",true)
@@ -64,6 +65,7 @@ FWLegoViewBase::FWLegoViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId
 
    m_autoRebin.changed_.connect(boost::bind(&FWLegoViewBase::setAutoRebin,this));
    m_pixelsPerBin.changed_.connect(boost::bind(&FWLegoViewBase::setPixelsPerBin,this));
+   m_drawValuesIn2D.changed_.connect(boost::bind(&FWLegoViewBase::setFontSizein2D,this));
    m_plotEt.changed_.connect(boost::bind(&FWLegoViewBase::plotEt,this));
    m_showScales.changed_.connect(boost::bind(&FWLegoViewBase::showScales,this));
    m_legoFixedScale.changed_.connect(boost::bind(&FWLegoViewBase::updateLegoScale, this));
@@ -92,6 +94,7 @@ void FWLegoViewBase::setContext(fireworks::Context& context)
    m_lego->RefMainTrans().SetScale(TMath::TwoPi(), TMath::TwoPi(), TMath::Pi());
    m_lego->Set2DMode(TEveCaloLego::kValSize);
    m_lego->SetDrawNumberCellPixels(20);
+   m_lego->SetAutoRebin(false);
    eventScene()->AddElement(m_lego);
  
    TEveLegoEventHandler* eh = dynamic_cast<TEveLegoEventHandler*>( viewerGL()->GetEventHandler());
@@ -200,3 +203,9 @@ FWLegoViewBase::addTo(FWConfiguration& iTo) const
    }
 }
 
+void
+FWLegoViewBase::setFontSizein2D()
+{
+   m_lego->SetDrawNumberCellPixels( m_drawValuesIn2D.value());
+   m_lego->ElementChanged(kTRUE,kTRUE);
+}

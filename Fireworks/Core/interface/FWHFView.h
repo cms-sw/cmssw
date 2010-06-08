@@ -16,7 +16,7 @@
 //
 // Original Author:  Yanjun
 //         Created:  Mon May 31 13:42:21 CEST 2010
-// $Id: FWHFView.h,v 1.2 2010/06/07 17:54:01 amraktad Exp $
+// $Id: FWHFView.h,v 1.3 2010/06/08 11:35:00 amraktad Exp $
 //
 
 // system include files
@@ -39,15 +39,12 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   void setFontSizein2D();
 private:
    FWHFView(const FWHFView&); // stop default
 
    const FWHFView& operator=(const FWHFView&); // stop default
 
    // ---------- member data --------------------------------
-
-   FWLongParameter m_drawValuesIn2D;
 };
 
 

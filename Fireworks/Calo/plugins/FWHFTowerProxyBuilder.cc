@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 16:41:27 CEST 2010
-// $Id: FWHFTowerProxyBuilder.cc,v 1.7 2010/06/08 13:44:47 amraktad Exp $
+// $Id: FWHFTowerProxyBuilder.cc,v 1.8 2010/06/08 14:41:38 chrjones Exp $
 //
 
 // system include files
@@ -27,11 +27,10 @@
 #include "Fireworks/Core/interface/fwLog.h"
 
   
-std::map<int,int> FWHFTowerProxyBuilderBase::m_detIdMap;
 
-FWHFTowerProxyBuilderBase::FWHFTowerProxyBuilderBase(int depth):
+FWHFTowerProxyBuilderBase::FWHFTowerProxyBuilderBase():
    m_hits(0),
-   m_depth(depth),
+   // m_depth(depth),
    m_vecData(0)
 {
 }
@@ -48,7 +47,7 @@ void
 FWHFTowerProxyBuilderBase::setCaloData(const fireworks::Context& ctx)
 {
    m_vecData  = ctx.getCaloDataHF();// cached to avoid casting
-  m_caloData = m_vecData;
+   m_caloData = m_vecData;
 }
 
 bool
@@ -57,6 +56,7 @@ FWHFTowerProxyBuilderBase::assertCaloDataSlice()
   if (m_sliceIndex == -1)
   {
     m_sliceIndex = m_vecData->AddSlice();
+    // printf("add slice %d \n",m_sliceIndex  );
     m_caloData->RefSliceInfo(m_sliceIndex).Setup(sliceName().c_str(), 0., item()->defaultDisplayProperties().color());
     
     
@@ -137,15 +137,12 @@ FWHFTowerProxyBuilderBase::fillCaloData()
             if(info.displayProperties().isVisible())
             {
                HcalDetId detId = (*it).detid().rawId();
-               if(detId.depth() == m_depth)
-               {                 
-                  int tower = fillTowerForDetId(detId, (*it).energy());
+               int tower = fillTowerForDetId(detId, (*it).energy());
                 
-                  if(info.isSelected())
-                  {
-                     selected.push_back(TEveCaloData::CellId_t(tower, m_sliceIndex));
-                  } 
-               }
+               if(info.isSelected())
+               {
+                  selected.push_back(TEveCaloData::CellId_t(tower, m_sliceIndex));
+               } 
             }
          }
       }
@@ -201,12 +198,12 @@ FWHFTowerProxyBuilderBase::fillTowerForDetId(HcalDetId& detId, float val)
    {
       if (phi[i] < -1 && plusSignPhi)
       {
-         // printf("BBB \n");
+         // printf("fix negative phi sign \n");
          phi[i] += TMath::TwoPi();
       }
       else if (phi[i] > 1 && minusSignPhi)
       {
-         // printf("AAA \n");
+         // printf("fix positive phi sign \n");
          phi[i] -=  TMath::TwoPi();
 
       }
@@ -221,6 +218,7 @@ FWHFTowerProxyBuilderBase::fillTowerForDetId(HcalDetId& detId, float val)
    Float_t cphi = (phim+phiM)*0.5;
 
    int tower = -1;
+  
    int idx = 0;
    for ( TEveCaloData::vCellGeom_i i = m_vecData->GetCellGeom().begin(); i!= m_vecData->GetCellGeom().end(); ++i, ++idx)
    {
@@ -232,17 +230,17 @@ FWHFTowerProxyBuilderBase::fillTowerForDetId(HcalDetId& detId, float val)
       }
    }
 
-   if (tower == -1 ) tower = m_vecData->AddTower(etam, etaM, phim, phiM);
+   if (tower == -1 )
+   {
+      tower = m_vecData->AddTower(etam, etaM, phim, phiM);
+   }
 
-
-   fflush(stdout);
    m_vecData->FillSlice(m_sliceIndex, tower, val);
 
    return tower; 
 }
 
 
-REGISTER_FWPROXYBUILDER(FWHFShortTowerProxyBuilder, HFRecHitCollection, "HFShort", FWViewType::kLegoHFBit);
-REGISTER_FWPROXYBUILDER(FWHFLongTowerProxyBuilder , HFRecHitCollection, "HFLong" , FWViewType::kLegoHFBit);
+REGISTER_FWPROXYBUILDER(FWHFTowerProxyBuilderBase, HFRecHitCollection, "HFLego", FWViewType::kLegoHFBit);
 
 

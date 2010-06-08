@@ -16,11 +16,10 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 16:41:23 CEST 2010
-// $Id: FWHFTowerProxyBuilder.h,v 1.4 2010/06/07 17:54:00 amraktad Exp $
+// $Id: FWHFTowerProxyBuilder.h,v 1.5 2010/06/08 13:44:47 amraktad Exp $
 //
 
 // system include files
-#include <map>
 
 // user include files
 #include "Fireworks/Calo/interface/FWCaloDataProxyBuilderBase.h"
@@ -35,7 +34,7 @@ class TEveCaloDataVec;
 class FWHFTowerProxyBuilderBase : public FWCaloDataProxyBuilderBase
 {
 public:
-   FWHFTowerProxyBuilderBase(int depth);
+   FWHFTowerProxyBuilderBase();
    virtual ~FWHFTowerProxyBuilderBase();
   
    // ---------- const member functions ---------------------
@@ -44,6 +43,8 @@ public:
   
    // ---------- member functions ---------------------------
    virtual const std::string sliceName() const { return "HF slice";}
+ 
+   REGISTER_PROXYBUILDER_METHODS();
 
 protected:
    virtual void setCaloData(const fireworks::Context&);
@@ -64,15 +65,12 @@ private:
    int fillTowerForDetId(HcalDetId&, float);
    // ---------- member data --------------------------------
   
-
-   static std::map<int, int>  m_detIdMap;
-
    const HFRecHitCollection* m_hits;
-   int   m_depth;
+   //   int   m_depth;
    TEveCaloDataVec* m_vecData;  
 };
 
-
+/*
 //
 // ShortFiber
 //
@@ -122,5 +120,6 @@ private:
   
   const FWHFLongTowerProxyBuilder& operator=(const FWHFLongTowerProxyBuilder&); // stop default
 };
+*/
 
 #endif

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWLegoViewBase.h,v 1.1 2010/05/31 13:01:24 amraktad Exp $
+// $Id: FWLegoViewBase.h,v 1.2 2010/06/07 17:54:01 amraktad Exp $
 //
 
 // system include files
@@ -26,6 +26,7 @@
 #include "Fireworks/Core/interface/FWEveView.h"
 #include "Fireworks/Core/interface/FWBoolParameter.h"
 #include "Fireworks/Core/interface/FWDoubleParameter.h"
+#include "Fireworks/Core/interface/FWLongParameter.h"
 #include "Fireworks/Core/interface/FWEvePtr.h"
 
 // forward declarations
@@ -57,6 +58,7 @@ public:
 
 protected:
    TEveCaloLego*        m_lego;
+   TEveCaloLegoOverlay* m_overlay;
 
 private:
    FWLegoViewBase(const FWLegoViewBase&);    // stop default
@@ -68,16 +70,17 @@ private:
    void setCameras();
    void setAutoRebin();
    void setPixelsPerBin();
+   void setFontSizein2D();
    void plotEt();
    void showScales();
    void updateLegoScale();
    
    // ---------- member data --------------------------------
-   TEveCaloLegoOverlay* m_overlay;
    
    FWBoolParameter   m_plotEt;
    FWBoolParameter   m_autoRebin;
    FWDoubleParameter m_pixelsPerBin;
+   FWLongParameter   m_drawValuesIn2D;
    FWBoolParameter   m_showScales;
    FWDoubleParameter m_legoFixedScale;
    FWBoolParameter   m_legoAutoScale;
