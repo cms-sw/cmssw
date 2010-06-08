@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 16:41:23 CEST 2010
-// $Id: FWHFTowerProxyBuilder.h,v 1.3 2010/06/03 14:48:22 amraktad Exp $
+// $Id: FWHFTowerProxyBuilder.h,v 1.4 2010/06/07 17:54:00 amraktad Exp $
 //
 
 // system include files
@@ -50,6 +50,8 @@ protected:
    virtual void fillCaloData();
    virtual bool assertCaloDataSlice();
   
+   virtual void itemBeingDestroyed(const FWEventItem*);
+
 private:
   
    FWHFTowerProxyBuilderBase(const FWHFTowerProxyBuilderBase&); // stop default

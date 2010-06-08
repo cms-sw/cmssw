@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 15:09:39 CEST 2010
-// $Id: FWCaloDataProxyBuilderBase.cc,v 1.3 2010/06/02 18:49:07 amraktad Exp $
+// $Id: FWCaloDataProxyBuilderBase.cc,v 1.1 2010/06/07 17:54:00 amraktad Exp $
 //
 
 // system include files
@@ -126,13 +126,11 @@ void
 FWCaloDataProxyBuilderBase::itemBeingDestroyed(const FWEventItem* iItem)
 {
    FWProxyBuilderBase::itemBeingDestroyed(iItem);
+   if (m_caloData)
+   {
       clearCaloDataSelection();
-
-   FWFromTEveCaloDataSelector* sel = reinterpret_cast<FWFromTEveCaloDataSelector*>(iItem->context().getCaloData()->GetUserData());
-   sel->resetSliceSelector(m_sliceIndex);
-
-
-   if(m_caloData) {
+      FWFromTEveCaloDataSelector* sel = reinterpret_cast<FWFromTEveCaloDataSelector*>(m_caloData->GetUserData());
+      sel->resetSliceSelector(m_sliceIndex);
       m_caloData->DataChanged();
    }
 }

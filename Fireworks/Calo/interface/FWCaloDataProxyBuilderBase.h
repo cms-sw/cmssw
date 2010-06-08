@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 15:09:19 CEST 2010
-// $Id: FWCaloDataProxyBuilderBase.h,v 1.2 2010/06/02 17:34:02 amraktad Exp $
+// $Id: FWCaloDataProxyBuilderBase.h,v 1.1 2010/06/07 17:54:00 amraktad Exp $
 //
 
 // system include files
@@ -58,6 +58,7 @@ protected:
    // ---------- member data --------------------------------
    TEveCaloData* m_caloData;
    Int_t m_sliceIndex;
+   virtual void itemBeingDestroyed(const FWEventItem*);
 
 private:
    FWCaloDataProxyBuilderBase(const FWCaloDataProxyBuilderBase&); // stop default
@@ -69,7 +70,6 @@ private:
 
    virtual void modelChanges(const FWModelIds&, Product*);
    virtual void applyChangesToAllModels(Product*);
-   virtual void itemBeingDestroyed(const FWEventItem*);
 
    void clearCaloDataSelection();
 

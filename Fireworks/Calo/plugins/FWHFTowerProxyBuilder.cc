@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 16:41:27 CEST 2010
-// $Id: FWHFTowerProxyBuilder.cc,v 1.5 2010/06/03 14:48:22 amraktad Exp $
+// $Id: FWHFTowerProxyBuilder.cc,v 1.6 2010/06/07 17:54:00 amraktad Exp $
 //
 
 // system include files
@@ -95,13 +95,28 @@ FWHFTowerProxyBuilderBase::build(const FWEventItem* iItem,
 }
 
 void
-FWHFTowerProxyBuilderBase::fillCaloData()
+FWHFTowerProxyBuilderBase::itemBeingDestroyed(const FWEventItem* iItem)
 {
   
-   //reset values for this slice
+   if(0!=m_hits) {
 
+      //reset values for this slice
+      std::vector<float>& sliceVals = m_vecData->GetSliceVals(m_sliceIndex);
+      for (std::vector<float>::iterator i = sliceVals.begin(); i!= sliceVals.end(); ++i)
+      {
+         *i = 0;
+      }
+
+
+   }
+   FWCaloDataProxyBuilderBase::itemBeingDestroyed(iItem);
+}
+
+void
+FWHFTowerProxyBuilderBase::fillCaloData()
+{
+   //reset values for this slice
    std::vector<float>& sliceVals = m_vecData->GetSliceVals(m_sliceIndex);
-  
    for (std::vector<float>::iterator i = sliceVals.begin(); i!= sliceVals.end(); ++i)
    {
       *i = 0;
@@ -128,7 +143,6 @@ FWHFTowerProxyBuilderBase::fillCaloData()
                 
                   if(info.isSelected())
                   {
-                     // printf("PB push selected %d \n", tower);
                      selected.push_back(TEveCaloData::CellId_t(tower, m_sliceIndex));
                   } 
                }
@@ -223,8 +237,7 @@ FWHFTowerProxyBuilderBase::fillTowerForDetId(HcalDetId& detId, float val)
 
    fflush(stdout);
    m_vecData->FillSlice(m_sliceIndex, tower, val);
-   // printf("fill slice [%d] for rng %f %f \n", m_sliceIndex, phim, phiM);
-   
+
    return tower; 
 }
 

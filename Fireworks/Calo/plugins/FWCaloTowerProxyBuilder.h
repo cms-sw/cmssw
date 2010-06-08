@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:08 EST 2008
-// $Id: FWCaloTowerProxyBuilder.h,v 1.12 2010/06/02 22:38:40 chrjones Exp $
+// $Id: FWCaloTowerProxyBuilder.h,v 1.13 2010/06/07 17:54:00 amraktad Exp $
 //
 
 #include "Rtypes.h"
@@ -50,6 +50,7 @@ protected:
    virtual void fillCaloData();
    bool assertCaloDataSlice();
 
+   virtual void itemBeingDestroyed(const FWEventItem*);
 private:
    FWCaloTowerProxyBuilderBase(const FWCaloTowerProxyBuilderBase&); // stop default
    const FWCaloTowerProxyBuilderBase& operator=(const FWCaloTowerProxyBuilderBase&); // stop default
@@ -57,8 +58,8 @@ private:
                       TEveElementList* product, const FWViewContext*);
 
    // ---------- member data --------------------------------
-  const CaloTowerCollection* m_towers;
-  TH2F* m_hist;
+   const CaloTowerCollection* m_towers;
+   TH2F* m_hist;
 };
 
 //

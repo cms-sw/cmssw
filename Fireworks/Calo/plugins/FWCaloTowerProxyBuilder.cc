@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:28 EST 2008
-// $Id: FWCaloTowerProxyBuilder.cc,v 1.17 2010/06/07 17:54:00 amraktad Exp $
+// $Id: FWCaloTowerProxyBuilder.cc,v 1.18 2010/06/07 18:58:16 matevz Exp $
 //
 
 // system includes
@@ -64,6 +64,15 @@ FWCaloTowerProxyBuilderBase::build(const FWEventItem* iItem,
    FWCaloDataProxyBuilderBase::build(iItem, el, ctx);
 }
 
+void
+FWCaloTowerProxyBuilderBase::itemBeingDestroyed(const FWEventItem* iItem)
+{
+  
+   if(0!=m_hist) {
+      m_hist->Reset();
+   }
+   FWCaloDataProxyBuilderBase::itemBeingDestroyed(iItem);
+}
 
 void
 FWCaloTowerProxyBuilderBase::fillCaloData()
@@ -93,6 +102,7 @@ FWCaloTowerProxyBuilderBase::fillCaloData()
    }
 
 }
+
 //______________________________________________________________________________
 bool
 FWCaloTowerProxyBuilderBase::assertCaloDataSlice()
