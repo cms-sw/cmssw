@@ -40,11 +40,11 @@ class SiPixelRawDataErrorModule {
   typedef edm::DetSet<SiPixelRawDataError>::const_iterator    ErrorIterator;
 
   /// Book histograms
-  void book(const edm::ParameterSet& iConfig, bool reducedSet=false, int type=0);
+  void book(const edm::ParameterSet& iConfig, int type=0);
   /// Book FED histograms
   void bookFED(const edm::ParameterSet& iConfig);
   /// Fill histograms
-  int fill(const edm::DetSetVector<SiPixelRawDataError> & input, bool reducedSet=false, bool modon=true, bool ladon=false, bool bladeon=false);
+  int fill(const edm::DetSetVector<SiPixelRawDataError> & input, bool modon=true, bool ladon=false, bool bladeon=false);
   /// Fill FED histograms
   int fillFED(const edm::DetSetVector<SiPixelRawDataError> & input);
   
@@ -54,58 +54,37 @@ class SiPixelRawDataErrorModule {
   int ncols_;
   int nrows_;
   bool _debug_;
-  int FedChNErrArray[40][37], FedChLErrArray[40][37], FedETypeNErrArray[40][15];
+  int FedChNErrArray[40][37], FedChLErrArray[40][37], FedETypeNErrArray[40][21];
 
 
   MonitorElement* meErrorType_;
   MonitorElement* meNErrors_;
   MonitorElement* meFullType_;
-  MonitorElement* meChanNmbr_;
   MonitorElement* meTBMMessage_;
   MonitorElement* meTBMType_;
   MonitorElement* meEvtNbr_;
   MonitorElement* meEvtSize_;
-  MonitorElement* meLinkId_;
-  MonitorElement* meROCId_;
-  MonitorElement* meInvROC_;
-  MonitorElement* meDCOLId_;
-  MonitorElement* mePXId_;
-  MonitorElement* meROCNmbr_;
   MonitorElement* meFedChNErrArray_[37];
   MonitorElement* meFedChLErrArray_[37];
-  MonitorElement* meFedETypeNErrArray_[15];
+  MonitorElement* meFedETypeNErrArray_[21];
   
   //barrel:
   MonitorElement* meErrorTypeLad_;
   MonitorElement* meNErrorsLad_;
   MonitorElement* meFullTypeLad_;
-  MonitorElement* meChanNmbrLad_;
   MonitorElement* meTBMMessageLad_;
   MonitorElement* meTBMTypeLad_;
   MonitorElement* meEvtNbrLad_;
   MonitorElement* meEvtSizeLad_;
-  MonitorElement* meLinkIdLad_;
-  MonitorElement* meROCIdLad_;
-  MonitorElement* meInvROCLad_;
-  MonitorElement* meDCOLIdLad_;
-  MonitorElement* mePXIdLad_;
-  MonitorElement* meROCNmbrLad_;
   
   //forward:
   MonitorElement* meErrorTypeBlade_;
   MonitorElement* meNErrorsBlade_;
   MonitorElement* meFullTypeBlade_;
-  MonitorElement* meChanNmbrBlade_;
   MonitorElement* meTBMMessageBlade_;
   MonitorElement* meTBMTypeBlade_;
   MonitorElement* meEvtNbrBlade_;
   MonitorElement* meEvtSizeBlade_;
-  MonitorElement* meLinkIdBlade_;
-  MonitorElement* meROCIdBlade_;
-  MonitorElement* meInvROCBlade_;
-  MonitorElement* meDCOLIdBlade_;
-  MonitorElement* mePXIdBlade_;
-  MonitorElement* meROCNmbrBlade_;
 
   static const int LINK_bits,  ROC_bits,  DCOL_bits,  PXID_bits,  ADC_bits, DataBit_bits, TRLRBGN_bits, EVTLGT_bits, TRLREND_bits;
   static const int LINK_shift, ROC_shift, DCOL_shift, PXID_shift, ADC_shift, DB0_shift, DB1_shift, DB2_shift, DB3_shift, DB4_shift, DB5_shift, DB6_shift, DB7_shift, TRLRBGN_shift, EVTLGT_shift, TRLREND_shift;

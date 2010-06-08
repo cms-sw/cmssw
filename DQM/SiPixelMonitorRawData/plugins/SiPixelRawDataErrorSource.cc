@@ -128,7 +128,7 @@ void SiPixelRawDataErrorSource::analyze(const edm::Event& iEvent, const edm::Eve
   std::map<uint32_t,SiPixelRawDataErrorModule*>::iterator struct_iter2;
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
     
-    int numberOfModuleErrors = (*struct_iter).second->fill(*input, reducedSet, modOn, ladOn, bladeOn);
+    int numberOfModuleErrors = (*struct_iter).second->fill(*input, modOn, ladOn, bladeOn);
     if((*struct_iter).first >= 302055684 && (*struct_iter).first <= 302197792 ) nEventBPIXModuleErrors = nEventBPIXModuleErrors + numberOfModuleErrors;
     if((*struct_iter).first >= 343999748 && (*struct_iter).first <= 352477708 ) nEventFPIXModuleErrors = nEventFPIXModuleErrors + numberOfModuleErrors;
     nErrors = nErrors + numberOfModuleErrors;
@@ -258,7 +258,7 @@ void SiPixelRawDataErrorSource::bookMEs(){
 
     if(modOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first)) {
-        (*struct_iter).second->book( conf_, reducedSet, 0 );
+        (*struct_iter).second->book( conf_, 0 );
       }
       else {
         //std::cout<<"PIB! not booking histograms for non-PIB modules!"<<std::endl;
@@ -269,7 +269,7 @@ void SiPixelRawDataErrorSource::bookMEs(){
     
     if(ladOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,1)) {
-        (*struct_iter).second->book( conf_, reducedSet, 1 );
+        (*struct_iter).second->book( conf_, 1 );
       }
       else {
         LogDebug ("PixelDQM") << "PROBLEM WITH LADDER-FOLDER\n";
@@ -278,7 +278,7 @@ void SiPixelRawDataErrorSource::bookMEs(){
     
     if(bladeOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,4)) {
-        (*struct_iter).second->book( conf_, reducedSet, 4 );
+        (*struct_iter).second->book( conf_, 4 );
       }
       else {
         LogDebug ("PixelDQM") << "PROBLEM WITH BLADE-FOLDER\n";
