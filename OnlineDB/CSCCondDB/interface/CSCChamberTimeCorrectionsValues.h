@@ -25,7 +25,7 @@ class CSCChamberTimeCorrectionsValues: public edm::ESProducer, public edm::Event
   CSCChamberTimeCorrectionsValues(const edm::ParameterSet&);
   ~CSCChamberTimeCorrectionsValues();
   
-  inline static CSCChamberTimeCorrections * prefill();
+  inline static CSCChamberTimeCorrections * prefill(bool isMC);
 
   typedef const  CSCChamberTimeCorrections * ReturnType;
   
@@ -36,6 +36,10 @@ class CSCChamberTimeCorrectionsValues: public edm::ESProducer, public edm::Event
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
   CSCChamberTimeCorrections *chamberObj ;
 
+  //Flag for determining if this is for setting MC or data corrections
+  bool isForMC;
+
+
 };
 
 #include<fstream>
@@ -43,15 +47,18 @@ class CSCChamberTimeCorrectionsValues: public edm::ESProducer, public edm::Event
 #include<iostream>
 
 // to workaround plugin library
-inline CSCChamberTimeCorrections *  CSCChamberTimeCorrectionsValues::prefill()
+inline CSCChamberTimeCorrections *  CSCChamberTimeCorrectionsValues::prefill(bool isMC)
 {
+  if (isMC)
+    printf("\n Generating fake DB constants for MC\n");
+  else 
+    printf("\n Getting chamber corrections from the cable data base and possibly other files \n");
 
   const int FACTOR=100;
   const int MAX_SIZE = 540;
   //const int MAX_SHORT= 32767;
 
   CSCChamberTimeCorrections * chamberObj = new CSCChamberTimeCorrections();
-  csccableread *cable = new csccableread ();
 
   int i; //i - chamber index.
   int count=0;
@@ -63,10 +70,8 @@ inline CSCChamberTimeCorrections *  CSCChamberTimeCorrectionsValues::prefill()
   chamberObj->factor_precision = FACTOR;
 
   chamberObj->chamberCorrections.resize(MAX_SIZE);
+  // fill the database with dummy values
   for(i=1;i<=MAX_SIZE;++i){
-    cable->cable_read(i, &chamber_label, &cfeb_length, &cfeb_rev, &alct_length,
-    &alct_rev, &cfeb_tmb_skew_delay, &cfeb_timing_corr);
-    //Initialize every member of the chamber item with dummy values 
     chamberObj->chamberCorrections[i-1].cfeb_length=0;
     chamberObj->chamberCorrections[i-1].cfeb_rev='X';
     chamberObj->chamberCorrections[i-1].alct_length=0;
@@ -74,8 +79,32 @@ inline CSCChamberTimeCorrections *  CSCChamberTimeCorrectionsValues::prefill()
     chamberObj->chamberCorrections[i-1].cfeb_tmb_skew_delay=0;
     chamberObj->chamberCorrections[i-1].cfeb_timing_corr=0;
     chamberObj->chamberCorrections[i-1].cfeb_cable_delay=0;
-    //If the read of the cable database is useful (if there is information for the chamber there)
-    //re-enter the information the cable object
+  }
+
+
+  // for MC there will be one value for ME1/1 and one for all other chambers
+  if (isMC){
+    for(i=1;i<=MAX_SIZE;++i){
+      if (i<= 36 || (i>= 235 && i<=270))
+	chamberObj->chamberCorrections[i-1].cfeb_timing_corr=(short int)(21*FACTOR+0.5);
+      else
+	chamberObj->chamberCorrections[i-1].cfeb_timing_corr=(short int)(42*FACTOR+0.5);
+    }
+
+    return chamberObj;
+  }
+
+  // ***************************************************************************
+  // Everything below this point is for setting the chamber corrections for data
+  // ***************************************************************************
+
+  csccableread *cable = new csccableread ();
+  for(i=1;i<=MAX_SIZE;++i){
+    // for data we will read in from Igor's database
+    cable->cable_read(i, &chamber_label, &cfeb_length, &cfeb_rev, &alct_length,
+		      &alct_rev, &cfeb_tmb_skew_delay, &cfeb_timing_corr);
+    // If the read of the cable database is useful (if there is information for the chamber there)
+    // re-enter the information the cable object
     if(!chamber_label.empty() && !(cfeb_length==0)){
       chamberObj->chamberCorrections[i-1].cfeb_length=(short int)(cfeb_length*FACTOR+0.5);
       chamberObj->chamberCorrections[i-1].cfeb_rev=cfeb_rev[0];
@@ -88,21 +117,21 @@ inline CSCChamberTimeCorrections *  CSCChamberTimeCorrectionsValues::prefill()
     count=count+1;
   }
 
- //Read in the changes you want to make in the extra chamber variable cfeb_timing_corr
- FILE *fin = fopen("/afs/cern.ch/user/d/deisher/public/TimingCorrections2009/ttcrx_delay_effects_23April_2010.txt","r");
- int chamber;
- float corr;
- while (!feof(fin)){
-   //note space at end of format string to convert last \n
-   int check = fscanf(fin,"%d %f \n",&chamber,&corr);
-   if (check != 2){
-     printf("cfeb timing corr file has an unexpected format \n");
-     assert(0);  
-   }
-   //printf("chamber %d corr %f \n",chamber,corr);
-   chamberObj->chamberCorrections[chamber-1].cfeb_timing_corr= (short int)(corr*FACTOR+0.5*(corr>=0)-0.5*(corr<0));
- }
- fclose(fin);  
+  //Read in the changes you want to make in the extra chamber variable cfeb_timing_corr
+  FILE *fin = fopen("/afs/cern.ch/user/d/deisher/public/TimingCorrections2009/ttcrx_delay_effects_23April_2010.txt","r");
+  int chamber;
+  float corr;
+  while (!feof(fin)){
+    //note space at end of format string to convert last \n
+    int check = fscanf(fin,"%d %f \n",&chamber,&corr);
+    if (check != 2){
+      printf("cfeb timing corr file has an unexpected format \n");
+      assert(0);  
+    }
+    //printf("chamber %d corr %f \n",chamber,corr);
+    chamberObj->chamberCorrections[chamber-1].cfeb_timing_corr= (short int)(corr*FACTOR+0.5*(corr>=0)-0.5*(corr<0));
+  }
+  fclose(fin);  
   
 
   //Read in the cfeb_cable_delay values (0 or 1) and don't use a precision correction factor 
@@ -129,9 +158,9 @@ inline CSCChamberTimeCorrections *  CSCChamberTimeCorrectionsValues::prefill()
     chamberObj->chamberCorrections[chamberSerial-1].cfeb_cable_delay= (short int)delay;
   }
   fclose(fdelay);  
-
+  
   return chamberObj;
 }
-  
+
 
 #endif

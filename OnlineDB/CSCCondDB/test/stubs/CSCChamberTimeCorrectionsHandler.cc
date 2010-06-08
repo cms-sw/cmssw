@@ -5,8 +5,10 @@
 #include "CondFormats/CSCObjects/interface/CSCChamberTimeCorrections.h"
 #include "OnlineDB/CSCCondDB/interface/CSCChamberTimeCorrectionsValues.h"
 
-popcon::CSCChamberTimeCorrectionsImpl::CSCChamberTimeCorrectionsImpl(const edm::ParameterSet& pset): m_name(pset.getUntrackedParameter<std::string>("name","CSCChamberTimeCorrectionsImpl"))
-{}
+popcon::CSCChamberTimeCorrectionsImpl::CSCChamberTimeCorrectionsImpl(const edm::ParameterSet& pset){
+  m_name= (pset.getUntrackedParameter<std::string>("name","CSCChamberTimeCorrectionsImpl"));
+  isForMC=(pset.getUntrackedParameter<bool>("isForMC",true));
+}
 
 popcon::CSCChamberTimeCorrectionsImpl::~CSCChamberTimeCorrectionsImpl()
 {
@@ -18,7 +20,7 @@ void popcon::CSCChamberTimeCorrectionsImpl::getNewObjects()
   std::cout << "------- CSC src - > getNewObjects\n"<<m_name;
   
   // fill object from file
-  CSCChamberTimeCorrections * mychambers = CSCChamberTimeCorrectionsValues::prefill();
+  CSCChamberTimeCorrections * mychambers = CSCChamberTimeCorrectionsValues::prefill(isForMC);
   
   //check whats already inside of database  
   std::cerr<<"got offlineInfo"<<std::endl;

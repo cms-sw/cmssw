@@ -29,6 +29,7 @@ namespace popcon
             
     private:
       std::string m_name;
+      bool isForMC;
     };
 }
 #endif
