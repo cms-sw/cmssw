@@ -33,7 +33,8 @@ class GlobalTrackQualityProducer : public edm::EDProducer {
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual std::pair<double,double> kink(Trajectory& muon) const ;
   virtual std::pair<double,double> newChi2(Trajectory& muon) const;
-  
+  virtual double trackProbability(Trajectory& track) const;
+ 
   edm::InputTag inputCollection_;
   edm::InputTag inputLinksCollection_;
   MuonServiceProxy* theService;

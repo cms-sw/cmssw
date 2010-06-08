@@ -5,7 +5,7 @@
 //
 //
 // Original Author:  Adam Everett
-// $Id: GlobalTrackQualityProducer.cc,v 1.4 2009/10/21 00:04:02 slava77 Exp $
+// $Id: GlobalTrackQualityProducer.cc,v 1.5 2010/05/17 09:44:30 aeverett Exp $
 //
 //
 
@@ -16,9 +16,8 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
-
+#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 #include "RecoMuon/GlobalTrackingTools/plugins/GlobalTrackQualityProducer.h"
-//#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
@@ -75,27 +74,31 @@ GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   // reserve some space
   std::vector<reco::MuonQuality> valuesQual;
   valuesQual.reserve(glbMuons->size());
-
+  
   int trackIndex = 0;
-  for (reco::TrackCollection::const_iterator track = glbMuons->begin(); track!=glbMuons->end(); track++ , ++trackIndex) {
+  for (reco::TrackCollection::const_iterator track = glbMuons->begin(); track!=glbMuons->end(); ++track , ++trackIndex) {
     reco::TrackRef glbRef(glbMuons,trackIndex);
-    
+    reco::TrackRef staTrack = reco::TrackRef();
+
     std::vector<Trajectory> refitted=theGlbRefitter->refit(*track,1);
 
-    LogDebug(theCategory)<<"N refitted " << refitted.size();
+    LogTrace(theCategory)<<"GLBQual N refitted " << refitted.size();
     
     std::pair<double,double> thisKink;
     double relative_muon_chi2 = 0.0;
     double relative_tracker_chi2 = 0.0;
-    
+    double glbTrackProbability = 0.0;
     if(refitted.size()>0) {
       thisKink = kink(refitted.front()) ;      
       std::pair<double,double> chi = newChi2(refitted.front());
       relative_muon_chi2 = chi.second; //normalized inside to /sum(muHits.dimension)
       relative_tracker_chi2 = chi.first; //normalized inside to /sum(tkHits.dimension)
+      glbTrackProbability = trackProbability(refitted.front());
     }
-    LogDebug(theCategory)<<"Kink " << thisKink.first << " " << thisKink.second;
-    LogDebug(theCategory)<<"Rel Chi2 " << relative_tracker_chi2 << " " << relative_muon_chi2;
+
+    LogTrace(theCategory)<<"GLBQual: Kink " << thisKink.first << " " << thisKink.second;
+    LogTrace(theCategory)<<"GLBQual: Rel Chi2 " << relative_tracker_chi2 << " " << relative_muon_chi2;
+    LogTrace(theCategory)<<"GLBQual: trackProbability " << glbTrackProbability;
 
     // Fill the STA-TK match information
     float chi2, d, dist, Rpos;
@@ -114,6 +117,7 @@ GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	      continue;
 	    }
 	  if (links->globalTrack() == glbRef) {
+	    staTrack = !links->standAloneTrack().isNull() ? links->standAloneTrack() : reco::TrackRef();
 	    TrackCand staCand = TrackCand((Trajectory*)(0),links->standAloneTrack());
 	    TrackCand tkCand = TrackCand((Trajectory*)(0),links->trackerTrack());
 	    chi2 = theGlbMatcher->match(staCand,tkCand,0,0);
@@ -125,8 +129,11 @@ GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	}
     }
 
+    if(!staTrack.isNull()) LogTrace(theCategory)<<"GLBQual: Used UpdatedAtVtx : " <<  (iEvent.getProvenance(staTrack.id()).productInstanceName() == std::string("UpdatedAtVtx"));
+
     float maxFloat01 = std::numeric_limits<float>::max()*0.1; // a better solution would be to use float above .. m/be not
     reco::MuonQuality muQual;
+    if(!staTrack.isNull()) muQual.updatedSta = iEvent.getProvenance(staTrack.id()).productInstanceName() == std::string("UpdatedAtVtx");
     muQual.trkKink    = thisKink.first > maxFloat01 ? maxFloat01 : thisKink.first;
     muQual.glbKink    = thisKink.second > maxFloat01 ? maxFloat01 : thisKink.second;
     muQual.trkRelChi2 = relative_tracker_chi2 > maxFloat01 ? maxFloat01 : relative_tracker_chi2;
@@ -136,6 +143,7 @@ GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     muQual.chi2LocalMomentum = chi2;
     muQual.localDistance = d;
     muQual.globalDeltaEtaPhi = Rpos;
+    muQual.glbTrackProbability = glbTrackProbability;
     valuesQual.push_back(muQual);
   }
 
@@ -277,6 +285,20 @@ std::pair<double,double> GlobalTrackQualityProducer::newChi2(Trajectory& muon) c
 
   return std::pair<double,double>(tkChi2,muChi2);
        
+}
+
+//
+// calculate the tail probability (-ln(P)) of a fit
+//
+double 
+GlobalTrackQualityProducer::trackProbability(Trajectory& track) const {
+
+  if ( track.ndof() > 0 && track.chiSquared() > 0 ) { 
+    return -LnChiSquaredProbability(track.chiSquared(), track.ndof());
+  } else {
+    return 0.0;
+  }
+
 }
 
 //#include "FWCore/Framework/interface/MakerMacros.h"
