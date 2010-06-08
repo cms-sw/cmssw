@@ -34,7 +34,7 @@ namespace edm {
     typedef input::BranchMap::const_iterator iterator;
     RootDelayedReader(EntryNumber const& entry,
       boost::shared_ptr<BranchMap const> bMap,
-      TTreeCache* treeCache,
+      boost::shared_ptr<TTreeCache> treeCache,
       boost::shared_ptr<TFile> filePtr,
       FileFormatVersion const& fileFormatVersion);
 
@@ -51,7 +51,7 @@ namespace edm {
     boost::shared_ptr<BranchMap const> branches_;
     // NOTE: filePtr_ appears to be unused, but is needed to prevent
     // the TFile containing the branch from being reclaimed.
-    TTreeCache* treeCache_;
+    boost::shared_ptr<TTreeCache> treeCache_;
     boost::shared_ptr<TFile> filePtr_;
     boost::shared_ptr<DelayedReader> nextReader_;
     FileFormatVersion fileFormatVersion_;

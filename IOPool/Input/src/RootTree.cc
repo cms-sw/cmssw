@@ -38,7 +38,7 @@ namespace edm {
     branchType_(branchType),
     auxBranch_(tree_ ? getAuxiliaryBranch(tree_, branchType_) : 0),
     branchEntryInfoBranch_(metaTree_ ? getProductProvenanceBranch(metaTree_, branchType_) : 0),
-    treeCache_(0),
+    treeCache_(),
     entries_(tree_ ? tree_->GetEntries() : 0),
     entryNumber_(-1),
     branchNames_(),
@@ -48,7 +48,7 @@ namespace edm {
     pProductStatuses_(&productStatuses_), // backward compatibility
     infoTree_(dynamic_cast<TTree *>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToInfoTreeName(branchType).c_str()) : 0)), // backward compatibility
     statusBranch_(infoTree_ ? getStatusBranch(infoTree_, branchType_) : 0) // backward compatibility
-  { }
+  {}
 
   RootTree::~RootTree() {}
 
@@ -118,7 +118,7 @@ namespace edm {
   boost::shared_ptr<DelayedReader>
   RootTree::makeDelayedReader(FileFormatVersion const& fileFormatVersion) const {
     boost::shared_ptr<DelayedReader>
-        store(new RootDelayedReader(entryNumber_, branches_, treeCache_.get(), filePtr_, fileFormatVersion));
+        store(new RootDelayedReader(entryNumber_, branches_, treeCache_, filePtr_, fileFormatVersion));
     return store;
   }
 

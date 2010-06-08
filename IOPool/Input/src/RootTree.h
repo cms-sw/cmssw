@@ -11,7 +11,6 @@ RootTree.h // used by ROOT input sources
 #include <string>
 #include <vector>
 
-#include "boost/scoped_ptr.hpp"
 #include "boost/shared_ptr.hpp"
 #include "boost/utility.hpp"
 
@@ -85,7 +84,7 @@ namespace edm {
 // We use a smart pointer to own the TTreeCache.
 // Unfortunately, ROOT owns it when attached to a TFile, but not after it is detatched.
 // So, we make sure to it is detatched before closing the TFile so there is no double delete.
-    boost::scoped_ptr<TTreeCache> treeCache_;
+    boost::shared_ptr<TTreeCache> treeCache_;
     EntryNumber entries_;
     EntryNumber entryNumber_;
     std::vector<std::string> branchNames_;

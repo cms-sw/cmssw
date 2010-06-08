@@ -66,8 +66,7 @@ namespace edm {
     numberOfEventsToSkip_(primarySequence ? pset.getUntrackedParameter<unsigned int>("skipEvents", 0U) : 0U),
     noEventSort_(primarySequence ? pset.getUntrackedParameter<bool>("noEventSort", false) : false),
     skipBadFiles_(pset.getUntrackedParameter<bool>("skipBadFiles", false)),
-    // Temporary work-around for bug.  Do not use the TTreeCache for the secondary input source for now.
-    treeCacheSize_(pset.getUntrackedParameter<unsigned int>("cacheSize", (primary() ? input::defaultCacheSize : 0))),
+    treeCacheSize_(pset.getUntrackedParameter<unsigned int>("cacheSize", input::defaultCacheSize)),
     treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize", -1)),
     setRun_(pset.getUntrackedParameter<unsigned int>("setRunNumber", 0U)),
     groupSelectorRules_(pset, "inputCommands", "InputSource"),
