@@ -66,6 +66,7 @@ HLT_L1Mu14_L1SingleJet6U
 HLT_L1Mu14_L1ETM30
 HLT_ZeroBias
 HLT_ZeroBiasPixel_SingleTrack
+HLT_PixelTracks_Multiplicity70
 HLT_CSCBeamHalo
 HLT_CSCBeamHaloOverlapRing1
 HLT_CSCBeamHaloOverlapRing2
@@ -84,8 +85,6 @@ AlCa_EcalEta_8E29
 AlCa_RPCMuonNoHits
 AlCa_RPCMuonNoTriggers
 AlCa_RPCMuonNormalisation
-HLT_PixelTracks_Multiplicity40
-HLT_PixelTracks_Multiplicity70
 HLTriggerFinalPath
 HLTAnalyzerEndpath
 HLTOutput

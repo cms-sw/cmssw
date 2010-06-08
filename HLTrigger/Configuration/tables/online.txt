@@ -95,6 +95,7 @@ HLT_MinBiasBSC_NoBPTX
 HLT_MinBiasPixel_SingleTrack
 HLT_MinBiasPixel_DoubleTrack
 HLT_MinBiasPixel_DoubleIsoTrack5
+HLT_PixelTracks_Multiplicity70
 HLT_CSCBeamHalo
 HLT_CSCBeamHaloOverlapRing1
 HLT_CSCBeamHaloOverlapRing2
@@ -132,8 +133,6 @@ HLT_L1Tech_BSC_halo_forPhysicsBackground
 HLT_L2Mu0_NoVertex
 HLT_TkMu3_NoVertex
 HLT_LogMonitor
-HLT_PixelTracks_Multiplicity40
-HLT_PixelTracks_Multiplicity70
 DQM_FEDIntegrity
 HLTriggerFinalPath
 DQMOutput
