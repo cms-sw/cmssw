@@ -46,7 +46,11 @@ int main() {
 
 
 
-  } catch (...) {
+  } 
+  catch (cms::Exception const & e) {
+    std::cout << e.what() " << std::endl;
+  }
+  catch (...) {
     std::cout << "got a problem..." << std::endl;
     return 1;
   }

@@ -78,7 +78,8 @@ namespace edm {
       // << "Xerces-c error in initialization \n"
       //      << "Exception message is:  \n"
       //      << _toString(e.getMessage()) << 
-      throw(std::runtime_error(std::string("Fatal Error on edm::FileLocator:")+ _toString(e.getMessage())));
+      throw
+	cms::Exception(std::string("Fatal Error on edm::FileLocator:")+ _toString(e.getMessage()));
     }
     ++s_numberOfInstances;
     
@@ -134,18 +135,18 @@ namespace edm {
   {
     if (! ruleNode)
       {
-	throw std::runtime_error(
-				 std::string("TrivialFileCatalog::connect: Malformed trivial catalog")
-				 ); 		
+	throw cms::Exception(
+			     std::string("TrivialFileCatalog::connect: Malformed trivial catalog")
+			     ); 		
       }
     
     DOMElement* ruleElement = static_cast<DOMElement *>(ruleNode);	    
     
     if (! ruleElement)
       {
-	throw std::runtime_error(
-				 std::string("TrivialFileCatalog::connect: Malformed trivial catalog")
-				 ); 		
+	throw cms::Exception(
+			     std::string("TrivialFileCatalog::connect: Malformed trivial catalog")
+			     ); 		
       }
     
     std::string protocol 
