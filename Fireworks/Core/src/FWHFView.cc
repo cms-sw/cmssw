@@ -8,10 +8,11 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 13:42:13 CEST 2010
-// $Id: FWHFView.cc,v 1.2 2010/06/02 17:35:40 amraktad Exp $
+// $Id: FWHFView.cc,v 1.3 2010/06/07 17:54:01 amraktad Exp $
 //
 
 // system include files
+#include <boost/bind.hpp>
 
 // user include files
 #include "TAxis.h"
@@ -35,8 +36,11 @@
 // constructors and destructor
 //
 FWHFView::FWHFView(TEveWindowSlot* slot, FWViewType::EType typeId):
-FWLegoViewBase(slot, typeId)
-{
+   FWLegoViewBase(slot, typeId),
+   m_drawValuesIn2D(this,"pixel font size in 2D)",40l,16l,200l)
+{  
+   m_drawValuesIn2D.changed_.connect(boost::bind(&FWHFView::setFontSizein2D,this));
+ 
 }
 
 // FWHFView::FWHFView(const FWHFView& rhs)
@@ -85,3 +89,9 @@ FWHFView::setContext(fireworks::Context& context)
    m_lego->Set2DMode(TEveCaloLego::kValSizeOutline);
 }
    
+void
+FWHFView::setFontSizein2D()
+{
+   m_lego->SetDrawNumberCellPixels( m_drawValuesIn2D.value());
+   m_lego->ElementChanged(kTRUE,kTRUE);
+}
