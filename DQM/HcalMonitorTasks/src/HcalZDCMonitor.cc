@@ -1,7 +1,5 @@
 #include "DQM/HcalMonitorTasks/interface/HcalZDCMonitor.h"
 
-static const float HFQIEConst = 2.6;
-
 HcalZDCMonitor::HcalZDCMonitor() {
 }
 HcalZDCMonitor::~HcalZDCMonitor() {
@@ -90,8 +88,13 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore * dbe) {
         h_channel_side_RecHitTime_Ave->setBinLabel(7,"HAD2",2);
         h_channel_side_RecHitTime_Ave->setBinLabel(8,"HAD3",2);
         h_channel_side_RecHitTime_Ave->setBinLabel(9,"HAD4",2);
+
 	
         m_dbe->setCurrentFolder(baseFolder_ + "/Digis");
+
+        h_saturation = m_dbe->book1D("h_QIE", "Saturation Check", 128, -0.5, 127.5);
+	h_saturation->setAxisTitle("ADC count",1);
+	h_saturation->setAxisTitle("Number of Digis",2);
 
         for (int i = 0; i < 5; ++i) {
             // pulse Plus Side 
@@ -109,13 +112,13 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore * dbe) {
             // integrated charge over 10 time samples
             sprintf(title, "h_ZDCP_EMChan_%i_Charge", i + 1);
             sprintf(name, "ZDC Plus EM Section Charge for channel %i", i + 1);
-            h_ZDCP_EM_Charge[i] = m_dbe->book1D(title, name, 1010, -300., 30000.);
+            h_ZDCP_EM_Charge[i] = m_dbe->book1D(title, name, 1000, 0., 30000.);
 	    h_ZDCP_EM_Charge[i]->setAxisTitle("Charge {fC}",1);
 	    h_ZDCP_EM_Charge[i]->setAxisTitle("Events",2);
             // integrated charge over 10 time samples
             sprintf(title, "h_ZDCM_EMChan_%i_Charge", i + 1);
             sprintf(name, "ZDC Minus EM Section Charge for channel %i", i + 1);
-            h_ZDCM_EM_Charge[i] = m_dbe->book1D(title, name, 1010, -300., 30000.);
+            h_ZDCM_EM_Charge[i] = m_dbe->book1D(title, name, 1000, 0., 30000.);
 	    h_ZDCM_EM_Charge[i]->setAxisTitle("Charge {fC}",1);
 	    h_ZDCM_EM_Charge[i]->setAxisTitle("Events",2);
             // charge weighted time slice
@@ -148,13 +151,13 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore * dbe) {
             // integrated charge over 10 time samples 
             sprintf(title, "h_ZDCP_HADChan_%i_Charge", i + 1);
             sprintf(name, "ZDC Plus HAD Section Charge for channel %i", i + 1);
-            h_ZDCP_HAD_Charge[i] = m_dbe->book1D(title, name, 1010, -300., 30000.);
+            h_ZDCP_HAD_Charge[i] = m_dbe->book1D(title, name, 1000, 0., 30000.);
 	    h_ZDCP_HAD_Charge[i]->setAxisTitle("Charge {fC}",1);
 	    h_ZDCP_HAD_Charge[i]->setAxisTitle("Events",2);
             // integrated charge over 10 time samples 
             sprintf(title, "h_ZDCM_HADChan_%i_Charge", i + 1);
             sprintf(name, "ZDC Minus HAD Section Charge for channel %i", i + 1);
-            h_ZDCM_HAD_Charge[i] = m_dbe->book1D(title, name, 1010, -300., 30000.);
+            h_ZDCM_HAD_Charge[i] = m_dbe->book1D(title, name, 1000, 0., 30000.);
 	    h_ZDCM_HAD_Charge[i]->setAxisTitle("Charge {fC}",1);
 	    h_ZDCM_HAD_Charge[i]->setAxisTitle("Events",2);
             // charge weighted time slice 
@@ -247,6 +250,9 @@ void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi, const ZDCRecHit
     //--------------------------------------
     double fSum = 0.;
     std::vector<double> fData;
+    double digiThresh = 99.5; //corresponds to 40 ADC counts (99.5fC * 2.6)
+    int digiThreshADC = 40;
+    //double ZDCQIEConst = 2.6; 
 
     for (ZDCDigiCollection::const_iterator digi_iter = digi.begin(); 
 	 digi_iter != digi.end(); ++digi_iter) 
@@ -265,10 +271,10 @@ void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi, const ZDCRecHit
 	fSum = 0.;
 	for (unsigned int i = 0; i < fTS; ++i) 
 	  {
-	    //fData[i] = HFQIEConst * digi[i].nominal_fC();  //  !! important. adc or nominal fC ?  multiple with QIE const ? 
-	    //fData[i] = digi[i].adc();
-	    // For now, use nominal_fC, without HFQIEConstant
-	    fData[i]=digi[i].nominal_fC();
+		//fData[i]=digi[i].nominal_fC() * ZDCQIEConst;
+		//std::cout<< "TS " << i << " fData " << fData[i] <<std::endl;
+		fData[i]=digi[i].nominal_fC();
+		if (digi[i].adc() > digiThreshADC) h_saturation->Fill(digi[i].adc(),0.1);
 	  }
       
 	double fTSMean = getTime(fData, 4, 6, fSum); // tsmin = 4, tsmax = 6.
@@ -278,17 +284,22 @@ void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi, const ZDCRecHit
 	  {    // EM
 	    if (iSide == 1) {   // Plus
 	      for (unsigned int i = 0; i < fTS; ++i) {
-		h_ZDCP_EM_Pulse[iChannel - 1]->Fill(i, fData[i]/10.);
+		if (fData[i] > digiThresh) h_ZDCP_EM_Pulse[iChannel - 1]->Fill(i, fData[i]);
 	      }
-	      h_ZDCP_EM_Charge[iChannel - 1]->Fill(fSum);
-	      h_ZDCP_EM_TSMean[iChannel - 1]->Fill(fTSMean);
+	      if (fSum > digiThresh) {
+	        h_ZDCP_EM_Charge[iChannel - 1]->Fill(fSum);
+	        h_ZDCP_EM_TSMean[iChannel - 1]->Fill(fTSMean);
+	        //std::cout<< "fSum " << fSum << " fTSMean " << fTSMean <<std::endl;
+	      }
 	    } // Plus
 	    if (iSide == -1) {  // Minus
 	      for (unsigned int i = 0; i < fTS; ++i) {
-		h_ZDCM_EM_Pulse[iChannel - 1]->Fill(i, fData[i]/10.);
+		if (fData[i] > digiThresh) h_ZDCM_EM_Pulse[iChannel - 1]->Fill(i, fData[i]);
 	      }
-	      h_ZDCM_EM_Charge[iChannel - 1]->Fill(fSum);
-	      h_ZDCM_EM_TSMean[iChannel - 1]->Fill(fTSMean);
+	      if (fSum > digiThresh) {
+	        h_ZDCM_EM_Charge[iChannel - 1]->Fill(fSum);
+	        h_ZDCM_EM_TSMean[iChannel - 1]->Fill(fTSMean);
+	      }
 	    } // Minus
 	  }// EM
       
@@ -296,17 +307,21 @@ void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi, const ZDCRecHit
 	  {    // HAD
 	    if (iSide == 1) {   // Plus 
 	      for (unsigned int i = 0; i < fTS; ++i) {
-		h_ZDCP_HAD_Pulse[iChannel - 1]->Fill(i, fData[i]/10.);
+		if (fData[i] > digiThresh) h_ZDCP_HAD_Pulse[iChannel - 1]->Fill(i, fData[i]);
 	      }
-	      h_ZDCP_HAD_Charge[iChannel - 1]->Fill(fSum);
-	      h_ZDCP_HAD_TSMean[iChannel - 1]->Fill(fTSMean);
+	      if (fSum > digiThresh) {
+	        h_ZDCP_HAD_Charge[iChannel - 1]->Fill(fSum);
+	        h_ZDCP_HAD_TSMean[iChannel - 1]->Fill(fTSMean);
+	      }
 	    } // Plus
 	    if (iSide == -1) {  // Minus
 	      for (unsigned int i = 0; i < fTS; ++i) {
-		h_ZDCM_HAD_Pulse[iChannel - 1]->Fill(i, fData[i]/10.);
+		if (fData[i] > digiThresh) h_ZDCM_HAD_Pulse[iChannel - 1]->Fill(i, fData[i]);
+	      } 
+	      if (fSum > digiThresh) {
+	        h_ZDCM_HAD_Charge[iChannel - 1]->Fill(fSum);
+	        h_ZDCM_HAD_TSMean[iChannel - 1]->Fill(fTSMean);
 	      }
-	      h_ZDCM_HAD_Charge[iChannel - 1]->Fill(fSum);
-	      h_ZDCM_HAD_TSMean[iChannel - 1]->Fill(fTSMean);
 	    }// Minus
 	  } // HAD 
       } // loop on zdc digi collection
@@ -348,6 +363,8 @@ void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi, const ZDCRecHit
     
 } // end of event processing 
 /*
+------------------------------------------------------------------------------------
+// This is what we did to find the good signal. After we've started to use only time slice 4,5,6.
 bool HcalZDCMonitor::isGood(std::vector<double>fData, double fCut, double fPercentage) {
   bool dec = false;
   int ts_max = -1;
@@ -362,8 +379,7 @@ bool HcalZDCMonitor::isGood(std::vector<double>fData, double fCut, double fPerce
     dec = true;
   return dec;
 } // bool HcalZDCMonitor::isGood
-*/
-/*
+
 int HcalZDCMonitor::getTSMax(std::vector<double>fData) 
 {
   int ts_max = -100;
@@ -377,24 +393,31 @@ int HcalZDCMonitor::getTSMax(std::vector<double>fData)
   }
   return ts_max;
 } // int HcalZDCMonitor::getTSMax()
+------------------------------------------------------------------------------------
 */
 double HcalZDCMonitor::getTime(std::vector<double>fData, unsigned int ts_min, unsigned int ts_max, double &fSum) {
   double weightedTime = 0.;
   double SumT = 0.; 
   double Time = -999.;
+  double digiThreshf = 99.5;
  
   for (unsigned int ts=ts_min; ts<=ts_max; ++ts) {
+    if (fData[ts] > digiThreshf){ 
     weightedTime += ts * fData[ts];
     SumT += fData[ts];
+    }
   }
+
   if (SumT > 0.) {
     Time = weightedTime / SumT;
   }
 
   fSum = SumT;
-  return Time; // if (Time == -999;) then do something.
+
+  return Time;
 
 } //double HcalZDCMonitor::getTime()
+
 
 void HcalZDCMonitor::endLuminosityBlock() 
 {

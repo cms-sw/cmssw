@@ -48,6 +48,7 @@ class HcalZDCMonitor: public HcalBaseMonitor
   //int zdc_checkNevents_;
   MonitorElement* meEVT_;
 
+  MonitorElement* h_saturation;
   MonitorElement* h_channel_side_charge_Ave;
   MonitorElement* h_channel_side_TSMean_Ave;
   MonitorElement* h_channel_side_energy_Ave;
