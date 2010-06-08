@@ -1,6 +1,6 @@
 #! /bin/bash
 
-HLT='/online/collisions/2010/week21/HLT'
+HLT='/online/collisions/2010/week24/HLT'
 L1T='L1Menu_Commissioning2010_v2'
 
 rm -f OnData_HLT_TEST.py
@@ -14,7 +14,9 @@ mv OnData_HLT_TEST.py offline_data.py
 mv OnData_HLT_TEST.py online_data.py
 
 {
-  head -n1 online_data.py
-  echo
-  edmConfigFromDB --configName $HLT | hltDumpStream 
+  TABLE=$(echo $HLT | cut -d: -f2)
+  DB=$(echo $HLT | cut -d: -f1 -s)
+  true ${DB:=hltdev}
+
+  edmConfigFromDB --$DB --configName $TABLE | hltDumpStream 
 } > streams.txt
