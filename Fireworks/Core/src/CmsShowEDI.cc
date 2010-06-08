@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.35 2010/06/07 15:58:02 eulisse Exp $
+// $Id: CmsShowEDI.cc,v 1.36 2010/06/08 10:00:02 eulisse Exp $
 //
 
 // system include files
@@ -75,6 +75,7 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
 
    builder.indent(4)
           .addLabel(" ", 14, 2, &m_objectLabel)
+          .vSpacer()
           .tabs(&m_tabs)
           .beginTab("Graphics")
             .indent(3)
@@ -93,7 +94,7 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
                             FWEventItem::maxLayerValue(), 
                             &m_layerEntry).expand(false).floatLeft()
             .addTextButton("To front", &m_frontButton).expand(false)
-            .vSpacer(5)
+            .vSpacer()
           .endTab()
           .beginTab("Filter")
             .indent(3)
@@ -101,7 +102,7 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
             .addValidatingTextEntry(0, &m_filterExpressionEntry).floatLeft()
             .addTextButton("Filter", &m_filterButton).expand(false)
             .addTextView("", &m_filterError)
-            .vSpacer(5)
+            .vSpacer()
           .endTab()
           .beginTab("Select")
             .indent(3)
@@ -110,7 +111,7 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
             .addTextButton("Select", &m_selectButton).floatLeft().expand(false)
             .addTextButton("Select all", &m_selectAllButton).expand(false)
             .addTextView("", &m_selectError)
-            .vSpacer(5)
+            .vSpacer()
           .endTab()
           .beginTab("Data")
             .indent(3)
@@ -127,7 +128,7 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
             .addTextEntry("None", &m_processEntry)
             .addHSeparator()
             .addTextButton("Remove collection", &m_removeButton).expand(false)
-            .vSpacer(5)
+            .vSpacer()
          .endTab()
        .untabs();
 
@@ -153,8 +154,9 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
    m_layerEntry->Connect("ValueSet(Long_t)","CmsShowEDI",this,"moveToLayer(Long_t)");
 
    SetWindowName("Collection Controller");
-   Resize(GetDefaultSize());
    MapSubwindows();
+   Resize(200, 300);
+   
    Layout();
    
    fillEDIFrame();

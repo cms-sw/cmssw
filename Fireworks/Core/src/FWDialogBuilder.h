@@ -29,13 +29,13 @@ public:
                                                0, 0, 0, 0);
       m_window->AddFrame(mainFrame, hints);
       m_framesStack.push_back(mainFrame);
-      newRow();
    }
 protected:
    FWLayoutBuilder &newRow()
    {
+      m_currentHints = new TGLayoutHints(kLHintsExpandX);
       m_currentFrame = new TGHorizontalFrame(m_framesStack.back());
-      m_framesStack.back()->AddFrame(m_currentFrame, new TGLayoutHints(kLHintsExpandX));
+      m_framesStack.back()->AddFrame(m_currentFrame, m_currentHints);
       return *this;
    }
    
@@ -45,12 +45,12 @@ protected:
          right = left;
          
       TGVerticalFrame *parent = m_framesStack.back();
-      TGLayoutHints *hints = new TGLayoutHints(kLHintsExpandX, left, right, 
-                                               0, 0);
+      TGLayoutHints *hints = new TGLayoutHints(kLHintsExpandX|kLHintsExpandY, 
+                                               left, right, 0, 0);
       m_currentHints = 0;
       m_framesStack.push_back(new TGVerticalFrame(parent));
       parent->AddFrame(m_framesStack.back(), hints);
-      return *this;
+      return newRow().expand(true, false);
    }
    
    /** Removes all the frames on the stack since last indent. */
@@ -124,7 +124,7 @@ protected:
    {
       if (!isFloatingLeft())
          newRow();
-   
+      
       return currentFrame();
    }
    
@@ -213,7 +213,6 @@ public:
       label->SetTextJustify(kTextLeft);
       
       currentFrame()->AddFrame(label, nextHints());
-      
       return extract(label, out);
    }
    
@@ -351,8 +350,10 @@ public:
       // Calls to tabs cannot be nested within the same builder. Multiple
       // builders are used to support nested tabs.
       assert(!m_tabs);
+      expand(true, true);
       m_tabs = new TGTab(nextFrame());
       currentFrame()->AddFrame(m_tabs, nextHints());
+      expand(true, true);
       return extract(m_tabs, out);
    }
    
@@ -370,6 +371,7 @@ public:
    FWDialogBuilder &beginTab(const char *label)
    {
       TGCompositeFrame *tab = m_tabs->AddTab(label);
+      
       FWDialogBuilder *builder = new FWDialogBuilder(tab, this);
       return builder->newRow();
    }
@@ -401,10 +403,20 @@ public:
       return *this;
    }
    
-   FWDialogBuilder &vSpacer(size_t size)
+   FWDialogBuilder &vSpacer(size_t size = 0)
    {
-      FWLayoutBuilder::spaceDown(size);
-      FWLayoutBuilder::newRow();
+      newRow().expand(true, true);
+      
+      TGFrame *frame;
+      if (size) 
+         frame = new TGFrame(nextFrame(), 1, size);
+      else
+         frame = new TGFrame(nextFrame());
+      
+      currentFrame()->AddFrame(frame, nextHints());
+
+      expand(true, true);
+      
       return *this;
    }
    
