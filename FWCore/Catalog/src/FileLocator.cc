@@ -135,7 +135,7 @@ namespace edm {
     if (! ruleNode)
       {
 	throw std::runtime_error(
-				 std::string("TrivialFileCatalog::connect: Malformed trivial catalog");
+				 std::string("TrivialFileCatalog::connect: Malformed trivial catalog")
 				 ); 		
       }
     
@@ -144,10 +144,10 @@ namespace edm {
     if (! ruleElement)
       {
 	throw std::runtime_error(
-				 std::string("TrivialFileCatalog::connect: Malformed trivial catalog");
+				 std::string("TrivialFileCatalog::connect: Malformed trivial catalog")
 				 ); 		
       }
-	    
+    
     std::string protocol 
       = _toString (ruleElement->getAttribute (_toDOMS ("protocol")));	    
     std::string destinationMatchRegexp
