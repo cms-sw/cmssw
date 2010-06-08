@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Apr  7 14:40:47 CEST 2010
-// $Id: FW3DView.cc,v 1.38 2010/05/03 15:47:38 amraktad Exp $
+// $Id: FW3DView.cc,v 1.39 2010/06/08 21:16:17 matevz Exp $
 //
 
 // system include files
@@ -16,7 +16,6 @@
 
 // user include files
 #include "TGLViewer.h"
-//#include "TGLCamera.h"
 #include "TGLScenePad.h"
 #include "TEveCalo.h"
 #include "TEveScene.h"
