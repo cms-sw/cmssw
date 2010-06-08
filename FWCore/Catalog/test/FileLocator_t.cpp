@@ -23,7 +23,7 @@ int main() {
     //make the services available
     edm::ServiceRegistry::Operate operate(tempToken);
 
-    FileLocator fl;
+    edm::FileLocator fl;
 
     const char * lfn[] = {
       "/bha/bho",
@@ -37,12 +37,12 @@ int main() {
     int nfile=7;
     
     std::cout << "lfn2pfn" << std::endl;
-    for (int i=0; i<7; ++i)
-      std::cout << lfn[i] << " -> " fl.lfn2pfn(lfn[i]) << std::endl;
+    for (int i=0; i<nfile; ++i)
+      std::cout << lfn[i] << " -> " << fl.pfn(lfn[i]) << std::endl;
     
     std::cout << "pfn2lfn" << std::endl;
-    for (int i=0; i<7; ++i)
-      std::cout << lfn[i] << " -> " fl.pfn2lfn(lfn[i]) << std::endl;
+    for (int i=0; i<nfile; ++i)
+      std::cout << lfn[i] << " -> " << fl.lfn(lfn[i]) << std::endl;
 
 
 
