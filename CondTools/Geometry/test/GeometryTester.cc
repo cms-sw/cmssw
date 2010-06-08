@@ -21,6 +21,7 @@
 #include "Geometry/Records/interface/GeometryFileRcd.h"    
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/GeometricDetExtraRcd.h"
+#include "Geometry/Records/interface/PGeometricDetExtraRcd.h"
 #include "Geometry/Records/interface/DTRecoGeometryRcd.h"
 #include "Geometry/Records/interface/RPCRecoGeometryRcd.h"
 #include "Geometry/Records/interface/CSCRecoGeometryRcd.h"
@@ -76,7 +77,7 @@ GeometryTester::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
     edm::ESHandle<PGeometricDet> tkgeo;
     edm::ESHandle<PGeometricDetExtra> tkExtra;
     iSetup.get<IdealGeometryRecord>().get(tkgeo);
-    iSetup.get<GeometricDetExtraRcd>().get(tkExtra);
+    iSetup.get<PGeometricDetExtraRcd>().get(tkExtra);
     std::cout<<"TRACKER"<<std::endl;
     //helper map
     std::map<uint32_t, uint32_t> diTogde;

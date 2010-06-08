@@ -1,6 +1,8 @@
-destDB 
+destDB oracle://cms_orcoff_prep/CMS_COND_GEOMETRY
+tag TKExtra_Geometry_TagXX
 inputtag 
-tag TKExtra_Geometry_TagXX 
 since 
 till 
-usertext
+Timetype runnumber
+IOVCheck offline
+usertext Geometry payload for Tracker Extra Reco TagXX
