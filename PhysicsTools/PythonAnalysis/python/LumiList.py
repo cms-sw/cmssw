@@ -7,8 +7,12 @@ This class can also handle ranges of events as the structure is identical
 or could be subclassed renaming a function or two.
 """
 
-__revision__ = "$Id: LumiList.py,v 1.2 2010/02/22 14:43:56 ewv Exp $"
-__version__ = "$Revision: 1.2 $"
+# An earlier version of this code in in CRAB, but since it's not CRAB specific
+# and can be used in config files in general and is now needed for FWLite, it's
+# being moved into CMSSW.
+
+__revision__ = "$Id: LumiList.py,v 1.1 2010/06/08 16:04:16 ewv Exp $"
+__version__ = "$Revision: 1.1 $"
 
 import json
 
