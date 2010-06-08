@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.92 2010/05/06 18:03:07 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.93 2010/05/10 11:52:17 matevz Exp $
 //
 // hacks
 #include "DataFormats/FWLite/interface/Event.h"
@@ -142,10 +142,6 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
 
    TGPopupMenu *fileMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("File", fileMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 2, 0));
-   m_newViewerMenu = new TGPopupMenu(gClient->GetRoot());
-
-   fileMenu->AddPopup("New Viewer", m_newViewerMenu);
-   fileMenu->AddSeparator();
    
    openData->createMenuEntry(fileMenu);
    appendData->createMenuEntry(fileMenu);
@@ -187,6 +183,10 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
 
    TGPopupMenu *viewMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("View", viewMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 2, 0));  
+
+   m_newViewerMenu = new TGPopupMenu(gClient->GetRoot());
+   viewMenu->AddPopup("New Viewer", m_newViewerMenu);
+   viewMenu->AddSeparator();
 
    colorset->createMenuEntry(viewMenu);
    colorset->createShortcut(kKey_B, "CTRL", GetId());
