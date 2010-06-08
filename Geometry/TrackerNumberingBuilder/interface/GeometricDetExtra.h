@@ -35,7 +35,7 @@ class GeometricDetExtra {
    * Constructors to be used when looping over DDD
    */
   GeometricDetExtra( GeometricDet const *gd ) : _mygd(gd) { }; // this better be "copied into" or it will never have any valid numbers/info.
-
+    
     GeometricDetExtra( GeometricDet const *gd, DetId id, GeoHistory& gh,  double vol, double dens, double wgt, double cpy, const std::string& mat, const std::string& name, bool dd=false );
 
   /**
@@ -116,8 +116,8 @@ class GeometricDetExtra {
   double _weight;
   int    _copy;
   std::string _material;
-  bool _fromDD; // may not need this, keep an eye on it.
   std::string _name;
+  bool _fromDD; // may not need this, keep an eye on it.
 };
 
 #undef PoolAlloc
