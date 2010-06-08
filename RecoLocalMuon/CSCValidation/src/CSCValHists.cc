@@ -356,8 +356,6 @@ using namespace std;
       theMap[name] = pair<TH1*,string>(new TH2F(name.c_str(),title.c_str(),36,0.5,36.5,18,0.5,18.5),folder);
     }
 
-    printf(" %s %i %i %i %i \n", name.data(), id.endcap(), id.station(), id.ring(), id.chamber());
-    
     int x = id.chamber();
     int y = id.ring();
     if (y==4) y =1; //collapsing ME1/1a into ME1/1
