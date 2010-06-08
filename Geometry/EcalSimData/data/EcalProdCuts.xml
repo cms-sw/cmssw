@@ -9,6 +9,14 @@
     <Parameter name="ProdCutsForPositrons" value="1*mm"/>
     <Parameter name="ProdCutsForGamma" value="1*mm"/>
   </SpecPar>
+  <SpecPar name="ebapd">
+    <PartSelector path="//EAPD.*" />
+    <PartSelector path="//EATJ.*" />
+    <Parameter name="CMSCutsRegion" value="APDRegion" eval="false"/>
+    <Parameter name="ProdCutsForElectrons" value="0.005*mm"/>
+    <Parameter name="ProdCutsForPositrons" value="0.005*mm"/>
+    <Parameter name="ProdCutsForGamma" value="0.005*mm"/>
+  </SpecPar>
 </SpecParSection>
 
 </DDDefinition>
