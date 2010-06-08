@@ -2,6 +2,8 @@
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/Utilities>
 <use name=FileCatalog>
+<use name=xerces-c>
+<use name=Iguana/Utilities>
 <use name=boost>
 <export>
   <use name=FileCatalog>
