@@ -5,6 +5,8 @@
 namespace reco {
     struct MuonQuality {
       ///
+      /// bool returns true if standAloneMuon_updatedAtVtx was used in the fit
+      bool updatedSta;
       /// value of the kink algorithm applied to the inner track stub
       float trkKink;
       /// value of the kink algorithm applied to the global track
@@ -23,17 +25,20 @@ namespace reco {
       float globalDeltaEtaPhi;
       /// if the STA-TK matching passed the tighter matching criteria
       bool tightMatch;
+      /// the tail probability (-ln(P)) of the global fit
+      float glbTrackProbability;
 
       /// Kink position for the tracker stub and global track
       math::XYZPoint tkKink_position;
       math::XYZPoint glbKink_position;
       
       MuonQuality():
+	updatedSta(0),
 	trkKink(0), glbKink(0),
 	trkRelChi2(0), staRelChi2(0),
 	chi2LocalPosition(0),chi2LocalMomentum(0),
 	localDistance(0),globalDeltaEtaPhi(0),
-	tightMatch(0)
+	tightMatch(0),glbTrackProbability(0)
       { }
        
     };
