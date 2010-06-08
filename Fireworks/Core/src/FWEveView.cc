@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.17 2010/05/11 10:38:41 amraktad Exp $
+// $Id: FWEveView.cc,v 1.18 2010/05/28 15:46:55 matevz Exp $
 //
 
 
@@ -98,6 +98,7 @@ FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type) :
    FWGLEventHandler* eh = new FWGLEventHandler((TGWindow*)embeddedViewer->GetGLWidget(), (TObject*)embeddedViewer);
    embeddedViewer->SetEventHandler(eh);
    eh->openSelectedModelContextMenu_.connect(openSelectedModelContextMenu_);
+   eh->SetDoInternalSelection(kFALSE);
    FWViewContextMenuHandlerGL* ctxHand = new FWViewContextMenuHandlerGL(m_viewer);
    ctxHand->setPickCameraCenter(true);
    m_viewContextMenu.reset(ctxHand);
