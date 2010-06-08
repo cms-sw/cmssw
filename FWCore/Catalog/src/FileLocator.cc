@@ -34,7 +34,7 @@ namespace {
 		     const std::string inputString,
 		     const std::string outputFormat)
   {
-    //std::cerr << "InputString:" << inputString << std::endl;
+    // std::cerr << "InputString:" << inputString << std::endl;
     
     char buffer[8];
     std::string result = outputFormat;
@@ -66,7 +66,8 @@ namespace edm {
   
   int FileLocator::s_numberOfInstances=0;
 
-  FileLocator::FileLocator()
+  FileLocator::FileLocator(): 
+      m_destination ("any")
   {  
     try { 
       //  << "Xerces-c initialization Number "
@@ -84,6 +85,9 @@ namespace edm {
     ++s_numberOfInstances;
     
     init();
+
+    // std::cout << m_protocols.size() << " protocols" << std::endl;
+    // std::cout << m_directRules[m_protocols[0]].size() << " rules" << std::endl;
   }
   
   FileLocator::~FileLocator ()
@@ -184,8 +188,8 @@ namespace edm {
     std::string m_url=localconfservice->dataCatalog();
     
     
-    //      << "Connecting to the catalog "
-    //    << m_url << 
+    // std::cout << "Connecting to the catalog " << m_url << std::endl;
+
     
     if (m_url.find ("file:") != std::string::npos)
       {
@@ -237,8 +241,7 @@ namespace edm {
     configFile.open (m_filename.c_str ());
     
     //
-    //	     << "Using catalog configuration " 
-    //	     << m_filename << coral::MessageStream::endmsg;
+    // std::cout << "Using catalog configuration " << m_filename << std::endl;
     
     if (!configFile.good () || !configFile.is_open ())
       {
@@ -252,7 +255,7 @@ namespace edm {
     parser->setDoNamespaces(false);
     parser->parse(m_filename.c_str());	
     DOMDocument* doc = parser->getDocument();
-    // assert(doc);
+    assert(doc);
     
     /* trivialFileCatalog matches the following xml schema
        FIXME: write a proper DTD
@@ -335,7 +338,7 @@ FileLocator::applyRules (const ProtocolRules& protocolRules,
 			 bool direct,
 			 std::string name) const
 {
-  //std::cerr << "Calling apply rules with protocol: " << protocol << "\n destination: " << destination << "\n " << " on name " << name << std::endl;
+  // std::cerr << "Calling apply rules with protocol: " << protocol << "\n destination: " << destination << "\n " << " on name " << name << std::endl;
   
   const ProtocolRules::const_iterator rulesIterator = protocolRules.find (protocol);
   if (rulesIterator == protocolRules.end ())

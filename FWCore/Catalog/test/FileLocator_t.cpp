@@ -28,6 +28,7 @@ int main() {
     edm::FileLocator fl;
 
     const char * lfn[] = {
+      "/store/group/bha/bho",
       "/bha/bho",
       "bha",
       "file:bha",
@@ -36,7 +37,7 @@ int main() {
       "rfio:/castor/cern.ch/cms/bha/bho",
       "rfio:/bha/bho"
     };
-    int nfile=7;
+    int nfile=8;
     
     std::cout << "lfn2pfn" << std::endl;
     for (int i=0; i<nfile; ++i)
