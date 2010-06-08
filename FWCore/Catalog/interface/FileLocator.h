@@ -3,6 +3,7 @@
 
 #include <string>
 #include <list>
+#include <map>
 #include <utility>
 #include "classlib/utils/Regexp.h"
 #include <xercesc/dom/DOM.hpp>

@@ -59,12 +59,12 @@ namespace {
       }
     return result;    
   }
-
+  
 }
 
 namespace edm {
-
-  FileLocator::s_numberOfInstances=0;
+  
+  int FileLocator::s_numberOfInstances=0;
 
   FileLocator::FileLocator()
   {  
@@ -81,32 +81,32 @@ namespace edm {
       throw(std::runtime_error(std::string("Fatal Error on edm::FileLocator:")+ _toString(e.getMessage())));
     }
     ++s_numberOfInstances;
-
+    
     init();
-}
+  }
   
-  FileLocator::FileLocator ()
+  FileLocator::~FileLocator ()
   {
   }
   
-
+  
   std::string FileLocator::pfn(std::string const & ilfn) const {
     std::string pfn = "";
     
     for (lat::StringList::const_iterator protocol = m_protocols.begin ();
 	 protocol != m_protocols.end ();
 	 protocol++)
-    {
+      {
 	pfn = applyRules (m_directRules, 
 			  *protocol, 
 			  m_destination, 
 			  true, 
 			  ilfn);
 	if (! pfn.empty ())
-	{
+	  {
 	    return pfn;
-	}
-    }
+	  }
+      }
     return pfn;
   }
   
@@ -126,9 +126,9 @@ namespace edm {
       }
     return fid;
   }
-
-
-
+  
+  
+  
   FileLocator::parseRule (DOMNode *ruleNode, 
 			  ProtocolRules &rules)
   {
@@ -241,9 +241,7 @@ namespace edm {
     
     if (!configFile.good () || !configFile.is_open ())
       {
-	m_transactionsta = 0;
-	throw FCTransactionException
-	  cms::Exception("TrivialFileCatalog::connect: Unable to open trivial file catalog " + m_filename); 
+	throw cms::Exception("TrivialFileCatalog::connect: Unable to open trivial file catalog " + m_filename); 
       }
     
     configFile.close ();
