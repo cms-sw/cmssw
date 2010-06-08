@@ -5,7 +5,7 @@
 #include <RecoLocalMuon/CSCRecHitD/src/CSCStripHit.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCWireHit.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCRecoConditions.h>
-
+ 
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
@@ -174,15 +174,21 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
     float chipCorrection = 170. - recoConditions_->chipCorrection(id,centerStrip);
     float phaseCorrection = (sHit.stripsl1a()[0]>> (15-0) & 0x1)*25.;
     float chamberCorrection = recoConditions_->chamberTimingCorrection(id);
-    //printf("RecHit in e:%d s:%d r:%d c:%d l:%d strip:%d \n",id.endcap(),id.station(), id.ring(),id.chamber(),id.layer(),centerStrip);
-    //printf("\t tpeak before = %5.2f \t chipCorr %5.2f phaseCorr %5.2f chamberCorr %5.2f\n",tpeak,chipCorrection, phaseCorrection,chamberCorrection;
-    tpeak = tpeak + chipCorrection + phaseCorrection + chamberCorrection;
+
+    GlobalPoint gp0 = layer_->surface().toGlobal(lp0);
+    float tofCorrection = gp0.mag()/29.9792458;
+
+    // printf("RecHit in e:%d s:%d r:%d c:%d l:%d strip:%d \n",id.endcap(),id.station(), id.ring(),id.chamber(),id.layer(),centerStrip);
+    // printf("\t tpeak before = %5.2f \t chipCorr %5.2f phaseCorr %5.2f chamberCorr %5.2f tofCorr %5.2f\n",
+    // 	   tpeak,chipCorrection, phaseCorrection,chamberCorrection,tofCorrection);
+    tpeak = tpeak + chipCorrection + phaseCorrection + chamberCorrection-tofCorrection;
     // to more or less zero out the chambers (TOF will still be visible)
     if(id.station() ==1 && (id.ring() ==1 || id.ring() == 4))
-      tpeak = tpeak - 205;//225
+      tpeak = tpeak - 205;
     else
-      tpeak = tpeak - 216;//236
-    //printf("\t tpeak after = %5.2f\n",tpeak);
+      tpeak = tpeak - 216;
+    // printf("\t tpeak after = %5.2f\n",tpeak);
+
   }
 
   // store rechit
