@@ -20,7 +20,6 @@
 
 #include "Geometry/Records/interface/GeometryFileRcd.h"    
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/Records/interface/GeometricDetExtraRcd.h"
 #include "Geometry/Records/interface/PGeometricDetExtraRcd.h"
 #include "Geometry/Records/interface/DTRecoGeometryRcd.h"
 #include "Geometry/Records/interface/RPCRecoGeometryRcd.h"

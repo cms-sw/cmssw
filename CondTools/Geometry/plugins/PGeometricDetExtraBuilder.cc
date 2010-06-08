@@ -8,8 +8,7 @@
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/GeometryObjects/interface/PGeometricDetExtra.h"
-
-#include "Geometry/Records/interface/GeometricDetExtraRcd.h"
+#include "Geometry/Records/interface/PGeometricDetExtraRcd.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDetExtra.h"
 #include <DetectorDescription/Core/interface/DDCompactView.h>
 #include <DetectorDescription/Core/interface/DDExpandedView.h>
@@ -55,10 +54,10 @@ PGeometricDetExtraBuilder::beginRun( const edm::Run&, edm::EventSetup const& es)
   for (; git!= egit; ++git) {  // one level below "tracker"
     putOne(*git, pgde);
   }
-  if ( mydbservice->isNewTagRequest("GeometricDetExtraRcd") ) {
-    mydbservice->createNewIOV<PGeometricDetExtra>( pgde,mydbservice->beginOfTime(),mydbservice->endOfTime(),"GeometricDetExtraRcd");
+  if ( mydbservice->isNewTagRequest("PGeometricDetExtraRcd") ) {
+    mydbservice->createNewIOV<PGeometricDetExtra>( pgde,mydbservice->beginOfTime(),mydbservice->endOfTime(),"PGeometricDetExtraRcd");
   } else {
-    edm::LogError("PGeometricDetExtraBuilder")<<"PGeometricDetExtraBuilder Tag already present";
+    edm::LogError("PGeometricDetExtraBuilder")<<"PGeometricDetExtra and PGeometricDetExtraRcd Tag already present";
   }
 }
   
