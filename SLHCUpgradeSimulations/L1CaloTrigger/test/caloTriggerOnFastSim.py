@@ -4,7 +4,7 @@ process = cms.Process("PROD")
 
 # Number of events to be generated
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(1)
 )
 
 # Include the RandomNumberGeneratorService definition
@@ -75,7 +75,7 @@ process.p1 = cms.Path(process.generator+
 process.source = cms.Source("EmptySource")
 
 
- To write out events
+# To write out events
 process.load("FastSimulation.Configuration.EventContent_cff")
 process.o1 = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring('drop *_*_*_*',
