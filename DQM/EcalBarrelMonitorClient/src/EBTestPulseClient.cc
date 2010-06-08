@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2010/03/27 20:30:37 $
- * $Revision: 1.226 $
+ * $Date: 2010/05/28 09:02:47 $
+ * $Revision: 1.228 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -124,8 +124,8 @@ EBTestPulseClient::EBTestPulseClient(const edm::ParameterSet& ps) {
   pedPnDiscrepancyMean_[0] = 100.0;
   pedPnDiscrepancyMean_[1] = 100.0;
 
-  pedPnRMSThreshold_[0] = 10.;
-  pedPnRMSThreshold_[1] = 10.;
+  pedPnRMSThreshold_[0] = 999.;
+  pedPnRMSThreshold_[1] = 999.;
 
 }
 
@@ -1181,7 +1181,7 @@ void EBTestPulseClient::analyze(void) {
         std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
         if (iter == superModules_.end()) continue;
 
-        int i = ecid.getID2() - 1;
+        int i = ecid.getID2() + 1;
 
         UtilsClient::maskBinContent( meg04_[ism-1], i, 1 );
 
@@ -1196,7 +1196,7 @@ void EBTestPulseClient::analyze(void) {
         std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
         if (iter == superModules_.end()) continue;
 
-        int i = ecid.getID2() - 1;
+        int i = ecid.getID2() + 1;
 
         UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
 

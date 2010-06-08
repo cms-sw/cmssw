@@ -10,7 +10,6 @@
 #include "TROOT.h"
 #include "TKey.h"
 #include "TClass.h"
-#include "TSystem.h"
 #include <iterator>
 #include <cerrno>
 
@@ -27,6 +26,8 @@ twice without having called reset() in between; to be reset in
 DQMOldReceiver::runQualityTests.  */
 
 /** @var DQMStore::collateHistograms_ */
+
+/** @var DQMStore::outputFileRecreate_ */
 
 /** @var DQMStore::readSelectedDirectory_
     If non-empty, read from file only selected directory. */
@@ -45,6 +46,7 @@ DQMOldReceiver::runQualityTests.  */
 static std::string s_monitorDirName = "DQMData";
 static std::string s_referenceDirName = "Reference";
 static std::string s_collateDirName = "Collate";
+static std::string s_dqmPatchVersion = "0";
 static std::string s_safe = "/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-+=_()# ";
 static DQMStore *s_instance = 0;
 
@@ -142,6 +144,7 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
     reset_ (false),
     collateHistograms_ (false),
     readSelectedDirectory_ (""),
+    outputFileRecreate_ (true),
     pwd_ ("")
 {
   assert(! s_instance);
@@ -166,8 +169,8 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
   if (! ref.empty())
   {
     std::cout << "DQMStore: using reference file '" << ref << "'\n";
-    readFile(ref, true, "", s_referenceDirName, StripRunDirs, true);
-  }  
+    readFile(ref, true, "", s_referenceDirName, StripRunDirs);
+  }
 
   initQCriterion<Comp2RefChi2>(qalgos_);
   initQCriterion<Comp2RefKolmogorov>(qalgos_);
@@ -1885,8 +1888,7 @@ DQMStore::save(const std::string &filename,
 	       const std::string &pattern /* = "" */,
 	       const std::string &rewrite /* = "" */,
 	       SaveReferenceTag ref /* = SaveWithReference */,
-	       int minStatus /* = dqm::qstatus::STATUS_OK */,
-	       const std::string &fileupdate /* = RECREATE */)
+	       int minStatus /* = dqm::qstatus::STATUS_OK */)
 {
   std::set<std::string>::iterator di, de;
   MEMap::iterator mi, me = data_.end();
@@ -1905,14 +1907,23 @@ DQMStore::save(const std::string &filename,
   };
 
   // open output file, on 1st save recreate, later update
+  std::string opt = "UPDATE";
+  if (outputFileRecreate_) 
+    opt = "RECREATE";
   if (verbose_)
     std::cout << "\n DQMStore: Opening TFile '" << filename 
-              << "' with option '" << fileupdate <<"'\n";
+              << "' with option '" << opt <<"'\n";
 
-  TFileNoSync f(filename.c_str(), fileupdate.c_str()); // open file
+  TFileNoSync f(filename.c_str(), opt.c_str()); // open file
   if(f.IsZombie())
     raiseDQMError("DQMStore", "Failed to create/update file '%s'", filename.c_str());
   f.cd();
+
+  if (outputFileRecreate_) // write versions once upon opening
+  {
+    TObjString(edm::getReleaseVersion().c_str()).Write(); // Save CMSSW version
+    TObjString(getDQMPatchVersion().c_str()).Write(); // Save DQM patch version
+  }
   
   // Construct a regular expression from the pattern string.
   std::auto_ptr<lat::Regexp> rxpat;
@@ -2029,6 +2040,22 @@ DQMStore::save(const std::string &filename,
   }
 
   f.Close();
+
+  if (outputFileRecreate_)
+  {
+#if !WITHOUT_CMS_FRAMEWORK
+    // Report the file to job report service.
+    edm::Service<edm::JobReport> jr;
+    if (jr.isAvailable())
+    {
+      std::map<std::string, std::string> info;
+      info["Source"] = "DQMStore";
+      info["FileClass"] = "DQM";
+      jr->reportAnalysisFile(filename, info);
+    }
+#endif
+    outputFileRecreate_=false;
+  }
 
   // Maybe make some noise.
   if (verbose_)
@@ -2192,27 +2219,24 @@ DQMStore::readDirectory(TFile *file,
 /// if flag=true, overwrite identical MonitorElements (default: false);
 /// if onlypath != "", read only selected directory
 /// if prepend !="", prepend string to path
-/// note: by default this method keeps the dir structure as in file
+/// note: this method keeps the dir structure as in file
 /// and does not update monitor element references!
-bool
+void
 DQMStore::open(const std::string &filename,
 	       bool overwrite /* = false */,
 	       const std::string &onlypath /* ="" */,
-	       const std::string &prepend /* ="" */, 
-               OpenRunDirs stripdirs /* =KeepRunDirs */, 
-	       bool fileMustExist /* =true */)
+	       const std::string &prepend /* ="" */)
 {
-  return readFile(filename,overwrite,onlypath,prepend,stripdirs,fileMustExist);
+  readFile(filename,overwrite,onlypath,prepend,KeepRunDirs);
 }
 
 /// public load root file <filename>, and copy MonitorElements;
 /// overwrite identical MonitorElements (default: true);
 /// set DQMStore.collateHistograms to true to sum several files
-/// note: by default this method strips off run dir structure
-bool 
+/// note: this method strips off run dir structure
+void 
 DQMStore::load(const std::string &filename,
-               OpenRunDirs stripdirs /* =StripRunDirs */, 
-	       bool fileMustExist /* =true */)
+               OpenRunDirs stripdirs /* =StripRunDirs */)
 {
   bool overwrite = true;
   if (collateHistograms_) overwrite = false;
@@ -2225,7 +2249,7 @@ DQMStore::load(const std::string &filename,
       std::cout << "DQMStore::load: in overwrite mode   " << "\n";
   }
     
-  return readFile(filename,overwrite,"","",stripdirs,fileMustExist);
+  readFile(filename,overwrite,"","",stripdirs);
      
 }
 
@@ -2234,37 +2258,20 @@ DQMStore::load(const std::string &filename,
 /// if onlypath != "", read only selected directory
 /// if prepend !="", prepend string to path
 /// if StripRunDirs is set the run and run summary folders are erased.
-bool
+void
 DQMStore::readFile(const std::string &filename,
 		   bool overwrite /* = false */,
 		   const std::string &onlypath /* ="" */,
 		   const std::string &prepend /* ="" */,
-		   OpenRunDirs stripdirs /* =StripRunDirs */,
-		   bool fileMustExist /* =true */)
+		   OpenRunDirs stripdirs /* =StripRunDirs */)
 {
-  
+
   if (verbose_)
-    std::cout << "DQMStore::readFile: reading from file '" << filename << "'\n";
+    std::cout << "DQMStore::open: reading from file '" << filename << "'\n";
 
-  std::auto_ptr<TFile> f;
-
-  try 
-  {
-    f.reset(TFile::Open(filename.c_str()));
-    if (! f.get() || f->IsZombie())
-      raiseDQMError("DQMStore", "Failed to open file '%s'", filename.c_str());
-  }
-  catch (cms::Exception &)
-  {
-    if (fileMustExist)
-      throw;
-    else
-    {  
-    if (verbose_)
-      std::cout << "DQMStore::readFile: file '" << filename << "' does not exist, continuing\n";
-    return false;
-    }
-  }
+  std::auto_ptr<TFile> f(TFile::Open(filename.c_str()));
+  if (! f.get() || f->IsZombie())
+    raiseDQMError("DQMStore", "Failed to open file '%s'", filename.c_str());
 
   unsigned n = readDirectory(f.get(), overwrite, onlypath, prepend, "", stripdirs);
   f->Close();
@@ -2284,8 +2291,59 @@ DQMStore::readFile(const std::string &filename,
       std::cout << " into directory '" << prepend << "'";
     std::cout << std::endl;
   }
-  return true;
 }
+
+/// version info
+std::string
+DQMStore::getFileReleaseVersion(const std::string &filename)
+{
+  TFile f(filename.c_str());
+  if (f.IsZombie())
+    raiseDQMError("DQMStore", "Failed to open file '%s'", filename.c_str());
+
+  // Loop over the contents of this directory in the file.
+  TKey *key;
+  TIter next (gDirectory->GetListOfKeys());
+  std::string name;
+
+  while ((key = (TKey *) next()))
+  {
+    name = key->ReadObj()->GetName();
+    if (name.compare(0, 6, "\"CMSSW") == 0
+	|| name.compare(0, 5, "CMSSW") == 0)
+      break;
+  }
+
+  f.Close();
+  return name;
+}
+
+std::string
+DQMStore::getFileDQMPatchVersion(const std::string &filename)
+{
+  TFile f(filename.c_str());
+  if (f.IsZombie())
+    raiseDQMError("DQMStore", "Failed to open file '%s'", filename.c_str());
+
+  // Loop over the contents of this directory in the file.
+  TKey *key;
+  TIter next (gDirectory->GetListOfKeys());
+  std::string name;
+
+  while ((key = (TKey *) next()))
+  {
+    name = key->ReadObj()->GetName();
+    if (name.compare(0, 8, "DQMPATCH") == 0)
+      break;
+  }
+
+  f.Close();
+  return name;
+}
+
+std::string
+DQMStore::getDQMPatchVersion(void)
+{ return "DQMPATCH:" + s_dqmPatchVersion; } 
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////

@@ -31,7 +31,6 @@ namespace cms
     conf_(conf)
   {
     geometry=conf_.getUntrackedParameter<std::string>("GeometricStructure","STANDARD");
-    useHitsSplitting_=conf.getParameter<bool>("useHitsSplitting");
     produces<TrackCandidateCollection>();
   }
 
@@ -138,7 +137,7 @@ namespace cms
 
 	Trajectory::RecHitContainer thits;
 	//it->recHitsV(thits);
-        theTraj.recHitsV(thits,useHitsSplitting_);
+        theTraj.recHitsV(thits,true);
 	edm::OwnVector<TrackingRecHit> recHits;
 	recHits.reserve(thits.size());
 

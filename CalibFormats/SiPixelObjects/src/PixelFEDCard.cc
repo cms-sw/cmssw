@@ -9,7 +9,6 @@
 #include <cassert>
 #include <sstream>
 #include <map>
-#include <stdexcept>
 
 using namespace std;
 
@@ -17,10 +16,7 @@ using namespace pos;
 
 
 PixelFEDCard::PixelFEDCard(): 
-  PixelConfigBase(" "," "," ")
-{
-  clear();
-}
+  PixelConfigBase(" "," "," "){}
 
 // modified by MR on 24-04-2008 12:05:42
 // Read configuration from DB
@@ -101,14 +97,6 @@ PixelFEDCard::PixelFEDCard(vector<vector<string> > &tableMat):PixelConfigBase(" 
     SOUTH_FIFO1_BZ_LVL  		      NOT NULL NUMBER(38)	     Sfifo1Bzlvl				
     FIFO3_WRN_LVL				       NUMBER(38)            fifo3Wrnlvl
     FED_MASTER_DELAY				       NUMBER(38)            FedTTCDelay
-    NO_HITLIMIT 			               NUMBER(38)	     N_hitlimit 
-    NC_HITLIMIT 			               NUMBER(38)	     NC_hitlimit
-    SC_HITLIMIT 			               NUMBER(38)	     SC_hitlimit
-    SO_HITLIMIT 			               NUMBER(38)	     S_hitlimit 
-    NO_TESTREG				               NUMBER(38)	     N_testreg  
-    NC_TESTREG				               NUMBER(38)	     NC_testreg 
-    SC_TESTREG				               NUMBER(38)	     SC_testreg 
-    SO_TESTREG				               NUMBER(38)	     S_testreg  
   */
   colNames.push_back("CONFIG_KEY" 	       );
   colNames.push_back("KEY_TYPE"   	       );
@@ -175,14 +163,6 @@ PixelFEDCard::PixelFEDCard(vector<vector<string> > &tableMat):PixelConfigBase(" 
   colNames.push_back("SOUTH_FIFO1_BZ_LVL"      );
   colNames.push_back("FIFO3_WRN_LVL"	       );
   colNames.push_back("FED_MASTER_DELAY"        );
-  colNames.push_back("NO_HITLIMIT"	       );
-  colNames.push_back("NC_HITLIMIT"	       );
-  colNames.push_back("SC_HITLIMIT"	       );
-  colNames.push_back("SO_HITLIMIT"	       );
-  colNames.push_back("NO_TESTREG"	       );
-  colNames.push_back("NC_TESTREG"	       );
-  colNames.push_back("SC_TESTREG"	       );
-  colNames.push_back("SO_TESTREG"	       );
 
   for(unsigned int c = 0 ; c < ins.size() ; c++)
     {
@@ -301,14 +281,6 @@ PixelFEDCard::PixelFEDCard(vector<vector<string> > &tableMat):PixelConfigBase(" 
       Sadcg  	   = atoi(tableMat[1][colM["B4_ADCGN"]].c_str() 		) ;
       fifo3Wrnlvl  = atoi(tableMat[1][colM["FIFO3_WRN_LVL"]].c_str()		) ;
       FedTTCDelay  = atoi(tableMat[1][colM["FED_MASTER_DELAY"]].c_str() 	) ;
-      N_hitlimit   = atoi(tableMat[1][colM["NO_HITLIMIT"]].c_str()	        ) ;
-      NC_hitlimit  = atoi(tableMat[1][colM["NC_HITLIMIT"]].c_str()	        ) ;
-      SC_hitlimit  = atoi(tableMat[1][colM["SC_HITLIMIT"]].c_str()	        ) ;
-      S_hitlimit   = atoi(tableMat[1][colM["SO_HITLIMIT"]].c_str()	        ) ;
-      N_testreg    = atoi(tableMat[1][colM["NO_TESTREG"]].c_str()	        ) ;
-      NC_testreg   = atoi(tableMat[1][colM["NC_TESTREG"]].c_str()	        ) ;
-      SC_testreg   = atoi(tableMat[1][colM["SC_TESTREG"]].c_str()	        ) ;
-      S_testreg    = atoi(tableMat[1][colM["SO_TESTREG"]].c_str()	        ) ;
 
     } // end of 'first' condition
   for(int r = 1 ; r < size[0] ; r++)    //Goes to every row of the FIRST Matrix (MUST BE 36, one for each FED channel)
@@ -566,28 +538,29 @@ PixelFEDCard::PixelFEDCard(string fileName):
   PixelConfigBase(" "," "," ")
 {
 
-  std::string mthn = "]\t[PixelFEDCard::PixelFEDCard()]\t\t\t\t    " ;
+  std::string mthn = "[PixelFEDCard::PixelFEDCard()]\t\t\t\t    " ;
   //const bool localDEBUG = true;
   const bool localDEBUG = false;
   
   // Added by Dario (March 26th, 2008): insure variables are all cleared before read-in
   clear() ;
 
-  //  cout << __LINE__ << "]\t" << mthn <<" Get setup parameters from file "<<fileName<<endl;
+  //cout << __LINE__ << "]\t" << mthn <<" Get setup parameters from file "<<fileName<<endl;
   FILE *infile = fopen((fileName.c_str()),"r");
-  if (infile == NULL)  throw std::runtime_error("Failed to open FED Card parameter file: "+fileName); 
-
+  if (infile == NULL) {
+    cout<< __LINE__ << "]\t" << mthn << "No parameter file:"<<fileName<<endl; 
+    return;
+  }
+  
   //Fed Base Address
   fscanf(infile,"FED Base address                         :%lx\n",
          &FEDBASE_0);
   fscanf(infile,"FEDID Number                             :%lx\n",
          &fedNumber);
 
-//  if(localDEBUG) cout << __LINE__ << mthn << "FED Base address, FED # : " << std::hex << FEDBASE_0 << std::dec << std::endl ;
-//  if(localDEBUG) printf("FED Base address, FED # :%lx\n",FEDBASE_0);
+  printf("FED Base address, FED # :%lx\n",FEDBASE_0);
   //if(FEDBASE != FEDBASE_0) cout<< __LINE__ << "]\t" << mthn << " Inconsistent FED base address?"<<endl;
-//  if(localDEBUG) cout << __LINE__ << mthn << "FEDID #                 : " << std::hex << fedNumber << std::dec << std::endl ;
-//  if(localDEBUG) printf("FEDID # :%lx\n",fedNumber);
+  printf("FEDID # :%lx\n",fedNumber);
  
   // Number of ROCs
   int ijx=0;
@@ -612,12 +585,12 @@ PixelFEDCard::PixelFEDCard(string fileName):
     printf("Optical reciever 1  Capacitor Adjust(0-3):%d\n",opt_cap[0]);
     printf("Optical reciever 2  Capacitor Adjust(0-3):%d\n",opt_cap[1]);
     printf("Optical reciever 3  Capacitor Adjust(0-3):%d\n",opt_cap[2]);
-    printf("Optical reciever 1  Input Offset (0-15)  :%d\n",opt_inadj[0]);
-    printf("Optical reciever 2  Input Offset (0-15)  :%d\n",opt_inadj[1]);
-    printf("Optical reciever 3  Input Offset (0-15)  :%d\n",opt_inadj[2]);
-    printf("Optical reciever 1 Output Offset (0-3)   :%d\n",opt_ouadj[0]);
-    printf("Optical reciever 2 Output Offset (0-3)   :%d\n",opt_ouadj[1]);
-    printf("Optical reciever 3 Output Offset (0-3)   :%d\n",opt_ouadj[2]);
+    printf("Optical reciever 1  Input Offset (0-15)   :%d\n",opt_inadj[0]);
+    printf("Optical reciever 2  Input Offset (0-15)   :%d\n",opt_inadj[1]);
+    printf("Optical reciever 3  Input Offset (0-15)   :%d\n",opt_inadj[2]);
+    printf("Optical reciever 1 Output Offset (0-3)  :%d\n",opt_ouadj[0]);
+    printf("Optical reciever 2 Output Offset (0-3)  :%d\n",opt_ouadj[1]);
+    printf("Optical reciever 3 Output Offset (0-3)  :%d\n",opt_ouadj[2]);
   }
 
   //input offset dac
@@ -627,10 +600,10 @@ PixelFEDCard::PixelFEDCard(string fileName):
   }
   
   //clock phases
-  fscanf(infile,"Clock Phase Bits ch   1-9:%x\n",& clkphs1_9 );
-  fscanf(infile,"Clock Phase Bits ch 10-18:%x\n",&clkphs10_18);
-  fscanf(infile,"Clock Phase Bits ch 19-27:%x\n",&clkphs19_27);
-  fscanf(infile,"Clock Phase Bits ch 28-36:%x\n",&clkphs28_36);
+  fscanf(infile,"Clock Phase Bits ch   1-9:%d\n",& clkphs1_9 );
+  fscanf(infile,"Clock Phase Bits ch 10-18:%d\n",&clkphs10_18);
+  fscanf(infile,"Clock Phase Bits ch 19-27:%d\n",&clkphs19_27);
+  fscanf(infile,"Clock Phase Bits ch 28-36:%d\n",&clkphs28_36);
   if(localDEBUG)printf("Clock Phase Bits ch    1-9:%x\n",clkphs1_9 );
   if(localDEBUG)printf("Clock Phase Bits ch  10-18:%x\n",clkphs10_18 );
   if(localDEBUG)printf("Clock Phase Bits ch  19-27:%x\n",clkphs19_27 );
@@ -704,13 +677,13 @@ PixelFEDCard::PixelFEDCard(string fileName):
   
   
   //These bits turn off(1) and on(0) channels
-  fscanf(infile,"Channel Enbable bits chnls 1-9  (on = 0):%x\n",
+  fscanf(infile,"Channel Enbable bits chnls 1-9  (on = 0):%d\n",
          &Ncntrl);
-  fscanf(infile,"Channel Enbable bits chnls 10-18(on = 0):%x\n",
+  fscanf(infile,"Channel Enbable bits chnls 10-18(on = 0):%d\n",
          &NCcntrl);
-  fscanf(infile,"Channel Enbable bits chnls 19-27(on = 0):%x\n",
+  fscanf(infile,"Channel Enbable bits chnls 19-27(on = 0):%d\n",
          &SCcntrl);
-  fscanf(infile,"Channel Enbable bits chnls 28-36(on = 0):%x\n",
+  fscanf(infile,"Channel Enbable bits chnls 28-36(on = 0):%d\n",
          &Scntrl);
   if(localDEBUG)
     printf("Channel Enbable bits chnls 1-9  (on = 0):%x\n",Ncntrl);
@@ -723,26 +696,26 @@ PixelFEDCard::PixelFEDCard(string fileName):
   
   //These are delays to the TTCrx
   fscanf(infile,"TTCrx Coarse Delay Register 2:%d\n",&CoarseDel);
-  fscanf(infile,"TTCrc      ClkDes2 Register 3:%x\n",&ClkDes2);
+  fscanf(infile,"TTCrc      ClkDes2 Register 3:%d\n",&ClkDes2);
   fscanf(infile,"TTCrc Fine Dlay ClkDes2 Reg 1:%d\n",&FineDes2Del);
   if(localDEBUG)printf("TTCrx Coarse Delay Register 2:%d\n",CoarseDel);
   if(localDEBUG)printf("TTCrc      ClkDes2 Register 3:%x\n",ClkDes2);
   if(localDEBUG)printf("TTCrc Fine Dlay ClkDes2 Reg 1:%d\n",FineDes2Del);
   
   // Control register
-  fscanf(infile,"Center Chip Control Reg:%x\n",&Ccntrl);
-  if(localDEBUG)printf("Control Reg:0x%x\n",Ccntrl);
+  fscanf(infile,"Center Chip Control Reg:%d\n",&Ccntrl);
+  printf("Control Reg:0x%x\n",Ccntrl);
   fscanf(infile,"Initial Slink DAQ mode:%d\n",&modeRegister);
-  if(localDEBUG)printf("Mode Reg:%d\n",modeRegister);
+  printf("Mode Reg:%d\n",modeRegister);
   
    //These bits set ADC Gain/Range 1Vpp(0) and 2Vpp(1) for channels
-  fscanf(infile,"Channel ADC Gain bits chnls  1-12(1Vpp = 0):%x\n",
+  fscanf(infile,"Channel ADC Gain bits chnls  1-12(1Vpp = 0):%d\n",
          &Nadcg);
-  fscanf(infile,"Channel ADC Gain bits chnls 13-20(1Vpp = 0):%x\n",
+  fscanf(infile,"Channel ADC Gain bits chnls 13-20(1Vpp = 0):%d\n",
          &NCadcg);
-  fscanf(infile,"Channel ADC Gain bits chnls 21-28(1Vpp = 0):%x\n",
+  fscanf(infile,"Channel ADC Gain bits chnls 21-28(1Vpp = 0):%d\n",
          &SCadcg);
-  fscanf(infile,"Channel ADC Gain bits chnls 29-36(1Vpp = 0):%x\n",
+  fscanf(infile,"Channel ADC Gain bits chnls 29-36(1Vpp = 0):%d\n",
          &Sadcg);
   if(localDEBUG)
     printf("Channel ADC Gain bits chnls  1-12(1Vpp = 0):%x\n",Nadcg);
@@ -754,13 +727,13 @@ PixelFEDCard::PixelFEDCard(string fileName):
     printf("Channel ADC Gain bits chnls 29-36(1Vpp = 0):%x\n",Sadcg);
 
        //These bits set Baseline adjustment value (common by FPGA)//can turn on by channel 
-  fscanf(infile,"Channel Baseline Enbable chnls 1-9  (on = (0x1ff<<16)+):%x\n",
+  fscanf(infile,"Channel Baseline Enbable chnls 1-9  (on = (0x1ff<<16)+):%d\n",
          &Nbaseln);
-  fscanf(infile,"Channel Baseline Enbable chnls 10-18(on = (0x1ff<<16)+):%x\n",
+  fscanf(infile,"Channel Baseline Enbable chnls 10-18(on = (0x1ff<<16)+):%d\n",
          &NCbaseln);
-  fscanf(infile,"Channel Baseline Enbable chnls 19-27(on = (0x1ff<<16)+):%x\n",
+  fscanf(infile,"Channel Baseline Enbable chnls 19-27(on = (0x1ff<<16)+):%d\n",
          &SCbaseln);
-  fscanf(infile,"Channel Baseline Enbable chnls 28-36(on = (0x1ff<<16)+):%x\n",
+  fscanf(infile,"Channel Baseline Enbable chnls 28-36(on = (0x1ff<<16)+):%d\n",
          &Sbaseln);
   if(localDEBUG)
     printf("Channel Baseline Enbable chnls 1-9  (on = (0x1ff<<16)+):%x\n",Nbaseln);
@@ -772,13 +745,13 @@ PixelFEDCard::PixelFEDCard(string fileName):
     printf("Channel Baseline Enbable chnls 28-36(on = (0x1ff<<16)+):%x\n",Sbaseln);
 
        //These bits set TBM trailer mask (common by FPGA) 
-  fscanf(infile,"TBM trailer mask chnls 1-9  (0xff = all masked):%x\n",
+  fscanf(infile,"TBM trailer mask chnls 1-9  (0xff = all masked):%d\n",
          &N_TBMmask);
-  fscanf(infile,"TBM trailer mask chnls 10-18(0xff = all masked):%x\n",
+  fscanf(infile,"TBM trailer mask chnls 10-18(0xff = all masked):%d\n",
          &NC_TBMmask);
-  fscanf(infile,"TBM trailer mask chnls 19-27(0xff = all masked):%x\n",
+  fscanf(infile,"TBM trailer mask chnls 19-27(0xff = all masked):%d\n",
          &SC_TBMmask);
-  fscanf(infile,"TBM trailer mask chnls 28-36(0xff = all masked):%x\n",
+  fscanf(infile,"TBM trailer mask chnls 28-36(0xff = all masked):%d\n",
          &S_TBMmask);
   if(localDEBUG)
     printf("TBM trailer mask chnls 1-9  (0xff = all masked):%x\n",N_TBMmask);
@@ -790,13 +763,13 @@ PixelFEDCard::PixelFEDCard(string fileName):
     printf("TBM trailer mask chnls 28-36(0xff = all masked):%x\n",S_TBMmask);
 
        //These bits set the Private fill/gap word value (common by FPGA) 
-  fscanf(infile,"Private 8 bit word chnls 1-9  :%x\n",
+  fscanf(infile,"Private 8 bit word chnls 1-9  :%d\n",
          &N_Pword);
-  fscanf(infile,"Private 8 bit word chnls 10-18:%x\n",
+  fscanf(infile,"Private 8 bit word chnls 10-18:%d\n",
          &NC_Pword);
-  fscanf(infile,"Private 8 bit word chnls 19-27:%x\n",
+  fscanf(infile,"Private 8 bit word chnls 19-27:%d\n",
          &SC_Pword);
-  fscanf(infile,"Private 8 bit word chnls 28-36:%x\n",
+  fscanf(infile,"Private 8 bit word chnls 28-36:%d\n",
          &S_Pword);
   if(localDEBUG)
     printf("Private 8 bit word chnls 1-9  :%x\n",N_Pword);
@@ -808,7 +781,7 @@ PixelFEDCard::PixelFEDCard(string fileName):
     printf("Private 8 bit word chnls 28-36:%x\n",S_Pword);
 
        //These bit sets the special dac mode for random triggers 
-  fscanf(infile,"Special Random testDAC mode (on = 0x1, off=0x0):%x\n",
+  fscanf(infile,"Special Random testDAC mode (on = 0x1, off=0x0):%d\n",
          &SpecialDac);
   if(localDEBUG)
     printf("Special Random testDAC mode (on = 0x1, off=0x0):%x\n",SpecialDac);
@@ -868,57 +841,17 @@ PixelFEDCard::PixelFEDCard(string fileName):
         int checkword=0;
   fscanf(infile,"Params FED file check word:%d\n",
                            &checkword);
-        if(checkword!=90508&&checkword!=91509) cout << __LINE__  << "]\t"                             << mthn 
+        if(checkword!=90508) cout << __LINE__  << "]\t"                             << mthn 
 	                          << "FEDID: "                                      << fedNumber 
 				  << " Params FED File read error. Checkword read " << checkword
-				  <<" check word expected 090508 or 91509"          << endl;
-        assert((checkword==90508)|(checkword==91509));
+				  <<" check word expected 090508"                   << endl;
+        assert(checkword==90508);
 
         if(localDEBUG)
          cout << __LINE__  << "]\t" << mthn << "Params FED file check word: " << checkword << endl;
 
-      //These bits set the hit limit in fifo-1 for an event
 
-	if(checkword==91509){
-      //These bits set the hit limit in fifo-1 for an event
-  fscanf(infile,"N fifo-1 hit limit (max 1023 (hard) 900 (soft):%d\n",&N_hitlimit);
-  if(localDEBUG)
-    printf("N fifo-1 hit limit (max 1023 (hard) 900 (soft):%d\n",N_hitlimit);    
-  fscanf(infile,"NC fifo-1 hit limit (max 1023 (hard) 900 (soft):%d\n",&NC_hitlimit);
-  if(localDEBUG)
-    printf("NC fifo-1 hit limit (max 1023 (hard) 900 (soft):%d\n",NC_hitlimit);
-  fscanf(infile,"SC fifo-1 hit limit (max 1023 (hard) 900 (soft):%d\n",&SC_hitlimit);
-  if(localDEBUG)
-    printf("SC fifo-1 hit limit (max 1023 (hard) 900 (soft):%d\n",SC_hitlimit);
-  fscanf(infile,"S fifo-1 hit limit (max 1023 (hard) 900 (soft):%d\n",&S_hitlimit);
-  if(localDEBUG)
-    printf("S fifo-1 hit limit (max 1023 (hard) 900 (soft):%d\n",S_hitlimit);
-      //These bits allow a ROC to be skipped (1/fpga)
-      
-  fscanf(infile,"Skip a ROC in ch 1-9, bits 10-5 chnl, bits 0-4 ROC-1:%d\n",&N_testreg);
-  if(localDEBUG)
-    printf("Skip a ROC in ch 1-9, bits 10-5 chnl, bits 0-4 ROC-1:%d\n",N_testreg);
-  fscanf(infile,"Skip a ROC in ch 10-18, bits 10-5 chnl, bits 0-4 ROC-1:%d\n",&NC_testreg);
-  if(localDEBUG)
-    printf("Skip a ROC in ch 10-18, bits 10-5 chnl, bits 0-4 ROC-1:%d\n",NC_testreg);
-  fscanf(infile,"Skip a ROC in ch 19-27, bits 10-5 chnl, bits 0-4 ROC-1:%d\n",&SC_testreg);
-  if(localDEBUG)
-    printf("Skip a ROC in ch 19-27, bits 10-5 chnl, bits 0-4 ROC-1:%d\n",SC_testreg);
-  fscanf(infile,"Skip a ROC in ch 28-36, bits 10-5 chnl, bits 0-4 ROC-1:%d\n",&S_testreg);
-  if(localDEBUG)
-    printf("Skip a ROC in ch 28-36, bits 10-5 chnl, bits 0-4 ROC-1:%d\n",S_testreg);
-         } else {
-    
-    N_hitlimit=192;	
-    NC_hitlimit=192;
-    SC_hitlimit=192;
-    S_hitlimit=192;
 
-    N_testreg=0;
-    NC_testreg=0;
-    SC_testreg=0;
-    S_testreg=0;
-         }
    
   fclose(infile);
 
@@ -944,7 +877,7 @@ PixelFEDCard::PixelFEDCard(string fileName):
 void PixelFEDCard::clear(void) 
 {
   FEDBASE_0 = 0 ;
-  fedNumber = 999 ;
+  fedNumber = 0 ;
   for(int i=0;i<36;i++){
     NRocs[i]    = 0;
     offs_dac[i] = 0;
@@ -1210,40 +1143,10 @@ void PixelFEDCard::writeASCII(std::string dir) const{
   fprintf(outfile,"TTCrx Register 0 fine delay ClkDes1:%d\n",
           FineDes1Del);
 
-  int checkword=91509;
+  int checkword=90508;
 
   fprintf(outfile,"Params FED file check word:%d\n",
                            checkword);
-
-
-      //These bits set the hit limit in fifo-1 for an event
-    fprintf(outfile,"N fifo-1 hit limit (max 1023 (hard) 900 (soft):%d\n",
-    N_hitlimit); //ch 1-9
-       
-    fprintf(outfile,"NC fifo-1 hit limit (max 1023 (hard) 900 (soft):%d\n",
-    NC_hitlimit); //ch 10-18
-    
-    fprintf(outfile,"SC fifo-1 hit limit (max 1023 (hard) 900 (soft):%d\n",
-    SC_hitlimit); //ch 19-27
-    
-    fprintf(outfile,"S fifo-1 hit limit (max 1023 (hard) 900 (soft):%d\n",
-    S_hitlimit); //ch 28-36
-    
-
-      //These bits allow a ROC to be skipped (1/fpga)      
-    fprintf(outfile,"Skip a ROC in ch 1-9, bits 10-5 chnl, bits 0-4 ROC-1:%d\n",
-    N_testreg);
-    
-    fprintf(outfile,"Skip a ROC in ch 10-18, bits 10-5 chnl, bits 0-4 ROC-1:%d\n",
-    NC_testreg);
-    
-    fprintf(outfile,"Skip a ROC in ch 19-27, bits 10-5 chnl, bits 0-4 ROC-1:%d\n",
-    SC_testreg);
-    
-    fprintf(outfile,"Skip a ROC in ch 28-36, bits 10-5 chnl, bits 0-4 ROC-1:%d\n",
-    S_testreg);
-    
-
 
   fclose(outfile);
 
@@ -1275,7 +1178,6 @@ void PixelFEDCard::writeXMLHeader(pos::PixelConfigKey key,
   *fedstream << "<ROOT xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>" 		 	          << std::endl ;
   *fedstream << ""                                                                                        << std::endl ; 
   *fedstream << " <HEADER>"                                                                               << std::endl ; 
-  *fedstream << "  <HINTS mode='load-as-group' /> "                                                       << std::endl ;   
   *fedstream << "  <TYPE>"                                                                                << std::endl ; 
   *fedstream << "   <EXTENSION_TABLE_NAME>FED_CONFIGURATION</EXTENSION_TABLE_NAME>"                       << std::endl ; 
   *fedstream << "   <NAME>Pixel FED Configuration</NAME>"                                                 << std::endl ; 
@@ -1284,15 +1186,16 @@ void PixelFEDCard::writeXMLHeader(pos::PixelConfigKey key,
   *fedstream << "   <RUN_TYPE>Pixel FED Configuration</RUN_TYPE>"                                         << std::endl ; 
   *fedstream << "   <RUN_NUMBER>1</RUN_NUMBER>"                                                           << std::endl ; 
   *fedstream << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>"   << std::endl ; 
-  *fedstream << "   <LOCATION>CERN P5</LOCATION>"                                                         << std::endl ; 
+  *fedstream << "   <COMMENT_DESCRIPTION>Pixel FED Configuration</COMMENT_DESCRIPTION>"                   << std::endl ; 
+  *fedstream << "   <LOCATION>CERN TAC</LOCATION>"                                                        << std::endl ; 
+  *fedstream << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"                                 << std::endl ; 
   *fedstream << "  </RUN>"                                                                                << std::endl ; 
   *fedstream << " </HEADER>"                                                                              << std::endl ; 
   *fedstream << ""                                                                                        << std::endl ; 
   *fedstream << " <DATA_SET>"                                                                             << std::endl ;
   *fedstream << ""                                                                                        << std::endl ;
-  *fedstream << "  <VERSION>"             << version      << "</VERSION>"                                 << std::endl ;
-  *fedstream << "  <COMMENT_DESCRIPTION>" << getComment() << "</COMMENT_DESCRIPTION>"			  << std::endl ;
-  *fedstream << "  <CREATED_BY_USER>"     << getAuthor()  << "</CREATED_BY_USER>"  			  << std::endl ;
+  *fedstream << "  <VERSION>" << version << "</VERSION>"                                                  << std::endl ;
+  *fedstream << "  <COMMENT_DESCRIPTION>Pixel FED Configuration</COMMENT_DESCRIPTION>"                    << std::endl ;
   *fedstream << ""                                                                                        << std::endl ;
   *fedstream << "  <PART>"                                                                                << std::endl ;
   *fedstream << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                              << std::endl ;      
@@ -1310,7 +1213,7 @@ void PixelFEDCard::writeXMLHeader(pos::PixelConfigKey key,
   *rocstream << "<ROOT xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"                          << std::endl ;
   *rocstream << ""                                                                                        << std::endl ;
   *rocstream << " <HEADER>"                                                                               << std::endl ;
-  *rocstream << "  <HINTS mode='only-det-root,load-as-group'/>"                                           << std::endl ;
+  *rocstream << "  <HINTS mode='only-de-root'/>"                                                          << std::endl ;
   *rocstream << "  <TYPE>"                                                                                << std::endl ;
   *rocstream << "   <EXTENSION_TABLE_NAME>ROC_ANALOG_LEVELS</EXTENSION_TABLE_NAME>"                       << std::endl ;
   *rocstream << "   <NAME>ROC Analog Levels</NAME>"                                                       << std::endl ;
@@ -1319,7 +1222,7 @@ void PixelFEDCard::writeXMLHeader(pos::PixelConfigKey key,
   *rocstream << "   <RUN_TYPE>ROC Analog Levels</RUN_TYPE>"                                               << std::endl ;
   *rocstream << "   <RUN_NUMBER>1</RUN_NUMBER>                      "                                     << std::endl ;
   *rocstream << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>"   << std::endl ;
-  *rocstream << "   <CREATED_BY_USER>Umesh Joshi</CREATED_BY_USER> "                                  << std::endl ;
+  *rocstream << "   <INITIATED_BY_USER>Umesh Joshi</INITIATED_BY_USER> "                                  << std::endl ;
   *rocstream << "   <LOCATION>CERN</LOCATION> "                                                           << std::endl ;
   *rocstream << "   <COMMENT_DESCRIPTION>ROC Analog Levels Template</COMMENT_DESCRIPTION>"                << std::endl ;
   *rocstream << "  </RUN>"                                                                                << std::endl ;
@@ -1334,7 +1237,7 @@ void PixelFEDCard::writeXMLHeader(pos::PixelConfigKey key,
   *rocstream << "           <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"                                   << std::endl ;
   *rocstream << "   </PART>"                                                                              << std::endl ;
 
-  // TBM LEVELS MAIN XML FILE
+  // ROC LEVELS MAIN XML FILE
   tbmfullPath << path << "/Pixel_TbmAnalogLevels_" << PixelTimeFormatter::getmSecTime() << ".xml" ;
   std::cout << __LINE__ << "]\t" << mthn << "Writing to: " << tbmfullPath.str()  << ""                    << std::endl ;
 
@@ -1345,7 +1248,7 @@ void PixelFEDCard::writeXMLHeader(pos::PixelConfigKey key,
   *tbmstream << "<ROOT xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"                          << std::endl ;
   *tbmstream << ""                                                                                        << std::endl ;
   *tbmstream << " <HEADER>"                                                                               << std::endl ;
-  *tbmstream << "  <HINTS mode='only-det-root,load-as-group' />"                                          << std::endl ;
+  *tbmstream << "  <HINTS mode='only-det-root' />"                                                        << std::endl ;
   *tbmstream << "  <TYPE>"                                                                                << std::endl ;
   *tbmstream << "   <EXTENSION_TABLE_NAME>TBM_ANALOG_LEVELS</EXTENSION_TABLE_NAME>"                       << std::endl ;
   *tbmstream << "   <NAME>TBM Analog Levels</NAME>"                                                       << std::endl ;
@@ -1354,7 +1257,7 @@ void PixelFEDCard::writeXMLHeader(pos::PixelConfigKey key,
   *tbmstream << "   <RUN_TYPE>TBM Analog Levels</RUN_TYPE>"                                               << std::endl ;
   *tbmstream << "   <RUN_NUMBER>1</RUN_NUMBER>"                                                           << std::endl ;
   *tbmstream << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>"   << std::endl ;
-  *tbmstream << "   <CREATED_BY_USER>Umesh Joshi</CREATED_BY_USER> "                                  << std::endl ;
+  *tbmstream << "   <INITIATED_BY_USER>Umesh Joshi</INITIATED_BY_USER> "                                  << std::endl ;
   *tbmstream << "   <LOCATION>CERN</LOCATION> "                                                           << std::endl ;
   *tbmstream << "   <COMMENT_DESCRIPTION>TBM Analog Levels</COMMENT_DESCRIPTION>"                         << std::endl ;
   *tbmstream << "  </RUN>"                                                                                << std::endl ;
@@ -1394,7 +1297,7 @@ void PixelFEDCard::writeXMLHeader(pos::PixelConfigKey key, int version, std::str
   *out << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>"  	  << std::endl ;
   *out << "   <COMMENT_DESCRIPTION>Pixel FED Configuration</COMMENT_DESCRIPTION>"                  	  << std::endl ;
   *out << "   <LOCATION>CERN TAC</LOCATION>"                                                       	  << std::endl ;
-  *out << "   <CREATED_BY_USER>Dario Menasce</CREATED_BY_USER>"                                  	  << std::endl ;
+  *out << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"                                	  << std::endl ;
   *out << "  </RUN>"                                                                               	  << std::endl ;
   *out << " </HEADER>"                                                                             	  << std::endl ;
   *out << ""                                                                                       	  << std::endl ;
@@ -1475,15 +1378,6 @@ void PixelFEDCard::writeXML( std::ofstream *out) const {
   *out << "   <SOUTHCENTER_FIFO1_BZ_LVL>900</SOUTHCENTER_FIFO1_BZ_LVL>"                           	  << std::endl ;
   *out << "   <SOUTH_FIFO1_BZ_LVL>900</SOUTH_FIFO1_BZ_LVL>"                                       	  << std::endl ;
   *out << "   <FIFO3_WRN_LVL>7680</FIFO3_WRN_LVL> "                                               	  << std::endl ;
-  *out << "   <FED_MASTER_DELAY>0</FED_MASTER_DELAY>"	  						  << std::endl ;
-  *out << "   <NO_HITLIMIT>0</NO_HITLIMIT>"		  						  << std::endl ;
-  *out << "   <NC_HITLIMIT>0</NC_HITLIMIT>"		  						  << std::endl ;
-  *out << "   <SC_HITLIMIT>0</SC_HITLIMIT>"		  						  << std::endl ;
-  *out << "   <SO_HITLIMIT>0</SO_HITLIMIT>"		  						  << std::endl ;
-  *out << "   <NO_TESTREG>0</NO_TESTREG>"		  						  << std::endl ;
-  *out << "   <NC_TESTREG>0</NC_TESTREG>"		  						  << std::endl ;
-  *out << "   <SC_TESTREG>0</SC_TESTREG>"		  						  << std::endl ;
-  *out << "   <SO_TESTREG>0</SO_TESTREG>"		  						  << std::endl ;
   *out << " "                                                                                     	  << std::endl ;
   *out << "  </DATA>"                                                                             	  << std::endl ;
   *out << " "                                                                                     	  << std::endl ;
@@ -1561,15 +1455,6 @@ void PixelFEDCard::writeXML( std::ofstream *fedstream,
       *fedstream << "   <SOUTH_FIFO1_BZ_LVL>"       << Sfifo1Bzlvl  	   << "</SOUTH_FIFO1_BZ_LVL>"	    << std::endl ;
       *fedstream << "   <FIFO3_WRN_LVL>"            << fifo3Wrnlvl  	   << "</FIFO3_WRN_LVL>"	    << std::endl ;
       *fedstream << "   <FED_MASTER_DELAY>"         << FedTTCDelay  	   << "</FED_MASTER_DELAY>"	    << std::endl ;
-      *fedstream << "   <NO_HITLIMIT>"              << N_hitlimit 	   << "</NO_HITLIMIT>"	            << std::endl ;
-      *fedstream << "   <NC_HITLIMIT>"              << NC_hitlimit 	   << "</NC_HITLIMIT>"	            << std::endl ;
-      *fedstream << "   <SC_HITLIMIT>"              << SC_hitlimit 	   << "</SC_HITLIMIT>"	            << std::endl ;
-      *fedstream << "   <SO_HITLIMIT>"              << S_hitlimit 	   << "</SO_HITLIMIT>"	            << std::endl ;
-      *fedstream << "   <NO_TESTREG>"               << N_testreg 	   << "</NO_TESTREG>"	            << std::endl ;
-      *fedstream << "   <NC_TESTREG>"               << NC_testreg 	   << "</NC_TESTREG>"	            << std::endl ;
-      *fedstream << "   <SC_TESTREG>"               << SC_testreg 	   << "</SC_TESTREG>"	            << std::endl ;
-      *fedstream << "   <SO_TESTREG>"               << S_testreg 	   << "</SO_TESTREG>"	            << std::endl ;
-
       *fedstream << " "                                             	   				    << std::endl ;
       *fedstream << "  </DATA>"                                     	   				    << std::endl ;
       *fedstream << " "                                             	   				    << std::endl ;
@@ -1582,34 +1467,32 @@ void PixelFEDCard::writeXML( std::ofstream *fedstream,
         {
           *rocstream << ""						      	  	             	    << std::endl ;
           *rocstream << "   <DATA>"						      	  	     	    << std::endl ;
-          *rocstream << "    <PIXEL_FED>"    	    << fedNumber    	   << "</PIXEL_FED>"	     	    << std::endl ;
-          *rocstream << "    <FED_CHAN>"     	    << i+1	    	   << "</FED_CHAN>"	     	    << std::endl ;
-          *rocstream << "    <FED_ROC_NUM>"  	    << j	    	   << "</FED_ROC_NUM>"       	    << std::endl ;
-          *rocstream << "    <ROC_L0>"       	    << ROC_L0[i][j] 	   << "</ROC_L0>"	     	    << std::endl ;
-          *rocstream << "    <ROC_L1>"       	    << ROC_L1[i][j] 	   << "</ROC_L1>"	     	    << std::endl ;
-          *rocstream << "    <ROC_L2>"       	    << ROC_L2[i][j] 	   << "</ROC_L2>"	     	    << std::endl ;
-          *rocstream << "    <ROC_L3>"       	    << ROC_L3[i][j] 	   << "</ROC_L3>"	     	    << std::endl ;
-          *rocstream << "    <ROC_L4>"       	    << ROC_L4[i][j] 	   << "</ROC_L4>"	     	    << std::endl ;
-          *rocstream << "   </DATA>"	     	    		    	   << std::endl 	     	    << std::endl ;
-          *rocstream << " "                                             	   			    << std::endl ;
+          *rocstream << "    <PIXEL_FED>"       << fedNumber    << "</PIXEL_FED>" 	  	     	    << std::endl ;
+          *rocstream << "    <FED_CHAN>"	  << i+1	  << "</FED_CHAN>"    	  	     	    << std::endl ;
+          *rocstream << "    <FED_ROC_NUM>"	  << j  	  << "</FED_ROC_NUM>" 	  	     	    << std::endl ;
+          *rocstream << "    <ROC_L0>"  	  << ROC_L0[i][j] << "</ROC_L0>"      	  	     	    << std::endl ;
+          *rocstream << "    <ROC_L1>"  	  << ROC_L1[i][j] << "</ROC_L1>"      	  	     	    << std::endl ;
+          *rocstream << "    <ROC_L2>"  	  << ROC_L2[i][j] << "</ROC_L2>"      	  	     	    << std::endl ;
+          *rocstream << "    <ROC_L3>"  	  << ROC_L3[i][j] << "</ROC_L3>"      	  	     	    << std::endl ;
+          *rocstream << "    <ROC_L4>"  	  << ROC_L4[i][j] << "</ROC_L4>"      	  	     	    << std::endl ;
+          *rocstream << "   </DATA>"				  << std::endl        	  	     	    << std::endl ;
         }
       
-      *tbmstream << ""			     	    		    	   			     	    << std::endl ;
-      *tbmstream << "  <DATA>"  	     	    		    	   			     	    << std::endl ;
-      *tbmstream << "   <PIXEL_FED>"         	    << fedNumber    	   << "</PIXEL_FED>"	     	    << std::endl ;
-      *tbmstream << "   <FED_CHAN>"	     	    << i+1	    	   << "</FED_CHAN>"	     	    << std::endl ;
-      *tbmstream << "   <TBMA_HEAD_L0>"      	    << TBM_L0[i]    	   << "</TBMA_HEAD_L0>"      	    << std::endl ;
-      *tbmstream << "   <TBMA_HEAD_L1>"      	    << TBM_L1[i]    	   << "</TBMA_HEAD_L1>"      	    << std::endl ;
-      *tbmstream << "   <TBMA_HEAD_L2>"      	    << TBM_L2[i]    	   << "</TBMA_HEAD_L2>"      	    << std::endl ;
-      *tbmstream << "   <TBMA_HEAD_L3>"      	    << TBM_L3[i]    	   << "</TBMA_HEAD_L3>"      	    << std::endl ;
-      *tbmstream << "   <TBMA_HEAD_L4>"      	    << TBM_L4[i]    	   << "</TBMA_HEAD_L4>"      	    << std::endl ;
-      *tbmstream << "   <TBMA_TRAIL_L0>"     	    << TRL_L0[i]    	   << "</TBMA_TRAIL_L0>"     	    << std::endl ;
-      *tbmstream << "   <TBMA_TRAIL_L1>"     	    << TRL_L1[i]    	   << "</TBMA_TRAIL_L1>"     	    << std::endl ;
-      *tbmstream << "   <TBMA_TRAIL_L2>"     	    << TRL_L2[i]    	   << "</TBMA_TRAIL_L2>"     	    << std::endl ;
-      *tbmstream << "   <TBMA_TRAIL_L3>"     	    << TRL_L3[i]    	   << "</TBMA_TRAIL_L3>"     	    << std::endl ;
-      *tbmstream << "   <TBMA_TRAIL_L4>"     	    << TRL_L4[i]    	   << "</TBMA_TRAIL_L4>"     	    << std::endl ;
-      *tbmstream << "  </DATA>" 	     	    		    	   << std::endl 	     	    << std::endl ;
-      *tbmstream << ""			     	    		    	   			     	    << std::endl ;
+      *tbmstream << ""						      	  	                     	    << std::endl ;
+      *tbmstream << "  <DATA>"  						   		     	    << std::endl ;
+      *tbmstream << "   <PIXEL_FED>"         << fedNumber << "</PIXEL_FED>"	   		     	    << std::endl ;
+      *tbmstream << "   <FED_CHAN>"	     << i+1	  << "</FED_CHAN>"	   		     	    << std::endl ;
+      *tbmstream << "   <TBMA_HEAD_L0>"      << TBM_L0[i] << "</TBMA_HEAD_L0>"     		     	    << std::endl ;
+      *tbmstream << "   <TBMA_HEAD_L1>"      << TBM_L1[i] << "</TBMA_HEAD_L1>"     		     	    << std::endl ;
+      *tbmstream << "   <TBMA_HEAD_L2>"      << TBM_L2[i] << "</TBMA_HEAD_L2>"     		     	    << std::endl ;
+      *tbmstream << "   <TBMA_HEAD_L3>"      << TBM_L3[i] << "</TBMA_HEAD_L3>"     		     	    << std::endl ;
+      *tbmstream << "   <TBMA_HEAD_L4>"      << TBM_L4[i] << "</TBMA_HEAD_L4>"     		     	    << std::endl ;
+      *tbmstream << "   <TBMA_TRAIL_L0>"     << TRL_L0[i] << "</TBMA_TRAIL_L0>"    		     	    << std::endl ;
+      *tbmstream << "   <TBMA_TRAIL_L1>"     << TRL_L1[i] << "</TBMA_TRAIL_L1>"    		     	    << std::endl ;
+      *tbmstream << "   <TBMA_TRAIL_L2>"     << TRL_L2[i] << "</TBMA_TRAIL_L2>"    		     	    << std::endl ;
+      *tbmstream << "   <TBMA_TRAIL_L3>"     << TRL_L3[i] << "</TBMA_TRAIL_L3>"    		     	    << std::endl ;
+      *tbmstream << "   <TBMA_TRAIL_L4>"     << TRL_L4[i] << "</TBMA_TRAIL_L4>"    		     	    << std::endl ;
+      *tbmstream << "  </DATA>" 			  << std::endl  	   		     	    << std::endl ;
     }
 }
 
@@ -1676,7 +1559,7 @@ void PixelFEDCard::writeXML(pos::PixelConfigKey key, int version, std::string pa
   out << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>" << std::endl ; 
   out << "   <COMMENT_DESCRIPTION>Pixel FED Configuration</COMMENT_DESCRIPTION>"                 << std::endl ; 
   out << "   <LOCATION>CERN TAC</LOCATION>"                                                      << std::endl ; 
-  out << "   <CREATED_BY_USER>Dario Menasce</CREATED_BY_USER>"                                   << std::endl ; 
+  out << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"                               << std::endl ; 
   out << "  </RUN>"                                                                              << std::endl ; 
   out << " </HEADER>"                                                                            << std::endl ; 
   out << ""                                                                                      << std::endl ; 
@@ -1751,15 +1634,6 @@ void PixelFEDCard::writeXML(pos::PixelConfigKey key, int version, std::string pa
   out << "   <SOUTHCENTER_FIFO1_BZ_LVL>900</SOUTHCENTER_FIFO1_BZ_LVL>"                           << std::endl ;
   out << "   <SOUTH_FIFO1_BZ_LVL>900</SOUTH_FIFO1_BZ_LVL>"                                       << std::endl ;
   out << "   <FIFO3_WRN_LVL>7680</FIFO3_WRN_LVL> "                                               << std::endl ;
-  out << "   <FED_MASTER_DELAY>0</FED_MASTER_DELAY>"						 << std::endl ;
-  out << "   <NO_HITLIMIT>0</NO_HITLIMIT>"							 << std::endl ;
-  out << "   <NC_HITLIMIT>0</NC_HITLIMIT>"							 << std::endl ;
-  out << "   <SC_HITLIMIT>0</SC_HITLIMIT>"							 << std::endl ;
-  out << "   <SO_HITLIMIT>0</SO_HITLIMIT>"							 << std::endl ;
-  out << "   <NO_TESTREG>0</NO_TESTREG>"							 << std::endl ;
-  out << "   <NC_TESTREG>0</NC_TESTREG>"							 << std::endl ;
-  out << "   <SC_TESTREG>0</SC_TESTREG>"							 << std::endl ;
-  out << "   <SO_TESTREG>0</SO_TESTREG>"							 << std::endl ;
   out << "  </DATA>"                                                                             << std::endl ;
 /*                                                                                              
   out<< "  <DATA>                                                                               

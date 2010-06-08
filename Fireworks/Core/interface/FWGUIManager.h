@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.101 2010/04/28 14:08:11 eulisse Exp $
+// $Id: FWGUIManager.h,v 1.98 2010/03/04 21:32:40 chrjones Exp $
 //
 
 // system include files
@@ -26,7 +26,6 @@
 #include <sigc++/sigc++.h>
 #include "Rtypes.h"
 #include "GuiTypes.h"
-#include "TGFileDialog.h"
 #include <memory>
 
 // user include files
@@ -122,8 +121,6 @@ public:
    
    TGVerticalFrame* createList(TGSplitFrame *p);
    void createViews(TGTab *p);
-   void exportImageOfMainView();
-   void exportImagesOfAllViews();
    void exportAllViews(const std::string& format);
 
    void createEDIFrame();
@@ -192,7 +189,6 @@ public:
    void checkSubviewAreaIconState(TEveWindow*);
    void subviewIsBeingDestroyed(FWGUISubviewArea*);
    void subviewDestroy(FWGUISubviewArea*); // timeout funct
-   void subviewDestroyAll();
    void subviewInfoSelected(FWGUISubviewArea*);
    void subviewInfoUnselected(FWGUISubviewArea*);
    void subviewSwapped(FWGUISubviewArea*);
@@ -204,7 +200,6 @@ public:
    sigc::signal<void> filterButtonClicked_;
    sigc::signal<void, const TGWindow*> showEventFilterGUI_;
    sigc::signal<void, const std::string&> writeToConfigurationFile_;
-   sigc::signal<void, const std::string&> loadFromConfigurationFile_;
    sigc::signal<void, int, int> changedEventId_;
    sigc::signal<void> goingToQuit_;
    sigc::signal<void> writeToPresentConfigurationFile_;
@@ -222,10 +217,10 @@ private:
    TEveWindow* getSwapCandidate();
    
    void newItem(const FWEventItem*);
+   
+   void exportImageOfMainView();
 
-   bool promptForConfigurationFile(std::string &result, enum EFileDialogMode mode);
-   void promptForSaveConfigurationFile();
-   void promptForLoadConfigurationFile();
+   void promptForConfigurationFile();
    
    void delaySliderChanged(Int_t);
    

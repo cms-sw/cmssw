@@ -661,6 +661,7 @@ bool FUResourceBroker::watching(toolbox::task::WorkLoop* wl)
   unlock();
   
   ::sleep(watchSleepSec_.value_);
+  
   return true;
 }
     

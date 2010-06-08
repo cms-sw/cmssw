@@ -1,7 +1,6 @@
 #include <string.h>
 #include <iostream>
 #include <iomanip>
-#include <stdio.h>
 #include <set>
 #include "EventFilter/CSCTFRawToDigi/src/CSCTFEvent.cc"
 #include "EventFilter/CSCTFRawToDigi/src/CSCSPEvent.cc"
@@ -11,12 +10,6 @@
 
 int main(int argc, char *argv[]){
 	using namespace std;
-
-	FILE *out;
-	if( (out=fopen("dump2.raw","wt"))==NULL ){
-		printf("Cannot open output file: %s (errno=%d)\n","dump2.raw",errno);
-		return 1;
-	}
 
 	// DDU File Reader
 	FileReaderDDU reader;
@@ -49,8 +42,6 @@ int main(int argc, char *argv[]){
 		tfEvent.unpack(event,index2);
 ///		<<endl;
 
-		bool log_event = false;
-
 		vector<CSCSPEvent> SPs = tfEvent.SPs();
 		for(int sp=0; sp<SPs.size(); sp++){
 ///			cout<<" L1A="<<SPs[0].header().L1A()<<endl;
@@ -65,7 +56,7 @@ int main(int argc, char *argv[]){
 					if( track->ME4_id() ) nStations++;
 					if( track->LCTs().size() != nStations ){
 						mismatch = true;
-						cout<<" mismatch found in tbin="<<tbin<<": ("<<track->LCTs().size()<<"!="<<nStations<<")";
+						cout<<" mismatch found in tbin="<<tbin<<": ("<<track->LCTs().size()<<"!="<<nStations<<")"<<ends;
 					}
 
 					if( mismatch ){
@@ -77,7 +68,7 @@ int main(int argc, char *argv[]){
 				}
 				vector<CSCSP_MEblock> lct = SPs[sp].record(tbin).LCTs();
 				if( lct.size() ){
-					cout<<"Event: "<<nevents<<" SP"<<sp<<" L1A="<<SPs[sp].header().L1A()<<" BXN="<<SPs[sp].header().BXN()<<" Orbit counter="<<SPs[sp].counters().orbit_counter()<<endl;
+					cout<<"Event: "<<nevents<<" SP"<<sp<<" L1A="<<SPs[sp].header().L1A()<<endl;
 					cout<<" Endcap: "<<(SPs[sp].header().endcap()?2:1)<<" sector: "<<SPs[sp].header().sector();
 					cout<<"  tbin: "<<tbin<<"  nLCTs: "<<SPs[sp].record(tbin).LCTs().size()<<" (";//<<endl;
 				}
@@ -85,17 +76,10 @@ int main(int argc, char *argv[]){
 					cout<<" F"<<((i->spInput()-1)/3+1)<<"/CSC"<<i->csc()<<":{w="<<i->wireGroup()<<",s="<<i->strip()<<"} ";
 				}
 				if( lct.size() ) cout<<" )"<<endl;
-				std::vector<CSCSP_SPblock> trks = SPs[sp].record(tbin).tracks();
-				if( trks.size() ){ cout<<"  Track(s) at BX=: "<<SPs[sp].header().BXN(); }
-for(std::vector<CSCSP_SPblock>::const_iterator trk=trks.begin(); trk<trks.end(); trk++){ cout<<" mode="<<trk->mode(); if(trk->mode()==15 && SPs[sp].header().BXN()==380) log_event=true; }
-
-				if( trks.size() ){ cout<<endl; }
 			}
 		}
-		if(log_event) fwrite(event,2,index2,out); 
 		nevents++;
 	}
-	fclose(out);
 
 	return 0;
 }

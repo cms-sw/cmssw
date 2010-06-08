@@ -8,6 +8,8 @@
 #include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
+#include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
+#include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 
 class HBHEStatusBitSetter {
  public:
@@ -17,7 +19,8 @@ class HBHEStatusBitSetter {
 		      int samplesToAdd=10);
   ~HBHEStatusBitSetter();
   void Clear();
-  void SetFlagsFromDigi(HBHERecHit& hbhe, const HBHEDataFrame& digi);
+  void SetFlagsFromDigi(HBHERecHit& hbhe, const HBHEDataFrame& digi, const HcalCoder& coder,
+			const HcalCalibrations& calib);
   void SetFlagsFromRecHits(HBHERecHitCollection& rec);
  private:
   double hitEnergyMinimum_;

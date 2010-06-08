@@ -17,7 +17,7 @@ from Configuration.PyReleaseValidation.ConfigBuilder import Options
 from Configuration.PyReleaseValidation.ConfigBuilder import defaultOptions
 from Configuration.PyReleaseValidation.ConfigBuilder import installFilteredStream
 from Configuration.PyReleaseValidation.ConfigBuilder import addOutputModule
-from Configuration.DataProcessing.RecoTLR import customisePPData
+from Configuration.DataProcessing.RecoTLR import customisePrompt,customiseExpress
 
 class pp(Scenario):
     """
@@ -73,7 +73,7 @@ class pp(Scenario):
           addOutputModule(process, tier, tier)        
 
         #add the former top level patches here
-        customisePPData(process)
+        customisePrompt(process)
         
         return process
 
@@ -116,7 +116,7 @@ class pp(Scenario):
           addOutputModule(process, tier, tier)        
 
         #add the former top level patches here
-        customisePPData(process)
+        customiseExpress(process)
         
         return process
 
@@ -128,6 +128,11 @@ class pp(Scenario):
         AlcaReco processing & skims for proton collisions
 
         """
+
+        globalTag = None
+        if 'globaltag' in  options:
+            globalTag = options['globaltag']
+
         step = "ALCAOUTPUT:"
         for skim in skims:
           step += (skim+"+")
@@ -140,6 +145,8 @@ class pp(Scenario):
         options.beamspot = None
         options.eventcontent = None
         options.relval = None
+        if globalTag != None :
+            options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
         options.triggerResultsProcess = 'RECO'
         
         process = cms.Process('ALCA')

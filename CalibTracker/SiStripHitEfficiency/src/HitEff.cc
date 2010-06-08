@@ -121,8 +121,6 @@ void HitEff::beginJob(){
   traj->Branch("timeECAL",&timeECAL,"timeECAL/F");
   traj->Branch("dedx",&dedx,"dedx/F");
   traj->Branch("dedxNOM",&dedxNOM,"dedxNOM/I"); 
-  traj->Branch("tquality",&tquality,"tquality/I");
-  traj->Branch("istep",&istep,"istep/I");
 
   events = 0;
   EventTrackCKF = 0;
@@ -281,8 +279,6 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 		 ( itraj->lastMeasurement().updatedState().globalMomentum().y() *
 		   itraj->lastMeasurement().updatedState().globalMomentum().y()) );
       p = itraj->lastMeasurement().updatedState().globalMomentum().mag();
-      
-      //Put in code to check track quality
       
       
       std::vector<TrajectoryMeasurement> TMeas=itraj->measurements();

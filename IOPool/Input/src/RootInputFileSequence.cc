@@ -66,7 +66,8 @@ namespace edm {
     numberOfEventsToSkip_(primarySequence ? pset.getUntrackedParameter<unsigned int>("skipEvents", 0U) : 0U),
     noEventSort_(primarySequence ? pset.getUntrackedParameter<bool>("noEventSort", false) : false),
     skipBadFiles_(pset.getUntrackedParameter<bool>("skipBadFiles", false)),
-    treeCacheSize_(pset.getUntrackedParameter<unsigned int>("cacheSize", input::defaultCacheSize)),
+    // Temporary work-around for bug.  Do not use the TTreeCache for the secondary input source for now.
+    treeCacheSize_(pset.getUntrackedParameter<unsigned int>("cacheSize", (primary() ? input::defaultCacheSize : 0))),
     treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize", -1)),
     setRun_(pset.getUntrackedParameter<unsigned int>("setRunNumber", 0U)),
     groupSelectorRules_(pset, "inputCommands", "InputSource"),
@@ -662,13 +663,11 @@ namespace edm {
   }
 
   void RootInputFileSequence::logFileAction(const char* msg, std::string const& file) {
-    if(primarySequence_) {
-      time_t t = time(0);
-      char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
-      strftime( ts, strlen(ts)+1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t) );
-      LogAbsolute("fileAction") << ts << msg << file;
-      FlushMessageLog();
-    }
+    time_t t = time(0);
+    char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
+    strftime( ts, strlen(ts)+1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t) );
+    LogAbsolute("fileAction") << ts << msg << file;
+    FlushMessageLog();
   }
 
   void

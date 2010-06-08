@@ -13,10 +13,12 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.89 2010/05/11 07:46:23 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.83 2010/04/25 07:08:56 dinardo Exp $
+//
+//
 
 
-#include "DQM/BeamMonitor/plugins/Vx3DHLTAnalyzer.h"
+#include "DQM/BeamMonitor/interface/Vx3DHLTAnalyzer.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -972,7 +974,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       fitResults->setBinContent(2, 4, sqrt(vals[13]));
       fitResults->setBinContent(2, 3, sqrt(vals[14]));
       fitResults->setBinContent(2, 2, sqrt(vals[15]));
-      fitResults->setBinContent(2, 1, sqrt(counterVx));
+      fitResults->setBinContent(2, 1, 0.0);
 
       // Linear fit to the historical plots
       TF1* myLinFit = new TF1("myLinFit", "[0] + [1]*x", mXlumi->getTH1()->GetXaxis()->GetXmin(), mXlumi->getTH1()->GetXaxis()->GetXmax());
@@ -1052,9 +1054,9 @@ void Vx3DHLTAnalyzer::beginJob()
     {
       dbe->setCurrentFolder("BeamPixel");
 
-      Vx_X = dbe->book1D("vertex x", "Primary Vertex X Coordinate Distribution", rint(xRange/xStep), -xRange/2., xRange/2.);
-      Vx_Y = dbe->book1D("vertex y", "Primary Vertex Y Coordinate Distribution", rint(yRange/yStep), -yRange/2., yRange/2.);
-      Vx_Z = dbe->book1D("vertex z", "Primary Vertex Z Coordinate Distribution", rint(zRange/zStep), -zRange/2., zRange/2.);
+      Vx_X = dbe->book1D("vertex x", "Primary Vertex X Coordinate Distribution", (int)(xRange/xStep), -xRange/2., xRange/2.);
+      Vx_Y = dbe->book1D("vertex y", "Primary Vertex Y Coordinate Distribution", (int)(yRange/yStep), -yRange/2., yRange/2.);
+      Vx_Z = dbe->book1D("vertex z", "Primary Vertex Z Coordinate Distribution", (int)(zRange/zStep), -zRange/2., zRange/2.);
 
       Vx_X->setAxisTitle("Primary Vertices X [cm]",1);
       Vx_X->setAxisTitle("Entries [#]",2);
@@ -1101,9 +1103,9 @@ void Vx3DHLTAnalyzer::beginJob()
       dydzlumi->setAxisTitle("dY/dZ [rad]",2);
       dydzlumi->getTH1()->SetOption("E1");
 
-      Vx_ZX = dbe->book2D("vertex zx", "Primary Vertex ZX Coordinate Distribution", rint(zRange/zStep/5.), -zRange/2., zRange/2., rint(xRange/xStep/5.), -xRange/2., xRange/2.);
-      Vx_ZY = dbe->book2D("vertex zy", "Primary Vertex ZY Coordinate Distribution", rint(zRange/zStep/5.), -zRange/2., zRange/2., rint(yRange/yStep/5.), -yRange/2., yRange/2.);
-      Vx_XY = dbe->book2D("vertex xy", "Primary Vertex XY Coordinate Distribution", rint(xRange/xStep/5.), -xRange/2., xRange/2., rint(yRange/yStep/5.), -yRange/2., yRange/2.);
+      Vx_ZX = dbe->book2D("vertex zx", "Primary Vertex ZX Coordinate Distribution", (int)(zRange/zStep/5.), -zRange/2., zRange/2., (int)(xRange/xStep/5.), -xRange/2., xRange/2.);
+      Vx_ZY = dbe->book2D("vertex zy", "Primary Vertex ZY Coordinate Distribution", (int)(zRange/zStep/5.), -zRange/2., zRange/2., (int)(yRange/yStep/5.), -yRange/2., yRange/2.);
+      Vx_XY = dbe->book2D("vertex xy", "Primary Vertex XY Coordinate Distribution", (int)(xRange/xStep/5.), -xRange/2., xRange/2., (int)(yRange/yStep/5.), -yRange/2., yRange/2.);
 
       Vx_ZX->setAxisTitle("Primary Vertices Z [cm]",1);
       Vx_ZX->setAxisTitle("Primary Vertices X [cm]",2);
@@ -1115,11 +1117,11 @@ void Vx3DHLTAnalyzer::beginJob()
       Vx_XY->setAxisTitle("Primary Vertices Y [cm]",2);
       Vx_XY->setAxisTitle("Entries [#]",3);
 
-      Vx_ZX_profile = dbe->bookProfile("zx profile","ZX Profile", rint(zRange/zStep/20.), -zRange/2., zRange/2., rint(xRange/xStep/20.), -xRange/2., xRange/2., "");
+      Vx_ZX_profile = dbe->bookProfile("zx profile","ZX Profile", (int)(zRange/zStep/10.), -zRange/2., zRange/2., (int)(xRange/xStep/10.), -xRange/2., xRange/2., "");
       Vx_ZX_profile->setAxisTitle("Primary Vertices Z [cm]",1);
       Vx_ZX_profile->setAxisTitle("Primary Vertices X [cm]",2);
 
-      Vx_ZY_profile = dbe->bookProfile("zy profile","ZY Profile", rint(zRange/zStep/20.), -zRange/2., zRange/2., rint(yRange/yStep/20.), -yRange/2., yRange/2., "");
+      Vx_ZY_profile = dbe->bookProfile("zy profile","ZY Profile", (int)(zRange/zStep/10.), -zRange/2., zRange/2., (int)(yRange/yStep/10.), -yRange/2., yRange/2., "");
       Vx_ZY_profile->setAxisTitle("Primary Vertices Z [cm]",1);
       Vx_ZY_profile->setAxisTitle("Primary Vertices Y [cm]",2);
 
@@ -1137,14 +1139,14 @@ void Vx3DHLTAnalyzer::beginJob()
 
       fitResults = dbe->book2D("fit results","Results of Beam Spot Fit", 2, 0., 2., 9, 0., 9.);
       fitResults->setAxisTitle("Fitted Beam Spot [cm]", 1);
-      fitResults->setBinLabel(9, "X", 2);
-      fitResults->setBinLabel(8, "Y", 2);
-      fitResults->setBinLabel(7, "Z", 2);
-      fitResults->setBinLabel(6, "\\sigma_{Z}", 2);
-      fitResults->setBinLabel(5, "#frac{dX}{dZ}[rad]", 2);
-      fitResults->setBinLabel(4, "#frac{dY}{dZ}[rad]", 2);
-      fitResults->setBinLabel(3, "\\sigma_{X}", 2);
-      fitResults->setBinLabel(2, "\\sigma_{Y}", 2);
+      fitResults->setBinLabel(9, "X0", 2);
+      fitResults->setBinLabel(8, "Y0", 2);
+      fitResults->setBinLabel(7, "Z0", 2);
+      fitResults->setBinLabel(6, "sigmaZ0", 2);
+      fitResults->setBinLabel(5, "dX/dZ", 2);
+      fitResults->setBinLabel(4, "dY/dZ", 2);
+      fitResults->setBinLabel(3, "sigmaX0", 2);
+      fitResults->setBinLabel(2, "sigmaY0", 2);
       fitResults->setBinLabel(1, "Vertices", 2);
       fitResults->setBinLabel(1, "Value", 1);
       fitResults->setBinLabel(2, "Stat. Error", 1);

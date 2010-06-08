@@ -31,9 +31,7 @@
   12Feb09  First Release of the code for CMSSW_2_2_X
   16Sep09  tested that it works with 3_1_2 as well 
   09Sep09  added one extra iso with the name userIso_XX_
-  23Feb09  added option to include extra IDs that are in CMSSW, such as
-           categorized, likehood etc
-           added extra variables TIP and E/P  
+           
   Contact: 
   Nikolaos Rompotis  -  Nikolaos.Rompotis@Cern.ch
   Imperial College London
@@ -66,25 +64,6 @@ WenuPlots::WenuPlots(const edm::ParameterSet& iConfig)
   outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile",
 							   outputFile_D);
   //
-  // use of precalculatedID
-  // if you use it, then no other cuts are applied
-  usePrecalcID_ = iConfig.getUntrackedParameter<Bool_t>("usePrecalcID",false);
-  if (usePrecalcID_) {
-    usePrecalcIDType_ = iConfig.getUntrackedParameter<std::string>("usePrecalcIDType");    
-    usePrecalcIDSign_ = iConfig.getUntrackedParameter<std::string>("usePrecalcIDSign","=");    
-    usePrecalcIDValue_= iConfig.getUntrackedParameter<Double_t>("usePrecalcIDValue");
-  }
-  useValidFirstPXBHit_ = iConfig.getUntrackedParameter<Bool_t>("useValidFirstPXBHit",false);
-  useConversionRejection_ = iConfig.getUntrackedParameter<Bool_t>("useConversionRejection",false);
-  useExpectedMissingHits_ = iConfig.getUntrackedParameter<Bool_t>("useExpectedMissingHits",false);
-  maxNumberOfExpectedMissingHits_ = iConfig.getUntrackedParameter<Int_t>("maxNumberOfExpectedMissingHits",1);
-  if (useValidFirstPXBHit_) std::cout << "WenuPlots: Warning: you have demanded a valid 1st layer PXB hit" << std::endl;
-  if (useConversionRejection_) std::cout << "WenuPlots: Warning: you have demanded egamma conversion rejection criteria to be applied" << std::endl;
-  if (useExpectedMissingHits_) std::cout << "WenuPlots: Warning: you have demanded at most " 
-      <<maxNumberOfExpectedMissingHits_ << " missing inner hits "<< std::endl;
-  if (useValidFirstPXBHit_ || useExpectedMissingHits_ || useConversionRejection_) {
-    usePreselection_ = true;
-  } else { usePreselection_ = false; }
   //
   // the selection cuts:
   trackIso_EB_ = iConfig.getUntrackedParameter<Double_t>("trackIso_EB");
@@ -100,16 +79,12 @@ WenuPlots::WenuPlots(const edm::ParameterSet& iConfig)
   deta_EB_ = iConfig.getUntrackedParameter<Double_t>("deta_EB");
   hoe_EB_ = iConfig.getUntrackedParameter<Double_t>("hoe_EB");
   userIso_EB_ = iConfig.getUntrackedParameter<Double_t>("userIso_EB", 1000.);
-  tip_bspot_EB_=iConfig.getUntrackedParameter<Double_t>("tip_bspot_EB", 1000.);
-  eop_EB_=iConfig.getUntrackedParameter<Double_t>("eop_EB", 1000.);
   //
   sihih_EE_ = iConfig.getUntrackedParameter<Double_t>("sihih_EE");
   dphi_EE_ = iConfig.getUntrackedParameter<Double_t>("dphi_EE");
   deta_EE_ = iConfig.getUntrackedParameter<Double_t>("deta_EE");
   hoe_EE_ = iConfig.getUntrackedParameter<Double_t>("hoe_EE");
   userIso_EE_ = iConfig.getUntrackedParameter<Double_t>("userIso_EE", 1000.);
-  tip_bspot_EE_=iConfig.getUntrackedParameter<Double_t>("tip_bspot_EE", 1000.);
-  eop_EE_=iConfig.getUntrackedParameter<Double_t>("eop_EE", 1000.);
   //
   trackIso_EB_inv = iConfig.getUntrackedParameter<Bool_t>("trackIso_EB_inv", 
 							    false);
@@ -136,9 +111,6 @@ WenuPlots::WenuPlots(const edm::ParameterSet& iConfig)
 							false);
   userIso_EB_inv = iConfig.getUntrackedParameter<Bool_t>("userIso_EB_inv",
 							 false);
-  tip_bspot_EB_inv=iConfig.getUntrackedParameter<Bool_t>("tip_bspot_EB_inv", 
-							 false);
-  eop_EB_inv=iConfig.getUntrackedParameter<Bool_t>("eop_EB_inv", false);
   //
   sihih_EE_inv = iConfig.getUntrackedParameter<Bool_t>("sihih_EE_inv",
 							 false);
@@ -150,10 +122,6 @@ WenuPlots::WenuPlots(const edm::ParameterSet& iConfig)
 							false);
   userIso_EE_inv = iConfig.getUntrackedParameter<Bool_t>("userIso_EE_inv",
 							 false);
-  tip_bspot_EE_inv=iConfig.getUntrackedParameter<Bool_t>("tip_bspot_EE_inv", 
-							 false);
-  eop_EE_inv=iConfig.getUntrackedParameter<Bool_t>("eop_EE_inv", false);
-
 
 }
 
@@ -187,23 +155,7 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
     cout << "Warning: no wenu candidates in this event..." << endl;
     return;
   }
-  // calculate the beam spot position for the TIP calculation
   //
-  // this is how one should do it, however, the beam spot is given in
-  // the pat electron producer cfi, hence it is stored there
-  // The reason that we don't do like that is that we want if possible the
-  // code to run only on WenuCandidate objects and nothing else
-  // facilitating the analysis from super-skimmed edmFiles
-  //
-  // edm::Handle<reco::BeamSpot> pBeamSpot;
-  // if(iEvent.getByLabel("offlineBeamSpot", pBeamSpot)) {
-  //   const reco::BeamSpot *bspot = pBeamSpot.product();
-  //   bspotPosition_ = bspot->position();
-  // } else {
-  //   std::cout << "Offline beam spot was not found with collection name " 
-  // 	      << " offlineBeamSpot  --> it will be set to zero" << std::endl;
-  //   bspotPosition_.SetXYZ(0,0,0);
-  // }
   //
   const pat::CompositeCandidateCollection *wcands = WenuCands.product();
   const pat::CompositeCandidateCollection::const_iterator 
@@ -215,12 +167,6 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
     dynamic_cast<const pat::Electron*> (wenu.daughter("electron"));
   const pat::MET * myMet=
     dynamic_cast<const pat::MET*> (wenu.daughter("met"));
-  //
-  // if you want some preselection: Conv rejection, hit pattern 
-  if (usePreselection_) {
-    if (not PassPreselectionCriteria(myElec)) return;
-  }
-  //
   // some variables here
   double scEta = myElec->superCluster()->eta();
   double scPhi = myElec->superCluster()->phi();
@@ -236,46 +182,41 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   double dphi = myElec->deltaPhiSuperClusterTrackAtVtx();
   double deta = myElec->deltaEtaSuperClusterTrackAtVtx();
   double HoE = myElec->hadronicOverEm();
+
+
+
+
   //
   //
   //
   // the inverted selection plots:
-  // only if not using precalcID
-  if (not usePrecalcID_) {
-    if (CheckCutsInverse(myElec)){
-      //std::cout << "-----------------INVERSION-----------passed" << std::endl;
-      h_met_inverse->Fill(met);
-      h_mt_inverse->Fill(mt);
-      if(fabs(scEta)<1.479){
-	h_met_inverse_EB->Fill(met);
-	h_mt_inverse_EB->Fill(mt);
-      }
-      if(fabs(scEta)>1.479){
-	h_met_inverse_EE->Fill(met);
-	h_mt_inverse_EE->Fill(mt);
-      }
+  if (CheckCutsInverse(myElec)){
+    //std::cout << "-----------------INVERSION-----------passed" << std::endl;
+    h_met_inverse->Fill(met);
+    h_mt_inverse->Fill(mt);
+    if(fabs(scEta)<1.479){
+      h_met_inverse_EB->Fill(met);
+      h_mt_inverse_EB->Fill(mt);
+    }
+    if(fabs(scEta)>1.479){
+      h_met_inverse_EE->Fill(met);
+      h_mt_inverse_EE->Fill(mt);
     }
   }
-  //
+
+
   ///////////////////////////////////////////////////////////////////////
   //
   // N-1 plots: plot some variable so that all the other cuts are satisfied
-  //
-  // make these plots only if you have the normal selection, not pre-calced
-  if (not usePrecalcID_) {
-    if ( fabs(scEta) < 1.479) { // reminder: the precise fiducial cuts are in
-      // in the filter
-      if (CheckCutsNminusOne(myElec, 0)) 
-	h_trackIso_eb_NmOne->Fill(trackIso);
-    }
-    else {
-      if (CheckCutsNminusOne(myElec, 0)) 
-	h_trackIso_ee_NmOne->Fill(trackIso);
-    }
+  if ( fabs(scEta) < 1.479) { // reminder: the precise fiducial cuts are in
+                              // in the filter
+    if (CheckCutsNminusOne(myElec, 0)) 
+      h_trackIso_eb_NmOne->Fill(trackIso);
   }
-  //
-  // SELECTION APPLICATION
-  //
+  else {
+    if (CheckCutsNminusOne(myElec, 0)) 
+      h_trackIso_ee_NmOne->Fill(trackIso);
+  }
   // from here on you have only events that pass the full selection
   if (not CheckCuts(myElec)) return;
   //////////////////////////////////////////////////////////////////////
@@ -309,13 +250,7 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
 
   }
   // uncomment for debugging purposes
-  //std::cout << "tracIso: " <<  trackIso << ", " << myElec->trackIso() << ", ecaliso: " << ecalIso 
-  //    << ", " << myElec->ecalIso() << ", hcaliso: " << hcalIso << ", "  << myElec->hcalIso() 
-  //    << std::endl;
-  //std::cout << "Electron ID: robLoose=" << myElec->electronID("eidRobustLoose")  
-  //    << " robTight=" << myElec->electronID("eidRobustTight") << ", CatLoose=" 
-  //    << myElec->electronID("eidLoose") << ", CatTight=" << myElec->electronID("eidTight")
-  //    << std::endl;
+  //std::cout << "tracIso: " <<  trackIso << ", " << myElec->trackIso() << ", ecaliso: " << ecalIso << ", " << myElec->ecalIso() << ", hcaliso: " << hcalIso << ", "  << myElec->hcalIso() << std::endl;
 
   h_scEt->Fill(scEt);
   h_scEta->Fill(scEta);
@@ -340,30 +275,10 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
  ***********************************************************************/
 bool WenuPlots::CheckCuts( const pat::Electron *ele)
 {
-  if (usePrecalcID_) {
-    if (not ele-> isElectronIDAvailable(usePrecalcIDType_)) {
-      std::cout << "Error! not existing ID with name: "
-		<< usePrecalcIDType_ << " function will return true!"
-		<< std::endl;
-      return true;
-    }
-    double val = ele->electronID(usePrecalcIDType_);
-    if (usePrecalcIDSign_ == "<") {
-      return val < usePrecalcIDValue_;
-    }
-    else if (usePrecalcIDSign_ == ">") {
-      return val > usePrecalcIDValue_;
-    }
-    else { // equality: it returns 0,1,2,3 but as float
-      return fabs(val-usePrecalcIDValue_)<0.1;
-    }
-  } 
-  else {
-    for (int i=0; i<nBarrelVars_; ++i) {
-      if (not CheckCut(ele, i)) return false;
-    }
-    return true;
+  for (int i=0; i<nBarrelVars_; ++i) {
+    if (not CheckCut(ele, i)) return false;
   }
+  return true;
 }
 /////////////////////////////////////////////////////////////////////////
 
@@ -416,54 +331,12 @@ double WenuPlots::ReturnCandVar(const pat::Electron *ele, int i) {
   else if (i==5) return ele->deltaEtaSuperClusterTrackAtVtx();
   else if (i==6) return ele->hadronicOverEm();
   else if (i==7) return ele->userIsolation(pat::User1Iso);
-  //  else if (i==8) return ele->gsfTrack()->dxy(bspotPosition_);
-  else if (i==8) return ele->dB();
-  else if (i==9) return ele->eSuperClusterOverP();
   std::cout << "Error in WenuPlots::ReturnCandVar" << std::endl;
   return -1.;
 
 }
 /////////////////////////////////////////////////////////////////////////
-bool WenuPlots::PassPreselectionCriteria(const pat::Electron *ele) {
-  bool passConvRej = true;
-  bool passPXB = true;
-  bool passEMH = true;
-  if (useConversionRejection_) {
-    if (ele->hasUserInt("PassConversionRejection")) {
-      //std::cout << "con rej: " << ele->userInt("PassConversionRejection") << std::endl;
-      if (not (ele->userInt("PassConversionRejection")==1)) passConvRej = false;
-    }
-    else {
-      std::cout << "WenuPlots: WARNING: Conversion Rejection Request Disregarded: "
-		<< "you must calculate it before " << std::endl;
-      // return true;
-    }
-  }
-  if (useValidFirstPXBHit_) {
-    if (ele->hasUserInt("PassValidFirstPXBHit")) {
-      //std::cout << "valid1stPXB: " << ele->userInt("PassValidFirstPXBHit") << std::endl;
-      if (not (ele->userInt("PassValidPXBHit")==1)) passPXB = false;
-    }
-    else {
-      std::cout << "WenuPlots: WARNING: Valid First PXB Hit Request Disregarded: "
-                << "you must calculate it before " << std::endl;
-      // return true;
-    }
-  }
-  if (useExpectedMissingHits_) {
-    if (ele->hasUserInt("NumberOfExpectedMissingHits")) {
-      //std::cout << "missing hits: " << ele->userInt("NumberOfExpectedMissingHits") << std::endl;
-      if (not (ele->userInt("NumberOfExpectedMissingHits")<=maxNumberOfExpectedMissingHits_)) 
-	passEMH = false;
-    }
-    else {
-      std::cout << "WenuPlots: WARNING: Number of Expected Missing Hits Request Disregarded: "
-                << "you must calculate it before " << std::endl;
-      // return true;
-    }
-  }
-  return passConvRej && passPXB && passEMH;
-}
+
 // ------------ method called once each job just before starting event loop  --
 void 
 WenuPlots::beginJob()
@@ -527,9 +400,7 @@ WenuPlots::beginJob()
 
   
   // if you add some new variable change the nBarrelVars_ accordingly
-  // reminder: in the current implementation you must have the same number
-  //  of vars in both barrel and endcaps
-  nBarrelVars_ = 10;
+  nBarrelVars_ = 8;
   //
   // Put EB variables together and EE variables together
   // number of barrel variables = number of endcap variable
@@ -542,8 +413,6 @@ WenuPlots::beginJob()
   CutVars_.push_back( deta_EB_ );    //5
   CutVars_.push_back( hoe_EB_ );     //6
   CutVars_.push_back( userIso_EB_ ); //7
-  CutVars_.push_back( tip_bspot_EB_);//8
-  CutVars_.push_back( eop_EB_ );     //9
   
   CutVars_.push_back( trackIso_EE_);//0
   CutVars_.push_back( ecalIso_EE_); //1
@@ -553,8 +422,6 @@ WenuPlots::beginJob()
   CutVars_.push_back( deta_EE_);    //5
   CutVars_.push_back( hoe_EE_ );    //6 
   CutVars_.push_back( userIso_EE_ );//7 
-  CutVars_.push_back(tip_bspot_EE_);//8
-  CutVars_.push_back( eop_EE_ );    //9
   //
   InvVars_.push_back( trackIso_EB_inv);//0
   InvVars_.push_back( ecalIso_EB_inv); //1
@@ -564,8 +431,6 @@ WenuPlots::beginJob()
   InvVars_.push_back( deta_EB_inv);    //5
   InvVars_.push_back( hoe_EB_inv);     //6
   InvVars_.push_back( userIso_EB_inv); //7
-  InvVars_.push_back(tip_bspot_EB_inv);//8
-  InvVars_.push_back( eop_EB_inv);     //9
   //
   InvVars_.push_back( trackIso_EE_inv);//0
   InvVars_.push_back( ecalIso_EE_inv); //1
@@ -575,8 +440,6 @@ WenuPlots::beginJob()
   InvVars_.push_back( deta_EE_inv);    //5
   InvVars_.push_back( hoe_EE_inv);     //6
   InvVars_.push_back( userIso_EE_inv); //7
-  InvVars_.push_back(tip_bspot_EE_inv);//8
-  InvVars_.push_back( eop_EE_inv);     //9
   //
 
 
@@ -586,10 +449,6 @@ WenuPlots::beginJob()
 void 
 WenuPlots::endJob() {
   TFile * newfile = new TFile(TString(outputFile_),"RECREATE");
-  //
-  // for consistency all the plots are in the root file
-  // even though they may be empty (in the case when
-  // usePrecalcID_== true inverted and N-1 are empty)
   h_met->Write();
   h_met_inverse->Write();
   h_mt->Write();

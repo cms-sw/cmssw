@@ -9,6 +9,9 @@
 //    --> Pre-Selection of events based in event cuts (trigger, Z rejection, ttbar rejection)                           //
 //    --> The Ws are selected from the highest pt muon in the event (applying the standard WMuNu Selection cuts)        //
 //                                                                                                                      //
+//    --> Be careful: if this Selector is used as a filter for further analysis you still have to make sure that        //
+//                    the W Candidate you use for your modules is the first one in the collection!!                     //
+//                                                                                                                      //
 //    Optionally, plots selection variables sequentially after cuts,                                                    //
 //    and 2D histograms for background determination.                                                                   //
 //                                                                                                                      //
@@ -22,7 +25,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "TH1D.h"
 #include "TH2D.h"
-#include "TH3D.h"
 
 class WMuNuSelector : public edm::EDFilter {
 public:
@@ -56,7 +58,6 @@ private:
   double dxyCut_;
   double normalizedChi2Cut_;
   int trackerHitsCut_;
-  int muonHitsCut_;
   bool isAlsoTrackerMuon_;
 
   int selectByCharge_;
@@ -65,13 +66,12 @@ private:
   double ntrig, npresel;
   double nsel;
   double ncharge;
-  double nPt,nkin, nid,nacop,niso,nmass;
-  double ncands,nZ;
+  double nkin, nid,nacop,niso,nmass;
+
 
 
   std::map<std::string,TH1D*> h1_;
   std::map<std::string,TH2D*> h2_;
-  std::map<std::string,TH3D*> h3_;
 
 };
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -97,8 +97,6 @@ private:
 #include "DataFormats/Common/interface/View.h"
 
 #include "AnalysisDataFormats/EWK/interface/WMuNuCandidate.h"
-
-#include "TAxis.h"
 
   
 using namespace edm;
@@ -128,8 +126,8 @@ WMuNuSelector::WMuNuSelector( const ParameterSet & cfg ) :
       ptCut_(cfg.getUntrackedParameter<double>("PtCut", 25.)),
       etaCut_(cfg.getUntrackedParameter<double>("EtaCut", 2.1)),
       isRelativeIso_(cfg.getUntrackedParameter<bool>("IsRelativeIso", true)),
-      isCombinedIso_(cfg.getUntrackedParameter<bool>("IsCombinedIso", true)),
-      isoCut03_(cfg.getUntrackedParameter<double>("IsoCut03", 0.15)),
+      isCombinedIso_(cfg.getUntrackedParameter<bool>("IsCombinedIso", false)),
+      isoCut03_(cfg.getUntrackedParameter<double>("IsoCut03", 0.1)),
       mtMin_(cfg.getUntrackedParameter<double>("MtMin", 50.)),
       mtMax_(cfg.getUntrackedParameter<double>("MtMax", 200.)),
       metMin_(cfg.getUntrackedParameter<double>("MetMin", -999999.)),
@@ -140,7 +138,6 @@ WMuNuSelector::WMuNuSelector( const ParameterSet & cfg ) :
       dxyCut_(cfg.getUntrackedParameter<double>("DxyCut", 0.2)),
       normalizedChi2Cut_(cfg.getUntrackedParameter<double>("NormalizedChi2Cut", 10.)),
       trackerHitsCut_(cfg.getUntrackedParameter<int>("TrackerHitsCut", 11)),
-      muonHitsCut_(cfg.getUntrackedParameter<int>("MuonHitsCut", 1)),
       isAlsoTrackerMuon_(cfg.getUntrackedParameter<bool>("IsAlsoTrackerMuon", true)),
 
       // W+/W- Selection
@@ -158,68 +155,30 @@ void WMuNuSelector::beginJob() {
       nacop=0;
       niso=0;
       nsel = 0;
-      ncands =0; 
-      nZ=0;
-      nPt=0;
 
    if(plotHistograms_){
      edm::Service<TFileService> fs;
-     h1_["hNWCand_sel"]                  =fs->make<TH1D>("NWCand_sel","Nb. of WCandidates built",10,0.,10.);
-     h1_["hNWCandPreSel_sel"]            =fs->make<TH1D>("NWCandPreSel_sel","Nb. of WCandidates passing pre-selection (ordered by pt)",10,0.,10.);
+     h1_["hNWCand_sel"]                  =fs->make<TH1D>("NWCand_sel","Nb. of WCandidates passing pre-selection (ordered by pt)",10,0.,10.);
      h1_["hPtMu_sel"]                    =fs->make<TH1D>("ptMu_sel","Pt mu",100,0.,100.);
      h1_["hEtaMu_sel"]                   =fs->make<TH1D>("etaMu_sel","Eta mu",50,-2.5,2.5);
      h1_["hd0_sel"]                      =fs->make<TH1D>("d0_sel","Impact parameter",1000,-1.,1.);
      h1_["hNHits_sel"]                   =fs->make<TH1D>("NumberOfValidHits_sel","Number of Hits in Silicon",100,0.,100.);
-     h1_["hNMuonHits_sel"]               =fs->make<TH1D>("NumberOfValidMuonHits_sel","Number of Hits in Silicon",100,0.,100.);
      h1_["hNormChi2_sel"]                =fs->make<TH1D>("NormChi2_sel","Chi2/ndof of global track",1000,0.,50.);
      h1_["hTracker_sel"]                 =fs->make<TH1D>("isTrackerMuon_sel","is Tracker Muon?",2,0.,2.); 
-     h1_["hMET_sel"]                     =fs->make<TH1D>("MET_sel","Missing Transverse Energy (GeV)", 200,0,200);
-     h1_["hTMass_sel"]                   =fs->make<TH1D>("TMass_sel","Rec. Transverse Mass (GeV)",200,0,200);
+     h1_["hMET_sel"]                     =fs->make<TH1D>("MET_sel","Missing Transverse Energy (GeV)", 300,0.,300.);
+     h1_["hTMass_sel"]                   =fs->make<TH1D>("TMass_sel","Rec. Transverse Mass (GeV)",300,0.,300.);
      h1_["hAcop_sel"]                    =fs->make<TH1D>("Acop_sel","Mu-MET acoplanarity",50,0.,M_PI);
      h1_["hPtSum_sel"]                   =fs->make<TH1D>("ptSum_sel","Track Isolation, Sum pT (GeV)",200,0.,100.);
      h1_["hPtSumN_sel"]                  =fs->make<TH1D>("ptSumN_sel","Track Isolation, Sum pT/pT",1000,0.,10.);
      h1_["hCal_sel"]                     =fs->make<TH1D>("Cal_sel","Calorimetric isolation, HCAL+ECAL (GeV)",200,0.,100.);
      h1_["hIsoTotN_sel"]                 =fs->make<TH1D>("isoTotN_sel","(Sum pT + Cal)/pT",1000,0.,10.);
      h1_["hIsoTot_sel"]                  =fs->make<TH1D>("isoTot_sel","(Sum pT + Cal)",200,0.,100.);
-  
-     h2_["hTMass_PtSum"]       =fs->make<TH2D>("TMass_PtSum","Rec. Transverse Mass (GeV) vs Sum pT (GeV)",200,0.,100.,200,0,200);
-     h2_["hTMass_PtSumNorm"]   =fs->make<TH2D>("TMass_PtSumNorm","Rec. Transverse Mass (GeV) vs Sum Pt / Pt", 1000,0,10,200,0,200);
-     h2_["hTMass_TotIsoNorm"]=fs->make<TH2D>("TMass_TotIsoNorm","Rec. Transverse Mass (GeV) vs (Sum Pt + Cal)/Pt", 1000,0,10,200,0,200);
-     
-     h2_["hMET_PtSum"]         =fs->make<TH2D>("MET_PtSum","Missing Transverse Energy (GeV) vs Sum Pt (GeV)",200,0.,100.,200,0,200);
-     h2_["hMET_PtSumNorm"]     =fs->make<TH2D>("MET_PtSumNorm","Missing Transverse Energy (GeV) vs Sum Pt/Pt",1000,0,10,200,0,200);
-     h2_["hMET_TotIsoNorm"] =fs->make<TH2D>("MET_TotIsoNorm","Missing Transverse Energy (GeV) vs (SumPt + Cal)/Pt",1000,0,10,200,0,200);
-
-     h2_["hEta_Pt"]     =fs->make<TH2D>("Eta_Pt","Eta vs Pt",100,0,100, 50,-2.1,2.1);
-
-     h2_["hPt_PtSumNorm"]   =fs->make<TH2D>("Pt_PtSumNorm","Pt( GeV) vs Sum Pt / Pt", 1000,0,10,100,0,100);
-     h2_["hPt_TotIsoNorm"]=fs->make<TH2D>("Pt_TotIsoNorm","Pt (GeV) vs (Sum Pt + Cal)/Pt", 1000,0,10,100,0,100);
-
-     //h2_["hEta_PtSumNorm"]     =fs->make<TH2D>("Eta_PtSumNorm","Eta vs Sum Pt/Pt",1000,0,10, 50,-2.1,2.1);
-     //h2_["hEta_TotIsoNorm"] =fs->make<TH2D>("Eta_TotIsoNorm","Eta vs (SumPt + Cal)/Pt",10000,0,10, 50,-2.1,2.1);
-
-     h2_["hTMass_Pt"]   =fs->make<TH2D>("TMass_Pt","Rec. Transverse Mass (GeV) vs Pt (GeV)", 100,0,100,200,0,200);
-     //h2_["hTMass_Eta"]   =fs->make<TH2D>("TMass_Eta","Rec. Transverse Mass (GeV) vs Eta ", 50,-2.1,2.1,200,0,200);
-
-     h2_["hMET_Pt"]   =fs->make<TH2D>("MET_Pt","MET (GeV) vs  Pt (GeV)   ", 100,0,100,200,0,200);
-     //h2_["hMET_Eta"]   =fs->make<TH2D>("MET_Eta","MET (GeV) vs Eta", 50,-2.1,2.1,200,0,200);
-
-     //h3_["hMET_Eta_Pt"]   =fs->make<TH3D>("MET_Eta_Pt","MET (GeV) vs Eta vs Pt (GeV)", 100,0,100,50,-2.1,2.1,200,0,200);
-     //h3_["hTMass_Eta_Pt"]   =fs->make<TH3D>("TMass_Eta_Pt","TMass (GeV) vs Eta vs Pt (GeV)", 100,0,100,50,-2.1,2.1,200,0,200);
-
-     h1_["hCutFlowSummary"]             = fs->make<TH1D>("CutFlowSummary", "Cut-flow Summary(number of events AFTER each cut)", 11, 0.5, 11.5);
-     h1_["hCutFlowSummary"] ->GetXaxis()->SetBinLabel(1, "Total");
-     h1_["hCutFlowSummary"] ->GetXaxis()->SetBinLabel(2, "Candidates");
-     h1_["hCutFlowSummary"]->GetXaxis()->SetBinLabel(3, "HLT");
-     h1_["hCutFlowSummary"]->GetXaxis()->SetBinLabel(4, "Z Rejection");
-     h1_["hCutFlowSummary"]->GetXaxis()->SetBinLabel(5, "Jet Rejection.");
-     h1_["hCutFlowSummary"]->GetXaxis()->SetBinLabel(6, "Pt Cut");
-     h1_["hCutFlowSummary"]->GetXaxis()->SetBinLabel(7, "Eta Cut");
-     h1_["hCutFlowSummary"]->GetXaxis()->SetBinLabel(8, "Muon ID Cuts");
-     h1_["hCutFlowSummary"]->GetXaxis()->SetBinLabel(9, "Acop Cut");
-     h1_["hCutFlowSummary"]->GetXaxis()->SetBinLabel(10, "Isolation Cut");
-     h1_["hCutFlowSummary"]->GetXaxis()->SetBinLabel(11, "MET/MT Cut");
-
+     h2_["hTMass_PtSum_inclusive"]       =fs->make<TH2D>("TMass_PtSum_inclusive","Rec. Transverse Mass (GeV) vs Sum pT (GeV)",200,0.,100.,300,0.,300.);
+     h2_["hTMass_PtSumNorm_inclusive"]   =fs->make<TH2D>("TMass_PtSumNorm_inclusive","Rec. Transverse Mass (GeV) vs Sum Pt / Pt", 1000,0,10,300,0,300);
+     h2_["hTMass_TotIsoNorm_inclusive"]=fs->make<TH2D>("TMass_TotIsoNorm_inclusive","Rec. Transverse Mass (GeV) vs (Sum Pt + Cal)/Pt", 10000,0,10,200,0,200);
+     h2_["hMET_PtSum_inclusive"]         =fs->make<TH2D>("MET_PtSum_inclusive","Missing Transverse Energy (GeV) vs Sum Pt (GeV)",200,0.,100.,300,0.,300.);
+     h2_["hMET_PtSumNorm_inclusive"]     =fs->make<TH2D>("MET_PtSumNorm_inclusive","Missing Transverse Energy (GeV) vs Sum Pt/Pt",1000,0,10,300,0,300);
+     h2_["hMET_TotIsoNorm_inclusive"]=fs->make<TH2D>("MET_TotIsoNorm_inclusive","Missing Transverse Energy (GeV) vs (SumPt + Cal)/Pt",10000,0,10,200,0,200);
    }
 }
 
@@ -227,7 +186,6 @@ void WMuNuSelector::beginJob() {
 void WMuNuSelector::endJob() {
       double all = nall;
       double epresel = npresel/all;
-      double ecand = ncands/all;
       double etrig = ntrig/all;
       double ekin = nkin/all;
       double eid = nid/all;
@@ -236,24 +194,22 @@ void WMuNuSelector::endJob() {
       double esel = nsel/all;
 
       LogVerbatim("") << "\n>>>>>> W SELECTION SUMMARY BEGIN >>>>>>>>>>>>>>>";
-      LogVerbatim("") << "Total number of events analyzed                          : " << nall << " [events]";
-      LogVerbatim("") << "Total number of events with WMuNuCandidates              : " << ncands << " [events]";
-      LogVerbatim("") << "Total number of events triggered                         : " << ntrig << " [events]";
-      LogVerbatim("") << "Total number of events pre-selected (jets/Z rejection)   : " << npresel << " [events]";
-      LogVerbatim("") << "Total number of events after kinematic cuts (pt,eta)     : " << nkin << " [events]";
-      LogVerbatim("") << "Total number of events after Muon ID cuts (d0,chi2,NHits): " << nid << " [events]";
-      LogVerbatim("") << "Total number of events after Acop cut                    : " << nacop << " [events]";
-      LogVerbatim("") << "Total number of events after iso cut                     : " << niso << " [events]";
-      LogVerbatim("") << "Total number of events after MET/MT cut                  : " << nsel << " [events]";
-      LogVerbatim("") << "Efficiencies CUMULATIVE:";
-      LogVerbatim("") << "Candidate Building:                         " << "(" << setprecision(4) << ecand*100. <<" +/- "<< setprecision(2) << sqrt(ecand*(1-ecand)/all)*100. << ")%";
-      LogVerbatim("") << "Trigger Efficiency:                         " << "(" << setprecision(4) << etrig*100. <<" +/- "<< setprecision(2) << sqrt(etrig*(1-etrig)/all)*100. << ")%";
-      LogVerbatim("") << "Pre-Selection Efficiency:                   " << "(" << setprecision(4) << epresel*100. <<" +/- "<< setprecision(2) << sqrt(epresel*(1-epresel)/all)*100. << ")%";
-      LogVerbatim("") << "Pt, Eta Selection Efficiency:               " << "(" << setprecision(4) << ekin*100. <<" +/- "<< setprecision(2) << sqrt(ekin*(1-ekin)/all)*100. << ")%";
-      LogVerbatim("") << "MuonID Efficiency:                          " << "(" << setprecision(4) << eid*100. <<" +/- "<< setprecision(2) << sqrt(eid*(1-eid)/all)*100. << ")%";
-      LogVerbatim("") << "Acop Efficiency:                            " << "(" << setprecision(4) << eacop*100. <<" +/- "<< setprecision(2) << sqrt(eacop*(1-eacop)/all)*100. << ")%";
-      LogVerbatim("") << "Iso Efficiency:                             " << "(" << setprecision(4) << eiso*100. <<" +/- "<< setprecision(2) << sqrt(eiso*(1-eiso)/all)*100. << ")%";
-      LogVerbatim("") << "Final Selection Efficiency (after MET/MT):  " << "(" << setprecision(4) << esel*100. <<" +/- "<< setprecision(2) << sqrt(esel*(1-esel)/nall)*100. << ")%";
+      LogVerbatim("") << "Total number of events analyzed: " << nall << " [events]";
+      LogVerbatim("") << "Total number of events triggered: " << ntrig << " [events]";
+      LogVerbatim("") << "Total number of events pre-selected: " << npresel << " [events]";
+      LogVerbatim("") << "Total number of events after kinematic cuts: " << nkin << " [events]";
+      LogVerbatim("") << "Total number of events after Muon ID cuts: " << nid << " [events]";
+      LogVerbatim("") << "Total number of events after Acop cut: " << nacop << " [events]";
+      LogVerbatim("") << "Total number of events after iso cut: " << niso << " [events]";
+      LogVerbatim("") << "Total number of events selected: " << nsel << " [events]";
+      LogVerbatim("") << "Efficiencies:";
+      LogVerbatim("") << "Trigger Efficiency:                   " << "(" << setprecision(4) << etrig*100. <<" +/- "<< setprecision(2) << sqrt(etrig*(1-etrig)/all)*100. << ")%";
+      LogVerbatim("") << "Pre-Selection Efficiency:             " << "(" << setprecision(4) << epresel*100. <<" +/- "<< setprecision(2) << sqrt(epresel*(1-epresel)/all)*100. << ")%";
+      LogVerbatim("") << "Pt, Eta Selection Efficiency:         " << "(" << setprecision(4) << ekin*100. <<" +/- "<< setprecision(2) << sqrt(ekin*(1-ekin)/all)*100. << ")%";
+      LogVerbatim("") << "MuonID Efficiency:                    " << "(" << setprecision(4) << eid*100. <<" +/- "<< setprecision(2) << sqrt(eid*(1-eid)/all)*100. << ")%";
+      LogVerbatim("") << "Acop Efficiency:                      " << "(" << setprecision(4) << eacop*100. <<" +/- "<< setprecision(2) << sqrt(eacop*(1-eacop)/all)*100. << ")%";
+      LogVerbatim("") << "Iso Efficiency:                       " << "(" << setprecision(4) << eiso*100. <<" +/- "<< setprecision(2) << sqrt(eiso*(1-eiso)/all)*100. << ")%";
+      LogVerbatim("") << "Selection Efficiency:             " << "(" << setprecision(4) << esel*100. <<" +/- "<< setprecision(2) << sqrt(esel*(1-esel)/nall)*100. << ")%";
 
      if ( fabs(selectByCharge_)==1 ){
       esel = nsel/ncharge;
@@ -267,7 +223,6 @@ void WMuNuSelector::endJob() {
 
 bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
       nall++;
-      if(plotHistograms_) h1_["hCutFlowSummary"]->Fill(1.);
 
       // Repeat Pre-Selection Cuts just in case...
       // Muon collection
@@ -278,25 +233,17 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
       }
       unsigned int muonCollectionSize = muonCollection->size();
 
-
-      bool trigger_fired = false;
-      if ( trigTag_.label() == ""){
-      LogTrace("") << ">>> Careful, you are not requesting any trigger, event will be always fired";
-      trigger_fired = true;
-      }
-      else {
       // Trigger
       Handle<TriggerResults> triggerResults;
       if (!ev.getByLabel(trigTag_, triggerResults)) {
-            cout<<" Hey"<<endl;
             LogError("") << ">>> TRIGGER collection does not exist !!!";
             return 0;
       }
       const edm::TriggerNames & triggerNames = ev.triggerNames(*triggerResults);
+      bool trigger_fired = false;
       int itrig1 = triggerNames.triggerIndex(muonTrig_);
       if (triggerResults->accept(itrig1)) trigger_fired = true;
       LogTrace("") << ">>> Trigger bit: " << trigger_fired << " (" << muonTrig_ << ")";
-      }
 
       // Loop to reject/control Z->mumu is done separately
       unsigned int nmuonsForZ1 = 0;
@@ -311,16 +258,10 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
       LogTrace("") << "> Z rejection: muons above " << ptThrForZ1_ << " [GeV]: " << nmuonsForZ1;
       LogTrace("") << "> Z rejection: muons above " << ptThrForZ2_ << " [GeV]: " << nmuonsForZ2;
 
-
-      int njets = 0;
-      if(jetTag_.label()==""){
-      LogTrace("")<<">>> Careful, you are not requesting any jet collection";
-      }else{
       // Jet collection
       Handle<View<Jet> > jetCollection;
       if (!ev.getByLabel(jetTag_, jetCollection)) {
             LogError("") << ">>> JET collection does not exist !!!";
-            LogError("") << " (if you dont want to check jets variables, edit your .py so that JetTag="", otherwise check your input file)";
             return 0;
       }
       unsigned int jetCollectionSize = jetCollection->size();
@@ -331,8 +272,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
       }
       LogTrace("") << ">>> Total number of jets: " << jetCollectionSize;
       LogTrace("") << ">>> Number of jets above " << eJetMin_ << " [GeV]: " << njets;
-      }
-      
+
 
       // Beam spot
       Handle<reco::BeamSpot> beamSpotHandle;
@@ -350,16 +290,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             LogTrace("") << ">>> WMuNu not found !!!";
             return false;
       }
- 
-      if(plotHistograms_){
-             h1_["hNWCand_sel"]->Fill(WMuNuCollection->size());
-             // If the producer is set to only build 1 WMuNuCandidate per event, this plot is irrelevant..
-      }
-
-      ncands++;
-
-       if(plotHistograms_) h1_["hCutFlowSummary"]->Fill(2.);
- 
+  
       if(WMuNuCollection->size() < 1) {LogTrace("")<<"No WMuNu Candidates in the Event!"; return 0;}
       if(WMuNuCollection->size() > 1) {LogTrace("")<<"This event contains more than one W Candidate";}  
 
@@ -367,30 +298,25 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
 
       LogTrace("") << "> WMuNu Candidate with: ";
       const WMuNuCandidate& WMuNu = WMuNuCollection->at(0);
-      // By default there is only 1 WMuNu Candidate per event, the highest pt one
-      // If you want to have all muons converted into WMuNuCandidates (for example, for a WZ analysis) modify the producer 
+      // WMuNuCandidates are ordered by Pt! 
+      // The Inclusive Selection WMuNu Candidate is the first one 
      
       const reco::Muon & mu = WMuNu.getMuon();
       const reco::MET  & met =WMuNu.getNeutrino();
+            if(plotHistograms_){
+            h1_["hNWCand_sel"]->Fill(WMuNuCollection->size());  
+            }
+
 
       // Preselection cuts:
 
       if (!trigger_fired) {LogTrace("")<<"Event did not fire the Trigger"; return 0;}
       ntrig++;
-       if(plotHistograms_) h1_["hCutFlowSummary"]->Fill(3.);
 
       if (nmuonsForZ1>=1 && nmuonsForZ2>=2) {LogTrace("")<<"Z Candidate!!"; return 0;}
-      nZ++;
-       if(plotHistograms_) h1_["hCutFlowSummary"]->Fill(4.);
-
       if (njets>nJetMax_) {LogTrace("")<<"NJets > threshold";  return 0;}
+
       npresel++;
-       if(plotHistograms_) h1_["hCutFlowSummary"]->Fill(5.);
-
-
-      if(plotHistograms_){
-             h1_["hNWCandPreSel_sel"]->Fill(WMuNuCollection->size());
-      }
 
       // Select Ws by charge:
 
@@ -410,38 +336,28 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             LogTrace("") << "\t... Muon pt, eta: " << pt << " [GeV], " << eta;
                   if(plotHistograms_){ h1_["hPtMu_sel"]->Fill(pt);}
             if (pt<ptCut_) return 0;
-                   if(plotHistograms_){ h1_["hEtaMu_sel"]->Fill(eta); h2_["hEta_Pt"]->Fill(pt,eta);}
-
-            nPt++;
-                   if(plotHistograms_) h1_["hCutFlowSummary"]->Fill(6.);
-
- 
+                  if(plotHistograms_){ h1_["hEtaMu_sel"]->Fill(eta);}
             if (fabs(eta)>etaCut_) return 0;
 
             nkin++;
-                   if(plotHistograms_) h1_["hCutFlowSummary"]->Fill(7.);
+
 
             // d0, chi2, nhits quality cuts
             double dxy = gm->dxy(beamSpotHandle->position());
-            double normalizedChi2 = gm->normalizedChi2(); 
+            double normalizedChi2 = gm->normalizedChi2(); LogTrace("")<<"Im here"<<endl;
             double trackerHits = gm->hitPattern().numberOfValidTrackerHits();
-            double muonHits = gm->hitPattern().numberOfValidMuonHits();
-            LogTrace("") << "\t... Muon dxy, normalizedChi2, trackerHits, muonhits, isTrackerMuon?: " << dxy << " [cm], "<<normalizedChi2 << ", "<<trackerHits << ", " <<", "<<muonHits << ", " << mu.isTrackerMuon();
+            LogTrace("") << "\t... Muon dxy, normalizedChi2, trackerHits, isTrackerMuon?: " << dxy << " [cm], "<<normalizedChi2 << ", "<<trackerHits << ", " << mu.isTrackerMuon();
 
                   if(plotHistograms_){ h1_["hd0_sel"]->Fill(dxy);}
-            if (dxy>dxyCut_) return 0;
+            if (!muon::isGoodMuon(mu,muon::GlobalMuonPromptTight) ) return 0;
                   if(plotHistograms_){ h1_["hNormChi2_sel"]->Fill(normalizedChi2);}
             if (normalizedChi2>normalizedChi2Cut_) return 0;
                   if(plotHistograms_){ h1_["hNHits_sel"]->Fill(trackerHits);}
             if (trackerHits<trackerHitsCut_) return 0;
-                  if(plotHistograms_){ h1_["hNMuonHits_sel"]->Fill(muonHits);}
-            if (muonHits<muonHitsCut_) return 0;
                   if(plotHistograms_){ h1_["hTracker_sel"]->Fill(mu.isTrackerMuon());}
             if (!mu.isTrackerMuon()) return 0;
 
             nid++;
-
-                   if(plotHistograms_)    h1_["hCutFlowSummary"]->Fill(8.);
 
             // Acoplanarity cuts
             double acop = WMuNu.acop();
@@ -474,46 +390,26 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
 
             // Plot 2D Histograms before final cuts
                   if(plotHistograms_ && acop<acopCut_){
-                  h2_["hTMass_PtSum"]->Fill(SumPt,massT);
-                  h2_["hTMass_PtSumNorm"]->Fill(SumPt/pt,massT);
-                  h2_["hTMass_TotIsoNorm"]->Fill((SumPt+Cal)/pt,massT);
-                  h2_["hMET_PtSum"]->Fill(SumPt,met_et);
-                  h2_["hMET_PtSumNorm"]->Fill(SumPt/pt,met_et);
-                  h2_["hMET_TotIsoNorm"]->Fill((SumPt+Cal)/pt,met_et);
-
-                  h2_["hPt_PtSumNorm"]->Fill(SumPt/pt,pt);
-                  h2_["hPt_TotIsoNorm"]->Fill((SumPt+Cal)/pt,pt);
-                  //h2_["hEta_PtSumNorm"]->Fill(SumPt/pt,eta);
-                  //h2_["hEta_TotIsoNorm"]->Fill((SumPt+Cal)/pt,eta);
-
+                  h2_["hTMass_PtSum_inclusive"]->Fill(SumPt,massT);
+                  h2_["hTMass_PtSumNorm_inclusive"]->Fill(SumPt/pt,massT);
+                  h2_["hTMass_TotIsoNorm_inclusive"]->Fill((SumPt+Cal)/pt,massT);
+                  h2_["hMET_PtSum_inclusive"]->Fill(SumPt,met_et);
+                  h2_["hMET_PtSumNorm_inclusive"]->Fill(SumPt/pt,met_et);
+                  h2_["hMET_TotIsoNorm_inclusive"]->Fill((SumPt+Cal)/pt,met_et);
                   }
-
-            if(plotHistograms_){ h1_["hAcop_sel"]->Fill(acop);}
-            if (acop>=acopCut_) return 0;
-
-            nacop++;
-                  if(plotHistograms_)  h1_["hCutFlowSummary"]->Fill(9.);
-
-
 
             if (!iso) return 0;
 
             niso++;
-                  if(plotHistograms_)  h1_["hCutFlowSummary"]->Fill(10.);
 
+             if(plotHistograms_){ h1_["hAcop_sel"]->Fill(acop);}
+            if (acop>=acopCut_) return 0;
+
+           nacop++;
 
             if(plotHistograms_){
                   h1_["hMET_sel"]->Fill(met_et);
                   h1_["hTMass_sel"]->Fill(massT);
-
-                  h2_["hTMass_Pt"]->Fill(pt,massT),
-                  //h2_["hTMass_Eta"]->Fill(eta,massT);   
-   
-                  h2_["hMET_Pt"]->Fill(pt,met_et);
-                  //h2_["hMET_Eta"]->Fill(eta,met_et);
-   
-                  //h3_["hMET_Eta_Pt"]->Fill(pt,eta,met_et);  
-                  //h3_["hTMass_Eta_Pt"]->Fill(pt,eta,massT);
             }
 
 
@@ -522,7 +418,6 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
 
            LogTrace("") << ">>>> Event ACCEPTED";
             nsel++;
-                  if(plotHistograms_) h1_["hCutFlowSummary"]->Fill(11.);
 
 
             // (To be continued ;-) )

@@ -6,12 +6,10 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2010/04/15 18:37:17 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/02/20 20:59:56 $
+ *  $Revision: 1.7 $
  *  \author  J. Klukas, M. Vander Donckt, J. Alcaraz
  */
-
-#include "HLTriggerOffline/Muon/interface/L1MuonMatcherAlgo.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -71,14 +69,23 @@ class HLTMuonValidator : public edm::EDAnalyzer {
   struct MatchStruct {
     const reco::Candidate            * candBase;
     const l1extra::L1MuonParticle    * candL1;
-    std::vector<const reco::RecoChargedCandidate *> candHlt;
+    const reco::RecoChargedCandidate * candHlt[2];
+    const reco::RecoChargedCandidate * candL2() {return candHlt[0];}
+    const reco::RecoChargedCandidate * candL3() {return candHlt[1];}
+    void setL1(const l1extra::L1MuonParticle    * cand) {candL1     = cand;}
+    void setL2(const reco::RecoChargedCandidate * cand) {candHlt[0] = cand;}
+    void setL3(const reco::RecoChargedCandidate * cand) {candHlt[1] = cand;}
     MatchStruct() {
       candBase   = 0;
       candL1     = 0;
+      candHlt[0] = 0;
+      candHlt[1] = 0;
     }
     MatchStruct(const reco::Candidate * cand) {
       candBase = cand;
       candL1     = 0;
+      candHlt[0] = 0;
+      candHlt[1] = 0;
     }
     bool operator<(MatchStruct match) {
       return candBase->pt() < match.candBase->pt();
@@ -94,15 +101,12 @@ class HLTMuonValidator : public edm::EDAnalyzer {
   };
 
   void initializeHists(std::vector<std::string>);
-  void analyzePath(const edm::Event &, 
-                   const std::string &, const std::string &,
-                   const std::vector<MatchStruct>, 
+  void analyzePath(const std::string &, const std::string &,
+                   const std::vector<MatchStruct> &, 
                    edm::Handle<trigger::TriggerEventWithRefs>);
-  void findMatches(
-      std::vector<MatchStruct> &, 
-      std::vector<l1extra::L1MuonParticleRef>,
-      std::vector< std::vector< const reco::RecoChargedCandidate *> >
-      );
+  bool identical(const reco::Candidate *, const reco::Candidate *);
+  unsigned int findMatch(const reco::Candidate *, std::vector<MatchStruct> &, 
+                         double, std::string);
   void bookHist(std::string, std::string, std::string, std::string);
 
   std::string  hltProcessName_;
@@ -133,8 +137,6 @@ class HLTMuonValidator : public edm::EDAnalyzer {
   StringCutObjectSelector<reco::Muon       > * recMuonSelector_;
 
   HLTConfigProvider hltConfig_;
-
-  L1MuonMatcherAlgo l1Matcher_;
 
   DQMStore* dbe_;
   std::map<std::string, MonitorElement *> elements_;

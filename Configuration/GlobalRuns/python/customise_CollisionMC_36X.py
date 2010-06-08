@@ -9,10 +9,10 @@ def customise(process):
     ## TRACKING:
     ## Skip events with HV off
     process.newSeedFromTriplets.ClusterCheckPSet.MaxNumberOfPixelClusters=2000
-    process.newSeedFromPairs.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
+    process.newSeedFromPairs.ClusterCheckPSet.MaxNumberOfCosmicClusters=20000
     process.secTriplets.ClusterCheckPSet.MaxNumberOfPixelClusters=2000
-    process.fifthSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 10000
-    process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
+    process.fifthSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 20000
+    process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=20000
     process.thTripletsA.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000
     process.thTripletsB.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000
         
@@ -71,5 +71,21 @@ def customise(process):
     ###  end of top level replacements
     ###
     ###############################################################################################
+
+    #add the DQM stream for this time only
+    # DQMStream output definition
+    process.outputDQMStream = cms.OutputModule("PoolOutputModule",
+                                               outputCommands = cms.untracked.vstring('drop *',
+                                                                                      'keep *_MEtoEDMConverter_*_*'),
+                                               fileName = cms.untracked.string('DQMStream.root'),
+                                               dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string(''),
+        dataTier = cms.untracked.string('DQM')
+        )
+    )
+    process.outputDQMStreamOutPath = cms.EndPath(process.outputDQMStream)
+    process.schedule.append( process.outputDQMStreamOutPath )
+
+
 
     return (process)

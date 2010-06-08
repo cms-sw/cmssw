@@ -1,4 +1,4 @@
-// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.23 2010/02/02 18:53:39 lowette Exp $
+// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.20 2009/11/10 14:49:02 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
 #include "CalibFormats/SiStripObjects/interface/NumberOfDevices.h"
@@ -23,8 +23,10 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const d
     db_(db),
     cabling_(0),
     detInfo_(),
+    disabled_(),
     uploadAnal_(true),
-    uploadConf_(false)
+    uploadConf_(false),
+    disableDevices_(false)
 {
   LogTrace(mlDqmClient_) 
     << "[" << __PRETTY_FUNCTION__ << "]"
@@ -63,8 +65,10 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb()
     db_(0),
     cabling_(0),
     detInfo_(),
+    disabled_(),
     uploadAnal_(false),
-    uploadConf_(false)
+    uploadConf_(false),
+    disableDevices_(false)
 {
   LogTrace(mlDqmClient_) 
     << "[" << __PRETTY_FUNCTION__ << "]"
@@ -83,10 +87,12 @@ CommissioningHistosUsingDb::~CommissioningHistosUsingDb() {
 // -----------------------------------------------------------------------------
 /** */
 void CommissioningHistosUsingDb::uploadToConfigDb() {
+  disabled_.clear(); 
   buildDetInfo();
   addDcuDetIds(); 
   uploadConfigurations();
   uploadAnalyses(); 
+  disableProblemDevices();
 }
 
 // -----------------------------------------------------------------------------
@@ -110,7 +116,6 @@ void CommissioningHistosUsingDb::uploadAnalyses() {
       << "[CommissioningHistosUsingDb::" << __func__ << "]"
       << " Starting from partition " << ip->first
       << " with versions:\n" << std::dec
-      << "   Conn: " << ip->second.cabVersion().first << "." << ip->second.cabVersion().second << "\n"
       << "   FED:  " << ip->second.fedVersion().first  << "." << ip->second.fedVersion().second << "\n"
       << "   FEC:  " << ip->second.fecVersion().first  << "." << ip->second.fecVersion().second << "\n"
       << "   Mask: " << ip->second.maskVersion().first << "." << ip->second.maskVersion().second;
@@ -167,10 +172,7 @@ void CommissioningHistosUsingDb::uploadAnalyses() {
             << "[CommissioningHistosUsingDb::" << __func__ << "]"
             << " Created new version for partition " << ip->first
             << ". Current state:\n" << std::dec
-            << "   Conn: " << (*istate)->getConnectionVersionMajorId() << "." << (*istate)->getConnectionVersionMinorId() << "\n"
-            << "   FED:  " << (*istate)->getFedVersionMajorId()  << "." << (*istate)->getFedVersionMinorId() << "\n"
-            << "   FEC:  " << (*istate)->getFecVersionMajorId()  << "." << (*istate)->getFecVersionMinorId() << "\n"
-            << "   Mask: " << (*istate)->getMaskVersionMajorId() << "." << (*istate)->getMaskVersionMinorId();
+            << "   FED:  " << (*istate)->getFedVersionMajorId() << "." << (*istate)->getFedVersionMinorId();
         }
       }
     }
@@ -323,12 +325,7 @@ void CommissioningHistosUsingDb::buildDetInfo() {
       dcuDescription* dcu = dynamic_cast<dcuDescription*>( *idcu );
       if ( !dcu ) { continue; }
       if ( dcu->getDcuType() != "FEH" ) { continue; }
-
-      // S.L. 29/1/2010
-      // HARDCODED!!! We have a broken module, known from Pisa integration tests
-      // We could really use a better solutin for this than hardcode it!!!
-      if ( dcu->getDcuHardId() == 16448250 ) continue; // fake dcu (0xfafafa)
-
+      
       // Find TkDcuInfo object corresponding to given DCU description
       SiStripConfigDb::DcuDetIdsV::const_iterator idet = dets.end();
       idet = SiStripConfigDb::findDcuDetId( dets.begin(), dets.end(), dcu->getDcuHardId() );
@@ -435,6 +432,81 @@ bool CommissioningHistosUsingDb::deviceIsPresent( const SiStripFecKey& key ) {
   }
 }
 
+// -----------------------------------------------------------------------------
+//
+void CommissioningHistosUsingDb::addProblemDevice( const SiStripFecKey& key ) {
+  SiStripFecKey tmp( key, sistrip::CCU_CHAN );
+  std::pair<std::string,DetInfo> info = detInfo(key);
+  if ( info.second.dcuId_ != sistrip::invalid32_ ) { disabled_[info.first][info.second.dcuId_] = info.second.pairs_; }
+}
 
+// -----------------------------------------------------------------------------
+//
+void CommissioningHistosUsingDb::disableProblemDevices() {
+
+  if ( edm::isDebugEnabled() ) {
+    std::stringstream ss;
+    ss << "[CommissioningHistosUsingDb::" << __func__ << "]"
+       << " List of devices from " << disabled_.size() 
+       << " partitions to be disabled: " << std::endl;
+    std::map<std::string,DisabledDevices>::const_iterator ii = disabled_.begin();
+    std::map<std::string,DisabledDevices>::const_iterator jj = disabled_.end();
+    for ( ; ii != jj; ++ii ) {
+      ss << " Partition= " << ii->first << std::endl;
+      DisabledDevices::const_iterator iii = ii->second.begin();
+      DisabledDevices::const_iterator jjj = ii->second.end();
+      for ( ; iii != jjj; ++iii ) {
+	ss << "  DCUid= " 
+	   << std::setw(8) << std::setfill('0') 
+	   << std::hex << iii->first << std::dec
+	   << ", ApvPair= " << iii->second << std::endl;
+      }
+    }
+    edm::LogVerbatim(mlDqmClient_) << ss.str();
+  }
+  
+  if ( !db_ ) {
+    edm::LogError(mlDqmClient_) 
+      << "[CommissioningHistosUsingDb::" << __func__ << "]"
+      << " NULL pointer to SiStripConfigDb interface!"
+      << " Aborting disable of devices...";
+    return;
+  }
+  
+  DeviceFactory* df = db_->deviceFactory();
+  if ( !df ) {
+    edm::LogError(mlDqmClient_) 
+      << "[CommissioningHistosUsingDb::" << __func__ << "]"
+      << " NULL pointer to DeviceFactory interface!"
+      << " Aborting disable of devices...";
+    return;
+  }
+  
+  if ( disableDevices_ ) {
+    std::map<std::string,DisabledDevices>::const_iterator ii = disabled_.begin();
+    std::map<std::string,DisabledDevices>::const_iterator jj = disabled_.end();
+    for ( ; ii != jj; ++ii ) {
+      std::vector<uint32_t> dcus;
+      DisabledDevices::const_iterator iii = ii->second.begin();
+      DisabledDevices::const_iterator jjj = ii->second.end();
+      for ( ; iii != jjj; ++iii ) { dcus.push_back(iii->first); }
+      edm::LogVerbatim(mlDqmClient_) 
+	<< "[CommissioningHistosUsingDb::" << __func__ << "]"
+	<< " Disabling " << dcus.size() 
+	<< " devices for partition \"" << ii->first << "\"...";
+      try { df->setEnableModules( ii->first, dcus, false ); } //@@ disable!
+      catch (...) { db_->handleException( __func__ ); }
+      edm::LogVerbatim(mlDqmClient_) 
+	<< "[CommissioningHistosUsingDb::" << __func__ << "]"
+	<< " Disabled " << dcus.size()
+	<< " devices for partition \"" << ii->first << "\"!";
+    }
+  } else {
+    edm::LogVerbatim(mlDqmClient_) 
+      << "[CommissioningHistosUsingDb::" << __func__ << "]"
+      << " TEST! Devices have not been disabled!...";
+  }
+  
+}
 
   

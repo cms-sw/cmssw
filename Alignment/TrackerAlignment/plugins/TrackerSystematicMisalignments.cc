@@ -25,6 +25,11 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+// -----------------------------------------------------------------
+// 2010-05-20 Frank Meier
+// Changed sign of z-correction, i.e. z-expansion is now an expansion
+// made some variables constant, removed obviously dead code and comments
+
 TrackerSystematicMisalignments::TrackerSystematicMisalignments(const edm::ParameterSet& cfg)
 {
 	// use existing geometry
@@ -103,27 +108,21 @@ void TrackerSystematicMisalignments::analyze(const edm::Event& event, const edm:
 	
 	applySystematicMisalignment( &(*theAlignableTracker) );
 	
-	
 	// -------------- writing out to alignment record --------------
-	///*
 	Alignments* myAlignments = theAlignableTracker->alignments() ;
 	AlignmentErrors* myAlignmentErrors = theAlignableTracker->alignmentErrors() ;
 	
-	
-	// 2. Store alignment[Error]s to DB
+	// Store alignment[Error]s to DB
 	edm::Service<cond::service::PoolDBOutputService> poolDbService;
 	std::string theAlignRecordName = "TrackerAlignmentRcd";
 	std::string theErrorRecordName = "TrackerAlignmentErrorRcd";
 	
-	// 2. Store alignment[Error]s to DB
 	// Call service
 	if( !poolDbService.isAvailable() ) // Die if not available
 		throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
 	
 	poolDbService->writeOne<Alignments>(&(*myAlignments), poolDbService->beginOfTime(), theAlignRecordName);
 	poolDbService->writeOne<AlignmentErrors>(&(*myAlignmentErrors), poolDbService->beginOfTime(), theErrorRecordName);
-	//*/
-	
 }
 
 void TrackerSystematicMisalignments::applySystematicMisalignment(Alignable* ali)
@@ -138,70 +137,71 @@ void TrackerSystematicMisalignments::applySystematicMisalignment(Alignable* ali)
 	for (unsigned int i = 0; i < nComp; ++i){
 		if (usecomps) applySystematicMisalignment(comp[i]);
 	}
-	DetId id( ali->id() );
-	//int subdetlevel = id.subdetId();
-	int level = ali->alignableObjectId();
-	
-	if ((level == 1)||(level == 2)){
-		
-		align::PositionType gP = ali->globalPosition();
-		align::GlobalVector gVec = findSystematicMis( gP );
+
+	int level = ali->alignableObjectId();	
+	if ((level == 1)||(level == 2)){		
+		const align::PositionType gP = ali->globalPosition();
+		const align::GlobalVector gVec = findSystematicMis( gP );
 		ali->move( gVec );
 	}
-	
 }	 
 
 align::GlobalVector TrackerSystematicMisalignments::findSystematicMis( align::PositionType globalPos ){
-	
-	double newX = 0.0;
-	double newY = 0.0;
-	double newZ = 0.0;
-	double oldX = globalPos.x();
-	double oldY = globalPos.y();
-	double oldZ = globalPos.z();
-	double oldPhi = globalPos.phi();
-	double oldR = sqrt(globalPos.x()*globalPos.x() + globalPos.y()*globalPos.y());
-	
+	// calculates shift for the current alignable
+	// all corrections are calculated w.r.t. the original geometry	
+	double deltaX = 0.0;
+	double deltaY = 0.0;
+	double deltaZ = 0.0;
+	const double oldX = globalPos.x();
+	const double oldY = globalPos.y();
+	const double oldZ = globalPos.z();
+	const double oldPhi = globalPos.phi();
+	const double oldR = sqrt(globalPos.x()*globalPos.x() + globalPos.y()*globalPos.y());
+
 	if (m_radialEpsilon > -990.0){
-		newX += m_radialEpsilon*oldX;
-		newY += m_radialEpsilon*oldY;
+		deltaX += m_radialEpsilon*oldX;
+		deltaY += m_radialEpsilon*oldY;
 	}
 	if (m_telescopeEpsilon > -990.0){
-		newZ += m_telescopeEpsilon*oldR;
+		deltaZ += m_telescopeEpsilon*oldR;
 	}
 	if (m_layerRotEpsilon > -990.0){
-		double xP = oldR*cos(oldPhi+m_layerRotEpsilon*(oldR-57.0));
-		double yP = oldR*sin(oldPhi+m_layerRotEpsilon*(oldR-57.0));
-		newX += (xP - oldX);
-		newY += (yP - oldY);
+		// The following number was chosen such that the Layer Rotation systematic 
+		// misalignment would not cause an overall rotation of the tracker.
+		const double Roffset = 57.0;
+		const double xP = oldR*cos(oldPhi+m_layerRotEpsilon*(oldR-Roffset));
+		const double yP = oldR*sin(oldPhi+m_layerRotEpsilon*(oldR-Roffset));
+		deltaX += (xP - oldX);
+		deltaY += (yP - oldY);
 	}
 	if (m_bowingEpsilon > -990.0){
-		newX += oldX*m_bowingEpsilon*(271.846*271.846-oldZ*oldZ);
-		newY += oldY*m_bowingEpsilon*(271.846*271.846-oldZ*oldZ);
+		const double trackeredgePlusZ=271.846;
+		const double trackeredgePlusZ2=trackeredgePlusZ*trackeredgePlusZ;
+		deltaX += oldX*m_bowingEpsilon*(trackeredgePlusZ2-oldZ*oldZ);
+		deltaY += oldY*m_bowingEpsilon*(trackeredgePlusZ2-oldZ*oldZ);
 	}
 	if (m_zExpEpsilon > -990.0){
-		newZ += oldZ*m_zExpEpsilon;
+		deltaZ += oldZ*m_zExpEpsilon;
 	}
 	if (m_twistEpsilon > -990.0){
-		double xP = oldR*cos(oldPhi+m_twistEpsilon*oldZ);
-		double yP = oldR*sin(oldPhi+m_twistEpsilon*oldZ);
-		newX += (xP - oldX);
-		newY += (yP - oldY);
+		const double xP = oldR*cos(oldPhi+m_twistEpsilon*oldZ);
+		const double yP = oldR*sin(oldPhi+m_twistEpsilon*oldZ);
+		deltaX += (xP - oldX);
+		deltaY += (yP - oldY);
 	}
 	if (m_ellipticalEpsilon > -990.0){
-		newX += oldX*m_ellipticalEpsilon*cos(2.0*oldPhi);
-		newY += oldY*m_ellipticalEpsilon*cos(2.0*oldPhi);
+		deltaX += oldX*m_ellipticalEpsilon*cos(2.0*oldPhi);
+		deltaY += oldY*m_ellipticalEpsilon*cos(2.0*oldPhi);
 	}
 	if (m_skewEpsilon > -990.0){
-		newZ += m_skewEpsilon*cos(oldPhi);
+		deltaZ += m_skewEpsilon*cos(oldPhi);
 	}
 	if (m_saggitaEpsilon > -990.0){
-		// newX += oldX/fabs(oldX)*m_saggitaEpsilon; // old one...
-		newY += oldR*m_saggitaEpsilon;
+		// deltaX += oldX/fabs(oldX)*m_saggitaEpsilon; // old one...
+		deltaY += oldR*m_saggitaEpsilon;
 	}
 	
-	// strange convention for global z
-	align::GlobalVector gV( newX, newY, (-1)*newZ );
+	align::GlobalVector gV( deltaX, deltaY, deltaZ );
 	return gV;
 }
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.54 2010/05/06 18:03:08 amraktad Exp $
+// $Id: FWDetailViewManager.cc,v 1.52 2009/11/30 10:38:59 amraktad Exp $
 //
 
 #include <stdio.h>
@@ -30,7 +30,6 @@
 #include "Fireworks/Core/interface/FWDetailViewFactory.h"
 #include "Fireworks/Core/interface/FWSimpleRepresentationChecker.h"
 #include "Fireworks/Core/interface/FWRepresentationInfo.h"
-#include "Fireworks/Core/interface/fwLog.h"
 
 class DetailViewFrame : public TGMainFrame
 {
@@ -101,7 +100,7 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id, const std::string& i
    std::string typeName = ROOT::Reflex::Type::ByTypeInfo(*(id.item()->modelType()->GetTypeInfo())).Name(ROOT::Reflex::SCOPED);
    std::vector<std::string> viewerNames = findViewersFor(typeName);
    if(0==viewerNames.size()) {
-      fwLog(fwlog::kError) << "FWDetailViewManager: don't know what detailed view to "
+      std::cout << "FWDetailViewManager: don't know what detailed view to "
          "use for object " << id.item()->name() << std::endl;
       assert(0!=viewerNames.size());
    }
@@ -189,10 +188,3 @@ FWDetailViewManager::colorsChanged()
       m_detailView->setBackgroundColor(m_colorManager->background());
    }
 }
-
-void
-FWDetailViewManager::newEventCallback()
-{
-   m_mainFrame->UnmapWindow();
-}
-

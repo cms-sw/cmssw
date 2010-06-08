@@ -13,11 +13,9 @@ using namespace boost;
 using namespace edm;
 using namespace reco;
 
-MVAJetTagPlotter::MVAJetTagPlotter(const std::string &tagName,
+MVAJetTagPlotter::MVAJetTagPlotter(const TString &tagName,
                                    const EtaPtBin &etaPtBin,
-                                   const ParameterSet &pSet,
-                                   const bool& update,
-                                   const bool& mc) :
+                                   const ParameterSet &pSet, bool update, bool mc) :
 	BaseTagInfoPlotter(tagName, etaPtBin),
 	jetTagComputer(tagName), computer(0),
 	categoryVariable(btau::lastTaggingVariable)
@@ -31,7 +29,7 @@ MVAJetTagPlotter::MVAJetTagPlotter(const std::string &tagName,
 	} else
 		pSets.push_back(pSet);
 
-	for(unsigned int i = 0; i != pSets.size(); ++i) {
+	for(unsigned int i = 0; i < pSets.size(); i++) {
 		ostringstream ss;
 		ss << "CAT" << i;
 		categoryPlotters.push_back(
@@ -66,10 +64,10 @@ void MVAJetTagPlotter::analyzeTag (const vector<const BaseTagInfo*> &baseTagInfo
 	// taggingVariables() should not need EventSetup
 	// computer->setEventSetup(es);
 
-	const JetTagComputer::TagInfoHelper helper(baseTagInfos);
-	const TaggingVariableList& vars = computer->taggingVariables(helper);
+	JetTagComputer::TagInfoHelper helper(baseTagInfos);
+	TaggingVariableList vars = computer->taggingVariables(helper);
 
-	categoryPlotters.front()->analyzeTag(vars, jetFlavour);
+	categoryPlotters[0]->analyzeTag(vars, jetFlavour);
 	if (categoryVariable != btau::lastTaggingVariable) {
 		unsigned int cat =
 			(unsigned int)(vars.get(categoryVariable, -1) + 1);
@@ -84,7 +82,7 @@ void MVAJetTagPlotter::finalize()
 	         bind(&TaggingVariablePlotter::finalize, _1));
 }
 
-void MVAJetTagPlotter::psPlot(const std::string &name)
+void MVAJetTagPlotter::psPlot(const TString &name)
 {
 	for_each(categoryPlotters.begin(), categoryPlotters.end(),
 	         bind(&TaggingVariablePlotter::psPlot, _1, ref(name)));
@@ -96,7 +94,7 @@ void MVAJetTagPlotter::psPlot(const std::string &name)
 	         bind(&TaggingVariablePlotter::write, _1, allHisto));
 }*/
 
-void MVAJetTagPlotter::epsPlot(const std::string &name)
+void MVAJetTagPlotter::epsPlot(const TString &name)
 {
 	for_each(categoryPlotters.begin(), categoryPlotters.end(),
 	         bind(&TaggingVariablePlotter::epsPlot, _1, ref(name)));

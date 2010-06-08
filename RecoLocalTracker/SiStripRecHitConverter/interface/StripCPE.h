@@ -32,12 +32,14 @@ public:
     Param() : topology(0) {}
     StripTopology const * topology;
     LocalVector drift;
-    float thickness, pitch_rel_err2, maxLength, lfp,lbp;
+    float thickness, pitch_rel_err2, maxLength;
     int nstrips;
     SiStripDetId::SubDetector subdet;
     float coveredStrips(const LocalVector&, const LocalPoint&) const;
   };
   Param const & param(const uint32_t detid) const;
+  float lateFrontPlane(SiStripDetId::SubDetector) const;
+  float lateBackPlane(SiStripDetId::SubDetector) const;
 
 private:
 

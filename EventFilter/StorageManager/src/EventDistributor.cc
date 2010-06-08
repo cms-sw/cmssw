@@ -1,4 +1,4 @@
-// $Id: EventDistributor.cc,v 1.18 2010/05/11 18:02:28 mommsen Exp $
+// $Id: EventDistributor.cc,v 1.15.2.1 2010/04/21 09:54:24 mommsen Exp $
 /// @file: EventDistributor.cc
 
 #include "EventFilter/StorageManager/interface/DataSenderMonitorCollection.h"
@@ -18,8 +18,6 @@
 #include "EventFilter/StorageManager/interface/RunMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/StatisticsReporter.h"
 #include "EventFilter/StorageManager/interface/Exception.h"
-
-#include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
 
 using namespace stor;
 
@@ -41,11 +39,9 @@ void EventDistributor::addEventToRelevantQueues( I2OChain& ioc )
   if ( ioc.faulty() || !ioc.complete() )
   {
     std::ostringstream msg;
-    msg << "Faulty or incomplete I2OChain for event " 
-      << ioc.fragmentKey().event_
-      << ": 0x" << std::hex << ioc.faultyBits()
-      << " received from " << ioc.hltURL()
-      << " (rbBufferId " << ioc.rbBufferId() << ").";
+    msg << "Faulty or incomplete I2OChain: 0x"
+      << std::hex << ioc.faultyBits()
+      << " received from " << ioc.hltURL();
     XCEPT_DECLARE( stor::exception::IncompleteEventMessage,
       xcept, msg.str());
     _sharedResources->_statisticsReporter->alarmHandler()->
@@ -53,11 +49,7 @@ void EventDistributor::addEventToRelevantQueues( I2OChain& ioc )
 
     DataSenderMonitorCollection& dataSenderMonColl =
       _sharedResources->_statisticsReporter->getDataSenderMonitorCollection();
-    dataSenderMonColl.addFaultyEventSample(ioc);
-
-    if ( !( _sharedResources->_configuration->getDiskWritingParams()._faultyEventsStream.empty() ) &&
-      ( ioc.i2oMessageCode() == I2O_SM_DATA || ioc.i2oMessageCode() == I2O_SM_ERROR) )
-      ioc.tagForStream(0); // special stream for faulty events
+    dataSenderMonColl.addStaleChainSample(ioc);
   }
   else
   {
@@ -227,7 +219,7 @@ void EventDistributor::tagCompleteEventForQueues( I2OChain& ioc )
       // but it's probably better than nothing in the short term.
       DataSenderMonitorCollection& dataSenderMonColl = _sharedResources->
         _statisticsReporter->getDataSenderMonitorCollection();
-      dataSenderMonColl.addFaultyEventSample(ioc);
+      dataSenderMonColl.addStaleChainSample(ioc);
 
       break;
     }

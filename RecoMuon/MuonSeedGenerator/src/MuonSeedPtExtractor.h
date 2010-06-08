@@ -29,8 +29,6 @@ class MuonSeedPtExtractor {
 
  private:
   int stationCode(MuonTransientTrackingRecHit::ConstMuonRecHitPointer hit) const;
-  // because compiler duplicaes constructors
-  void init(const edm::ParameterSet& par);
   void fillParametersForCombo(const std::string & name, const edm::ParameterSet&pset);
   void fillScalesForCombo(const std::string & name, const edm::ParameterSet&pset);
 
