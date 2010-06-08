@@ -416,16 +416,16 @@
  <config name="GUI" version="1">
   <config name="main window" version="2">
    <config name="x" version="0">
-     <string>44</string>
+     <string>70</string>
    </config>
    <config name="y" version="0">
-     <string>100</string>
+     <string>58</string>
    </config>
    <config name="width" version="0">
      <string>1201</string>
    </config>
    <config name="height" version="0">
-     <string>945</string>
+     <string>745</string>
    </config>
    <config name="leftWeight" version="0">
      <string>0.552345</string>
@@ -780,7 +780,7 @@
       <string>1</string>
     </config>
     <config name="cameraZoomHF" version="0">
-      <string>0.86815</string>
+      <string>0.688292</string>
     </config>
     <config name="cameraMatrix0HF" version="0">
       <string>1</string>
@@ -819,13 +819,13 @@
       <string>0</string>
     </config>
     <config name="cameraMatrix12HF" version="0">
-      <string>15.5437</string>
+      <string>15.5634</string>
     </config>
     <config name="cameraMatrix13HF" version="0">
-      <string>-0.234337</string>
+      <string>-0.219233</string>
     </config>
     <config name="cameraMatrix14HF" version="0">
-      <string>-0.0552915</string>
+      <string>0.0202296</string>
     </config>
     <config name="cameraMatrix15HF" version="0">
       <string>1</string>
