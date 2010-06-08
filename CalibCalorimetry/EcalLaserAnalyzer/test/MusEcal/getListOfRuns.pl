@@ -15,6 +15,8 @@ $testpulsedir   = "${datadir}/TestPulse/Analyzed";
 $runsdir        = "${datadir}/Runs";
 $listdir        = "$dir";
 
+print " datadir: $datadir , dir: $dir , firstRun: $firstRun , lastRun: $lastRun \n"; 
+
 if( $firstRun eq "" )
 {
     $firstRun = "0"; $lastRun = "100000000";
@@ -28,10 +30,32 @@ elsif( $lastRun eq "" )
     $lastRun = $firstRun;
 }
 
+$runlistred="${listdir}/runlist_IRed_Laser";
+$runlistblue="${listdir}/runlist_Blue_Laser";
+$runlisttp="${listdir}/runlist_Test_Pulse";
 
-open( LREDLIST,  ">${listdir}/runlist_IRed_Laser")    || die "cannot open output file\n";
-open( LBLUELIST, ">${listdir}/runlist_Blue_Laser")   || die "cannot open output file\n";
-open( TPLIST,    ">${listdir}/runlist_Test_Pulse")   || die "cannot open output file\n";
+$runlistredtmp="${listdir}/runlist_IRed_Laser_tmp";
+$runlistbluetmp="${listdir}/runlist_Blue_Laser_tmp";
+$runlisttptmp="${listdir}/runlist_Test_Pulse_tmp";
+
+$runlistredinit="${listdir}/runlist_IRed_Laser_init";
+$runlistblueinit="${listdir}/runlist_Blue_Laser_init";
+$runlisttpinit="${listdir}/runlist_Test_Pulse_init";
+
+if( -e "$runlistredinit"){
+    system "cp  $runlistredinit $runlistredtmp";
+}
+if( -e "$runlistblueinit"){
+    system "cp  $runlistblueinit $runlistbluetmp";
+}
+if( -e "$runlistblueinit"){
+    system "cp  $runlisttpinit $runlisttptmp";
+}
+
+
+open( LREDLIST,  ">>${listdir}/runlist_IRed_Laser_tmp")    || die "cannot open output file\n";
+open( LBLUELIST, ">>${listdir}/runlist_Blue_Laser_tmp")   || die "cannot open output file\n";
+open( TPLIST,    ">>${listdir}/runlist_Test_Pulse_tmp")   || die "cannot open output file\n";
 
 $firstLaser = 1;
 $firstTP    = 1;
@@ -213,3 +237,23 @@ foreach my $rundir (@runsdir)
 }
 closedir( RUNSDIR );
 close( TPLIST );
+
+my $command;
+
+#$command="cp $runlistredtmp $runlistredinit";
+#system ${command};
+
+$command="mv $runlistredtmp $runlistred";
+system ${command};
+
+#$command="cp $runlistbluetmp $runlistblueinit";
+#system ${command};
+
+$command="mv $runlistbluetmp $runlistblue";
+system ${command};
+
+#$command="cp $runlisttptmp $runlisttpinit";
+#system ${command};
+
+$command="mv $runlisttptmp $runlisttp";
+system ${command};
