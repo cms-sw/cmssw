@@ -12,7 +12,7 @@ using namespace cms;
 CondDBCmsTrackerConstruction::CondDBCmsTrackerConstruction() { }
 
 const GeometricDet* CondDBCmsTrackerConstruction::construct(const PGeometricDet& pgd) {
-  std::cout << "In CondDBCmsTrackerConstruction::construct with pgd.pgeomdets_.size() == " << pgd.pgeomdets_.size() << std::endl;  
+  //std::cout << "In CondDBCmsTrackerConstruction::construct with pgd.pgeomdets_.size() == " << pgd.pgeomdets_.size() << std::endl;  
   GeometricDet* tracker  = new GeometricDet(pgd.pgeomdets_[0],GeometricDet::Tracker);
 
   size_t detMax =  pgd.pgeomdets_.size();
