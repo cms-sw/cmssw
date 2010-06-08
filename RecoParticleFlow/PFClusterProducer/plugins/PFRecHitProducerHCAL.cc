@@ -432,14 +432,14 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		  theLongHitEnergy = theLongHit->energy();
 		  flagLongDPG = applyLongShortDPG_ && theLongHit->flagField(HcalCaloFlagLabels::HFLongShort)==1;
 		  flagLongTimeDPG = applyTimeDPG_ && theLongHit->flagField(HcalCaloFlagLabels::HFInTimeWindow)==1;
-		  flagShortPulseDPG = applyPulseDPG_ && theShortHit->flagField(HcalCaloFlagLabels::HFDigiTime)==1;
+		  flagLongPulseDPG = applyPulseDPG_ && theLongHit->flagField(HcalCaloFlagLabels::HFDigiTime)==1;
 		}
 		//
 		if ( theShortHit != hfHandle->end() ) { 
 		  theShortHitEnergy = theShortHit->energy();
 		  flagShortDPG =  applyLongShortDPG_ && theShortHit->flagField(HcalCaloFlagLabels::HFLongShort)==1;
 		  flagShortTimeDPG = applyTimeDPG_ && theShortHit->flagField(HcalCaloFlagLabels::HFInTimeWindow)==1;
-		  flagLongPulseDPG = applyPulseDPG_ && theLongHit->flagField(HcalCaloFlagLabels::HFDigiTime)==1;
+		  flagShortPulseDPG = applyPulseDPG_ && theShortHit->flagField(HcalCaloFlagLabels::HFDigiTime)==1;
 		}
 
 		// Then check the timing in short and long fibres in all other towers.
