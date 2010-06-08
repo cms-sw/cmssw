@@ -109,13 +109,13 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         return 'cms.'+type(self).__name__+'('+s+')\n'
     def dumpSequencePython(self):
         # only dump the label, if possible
-        if self.label_() != None:
+        if self.hasLabel_():
             return _Labelable.dumpSequencePython(self)
         else:
             # dump it verbose
             if self._seq is None:
                 return ''
-            return self._seq.dumpSequencePython()
+            return '('+self._seq.dumpSequencePython()+')'
     def __repr__(self):
         s = ''
         if self._seq is not None:
@@ -204,7 +204,7 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         if self._seq is not None:
             self._seq.visitNode(visitor)
     def findHardDependencies(self, sequenceName, dependencyDict):
-        if self._seq is not None:
+        if self._seq is not None and self.hasLabel_():
             self._seq.findHardDependencies(self.label_(), dependencyDict)
 
 
