@@ -11,11 +11,14 @@ CSCChipSpeedCorrectionDBConditions::CSCChipSpeedCorrectionDBConditions(const edm
 {
   //the following line is needed to tell the framework what
   // data is being produced
-  cndbChipCorr = prefillDBChipSpeedCorrection();
+  isForMC = iConfig.getUntrackedParameter<bool>("isForMC",true);
+  dataCorrFileName= iConfig.getUntrackedParameter<std::string>("dataCorrFileName","empty.txt");
+  cndbChipCorr = prefillDBChipSpeedCorrection(isForMC,dataCorrFileName);
   // added by Zhen (changed since 1_2_0)
   setWhatProduced(this,&CSCChipSpeedCorrectionDBConditions::produceDBChipSpeedCorrection);
   findingRecord<CSCDBChipSpeedCorrectionRcd>();
   //now do what ever other initialization is needed
+
 }
 
 

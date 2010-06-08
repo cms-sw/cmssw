@@ -5,7 +5,11 @@
 #include "CondFormats/CSCObjects/interface/CSCDBChipSpeedCorrection.h"
 #include "CalibMuon/CSCCalibration/interface/CSCChipSpeedCorrectionDBConditions.h"
 
-popcon::CSCDBChipSpeedCorrectionImpl::CSCDBChipSpeedCorrectionImpl(const edm::ParameterSet& pset): m_name(pset.getUntrackedParameter<std::string>("name","CSCDBChipSpeedCorrectionImpl")){}
+popcon::CSCDBChipSpeedCorrectionImpl::CSCDBChipSpeedCorrectionImpl(const edm::ParameterSet& pset){
+  m_name=(pset.getUntrackedParameter<std::string>("name","CSCDBChipSpeedCorrectionImpl"));
+  isForMC=(pset.getUntrackedParameter<bool>("isForMC",true));
+  dataCorrFileName=(pset.getUntrackedParameter<std::string>("dataCorrFileName","empty.txt"));
+    }
 
 popcon::CSCDBChipSpeedCorrectionImpl::~CSCDBChipSpeedCorrectionImpl(){}
 
@@ -17,7 +21,9 @@ void popcon::CSCDBChipSpeedCorrectionImpl::getNewObjects()
   std::cout << "------- CSC src - > getNewObjects\n"<<m_name;
   
   // fill object from file
-  CSCDBChipSpeedCorrection * cnchipspeed = CSCChipSpeedCorrectionDBConditions::prefillDBChipSpeedCorrection();
+  //bool isForMC = iConfig.getUntrackedParameter<bool>("isForMC",true);
+  //string dataCorrFileName= iConfig.getUntrackedParameter<std::string>("dataCorrFileName","empty.txt");
+  CSCDBChipSpeedCorrection * cnchipspeed = CSCChipSpeedCorrectionDBConditions::prefillDBChipSpeedCorrection(isForMC,dataCorrFileName);
   //std::cout << "chipspeed size " << cnchipspeed->chipspeed.size() << std::endl;
 
   std::cout << "CSCChipSpeedCorrectionHandler - time after filling object:"<< std::endl;

@@ -23,7 +23,7 @@ class CSCChipSpeedCorrectionDBConditions: public edm::ESProducer, public edm::Ev
   CSCChipSpeedCorrectionDBConditions(const edm::ParameterSet&);
   ~CSCChipSpeedCorrectionDBConditions();
   
-  inline static CSCDBChipSpeedCorrection * prefillDBChipSpeedCorrection();
+  inline static CSCDBChipSpeedCorrection * prefillDBChipSpeedCorrection(bool isForMC, std::string dataCorrFileName );
 
   typedef const  CSCDBChipSpeedCorrection * ReturnType;
   
@@ -33,6 +33,11 @@ class CSCChipSpeedCorrectionDBConditions: public edm::ESProducer, public edm::Ev
   // ----------member data ---------------------------
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
   CSCDBChipSpeedCorrection *cndbChipCorr ;
+
+  //Flag for determining if this is for setting MC or data corrections
+  bool isForMC;
+  //File for reading <= 15768 data chip corrections.  MC will be fake (only one value for every chip);
+  std::string dataCorrFileName;
 
 };
 
@@ -44,9 +49,15 @@ class CSCChipSpeedCorrectionDBConditions: public edm::ESProducer, public edm::Ev
 #include<vector>
 #include<iostream>
 
+
+
 // to workaround plugin library
-inline CSCDBChipSpeedCorrection * CSCChipSpeedCorrectionDBConditions::prefillDBChipSpeedCorrection()  
+inline CSCDBChipSpeedCorrection * CSCChipSpeedCorrectionDBConditions::prefillDBChipSpeedCorrection(bool isMC, std::string filename)  
 {
+  if (isMC)
+    printf("\n Generating fake DB constants for MC\n");
+  else 
+    printf("\n Reading chip corrections from file %s \n",filename.data());
 
   CSCIndexer indexer;
 
@@ -55,10 +66,20 @@ inline CSCDBChipSpeedCorrection * CSCChipSpeedCorrectionDBConditions::prefillDBC
   const int MAX_SHORT= 32767;
   CSCDBChipSpeedCorrection * cndbChipCorr = new CSCDBChipSpeedCorrection();
 
-  //File containing temporary, partial list of chip speed corrections from S. Durkin, with ME+2/2/8 removed by A.Deisher
-  //FILE *fin = fopen("/afs/cern.ch/user/d/deisher/public/TimingCorrections2009/CathodeTimingCorrection_remove134.txt","r");
-  //File of a different format, supplied by S. Durkin 11 May 2010
-  FILE *fin = fopen("/afs/cern.ch/user/d/deisher/public/TimingCorrections2009/CathodeTimingCorrection_11May2010.txt","r");
+  CSCDBChipSpeedCorrection::ChipSpeedContainer & itemvector = cndbChipCorr->chipSpeedCorr;
+  itemvector.resize(MAX_SIZE);
+  cndbChipCorr->factor_speedCorr= int (CHIP_FACTOR);
+
+  //Fill chip corrections for MC is very simple
+  if (isMC){
+    for (int i=0;i<MAX_SIZE;i++){
+      itemvector[i].speedCorr = 170.*CHIP_FACTOR+0.5;
+    }
+    return cndbChipCorr;
+  }
+
+  //Filling for data takes a little more time
+  FILE *fin = fopen(filename.data(),"r");
 
   int serialChamber,endcap,station,ring,chamber,chip;
   float t,dt;
@@ -126,11 +147,7 @@ inline CSCDBChipSpeedCorrection * CSCChipSpeedCorrectionDBConditions::prefillDBC
   fclose(fin);    
 
 
-  CSCDBChipSpeedCorrection::ChipSpeedContainer & itemvector = cndbChipCorr->chipSpeedCorr;
-  itemvector.resize(MAX_SIZE);
-  cndbChipCorr->factor_speedCorr= int (CHIP_FACTOR);
-
-
+  // Fill the chip corrections with zeros to start
   for (int i=0;i<MAX_SIZE;i++){
     itemvector[i].speedCorr = 0;
   }
@@ -139,7 +156,7 @@ inline CSCDBChipSpeedCorrection * CSCChipSpeedCorrectionDBConditions::prefillDBC
     if((short int)  (fabs(new_chipPulse[i]*CHIP_FACTOR+0.5))<MAX_SHORT) 
       itemvector[new_index_id[i]-1].speedCorr = (short int) (new_chipPulse[i]*CHIP_FACTOR+0.5);
     //printf("i= %d \t new index id = %d \t corr = %f \n",i,new_index_id[i], new_chipPulse[i]);
- }
+  }
 
   return cndbChipCorr;
 }

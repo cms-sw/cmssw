@@ -7,7 +7,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("ProcessOne")
 #PopCon config
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = cms.string("sqlite_file:DBChipSpeedCorrection.db")
+process.CondDBCommon.connect = cms.string("sqlite_file:DBChipSpeedCorrection_data_test.db")
+#process.CondDBCommon.connect = cms.string("sqlite_file:CSC_chip_and_chamber_time_corr_MC.db")
 #process.CondDBCommon.connect = cms.string("oracle://cms_orcoff_prep/CMS_COND_CSC")
 process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
 
@@ -33,16 +34,18 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     logconnect = cms.untracked.string('sqlite_file:gainslog.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('CSCDBChipSpeedCorrectionRcd'),
-        tag = cms.string('CSCDBChipSpeedCorrection_new_popcon')
+        tag = cms.string('CSCDBChipSpeedCorrection') 
     ))
 )
 
-process.WriteChipSpeedCorrectionWithPopCon = cms.EDAnalyzer("CSCChipSpeedCorrectionPopConAnalyzer",
+process.WriteChipSpeedCorrectionWithPopCon = cms.EDAnalyzer("CSCDBChipSpeedCorrectionPopConAnalyzer",
     SinceAppendMode = cms.bool(True),
     record = cms.string('CSCDBChipSpeedCorrectionRcd'),
     loggingOn = cms.untracked.bool(True),
     Source = cms.PSet(
-
+         # File supplied by S. Durkin 11 May 2010
+         dataCorrFileName= cms.untracked.string("/afs/cern.ch/user/d/deisher/public/TimingCorrections2009/CathodeTimingCorrection_11May2010.txt"),
+         isForMC = cms.untracked.bool(False)
     )
 )
 

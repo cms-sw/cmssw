@@ -28,6 +28,8 @@ namespace popcon
       
     private:
       std::string m_name;
+      bool isForMC;
+      std::string dataCorrFileName;
     };
 }
 #endif
