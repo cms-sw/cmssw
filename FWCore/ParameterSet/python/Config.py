@@ -204,6 +204,15 @@ class Process(object):
         else:
             self._place(label, sch, self.__partialschedules)
     def setSchedule_(self,sch):
+                # See if every module has been inserted into the process
+        index = 0
+        try:
+            for p in sch:
+               p.label_()
+               index +=1
+        except:
+            raise RuntimeError("The path at index "+str(index)+" in the Schedule was not attached to the process.")
+
         self.__dict__['_Process__schedule'] = sch
     schedule = property(schedule_,setSchedule_,doc='the schedule or None if not set')
     def services_(self):
@@ -1064,6 +1073,23 @@ process.schedule = cms.Schedule(process.p2,process.p)
             self.assert_('b' in p.schedule.moduleNames())
             self.assert_(hasattr(p, 'b'))
             self.assert_(not hasattr(p, 'c'))
+
+            #adding a path not attached to the Process should cause an exception
+            p = Process("test")
+            p.a = EDAnalyzer("MyAnalyzer")
+            path1 = Path(p.a)
+            s = Schedule(path1)
+            self.assertRaises(RuntimeError, lambda : p.setSchedule_(s) )
+
+            #make sure anonymous sequences work
+            p = Process("test")
+            p.a = EDAnalyzer("MyAnalyzer")
+            p.b = EDAnalyzer("MyOtherAnalyzer")
+            p.c = EDProducer("MyProd")
+            path1 = Path(p.c*Sequence(p.a+p.b))
+            s = Schedule(path1)
+            s.enforceDependencies()
+            
 
         def testImplicitSchedule(self):
             p = Process("test")
