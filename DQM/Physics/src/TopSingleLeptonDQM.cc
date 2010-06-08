@@ -15,7 +15,7 @@ namespace TopSingleLepton {
   static const double WMASS = 80.4;
 
   MonitorEnsemble::MonitorEnsemble(const char* label, const edm::ParameterSet& cfg) : 
-    label_(label), elecIso_(0), elecSelect_(0), muonIso_(0), muonSelect_(0), jetIDSelect_(0), includeBTag_(false), logged_(0)
+    label_(label), elecIso_(0), elecSelect_(0), muonIso_(0), muonSelect_(0), jetIDSelect_(0), includeBTag_(false), lowerEdge_(-1.), upperEdge_(-1.), logged_(0)
   {
     // sources have to be given; this PSet is not optional
     edm::ParameterSet sources=cfg.getParameter<edm::ParameterSet>("sources");
@@ -106,7 +106,7 @@ namespace TopSingleLepton {
     // massExtras is optional; in case it's not found no mass
     // window cuts are applied for the same flavor monitor
     // histograms
-    if( cfg.existsAs<std::string>("massExtras") ){
+    if( cfg.existsAs<edm::ParameterSet>("massExtras") ){
       edm::ParameterSet massExtras=cfg.getParameter<edm::ParameterSet>("massExtras");
       lowerEdge_= massExtras.getParameter<double>("lowerEdge");
       upperEdge_= massExtras.getParameter<double>("upperEdge");
@@ -281,8 +281,8 @@ namespace TopSingleLepton {
       if( electronId_.label().empty() ? true : (*electronId)[elecs->refAt(idx)]>0.99 ){
 	if(!elecSelect_ || (*elecSelect_)(*elec)){
 	  double isolationTrk = elec->pt()/(elec->pt()+elec->dr03TkSumPt());
-	  double isolationCal = elec->pt()/(elec->pt()+elec->dr04EcalRecHitSumEt()+elec->dr04HcalTowerSumEt());
-	  double isolationRel = (elec->dr03TkSumPt()+elec->dr04EcalRecHitSumEt()+elec->dr04HcalTowerSumEt())/elec->pt();
+	  double isolationCal = elec->pt()/(elec->pt()+elec->dr03EcalRecHitSumEt()+elec->dr03HcalTowerSumEt());
+	  double isolationRel = (elec->dr03TkSumPt()+elec->dr03EcalRecHitSumEt()+elec->dr03HcalTowerSumEt())/elec->pt();
 	  if( eMult==0 ){
 	    // restrict to the leading electron
 	    fill("elecPt_" , elec->pt() );
@@ -309,11 +309,8 @@ namespace TopSingleLepton {
     */
 
     // fill monitoring plots for muons
-    edm::Handle<edm::View<reco::Muon> > muons;
-    event.getByLabel(muons_, muons);
-
-    // loop muon collection
     unsigned int mMult=0, mMultIso=0;
+    edm::Handle<edm::View<reco::Muon> > muons; event.getByLabel(muons_, muons);
     for(edm::View<reco::Muon>::const_iterator muon=muons->begin(); muon!=muons->end(); ++muon){
       // restrict to globalMuons
       if( muon->isGlobalMuon() ){ 
@@ -347,20 +344,12 @@ namespace TopSingleLepton {
     ------------------------------------------------------------
     */
 
-    // fill monitoring plots for jets
-    edm::Handle<edm::View<reco::Jet> > jets;
-    event.getByLabel(jets_, jets);
     // check availability of the btaggers
     edm::Handle<reco::JetTagCollection> btagEff, btagPur, btagVtx;
     if( includeBTag_ ){ 
       event.getByLabel(btagEff_, btagEff);
       event.getByLabel(btagPur_, btagPur);
       event.getByLabel(btagVtx_, btagVtx); 
-    }
-    // load jetID value map if configured such 
-    edm::Handle<reco::JetIDValueMap> jetID;
-    if(jetIDSelect_){
-      event.getByLabel(jetIDLabel_, jetID);
     }
     // load jet corrector if configured such
     const JetCorrector* corrector=0;
@@ -388,6 +377,8 @@ namespace TopSingleLepton {
     // loop jet collection
     std::vector<reco::Jet> correctedJets;
     unsigned int mult=0, multBEff=0, multBPur=0, multBVtx=0;
+    edm::Handle<edm::View<reco::Jet> > jets; event.getByLabel(jets_, jets);
+    edm::Handle<reco::JetIDValueMap> jetID; if(jetIDSelect_){ event.getByLabel(jetIDLabel_, jetID); }
     for(edm::View<reco::Jet>::const_iterator jet=jets->begin(); jet!=jets->end(); ++jet){
       // check jetID for calo jets
       unsigned int idx = jet-jets->begin();
@@ -468,7 +459,7 @@ namespace TopSingleLepton {
     double topMass = eventKinematics.massTopQuark(correctedJets);
     fill("massW_" , wMass  ); fill("massTop_" , topMass);
     // fill plots for trigger monitoring
-    if((lowerEdge_==-1. && upperEdge_==-1.) || (lowerEdge_<wMass && wMass>upperEdge_) ){
+    if((lowerEdge_==-1. && upperEdge_==-1.) || (lowerEdge_<wMass && wMass<upperEdge_) ){
       if(!triggerTable_.label().empty()) fill(event, *triggerTable, "trigger", triggerPaths_);
       if(logged_<=hists_.find("eventLogger_")->second->getNbinsY()){
 	// log runnumber, lumi block, event number & some
@@ -476,10 +467,10 @@ namespace TopSingleLepton {
 	fill("eventLogger_", 0.5, logged_+0.5, event.eventAuxiliary().run()); 
 	fill("eventLogger_", 1.5, logged_+0.5, event.eventAuxiliary().luminosityBlock()); 
 	fill("eventLogger_", 2.5, logged_+0.5, event.eventAuxiliary().event()); 
-	fill("eventLogger_", 3.5, logged_+0.5, correctedJets[0].pt()); 
-	fill("eventLogger_", 4.5, logged_+0.5, correctedJets[1].pt()); 
-	fill("eventLogger_", 5.5, logged_+0.5, correctedJets[2].pt()); 
-	fill("eventLogger_", 6.5, logged_+0.5, correctedJets[3].pt()); 
+	if(correctedJets.size()>0) fill("eventLogger_", 3.5, logged_+0.5, correctedJets[0].pt()); 
+	if(correctedJets.size()>1) fill("eventLogger_", 4.5, logged_+0.5, correctedJets[1].pt()); 
+	if(correctedJets.size()>2) fill("eventLogger_", 5.5, logged_+0.5, correctedJets[2].pt()); 
+	if(correctedJets.size()>3) fill("eventLogger_", 6.5, logged_+0.5, correctedJets[3].pt()); 
 	fill("eventLogger_", 7.5, logged_+0.5, wMass  ); 
 	fill("eventLogger_", 8.5, logged_+0.5, topMass); 
 	++logged_;
