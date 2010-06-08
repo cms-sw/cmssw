@@ -18,6 +18,7 @@ PROGRAMS := createEBHist
 PROGRAMS += getChannel
 #PROGRAMS += runStab
 PROGRAMS += runTest
+PROGRAMS += runExample
 
 PROGRAMS += runGUI
 #PROGRAMS += runGeom
