@@ -12,10 +12,10 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2010/02/26 21:35:49 $
- *  $Revision: 1.45 $
- *  $Date: 2010/02/26 21:35:49 $
- *  $Revision: 1.45 $
+ *  $Date: 2010/03/08 15:34:44 $
+ *  $Revision: 1.46 $
+ *  $Date: 2010/03/08 15:34:44 $
+ *  $Revision: 1.46 $
  *
  *  \author N. Neumeister        Purdue University
  *  \author C. Liu               Purdue University
@@ -264,21 +264,18 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
   CandidateContainer selectedResult;
   MuonCandidate* tmpCand = 0;
   if ( refittedResult.size() > 0 ) tmpCand = *(refittedResult.begin());
-  double minProb = 9999;
-
+  
   for (CandidateContainer::const_iterator iter=refittedResult.begin(); iter != refittedResult.end(); iter++) {
     double prob = trackProbability(*(*iter)->trajectory());
     LogTrace(theCategory)<<"   refitted-track-sta with pT " << (*iter)->trackerTrack()->pt() << " has probability " << prob;
-
-    if (prob < minProb) {
-      minProb = prob;
-      tmpCand = (*iter);
-    }
+    
+    tmpCand = (*iter);
+    
+    if ( tmpCand ) selectedResult.push_back(new MuonCandidate(new Trajectory(*(tmpCand->trajectory())), tmpCand->muonTrack(), tmpCand->trackerTrack(), 
+							      (tmpCand->trackerTrajectory())? new Trajectory( *(tmpCand->trackerTrajectory()) ):0 ) );
+    
   }
-
-  if ( tmpCand )  selectedResult.push_back(new MuonCandidate(new Trajectory(*(tmpCand->trajectory())), tmpCand->muonTrack(), tmpCand->trackerTrack(), 
-							     (tmpCand->trackerTrajectory())? new Trajectory( *(tmpCand->trackerTrajectory()) ):0 ) );
-
+  
   for (CandidateContainer::const_iterator it = refittedResult.begin(); it != refittedResult.end(); ++it) {
     if ( (*it)->trajectory() ) delete (*it)->trajectory();
     if ( (*it)->trackerTrajectory() ) delete (*it)->trackerTrajectory();
