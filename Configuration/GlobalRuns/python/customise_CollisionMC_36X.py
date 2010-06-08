@@ -79,7 +79,7 @@ def customise(process):
                                                                                       'keep *_MEtoEDMConverter_*_*'),
                                                fileName = cms.untracked.string('DQMStream.root'),
                                                dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string('DQM'),
+        filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('DQM')
         )
     )
