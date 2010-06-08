@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 16:41:27 CEST 2010
-// $Id: FWHFTowerProxyBuilder.cc,v 1.6 2010/06/07 17:54:00 amraktad Exp $
+// $Id: FWHFTowerProxyBuilder.cc,v 1.7 2010/06/08 13:44:47 amraktad Exp $
 //
 
 // system include files
@@ -127,7 +127,7 @@ FWHFTowerProxyBuilderBase::fillCaloData()
       TEveCaloData::vCellId_t& selected = m_vecData->GetCellsSelected();
 
       if(item()->defaultDisplayProperties().isVisible()) {
-         assert(item()->size() >= (int) m_hits->size());
+         assert(item()->size() >= m_hits->size());
 
          unsigned int index=0;
          TEveCaloData::vCellId_t cellId;
