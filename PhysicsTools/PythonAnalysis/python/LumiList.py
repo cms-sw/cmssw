@@ -11,8 +11,8 @@ or could be subclassed renaming a function or two.
 # and can be used in config files in general and is now needed for FWLite, it's
 # being moved into CMSSW.
 
-__revision__ = "$Id: LumiList.py,v 1.4 2010/05/26 19:46:12 ewv Exp $"
-__version__ = "$Revision: 1.4 $"
+__revision__ = "$Id: LumiList.py,v 1.3 2010/06/08 16:08:25 ewv Exp $"
+__version__ = "$Revision: 1.3 $"
 
 import json
 
@@ -139,7 +139,7 @@ class LumiList(object):
                                  (run, lumiPair[0], run, lumiPair[1]))
 
         output = ','.join(parts)
-        return output
+        return str(output)
 
 
 
