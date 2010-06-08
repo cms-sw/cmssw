@@ -8,12 +8,14 @@
 //
 // Original Author:  Alja Mrak-Tadel 
 //         Created:  Wed Apr  7 14:40:31 CEST 2010
-// $Id: FWISpyView.cc,v 1.1 2010/04/12 10:09:17 amraktad Exp $
+// $Id: FWISpyView.cc,v 1.2 2010/04/16 13:44:07 amraktad Exp $
 //
 
 // system include files
 
 // user include files
+#include "TGLViewer.h"
+
 #include "Fireworks/Core/interface/FWISpyView.h"
 
 
@@ -31,6 +33,7 @@
 FWISpyView::FWISpyView(TEveWindowSlot* slot, FWViewType::EType typeId):
    FW3DViewBase(slot, typeId)
 {
+   viewerGL()->CurrentCamera().SetFixDefCenter(kTRUE);
 }
 
 // FWISpyView::FWISpyView(const FWISpyView& rhs)

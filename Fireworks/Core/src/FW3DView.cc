@@ -8,13 +8,15 @@
 //
 // Original Author:  
 //         Created:  Wed Apr  7 14:40:47 CEST 2010
-// $Id: FW3DView.cc,v 1.37 2010/04/16 13:44:07 amraktad Exp $
+// $Id: FW3DView.cc,v 1.38 2010/05/03 15:47:38 amraktad Exp $
 //
 
 // system include files
 #include <boost/bind.hpp>
 
 // user include files
+#include "TGLViewer.h"
+//#include "TGLCamera.h"
 #include "TGLScenePad.h"
 #include "TEveCalo.h"
 #include "TEveScene.h"
@@ -40,6 +42,7 @@ FW3DView::FW3DView(TEveWindowSlot* slot, FWViewType::EType typeId):
    m_caloAutoScale (this,"Calo auto scale",true),
    m_calo(0)
 {
+   viewerGL()->CurrentCamera().SetFixDefCenter(kTRUE);
    m_caloFixedScale.changed_.connect(boost::bind(&FW3DView::updateCaloParameters, this));
    m_caloAutoScale.changed_.connect(boost::bind(&FW3DView::updateCaloParameters, this));
 }
