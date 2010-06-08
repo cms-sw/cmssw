@@ -394,6 +394,8 @@ class _Labelable(object):
         if not hasattr(self, "_Labelable__label"):
            raise RuntimeError("module has no label.  Perhaps it wasn't inserted into the process?")
         return self.__label
+    def hasLabel_(self):
+        return hasattr(self, "_Labelable__label") and self.__label is not None
     def label(self):
         #print "WARNING: _Labelable::label() needs to be changed to label_()"
         return self.__label
