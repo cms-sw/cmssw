@@ -180,7 +180,7 @@ void WMuNuSelector::beginJob() {
      h1_["hNormChi2"]                =fs->make<TH1D>("NormChi2","Chi2/ndof of global track",1000,0.,50.);
      h1_["hTracker"]                 =fs->make<TH1D>("isTrackerMuon","is Tracker Muon?",2,0.,2.);
      h1_["hNMatches"]                =fs->make<TH1D>("NumberOfMatches","Number of Chambers with matched Segments",10,0,10);*/
-     h1_["hMuonIDCuts"]              =fs->make<TH1D>("MuonID","Muon Passes all the VBTF Quality Criteria",2,-0.5,1.5);
+     h1_["hMuonIDCuts"]              =fs->make<TH1D>("MuonIDQuality","Muon Passes all the VBTF Quality Criteria",2,-0.5,1.5);
      h1_["hMET"]                     =fs->make<TH1D>("MET","Missing Transverse Energy (GeV)", 200,0,200);
      h1_["hTMass"]                   =fs->make<TH1D>("TMass","Rec. Transverse Mass (GeV)",200,0,200);
      h1_["hAcop"]                    =fs->make<TH1D>("Acop","Mu-MET acoplanarity",50,0.,M_PI);
@@ -435,7 +435,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
 
             bool quality = (dxy>dxyCut_)*(normalizedChi2>normalizedChi2Cut_)*(trackerHits<trackerHitsCut_)*(pixelHits<pixelHitsCut_)*(muonHits<muonHitsCut_)*(!mu.isTrackerMuon())*(nMatches<nMatchesCut_);
 
-                 if(plotHistograms_){ h1_["hMuonIdCuts"]->Fill(quality);}
+                 if(plotHistograms_){ h1_["hMuonIDCuts"]->Fill(quality);}
 
             LogTrace("") << "\t... dxy, normalizedChi2, muonhits, trackerHits, pixelHits, isTrackerMuon?, nMatches: " << dxy << " [cm], " << normalizedChi2 << ", " <<muonHits<<" , "<< trackerHits <<" , "<< pixelHits <<  ", " << mu.isTrackerMuon()<<", "<<nMatches;
             LogTrace("") << "\t... muon passes the quality cuts? "<<quality<<endl;
