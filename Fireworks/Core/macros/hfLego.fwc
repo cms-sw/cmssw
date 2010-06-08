@@ -319,7 +319,7 @@
      <string>recoMET</string>
    </config>
   </config>
-  <config name="HFLego 1" version="3">
+  <config name="HFshort" version="3">
    <config name="type" version="0">
      <string>edm::SortedCollection&lt;HFRecHit,edm::StrictWeakOrdering&lt;HFRecHit&gt; &gt;</string>
    </config>
@@ -348,7 +348,7 @@
      <string>HFLego</string>
    </config>
   </config>
-  <config name="HFLego 2" version="3">
+  <config name="HFlong" version="3">
    <config name="type" version="0">
      <string>edm::SortedCollection&lt;HFRecHit,edm::StrictWeakOrdering&lt;HFRecHit&gt; &gt;</string>
    </config>
@@ -416,10 +416,10 @@
  <config name="GUI" version="1">
   <config name="main window" version="2">
    <config name="x" version="0">
-     <string>70</string>
+     <string>2</string>
    </config>
    <config name="y" version="0">
-     <string>58</string>
+     <string>0</string>
    </config>
    <config name="width" version="0">
      <string>1201</string>
@@ -428,10 +428,10 @@
      <string>745</string>
    </config>
    <config name="leftWeight" version="0">
-     <string>0.552345</string>
+     <string>0.682558</string>
    </config>
    <config name="rightWeight" version="0">
-     <string>1.44765</string>
+     <string>1.31744</string>
    </config>
   </config>
   <config name="views" version="1">
@@ -448,6 +448,9 @@
       <string>3</string>
       <string>flags</string>
       <string>flags</string>
+      <string>0</string>
+      <string>depth</string>
+      <string>id.depth</string>
       <string>0</string>
     </config>
     <config name="CaloTower" version="1">
@@ -719,7 +722,7 @@
     </config>
     <config name="TableView" version="1">
      <config name="collection" version="0">
-       <string>HFLego 1</string>
+       <string>HFshort</string>
      </config>
      <config name="sortColumn" version="1">
      </config>
@@ -835,7 +838,7 @@
   <config name="view area" version="2">
    <config name="Table" version="2">
     <config name="weight" version="0">
-      <string>0.552345</string>
+      <string>0.682558</string>
     </config>
     <config name="undocked" version="0">
       <string>0</string>
