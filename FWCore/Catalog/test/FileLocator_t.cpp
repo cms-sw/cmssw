@@ -11,6 +11,8 @@
 int main() {
 
   try {
+    edmplugin::PluginManager::configure(edmplugin::standard::config());
+
     std::string config =
       "import FWCore.ParameterSet.Config as cms\n"
       "process = cms.Process('edmFileUtil')\n"
@@ -48,7 +50,7 @@ int main() {
 
   } 
   catch (cms::Exception const & e) {
-    std::cout << e.what() " << std::endl;
+    std::cout << e.what()  << std::endl;
   }
   catch (...) {
     std::cout << "got a problem..." << std::endl;
