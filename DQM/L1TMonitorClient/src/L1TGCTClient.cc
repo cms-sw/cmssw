@@ -107,7 +107,7 @@ void L1TGCTClient::makeYProjection(TH2F* input, MonitorElement* output)
   // Make the projection
   TH1D* projY = input->ProjectionY();
 
-  for (Int_t i=0; i<projY->GetNbinsY(); i++) {
+  for (Int_t i=0; i<projY->GetNbinsX(); i++) {
     output->setBinContent(i,projY->GetBinContent(i));
   }
 }
