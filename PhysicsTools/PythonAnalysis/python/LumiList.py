@@ -11,8 +11,8 @@ or could be subclassed renaming a function or two.
 # and can be used in config files in general and is now needed for FWLite, it's
 # being moved into CMSSW.
 
-__revision__ = "$Id: LumiList.py,v 1.1 2010/06/08 16:04:16 ewv Exp $"
-__version__ = "$Revision: 1.1 $"
+__revision__ = "$Id: LumiList.py,v 1.4 2010/05/26 19:46:12 ewv Exp $"
+__version__ = "$Revision: 1.4 $"
 
 import json
 
@@ -43,10 +43,10 @@ class LumiList(object):
     """
 
 
-    def __init__(self, filename = None, lumis = None, runsAndLumis = None):
+    def __init__(self, filename = None, lumis = None, runsAndLumis = None, runs = None):
         """
         Constructor takes filename (JSON), a list of run/lumi pairs,
-        or a dict with run #'s as the keys and a list of lumis as the values
+        or a dict with run #'s as the keys and a list of lumis as the values, or just a list of runs
         """
         self.compactList = {}
         if filename:
@@ -76,7 +76,10 @@ class LumiList(object):
                         nRange =  len(self.compactList[runString])
                         self.compactList[runString][nRange-1][1] = lumi
                     lastLumi = lumi
-
+        if runs:
+            for run in runs:
+                runString = str(run)
+                self.compactList[runString] = [[1,0xFFFFFFF]]
 
     def filterLumis(self, lumiList):
         """
