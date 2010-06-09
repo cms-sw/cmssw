@@ -10,7 +10,7 @@
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
 //         Updated by Lukas Wehrli (plots for clusters on/off track added)
-// $Id: SiPixelTrackResidualModule.h,v 1.2 2008/11/05 13:53:07 wehrlilu Exp $
+// $Id: SiPixelTrackResidualModule.h,v 1.3 2009/03/24 13:43:09 wehrlilu Exp $
 
 
 #ifndef SiPixelMonitorTrack_SiPixelTrackResidualModule_h
@@ -30,10 +30,10 @@ class SiPixelTrackResidualModule {
     SiPixelTrackResidualModule(const uint32_t);
    ~SiPixelTrackResidualModule();
 
-   void book(const edm::ParameterSet&, int type=0);
-   void fill(const Measurement2DVector&, bool modon=true, bool ladon=true, bool layon=true, bool phion = true, bool bladeon=true, bool diskon=true, bool ringon=true);
-   void fill(const SiPixelCluster &clust, bool onTrack, double corrCharge,  bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon); 
-   void nfill(int onTrack, int offTrack,  bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon);
+   void book(const edm::ParameterSet&, bool reducedSet=true, int type=0);
+   void fill(const Measurement2DVector&, bool reducedSet=true, bool modon=true, bool ladon=true, bool layon=true, bool phion = true, bool bladeon=true, bool diskon=true, bool ringon=true);
+   void fill(const SiPixelCluster &clust, bool onTrack, double corrCharge, bool reducedSet,  bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon); 
+   void nfill(int onTrack, int offTrack, bool reducedSet,  bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon);
   
   private:
     uint32_t id_; 

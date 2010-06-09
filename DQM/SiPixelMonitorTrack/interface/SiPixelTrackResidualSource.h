@@ -12,7 +12,7 @@
 //
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
-// $Id: SiPixelTrackResidualSource.h,v 1.5 2010/01/11 16:53:36 merkelp Exp $
+// $Id: SiPixelTrackResidualSource.h,v 1.6 2010/03/22 08:34:55 merkelp Exp $
 //
 // Updated by: Lukas Wehrli
 // for pixel offline DQM 
@@ -58,6 +58,7 @@ class SiPixelTrackResidualSource : public edm::EDAnalyzer {
 
     bool debug_; 
     bool modOn; 
+    bool reducedSet;
     //barrel:
     bool ladOn, layOn, phiOn;
     //forward:

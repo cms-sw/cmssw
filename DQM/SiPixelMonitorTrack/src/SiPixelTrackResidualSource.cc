@@ -10,7 +10,7 @@
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
 //         Updated by Lukas Wehrli (plots for clusters on/off track added)
-// $Id: SiPixelTrackResidualSource.cc,v 1.16 2010/04/20 16:38:06 merkelp Exp $
+// $Id: SiPixelTrackResidualSource.cc,v 1.17 2010/04/22 16:11:50 merkelp Exp $
 
 
 #include <iostream>
@@ -53,6 +53,7 @@ using namespace edm;
 SiPixelTrackResidualSource::SiPixelTrackResidualSource(const edm::ParameterSet& pSet) :
   pSet_(pSet),
   modOn( pSet.getUntrackedParameter<bool>("modOn",true) ),
+  reducedSet( pSet.getUntrackedParameter<bool>("reducedSet",true) ),
   ladOn( pSet.getUntrackedParameter<bool>("ladOn",false) ), 
   layOn( pSet.getUntrackedParameter<bool>("layOn",false) ), 
   phiOn( pSet.getUntrackedParameter<bool>("phiOn",false) ), 
@@ -125,34 +126,34 @@ void SiPixelTrackResidualSource::beginRun(const edm::Run& r, edm::EventSetup con
        pxd!=theSiPixelStructure.end(); pxd++) {
 
     if(modOn){
-      if (theSiPixelFolder.setModuleFolder((*pxd).first)) (*pxd).second->book(pSet_);
+      if (theSiPixelFolder.setModuleFolder((*pxd).first)) (*pxd).second->book(pSet_,reducedSet);
       else throw cms::Exception("LogicError") << "SiPixelTrackResidualSource Folder Creation Failed! "; 
     }
     if(ladOn){
       if (theSiPixelFolder.setModuleFolder((*pxd).first,1)) {
 	
-	(*pxd).second->book(pSet_,1);
+	(*pxd).second->book(pSet_,reducedSet,1);
       }
       else throw cms::Exception("LogicError") << "SiPixelTrackResidualSource ladder Folder Creation Failed! "; 
     }
     if(layOn){
-      if (theSiPixelFolder.setModuleFolder((*pxd).first,2)) (*pxd).second->book(pSet_,2);
+      if (theSiPixelFolder.setModuleFolder((*pxd).first,2)) (*pxd).second->book(pSet_,reducedSet,2);
       else throw cms::Exception("LogicError") << "SiPixelTrackResidualSource layer Folder Creation Failed! "; 
     }
     if(phiOn){
-      if (theSiPixelFolder.setModuleFolder((*pxd).first,3)) (*pxd).second->book(pSet_,3);
+      if (theSiPixelFolder.setModuleFolder((*pxd).first,3)) (*pxd).second->book(pSet_,reducedSet,3);
       else throw cms::Exception("LogicError") << "SiPixelTrackResidualSource phi Folder Creation Failed! "; 
     }
     if(bladeOn){
-      if (theSiPixelFolder.setModuleFolder((*pxd).first,4)) (*pxd).second->book(pSet_,4);
+      if (theSiPixelFolder.setModuleFolder((*pxd).first,4)) (*pxd).second->book(pSet_,reducedSet,4);
       else throw cms::Exception("LogicError") << "SiPixelTrackResidualSource Blade Folder Creation Failed! "; 
     }
     if(diskOn){
-      if (theSiPixelFolder.setModuleFolder((*pxd).first,5)) (*pxd).second->book(pSet_,5);
+      if (theSiPixelFolder.setModuleFolder((*pxd).first,5)) (*pxd).second->book(pSet_,reducedSet,5);
       else throw cms::Exception("LogicError") << "SiPixelTrackResidualSource Disk Folder Creation Failed! "; 
     }
     if(ringOn){
-      if (theSiPixelFolder.setModuleFolder((*pxd).first,6)) (*pxd).second->book(pSet_,6);
+      if (theSiPixelFolder.setModuleFolder((*pxd).first,6)) (*pxd).second->book(pSet_,reducedSet,6);
       else throw cms::Exception("LogicError") << "SiPixelTrackResidualSource Ring Folder Creation Failed! "; 
     }
   }
@@ -201,7 +202,6 @@ void SiPixelTrackResidualSource::beginRun(const edm::Run& r, edm::EventSetup con
   meClChargeOnTrack_bpix->setAxisTitle("Charge size (in ke)",1);
   meClChargeOnTrack_fpix = dbe_->book1D("charge_" + clustersrc_.label() + "_Endcap","Charge (on track, endcap)",500,0.,500.);
   meClChargeOnTrack_fpix->setAxisTitle("Charge size (in ke)",1);
-
   meClChargeOnTrack_layer1 = dbe_->book1D("charge_" + clustersrc_.label() + "_Layer_1","Charge (on track, layer1)",500,0.,500.);
   meClChargeOnTrack_layer1->setAxisTitle("Charge size (in ke)",1);
   meClChargeOnTrack_layer2 = dbe_->book1D("charge_" + clustersrc_.label() + "_Layer_2","Charge (on track, layer2)",500,0.,500.);
@@ -216,7 +216,6 @@ void SiPixelTrackResidualSource::beginRun(const edm::Run& r, edm::EventSetup con
   meClChargeOnTrack_diskm1->setAxisTitle("Charge size (in ke)",1);
   meClChargeOnTrack_diskm2 = dbe_->book1D("charge_" + clustersrc_.label() + "_Disk_m2","Charge (on track, diskm2)",500,0.,500.);
   meClChargeOnTrack_diskm2->setAxisTitle("Charge size (in ke)",1);
-
   //off track
   dbe_->setCurrentFolder("Pixel/Clusters/OffTrack");
   meClChargeNotOnTrack_all = dbe_->book1D("charge_" + clustersrc_.label(),"Charge (off track)",500,0.,500.);
@@ -239,6 +238,7 @@ void SiPixelTrackResidualSource::beginRun(const edm::Run& r, edm::EventSetup con
   meClChargeNotOnTrack_diskm1->setAxisTitle("Charge size (in ke)",1);
   meClChargeNotOnTrack_diskm2 = dbe_->book1D("charge_" + clustersrc_.label() + "_Disk_m2","Charge (off track, diskm2)",500,0.,500.);
   meClChargeNotOnTrack_diskm2->setAxisTitle("Charge size (in ke)",1);
+
   //size
   //on track
   dbe_->setCurrentFolder("Pixel/Clusters/OnTrack");
@@ -262,7 +262,6 @@ void SiPixelTrackResidualSource::beginRun(const edm::Run& r, edm::EventSetup con
   meClSizeOnTrack_diskm1->setAxisTitle("Cluster size (in pixels)",1);
   meClSizeOnTrack_diskm2 = dbe_->book1D("size_" + clustersrc_.label() + "_Disk_m2","Size (on track, diskm2)",100,0.,100.);
   meClSizeOnTrack_diskm2->setAxisTitle("Cluster size (in pixels)",1);
-
   meClSizeXOnTrack_all = dbe_->book1D("sizeX_" + clustersrc_.label(),"SizeX (on track)",100,0.,100.);
   meClSizeXOnTrack_all->setAxisTitle("Cluster sizeX (in pixels)",1);
   meClSizeXOnTrack_bpix = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Barrel","SizeX (on track, barrel)",100,0.,100.);
@@ -283,7 +282,6 @@ void SiPixelTrackResidualSource::beginRun(const edm::Run& r, edm::EventSetup con
   meClSizeXOnTrack_diskm1->setAxisTitle("Cluster size (in pixels)",1);
   meClSizeXOnTrack_diskm2 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Disk_m2","SizeX (on track, diskm2)",100,0.,100.);
   meClSizeXOnTrack_diskm2->setAxisTitle("Cluster size (in pixels)",1);
-
   meClSizeYOnTrack_all = dbe_->book1D("sizeY_" + clustersrc_.label(),"SizeY (on track)",100,0.,100.);
   meClSizeYOnTrack_all->setAxisTitle("Cluster sizeY (in pixels)",1);
   meClSizeYOnTrack_bpix = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Barrel","SizeY (on track, barrel)",100,0.,100.);
@@ -326,8 +324,6 @@ void SiPixelTrackResidualSource::beginRun(const edm::Run& r, edm::EventSetup con
   meClSizeNotOnTrack_diskm1->setAxisTitle("Cluster size (in pixels)",1);
   meClSizeNotOnTrack_diskm2 = dbe_->book1D("size_" + clustersrc_.label() + "_Disk_m2","Size (off track, diskm2)",100,0.,100.);
   meClSizeNotOnTrack_diskm2->setAxisTitle("Cluster size (in pixels)",1);
-
-
   meClSizeXNotOnTrack_all = dbe_->book1D("sizeX_" + clustersrc_.label(),"SizeX (off track)",100,0.,100.);
   meClSizeXNotOnTrack_all->setAxisTitle("Cluster sizeX (in pixels)",1);
   meClSizeXNotOnTrack_bpix = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Barrel","SizeX (off track, barrel)",100,0.,100.);
@@ -348,7 +344,6 @@ void SiPixelTrackResidualSource::beginRun(const edm::Run& r, edm::EventSetup con
   meClSizeXNotOnTrack_diskm1->setAxisTitle("Cluster size (in pixels)",1);
   meClSizeXNotOnTrack_diskm2 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Disk_m2","SizeX (off track, diskm2)",100,0.,100.);
   meClSizeXNotOnTrack_diskm2->setAxisTitle("Cluster size (in pixels)",1);
-
   meClSizeYNotOnTrack_all = dbe_->book1D("sizeY_" + clustersrc_.label(),"SizeY (off track)",100,0.,100.);
   meClSizeYNotOnTrack_all->setAxisTitle("Cluster sizeY (in pixels)",1);
   meClSizeYNotOnTrack_bpix = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Barrel","SizeY (off track, barrel)",100,0.,100.);
@@ -369,6 +364,7 @@ void SiPixelTrackResidualSource::beginRun(const edm::Run& r, edm::EventSetup con
   meClSizeYNotOnTrack_diskm1->setAxisTitle("Cluster size (in pixels)",1);
   meClSizeYNotOnTrack_diskm2 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Disk_m2","SizeY (off track, diskm2)",100,0.,100.);
   meClSizeYNotOnTrack_diskm2->setAxisTitle("Cluster size (in pixels)",1);
+  
 
   //cluster global position
   //on track
@@ -589,7 +585,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
     																
     	    // fill the residual histograms 
 	    std::map<uint32_t, SiPixelTrackResidualModule*>::iterator pxd = theSiPixelStructure.find(refitTTRH->geographicalId().rawId());	
-    	    if (pxd!=theSiPixelStructure.end()) (*pxd).second->fill(residual, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn);			
+    	    if (pxd!=theSiPixelStructure.end()) (*pxd).second->fill(residual, reducedSet, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn);			
     																
     	    if (debug_) {
 	      if (ttrhDet->subDetector()==GeomDetEnumerators::PixelBarrel) {			        		       
@@ -744,7 +740,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 								  1.0 )
 							  )/1000.;
 
-	      if (pxd!=theSiPixelStructure.end()) (*pxd).second->fill((*clust), true, corrCharge, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn); 	
+	      if (pxd!=theSiPixelStructure.end()) (*pxd).second->fill((*clust), true, corrCharge, reducedSet, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn); 	
 
 
 	      trackclusters++;
@@ -899,7 +895,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 	    //correct SiPixelTrackResidualModule
 	    std::map<uint32_t, SiPixelTrackResidualModule*>::iterator pxd = theSiPixelStructure.find((*it)->geographicalId().rawId());
 
-	    if (pxd!=theSiPixelStructure.end()) (*pxd).second->fill((*di), false, -1., modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn); 
+	    if (pxd!=theSiPixelStructure.end()) (*pxd).second->fill((*di), false, -1., reducedSet, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn); 
 	    
 
 
@@ -1042,7 +1038,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
       }
       //++ fill the number of clusters on a module
       std::map<uint32_t, SiPixelTrackResidualModule*>::iterator pxd = theSiPixelStructure.find((*it)->geographicalId().rawId());
-      if (pxd!=theSiPixelStructure.end()) (*pxd).second->nfill(nofclOnTrack, nofclOffTrack, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn); 
+      if (pxd!=theSiPixelStructure.end()) (*pxd).second->nfill(nofclOnTrack, nofclOffTrack, reducedSet, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn); 
       if(nofclOnTrack!=0) meNClustersOnTrack_all->Fill(nofclOnTrack); 
       if(nofclOffTrack!=0) meNClustersNotOnTrack_all->Fill(nofclOffTrack); 
       //barrel
