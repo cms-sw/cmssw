@@ -8,24 +8,38 @@
 
 #include <string>
 #include <vector>
-#include "FWCore/Catalog/interface/FileCatalog.h"
+#include "boost/scoped_ptr.hpp"
+#include "FWCore/Catalog/interface/FileLocator.h"
 
 namespace edm {
+  class FileCatalogItem {
+  public:
+    FileCatalogItem() : pfn_(), lfn_() {}
+    FileCatalogItem(std::string const& pfn, std::string const& lfn) : pfn_(pfn), lfn_(lfn) {}
+    std::string const& fileName() const {return pfn_;}
+    std::string const& logicalFileName() const {return lfn_;}
+  private:
+    std::string pfn_;
+    std::string lfn_;
+  };
+
   class ParameterSet;
   class ParameterSetDescription;
   
-  class InputFileCatalog : public FileCatalog {
+  class InputFileCatalog {
   public:
     explicit InputFileCatalog(ParameterSet const& pset,
 			      std::string const& namesParameter = std::string("fileNames"),
 			      bool canBeEmpty = false,
 			      bool noThrow = false);
-    virtual ~InputFileCatalog();
+    ~InputFileCatalog();
     std::vector<FileCatalogItem> const& fileCatalogItems() const {return fileCatalogItems_;}
     std::vector<std::string> const& logicalFileNames() const {return logicalFileNames_;}
     std::vector<std::string> const& fileNames() const {return fileNames_;}
     bool empty() const {return fileCatalogItems_.empty();}
-    
+    static bool isPhysical(std::string const& name) {
+      return (name.empty() || name.find(':') != std::string::npos);
+    }
     static void fillDescription(ParameterSetDescription & desc);
     
   private:
@@ -33,6 +47,7 @@ namespace edm {
     std::vector<std::string> logicalFileNames_;
     std::vector<std::string> fileNames_;
     std::vector<FileCatalogItem> fileCatalogItems_;
+    boost::scoped_ptr<FileLocator> fl_;
   };
 }
 
