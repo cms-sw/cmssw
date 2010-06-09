@@ -25,6 +25,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -218,7 +220,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
       if (gdei->geographicalId() == modules[i]->geographicalId()) break;
     }
 
-    if (gdei == gdeEnd) throw edm::Exception("ModuleInfo") << "THERE IS NO MATCHING DetId in the GeometricDetExtra"); //THIS never happens!
+    if (gdei == gdeEnd) throw cms::Exception("ModuleInfo") << "THERE IS NO MATCHING DetId in the GeometricDetExtra"; //THIS never happens!
 
     GeometricDet::NavRange detPos = modules[i]->navpos();
     Output << std::fixed << std::setprecision(6); // set as default 6 decimal digits
