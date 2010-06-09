@@ -7,7 +7,7 @@
 //
 // Original Author:  Giulio Eulisse
 //         Created:  Thu Feb 18 15:19:44 EDT 2008
-// $Id: FWItemRandomAccessor.h,v 1.5 2010/04/29 10:03:52 eulisse Exp $
+// $Id: FWItemRandomAccessor.h,v 1.6 2010/06/03 11:46:05 mccauley Exp $
 //
 
 // system include files
@@ -253,7 +253,7 @@ public:
 
          for (typename container_type::DigiRangeIterator ci = c->begin(), ce = c->end(); ci != ce; ++ci)
          {
-            size_t i = iIndex - collectionOffset;
+            int i = iIndex - collectionOffset;
 
             typename container_type::DigiRangeIterator::value_type vt = *ci;
 
