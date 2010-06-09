@@ -1,3 +1,12 @@
+V02-04-00
+---------
+
+2010-06-09  author  <author@lxplus316.cern.ch>
+
+	* interface/EcalSelectiveReadoutSuppressor.h, src/EcalSelectiveReadoutSuppressor.cc:
+	Migration of selective readout settings to condition database. Added option to read configuration from condition database
+
+
 V02-03-04
 ---------
 

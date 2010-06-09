@@ -1,3 +1,16 @@
+V02-06-00
+---------
+
+2010-06-09  author  <author@lxplus316.cern.ch>
+
+	* BuildFile, interface/EcalSelectiveReadoutProducer.h, src/EcalSelectiveReadoutProducer.cc, src/SealModule.cc:
+	Migration of selective readout settings to condition database. Added option to read configuration from condition database
+
+	* interface/EcalSRCondTools.h, src/EcalSRCondTools.cc, test/srCondRead_cfg.py, test/srCondWrite_cfg.py:
+	tool to read/write selective readout settings in condition database
+
+	* test/SimDigi_cfg.py: update cond db tag for 38X
+
 V02-05-00
 ---------
 
