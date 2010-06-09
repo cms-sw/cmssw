@@ -28,7 +28,7 @@ def timeoutManager(type,timeout=-1,fileName=".timeout"):
                 if reset:
                     text = text.replace(line,'')
                     continue
-                    
+
                 fileTime = time.strptime(fields[1],timeFormat)
                 myTime = time.mktime(fileTime)
                 referenceTime = time.mktime(time.gmtime())
@@ -38,7 +38,7 @@ def timeoutManager(type,timeout=-1,fileName=".timeout"):
                 elapsedTime = referenceTime-myTime-daylight
                 if elapsedTime > timeout:
                     isTimeout = True
-                    timeoutType = 1    
+                    timeoutType = 1
                     print "Timeout! " + str(elapsedTime) + " seconds passed since the " + type + " timeout was set and you can't tolerate more than " + str(timeout) + " seconds!"
                 else:
                     timeoutType = 0
@@ -47,7 +47,7 @@ def timeoutManager(type,timeout=-1,fileName=".timeout"):
         file.close()
 
     if not fileExist or not alreadyThere and not reset:
-        timeoutType = -1    
+        timeoutType = -1
         text += timeoutLine
 
     if not fileExist or not alreadyThere or isTimeout or (reset and alreadyThere):
@@ -56,7 +56,7 @@ def timeoutManager(type,timeout=-1,fileName=".timeout"):
         file = open(fileName,'w')
         file.write(text)
         file.close()
-                                 
+
     return timeoutType
 
 
@@ -310,7 +310,11 @@ def dumpValues( beam, file):
 
 ###########################################################################################
 def delta(x,xerr,nextx,nextxerr):
-    return math.fabs( float(x) - float(nextx) )/math.sqrt(math.pow(float(xerr),2) + math.pow(float(nextxerr),2))
+    #return math.fabs( float(x) - float(nextx) )/math.sqrt(math.pow(float(xerr),2) + math.pow(float(nextxerr),2))
+    return ( float(x) - float(nextx), math.sqrt(math.pow(float(xerr),2) + math.pow(float(nextxerr),2)) )
+
+def deltaSig( x ):
+    return math.fabs(x[0])/x[1]
 
 ###########################################################################################
 def readBeamSpotFile(fileName,listbeam=[],IOVbase="runbase", firstRun='1',lastRun='4999999999'):
@@ -319,21 +323,31 @@ def readBeamSpotFile(fileName,listbeam=[],IOVbase="runbase", firstRun='1',lastRu
     
     #firstRun = "1"
     #lastRun  = "4999999999"
-    if IOVbase == "lumibase":
-    	firstRun = "1:1"
-        lastRun = "4999999999:4999999999"
+    #if IOVbase == "lumibase":
+    #	firstRun = "1:1"
+    #   lastRun = "4999999999:4999999999"
 
     inputfiletype = 0
     #print "first = " +firstRun
     #print "last = " +lastRun
-    
+
+    # for bx
+    maplist = {}
+    hasBX = False
+            
     tmpfile = open(fileName)
-    if tmpfile.readline().find('Runnumber') != -1:
+    atmpline = tmpfile.readline()
+    if atmpline.find('Runnumber') != -1:
 	inputfiletype = 1
+        if len(atmpline.split()) > 2:
+            hasBX = True
+            print " Input data has been calculated as function of BUNCH CROSSINGS."
     tmpfile.seek(0)
 
+        
     if inputfiletype ==1:
-	
+
+	tmpBX = 0
 	for line in tmpfile:
             
 	    if line.find('Type') != -1:
@@ -405,6 +419,8 @@ def readBeamSpotFile(fileName,listbeam=[],IOVbase="runbase", firstRun='1',lastRu
 		if IOVbase == "runbase":
 		    tmpbeam.IOVfirst = line.split()[1]
 		    tmpbeam.IOVlast = line.split()[1]
+                if hasBX:
+                    tmpBX = line.split()[3]
 		tmpbeamsize += 1
             if line.find('BeginTimeOfFit') != -1:
 		tmpbeam.IOVBeginTime = line.split()[1] +" "+line.split()[2] +" "+line.split()[3]
@@ -441,7 +457,12 @@ def readBeamSpotFile(fileName,listbeam=[],IOVbase="runbase", firstRun='1',lastRu
 			    print "invalid fit, skip Run "+str(tmpbeam.Run)+" IOV: "+str(tmpbeam.IOVfirst) + " to "+ str(tmpbeam.IOVlast)
                         elif isnan(tmpbeam.Z) or isnan(tmpbeam.Zerr) or isnan(tmpbeam.sigmaZerr) or isnan(tmpbeam.beamWidthXerr) or isnan(tmpbeam.beamWidthYerr):
                             print "invalid fit, NaN values!! skip Run "+str(tmpbeam.Run)+" IOV: "+str(tmpbeam.IOVfirst) + " to "+ str(tmpbeam.IOVlast)                       
-			else:
+			elif hasBX:
+                            if maplist.has_key(tmpBX) == False:
+                                maplist[tmpBX] = [tmpbeam]
+                            else:
+                                maplist[tmpBX].append(tmpbeam)
+                        else:
 			    listbeam.append(tmpbeam)
 
 		elif int(tmpbeam.IOVfirst) >= int(firstRun) and int(tmpbeam.IOVlast) <= int(lastRun):
@@ -454,6 +475,7 @@ def readBeamSpotFile(fileName,listbeam=[],IOVbase="runbase", firstRun='1',lastRu
                         
 		tmpbeamsize = 0
 		tmpbeam = BeamSpot()
+                tmpBX = 0
     else:
 
 	for line in tmpfile:
@@ -509,7 +531,10 @@ def readBeamSpotFile(fileName,listbeam=[],IOVbase="runbase", firstRun='1',lastRu
     tmpfile.close()
     print " got total number of IOVs = " + str(len(listbeam)) + " from file " + fileName
     #print " run " + str(listbeam[3].IOVfirst ) + " " + str( listbeam[3].X )
-    return listbeam
+    if hasBX:
+        return maplist
+    else:
+        return listbeam
 
 ###########################################################################################
 # Sort and clean list of data for consecutive duplicates and bad fits
@@ -551,7 +576,7 @@ def createWeightedPayloads(fileName,listbeam=[],weighted=True):
     docreate = True
     countlumi = 0
     tmprun = ""
-    maxNlumis = 100
+    maxNlumis = 60
     if weighted:
         maxNlumis = 999999999
     for ii in range(0,len(listbeam)):
@@ -581,15 +606,13 @@ def createWeightedPayloads(fileName,listbeam=[],weighted=True):
             print "close payload because end of run "+ibeam.Run
             docreate = True
         # check maximum lumi counts
-        if countlumi == maxNlumis:
+        if countlumi == maxNlumis -1:
             print "close payload because maximum lumi sections accumulated within run "+ibeam.Run
             docreate = True
             countlumi = 0
         # weighted average position
         (tmpbeam.X, tmpbeam.Xerr) = weight(tmpbeam.X, tmpbeam.Xerr, ibeam.X, ibeam.Xerr)
         (tmpbeam.Y, tmpbeam.Yerr) = weight(tmpbeam.Y, tmpbeam.Yerr, ibeam.Y, ibeam.Yerr)
-        print "Run: " + str(ibeam.Run) + " lumi: " + str(ibeam.IOVfirst)
-        print str(tmpbeam.Zerr) + " " + str(ibeam.Zerr)
         (tmpbeam.Z, tmpbeam.Zerr) = weight(tmpbeam.Z, tmpbeam.Zerr, ibeam.Z, ibeam.Zerr)
         (tmpbeam.sigmaZ, tmpbeam.sigmaZerr) = weight(tmpbeam.sigmaZ, tmpbeam.sigmaZerr, ibeam.sigmaZ, ibeam.sigmaZerr)
         (tmpbeam.dxdz, tmpbeam.dxdzerr) = weight(tmpbeam.dxdz, tmpbeam.dxdzerr, ibeam.dxdz, ibeam.dxdzerr)
@@ -603,17 +626,51 @@ def createWeightedPayloads(fileName,listbeam=[],weighted=True):
         # check offsets
         #if False:
         if docheck:
-        
-            deltaX = delta(ibeam.X, ibeam.Xerr, inextbeam.X, inextbeam.Xerr) > 2.0
-            deltaY = delta(ibeam.Y, ibeam.Yerr, inextbeam.Y, inextbeam.Yerr) > 2.0
-            deltaZ = delta(ibeam.Z, ibeam.Zerr, inextbeam.Z, inextbeam.Zerr) > 2.5
-				
-            deltasigmaZ = delta(ibeam.sigmaZ, ibeam.sigmaZerr, inextbeam.sigmaZ, inextbeam.sigmaZerr) > 2.5
-            deltadxdz   = delta(ibeam.dxdz, ibeam.dxdzerr, inextbeam.dxdz, inextbeam.dxdzerr) > 2.5
-            deltadydz   = delta(ibeam.dydz, ibeam.dydzerr, inextbeam.dydz, inextbeam.dydzerr) > 2.5
+
+            limit = float(ibeam.beamWidthX)/3.
             
-            deltawidthX = delta(ibeam.beamWidthX, ibeam.beamWidthXerr, inextbeam.beamWidthX, inextbeam.beamWidthXerr) > 3
-            deltawidthY = delta(ibeam.beamWidthY, ibeam.beamWidthYerr, inextbeam.beamWidthY, inextbeam.beamWidthYerr) > 3
+            adelta1 = delta(ibeam.X, ibeam.Xerr, inextbeam.X, inextbeam.Xerr)
+            adelta2 = (0.,1.e9)
+            if iNNbeam.Type != -1:
+                adelta2 = delta(inextbeam.X, inextbeam.Xerr, iNNbeam.X, iNNbeam.Xerr)
+            
+            deltaX = deltaSig(adelta1) > 3.5 and adelta1[0] >= limit
+            if ii < len(listbeam) -2:
+                if deltaX==False and adelta1[0]*adelta2[0] > 0. and  math.fabs(adelta1[0]+adelta2[0]) >= limit:
+                    #print " positive, "+str(adelta1[0]+adelta2[0])+ " limit="+str(limit)
+                    deltaX = True
+                elif deltaX==True and adelta1[0]*adelta2[0]<=0 and math.fabs(adelta1[0]/adelta2[0]) > 0.55 and math.fabs(adelta1[0]/adelta2[0]) < 1.45:
+                    deltaX = False
+                    #print " negative, "+str(adelta1[0]/adelta2[0])
+                #else:
+                #    print str(adelta1[0]/adelta2[0])
+            adelta1 = delta(ibeam.Y, ibeam.Yerr, inextbeam.Y, inextbeam.Yerr)
+            adelta2 = (0.,1.e9)
+            if iNNbeam.Type != -1:
+                adelta2 = delta(inextbeam.Y, inextbeam.Yerr, iNNbeam.Y, iNNbeam.Yerr)
+                
+            deltaY = deltaSig(adelta1) > 3.5 and adelta1[0] >= limit
+            if ii < len(listbeam) -2:
+                if deltaY==False and adelta1[0]*adelta2[0] > 0. and  math.fabs(adelta1[0]+adelta2[0]) >= limit:
+                    deltaY = True
+                elif deltaY==True and adelta1[0]*adelta2[0]<=0 and math.fabs(adelta1[0]/adelta2[0]) > 0.55 and math.fabs(adelta1[0]/adelta2[0]) < 1.45:
+                    deltaY = False
+                                                                
+            adelta = delta(ibeam.Z, ibeam.Zerr, inextbeam.Z, inextbeam.Zerr)
+            limit = float(ibeam.sigmaZ)/3.
+            deltaZ = deltaSig(adelta) > 3.5 and adelta[0] >= limit
+
+            adelta = delta(ibeam.sigmaZ, ibeam.sigmaZerr, inextbeam.sigmaZ, inextbeam.sigmaZerr)
+            deltasigmaZ = deltaSig(adelta) > 5.0
+            adelta = delta(ibeam.dxdz, ibeam.dxdzerr, inextbeam.dxdz, inextbeam.dxdzerr) 
+            deltadxdz   = deltaSig(adelta) > 5.0
+            adelta = delta(ibeam.dydz, ibeam.dydzerr, inextbeam.dydz, inextbeam.dydzerr)
+            deltadydz   = deltaSig(adelta) > 5.0
+
+            adelta = delta(ibeam.beamWidthX, ibeam.beamWidthXerr, inextbeam.beamWidthX, inextbeam.beamWidthXerr)
+            deltawidthX = deltaSig(adelta) > 5
+            adelta = delta(ibeam.beamWidthY, ibeam.beamWidthYerr, inextbeam.beamWidthY, inextbeam.beamWidthYerr) 
+            deltawidthY = deltaSig(adelta) > 5
 
             #if iNNbeam.Type != -1:
             #    deltaX = deltaX and delta(ibeam.X, ibeam.Xerr, iNNbeam.X, iNNbeam.Xerr) > 1.5
@@ -643,6 +700,7 @@ def createWeightedPayloads(fileName,listbeam=[],weighted=True):
             print "  Run: "+tmpbeam.Run +" Lumi1: "+str(tmpbeam.IOVfirst) + " Lumi2: "+str(tmpbeam.IOVlast)
             newlistbeam.append(tmpbeam)
             tmpbeam = BeamSpot()
+            countlumi = 0
         tmprun = ibeam.Run
         countlumi += 1
 
