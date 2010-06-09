@@ -6,5 +6,16 @@ heavyChHiggsToTauNuHLTrigReport = cms.EDAnalyzer("HLTrigReport",
     HLTriggerResults = cms.InputTag("TriggerResults")
 )
 
-heavyChHiggsToTauNuSequence = cms.Sequence(heavyChHiggsToTauNuHLTrigReport+heavyChHiggsToTauNuHLTFilter+heavyChHiggsToTauNuFilter)
+#heavyChHiggsToTauNuSequence = cms.Sequence(heavyChHiggsToTauNuHLTrigReport+heavyChHiggsToTauNuHLTFilter+heavyChHiggsToTauNuFilter)
 
+heavyChHiggsToTauNuSkimEventsAll              = cms.EDProducer("EventCountProducer")
+heavyChHiggsToTauNuSkimEventsPassingHLTFilter = cms.EDProducer("EventCountProducer")
+heavyChHiggsToTauNuSkimEventsPassingFilter    = cms.EDProducer("EventCountProducer")
+
+heavyChHiggsToTauNuSequence = cms.Sequence(heavyChHiggsToTauNuHLTrigReport+                           
+                                           heavyChHiggsToTauNuSkimEventsAll+                          
+                                           heavyChHiggsToTauNuHLTFilter+                              
+                                           heavyChHiggsToTauNuSkimEventsPassingHLTFilter+             
+                                           heavyChHiggsToTauNuFilter+                                 
+                                           heavyChHiggsToTauNuSkimEventsPassingFilter                 
+                                           )
