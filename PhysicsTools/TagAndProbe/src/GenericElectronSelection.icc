@@ -160,9 +160,7 @@ void GenericElectronSelection<gsfelectron>::produce(edm::Event &event,
 
 
     trigresult = false;
-    bool changed = false;
-    if( hltConfig_.init(event, hltTag_.process(), changed) )
-      trigresult = CheckTriggerMatch( triggerObj, elecEta, elecPhi);
+    if( changed_ ) trigresult = CheckTriggerMatch( triggerObj, elecEta, elecPhi);
 
     if( cutresult && trigresult ) {
       outCol->push_back(*elec);
@@ -362,6 +360,23 @@ void GenericElectronSelection<gsfelectron>::beginJob()
     m_HistNames1D[hname] = new TH1F(hname,hname,5000, 0, 500); 
   }
 }
+
+
+
+
+// ---- method called once each job just before starting event loop  ---
+template<class gsfelectron>
+void GenericElectronSelection<gsfelectron>::beginRun(edm::Run& iRun, 
+						     edm::EventSetup const& iSetup){
+  if(!hltConfig_.init(iRun,iSetup,hltTag_.process(),changed_) ){
+    edm::LogError("TriggerCandProducer") << 
+      "Error! Can't initialize HLTConfigProvider ";
+    return;
+  }
+  if(changed_)  std::cout << "HLT configuration changed !" << std::endl;
+}
+
+
 
 
 

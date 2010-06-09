@@ -33,6 +33,7 @@ class GenericElectronSelection : public edm::EDProducer
   ~GenericElectronSelection();
 
  private:
+  virtual void beginRun(edm::Run& iRun, edm::EventSetup const& iSetup);
   virtual void beginJob() ;
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
@@ -78,6 +79,7 @@ class GenericElectronSelection : public edm::EDProducer
 
   edm::InputTag  triggerSummaryLabel_;
   edm::InputTag  hltTag_;
+  bool changed_;
   HLTConfigProvider hltConfig_;
 };
 #include "PhysicsTools/TagAndProbe/src/GenericElectronSelection.icc"
