@@ -1,9 +1,5 @@
 //////////////////////////////////////////////////////////////////////
 //
-//
-// Original Author: Luca Lista
-// Current Author: Bill Tanenbaum
-//
 //////////////////////////////////////////////////////////////////////
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -47,8 +43,8 @@ namespace edm {
       } else {
         boost::trim(*lt);
 	findFile(*it, *lt, noThrow);
-	fileCatalogItems_.push_back(FileCatalogItem(*it, *lt));
       }
+      fileCatalogItems_.push_back(FileCatalogItem(*it, *lt));
     }
   }
   
