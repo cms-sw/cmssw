@@ -405,7 +405,7 @@ double MusEcal::zoomRange[MusEcal::iZero] =   {
 int MusEcal::firstRun = 0;
 int MusEcal::lastRun = 999999;
 int MusEcal::LMR = 1;
-bool MusEcal::fillNLS = true;
+bool MusEcal::fillNLS = false;
 
 MusEcal::MusEcal( int type, int color )
 {
@@ -2921,7 +2921,14 @@ MusEcal::midVector( MEChannel* leaf )
    assert( valinit[1].size()==valinit[2].size());
    assert( shapeCorVal.size()==valinit[2].size());
 
+   double shapeCorMin=0.7;
+   double shapeCorPNMin=0.9;
    
+   if( ME::ecalRegion( _lmr )!=ME::iEBM && ME::ecalRegion( _lmr )!=ME::iEBP ){
+     shapeCorMin=0.5; 
+     shapeCorPNMin=0.7;
+   }
+ 
    for (unsigned int irun=0;irun<nrunmax;irun++){
      
      float PNAcor=PNAVal[irun];
@@ -2975,17 +2982,13 @@ MusEcal::midVector( MEChannel* leaf )
        // Apply shape correction and linearity correction:
        //================================================
        
-       double shapeCorMin=0.7;
-       double shapeCorPNMin=0.9;
-
        if(shapeCorVal[irun]>shapeCorMin){
 	 
 	 corVal = (valinit[ivar][irun]/shapeCorVal[irun])*pnCorrectionFactor;
 	 rmsVal = (rmsinit[ivar][irun]/shapeCorVal[irun])*pnCorrectionFactor;  
 	 
-	 
 	 if(ivar==0 && shapeCorPNAVal[irun]>shapeCorPNMin && shapeCorPNBVal[irun]>shapeCorPNMin && pnaVector_!=0  && pnbVector_!=0 ){
- 	   
+	   
 	   corVal*=0.5*(shapeCorPNAVal[irun]+shapeCorPNBVal[irun]);
  	   rmsVal*=0.5*(shapeCorPNAVal[irun]+shapeCorPNBVal[irun]);
 	   

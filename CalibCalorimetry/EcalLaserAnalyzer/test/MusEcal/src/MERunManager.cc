@@ -936,9 +936,6 @@ MERunManager::setLaserFlags()
       }
       
       MEVarVector* varVectorMtq_ = mtqVector( mtqleaf_ );
-      
-      MEVarVector* pnaVector_= pnVector(pnleaf_,0);
-      MEVarVector* pnbVector_= pnVector(pnleaf_,1);
 
       vector< ME::Time > time;
       varVector_->getTime( time );
@@ -962,28 +959,25 @@ MERunManager::setLaserFlags()
           float apdopn_rms_norm_;
 	  float mtqfwhm_;
 	  bool flagmtq_;
-	  float pna_;
-	  float pnb_;
-	  bool flagpna_;
-	  bool flagpnb_;
+	  float scapd_;
 
           varVector_->getValByTime( t_, ME::iAPD_MEAN, apd_, flag_ );
           varVector_->getValByTime( t_, ME::iAPD_M3, apd_m3_, flag_ );
           varVector_->getValByTime( t_, ME::iAPD_OVER_PN_RMS, apdopn_rms_, flag_ );
           varVector_->getValByTime( t_, ME::iAPD_OVER_PN_MEAN, apdopn_mean_, flag_ );
           varVector_->getValByTime( t_, ME::iAPD_OVER_PN_M3, apdopn_m3_, flag_ );
+          varVector_->getValByTime( t_, ME::iAPD_SHAPE_COR, scapd_, flag_ );
+
+          varVector_->getValByTime( t_, ME::iAPD_ALPHA, alpha_, flag_);
+          varVector_->getValByTime( t_, ME::iAPD_BETA, beta_, flag_);
 
           varVector_->getValByTime( t_, ME::iAPD_RMS, apd_rms_, flag_ );
           varVector_->getValByTime( t_, ME::iAPD_TIME_MEAN, apd_time_, flag_ );
           varVector_->getValByTime( t_, ME::iAPD_NEVT, apd_nevt_, flag_ );
 
-          varVector_->getValByTime( t_, ME::iAPD_ALPHA, alpha_, flag_);
-          varVector_->getValByTime( t_, ME::iAPD_BETA, beta_, flag_);
-
 
 	  varVectorMtq_->getValByTime( t_, ME::iMTQ_FWHM, mtqfwhm_, flagmtq_ );  
-	  pnaVector_->getValByTime( t_, ME::iPN_MEAN, pna_, flagpna_ );  
-	  pnbVector_->getValByTime( t_, ME::iPN_MEAN, pnb_, flagpnb_ );  
+
 
 	  if (apdopn_mean_==0) apdopn_rms_norm_=0;
 	  else  apdopn_rms_norm_=apdopn_rms_/apdopn_mean_;
@@ -1003,7 +997,8 @@ MERunManager::setLaserFlags()
           double Cut_apd_nevt[2];
           double Cut_ab[2];
           double Cut_fwhm[2];
-          double Cut_pn[2];
+          double Cut_sc_apd[2];
+
 
           Cut_apd[0]=200.0;
           Cut_apd[1]=4000.0; // gain prbs with high amplitudes
@@ -1013,33 +1008,72 @@ MERunManager::setLaserFlags()
           Cut_apd_rms_norm[0]=0.005; // MIN 0.5%
           Cut_apd_rms_norm[1]=0.10;   // MAX 10%
           Cut_apdopn_rms_norm=0.015;  // MAX  3%
-          Cut_apd_m3[0]=0.0; // MIN 0%
-          Cut_apd_m3[1]=0.4;   // MAX 40%
-          Cut_apdopn_m3[0]=0.0; // MIN 0%
-          Cut_apdopn_m3[1]=0.4;   // MAX 40%
+
+	  // different cuts for endcaps eventually:
+
+	  if( ME::isBarrel(_lmr) ){
+
+	    Cut_sc_apd[0]=0.8;
+	    Cut_sc_apd[1]=0.9;
+
+	  }else{
+	  
+	    Cut_sc_apd[0]=0.7;
+	    Cut_sc_apd[1]=0.95;
+	  }
+
+	  if(_color==ME::iBlue){
+	    Cut_apd_m3[0]=0.0; // MIN 0%
+	    Cut_apd_m3[1]=1.0;   // MAX 40%
+	    Cut_apdopn_m3[0]=0.0; // MIN 0%
+	    Cut_apdopn_m3[1]=0.4;   // MAX 40%
+	  }else{
+	    Cut_apd_m3[0]=0.0; // MIN 0%
+	    Cut_apd_m3[1]=0.8;   // MAX 40%
+	    Cut_apdopn_m3[0]=0.0; // MIN 0%
+	    Cut_apdopn_m3[1]=0.8;   // MAX 40%	    
+	  }
+	  
           Cut_apd_time[0]=3.0;  // FIXME: put back 4.0 when time is fixed...
           Cut_apd_time[1]=8.0;  
           Cut_apd_nevt[0]=100.0;
           Cut_apd_nevt[1]=2000.0;
 	  Cut_ab[0]=1.5;
 	  Cut_ab[1]=3.5;
-	  Cut_fwhm[0]=25.0;
+	  Cut_fwhm[0]=20.0;
 	  Cut_fwhm[1]=45.0;
-          Cut_pn[0]=100.0;
-          Cut_pn[1]=4000.0; 
-
+	  
           if( ( apd_<  Cut_apd[0] || apd_>  Cut_apd[1])
               || (apdopn_rms_norm_>Cut_apdopn_rms_norm )
               || (apd_rms_norm_<Cut_apd_rms_norm[0] || apd_rms_norm_>Cut_apd_rms_norm[1])
               || (apd_time_<Cut_apd_time[0] || apd_time_>Cut_apd_time[1])
               || (apd_nevt_<Cut_apd_nevt[0] || apd_nevt_>Cut_apd_nevt[1]) 
-	      // || (alpha_*beta_<Cut_ab[0] || alpha_*beta_>Cut_ab[1])
-              || (TMath::Abs(apd_m3_)<Cut_apd_m3[0] || TMath::Abs(apd_m3_)>Cut_apd_m3[1]) 
+	      || (TMath::Abs(apd_m3_)<Cut_apd_m3[0] || TMath::Abs(apd_m3_)>Cut_apd_m3[1]) 
               || (TMath::Abs(apdopn_m3_)<Cut_apdopn_m3[0] || TMath::Abs(apdopn_m3_)>Cut_apdopn_m3[1]) 
-	      || ( mtqfwhm_<Cut_fwhm[0]|| mtqfwhm_>Cut_fwhm[1] )
-	      || flag_==false )
+	      || ( mtqfwhm_<Cut_fwhm[0]|| mtqfwhm_>Cut_fwhm[1] ))
+	      //|| flag_==false )
 	    {
 	      
+	      // if(itime<10){
+
+// 		if( apd_<  Cut_apd[0] || apd_>  Cut_apd[1]) cout<<"apd cut :" <<Cut_apd[0]<<" "<<apd_<<" "<<Cut_apd[1]<< endl;
+// 		if (apdopn_rms_norm_>Cut_apdopn_rms_norm ) cout << "apdpnrms cut :" <<apdopn_rms_norm_<<" "<<Cut_apdopn_rms_norm<< endl;
+// 		if (apd_rms_norm_<Cut_apd_rms_norm[0] || apd_rms_norm_>Cut_apd_rms_norm[1])
+// 		  cout << "apdrms cut :" << Cut_apd_rms_norm[0]<<" "<<apd_rms_norm_<<Cut_apd_rms_norm[1]<< endl ;
+
+// 		if(apd_time_<Cut_apd_time[0] || apd_time_>Cut_apd_time[1])
+// 		  cout << "apdtime cut :" << Cut_apd_time[0]<<" "<<apd_time_<<Cut_apd_time[1]<< endl ;
+// 		if (apd_nevt_<Cut_apd_nevt[0] || apd_nevt_>Cut_apd_nevt[1]) 
+// 		  cout << "apdnevt cut :" << Cut_apd_nevt[0]<<" "<<apd_nevt_<<Cut_apd_nevt[1]<< endl ;
+// 		if (TMath::Abs(apd_m3_)<Cut_apd_m3[0] || TMath::Abs(apd_m3_)>Cut_apd_m3[1]) 
+// 		  cout<< "apdm3 cut :" << Cut_apd_m3[0]<<" "<<apd_m3_<<Cut_apd_m3[1]<< endl ;
+// 		if (TMath::Abs(apdopn_m3_)<Cut_apdopn_m3[0] || TMath::Abs(apdopn_m3_)>Cut_apdopn_m3[1]) 
+// 		  cout<< "apdpnm3 cut :" << Cut_apdopn_m3[0]<<" "<<apdopn_m3_<<Cut_apdopn_m3[1]<< endl ;  
+// 		if( mtqfwhm_<Cut_fwhm[0]|| mtqfwhm_>Cut_fwhm[1] )
+// 		  cout<< "fwhm cut :" << Cut_fwhm[0]<<" "<<mtqfwhm_<<Cut_fwhm[1]<< endl ;
+
+// 	      }
+
               varVector_->setFlag( t_, ME::iAPD_MEAN, false );
               varVector_->setFlag( t_, ME::iAPD_RMS, false );
               varVector_->setFlag( t_, ME::iAPD_M3, false );
@@ -1110,96 +1144,16 @@ MERunManager::setLaserFlags()
 		
 	    }
 	  
+	  if( scapd_<  Cut_sc_apd[0] || scapd_>  Cut_sc_apd[1]){
+      
+	    varVector_->setFlag( t_, ME::iAPD_SHAPE_COR, false );
+	  }
+
 	  
-          if( ( pna_<  Cut_pn[0] || pna_>  Cut_pn[1]) ){
-	    
-	    varVector_->setFlag( t_, ME::iAPD_OVER_PNA_MEAN, false );
-              varVector_->setFlag( t_, ME::iAPD_OVER_PNA_RMS, false );
-              varVector_->setFlag( t_, ME::iAPD_OVER_PNA_M3, false );
-              varVector_->setFlag( t_, ME::iAPD_OVER_PNA_NEVT, false );
-
-              varVector_->setFlag( t_, ME::iAPD_OVER_PN_MEAN, false );
-              varVector_->setFlag( t_, ME::iAPD_OVER_PN_RMS, false );
-              varVector_->setFlag( t_, ME::iAPD_OVER_PN_M3, false );
-              varVector_->setFlag( t_, ME::iAPD_OVER_PN_NEVT, false );
-            
-	      varVector_->setFlag( t_, ME::iAPD_OVER_PNACOR_MEAN, false );
-              varVector_->setFlag( t_, ME::iAPD_OVER_PNACOR_RMS, false );
-              varVector_->setFlag( t_, ME::iAPD_OVER_PNACOR_M3, false );
-              varVector_->setFlag( t_, ME::iAPD_OVER_PNACOR_NEVT, false );
-
-              varVector_->setFlag( t_, ME::iAPD_OVER_PNCOR_MEAN, false );
-              varVector_->setFlag( t_, ME::iAPD_OVER_PNCOR_RMS, false );
-              varVector_->setFlag( t_, ME::iAPD_OVER_PNCOR_M3, false );
-              varVector_->setFlag( t_, ME::iAPD_OVER_PNCOR_NEVT, false );
-
-              varVector_->setFlag( t_, ME::iAPDABFIT_OVER_PNACOR_MEAN, false );
-              varVector_->setFlag( t_, ME::iAPDABFIT_OVER_PNACOR_RMS, false );
-              varVector_->setFlag( t_, ME::iAPDABFIT_OVER_PNACOR_M3, false );
-              varVector_->setFlag( t_, ME::iAPDABFIT_OVER_PNACOR_NEVT, false );
-
-              varVector_->setFlag( t_, ME::iAPDABFIT_OVER_PNCOR_MEAN, false );
-              varVector_->setFlag( t_, ME::iAPDABFIT_OVER_PNCOR_RMS, false );
-              varVector_->setFlag( t_, ME::iAPDABFIT_OVER_PNCOR_M3, false );
-              varVector_->setFlag( t_, ME::iAPDABFIT_OVER_PNCOR_NEVT, false );
-
-              varVector_->setFlag( t_, ME::iAPDABFIX_OVER_PNACOR_MEAN, false );
-              varVector_->setFlag( t_, ME::iAPDABFIX_OVER_PNACOR_RMS, false );
-              varVector_->setFlag( t_, ME::iAPDABFIX_OVER_PNACOR_M3, false );
-              varVector_->setFlag( t_, ME::iAPDABFIX_OVER_PNACOR_NEVT, false );
-              varVector_->setFlag( t_, ME::iAPDABFIX_OVER_PNCOR_MEAN, false );
-              varVector_->setFlag( t_, ME::iAPDABFIX_OVER_PNCOR_RMS, false );
-              varVector_->setFlag( t_, ME::iAPDABFIX_OVER_PNCOR_M3, false );
-              varVector_->setFlag( t_, ME::iAPDABFIX_OVER_PNCOR_NEVT, false );
-	  }
-
-	  if( ( pnb_<  Cut_pn[0] || pnb_>  Cut_pn[1]) ){
-           
-	    varVector_->setFlag( t_, ME::iAPD_OVER_PNB_MEAN, false );
-              varVector_->setFlag( t_, ME::iAPD_OVER_PNB_RMS, false );
-              varVector_->setFlag( t_, ME::iAPD_OVER_PNB_M3, false );
-              varVector_->setFlag( t_, ME::iAPD_OVER_PNB_NEVT, false );
-
-              varVector_->setFlag( t_, ME::iAPD_OVER_PN_MEAN, false );
-              varVector_->setFlag( t_, ME::iAPD_OVER_PN_RMS, false );
-              varVector_->setFlag( t_, ME::iAPD_OVER_PN_M3, false );
-              varVector_->setFlag( t_, ME::iAPD_OVER_PN_NEVT, false );
-            
-	      varVector_->setFlag( t_, ME::iAPD_OVER_PNBCOR_MEAN, false );
-              varVector_->setFlag( t_, ME::iAPD_OVER_PNBCOR_RMS, false );
-              varVector_->setFlag( t_, ME::iAPD_OVER_PNBCOR_M3, false );
-              varVector_->setFlag( t_, ME::iAPD_OVER_PNBCOR_NEVT, false );
-
-              varVector_->setFlag( t_, ME::iAPD_OVER_PNCOR_MEAN, false );
-              varVector_->setFlag( t_, ME::iAPD_OVER_PNCOR_RMS, false );
-              varVector_->setFlag( t_, ME::iAPD_OVER_PNCOR_M3, false );
-              varVector_->setFlag( t_, ME::iAPD_OVER_PNCOR_NEVT, false );
-
-              varVector_->setFlag( t_, ME::iAPDABFIT_OVER_PNBCOR_MEAN, false );
-              varVector_->setFlag( t_, ME::iAPDABFIT_OVER_PNBCOR_RMS, false );
-              varVector_->setFlag( t_, ME::iAPDABFIT_OVER_PNBCOR_M3, false );
-              varVector_->setFlag( t_, ME::iAPDABFIT_OVER_PNBCOR_NEVT, false );
-
-              varVector_->setFlag( t_, ME::iAPDABFIT_OVER_PNCOR_MEAN, false );
-              varVector_->setFlag( t_, ME::iAPDABFIT_OVER_PNCOR_RMS, false );
-              varVector_->setFlag( t_, ME::iAPDABFIT_OVER_PNCOR_M3, false );
-              varVector_->setFlag( t_, ME::iAPDABFIT_OVER_PNCOR_NEVT, false );
-
-              varVector_->setFlag( t_, ME::iAPDABFIX_OVER_PNBCOR_MEAN, false );
-              varVector_->setFlag( t_, ME::iAPDABFIX_OVER_PNBCOR_RMS, false );
-              varVector_->setFlag( t_, ME::iAPDABFIX_OVER_PNBCOR_M3, false );
-              varVector_->setFlag( t_, ME::iAPDABFIX_OVER_PNBCOR_NEVT, false );
-              varVector_->setFlag( t_, ME::iAPDABFIX_OVER_PNCOR_MEAN, false );
-              varVector_->setFlag( t_, ME::iAPDABFIX_OVER_PNCOR_RMS, false );
-              varVector_->setFlag( t_, ME::iAPDABFIX_OVER_PNCOR_M3, false );
-              varVector_->setFlag( t_, ME::iAPDABFIX_OVER_PNCOR_NEVT, false );
-	  }
-
-
           if ( ( alpha_*beta_<Cut_ab[0] || alpha_*beta_>Cut_ab[1] ) )	       
 	    {
-	      varVector_->setFlag( t_,ME::iAPD_ALPHA,false);
-	      varVector_->setFlag( t_,ME::iAPD_BETA,false);
+	      varVector_->setFlag( t_, ME::iAPD_ALPHA,false);
+	      varVector_->setFlag( t_, ME::iAPD_BETA,false);
               varVector_->setFlag( t_, ME::iAPDABFIT_OVER_PNACOR_MEAN, false );
               varVector_->setFlag( t_, ME::iAPDABFIT_OVER_PNACOR_RMS, false );
               varVector_->setFlag( t_, ME::iAPDABFIT_OVER_PNACOR_M3, false );
@@ -1220,6 +1174,26 @@ MERunManager::setLaserFlags()
   listOfChan_.clear();
   tree()->getListOfDescendants( ME::iLMModule, listOfChan_ );
 
+  double Cut_pn[2];
+  double Cut_sc_pn[2];
+  Cut_pn[0]=200.0;
+  Cut_pn[1]=4000.0; 
+
+  if( ME::isBarrel(_lmr) ){    
+    Cut_sc_pn[0]=0.8;
+    Cut_sc_pn[1]=1.0;    
+  }else{
+    Cut_sc_pn[0]=0.7;
+    Cut_sc_pn[1]=1.0;
+  }
+
+  // FIXME: problem with EE+ scpn...  
+  if(_lmr>=73 || _lmr<=82){
+    Cut_sc_pn[0]=0.;
+    Cut_sc_pn[1]=10.0;	    
+  }
+  
+
   cout << "Setting PN Quality Flags " << endl;
   for( unsigned int ichan=0; ichan<listOfChan_.size(); ichan++ )
     {
@@ -1233,33 +1207,80 @@ MERunManager::setLaserFlags()
 	    {
 	      ME::Time t_ = time[itime];
 	      float pn_;
+	      float scpn_;
 	      bool flag_;
+	      varVector_->getValByTime( t_, ME::iPN_SHAPE_COR, scpn_, flag_ );
 	      varVector_->getValByTime( t_, ME::iPN_MEAN, pn_, flag_ );
-	      if( pn_<100 )  
+	      
+	      if( pn_<Cut_pn[0] || pn_>Cut_pn[1] )  
 		{
 		  varVector_->setFlag( t_, ME::iPN_MEAN, false );
 		  varVector_->setFlag( t_, ME::iPN_RMS, false );
 		  varVector_->setFlag( t_, ME::iPN_M3, false );
+		  
 		  if( ipn==0 )
 		    {
 		      setFlag( leaf_, t_, ME::iAPD_OVER_PNA_MEAN, false );
 		      setFlag( leaf_, t_, ME::iAPD_OVER_PNA_RMS, false );
 		      setFlag( leaf_, t_, ME::iAPD_OVER_PNA_M3, false );
+		      
+		      setFlag( leaf_, t_, ME::iAPD_OVER_PNACOR_MEAN, false );
+		      setFlag( leaf_, t_, ME::iAPD_OVER_PNACOR_RMS, false );
+		      setFlag( leaf_, t_, ME::iAPD_OVER_PNACOR_M3, false );
+		      
+		      setFlag( leaf_, t_, ME::iAPDABFIT_OVER_PNACOR_MEAN, false );
+		      setFlag( leaf_, t_, ME::iAPDABFIT_OVER_PNACOR_RMS, false );
+		      setFlag( leaf_, t_, ME::iAPDABFIT_OVER_PNACOR_M3, false );
+		      
+		      setFlag( leaf_, t_, ME::iAPDABFIX_OVER_PNACOR_MEAN, false );
+		      setFlag( leaf_, t_, ME::iAPDABFIX_OVER_PNACOR_RMS, false );
+		      setFlag( leaf_, t_, ME::iAPDABFIX_OVER_PNACOR_M3, false );
 		    }
 		  if( ipn==1 )
 		    {
 		      setFlag( leaf_, t_, ME::iAPD_OVER_PNB_MEAN, false );
 		      setFlag( leaf_, t_, ME::iAPD_OVER_PNB_RMS, false );
 		      setFlag( leaf_, t_, ME::iAPD_OVER_PNB_M3, false );
+		      
+		      setFlag( leaf_, t_, ME::iAPD_OVER_PNBCOR_MEAN, false );
+		      setFlag( leaf_, t_, ME::iAPD_OVER_PNBCOR_RMS, false );
+		      setFlag( leaf_, t_, ME::iAPD_OVER_PNBCOR_M3, false );
+		      
+		      setFlag( leaf_, t_, ME::iAPDABFIT_OVER_PNBCOR_MEAN, false );
+		      setFlag( leaf_, t_, ME::iAPDABFIT_OVER_PNBCOR_RMS, false );
+		      setFlag( leaf_, t_, ME::iAPDABFIT_OVER_PNBCOR_M3, false );
+		      
+		      setFlag( leaf_, t_, ME::iAPDABFIX_OVER_PNBCOR_MEAN, false );
+		      setFlag( leaf_, t_, ME::iAPDABFIX_OVER_PNBCOR_RMS, false );
+		      setFlag( leaf_, t_, ME::iAPDABFIX_OVER_PNBCOR_M3, false );
 		    }
+		  
 		  setFlag( leaf_, t_, ME::iAPD_OVER_PN_MEAN, false );
 		  setFlag( leaf_, t_, ME::iAPD_OVER_PN_RMS, false );
 		  setFlag( leaf_, t_, ME::iAPD_OVER_PN_M3, false );
+		  
+		  setFlag( leaf_, t_, ME::iAPD_OVER_PNCOR_MEAN, false );
+		  setFlag( leaf_, t_, ME::iAPD_OVER_PNCOR_RMS, false );
+		  setFlag( leaf_, t_, ME::iAPD_OVER_PNCOR_M3, false );
+		  
+		  setFlag( leaf_, t_, ME::iAPDABFIT_OVER_PNCOR_MEAN, false );
+		  setFlag( leaf_, t_, ME::iAPDABFIT_OVER_PNCOR_RMS, false );
+		  setFlag( leaf_, t_, ME::iAPDABFIT_OVER_PNCOR_M3, false );
+		  
+		  setFlag( leaf_, t_, ME::iAPDABFIX_OVER_PNCOR_MEAN, false );
+		  setFlag( leaf_, t_, ME::iAPDABFIX_OVER_PNCOR_RMS, false );
+		  setFlag( leaf_, t_, ME::iAPDABFIX_OVER_PNCOR_M3, false );
+	
 		}
+	      
+	      if ( scpn_<  Cut_sc_pn[0] || scpn_>  Cut_sc_pn[1]){
+		setFlag( leaf_, t_, ME::iPN_SHAPE_COR, false );
+	      }  
 	    }
 	}
     }
-
+  
+      
   listOfChan_.clear();
   listOfChan_.push_back( tree() );
 
