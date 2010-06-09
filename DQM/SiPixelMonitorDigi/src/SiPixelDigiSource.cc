@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.38 2010/05/10 15:13:08 merkelp Exp $
+// $Id: SiPixelDigiSource.cc,v 1.39 2010/05/10 15:18:52 merkelp Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -145,20 +145,21 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 //  if(nEventDigis>bigEventSize) nBigEvents++;
 //  if(nLumiSecs%5==0){
   MonitorElement* me; MonitorElement* me1;
+  
+  // Rate of events with >N digis:
   if(nEventDigis>bigEventSize){
     me = theDMBE->get("Pixel/bigEventRate");
     if(me) me->Fill(lumiSection,1./23.);    
   }
   //std::cout<<"nEventDigis: "<<nEventDigis<<" , nLumiSecs: "<<nLumiSecs<<" , nBigEvents: "<<nBigEvents<<std::endl;
   
+  // Rate of pixel events and total number of pixel events per BX:
   if(nActiveModules>=4){
     me = theDMBE->get("Pixel/pixEvtsPerBX");
     if(me) me->Fill(float(bx));
     me1 = theDMBE->get("Pixel/pixEventRate");
     if(me1) me1->Fill(lumiSection, 1./23.);
   }
-
-
   
   
   // slow down...

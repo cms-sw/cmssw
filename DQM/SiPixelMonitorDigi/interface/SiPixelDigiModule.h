@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiModule.h,v 1.14 2009/12/10 20:18:42 wehrlilu Exp $
+// $Id: SiPixelDigiModule.h,v 1.15 2009/12/11 13:18:58 merkelp Exp $
 //
 //
 //  Updated by: Lukas Wehrli
@@ -60,6 +60,8 @@ class SiPixelDigiModule {
   MonitorElement* mePixDigis_;
   MonitorElement* mePixDigis_px_;
   MonitorElement* mePixDigis_py_;
+  MonitorElement* meNDigisCOMBBarrel_;
+  MonitorElement* meNDigisCOMBEndcap_;
 
   //barrel:
   MonitorElement* meNDigisLad_;

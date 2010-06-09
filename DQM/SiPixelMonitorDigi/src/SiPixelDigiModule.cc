@@ -71,8 +71,16 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type, bool tw
     pxtitle = "Number of Digis (1bin=one column)";
     pytitle = "Number of Digis (1bin=one row)";
   }
-
-
+  
+  std::string currDir = theDMBE->pwd();
+  theDMBE->cd("Pixel/Barrel");
+  meNDigisCOMBBarrel_ = theDMBE->book1D("ALLMODS_ndigisCOMB_Barrel","Number of Digis",500,0.,1000.);
+  meNDigisCOMBBarrel_->setAxisTitle("Number of digis per module per event",1);
+  theDMBE->cd("Pixel/Endcap");
+  meNDigisCOMBEndcap_ = theDMBE->book1D("ALLMODS_ndigisCOMB_Endcap","Number of Digis",500,0.,1000.);
+  meNDigisCOMBEndcap_->setAxisTitle("Number of digis per module per event",1);
+  theDMBE->cd(currDir);
+  
   if(type==0){
     SiPixelHistogramId* theHistogramId = new SiPixelHistogramId( src.label() );
     // Number of digis
@@ -291,7 +299,7 @@ int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input, bool modo
   }
 
   // Get DQM interface
-  //DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
+  DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
   //std::cout<<"id_ = "<<id_<<" , dmbe="<<theDMBE->pwd()<<std::endl;
   //std::cout<<"********************"<<std::endl;
   edm::DetSetVector<PixelDigi>::const_iterator isearch = input.find(id_); // search  digis of detid
@@ -393,7 +401,13 @@ int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input, bool modo
     if(bladeon && endcap) (meNDigisBlade_)->Fill((float)numberOfDigis);
     if(diskon && endcap && !twoDimOnlyLayDisk) (meNDigisDisk_)->Fill((float)numberOfDigis);
     if(ringon && endcap) (meNDigisRing_)->Fill((float)numberOfDigis);
-    
+    if(barrel){ 
+      MonitorElement* me=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCOMB_Barrel");
+      if(me) me->Fill((float)numberOfDigis);
+    }else if(endcap){
+      MonitorElement* me=theDMBE->get("Pixel/Endcap/ALLMODS_ndigisCOMB_Endcap");
+      if(me) me->Fill((float)numberOfDigis);
+    }
   }
   
   //std::cout<<"numberOfDigis for this module: "<<numberOfDigis<<std::endl;
