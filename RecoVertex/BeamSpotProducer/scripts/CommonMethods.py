@@ -6,6 +6,8 @@ lockFile = ".lock"
 
 ###########################################################################################
 def timeoutManager(type,timeout=-1,fileName=".timeout"):
+    if timeout == 0:
+        return 1
     timeFormat = "%a,%Y/%m/%d,%H:%M:%S"
     currentTime = time.gmtime()
     timeoutLine = type + ' ' + time.strftime(timeFormat, currentTime) + '\n'

@@ -209,7 +209,7 @@ def getNewRunList(fromDir,lastUploadedIOV):
     return newRunList        
 
 ########################################################################
-def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRunList,runListDir,dataSet,mailList,dbsTolerance,dbsTolerancePercent,rrTolerance,missingLumisTolerance,missingFilesTolerance):
+def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRunList,runListDir,dataSet,mailList,dbsTolerance,dbsTolerancePercent,rrTolerance,missingFilesTolerance,missingLumisTimeout):
     runsAndLumisProcessed = {}
     runsAndFiles = {}
     for fileName in newRunList:
@@ -267,7 +267,7 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
                 print "I haven't processed all files yet : " + str(len(runsAndFiles[run])) + " out of " + str(nFiles) + " for run: " + str(run) 
                 if nFiles - len(runsAndFiles[run]) <= missingFilesTolerance:
                     timeoutManager("DBS_VERY_BIG_MISMATCH_Run"+str(run)) # resetting this timeout
-                    timeoutType = timeoutManager("DBS_MISMATCH_Run"+str(run),47)
+                    timeoutType = timeoutManager("DBS_MISMATCH_Run"+str(run),missingLumisTimeout)
                     if timeoutType == 1:
                         print "WARNING: I previously set a timeout that expired...I'll continue with the script even if I didn't process all the lumis!"
                     else:
@@ -277,9 +277,9 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
                             print "WARNING: Timeout DBS_MISMATCH_Run" + str(run) + " is in progress."
                         return filesToProcess
                 else:
-                    timeoutType = timeoutManager("DBS_VERY_BIG_MISMATCH_Run"+str(run),47)
+                    timeoutType = timeoutManager("DBS_VERY_BIG_MISMATCH_Run"+str(run),missingLumisTimeout)
                     if timeoutType == 1:
-                        error = "ERROR: I previously set a timeout that expired...I can't continue with the script because there are too many (" + str(nFiles - len(runsAndFiles[run])) + " files missing and for too long " + str(47/3600) + " hours!"
+                        error = "ERROR: I previously set a timeout that expired...I can't continue with the script because there are too many (" + str(nFiles - len(runsAndFiles[run])) + " files missing) and for too long " + str(missingLumisTimeout/3600) + " hours!"
                         sendEmail(mailList,error)
                         exit(error)
                     else:
@@ -333,11 +333,11 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
                             badProcessed.append(lumi)
                     lenA = len(badProcessed)
                     lenB = len(RRList)
-                    if 100.*lenA/lenB < dbsTolerancePercent:
+                    if 100.*lenA/lenB <= dbsTolerancePercent:
                         print "WARNING: I didn't process " + str(100.*lenA/lenB) + "% of the lumis but I am within the " + str(dbsTolerancePercent) + "% set in the configuration. Which corrispond to " + str(lenA) + " out of " + str(lenB) + " lumis"
                         #print errors
                         badProcessed = []
-                    elif lenA < dbsTolerancePercent:
+                    elif lenA <= dbsTolerance:
                         print "WARNING: I didn't process " + str(lenA) + " lumis but I am within the " + str(dbsTolerance) + " lumis set in the configuration. Which corrispond to " + str(lenA) + " out of " + str(lenB) + " lumis"
                         #print errors
                         badProcessed = []
@@ -361,14 +361,14 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
         else:
             error = "Run " + str(run) + " is in the run registry but it has not been processed yet!"
             print error
-            timeoutType = timeoutManager("MISSING_RUNREGRUN_Run"+str(run),47)
+            timeoutType = timeoutManager("MISSING_RUNREGRUN_Run"+str(run),missingLumisTimeout)
             if timeoutType == 1:
-                if len(listOfRunsAndLumiFromRR[run]) < rrTolerance:
-                    error = "WARNING: I previously set the MISSING_RUNREGRUN_Run" + str(run) + " timeout that expired...I am missing run " + str(run) + " but it only had " + str(len(listOfRunsAndLumiFromRR[run])) + " < " + rrTolerance + " lumis. So I will continue and ignore it... "
+                if len(listOfRunsAndLumiFromRR[run]) <= rrTolerance:
+                    error = "WARNING: I previously set the MISSING_RUNREGRUN_Run" + str(run) + " timeout that expired...I am missing run " + str(run) + " but it only had " + str(len(listOfRunsAndLumiFromRR[run])) + " <= " + str(rrTolerance) + " lumis. So I will continue and ignore it... "
                     print error
                     sendEmail(mailList,error)
                 else:
-                    error = "ERROR: I previously set the MISSING_RUNREGRUN_Run" + str(run) + " timeout that expired...I am missing run " + str(run) + " which has " + str(len(listOfRunsAndLumiFromRR[run])) + " > " + rrTolerance + " lumis. I can't continue... "
+                    error = "ERROR: I previously set the MISSING_RUNREGRUN_Run" + str(run) + " timeout that expired...I am missing run " + str(run) + " which has " + str(len(listOfRunsAndLumiFromRR[run])) + " > " + str(rrTolerance) + " lumis. I can't continue... "
                     sendEmail(mailList,error)
                     exit(error)
             else:
@@ -505,18 +505,18 @@ def main():
     configuration.read(configurationFile)
 
     sourceDir           = configuration.get('Common','SOURCE_DIR')
-    archiveDir          = configuration.get('Common','ARCHIVE_DIR')
-    workingDir          = configuration.get('Common','WORKING_DIR')
-    databaseTag         = configuration.get('Common','DBTAG')
-    dataSet             = configuration.get('Common','DATASET')
-    fileIOVBase         = configuration.get('Common','FILE_IOV_BASE')
-    dbIOVBase           = configuration.get('Common','DB_IOV_BASE')
-    dbsTolerance        = float(configuration.get('Common','DBS_TOLERANCE'))
-    dbsTolerancePercent = float(configuration.get('Common','DBS_TOLERANCE_PERCENT'))
-    rrTolerance         = float(configuration.get('Common','RR_TOLERANCE'))
-    missingLumisTimeout = float(configuration.get('Common','MISSING_FILES_TOLERANCE'))
-    missingLumisTimeout = float(configuration.get('Common','MISSING_LUMIS_TIMEOUT'))
-    mailList            = configuration.get('Common','EMAIL')
+    archiveDir            = configuration.get('Common','ARCHIVE_DIR')
+    workingDir            = configuration.get('Common','WORKING_DIR')
+    databaseTag           = configuration.get('Common','DBTAG')
+    dataSet               = configuration.get('Common','DATASET')
+    fileIOVBase           = configuration.get('Common','FILE_IOV_BASE')
+    dbIOVBase             = configuration.get('Common','DB_IOV_BASE')
+    dbsTolerance          = float(configuration.get('Common','DBS_TOLERANCE'))
+    dbsTolerancePercent   = float(configuration.get('Common','DBS_TOLERANCE_PERCENT'))
+    rrTolerance           = float(configuration.get('Common','RR_TOLERANCE'))
+    missingFilesTolerance = float(configuration.get('Common','MISSING_FILES_TOLERANCE'))
+    missingLumisTimeout   = float(configuration.get('Common','MISSING_LUMIS_TIMEOUT'))
+    mailList              = configuration.get('Common','EMAIL')
 
     ######### DIRECTORIES SETUP #################
     if sourceDir[len(sourceDir)-1] != '/':
@@ -584,7 +584,7 @@ def main():
     #print completeProcessedRuns
     #exit("complete")
     print "Getting list of files to process"
-    selectedFilesToProcess = selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,copiedFiles,archiveDir,dataSet,mailList,dbsTolerance,dbsTolerancePercent,rrTolerance,missingLumisTolerance)
+    selectedFilesToProcess = selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,copiedFiles,archiveDir,dataSet,mailList,dbsTolerance,dbsTolerancePercent,rrTolerance,missingFilesTolerance,missingLumisTimeout)
     if len(selectedFilesToProcess) == 0:
        exit("There are no files to process")
         
@@ -596,8 +596,10 @@ def main():
         copiedFiles = cp(archiveDir,workingDir,selectedFilesToProcess)    
         if len(copiedFiles) == len(selectedFilesToProcess):
             break;
+        else:
+            commands.getstatusoutput("rm -rf " + workingDir)
     if len(copiedFiles) != len(selectedFilesToProcess):
-        error = "ERROR: I can't copy more than " + str(len(copiedFiles)) + " files out of " + str(len(selectedFilesToProcess)) 
+        error = "ERROR: I can't copy more than " + str(len(copiedFiles)) + " files out of " + str(len(selectedFilesToProcess)) + " from " + archiveDir + " to " + workingDir 
         sendEmail(mailList,error)
         exit(error)
 
@@ -712,10 +714,12 @@ def main():
         uploadSqliteFile(workingDir, final_sqlite_file_name, dropbox)
                    
     archive_sqlite_file_name = "Payloads_" + iovSinceFirst + "_" + iovTillLast + "_" + final_sqlite_file_name
+    archive_results_file_name = "Payloads_" + iovSinceFirst + "_" + iovTillLast + "_" + databaseTag + ".txt"
     if not os.path.isdir(archiveDir + 'payloads'):
         os.mkdir(archiveDir + 'payloads')
     commands.getstatusoutput('mv ' + sqlite_file   + ' ' + archiveDir + 'payloads/' + archive_sqlite_file_name + '.db')
     commands.getstatusoutput('mv ' + metadata_file + ' ' + archiveDir + 'payloads/' + archive_sqlite_file_name + '.txt')
+    commands.getstatusoutput('cp ' + workingDir + payloadFileName + ' ' + archiveDir + 'payloads/' + archive_results_file_name)
   
     print archiveDir + "payloads/" + archive_sqlite_file_name + '.db'
     print archiveDir + "payloads/" + archive_sqlite_file_name + '.txt'
