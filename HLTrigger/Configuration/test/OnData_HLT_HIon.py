@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_6_0/HIon/V38 (CMSSW_3_6_0_HLT10)
+# /dev/CMSSW_3_6_2/HIon/V3 (CMSSW_3_6_2_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/HIon/V38')
+  tableName = cms.string('/dev/CMSSW_3_6_2/HIon/V3')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -1320,7 +1320,7 @@ process.DQMStore = cms.Service( "DQMStore",
 )
 process.DTDataIntegrityTask = cms.Service( "DTDataIntegrityTask",
     getSCInfo = cms.untracked.bool( True ),
-    hltMode = cms.untracked.bool( True ),
+    processingMode = cms.untracked.string( "HLT" )
 )
 process.MessageLogger = cms.Service( "MessageLogger",
     destinations = cms.untracked.vstring( 'warnings',
@@ -1375,7 +1375,8 @@ process.MessageLogger = cms.Service( "MessageLogger",
       default = cms.untracked.PSet(  limit = cms.untracked.int32( 0 ) ),
       FwkJob = cms.untracked.PSet(  limit = cms.untracked.int32( 10000000 ) )
     ),
-    suppressWarning = cms.untracked.vstring( 'hltPixelTracksForMinBias',
+    suppressWarning = cms.untracked.vstring( 'hltOnlineBeamSpot',
+      'hltPixelTracksForMinBias',
       'hltPixelTracksForHighMult',
       'hltHITPixelTracksHE',
       'hltHITPixelTracksHB',
@@ -1390,9 +1391,9 @@ process.ModuleWebRegistry = cms.Service( "ModuleWebRegistry",
 process.PrescaleService = cms.Service( "PrescaleService",
     lvl1DefaultLabel = cms.untracked.string( "2E29" ),
     lvl1Labels = cms.vstring( '2E29_preL1',
+      '4E29',
       '2E29',
       '1E29',
-      '1E28',
       'Cosmics' ),
     prescaleTable = cms.VPSet( 
     )
@@ -1461,10 +1462,10 @@ process.hltBPTXCoincidence = cms.EDFilter( "HLTLevel1Activity",
     daqPartitions = cms.uint32( 1 ),
     ignoreL1Mask = cms.bool( True ),
     invert = cms.bool( False ),
-    bunchCrossings = cms.vint32( 0, -1, 1 ),
     physicsLoBits = cms.uint64( 0x1 ),
     physicsHiBits = cms.uint64( 0x40000 ),
-    technicalBits = cms.uint64( 0x0 )
+    technicalBits = cms.uint64( 0x0 ),
+    bunchCrossings = cms.vint32( 0, -1, 1 )
 )
 process.hltScalersRawToDigi = cms.EDProducer( "ScalersRawToDigi",
     scalersInputTag = cms.InputTag( "source" )
@@ -2363,6 +2364,7 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool( True )
 )
 
+# override L1 menu
 process.Level1MenuOverride = cms.ESSource( "PoolDBESSource",
     BlobStreamerName = cms.untracked.string( "TBufferBlobStreamingService" ),
     connect = cms.string( "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_COND_31X_L1T" ),
@@ -2397,7 +2399,7 @@ if 'GlobalTag' in process.__dict__:
     process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
     process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
     from Configuration.PyReleaseValidation.autoCond import autoCond
-    process.GlobalTag.globaltag = autoCond['com10']
+    process.GlobalTag.globaltag = autoCond['hltonline']
 
 if 'Level1MenuOverride' in process.__dict__:
     process.Level1MenuOverride.connect   = 'frontier://FrontierProd/CMS_COND_31X_L1T'

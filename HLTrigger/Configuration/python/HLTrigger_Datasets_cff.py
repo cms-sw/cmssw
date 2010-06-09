@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_6_0/GRun/V38
+# /dev/CMSSW_3_6_2/GRun/V3
 
 import FWCore.ParameterSet.Config as cms
 
@@ -46,8 +46,7 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetMinimumBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMinimumBias_selector.l1tResults = cms.InputTag('')
 streamA_datasetMinimumBias_selector.throw      = cms.bool(False)
-streamA_datasetMinimumBias_selector.triggerConditions = cms.vstring('HLT_PixelTracks_Multiplicity40', 
-    'HLT_L1Tech_BSC_halo_forPhysicsBackground', 
+streamA_datasetMinimumBias_selector.triggerConditions = cms.vstring('HLT_L1Tech_BSC_halo_forPhysicsBackground', 
     'HLT_PixelTracks_Multiplicity70', 
     'HLT_L1Tech_HCAL_HF', 
     'HLT_IsoTrackHB_8E29', 
