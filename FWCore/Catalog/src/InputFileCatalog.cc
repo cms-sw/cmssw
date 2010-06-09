@@ -7,6 +7,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -18,21 +19,20 @@ namespace edm {
   InputFileCatalog::InputFileCatalog(ParameterSet const& pset,
 				     std::string const& namesParameter,
 				     bool canBeEmpty, bool noThrow) :
-    FileCatalog(poolcat),
     logicalFileNames_(canBeEmpty ?
-	pset.getUntrackedParameter<std::vector<std::string> >(namesParameter, std::vector<std::string>()) :
-	pset.getUntrackedParameter<std::vector<std::string> >(namesParameter)),
+		      pset.getUntrackedParameter<std::vector<std::string> >(namesParameter, std::vector<std::string>()) :
+		      pset.getUntrackedParameter<std::vector<std::string> >(namesParameter)),
     fileNames_(logicalFileNames_),
     fileCatalogItems_() {
 
     if (logicalFileNames_.empty()) {
       if (canBeEmpty) return;
       throw edm::Exception(edm::errors::Configuration, "InputFileCatalog::InputFileCatalog()\n")
-	  << "Empty '" << namesParameter << "' parameter specified for input source.\n";
+	<< "Empty '" << namesParameter << "' parameter specified for input source.\n";
     }
     // Starting the catalog will write a catalog out if it does not exist.
     // So, do not start (or even read) the catalog unless it is needed.
-
+    
     fileCatalogItems_.reserve(fileNames_.size());
     typedef std::vector<std::string>::iterator iter;
     for(iter it = fileNames_.begin(), lt = logicalFileNames_.begin(), itEnd = fileNames_.end();
@@ -51,9 +51,9 @@ namespace edm {
       }
     }
   }
-
+  
   InputFileCatalog::~InputFileCatalog() {}
-
+  
   void InputFileCatalog::findFile(std::string & pfn, std::string const& lfn, bool noThrow) {
     pfn = fileLocator().pfn(lfn);
     if (pfn.empty() && !noThrow) {
@@ -63,9 +63,9 @@ namespace edm {
 	<< "before the file name in your configuration file.\n";
     }
   }
-
+  
   void
   InputFileCatalog::fillDescription(ParameterSetDescription & desc) {
   }
-
+  
 }

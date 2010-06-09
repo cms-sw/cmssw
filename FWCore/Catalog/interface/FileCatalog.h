@@ -2,7 +2,7 @@
 #define FWCore_Catalog_FileCatalog_h
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: FileCatalog.h,v 1.5 2008/03/14 03:46:02 wmtan Exp $
+// $Id: FileCatalog.h,v 1.6 2010/06/09 06:44:03 innocent Exp $
 //
 // Class FileCatalog. Common services to manage File catalog
 //
@@ -32,12 +32,13 @@ namespace edm {
     explicit FileCatalog();
     virtual ~FileCatalog() = 0;
     FileLocator const & fileLocator() const { return fl;}
-    static bool const isPhysical(std::string const& name) {
+    static bool isPhysical(std::string const& name) {
       return (name.empty() || name.find(':') != std::string::npos);
     }
- private:
+  private:
     FileLocator fl;
   };
+
 }
 
 #endif
