@@ -28,14 +28,17 @@ using namespace std;
 
 const int EcalSelectiveReadoutSuppressor::nFIRTaps = 6;
 
-EcalSelectiveReadoutSuppressor::EcalSelectiveReadoutSuppressor(const edm::ParameterSet & params):
-  firstFIRSample(params.getParameter<int>("ecalDccZs1stSample")),
-  weights(params.getParameter<vector<double> >("dccNormalizedWeights")),
-  symetricZS(params.getParameter<bool>("symetricZS")),
-  actions_(params.getParameter<vector<int> >("actions")),
+EcalSelectiveReadoutSuppressor::EcalSelectiveReadoutSuppressor(const edm::ParameterSet & params, const EcalSRSettings* settings):
   ttThresOnCompressedEt_(false),
   ievt_(0)
 {
+
+  firstFIRSample = settings->ecalDccZs1stSample_[0];
+  weights = settings->dccNormalizedWeights_[0];
+  symetricZS = settings->symetricZS_[0];
+  actions_ = settings->actions_;
+
+
   int defTtf = params.getParameter<int>("defaultTtf");
   if(defTtf < 0 || defTtf > 7){
     throw cms::Exception("InvalidParameter") << "Value of EcalSelectiveReadoutProducer module parameter defaultTtf, "
@@ -54,19 +57,21 @@ EcalSelectiveReadoutSuppressor::EcalSelectiveReadoutSuppressor(const edm::Parame
       "not valid. It must be a vector of 8 integer values comprised between 0 and 7\n";
   }
   
-  double adcToGeV = params.getParameter<double>("ebDccAdcToGeV");
+  double adcToGeV = settings->ebDccAdcToGeV_;
   thrUnit[BARREL] = adcToGeV/4.; //unit=1/4th ADC count
   
-  adcToGeV = params.getParameter<double>("eeDccAdcToGeV");
+  adcToGeV = settings->eeDccAdcToGeV_;
   thrUnit[ENDCAP] = adcToGeV/4.; //unit=1/4th ADC count
   ecalSelectiveReadout
-    = auto_ptr<EcalSelectiveReadout>(new EcalSelectiveReadout
-				     (params.getParameter<int>("deltaEta"),
-				      params.getParameter<int>("deltaPhi")));
-  initCellThresholds(params.getParameter<double>("srpBarrelLowInterestChannelZS"),
-		     params.getParameter<double>("srpEndcapLowInterestChannelZS"),
-		     params.getParameter<double>("srpBarrelHighInterestChannelZS"),
-		     params.getParameter<double>("srpEndcapHighInterestChannelZS")
+    = auto_ptr<EcalSelectiveReadout>(new EcalSelectiveReadout(
+							      settings->deltaEta_[0],
+							      settings->deltaPhi_[0]));
+  const int eb = 0;
+  const int ee = 1;
+  initCellThresholds(settings->srpLowInterestChannelZS_[eb],
+		     settings->srpLowInterestChannelZS_[ee],
+		     settings->srpHighInterestChannelZS_[eb],
+		     settings->srpHighInterestChannelZS_[ee]
 		     );
   trigPrimBypass_ = params.getParameter<bool>("trigPrimBypass");
   trigPrimBypassMode_ = params.getParameter<int>("trigPrimBypassMode");

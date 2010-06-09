@@ -5,48 +5,67 @@
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "CondFormats/DataRecord/interface/EcalSRSettingsRcd.h"
+//#include "DataFormats/EcalDigi/interface/EcalMGPASample.h"
+
 #include <memory>
+#include <fstream>
 
-#include <fstream> //used for debugging
-
-#include "DataFormats/EcalDigi/interface/EcalMGPASample.h"
 
 using namespace std;
 
 EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterSet& params)
   : params_(params)
 {
-  //sets up parameters:
-   digiProducer_ = params.getParameter<string>("digiProducer");
-   ebdigiCollection_ = params.getParameter<std::string>("EBdigiCollection");
-   eedigiCollection_ = params.getParameter<std::string>("EEdigiCollection");
-   ebSRPdigiCollection_ = params.getParameter<std::string>("EBSRPdigiCollection");
-   eeSRPdigiCollection_ = params.getParameter<std::string>("EESRPdigiCollection");
-   ebSrFlagCollection_ = params.getParameter<std::string>("EBSrFlagCollection");
-   eeSrFlagCollection_ = params.getParameter<std::string>("EESrFlagCollection");
-   trigPrimProducer_ = params.getParameter<string>("trigPrimProducer");
-   trigPrimCollection_ = params.getParameter<string>("trigPrimCollection");
-   trigPrimBypass_ = params.getParameter<bool>("trigPrimBypass");
-   trigPrimBypassMode_ = params.getParameter<int>("trigPrimBypassMode"),
-   dumpFlags_ = params.getUntrackedParameter<int>("dumpFlags", 0);
-   writeSrFlags_ = params.getUntrackedParameter<bool>("writeSrFlags", false);
-   produceDigis_ = params.getUntrackedParameter<bool>("produceDigis", true);
-   //instantiates the selective readout algorithm:
-   suppressor_ = auto_ptr<EcalSelectiveReadoutSuppressor>(new EcalSelectiveReadoutSuppressor(params));
-   //declares the products made by this producer:
-   if(produceDigis_){
-     produces<EBDigiCollection>(ebSRPdigiCollection_);
-     produces<EEDigiCollection>(eeSRPdigiCollection_);
-   }
+  //settings:
+  //  settings which are only in python config files:
+  digiProducer_ = params.getParameter<string>("digiProducer");
+  ebdigiCollection_ = params.getParameter<std::string>("EBdigiCollection");
+  eedigiCollection_ = params.getParameter<std::string>("EEdigiCollection");
+  ebSRPdigiCollection_ = params.getParameter<std::string>("EBSRPdigiCollection");
+  eeSRPdigiCollection_ = params.getParameter<std::string>("EESRPdigiCollection");
+  ebSrFlagCollection_ = params.getParameter<std::string>("EBSrFlagCollection");
+  eeSrFlagCollection_ = params.getParameter<std::string>("EESrFlagCollection");
+  trigPrimProducer_ = params.getParameter<string>("trigPrimProducer");
+  trigPrimCollection_ = params.getParameter<string>("trigPrimCollection");
+  trigPrimBypass_ = params.getParameter<bool>("trigPrimBypass");
+  trigPrimBypassMode_ = params.getParameter<int>("trigPrimBypassMode");
+  dumpFlags_ = params.getUntrackedParameter<int>("dumpFlags", 0);
+  writeSrFlags_ = params.getUntrackedParameter<bool>("writeSrFlags", false);
+  produceDigis_ = params.getUntrackedParameter<bool>("produceDigis", true);
+  //   settings which can come from either condition database or python configuration file:
+  useCondDb_ = false;
+  try{
+    if(params.getParameter<bool>("configFromCondDB")){
+      useCondDb_ = true;
+    }
+  } catch(cms::Exception){
+    /* pameter not found */
+    edm::LogWarning("EcalSelectiveReadout") << "Parameter configFromCondDB of EcalSelectiveReadout module not found. "
+      "Selective readout configuration will be read from python file.";
+  }
+  if(!useCondDb_){
+    settingsFromFile_ = auto_ptr<EcalSRSettings>(new EcalSRSettings());
+    settingsFromFile_->importParameterSet(params);
+    settings_ = settingsFromFile_.get();
+  }
 
-   if (writeSrFlags_) {
-     produces<EBSrFlagCollection>(ebSrFlagCollection_);
-     produces<EESrFlagCollection>(eeSrFlagCollection_);
-   }
+  //instantiates the selective readout algorithm:
+  suppressor_ = auto_ptr<EcalSelectiveReadoutSuppressor>(new EcalSelectiveReadoutSuppressor(params, settings_));
+  //declares the products made by this producer:
+  if(produceDigis_){
+    produces<EBDigiCollection>(ebSRPdigiCollection_);
+    produces<EEDigiCollection>(eeSRPdigiCollection_);
+  }
 
-   theGeometry = 0;
-   theTriggerTowerMap = 0;
-   theElecMap = 0;
+  if (writeSrFlags_) {
+    produces<EBSrFlagCollection>(ebSrFlagCollection_);
+    produces<EESrFlagCollection>(eeSrFlagCollection_);
+  }
+
+  theGeometry = 0;
+  theTriggerTowerMap = 0;
+  theElecMap = 0;
 }
 
 
@@ -58,6 +77,12 @@ EcalSelectiveReadoutProducer::~EcalSelectiveReadoutProducer()
 void
 EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 {
+  //getting selective readout configuration:
+  edm::ESHandle<EcalSRSettings> hSr;
+  eventSetup.get<EcalSRSettingsRcd>().get(hSr);
+  settings_ = hSr.product();
+  settings_->checkValidity();
+  
   // check that everything is up-to-date
   checkGeometry(eventSetup);
   checkTriggerMap(eventSetup);
@@ -258,7 +283,7 @@ void EcalSelectiveReadoutProducer::printTTFlags(const EcalTrigPrimDigiCollection
 
 void EcalSelectiveReadoutProducer::checkWeights(const edm::Event& evt,
 						const edm::ProductID& noZsDigiId) const{
-  const vector<double> & weights = params_.getParameter<vector<double> >("dccNormalizedWeights");
+  const vector<double> & weights = settings_->dccNormalizedWeights_[0]; //params_.getParameter<vector<double> >("dccNormalizedWeights");
   int nFIRTaps = EcalSelectiveReadoutSuppressor::getFIRTapCount();
   static bool warnWeightCnt = true;
   if((int)weights.size() > nFIRTaps && warnWeightCnt){
@@ -281,9 +306,9 @@ void EcalSelectiveReadoutProducer::checkWeights(const edm::Event& evt,
     }
 
     //position of time sample whose maximum weight is applied:
-    int maxWeightBin = params_.getParameter<int>("ecalDccZs1stSample")
+    int maxWeightBin = settings_->ecalDccZs1stSample_[0] //params_.getParameter<int>("ecalDccZs1stSample")
       + iMaxWeight;
-
+    
     //gets the bin of maximum (in case of raw data it will not exist)
     int binOfMax = 0;
     bool rc = getBinOfMax(evt, noZsDigiId, binOfMax);

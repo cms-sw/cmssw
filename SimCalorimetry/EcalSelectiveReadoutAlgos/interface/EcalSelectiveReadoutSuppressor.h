@@ -10,14 +10,17 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimCalorimetry/EcalSelectiveReadoutAlgos/src/EcalSelectiveReadout.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "CondFormats/EcalObjects/interface/EcalSRSettings.h"
+
 #include <memory>
 
 class EcalSelectiveReadoutSuppressor{
 public:
   /** Construtor.
-   * @param params configuration
+   * @param params configuration from python file
+   * @param settings configuration from condition DB
    */
-  EcalSelectiveReadoutSuppressor(const edm::ParameterSet & params);
+  EcalSelectiveReadoutSuppressor(const edm::ParameterSet & params, const EcalSRSettings* settings);
   
   enum {BARREL, ENDCAP};
 

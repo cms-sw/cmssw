@@ -6,6 +6,9 @@
 <use name=DataFormats/EcalDetId>
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/EcalObjects>
+<use name=CondCore/DBOutputService>
+<use name=CondCore/DBCommon>
+
 
 <flags EDM_PLUGIN=1>
 <export>
@@ -18,4 +21,6 @@
    <use name=DataFormats/EcalDetId>
    <use name=CondFormats/DataRecord>
    <use name=CondFormats/EcalObjects>
+   <use name=CondCore/DBOutputService>
+   <use name=CondCore/DBCommon>
 </export>

@@ -9,6 +9,8 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "SimCalorimetry/EcalSelectiveReadoutAlgos/interface/EcalSelectiveReadoutSuppressor.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
+#include "CondFormats/EcalObjects/interface/EcalSRSettings.h"
+
 #include <memory>
 #include <vector>
 
@@ -46,6 +48,7 @@ public:
 	       const EESrFlagCollection& eeSrFlags,
 	       int iEvent = -1,
 	       bool withHeader = true);
+
 
 private:
 
@@ -124,6 +127,20 @@ private:
    * but selective readout is not applied on the crystal channel digis.
    */
   bool produceDigis_;
+
+  /** SR settings
+   */
+  const EcalSRSettings* settings_;
+
+  /** Switch for retrieving SR settings from condition database instead
+   * of CMSSW python configuration file.
+   */
+  bool useCondDb_;
+
+  /** Used when settings_ is imported from configuration file. Just used
+   * for memory management. Used settings_ to access to the object
+   */
+  std::auto_ptr<EcalSRSettings> settingsFromFile_;
 };
 
 #endif
