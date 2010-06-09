@@ -201,7 +201,6 @@ void PileUpSubtractor::subtractPedestal(vector<fastjet::PseudoJet> & coll)
   }
 }
 
-
 void PileUpSubtractor::calculateOrphanInput(vector<fastjet::PseudoJet> & orphanInput) 
 {
 
@@ -252,8 +251,17 @@ void PileUpSubtractor::calculateOrphanInput(vector<fastjet::PseudoJet> & orphanI
   //
   for(vector<fastjet::PseudoJet>::const_iterator it = fjInputs_->begin(),
 	fjInputsEnd = fjInputs_->end(); it != fjInputsEnd; ++it ) {
-    vector<int>::const_iterator itjet = find(jettowers.begin(),jettowers.end(),it->user_index());
-    if( itjet == jettowers.end() ) orphanInput.push_back(*it); 
+
+    int index = it->user_index();
+    vector<int>::const_iterator itjet = find(jettowers.begin(),jettowers.end(),index);
+    if( itjet == jettowers.end() ){
+
+      const reco::CandidatePtr& originalTower = (*inputs_)[index];
+      fastjet::PseudoJet orphan(originalTower->px(),originalTower->py(),originalTower->pz(),originalTower->energy());
+      orphan.set_user_index(index);
+
+      orphanInput.push_back(orphan); 
+    }
   }
 }
 
