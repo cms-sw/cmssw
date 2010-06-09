@@ -26,6 +26,7 @@ class TriggerCandProducer : public edm::EDProducer
   ~TriggerCandProducer();
 
  private:
+  virtual void beginRun(edm::Run& iRun, edm::EventSetup const& iSetup);
   virtual void beginJob() ;
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
@@ -40,6 +41,7 @@ class TriggerCandProducer : public edm::EDProducer
   bool storeRefCollection_;
   bool isFilter_;
   bool printIndex_;
+  bool changed_;
   HLTConfigProvider hltConfig_;
 };
 #include "PhysicsTools/TagAndProbe//src/TriggerCandProducer.icc"

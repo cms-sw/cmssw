@@ -47,8 +47,7 @@ TriggerCandProducer<object>::~TriggerCandProducer()
 
 // ------------ method called to produce the data  ------------
 template<class object >
-void TriggerCandProducer<object>::produce(edm::Event &event, 
-							    const edm::EventSetup &eventSetup)
+void TriggerCandProducer<object>::produce(edm::Event &event, const edm::EventSetup &eventSetup)
 {
 
   using namespace std;
@@ -112,15 +111,6 @@ void TriggerCandProducer<object>::produce(edm::Event &event,
      hltTag_.label() << "   index: " << index << std::endl;
    }
    else{
-     bool changed = false;
-     if(! hltConfig_.init(event, hltTag_.process(), changed) ){
-       edm::LogError("TriggerCandProducer") << 
-	 "Error! Can't initialize HLTConfigProvider ";
-       return;
-     }
-     if(printIndex_ && changed) 
-       std::cout << "HLT configuration changed !" << std::endl;
-     
      std::vector<std::string> filters 
        = hltConfig_.moduleLabels( hltTag_.label() );
      for(std::vector<std::string>::iterator filter =
@@ -198,10 +188,19 @@ void TriggerCandProducer<object>::produce(edm::Event &event,
    
 
 
-
-
 // ---- method called once each job just before starting event loop  ---
-
+template<class object>
+void TriggerCandProducer<object>::beginRun(edm::Run& iRun, edm::EventSetup const& iSetup){
+  //std::cout << "calling init(" << "iRun" << ", " << "iSetup" << ", " << hltTag_.process() << ", " << "changed_" << ") in beginRun()" << std::endl;
+  if(!hltConfig_.init(iRun,iSetup,hltTag_.process(),changed_) ){
+    edm::LogError("TriggerCandProducer") << 
+      "Error! Can't initialize HLTConfigProvider ";
+    return;
+  }
+  if(printIndex_ && changed_)
+    std::cout << "HLT configuration changed !" << std::endl;
+  std::vector<std::string> filters = hltConfig_.moduleLabels( hltTag_.label() );
+}
 
 template<class object>
 void TriggerCandProducer<object>::beginJob() {
