@@ -1,0 +1,5 @@
+<use   name="FWCore/Catalog"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ServiceRegistry"/>
+<bin   name="edmCatalogFileLocator_t" file="FileLocator_t.cpp">
+</bin>
