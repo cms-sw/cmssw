@@ -10,9 +10,13 @@ process.load('Configuration.StandardSequences.MixingNoPileUp_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
+#process.load('Configuration.StandardSequences.SimIdeal_cff')
+#process.load('Configuration.StandardSequences.Digi_cff')
+
+
 #Conditions:
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'MC_3XY_V18::All'
+process.GlobalTag.globaltag = 'MC_38Y_V1::All'
 
 # event vertex smearing - applies only once (internal check)
 # Note : all internal generators will always do (0,0,0) vertex
