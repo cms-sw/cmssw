@@ -188,10 +188,10 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
   edm::ESHandle<std::vector<GeometricDetExtra> > rDDE;
   iSetup.get<IdealGeometryRecord>().get( rDD );     
   iSetup.get<IdealGeometryRecord>().get( rDDE );     
-  edm::LogInfo("ModuleNumbering") << " Top node is  " << &(*rDD) << " " <<  (*rDD).name().name() << std::endl;
-  edm::LogInfo("ModuleNumbering") << " And Contains  Daughters: " << (*rDD).deepComponents().size() << std::endl;
-  CmsTrackerDebugNavigator nav(&(*rDDE));
-  nav.dump(&(*rDD), &(*rDDE));
+  edm::LogInfo("ModuleNumbering") << " Top node is  " << rDD.product() << " " <<  rDD.product()->name().name() << std::endl;
+  edm::LogInfo("ModuleNumbering") << " And Contains  Daughters: " << rDD.product()->deepComponents().size() << std::endl;
+  CmsTrackerDebugNavigator nav(*rDDE.product());
+  nav.dump(*rDD.product(), *rDDE.product());
   //
   //first instance tracking geometry
   edm::ESHandle<TrackerGeometry> pDD;

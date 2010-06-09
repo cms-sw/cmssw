@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: GeometricDetAnalyzer.cc,v 1.4 2007/06/04 16:29:17 case Exp $
+// $Id: GeometricDetAnalyzer.cc,v 1.5 2009/05/25 11:00:29 fabiocos Exp $
 //
 //
 
@@ -100,21 +100,10 @@ GeometricDetAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
    //
    edm::ESHandle<GeometricDet> pDD;
    iSetup.get<IdealGeometryRecord>().get( pDD );     
-   edm::LogInfo("GeometricDetAnalyzer")<< " Top node is  "<<&(*pDD);   
-   edm::LogInfo("GeometricDetAnalyzer")<< " And Contains  Daughters: "<<(*pDD).deepComponents().size();   
-   std::vector<const GeometricDet*> det = (*pDD).deepComponents();   
+   edm::LogInfo("GeometricDetAnalyzer")<< " Top node is  "<< pDD.product();   
+   edm::LogInfo("GeometricDetAnalyzer")<< " And Contains  Daughters: "<< pDD->deepComponents().size();   
+   std::vector<const GeometricDet*> det = pDD->deepComponents();   
    for(std::vector<const GeometricDet*>::iterator it = det.begin();it!=det.end();it++){
-
-     // VERY unsure about this change.
-//      DDRotationMatrix res = (*it)->rotation();
-
-//      CLHEP::Hep3Vector colx(res.xx(),res.xy(),res.xz());
-//      CLHEP::Hep3Vector coly(res.yx(),res.yy(),res.yz());
-//      CLHEP::Hep3Vector colz(res.zx(),res.zy(),res.zz());
-
-//      DDRotationMatrix result(colx,coly,colz);
-
-//      if (result.colX().cross(result.colY()).dot(result.colZ()) < 0.5){
      DDRotationMatrix res = (*it)->rotation();
      DD3Vector x, y, z;
      res.GetComponents(x, y, z);
