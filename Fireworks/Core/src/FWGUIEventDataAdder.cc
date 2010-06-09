@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.41 2010/06/08 08:34:31 eulisse Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.42 2010/06/08 13:05:53 matevz Exp $
 //
 
 // system include files
@@ -175,6 +175,18 @@ private:
 };
 
 namespace {
+void strip(std::string &source, const char *str)
+   {
+      std::string remove(str);
+      while(true)
+      {
+         size_t found = source.find(remove);
+         if (found == std::string::npos)
+            break;
+         source.erase(found, remove.size());
+      }
+   }
+
    /** Helper classes to handle sorting and filtering.
    
        The idea is that we sort things so that:
@@ -205,7 +217,7 @@ namespace {
            m_order(order),
            m_data(data)
          {
-            std::transform(m_filter.begin(), m_filter.end(), m_filter.begin(), tolower);
+            simplify(m_filter);
             m_weights.resize(data.size());
             
             // Calculate whether or not all the entries match the given filter.
@@ -214,13 +226,28 @@ namespace {
             for (size_t i = 0, e = m_weights.size(); i != e; ++i)
                m_weights[i] = matchesFilter(m_data[i]);
          }
-      
+
+      /** Makes @a str lowercase and eliminates bits we dont want to take
+          into account in while searching.
+        */
+      static void simplify(std::string &str)
+      {
+         std::transform(str.begin(), str.end(), str.begin(), tolower);
+         strip(str, "std::");
+         strip(str, "edm::");
+         strip(str, "vector<");
+         strip(str, "clonepolicy");
+         strip(str, "rangemap<");
+         strip(str, "strictweakordering<");
+         strip(str, "sortedcollection<");
+         strip(str, "reco::");
+         strip(str, "edmnew::");
+      }
+
       bool matches(const std::string &str) const
          {
-            std::string up;
-            up.resize(str.size());
-            std::transform(str.begin(), str.end(), up.begin(), tolower);
-            
+            std::string up(str);
+            simplify(up);
             const char *begin = up.c_str();
             
             // If the filter is empty, we consider anything as matching 
