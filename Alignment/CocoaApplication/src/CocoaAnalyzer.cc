@@ -3,6 +3,7 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h" 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 
 #include "../interface/CocoaAnalyzer.h"
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurementInfo.h" 
@@ -85,7 +86,7 @@ void CocoaAnalyzer::ReadXMLFile( const edm::EventSetup& evts )
   // STEP ONE:  Initial COCOA objects will be built from a DDL geometry
   // description.  
   
-  edm::ESHandle<DDCompactView> cpv;
+  edm::ESTransientHandle<DDCompactView> cpv;
   evts.get<IdealGeometryRecord>().get(cpv);
 
   if(ALIUtils::debug >= 3) {
