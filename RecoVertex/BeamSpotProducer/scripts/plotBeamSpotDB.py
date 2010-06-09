@@ -31,9 +31,11 @@
    -P, --Print : create PNG plots from canvas.
    -s, --suffix = SUFFIX: Suffix will be added to plots filename.
    -t, --tag     = TAG: Database tag name.
+   -T, --Time : create plots with time axis.
    -I, --IOVbase = IOVBASE: options: runbase(default), lumibase, timebase
    -w, --wait : Pause script after plotting a new histograms.
    -W, --weighted : Create a weighted result for a range of lumi IOVs, skip lumi IOV combination and splitting.
+   -x, --xcrossing = XCROSSING : Bunch crossing number.
    
    Francisco Yumiceva (yumiceva@fnal.gov)
    Fermilab 2010
@@ -279,8 +281,16 @@ if __name__ == '__main__':
             exit()
 
     listbeam = []
-    readBeamSpotFile(datafilename,listbeam,IOVbase,firstRun,lastRun)
 
+    if option.xcrossing:
+        listmap = readBeamSpotFile(datafilename,listbeam,IOVbase,firstRun,lastRun)
+        # bx
+        print "List of bunch crossings in the file:"
+        print listmap.keys()
+        listbeam = listmap[option.Xrossing]
+    else:
+        readBeamSpotFile(datafilename,listbeam,IOVbase,firstRun,lastRun)
+    
     sortAndCleanBeamList(listbeam,IOVbase)
 	    
     if IOVbase == "lumibase" and option.payload:
@@ -303,7 +313,7 @@ if __name__ == '__main__':
         graphXaxis = "Run number"
     if IOVbase == 'lumibase':
         graphXaxis = 'Lumi section'
-    if IOVbase == 'timebase':
+    if IOVbase == 'timebase' or option.Time:
         graphXaxis = "Time"
     
     graphYaxis = ['beam spot X [cm]','beam spot Y [cm]','beam spot Z [cm]', 'beam spot #sigma_{Z} [cm]', 'beam spot dX/dZ', 'beam spot dY/dZ','beam width X [cm]', 'beam width Y [cm]']
@@ -362,6 +372,11 @@ if __name__ == '__main__':
                     #last = int( pack( int(ibeam.Run) , int(ibeam.IOVlast) ) )
                     first = ibeam.IOVfirst
                     last = ibeam.IOVlast
+                    if option.Time:
+                        atime = ibeam.IOVBeginTime
+                        first = time.mktime( time.strptime(atime.split()[0] +  " " + atime.split()[1] + " " + atime.split()[2],"%Y.%m.%d %H:%M:%S %Z") )
+                        atime = ibeam.IOVEndTime
+                        last = time.mktime( time.strptime(atime.split()[0] +  " " + atime.split()[1] + " " + atime.split()[2],"%Y.%m.%d %H:%M:%S %Z") )
 		    datax = (float(last) - float(first))/2 + float(first)
 		    dataxerr =  (float(last) - float(first))/2
 		graphlist[ig].SetPoint(ipoint, float(datax), float(datay) )
@@ -374,7 +389,7 @@ if __name__ == '__main__':
             ipoint += 1
 
 
-	if IOVbase=="timebase":
+	if option.Time:
             graphlist[ig].GetXaxis().SetTimeDisplay(1);
             graphlist[ig].GetXaxis().SetTimeFormat("#splitline{%Y/%m/%d}{%H:%M}")
 	if option.graph:
