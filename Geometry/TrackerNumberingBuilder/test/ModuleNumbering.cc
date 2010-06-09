@@ -124,9 +124,7 @@ ModuleNumbering::~ModuleNumbering()
 
 void ModuleNumbering::fillModuleVariables(const GeometricDet* module, double& polarRadius, double& phiRad, double& z) {
   // module variables
-  // CLHEP WAS  polarRadius = std::sqrt(module->translation()[0]*module->translation()[0]+module->translation()[1]*module->translation()[1]);
   polarRadius = std::sqrt(module->translation().X()*module->translation().X()+module->translation().Y()*module->translation().Y());
-  // CLHEP WAS   phiRad = atan2(module->translation()[1],module->translation()[0]);
   phiRad = atan2(module->translation().Y(),module->translation().X());
   // tolerance near phi=0
   if(fabs(phiRad) < tolerance_angle) phiRad=0.0;
@@ -190,7 +188,6 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
   edm::ESHandle<std::vector<GeometricDetExtra> > rDDE;
   iSetup.get<IdealGeometryRecord>().get( rDD );     
   iSetup.get<IdealGeometryRecord>().get( rDDE );     
-//   const std::vector<GeometricDetExtra> & rgde = *rDDE;
   edm::LogInfo("ModuleNumbering") << " Top node is  " << &(*rDD) << " " <<  (*rDD).name().name() << std::endl;
   edm::LogInfo("ModuleNumbering") << " And Contains  Daughters: " << (*rDD).deepComponents().size() << std::endl;
   CmsTrackerDebugNavigator nav(&(*rDDE));
@@ -203,16 +200,9 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
   
   std::vector<const GeometricDet*> modules =  (*rDD).deepComponents();
   std::map< uint32_t , const GeometricDet* > mapDetIdToGeometricDet;
-//   std::map< uint32_t , const GeometricDetExtra* > mapDetIdToGDE;
   
   for(unsigned int i=0; i<modules.size();i++){  
     mapDetIdToGeometricDet[modules[i]->geographicalID().rawId()] = modules[i];
-//     for (unsigned int j=0; j<rDDE->size();++j){
-//       if (rgde[j].geographicalId() == modules[i]->geographicalID().rawId()) {
-// 	mapDetIdToGDE[modules[i]->geographicalID().rawId()] = &(rgde[j]);
-// 	break;
-//       }
-//     }
   }
   
   // Debug variables
