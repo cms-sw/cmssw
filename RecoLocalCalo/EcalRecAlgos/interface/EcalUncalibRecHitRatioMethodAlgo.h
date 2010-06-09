@@ -5,9 +5,9 @@
  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
  *  using a ratio method
  *
- *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.5 2009/10/25 23:28:39 franzoni Exp $
- *  $Date: 2009/10/25 23:28:39 $
- *  $Revision: 1.5 $
+ *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.6 2010/05/26 22:37:56 franzoni Exp $
+ *  $Date: 2010/05/26 22:37:56 $
+ *  $Revision: 1.6 $
  *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
  */
 
@@ -85,13 +85,22 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::init( const C &dataFrame, const double
 	times_.reserve(C::MAXSAMPLES*(C::MAXSAMPLES-1)/2);
 	timesAB_.clear();
 	timesAB_.reserve(C::MAXSAMPLES*(C::MAXSAMPLES-1)/2);
-
-	// pedestal obtained from presamples
+	
+	// to obtain gain 12 pedestal:
+	// -> if it's in gain 12, use first sample
+	// --> average it with second sample if in gain 12 and 3-sigma-noise compatible (better LF noise cancellation)
+	// -> else use pedestal from database
 	pedestal_ = 0;
 	short num = 0;
 	if (dataFrame.sample(0).gainId() == 1) {
 		pedestal_ += double (dataFrame.sample(0).adc());
 		num++;
+	}
+	if (num!=0 &&
+	    dataFrame.sample(1).gainId() == 1 && 
+	    fabs(dataFrame.sample(1).adc()-dataFrame.sample(0).adc())<3*pedestalRMSes[0]) {
+	        pedestal_ += double (dataFrame.sample(1).adc());
+	        num++;
 	}
 	if (num != 0)
 		pedestal_ /= num;
