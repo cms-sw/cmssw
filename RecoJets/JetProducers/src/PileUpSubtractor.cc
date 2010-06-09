@@ -9,7 +9,7 @@
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-
+#include "DataFormats/Math/interface/deltaR.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
@@ -146,6 +146,8 @@ void PileUpSubtractor::calculatePedestal( vector<fastjet::PseudoJet> const & col
       double e1 = (*(emean_.find(it))).second;
       double e2 = (*emean2.find(it)).second;
       int nt = (*gt).second - (*(ntowersWithJets_.find(it))).second;
+
+      LogDebug("PileUpSubtractor")<<" ieta : "<<it<<" number of towers : "<<nt<<" e1 : "<<e1<<" e2 : "<<e2<<"\n";
         
       if(nt > 0) {
 	emean_[it] = e1/nt;
@@ -158,7 +160,7 @@ void PileUpSubtractor::calculatePedestal( vector<fastjet::PseudoJet> const & col
           emean_[it] = 0.;
           esigma_[it] = 0.;
 	}
-      LogDebug("PileUpSubtractor")<<"Pedestals : "<<emean_[it]<<"  "<<esigma_[it]<<"\n";
+      LogDebug("PileUpSubtractor")<<" ieta : "<<it<<" Pedestals : "<<emean_[it]<<"  "<<esigma_[it]<<"\n";
     }
 }
 
@@ -185,7 +187,6 @@ void PileUpSubtractor::subtractPedestal(vector<fastjet::PseudoJet> & coll)
     
     double etnew = itow->et() - (*(emean_.find(it))).second - (*(esigma_.find(it))).second;
     float mScale = etnew/input_object->Et(); 
-    
     if(etnew < 0.) mScale = 0.;
     
     math::XYZTLorentzVectorD towP4(input_object->px()*mScale, input_object->py()*mScale,
@@ -201,18 +202,19 @@ void PileUpSubtractor::subtractPedestal(vector<fastjet::PseudoJet> & coll)
 }
 
 
-
 void PileUpSubtractor::calculateOrphanInput(vector<fastjet::PseudoJet> & orphanInput) 
 {
 
   LogDebug("PileUpSubtractor")<<"The subtractor calculating orphan input...\n";
 
   vector<int> jettowers; // vector of towers indexed by "user_index"
+  vector<pair<int,int> >  excludedTowers; // vector of excluded ieta, iphi values
+
   vector <fastjet::PseudoJet>::iterator pseudojetTMP = fjJets_->begin (),
     fjJetsEnd = fjJets_->end();
     
   for (; pseudojetTMP != fjJetsEnd ; ++pseudojetTMP) {
-      
+
     vector<fastjet::PseudoJet> newtowers;
       
     // get eta, phi of this jet
@@ -221,40 +223,30 @@ void PileUpSubtractor::calculateOrphanInput(vector<fastjet::PseudoJet> & orphanI
     // find towers within radiusPU_ of this jet
     for(vector<HcalDetId>::const_iterator im = allgeomid_.begin(); im != allgeomid_.end(); im++)
       {
-	double eta1 = geo_->getPosition((DetId)(*im)).eta();
-	double phi1 = geo_->getPosition((DetId)(*im)).phi();
-	double dphi = fabs(phi1-phi2);
-	double deta = eta1-eta2;
-	if (dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
-	double dr = sqrt(dphi*dphi+deta*deta);  
-	if( dr < radiusPU_) {
-	  ntowersWithJets_[(*im).ieta()]++;     
-	}
+	  double dr = reco::deltaR(geo_->getPosition((DetId)(*im)),(*pseudojetTMP));
+	  if( dr < radiusPU_) {
+	    ntowersWithJets_[(*im).ieta()]++;     
+	    excludedTowers.push_back(pair<int,int>(im->ieta(),im->iphi()));
+	  }
       }
-
+    
     vector<fastjet::PseudoJet>::const_iterator it = fjInputs_->begin(),
       fjInputsEnd = fjInputs_->end();
       
-    // 
     for (; it != fjInputsEnd; ++it ) {
       
-      double eta1 = it->eta();
-      double phi1 = it->phi();
+      int index = it->user_index();
+      int ie = ieta((*inputs_)[index]);
+      int ip = iphi((*inputs_)[index]);
       
-      double dphi = fabs(phi1-phi2);
-      double deta = eta1-eta2;
-      if (dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
-      double dr = sqrt(dphi*dphi+deta*deta);
-      
-      if( dr < radiusPU_) {
+      vector<pair<int,int> >::const_iterator exclude = find(excludedTowers.begin(),excludedTowers.end(),pair<int,int>(ie,ip));
+      if(exclude != excludedTowers.end()) {
 	newtowers.push_back(*it);
-	jettowers.push_back(it->user_index());
+	jettowers.push_back(index);
       } //dr < 0.5
-
     } // initial input collection  
-
   } // pseudojets
-
+  
   //
   // Create a new collections from the towers not included in jets 
   //
@@ -263,7 +255,6 @@ void PileUpSubtractor::calculateOrphanInput(vector<fastjet::PseudoJet> & orphanI
     vector<int>::const_iterator itjet = find(jettowers.begin(),jettowers.end(),it->user_index());
     if( itjet == jettowers.end() ) orphanInput.push_back(*it); 
   }
-
 }
 
 
@@ -382,5 +373,7 @@ int iphi(const reco::CandidatePtr & in)
 
   return it;
 }
+
+
 
 
