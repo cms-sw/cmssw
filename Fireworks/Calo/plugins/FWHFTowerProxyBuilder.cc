@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 16:41:27 CEST 2010
-// $Id: FWHFTowerProxyBuilder.cc,v 1.8 2010/06/08 14:41:38 chrjones Exp $
+// $Id: FWHFTowerProxyBuilder.cc,v 1.9 2010/06/08 18:43:15 amraktad Exp $
 //
 
 // system include files
@@ -153,6 +153,8 @@ FWHFTowerProxyBuilderBase::fillCaloData()
 int
 FWHFTowerProxyBuilderBase::fillTowerForDetId(HcalDetId& detId, float val)
 {
+   const static float PI = TMath::Pi();
+
    TEveCaloData::vCellId_t cellIds;
    std::vector<TEveVector> pnts = item()->getGeom()->getPoints(detId.rawId());
  
@@ -170,42 +172,52 @@ FWHFTowerProxyBuilderBase::fillTowerForDetId(HcalDetId& detId, float val)
       else
          minusSignPhi  = true;
    }
-
+ 
    // check if phi sign is changin
    // take sides depending on average
    if (plusSignPhi && minusSignPhi)
    {
-      // printf("cahging sign ");
+      if (TMath::Abs(phi[0]) > 1)
+      {
+          fwLog(fwlog::kWarning) << "FWHFTowerProxyBuilderBase::fillData() cell changing sign at PI edges " << phi[0] << ", " << phi[1] << ", " << phi[2] << ", " << phi[3] << std::endl;
+      }
+
       float phiMean = 0;
+      int n = 0;
       for (int i = 0; i < 4; ++i)
       {
-         phiMean += phi[i];
-         //  printf("%f ", phi[i]);
+         if (TMath::Abs(TMath::Abs(phi[i]) - PI) > 1e-3)
+         {
+            phiMean += phi[i];
+            ++n;
+         }
       }
-      // printf("   ....average phiMean %f\n", phiMean);
       if (phiMean >= 0)
          minusSignPhi = false;
       else
          plusSignPhi = false;
    }
 
-  
    float etaM = -10;
    float etam =  10;
    float phiM = -4;
    float phim =  4;
+   float origPhi =10;
    for (int i = 0; i < 4; ++i)
    {
       if (phi[i] < -1 && plusSignPhi)
       {
-         // printf("fix negative phi sign \n");
+         origPhi =  phi[i];
          phi[i] += TMath::TwoPi();
+         phi[i] = TMath::Min(phi[i], PI);
+         fwLog(fwlog::kWarning) << "FWHFTowerProxyBuilderBase::fillData() positive average, fix negative phi sign " <<  origPhi  << " -> " << phi[i] << std::endl;
       }
       else if (phi[i] > 1 && minusSignPhi)
       {
-         // printf("fix positive phi sign \n");
+         origPhi =  phi[i];
          phi[i] -=  TMath::TwoPi();
-
+         phi[i]  = TMath::Max(phi[i], -PI);
+         fwLog(fwlog::kWarning) << "FWHFTowerProxyBuilderBase::fillData() negative average fix positive phi sign n " <<  origPhi  << " -> " << phi[i] << std::endl;
       }
 
       etam = TMath::Min(etam, eta[i]);
