@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.63 2010/06/04 22:20:25 uplegger Exp $
+   version $Id: BeamFitter.cc,v 1.64 2010/06/04 22:54:08 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -25,6 +25,8 @@ ________________________________________________________________**/
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // ----------------------------------------------------------------------
 // Useful function:
@@ -283,7 +285,7 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
       if (quality_.size()!=0) {
           fquality = false;
           for (unsigned int i = 0; i<quality_.size();++i) {
-              if(debug_) std::cout << "quality_[" << i << "] = " << track->qualityName(quality_[i]) << std::endl;
+              if(debug_) edm::LogInfo("BeamFitter") << "quality_[" << i << "] = " << track->qualityName(quality_[i]) << std::endl;
               if (track->quality(quality_[i])) {
                   fquality = true;
                   break;
@@ -336,8 +338,8 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
 			//&& fpvValid
 			) {
 		      if (debug_) {
-			std::cout << "Selected track quality = " << track->qualityMask();
-			std::cout << "; track algorithm = " << track->algoName() << "= TrackAlgorithm: " << track->algo() << std::endl;
+                  edm::LogInfo("BeamFitter") << "Selected track quality = " << track->qualityMask()
+                                             << "; track algorithm = " << track->algoName() << "= TrackAlgorithm: " << track->algo() << std::endl;
 		      }
 		      BSTrkParameters BSTrk(fz0,fsigmaz0,fd0,fsigmad0,fphi0,fpt,0.,0.);
 		      BSTrk.setVx(fvx);
@@ -474,17 +476,17 @@ bool BeamFitter::runFitterNoTxt() {
   const char* fendTime = formatTime(freftime[1]);
   sprintf(fendTimeOfFit,"%s",fendTime);
   if (fbeginLumiOfFit == -1 || fendLumiOfFit == -1) {
-    std::cout << "No event read! No Fitting!" << std::endl;
+      edm::LogWarning("BeamFitter") << "No event read! No Fitting!" << std::endl;
     return false;
   }
 
   bool fit_ok = false;
   // default fit to extract beam spot info
   if(fBSvector.size() > 1 ){
-    if(debug_){
-      std::cout << "Calculating beam spot..." << std::endl;
-      std::cout << "We will use " << fBSvector.size() << " good tracks out of " << ftotal_tracks << std::endl;
-    }
+
+      edm::LogInfo("BeamFitter") << "Calculating beam spot..." << std::endl
+                                 << "We will use " << fBSvector.size() << " good tracks out of " << ftotal_tracks << std::endl;
+    
     BSFitter *myalgo = new BSFitter( fBSvector );
     myalgo->SetMaximumZ( trk_MaxZ_ );
     myalgo->SetConvergence( convergence_ );
@@ -525,7 +527,7 @@ bool BeamFitter::runFitterNoTxt() {
     reco::BeamSpot tmpbs;
     fbeamspot = tmpbs;
     fbeamspot.setType(reco::BeamSpot::Fake);
-    if(debug_) std::cout << "Not enough good tracks selected! No beam fit!" << std::endl;
+    edm::LogInfo("BeamFitter") << "Not enough good tracks selected! No beam fit!" << std::endl;
     
   }
   fitted_ = true;
@@ -547,11 +549,10 @@ bool BeamFitter::runBeamWidthFitter() {
   bool widthfit_ok = false;
   // default fit to extract beam spot info
   if(fBSvector.size() > 1 ){
-    if(debug_){
-      std::cout << "Calculating beam spot positions('d0-phi0' method) and width using llh Fit"<< std::endl;
-      std::cout << ""<<std::endl;
-      std::cout << "We will use " << fBSvector.size() << " good tracks out of " << ftotal_tracks << std::endl;
-    }
+      
+      edm::LogInfo("BeamFitter") << "Calculating beam spot positions('d0-phi0' method) and width using llh Fit"<< std::endl
+                                 << "We will use " << fBSvector.size() << " good tracks out of " << ftotal_tracks << std::endl;
+    
         BSFitter *myalgo = new BSFitter( fBSvector );
         myalgo->SetMaximumZ( trk_MaxZ_ );
         myalgo->SetConvergence( convergence_ );
@@ -568,12 +569,13 @@ bool BeamFitter::runBeamWidthFitter() {
    
    delete myalgo;
 
- if ( fbeamspot.type() != 0 ) // not Fake
-      widthfit_ok = true;
+   // not fake
+   if ( fbeamspot.type() != 0 )
+       widthfit_ok = true;
   }
   else{
     fbeamspot.setType(reco::BeamSpot::Fake);
-    if(debug_) std::cout << "Not enough good tracks selected! No beam fit!" << std::endl;
+    edm::LogWarning("BeamFitter") << "Not enough good tracks selected! No beam fit!" << std::endl;
   }
   return widthfit_ok;
 }

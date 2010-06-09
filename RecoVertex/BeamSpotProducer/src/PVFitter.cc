@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: PVFitter.cc,v 1.11 2010/06/02 03:45:27 yumiceva Exp $
+   version $Id: PVFitter.cc,v 1.12 2010/06/04 00:50:18 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -32,6 +32,8 @@ ________________________________________________________________**/
 #include "RecoVertex/BeamSpotProducer/interface/FcnBeamSpotFitPV.h"
 
 #include "TF1.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // ----------------------------------------------------------------------
 // Useful function:
@@ -178,24 +180,22 @@ void PVFitter::readEvent(const edm::Event& iEvent)
 
 bool PVFitter::runBXFitter() {
 
-  std::cout << " Number of bunch crossings: " << bxMap_.size() << std::endl;
+    edm::LogInfo("PVFitter") << " Number of bunch crossings: " << bxMap_.size() << std::endl;
 
   for ( std::map<int,std::vector<BeamSpotFitPVData> >::const_iterator pvStore = bxMap_.begin(); 
 	pvStore!=bxMap_.end(); ++pvStore) {
 
 
-    std::cout << " Number of PVs collected for PVFitter: " << (pvStore->second).size() << " in bx: " << pvStore->first << std::endl;
+      edm::LogInfo("PVFitter") << " Number of PVs collected for PVFitter: " << (pvStore->second).size() << " in bx: " << pvStore->first << std::endl;
 
     if ( (pvStore->second).size() <= minNrVertices_ ) {
-      std::cout << " not enough PVs, continue" << std::endl;
+        edm::LogWarning("PVFitter") << " not enough PVs, continue" << std::endl;
       continue;
     }
 
     //bool fit_ok = false;
-    if(debug_){
-      std::cout << "Calculating beam spot with PVs ..." << std::endl;
-    }
-
+    edm::LogInfo("PVFitter") << "Calculating beam spot with PVs ..." << std::endl;
+    
     //
     // LL function and fitter
     //
@@ -229,8 +229,7 @@ bool PVFitter::runBXFitter() {
     minuitx.CreateMinimizer();
     ierr = minuitx.Minimize();
     if ( ierr ) {
-      if ( debug_ )
-	std::cout << "3D beam spot fit failed in 1st iteration" << std::endl;
+        edm::LogInfo("PVFitter") << "3D beam spot fit failed in 1st iteration" << std::endl;
       continue;
     }
     //
@@ -244,8 +243,7 @@ bool PVFitter::runBXFitter() {
 		   minuitx.GetParameter(2)+sigmaCut_*minuitx.GetParameter(8));
     ierr = minuitx.Minimize();
     if ( ierr ) {
-      if ( debug_ )
-	std::cout << "3D beam spot fit failed in 2nd iteration" << std::endl;
+        edm::LogInfo("PVFitter") << "3D beam spot fit failed in 2nd iteration" << std::endl;
       continue;
     }
     //
@@ -257,15 +255,14 @@ bool PVFitter::runBXFitter() {
    
     ierr = minuitx.Minimize();
     if ( ierr ) {
-      if ( debug_ )
-	std::cout << "3D beam spot fit failed in 3rd iteration" << std::endl;
+        edm::LogInfo("PVFitter") << "3D beam spot fit failed in 3rd iteration" << std::endl;
       continue;
     }
     // refit with floating scale factor
     //   minuitx.ReleaseParameter(9);
     //   minuitx.Minimize();
   
-    minuitx.PrintResults(0,0);
+    //minuitx.PrintResults(0,0);
 
     fwidthX = minuitx.GetParameter(3);
     fwidthY = minuitx.GetParameter(5);
@@ -296,8 +293,7 @@ bool PVFitter::runBXFitter() {
     fbeamspot.setType( reco::BeamSpot::Tracker );
 
     fbspotMap[pvStore->first] = fbeamspot;
-    if (debug_)
-      std::cout<< "3D PV fit done for this bunch crossing."<<std::endl;
+    edm::LogInfo("PVFitter") << "3D PV fit done for this bunch crossing."<<std::endl;
     minuitx.Clear();
     //delete fcn;
 
@@ -309,15 +305,12 @@ bool PVFitter::runBXFitter() {
 
 bool PVFitter::runFitter() {
 
-    std::cout << " Number of PVs collected for PVFitter: " << pvStore_.size() << std::endl;
+    edm::LogInfo("PVFitter") << " Number of PVs collected for PVFitter: " << pvStore_.size() << std::endl;
     
     if ( pvStore_.size() <= minNrVertices_ ) return false;
 
     //bool fit_ok = false;  
-    if(debug_){
-        std::cout << "Calculating beam spot with PVs ..." << std::endl;
-    }
-
+    
     if ( ! do3DFit_ ) {
       TH1F *h1PVx = (TH1F*) hPVx->ProjectionX("h1PVx", 0, -1, "e");
       TH1F *h1PVy = (TH1F*) hPVy->ProjectionX("h1PVy", 0, -1, "e");
@@ -389,9 +382,8 @@ bool PVFitter::runFitter() {
       minuitx.CreateMinimizer();
       ierr = minuitx.Minimize();
       if ( ierr ) {
-	if ( debug_ )
-	  std::cout << "3D beam spot fit failed in 1st iteration" << std::endl;
-	return false;
+          edm::LogWarning("PVFitter") << "3D beam spot fit failed in 1st iteration" << std::endl;
+          return false;
       }
       //
       // refit with harder selection on vertices
@@ -404,9 +396,8 @@ bool PVFitter::runFitter() {
 		     minuitx.GetParameter(2)+sigmaCut_*minuitx.GetParameter(8));
       ierr = minuitx.Minimize();
       if ( ierr ) {
-	if ( debug_ )
-	  std::cout << "3D beam spot fit failed in 2nd iteration" << std::endl;
-	return false;
+          edm::LogWarning("PVFitter") << "3D beam spot fit failed in 2nd iteration" << std::endl;
+          return false;
       }
       //
       // refit with correlations
@@ -416,15 +407,14 @@ bool PVFitter::runFitter() {
       minuitx.ReleaseParameter(7);
       ierr = minuitx.Minimize();
       if ( ierr ) {
-	if ( debug_ )
-	  std::cout << "3D beam spot fit failed in 3rd iteration" << std::endl;
-	return false;
+          edm::LogWarning("PVFitter") << "3D beam spot fit failed in 3rd iteration" << std::endl;
+          return false;
       }
       // refit with floating scale factor
       //   minuitx.ReleaseParameter(9);
       //   minuitx.Minimize();
 
-      minuitx.PrintResults(0,0);
+      //minuitx.PrintResults(0,0);
 
       fwidthX = minuitx.GetParameter(3);
       fwidthY = minuitx.GetParameter(5);
@@ -523,9 +513,9 @@ PVFitter::compressStore ()
     ++iwrite;
   }
   pvStore_.resize(iwrite);
-  if ( debug_ ) std::cout << "Reduced primary vertex store size to "
-			  << pvStore_.size() << " ; new dynamic quality cut = " 
-			  << dynamicQualityCut_ << std::endl;
+  edm::LogInfo("PVFitter") << "Reduced primary vertex store size to "
+                           << pvStore_.size() << " ; new dynamic quality cut = " 
+                           << dynamicQualityCut_ << std::endl;
 
 }
 

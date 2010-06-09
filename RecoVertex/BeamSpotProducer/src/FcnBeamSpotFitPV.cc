@@ -2,7 +2,7 @@
 #include "Math/SVector.h"
 #include "Math/SMatrix.h"
 // #include "Math/SMatrixDfwd.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 
@@ -150,7 +150,7 @@ FcnBeamSpotFitPV::operator() (const std::vector<double>& pars) const
     int ifail;
     wgt = cov.Inverse(ifail);
     if ( ifail ) {
-      cout << "Inversion failed" << endl;
+        edm::LogWarning("FcnBeamSpotFitPV") << "Inversion failed" << endl;
       return -1.e30;
     }
     //

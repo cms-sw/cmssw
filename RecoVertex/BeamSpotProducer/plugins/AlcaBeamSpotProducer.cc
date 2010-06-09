@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
    Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
-   version $Id: AlcaBeamSpotProducer.cc,v 1.4 2010/06/03 21:12:44 uplegger Exp $
+   version $Id: AlcaBeamSpotProducer.cc,v 1.5 2010/06/04 20:54:38 uplegger Exp $
 
    ________________________________________________________________**/
 
@@ -27,7 +27,7 @@
 #include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TMath.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -50,8 +50,7 @@ AlcaBeamSpotProducer::AlcaBeamSpotProducer(const edm::ParameterSet& iConfig){
   ftmprun0 = ftmprun = -1;
   countLumi_ = 0;
   beginLumiOfBSFit_ = endLumiOfBSFit_ = -1;
-
-  produces<reco::BeamSpot>();
+  
   produces<reco::BeamSpot, edm::InLumi>("alcaBeamSpot");
 }
 
@@ -80,8 +79,7 @@ void AlcaBeamSpotProducer::beginLuminosityBlock(edm::LuminosityBlock& lumiSeg, c
   }
     
   countLumi_++;
-  //std::cout << "Lumi # " << countLumi_ << std::endl;
-
+  
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -105,21 +103,23 @@ void AlcaBeamSpotProducer::endLuminosityBlock(edm::LuminosityBlock& lumiSeg, con
   reco::BeamSpot bs;
   if (theBeamFitter->runPVandTrkFitter()){
     bs = theBeamFitter->getBeamSpot();
-    std::cout << "\n RESULTS OF DEFAULT FIT " << std::endl;
-    std::cout << " for runs: " << ftmprun0 << " - " << ftmprun << std::endl;
-    std::cout << " for lumi blocks : " << LSRange[0] << " - " << LSRange[1] << std::endl;
-    std::cout << " lumi counter # " << countLumi_ << std::endl;
-    std::cout << bs << std::endl;
-    std::cout << "[BeamFitter] fit done. \n" << std::endl;	
+    edm::LogInfo("AlcaBeamSpotProducer")
+        << "\n RESULTS OF DEFAULT FIT " << std::endl
+        << " for runs: " << ftmprun0 << " - " << ftmprun << std::endl
+        << " for lumi blocks : " << LSRange[0] << " - " << LSRange[1] << std::endl
+        << " lumi counter # " << countLumi_ << std::endl
+        << bs << std::endl
+        << "fit done. \n" << std::endl;	
   }
   else { // Fill in empty beam spot if beamfit fails
     bs.setType(reco::BeamSpot::Fake);
-    std::cout << "\n Empty Beam spot fit" << std::endl;
-    std::cout << " for runs: " << ftmprun0 << " - " << ftmprun << std::endl;
-    std::cout << " for lumi blocks : " << LSRange[0] << " - " << LSRange[1] << std::endl;
-    std::cout << " lumi counter # " << countLumi_ << std::endl;
-    std::cout << bs << std::endl;
-    std::cout << "[BeamFitter] fit failed \n" << std::endl;
+    edm::LogInfo("AlcaBeamSpotProducer")
+        << "\n Empty Beam spot fit" << std::endl
+        << " for runs: " << ftmprun0 << " - " << ftmprun << std::endl
+        << " for lumi blocks : " << LSRange[0] << " - " << LSRange[1] << std::endl
+        << " lumi counter # " << countLumi_ << std::endl
+        << bs << std::endl
+        << "fit failed \n" << std::endl;
   }
 
   std::auto_ptr<reco::BeamSpot> result(new reco::BeamSpot);
@@ -128,8 +128,9 @@ void AlcaBeamSpotProducer::endLuminosityBlock(edm::LuminosityBlock& lumiSeg, con
 	
   if (resetFitNLumi_ > 0 && countLumi_%resetFitNLumi_ == 0) {
     std::vector<BSTrkParameters> theBSvector = theBeamFitter->getBSvector();
-    std::cout << "Total number of tracks accumulated = " << theBSvector.size() << std::endl;
-    std::cout << "Reset track collection for beam fit" <<std::endl;
+    edm::LogInfo("AlcaBeamSpotProducer")
+        << "Total number of tracks accumulated = " << theBSvector.size() << std::endl
+        << "Reset track collection for beam fit" <<std::endl;
     theBeamFitter->resetTrkVector();
     theBeamFitter->resetLSRange();
     theBeamFitter->resetCutFlow();
