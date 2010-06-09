@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.25 $'),
-    name = cms.untracked.string('$Source: /local/projects/CMSSW/rep/CMSSW/DPGAnalysis/Skims/python/MinBiasPDSkim_cfg.py,v $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
+    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/GOODCOLL_filter_cfg.py,v $'),
     annotation = cms.untracked.string('Combined MinBias skim')
 )
 
@@ -17,8 +17,6 @@ process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
 # run 136066 lumi~500
 '/store/data/Run2010A/MinimumBias/RECO/v1/000/136/066/18F6DB82-5566-DF11-B289-0030487CAF0E.root'),
-                           secondaryFileNames = cms.untracked.vstring(
-'/store/data/Run2010A/MinimumBias/RAW/v1/000/136/066/38D48BED-3C66-DF11-88A5-001D09F27003.root')
 )
 
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
@@ -43,8 +41,8 @@ process.load("Configuration/StandardSequences/Reconstruction_cff")
 process.load('Configuration/EventContent/EventContent_cff')
 
 #drop collections created on the fly
-process.FEVTEventContent.outputCommands.append("drop *_MEtoEDMConverter_*_*")
-process.FEVTEventContent.outputCommands.append("drop *_*_*_SKIM")
+process.RECOEventContent.outputCommands.append("drop *_MEtoEDMConverter_*_*")
+process.RECOEventContent.outputCommands.append("drop *_*_*_SKIM")
 
 #
 #  Load common sequences
@@ -80,10 +78,10 @@ process.goodvertex=cms.Path(process.primaryVertexFilter+process.noscraping)
 
 
 process.collout = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('/tmp/malgeri/good_coll.root'),
-    outputCommands = process.FEVTEventContent.outputCommands,
+    fileName = cms.untracked.string('/tmp/malgeri/good_coll_reco.root'),
+    outputCommands = process.RECOEventContent.outputCommands,
     dataset = cms.untracked.PSet(
-    	      dataTier = cms.untracked.string('RAW-RECO'),
+    	      dataTier = cms.untracked.string('RECO'),
     	      filterName = cms.untracked.string('GOODCOLL')),
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('goodvertex','l1tcollpath')
