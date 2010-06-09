@@ -102,7 +102,7 @@ void L1TGCTClient::makeXProjection(TH2F* input, MonitorElement* output)
 void L1TGCTClient::makeYProjection(TH2F* input, MonitorElement* output)
 {
   // Are the provided input and output consistent
-  if (input->GetNbinsY() != output->getNbinsY()) return;
+  if (input->GetNbinsY() != output->getNbinsX()) return;
 
   // Make the projection
   TH1D* projY = input->ProjectionY();
