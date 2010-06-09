@@ -1,11 +1,14 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2010/04/30 12:50:22 $
- * $Revision: 1.49 $
+ * $Date: 2010/05/30 10:01:59 $
+ * $Revision: 1.50 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.50  2010/05/30 10:01:59  tapper
+ * Added one histogram, correlation of sum ET and HT and changed a few labels for the better.
+ *
  * Revision 1.49  2010/04/30 12:50:22  tapper
  * Fixed number of bins and range for MHT phi.
  *
@@ -327,17 +330,17 @@ void L1TGCT::beginJob(void)
                                                       R3BINS, R3MIN, R3MAX, R3BINS, R3MIN, R3MAX);
 
     //HF Ring stuff
-    l1GctHFRing1TowerCountPosEta_ = dbe->book1D("HFRing1TowerCountPosEta", "HF RING1 TOWER COUNT #eta +", R3BINS, R3MIN, R3MAX);
-    l1GctHFRing1TowerCountNegEta_ = dbe->book1D("HFRing1TowerCountNegEta", "HF RING1 TOWER COUNT #eta -", R3BINS, R3MIN, R3MAX);
-    l1GctHFRing2TowerCountPosEta_ = dbe->book1D("HFRing2TowerCountPosEta", "HF RING2 TOWER COUNT #eta +", R3BINS, R3MIN, R3MAX);
-    l1GctHFRing2TowerCountNegEta_ = dbe->book1D("HFRing2TowerCountNegEta", "HF RING2 TOWER COUNT #eta -", R3BINS, R3MIN, R3MAX);
+    l1GctHFRing1TowerCountPosEta_ = dbe->book1D("HFRing1TowerCountPosEta", "HF RING1 TOWER COUNT  #eta +", R3BINS, R3MIN, R3MAX);
+    l1GctHFRing1TowerCountNegEta_ = dbe->book1D("HFRing1TowerCountNegEta", "HF RING1 TOWER COUNT  #eta -", R3BINS, R3MIN, R3MAX);
+    l1GctHFRing2TowerCountPosEta_ = dbe->book1D("HFRing2TowerCountPosEta", "HF RING2 TOWER COUNT  #eta +", R3BINS, R3MIN, R3MAX);
+    l1GctHFRing2TowerCountNegEta_ = dbe->book1D("HFRing2TowerCountNegEta", "HF RING2 TOWER COUNT  #eta -", R3BINS, R3MIN, R3MAX);
 
-    l1GctHFRing1ETSumPosEta_ = dbe->book1D("HFRing1ETSumPosEta", "HF RING1 E_{T} #eta +", R3BINS, R3MIN, R3MAX);
-    l1GctHFRing1ETSumNegEta_ = dbe->book1D("HFRing1ETSumNegEta", "HF RING1 E_{T} #eta -", R3BINS, R3MIN, R3MAX);
-    l1GctHFRing2ETSumPosEta_ = dbe->book1D("HFRing2ETSumPosEta", "HF RING2 E_{T} #eta +", R3BINS, R3MIN, R3MAX);
-    l1GctHFRing2ETSumNegEta_ = dbe->book1D("HFRing2ETSumNegEta", "HF RING2 E_{T} #eta -", R3BINS, R3MIN, R3MAX);
-    l1GctHFRingRatioPosEta_  = dbe->book1D("HFRingRatioPosEta", "HF RING E_{T} RATIO #eta +", R5BINS, R5MIN, R5MAX);
-    l1GctHFRingRatioNegEta_  = dbe->book1D("HFRingRatioNegEta", "HF RING E_{T} RATIO #eta -", R5BINS, R5MIN, R5MAX);
+    l1GctHFRing1ETSumPosEta_ = dbe->book1D("HFRing1ETSumPosEta", "HF RING1 E_{T}  #eta +", R3BINS, R3MIN, R3MAX);
+    l1GctHFRing1ETSumNegEta_ = dbe->book1D("HFRing1ETSumNegEta", "HF RING1 E_{T}  #eta -", R3BINS, R3MIN, R3MAX);
+    l1GctHFRing2ETSumPosEta_ = dbe->book1D("HFRing2ETSumPosEta", "HF RING2 E_{T}  #eta +", R3BINS, R3MIN, R3MAX);
+    l1GctHFRing2ETSumNegEta_ = dbe->book1D("HFRing2ETSumNegEta", "HF RING2 E_{T}  #eta -", R3BINS, R3MIN, R3MAX);
+    l1GctHFRingRatioPosEta_  = dbe->book1D("HFRingRatioPosEta", "HF RING E_{T} RATIO  #eta +", R5BINS, R5MIN, R5MAX);
+    l1GctHFRingRatioNegEta_  = dbe->book1D("HFRingRatioNegEta", "HF RING E_{T} RATIO  #eta -", R5BINS, R5MIN, R5MAX);
 
     l1GctHFRingTowerCountOccBx_ = dbe->book2D("HFRingTowerCountOccBx", "HF RING TOWER COUNT PER BX",BXBINS, BXMIN, BXMAX, R3BINS, R3MIN, R3MAX);
     l1GctHFRingETSumOccBx_ = dbe->book2D("HFRingETSumOccBx", "HF RING E_{T} PER BX",BXBINS, BXMIN, BXMAX, R3BINS, R3MIN, R3MAX);
@@ -354,11 +357,11 @@ void L1TGCT::beginJob(void)
 
     // Energy sums
     l1GctEtMiss_    = dbe->book1D("EtMiss", "MET", R12BINS, R12MIN, R12MAX);
-    l1GctEtMissPhi_ = dbe->book1D("EtMissPhi", "MET #phi", METPHIBINS, METPHIMIN, METPHIMAX);
+    l1GctEtMissPhi_ = dbe->book1D("EtMissPhi", "MET  #phi", METPHIBINS, METPHIMIN, METPHIMAX);
     l1GctEtMissOf_  = dbe->book1D("EtMissOf", "MET OVERFLOW", OFBINS, OFMIN, OFMAX);
     l1GctEtMissOccBx_ = dbe->book2D("EtMissOccBx","MET PER BX",BXBINS,BXMIN,BXMAX,R12BINS,R12MIN,R12MAX);
     l1GctHtMiss_    = dbe->book1D("HtMiss", "MHT", R7BINS, R7MIN, R7MAX);
-    l1GctHtMissPhi_ = dbe->book1D("HtMissPhi", "MHT #phi", MHTPHIBINS, MHTPHIMIN, MHTPHIMAX);
+    l1GctHtMissPhi_ = dbe->book1D("HtMissPhi", "MHT  #phi", MHTPHIBINS, MHTPHIMIN, MHTPHIMAX);
     l1GctHtMissOf_  = dbe->book1D("HtMissOf", "MHT OVERFLOW", OFBINS, OFMIN, OFMAX);
     l1GctHtMissOccBx_ = dbe->book2D("HtMissOccBx","MHT PER BX",BXBINS,BXMIN,BXMAX,R7BINS,R7MIN,R7MAX);
     l1GctEtMissHtMissCorr_ = dbe->book2D("EtMissHtMissCorr", "MET MHT CORRELATION",

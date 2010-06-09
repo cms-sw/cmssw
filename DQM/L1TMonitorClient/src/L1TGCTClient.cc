@@ -40,18 +40,18 @@ void L1TGCTClient::beginJob(void)
   // Set to directory with ME in
   dbe_->setCurrentFolder(monitorDir_);
   
-  l1GctIsoEmOccEta_ = dbe_->book1D("IsoEmOccEta","ISO EM #eta OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
-  l1GctIsoEmOccPhi_ = dbe_->book1D("IsoEmOccPhi","ISO EM #phi OCCUPANCY", PHIBINS, PHIMIN, PHIMAX);
-  l1GctNonIsoEmOccEta_ = dbe_->book1D("NonIsoEmOccEta","NON-ISO EM #eta OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
-  l1GctNonIsoEmOccPhi_ = dbe_->book1D("NonIsoEmOccPhi","NON-ISO EM #phi OCCUPANCY", PHIBINS, PHIMIN, PHIMAX);
-  l1GctAllJetsOccEta_ = dbe_->book1D("AllJetsOccEta","CENTRAL AND FORWARD JET #eta OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
-  l1GctAllJetsOccPhi_ = dbe_->book1D("AllJetsOccPhi","CENTRAL AND FORWARD JET #phi OCCUPANCY", PHIBINS, PHIMIN, PHIMAX);
-  l1GctCenJetsOccEta_ = dbe_->book1D("CenJetsOccEta","CENTRAL JET #eta OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
-  l1GctCenJetsOccPhi_ = dbe_->book1D("CenJetsOccPhi","CENTRAL JET #phi OCCUPANCY", PHIBINS, PHIMIN, PHIMAX);
-  l1GctForJetsOccEta_ = dbe_->book1D("ForJetsOccEta","FORWARD JET #eta OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
-  l1GctForJetsOccPhi_ = dbe_->book1D("ForJetsOccPhi","FORWARD JET #phi OCCUPANCY", PHIBINS, PHIMIN, PHIMAX);
-  l1GctTauJetsOccEta_ = dbe_->book1D("TauJetsOccEta","TAU JET #eta OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
-  l1GctTauJetsOccPhi_ = dbe_->book1D("TauJetsOccPhi","TAU JET #phi OCCUPANCY", PHIBINS, PHIMIN, PHIMAX);
+  l1GctIsoEmOccEta_ = dbe_->book1D("IsoEmOccEta","ISO EM  #eta OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
+  l1GctIsoEmOccPhi_ = dbe_->book1D("IsoEmOccPhi","ISO EM  #phi OCCUPANCY", PHIBINS, PHIMIN, PHIMAX);
+  l1GctNonIsoEmOccEta_ = dbe_->book1D("NonIsoEmOccEta","NON-ISO EM  #eta OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
+  l1GctNonIsoEmOccPhi_ = dbe_->book1D("NonIsoEmOccPhi","NON-ISO EM  #phi OCCUPANCY", PHIBINS, PHIMIN, PHIMAX);
+  l1GctAllJetsOccEta_ = dbe_->book1D("AllJetsOccEta","CENTRAL AND FORWARD JET  #eta OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
+  l1GctAllJetsOccPhi_ = dbe_->book1D("AllJetsOccPhi","CENTRAL AND FORWARD JET  #phi OCCUPANCY", PHIBINS, PHIMIN, PHIMAX);
+  l1GctCenJetsOccEta_ = dbe_->book1D("CenJetsOccEta","CENTRAL JET  #eta OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
+  l1GctCenJetsOccPhi_ = dbe_->book1D("CenJetsOccPhi","CENTRAL JET  #phi OCCUPANCY", PHIBINS, PHIMIN, PHIMAX);
+  l1GctForJetsOccEta_ = dbe_->book1D("ForJetsOccEta","FORWARD JET  #eta OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
+  l1GctForJetsOccPhi_ = dbe_->book1D("ForJetsOccPhi","FORWARD JET  #phi OCCUPANCY", PHIBINS, PHIMIN, PHIMAX);
+  l1GctTauJetsOccEta_ = dbe_->book1D("TauJetsOccEta","TAU JET  #eta OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
+  l1GctTauJetsOccPhi_ = dbe_->book1D("TauJetsOccPhi","TAU JET  #phi OCCUPANCY", PHIBINS, PHIMIN, PHIMAX);
 }
 
 void L1TGCTClient::beginRun(const Run& r, const EventSetup& context) {}
@@ -95,7 +95,7 @@ void L1TGCTClient::makeXProjection(TH2F* input, MonitorElement* output)
   TH1D* projX = input->ProjectionX();
 
   for (Int_t i=0; i<projX->GetNbinsX(); i++) {
-    output->setBinContent(i,projX->GetBinContent(i));
+    output->setBinContent(i+1,projX->GetBinContent(i));
   }
 }
 
@@ -108,7 +108,7 @@ void L1TGCTClient::makeYProjection(TH2F* input, MonitorElement* output)
   TH1D* projY = input->ProjectionY();
 
   for (Int_t i=0; i<projY->GetNbinsX(); i++) {
-    output->setBinContent(i,projY->GetBinContent(i));
+    output->setBinContent(i+1,projY->GetBinContent(i));
   }
 }
 
