@@ -584,7 +584,7 @@ MusEcal::setLMRegion( int lmr )
   // Update TCalibData
   //===================
   
-  if(_calibData !=0 ) delete _calibData;
+  //if(_calibData !=0 ) delete _calibData;
   
   string calibpath(getenv("MECALIB"));
   string alphapath(getenv("MEAB"));
