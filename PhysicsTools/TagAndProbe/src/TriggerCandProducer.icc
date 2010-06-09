@@ -194,8 +194,8 @@ void TriggerCandProducer<object>::beginRun(edm::Run& iRun, edm::EventSetup const
   //std::cout << "calling init(" << "iRun" << ", " << "iSetup" << ", " << hltTag_.process() << ", " << "changed_" << ") in beginRun()" << std::endl;
   if(!hltConfig_.init(iRun,iSetup,hltTag_.process(),changed_) ){
     edm::LogError("TriggerCandProducer") << 
-      "Error! Can't initialize HLTConfigProvider ";
-    return;
+      "Error! Can't initialize HLTConfigProvider";
+    throw cms::Exception("HLTConfigProvider::init() returned non 0");
   }
   if(printIndex_ && changed_)
     std::cout << "HLT configuration changed !" << std::endl;
