@@ -15,10 +15,8 @@ namespace edm {
   // calls can and should be deleted from the code.
   EDInputSource::EDInputSource(ParameterSet const& pset, InputSourceDescription const& desc) :
       InputSource(pset, desc),
-      poolCatalog_(),
-      catalog_(pset, poolCatalog_),
-      secondaryCatalog_(pset, poolCatalog_,
-        std::string("secondaryFileNames"),
+      catalog_(pset),
+      secondaryCatalog_(pset, std::string("secondaryFileNames"),
         !pset.getUntrackedParameter<bool>("needSecondaryFileNames", false)) {}
 
   EDInputSource::~EDInputSource() {

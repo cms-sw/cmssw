@@ -175,7 +175,7 @@ namespace edm {
     if(filePtr && !filePtr->IsZombie()) {
       logFileAction("  Successfully opened file ", fileIter_->fileName());
       std::vector<boost::shared_ptr<FileIndex> >::size_type currentFileIndex = fileIter_ - fileIterBegin_;
-      rootFile_ = RootFileSharedPtr(new RootFile(fileIter_->fileName(), catalog_.url(),
+      rootFile_ = RootFileSharedPtr(new RootFile(fileIter_->fileName(), "",
 	  processConfiguration(), fileIter_->logicalFileName(), filePtr,
 	  eventSkipperByID_, numberOfEventsToSkip_ != 0,
 	  remainingEvents(), remainingLuminosityBlocks(), treeCacheSize_, treeMaxVirtualSize_,

@@ -15,8 +15,7 @@ namespace edm {
       streamReader_(),
       eventSkipperByID_(EventSkipperByID::create(pset).release()),
       numberOfEventsToSkip_(pset.getUntrackedParameter<unsigned int>("skipEvents", 0U)) {
-    PoolCatalog poolcat;
-    InputFileCatalog catalog(pset, poolcat);
+    InputFileCatalog catalog(pset);
     streamerNames_ = catalog.fileNames();
 
     if (streamerNames_.size() > 1) {
