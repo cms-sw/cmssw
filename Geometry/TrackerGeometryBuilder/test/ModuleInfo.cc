@@ -218,7 +218,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
       if (gdei->geographicalId() == modules[i]->geographicalId()) break;
     }
 
-    if (gdei == gdeEnd) throw ("THERE IS NO MATCHING DetId in the GeometricDetExtra"); //THIS never happens!
+    if (gdei == gdeEnd) throw edm::Exception("ModuleInfo") << "THERE IS NO MATCHING DetId in the GeometricDetExtra"); //THIS never happens!
 
     GeometricDet::NavRange detPos = modules[i]->navpos();
     Output << std::fixed << std::setprecision(6); // set as default 6 decimal digits

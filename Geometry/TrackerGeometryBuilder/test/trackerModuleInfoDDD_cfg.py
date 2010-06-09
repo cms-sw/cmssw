@@ -8,7 +8,11 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load('Configuration/StandardSequences/GeometryExtended_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 
-process.GlobalTag.globaltag = 'MC_36Y_V4::All'
+process.GlobalTag.globaltag = 'MC_3XY_V25::All'
+
+process.TrackerGeometricDetExtraESModule = cms.ESProducer( "TrackerGeometricDetExtraESModule",
+                                                           fromDDD = cms.bool( True )
+                                                           )
 
 process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")
 process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource") 
