@@ -3,8 +3,7 @@
 </TkMap>
 <SummaryPlot>
 <SubStructureBarrelLevel name="Layer_" update_frequency="300"> 
-     <MonElement name="NErrors"></MonElement> 
-     <MonElement name="ndigis"></MonElement> 
+     <MonElement name="ndigis"></MonElement>
      <MonElement name="adc"></MonElement> 
      <MonElement name="nclusters"></MonElement>
      <MonElement name="charge"> </MonElement>
@@ -24,14 +23,10 @@
      <MonElement name="charge_OnTrack"></MonElement>
      <MonElement name="size_OffTrack"></MonElement>
      <MonElement name="size_OnTrack"></MonElement>
-     <MonElement name="sizeX_OffTrack"></MonElement>
-     <MonElement name="sizeX_OnTrack"></MonElement>
-     <MonElement name="sizeY_OffTrack"></MonElement>
-     <MonElement name="sizeY_OnTrack"></MonElement>
 </SubStructureBarrelLevel> 
 <SubStructureGrandBarrelLevel name="Ladder_" update_frequency="300"> 
-     <MonElement name="NErrors"></MonElement> 
      <MonElement name="ndigis"></MonElement> 
+     <MonElement name="ndigisFREQ"></MonElement>
      <MonElement name="adc"></MonElement> 
      <MonElement name="nclusters"></MonElement>
      <MonElement name="charge"> </MonElement>
@@ -49,13 +44,8 @@
      <MonElement name="charge_OnTrack"></MonElement>
      <MonElement name="size_OffTrack"></MonElement>
      <MonElement name="size_OnTrack"></MonElement>
-     <MonElement name="sizeX_OffTrack"></MonElement>
-     <MonElement name="sizeX_OnTrack"></MonElement>
-     <MonElement name="sizeY_OffTrack"></MonElement>
-     <MonElement name="sizeY_OnTrack"></MonElement>
 </SubStructureGrandBarrelLevel> 
 <SubStructureEndcapLevel name="Disk_" update_frequency="300"> 
-     <MonElement name="NErrors"></MonElement> 
      <MonElement name="ndigis"></MonElement> 
      <MonElement name="adc"></MonElement> 
      <MonElement name="nclusters"></MonElement>
@@ -76,14 +66,10 @@
      <MonElement name="charge_OnTrack"></MonElement>
      <MonElement name="size_OffTrack"></MonElement>
      <MonElement name="size_OnTrack"></MonElement>
-     <MonElement name="sizeX_OffTrack"></MonElement>
-     <MonElement name="sizeX_OnTrack"></MonElement>
-     <MonElement name="sizeY_OffTrack"></MonElement>
-     <MonElement name="sizeY_OnTrack"></MonElement>
 </SubStructureEndcapLevel> 
 <SubStructureGrandEndcapLevel name="Blade_" update_frequency="300"> 
-     <MonElement name="NErrors"></MonElement> 
      <MonElement name="ndigis"></MonElement> 
+     <MonElement name="ndigisFREQ"></MonElement>
      <MonElement name="adc"></MonElement> 
      <MonElement name="nclusters"></MonElement>
      <MonElement name="charge"> </MonElement>
@@ -101,10 +87,6 @@
      <MonElement name="charge_OnTrack"></MonElement>
      <MonElement name="size_OffTrack"></MonElement>
      <MonElement name="size_OnTrack"></MonElement>
-     <MonElement name="sizeX_OffTrack"></MonElement>
-     <MonElement name="sizeX_OnTrack"></MonElement>
-     <MonElement name="sizeY_OffTrack"></MonElement>
-     <MonElement name="sizeY_OnTrack"></MonElement>
 </SubStructureGrandEndcapLevel> 
 <SubStructureNonDetId name="AdditionalPixelErrors" update_frequency="300"> 
      <MonElement name="NErrors"></MonElement> 

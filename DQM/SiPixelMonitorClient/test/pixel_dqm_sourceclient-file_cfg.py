@@ -83,7 +83,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
 ###process.GlobalTag.globaltag = "GR09_R_V4::All"
 ###process.GlobalTag.globaltag = "CRAFT09_R_V9::All"
-process.GlobalTag.globaltag = "GR09_R_36X_V3::All"
+process.GlobalTag.globaltag = "GR_R_37X_V3::All"
 
 
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
@@ -105,13 +105,15 @@ process.source = cms.Source("PoolSource",
     #'/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/275/A8E551ED-F9E9-DE11-A59E-001D09F29849.root'
     #'/store/data/Commissioning10/Cosmics/RAW/v4/000/133/874/F40E13A3-6B4F-DF11-A156-000423D987FC.root',
     #'/store/data/Commissioning10/Cosmics/RAW/v4/000/133/874/F0F602C6-794F-DF11-B259-001D09F23A84.root'
-    '/store/data/Commissioning10/MinimumBias/RAW/v4/000/133/877/FAC1761E-A64F-DF11-BD37-003048D2BDD8.root',
-    '/store/data/Commissioning10/MinimumBias/RAW/v4/000/133/877/FADF1B51-BF4F-DF11-9CE2-001D09F24353.root'
-    
+    #'/store/data/Commissioning10/MinimumBias/RAW/v4/000/133/877/FAC1761E-A64F-DF11-BD37-003048D2BDD8.root',
+    #'/store/data/Commissioning10/MinimumBias/RAW/v4/000/133/877/FADF1B51-BF4F-DF11-9CE2-001D09F24353.root'
+    '/store/data/Commissioning10/MinimumBias/RAW/v4/000/135/575/F03B0CDF-8261-DF11-8354-001D09F2960F.root',
+    '/store/data/Commissioning10/MinimumBias/RAW/v4/000/135/575/F058E355-7C61-DF11-ACEB-0030487D0D3A.root'
+    #'/store/data/Run2010A/Cosmics/RAW/v1/000/136/902/3A8627D6-B56E-DF11-A09E-003048D3750A.root'  
 	    )
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(5000)
+    input = cms.untracked.int32(1000)
 )
 
 ##----## Sequences and Paths:
@@ -129,6 +131,6 @@ process.p = cms.Path(
 		     process.siPixelP5DQM_source_woTrack*
 		     #process.siPixelP5DQM_source*
 		     process.PixelP5DQMClientWithDataCertification
-		     #process.siPixelOfflineDQM_source*
+		     #process.siPixelOfflineDQM_source_woTrack*
 		     #process.PixelOfflineDQMClientWithDataCertification
 		    )

@@ -169,7 +169,7 @@ void SiPixelActionExecutor::createTkMap(DQMStore* bei,
 
 //=============================================================================================================
 void SiPixelActionExecutor::createSummary(DQMStore* bei) {
-//  cout<<"entering SiPixelActionExecutor::createSummary..."<<endl;
+  //cout<<"entering SiPixelActionExecutor::createSummary..."<<endl;
   string barrel_structure_name;
   vector<string> barrel_me_names;
   string localPath;
@@ -393,9 +393,9 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
 {
 	
 
-//  cout<<"entering SiPixelActionExecutor::fillSummary..."<<endl;
+  //cout<<"entering SiPixelActionExecutor::fillSummary..."<<endl;
   string currDir = bei->pwd();
-//  cout<<"currDir= "<<currDir<<endl;
+  //cout<<"currDir= "<<currDir<<endl;
   string prefix;
   if(source_type_==0) prefix="SUMRAW";
   else if (source_type_==1) prefix="SUMDIG";
@@ -632,6 +632,7 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
 	        (*isum)->Fill(ndet, me->getMean());
 	      }else if(sname.find("_charge_")==string::npos && sname.find("_nclusters_")==string::npos && sname.find("_size")==string::npos){
 		(*isum)->Fill(ndet, me->getMean());
+		//std::cout<<bei->pwd()<<"/"<<(*isum)->getName()<<" , "<<ndet<<" , "<<me->getMean()<<" , "<<(*isum)->getBinContent(ndet)<<std::endl;
 	      }
 	      
 	      // set titles:

@@ -279,7 +279,7 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
 // -- End Run
 //
 void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
-//  cout<<"Entering SiPixelEDAClient::endRun: "<<endl;
+  //cout<<"Entering SiPixelEDAClient::endRun: "<<endl;
 
   //edm::LogVerbatim ("SiPixelEDAClient") <<"[SiPixelEDAClient]: End of Run, saving  DQM output ";
   //int iRun = run.run();
@@ -316,7 +316,6 @@ void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup
     //sipixelActionExecutor_->dumpModIds(bei_,eSetup);
     // On demand, dump summary histo values for reference on the screen:
     //sipixelActionExecutor_->dumpRefValues(bei_,eSetup);
-  
   }
   
 //  cout<<"...leaving SiPixelEDAClient::endRun. "<<endl;

@@ -5,7 +5,6 @@
      <MonElement name="nclusters">            </MonElement> 
      <MonElement name="charge">            </MonElement> 
      <MonElement name="size">            </MonElement> 
-     <MonElement name="NErrors"></MonElement> 
      <MonElement name="ClustX"></MonElement>
      <MonElement name="ClustY"></MonElement>
      <MonElement name="ErrorX"></MonElement>
@@ -13,7 +12,6 @@
 </TkMap>
 <SummaryPlot>
 <SubStructureBarrelLevel name="Ladder_" update_frequency="300"> 
-     <MonElement name="NErrors">	</MonElement> 
      <MonElement name="ndigis">         </MonElement> 
      <MonElement name="adc">            </MonElement> 
      <MonElement name="nclusters"></MonElement>
@@ -21,7 +19,6 @@
      <MonElement name="size">	</MonElement>
 </SubStructureBarrelLevel> 
 <SubStructureGrandBarrelLevel name="Layer_" update_frequency="300"> 
-     <MonElement name="NErrors">	</MonElement> 
      <MonElement name="ndigis">         </MonElement>
      <MonElement name="ndigisFREQ"></MonElement>  
      <MonElement name="adc">            </MonElement> 
@@ -32,7 +29,6 @@
      <MonElement name="size">	</MonElement>
 </SubStructureGrandBarrelLevel> 
 <SubStructureEndcapLevel name="Blade_" update_frequency="300"> 
-     <MonElement name="NErrors">	</MonElement> 
      <MonElement name="ndigis">         </MonElement> 
      <MonElement name="adc">            </MonElement> 
      <MonElement name="nclusters"></MonElement>
@@ -40,7 +36,6 @@
      <MonElement name="size">	</MonElement>
 </SubStructureEndcapLevel> 
 <SubStructureGrandEndcapLevel name="Disc_" update_frequency="300"> 
-     <MonElement name="NErrors">	</MonElement> 
      <MonElement name="ndigis">         </MonElement>
      <MonElement name="ndigisFREQ"></MonElement>  
      <MonElement name="adc">            </MonElement> 
