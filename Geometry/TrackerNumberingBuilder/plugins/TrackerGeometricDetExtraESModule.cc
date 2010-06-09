@@ -119,7 +119,6 @@ TrackerGeometricDetExtraESModule::produce(const IdealGeometryRecord & iRecord) {
     }
   }else{
     // if it is not from the DD, then just get the GDE from ES and match w/ GD.
-    std::cout << "Got to creating GeometricDetExtra from PGeometricDetExtra" << std::endl;
     edm::ESHandle<PGeometricDetExtra> pgde;
     iRecord.getRecord<PGeometricDetExtraRcd>().get(pgde);
     std::map<uint32_t, const GeometricDet*> helperMap;
