@@ -18,11 +18,24 @@
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 
+namespace 
+{
+	void 
+	addMarkers( TEvePointSet* pointSet, const TGeoHMatrix* matrix, double localPos[3] ) 
+	{
+		double globalPos[3];			
+		matrix->LocalToMaster( localPos, globalPos );
+		pointSet->SetNextPoint( globalPos[0],  globalPos[1],  globalPos[2] );
+	}
+}
+
 class FWDTDigiProxyBuilder : public FWProxyBuilderBase
 {
 public:
    FWDTDigiProxyBuilder( void ) {}
    virtual ~FWDTDigiProxyBuilder( void ) {}
+
+	virtual bool haveSingleProduct( void ) const { return false; }
 	   
 	REGISTER_PROXYBUILDER_METHODS();
 	
@@ -32,34 +45,53 @@ private:
 	// Disable default assignment operator
    const FWDTDigiProxyBuilder& operator=( const FWDTDigiProxyBuilder& );
 	
-	virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* );
+   virtual void buildViewType(const FWEventItem* iItem, TEveElementList* product, FWViewType::EType, const FWViewContext*);
 };
 
 void
-FWDTDigiProxyBuilder::build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* )
+FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType type, const FWViewContext* )
 {
+	// FIXME: This colour does not have any affect on how the points look like.
+	product->SetMainColor( iItem->defaultDisplayProperties().color() );
+
 	const DTDigiCollection* digis = 0;
 	iItem->get( digis );
 	
 	if( ! digis )
 	{
-		fwLog( fwlog::kWarning ) << "ERROR: failed get DTDigis" << std::endl;
+		fwLog( fwlog::kWarning ) << "WARNING: failed get DTDigis" << std::endl;
 		return;
 	}
-
+	
 	for( DTDigiCollection::DigiRangeIterator detIt = digis->begin(), detUnitItEnd = digis->end(); detIt != detUnitItEnd; ++detIt )
 	{
 		const DTLayerId& layerId = (*detIt).first;
-
-		const TGeoHMatrix* matrix = item()->getGeom()->getMatrix( layerId );
+		int layer = layerId.layer();
+		int superLayer = layerId.superlayerId().superLayer();
+		DTChamberId chamberId = layerId.superlayerId().chamberId();
 		
-		if( ! matrix ) 
+		float superLayerShift = 15.0;
+		// Sample superlayer:
+		// x/2 = 1063.2;
+		// y/2 = 1255.5;
+		// z/2 = 26.75;
+		
+		if( superLayer == 2 )
 		{
-			fwLog( fwlog::kError ) << " failed get geometry of DT layer with detid: " 
-			<< layerId << std::endl;
-			return;
+			superLayerShift = 0.0;
+		} 
+		else if( superLayer == 3 ) 
+		{
+			superLayerShift = -5.35;
 		}
+		// The distance between the wire planes:
+		float layerShift = 1.3375;
+		float wireShift = 4.2;
 		
+		double localPos[3] = { 0.0, 0.0, 0.0 };
+		
+		const TGeoHMatrix* matrix = item()->getGeom()->getMatrix( chamberId );
+				
 		const DTDigiCollection::Range &range = (*detIt).second;
 
 		// Loop over the digis of this DetUnit
@@ -69,14 +101,41 @@ FWDTDigiProxyBuilder::build( const FWEventItem* iItem, TEveElementList* product,
 			TEveCompound* compound = new TEveCompound( "DT digi compound" );
 			compound->OpenCompound();
 			product->AddElement( compound );
-			
+
 			TEvePointSet* pointSet = new TEvePointSet();
-			pointSet->SetMarkerSize(2);
-			pointSet->SetMarkerStyle(2);
+			pointSet->SetMarkerStyle( 24 );
+			pointSet->SetMarkerColor( 3 );
 			compound->AddElement( pointSet );
 			
-			//int wire = (*digiIt).wire();
-		}
+			if( ! matrix ) 
+			{
+				fwLog( fwlog::kError ) << " failed get geometry of DT chamber with detid: " 
+				<< layerId << std::endl;
+				continue;
+			}
+			
+			int wire = (*digiIt).wire();
+			// FIXME: We need to correct the wire position:
+			// The x wire position in the layer, starting from its wire number.
+			// float wPos = ( wire - ( firstWire - 1 ) - 0.5 ) * 4.2 - nChannels / 2.0 * 4.2;
+
+			localPos[2] = superLayerShift - layer * layerShift;
+			
+			if( type == FWViewType::kRhoPhi && superLayer != 2 )
+			{
+				// The center is in the middle of DT chamber.
+				// We need to offset it by half/width.
+				localPos[0] = - 106.2 + wire * wireShift;
+				addMarkers( pointSet, matrix, localPos );
+			}
+			else if( type == FWViewType::kRhoZ && superLayer == 2 )
+			{
+				// The center is in the middle of DT chamber.
+				// We need to offset it by half/length.
+				localPos[1] = 106.2 - ( wire + 1 ) * wireShift;
+				addMarkers( pointSet, matrix, localPos );
+			}
+		}		
 	}
 }
 
