@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 16:41:27 CEST 2010
-// $Id: FWHFTowerProxyBuilder.cc,v 1.9 2010/06/08 18:43:15 amraktad Exp $
+// $Id: FWHFTowerProxyBuilder.cc,v 1.10 2010/06/09 13:23:08 amraktad Exp $
 //
 
 // system include files
@@ -160,6 +160,7 @@ FWHFTowerProxyBuilderBase::fillTowerForDetId(HcalDetId& detId, float val)
  
    // complication with float to duouble comaprison of TMath::Pi()
    float eta[4], phi[4];
+   float phiRef[4];
    bool plusSignPhi  = false;
    bool minusSignPhi = false;
 
@@ -167,6 +168,7 @@ FWHFTowerProxyBuilderBase::fillTowerForDetId(HcalDetId& detId, float val)
    {
       eta[i] =  pnts[i].Eta();
       phi[i] =  pnts[i].Phi();
+      phiRef[i] =  phi[i];
       if (phi[i] >= 0)
          plusSignPhi = true;
       else
@@ -177,19 +179,13 @@ FWHFTowerProxyBuilderBase::fillTowerForDetId(HcalDetId& detId, float val)
    // take sides depending on average
    if (plusSignPhi && minusSignPhi)
    {
-      if (TMath::Abs(phi[0]) > 1)
-      {
-          fwLog(fwlog::kWarning) << "FWHFTowerProxyBuilderBase::fillData() cell changing sign at PI edges " << phi[0] << ", " << phi[1] << ", " << phi[2] << ", " << phi[3] << std::endl;
-      }
-
       float phiMean = 0;
-      int n = 0;
       for (int i = 0; i < 4; ++i)
       {
+         // take into average what is outside PI epsilon
          if (TMath::Abs(TMath::Abs(phi[i]) - PI) > 1e-3)
          {
             phiMean += phi[i];
-            ++n;
          }
       }
       if (phiMean >= 0)
@@ -202,22 +198,27 @@ FWHFTowerProxyBuilderBase::fillTowerForDetId(HcalDetId& detId, float val)
    float etam =  10;
    float phiM = -4;
    float phim =  4;
-   float origPhi =10;
    for (int i = 0; i < 4; ++i)
    {
       if (phi[i] < -1 && plusSignPhi)
       {
-         origPhi =  phi[i];
-         phi[i] += TMath::TwoPi();
+         phi[i] += TMath::TwoPi();       
          phi[i] = TMath::Min(phi[i], PI);
-         fwLog(fwlog::kWarning) << "FWHFTowerProxyBuilderBase::fillData() positive average, fix negative phi sign " <<  origPhi  << " -> " << phi[i] << std::endl;
+         if (TMath::Abs(phiRef[i] + PI) > 1e-3)
+         { 
+            fwLog(fwlog::kWarning) << "FWHFTowerProxyBuilderBase::fillData() cell changing sign near PI edges " << phiRef[0] << ", " << phiRef[1] << ", " << phiRef[2] << ", " << phiRef[3] << std::endl;
+            fwLog(fwlog::kWarning) << "FWHFTowerProxyBuilderBase::fillData() positive average, fix negative phi sign " <<   phiRef[1]  << " -> " << phi[i] << std::endl;
+         } 
       }
       else if (phi[i] > 1 && minusSignPhi)
       {
-         origPhi =  phi[i];
          phi[i] -=  TMath::TwoPi();
          phi[i]  = TMath::Max(phi[i], -PI);
-         fwLog(fwlog::kWarning) << "FWHFTowerProxyBuilderBase::fillData() negative average fix positive phi sign n " <<  origPhi  << " -> " << phi[i] << std::endl;
+         if (TMath::Abs(phi[i] + PI) > 1e-3)    
+         {
+            fwLog(fwlog::kWarning) << "FWHFTowerProxyBuilderBase::fillData() cell changing sign near PI edges " << phiRef[0] << ", " << phiRef[1] << ", " << phiRef[2] << ", " << phiRef[3] << std::endl;
+            fwLog(fwlog::kWarning) << "FWHFTowerProxyBuilderBase::fillData() negative average fix positive phi sign n " <<  phiRef[i]  << " -> " << phi[i] << std::endl;
+         }
       }
 
       etam = TMath::Min(etam, eta[i]);
