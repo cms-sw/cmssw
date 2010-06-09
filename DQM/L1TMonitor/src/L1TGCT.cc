@@ -1,11 +1,14 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2010/05/30 10:01:59 $
- * $Revision: 1.50 $
+ * $Date: 2010/06/09 14:03:04 $
+ * $Revision: 1.51 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.51  2010/06/09 14:03:04  tapper
+ * Fixed histogram titles and binning in projections.
+ *
  * Revision 1.50  2010/05/30 10:01:59  tapper
  * Added one histogram, correlation of sum ET and HT and changed a few labels for the better.
  *
@@ -320,27 +323,27 @@ void L1TGCT::beginJob(void)
                                           EMETABINS, EMETAMIN, EMETAMAX,
 					  PHIBINS, PHIMIN, PHIMAX); 
   
-    l1GctHFRing1PosEtaNegEta_ = dbe->book2D("HFRing1Corr", "HF RING1 E_{T} CORRELATION +/- #eta",
+    l1GctHFRing1PosEtaNegEta_ = dbe->book2D("HFRing1Corr", "HF RING1 E_{T} CORRELATION +/-  #eta",
                                             R3BINS, R3MIN, R3MAX, R3BINS, R3MIN, R3MAX); 
-    l1GctHFRing2PosEtaNegEta_ = dbe->book2D("HFRing2Corr", "HF RING2 E_{T} CORRELATION +/- #eta",
+    l1GctHFRing2PosEtaNegEta_ = dbe->book2D("HFRing2Corr", "HF RING2 E_{T} CORRELATION +/-  #eta",
                                             R3BINS, R3MIN, R3MAX, R3BINS, R3MIN, R3MAX);
-    l1GctHFRing1TowerCountPosEtaNegEta_ = dbe->book2D("HFRing1TowerCountCorr", "HF RING1 TOWER COUNT CORRELATION +/- #eta",
+    l1GctHFRing1TowerCountPosEtaNegEta_ = dbe->book2D("HFRing1TowerCountCorr", "HF RING1 TOWER COUNT CORRELATION +/-  #eta",
                                                       R3BINS, R3MIN, R3MAX, R3BINS, R3MIN, R3MAX);
-    l1GctHFRing2TowerCountPosEtaNegEta_ = dbe->book2D("HFRing2TowerCountCorr", "HF RING2 TOWER COUNT CORRELATION +/- #eta",
+    l1GctHFRing2TowerCountPosEtaNegEta_ = dbe->book2D("HFRing2TowerCountCorr", "HF RING2 TOWER COUNT CORRELATION +/-  #eta",
                                                       R3BINS, R3MIN, R3MAX, R3BINS, R3MIN, R3MAX);
 
     //HF Ring stuff
-    l1GctHFRing1TowerCountPosEta_ = dbe->book1D("HFRing1TowerCountPosEta", "HF RING1 TOWER COUNT  #eta +", R3BINS, R3MIN, R3MAX);
-    l1GctHFRing1TowerCountNegEta_ = dbe->book1D("HFRing1TowerCountNegEta", "HF RING1 TOWER COUNT  #eta -", R3BINS, R3MIN, R3MAX);
-    l1GctHFRing2TowerCountPosEta_ = dbe->book1D("HFRing2TowerCountPosEta", "HF RING2 TOWER COUNT  #eta +", R3BINS, R3MIN, R3MAX);
-    l1GctHFRing2TowerCountNegEta_ = dbe->book1D("HFRing2TowerCountNegEta", "HF RING2 TOWER COUNT  #eta -", R3BINS, R3MIN, R3MAX);
+    l1GctHFRing1TowerCountPosEta_ = dbe->book1D("HFRing1TowerCountPosEta", "HF RING1 TOWER COUNT  #eta  +", R3BINS, R3MIN, R3MAX);
+    l1GctHFRing1TowerCountNegEta_ = dbe->book1D("HFRing1TowerCountNegEta", "HF RING1 TOWER COUNT  #eta  -", R3BINS, R3MIN, R3MAX);
+    l1GctHFRing2TowerCountPosEta_ = dbe->book1D("HFRing2TowerCountPosEta", "HF RING2 TOWER COUNT  #eta  +", R3BINS, R3MIN, R3MAX);
+    l1GctHFRing2TowerCountNegEta_ = dbe->book1D("HFRing2TowerCountNegEta", "HF RING2 TOWER COUNT  #eta  -", R3BINS, R3MIN, R3MAX);
 
-    l1GctHFRing1ETSumPosEta_ = dbe->book1D("HFRing1ETSumPosEta", "HF RING1 E_{T}  #eta +", R3BINS, R3MIN, R3MAX);
-    l1GctHFRing1ETSumNegEta_ = dbe->book1D("HFRing1ETSumNegEta", "HF RING1 E_{T}  #eta -", R3BINS, R3MIN, R3MAX);
-    l1GctHFRing2ETSumPosEta_ = dbe->book1D("HFRing2ETSumPosEta", "HF RING2 E_{T}  #eta +", R3BINS, R3MIN, R3MAX);
-    l1GctHFRing2ETSumNegEta_ = dbe->book1D("HFRing2ETSumNegEta", "HF RING2 E_{T}  #eta -", R3BINS, R3MIN, R3MAX);
-    l1GctHFRingRatioPosEta_  = dbe->book1D("HFRingRatioPosEta", "HF RING E_{T} RATIO  #eta +", R5BINS, R5MIN, R5MAX);
-    l1GctHFRingRatioNegEta_  = dbe->book1D("HFRingRatioNegEta", "HF RING E_{T} RATIO  #eta -", R5BINS, R5MIN, R5MAX);
+    l1GctHFRing1ETSumPosEta_ = dbe->book1D("HFRing1ETSumPosEta", "HF RING1 E_{T}  #eta  +", R3BINS, R3MIN, R3MAX);
+    l1GctHFRing1ETSumNegEta_ = dbe->book1D("HFRing1ETSumNegEta", "HF RING1 E_{T}  #eta  -", R3BINS, R3MIN, R3MAX);
+    l1GctHFRing2ETSumPosEta_ = dbe->book1D("HFRing2ETSumPosEta", "HF RING2 E_{T}  #eta  +", R3BINS, R3MIN, R3MAX);
+    l1GctHFRing2ETSumNegEta_ = dbe->book1D("HFRing2ETSumNegEta", "HF RING2 E_{T}  #eta  -", R3BINS, R3MIN, R3MAX);
+    l1GctHFRingRatioPosEta_  = dbe->book1D("HFRingRatioPosEta", "HF RING E_{T} RATIO  #eta  +", R5BINS, R5MIN, R5MAX);
+    l1GctHFRingRatioNegEta_  = dbe->book1D("HFRingRatioNegEta", "HF RING E_{T} RATIO  #eta  -", R5BINS, R5MIN, R5MAX);
 
     l1GctHFRingTowerCountOccBx_ = dbe->book2D("HFRingTowerCountOccBx", "HF RING TOWER COUNT PER BX",BXBINS, BXMIN, BXMAX, R3BINS, R3MIN, R3MAX);
     l1GctHFRingETSumOccBx_ = dbe->book2D("HFRingETSumOccBx", "HF RING E_{T} PER BX",BXBINS, BXMIN, BXMAX, R3BINS, R3MIN, R3MAX);
@@ -367,7 +370,7 @@ void L1TGCT::beginJob(void)
     l1GctEtMissHtMissCorr_ = dbe->book2D("EtMissHtMissCorr", "MET MHT CORRELATION",
                                          R12BINS, R12MIN, R12MAX,
                                          R7BINS, R7MIN, R7MAX); 
-    l1GctEtMissHtMissCorrPhi_ = dbe->book2D("EtMissHtMissPhiCorr", "MET MHT #phi CORRELATION",
+    l1GctEtMissHtMissCorrPhi_ = dbe->book2D("EtMissHtMissPhiCorr", "MET MHT  #phi  CORRELATION",
                                             METPHIBINS, METPHIMIN, METPHIMAX,
                                             MHTPHIBINS, MHTPHIMIN, MHTPHIMAX);
     l1GctEtTotal_   = dbe->book1D("EtTotal", "SUM E_{T}", R12BINS, R12MIN, R12MAX);

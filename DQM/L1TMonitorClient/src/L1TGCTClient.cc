@@ -95,7 +95,7 @@ void L1TGCTClient::makeXProjection(TH2F* input, MonitorElement* output)
   TH1D* projX = input->ProjectionX();
 
   for (Int_t i=0; i<projX->GetNbinsX(); i++) {
-    output->setBinContent(i+1,projX->GetBinContent(i));
+    output->setBinContent(i+1,projX->GetBinContent(i+1));
   }
 }
 
@@ -108,7 +108,7 @@ void L1TGCTClient::makeYProjection(TH2F* input, MonitorElement* output)
   TH1D* projY = input->ProjectionY();
 
   for (Int_t i=0; i<projY->GetNbinsX(); i++) {
-    output->setBinContent(i+1,projY->GetBinContent(i));
+    output->setBinContent(i+1,projY->GetBinContent(i+1));
   }
 }
 
