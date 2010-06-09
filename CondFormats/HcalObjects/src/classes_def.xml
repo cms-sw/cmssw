@@ -66,6 +66,26 @@
  <class name="std::vector<HcalValidationCorr>"/>
  <class name="HcalValidationCorrs"/>
 
+<<<<<<< classes_def.xml
+ <class name="HcalCholeskyMatrix"/>
+ <class name="std::vector<HcalCholeskyMatrix>"/>
+ <class name="HcalCholeskyMatrices">
+   <field name="HBcontainer" mapping="blob" />
+   <field name="HEcontainer" mapping="blob" />
+   <field name="HFcontainer" mapping="blob" />
+   <field name="HOcontainer" mapping="blob" />
+ </class> 
+
+ <class name="HcalCovarianceMatrix"/>
+ <class name="std::vector<HcalCovarianceMatrix>"/>
+ <class name="HcalCovarianceMatrices">
+   <field name="HBcontainer" mapping="blob" />
+   <field name="HEcontainer" mapping="blob" />
+   <field name="HFcontainer" mapping="blob" />
+   <field name="HOcontainer" mapping="blob" />
+ </class> 
+
+=======
  <class name="HcalCholeskyMatrix"/>
  <class name="std::vector<HcalCholeskyMatrix>"/>
  <class name="HcalCholeskyMatrices" class_version="0"/>
@@ -74,6 +94,7 @@
  <class name="std::vector<HcalCovarianceMatrix>"/>
  <class name="HcalCovarianceMatrices" class_version="0"/>
 
+>>>>>>> 1.24
  <class name="HcalLutMetadatum"/>
  <class name="std::vector<HcalLutMetadatum>"/>
  <class name="HcalLutMetadata" class_version="0"/>
