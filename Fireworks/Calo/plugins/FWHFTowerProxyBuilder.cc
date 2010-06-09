@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 16:41:27 CEST 2010
-// $Id: FWHFTowerProxyBuilder.cc,v 1.10 2010/06/09 13:23:08 amraktad Exp $
+// $Id: FWHFTowerProxyBuilder.cc,v 1.11 2010/06/09 14:02:00 amraktad Exp $
 //
 
 // system include files
@@ -153,85 +153,64 @@ FWHFTowerProxyBuilderBase::fillCaloData()
 int
 FWHFTowerProxyBuilderBase::fillTowerForDetId(HcalDetId& detId, float val)
 {
-   const static float PI = TMath::Pi();
+   using namespace TMath;
+   const static float upPhiLimit = Pi() -10*DegToRad() -1e-5;
 
    TEveCaloData::vCellId_t cellIds;
    std::vector<TEveVector> pnts = item()->getGeom()->getPoints(detId.rawId());
  
-   // complication with float to duouble comaprison of TMath::Pi()
    float eta[4], phi[4];
-   float phiRef[4];
    bool plusSignPhi  = false;
    bool minusSignPhi = false;
-
    for (int i = 0; i < 4; ++i)
    {
       eta[i] =  pnts[i].Eta();
       phi[i] =  pnts[i].Phi();
-      phiRef[i] =  phi[i];
+
+      // make sure sign around Pi is same as sign of fY
+      phi[i] = Sign(phi[i], pnts[i].fY);
+
       if (phi[i] >= 0)
          plusSignPhi = true;
       else
-         minusSignPhi  = true;
-   }
- 
-   // check if phi sign is changin
-   // take sides depending on average
-   if (plusSignPhi && minusSignPhi)
-   {
-      float phiMean = 0;
-      for (int i = 0; i < 4; ++i)
-      {
-         // take into average what is outside PI epsilon
-         if (TMath::Abs(TMath::Abs(phi[i]) - PI) > 1e-3)
-         {
-            phiMean += phi[i];
-         }
-      }
-      if (phiMean >= 0)
-         minusSignPhi = false;
-      else
-         plusSignPhi = false;
+         minusSignPhi = true;
    }
 
+
+   // check for cell around phi and move up edge to negative side
+   if (plusSignPhi && minusSignPhi) 
+   {
+      for (int i = 0; i < 4; ++i)
+      {
+         if ( phi[i] >= upPhiLimit ) 
+         {
+            //  printf("over phi max limit %f \n", phi[i]);
+            phi[i] -= TwoPi();
+         }
+      }
+   }
+  
    float etaM = -10;
    float etam =  10;
    float phiM = -4;
    float phim =  4;
    for (int i = 0; i < 4; ++i)
-   {
-      if (phi[i] < -1 && plusSignPhi)
-      {
-         phi[i] += TMath::TwoPi();       
-         phi[i] = TMath::Min(phi[i], PI);
-         if (TMath::Abs(phiRef[i] + PI) > 1e-3)
-         { 
-            fwLog(fwlog::kWarning) << "FWHFTowerProxyBuilderBase::fillData() cell changing sign near PI edges " << phiRef[0] << ", " << phiRef[1] << ", " << phiRef[2] << ", " << phiRef[3] << std::endl;
-            fwLog(fwlog::kWarning) << "FWHFTowerProxyBuilderBase::fillData() positive average, fix negative phi sign " <<   phiRef[1]  << " -> " << phi[i] << std::endl;
-         } 
-      }
-      else if (phi[i] > 1 && minusSignPhi)
-      {
-         phi[i] -=  TMath::TwoPi();
-         phi[i]  = TMath::Max(phi[i], -PI);
-         if (TMath::Abs(phi[i] + PI) > 1e-3)    
-         {
-            fwLog(fwlog::kWarning) << "FWHFTowerProxyBuilderBase::fillData() cell changing sign near PI edges " << phiRef[0] << ", " << phiRef[1] << ", " << phiRef[2] << ", " << phiRef[3] << std::endl;
-            fwLog(fwlog::kWarning) << "FWHFTowerProxyBuilderBase::fillData() negative average fix positive phi sign n " <<  phiRef[i]  << " -> " << phi[i] << std::endl;
-         }
-      }
-
-      etam = TMath::Min(etam, eta[i]);
-      etaM = TMath::Max(etaM, eta[i]);
-      phim = TMath::Min(phim, phi[i]);
-      phiM = TMath::Max(phiM, phi[i]);
+   { 
+      etam = Min(etam, eta[i]);
+      etaM = Max(etaM, eta[i]);
+      phim = Min(phim, phi[i]);
+      phiM = Max(phiM, phi[i]);
    }
 
+   /*
+     if (phiM - phim > 1) 
+     printf("!!! [%.2f %.2f] input(%.3f, %.3f, %.3f, %.3f) \n", phim, phiM, phiRef[0] , phiRef[1] , phiRef[2],  phiRef[3]);
+   */
+
+   // check if tower is there
    Float_t ceta = (etam+etaM)*0.5;
    Float_t cphi = (phim+phiM)*0.5;
-
    int tower = -1;
-  
    int idx = 0;
    for ( TEveCaloData::vCellGeom_i i = m_vecData->GetCellGeom().begin(); i!= m_vecData->GetCellGeom().end(); ++i, ++idx)
    {
@@ -243,16 +222,16 @@ FWHFTowerProxyBuilderBase::fillTowerForDetId(HcalDetId& detId, float val)
       }
    }
 
+   // add it if not there 
    if (tower == -1 )
    {
       tower = m_vecData->AddTower(etam, etaM, phim, phiM);
    }
 
-   m_vecData->FillSlice(m_sliceIndex, tower, val);
 
+   m_vecData->FillSlice(m_sliceIndex, tower, val);
    return tower; 
 }
-
 
 REGISTER_FWPROXYBUILDER(FWHFTowerProxyBuilderBase, HFRecHitCollection, "HFLego", FWViewType::kLegoHFBit);
 

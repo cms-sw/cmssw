@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 13:42:13 CEST 2010
-// $Id: FWHFView.cc,v 1.4 2010/06/08 11:35:00 amraktad Exp $
+// $Id: FWHFView.cc,v 1.5 2010/06/08 18:43:16 amraktad Exp $
 //
 
 // system include files
@@ -19,7 +19,8 @@
 #include "TEveCalo.h"
 #include "TEveCaloData.h"
 #include "TEveScene.h"
-#include "TEveCaloLegoOverlay.h"
+//#include "TEveCaloLegoOverlay.h"
+#include "TEveTrans.h"
 
 #include "Fireworks/Core/interface/FWHFView.h"
 #include "Fireworks/Core/interface/FWEveLegoView.h"
@@ -86,9 +87,6 @@ FWHFView::setContext(fireworks::Context& context)
    FWLegoViewBase::setContext(context);
    m_lego->Set2DMode(TEveCaloLego::kValSizeOutline);
 
-   // temporary disable  camera overlay
-   // because of problems with auto -resize in slice filters
-
-   // m_overlay->SetShowOrthographic(false);
-
+   // phi bins center shifted for 10 degres
+   m_lego->RefMainTrans().SetPos(0, -TMath::DegToRad()*10, 0);
 }

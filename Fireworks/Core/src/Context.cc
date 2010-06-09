@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:57:12 EDT 2008
-// $Id: Context.cc,v 1.20 2010/06/07 17:54:01 amraktad Exp $
+// $Id: Context.cc,v 1.21 2010/06/07 18:58:17 matevz Exp $
 //
 
 // system include files
@@ -117,10 +117,11 @@ Context::initEveElements()
    {
       m_caloDataHF = new TEveCaloDataVec(1);
       m_caloDataHF->IncDenyDestroy();
-      
+      m_caloDataHF->SetWrapTwoPi(false);
       m_caloDataHF->RefSliceInfo(0).Setup("bg", 0.3, kRed);
       m_caloDataHF->SetEtaBins(new TAxis(fw3dlego::xbins_hf_n - 1, fw3dlego::xbins_hf));
-      m_caloDataHF->SetPhiBins(new TAxis(36, -TMath::Pi(), TMath::Pi()));
+      Double_t off = 10 * TMath::DegToRad();
+      m_caloDataHF->SetPhiBins(new TAxis(36, -TMath::Pi() -off, TMath::Pi() -off));
    }
 }
 
