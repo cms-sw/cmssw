@@ -51,6 +51,7 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGCrystalStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGCrystalStatusCode.h"
 
+#include "CondFormats/EcalObjects/interface/EcalSRSettings.h"
 
 namespace{
   struct dictionary {
@@ -140,5 +141,8 @@ namespace{
 
     
     EcalTPGCrystalStatus tpgCrystalStatus;
+
+    EcalSRSettings ecalSRSettings;
+    std::vector<std::vector<short> > ecalSRSettings_srpMasksFromConfig;
   };
 }

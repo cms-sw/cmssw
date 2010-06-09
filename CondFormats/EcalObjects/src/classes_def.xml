@@ -139,7 +139,7 @@
 <class name="EcalContainer<EcalTrigTowerDetId,EcalDQMStatusCode>"/>
 <class name="EcalContainer<EcalScDetId,EcalDQMStatusCode>"/>
 
-
-
+<class name="EcalSRSettings" class_version="0"/>
+<class name="std::vector<std::vector<short> >" class_version="0"/>
 
 </lcgdict>
