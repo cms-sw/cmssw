@@ -315,7 +315,9 @@ if __name__ == '__main__':
         graphXaxis = 'Lumi section'
     if IOVbase == 'timebase' or option.Time:
         graphXaxis = "Time"
-    
+        #dh = ROOT.TDatime(2010,06,01,00,00,00)
+        ROOT.gStyle.SetTimeOffset(0) #dh.Convert())
+                    
     graphYaxis = ['beam spot X [cm]','beam spot Y [cm]','beam spot Z [cm]', 'beam spot #sigma_{Z} [cm]', 'beam spot dX/dZ', 'beam spot dY/dZ','beam width X [cm]', 'beam width Y [cm]']
 
     cvlist = []
@@ -391,7 +393,7 @@ if __name__ == '__main__':
 
 	if option.Time:
             graphlist[ig].GetXaxis().SetTimeDisplay(1);
-            graphlist[ig].GetXaxis().SetTimeFormat("#splitline{%Y/%m/%d}{%H:%M}")
+            graphlist[ig].GetXaxis().SetTimeFormat("#splitline{%Y/%m/%d}{%H:%M}")           
 	if option.graph:
 	    graphlist[ig].Draw('AP')
         else:
