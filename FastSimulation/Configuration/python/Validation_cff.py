@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from Validation.Generator.BasicGenValidation_cff import *
+from Validation.EventGenerator.BasicGenValidation_cff import *
 from FastSimulation.Validation.globalValidation_cff import *
 from HLTriggerOffline.Common.HLTValidation_cff import *
 
