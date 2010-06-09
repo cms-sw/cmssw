@@ -49,8 +49,7 @@ HeavyChHiggsToTauNuSkim::~HeavyChHiggsToTauNuSkim(){
   	edm::LogVerbatim("HeavyChHiggsToTauNuSkim") 
   	<< " Number_events_read " << nEvents
   	<< " Number_events_kept " << nSelectedEvents
-  	<< " Efficiency         " << ((double)nSelectedEvents)/((double) nEvents + 0.01) << std::endl;
-
+  	<< " Efficiency         " << ((double)nSelectedEvents)/((double) nEvents) << std::endl;
 }
 
 
