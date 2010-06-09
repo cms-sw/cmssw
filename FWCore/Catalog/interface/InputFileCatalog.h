@@ -4,9 +4,6 @@
 //
 // Class InputFileCatalog. Services to manage InputFile catalog
 //
-// Author of original version: Luca Lista
-// Author of current version: Bill Tanenbaum
-//
 //////////////////////////////////////////////////////////////////////
 
 #include <string>

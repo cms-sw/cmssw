@@ -2,12 +2,7 @@
 #define FWCore_Catalog_FileCatalog_h
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: FileCatalog.h,v 1.6 2010/06/09 06:44:03 innocent Exp $
-//
 // Class FileCatalog. Common services to manage File catalog
-//
-// Author of original version: Luca Lista
-// Author of current version: Bill Tanenbaum
 //
 //////////////////////////////////////////////////////////////////////
 
