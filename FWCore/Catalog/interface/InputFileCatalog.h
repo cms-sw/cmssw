@@ -19,7 +19,6 @@ namespace edm {
   class InputFileCatalog : public FileCatalog {
   public:
     explicit InputFileCatalog(ParameterSet const& pset,
-	 PoolCatalog & poolcat,
 	 std::string const& namesParameter = std::string("fileNames"),
 	 bool canBeEmpty = false,
 	 bool noThrow = false);
