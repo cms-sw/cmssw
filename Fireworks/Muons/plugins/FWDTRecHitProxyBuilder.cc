@@ -3,7 +3,7 @@
 // Package:     Muons
 // Class  :     FWDTRecHitProxyBuilder
 //
-// $Id: FWDTRecHitProxyBuilder.cc,v 1.5 2010/05/06 18:03:08 amraktad Exp $
+// $Id: FWDTRecHitProxyBuilder.cc,v 1.6 2010/06/04 14:13:54 yana Exp $
 //
 
 #include "TEvePointSet.h"
@@ -55,27 +55,29 @@ private:
 	// Disable default assignment operator
    const FWDTRecHitProxyBuilder& operator=( const FWDTRecHitProxyBuilder& );
 
-	virtual void buildViewType(const DTRecHit1DPair& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*);
+	virtual void buildViewType( const DTRecHit1DPair& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext* );
 };
 
 void
 FWDTRecHitProxyBuilder::buildViewType( const DTRecHit1DPair& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type, const FWViewContext* )
 {
 	int superLayer = iData.wireId().layerId().superlayerId().superLayer();
-
+	int layer = iData.wireId().layerId().layer();
+	
 	// FIXME: These magic numbers should be gone 
 	// as soon as we have 
 	// access to proper geometry.
 	// Note: radial thickness - almost constant about 5 cm
 	
-	float superLayerShift = 10.5;
+	float superLayerShift = 15.0;
+	
 	if( superLayer == 2 )
 	{
-		superLayerShift = -5.0;
+		superLayerShift = 0.0;
 	} 
 	else if( superLayer == 3 ) 
 	{
-		superLayerShift = -10.5;
+		superLayerShift = -5.35;
 	}
 	
 	DTChamberId chamberId( iData.geographicalId() );
@@ -99,8 +101,8 @@ FWDTRecHitProxyBuilder::buildViewType( const DTRecHit1DPair& iData, unsigned int
 	 
    const DTRecHit1D* leftRecHit = iData.componentRecHit( Left );
    const DTRecHit1D* rightRecHit = iData.componentRecHit( Right );
-	double lLocalPos[3] = { 0.0, 0.0, superLayerShift };
-	double rLocalPos[3] = { 0.0, 0.0, superLayerShift };
+	double lLocalPos[3] = { 0.0, 0.0, superLayerShift - layer * 1.3 };
+	double rLocalPos[3] = { 0.0, 0.0, superLayerShift - layer * 1.3 };
 
 	if( type == FWViewType::kRhoPhi && superLayer != 2 )
 	{
