@@ -206,6 +206,8 @@ void TrackClassifier::simulationInformation()
     EncodedEventId eventId = tracer_.simParticle()->eventId();
     // Check for signal events
     flags_[SignalEvent] = !eventId.bunchCrossing() && !eventId.event();
+    // Check for muons
+    flags_[Muon] = (abs(tracer_.simParticle()->pdgId()) == 13);    
 }
 
 
@@ -293,6 +295,8 @@ void TrackClassifier::processesAtGenerator()
                         update(flags_[LongLivedDecay], true);
                     }
                     // Check Tau, Ks and Lambda decay
+                    update(flags_[ChargePionDecay], pdgid == 211);
+                    update(flags_[ChargeKaonDecay], pdgid == 321);                                            
                     update(flags_[TauDecay], pdgid == 15);
                     update(flags_[KsDecay], pdgid == 310);
                     update(flags_[LambdaDecay], pdgid == 3122);
@@ -304,6 +308,10 @@ void TrackClassifier::processesAtGenerator()
             }
         }
     }
+     // Decays in flight
+    update(flags_[FromChargePionMuon], flags_[Muon] && flags_[ChargePionDecay]);
+    update(flags_[FromChargeKaonMuon], flags_[Muon] && flags_[ChargeKaonDecay]);    
+    update(flags_[DecayInFlightMuon], flags_[FromChargePionMuon] && flags_[FromChargeKaonMuon]);
 }
 
 
@@ -404,6 +412,8 @@ void TrackClassifier::processesAtSimulation()
                         }
 
                         // Check Tau, Ks and Lambda decay
+                        update(flags_[ChargePionDecay], pdgid == 211);
+                        update(flags_[ChargeKaonDecay], pdgid == 321);                        
                         update(flags_[TauDecay], pdgid == 15);
                         update(flags_[KsDecay], pdgid == 310);
                         update(flags_[LambdaDecay], pdgid == 3122);
@@ -417,6 +427,11 @@ void TrackClassifier::processesAtSimulation()
             }
         }
     }
+    
+    // Decays in flight
+    update(flags_[FromChargePionMuon], flags_[Muon] && flags_[ChargePionDecay]);
+    update(flags_[FromChargeKaonMuon], flags_[Muon] && flags_[ChargeKaonDecay]);    
+    update(flags_[DecayInFlightMuon], flags_[FromChargePionMuon] && flags_[FromChargeKaonMuon]);
 }
 
 
