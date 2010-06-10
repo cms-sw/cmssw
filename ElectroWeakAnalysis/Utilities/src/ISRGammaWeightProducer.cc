@@ -36,7 +36,7 @@ class ISRGammaWeightProducer : public edm::EDProducer {
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 /////////////////////////////////////////////////////////////////////////////////////
 ISRGammaWeightProducer::ISRGammaWeightProducer(const edm::ParameterSet& pset) {
-      genTag_ = pset.getUntrackedParameter<edm::InputTag> ("GenTag", edm::InputTag("generator"));
+      genTag_ = pset.getUntrackedParameter<edm::InputTag> ("GenTag", edm::InputTag("genParticles"));
 
       produces<double>();
 } 
@@ -56,7 +56,7 @@ void ISRGammaWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&)
       if (iEvent.isRealData()) return;
 
       edm::Handle<reco::GenParticleCollection> genParticles;
-      iEvent.getByLabel("genParticles", genParticles);
+      iEvent.getByLabel(genTag_, genParticles);
       unsigned int gensize = genParticles->size();
 
       std::auto_ptr<double> weight (new double);

@@ -35,7 +35,7 @@ class FSRWeightProducer : public edm::EDProducer {
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 /////////////////////////////////////////////////////////////////////////////////////
 FSRWeightProducer::FSRWeightProducer(const edm::ParameterSet& pset) {
-      genTag_ = pset.getUntrackedParameter<edm::InputTag> ("GenTag", edm::InputTag("generator"));
+      genTag_ = pset.getUntrackedParameter<edm::InputTag> ("GenTag", edm::InputTag("genParticles"));
 
       produces<double>();
 } 
@@ -55,7 +55,7 @@ void FSRWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
       if (iEvent.isRealData()) return;
 
       edm::Handle<reco::GenParticleCollection> genParticles;
-      iEvent.getByLabel("genParticles", genParticles);
+      iEvent.getByLabel(genTag_, genParticles);
 
       std::auto_ptr<double> weight (new double);
 
