@@ -1,8 +1,8 @@
 destDB oracle://cms_orcoff_prep/CMS_COND_GEOMETRY
-tag XMLFILE_Geometry_ExtendedLiMin_38YV0
+tag XMLFILE_Geometry_ExtendedLiMin_TagXX
 inputtag
 since
 Timetype runnumber
 IOVCheck offline
-usertext Geometry validation for 38Y pre1
+usertext Geometry validation special LiMin for Tracker. TagXX
 
