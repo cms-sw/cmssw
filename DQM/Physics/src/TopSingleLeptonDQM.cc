@@ -184,7 +184,7 @@ namespace TopSingleLepton {
     // multiplicity of btagged jets (for track counting high efficiency) with pt(L2L3)>30
     hists_["jetMultBEff_"] = store_->book1D("JetMultBEff", "N_{30}(b/eff)"    ,     10,     0.,     10.);   
     // btag discriminator for track counting high efficiency for jets with pt(L2L3)>30
-    hists_["jetBDiscEff_"] = store_->book1D("JetBDiscEff", "Disc_{b/eff}(jet)",     50,     0.,     10.);   
+    hists_["jetBDiscEff_"] = store_->book1D("JetBDiscEff", "Disc_{b/eff}(jet)",     100,     0.,     10.);   
     // pt of the 1. leading jet (corrected to L2+L3)
     hists_["jet1Pt_"     ] = store_->book1D("Jet1Pt"     , "pt_{L2L3}(jet1)"  ,     60,     0.,    300.);   
     // pt of the 2. leading jet (corrected to L2+L3)
@@ -219,7 +219,7 @@ namespace TopSingleLepton {
     // multiplicity of btagged jets (for track counting high purity) with pt(L2L3)>30
     hists_["jetMultBPur_"] = store_->book1D("JetMultBPur", "N_{30}(b/pur)"    ,     10,     0.,     10.);   
     // btag discriminator for track counting high purity
-    hists_["jetBDiscPur_"] = store_->book1D("JetBDiscPur", "Disc_{b/pur}(Jet)",     50,     0.,     10.);   
+    hists_["jetBDiscPur_"] = store_->book1D("JetBDiscPur", "Disc_{b/pur}(Jet)",     100,     0.,     10.);   
     // multiplicity of btagged jets (for simple secondary vertex) with pt(L2L3)>30
     hists_["jetMultBVtx_"] = store_->book1D("JetMultBVtx", "N_{30}(b/vtx)"    ,     10,     0.,     10.);   
     // btag discriminator for simple secondary vertex
