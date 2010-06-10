@@ -13,7 +13,7 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.BigXMLWriter = cms.EDAnalyzer("OutputDDToDDL",
                               rotNumSeed = cms.int32(0),
-                              fileName = cms.untracked.string("geTagXX.xml")
+                              fileName = cms.untracked.string("./geTagXX.xml")
                               )
 
 
