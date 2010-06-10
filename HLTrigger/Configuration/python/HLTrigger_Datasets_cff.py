@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_6_2/GRun/V4
+# /dev/CMSSW_3_6_2/GRun/V5
 
 import FWCore.ParameterSet.Config as cms
 
@@ -127,6 +127,35 @@ streamA_datasetMu_selector.triggerConditions = cms.vstring('HLT_L2Mu5',
     'HLT_L2Mu9', 
     'HLT_L2Mu11')
 
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetJetMETTau_selector
+streamA_datasetJetMETTau_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetJetMETTau_selector.l1tResults = cms.InputTag('')
+streamA_datasetJetMETTau_selector.throw      = cms.bool(False)
+streamA_datasetJetMETTau_selector.triggerConditions = cms.vstring('HLT_DoubleJet15U_ForwardBackward', 
+    'HLT_Jet15U_HcalNoiseFiltered', 
+    'HLT_BTagIP_Jet50U', 
+    'HLT_DoubleLooseIsoTau15', 
+    'HLT_SingleLooseIsoTau20', 
+    'HLT_HT100U', 
+    'HLT_MET100', 
+    'HLT_MET45', 
+    'HLT_QuadJet15U', 
+    'HLT_DiJetAve30U_8E29', 
+    'HLT_DiJetAve15U_8E29', 
+    'HLT_FwdJet20U', 
+    'HLT_Jet50U', 
+    'HLT_Jet30U', 
+    'HLT_Jet15U', 
+    'HLT_BTagMu_Jet10U')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMuMonitor_selector
+streamA_datasetMuMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetMuMonitor_selector.l1tResults = cms.InputTag('')
+streamA_datasetMuMonitor_selector.throw      = cms.bool(False)
+streamA_datasetMuMonitor_selector.triggerConditions = cms.vstring('HLT_L1MuOpen_DT', 
+    'HLT_L1Mu', 
+    'HLT_L1MuOpen')
+
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetEG_selector
 streamA_datasetEG_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetEG_selector.l1tResults = cms.InputTag('')
@@ -152,27 +181,6 @@ streamA_datasetEG_selector.triggerConditions = cms.vstring('HLT_DoublePhoton10_L
     'HLT_DoublePhoton4_eeRes_L1R', 
     'HLT_DoublePhoton5_L1R')
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetJetMETTau_selector
-streamA_datasetJetMETTau_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetJetMETTau_selector.l1tResults = cms.InputTag('')
-streamA_datasetJetMETTau_selector.throw      = cms.bool(False)
-streamA_datasetJetMETTau_selector.triggerConditions = cms.vstring('HLT_DoubleJet15U_ForwardBackward', 
-    'HLT_Jet15U_HcalNoiseFiltered', 
-    'HLT_BTagIP_Jet50U', 
-    'HLT_DoubleLooseIsoTau15', 
-    'HLT_SingleLooseIsoTau20', 
-    'HLT_HT100U', 
-    'HLT_MET100', 
-    'HLT_MET45', 
-    'HLT_QuadJet15U', 
-    'HLT_DiJetAve30U_8E29', 
-    'HLT_DiJetAve15U_8E29', 
-    'HLT_FwdJet20U', 
-    'HLT_Jet50U', 
-    'HLT_Jet30U', 
-    'HLT_Jet15U', 
-    'HLT_BTagMu_Jet10U')
-
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetCommissioning_selector
 streamA_datasetCommissioning_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetCommissioning_selector.l1tResults = cms.InputTag('')
@@ -186,12 +194,4 @@ streamA_datasetCommissioning_selector.triggerConditions = cms.vstring('HLT_L1_Bp
     'HLT_Activity_Ecal', 
     'HLT_Activity_PixelClusters', 
     'HLT_Activity_L1A')
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMuMonitor_selector
-streamA_datasetMuMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetMuMonitor_selector.l1tResults = cms.InputTag('')
-streamA_datasetMuMonitor_selector.throw      = cms.bool(False)
-streamA_datasetMuMonitor_selector.triggerConditions = cms.vstring('HLT_L1MuOpen_DT', 
-    'HLT_L1Mu', 
-    'HLT_L1MuOpen')
 
