@@ -59,6 +59,7 @@ class TrackIPTagPlotter : public BaseTagInfoPlotter {
   FlavourHistograms<int> * trkNbr3D, * trkNbr2D;
   double lowerIPSBound, upperIPSBound,lowerIPBound, upperIPBound,lowerIPEBound, upperIPEBound ;
   int nBinsIPS, nBinsIP, nBinsIPE;
+  double minDecayLength, maxDecayLength, minJetDistance, maxJetDistance;
 
   EffPurFromHistos * effPurFromHistos[4] ;
 
