@@ -30,7 +30,7 @@ class TreeAnalyzer(object):
 
         try:
             import json
-            jsonFileName = '/tmp/treeInfo-IBsrc.json'
+            jsonFileName = 'treeInfo-IBsrc.json'
             jsonFile = open(jsonFileName, 'w')
             json.dump([os.path.abspath(dirIn), self.dirSizes, self.fileSizes], jsonFile)
             jsonFile.close()
