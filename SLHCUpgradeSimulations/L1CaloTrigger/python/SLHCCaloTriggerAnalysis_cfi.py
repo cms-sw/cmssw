@@ -20,9 +20,38 @@ mcPhotons = cms.EDProducer(
     )
 )
 
+tauGenJets = cms.EDProducer(
+	"TauGenJetProducer",
+	GenParticles =  cms.InputTag("genParticles"),
+	includeNeutrinos = cms.bool( False ),
+	verbose = cms.untracked.bool( False )
+)
+
+tauGenJetsSelectorAllHadrons = cms.EDFilter("TauGenJetDecayModeSelector",
+	src = cms.InputTag("tauGenJets"),
+	select = cms.vstring('oneProng0Pi0',
+	'oneProng1Pi0',
+	'oneProng2Pi0',
+	'oneProngOther',
+	'threeProng0Pi0',
+	'threeProng1Pi0',
+	'threeProngOther',
+	'rare'),
+	filter = cms.bool(False)
+)
+
+SLHCTaus = cms.EDAnalyzer('CaloTriggerAnalyzer',
+	src    = cms.InputTag("L1ExtraParticles","Taus"),
+	ref    = cms.InputTag("tauGenJetsSelectorAllHadrons"),
+	deltaR = cms.double(0.5),
+	threshold = cms.double(5)
+)
+
 
 mcSequence = cms.Sequence(mcElectrons*
-                          mcPhotons
+                          mcPhotons*
+                          tauGenJets*
+                          tauGenJetsSelectorAllHadrons
 )
 
 
@@ -74,5 +103,6 @@ analysisSequence = cms.Sequence(SLHCelectrons*
                                 SLHCisoElectrons*
                                 SLHCphotons*
                                 SLHCisoPhotons*
+                                SLHCTaus*
                                 SLHCjets
 )
