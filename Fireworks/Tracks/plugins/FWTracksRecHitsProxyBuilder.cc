@@ -4,20 +4,20 @@
 
 // user include files
 #include "TEveGeoShape.h"
+#include "TEvePointSet.h"
 
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
+#include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Tracks/interface/TrackUtils.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
-
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
-#include "DataFormats/TrackingRecHit/interface/RecHit2DLocalPos.h"
-#include "DataFormats/TrackingRecHit/interface/RecSegment.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+
+
+#include "Fireworks/Core/interface/fwLog.h"
+
 class FWTracksRecHitsProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Track>
 {
 public:
@@ -35,11 +35,23 @@ private:
    const FWTracksRecHitsProxyBuilder& operator=(const FWTracksRecHitsProxyBuilder&);    // stop default
 };
 
+
 void
-FWTracksRecHitsProxyBuilder::build(const reco::Track& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) 
+FWTracksRecHitsProxyBuilder::build(const reco::Track& track, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) 
 {
-   if( iData.extra().isAvailable() )
-      fireworks::addHits(iData, item(), &oItemHolder, false);
+   if( track.extra().isAvailable() )
+   {
+      std::vector<TVector3> points;
+      const FWEventItem &iItem = *item();
+      fireworks::pushPixelHits(points, iItem, track);
+    
+      TEvePointSet* pointSet = new TEvePointSet();
+      for( std::vector<TVector3>::const_iterator it = points.begin(), itEnd = points.end(); it != itEnd; ++it) {
+         pointSet->SetNextPoint(it->x(), it->y(), it->z());
+      }
+      setupAddElement(pointSet, &oItemHolder);
+      fireworks::addSiStripClusters(item(), track, &oItemHolder,false, true);
+   }
 }
 
 bool FWTracksRecHitsProxyBuilder::representsSubPart()
@@ -47,6 +59,8 @@ bool FWTracksRecHitsProxyBuilder::representsSubPart()
    return true;
 }
 
+REGISTER_FWPROXYBUILDER(FWTracksRecHitsProxyBuilder, reco::Track, "TrackHits", FWViewType::kAll3DBits | FWViewType::kAllRPZBits);
+//______________________________________________________________________________
 
 
 class FWTracksModulesProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Track>
@@ -83,9 +97,16 @@ FWTracksModulesProxyBuilder::build(const reco::Track& track, unsigned int iIndex
             }
 
             TEveGeoShape* shape = item()->getGeom()->getShape( detid );
-            setupAddElement(shape, &oItemHolder);
+            if (shape)
+            {
+               setupAddElement(shape, &oItemHolder);
+            }
+            else
+            {
+               fwLog(fwlog::kDebug) <<  "Failed to get shape extract for a tracking rec hit: "
+                                    << "\n" << fireworks::info(detid) << std::endl;
+            }
          }
-
       }
    }
 }
@@ -95,5 +116,4 @@ bool FWTracksModulesProxyBuilder::representsSubPart()
    return true;
 }
 
-REGISTER_FWPROXYBUILDER(FWTracksRecHitsProxyBuilder, reco::Track, "TrackHits", FWViewType::kAll3DBits | FWViewType::kAllRPZBits);
 REGISTER_FWPROXYBUILDER(FWTracksModulesProxyBuilder, reco::Track, "TrackDets", FWViewType::kAll3DBits | FWViewType::kAllRPZBits);

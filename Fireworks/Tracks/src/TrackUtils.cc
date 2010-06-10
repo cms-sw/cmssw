@@ -2,7 +2,7 @@
 //
 // Package:     Tracks
 // Class  :     TrackUtils
-// $Id: TrackUtils.cc,v 1.27 2010/04/29 14:28:52 yana Exp $
+// $Id: TrackUtils.cc,v 1.28 2010/06/10 14:00:39 amraktad Exp $
 //
 
 // system include files
@@ -17,6 +17,7 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Core/interface/TEveElementIter.h"
+#include "Fireworks/Core/interface/fwLog.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 
@@ -510,9 +511,34 @@ void localSiStrip( TVector3& point, TVector3& pointA, TVector3& pointB,
 }
 
 //______________________________________________________________________________
-	
+
 void
-addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveElementList *tList, Color_t color, bool addNearbyClusters ) {
+setupAddElement(TEveElement* el, TEveElement* parent, const FWEventItem* item, bool master, bool color)
+{
+   if (master)
+   {
+      el->CSCTakeAnyParentAsMaster();
+      el->SetPickable(true);
+   }
+
+   if (color)
+   {
+      el->CSCApplyMainColorToMatchingChildren();
+      el->CSCApplyMainTransparencyToMatchingChildren();
+      el->SetMainColor(item->defaultDisplayProperties().color());
+      assert((item->defaultDisplayProperties().transparency() >= 0)
+             && (item->defaultDisplayProperties().transparency() <= 100));
+      el->SetMainTransparency(item->defaultDisplayProperties().transparency());
+   }
+   parent->AddElement(el);
+}
+
+//______________________________________________________________________________
+
+void
+addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveElement *tList, bool addNearbyClusters , bool master) 
+{
+   // master is true if the product is for proxy builder
    const char* title = "TrackHits";
    const edmNew::DetSetVector<SiStripCluster> * allClusters = 0;
    if( addNearbyClusters ) {
@@ -607,8 +633,9 @@ addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveEl
                   TEveStraightLineSet *scposition = new TEveStraightLineSet(title);
                   scposition->SetDepthTest(false);
                   scposition->AddLine(pointA.X(), pointA.Y(), pointA.Z(), pointB.X(), pointB.Y(), pointB.Z());
-                  scposition->SetLineColor(&*itc == Cluster ? kGreen : kRed);
-                  tList->AddElement(scposition);
+                  scposition->SetLineColor(&*itc == Cluster ? kGreen : kRed); 
+                  setupAddElement(scposition, tList, iItem, master, false);
+                
                }
             } else {
                double bc = Cluster->barycenter();
@@ -618,8 +645,7 @@ addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveEl
                TEveStraightLineSet *scposition = new TEveStraightLineSet(title);
                scposition->SetDepthTest(false);
                scposition->AddLine(pointA.X(), pointA.Y(), pointA.Z(), pointB.X(), pointB.Y(), pointB.Z());
-               scposition->SetLineColor(color);
-               tList->AddElement(scposition);
+               setupAddElement(scposition, tList, iItem, master, true);
             }		
          }					
       } else if (!rh->isValid() && (id.rawId() != 0)) {    // lost hit
@@ -636,8 +662,8 @@ addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveEl
                   TEveStraightLineSet *scposition = new TEveStraightLineSet(title);
                   scposition->SetDepthTest(false);
                   scposition->AddLine(pointA.X(), pointA.Y(), pointA.Z(), pointB.X(), pointB.Y(), pointB.Z());
+                  setupAddElement(scposition, tList, iItem, master, false);
                   scposition->SetLineColor(kRed);
-                  tList->AddElement(scposition);
                }
             }
          }
@@ -1263,87 +1289,13 @@ pushSiStripHits(std::vector<TVector3> &monoPoints, std::vector<TVector3> &stereo
 }
 
 //______________________________________________________________________________
-
-void
-addTrackerHitsEtaPhi( std::vector<TVector3> &points, class TEveElementList *tList, Color_t color, int size ) {
-
-   // -- draw points for TrackHits
-   int cnt = 0;
-   double zv = 0.;
-
-   for( std::vector<TVector3>::const_iterator it = points.begin(), itEnd = points.end(); it != itEnd; ++it ) {
-      if( PRINT )
-         std::cout << cnt << " -- ";
-
-      const double RHOB = 115.;
-      const double ETAB = 1.572;
-      const double ZPLUS = 265.;
-      const double ZMINUS = -265.;
-      const int nfac = 1;        // this should be under user control, going from 1...10 or so
-      const double kfac = nfac*0.00036;
-
-      double eta = (*it).Eta();
-      double phi = (*it).Phi();
-      double rho = (*it).Pt();
-      double z = (*it).Z()-zv;
-
-      double rhoMax = 0.;
-      if (eta > ETAB)
-         rhoMax = (ZPLUS-zv)/z*rho;
-      else if (eta > -ETAB)
-         rhoMax = RHOB;
-      else    {
-         rhoMax = (ZMINUS-zv)/z*rho;
-      }
-
-      double del = kfac*(rhoMax-rho);
-
-      double xp1 = eta-del;
-      double xp2 = eta+del;
-      double yp = phi;
-      double zp = -del*10.;
-
-      TEveStraightLineSet *thposition = new TEveStraightLineSet("th position");
-      thposition->SetDepthTest(kFALSE);
-      thposition->AddLine(xp1, yp, zp, xp2, yp, zp);
-      thposition->AddMarker(0, 0.);
-      thposition->AddMarker(0, 1.);
-      thposition->SetLineColor(kGray);
-
-
-#ifdef LATBdebug
-      if ( (cnt%2) == 0)
-         thposition->SetMarkerSize(1);
-      else
-         thposition->SetMarkerSize(2);
-      int icol = int(cnt/2)%10;
-      thposition->SetMarkerColor(icol);
-      tList->AddElement(thposition);
-#else
-      thposition->SetMarkerSize(size);
-      thposition->SetMarkerColor(color);
-      tList->AddElement(thposition);
-#endif
-
-      /*
-        std::stringstream out;
-        out << i;
-        const char* sCnt = out.str().c_str();
-        TEveText* t1 = new TEveText(sCnt);
-        t1->SetFontSize(20);
-        thposition->AddElement(t1);
-      */
-      if( PRINT )
-         std::cout << "eta: " << eta << " phi: " << phi << " z: " << z << " rho: " << rho << std::endl;
-
-      cnt++;
-   }
-}
-
-//______________________________________________________________________________
 	
 void
-addTrackerHits3D( std::vector<TVector3> &points, class TEveElementList *tList, Color_t color, int size ) {
+addTrackerHits3D( std::vector<TVector3> &points, class TEveElementList *tList, Color_t color, int size ) 
+{
+   // !AT this is  detail view specific, should move to track hits
+   // detail view
+
    TEvePointSet* pointSet = new TEvePointSet();
    pointSet->SetMarkerSize(size);
    pointSet->SetMarkerStyle(4);
@@ -1361,6 +1313,9 @@ addHits(const reco::Track& track,
         TEveElement* trkList,
         bool addNearbyHits)
 {
+   // !AT this is  detail view specific, should move to track hits
+   // detail view
+
    std::vector<TVector3> pixelPoints;
    fireworks::pushPixelHits(pixelPoints, *iItem, track);
    TEveElementList* pixels = new TEveElementList("Pixels");
@@ -1381,7 +1336,7 @@ addHits(const reco::Track& track,
    // strips
    TEveElementList* strips = new TEveElementList("Strips");
    trkList->AddElement(strips);
-   fireworks::addSiStripClusters(iItem, track, strips, iItem->defaultDisplayProperties().color(), addNearbyHits);
+   fireworks::addSiStripClusters(iItem, track, strips, addNearbyHits, false);
 }
 
 //______________________________________________________________________________
@@ -1392,6 +1347,9 @@ addModules( const reco::Track& track,
             TEveElement* trkList,
             bool addLostHits)
 {
+   // !AT this is  detail view specific, should move to track hits
+   // detail view
+
    try {
       std::set<unsigned int> ids;
       for( trackingRecHit_iterator recIt = track.recHitsBegin(), recItEnd = track.recHitsEnd();
@@ -1473,15 +1431,16 @@ addModules( const reco::Track& track,
                   shape->SetTitle(name + ULong_t(detid.rawId()));
                   trkList->AddElement(shape);
                } else {
-                  std::cout << "Failed to get shape extract for a tracking rec hit: "
-                            << "\n" << fireworks::info(detid) << std::endl;
+
+                  fwLog(fwlog::kInfo) <<  "Failed to get shape extract for a tracking rec hit: "
+                                      << "\n" << fireworks::info(detid) << std::endl;
                }
             }
-         }  // if the hit isValid().
-      }  // For Loop Over Rec hits (recIt)
+         }
+      }
    }
    catch (...) {
-      std::cout << "Sorry, don't have the recHits for this event." << std::endl;
+      fwLog(fwlog::kInfo) << "Sorry, don't have the recHits for this event." << std::endl;
    }
 }
 //______________________________________________________________________________
