@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2010/05/25 10:26:53 $
-//  $Revision: 1.84 $
+//  $Date: 2010/05/28 08:48:45 $
+//  $Revision: 1.85 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -828,10 +828,10 @@ void MuScleFit::selectMuons(const int maxEvents, const TString & treeFileName)
       // If they don't pass the cuts set to null vectors
       if( !(pt1 > MuScleFitUtils::minMuonPt_ && pt1 < MuScleFitUtils::maxMuonPt_ &&
 	    pt2 > MuScleFitUtils::minMuonPt_ && pt2 < MuScleFitUtils::maxMuonPt_ &&
-	    eta1 > MuScleFitUtils::minMuonEtaFirstRange_ && eta1 < MuScleFitUtils::maxMuonEtaFirstRange_ &&
-	    eta2 > MuScleFitUtils::minMuonEtaFirstRange_ && eta2 < MuScleFitUtils::maxMuonEtaFirstRange_ &&
-	    eta1 > MuScleFitUtils::minMuonEtaSecondRange_ && eta1 < MuScleFitUtils::maxMuonEtaSecondRange_ &&
-	    eta2 > MuScleFitUtils::minMuonEtaSecondRange_ && eta2 < MuScleFitUtils::maxMuonEtaSecondRange_) ) {
+	    ( (eta1 > MuScleFitUtils::minMuonEtaFirstRange_ && eta1 < MuScleFitUtils::maxMuonEtaFirstRange_ &&
+	       eta2 > MuScleFitUtils::minMuonEtaFirstRange_ && eta2 < MuScleFitUtils::maxMuonEtaFirstRange_) ||
+	      (eta1 > MuScleFitUtils::minMuonEtaSecondRange_ && eta1 < MuScleFitUtils::maxMuonEtaSecondRange_ &&
+	       eta2 > MuScleFitUtils::minMuonEtaSecondRange_ && eta2 < MuScleFitUtils::maxMuonEtaSecondRange_) ) ) ) {
 	// std::cout << "removing muons not passing cuts" << std::endl;
 	it->first = reco::Particle::LorentzVector(0,0,0,0);
 	it->second = reco::Particle::LorentzVector(0,0,0,0);
