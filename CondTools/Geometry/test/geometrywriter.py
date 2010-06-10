@@ -17,6 +17,10 @@ process.XMLGeometryWriter = cms.EDAnalyzer("XMLGeometryBuilder",
                                            XMLFileName = cms.untracked.string("./geTagXX.xml"),
                                            ZIP = cms.untracked.bool(True)
                                            )
+process.TrackerGeometricDetExtraESModule = cms.ESProducer( "TrackerGeometricDetExtraESModule",
+                                                           fromDDD = cms.bool( True )
+                                                           )
+
 process.TrackerGeometryWriter = cms.EDAnalyzer("PGeometricDetBuilder")
 process.TrackerGeometryExtraWriter = cms.EDAnalyzer("PGeometricDetExtraBuilder")
 
@@ -35,7 +39,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDBCommon,
                                           toPut = cms.VPSet(cms.PSet(record = cms.string('GeometryFileRcd'),tag = cms.string('XMLFILE_Geometry_Extended_TagXX')),
                                                             cms.PSet(record = cms.string('IdealGeometryRecord'),tag = cms.string('TKRECO_Geometry_TagXX')),
-                                                            cms.PSet(record = cms.string('GeometricDetExtraRcd'),tag = cms.string('TKExtra_Geometry_TagXX')),
+                                                            cms.PSet(record = cms.string('PGeometricDetExtraRcd'),tag = cms.string('TKExtra_Geometry_TagXX')),
                                                             cms.PSet(record = cms.string('PEcalBarrelRcd'),   tag = cms.string('EBRECO_Geometry_TagXX')),
                                                             cms.PSet(record = cms.string('PEcalEndcapRcd'),   tag = cms.string('EERECO_Geometry_TagXX')),
                                                             cms.PSet(record = cms.string('PEcalPreshowerRcd'),tag = cms.string('EPRECO_Geometry_TagXX')),
