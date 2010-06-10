@@ -254,6 +254,7 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   // For Pileup subtraction using offset correction:
   // Subtract pedestal. 
   if ( doPUOffsetCorr_ ) {
+     subtractor_->reset(inputs_,fjInputs_,fjJets_);
      subtractor_->calculatePedestal(fjInputs_); 
      subtractor_->subtractPedestal(fjInputs_);    
      LogDebug("VirtualJetProducer") << "Subtracted pedestal\n";

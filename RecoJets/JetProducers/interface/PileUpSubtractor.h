@@ -31,6 +31,10 @@ class PileUpSubtractor{
   ~PileUpSubtractor(){;}
 
   void setAlgorithm(ClusterSequencePtr& algorithm);
+  void reset(std::vector<edm::Ptr<reco::Candidate> >& input,
+	     std::vector<fastjet::PseudoJet>& towers,
+	     std::vector<fastjet::PseudoJet>& output);
+  
   //  void setAlgorithm(fastjet::ClusterSequence& algorithm);
   void setupGeometryMap(edm::Event& iEvent,const edm::EventSetup& iSetup);
   void calculatePedestal(std::vector<fastjet::PseudoJet> const & coll);
@@ -50,6 +54,7 @@ class PileUpSubtractor{
   std::vector<edm::Ptr<reco::Candidate> >*       inputs_;          // input candidates
   std::vector<fastjet::PseudoJet>* fjInputs_;        // fastjet inputs
   std::vector<fastjet::PseudoJet>* fjJets_;          // fastjet jets
+  std::vector<fastjet::PseudoJet> fjOriginalInputs_;        // to back-up unsubtracted fastjet inputs
 
   // PU subtraction parameters
   bool     reRunAlgo_;

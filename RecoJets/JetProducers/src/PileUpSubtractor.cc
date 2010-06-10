@@ -48,6 +48,20 @@ PileUpSubtractor::PileUpSubtractor(const edm::ParameterSet& iConfig,
    } 
 }
 
+void PileUpSubtractor::reset(std::vector<edm::Ptr<reco::Candidate> >& input,
+			     std::vector<fastjet::PseudoJet>& towers,
+			     std::vector<fastjet::PseudoJet>& output){
+  
+  inputs_ = &input;
+  fjInputs_ = &towers;
+  fjJets_ = &output;
+  fjOriginalInputs_ = (*fjInputs_);
+  for (unsigned int i = 0; i < fjInputs_->size(); ++i){
+    fjOriginalInputs_[i].set_user_index((*fjInputs_)[i].user_index());
+  }
+  
+}
+
 void PileUpSubtractor::setAlgorithm(ClusterSequencePtr& algorithm){
   fjClusterSeq_ = algorithm;
 }
@@ -276,15 +290,18 @@ void PileUpSubtractor::offsetCorrectJets()
   using namespace reco;
 
   if(reRunAlgo_){
+    (*fjInputs_) = fjOriginalInputs_;
     subtractPedestal(*fjInputs_);
     const fastjet::JetDefinition& def = fjClusterSeq_->jet_def();
     if ( !doAreaFastjet_ && !doRhoFastjet_) {
-       fjClusterSeq_.reset(new fastjet::ClusterSequence( *fjInputs_, def ));
+      fastjet::ClusterSequence newseq( *fjInputs_, def );
+      (*fjClusterSeq_) = newseq;
     } else {
-       fjClusterSeq_.reset(new fastjet::ClusterSequenceArea( *fjInputs_, def, *fjActiveArea_ ) );
+      fastjet::ClusterSequenceArea newseq( *fjInputs_, def , *fjActiveArea_ );
+      (*fjClusterSeq_) = newseq;
     }
 
-    *fjJets_ = fastjet::sorted_by_pt(fjClusterSeq_->inclusive_jets(jetPtMin_));
+    (*fjJets_) = fastjet::sorted_by_pt(fjClusterSeq_->inclusive_jets(jetPtMin_));
   }
 
   //    
