@@ -5,9 +5,9 @@
  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
  *  using a ratio method
  *
- *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.6 2010/05/26 22:37:56 franzoni Exp $
- *  $Date: 2010/05/26 22:37:56 $
- *  $Revision: 1.6 $
+ *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.7 2010/06/09 07:51:55 franzoni Exp $
+ *  $Date: 2010/06/09 07:51:55 $
+ *  $Revision: 1.7 $
  *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
  */
 
@@ -64,6 +64,7 @@ template < class C > class EcalUncalibRecHitRatioMethodAlgo {
         std::vector < Tmax > timesAB_;
 
         double pedestal_;
+	int    num_;
         double ampMaxError_;
 
 	CalculatedRecHit calculatedRechit_;
@@ -91,19 +92,19 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::init( const C &dataFrame, const double
 	// --> average it with second sample if in gain 12 and 3-sigma-noise compatible (better LF noise cancellation)
 	// -> else use pedestal from database
 	pedestal_ = 0;
-	short num = 0;
+	num_      = 0;
 	if (dataFrame.sample(0).gainId() == 1) {
 		pedestal_ += double (dataFrame.sample(0).adc());
-		num++;
+		num_++;
 	}
-	if (num!=0 &&
+	if (num_!=0 &&
 	    dataFrame.sample(1).gainId() == 1 && 
 	    fabs(dataFrame.sample(1).adc()-dataFrame.sample(0).adc())<3*pedestalRMSes[0]) {
 	        pedestal_ += double (dataFrame.sample(1).adc());
-	        num++;
+	        num_++;
 	}
-	if (num != 0)
-		pedestal_ /= num;
+	if (num_ != 0)
+		pedestal_ /= num_;
 	else
 		pedestal_ = pedestals[0];
 
@@ -212,9 +213,11 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
 
 	double err1 = Rtmp*Rtmp*( (amplitudeErrors_[i]*amplitudeErrors_[i]/(amplitudes_[i]*amplitudes_[i])) + (amplitudeErrors_[j]*amplitudeErrors_[j]/(amplitudes_[j]*amplitudes_[j])) );
 
-	// error due to fluctuations of pedestal (common to both
-	// samples)
-	double err2 = amplitudeErrors_[j]*(amplitudes_[i]-amplitudes_[j])/(amplitudes_[j]*amplitudes_[j]);
+	// error due to fluctuations of pedestal (common to both samples)
+	double stat;
+	if(num_>0) stat = num_;      // num presampeles used to compute pedestal
+	else       stat = 1;         // pedestal from db
+	double err2 = amplitudeErrors_[j]*(amplitudes_[i]-amplitudes_[j])/(amplitudes_[j]*amplitudes_[j])/sqrt(stat);
 
 	//error due to integer round-down. It is relevant to low
 	//amplitudes_ in gainID=1 and negligible otherwise.
