@@ -131,7 +131,7 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     Jets                        = cms.untracked.bool( False ),
 
     ## reco vertices
-    PrimaryVertices             = cms.InputTag("offlinePrimaryVertices"),
+    PrimaryVertices             = cms.InputTag("hltPixelVertices"),
                              
     ### Run parameters
     RunParameters = cms.PSet(
