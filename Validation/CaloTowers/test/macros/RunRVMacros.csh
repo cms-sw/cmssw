@@ -15,9 +15,6 @@ endif
 set NEW_VERS=$1
 set OLD_VERS=$2
 
-#Go to CaloTowers test directory
-cd $CMSSW_BASE/src/Validation/CaloTowers/test/macros
-
 #Check if base directory already exists
 if (-d ${NEW_VERS}_vs_${OLD_VERS}_RelVal) then
     echo "Directory already exists"
@@ -69,6 +66,17 @@ cat ../html_indices/RelVal_RecHits.html | sed -e s/DATA_SAMPLE/QCD_3000_3500/ > 
 cp ../html_indices/RelVal_CaloTowers.html HighPtQCD/CaloTowers/index.html
 cp ../html_indices/RBX.html               HighPtQCD/RBX/index.html
 
+#MinBias
+mkdir MinBias
+mkdir MinBias/CaloTowers
+mkdir MinBias/RecHits
+mkdir MinBias/RBX
+
+cat ../html_indices/RelVal_RecHits.html | sed -e s/DATA_SAMPLE/MinBias/ > MinBias/RecHits/index.html
+
+cp ../html_indices/RelVal_CaloTowers.html MinBias/CaloTowers/index.html
+cp ../html_indices/RBX.html               MinBias/RBX/index.html
+
 #Single Pions
 
 mkdir SinglePi50_ECAL+HCAL_Scan
@@ -111,6 +119,13 @@ root -b -q 'RelValMacro.C("'${OLD_VERS}_MC'","'${NEW_VERS}_MC'","'HcalRecHitVali
 mv *CaloTowers*.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/HighPtQCD/CaloTowers/
 mv RBX*gif          ${NEW_VERS}_vs_${OLD_VERS}_RelVal/HighPtQCD/RBX/
 mv *gif             ${NEW_VERS}_vs_${OLD_VERS}_RelVal/HighPtQCD/RecHits/
+
+#Process Startup MinBias
+root -b -q 'RelValMacro.C("'${OLD_VERS}_MC'","'${NEW_VERS}_MC'","'HcalRecHitValidationRelVal_MinBias_Startup_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_MinBias_Startup_${NEW_VERS}.root'","InputRelVal_Low.txt")'
+
+mv *CaloTowers*.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/MinBias/CaloTowers/
+mv RBX*gif          ${NEW_VERS}_vs_${OLD_VERS}_RelVal/MinBias/RBX/
+mv *gif             ${NEW_VERS}_vs_${OLD_VERS}_RelVal/MinBias/RecHits/
 
 #Process single pions
 root -b -q 'SinglePi.C("'${OLD_VERS}'","'${NEW_VERS}'")'
