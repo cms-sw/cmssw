@@ -7,6 +7,7 @@
  *
  */
 
+#include "TEveStraightLineSet.h"
 #include "TEvePointSet.h"
 #include "TEveCompound.h"
 
@@ -45,7 +46,7 @@ private:
 	// Disable default assignment operator
    const FWDTDigiProxyBuilder& operator=( const FWDTDigiProxyBuilder& );
 	
-   virtual void buildViewType(const FWEventItem* iItem, TEveElementList* product, FWViewType::EType, const FWViewContext*);
+   virtual void buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType, const FWViewContext* );
 };
 
 void
@@ -66,6 +67,8 @@ FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
 	for( DTDigiCollection::DigiRangeIterator detIt = digis->begin(), detUnitItEnd = digis->end(); detIt != detUnitItEnd; ++detIt )
 	{
 		const DTLayerId& layerId = (*detIt).first;
+		std::vector<TEveVector> pars = iItem->getGeom()->getPoints( layerId );
+		
 		int layer = layerId.layer();
 		int superLayer = layerId.superlayerId().superLayer();
 		DTChamberId chamberId = layerId.superlayerId().chamberId();
@@ -85,8 +88,8 @@ FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
 			superLayerShift = -5.35;
 		}
 		// The distance between the wire planes:
-		float layerShift = 1.3375;
-		float wireShift = 4.2;
+		float cellWidth = pars[0].fX;
+		float cellHight = pars[0].fY;
 		
 		double localPos[3] = { 0.0, 0.0, 0.0 };
 		
@@ -106,7 +109,7 @@ FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
 			pointSet->SetMarkerStyle( 24 );
 			pointSet->SetMarkerColor( 3 );
 			compound->AddElement( pointSet );
-			
+
 			if( ! matrix ) 
 			{
 				fwLog( fwlog::kError ) << " failed get geometry of DT chamber with detid: " 
@@ -115,24 +118,22 @@ FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
 			}
 			
 			int wire = (*digiIt).wire();
-			// FIXME: We need to correct the wire position:
-			// The x wire position in the layer, starting from its wire number.
-			// float wPos = ( wire - ( firstWire - 1 ) - 0.5 ) * 4.2 - nChannels / 2.0 * 4.2;
 
-			localPos[2] = superLayerShift - layer * layerShift;
+			// The x wire position in the layer, starting from its wire number.
+			Float_t firstChannel = pars[1].fX;
+			Float_t nChannels = pars[1].fZ;
+			float wPos = ( wire - ( firstChannel - 1 ) - 0.5 ) * cellWidth - nChannels / 2.0 * cellWidth;
+
+			localPos[2] = superLayerShift - layer * cellHight;
 			
 			if( type == FWViewType::kRhoPhi && superLayer != 2 )
 			{
-				// The center is in the middle of DT chamber.
-				// We need to offset it by half/width.
-				localPos[0] = - 106.2 + wire * wireShift;
+				localPos[0] = wPos;
 				addMarkers( pointSet, matrix, localPos );
 			}
 			else if( type == FWViewType::kRhoZ && superLayer == 2 )
 			{
-				// The center is in the middle of DT chamber.
-				// We need to offset it by half/length.
-				localPos[1] = 106.2 - ( wire + 1 ) * wireShift;
+				localPos[1] = -wPos;
 				addMarkers( pointSet, matrix, localPos );
 			}
 		}		
