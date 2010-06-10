@@ -47,6 +47,14 @@ SLHCTaus = cms.EDAnalyzer('CaloTriggerAnalyzer',
 	threshold = cms.double(5)
 )
 
+LHCTaus = cms.EDAnalyzer('CaloTriggerAnalyzer',
+                                  src    = cms.InputTag("l1extraParticles","Tau"),
+                                  ref    = cms.InputTag("tauGenJetsSelectorAllHadrons"),
+                                  deltaR = cms.double(0.5),
+                                  threshold = cms.double(5)
+)
+
+
 
 mcSequence = cms.Sequence(mcElectrons*
                           mcPhotons*
@@ -104,5 +112,6 @@ analysisSequence = cms.Sequence(SLHCelectrons*
                                 SLHCphotons*
                                 SLHCisoPhotons*
                                 SLHCTaus*
+                                LHCTaus*
                                 SLHCjets
 )
