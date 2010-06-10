@@ -45,7 +45,7 @@ namespace edm {
       
       if(iToType == typeid(element_type)) {
         iter it = coll.begin();
-        advance(it,iIndex);
+        std::advance(it,iIndex);
         element_type const* address = GetProduct<product_type>::address( it );
         oPtr = address;
       } else {
@@ -54,7 +54,7 @@ namespace edm {
         static const Type s_type(Type::ByTypeInfo(typeid(element_type)));
 
         iter it = coll.begin();
-        advance(it,iIndex);
+        std::advance(it,iIndex);
         element_type const* address = GetProduct<product_type>::address( it );
 
         // The const_cast below is needed because

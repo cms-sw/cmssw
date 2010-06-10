@@ -50,7 +50,7 @@ namespace edm {
             itIndex != itEnd;
             ++itIndex) {
           iter it = coll.begin();
-          advance(it,*itIndex);          
+          std::advance(it,*itIndex);          
           element_type const* address = GetProduct<product_type>::address( it );
           oPtr.push_back(address);
         }
@@ -65,7 +65,7 @@ namespace edm {
             itIndex != itEnd;
             ++itIndex) {
           iter it = coll.begin();
-          advance(it,*itIndex);          
+          std::advance(it,*itIndex);          
           element_type const* address = GetProduct<product_type>::address( it );
           // The const_cast below is needed because
           // Object's constructor requires a pointer to

@@ -208,7 +208,7 @@ namespace edm {
   T const* Ptr<T>::getItem_(C const* product, key_type iKey) {
     assert (product != 0);
     typename C::const_iterator it = product->begin();
-    advance(it,iKey);
+    std::advance(it,iKey);
     T const* address = detail::GetProduct<C>::address(it);
     return address;
   }
