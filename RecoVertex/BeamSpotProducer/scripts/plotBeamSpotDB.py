@@ -60,7 +60,7 @@ except:
         print " setenv PYTHONPATH $ROOTSYS/lib\n"
         sys.exit()
 
-from ROOT import TFile, TGraphErrors, TGaxis
+from ROOT import TFile, TGraphErrors, TGaxis, TDatime
 from ROOT import TCanvas, TH1F
 
 # ROOT STYLE
@@ -379,7 +379,26 @@ if __name__ == '__main__':
                         first = time.mktime( time.strptime(atime.split()[0] +  " " + atime.split()[1] + " " + atime.split()[2],"%Y.%m.%d %H:%M:%S %Z") )
                         atime = ibeam.IOVEndTime
                         last = time.mktime( time.strptime(atime.split()[0] +  " " + atime.split()[1] + " " + atime.split()[2],"%Y.%m.%d %H:%M:%S %Z") )
-		    datax = (float(last) - float(first))/2 + float(first)
+                        da_first = TDatime(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(first - time.timezone)))
+                        da_last = TDatime(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(last - time.timezone)))
+                        if ipoint == 0:
+                            ## print local time
+                            da_first.Print()
+                            ## print gmt time
+                            print "GMT = " + str(time.strftime('%Y-%m-%d %H:%M:%S',time.gmtime(first - time.timezone)))
+                            reftime = first
+                            ptm = time.localtime(reftime)
+                            da = TDatime(time.strftime('%Y-%m-%d %H:%M:%S',ptm))
+                            if time.daylight and ptm.tm_isdst:
+                                offset_daylight = time.timezone - time.altzone
+                            ROOT.gStyle.SetTimeOffset(da.Convert(1) - 3600)
+
+                    datax = (float(last) - float(first))/2 + float(first) - da.Convert() + 3600
+                    ## Comment out this block if running on Mac ##
+                    if time.daylight and ptm.tm_isdst:
+                        datax += offset_daylight
+                    ##################################
+                    
 		    dataxerr =  (float(last) - float(first))/2
 		graphlist[ig].SetPoint(ipoint, float(datax), float(datay) )
 		graphlist[ig].SetPointError(ipoint, float(dataxerr), float(datayerr) )
@@ -389,7 +408,9 @@ if __name__ == '__main__':
 		graphlist[ig].SetBinError(ipoint +1, float(datayerr) )
 
             ipoint += 1
-
+        ## print local time
+        da_last.Print()
+        print "GMT = " + str(time.strftime('%Y-%m-%d %H:%M:%S',time.gmtime(last - time.timezone)))
 
 	if option.Time:
             graphlist[ig].GetXaxis().SetTimeDisplay(1);
