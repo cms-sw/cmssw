@@ -15,7 +15,7 @@ namespace edm {
       streamReader_(),
       eventSkipperByID_(EventSkipperByID::create(pset).release()),
       numberOfEventsToSkip_(pset.getUntrackedParameter<unsigned int>("skipEvents", 0U)) {
-    InputFileCatalog catalog(pset);
+    InputFileCatalog catalog(pset.getUntrackedParameter<std::vector<std::string> >("fileNames"));
     streamerNames_ = catalog.fileNames();
 
     if (streamerNames_.size() > 1) {
@@ -80,5 +80,4 @@ namespace edm {
   }
 
 } //end-of-namespace
-
 

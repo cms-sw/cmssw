@@ -124,7 +124,7 @@ int main(int argc, char* argv[]) {
     pset.addUntrackedParameter<std::vector<std::string> >("fileNames", in);
     pset.addUntrackedParameter<std::string>("catalog", catalogIn);
     
-    edm::InputFileCatalog catalog(pset);
+    edm::InputFileCatalog catalog(pset.getUntrackedParameter<std::vector<std::string> >("fileNames"));
     std::vector<std::string> const& filesIn = catalog.fileNames();
 
     // Allow user to input multiple files
