@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWTableView.cc,v 1.22 2010/05/27 08:45:00 eulisse Exp $
+// $Id: FWTableView.cc,v 1.23 2010/05/27 08:50:22 eulisse Exp $
 //
 
 // system include files
@@ -529,6 +529,9 @@ void FWTableView::updateItems(void)
 
    if (selected != -1 && selected < m_collection->GetNumberOfEntries())
       m_collection->Select(selected, false);
+
+   TGListBox *lb  = m_collection->GetListBox();
+   lb->SetHeight(TMath::Min(lb->GetNumberOfEntries()*lb->GetItemVsize() + 2*lb->GetBorderWidth(), 200u));
 }
 
 void FWTableView::updateEvaluators ()
