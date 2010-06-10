@@ -935,7 +935,7 @@ bool ora::PoolMappingSchema::getClassVersionListForContainer( int containerId,
   std::auto_ptr<coral::IQuery> query( m_schema.newQuery() );
   query->addToTableList( PoolClassVersionTable::tableName(), "T0" );
   query->addToTableList( PoolContainerHeaderTable::tableName(), "T1" );
-  query->addToOutputList( "T0."+PoolClassVersionTable::mappingVersionColumn() );
+  query->addToOutputList( "T0."+PoolClassVersionTable::classVersionColumn() );
   query->addToOutputList( "T0."+PoolClassVersionTable::mappingVersionColumn() );
   query->setDistinct();
   std::ostringstream condition;

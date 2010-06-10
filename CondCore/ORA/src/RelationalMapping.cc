@@ -6,7 +6,6 @@
 #include "MappingRules.h"
 #include "ClassUtils.h"
 // externals 
-#include "CoralBase/AttributeSpecification.h"
 #include "Reflex/Reflex.h"
 
 size_t
@@ -171,7 +170,7 @@ void ora::PrimitiveMapping::process( MappingElement& parentElement,
   const std::type_info* attrType = &m_type.TypeInfo();
   if(m_type.IsEnum()) attrType = &typeid(int);
   if(ClassUtils::isTypeString( m_type )) attrType = &typeid(std::string);
-  std::string typeName = coral::AttributeSpecification::typeNameForId(*attrType);
+  std::string typeName = ClassUtils::demangledName(*attrType);
 
   processLeafElement(parentElement,
                      ora::MappingElement::primitiveMappingElementType(),
