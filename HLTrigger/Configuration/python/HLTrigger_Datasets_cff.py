@@ -1,8 +1,19 @@
-# /dev/CMSSW_3_6_2/GRun/V3
+# /dev/CMSSW_3_6_2/GRun/V4
 
 import FWCore.ParameterSet.Config as cms
 
 # dump of the Stream A Datasets defined in the HLT table
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetEGMonitor_selector
+streamA_datasetEGMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetEGMonitor_selector.l1tResults = cms.InputTag('')
+streamA_datasetEGMonitor_selector.throw      = cms.bool(False)
+streamA_datasetEGMonitor_selector.triggerConditions = cms.vstring('HLT_L1SingleEG2', 
+    'HLT_L1DoubleEG5', 
+    'HLT_L1SingleEG8', 
+    'HLT_L1SingleEG5', 
+    'HLT_Activity_Ecal_SC7', 
+    'HLT_Activity_Ecal_SC15')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetRandomTriggers_selector
 streamA_datasetRandomTriggers_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -84,15 +95,6 @@ streamA_datasetHcalNZS_selector.l1tResults = cms.InputTag('')
 streamA_datasetHcalNZS_selector.throw      = cms.bool(False)
 streamA_datasetHcalNZS_selector.triggerConditions = cms.vstring('HLT_HcalNZS_8E29', 
     'HLT_HcalPhiSym')
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetEGMonitor_selector
-streamA_datasetEGMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetEGMonitor_selector.l1tResults = cms.InputTag('')
-streamA_datasetEGMonitor_selector.throw      = cms.bool(False)
-streamA_datasetEGMonitor_selector.triggerConditions = cms.vstring('HLT_L1SingleEG2', 
-    'HLT_L1DoubleEG5', 
-    'HLT_L1SingleEG8', 
-    'HLT_L1SingleEG5')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMu_selector
 streamA_datasetMu_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')

@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_6_2/HIon/V3 (CMSSW_3_6_2_HLT1)
+# /dev/CMSSW_3_6_2/HIon/V4 (CMSSW_3_6_2_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_2/HIon/V3')
+  tableName = cms.string('/dev/CMSSW_3_6_2/HIon/V4')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -19,25 +19,25 @@ process.streams = cms.PSet(
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
-  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
-  HLTMON = cms.vstring( 'OfflineMonitor' ),
   DQM = cms.vstring(  ),
-  HLTDQM = cms.vstring(  ),
-  A = cms.vstring( 'RandomTriggers',
+  A = cms.vstring( 'EGMonitor',
+    'RandomTriggers',
     'JetMETTauMonitor',
     'Cosmics',
     'MinimumBias',
     'HcalHPDNoise',
     'ZeroBias',
     'HcalNZS',
-    'EGMonitor',
     'Mu',
     'EG',
     'JetMETTau',
     'Commissioning',
     'MuMonitor' ),
   EventDisplay = cms.vstring(  ),
-  Express = cms.vstring( 'ExpressPhysics' )
+  Express = cms.vstring( 'ExpressPhysics' ),
+  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
+  HLTMON = cms.vstring( 'OfflineMonitor' ),
+  HLTDQM = cms.vstring(  )
 )
 process.datasets = cms.PSet( 
   LogMonitor = cms.vstring(  ),
@@ -46,8 +46,7 @@ process.datasets = cms.PSet(
   EcalLaser = cms.vstring(  ),
   AlCaP0 = cms.vstring(  ),
   RPCMonitor = cms.vstring(  ),
-  AlCaPhiSymEcal = cms.vstring(  ),
-  OfflineMonitor = cms.vstring(  ),
+  EGMonitor = cms.vstring(  ),
   RandomTriggers = cms.vstring(  ),
   JetMETTauMonitor = cms.vstring(  ),
   Cosmics = cms.vstring(  ),
@@ -55,13 +54,14 @@ process.datasets = cms.PSet(
   HcalHPDNoise = cms.vstring(  ),
   ZeroBias = cms.vstring(  ),
   HcalNZS = cms.vstring(  ),
-  EGMonitor = cms.vstring(  ),
   Mu = cms.vstring(  ),
   EG = cms.vstring(  ),
   JetMETTau = cms.vstring(  ),
   Commissioning = cms.vstring(  ),
   MuMonitor = cms.vstring(  ),
-  ExpressPhysics = cms.vstring(  )
+  ExpressPhysics = cms.vstring(  ),
+  AlCaPhiSymEcal = cms.vstring(  ),
+  OfflineMonitor = cms.vstring(  )
 )
 
 process.source = cms.Source( "PoolSource",
