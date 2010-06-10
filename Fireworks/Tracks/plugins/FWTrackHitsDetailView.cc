@@ -140,13 +140,13 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track)
 //    m_eveScene->AddElement(list);
 //LatB
 
-   m_eveScene->Repaint(true);
+   // m_eveScene->Repaint(true);
 
-   viewerGL()->UpdateScene();
-   viewerGL()->CurrentCamera().Reset();
-   viewerGL()->RequestDraw(TGLRnrCtx::kLODHigh);
    viewerGL()->SetStyle(TGLRnrCtx::kOutline);
    viewerGL()->SetDrawCameraCenter(kTRUE);
+   viewerGL()->ResetCamerasAfterNextUpdate();
+   viewerGL()->UpdateScene(kFALSE);
+   gEve->Redraw3D();
 
    setTextInfo(id, track);
 }

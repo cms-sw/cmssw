@@ -36,8 +36,7 @@ void  FWDetailViewGL<T>::init(TEveWindowSlot* slot)
    pack->SetElementNameTitle("DetalView pack","DetailViewPack" );
 
    // canvas & widgets
-   TEveWindowSlot* guiSlot = pack->NewSlotWithWeight(1);
-   TEveWindowFrame* frame = guiSlot->MakeFrame();
+   TEveWindowFrame* frame = pack->NewSlotWithWeight(1)->MakeFrame();
    frame->SetShowTitleBar(kFALSE);
    TGCompositeFrame* cf = frame->GetGUICompositeFrame();
 
@@ -70,8 +69,7 @@ void  FWDetailViewGL<T>::init(TEveWindowSlot* slot)
    pack->NewSlotWithWeight(3)->ReplaceWindow(m_eveViewer);
    m_eveViewer->SetShowTitleBar(kFALSE);
    gEve->GetViewers()->AddElement(m_eveViewer);
-  
-   
+
    m_eveScene = gEve->SpawnNewScene("Detailed view");
    m_eveViewer->AddScene(m_eveScene);
 

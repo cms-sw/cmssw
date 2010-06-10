@@ -2,7 +2,7 @@
 //
 // Package:     Electrons
 // Class  :     FWElectronDetailView
-// $Id: FWElectronDetailView.cc,v 1.50 2010/05/12 12:36:13 amraktad Exp $
+// $Id: FWElectronDetailView.cc,v 1.51 2010/05/12 16:00:51 amraktad Exp $
 //
 
 #include "TEveLegoEventHandler.h"
@@ -103,9 +103,8 @@ FWElectronDetailView::build( const FWModelId &id, const reco::GsfElectron* iElec
    TEveLegoEventHandler* eh =
       new TEveLegoEventHandler( (TGWindow*)viewerGL()->GetGLWidget(), (TObject*)viewerGL(), lego );
    viewerGL()->SetEventHandler( eh );
-   viewerGL()->UpdateScene();
-   viewerGL()->CurrentCamera().Reset();
-   viewerGL()->RequestDraw( TGLRnrCtx::kLODHigh );
+   viewerGL()->ResetCamerasAfterNextUpdate();
+   viewerGL()->UpdateScene(kFALSE);
    gEve->Redraw3D();
 
    setTextInfo( id, iElectron );
