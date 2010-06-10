@@ -55,7 +55,6 @@ namespace edm {
   public:
     typedef boost::array<RootTree *, NumBranchTypes> RootTreePtrArray;
     RootFile(std::string const& fileName,
-	     std::string const& catalogName,
 	     ProcessConfiguration const& processConfiguration,
 	     std::string const& logicalFileName,
 	     boost::shared_ptr<TFile> filePtr,
@@ -157,7 +156,6 @@ namespace edm {
 
     std::string const file_;
     std::string const logicalFile_;
-    std::string const catalog_;
     ProcessConfiguration const& processConfiguration_;
     boost::shared_ptr<TFile> filePtr_;
     FileFormatVersion fileFormatVersion_;

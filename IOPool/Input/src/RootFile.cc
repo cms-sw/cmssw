@@ -72,7 +72,6 @@ namespace edm {
 
 //---------------------------------------------------------------------
   RootFile::RootFile(std::string const& fileName,
-		     std::string const& catalogName,
 		     ProcessConfiguration const& processConfiguration,
 		     std::string const& logicalFileName,
 		     boost::shared_ptr<TFile> filePtr,
@@ -93,7 +92,6 @@ namespace edm {
                      std::vector<boost::shared_ptr<FileIndex> >::size_type currentFileIndex) :
       file_(fileName),
       logicalFile_(logicalFileName),
-      catalog_(catalogName),
       processConfiguration_(processConfiguration),
       filePtr_(filePtr),
       fileFormatVersion_(),
@@ -640,10 +638,11 @@ namespace edm {
     // Report file opened.
     std::string const label = "source";
     std::string moduleName = "PoolSource";
+    std::string catalogName; // No more catalog
     Service<JobReport> reportSvc;
     reportToken_ = reportSvc->inputFileOpened(file_,
                logicalFile_,
-               catalog_,
+               catalogName,
                inputType,
                moduleName,
                label,
