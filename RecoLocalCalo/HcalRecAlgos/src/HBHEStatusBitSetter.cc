@@ -60,9 +60,6 @@ void HBHEStatusBitSetter::SetFlagsFromDigi(HBHERecHit& hbhe,
 					   const HcalCalibrations& calib
 					   )
 {
-  //clear status
-  hbhe.setFlags(0);
-  
   //increment hit multiplicity
   if (hbhe.energy()>hitEnergyMinimum_) {
     int index=logicalMap_->getHcalFrontEndId(hbhe.detid()).rmIndex();
