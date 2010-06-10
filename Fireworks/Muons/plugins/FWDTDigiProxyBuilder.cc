@@ -7,7 +7,6 @@
  *
  */
 
-#include "TEveStraightLineSet.h"
 #include "TEvePointSet.h"
 #include "TEveCompound.h"
 
@@ -74,10 +73,6 @@ FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
 		DTChamberId chamberId = layerId.superlayerId().chamberId();
 		
 		float superLayerShift = 15.0;
-		// Sample superlayer:
-		// x/2 = 1063.2;
-		// y/2 = 1255.5;
-		// z/2 = 26.75;
 		
 		if( superLayer == 2 )
 		{
@@ -87,9 +82,6 @@ FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
 		{
 			superLayerShift = -5.35;
 		}
-		// The distance between the wire planes:
-		float cellWidth = pars[0].fX;
-		float cellHight = pars[0].fY;
 		
 		double localPos[3] = { 0.0, 0.0, 0.0 };
 		
@@ -104,7 +96,10 @@ FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
 			TEveCompound* compound = new TEveCompound( "DT digi compound" );
 			compound->OpenCompound();
 			product->AddElement( compound );
-
+			if( pars.empty() ) {
+				continue;
+			}
+			
 			TEvePointSet* pointSet = new TEvePointSet();
 			pointSet->SetMarkerStyle( 24 );
 			pointSet->SetMarkerColor( 3 );
@@ -122,9 +117,9 @@ FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
 			// The x wire position in the layer, starting from its wire number.
 			Float_t firstChannel = pars[1].fX;
 			Float_t nChannels = pars[1].fZ;
-			float wPos = ( wire - ( firstChannel - 1 ) - 0.5 ) * cellWidth - nChannels / 2.0 * cellWidth;
+			float wPos = ( wire - ( firstChannel - 1 ) - 0.5 ) * pars[0].fX - nChannels / 2.0 * pars[0].fX;
 
-			localPos[2] = superLayerShift - layer * cellHight;
+			localPos[2] = superLayerShift - layer * pars[0].fY;
 			
 			if( type == FWViewType::kRhoPhi && superLayer != 2 )
 			{
