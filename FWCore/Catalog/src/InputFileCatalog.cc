@@ -6,26 +6,15 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <boost/algorithm/string.hpp>
 
 namespace edm {
-  InputFileCatalog::InputFileCatalog(ParameterSet const& pset,
-				     std::string const& namesParameter,
-				     bool canBeEmpty, bool noThrow) :
-    logicalFileNames_(canBeEmpty ?
-		      pset.getUntrackedParameter<std::vector<std::string> >(namesParameter, std::vector<std::string>()) :
-		      pset.getUntrackedParameter<std::vector<std::string> >(namesParameter)),
+  InputFileCatalog::InputFileCatalog(std::vector<std::string> const& fileNames, bool noThrow) :
+    logicalFileNames_(fileNames),
     fileNames_(logicalFileNames_),
     fileCatalogItems_() {
 
-    if (logicalFileNames_.empty()) {
-      if (canBeEmpty) return;
-      throw edm::Exception(edm::errors::Configuration, "InputFileCatalog::InputFileCatalog()\n")
-	<< "Empty '" << namesParameter << "' parameter specified for input source.\n";
-    }
     // Starting the catalog will write a catalog out if it does not exist.
     // So, do not start (or even read) the catalog unless it is needed.
     
@@ -36,7 +25,7 @@ namespace edm {
       boost::trim(*it);
       if (it->empty()) {
         throw edm::Exception(edm::errors::Configuration, "InputFileCatalog::InputFileCatalog()\n")
-	  << "An empty string specified in '" << namesParameter << "' parameter for input source.\n";
+	  << "An empty string specified in the fileNames parameter for input source.\n";
       }
       if (isPhysical(*it)) {
         lt->clear();
@@ -61,10 +50,6 @@ namespace edm {
 	<< "If you wanted a local file, you forgot the 'file:' prefix\n"
 	<< "before the file name in your configuration file.\n";
     }
-  }
-  
-  void
-  InputFileCatalog::fillDescription(ParameterSetDescription & desc) {
   }
   
 }

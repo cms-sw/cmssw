@@ -1,4 +1,3 @@
-<use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="FWCore/Utilities"/>
 <use   name="xerces-c"/>

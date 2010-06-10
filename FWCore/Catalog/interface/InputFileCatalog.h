@@ -23,15 +23,9 @@ namespace edm {
     std::string lfn_;
   };
 
-  class ParameterSet;
-  class ParameterSetDescription;
-  
   class InputFileCatalog {
   public:
-    explicit InputFileCatalog(ParameterSet const& pset,
-			      std::string const& namesParameter = std::string("fileNames"),
-			      bool canBeEmpty = false,
-			      bool noThrow = false);
+    explicit InputFileCatalog(std::vector<std::string> const& fileNames, bool noThrow = false);
     ~InputFileCatalog();
     std::vector<FileCatalogItem> const& fileCatalogItems() const {return fileCatalogItems_;}
     std::vector<std::string> const& logicalFileNames() const {return logicalFileNames_;}
@@ -40,7 +34,6 @@ namespace edm {
     static bool isPhysical(std::string const& name) {
       return (name.empty() || name.find(':') != std::string::npos);
     }
-    static void fillDescription(ParameterSetDescription & desc);
     
   private:
     void findFile(std::string & pfn, std::string const& lfn, bool noThrow);
