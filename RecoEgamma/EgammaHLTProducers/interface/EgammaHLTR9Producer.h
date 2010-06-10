@@ -8,7 +8,7 @@
 //
 // Original Author:  Roberto Covarelli (CERN)
 //         Created:  Tue Jun 13 14:48:33 CEST 2006
-// $Id: EgammaHLTR9Producer.h,v 1.2 2009/02/04 10:59:28 covarell Exp $
+// $Id: EgammaHLTR9Producer.h,v 1.1 2010/02/11 10:06:38 ghezzi Exp $
 //
 //
 
@@ -42,6 +42,7 @@ class EgammaHLTR9Producer : public edm::EDProducer {
   edm::InputTag recoEcalCandidateProducer_;
   edm::InputTag ecalRechitEBTag_;
   edm::InputTag ecalRechitEETag_;
+  bool useSwissCross_;
   
   edm::ParameterSet conf_;
 

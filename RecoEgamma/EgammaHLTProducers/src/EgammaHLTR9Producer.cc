@@ -21,15 +21,15 @@
 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
 EgammaHLTR9Producer::EgammaHLTR9Producer(const edm::ParameterSet& config) : conf_(config)
 {
  // use configuration file to setup input/output collection names
   recoEcalCandidateProducer_ = conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer");
-
   ecalRechitEBTag_ = conf_.getParameter< edm::InputTag > ("ecalRechitEB");
   ecalRechitEETag_ = conf_.getParameter< edm::InputTag > ("ecalRechitEE");
-
+  useSwissCross_   = conf_.getParameter< bool > ("useSwissCross");
   //register your products
   produces < reco::RecoEcalCandidateIsolationMap >();
 }
@@ -60,8 +60,18 @@ EgammaHLTR9Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     reco::RecoEcalCandidateRef recoecalcandref(recoecalcandHandle,iRecoEcalCand-recoecalcandHandle->begin());
 
     float r9 = -1;
+
+    if (useSwissCross_){
+      DetId maxEId = (lazyTools.getMaximum(*(recoecalcandref->superCluster()->seed()) )).first;
+      //float EcalSeverityLevelAlgo::swissCross( const DetId id, const EcalRecHitCollection & recHits, float recHitEtThreshold )
+      edm::Handle< EcalRecHitCollection > pEBRecHits;
+      iEvent.getByLabel( ecalRechitEBTag_, pEBRecHits );
+      r9 = EcalSeverityLevelAlgo::swissCross( maxEId, *(pEBRecHits.product()), 0. );
+    }
+    else{
     float e9 = lazyTools.e3x3( *(recoecalcandref->superCluster()->seed()) );
     if (e9 != 0 ) {r9 = lazyTools.eMax(*(recoecalcandref->superCluster()->seed())  )/e9;}
+    }
 
     r9Map.insert(recoecalcandref, r9);
     
