@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.42 2010/06/08 13:05:53 matevz Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.43 2010/06/09 16:37:47 eulisse Exp $
 //
 
 // system include files
@@ -39,6 +39,7 @@
 #include "Fireworks/TableWidget/interface/FWTableManagerBase.h"
 #include "Fireworks/TableWidget/interface/FWTextTableCellRenderer.h"
 #include "Fireworks/Core/interface/fwLog.h"
+#include "Fireworks/Core/src/FWDialogBuilder.h"
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/FWLite/interface/Event.h"
@@ -92,6 +93,7 @@ public:
    {
       m_filter = filter;
       sort(sortColumn(), sortOrder());
+      dataChanged();
    }
    
    virtual int unsortedRowNumber(int iSortedRowNumber) const {
@@ -363,19 +365,6 @@ DataAdderTableManager::implSort(int column, bool sortOrder)
 //
 // constructors and destructor
 //
-static TGLayoutHints* addToFrame(TGVerticalFrame* iParent, const char* iName, TGTextEntry*& oSet,
-                                 unsigned int& oLabelWidth)
-{
-   TGLayoutHints* returnValue = new TGLayoutHints(kLHintsLeft|kLHintsCenterY,2,2,2,2);
-   TGCompositeFrame* hf = new TGHorizontalFrame(iParent);
-   TGLabel* label = new TGLabel(hf,iName);
-   oLabelWidth= label->GetWidth();
-   hf->AddFrame(label, returnValue);
-   oSet = new TGTextEntry(hf,"");
-   hf->AddFrame(oSet,new TGLayoutHints(kLHintsExpandX|kLHintsCenterY));
-   iParent->AddFrame(hf, new TGLayoutHints(kLHintsExpandX));
-   return returnValue;
-}
 
 FWGUIEventDataAdder::FWGUIEventDataAdder(
    UInt_t iWidth,UInt_t iHeight,
@@ -514,94 +503,60 @@ void
 FWGUIEventDataAdder::updateFilterString(const char *str)
 {
    m_tableManager->sortWithFilter(str);
+   m_tableManager->dataChanged();
 }
 
 void
 FWGUIEventDataAdder::createWindow()
 {
+   m_tableManager = new DataAdderTableManager(&m_useableData);
+   m_tableManager->indexSelected_.connect(boost::bind(&FWGUIEventDataAdder::newIndexSelected,this,_1));
+
    m_frame = new TGTransientFrame(gClient->GetDefaultRoot(),m_parentFrame,600,400);
    m_frame->Connect("CloseWindow()","FWGUIEventDataAdder",this,"windowIsClosing()");
 
-   TGVerticalFrame* vf = new TGVerticalFrame(m_frame);
-   m_frame->AddFrame(vf, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY,10,10,10,10));
-
-   unsigned int maxWidth = 0;
-   std::vector<TGLayoutHints*> hints;
-   std::vector<unsigned int>   widths;
-
-   unsigned int index = 0;
-
-   hints.push_back(0); widths.push_back(0);
-   hints[index] = addToFrame(vf, "Search:", m_search, widths[index]);
+   FWDialogBuilder builder(m_frame);
+   TGTextButton* cancelButton;
    
+   builder.indent(10)
+          .spaceDown(15)
+          .addLabel("Search:", 9).expand(false).floatLeft(4)
+          .addTextEntry("", &m_search)
+          .spaceDown(10)
+          .addLabel("Viewable Collections", 8)
+          .spaceDown(5)
+          .addTable(m_tableManager, &m_tableWidget).expand(true, true)
+          .addLabel("Name:", 9).expand(false).floatLeft(4)
+          .addTextEntry("", &m_name)
+          .spaceDown(5)
+          .addCheckbox("Do not use Process Name and "
+                       "instead only get this data "
+                       "from the most recent Process",
+                       &m_doNotUseProcessName)
+          .spaceDown(15)
+          .hSpacer().floatLeft(0)
+          .addTextButton("Cancel", &cancelButton).floatLeft(4).expand(false)
+          .addTextButton("Add Data", &m_apply).expand(false).spaceDown(10)
+          .hSpacer(30);
+
    m_search->Connect("TextChanged(const char *)", "FWGUIEventDataAdder", 
                      this, "updateFilterString(const char *)");
-   
-   if ( widths[index] > maxWidth ) 
-   {
-     maxWidth = widths[index];
-   }
-
-   ++index;
-  
-   std::vector<unsigned int>::iterator itW = widths.begin();
-   
-   for ( std::vector<TGLayoutHints*>::iterator itH = hints.begin(), itEnd = hints.end();
-         itH != itEnd; ++itH,++itW ) 
-   {
-     (*itH)->SetPadLeft(maxWidth - *itW);
-   }
-
-   TGLabel* label = new TGLabel(vf,"Viewable Collections");
-   vf->AddFrame(label,new TGLayoutHints(kLHintsNormal,0,0,10));
-
-   m_tableManager= new DataAdderTableManager(&m_useableData);
-   m_tableManager->indexSelected_.connect(boost::bind(&FWGUIEventDataAdder::newIndexSelected,this,_1));
-
-   m_tableWidget = new FWTableWidget(m_tableManager,vf);
-   m_tableWidget->Resize(200,200);
-
-   // tpm: my modifications
+   m_search->SetEnabled(true);
    m_tableWidget->SetBackgroundColor(0xffffff);
    m_tableWidget->SetLineSeparatorColor(0x000000);
    m_tableWidget->SetHeaderBackgroundColor(0xececec);
-
-   vf->AddFrame(m_tableWidget, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
-   m_tableWidget->Connect("rowClicked(Int_t,Int_t,Int_t,Int_t,Int_t)","FWGUIEventDataAdder",this,"rowClicked(Int_t,Int_t,Int_t,Int_t,Int_t)");
-
-   hints.push_back(0); widths.push_back(0);
-   hints[index] = addToFrame(vf, "", m_name, widths[index]);
-   
-   if ( widths[index] > maxWidth ) 
-   {
-     maxWidth = widths[index];
-   }
-
-   ++index;
-
-   m_doNotUseProcessName= new TGCheckButton(vf,"Do not use Process Name and instead only get this data from the most recent Process",1);
+   m_tableWidget->Connect("rowClicked(Int_t,Int_t,Int_t,Int_t,Int_t)",
+                          "FWGUIEventDataAdder",this,
+                          "rowClicked(Int_t,Int_t,Int_t,Int_t,Int_t)");
+   m_name->SetState(true);
    m_doNotUseProcessName->SetState(kButtonDown);
-   vf->AddFrame(m_doNotUseProcessName);
-
-   TGHorizontalFrame* dataButtonFrame = new TGHorizontalFrame(vf);
-   vf->AddFrame(dataButtonFrame,new TGLayoutHints(kLHintsBottom|kLHintsCenterX));
-  
-   TGTextButton* cancelButton = new TGTextButton(dataButtonFrame,"Cancel");
-   cancelButton->Connect("Clicked()","FWGUIEventDataAdder",this, "windowIsClosing()");
-   dataButtonFrame->AddFrame(cancelButton, new TGLayoutHints(kLHintsLeft,0,5,5,0));
+   cancelButton->Connect("Clicked()","FWGUIEventDataAdder", 
+                         this, "windowIsClosing()");
+   cancelButton->SetEnabled(true);
+   m_apply->Connect("Clicked()", "FWGUIEventDataAdder", this, "addNewItem()");
    
-   m_apply = new TGTextButton(dataButtonFrame,"Add Data");
-   dataButtonFrame->AddFrame(m_apply, new TGLayoutHints(kLHintsRight,5,0,5,0));
-   m_apply->Connect("Clicked()","FWGUIEventDataAdder",this,"addNewItem()");
-   m_apply->SetEnabled(false);
-   
-   // Set a name to the main frame
    m_frame->SetWindowName("Add Collection");
-
-   // Map all subwindows of main frame
    m_frame->MapSubwindows();
-
-   // Initialize the layout algorithm
    m_frame->Layout();
 }
 

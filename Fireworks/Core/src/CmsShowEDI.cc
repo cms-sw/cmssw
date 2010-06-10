@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.36 2010/06/08 10:00:02 eulisse Exp $
+// $Id: CmsShowEDI.cc,v 1.37 2010/06/08 13:59:51 eulisse Exp $
 //
 
 // system include files
@@ -30,7 +30,7 @@
 #include "TGLayout.h"
 #include "TGFont.h"
 #include "TEveManager.h"
-
+#include "TGSlider.h"
 #include "TGMsgBox.h"
 #include "TGComboBox.h"
 
