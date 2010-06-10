@@ -36,6 +36,9 @@ void HcalSeverityLevelComputer::getRecHitFlag(HcalSeverityDefinition& mydef,
   else if (mybit == "HSCP_FracLeader")   setBit(HcalCaloFlagLabels::HSCP_FracLeader, mydef.HBHEFlagMask);
   else if (mybit == "HSCP_OuterEnergy")  setBit(HcalCaloFlagLabels::HSCP_OuterEnergy, mydef.HBHEFlagMask);
   else if (mybit == "HSCP_ExpFit")       setBit(HcalCaloFlagLabels::HSCP_ExpFit, mydef.HBHEFlagMask);
+  // These are multi-bit counters; we may have to revisit how to set them in the SLComputer in the future
+  else if (mybit=="HBHETimingTrustBits") setBit(HcalCaloFlagLabels::HBHETimingTrustBits, mydef.HBHEFlagMask );
+  else if (mybit=="HBHETimingShapedCutsBits") setBit(HcalCaloFlagLabels::HBHETimingShapedCutsBits, mydef.HBHEFlagMask);
 
   // HO ++++++++++++++++++++
   else if (mybit == "HOBit")    setBit(HcalCaloFlagLabels::HOBit, mydef.HOFlagMask);
