@@ -21,16 +21,18 @@ def displayHelp():
       default: 'http://pccmsdqm04.cern.ch/runregistry/xmlrpc'
     -T
       table identifier
-      available:
-      default:   'RUN'
+      available: 'RUN', 'RUNLUMISECTION'
+      default: 'RUN'
     -w
       work space identifier
-      available:
-      default:   'GLOBAL'
+      available: 'RPC', 'HLT', 'L1T', 'TRACKER', 'CSC', 'GLOBAL', 'ECAL'
+      default: 'GLOBAL'
     -t
       output format type
       available:
-      default:   'xml_all'
+        - table 'RUN'           : 'chart_runs_cum_evs_vs_bfield', 'chart_runs_cum_l1_124_vs_bfield', 'chart_stacked_component_status', 'csv_datasets', 'csv_run_numbers', 'csv_runs', 'tsv_datasets', 'tsv_runs', 'xml_all', 'xml_datasets'
+        - table 'RUNLUMISECTION': 'json', 'xml'
+      default: 'xml_all' (for table 'RUN')
     -f
       output file
       default: 'runRegistry.xml'
