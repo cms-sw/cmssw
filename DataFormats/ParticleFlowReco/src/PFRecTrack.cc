@@ -8,7 +8,8 @@ using namespace reco;
 
 PFRecTrack::PFRecTrack() :
   PFTrack(),
-  algoType_(PFRecTrack::Unknown)
+  algoType_(PFRecTrack::Unknown),
+  trackId_(-1)
 {}
 
 

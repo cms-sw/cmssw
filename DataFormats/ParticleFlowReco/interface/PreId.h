@@ -26,7 +26,7 @@ namespace reco
   PreId(unsigned nselection=1):trackRef_(reco::TrackRef()),clusterRef_(reco::PFClusterRef()),
       matchingEop_(-999.),EcalPos_(math::XYZPoint()),
       meanShower_(math::XYZPoint()),gsfChi2_(-999.),
-      dpt_(0.){
+      dpt_(0.),chi2Ratio_(0.){
       matching_.resize(nselection,false);
       mva_.resize(nselection,-999.);
       geomMatching_.resize(5,-999.);
