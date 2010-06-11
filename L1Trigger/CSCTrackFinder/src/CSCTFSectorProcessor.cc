@@ -546,8 +546,8 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
                  }
                  //   singles.insertDigi(CSCDetId(st_iter->getDetId().rawId()),*st_iter);
                  //tracksFromSingles.push_back(L1CSCTrack(track,singles));
-                 tracksFromSingles.push_back(track);
 								 track.setPtLUTAddress( (11<<16) | ((bestStub->etaPacked()<<9)&0xf000) );
+                 tracksFromSingles.push_back(track);
              }
        }
 	std::vector<csc::L1Track> single_tracks = tracksFromSingles.get();
