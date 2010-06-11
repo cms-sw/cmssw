@@ -186,11 +186,6 @@ void PGeometricDetBuilder::putOne ( const GeometricDet* gd, PGeometricDet* pgd, 
     item._params10=0;
   } 
   item._geographicalID = gd->geographicalID();
-//   item._volume         = gd->volume();
-//   item._density        = gd->density();
-//   item._weight         = gd->weight();
-//   item._copy           = gd->copyno();
-//   item._material       = gd->material();
   item._radLength      = gd->radLength();
   item._xi             = gd->xi();
   item._pixROCRows     = gd->pixROCRows();

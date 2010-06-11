@@ -31,14 +31,6 @@ class PGeometricDet{
     int _nt0, _nt1, _nt2, _nt3, _nt4, _nt5, _nt6 , _nt7, _nt8, _nt9, _nt10;
     
     int _geographicalID; // to be converted to DetId
-    // mec 2010-04-13 note that _parents is ALREADY not stored! everything from here to next mec is to be deleted
-    //  std::vector< DDExpandedNode > _parents; DO NOT SAVE!
-    double _volume;
-    double _density;
-    double _weight;
-    int    _copy;
-    std::string _material; // fill with dummy
-    // mec 2010-04-13 end of to be deleted.
     double _radLength;
     double _xi;
     double _pixROCRows;
