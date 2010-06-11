@@ -6,8 +6,8 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2008/10/06 13:42:28 $
- *   $Revision: 1.30 $
+ *   $Date: 2008/10/06 14:03:43 $
+ *   $Revision: 1.31 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -22,6 +22,7 @@
 
 // TrackFinder and Specific STA Trajectory Builder
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneTrajectoryBuilder.h"
+#include "RecoMuon/StandAloneTrackFinder/interface/ExhaustiveMuonTrajectoryBuilder.h"
 #include "RecoMuon/TrackingTools/interface/DirectMuonTrajectoryBuilder.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
@@ -62,20 +63,22 @@ StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet)
   // the services
   theService = new MuonServiceProxy(serviceParameters);
 
+  MuonTrackLoader * trackLoader = new MuonTrackLoader(trackLoaderParameters,theService);
+  MuonTrajectoryBuilder * trajectoryBuilder = 0;
   // instantiate the concrete trajectory builder in the Track Finder
   string typeOfBuilder = parameterSet.getParameter<string>("MuonTrajectoryBuilder");
   if(typeOfBuilder == "StandAloneMuonTrajectoryBuilder")
-    theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters,theService),
-					 new MuonTrackLoader(trackLoaderParameters,theService));
+    trajectoryBuilder = new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters,theService);
   else if(typeOfBuilder == "DirectMuonTrajectoryBuilder")
-    theTrackFinder = new MuonTrackFinder(new DirectMuonTrajectoryBuilder(trajectoryBuilderParameters,theService),
-					 new MuonTrackLoader(trackLoaderParameters,theService));
+    trajectoryBuilder = new DirectMuonTrajectoryBuilder(trajectoryBuilderParameters,theService);
+  else if(typeOfBuilder == "Exhaustive")
+    trajectoryBuilder = new ExhaustiveMuonTrajectoryBuilder(trajectoryBuilderParameters,theService);
   else{
     LogWarning("Muon|RecoMuon|StandAloneMuonProducer") << "No Trajectory builder associated with "<<typeOfBuilder
 						       << ". Falling down to the default (StandAloneMuonTrajectoryBuilder)";
-    theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters,theService),
-					 new MuonTrackLoader(trackLoaderParameters,theService));
+     trajectoryBuilder = new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters,theService);
   }
+  theTrackFinder = new MuonTrackFinder(trajectoryBuilder, trackLoader);
 
   setAlias(parameterSet.getParameter<std::string>("@module_label"));
   
