@@ -8,7 +8,7 @@
 //
 // Original Author:  Giulio Eulisse
 //         Created:  Thu Feb 18 15:19:44 EDT 2008
-// $Id: FWItemMuonAccessors.cc,v 1.4 2010/04/22 13:15:24 mccauley Exp $
+// $Id: FWItemMuonAccessors.cc,v 1.4.2.6 2010/06/07 16:42:27 mccauley Exp $
 //
 
 // system include files
@@ -29,6 +29,8 @@
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
+#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCRPCDigiCollection.h"
 
 #include "Fireworks/Core/interface/FWItemRandomAccessor.h"
 
@@ -39,3 +41,17 @@ REGISTER_TEMPLATE_FWITEMACCESSOR(FWItemRandomAccessor<DTRecSegment4DCollection>,
 REGISTER_TEMPLATE_FWITEMACCESSOR(FWItemRandomAccessor<DTRecHitCollection>,DTRecHitCollection,"DTRecHitCollectionAccessor");
 REGISTER_TEMPLATE_FWITEMACCESSOR(FWItemRandomAccessor<RPCRecHitCollection>,RPCRecHitCollection,"RPCRecHitCollectionAccessor");
 
+typedef FWItemMuonDigiAccessor<DTDigiCollection,DTDigi> DTDigiAccessor;
+REGISTER_TEMPLATE_FWITEMACCESSOR(DTDigiAccessor, DTDigiCollection, "DTDigiCollectionAccessor");
+
+typedef FWItemMuonDigiAccessor<CSCWireDigiCollection, CSCWireDigi> CSCWireDigiAccessor;
+REGISTER_TEMPLATE_FWITEMACCESSOR(CSCWireDigiAccessor, CSCWireDigiCollection, "CSCWireDigiCollectionAccessor");
+
+typedef FWItemMuonDigiAccessor<CSCStripDigiCollection, CSCStripDigi> CSCStripDigiAccessor;
+REGISTER_TEMPLATE_FWITEMACCESSOR(CSCStripDigiAccessor, CSCStripDigiCollection, "CSCStripDigiCollectionAccessor");
+
+typedef FWItemMuonDigiAccessor<RPCDigiCollection, RPCDigi> RPCDigiAccessor;
+REGISTER_TEMPLATE_FWITEMACCESSOR(RPCDigiAccessor, RPCDigiCollection, "RPCDigiCollectionAccessor");
+
+typedef FWItemMuonDigiAccessor<CSCRPCDigiCollection, CSCRPCDigi> CSCRPCDigiAccessor;
+REGISTER_TEMPLATE_FWITEMACCESSOR(CSCRPCDigiAccessor, CSCRPCDigiCollection, "CSCRPCDigiCollectionAccessor");
