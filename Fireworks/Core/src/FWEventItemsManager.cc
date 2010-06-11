@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.31 2010/05/31 15:44:01 eulisse Exp $
+// $Id: FWEventItemsManager.cc,v 1.32 2010/06/03 13:38:32 eulisse Exp $
 //
 
 // system include files
@@ -150,6 +150,7 @@ static const std::string kTrue("t");
 static const std::string kFalse("f");
 static const std::string kLayer("layer");
 static const std::string kPurpose("purpose");
+static const std::string kTransparency("transparency");
 
 void
 FWEventItemsManager::addTo(FWConfiguration& iTo) const
@@ -160,7 +161,7 @@ FWEventItemsManager::addTo(FWConfiguration& iTo) const
        it != m_items.end();
        ++it) {
       if(!*it) continue;
-      FWConfiguration conf(3);
+      FWConfiguration conf(4);
       ROOT::Reflex::Type dataType( ROOT::Reflex::Type::ByTypeInfo(*((*it)->type()->GetTypeInfo())));
       assert(dataType != ROOT::Reflex::Type() );
 
@@ -181,6 +182,11 @@ FWEventItemsManager::addTo(FWConfiguration& iTo) const
          conf.addKeyValue(kLayer,FWConfiguration(os.str()));
       }
       conf.addKeyValue(kPurpose,(*it)->purpose());
+      {
+         std::ostringstream os;
+         os << (*it)->defaultDisplayProperties().transparency();
+         conf.addKeyValue(kTransparency, FWConfiguration(os.str()));
+      }
       iTo.addKeyValue((*it)->name(), conf, true);
    }
 }
@@ -222,8 +228,14 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
          is >> colorIndex;
       }
       
-      // FIXME: read opacity from file.
-      FWDisplayProperties disp(cm->indexToColor(colorIndex), isVisible, 0);
+      int transparency = 0;
+
+      // Read transparency from file. We don't care about checking errors
+      // because strtol returns 0 in that case.
+      if (conf.version() > 3)
+         transparency = strtol((*keyValues)[9].second.value().c_str(), 0, 10);
+
+      FWDisplayProperties dp(cm->indexToColor(colorIndex), isVisible, transparency);
 
       unsigned int layer;
       const std::string& sLayer =(*keyValues)[7].second.value();
@@ -237,7 +249,7 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
       FWPhysicsObjectDesc desc(name,
                                TClass::GetClass(type.c_str()),
                                purpose,
-                               disp,
+                               dp,
                                moduleLabel,
                                productInstanceLabel,
 			       processName,
