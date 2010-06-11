@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2010/05/20 00:53:51 $
- *  $Revision: 1.19 $
+ *  $Date: 2010/05/28 01:42:22 $
+ *  $Revision: 1.20 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -470,7 +470,6 @@ void MuonSeedOrcaPatternRecognition::complete(MuonRecHitContainer& seedSegments,
     float deta = fabs (ptg1.eta()-ptg2.eta());
     // Geom::Phi should keep it in the range [-pi, pi]
     float dphi = fabs( deltaPhi(ptg1.phi(), ptg2.phi()) );
-    float eta2 = fabs( ptg2.eta() );
     // be a little more lenient in cracks
     bool crack = isCrack(recHit) || isCrack(first);
     //float detaWindow = 0.3;
@@ -621,8 +620,6 @@ MuonSeedOrcaPatternRecognition::filterSegments(const MuonRecHitContainer & segme
 {
 MuonPatternRecoDumper theDumper;
   MuonRecHitContainer result;
-  double theBarreldThetaCut = 0.2;
-  double theEndcapdThetaCut = 0.7;
   for(MuonRecHitContainer::const_iterator segmentItr = segments.begin();
       segmentItr != segments.end(); ++segmentItr)
   {
