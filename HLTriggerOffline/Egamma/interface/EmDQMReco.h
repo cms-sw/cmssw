@@ -19,6 +19,7 @@
 #include "TDirectory.h"
 #include "HepMC/GenParticle.h"
 #include "CommonTools/Utils/interface/PtComparator.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 class EmDQMReco : public edm::EDAnalyzer{
 public:
@@ -33,7 +34,8 @@ public:
   void analyze(const edm::Event & event, const edm::EventSetup&);
   void beginJob();
   void endJob();
-
+  void beginRun( const edm::Run&, const edm::EventSetup& );
+ 
 private:
   // Input from cfg file
   std::vector<edm::InputTag> theHLTCollectionLabels;  
@@ -46,6 +48,8 @@ private:
   std::vector<std::vector<edm::InputTag> > isoNames; // there has to be a better solution
   std::vector<std::pair<double,double> > plotBounds; 
   std::string theHltName;
+  HLTConfigProvider hltConfig_;
+  bool isHltConfigInitialized_;
 
   ////////////////////////////////////////////////////////////
   //          Read from configuration file                  //
