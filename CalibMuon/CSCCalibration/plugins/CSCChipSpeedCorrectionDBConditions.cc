@@ -13,7 +13,8 @@ CSCChipSpeedCorrectionDBConditions::CSCChipSpeedCorrectionDBConditions(const edm
   // data is being produced
   isForMC = iConfig.getUntrackedParameter<bool>("isForMC",true);
   dataCorrFileName= iConfig.getUntrackedParameter<std::string>("dataCorrFileName","empty.txt");
-  cndbChipCorr = prefillDBChipSpeedCorrection(isForMC,dataCorrFileName);
+  dataOffset=170.;
+  cndbChipCorr = prefillDBChipSpeedCorrection(isForMC,dataCorrFileName,dataOffset);
   // added by Zhen (changed since 1_2_0)
   setWhatProduced(this,&CSCChipSpeedCorrectionDBConditions::produceDBChipSpeedCorrection);
   findingRecord<CSCDBChipSpeedCorrectionRcd>();

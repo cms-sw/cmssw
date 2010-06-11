@@ -30,6 +30,7 @@ namespace popcon
       std::string m_name;
       bool isForMC;
       std::string dataCorrFileName;
+      float dataOffset;
     };
 }
 #endif

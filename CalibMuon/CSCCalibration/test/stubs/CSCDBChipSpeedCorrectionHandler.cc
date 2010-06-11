@@ -9,6 +9,7 @@ popcon::CSCDBChipSpeedCorrectionImpl::CSCDBChipSpeedCorrectionImpl(const edm::Pa
   m_name=(pset.getUntrackedParameter<std::string>("name","CSCDBChipSpeedCorrectionImpl"));
   isForMC=(pset.getUntrackedParameter<bool>("isForMC",true));
   dataCorrFileName=(pset.getUntrackedParameter<std::string>("dataCorrFileName","empty.txt"));
+  dataOffset = 170.;
     }
 
 popcon::CSCDBChipSpeedCorrectionImpl::~CSCDBChipSpeedCorrectionImpl(){}
@@ -23,7 +24,7 @@ void popcon::CSCDBChipSpeedCorrectionImpl::getNewObjects()
   // fill object from file
   //bool isForMC = iConfig.getUntrackedParameter<bool>("isForMC",true);
   //string dataCorrFileName= iConfig.getUntrackedParameter<std::string>("dataCorrFileName","empty.txt");
-  CSCDBChipSpeedCorrection * cnchipspeed = CSCChipSpeedCorrectionDBConditions::prefillDBChipSpeedCorrection(isForMC,dataCorrFileName);
+  CSCDBChipSpeedCorrection * cnchipspeed = CSCChipSpeedCorrectionDBConditions::prefillDBChipSpeedCorrection(isForMC,dataCorrFileName,dataOffset);
   //std::cout << "chipspeed size " << cnchipspeed->chipspeed.size() << std::endl;
 
   std::cout << "CSCChipSpeedCorrectionHandler - time after filling object:"<< std::endl;

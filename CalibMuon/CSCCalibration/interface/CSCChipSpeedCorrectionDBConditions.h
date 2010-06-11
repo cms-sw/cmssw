@@ -23,7 +23,7 @@ class CSCChipSpeedCorrectionDBConditions: public edm::ESProducer, public edm::Ev
   CSCChipSpeedCorrectionDBConditions(const edm::ParameterSet&);
   ~CSCChipSpeedCorrectionDBConditions();
   
-  inline static CSCDBChipSpeedCorrection * prefillDBChipSpeedCorrection(bool isForMC, std::string dataCorrFileName );
+  inline static CSCDBChipSpeedCorrection * prefillDBChipSpeedCorrection(bool isForMC, std::string dataCorrFileName, float dataOffse);
 
   typedef const  CSCDBChipSpeedCorrection * ReturnType;
   
@@ -38,6 +38,7 @@ class CSCChipSpeedCorrectionDBConditions: public edm::ESProducer, public edm::Ev
   bool isForMC;
   //File for reading <= 15768 data chip corrections.  MC will be fake (only one value for every chip);
   std::string dataCorrFileName;
+  float dataOffset;
 
 };
 
@@ -52,13 +53,15 @@ class CSCChipSpeedCorrectionDBConditions: public edm::ESProducer, public edm::Ev
 
 
 // to workaround plugin library
-inline CSCDBChipSpeedCorrection * CSCChipSpeedCorrectionDBConditions::prefillDBChipSpeedCorrection(bool isMC, std::string filename)  
+inline CSCDBChipSpeedCorrection * CSCChipSpeedCorrectionDBConditions::prefillDBChipSpeedCorrection(bool isMC, std::string filename,float dataOffset)  
 {
   if (isMC)
     printf("\n Generating fake DB constants for MC\n");
-  else 
+  else {
     printf("\n Reading chip corrections from file %s \n",filename.data());
-
+    printf("my data offset value is %f \n",dataOffset);
+  }
+  
   CSCIndexer indexer;
 
   const int CHIP_FACTOR=100;
@@ -73,7 +76,7 @@ inline CSCDBChipSpeedCorrection * CSCChipSpeedCorrectionDBConditions::prefillDBC
   //Fill chip corrections for MC is very simple
   if (isMC){
     for (int i=0;i<MAX_SIZE;i++){
-      itemvector[i].speedCorr = 170.*CHIP_FACTOR+0.5;
+      itemvector[i].speedCorr = 0;
     }
     return cndbChipCorr;
   }
@@ -153,8 +156,8 @@ inline CSCDBChipSpeedCorrection * CSCChipSpeedCorrectionDBConditions::prefillDBC
   }
  
   for (unsigned int i=0;i<new_index_id.size();i++){
-    if((short int)  (fabs(new_chipPulse[i]*CHIP_FACTOR+0.5))<MAX_SHORT) 
-      itemvector[new_index_id[i]-1].speedCorr = (short int) (new_chipPulse[i]*CHIP_FACTOR+0.5);
+    if((short int)  (fabs((dataOffset-new_chipPulse[i])*CHIP_FACTOR+0.5))<MAX_SHORT) 
+      itemvector[new_index_id[i]-1].speedCorr = (short int) ((dataOffset-new_chipPulse[i])*CHIP_FACTOR+0.5*(dataOffset>=new_chipPulse[i])-0.5*(dataOffset<new_chipPulse[i]));
     //printf("i= %d \t new index id = %d \t corr = %f \n",i,new_index_id[i], new_chipPulse[i]);
   }
 
