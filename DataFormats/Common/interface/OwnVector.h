@@ -15,6 +15,8 @@
 
 #include "FWCore/Utilities/interface/EDMException.h"
 
+#include "DataFormats/Common/interface/fillPtrVector.h"
+
 #if defined CMS_USE_DEBUGGING_ALLOCATOR
 #include "DataFormats/Common/interface/debugging_allocator.h"
 #endif
@@ -105,6 +107,7 @@ namespace edm {
       friend class OwnVector<T, P>;
    };
 
+
     OwnVector();
     OwnVector(size_type);
     OwnVector(OwnVector const&);
@@ -145,6 +148,15 @@ namespace edm {
     void fillView(ProductID const& id,
 		  std::vector<void const*>& pointers,
 		  helper_vector& helpers) const;
+
+    void setPtr(std::type_info const& toType,
+		unsigned long index,
+		void const*& ptr) const;
+
+    void fillPtrVector(const std::type_info& toType,
+		       const std::vector<unsigned long>& indices,
+		       std::vector<void const*>& ptrs) const;
+
 
   private:
     void destroy();
@@ -445,12 +457,68 @@ namespace edm {
     obj.fillView(id, pointers, helpers);
   }
 
+
   template <typename T, typename P>
   struct has_fillView<edm::OwnVector<T, P> >
   {
     static bool const value = true;
   };
 
+
+  // Free function templates to support the use of edm::Ptr.
+
+  template <typename T, typename P>
+  inline
+  void
+  OwnVector<T,P>::setPtr(std::type_info const& toType,
+				   unsigned long index,
+				   void const*& ptr) const
+  {
+    detail::reallySetPtr<OwnVector<T,P> >(*this, toType, index, ptr); 
+  }
+
+  template <typename T, typename P>
+  inline
+  void
+  setPtr(OwnVector<T,P> const& obj,
+	 std::type_info const& toType,
+	 unsigned long index,
+	 void const*& ptr)
+  {
+    obj.setPtr(toType, index, ptr);
+  }
+
+  template <class T, class P>
+  inline
+  void 
+    OwnVector<T,P>::fillPtrVector(const std::type_info& toType,
+				  const std::vector<unsigned long>& indices,
+				  std::vector<void const*>& ptrs) const
+  {
+    detail::reallyfillPtrVector(*this, toType, indices, ptrs);
+  }
+
+
+  template <class T, class P>
+  inline
+  void
+  fillPtrVector(OwnVector<T,P> const& obj,
+		const std::type_info& toType,
+		const std::vector<unsigned long>& indices,
+		std::vector<void const*>& ptrs)
+  {
+    obj.fillPtrVector(toType, indices, ptrs);
+  }
+
+
+  template <typename T, typename P>
+   struct has_setPtr<edm::OwnVector<T,P> >
+   {
+     static bool const value = true;
+   };
+
+
 }
+
 
 #endif

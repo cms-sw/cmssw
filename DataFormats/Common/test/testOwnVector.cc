@@ -1,4 +1,4 @@
-// $Id: testOwnVector.cc,v 1.8 2007/08/01 08:45:09 llista Exp $
+// $Id: testOwnVector.cc,v 1.9 2009/02/25 23:43:51 wmtan Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include <algorithm>
 #include <iterator>
@@ -118,8 +118,21 @@ void testOwnVector::checkAll() {
     aa = new test::ClassB(3);
     v.push_back(aa);
     v.sort(test::ss());
+    std::cout << "OwnVector : dumping contents" << std::endl;
     std::copy(v.begin(), 
 	      v.end(), 
 	      std::ostream_iterator<test::a>(std::cout, "\t"));
+
+    edm::Ptr<test::a> ptr_v;
+    unsigned long index(0);
+    void const * data = &v[0];
+    v.setPtr( typeid(test::a), index, data );
+    test::a const * data_a = static_cast<test::a const *>(data);
+    test::ClassB const * data_b = dynamic_cast<test::ClassB const *>(data_a);
+    CPPUNIT_ASSERT( data != 0);
+    CPPUNIT_ASSERT( data_a != 0);
+    CPPUNIT_ASSERT( data_b != 0);
+    CPPUNIT_ASSERT( data_b->f() == 3);
+
   }
 }
