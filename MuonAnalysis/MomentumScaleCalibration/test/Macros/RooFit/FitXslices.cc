@@ -1,3 +1,6 @@
+#ifndef FitXslices_cc
+#define FitXslices_cc
+
 #include <iostream>
 #include <sstream>
 #include "TH2F.h"
@@ -19,12 +22,21 @@ public:
   FitXslices()
   {
     fitter_.initMean( 3.1, 2.9, 3.3 );
-    fitter_.initSigma( 0.03, 0., 0.1 );
-    fitter_.initSigma2( 0.1, 0., 1. );
+    // fitter_.initSigma( 2.3, 0., 10. );
+    fitter_.initSigma( 0.03, 0., 10. );
+    fitter_.initSigma2( 1., 0., 10. );
+
+    // Fix the gamma for the Z
+    fitter_.initGamma( 2.4952, 0., 10. );
+    fitter_.gamma()->setConstant(kTRUE);
+
     fitter_.initGaussFrac( 0.5, 0., 1. );
     fitter_.initExpCoeff( -1., -10., 0. );
     fitter_.initFsig(0.5, 0., 1.);
-  };
+
+    fitter_.initAlpha(-3., 2., 3.1);
+    fitter_.initN(-0.01, 0., 1.);
+  }
 
   FitWithRooFit * fitter()
   {
@@ -67,8 +79,15 @@ public:
     // The canvas for the results of the fit (the mean values for the gaussians +- errors)
     TCanvas * meanCanvas = new TCanvas("meanCanvas", "meanCanvas", 1000, 800);
     TH1D * meanHisto = new TH1D("meanHisto", "meanHisto", binsX, histo->GetXaxis()->GetXmin(), histo->GetXaxis()->GetXmax());
+
+    TCanvas * sigmaCanvas = new TCanvas("sigmaCanvas", "sigmaCanvas", 1000, 800);
+    TH1D * sigmaHisto = new TH1D("sigmaHisto", "sigmaHisto", binsX, histo->GetXaxis()->GetXmin(), histo->GetXaxis()->GetXmax());
+
     TCanvas * backgroundCanvas = new TCanvas("backgroundCanvas", "backgroundCanvas", 1000, 800);
     TH1D * backgroundHisto = new TH1D("backgroundHisto", "backgroundHisto", binsX, histo->GetXaxis()->GetXmin(), histo->GetXaxis()->GetXmax());
+    TCanvas * backgroundCanvas2 = new TCanvas("backgroundCanvas2", "backgroundCanvas2", 1000, 800);
+    TH1D * backgroundHisto2 = new TH1D("backgroundHisto2", "constant", binsX, histo->GetXaxis()->GetXmin(), histo->GetXaxis()->GetXmax());
+
     TCanvas * signalFractionCanvas = new TCanvas("signalFractionCanvas", "signalFractionCanvas", 1000, 800);
     TH1D * signalFractionHisto = new TH1D("signalFractionHisto", "signalFractionHisto", binsX, histo->GetXaxis()->GetXmin(), histo->GetXaxis()->GetXmax());
 
@@ -84,9 +103,23 @@ public:
       RooRealVar * mean = fitter_.mean();
       meanHisto->SetBinContent(it->first, mean->getVal());
       meanHisto->SetBinError(it->first, mean->getError());
-      RooRealVar * expCoeff = fitter_.expCoeff();
-      backgroundHisto->SetBinContent(it->first, expCoeff->getVal());
-      backgroundHisto->SetBinError(it->first, expCoeff->getError());
+      RooRealVar * sigma = fitter_.sigma();
+      sigmaHisto->SetBinContent(it->first, sigma->getVal());
+      sigmaHisto->SetBinError(it->first, sigma->getError());
+      std::cout << "backgroundType = " << backgroundType << std::endl;
+      if( backgroundType == "exponential" ) {
+	RooRealVar * expCoeff = fitter_.expCoeff();
+	backgroundHisto->SetBinContent(it->first, expCoeff->getVal());
+	backgroundHisto->SetBinError(it->first, expCoeff->getError());
+      }
+      else if( backgroundType == "linear" ) {
+	RooRealVar * linearTerm = fitter_.linearTerm();
+	backgroundHisto->SetBinContent(it->first, linearTerm->getVal());
+	backgroundHisto->SetBinError(it->first, linearTerm->getError());
+	RooRealVar * constant = fitter_.constant();
+	backgroundHisto2->SetBinContent(it->first, constant->getVal());
+	backgroundHisto2->SetBinError(it->first, constant->getError());
+      }
       RooRealVar * fsig = fitter_.fsig();
       signalFractionHisto->SetBinContent(it->first, fsig->getVal());
       signalFractionHisto->SetBinError(it->first, fsig->getError());
@@ -95,16 +128,27 @@ public:
     gDirectory->GetMotherDir()->cd();
     meanCanvas->cd();
     meanHisto->Draw();
+    sigmaCanvas->cd();
+    sigmaHisto->Draw();
     backgroundCanvas->cd();
     backgroundHisto->Draw();
+    if( backgroundType == "linear" ) {
+      backgroundCanvas2->cd();
+      backgroundHisto2->Draw();
+    }
     signalFractionCanvas->cd();
     signalFractionHisto->Draw();
 
     fitsCanvas->Write();
     meanCanvas->Write();
+    sigmaCanvas->Write();
     backgroundCanvas->Write();
     signalFractionCanvas->Write();
+    if( backgroundType == "linear" ) {
+      backgroundCanvas2->Write();
+    }
   }
+
 protected:
   struct Parameter
   {
@@ -118,3 +162,5 @@ protected:
 
   FitWithRooFit fitter_;
 };
+
+#endif
