@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_6_2/GRun/V5 (CMSSW_3_6_2_HLT3)
+# /dev/CMSSW_3_6_2/GRun/V6 (CMSSW_3_6_2_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_2/GRun/V5')
+  tableName = cms.string('/dev/CMSSW_3_6_2/GRun/V6')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -189,17 +189,7 @@ process.datasets = cms.PSet(
     'HLT_L2DoubleMu0',
     'HLT_Mu3',
     'HLT_TrackerCosmics' ),
-  OfflineMonitor = cms.vstring( 'HLT_L1MET20',
-    'HLT_QuadJet15U',
-    'HLT_DiJetAve30U_8E29',
-    'HLT_DiJetAve15U_8E29',
-    'HLT_FwdJet20U',
-    'HLT_L1SingleForJet_NoBPTX',
-    'HLT_Jet50U',
-    'HLT_Jet30U',
-    'HLT_Jet15U',
-    'HLT_L1Jet10U',
-    'HLT_Activity_EcalREM',
+  OfflineMonitor = cms.vstring( 'HLT_Activity_EcalREM',
     'HLT_Activity_Ecal',
     'HLT_Activity_DT',
     'HLT_Activity_PixelClusters',
@@ -309,7 +299,17 @@ process.datasets = cms.PSet(
     'HLT_L1_BptxXOR_BscMinBiasOR',
     'HLT_PixelTracks_Multiplicity70',
     'HLT_Jet15U_HcalNoiseFiltered',
-    'HLT_L1MuOpen_DT' )
+    'HLT_L1MuOpen_DT',
+    'HLT_L1MET20',
+    'HLT_QuadJet15U',
+    'HLT_DiJetAve30U_8E29',
+    'HLT_DiJetAve15U_8E29',
+    'HLT_FwdJet20U',
+    'HLT_L1SingleForJet_NoBPTX',
+    'HLT_Jet50U',
+    'HLT_Jet30U',
+    'HLT_Jet15U',
+    'HLT_L1Jet10U' )
 )
 
 process.source = cms.Source( "PoolSource",
@@ -2911,12 +2911,14 @@ process.hltEgammaSelectEcalSpikesEtFilter = cms.EDFilter( "HLTEgammaEtFilter",
 process.hltL1IsoR9shapeLowPt = cms.EDProducer( "EgammaHLTR9Producer",
     recoEcalCandidateProducer = cms.InputTag( "hltL1IsoRecoEcalCandidateLowPt" ),
     ecalRechitEB = cms.InputTag( 'hltEcalRegionalEgammaRecHitLowPt','EcalRecHitsEB' ),
-    ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHitLowPt','EcalRecHitsEE' )
+    ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHitLowPt','EcalRecHitsEE' ),
+    useSwissCross = cms.bool( False )
 )
 process.hltL1NonIsoR9shapeLowPt = cms.EDProducer( "EgammaHLTR9Producer",
     recoEcalCandidateProducer = cms.InputTag( "hltL1NonIsoRecoEcalCandidateLowPt" ),
     ecalRechitEB = cms.InputTag( 'hltEcalRegionalEgammaRecHitLowPt','EcalRecHitsEB' ),
-    ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHitLowPt','EcalRecHitsEE' )
+    ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHitLowPt','EcalRecHitsEE' ),
+    useSwissCross = cms.bool( False )
 )
 process.hltEgammaSelectEcalSpikesR9filter = cms.EDFilter( "HLTEgammaGenericFilter",
     candTag = cms.InputTag( "hltEgammaSelectEcalSpikesEtFilter" ),
@@ -3322,12 +3324,14 @@ process.hltEgammaSelectEcalSpikesHighEtEtFilter = cms.EDFilter( "HLTEgammaEtFilt
 process.hltL1IsoR9shape = cms.EDProducer( "EgammaHLTR9Producer",
     recoEcalCandidateProducer = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     ecalRechitEB = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEB' ),
-    ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEE' )
+    ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEE' ),
+    useSwissCross = cms.bool( False )
 )
 process.hltL1NonIsoR9shape = cms.EDProducer( "EgammaHLTR9Producer",
     recoEcalCandidateProducer = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" ),
     ecalRechitEB = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEB' ),
-    ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEE' )
+    ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEE' ),
+    useSwissCross = cms.bool( False )
 )
 process.hltEgammaSelectEcalSpikesHighEtR9ShapeFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     candTag = cms.InputTag( "hltEgammaSelectEcalSpikesHighEtEtFilter" ),
@@ -10673,22 +10677,7 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
 )
 process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputHLTDQM.root" ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_L2Mu0',
-  'HLT_L2Mu3',
-  'HLT_L2DoubleMu0',
-  'HLT_Mu0_L2Mu0',
-  'HLT_Mu3_L2Mu0',
-  'HLT_Mu5_L2Mu0',
-  'HLT_DoublePhoton5_Jpsi_L1R',
-  'HLT_DoublePhoton5_Upsilon_L1R',
-  'HLT_Ele10_LW_EleId_L1R',
-  'HLT_Ele10_LW_L1R',
-  'HLT_Ele15_LW_L1R',
-  'HLT_Ele15_SC10_LW_L1R',
-  'HLT_Ele15_SiStrip_L1R',
-  'HLT_Ele20_LW_L1R',
-  'HLT_L1SingleEG2',
-  'HLT_L1Jet10U_NoBPTX',
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_L1Jet10U_NoBPTX',
   'HLT_L1SingleCenJet_NoBPTX',
   'HLT_L1SingleTauJet_NoBPTX',
   'HLT_Activity_DT_Tuned',
@@ -10801,7 +10790,22 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_DoublePhoton5_L1R',
   'HLT_DoublePhoton4_eeRes_L1R',
   'HLT_DoublePhoton4_Jpsi_L1R',
-  'HLT_DoublePhoton4_Upsilon_L1R' ) ),
+  'HLT_DoublePhoton4_Upsilon_L1R',
+  'HLT_L2Mu0',
+  'HLT_L2Mu3',
+  'HLT_L2DoubleMu0',
+  'HLT_Mu0_L2Mu0',
+  'HLT_Mu3_L2Mu0',
+  'HLT_Mu5_L2Mu0',
+  'HLT_DoublePhoton5_Jpsi_L1R',
+  'HLT_DoublePhoton5_Upsilon_L1R',
+  'HLT_Ele10_LW_EleId_L1R',
+  'HLT_Ele10_LW_L1R',
+  'HLT_Ele15_LW_L1R',
+  'HLT_Ele15_SC10_LW_L1R',
+  'HLT_Ele15_SiStrip_L1R',
+  'HLT_Ele20_LW_L1R',
+  'HLT_L1SingleEG2' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*',
@@ -10888,17 +10892,7 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
 )
 process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputHLTMON.root" ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_L1MET20',
-  'HLT_QuadJet15U',
-  'HLT_DiJetAve30U_8E29',
-  'HLT_DiJetAve15U_8E29',
-  'HLT_FwdJet20U',
-  'HLT_L1SingleForJet_NoBPTX',
-  'HLT_Jet50U',
-  'HLT_Jet30U',
-  'HLT_Jet15U',
-  'HLT_L1Jet10U',
-  'HLT_Activity_EcalREM',
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_Activity_EcalREM',
   'HLT_Activity_Ecal',
   'HLT_Activity_DT',
   'HLT_Activity_PixelClusters',
@@ -11010,7 +11004,17 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
   'HLT_Jet15U_HcalNoiseFiltered',
   'HLT_L1MuOpen_DT',
   'HLT_Activity_Ecal_SC7',
-  'HLT_Activity_Ecal_SC15' ) ),
+  'HLT_Activity_Ecal_SC15',
+  'HLT_L1MET20',
+  'HLT_QuadJet15U',
+  'HLT_DiJetAve30U_8E29',
+  'HLT_DiJetAve15U_8E29',
+  'HLT_FwdJet20U',
+  'HLT_L1SingleForJet_NoBPTX',
+  'HLT_Jet50U',
+  'HLT_Jet30U',
+  'HLT_Jet15U',
+  'HLT_L1Jet10U' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep FEDRawDataCollection_source_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',

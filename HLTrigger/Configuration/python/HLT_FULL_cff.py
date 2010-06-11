@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_6_2/HLT/V12 (CMSSW_3_6_2_HLT3)
+# /dev/CMSSW_3_6_2/HLT/V13 (CMSSW_3_6_2_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_2/HLT/V12')
+  tableName = cms.string('/dev/CMSSW_3_6_2/HLT/V13')
 )
 
 streams = cms.PSet( 
@@ -2338,12 +2338,14 @@ hltEgammaSelectEcalSpikesEtFilter = cms.EDFilter( "HLTEgammaEtFilter",
 hltL1IsoR9shapeLowPt = cms.EDProducer( "EgammaHLTR9Producer",
     recoEcalCandidateProducer = cms.InputTag( "hltL1IsoRecoEcalCandidateLowPt" ),
     ecalRechitEB = cms.InputTag( 'hltEcalRegionalEgammaRecHitLowPt','EcalRecHitsEB' ),
-    ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHitLowPt','EcalRecHitsEE' )
+    ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHitLowPt','EcalRecHitsEE' ),
+    useSwissCross = cms.bool( False )
 )
 hltL1NonIsoR9shapeLowPt = cms.EDProducer( "EgammaHLTR9Producer",
     recoEcalCandidateProducer = cms.InputTag( "hltL1NonIsoRecoEcalCandidateLowPt" ),
     ecalRechitEB = cms.InputTag( 'hltEcalRegionalEgammaRecHitLowPt','EcalRecHitsEB' ),
-    ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHitLowPt','EcalRecHitsEE' )
+    ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHitLowPt','EcalRecHitsEE' ),
+    useSwissCross = cms.bool( False )
 )
 hltEgammaSelectEcalSpikesR9filter = cms.EDFilter( "HLTEgammaGenericFilter",
     candTag = cms.InputTag( "hltEgammaSelectEcalSpikesEtFilter" ),
@@ -2749,12 +2751,14 @@ hltEgammaSelectEcalSpikesHighEtEtFilter = cms.EDFilter( "HLTEgammaEtFilter",
 hltL1IsoR9shape = cms.EDProducer( "EgammaHLTR9Producer",
     recoEcalCandidateProducer = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     ecalRechitEB = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEB' ),
-    ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEE' )
+    ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEE' ),
+    useSwissCross = cms.bool( False )
 )
 hltL1NonIsoR9shape = cms.EDProducer( "EgammaHLTR9Producer",
     recoEcalCandidateProducer = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" ),
     ecalRechitEB = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEB' ),
-    ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEE' )
+    ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEE' ),
+    useSwissCross = cms.bool( False )
 )
 hltEgammaSelectEcalSpikesHighEtR9ShapeFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     candTag = cms.InputTag( "hltEgammaSelectEcalSpikesHighEtEtFilter" ),

@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_6_2/GRun/V5 (CMSSW_3_6_2_HLT3)
+# /dev/CMSSW_3_6_2/GRun/V6 (CMSSW_3_6_2_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_2/GRun/V5')
+  tableName = cms.string('/dev/CMSSW_3_6_2/GRun/V6')
 )
 
 streams = cms.PSet( 
@@ -185,17 +185,7 @@ datasets = cms.PSet(
     'HLT_L2DoubleMu0',
     'HLT_Mu3',
     'HLT_TrackerCosmics' ),
-  OfflineMonitor = cms.vstring( 'HLT_L1MET20',
-    'HLT_QuadJet15U',
-    'HLT_DiJetAve30U_8E29',
-    'HLT_DiJetAve15U_8E29',
-    'HLT_FwdJet20U',
-    'HLT_L1SingleForJet_NoBPTX',
-    'HLT_Jet50U',
-    'HLT_Jet30U',
-    'HLT_Jet15U',
-    'HLT_L1Jet10U',
-    'HLT_Activity_EcalREM',
+  OfflineMonitor = cms.vstring( 'HLT_Activity_EcalREM',
     'HLT_Activity_Ecal',
     'HLT_Activity_DT',
     'HLT_Activity_PixelClusters',
@@ -305,7 +295,17 @@ datasets = cms.PSet(
     'HLT_L1_BptxXOR_BscMinBiasOR',
     'HLT_PixelTracks_Multiplicity70',
     'HLT_Jet15U_HcalNoiseFiltered',
-    'HLT_L1MuOpen_DT' )
+    'HLT_L1MuOpen_DT',
+    'HLT_L1MET20',
+    'HLT_QuadJet15U',
+    'HLT_DiJetAve30U_8E29',
+    'HLT_DiJetAve15U_8E29',
+    'HLT_FwdJet20U',
+    'HLT_L1SingleForJet_NoBPTX',
+    'HLT_Jet50U',
+    'HLT_Jet30U',
+    'HLT_Jet15U',
+    'HLT_L1Jet10U' )
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -2332,12 +2332,14 @@ hltEgammaSelectEcalSpikesEtFilter = cms.EDFilter( "HLTEgammaEtFilter",
 hltL1IsoR9shapeLowPt = cms.EDProducer( "EgammaHLTR9Producer",
     recoEcalCandidateProducer = cms.InputTag( "hltL1IsoRecoEcalCandidateLowPt" ),
     ecalRechitEB = cms.InputTag( 'hltEcalRegionalEgammaRecHitLowPt','EcalRecHitsEB' ),
-    ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHitLowPt','EcalRecHitsEE' )
+    ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHitLowPt','EcalRecHitsEE' ),
+    useSwissCross = cms.bool( False )
 )
 hltL1NonIsoR9shapeLowPt = cms.EDProducer( "EgammaHLTR9Producer",
     recoEcalCandidateProducer = cms.InputTag( "hltL1NonIsoRecoEcalCandidateLowPt" ),
     ecalRechitEB = cms.InputTag( 'hltEcalRegionalEgammaRecHitLowPt','EcalRecHitsEB' ),
-    ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHitLowPt','EcalRecHitsEE' )
+    ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHitLowPt','EcalRecHitsEE' ),
+    useSwissCross = cms.bool( False )
 )
 hltEgammaSelectEcalSpikesR9filter = cms.EDFilter( "HLTEgammaGenericFilter",
     candTag = cms.InputTag( "hltEgammaSelectEcalSpikesEtFilter" ),
@@ -2743,12 +2745,14 @@ hltEgammaSelectEcalSpikesHighEtEtFilter = cms.EDFilter( "HLTEgammaEtFilter",
 hltL1IsoR9shape = cms.EDProducer( "EgammaHLTR9Producer",
     recoEcalCandidateProducer = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     ecalRechitEB = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEB' ),
-    ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEE' )
+    ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEE' ),
+    useSwissCross = cms.bool( False )
 )
 hltL1NonIsoR9shape = cms.EDProducer( "EgammaHLTR9Producer",
     recoEcalCandidateProducer = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" ),
     ecalRechitEB = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEB' ),
-    ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEE' )
+    ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEE' ),
+    useSwissCross = cms.bool( False )
 )
 hltEgammaSelectEcalSpikesHighEtR9ShapeFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     candTag = cms.InputTag( "hltEgammaSelectEcalSpikesHighEtEtFilter" ),
