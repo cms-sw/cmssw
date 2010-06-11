@@ -464,6 +464,35 @@
      <string>Jets</string>
    </config>
   </config>
+  <config name="pfMet" version="3">
+   <config name="type" version="0">
+     <string>std::vector&lt;reco::PFMET&gt;</string>
+   </config>
+   <config name="moduleLabel" version="0">
+     <string>pfMet</string>
+   </config>
+   <config name="productInstanceLabel" version="0">
+     <string></string>
+   </config>
+   <config name="processName" version="0">
+     <string></string>
+   </config>
+   <config name="filterExpression" version="0">
+     <string></string>
+   </config>
+   <config name="color" version="0">
+     <string>7</string>
+   </config>
+   <config name="isVisible" version="0">
+     <string>t</string>
+   </config>
+   <config name="layer" version="0">
+     <string>17</string>
+   </config>
+   <config name="purpose" version="0">
+     <string>recoMET</string>
+   </config>
+  </config>
  </config>
  <config name="EventNavigator" version="1">
   <config name="EventFilter0_enabled" version="0">
@@ -503,10 +532,10 @@
  <config name="GUI" version="1">
   <config name="main window" version="2">
    <config name="x" version="0">
-     <string>0</string>
+     <string>1681</string>
    </config>
    <config name="y" version="0">
-     <string>0</string>
+     <string>184</string>
    </config>
    <config name="width" version="0">
      <string>1026</string>
@@ -836,7 +865,7 @@
       <string>0</string>
     </config>
     <config name="Line width" version="0">
-      <string>1</string>
+      <string>2</string>
     </config>
     <config name="Show Muon Barrel" version="0">
       <string>0</string>
@@ -860,7 +889,7 @@
       <string>1</string>
     </config>
     <config name="Detector Transparency" version="0">
-      <string>95</string>
+      <string>100</string>
     </config>
     <config name="Calo scale (GeV/meter)" version="0">
       <string>2</string>
@@ -887,22 +916,22 @@
       <string>0.98</string>
     </config>
     <config name="cameraMatrix0Plain3D" version="0">
-      <string>0.518697</string>
+      <string>0.0163602</string>
     </config>
     <config name="cameraMatrix1Plain3D" version="0">
-      <string>0.784848</string>
+      <string>-0.891429</string>
     </config>
     <config name="cameraMatrix2Plain3D" version="0">
-      <string>0.339069</string>
+      <string>0.452866</string>
     </config>
     <config name="cameraMatrix3Plain3D" version="0">
       <string>0</string>
     </config>
     <config name="cameraMatrix4Plain3D" version="0">
-      <string>-0.834268</string>
+      <string>0.999831</string>
     </config>
     <config name="cameraMatrix5Plain3D" version="0">
-      <string>0.551358</string>
+      <string>0.0183495</string>
     </config>
     <config name="cameraMatrix6Plain3D" version="0">
       <string>0</string>
@@ -911,25 +940,25 @@
       <string>0</string>
     </config>
     <config name="cameraMatrix8Plain3D" version="0">
-      <string>-0.186949</string>
+      <string>-0.0083086</string>
     </config>
     <config name="cameraMatrix9Plain3D" version="0">
-      <string>-0.282873</string>
+      <string>0.452789</string>
     </config>
     <config name="cameraMatrix10Plain3D" version="0">
-      <string>0.940762</string>
+      <string>0.891579</string>
     </config>
     <config name="cameraMatrix11Plain3D" version="0">
       <string>0</string>
     </config>
     <config name="cameraMatrix12Plain3D" version="0">
-      <string>2566.23</string>
+      <string>51.2371</string>
     </config>
     <config name="cameraMatrix13Plain3D" version="0">
-      <string>3830.39</string>
+      <string>-4372.59</string>
     </config>
     <config name="cameraMatrix14Plain3D" version="0">
-      <string>1634.7</string>
+      <string>2192.6</string>
     </config>
     <config name="cameraMatrix15Plain3D" version="0">
       <string>1</string>
@@ -983,7 +1012,7 @@
       <string>1</string>
     </config>
     <config name="Plain3D FOV" version="0">
-      <string>7.50012</string>
+      <string>5.26886</string>
     </config>
    </config>
    <config name="Table" version="1">
@@ -1335,10 +1364,10 @@
        <string>1</string>
      </config>
      <config name="x" version="0">
-       <string>1026</string>
+       <string>2712</string>
      </config>
      <config name="y" version="0">
-       <string>22</string>
+       <string>205</string>
      </config>
      <config name="width" version="0">
        <string>318</string>
@@ -1363,16 +1392,16 @@
        <string>1</string>
      </config>
      <config name="x" version="0">
-       <string>1028</string>
+       <string>2708</string>
      </config>
      <config name="y" version="0">
-       <string>449</string>
+       <string>626</string>
      </config>
      <config name="width" version="0">
-       <string>318</string>
+       <string>327</string>
      </config>
      <config name="height" version="0">
-       <string>392</string>
+       <string>396</string>
      </config>
     </config>
    </config>
