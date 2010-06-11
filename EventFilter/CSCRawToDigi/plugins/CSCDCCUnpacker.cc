@@ -88,9 +88,10 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   debug                 = pset.getUntrackedParameter<bool>("Debug", false);
   instantiateDQM        = pset.getUntrackedParameter<bool>("runDQM", false);
   
-  /// Visualization of raw data in FED-less events 
+  /// Visualization of raw data 
   visualFEDInspect      = pset.getUntrackedParameter<bool>("VisualFEDInspect", false);
   visualFEDShort        = pset.getUntrackedParameter<bool>("VisualFEDShort", false);
+  formatedEventDump     = pset.getUntrackedParameter<bool>("FormatedEventDump", false);
 
   /// Suppress zeros LCTs
   SuppressZeroLCT       = pset.getUntrackedParameter<bool>("SuppressZeroLCT", true);
@@ -244,11 +245,12 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 			examiner->statusDetailed()));
 	}	
      
-      // Visualization of raw data in FED-less events 
-      if(visualFEDInspect){
-	if (!goodEvent){
+      /// Visualization of raw data 
+      if(visualFEDInspect || formatedEventDump){
+	if (!goodEvent || formatedEventDump){          
 	  short unsigned * buf = (short unsigned int *)fedData.data();
-          visual_raw(length/2, id,(int)e.id().run(),(int)e.id().event(), visualFEDShort, buf);
+          visual_raw(length/2, id,(int)e.id().run(),(int)e.id().event(), 
+                     visualFEDShort, formatedEventDump, buf);
         }
       }
 	          
@@ -259,7 +261,9 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	CSCDCCExaminer * ptrExaminer = examiner;
 	if (!useSelectiveUnpacking) ptrExaminer = NULL;
 		
-  	CSCDCCEventData dccData((short unsigned int *) fedData.data(),ptrExaminer);
+  	CSCDCCEventData dccData((short unsigned int *) fedData.data(), ptrExaminer);
+
+        //std::cout << " DCC Size [UNPK] " << dccData.sizeInWords() << std::endl;
 	
 	if(instantiateDQM) monitor->process(examiner, &dccData);
 	
@@ -269,10 +273,20 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	/// set default detid to that for E=+z, S=1, R=1, C=1, L=1
 	CSCDetId layer(1, 1, 1, 1, 1);
 	
-	if (unpackStatusDigis) 
+	if (unpackStatusDigis) {
+
+           /// DCC Trailer 2 added to dcc status product (to access TTS from DCC)
+          short unsigned * bufForDcc = (short unsigned int *)fedData.data();
+          
+          //std::cout << "FED Length: " << std::dec << length/2 << 
+          //" Trailer 2: " << std::hex << bufForDcc[length/2-4] << std::endl;
+          
 	  dccStatusProduct->insertDigi(layer, CSCDCCStatusDigi(dccData.dccHeader().data(),
 							       dccData.dccTrailer().data(),
-							       examiner->errors()));
+							       examiner->errors(),
+                                                               bufForDcc[length/2-4]));
+         
+        }
 
 	for (unsigned int iDDU=0; iDDU<dduData.size(); ++iDDU) {  // loop over DDUs
 	  /// skip the DDU if its data has serious errors
@@ -282,10 +296,12 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	      std::hex << dduData[iDDU].trailer().errorstat();
 	    continue; // to next iteration of DDU loop
 	  }
-		  
+		
 	  if (unpackStatusDigis) dduStatusProduct->
-				   insertDigi(layer, CSCDDUStatusDigi(dduData[iDDU].header().data(),
-								      dduData[iDDU].trailer().data()));
+	  			   insertDigi(layer, CSCDDUStatusDigi(dduData[iDDU].header().data(),
+								      dduData[iDDU].trailer().data(),
+          /// DDU Trailer 0 added to ddu status product (to access TTS from DDU) 
+                                                                      dduData[iDDU].trailer0()));
 	  
 	  ///get a reference to chamber data
 	  const std::vector<CSCEventData> & cscData = dduData[iDDU].cscData();
@@ -513,14 +529,18 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 }
 
 
-/// Visualization of raw data in FED-less events
+/// Visualization of raw data
 
-void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,short unsigned int *buf) const {
+void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort, 
+                                 bool fDump, short unsigned int *buf) const {
 
 	LogTrace("badData") << std::endl << std::endl;
 	LogTrace("badData") << "Run: "<< run << " Event: " << event;
 	LogTrace("badData") << std::endl;
-	LogTrace("badData") << "Problem seems in FED-" << id << "  " << "(scroll down to see summary)";
+        if(formatedEventDump)
+           LogTrace("badData") << "FED-" << id << "  " << "(scroll down to see summary)";
+        else
+	   LogTrace("badData") << "Problem seems in FED-" << id << "  " << "(scroll down to see summary)";
 	LogTrace("badData") <<"********************************************************************************";
 	LogTrace("badData") <<hl<<" words of data:";
 	

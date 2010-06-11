@@ -19,7 +19,11 @@ muonCSCDigis = cms.EDProducer("CSCDCCUnpacker",
     UseFormatStatus = cms.bool(True),                        
     # Turn on lots of output                            
     Debug = cms.untracked.bool(False),
-    PrintEventNumber = cms.untracked.bool(False)
+    PrintEventNumber = cms.untracked.bool(False),
+    # Visualization of raw data in corrupted events
+    VisualFEDInspect = cms.untracked.bool(False),
+    VisualFEDShort = cms.untracked.bool(False),
+    FormatedEventDump = cms.untracked.bool(False)
 )
 
 

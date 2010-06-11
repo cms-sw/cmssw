@@ -153,13 +153,18 @@ void CSCDDUEventData::unpack_data(uint16_t *buf, CSCDCCExaminer* examiner)
 {
   // just to calculate length
   uint16_t * inputBuf = buf;
+  uint16_t * inputBuf0 = buf; /// To pack trailer 0 
   theData.clear();
   if (debug) LogTrace ("CSCDDUEventData|CSCRawToDigi") << "CSCDDUEventData::unpack_data() is called";
-  if (debug) for (int i=0;i<4;++i) 
+  if (debug) 
+   for (int i=0;i<6;++i) 
     {
       LogTrace ("CSCDDUEventData|CSCRawToDigi") << i << std::hex << buf[4*i+3] << buf[4*i+2] 
 						<< buf[4*i+1] << buf[4*i];
+     std::cout << i << " " << std::hex << buf[4*i+3] << " " << buf[4*i+2] << " " 
+						<< buf[4*i+1] << " " << buf[4*i] << std::endl;
     }
+  //std::cout << "DDU Size: " << std::dec << theDDUHeader.sizeInWords() << std::endl;
 
   memcpy(&theDDUHeader, buf, theDDUHeader.sizeInWords()*2);
   
@@ -168,7 +173,7 @@ void CSCDDUEventData::unpack_data(uint16_t *buf, CSCDCCExaminer* examiner)
     LogTrace ("CSCDDUEventData|CSCRawToDigi") << "sizeof(DDUHeader) = " << sizeof(theDDUHeader);
   }
   buf += theDDUHeader.sizeInWords();
-
+  
 
 
 
@@ -220,7 +225,7 @@ void CSCDDUEventData::unpack_data(uint16_t *buf, CSCDCCExaminer* examiner)
 	{
 	  LogTrace ("CSCDDUEventData|CSCRawToDigi") << "size of vector of cscData = " << theData.size();
 	}
-
+      // std::cout << std::dec << theDDUTrailer.sizeInWords() << std::endl;
       // decode ddu tail
       memcpy(&theDDUTrailer, inputBuf+dduBufSize, theDDUTrailer.sizeInWords()*2);
       // memcpy(&theDDUTrailer, dduBlock+(dduBufSize-theDDUTrailer.sizeInWords())*2, theDDUTrailer.sizeInWords()*2);
@@ -299,6 +304,10 @@ void CSCDDUEventData::unpack_data(uint16_t *buf, CSCDCCExaminer* examiner)
   
     theSizeInWords = buf - inputBuf;
   }
+
+//std::cout << "DDUevData Size: " << theSizeInWords << " BUFlast: " << std::hex << inputBuf0[theSizeInWords-4] << //std::endl;
+/// Pack Trailer 0 (to access TTS)
+theDDUTrailer0 = inputBuf0[theSizeInWords-4];
 }
 
 

@@ -35,6 +35,7 @@ public:
 
   CSCDDUHeader header() const {return theDDUHeader;}
   CSCDDUTrailer trailer() const {return theDDUTrailer;}
+  uint16_t trailer0() const {return theDDUTrailer0;}
 
   CSCDCCHeader dccHeader() const {return theDCCHeader;}
   CSCDCCTrailer dccTrailer() const {return theDCCTrailer;}
@@ -71,6 +72,7 @@ protected:
   std::vector<CSCEventData> theData;
   CSCDDUTrailer theDDUTrailer;
   CSCDCCTrailer theDCCTrailer;
+  uint16_t theDDUTrailer0;
   int theSizeInWords;
 };
 

@@ -26,7 +26,7 @@
 // constructors and destructor
 //
 CSCViewDigi::CSCViewDigi(const edm::ParameterSet& conf)
-:wireDigiTag_(conf.getParameter<edm::InputTag>("wireDigiTag")),
+: wireDigiTag_(conf.getParameter<edm::InputTag>("wireDigiTag")),
  alctDigiTag_(conf.getParameter<edm::InputTag>("alctDigiTag")),
  clctDigiTag_(conf.getParameter<edm::InputTag>("clctDigiTag")),
  corrclctDigiTag_(conf.getParameter<edm::InputTag>("corrclctDigiTag")),
@@ -34,7 +34,8 @@ CSCViewDigi::CSCViewDigi(const edm::ParameterSet& conf)
  comparatorDigiTag_(conf.getParameter<edm::InputTag>("comparatorDigiTag")),
  rpcDigiTag_(conf.getParameter<edm::InputTag>("rpcDigiTag")),
  statusDigiTag_(conf.getParameter<edm::InputTag>("statusDigiTag")),
- statusCFEBTag_(conf.getParameter<edm::InputTag>("statusCFEBTag"))
+ DDUstatusDigiTag_(conf.getParameter<edm::InputTag>("DDUstatusDigiTag")),
+ DCCstatusDigiTag_(conf.getParameter<edm::InputTag>("DCCstatusDigiTag"))
 {
 WiresDigiDump=conf.getUntrackedParameter<bool>("WiresDigiDump", false);
 StripDigiDump=conf.getUntrackedParameter<bool>("StripDigiDump", false);
@@ -44,7 +45,8 @@ CorrClctDigiDump=conf.getUntrackedParameter<bool>("CorrClctDigiDump", false);
 ComparatorDigiDump=conf.getUntrackedParameter<bool>("ComparatorDigiDump", false);
 RpcDigiDump=conf.getUntrackedParameter<bool>("RpcDigiDump", false);
 StatusDigiDump=conf.getUntrackedParameter<bool>("StatusDigiDump", false);
-StatusCFEBDump=conf.getUntrackedParameter<bool>("StatusCFEBDump", false);
+DDUStatusDigiDump=conf.getUntrackedParameter<bool>("DDUStatus",false);
+DCCStatusDigiDump=conf.getUntrackedParameter<bool>("DCCStatus",false);
 }
 
 
@@ -75,7 +77,8 @@ CSCViewDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    edm::Handle<CSCCLCTDigiCollection> clcts;
    edm::Handle<CSCCorrelatedLCTDigiCollection> corrclcts;
    edm::Handle<CSCDCCFormatStatusDigiCollection> statusdigis;
-   edm::Handle<CSCCFEBStatusDigiCollection> statusCFEBdigis;
+   edm::Handle<CSCDDUStatusDigiCollection> DDUstatusdigi;
+   edm::Handle<CSCDCCStatusDigiCollection> DCCstatusdigi;
 
    iEvent.getByLabel(wireDigiTag_,wires);
    iEvent.getByLabel(stripDigiTag_,strips);
@@ -84,38 +87,16 @@ CSCViewDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(alctDigiTag_,alcts);
    iEvent.getByLabel(clctDigiTag_,clcts);
    iEvent.getByLabel(corrclctDigiTag_,corrclcts);
-   iEvent.getByLabel(statusCFEBTag_,statusCFEBdigis);
    
    if(StatusDigiDump)
     iEvent.getByLabel(statusDigiTag_,statusdigis);
+   
+   if(DDUStatusDigiDump)
+    iEvent.getByLabel(DDUstatusDigiTag_,DDUstatusdigi);
+
+   if(DCCStatusDigiDump)
+    iEvent.getByLabel(DCCstatusDigiTag_,DCCstatusdigi);
   
-  if(StatusCFEBDump){
-   bool cfebPrinted=false;
-   std::cout << std::endl;
-   std::cout << "Event " << iEvent.id() << std::endl;
-   std::cout << std::endl;
-   std::cout << "********CFEB Status Digis********" << std::endl;
-      for (CSCCFEBStatusDigiCollection::DigiRangeIterator j=statusCFEBdigis->begin(); j!=statusCFEBdigis->end(); j++) {
-          std::cout << "CFEB Status digis from "<< CSCDetId((*j).first) << std::endl;	  
-          std::vector<CSCCFEBStatusDigi>::const_iterator digiItr = (*j).second.first;
-          std::vector<CSCCFEBStatusDigi>::const_iterator last = (*j).second.second;
-          for( ; digiItr != last; ++digiItr) {
-	  cfebPrinted=true;
-          digiItr->print();
-         }
-      }
-   if(cfebPrinted){   
-   std::cout << "*****Format used to dump for CFEB Status Digis*****" << std::endl; 
-   std::cout << "SCAFullCond:" << std::endl;
-   std::cout << "CRC:" << std::endl;
-   std::cout << "TS_FLAG:" << std::endl;
-   std::cout << "SCA_FULL:" << std::endl;
-   std::cout << "LCT_PHASE:" << std::endl;
-   std::cout << "L1A_PHASE:" << std::endl;
-   std::cout << "SCA_BLK:" << std::endl;
-   std::cout << "TRIG_TIME:" << std::endl;
-   } 
-  }  
   
   if(WiresDigiDump){ 
    std::cout << std::endl;
@@ -227,6 +208,34 @@ CSCViewDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     for (CSCDCCFormatStatusDigiCollection::DigiRangeIterator j=statusdigis->begin(); j!=statusdigis->end(); j++) {
         std::vector<CSCDCCFormatStatusDigi>::const_iterator digiItr = (*j).second.first;
         std::vector<CSCDCCFormatStatusDigi>::const_iterator last = (*j).second.second;
+        for( ; digiItr != last; ++digiItr) {
+        digiItr->print();
+        }
+     }
+   }
+
+   if(DDUStatusDigiDump){
+     std::cout << std::endl;
+     std::cout << "Event " << iEvent.id() << std::endl;
+     std::cout << std::endl;
+     std::cout << "********DDU STATUS Digis********" << std::endl;
+     for (CSCDDUStatusDigiCollection::DigiRangeIterator j=DDUstatusdigi->begin(); j!=DDUstatusdigi->end(); j++){
+        std::vector<CSCDDUStatusDigi>::const_iterator digiItr = (*j).second.first;
+        std::vector<CSCDDUStatusDigi>::const_iterator last = (*j).second.second;
+        for( ; digiItr != last; ++digiItr) {
+        digiItr->print();
+        }
+     }
+   }
+
+   if(DCCStatusDigiDump){
+     std::cout << std::endl;
+     std::cout << "Event " << iEvent.id() << std::endl;
+     std::cout << std::endl;
+     std::cout << "********DCC STATUS Digis********" << std::endl;
+     for (CSCDCCStatusDigiCollection::DigiRangeIterator j=DCCstatusdigi->begin(); j!=DCCstatusdigi->end(); j++){
+        std::vector<CSCDCCStatusDigi>::const_iterator digiItr = (*j).second.first;
+        std::vector<CSCDCCStatusDigi>::const_iterator last = (*j).second.second;
         for( ; digiItr != last; ++digiItr) {
         digiItr->print();
         }

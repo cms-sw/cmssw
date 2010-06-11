@@ -10,6 +10,9 @@ dumpCSCdigi = cms.EDAnalyzer("CSCViewDigi",
                corrclctDigiTag = cms.InputTag("muonCSCDigis","MuonCSCCorrelatedLCTDigi"),
 	       statusDigiTag = cms.InputTag("muonCSCDigis","MuonCSCDCCFormatStatusDigi"),
 	       statusCFEBTag = cms.InputTag("muonCSCDigis","MuonCSCCFEBStatusDigi"),
+	       DDUstatusDigiTag = cms.InputTag("muonCSCDigis","MuonCSCDDUStatusDigi"),
+	       DCCstatusDigiTag = cms.InputTag("muonCSCDigis","MuonCSCDCCStatusDigi"),
+	       	
                WiresDigiDump = cms.untracked.bool(True),
 	       StripDigiDump = cms.untracked.bool(True),
 	       ComparatorDigiDump = cms.untracked.bool(True),
@@ -18,5 +21,7 @@ dumpCSCdigi = cms.EDAnalyzer("CSCViewDigi",
                ClctDigiDump = cms.untracked.bool(True),
                CorrClctDigiDump = cms.untracked.bool(True),
 	       StatusCFEBDump = cms.untracked.bool(True),
-	       StatusDigiDump = cms.untracked.bool(False)
+	       StatusDigiDump = cms.untracked.bool(False),
+	       DDUStatus = cms.untracked.bool(True),
+	       DCCStatus = cms.untracked.bool(True)	
 )

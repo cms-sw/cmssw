@@ -4,8 +4,8 @@
 /** \class CSCDCCUnpacker
  * 
  *
- *  $Date: 2009/05/12 16:47:01 $
- *  $Revision: 1.23 $
+ *  $Date: 2010/02/16 17:04:47 $
+ *  $Revision: 1.24 $
  * \author Alex Tumanov 
  */
 
@@ -28,15 +28,15 @@ class CSCDCCUnpacker: public edm::EDProducer {
   void produce(edm::Event & e, const edm::EventSetup& c);
   
   /// Visualization of raw data in FED-less events (Robert Harr and Alexander Sakharov)
-  void visual_raw(int hl,int id, int run, int event, bool fedshort, short unsigned int* buf) const; 
+  void visual_raw(int hl,int id, int run, int event, bool fedshort, bool fDump, short unsigned int* buf) const; 
   
  private:
 
   bool debug, printEventNumber, goodEvent, useExaminer, unpackStatusDigis;
   bool useSelectiveUnpacking, useFormatStatus;
   
-  /// Visualization of raw data in FED-less events
-  bool  visualFEDInspect, visualFEDShort;
+  /// Visualization of raw data
+  bool  visualFEDInspect, visualFEDShort, formatedEventDump;
   /// Suppress zeros LCTs
   bool SuppressZeroLCT;
   

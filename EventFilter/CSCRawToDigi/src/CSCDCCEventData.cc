@@ -1,7 +1,7 @@
 /** \file CSCDCCEventData.cc
  *
- *  $Date: 2009/05/20 09:31:43 $
- *  $Revision: 1.29 $
+ *  $Date: 2009/05/27 11:46:09 $
+ *  $Revision: 1.30 $
  *  \author A. Tumanov - Rice - But long, long ago...
  *
  */
@@ -32,10 +32,14 @@ CSCDCCEventData::~CSCDCCEventData()
 
 void CSCDCCEventData::unpack_data(unsigned short *buf, CSCDCCExaminer* examiner) 
 {
-  //for (int i=0;i<200;i++) {
-  //  printf("%04x %04x %04x %04x\n",buf[i+3],buf[i+2],buf[i+1],buf[i]); 
-  //  i+=3;
-  //}
+ 
+/*
+  for (int i=0;i<20;i++) {
+    printf("%04x %04x %04x %04x\n",buf[i+3],buf[i+2],buf[i+1],buf[i]); 
+    i+=3;
+  }
+*/
+
   theDDUData.clear();
   if (debug) 
     LogTrace ("CSCDCCEventData|CSCRawToDigi") << "CSCDCCEventData::unpack_data() is called";
@@ -81,7 +85,9 @@ void CSCDCCEventData::unpack_data(unsigned short *buf, CSCDCCExaminer* examiner)
   memcpy(&theDCCTrailer, buf, theDCCTrailer.sizeInWords()*2);
   if (debug) LogTrace("CSCDCCEventData|CSCRawToDigi") << "checking DDU Trailer" << theDCCTrailer.check(); 
   buf += theDCCTrailer.sizeInWords();
-  
+
+  //std::cout << " DCC Size: " << std::dec << theSizeInWords << std::endl;
+  //std::cout << "LastBuf: "  << std::hex << inputBuf[theSizeInWords-4] << std::endl;
 }
 	  
 
