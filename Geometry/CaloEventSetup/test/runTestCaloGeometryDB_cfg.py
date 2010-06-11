@@ -34,6 +34,11 @@ process.mfa = cms.EDAnalyzer("testMagneticField")
 #process.EcalPreshowerGeometryFromDBEP.applyAlignment = True
 #process.load("Geometry.CaloEventSetup.TestCaloAlignments_cff")
 
+process.EcalBarrelGeometryFromDBEP.applyAlignment = False
+process.EcalEndcapGeometryFromDBEP.applyAlignment = False
+process.EcalPreshowerGeometryFromDBEP.applyAlignment = False
+
+
 process.Timing = cms.Service("Timing")
 
 process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck")

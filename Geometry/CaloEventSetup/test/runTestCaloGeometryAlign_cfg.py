@@ -32,9 +32,9 @@ process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
 #*********************************************************************
 
-process.EcalBarrelGeometryFromDBEP.applyAlignment = True
-process.EcalEndcapGeometryFromDBEP.applyAlignment = True
-process.EcalPreshowerGeometryFromDBEP.applyAlignment = True
+#process.EcalBarrelGeometryFromDBEP.applyAlignment = True
+#process.EcalEndcapGeometryFromDBEP.applyAlignment = True
+#process.EcalPreshowerGeometryFromDBEP.applyAlignment = True
 
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     process.CondDBSetup,
