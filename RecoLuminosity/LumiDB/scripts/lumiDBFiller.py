@@ -2,18 +2,20 @@
 
 import string, os, time
 import commands
+lumiauthpath=''
+lumilogpath=''
 
-def isCollisionRun(run):
+def isCollisionRun(run,authpath=''):
     itIs = False
-    command = 'dumpRunInfo.py -c oracle://cms_omds_lb/cms_runinfo -P /nfshome0/hcallumipro  -r '+run+' --collision-only l1key | wc'
+    command = 'dumpRunInfo.py -c oracle://cms_omds_lb/cms_runinfo -P '+authpath+' -r '+run+' --collision-only l1key | wc'
     statusAndOutput = commands.getstatusoutput(command)
     if statusAndOutput[1].split('   ')[2] == '2': itIs = True
     return itIs
 
 
-def getRunsToBeUploaded(connectionString, dropbox):
+def getRunsToBeUploaded(connectionString, dropbox, authpath=''):
     # get the last analyzed run
-    command = 'lumiData.py -c "' +connectionString+'" -P /nfshome0/hcallumipro/ --raw listrun'
+    command = 'lumiData.py -c ' +connectionString+' -P '+authpath+' --raw listrun'
     statusAndOutput = commands.getstatusoutput(command)
     lastAnalyzedRunNumber = eval(statusAndOutput[1])[-1][0]
     print 'Last analyzed run: ', lastAnalyzedRunNumber
@@ -49,16 +51,22 @@ def main():
     parser.add_argument('-c',dest='connect',action='store',required=True,help='connect string to lumiDB')
     parser.add_argument('-d',dest='dropbox',action='store',required=True,help='location of the lumi root files')
     parser.add_argument('-norm',dest='normalization',action='store',required=True,help='lumi normalization factor')
+    parser.add_argument('-P',dest='authpath',action='store',required=False,help='auth path')
+    parser.add_argument('-L',dest='logpath',action='store',required=False,help='log path')
     args=parser.parse_args()
-
-    runsToBeAnalyzed = getRunsToBeUploaded(args.connect, args.dropbox) 
+    if args.authpath:
+        lumiauthpath=args.authpath
+    if args.logpath:
+        lumilogpath=args.logpath
+        
+    runsToBeAnalyzed = getRunsToBeUploaded(args.connect, args.dropbox,lumiauthpath) 
 
     runCounter=0
     for run in runsToBeAnalyzed:
         runCounter+=1
         if runCounter==1: print 'List of processed runs: '
         print 'Run: ', run, ' file: ', runsToBeAnalyzed[run]
-        logFile=open(os.path.join('/nfshome0/hcallumipro/testLog/','loadDB_run'+run+'.log'),'w',0)
+        logFile=open(os.path.join(lumilogpath,'loadDB_run'+run+'.log'),'w',0)
 
         # filling the DB
         command = '$LOCALRT/test/$SCRAM_ARCH/loadLumiDB '+run+' "file:/dropbox/hcallumipro/'+runsToBeAnalyzed[run]+'"'
@@ -70,7 +78,7 @@ def main():
             print statusAndOutput[1]
             
         # applying normalization
-        command = 'applyCalibration.py -c '+args.connect+' -norm '+ args.normalization +' -r '+run+' -P /nfshome0/hcallumipro/ run'
+        command = 'applyCalibration.py -c '+args.connect+' -norm '+ args.normalization +' -r '+run+' -P '+ lumiauthpath+' run'
         statusAndOutput = commands.getstatusoutput(command)
         logFile.write(command+'\n')
         logFile.write(statusAndOutput[1])
