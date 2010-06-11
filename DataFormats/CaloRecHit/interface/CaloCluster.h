@@ -7,7 +7,7 @@
  *
  * \author Shahram Rahatlou, INFN
  *
- * \version $Id: CaloCluster.h,v 1.16 2009/03/25 16:27:50 ferriff Exp $
+ * \version $Id: CaloCluster.h,v 1.17 2009/03/27 18:55:45 dlevans Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -44,7 +44,7 @@ namespace reco {
     CaloCluster( double energy,
                  const math::XYZPoint& position,
                  const CaloID& caloID) :
-      energy_ (energy), position_ (position), caloID_(caloID) {}
+      energy_ (energy), position_ (position), caloID_(caloID),algoID_( undefined ) {}
 
 
     /// resets the CaloCluster (position, energy, hitsAndFractions)
@@ -53,7 +53,7 @@ namespace reco {
      /// constructor from values 
      CaloCluster( double energy,  
  		 const math::XYZPoint& position ) : 
-       energy_ (energy), position_ (position) {} 
+       energy_ (energy), position_ (position),algoID_( undefined ) {} 
 
 
     CaloCluster( double energy,
