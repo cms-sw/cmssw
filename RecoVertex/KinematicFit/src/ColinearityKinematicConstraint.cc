@@ -24,11 +24,11 @@ AlgebraicVector  ColinearityKinematicConstraint::value(const vector<KinematicSta
 
   double p1vx = p1(3) - a_1*(point.y() - p1(1));
   double p1vy = p1(4) + a_1*(point.x() - p1(0));
-  double pt1  = sqrt(p1(3)*p1(3)+p1(4)*p1(4));
+  //double pt1  = sqrt(p1(3)*p1(3)+p1(4)*p1(4));
 
   double p2vx = p2(3) - a_2*(point.y() - p2(1));
   double p2vy = p2(4) + a_2*(point.x() - p2(0));
-  double pt2  = sqrt(p2(3)*p2(3)+p2(4)*p2(4));
+  //double pt2  = sqrt(p2(3)*p2(3)+p2(4)*p2(4));
 
   // H_phi:
   res(1)  = (p1vy * p2vx) - (p1vx * p2vy);
@@ -59,14 +59,14 @@ AlgebraicMatrix ColinearityKinematicConstraint::parametersDerivative(const vecto
   double p1vx = p1(3) - a_1*(point.y() - p1(1));
   double p1vy = p1(4) + a_1*(point.x() - p1(0));
   double p1vz = p1(5);
-  double pt1 = sqrt(p1(3)*p1(3)+p1(4)*p1(4));
-  double pTot1  = sqrt(p1(3)*p1(3)+p1(4)*p1(4)+p1(5)*p1(5));
+  //double pt1 = sqrt(p1(3)*p1(3)+p1(4)*p1(4));
+  //double pTot1  = sqrt(p1(3)*p1(3)+p1(4)*p1(4)+p1(5)*p1(5));
 
   double p2vx = p2(3) - a_2*(point.y() - p2(1));
   double p2vy = p2(4) + a_2*(point.x() - p2(0));
   double p2vz = p2(5);
-  double pt2  = sqrt(p2(3)*p2(3)+p2(4)*p2(4));
-  double pTot2   = sqrt(p2(3)*p2(3)+p2(4)*p2(4)+p2(5)*p2(5));
+  //double pt2  = sqrt(p2(3)*p2(3)+p2(4)*p2(4));
+  //double pTot2   = sqrt(p2(3)*p2(3)+p2(4)*p2(4)+p2(5)*p2(5));
 
   // H_phi:
 
@@ -142,12 +142,12 @@ AlgebraicMatrix ColinearityKinematicConstraint::positionDerivative(const vector<
   double p1vx = p1(3) - a_1*(point.y() - p1(1));
   double p1vy = p1(4) + a_1*(point.x() - p1(0));
   double p1vz = p1(5);
-  double pt1 = sqrt(p1(3)*p1(3)+p1(4)*p1(4));
+  //double pt1 = sqrt(p1(3)*p1(3)+p1(4)*p1(4));
 
   double p2vx = p2(3) - a_2*(point.y() - p2(1));
   double p2vy = p2(4) + a_2*(point.x() - p2(0));
   double p2vz = p2(5);
-  double pt2  = sqrt(p2(3)*p2(3)+p2(4)*p2(4));
+  //double pt2  = sqrt(p2(3)*p2(3)+p2(4)*p2(4));
 
   // H_phi:
 
