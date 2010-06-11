@@ -1,7 +1,7 @@
 #ifndef MuonSeedGenerator_MuonCSCSeedFromRecHits_h
 #define MuonSeedGenerator_MuonCSCSeedFromRecHits_h
 
-#include "RecoMuon/MuonSeedGenerator/src/MuonSeedFromRecHits.h"
+#include "RecoMuon/TrackingTools/interface/MuonSeedFromRecHits.h"
 
 class MuonCSCSeedFromRecHits : public MuonSeedFromRecHits
 {

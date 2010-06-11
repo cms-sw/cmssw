@@ -1,7 +1,7 @@
 #ifndef MuonSeedGenerator_MuonOverlapSeedFromRecHits_h
 #define MuonSeedGenerator_MuonOverlapSeedFromRecHits_h
 
-#include "RecoMuon/MuonSeedGenerator/src/MuonSeedFromRecHits.h"
+#include "RecoMuon/TrackingTools/interface/MuonSeedFromRecHits.h"
 
 class MuonOverlapSeedFromRecHits : public MuonSeedFromRecHits
 {

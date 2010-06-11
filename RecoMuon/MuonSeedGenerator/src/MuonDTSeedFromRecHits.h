@@ -12,7 +12,7 @@
  *
  */
 
-#include "RecoMuon/MuonSeedGenerator/src/MuonSeedFromRecHits.h"
+#include "RecoMuon/TrackingTools/interface/MuonSeedFromRecHits.h"
 
 #include <vector>
 
