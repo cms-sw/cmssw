@@ -171,24 +171,18 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
 
   // Before storing the recHit, take the opportunity to change its time
   if (useTimingCorrections){
-    float chipCorrection = 170. - recoConditions_->chipCorrection(id,centerStrip);
+    float chipCorrection = recoConditions_->chipCorrection(id,centerStrip);
     float phaseCorrection = (sHit.stripsl1a()[0]>> (15-0) & 0x1)*25.;
     float chamberCorrection = recoConditions_->chamberTimingCorrection(id);
 
-    GlobalPoint gp0 = layer_->surface().toGlobal(lp0);
+    GlobalPoint gp0 = layer_->toGlobal(lp0);
     float tofCorrection = gp0.mag()/29.9792458;
 
-    // printf("RecHit in e:%d s:%d r:%d c:%d l:%d strip:%d \n",id.endcap(),id.station(), id.ring(),id.chamber(),id.layer(),centerStrip);
-    // printf("\t tpeak before = %5.2f \t chipCorr %5.2f phaseCorr %5.2f chamberCorr %5.2f tofCorr %5.2f\n",
+    //printf("RecHit in e:%d s:%d r:%d c:%d l:%d strip:%d \n",id.endcap(),id.station(), id.ring(),id.chamber(),id.layer(),centerStrip);
+    //printf("\t tpeak before = %5.2f \t chipCorr %5.2f phaseCorr %5.2f chamberCorr %5.2f tofCorr %5.2f \n",
     // 	   tpeak,chipCorrection, phaseCorrection,chamberCorrection,tofCorrection);
     tpeak = tpeak + chipCorrection + phaseCorrection + chamberCorrection-tofCorrection;
-    // to more or less zero out the chambers (TOF will still be visible)
-    if(id.station() ==1 && (id.ring() ==1 || id.ring() == 4))
-      tpeak = tpeak - 205;
-    else
-      tpeak = tpeak - 216;
-    // printf("\t tpeak after = %5.2f\n",tpeak);
-
+    //printf("\t tpeak after = %5.2f\n",tpeak);
   }
 
   // store rechit
