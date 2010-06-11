@@ -30,6 +30,10 @@ namespace popcon
     private:
       std::string m_name;
       bool isForMC;
+      float ME11offsetMC;
+      float ME11offsetData;
+      float nonME11offsetMC;
+      float nonME11offsetData;
     };
 }
 #endif

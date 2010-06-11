@@ -11,8 +11,12 @@ CSCChamberTimeCorrectionsValues::CSCChamberTimeCorrectionsValues(const edm::Para
 {
   //the following line is needed to tell the framework what
   // data is being produced
-  bool isForMC = iConfig.getUntrackedParameter<bool>("isForMC",true);
-  chamberObj = prefill(isForMC);
+  isForMC = iConfig.getUntrackedParameter<bool>("isForMC",true);
+  ME11offsetMC = 184;
+  ME11offsetData = 205;
+  nonME11offsetMC = 174;
+  nonME11offsetData = 216;
+  chamberObj = prefill(isForMC, isForMC ? ME11offsetMC : ME11offsetData, isForMC ? nonME11offsetMC : nonME11offsetData);
   setWhatProduced(this,&CSCChamberTimeCorrectionsValues::produceChamberTimeCorrections);
   findingRecord<CSCChamberTimeCorrectionsRcd>();
   //now do what ever other initialization is needed

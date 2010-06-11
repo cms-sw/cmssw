@@ -8,6 +8,10 @@
 popcon::CSCChamberTimeCorrectionsImpl::CSCChamberTimeCorrectionsImpl(const edm::ParameterSet& pset){
   m_name= (pset.getUntrackedParameter<std::string>("name","CSCChamberTimeCorrectionsImpl"));
   isForMC=(pset.getUntrackedParameter<bool>("isForMC",true));
+  ME11offsetMC = 184;
+  ME11offsetData = 205;
+  nonME11offsetMC = 174;
+  nonME11offsetData = 216;
 }
 
 popcon::CSCChamberTimeCorrectionsImpl::~CSCChamberTimeCorrectionsImpl()
@@ -20,7 +24,8 @@ void popcon::CSCChamberTimeCorrectionsImpl::getNewObjects()
   std::cout << "------- CSC src - > getNewObjects\n"<<m_name;
   
   // fill object from file
-  CSCChamberTimeCorrections * mychambers = CSCChamberTimeCorrectionsValues::prefill(isForMC);
+  CSCChamberTimeCorrections * mychambers 
+    = CSCChamberTimeCorrectionsValues::prefill(isForMC, isForMC ? ME11offsetMC : ME11offsetData, isForMC ? nonME11offsetMC : nonME11offsetData);
   
   //check whats already inside of database  
   std::cerr<<"got offlineInfo"<<std::endl;

@@ -25,7 +25,7 @@ class CSCChamberTimeCorrectionsValues: public edm::ESProducer, public edm::Event
   CSCChamberTimeCorrectionsValues(const edm::ParameterSet&);
   ~CSCChamberTimeCorrectionsValues();
   
-  inline static CSCChamberTimeCorrections * prefill(bool isMC);
+  inline static CSCChamberTimeCorrections * prefill(bool isMC, float ME11offset, float nonME11offset);
 
   typedef const  CSCChamberTimeCorrections * ReturnType;
   
@@ -38,7 +38,10 @@ class CSCChamberTimeCorrectionsValues: public edm::ESProducer, public edm::Event
 
   //Flag for determining if this is for setting MC or data corrections
   bool isForMC;
-
+  float ME11offsetMC;
+  float ME11offsetData;
+  float nonME11offsetMC;
+  float nonME11offsetData;
 
 };
 
@@ -47,7 +50,7 @@ class CSCChamberTimeCorrectionsValues: public edm::ESProducer, public edm::Event
 #include<iostream>
 
 // to workaround plugin library
-inline CSCChamberTimeCorrections *  CSCChamberTimeCorrectionsValues::prefill(bool isMC)
+inline CSCChamberTimeCorrections *  CSCChamberTimeCorrectionsValues::prefill(bool isMC, float ME11offset, float nonME11offset)
 {
   if (isMC)
     printf("\n Generating fake DB constants for MC\n");
@@ -86,9 +89,9 @@ inline CSCChamberTimeCorrections *  CSCChamberTimeCorrectionsValues::prefill(boo
   if (isMC){
     for(i=1;i<=MAX_SIZE;++i){
       if (i<= 36 || (i>= 235 && i<=270))
-	chamberObj->chamberCorrections[i-1].cfeb_timing_corr=(short int)(21*FACTOR+0.5);
+	chamberObj->chamberCorrections[i-1].cfeb_timing_corr=(short int)(-1*ME11offset*FACTOR+0.5*(-1*ME11offset>=0)-0.5*(-1*ME11offset<0));
       else
-	chamberObj->chamberCorrections[i-1].cfeb_timing_corr=(short int)(42*FACTOR+0.5);
+	chamberObj->chamberCorrections[i-1].cfeb_timing_corr=(short int)(-1*nonME11offset*FACTOR+0.5*(-1*nonME11offset>=0)-0.5*(-1*nonME11offset<0));
     }
 
     return chamberObj;
@@ -133,6 +136,14 @@ inline CSCChamberTimeCorrections *  CSCChamberTimeCorrectionsValues::prefill(boo
   }
   fclose(fin);  
   
+  // Remove the offsets inherent to ME11 and non ME11 chambers
+  for(i=1;i<=MAX_SIZE;++i){
+    float temp= float(chamberObj->chamberCorrections[i-1].cfeb_timing_corr)/FACTOR;
+    if (i<= 36 || (i>= 235 && i<=270))
+      chamberObj->chamberCorrections[i-1].cfeb_timing_corr=(short int)((temp-1*ME11offset)*FACTOR+0.5*(temp>=ME11offset)-0.5*(temp<ME11offset));
+    else
+      chamberObj->chamberCorrections[i-1].cfeb_timing_corr=(short int)((temp-1*nonME11offset)*FACTOR+0.5*(temp>=nonME11offset)-0.5*(temp<nonME11offset));
+  }
 
   //Read in the cfeb_cable_delay values (0 or 1) and don't use a precision correction factor 
   FILE *fdelay = fopen("/afs/cern.ch/user/d/deisher/public/TimingCorrections2009/cfeb_cable_delay_20100423_both.txt","r");
