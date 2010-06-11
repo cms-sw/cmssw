@@ -31,6 +31,7 @@ protected:
    TGCompositeFrame *currentFrame(void) { return m_currentFrame; }
    FWLayoutBuilder &floatLeft(size_t spacing);
    FWLayoutBuilder &spaceDown(size_t spacing);
+   FWLayoutBuilder &spaceLeft(size_t spacing);
    FWLayoutBuilder &expand(bool expandX = true, bool expandY = false);
 
    bool isFloatingLeft() { return m_floatLeft; }
@@ -124,6 +125,7 @@ public:
    
    FWDialogBuilder &floatLeft(size_t spacing = 3);
    FWDialogBuilder &spaceDown(size_t spacing = 3);
+   FWDialogBuilder &spaceLeft(size_t spacing = 3);
    FWDialogBuilder &expand(size_t expandX = true, size_t expandY = false);
    FWDialogBuilder &vSpacer(size_t size = 0);
    FWDialogBuilder &hSpacer(size_t size = 0);

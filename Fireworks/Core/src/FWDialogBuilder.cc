@@ -90,6 +90,14 @@ FWLayoutBuilder::spaceDown(size_t spacing)
    return *this;
 }
 
+FWLayoutBuilder &
+FWLayoutBuilder::spaceLeft(size_t spacing)
+{
+   if (m_currentHints)
+      m_currentHints->SetPadRight(spacing);
+   return *this;
+}
+
 /** Set whether or not the previous layout element should expand and
     in which direction.
   */
@@ -417,6 +425,14 @@ FWDialogBuilder::spaceDown(size_t spacing /*= 3*/)
 }
 
 FWDialogBuilder &
+FWDialogBuilder::spaceLeft(size_t spacing)
+{
+   FWLayoutBuilder::spaceLeft(spacing);
+   return *this;
+}
+
+
+FWDialogBuilder &
 FWDialogBuilder::expand(size_t expandX /*= true*/, size_t expandY /*= false*/)
 {
    FWLayoutBuilder::expand(expandX, expandY);
@@ -460,5 +476,3 @@ FWDialogBuilder::hSpacer(size_t size /* = 0*/)
    
    return *this;
 }
-
-

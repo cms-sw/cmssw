@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.43 2010/06/09 16:37:47 eulisse Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.44 2010/06/10 10:20:15 eulisse Exp $
 //
 
 // system include files
@@ -239,6 +239,7 @@ void strip(std::string &source, const char *str)
          strip(str, "edm::");
          strip(str, "vector<");
          strip(str, "clonepolicy");
+         strip(str, "ownvector");
          strip(str, "rangemap<");
          strip(str, "strictweakordering<");
          strip(str, "sortedcollection<");
@@ -536,8 +537,8 @@ FWGUIEventDataAdder::createWindow()
           .spaceDown(15)
           .hSpacer().floatLeft(0)
           .addTextButton("Cancel", &cancelButton).floatLeft(4).expand(false)
-          .addTextButton("Add Data", &m_apply).expand(false).spaceDown(10)
-          .hSpacer(30);
+          .addTextButton("Add Data", &m_apply).expand(false).spaceLeft(25)
+                                              .spaceDown(15);
 
    m_search->Connect("TextChanged(const char *)", "FWGUIEventDataAdder", 
                      this, "updateFilterString(const char *)");
