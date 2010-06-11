@@ -2,8 +2,8 @@
  *
  * Digi for CLCT trigger primitives.
  *
- * $Date: 2009/02/23 17:00:27 $
- * $Revision: 1.14 $
+ * $Date: 2009/03/25 13:15:32 $
+ * $Revision: 1.15 $
  *
  * \author N. Terentiev, CMU
  */
@@ -26,6 +26,7 @@ CSCCLCTDigi::CSCCLCTDigi(const int valid, const int quality, const int pattern,
   cfeb_      = cfeb;
   bx_        = bx;
   trknmb_    = trknmb;
+  fullbx_    = 0;
 }
 
 /// Default
