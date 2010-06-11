@@ -17,7 +17,7 @@ from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
 
 #  Calorimeters
 from Geometry.CaloEventSetup.CaloTopology_cfi import *
-from Geometry.CaloEventSetup.CaloGeometryDBReader_cfi import *
+from Geometry.CaloEventSetup.AlignedCaloGeometryDBReader_cfi import *
 from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *
 from Geometry.EcalMapping.EcalMapping_cfi import *
 from Geometry.EcalMapping.EcalMappingRecord_cfi import *
