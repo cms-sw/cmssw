@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterModule.cc,v 1.28 2010/04/10 08:12:27 elmer Exp $
+// $Id: SiPixelClusterModule.cc,v 1.29 2010/04/19 20:36:53 merkelp Exp $
 //
 //
 // Updated by: Lukas Wehrli
@@ -93,56 +93,53 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
     meSize_ = theDMBE->book1D(hid,"Total cluster size",30,0.,30.);
     meSize_->setAxisTitle("Cluster size [number of pixels]",1);
     if(!reducedSet){
-    // Lowest cluster row
-    hid = theHistogramId->setHistoId("minrow",id_);
-    meMinRow_ = theDMBE->book1D(hid,"Lowest cluster row",200,0.,200.);
-    meMinRow_->setAxisTitle("Lowest cluster row",1);
-    // Highest cluster row
-    hid = theHistogramId->setHistoId("maxrow",id_);
-    meMaxRow_ = theDMBE->book1D(hid,"Highest cluster row",200,0.,200.);
-    meMaxRow_->setAxisTitle("Highest cluster row",1);
-    // Lowest cluster column
-    hid = theHistogramId->setHistoId("mincol",id_);
-    meMinCol_ = theDMBE->book1D(hid,"Lowest cluster column",500,0.,500.);
-    meMinCol_->setAxisTitle("Lowest cluster column",1);
-    // Highest cluster column
-    hid = theHistogramId->setHistoId("maxcol",id_);
-    meMaxCol_ = theDMBE->book1D(hid,"Highest cluster column",500,0.,500.);
-    meMaxCol_->setAxisTitle("Highest cluster column",1);
-    // Cluster barycenter X position
-    hid = theHistogramId->setHistoId("x",id_);
-    meX_ = theDMBE->book1D(hid,"Cluster barycenter X (row #)",200,0.,200.);
-    meX_->setAxisTitle("Barycenter x-position [row #]",1);
-    // Cluster barycenter Y position
-    hid = theHistogramId->setHistoId("y",id_);
-    meY_ = theDMBE->book1D(hid,"Cluster barycenter Y (column #)",500,0.,500.);
-    meY_->setAxisTitle("Barycenter y-position [column #]",1);
-    // Cluster width on the x-axis
-    hid = theHistogramId->setHistoId("sizeX",id_);
-    meSizeX_ = theDMBE->book1D(hid,"Cluster x-width (rows)",10,0.,10.);
-    meSizeX_->setAxisTitle("Cluster x-size [rows]",1);
-    // Cluster width on the y-axis
-    hid = theHistogramId->setHistoId("sizeY",id_);
-    meSizeY_ = theDMBE->book1D(hid,"Cluster y-width (columns)",15,0.,15.);
-    meSizeY_->setAxisTitle("Cluster y-size [columns]",1);
-    
-	int nbinx = ncols_/2;
-    int nbiny = nrows_/2;
-    hid = theHistogramId->setHistoId("hitmap",id_);
-    if(twoD){
-      // 2D hit map
-      mePixClusters_ = theDMBE->book2D(hid,"Number of Clusters (1bin=four pixels)",nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
-      mePixClusters_->setAxisTitle("Columns",1);
-      mePixClusters_->setAxisTitle("Rows",2);
-    }
-    else{
-      // projections of hitmap
-      mePixClusters_px_ = theDMBE->book1D(hid+"_px","Number of Clusters (1bin=two columns)",nbinx,0.,float(ncols_));
-      mePixClusters_py_ = theDMBE->book1D(hid+"_py","Number of Clusters (1bin=two rows)",nbiny,0.,float(nrows_));
-      mePixClusters_px_->setAxisTitle("Columns",1);
-      mePixClusters_py_->setAxisTitle("Rows",1);
-    }
-	
+      // Lowest cluster row
+      hid = theHistogramId->setHistoId("minrow",id_);
+      meMinRow_ = theDMBE->book1D(hid,"Lowest cluster row",200,0.,200.);
+      meMinRow_->setAxisTitle("Lowest cluster row",1);
+      // Highest cluster row
+      hid = theHistogramId->setHistoId("maxrow",id_);
+      meMaxRow_ = theDMBE->book1D(hid,"Highest cluster row",200,0.,200.);
+      meMaxRow_->setAxisTitle("Highest cluster row",1);
+      // Lowest cluster column
+      hid = theHistogramId->setHistoId("mincol",id_);
+      meMinCol_ = theDMBE->book1D(hid,"Lowest cluster column",500,0.,500.);
+      meMinCol_->setAxisTitle("Lowest cluster column",1);
+      // Highest cluster column
+      hid = theHistogramId->setHistoId("maxcol",id_);
+      meMaxCol_ = theDMBE->book1D(hid,"Highest cluster column",500,0.,500.);
+      meMaxCol_->setAxisTitle("Highest cluster column",1);
+      // Cluster barycenter X position
+      hid = theHistogramId->setHistoId("x",id_);
+      meX_ = theDMBE->book1D(hid,"Cluster barycenter X (row #)",200,0.,200.);
+      meX_->setAxisTitle("Barycenter x-position [row #]",1);
+      // Cluster barycenter Y position
+      hid = theHistogramId->setHistoId("y",id_);
+      meY_ = theDMBE->book1D(hid,"Cluster barycenter Y (column #)",500,0.,500.);
+      meY_->setAxisTitle("Barycenter y-position [column #]",1);
+      // Cluster width on the x-axis
+      hid = theHistogramId->setHistoId("sizeX",id_);
+      meSizeX_ = theDMBE->book1D(hid,"Cluster x-width (rows)",10,0.,10.);
+      meSizeX_->setAxisTitle("Cluster x-size [rows]",1);
+      // Cluster width on the y-axis
+      hid = theHistogramId->setHistoId("sizeY",id_);
+      meSizeY_ = theDMBE->book1D(hid,"Cluster y-width (columns)",15,0.,15.);
+      meSizeY_->setAxisTitle("Cluster y-size [columns]",1);
+      int nbinx = ncols_/2;
+      int nbiny = nrows_/2;
+      hid = theHistogramId->setHistoId("hitmap",id_);
+      if(twoD){
+        // 2D hit map
+        mePixClusters_ = theDMBE->book2D(hid,"Number of Clusters (1bin=four pixels)",nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
+        mePixClusters_->setAxisTitle("Columns",1);
+        mePixClusters_->setAxisTitle("Rows",2);
+      }else{
+        // projections of hitmap
+        mePixClusters_px_ = theDMBE->book1D(hid+"_px","Number of Clusters (1bin=two columns)",nbinx,0.,float(ncols_));
+        mePixClusters_py_ = theDMBE->book1D(hid+"_py","Number of Clusters (1bin=two rows)",nbiny,0.,float(nrows_));
+        mePixClusters_px_->setAxisTitle("Columns",1);
+        mePixClusters_py_->setAxisTitle("Rows",1);
+      }
     }
     delete theHistogramId;
   }
@@ -169,46 +166,44 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
     // Total cluster size (in pixels)
     meSizeLad_ = theDMBE->book1D("size_" + hid,"Total cluster size",30,0.,30.);
     meSizeLad_->setAxisTitle("Cluster size [number of pixels]",1);
-	if(!reducedSet)
-	{
-    // Lowest cluster row
-    meMinRowLad_ = theDMBE->book1D("minrow_" + hid,"Lowest cluster row",200,0.,200.);
-    meMinRowLad_->setAxisTitle("Lowest cluster row",1);
-    // Highest cluster row
-    meMaxRowLad_ = theDMBE->book1D("maxrow_" + hid,"Highest cluster row",200,0.,200.);
-    meMaxRowLad_->setAxisTitle("Highest cluster row",1);
-    // Lowest cluster column
-    meMinColLad_ = theDMBE->book1D("mincol_" + hid,"Lowest cluster column",500,0.,500.);
-    meMinColLad_->setAxisTitle("Lowest cluster column",1);
-    // Highest cluster column
-    meMaxColLad_ = theDMBE->book1D("maxcol_" + hid,"Highest cluster column",500,0.,500.);
-    meMaxColLad_->setAxisTitle("Highest cluster column",1);
-    // Cluster barycenter X position
-    meXLad_ = theDMBE->book1D("x_" + hid,"Cluster barycenter X (row #)",200,0.,200.);
-    meXLad_->setAxisTitle("Barycenter x-position [row #]",1);
-    // Cluster barycenter Y position
-    meYLad_ = theDMBE->book1D("y_" + hid,"Cluster barycenter Y (column #)",500,0.,500.);
-    meYLad_->setAxisTitle("Barycenter y-position [column #]",1);
-    // Cluster width on the x-axis
-    meSizeXLad_ = theDMBE->book1D("sizeX_" + hid,"Cluster x-width (rows)",10,0.,10.);
-    meSizeXLad_->setAxisTitle("Cluster x-size [rows]",1);
-    // Cluster width on the y-axis
-    meSizeYLad_ = theDMBE->book1D("sizeY_" + hid,"Cluster y-width (columns)",15,0.,15.);
-    meSizeYLad_->setAxisTitle("Cluster y-size [columns]",1);
-    if(twoD){
-      // 2D hit map
-      mePixClustersLad_ = theDMBE->book2D("hitmap_" + hid,"Number of Clusters (1bin=four pixels)",nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
-      mePixClustersLad_->setAxisTitle("Columns",1);
-      mePixClustersLad_->setAxisTitle("Rows",2);
+    if(!reducedSet){
+      // Lowest cluster row
+      meMinRowLad_ = theDMBE->book1D("minrow_" + hid,"Lowest cluster row",200,0.,200.);
+      meMinRowLad_->setAxisTitle("Lowest cluster row",1);
+      // Highest cluster row
+      meMaxRowLad_ = theDMBE->book1D("maxrow_" + hid,"Highest cluster row",200,0.,200.);
+      meMaxRowLad_->setAxisTitle("Highest cluster row",1);
+      // Lowest cluster column
+      meMinColLad_ = theDMBE->book1D("mincol_" + hid,"Lowest cluster column",500,0.,500.);
+      meMinColLad_->setAxisTitle("Lowest cluster column",1);
+      // Highest cluster column
+      meMaxColLad_ = theDMBE->book1D("maxcol_" + hid,"Highest cluster column",500,0.,500.);
+      meMaxColLad_->setAxisTitle("Highest cluster column",1);
+      // Cluster barycenter X position
+      meXLad_ = theDMBE->book1D("x_" + hid,"Cluster barycenter X (row #)",200,0.,200.);
+      meXLad_->setAxisTitle("Barycenter x-position [row #]",1);
+      // Cluster barycenter Y position
+      meYLad_ = theDMBE->book1D("y_" + hid,"Cluster barycenter Y (column #)",500,0.,500.);
+      meYLad_->setAxisTitle("Barycenter y-position [column #]",1);
+      // Cluster width on the x-axis
+      meSizeXLad_ = theDMBE->book1D("sizeX_" + hid,"Cluster x-width (rows)",10,0.,10.);
+      meSizeXLad_->setAxisTitle("Cluster x-size [rows]",1);
+      // Cluster width on the y-axis
+      meSizeYLad_ = theDMBE->book1D("sizeY_" + hid,"Cluster y-width (columns)",15,0.,15.);
+      meSizeYLad_->setAxisTitle("Cluster y-size [columns]",1);
+      if(twoD){
+        // 2D hit map
+        mePixClustersLad_ = theDMBE->book2D("hitmap_" + hid,"Number of Clusters (1bin=four pixels)",nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
+        mePixClustersLad_->setAxisTitle("Columns",1);
+        mePixClustersLad_->setAxisTitle("Rows",2);
+      }else{
+        // projections of hitmap
+        mePixClustersLad_px_ = theDMBE->book1D("hitmap_" + hid+"_px","Number of Clusters (1bin=two columns)",nbinx,0.,float(ncols_));
+        mePixClustersLad_py_ = theDMBE->book1D("hitmap_" + hid+"_py","Number of Clusters (1bin=two rows)",nbiny,0.,float(nrows_));
+        mePixClustersLad_px_->setAxisTitle("Columns",1);
+        mePixClustersLad_py_->setAxisTitle("Rows",1);
+      }
     }
-    else{
-      // projections of hitmap
-      mePixClustersLad_px_ = theDMBE->book1D("hitmap_" + hid+"_px","Number of Clusters (1bin=two columns)",nbinx,0.,float(ncols_));
-      mePixClustersLad_py_ = theDMBE->book1D("hitmap_" + hid+"_py","Number of Clusters (1bin=two rows)",nbiny,0.,float(nrows_));
-      mePixClustersLad_px_->setAxisTitle("Columns",1);
-      mePixClustersLad_py_->setAxisTitle("Rows",1);
-    }
-	}
   }
 
   if(type==2 && barrel){
@@ -225,56 +220,52 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
     // Total cluster size (in pixels)
     meSizeLay_ = theDMBE->book1D("size_" + hid,"Total cluster size",30,0.,30.);
     meSizeLay_->setAxisTitle("Cluster size [in pixels]",1);
-	if(!reducedSet)
-	{
-    // Lowest cluster row
-    meMinRowLay_ = theDMBE->book1D("minrow_" + hid,"Lowest cluster row",200,0.,200.);
-    meMinRowLay_->setAxisTitle("Lowest cluster row",1);
-    // Highest cluster row
-    meMaxRowLay_ = theDMBE->book1D("maxrow_" + hid,"Highest cluster row",200,0.,200.);
-    meMaxRowLay_->setAxisTitle("Highest cluster row",1);
-    // Lowest cluster column
-    meMinColLay_ = theDMBE->book1D("mincol_" + hid,"Lowest cluster column",500,0.,500.);
-    meMinColLay_->setAxisTitle("Lowest cluster column",1);
-    // Highest cluster column
-    meMaxColLay_ = theDMBE->book1D("maxcol_" + hid,"Highest cluster column",500,0.,500.);
-    meMaxColLay_->setAxisTitle("Highest cluster column",1);
-    // Cluster barycenter X position
-    meXLay_ = theDMBE->book1D("x_" + hid,"Cluster barycenter X (row #)",200,0.,200.);
-    meXLay_->setAxisTitle("Barycenter x-position [row #]",1);
-    // Cluster barycenter Y position
-    meYLay_ = theDMBE->book1D("y_" + hid,"Cluster barycenter Y (column #)",500,0.,500.);
-    meYLay_->setAxisTitle("Barycenter y-position [column #]",1);
-    // Cluster width on the x-axis
-    meSizeXLay_ = theDMBE->book1D("sizeX_" + hid,"Cluster x-width (rows)",10,0.,10.);
-    meSizeXLay_->setAxisTitle("Cluster x-size [rows]",1);
-    // Cluster width on the y-axis
-    meSizeYLay_ = theDMBE->book1D("sizeY_" + hid,"Cluster y-width (columns)",15,0.,15.);
-    meSizeYLay_->setAxisTitle("Cluster y-size [columns]",1);
-    if(twoD){
-      // 2D hit map
-      if(isHalfModule){
-	mePixClustersLay_ = theDMBE->book2D("hitmap_" + hid,"Number of Clusters (1bin=four pixels)",nbinx,0.,float(ncols_),2*nbiny,0.,float(2*nrows_));
+    if(!reducedSet){
+      // Lowest cluster row
+      meMinRowLay_ = theDMBE->book1D("minrow_" + hid,"Lowest cluster row",200,0.,200.);
+      meMinRowLay_->setAxisTitle("Lowest cluster row",1);
+      // Highest cluster row
+      meMaxRowLay_ = theDMBE->book1D("maxrow_" + hid,"Highest cluster row",200,0.,200.);
+      meMaxRowLay_->setAxisTitle("Highest cluster row",1);
+      // Lowest cluster column
+      meMinColLay_ = theDMBE->book1D("mincol_" + hid,"Lowest cluster column",500,0.,500.);
+      meMinColLay_->setAxisTitle("Lowest cluster column",1);
+      // Highest cluster column
+      meMaxColLay_ = theDMBE->book1D("maxcol_" + hid,"Highest cluster column",500,0.,500.);
+      meMaxColLay_->setAxisTitle("Highest cluster column",1);
+      // Cluster barycenter X position
+      meXLay_ = theDMBE->book1D("x_" + hid,"Cluster barycenter X (row #)",200,0.,200.);
+      meXLay_->setAxisTitle("Barycenter x-position [row #]",1);
+      // Cluster barycenter Y position
+      meYLay_ = theDMBE->book1D("y_" + hid,"Cluster barycenter Y (column #)",500,0.,500.);
+      meYLay_->setAxisTitle("Barycenter y-position [column #]",1);
+      // Cluster width on the x-axis
+      meSizeXLay_ = theDMBE->book1D("sizeX_" + hid,"Cluster x-width (rows)",10,0.,10.);
+      meSizeXLay_->setAxisTitle("Cluster x-size [rows]",1);
+      // Cluster width on the y-axis
+      meSizeYLay_ = theDMBE->book1D("sizeY_" + hid,"Cluster y-width (columns)",15,0.,15.);
+      meSizeYLay_->setAxisTitle("Cluster y-size [columns]",1);
+      if(twoD){
+        // 2D hit map
+        if(isHalfModule){
+	  mePixClustersLay_ = theDMBE->book2D("hitmap_" + hid,"Number of Clusters (1bin=four pixels)",nbinx,0.,float(ncols_),2*nbiny,0.,float(2*nrows_));
+        }else{
+	  mePixClustersLay_ = theDMBE->book2D("hitmap_" + hid,"Number of Clusters (1bin=four pixels)",nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
+        }
+        mePixClustersLay_->setAxisTitle("Columns",1);
+        mePixClustersLay_->setAxisTitle("Rows",2);
+      }else{
+        // projections of hitmap
+        mePixClustersLay_px_ = theDMBE->book1D("hitmap_" + hid+"_px","Number of Clusters (1bin=two columns)",nbinx,0.,float(ncols_));
+        if(isHalfModule){
+	  mePixClustersLay_py_ = theDMBE->book1D("hitmap_" + hid+"_py","Number of Clusters (1bin=two rows)",2*nbiny,0.,float(2*nrows_));
+        }else{
+	  mePixClustersLay_py_ = theDMBE->book1D("hitmap_" + hid+"_py","Number of Clusters (1bin=two rows)",nbiny,0.,float(nrows_));
+        }
+        mePixClustersLay_px_->setAxisTitle("Columns",1);
+        mePixClustersLay_py_->setAxisTitle("Rows",1);
       }
-      else {
-	mePixClustersLay_ = theDMBE->book2D("hitmap_" + hid,"Number of Clusters (1bin=four pixels)",nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
-      }
-      mePixClustersLay_->setAxisTitle("Columns",1);
-      mePixClustersLay_->setAxisTitle("Rows",2);
     }
-    else{
-      // projections of hitmap
-      mePixClustersLay_px_ = theDMBE->book1D("hitmap_" + hid+"_px","Number of Clusters (1bin=two columns)",nbinx,0.,float(ncols_));
-      if(isHalfModule){
-	mePixClustersLay_py_ = theDMBE->book1D("hitmap_" + hid+"_py","Number of Clusters (1bin=two rows)",2*nbiny,0.,float(2*nrows_));
-      }
-      else{
-	mePixClustersLay_py_ = theDMBE->book1D("hitmap_" + hid+"_py","Number of Clusters (1bin=two rows)",nbiny,0.,float(nrows_));
-      }
-      mePixClustersLay_px_->setAxisTitle("Columns",1);
-      mePixClustersLay_py_->setAxisTitle("Rows",1);
-    }
-	}
   }
   if(type==3 && barrel){
     uint32_t DBmodule = PixelBarrelName(DetId(id_)).moduleName();
@@ -289,56 +280,52 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
     // Total cluster size (in pixels)
     meSizePhi_ = theDMBE->book1D("size_" + hid,"Total cluster size",30,0.,30.);
     meSizePhi_->setAxisTitle("Cluster size [number of pixels]",1);
-	if(!reducedSet)
-	{
-    // Lowest cluster row
-    meMinRowPhi_ = theDMBE->book1D("minrow_" + hid,"Lowest cluster row",200,0.,200.);
-    meMinRowPhi_->setAxisTitle("Lowest cluster row",1);
-    // Highest cluster row
-    meMaxRowPhi_ = theDMBE->book1D("maxrow_" + hid,"Highest cluster row",200,0.,200.);
-    meMaxRowPhi_->setAxisTitle("Highest cluster row",1);
-    // Lowest cluster column
-    meMinColPhi_ = theDMBE->book1D("mincol_" + hid,"Lowest cluster column",500,0.,500.);
-    meMinColPhi_->setAxisTitle("Lowest cluster column",1);
-    // Highest cluster column
-    meMaxColPhi_ = theDMBE->book1D("maxcol_" + hid,"Highest cluster column",500,0.,500.);
-    meMaxColPhi_->setAxisTitle("Highest cluster column",1);
-    // Cluster barycenter X position
-    meXPhi_ = theDMBE->book1D("x_" + hid,"Cluster barycenter X (row #)",200,0.,200.);
-    meXPhi_->setAxisTitle("Barycenter x-position [row #]",1);
-    // Cluster barycenter Y position
-    meYPhi_ = theDMBE->book1D("y_" + hid,"Cluster barycenter Y (column #)",500,0.,500.);
-    meYPhi_->setAxisTitle("Barycenter y-position [column #]",1);
-    // Cluster width on the x-axis
-    meSizeXPhi_ = theDMBE->book1D("sizeX_" + hid,"Cluster x-width (rows)",10,0.,10.);
-    meSizeXPhi_->setAxisTitle("Cluster x-size [rows]",1);
-    // Cluster width on the y-axis
-    meSizeYPhi_ = theDMBE->book1D("sizeY_" + hid,"Cluster y-width (columns)",15,0.,15.);
-    meSizeYPhi_->setAxisTitle("Cluster y-size [columns]",1);
-    if(twoD){
-      // 2D hit map
-      if(isHalfModule){
-	mePixClustersPhi_ = theDMBE->book2D("hitmap_" + hid,"Number of Clusters (1bin=four pixels)",nbinx,0.,float(ncols_),2*nbiny,0.,float(2*nrows_));
+    if(!reducedSet){
+      // Lowest cluster row
+      meMinRowPhi_ = theDMBE->book1D("minrow_" + hid,"Lowest cluster row",200,0.,200.);
+      meMinRowPhi_->setAxisTitle("Lowest cluster row",1);
+      // Highest cluster row
+      meMaxRowPhi_ = theDMBE->book1D("maxrow_" + hid,"Highest cluster row",200,0.,200.);
+      meMaxRowPhi_->setAxisTitle("Highest cluster row",1);
+      // Lowest cluster column
+      meMinColPhi_ = theDMBE->book1D("mincol_" + hid,"Lowest cluster column",500,0.,500.);
+      meMinColPhi_->setAxisTitle("Lowest cluster column",1);
+      // Highest cluster column
+      meMaxColPhi_ = theDMBE->book1D("maxcol_" + hid,"Highest cluster column",500,0.,500.);
+      meMaxColPhi_->setAxisTitle("Highest cluster column",1);
+      // Cluster barycenter X position
+      meXPhi_ = theDMBE->book1D("x_" + hid,"Cluster barycenter X (row #)",200,0.,200.);
+      meXPhi_->setAxisTitle("Barycenter x-position [row #]",1);
+      // Cluster barycenter Y position
+      meYPhi_ = theDMBE->book1D("y_" + hid,"Cluster barycenter Y (column #)",500,0.,500.);
+      meYPhi_->setAxisTitle("Barycenter y-position [column #]",1);
+      // Cluster width on the x-axis
+      meSizeXPhi_ = theDMBE->book1D("sizeX_" + hid,"Cluster x-width (rows)",10,0.,10.);
+      meSizeXPhi_->setAxisTitle("Cluster x-size [rows]",1);
+      // Cluster width on the y-axis
+      meSizeYPhi_ = theDMBE->book1D("sizeY_" + hid,"Cluster y-width (columns)",15,0.,15.);
+      meSizeYPhi_->setAxisTitle("Cluster y-size [columns]",1);
+      if(twoD){
+        // 2D hit map
+        if(isHalfModule){
+	  mePixClustersPhi_ = theDMBE->book2D("hitmap_" + hid,"Number of Clusters (1bin=four pixels)",nbinx,0.,float(ncols_),2*nbiny,0.,float(2*nrows_));
+        }else{
+	  mePixClustersPhi_ = theDMBE->book2D("hitmap_" + hid,"Number of Clusters (1bin=four pixels)",nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
+        }
+        mePixClustersPhi_->setAxisTitle("Columns",1);
+        mePixClustersPhi_->setAxisTitle("Rows",2);
+      }else{
+        // projections of hitmap
+        mePixClustersPhi_px_ = theDMBE->book1D("hitmap_" + hid+"_px","Number of Clusters (1bin=two columns)",nbinx,0.,float(ncols_));
+        if(isHalfModule){
+	  mePixClustersPhi_py_ = theDMBE->book1D("hitmap_" + hid+"_py","Number of Clusters (1bin=two rows)",2*nbiny,0.,float(2*nrows_));
+        }else{
+	  mePixClustersPhi_py_ = theDMBE->book1D("hitmap_" + hid+"_py","Number of Clusters (1bin=two rows)",nbiny,0.,float(nrows_));
+        }
+        mePixClustersPhi_px_->setAxisTitle("Columns",1);
+        mePixClustersPhi_py_->setAxisTitle("Rows",1);
       }
-      else {
-	mePixClustersPhi_ = theDMBE->book2D("hitmap_" + hid,"Number of Clusters (1bin=four pixels)",nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
-      }
-      mePixClustersPhi_->setAxisTitle("Columns",1);
-      mePixClustersPhi_->setAxisTitle("Rows",2);
     }
-    else{
-      // projections of hitmap
-      mePixClustersPhi_px_ = theDMBE->book1D("hitmap_" + hid+"_px","Number of Clusters (1bin=two columns)",nbinx,0.,float(ncols_));
-      if(isHalfModule){
-	mePixClustersPhi_py_ = theDMBE->book1D("hitmap_" + hid+"_py","Number of Clusters (1bin=two rows)",2*nbiny,0.,float(2*nrows_));
-      }
-      else{
-	mePixClustersPhi_py_ = theDMBE->book1D("hitmap_" + hid+"_py","Number of Clusters (1bin=two rows)",nbiny,0.,float(nrows_));
-      }
-      mePixClustersPhi_px_->setAxisTitle("Columns",1);
-      mePixClustersPhi_py_->setAxisTitle("Rows",1);
-    }
-	}
   }
 
   if(type==4 && endcap){
@@ -355,33 +342,32 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
     // Total cluster size (in pixels)
     meSizeBlade_ = theDMBE->book1D("size_" + hid,"Total cluster size",30,0.,30.);
     meSizeBlade_->setAxisTitle("Cluster size [number of pixels]",1);
-	if(!reducedSet)
-	{
-    // Lowest cluster row
-    meMinRowBlade_ = theDMBE->book1D("minrow_" + hid,"Lowest cluster row",200,0.,200.);
-    meMinRowBlade_->setAxisTitle("Lowest cluster row",1);
-    // Highest cluster row
-    meMaxRowBlade_ = theDMBE->book1D("maxrow_" + hid,"Highest cluster row",200,0.,200.);
-    meMaxRowBlade_->setAxisTitle("Highest cluster row",1);
-    // Lowest cluster column
-    meMinColBlade_ = theDMBE->book1D("mincol_" + hid,"Lowest cluster column",500,0.,500.);
-    meMinColBlade_->setAxisTitle("Lowest cluster column",1);
-    // Highest cluster column
-    meMaxColBlade_ = theDMBE->book1D("maxcol_" + hid,"Highest cluster column",500,0.,500.);
-    meMaxColBlade_->setAxisTitle("Highest cluster column",1);
-    // Cluster barycenter X position
-    meXBlade_ = theDMBE->book1D("x_" + hid,"Cluster barycenter X (row #)",200,0.,200.);
-    meXBlade_->setAxisTitle("Barycenter x-position [row #]",1);
-    // Cluster barycenter Y position
-    meYBlade_ = theDMBE->book1D("y_" + hid,"Cluster barycenter Y (column #)",500,0.,500.);
-    meYBlade_->setAxisTitle("Barycenter y-position [column #]",1);
-    // Cluster width on the x-axis
-    meSizeXBlade_ = theDMBE->book1D("sizeX_" + hid,"Cluster x-width (rows)",10,0.,10.);
-    meSizeXBlade_->setAxisTitle("Cluster x-size [rows]",1);
-    // Cluster width on the y-axis
-    meSizeYBlade_ = theDMBE->book1D("sizeY_" + hid,"Cluster y-width (columns)",15,0.,15.);
-    meSizeYBlade_->setAxisTitle("Cluster y-size [columns]",1);
-	}
+    if(!reducedSet){
+      // Lowest cluster row
+      meMinRowBlade_ = theDMBE->book1D("minrow_" + hid,"Lowest cluster row",200,0.,200.);
+      meMinRowBlade_->setAxisTitle("Lowest cluster row",1);
+      // Highest cluster row
+      meMaxRowBlade_ = theDMBE->book1D("maxrow_" + hid,"Highest cluster row",200,0.,200.);
+      meMaxRowBlade_->setAxisTitle("Highest cluster row",1);
+      // Lowest cluster column
+      meMinColBlade_ = theDMBE->book1D("mincol_" + hid,"Lowest cluster column",500,0.,500.);
+      meMinColBlade_->setAxisTitle("Lowest cluster column",1);
+      // Highest cluster column
+      meMaxColBlade_ = theDMBE->book1D("maxcol_" + hid,"Highest cluster column",500,0.,500.);
+      meMaxColBlade_->setAxisTitle("Highest cluster column",1);
+      // Cluster barycenter X position
+      meXBlade_ = theDMBE->book1D("x_" + hid,"Cluster barycenter X (row #)",200,0.,200.);
+      meXBlade_->setAxisTitle("Barycenter x-position [row #]",1);
+      // Cluster barycenter Y position
+      meYBlade_ = theDMBE->book1D("y_" + hid,"Cluster barycenter Y (column #)",500,0.,500.);
+      meYBlade_->setAxisTitle("Barycenter y-position [column #]",1);
+      // Cluster width on the x-axis
+      meSizeXBlade_ = theDMBE->book1D("sizeX_" + hid,"Cluster x-width (rows)",10,0.,10.);
+      meSizeXBlade_->setAxisTitle("Cluster x-size [rows]",1);
+      // Cluster width on the y-axis
+      meSizeYBlade_ = theDMBE->book1D("sizeY_" + hid,"Cluster y-width (columns)",15,0.,15.);
+      meSizeYBlade_->setAxisTitle("Cluster y-size [columns]",1);
+    }
   }
   if(type==5 && endcap){
     uint32_t disk = PixelEndcapName(DetId(id_)).diskName();
@@ -397,33 +383,32 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
     // Total cluster size (in pixels)
     meSizeDisk_ = theDMBE->book1D("size_" + hid,"Total cluster size",30,0.,30.);
     meSizeDisk_->setAxisTitle("Cluster size [number of pixels]",1);
-	if(!reducedSet)
-	{
-    // Lowest cluster row
-    meMinRowDisk_ = theDMBE->book1D("minrow_" + hid,"Lowest cluster row",200,0.,200.);
-    meMinRowDisk_->setAxisTitle("Lowest cluster row",1);
-    // Highest cluster row
-    meMaxRowDisk_ = theDMBE->book1D("maxrow_" + hid,"Highest cluster row",200,0.,200.);
-    meMaxRowDisk_->setAxisTitle("Highest cluster row",1);
-    // Lowest cluster column
-    meMinColDisk_ = theDMBE->book1D("mincol_" + hid,"Lowest cluster column",500,0.,500.);
-    meMinColDisk_->setAxisTitle("Lowest cluster column",1);
-    // Highest cluster column
-    meMaxColDisk_ = theDMBE->book1D("maxcol_" + hid,"Highest cluster column",500,0.,500.);
-    meMaxColDisk_->setAxisTitle("Highest cluster column",1);
-    // Cluster barycenter X position
-    meXDisk_ = theDMBE->book1D("x_" + hid,"Cluster barycenter X (row #)",200,0.,200.);
-    meXDisk_->setAxisTitle("Barycenter x-position [row #]",1);
-    // Cluster barycenter Y position
-    meYDisk_ = theDMBE->book1D("y_" + hid,"Cluster barycenter Y (column #)",500,0.,500.);
-    meYDisk_->setAxisTitle("Barycenter y-position [column #]",1);
-    // Cluster width on the x-axis
-    meSizeXDisk_ = theDMBE->book1D("sizeX_" + hid,"Cluster x-width (rows)",10,0.,10.);
-    meSizeXDisk_->setAxisTitle("Cluster x-size [rows]",1);
-    // Cluster width on the y-axis
-    meSizeYDisk_ = theDMBE->book1D("sizeY_" + hid,"Cluster y-width (columns)",15,0.,15.);
-    meSizeYDisk_->setAxisTitle("Cluster y-size [columns]",1);
-	}
+    if(!reducedSet){
+      // Lowest cluster row
+      meMinRowDisk_ = theDMBE->book1D("minrow_" + hid,"Lowest cluster row",200,0.,200.);
+      meMinRowDisk_->setAxisTitle("Lowest cluster row",1);
+      // Highest cluster row
+      meMaxRowDisk_ = theDMBE->book1D("maxrow_" + hid,"Highest cluster row",200,0.,200.);
+      meMaxRowDisk_->setAxisTitle("Highest cluster row",1);
+      // Lowest cluster column
+      meMinColDisk_ = theDMBE->book1D("mincol_" + hid,"Lowest cluster column",500,0.,500.);
+      meMinColDisk_->setAxisTitle("Lowest cluster column",1);
+      // Highest cluster column
+      meMaxColDisk_ = theDMBE->book1D("maxcol_" + hid,"Highest cluster column",500,0.,500.);
+      meMaxColDisk_->setAxisTitle("Highest cluster column",1);
+      // Cluster barycenter X position
+      meXDisk_ = theDMBE->book1D("x_" + hid,"Cluster barycenter X (row #)",200,0.,200.);
+      meXDisk_->setAxisTitle("Barycenter x-position [row #]",1);
+      // Cluster barycenter Y position
+      meYDisk_ = theDMBE->book1D("y_" + hid,"Cluster barycenter Y (column #)",500,0.,500.);
+      meYDisk_->setAxisTitle("Barycenter y-position [column #]",1);
+      // Cluster width on the x-axis
+      meSizeXDisk_ = theDMBE->book1D("sizeX_" + hid,"Cluster x-width (rows)",10,0.,10.);
+      meSizeXDisk_->setAxisTitle("Cluster x-size [rows]",1);
+      // Cluster width on the y-axis
+      meSizeYDisk_ = theDMBE->book1D("sizeY_" + hid,"Cluster y-width (columns)",15,0.,15.);
+      meSizeYDisk_->setAxisTitle("Cluster y-size [columns]",1);
+    }
   }
 
   if(type==6 && endcap){
@@ -440,46 +425,44 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
     // Total cluster size (in pixels)
     meSizeRing_ = theDMBE->book1D("size_" + hid,"Total cluster size",30,0.,30.);
     meSizeRing_->setAxisTitle("Cluster size [number of pixels]",1);
-	if(!reducedSet)
-	{
-    // Lowest cluster row
-    meMinRowRing_ = theDMBE->book1D("minrow_" + hid,"Lowest cluster row",200,0.,200.);
-    meMinRowRing_->setAxisTitle("Lowest cluster row",1);
-    // Highest cluster row
-    meMaxRowRing_ = theDMBE->book1D("maxrow_" + hid,"Highest cluster row",200,0.,200.);
-    meMaxRowRing_->setAxisTitle("Highest cluster row",1);
-    // Lowest cluster column
-    meMinColRing_ = theDMBE->book1D("mincol_" + hid,"Lowest cluster column",500,0.,500.);
-    meMinColRing_->setAxisTitle("Lowest cluster column",1);
-    // Highest cluster column
-    meMaxColRing_ = theDMBE->book1D("maxcol_" + hid,"Highest cluster column",500,0.,500.);
-    meMaxColRing_->setAxisTitle("Highest cluster column",1);
-    // Cluster barycenter X position
-    meXRing_ = theDMBE->book1D("x_" + hid,"Cluster barycenter X (row #)",200,0.,200.);
-    meXRing_->setAxisTitle("Barycenter x-position [row #]",1);
-    // Cluster barycenter Y position
-    meYRing_ = theDMBE->book1D("y_" + hid,"Cluster barycenter Y (column #)",500,0.,500.);
-    meYRing_->setAxisTitle("Barycenter y-position [column #]",1);
-    // Cluster width on the x-axis
-    meSizeXRing_ = theDMBE->book1D("sizeX_" + hid,"Cluster x-width (rows)",10,0.,10.);
-    meSizeXRing_->setAxisTitle("Cluster x-size [rows]",1);
-    // Cluster width on the y-axis
-    meSizeYRing_ = theDMBE->book1D("sizeY_" + hid,"Cluster y-width (columns)",15,0.,15.);
-    meSizeYRing_->setAxisTitle("Cluster y-size [columns]",1);
-    if(twoD){
-      // 2D hit map
-      mePixClustersRing_ = theDMBE->book2D("hitmap_" + hid,"Number of Clusters (1bin=four pixels)",nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
-      mePixClustersRing_->setAxisTitle("Columns",1);
-      mePixClustersRing_->setAxisTitle("Rows",2);
+    if(!reducedSet){
+      // Lowest cluster row
+      meMinRowRing_ = theDMBE->book1D("minrow_" + hid,"Lowest cluster row",200,0.,200.);
+      meMinRowRing_->setAxisTitle("Lowest cluster row",1);
+      // Highest cluster row
+      meMaxRowRing_ = theDMBE->book1D("maxrow_" + hid,"Highest cluster row",200,0.,200.);
+      meMaxRowRing_->setAxisTitle("Highest cluster row",1);
+      // Lowest cluster column
+      meMinColRing_ = theDMBE->book1D("mincol_" + hid,"Lowest cluster column",500,0.,500.);
+      meMinColRing_->setAxisTitle("Lowest cluster column",1);
+      // Highest cluster column
+      meMaxColRing_ = theDMBE->book1D("maxcol_" + hid,"Highest cluster column",500,0.,500.);
+      meMaxColRing_->setAxisTitle("Highest cluster column",1);
+      // Cluster barycenter X position
+      meXRing_ = theDMBE->book1D("x_" + hid,"Cluster barycenter X (row #)",200,0.,200.);
+      meXRing_->setAxisTitle("Barycenter x-position [row #]",1);
+      // Cluster barycenter Y position
+      meYRing_ = theDMBE->book1D("y_" + hid,"Cluster barycenter Y (column #)",500,0.,500.);
+      meYRing_->setAxisTitle("Barycenter y-position [column #]",1);
+      // Cluster width on the x-axis
+      meSizeXRing_ = theDMBE->book1D("sizeX_" + hid,"Cluster x-width (rows)",10,0.,10.);
+      meSizeXRing_->setAxisTitle("Cluster x-size [rows]",1);
+      // Cluster width on the y-axis
+      meSizeYRing_ = theDMBE->book1D("sizeY_" + hid,"Cluster y-width (columns)",15,0.,15.);
+      meSizeYRing_->setAxisTitle("Cluster y-size [columns]",1);
+      if(twoD){
+        // 2D hit map
+        mePixClustersRing_ = theDMBE->book2D("hitmap_" + hid,"Number of Clusters (1bin=four pixels)",nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
+        mePixClustersRing_->setAxisTitle("Columns",1);
+        mePixClustersRing_->setAxisTitle("Rows",2);
+      }else{
+        // projections of hitmap
+        mePixClustersRing_px_ = theDMBE->book1D("hitmap_" + hid+"_px","Number of Clusters (1bin=two columns)",nbinx,0.,float(ncols_));
+        mePixClustersRing_py_ = theDMBE->book1D("hitmap_" + hid+"_py","Number of Clusters (1bin=two rows)",nbiny,0.,float(nrows_));
+        mePixClustersRing_px_->setAxisTitle("Columns",1);
+        mePixClustersRing_py_->setAxisTitle("Rows",1);
+      }
     }
-    else{
-      // projections of hitmap
-      mePixClustersRing_px_ = theDMBE->book1D("hitmap_" + hid+"_px","Number of Clusters (1bin=two columns)",nbinx,0.,float(ncols_));
-      mePixClustersRing_py_ = theDMBE->book1D("hitmap_" + hid+"_py","Number of Clusters (1bin=two rows)",nbiny,0.,float(nrows_));
-      mePixClustersRing_px_->setAxisTitle("Columns",1);
-      mePixClustersRing_py_->setAxisTitle("Rows",1);
-    }
-	}
   }
   
 }
@@ -600,8 +583,7 @@ int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input
       //**
       if(barrel && smileyon){
         (meSizeYvsEtaBarrel_)->Fill(clustgp.eta(),sizeY);
-	//std::cout << "Cluster Global x y z theta eta " << clustgp.x() << " " << clustgp.y() << " " << clustgp.z() << " " << clustgp.theta() << " " 
-	//<< clustgp.eta() << std::endl;
+	//std::cout << "Cluster Global x y z theta eta " << clustgp.x() << " " << clustgp.y() << " " << clustgp.z() << " " << clustgp.theta() << " " << clustgp.eta() << std::endl;
       }      
       if(ladon && barrel){
 	(meChargeLad_)->Fill((float)charge);

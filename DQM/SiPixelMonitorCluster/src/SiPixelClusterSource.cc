@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterSource.cc,v 1.26 2010/04/19 20:36:53 merkelp Exp $
+// $Id: SiPixelClusterSource.cc,v 1.27 2010/05/10 15:03:10 merkelp Exp $
 //
 //
 // Updated by: Lukas Wehrli
@@ -133,7 +133,26 @@ void SiPixelClusterSource::endJob(void){
 void SiPixelClusterSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   eventNo++;
-
+  
+  if(modOn){
+    MonitorElement* meReset = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_Layer_1");
+    MonitorElement* meReset1 = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_Layer_2");
+    MonitorElement* meReset2 = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_Layer_3");
+    MonitorElement* meReset3 = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_mz_Disk_1");
+    MonitorElement* meReset4 = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_mz_Disk_2");
+    MonitorElement* meReset5 = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_pz_Disk_1");
+    MonitorElement* meReset6 = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_pz_Disk_2");
+    if(meReset && meReset->getEntries()>150000){
+      meReset->Reset();
+      meReset1->Reset();
+      meReset2->Reset();
+      meReset3->Reset();
+      meReset4->Reset();
+      meReset5->Reset();
+      meReset6->Reset();
+    }
+  }
+  
   // get input data
   edm::Handle< edmNew::DetSetVector<SiPixelCluster> >  input;
   iEvent.getByLabel( src_, input );
