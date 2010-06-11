@@ -5,29 +5,83 @@
 import sys
 import xmlrpclib
 
+
+def displayHelp():
+  print """
+  getRunRegistry.py
+
+  CMSSW package DQM/TrackerCommon
+
+  Usage:
+  $ getRunRegistry.py [ARGUMENTOPTION1] [ARGUMENT1] ... [OPTION2] ...
+
+  Valid argument options are:
+    -s
+      API address of RunRegistry server
+      default: 'http://pccmsdqm04.cern.ch/runregistry/xmlrpc'
+    -T
+      table identifier
+      available:
+      default:   'RUN'
+    -w
+      work space identifier
+      available:
+      default:   'GLOBAL'
+    -t
+      output format type
+      available:
+      default:   'xml_all'
+    -f
+      output file
+      default: 'runRegistry.xml'
+    -l
+      lower bound of run numbers to consider
+      default: '0'
+    -u
+      upper bound of run numbers to consider
+      default: '1073741824'
+
+  Valid options are:
+    -h
+      display this help and exit
+  """
+
+
 # Option handling (very simple, no validity checks)
-dArguments = { '-s': 'http://pccmsdqm04.cern.ch/runregistry/xmlrpc', # RunRegistry API proxy server
-               '-T': 'RUN'                                         , # table
-               '-w': 'GLOBAL'                                      , # workspace
-               '-t': 'xml_all'                                     , # output format type
-               '-f': 'runRegistry.xml'                             , # output file
-               '-l': '0'                                           , # lower bound of run numbers to consider
-               '-u': '1073741824'                                  } # upper bound of run numbers to consider
+sOptions = {
+  '-s': 'http://pccmsdqm04.cern.ch/runregistry/xmlrpc' # RunRegistry API proxy server
+, '-T': 'RUN'                                          # table
+, '-w': 'GLOBAL'                                       # workspace
+, '-t': 'xml_all'                                      # output format type
+, '-f': 'runRegistry.xml'                              # output file
+, '-l': '0'                                            # lower bound of run numbers to consider
+, '-u': '1073741824'                                   # upper bound of run numbers to consider
+}
+bOptions = {
+  '-h': False # help option
+}
 iArgument  = 0
-for argument in sys.argv[ 1:-1 ]:
+for token in sys.argv[ 1:-1 ]:
   iArgument = iArgument + 1
-  if argument in dArguments.keys():
-    if not sys.argv[ iArgument + 1 ] in dArguments.keys():
-      del dArguments[ argument ]
-      dArguments[ argument ] = sys.argv[ iArgument + 1 ]
+  if token in sOptions.keys():
+    if not sys.argv[ iArgument + 1 ] in sOptions.keys() and not sys.argv[ iArgument + 1 ] in bOptions.keys():
+      del sOptions[ token ]
+      sOptions[ token ] = sys.argv[ iArgument + 1 ]
+for token in sys.argv[ 1: ]:
+  if token in bOptions.keys():
+    del bOptions[ token ]
+    bOptions[ token ] = True
+if bOptions[ '-h' ]:
+  displayHelp()
+  sys.exit( 0 )
 
 # Data extraction and local storage
 # initialise API access to defined RunRegistry proxy
-server = xmlrpclib.ServerProxy( dArguments[ '-s' ] )
+server = xmlrpclib.ServerProxy( sOptions[ '-s' ] )
 # get data according to defined table, workspace and output format type
-runs = '{runNumber} >= ' + dArguments[ '-l' ] + 'and {runNumber} <= ' + dArguments[ '-u' ]
-data = server.DataExporter.export( dArguments[ '-T' ], dArguments[ '-w' ], dArguments[ '-t' ], runs )
+runs = '{runNumber} >= ' + sOptions[ '-l' ] + 'and {runNumber} <= ' + sOptions[ '-u' ]
+data = server.DataExporter.export( sOptions[ '-T' ], sOptions[ '-w' ], sOptions[ '-t' ], runs )
 # write data to file
-file = open( dArguments[ '-f' ], 'w' )
+file = open( sOptions[ '-f' ], 'w' )
 file.write( data )
 file.close()
