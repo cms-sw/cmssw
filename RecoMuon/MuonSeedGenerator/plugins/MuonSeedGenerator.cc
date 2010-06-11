@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2008/09/12 23:10:00 $
- *  $Revision: 1.25 $
+ *  $Date: 2008/10/17 22:14:55 $
+ *  $Revision: 1.1 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -13,7 +13,6 @@
 
 #include "RecoMuon/MuonSeedGenerator/plugins/MuonSeedGenerator.h"
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedFinder.h"
-#include "RecoMuon/MuonSeedGenerator/src/MuonSeedFromRecHits.h"
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedOrcaPatternRecognition.h"
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedFinder.h"
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedSimpleCleaner.h"
