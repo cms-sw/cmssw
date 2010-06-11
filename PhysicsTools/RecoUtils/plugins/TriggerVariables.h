@@ -60,7 +60,8 @@ class HLTBitComputer : public VariableComputer {
   HLTBitComputer(CachingVariable::CachingVariableFactoryArg arg):VariableComputer(arg){
     src_=edm::Service<InputTagDistributorService>()->retrieve("src",arg.iConfig);
     HLTConfigProvider provider;
-    provider.init(src_.process());
+    //the function will not work anymore until a major redesign is performed. so long for HLT variables.
+    //provider.init(src_.process());
     validTriggerNames_ =  provider.triggerNames();
     for (uint iT=0;iT!=validTriggerNames_.size();++iT){
       TString tname(validTriggerNames_[iT]);
