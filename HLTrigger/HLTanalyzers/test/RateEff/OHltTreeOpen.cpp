@@ -39,7 +39,59 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
     }    
   }    
 
-
+  // Activity
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Activity_Ecal_SC7") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      float Et=7.0;
+      int nsc=0;
+      for (int i=0;i<NohEle;i++) {   
+        if ( ohEleEt[i] > Et) {
+	  nsc++;
+	}
+      }
+      if (nsc>0)
+	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+    }
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Activity_Phot_SC7") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      float Et=7.0;
+      int nsc=0;
+      for (int i=0;i<NohPhot;i++) {   
+        if ( ohPhotEt[i] > Et) {
+	  nsc++;
+	}
+      }
+      if (nsc>0)
+	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+    }
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Activity_Ecal_SC0") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      float Et=0.01;
+      int nsc=0;
+      for (int i=0;i<NohEle;i++) {   
+        if ( ohEleEt[i] > Et) {
+	  nsc++;
+	}
+      }
+      if (nsc>0)
+	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+    }
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Activity_Ecal_SC15") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      float Et=15.0;
+      int nsc=0;
+      for (int i=0;i<NohEle;i++) {   
+        if ( ohEleEt[i] > Et) {
+	  nsc++;
+	}
+      }
+      if (nsc>0)
+	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+    }
+  }
   //////////////////////////////////////////////////////////////////
   // Check OpenHLT trigger
 
