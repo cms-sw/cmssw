@@ -493,7 +493,7 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
           std::vector<csc::L1Track> tracks = l1_tracks.get();
           for(std::vector<csc::L1Track>::iterator trk=tracks.begin(); trk<tracks.end(); trk++)
           	if( (trk->BX() == bx-shift && trk->outputLink() == singlesTrackOutput)
-							|| (((trk->ptLUTAddress()>>16)&oxf)==15 && trk->BX()-2 == bx-shift) ) 
+							|| (((trk->ptLUTAddress()>>16)&0xf)==15 && trk->BX()-2 == bx-shift) ) 
 						{
                  coreTrackExists = true;
                  break;
