@@ -1,4 +1,10 @@
-# cfg file to print the L1 content of a global tag (with IoV infinity)
+#
+# cfg file to print the content of 
+# L1 trigger records from a global tag 
+#
+# V M Ghete  2009-03-04  first version
+# W Sun      2009-03-04  add run number option 
+
 
 import FWCore.ParameterSet.Config as cms
 
@@ -7,35 +13,78 @@ process = cms.Process('L1GlobalTagTest')
 
 ###################### user choices ######################
 
-# choose the global tag type
-# 310 ->
+# choose the global tag corresponding to the run number or the sample used
+# https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
+#
+# for MC samples, one must use the same global tag as used for production
+# (if compatible with the release used) or a compatible tag, due to lack 
+# of proper IoV treatment (as of 2010-05-16) during MC production. 
+# Recommendation: original global tag with the latest available release 
+# compatible with that global tag.
 
-useGlobalTag = 'MC_31X_V9'
-#useGlobalTag = 'STARTUP31X_V1'
-
-#useGlobalTag = 'GR09_31X_V1P'
+#    data global tags
+useGlobalTag = 'GR09_31X_V1P'
 #useGlobalTag = 'GR09_31X_V1H'
 
-# include printing for subsystems
+#    MC production global tags
+#useGlobalTag = 'MC_31X_V9'
+#useGlobalTag = 'STARTUP31X_V1'
+
+
+# enable / disable printing for subsystems 
+#    un-comment the False option to suppress printing for that system
+
 printL1Rct = True
+#printL1Rct = False
+
 printL1Gct = True
+#printL1Gct = False
 
 printL1DtTPG = True
+#printL1DtTPG = False
+
+
 printL1DtTF = True
+#printL1DtTF = False
 
 printL1CscTF= True
+#printL1CscTF= False
 
 printL1Rpc = True
+#printL1Rpc = False
 
 printL1Gmt = True
+#printL1Gmt = False
 
 printL1Gt = True
+#printL1Gt = False
 
-# specific run number (use empty source) or run over given event sample (POOL source - default)
-cmsSource = 'EmptySource'
-runnum = 109087
 
-#cmsSource = 'PoolSource'
+# choose if using a specific run number or event files
+
+useRunNumber = True
+#useRunNumber = False
+
+if useRunNumber == True :
+    # specific run number (using empty source)
+    cmsSource = 'EmptySource'
+    
+    firstRunNumber = 109087
+    lastRunNumber = 109087
+    
+else :
+    #running over a given event sample (using POOL source)
+    cmsSource = 'PoolSource'
+
+    readFiles = cms.untracked.vstring()
+    secFiles = cms.untracked.vstring() 
+    
+    readFiles.extend( [
+            '/store/data/Commissioning09/Cosmics/RAW/v3/000/105/847/6A699BB9-2072-DE11-995B-001D09F34488.root'
+        
+        ] );
+
+
 
 ###################### end user choices ###################
 
@@ -47,22 +96,13 @@ process.maxEvents = cms.untracked.PSet(
 if cmsSource == 'EmptySource' :
     process.source = cms.Source("EmptyIOVSource",
                                 timetype = cms.string('runnumber'),
-                                firstValue = cms.uint64(runnum),
-                                lastValue = cms.uint64(runnum),
+                                firstValue = cms.uint64(firstRunNumber),
+                                lastValue = cms.uint64(lastRunNumber),
                                 interval = cms.uint64(1)
                                 )
 else :
-    readFiles = cms.untracked.vstring()
-    secFiles = cms.untracked.vstring() 
     process.source = cms.Source ('PoolSource', fileNames=readFiles, secondaryFileNames=secFiles)
     
-    dataset = cms.untracked.vstring('/Cosmics/Commissioning09-v3/RAW')
-    readFiles.extend( [
-            '/store/data/Commissioning09/Cosmics/RAW/v3/000/105/847/6A699BB9-2072-DE11-995B-001D09F34488.root'
-        
-        ] );
-
-   
 
 # load and configure modules via Global Tag
 # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions

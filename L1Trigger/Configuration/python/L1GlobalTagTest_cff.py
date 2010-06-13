@@ -1,5 +1,8 @@
-# cff file defining sequences to print the L1 content of a global tag 
-# for L1 sub-systems
+#
+# cff file defining sequences to print the content of 
+# L1 trigger records from a global tag 
+#
+# V M Ghete 2009-03-04
 
 
 import FWCore.ParameterSet.Config as cms
