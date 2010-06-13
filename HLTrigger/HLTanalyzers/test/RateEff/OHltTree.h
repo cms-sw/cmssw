@@ -3628,7 +3628,7 @@ void OHltTree::SetMapL1BitOfStandardHLTPathUsingLogicParser(OHltMenu *menu, int 
 	    (algOpTokenVector[k]).tokenResult = iResult;
 	    vtmp.push_back(l1st);
 	    vtokentmp.push_back((int)k);
-	    //std::cout<<" "<<l1st<<" "<<k<<std::endl;
+	    // std::cout<<" "<<l1st<<" "<<k<<std::endl;
 	  }
 	}
       }    

@@ -207,7 +207,7 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
       //////////////////////////////////////////////////////////////////
       // Standard paths
       TString st = menu->GetTriggerName(i);
-      if (st.BeginsWith("HLT_") || st.BeginsWith("L1_")  || st.BeginsWith("L1Tech_") || st.BeginsWith("AlCa_")) {
+      if (st.BeginsWith("HLT_") || st.BeginsWith("L1_")  || st.BeginsWith("L1Tech_") || st.BeginsWith("AlCa_") || st.BeginsWith("OpenL1_") ) {
 	// Prefixes reserved for Standard HLT&L1	
 	//	if(st.BeginsWith("HLT_")) { cout << st << ", prescalecount = " << rc->prescaleCount[i] << ", "; }
 	if (map_L1BitOfStandardHLTPath.find(st)->second>0) {
