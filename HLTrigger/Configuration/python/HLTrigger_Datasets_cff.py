@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_6_2/GRun/V6
+# /dev/CMSSW_3_6_2/GRun/V7
 
 import FWCore.ParameterSet.Config as cms
 
@@ -190,8 +190,6 @@ streamA_datasetCommissioning_selector.triggerConditions = cms.vstring('HLT_L1_Bp
     'HLT_Activity_DT_Tuned', 
     'HLT_SelectEcalSpikes_L1R', 
     'HLT_SelectEcalSpikesHighEt_L1R', 
-    'HLT_Activity_EcalREM', 
-    'HLT_Activity_Ecal', 
     'HLT_Activity_PixelClusters', 
     'HLT_Activity_L1A')
 
