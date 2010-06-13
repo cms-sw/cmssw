@@ -12,10 +12,10 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2010/03/08 15:34:44 $
- *  $Revision: 1.46 $
- *  $Date: 2010/03/08 15:34:44 $
- *  $Revision: 1.46 $
+ *  $Date: 2010/06/08 19:22:42 $
+ *  $Revision: 1.47 $
+ *  $Date: 2010/06/08 19:22:42 $
+ *  $Revision: 1.47 $
  *
  *  \author N. Neumeister        Purdue University
  *  \author C. Liu               Purdue University
@@ -531,8 +531,8 @@ GlobalTrajectoryBuilderBase::getTransientRecHits(const reco::Track& track) const
   TrajectoryStateOnSurface currTsos = tsTrans.innerStateOnSurface(track, *theService->trackingGeometry(), &*theService->magneticField());
 
   for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
-    if((*hit)->isValid()) {
-      DetId recoid = (*hit)->geographicalId();
+    DetId recoid = (*hit)->geographicalId();
+    if((*hit)->isValid()) {      
       if ( recoid.det() == DetId::Tracker ) {
 	TransientTrackingRecHit::RecHitPointer ttrhit = theTrackerRecHitBuilder->build(&**hit);
 	TrajectoryStateOnSurface predTsos =  theService->propagator(theTrackerPropagatorName)->propagate(currTsos, theService->trackingGeometry()->idToDet(recoid)->surface());
@@ -552,6 +552,8 @@ GlobalTrajectoryBuilderBase::getTransientRecHits(const reco::Track& track) const
 	}
 	result.push_back(theMuonRecHitBuilder->build(&**hit));
       }
+    } else if ( recoid.det() == DetId::Muon ) {
+      result.push_back(theMuonRecHitBuilder->build(&**hit));
     }
   }
   
