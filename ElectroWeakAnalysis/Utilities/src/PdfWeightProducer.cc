@@ -28,6 +28,7 @@ class PdfWeightProducer : public edm::EDProducer {
       virtual void endJob() ;
 
       bool fixPOWHEG_;
+      edm::InputTag genTag_;
       edm::InputTag pdfInfoTag_;
       std::vector<std::string> pdfSetNames_;
       std::vector<std::string> pdfShortNames_;
@@ -40,11 +41,17 @@ namespace LHAPDF {
       int numberPDF(int nset);
       void usePDFMember(int nset, int member);
       double xfx(int nset, double x, double Q, int fl);
+      double getXmin(int nset, int member);
+      double getXmax(int nset, int member);
+      double getQ2min(int nset, int member);
+      double getQ2max(int nset, int member);
+      void extrapolate(bool extrapolate=true);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 PdfWeightProducer::PdfWeightProducer(const edm::ParameterSet& pset) :
  fixPOWHEG_(pset.getUntrackedParameter<bool> ("FixPOWHEG", false)),
+ genTag_(pset.getUntrackedParameter<edm::InputTag> ("GenTag", edm::InputTag("genParticles"))),
  pdfInfoTag_(pset.getUntrackedParameter<edm::InputTag> ("PdfInfoTag", edm::InputTag("generator"))),
  pdfSetNames_(pset.getUntrackedParameter<std::vector<std::string> > ("PdfSetNames"))
 {
@@ -56,7 +63,12 @@ PdfWeightProducer::PdfWeightProducer(const edm::ParameterSet& pset) :
       powhegPdfIndex_ = -1;
       for (unsigned int k=0; k<pdfSetNames_.size(); k++) {
             size_t dot = pdfSetNames_[k].find_first_of('.');
-            pdfShortNames_.push_back(pdfSetNames_[k].substr(0,dot));
+            size_t underscore = pdfSetNames_[k].find_first_of('_');
+            if (underscore<dot) {
+                  pdfShortNames_.push_back(pdfSetNames_[k].substr(0,underscore));
+            } else {
+                  pdfShortNames_.push_back(pdfSetNames_[k].substr(0,dot));
+            }
             produces<std::vector<double> >(pdfShortNames_[k].data());
             if (fixPOWHEG_ && pdfShortNames_[k]=="cteq66") {
                   powhegPdfIndex_ = k+1;
@@ -76,7 +88,6 @@ PdfWeightProducer::~PdfWeightProducer(){}
 void PdfWeightProducer::beginJob() {
       for (unsigned int k=1; k<=pdfSetNames_.size(); k++) {
             LHAPDF::initPDFSet(k,pdfSetNames_[k-1]);
-            //LHAPDF::getDescription(k);
       }
 }
 
@@ -89,7 +100,10 @@ void PdfWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
       if (iEvent.isRealData()) return;
 
       edm::Handle<GenEventInfoProduct> pdfstuff;
-      if (!iEvent.getByLabel(pdfInfoTag_, pdfstuff)) return;
+      if (!iEvent.getByLabel(pdfInfoTag_, pdfstuff)) {
+            edm::LogError("PDFWeightProducer") << ">>> PdfInfo not found: " << pdfInfoTag_.encode() << " !!!";
+            return;
+      }
 
       float Q = pdfstuff->pdf()->scalePDF;
 
@@ -104,7 +118,10 @@ void PdfWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
       // Ad-hoc fix for POWHEG
       if (fixPOWHEG_) {
             edm::Handle<reco::GenParticleCollection> genParticles;
-            if (!iEvent.getByLabel(edm::InputTag("genParticles"), genParticles)) return;
+            if (!iEvent.getByLabel(genTag_, genParticles)) {
+                  edm::LogError("PDFWeightProducer") << ">>> genParticles  not found: " << genTag_.encode() << " !!!";
+                  return;
+            }
             unsigned int gensize = genParticles->size();
             double mboson = 0.;
             for(unsigned int i = 0; i<gensize; ++i) {
