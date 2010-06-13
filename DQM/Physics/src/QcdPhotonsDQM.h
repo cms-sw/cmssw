@@ -6,8 +6,8 @@
  *
  *  DQM offline for QCD-Photons
  *
- *  $Date: 2010/01/04 14:46:10 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/03/12 10:25:45 $
+ *  $Revision: 1.10 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -41,6 +41,9 @@ class QcdPhotonsDQM : public edm::EDAnalyzer {
 
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&);
+
+  // Divide histograms
+  void endRun(const edm::Run&, const edm::EventSetup&);
 
   /// Save the histos
   void endJob(void);
@@ -92,5 +95,17 @@ class QcdPhotonsDQM : public edm::EDAnalyzer {
   MonitorElement* h_deltaPhi_photon_jet2;
   MonitorElement* h_deltaR_jet_jet2;
   MonitorElement* h_deltaR_photon_jet2;
+
+  MonitorElement* h_photon_et_jetcs;
+  MonitorElement* h_photon_et_jetco;
+  MonitorElement* h_photon_et_jetfs;
+  MonitorElement* h_photon_et_jetfo;
+
+  MonitorElement* h_photon_et_ratio_co_cs;
+  MonitorElement* h_photon_et_ratio_fo_fs;
+  MonitorElement* h_photon_et_ratio_cs_fs;
+  MonitorElement* h_photon_et_ratio_co_fs;
+  MonitorElement* h_photon_et_ratio_cs_fo;
+  MonitorElement* h_photon_et_ratio_co_fo;
 };
 #endif

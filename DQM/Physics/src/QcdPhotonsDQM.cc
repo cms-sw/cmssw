@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/02/25 17:09:49 $
- *  $Revision: 1.19 $
+ *  $Date: 2010/03/12 10:25:45 $
+ *  $Revision: 1.20 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -25,6 +25,22 @@
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 
+// For removing ECAL Spikes
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"
+
+//geometry
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
 
 
 #include <vector>
@@ -97,6 +113,30 @@ void QcdPhotonsDQM::beginJob() {
   h_deltaPhi_photon_jet2 = theDbe->book1D("h_deltaPhi_photon_jet2","#Delta#phi between Highest E_{T} #gamma and 2^{nd} highest jet;#Delta#phi(#gamma,2^{nd} jet)", 20, 0, 3.1415926);
   h_deltaR_jet_jet2      = theDbe->book1D("h_deltaR_jet_jet2", "#DeltaR between Highest Jet and 2^{nd} Highest;#DeltaR(1^{st} jet,2^{nd} jet)", 30, 0, 6.0);
   h_deltaR_photon_jet2   = theDbe->book1D("h_deltaR_photon_jet2", "#DeltaR between Highest E_{T} #gamma and 2^{nd} jet;#DeltaR(#gamma, 2^{nd} jet)", 30, 0, 6.0);
+
+  // Photon Et for different jet configurations
+  Float_t bins_et[] = {15, 20, 30, 50, 80, 120};
+  h_photon_et_jetcs = theDbe->book1D("h_photon_et_jetcs", "#gamma with highest E_{T} (#eta(jet)<1.45, #eta(#gamma)#eta(jet)>0);E_{T}(#gamma) (GeV)", 5, bins_et);
+  h_photon_et_jetco = theDbe->book1D("h_photon_et_jetco", "#gamma with highest E_{T} (#eta(jet)<1.45, #eta(#gamma)#eta(jet)<0);E_{T}(#gamma) (GeV)", 5, bins_et);
+  h_photon_et_jetfs = theDbe->book1D("h_photon_et_jetfs", "#gamma with highest E_{T} (1.55<#eta(jet)<2.5, #eta(#gamma)#eta(jet)>0);E_{T}(#gamma) (GeV)", 5, bins_et);
+  h_photon_et_jetfo = theDbe->book1D("h_photon_et_jetfo", "#gamma with highest E_{T} (1.55<#eta(jet)<2.5, #eta(#gamma)#eta(jet)<0);E_{T}(#gamma) (GeV)", 5, bins_et);
+  h_photon_et_jetcs->getTH1F()->Sumw2();
+  h_photon_et_jetco->getTH1F()->Sumw2();
+  h_photon_et_jetfs->getTH1F()->Sumw2();
+  h_photon_et_jetfo->getTH1F()->Sumw2();
+  // Ratio of the above Photon Et distributions
+  h_photon_et_ratio_co_cs = theDbe->book1D("h_photon_et_ratio_cs_co", "D(|#eta(jet)|<1.45, #eta(jet)*#eta(#gamma)<0) / D(|#eta(jet)|<1.45, #eta(jet)*#eta(#gamma)>0);E_{T}(#gamma) (GeV)", 5, bins_et);
+  h_photon_et_ratio_fo_fs = theDbe->book1D("h_photon_et_ratio_fo_fs", "D(1.55<|#eta(jet)|<2.6, #eta(jet)*#eta(#gamma)<0) / D(1.55<|#eta(jet)|<2.6, #eta(jet)*#eta(#gamma)>0);E_{T}(#gamma) (GeV)", 5, bins_et);
+  h_photon_et_ratio_cs_fs = theDbe->book1D("h_photon_et_ratio_cs_fs", "D(|#eta(jet)|<1.45, #eta(jet)*#eta(#gamma)>0) / D(1.55<|#eta(jet)|<2.6, #eta(jet)*#eta(#gamma)>0);E_{T}(#gamma) (GeV)", 5, bins_et);
+  h_photon_et_ratio_co_fs = theDbe->book1D("h_photon_et_ratio_co_fs", "D(|#eta(jet)|<1.45, #eta(jet)*#eta(#gamma)<0) / D(1.55<|#eta(jet)|<2.6, #eta(jet)*#eta(#gamma)>0);E_{T}(#gamma) (GeV)", 5, bins_et);
+  h_photon_et_ratio_cs_fo = theDbe->book1D("h_photon_et_ratio_cs_fo", "D(|#eta(jet)|<1.45, #eta(jet)*#eta(#gamma)>0) / D(1.55<|#eta(jet)|<2.6, #eta(jet)*#eta(#gamma)<0);E_{T}(#gamma) (GeV)", 5, bins_et);
+  h_photon_et_ratio_co_fo = theDbe->book1D("h_photon_et_ratio_co_fo", "D(|#eta(jet)|<1.45, #eta(jet)*#eta(#gamma)<0) / D(1.55<|#eta(jet)|<2.6, #eta(jet)*#eta(#gamma)<0);E_{T}(#gamma) (GeV)", 5, bins_et);
+  h_photon_et_ratio_co_cs->getTH1F()->Sumw2();
+  h_photon_et_ratio_fo_fs->getTH1F()->Sumw2();
+  h_photon_et_ratio_cs_fs->getTH1F()->Sumw2();
+  h_photon_et_ratio_co_fs->getTH1F()->Sumw2();
+  h_photon_et_ratio_cs_fo->getTH1F()->Sumw2();
+  h_photon_et_ratio_co_fo->getTH1F()->Sumw2();
 }
 
 
@@ -156,26 +196,59 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   // If photon collection is empty, exit
   if (!photonCollection.isValid()) return;
 
+  // For finding spikes
+  Handle<EcalRecHitCollection> EBReducedRecHits;
+  iEvent.getByLabel("reducedEcalRecHitsEB", EBReducedRecHits);
+  Handle<EcalRecHitCollection> EEReducedRecHits;
+  iEvent.getByLabel("reducedEcalRecHitsEE", EEReducedRecHits); 
+  EcalClusterLazyTools lazyTool(iEvent, iSetup, InputTag("reducedEcalRecHitsEB"), InputTag("reducedEcalRecHitsEE") );
+  // get the channel status from the DB
+  ESHandle<EcalChannelStatus> chStatus;
+  iSetup.get<EcalChannelStatusRcd>().get(chStatus);
+
+
+
+
   // Find the highest et "decent" photon
   float photon_et  = -9.0;
   float photon_eta = -9.0;
   float photon_phi = -9.0;
+  bool  photon_passPhotonID = false;
   int   photon_count = 0;
   for (PhotonCollection::const_iterator recoPhoton = photonCollection->begin(); recoPhoton!=photonCollection->end(); recoPhoton++){
+
+    //  Ignore ECAL Spikes
+    const reco::CaloClusterPtr  seed = recoPhoton->superCluster()->seed();
+    DetId id = lazyTool.getMaximum(*seed).first; // Cluster shape variables
+    float time  = -999., outOfTimeChi2 = -999., chi2 = -999.;
+    int   flags=-1, severity = -1; 
+    const EcalRecHitCollection & rechits = ( recoPhoton->isEB() ? *EBReducedRecHits : *EEReducedRecHits); 
+    EcalRecHitCollection::const_iterator it = rechits.find( id );
+    if( it != rechits.end() ) {
+      time = it->time(); 
+      outOfTimeChi2 = it->outOfTimeChi2();
+      chi2 = it->chi2();
+      flags = it->recoFlag();
+      severity = EcalSeverityLevelAlgo::severityLevel( id, rechits, *chStatus );
+    }
+    bool isNotSpike = ((recoPhoton->isEB() && (severity!=3 && severity!=4 ) && (flags != 2) ) || recoPhoton->isEE());
+    if (!isNotSpike) continue;  // move on to next photon
+    // END of determining ECAL Spikes
 
     // Can't *really* determine if it's a photon when it's beyond eta of 2.5
     if ( fabs(recoPhoton->eta()) > 2.5 || recoPhoton->et() < theMinPhotonEt) continue;
 
-    // Require potential photon to pass some basic cuts
-    if ( recoPhoton->trkSumPtHollowConeDR03()  > 9                        ||
-         recoPhoton->ecalRecHitSumEtConeDR03() > 5+0.015*recoPhoton->et() ||
-         recoPhoton->hcalTowerSumEtConeDR03()  > 7                        ||
-         recoPhoton->hadronicOverEm()          > 0.1) continue;
-
-    // Found an object that passes photon selection cuts!
+    // Lead photon object found
+    if ( recoPhoton->isEB() ) {
+      if (recoPhoton->sigmaIetaIeta() < 0.01 || recoPhoton->hadronicOverEm() < 0.05) {
+	photon_passPhotonID = true;
+      }
+    } else {
+      if (recoPhoton->hadronicOverEm() < 0.05) {
+	photon_passPhotonID = true;
+      }
+    }
     photon_count++;
-
-    // Good photon found, store it
     photon_et  = recoPhoton->et();
     photon_eta = recoPhoton->eta();
     photon_phi = recoPhoton->phi();
@@ -238,6 +311,23 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
     // Only fill phiMod plot with barrel photons
     if (fabs(photon_eta)<1.5) h_photon_phiMod->Fill( fmod(photon_phi+3.14159,20.0*3.141592/180.0)-10.0*3.141592/180.0 );
 
+    // Photon Et hists for different orientations to the jet
+    if (fabs(photon_eta)<1.45 && photon_passPhotonID){  // Lead photon is in barrel
+      if (fabs(jet_eta)<1.45){                          //   jet is in barrel
+	if (photon_eta*jet_eta>0) {
+	  h_photon_et_jetcs->Fill(photon_et);
+	} else {
+	  h_photon_et_jetco->Fill(photon_et);
+	}
+      } else if (jet_eta>1.55 && jet_eta<2.5) {         // jet is in endcap
+	if (photon_eta*jet_eta>0) {
+	  h_photon_et_jetfs->Fill(photon_et);
+	} else {
+	  h_photon_et_jetfo->Fill(photon_et);
+	}
+      }
+    } // END of Lead Photon is in Barrel
+
     // Jet Plots
     h_jet_et       ->Fill( jet_et     );
     h_jet_eta      ->Fill( jet_eta    );
@@ -262,6 +352,15 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
 
 
 void QcdPhotonsDQM::endJob(void) {}
+
+void QcdPhotonsDQM::endRun(const edm::Run& run, const edm::EventSetup& es) {
+  h_photon_et_ratio_co_cs->getTH1F()->Divide(h_photon_et_jetco->getTH1F(),h_photon_et_jetcs->getTH1F());
+  h_photon_et_ratio_fo_fs->getTH1F()->Divide(h_photon_et_jetfo->getTH1F(),h_photon_et_jetfs->getTH1F());
+  h_photon_et_ratio_cs_fs->getTH1F()->Divide(h_photon_et_jetcs->getTH1F(),h_photon_et_jetfs->getTH1F());
+  h_photon_et_ratio_co_fs->getTH1F()->Divide(h_photon_et_jetco->getTH1F(),h_photon_et_jetfs->getTH1F());
+  h_photon_et_ratio_cs_fo->getTH1F()->Divide(h_photon_et_jetcs->getTH1F(),h_photon_et_jetfo->getTH1F());
+  h_photon_et_ratio_co_fo->getTH1F()->Divide(h_photon_et_jetco->getTH1F(),h_photon_et_jetfo->getTH1F());
+}
 
 // Method for Calculating the delta-r between two things
 float QcdPhotonsDQM::calcDeltaR(float eta1, float phi1, float eta2, float phi2) {

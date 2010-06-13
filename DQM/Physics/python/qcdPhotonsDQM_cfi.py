@@ -10,9 +10,8 @@ qcdPhotonsDQM = cms.EDAnalyzer("QcdPhotonsDQM",
                 triggerResultsCollection  = cms.string("TriggerResults"),
                 photonCollection          = cms.InputTag("photons"),
                 caloJetCollection         = cms.InputTag("ak5CaloJets"),
-#               caloJetCollection         = cms.InputTag("sisCone5CaloJets"),
                 # Cuts on the reco objects
-                minCaloJetEt              = cms.int32(15),
+                minCaloJetEt              = cms.int32(5),
                 minPhotonEt               = cms.int32(20),
                 requirePhotonFound        = cms.bool(True),
                 # Max Et on plots
