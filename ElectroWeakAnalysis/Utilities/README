@@ -30,10 +30,13 @@ src/PdfWeightProducer.cc
 
       # Produce PDF weights (maximum is 3)
       process.pdfWeights = cms.EDProducer("PdfWeightProducer",
-            FixPOWHEG = cms.untracked.bool(False), # fix buggy POWHEG
+            # Fix POWHEG if buggy (this PDF set will also appear on output, 
+            # so only two more PDF sets can be added in PdfSetNames if not "")
+            #FixPOWHEG = cms.untracked.bool("cteq66.LHgrid"),
+            GenTag = cms.untracked.InputTag("genParticles"),
             PdfInfoTag = cms.untracked.InputTag("generator"),
             PdfSetNames = cms.untracked.vstring(
-                    "cteq66.LHgrid"
+                    "cteq65.LHgrid"
                   , "MRST2006nnlo.LHgrid"
                   , "MRST2007lomod.LHgrid"
             )
@@ -73,7 +76,7 @@ src/ISRWeightProducer.cc (IN PROGRESS)
       # Example corresponds to approximate weights to study
       # systematic effects due to ISR uncertainties (Z boson)
       process.isrWeight = cms.EDProducer("ISRWeightProducer",
-            GenTag = cms.untracked.InputTag("generator"),
+            GenTag = cms.untracked.InputTag("genParticles"),
             ISRBinEdges = cms.untracked.vdouble(
                   0.,  1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9.
                   , 10., 11., 12., 13., 14., 15., 16., 17., 18., 19.
@@ -124,7 +127,7 @@ src/FSRWeightProducer.cc (IN PROGRESS)
   Example of usage:
 
       process.fsrWeight = cms.EDProducer("FSRWeightProducer",
-            GenTag = cms.untracked.InputTag("generator"),
+            GenTag = cms.untracked.InputTag("genParticles"),
       )
 
 - This weight information can be processed via the Analyzer
@@ -143,7 +146,7 @@ src/ISRGammaWeightProducer.cc (IN PROGRESS)
   Example of usage:
 
       process.isrGammaWeight = cms.EDProducer("ISRGammaWeightProducer",
-            GenTag = cms.untracked.InputTag("generator"),
+            GenTag = cms.untracked.InputTag("genParticles"),
       )
 
 - This weight information can be processed via the Analyzer
