@@ -100,7 +100,6 @@ HLT_IsoTrackHE_1E31
 HLT_IsoTrackHB_1E31
 HLT_HcalPhiSym
 HLT_HcalNZS_1E31
-AlCa_EcalPhiSym
 AlCa_EcalPi0_1E31
 AlCa_EcalEta_1E31
 AlCa_RPCMuonNoHits
