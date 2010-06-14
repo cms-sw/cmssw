@@ -7,6 +7,8 @@
 #include <cstdio>
 
 #include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
+#include "DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h"
+#include "DataFormats/L1CSCTrackFinder/interface/TrackStub.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -32,6 +34,7 @@ CSCTFPacker::CSCTFPacker(const edm::ParameterSet &conf):edm::EDProducer(){
 	putBufferToEvent       = conf.getUntrackedParameter<bool>("putBufferToEvent");
 	std::string outputFile = conf.getUntrackedParameter<std::string>("outputFile","");
 	lctProducer            = conf.getUntrackedParameter<edm::InputTag>("lctProducer",edm::InputTag("csctfunpacker"));
+	mbProducer             = conf.getUntrackedParameter<edm::InputTag>("mbProducer", edm::InputTag("csctfunpacker"));
 	trackProducer          = conf.getUntrackedParameter<edm::InputTag>("trackProducer",edm::InputTag("csctfunpacker"));
 
 	// Swap: if(swapME1strips && me1b && !zplus) strip = 65 - strip; // 1-64 -> 64-1 :
@@ -79,7 +82,7 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 			int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels((*csc).first);
 			int tbin = lct->getBX() - (central_lct_bx-central_sp_bx); // Shift back to hardware BX window definition
 			if( tbin>6 || tbin<0 ){
-				edm::LogError("CSCTFPacker|analyze")<<" LCT's BX="<<tbin<<" is out of 0-6 window";
+				edm::LogError("CSCTFPacker|produce")<<" LCT's BX="<<tbin<<" is out of 0-6 window";
 				continue;
 			}
 			int fpga    = ( subSector ? subSector-1 : station+1 );
@@ -132,7 +135,42 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 			meDataHeader[sector][tbin].af_bits = 0; // dummy
 			meDataHeader[sector][tbin].bx_bits = 0;//(lct->getBX()&??<< (fpga*3));
 
-			meDataHeader[sector][tbin].spare_1 = 1; // for later use
+			meDataHeader[sector][tbin].spare_1 = 0; // for later use
+		}
+	}
+
+	CSCSP_MBblock mbDataRecord[12][2][7]; // LCT in sector X, subsector Z, tbin Y
+	bzero(&mbDataRecord,sizeof(mbDataRecord));
+	edm::Handle< CSCTriggerContainer<csctf::TrackStub> > barrelStubs;
+	if( mbProducer.label() != "null" ){
+		e.getByLabel(mbProducer.label(),mbProducer.instance(),barrelStubs);
+		if( barrelStubs.isValid() ){
+			std::vector<csctf::TrackStub> stubs = barrelStubs.product()->get();
+			for(std::vector<csctf::TrackStub>::const_iterator dt=stubs.begin(); dt!=stubs.end(); dt++){
+				int station   = dt->station()-1;
+				int sector    = dt->sector()-1 + ( dt->endcap()==1 ? 0 : 6 );
+				int subSector = dt->subsector()-1;
+				int tbin      = dt->getBX() - (central_lct_bx-central_sp_bx); // Shift back to hardware BX window definition
+				if( station!=5 || tbin<0 || tbin>6 || sector<0 || sector>11 || subSector<0 || subSector>11 ){
+					edm::LogInfo("CSCTFPacker: CSC digi are out of range: ")<<"  station="<<station<<"  sector="<<sector<<"  subSector="<<subSector<<"  tbin="<<tbin;
+					continue;
+				}
+				mbDataRecord[sector][subSector][tbin].quality_  = dt->getQuality();
+				mbDataRecord[sector][subSector][tbin].phi_bend_ = dt->getBend();
+				mbDataRecord[sector][subSector][tbin].flag_     = dt->getStrip();
+				mbDataRecord[sector][subSector][tbin].cal_      = dt->getKeyWG();
+				mbDataRecord[sector][subSector][tbin].phi_      = dt->phiPacked();
+				mbDataRecord[sector][subSector][tbin].bxn1_     =(dt->getBX0()>>1)&0x1;
+				mbDataRecord[sector][subSector][tbin].bxn0_     = dt->getBX0()&0x1;
+				mbDataRecord[sector][subSector][tbin].bc0_      = dt->getPattern();
+				mbDataRecord[sector][subSector][tbin].mb_bxn_   = dt->getCSCID();
+				switch(subSector){
+					case 0: meDataHeader[sector][tbin].vq_a = 1; break;
+					case 1: meDataHeader[sector][tbin].vq_b = 1; break;
+					default: edm::LogInfo("CSCTFPacker: subSector=")<<subSector; break;
+				}
+				mbDataRecord[sector][subSector][tbin].id_       = dt->getMPCLink(); // for later use
+			}
 		}
 	}
 
@@ -263,9 +301,12 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 								nLCTs++;
 							}
 					if( !zeroSuppression ) pos += 4*(3-nLCTs);
-					if( !zeroSuppression || meDataHeader[sector][tbin].vq_a ) pos += 4;
-					if( !zeroSuppression || meDataHeader[sector][tbin].vq_b ) pos += 4;
 				}
+				for(int subSector=0; subSector<2; subSector++)
+					if( !zeroSuppression || (subSector==0 && meDataHeader[sector][tbin].vq_a) || (subSector==1 && meDataHeader[sector][tbin].vq_b) ){
+						memcpy(pos,&mbDataRecord[sector][subSector][tbin],8);
+						pos+=4;
+					}
 				for(int trk=0; trk<3; trk++){
 					if( !zeroSuppression || spDataRecord[sector][tbin][trk].id_ ){
 						memcpy(pos,&spDataRecord[sector][tbin][trk],8);
