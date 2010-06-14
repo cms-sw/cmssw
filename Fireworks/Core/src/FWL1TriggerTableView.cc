@@ -2,6 +2,7 @@
 
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
+#include "Fireworks/Core/interface/FWConfiguration.h"
 #include "Fireworks/Core/interface/FWL1TriggerTableView.h"
 #include "Fireworks/Core/interface/FWL1TriggerTableViewManager.h"
 #include "Fireworks/Core/interface/FWL1TriggerTableViewTableManager.h"
@@ -81,6 +82,29 @@ const std::string&
 FWL1TriggerTableView::typeName( void ) const
 {
    return staticTypeName();
+}
+
+void
+FWL1TriggerTableView::addTo( FWConfiguration& iTo ) const
+{
+	// are we the first FWL1TriggerTableView to go into the configuration?  If
+	// we are, then we are responsible for writing out the list of
+	// types (which we do by letting FWL1TriggerTableViewManager::addToImpl
+	// write into our configuration)
+	if( this == m_manager->m_views.front().get())
+		m_manager->addToImpl( iTo );
+	
+	// then there is the stuff we have to do anyway: remember which is
+	// a sorted column
+	FWConfiguration main( 1 );
+	FWConfiguration sortColumn( m_tableWidget->sortedColumn());
+	main.addKeyValue( kSortColumn, sortColumn );
+	FWConfiguration descendingSort( m_tableWidget->descendingSort());
+	main.addKeyValue( kDescendingSort, descendingSort );
+	iTo.addKeyValue( kTableView, main );
+	
+	// take care of parameters
+	FWConfigurableParameterizable::addTo( iTo );
 }
 
 void
@@ -193,5 +217,36 @@ FWL1TriggerTableView::staticTypeName( void )
 {
    static std::string s_name( "L1TriggerTable" );
    return s_name;
+}
+
+void
+FWL1TriggerTableView::setFrom( const FWConfiguration& iFrom )
+{
+	if( this == m_manager->m_views.front().get())
+		m_manager->setFrom( iFrom );
+			
+	const FWConfiguration *main = iFrom.valueForKey( kTableView );
+	if( main != 0 )
+	{
+		const FWConfiguration *sortColumn = main->valueForKey( kSortColumn );
+		const FWConfiguration *descendingSort = main->valueForKey( kDescendingSort );
+		if( sortColumn != 0 && descendingSort != 0 ) 
+		{
+			unsigned int sort = sortColumn->version();
+			bool descending = descendingSort->version();
+			if( sort < (( unsigned int ) m_tableManager->numberOfColumns()))
+				m_tableWidget->sort( sort, descending );
+		}
+	} 
+	else
+	{
+		// configuration doesn't contain info for the table.  Be forgiving.
+		fwLog( fwlog::kError ) 
+			<< "This configuration file contains L1 trigger tables, but no column information.  "
+			<< "(It is probably old.)  Using defaults." << std::endl;
+	}
+		
+	// take care of parameters
+	FWConfigurableParameterizable::setFrom( iFrom );
 }
 
