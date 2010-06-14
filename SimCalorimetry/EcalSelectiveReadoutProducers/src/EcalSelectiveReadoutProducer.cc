@@ -52,8 +52,6 @@ EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterS
     settings_ = settingsFromFile_.get();
   }
 
-  //instantiates the selective readout algorithm:
-  suppressor_ = auto_ptr<EcalSelectiveReadoutSuppressor>(new EcalSelectiveReadoutSuppressor(params, settings_));
   //declares the products made by this producer:
   if(produceDigis_){
     produces<EBDigiCollection>(ebSRPdigiCollection_);
@@ -83,13 +81,7 @@ EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& 
   edm::ESHandle<EcalSRSettings> hSr;
   eventSetup.get<EcalSRSettingsRcd>().get(hSr);
   settings_ = hSr.product();
-  checkValidity(*settings_);
   
-  // check that everything is up-to-date
-  checkGeometry(eventSetup);
-  checkTriggerMap(eventSetup);
-  checkElecMap(eventSetup);
-
   //gets the trigger primitives:
   EcalTrigPrimDigiCollection emptyTPColl;
   const EcalTrigPrimDigiCollection* trigPrims =
@@ -121,6 +113,19 @@ EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& 
     eeSrFlags = auto_ptr<EESrFlagCollection>(new EESrFlagCollection);
   }
 
+  if(suppressor_.get() == 0){
+    //Check the validity of EcalSRSettings
+    checkValidity(*settings_);
+    
+    //instantiates the selective readout algorithm:
+    suppressor_ = auto_ptr<EcalSelectiveReadoutSuppressor>(new EcalSelectiveReadoutSuppressor(params_, settings_));
+
+    // check that everything is up-to-date
+    checkGeometry(eventSetup);
+    checkTriggerMap(eventSetup);
+    checkElecMap(eventSetup);
+  }
+  
   suppressor_->run(eventSetup, *trigPrims, *ebDigis, *eeDigis,
 		   selectedEBDigis.get(), selectedEEDigis.get(),
 		   ebSrFlags.get(), eeSrFlags.get());
