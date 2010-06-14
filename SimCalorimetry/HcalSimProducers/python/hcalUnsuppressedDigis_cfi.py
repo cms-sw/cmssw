@@ -33,18 +33,18 @@ hcalSimBlock = cms.PSet(
     injectTestHits = cms.bool(False)
 )
 
-es_cholesky = cms.ESSource("PoolDBESSource",
-    CondDBSetup,
-    timetype = cms.string('runnumber'),
-    toGet = cms.VPSet(
-        cms.PSet(
-            record = cms.string("HcalCholeskyMatricesRcd"),
-            tag = cms.string("TestCholesky")
-        )),
-    connect = cms.string('sqlite_file:CondFormats/HcalObjects/data/cholesky_sql.db'),
-    appendToDataLabel = cms.string('reference'),
-    authenticationMethod = cms.untracked.uint32(0),
-)
+#es_cholesky = cms.ESSource("PoolDBESSource",
+#    CondDBSetup,
+#    timetype = cms.string('runnumber'),
+#    toGet = cms.VPSet(
+#        cms.PSet(
+#            record = cms.string("HcalCholeskyMatricesRcd"),
+#            tag = cms.string("TestCholesky")
+#        )),
+#    connect = cms.string('sqlite_file:CondFormats/HcalObjects/data/cholesky_sql.db'),
+#    appendToDataLabel = cms.string('reference'),
+#    authenticationMethod = cms.untracked.uint32(0),
+#)
 
 
 #es_cholesky = cms.ESSource('HcalTextCalibrations',
