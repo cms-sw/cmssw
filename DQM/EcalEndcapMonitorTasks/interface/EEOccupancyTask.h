@@ -4,8 +4,8 @@
 /*
  * \file EEOccupancyTask.h
  *
- * $Date: 2009/12/11 20:31:15 $
- * $Revision: 1.25 $
+ * $Date: 2010/03/12 11:36:30 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  *
 */
@@ -18,6 +18,8 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
 
 class MonitorElement;
 class DQMStore;
@@ -109,6 +111,8 @@ float recHitEnergyMin_;
 float trigPrimEtMin_;
 
 edm::ESHandle<CaloGeometry> pGeometry_;
+
+float geometryEE[EEDetId::kSizeForDenseIndexing][2];
 
 bool init_;
 bool initGeometry_;

@@ -265,7 +265,7 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   LogTrace("TestTrackHits") << "Tr collection size=" << trackCollectionHandle->size();
   LogTrace("TestTrackHits") << "TP collection size=" << trackingParticleCollectionHandle->size();
 
-  hitAssociator = new TrackerHitAssociator::TrackerHitAssociator(iEvent);
+  hitAssociator = new TrackerHitAssociator(iEvent);
   
   reco::RecoToSimCollection recSimColl=trackAssociator->associateRecoToSim(trackCollectionHandle,
 									   trackingParticleCollectionHandle,

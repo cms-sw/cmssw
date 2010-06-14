@@ -138,11 +138,13 @@ void testExpressionParser::checkAll() {
     checkTrack("extra.outerPhi", trk.extra()->outerPhi());
     checkTrack("referencePoint.R", trk.referencePoint().R());
     checkTrack("algo", reco::Track::iter2);
+    checkTrack("cosh(theta)", cosh(trk.theta()));
+    checkTrack("hypot(px, py)", hypot(trk.px(), trk.py()));
     checkTrack("?ndof<0?1:0", trk.ndof()<0?1:0);
     checkTrack("?ndof=10?1:0", trk.ndof()==10?1:0);
   }
   reco::Candidate::LorentzVector p1(1, 2, 3, 4);
-  reco::Candidate::LorentzVector p2(1.1, 2.2, 3.3, 4.4);
+  reco::Candidate::LorentzVector p2(1.1, -2.5, 4.3, 13.7);
   reco::LeafCandidate c1(+1, p1);
   reco::LeafCandidate c2(-1, p2);
   cand.addDaughter(c1);
@@ -162,6 +164,10 @@ void testExpressionParser::checkAll() {
     checkCandidate("daughter(1).pt", cand.daughter(1)->pt(), lazyMode);
     checkCandidate("min(daughter(0).pt, daughter(1).pt)", std::min(cand.daughter(0)->pt(), cand.daughter(1)->pt()), lazyMode);
     checkCandidate("max(daughter(0).pt, daughter(1).pt)", std::max(cand.daughter(0)->pt(), cand.daughter(1)->pt()), lazyMode);
+    checkCandidate("deltaPhi(daughter(0).phi, daughter(1).phi)", reco::deltaPhi(cand.daughter(0)->phi(), cand.daughter(1)->phi()));
+    // chech also opposite order, to see that the sign is correct
+    checkCandidate("deltaPhi(daughter(1).phi, daughter(0).phi)", reco::deltaPhi(cand.daughter(1)->phi(), cand.daughter(0)->phi())); 
+    checkCandidate("deltaR(daughter(0).eta, daughter(0).phi, daughter(1).eta, daughter(1).phi)", reco::deltaR(*cand.daughter(0), *cand.daughter(1)));
     }
     // these can be checked only in lazy mode
     checkCandidate("name.empty()", true, true);
@@ -216,12 +222,12 @@ void testExpressionParser::checkAll() {
      
      reco::SoftLeptonTagInfo dummyInfo;
      reco::SoftLeptonProperties props;
-     props.setQuality(reco::SoftLeptonProperties::quality::muonId, 10);
+     props.sip3d = 10;
      dummyInfo.insert(edm::RefToBase<reco::Track>(), props);
      edm::Ptr<reco::BaseTagInfo> ptrDummyInfo(edm::ProductID(1),&dummyInfo,0);
      jet.addTagInfo("dummy", ptrDummyInfo);
      o = ROOT::Reflex::Object(t, & jet);
-     checkJet("tagInfoSoftLepton.properties(0).quality()",jet.tagInfoSoftLepton()->properties(0).quality());
+     checkJet("tagInfoSoftLepton.properties(0).sip3d",jet.tagInfoSoftLepton()->properties(0).sip3d);
   }
   muon = pat::Muon(reco::Muon(+1, p1+p2));
   muon.setUserIso(2.0);

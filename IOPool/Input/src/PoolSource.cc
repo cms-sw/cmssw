@@ -161,8 +161,7 @@ namespace edm {
       if (found) {
         boost::shared_ptr<LuminosityBlockAuxiliary> secondaryAuxiliary = secondaryFileSequence_->readLuminosityBlockAuxiliary_();
         checkConsistency(primaryPrincipal->aux(), *secondaryAuxiliary);
-	// Temporary Lumi principal does not need a run principal
-	boost::shared_ptr<LuminosityBlockPrincipal> lbp(new LuminosityBlockPrincipal(secondaryAuxiliary, secondaryFileSequence_->fileProductRegistry(), processConfiguration(), boost::shared_ptr<RunPrincipal>()));
+	boost::shared_ptr<LuminosityBlockPrincipal> lbp(new LuminosityBlockPrincipal(secondaryAuxiliary, secondaryFileSequence_->fileProductRegistry(), processConfiguration(), runPrincipal()));
         boost::shared_ptr<LuminosityBlockPrincipal> secondaryPrincipal = secondaryFileSequence_->readLuminosityBlock_(lbp);
         checkHistoryConsistency(*primaryPrincipal, *secondaryPrincipal);
         primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InLumi]);
@@ -187,7 +186,7 @@ namespace edm {
 						      primaryPrincipal->id().event(),
 						      true, false);
       if (found) {
-        EventPrincipal* secondaryPrincipal = secondaryFileSequence_->readEvent(*secondaryEventPrincipal_);
+        EventPrincipal* secondaryPrincipal = secondaryFileSequence_->readEvent(*secondaryEventPrincipal_, luminosityBlockPrincipal());
         checkConsistency(*primaryPrincipal, *secondaryPrincipal);
         primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InEvent]);
         secondaryEventPrincipal_->clearPrincipal();

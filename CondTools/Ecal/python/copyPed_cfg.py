@@ -20,7 +20,7 @@ process.source = cms.Source("EmptyIOVSource",
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
 process.CondDBCommon.connect = 'sqlite_file:DB.db'
-process.CondDBCommon.DBParameters.authenticationPath = '/nfshome0/xiezhen/conddb'
+process.CondDBCommon.DBParameters.authenticationPath = '/nfshome0/popcondev/conddb'
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDBCommon, 

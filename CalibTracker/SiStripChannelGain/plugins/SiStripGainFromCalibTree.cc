@@ -179,7 +179,7 @@ class SiStripGainFromCalibTree : public ConditionDBWriter<SiStripApvGain> {
       hash_map<unsigned int, stAPVGain*,  hash<unsigned int>, isEqual > APVsColl;
 };
 
-SiStripGainFromCalibTree::SiStripGainFromCalibTree(const edm::ParameterSet& iConfig) : ConditionDBWriter<SiStripApvGain>::ConditionDBWriter<SiStripApvGain>(iConfig)
+SiStripGainFromCalibTree::SiStripGainFromCalibTree(const edm::ParameterSet& iConfig) : ConditionDBWriter<SiStripApvGain>(iConfig)
 {
    OutputGains         = iConfig.getParameter<std::string>("OutputGains");
 

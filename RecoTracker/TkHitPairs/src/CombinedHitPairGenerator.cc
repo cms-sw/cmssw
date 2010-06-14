@@ -13,10 +13,14 @@ using namespace ctfseeding;
 
 CombinedHitPairGenerator::CombinedHitPairGenerator(const edm::ParameterSet& cfg)
   : initialised(false), theConfig(cfg)
-{ }
+{
+  theMaxElement = cfg.getParameter<uint>("maxElement");
+}
 
 void CombinedHitPairGenerator::init(const edm::ParameterSet & cfg, const edm::EventSetup& es)
 {
+  theMaxElement = cfg.getParameter<uint>("maxElement");
+
   std::string layerBuilderName = cfg.getParameter<std::string>("SeedingLayers");
   edm::ESHandle<SeedingLayerSetsBuilder> layerBuilder;
   es.get<TrackerDigiGeometryRecord>().get(layerBuilderName, layerBuilder);
@@ -49,7 +53,7 @@ CombinedHitPairGenerator::~CombinedHitPairGenerator() { cleanup(); }
 
 void CombinedHitPairGenerator::add( const SeedingLayer& inner, const SeedingLayer& outer)
 { 
-  theGenerators.push_back( new HitPairGeneratorFromLayerPair( inner, outer, &theLayerCache, 0));
+  theGenerators.push_back( new HitPairGeneratorFromLayerPair( inner, outer, &theLayerCache, 0, theMaxElement));
 }
 
 void CombinedHitPairGenerator::hitPairs(

@@ -186,17 +186,15 @@ recoMuonVTrackAssoc.staMuAssocLabel = 'tpToStaUpdTrackAssociation'
 recoMuonVTrackAssoc.glbMuAssocLabel = 'tpToGlbTrackAssociation'
 
 # Muon validation sequence
-muonValidation_seq = cms.Sequence(trkMuonTrackVTrackAssoc+staMuonTrackVTrackAssoc+staUpdMuonTrackVTrackAssoc+glbMuonTrackVTrackAssoc
+muonValidation_seq = cms.Sequence(trkMuonTrackVTrackAssoc
                                  +staMuonTrackVMuonAssoc+staUpdMuonTrackVMuonAssoc+glbMuonTrackVMuonAssoc
-                                 +recoMuonVMuAssoc+recoMuonVTrackAssoc)
+                                 +recoMuonVMuAssoc)
 
-muonValidationTEV_seq = cms.Sequence(tevMuonFirstTrackVTrackAssoc+tevMuonPickyTrackVTrackAssoc
-                                    +tevMuonFirstTrackVMuonAssoc+tevMuonPickyTrackVMuonAssoc)
+muonValidationTEV_seq = cms.Sequence(tevMuonFirstTrackVMuonAssoc+tevMuonPickyTrackVMuonAssoc)
 
-muonValidationSET_seq = cms.Sequence(staSETMuonTrackVTrackAssoc+staSETUpdMuonTrackVTrackAssoc+glbSETMuonTrackVTrackAssoc
-                                     +staSETMuonTrackVMuonAssoc+staSETUpdMuonTrackVMuonAssoc+glbSETMuonTrackVMuonAssoc)
+muonValidationSET_seq = cms.Sequence(staSETMuonTrackVMuonAssoc+staSETUpdMuonTrackVMuonAssoc+glbSETMuonTrackVMuonAssoc)
 
-muonValidationCosmic_seq = cms.Sequence(trkCosmicMuonTrackVTrackAssoc+staCosmicMuonTrackVTrackAssoc+glbCosmicMuonTrackVTrackAssoc
+muonValidationCosmic_seq = cms.Sequence(trkCosmicMuonTrackVTrackAssoc
                                  +staCosmicMuonTrackVMuonAssoc+glbCosmicMuonTrackVMuonAssoc)
 
 # The muon association and validation sequence

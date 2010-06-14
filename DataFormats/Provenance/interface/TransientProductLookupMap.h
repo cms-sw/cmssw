@@ -59,6 +59,8 @@ namespace edm {
 			CompareTypeInBranchTypeConstBranchDescription> FillFromMap;
 
       TransientProductLookupMap();
+
+      void reset();
             
       // ---------- const member functions ---------------------
       

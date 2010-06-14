@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.41 2009/11/13 17:30:02 cbern Exp $
+// $Id: Jet.h,v 1.42 2010/02/08 17:38:11 eschliec Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette, Giovanni Petrucciani, Roger Wolf, Christian Autermann
-  \version  $Id: Jet.h,v 1.41 2009/11/13 17:30:02 cbern Exp $
+  \version  $Id: Jet.h,v 1.42 2010/02/08 17:38:11 eschliec Exp $
 */
 
 
@@ -306,7 +306,7 @@ namespace pat {
       virtual const reco::Candidate * daughter(size_t i) const {
 	if (isCaloJet()) return (embeddedCaloTowers_   ? &caloTowers_[i]   : reco::Jet::daughter(i));
 	if (isPFJet())   return (embeddedPFCandidates_ ? &pfCandidates_[i] : reco::Jet::daughter(i));
-	else return 0;
+	else return reco::Jet::daughter(i);
       }
 
       using reco::LeafCandidate::daughter; // avoid hiding the base implementation
@@ -319,7 +319,7 @@ namespace pat {
       virtual size_t numberOfDaughters() const {
 	if (isCaloJet()) return (embeddedCaloTowers_   ? caloTowers_.size()   : reco::Jet::numberOfDaughters() );
 	if (isPFJet())   return (embeddedPFCandidates_ ? pfCandidates_.size() : reco::Jet::numberOfDaughters() );
-	else return 0;
+	else return reco::Jet::numberOfDaughters();
       }
 
 

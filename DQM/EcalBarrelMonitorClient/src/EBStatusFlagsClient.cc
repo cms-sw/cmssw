@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsClient.cc
  *
- * $Date: 2010/02/15 22:40:46 $
- * $Revision: 1.35 $
+ * $Date: 2010/04/14 15:13:26 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  *
 */
@@ -219,8 +219,10 @@ void EBStatusFlagsClient::analyze(void) {
         if ( strcmp(ecid.getMapsTo().c_str(), "EB_trigger_tower") != 0 ) continue;
 
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
-        int itt = ecid.getID2();
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
 
+        int itt = ecid.getID2();
         int iet = (itt-1)/4 + 1;
         int ipt = (itt-1)%4 + 1;
 

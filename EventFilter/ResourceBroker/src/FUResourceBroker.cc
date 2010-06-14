@@ -8,11 +8,14 @@
 
 
 #include "EventFilter/ResourceBroker/interface/FUResourceBroker.h"
+
 #include "EventFilter/ResourceBroker/interface/FUResource.h"
 #include "EventFilter/ResourceBroker/interface/BUProxy.h"
 #include "EventFilter/ResourceBroker/interface/SMProxy.h"
 
 #include "FWCore/Utilities/interface/CRC16.h"
+
+#include "EvffedFillerRB.h"
 
 #include "i2o/Method.h"
 #include "interface/shared/i2oXFunctionCodes.h"
@@ -33,6 +36,7 @@
 
 #include "cgicc/CgiDefs.h"
 #include "cgicc/Cgicc.h"
+#include "cgicc/FormEntry.h"
 #include "cgicc/HTMLClasses.h"
 
 #include <signal.h>
@@ -82,6 +86,9 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , nbLostEvents_(0)
   , nbDataErrors_(0)
   , nbCrcErrors_(0)
+  , nbTimeoutsWithEvent_(0)
+  , nbTimeoutsWithoutEvent_(0)
+  , dataErrorFlag_(0)
   , segmentationMode_(false)
   , nbClients_(0)
   , clientPrcIds_("")
@@ -114,6 +121,8 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , sumOfSquaresLast_(0)
   , sumOfSizesLast_(0)
   , lock_(toolbox::BSem::FULL)
+  , frb_(0)
+  , shmInconsistent_(false)
 {
   // setup finite state machine (binding relevant callbacks)
   fsm_.initialize<evf::FUResourceBroker>(this);
@@ -196,6 +205,7 @@ bool FUResourceBroker::configuring(toolbox::task::WorkLoop* wl)
   try {
     LOG4CPLUS_INFO(log_, "Start configuring ...");
     connectToBUandSM();
+    frb_ = new EvffedFillerRB(this);
     resourceTable_=new FUResourceTable(segmentationMode_.value_,
 				       nbRawCells_.value_,
 				       nbRecoCells_.value_,
@@ -204,22 +214,37 @@ bool FUResourceBroker::configuring(toolbox::task::WorkLoop* wl)
 				       recoCellSize_.value_,
 				       dqmCellSize_.value_,
 				       bu_,sm_,
-				       log_, shmResourceTableTimeout_.value_);
+				       log_, 
+				       shmResourceTableTimeout_.value_, 
+				       frb_,
+				       this);
     FUResource::doFedIdCheck(doFedIdCheck_);
     FUResource::useEvmBoard(useEvmBoard_);
     resourceTable_->setDoCrcCheck(doCrcCheck_);
     resourceTable_->setDoDumpEvents(doDumpEvents_);
     reset();
-    LOG4CPLUS_INFO(log_, "Finished configuring!");
-    
-    fsm_.fireEvent("ConfigureDone",this);
+    shmInconsistent_ = false;
+    if(resourceTable_->nbResources() != nbRawCells_.value_ || 
+       resourceTable_->nbFreeSlots() != nbRawCells_.value_){
+      std::ostringstream ost;
+      ost << "configuring FAILED: Inconsistency in ResourceTable - nbRaw=" 
+	  << nbRawCells_.value_ << " but nbResources=" << resourceTable_->nbResources()
+	  << " and nbFreeSlots=" << resourceTable_->nbFreeSlots();
+      reasonForFailed_ = ost.str();
+      fsm_.fireFailed(ost.str(),this);
+      shmInconsistent_ = true;
+    }else{
+      
+      LOG4CPLUS_INFO(log_, "Finished configuring!");
+      fsm_.fireEvent("ConfigureDone",this);
+    }
   }
   catch (xcept::Exception &e) {
     std::string msg  = "configuring FAILED: " + (string)e.what();
     reasonForFailed_ = e.what();
     fsm_.fireFailed(msg,this);
   }
-  
+
   return false;
 }
 
@@ -237,6 +262,11 @@ bool FUResourceBroker::enabling(toolbox::task::WorkLoop* wl)
     resourceTable_->startSendDataWorkLoop();
     resourceTable_->startSendDqmWorkLoop();
     resourceTable_->sendAllocate();
+    
+    nbTimeoutsWithEvent_         = 0;
+    nbTimeoutsWithoutEvent_      = 0;
+    dataErrorFlag_               = 0;
+
     LOG4CPLUS_INFO(log_, "Finished enabling!");
     fsm_.fireEvent("EnableDone",this);
   }
@@ -256,27 +286,23 @@ bool FUResourceBroker::stopping(toolbox::task::WorkLoop* wl)
   try {
     LOG4CPLUS_INFO(log_, "Start stopping :) ...");
     resourceTable_->stop();
-    UInt_t count = 0;
-    while (count<100) {
-      if (resourceTable_->isReadyToShutDown()) {
-	LOG4CPLUS_INFO(log_,"ResourceTable successfully shutdown ("<<count<<").");
+    timeval now;
+    timeval then;
+    gettimeofday(&then,0);
+    while (!resourceTable_->isReadyToShutDown()) {
+      ::usleep(shmResourceTableTimeout_.value_*10);
+      gettimeofday(&now,0);
+      if ((unsigned int)(now.tv_sec-then.tv_sec) > shmResourceTableTimeout_.value_/10000) {
+	std::string msg  = "stopping FAILED: ResourceTable shutdown timed out.";
+	reasonForFailed_ = "RESOURCETABLE SHUTDOWN TIMED OUT.";
+	fsm_.fireFailed(msg,this);
 	break;
-      }
-      else {
-	count++;
-	LOG4CPLUS_INFO(log_,"Waiting for ResourceTable to shutdown ("<<count<<")");
-	::usleep(shmResourceTableTimeout_.value_);
       }
     }
     
-    if (count<100) {
+    if (resourceTable_->isReadyToShutDown()) {
       LOG4CPLUS_INFO(log_, "Finished stopping!");
       fsm_.fireEvent("StopDone",this);
-    }
-    else {
-      std::string msg  = "stopping FAILED: ResourceTable shutdown timed out.";
-      reasonForFailed_ = "RESOURCETABLE SHUTDOWN TIMED OUT.";
-      fsm_.fireFailed(msg,this);
     }
   }
   catch (xcept::Exception &e) {
@@ -335,7 +361,7 @@ bool FUResourceBroker::halting(toolbox::task::WorkLoop* wl)
     reasonForFailed_ = e.what();
     fsm_.fireFailed(msg,this);
   }
-  
+  if(frb_) delete frb_;
   return false;
 }
 
@@ -459,6 +485,13 @@ void FUResourceBroker::actionPerformed(xdata::Event& e)
       nbDataErrors_       =resourceTable_->nbErrors();
       nbCrcErrors_        =resourceTable_->nbCrcErrors();
       nbAllocateSent_     =resourceTable_->nbAllocSent();
+      dataErrorFlag_.value_ = (nbCrcErrors_.value_ != 0u + 
+			       ((nbDataErrors_.value_ != 0u) << 1) +
+			       ((nbLostEvents_.value_ != 0u) << 2) +
+			       ((nbTimeoutsWithEvent_.value_ != 0u) << 3) +
+			       ((nbTimeoutsWithoutEvent_.value_ != 0u) << 4) +
+			       ((nbSentErrorEvents_.value_ != 0u) << 5)
+			       );
     }
     else if (e.type()=="ItemChangedEvent") {
       
@@ -631,7 +664,8 @@ bool FUResourceBroker::watching(toolbox::task::WorkLoop* wl)
     int   status=kill(pid,0);
     if (status!=0) {
       LOG4CPLUS_ERROR(log_,"EP prc "<<pid<<" died, send to error stream if processing.");
-      resourceTable_->handleCrashedEP(runNumber_,pid);
+      if(!resourceTable_->handleCrashedEP(runNumber_,pid))
+	nbTimeoutsWithoutEvent_++;
     }
   }
   
@@ -649,6 +683,7 @@ bool FUResourceBroker::watching(toolbox::task::WorkLoop* wl)
       if(processKillerEnabled_)	{
 	LOG4CPLUS_ERROR(log_,"evt "<<evt<<" timed out, "<<"kill prc "<<pid);
 	kill(pid,9);
+	nbTimeoutsWithEvent_++;
       }
       else {
 	LOG4CPLUS_INFO(log_,"evt "<<evt<<" under processing for more than "
@@ -656,11 +691,20 @@ bool FUResourceBroker::watching(toolbox::task::WorkLoop* wl)
       }
     }
   }
-  
+  if((resourceTable_->nbResources() != nbRawCells_.value_) && !shmInconsistent_){
+    std::ostringstream ost;
+    ost << "Watchdog spotted inconsistency in ResourceTable - nbRaw=" 
+	<< nbRawCells_.value_ << " but nbResources=" << resourceTable_->nbResources()
+	<< " and nbFreeSlots=" << resourceTable_->nbFreeSlots();
+    XCEPT_DECLARE(evf::Exception,
+		  sentinelException, ost.str());
+    notifyQualified("error",sentinelException);
+    shmInconsistent_ = true;
+  }
+
   unlock();
   
   ::sleep(watchSleepSec_.value_);
-  
   return true;
 }
     
@@ -685,6 +729,7 @@ void FUResourceBroker::exportParameters()
   gui_->addMonitorParam("rate",                     &rate_);
   gui_->addMonitorParam("average",                  &average_);
   gui_->addMonitorParam("rms",                      &rms_);
+  gui_->addMonitorParam("dataErrorFlag",            &dataErrorFlag_);
   
   gui_->addMonitorCounter("nbAllocatedEvents",      &nbAllocatedEvents_);
   gui_->addMonitorCounter("nbPendingRequests",      &nbPendingRequests_);
@@ -696,6 +741,8 @@ void FUResourceBroker::exportParameters()
   gui_->addMonitorCounter("nbLostEvents",           &nbLostEvents_);
   gui_->addMonitorCounter("nbDataErrors",           &nbDataErrors_);
   gui_->addMonitorCounter("nbCrcErrors",            &nbCrcErrors_);
+  gui_->addMonitorCounter("nbTimeoutsWithEvent",    &nbTimeoutsWithEvent_);
+  gui_->addMonitorCounter("nbTimeoutsWithoutEvent", &nbTimeoutsWithoutEvent_);
 
   gui_->addStandardParam("segmentationMode",        &segmentationMode_);
   gui_->addStandardParam("nbClients",               &nbClients_);
@@ -787,7 +834,13 @@ void FUResourceBroker::customWebPage(xgi::Input*in,xgi::Output*out)
   throw (xgi::exception::Exception)
 {
   using namespace cgicc;
-  
+  Cgicc cgi(in);
+  std::vector<FormEntry> els = cgi.getElements() ;
+  for(std::vector<FormEntry>::iterator it = els.begin(); it != els.end(); it++)
+    std::cout << "form entry " << (*it).getValue() << std::endl;
+
+  std::vector<FormEntry> el1;
+  cgi.getElement("crcError",el1);
   *out<<"<html>"<<endl;
   gui_->htmlHead(in,out,sourceId_);
   *out<<"<body>"<<endl;
@@ -796,7 +849,13 @@ void FUResourceBroker::customWebPage(xgi::Input*in,xgi::Output*out)
   lock();
   
   if (0!=resourceTable_) {
-
+    if(el1.size()!=0) {
+      resourceTable_->injectCRCError();
+    }
+    *out << "<form method=\"GET\" action=\"customWebPage\" >";
+    *out << "<button name=\"crcError\" type=\"submit\" value=\"injCRC\">Inject CRC</button>" << endl;
+    *out << "</form>" << endl;
+    *out << "<hr/>" << std::endl;
     vector<pid_t> client_prc_ids = resourceTable_->clientPrcIds();
     *out<<table().set("frame","void").set("rules","rows")
                  .set("class","modules").set("width","250")<<endl

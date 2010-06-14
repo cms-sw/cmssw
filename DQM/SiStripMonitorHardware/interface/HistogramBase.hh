@@ -57,7 +57,7 @@ public:
 			    double value,
 			    double weight=1.
 			    );
-
+ 
   //fill tkHistoMap of percentage of bad channels per module
   static void fillTkHistoMap(TkHistoMap *aMap,
 			     uint32_t & detid,
@@ -88,7 +88,7 @@ public:
 
   //book an individual hiostogram if enabled in config
   void bookHistogram(HistogramConfig & aConfig,
-		     MonitorElement * aHist,
+		     MonitorElement* & aHist,
 		     const std::string& name, 
 		     const std::string& title,
 		     const unsigned int nBins, 
@@ -113,7 +113,7 @@ public:
 
   //book an individual hiostogram if enabled in config
   void book2DHistogram(HistogramConfig & aConfig,
-		       MonitorElement * aHist,
+		       MonitorElement* & aHist,
 		       const std::string& name, 
 		       const std::string& title,
 		       const unsigned int nBins, 

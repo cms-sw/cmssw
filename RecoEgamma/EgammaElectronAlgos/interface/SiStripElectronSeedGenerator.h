@@ -124,6 +124,7 @@ private:
   edm::ESHandle<MagneticField> theMagField;
   edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
   edm::Handle<reco::BeamSpot> theBeamSpot;
+  edm::InputTag beamSpotTag_;
 
   KFUpdator* theUpdator;
   PropagatorWithMaterial* thePropagator;	

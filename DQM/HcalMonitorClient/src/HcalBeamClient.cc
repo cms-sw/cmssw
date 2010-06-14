@@ -11,8 +11,8 @@
 /*
  * \file HcalBeamClient.cc
  * 
- * $Date: 2010/03/25 11:02:25 $
- * $Revision: 1.15 $
+ * $Date: 2010/03/25 21:16:44 $
+ * $Revision: 1.16 $
  * \author J. Temple
  * \brief Hcal Beam Monitor Client class
  */
@@ -75,7 +75,7 @@ void HcalBeamClient::calculateProblems()
       (ProblemCells->getTH2F())->SetMaximum(1.05);
       (ProblemCells->getTH2F())->SetMinimum(0.);
     }
-  for  (unsigned int d=0;d<ProblemCellsByDepth->depth.size();++d)
+  for  (unsigned int d=0;ProblemCellsByDepth!=0 && d<ProblemCellsByDepth->depth.size();++d)
     {
       if (ProblemCellsByDepth->depth[d]!=0) 
 	{

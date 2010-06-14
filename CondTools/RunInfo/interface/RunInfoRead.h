@@ -12,7 +12,7 @@ class RunInfoRead : virtual public TestBase {
 	      const std::string& pass);
   virtual ~RunInfoRead();
   void run();
-  RunInfo::RunInfo readData(const std::string& table, const std::string& column, const int r_number);
+  RunInfo readData(const std::string& table, const std::string& column, const int r_number);
  private:
   std::string m_tableToRead;
   std::string m_columnToRead;

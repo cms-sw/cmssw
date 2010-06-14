@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2010/02/12 21:45:20 $
- * $Revision: 1.55 $
+ * $Date: 2010/05/28 19:57:57 $
+ * $Revision: 1.61 $
  * \author G. Della Ricca
  *
 */
@@ -414,6 +414,16 @@ void EELedTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt_++;
 
+  bool numPN[80];
+  float adcPN[80];
+  for ( int i = 0; i < 80; i++ ) {
+    numPN[i] = false;
+    adcPN[i] = 0.;
+  }
+
+  std::vector<int> PNs;
+  PNs.reserve(12);
+
   edm::Handle<EEDigiCollection> digis;
 
   if ( e.getByLabel(EEDigiCollection_, digis) ) {
@@ -469,17 +479,19 @@ void EELedTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       }
 
+      NumbersPn::getPNs( ism, ix, iy, PNs );
+
+      for (unsigned int i=0; i<PNs.size(); i++) {
+        int ipn = PNs[i];
+        if ( ipn >= 0 && ipn < 80 ) numPN[ipn] = true;
+      }
+
     }
 
   } else {
 
     edm::LogWarning("EELedTask") << EEDigiCollection_ << " not available";
 
-  }
-
-  float adcPN[80];
-  for ( int i = 0; i < 80; i++ ) {
-    adcPN[i] = 0.;
   }
 
   edm::Handle<EcalPnDiodeDigiCollection> pns;
@@ -499,6 +511,10 @@ void EELedTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::LED_STD ||
                runType[ism-1] == EcalDCCHeaderBlock::LED_GAP ) ) continue;
+
+      int ipn = NumbersPn::ipnEE( ism, num );
+
+      if ( ipn >= 0 && ipn < 80 && numPN[ipn] == false ) continue;
 
       float xvalped = 0.;
 
@@ -554,9 +570,7 @@ void EELedTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       if ( mePN ) mePN->Fill(num - 0.5, xvalmax);
 
-      int ipn = NumbersPn::ipnEE( ism, num );
-
-      adcPN[ipn] = xvalmax;
+      if ( ipn >= 0 && ipn < 80 ) adcPN[ipn] = xvalmax;
 
     }
 
@@ -631,10 +645,14 @@ void EELedTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       float wval = 0.;
 
-      std::vector<int> PNsInLM = NumbersPn::getPNs( ism, ix, iy );
-      int refPn = PNsInLM[0];
+      NumbersPn::getPNs( ism, ix, iy, PNs );
 
-      if ( adcPN[refPn] != 0. ) wval = xval /  adcPN[refPn];
+      if ( PNs.size() > 0 ) {
+        int ipn = PNs[0];
+        if ( ipn >= 0 && ipn < 80 ) {
+          if ( adcPN[ipn] != 0. ) wval = xval / adcPN[ipn];
+        }
+      }
 
       if ( meAmplPNMap ) meAmplPNMap->Fill(xix, xiy, wval);
 

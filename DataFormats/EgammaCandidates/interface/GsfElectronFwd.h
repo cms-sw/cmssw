@@ -7,7 +7,7 @@
 #include "DataFormats/Common/interface/RefVector.h"
 #include <vector>
 
-//#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
 namespace reco {
 

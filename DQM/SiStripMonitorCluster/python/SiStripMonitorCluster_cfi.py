@@ -23,7 +23,7 @@ SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
                                      
     CreateTrendMEs = cms.bool(False),
     Trending = cms.PSet(
-        Nbins = cms.int32(600),
+        Nbins = cms.int32(360),
         xmin = cms.double(0.0),
         xmax = cms.double(1.0*60*60),
         ymin = cms.double(0.0),
@@ -33,7 +33,7 @@ SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
         Nbinx          = cms.int32(20),
         xmin           = cms.double(-0.5),
         xmax           = cms.double(9.5),
-        layerswitchon  = cms.bool(True),
+        layerswitchon  = cms.bool(False),
         moduleswitchon = cms.bool(True)
     ),
 
@@ -93,14 +93,14 @@ SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
         Nbinx          = cms.int32(200),
         xmin           = cms.double(-0.5),        
         xmax           = cms.double(799.5),
-        layerswitchon  = cms.bool(True),
+        layerswitchon  = cms.bool(False),
         moduleswitchon = cms.bool(True)
     ),
     TH1ClusterWidth = cms.PSet(
         Nbinx          = cms.int32(20),
         xmin           = cms.double(-0.5),
         xmax           = cms.double(19.5),
-        layerswitchon  = cms.bool(True),        
+        layerswitchon  = cms.bool(False),        
         moduleswitchon = cms.bool(True)
     ),
 
@@ -199,6 +199,8 @@ SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
     HistoryProducer = cms.InputTag("consecutiveHEs"),
     ApvPhaseProducer = cms.InputTag("APVPhases"),
             
+    UseDCSFiltering = cms.bool(True),
+                                       
     ShowControlView = cms.bool(False),
     ShowReadoutView = cms.bool(False)                               
 )

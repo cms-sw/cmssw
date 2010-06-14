@@ -213,6 +213,11 @@ expertSettings.add_option("--particle_table",
                           default=defaultOptions.particleTable,
                           dest="particleTable")
 
+expertSettings.add_option("--dbsquery",
+                          help="Allow to define the source.fileNames from the dbs search command",
+                          default='',
+                          dest="dbsquery")
+
 parser.add_option("--no_exec",
                   help="Do not exec cmsRun. Just prepare the python config file.",
                   action="store_true",

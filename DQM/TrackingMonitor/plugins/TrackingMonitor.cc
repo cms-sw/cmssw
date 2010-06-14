@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/02/11 00:11:02 $
- *  $Revision: 1.11 $
+ *  $Date: 2010/05/10 09:50:48 $
+ *  $Revision: 1.15 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -31,6 +31,10 @@
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "CommonTools/RecoUtils/interface/GenericTriggerEventFlag.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include <string>
 
 // TrackingMonitor 
@@ -46,15 +50,19 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
     , NumberOfMeanLayersPerTrack(NULL)
     , NumberOfSeeds(NULL)
     , NumberOfTrackCandidates(NULL)
-    , builderName( conf_.getParameter<std::string>("TTRHBuilder") )
+    , builderName( conf_.getParameter<std::string>("TTRHBuilder"))
+    , doTrackerSpecific_( conf_.getParameter<bool>("doTrackerSpecific") )
+    , doLumiAnalysis( conf_.getParameter<bool>("doLumiAnalysis"))
+    , genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig))
 {
 }
 
 
 TrackingMonitor::~TrackingMonitor() 
 {
-    delete theTrackAnalyzer;
-    delete theTrackBuildingAnalyzer;
+  if (theTrackAnalyzer)          delete theTrackAnalyzer;
+  if (theTrackBuildingAnalyzer)  delete theTrackBuildingAnalyzer;
+  if (genTriggerEventFlag_)      delete genTriggerEventFlag_;
 }
 
 
@@ -155,12 +163,90 @@ void TrackingMonitor::beginJob(void)
     
         theTrackBuildingAnalyzer->beginJob(dqmStore_);
     }
+    if (doLumiAnalysis) {
+      if (NumberOfTracks) NumberOfTracks->setLumiFlag();
+      theTrackAnalyzer->setLumiFlag();    
+    }
+    if (doTrackerSpecific_) {
+      int    NClusPxBin  = conf_.getParameter<int>(   "NClusPxBin");
+      double NClusPxMin  = conf_.getParameter<double>("NClusPxMin");
+      double NClusPxMax = conf_.getParameter<double>("NClusPxMax");
+
+
+      int    NClusStrBin = conf_.getParameter<int>(   "NClusStrBin");
+      double NClusStrMin = conf_.getParameter<double>("NClusStrMin");
+      double NClusStrMax = conf_.getParameter<double>("NClusStrMax");
+
+      int    NClus2DStrBin = conf_.getParameter<int>(   "NClus2DStrBin");
+      double NClus2DStrMin = conf_.getParameter<double>("NClus2DStrMin");
+      double NClus2DStrMax = conf_.getParameter<double>("NClus2DStrMax");
+      int    NClus2DPxBin  = conf_.getParameter<int>(   "NClus2DPxBin");
+      double NClus2DPxMin  = conf_.getParameter<double>("NClus2DPxMin");
+      double NClus2DPxMax  = conf_.getParameter<double>("NClus2DPxMax");
+
+      int    NClus2DTotBin = conf_.getParameter<int>(   "NClus2DTotBin");
+      double NClus2DTotMin = conf_.getParameter<double>("NClus2DTotMin");
+      double NClus2DTotMax = conf_.getParameter<double>("NClus2DTotMax");
+      int    NTrk2DBin     = conf_.getParameter<int>(   "NTrk2DBin");
+      double NTrk2DMin     = conf_.getParameter<double>("NTrk2DMin");
+      double NTrk2DMax     = conf_.getParameter<double>("NTrk2DMax");
+
+      dqmStore_->setCurrentFolder(MEFolderName+"/HitProperties");
+      histname = "NumberOfClustersInPixel_" + CatagoryName; 
+      NumberOfPixelClus = dqmStore_->book1D(histname, histname, NClusPxBin, NClusPxMin, NClusPxMax);
+      NumberOfPixelClus->setAxisTitle("# of Clusters in Pixel", 1);
+      NumberOfPixelClus->setAxisTitle("Number of Events", 2);
+      
+      histname = "NumberOfClustersInStrip_" + CatagoryName; 
+      NumberOfStripClus = dqmStore_->book1D(histname, histname, NClusStrBin, NClusStrMin, NClusStrMax);
+      NumberOfStripClus->setAxisTitle("# of Clusters in Strip Detectors", 1);
+      NumberOfStripClus->setAxisTitle("Number of Events", 2);
+
+      histname = "PixelClustersVsStripClusters_" + CatagoryName; 
+      NumberOfStripVsStripClus = dqmStore_->book2D(histname, histname, NClus2DStrBin, NClus2DStrMin, NClus2DStrMax,
+                                                                NClus2DPxBin, NClus2DPxMin,  NClus2DPxMax);
+      NumberOfStripVsStripClus->setAxisTitle("# of Clusters in Pixel Detectors", 1);
+      NumberOfStripVsStripClus->setAxisTitle("# of Clusters in Strip Detectors", 2);
+
+      histname = "RatioOfPixelAndStripClusters_" + CatagoryName; 
+      RatioOfPixelAndStripClus = dqmStore_->book1D(histname, histname, 100, 0.0, 1.6);
+      RatioOfPixelAndStripClus->setAxisTitle("ArcTan(PixelCluster/StripClusters)", 1);
+      RatioOfPixelAndStripClus->setAxisTitle("Number of Events", 2);
+
+      histname = "TracksVsClusters_" + CatagoryName; 
+      NumberOfTrkVsClus = dqmStore_->book2D(histname,histname,NTrk2DBin,NTrk2DMin,NTrk2DMax,
+                                                       NClus2DTotBin,NClus2DTotMin,NClus2DTotMax);
+      NumberOfTrkVsClus->setAxisTitle("Number of Tracks", 1);
+      NumberOfTrkVsClus->setAxisTitle("# of Clusters in (Pixel+Strip) Detectors", 2);
+
+    }
+
+    
+}
+
+// -- BeginRun
+//---------------------------------------------------------------------------------//
+void TrackingMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
+{
+  // Initialize the GenericTriggerEventFlag
+  if ( genTriggerEventFlag_->on() ) genTriggerEventFlag_->initRun( iRun, iSetup );
+}
+
+// - BeginLumi
+// ---------------------------------------------------------------------------------//
+void TrackingMonitor::beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup&  eSetup) {
+  if (doLumiAnalysis) {
+    dqmStore_->softReset(NumberOfTracks);
+    theTrackAnalyzer->doSoftReset(dqmStore_);    
+  }
 }
 
 // -- Analyse
 // ---------------------------------------------------------------------------------//
 void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 {
+    // Filter out events if Trigger Filtering is requested
+    if (genTriggerEventFlag_->on()&& ! genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
 
     // input tags for collections from the configuration
     edm::InputTag trackProducer  = conf_.getParameter<edm::InputTag>("TrackProducer");
@@ -187,8 +273,6 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
         for (reco::TrackCollection::const_iterator track = trackCollection.begin(); track!=trackCollection.end(); ++track) 
         {
-            // kludge --> do better
-            if( trackCollection.size() > 100) continue;
 
             if( Quality == "highPurity") 
             {
@@ -280,13 +364,41 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 		edm::LogWarning("TrackingMonitor") << "No Trajectory seeds in the event.  Not filling associated histograms";
 	      }
 	  }
+	if ( doTrackerSpecific_) 
+          {
+	    edm::Handle< edmNew::DetSetVector<SiStripCluster> > strip_clusters;
+	    iEvent.getByLabel("siStripClusters", strip_clusters);
+	    edm::Handle< edmNew::DetSetVector<SiPixelCluster> > pixel_clusters;
+	    iEvent.getByLabel("siPixelClusters", pixel_clusters);
+            if (strip_clusters.isValid() && pixel_clusters.isValid()) 
+              {
+                unsigned int ncluster_pix   = (*pixel_clusters).size(); // size_type will be better
+                unsigned int ncluster_strip = (*strip_clusters).size(); // size_type will be better
+                double ratio = 0.0;
+                if ( ncluster_pix > 0) ratio = atan(ncluster_pix*1.0/ncluster_strip);
+
+                NumberOfStripClus->Fill(ncluster_strip);
+		NumberOfPixelClus->Fill(ncluster_pix);
+                NumberOfStripVsStripClus->Fill(ncluster_strip,ncluster_pix);
+		RatioOfPixelAndStripClus->Fill(ratio);
+		NumberOfTrkVsClus->Fill(totalNumTracks, ncluster_strip+ncluster_pix);
+              }
+          }
+
     }
     else
     {
         return;
     }
 }
-
+void TrackingMonitor::endRun(const edm::Run&, const edm::EventSetup&) 
+{
+  if (doLumiAnalysis) {
+    dqmStore_->disableSoftReset(NumberOfTracks);
+    theTrackAnalyzer->undoSoftReset(dqmStore_);    
+  }
+  
+}
 
 void TrackingMonitor::endJob(void) 
 {

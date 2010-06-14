@@ -15,7 +15,7 @@
 //         Created:  Wed Jul 30 11:37:24 CET 2007
 //         Working:  Fri Nov  9 09:39:33 CST 2007
 //
-// $Id: MuonSimHitProducer.cc,v 1.30 2010/03/23 06:38:25 aperrott Exp $
+// $Id: MuonSimHitProducer.cc,v 1.32 2010/05/13 15:23:21 aperrott Exp $
 //
 //
 
@@ -386,8 +386,6 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
 	    // Factor that takes into account the (rec)hits lost because of delta's, etc.:
 	    // (Not fully satisfactory patch, but it seems to work...)
 	    double pmu = lmom.mag();
-	    double kDT = 0.342;
-	    double fDT = -4.597;
 	    double theDTHitIneff = pmu>0? exp(kDT*log(pmu)+fDT):0.;
 	    if (random->flatShoot()<theDTHitIneff) continue;
 
@@ -442,8 +440,6 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
 	  // Factor that takes into account the (rec)hits lost because of delta's, etc.:
 	  // (Not fully satisfactory patch, but it seems to work...)
 	  double pmu = lmom.mag();
-	  double kCSC = 0.200;
-	  double fCSC = -3.199;
 	  double theCSCHitIneff = pmu>0? exp(kCSC*log(pmu)+fCSC):0.;
 	  if (random->flatShoot()<theCSCHitIneff) continue;
 
@@ -552,10 +548,15 @@ MuonSimHitProducer::readParameters(const edm::ParameterSet& fastMuons,
 				   const edm::ParameterSet& fastTracks,
 				   const edm::ParameterSet& matEff) {
   // Muons
-  theSimModuleLabel_ = fastMuons.getParameter<std::string>("simModuleLabel");
+  theSimModuleLabel_   = fastMuons.getParameter<std::string>("simModuleLabel");
   theSimModuleProcess_ = fastMuons.getParameter<std::string>("simModuleProcess");
-  theTrkModuleLabel_ = fastMuons.getParameter<std::string>("trackModuleLabel");
-  
+  theTrkModuleLabel_   = fastMuons.getParameter<std::string>("trackModuleLabel");
+  std::vector<double> simHitIneffDT  = fastMuons.getParameter<std::vector<double> >("simHitDTIneffParameters");
+  std::vector<double> simHitIneffCSC = fastMuons.getParameter<std::vector<double> >("simHitCSCIneffParameters");
+  kDT = simHitIneffDT[0];
+  fDT = simHitIneffDT[1];
+  kCSC = simHitIneffCSC[0];
+  fCSC = simHitIneffCSC[1];  
 
   // Tracks
   fullPattern_  = fastTracks.getUntrackedParameter<bool>("FullPatternRecognition");
@@ -628,7 +629,8 @@ MuonSimHitProducer::applyMaterialEffects(TrajectoryStateOnSurface& tsosWithdEdx,
     // Particle momentum & position after energy loss + fluctuation
     XYZTLorentzVector theNewMomentum = theMuon.momentum() + energyLoss->deltaMom() + fac * deltaMom;
     XYZTLorentzVector theNewPosition = theMuon.vertex() + fac * deltaPos;
-    fac  = std::sqrt((theNewMomentum.E()*theNewMomentum.E()-mu*mu)/theNewMomentum.Vect().Mag2());
+    fac  = (theNewMomentum.E()*theNewMomentum.E()-mu*mu)/theNewMomentum.Vect().Mag2();
+    fac  = fac>0.? std::sqrt(fac) : 1E-9;
     theMuon.SetXYZT(theNewMomentum.Px()*fac,theNewMomentum.Py()*fac,
                     theNewMomentum.Pz()*fac,theNewMomentum.E());    
     theMuon.setVertex(theNewPosition);

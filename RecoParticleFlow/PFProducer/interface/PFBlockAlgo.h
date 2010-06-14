@@ -36,13 +36,6 @@
 
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
-#include "RecoParticleFlow/PFClusterTools/interface/ClusterClusterMapping.h"
 
 #include "RecoParticleFlow/PFProducer/interface/PFBlockLink.h"
 
@@ -65,8 +58,7 @@ class PFBlockAlgo {
   
 
   void setParameters( std::vector<double>& DPtovPtCut, 
-		      std::vector<unsigned>& NHitCut,
-		      bool useConvBremPFRecTracks );
+		      std::vector<unsigned>& NHitCut );
   
   typedef std::vector<bool> Mask;
 
@@ -214,10 +206,7 @@ class PFBlockAlgo {
   /// test association between HFEM and HFHAD, by rechit
   double testHFEMAndHFHADByRecHit( const reco::PFCluster& clusterHFEM, 
 				   const reco::PFCluster& clusterHFHAD)  const;
-
- /// test association by Supercluster between two ECAL
-  double testLinkBySuperCluster(const reco::PFClusterRef & elt1,
-				const reco::PFClusterRef & elt2) const;   
+  
 
   /// computes a chisquare
   double computeDist( double eta1, double phi1, 
@@ -272,24 +261,12 @@ class PFBlockAlgo {
   /// Number of layers crossed cut for creating atrack element
   std::vector<unsigned> NHitCut_;
   
-  /// switch on/off Conversions Brem Recovery with KF Tracks
-  bool  useConvBremPFRecTracks_;
-
   /// PS strip resolution
   double resPSpitch_;
   
   /// PS resolution along strip
   double resPSlength_;
-
-   /// list of superclusters 
-  std::vector<const reco::SuperCluster *> superClusters_;
-
-  /// SC corresponding to the PF cluster
-  //  std::map<reco::PFClusterRef,int>  pfcRefSCMap_;
-  std::vector<int> pfcSCVec_;
-
-  /// PF clusters corresponding to a given SC
-  std::vector<std::vector<reco::PFClusterRef> > scpfcRefs_;
+ 
   /// if true, debug printouts activated
   bool   debug_;
   
@@ -342,107 +319,6 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
                  psMask  );
 
 
-
-
-  /// -------------- GSF Primary tracks and brems ---------------------
-  std::vector<reco::PFRecTrackRef> convBremPFRecTracks;
-  convBremPFRecTracks.clear();
-  std::vector<reco::PFRecTrackRef> primaryKF_GSF;
-  primaryKF_GSF.clear();
-  // Super cluster mapping
-  superClusters_.clear();
-  scpfcRefs_.clear();
-  pfcSCVec_.clear();
-
-  if(gsftrackh.isValid() ) {
-    const  reco::GsfPFRecTrackCollection PFGsfProd = *(gsftrackh.product());
-    for(unsigned i=0;i<gsftrackh->size(); i++) {
-      if( !gsftrackMask.empty() &&
-          !gsftrackMask[i] ) continue;
-      reco::GsfPFRecTrackRef refgsf(gsftrackh,i );   
-   
-      if((refgsf).isNull()) continue;
-      reco::GsfTrackRef gsf=refgsf->gsfTrackRef();
-
-      // retrieve and save the SC if ECAL-driven - Florian
-      if(gsf->extra().isAvailable() && gsf->extra()->seedRef().isAvailable()) {
-	reco::ElectronSeedRef seedRef=  gsf->extra()->seedRef().castTo<reco::ElectronSeedRef>();
-	// check that the seed is valid
-	if(seedRef.isAvailable() && seedRef->isEcalDriven()) {
-	  reco::SuperClusterRef scRef = seedRef->caloCluster().castTo<reco::SuperClusterRef>();
-	  if(scRef.isNonnull())   {	      
-	    superClusters_.push_back(&(*scRef));	      
-	  }
-	}
-      }
-
-      reco::PFBlockElement* gsfEl;
-      
-      const  std::vector<reco::PFTrajectoryPoint> 
-	PfGsfPoint =  PFGsfProd[i].trajectoryPoints();
-  
-      unsigned int c_gsf=0;
-      bool PassTracker = false;
-      bool GetPout = false;
-      unsigned int IndexPout = 0;
-      
-      typedef std::vector<reco::PFTrajectoryPoint>::const_iterator IP;
-      for(IP itPfGsfPoint =  PfGsfPoint.begin();  
-	  itPfGsfPoint!= PfGsfPoint.end();itPfGsfPoint++) {
-	
-	if (itPfGsfPoint->isValid()){
-	  int layGsfP = itPfGsfPoint->layer();
-	  if (layGsfP == -1) PassTracker = true;
-	  if (PassTracker && layGsfP > 0 && GetPout == false) {
-	    IndexPout = c_gsf-1;
-	    GetPout = true;
-	  }
-	  //const math::XYZTLorentzVector GsfMoment = itPfGsfPoint->momentum();
-	  c_gsf++;
-	}
-      }
-      math::XYZTLorentzVector pin = PfGsfPoint[0].momentum();      
-      math::XYZTLorentzVector pout = PfGsfPoint[IndexPout].momentum();
-
-      /// get tracks from converted brems
-      if(useConvBremPFRecTracks_) {
-	const std::vector<reco::PFRecTrackRef>& temp_convBremPFRecTracks(refgsf->convBremPFRecTrackRef());
-	if(temp_convBremPFRecTracks.size() > 0) {
-	  for(unsigned int iconv = 0; iconv <temp_convBremPFRecTracks.size(); iconv++) {
-	    convBremPFRecTracks.push_back(temp_convBremPFRecTracks[iconv]);
-	  }
-	}
-      }
-      
-      // get the kf track that seeded the gsf
-      if(refgsf->kfPFRecTrackRef().isNonnull())
-	primaryKF_GSF.push_back(refgsf->kfPFRecTrackRef());
-      
-
-      gsfEl = new reco::PFBlockElementGsfTrack(refgsf, pin, pout);
-      
-      elements_.push_back( gsfEl);
-
-      std::vector<reco::PFBrem> pfbrem = refgsf->PFRecBrem();
-      
-      for (unsigned i2=0;i2<pfbrem.size(); i2++) {
-	const double DP = pfbrem[i2].DeltaP();
-	const double SigmaDP =  pfbrem[i2].SigmaDeltaP(); 
-	const uint TrajP = pfbrem[i2].indTrajPoint();
-	if(TrajP == 99) continue;
-
-	reco::PFBlockElement* bremEl;
-	bremEl = new reco::PFBlockElementBrem(refgsf,DP,SigmaDP,TrajP);
-	elements_.push_back(bremEl);
-	
-      }
-    }
-    // set the vector to the right size so to allow random access
-    scpfcRefs_.resize(superClusters_.size());
-  }
-
-
-
   /// -------------- conversions ---------------------
 
   /// The tracks from conversions are filled into the elements collection
@@ -455,30 +331,17 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
       unsigned int trackSize=(convRef->pfTracks()).size();
       if ( convRef->pfTracks().size() < 2) continue;
       for(unsigned iTk=0;iTk<trackSize; iTk++) {
-	
-	reco::PFRecTrackRef compPFTkRef = convRef->pfTracks()[iTk];	
-	trkFromConversionElement = new reco::PFBlockElementTrack(convRef->pfTracks()[iTk]);
-	trkFromConversionElement->setConversionRef( convRef->originalConversion(), reco::PFBlockElement::T_FROM_GAMMACONV);
 
-	/// The primary KF tracks associated the GSF seed are not labeled secondary
-	/// This can be changed but PFElectronAlgo.cc needs to changed too. Contact Daniele
-	bool isPrimGSF = false;
-	for(unsigned ikfgsf =0; ikfgsf<primaryKF_GSF.size();ikfgsf++) {
-	  if(compPFTkRef->trackRef() == primaryKF_GSF[ikfgsf]->trackRef()) {
-	    isPrimGSF = true;
-	    continue;
+       trkFromConversionElement = new reco::PFBlockElementTrack(convRef->pfTracks()[iTk]);
+       trkFromConversionElement->setConversionRef( convRef->originalConversion(), reco::PFBlockElement::T_FROM_GAMMACONV);
+       elements_.push_back( trkFromConversionElement );
+
+	  if (debug_){
+	    std::cout << "PF Block Element from Conversion electron " << 
+	      (*trkFromConversionElement).trackRef().key() << std::endl;
+	    std::cout << *trkFromConversionElement << std::endl;
 	  }
-	}
-	if(isPrimGSF) continue;
-
-	elements_.push_back( trkFromConversionElement );
-
-	if (debug_){
-	  std::cout << "PF Block Element from Conversion electron " << 
-	    (*trkFromConversionElement).trackRef().key() << std::endl;
-	  std::cout << *trkFromConversionElement << std::endl;
-	}
-	
+       
       }     
     }  
   }
@@ -509,19 +372,6 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 	    continue;
 	  }
 	} 
-
-	/// The primary KF tracks associated the GSF seed are not labeled secondary
-	/// This can be changed but PFElectronAlgo.cc needs to changed too. Contact Daniele
-	bool isPrimGSF = false;
-	for(unsigned ikfgsf =0; ikfgsf<primaryKF_GSF.size();ikfgsf++) {
-	  reco::TrackBaseRef elemTrackBaseRef(primaryKF_GSF[ikfgsf]->trackRef());
-	  if(newTrackBaseRef == elemTrackBaseRef){  
-	    isPrimGSF = true;
-	    continue;
-	  }
-	} 
-	if(isPrimGSF) continue;
-
 	/// This is a new track not yet included into the elements collection
 	if (bNew) {
 	  trkFromV0Element = new reco::PFBlockElementTrack(v0Ref->pfTracks()[iTk]);
@@ -575,19 +425,6 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 	    continue;
 	  }
 	}
-
-	/// The primary KF tracks associated the GSF seed are not labeled secondary
-	/// This can be changed but PFElectronAlgo.cc needs to changed too. Contact Daniele
-	bool isPrimGSF = false;
-	for(unsigned ikfgsf =0; ikfgsf<primaryKF_GSF.size();ikfgsf++) {
-	  reco::TrackBaseRef elemTrackBaseRef(primaryKF_GSF[ikfgsf]->trackRef());
-	  if(newTrackBaseRef == elemTrackBaseRef){  
-	    isPrimGSF = true;
-	    continue;
-	  }
-	} 
-	if(isPrimGSF) continue;
-
 	/// This is a new track not yet included into the elements collection
 	if (bNew) { 
 	  trkFromDisplacedVertexElement = new reco::PFBlockElementTrack(newPFRecTrackRef);
@@ -690,18 +527,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
           reco::MuonRef muonref( muonh, muId_ );
           primaryElement->setMuonRef( muonref );
       }
-      
-      // set track type T_FROM_GAMMA for pfrectracks associated to conv brems
-      if(useConvBremPFRecTracks_) {
-	if(convBremPFRecTracks.size() > 0.) {
-	  for(unsigned int iconv = 0; iconv < convBremPFRecTracks.size(); iconv++) {
-	    if((*ref).trackRef() == (*convBremPFRecTracks[iconv]).trackRef()) {
-	      bool value = true;
-	      primaryElement->setTrackType(reco::PFBlockElement::T_FROM_GAMMACONV, value);
-	    }
-	  }
-	}
-      }
+
       elements_.push_back( primaryElement );
     }
 
@@ -709,7 +535,66 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 
   }
 
- 
+  // -------------- GSF tracks and brems ---------------------
+
+  if(gsftrackh.isValid() ) {
+    const  reco::GsfPFRecTrackCollection PFGsfProd = *(gsftrackh.product());
+    for(unsigned i=0;i<gsftrackh->size(); i++) {
+      if( !gsftrackMask.empty() &&
+          !gsftrackMask[i] ) continue;
+      reco::GsfPFRecTrackRef refgsf(gsftrackh,i );   
+   
+      if((refgsf).isNull()) continue;
+
+      reco::PFBlockElement* gsfEl;
+        
+      const  std::vector<reco::PFTrajectoryPoint> 
+	PfGsfPoint =  PFGsfProd[i].trajectoryPoints();
+  
+      unsigned int c_gsf=0;
+      bool PassTracker = false;
+      bool GetPout = false;
+      unsigned int IndexPout = 0;
+      
+      typedef std::vector<reco::PFTrajectoryPoint>::const_iterator IP;
+      for(IP itPfGsfPoint =  PfGsfPoint.begin();  
+	  itPfGsfPoint!= PfGsfPoint.end();itPfGsfPoint++) {
+	
+	if (itPfGsfPoint->isValid()){
+	  int layGsfP = itPfGsfPoint->layer();
+	  if (layGsfP == -1) PassTracker = true;
+	  if (PassTracker && layGsfP > 0 && GetPout == false) {
+	    IndexPout = c_gsf-1;
+	    GetPout = true;
+	  }
+	  //const math::XYZTLorentzVector GsfMoment = itPfGsfPoint->momentum();
+	  c_gsf++;
+	}
+      }
+      math::XYZTLorentzVector pin = PfGsfPoint[0].momentum();      
+      math::XYZTLorentzVector pout = PfGsfPoint[IndexPout].momentum();
+      
+      
+      gsfEl = new reco::PFBlockElementGsfTrack(refgsf, pin, pout);
+      
+      elements_.push_back( gsfEl);
+
+      std::vector<reco::PFBrem> pfbrem = refgsf->PFRecBrem();
+      
+      for (unsigned i2=0;i2<pfbrem.size(); i2++) {
+	const double DP = pfbrem[i2].DeltaP();
+	const double SigmaDP =  pfbrem[i2].SigmaDeltaP(); 
+	const uint TrajP = pfbrem[i2].indTrajPoint();
+	if(TrajP == 99) continue;
+
+	reco::PFBlockElement* bremEl;
+	bremEl = new reco::PFBlockElementBrem(refgsf,DP,SigmaDP,TrajP);
+	elements_.push_back(bremEl);
+	
+      }
+    }
+  }
+
   // -------------- GSF tracks and brems for Conversion Recovery ----------
    
   if(convbremgsftrackh.isValid() ) {
@@ -782,7 +667,6 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 
 
   if(ecalh.isValid() ) {
-    pfcSCVec_.resize(ecalh->size(),-1);
     for(unsigned i=0;i<ecalh->size(); i++)  {
 
       // this ecal cluster has been disabled
@@ -794,13 +678,6 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
         = new reco::PFBlockElementCluster( ref,
 					   reco::PFBlockElement::ECAL);
       elements_.push_back( te );
-      // Now mapping with Superclusters
-      int scindex= ClusterClusterMapping::checkOverlap(*ref,superClusters_);
-
-      if(scindex>=0) 	{
-	  pfcSCVec_[ref.key()]=scindex;
-	  scpfcRefs_[scindex].push_back(ref);
-	}
     }
   }
 

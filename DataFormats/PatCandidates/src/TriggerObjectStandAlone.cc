@@ -1,11 +1,12 @@
 //
-// $Id: TriggerObjectStandAlone.cc,v 1.1.2.1 2009/03/27 21:34:45 vadler Exp $
+// $Id: TriggerObjectStandAlone.cc,v 1.2 2009/04/01 10:45:51 vadler Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 
 
 using namespace pat;
+
 
 /// methods
 

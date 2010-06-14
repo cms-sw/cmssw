@@ -31,6 +31,13 @@ implements Runnable,DipPublicationErrorHandler
   public final static int cm2mm = 10;
   public final static String[] qualities = {"Uncertain","Bad","Good"};
 
+  // Coordinate transformation from CMS RF to LHC RF (ref. CMS-TK-UR-0059)
+  public final static double[] trans = {-0.09,-0.11,-0.12}; //cm
+  public final static double[] angles = {-0.00002,-0.00016,-0.00122}; //rad
+  public final static double[] rotX = {Math.cos(angles[0]),Math.sin(angles[0]),Math.tan(angles[0])};
+  public final static double[] rotY = {Math.cos(angles[1]),Math.sin(angles[1]),Math.tan(angles[1])};
+  public final static double[] rotZ = {Math.cos(angles[2]),Math.sin(angles[2]),Math.tan(angles[2])};
+
   DipFactory dip;
   DipData messageCMS;
   DipData messageLHC;
@@ -95,7 +102,7 @@ implements Runnable,DipPublicationErrorHandler
       System.out.println("Making publication " + subjectLHC);
       publicationLHC = dip.createDipPublication(subjectLHC, this);
       messageLHC = dip.createDipData();
-      trueRcd(); // Starts with all 0.
+      trueRcd(false); // Starts with all 0.
       publishRcd("UNINITIALIZED","",true,false);
       keepRunning = true;
     }
@@ -141,7 +148,7 @@ implements Runnable,DipPublicationErrorHandler
 	      if (logFile.length() > 0) {
 		  if (verbose) System.out.println("Read record from " + sourceFile);
 		  if (readRcd(br)) {
-		      trueRcd();
+		      trueRcd(true);
 		      alive.clear();
 		      alive.flip(6);
 		      alive.flip(7);
@@ -191,7 +198,7 @@ implements Runnable,DipPublicationErrorHandler
 	if (!alive.get(1)) alive.flip(1);
 	if (!alive.get(2)) {
 	    if (!alive.get(7)) fakeRcd();
-	    else trueRcd();
+	    else trueRcd(false);
 	    publishRcd("Uncertain","No new data for " + idleTime + " seconds",false,false);
 	}
 	else {
@@ -205,7 +212,7 @@ implements Runnable,DipPublicationErrorHandler
 	if (!alive.get(2)) alive.flip(2);
 	//if(!alive.get(7))
 	fakeRcd();
-	//else trueRcd();
+	//else trueRcd(false);
 	String warnMsg = "No new data for " + idleTime + "seconds: ";
 	warnMsg += tkStatus();
 	publishRcd("Bad",warnMsg,false,false);
@@ -312,9 +319,11 @@ implements Runnable,DipPublicationErrorHandler
 	    break;
 	case 10:
 	    dxdz = new Float(tmp[1]);
+	    //System.out.println("dxdz    = " + dxdz + " [rad]");
 	    break;
 	case 11:
 	    dydz = new Float(tmp[1]);
+	    //System.out.println("dydz    = " + dydz + " [rad]");
 	    break;
 	case 12:
 	    width_x = new Float(tmp[1]);
@@ -366,20 +375,50 @@ implements Runnable,DipPublicationErrorHandler
     return rcdQlty;
   }
 
-  private void trueRcd()
+  private void CMS2LHCRF_POS(float x, float y, float z)
+  {
+    if (x != 0) {//Rotation + Translation + Inversion + Scaling
+	double tmpx = x*rotY[0]*rotZ[0] + y*rotY[0]*rotZ[1] - z*rotY[1] + trans[0];
+	Centroid[0] = new Float(tmpx);
+	Centroid[0] *= -1.0*cm2um;
+    }
+    else
+	Centroid[0] = x;
+    if (y != 0) {// Rotation + Translation + Scaling
+	double tmpy = x*(rotX[1]*rotY[1]*rotZ[0] - rotX[0]*rotZ[1]) + y*(rotX[0]*rotZ[0] + rotX[1]*rotY[1]*rotZ[1]) + z*rotX[1]*rotY[0] + trans[1];
+	Centroid[1] = new Float(tmpy);
+	Centroid[1] *= cm2um;
+    }
+    else
+	Centroid[1] = y;
+    if (z != 0) {//Rotation + Translation + Inversion + Scaling
+	double tmpz = x*(rotX[0]*rotY[1]*rotZ[0] + rotX[1]*rotZ[1]) + y*(rotX[0]*rotY[1]*rotZ[1] - rotX[1]*rotZ[0]) + z*rotX[0]*rotY[0] + trans[2];
+	Centroid[2] = new Float(tmpz);
+	Centroid[2] *= -1.0*cm2mm;
+    }
+    else
+	Centroid[2] = z;
+  }
+
+  private void trueRcd(boolean verbose_)
   {
    try
    {
-     Centroid[0] = x*-1*cm2um;
-     Centroid[1] = y*cm2um;
-     Centroid[2] = z*-1*cm2mm;
+     // CMS to LHC RF
+     CMS2LHCRF_POS(x,y,z);
+
+     Tilt[0] = dxdz*rad2urad;
+     Tilt[1] = (dydz != 0 ? (dydz*-1*rad2urad) : 0);
 
      Size[0] = width_x*cm2um;
      Size[1] = width_y*cm2um;
      Size[2] = sigma_z*cm2mm;
 
-     Tilt[0] = dxdz*rad2urad;
-     Tilt[1] = dydz*-1*rad2urad;
+     if (verbose_) {
+	 System.out.println("X0 in LHC RF   = " + Centroid[0] + " [microns]");
+	 System.out.println("Y0 in LHC RF   = " + Centroid[1] + " [microns]");
+	 System.out.println("Z0 in LHC RF   = " + Centroid[2] + " [mm]");
+     }
 
      messageCMS.insert("runnum",runnum);
      messageCMS.insert("startTime",startTime);
@@ -440,7 +479,7 @@ implements Runnable,DipPublicationErrorHandler
    }
   }
 
-  private void publishRcd(String qlty_,String err_, boolean pubCMS_, boolean fitTime_)
+  private void publishRcd(String qlty_, String err_, boolean pubCMS_, boolean fitTime_)
   {
    try
    {

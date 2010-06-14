@@ -145,7 +145,7 @@ void CkfDebugger::printSimHits( const edm::Event& iEvent)
 {
   edm::LogVerbatim("CkfDebugger") << "\nEVENT #" << iEvent.id();
 
-  hitAssociator = new TrackerHitAssociator::TrackerHitAssociator(iEvent);//delete deleteHitAssociator() in TrackCandMaker.cc
+  hitAssociator = new TrackerHitAssociator(iEvent);//delete deleteHitAssociator() in TrackCandMaker.cc
 
   map<unsigned int, std::vector<PSimHit> >& theHitsMap = hitAssociator->SimHitMap;
   idHitsMap.clear();

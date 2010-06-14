@@ -5,7 +5,7 @@
    date of first version: Sept 2008
 
 */
-//$Id: FourVectorHLTClient.cc,v 1.23 2010/03/25 08:38:49 rekovic Exp $
+//$Id: FourVectorHLTClient.cc,v 1.24 2010/03/26 07:58:54 rekovic Exp $
 
 #include "DQMOffline/Trigger/interface/FourVectorHLTClient.h"
 
@@ -426,8 +426,9 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
   
           //effHist->Divide(numHist,denHist,1.,1.,"B");
   
-          //calculateRatio(effHist, denHist);
+          calculateRatio(effHist, denHist);
   
+          /*
           effHist->Divide(numHist,denHist,1.,1.);
   
           for (int i=0;i<=effHist->GetNbinsX();i++) {
@@ -437,6 +438,7 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
             effHist->SetBinError(i,err);
   
           }
+          */
          
           LogDebug("FourVectorHLTClient")<< "Numerator   hist " << numHist->GetName() << endl;
           LogDebug("FourVectorHLTClient")<< "Denominator hist " << denHist->GetName() << endl;
@@ -637,46 +639,44 @@ TProfile *  FourVectorHLTClient::get1DProfile(string meName, DQMStore * dbi)
   return me_->getTProfile();
 }
 
+
 void FourVectorHLTClient::calculateRatio(TH1F* effHist, TH1F* denHist) {
 
   //cout << " NUMERATOR histogram name = " << effHist->GetName() << endl;
   int nBins= effHist->GetNbinsX();
   for (int i=0;i<=nBins;i++) {
-    
+
     float k = effHist->GetBinContent(i);   // number of pass
     float N = denHist->GetBinContent(i);   // number of total
 
     float ratio;
-    float err;;
+    float err;
 
-    if(k > N) {
+    //ratio = N ? k / N : 0; 
+    if(N>0) ratio = k / N;
+    else ratio = 0;
 
-      ratio = k/N;
-      err = 1.;
+    if(N > 0) {
+
+      if(ratio <= 1) {
+        err = sqrt(ratio*(1-ratio)/N);
+      }
+      //else if(ratio == 1) {
+        //err = 1./sqrt(2*N);
+      //}
+      else {
+        err = 0;
+      }
+
+      effHist->SetBinContent(i,ratio);
+      effHist->SetBinError(i,err);
 
     }
-    else if(N == 0) {      
 
-      ratio = 0;;
-      err = 0;
-
-    }
-    else {
-
-      ratio = k/N;
-      //err = (1.0/N)*sqrt(k*(1-k/N));
-      err = (1.0/sqrt(N));
-    
-    }
-
-    //cout << "bin " << i << " num = " << k << "  den = " << N << "  ratio = " << ratio << "  err = " << err << endl;
-    effHist->SetBinContent(i,ratio);
-    effHist->SetBinError(i,err);
-  
   }
 
-
 }
+
 
 void FourVectorHLTClient::normalizeHLTMatrix() {
 

@@ -184,7 +184,7 @@ std::map<std::vector<reco::TransientTrack>,  reco::CaloClusterPtr>  ConversionTr
 	  
 	  //	  std::cout << " ConversionTrackPairFinde All selected from the map First  Track charge " <<   (iMap1->first).charge() << " Num of RecHits " <<  ((iMap1->first)).recHitsSize() << " inner pt " <<  sqrt(((iMap1->first)).track().innerMomentum().Perp2()) << " Ass SC " << (iMap1->second)->energy() <<  "\n";  
 	  
-	  // std::cout << " ConversionTrackPairFinde All selected from the map Second  Track charge " <<   ((iMap2->first)).charge() << " Num of RecHits " <<  ((iMap2->first)).recHitsSize() << " inner pt " <<  sqrt(((iMap2->first)).track().innerMomentum().Perp2()) << " Ass SC " << (iMap2->second)->energy()  <<  "\n";  
+	  //  std::cout << " ConversionTrackPairFinde All selected from the map Second  Track charge " <<   ((iMap2->first)).charge() << " Num of RecHits " <<  ((iMap2->first)).recHitsSize() << " inner pt " <<  sqrt(((iMap2->first)).track().innerMomentum().Perp2()) << " Ass SC " << (iMap2->second)->energy()  <<  "\n";  
 
 
 
@@ -222,28 +222,40 @@ std::map<std::vector<reco::TransientTrack>,  reco::CaloClusterPtr>  ConversionTr
 
     iMap1=scTrkAssocMap.begin();
     iMap2=scTrkAssocMap.end();
-    if (  (iMap1->second) == (iMap2->second)  &&
-	  ((iMap1->first).charge() * (iMap2->first).charge() < 0 )   ) {
-
-
-      //      std::cout << " ConversionTrackPairFinder Case when  (scTrkAssocMap.size() ==2)  " <<   (iMap1->first).charge() << " Num of RecHits " <<  ((iMap1->first)).recHitsSize() << " inner pt " <<  sqrt(((iMap1->first)).track().innerMomentum().Perp2()) << " Ass SC " << (iMap1->second)->energy() <<  "\n";  
+    if (  (iMap1->second) == (iMap2->second)  ) {
+      if  ((iMap1->first).charge() * (iMap2->first).charge() < 0 )  {
+	
+	
+	//	std::cout << " ConversionTrackPairFinder Case when  (scTrkAssocMap.size() ==2)  " <<   (iMap1->first).charge() << " Num of RecHits " <<  ((iMap1->first)).recHitsSize() << " inner pt " <<  sqrt(((iMap1->first)).track().innerMomentum().Perp2()) << " Ass SC " << (iMap1->second)->energy() <<  "\n";  
+	
+	//std::cout << " ConversionTrackPairFinder Case when  (scTrkAssocMap.size() ==2)  " <<   (iMap2->first).charge() << " Num of RecHits " <<  ((iMap2->first)).recHitsSize() << " inner pt " <<  sqrt(((iMap2->first)).track().innerMomentum().Perp2()) << " Ass SC " << (iMap2->second)->energy() <<  "\n";  
+	
+	
+	thePair.clear();
+	thePair.push_back( iMap1->first );
+	thePair.push_back( iMap2->first );
+	allPairs.push_back ( thePair );	
+	
+	allPairSCAss[thePair]= iMap1->second; 
+	
+      } else {
+	//std::cout << " ConversionTrackPairFinder oneLeg case when 2 tracks with same sign Pick up the longest one" << std::endl;
+	oneLeg=true; 
+	if (  ((iMap1->first)).recHitsSize() > ((iMap2->first)).recHitsSize() ) {
+	  thePair.push_back(iMap1->first);
+	  allPairs.push_back ( thePair );
+	  allPairSCAss[thePair]= iMap1->second; 
+	} else {
+	  thePair.push_back(iMap2->first);
+	  allPairs.push_back ( thePair );
+	  allPairSCAss[thePair]= iMap2->second; 
+	}
+      }
       
-      // std::cout << " ConversionTrackPairFinder Case when  (scTrkAssocMap.size() ==2)  " <<   (iMap2->first).charge() << " Num of RecHits " <<  ((iMap2->first)).recHitsSize() << " inner pt " <<  sqrt(((iMap2->first)).track().innerMomentum().Perp2()) << " Ass SC " << (iMap2->second)->energy() <<  "\n";  
-      
-
-      thePair.clear();
-      thePair.push_back( iMap1->first );
-      thePair.push_back( iMap2->first );
-      allPairs.push_back ( thePair );	
-
-      allPairSCAss[thePair]= iMap1->second; 
-      
-    } else {
-      oneLeg=true; 
-
     }
-    
+
   } else if  (scTrkAssocMap.size() ==1   ) { /// ONly one track in input to the finder
+    //    std::cout << " ConversionTrackPairFinder oneLeg case when 1 track only " << std::endl;
     oneLeg=true;  
   } else {
     noTrack=true;
@@ -252,7 +264,7 @@ std::map<std::vector<reco::TransientTrack>,  reco::CaloClusterPtr>  ConversionTr
   
   if ( oneLeg ) {
     thePair.clear();               
-    //    std::cout << " ConversionTrackPairFinder oneLeg case charge  " << std::endl;
+    // std::cout << " ConversionTrackPairFinder oneLeg case charge  " << std::endl;
 						      
 						      
     iMap1=scTrkAssocMap.begin();   
@@ -260,7 +272,6 @@ std::map<std::vector<reco::TransientTrack>,  reco::CaloClusterPtr>  ConversionTr
     //std::cout << " ConversionTrackPairFinder oneLeg case charge  " <<   (iMap1->first).charge() << " Num of RecHits " <<  ((iMap1->first)).recHitsSize() << " inner pt " <<  sqrt(((iMap1->first)).track().innerMomentum().Perp2()) << " Ass SC " << (iMap1->second)->energy() <<  "\n";  
 						      
     thePair.push_back(iMap1->first);
- 
     allPairs.push_back ( thePair );
     allPairSCAss[thePair]= iMap1->second; 
 
@@ -268,7 +279,7 @@ std::map<std::vector<reco::TransientTrack>,  reco::CaloClusterPtr>  ConversionTr
   }
   
   if ( noTrack) {
-    //  std::cout << "  WARNING ConversionTrackPairFinder::tracks case noTrack "   << "\n";  
+    //    std::cout << "  WARNING ConversionTrackPairFinder::tracks case noTrack "   << "\n";  
     thePair.clear();  
     allPairSCAss.clear();
   }
@@ -322,7 +333,7 @@ std::map<std::vector<reco::TransientTrack>,  reco::CaloClusterPtr>  ConversionTr
     }
 
 
-    //std::cout << " ConversionTrackPairFinder FINAL allPairOrdInPtSCAss size " << allPairOrdInPtSCAss.size() << "\n";
+    //    std::cout << " ConversionTrackPairFinder FINAL allPairOrdInPtSCAss size " << allPairOrdInPtSCAss.size() << "\n";
     // for (  std::map<std::vector<reco::TransientTrack>,  reco::CaloClusterPtr>::const_iterator iPair= allPairOrdInPtSCAss.begin(); iPair!= allPairOrdInPtSCAss.end(); ++iPair ) {
     // std::cout << " ConversionTrackPairFindder FINAL allPairOrdInPtSCAss " << (iPair->first).size() << " SC Energy " << (iPair->second)->energy() << " eta " << (iPair->second)->eta() << " phi " <<  (iPair->second)->phi() << "\n";  
     // std::cout << " ConversionTrackPairFindder FINAL allPairOrdInPtSCAss (iPair->first).size() " << (iPair->first).size() << std::endl;
@@ -330,7 +341,7 @@ std::map<std::vector<reco::TransientTrack>,  reco::CaloClusterPtr>  ConversionTr
     // for ( std::vector<reco::TransientTrack>::const_iterator iTk=(iPair->first).begin(); iTk!= (iPair->first).end(); ++iTk) {
     //	std::cout << " ConversionTrackPair ordered track pt " << sqrt(iTk->track().innerMomentum().perp2()) << std::endl;
     // }
-    // }
+    //}
 
   
 

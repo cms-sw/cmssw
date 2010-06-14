@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.h,v 1.23 2010/01/22 14:20:04 mommsen Exp $
+// $Id: ResourceMonitorCollection.h,v 1.25 2010/04/12 12:05:43 mommsen Exp $
 /// @file: ResourceMonitorCollection.h 
 
 #ifndef StorageManager_ResourceMonitorCollection_h
@@ -30,8 +30,8 @@ namespace stor {
    * A collection of MonitoredQuantities related to resource usages
    *
    * $Author: mommsen $
-   * $Revision: 1.23 $
-   * $Date: 2010/01/22 14:20:04 $
+   * $Revision: 1.25 $
+   * $Date: 2010/04/12 12:05:43 $
    */
   
   class ResourceMonitorCollection : public MonitorCollection
@@ -101,6 +101,7 @@ namespace stor {
       double diskSize;
       std::string pathName;
       AlarmHandler::ALARM_LEVEL alarmState;
+      std::string toString();
     };
     typedef boost::shared_ptr<DiskUsage> DiskUsagePtr;
     typedef std::vector<DiskUsagePtr> DiskUsagePtrList;
@@ -119,7 +120,9 @@ namespace stor {
     virtual void do_appendInfoSpaceItems(InfoSpaceItems&);
     virtual void do_updateInfoSpaceItems();
 
+    void addDisk(const std::string&);
     void addOtherDisks();
+    void failIfImportantDisk(DiskUsagePtr);
     void emitDiskAlarm(DiskUsagePtr, error_t);
     void emitDiskSpaceAlarm(DiskUsagePtr);
     void revokeDiskAlarm(DiskUsagePtr);

@@ -108,8 +108,6 @@ namespace evf{
     char error[CURL_ERROR_SIZE];
     std::string dummy;
 
-    // struct curl_slist *headers=NULL; /* init to NULL is important */ // unused
- 
     curl_easy_setopt(han, CURLOPT_URL, url_.c_str()           );
     curl_easy_setopt(han, CURLOPT_POSTFIELDS,ps               );    
     curl_easy_setopt(han, CURLOPT_WRITEFUNCTION, &write_data  );

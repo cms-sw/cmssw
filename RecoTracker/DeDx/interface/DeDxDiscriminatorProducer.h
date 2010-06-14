@@ -31,6 +31,7 @@
 
 
 #include "TH3F.h"
+#include "TChain.h"
 
 #include <ext/hash_map>
 
@@ -55,9 +56,10 @@ private:
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
-  double GetProbability       (const SiStripCluster*   cluster,TrajectoryStateOnSurface trajState);
+  double GetProbability(const SiStripCluster*   cluster, TrajectoryStateOnSurface trajState);
   double ComputeDiscriminator (std::vector<double>& vect_probs);
-    int    ClusterSaturatingStrip(const SiStripCluster*   cluster);
+  int    ClusterSaturatingStrip(const SiStripCluster*   cluster);
+  void   MakeCalibrationMap();
 
 
 
@@ -69,6 +71,11 @@ private:
   bool useStrip;
   double MeVperADCPixel;
   double MeVperADCStrip;
+
+  std::string                       m_calibrationPath;
+  bool                              useCalibration;
+
+
 
   const TrackerGeometry* m_tracker;
 
@@ -92,7 +99,7 @@ private:
 
 
    private :
-      struct stModInfo{int DetId; int SubDet; float Eta; float R; float Thickness; int NAPV; };
+      struct stModInfo{int DetId; int SubDet; float Eta; float R; float Thickness; int NAPV; double Gain;};
 
       class isEqual{
          public:
