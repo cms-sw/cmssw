@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 17:05:44 EST 2008
-// $Id: FWDisplayProperties.cc,v 1.7 2010/06/03 13:38:32 eulisse Exp $
+// $Id: FWDisplayProperties.cc,v 1.8 2010/06/14 07:36:45 eulisse Exp $
 //
 
 // system include files
@@ -19,7 +19,7 @@
 #include "TROOT.h"
 
 // A static default property.
-const FWDisplayProperties FWDisplayProperties::defaultProperties(kWhite, true, 100);
+const FWDisplayProperties FWDisplayProperties::defaultProperties(kWhite, true, 0);
 
 FWDisplayProperties::FWDisplayProperties(const Color_t& iColor,
                                          bool isVisible,
