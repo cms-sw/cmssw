@@ -1030,7 +1030,7 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 		    subs_[i].post(msg1,true);
 		    
 		    unsigned long retval = subs_[i].rcvNonBlocking(msg2,true);
-		    if(retval == msg2->mtype){
+		    if(retval == (unsigned long) msg2->mtype){
 		      prg* p = (struct prg*)(msg2->mtext);
 		      subs_[i].setParams(p);
 		      spMStates_[i] = p->Ms;
