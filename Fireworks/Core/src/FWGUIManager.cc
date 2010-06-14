@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.204 2010/05/11 10:38:41 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.205 2010/05/12 16:35:11 amraktad Exp $
 
 //
 
@@ -136,9 +136,13 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
    m_helpPopup(0),
    m_shortcutPopup(0),
    m_helpGLPopup(0),
-   m_tasks(new CmsShowTaskExecutor)
+   m_tasks(new CmsShowTaskExecutor),
+   m_WMOffsetX(0), m_WMOffsetY(0), m_WMDecorH(0)
 {
    m_guiManager = this;
+
+   measureWMOffsets();
+
    m_selectionManager->selectionChanged_.connect(boost::bind(&FWGUIManager::selectionChanged,this,_1));
    m_eiManager->newItem_.connect(boost::bind(&FWGUIManager::newItem,
                                              this, _1) );
@@ -952,7 +956,6 @@ void
 addWindowInfoTo(const TGFrame* iMain,
                 FWConfiguration& oTo)
 {
-   WindowAttributes_t attr;
    Window_t wdummy;
    Int_t ax,ay;
    gVirtualX->TranslateCoordinates(iMain->GetId(),
@@ -960,8 +963,6 @@ addWindowInfoTo(const TGFrame* iMain,
                                    0,0, //0,0 in local coordinates
                                    ax,ay, //coordinates of screen
                                    wdummy);
-   gVirtualX->GetWindowAttributes(iMain->GetId(), attr);
-   ay -=  attr.fY; // move up for decoration height
    {
       std::stringstream s;
       s<<ax;
@@ -1173,12 +1174,13 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
 }
 
 //----------------------------------------------------------------
-static void
-setWindowInfoFrom(const FWConfiguration& iFrom,
-                  TGMainFrame* iFrame)
+void
+FWGUIManager::setWindowInfoFrom(const FWConfiguration& iFrom,
+                                TGMainFrame* iFrame)
 {
-   int x = atoi(iFrom.valueForKey("x")->value().c_str());
-   int y = atoi(iFrom.valueForKey("y")->value().c_str());
+   int x = atoi(iFrom.valueForKey("x")->value().c_str()) + m_WMOffsetX;
+   int y = atoi(iFrom.valueForKey("y")->value().c_str()) + m_WMOffsetY;
+   if (y < m_WMDecorH) y = m_WMDecorH;
    int width = atoi(iFrom.valueForKey("width")->value().c_str());
    int height = atoi(iFrom.valueForKey("height")->value().c_str());
    iFrame->MoveResize(x,y,width,height);
@@ -1192,9 +1194,10 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
 
    const FWConfiguration* mw = iFrom.valueForKey(kMainWindow);
    assert(mw != 0);
+   // Window needs to mapped before moving, otherwise move can lead
+   // to wrong results on some window managers.
+   m_cmsShowMainFrame->MapWindow();
    setWindowInfoFrom(*mw, m_cmsShowMainFrame);
-
-   // !! when position and size is clear map window
    m_cmsShowMainFrame->MapSubwindows();
    m_cmsShowMainFrame->Layout();
    m_cmsShowMainFrame->MapRaised();
@@ -1384,4 +1387,37 @@ void
 FWGUIManager::updateEventFilterEnable(bool btnEnabled)
 {
    m_cmsShowMainFrame->m_filterEnableBtn->SetEnabled(btnEnabled);
+}
+
+void
+FWGUIManager::measureWMOffsets()
+{
+  Int_t x = 100, y = 100;
+  
+
+  TGMainFrame *mf1 = new TGMainFrame(0, 0, 0);
+  mf1->MapWindow();
+  mf1->Move(x, y);
+
+  // This seems to be the only reliable way to make sure Move() has been processed.
+  {
+    TGMainFrame *mf2 = new TGMainFrame(0, 0, 0);
+    mf2->MapWindow();
+    while (!mf2->IsMapped()) gClient->HandleInput();
+    delete mf2;
+  }
+  {
+    Int_t    xm, ym;
+    Window_t childdum;
+    WindowAttributes_t attr;
+    gVirtualX->TranslateCoordinates(mf1->GetId(), gClient->GetDefaultRoot()->GetId(),
+                                    0, 0, xm, ym, childdum);
+    gVirtualX->GetWindowAttributes(mf1->GetId(), attr);
+    m_WMOffsetX = x - xm;
+    m_WMOffsetY = y - ym;
+    m_WMDecorH  = attr.fY;
+    fwLog(fwlog::kInfo) << Form("FWGUIManager::measureWMOffsets: required (%d,%d), measured(%d, %d) => dx=%d, dy=%d; decor_h=%d.\n",
+                                x, y, xm, ym, m_WMOffsetX, m_WMOffsetY, m_WMDecorH);
+  }
+  delete mf1;
 }

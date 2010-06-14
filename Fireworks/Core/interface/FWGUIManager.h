@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.101 2010/04/28 14:08:11 eulisse Exp $
+// $Id: FWGUIManager.h,v 1.102 2010/05/10 11:52:16 matevz Exp $
 //
 
 // system include files
@@ -119,7 +119,8 @@ public:
    //configuration management interface
    void addTo(FWConfiguration&) const;
    void setFrom(const FWConfiguration&);
-   
+   void setWindowInfoFrom(const FWConfiguration& iFrom, TGMainFrame* iFrame);
+
    TGVerticalFrame* createList(TGSplitFrame *p);
    void createViews(TGTab *p);
    void exportImageOfMainView();
@@ -232,6 +233,8 @@ private:
    void finishUpColorChange();
    
    void setViewPopup(TEveWindow*);
+
+   void measureWMOffsets();
    
    // ---------- static member data --------------------------------   
    
@@ -277,6 +280,8 @@ private:
    sigc::connection   m_modelChangeConn;
 
    std::auto_ptr<CmsShowTaskExecutor> m_tasks;
+
+   int m_WMOffsetX, m_WMOffsetY, m_WMDecorH;
 };
 
 
