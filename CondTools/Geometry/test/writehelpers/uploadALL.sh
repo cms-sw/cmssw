@@ -1,20 +1,20 @@
-/bin/sh dropBoxOffline_test.sh CASTORRECO_Geometry.db metaCASTORRECO.txt CASTORRECO_Geometry_38YV1
-/bin/sh dropBoxOffline_test.sh CSCRECODIGI_Geometry.db metaCSCRECODIGI.txt CSCRECODIGI_Geometry_38YV1
-/bin/sh dropBoxOffline_test.sh CSCRECO_Geometry.db metaCSCRECO.txt CSCRECO_Geometry_38YV1
-/bin/sh dropBoxOffline_test.sh CTRECO_Geometry.db metaCTRECO.txt CTRECO_Geometry_38YV1
-/bin/sh dropBoxOffline_test.sh DTRECO_Geometry.db metaDTRECO.txt DTRECO_Geometry_38YV1
-/bin/sh dropBoxOffline_test.sh EBRECO_Geometry.db metaEBRECO.txt EBRECO_Geometry_38YV1
-/bin/sh dropBoxOffline_test.sh EERECO_Geometry.db metaEERECO.txt EERECO_Geometry_38YV1
-/bin/sh dropBoxOffline_test.sh EPRECO_Geometry.db metaEPRECO.txt EPRECO_Geometry_38YV1
-/bin/sh dropBoxOffline_test.sh GeometryFileExtended.db metaGeometryExtended.txt XMLFILE_Geometry_Extended_38YV1
-/bin/sh dropBoxOffline_test.sh GeometryFileExtendedGFlash.db metaGeometryExtendedGFlash.txt XMLFILE_Geometry_ExtendedGFlash_38YV1
-/bin/sh dropBoxOffline_test.sh GeometryFileIdeal.db metaGeometryIdeal.txt XMLFILE_Geometry_Ideal_38YV1
-/bin/sh dropBoxOffline_test.sh GeometryFileExtendedLiMin.db metaGeometryExtendedLiMin.txt XMLFILE_Geometry_ExtendedLiMin_38YV1
-/bin/sh dropBoxOffline_test.sh GeometryFileExtendedLiMax.db metaGeometryExtendedLiMax.txt XMLFILE_Geometry_ExtendedLiMax_38YV1
-/bin/sh dropBoxOffline_test.sh GeometryFileExtendedX0Min.db metaGeometryExtendedX0Min.txt XMLFILE_Geometry_ExtendedX0Min_38YV1
-/bin/sh dropBoxOffline_test.sh GeometryFileExtendedX0Max.db metaGeometryExtendedX0Max.txt XMLFILE_Geometry_ExtendedX0Max_38YV1
-/bin/sh dropBoxOffline_test.sh HCALRECO_Geometry.db metaHCALRECO.txt HCALRECO_Geometry_38YV1
-/bin/sh dropBoxOffline_test.sh RPCRECO_Geometry.db metaRPCRECO.txt RPCRECO_Geometry_38YV1
-/bin/sh dropBoxOffline_test.sh TKRECO_Geometry.db metaTKRECO.txt TKRECO_Geometry_38YV1
-/bin/sh dropBoxOffline_test.sh TKExtra_Geometry.db metaTKExtra.txt TKExtra_Geometry_38YV1
-/bin/sh dropBoxOffline_test.sh ZDCRECO_Geometry.db metaZDCRECO.txt ZDCRECO_Geometry_38YV1
+/bin/sh dropBoxOffline_test.sh CASTORRECO_Geometry.db metaCASTORRECO.txt
+/bin/sh dropBoxOffline_test.sh CSCRECODIGI_Geometry.db metaCSCRECODIGI.txt
+/bin/sh dropBoxOffline_test.sh CSCRECO_Geometry.db metaCSCRECO.txt
+/bin/sh dropBoxOffline_test.sh CTRECO_Geometry.db metaCTRECO.txt
+/bin/sh dropBoxOffline_test.sh DTRECO_Geometry.db metaDTRECO.txt
+/bin/sh dropBoxOffline_test.sh EBRECO_Geometry.db metaEBRECO.txt
+/bin/sh dropBoxOffline_test.sh EERECO_Geometry.db metaEERECO.txt
+/bin/sh dropBoxOffline_test.sh EPRECO_Geometry.db metaEPRECO.txt
+/bin/sh dropBoxOffline_test.sh GeometryFileExtended.db metaGeometryExtended.txt 
+/bin/sh dropBoxOffline_test.sh GeometryFileExtendedGFlash.db metaGeometryExtendedGFlash.txt 
+/bin/sh dropBoxOffline_test.sh GeometryFileIdeal.db metaGeometryIdeal.txt 
+/bin/sh dropBoxOffline_test.sh GeometryFileExtendedLiMin.db metaGeometryExtendedLiMin.txt 
+/bin/sh dropBoxOffline_test.sh GeometryFileExtendedLiMax.db metaGeometryExtendedLiMax.txt
+/bin/sh dropBoxOffline_test.sh GeometryFileExtendedX0Min.db metaGeometryExtendedX0Min.txt
+/bin/sh dropBoxOffline_test.sh GeometryFileExtendedX0Max.db metaGeometryExtendedX0Max.txt
+/bin/sh dropBoxOffline_test.sh HCALRECO_Geometry.db metaHCALRECO.txt
+/bin/sh dropBoxOffline_test.sh RPCRECO_Geometry.db metaRPCRECO.txt
+/bin/sh dropBoxOffline_test.sh TKRECO_Geometry.db metaTKRECO.txt
+/bin/sh dropBoxOffline_test.sh TKExtra_Geometry.db metaTKExtra.txt
+/bin/sh dropBoxOffline_test.sh ZDCRECO_Geometry.db metaZDCRECO.txt
