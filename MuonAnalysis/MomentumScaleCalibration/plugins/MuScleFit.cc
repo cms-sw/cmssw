@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2010/05/28 08:48:45 $
-//  $Revision: 1.85 $
+//  $Date: 2010/06/10 09:45:17 $
+//  $Revision: 1.86 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -1218,27 +1218,34 @@ bool MuScleFit::selGlobalMuon(const pat::Muon* aMuon) {
   reco::TrackRef iTrack = aMuon->innerTrack();
   const reco::HitPattern& p = iTrack->hitPattern();
 
-  return (iTrack->found() > 11 &&
-	  aMuon->globalTrack()->chi2()/aMuon->globalTrack()->ndof() < 20.0 &&
-	  // (p.numberOfValidPixelHits() > 2 || 
-	  // (p.numberOfValidPixelHits() > 1 && p.getLayer(p.getHitPattern(0)) == 1)) &&
+  reco::TrackRef gTrack = aMuon->globalTrack();
+  const reco::HitPattern& q = gTrack->hitPattern();
+
+  return (//isMuonInAccept(aMuon) &&// no acceptance cuts!
+	  iTrack->found() > 11 &&
+	  gTrack->chi2()/gTrack->ndof() < 20.0 &&
+          q.numberOfValidMuonHits() > 0 &&
+          iTrack->chi2()/iTrack->ndof() < 4.0 &&
+	  aMuon->muonID("TrackerMuonArbitrated") &&
+	  aMuon->muonID("TMLastStationAngTight") &&
           p.pixelLayersWithMeasurement() > 1 &&
-	  fabs(iTrack->d0()) < 5.0 &&
-          fabs(iTrack->dz()) < 20.0 );
+	  fabs(iTrack->dxy()) < 3.0 &&  //should be done w.r.t. PV!
+          fabs(iTrack->dz()) < 15.0 );//should be done w.r.t. PV!
 }
+ 
 
 bool MuScleFit::selTrackerMuon(const pat::Muon* aMuon) {
   
   reco::TrackRef iTrack = aMuon->innerTrack();
   const reco::HitPattern& p = iTrack->hitPattern();
 
-  return (iTrack->found() > 11 &&
-	  iTrack->chi2()/iTrack->ndof() < 5.0 &&
-	  //   aMuon->muonID("TrackerMuonArbitrated") &&
+    return (//isMuonInAccept(aMuon) // no acceptance cuts!
+	  iTrack->found() > 11 &&
+	  iTrack->chi2()/iTrack->ndof() < 4.0 &&
+	  aMuon->muonID("TrackerMuonArbitrated") &&
 	  aMuon->muonID("TMLastStationAngTight") &&
-	  // (p.numberOfValidPixelHits() > 2 || 
-	  // (p.numberOfValidPixelHits() > 1 && p.getLayer(p.getHitPattern(0)) == 1)) &&
           p.pixelLayersWithMeasurement() > 1 &&
-	  fabs(iTrack->d0()) < 5.0 &&
-          fabs(iTrack->dz()) < 20.0 );
+	  fabs(iTrack->dxy()) < 3.0 && //should be done w.r.t. PV!
+          fabs(iTrack->dz()) < 15.0 );//should be done w.r.t. PV!
+ 
 }
