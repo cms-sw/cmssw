@@ -1,3 +1,8 @@
+2010-06-14  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-15-08
+	* fix watchdog check generating false sentinel errors
+
 2010-06-02  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V00-15-07

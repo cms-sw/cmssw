@@ -691,8 +691,7 @@ bool FUResourceBroker::watching(toolbox::task::WorkLoop* wl)
       }
     }
   }
-  if((resourceTable_->nbResources() != nbRawCells_.value_ || 
-     resourceTable_->nbFreeSlots() != nbRawCells_.value_) && !shmInconsistent_){
+  if((resourceTable_->nbResources() != nbRawCells_.value_) && !shmInconsistent_){
     std::ostringstream ost;
     ost << "Watchdog spotted inconsistency in ResourceTable - nbRaw=" 
 	<< nbRawCells_.value_ << " but nbResources=" << resourceTable_->nbResources()
