@@ -7,16 +7,15 @@ process.load('Configuration/StandardSequences/GeometryDB_cff')
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 
-process.GlobalTag.globaltag = 'MC_3XY_V25::All'
 process.source = cms.Source("EmptySource")
 
 #the following may not need the connect string if the global tag includes the extra.
-process.GlobalTag.toGet = cms.VPSet(
-    cms.PSet(record = cms.string("PGeometricDetExtraRcd"),
-             tag = cms.string("TKExtra_Geometry_38YV0"),
-             connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_GEOMETRY")
-             )
-    )
+#process.GlobalTag.toGet = cms.VPSet(
+#    cms.PSet(record = cms.string("PGeometricDetExtraRcd"),
+#             tag = cms.string("TKExtra_Geometry_38YV0"),
+#             connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_GEOMETRY")
+#             )
+#    )
 
 #this is always needed if users want access to the vector<GeometricDetExtra>
 process.TrackerGeometricDetExtraESModule = cms.ESProducer( "TrackerGeometricDetExtraESModule",

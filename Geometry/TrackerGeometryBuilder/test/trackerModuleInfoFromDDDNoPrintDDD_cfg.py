@@ -5,8 +5,7 @@ process = cms.Process("GeometryTest")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 # Choose Tracker Geometry
-#process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-#process.GlobalTag.globaltag = 'MC_3XY_V25::All'
+process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 

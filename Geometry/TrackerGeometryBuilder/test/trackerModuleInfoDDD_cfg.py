@@ -8,8 +8,6 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load('Configuration/StandardSequences/GeometryExtended_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 
-process.GlobalTag.globaltag = 'MC_3XY_V25::All'
-
 process.TrackerGeometricDetExtraESModule = cms.ESProducer( "TrackerGeometricDetExtraESModule",
                                                            fromDDD = cms.bool( True )
                                                            )
@@ -41,7 +39,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
 
 process.prod = cms.EDAnalyzer("ModuleInfo",
     fromDDD = cms.bool(True),
-    printDDD = cms.untracked.bool(True)
+    printDDD = cms.untracked.bool(False)
 )
 
 process.p1 = cms.Path(process.prod)

@@ -7,7 +7,6 @@ process.load('Configuration/StandardSequences/GeometryDB_cff')
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 
-process.GlobalTag.globaltag = 'MC_3XY_V25::All'
 process.source = cms.Source("EmptySource")
 
 process.maxEvents = cms.untracked.PSet(
