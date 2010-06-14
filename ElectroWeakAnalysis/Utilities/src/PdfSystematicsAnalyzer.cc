@@ -213,6 +213,19 @@ void PdfSystematicsAnalyzer::endJob(){
 
 /////////////////////////////////////////////////////////////////////////////////////
 bool PdfSystematicsAnalyzer::filter(edm::Event & ev, const edm::EventSetup&){
+
+      edm::Handle<std::vector<double> > weightHandle;
+      for (unsigned int i=0; i<pdfWeightTags_.size(); ++i) {
+            if (!ev.getByLabel(pdfWeightTags_[i], weightHandle)) {
+                  if (originalEvents_==0) {
+                        edm::LogError("PDFAnalysis") << ">>> WARNING: some weights not found!";
+                        edm::LogError("PDFAnalysis") << ">>> But maybe OK, if you are prefiltering!";
+                        edm::LogError("PDFAnalysis") << ">>> If things are OK, this warning should disappear after a while!";
+                  }
+                  return false;
+            }
+      }
+
       originalEvents_++;
 
       bool selectedEvent = false;
@@ -221,6 +234,7 @@ bool PdfSystematicsAnalyzer::filter(edm::Event & ev, const edm::EventSetup&){
             edm::LogError("PDFAnalysis") << ">>> TRIGGER collection does not exist !!!";
             return false;
       }
+
 
       const edm::TriggerNames & trigNames = ev.triggerNames(*triggerResults);
       unsigned int pathIndex = trigNames.triggerIndex(selectorPath_);
@@ -233,11 +247,7 @@ bool PdfSystematicsAnalyzer::filter(edm::Event & ev, const edm::EventSetup&){
       if (selectedEvent) selectedEvents_++;
 
       for (unsigned int i=0; i<pdfWeightTags_.size(); ++i) {
-            edm::Handle<std::vector<double> > weightHandle;
-            if (!ev.getByLabel(pdfWeightTags_[i], weightHandle)) {
-                  edm::LogError("PDFAnalysis") << ">>> Weights not found: " << pdfWeightTags_[i].encode() << " !!!";
-                  return false;
-            }
+            if (!ev.getByLabel(pdfWeightTags_[i], weightHandle)) return false;
             std::vector<double> weights = (*weightHandle);
             unsigned int nmembers = weights.size();
             // Set up arrays the first time wieghts are read
