@@ -18,22 +18,22 @@
 #=============BEGIN CONFIGURATION=================
 setenv TYPE Photons
 setenv CMSSWver1 3_7_0
-setenv CMSSWver2 3_7_0
+setenv CMSSWver2 3_8_0
 setenv OLDRELEASE 370
-setenv NEWRELEASE 370
-setenv OLDPRERELEASE pre5
-setenv NEWPRERELEASE 
+setenv NEWRELEASE 380
+setenv OLDPRERELEASE 
+setenv NEWPRERELEASE pre1
 
 setenv OLDRELEASE ${OLDRELEASE}${OLDPRERELEASE}
 setenv NEWRELEASE ${NEWRELEASE}${NEWPRERELEASE}
 
 
 
-#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
-#setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
+setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
+setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
 
-setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
-setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
+#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
+#setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
 
 
 #setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
@@ -55,8 +55,8 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 #setenv SAMPLE SingleGammaPt10IDEAL
 #setenv SAMPLE SingleGammaPt35IDEAL
 #setenv SAMPLE SingleGammaFlatPt10_100
-setenv SAMPLE H130GGgluonfusionSTARTUP
-#setenv SAMPLE PhotonJets_Pt_10
+#setenv SAMPLE H130GGgluonfusionSTARTUP
+setenv SAMPLE PhotonJets_Pt_10
 #setenv SAMPLE GammaJets_Pt_80_120STARTUP
 #setenv SAMPLE QCD_Pt_80_120STARTUP
 #TYPE must be one ofPixelMatchGsfElectron, Photon 
