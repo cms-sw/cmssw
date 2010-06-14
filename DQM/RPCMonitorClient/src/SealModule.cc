@@ -33,12 +33,8 @@ DEFINE_FWK_MODULE(ReadMeFromFile);
 #include <DQM/RPCMonitorClient/interface/RPCDqmClient.h>
 DEFINE_FWK_MODULE(RPCDqmClient);
 
-
 #include <DQM/RPCMonitorClient/interface/RPCChamberQuality.h>
 DEFINE_FWK_MODULE(RPCChamberQuality);
 
-
-#include <DQM/RPCMonitorClient/interface/RPCEfficiencySecond.h>
-DEFINE_FWK_MODULE(RPCEfficiencySecond);
 
 
