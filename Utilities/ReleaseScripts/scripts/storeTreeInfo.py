@@ -5,10 +5,12 @@ from operator import itemgetter
 
 class TreeAnalyzer(object):
 
-    def __init__(self):
+    def __init__(self, outFileName):
         self.dirSizes  = {}
         self.fileSizes = {}
-    
+        self.outFileName = outFileName
+        print "going to write to:",self.outFileName
+        
     def analyzePath(self, dirIn) :
 
         for (path, dirs, files) in os.walk(dirIn):
@@ -30,13 +32,21 @@ class TreeAnalyzer(object):
 
         try:
             import json
-            jsonFileName = 'treeInfo-IBsrc.json'
+            jsonFileName = self.outFileName
             jsonFile = open(jsonFileName, 'w')
             json.dump([os.path.abspath(dirIn), self.dirSizes, self.fileSizes], jsonFile)
             jsonFile.close()
             print 'treeInfo info  written to ', jsonFileName
         except Exception, e:
             print "error writing json file:", str(e)
+
+        try:
+            import pickle
+            pklFileName = self.outFileName.replace('.json','.pkl')
+            pickle.dump([os.path.abspath(dirIn), self.dirSizes, self.fileSizes], open(pklFileName, 'w') )
+            print 'treeInfo info  written to ', pklFileName
+        except Exception, e:
+            print "error writing pkl file:", str(e)
         
     def show(self):
 
@@ -64,11 +74,29 @@ class TreeAnalyzer(object):
 
 def main():
 
-    ta = TreeAnalyzer()
-    ta.analyzePath('.')
-    ta.show()
+    import getopt
+    
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "c:o:", ['checkDir=', 'outFile='])
+
+        checkDir = '.'
+        outFile  = None
+        for opt, arg in opts :
+
+            if opt in ('-c', "--checkDir", ):
+                checkDir = arg
+
+            if opt in ('-o', "--outFile", ):
+                outFile = arg
+
+        ta = TreeAnalyzer(outFile)
+        ta.analyzePath(checkDir)
+        ta.show()
+
+    except getopt.GetoptError, e:
+        print "unknown option", str(e)
+        sys.exit(2)
 
 if __name__ == '__main__':
     main()
 
-    
