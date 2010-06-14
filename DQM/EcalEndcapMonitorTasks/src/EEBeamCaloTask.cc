@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloTask.cc
  *
- * $Date: 2010/02/12 21:57:31 $
- * $Revision: 1.38 $
+ * $Date: 2010/03/27 20:08:00 $
+ * $Revision: 1.39 $
  * \author A. Ghezzi
  *
  */
@@ -285,7 +285,6 @@ void EEBeamCaloTask::setup(void){
     CrystalInBeam_vs_Event_->setAxisTitle("crystal in beam", 2);
     // 1 bin each 20 events
     // when table is moving for just one events fill with -100
-
 
     sprintf(histo, "EEBCT readout crystals errors");
     meEEBCaloReadCryErrors_ = dqmStore_->book1D(histo, histo, 425,1.,86.);
