@@ -14,7 +14,6 @@ secFiles.extend([]);
 readFiles.extend( ['/store/data/Commissioning10/Cosmics/RAW/v4/000/132/202/0224D729-6A38-DF11-B1AF-0030487C8CBE.root'] );
 
 
-
 ################# Geometry  ######################
 process.load("Geometry.MuonCommonData.muonIdealGeometryXML_cfi")
 process.load("Geometry.RPCGeometry.rpcGeometry_cfi")
@@ -68,7 +67,6 @@ process.rpcdqmclient.NumberOfEndcapDisks  = cms.untracked.int32(3)
 process.rpcdqmclient.MinimumRPCEvents = cms.untracked.int32(1)
 
 process.load("DQM.RPCMonitorClient.RPCMon_SS_Dbx_Global_cfi")
-
 
 ################### FED ##################################
 process.load("DQM.RPCMonitorClient.RPCMonitorRaw_cfi")
