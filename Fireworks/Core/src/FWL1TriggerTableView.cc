@@ -29,6 +29,7 @@ FWL1TriggerTableView::FWL1TriggerTableView( TEveWindowSlot* parent, FWL1TriggerT
 	m_columns.push_back( Column( "Algorithm Name" ));
 	m_columns.push_back( Column( "Result" ) );
 	m_columns.push_back( Column( "Bit Number" ) );
+	m_columns.push_back( Column( "Prescale" ) );
    m_eveWindow = parent->MakeFrame( 0 );
    TGCompositeFrame *frame = m_eveWindow->GetGUICompositeFrame();
 
@@ -93,6 +94,7 @@ void FWL1TriggerTableView::dataChanged( void )
    m_columns.at(0).values.clear();
    m_columns.at(1).values.clear();
    m_columns.at(2).values.clear();
+   m_columns.at(3).values.clear();
    if(! m_manager->items().empty() && m_manager->items().front() != 0 )
    {
 		if( fwlite::Event* event = const_cast<fwlite::Event*>( m_manager->items().front()->getEvent()))
@@ -106,7 +108,7 @@ void FWL1TriggerTableView::dataChanged( void )
 				triggerMenuLite.getByLabel( event->getRun(), "l1GtTriggerMenuLite", "", "" );
 				triggerRecord.getByLabel( *event, "gtDigis", "", "" );
 			}
-			catch(cms::Exception&)
+			catch( cms::Exception& )
 			{
 				fwLog( fwlog::kWarning ) << "FWL1TriggerTableView: no L1Trigger menu is available." << std::endl;
 				m_tableManager->dataChanged();
@@ -116,10 +118,19 @@ void FWL1TriggerTableView::dataChanged( void )
 			if( triggerMenuLite.isValid() && triggerRecord.isValid() )
 			{
 				const L1GtTriggerMenuLite::L1TriggerMap& algorithmMap = triggerMenuLite->gtAlgorithmMap();
+				
+				int pfIndexTechTrig = -1;
+				int pfIndexAlgoTrig = -1;
+
+				/// prescale factors
+				std::vector<std::vector<int> > prescaleFactorsAlgoTrig = triggerMenuLite->gtPrescaleFactorsAlgoTrig();
+				std::vector<std::vector<int> > prescaleFactorsTechTrig = triggerMenuLite->gtPrescaleFactorsTechTrig();
+				pfIndexAlgoTrig = ( triggerRecord->gtFdlWord()).gtPrescaleFactorIndexAlgo();
+				pfIndexTechTrig = ( triggerRecord->gtFdlWord()).gtPrescaleFactorIndexTech();
 
 				const DecisionWord dWord = triggerRecord->decisionWord();
 				for( L1GtTriggerMenuLite::CItL1Trig itTrig = algorithmMap.begin(), itTrigEnd = algorithmMap.end();
-					 itTrig != itTrigEnd; ++itTrig)
+					 itTrig != itTrigEnd; ++itTrig )
 				{
 					const unsigned int bitNumber = itTrig->first;
 					const std::string& aName = itTrig->second;
@@ -129,6 +140,7 @@ void FWL1TriggerTableView::dataChanged( void )
 					m_columns.at(0).values.push_back( aName );
 					m_columns.at(1).values.push_back( Form( "%d", result ));
 					m_columns.at(2).values.push_back( Form( "%d", bitNumber ));
+					m_columns.at(3).values.push_back( Form( "%d", prescaleFactorsAlgoTrig.at( pfIndexAlgoTrig ).at( bitNumber )));
 				}
 				const TechnicalTriggerWord ttWord = triggerRecord->technicalTriggerWord();
 				
@@ -145,6 +157,7 @@ void FWL1TriggerTableView::dataChanged( void )
 					m_columns.at(0).values.push_back( "TechTrigger" );
 					m_columns.at(1).values.push_back( Form( "%d", tBitResult ));
 					m_columns.at(2).values.push_back( Form( "%d", tBitNumber ));
+					m_columns.at(3).values.push_back( Form( "%d", prescaleFactorsTechTrig.at( pfIndexTechTrig ).at( tBitNumber )));
 				}
 			}
          else
@@ -160,9 +173,9 @@ void FWL1TriggerTableView::dataChanged( void )
 }
 
 void
-FWL1TriggerTableView::columnSelected(Int_t iCol, Int_t iButton, Int_t iKeyMod)
+FWL1TriggerTableView::columnSelected( Int_t iCol, Int_t iButton, Int_t iKeyMod )
 {
-   if (iButton == 1 || iButton == 3)
+   if( iButton == 1 || iButton == 3 )
       m_currentColumn = iCol;
 }
 
@@ -176,9 +189,9 @@ FWL1TriggerTableView::columnSelected(Int_t iCol, Int_t iButton, Int_t iKeyMod)
 // static member functions
 //
 const std::string&
-FWL1TriggerTableView::staticTypeName(void)
+FWL1TriggerTableView::staticTypeName( void )
 {
-   static std::string s_name("L1TriggerTable");
+   static std::string s_name( "L1TriggerTable" );
    return s_name;
 }
 
