@@ -124,9 +124,9 @@ def customiseOutputCommands(process):
     # examples 
     
     # drop all products, keep only the products from L1EmulRaw process and the FEDRawDataCollection_
-    process.output.outputCommands.append('drop *_*_*_*')
-    process.output.outputCommands.append('keep *_*_*_L1EmulRaw')
-    process.output.outputCommands.append('keep FEDRawDataCollection_*_*_*')
+    #process.output.outputCommands.append('drop *_*_*_*')
+    #process.output.outputCommands.append('keep *_*_*_L1EmulRaw')
+    #process.output.outputCommands.append('keep FEDRawDataCollection_*_*_*')
 
 
     return process
@@ -168,8 +168,31 @@ def customiseL1EmulatorFromRaw(process):
 
 def customiseL1GtEmulatorFromRaw(process):
     # customization fragment to run L1 GT emulator starting from a RAW file
+
+
+    # producers for technical triggers - they must be re-run as their output is 
+    # not available from RAW2DIGI
+    #
+
+    # BSC Trigger - will normally not work, it requires SimHits (not available from RAW2DIGI)
+    # works only on some MC samples where the SimHits are saved together with the FEDRaw
+    import L1TriggerOffline.L1Analyzer.bscTrigger_cfi
+    process.simBscDigis = L1TriggerOffline.L1Analyzer.bscTrigger_cfi.bscTrigger.clone()
+
+    process.SimL1TechnicalTriggers = cms.Sequence(process.simBscDigis+process.simRpcTechTrigDigis)
+
+    # RPC Technical Trigger
+    import L1Trigger.RPCTechnicalTrigger.rpcTechnicalTrigger_cfi
+    process.simRpcTechTrigDigis = L1Trigger.RPCTechnicalTrigger.rpcTechnicalTrigger_cfi.rpcTechnicalTrigger.clone()
+    process.simRpcTriggerDigis.label = 'muonRPCDigis'
+    process.simRpcTechTrigDigis.RPCDigiLabel = 'muonRPCDigis'
+
+    process.L1GtEmulator = cms.Sequence(process.SimL1TechnicalTriggers+process.simGtDigis)
+    process.simGtDigis.TechnicalTriggersInputTags = cms.VInputTag(
+                                                cms.InputTag('simBscDigis'), 
+                                                cms.InputTag('simRpcTechTrigDigis'))
     
-    process.L1GtEmulator = cms.Sequence(process.simGtDigis)
+    
     process.L1simulation_step.replace(process.SimL1Emulator,process.L1GtEmulator)
 
     return process

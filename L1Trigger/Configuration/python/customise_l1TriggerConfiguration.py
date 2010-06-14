@@ -12,7 +12,7 @@ def customiseL1TriggerConfiguration(process):
     
     # reset algorithm trigger masks
     resetL1GtTriggerMaskAlgoTrig = False
-    resetL1GtTriggerMaskAlgoTrig = True
+    #resetL1GtTriggerMaskAlgoTrig = True
     
     if resetL1GtTriggerMaskAlgoTrig == True :
         from L1Trigger.Configuration.L1Trigger_custom import customiseResetMasksAlgoTriggers
@@ -20,7 +20,7 @@ def customiseL1TriggerConfiguration(process):
 
     # reset technical trigger masks
     resetL1GtTriggerMaskTechTrig = False
-    resetL1GtTriggerMaskTechTrig = True
+    #resetL1GtTriggerMaskTechTrig = True
     
     if resetL1GtTriggerMaskTechTrig == True :
         from L1Trigger.Configuration.L1Trigger_custom import customiseResetMasksTechTriggers
@@ -31,7 +31,7 @@ def customiseL1TriggerConfiguration(process):
     # unprescale algorithm triggers (all prescale factors set to 1)
     # temporary solution
     unprescaleL1GtAlgoTriggers = False
-    unprescaleL1GtAlgoTriggers = True
+    #unprescaleL1GtAlgoTriggers = True
     
     if unprescaleL1GtAlgoTriggers == True :
         from L1Trigger.Configuration.L1Trigger_custom import customiseUnprescaleAlgoTriggers
@@ -40,7 +40,7 @@ def customiseL1TriggerConfiguration(process):
     # unprescale technical triggers (all prescale factors set to 1)
     # temporary solution
     unprescaleL1GtTechTriggers = False
-    unprescaleL1GtTechTriggers = True
+    #unprescaleL1GtTechTriggers = True
     
     if unprescaleL1GtTechTriggers == True :
         from L1Trigger.Configuration.L1Trigger_custom import customiseUnprescaleTechTriggers
@@ -50,7 +50,7 @@ def customiseL1TriggerConfiguration(process):
 
     # overwrite the L1 trigger menu
     overwriteL1Menu = False
-    overwriteL1Menu = True
+    #overwriteL1Menu = True
     
     if overwriteL1Menu == True :
         from L1Trigger.Configuration.L1Trigger_custom import customiseL1Menu

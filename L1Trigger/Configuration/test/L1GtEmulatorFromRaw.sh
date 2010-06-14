@@ -8,7 +8,7 @@ NR_ARG=1
 
 if [[ $1 == "-help" || $1 == "--help" || $# == 0 ]]; then
     echo
-    echo "Run the L1 emulator starting from a RAW file"
+    echo "Run the L1 GT emulator starting from a RAW file"
 
     echo
     echo "Usage:              "
@@ -17,7 +17,7 @@ if [[ $1 == "-help" || $1 == "--help" || $# == 0 ]]; then
     echo "   cmsenv"
     echo "   addpkg L1Trigger/Configuration"  
     echo "   cd L1Trigger/Configuration/test"  
-    echo "   ./L1EmulatorFromRaw.sh Global_Tag EventSampleType"
+    echo "   ./L1GtEmulatorFromRaw.sh Global_Tag EventSampleType"
 
     echo "Global tag must be given in one of the following formats: " 
     echo "   auto:mc"
@@ -61,24 +61,24 @@ fi
 #
 
 if [[ ${EventSampleType} == "data" ]]; then
-    cmsDriver.py l1EmulatorFromRaw -s RAW2DIGI,L1 -n 100 \
+    cmsDriver.py l1GtEmulatorFromRaw -s RAW2DIGI,L1 -n 100 \
         --conditions ${gTag} \
         --datatier 'DIGI-RECO' \
         --eventcontent FEVTDEBUGHLT \
         --data \
         --filein '/store/data/Commissioning10/Cosmics/RAW/v3/000/127/715/FCB12D5F-6C18-DF11-AB4B-000423D174FE.root' \
-        --customise=L1Trigger/Configuration/customise_l1EmulatorFromRaw \
+        --customise=L1Trigger/Configuration/customise_l1GtEmulatorFromRaw \
         --processName='L1EmulRaw' \
         --no_exec
 
         exit 0   
 else
-    cmsDriver.py l1EmulatorFromRaw -s RAW2DIGI,L1 -n 100 \
+    cmsDriver.py l1GtEmulatorFromRaw -s RAW2DIGI,L1 -n 100 \
         --conditions ${gTag} \
         --datatier 'DIGI-RECO' \
         --eventcontent FEVTDEBUGHLT \
         --filein '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0025/DAA27EF5-5069-DF11-9B53-002618943982.root' \
-        --customise=L1Trigger/Configuration/customise_l1EmulatorFromRaw \
+        --customise=L1Trigger/Configuration/customise_l1GtEmulatorFromRaw \
         --processName='L1EmulRaw' \
         --no_exec
 

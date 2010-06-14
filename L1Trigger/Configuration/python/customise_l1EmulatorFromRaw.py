@@ -36,8 +36,10 @@ def customise(process):
         from L1Trigger.Configuration.L1Trigger_custom import customiseL1TriggerReport
         process=customiseL1TriggerReport(process)
         
-        process.SimL1Emulator_L1TriggerReport = cms.Sequence(process.SimL1Emulator*process.l1GtTrigReport)
-        process.L1simulation_step.replace(process.SimL1Emulator,process.SimL1Emulator_L1TriggerReport)
+        process.CaloTPG_SimL1Emulator_L1TriggerReport = cms.Sequence(
+                                                    process.CaloTPG_SimL1Emulator*process.l1GtTrigReport)
+        process.L1simulation_step.replace(
+                            process.CaloTPG_SimL1Emulator,process.CaloTPG_SimL1Emulator_L1TriggerReport)
 
         process.l1GtTrigReport.L1GtRecordInputTag = "simGtDigis"
 

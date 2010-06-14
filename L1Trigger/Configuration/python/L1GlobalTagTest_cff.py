@@ -52,11 +52,11 @@ printGlobalTagL1DtTF = cms.Sequence(DTExtLutTester
 
 # CSC TF
 #
+CSCTFParametersTester = cms.EDAnalyzer("L1MuCSCTFParametersTester")
 
-# MISSING
-#printGlobalTagL1CscTF = cms.Sequence()
+printGlobalTagL1CscTF = cms.Sequence(CSCTFParametersTester)
 
-# RPC TRigger
+# RPC Trigger
 #
 dumpL1RPCConfig = cms.EDAnalyzer('DumpL1RPCConfig',
           fileName = cms.string('PrintGlobalTag_L1RPCConfig.log'))
@@ -113,7 +113,7 @@ printGlobalTagL1 = cms.Sequence(printGlobalTagL1Rct
                                 *printGlobalTagL1Gct
 #                                *printGlobalTagL1DtTPG
                                 *printGlobalTagL1DtTF
-#                                *printGlobalTagL1CscTF
+                                *printGlobalTagL1CscTF
                                 *printGlobalTagL1Rpc
                                 *printGlobalTagL1Gmt
                                 *printGlobalTagL1Gt

@@ -23,12 +23,11 @@ process = cms.Process('L1GlobalTagTest')
 # compatible with that global tag.
 
 #    data global tags
-useGlobalTag = 'GR09_31X_V1P'
-#useGlobalTag = 'GR09_31X_V1H'
+useGlobalTag = 'GR10_P_V6'
 
 #    MC production global tags
-#useGlobalTag = 'MC_31X_V9'
-#useGlobalTag = 'STARTUP31X_V1'
+#useGlobalTag = 'MC_37Y_V5'
+#useGlobalTag = 'START37_V5'
 
 
 # enable / disable printing for subsystems 
@@ -40,8 +39,8 @@ printL1Rct = True
 printL1Gct = True
 #printL1Gct = False
 
-printL1DtTPG = True
-#printL1DtTPG = False
+#printL1DtTPG = True
+printL1DtTPG = False
 
 
 printL1DtTF = True
@@ -119,7 +118,7 @@ process.printGTagL1Gct = cms.Path(process.printGlobalTagL1Gct)
 #process.printGTagL1DtTPG = cms.Path(process.printGlobalTagL1DtTPG)
 process.printGTagL1DtTF = cms.Path(process.printGlobalTagL1DtTF)
 
-#process.printGTagL1CscTF = cms.Path(process.printGlobalTagL1CscTF)
+process.printGTagL1CscTF = cms.Path(process.printGlobalTagL1CscTF)
 
 process.printGTagL1Rpc = cms.Path(process.printGlobalTagL1Rpc)
 
@@ -162,8 +161,8 @@ else :
 #
 
 if printL1CscTF == True :
-    #process.schedule.extend([process.printGTagL1CscTF])
-    print "Printing L1 CscTF content of global tag ", useGlobalTag, ": MISSING"
+    process.schedule.extend([process.printGTagL1CscTF])
+    print "Printing L1 CscTF content of global tag ", useGlobalTag
 else :
     print "L1 CscTF content of global tag ", useGlobalTag, " not requested to be printed"
 
