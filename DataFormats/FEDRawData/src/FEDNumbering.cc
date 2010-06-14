@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2010/03/16 21:05:18 $
- *  $Revision: 1.17 $
+ *  $Date: 2010/04/26 16:00:37 $
+ *  $Revision: 1.18 $
  *  \author G. Bruno  - CERN, EP Division
  */
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
@@ -25,25 +25,75 @@ void FEDNumbering::init()
   int i = 0;
   for(i=0; i< lastFEDId(); i++)
     in_[i] = false;
+  for(i=MINSiPixelFEDID; i<=MAXSiPixelFEDID; i++)
+    {
+      in_[i] = true;
+      from_[i] = "SiPixel";
+    }
+  for(i=MINSiStripFEDID; i<=MAXSiStripFEDID; i++)
+    {
+      in_[i] = true;
+      from_[i] = "SiStrip";
+    }
   for(i=MINPreShowerFEDID; i<=MAXPreShowerFEDID; i++)
     {
       in_[i] = true;
       from_[i] = "PreShower";
+    }
+  for(i=MINECALFEDID; i<=MAXECALFEDID; i++)
+    {
+      in_[i] = true;
+      from_[i] = "Ecal";
     }
   for(i=MINCASTORFEDID; i<=MAXCASTORFEDID; i++)
     {
       in_[i] = true;
       from_[i] = "Castor";
     }
+  for(i=MINHCALFEDID; i<=MAXHCALFEDID; i++)
+    {
+      in_[i] = true;
+      from_[i] = "Hcal";
+    }
   for(i=MINLUMISCALERSFEDID; i<=MAXLUMISCALERSFEDID; i++)
     {
       in_[i] = true;
       from_[i] = "LumiScalers";
     }
+  for(i=MINCSCFEDID; i<=MAXCSCFEDID; i++)
+    {
+      in_[i] = true;
+      from_[i] = "CSC";
+    }
+  for(i=MINCSCTFFEDID; i<=MAXCSCTFFEDID; i++)
+    {
+      in_[i] = true;
+      from_[i] = "CSCTF";
+    }
+  for(i=MINDTFEDID; i<=MAXDTFEDID; i++)
+    {
+      in_[i] = true;
+      from_[i] = "DT";
+    }
   for(i=MINDTTFFEDID; i<=MAXDTTFFEDID; i++)
     {
       in_[i] = true;
       from_[i] = "DTTF";
+    }
+  for(i=MINRPCFEDID; i<=MAXRPCFEDID; i++)
+    {
+      in_[i] = true;
+      from_[i] = "RPC";
+    }
+  for(i=MINTriggerGTPFEDID; i<=MAXTriggerGTPFEDID; i++)
+    {
+      in_[i] = true;
+      from_[i] = "TriggerGTP";
+    }
+  for(i=MINTriggerEGTPFEDID; i<=MAXTriggerEGTPFEDID; i++)
+    {
+      in_[i] = true;
+      from_[i] = "TriggerEGTP";
     }
   for(i=MINTriggerGCTFEDID; i<=MAXTriggerGCTFEDID; i++)
     {
