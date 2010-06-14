@@ -5,8 +5,8 @@
  *
  *  Class to misaligned tracker from DB.
  *
- *  $Date: 2008/12/01 17:05:44 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/12/17 20:46:50 $
+ *  $Revision: 1.3 $
  *  \author Chung Khim Lae
  */
 // user include files
@@ -36,7 +36,8 @@ public:
 private:
 	
 	void applySystematicMisalignment( Alignable* ); 
-	align::GlobalVector findSystematicMis( align::PositionType );
+	//align::GlobalVector findSystematicMis( align::PositionType );
+	align::GlobalVector findSystematicMis( align::PositionType, const bool blindToZ, const bool blindToR );
 	
 	AlignableTracker* theAlignableTracker;
 	
@@ -54,6 +55,12 @@ private:
 	double m_ellipticalEpsilon;
 	double m_skewEpsilon;
 	double m_saggitaEpsilon;
+
+	// flag to steer suppression of blind movements
+	bool suppressBlindMvmts;
+
+	// flag for old z behaviour, version <= 1.5
+	bool oldMinusZconvention;
 	
 };
 

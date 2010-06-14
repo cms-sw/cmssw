@@ -21,6 +21,8 @@
 
 #include "Alignment/TrackerAlignment/plugins/TrackerSystematicMisalignments.h"
 
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"  // for enums TID/TIB/etc.
+
 // Database
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -73,7 +75,25 @@ TrackerSystematicMisalignments::TrackerSystematicMisalignments(const edm::Parame
 	if (m_saggitaEpsilon > -990.0){
 		edm::LogWarning("MisalignedTracker") << "Applying saggita ...";		
 	}
+
+	// get flag for suppression of blind movements
+	suppressBlindMvmts = cfg.getUntrackedParameter< bool > ("suppressBlindMvmts");
+	if (suppressBlindMvmts)
+	{
+		edm::LogWarning("MisalignedTracker") << "Blind movements suppressed (TIB/TOB in z, TID/TEC in r)";
+	}
 	
+	// compatibility with old (weird) z convention
+	oldMinusZconvention = cfg.getUntrackedParameter< bool > ("oldMinusZconvention");
+	if (oldMinusZconvention)
+	{
+		edm::LogWarning("MisalignedTracker") << "Old z convention: dz --> -dz";
+	}
+	else
+	{
+		edm::LogWarning("MisalignedTracker") << "New z convention: dz --> dz";
+	}
+
 }
 
 void TrackerSystematicMisalignments::beginJob()
@@ -138,15 +158,38 @@ void TrackerSystematicMisalignments::applySystematicMisalignment(Alignable* ali)
 		if (usecomps) applySystematicMisalignment(comp[i]);
 	}
 
-	int level = ali->alignableObjectId();	
+	// if suppression of blind mvmts: check if subdet is blind to a certain mode
+	bool blindToZ(false), blindToR(false);
+	if (suppressBlindMvmts)
+	{
+		const int subdetid = ali->geomDetId().subdetId();
+		switch(subdetid)
+		{
+			// TIB/TON blind to z
+			case SiStripDetId::TIB: 
+			case SiStripDetId::TOB: 
+				blindToZ = true; 
+				break;
+			// TID/TEC blind to R
+			case SiStripDetId::TID: 
+			case SiStripDetId::TEC: 
+				blindToR = true; 
+				break;
+			default: 
+				break;
+		}
+	}
+
+	const int level = ali->alignableObjectId();	
 	if ((level == 1)||(level == 2)){		
 		const align::PositionType gP = ali->globalPosition();
-		const align::GlobalVector gVec = findSystematicMis( gP );
+		const align::GlobalVector gVec = findSystematicMis( gP, blindToZ, blindToR);
 		ali->move( gVec );
 	}
 }	 
 
-align::GlobalVector TrackerSystematicMisalignments::findSystematicMis( align::PositionType globalPos ){
+align::GlobalVector TrackerSystematicMisalignments::findSystematicMis( align::PositionType globalPos, const bool blindToZ, const bool blindToR ){
+//align::GlobalVector TrackerSystematicMisalignments::findSystematicMis( align::PositionType globalPos ){
 	// calculates shift for the current alignable
 	// all corrections are calculated w.r.t. the original geometry	
 	double deltaX = 0.0;
@@ -158,11 +201,11 @@ align::GlobalVector TrackerSystematicMisalignments::findSystematicMis( align::Po
 	const double oldPhi = globalPos.phi();
 	const double oldR = sqrt(globalPos.x()*globalPos.x() + globalPos.y()*globalPos.y());
 
-	if (m_radialEpsilon > -990.0){
+	if (m_radialEpsilon > -990.0 && !blindToR){
 		deltaX += m_radialEpsilon*oldX;
 		deltaY += m_radialEpsilon*oldY;
 	}
-	if (m_telescopeEpsilon > -990.0){
+	if (m_telescopeEpsilon > -990.0 && !blindToZ){
 		deltaZ += m_telescopeEpsilon*oldR;
 	}
 	if (m_layerRotEpsilon > -990.0){
@@ -174,13 +217,13 @@ align::GlobalVector TrackerSystematicMisalignments::findSystematicMis( align::Po
 		deltaX += (xP - oldX);
 		deltaY += (yP - oldY);
 	}
-	if (m_bowingEpsilon > -990.0){
+	if (m_bowingEpsilon > -990.0 && !blindToR){
 		const double trackeredgePlusZ=271.846;
-		const double trackeredgePlusZ2=trackeredgePlusZ*trackeredgePlusZ;
-		deltaX += oldX*m_bowingEpsilon*(trackeredgePlusZ2-oldZ*oldZ);
-		deltaY += oldY*m_bowingEpsilon*(trackeredgePlusZ2-oldZ*oldZ);
+		const double bowfactor=m_bowingEpsilon*(trackeredgePlusZ*trackeredgePlusZ-oldZ*oldZ);
+		deltaX += oldX*bowfactor;
+		deltaY += oldY*bowfactor;
 	}
-	if (m_zExpEpsilon > -990.0){
+	if (m_zExpEpsilon > -990.0 && !blindToZ){
 		deltaZ += oldZ*m_zExpEpsilon;
 	}
 	if (m_twistEpsilon > -990.0){
@@ -189,17 +232,20 @@ align::GlobalVector TrackerSystematicMisalignments::findSystematicMis( align::Po
 		deltaX += (xP - oldX);
 		deltaY += (yP - oldY);
 	}
-	if (m_ellipticalEpsilon > -990.0){
+	if (m_ellipticalEpsilon > -990.0 && !blindToR){
 		deltaX += oldX*m_ellipticalEpsilon*cos(2.0*oldPhi);
 		deltaY += oldY*m_ellipticalEpsilon*cos(2.0*oldPhi);
 	}
-	if (m_skewEpsilon > -990.0){
+	if (m_skewEpsilon > -990.0 && !blindToZ){
 		deltaZ += m_skewEpsilon*cos(oldPhi);
 	}
 	if (m_saggitaEpsilon > -990.0){
 		// deltaX += oldX/fabs(oldX)*m_saggitaEpsilon; // old one...
 		deltaY += oldR*m_saggitaEpsilon;
 	}
+
+	// Compatibility with old version <= 1.5
+	if (oldMinusZconvention) deltaZ = -deltaZ;
 	
 	align::GlobalVector gV( deltaX, deltaY, deltaZ );
 	return gV;
