@@ -10,7 +10,7 @@ process.source = cms.Source("EmptyIOVSource",
                             )
 
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'GR10_P_V5::All'
+
 #process.GlobalTag.DumpStat=cms.untracked.bool(True)
 #process.GlobalTag.DBParameters.messageLevel = 3
 process.GlobalTag.toGet = cms.VPSet(
@@ -74,7 +74,7 @@ process.GlobalTag.toGet = cms.VPSet(
              connect = cms.untracked.string("sqlite_file:myfile.db"),
 #             label = cms.untracked.string("Extended")
              ),
-    cms.PSet(record = cms.string("GeometricDetExtraRcd"),
+    cms.PSet(record = cms.string("PGeometricDetExtraRcd"),
              tag = cms.string("TKExtra_Geometry_TagXX"),
              connect = cms.untracked.string("sqlite_file:myfile.db"),
 #             label = cms.untracked.string("Extra")

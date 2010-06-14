@@ -5,7 +5,6 @@ process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.load('Configuration/StandardSequences/GeometryDB_cff')
 
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'IDEAL_31X::All'
 
 process.source = cms.Source("EmptyIOVSource",
                             lastValue = cms.uint64(1),
