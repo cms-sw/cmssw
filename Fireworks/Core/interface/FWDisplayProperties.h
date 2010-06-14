@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:22:36 EST 2008
-// $Id: FWDisplayProperties.h,v 1.9 2010/05/31 15:44:01 eulisse Exp $
+// $Id: FWDisplayProperties.h,v 1.10 2010/06/03 13:38:31 eulisse Exp $
 //
 
 // system include files
@@ -72,7 +72,7 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   /** Notice that opacity in root is in the range [0, 100] */
+   /** Notice that transparency in root is in the range [0, 100] */
    void setTransparency(Int_t transparency) {
       transparency = transparency < 0 ? 0 : transparency; 
       transparency = transparency > 100 ? 100 : transparency; 
