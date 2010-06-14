@@ -25,7 +25,16 @@ process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
 process.load("Geometry.EcalMapping.EcalMapping_cfi")
 process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
 
-process.load("CalibCalorimetry.Configuration.Ecal_FakeConditions_cff")
+#Conditions:
+#process.load("CalibCalorimetry.Configuration.Ecal_FakeConditions_cff")
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.GlobalTag.globaltag = 'MC_38Y_V1::All'
+process.GlobalTag.toGet = cms.VPSet(
+      cms.PSet(record = cms.string("EcalSRSettingsRcd"),
+                          tag = cms.string("EcalSRSettings_v00_beam10_mc"),
+                          connect = cms.untracked.string("sqlite_file:EcalSRSettings_v00_beam10_mc.db")
+               )
+      )
 
 process.load("SimCalorimetry.EcalSelectiveReadoutProducers.ecalDigis_cff")
 
@@ -41,6 +50,19 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
     sourceSeed = cms.untracked.uint32(135799753)
 )
 
-process.p1 = cms.Path(process.simEcalDigis)
+# Defines Ecal seletive readout validation module, ecalSelectiveReadoutValidation:
+process.load("Validation.EcalDigis.ecalSelectiveReadoutValidation_cfi")
+process.ecalSelectiveReadoutValidation.outputFile = 'srvalid_hists.root'
+process.ecalSelectiveReadoutValidation.ecalDccZs1stSample = 3
+process.ecalSelectiveReadoutValidation.dccWeights = [ -1.1865, 0.0195, 0.2900, 0.3477, 0.3008, 0.2266 ]
+process.ecalSelectiveReadoutValidation.histDir = ''
+process.ecalSelectiveReadoutValidation.histograms = [ 'all' ]
+
+# DQM services
+process.load("DQMServices.Core.DQM_cfg")
+process.DQM.collectorHost = ''
+
+
+process.p1 = cms.Path(process.simEcalDigis*process.ecalSelectiveReadoutValidation)
 process.simEcalDigis.dumpFlags = 10
 
