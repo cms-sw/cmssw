@@ -1,3 +1,14 @@
+V02-07-00
+---------
+	
+2010-06-14  author  <author@lxplus316.cern.ch>
+
+	* python/ecalDigis_cff.py, python/ecalDigis_cfi.py:
+	moved to cond DB configuration mode
+
+	* test/TpSrp_cfg.py: added validation plot generation
+
+
 V02-06-02
 ---------
 	
