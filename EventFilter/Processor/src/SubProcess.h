@@ -139,11 +139,11 @@ namespace evf{
 	    pid_ = retval;
 	    alive_=1;
 	  }
-/* 	if(retval==0) */
-/* 	  { */
-/* 	    //	  freopen(filename,"w",stdout); // send all console output from children to /dev/null */
-/* 	    freopen("/dev/null","w",stderr); */
-/* 	  } */
+	if(retval==0)
+	  {
+	    //	  freopen(filename,"w",stdout); // send all console output from children to /dev/null
+	    freopen("/dev/null","w",stderr);
+	  }
 	return retval;
       }
     std::string const &reasonForFailed()const {return reasonForFailed_;}

@@ -1,3 +1,8 @@
+2010-06-14 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-02-06-01
+	* put back redirection for stderr 
+
 2010-06-02 Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V02-02-06-00
