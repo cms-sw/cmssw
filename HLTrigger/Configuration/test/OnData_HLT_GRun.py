@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_6_2/GRun/V7 (CMSSW_3_6_2_HLT4)
+# /dev/CMSSW_3_6_2/GRun/V8 (CMSSW_3_6_2_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_2/GRun/V7')
+  tableName = cms.string('/dev/CMSSW_3_6_2/GRun/V8')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -1637,7 +1637,7 @@ process.MicroStateService = cms.Service( "MicroStateService",
 process.ModuleWebRegistry = cms.Service( "ModuleWebRegistry",
 )
 process.PrescaleService = cms.Service( "PrescaleService",
-    lvl1DefaultLabel = cms.untracked.string( "2E29" ),
+    lvl1DefaultLabel = cms.untracked.string( "4E29" ),
     lvl1Labels = cms.vstring( '4E29_preL1',
       '2E29_preL1',
       '4E29',
@@ -9710,8 +9710,6 @@ process.hltPreDQM = cms.EDFilter( "HLTPrescaler" )
 process.hltPreDQMSmart = cms.EDFilter( "TriggerResultsFilter",
     triggerConditions = cms.vstring( 'HLT_Activity_DT / 10',
       'HLT_Activity_DT_Tuned',
-      'HLT_Activity_Ecal / 10',
-      'HLT_Activity_EcalREM / 10',
       'HLT_Activity_Ecal_SC7 / 10',
       'HLT_Activity_Ecal_SC15 / 10',
       'HLT_Activity_L1A / 10',
@@ -9848,10 +9846,8 @@ process.hltPreHLTDQMSmart = cms.EDFilter( "TriggerResultsFilter",
       'AlCa_EcalPi0_8E29',
       'HLT_Activity_DT / 10',
       'HLT_Activity_DT_Tuned',
-      'HLT_Activity_Ecal / 10',
-      'HLT_Activity_EcalREM / 10',
-      'HLT_Activity_Ecal_SC7 / 10',
-      'HLT_Activity_Ecal_SC15 / 10',
+      'HLT_Activity_Ecal_SC7/10',
+      'HLT_Activity_Ecal_SC15/10',
       'HLT_Activity_L1A / 10',
       'HLT_Activity_PixelClusters',
       'HLT_BTagIP_Jet50U',
@@ -9985,8 +9981,6 @@ process.hltPreHLTMONSmart = cms.EDFilter( "TriggerResultsFilter",
       'AlCa_EcalPi0_8E29 / 250',
       'HLT_Activity_DT / 10',
       'HLT_Activity_DT_Tuned',
-      'HLT_Activity_Ecal',
-      'HLT_Activity_EcalREM',
       'HLT_Activity_Ecal_SC7',
       'HLT_Activity_Ecal_SC15',
       'HLT_Activity_L1A',
