@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 15:09:19 CEST 2010
-// $Id: FWCaloDataProxyBuilderBase.h,v 1.1 2010/06/07 17:54:00 amraktad Exp $
+// $Id: FWCaloDataProxyBuilderBase.h,v 1.2 2010/06/08 13:44:46 amraktad Exp $
 //
 
 // system include files
@@ -38,8 +38,6 @@ public:
    virtual ~FWCaloDataProxyBuilderBase();
 
    // ---------- const member functions ---------------------
-
-   virtual const std::string sliceName() const  = 0;
 
    virtual bool willHandleInteraction() const { return true; }
 

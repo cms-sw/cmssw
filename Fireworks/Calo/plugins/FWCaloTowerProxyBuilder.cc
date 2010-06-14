@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:28 EST 2008
-// $Id: FWCaloTowerProxyBuilder.cc,v 1.18 2010/06/07 18:58:16 matevz Exp $
+// $Id: FWCaloTowerProxyBuilder.cc,v 1.19 2010/06/08 13:44:47 amraktad Exp $
 //
 
 // system includes
@@ -112,14 +112,14 @@ FWCaloTowerProxyBuilderBase::assertCaloDataSlice()
       // add new slice
       Bool_t status = TH1::AddDirectoryStatus();
       TH1::AddDirectory(kFALSE); //Keeps histogram from going into memory
-      m_hist = new TH2F(sliceName().c_str(),
-                        sliceName().c_str(),
+      m_hist = new TH2F("caloHist",
+                        "caloHist",
                         fw3dlego::xbins_n - 1, fw3dlego::xbins,
                         72, -M_PI, M_PI);
       TH1::AddDirectory(status);
       TEveCaloDataHist* ch = static_cast<TEveCaloDataHist*>(m_caloData);
       m_sliceIndex = ch->AddHistogram(m_hist);
-      m_caloData->RefSliceInfo(m_sliceIndex).Setup(sliceName().c_str(), 0., item()->defaultDisplayProperties().color());
+      m_caloData->RefSliceInfo(m_sliceIndex).Setup(item()->name().c_str(), 0., item()->defaultDisplayProperties().color());
 
       // add new selector
       FWFromTEveCaloDataSelector* sel = 0;

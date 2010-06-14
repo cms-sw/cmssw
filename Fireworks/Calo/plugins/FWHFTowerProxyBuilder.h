@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 16:41:23 CEST 2010
-// $Id: FWHFTowerProxyBuilder.h,v 1.5 2010/06/08 13:44:47 amraktad Exp $
+// $Id: FWHFTowerProxyBuilder.h,v 1.6 2010/06/08 18:43:15 amraktad Exp $
 //
 
 // system include files
@@ -42,8 +42,6 @@ public:
    // ---------- static member functions --------------------
   
    // ---------- member functions ---------------------------
-   virtual const std::string sliceName() const { return "HF slice";}
- 
    REGISTER_PROXYBUILDER_METHODS();
 
 protected:

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:08 EST 2008
-// $Id: FWCaloTowerProxyBuilder.h,v 1.13 2010/06/07 17:54:00 amraktad Exp $
+// $Id: FWCaloTowerProxyBuilder.h,v 1.14 2010/06/08 13:44:47 amraktad Exp $
 //
 
 #include "Rtypes.h"
@@ -74,9 +74,6 @@ public:
    }
 
    // ---------- const member functions ---------------------
-   virtual const std::string sliceName() const {
-      return "ECal";
-   }
 
    virtual double getEt(const CaloTower& iTower) const {
       return iTower.emEt();
@@ -101,9 +98,6 @@ public:
    }
 
    // ---------- const member functions ---------------------
-   virtual const std::string sliceName() const {
-      return "HCal";
-   }
 
    virtual double getEt(const CaloTower& iTower) const {
       return iTower.hadEt()+iTower.outerEt();

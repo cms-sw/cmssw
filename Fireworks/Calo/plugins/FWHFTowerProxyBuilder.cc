@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 16:41:27 CEST 2010
-// $Id: FWHFTowerProxyBuilder.cc,v 1.11 2010/06/09 14:02:00 amraktad Exp $
+// $Id: FWHFTowerProxyBuilder.cc,v 1.12 2010/06/09 18:53:03 amraktad Exp $
 //
 
 // system include files
@@ -57,7 +57,7 @@ FWHFTowerProxyBuilderBase::assertCaloDataSlice()
   {
     m_sliceIndex = m_vecData->AddSlice();
     // printf("add slice %d \n",m_sliceIndex  );
-    m_caloData->RefSliceInfo(m_sliceIndex).Setup(sliceName().c_str(), 0., item()->defaultDisplayProperties().color());
+    m_caloData->RefSliceInfo(m_sliceIndex).Setup(item()->name().c_str() , 0., item()->defaultDisplayProperties().color());
     
     
     // add new selector
