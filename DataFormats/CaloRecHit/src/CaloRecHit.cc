@@ -1,10 +1,11 @@
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
 
 
-CaloRecHit::CaloRecHit() : energy_(0), time_(0), flags_(0) {
+CaloRecHit::CaloRecHit() : energy_(0), time_(0), flags_(0), aux_(0) {
 }
 
-CaloRecHit::CaloRecHit(const DetId& id, float energy, float time, uint32_t flags) : id_(id),energy_(energy), time_(time), flags_(flags) {
+CaloRecHit::CaloRecHit(const DetId& id, float energy, float time, uint32_t flags, uint32_t aux) : 
+	id_(id),energy_(energy), time_(time), flags_(flags), aux_(aux) {
 }
 
 CaloRecHit::~CaloRecHit() {
@@ -35,6 +36,9 @@ uint32_t CaloRecHit::flagField(int base, int width) const {
 
 
 std::ostream& operator<<(std::ostream& s, const CaloRecHit& hit) {
-  return s << hit.detid().rawId() << ", " << hit.energy() << " GeV, " << hit.time() << " ns  flags=0x" << std::hex << hit.flags() << std::dec << " ";
+  s << hit.detid().rawId() << ", " << hit.energy() << " GeV, " << hit.time() << " ns ";
+  s << " flags=0x" << std::hex << hit.flags() << std::dec << " ";
+  s << " aux=0x" << std::hex << hit.aux() << std::dec << " ";
+  return s;
 }
 

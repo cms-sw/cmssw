@@ -7,14 +7,14 @@
 
 /** \class CaloRecHit
  * 
- * $Date: 2008/11/08 10:30:10 $
- * $Revision: 1.5 $
+ * $Date: 2009/03/29 02:07:54 $
+ * $Revision: 1.6 $
  *\author J. Mans - Minnesota
  */
 class CaloRecHit {
 public:
   CaloRecHit(); // for persistence
-  explicit CaloRecHit(const DetId& id, float energy, float time, uint32_t flags = 0);
+  explicit CaloRecHit(const DetId& id, float energy, float time, uint32_t flags = 0, uint32_t aux=0);
   virtual ~CaloRecHit();
   float energy() const { return energy_; }
   float time() const { return time_; }
@@ -23,11 +23,14 @@ public:
   void setFlags(uint32_t flags) { flags_=flags; }
   void setFlagField(uint32_t value, int base, int width=1);
   uint32_t flagField(int base, int width=1) const;
+  void setAux(uint32_t value) { aux_=value; }
+  uint32_t aux() const { return aux_; }
 private:
   DetId id_;
   float energy_;
   float time_;
   uint32_t flags_;
+  uint32_t aux_;
 };
 
 std::ostream& operator<<(std::ostream& s, const CaloRecHit& hit);
