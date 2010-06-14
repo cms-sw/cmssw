@@ -15,7 +15,7 @@ qcdPhotonsDQM = cms.EDAnalyzer("QcdPhotonsDQM",
                 minPhotonEt               = cms.int32(20),
                 requirePhotonFound        = cms.bool(True),
                 # Max Et on plots
-                plotMaxEt                 = cms.double(500.0),
+                plotPhotonMaxEt           = cms.double(200.0),
                 plotPhotonMaxEta          = cms.double(5.0),
                 plotJetMaxEta             = cms.double(5.0)
 )
