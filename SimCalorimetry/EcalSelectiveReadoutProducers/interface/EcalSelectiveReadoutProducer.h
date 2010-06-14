@@ -90,6 +90,13 @@ private:
 
   ///@}
 
+  ///Checks validity of selective setting object is valid to be used
+  ///for MC, especially checks the number of elements in the vectors
+  ///@param forEmulator if true check the restriction that applies for
+  ///EcalSelectiveReadoutProducer
+  ///@throw cms::Exception if the setting is not valid.
+  static void checkValidity(const EcalSRSettings& settings);
+  
   void
   printTTFlags(const EcalTrigPrimDigiCollection& tp, std::ostream& os) const;
 

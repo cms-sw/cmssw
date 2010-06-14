@@ -6,6 +6,7 @@
 <use name=DataFormats/EcalDetId>
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/EcalObjects>
+<use name=CondCore/EcalPlugins>
 <use name=CondCore/DBOutputService>
 <use name=CondCore/DBCommon>
 
@@ -21,6 +22,7 @@
    <use name=DataFormats/EcalDetId>
    <use name=CondFormats/DataRecord>
    <use name=CondFormats/EcalObjects>
+   <use name=CondCore/EcalPlugins>
    <use name=CondCore/DBOutputService>
    <use name=CondCore/DBCommon>
 </export>

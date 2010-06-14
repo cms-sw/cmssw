@@ -1,5 +1,8 @@
 /*
- * $Id$
+ * $Id: EcalSRSettings.h,v 1.1 2010/06/09 14:23:32 pgras Exp $
+ *
+ * Original author: Ph. Gras CEA/IRFU Saclay.  June, 2010
+ *
  */
 
 #ifndef ECALSRSETTINGS_H
@@ -11,7 +14,15 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-/**
+/** Class to hold ECAL Selective readout settings.
+ * Up to CMSSW release 3.8.X, selective readout emulation settings was done from
+ * CMSSW configuration file. From 3.8.X configuration is stored in condition database.
+ * Support for configuration from CMSSW configuration file is maintained, for backward
+ * compatibility and to provide an easy way to change settings for studies dedicated to
+ * seletive readout. The same object is used to stored the online setting of real data.
+ *
+ * Tools to manipulate this object can be found in class EcalSRCondTools of package
+ * SimCalorimetry/EcalSelectiveReadoutProducer.
  */
 class EcalSRSettings {
 
@@ -27,35 +38,8 @@ public:
 
   //method(s)
 public:
-  ///Imports an SRP configuration file (stored in database "CLOB")
-  void importSrpConfigFile(std::istream& f, bool debug = false);
 
-  ///Imports parameters from a parameter set (CMSSW python config file)
-  ///Configuration from parameter set convers only part of the config,
-  ///mainly the configuration needed for SR emulation in the MC.
-  ///@param ps the ParameterSet object holding the configuration
-  void importParameterSet(const edm::ParameterSet& ps);
-  
-  ///convert hardware weights (interger weights)
-  ///into normalized weights. The former reprensentation is used in DCC firmware
-  ///and in online databaser, while the later is used in offline software.
-  static double normalizeWeights(int hwWeight);
-
-  ///Checks if the settings is valid, especially checks the number of elements in the vectors
-  ///@param forEmulator if true check the restriction that applies for EcalSelectiveReadoutProducer
-  ///@throw cms::Exception if the setting is not valid.
-  void checkValidity(bool forEmulator = false) const;
 private:
-  ///Help function to tokenize a string
-  ///@param s string to parse
-  ///@delim token delimiters
-  ///@pos internal string position pointer. Must be set to zero before the first call
-  static std::string tokenize(const std::string& s, const std::string& delim, int& pos);
-
-  ///Help function to trim spaces at beginning and end of a string
-  ///@param s string to trim
-  static std::string trim(std::string s);
-  
   //attribute(s)
 protected:
 private:
@@ -96,9 +80,9 @@ public:
   std::vector<int> ecalDccZs1stSample_;
 
   /// ADC to GeV conversion factor used in ZS filter for EB
-  double ebDccAdcToGeV_;
+  float ebDccAdcToGeV_;
     /// ADC to GeV conversion factor used in ZS filter for EE
-  double eeDccAdcToGeV_;
+  float eeDccAdcToGeV_;
 
   ///DCC ZS FIR weights: weights are rounded in such way that in Hw
   ///representation (weigth*1024 rounded to nearest integer) the sum is null:
@@ -112,7 +96,7 @@ public:
   ///                           (see EBDetId::denseIndex())
   ///            for i >= 61200, element i applies to EE crystal with denseIndex (i+61200)
   ///                           (see EBDetId::denseIndex())
-  std::vector<std::vector<double> > dccNormalizedWeights_;
+  std::vector<std::vector<float> > dccNormalizedWeights_;
   
   /// Switch to use a symetric zero suppression (cut on absolute value). For
   /// studies only, for time being it is not supported by the hardware.
@@ -134,7 +118,7 @@ public:
   /// SRP emulation supports only the 2-element mode.
   /// Corresponds to srpBarrelLowInterestChannelZS and srpEndcapLowInterestChannelZS
   /// of python configuration file parameters
-  std::vector<double> srpLowInterestChannelZS_;
+  std::vector<float> srpLowInterestChannelZS_;
     
   /// ZS energy threshold in GeV to apply to high interest channels of endcap
   /// If the vector contains...
@@ -144,7 +128,7 @@ public:
   /// SRP emulation supports only the 2-element mode.
   /// Corresponds to srpBarrelLowInterestChannelZS and srpEndcapLowInterestChannelZS
   /// of python configuration file parameters
-  std::vector<double> srpHighInterestChannelZS_;
+  std::vector<float> srpHighInterestChannelZS_;
   
 //  ///switch to run w/o trigger primitive. For debug use only
 //  ///having troubles for vector<bool> with coral (3.8.0pre1), using vector<int> instead
@@ -164,10 +148,10 @@ public:
 //  std::vector<int> trigPrimBypassMode_;
 //  
 //  ///for debug mode only:
-//  std::vector<double>  trigPrimBypassLTH_;
+//  std::vector<float>  trigPrimBypassLTH_;
 //  
 //  ///for debug mode only:
-//  std::vector<double>  trigPrimBypassHTH_;
+//  std::vector<float>  trigPrimBypassHTH_;
 //    
 //  ///for debug mode only
 //  ///having troubles for vector<bool> with coral (3.8.0pre1), using vector<int> instead
@@ -206,6 +190,7 @@ public:
 
   //@{
   ///Tester mode configuration
+  /// 12 elements: index = (SRP ID - 1)
   std::vector<int> testerTccEmuSrpIds_;
   std::vector<int> testerSrpEmuSrpIds_;
   std::vector<int> testerDccTestSrpIds_;
@@ -214,6 +199,7 @@ public:
   
   ///Per SRP card bunch crossing counter offset.
   ///This offset is added to the bxGlobalOffset
+  /// 12 elements: index = (SRP ID - 1)
   std::vector<short> bxOffsets_;
 
   ///SRP system bunch crossing counter offset.

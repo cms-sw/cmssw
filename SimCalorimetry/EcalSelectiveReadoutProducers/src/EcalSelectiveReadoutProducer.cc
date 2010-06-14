@@ -8,6 +8,8 @@
 #include "CondFormats/DataRecord/interface/EcalSRSettingsRcd.h"
 //#include "DataFormats/EcalDigi/interface/EcalMGPASample.h"
 
+#include "SimCalorimetry/EcalSelectiveReadoutProducers/interface/EcalSRCondTools.h"
+
 #include <memory>
 #include <fstream>
 
@@ -46,7 +48,7 @@ EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterS
   }
   if(!useCondDb_){
     settingsFromFile_ = auto_ptr<EcalSRSettings>(new EcalSRSettings());
-    settingsFromFile_->importParameterSet(params);
+    EcalSRCondTools::importParameterSet(*settingsFromFile_, params);
     settings_ = settingsFromFile_.get();
   }
 
@@ -81,7 +83,7 @@ EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& 
   edm::ESHandle<EcalSRSettings> hSr;
   eventSetup.get<EcalSRSettingsRcd>().get(hSr);
   settings_ = hSr.product();
-  settings_->checkValidity();
+  checkValidity(*settings_);
   
   // check that everything is up-to-date
   checkGeometry(eventSetup);
@@ -283,7 +285,7 @@ void EcalSelectiveReadoutProducer::printTTFlags(const EcalTrigPrimDigiCollection
 
 void EcalSelectiveReadoutProducer::checkWeights(const edm::Event& evt,
 						const edm::ProductID& noZsDigiId) const{
-  const vector<double> & weights = settings_->dccNormalizedWeights_[0]; //params_.getParameter<vector<double> >("dccNormalizedWeights");
+  const vector<float> & weights = settings_->dccNormalizedWeights_[0]; //params_.getParameter<vector<double> >("dccNormalizedWeights");
   int nFIRTaps = EcalSelectiveReadoutSuppressor::getFIRTapCount();
   static bool warnWeightCnt = true;
   if((int)weights.size() > nFIRTaps && warnWeightCnt){
@@ -480,4 +482,28 @@ EcalSelectiveReadoutProducer::printSrFlags(ostream& os,
 
   //event trailer:
   os << "\n";
+}
+
+void EcalSelectiveReadoutProducer::checkValidity(const EcalSRSettings& settings){
+  if(settings.dccNormalizedWeights_.size() != 1){
+    throw cms::Exception("Configuration") << "Selective readout emulator, EcalSelectiveReadout, supports only single set of ZS weights. "
+      "while the configuration contains " << settings.dccNormalizedWeights_.size() << " set(s)\n";
+  }
+  
+//   if(settings.dccNormalizedWeights_.size() != 1
+//      && settings.dccNormalizedWeights_.size() != 2
+//      && settings.dccNormalizedWeights_.size() != 54
+//      && settings.dccNormalizedWeights_.size() != 75848){
+//     throw cms::Exception("Configuration") << "Invalid number of DCC weight set (" << settings.dccNormalizedWeights_.size()
+// 					  << ") in condition object EcalSRSetting::dccNormalizedWeights_. "
+// 					  << "Valid counts are: 1 (single set), 2 (EB and EE), 54 (one per DCC) and 75848 "
+//       "(one per crystal)\n";
+//   }
+  
+  if(settings.dccNormalizedWeights_.size() != settings.ecalDccZs1stSample_.size()){
+    throw cms::Exception("Configuration") << "Inconsistency between number of weigth sets ("
+					  << settings.dccNormalizedWeights_.size() << ") and "
+					  << "number of ecalDccZs1Sample values ("
+					  << settings.ecalDccZs1stSample_.size() << ").";
+  }  
 }

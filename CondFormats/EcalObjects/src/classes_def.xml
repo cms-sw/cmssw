@@ -139,7 +139,22 @@
 <class name="EcalContainer<EcalTrigTowerDetId,EcalDQMStatusCode>"/>
 <class name="EcalContainer<EcalScDetId,EcalDQMStatusCode>"/>
 
-<class name="EcalSRSettings" class_version="0"/>
-<class name="std::vector<std::vector<short> >" class_version="0"/>
+<class name="std::vector<std::vector<short> >" />
+<class name="std::vector<std::vector<float> >" />
+<class name="EcalSRSettings" class_version="0">
+  <field name="deltaEta_" mapping="blob" />
+  <field name="deltaPhi_" mapping="blob" />
+  <field name="ecalDccZs1stSample_" mapping="blob" />
+  <field name="dccNormalizedWeights_" mapping="blob" /> 
+  <field name="symetricZS_" mapping="blob" />
+  <field name="srpLowInterestChannelZS_" mapping="blob" />
+  <field name="srpHighInterestChannelZS_" mapping="blob" />
+  <field name="actions_" mapping="blob" />
+  <field name="tccMasksFromConfig_" mapping="blob" />
+  <field name="srpMasksFromConfig_" mapping="blob" />
+  <field name="dccMasks_" mapping="blob" />
+  <field name="srfMasks_" mapping="blob" />
+  <field name="substitutionSrfs_" mapping="blob" />
+</class>
 
 </lcgdict>

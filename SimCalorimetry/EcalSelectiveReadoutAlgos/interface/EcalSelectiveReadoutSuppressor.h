@@ -248,7 +248,7 @@ public:
 
   /** DCC zero suppression FIR filter uncalibrated normalized weigths
    */
-  std::vector<double> weights;
+  std::vector<float> weights;
 
   /** Flag to use a symetric zero suppression (cut on absolute value)
    */
