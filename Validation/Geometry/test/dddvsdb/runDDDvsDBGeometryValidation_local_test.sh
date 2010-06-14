@@ -34,7 +34,7 @@ addpkg Geometry/CaloEventSetup
 addpkg GeometryReaders/XMLIdealGeometryESSource
 addpkg DetectorDescription/Schema
 addpkg Configuration/StandardSequences
-addpkg CondTools/Geometry
+#addpkg CondTools/Geometry
 
 #add cvs updates here for REAL LOCAL testing
 # e.g. cvs update -A Geometry/DTGeometry/test/*.py
@@ -75,11 +75,11 @@ mkdir workArea
 cd workArea
 set myDir=`pwd`
 echo $myDir
-cp $CMSSW_BASE/src/CondTools/Geometry/test/dbconfig.xml .
-source $CMSSW_BASE/src/CondTools/Geometry/test/blob_preparation.txt > GeometryValidation.log
+#cp $CMSSW_BASE/src/CondTools/Geometry/test/dbconfig.xml .
+#source $CMSSW_BASE/src/CondTools/Geometry/test/blob_preparation.txt > GeometryValidation.log
 cp $CMSSW_BASE/src/CondTools/Geometry/test/geometryxmlwriter.py .
 echo $geometry
-sed -i "{s/GeometryExtended/${geometry}/}" geometryxmlwriter.py >>  GeometryValidation.log
+sed -i "{s/GeometryExtended/${geometry}/}" geometryxmlwriter.py >  GeometryValidation.log
 cmsRun geometryxmlwriter.py >>  GeometryValidation.log
 
 cp $CMSSW_BASE/src/CondTools/Geometry/test/geometrywriter.py .
@@ -96,6 +96,7 @@ endif
 echo "Start compare the content of GT and the local DB" | tee -a GeometryValidation.log
 
 cp $CMSSW_BASE/src/CondTools/Geometry/test/geometrytest_local.py .
+sed -i "/FrontierConditions_GlobalTag_cff/ a\process.GlobalTag.globaltag = '${gtag}'" geometrytest_local.py >> GeometryValidation.log
 cmsRun geometrytest_local.py > outLocalDB.log
 if ( -s outLocalDB.log ) then
     echo "Local DB access run ok" | tee -a GeometryValidation.log
