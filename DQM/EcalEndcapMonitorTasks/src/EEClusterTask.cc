@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2010/03/27 20:08:00 $
- * $Revision: 1.75 $
+ * $Date: 2010/03/29 14:31:07 $
+ * $Revision: 1.76 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -432,23 +432,23 @@ void EEClusterTask::setup(void){
 
     sprintf(histo, "EECLT SC seed occupancy map EE -");
     meSCSeedMapOcc_[0] = dqmStore_->book2D(histo, histo, 20, 0., 100., 20, 0., 100.);
-    meSCSeedMapOcc_[0]->setAxisTitle("jx", 1);
-    meSCSeedMapOcc_[0]->setAxisTitle("jy", 2);
+    meSCSeedMapOcc_[0]->setAxisTitle("jx'", 1);
+    meSCSeedMapOcc_[0]->setAxisTitle("jy'", 2);
 
     sprintf(histo, "EECLT SC seed occupancy map EE +");
     meSCSeedMapOcc_[1] = dqmStore_->book2D(histo, histo, 20, 0., 100., 20, 0., 100.);
-    meSCSeedMapOcc_[1]->setAxisTitle("jx", 1);
-    meSCSeedMapOcc_[1]->setAxisTitle("jy", 2);
+    meSCSeedMapOcc_[1]->setAxisTitle("jx'", 1);
+    meSCSeedMapOcc_[1]->setAxisTitle("jy'", 2);
 
     sprintf(histo, "EECLT SC single crystal cluster seed occupancy map EE -");
     meSCMapSingleCrystal_[0] = dqmStore_->book2D(histo, histo, 20, 0., 100., 20, 0., 100.);
-    meSCMapSingleCrystal_[0]->setAxisTitle("jx", 1);
-    meSCMapSingleCrystal_[0]->setAxisTitle("jy", 2);
+    meSCMapSingleCrystal_[0]->setAxisTitle("jx'", 1);
+    meSCMapSingleCrystal_[0]->setAxisTitle("jy'", 2);
 
     sprintf(histo, "EECLT SC single crystal cluster seed occupancy map EE +");
     meSCMapSingleCrystal_[1] = dqmStore_->book2D(histo, histo, 20, 0., 100., 20, 0., 100.);
-    meSCMapSingleCrystal_[1]->setAxisTitle("jx", 1);
-    meSCMapSingleCrystal_[1]->setAxisTitle("jy", 2);
+    meSCMapSingleCrystal_[1]->setAxisTitle("jx'", 1);
+    meSCMapSingleCrystal_[1]->setAxisTitle("jy'", 2);
 
     sprintf(histo, "EECLT s1s9");
     mes1s9_ = dqmStore_->book1D(histo, histo, 50, 0., 1.5);

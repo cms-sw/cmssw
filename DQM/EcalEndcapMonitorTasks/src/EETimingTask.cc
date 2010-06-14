@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2010/03/27 20:08:01 $
- * $Revision: 1.60 $
+ * $Date: 2010/03/31 14:31:51 $
+ * $Revision: 1.61 $
  * \author G. Della Ricca
  *
 */
@@ -138,8 +138,9 @@ void EETimingTask::setup(void){
 
       sprintf(histo, "EETMT timing %s", Numbers::sEE(i+1).c_str());
       meTimeMap_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 25., 75., "s");
-      meTimeMap_[i]->setAxisTitle("jx", 1);
-      meTimeMap_[i]->setAxisTitle("jy", 2);
+      meTimeMap_[i]->setAxisTitle("ix", 1);
+      if ( i+1 >= 1 && i+1 <= 9 ) meTimeMap_[i]->setAxisTitle("101-ix", 1);
+      meTimeMap_[i]->setAxisTitle("iy", 2);
       meTimeMap_[i]->setAxisTitle("time (ns)", 3);
       dqmStore_->tag(meTimeMap_[i], i+1);
 
@@ -170,14 +171,14 @@ void EETimingTask::setup(void){
 
     sprintf(histo, "EETMT timing map EE -");
     meTimeSummaryMap_[0] = dqmStore_->bookProfile2D(histo, histo, 20, 0., 100., 20, 0., 100., 50, 25., 75., "s");
-    meTimeSummaryMap_[0]->setAxisTitle("jx", 1);
-    meTimeSummaryMap_[0]->setAxisTitle("jy", 2);
+    meTimeSummaryMap_[0]->setAxisTitle("ix'", 1);
+    meTimeSummaryMap_[0]->setAxisTitle("101-iy'", 2);
     meTimeSummaryMap_[0]->setAxisTitle("time (ns)", 3);
 
     sprintf(histo, "EETMT timing map EE +");
     meTimeSummaryMap_[1] = dqmStore_->bookProfile2D(histo, histo, 20, 0., 100., 20, 0., 100., 50, 25., 75., "s");
-    meTimeSummaryMap_[1]->setAxisTitle("jx", 1);
-    meTimeSummaryMap_[1]->setAxisTitle("jy", 2);
+    meTimeSummaryMap_[1]->setAxisTitle("ix'", 1);
+    meTimeSummaryMap_[1]->setAxisTitle("iy'", 2);
     meTimeSummaryMap_[1]->setAxisTitle("time (ns)", 3);
 
     sprintf(histo, "EETMT timing projection eta EE -");

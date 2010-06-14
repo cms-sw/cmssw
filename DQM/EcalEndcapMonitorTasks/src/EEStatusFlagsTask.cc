@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsTask.cc
  *
- * $Date: 2010/05/27 09:52:33 $
- * $Revision: 1.33 $
+ * $Date: 2010/05/30 17:30:30 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  *
 */
@@ -145,8 +145,9 @@ void EEStatusFlagsTask::setup(void){
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EESFT front-end status %s", Numbers::sEE(i+1).c_str());
       meFEchErrors_[i][0] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
-      meFEchErrors_[i][0]->setAxisTitle("jx", 1);
-      meFEchErrors_[i][0]->setAxisTitle("jy", 2);
+      meFEchErrors_[i][0]->setAxisTitle("ix", 1);
+      if ( i+1 >= 1 && i+1 <= 9 ) meFEchErrors_[i][0]->setAxisTitle("101-ix", 1);
+      meFEchErrors_[i][0]->setAxisTitle("iy", 2);
       dqmStore_->tag(meFEchErrors_[i][0], i+1);
 
       sprintf(histo, "EESFT MEM front-end status %s", Numbers::sEE(i+1).c_str());

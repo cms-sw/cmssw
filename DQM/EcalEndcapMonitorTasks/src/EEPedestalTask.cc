@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalTask.cc
  *
- * $Date: 2010/02/12 21:37:58 $
- * $Revision: 1.51 $
+ * $Date: 2010/03/27 20:08:01 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  *
 */
@@ -143,19 +143,22 @@ void EEPedestalTask::setup(void){
       for (int i = 0; i < 18; i++) {
         sprintf(histo, "EEPT pedestal %s G01", Numbers::sEE(i+1).c_str());
         mePedMapG01_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
-        mePedMapG01_[i]->setAxisTitle("jx", 1);
-        mePedMapG01_[i]->setAxisTitle("jy", 2);
+        mePedMapG01_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) mePedMapG01_[i]->setAxisTitle("101-ix", 1);
+        mePedMapG01_[i]->setAxisTitle("iy", 2);
         dqmStore_->tag(mePedMapG01_[i], i+1);
 #ifdef COMMON_NOISE_ANALYSIS
         sprintf(histo, "EEPT pedestal 3sum %s G01", Numbers::sEE(i+1).c_str());
         mePed3SumMapG01_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
-        mePed3SumMapG01_[i]->setAxisTitle("jx", 1);
-        mePed3SumMapG01_[i]->setAxisTitle("jy", 2);
+        mePed3SumMapG01_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) mePed3SumMapG01_[i]->setAxisTitle("101-ix", 1);
+        mePed3SumMapG01_[i]->setAxisTitle("iy", 2);
         dqmStore_->tag(mePed3SumMapG01_[i], i+1);
         sprintf(histo, "EEPT pedestal 5sum %s G01", Numbers::sEE(i+1).c_str());
         mePed5SumMapG01_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
-        mePed5SumMapG01_[i]->setAxisTitle("jx", 1);
-        mePed5SumMapG01_[i]->setAxisTitle("jy", 2);
+        mePed5SumMapG01_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) mePed5SumMapG01_[i]->setAxisTitle("101-ix", 1);
+        mePed5SumMapG01_[i]->setAxisTitle("iy", 2);
         dqmStore_->tag(mePed5SumMapG01_[i], i+1);
 #endif
       }
@@ -168,19 +171,22 @@ void EEPedestalTask::setup(void){
       for (int i = 0; i < 18; i++) {
         sprintf(histo, "EEPT pedestal %s G06", Numbers::sEE(i+1).c_str());
         mePedMapG06_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
-        mePedMapG06_[i]->setAxisTitle("jx", 1);
-        mePedMapG06_[i]->setAxisTitle("jy", 2);
+        mePedMapG06_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) mePedMapG06_[i]->setAxisTitle("101-ix", 1);
+        mePedMapG06_[i]->setAxisTitle("iy", 2);
         dqmStore_->tag(mePedMapG06_[i], i+1);
 #ifdef COMMON_NOISE_ANALYSIS
         sprintf(histo, "EEPT pedestal 3sum %s G06", Numbers::sEE(i+1).c_str());
         mePed3SumMapG06_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
-        mePed3SumMapG06_[i]->setAxisTitle("jx", 1);
-        mePed3SumMapG06_[i]->setAxisTitle("jy", 2);
+        mePed3SumMapG06_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) mePed3SumMapG06_[i]->setAxisTitle("101-ix", 1);
+        mePed3SumMapG06_[i]->setAxisTitle("iy", 2);
         dqmStore_->tag(mePed3SumMapG06_[i], i+1);
         sprintf(histo, "EEPT pedestal 5sum %s G06", Numbers::sEE(i+1).c_str());
         mePed5SumMapG06_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
-        mePed5SumMapG06_[i]->setAxisTitle("jx", 1);
-        mePed5SumMapG06_[i]->setAxisTitle("jy", 2);
+        mePed5SumMapG06_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) mePed5SumMapG06_[i]->setAxisTitle("101-ix", 1);
+        mePed5SumMapG06_[i]->setAxisTitle("iy", 2);
         dqmStore_->tag(mePed5SumMapG06_[i], i+1);
 #endif
       }
@@ -193,19 +199,22 @@ void EEPedestalTask::setup(void){
       for (int i = 0; i < 18; i++) {
         sprintf(histo, "EEPT pedestal %s G12", Numbers::sEE(i+1).c_str());
         mePedMapG12_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
-        mePedMapG12_[i]->setAxisTitle("jx", 1);
-        mePedMapG12_[i]->setAxisTitle("jy", 2);
+        mePedMapG12_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) mePedMapG12_[i]->setAxisTitle("101-ix", 1);
+        mePedMapG12_[i]->setAxisTitle("iy", 2);
         dqmStore_->tag(mePedMapG12_[i], i+1);
 #ifdef COMMON_NOISE_ANALYSIS
         sprintf(histo, "EEPT pedestal 3sum %s G12", Numbers::sEE(i+1).c_str());
         mePed3SumMapG12_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
-        mePed3SumMapG12_[i]->setAxisTitle("jx", 1);
-        mePed3SumMapG12_[i]->setAxisTitle("jy", 2);
+        mePed3SumMapG12_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) mePed3SumMapG12_[i]->setAxisTitle("101-ix", 1);
+        mePed3SumMapG12_[i]->setAxisTitle("iy", 2);
         dqmStore_->tag(mePed3SumMapG12_[i], i+1);
         sprintf(histo, "EEPT pedestal 5sum %s G12", Numbers::sEE(i+1).c_str());
         mePed5SumMapG12_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
-        mePed5SumMapG12_[i]->setAxisTitle("jx", 1);
-        mePed5SumMapG12_[i]->setAxisTitle("jy", 2);
+        mePed5SumMapG12_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) mePed5SumMapG12_[i]->setAxisTitle("101-ix", 1);
+        mePed5SumMapG12_[i]->setAxisTitle("iy", 2);
         dqmStore_->tag(mePed5SumMapG12_[i], i+1);
 #endif
       }
@@ -445,12 +454,12 @@ void EEPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       for ( int ix = 1; ix <= 50; ix++ ) {
         for ( int iy = 1; iy <= 50; iy++ ) {
 
-          int jx = ix + Numbers::ix0EE(ism);
-          int jy = iy + Numbers::iy0EE(ism);
+          int xix = ix + Numbers::ix0EE(ism);
+          int xiy = iy + Numbers::iy0EE(ism);
 
-          if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
+          if ( ism >= 1 && ism <= 9 ) xix = 101 - xix;
 
-          if ( ! Numbers::validEE(ism, jx, jy) ) continue;
+          if ( ! Numbers::validEE(ism, xix, xiy) ) continue;
 
           float xix = ix - 0.5;
           float xiy = iy - 0.5;

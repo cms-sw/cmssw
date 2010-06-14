@@ -1,8 +1,8 @@
 /*
  * \file EECosmicTask.cc
  *
- * $Date: 2010/02/12 21:57:31 $
- * $Revision: 1.53 $
+ * $Date: 2010/03/27 20:08:01 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  *
 */
@@ -105,8 +105,9 @@ void EECosmicTask::setup(void){
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EECT energy sel %s", Numbers::sEE(i+1).c_str());
       meSelMap_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
-      meSelMap_[i]->setAxisTitle("jx", 1);
-      meSelMap_[i]->setAxisTitle("jy", 2);
+      meSelMap_[i]->setAxisTitle("ix", 1);
+      if ( i+1 >= 1 && i+1 <= 9 ) meSelMap_[i]->setAxisTitle("101-ix", 1);
+      meSelMap_[i]->setAxisTitle("iy", 2);
       meSelMap_[i]->setAxisTitle("energy (GeV)", 3);
     }
 

@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineTask.cc
  *
- * $Date: 2010/02/12 21:34:03 $
- * $Revision: 1.30 $
+ * $Date: 2010/03/27 20:08:01 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  *
 */
@@ -93,8 +93,9 @@ void EEPedestalOnlineTask::setup(void){
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEPOT pedestal %s G12", Numbers::sEE(i+1).c_str());
       mePedMapG12_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
-      mePedMapG12_[i]->setAxisTitle("jx", 1);
-      mePedMapG12_[i]->setAxisTitle("jy", 2);
+      mePedMapG12_[i]->setAxisTitle("ix", 1);
+      if ( i+1 >= 1 && i+1 <= 9 ) mePedMapG12_[i]->setAxisTitle("101-ix", 1);
+      mePedMapG12_[i]->setAxisTitle("iy", 2);
       dqmStore_->tag(mePedMapG12_[i], i+1);
     }
 

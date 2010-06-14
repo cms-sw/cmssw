@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2010/05/02 15:26:51 $
- * $Revision: 1.73 $
+ * $Date: 2010/06/04 12:27:55 $
+ * $Revision: 1.74 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -280,8 +280,9 @@ void EETriggerTowerTask::setup( const char* nameext,
                                              50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
                                              50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
                                              256, 0, 256.);
-    (*meEtMap)[i]->setAxisTitle("jx", 1);
-    (*meEtMap)[i]->setAxisTitle("jy", 2);
+    (*meEtMap)[i]->setAxisTitle("ix", 1);
+    if ( i+1 >= 1 && i+1 <= 9 ) (*meEtMap)[i]->setAxisTitle("101-ix", 1);
+    (*meEtMap)[i]->setAxisTitle("iy", 2);
     dqmStore_->tag((*meEtMap)[i], i+1);
 
     if (!emulated) {
@@ -290,8 +291,9 @@ void EETriggerTowerTask::setup( const char* nameext,
       meEmulError_[i] = dqmStore_->book2D(histo, histo,
                                           50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
                                           50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50. );
-      meEmulError_[i]->setAxisTitle("jx", 1);
-      meEmulError_[i]->setAxisTitle("jy", 2);
+      meEmulError_[i]->setAxisTitle("ix", 1);
+      if ( i+1 >= 1 && i+1 <= 9 ) meEmulError_[i]->setAxisTitle("101-ix", 1);
+      meEmulError_[i]->setAxisTitle("iy", 2);
       dqmStore_->tag(meEmulError_[i], i+1);
 
       sprintf(histo, "EETTT EmulMatch %s", Numbers::sEE(i+1).c_str());
@@ -299,16 +301,18 @@ void EETriggerTowerTask::setup( const char* nameext,
                                           50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
                                           50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
                                           6, 0., 6.);
-      meEmulMatch_[i]->setAxisTitle("jx", 1);
-      meEmulMatch_[i]->setAxisTitle("jy", 2);
+      meEmulMatch_[i]->setAxisTitle("ix", 1);
+      if ( i+1 >= 1 && i+1 <= 9 ) meEmulMatch_[i]->setAxisTitle("101-ix", 1);
+      meEmulMatch_[i]->setAxisTitle("iy", 2);
       dqmStore_->tag(meEmulMatch_[i], i+1);
 
       sprintf(histo, "EETTT EmulFineGrainVetoError %s", Numbers::sEE(i+1).c_str());
       meVetoEmulError_[i] = dqmStore_->book2D(histo, histo,
                                               50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
                                               50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
-      meVetoEmulError_[i]->setAxisTitle("jx", 1);
-      meVetoEmulError_[i]->setAxisTitle("jy", 2);
+      meVetoEmulError_[i]->setAxisTitle("ix", 1);
+      if ( i+1 >= 1 && i+1 <= 9 ) meVetoEmulError_[i]->setAxisTitle("101-ix", 1);
+      meVetoEmulError_[i]->setAxisTitle("iy", 2);
       dqmStore_->tag(meVetoEmulError_[i], i+1);
 
     }

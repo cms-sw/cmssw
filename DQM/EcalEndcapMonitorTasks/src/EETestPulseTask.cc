@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseTask.cc
  *
- * $Date: 2010/02/12 21:57:31 $
- * $Revision: 1.55 $
+ * $Date: 2010/03/27 20:08:01 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  *
 */
@@ -144,8 +144,9 @@ void EETestPulseTask::setup(void){
         dqmStore_->tag(meShapeMapG01_[i], i+1);
         sprintf(histo, "EETPT amplitude %s G01", Numbers::sEE(i+1).c_str());
         meAmplMapG01_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
-        meAmplMapG01_[i]->setAxisTitle("jx", 1);
-        meAmplMapG01_[i]->setAxisTitle("jy", 2);
+        meAmplMapG01_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) meAmplMapG01_[i]->setAxisTitle("101-ix", 1);
+        meAmplMapG01_[i]->setAxisTitle("iy", 2);
         dqmStore_->tag(meAmplMapG01_[i], i+1);
       }
 
@@ -163,8 +164,9 @@ void EETestPulseTask::setup(void){
         dqmStore_->tag(meShapeMapG06_[i], i+1);
         sprintf(histo, "EETPT amplitude %s G06", Numbers::sEE(i+1).c_str());
         meAmplMapG06_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
-        meAmplMapG06_[i]->setAxisTitle("jx", 1);
-        meAmplMapG06_[i]->setAxisTitle("jy", 2);
+        meAmplMapG06_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) meAmplMapG06_[i]->setAxisTitle("101-ix", 1);
+        meAmplMapG06_[i]->setAxisTitle("iy", 2);
         dqmStore_->tag(meAmplMapG06_[i], i+1);
       }
 
@@ -182,8 +184,9 @@ void EETestPulseTask::setup(void){
         dqmStore_->tag(meShapeMapG12_[i], i+1);
         sprintf(histo, "EETPT amplitude %s G12", Numbers::sEE(i+1).c_str());
         meAmplMapG12_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
-        meAmplMapG12_[i]->setAxisTitle("jx", 1);
-        meAmplMapG12_[i]->setAxisTitle("jy", 2);
+        meAmplMapG12_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) meAmplMapG12_[i]->setAxisTitle("101-ix", 1);
+        meAmplMapG12_[i]->setAxisTitle("iy", 2);
         dqmStore_->tag(meAmplMapG12_[i], i+1);
       }
 

@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2010/05/28 19:57:57 $
- * $Revision: 1.61 $
+ * $Date: 2010/05/29 08:52:24 $
+ * $Revision: 1.62 $
  * \author G. Della Ricca
  *
 */
@@ -158,18 +158,21 @@ void EELedTask::setup(void){
         dqmStore_->tag(meShapeMapL1_[i], i+1);
         sprintf(histo, "EELDT amplitude %s L1", Numbers::sEE(i+1).c_str());
         meAmplMapL1_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
-        meAmplMapL1_[i]->setAxisTitle("jx", 1);
-        meAmplMapL1_[i]->setAxisTitle("jy", 2);
+        meAmplMapL1_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) meAmplMapL1_[i]->setAxisTitle("101-ix", 1);
+        meAmplMapL1_[i]->setAxisTitle("iy", 2);
         dqmStore_->tag(meAmplMapL1_[i], i+1);
         sprintf(histo, "EELDT timing %s L1", Numbers::sEE(i+1).c_str());
         meTimeMapL1_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 250, 0., 10., "s");
-        meTimeMapL1_[i]->setAxisTitle("jx", 1);
-        meTimeMapL1_[i]->setAxisTitle("jy", 2);
+        meTimeMapL1_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) meTimeMapL1_[i]->setAxisTitle("101-ix", 1);
+        meTimeMapL1_[i]->setAxisTitle("iy", 2);
         dqmStore_->tag(meTimeMapL1_[i], i+1);
         sprintf(histo, "EELDT amplitude over PN %s L1", Numbers::sEE(i+1).c_str());
         meAmplPNMapL1_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
-        meAmplPNMapL1_[i]->setAxisTitle("jx", 1);
-        meAmplPNMapL1_[i]->setAxisTitle("jy", 2);
+        meAmplPNMapL1_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) meAmplPNMapL1_[i]->setAxisTitle("101-ix", 1);
+        meAmplPNMapL1_[i]->setAxisTitle("iy", 2);
         dqmStore_->tag(meAmplPNMapL1_[i], i+1);
       }
 
@@ -187,18 +190,21 @@ void EELedTask::setup(void){
         dqmStore_->tag(meShapeMapL2_[i], i+1);
         sprintf(histo, "EELDT amplitude %s L2", Numbers::sEE(i+1).c_str());
         meAmplMapL2_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
-        meAmplMapL2_[i]->setAxisTitle("jx", 1);
-        meAmplMapL2_[i]->setAxisTitle("jy", 2);
+        meAmplMapL2_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) meAmplMapL1_[i]->setAxisTitle("101-ix", 1);
+        meAmplMapL2_[i]->setAxisTitle("iy", 2);
         dqmStore_->tag(meAmplMapL2_[i], i+1);
         sprintf(histo, "EELDT timing %s L2", Numbers::sEE(i+1).c_str());
         meTimeMapL2_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 250, 0., 10., "s");
-        meTimeMapL2_[i]->setAxisTitle("jx", 1);
-        meTimeMapL2_[i]->setAxisTitle("jy", 2);
+        meTimeMapL2_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) meTimeMapL2_[i]->setAxisTitle("101-ix", 1);
+        meTimeMapL2_[i]->setAxisTitle("iy", 2);
         dqmStore_->tag(meTimeMapL2_[i], i+1);
         sprintf(histo, "EELDT amplitude over PN %s L2", Numbers::sEE(i+1).c_str());
         meAmplPNMapL2_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
-        meAmplPNMapL2_[i]->setAxisTitle("jx", 1);
-        meAmplPNMapL2_[i]->setAxisTitle("jy", 2);
+        meAmplPNMapL2_[i]->setAxisTitle("ix", 1);
+        if ( i+1 >= 1 && i+1 <= 9 ) meAmplPNMapL2_[i]->setAxisTitle("101-ix", 1);
+        meAmplPNMapL2_[i]->setAxisTitle("iy", 2);
         dqmStore_->tag(meAmplPNMapL2_[i], i+1);
       }
 

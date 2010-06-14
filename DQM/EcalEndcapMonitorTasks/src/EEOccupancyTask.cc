@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2010/06/04 12:27:55 $
- * $Revision: 1.75 $
+ * $Date: 2010/06/04 12:34:38 $
+ * $Revision: 1.76 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -229,8 +229,9 @@ void EEOccupancyTask::setup(void){
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEOT digi occupancy %s", Numbers::sEE(i+1).c_str());
       meOccupancy_[i] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
-      meOccupancy_[i]->setAxisTitle("jx", 1);
-      meOccupancy_[i]->setAxisTitle("jy", 2);
+      meOccupancy_[i]->setAxisTitle("ix", 1);
+      if ( i+1 >= 1 && i+1 <= 9 ) meOccupancy_[i]->setAxisTitle("101-ix", 1);
+      meOccupancy_[i]->setAxisTitle("iy", 2);
       dqmStore_->tag(meOccupancy_[i], i+1);
 
       sprintf(histo, "EEOT MEM digi occupancy %s", Numbers::sEE(i+1).c_str());
@@ -241,8 +242,9 @@ void EEOccupancyTask::setup(void){
 
       sprintf(histo, "EEOT rec hit energy %s", Numbers::sEE(i+1).c_str());
       meEERecHitEnergy_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
-      meEERecHitEnergy_[i]->setAxisTitle("jx", 1);
-      meEERecHitEnergy_[i]->setAxisTitle("jy", 2);
+      meEERecHitEnergy_[i]->setAxisTitle("ix", 1);
+      if ( i+1 >= 1 && i+1 <= 9 ) meEERecHitEnergy_[i]->setAxisTitle("101-ix", 1);
+      meEERecHitEnergy_[i]->setAxisTitle("iy", 2);
       meEERecHitEnergy_[i]->setAxisTitle("energy (GeV)", 3);
       dqmStore_->tag(meEERecHitEnergy_[i], i+1);
 
