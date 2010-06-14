@@ -22,47 +22,14 @@ simEcalDigis = cms.EDProducer("EcalSelectiveReadoutProducer",
     # Instance name of output EE digis collection
     EESRPdigiCollection = cms.string('eeDigis'),
 
+    # Switch for reading SRP settings from condition database
+    configFromCondDB = cms.bool(True),
+
     # Label name of input ECAL trigger primitive collection
     trigPrimProducer = cms.string('simEcalTriggerPrimitiveDigis'),
 
     # Instance name of ECAL trigger primitive collection
     trigPrimCollection = cms.string(''),
-
-    # Neighbour eta range, neighborhood: (2*deltaEta+1)*(2*deltaPhi+1)
-    deltaEta = cms.int32(1),
-
-    # Neighbouring eta range, neighborhood: (2*deltaEta+1)*(2*deltaPhi+1)
-    deltaPhi = cms.int32(1),
-
-    # Index of time sample (staring from 1) the first DCC weights is implied
-    ecalDccZs1stSample = cms.int32(2),
-
-    # ADC to GeV conversion factor used in ZS filter for EB
-    ebDccAdcToGeV = cms.double(0.035),
-
-    # ADC to GeV conversion factor used in ZS filter for EE
-    eeDccAdcToGeV = cms.double(0.06),
-
-    #DCC ZS FIR weights: weights are rounded in such way that in Hw
-    #representation (weigth*1024 rounded to nearest integer) the sum is null:
-    dccNormalizedWeights = cms.vdouble(-0.374, -0.374, -0.3629, 0.2721, 0.4681, 
-        0.3707),
-
-    # Switch to use a symetric zero suppression (cut on absolute value). For
-    # studies only, for time being it is not supported by the hardware.
-    symetricZS = cms.bool(False),
-
-    # ZS energy threshold in GeV to apply to low interest channels of barrel
-    srpBarrelLowInterestChannelZS = cms.double(0.1),
-
-    # ZS energy threshold in GeV to apply to low interest channels of endcap
-    srpEndcapLowInterestChannelZS = cms.double(0.3),
-
-    # ZS energy threshold in GeV to apply to high interest channels of barrel
-    srpBarrelHighInterestChannelZS = cms.double(-1.e9),
-
-    # ZS energy threshold in GeV to apply to high interest channels of endcap
-    srpEndcapHighInterestChannelZS = cms.double(-1.e9),
 
     #switch to run w/o trigger primitive. For debug use only
     trigPrimBypass = cms.bool(False),
@@ -96,8 +63,5 @@ simEcalDigis = cms.EDProducer("EcalSelectiveReadoutProducer",
     #Trigger Primitive collection. Must be one of the following values:
     # 0: low interest, 1: mid interest, 3: high interest
     # 4: forced low interest, 5: forced mid interest, 7: forced high interest
-    defaultTtf = cms.int32(4),
-
-    # SR->action flag map
-    actions = cms.vint32(1, 3, 3, 3, 5, 7, 7, 7)
+    defaultTtf = cms.int32(4)
 )
