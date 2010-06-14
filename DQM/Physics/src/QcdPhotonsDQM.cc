@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/06/13 12:17:30 $
- *  $Revision: 1.21 $
+ *  $Date: 2010/06/14 13:00:48 $
+ *  $Revision: 1.22 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -65,6 +65,7 @@ QcdPhotonsDQM::QcdPhotonsDQM(const ParameterSet& parameters) {
   theTriggerResultsCollection = parameters.getParameter<string>("triggerResultsCollection");
   thePhotonCollectionLabel    = parameters.getParameter<InputTag>("photonCollection");
   theCaloJetCollectionLabel   = parameters.getParameter<InputTag>("caloJetCollection");
+  theVertexCollectionLabel    = parameters.getParameter<InputTag>("vertexCollection");
   theMinCaloJetEt             = parameters.getParameter<int>("minCaloJetEt");
   theMinPhotonEt              = parameters.getParameter<int>("minPhotonEt");
   theRequirePhotonFound       = parameters.getParameter<bool>("requirePhotonFound");
@@ -197,7 +198,7 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   // Does event have valid vertex?
   // Get the primary event vertex
   Handle<VertexCollection> vertexHandle;
-  iEvent.getByLabel("offlinePrimaryVertices", vertexHandle);
+  iEvent.getByLabel(theVertexCollectionLabel, vertexHandle);
   VertexCollection vertexCollection = *(vertexHandle.product());
   double vtx_ndof = -1.0;
   double vtx_z    = 0.0;
@@ -269,7 +270,7 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
 	photon_passPhotonID = true;
       }
     } else {
-      if (recoPhoton->hadronicOverEm() < 0.05) {
+      if (recoPhoton->hadronicOverEm() < 0.05 ) {
 	photon_passPhotonID = true;
       }
     }
@@ -279,13 +280,14 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
     photon_phi = recoPhoton->phi();
     break;
   }
-
   
-  // If user requires a photon to be found, but none is, return
+  // If user requires a photon to be found, but none is, return.
   //   theRequirePhotonFound should pretty much always be set to 'True'
   //    except when running on qcd monte carlo just to see the jets.
-  if ( theRequirePhotonFound && !(photon_et > 0.0) ) return;
+  if ( theRequirePhotonFound && (!photon_passPhotonID || photon_et<theMinPhotonEt) ) return;
 
+
+  ////////////////////////////////////////////////////////////////////
   // Find the highest et jet
   Handle<CaloJetCollection> caloJetCollection;
   iEvent.getByLabel (theCaloJetCollectionLabel,caloJetCollection);
@@ -321,6 +323,7 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
       jet2_phi = i_calojet->phi();
     }
   }
+  ////////////////////////////////////////////////////////////////////
 
 
   ////////////////////////////////////////////////////////////////////

@@ -10,6 +10,7 @@ qcdPhotonsDQM = cms.EDAnalyzer("QcdPhotonsDQM",
                 triggerResultsCollection  = cms.string("TriggerResults"),
                 photonCollection          = cms.InputTag("photons"),
                 caloJetCollection         = cms.InputTag("ak5CaloJets"),
+                vertexCollection          = cms.InputTag("offlinePrimaryVertices"),
                 # Cuts on the reco objects
                 minCaloJetEt              = cms.int32(5),
                 minPhotonEt               = cms.int32(20),
