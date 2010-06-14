@@ -1,11 +1,14 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2010/06/09 14:03:04 $
- * $Revision: 1.51 $
+ * $Date: 2010/06/09 14:39:27 $
+ * $Revision: 1.52 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.52  2010/06/09 14:39:27  tapper
+ * Fixed labels and binning again.
+ *
  * Revision 1.51  2010/06/09 14:03:04  tapper
  * Fixed histogram titles and binning in projections.
  *
@@ -536,7 +539,9 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
             l1HtMiss->at(i).bx() == 0 && l1EtMiss->at(i).bx() == 0) {
           // Avoid problems overflows and only plot central BX
           l1GctEtMissHtMissCorr_->Fill(l1EtMiss->at(i).et(),l1HtMiss->at(i).et());
-          l1GctEtMissHtMissCorrPhi_->Fill(l1EtMiss->at(i).phi(),l1HtMiss->at(i).phi());
+          if (l1HtMiss->at(i).et() && l1EtMiss->at(i).et()){ // Don't plot phi if one or other is zero
+            l1GctEtMissHtMissCorrPhi_->Fill(l1EtMiss->at(i).phi(),l1HtMiss->at(i).phi());
+          }
         }
       }
     }
