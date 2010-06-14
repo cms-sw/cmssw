@@ -1,3 +1,19 @@
+V02-06-01
+---------
+
+2010-06-14  author  <author@lxplus316.cern.ch>
+
+	* BuildFile, interface/EcalSRCondTools.h, interface/EcalSelectiveReadoutProducer.h, src/EcalSRCondTools.cc, src/EcalSelectiveReadoutProducer.cc:
+	. implemented recommandation of condition DB experts (from Francesca C. and Vincenzo I.):
+	 - types double changed into float.
+	 - removed dependency of CondFormats/EcalObjects on FWCore/ParameterSet and moved most
+	   of methods of EcalSRSettings format object into EcalSRCondTools class of package
+	   SimCalorimetry/EcalSelectiveReadoutProducers
+	 - declared DB mapping to BLOB for large std::vector fields of EcalSRSetting
+	   (in principle > 12 elements)
+
+	* src/SealModule.cc: removed unused module
+
 V02-06-00
 ---------
 
