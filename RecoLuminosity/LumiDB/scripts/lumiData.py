@@ -58,7 +58,7 @@ def printRunList(runlistdata):
     print tablePrinter.indent(result,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',wrapfunc=lambda x: wrap_onspace(x,20) )
     
 def main():
-    parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description="Lumi Data scan")
+    parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description="Lumi Data operations")
     # add required arguments
     parser.add_argument('-c',dest='connect',action='store',required=True,help='connect string to lumiDB')
     # add optional arguments
