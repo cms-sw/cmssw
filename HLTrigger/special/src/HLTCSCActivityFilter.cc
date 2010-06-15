@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Carlo Battilana
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTCSCActivityFilter.cc,v 1.3 2010/06/15 16:10:47 fwyzard Exp $
+// $Id: HLTCSCActivityFilter.cc,v 1.4 2010/06/15 16:13:15 fwyzard Exp $
 //
 //
 
@@ -51,6 +51,9 @@ bool HLTCSCActivityFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   using namespace edm;
   using namespace std;
 
+  if (not m_applyfilter)
+    return true;
+
   bool accepted = false;
   int nStripsFired = 0;
 
@@ -81,14 +84,12 @@ bool HLTCSCActivityFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
       }
     }
   }    
-    bool b_Strips = false;
-    if(nStripsFired >= 1) b_Strips = true;
-    if(b_Strips)accepted = true;
-    ////////////////////////////////////// DONE //////////////////////////////
-    if (m_applyfilter)
-      return accepted;
-    else
-      return true; 
+  bool b_Strips = false;
+  if(nStripsFired >= 1) 
+    b_Strips = true;
+  if(b_Strips)
+    accepted = true;
+  return accepted;
 } 
 
 // define as a framework module
