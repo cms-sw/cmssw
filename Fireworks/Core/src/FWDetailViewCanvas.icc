@@ -26,8 +26,7 @@ void  FWDetailViewCanvas<T>::init(TEveWindowSlot* slot)
    pack->SetElementNameTitle("DetalView pack","DetailViewPack" );
 
    // canvas & widgets
-   TEveWindowSlot* guiSlot = pack->NewSlotWithWeight(1);
-   TEveWindowFrame* frame = guiSlot->MakeFrame();
+   TEveWindowFrame* frame = pack->NewSlotWithWeight(1)->MakeFrame();
    frame->SetShowTitleBar(kFALSE);
    TGCompositeFrame* cf = frame->GetGUICompositeFrame();
 
@@ -50,12 +49,11 @@ void  FWDetailViewCanvas<T>::init(TEveWindowSlot* slot)
    cf->Layout();
    cf->MapWindow();
 
-
    // view canvas
-   TEveWindowSlot* viewSlot = pack->NewSlotWithWeight(3);
-   TRootEmbeddedCanvas*  ec = new TRootEmbeddedCanvas();
-   TEveWindowFrame* wf = viewSlot->MakeFrame(ec);
+   TRootEmbeddedCanvas *ec = new TRootEmbeddedCanvas();
+   TEveWindowFrame     *wf = pack->NewSlotWithWeight(3)->MakeFrame(ec);
    wf->GetEveFrame()->SetShowTitleBar(kFALSE);
    m_viewCanvas = ec->GetCanvas();
-}
 
+   pack->GetEveFrame()->Layout();
+}
