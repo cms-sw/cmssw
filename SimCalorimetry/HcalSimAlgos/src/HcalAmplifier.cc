@@ -83,7 +83,7 @@ void HcalAmplifier::addPedestals(CaloSamples & frame) const
    HcalGenericDetId hcalGenDetId(frame.id());
    HcalGenericDetId::HcalGenericSubdetector hcalSubDet = hcalGenDetId.genericSubdet();
 
-   bool useOld;
+   bool useOld=false;
    if(hcalSubDet==HcalGenericDetId::HcalGenBarrel) useOld = useOldHB;
    if(hcalSubDet==HcalGenericDetId::HcalGenEndcap) useOld = useOldHE;
    if(hcalSubDet==HcalGenericDetId::HcalGenForward) useOld = useOldHF;
