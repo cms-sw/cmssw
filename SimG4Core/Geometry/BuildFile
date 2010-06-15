@@ -1,7 +1,8 @@
-<use name=FWCore/Framework>
 <use name=DetectorDescription/Core>
 <use name=geant4core>
 <use name=Geometry/Records>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/Utilities>
 <export>
  <lib name=SimG4CoreGeometry>
 </export>
