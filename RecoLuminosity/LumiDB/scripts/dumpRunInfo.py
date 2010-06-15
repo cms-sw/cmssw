@@ -13,6 +13,48 @@ class constants(object):
         self.runsessionparameterTable='RUNSESSION_PARAMETER'
         self.hltconfname='CMS.LVL0:HLT_KEY_DESCRIPTION'
         self.tsckeyname='CMS.TRG:TSC_KEY'
+        self.fillnumname='CMS.SCAL:FILLN'
+def fillnumForRun(dbsession,c,runnum):
+    '''select string_value from cms_runinfo.runsession_parameter where runnumber=129265 and name='CMS.SCAL:FILLN' and rownum<=1;
+    
+    '''
+    result=''
+    try:
+        dbsession.transaction().start(True)
+        schema=dbsession.schema(c.runinfoschema)
+        if not schema:
+            raise Exception, 'cannot connect to schema '+c.runinfoschema
+        if not schema.existsTable(c.runsessionparameterTable):
+            raise Exception, 'non-existing table '+c.runsessionparameterTable
+
+        fillOutput=coral.AttributeList()
+        fillOutput.extend("fillnum","string")
+        
+        bindVarList=coral.AttributeList()
+        bindVarList.extend("name","string")
+        bindVarList.extend("runnumber","unsigned int")
+
+        bindVarList["name"].setData(c.fillnumname)
+        bindVarList["runnumber"].setData(int(runnum))
+        
+        query=schema.newQuery()
+        query.addToTableList(c.runsessionparameterTable)
+        query.addToOutputList('STRING_VALUE','value')
+        query.setCondition('NAME=:name AND RUNNUMBER=:runnumber',bindVarList)
+        query.limitReturnedRows(1)
+        query.defineOutput(fillOutput)
+        
+        cursor=query.execute()
+        while cursor.next():
+            result=cursor.currentRow()['fillnum'].data()
+        del query
+        dbsession.transaction().commit()
+        #print result
+        return result
+    except Exception,e:
+        print str(e)
+        dbsession.transaction().rollback()
+        del dbsession
         
 def hltkeyForRun(dbsession,c,runnum):
     '''
@@ -110,7 +152,7 @@ def main():
     parser.add_argument('-c',dest='connect',action='store',required=True,help='connect string to trigger DB(required)')
     parser.add_argument('-P',dest='authpath',action='store',required=True,help='path to authentication file')
     parser.add_argument('-r',dest='runnumber',action='store',required=True,help='run number')
-    parser.add_argument('action',choices=['hltkey','l1key'],help='information to show')
+    parser.add_argument('action',choices=['hltkey','l1key','fill'],help='information to show')
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
     parser.add_argument('--collision-only',dest='collisiononly',action='store_true',help='return only collision runs')
     args=parser.parse_args()
@@ -134,7 +176,9 @@ def main():
             if not args.collisiononly:
                 print runnum,hltkey
             if args.collisiononly and re.match(p,hltkey):
-                print runnum,hltkey
+                fillnum=fillnumForRun(session,c,runnumber)
+                if len(fillnum)!=0:
+                    print runnum,hltkey
     if args.action == 'l1key':
         p=re.compile(r'^TSC_.+_collisions_.+')
         result=l1keyForRun(session,c,runnumber)
@@ -143,7 +187,17 @@ def main():
             if not args.collisiononly:
                 print runnum,l1key
             if args.collisiononly and re.match(p,l1key):
-                print runnum,l1key
+                fillnum=fillnumForRun(session,c,runnumber)
+                if len(fillnum)!=0:
+                    print runnum,l1key
+    if args.action == 'fill':
+        result=fillnumForRun(session,c,runnumber)
+        print 'runnumber fill'
+        if not args.collisiononly:
+            print runnumber,result
+        else:
+            if len(result)!=0:
+                print runnumber,result
     del session
     del svc
         
