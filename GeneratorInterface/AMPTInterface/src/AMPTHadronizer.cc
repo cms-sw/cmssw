@@ -125,7 +125,7 @@ void AMPTHadronizer::add_heavy_ion_rec(HepMC::GenEvent *evt)
     hmain1.n0,                          // Nwounded_N_collisions
     hmain1.n0,                          // Nwounded_Nwounded_collisions
     hparnt.hint1[18],                   // impact_parameter in [fm]
-    phi0_,                               // event_plane_angle
+    phi0_,                              // event_plane_angle
     0,                                   // eccentricity
     hparnt.hint1[11]                    // sigma_inel_NN
   );
@@ -144,12 +144,10 @@ HepMC::GenParticle* AMPTHadronizer::build_ampt(int index, int barcode)
    float m = hbt.plast[index][3];
 
    float px = px0*cosphi0_-py0*sinphi0_;
-   float py = px0*cosphi0_+py0*sinphi0_;
+   float py = py0*cosphi0_+px0*sinphi0_;
    float pz = pz0;
    float e = sqrt(px*px+py*py+pz*pz+m*m); 
    int status = 1;
-
-//cout<<px<<" "<<py<<" "<<pz<<" "<<e<<" "<<hbt.lblast[index]<<" "<<INVFLV(hbt.lblast[index])<<" "<<status<<endl;
 
    HepMC::GenParticle* p = new HepMC::GenParticle(
                                                   HepMC::FourVector(px,                                                                            
