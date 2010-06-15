@@ -16,5 +16,11 @@ namespace lumi{
     std::string m_message;
   };
 
+  class nonCollisionException : public lumi::Exception{
+  public:
+    nonCollisionException(const std::string& methodname,
+			 const std::string& moduleName);
+    virtual ~nonCollisionException() throw(){}
+  };
 }//ns lumi
 #endif

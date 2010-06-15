@@ -133,7 +133,9 @@ namespace lumi{
       result.fillnumber=row["STRING_VALUE"].data<std::string>();
     }
     delete fillQuery;
-
+    if (result.fillnumber.empty()){
+      throw nonCollisionException("retrieveData","CMSRunSummary2DB");
+    }
     coral::IQuery* startTQuery=runinfoschemaHandle.tableHandle(runsessionParamTable).newQuery();
     coral::AttributeList startTVariableList;
     startTVariableList.extend("runnumber",typeid(unsigned int));
@@ -213,12 +215,13 @@ namespace lumi{
     return "DB";
   }
   unsigned int CMSRunSummary2DB::str2int(const std::string& s)  const{
+    std::cout<<"input "<<s<<std::endl;
     std::istringstream myStream(s);
     unsigned int i;
     if(myStream>>i){
       return i;
     }else{
-      throw lumi::Exception(std::string("str2int error"),"str2int","TRG2DB");
+      throw lumi::Exception(std::string("str2int error"),"str2int","CMSRunSummary2DB");
     }
   }
   CMSRunSummary2DB::~CMSRunSummary2DB(){}
