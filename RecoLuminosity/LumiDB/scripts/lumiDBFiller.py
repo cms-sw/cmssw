@@ -12,8 +12,12 @@ def isCollisionRun(run,authpath=''):
     if statusAndOutput[1].split('   ')[2] == '2': itIs = True
     return itIs
 
+def getRunnumberFromFileName(lumifilename):
+    runnumber=int(lumifilename.split('_')[4])
+    return runnumber
 
 def getRunsToBeUploaded(connectionString, dropbox, authpath=''):
+    #print 'authpath ',authpath
     # get the last analyzed run
     command = 'lumiData.py -c ' +connectionString+' -P '+authpath+' --raw listrun'
     statusAndOutput = commands.getstatusoutput(command)
@@ -21,28 +25,29 @@ def getRunsToBeUploaded(connectionString, dropbox, authpath=''):
     print 'Last analyzed run: ', lastAnalyzedRunNumber
 
     # check if there are new runs to be uploaded
-    command = 'ls -ltr '+dropbox
-    for file in os.popen(command):
-        lastRaw = file[0:len(file)-1]
-        lastRecordedRun = lastRaw[len(lastRaw)-18:len(lastRaw)-12] #this is weak
+    #command = 'ls -ltr '+dropbox
+    files=filter(os.path.isfile,[os.path.join(dropbox,x) for x in os.listdir(dropbox)])
+    #print files
+    files.sort(key=lambda x: os.path.getmtime(os.path.join(dropbox,x)))
+    #print 'sorted files ',files
+    lastRaw = files[-1]
+    lastRecordedRun = getRunnumberFromFileName(lastRaw)
 
-    print 'Last lumi file produced: ', lastRecordedRun 
-
+    print 'Last lumi file produced: ', lastRaw 
+    print 'Last recorded Run: ', lastRecordedRun 
+	
     # if yes, fill a list with the runs yet to be uploaded
     runsToBeAnalyzed = {}
-    if int(lastRecordedRun) != lastAnalyzedRunNumber:
-        fillRunsToBeAnalyzedPool = False
-        for file in os.popen(command):
-            lastRaw = file[0:len(file)-1]
-            if str(lastAnalyzedRunNumber) == lastRaw[len(lastRaw)-18:len(lastRaw)-12]:
-                fillRunsToBeAnalyzedPool = True
-                continue
-            if fillRunsToBeAnalyzedPool:
-                if isCollisionRun(lastRaw[len(lastRaw)-18:len(lastRaw)-12]): 
-                    runsToBeAnalyzed[lastRaw[len(lastRaw)-18:len(lastRaw)-12]] = lastRaw[lastRaw.find('CMS'):]
-
+    if lastRecordedRun != lastAnalyzedRunNumber:
+        #print 'latRre ',lastRecordedRun
+        #print 'lastana ',lastAnalyzedRunNumber
+        for file in files:
+            thisrun=getRunnumberFromFileName(file)
+            print 'this run ',thisrun
+            if  thisrun>lastAnalyzedRunNumber and isCollisionRun(str(thisrun),authpath): 
+                    runsToBeAnalyzed[str(thisrun)] = file
+    #print 'runsToBeAnalyzed ', runsToBeAnalyzed
     return runsToBeAnalyzed
-
 
 import os, sys
 from RecoLuminosity.LumiDB import argparse
@@ -69,7 +74,7 @@ def main():
         logFile=open(os.path.join(lumilogpath,'loadDB_run'+run+'.log'),'w',0)
 
         # filling the DB
-        command = '$LOCALRT/test/$SCRAM_ARCH/loadLumiDB '+run+' "file:/dropbox/hcallumipro/'+runsToBeAnalyzed[run]+'"'
+        command = '$LOCALRT/test/$SCRAM_ARCH/loadLumiDB '+run+' "file:'+runsToBeAnalyzed[run]+'"'
         statusAndOutput = commands.getstatusoutput(command)
         logFile.write(command+'\n')
         logFile.write(statusAndOutput[1])
