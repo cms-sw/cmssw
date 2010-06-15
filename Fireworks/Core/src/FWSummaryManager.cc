@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar  4 09:35:32 EST 2008
-// $Id: FWSummaryManager.cc,v 1.19 2010/04/28 13:55:48 eulisse Exp $
+// $Id: FWSummaryManager.cc,v 1.20 2010/05/27 08:39:34 eulisse Exp $
 //
 
 // system include files
@@ -139,6 +139,7 @@ FWSummaryManager::removeAllItems()
          *it=0;
       }
    }
+   m_collectionWidgets.clear();
    m_pack->Layout();
    gClient->NeedRedraw(m_pack);
 }
