@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWTableView.cc,v 1.23 2010/05/27 08:50:22 eulisse Exp $
+// $Id: FWTableView.cc,v 1.24 2010/06/10 09:57:36 matevz Exp $
 //
 
 // system include files
@@ -382,7 +382,12 @@ FWTableView::addTo(FWConfiguration& iTo) const
      // then there is the stuff we have to do anyway: remember what
      // collection we display
      FWConfiguration main(1);
-     const std::string &collectionName = m_manager->items()[m_iColl]->name();
+     std::string collectionName;
+     if (m_manager->items()[m_iColl])
+        collectionName = m_manager->items()[m_iColl]->name();
+     else
+        collectionName = "NULL";
+
      FWConfiguration collection(collectionName);
      main.addKeyValue(kCollection, collection);
      FWConfiguration sortColumn(m_tableWidget->sortedColumn());
