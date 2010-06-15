@@ -3,6 +3,7 @@
 
 #include "KeySymbols.h"
 #include "TGLViewer.h"
+#include "TGLWidget.h"
 #include "TGLPhysicalShape.h"
 
 
@@ -30,3 +31,28 @@ FWGLEventHandler::PopupContextMenu(TGLPhysicalShape* pshp,  Event_t *event, Int_
    }
 }
 
+Bool_t FWGLEventHandler::HandleKey(Event_t *event)
+{
+   UInt_t keysym;
+   char tmp[2];
+   gVirtualX->LookupString(event, tmp, sizeof(tmp), keysym);
+
+   if (keysym == kKey_Enter || keysym == kKey_Return || keysym == kKey_Space)
+   {
+      if (event->fType == kGKeyPress)
+      {
+         Int_t    x, y;
+         Window_t childdum;
+         gVirtualX->TranslateCoordinates(fGLViewer->GetGLWidget()->GetId(), gClient->GetDefaultRoot()->GetId(),
+                                         event->fX, event->fY, x, y, childdum);
+
+         fGLViewer->RequestSelect(event->fX, event->fY);
+         PopupContextMenu(fGLViewer->GetSelRec().GetPhysShape(), event, x, y);
+      }
+      return kTRUE;
+   }
+   else
+   {
+      return TEveLegoEventHandler::HandleKey(event);
+   }
+}
