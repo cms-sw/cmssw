@@ -29,12 +29,16 @@ process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
 #process.load("CalibCalorimetry.Configuration.Ecal_FakeConditions_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.GlobalTag.globaltag = 'MC_38Y_V1::All'
-process.GlobalTag.toGet = cms.VPSet(
-      cms.PSet(record = cms.string("EcalSRSettingsRcd"),
-                          tag = cms.string("EcalSRSettings_v00_beam10_mc"),
-                          connect = cms.untracked.string("sqlite_file:EcalSRSettings_v00_beam10_mc.db")
-               )
-      )
+
+#----------------------------------------------------------------------
+#To overwrite Selective readout settings with settings from a local DB (sqllite file): 
+# process.GlobalTag.toGet = cms.VPSet(
+#      cms.PSet(record = cms.string("EcalSRSettingsRcd"),
+#                          tag = cms.string("EcalSRSettings_v00_beam10_mc"),
+#                          connect = cms.untracked.string("sqlite_file:EcalSRSettings_v00_beam10_mc.db")
+#               )
+#      )
+#----------------------------------------------------------------------
 
 process.load("SimCalorimetry.EcalSelectiveReadoutProducers.ecalDigis_cff")
 
