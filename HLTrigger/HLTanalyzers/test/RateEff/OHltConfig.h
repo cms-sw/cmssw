@@ -39,6 +39,7 @@ class OHltConfig {
   TString versionTag;
   bool doPrintAll;
   bool doDeterministicPrescale; // default is random prescale
+  bool useNonIntegerPrescales; // default is integer prescales
   TString dsList;
   /*************************/
 

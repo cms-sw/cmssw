@@ -209,22 +209,16 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
       TString st = menu->GetTriggerName(i);
       if (st.BeginsWith("HLT_") || st.BeginsWith("L1_")  || st.BeginsWith("L1Tech_") || st.BeginsWith("AlCa_") || st.BeginsWith("OpenL1_") ) {
 	// Prefixes reserved for Standard HLT&L1	
-	//	if(st.BeginsWith("HLT_")) { cout << st << ", prescalecount = " << rc->prescaleCount[i] << ", "; }
 	if (map_L1BitOfStandardHLTPath.find(st)->second>0) {
-	  //	  if(st.BeginsWith("HLT_")) 
-	  //	    {cout << "L1 passed, "; }
 	  if (prescaleResponse(menu,cfg,rc,i)) {
-	    //	    if(st.BeginsWith("HLT_")) { cout << "Prescale passed, "; }
 	    if ( (map_BitOfStandardHLTPath.find(st)->second==1) ) { 
 	      triggerBit[i] = true; 
-	      //	      if(st.BeginsWith("HLT_")) { cout << "HLT passed"; }
 	    }
 	  }
 	}
       } else {
 	CheckOpenHlt(cfg,menu,rc,i);
       }
-      //      if(st.BeginsWith("HLT_")) { cout << endl; }
     }
     primaryDatasetsDiagnostics.fill(triggerBit);  //SAK -- record primary datasets decisions
     
@@ -314,18 +308,39 @@ void OHltTree::SetLogicParser(std::string l1SeedsLogicalExpression) {
 bool OHltTree::prescaleResponse(OHltMenu *menu,OHltConfig *cfg,OHltRateCounter *rc,int i) {
   if (cfg->doDeterministicPrescale) {
     (rc->prescaleCount[i])++;
-    return ((rc->prescaleCount[i]) % menu->GetPrescale(i) == 0); //
+    if(cfg->useNonIntegerPrescales) {
+      float prescalemod = 1.0 - fmod((float)(menu->GetPrescale(i)),1);
+      return (fmod((float)(rc->prescaleCount[i]),(float)(menu->GetPrescale(i))) <= prescalemod);
+    }
+    else
+      return (fmod((float)(rc->prescaleCount[i]),(float)(menu->GetPrescale(i))) == 0);
   } else {
-    return (GetIntRandom() % menu->GetPrescale(i) == 0);
+    float therandom = (float)(GetFloatRandom());
+    if(cfg->useNonIntegerPrescales) { 
+      float prescalemod = 1.0 - fmod((float)(menu->GetPrescale(i)),1); 
+      return (fmod(therandom,(float)(menu->GetPrescale(i))) <= prescalemod);
+    }
+    else
+      return (fmod((float)(GetIntRandom()),(float)(menu->GetPrescale(i))) == 0);
   }
 };
 
 bool OHltTree::prescaleResponseL1(OHltMenu *menu,OHltConfig *cfg,OHltRateCounter *rc,int i) {
   if (cfg->doDeterministicPrescale) {
     (rc->prescaleCountL1[i])++;
-    return ((rc->prescaleCountL1[i]) % menu->GetL1Prescale(i) == 0); //
+    if(cfg->useNonIntegerPrescales) {  
+      float prescalemod = 1.0 - fmod((float)(menu->GetL1Prescale(i)),1);  
+      return (fmod((float)(rc->prescaleCountL1[i]),(float)(menu->GetL1Prescale(i))) <= prescalemod); 
+    }
+    else
+      return (fmod((float)(rc->prescaleCountL1[i]),(float)(menu->GetL1Prescale(i))) == 0);  
   } else {
-    return (GetIntRandom() % menu->GetL1Prescale(i) == 0);
+    if(cfg->useNonIntegerPrescales) {   
+      float prescalemod = 1.0 - fmod((float)(menu->GetL1Prescale(i)),1);   
+      return (fmod((float)(GetFloatRandom()),(float)(menu->GetL1Prescale(i))) <= prescalemod); 
+    }
+    else
+      return (fmod((float)(GetIntRandom()),(float)(menu->GetL1Prescale(i))) == 0);  
   }
 };
 

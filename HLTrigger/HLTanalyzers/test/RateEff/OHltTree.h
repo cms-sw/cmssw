@@ -1838,6 +1838,7 @@ private:
 
   TRandom3 random; // for random prescale method
   inline int GetIntRandom() { return (int)(9999999.*random.Rndm()); }
+  inline int GetFloatRandom() {return (9999999.*random.Rndm()); }
 
   bool prescaleResponse(OHltMenu *menu, OHltConfig *cfg, OHltRateCounter *rc,int i);
   bool prescaleResponseL1(OHltMenu *menu, OHltConfig *cfg, OHltRateCounter *rc,int i);
@@ -3589,10 +3590,11 @@ void OHltTree::SetMapL1BitOfStandardHLTPathUsingLogicParser(OHltMenu *menu, int 
   TString st, l1st, seeds;
   unsigned ts = menu->GetTriggerSize();
   unsigned l1ts = menu->GetL1TriggerSize();
-  //std::cout<<"########################### \n";
-  //std::cout <<  "@@@ Level1GTSeedResult\n";
+  //  std::cout<<"########################### \n";
+  //  std::cout <<  "@@@ Level1GTSeedResult\n";
   
-  if (nentry == 0) { // do this only for first event - speed up code!
+  //  if (nentry == 0) { // do this only for first event - speed up code!
+  if(1) {
     for (unsigned int i=0;i<ts;i++) {
       vtmp.clear(); 
       vtokentmp.clear(); 
@@ -3603,8 +3605,8 @@ void OHltTree::SetMapL1BitOfStandardHLTPathUsingLogicParser(OHltMenu *menu, int 
 
       SetLogicParser((std::string) seeds);
       
-      //std::cout << "Trigger name: " << st << std::endl;
-      //std::cout << "Seed condition: " << seeds << std::endl;
+      //      std::cout << "Trigger name: " << st << std::endl;
+      //      std::cout << "Seed condition: " << seeds << std::endl;
 
       std::vector<L1GtLogicParser::OperandToken>& algOpTokenVector =
 	(m_l1AlgoLogicParser[i])->operandTokenVector();
@@ -3616,19 +3618,18 @@ void OHltTree::SetMapL1BitOfStandardHLTPathUsingLogicParser(OHltMenu *menu, int 
 	
 	for (size_t k = 0; k < algOpTokenVector.size(); ++k) {
 	  bool iResult = false;
-	  //std::cout << "Token name: " << (algOpTokenVector[k]).tokenName << std::endl;
+	  //	  std::cout << "Token name: " << (algOpTokenVector[k]).tokenName << std::endl;
 	  if (l1st.CompareTo((algOpTokenVector[k]).tokenName) == 0) {         
 	    if (map_BitOfStandardHLTPath.find(l1st)->second==1)
 	      iResult = true;
 	    else
 	      iResult = false;
 	    
-	    //std::cout << "Token result: " << map_BitOfStandardHLTPath.find(l1st)->second << std::endl;
-	    //std::cout << "Token result: " << iResult << std::endl;
+	    //	    std::cout << "Token result: " << map_BitOfStandardHLTPath.find(l1st)->second << std::endl;
+	    //	    std::cout << "Token result: " << iResult << std::endl;
 	    (algOpTokenVector[k]).tokenResult = iResult;
 	    vtmp.push_back(l1st);
 	    vtokentmp.push_back((int)k);
-	    // std::cout<<" "<<l1st<<" "<<k<<std::endl;
 	  }
 	}
       }    
@@ -3637,7 +3638,7 @@ void OHltTree::SetMapL1BitOfStandardHLTPathUsingLogicParser(OHltMenu *menu, int 
       
       bool seedsResult = (m_l1AlgoLogicParser[i])->expressionResult();
       
-      //std::cout << "Expression result: " << seedsResult << std::endl;
+      //      std::cout << "Expression result: " << seedsResult << std::endl;
       
       if (seedsResult)
 	map_L1BitOfStandardHLTPath[st] = 1;
@@ -3645,7 +3646,6 @@ void OHltTree::SetMapL1BitOfStandardHLTPathUsingLogicParser(OHltMenu *menu, int 
 	map_L1BitOfStandardHLTPath[st] = 0;
     }
   } else {
-    
     for (unsigned int i=0;i<ts;i++) {
       st = menu->GetTriggerName(i);
       seeds = menu->GetSeedCondition(st);
@@ -3655,15 +3655,15 @@ void OHltTree::SetMapL1BitOfStandardHLTPathUsingLogicParser(OHltMenu *menu, int 
       std::vector<L1GtLogicParser::OperandToken>& algOpTokenVector =
 	(m_l1AlgoLogicParser[i])->operandTokenVector();
 
-      //std::cout << "************** " << st << " " << nentry << std::endl;
+      //      std::cout << "************** " << st << " " << nentry << std::endl;
       
       std::map< TString, std::vector<TString> >::const_iterator it = map_L1SeedsOfStandardHLTPath.find(st);
 
       if (it != map_L1SeedsOfStandardHLTPath.end()) {
 	unsigned ts2 = it->second.size();
-	//std::cout << "########## " << ts2 << std::endl;
+	//	std::cout << "########## " << ts2 << std::endl;
 	for (unsigned int j=0;j<ts2;j++) {
-	  //std::cout << "               " << it->second[j] << std::endl;
+	  //	  std::cout << "               " << it->second[j] << std::endl;
 	  bool iResult = false;
 	  if ((map_BitOfStandardHLTPath.find(it->second[j])->second)==1)
 	    iResult = true;
@@ -3676,7 +3676,7 @@ void OHltTree::SetMapL1BitOfStandardHLTPathUsingLogicParser(OHltMenu *menu, int 
       }
       
       bool seedsResult = (m_l1AlgoLogicParser[i])->expressionResult();
-      //std::cout << "Expression result: " << seedsResult << std::endl;
+      //      std::cout << "Expression result: " << seedsResult << std::endl;
      
       if (seedsResult)
 	map_L1BitOfStandardHLTPath[st] = 1;

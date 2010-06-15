@@ -593,7 +593,8 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       if((OpenHlt1MuonPassed(0.,3.,3.,2.,0)>=1) && //check the L3 muon
          OpenHltMuPixelPassed(ptPix, pPix, etaPix, DxyPix, DzPix, NHitsPix, normChi2Pix, massMinPix, massMaxPix, DzMuonPix, checkChargePix) && //check the L3Mu + pixel
          OpenHltMuTrackPassed(ptTrack, pTrack, etaTrack, DxyTrack, DzTrack, NHitsTrack, normChi2Track, massMinTrack, massMaxTrack, DzMuonTrack, checkChargeTrack)) { //check the L3Mu + tracker track
-        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }      
+	//        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
       }
     }
   }
@@ -628,7 +629,8 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
          OpenHltMuPixelPassed_Ups(ptPix, pPix, etaPix, DxyPix, DzPix, NHitsPix, normChi2Pix, massMinPix, massMaxPix, DzMuonPix, checkChargePix, 7) && //check the L3Mu + pixel
          OpenHltMuTrackPassed_Ups(ptTrack, pTrack, etaTrack, DxyTrack, DzTrack, NHitsTrack, normChi2Track, massMinTrack, massMaxTrack, DzMuonTrack, checkChargeTrack, 7)) {
         //check the L3Mu + tracker track
-        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
+	//        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }      
       }
     }
   }
@@ -663,7 +665,8 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
          OpenHltMuPixelPassed_Ups(ptPix, pPix, etaPix, DxyPix, DzPix, NHitsPix, normChi2Pix, massMinPix, massMaxPix, DzMuonPix, checkChargePix, 8) && //check the L3Mu + pixel
          OpenHltMuTrackPassed_Ups(ptTrack, pTrack, etaTrack, DxyTrack, DzTrack, NHitsTrack, normChi2Track, massMinTrack, massMaxTrack, DzMuonTrack, checkChargeTrack, 8)) {
         //check the L3Mu + tracker track
-        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
+	//        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }      
       }
     }
   }
@@ -698,7 +701,8 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
          OpenHltMuPixelPassed_Ups(ptPix, pPix, etaPix, DxyPix, DzPix, NHitsPix, normChi2Pix, massMinPix, massMaxPix, DzMuonPix, checkChargePix, 9) && //check the L3Mu + pixel
          OpenHltMuTrackPassed_Ups(ptTrack, pTrack, etaTrack, DxyTrack, DzTrack, NHitsTrack, normChi2Track, massMinTrack, massMaxTrack, DzMuonTrack, checkChargeTrack, 9)) { 
 	//check the L3Mu + tracker track
-	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
+	//	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }      
       }
     }
   }
@@ -733,7 +737,8 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
          OpenHltMuPixelPassed_JPsi(ptPix, pPix, etaPix, DxyPix, DzPix, NHitsPix, normChi2Pix, massMinPix, massMaxPix, DzMuonPix, checkChargePix, 0) && //check the L3Mu + pixel
          OpenHltMuTrackPassed_JPsi(ptTrack, pTrack, etaTrack, DxyTrack, DzTrack, NHitsTrack, normChi2Track, massMinTrack, massMaxTrack, DzMuonTrack, checkChargeTrack, 0)) { 
 	//check the L3Mu + tracker track
-	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
+	//	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }      
       }
     }
   }
@@ -768,7 +773,8 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
          OpenHltMuPixelPassed_JPsi(ptPix, pPix, etaPix, DxyPix, DzPix, NHitsPix, normChi2Pix, massMinPix, massMaxPix, DzMuonPix, checkChargePix, 5) && //check the L3Mu + pixel
          OpenHltMuTrackPassed_JPsi(ptTrack, pTrack, etaTrack, DxyTrack, DzTrack, NHitsTrack, normChi2Track, massMinTrack, massMaxTrack, DzMuonTrack, checkChargeTrack,5)) { 
 	//check the L3Mu + tracker track
-	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
+	//	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }      
       }
     }
   }
@@ -803,7 +809,8 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
          OpenHltMuPixelPassed_JPsi(ptPix, pPix, etaPix, DxyPix, DzPix, NHitsPix, normChi2Pix, massMinPix, massMaxPix, DzMuonPix, checkChargePix, 6) && //check the L3Mu + pixel
          OpenHltMuTrackPassed_JPsi(ptTrack, pTrack, etaTrack, DxyTrack, DzTrack, NHitsTrack, normChi2Track, massMinTrack, massMaxTrack, DzMuonTrack, checkChargeTrack, 6)) { 
 	//check the L3Mu + tracker track
-	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
+	//	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }      
       }
     }
   }
