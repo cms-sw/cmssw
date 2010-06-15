@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Carlo Battilana
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTCSCActivityFilter.cc,v 1.2 2010/06/15 16:09:57 fwyzard Exp $
+// $Id: HLTCSCActivityFilter.cc,v 1.3 2010/06/15 16:10:47 fwyzard Exp $
 //
 //
 
@@ -29,15 +29,14 @@ Implementation:
 //
 // constructors and destructor
 //
-HLTCSCActivityFilter::HLTCSCActivityFilter(const edm::ParameterSet& iConfig) {
-  using namespace std;
-
-  m_applyfilter     = iConfig.getParameter<bool>("applyfilter");
-  m_cscStripDigiTag = iConfig.getParameter<edm::InputTag>("cscStripDigiTag");
-  m_processDigis    = iConfig.getParameter<bool>("processDigis");
-  m_MESR            = iConfig.getParameter<bool>("StationRing");  
-  m_StationNumb     = iConfig.getParameter<int>("StationNumber");
-  m_RingNumb        = iConfig.getParameter<int>("RingNumber");
+HLTCSCActivityFilter::HLTCSCActivityFilter(const edm::ParameterSet& iConfig) :
+  m_cscStripDigiTag( iConfig.getParameter<edm::InputTag>("cscStripDigiTag")),
+  m_applyfilter(     iConfig.getParameter<bool>("applyfilter")),
+  m_processDigis(    iConfig.getParameter<bool>("processDigis")),
+  m_MESR(            iConfig.getParameter<bool>("StationRing")),  
+  m_RingNumb(        iConfig.getParameter<int>("RingNumber")),
+  m_StationNumb(     iConfig.getParameter<int>("StationNumber"))
+{
 }
 
 HLTCSCActivityFilter::~HLTCSCActivityFilter() {
