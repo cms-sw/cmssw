@@ -7,5 +7,5 @@ hltCSCActivityFilter = cms.EDFilter( "HLTCSCActivityFilter",
     StationRing = cms.bool( False ),
     StationNumber = cms.int32(1),
     RingNumber = cms.int32(4),
-    applyfilter = cms.untracked.bool(True)
+    applyfilter = cms.bool(True)
 )

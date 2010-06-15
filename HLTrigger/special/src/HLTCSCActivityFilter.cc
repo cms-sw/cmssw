@@ -13,35 +13,31 @@ Implementation:
 //
 // Original Author:  Carlo Battilana
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTCSCActivityFilter.cc,v 1.5 2010/03/08 10:53:31 goys Exp $
+// $Id: HLTCSCActivityFilter.cc,v 1.1 2010/06/15 15:37:57 rredjimi Exp $
 //
 //
-
 
 // system include files
 #include <vector>
-#include <string>
 #include <map>
 #include <iostream>
 #include <memory>
 
 // user include files
-//#include "DataFormats/Common/interface/Handle.h"
-#include "tmp/HLTCSCActivityFilter/interface/HLTCSCActivityFilter.h"
+#include "HLTrigger/special/interface/HLTCSCActivityFilter.h"
 
 //
 // constructors and destructor
 //
 HLTCSCActivityFilter::HLTCSCActivityFilter(const edm::ParameterSet& iConfig) {
-
   using namespace std;
-  applyfilter        = iConfig.getUntrackedParameter<bool>("applyfilter",true);
-  m_cscStripDigiTag  = iConfig.getParameter<edm::InputTag>("cscStripDigiTag");
-  processDigis_      = iConfig.getParameter<bool>("processDigis");
-  MESR               = iConfig.getParameter<bool>("StationRing");  
-  StationNumb        = iConfig.getParameter<int>("StationNumber");
-  RingNumb           = iConfig.getParameter<int>("RingNumber");
 
+  m_applyfilter     = iConfig.getParameter<bool>("applyfilter");
+  m_cscStripDigiTag = iConfig.getParameter<edm::InputTag>("cscStripDigiTag");
+  m_processDigis    = iConfig.getParameter<bool>("processDigis");
+  m_MESR            = iConfig.getParameter<bool>("StationRing");  
+  m_StationNumb     = iConfig.getParameter<int>("StationNumber");
+  m_RingNumb        = iConfig.getParameter<int>("RingNumber");
 }
 
 HLTCSCActivityFilter::~HLTCSCActivityFilter() {
@@ -53,21 +49,20 @@ HLTCSCActivityFilter::~HLTCSCActivityFilter() {
 
 // ------------ method called on each new Event  ------------
 bool HLTCSCActivityFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
   using namespace edm;
   using namespace std;
 
   bool accepted = false;
   int nStripsFired = 0;
 
-  if (processDigis_) {    
+  if (m_processDigis) {    
     edm::Handle<CSCStripDigiCollection> cscStrips;
     iEvent.getByLabel(m_cscStripDigiTag,cscStrips);
     
     for (CSCStripDigiCollection::DigiRangeIterator dSDiter=cscStrips->begin(); dSDiter!=cscStrips->end(); dSDiter++) {
       CSCDetId id = (CSCDetId)(*dSDiter).first;
-      bool thisME = ((id.station()== StationNumb) && (id.ring()== RingNumb));
-      if (MESR && thisME)continue;
+      bool thisME = ((id.station()== m_StationNumb) && (id.ring()== m_RingNumb));
+      if (m_MESR && thisME)continue;
 
       std::vector<CSCStripDigi>::const_iterator stripIter = (*dSDiter).second.first;
       std::vector<CSCStripDigi>::const_iterator lStrip    = (*dSDiter).second.second;
@@ -92,7 +87,7 @@ bool HLTCSCActivityFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
     if(nStripsFired >= 1) b_Strips = true;
     if(b_Strips)accepted = true;
     ////////////////////////////////////// DONE //////////////////////////////
-    if (applyfilter)
+    if (m_applyfilter)
       return accepted;
     else
       return true; 
