@@ -1,4 +1,3 @@
-
 void SetUpHistograms(TH1F* h1, TH1F* h2, const char* xtitle, TLegend* leg = 0)
 {
   float scale1 = -9999.9;
@@ -61,8 +60,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
 {
   gROOT ->Reset();
     
-  char*  sfilename = "./pixeltrackingrechitshist.root"; // file to be checked
-  char*  rfilename = "../pixeltrackingrechitshist.root"; // reference file 
+  char*  sfilename = "./DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root"; // file to be checked
+  char*  rfilename = "./DQM_V0001_R000000001__RelValSingleMuPt10__CMSSW_3_6_1-MC_36Y_V7A-v1__GEN-SIM-RECO.root"; // reference file 
   
   delete gROOT->GetListOfFiles()->FindObject(rfilename);
   delete gROOT->GetListOfFiles()->FindObject(sfilename);
@@ -96,7 +95,7 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
   //myPV->setName("RecoTrack_SiPixelRecoCompare");
 
   int n_bins = 194;
-  double low = 0.5;
+  double  low = 0.5;
   double high = (double)n_bins + 0.5;
   TH1F* h_pv = new TH1F("h_pv", "#Chi^{2} results for each distribution", n_bins, low, high);
   int bin = 0;
@@ -108,41 +107,78 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       TCanvas* can_meControl = new TCanvas("can_meControl", "can_meControl", 1000, 500);
       can_meControl->Divide(2,1);
       
+  
       TH1F* meTracksPerEvent;
       TH1F* mePixRecHitsPerTrack;
       
       TH1F* newmeTracksPerEvent;
       TH1F* newmePixRecHitsPerTrack;
       
-      rdir->GetObject("Histograms_all/meTracksPerEvent", meTracksPerEvent );
+      rdir->GetObject("Histograms_all/meTracksPerEvent", meTracksPerEvent);
       rdir->GetObject("Histograms_all/mePixRecHitsPerTrack", mePixRecHitsPerTrack );
       
       sdir->GetObject("Histograms_all/meTracksPerEvent", newmeTracksPerEvent );
       sdir->GetObject("Histograms_all/mePixRecHitsPerTrack", newmePixRecHitsPerTrack );
-
-      TLegend* leg1 = new TLegend(0.3, 0.7, 0.6, 0.9);
+      
+      
+      TLegend* leg1 = new TLegend(0.6, 0.5, .89, 0.7); 
       can_meControl->cd(1);
       //gPad->SetLogy();
       SetUpHistograms(meTracksPerEvent, newmeTracksPerEvent, "tracks per event", leg1 );
-      meTracksPerEvent->Draw("he");
-      newmeTracksPerEvent->Draw("samehe"); 
-      myPV->PVCompute(meTracksPerEvent, newmeTracksPerEvent, te );
-      leg1->Draw();
+      Float_t refMax = 1.15*meTracksPerEvent->GetMaximum();
+      Float_t newMax = 1.15*newmeTracksPerEvent->GetMaximum();
+      if refMax > newMax
+      {    
+          meTracksPerEvent->SetMaximum(refMax);
+      }
+      else
+      {    
+          meTracksPerEvent->SetMaximum(newMax);
+      }
+      meTracksPerEvent->SetName("Reference");
+      newmeTracksPerEvent->SetName("New Release");
+      meTracksPerEvent->Draw("he");      
+      newmeTracksPerEvent->Draw("hesameS"); 
+      gPad->Update();      
+      TPaveStats *s1 = (TPaveStats*)meTracksPerEvent->GetListOfFunctions()->FindObject("stats");
+      s1->SetX1NDC (0.55); //new x start position
+      s1->SetX2NDC (0.75); //new x end position   
+      myPV->PVCompute(meTracksPerEvent, newmeTracksPerEvent, te);
       h_pv->SetBinContent(++bin, myPV->getPV());
-    
+      leg1->Draw();   
+      
+      
+		
       can_meControl->cd(2);
       //gPad->SetLogy();
-      SetUpHistograms(mePixRecHitsPerTrack, newmePixRecHitsPerTrack, "pixel hits per track" );
+      SetUpHistograms(mePixRecHitsPerTrack, newmePixRecHitsPerTrack, "pixel hits per track" );     
+      Float_t refMax = 1.15*mePixRecHitsPerTrack->GetMaximum();
+      Float_t newMax = 1.15*newmePixRecHitsPerTrack->GetMaximum();
+      if refMax > newMax
+      {
+          mePixRecHitsPerTrack->SetMaximum(refMax);
+      }
+      else
+      {
+          mePixRecHitsPerTrack->SetMaximum(newMax);
+      }
+      mePixRecHitsPerTrack->SetName("Reference");
+      newmePixRecHitsPerTrack->SetName("New Release");
       mePixRecHitsPerTrack->Draw("he");
-      newmePixRecHitsPerTrack->Draw("samehe"); 
-      myPV->PVCompute(mePixRecHitsPerTrack, newmePixRecHitsPerTrack, te );
+      newmePixRecHitsPerTrack->Draw("hesameS");
+      gPad->Update();
+      TPaveStats *s2 = (TPaveStats*)mePixRecHitsPerTrack->GetListOfFunctions()->FindObject("stats");
+      s2->SetX1NDC (0.55); //new x start position
+      s2->SetX2NDC (0.75); //new x end position
+      myPV->PVCompute(mePixRecHitsPerTrack, newmePixRecHitsPerTrack, te, 0.15, 0.8 );
       h_pv->SetBinContent(++bin, myPV->getPV());
 
       can_meControl->SaveAs("meControl_compare.eps");
       can_meControl->SaveAs("meControl_compare.gif");
+
     }
 
- 
+
   if (1) 
     {
       TCanvas* can_meCharge = new TCanvas("can_meCharge", "can_meCharge", 1200, 800);
@@ -171,48 +207,131 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       sdir->GetObject("Histograms_all/meChargeZmPanel2", newmeChargeZmPanel2);
       sdir->GetObject("Histograms_all/meChargeZpPanel1", newmeChargeZpPanel1);
       sdir->GetObject("Histograms_all/meChargeZpPanel2", newmeChargeZpPanel2);
-      TLegend* leg2 = new TLegend(0.3, 0.7, 0.6, 0.9);
+      TLegend* leg2 = new TLegend(0.65, 0.45, 0.89, 0.6);
       can_meCharge->cd(1);
       //gPad->SetLogy();
       SetUpHistograms(meChargeBarrel, newmeChargeBarrel, "barrel, cluster charge (elec) ", leg2 );
+      
+      Float_t refMax = 1.2*meChargeBarrel->GetMaximum();
+      Float_t newMax = 1.2*newmeChargeBarrel->GetMaximum();
+      if refMax > newMax
+      {
+          meChargeBarrel->SetMaximum(refMax);
+      }
+      else
+      {
+          meChargeBarrel->SetMaximum(newMax);
+      }
+      meChargeBarrel->SetName("Reference");
+      newmeChargeBarrel->SetName("New Release");
       meChargeBarrel->Draw("he");
-      newmeChargeBarrel->Draw("samehe"); 
+      newmeChargeBarrel->Draw("hesameS"); 
       myPV->PVCompute(meChargeBarrel, newmeChargeBarrel, te );
       h_pv->SetBinContent(++bin, myPV->getPV());
       leg2->Draw();
+      gPad->Update();      
+      TPaveStats *s3 = (TPaveStats*)meChargeBarrel->GetListOfFunctions()->FindObject("stats");
+      s3->SetX1NDC (0.55); //new x start position
+      s3->SetX2NDC (0.75); //new x end position  
+      
       
       can_meCharge->cd(2);
       //gPad->SetLogy();
       SetUpHistograms(meChargeZmPanel1, newmeChargeZmPanel1, "panel1, z<0, cluster charge (elec)" );
+      Float_t refMax = 1.2*meChargeZmPanel1->GetMaximum();
+      Float_t newMax = 1.2*newmeChargeZmPanel1->GetMaximum();
+      
+      if refMax > newMax
+      {
+          meChargeZmPanel1->SetMaximum(refMax);
+      }
+      else
+      {
+          meChargeZmPanel1->SetMaximum(newMax);
+      }
+      meChargeZmPanel1->SetName("Reference");
+      newmeChargeZmPanel1->SetName("New Release");
       meChargeZmPanel1->Draw("he");
-      newmeChargeZmPanel1->Draw("samehe"); 
+      newmeChargeZmPanel1->Draw("hesameS"); 
       myPV->PVCompute(meChargeZmPanel1, newmeChargeZmPanel1, te );
       h_pv->SetBinContent(++bin, myPV->getPV());
-
+      gPad->Update();      
+      TPaveStats *s4 = (TPaveStats*)meChargeZmPanel1->GetListOfFunctions()->FindObject("stats");
+      s4->SetX1NDC (0.55); //new x start position
+      s4->SetX2NDC (0.75); //new x end position 
+      
       can_meCharge->cd(3);
       //gPad->SetLogy();
       SetUpHistograms(meChargeZmPanel2, newmeChargeZmPanel2, "panel2, z<0, cluster charge (elec)" );
+      Float_t refMax = 1.2*meChargeZmPanel2->GetMaximum();
+      Float_t newMax = 1.2*newmeChargeZmPanel2->GetMaximum();
+      if refMax > newMax
+      {
+          meChargeZmPanel2->SetMaximum(refMax);
+      }
+      else
+      {
+          meChargeZmPanel2->SetMaximum(newMax);
+      }
+      meChargeZmPanel2->SetName("Reference");
+      newmeChargeZmPanel2->SetName("New Release");
       meChargeZmPanel2->Draw("he");
-      newmeChargeZmPanel2->Draw("samehe"); 
+      newmeChargeZmPanel2->Draw("hesameS"); 
       myPV->PVCompute(meChargeZmPanel2, newmeChargeZmPanel2, te );
       h_pv->SetBinContent(++bin, myPV->getPV());
-
+      gPad->Update();      
+      TPaveStats *s5 = (TPaveStats*)meChargeZmPanel2->GetListOfFunctions()->FindObject("stats");
+      s5->SetX1NDC (0.55); //new x start position
+      s5->SetX2NDC (0.75); //new x end position 
+      
       can_meCharge->cd(5);
       //gPad->SetLogy();
       SetUpHistograms(meChargeZpPanel1, newmeChargeZpPanel1, "panel1, z>0, cluster charge (elec)" );
+      Float_t refMax = 1.2*meChargeZpPanel1->GetMaximum();
+      Float_t newMax = 1.2*newmeChargeZpPanel1->GetMaximum();
+      if refMax > newMax
+      {
+          meChargeZpPanel1->SetMaximum(refMax);
+      }
+      else
+      {
+          meChargeZpPanel1->SetMaximum(newMax);
+      }
+      meChargeZpPanel1->SetName("Reference");
+      newmeChargeZpPanel1->SetName("New Release");
       meChargeZpPanel1->Draw("he");
-      newmeChargeZpPanel1->Draw("samehe"); 
+      newmeChargeZpPanel1->Draw("hesameS"); 
       myPV->PVCompute(meChargeZpPanel1, newmeChargeZpPanel1, te );
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s6 = (TPaveStats*)meChargeZpPanel1->GetListOfFunctions()->FindObject("stats");
+      s6->SetX1NDC (0.55); //new x start position
+      s6->SetX2NDC (0.75); //new x end position 
 
       can_meCharge->cd(6);
       //gPad->SetLogy();
       SetUpHistograms(meChargeZpPanel2, newmeChargeZpPanel2, "panel2, z>0, cluster charge (elec)" );  
+      Float_t refMax = 1.2*meChargeZpPanel2->GetMaximum();
+      Float_t newMax = 1.2*newmeChargeZpPanel2->GetMaximum();
+      if refMax > newMax
+      {
+          meChargeZpPanel2->SetMaximum(refMax);
+      }
+      else
+      {
+          meChargeZpPanel2->SetMaximum(newMax);
+      }
+      meChargeZpPanel2->SetName("Reference");
+      newmeChargeZpPanel2->SetName("New Release");
       meChargeZpPanel2->Draw("he");
-      newmeChargeZpPanel2->Draw("samehe"); 
+      newmeChargeZpPanel2->Draw("hesameS"); 
       myPV->PVCompute(meChargeZpPanel2, newmeChargeZpPanel2, te );
       h_pv->SetBinContent(++bin, myPV->getPV());
-
+      gPad->Update();      
+      TPaveStats *s7 = (TPaveStats*)meChargeZpPanel2->GetListOfFunctions()->FindObject("stats");
+      s7->SetX1NDC (0.55); //new x start position
+      s7->SetX2NDC (0.75); //new x end position 
+      
       can_meCharge->SaveAs("meCharge_compare.eps");
       can_meCharge->SaveAs("meCharge_compare.gif");
     }
@@ -246,52 +365,132 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       sdir->GetObject("Histograms_all/meErrxZpPanel1", newmeErrxZpPanel1);
       sdir->GetObject("Histograms_all/meErrxZpPanel2", newmeErrxZpPanel2);
       
-      TLegend* leg3 = new TLegend(0.3, 0.7, 0.6, 0.9);
+      TLegend* leg3 = new TLegend(0.65, 0.55, 0.89, 0.7);
       can_Errx->cd(1);
       //gPad->SetLogy();
       SetUpHistograms(meErrxBarrel, newmeErrxBarrel, "barrel, x position error (cm)", leg3 );
+      Float_t refMax = 1.2*meErrxBarrel->GetMaximum();
+      Float_t newMax = 1.2*newmeErrxBarrel->GetMaximum();
+      if refMax > newMax
+      {
+          meErrxBarrel->SetMaximum(refMax);
+      }
+      else
+      {
+          meErrxBarrel->SetMaximum(newMax);
+      }
+      meErrxBarrel->SetName("Reference");
+      newmeErrxBarrel->SetName("New Release");
       meErrxBarrel->Draw("he");
-      newmeErrxBarrel->Draw("Samehe"); 
+      newmeErrxBarrel->Draw("hesameS"); 
       myPV->PVCompute(meErrxBarrel, newmeErrxBarrel, te );
       leg3->Draw();
       h_pv->SetBinContent(++bin, myPV->getPV());
-
+      gPad->Update();      
+      TPaveStats *s8 = (TPaveStats*)meErrxBarrel->GetListOfFunctions()->FindObject("stats");
+      s8->SetX1NDC (0.55); //new x start position
+      s8->SetX2NDC (0.75); //new x end position 
+      
       can_Errx->cd(2);
       //gPad->SetLogy();
       SetUpHistograms(meErrxZmPanel1, newmeErrxZmPanel1, "panel1, z<0, x position error (cm)" );
+      Float_t refMax = 1.2*meErrxZmPanel1->GetMaximum();
+      Float_t newMax = 1.2*newmeErrxZmPanel1->GetMaximum();
+      if refMax > newMax
+      {
+          meErrxZmPanel1->SetMaximum(refMax);
+      }
+      else
+      {
+          meErrxZmPanel1->SetMaximum(newMax);
+      }
+      meErrxZmPanel1->SetName("Reference");
+      newmeErrxZmPanel1->SetName("New Release");
       meErrxZmPanel1->Draw("he");
-      newmeErrxZmPanel1->Draw("samehe"); 
+      newmeErrxZmPanel1->Draw("hesameS"); 
       myPV->PVCompute(meErrxZmPanel1, newmeErrxZmPanel1, te );
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s9 = (TPaveStats*)meErrxZmPanel1->GetListOfFunctions()->FindObject("stats");
+      s9->SetX1NDC (0.55); //new x start position
+      s9->SetX2NDC (0.75); //new x end position 
       
       can_Errx->cd(3);
       //gPad->SetLogy();
       SetUpHistograms(meErrxZmPanel2, newmeErrxZmPanel2, "panel2, z<0, x position error (cm)" );
+      Float_t refMax = 1.2*meErrxZmPanel2->GetMaximum();
+      Float_t newMax = 1.2*newmeErrxZmPanel2->GetMaximum();
+      if refMax > newMax
+      {
+          meErrxZmPanel2->SetMaximum(refMax);
+      }
+      else
+      {
+          meErrxZmPanel2->SetMaximum(newMax);
+      }
+      meErrxZmPanel2->SetName("Reference");
+      newmeErrxZmPanel2->SetName("New Release");
       meErrxZmPanel2->Draw("he");
-      newmeErrxZmPanel2->Draw("samehe"); 
+      newmeErrxZmPanel2->Draw("hesameS"); 
       myPV->PVCompute(meErrxZmPanel2, newmeErrxZmPanel2, te );
       h_pv->SetBinContent(++bin, myPV->getPV());
-
+      gPad->Update();      
+      TPaveStats *s10 = (TPaveStats*)meErrxZmPanel2->GetListOfFunctions()->FindObject("stats");
+      s10->SetX1NDC (0.55); //new x start position
+      s10->SetX2NDC (0.75); //new x end position 
+      
       can_Errx->cd(5);
       //gPad->SetLogy();
       SetUpHistograms(meErrxZpPanel1, newmeErrxZpPanel1, "panel1, z>0, x position error (cm)" );
+      Float_t refMax = 1.2*meErrxZpPanel1->GetMaximum();
+      Float_t newMax = 1.2*newmeErrxZpPanel1->GetMaximum();
+      if refMax > newMax
+      {
+          meErrxZpPanel1->SetMaximum(refMax);
+      }
+      else
+      {
+          meErrxZpPanel1->SetMaximum(newMax);
+      }
+      meErrxZpPanel1->SetName("Reference");
+      newmeErrxZpPanel1->SetName("New Release");
       meErrxZpPanel1->Draw("he");
-      newmeErrxZpPanel1->Draw("samehe"); 
+      newmeErrxZpPanel1->Draw("hesameS"); 
       myPV->PVCompute(meErrxZpPanel1, newmeErrxZpPanel1, te );
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s11 = (TPaveStats*)meErrxZpPanel1->GetListOfFunctions()->FindObject("stats");
+      s11->SetX1NDC (0.55); //new x start position
+      s11->SetX2NDC (0.75); //new x end position 
 
       can_Errx->cd(6);
       //gPad->SetLogy();
       SetUpHistograms(meErrxZpPanel2, newmeErrxZpPanel2, "panel2, z>0, x position error (cm)" );
+      Float_t refMax = 1.2*meErrxZpPanel2->GetMaximum();
+      Float_t newMax = 1.2*newmeErrxZpPanel2->GetMaximum();
+      if refMax > newMax
+      {
+          meErrxZpPanel2->SetMaximum(refMax);
+      }
+      else
+      {
+          meErrxZpPanel2->SetMaximum(newMax);
+      }
+      meErrxZpPanel2->SetName("Reference");
+      newmeErrxZpPanel2->SetName("New Release");
       meErrxZpPanel2->Draw("he");
-      newmeErrxZpPanel2->Draw("samehe"); 
+      newmeErrxZpPanel2->Draw("hesameS"); 
       myPV->PVCompute(meErrxZpPanel2, newmeErrxZpPanel2, te );
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s12 = (TPaveStats*)meErrxZpPanel2->GetListOfFunctions()->FindObject("stats");
+      s12->SetX1NDC (0.55); //new x start position
+      s12->SetX2NDC (0.75); //new x end position 
 
       can_Errx->SaveAs("meErrx_compare.eps");
       can_Errx->SaveAs("meErrx_compare.gif");
     }
-
+    
   if (1) 
     {
       TCanvas* can_Erry = new TCanvas("can_Erry", "can_Erry", 1200, 800);
@@ -321,52 +520,133 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       sdir->GetObject("Histograms_all/meErryZpPanel1", newmeErryZpPanel1);
       sdir->GetObject("Histograms_all/meErryZpPanel2", newmeErryZpPanel2);
       
-      TLegend* leg4 = new TLegend(0.3, 0.7, 0.6, 0.9);
+      TLegend* leg4 = new TLegend(0.65, 0.5, 0.89, 0.65);
       can_Erry->cd(1);
       //gPad->SetLogy();
       SetUpHistograms(meErryBarrel, newmeErryBarrel, "barrel, y position error (cm)", leg4 );
+      Float_t refMax = 1.2*meErryBarrel->GetMaximum();
+      Float_t newMax = 1.2*newmeErryBarrel->GetMaximum();
+      if refMax > newMax
+      {
+          meErryBarrel->SetMaximum(refMax);
+      }
+      else
+      {
+          meErryBarrel->SetMaximum(newMax);
+      }
+      meErryBarrel->SetName("Reference");
+      newmeErryBarrel->SetName("New Release");
       meErryBarrel->Draw("he");
-      newmeErryBarrel->Draw("Samehe"); 
+      newmeErryBarrel->Draw("hesameS"); 
       myPV->PVCompute(meErryBarrel, newmeErryBarrel, te );
       leg4->Draw();
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s13 = (TPaveStats*)meErryBarrel->GetListOfFunctions()->FindObject("stats");
+      s13->SetX1NDC (0.55); //new x start position
+      s13->SetX2NDC (0.75); //new x end position 
 
       can_Erry->cd(2);
       //gPad->SetLogy();
       SetUpHistograms(meErryZmPanel1, newmeErryZmPanel1, "panel1, z<0, y position error (cm)"  );
+      Float_t refMax = 1.2*meErryZmPanel1->GetMaximum();
+      Float_t newMax = 1.2*newmeErryZmPanel1->GetMaximum();
+      if refMax > newMax
+      {
+          meErryZmPanel1->SetMaximum(refMax);
+      }
+      else
+      {
+          meErryZmPanel1->SetMaximum(newMax);
+      }
+      meErryZmPanel1->SetName("Reference");
+      newmeErryZmPanel1->SetName("New Release");
       meErryZmPanel1->Draw("he");
-      newmeErryZmPanel1->Draw("samehe"); 
+      newmeErryZmPanel1->Draw("hesameS"); 
       myPV->PVCompute(meErryZmPanel1, newmeErryZmPanel1, te );
       h_pv->SetBinContent(++bin, myPV->getPV());
-
+      gPad->Update();      
+      TPaveStats *s14 = (TPaveStats*)meErryZmPanel1->GetListOfFunctions()->FindObject("stats");
+      s14->SetX1NDC (0.55); //new x start position
+      s14->SetX2NDC (0.75); //new x end position 
+      
       can_Erry->cd(3);
       //gPad->SetLogy();
       SetUpHistograms(meErryZmPanel2, newmeErryZmPanel2, "panel2, z<0, y position error (cm)" );
+      Float_t refMax = 1.2*meErryZmPanel2->GetMaximum();
+      Float_t newMax = 1.2*newmeErryZmPanel2->GetMaximum();      
+      if refMax > newMax
+      {
+          meErryZmPanel2->SetMaximum(refMax);
+      }
+      else
+      {
+          meErryZmPanel2->SetMaximum(newMax);
+      }      
+      meErryZmPanel2->SetName("Reference");
+      newmeErryZmPanel2->SetName("New Release");
       meErryZmPanel2->Draw("he");
-      newmeErryZmPanel2->Draw("samehe"); 
+      newmeErryZmPanel2->Draw("hesameS"); 
       myPV->PVCompute(meErryZmPanel2, newmeErryZmPanel2, te );
-      h_pv->SetBinContent(++bin, myPV->getPV());
+      h_pv->SetBinContent(++bin, myPV->getPV());      
+      gPad->Update();      
+      TPaveStats *s15 = (TPaveStats*)meErryZmPanel2->GetListOfFunctions()->FindObject("stats");
+      s15->SetX1NDC (0.55); //new x start position
+      s15->SetX2NDC (0.75); //new x end position
 
       can_Erry->cd(5);
       //gPad->SetLogy();
       SetUpHistograms(meErryZpPanel1, newmeErryZpPanel1, "panel1, z>0, y position error (cm)" );
+      Float_t refMax = 1.2*meErryZpPanel1->GetMaximum();
+      Float_t newMax = 1.2*newmeErryZpPanel1->GetMaximum();      
+      if refMax > newMax
+      {
+          meErryZpPanel1->SetMaximum(refMax);
+      }
+      else
+      {
+          meErryZpPanel1->SetMaximum(newMax);
+      }      
+      meErryZpPanel1->SetName("Reference");
+      newmeErryZpPanel1->SetName("New Release");
       meErryZpPanel1->Draw("he");
-      newmeErryZpPanel1->Draw("samehe"); 
+      newmeErryZpPanel1->Draw("hesameS"); 
       myPV->PVCompute(meErryZpPanel1, newmeErryZpPanel1, te );
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s16 = (TPaveStats*)meErryZpPanel1->GetListOfFunctions()->FindObject("stats");
+      s16->SetX1NDC (0.55); //new x start position
+      s16->SetX2NDC (0.75); //new x end position
 
       can_Erry->cd(6);
       //gPad->SetLogy();
       SetUpHistograms(meErryZpPanel2, newmeErryZpPanel2, "panel2, z>0, y position error (cm)" );
+      Float_t refMax = 1.2*meErryZpPanel2->GetMaximum();
+      Float_t newMax = 1.2*newmeErryZpPanel2->GetMaximum();
+      if refMax > newMax
+      {
+          meErryZpPanel2->SetMaximum(refMax);
+      }
+      else
+      {
+          meErryZpPanel2->SetMaximum(newMax);
+      }
+      meErryZpPanel2->SetName("Reference");
+      newmeErryZpPanel2->SetName("New Release");
       meErryZpPanel2->Draw("he");
-      newmeErryZpPanel2->Draw("samehe"); 
+      newmeErryZpPanel2->Draw("hesameS"); 
       myPV->PVCompute(meErryZpPanel2, newmeErryZpPanel2, te );
-       h_pv->SetBinContent(++bin, myPV->getPV());
+      h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s17 = (TPaveStats*)meErryZpPanel2->GetListOfFunctions()->FindObject("stats");
+      s17->SetX1NDC (0.55); //new x start position
+      s17->SetX2NDC (0.75); //new x end position
 
       can_Erry->SaveAs("meErry_compare.eps");
       can_Erry->SaveAs("meErry_compare.gif");
     }
   
+      
   if (1) 
     {
       TCanvas* can_Npix = new TCanvas("can_Npix", "can_Npix", 1200, 800);
@@ -396,52 +676,132 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       sdir->GetObject("Histograms_all/meNpixZpPanel1", newmeNpixZpPanel1);
       sdir->GetObject("Histograms_all/meNpixZpPanel2", newmeNpixZpPanel2);
       
-      TLegend* leg5 = new TLegend(0.3, 0.7, 0.6, 0.9);
+      TLegend* leg5 = new TLegend(0.65, 0.5, 0.89, 0.65);
       can_Npix->cd(1);
       //gPad->SetLogy();
       SetUpHistograms(meNpixBarrel, newmeNpixBarrel, "barrel, cluster size (pixels)", leg5 );
+      Float_t refMax = 1.2*meNpixBarrel->GetMaximum();
+      Float_t newMax = 1.2*newmeNpixBarrel->GetMaximum();
+      if refMax > newMax
+      {
+          meNpixBarrel->SetMaximum(refMax);
+      }
+      else
+      {
+          meNpixBarrel->SetMaximum(newMax);
+      }
+      meNpixBarrel->SetName("Reference");
+      newmeNpixBarrel->SetName("New Release");
       meNpixBarrel->Draw("he");
-      newmeNpixBarrel->Draw("Samehe"); 
+      newmeNpixBarrel->Draw("hesameS"); 
       myPV->PVCompute(meNpixBarrel, newmeNpixBarrel, te );
       leg5->Draw();
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s18 = (TPaveStats*)meNpixBarrel->GetListOfFunctions()->FindObject("stats");
+      s18->SetX1NDC (0.55); //new x start position
+      s18->SetX2NDC (0.75); //new x end position
 
       can_Npix->cd(2);
       //gPad->SetLogy();
       SetUpHistograms(meNpixZmPanel1, newmeNpixZmPanel1, "panel1, z<0, cluster size (pixels)"  );
+      Float_t refMax = 1.2*meNpixZmPanel1->GetMaximum();
+      Float_t newMax = 1.2*newmeNpixZmPanel1->GetMaximum();
+      if refMax > newMax
+      {
+          meNpixZmPanel1->SetMaximum(refMax);
+      }
+      else
+      {
+          meNpixZmPanel1->SetMaximum(newMax);
+      }
+      meNpixZmPanel1->SetName("Reference");
+      newmeNpixZmPanel1->SetName("New Release");
       meNpixZmPanel1->Draw("he");
-      newmeNpixZmPanel1->Draw("samehe"); 
+      newmeNpixZmPanel1->Draw("hesameS"); 
       myPV->PVCompute(meNpixZmPanel1, newmeNpixZmPanel1, te );
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s19 = (TPaveStats*)meNpixZmPanel1->GetListOfFunctions()->FindObject("stats");
+      s19->SetX1NDC (0.55); //new x start position
+      s19->SetX2NDC (0.75); //new x end position
 
       can_Npix->cd(3);
       //gPad->SetLogy();
       SetUpHistograms(meNpixZmPanel2, newmeNpixZmPanel2, "panel2, z<0, cluster size (pixels)" );
+      Float_t refMax = 1.2*meNpixZmPanel2->GetMaximum();
+      Float_t newMax = 1.2*newmeNpixZmPanel2->GetMaximum();
+      if refMax > newMax
+      {
+          meNpixZmPanel2->SetMaximum(refMax);
+      }
+      else
+      {
+          meNpixZmPanel2->SetMaximum(newMax);
+      }
+      meNpixZmPanel2->SetName("Reference");
+      newmeNpixZmPanel2->SetName("New Release");
       meNpixZmPanel2->Draw("he");
-      newmeNpixZmPanel2->Draw("samehe"); 
+      newmeNpixZmPanel2->Draw("hesameS"); 
       myPV->PVCompute(meNpixZmPanel2, newmeNpixZmPanel2, te );
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s20 = (TPaveStats*)meNpixZmPanel2->GetListOfFunctions()->FindObject("stats");
+      s20->SetX1NDC (0.55); //new x start position
+      s20->SetX2NDC (0.75); //new x end position
 
       can_Npix->cd(5);
       //gPad->SetLogy();
       SetUpHistograms(meNpixZpPanel1, newmeNpixZpPanel1, "panel1, z>0, cluster size (pixels)" );
+      Float_t refMax = 1.2*meNpixZpPanel1->GetMaximum();
+      Float_t newMax = 1.2*newmeNpixZpPanel1->GetMaximum();
+      if refMax > newMax
+      {
+          meNpixZpPanel1->SetMaximum(refMax);
+      }
+      else
+      {
+          meNpixZpPanel1->SetMaximum(newMax);
+      }
+      meNpixZpPanel1->SetName("Reference");
+      newmeNpixZpPanel1->SetName("New Release");
       meNpixZpPanel1->Draw("he");
-      newmeNpixZpPanel1->Draw("samehe"); 
+      newmeNpixZpPanel1->Draw("hesameS"); 
       myPV->PVCompute(meNpixZpPanel1, newmeNpixZpPanel1, te );
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s21 = (TPaveStats*)meNpixZpPanel1->GetListOfFunctions()->FindObject("stats");
+      s21->SetX1NDC (0.55); //new x start position
+      s21->SetX2NDC (0.75); //new x end position
 
       can_Npix->cd(6);
       //gPad->SetLogy();
       SetUpHistograms(meNpixZpPanel2, newmeNpixZpPanel2, "panel2, z>0, cluster size (pixels)" );
+      Float_t refMax = 1.2*meNpixZpPanel2->GetMaximum();
+      Float_t newMax = 1.2*newmeNpixZpPanel2->GetMaximum();
+      if refMax > newMax
+      {
+          meNpixZpPanel2->SetMaximum(refMax);
+      }
+      else
+      {
+          meNpixZpPanel2->SetMaximum(newMax);
+      }
+      meNpixZpPanel2->SetName("Reference");
+      newmeNpixZpPanel2->SetName("New Release");
       meNpixZpPanel2->Draw("he");
-      newmeNpixZpPanel2->Draw("samehe"); 
+      newmeNpixZpPanel2->Draw("hesameS"); 
       myPV->PVCompute(meNpixZpPanel2, newmeNpixZpPanel2, te );
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s22 = (TPaveStats*)meNpixZpPanel2->GetListOfFunctions()->FindObject("stats");
+      s22->SetX1NDC (0.55); //new x start position
+      s22->SetX2NDC (0.75); //new x end position
       
-      //can_Npix->SaveAs("meNpix_compare.eps");
-      //can_Npix->SaveAs("meNpix_compare.gif");
+      can_Npix->SaveAs("meNpix_compare.eps");
+      can_Npix->SaveAs("meNpix_compare.gif");
     }
-  
+
   if (1) 
     {
       TCanvas* can_Nxpix = new TCanvas("can_Nxpix", "can_Nxpix", 1200, 800);
@@ -471,52 +831,135 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       sdir->GetObject("Histograms_all/meNxpixZpPanel1", newmeNxpixZpPanel1);
       sdir->GetObject("Histograms_all/meNxpixZpPanel2", newmeNxpixZpPanel2);
       
-      TLegend* leg6 = new TLegend(0.3, 0.7, 0.6, 0.9);
+      TLegend* leg6 = new TLegend(0.65, 0.5, 0.89, 0.65);
       can_Nxpix->cd(1);
       //gPad->SetLogy();
       SetUpHistograms(meNxpixBarrel, newmeNxpixBarrel, "barrel, cluster x size (pixels)", leg6 );
+      Float_t refMax = 1.2*meNxpixBarrel->GetMaximum();
+      Float_t newMax = 1.2*newmeNxpixBarrel->GetMaximum();
+      if refMax > newMax
+      {
+          meNxpixBarrel->SetMaximum(refMax);
+      }
+      else
+      {
+          meNxpixBarrel->SetMaximum(newMax);
+      }
+      meNxpixBarrel->SetName("Reference");
+      newmeNxpixBarrel->SetName("New Release");
       meNxpixBarrel->Draw("he");
-      newmeNxpixBarrel->Draw("Samehe"); 
+      newmeNxpixBarrel->Draw("hesameS"); 
       myPV->PVCompute(meNxpixBarrel, newmeNxpixBarrel, te );
       leg6->Draw();
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s23 = (TPaveStats*)meNxpixBarrel->GetListOfFunctions()->FindObject("stats");
+      s23->SetX1NDC (0.55); //new x start position
+      s23->SetX2NDC (0.75); //new x end position
 
       can_Nxpix->cd(2);
       //gPad->SetLogy();
       SetUpHistograms(meNxpixZmPanel1, newmeNxpixZmPanel1, "panel1, z<0, cluster x size (pixels)" );
+      Float_t refMax = 1.2*meNxpixZmPanel1->GetMaximum();
+      Float_t newMax = 1.2*newmeNxpixZmPanel1->GetMaximum();
+      if refMax > newMax
+      {
+          meNxpixZmPanel1->SetMaximum(refMax);
+      }
+      else
+      {
+          meNxpixZmPanel1->SetMaximum(newMax);
+      }
+      meNxpixZmPanel1->SetName("Reference");
+      newmeNxpixZmPanel1->SetName("New Release");
       meNxpixZmPanel1->Draw("he");
-      newmeNxpixZmPanel1->Draw("samehe"); 
+      newmeNxpixZmPanel1->Draw("hesameS"); 
       myPV->PVCompute(meNxpixZmPanel1, newmeNxpixZmPanel1, te );
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s24 = (TPaveStats*)meNxpixZmPanel1->GetListOfFunctions()->FindObject("stats");
+      s24->SetX1NDC (0.55); //new x start position
+      s24->SetX2NDC (0.75); //new x end position
 
       can_Nxpix->cd(3);
       //gPad->SetLogy();
       SetUpHistograms(meNxpixZmPanel2, newmeNxpixZmPanel2, "panel2, z<0, cluster x size (pixels)" );
+      Float_t refMax = 1.2*meNxpixZmPanel2->GetMaximum();
+      Float_t newMax = 1.2*newmeNxpixZmPanel2->GetMaximum();
+      if refMax > newMax
+      {
+          meNxpixZmPanel2->SetMaximum(refMax);
+      }
+      else
+      {
+          meNxpixZmPanel2->SetMaximum(newMax);
+      }
+      meNxpixZmPanel2->SetName("Reference");
+      newmeNxpixZmPanel2->SetName("New Release");
       meNxpixZmPanel2->Draw("he");
-      newmeNxpixZmPanel2->Draw("samehe"); 
+      newmeNxpixZmPanel2->Draw("hesameS"); 
       myPV->PVCompute(meNxpixZmPanel2, newmeNxpixZmPanel2, te );
       h_pv->SetBinContent(++bin, myPV->getPV());
+      
+      gPad->Update();      
+      TPaveStats *s25 = (TPaveStats*)meNxpixZmPanel2->GetListOfFunctions()->FindObject("stats");
+      s25->SetX1NDC (0.55); //new x start position
+      s25->SetX2NDC (0.75); //new x end position
 
       can_Nxpix->cd(5);
       //gPad->SetLogy();
       SetUpHistograms(meNxpixZpPanel1, newmeNxpixZpPanel1, "panel1, z>0, cluster x size (pixels)" );
+      Float_t refMax = 1.2*meNxpixZpPanel1->GetMaximum();
+      Float_t newMax = 1.2*newmeNxpixZpPanel1->GetMaximum();
+      if refMax > newMax
+      {
+          meNxpixZpPanel1->SetMaximum(refMax);
+      }
+      else
+      {
+          meNxpixZpPanel1->SetMaximum(newMax);
+      }
+      meNxpixZpPanel1->SetName("Reference");
+      newmeNxpixZpPanel1->SetName("New Release");
       meNxpixZpPanel1->Draw("he");
-      newmeNxpixZpPanel1->Draw("samehe"); 
+      newmeNxpixZpPanel1->Draw("hesameS"); 
       myPV->PVCompute(meNxpixZpPanel1, newmeNxpixZpPanel1, te );
       h_pv->SetBinContent(++bin, myPV->getPV());
+      
+      gPad->Update();      
+      TPaveStats *s26 = (TPaveStats*)meNxpixZpPanel1->GetListOfFunctions()->FindObject("stats");
+      s26->SetX1NDC (0.55); //new x start position
+      s26->SetX2NDC (0.75); //new x end position
 
       can_Nxpix->cd(6);
       //gPad->SetLogy();
       SetUpHistograms(meNxpixZpPanel2, newmeNxpixZpPanel2, "panel2, z>0, cluster x size (pixels)" );
+      Float_t refMax = 1.2*meNxpixZpPanel2->GetMaximum();
+      Float_t newMax = 1.2*newmeNxpixZpPanel2->GetMaximum();
+      if refMax > newMax
+      {
+          meNxpixZpPanel2->SetMaximum(refMax);
+      }
+      else
+      {
+          meNxpixZpPanel2->SetMaximum(newMax);
+      }
+      meNxpixZpPanel2->SetName("Reference");
+      newmeNxpixZpPanel2->SetName("New Release");
       meNxpixZpPanel2->Draw("he");
-      newmeNxpixZpPanel2->Draw("samehe"); 
+      newmeNxpixZpPanel2->Draw("hesameS"); 
       myPV->PVCompute(meNxpixZpPanel2, newmeNxpixZpPanel2, te );
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s27 = (TPaveStats*)meNxpixZpPanel2->GetListOfFunctions()->FindObject("stats");
+      s27->SetX1NDC (0.55); //new x start position
+      s27->SetX2NDC (0.75); //new x end position
 
-      //can_Nxpix->SaveAs("meNxpix_compare.eps");
-      //can_Nxpix->SaveAs("meNxpix_compare.gif");
+      can_Nxpix->SaveAs("meNxpix_compare.eps");
+      can_Nxpix->SaveAs("meNxpix_compare.gif");
     }
-  
+    
+
   if (1) 
     {
       TCanvas* can_Nypix = new TCanvas("can_Nypix", "can_Nypix", 1200, 800);
@@ -546,47 +989,127 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       sdir->GetObject("Histograms_all/meNypixZpPanel1", newmeNypixZpPanel1);
       sdir->GetObject("Histograms_all/meNypixZpPanel2", newmeNypixZpPanel2);
       
-      TLegend* leg7 = new TLegend(0.3, 0.7, 0.6, 0.9);
+      TLegend* leg7 = new TLegend(0.65, 0.55, 0.89, 0.7);
       can_Nypix->cd(1);
       //gPad->SetLogy();
       SetUpHistograms(meNypixBarrel, newmeNypixBarrel, "barrel, cluster y size (pixels)", leg7 );
+      Float_t refMax = 1.2*meNypixBarrel->GetMaximum();
+      Float_t newMax = 1.2*newmeNypixBarrel->GetMaximum();
+      if refMax > newMax
+      {
+          meNypixBarrel->SetMaximum(refMax);
+      }
+      else
+      {
+          meNypixBarrel->SetMaximum(newMax);
+      }
+      meNypixBarrel->SetName("Reference");
+      newmeNypixBarrel->SetName("New Release");
       meNypixBarrel->Draw("he");
-      newmeNypixBarrel->Draw("Samehe"); 
+      newmeNypixBarrel->Draw("hesameS"); 
       myPV->PVCompute(meNypixBarrel, newmeNypixBarrel, te );
       leg7->Draw();
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s28 = (TPaveStats*)meNypixBarrel->GetListOfFunctions()->FindObject("stats");
+      s28->SetX1NDC (0.55); //new x start position
+      s28->SetX2NDC (0.75); //new x end position
 
       can_Nypix->cd(2);
       //gPad->SetLogy();
       SetUpHistograms(meNypixZmPanel1, newmeNypixZmPanel1, "panel1, z<0, cluster y size (pixels)" );
+      Float_t refMax = 1.2*meNypixZmPanel1->GetMaximum();
+      Float_t newMax = 1.2*newmeNypixZmPanel1->GetMaximum();
+      if refMax > newMax
+      {
+          meNypixZmPanel1->SetMaximum(refMax);
+      }
+      else
+      {
+          meNypixZmPanel1->SetMaximum(newMax);
+      }
+      meNypixZmPanel1->SetName("Reference");
+      newmeNypixZmPanel1->SetName("New Release");
       meNypixZmPanel1->Draw("he");
-      newmeNypixZmPanel1->Draw("samehe"); 
+      newmeNypixZmPanel1->Draw("hesameS"); 
       myPV->PVCompute(meNypixZmPanel1, newmeNypixZmPanel1, te );
       h_pv->SetBinContent(++bin, myPV->getPV());
-
+      gPad->Update();      
+      TPaveStats *s29 = (TPaveStats*)meNypixZmPanel1->GetListOfFunctions()->FindObject("stats");
+      s29->SetX1NDC (0.55); //new x start position
+      s29->SetX2NDC (0.75); //new x end position
+      
       can_Nypix->cd(3);
       //gPad->SetLogy();
       SetUpHistograms(meNypixZmPanel2, newmeNypixZmPanel2, "panel2, z<0, cluster y size (pixels)" );
+      Float_t refMax = 1.2*meNypixZmPanel2->GetMaximum();
+      Float_t newMax = 1.2*newmeNypixZmPanel2->GetMaximum();
+      if refMax > newMax
+      {
+          meNypixZmPanel2->SetMaximum(refMax);
+      }
+      else
+      {
+          meNypixZmPanel2->SetMaximum(newMax);
+      }
+      meNypixZmPanel2->SetName("Reference");
+      newmeNypixZmPanel2->SetName("New Release");
       meNypixZmPanel2->Draw("he");
-      newmeNypixZmPanel2->Draw("samehe"); 
+      newmeNypixZmPanel2->Draw("hesameS"); 
       myPV->PVCompute(meNypixZmPanel2, newmeNypixZmPanel2, te );
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s30 = (TPaveStats*)meNypixZmPanel2->GetListOfFunctions()->FindObject("stats");
+      s30->SetX1NDC (0.55); //new x start position
+      s30->SetX2NDC (0.75); //new x end position
 
       can_Nypix->cd(5);
       //gPad->SetLogy();
       SetUpHistograms(meNypixZpPanel1, newmeNypixZpPanel1, "panel1, z>0, cluster y size (pixels)" );
+      Float_t refMax = 1.2*meNypixZpPanel1->GetMaximum();
+      Float_t newMax = 1.2*newmeNypixZpPanel1->GetMaximum();
+      if refMax > newMax
+      {
+          meNypixZpPanel1->SetMaximum(refMax);
+      }
+      else
+      {
+          meNypixZpPanel1->SetMaximum(newMax);
+      }
+      meNypixZpPanel1->SetName("Reference");
+      newmeNypixZpPanel1->SetName("New Release");
       meNypixZpPanel1->Draw("he");
-      newmeNypixZpPanel1->Draw("samehe"); 
+      newmeNypixZpPanel1->Draw("hesameS"); 
       myPV->PVCompute(meNypixZpPanel1, newmeNypixZpPanel1, te );
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s31 = (TPaveStats*)meNypixZpPanel1->GetListOfFunctions()->FindObject("stats");
+      s31->SetX1NDC (0.55); //new x start position
+      s31->SetX2NDC (0.75); //new x end position
 
       can_Nypix->cd(6);
       //gPad->SetLogy();
       SetUpHistograms(meNypixZpPanel2, newmeNypixZpPanel2, "panel2, z>0, cluster y size (pixels)" );
+      Float_t refMax = 1.2*meNypixZpPanel2->GetMaximum();
+      Float_t newMax = 1.2*newmeNypixZpPanel2->GetMaximum();
+      if refMax > newMax
+      {
+          meNypixZpPanel2->SetMaximum(refMax);
+      }
+      else
+      {
+          meNypixZpPanel2->SetMaximum(newMax);
+      }      
+      meNypixZpPanel2->SetName("Reference");
+      newmeNypixZpPanel2->SetName("New Release");
       meNypixZpPanel2->Draw("he");
-      newmeNypixZpPanel2->Draw("samehe"); 
+      newmeNypixZpPanel2->Draw("hesameS"); 
       myPV->PVCompute(meNypixZpPanel2, newmeNypixZpPanel2, te );
-      h_pv->SetBinContent(++bin, myPV->getPV());
+      h_pv->SetBinContent(++bin, myPV->getPV());      
+      gPad->Update();      
+      TPaveStats *s32 = (TPaveStats*)meNypixZpPanel2->GetListOfFunctions()->FindObject("stats");
+      s32->SetX1NDC (0.55); //new x start position
+      s32->SetX2NDC (0.75); //new x end position
 
       can_Nypix->SaveAs("meNypix_compare.eps");
       can_Nypix->SaveAs("meNypix_compare.gif");
@@ -621,47 +1144,127 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       sdir->GetObject("Histograms_all/mePosxZpPanel1", newmePosxZpPanel1);
       sdir->GetObject("Histograms_all/mePosxZpPanel2", newmePosxZpPanel2);
       
-      TLegend* leg8 = new TLegend(0.3, 0.7, 0.6, 0.9);
+      TLegend* leg8 = new TLegend(0.3, 0.2, 0.6, 0.4);
       can_Posx->cd(1);
       //gPad->SetLogy();
       SetUpHistograms(mePosxBarrel, newmePosxBarrel, "barrel, x (cm)", leg8 );
+      Float_t refMax = 1.5*mePosxBarrel->GetMaximum();
+      Float_t newMax = 1.5*newmePosxBarrel->GetMaximum();
+      if refMax > newMax
+      {
+          mePosxBarrel->SetMaximum(refMax);
+      }
+      else
+      {
+          mePosxBarrel->SetMaximum(newMax);
+      }      
+      mePosxBarrel->SetName("Reference");
+      newmePosxBarrel->SetName("New Release");
       mePosxBarrel->Draw("he");
-      newmePosxBarrel->Draw("Samehe"); 
-      myPV->PVCompute(mePosxBarrel, newmePosxBarrel, te );
+      newmePosxBarrel->Draw("heSameS"); 
+      myPV->PVCompute(mePosxBarrel, newmePosxBarrel, te, 0.6, 0.75 );
       leg8->Draw();
-      h_pv->SetBinContent(++bin, myPV->getPV());
+      h_pv->SetBinContent(++bin, myPV->getPV());      
+      gPad->Update();      
+      TPaveStats *s33 = (TPaveStats*)newmePosxBarrel->GetListOfFunctions()->FindObject("stats");
+      s33->SetX1NDC (0.55); //new x start position
+      s33->SetX2NDC (0.75); //new x end position
       
       can_Posx->cd(2);
       //gPad->SetLogy();
       SetUpHistograms(mePosxZmPanel1, newmePosxZmPanel1, "panel1, z<0, x (cm)" );
+      Float_t refMax = 1.5*mePosxZmPanel1->GetMaximum();
+      Float_t newMax = 1.5*newmePosxZmPanel1->GetMaximum();
+      if refMax > newMax
+      {
+          mePosxZmPanel1->SetMaximum(refMax);
+      }
+      else
+      {
+          mePosxZmPanel1->SetMaximum(newMax);
+      }      
+      mePosxZmPanel1->SetName("Reference");
+      newmePosxZmPanel1->SetName("New Release");
       mePosxZmPanel1->Draw("he");
-      newmePosxZmPanel1->Draw("samehe"); 
-      myPV->PVCompute(mePosxZmPanel1, newmePosxZmPanel1, te );
-      h_pv->SetBinContent(++bin, myPV->getPV());
+      newmePosxZmPanel1->Draw("hesameS"); 
+      myPV->PVCompute(mePosxZmPanel1, newmePosxZmPanel1, te, 0.6, 0.75 );
+      h_pv->SetBinContent(++bin, myPV->getPV());      
+      gPad->Update();      
+      TPaveStats *s34 = (TPaveStats*)mePosxZmPanel1->GetListOfFunctions()->FindObject("stats");
+      s34->SetX1NDC (0.55); //new x start position
+      s34->SetX2NDC (0.75); //new x end position
 
       can_Posx->cd(3);
       //gPad->SetLogy();
       SetUpHistograms(mePosxZmPanel2, newmePosxZmPanel2, "panel2, z>0, x (cm)" );
+      Float_t refMax = 1.5*mePosxZmPanel2->GetMaximum();
+      Float_t newMax = 1.5*newmePosxZmPanel2->GetMaximum();
+      if refMax > newMax
+      {
+          mePosxZmPanel2->SetMaximum(refMax);
+      }
+      else
+      {
+          mePosxZmPanel2->SetMaximum(newMax);
+      }      
+      mePosxZmPanel2->SetName("Reference");
+      newmePosxZmPanel2->SetName("New Release");
       mePosxZmPanel2->Draw("he");
-      newmePosxZmPanel2->Draw("samehe"); 
-      myPV->PVCompute(mePosxZmPanel2, newmePosxZmPanel2, te );
-      h_pv->SetBinContent(++bin, myPV->getPV());
+      newmePosxZmPanel2->Draw("hesameS"); 
+      myPV->PVCompute(mePosxZmPanel2, newmePosxZmPanel2, te, 0.6, 0.75 );
+      h_pv->SetBinContent(++bin, myPV->getPV());     
+      gPad->Update();      
+      TPaveStats *s35 = (TPaveStats*)mePosxZmPanel2->GetListOfFunctions()->FindObject("stats");
+      s35->SetX1NDC (0.55); //new x start position
+      s35->SetX2NDC (0.75); //new x end position
 
       can_Posx->cd(5);
       //gPad->SetLogy();
       SetUpHistograms(mePosxZpPanel1, newmePosxZpPanel1, "panel1, z<0, x (cm)" );
+      Float_t refMax = 1.5*mePosxZpPanel1->GetMaximum();
+      Float_t newMax = 1.5*newmePosxZpPanel1->GetMaximum();
+      if refMax > newMax
+      {
+          mePosxZpPanel1->SetMaximum(refMax);
+      }
+      else
+      {
+          mePosxZpPanel1->SetMaximum(newMax);
+      }
+      mePosxZpPanel1->SetName("Reference");
+      newmePosxZpPanel1->SetName("New Release");
       mePosxZpPanel1->Draw("he");
-      newmePosxZpPanel1->Draw("samehe"); 
-      myPV->PVCompute(mePosxZpPanel1, newmePosxZpPanel1, te );
+      newmePosxZpPanel1->Draw("hesameS"); 
+      myPV->PVCompute(mePosxZpPanel1, newmePosxZpPanel1, te, 0.6, 0.75  );
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s36 = (TPaveStats*)mePosxZpPanel1->GetListOfFunctions()->FindObject("stats");
+      s36->SetX1NDC (0.55); //new x start position
+      s36->SetX2NDC (0.75); //new x end position
 
       can_Posx->cd(6);
       //gPad->SetLogy();
       SetUpHistograms(mePosxZpPanel2, newmePosxZpPanel2, "panel2, z>0, x (cm)" );
+      Float_t refMax = 1.5*mePosxZpPanel2->GetMaximum();
+      Float_t newMax = 1.5*newmePosxZpPanel2->GetMaximum();
+      if refMax > newMax
+      {
+          mePosxZpPanel2->SetMaximum(refMax);
+      }
+      else
+      {
+          mePosxZpPanel2->SetMaximum(newMax);
+      }
+      mePosxZpPanel2->SetName("Reference");
+      newmePosxZpPanel2->SetName("New Release");
       mePosxZpPanel2->Draw("he");
-      newmePosxZpPanel2->Draw("samehe"); 
-      myPV->PVCompute(mePosxZpPanel2, newmePosxZpPanel2, te );
-      h_pv->SetBinContent(++bin, myPV->getPV());
+      newmePosxZpPanel2->Draw("hesameS"); 
+      myPV->PVCompute(mePosxZpPanel2, newmePosxZpPanel2, te, 0.6, 0.75  );
+      h_pv->SetBinContent(++bin, myPV->getPV());      
+      gPad->Update();      
+      TPaveStats *s37 = (TPaveStats*)mePosxZpPanel2->GetListOfFunctions()->FindObject("stats");
+      s37->SetX1NDC (0.55); //new x start position
+      s37->SetX2NDC (0.75); //new x end position
 
       can_Posx->SaveAs("mePosx_compare.eps");
       can_Posx->SaveAs("mePosx_compare.gif");
@@ -696,58 +1299,138 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       sdir->GetObject("Histograms_all/mePosyZpPanel1", newmePosyZpPanel1);
       sdir->GetObject("Histograms_all/mePosyZpPanel2", newmePosyZpPanel2);
       
-      TLegend* leg9 = new TLegend(0.3, 0.7, 0.6, 0.9);
+      TLegend* leg9 = new TLegend(0.3, 0.2, 0.6, 0.4);
       can_Posy->cd(1);
       //gPad->SetLogy();
       SetUpHistograms(mePosyBarrel, newmePosyBarrel, "barrel, y (cm)", leg9 );
+      Float_t refMax = 1.2*mePosyBarrel->GetMaximum();
+      Float_t newMax = 1.2*newmePosyBarrel->GetMaximum();
+      if refMax > newMax
+      {
+          mePosyBarrel->SetMaximum(refMax);
+      }
+      else
+      {
+          mePosyBarrel->SetMaximum(newMax);
+      }      
+      mePosyBarrel->SetName("Reference");
+      newmePosyBarrel->SetName("New Release");
       mePosyBarrel->Draw("he");
-      newmePosyBarrel->Draw("Samehe"); 
-      myPV->PVCompute(mePosyBarrel, newmePosyBarrel, te );
+      newmePosyBarrel->Draw("heSameS"); 
+      myPV->PVCompute(mePosyBarrel, newmePosyBarrel, te, 0.3, 0.4 );
       leg9->Draw();
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s38 = (TPaveStats*)mePosyBarrel->GetListOfFunctions()->FindObject("stats");
+      s38->SetX1NDC (0.55); //new x start position
+      s38->SetX2NDC (0.75); //new x end position
 
       can_Posy->cd(2);
       //gPad->SetLogy();
       SetUpHistograms(mePosyZmPanel1,  newmePosyZmPanel1, "panel1, z<0, y (cm)" );
+      Float_t refMax = 1.5*mePosyZmPanel1->GetMaximum();
+      Float_t newMax = 1.5*newmePosyZmPanel1->GetMaximum();
+      if refMax > newMax
+      {
+          mePosyZmPanel1->SetMaximum(refMax);
+      }
+      else
+      {
+          mePosyZmPanel1->SetMaximum(newMax);
+      }      
+      mePosyZmPanel1->SetName("Reference");
+      newmePosyZmPanel1->SetName("New Release");
       mePosyZmPanel1->Draw("he");
-      newmePosyZmPanel1->Draw("samehe"); 
-      myPV->PVCompute(mePosyZmPanel1, newmePosyZmPanel1, te );
+      newmePosyZmPanel1->Draw("hesameS"); 
+      myPV->PVCompute(mePosyZmPanel1, newmePosyZmPanel1, te, 0.6, 0.75  );
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s39 = (TPaveStats*)mePosyZmPanel1->GetListOfFunctions()->FindObject("stats");
+      s39->SetX1NDC (0.55); //new x start position
+      s39->SetX2NDC (0.75); //new x end position
 
       can_Posy->cd(3);
       //gPad->SetLogy();
       SetUpHistograms(mePosyZmPanel2, newmePosyZmPanel2, "panel2, z<0, y (cm)" );
+      Float_t refMax = 1.5*mePosyZmPanel2->GetMaximum();
+      Float_t newMax = 1.5*newmePosyZmPanel2->GetMaximum();
+      if refMax > newMax
+      {
+          mePosyZmPanel2->SetMaximum(refMax);
+      }
+      else
+      {
+          mePosyZmPanel2->SetMaximum(newMax);
+      }      
+      mePosyZmPanel2->SetName("Reference");
+      newmePosyZmPanel2->SetName("New Release");
       mePosyZmPanel2->Draw("he");
-      newmePosyZmPanel2->Draw("samehe"); 
-      myPV->PVCompute(mePosyZmPanel2, newmePosyZmPanel2, te );
+      newmePosyZmPanel2->Draw("hesameS"); 
+      myPV->PVCompute(mePosyZmPanel2, newmePosyZmPanel2, te, 0.6, 0.75  );
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s40 = (TPaveStats*)mePosyZmPanel2->GetListOfFunctions()->FindObject("stats");
+      s40->SetX1NDC (0.55); //new x start position
+      s40->SetX2NDC (0.75); //new x end position
 
       can_Posy->cd(5);
       //gPad->SetLogy();
       SetUpHistograms(mePosyZpPanel1, newmePosyZpPanel1, "panel1, z>0, y (cm)" );
+      Float_t refMax = 1.5*mePosyZpPanel1->GetMaximum();
+      Float_t newMax = 1.5*newmePosyZpPanel1->GetMaximum();
+      if refMax > newMax
+      {
+          mePosyZpPanel1->SetMaximum(refMax);
+      }
+      else
+      {
+          mePosyZpPanel1->SetMaximum(newMax);
+      }      
+      mePosyZpPanel1->SetName("Reference");
+      newmePosyZpPanel1->SetName("New Release");
       mePosyZpPanel1->Draw("he");
-      newmePosyZpPanel1->Draw("samehe"); 
-      myPV->PVCompute(mePosyZpPanel1, newmePosyZpPanel1, te );
+      newmePosyZpPanel1->Draw("hesameS"); 
+      myPV->PVCompute(mePosyZpPanel1, newmePosyZpPanel1, te, 0.6, 0.75 );
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s41 = (TPaveStats*)mePosyZpPanel1->GetListOfFunctions()->FindObject("stats");
+      s41->SetX1NDC (0.55); //new x start position
+      s41->SetX2NDC (0.75); //new x end position
 
       can_Posy->cd(6);
       //gPad->SetLogy();
       SetUpHistograms(mePosyZpPanel2, newmePosyZpPanel2, "panel2, z>0, y (cm)" );
+      Float_t refMax = 1.5*mePosyZpPanel2->GetMaximum();
+      Float_t newMax = 1.5*newmePosyZpPanel2->GetMaximum();
+      if refMax > newMax
+      {
+          mePosyZpPanel2->SetMaximum(refMax);
+      }
+      else
+      {
+          mePosyZpPanel2->SetMaximum(newMax);
+      }      
+      mePosyZpPanel2->SetName("Reference");
+      newmePosyZpPanel2->SetName("New Release");
       mePosyZpPanel2->Draw("he");
-      newmePosyZpPanel2->Draw("samehe"); 
-      myPV->PVCompute(mePosyZpPanel2, newmePosyZpPanel2, te );
+      newmePosyZpPanel2->Draw("hesameS"); 
+      myPV->PVCompute(mePosyZpPanel2, newmePosyZpPanel2, te, 0.6, 0.75 );
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s42 = (TPaveStats*)mePosyZpPanel2->GetListOfFunctions()->FindObject("stats");
+      s42->SetX1NDC (0.55); //new x start position
+      s42->SetX2NDC (0.75); //new x end position
 
       can_Posy->SaveAs("mePosy_compare.eps");
       can_Posy->SaveAs("mePosy_compare.gif");
     }
-  
+
   double lpull = -1.0;
   double hpull =  1.0;
 
   double lwpull = 0.0;
   double hwpull = 2.0;
-
+  
   //if (   0   ) 
   if (   1   ) 
     {
@@ -778,52 +1461,132 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       sdir->GetObject("Histograms_all/mePullXvsAlphaZpPanel1", newmePullXvsAlphaZpPanel1);
       sdir->GetObject("Histograms_all/mePullXvsAlphaZpPanel2", newmePullXvsAlphaZpPanel2);
       
-      TLegend* leg10 = new TLegend(0.3, 0.7, 0.6, 0.9);
+      TLegend* leg10 = new TLegend(0.3, 0.2, 0.6, 0.4);
       can_PullXvsAlpha->cd(1);
       //gPad->SetLogy();
       SetUpProfileHistograms(mePullXvsAlphaBarrel, newmePullXvsAlphaBarrel, "barrel, |alpha| (deg)", "pull x", lpull, hpull, leg10 );
+      Float_t refMax = 0.5 + mePullXvsAlphaBarrel->GetMaximum();
+      Float_t newMax = 0.5 + newmePullXvsAlphaBarrel->GetMaximum();
+      if refMax > newMax
+      {
+          mePullXvsAlphaBarrel->SetMaximum(refMax);
+      }
+      else
+      {
+          mePullXvsAlphaBarrel->SetMaximum(newMax);
+      }      
+      mePullXvsAlphaBarrel->SetName("Reference");
+      newmePullXvsAlphaBarrel->SetName("New Release");
       mePullXvsAlphaBarrel->Draw("e");
-      newmePullXvsAlphaBarrel->Draw("Samee"); 
-      myPV->PVCompute(mePullXvsAlphaBarrel, newmePullXvsAlphaBarrel, te );
+      newmePullXvsAlphaBarrel->Draw("eSameS"); 
+      myPV->PVCompute(mePullXvsAlphaBarrel, newmePullXvsAlphaBarrel, te, 0.3, 0.4  );
       leg10->Draw();
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s43 = (TPaveStats*)mePullXvsAlphaBarrel->GetListOfFunctions()->FindObject("stats");
+      s43->SetX1NDC (0.55); //new x start position
+      s43->SetX2NDC (0.75); //new x end position
 
       can_PullXvsAlpha->cd(2);
       //gPad->SetLogy();
       SetUpProfileHistograms(mePullXvsAlphaZmPanel1, newmePullXvsAlphaZmPanel1, "panel1, z<0, |alpha| (deg)", "pull x", lpull, hpull );
+      Float_t refMax = 0.5+1.5*mePullXvsAlphaZmPanel1->GetMaximum();
+      Float_t newMax = 0.5+1.5*newmePullXvsAlphaZmPanel1->GetMaximum();
+      if refMax > newMax
+      {
+          mePullXvsAlphaZmPanel1->SetMaximum(refMax);
+      }
+      else
+      {
+          mePullXvsAlphaZmPanel1->SetMaximum(newMax);
+      }      
+      mePullXvsAlphaZmPanel1->SetName("Reference");
+      newmePullXvsAlphaZmPanel1->SetName("New Release");
       mePullXvsAlphaZmPanel1->Draw("e");
-      newmePullXvsAlphaZmPanel1->Draw("samee"); 
-      myPV->PVCompute(mePullXvsAlphaZmPanel1, newmePullXvsAlphaZmPanel1, te );
+      newmePullXvsAlphaZmPanel1->Draw("esameS"); 
+      myPV->PVCompute(mePullXvsAlphaZmPanel1, newmePullXvsAlphaZmPanel1, te, 0.2, 0.2);
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s44 = (TPaveStats*)mePullXvsAlphaZmPanel1->GetListOfFunctions()->FindObject("stats");
+      s44->SetX1NDC (0.55); //new x start position
+      s44->SetX2NDC (0.75); //new x end position
 
       can_PullXvsAlpha->cd(3);
       //gPad->SetLogy();
       SetUpProfileHistograms(mePullXvsAlphaZmPanel2, newmePullXvsAlphaZmPanel2, "panel2, z<0, |alpha| (deg)", "pull x", lpull, hpull );
+      Float_t refMax = 0.5+1.5*mePullXvsAlphaZmPanel2->GetMaximum();
+      Float_t newMax = 0.5+1.5*newmePullXvsAlphaZmPanel2->GetMaximum();
+      if refMax > newMax
+      {
+          mePullXvsAlphaZmPanel2->SetMaximum(refMax);
+      }
+      else
+      {
+          mePullXvsAlphaZmPanel2->SetMaximum(newMax);
+      }      
+      mePullXvsAlphaZmPanel2->SetName("Reference");
+      newmePullXvsAlphaZmPanel2->SetName("New Release");
       mePullXvsAlphaZmPanel2->Draw("e");
-      newmePullXvsAlphaZmPanel2->Draw("samee"); 
-      myPV->PVCompute(mePullXvsAlphaZmPanel2, newmePullXvsAlphaZmPanel2, te );
+      newmePullXvsAlphaZmPanel2->Draw("esameS"); 
+      myPV->PVCompute(mePullXvsAlphaZmPanel2, newmePullXvsAlphaZmPanel2, te, 0.2, 0.2);
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s45 = (TPaveStats*)mePullXvsAlphaZmPanel2->GetListOfFunctions()->FindObject("stats");
+      s45->SetX1NDC (0.55); //new x start position
+      s45->SetX2NDC (0.75); //new x end position
 
       can_PullXvsAlpha->cd(5);
       //gPad->SetLogy();
       SetUpProfileHistograms(mePullXvsAlphaZpPanel1, newmePullXvsAlphaZpPanel1, "panel1, z>0, |alpha| (deg)", "pull x", lpull, hpull );
+      Float_t refMax = 0.5+1.5*mePullXvsAlphaZpPanel1->GetMaximum();
+      Float_t newMax = 0.5+1.5*newmePullXvsAlphaZpPanel1->GetMaximum();
+      if refMax > newMax
+      {
+          mePullXvsAlphaZpPanel1->SetMaximum(refMax);
+      }
+      else
+      {
+          mePullXvsAlphaZpPanel1->SetMaximum(newMax);
+      }      
+      mePullXvsAlphaZpPanel1->SetName("Reference");
+      newmePullXvsAlphaZpPanel1->SetName("New Release");
       mePullXvsAlphaZpPanel1->Draw("e");
-      newmePullXvsAlphaZpPanel1->Draw("samee"); 
-      myPV->PVCompute(mePullXvsAlphaZpPanel1, newmePullXvsAlphaZpPanel1, te );
+      newmePullXvsAlphaZpPanel1->Draw("esameS"); 
+      myPV->PVCompute(mePullXvsAlphaZpPanel1, newmePullXvsAlphaZpPanel1, te, 0.2, 0.2);
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s46 = (TPaveStats*)mePullXvsAlphaZpPanel1->GetListOfFunctions()->FindObject("stats");
+      s46->SetX1NDC (0.55); //new x start position
+      s46->SetX2NDC (0.75); //new x end position
 
       can_PullXvsAlpha->cd(6);
       //gPad->SetLogy();
       SetUpProfileHistograms(mePullXvsAlphaZpPanel2, newmePullXvsAlphaZpPanel2, "panel2, z>0, |alpha| (deg)", "pull x", lpull, hpull );
+      Float_t refMax = 0.5+1.5*mePullXvsAlphaZpPanel2->GetMaximum();
+      Float_t newMax = 0.5+1.5*newmePullXvsAlphaZpPanel2->GetMaximum();
+      if refMax > newMax
+      {
+          mePullXvsAlphaZpPanel2->SetMaximum(refMax);
+      }
+      else
+      {
+          mePullXvsAlphaZpPanel2->SetMaximum(newMax);
+      }      
+      mePullXvsAlphaZpPanel2->SetName("Reference");
+      newmePullXvsAlphaZpPanel2->SetName("New Release");
       mePullXvsAlphaZpPanel2->Draw("e");
-      newmePullXvsAlphaZpPanel2->Draw("samee"); 
-      myPV->PVCompute(mePullXvsAlphaZpPanel2, newmePullXvsAlphaZpPanel2, te );
+      newmePullXvsAlphaZpPanel2->Draw("esameS"); 
+      myPV->PVCompute(mePullXvsAlphaZpPanel2, newmePullXvsAlphaZpPanel2, te , 0.2, 0.2);
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s47 = (TPaveStats*)mePullXvsAlphaZpPanel2->GetListOfFunctions()->FindObject("stats");
+      s47->SetX1NDC (0.55); //new x start position
+      s47->SetX2NDC (0.75); //new x end position
 
       can_PullXvsAlpha->SaveAs("mePullXvsAlpha_compare.eps");
       can_PullXvsAlpha->SaveAs("mePullXvsAlpha_compare.gif");
     }
-  
+
   //if (   0   ) 
   if (   1   ) 
     {
@@ -854,60 +1617,133 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       sdir->GetObject("Histograms_all/mePullXvsBetaZpPanel1", newmePullXvsBetaZpPanel1);
       sdir->GetObject("Histograms_all/mePullXvsBetaZpPanel2", newmePullXvsBetaZpPanel2);
       
-      TLegend* leg11 = new TLegend(0.3, 0.7, 0.6, 0.9);
+      TLegend* leg11 = new TLegend(0.3, 0.2, 0.6, 0.4);
       can_PullXvsBeta->cd(1);
       //gPad->SetLogy();
       SetUpProfileHistograms(mePullXvsBetaBarrel, newmePullXvsBetaBarrel, "barrel, |beta| (deg)", "pull x", lpull, hpull, leg11 );
+      Float_t refMax = 0.3+1.2*mePullXvsBetaBarrel->GetMaximum();
+      Float_t newMax = 0.3+1.2*newmePullXvsBetaBarrel->GetMaximum();
+      if refMax > newMax
+      {
+          mePullXvsBetaBarrel->SetMaximum(refMax);
+      }
+      else
+      {
+          mePullXvsBetaBarrel->SetMaximum(newMax);
+      }      
+      mePullXvsBetaBarrel->SetName("Reference");
+      newmePullXvsBetaBarrel->SetName("New Release");
       mePullXvsBetaBarrel->Draw("e");
-      newmePullXvsBetaBarrel->Draw("Samee"); 
-      myPV->PVCompute(mePullXvsBetaBarrel, newmePullXvsBetaBarrel, te );
+      newmePullXvsBetaBarrel->Draw("eSameS"); 
+      myPV->PVCompute(mePullXvsBetaBarrel, newmePullXvsBetaBarrel, te, 0.3, 0.4  );
       leg11->Draw();
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s48 = (TPaveStats*)mePullXvsBetaBarrel->GetListOfFunctions()->FindObject("stats");
+      s48->SetX1NDC (0.55); //new x start position
+      s48->SetX2NDC (0.75); //new x end position
 
       can_PullXvsBeta->cd(2);
       //gPad->SetLogy();
       SetUpProfileHistograms(mePullXvsBetaZmPanel1, newmePullXvsBetaZmPanel1, "panel1, z<0, |beta| (deg)", "pull x", lpull, hpull );
+      Float_t refMax = 0.5+1.2*mePullXvsBetaZmPanel1->GetMaximum();
+      Float_t newMax = 0.5+1.2*newmePullXvsBetaZmPanel1->GetMaximum();
+      if refMax > newMax
+      {
+          mePullXvsBetaZmPanel1->SetMaximum(refMax);
+      }
+      else
+      {
+          mePullXvsBetaZmPanel1->SetMaximum(newMax);
+      }      
+      mePullXvsBetaZmPanel1->SetName("Reference");
+      newmePullXvsBetaZmPanel1->SetName("New Release");
       mePullXvsBetaZmPanel1->Draw("e");
-      newmePullXvsBetaZmPanel1->Draw("samee"); 
-      myPV->PVCompute(mePullXvsBetaZmPanel1, newmePullXvsBetaZmPanel1, te );
+      newmePullXvsBetaZmPanel1->Draw("esameS"); 
+      myPV->PVCompute(mePullXvsBetaZmPanel1, newmePullXvsBetaZmPanel1, te, 0.2, 0.2);
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s49 = (TPaveStats*)mePullXvsBetaZmPanel1->GetListOfFunctions()->FindObject("stats");
+      s49->SetX1NDC (0.55); //new x start position
+      s49->SetX2NDC (0.75); //new x end position
 
       can_PullXvsBeta->cd(3);
       //gPad->SetLogy();
       SetUpProfileHistograms(mePullXvsBetaZmPanel2, newmePullXvsBetaZmPanel2, "panel2, z<0, |beta| (deg)", "pull x", lpull, hpull );
+      Float_t refMax = 0.5+1.2*mePullXvsBetaZmPanel2->GetMaximum();
+      Float_t newMax = 0.5+1.2*newmePullXvsBetaZmPanel2->GetMaximum();
+      if refMax > newMax
+      {
+          mePullXvsBetaZmPanel2->SetMaximum(refMax);
+      }
+      else
+      {
+          mePullXvsBetaZmPanel2->SetMaximum(newMax);
+      }      
+      mePullXvsBetaZmPanel2->SetName("Reference");
+      newmePullXvsBetaZmPanel2->SetName("New Release");
       mePullXvsBetaZmPanel2->Draw("e");
-      newmePullXvsBetaZmPanel2->Draw("samee"); 
-      myPV->PVCompute(mePullXvsBetaZmPanel2, newmePullXvsBetaZmPanel2, te );
+      newmePullXvsBetaZmPanel2->Draw("esameS"); 
+      myPV->PVCompute(mePullXvsBetaZmPanel2, newmePullXvsBetaZmPanel2, te, 0.2, 0.2);
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s50 = (TPaveStats*)mePullXvsBetaZmPanel2->GetListOfFunctions()->FindObject("stats");
+      s50->SetX1NDC (0.55); //new x start position
+      s50->SetX2NDC (0.75); //new x end position
 
       can_PullXvsBeta->cd(5);
       //gPad->SetLogy();
       SetUpProfileHistograms(mePullXvsBetaZpPanel1, newmePullXvsBetaZpPanel1, "panel1, z>0, |beta| (deg)", "pull x", lpull, hpull );
+      Float_t refMax = 0.5+1.2*mePullXvsBetaZpPanel1->GetMaximum();
+      Float_t newMax = 0.5+1.2*newmePullXvsBetaZpPanel1->GetMaximum();
+      if refMax > newMax
+      {
+          mePullXvsBetaZpPanel1->SetMaximum(refMax);
+      }
+      else
+      {
+          mePullXvsBetaZpPanel1->SetMaximum(newMax);
+      }      
+      mePullXvsBetaZpPanel1->SetName("Reference");
+      newmePullXvsBetaZpPanel1->SetName("New Release");
       mePullXvsBetaZpPanel1->Draw("e");
-      newmePullXvsBetaZpPanel1->Draw("samee"); 
-      myPV->PVCompute(mePullXvsBetaZpPanel1, newmePullXvsBetaZpPanel1, te );
+      newmePullXvsBetaZpPanel1->Draw("esameS"); 
+      myPV->PVCompute(mePullXvsBetaZpPanel1, newmePullXvsBetaZpPanel1, te, 0.2, 0.2 );
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s51 = (TPaveStats*)mePullXvsBetaZpPanel1->GetListOfFunctions()->FindObject("stats");
+      s51->SetX1NDC (0.55); //new x start position
+      s51->SetX2NDC (0.75); //new x end position
 
       can_PullXvsBeta->cd(6);
       //gPad->SetLogy();
       SetUpProfileHistograms(mePullXvsBetaZpPanel2, newmePullXvsBetaZpPanel2, "panel2, z>0, |beta| (deg)", "pull x", lpull, hpull );
+      Float_t refMax = 0.5+1.2*mePullXvsBetaZpPanel2->GetMaximum();
+      Float_t newMax = 0.5+1.2*newmePullXvsBetaZpPanel2->GetMaximum();
+      if refMax > newMax
+      {
+          mePullXvsBetaZpPanel2->SetMaximum(refMax);
+      }
+      else
+      {
+          mePullXvsBetaZpPanel2->SetMaximum(newMax);
+      }      
+      mePullXvsBetaZpPanel2->SetName("Reference");
+      newmePullXvsBetaZpPanel2->SetName("New Release");
       mePullXvsBetaZpPanel2->Draw("e");
-      newmePullXvsBetaZpPanel2->Draw("samee"); 
-      myPV->PVCompute(mePullXvsBetaZpPanel2, newmePullXvsBetaZpPanel2, te );
+      newmePullXvsBetaZpPanel2->Draw("esameS"); 
+      myPV->PVCompute(mePullXvsBetaZpPanel2, newmePullXvsBetaZpPanel2, te, 0.2, 0.2);
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s52 = (TPaveStats*)mePullXvsBetaZpPanel2->GetListOfFunctions()->FindObject("stats");
+      s52->SetX1NDC (0.55); //new x start position
+      s52->SetX2NDC (0.75); //new x end position
 
       can_PullXvsBeta->SaveAs("mePullXvsBeta_compare.eps");
       can_PullXvsBeta->SaveAs("mePullXvsBeta_compare.gif");
     }
 
-
-
-
-
-
-
-
-
+  
  if (   1   ) 
     {
       TCanvas* can_WPullXvsAlpha = new TCanvas("can_WPullXvsAlpha", "can_WPullXvsAlpha", 1200, 800);
@@ -922,7 +1758,6 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       
       TProfile* newmeWPullXvsAlphaBarrelNFP;
       TProfile* newmeWPullXvsAlphaBarrelFP;
-      TProfile* newmeWPullXvsAlphaBarrel;
       TProfile* newmeWPullXvsAlphaZmPanel1;
       TProfile* newmeWPullXvsAlphaZmPanel2;
       TProfile* newmeWPullXvsAlphaZpPanel1;
@@ -935,70 +1770,158 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       rdir->GetObject("Histograms_all/meWPullXvsAlphaZpPanel1", meWPullXvsAlphaZpPanel1);
       rdir->GetObject("Histograms_all/meWPullXvsAlphaZpPanel2", meWPullXvsAlphaZpPanel2);
       
-      sdir->GetObject("Histograms_all/meWPullXvsAlphaBarrelNonFlippedLadders", 
-		       newmeWPullXvsAlphaBarrelNFP  );
-      sdir->GetObject("Histograms_all/meWPullXvsAlphaBarrelFlippedLadders"   , 
-		       newmeWPullXvsAlphaBarrelFP   );
+      sdir->GetObject("Histograms_all/meWPullXvsAlphaBarrelNonFlippedLadders", newmeWPullXvsAlphaBarrelNFP  );
+      sdir->GetObject("Histograms_all/meWPullXvsAlphaBarrelFlippedLadders"   , newmeWPullXvsAlphaBarrelFP   );
       sdir->GetObject("Histograms_all/meWPullXvsAlphaZmPanel1", newmeWPullXvsAlphaZmPanel1);
       sdir->GetObject("Histograms_all/meWPullXvsAlphaZmPanel2", newmeWPullXvsAlphaZmPanel2);
       sdir->GetObject("Histograms_all/meWPullXvsAlphaZpPanel1", newmeWPullXvsAlphaZpPanel1);
       sdir->GetObject("Histograms_all/meWPullXvsAlphaZpPanel2", newmeWPullXvsAlphaZpPanel2);
       
-      TLegend* leg10 = new TLegend(0.3, 0.7, 0.6, 0.9);
+      TLegend* leg10 = new TLegend(0.3, 0.2, 0.6, 0.4);
       can_WPullXvsAlpha->cd(1);
       //gPad->SetLogy();
-      SetUpProfileHistograms(meWPullXvsAlphaBarrelNFP, newmeWPullXvsAlphaBarrelNFP, 
-			     "non-flipped  ladders, barrel, |alpha| (deg)", "< | pull x | >", lwpull, hwpull, leg10 );
+      SetUpProfileHistograms(meWPullXvsAlphaBarrelNFP, newmeWPullXvsAlphaBarrelNFP, "non-flipped  ladders, barrel, |alpha| (deg)", "< | pull x | >", lwpull, hwpull, leg10 );
+      Float_t refMax = 0.5+1.2*meWPullXvsAlphaBarrelNFP->GetMaximum();
+      Float_t newMax = 0.5+1.2*newmeWPullXvsAlphaBarrelNFP->GetMaximum();
+      if refMax > newMax
+      {
+          meWPullXvsAlphaBarrelNFP->SetMaximum(refMax);
+      }
+      else
+      {
+          meWPullXvsAlphaBarrelNFP->SetMaximum(newMax);
+      }      
+      meWPullXvsAlphaBarrelNFP->SetName("Reference");
+      newmeWPullXvsAlphaBarrelNFP->SetName("New Release");
       meWPullXvsAlphaBarrelNFP->Draw("e");
-      newmeWPullXvsAlphaBarrelNFP->Draw("Samee"); 
-      myPV->PVCompute(meWPullXvsAlphaBarrelNFP, newmeWPullXvsAlphaBarrelNFP, te );
+      newmeWPullXvsAlphaBarrelNFP->Draw("eSameS"); 
+      myPV->PVCompute(meWPullXvsAlphaBarrelNFP, newmeWPullXvsAlphaBarrelNFP, te, 0.3, 0.4  );
       leg10->Draw();
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s53 = (TPaveStats*)meWPullXvsAlphaBarrelNFP->GetListOfFunctions()->FindObject("stats");
+      s53->SetX1NDC (0.55); //new x start position
+      s53->SetX2NDC (0.75); //new x end position
 
       can_WPullXvsAlpha->cd(2);
       //gPad->SetLogy();
-      SetUpProfileHistograms(meWPullXvsAlphaZmPanel1, newmeWPullXvsAlphaZmPanel1, 
-			     "panel1, z<0, |alpha| (deg)", "< | pull x | >", lwpull, hwpull );
+      SetUpProfileHistograms(meWPullXvsAlphaZmPanel1, newmeWPullXvsAlphaZmPanel1, "panel1, z<0, |alpha| (deg)", "< | pull x | >", lwpull, hwpull );
+      Float_t refMax = 0.5+1.2*meWPullXvsAlphaZmPanel1->GetMaximum();
+      Float_t newMax = 0.5+1.2*newmeWPullXvsAlphaZmPanel1->GetMaximum();
+      if refMax > newMax
+      {
+          meWPullXvsAlphaZmPanel1->SetMaximum(refMax);
+      }
+      else
+      {
+          meWPullXvsAlphaZmPanel1->SetMaximum(newMax);
+      }      
+      meWPullXvsAlphaZmPanel1->SetName("Reference");
+      newmeWPullXvsAlphaZmPanel1->SetName("New Release");
       meWPullXvsAlphaZmPanel1->Draw("e");
-      newmeWPullXvsAlphaZmPanel1->Draw("samee"); 
-      myPV->PVCompute(meWPullXvsAlphaZmPanel1, newmeWPullXvsAlphaZmPanel1, te );
+      newmeWPullXvsAlphaZmPanel1->Draw("esameS"); 
+      myPV->PVCompute(meWPullXvsAlphaZmPanel1, newmeWPullXvsAlphaZmPanel1, te, 0.2, 0.2);
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s54 = (TPaveStats*)meWPullXvsAlphaZmPanel1->GetListOfFunctions()->FindObject("stats");
+      s54->SetX1NDC (0.55); //new x start position
+      s54->SetX2NDC (0.75); //new x end position
 
       can_WPullXvsAlpha->cd(3);
       //gPad->SetLogy();
-      SetUpProfileHistograms(meWPullXvsAlphaZmPanel2, newmeWPullXvsAlphaZmPanel2, 
-			     "panel2, z<0, |alpha| (deg)", "< | pull x | >", lwpull, hwpull );
+      SetUpProfileHistograms(meWPullXvsAlphaZmPanel2, newmeWPullXvsAlphaZmPanel2, "panel2, z<0, |alpha| (deg)", "< | pull x | >", lwpull, hwpull );
+      Float_t refMax = 0.5+1.2*meWPullXvsAlphaZmPanel2->GetMaximum();
+      Float_t newMax = 0.5+1.2*newmeWPullXvsAlphaZmPanel2->GetMaximum();
+      if refMax > newMax
+      {
+          meWPullXvsAlphaZmPanel2->SetMaximum(refMax);
+      }
+      else
+      {
+          meWPullXvsAlphaZmPanel2->SetMaximum(newMax);
+      }      
+      meWPullXvsAlphaZmPanel2->SetName("Reference");
+      newmeWPullXvsAlphaZmPanel2->SetName("New Release");
       meWPullXvsAlphaZmPanel2->Draw("e");
-      newmeWPullXvsAlphaZmPanel2->Draw("samee"); 
-      myPV->PVCompute(meWPullXvsAlphaZmPanel2, newmeWPullXvsAlphaZmPanel2, te );
+      newmeWPullXvsAlphaZmPanel2->Draw("esameS"); 
+      myPV->PVCompute(meWPullXvsAlphaZmPanel2, newmeWPullXvsAlphaZmPanel2, te, 0.2, 0.2);
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s55 = (TPaveStats*)meWPullXvsAlphaZmPanel2->GetListOfFunctions()->FindObject("stats");
+      s55->SetX1NDC (0.55); //new x start position
+      s55->SetX2NDC (0.75); //new x end position
 
       can_WPullXvsAlpha->cd(4);
       //gPad->SetLogy();
-      SetUpProfileHistograms(meWPullXvsAlphaBarrelFP, newmeWPullXvsAlphaBarrelFP, 
-			     "flipped ladders, barrel, |alpha| (deg)", "< | pull x | >", lwpull, hwpull);
+      SetUpProfileHistograms(meWPullXvsAlphaBarrelFP, newmeWPullXvsAlphaBarrelFP, "flipped ladders, barrel, |alpha| (deg)", "< | pull x | >", lwpull, hwpull);
+      Float_t refMax = 0.5+1.2*meWPullXvsAlphaBarrelFP->GetMaximum();
+      Float_t newMax = 0.5+1.2*newmeWPullXvsAlphaBarrelFP->GetMaximum();
+      if refMax > newMax
+      {
+          meWPullXvsAlphaBarrelFP->SetMaximum(refMax);
+      }
+      else
+      {
+          meWPullXvsAlphaBarrelFP->SetMaximum(newMax);
+      }      
+      meWPullXvsAlphaBarrelFP->SetName("Reference");
+      newmeWPullXvsAlphaBarrelFP->SetName("New Release");
       meWPullXvsAlphaBarrelFP->Draw("e");
-      newmeWPullXvsAlphaBarrelFP->Draw("Samee"); 
-      myPV->PVCompute(meWPullXvsAlphaBarrelFP, newmeWPullXvsAlphaBarrelFP, te );
+      newmeWPullXvsAlphaBarrelFP->Draw("eSameS"); 
+      myPV->PVCompute(meWPullXvsAlphaBarrelFP, newmeWPullXvsAlphaBarrelFP, te, 0.2, 0.2);
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s56 = (TPaveStats*)meWPullXvsAlphaBarrelFP->GetListOfFunctions()->FindObject("stats");
+      s56->SetX1NDC (0.55); //new x start position
+      s56->SetX2NDC (0.75); //new x end position
 
       can_WPullXvsAlpha->cd(5);
       //gPad->SetLogy();
-      SetUpProfileHistograms(meWPullXvsAlphaZpPanel1, newmeWPullXvsAlphaZpPanel1, 
-			     "panel1, z>0, |alpha| (deg)", "< | pull x | >", lwpull, hwpull );
+      SetUpProfileHistograms(meWPullXvsAlphaZpPanel1, newmeWPullXvsAlphaZpPanel1, "panel1, z>0, |alpha| (deg)", "< | pull x | >", lwpull, hwpull );
+      Float_t refMax = 0.5+1.2*meWPullXvsAlphaZpPanel1->GetMaximum();
+      Float_t newMax = 0.5+1.2*newmeWPullXvsAlphaZpPanel1->GetMaximum();
+      if refMax > newMax
+      {
+          meWPullXvsAlphaZpPanel1->SetMaximum(refMax);
+      }
+      else
+      {
+          meWPullXvsAlphaZpPanel1->SetMaximum(newMax);
+      }      
+      meWPullXvsAlphaZpPanel1->SetName("Reference");
+      newmeWPullXvsAlphaZpPanel1->SetName("New Release");
       meWPullXvsAlphaZpPanel1->Draw("e");
-      newmeWPullXvsAlphaZpPanel1->Draw("samee"); 
-      myPV->PVCompute(meWPullXvsAlphaZpPanel1, newmeWPullXvsAlphaZpPanel1, te );
+      newmeWPullXvsAlphaZpPanel1->Draw("esameS"); 
+      myPV->PVCompute(meWPullXvsAlphaZpPanel1, newmeWPullXvsAlphaZpPanel1, te, 0.2, 0.2);
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s57 = (TPaveStats*)meWPullXvsAlphaZpPanel1->GetListOfFunctions()->FindObject("stats");
+      s57->SetX1NDC (0.55); //new x start position
+      s57->SetX2NDC (0.75); //new x end position
 
       can_WPullXvsAlpha->cd(6);
       //gPad->SetLogy();
-      SetUpProfileHistograms(meWPullXvsAlphaZpPanel2, newmeWPullXvsAlphaZpPanel2, 
-			     "panel2, z>0, |alpha| (deg)", "< | pull x | >", lwpull, hwpull );
+      SetUpProfileHistograms(meWPullXvsAlphaZpPanel2, newmeWPullXvsAlphaZpPanel2, "panel2, z>0, |alpha| (deg)", "< | pull x | >", lwpull, hwpull );
+      Float_t refMax = 0.5+1.2*meWPullXvsAlphaZpPanel2->GetMaximum();
+      Float_t newMax = 0.5+1.2*newmeWPullXvsAlphaZpPanel2->GetMaximum();
+      if refMax > newMax
+      {
+          meWPullXvsAlphaZpPanel2->SetMaximum(refMax);
+      }
+      else
+      {
+          meWPullXvsAlphaZpPanel2->SetMaximum(newMax);
+      }      
+      meWPullXvsAlphaZpPanel2->SetName("Reference");
+      newmeWPullXvsAlphaZpPanel2->SetName("New Release");
       meWPullXvsAlphaZpPanel2->Draw("e");
-      newmeWPullXvsAlphaZpPanel2->Draw("samee"); 
-      myPV->PVCompute(meWPullXvsAlphaZpPanel2, newmeWPullXvsAlphaZpPanel2, te );
+      newmeWPullXvsAlphaZpPanel2->Draw("esameS"); 
+      myPV->PVCompute(meWPullXvsAlphaZpPanel2, newmeWPullXvsAlphaZpPanel2, te, 0.2, 0.2);
       h_pv->SetBinContent(++bin, myPV->getPV());
+      gPad->Update();      
+      TPaveStats *s58 = (TPaveStats*)meWPullXvsAlphaZpPanel2->GetListOfFunctions()->FindObject("stats");
+      s58->SetX1NDC (0.55); //new x start position
+      s58->SetX2NDC (0.75); //new x end position
 
       can_WPullXvsAlpha->SaveAs("meWPullXvsAlpha_compare.eps");
       can_WPullXvsAlpha->SaveAs("meWPullXvsAlpha_compare.gif");
@@ -1034,47 +1957,127 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
     sdir->GetObject("Histograms_all/mePullXvsPhiZpPanel1", newmePullXvsPhiZpPanel1);
     sdir->GetObject("Histograms_all/mePullXvsPhiZpPanel2", newmePullXvsPhiZpPanel2);
   
-    TLegend* leg13 = new TLegend(0.3, 0.7, 0.6, 0.9);
+    TLegend* leg13 = new TLegend(0.3, 0.2, 0.6, 0.4);
     can_PullXvsPhi->cd(1);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullXvsPhiBarrel, newmePullXvsPhiBarrel, "barrel, phi (deg)", "pull x", lpull, hpull, leg13 );
+    Float_t refMax = 0.5+1.2*mePullXvsPhiBarrel->GetMaximum();
+    Float_t newMax = 0.5+1.2*newmePullXvsPhiBarrel->GetMaximum();
+    if refMax > newMax
+    {
+        mePullXvsPhiBarrel->SetMaximum(refMax);
+    }
+    else
+    {
+        mePullXvsPhiBarrel->SetMaximum(newMax);
+    }      
+    mePullXvsPhiBarrel->SetName("Reference");
+    newmePullXvsPhiBarrel->SetName("New Release");
     mePullXvsPhiBarrel->Draw("e");
-    newmePullXvsPhiBarrel->Draw("Samee"); 
-    myPV->PVCompute(mePullXvsPhiBarrel, newmePullXvsPhiBarrel, te );
+    newmePullXvsPhiBarrel->Draw("eSameS"); 
+    myPV->PVCompute(mePullXvsPhiBarrel, newmePullXvsPhiBarrel, te, 0.3, 0.4);
     leg13->Draw();
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();      
+    TPaveStats *s59 = (TPaveStats*)mePullXvsPhiBarrel->GetListOfFunctions()->FindObject("stats");
+    s59->SetX1NDC (0.55); //new x start position
+    s59->SetX2NDC (0.75); //new x end position
 
     can_PullXvsPhi->cd(2);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullXvsPhiZmPanel1, newmePullXvsPhiZmPanel1, "panel1, z<0, phi (deg)", "pull x", lpull, hpull );
+    Float_t refMax = 0.5+1.2*mePullXvsPhiZmPanel1->GetMaximum();
+    Float_t newMax = 0.5+1.2*newmePullXvsPhiZmPanel1->GetMaximum();
+    if refMax > newMax
+    {
+        mePullXvsPhiZmPanel1->SetMaximum(refMax);
+    }
+    else
+    {
+        mePullXvsPhiZmPanel1->SetMaximum(newMax);
+    }      
+    mePullXvsPhiZmPanel1->SetName("Reference");
+    newmePullXvsPhiZmPanel1->SetName("New Release");
     mePullXvsPhiZmPanel1->Draw("e");
-    newmePullXvsPhiZmPanel1->Draw("samee"); 
-    myPV->PVCompute(mePullXvsPhiZmPanel1, newmePullXvsPhiZmPanel1, te );
+    newmePullXvsPhiZmPanel1->Draw("esameS"); 
+    myPV->PVCompute(mePullXvsPhiZmPanel1, newmePullXvsPhiZmPanel1, te, 0.2, 0.2);
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();      
+    TPaveStats *s60 = (TPaveStats*)mePullXvsPhiZmPanel1->GetListOfFunctions()->FindObject("stats");
+    s60->SetX1NDC (0.55); //new x start position
+    s60->SetX2NDC (0.75); //new x end position
 
     can_PullXvsPhi->cd(3);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullXvsPhiZmPanel2, newmePullXvsPhiZmPanel2, "panel2, z<0, phi (deg)", "pull x", lpull, hpull );
+    Float_t refMax = 0.5+1.2*mePullXvsPhiZmPanel2->GetMaximum();
+    Float_t newMax = 0.5+1.2*newmePullXvsPhiZmPanel2->GetMaximum();
+    if refMax > newMax
+    {
+        mePullXvsPhiZmPanel2->SetMaximum(refMax);
+    }
+    else
+    {
+        mePullXvsPhiZmPanel2->SetMaximum(newMax);
+    }      
+    mePullXvsPhiZmPanel2->SetName("Reference");
+    newmePullXvsPhiZmPanel2->SetName("New Release");
     mePullXvsPhiZmPanel2->Draw("e");
-    newmePullXvsPhiZmPanel2->Draw("samee"); 
-    myPV->PVCompute(mePullXvsPhiZmPanel2, newmePullXvsPhiZmPanel2, te );
+    newmePullXvsPhiZmPanel2->Draw("esameS"); 
+    myPV->PVCompute(mePullXvsPhiZmPanel2, newmePullXvsPhiZmPanel2, te, 0.2, 0.2 );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();      
+    TPaveStats *s61 = (TPaveStats*)mePullXvsPhiZmPanel2->GetListOfFunctions()->FindObject("stats");
+    s61->SetX1NDC (0.55); //new x start position
+    s61->SetX2NDC (0.75); //new x end position
 
     can_PullXvsPhi->cd(5);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullXvsPhiZpPanel1, newmePullXvsPhiZpPanel1, "panel1, z>0, phi (deg)", "pull x", lpull, hpull );
+    Float_t refMax = 0.5+1.2*mePullXvsPhiZpPanel1->GetMaximum();
+    Float_t newMax = 0.5+1.2*newmePullXvsPhiZpPanel1->GetMaximum();
+    if refMax > newMax
+    {
+        mePullXvsPhiZpPanel1->SetMaximum(refMax);
+    }
+    else
+    {
+        mePullXvsPhiZpPanel1->SetMaximum(newMax);
+    }      
+    mePullXvsPhiZpPanel1->SetName("Reference");
+    newmePullXvsPhiZpPanel1->SetName("New Release");
     mePullXvsPhiZpPanel1->Draw("e");
-    newmePullXvsPhiZpPanel1->Draw("samee"); 
-    myPV->PVCompute(mePullXvsPhiZpPanel1, newmePullXvsPhiZpPanel1, te );
+    newmePullXvsPhiZpPanel1->Draw("esameS"); 
+    myPV->PVCompute(mePullXvsPhiZpPanel1, newmePullXvsPhiZpPanel1, te, 0.2, 0.2 );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();      
+    TPaveStats *s62 = (TPaveStats*)mePullXvsPhiZpPanel1->GetListOfFunctions()->FindObject("stats");
+    s62->SetX1NDC (0.55); //new x start position
+    s62->SetX2NDC (0.75); //new x end position
 
     can_PullXvsPhi->cd(6);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullXvsPhiZpPanel2, newmePullXvsPhiZpPanel2, "panel2, z>0, phi (deg)", "pull x" , lpull, hpull);
+    Float_t refMax = 0.5+1.2*mePullXvsPhiZpPanel2->GetMaximum();
+    Float_t newMax = 0.5+1.2*newmePullXvsPhiZpPanel2->GetMaximum();
+    if refMax > newMax
+    {
+        mePullXvsPhiZpPanel2->SetMaximum(refMax);
+    }
+    else
+    {
+        mePullXvsPhiZpPanel2->SetMaximum(newMax);
+    }      
+    mePullXvsPhiZpPanel2->SetName("Reference");
+    newmePullXvsPhiZpPanel2->SetName("New Release");
     mePullXvsPhiZpPanel2->Draw("e");
-    newmePullXvsPhiZpPanel2->Draw("samee"); 
-    myPV->PVCompute(mePullXvsPhiZpPanel2, newmePullXvsPhiZpPanel2, te );
+    newmePullXvsPhiZpPanel2->Draw("esameS"); 
+    myPV->PVCompute(mePullXvsPhiZpPanel2, newmePullXvsPhiZpPanel2, te, 0.2, 0.2 );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();      
+    TPaveStats *s63 = (TPaveStats*)mePullXvsPhiZpPanel2->GetListOfFunctions()->FindObject("stats");
+    s63->SetX1NDC (0.55); //new x start position
+    s63->SetX2NDC (0.75); //new x end position
 
     can_PullXvsPhi->SaveAs("mePullXvsPhi_compare.eps");
     can_PullXvsPhi->SaveAs("mePullXvsPhi_compare.gif");
@@ -1110,47 +2113,127 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
     sdir->GetObject("Histograms_all/mePullYvsAlphaZpPanel1", newmePullYvsAlphaZpPanel1);
     sdir->GetObject("Histograms_all/mePullYvsAlphaZpPanel2", newmePullYvsAlphaZpPanel2);
   
-    TLegend* leg14 = new TLegend(0.3, 0.7, 0.6, 0.9);
+    TLegend* leg14 = new TLegend(0.3, 0.2, 0.6, 0.4);
     can_PullYvsAlpha->cd(1);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsAlphaBarrel, newmePullYvsAlphaBarrel, "barrel, |alpha| (deg)", "pull y", lpull, hpull, leg14 );
+    Float_t refMax = 1.4*(0.5+mePullYvsAlphaBarrel->GetMaximum());
+    Float_t newMax = 1.4*(0.5+newmePullYvsAlphaBarrel->GetMaximum());
+    if refMax > newMax
+    {
+        mePullYvsAlphaBarrel->SetMaximum(refMax);
+    }
+    else
+    {
+        mePullYvsAlphaBarrel->SetMaximum(newMax);
+    }      
+    mePullYvsAlphaBarrel->SetName("Reference");
+    newmePullYvsAlphaBarrel->SetName("New Release");
     mePullYvsAlphaBarrel->Draw("e");
-    newmePullYvsAlphaBarrel->Draw("Samee"); 
-    myPV->PVCompute(mePullYvsAlphaBarrel, newmePullYvsAlphaBarrel, te );
+    newmePullYvsAlphaBarrel->Draw("eSameS"); 
+    myPV->PVCompute(mePullYvsAlphaBarrel, newmePullYvsAlphaBarrel, te, 0.3, 0.4 );
     leg14->Draw();
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();      
+    TPaveStats *s64 = (TPaveStats*)mePullYvsAlphaBarrel->GetListOfFunctions()->FindObject("stats");
+    s64->SetX1NDC (0.55); //new x start position
+    s64->SetX2NDC (0.75); //new x end position
 
     can_PullYvsAlpha->cd(2);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsAlphaZmPanel1, newmePullYvsAlphaZmPanel1, "panel1, z<0, |alpha| (deg)", "pull y", lpull, hpull );
+    Float_t refMax = 1.4*(0.5+mePullYvsAlphaZmPanel1->GetMaximum());
+    Float_t newMax = 1.4*(0.5+newmePullYvsAlphaZmPanel1->GetMaximum());
+    if refMax > newMax
+    {
+        mePullYvsAlphaZmPanel1->SetMaximum(refMax);
+    }
+    else
+    {
+        mePullYvsAlphaZmPanel1->SetMaximum(newMax);
+    }      
+    mePullYvsAlphaZmPanel1->SetName("Reference");
+    newmePullYvsAlphaZmPanel1->SetName("New Release");
     mePullYvsAlphaZmPanel1->Draw("e");
-    newmePullYvsAlphaZmPanel1->Draw("samee"); 
-    myPV->PVCompute(mePullYvsAlphaZmPanel1, newmePullYvsAlphaZmPanel1, te );
+    newmePullYvsAlphaZmPanel1->Draw("esameS"); 
+    myPV->PVCompute(mePullYvsAlphaZmPanel1, newmePullYvsAlphaZmPanel1, te, 0.2, 0.2);
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();      
+    TPaveStats *s64 = (TPaveStats*)mePullYvsAlphaZmPanel1->GetListOfFunctions()->FindObject("stats");
+    s64->SetX1NDC (0.55); //new x start position
+    s64->SetX2NDC (0.75); //new x end position
 
     can_PullYvsAlpha->cd(3);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsAlphaZmPanel2, newmePullYvsAlphaZmPanel2, "panel2, z<0, |alpha| (deg)", "pull y", lpull, hpull );
+    Float_t refMax = 1.4*(0.5+mePullYvsAlphaZmPanel2->GetMaximum());
+    Float_t newMax = 1.4*(0.5+newmePullYvsAlphaZmPanel2->GetMaximum());
+    if refMax > newMax
+    {
+        mePullYvsAlphaZmPanel2->SetMaximum(refMax);
+    }
+    else
+    {
+        mePullYvsAlphaZmPanel2->SetMaximum(newMax);
+    }      
+    mePullYvsAlphaZmPanel2->SetName("Reference");
+    newmePullYvsAlphaZmPanel2->SetName("New Release");
     mePullYvsAlphaZmPanel2->Draw("e");
-    newmePullYvsAlphaZmPanel2->Draw("samee"); 
-    myPV->PVCompute(mePullYvsAlphaZmPanel2, newmePullYvsAlphaZmPanel2, te );
+    newmePullYvsAlphaZmPanel2->Draw("esameS"); 
+    myPV->PVCompute(mePullYvsAlphaZmPanel2, newmePullYvsAlphaZmPanel2, te, 0.2, 0.2 );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();      
+    TPaveStats *s65 = (TPaveStats*)mePullYvsAlphaZmPanel2->GetListOfFunctions()->FindObject("stats");
+    s65->SetX1NDC (0.55); //new x start position
+    s65->SetX2NDC (0.75); //new x end position
 
     can_PullYvsAlpha->cd(5);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsAlphaZpPanel1, newmePullYvsAlphaZpPanel1, "panel1, z>0, |alpha| (deg)", "pull y", lpull, hpull );
+    Float_t refMax = 1.4*(0.5+mePullYvsAlphaZpPanel1->GetMaximum());
+    Float_t newMax = 1.4*(0.5+newmePullYvsAlphaZpPanel1->GetMaximum());
+    if refMax > newMax
+    {
+        mePullYvsAlphaZpPanel1->SetMaximum(refMax);
+    }
+    else
+    {
+        mePullYvsAlphaZpPanel1->SetMaximum(newMax);
+    }      
+    mePullYvsAlphaZpPanel1->SetName("Reference");
+    newmePullYvsAlphaZpPanel1->SetName("New Release");
     mePullYvsAlphaZpPanel1->Draw("e");
-    newmePullYvsAlphaZpPanel1->Draw("samee"); 
-    myPV->PVCompute(mePullYvsAlphaZpPanel1, newmePullYvsAlphaZpPanel1, te );
+    newmePullYvsAlphaZpPanel1->Draw("esameS"); 
+    myPV->PVCompute(mePullYvsAlphaZpPanel1, newmePullYvsAlphaZpPanel1, te, 0.2, 0.2 );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();      
+    TPaveStats *s66 = (TPaveStats*)mePullYvsAlphaZpPanel1->GetListOfFunctions()->FindObject("stats");
+    s66->SetX1NDC (0.55); //new x start position
+    s66->SetX2NDC (0.75); //new x end position
 
     can_PullYvsAlpha->cd(6);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsAlphaZpPanel2, newmePullYvsAlphaZpPanel2, "panel2, z>0, |alpha| (deg)", "pull y" , lpull, hpull);
+    Float_t refMax = 1.4*(0.5+mePullYvsAlphaZpPanel2->GetMaximum());
+    Float_t newMax = 1.4*(0.5+newmePullYvsAlphaZpPanel2->GetMaximum());
+    if refMax > newMax
+    {
+        mePullYvsAlphaZpPanel2->SetMaximum(refMax);
+    }
+    else
+    {
+        mePullYvsAlphaZpPanel2->SetMaximum(newMax);
+    }      
+    mePullYvsAlphaZpPanel2->SetName("Reference");
+    newmePullYvsAlphaZpPanel2->SetName("New Release");
     mePullYvsAlphaZpPanel2->Draw("e");
-    newmePullYvsAlphaZpPanel2->Draw("samee"); 
-    myPV->PVCompute(mePullYvsAlphaZpPanel2, newmePullYvsAlphaZpPanel2, te );
+    newmePullYvsAlphaZpPanel2->Draw("esameS"); 
+    myPV->PVCompute(mePullYvsAlphaZpPanel2, newmePullYvsAlphaZpPanel2, te, 0.2, 0.2 );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();      
+    TPaveStats *s67 = (TPaveStats*)mePullYvsAlphaZpPanel2->GetListOfFunctions()->FindObject("stats");
+    s67->SetX1NDC (0.55); //new x start position
+    s67->SetX2NDC (0.75); //new x end position
 
     can_PullYvsAlpha->SaveAs("mePullYvsAlpha_compare.eps");
     can_PullYvsAlpha->SaveAs("mePullYvsAlpha_compare.gif");
@@ -1186,52 +2269,131 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
     sdir->GetObject("Histograms_all/mePullYvsBetaZpPanel1", newmePullYvsBetaZpPanel1);
     sdir->GetObject("Histograms_all/mePullYvsBetaZpPanel2", newmePullYvsBetaZpPanel2);
   
-    TLegend* leg15 = new TLegend(0.3, 0.7, 0.6, 0.9);
+    TLegend* leg15 = new TLegend(0.3, 0.2, 0.6, 0.4);
     can_PullYvsBeta->cd(1);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsBetaBarrel, newmePullYvsBetaBarrel, "barrel, |beta| (deg)", "pull y", lpull, hpull, leg15 );
+    Float_t refMax = 0.5+1.2*mePullYvsBetaBarrel->GetMaximum();
+    Float_t newMax = 0.5+1.2*newmePullYvsBetaBarrel->GetMaximum();
+    if refMax > newMax
+    {
+        mePullYvsBetaBarrel->SetMaximum(refMax);
+    }
+    else
+    {
+        mePullYvsBetaBarrel->SetMaximum(newMax);
+    }      
+    mePullYvsBetaBarrel->SetName("Reference");
+    newmePullYvsBetaBarrel->SetName("New Release");
     mePullYvsBetaBarrel->Draw("e");
-    newmePullYvsBetaBarrel->Draw("Samee"); 
-    myPV->PVCompute(mePullYvsBetaBarrel, newmePullYvsBetaBarrel, te );
+    newmePullYvsBetaBarrel->Draw("esameS"); 
+    myPV->PVCompute(mePullYvsBetaBarrel, newmePullYvsBetaBarrel, te, 0.3, 0.4);
     leg15->Draw();
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();      
+    TPaveStats *s68 = (TPaveStats*)mePullYvsBetaBarrel->GetListOfFunctions()->FindObject("stats");
+    s68->SetX1NDC (0.55); //new x start position
+    s68->SetX2NDC (0.75); //new x end position
 
     can_PullYvsBeta->cd(2);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsBetaZmPanel1, newmePullYvsBetaZmPanel1, "panel1, z<0, |beta| (deg)", "pull y", lpull, hpull );
+    Float_t refMax = 0.5+1.2*mePullYvsBetaZmPanel1->GetMaximum();
+    Float_t newMax = 0.5+1.2*newmePullYvsBetaZmPanel1->GetMaximum();
+    if refMax > newMax
+    {
+        mePullYvsBetaZmPanel1->SetMaximum(refMax);
+    }
+    else
+    {
+        mePullYvsBetaZmPanel1->SetMaximum(newMax);
+    }      
+    mePullYvsBetaZmPanel1->SetName("Reference");
+    newmePullYvsBetaZmPanel1->SetName("New Release");
     mePullYvsBetaZmPanel1->Draw("e");
-    newmePullYvsBetaZmPanel1->Draw("samee"); 
-    myPV->PVCompute(mePullYvsBetaZmPanel1, newmePullYvsBetaZmPanel1, te );
+    newmePullYvsBetaZmPanel1->Draw("esameS"); 
+    myPV->PVCompute(mePullYvsBetaZmPanel1, newmePullYvsBetaZmPanel1, te, 0.2, 0.2 );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();      
+    TPaveStats *s69 = (TPaveStats*)mePullYvsBetaZmPanel1->GetListOfFunctions()->FindObject("stats");
+    s69->SetX1NDC (0.55); //new x start position
+    s69->SetX2NDC (0.75); //new x end position
 
     can_PullYvsBeta->cd(3);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsBetaZmPanel2, newmePullYvsBetaZmPanel2, "panel2, z<0, |beta| (deg)", "pull y", lpull, hpull );
+    Float_t refMax = 0.5+1.2*mePullYvsBetaZmPanel2->GetMaximum();
+    Float_t newMax = 0.5+1.2*newmePullYvsBetaZmPanel2->GetMaximum();
+    if refMax > newMax
+    {
+        mePullYvsBetaZmPanel2->SetMaximum(refMax);
+    }
+    else
+    {
+        mePullYvsBetaZmPanel2->SetMaximum(newMax);
+    }      
+    mePullYvsBetaZmPanel2->SetName("Reference");
+    newmePullYvsBetaZmPanel2->SetName("New Release");
     mePullYvsBetaZmPanel2->Draw("e");
-    newmePullYvsBetaZmPanel2->Draw("samee"); 
-    myPV->PVCompute(mePullYvsBetaZmPanel2, newmePullYvsBetaZmPanel2, te );
+    newmePullYvsBetaZmPanel2->Draw("esameS"); 
+    myPV->PVCompute(mePullYvsBetaZmPanel2, newmePullYvsBetaZmPanel2, te, 0.2, 0.2 );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();      
+    TPaveStats *s70 = (TPaveStats*)mePullYvsBetaZmPanel2->GetListOfFunctions()->FindObject("stats");
+    s70->SetX1NDC (0.55); //new x start position
+    s70->SetX2NDC (0.75); //new x end position
 
     can_PullYvsBeta->cd(5);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsBetaZpPanel1, newmePullYvsBetaZpPanel1, "panel1, z>0, |beta| (deg)", "pull y", lpull, hpull );
+    Float_t refMax = 0.5+1.2*mePullYvsBetaZpPanel1->GetMaximum();
+    Float_t newMax = 0.5+1.2*newmePullYvsBetaZpPanel1->GetMaximum();
+    if refMax > newMax
+    {
+        mePullYvsBetaZpPanel1->SetMaximum(refMax);
+    }
+    else
+    {
+        mePullYvsBetaZpPanel1->SetMaximum(newMax);
+    }      
+    mePullYvsBetaZpPanel1->SetName("Reference");
+    newmePullYvsBetaZpPanel1->SetName("New Release");
     mePullYvsBetaZpPanel1->Draw("e");
-    newmePullYvsBetaZpPanel1->Draw("samee"); 
-    myPV->PVCompute(mePullYvsBetaZpPanel1, newmePullYvsBetaZpPanel1, te );
+    newmePullYvsBetaZpPanel1->Draw("esameS"); 
+    myPV->PVCompute(mePullYvsBetaZpPanel1, newmePullYvsBetaZpPanel1, te, 0.2, 0.2 );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();      
+    TPaveStats *s71 = (TPaveStats*)mePullYvsBetaZpPanel1->GetListOfFunctions()->FindObject("stats");
+    s71->SetX1NDC (0.55); //new x start position
+    s71->SetX2NDC (0.75); //new x end position
 
     can_PullYvsBeta->cd(6);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsBetaZpPanel2, newmePullYvsBetaZpPanel2, "panel2, z>0, |beta| (deg)", "pull y", lpull, hpull );
+    Float_t refMax = 0.5+1.2*mePullYvsBetaZpPanel2->GetMaximum();
+    Float_t newMax = 0.5+1.2*newmePullYvsBetaZpPanel2->GetMaximum();
+    if refMax > newMax
+    {
+        mePullYvsBetaZpPanel2->SetMaximum(refMax);
+    }
+    else
+    {
+        mePullYvsBetaZpPanel2->SetMaximum(newMax);
+    }      
+    mePullYvsBetaZpPanel2->SetName("Reference");
+    newmePullYvsBetaZpPanel2->SetName("New Release");
     mePullYvsBetaZpPanel2->Draw("e");
-    newmePullYvsBetaZpPanel2->Draw("samee"); 
-    myPV->PVCompute(mePullYvsBetaZpPanel2, newmePullYvsBetaZpPanel2, te );
+    newmePullYvsBetaZpPanel2->Draw("esameS"); 
+    myPV->PVCompute(mePullYvsBetaZpPanel2, newmePullYvsBetaZpPanel2, te, 0.2, 0.2 );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();      
+    TPaveStats *s72 = (TPaveStats*)mePullYvsBetaZpPanel2->GetListOfFunctions()->FindObject("stats");
+    s72->SetX1NDC (0.55); //new x start position
+    s72->SetX2NDC (0.75); //new x end position
 
     can_PullYvsBeta->SaveAs("mePullYvsBeta_compare.eps");
     can_PullYvsBeta->SaveAs("mePullYvsBeta_compare.gif");
   }
-
 
 
 if (   1   ) 
@@ -1268,65 +2430,156 @@ if (   1   )
     sdir->GetObject("Histograms_all/meWPullYvsBetaZpPanel1", newmeWPullYvsBetaZpPanel1);
     sdir->GetObject("Histograms_all/meWPullYvsBetaZpPanel2", newmeWPullYvsBetaZpPanel2);
   
-    TLegend* leg15 = new TLegend(0.3, 0.7, 0.6, 0.9);
+    TLegend* leg15 = new TLegend(0.3, 0.2, 0.6, 0.4);
     can_WPullYvsBeta->cd(1);
     //gPad->SetLogy();
-    SetUpProfileHistograms(meWPullYvsBetaBarrelNFP, newmeWPullYvsBetaBarrelNFP, 
-			   "non-flipped ladders, barrel, |beta| (deg)", "< | pull y | > ", lwpull, hwpull, leg15 );
+    SetUpProfileHistograms(meWPullYvsBetaBarrelNFP, newmeWPullYvsBetaBarrelNFP, "non-flipped ladders, barrel, |beta| (deg)", "< | pull y | > ", lwpull, hwpull, leg15 );
+    Float_t refMax = 0.5+1.2*meWPullYvsBetaBarrelNFP->GetMaximum();
+    Float_t newMax = 0.5+1.2*newmeWPullYvsBetaBarrelNFP->GetMaximum();
+    if refMax > newMax
+    {
+        meWPullYvsBetaBarrelNFP->SetMaximum(refMax);
+    }
+    else
+    {
+        meWPullYvsBetaBarrelNFP->SetMaximum(newMax);
+    }      
+    meWPullYvsBetaBarrelNFP->SetName("Reference");
+    newmeWPullYvsBetaBarrelNFP->SetName("New Release");
     meWPullYvsBetaBarrelNFP->Draw("e");
-    newmeWPullYvsBetaBarrelNFP->Draw("Samee"); 
+    newmeWPullYvsBetaBarrelNFP->Draw("eSameS"); 
     myPV->PVCompute(meWPullYvsBetaBarrelNFP, newmeWPullYvsBetaBarrelNFP, te );
     leg15->Draw();
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();    
+    TPaveStats *s73 = (TPaveStats*)meWPullYvsBetaBarrelNFP->GetListOfFunctions()->FindObject("stats");
+    s73->SetX1NDC (0.55); //new x start position
+    s73->SetX2NDC (0.75); //new x end position
 
     can_WPullYvsBeta->cd(2);
     //gPad->SetLogy();
-    SetUpProfileHistograms(meWPullYvsBetaZmPanel1, newmeWPullYvsBetaZmPanel1, 
-			   "panel1, z<0, |beta| (deg)", "< | pull y | > ", lwpull, hwpull );
+    SetUpProfileHistograms(meWPullYvsBetaZmPanel1, newmeWPullYvsBetaZmPanel1, "panel1, z<0, |beta| (deg)", "< | pull y | > ", lwpull, hwpull );
+    Float_t refMax = 0.5+1.2*meWPullYvsBetaZmPanel1->GetMaximum();
+    Float_t newMax = 0.5+1.2*newmeWPullYvsBetaZmPanel1->GetMaximum();
+    if refMax > newMax
+    {
+        meWPullYvsBetaZmPanel1->SetMaximum(refMax);
+    }
+    else
+    {
+        meWPullYvsBetaZmPanel1->SetMaximum(newMax);
+    }      
+    meWPullYvsBetaZmPanel1->SetName("Reference");
+    newmeWPullYvsBetaZmPanel1->SetName("New Release");
     meWPullYvsBetaZmPanel1->Draw("e");
-    newmeWPullYvsBetaZmPanel1->Draw("samee"); 
-    myPV->PVCompute(meWPullYvsBetaZmPanel1, newmeWPullYvsBetaZmPanel1, te );
+    newmeWPullYvsBetaZmPanel1->Draw("esameS"); 
+    myPV->PVCompute(meWPullYvsBetaZmPanel1, newmeWPullYvsBetaZmPanel1, te, 0.2, 0.2 );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();    
+    TPaveStats *s74 = (TPaveStats*)meWPullYvsBetaZmPanel1->GetListOfFunctions()->FindObject("stats");
+    s74->SetX1NDC (0.55); //new x start position
+    s74->SetX2NDC (0.75); //new x end position
 
     can_WPullYvsBeta->cd(3);
     //gPad->SetLogy();
-    SetUpProfileHistograms(meWPullYvsBetaZmPanel2, newmeWPullYvsBetaZmPanel2, 
-			   "panel2, z<0, |beta| (deg)", "< | pull y | > ", lwpull, hwpull );
+    SetUpProfileHistograms(meWPullYvsBetaZmPanel2, newmeWPullYvsBetaZmPanel2, "panel2, z<0, |beta| (deg)", "< | pull y | > ", lwpull, hwpull );
+    Float_t refMax = 0.5+1.2*meWPullYvsBetaZmPanel2->GetMaximum();
+    Float_t newMax = 0.5+1.2*newmeWPullYvsBetaZmPanel2->GetMaximum();
+    if refMax > newMax
+    {
+        meWPullYvsBetaZmPanel2->SetMaximum(refMax);
+    }
+    else
+    {
+        meWPullYvsBetaZmPanel2->SetMaximum(newMax);
+    }      
+    meWPullYvsBetaZmPanel2->SetName("Reference");
+    newmeWPullYvsBetaZmPanel2->SetName("New Release");
     meWPullYvsBetaZmPanel2->Draw("e");
-    newmeWPullYvsBetaZmPanel2->Draw("samee"); 
-    myPV->PVCompute(meWPullYvsBetaZmPanel2, newmeWPullYvsBetaZmPanel2, te );
+    newmeWPullYvsBetaZmPanel2->Draw("esameS"); 
+    myPV->PVCompute(meWPullYvsBetaZmPanel2, newmeWPullYvsBetaZmPanel2, te, 0.2, 0.2 );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();    
+    TPaveStats *s75 = (TPaveStats*)meWPullYvsBetaZmPanel2->GetListOfFunctions()->FindObject("stats");
+    s75->SetX1NDC (0.55); //new x start position
+    s75->SetX2NDC (0.75); //new x end position
 
     can_WPullYvsBeta->cd(4);
     //gPad->SetLogy();
-    SetUpProfileHistograms(meWPullYvsBetaBarrelFP, newmeWPullYvsBetaBarrelFP, 
-			   "flipped ladders, barrel, |beta| (deg)", "< | pull y | > ", lwpull, hwpull);
+    SetUpProfileHistograms(meWPullYvsBetaBarrelFP, newmeWPullYvsBetaBarrelFP, "flipped ladders, barrel, |beta| (deg)", "< | pull y | > ", lwpull, hwpull);
+    Float_t refMax = 0.5+1.2*meWPullYvsBetaBarrelFP->GetMaximum();
+    Float_t newMax = 0.5+1.2*newmeWPullYvsBetaBarrelFP->GetMaximum();
+    if refMax > newMax
+    {
+        meWPullYvsBetaBarrelFP->SetMaximum(refMax);
+    }
+    else
+    {
+        meWPullYvsBetaBarrelFP->SetMaximum(newMax);
+    }      
+    meWPullYvsBetaBarrelFP->SetName("Reference");
+    newmeWPullYvsBetaBarrelFP->SetName("New Release");
     meWPullYvsBetaBarrelFP->Draw("e");
-    newmeWPullYvsBetaBarrelFP->Draw("Samee"); 
+    newmeWPullYvsBetaBarrelFP->Draw("eSameS"); 
     myPV->PVCompute(meWPullYvsBetaBarrelFP, newmeWPullYvsBetaBarrelFP, te );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();    
+    TPaveStats *s76 = (TPaveStats*)meWPullYvsBetaBarrelFP->GetListOfFunctions()->FindObject("stats");
+    s76->SetX1NDC (0.55); //new x start position
+    s76->SetX2NDC (0.75); //new x end position
 
     can_WPullYvsBeta->cd(5);
     //gPad->SetLogy();
-    SetUpProfileHistograms(meWPullYvsBetaZpPanel1, newmeWPullYvsBetaZpPanel1, 
-			   "panel1, z>0, |beta| (deg)", "< | pull y | > ", lwpull, hwpull );
+    SetUpProfileHistograms(meWPullYvsBetaZpPanel1, newmeWPullYvsBetaZpPanel1, "panel1, z>0, |beta| (deg)", "< | pull y | > ", lwpull, hwpull );
+    Float_t refMax = 0.5+1.2*meWPullYvsBetaZpPanel1->GetMaximum();
+    Float_t newMax = 0.5+1.2*newmeWPullYvsBetaZpPanel1->GetMaximum();
+    if refMax > newMax
+    {
+        meWPullYvsBetaZpPanel1->SetMaximum(refMax);
+    }
+    else
+    {
+        meWPullYvsBetaZpPanel1->SetMaximum(newMax);
+    }      
+    meWPullYvsBetaZpPanel1->SetName("Reference");
+    newmeWPullYvsBetaZpPanel1->SetName("New Release");
     meWPullYvsBetaZpPanel1->Draw("e");
-    newmeWPullYvsBetaZpPanel1->Draw("samee"); 
-    myPV->PVCompute(meWPullYvsBetaZpPanel1, newmeWPullYvsBetaZpPanel1, te );
+    newmeWPullYvsBetaZpPanel1->Draw("esameS"); 
+    myPV->PVCompute(meWPullYvsBetaZpPanel1, newmeWPullYvsBetaZpPanel1, te, 0.2, 0.2 );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();    
+    TPaveStats *s77 = (TPaveStats*)meWPullYvsBetaZpPanel1->GetListOfFunctions()->FindObject("stats");
+    s77->SetX1NDC (0.55); //new x start position
+    s77->SetX2NDC (0.75); //new x end position
 
     can_WPullYvsBeta->cd(6);
     //gPad->SetLogy();
-    SetUpProfileHistograms(meWPullYvsBetaZpPanel2, newmeWPullYvsBetaZpPanel2, 
-			   "panel2, z>0, |beta| (deg)", "< | pull y | > ", lwpull, hwpull );
+    SetUpProfileHistograms(meWPullYvsBetaZpPanel2, newmeWPullYvsBetaZpPanel2, "panel2, z>0, |beta| (deg)", "< | pull y | > ", lwpull, hwpull );
+    Float_t refMax = 0.5+1.2*meWPullYvsBetaZpPanel2->GetMaximum();
+    Float_t newMax = 0.5+1.2*newmeWPullYvsBetaZpPanel2->GetMaximum();
+    if refMax > newMax
+    {
+        meWPullYvsBetaZpPanel2->SetMaximum(refMax);
+    }
+    else
+    {
+        meWPullYvsBetaZpPanel2->SetMaximum(newMax);
+    }      
+    meWPullYvsBetaZpPanel2->SetName("Reference");
+    newmeWPullYvsBetaZpPanel2->SetName("New Release");
     meWPullYvsBetaZpPanel2->Draw("e");
-    newmeWPullYvsBetaZpPanel2->Draw("samee"); 
-    myPV->PVCompute(meWPullYvsBetaZpPanel2, newmeWPullYvsBetaZpPanel2, te );
+    newmeWPullYvsBetaZpPanel2->Draw("esameS"); 
+    myPV->PVCompute(meWPullYvsBetaZpPanel2, newmeWPullYvsBetaZpPanel2, te, 0.2, 0.2 );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s78 = (TPaveStats*)meWPullYvsBetaZpPanel2->GetListOfFunctions()->FindObject("stats");
+    s78->SetX1NDC (0.55); //new x start position
+    s78->SetX2NDC (0.75); //new x end position
 
     can_WPullYvsBeta->SaveAs("meWPullYvsBeta_compare.eps");
     can_WPullYvsBeta->SaveAs("meWPullYvsBeta_compare.gif");
   }
+
 
 
 //if (   0   ) 
@@ -1359,47 +2612,127 @@ if (   1   )
     sdir->GetObject("Histograms_all/mePullYvsEtaZpPanel1", newmePullYvsEtaZpPanel1);
     sdir->GetObject("Histograms_all/mePullYvsEtaZpPanel2", newmePullYvsEtaZpPanel2);
   
-    TLegend* leg16 = new TLegend(0.3, 0.7, 0.6, 0.9);
+    TLegend* leg16 = new TLegend(0.3, 0.2, 0.6, 0.4);
     can_PullYvsEta->cd(1);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsEtaBarrel, newmePullYvsEtaBarrel, "barrel, eta", "pull y", lpull, hpull, leg16 );
+    Float_t refMax = 0.5+1.4*mePullYvsEtaBarrel->GetMaximum();
+    Float_t newMax = 0.5+1.4*newmePullYvsEtaBarrel->GetMaximum();
+    if refMax > newMax
+    {
+        mePullYvsEtaBarrel->SetMaximum(refMax);
+    }
+    else
+    {
+        mePullYvsEtaBarrel->SetMaximum(newMax);
+    }      
+    mePullYvsEtaBarrel->SetName("Reference");
+    newmePullYvsEtaBarrel->SetName("New Release");
     mePullYvsEtaBarrel->Draw("e");
-    newmePullYvsEtaBarrel->Draw("Samee"); 
-    myPV->PVCompute(mePullYvsEtaBarrel, newmePullYvsEtaBarrel, te );
+    newmePullYvsEtaBarrel->Draw("eSameS"); 
+    myPV->PVCompute(mePullYvsEtaBarrel, newmePullYvsEtaBarrel, te, 0.3, 0.4 );
     leg16->Draw();
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s79 = (TPaveStats*)mePullYvsEtaBarrel->GetListOfFunctions()->FindObject("stats");
+    s79->SetX1NDC (0.55); //new x start position
+    s79->SetX2NDC (0.75); //new x end position
 
     can_PullYvsEta->cd(2);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsEtaZmPanel1, newmePullYvsEtaZmPanel1, "panel1, z<0, eta", "pull y" , lpull, hpull);
+    Float_t refMax = 0.5+1.4*mePullYvsEtaZmPanel1->GetMaximum();
+    Float_t newMax = 0.5+1.4*newmePullYvsEtaZmPanel1->GetMaximum();
+    if refMax > newMax
+    {
+        mePullYvsEtaZmPanel1->SetMaximum(refMax);
+    }
+    else
+    {
+        mePullYvsEtaZmPanel1->SetMaximum(newMax);
+    }      
+    mePullYvsEtaZmPanel1->SetName("Reference");
+    newmePullYvsEtaZmPanel1->SetName("New Release");
     mePullYvsEtaZmPanel1->Draw("e");
-    newmePullYvsEtaZmPanel1->Draw("samee"); 
-    myPV->PVCompute(mePullYvsEtaZmPanel1, newmePullYvsEtaZmPanel1, te );
+    newmePullYvsEtaZmPanel1->Draw("esameS"); 
+    myPV->PVCompute(mePullYvsEtaZmPanel1, newmePullYvsEtaZmPanel1, te, 0.2, 0.2 );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s80 = (TPaveStats*)mePullYvsEtaZmPanel1->GetListOfFunctions()->FindObject("stats");
+    s80->SetX1NDC (0.55); //new x start position
+    s80->SetX2NDC (0.75); //new x end position
 
     can_PullYvsEta->cd(3);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsEtaZmPanel2, newmePullYvsEtaZmPanel2, "panel2, z<0, eta", "pull y", lpull, hpull );
+    Float_t refMax = 0.5+1.2*mePullYvsEtaZmPanel2->GetMaximum();
+    Float_t newMax = 0.5+1.2*newmePullYvsEtaZmPanel2->GetMaximum();
+    if refMax > newMax
+    {
+        mePullYvsEtaZmPanel2->SetMaximum(refMax);
+    }
+    else
+    {
+        mePullYvsEtaZmPanel2->SetMaximum(newMax);
+    }      
+    mePullYvsEtaZmPanel2->SetName("Reference");
+    newmePullYvsEtaZmPanel2->SetName("New Release");
     mePullYvsEtaZmPanel2->Draw("e");
-    newmePullYvsEtaZmPanel2->Draw("samee"); 
-    myPV->PVCompute(mePullYvsEtaZmPanel2, newmePullYvsEtaZmPanel2, te );
+    newmePullYvsEtaZmPanel2->Draw("esameS"); 
+    myPV->PVCompute(mePullYvsEtaZmPanel2, newmePullYvsEtaZmPanel2, te, 0.2, 0.2 );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s81 = (TPaveStats*)mePullYvsEtaZmPanel2->GetListOfFunctions()->FindObject("stats");
+    s81->SetX1NDC (0.55); //new x start position
+    s81->SetX2NDC (0.75); //new x end position
 
     can_PullYvsEta->cd(5);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsEtaZpPanel1, newmePullYvsEtaZpPanel1, "panel1, z>0, eta", "pull y", lpull, hpull );
+    Float_t refMax = 0.5+1.4*mePullYvsEtaZpPanel1->GetMaximum();
+    Float_t newMax = 0.5+1.4*newmePullYvsEtaZpPanel1->GetMaximum();
+    if refMax > newMax
+    {
+        mePullYvsEtaZpPanel1->SetMaximum(refMax);
+    }
+    else
+    {
+        mePullYvsEtaZpPanel1->SetMaximum(newMax);
+    }      
+    mePullYvsEtaZpPanel1->SetName("Reference");
+    newmePullYvsEtaZpPanel1->SetName("New Release");
     mePullYvsEtaZpPanel1->Draw("e");
-    newmePullYvsEtaZpPanel1->Draw("samee"); 
-    myPV->PVCompute(mePullYvsEtaZpPanel1, newmePullYvsEtaZpPanel1, te );
+    newmePullYvsEtaZpPanel1->Draw("esameS"); 
+    myPV->PVCompute(mePullYvsEtaZpPanel1, newmePullYvsEtaZpPanel1, te, 0.2, 0.2 );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s82 = (TPaveStats*)mePullYvsEtaZpPanel1->GetListOfFunctions()->FindObject("stats");
+    s82->SetX1NDC (0.55); //new x start position
+    s82->SetX2NDC (0.75); //new x end position
 
     can_PullYvsEta->cd(6);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsEtaZpPanel2, newmePullYvsEtaZpPanel2, "panel2, z>0, eta", "pull y", lpull, hpull );
+    Float_t refMax = 0.5+1.4*mePullYvsEtaZpPanel2->GetMaximum();
+    Float_t newMax = 0.5+1.4*newmePullYvsEtaZpPanel2->GetMaximum();
+    if refMax > newMax
+    {
+        mePullYvsEtaZpPanel2->SetMaximum(refMax);
+    }
+    else
+    {
+        mePullYvsEtaZpPanel2->SetMaximum(newMax);
+    }      
+    mePullYvsEtaZpPanel2->SetName("Reference");
+    newmePullYvsEtaZpPanel2->SetName("New Release");
     mePullYvsEtaZpPanel2->Draw("e");
-    newmePullYvsEtaZpPanel2->Draw("samee"); 
-    myPV->PVCompute(mePullYvsEtaZpPanel2, newmePullYvsEtaZpPanel2, te );
+    newmePullYvsEtaZpPanel2->Draw("esameS"); 
+    myPV->PVCompute(mePullYvsEtaZpPanel2, newmePullYvsEtaZpPanel2, te, 0.2, 0.2 );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s83 = (TPaveStats*)mePullYvsEtaZpPanel2->GetListOfFunctions()->FindObject("stats");
+    s83->SetX1NDC (0.55); //new x start position
+    s83->SetX2NDC (0.75); //new x end position
 
     can_PullYvsEta->SaveAs("mePullYvsEta_compare.eps");
     can_PullYvsEta->SaveAs("mePullYvsEta_compare.gif");
@@ -1435,47 +2768,127 @@ if (   1   )
     sdir->GetObject("Histograms_all/mePullYvsPhiZpPanel1", newmePullYvsPhiZpPanel1);
     sdir->GetObject("Histograms_all/mePullYvsPhiZpPanel2", newmePullYvsPhiZpPanel2);
   
-    TLegend* leg17 = new TLegend(0.3, 0.7, 0.6, 0.9);
+    TLegend* leg17 = new TLegend(0.3, 0.2, 0.6, 0.4);
     can_PullYvsPhi->cd(1);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsPhiBarrel, newmePullYvsPhiBarrel, "barrel, phi (deg)", "pull y", lpull, hpull, leg17 );
+    Float_t refMax = 0.5+1.2*mePullYvsPhiBarrel->GetMaximum();
+    Float_t newMax = 0.5+1.2*newmePullYvsPhiBarrel->GetMaximum();
+    if refMax > newMax
+    {
+        mePullYvsPhiBarrel->SetMaximum(refMax);
+    }
+    else
+    {
+        mePullYvsPhiBarrel->SetMaximum(newMax);
+    }      
+    mePullYvsPhiBarrel->SetName("Reference");
+    newmePullYvsPhiBarrel->SetName("New Release");
     mePullYvsPhiBarrel->Draw("e");
-    newmePullYvsPhiBarrel->Draw("Samee"); 
-    myPV->PVCompute(mePullYvsPhiBarrel, newmePullYvsPhiBarrel, te );
+    newmePullYvsPhiBarrel->Draw("eSameS"); 
+    myPV->PVCompute(mePullYvsPhiBarrel, newmePullYvsPhiBarrel, te, 0.3, 0.4 );
     leg17->Draw();
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s84 = (TPaveStats*)mePullYvsPhiBarrel->GetListOfFunctions()->FindObject("stats");
+    s84->SetX1NDC (0.55); //new x start position
+    s84->SetX2NDC (0.75); //new x end position
 
     can_PullYvsPhi->cd(2);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsPhiZmPanel1, newmePullYvsPhiZmPanel1, "panel1, z<0, phi (deg)", "pull y" , lpull, hpull);
+    Float_t refMax = 0.5+1.2*mePullYvsPhiZmPanel1->GetMaximum();
+    Float_t newMax = 0.5+1.2*newmePullYvsPhiZmPanel1->GetMaximum();
+    if refMax > newMax
+    {
+        mePullYvsPhiZmPanel1->SetMaximum(refMax);
+    }
+    else
+    {
+        mePullYvsPhiZmPanel1->SetMaximum(newMax);
+    }      
+    mePullYvsPhiZmPanel1->SetName("Reference");
+    newmePullYvsPhiZmPanel1->SetName("New Release");
     mePullYvsPhiZmPanel1->Draw("e");
-    newmePullYvsPhiZmPanel1->Draw("samee"); 
-    myPV->PVCompute(mePullYvsPhiZmPanel1, newmePullYvsPhiZmPanel1, te );
+    newmePullYvsPhiZmPanel1->Draw("esameS"); 
+    myPV->PVCompute(mePullYvsPhiZmPanel1, newmePullYvsPhiZmPanel1, te, 0.2, 0.2);
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s85 = (TPaveStats*)mePullYvsPhiZmPanel1->GetListOfFunctions()->FindObject("stats");
+    s85->SetX1NDC (0.55); //new x start position
+    s85->SetX2NDC (0.75); //new x end position
 
     can_PullYvsPhi->cd(3);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsPhiZmPanel2, newmePullYvsPhiZmPanel2, "panel2, z<0, phi (deg)", "pull y" , lpull, hpull);
+    Float_t refMax = 0.5+1.2*mePullYvsPhiZmPanel2->GetMaximum();
+    Float_t newMax = 0.5+1.2*newmePullYvsPhiZmPanel2->GetMaximum();
+    if refMax > newMax
+    {
+        mePullYvsPhiZmPanel2->SetMaximum(refMax);
+    }
+    else
+    {
+        mePullYvsPhiZmPanel2->SetMaximum(newMax);
+    }      
+    mePullYvsPhiZmPanel2->SetName("Reference");
+    newmePullYvsPhiZmPanel2->SetName("New Release");
     mePullYvsPhiZmPanel2->Draw("e");
-    newmePullYvsPhiZmPanel2->Draw("samee"); 
-    myPV->PVCompute(mePullYvsPhiZmPanel2, newmePullYvsPhiZmPanel2, te );
+    newmePullYvsPhiZmPanel2->Draw("esameS"); 
+    myPV->PVCompute(mePullYvsPhiZmPanel2, newmePullYvsPhiZmPanel2, te, 0.2, 0.2);
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s86 = (TPaveStats*)mePullYvsPhiZmPanel2->GetListOfFunctions()->FindObject("stats");
+    s86->SetX1NDC (0.55); //new x start position
+    s86->SetX2NDC (0.75); //new x end position
 
     can_PullYvsPhi->cd(5);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsPhiZpPanel1, newmePullYvsPhiZpPanel1, "panel1, z>0, phi (deg)", "pull y", lpull, hpull );
+    Float_t refMax = 0.5+1.2*mePullYvsPhiZpPanel1->GetMaximum();
+    Float_t newMax = 0.5+1.2*newmePullYvsPhiZpPanel1->GetMaximum();
+    if refMax > newMax
+    {
+        mePullYvsPhiZpPanel1->SetMaximum(refMax);
+    }
+    else
+    {
+        mePullYvsPhiZpPanel1->SetMaximum(newMax);
+    }      
+    mePullYvsPhiZpPanel1->SetName("Reference");
+    newmePullYvsPhiZpPanel1->SetName("New Release");
     mePullYvsPhiZpPanel1->Draw("e");
-    newmePullYvsPhiZpPanel1->Draw("samee"); 
-    myPV->PVCompute(mePullYvsPhiZpPanel1, newmePullYvsPhiZpPanel1, te );
+    newmePullYvsPhiZpPanel1->Draw("esameS"); 
+    myPV->PVCompute(mePullYvsPhiZpPanel1, newmePullYvsPhiZpPanel1, te, 0.2, 0.2 );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s87 = (TPaveStats*)mePullYvsPhiZpPanel1->GetListOfFunctions()->FindObject("stats");
+    s87->SetX1NDC (0.55); //new x start position
+    s87->SetX2NDC (0.75); //new x end position
 
     can_PullYvsPhi->cd(6);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsPhiZpPanel2, newmePullYvsPhiZpPanel2, "panel2, z>0, phi (deg)", "pull y", lpull, hpull );
+    Float_t refMax = 0.5+1.2*mePullYvsPhiZpPanel2->GetMaximum();
+    Float_t newMax = 0.5+1.2*newmePullYvsPhiZpPanel2->GetMaximum();
+    if refMax > newMax
+    {
+        mePullYvsPhiZpPanel2->SetMaximum(refMax);
+    }
+    else
+    {
+        mePullYvsPhiZpPanel2->SetMaximum(newMax);
+    }      
+    mePullYvsPhiZpPanel2->SetName("Reference");
+    newmePullYvsPhiZpPanel2->SetName("New Release");
     mePullYvsPhiZpPanel2->Draw("e");
-    newmePullYvsPhiZpPanel2->Draw("samee"); 
-    myPV->PVCompute(mePullYvsPhiZpPanel2, newmePullYvsPhiZpPanel2, te );
+    newmePullYvsPhiZpPanel2->Draw("esameS"); 
+    myPV->PVCompute(mePullYvsPhiZpPanel2, newmePullYvsPhiZpPanel2, te, 0.2, 0.2 );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s88 = (TPaveStats*)mePullYvsPhiZpPanel2->GetListOfFunctions()->FindObject("stats");
+    s88->SetX1NDC (0.55); //new x start position
+    s88->SetX2NDC (0.75); //new x end position
 
     can_PullYvsPhi->SaveAs("mePullYvsPhi_compare.eps");
     can_PullYvsPhi->SaveAs("mePullYvsPhi_compare.gif");
@@ -1510,47 +2923,127 @@ if (1)
     sdir->GetObject("Histograms_all/mePullxZpPanel1", newmePullxZpPanel1);
     sdir->GetObject("Histograms_all/mePullxZpPanel2", newmePullxZpPanel2);
   
-    TLegend* leg18 = new TLegend(0.3, 0.7, 0.6, 0.9);
+    TLegend* leg18 = new TLegend(0.15, 0.67, 0.45, 0.87);
     can_mePullx->cd(1);
     //gPad->SetLogy();
     SetUpHistograms(mePullxBarrel, newmePullxBarrel, "barrel, pull x", leg18);
+    Float_t refMax = 1.2*mePullxBarrel->GetMaximum();
+    Float_t newMax = 1.2*newmePullxBarrel->GetMaximum();
+    if refMax > newMax
+    {
+        mePullxBarrel->SetMaximum(refMax);
+    }
+    else
+    {
+        mePullxBarrel->SetMaximum(newMax);
+    }      
+    mePullxBarrel->SetName("Reference");
+    newmePullxBarrel->SetName("New Release");
     mePullxBarrel->Draw("he");
-    newmePullxBarrel->Draw("Samehe"); 
-    myPV->PVCompute(mePullxBarrel, newmePullxBarrel, te );
+    newmePullxBarrel->Draw("heSameS"); 
+    myPV->PVCompute(mePullxBarrel, newmePullxBarrel, te);
     leg18->Draw();
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s89 = (TPaveStats*)mePullxBarrel->GetListOfFunctions()->FindObject("stats");
+    s89->SetX1NDC (0.55); //new x start position
+    s89->SetX2NDC (0.75); //new x end position
 
     can_mePullx->cd(2);
     //gPad->SetLogy();
     SetUpHistograms(mePullxZmPanel1, newmePullxZmPanel1, "panel1, z<0, pull x" );
+    Float_t refMax = 1.2*mePullxZmPanel1->GetMaximum();
+    Float_t newMax = 1.2*newmePullxZmPanel1->GetMaximum();
+    if refMax > newMax
+    {
+        mePullxZmPanel1->SetMaximum(refMax);
+    }
+    else
+    {
+        mePullxZmPanel1->SetMaximum(newMax);
+    }      
+    mePullxZmPanel1->SetName("Reference");
+    newmePullxZmPanel1->SetName("New Release");
     mePullxZmPanel1->Draw("he");
-    newmePullxZmPanel1->Draw("samehe"); 
+    newmePullxZmPanel1->Draw("hesameS"); 
     myPV->PVCompute(mePullxZmPanel1, newmePullxZmPanel1, te );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s90 = (TPaveStats*)mePullxZmPanel1->GetListOfFunctions()->FindObject("stats");
+    s90->SetX1NDC (0.55); //new x start position
+    s90->SetX2NDC (0.75); //new x end position
 
     can_mePullx->cd(3);
     //gPad->SetLogy();
     SetUpHistograms(mePullxZmPanel2, newmePullxZmPanel2, "panel2, z<0, pull x" );
-    mePullxZmPanel2->Draw("he");
-    newmePullxZmPanel2->Draw("samehe"); 
+    Float_t refMax = 1.2*mePullxZmPanel2->GetMaximum();
+    Float_t newMax = 1.2*newmePullxZmPanel2->GetMaximum();
+    if refMax > newMax
+    {
+        mePullxZmPanel2->SetMaximum(refMax);
+    }
+    else
+    {
+        mePullxZmPanel2->SetMaximum(newMax);
+    }      
+    mePullxZmPanel2->SetName("Reference");
+    newmePullxZmPanel2->SetName("New Release");
+    mePullxZmPanel2->Draw("he"); 
+    newmePullxZmPanel2->Draw("hesameS"); 
     myPV->PVCompute(mePullxZmPanel2, newmePullxZmPanel2, te );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s91 = (TPaveStats*)mePullxZmPanel2->GetListOfFunctions()->FindObject("stats");
+    s91->SetX1NDC (0.55); //new x start position
+    s91->SetX2NDC (0.75); //new x end position
 
     can_mePullx->cd(5);
     //gPad->SetLogy();
     SetUpHistograms(mePullxZpPanel1, newmePullxZpPanel1, "panel2, z>0, pull x" );
+    Float_t refMax = 1.3*mePullxZpPanel1->GetMaximum();
+    Float_t newMax = 1.3*newmePullxZpPanel1->GetMaximum();
+    if refMax > newMax
+    {
+        mePullxZpPanel1->SetMaximum(refMax);
+    }
+    else
+    {
+        mePullxZpPanel1->SetMaximum(newMax);
+    }      
+    mePullxZpPanel1->SetName("Reference");
+    newmePullxZpPanel1->SetName("New Release");
     mePullxZpPanel1->Draw("he");
-    newmePullxZpPanel1->Draw("samehe"); 
-    myPV->PVCompute(mePullxZpPanel1, newmePullxZpPanel1, te );
+    newmePullxZpPanel1->Draw("hesameS"); 
+    myPV->PVCompute(mePullxZpPanel1, newmePullxZpPanel1, te);
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s92 = (TPaveStats*)mePullxZpPanel1->GetListOfFunctions()->FindObject("stats");
+    s92->SetX1NDC (0.55); //new x start position
+    s92->SetX2NDC (0.75); //new x end position
     
     can_mePullx->cd(6);
     //gPad->SetLogy();
     SetUpHistograms(mePullxZpPanel2, newmePullxZpPanel2, "panel1, z>0, pull x" );
+    Float_t refMax = 1.2*mePullxZpPanel2->GetMaximum();
+    Float_t newMax = 1.2*newmePullxZpPanel2->GetMaximum();
+    if refMax > newMax
+    {
+        mePullxZpPanel2->SetMaximum(refMax);
+    }
+    else
+    {
+        mePullxZpPanel2->SetMaximum(newMax);
+    }      
+    mePullxZpPanel2->SetName("Reference");
+    newmePullxZpPanel2->SetName("New Release");
     mePullxZpPanel2->Draw("he");
-    newmePullxZpPanel2->Draw("samehe"); 
+    newmePullxZpPanel2->Draw("hesameS"); 
     myPV->PVCompute(mePullxZpPanel2, newmePullxZpPanel2, te );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s93 = (TPaveStats*)mePullxZpPanel2->GetListOfFunctions()->FindObject("stats");
+    s93->SetX1NDC (0.55); //new x start position
+    s93->SetX2NDC (0.75); //new x end position
 
     can_mePullx->SaveAs("mePullx_compare.eps");
     can_mePullx->SaveAs("mePullx_compare.gif");
@@ -1585,47 +3078,132 @@ if (1)
     sdir->GetObject("Histograms_all/mePullyZpPanel1", newmePullyZpPanel1);
     sdir->GetObject("Histograms_all/mePullyZpPanel2", newmePullyZpPanel2);
   
-    TLegend* leg19 = new TLegend(0.3, 0.7, 0.6, 0.9);
+    TLegend* leg19 = new TLegend(0.15, 0.67, 0.45, 0.87);
     can_mePully->cd(1);
     //gPad->SetLogy();
     SetUpHistograms(mePullyBarrel, newmePullyBarrel, "barrel, pull y", leg19 );
+    Float_t refMax = 1.2*mePullyBarrel->GetMaximum();
+    Float_t newMax = 1.2*newmePullyBarrel->GetMaximum();
+    if refMax > newMax
+    {
+        mePullyBarrel->SetMaximum(refMax);
+    }
+    else
+    {
+        mePullyBarrel->SetMaximum(newMax);
+    }      
+    mePullyBarrel->SetName("Reference");
+    newmePullyBarrel->SetName("New Release");
     mePullyBarrel->Draw("he");
-    newmePullyBarrel->Draw("Samehe"); 
-    myPV->PVCompute(mePullyBarrel, newmePullyBarrel, te );
+    newmePullyBarrel->Draw("heSameS"); 
+    myPV->PVCompute(mePullyBarrel, newmePullyBarrel, te);
     leg19->Draw();
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s94 = (TPaveStats*)mePullyBarrel->GetListOfFunctions()->FindObject("stats");
+    s94->SetX1NDC (0.55); //new x start position
+    s94->SetX2NDC (0.75); //new x end position
+
 
     can_mePully->cd(2);
     //gPad->SetLogy();
     SetUpHistograms(mePullyZmPanel1, newmePullyZmPanel1, "panel1, z<0, pull y" );
+    Float_t refMax = 1.2*mePullyZmPanel1->GetMaximum();
+    Float_t newMax = 1.2*newmePullyZmPanel1->GetMaximum();
+    if refMax > newMax
+    {
+        mePullyZmPanel1->SetMaximum(refMax);
+    }
+    else
+    {
+        mePullyZmPanel1->SetMaximum(newMax);
+    }      
+    mePullyZmPanel1->SetName("Reference");
+    newmePullyZmPanel1->SetName("New Release");
     mePullyZmPanel1->Draw("he");
-    newmePullyZmPanel1->Draw("samehe"); 
-    myPV->PVCompute(mePullyZmPanel1, newmePullyZmPanel1, te );
+    newmePullyZmPanel1->Draw("hesameS"); 
+    myPV->PVCompute(mePullyZmPanel1, newmePullyZmPanel1, te);
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s94 = (TPaveStats*)mePullyZmPanel1->GetListOfFunctions()->FindObject("stats");
+    s94->SetX1NDC (0.55); //new x start position
+    s94->SetX2NDC (0.75); //new x end position
+
 
     can_mePully->cd(3);
     //gPad->SetLogy();
     SetUpHistograms(mePullyZmPanel2, newmePullyZmPanel2, "panel2, z<0, pull y" );
+    Float_t refMax = 1.2*mePullyZmPanel2->GetMaximum();
+    Float_t newMax = 1.2*newmePullyZmPanel2->GetMaximum();
+    if refMax > newMax
+    {
+        mePullyZmPanel2->SetMaximum(refMax);
+    }
+    else
+    {
+        mePullyZmPanel2->SetMaximum(newMax);
+    }      
+    mePullyZmPanel2->SetName("Reference");
+    newmePullyZmPanel2->SetName("New Release");
     mePullyZmPanel2->Draw("he");
-    newmePullyZmPanel2->Draw("samehe"); 
-    myPV->PVCompute(mePullyZmPanel2, newmePullyZmPanel2, te );
+    newmePullyZmPanel2->Draw("hesameS"); 
+    myPV->PVCompute(mePullyZmPanel2, newmePullyZmPanel2, te);
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s95 = (TPaveStats*)mePullyZmPanel2->GetListOfFunctions()->FindObject("stats");
+    s95->SetX1NDC (0.55); //new x start position
+    s95->SetX2NDC (0.75); //new x end position
+
 
     can_mePully->cd(5);
     //gPad->SetLogy();
     SetUpHistograms(mePullyZpPanel1, newmePullyZpPanel1, "panel1, z>0, pull y" );
+    Float_t refMax = 1.2*mePullyZpPanel1->GetMaximum();
+    Float_t newMax = 1.2*newmePullyZpPanel1->GetMaximum();
+    if refMax > newMax
+    {
+        mePullyZpPanel1->SetMaximum(refMax);
+    }
+    else
+    {
+        mePullyZpPanel1->SetMaximum(newMax);
+    }      
+    mePullyZpPanel1->SetName("Reference");
+    newmePullyZpPanel1->SetName("New Release");
     mePullyZpPanel1->Draw("he");
-    newmePullyZpPanel1->Draw("samehe"); 
-    myPV->PVCompute(mePullyZpPanel1, newmePullyZpPanel1, te );
+    newmePullyZpPanel1->Draw("hesameS"); 
+    myPV->PVCompute(mePullyZpPanel1, newmePullyZpPanel1, te);
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s96 = (TPaveStats*)mePullyZpPanel1->GetListOfFunctions()->FindObject("stats");
+    s96->SetX1NDC (0.55); //new x start position
+    s96->SetX2NDC (0.75); //new x end position
+
 
     can_mePully->cd(6);
     //gPad->SetLogy();
     SetUpHistograms(mePullyZpPanel2, newmePullyZpPanel2, "panel2, z>0, pull y" );
+    Float_t refMax = 1.2*mePullyZpPanel2->GetMaximum();
+    Float_t newMax = 1.2*newmePullyZpPanel2->GetMaximum();
+    if refMax > newMax
+    {
+        mePullyZpPanel2->SetMaximum(refMax);
+    }
+    else
+    {
+        mePullyZpPanel2->SetMaximum(newMax);
+    }      
+    mePullyZpPanel2->SetName("Reference");
+    newmePullyZpPanel2->SetName("New Release");
     mePullyZpPanel2->Draw("he");
-    newmePullyZpPanel2->Draw("samehe"); 
-    myPV->PVCompute(mePullyZpPanel2, newmePullyZpPanel2, te );
+    newmePullyZpPanel2->Draw("hesameS"); 
+    myPV->PVCompute(mePullyZpPanel2, newmePullyZpPanel2, te);
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s97 = (TPaveStats*)mePullyZpPanel2->GetListOfFunctions()->FindObject("stats");
+    s97->SetX1NDC (0.55); //new x start position
+    s97->SetX2NDC (0.75); //new x end position
+
 
     can_mePully->SaveAs("mePully_compare.eps");
     can_mePully->SaveAs("mePully_compare.gif");
@@ -1671,71 +3249,162 @@ if (1)
     sdir->GetObject("Histograms_all/meResXvsAlphaZpPanel1", newmeResXvsAlphaZpPanel1);
     sdir->GetObject("Histograms_all/meResXvsAlphaZpPanel2", newmeResXvsAlphaZpPanel2);
   
-    TLegend* leg20 = new TLegend(0.3, 0.7, 0.6, 0.9);
+    TLegend* leg20 = new TLegend(0.3, 0.2, 0.6, 0.4);
     can_ResXvsAlpha->cd(1);
     //gPad->SetLogy();
-    SetUpProfileHistograms(meResXvsAlphaBarrelFlippedLadders, newmeResXvsAlphaBarrelFlippedLadders, 
-			   "barrel, non-flipped ladders, |alpha| (deg)", "<|x residual|> (cm)", xmin, xmax, leg20 );
+    SetUpProfileHistograms(meResXvsAlphaBarrelFlippedLadders, newmeResXvsAlphaBarrelFlippedLadders, "barrel, non-flipped ladders, |alpha| (deg)", "<|x residual|> (cm)", xmin, xmax, leg20 );
+    Float_t refMax = 1.5*meResXvsAlphaBarrelFlippedLadders->GetMaximum();
+    Float_t newMax = 1.5*newmeResXvsAlphaBarrelFlippedLadders->GetMaximum();
+    if refMax > newMax
+    {
+        meResXvsAlphaBarrelFlippedLadders->SetMaximum(refMax);
+    }
+    else
+    {
+        meResXvsAlphaBarrelFlippedLadders->SetMaximum(newMax);
+    }      
+    meResXvsAlphaBarrelFlippedLadders->SetName("Reference");
+    newmeResXvsAlphaBarrelFlippedLadders->SetName("New Release");
     meResXvsAlphaBarrelFlippedLadders->Draw("e");
-    newmeResXvsAlphaBarrelFlippedLadders->Draw("Samee"); 
-    myPV->PVCompute(meResXvsAlphaBarrelFlippedLadders, newmeResXvsAlphaBarrelFlippedLadders, te );
+    newmeResXvsAlphaBarrelFlippedLadders->Draw("eSameS"); 
+    myPV->PVCompute(meResXvsAlphaBarrelFlippedLadders, newmeResXvsAlphaBarrelFlippedLadders, te, 0.3, 0.4 );
     leg20->Draw();
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s98 = (TPaveStats*)meResXvsAlphaBarrelFlippedLadders->GetListOfFunctions()->FindObject("stats");
+    s98->SetX1NDC (0.55); //new x start position
+    s98->SetX2NDC (0.75); //new x end position
 
     can_ResXvsAlpha->cd(2);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResXvsAlphaZmPanel1, newmeResXvsAlphaZmPanel1, 
 			   "panel1, z<0, |alpha| (deg)", "<|x residual|> (cm)", xmin, xmax );
+    Float_t refMax = 1.2*meResXvsAlphaZmPanel1->GetMaximum();
+    Float_t newMax = 1.2*newmeResXvsAlphaZmPanel1->GetMaximum();
+    if refMax > newMax
+    {
+        meResXvsAlphaZmPanel1->SetMaximum(refMax);
+    }
+    else
+    {
+        meResXvsAlphaZmPanel1->SetMaximum(newMax);
+    }      
+    meResXvsAlphaZmPanel1->SetName("Reference");
+    newmeResXvsAlphaZmPanel1->SetName("New Release");
     meResXvsAlphaZmPanel1->SetMinimum(xmin);
     meResXvsAlphaZmPanel1->SetMaximum(xmax);
     meResXvsAlphaZmPanel1->Draw("e");
-    newmeResXvsAlphaZmPanel1->Draw("samee"); 
+    newmeResXvsAlphaZmPanel1->Draw("esameS"); 
     myPV->PVCompute(meResXvsAlphaZmPanel1, newmeResXvsAlphaZmPanel1, te );
     h_pv->SetBinContent(++bin, myPV->getPV());
-
+    gPad->Update();
+    TPaveStats *s99 = (TPaveStats*)meResXvsAlphaZmPanel1->GetListOfFunctions()->FindObject("stats");
+    s99->SetX1NDC (0.55); //new x start position
+    s99->SetX2NDC (0.75); //new x end position
     can_ResXvsAlpha->cd(3);
     //gPad->SetLogy();
-    SetUpProfileHistograms(meResXvsAlphaZmPanel2, newmeResXvsAlphaZmPanel2, 
-			   "panel2, z<0, |alpha| (deg)", "<|x residual|> (cm)", xmin, xmax );
+    SetUpProfileHistograms(meResXvsAlphaZmPanel2, newmeResXvsAlphaZmPanel2, "panel2, z<0, |alpha| (deg)", "<|x residual|> (cm)", xmin, xmax );
+    Float_t refMax = 1.2*meResXvsAlphaZmPanel2->GetMaximum();
+    Float_t newMax = 1.2*newmeResXvsAlphaZmPanel2->GetMaximum();
+    if refMax > newMax
+    {
+        meResXvsAlphaZmPanel2->SetMaximum(refMax);
+    }
+    else
+    {
+        meResXvsAlphaZmPanel2->SetMaximum(newMax);
+    }      
+    meResXvsAlphaZmPanel2->SetName("Reference");
+    newmeResXvsAlphaZmPanel2->SetName("New Release");
     meResXvsAlphaZmPanel2->SetMinimum(xmin);
     meResXvsAlphaZmPanel2->SetMaximum(xmax);
     meResXvsAlphaZmPanel2->Draw("e");
-    newmeResXvsAlphaZmPanel2->Draw("samee"); 
+    newmeResXvsAlphaZmPanel2->Draw("esameS"); 
     myPV->PVCompute(meResXvsAlphaZmPanel2, newmeResXvsAlphaZmPanel2, te );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s100 = (TPaveStats*)meResXvsAlphaZmPanel2->GetListOfFunctions()->FindObject("stats");
+    s100->SetX1NDC (0.55); //new x start position
+    s100->SetX2NDC (0.75); //new x end position
 
     can_ResXvsAlpha->cd(4);
     //gPad->SetLogy();
-    SetUpProfileHistograms(meResXvsAlphaBarrelNonFlippedLadders, newmeResXvsAlphaBarrelNonFlippedLadders, 
-			   "barrel, flipped ladders, |alpha| (deg)", "<|x residual|> (cm)", xmin, xmax );
+    SetUpProfileHistograms(meResXvsAlphaBarrelNonFlippedLadders, newmeResXvsAlphaBarrelNonFlippedLadders, "barrel, flipped ladders, |alpha| (deg)", "<|x residual|> (cm)", xmin, xmax );
+    Float_t refMax = 1.2*meResXvsAlphaBarrelNonFlippedLadders->GetMaximum();
+    Float_t newMax = 1.2*newmeResXvsAlphaBarrelNonFlippedLadders->GetMaximum();
+    if refMax > newMax
+    {
+        meResXvsAlphaBarrelNonFlippedLadders->SetMaximum(refMax);
+    }
+    else
+    {
+        meResXvsAlphaBarrelNonFlippedLadders->SetMaximum(newMax);
+    }      
+    meResXvsAlphaBarrelNonFlippedLadders->SetName("Reference");
+    newmeResXvsAlphaBarrelNonFlippedLadders->SetName("New Release");
     meResXvsAlphaBarrelNonFlippedLadders->SetMinimum(xmin);
     meResXvsAlphaBarrelNonFlippedLadders->SetMaximum(xmax);
     meResXvsAlphaBarrelNonFlippedLadders->Draw("e");
-    newmeResXvsAlphaBarrelNonFlippedLadders->Draw("Samee"); 
+    newmeResXvsAlphaBarrelNonFlippedLadders->Draw("eSameS"); 
     myPV->PVCompute(meResXvsAlphaBarrelNonFlippedLadders, newmeResXvsAlphaBarrelNonFlippedLadders, te );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s101 = (TPaveStats*)meResXvsAlphaBarrelNonFlippedLadders->GetListOfFunctions()->FindObject("stats");
+    s101->SetX1NDC (0.55); //new x start position
+    s101->SetX2NDC (0.75); //new x end position
 
     can_ResXvsAlpha->cd(5);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResXvsAlphaZpPanel1, newmeResXvsAlphaZpPanel1, 
 			   "panel1, z>0, |alpha| (deg)", "<|x residual|> (cm)", xmin, xmax );
+    Float_t refMax = 1.2*meResXvsAlphaZpPanel1->GetMaximum();
+    Float_t newMax = 1.2*newmeResXvsAlphaZpPanel1->GetMaximum();
+    if refMax > newMax
+    {
+        meResXvsAlphaZpPanel1->SetMaximum(refMax);
+    }
+    else
+    {
+        meResXvsAlphaZpPanel1->SetMaximum(newMax);
+    }      
+    meResXvsAlphaZpPanel1->SetName("Reference");
+    newmeResXvsAlphaZpPanel1->SetName("New Release");
     meResXvsAlphaZpPanel1->SetMinimum(xmin);
     meResXvsAlphaZpPanel1->SetMaximum(xmax);
     meResXvsAlphaZpPanel1->Draw("e");
-    newmeResXvsAlphaZpPanel1->Draw("samee"); 
-    myPV->PVCompute(meResXvsAlphaZpPanel1, newmeResXvsAlphaZpPanel1, te );
+    newmeResXvsAlphaZpPanel1->Draw("esameS"); 
+    myPV->PVCompute(meResXvsAlphaZpPanel1, newmeResXvsAlphaZpPanel1, te, 0.2 , 0.2 );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s102 = (TPaveStats*)meResXvsAlphaZpPanel1->GetListOfFunctions()->FindObject("stats");
+    s102->SetX1NDC (0.55); //new x start position
+    s102->SetX2NDC (0.75); //new x end position
 
     can_ResXvsAlpha->cd(6);
     //gPad->SetLogy();
-    SetUpProfileHistograms(meResXvsAlphaZpPanel2, newmeResXvsAlphaZpPanel2,
-			   "panel2, z>0, |alpha| (deg)", "<|x residual|> (cm)", xmin, xmax );
+    SetUpProfileHistograms(meResXvsAlphaZpPanel2, newmeResXvsAlphaZpPanel2, "panel2, z>0, |alpha| (deg)", "<|x residual|> (cm)", xmin, xmax );
+    Float_t refMax = 1.2*meResXvsAlphaZpPanel2->GetMaximum();
+    Float_t newMax = 1.2*newmeResXvsAlphaZpPanel2->GetMaximum();
+    if refMax > newMax
+    {
+        meResXvsAlphaZpPanel2->SetMaximum(refMax);
+    }
+    else
+    {
+        meResXvsAlphaZpPanel2->SetMaximum(newMax);
+    }      
+    meResXvsAlphaZpPanel2->SetName("Reference");
+    newmeResXvsAlphaZpPanel2->SetName("New Release");
     meResXvsAlphaZpPanel2->SetMinimum(xmin);
     meResXvsAlphaZpPanel2->SetMaximum(xmax);
     meResXvsAlphaZpPanel2->Draw("e");
-    newmeResXvsAlphaZpPanel2->Draw("samee"); 
+    newmeResXvsAlphaZpPanel2->Draw("esameS"); 
     myPV->PVCompute(meResXvsAlphaZpPanel2, newmeResXvsAlphaZpPanel2, te );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s103 = (TPaveStats*)meResXvsAlphaZpPanel2->GetListOfFunctions()->FindObject("stats");
+    s103->SetX1NDC (0.55); //new x start position
+    s103->SetX2NDC (0.75); //new x end position
 
     can_ResXvsAlpha->SaveAs("meResXvsAlpha_compare.eps");
     can_ResXvsAlpha->SaveAs("meResXvsAlpha_compare.gif");
@@ -1770,50 +3439,127 @@ if (1)
     sdir->GetObject("Histograms_all/meResXvsBetaZpPanel1", newmeResXvsBetaZpPanel1);
     sdir->GetObject("Histograms_all/meResXvsBetaZpPanel2", newmeResXvsBetaZpPanel2);
   
-    TLegend* leg21 = new TLegend(0.3, 0.7, 0.6, 0.9);
+    TLegend* leg21 = new TLegend(0.3, 0.2, 0.6, 0.4);
     can_ResXvsBeta->cd(1);
     //gPad->SetLogy();
-    SetUpProfileHistograms(meResXvsBetaBarrel, newmeResXvsBetaBarrel, 
-			   "barrel, |beta| (deg)", "<|x residual|> (cm)", xmin, xmax, leg21 );
+    SetUpProfileHistograms(meResXvsBetaBarrel, newmeResXvsBetaBarrel,"barrel, |beta| (deg)", "<|x residual|> (cm)", xmin, xmax, leg21 );
+    Float_t refMax = 1.5*meResXvsBetaBarrel->GetMaximum();
+    Float_t newMax = 1.5*newmeResXvsBetaBarrel->GetMaximum();
+    if refMax > newMax
+    {
+        meResXvsBetaBarrel->SetMaximum(refMax);
+    }
+    else
+    {
+        meResXvsBetaBarrel->SetMaximum(newMax);
+    }      
+    meResXvsBetaBarrel->SetName("Reference");
+    newmeResXvsBetaBarrel->SetName("New Release");
     meResXvsBetaBarrel->Draw("e");
-    newmeResXvsBetaBarrel->Draw("Samee"); 
-    myPV->PVCompute(meResXvsBetaBarrel, newmeResXvsBetaBarrel, te );
+    newmeResXvsBetaBarrel->Draw("eSameS"); 
+    myPV->PVCompute(meResXvsBetaBarrel, newmeResXvsBetaBarrel, te, 0.3, 0.4 );
     leg21->Draw();
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s104 = (TPaveStats*)meResXvsBetaBarrel->GetListOfFunctions()->FindObject("stats");
+    s104->SetX1NDC (0.55); //new x start position
+    s104->SetX2NDC (0.75); //new x end position
 
     can_ResXvsBeta->cd(2);
     //gPad->SetLogy();
-    SetUpProfileHistograms(meResXvsBetaZmPanel1, newmeResXvsBetaZmPanel1, 
-			   "panel1, z<0, |beta| (deg)", "<|x residual|> (cm)", xmin, xmax );
+    SetUpProfileHistograms(meResXvsBetaZmPanel1, newmeResXvsBetaZmPanel1, "panel1, z<0, |beta| (deg)", "<|x residual|> (cm)", xmin, xmax );
+    Float_t refMax = 1.5*meResXvsBetaZmPanel1->GetMaximum();
+    Float_t newMax = 1.5*newmeResXvsBetaZmPanel1->GetMaximum();
+    if refMax > newMax
+    {
+        meResXvsBetaZmPanel1->SetMaximum(refMax);
+    }
+    else
+    {
+        meResXvsBetaZmPanel1->SetMaximum(newMax);
+    }      
+    meResXvsBetaZmPanel1->SetName("Reference");
+    newmeResXvsBetaZmPanel1->SetName("New Release");
     meResXvsBetaZmPanel1->Draw("e");
-    newmeResXvsBetaZmPanel1->Draw("samee"); 
-    myPV->PVCompute(meResXvsBetaZmPanel1, newmeResXvsBetaZmPanel1, te );
+    newmeResXvsBetaZmPanel1->Draw("esameS"); 
+    myPV->PVCompute(meResXvsBetaZmPanel1, newmeResXvsBetaZmPanel1, te, 0.2, 0.2 );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s105 = (TPaveStats*)meResXvsBetaZmPanel1->GetListOfFunctions()->FindObject("stats");
+    s105->SetX1NDC (0.55); //new x start position
+    s105->SetX2NDC (0.75); //new x end position
 
     can_ResXvsBeta->cd(3);
     //gPad->SetLogy();
-    SetUpProfileHistograms(meResXvsBetaZmPanel2, newmeResXvsBetaZmPanel2, 
-			   "panel2, z<0, |beta| (deg)", "<|x residual|> (cm)", xmin, xmax ); 
+    SetUpProfileHistograms(meResXvsBetaZmPanel2, newmeResXvsBetaZmPanel2, "panel2, z<0, |beta| (deg)", "<|x residual|> (cm)", xmin, xmax ); 
+    Float_t refMax = 1.5*meResXvsBetaZmPanel2->GetMaximum();
+    Float_t newMax = 1.5*newmeResXvsBetaZmPanel2->GetMaximum();
+    if refMax > newMax
+    {
+        meResXvsBetaZmPanel2->SetMaximum(refMax);
+    }
+    else
+    {
+        meResXvsBetaZmPanel2->SetMaximum(newMax);
+    }      
+    meResXvsBetaZmPanel2->SetName("Reference");
+    newmeResXvsBetaZmPanel2->SetName("New Release");
     meResXvsBetaZmPanel2->Draw("e");
-    newmeResXvsBetaZmPanel2->Draw("samee"); 
-    myPV->PVCompute(meResXvsBetaZmPanel2, newmeResXvsBetaZmPanel2, te );
+    newmeResXvsBetaZmPanel2->Draw("esameS"); 
+    myPV->PVCompute(meResXvsBetaZmPanel2, newmeResXvsBetaZmPanel2, te, 0.2, 0.2 );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s106 = (TPaveStats*)meResXvsBetaZmPanel2->GetListOfFunctions()->FindObject("stats");
+    s106->SetX1NDC (0.55); //new x start position
+    s106->SetX2NDC (0.75); //new x end position
 
     can_ResXvsBeta->cd(5);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResXvsBetaZpPanel1, newmeResXvsBetaZpPanel1, "panel1, z>0, |beta| (deg)", "<|x residual|> (cm)", xmin, xmax );
+    Float_t refMax = 1.5*meResXvsBetaZpPanel1->GetMaximum();
+    Float_t newMax = 1.5*newmeResXvsBetaZpPanel1->GetMaximum();
+    if refMax > newMax
+    {
+        meResXvsBetaZpPanel1->SetMaximum(refMax);
+    }
+    else
+    {
+        meResXvsBetaZpPanel1->SetMaximum(newMax);
+    }      
+    meResXvsBetaZpPanel1->SetName("Reference");
+    newmeResXvsBetaZpPanel1->SetName("New Release");
     meResXvsBetaZpPanel1->Draw("e");
-    newmeResXvsBetaZpPanel1->Draw("samee"); 
-    myPV->PVCompute(meResXvsBetaZpPanel1, newmeResXvsBetaZpPanel1, te );
+    newmeResXvsBetaZpPanel1->Draw("esameS"); 
+    myPV->PVCompute(meResXvsBetaZpPanel1, newmeResXvsBetaZpPanel1, te, 0.2, 0.2 );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s107 = (TPaveStats*)meResXvsBetaZpPanel1->GetListOfFunctions()->FindObject("stats");
+    s107->SetX1NDC (0.55); //new x start position
+    s107->SetX2NDC (0.75); //new x end position
 
     can_ResXvsBeta->cd(6);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResXvsBetaZpPanel2, newmeResXvsBetaZpPanel2, "panel2, z>0, |beta| (deg)", "<|x residual|> (cm)", xmin, xmax );
+    Float_t refMax = 1.5*meResXvsBetaZpPanel2->GetMaximum();
+    Float_t newMax = 1.5*newmeResXvsBetaZpPanel2->GetMaximum();
+    if refMax > newMax
+    {
+        meResXvsBetaZpPanel2->SetMaximum(refMax);
+    }
+    else
+    {
+        meResXvsBetaZpPanel2->SetMaximum(newMax);
+    }      
+    meResXvsBetaZpPanel2->SetName("Reference");
+    newmeResXvsBetaZpPanel2->SetName("New Release");
     meResXvsBetaZpPanel2->Draw("e");
-    newmeResXvsBetaZpPanel2->Draw("samee"); 
-    myPV->PVCompute(meResXvsBetaZpPanel2, newmeResXvsBetaZpPanel2, te );
+    newmeResXvsBetaZpPanel2->Draw("esameS"); 
+    myPV->PVCompute(meResXvsBetaZpPanel2, newmeResXvsBetaZpPanel2, te, 0.2, 0.2 );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s108 = (TPaveStats*)meResXvsBetaZpPanel2->GetListOfFunctions()->FindObject("stats");
+    s108->SetX1NDC (0.55); //new x start position
+    s108->SetX2NDC (0.75); //new x end position
 
     can_ResXvsBeta->SaveAs("meResXvsBeta_compare.eps");
     can_ResXvsBeta->SaveAs("meResXvsBeta_compare.gif");
@@ -1851,52 +3597,127 @@ if (1)
     sdir->GetObject("Histograms_all/meResYvsAlphaZpPanel1", newmeResYvsAlphaZpPanel1);
     sdir->GetObject("Histograms_all/meResYvsAlphaZpPanel2", newmeResYvsAlphaZpPanel2);
   
-    TLegend* leg22 = new TLegend(0.3, 0.7, 0.6, 0.9);
+    TLegend* leg22 = new TLegend(0.55, 0.15, 0.85, 0.35);
     can_ResYvsAlpha->cd(1);
     //gPad->SetLogy();
-    SetUpProfileHistograms(meResYvsAlphaBarrel, newmeResYvsAlphaBarrel, 
-			   "barrel, |alpha| (deg)", "<|y residual|> (cm)", ymin+0.0010, ymax+0.0010, leg22 );
+    SetUpProfileHistograms(meResYvsAlphaBarrel, newmeResYvsAlphaBarrel, "barrel, |alpha| (deg)", "<|y residual|> (cm)", ymin+0.0010, ymax+0.0010, leg22 );
+    Float_t refMax = 1.2*meResYvsAlphaBarrel->GetMaximum();
+    Float_t newMax = 1.2*newmeResYvsAlphaBarrel->GetMaximum();
+    if refMax > newMax
+    {
+        meResYvsAlphaBarrel->SetMaximum(refMax);
+    }
+    else
+    {
+        meResYvsAlphaBarrel->SetMaximum(newMax);
+    }      
+    meResYvsAlphaBarrel->SetName("Reference");
+    newmeResYvsAlphaBarrel->SetName("New Release");
     meResYvsAlphaBarrel->Draw("e");
-    newmeResYvsAlphaBarrel->Draw("Samee"); 
-    myPV->PVCompute(meResYvsAlphaBarrel, newmeResYvsAlphaBarrel, te );
+    newmeResYvsAlphaBarrel->Draw("eSameS"); 
+    myPV->PVCompute(meResYvsAlphaBarrel, newmeResYvsAlphaBarrel, te, 0.2, 0.2 );
     leg22->Draw();
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s109 = (TPaveStats*)meResYvsAlphaBarrel->GetListOfFunctions()->FindObject("stats");
+    s109->SetX1NDC (0.55); //new x start position
+    s109->SetX2NDC (0.75); //new x end position
 
     can_ResYvsAlpha->cd(2);
     //gPad->SetLogy();
-    SetUpProfileHistograms(meResYvsAlphaZmPanel1, newmeResYvsAlphaZmPanel1, 
-			   "panel1, z<0, |alpha| (deg)", "<|y residual|> (cm)", ymin, ymax );
+    SetUpProfileHistograms(meResYvsAlphaZmPanel1, newmeResYvsAlphaZmPanel1, "panel1, z<0, |alpha| (deg)", "<|y residual|> (cm)", ymin, ymax );
+    Float_t refMax = 1.2*meResYvsAlphaZmPanel1->GetMaximum();
+    Float_t newMax = 1.2*newmeResYvsAlphaZmPanel1->GetMaximum();
+    if refMax > newMax
+    {
+        meResYvsAlphaZmPanel1->SetMaximum(refMax);
+    }
+    else
+    {
+        meResYvsAlphaZmPanel1->SetMaximum(newMax);
+    }      
+    meResYvsAlphaZmPanel1->SetName("Reference");
+    newmeResYvsAlphaZmPanel1->SetName("New Release");
     meResYvsAlphaZmPanel1->Draw("e");
-    newmeResYvsAlphaZmPanel1->Draw("samee"); 
-    myPV->PVCompute(meResYvsAlphaZmPanel1, newmeResYvsAlphaZmPanel1, te );
+    newmeResYvsAlphaZmPanel1->Draw("esameS"); 
+    myPV->PVCompute(meResYvsAlphaZmPanel1, newmeResYvsAlphaZmPanel1, te, 0.2, 0.2 );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s110 = (TPaveStats*)meResYvsAlphaZmPanel1->GetListOfFunctions()->FindObject("stats");
+    s110->SetX1NDC (0.55); //new x start position
+    s110->SetX2NDC (0.75); //new x end position
 
     can_ResYvsAlpha->cd(3);
     //gPad->SetLogy();
-    SetUpProfileHistograms(meResYvsAlphaZmPanel2, newmeResYvsAlphaZmPanel2, 
-			   "panel2, z<0, |alpha| (deg)", "<|y residual|> (cm)", ymin, ymax );
+    SetUpProfileHistograms(meResYvsAlphaZmPanel2, newmeResYvsAlphaZmPanel2, "panel2, z<0, |alpha| (deg)", "<|y residual|> (cm)", ymin, ymax );
+    Float_t refMax = 1.2*meResYvsAlphaZmPanel2->GetMaximum();
+    Float_t newMax = 1.2*newmeResYvsAlphaZmPanel2->GetMaximum();
+    if refMax > newMax
+    {
+        meResYvsAlphaZmPanel2->SetMaximum(refMax);
+    }
+    else
+    {
+        meResYvsAlphaZmPanel2->SetMaximum(newMax);
+    }      
+    meResYvsAlphaZmPanel2->SetName("Reference");
+    newmeResYvsAlphaZmPanel2->SetName("New Release");
     meResYvsAlphaZmPanel2->Draw("e");
-    newmeResYvsAlphaZmPanel2->Draw("samee"); 
-    myPV->PVCompute(meResYvsAlphaZmPanel2, newmeResYvsAlphaZmPanel2, te );
+    newmeResYvsAlphaZmPanel2->Draw("esameS"); 
+    myPV->PVCompute(meResYvsAlphaZmPanel2, newmeResYvsAlphaZmPanel2, te, 0.2, 0.2 );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s111 = (TPaveStats*)meResYvsAlphaZmPanel2->GetListOfFunctions()->FindObject("stats");
+    s111->SetX1NDC (0.55); //new x start position
+    s111->SetX2NDC (0.75); //new x end position
 
     can_ResYvsAlpha->cd(5);
     //gPad->SetLogy();
-    SetUpProfileHistograms(meResYvsAlphaZpPanel1, newmeResYvsAlphaZpPanel1, 
-			   "panel1, z>0, |alpha| (deg)", "<|y residual|> (cm)" , ymin, ymax);
+    SetUpProfileHistograms(meResYvsAlphaZpPanel1, newmeResYvsAlphaZpPanel1, "panel1, z>0, |alpha| (deg)", "<|y residual|> (cm)" , ymin, ymax);
+    Float_t refMax = 1.2*meResYvsAlphaZpPanel1->GetMaximum();
+    Float_t newMax = 1.2*newmeResYvsAlphaZpPanel1->GetMaximum();
+    if refMax > newMax
+    {
+        meResYvsAlphaZpPanel1->SetMaximum(refMax);
+    }
+    else
+    {
+        meResYvsAlphaZpPanel1->SetMaximum(newMax);
+    }      
+    meResYvsAlphaZpPanel1->SetName("Reference");
+    newmeResYvsAlphaZpPanel1->SetName("New Release");
     meResYvsAlphaZpPanel1->Draw("e");
-    newmeResYvsAlphaZpPanel1->Draw("samee"); 
-    myPV->PVCompute(meResYvsAlphaZpPanel1, newmeResYvsAlphaZpPanel1, te );
+    newmeResYvsAlphaZpPanel1->Draw("esameS"); 
+    myPV->PVCompute(meResYvsAlphaZpPanel1, newmeResYvsAlphaZpPanel1, te, 0.2, 0.2 );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s112 = (TPaveStats*)meResYvsAlphaZpPanel1->GetListOfFunctions()->FindObject("stats");
+    s112->SetX1NDC (0.55); //new x start position
+    s112->SetX2NDC (0.75); //new x end position
 
     can_ResYvsAlpha->cd(6);
     //gPad->SetLogy();
-    SetUpProfileHistograms(meResYvsAlphaZpPanel2, newmeResYvsAlphaZpPanel2, 
-			   "panel2, z>0, |alpha| (deg)", "<|y residual|> (cm)", ymin, ymax );
+    SetUpProfileHistograms(meResYvsAlphaZpPanel2, newmeResYvsAlphaZpPanel2, "panel2, z>0, |alpha| (deg)", "<|y residual|> (cm)", ymin, ymax );
+    Float_t refMax = 1.2*meResYvsAlphaZpPanel2->GetMaximum();
+    Float_t newMax = 1.2*newmeResYvsAlphaZpPanel2->GetMaximum();
+    if refMax > newMax
+    {
+        meResYvsAlphaZpPanel2->SetMaximum(refMax);
+    }
+    else
+    {
+        meResYvsAlphaZpPanel2->SetMaximum(newMax);
+    }      
+    meResYvsAlphaZpPanel2->SetName("Reference");
+    newmeResYvsAlphaZpPanel2->SetName("New Release");
     meResYvsAlphaZpPanel2->Draw("e");
-    newmeResYvsAlphaZpPanel2->Draw("samee"); 
-    myPV->PVCompute(meResYvsAlphaZpPanel2, newmeResYvsAlphaZpPanel2, te );
+    newmeResYvsAlphaZpPanel2->Draw("esameS"); 
+    myPV->PVCompute(meResYvsAlphaZpPanel2, newmeResYvsAlphaZpPanel2, te, 0.2, 0.2 );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s113 = (TPaveStats*)meResYvsAlphaZpPanel2->GetListOfFunctions()->FindObject("stats");
+    s113->SetX1NDC (0.55); //new x start position
+    s113->SetX2NDC (0.75); //new x end position
 
     can_ResYvsAlpha->SaveAs("meResYvsAlpha_compare.eps");
     can_ResYvsAlpha->SaveAs("meResYvsAlpha_compare.gif");
@@ -1931,48 +3752,127 @@ if (1)
     sdir->GetObject("Histograms_all/meResYvsBetaZpPanel1", newmeResYvsBetaZpPanel1);
     sdir->GetObject("Histograms_all/meResYvsBetaZpPanel2", newmeResYvsBetaZpPanel2);
   
-    TLegend* leg23 = new TLegend(0.3, 0.7, 0.6, 0.9);
+    TLegend* leg23 = new TLegend(0.35, 0.15, 0.65, 0.3);
     can_ResYvsBeta->cd(1);
     //gPad->SetLogy();
-    SetUpProfileHistograms(meResYvsBetaBarrel, newmeResYvsBetaBarrel, 
-			   "barrel, |beta| (deg)", "<|y residual|> (cm)", 0.0000, 0.0060, leg23 );
+    SetUpProfileHistograms(meResYvsBetaBarrel, newmeResYvsBetaBarrel, "barrel, |beta| (deg)", "<|y residual|> (cm)", 0.0000, 0.0060, leg23 );
+    Float_t refMax = 1.5*meResYvsBetaBarrel->GetMaximum();
+    Float_t newMax = 1.5*newmeResYvsBetaBarrel->GetMaximum();
+    if refMax > newMax
+    {
+        meResYvsBetaBarrel->SetMaximum(refMax);
+    }
+    else
+    {
+        meResYvsBetaBarrel->SetMaximum(newMax);
+    }      
+    meResYvsBetaBarrel->SetName("Reference");
+    newmeResYvsBetaBarrel->SetName("New Release");
     meResYvsBetaBarrel->Draw("e");
-    newmeResYvsBetaBarrel->Draw("Samee"); 
+    newmeResYvsBetaBarrel->Draw("eSameS"); 
     myPV->PVCompute(meResYvsBetaBarrel, newmeResYvsBetaBarrel, te );
     leg23->Draw();
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s114 = (TPaveStats*)meResYvsBetaBarrel->GetListOfFunctions()->FindObject("stats");
+    s114->SetX1NDC (0.55); //new x start position
+    s114->SetX2NDC (0.75); //new x end position
 
     can_ResYvsBeta->cd(2);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResYvsBetaZmPanel1, newmeResYvsBetaZmPanel1, "panel1, z<0, |beta| (deg)", "<|y residual|> (cm)", ymin, ymax );
+    Float_t refMax = 1.5*meResYvsBetaZmPanel1->GetMaximum();
+    Float_t newMax = 1.5*newmeResYvsBetaZmPanel1->GetMaximum();
+    if refMax > newMax
+    {
+        meResYvsBetaZmPanel1->SetMaximum(refMax);
+    }
+    else
+    {
+        meResYvsBetaZmPanel1->SetMaximum(newMax);
+    }      
+    meResYvsBetaZmPanel1->SetName("Reference");
+    newmeResYvsBetaZmPanel1->SetName("New Release");
     meResYvsBetaZmPanel1->Draw("e");
-    newmeResYvsBetaZmPanel1->Draw("samee"); 
-    myPV->PVCompute(meResYvsBetaZmPanel1, newmeResYvsBetaZmPanel1, te );
+    newmeResYvsBetaZmPanel1->Draw("esameS"); 
+    myPV->PVCompute(meResYvsBetaZmPanel1, newmeResYvsBetaZmPanel1, te, 0.2, 0.2 );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s115 = (TPaveStats*)meResYvsBetaZmPanel1->GetListOfFunctions()->FindObject("stats");
+    s115->SetX1NDC (0.55); //new x start position
+    s115->SetX2NDC (0.75); //new x end position
 
     can_ResYvsBeta->cd(3);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResYvsBetaZmPanel2, newmeResYvsBetaZmPanel2, "panel2, z<0, |beta| (deg)", "<|y residual|> (cm)", ymin, ymax );
+    Float_t refMax = 1.5*meResYvsBetaZmPanel2->GetMaximum();
+    Float_t newMax = 1.5*newmeResYvsBetaZmPanel2->GetMaximum();
+    if refMax > newMax
+    {
+        meResYvsBetaZmPanel2->SetMaximum(refMax);
+    }
+    else
+    {
+        meResYvsBetaZmPanel2->SetMaximum(newMax);
+    }      
+    meResYvsBetaZmPanel2->SetName("Reference");
+    newmeResYvsBetaZmPanel2->SetName("New Release");
     meResYvsBetaZmPanel2->Draw("e");
-    newmeResYvsBetaZmPanel2->Draw("samee"); 
-    myPV->PVCompute(meResYvsBetaZmPanel2, newmeResYvsBetaZmPanel2, te );
+    newmeResYvsBetaZmPanel2->Draw("esameS"); 
+    myPV->PVCompute(meResYvsBetaZmPanel2, newmeResYvsBetaZmPanel2, te, 0.2, 0.2 );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s116 = (TPaveStats*)meResYvsBetaZmPanel2->GetListOfFunctions()->FindObject("stats");
+    s116->SetX1NDC (0.55); //new x start position
+    s116->SetX2NDC (0.75); //new x end position
 
     can_ResYvsBeta->cd(5);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResYvsBetaZpPanel1, newmeResYvsBetaZpPanel1, "panel1, z>0, |beta| (deg)", "<|y residual|> (cm)", ymin, ymax );
+    Float_t refMax = 1.5*meResYvsBetaZpPanel1->GetMaximum();
+    Float_t newMax = 1.5*newmeResYvsBetaZpPanel1->GetMaximum();
+    if refMax > newMax
+    {
+        meResYvsBetaZpPanel1->SetMaximum(refMax);
+    }
+    else
+    {
+        meResYvsBetaZpPanel1->SetMaximum(newMax);
+    }      
+    meResYvsBetaZpPanel1->SetName("Reference");
+    newmeResYvsBetaZpPanel1->SetName("New Release");
     meResYvsBetaZpPanel1->Draw("e");
-    newmeResYvsBetaZpPanel1->Draw("samee"); 
-    myPV->PVCompute(meResYvsBetaZpPanel1, newmeResYvsBetaZpPanel1, te );
+    newmeResYvsBetaZpPanel1->Draw("esameS"); 
+    myPV->PVCompute(meResYvsBetaZpPanel1, newmeResYvsBetaZpPanel1, te, 0.3, 0.7 );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s117 = (TPaveStats*)meResYvsBetaZpPanel1->GetListOfFunctions()->FindObject("stats");
+    s117->SetX1NDC (0.55); //new x start position
+    s117->SetX2NDC (0.75); //new x end position
 
     can_ResYvsBeta->cd(6);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResYvsBetaZpPanel2, newmeResYvsBetaZpPanel2, "panel2, z>0, |beta| (deg)", "<|y residual|> (cm)", ymin, ymax );
+    Float_t refMax = 1.5*meResYvsBetaZpPanel2->GetMaximum();
+    Float_t newMax = 1.5*newmeResYvsBetaZpPanel2->GetMaximum();
+    if refMax > newMax
+    {
+        meResYvsBetaZpPanel2->SetMaximum(refMax);
+    }
+    else
+    {
+        meResYvsBetaZpPanel2->SetMaximum(newMax);
+    }      
+    meResYvsBetaZpPanel2->SetName("Reference");
+    newmeResYvsBetaZpPanel2->SetName("New Release");
     meResYvsBetaZpPanel2->Draw("e");
-    newmeResYvsBetaZpPanel2->Draw("samee"); 
-    myPV->PVCompute(meResYvsBetaZpPanel2, newmeResYvsBetaZpPanel2, te );
+    newmeResYvsBetaZpPanel2->Draw("esameS"); 
+    myPV->PVCompute(meResYvsBetaZpPanel2, newmeResYvsBetaZpPanel2, te, 0.2, 0.2 );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s118 = (TPaveStats*)meResYvsBetaZpPanel2->GetListOfFunctions()->FindObject("stats");
+    s118->SetX1NDC (0.55); //new x start position
+    s118->SetX2NDC (0.75); //new x end position
 
     can_ResYvsBeta->SaveAs("meResYvsBeta_compare.eps");
     can_ResYvsBeta->SaveAs("meResYvsBeta_compare.gif");
@@ -2007,47 +3907,127 @@ if (1)
     sdir->GetObject("Histograms_all/meResxZpPanel1", newmeResxZpPanel1);
     sdir->GetObject("Histograms_all/meResxZpPanel2", newmeResxZpPanel2);
   
-    TLegend* leg24 = new TLegend(0.3, 0.7, 0.6, 0.9);
+    TLegend* leg24 = new TLegend(0.15, 0.72, 0.42, 0.87);
     can_meResx->cd(1);
     gPad->SetLogy();
     SetUpHistograms(meResxBarrel, newmeResxBarrel, "barrel, x residual (cm)", leg24 );
+    Float_t refMax = 1.2*meResxBarrel->GetMaximum();
+    Float_t newMax = 1.2*newmeResxBarrel->GetMaximum();
+    if refMax > newMax
+    {
+        meResxBarrel->SetMaximum(refMax);
+    }
+    else
+    {
+        meResxBarrel->SetMaximum(newMax);
+    }      
+    meResxBarrel->SetName("Reference");
+    newmeResxBarrel->SetName("New Release");
     meResxBarrel->Draw("he");
-    newmeResxBarrel->Draw("Samehe"); 
+    newmeResxBarrel->Draw("heSameS"); 
     myPV->PVCompute(meResxBarrel, newmeResxBarrel, te );
     leg24->Draw();
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s119 = (TPaveStats*)meResxBarrel->GetListOfFunctions()->FindObject("stats");
+    s119->SetX1NDC (0.55); //new x start position
+    s119->SetX2NDC (0.75); //new x end position
 
     can_meResx->cd(2);
     gPad->SetLogy();
     SetUpHistograms(meResxZmPanel1, newmeResxZmPanel1, "panel1, z<0, x residual (cm)" );
+    Float_t refMax = 1.2*meResxZmPanel1->GetMaximum();
+    Float_t newMax = 1.2*newmeResxZmPanel1->GetMaximum();
+    if refMax > newMax
+    {
+        meResxZmPanel1->SetMaximum(refMax);
+    }
+    else
+    {
+        meResxZmPanel1->SetMaximum(newMax);
+    }      
+    meResxZmPanel1->SetName("Reference");
+    newmeResxZmPanel1->SetName("New Release");
     meResxZmPanel1->Draw("he");
-    newmeResxZmPanel1->Draw("samehe"); 
+    newmeResxZmPanel1->Draw("hesameS"); 
     myPV->PVCompute(meResxZmPanel1, newmeResxZmPanel1, te );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s120 = (TPaveStats*)meResxZmPanel1->GetListOfFunctions()->FindObject("stats");
+    s120->SetX1NDC (0.55); //new x start position
+    s120->SetX2NDC (0.75); //new x end position
 
     can_meResx->cd(3);
     gPad->SetLogy();
     SetUpHistograms(meResxZmPanel2,  newmeResxZmPanel2, "panel2, z<0, x residual (cm)");
+    Float_t refMax = 1.2*meResxZmPanel2->GetMaximum();
+    Float_t newMax = 1.2*newmeResxZmPanel2->GetMaximum();
+    if refMax > newMax
+    {
+        meResxZmPanel2->SetMaximum(refMax);
+    }
+    else
+    {
+        meResxZmPanel2->SetMaximum(newMax);
+    }      
+    meResxZmPanel2->SetName("Reference");
+    newmeResxZmPanel2->SetName("New Release");
     meResxZmPanel2->Draw("he");
-    newmeResxZmPanel2->Draw("samehe"); 
+    newmeResxZmPanel2->Draw("hesameS"); 
     myPV->PVCompute(meResxZmPanel2, newmeResxZmPanel2, te );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s121 = (TPaveStats*)meResxZmPanel2->GetListOfFunctions()->FindObject("stats");
+    s121->SetX1NDC (0.55); //new x start position
+    s121->SetX2NDC (0.75); //new x end position
 
     can_meResx->cd(5);
     gPad->SetLogy();
     SetUpHistograms(meResxZpPanel1, newmeResxZpPanel1, "panel1, z>0, x residual (cm)" );
+    Float_t refMax = 1.2*meResxZpPanel1->GetMaximum();
+    Float_t newMax = 1.2*newmeResxZpPanel1->GetMaximum();
+    if refMax > newMax
+    {
+        meResxZpPanel1->SetMaximum(refMax);
+    }
+    else
+    {
+        meResxZpPanel1->SetMaximum(newMax);
+    }      
+    meResxZpPanel1->SetName("Reference");
+    newmeResxZpPanel1->SetName("New Release");
     meResxZpPanel1->Draw("he");
-    newmeResxZpPanel1->Draw("samehe"); 
+    newmeResxZpPanel1->Draw("hesameS"); 
     myPV->PVCompute(meResxZpPanel1, newmeResxZpPanel1, te );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s122 = (TPaveStats*)meResxZpPanel1->GetListOfFunctions()->FindObject("stats");
+    s122->SetX1NDC (0.55); //new x start position
+    s122->SetX2NDC (0.75); //new x end position
 
     can_meResx->cd(6);
     gPad->SetLogy();
     SetUpHistograms(meResxZpPanel2, newmeResxZpPanel2, "panel2, z>0, x residual (cm)" );
+    Float_t refMax = 1.2*meResxZpPanel2->GetMaximum();
+    Float_t newMax = 1.2*newmeResxZpPanel2->GetMaximum();
+    if refMax > newMax
+    {
+        meResxZpPanel2->SetMaximum(refMax);
+    }
+    else
+    {
+        meResxZpPanel2->SetMaximum(newMax);
+    }      
+    meResxZpPanel2->SetName("Reference");
+    newmeResxZpPanel2->SetName("New Release");
     meResxZpPanel2->Draw("he");
-    newmeResxZpPanel2->Draw("samehe"); 
+    newmeResxZpPanel2->Draw("hesameS"); 
     myPV->PVCompute(meResxZpPanel2, newmeResxZpPanel2, te );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s123 = (TPaveStats*)meResxZpPanel2->GetListOfFunctions()->FindObject("stats");
+    s123->SetX1NDC (0.55); //new x start position
+    s123->SetX2NDC (0.75); //new x end position
 
     can_meResx->SaveAs("meResx_compare.eps");
     can_meResx->SaveAs("meResx_compare.gif");
@@ -2082,47 +4062,127 @@ if (1)
     sdir->GetObject("Histograms_all/meResyZpPanel1", newmeResyZpPanel1);
     sdir->GetObject("Histograms_all/meResyZpPanel2", newmeResyZpPanel2);
   
-    TLegend* leg25 = new TLegend(0.3, 0.7, 0.6, 0.9);
+    TLegend* leg25 = new TLegend(0.15, 0.72, 0.42, 0.87);
     can_meResy->cd(1);
     gPad->SetLogy();
     SetUpHistograms(meResyBarrel, newmeResyBarrel, "barrel, y residual (cm)", leg25 );
+    Float_t refMax = 1.2*meResyBarrel->GetMaximum();
+    Float_t newMax = 1.2*newmeResyBarrel->GetMaximum();
+    if refMax > newMax
+    {
+        meResyBarrel->SetMaximum(refMax);
+    }
+    else
+    {
+        meResyBarrel->SetMaximum(newMax);
+    }      
+    meResyBarrel->SetName("Reference");
+    newmeResyBarrel->SetName("New Release");
     meResyBarrel->Draw("he");
-    newmeResyBarrel->Draw("Samehe"); 
+    newmeResyBarrel->Draw("heSameS"); 
     myPV->PVCompute(meResyBarrel, newmeResyBarrel, te );
     leg25->Draw();
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s124 = (TPaveStats*)meResyBarrel->GetListOfFunctions()->FindObject("stats");
+    s124->SetX1NDC (0.55); //new x start position
+    s124->SetX2NDC (0.75); //new x end position
 
     can_meResy->cd(2);
     gPad->SetLogy();
     SetUpHistograms(meResyZmPanel1, newmeResyZmPanel1, "panel1, z<0, y residual (cm)" );
+    Float_t refMax = 1.2*meResyZmPanel1->GetMaximum();
+    Float_t newMax = 1.2*newmeResyZmPanel1->GetMaximum();
+    if refMax > newMax
+    {
+        meResyZmPanel1->SetMaximum(refMax);
+    }
+    else
+    {
+        meResyZmPanel1->SetMaximum(newMax);
+    }      
+    meResyZmPanel1->SetName("Reference");
+    newmeResyZmPanel1->SetName("New Release");
     meResyZmPanel1->Draw("he");
-    newmeResyZmPanel1->Draw("samehe"); 
+    newmeResyZmPanel1->Draw("hesameS"); 
     myPV->PVCompute(meResyZmPanel1, newmeResyZmPanel1, te );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s125 = (TPaveStats*)meResyZmPanel1->GetListOfFunctions()->FindObject("stats");
+    s125->SetX1NDC (0.55); //new x start position
+    s125->SetX2NDC (0.75); //new x end position
 
     can_meResy->cd(3);
     gPad->SetLogy();
     SetUpHistograms(meResyZmPanel2, newmeResyZmPanel2, "panel2, z<0, y residual (cm) " );
+    Float_t refMax = 1.2*meResyZmPanel2->GetMaximum();
+    Float_t newMax = 1.2*newmeResyZmPanel2->GetMaximum();
+    if refMax > newMax
+    {
+        meResyZmPanel2->SetMaximum(refMax);
+    }
+    else
+    {
+        meResyZmPanel2->SetMaximum(newMax);
+    }      
+    meResyZmPanel2->SetName("Reference");
+    newmeResyZmPanel2->SetName("New Release");
     meResyZmPanel2->Draw("he");
-    newmeResyZmPanel2->Draw("samehe"); 
+    newmeResyZmPanel2->Draw("hesameS"); 
     myPV->PVCompute(meResyZmPanel2, newmeResyZmPanel2, te );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s126 = (TPaveStats*)meResyZmPanel2->GetListOfFunctions()->FindObject("stats");
+    s126->SetX1NDC (0.55); //new x start position
+    s126->SetX2NDC (0.75); //new x end position
 
     can_meResy->cd(5);
     gPad->SetLogy();
     SetUpHistograms(meResyZpPanel1, newmeResyZpPanel1, "panel1, z>0, y residual (cm)" );
+    Float_t refMax = 1.2*meResyZpPanel1->GetMaximum();
+    Float_t newMax = 1.2*newmeResyZpPanel1->GetMaximum();
+    if refMax > newMax
+    {
+        meResyZpPanel1->SetMaximum(refMax);
+    }
+    else
+    {
+        meResyZpPanel1->SetMaximum(newMax);
+    }      
+    meResyZpPanel1->SetName("Reference");
+    newmeResyZpPanel1->SetName("New Release");
     meResyZpPanel1->Draw("he");
-    newmeResyZpPanel1->Draw("samehe"); 
+    newmeResyZpPanel1->Draw("hesameS"); 
     myPV->PVCompute(meResyZpPanel1, newmeResyZpPanel1, te );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s127 = (TPaveStats*)meResyZpPanel1->GetListOfFunctions()->FindObject("stats");
+    s127->SetX1NDC (0.55); //new x start position
+    s127->SetX2NDC (0.75); //new x end position
 
     can_meResy->cd(6);
     gPad->SetLogy();
     SetUpHistograms(meResyZpPanel2, newmeResyZpPanel2, "panel2, z>0, y residual (cm)" );
+    Float_t refMax = 1.2*meResyZpPanel2->GetMaximum();
+    Float_t newMax = 1.2*newmeResyZpPanel2->GetMaximum();
+    if refMax > newMax
+    {
+        meResyZpPanel2->SetMaximum(refMax);
+    }
+    else
+    {
+        meResyZpPanel2->SetMaximum(newMax);
+    }      
+    meResyZpPanel2->SetName("Reference");
+    newmeResyZpPanel2->SetName("New Release");
     meResyZpPanel2->Draw("he");
-    newmeResyZpPanel2->Draw("samehe"); 
+    newmeResyZpPanel2->Draw("hesameS"); 
     myPV->PVCompute(meResyZpPanel2, newmeResyZpPanel2, te );
     h_pv->SetBinContent(++bin, myPV->getPV());
+    gPad->Update();
+    TPaveStats *s128 = (TPaveStats*)meResyZpPanel2->GetListOfFunctions()->FindObject("stats");
+    s128->SetX1NDC (0.55); //new x start position
+    s128->SetX2NDC (0.75); //new x end position
 
     can_meResy->SaveAs("meResy_compare.eps");
     can_meResy->SaveAs("meResy_compare.gif");
@@ -2154,13 +4214,28 @@ if (1)
        SetUpHistograms(meChargeLayerModule[i][j], newmeChargeLayerModule[i][j], "barrel, charge (elec)" );
        can_meChargeRingLayer->cd(8*i + j + 1);
        //gPad->SetLogy();
-    
+       Float_t refMax = 1.2*meChargeLayerModule[i][j]->GetMaximum();
+       Float_t newMax = 1.2*newmeChargeLayerModule[i][j]->GetMaximum();
+       if refMax > newMax
+       {
+           meChargeLayerModule[i][j]->SetMaximum(refMax);
+       }
+       else
+       {
+           meChargeLayerModule[i][j]->SetMaximum(newMax);
+       }      
+       meChargeLayerModule[i][j]->SetName("Reference");
+       newmeChargeLayerModule[i][j]->SetName("New Release");
        meChargeLayerModule[i][j]->Draw("he");
-       newmeChargeLayerModule[i][j]->Draw("samehe"); 
+       newmeChargeLayerModule[i][j]->Draw("hesameS"); 
        myPV->PVCompute(meChargeLayerModule[i][j], newmeChargeLayerModule[i][j], te );
        h_pv->SetBinContent(++bin, myPV->getPV());
+       gPad->Update();
+       TPaveStats *s129 = (TPaveStats*)meChargeLayerModule[i][j]->GetListOfFunctions()->FindObject("stats");
+       s129->SetX1NDC (0.55); //new x start position
+       s129->SetX2NDC (0.75); //new x end position
      }
- TLegend* leg26 = new TLegend(0.3, 0.7, 0.6, 0.9);
+ TLegend* leg26 = new TLegend(0.45, 0.45, 0.75, 0.65);
  leg26->SetBorderSize(0);
  leg26->AddEntry(   meChargeLayerModule[0][0], "reference  ", "l");
  leg26->AddEntry(newmeChargeLayerModule[0][0], "new release", "l");
@@ -2187,12 +4262,28 @@ if (1)
        can_meChargeZmPanel1DiskPlaq->cd(4*i + j + 1);
        //gPad->SetLogy();
        SetUpHistograms(meChargeZmPanel1DiskPlaq[i][j], newmeChargeZmPanel1DiskPlaq[i][j], "panel1, z<0, charge (elec)" );
+       Float_t refMax = 1.2*meChargeZmPanel1DiskPlaq[i][j]->GetMaximum();
+       Float_t newMax = 1.2*newmeChargeZmPanel1DiskPlaq[i][j]->GetMaximum();
+       if refMax > newMax
+       {
+           meChargeZmPanel1DiskPlaq[i][j]->SetMaximum(refMax);
+       }
+       else
+       {
+           meChargeZmPanel1DiskPlaq[i][j]->SetMaximum(newMax);
+       }      
+       meChargeZmPanel1DiskPlaq[i][j]->SetName("Reference");
+       newmeChargeZmPanel1DiskPlaq[i][j]->SetName("New Release");
        meChargeZmPanel1DiskPlaq[i][j]->Draw("he");
-       newmeChargeZmPanel1DiskPlaq[i][j]->Draw("samehe"); 
+       newmeChargeZmPanel1DiskPlaq[i][j]->Draw("hesameS"); 
        myPV->PVCompute(meChargeZmPanel1DiskPlaq[i][j], newmeChargeZmPanel1DiskPlaq[i][j], te );
        h_pv->SetBinContent(++bin, myPV->getPV());
+       gPad->Update();
+       TPaveStats *s130 = (TPaveStats*)meChargeZmPanel1DiskPlaq[i][j]->GetListOfFunctions()->FindObject("stats");
+       s130->SetX1NDC (0.55); //new x start position
+       s130->SetX2NDC (0.75); //new x end position
      }
- TLegend* leg27 = new TLegend(0.3, 0.7, 0.6, 0.9);
+ TLegend* leg27 = new TLegend(0.5, 0.4, 0.8, 0.6);
  leg27->SetBorderSize(0);
  leg27->AddEntry(   meChargeZmPanel1DiskPlaq[0][0], "reference  ", "l");
  leg27->AddEntry(newmeChargeZmPanel1DiskPlaq[0][0], "new release", "l");
@@ -2219,12 +4310,28 @@ if (1)
        can_meChargeZmPanel2DiskPlaq->cd(3*i + j + 1);
        //gPad->SetLogy();
        SetUpHistograms(meChargeZmPanel2DiskPlaq[i][j], newmeChargeZmPanel2DiskPlaq[i][j], "panel2, z<0, charge (elec)" );
+       Float_t refMax = 1.2*meChargeZmPanel2DiskPlaq[i][j]->GetMaximum();
+       Float_t newMax = 1.2*newmeChargeZmPanel2DiskPlaq[i][j]->GetMaximum();
+       if refMax > newMax
+       {
+           meChargeZmPanel2DiskPlaq[i][j]->SetMaximum(refMax);
+       }
+       else
+       {
+           meChargeZmPanel2DiskPlaq[i][j]->SetMaximum(newMax);
+       }      
+       meChargeZmPanel2DiskPlaq[i][j]->SetName("Reference");
+       newmeChargeZmPanel2DiskPlaq[i][j]->SetName("New Release");
        meChargeZmPanel2DiskPlaq[i][j]->Draw("he");
-       newmeChargeZmPanel2DiskPlaq[i][j]->Draw("samehe"); 
+       newmeChargeZmPanel2DiskPlaq[i][j]->Draw("hesameS"); 
        myPV->PVCompute(meChargeZmPanel2DiskPlaq[i][j], newmeChargeZmPanel2DiskPlaq[i][j], te );
        h_pv->SetBinContent(++bin, myPV->getPV());
+       gPad->Update();
+       TPaveStats *s131 = (TPaveStats*)meChargeZmPanel2DiskPlaq[i][j]->GetListOfFunctions()->FindObject("stats");
+       s131->SetX1NDC (0.55); //new x start position
+       s131->SetX2NDC (0.75); //new x end position
      }
- TLegend* leg28 = new TLegend(0.3, 0.7, 0.6, 0.9);
+ TLegend* leg28 = new TLegend(0.5, 0.4, 0.8, 0.6);
  leg28->SetBorderSize(0);
  leg28->AddEntry(   meChargeZmPanel2DiskPlaq[0][0], "reference  ", "l");
  leg28->AddEntry(newmeChargeZmPanel2DiskPlaq[0][0], "new release", "l");
@@ -2251,12 +4358,28 @@ if (1)
        can_meChargeZpPanel1DiskPlaq->cd(4*i + j + 1);
        //gPad->SetLogy();
        SetUpHistograms(meChargeZpPanel1DiskPlaq[i][j], newmeChargeZpPanel1DiskPlaq[i][j], "panel1, z>0, charge (elec)");
+       Float_t refMax = 1.2*meChargeZpPanel1DiskPlaq[i][j]->GetMaximum();
+       Float_t newMax = 1.2*newmeChargeZpPanel1DiskPlaq[i][j]->GetMaximum();
+       if refMax > newMax
+       {
+           meChargeZpPanel1DiskPlaq[i][j]->SetMaximum(refMax);
+       }
+       else
+       {
+           meChargeZpPanel1DiskPlaq[i][j]->SetMaximum(newMax);
+       }      
+       meChargeZpPanel1DiskPlaq[i][j]->SetName("Reference");
+       newmeChargeZpPanel1DiskPlaq[i][j]->SetName("New Release");
        meChargeZpPanel1DiskPlaq[i][j]->Draw("he");
-       newmeChargeZpPanel1DiskPlaq[i][j]->Draw("samehe"); 
+       newmeChargeZpPanel1DiskPlaq[i][j]->Draw("hesameS"); 
        myPV->PVCompute(meChargeZpPanel1DiskPlaq[i][j], newmeChargeZpPanel1DiskPlaq[i][j], te );
        h_pv->SetBinContent(++bin, myPV->getPV());
+       gPad->Update();
+       TPaveStats *s132 = (TPaveStats*)meChargeZpPanel1DiskPlaq[i][j]->GetListOfFunctions()->FindObject("stats");
+       s132->SetX1NDC (0.55); //new x start position
+       s132->SetX2NDC (0.75); //new x end position
      }
- TLegend* leg29 = new TLegend(0.3, 0.7, 0.6, 0.9);
+ TLegend* leg29 = new TLegend(0.5, 0.4, 0.8, 0.6);
  leg29->SetBorderSize(0);
  leg29->AddEntry(   meChargeZmPanel1DiskPlaq[0][0], "reference  ", "l");
  leg29->AddEntry(newmeChargeZmPanel1DiskPlaq[0][0], "new release", "l");
@@ -2283,12 +4406,28 @@ if (1)
        can_meChargeZpPanel2DiskPlaq->cd(3*i + j + 1);
        //gPad->SetLogy();
        SetUpHistograms(meChargeZpPanel2DiskPlaq[i][j], newmeChargeZpPanel2DiskPlaq[i][j], "panel2, z>0, charge (elec)" );
+       Float_t refMax = 1.2*meChargeZpPanel2DiskPlaq[i][j]->GetMaximum();
+       Float_t newMax = 1.2*newmeChargeZpPanel2DiskPlaq[i][j]->GetMaximum();
+       if refMax > newMax
+       {
+           meChargeZpPanel2DiskPlaq[i][j]->SetMaximum(refMax);
+       }
+       else
+       {
+           meChargeZpPanel2DiskPlaq[i][j]->SetMaximum(newMax);
+       }      
+       meChargeZpPanel2DiskPlaq[i][j]->SetName("Reference");
+       newmeChargeZpPanel2DiskPlaq[i][j]->SetName("New Release");
        meChargeZpPanel2DiskPlaq[i][j]->Draw("he");
-       newmeChargeZpPanel2DiskPlaq[i][j]->Draw("samehe"); 
+       newmeChargeZpPanel2DiskPlaq[i][j]->Draw("hesameS"); 
        myPV->PVCompute(meChargeZpPanel2DiskPlaq[i][j], newmeChargeZpPanel2DiskPlaq[i][j], te );
        h_pv->SetBinContent(++bin, myPV->getPV());
+       gPad->Update();
+       TPaveStats *s133 = (TPaveStats*)meChargeZpPanel2DiskPlaq[i][j]->GetListOfFunctions()->FindObject("stats");
+       s133->SetX1NDC (0.55); //new x start position
+       s133->SetX2NDC (0.75); //new x end position
      }
- TLegend* leg30 = new TLegend(0.3, 0.7, 0.6, 0.9);
+ TLegend* leg30 = new TLegend(0.5, 0.4, 0.8, 0.6);
  leg30->SetBorderSize(0);
  leg30->AddEntry(   meChargeZmPanel2DiskPlaq[0][0], "reference  ", "l");
  leg30->AddEntry(newmeChargeZmPanel2DiskPlaq[0][0], "new release", "l");
@@ -2317,12 +4456,28 @@ if (1)
      gPad->SetLogy();
      sprintf(xtitle, "barrel, layer %d, res x", i+1);
      SetUpHistograms(meResxBarrelLayer[i], newmeResxBarrelLayer[i], xtitle );
+     Float_t refMax = 1.2*meResxBarrelLayer[i]->GetMaximum();
+     Float_t newMax = 1.2*newmeResxBarrelLayer[i]->GetMaximum();
+     if refMax > newMax
+     {
+         meResxBarrelLayer[i]->SetMaximum(refMax);
+     }
+     else
+     {
+         meResxBarrelLayer[i]->SetMaximum(newMax);
+     }      
+     meResxBarrelLayer[i]->SetName("Reference");
+     newmeResxBarrelLayer[i]->SetName("New Release");
      meResxBarrelLayer[i]->Draw("he");
-     newmeResxBarrelLayer[i]->Draw("samehe"); 
+     newmeResxBarrelLayer[i]->Draw("hesameS"); 
      myPV->PVCompute(meResxBarrelLayer[i], newmeResxBarrelLayer[i], te );
      h_pv->SetBinContent(++bin, myPV->getPV());
+     gPad->Update();
+     TPaveStats *s134 = (TPaveStats*)meResxBarrelLayer[i]->GetListOfFunctions()->FindObject("stats");
+     s134->SetX1NDC (0.55); //new x start position
+     s134->SetX2NDC (0.75); //new x end position
    }
- TLegend* leg31 = new TLegend(0.3, 0.7, 0.6, 0.9);
+ TLegend* leg31 = new TLegend(0.15, 0.65, 0.45, 0.85);
  leg31->SetBorderSize(0);
  leg31->AddEntry(   meResxBarrelLayer[0], "reference  ", "l");
  leg31->AddEntry(newmeResxBarrelLayer[0], "new release", "l");
@@ -2342,10 +4497,26 @@ if (1)
      gPad->SetLogy();
      sprintf(xtitle, "barrel, layer %d, res y", i+1);
      SetUpHistograms(meResyBarrelLayer[i], newmeResyBarrelLayer[i], xtitle );
+     Float_t refMax = 1.2*meResyBarrelLayer[i]->GetMaximum();
+     Float_t newMax = 1.2*newmeResyBarrelLayer[i]->GetMaximum();
+     if refMax > newMax
+     {
+         meResyBarrelLayer[i]->SetMaximum(refMax);
+     }
+     else
+     {
+         meResyBarrelLayer[i]->SetMaximum(newMax);
+     }      
+     meResyBarrelLayer[i]->SetName("Reference");
+     newmeResyBarrelLayer[i]->SetName("New Release");
      meResyBarrelLayer[i]->Draw("he");
-     newmeResyBarrelLayer[i]->Draw("samehe"); 
+     newmeResyBarrelLayer[i]->Draw("hesameS"); 
      myPV->PVCompute(meResyBarrelLayer[i], newmeResyBarrelLayer[i], te );
      h_pv->SetBinContent(++bin, myPV->getPV());
+     gPad->Update();
+     TPaveStats *s135 = (TPaveStats*)meResyBarrelLayer[i]->GetListOfFunctions()->FindObject("stats");
+     s135->SetX1NDC (0.55); //new x start position
+     s135->SetX2NDC (0.75); //new x end position
    }
  
  can_meResLayers->SaveAs("meResBarrelLayers_compare.eps");
@@ -2372,12 +4543,28 @@ if (1)
      //gPad->SetLogy();
      sprintf(xtitle, "barrel, layer %d, pull x", i+1);
      SetUpHistograms(mePullxBarrelLayer[i], newmePullxBarrelLayer[i], xtitle );
+     Float_t refMax = 1.2*mePullxBarrelLayer[i]->GetMaximum();
+     Float_t newMax = 1.2*newmePullxBarrelLayer[i]->GetMaximum();
+     if refMax > newMax
+     {
+         mePullxBarrelLayer[i]->SetMaximum(refMax);
+     }
+     else
+     {
+         mePullxBarrelLayer[i]->SetMaximum(newMax);
+     }      
+     mePullxBarrelLayer[i]->SetName("Reference");
+     newmePullxBarrelLayer[i]->SetName("New Release");
      mePullxBarrelLayer[i]->Draw("he");
-     newmePullxBarrelLayer[i]->Draw("samehe"); 
+     newmePullxBarrelLayer[i]->Draw("hesameS"); 
      myPV->PVCompute(mePullxBarrelLayer[i], newmePullxBarrelLayer[i], te );
      h_pv->SetBinContent(++bin, myPV->getPV());
+     gPad->Update();
+     TPaveStats *s136 = (TPaveStats*)mePullxBarrelLayer[i]->GetListOfFunctions()->FindObject("stats");
+     s136->SetX1NDC (0.55); //new x start position
+     s136->SetX2NDC (0.75); //new x end position
    }
- TLegend* leg32 = new TLegend(0.3, 0.7, 0.6, 0.9);
+ TLegend* leg32 = new TLegend(0.15, 0.65, 0.45, 0.85);
  leg32->SetBorderSize(0);
  leg32->AddEntry(   mePullxBarrelLayer[0], "reference  ", "l");
  leg32->AddEntry(newmePullxBarrelLayer[0], "new release", "l");
@@ -2397,10 +4584,26 @@ if (1)
      //gPad->SetLogy();
      sprintf(xtitle, "barrel, layer %d, pull y", i+1);
      SetUpHistograms(mePullyBarrelLayer[i], newmePullyBarrelLayer[i], xtitle );
+     Float_t refMax = 1.2*mePullyBarrelLayer[i]->GetMaximum();
+     Float_t newMax = 1.2*newmePullyBarrelLayer[i]->GetMaximum();
+     if refMax > newMax
+     {
+         mePullyBarrelLayer[i]->SetMaximum(refMax);
+     }
+     else
+     {
+         mePullyBarrelLayer[i]->SetMaximum(newMax);
+     }      
+     mePullyBarrelLayer[i]->SetName("Reference");
+     newmePullyBarrelLayer[i]->SetName("New Release");
      mePullyBarrelLayer[i]->Draw("he");
-     newmePullyBarrelLayer[i]->Draw("samehe"); 
+     newmePullyBarrelLayer[i]->Draw("hesameS"); 
      myPV->PVCompute(mePullyBarrelLayer[i], newmePullyBarrelLayer[i], te );
      h_pv->SetBinContent(++bin, myPV->getPV());
+     gPad->Update();
+     TPaveStats *s137 = (TPaveStats*)mePullyBarrelLayer[i]->GetListOfFunctions()->FindObject("stats");
+     s137->SetX1NDC (0.55); //new x start position
+     s137->SetX2NDC (0.75); //new x end position
    }
  
  can_mePullLayers->SaveAs("mePullBarrelLayers_compare.eps");
@@ -2425,3 +4628,4 @@ if (1)
  delete myPV;
 
 }
+

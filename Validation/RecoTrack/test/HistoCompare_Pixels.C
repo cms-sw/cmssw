@@ -38,9 +38,12 @@ class HistoCompare_Pixels {
     
   };
 
-  void PVCompute(TH1 * oldHisto , TH1 * newHisto , TText * te );
-  void PVCompute(TH2 * oldHisto , TH2 * newHisto , TText * te );
-  void PVCompute(TProfile * oldHisto , TProfile * newHisto , TText * te );
+  void PVCompute(TH1 * oldHisto , TH1 * newHisto , TText * te, const double x, const double y);
+  void PVCompute(TH2 * oldHisto , TH2 * newHisto , TText * te, const double x, const double y);
+  void PVCompute(TProfile * oldHisto , TProfile * newHisto , TText * te, const double x, const double y);
+  void PVCompute(TH1 * oldHisto , TH1 * newHisto , TText * te);
+  void PVCompute(TH2 * oldHisto , TH2 * newHisto , TText * te);
+  void PVCompute(TProfile * oldHisto , TProfile * newHisto , TText * te);
 
   Double_t getPV() { return mypv; };
   void setName(char* s) { name = s; };
@@ -60,18 +63,21 @@ class HistoCompare_Pixels {
 
   TText * myte;
   
+
+  
   char* name;
   
   fstream out_file;
 
 };
 
-HistoCompare_Pixels::PVCompute(TH1 * oldHisto , TH1 * newHisto , TText * te )
+HistoCompare_Pixels::PVCompute(TH1 * oldHisto , TH1 * newHisto , TText * te, const double x, const double y )
 {
 
   myoldHisto1 = oldHisto;
   mynewHisto1 = newHisto;
   myte = te;
+
 
   mypv = myoldHisto1->Chi2Test(mynewHisto1, "UUNORM");
   std::strstream buf;
@@ -79,7 +85,7 @@ HistoCompare_Pixels::PVCompute(TH1 * oldHisto , TH1 * newHisto , TText * te )
   buf<<"PV="<<mypv<<std::endl;
   buf>>value;
   
-  myte->DrawTextNDC(0.6,0.7, value.c_str());
+  myte->DrawTextNDC(x, y, value.c_str());
 
   std::cout << "[OVAL] " << myoldHisto1->GetName() << " PV = " << mypv << std::endl;
   
@@ -95,12 +101,14 @@ HistoCompare_Pixels::PVCompute(TH1 * oldHisto , TH1 * newHisto , TText * te )
 
 }
 
-HistoCompare_Pixels::PVCompute(TH2 * oldHisto , TH2 * newHisto , TText * te )
+HistoCompare_Pixels::PVCompute(TH2 * oldHisto , TH2 * newHisto , TText * te, const double x, const double y)
 {
 
   myoldHisto2 = oldHisto;
   mynewHisto2 = newHisto;
   myte = te;
+
+
 
   mypv = myoldHisto2->Chi2Test(mynewHisto2,"UU");
   std::strstream buf;
@@ -108,7 +116,7 @@ HistoCompare_Pixels::PVCompute(TH2 * oldHisto , TH2 * newHisto , TText * te )
   buf<<"PV="<<mypv<<std::endl;
   buf>>value;
   
-  myte->DrawTextNDC(0.2,0.7, value.c_str());
+  myte->DrawTextNDC(x, y, value.c_str());
 
   std::cout << "[OVAL] " << myoldHisto2->GetName() << " PV = " << mypv << std::endl;
   
@@ -124,12 +132,13 @@ HistoCompare_Pixels::PVCompute(TH2 * oldHisto , TH2 * newHisto , TText * te )
 }
 
 
-HistoCompare_Pixels::PVCompute(TProfile * oldHisto , TProfile * newHisto , TText * te )
+HistoCompare_Pixels::PVCompute(TProfile * oldHisto , TProfile * newHisto , TText * te, const double x, const double y )
 {
 
   myoldProfile = oldHisto;
   mynewProfile = newHisto;
   myte = te;
+
   
   mypv = myoldProfile->Chi2Test(mynewProfile,"WW");
   std::strstream buf;
@@ -137,7 +146,7 @@ HistoCompare_Pixels::PVCompute(TProfile * oldHisto , TProfile * newHisto , TText
   buf<<"PV="<<mypv<<std::endl;
   buf>>value;
   
-  myte->DrawTextNDC(0.2,0.7, value.c_str());
+  myte->DrawTextNDC(x, y, value.c_str());
 
   std::cout << "[OVAL] " << myoldProfile->GetName() << " PV = " << mypv << std::endl;
   
@@ -150,5 +159,94 @@ HistoCompare_Pixels::PVCompute(TProfile * oldHisto , TProfile * newHisto , TText
     }
   
   return;
+}
 
+HistoCompare_Pixels::PVCompute(TH1 * oldHisto , TH1 * newHisto , TText * te)
+{
+
+  myoldHisto1 = oldHisto;
+  mynewHisto1 = newHisto;
+  myte = te;
+
+
+  mypv = myoldHisto1->Chi2Test(mynewHisto1, "UUNORM");
+  std::strstream buf;
+  std::string value;
+  buf<<"PV="<<mypv<<std::endl;
+  buf>>value;
+  
+  myte->DrawTextNDC(0.6, 0.7, value.c_str());
+
+  std::cout << "[OVAL] " << myoldHisto1->GetName() << " PV = " << mypv << std::endl;
+  
+  if ( name != "none" )
+    {
+      if ( mypv < 0.01 )
+	out_file << myoldHisto1->GetName() << "     pv = " << mypv << "      comparison fails !!!" << endl; 
+      else
+	out_file << myoldHisto1->GetName() << "     pv = " << mypv << endl;
+    }
+  
+  return;
+
+}
+
+HistoCompare_Pixels::PVCompute(TH2 * oldHisto , TH2 * newHisto , TText * te)
+{
+
+  myoldHisto2 = oldHisto;
+  mynewHisto2 = newHisto;
+  myte = te;
+
+
+
+  mypv = myoldHisto2->Chi2Test(mynewHisto2,"UU");
+  std::strstream buf;
+  std::string value;
+  buf<<"PV="<<mypv<<std::endl;
+  buf>>value;
+  
+  myte->DrawTextNDC(0.6, 0.7, value.c_str());
+
+  std::cout << "[OVAL] " << myoldHisto2->GetName() << " PV = " << mypv << std::endl;
+  
+  if ( name != "none" )
+    {
+      if ( mypv < 0.01 )
+	out_file << myoldHisto1->GetName() << "     pv = " << mypv << "      comparison fails !!!" << endl; 
+      else
+	out_file << myoldHisto1->GetName() << "     pv = " << mypv << endl;
+    }
+
+  return;
+}
+
+
+HistoCompare_Pixels::PVCompute(TProfile * oldHisto , TProfile * newHisto , TText * te)
+{
+
+  myoldProfile = oldHisto;
+  mynewProfile = newHisto;
+  myte = te;
+
+  
+  mypv = myoldProfile->Chi2Test(mynewProfile,"WW");
+  std::strstream buf;
+  std::string value;
+  buf<<"PV="<<mypv<<std::endl;
+  buf>>value;
+  
+  myte->DrawTextNDC(0.6, 0.7, value.c_str());
+
+  std::cout << "[OVAL] " << myoldProfile->GetName() << " PV = " << mypv << std::endl;
+  
+  if ( name != "none" )
+    {
+      if ( mypv < 0.01 )
+	out_file << myoldHisto1->GetName() << "     pv = " << mypv << "      comparison fails !!!" << endl; 
+      else
+	out_file << myoldHisto1->GetName() << "     pv = " << mypv << endl;
+    }
+  
+  return;
 }
