@@ -1,5 +1,5 @@
 #include "CondFormats/EcalObjects/interface/EcalSRSettings.h"
-#include "FWCore/Utilities/src/Exception.cc"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <sstream>
 #include <iostream>
