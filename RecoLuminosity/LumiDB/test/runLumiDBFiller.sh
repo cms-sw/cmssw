@@ -13,7 +13,8 @@ dropboxDir="/dropbox/hcallumipro/"
 normalization=6330
 lumiauthpath="/home/lumidb/auth/writer"
 lumilogpath="/home/lumidb/log"
-
-lumiDBFiller.py -c $dbConnectionString -d $dropboxDir -norm $normalization -P $lumiauthpath -L $lumilogpath > "$lumiauthpath/tmp.log"
+date > "$lumilogpath/tmp.log"
+lumiDBFiller.py -c $dbConnectionString -d $dropboxDir -norm $normalization -P $lumiauthpath -L $lumilogpath > "$lumilogpath/tmp.log"
+date > "$lumilogpath/tmp.log"
 myDate=`date +"%y-%m-%d-%H"`
 mv "$lumilogpath/tmp.log" "$lumilogpath/lumiDBFiller-$myDate.log"
