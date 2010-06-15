@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Carlo Battilana
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTCSCActivityFilter.cc,v 1.6 2010/06/15 16:16:43 fwyzard Exp $
+// $Id: HLTCSCActivityFilter.cc,v 1.7 2010/06/15 16:17:44 fwyzard Exp $
 //
 //
 
@@ -60,26 +60,23 @@ bool HLTCSCActivityFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
     edm::Handle<CSCStripDigiCollection> cscStrips;
     iEvent.getByLabel(m_cscStripDigiTag,cscStrips);
     
-    for (CSCStripDigiCollection::DigiRangeIterator dSDiter=cscStrips->begin(); dSDiter!=cscStrips->end(); dSDiter++) {
+    for (CSCStripDigiCollection::DigiRangeIterator dSDiter=cscStrips->begin(); dSDiter!=cscStrips->end(); ++dSDiter) {
       CSCDetId id = (CSCDetId)(*dSDiter).first;
       bool thisME = ((id.station()== m_StationNumb) && (id.ring()== m_RingNumb));
-      if (m_MESR && thisME)continue;
+      if (m_MESR && thisME)
+        continue;
 
       std::vector<CSCStripDigi>::const_iterator stripIter = (*dSDiter).second.first;
       std::vector<CSCStripDigi>::const_iterator lStrip    = (*dSDiter).second.second;
       for( ; stripIter != lStrip; ++stripIter) {
 	const std::vector<int> & myADCVals = stripIter->getADCCounts();
-	bool thisStripFired = false;
-	float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
-	float diff = 0.;
-	float threshold = 20;
-	for (unsigned int iCount = 0; iCount < myADCVals.size(); iCount++) {
-	  diff = (float)myADCVals[iCount]-thisPedestal;
-	  if (diff > threshold) { thisStripFired = true; }
+	const float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
+	const float threshold = 20;
+	for (unsigned int iCount = 0; iCount < myADCVals.size(); ++iCount) {
+	  const float diff = (float) myADCVals[iCount] - thisPedestal;
+	  if (diff > threshold)
+	    ++nStripsFired;
 	} 
-	if (thisStripFired) {
-	  nStripsFired++;
-	}
       }
     }
   }    
