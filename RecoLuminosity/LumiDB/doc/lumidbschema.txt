@@ -2,6 +2,12 @@ Indices:
 create index hlt_runnum on hlt(runnum);
 create index trg_runnum on trg(runnum);
 create index lumisummary_runnum on lumisummary(runnum);
+alter table CMSRUNSUMMARY add ("STARTTIME" timestamp(6) );
+alter table CMSRUNSUMMARY add ("STOPTIME" timestamp(6) );
+
+alter table LUMIDETAIL drop constraint DETAILSOURCE;
+alter table LUMIDETAIL add (constraint DETAILSOURCE foreign key (LUMISUMMARY_ID) references LUMISUMMARY (LUMISUMMARY_ID) ON DELETE CASCADE);
+
 
 Glossary: FK=Foreign Key, PK=Primary Key
           lumiversion represents each lumi (re)processing
