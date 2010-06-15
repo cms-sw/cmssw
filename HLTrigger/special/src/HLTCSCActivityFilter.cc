@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Carlo Battilana
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTCSCActivityFilter.cc,v 1.9 2010/06/15 16:22:45 fwyzard Exp $
+// $Id: HLTCSCActivityFilter.cc,v 1.10 2010/06/15 16:24:00 fwyzard Exp $
 //
 //
 
@@ -32,9 +32,9 @@ Implementation:
 HLTCSCActivityFilter::HLTCSCActivityFilter(const edm::ParameterSet& iConfig) :
   m_cscStripDigiTag( iConfig.getParameter<edm::InputTag>("cscStripDigiTag")),
   m_applyfilter(     iConfig.getParameter<bool>("applyfilter")),
-  m_MESR(            iConfig.getParameter<bool>("StationRing")),  
-  m_RingNumb(        iConfig.getParameter<int>("RingNumber")),
-  m_StationNumb(     iConfig.getParameter<int>("StationNumber"))
+  m_MESR(            iConfig.getParameter<bool>("skipStationRing")),
+  m_RingNumb(        iConfig.getParameter<int>("skipRingNumber")),
+  m_StationNumb(     iConfig.getParameter<int>("skipStationNumber"))
 {
 }
 
@@ -56,8 +56,8 @@ bool HLTCSCActivityFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   int nStripsFired = 0;
 
   edm::Handle<CSCStripDigiCollection> cscStrips;
-  iEvent.getByLabel(m_cscStripDigiTag,cscStrips);
-  
+  iEvent.getByLabel(m_cscStripDigiTag, cscStrips);
+
   for (CSCStripDigiCollection::DigiRangeIterator dSDiter=cscStrips->begin(); dSDiter!=cscStrips->end(); ++dSDiter) {
     CSCDetId id = (CSCDetId)(*dSDiter).first;
     bool thisME = ((id.station()== m_StationNumb) && (id.ring()== m_RingNumb));
@@ -74,12 +74,12 @@ bool HLTCSCActivityFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
         const float diff = (float) myADCVals[iCount] - pedestal;
         if (diff > threshold)
           ++nStripsFired;
-      } 
+      }
     }
   }
 
   return (nStripsFired >= 1);
-} 
+}
 
 // define as a framework module
 #include "FWCore/Framework/interface/MakerMacros.h"

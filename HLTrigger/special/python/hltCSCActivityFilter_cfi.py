@@ -2,9 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 hltCSCActivityFilter = cms.EDFilter( "HLTCSCActivityFilter",
     cscStripDigiTag = cms.InputTag("hltMuonCSCDigis","MuonCSCStripDigi"),
-    inputDigis = cms.InputTag( "hltMuonCSCDigis" ),
-    StationRing = cms.bool( False ),
-    StationNumber = cms.int32(1),
-    RingNumber = cms.int32(4),
+    skipStationRing = cms.bool( False ),
+    skipStationNumber = cms.int32(1),
+    skipRingNumber = cms.int32(4),
     applyfilter = cms.bool(True)
 )
