@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Carlo Battilana
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTCSCActivityFilter.cc,v 1.11 2010/06/15 16:27:59 fwyzard Exp $
+// $Id: HLTCSCActivityFilter.cc,v 1.12 2010/06/15 16:30:36 fwyzard Exp $
 //
 //
 
@@ -72,8 +72,10 @@ bool HLTCSCActivityFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
       const float threshold = 20;
       const float cut = pedestal + threshold;
       for (unsigned int i = 0; i < myADCVals.size(); ++i)
-        if (myADCVals[i] > cut)
+        if (myADCVals[i] > cut) {
           ++nStripsFired;
+          break;
+        }
     }
   }
 
