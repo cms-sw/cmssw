@@ -1,7 +1,6 @@
 #ifndef SimG4Core_DDDWorld_h
 #define SimG4Core_DDDWorld_h
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimG4Core/Geometry/interface/DDGeometryReturnType.h"
 
 class DDG4Builder;
