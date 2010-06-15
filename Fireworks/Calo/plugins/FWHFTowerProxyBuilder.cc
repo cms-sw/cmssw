@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 16:41:27 CEST 2010
-// $Id: FWHFTowerProxyBuilder.cc,v 1.12 2010/06/09 18:53:03 amraktad Exp $
+// $Id: FWHFTowerProxyBuilder.cc,v 1.13 2010/06/14 16:58:15 amraktad Exp $
 //
 
 // system include files
@@ -53,34 +53,36 @@ FWHFTowerProxyBuilderBase::setCaloData(const fireworks::Context& ctx)
 bool
 FWHFTowerProxyBuilderBase::assertCaloDataSlice()
 {
-  if (m_sliceIndex == -1)
-  {
-    m_sliceIndex = m_vecData->AddSlice();
-    // printf("add slice %d \n",m_sliceIndex  );
-    m_caloData->RefSliceInfo(m_sliceIndex).Setup(item()->name().c_str() , 0., item()->defaultDisplayProperties().color());
+   if (m_sliceIndex == -1)
+   {
+      m_sliceIndex = m_vecData->AddSlice();
+      // printf("add slice %d \n",m_sliceIndex  );
+      m_caloData->RefSliceInfo(m_sliceIndex).Setup(item()->name().c_str() , 0.,
+                                                   item()->defaultDisplayProperties().color(),
+                                                   item()->defaultDisplayProperties().transparency());
     
     
-    // add new selector
-    FWFromTEveCaloDataSelector* sel = 0;
-    if (m_caloData->GetUserData())
-    {
-      FWFromEveSelectorBase* base = reinterpret_cast<FWFromEveSelectorBase*>(m_caloData->GetUserData());
-      assert(0!=base);
-      sel = dynamic_cast<FWFromTEveCaloDataSelector*> (base);
-      assert(0!=sel);
-    }
-    else
-    {
-      sel = new FWFromTEveCaloDataSelector(m_caloData);
-      //make sure it is accessible via the base class
-      m_caloData->SetUserData(static_cast<FWFromEveSelectorBase*>(sel));
-    }
+      // add new selector
+      FWFromTEveCaloDataSelector* sel = 0;
+      if (m_caloData->GetUserData())
+      {
+         FWFromEveSelectorBase* base = reinterpret_cast<FWFromEveSelectorBase*>(m_caloData->GetUserData());
+         assert(0!=base);
+         sel = dynamic_cast<FWFromTEveCaloDataSelector*> (base);
+         assert(0!=sel);
+      }
+      else
+      {
+         sel = new FWFromTEveCaloDataSelector(m_caloData);
+         //make sure it is accessible via the base class
+         m_caloData->SetUserData(static_cast<FWFromEveSelectorBase*>(sel));
+      }
     
-    sel->addSliceSelector(m_sliceIndex, new FWHFTowerSliceSelector(item(), m_vecData));
+      sel->addSliceSelector(m_sliceIndex, new FWHFTowerSliceSelector(item(), m_vecData));
     
-    return true;
-  }
-  return false;
+      return true;
+   }
+   return false;
 }
 
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 15:09:39 CEST 2010
-// $Id: FWCaloDataProxyBuilderBase.cc,v 1.1 2010/06/07 17:54:00 amraktad Exp $
+// $Id: FWCaloDataProxyBuilderBase.cc,v 1.2 2010/06/08 13:44:47 amraktad Exp $
 //
 
 // system include files
@@ -83,6 +83,7 @@ FWCaloDataProxyBuilderBase::build(const FWEventItem* iItem,
    fillCaloData();
 
    m_caloData->SetSliceColor(m_sliceIndex,item()->defaultDisplayProperties().color());
+   m_caloData->SetSliceTransparency(m_sliceIndex,item()->defaultDisplayProperties().transparency());
    m_caloData->DataChanged();
    m_caloData->CellSelectionChanged();
 }
@@ -112,9 +113,10 @@ FWCaloDataProxyBuilderBase::applyChangesToAllModels(Product* p)
          if(1==m_caloData->GetSelectedLevel()||2==m_caloData->GetSelectedLevel()) {
             gEve->GetSelection()->RemoveElement(m_caloData);
          }
-      }
+      }   
 
       m_caloData->SetSliceColor(m_sliceIndex,item()->defaultDisplayProperties().color());
+      m_caloData->SetSliceTransparency(m_sliceIndex,item()->defaultDisplayProperties().transparency());
       m_caloData->DataChanged();
       m_caloData->CellSelectionChanged();
    }

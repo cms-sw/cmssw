@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:28 EST 2008
-// $Id: FWCaloTowerProxyBuilder.cc,v 1.19 2010/06/08 13:44:47 amraktad Exp $
+// $Id: FWCaloTowerProxyBuilder.cc,v 1.20 2010/06/14 16:58:15 amraktad Exp $
 //
 
 // system includes
@@ -119,7 +119,12 @@ FWCaloTowerProxyBuilderBase::assertCaloDataSlice()
       TH1::AddDirectory(status);
       TEveCaloDataHist* ch = static_cast<TEveCaloDataHist*>(m_caloData);
       m_sliceIndex = ch->AddHistogram(m_hist);
-      m_caloData->RefSliceInfo(m_sliceIndex).Setup(item()->name().c_str(), 0., item()->defaultDisplayProperties().color());
+
+
+
+      m_caloData->RefSliceInfo(m_sliceIndex).Setup(item()->name().c_str(), 0., 
+                                                   item()->defaultDisplayProperties().color(),
+                                                   item()->defaultDisplayProperties().transparency());
 
       // add new selector
       FWFromTEveCaloDataSelector* sel = 0;
@@ -137,11 +142,11 @@ FWCaloTowerProxyBuilderBase::assertCaloDataSlice()
          m_caloData->SetUserData(static_cast<FWFromEveSelectorBase*>(sel));
       }
      
-     sel->addSliceSelector(m_sliceIndex, new FWCaloTowerSliceSelector(m_hist,item()));
+      sel->addSliceSelector(m_sliceIndex, new FWCaloTowerSliceSelector(m_hist,item()));
      
-     return true;
+      return true;
    }
-  return false;
+   return false;
 }
 
 REGISTER_FWPROXYBUILDER(FWECalCaloTowerProxyBuilder,CaloTowerCollection,"ECal",FWViewType::k3DBit|FWViewType::kAllRPZBits|FWViewType::kLegoBit);
