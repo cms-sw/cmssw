@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.205 2010/05/12 16:35:11 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.206 2010/06/14 18:12:03 matevz Exp $
 
 //
 
@@ -1416,8 +1416,8 @@ FWGUIManager::measureWMOffsets()
     m_WMOffsetX = x - xm;
     m_WMOffsetY = y - ym;
     m_WMDecorH  = attr.fY;
-    fwLog(fwlog::kInfo) << Form("FWGUIManager::measureWMOffsets: required (%d,%d), measured(%d, %d) => dx=%d, dy=%d; decor_h=%d.\n",
-                                x, y, xm, ym, m_WMOffsetX, m_WMOffsetY, m_WMDecorH);
+    fwLog(fwlog::kDebug) << Form("FWGUIManager::measureWMOffsets: required (%d,%d), measured(%d, %d) => dx=%d, dy=%d; decor_h=%d.\n",
+                                 x, y, xm, ym, m_WMOffsetX, m_WMOffsetY, m_WMDecorH);
   }
   delete mf1;
 }
