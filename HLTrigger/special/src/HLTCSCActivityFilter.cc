@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Carlo Battilana
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTCSCActivityFilter.cc,v 1.1 2010/06/15 15:37:57 rredjimi Exp $
+// $Id: HLTCSCActivityFilter.cc,v 1.2 2010/06/15 16:09:57 fwyzard Exp $
 //
 //
 
@@ -67,7 +67,6 @@ bool HLTCSCActivityFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
       std::vector<CSCStripDigi>::const_iterator stripIter = (*dSDiter).second.first;
       std::vector<CSCStripDigi>::const_iterator lStrip    = (*dSDiter).second.second;
       for( ; stripIter != lStrip; ++stripIter) {
-	int myStrip = stripIter->getStrip();
 	std::vector<int> myADCVals = stripIter->getADCCounts();
 	bool thisStripFired = false;
 	float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
