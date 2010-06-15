@@ -5,8 +5,8 @@
  *
  * Digi for CLCT trigger primitives. 
  *
- * $Date: 2008/10/29 18:34:40 $
- * $Revision: 1.12 $
+ * $Date: 2009/03/25 13:13:11 $
+ * $Revision: 1.13 $
  *
  * \author N. Terentiev, CMU
  */
@@ -21,7 +21,7 @@ class CSCCLCTDigi {
   /// Constructors
   CSCCLCTDigi(const int valid, const int quality, const int pattern,
 	      const int striptype, const int bend, const int strip,
-	      const int cfeb, const int bx, const int trknmb = 0);
+	      const int cfeb, const int bx, const int trknmb = 0, const int fullbx=0);
   /// default
   CSCCLCTDigi();
 

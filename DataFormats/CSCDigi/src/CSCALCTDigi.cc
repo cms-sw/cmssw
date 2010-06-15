@@ -2,8 +2,8 @@
  *
  * Digi for ALCT trigger primitives.
  *
- * $Date: 2008/10/29 18:34:40 $
- * $Revision: 1.11 $
+ * $Date: 2009/03/25 13:14:51 $
+ * $Revision: 1.12 $
  *
  * \author N. Terentiev, CMU
  */
@@ -91,7 +91,8 @@ void CSCALCTDigi::print() const {
 	      << " Accel. = "         << setw(1) << getAccelerator()
 	      << " PatternB = "       << setw(1) << getCollisionB()
 	      << " Key wire group = " << setw(3) << getKeyWG()
-	      << " BX = "             << setw(2) << getBX() << std::endl;
+	      << " BX = "             << setw(2) << getBX()
+              << " Full BX= "         << std::setw(1) << getFullBX() << std::endl;
   }
   else {
     std::cout << "Not a valid Anode LCT." << std::endl;

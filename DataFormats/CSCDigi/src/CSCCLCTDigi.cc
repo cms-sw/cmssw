@@ -16,22 +16,44 @@
 /// Constructors
 CSCCLCTDigi::CSCCLCTDigi(const int valid, const int quality, const int pattern,
 			 const int striptype, const int bend, const int strip,
-			 const int cfeb, const int bx, const int trknmb) {
-  valid_     = valid;
-  quality_   = quality;
-  pattern_   = pattern;
-  striptype_ = striptype;
-  bend_      = bend;
-  strip_     = strip;
-  cfeb_      = cfeb;
-  bx_        = bx;
-  trknmb_    = trknmb;
-  fullbx_    = 0;
+			 const int cfeb, const int bx, const int trknmb, const int fullbx):
+  valid_(valid),
+  quality_(quality),
+  pattern_(pattern),
+  striptype_(striptype),
+  bend_(bend),
+  strip_(strip),
+  cfeb_(cfeb),
+  bx_(bx),
+  trknmb_(trknmb),
+  //fullbx_(0)
+  fullbx_(fullbx)
+ {
+  //valid_     = valid;
+  //quality_   = quality;
+  //pattern_   = pattern;
+  //striptype_ = striptype;
+  //bend_      = bend;
+  //strip_     = strip;
+  //cfeb_      = cfeb;
+  //bx_        = bx;
+  //trknmb_    = trknmb;
 }
 
 /// Default
-CSCCLCTDigi::CSCCLCTDigi () {
-  clear(); // set contents to zero
+CSCCLCTDigi::CSCCLCTDigi () :
+  valid_(0),
+  quality_(0),
+  pattern_(0),
+  striptype_(0),
+  bend_(0),
+  strip_(0),
+  cfeb_(0),
+  bx_(0),
+  trknmb_(0),
+  fullbx_(0)
+{
+//  clear(); // set contents to zero
 }
 
 /// Clears this CLCT.
@@ -109,7 +131,8 @@ void CSCCLCTDigi::print() const {
 	      << " Bend = "       << std::setw(1) << bend
 	      << " Strip type = " << std::setw(1) << stripType
 	      << " CFEB ID = "    << std::setw(1) << getCFEB()
-	      << " BX = "         << std::setw(1) << getBX() << std::endl;
+	      << " BX = "         << std::setw(1) << getBX() 
+              << " Full BX= "     << std::setw(1) << getFullBX() << std::endl;
   }
   else {
     std::cout << "Not a valid Cathode LCT." << std::endl;
