@@ -17,6 +17,9 @@
 <library   file="AlcaBeamSpotProducer.cc" name="AlcaBeamSpotProducer">
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library   file="AlcaBeamSpotHarvester.cc" name="AlcaBeamSpotHarvester">
+  <flags   EDM_PLUGIN="1"/>
+</library>
 <library   file="BeamSpotOnlineProducer.cc" name="BeamSpotOnlineProducer">
   <flags   EDM_PLUGIN="1"/>
 </library>
