@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.45 2010/05/27 13:10:12 rwolf Exp $
+// $Id: Jet.h,v 1.46 2010/06/04 18:57:18 srappocc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette, Giovanni Petrucciani, Roger Wolf, Christian Autermann
-  \version  $Id: Jet.h,v 1.45 2010/05/27 13:10:12 rwolf Exp $
+  \version  $Id: Jet.h,v 1.46 2010/06/04 18:57:18 srappocc Exp $
 */
 
 
@@ -59,6 +59,10 @@ namespace pat {
   typedef reco::CaloJet::Specific CaloSpecific;
   typedef reco::JPTJet::Specific JPTSpecific;
   typedef reco::PFJet::Specific PFSpecific;
+  typedef std::vector<edm::FwdPtr<reco::BaseTagInfo> > TagInfoFwdPtrCollection;
+  typedef std::vector<edm::FwdPtr<reco::PFCandidate> > PFCandidateFwdPtrCollection;
+  typedef std::vector<edm::FwdPtr<CaloTower> > CaloTowerFwdPtrCollection;
+
 
   class Jet : public PATObject<reco::Jet> {
 
@@ -170,7 +174,8 @@ namespace pat {
       /// sets a tagInfo with the given name from an edm::Ptr<T> to it. 
       /// If the label ends with 'TagInfos', the 'TagInfos' is stripped out.
       void  addTagInfo(const std::string &label, 
-                       const edm::Ptr<reco::BaseTagInfo> &info) ;
+		       const TagInfoFwdPtrCollection::value_type &info) ;
+
 
       // ---- track related methods ----
 
@@ -186,15 +191,13 @@ namespace pat {
       // ---- methods for content embedding ----
 
       /// method to store the CaloJet constituents internally
-      void setCaloTowers(const std::vector<CaloTowerPtr> & caloTowers);
+      void setCaloTowers(const CaloTowerFwdPtrCollection & caloTowers);
       /// method to store the PFCandidate constituents internally
-      void setPFCandidates(const std::vector<reco::PFCandidatePtr> & pfCandidates);
+      void setPFCandidates(const PFCandidateFwdPtrCollection & pfCandidates);
       /// method to set the matched parton
       void setGenParton(const reco::GenParticleRef & gp, bool embed=false) { setGenParticleRef(gp, embed); }
-      /// method to set the matched generated jet
-      void setGenJet(const reco::GenJetRef & gj, const bool embed=false) { setGenJetRef(gj, embed); }
       /// method to set the matched generated jet reference, embedding if requested
-      void setGenJetRef(const reco::GenJetRef & gj, const bool embed);
+      void setGenJetRef(const edm::FwdRef<reco::GenJetCollection> & gj);
       /// method to set the flavour of the parton underlying the jet
       void setPartonFlavour(int partonFl);
 
@@ -266,7 +269,7 @@ namespace pat {
       CaloTowerPtr getCaloConstituent (unsigned fIndex) const;
       /// get the constituents of the CaloJet. 
       /// If the caloTowers were embedded, these reference are transient only and must not be persisted
-      std::vector<CaloTowerPtr> getCaloConstituents () const;
+      std::vector<CaloTowerPtr> const & getCaloConstituents () const;
 
       // ---- JPT Jet specific information ----
 
@@ -366,35 +369,57 @@ namespace pat {
       reco::PFCandidatePtr getPFConstituent (unsigned fIndex) const;
       /// get the constituents of the CaloJet. 
       /// If the caloTowers were embedded, these reference are transient only and must not be persisted
-      std::vector<reco::PFCandidatePtr> getPFConstituents () const;
+      std::vector<reco::PFCandidatePtr> const & getPFConstituents () const;
 
       /// get a pointer to a Candididate constituent of the jet 
-      /// needs to be re-implemented because of CaloTower embedding
-      /// why are these functions not handling the PF constituents?
-      //virtual const reco::Candidate * daughter(size_t i) const {
-      //    return (embeddedCaloTowers_ ?  &caloTowers_[i] : reco::Jet::daughter(i));
-      //}
+      ///    If using refactorized PAT, return that. (constituents size > 0)
+      ///    Else check the old version of PAT (embedded constituents size > 0)
+      ///    Else return the reco Jet number of constituents
       virtual const reco::Candidate * daughter(size_t i) const {
-	if (isCaloJet()) return (embeddedCaloTowers_   ? &caloTowers_[i]   : reco::Jet::daughter(i));
-	if (isPFJet())   return (embeddedPFCandidates_ ? &pfCandidates_[i] : reco::Jet::daughter(i));
-	else return reco::Jet::daughter(i);
+	if (isCaloJet()) { 
+	  if ( embeddedCaloTowers_ ) {
+	    if ( caloTowersFwdPtr_.size() > 0 ) return caloTowersFwdPtr_[i].get();
+	    else if ( caloTowers_.size() > 0 ) return &caloTowers_[i];
+	    else return reco::Jet::daughter(i);
+	  }
+	}
+	if (isPFJet()) { 
+	  if ( embeddedPFCandidates_ ) {
+	    if ( pfCandidatesFwdPtr_.size() > 0 ) return pfCandidatesFwdPtr_[i].get();
+	    else if ( pfCandidates_.size() > 0 ) return &pfCandidates_[i];
+	    else return reco::Jet::daughter(i);
+	  }
+	}
+	return reco::Jet::daughter(i);
       }
 
       using reco::LeafCandidate::daughter; // avoid hiding the base implementation
-      /// get the number of constituents 
-      /// needs to be re-implemented because of CaloTower embedding
-      /// why are these functions not handling the PF constituents?
-      //virtual size_t numberOfDaughters() const {
-      //    return (embeddedCaloTowers_ ? caloTowers_.size() : reco::Jet::numberOfDaughters() );
-      //}
+
+      /// Return number of daughters:
+      ///    If using refactorized PAT, return that. (constituents size > 0)
+      ///    Else check the old version of PAT (embedded constituents size > 0)
+      ///    Else return the reco Jet number of constituents
       virtual size_t numberOfDaughters() const {
-	if (isCaloJet()) return (embeddedCaloTowers_   ? caloTowers_.size()   : reco::Jet::numberOfDaughters() );
-	if (isPFJet())   return (embeddedPFCandidates_ ? pfCandidates_.size() : reco::Jet::numberOfDaughters() );
-	else return reco::Jet::numberOfDaughters();
+	if (isCaloJet()) { 
+	  if ( embeddedCaloTowers_ ) {
+	    if ( caloTowersFwdPtr_.size() > 0 ) return caloTowersFwdPtr_.size();
+	    else if ( caloTowers_.size() > 0 ) return caloTowers_.size();
+	    else return reco::Jet::numberOfDaughters();
+	  }
+	}
+	if (isPFJet()) { 
+	  if ( embeddedPFCandidates_ ) {
+	    if ( pfCandidatesFwdPtr_.size() > 0 ) return pfCandidatesFwdPtr_.size();
+	    else if ( pfCandidates_.size() > 0 ) return pfCandidates_.size();
+	    else return reco::Jet::numberOfDaughters();
+	  }
+	}
+	return reco::Jet::numberOfDaughters();
       }
 
       /// accessing Jet ID information
-      reco::JetID const & jetID () const { return jetID_; }
+      reco::JetID const & jetID () const { return jetID_;}
+      
       
 
     protected:
@@ -402,15 +427,22 @@ namespace pat {
       // ---- for content embedding ----
 
       bool embeddedCaloTowers_;
-      CaloTowerCollection caloTowers_;
+      mutable std::vector<CaloTowerPtr> caloTowersTemp_; // to simplify user interface
+      CaloTowerCollection caloTowers_; // Compatibility embedding
+      CaloTowerFwdPtrVector caloTowersFwdPtr_; // Refactorized content embedding
+
       
       bool embeddedPFCandidates_;
-      reco::PFCandidateCollection pfCandidates_;
+      mutable std::vector<reco::PFCandidatePtr> pfCandidatesTemp_; // to simplify user interface
+      reco::PFCandidateCollection pfCandidates_; // Compatibility embedding
+      reco::PFCandidateFwdPtrVector pfCandidatesFwdPtr_; // Refactorized content embedding
+
 
       // ---- MC info ----
 
       std::vector<reco::GenJet> genJet_;
-      reco::GenJetRefVector     genJetRef_;
+      reco::GenJetRefVector genJetRef_;
+      edm::FwdRef<reco::GenJetCollection>  genJetFwdRef_;
       int partonFlavour_;
 
       // ---- energy scale correction factors ----
@@ -426,7 +458,9 @@ namespace pat {
 
       std::vector<std::pair<std::string, float> >           pairDiscriVector_;
       std::vector<std::string>          tagInfoLabels_;
-      edm::OwnVector<reco::BaseTagInfo> tagInfos_;  
+      edm::OwnVector<reco::BaseTagInfo> tagInfos_; // Compatibility embedding
+      TagInfoFwdPtrCollection  tagInfosFwdPtr_; // Refactorized embedding
+  
 
       // ---- track related members ----
 
@@ -454,6 +488,13 @@ namespace pat {
       const JetCorrFactors * corrFactors_(const std::string& set) const ;
       /// return the correction factor for this jet. Throws if they're not available.
       const JetCorrFactors * corrFactors_() const;
+
+      /// cache calo towers
+      mutable bool isCaloTowerCached_;
+      void cacheCaloTowers() const;
+      mutable bool isPFCandidateCached_;
+      void cachePFCandidates() const;
+
   };
 }
 

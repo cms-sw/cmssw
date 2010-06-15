@@ -1,6 +1,6 @@
 //
-// $Id: PATJetProducer.cc,v 1.44 2009/11/13 17:30:40 cbern Exp $
-//
+// $Id: PATJetProducer.cc,v 1.45 2010/05/06 17:27:14 rwolf Exp $
+
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
 
@@ -119,6 +119,10 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
 
   // produces vector of jets
   produces<std::vector<Jet> >();
+  produces<reco::GenJetCollection> ();
+  produces<CaloTowerCollection > ();
+  produces<reco::PFCandidateCollection > ();
+  produces<edm::OwnVector<reco::BaseTagInfo> > ();
 }
 
 
@@ -174,7 +178,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   if (addBTagInfo_ && addTagInfos_) {
     jetTagInfos.resize(tagInfoTags_.size());
     for (size_t i = 0; i < tagInfoTags_.size(); ++i) {
-        iEvent.getByLabel(tagInfoTags_[i], jetTagInfos[i]);
+      iEvent.getByLabel(tagInfoTags_[i], jetTagInfos[i]);
     }
   }
  
@@ -189,7 +193,23 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   if ( addJetID_ ) iEvent.getByLabel( jetIDMapLabel_, hJetIDMap );
 
   // loop over jets
-  std::vector<Jet> * patJets = new std::vector<Jet>(); 
+  std::auto_ptr< std::vector<Jet> > patJets ( new std::vector<Jet>() ); 
+
+  std::auto_ptr<reco::GenJetCollection > genJetsOut ( new reco::GenJetCollection() );
+  std::auto_ptr<CaloTowerCollection >  caloTowersOut( new CaloTowerCollection() );
+  std::auto_ptr<reco::PFCandidateCollection > pfCandidatesOut( new reco::PFCandidateCollection() );
+  std::auto_ptr<edm::OwnVector<reco::BaseTagInfo> > tagInfosOut ( new edm::OwnVector<reco::BaseTagInfo>() );  
+
+
+  edm::RefProd<reco::GenJetCollection > h_genJetsOut = iEvent.getRefBeforePut<reco::GenJetCollection >( );
+  edm::RefProd<CaloTowerCollection >  h_caloTowersOut = iEvent.getRefBeforePut<CaloTowerCollection > ();
+  edm::RefProd<reco::PFCandidateCollection > h_pfCandidatesOut = iEvent.getRefBeforePut<reco::PFCandidateCollection > ();
+  edm::RefProd<edm::OwnVector<reco::BaseTagInfo> > h_tagInfosOut = iEvent.getRefBeforePut<edm::OwnVector<reco::BaseTagInfo> > ();
+
+
+  
+
+
   for (edm::View<reco::Jet>::const_iterator itJet = jets->begin(); itJet != jets->end(); itJet++) {
 
     // construct the Jet from the ref -> save ref to original object
@@ -198,16 +218,44 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     edm::Ptr<reco::Jet> jetPtr = jets->ptrAt(idx); 
     Jet ajet(jetRef);
 
-    // ensure the internal storage of the jet constituents
+    // add the FwdPtrs to the CaloTowers
     if (ajet.isCaloJet() && embedCaloTowers_) {
-        const reco::CaloJet *cj = dynamic_cast<const reco::CaloJet *>(jetRef.get());
-        ajet.setCaloTowers( cj->getCaloConstituents() );
+      const reco::CaloJet *cj = dynamic_cast<const reco::CaloJet *>(jetRef.get());
+      pat::CaloTowerFwdPtrCollection itowersRef;
+      std::vector< CaloTowerPtr > itowers = cj->getCaloConstituents();
+      for ( std::vector<CaloTowerPtr>::const_iterator towBegin = itowers.begin(),
+	      towEnd = itowers.end(), itow = towBegin;
+	    itow != towEnd; ++itow ) {
+	caloTowersOut->push_back( **itow );
+	// set the "forward" ref to the thinned collection
+	edm::Ptr<CaloTower> caloForwardRef ( h_caloTowersOut.id(), caloTowersOut->size() - 1, h_caloTowersOut.productGetter() );
+	// set the "backward" ref to the original collection for association
+	edm::Ptr<CaloTower> caloBackRef ( *itow );
+	// add to the list of FwdPtr's
+	itowersRef.push_back( pat::CaloTowerFwdPtrCollection::value_type ( caloForwardRef, caloBackRef ) );
+      }
+      ajet.setCaloTowers( itowersRef );
     }
 
-    if(ajet.isPFJet() && embedPFCandidates_) {
-        const reco::PFJet *pfj = dynamic_cast<const reco::PFJet *>(jetRef.get());
-        ajet.setPFCandidates( pfj->getPFConstituents() );      
+    // add the FwdPtrs to the PFCandidates
+    if (ajet.isPFJet() && embedPFCandidates_) {
+      const reco::PFJet *cj = dynamic_cast<const reco::PFJet *>(jetRef.get());
+      pat::PFCandidateFwdPtrCollection iparticlesRef;
+      std::vector< reco::PFCandidatePtr > iparticles = cj->getPFConstituents();
+      for ( std::vector<reco::PFCandidatePtr>::const_iterator partBegin = iparticles.begin(),
+	      partEnd = iparticles.end(), ipart = partBegin;
+	    ipart != partEnd; ++ipart ) {
+	pfCandidatesOut->push_back( **ipart );
+	// set the "forward" ref to the thinned collection
+	edm::Ptr<reco::PFCandidate> pfForwardRef ( h_pfCandidatesOut.id(), pfCandidatesOut->size() - 1,  h_caloTowersOut.productGetter() );
+	// set the "backward" ref to the original collection for association
+	edm::Ptr<reco::PFCandidate> pfBackRef ( *ipart );
+	// add to the list of FwdPtr's
+	iparticlesRef.push_back( pat::PFCandidateFwdPtrCollection::value_type ( pfForwardRef, pfBackRef ) );
+      }
+      ajet.setPFCandidates( iparticlesRef );
     }
+
 
     // Add Jet Energy Scale Corrections
     if (addJetCorrFactors_) {
@@ -246,7 +294,14 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     if (addGenJetMatch_) {
       reco::GenJetRef genjet = (*genJetMatch)[jetRef];
       if (genjet.isNonnull() && genjet.isAvailable()) {
-          ajet.setGenJet(genjet, embedGenJetMatch_);
+	genJetsOut->push_back( *genjet );
+	// set the "forward" ref to the thinned collection
+	edm::Ref<reco::GenJetCollection > genForwardRef ( h_genJetsOut, genJetsOut->size() - 1 );
+	// set the "backward" ref to the original collection
+	edm::Ref<reco::GenJetCollection > genBackRef ( genjet );
+	// make the FwdPtr
+	edm::FwdRef<reco::GenJetCollection > genjetFwdRef ( genForwardRef, genBackRef );
+	ajet.setGenJetRef(genjetFwdRef );
       } // leave empty if no match found
     }
 
@@ -272,21 +327,30 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
             }
         }    
         if (addTagInfos_) {
-            for (size_t k=0; k<jetTagInfos.size(); ++k) {
-                const edm::View<reco::BaseTagInfo> & taginfos = *jetTagInfos[k];
-                // This is not associative, so we have to search the jet
-		edm::Ptr<reco::BaseTagInfo> match;
-                // Try first by 'same index'
-                if ((idx < taginfos.size()) && (taginfos[idx].jet() == jetRef)) {
- 		  match = taginfos.ptrAt(idx);
-                } else {
-                    // otherwise fail back to a simple search
-                    for (edm::View<reco::BaseTagInfo>::const_iterator itTI = taginfos.begin(), edTI = taginfos.end(); itTI != edTI; ++itTI) {
-		      if (itTI->jet() == jetRef) { match = taginfos.ptrAt( itTI - taginfos.begin() ); break; }
-                    }
-                }
-                if (match.isNonnull()) ajet.addTagInfo(tagInfoLabels_[k], match);
-            }
+	  for (size_t k=0; k<jetTagInfos.size(); ++k) {
+	    const edm::View<reco::BaseTagInfo> & taginfos = *jetTagInfos[k];
+	    // This is not associative, so we have to search the jet
+	    edm::Ptr<reco::BaseTagInfo> match;
+	    // Try first by 'same index'
+	    if ((idx < taginfos.size()) && (taginfos[idx].jet() == jetRef)) {
+	      match = taginfos.ptrAt(idx);
+	    } else {
+	      // otherwise fail back to a simple search
+	      for (edm::View<reco::BaseTagInfo>::const_iterator itTI = taginfos.begin(), edTI = taginfos.end(); itTI != edTI; ++itTI) {
+		if (itTI->jet() == jetRef) { match = taginfos.ptrAt( itTI - taginfos.begin() ); break; }
+	      }
+	    }
+	    if (match.isNonnull()) {
+	      tagInfosOut->push_back( match->clone() );
+	      // set the "forward" ptr to the thinned collection
+	      edm::Ptr<reco::BaseTagInfo> tagInfoForwardPtr ( h_tagInfosOut.id(), &tagInfosOut->back(), tagInfosOut->size() - 1 );
+	      // set the "backward" ptr to the original collection for association
+	      edm::Ptr<reco::BaseTagInfo> tagInfoBackPtr ( match );
+	      // make FwdPtr
+	      TagInfoFwdPtrCollection::value_type tagInfoFwdPtr( tagInfoForwardPtr, tagInfoBackPtr ) ;
+	      ajet.addTagInfo(tagInfoLabels_[k], tagInfoFwdPtr );
+	    }
+	  }
         }    
     }
     
@@ -315,8 +379,13 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   std::sort(patJets->begin(), patJets->end(), pTComparator_);
 
   // put genEvt  in Event
-  std::auto_ptr<std::vector<Jet> > myJets(patJets);
-  iEvent.put(myJets);
+  iEvent.put(patJets);
+
+  iEvent.put( genJetsOut );
+  iEvent.put( caloTowersOut );
+  iEvent.put( pfCandidatesOut );
+  iEvent.put( tagInfosOut );
+  
 
 }
 

@@ -12,6 +12,7 @@ patEventContentNoCleaning = [
 ]
 
 patEventContent = [
+    'keep *_patJets*_*_*',
     'keep *_cleanPatPhotons*_*_*',
     'keep *_cleanPatElectrons*_*_*',
     'keep *_cleanPatMuons*_*_*',
