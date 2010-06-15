@@ -8,6 +8,7 @@
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/FwdRef.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include <vector>
 
@@ -21,6 +22,9 @@ namespace reco {
   
   typedef
   edm::Ref<JetEisolAssociationCollection> JetEisolAssociationRef;
+
+  typedef
+  edm::FwdRef<JetEisolAssociationCollection> JetEisolAssociationFwdRef;
   
   typedef
   edm::RefProd<JetEisolAssociationCollection> JetEisolAssociationRefProd;

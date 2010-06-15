@@ -9,6 +9,8 @@
 #include "DataFormats/Common/interface/RefVectorHolder.h"
 #include "DataFormats/Common/interface/VectorHolder.h"
 #include "DataFormats/Common/interface/PtrVector.h"
+#include "DataFormats/Common/interface/FwdRef.h"
+#include "DataFormats/Common/interface/FwdPtr.h"
 
 
 namespace {
@@ -16,16 +18,23 @@ namespace {
     std::vector<CaloTower> v1;
     CaloTowerCollection c1;
     CaloTowerPtr p1;
+    CaloTowerFwdPtr fp1;
     CaloTowerRef r1;
     CaloTowersRef rr1;
     CaloTowerRefs rrr1;
+    CaloTowerFwdRef rrrr1;
+    CaloTowerFwdRefVector rrrrv1;
+    CaloTowerFwdPtr rrrrr1;
+    CaloTowerFwdPtrVector rrrrrv1;
     edm::Wrapper<CaloTowerCollection> w1;
+    edm::Wrapper<CaloTowerFwdRefVector> w2;
+    edm::Wrapper<CaloTowerFwdPtrVector> w3;
 
     edm::reftobase::Holder<reco::Candidate, CaloTowerRef> rbh;
     edm::reftobase::RefHolder<CaloTowerRef> rbrh;
     edm::reftobase::VectorHolder<reco::Candidate, CaloTowerRefs> rbhs;
     edm::reftobase::RefVectorHolder<CaloTowerRefs> rbrhs;
-   edm::Ptr<CaloTower> ptr;
-   edm::PtrVector<CaloTower> ptrv;
+
+    edm::PtrVector<CaloTower> ptrv;
   };
 }
