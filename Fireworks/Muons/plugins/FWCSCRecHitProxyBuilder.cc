@@ -3,7 +3,7 @@
 // Package:     Muons
 // Class  :     FWCSCRecHitProxyBuilder
 //
-// $Id: FWCSCRecHitProxyBuilder.cc,v 1.5 2010/05/03 15:47:42 amraktad Exp $
+// $Id: FWCSCRecHitProxyBuilder.cc,v 1.6 2010/05/06 18:03:08 amraktad Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -93,6 +93,6 @@ FWCSCRecHitProxyBuilder::build(const CSCRecHit2D& iData,
                      globalV2Point[0], globalV2Point[1], globalV2Point[2]);
 }
 
-REGISTER_FWPROXYBUILDER( FWCSCRecHitProxyBuilder, CSCRecHit2D, "CSC RecHits", FWViewType::kISpyBit );
+REGISTER_FWPROXYBUILDER( FWCSCRecHitProxyBuilder, CSCRecHit2D, "CSC RecHits", FWViewType::kAll3DBits );
 
 
