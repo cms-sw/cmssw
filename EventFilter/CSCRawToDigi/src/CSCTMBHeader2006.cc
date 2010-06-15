@@ -47,8 +47,8 @@ std::vector<CSCCLCTDigi> CSCTMBHeader2006::CLCTDigis(uint32_t idlayer)
     //offlineStripNumbering(strip, cfeb, shape, bend);
 
     CSCCLCTDigi digi0(bits.clct0_valid, bits.clct0_quality, shape,
-                      type, bend, strip, cfeb, bits.clct0_bxn, 1);
-    digi0.setFullBX(bits.bxnPreTrigger);
+                      type, bend, strip, cfeb, bits.clct0_bxn, 1, bits.bxnPreTrigger);
+    //digi0.setFullBX(bits.bxnPreTrigger);
     result.push_back(digi0);
 
     /// for the first bits.clct:
@@ -65,8 +65,8 @@ std::vector<CSCCLCTDigi> CSCTMBHeader2006::CLCTDigis(uint32_t idlayer)
     bend = bits.clct1_bend;
     //offlineStripNumbering(strip, cfeb, shape, bend);
     CSCCLCTDigi digi1(bits.clct1_valid, bits.clct1_quality, shape,
-                      type, bend, strip, cfeb, bits.clct1_bxn, 2);
-    digi1.setFullBX(bits.bxnPreTrigger);
+                      type, bend, strip, cfeb, bits.clct1_bxn, 2, bits.bxnPreTrigger);
+    //digi1.setFullBX(bits.bxnPreTrigger);
     result.push_back(digi1);
     return result;
 }
