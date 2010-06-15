@@ -13,7 +13,7 @@ qcdPhotonsDQM = cms.EDAnalyzer("QcdPhotonsDQM",
                 vertexCollection          = cms.InputTag("offlinePrimaryVertices"),
                 # Cuts on the reco objects
                 minCaloJetEt              = cms.int32(5),
-                minPhotonEt               = cms.int32(20),
+                minPhotonEt               = cms.int32(15),
                 requirePhotonFound        = cms.bool(True),
                 # Max Et on plots
                 plotPhotonMaxEt           = cms.double(200.0),

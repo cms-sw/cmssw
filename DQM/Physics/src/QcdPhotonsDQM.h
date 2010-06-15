@@ -6,8 +6,8 @@
  *
  *  DQM offline for QCD-Photons
  *
- *  $Date: 2010/06/14 13:00:48 $
- *  $Revision: 1.12 $
+ *  $Date: 2010/06/14 14:39:42 $
+ *  $Revision: 1.13 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -82,7 +82,8 @@ class QcdPhotonsDQM : public edm::EDAnalyzer {
   MonitorElement* h_triggers_passed;
   MonitorElement* h_photon_et;
   MonitorElement* h_photon_eta;
-  MonitorElement* h_photon_count;
+  MonitorElement* h_photon_count_bar;
+  MonitorElement* h_photon_count_end;
   MonitorElement* h_jet_et;
   MonitorElement* h_jet_eta;
   MonitorElement* h_jet_count;
@@ -96,6 +97,7 @@ class QcdPhotonsDQM : public edm::EDAnalyzer {
   MonitorElement* h_deltaR_jet_jet2;
   MonitorElement* h_deltaR_photon_jet2;
 
+  MonitorElement* h_photon_fisher_vs_et;
   MonitorElement* h_photon_et_jetcs;
   MonitorElement* h_photon_et_jetco;
   MonitorElement* h_photon_et_jetfs;
