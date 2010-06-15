@@ -42,12 +42,13 @@ FWViewContextMenuHandlerGL::select(int iEntryIndex, const FWModelId &id, int iX,
       case kAnnotate:
       {
          TGFrame* f = v->GetGLWidget();
-         Window_t wdummy;
-         Int_t x, y;
          gVirtualX->TranslateCoordinates(gClient->GetDefaultRoot()->GetId(), f->GetId(), iX, iY, x, y, wdummy);
 
-         const char* txt = Form("%s %d", id.item()->name().c_str(), id.index());   
-         TGLAnnotation* an = new TGLAnnotation(v, txt,  x*1.f/f->GetWidth(), 1 - y*1.f/f->GetHeight(), pnt);
+         std::string name = id.item()->modelName(id.index());
+         if (id.item()->haveInterestingValue())
+            name += ", " + id.item()->modelInterestingValueAsString(id.index());
+
+         TGLAnnotation* an = new TGLAnnotation(v, name.c_str(),  x*1.f/f->GetWidth(), 1 - y*1.f/f->GetHeight(), pnt);
          an->SetUseColorSet(true);
          an->SetTextSize(0.03);
          break;
