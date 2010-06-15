@@ -15,7 +15,7 @@ Implementation:
 //
 // Original Author:  Carlo Battilana
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTCSCActivityFilter.h,v 1.1 2010/06/15 15:37:57 rredjimi Exp $
+// $Id: HLTCSCActivityFilter.h,v 1.2 2010/06/15 16:09:56 fwyzard Exp $
 //
 //
 
@@ -49,7 +49,6 @@ private:
   virtual bool filter(edm::Event&, const edm::EventSetup&);
     edm::InputTag m_cscStripDigiTag;
     bool m_applyfilter;
-    bool m_processDigis;
     bool m_MESR;
     int  m_RingNumb;
     int  m_StationNumb;
