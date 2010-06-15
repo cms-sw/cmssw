@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.18 2010/05/28 15:46:55 matevz Exp $
+// $Id: FWEveView.cc,v 1.19 2010/06/08 21:15:09 matevz Exp $
 //
 
 
@@ -211,7 +211,14 @@ FWEveView::addTo(FWConfiguration& iTo) const
 void
 FWEveView::setFrom(const FWConfiguration& iFrom)
 {
-   if (version() <= iFrom.version())
+   // Make sure you change the version ranges here
+   // whenever you update the logic.
+   // The rationale should be:
+   // (version range supported by the next block) && (version range in the configuration file)
+   //
+   // This is not "forward" compatible, but I don't think
+   // we care.
+   if (version() >= 2 && iFrom.version() >= 1)
    {
       for(const_iterator it =begin(), itEnd = end();
           it != itEnd;
