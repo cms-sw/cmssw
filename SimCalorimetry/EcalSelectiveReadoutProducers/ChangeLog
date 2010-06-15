@@ -1,3 +1,11 @@
+V02-07-01
+---------
+	
+2010-06-15  author  <author@lxplus316.cern.ch>
+
+	* test/TpSrp_cfg.py:
+	SR settings obtained from global cond DB instead of local sqllite file
+
 V02-07-00
 ---------
 	
