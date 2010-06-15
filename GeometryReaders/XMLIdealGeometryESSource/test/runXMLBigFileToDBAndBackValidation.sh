@@ -166,9 +166,7 @@ endif
 
 # STEP 5
 echo "Start to write all geometry objects to the local DB including BIG XML file."
-# At this point, I'm preparing the database.
-cp $CMSSW_RELEASE_BASE/src/CondTools/Geometry/test/dbconfig.xml .
-source $CMSSW_RELEASE_BASE/src/CondTools/Geometry/test/blob_preparation.txt >>& twLoadDBWithXML.out
+
 # At this point I'm writing ALL geometries, not only the "big file" into the database.
 cp $CMSSW_RELEASE_BASE/src/CondTools/Geometry/test/geometrywriter.py .
 sed -i "{s/GeometryExtended/${geometry}/}" geometrywriter.py >>& twLoadDBWithXML.out
