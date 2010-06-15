@@ -95,7 +95,7 @@ void SoftLeptonTagPlotter::analyzeTag( const reco::BaseTagInfo * baseTagInfo,
   for (int i = 0; i != n_leptons && i != s_leptons; ++i) {
     const reco::SoftLeptonProperties& properties = tagInfo->properties(i);
     m_leptonPt[i]->fill( jetFlavour, tagInfo->lepton(i)->pt() );
-    //m_leptonId[i]->fill( jetFlavour, properties.quality() );
+    m_leptonId[i]->fill( jetFlavour, properties.quality() );
     m_sip2d[i]->fill(    jetFlavour, properties.sip2d );
     m_sip3d[i]->fill(    jetFlavour, properties.sip3d );
     m_ptRel[i]->fill(    jetFlavour, properties.ptRel );
