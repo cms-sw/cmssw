@@ -15,11 +15,11 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_3_7_0_pre2/RelValZEE/GEN-SIM-RECO/START37_V1-v1/0018/9C59B317-F752-DF11-94D0-0026189438A7.root',
-        '/store/relval/CMSSW_3_7_0_pre2/RelValZEE/GEN-SIM-RECO/START37_V1-v1/0017/DC6EC4F6-9D52-DF11-AF94-00261894383E.root',
-        '/store/relval/CMSSW_3_7_0_pre2/RelValZEE/GEN-SIM-RECO/START37_V1-v1/0017/D203FD36-9F52-DF11-9631-00261894383F.root',
-        '/store/relval/CMSSW_3_7_0_pre2/RelValZEE/GEN-SIM-RECO/START37_V1-v1/0017/B89969B0-9C52-DF11-9E8B-002618943946.root',
-        '/store/relval/CMSSW_3_7_0_pre2/RelValZEE/GEN-SIM-RECO/START37_V1-v1/0017/9CDDFFA7-9B52-DF11-8F03-00261894389C.root'
+    '/store/relval/CMSSW_3_8_0_pre2/RelValZEE/GEN-SIM-RECO/MC_38Y_V0-v1/0004/CC052912-0274-DF11-903E-002618943904.root',
+    '/store/relval/CMSSW_3_8_0_pre2/RelValZEE/GEN-SIM-RECO/MC_38Y_V0-v1/0004/7E0EA211-2474-DF11-9EEC-001A92971B9A.root',
+    '/store/relval/CMSSW_3_8_0_pre2/RelValZEE/GEN-SIM-RECO/MC_38Y_V0-v1/0004/58A6D390-FC73-DF11-B9A2-0018F3D096DC.root',
+    '/store/relval/CMSSW_3_8_0_pre2/RelValZEE/GEN-SIM-RECO/MC_38Y_V0-v1/0004/462B4200-0174-DF11-B2C1-0018F3D096D4.root',
+    '/store/relval/CMSSW_3_8_0_pre2/RelValZEE/GEN-SIM-RECO/MC_38Y_V0-v1/0004/069A2F8A-0074-DF11-9EED-0018F3D096AA.root'
     ),
     secondaryFileNames = cms.untracked.vstring (
    )
@@ -55,24 +55,24 @@ process.eIDTight = eidCutBasedExt.clone()
 process.eIDTight.electronIDType = 'classbased'
 process.eIDTight.electronQuality = 'tight'
 
-process.eIDClassesLoose = eidCutBasedClassesExt.clone()
-process.eIDClassesLoose.electronQuality = 'loose'
+#process.eIDClassesLoose = eidCutBasedClassesExt.clone()
+#process.eIDClassesLoose.electronQuality = 'loose'
 
-process.eIDClassesMedium = eidCutBasedClassesExt.clone()
-process.eIDClassesMedium.electronQuality = 'medium'
+#process.eIDClassesMedium = eidCutBasedClassesExt.clone()
+#process.eIDClassesMedium.electronQuality = 'medium'
 
-process.eIDClassesTight = eidCutBasedClassesExt.clone()
-process.eIDClassesTight.electronQuality = 'tight'
+#process.eIDClassesTight = eidCutBasedClassesExt.clone()
+#process.eIDClassesTight.electronQuality = 'tight'
 
 eIDSequence = cms.Sequence(process.eIDRobustLoose+
                            process.eIDRobustLooseV00+
                            process.eIDRobustTight+
                            process.eIDRobustHighEnergy+
                            process.eIDLoose+
-                           process.eIDTight+
-                           process.eIDClassesLoose+ 
-                           process.eIDClassesMedium+ 
-                           process.eIDClassesTight )
+                           process.eIDTight)
+#                           process.eIDClassesLoose+ 
+#                           process.eIDClassesMedium+ 
+#                           process.eIDClassesTight )
 
 process.p = cms.Path(eIDSequence)
 
@@ -84,10 +84,10 @@ process.out = cms.OutputModule("PoolOutputModule",
 					   'keep *_eIDRobustTight_*_*',
 					   'keep *_eIDRobustHighEnergy_*_*',
 					   'keep *_eIDLoose_*_*',
-					   'keep *_eIDTight_*_*',
-					   'keep *_eIDClassesLoose_*_*',
-					   'keep *_eIDClassesMedium_*_*',
-					   'keep *_eIDClassesTight_*_*'),
+					   'keep *_eIDTight_*_*'),
+#					   'keep *_eIDClassesLoose_*_*',
+#					   'keep *_eIDClassesMedium_*_*',
+#					   'keep *_eIDClassesTight_*_*'),
 
     fileName = cms.untracked.string('electrons.root')
 )
