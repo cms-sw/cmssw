@@ -368,7 +368,7 @@ void HcalDigitizer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
   theParameterMap->setDbService(conditions.product());
 
    edm::ESHandle<HcalCholeskyMatrices> refCholesky;
-   eventSetup.get<HcalCholeskyMatricesRcd>().get("reference",refCholesky);
+   eventSetup.get<HcalCholeskyMatricesRcd>().get(refCholesky);
    const HcalCholeskyMatrices * myCholesky = refCholesky.product();
   
    edm::ESHandle<HcalPedestals> pedshandle;
