@@ -53,6 +53,8 @@
 
 #include "CondFormats/EcalObjects/interface/EcalSRSettings.h"
 
+#include "CondFormats/EcalObjects/interface/EcalAlignmentEB.h"
+
 namespace{
   struct dictionary {
     EcalPedestals pedmap;
@@ -147,6 +149,8 @@ namespace{
     std::vector<std::vector<float> > ecalSRSettings_dccNormalizedWeights_0;
     //    std::vector<float> ecalSRSettings_dccNormalizedWeights_1;
     //    float ecalSRSettings_dccNormalizedWeights_elt_2;
+
+    EcalAlignmentEB alignmentEB;
     
   };
 }
