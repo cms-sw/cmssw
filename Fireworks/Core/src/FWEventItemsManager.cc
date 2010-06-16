@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.32 2010/06/03 13:38:32 eulisse Exp $
+// $Id: FWEventItemsManager.cc,v 1.33 2010/06/11 13:04:45 eulisse Exp $
 //
 
 // system include files
@@ -237,22 +237,20 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
 
       FWDisplayProperties dp(cm->indexToColor(colorIndex), isVisible, transparency);
 
-      unsigned int layer;
-      const std::string& sLayer =(*keyValues)[7].second.value();
-      std::istringstream isl(sLayer);
-      isl >> layer;
+      unsigned int layer = strtol((*keyValues)[7].second.value().c_str(), 0, 10);
+
       //For older configs assume name is the same as purpose
       std::string purpose(name);
-      if(conf.version()>1) {
+      if (conf.version() > 1)
          purpose = (*keyValues)[8].second.value();
-      }
+      
       FWPhysicsObjectDesc desc(name,
                                TClass::GetClass(type.c_str()),
                                purpose,
                                dp,
                                moduleLabel,
                                productInstanceLabel,
-			       processName,
+                               processName,
                                filterExpression,
                                layer);
       add(desc);
