@@ -27,7 +27,7 @@
 namespace lumi{
   class TRG2DB : public DataPipe{
   public:
-    const static unsigned int COMMITLSINTERVAL=20; //commit interval in LS, totalrow=nsl*192
+    const static unsigned int COMMITLSINTERVAL=150; //commit interval in LS, totalrow=nsl*192
     explicit TRG2DB(const std::string& dest);
     virtual void retrieveData( unsigned int runnumber);
     virtual const std::string dataType() const;
@@ -546,20 +546,20 @@ namespace lumi{
 	  prescale=techprescale[trgbitcount-lumi::N_TRGALGOBIT];
 	  trgInserter->processNextIteration();	
 	}
-      }
-      trgInserter->flush();
-      ++comittedls;
-      if(comittedls==TRG2DB::COMMITLSINTERVAL){
-	std::cout<<"\t committing in LS chunck "<<comittedls<<std::endl; 
-	delete trgInserter; trgInserter=0;
-	lumisession->transaction().commit();
-	comittedls=0;
-	std::cout<<"\t committed "<<std::endl; 
-      }else if( trglscount==( totalcmsls-1) ){
-	std::cout<<"\t committing at the end"<<std::endl; 
-	delete trgInserter; trgInserter=0;
-	lumisession->transaction().commit();
-	std::cout<<"\t done"<<std::endl; 
+	trgInserter->flush();
+	++comittedls;
+	if(comittedls==TRG2DB::COMMITLSINTERVAL){
+	  std::cout<<"\t committing in LS chunck "<<comittedls<<std::endl; 
+	  delete trgInserter; trgInserter=0;
+	  lumisession->transaction().commit();
+	  comittedls=0;
+	  std::cout<<"\t committed "<<std::endl; 
+	}else if( trglscount==( totalcmsls-1) ){
+	  std::cout<<"\t committing at the end"<<std::endl; 
+	  delete trgInserter; trgInserter=0;
+	  lumisession->transaction().commit();
+	  std::cout<<"\t done"<<std::endl; 
+	}
       }
     }catch( const coral::Exception& er){
       lumisession->transaction().rollback();
