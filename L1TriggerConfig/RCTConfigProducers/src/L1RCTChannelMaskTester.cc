@@ -13,7 +13,7 @@
 //
 // Original Author:  Sridhara Dasu
 //         Created:  Mon Jul 16 23:48:35 CEST 2007
-// $Id: L1RCTChannelMaskTester.cc,v 1.2 2009/05/06 18:16:26 efron Exp $
+// $Id: L1RCTChannelMaskTester.cc,v 1.3 2010/05/12 22:48:54 wsun Exp $
 //
 //
 // user include files
@@ -65,11 +65,12 @@ void L1RCTChannelMaskTester::analyze(const edm::Event& iEvent, const edm::EventS
 
    rctChanMask->print(std::cout);
 
-  edm::ESHandle< L1RCTNoisyChannelMask > rctNoisyChanMask;
-   evSetup.get< L1RCTNoisyChannelMaskRcd >().get( rctNoisyChanMask) ;
-
-
-   rctNoisyChanMask->print(std::cout);
+   //MIKE B: Since the eventSetup::get always returns an exception 
+   //Deactivate the printing of the noise mask until it goes to the DB
+   //   edm::ESHandle< L1RCTNoisyChannelMask > rctNoisyChanMask;
+   //    evSetup.get< L1RCTNoisyChannelMaskRcd >().get( rctNoisyChanMask) ;
+   //    if(rctNoisyChanMask.isValid())
+   //      rctNoisyChanMask->print(std::cout);
 
 
 }
