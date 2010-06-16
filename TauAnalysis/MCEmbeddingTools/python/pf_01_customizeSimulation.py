@@ -51,6 +51,9 @@ def customise(process):
   
   process._Process__name="SELECTandSIM"
 
+
+  keepMC = cms.untracked.vstring("keep *_*_zMusExtracted_*")
+  process.output.outputCommands.extend(keepMC)
   process.TFileService = cms.Service("TFileService",  fileName = cms.string("histo.root")          )
 
   process.tmfTracks = cms.EDProducer("RecoTracksMixer",
@@ -61,6 +64,12 @@ def customise(process):
   process.offlinePrimaryVerticesWithBS.TrackLabel = cms.InputTag("tmfTracks")
   process.offlinePrimaryVertices.TrackLabel = cms.InputTag("tmfTracks")
 
+  print "Changing eventcontent to AODSIM + *_generator_*_*"
+  process.output.outputCommands = process.AODSIMEventContent.outputCommands
+  process.extraEventContent = cms.PSet(
+     outputCommands = cms.untracked.vstring(   'keep *_generator_*_*' )
+  ) 
+  process.output.outputCommands.extend(process.extraEventContent.outputCommands)
                                             
 
   process.iterativeTracking.__iadd__(process.tmfTracks)
@@ -112,4 +121,8 @@ def customise(process):
 
 
 
+  print "#############################################################"
+  print " Warning! PFCandidates 'electron' collection is not mixed, "
+  print "  and probably shouldnt be used. "
+  print "#############################################################"
   return(process)

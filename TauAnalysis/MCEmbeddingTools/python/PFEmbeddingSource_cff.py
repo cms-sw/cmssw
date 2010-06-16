@@ -20,7 +20,7 @@ newSource.ZTauTau.minVisibleTransverseMomentum = cms.untracked.double(0)
 
 source = cms.Source("PoolSource",
         skipEvents = cms.untracked.uint32(0),
-        fileNames = cms.untracked.vstring('file:/tmp/fruboes/ZmumuSpring10/patLayer1_fromAOD_PF2PAT_full.root')
+        fileNames = cms.untracked.vstring('file:/tmp/fruboes/Zmumu/patLayer1_fromAOD_PF2PAT_full.root')
 )
 
 filterEmptyEv = cms.EDFilter("EmptyEventsFilter",
@@ -34,10 +34,9 @@ adaptedMuonsFromDiTauCands = cms.EDProducer("CompositePtrCandidateT1T2MEtAdapter
 )
 
 dimuonsGlobal = cms.EDProducer('ZmumuPFEmbedder',
-    etaMax = cms.untracked.double(2.2),
-    ptMin = cms.untracked.double(10),
     tracks = cms.InputTag("generalTracks"),
-    selectedMuons = cms.InputTag("adaptedMuonsFromDiTauCands","zMusExtracted")
+    selectedMuons = cms.InputTag("adaptedMuonsFromDiTauCands","zMusExtracted"),
+    keepMuonTrack = cms.bool(False)
 )
 
 generator = newSource.clone()

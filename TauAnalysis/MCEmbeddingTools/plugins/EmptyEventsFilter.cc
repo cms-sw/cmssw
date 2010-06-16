@@ -13,7 +13,7 @@
 //
 // Original Author:  Manuel Zeise
 //         Created:  Wed Oct 17 10:06:52 CEST 2007
-// $Id: EmptyEventsFilter.cc,v 1.4 2010/05/21 07:52:36 veelken Exp $
+// $Id: EmptyEventsFilter.cc,v 1.5 2010/05/26 10:19:43 fruboes Exp $
 //
 //
 
@@ -53,6 +53,9 @@ class EmptyEventsFilter : public edm::EDFilter {
 
       int minEvents_;
       int target_;
+
+      int evTotal_;
+      int evSelected_;
       // ----------member data ---------------------------
 };
 
@@ -72,6 +75,8 @@ EmptyEventsFilter::EmptyEventsFilter(const edm::ParameterSet& iConfig)
    //now do what ever initialization is needed
    minEvents_ = iConfig.getUntrackedParameter<int>("minEvents",1);
    target_ = iConfig.getUntrackedParameter<int>("target",0);
+   evTotal_ = 0;
+   evSelected_ = 0;
 }
 
 
@@ -92,6 +97,7 @@ EmptyEventsFilter::~EmptyEventsFilter()
 bool
 EmptyEventsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  ++evTotal_;
 	using namespace edm;
 	using namespace std;
 //	using namespace HepMC;
@@ -125,8 +131,10 @@ EmptyEventsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
         if (num<minEvents_)
                 return false;
-        else
+        else {
+                ++evSelected_;
                 return true;
+        }
 
 }
 
@@ -139,6 +147,12 @@ EmptyEventsFilter::beginJob()
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 EmptyEventsFilter::endJob() {
+  std::cout << "EmptyEventsFilter:: " 
+      << double(evSelected_)/evTotal_
+      << " " << evSelected_
+      << " " << evTotal_
+      << std::endl;
+
 }
 
 DEFINE_FWK_MODULE(EmptyEventsFilter);

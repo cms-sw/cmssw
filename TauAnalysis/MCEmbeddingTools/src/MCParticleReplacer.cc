@@ -35,8 +35,10 @@ MCParticleReplacer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   edm::Handle<reco::MuonCollection> muons;
   
-  if (!iEvent.getByLabel(src_, muons))
+  if (!iEvent.getByLabel(src_, muons)){
+    std::cout << "No muons found" << std::endl<< std::endl << std::endl ; 
   	return;
+  }
 
   std::auto_ptr<HepMC::GenEvent> evt;
   if(hepMcMode_ == kReplace) {
