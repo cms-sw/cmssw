@@ -69,7 +69,7 @@ selection_dummy = cms.PSet (
 ## and the plot creator
 process.plotter = cms.EDAnalyzer('WenuPlots',
                                  # selection in use
-                                 selection_dummy,
+                                 selection_80relIso,
                                  selection_inverse,
                                  # if usePrecalcID the precalculated ID will be used only
                                  usePrecalcID = cms.untracked.bool(False),

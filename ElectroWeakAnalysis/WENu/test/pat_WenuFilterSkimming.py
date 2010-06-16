@@ -43,16 +43,16 @@ process.load("PhysicsTools.PatAlgos.patSequences_cff")
 ##                                specify the names of the MET collections that you need here %%%%
 ##                                                                                             #%%
 ## if you don't specify anything the default MET is the raw Calo MET                           #%%
-process.layer1RawCaloMETs = process.patMETs.clone(                                          #%%
-    metSource = cms.InputTag("met","","RECO"),
+process.layer1METs = process.patMETs.clone(                                                    #%%
+    metSource = cms.InputTag("tcMet","","RECO"),
     addTrigMatch = cms.bool(False),
     addMuonCorrections = cms.bool(False),
     addGenMET = cms.bool(False),
     )
 ## specify here what you want to have on the plots! <===== MET THAT YOU WANT ON THE PLOTS  %%%%%%%
-myDesiredMetCollection = 'layer1RawCaloMETs'
+myDesiredMetCollection = 'layer1METs'
 ## modify the sequence of the MET creation:                                                    #%%
-process.makePatMETs = cms.Sequence(process.layer1RawCaloMETs)
+process.makePatMETs = cms.Sequence(process.layer1METs)
 ## %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ## modify the final pat sequence: keep only electrons + METS (muons are needed for met corrections)
 process.load("RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequence_cff")
@@ -94,18 +94,19 @@ process.patDefaultSequence = cms.Sequence(process.makePatCandidates)
 ## WARNING: you may want to modify this item:
 HLT_process_name = "REDIGI"   # 
 # trigger path selection
-HLT_path_name    = "HLT_Ele15_LW_L1R"
+HLT_path_name     = "HLT_Photon10_L1R" #= "HLT_Ele15_LW_L1R" #
 # trigger filter name
-HLT_filter_name  =  "hltL1NonIsoHLTNonIsoSingleElectronLWEt15PixelMatchFilter"
+HLT_filter_name  =  "hltL1NonIsoHLTNonIsoSinglePhotonEt10HcalIsolFilter"
+#  #=  "hltL1NonIsoHLTNonIsoSingleElectronLWEt15PixelMatchFilter" #
 #
 process.wenuFilter = cms.EDFilter('WenuCandidateFilter',
                                   # cuts
                                   ETCut = cms.untracked.double(25.),
                                   METCut = cms.untracked.double(0.),
                                   # 2nd electron in W events
-                                  vetoSecondElectronEvents = cms.untracked.bool(False),
+                                  vetoSecondElectronEvents = cms.untracked.bool(True),
                                   ETCut2ndEle = cms.untracked.double(20.),
-                                  vetoSecondElectronIDType = cms.untracked.string("simpleEleId80relIso"),
+                                  vetoSecondElectronIDType = cms.untracked.string("simpleEleId95cIso"),
                                   vetoSecondElectronIDSign = cms.untracked.string("="),
                                   vetoSecondElectronIDValue = cms.untracked.double(7.),
                                   # trigger 
@@ -114,7 +115,7 @@ process.wenuFilter = cms.EDFilter('WenuCandidateFilter',
                                   triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","",HLT_process_name),
                                   hltpath = cms.untracked.string(HLT_path_name), 
                                   hltpathFilter = cms.untracked.InputTag(HLT_filter_name,"",HLT_process_name),
-                                  electronMatched2HLT = cms.untracked.bool(False),
+                                  electronMatched2HLT = cms.untracked.bool(True),
                                   electronMatched2HLT_DR = cms.untracked.double(0.2),
                                   # additional preselection cuts
                                   useValidFirstPXBHit = cms.untracked.bool(False),

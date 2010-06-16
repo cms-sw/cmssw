@@ -45,7 +45,7 @@ selection_inverse = cms.PSet (
 ## and the plot creator
 process.plotter = cms.EDAnalyzer('WenuPlots',
                                  # selection in use
-                                 selection_95cIso,
+                                 selection_80relIso,
                                  selection_inverse,
                                  # if usePrecalcID the precalculated ID will be used only
                                  usePrecalcID = cms.untracked.bool(False),
