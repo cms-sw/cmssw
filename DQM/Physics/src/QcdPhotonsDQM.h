@@ -6,8 +6,8 @@
  *
  *  DQM offline for QCD-Photons
  *
- *  $Date: 2010/06/14 14:39:42 $
- *  $Revision: 1.13 $
+ *  $Date: 2010/06/15 15:32:47 $
+ *  $Revision: 1.14 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -48,9 +48,6 @@ class QcdPhotonsDQM : public edm::EDAnalyzer {
   /// Save the histos
   void endJob(void);
 
-  float calcDeltaR(float eta1, float phi1, float eta2, float phi2);
-  float calcDeltaPhi(float phi1, float phi2);
-
  private:
 
   // ----------member data ---------------------------
@@ -71,8 +68,8 @@ class QcdPhotonsDQM : public edm::EDAnalyzer {
   edm::InputTag thePhotonCollectionLabel;
   edm::InputTag theCaloJetCollectionLabel;
   edm::InputTag theVertexCollectionLabel;
-  int    theMinCaloJetEt;
-  int    theMinPhotonEt;
+  double theMinCaloJetPt;
+  double theMinPhotonEt;
   bool   theRequirePhotonFound;
   double thePlotPhotonMaxEt;
   double thePlotPhotonMaxEta;
@@ -84,14 +81,14 @@ class QcdPhotonsDQM : public edm::EDAnalyzer {
   MonitorElement* h_photon_eta;
   MonitorElement* h_photon_count_bar;
   MonitorElement* h_photon_count_end;
-  MonitorElement* h_jet_et;
+  MonitorElement* h_jet_pt;
   MonitorElement* h_jet_eta;
   MonitorElement* h_jet_count;
   MonitorElement* h_deltaPhi_photon_jet;
   MonitorElement* h_deltaPhi_jet_jet2;
   MonitorElement* h_deltaEt_photon_jet;
-  MonitorElement* h_jet2_etOverPhotonEt;
-  MonitorElement* h_jet2_et;
+  MonitorElement* h_jet2_ptOverPhotonEt;
+  MonitorElement* h_jet2_pt;
   MonitorElement* h_jet2_eta;
   MonitorElement* h_deltaPhi_photon_jet2;
   MonitorElement* h_deltaR_jet_jet2;

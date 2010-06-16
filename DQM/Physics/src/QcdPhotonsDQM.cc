@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/06/14 14:39:42 $
- *  $Revision: 1.23 $
+ *  $Date: 2010/06/15 15:32:47 $
+ *  $Revision: 1.24 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -46,6 +46,9 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
 
+// Math stuff
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 #include <vector>
 
@@ -66,8 +69,8 @@ QcdPhotonsDQM::QcdPhotonsDQM(const ParameterSet& parameters) {
   thePhotonCollectionLabel    = parameters.getParameter<InputTag>("photonCollection");
   theCaloJetCollectionLabel   = parameters.getParameter<InputTag>("caloJetCollection");
   theVertexCollectionLabel    = parameters.getParameter<InputTag>("vertexCollection");
-  theMinCaloJetEt             = parameters.getParameter<int>("minCaloJetEt");
-  theMinPhotonEt              = parameters.getParameter<int>("minPhotonEt");
+  theMinCaloJetPt             = parameters.getParameter<double>("minCaloJetPt");
+  theMinPhotonEt              = parameters.getParameter<double>("minPhotonEt");
   theRequirePhotonFound       = parameters.getParameter<bool>("requirePhotonFound");
   thePlotPhotonMaxEt          = parameters.getParameter<double>("plotPhotonMaxEt");
   thePlotPhotonMaxEta         = parameters.getParameter<double>("plotPhotonMaxEta");
@@ -92,7 +95,7 @@ void QcdPhotonsDQM::beginJob() {
 
   std::stringstream aStringStream;
   std::string aString;
-  aStringStream << theMinCaloJetEt;
+  aStringStream << theMinCaloJetPt;
   aString = aStringStream.str();
 
   // Monitor of triggers passed
@@ -108,15 +111,15 @@ void QcdPhotonsDQM::beginJob() {
   h_photon_count_bar    = theDbe->book1D("h_photon_count_bar","Number of #gamma's passing selection (Barrel);Number of #gamma's", 8, -0.5, 7.5);
   h_photon_count_end    = theDbe->book1D("h_photon_count_end","Number of #gamma's passing selection (Endcap);Number of #gamma's", 8, -0.5, 7.5);
 
-  h_jet_et              = theDbe->book1D("h_jet_et",        "Jet with highest p_{T} (from "+theCaloJetCollectionLabel.label()+");p_{T}(1^{st} jet) (GeV)",    20, 0., thePlotPhotonMaxEt);
-  h_jet_eta             = theDbe->book1D("h_jet_eta",       "Jet with highest p_{T} (from "+theCaloJetCollectionLabel.label()+");#eta(1^{st} jet)", 20, -thePlotJetMaxEta, thePlotJetMaxEta);
+  h_jet_pt             = theDbe->book1D("h_jet_pt",   "Jet with highest p_{T} (from "+theCaloJetCollectionLabel.label()+");p_{T}(1^{st} jet) (GeV)",    20, 0., thePlotPhotonMaxEt);
+  h_jet_eta             = theDbe->book1D("h_jet_eta", "Jet with highest p_{T} (from "+theCaloJetCollectionLabel.label()+");#eta(1^{st} jet)", 20, -thePlotJetMaxEta, thePlotJetMaxEta);
   h_deltaPhi_photon_jet = theDbe->book1D("h_deltaPhi_photon_jet", "#Delta#phi between Highest E_{T} #gamma and jet;#Delta#phi(#gamma,1^{st} jet)", 20, 0, 3.1415926);
   h_deltaPhi_jet_jet2   = theDbe->book1D("h_deltaPhi_jet_jet2", "#Delta#phi between Highest E_{T} jet and 2^{nd} jet;#Delta#phi(1^{st} jet,2^{nd} jet)", 20, 0, 3.1415926);
   h_deltaEt_photon_jet  = theDbe->book1D("h_deltaEt_photon_jet",  "(E_{T}(#gamma)-p_{T}(jet))/E_{T}(#gamma) when #Delta#phi(#gamma,1^{st} jet) > 2.8;#DeltaE_{T}(#gamma,1^{st} jet)/E_{T}(#gamma)", 20, -1.0, 1.0);
-  h_jet_count           = theDbe->book1D("h_jet_count",           "Number of "+theCaloJetCollectionLabel.label()+" (p_{T} > "+aString+" GeV);Number of Jets", 8, -0.5, 7.5);
-  h_jet2_et             = theDbe->book1D("h_jet2_et",        "Jet with 2^{nd} highest p_{T} (from "+theCaloJetCollectionLabel.label()+");p_{T}(2^{nd} jet) (GeV)",    20, 0., thePlotPhotonMaxEt);
+  h_jet_count           = theDbe->book1D("h_jet_count", "Number of "+theCaloJetCollectionLabel.label()+" (p_{T} > "+aString+" GeV);Number of Jets", 8, -0.5, 7.5);
+  h_jet2_pt             = theDbe->book1D("h_jet2_pt",   "Jet with 2^{nd} highest p_{T} (from "+theCaloJetCollectionLabel.label()+");p_{T}(2^{nd} jet) (GeV)",    20, 0., thePlotPhotonMaxEt);
   h_jet2_eta            = theDbe->book1D("h_jet2_eta", "Jet with 2^{nd} highest p_{T} (from "+theCaloJetCollectionLabel.label()+");#eta(2^{nd} jet)", 20, -thePlotJetMaxEta, thePlotJetMaxEta);
-  h_jet2_etOverPhotonEt = theDbe->book1D("h_jet2_etOverPhotonEt", "p_{T}(2^{nd} highest jet) / E_{T}(#gamma);p_{T}(2^{nd} Jet)/E_{T}(#gamma)", 20, 0.0, 4.0);
+  h_jet2_ptOverPhotonEt = theDbe->book1D("h_jet2_ptOverPhotonEt", "p_{T}(2^{nd} highest jet) / E_{T}(#gamma);p_{T}(2^{nd} Jet)/E_{T}(#gamma)", 20, 0.0, 4.0);
   h_deltaPhi_photon_jet2 = theDbe->book1D("h_deltaPhi_photon_jet2","#Delta#phi between Highest E_{T} #gamma and 2^{nd} highest jet;#Delta#phi(#gamma,2^{nd} jet)", 20, 0, 3.1415926);
   h_deltaR_jet_jet2      = theDbe->book1D("h_deltaR_jet_jet2", "#DeltaR between Highest Jet and 2^{nd} Highest;#DeltaR(1^{st} jet,2^{nd} jet)", 30, 0, 6.0);
   h_deltaR_photon_jet2   = theDbe->book1D("h_deltaR_photon_jet2", "#DeltaR between Highest E_{T} #gamma and 2^{nd} jet;#DeltaR(#gamma, 2^{nd} jet)", 30, 0, 6.0);
@@ -248,7 +251,11 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   bool  found_lead_pho = false;
   int   photon_count_bar = 0;
   int   photon_count_end = 0;
+  // Assumption: reco photons are ordered by Et
   for (PhotonCollection::const_iterator recoPhoton = photonCollection->begin(); recoPhoton!=photonCollection->end(); recoPhoton++){
+
+    // stop looping over photons once we get to too low Et
+    if ( recoPhoton->et() < theMinPhotonEt ) break;
 
     //  Ignore ECAL Spikes
     const reco::CaloClusterPtr  seed = recoPhoton->superCluster()->seed();
@@ -268,29 +275,18 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
     if (!isNotSpike) continue;  // move on to next photon
     // END of determining ECAL Spikes
 
-    // Can't *really* determine if it's a photon when it's beyond eta of 2.5
-    if ( recoPhoton->et() < theMinPhotonEt ) break;
-
     bool pho_current_passPhotonID = false;
     bool pho_current_isEB = recoPhoton->isEB();
-    // Lead photon object found
-    if ( pho_current_isEB ) {
-      if (recoPhoton->sigmaIetaIeta() < 0.01 || recoPhoton->hadronicOverEm() < 0.05) {
-	pho_current_passPhotonID = true;
-      }
-    } else {
-      if (recoPhoton->hadronicOverEm() < 0.05 ) {
-	pho_current_passPhotonID = true;
-      }
-    }
+    bool pho_current_isEE = recoPhoton->isEE();
 
-    // Count of photons passing photon ID
-    if (pho_current_passPhotonID) {
-      if ( pho_current_isEB ) {
-	photon_count_bar++;
-      } else {
-	photon_count_end++;
-      }
+    if ( pho_current_isEB && (recoPhoton->sigmaIetaIeta() < 0.01 || recoPhoton->hadronicOverEm() < 0.05) ) {
+      // Photon object in barrel passes photon ID
+      pho_current_passPhotonID = true;
+      photon_count_bar++;
+    } else if ( pho_current_isEE && (recoPhoton->hadronicOverEm() < 0.05) ) {
+      // Photon object in endcap passes photon ID
+      pho_current_passPhotonID = true;
+      photon_count_end++;
     }
 
     if (!found_lead_pho) {
@@ -301,7 +297,7 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
       photon_phi = recoPhoton->phi();
       if ( pho_current_isEB ) {
 	photon_fisher = -0.069*recoPhoton->ecalRecHitSumEtConeDR04()-0.036*recoPhoton->hcalTowerSumEtConeDR04()-0.026*recoPhoton->trkSumPtHollowConeDR04()+0.384;
-      } else {
+      } else if (pho_current_isEE) {
 	// TO DO: create fisher for endcap photons
 	photon_fisher = -0.069*recoPhoton->ecalRecHitSumEtConeDR04()-0.036*recoPhoton->hcalTowerSumEtConeDR04()-0.026*recoPhoton->trkSumPtHollowConeDR04()+0.384;
       }
@@ -320,32 +316,33 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   iEvent.getByLabel (theCaloJetCollectionLabel,caloJetCollection);
   if (!caloJetCollection.isValid()) return;
 
-  float jet_et    = -8.0;
+  float jet_pt    = -8.0;
   float jet_eta   = -8.0;
   float jet_phi   = -8.0;
   int   jet_count = 0;
-  float jet2_et   = -9.0;
+  float jet2_pt   = -9.0;
   float jet2_eta  = -9.0;
   float jet2_phi  = -9.0;
+  // Assumption: jets are ordered by Et
   for (CaloJetCollection::const_iterator i_calojet = caloJetCollection->begin(); i_calojet != caloJetCollection->end(); i_calojet++) {
 
-    float jet_current_et = i_calojet->pt();
+    float jet_current_pt = i_calojet->pt();
 
-    // we don't care about jets that overlap with the lead photon
-    if ( calcDeltaR(i_calojet->eta(), i_calojet->phi(), photon_eta, photon_phi) < 0.5 ) continue;
-    // if it has too low Et, throw away
-    if (jet_current_et < theMinCaloJetEt) continue;
+    // don't care about jets that overlap with the lead photon
+    if ( deltaR(i_calojet->eta(), i_calojet->phi(), photon_eta, photon_phi) < 0.5 ) continue;
+    // stop looping over jets once we get to too low Et
+    if (jet_current_pt < theMinCaloJetPt) break;
 
     jet_count++;
-    if (jet_current_et > jet_et) {
-      jet2_et  = jet_et;  // 2nd highest jet get's et from current highest
+    if (jet_current_pt > jet_pt) {
+      jet2_pt  = jet_pt;  // 2nd highest jet get's et from current highest
       jet2_eta = jet_eta;
       jet2_phi = jet_phi;
-      jet_et   = i_calojet->et(); // current highest jet gets et from the new highest
+      jet_pt   = jet_current_pt; // current highest jet gets et from the new highest
       jet_eta  = i_calojet->eta();
       jet_phi  = i_calojet->phi();
-    } else if (jet_current_et > jet2_et) {
-      jet2_et  = i_calojet->et();
+    } else if (jet_current_pt > jet2_pt) {
+      jet2_pt  = jet_current_pt;
       jet2_eta = i_calojet->eta();
       jet2_phi = i_calojet->phi();
     }
@@ -357,7 +354,7 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   // Fill histograms if a jet found
   // NOTE: if a photon was required to be found, but wasn't
   //        we wouldn't have made it to this point in the code
-  if ( jet_et > 0.0 ) {
+  if ( jet_pt > 0.0 ) {
 
     // Photon Plots
     h_photon_et       ->Fill( photon_et  );
@@ -368,6 +365,7 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
     // Photon Et hists for different orientations to the jet
     if ( fabs(photon_eta)<1.45 && photon_passPhotonID ) {  // Lead photon is in barrel
       h_photon_fisher_vs_et->Fill( photon_et, photon_fisher );
+
       if (fabs(jet_eta)<1.45){                          //   jet is in barrel
 	if (photon_eta*jet_eta>0) {
 	  h_photon_et_jetcs->Fill(photon_et);
@@ -384,21 +382,21 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
     } // END of Lead Photon is in Barrel
 
     // Jet Plots
-    h_jet_et       ->Fill( jet_et     );
+    h_jet_pt       ->Fill( jet_pt     );
     h_jet_eta      ->Fill( jet_eta    );
     h_jet_count    ->Fill( jet_count  );
-    h_deltaPhi_photon_jet   ->Fill( calcDeltaPhi(photon_phi, jet_phi) );
-    if ( calcDeltaPhi(photon_phi,jet_phi)>2.8 ) h_deltaEt_photon_jet->Fill( (photon_et-jet_et)/photon_et );
+    h_deltaPhi_photon_jet   ->Fill( abs(deltaPhi(photon_phi, jet_phi)) );
+    if ( abs(deltaPhi(photon_phi,jet_phi))>2.8 ) h_deltaEt_photon_jet->Fill( (photon_et-jet_pt)/photon_et );
 
     // 2nd Highest Jet Plots
-    if ( jet2_et  > 0.0 ) {
-      h_jet2_et             ->Fill( jet2_et  );
+    if ( jet2_pt  > 0.0 ) {
+      h_jet2_pt             ->Fill( jet2_pt  );
       h_jet2_eta            ->Fill( jet2_eta );
-      h_jet2_etOverPhotonEt ->Fill( jet2_et/photon_et );
-      h_deltaPhi_photon_jet2->Fill( calcDeltaPhi(photon_phi, jet2_phi) );
-      h_deltaPhi_jet_jet2   ->Fill( calcDeltaPhi(   jet_phi, jet2_phi) );
-      h_deltaR_jet_jet2     ->Fill( calcDeltaR(   jet_eta,    jet_phi, jet2_eta, jet2_phi) );
-      h_deltaR_photon_jet2  ->Fill( calcDeltaR(photon_eta, photon_phi, jet2_eta, jet2_phi) );
+      h_jet2_ptOverPhotonEt ->Fill( jet2_pt/photon_et );
+      h_deltaPhi_photon_jet2->Fill( abs(deltaPhi(photon_phi, jet2_phi)) );
+      h_deltaPhi_jet_jet2   ->Fill( abs(deltaPhi(   jet_phi, jet2_phi)) );
+      h_deltaR_jet_jet2     ->Fill( deltaR(   jet_eta,    jet_phi, jet2_eta, jet2_phi) );
+      h_deltaR_photon_jet2  ->Fill( deltaR(photon_eta, photon_phi, jet2_eta, jet2_phi) );
     }
   } 
   // End of Filling histograms
@@ -417,28 +415,3 @@ void QcdPhotonsDQM::endRun(const edm::Run& run, const edm::EventSetup& es) {
   h_photon_et_ratio_co_fo->getTH1F()->Divide( h_photon_et_jetco->getTH1F(), h_photon_et_jetfo->getTH1F() );
 }
 
-// Method for Calculating the delta-r between two things
-float QcdPhotonsDQM::calcDeltaR(float eta1, float phi1, float eta2, float phi2) {
-
-  float deltaEta = eta1 - eta2;
-  float deltaPhi = calcDeltaPhi(phi1, phi2);
-
-  float deltaRsqr = deltaEta*deltaEta + deltaPhi*deltaPhi;
-
-  return sqrt(deltaRsqr);
-} // End of calcDeltaR
-
-
-// This always returns only a positive deltaPhi
-float QcdPhotonsDQM::calcDeltaPhi(float phi1, float phi2) {
-
-  float deltaPhi = phi1 - phi2;
-
-  if (deltaPhi < 0) deltaPhi = -deltaPhi;
-
-  if (deltaPhi > 3.1415926) {
-    deltaPhi = 2 * 3.1415926 - deltaPhi;
-  }
-
-  return deltaPhi;
-}
