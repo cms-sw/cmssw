@@ -4,6 +4,10 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
+<<<<<<< CutBasedElectronID.cc
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+=======
+>>>>>>> 1.25
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 
@@ -367,7 +371,15 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
                                                 convTk->d0(), bfield);  
     }
     
+<<<<<<< CutBasedElectronID.cc
+    float dist = (convInfo.dist() == -9999.? 9999:convInfo.dist());
+    float dcot = (convInfo.dcot() == -9999.? 9999:convInfo.dcot());
+
+    float dcotdistcomb = ((0.04 - std::max(dist, dcot)) > 0?(0.04 - std::max(dist, dcot)):0);
+    
+=======
     float dcotdistcomb = ((0.4 - std::max(convParam.first, convParam.second)) > 0?(0.4 - std::max(convParam.first, convParam.second)):0);
+>>>>>>> 1.25
     
     if ((mishits < cutmishits[cat+bin*9]) and 
         (dcotdistcomb < cutdcotdist[cat+bin*9]))
@@ -378,6 +390,179 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
 
   return -1.;
 }
+<<<<<<< CutBasedElectronID.cc
+
+double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron ,
+                                           const edm::Event& e ,
+                                           const edm::EventSetup& es) { 
+
+  double scTheta = (2*atan(exp(-electron->superCluster()->eta())));
+  double scEt = electron->superCluster()->energy()*sin(scTheta);
+  double eta = electron->p4().Eta();
+  double eOverP = electron->eSuperClusterOverP();
+  double hOverE = electron->hadronicOverEm();
+  EcalClusterLazyTools lazyTools = getClusterShape(e,es);
+  std::vector<float> vLocCov = lazyTools.localCovariances(*(electron->superCluster()->seed())) ;
+  double sigmaee = sqrt(vLocCov[0]);
+  double e25Max = lazyTools.e2x5Max(*(electron->superCluster()->seed()))  ;
+  double e15 = lazyTools.e1x5(*(electron->superCluster()->seed()))  ;
+  double e55 = lazyTools.e5x5(*(electron->superCluster()->seed())) ;
+  double e25Maxoe55 = e25Max/e55 ;
+  double e15oe55 = e15/e55 ;
+  double deltaPhiIn = electron->deltaPhiSuperClusterTrackAtVtx();
+  double deltaEtaIn = electron->deltaEtaSuperClusterTrackAtVtx();
+
+  double ip = 0;
+  int mishits = electron->gsfTrack()->trackerExpectedHitsInner().numberOfHits();
+  double tkIso = electron->dr03TkSumPt();
+  double ecalIso = electron->dr04EcalRecHitSumEt();
+  double ecalIsoPed = (electron->isEB())?std::max(0.,ecalIso-1.):ecalIso;
+  double hcalIso = electron->dr04HcalTowerSumEt();
+  double hcalIso1 = electron->dr04HcalDepth1TowerSumEt();
+  double hcalIso2 = electron->dr04HcalDepth2TowerSumEt();
+  
+  // calculate the conversion track partner related criteria
+  // calculate the reference point of the track
+  const math::XYZPoint tpoint = electron->gsfTrack()->referencePoint();
+  // calculate the magnetic field for that point
+  Double_t bfield = 0;
+  if (dataMagneticFieldSetUp_) {
+    edm::Handle<DcsStatusCollection> dcsHandle;
+    e.getByLabel(dcsTag_, dcsHandle);
+    // scale factor = 3.801/18166.0 which are
+    // average values taken over a stable two
+    // week period
+    Double_t currentToBFieldScaleFactor = 2.09237036221512717e-04;
+    Double_t current = (*dcsHandle)[0].magnetCurrent();
+    bfield = current*currentToBFieldScaleFactor;
+  } else {
+    edm::ESHandle<MagneticField> magneticField;
+    es.get<IdealMagneticFieldRecord>().get(magneticField);
+    const  MagneticField *mField = magneticField.product();
+    bfield = mField->inTesla(GlobalPoint(0.,0.,0.)).z();
+  }
+
+  edm::Handle<reco::TrackCollection> ctfTracks;
+  e.getByLabel("generalTracks", ctfTracks); 
+  ConversionFinder convFinder;
+
+  if (version_ == "V00") {
+     std::vector<float> vCov = lazyTools.covariances(*(electron->superCluster()->seed())) ;
+     sigmaee = sqrt(vCov[0]);  
+     if (electron->isEE())
+       sigmaee = sigmaee - 0.02*(fabs(eta) - 2.3);   //correct sigmaetaeta dependence on eta in endcap
+  }
+
+  if (version_ == "V03" and version_ == "V04") {
+    edm::Handle<reco::BeamSpot> pBeamSpot;
+    // uses the same name for the vertex collection to avoid adding more new names
+    e.getByLabel(verticesCollection_, pBeamSpot); 
+    if (pBeamSpot.isValid()) {
+      const reco::BeamSpot *bspot = pBeamSpot.product();
+      const math::XYZPoint bspotPosition = bspot->position();
+      ip = fabs(electron->gsfTrack()->dxy(bspotPosition));
+    } else
+      ip = fabs(electron->gsfTrack()->dxy());
+  }
+
+  if (version_ == "V04" or version_ == "V05") {
+    ecalIso = electron->dr03EcalRecHitSumEt();
+    ecalIsoPed = (electron->isEB())?std::max(0.,ecalIso-1.):ecalIso;
+    hcalIso = electron->dr03HcalTowerSumEt();
+    hcalIso1 = electron->dr03HcalDepth1TowerSumEt();
+    hcalIso2 = electron->dr03HcalDepth2TowerSumEt();
+  }
+
+  if (version_ == "V05") {
+    edm::Handle<reco::VertexCollection> vtxH;
+    e.getByLabel(verticesCollection_, vtxH);
+    if (vtxH->size() != 0) {
+      reco::VertexRef vtx(vtxH, 0);
+      ip = fabs(electron->gsfTrack()->dxy(math::XYZPoint(vtx->x(),vtx->y(),vtx->z())));
+    } else
+      ip = fabs(electron->gsfTrack()->dxy());
+  }
+
+  // .....................................................................................
+  std::vector<double> cut;
+  // ROBUST Selection
+  if (type_ == "robust") {
+    
+    double result = 0;
+
+    // hoe, sigmaEtaEta, dPhiIn, dEtaIn
+    if (electron->isEB())
+      cut = cuts_.getParameter<std::vector<double> >("barrel");
+    else
+      cut = cuts_.getParameter<std::vector<double> >("endcap");
+    // check isolations: if only isolation passes result = 2   
+    if (quality_ == "highenergy") {
+      if ((tkIso > cut[6] || hcalIso2 > cut[11]) ||
+          (electron->isEB() && ((ecalIso + hcalIso1) > cut[7]+cut[8]*scEt)) ||
+          (electron->isEE() && (scEt >= 50.) && ((ecalIso + hcalIso1) > cut[7]+cut[8]*(scEt-50))) ||
+          (electron->isEE() && (scEt < 50.) && ((ecalIso + hcalIso1) > cut[9]+cut[10]*(scEt-50))))
+        result = 0;
+      else
+        result = 2;
+    } else {
+
+      //if (electron->isEB() && (version_ == "V03" || version_ == "V04" || version_ == "")) 
+      //  ecalIso = std::max(0., ecalIso - 1.);
+        
+      if ((tkIso > cut[6]) || (ecalIso > cut[7]) || (hcalIso > cut[8]) || (hcalIso1 > cut[9]) || (hcalIso2 > cut[10]) || 
+          (tkIso/electron->p4().Pt() > cut[11]) || (ecalIso/electron->p4().Pt() > cut[12]) || (hcalIso/electron->p4().Pt() > cut[13]) ||
+          ((tkIso+ecalIso+hcalIso)>cut[14]) || (((tkIso+ecalIso+hcalIso)/ electron->p4().Pt()) > cut[15]) || 
+          ((tkIso+ecalIsoPed+hcalIso)>cut[16]) || (((tkIso+ecalIsoPed+hcalIso)/ electron->p4().Pt()) > cut[17])  )
+        result = 0.;
+      else
+        result = 2.;
+    }
+
+    if (hOverE > cut[0]) 
+      return result;    
+
+    if (sigmaee > cut[1]) 
+      return result;    
+
+    if (fabs(deltaPhiIn) > cut[2]) 
+      return result;    
+
+    if (fabs(deltaEtaIn) > cut[3]) 
+      return result;    
+    
+    if (e25Maxoe55 < cut[4] && e15oe55 < cut[5])
+      return result;
+    // some extra electron id cuts
+    if (sigmaee < cut[18]) // inverted sigmaee cut - spike removal related
+      return result;
+
+    if (  eOverP < cut[19] ||  eOverP > cut[20]) // lower and upper cut in E/P
+      return result;
+    
+    result = result + 1;
+
+    if (ip > cut[21])
+      return result;
+    if (mishits > cut[22]) // expected missing hits
+      return result;
+    // positive cut[23] means to demand a valid hit in 1st layer PXB 
+    if (cut[23] >0 && not (electron->gsfTrack()->hitPattern().hasValidHitInFirstPixelBarrel()))
+      return result;
+
+    // cut[24]: Dist cut[25]: dcot    
+    ConversionInfo convInfo = convFinder.getConversionInfo(*electron, ctfTracks, bfield);
+
+    if (convFinder.isFromConversion(cut[24], cut[25]))
+      return result;
+      
+    result += 4;
+    
+    return result;
+  }
+
+  return -1.;
+}
+=======
 
 double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron ,
                                            const edm::Event& e ,
@@ -546,3 +731,4 @@ double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron ,
 
   return -1.;
 }
+>>>>>>> 1.25
