@@ -62,13 +62,13 @@ def createBranchBuffer(branch):
 
 
 class EventTree(object):
-      def __init__(self,obj):
+      def __init__(self,obj, treeName = 'Events'):
           if isinstance(obj, ROOT.TTree):
               self._tree = obj
           elif isinstance(obj, ROOT.TFile):
-              self._tree = obj.Get("Events")
+              self._tree = obj.Get(treeName)
           elif isinstance(obj, str):
-              self._tree = ROOT.TFile.Open(obj).Get("Events")
+              self._tree = ROOT.TFile.Open(obj).Get(treeName)
           else:
               raise cmserror("EventTree accepts only TTrees, TFiles and filenames")
           self._usedBranches = dict()
