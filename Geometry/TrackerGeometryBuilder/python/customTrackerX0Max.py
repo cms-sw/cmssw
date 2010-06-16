@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+process.XMLFromDBSource.label='ExtendedX0Max'
 def customise(process):
     process.GlobalTag.toGet = cms.VPSet(
         cms.PSet(record = cms.string("GeometryFileRcd"),
