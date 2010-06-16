@@ -22,7 +22,7 @@
 #include "RecoTauTag/TauTagTools/interface/CaloTauElementsOperators.h"
 #include "RecoTauTag/TauTagTools/interface/TauTagTools.h"
 
-#include "RecoJets/JetAlgorithms/interface/JetMatchingTools.h"
+#include "RecoJets/JetProducers/interface/JetMatchingTools.h"
 
 #include "TrackingTools/IPTools/interface/IPTools.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
