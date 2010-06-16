@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.37 2010/06/08 13:59:51 eulisse Exp $
+// $Id: CmsShowEDI.cc,v 1.38 2010/06/10 10:20:15 eulisse Exp $
 //
 
 // system include files
@@ -221,7 +221,7 @@ CmsShowEDI::fillEDIFrame() {
       if(0 != m_item) {
          const FWDisplayProperties &p = iItem->defaultDisplayProperties();
          m_objectLabel->SetText(iItem->name().c_str());
-         m_colorSelectWidget->SetColorByIndex(m_colorManager->colorToIndex(p.color()),kFALSE);
+         m_colorSelectWidget->SetColorByIndex(p.color(),kFALSE);
          m_opacitySlider->SetPosition(100 - p.transparency());
          m_isVisibleButton->SetDisabledAndSelected(p.isVisible());
          m_validator->setType(ROOT::Reflex::Type::ByTypeInfo(*(iItem->modelType()->GetTypeInfo())));
@@ -286,7 +286,7 @@ void
 CmsShowEDI::updateDisplay() {
    //std::cout<<"Updating display"<<std::endl;
    const FWDisplayProperties &props = m_item->defaultDisplayProperties();
-   m_colorSelectWidget->SetColorByIndex(m_colorManager->colorToIndex(props.color()),kFALSE);
+   m_colorSelectWidget->SetColorByIndex(props.color(),kFALSE);
    m_opacitySlider->SetPosition(100 - props.transparency());
    m_isVisibleButton->SetState(props.isVisible() ? kButtonDown : kButtonUp, kFALSE);
 }

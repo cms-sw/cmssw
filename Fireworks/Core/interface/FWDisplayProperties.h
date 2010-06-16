@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:22:36 EST 2008
-// $Id: FWDisplayProperties.h,v 1.10 2010/06/03 13:38:31 eulisse Exp $
+// $Id: FWDisplayProperties.h,v 1.11 2010/06/14 18:02:57 matevz Exp $
 //
 
 // system include files
@@ -42,17 +42,18 @@ public:
        In general it's a good idea to have a copy and modify approach when
        changing updating only one value.
      */
-   FWDisplayProperties(const Color_t& iColor,
-                       bool isVisible,
-                       Int_t transparency);
+   FWDisplayProperties(Color_t iColor,
+                       bool    isVisible,
+                       Char_t  transparency);
    //virtual ~FWDisplayProperties();
 
    // ---------- const member functions ---------------------
-   const Color_t& color() const {
+
+   Color_t color() const {
       return m_color;
    }
    
-   const Int_t transparency() const {
+   const Char_t transparency() const {
       return m_transparency;
    }
 
@@ -72,8 +73,13 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
+
+   void setColor(Color_t iColor) {
+      m_color = iColor;
+   }
+
    /** Notice that transparency in root is in the range [0, 100] */
-   void setTransparency(Int_t transparency) {
+   void setTransparency(Char_t transparency) {
       transparency = transparency < 0 ? 0 : transparency; 
       transparency = transparency > 100 ? 100 : transparency; 
       m_transparency = transparency;
@@ -83,17 +89,16 @@ public:
       m_isVisible = iSet;
    }
 
-   void setColor(Color_t iColor);
-
 private:
    //FWDisplayProperties(const FWDisplayProperties&); // stop default
 
    //const FWDisplayProperties& operator=(const FWDisplayProperties&); // stop default
 
    // ---------- member data --------------------------------
+
    Color_t m_color;
-   bool m_isVisible;
-   Int_t m_transparency;
+   bool    m_isVisible;
+   Char_t  m_transparency;
 };
 
 #endif

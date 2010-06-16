@@ -13,23 +13,22 @@ class TGColorPopup;
 
 //------------------------------FWColorFrame------------------------------//
 
-class FWColorFrame : public TGColorFrame
+class FWColorFrame : public TGFrame
 {
 protected:
-   Int_t fIndex;
+   Color_t         fColor;
 
 public:
-   FWColorFrame(const TGWindow *p = 0, Pixel_t c = 0, Int_t i = 0);
+   FWColorFrame(const TGWindow *p=0, Color_t ci=0);
    virtual ~FWColorFrame() {}
 
    virtual Bool_t HandleButton(Event_t *event);
    virtual void   DrawBorder() {}
 
-   void SetColor(Pixel_t);
+   void    SetColor(Color_t);
+   Color_t GetColor() const { return fColor; }
 
-   Int_t GetIndex() const { return fIndex; }
-   //sends the index
-   void ColorSelected(Int_t frameindex); // *SIGNAL*
+   void ColorSelected(Color_t); // *SIGNAL*
 
    ClassDef(FWColorFrame, 0);
 
@@ -40,47 +39,31 @@ public:
 
 class FWColorRow : public TGHorizontalFrame
 {
-private:
-   Int_t fRowIndex;
-
    void DrawHighlight();
 
 protected:
-   Bool_t  fIsActive;
-   Bool_t  fBackgroundIsBlack;
-   Int_t   fSelectedIndex;
-   Pixel_t fSelectedColor;
+   Bool_t    fBackgroundIsBlack;
+   Int_t     fSelectedIndex;
    std::vector<FWColorFrame *>  fCc;
 
    virtual void DoRedraw();
 
 public:
-   FWColorRow(const TGWindow *p = 0, Int_t rowindex = 0);
+   FWColorRow(const TGWindow *p=0);
    virtual ~FWColorRow();
 
-   virtual void RowActive(Bool_t onoff);
-   virtual void SetActive(Int_t newat);
-   virtual void AddColor(Pixel_t color);
+   virtual void AddColor(Color_t color);
 
-   void ResetColor(Int_t, Pixel_t);
+   void ResetColor(Int_t, Color_t);
    void SetBackgroundToBlack(Bool_t);
    
    //if it can't find the color it returns -1
-   Int_t FindColorIndex(Pixel_t) const;
-   Int_t GetRowIndex() {
-      return fRowIndex;
-   }
-   void SetRowIndex(Int_t iRow) {
-      fRowIndex=iRow;
-   }
-   Int_t GetSelectedIndex() {
-      return fSelectedIndex;
-   }
-   Pixel_t GetSelectedColor() {
-      return fSelectedColor;
-   }
-   //sends the sum rowindex+column
-   void ColorChanged(Int_t newcolor); // *SIGNAL*
+   Int_t FindColorIndex(Color_t) const;
+
+   Int_t GetSelectedIndex() const  { return fSelectedIndex; }
+   void  SetSelectedIndex(Int_t i) { fSelectedIndex = i; }
+
+   void ColorChanged(Color_t); // *SIGNAL*
 
    ClassDef(FWColorRow, 0);
 
@@ -95,31 +78,36 @@ private:
    void SetColors(const std::vector<Pixel_t>& colors, bool backgroundIsBlack);
 
 protected:
-   Pixel_t     fSelectedColor;
-   FWColorRow *fFirstRow, *fSecondRow, *fSelectedRow;
-   Int_t       fSelectedIndex;
+   Color_t     fSelectedColor;
+   FWColorRow *fFirstRow, *fSecondRow;
    TGLabel    *fLabel;
    Int_t       fNumColors;
+   Bool_t      fShowWheel;
+
+   static Bool_t fgFreePalette;
 
 public:
-   FWColorPopup(const TGWindow *p = 0, Pixel_t color = 0);
+   FWColorPopup(const TGWindow *p=0, Color_t color=0);
    virtual ~FWColorPopup();
 
    virtual Bool_t HandleButton(Event_t *event);
 
-   void InitContent(const char *name, const std::vector<Pixel_t>& colors, bool backgroundIsBlack=true);
+   void InitContent(const char *name, const std::vector<Color_t>& colors, bool backgroundIsBlack=true);
    void SetName(const char* iName);
-   void ResetColors(const std::vector<Pixel_t>& colors, bool backgroundIsBlack=true);
-   void SetSelection(Pixel_t);
+   void SetColors(const std::vector<Color_t>& colors, bool backgroundIsBlack=true);
+   void ResetColors(const std::vector<Color_t>& colors, bool backgroundIsBlack=true);
+   void SetSelection(Color_t);
    void PlacePopup(Int_t x, Int_t y, UInt_t w, UInt_t h);
-   void EndPopup();
-   FWColorRow *GetActiveRow() {
-      return fSelectedRow;
-   }
-   void ColorBookkeeping(Int_t row); // *SIGNAL*
+
+   void ColorSelected(Color_t);          // *SIGNAL*
+
+   void PopupColorWheel();
+   void ColorWheelSelected(Pixel_t);
+
+   static Bool_t HasFreePalette();
+   static void   EnableFreePalette();
 
    ClassDef(FWColorPopup, 0);
-
 };
 
 
@@ -129,25 +117,23 @@ class FWColorSelect : public TGColorSelect
 {
 private:
    std::string           fLabel;
-   UInt_t                fIndex;
+   Color_t               fSelectedColor;
    std::vector<Color_t>  fPalette;
    FWColorPopup         *fFireworksPopup;
    const FWColorManager *fColorManager;
+   
 
 public:
-   FWColorSelect(const TGWindow *p, const char *label, UInt_t colorIndex,
+   FWColorSelect(const TGWindow *p, const char *label, Color_t colorIndex,
                  const FWColorManager*, Int_t id);
    ~FWColorSelect();
 
    virtual Bool_t HandleButton(Event_t *event);
 
-   void CatchSignal(Int_t newindex);
-
-   void SetColorByIndex(UInt_t iColor, Bool_t iSendSignal);
+   void SetColorByIndex(Color_t iColor);
+   void SetColorByIndex(Color_t iColor, Bool_t iSendSignal);
    void UpdateColors();
 
-   void SetColorByPixel(Pixel_t iPix);
-   
    void ColorChosen(Color_t); // *SIGNAL*
 
    ClassDef(FWColorSelect, 0);

@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jun 27 11:23:08 EDT 2008
-// $Id: CmsShowModelPopup.cc,v 1.24 2010/06/03 13:47:06 eulisse Exp $
+// $Id: CmsShowModelPopup.cc,v 1.25 2010/06/07 16:37:49 eulisse Exp $
 //
 
 // system include file
@@ -223,7 +223,7 @@ CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr)
    }
    
    // Set the various widgets.
-   m_colorSelectWidget->SetColorByIndex(m_colorManager->colorToIndex(props.color()), kFALSE);
+   m_colorSelectWidget->SetColorByIndex(props.color(), kFALSE);
    m_opacitySlider->SetPosition(100 - props.transparency());
    m_isVisibleButton->SetDisabledAndSelected(props.isVisible());
 
@@ -246,7 +246,7 @@ CmsShowModelPopup::updateDisplay()
    {
       const FWEventItem::ModelInfo &info = i->item()->modelInfo(i->index());
       const FWDisplayProperties &p = info.displayProperties();
-      m_colorSelectWidget->SetColor(gVirtualX->GetPixel(p.color()), kFALSE);
+      m_colorSelectWidget->SetColorByIndex(p.color(), kFALSE);
       
       if (p.isVisible())
          m_isVisibleButton->SetState(kButtonDown, kFALSE);
@@ -267,7 +267,7 @@ CmsShowModelPopup::disconnectAll() {
    //  m_item = 0;
    //  m_model = 0;
    m_modelLabel->SetText("No object selected");
-   m_colorSelectWidget->SetColor(gVirtualX->GetPixel(kRed),kFALSE);
+   m_colorSelectWidget->SetColorByIndex(kRed,kFALSE);
    m_isVisibleButton->SetDisabledAndSelected(kTRUE);
    m_colorSelectWidget->SetEnabled(kFALSE);
    m_opacitySlider->SetEnabled(kFALSE);

@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.164 2010/05/27 08:45:00 eulisse Exp $
+// $Id: CmsShowMain.cc,v 1.165 2010/06/16 11:41:13 amraktad Exp $
 //
 
 // system include files
@@ -45,6 +45,7 @@
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
+#include "Fireworks/Core/src/FWColorSelect.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWModelExpressionSelector.h"
 #include "Fireworks/Core/interface/FWPhysicsObjectDesc.h"
@@ -244,13 +245,12 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       }
       fwLog(fwlog::kInfo) << "Geom " <<  m_geomFileName.c_str() << std::endl;
 
-      // non-restricted palette
+      // Free-palette palette
       if (vm.count(kFreePaletteCommandOpt)) {
-         m_colorManager->initialize(false);
-          fwLog(fwlog::kInfo) << "Palette restriction removed on user request!\n";
-      } else {
-         m_colorManager->initialize(true);
+         FWColorPopup::EnableFreePalette();
+         fwLog(fwlog::kInfo) << "Palette restriction removed on user request!\n";
       }
+      m_colorManager->initialize();
 
       bool eveMode = vm.count(kEveOpt);
 

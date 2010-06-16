@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.33 2010/06/11 13:04:45 eulisse Exp $
+// $Id: FWEventItemsManager.cc,v 1.34 2010/06/16 07:28:54 eulisse Exp $
 //
 
 // system include files
@@ -88,7 +88,7 @@ FWEventItemsManager::add(const FWPhysicsObjectDesc& iItem)
    FWPhysicsObjectDesc temp(iItem);
    if(! m_context->colorManager()->colorHasIndex(temp.displayProperties().color())) {
       FWDisplayProperties prop(temp.displayProperties());
-      prop.setColor( m_context->colorManager()->indexToColor(0));
+      prop.setColor(0);
       temp.setDisplayProperties(prop);
    }
    m_items.push_back(new FWEventItem(m_context,m_items.size(),m_accessorFactory->accessorFor(temp.type()),
@@ -159,7 +159,8 @@ FWEventItemsManager::addTo(FWConfiguration& iTo) const
    assert(0!=cm);
    for(std::vector<FWEventItem*>::const_iterator it = m_items.begin();
        it != m_items.end();
-       ++it) {
+       ++it)
+   {
       if(!*it) continue;
       FWConfiguration conf(4);
       ROOT::Reflex::Type dataType( ROOT::Reflex::Type::ByTypeInfo(*((*it)->type()->GetTypeInfo())));
@@ -172,7 +173,7 @@ FWEventItemsManager::addTo(FWConfiguration& iTo) const
       conf.addKeyValue(kFilterExpression, FWConfiguration((*it)->filterExpression()));
       {
          std::ostringstream os;
-         os << cm->colorToIndex((*it)->defaultDisplayProperties().color());
+         os << (*it)->defaultDisplayProperties().color();
          conf.addKeyValue(kColor, FWConfiguration(os.str()));
       }
       conf.addKeyValue(kIsVisible, FWConfiguration((*it)->defaultDisplayProperties().isVisible() ? kTrue : kFalse));
@@ -184,7 +185,7 @@ FWEventItemsManager::addTo(FWConfiguration& iTo) const
       conf.addKeyValue(kPurpose,(*it)->purpose());
       {
          std::ostringstream os;
-         os << (*it)->defaultDisplayProperties().transparency();
+         os << static_cast<int>((*it)->defaultDisplayProperties().transparency());
          conf.addKeyValue(kTransparency, FWConfiguration(os.str()));
       }
       iTo.addKeyValue((*it)->name(), conf, true);
@@ -202,9 +203,10 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
    clearItems();
    const FWConfiguration::KeyValues* keyValues =  iFrom.keyValues();
    assert(0!=keyValues);
-   for(FWConfiguration::KeyValues::const_iterator it = keyValues->begin();
-       it != keyValues->end();
-       ++it) {
+   for (FWConfiguration::KeyValues::const_iterator it = keyValues->begin();
+        it != keyValues->end();
+        ++it)
+   {
       const std::string& name = it->first;
       const FWConfiguration& conf = it->second;
       const FWConfiguration::KeyValues* keyValues =  conf.keyValues();
@@ -218,12 +220,25 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
       const bool isVisible = (*keyValues)[6].second.value() == kTrue;
 
       unsigned int colorIndex;
-      if(conf.version()<3) {
+      if(conf.version() < 3)
+      {
          std::istringstream is(sColor);
          Color_t color;
          is >> color;
          colorIndex = cm->oldColorToIndex(color);
-      } else {
+      }
+      else if (conf.version() < 4)
+      {
+         std::istringstream is(sColor);
+         is >> colorIndex;
+         colorIndex += 1000;
+      }
+      else
+      {
+         // In version 4 we assume:
+         //   fireworks colors start at ROOT index 1000
+         //   geometry  colors start at ROOT index 1100
+         // We save them as such -- no conversions needed.
          std::istringstream is(sColor);
          is >> colorIndex;
       }
@@ -235,7 +250,7 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
       if (conf.version() > 3)
          transparency = strtol((*keyValues)[9].second.value().c_str(), 0, 10);
 
-      FWDisplayProperties dp(cm->indexToColor(colorIndex), isVisible, transparency);
+      FWDisplayProperties dp(colorIndex, isVisible, transparency);
 
       unsigned int layer = strtol((*keyValues)[7].second.value().c_str(), 0, 10);
 
