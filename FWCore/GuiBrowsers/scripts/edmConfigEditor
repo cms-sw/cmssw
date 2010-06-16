@@ -6,16 +6,9 @@ import sys
 import logging
 #logging.root.setLevel(logging.DEBUG)
 
-try:
-    distBaseDirectory=os.path.abspath(os.path.join(os.path.dirname(__file__),".."))
-    if not os.path.exists(distBaseDirectory) or not "Vispa" in os.listdir(distBaseDirectory):
-        distBaseDirectory=os.path.abspath(os.path.join(os.path.dirname(__file__),"../python"))
-    if not os.path.exists(distBaseDirectory) or not "Vispa" in os.listdir(distBaseDirectory):
-        distBaseDirectory=os.path.abspath(os.path.expandvars("$CMSSW_BASE/python/FWCore/GuiBrowsers"))
-    if not os.path.exists(distBaseDirectory) or not "Vispa" in os.listdir(distBaseDirectory):
-        distBaseDirectory=os.path.abspath(os.path.expandvars("$CMSSW_RELEASE_BASE/python/FWCore/GuiBrowsers"))
-except Exception:
-    distBaseDirectory=os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]),".."))
+distBaseDirectory=os.path.abspath(os.path.expandvars("$CMSSW_BASE/python/FWCore/GuiBrowsers"))
+if not os.path.exists(distBaseDirectory) or not "Vispa" in os.listdir(distBaseDirectory):
+    distBaseDirectory=os.path.abspath(os.path.expandvars("$CMSSW_RELEASE_BASE/python/FWCore/GuiBrowsers"))
 
 sys.path.append(distBaseDirectory)
 from Vispa.Main.Directories import *
