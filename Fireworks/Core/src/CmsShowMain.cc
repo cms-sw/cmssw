@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.163 2010/05/18 14:40:28 eulisse Exp $
+// $Id: CmsShowMain.cc,v 1.164 2010/05/27 08:45:00 eulisse Exp $
 //
 
 // system include files
@@ -230,7 +230,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
             fwLog(fwlog::kInfo) << "No configuration is loaded, show everything.\n";
             m_configFileName = "";
          } else {
-            m_configFileName = "src/Fireworks/Core/macros/default.fwc";
+            m_configFileName = "default.fwc";
          }
       }
       fwLog(fwlog::kInfo) << "Config "  <<  m_configFileName.c_str() << std::endl;
@@ -636,8 +636,8 @@ CmsShowMain::setupConfiguration()
          fwLog(fwlog::kInfo) <<"unable to load configuration file '"<<m_configFileName<<"' will load default instead."<<std::endl;
          whereConfig = gSystem->Which(TROOT::GetMacroPath(), "default.fwc", kReadPermission);
          assert(whereConfig && "Default configuration cannot be found. Malformed Fireworks installation?");
-         m_configFileName = whereConfig;
       }
+      m_configFileName = whereConfig;
 
       delete [] whereConfig;
       try
@@ -668,11 +668,11 @@ CmsShowMain::setupConfiguration()
          boost::bind(&FWConfigurationManager::writeToFile,
          m_configurationManager.get(),
          m_configFileName));
-       */
+      */
       m_guiManager->writeToPresentConfigurationFile_.connect(
-         boost::bind(&FWConfigurationManager::writeToFile,
-                     m_configurationManager.get(),
-                     m_configFileName));
+                                                             boost::bind(&FWConfigurationManager::writeToFile,
+                                                                         m_configurationManager.get(),
+                                                                         m_configFileName));
    }
 }
 
