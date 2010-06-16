@@ -501,11 +501,8 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
              if( coreTrackExists == false ){
                  csc::L1TrackId trackId(m_endcap,m_sector);
                  csc::L1Track   track(trackId);
-                 track.setRank(singlesTrackPt&0x1F);
+                 track.setRank(singlesTrackPt);
                  track.setBx(bx-shift);
-                 track.setPtPacked(singlesTrackPt&0x1F);
-                 track.setQualityPacked((singlesTrackPt&0x60)>>5);
-                 track.setChargeValidPacked((singlesTrackPt&0x80)>>7);
                  track.setOutputLink(singlesTrackOutput);
                  //CSCCorrelatedLCTDigiCollection singles;
                  std::vector<csctf::TrackStub> stubs = myStubContainer[bx].get();
