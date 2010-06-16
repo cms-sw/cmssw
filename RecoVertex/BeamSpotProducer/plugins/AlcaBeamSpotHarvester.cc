@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2010/06/15 14:49:30 $
+ *  $Revision: 1.1 $
  *  \author L. Uplegger F. Yumiceva - Fermilab
  */
 
@@ -27,24 +27,39 @@
 
 #include <iostream> 
 
+//--------------------------------------------------------------------------------------------------
+AlcaBeamSpotHarvester::AlcaBeamSpotHarvester(const edm::ParameterSet& iConfig){  
+  beamSpotOutputBase_ = iConfig.getParameter<edm::ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("BeamSpotOutputBase");
+  edm::LogInfo("AlcaBeamSpotHarvester")
+      << "Output base: " << beamSpotOutputBase_ 
+      << std::endl;
+}
 
-using namespace edm;
-using namespace reco;
-
-
-AlcaBeamSpotHarvester::AlcaBeamSpotHarvester(const edm::ParameterSet&){}
-
+//--------------------------------------------------------------------------------------------------
 AlcaBeamSpotHarvester::~AlcaBeamSpotHarvester(){}
 
-
-
+//--------------------------------------------------------------------------------------------------
 void AlcaBeamSpotHarvester::beginJob() {}
+
+//--------------------------------------------------------------------------------------------------
 void AlcaBeamSpotHarvester::endJob() {}  
+
+//--------------------------------------------------------------------------------------------------
 void AlcaBeamSpotHarvester::analyze(const edm::Event&, const edm::EventSetup&) {}
+
+//--------------------------------------------------------------------------------------------------
 void AlcaBeamSpotHarvester::beginRun(const edm::Run&, const edm::EventSetup&) {}
+
+//--------------------------------------------------------------------------------------------------
 void AlcaBeamSpotHarvester::endRun(const edm::Run&, const edm::EventSetup&) {}
+
+//--------------------------------------------------------------------------------------------------
 void AlcaBeamSpotHarvester::beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) {}
+
+//--------------------------------------------------------------------------------------------------
 void AlcaBeamSpotHarvester::endLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup&) {
+  using namespace edm;
+  using namespace reco;
   
   Handle<reco::BeamSpot> bsHandle;
   lumi.getByLabel("alcaBeamSpotProducer","alcaBeamSpot", bsHandle);
