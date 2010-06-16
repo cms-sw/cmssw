@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.44 2010/06/10 10:20:15 eulisse Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.45 2010/06/11 09:53:10 eulisse Exp $
 //
 
 // system include files
@@ -89,10 +89,14 @@ public:
       return kNColumns;
    }
    
+   /** Updates the table using the passed @a filter.
+       Notice that in this case we reset the sorting and show results by those
+       best matching the filter.
+     */
    virtual void sortWithFilter(const char *filter)
    {
       m_filter = filter;
-      sort(sortColumn(), sortOrder());
+      sort(-1, sortOrder());
       dataChanged();
    }
    
@@ -212,7 +216,7 @@ void strip(std::string &source, const char *str)
    class SortAndFilter
    {
    public:
-      SortAndFilter(const char *filter, size_t column, bool order, 
+      SortAndFilter(const char *filter, int column, bool order, 
                     const std::vector<FWGUIEventDataAdder::Data> &data)
          : m_filter(filter),
            m_column(column),
@@ -246,8 +250,8 @@ void strip(std::string &source, const char *str)
          strip(str, "reco::");
          strip(str, "edmnew::");
       }
-
-      bool matches(const std::string &str) const
+      
+      unsigned int matches(const std::string &str) const
          {
             std::string up(str);
             simplify(up);
@@ -258,8 +262,14 @@ void strip(std::string &source, const char *str)
             // If the filter is not empty but the string to be matched is, we 
             // consider it as if it was not matching.
             if ((!m_filter.empty()) && str.empty())
-               return false;
-               
+               return 0;
+            
+            // There are two level of matching. "Full string" and 
+            // "All characters". "Full string" matches return an higher weight 
+            // and therefore should appear on top.
+            if (strstr(begin, m_filter.c_str()))
+               return 2;
+            
             for (size_t ci = 0, ce = m_filter.size(); ci != ce; ++ci)
             {
                int c = m_filter[ci];
@@ -269,21 +279,27 @@ void strip(std::string &source, const char *str)
                
                begin = strchr(begin, c);
                if (!begin)
-                  return false;
+                  return 0;
             }
-            return true;
+            return 1;
          }
       
       /** If any of the columns (including "Purpose"!!) matches, we consider
           the row valid.
+          
+          @return the best score obtained when matching strings.
         */
-      bool matchesFilter(const FWGUIEventDataAdder::Data &data) const
+      unsigned int matchesFilter(const FWGUIEventDataAdder::Data &data) const
          {
-            return matches(data.purpose_)
-                   || matches(data.type_) 
-                   || matches(data.moduleLabel_)
-                   || matches(data.productInstanceLabel_) 
-                   || matches(data.processName_);
+            std::vector<unsigned int> scores;
+            scores.reserve(10);
+            scores.push_back(matches(data.purpose_));
+            scores.push_back(matches(data.type_));
+            scores.push_back(matches(data.moduleLabel_));
+            scores.push_back(matches(data.productInstanceLabel_));
+            scores.push_back(matches(data.processName_));
+            std::sort(scores.begin(), scores.end());
+            return scores.back();
          }
       
       /** Have a look at the class description to see the rationale behind 
@@ -291,18 +307,14 @@ void strip(std::string &source, const char *str)
         */
       bool operator()(const int &aIndex, const int &bIndex)
          {
-            if (!m_weights[aIndex] && !m_weights[bIndex])
-               return true;
-            
-            if (m_weights[aIndex] && !m_weights[bIndex])
-               return true;
-            
-            if (!m_weights[aIndex] && m_weights[bIndex])
-               return false;
+            // In case no column is selected, we sort by relevance of the 
+            // filter.
+            if (m_column == -1)
+               return m_weights[aIndex] >= m_weights[bIndex];
 
             const FWGUIEventDataAdder::Data &a = m_data[aIndex];
             const FWGUIEventDataAdder::Data &b = m_data[bIndex];
-            
+
             if (m_order)
                return dataForColumn(a, m_column) < dataForColumn(b, m_column);
             else
@@ -310,10 +322,11 @@ void strip(std::string &source, const char *str)
          }
    private:
       std::string m_filter;
-      size_t      m_column;
+      int         m_column;
       bool        m_order;
+
       const std::vector<FWGUIEventDataAdder::Data> &m_data;
-      std::vector<bool>                             m_weights;
+      std::vector<unsigned int>                    m_weights;
    };
 
    void doSort(int column,
@@ -322,10 +335,6 @@ void strip(std::string &source, const char *str)
                const std::vector<FWGUIEventDataAdder::Data>& iData,
                std::vector<int>& oRowToIndex)
    {
-      static int called = 0;
-      // Check if we override.
-      assert(++called == 1);
-      
       std::vector<int> ordered;
       ordered.reserve(iData.size());
       
@@ -336,20 +345,12 @@ void strip(std::string &source, const char *str)
       // GE: Using std::sort does not work for some reason... Bah...
       std::stable_sort(ordered.begin(), ordered.end(), sorter);
 
+      oRowToIndex.clear();
+      oRowToIndex.reserve(ordered.size());
       // Only keep track of the rows that match.
       for (size_t i = 0, e = ordered.size(); i != e; ++i)
-         if (!sorter.matchesFilter(iData[ordered[i]]))
-         {
-            ordered.resize(i);
-            break;
-         }
-      
-      oRowToIndex.resize(ordered.size());
-      
-      for(size_t i = 0, e = ordered.size(); i != e; ++i)
-         oRowToIndex[i] = ordered[i];
-      
-      called--;
+         if (sorter.matchesFilter(iData[ordered[i]]) != 0)
+            oRowToIndex.push_back(ordered[i]);
    }
 }
 
