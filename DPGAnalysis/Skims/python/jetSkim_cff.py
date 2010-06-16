@@ -14,14 +14,14 @@ import FWCore.ParameterSet.Config as cms
 #    minN    = cms.int32(0)                  # min. # of passing objects needed
 # )
 
-Jet2 = cms.EDProducer("EtaPtMinCandViewSelector",
+Jet2 = cms.EDFilter("EtaPtMinCandViewSelector",
                       src = cms.InputTag("iterativeCone5CaloJets"),
                       ptMin   = cms.double(8),
                       etaMin = cms.double(-2),
                       etaMax = cms.double(2)
                       )
 
-Jet1 = cms.EDProducer("EtaPtMinCandViewSelector",
+Jet1 = cms.EDFilter("EtaPtMinCandViewSelector",
                       src = cms.InputTag("Jet2"),
                       ptMin   = cms.double(8),
                       etaMin = cms.double(-1),

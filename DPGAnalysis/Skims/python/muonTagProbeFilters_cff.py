@@ -56,7 +56,7 @@ tkProbeCands = cms.EDFilter("RecoChargedCandidateRefSelector",
 
 # Match track and stand alone candidates
 # to get the passing probe candidates
-TkStaMap = cms.EDFilter("TrivialDeltaRViewMatcher",
+TkStaMap = cms.EDProducer("TrivialDeltaRViewMatcher",
                             src = cms.InputTag("tkProbeCands"),
                             distMin = cms.double(0.15),
                             matched = cms.InputTag("staCands"),
@@ -64,7 +64,7 @@ TkStaMap = cms.EDFilter("TrivialDeltaRViewMatcher",
                         )
 
 # Use the producer to get a list of matched candidates
-TkStaMatched = cms.EDFilter("RecoChargedCandidateMatchedProbeMaker",
+TkStaMatched = cms.EDProducer("RecoChargedCandidateMatchedProbeMaker",
                                 Matched = cms.untracked.bool(True),
                                 ReferenceSource = cms.untracked.InputTag("staCands"),
                                 ResMatchMapSource = cms.untracked.InputTag("TkStaMap"),
@@ -72,7 +72,7 @@ TkStaMatched = cms.EDFilter("RecoChargedCandidateMatchedProbeMaker",
                             filter = cms.bool(True)
                             )
 
-TkStaUnmatched = cms.EDFilter("RecoChargedCandidateMatchedProbeMaker",
+TkStaUnmatched = cms.EDProducer("RecoChargedCandidateMatchedProbeMaker",
                                   Matched = cms.untracked.bool(False),
                                   ReferenceSource = cms.untracked.InputTag("staCands"),
                                   ResMatchMapSource = cms.untracked.InputTag("TkStaMap"),
