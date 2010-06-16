@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     FWTriggerTableView
-// $Id: FWTriggerTableView.cc,v 1.7 2010/05/06 18:03:08 amraktad Exp $
+// $Id: FWTriggerTableView.cc,v 1.8 2010/06/14 13:43:48 yana Exp $
 //
 
 // system include files
@@ -190,7 +190,6 @@ FWTriggerTableView::fillAverageAcceptFractions()
       hTriggerResults.getByLabel(*m_event,"TriggerResults","","HLT");
       edm::TriggerNames const* triggerNames(0);
       try{
-         hTriggerResults.getByLabel(*m_event,"TriggerResults","","HLT");
          triggerNames = &m_event->triggerNames(*hTriggerResults);
       } catch (cms::Exception&) {
          fwLog(fwlog::kError) <<" exception caught while trying to get trigger info"<<std::endl;
