@@ -225,9 +225,6 @@ void testExpressionParser::checkAll() {
      props.sip3d = 10;
      dummyInfo.insert(edm::RefToBase<reco::Track>(), props);
      edm::Ptr<reco::BaseTagInfo> ptrDummyInfo(edm::ProductID(1),&dummyInfo,0);
-     jet.addTagInfo("dummy", ptrDummyInfo);
-     o = ROOT::Reflex::Object(t, & jet);
-     checkJet("tagInfoSoftLepton.properties(0).sip3d",jet.tagInfoSoftLepton()->properties(0).sip3d);
   }
   muon = pat::Muon(reco::Muon(+1, p1+p2));
   muon.setUserIso(2.0);
