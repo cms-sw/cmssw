@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.26 2010/05/31 13:01:25 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.27 2010/06/02 22:41:11 chrjones Exp $
 //
 
 // system include files
@@ -148,104 +148,122 @@ FWEveViewManager::~FWEveViewManager()
 
 //______________________________________________________________________________
 
+/** Helper function to add products from a given builder to a given view.
+    DOCREQ-GE: for some reason only FWRPZView is considered to be a projected
+               view and must be handled differently. Could someone document the
+               rationale behind it?
+  */
+void
+addElements(const FWEventItem *item, FWEveView *view, 
+            int viewType, TEveElementList* product)
+{
+   if (FWViewType::isProjected(viewType))
+   {
+      FWRPZView* rpzView = dynamic_cast<FWRPZView*>(view);
+      assert(rpzView);
+      rpzView->importElements(product, item->layer(), rpzView->eventScene());
+   }
+   else
+   {
+      view->eventScene()->AddElement(product);
+   }
+}
+
+/** This is invoked (DOCREQ-GE: I **THINK**) when a new item is created
+    by the FWEventItemsManager (DOCREQ-GE: I **THINK**). The workflow is the 
+    following:
+
+    1. First we check if we have a builder info for the given purpose of the
+       item. We return simply if we don't.
+    2. We iterate over all the proxy builder registered for the given
+       purpose and create a new one for this given item.
+    3. Interaction listst are set up in case the proxy builder does not handle
+       interaction by itself.
+    4. We then iterate on the various supported views and add elements to them,
+       making sure that we handle the case in which those elements are not
+       unique among all the views.
+  */
 void
 FWEveViewManager::newItem(const FWEventItem* iItem)
 {
    TypeToBuilder::iterator itFind = m_typeToBuilder.find(iItem->purpose());
-   if (itFind != m_typeToBuilder.end())
-   {  
-      std::vector<BuilderInfo>& blist = itFind->second;
-      for ( std::vector<BuilderInfo>::iterator bIt= blist.begin(); bIt != blist.end(); ++bIt)
+   
+   if (itFind == m_typeToBuilder.end())
+      return;
+
+   std::vector<BuilderInfo>& blist = itFind->second;
+
+   for (size_t bii = 0, bie = blist.size(); bii != bie; ++bii)
+   {
+      // 1.
+      BuilderInfo &info = blist[bii];
+      std::string builderName = info.m_name;
+      int builderViewBit =  info.m_viewBit;
+      
+      FWProxyBuilderBase* builder = FWProxyBuilderFactory::get()->create(builderName);
+      if (!builder)
+         continue;
+
+      // 2.
+      // printf("FWEveViewManager::makeProxyBuilderFor NEW builder %s \n", builderName.c_str());
+      
+      boost::shared_ptr<FWProxyBuilderBase> pB(builder);
+      builder->setItem(iItem);
+      iItem->changed_.connect(boost::bind(&FWEveViewManager::modelChanges,this,_1));
+      iItem->goingToBeDestroyed_.connect(boost::bind(&FWEveViewManager::removeItem,this,_1));
+      iItem->itemChanged_.connect(boost::bind(&FWEveViewManager::itemChanged,this,_1));
+
+      // 3.
+      // DOCREQ-GE: Shouldn't this really be opaque to the user? I would pass
+      //            a reference to the m_interactionLists to
+      //            FWProxyBuilderBase::setInteractionList and handle different
+      //            case differently.
+      if (builder->willHandleInteraction() == false)
       {
-         // create builder
-         std::string builderName = (*bIt).m_name;
-         int builderViewBit =  (*bIt).m_viewBit;
+         typedef std::map<const FWEventItem*, FWInteractionList*>::iterator Iterator;
+         std::pair<Iterator, bool> t = m_interactionLists.insert(std::make_pair(iItem,
+                                                                 (FWInteractionList*)0));
+         if (t.second == true)
+            t.first->second = new FWInteractionList(iItem);
+         //  printf(">>> builder %s add list %p \n", iItem->name().c_str(), il); fflush(stdout);
+         builder->setInteractionList(t.first->second, iItem->purpose());
+      }
+      
+      builder->setHaveWindow(haveViewForBit(builderViewBit));
+      
+      // 4.
+      for (size_t viewType = 0; viewType < FWViewType::kSize; ++viewType)
+      {
+         if (((1 << viewType) & builderViewBit) == 0)
+            continue;
          
-         FWProxyBuilderBase* builder = FWProxyBuilderFactory::get()->create(builderName);
-         if (builder)
+         FWViewType::EType type = (FWViewType::EType) viewType;
+         
+         // printf("%s builder %s supportsd view %s \n",  iItem->name().c_str(), builderName.c_str(), FWViewType::idToName(viewType).c_str());
+         if (builder->havePerViewProduct((FWViewType::EType) viewType))
+         { 
+            for (size_t i = 0, e = m_views[viewType].size(); i != e; ++i)
+            {
+               FWEveView *view = m_views[viewType][i].get();
+               TEveElementList* product = builder->createProduct(type, 
+                                                                 view->viewContext());
+               addElements(iItem, view, viewType, product);
+            }
+         }
+         else 
          {
-            // printf("FWEveViewManager::makeProxyBuilderFor NEW builder %s \n", builderName.c_str());
-            
-            boost::shared_ptr<FWProxyBuilderBase> pB( builder );
-            builder->setItem(iItem);
-            iItem->changed_.connect(boost::bind(&FWEveViewManager::modelChanges,this,_1));
-            iItem->goingToBeDestroyed_.connect(boost::bind(&FWEveViewManager::removeItem,this,_1));
-            iItem->itemChanged_.connect(boost::bind(&FWEveViewManager::itemChanged,this,_1));
-
-            if (builder->willHandleInteraction() == false)
-            {
-               FWInteractionList* il = 0;
-               std::map<const FWEventItem*, FWInteractionList*>::iterator inter_it = m_interactionLists.find(iItem);
-               if (inter_it == m_interactionLists.end())
-               {
-                  il = new FWInteractionList(iItem);
-                  m_interactionLists[iItem] = il;
-               }
-               else
-               {
-                  il = inter_it->second;
-               }
-               //  printf(">>> builder %s add list %p \n", iItem->name().c_str(), il); fflush(stdout);
-               builder->setInteractionList(il, iItem->purpose());
-            }
-
-            builder->setHaveWindow(haveViewForBit(builderViewBit));
-            
-            // supported views
-            for (int viewType = 0;  viewType < FWViewType::kSize; ++viewType)
-            {
-               int viewBit = 1 << viewType;
-
-               if (viewBit & builderViewBit)
-               {   
-                  // printf("%s builder %s supportsd view %s \n",  iItem->name().c_str(), builderName.c_str(), FWViewType::idToName(viewType).c_str());
-                  if (builder->havePerViewProduct((FWViewType::EType)viewType))
-                  { 
-                     for (EveViewVec_it i = m_views[viewType].begin(); i!= m_views[viewType].end(); ++i)
-                     {
-                        TEveElementList* product = builder->createProduct((FWViewType::EType)viewType, i->get()->viewContext());
-
-                        if (FWViewType::isProjected(viewType))
-                        {
-                           FWRPZView* rpzView = dynamic_cast<FWRPZView*> (i->get());
-                           rpzView->importElements(product, iItem->layer(), rpzView->ownedProducts());
-                        }
-                        else
-                        {
-                           i->get()->ownedProducts()->AddElement(product);
-                        }
-                     }
-                  }
-                  else 
-                  {
-                     TEveElementList* product = builder->createProduct((FWViewType::EType)viewType, 0);
-
-                     for (EveViewVec_it i = m_views[viewType].begin(); i!= m_views[viewType].end(); ++i)
-                     { 
-                        if (FWViewType::isProjected(viewType))
-                        {
-                           FWRPZView* rpzView = dynamic_cast<FWRPZView*> (i->get());
-                           rpzView->importElements(product, iItem->layer(), rpzView->eventScene());
-                        }
-                        else
-                        {
-                           i->get()->eventScene()->AddElement(product);
-                        }
-                     }
-                  }
-               }
-            }
-
-            m_builders[builderViewBit].push_back(pB);
-            
-            
-         } // if builder
-      } // loop views      
-   } // loop purposes
+            TEveElementList* product = builder->createProduct(type, 0);
+         
+            for (size_t i = 0, e = m_views[viewType].size(); i != e; ++i)
+               addElements(iItem, m_views[viewType][i].get(), viewType, product);
+         }
+      }
+      
+      m_builders[builderViewBit].push_back(pB);
+   } // loop views
 }
 
 //______________________________________________________________________________
-
 FWViewBase*
 FWEveViewManager::createISpyView(TEveWindowSlot* iParent)
 {
@@ -440,7 +458,7 @@ FWEveViewManager::modelChangesDone()
    gEve->EnableRedraw();
 }
 
-
+/** Invoked when there are changes in the model by who???*/
 void
 FWEveViewManager::modelChanges(const FWModelIds& iIds)
 {
@@ -450,66 +468,83 @@ FWEveViewManager::modelChanges(const FWModelIds& iIds)
    // in standard case new elements can be build in case of change of visibility
    // and in non-standard case (e.g. calo towers) PB's modelChages handles all changes
    bool itemHaveWindow = false;
-   for ( std::map<int, BuilderVec>::iterator i = m_builders.begin(); i!=  m_builders.end(); ++i)
+   for (std::map<int, BuilderVec>::iterator i = m_builders.begin(); 
+        i != m_builders.end(); ++i)
    {
-      for(BuilderVec_it bIt = i->second.begin(); bIt != i->second.end(); ++bIt)
+      for (size_t bi = 0, be = i->second.size(); bi != be; ++bi)
       {
-         if ((*bIt)->getHaveWindow() && (*bIt)->item() == item)
+         FWProxyBuilderBase *builder = i->second[bi].get();
+         if (builder->getHaveWindow() && builder->item() == item)
          {
-            (*bIt)->modelChanges(iIds);
-            if ((*bIt)->getHaveWindow()) itemHaveWindow = true;
+            builder->modelChanges(iIds);
+            itemHaveWindow = true;
          }
       }
    }
 
-   if (itemHaveWindow)
-   {
-      EveSelectionSentry();
+   if (!itemHaveWindow)
+      return;
 
-      std::map<const FWEventItem*, FWInteractionList*>::iterator it =  m_interactionLists.find(item);
-      if (it != m_interactionLists.end())
-      {
-         it->second->modelChanges(iIds);
-      }
+   EveSelectionSentry();
+
+   std::map<const FWEventItem*, FWInteractionList*>::iterator it = m_interactionLists.find(item);
+   if (it != m_interactionLists.end())
+   {
+      it->second->modelChanges(iIds);
    }
 }
 
+/** Called whenever an @a item is changed (DOCREQ-GE: by who???)
+    
+    Iterate over all the builders for all the views and call itemChanged
+    for any of the builders.
+    
+    If any of the builder also has a window, also update the interaction list.
+    
+    DOCREQ-GE: what does it means to have a window?
+  */
 void
 FWEveViewManager::itemChanged(const FWEventItem* item)
-{ 
-   if (item)
-   {
-      bool itemHaveWindow = false;
-      for ( std::map<int, BuilderVec>::iterator i = m_builders.begin(); i!=  m_builders.end(); ++i)
-      {
-         for(BuilderVec_it bIt = i->second.begin(); bIt != i->second.end(); ++bIt)
-         {
-            if ((*bIt)->item() == item)
-            {
-          
-               (*bIt)->itemChanged(item);
-               if ((*bIt)->getHaveWindow()) itemHaveWindow = true;
-            }
-         }
-      }
+{
+   if (!item)
+      return;
 
-      if (itemHaveWindow)
+   bool itemHaveWindow = false;
+
+   for (std::map<int, BuilderVec>::iterator i = m_builders.begin(); 
+        i != m_builders.end(); ++i)
+   {
+      for(size_t bi = 0, be = i->second.size(); bi != be; ++bi)
       {
-         std::map<const FWEventItem*, FWInteractionList*>::iterator it =  m_interactionLists.find(item);
-         if (it != m_interactionLists.end())
-         {
-            it->second->itemChanged();
-         }
+         FWProxyBuilderBase *builder = i->second[bi].get();
+         
+         if (builder->item() != item)
+            continue;
+
+         builder->itemChanged(item);
+         itemHaveWindow |= builder->getHaveWindow();
       }
+   }
+   
+   if (!itemHaveWindow)
+      return;
+
+   std::map<const FWEventItem*, FWInteractionList*>::iterator it = m_interactionLists.find(item);
+   if (it != m_interactionLists.end())
+   {
+      assert(it->second);
+      it->second->itemChanged();
    }
 }
 
+/** Remove an item from the given view.
+  */
 void
 FWEveViewManager::removeItem(const FWEventItem* item)
 {
    EveSelectionSentry();
-
-   for ( std::map<int, BuilderVec>::iterator i = m_builders.begin(); i!=  m_builders.end(); ++i)
+   for (std::map<int, BuilderVec>::iterator i = m_builders.begin(); 
+        i != m_builders.end(); ++i)
    {
       BuilderVec_it bIt = i->second.begin();
       while( bIt != i->second.end() )
@@ -566,39 +601,39 @@ FWEveViewManager::eventEnd()
 
 //______________________________________________________________________________
 
+/** Helper function to extract the FWFromEveSelectorBase * from an TEveElement.
+  */
+FWFromEveSelectorBase *getSelector(TEveElement *iElement)
+{
+   if (!iElement)
+      return 0;
+
+   //std::cout <<"  non null"<<std::endl;
+   void* userData = iElement->GetUserData();
+   //std::cout <<"  user data "<<userData<<std::endl;
+   if (!userData)
+      return 0;
+
+   //std::cout <<"    have userData"<<std::endl;
+   //std::cout <<"      calo"<<std::endl;
+   EveSelectionSentry();
+   return reinterpret_cast<FWFromEveSelectorBase*> (userData);   
+}
+
 void
 FWEveViewManager::selectionAdded(TEveElement* iElement)
 {
-   // std::cout <<"FWEveViewManager selection added "<<iElement<< std::endl;
-
-   if(0!=iElement) {
-      //std::cout <<"  non null"<<std::endl;
-      void* userData=iElement->GetUserData();
-      //std::cout <<"  user data "<<userData<<std::endl;
-      if(0 != userData) {
-         //std::cout <<"    have userData"<<std::endl;
-         //std::cout <<"      calo"<<std::endl;
-         EveSelectionSentry();
-         FWFromEveSelectorBase* base = reinterpret_cast<FWFromEveSelectorBase*> (userData);
-         base->doSelect();
-      }
-   }
+   FWFromEveSelectorBase* selector = getSelector(iElement);
+   if (selector)
+      selector->doSelect();
 }
 
 void
 FWEveViewManager::selectionRemoved(TEveElement* iElement)
 {
-   //  std::cout <<"FWEveViewManager selection removed"<<std::endl;
-
-   if(0!=iElement) {
-      void* userData=iElement->GetUserData();
-      if(0 != userData) {
-         EveSelectionSentry();
-         FWFromEveSelectorBase* base = static_cast<FWFromEveSelectorBase*>(userData);
-         //std::cout <<"   removing"<<std::endl;
-         base->doUnselect();
-      }
-   }
+   FWFromEveSelectorBase* selector = getSelector(iElement);
+   if (selector)
+      selector->doUnselect();
 }
 
 void
@@ -620,24 +655,25 @@ FWEveViewManager::supportedTypesAndRepresentations() const
    const std::string kSimple("simple#");
    for(TypeToBuilder::const_iterator it = m_typeToBuilder.begin(), itEnd = m_typeToBuilder.end();
        it != itEnd;
-       ++it) {
-
+       ++it) 
+   {
       std::vector<BuilderInfo> blist = it->second;
-      for ( std::vector<BuilderInfo>::iterator bIt= blist.begin(); bIt != blist.end(); ++bIt)
+      for (size_t bii = 0, bie = blist.size(); bii != bie; ++bii)
       {
-         std::string name = (*bIt).m_name;
-         unsigned int bitPackedViews = (*bIt).m_viewBit;
+         BuilderInfo &info = blist[bii];
+         std::string name = info.m_name;
+         unsigned int bitPackedViews = info.m_viewBit;
          bool representsSubPart = (name.substr(name.find_first_of('@')-1, 1)=="!");
      
          if(name.substr(0,kSimple.size()) == kSimple)
          {
             name = name.substr(kSimple.size(), name.find_first_of('@')-kSimple.size()-1);
-            returnValue.add(boost::shared_ptr<FWRepresentationCheckerBase>( new FWSimpleRepresentationChecker(name, it->first,bitPackedViews,representsSubPart)) );
+            returnValue.add(boost::shared_ptr<FWRepresentationCheckerBase>(new FWSimpleRepresentationChecker(name, it->first,bitPackedViews,representsSubPart)) );
          }
          else
          {
             name = name.substr(0, name.find_first_of('@')-1);
-            returnValue.add(boost::shared_ptr<FWRepresentationCheckerBase>( new FWEDProductRepresentationChecker(name, it->first,bitPackedViews,representsSubPart)) );
+            returnValue.add(boost::shared_ptr<FWRepresentationCheckerBase>(new FWEDProductRepresentationChecker(name, it->first,bitPackedViews,representsSubPart)) );
          }
       }
    }
@@ -645,25 +681,16 @@ FWEveViewManager::supportedTypesAndRepresentations() const
 }
 
 
+/** Checks whether any of the views */
 bool
 FWEveViewManager::haveViewForBit(int bit) const
 {
-   bool haveView = false;
-   
    for (int t = 0; t < FWViewType::kSize; ++t)
    {
-      int testBit = 1 << t;
-      if (testBit == (bit & testBit))
-      {
-         if( m_views[t].size())
-         {
-            haveView = true;
-            break;
-         }
-      }
+      if ((bit & (1 << t)) && m_views[t].size())
+         return true;
    }
-   
    // printf("have %d view for bit %d \n", haveView, bit);
-   return haveView;
+   return false;
 }
 
