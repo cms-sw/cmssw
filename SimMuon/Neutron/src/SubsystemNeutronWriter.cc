@@ -135,8 +135,14 @@ void SubsystemNeutronWriter::writeHits(int chamberType, edm::PSimHitContainer & 
                    << " on det " << hit.detUnitId() 
                    << " chamber type " << chamberType;
     if(tof > theNeutronTimeCut) {
+      float adjustment = 0.;
       if(tof > (startTime + theTimeWindow) ) { // 1st in cluster
         startTime = tof;
+        // set the time to be 0-25 at start of event
+        adjustment = -1.*startTime;
+        if(theRandFlat) {
+          adjustment += theRandFlat->fire(25.);
+        }
         if(!cluster.empty()) {
           LogDebug("SubsystemNeutronWriter") << "filling old cluster";
           writeCluster(chamberType, cluster);
@@ -145,13 +151,7 @@ void SubsystemNeutronWriter::writeHits(int chamberType, edm::PSimHitContainer & 
         LogDebug("SubsystemNeutronWriter") << "starting neutron cluster at time " << startTime 
           << " on detType " << chamberType;
       }
-      // set the time to be 0 at start of event
-      float adjustment = -1.*startTime;
-      // see if smearing is needed
-      if(theRandFlat) {
-        adjustment += theRandFlat->fire(25.);
-      }
-      adjust(hit, -1.*startTime);
+      adjust(hit, adjustment);
       cluster.push_back( hit );
     }
   }
