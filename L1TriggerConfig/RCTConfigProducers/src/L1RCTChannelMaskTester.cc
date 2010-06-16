@@ -8,12 +8,12 @@
  Description: <one line class summary>
 
  Implementation:
-     <Notes on implementation>
-*/
+ <Notes on implementation>
+ */
 //
 // Original Author:  Sridhara Dasu
 //         Created:  Mon Jul 16 23:48:35 CEST 2007
-// $Id: L1RCTChannelMaskTester.cc,v 1.3 2010/05/12 22:48:54 wsun Exp $
+// $Id: L1RCTChannelMaskTester.cc,v 1.4 2010/06/16 15:31:25 bachtis Exp $
 //
 //
 // user include files
@@ -29,54 +29,54 @@
 #include "CondFormats/DataRecord/interface/L1RCTNoisyChannelMaskRcd.h"
 #include "CondFormats/L1TObjects/interface/L1RCTNoisyChannelMask.h"
 
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
-
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-
-
-using std::cout;
-using std::endl;
 //
 // class declaration
 //
 
-class L1RCTChannelMaskTester : public edm::EDAnalyzer {
+class L1RCTChannelMaskTester: public edm::EDAnalyzer {
 public:
-  explicit L1RCTChannelMaskTester(const edm::ParameterSet&) {}
-  virtual  ~L1RCTChannelMaskTester() {}
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);  
+    explicit L1RCTChannelMaskTester(const edm::ParameterSet&) {
+    }
+    virtual ~L1RCTChannelMaskTester() {
+    }
+    virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
 };
 
+void L1RCTChannelMaskTester::analyze(const edm::Event& iEvent,
+        const edm::EventSetup& evSetup) {
 
+    //
+    edm::ESHandle<L1RCTChannelMask> rctChanMask;
+    evSetup.get<L1RCTChannelMaskRcd>().get(rctChanMask);
 
-void L1RCTChannelMaskTester::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
-{
-  
+    rctChanMask->print(std::cout);
 
-  edm::ESHandle< L1RCTChannelMask > rctChanMask;
-   evSetup.get< L1RCTChannelMaskRcd >().get( rctChanMask) ;
+    //
+    edm::eventsetup::EventSetupRecordKey recordKey(
+            edm::eventsetup::EventSetupRecordKey::TypeTag::findType(
+                    "L1RCTNoisyChannelMaskRcd"));
 
+    if (evSetup.find(recordKey) == 0) {
+        //record not found
+        std::cout << "\nRecord \"" << "L1RCTNoisyChannelMaskRcd"
+                << "\" does not exist.\n" << std::endl;
+    } else {
 
-   rctChanMask->print(std::cout);
+        edm::ESHandle<L1RCTNoisyChannelMask> rctNoisyChanMask;
+        evSetup.get<L1RCTNoisyChannelMaskRcd>().get(rctNoisyChanMask);
 
-   //MIKE B: Since the eventSetup::get always returns an exception 
-   //Deactivate the printing of the noise mask until it goes to the DB
-   //   edm::ESHandle< L1RCTNoisyChannelMask > rctNoisyChanMask;
-   //    evSetup.get< L1RCTNoisyChannelMaskRcd >().get( rctNoisyChanMask) ;
-   //    if(rctNoisyChanMask.isValid())
-   //      rctNoisyChanMask->print(std::cout);
+        rctNoisyChanMask->print(std::cout);
 
+    }
 
 }
 
-
-DEFINE_FWK_MODULE(L1RCTChannelMaskTester);
-
-
+DEFINE_FWK_MODULE( L1RCTChannelMaskTester);
 
