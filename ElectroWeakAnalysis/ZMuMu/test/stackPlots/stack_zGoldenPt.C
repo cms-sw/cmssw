@@ -14,5 +14,5 @@ TCut cut_zGolden("zGoldenMass>60 && zGoldenMass<120 && zGoldenDau1Pt> 20 && zGol
   hs->GetYaxis()->SetTitle(yTag.c_str());
   c1->SaveAs("zGoldenPt.eps");
   c1->SaveAs("zGoldenPt.gif");
-  c1->SaveAs("zGoldenPt.pdf");
+
 }

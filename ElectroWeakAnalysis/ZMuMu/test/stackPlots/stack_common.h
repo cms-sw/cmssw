@@ -35,6 +35,8 @@ const double mMin = 60;
 const double mMax = 120;
 
 
+/// cuts common....
+
 
 
 
@@ -121,7 +123,7 @@ void makeStack(TH1 * h1, TH1 * h2, TH1 * h3, TH1 * h4, TH1 * h5, TH1 * hdata,
     hdata->GetYaxis()->SetLabelSize(0);
     // log plots, so the maximum should be one order of magnitude more...
     hs->SetMaximum( pow(10 , 1 + int(log( hdata->GetMaximum() ) )  ));
-    gStyle->SetErrorX(.5);
+    //    gStyle->SetErrorX(.5);
 }
   hs->SetMinimum(min);
   hs->GetXaxis()->SetTitle("m_{#mu^{+} #mu^{-}} (GeV/c^{2})");
