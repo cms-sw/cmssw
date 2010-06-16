@@ -14,7 +14,7 @@
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 
-#include "RecoJets/JetAlgorithms/interface/JetMatchingTools.h"
+#include "RecoJets/JetProducers/interface/JetMatchingTools.h"
 
 #include "PFJetTester.h"
 

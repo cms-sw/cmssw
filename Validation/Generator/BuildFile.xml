@@ -28,6 +28,7 @@
 <use   name="SimDataFormats/ValidationFormats"/>
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="RecoJets/JetAlgorithms"/>
+<use   name="RecoJets/JetProducers"/>
 <use   name="RecoVertex/KalmanVertexFit"/>
 <use   name="RecoVertex/VertexPrimitives"/>
 <use   name="TrackingTools/PatternTools"/>
