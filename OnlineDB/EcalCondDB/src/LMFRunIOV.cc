@@ -342,3 +342,35 @@ std::list<LMFRunIOV> LMFRunIOV::fetchBySequence(const LMFSeqDat &s, int lmr) {
 			 "fetchBySequence");
 }
 
+std::list<LMFRunIOV> LMFRunIOV::fetchBySequence(const LMFSeqDat &s, int lmr,
+						int type, int color) {
+  int seq_id = s.getID();
+  vector<int> parameters;
+  parameters.push_back(seq_id);
+  parameters.push_back(lmr);
+  parameters.push_back(color);
+  parameters.push_back(type);
+  return fetchBySequence(parameters, "SELECT LMF_IOV_ID FROM LMF_RUN_IOV "
+			 "WHERE SEQ_ID = :1 AND LMR = :2 AND COLOR_ID = :3 "
+			 "AND TRIG_TYPE = :4",
+			 "fetchBySequence");
+}
+
+std::list<LMFRunIOV> LMFRunIOV::fetchLastBeforeSequence(const LMFSeqDat &s, 
+							int lmr, int type, 
+							int color) {
+  int seq_id = s.getID();
+  vector<int> parameters;
+  parameters.push_back(seq_id);
+  parameters.push_back(lmr);
+  parameters.push_back(color);
+  parameters.push_back(type);
+  return fetchBySequence(parameters, "SELECT LMF_IOV_ID FROM (SELECT "
+			 "SEQ_ID, LMF_IOV_ID FROM LMF_RUN_IOV "
+			 "WHERE SEQ_ID < :1 AND LMR = :2 AND COLOR_ID = :3 "
+			 "AND TRIG_TYPE = :4 ORDER BY SEQ_ID DESC) WHERE "
+			 "ROWNUM <= 1",
+			 "fetchBySequence");
+}
+
+

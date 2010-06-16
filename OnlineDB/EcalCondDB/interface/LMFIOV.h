@@ -16,7 +16,7 @@
  */
 class LMFIOV : public LMFUnique {
  public:
-  friend class LMFRunIOV;  // needs permission to write
+  friend class EcalCondDBInterface; // need permission to write
 
   LMFIOV();
   LMFIOV(EcalDBConnection *c);
@@ -24,29 +24,30 @@ class LMFIOV : public LMFUnique {
 	 const oracle::occi::Connection* conn);
   ~LMFIOV();
 
-  void dump() const;
+  LMFIOV& setStart(const Tm &start);
+  LMFIOV& setStop(const Tm &stop);
+  LMFIOV& setIOV(const Tm &start, const Tm &stop);
+  LMFIOV& setVmin(int vmin);
+  LMFIOV& setVmax(int vmax);
+  LMFIOV& setVersions(int vmin, int vmax);
 
-  // Operators
-  inline bool operator==(const LMFIOV &t) const { 
-    return ((m_iov_start == t.m_iov_start) &&
-	    (m_iov_stop  == t.m_iov_stop) &&
-	    (m_vmin == t.m_vmin) &&
-	    (m_vmax == t.m_vmax));
-  }
-  inline bool operator!=(const LMFIOV &t) const { 
-    return ((m_iov_start != t.m_iov_start) ||
-	    (m_iov_stop  != t.m_iov_stop) ||
-	    (m_vmin != t.m_vmin) ||
-	    (m_vmax != t.m_vmax));
-  }
+  Tm getStart() const;
+  Tm getStop() const;
+  int getVmin() const;
+  int getVmax() const;
 
  private:
   // Methods from LMFUnique
-  std::string fetchIdSql(Statement *stmt);
-  std::string setByIDSql(Statement *stmt, int id);
-  void getParameters(ResultSet *rset);
-  //  LMFUnique *createObject();
-
+  std::string writeDBSql(Statement *stmt) { return ""; }
+  std::string fetchIdSql(Statement *stmt) { return ""; }
+  std::string fetchAllSql(Statement *stmt) const;
+  std::string setByIDSql(Statement *stmt,
+			 int id) { return ""; }
+  
+  void getParameters(ResultSet *rset) {}
+  void fetchParentIDs() {}
+  LMFUnique * createObject() const;
+  
   Tm m_iov_start;
   Tm m_iov_stop;
   int m_vmin;

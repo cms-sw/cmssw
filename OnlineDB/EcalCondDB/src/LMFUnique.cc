@@ -113,6 +113,7 @@ void LMFUnique::dump(int n) const {
   cout << m_indent << "#################" << setw(15) << m_className 
        << " " << m_trail << endl;
   cout << m_indent << "Address: " << this << endl;
+  cout << m_indent << "Connection params : " << m_env << ", " << m_conn << endl;
   // object ID in the DB
   cout << m_indent << "ID" << setw(18) << ": " << m_ID;
   if (m_ID == 0) {

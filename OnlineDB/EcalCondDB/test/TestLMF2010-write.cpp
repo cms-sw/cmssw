@@ -51,6 +51,11 @@ public:
     seq.fetchID();
     seq.dump();
     LMFRunIOV lmfruniov(econn);
+    lmfruniov.debug();
+    cout << econn->getEnv() << " " << econn->getConn() << endl;
+    std::list< LMFRunIOV > iov_l = lmfruniov.fetchBySequence( seq );
+    cout << iov_l.size() << endl;
+    exit(0);
     lmfruniov.setSequence(seq).setLmr(3);
     lmfruniov.fetchID();
     lmfruniov.dump();

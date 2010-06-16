@@ -1,7 +1,7 @@
 /***********************************************/
 /* EcalCondDBInterface.h		       */
 /* 					       */
-/* $Id: EcalCondDBInterface.h,v 1.25 2010/04/29 11:07:53 organtin Exp $ 	        		       */
+/* $Id: EcalCondDBInterface.h,v 1.26 2010/06/04 14:04:03 fra Exp $ 	        		       */
 /* 					       */
 /* Interface to the Ecal Conditions DB.	       */
 /***********************************************/
@@ -180,6 +180,8 @@ class EcalCondDBInterface : public EcalDBConnection {
     throw(std::runtime_error);
   void insertLmfDat(std::list<LMFDat*> dat)
     throw(std::runtime_error);
+  bool fetchLMFRunIOV(const LMFSeqDat&, LMFRunIOV&, int lmr, int type, 
+		      int color) const;
 
   /**
    *  Return a run IOV object for a given tag

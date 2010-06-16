@@ -60,6 +60,10 @@ class LMFRunIOV : public LMFUnique {
   
   std::list<LMFRunIOV> fetchBySequence(const LMFSeqDat &s);
   std::list<LMFRunIOV> fetchBySequence(const LMFSeqDat &s, int lmr);
+  std::list<LMFRunIOV> fetchBySequence(const LMFSeqDat &s, int lmr, int type,
+				       int color);
+  std::list<LMFRunIOV> fetchLastBeforeSequence(const LMFSeqDat &s, int lmr, 
+					       int type, int color);
   
   // Operators
   bool operator==(const LMFRunIOV &m) const

@@ -1,5 +1,6 @@
 #include "OnlineDB/EcalCondDB/interface/LMFIOV.h"
 
+/*
 using namespace std;
 using namespace oracle::occi;
 
@@ -66,13 +67,11 @@ void LMFIOV::getParameters(ResultSet *rset) {
   m_vmax = rset->getInt(4);
 }
 
-/*
 LMFUnique * LMFIOV::createObject() {
   LMFIOV *t = new LMFIOV;
   t->setConnection(m_env, m_conn);
   return t;
 }
-*/
 
 void LMFIOV::dump() const {
   cout << "################# LMFIOV ######################" << endl;
@@ -82,3 +81,4 @@ void LMFIOV::dump() const {
   cout << "Vers.: " <<  m_vmin << " - " << m_vmax << endl;
   cout << "################# LMFIOV ######################" << endl;
 }
+*/
