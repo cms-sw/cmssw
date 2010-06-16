@@ -112,11 +112,11 @@ process.patDefaultSequence = cms.Sequence(process.makePatCandidates)
 ##  the filter to select the candidates from the data samples
 ##
 ## WARNING: you may want to modify this item:  T R I G G E R     S E L E C T I O N
-HLT_process_name = "HLT"   
+HLT_process_name = "HLT"   # 
 # trigger path selection
-HLT_path_name    = "HLT_Ele15_LW_L1R"
+HLT_path_name     = "HLT_Photon10_L1R" #= "HLT_Ele15_LW_L1R" #
 # trigger filter name
-HLT_filter_name  =  "hltL1NonIsoHLTNonIsoSingleElectronLWEt15PixelMatchFilter"
+HLT_filter_name  =  "hltL1NonIsoHLTNonIsoSinglePhotonEt10HcalIsolFilter"
 #
 process.zeeFilter = cms.EDFilter('ZeeCandidateFilter',
                                  # cfg for data
@@ -172,7 +172,7 @@ selection_secondLeg = cms.PSet (
 ##
 ## and the plot creator
 process.plotter = cms.EDAnalyzer('ZeePlots',
-                                 selection_95cIso,
+                                 selection_95relIso,
                                  selection_secondLeg,
                                  usePrecalcID = cms.untracked.bool(False),
                                  usePrecalcIDType = cms.untracked.string('simpleEleId95cIso'),

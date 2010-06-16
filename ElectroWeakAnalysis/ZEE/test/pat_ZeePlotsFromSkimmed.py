@@ -50,7 +50,7 @@ selection_secondLeg = cms.PSet (
 ##
 ## and the plot creator
 process.plotter = cms.EDAnalyzer('ZeePlots',
-                                 selection_95cIso,
+                                 selection_95relIso,
                                  selection_secondLeg,
                                  usePrecalcID = cms.untracked.bool(False),
                                  usePrecalcIDType = cms.untracked.string('simpleEleId95cIso'),
