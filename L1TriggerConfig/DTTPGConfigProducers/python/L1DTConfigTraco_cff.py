@@ -27,11 +27,11 @@ TracoParametersBlock = cms.PSet(
 
         KRAD = cms.int32(0), ## KRAD traco parameter: fixed due to hardware bug
 
-        FLTMSK = cms.int32(1), ## single LTRIG enabling on first/second tracks
+        FLTMSK = cms.int32(0), ## single LTRIG enabling on first/second tracks
 
         LTS = cms.int32(0), ## suppr. of LTRIG in 4 BX before HTRIG
 
-        SLTMSK = cms.int32(1),
+        SLTMSK = cms.int32(0),
         FPRGCOMP = cms.int32(2), ## K tollerance for correlation in TRACO
 
         TRGENB9 = cms.int32(1),
