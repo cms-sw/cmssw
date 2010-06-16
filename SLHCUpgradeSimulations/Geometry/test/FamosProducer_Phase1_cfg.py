@@ -261,9 +261,9 @@ process.cutsTPFake.lip = cms.double(90.0)
 ############ end John's changes ###########################
 
 ### make sure the correct (modified) error routine is used
-process.siPixelRecHits.CPE = 'PixelCPEfromTrackAngle'
-process.MeasurementTracker.PixelCPE = 'PixelCPEfromTrackAngle'
-process.ttrhbwr.PixelCPE = 'PixelCPEfromTrackAngle'
+process.siPixelRecHits.CPE = 'PixelCPEGeneric'
+process.MeasurementTracker.PixelCPE = 'PixelCPEGeneric'
+process.ttrhbwr.PixelCPE = 'PixelCPEGeneric'
 process.mixedlayerpairs.BPix.TTRHBuilder = cms.string('WithTrackAngle')
 process.mixedlayerpairs.FPix.TTRHBuilder = cms.string('WithTrackAngle')
 process.pixellayertriplets.BPix.TTRHBuilder = cms.string('WithTrackAngle')
@@ -286,15 +286,15 @@ process.siTrackerMultiRecHitUpdator.TTRHBuilder = cms.string('WithTrackAngle')
 
 #replace with correct component in cloned version (replace with original TTRH producer)
 #process.preFilterFirstStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
-process.secPixelRecHits.CPE = cms.string('PixelCPEfromTrackAngle')
+process.secPixelRecHits.CPE = cms.string('PixelCPEGeneric')
 process.seclayertriplets.BPix.TTRHBuilder = cms.string('WithTrackAngle')
 process.seclayertriplets.FPix.TTRHBuilder = cms.string('WithTrackAngle')
-process.secMeasurementTracker.PixelCPE = cms.string('PixelCPEfromTrackAngle')
+process.secMeasurementTracker.PixelCPE = cms.string('PixelCPEGeneric')
 process.secWithMaterialTracks.TTRHBuilder = cms.string('WithTrackAngle')
-process.thPixelRecHits.CPE = cms.string('PixelCPEfromTrackAngle')
+process.thPixelRecHits.CPE = cms.string('PixelCPEGeneric')
 process.thlayerpairs.BPix.TTRHBuilder = cms.string('WithTrackAngle')
 process.thlayerpairs.FPix.TTRHBuilder = cms.string('WithTrackAngle')
-process.thMeasurementTracker.PixelCPE = cms.string('PixelCPEfromTrackAngle')
+process.thMeasurementTracker.PixelCPE = cms.string('PixelCPEGeneric')
 process.thWithMaterialTracks.TTRHBuilder = cms.string('WithTrackAngle')
 
 ### produce an ntuple with hits for analysis
