@@ -7,18 +7,18 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerPath
 //
-// $Id: TriggerPath.h,v 1.4 2010/04/20 21:39:46 vadler Exp $
+// $Id: TriggerPath.h,v 1.5 2010/04/21 10:04:13 vadler Exp $
 //
 /**
   \class    pat::TriggerPath TriggerPath.h "DataFormats/PatCandidates/interface/TriggerPath.h"
   \brief    Analysis-level HLTrigger path class
 
    TriggerPath implements a container for trigger paths' information within the 'pat' namespace.
-   It has the following data members:
-   - [to be filled]
+   For detailed information, consult
+   https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerPath
 
   \author   Volker Adler
-  \version  $Id: TriggerPath.h,v 1.4 2010/04/20 21:39:46 vadler Exp $
+  \version  $Id: TriggerPath.h,v 1.5 2010/04/21 10:04:13 vadler Exp $
 */
 
 

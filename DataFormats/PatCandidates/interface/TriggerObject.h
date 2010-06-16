@@ -7,20 +7,18 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerObject
 //
-// $Id: TriggerObject.h,v 1.5 2009/06/24 15:49:28 vadler Exp $
+// $Id: TriggerObject.h,v 1.6 2010/02/25 16:15:32 vadler Exp $
 //
 /**
   \class    pat::TriggerObject TriggerObject.h "DataFormats/PatCandidates/interface/TriggerObject.h"
   \brief    Analysis-level trigger object class
 
    TriggerObject implements a container for trigger objects' information within the 'pat' namespace.
-   It inherits from reco::LeafCandidate and adds the following data members:
-   - [to be filled]
-   In addition, the data member reco::Particle::pdgId_ (inherited via reco::LeafCandidate) is used
-   to store the trigger object id from trigger::TriggerObject::id_.
+   For detailed information, consult
+   https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerObject
 
   \author   Volker Adler
-  \version  $Id: TriggerObject.h,v 1.5 2009/06/24 15:49:28 vadler Exp $
+  \version  $Id: TriggerObject.h,v 1.6 2010/02/25 16:15:32 vadler Exp $
 */
 
 
@@ -36,6 +34,7 @@
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefVectorIterator.h"
 #include "DataFormats/Common/interface/Association.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 
 namespace pat {
@@ -58,10 +57,13 @@ namespace pat {
       virtual ~TriggerObject() {};
 
       /// setters & getters
-      void setCollection( const std::string & collection ) { collection_ = collection; };
-      void addFilterId( int filterId )                     { filterIds_.push_back( filterId ); };
-      std::string        collection() const { return collection_; };
-      std::vector< int > filterIds() const  { return filterIds_; };
+      void setCollection( const std::string & coll )   { collection_ = coll; };
+      void setCollection( const edm::InputTag & coll ) { collection_ = coll.encode(); };
+      void addFilterId( int filterId )                 { filterIds_.push_back( filterId ); };
+      std::string        collection() const                                { return collection_; };
+      bool               hasCollection( const edm::InputTag & coll ) const { return hasCollection( coll.encode() ); };
+      bool               hasCollection( const std::string & coll ) const;
+      std::vector< int > filterIds() const                                 { return filterIds_; };
       bool               hasFilterId( int filterId ) const;
 
   };

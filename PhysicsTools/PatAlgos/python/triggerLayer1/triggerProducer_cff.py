@@ -6,8 +6,8 @@ from PhysicsTools.PatAlgos.triggerLayer1.triggerMatchEmbedder_cfi import *
 from PhysicsTools.PatAlgos.triggerLayer1.triggerEventProducer_cfi import *
 
 patTriggerSequence = cms.Sequence(
-    patTrigger        *
-    patTriggerMatcher *
-#     patTriggerMatchEmbedder *
-    patTriggerEvent
+  patTrigger
+* patTriggerMatcher
+# * patTriggerMatchEmbedder
+* patTriggerEvent
 )

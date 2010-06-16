@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerObjectStandAlone
 //
-// $Id: TriggerObjectStandAlone.h,v 1.4 2010/02/25 16:15:32 vadler Exp $
+// $Id: TriggerObjectStandAlone.h,v 1.5 2010/04/20 21:39:46 vadler Exp $
 //
 /**
   \class    pat::TriggerObjectStandAlone TriggerObjectStandAlone.h "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
@@ -15,11 +15,11 @@
 
    TriggerObjectStandAlone implements a container for trigger objects' information within the 'pat' namespace.
    These Trigger objects keep also information on filters and paths ot be saved independently or embedded into PAT objects.
-   It inherits from pat::TriggerObject and adds the following data members:
-   - [to be filled]
+   For detailed information, consult
+   https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerObjectStandAlone
 
   \author   Volker Adler
-  \version  $Id: TriggerObjectStandAlone.h,v 1.4 2010/02/25 16:15:32 vadler Exp $
+  \version  $Id: TriggerObjectStandAlone.h,v 1.5 2010/04/20 21:39:46 vadler Exp $
 */
 
 
@@ -31,8 +31,10 @@ namespace pat {
   class TriggerObjectStandAlone : public TriggerObject {
 
       /// data members
-      std::vector< std::string > filterLabels_; // used for trigger match definition
-      std::vector< std::string > pathNames_;    // used for trigger match definition
+      std::vector< std::string > filterLabels_;           // used for trigger match definition
+      std::vector< std::string > pathNames_;              // used for trigger match definition
+      std::vector< bool >        pathLastFilterAccepted_; // vector alligned with 'pathNames_'
+                                                          // true, if corresponding path accepted and trigger object was used in last filter
 
     public:
 
@@ -47,11 +49,12 @@ namespace pat {
 
       /// methods
       void addFilterLabel( const std::string & filterLabel ) { if ( ! hasFilterLabel( filterLabel ) ) filterLabels_.push_back( filterLabel ); };
-      void addPathName( const std::string & pathName )       { if ( ! hasPathName( pathName ) )       pathNames_.push_back( pathName ); };
+      void addPathName( const std::string & pathName, bool pathLastFilterAccepted = true );
       std::vector< std::string > filterLabels() const { return filterLabels_; };
-      std::vector< std::string > pathNames() const    { return pathNames_; };
+      std::vector< std::string > pathNames( bool pathLastFilterAccepted = true ) const;
       bool                       hasFilterLabel( const std::string & filterLabel ) const;
-      bool                       hasPathName( const std::string & pathName ) const;
+      bool                       hasPathName( const std::string & pathName, bool pathLastFilterAccepted = true ) const;
+      bool                       hasPathLastFilterAccepted() const { return ( pathLastFilterAccepted_.size() > 0 && pathLastFilterAccepted_.size() == pathNames_.size() );  };
       TriggerObject              triggerObject(); // returns "pure" pat::TriggerObject w/o add-on
 
   };

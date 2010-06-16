@@ -7,18 +7,18 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerAlgorithm
 //
-// $Id$
+// $Id: TriggerAlgorithm.h,v 1.1 2010/04/20 21:41:01 vadler Exp $
 //
 /**
   \class    pat::TriggerAlgorithm TriggerAlgorithm.h "DataFormats/PatCandidates/interface/TriggerAlgorithm.h"
   \brief    Analysis-level L1 trigger algorithm class
 
    TriggerAlgorithm implements a container for L1 trigger algorithms' information within the 'pat' namespace.
-   It has the following data members:
-   - [to be filled]
+   For detailed information, consult
+   https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerAlgorithm
 
   \author   Volker Adler
-  \version  $Id$
+  \version  $Id: TriggerAlgorithm.h,v 1.1 2010/04/20 21:41:01 vadler Exp $
 */
 
 

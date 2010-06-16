@@ -7,18 +7,18 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerFilter
 //
-// $Id: TriggerFilter.h,v 1.4 2009/06/24 15:49:28 vadler Exp $
+// $Id: TriggerFilter.h,v 1.5 2010/04/20 21:39:46 vadler Exp $
 //
 /**
   \class    pat::TriggerFilter TriggerFilter.h "DataFormats/PatCandidates/interface/TriggerFilter.h"
   \brief    Analysis-level HLTrigger filter class
 
    TriggerFilter implements a container for trigger filters' information within the 'pat' namespace.
-   It has the following data members:
-   - [to be filled]
+   For detailed information, consult
+   https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerFilter
 
   \author   Volker Adler
-  \version  $Id: TriggerFilter.h,v 1.4 2009/06/24 15:49:28 vadler Exp $
+  \version  $Id: TriggerFilter.h,v 1.5 2010/04/20 21:39:46 vadler Exp $
 */
 
 

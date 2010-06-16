@@ -9,15 +9,15 @@
 //
 /**
   \class    pat::PATTriggerMatchSelector PATTriggerMatchSelector.h "PhysicsTools/PatAlgos/plugins/PATTriggerMatchSelector.h"
-  \brief    
+  \brief
 
    .
 
   \author   Volker Adler
-  \version  $Id: PATTriggerMatchSelector.h,v 1.3 2009/04/27 20:45:20 vadler Exp $
+  \version  $Id: PATTriggerMatchSelector.h,v 1.4 2009/12/10 10:44:37 vadler Exp $
 */
 //
-// $Id: PATTriggerMatchSelector.h,v 1.3 2009/04/27 20:45:20 vadler Exp $
+// $Id: PATTriggerMatchSelector.h,v 1.4 2009/12/10 10:44:37 vadler Exp $
 //
 
 
@@ -28,32 +28,36 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 
 namespace pat {
 
   template< typename T1, typename T2 >
   class PATTriggerMatchSelector {
-    
+
       bool                       andOr_;          // AND used if 'false', OR otherwise
       std::vector< int >         filterIds_;      // special filter related ID as defined in enum 'TriggerObjectType' in DataFormats/HLTReco/interface/TriggerTypeDefs.h
       std::vector< std::string > filterIdsEnum_;  // special filter related ID as defined in enum 'TriggerObjectType' in DataFormats/HLTReco/interface/TriggerTypeDefs.h
       std::vector< std::string > filterLabels_;
       std::vector< std::string > pathNames_;
-      std::vector< std::string > collectionTags_; // needs full tag strings (as from edm::InputTag::encode()), not only labels
-  
+      bool                       pathLastFilterAcceptedOnly_;
+      std::vector< std::string > collectionTags_; // full tag strings (as from edm::InputTag::encode()) recommended, but also only labels allowed
+
     public:
-    
+
       PATTriggerMatchSelector( const edm::ParameterSet & iConfig ) :
         andOr_( iConfig.getParameter< bool >( "andOr" ) ),
         filterIds_( iConfig.getParameter< std::vector< int > >( "filterIds" ) ),
         filterIdsEnum_( iConfig.getParameter< std::vector< std::string > >( "filterIdsEnum" ) ),
         filterLabels_( iConfig.getParameter< std::vector< std::string > >( "filterLabels" ) ),
         pathNames_( iConfig.getParameter< std::vector< std::string > >( "pathNames" ) ),
+        pathLastFilterAcceptedOnly_( true ),
         collectionTags_( iConfig.getParameter< std::vector< std::string > >( "collectionTags" ) )
       {
+        if ( iConfig.exists( "pathLastFilterAcceptedOnly" ) ) pathLastFilterAcceptedOnly_ = iConfig.getParameter< bool >( "pathLastFilterAcceptedOnly" );
       }
-      
+
       bool operator()( const T1 & patObj, const T2 & trigObj ) const {
         std::map< std::string, trigger::TriggerObjectType > filterIdsEnumMap; // FIXME: Should be automated, but  h o w ?
         // L1
@@ -99,10 +103,10 @@ namespace pat {
             if ( filterLabels_.at( j ) == "*" || filterLabels_.at( j ) == "@" || trigObj.hasFilterLabel( filterLabels_.at( j ) ) ) return true;
           }
           for ( size_t k = 0; k < pathNames_.size(); ++k ) {
-            if ( pathNames_.at( k ) == "*" || pathNames_.at( k ) == "@" || trigObj.hasPathName( pathNames_.at( k ) ) ) return true;
+            if ( pathNames_.at( k ) == "*" || pathNames_.at( k ) == "@" || trigObj.hasPathName( pathNames_.at( k ), pathLastFilterAcceptedOnly_ ) ) return true;
           }
           for ( size_t l = 0; l < collectionTags_.size(); ++l ) {
-            if ( collectionTags_.at( l ) == "*" || collectionTags_.at( l ) == "@" || collectionTags_.at( l ) == trigObj.collection() ) return true;
+            if ( collectionTags_.at( l ) == "*" || collectionTags_.at( l ) == "@" || trigObj.hasCollection( collectionTags_.at( l ) ) ) return true;
           }
           for ( size_t m = 0; m < filterIdsEnum_.size(); ++m ) {
             if ( filterIdsEnum_.at( m ) == "*" || filterIdsEnum_.at( m ) == "@" ) return true;
@@ -116,9 +120,9 @@ namespace pat {
               for ( size_t j = 0; j < filterLabels_.size(); ++j ) {
                 if ( filterLabels_.at( j ) == "*" || filterLabels_.at( j ) == "@" || trigObj.hasFilterLabel( filterLabels_.at( j ) ) ) {
                   for ( size_t k = 0; k < pathNames_.size(); ++k ) {
-                    if ( pathNames_.at( k ) == "*" || pathNames_.at( k ) == "@" || trigObj.hasPathName( pathNames_.at( k ) ) ) {
+                    if ( pathNames_.at( k ) == "*" || pathNames_.at( k ) == "@" || trigObj.hasPathName( pathNames_.at( k ), pathLastFilterAcceptedOnly_ ) ) {
                       for ( size_t l = 0; l < collectionTags_.size(); ++l ) {
-                        if ( collectionTags_.at( l ) == "*" || collectionTags_.at( l ) == "@" || collectionTags_.at( l ) == trigObj.collection() ) {
+                        if ( collectionTags_.at( l ) == "*" || collectionTags_.at( l ) == "@" || trigObj.hasCollection( collectionTags_.at( l ) ) ) {
                           for ( size_t m = 0; m < filterIdsEnum_.size(); ++m ) {
                             if ( filterIdsEnum_.at( m ) == "*" || filterIdsEnum_.at( m ) == "@" ) return true;
                             std::map< std::string, trigger::TriggerObjectType >::const_iterator iter( filterIdsEnumMap.find( filterIdsEnum_.at( m ) ) );
@@ -136,9 +140,9 @@ namespace pat {
         }
         return false;
       }
-      
+
   };
-  
+
 }
 
 

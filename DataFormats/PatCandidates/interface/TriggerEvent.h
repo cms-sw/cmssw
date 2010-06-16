@@ -7,18 +7,18 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerEvent
 //
-// $Id: TriggerEvent.h,v 1.7 2010/04/19 18:01:29 vadler Exp $
+// $Id: TriggerEvent.h,v 1.6 2010/04/21 10:04:13 vadler Exp $
 //
 /**
   \class    pat::TriggerEvent TriggerEvent.h "DataFormats/PatCandidates/interface/TriggerEvent.h"
   \brief    Analysis-level trigger event class
 
    TriggerEvent implements a container for trigger event's information within the 'pat' namespace.
-   It has the following data members:
-   - [to be filled]
+   For detailed information, consult
+   https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerEvent
 
   \author   Volker Adler
-  \version  $Id: TriggerEvent.h,v 1.7 2010/04/19 18:01:29 vadler Exp $
+  \version  $Id: TriggerEvent.h,v 1.6 2010/04/21 10:04:13 vadler Exp $
 */
 
 

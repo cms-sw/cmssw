@@ -1,5 +1,5 @@
 //
-// $Id: TriggerObjectStandAlone.cc,v 1.2 2009/04/01 10:45:51 vadler Exp $
+// $Id: TriggerObjectStandAlone.cc,v 1.3 2010/04/20 21:39:46 vadler Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
@@ -9,6 +9,24 @@ using namespace pat;
 
 
 /// methods
+
+void TriggerObjectStandAlone::addPathName( const std::string & pathName, bool pathLastFilterAccepted )
+{
+  if ( ! hasPathName( pathName, false ) ) {
+    pathNames_.push_back( pathName );
+    pathLastFilterAccepted_.push_back( pathLastFilterAccepted );
+  }
+}
+
+std::vector< std::string > TriggerObjectStandAlone::pathNames( bool pathLastFilterAccepted ) const
+{
+  if ( ! pathLastFilterAccepted || ! hasPathLastFilterAccepted() ) return pathNames_;
+  std::vector< std::string > paths;
+  for ( unsigned iPath = 0; iPath < pathNames_.size(); ++iPath ) {
+    if ( pathLastFilterAccepted_.at( iPath ) ) paths.push_back( pathNames_.at( iPath ) );
+  }
+  return paths;
+}
 
 bool TriggerObjectStandAlone::hasFilterLabel( const std::string & filterLabel ) const
 {
@@ -20,10 +38,10 @@ bool TriggerObjectStandAlone::hasFilterLabel( const std::string & filterLabel ) 
   return false;
 }
 
-bool TriggerObjectStandAlone::hasPathName( const std::string & pathName ) const
+bool TriggerObjectStandAlone::hasPathName( const std::string & pathName, bool pathLastFilterAccepted ) const
 {
-  for ( unsigned iPath = 0; iPath < pathNames().size(); ++iPath ) {
-    if ( pathName == pathNames().at( iPath ) ) {
+  for ( unsigned iPath = 0; iPath < pathNames( pathLastFilterAccepted ).size(); ++iPath ) {
+    if ( pathName == pathNames( pathLastFilterAccepted ).at( iPath ) ) {
       return true;
     }
   }
