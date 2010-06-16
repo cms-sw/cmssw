@@ -72,7 +72,7 @@ process.source = cms.Source("EmptyIOVSource",
 )
 
 
-process.get = cms.EDFilter("EventSetupRecordDataGetter",
+process.get = cms.EDAnalyzer("EventSetupRecordDataGetter",
                            toGet =  cms.VPSet(),
                            verbose = cms.untracked.bool(True)
                            )
