@@ -58,6 +58,10 @@
 
 <class name="EcalMappingElectronics"/>
 
+<class name="EcalAlignmentEB"/>
+<class name="AlignTransform"/>
+<class name="std::vector<AlignTransform>"/>
+
 <class name="EcalTPGFineGrainConstEB"/>
 <class name="std::map<uint32_t, EcalTPGFineGrainConstEB>"/>
 <class name="std::pair<const uint32_t, EcalTPGFineGrainConstEB>"/>
