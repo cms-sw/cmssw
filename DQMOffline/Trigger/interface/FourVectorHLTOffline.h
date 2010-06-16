@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.53 2010/05/17 10:32:11 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.54 2010/06/01 12:07:08 rekovic Exp $
 //
 //
 
@@ -75,7 +75,7 @@
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
-#include "RecoJets/JetAlgorithms/interface/JetIDHelper.h"
+#include "RecoJets/JetProducers/interface/JetIDHelper.h"
 
 
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"

@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for MET (Mu corrected/TcMET)
  *
- *  $Date: 2010/05/14 18:11:18 $
- *  $Revision: 1.17 $
+ *  $Date: 2010/05/14 21:57:33 $
+ *  $Revision: 1.18 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -34,7 +34,7 @@
 #include "RecoMET/METAlgorithms/interface/HcalNoiseRBXArray.h"
 #include "DataFormats/METReco/interface/HcalNoiseSummary.h"
 #include "DataFormats/METReco/interface/BeamHaloSummary.h"
-#include "RecoJets/JetAlgorithms/interface/JetIDHelper.h"
+#include "RecoJets/JetProducers/interface/JetIDHelper.h"
 
 #include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
 #include "DataFormats/Common/interface/ValueMap.h"  

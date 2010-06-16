@@ -12,6 +12,7 @@
 <use   name="DataFormats/EgammaCandidates"/>
 <use   name="HLTrigger/HLTcore"/>
 <use   name="RecoJets/JetAlgorithms"/>
+<use   name="RecoJets/JetProducers"/>
 <use   name="DataFormats/CSCRecHit"/>
 <use   name="DataFormats/EcalDetId"/>
 <use   name="DataFormats/DetId"/>

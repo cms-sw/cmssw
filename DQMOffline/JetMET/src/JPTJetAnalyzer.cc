@@ -29,7 +29,7 @@
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
 #include "CalibTracker/Records/interface/SiStripGainRcd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "RecoJets/JetAlgorithms/interface/JetIDHelper.h"
+#include "RecoJets/JetProducers/interface/JetIDHelper.h"
 #include <cmath>
 #include <string>
 #include <memory>

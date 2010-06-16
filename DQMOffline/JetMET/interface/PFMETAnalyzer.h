@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for PFMET
  *
- *  $Date: 2010/05/14 18:11:18 $
- *  $Revision: 1.14 $
+ *  $Date: 2010/05/14 21:57:33 $
+ *  $Revision: 1.15 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech 
  */
@@ -38,7 +38,7 @@
 #include "RecoMET/METAlgorithms/interface/HcalNoiseRBXArray.h"
 #include "DataFormats/METReco/interface/HcalNoiseSummary.h"
 #include "DataFormats/METReco/interface/BeamHaloSummary.h"
-#include "RecoJets/JetAlgorithms/interface/JetIDHelper.h"
+#include "RecoJets/JetProducers/interface/JetIDHelper.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"

@@ -23,6 +23,7 @@
 <use   name="DQM/HLTEvF"/>
 <use   name="RecoJets/JetAssociationAlgorithms"/>
 <use   name="RecoJets/JetAlgorithms"/>
+<use   name="RecoJets/JetProducers"/>
 
 <use   name="root"/>
 <use   name="boost"/>

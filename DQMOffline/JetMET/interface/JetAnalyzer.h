@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for Calo Jets
  *
- *  $Date: 2010/03/05 16:31:05 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/03/25 11:01:01 $
+ *  $Revision: 1.10 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -30,7 +30,7 @@
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 
-#include "RecoJets/JetAlgorithms/interface/JetIDHelper.h"
+#include "RecoJets/JetProducers/interface/JetIDHelper.h"
 
 #include <string>
 using namespace edm;

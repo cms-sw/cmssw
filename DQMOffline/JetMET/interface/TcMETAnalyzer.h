@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2010/02/17 17:49:49 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/02/24 19:08:54 $
+ *  $Revision: 1.5 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -34,7 +34,7 @@
 #include "RecoMET/METAlgorithms/interface/HcalNoiseRBXArray.h"
 #include "DataFormats/METReco/interface/HcalNoiseSummary.h"
 
-#include "RecoJets/JetAlgorithms/interface/JetIDHelper.h"
+#include "RecoJets/JetProducers/interface/JetIDHelper.h"
 
 class TcMETAnalyzer : public TcMETAnalyzerBase {
  public:
