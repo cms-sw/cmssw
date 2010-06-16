@@ -77,14 +77,14 @@ namespace reco {
     // pedestal subtracted fC information for the highest energy pixel in the HPD by timeslice
     const std::vector<float> bigCharge(void) const;
     float bigChargeTotal(void) const;
-    float bigChargeHighest2TS(void) const;
-    float bigChargeHighest3TS(void) const;
+    float bigChargeHighest2TS(unsigned int firstts=4) const;
+    float bigChargeHighest3TS(unsigned int firstts=4) const;
     
     // same as above but the integral over the 5 highest energy pixels in the HPD
     const std::vector<float> big5Charge(void) const;
     float big5ChargeTotal(void) const;
-    float big5ChargeHighest2TS(void) const;
-    float big5ChargeHighest3TS(void) const;
+    float big5ChargeHighest2TS(unsigned int firstts=4) const;
+    float big5ChargeHighest3TS(unsigned int firstts=4) const;
     
     // total number of adc zeros
     int totalZeros(void) const;

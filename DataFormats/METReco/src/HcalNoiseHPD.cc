@@ -48,24 +48,20 @@ float HcalNoiseHPD::bigChargeTotal(void) const
   }
   return total;
 }
-  
-float HcalNoiseHPD::bigChargeHighest2TS(void) const
+
+float HcalNoiseHPD::bigChargeHighest2TS(unsigned int firstts) const
 {
   float total=0;
-  for(unsigned int i=0; i<bigCharge_.size()-1; i++) {
-    float temp = bigCharge_[i]+bigCharge_[i+1];
-    if(temp>total) total=temp;
-  }
+  for(unsigned int i=firstts; i<firstts+2 && i<bigCharge_.size(); i++)
+    total += bigCharge_[i];
   return total;
 }
-  
-float HcalNoiseHPD::bigChargeHighest3TS(void) const
+
+float HcalNoiseHPD::bigChargeHighest3TS(unsigned int firstts) const
 {
   float total=0;
-  for(unsigned int i=0; i<bigCharge_.size()-2; i++) {
-    float temp = bigCharge_[i]+bigCharge_[i+1]+bigCharge_[i+2];
-    if(temp>total) total=temp;
-  }
+  for(unsigned int i=firstts; i<firstts+3 && i<bigCharge_.size(); i++)
+    total += bigCharge_[i];
   return total;
 }
   
@@ -83,23 +79,19 @@ float HcalNoiseHPD::big5ChargeTotal(void) const
   return total;
 }
   
-float HcalNoiseHPD::big5ChargeHighest2TS(void) const
+float HcalNoiseHPD::big5ChargeHighest2TS(unsigned int firstts) const
 {
   float total=0;
-  for(unsigned int i=0; i<big5Charge_.size()-1; i++) {
-    float temp = big5Charge_[i]+big5Charge_[i+1];
-    if(temp>total) total=temp;
-  }
+  for(unsigned int i=firstts; i<firstts+2 && i<big5Charge_.size(); i++)
+    total += big5Charge_[i];
   return total;
 }
   
-float HcalNoiseHPD::big5ChargeHighest3TS(void) const
+float HcalNoiseHPD::big5ChargeHighest3TS(unsigned int firstts) const
 {
   float total=0;
-  for(unsigned int i=0; i<big5Charge_.size()-2; i++) {
-    float temp = big5Charge_[i]+big5Charge_[i+1]+big5Charge_[i+2];
-    if(temp>total) total=temp;
-  }
+  for(unsigned int i=firstts; i<firstts+2 && i<big5Charge_.size(); i++)
+    total += big5Charge_[i];
   return total;
 }
   

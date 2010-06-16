@@ -53,33 +53,28 @@ const std::vector<float> HcalNoiseRBX::allCharge(void) const
 {
   return allCharge_;
 }
-  
+
 float HcalNoiseRBX::allChargeTotal(void) const
 {
   float total=0;
-  for(unsigned int i=0; i<allCharge_.size(); i++) {
+  for(unsigned int i=0; i<allCharge_.size(); i++)
     total += allCharge_[i];
-  }
   return total;
 }
   
-float HcalNoiseRBX::allChargeHighest2TS(void) const
+float HcalNoiseRBX::allChargeHighest2TS(unsigned int firstts) const
 {
   float total=0;
-  for(unsigned int i=0; i<allCharge_.size()-1; i++) {
-    float temp = allCharge_[i]+allCharge_[i+1];
-    if(temp>total) total=temp;
-  }
+  for(unsigned int i=firstts; i<firstts+2 && allCharge_.size(); i++)
+    total += allCharge_[i];
   return total;
 }
   
-float HcalNoiseRBX::allChargeHighest3TS(void) const
+float HcalNoiseRBX::allChargeHighest3TS(unsigned int firstts) const
 {
   float total=0;
-  for(unsigned int i=0; i<allCharge_.size()-2; i++) {
-    float temp = allCharge_[i]+allCharge_[i+1]+allCharge_[i+2];
-    if(temp>total) total=temp;
-  }
+  for(unsigned int i=firstts; i<firstts+3 && allCharge_.size(); i++)
+    total += allCharge_[i];
   return total;
 }
   

@@ -68,8 +68,8 @@ namespace reco {
     // pedestal subtracted fC information for all of the pixels in the RBX
     const std::vector<float> allCharge(void) const;
     float allChargeTotal(void) const;
-    float allChargeHighest2TS(void) const;
-    float allChargeHighest3TS(void) const;
+    float allChargeHighest2TS(unsigned int firstts=4) const;
+    float allChargeHighest3TS(unsigned int firstts=4) const;
 
     // total number of adc zeros in the RBX
     int totalZeros(void) const;
