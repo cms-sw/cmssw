@@ -152,7 +152,6 @@ namespace lumi{
       result.startT=row["TIME"].data<coral::TimeStamp>();
     }
     delete startTQuery;
-
     coral::IQuery* stopTQuery=runinfoschemaHandle.tableHandle(runsessionParamTable).newQuery();
     coral::AttributeList stopTVariableList;
     stopTVariableList.extend("runnumber",typeid(unsigned int));
@@ -177,7 +176,6 @@ namespace lumi{
     }
     runinfosession->transaction().commit();
     delete runinfosession;
-    
     //std::cout<<"result for run "<<runnumber<<" : sequence : "<<result.sequence<<" : "<<result.hltkey<<" : hltkey : "<<result.hltkey<<" : fillnumber : "<<result.fillnumber<<std::endl; 
 
     //std::cout<<"connecting to dest "<<m_dest<<std::endl; 
@@ -215,7 +213,6 @@ namespace lumi{
     return "DB";
   }
   unsigned int CMSRunSummary2DB::str2int(const std::string& s)  const{
-    std::cout<<"input "<<s<<std::endl;
     std::istringstream myStream(s);
     unsigned int i;
     if(myStream>>i){
