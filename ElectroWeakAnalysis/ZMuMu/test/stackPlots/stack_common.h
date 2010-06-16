@@ -22,11 +22,12 @@ const Color_t ztFillColor =  kYellow-9;
 const Color_t ztLineColor = kYellow-1;
 
 
-const double lumi =.020 ;
+const double lumi =0.01867 ;
 const double lumiZ = 100. ;
 const double lumiW = 100.;
 const double lumiQ = 35.;
-const double lumiT =100.;
+//scaling ttbar from 94.3 to 162.
+const double lumiT =100. * (94.3/162.);
 const double lumiZT =100.;
 
 
@@ -110,7 +111,7 @@ void makeStack(TH1 * h1, TH1 * h2, TH1 * h3, TH1 * h4, TH1 * h5, TH1 * hdata,
    hs->Draw("HIST");
   if(hdata != 0) {
     hdata->SetMarkerStyle(20);
-    hdata->SetMarkerSize(1.3);
+    hdata->SetMarkerSize(1.0);
     hdata->SetMarkerColor(kBlack);
     hdata->SetLineWidth(2);
     hdata->SetLineColor(kBlack);
@@ -118,8 +119,9 @@ void makeStack(TH1 * h1, TH1 * h2, TH1 * h3, TH1 * h4, TH1 * h5, TH1 * hdata,
     hdata->Draw("epsame");
     hdata->GetXaxis()->SetLabelSize(0);
     hdata->GetYaxis()->SetLabelSize(0);
-    hs->SetMaximum( hdata->GetMaximum() + 5);
-    gStyle->SetErrorX(1);
+    // log plots, so the maximum should be one order of magnitude more...
+    hs->SetMaximum( pow(10 , 1 + int(log( hdata->GetMaximum() ) )  ));
+    gStyle->SetErrorX(.5);
 }
   hs->SetMinimum(min);
   hs->GetXaxis()->SetTitle("m_{#mu^{+} #mu^{-}} (GeV/c^{2})");
@@ -145,7 +147,7 @@ void makeStack(TH1 * h1, TH1 * h2, TH1 * h3, TH1 * h4, TH1 * h5, TH1 * hdata,
   hs->GetXaxis()->SetLabelSize(.05);
   hs->GetYaxis()->SetLabelSize(.05);
   //  leg = new TLegend(0.65,0.55,0.85,0.75);
-  leg = new TLegend(0.75,0.65,0.9,0.8);
+  leg = new TLegend(0.75,0.67,0.9,0.82);
   if(hdata != 0)
     leg->AddEntry(hdata,"data");
   leg->AddEntry(h1,"Z#rightarrow#mu #mu","f");
@@ -158,11 +160,12 @@ void makeStack(TH1 * h1, TH1 * h2, TH1 * h3, TH1 * h4, TH1 * h5, TH1 * hdata,
   leg->SetShadowColor(kBlack);
   leg->Draw();
   c1->SetLogy();
-  TPaveText *pave = new TPaveText( 0.5 * (hdata->GetXaxis()->GetXmax() - (hdata->GetXaxis()->GetXmin()))  , (hdata->GetMaximum()) + 1.5 , hdata->GetXaxis()->GetXmax() , hdata->GetMaximum() + 9 );
+  //  TPaveText *pave = new TPaveText( 0.5 * (hdata->GetXaxis()->GetXmax() - (hdata->GetXaxis()->GetXmin()))  , (hdata->GetMaximum()) +1 , hdata->GetXaxis()->GetXmax() , 10 * hdata->GetMaximum()  );
+  TPaveText *pave = new TPaveText( 0.5  , 0.83 , 0.9 , 0.93  , "NDC");
   pave->SetFillColor(kWhite);
   pave->SetBorderSize(0);
   TText * t1 = pave->AddText("CMS Preliminary 2010");
-  TText * t2 = pave->AddText("L_{int} = 20 nb^{-1}  #sqrt{s} = 7 TeV"); // change by hand, can be improved.....
+  TText * t2 = pave->AddText("L_{int} = 18.67 nb^{ -1}  #sqrt{s} = 7 TeV"); // change by hand, can be improved...........  
   t1->SetTextColor(kBlack);
   t2->SetTextColor(kBlack);
   pave->Draw(); 
@@ -181,12 +184,15 @@ void makePlots(const char * var1, const char * var2,   TCut cut, int rebin, cons
 	       double min = 0.001, unsigned int nbins, double xMin, double xMax,  bool doData = false) {
 
 
-  
+ 
 TChain * zEvents = new TChain("Events"); 
 
-zEvents->Add("/scratch2/users/degruttola/Spring10Ntuples/NtupleLoose_ZmmPowhegSpring10HLTRedigi_100pb.root");
+
+ zEvents->Add("/scratch2/users/degruttola/Spring10Ntuples/NtupleLoose_zmmSpring10cteq66_100pb.root");
 TChain * wEvents = new TChain("Events"); 
-wEvents->Add("/scratch2/users/degruttola/Spring10Ntuples/NtupleLoose_wmunuPowhegSpring10HLTRedigi_100pb.root");
+ wEvents->Add("/scratch2/users/degruttola/Spring10Ntuples/NtupleLoose_wplusmnSpring10cteq66_50pb.root");
+ wEvents->Add("/scratch2/users/degruttola/Spring10Ntuples/NtupleLoose_wminusmnSpring10cteq66_50pb.root");
+
 // 100 pb
 TChain * tEvents = new TChain("Events"); 
 tEvents->Add("/scratch2/users/degruttola/Spring10Ntuples/NtupleLoose_ttbarSpring10HLTRedigi_100pb.root");
@@ -194,7 +200,7 @@ tEvents->Add("/scratch2/users/degruttola/Spring10Ntuples/NtupleLoose_ttbarSpring
 TChain * qEvents = new TChain("Events"); 
 qEvents->Add("/scratch2/users/degruttola/Spring10Ntuples/NtupleLoose_incl15Spring10HLTRedigi_35pb.root");
 TChain * ztEvents = new TChain("Events"); 
-ztEvents->Add("/scratch2/users/degruttola/Spring10Ntuples/NtupleLoose_ztautauSpring10HLTRedigi_100pb.root");
+ ztEvents->Add("/scratch2/users/degruttola/Spring10Ntuples/NtupleLoose_ztautauSpring10cteq66_100pb.root");
 // 35 pb
 
 
@@ -205,49 +211,55 @@ dataEvents->Add("/scratch2/users/degruttola/data/NtupleLoose_136033.root");
 dataEvents->Add("/scratch2/users/degruttola/data/NtupleLoose_136087.root");
 dataEvents->Add("/scratch2/users/degruttola/data/NtupleLoose_136100.root");
 dataEvents->Add("/scratch2/users/degruttola/data/NtupleLoose_137028.root");
-
-
-
-
 // .020 pb
 
-
-
-
-
-
   TH1F *h1 = new TH1F ("h1", "h1", nbins, xMin, xMax);
+  TH1F *hh1 = new TH1F ("hh1", "hh1", nbins, xMin, xMax);
+
   //  h1->Rebin(rebin); 
   TH1F *h2 = new TH1F ("h2", "h2", nbins, xMin, xMax);
+  TH1F *hh2 = new TH1F ("hh2", "hh2", nbins, xMin, xMax);
+
    //  h2->Rebin(rebin); 
   TH1F *h3 = new TH1F ("h3", "h3", nbins, xMin, xMax);
+  TH1F *hh3 = new TH1F ("hh3", "hh3", nbins, xMin, xMax);
+  
    //h3->Rebin(rebin); 
   TH1F *h4 = new TH1F ("h4", "h4", nbins, xMin, xMax);
+  TH1F *hh4 = new TH1F ("hh4", "hh4", nbins, xMin, xMax);
+
    //h4->Rebin(rebin); 
   TH1F *h5 = new TH1F ("h5", "h5", nbins, xMin, xMax);
-  
+  TH1F *hh5 = new TH1F ("hh5", "hh5", nbins, xMin, xMax);
+
+
   zEvents->Project("h1", var1, cut);
-  zEvents->Project("h1", var2, cut);
+  zEvents->Project("hh1", var2, cut);
+  h1->Add(hh1);
 
   wEvents->Project("h2", var1, cut);
   wEvents->Project("h2", var2, cut);
-
+  h2->Add(hh2);
 
   tEvents->Project("h3", var1, cut);
   tEvents->Project("h3", var2, cut);
+  h3->Add(hh3);
 
   qEvents->Project("h4", var1, cut);
   qEvents->Project("h4", var2, cut);
- 
+  h4->Add(hh4); 
+
   ztEvents->Project("h5", var1, cut);
   ztEvents->Project("h5", var2, cut);
-
+  h5->Add(hh5);
  
   //  TH1F *hdata = doData? (TH1F*)data.Get(var) : 0;
   if (doData) { 
   TH1F *hdata = new TH1F ("hdata", "hdata", nbins, xMin, xMax);
+  TH1F *hhdata = new TH1F ("hhdata", "hhdata", nbins, xMin, xMax);
   dataEvents->Project("hdata", var1, cut) ;
-  dataEvents->Project("hdata", var2, cut) ;
+  dataEvents->Project("hhdata", var2, cut) ;
+  hdata->Add(hhdata);
   }
   makeStack(h1, h2, h3, h4, h5, hdata, min, rebin);
   c1->SaveAs((std::string(plot)+".eps").c_str());
@@ -255,4 +267,39 @@ dataEvents->Add("/scratch2/users/degruttola/data/NtupleLoose_137028.root");
   c1->SaveAs((std::string(plot)+".pdf").c_str());
 
 }
+
+
+void evalEff(const char * var1, const char * var2,  TCut cut, TCut cut_Nminus1, unsigned int nbins, double xMin, double xMax) {
+
+ 
+TChain * zEvents = new TChain("Events"); 
+
+zEvents->Add("/scratch2/users/degruttola/Spring10Ntuples/NtupleLoose_zmmSpring10cteq66_100pb.root");
+
+ TH1F * htot1 = new TH1F("htot1", "htot1", nbins, xMin, xMax);
+ TH1F * htot2 = new TH1F("htot2", "htot2", nbins, xMin, xMax);
+ TH1F * hcut1 = new TH1F("hcut1", "hcut1", nbins, xMin, xMax);
+ TH1F * hcut2 = new TH1F("hcut2", "hcut2", nbins, xMin, xMax);
+
+
+  zEvents->Project("htot1", var1, cut);
+  zEvents->Project("hcut1", var1, cut_Nminus1);
+  zEvents->Project("htot2", var2, cut);
+  zEvents->Project("hcut2", var2, cut_Nminus1);
+ 
+  int npass = hcut1->Integral() + hcut2->Integral() ;
+  int ntot = htot1->Integral() + htot2->Integral() ;
+ 
+  double eff = (double) npass  / ntot;
+  double err =  sqrt(eff * (1 - eff ) / (ntot));
+  std::cout << " efficiency for the given cut: " << eff;
+  std::cout << " npass: " << npass; 
+  std::cout << " nTot: " << ntot; 
+  std::cout << " binomial error: " << err << std::endl; 
+
+           
+}
+
+
+
 #endif
