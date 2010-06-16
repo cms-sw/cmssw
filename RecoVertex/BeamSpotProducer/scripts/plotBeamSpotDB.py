@@ -408,11 +408,10 @@ if __name__ == '__main__':
 		graphlist[ig].SetBinError(ipoint +1, float(datayerr) )
 
             ipoint += 1
-        ## print local time
-        da_last.Print()
-        print "GMT = " + str(time.strftime('%Y-%m-%d %H:%M:%S',time.gmtime(last - time.timezone)))
-
 	if option.Time:
+            ## print local time
+            da_last.Print()
+            print "GMT = " + str(time.strftime('%Y-%m-%d %H:%M:%S',time.gmtime(last - time.timezone)))
             graphlist[ig].GetXaxis().SetTimeDisplay(1);
             graphlist[ig].GetXaxis().SetTimeFormat("#splitline{%Y/%m/%d}{%H:%M}")           
 	if option.graph:
