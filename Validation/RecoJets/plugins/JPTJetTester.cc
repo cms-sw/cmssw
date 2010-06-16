@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: JPTJetTester.cc,v 1.5 2010/04/06 20:16:11 chjeong Exp $
+// $Id: JPTJetTester.cc,v 1.6 2010/04/21 16:31:21 chjeong Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -28,7 +28,7 @@
 // #include "DataFormats/METReco/interface/MET.h"
 // #include "DataFormats/METReco/interface/METCollection.h"
 
-#include "RecoJets/JetAlgorithms/interface/JetMatchingTools.h"
+#include "RecoJets/JetProducers/interface/JetMatchingTools.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 

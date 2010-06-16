@@ -6,6 +6,7 @@
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="DataFormats/EgammaCandidates"/>
 <use   name="RecoJets/JetAlgorithms"/>
+<use   name="RecoJets/JetProducers"/>
 <use   name="Validation/RecoJets"/>
 <use   name="DataFormats/JetReco"/>
 <use   name="root"/>
