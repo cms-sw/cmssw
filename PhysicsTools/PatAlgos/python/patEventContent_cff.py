@@ -12,7 +12,8 @@ patEventContentNoCleaning = [
 ]
 
 patEventContent = [
-    'keep *_patJets*_*_*',
+    'keep *_selectedPatJets*_*_*',       # keep refactorized pat jet elements
+    'drop patJets_selectedPatJets*_*_*', # drop the actual selected pat jets, they're redundant
     'keep *_cleanPatPhotons*_*_*',
     'keep *_cleanPatElectrons*_*_*',
     'keep *_cleanPatMuons*_*_*',

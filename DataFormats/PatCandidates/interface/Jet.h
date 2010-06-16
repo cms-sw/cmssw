@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.46 2010/06/04 18:57:18 srappocc Exp $
+// $Id: Jet.h,v 1.47 2010/06/15 19:18:55 srappocc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette, Giovanni Petrucciani, Roger Wolf, Christian Autermann
-  \version  $Id: Jet.h,v 1.46 2010/06/04 18:57:18 srappocc Exp $
+  \version  $Id: Jet.h,v 1.47 2010/06/15 19:18:55 srappocc Exp $
 */
 
 
@@ -420,7 +420,43 @@ namespace pat {
       /// accessing Jet ID information
       reco::JetID const & jetID () const { return jetID_;}
       
-      
+
+      /// Access to bare FwdPtr collections
+      CaloTowerFwdPtrVector               const & caloTowersFwdPtr()   const { return caloTowersFwdPtr_;}
+      reco::PFCandidateFwdPtrVector       const & pfCandidatesFwdPtr() const { return pfCandidatesFwdPtr_; }
+      edm::FwdRef<reco::GenJetCollection> const & genJetFwdRef()       const { return genJetFwdRef_; }
+      TagInfoFwdPtrCollection             const & tagInfosFwdPtr()     const { return tagInfosFwdPtr_; }
+
+      /// Update bare FwdPtr and FwdRef "forward" pointers while keeping the
+      /// "back" pointers the same (i.e. the ref "forwarding")
+      void updateFwdCaloTowerFwdPtr( unsigned int index, edm::Ptr<CaloTower> updateFwd ) { 
+	if ( index < caloTowersFwdPtr_.size() ) {
+	  caloTowersFwdPtr_[index] = CaloTowerFwdPtrVector::value_type( updateFwd, caloTowersFwdPtr_[index].backPtr() );
+	} else {
+	  throw cms::Exception("OutOfRange") << "Index " << index << " is out of range" << std::endl;
+	}
+      }
+
+      void updateFwdPFCandidateFwdPtr( unsigned int index, edm::Ptr<reco::PFCandidate> updateFwd ) { 
+	if ( index < pfCandidatesFwdPtr_.size() ) {
+	  pfCandidatesFwdPtr_[index] = reco::PFCandidateFwdPtrVector::value_type( updateFwd, pfCandidatesFwdPtr_[index].backPtr() );
+	} else {
+	  throw cms::Exception("OutOfRange") << "Index " << index << " is out of range" << std::endl;
+	}
+      }
+
+
+      void updateFwdTagInfoFwdPtr( unsigned int index, edm::Ptr<reco::BaseTagInfo> updateFwd ) { 
+	if ( index < tagInfosFwdPtr_.size() ) {
+	  tagInfosFwdPtr_[index] = TagInfoFwdPtrCollection::value_type( updateFwd, tagInfosFwdPtr_[index].backPtr() );
+	} else {
+	  throw cms::Exception("OutOfRange") << "Index " << index << " is out of range" << std::endl;
+	}
+      }
+
+      void updateFwdGenJetFwdRef( edm::Ref<reco::GenJetCollection> updateRef ) {
+	genJetFwdRef_ = edm::FwdRef<reco::GenJetCollection>( updateRef, genJetFwdRef_.backRef() );
+      }
 
     protected:
 
