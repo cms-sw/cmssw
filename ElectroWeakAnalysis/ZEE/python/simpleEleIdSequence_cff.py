@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from ElectroWeakAnalysis.WENu.simpleCutBasedElectronIDSpring10_cfi import *
+from ElectroWeakAnalysis.ZEE.simpleCutBasedElectronIDSpring10_cfi import *
 
 
 simpleEleId95relIso = simpleCutBasedElectronID.clone()
