@@ -35,7 +35,7 @@ StripCPE::StripCPE( edm::ParameterSet & conf,
   
   const unsigned size = max_element( modules.begin(),modules.end(),
 				     boost::bind(&map_t::value_type::second,boost::lambda::_1) < 
-				     boost::bind(&map_t::value_type::second,boost::lambda::_2) )->second;
+				     boost::bind(&map_t::value_type::second,boost::lambda::_2) )->second + 1;
   shift.resize(size);
   xtalk1.resize(size);
   xtalk2.resize(size);
