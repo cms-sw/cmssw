@@ -15,7 +15,7 @@
 //
 // Author:      Valentine Kouznetsov
 // Created:     Wed Apr 23 10:58:26 EDT 2003
-// $Id: NoProxyException.h,v 1.9 2007/06/14 17:52:15 wmtan Exp $
+// $Id: NoProxyException.h,v 1.10 2009/07/02 16:46:50 chrjones Exp $
 //
 //
 
@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/NoDataException.h"
-#include "FWCore/Framework/interface/EventSetupRecord.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
 
 // forward declarations
 namespace edm {
@@ -38,9 +38,9 @@ class NoProxyException : public NoDataException<T>
       // ---------- constants, enums and typedefs --------------
 
       // ---------- Constructors and destructor ----------------
-      NoProxyException(const EventSetupRecord& iRecord,
+      NoProxyException(const EventSetupRecordKey& iKey,
 			  const DataKey& iDataKey) :
-       NoDataException<T>(iRecord.key(), iDataKey,"NoProxyException",NoDataExceptionBase::noProxyMessage()) 
+       NoDataException<T>(iKey, iDataKey,"NoProxyException",NoDataExceptionBase::noProxyMessage()) 
        {
        }
 
