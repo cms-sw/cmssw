@@ -43,39 +43,10 @@ if(outOfBoundsValue) {
 namespace edm {
    namespace eventsetup {
 
-class MakeDataExceptionInfoBase
-{
-public:
-  MakeDataExceptionInfoBase(const DataKey &iKey, const std::string& dataClassName, const std::string &recordClassName)
-  :key_(iKey),
-   dataClassName_(dataClassName),
-   recordClassName_(recordClassName)
-  {}
-  const DataKey &key() const {return key_;}
-  const std::string &dataClassName() const {return dataClassName_;}
-  const std::string &recordClassName() const {return recordClassName_;}
-private:
-  DataKey key_;
-  std::string dataClassName_;
-  std::string recordClassName_;
-};
-
-template <class RecordT, class DataT>
-class MakeDataExceptionInfo : public MakeDataExceptionInfoBase
-{
-public:
-  MakeDataExceptionInfo(const DataKey &iKey) 
-  : MakeDataExceptionInfoBase(iKey, 
-                              heterocontainer::className<DataT>(), 
-                              heterocontainer::className<RecordT>()) {}
-};
-
 class MakeDataException : public cms::Exception
 {
    public:
-      MakeDataException(const MakeDataExceptionInfoBase &info);  
-      MakeDataException(const std::string& iAdditionalInfo,
-                        const MakeDataExceptionInfoBase& info);  
+      MakeDataException(const EventSetupRecordKey&, const DataKey&);  
       ~MakeDataException() throw() {}
 
       // ---------- const member functions ---------------------
@@ -84,9 +55,7 @@ class MakeDataException : public cms::Exception
       }
    
       // ---------- static member functions --------------------
-      static std::string standardMessage(const MakeDataExceptionInfoBase& info); 
-      static std::string messageWithInfo(const MakeDataExceptionInfoBase& info,
-                                         const std::string& iInfo); 
+      static std::string standardMessage(const EventSetupRecordKey&, const DataKey&); 
    // ---------- member functions ---------------------------
 
    private:

@@ -4,38 +4,25 @@
 namespace edm {
    namespace eventsetup {
 
-MakeDataException::MakeDataException(const MakeDataExceptionInfoBase &info) : 
+MakeDataException::MakeDataException( const EventSetupRecordKey& iRecordKey, const DataKey& iDataKey) : 
 cms::Exception("MakeDataException"),
-message_(standardMessage(info))
+message_(standardMessage(iRecordKey,iDataKey))
 {
   this->append(myMessage());
 }
 
-MakeDataException::MakeDataException(const std::string& iAdditionalInfo,
-                     const MakeDataExceptionInfoBase& info) : 
-cms::Exception("MakeDataException"),
-message_(messageWithInfo(info, iAdditionalInfo))
-{
-  this->append(this->myMessage());
-}
-
       // ---------- static member functions --------------------
-std::string MakeDataException::standardMessage(const MakeDataExceptionInfoBase& info) 
+std::string MakeDataException::standardMessage( const EventSetupRecordKey& iRecordKey, const DataKey& iDataKey) 
 {
  std::string returnValue = std::string("Error while making data \"") 
- + info.dataClassName()  
- + "\" \""
- + info.key().name().value()
- + "\" in Record "
- + info.recordClassName();
- return returnValue;
+   + iDataKey.type().name()
+   + "\" \""
+   + iDataKey.name().value()
+   + "\" in Record "
+   + iRecordKey.type().name();
+   return returnValue;
 }
    
-std::string MakeDataException::messageWithInfo(const MakeDataExceptionInfoBase& info,
-                                               const std::string& iInfo) 
-{
-  return standardMessage(info) +"\n"+iInfo;
-}
 
    }
 }
