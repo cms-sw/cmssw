@@ -122,7 +122,7 @@ int main(int argc, char* argv[]) {
     std::string catalogIn = (vm.count("catalog") ? vm["catalog"].as<std::string>() : std::string());
     
     pset.addUntrackedParameter<std::vector<std::string> >("fileNames", in);
-    pset.addUntrackedParameter<std::string>("catalog", catalogIn);
+    pset.addUntrackedParameter<std::string>("overrideCatalog", catalogIn);
     
     edm::InputFileCatalog catalog(pset, pset.getUntrackedParameter<std::vector<std::string> >("fileNames"));
     std::vector<std::string> const& filesIn = catalog.fileNames();
