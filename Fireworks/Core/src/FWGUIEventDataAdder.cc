@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.45 2010/06/11 09:53:10 eulisse Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.46 2010/06/16 16:35:09 eulisse Exp $
 //
 
 // system include files
@@ -207,11 +207,8 @@ void strip(std::string &source, const char *str)
        the size of the matching items.
        
        Notice that the matching here does not work with regular expressions 
-       but it tries to find all the characters in the filter string
-       in order in the target string.
-        
-       This is usually a better approach than the "match subparts of the
-       string" one.
+       but it matches in the case the filter string is found anywhere, 
+       regardless of the case.
      */
    class SortAndFilter
    {
@@ -269,19 +266,8 @@ void strip(std::string &source, const char *str)
             // and therefore should appear on top.
             if (strstr(begin, m_filter.c_str()))
                return 2;
-            
-            for (size_t ci = 0, ce = m_filter.size(); ci != ce; ++ci)
-            {
-               int c = m_filter[ci];
-               // We simply ignore spaces, tabs, punctuation and alikes.
-               if (!isalnum(c))
-                  continue;
-               
-               begin = strchr(begin, c);
-               if (!begin)
-                  return 0;
-            }
-            return 1;
+
+            return 0;
          }
       
       /** If any of the columns (including "Purpose"!!) matches, we consider
