@@ -7,8 +7,10 @@ process.load("Configuration.StandardSequences.MixingNoPileUp_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load('Configuration/StandardSequences/DigiToRaw_cff')
 process.load('Configuration/StandardSequences/RawToDigi_cff')
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'MC_3XY_V12::All'
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff"
+from Configuration.PyReleaseValidation.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['mc']
+
 
 process.load("DQMServices.Core.DQM_cfg")
 process.DQM.collectorHost = ''
@@ -22,8 +24,6 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.source = cms.Source("PoolSource",
-    debugFlag = cms.untracked.bool(True),
-    debugVebosity = cms.untracked.uint32(10),
     fileNames = cms.untracked.vstring(
  )
 )
