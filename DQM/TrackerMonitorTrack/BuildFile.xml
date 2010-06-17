@@ -7,7 +7,7 @@
 <use   name="CalibTracker/Records"/>
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="Alignment/OfflineValidation"/>
-<use   name="CommonTools/RecoUtils"/>
+<use   name="CommonTools/TriggerUtils"/>
 <flags   EDM_PLUGIN="1"/>
 <export>
   <lib   name="1"/>
