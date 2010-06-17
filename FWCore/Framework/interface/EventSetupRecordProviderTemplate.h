@@ -28,6 +28,7 @@
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/DataProxyProvider.h"
+#include "FWCore/Framework/interface/DataProxy.h"
 
 // forward declarations
 namespace edm {
