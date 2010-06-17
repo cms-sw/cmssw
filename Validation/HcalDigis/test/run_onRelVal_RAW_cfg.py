@@ -35,4 +35,8 @@ process.hcalDigiAnalyzer = cms.EDAnalyzer("HcalDigiTester",
     mode = cms.untracked.string('multi')
 )
 
+#--- to force RAW->Digi
+process.hcalDigis.InputLabel = 'source'             # data
+#process.hcalDigis.InputLabel = 'rawDataCollector'  # MC
+
 process.p = cms.Path( process.hcalDigis * process.hcalDigiAnalyzer)
