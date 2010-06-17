@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 12:49:19 EST 2005
-// $Id: DataProxy.cc,v 1.6 2009/12/07 21:19:20 chrjones Exp $
+// $Id: DataProxy.cc,v 1.7 2009/12/16 20:27:01 chrjones Exp $
 //
 
 // system include files
@@ -16,6 +16,8 @@
 // user include files
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
+#include "FWCore/Framework/interface/MakeDataException.h"
+#include "FWCore/Framework/interface/EventSetupRecord.h"
 
 
 //
@@ -37,6 +39,7 @@ dummyDescription()
 // constructors and destructor
 //
 DataProxy::DataProxy() :
+   cache_(0),
    cacheIsValid_(false),
    nonTransientAccessRequested_(false),
    description_(dummyDescription())
@@ -68,7 +71,7 @@ DataProxy::~DataProxy()
 // member functions
 //
 void 
-DataProxy::setCacheIsValidAndAccessType(bool iTransientAccessOnly) { 
+DataProxy::setCacheIsValidAndAccessType(bool iTransientAccessOnly) const { 
    cacheIsValid_ = true;
    if(!iTransientAccessOnly) {
       nonTransientAccessRequested_ = true;
@@ -78,6 +81,7 @@ DataProxy::setCacheIsValidAndAccessType(bool iTransientAccessOnly) {
 void DataProxy::clearCacheIsValid() { 
    cacheIsValid_ = false;
    nonTransientAccessRequested_ = false;
+   cache_ = 0;
 }
       
 void 
@@ -95,7 +99,32 @@ DataProxy::invalidateTransientCache() {
 //
 // const member functions
 //
+namespace  {
+   void throwMakeException(const EventSetupRecord& iRecord,
+                           const DataKey& iKey)  {
+      throw MakeDataException(iRecord.key(),iKey);
+   }
+}
+      
+      
+const void* 
+DataProxy::get(const EventSetupRecord& iRecord, const DataKey& iKey, bool iTransiently) const
+{
+   if(!cacheIsValid()) {
+      cache_ = const_cast<DataProxy*>(this)->getImpl(iRecord, iKey);
+      setCacheIsValidAndAccessType(iTransiently);
+   }
+   if(0 == cache_) {
+      throwMakeException(iRecord, iKey);
+   }
+   return cache_;
+}
 
+void DataProxy::doGet(const EventSetupRecord& iRecord, const DataKey& iKey, bool iTransiently) const {
+   get(iRecord, iKey, iTransiently);
+}
+      
+      
 //
 // static member functions
 //
