@@ -31,7 +31,7 @@ L1GctMet::metVector () const
   switch (m_algoType)
     {
     case cordicTranslate:
-      algoResult = cordicTranslateAlgo (m_exComponent.value(), m_eyComponent.value());
+      algoResult = cordicTranslateAlgo (m_exComponent.value(), m_eyComponent.value(), (m_exComponent.overFlow() || m_eyComponent.overFlow()) );
       break;
 
     case useHtMissLut:
@@ -76,7 +76,7 @@ void L1GctMet::setEyComponent(const unsigned ey) {
 // private member functions - the different algorithms:
 
 L1GctMet::etmiss_internal
-L1GctMet::cordicTranslateAlgo (const int ex, const int ey) const
+L1GctMet::cordicTranslateAlgo (const int ex, const int ey, const bool of) const
 {
   //---------------------------------------------------------------------------------
   //
@@ -104,6 +104,8 @@ L1GctMet::cordicTranslateAlgo (const int ex, const int ey) const
 
   etmiss_internal result;
 
+  static const int of_val = 0x1FFF; // set components to 8191 (decimal) if there's an overflow on the input
+
   static const int n_iterations = 6;
   // The angle units here are 1/32 of a 5 degree bin.
   // So a 90 degree rotation is 32*18=576 or 240 hex.
@@ -118,14 +120,20 @@ L1GctMet::cordicTranslateAlgo (const int ex, const int ey) const
   int dx,dy;
   int  z;
 
-  if (ey>=0) {
-    x =  ey;
-    y = -ex;
+  if (of) {
+    x =  of_val;
+    y = -of_val;
     z = cordic_starting_angle_090;
   } else {
-    x = -ey;
-    y =  ex;
-    z = cordic_starting_angle_270;
+    if (ey>=0) {
+      x =  ey;
+      y = -ex;
+      z = cordic_starting_angle_090;
+    } else {
+      x = -ey;
+      y =  ex;
+      z = cordic_starting_angle_270;
+    }
   }
 
   for (int i=0; i<n_iterations; i++) {
@@ -146,6 +154,7 @@ L1GctMet::cordicTranslateAlgo (const int ex, const int ey) const
   int adjusted_angle   = ( (z < 0) ? (z + cordic_angle_360) : z ) % cordic_angle_360;
   result.mag = scaled_magnitude >> 10;
   result.phi = adjusted_angle   >> 5;
+  if (result.mag > (unsigned) of_val) result.mag = (unsigned) of_val;
   return result;
 }
 

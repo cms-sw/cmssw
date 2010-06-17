@@ -348,7 +348,11 @@ bool gctTestEnergyAlgos::checkEnergySums(const L1GlobalCaloTrigger* gct) const
     etmiss_vec etResult = trueMissingEt(-exTotal/2, -eyTotal/2);
 
     bool etMissOverFlow = exTotalOvrFlow || eyTotalOvrFlow;
-    while (etResult.mag>=4096) { etResult.mag -= 4096; etMissOverFlow = true; }
+    if (etMissOverFlow) {
+      etResult.mag = 4095;
+      etResult.phi = 45;
+    }
+    if (etResult.mag>=4096) { etResult.mag = 4095; etMissOverFlow = true; }
 
     //
     // Check the input to the final GlobalEnergyAlgos is as expected

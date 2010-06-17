@@ -44,7 +44,8 @@ public:
 
 	enum maxValues {
 	  etTotalMaxValue = L1GctEtTotal::kEtTotalMaxValue,
-	  etHadMaxValue   =   L1GctEtHad::kEtHadMaxValue
+	  etHadMaxValue   =   L1GctEtHad::kEtHadMaxValue,
+	  etMissMaxValue  =  L1GctEtMiss::kEtMissMaxValue
 	};
 
         /// Constructor needs the Wheel card Fpgas set up first

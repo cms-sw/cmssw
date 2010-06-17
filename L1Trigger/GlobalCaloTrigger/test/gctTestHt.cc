@@ -291,7 +291,7 @@ bool gctTestHt::checkHtSums(const L1GlobalCaloTrigger* gct) const
 
     // Check the missing Ht calculation
     unsigned htMiss = 0;
-    unsigned htMPhi = 0;
+    unsigned htMPhi = 9;
 
     if ((htmMinusOvrFlow || htmPlusOverFlow) 
 	|| ((abs(hxTotal)>2047) || (abs(hyTotal)>2047)) ) {

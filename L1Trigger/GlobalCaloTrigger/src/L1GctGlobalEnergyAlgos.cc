@@ -259,6 +259,7 @@ void L1GctGlobalEnergyAlgos::process()
     } else {
       EtMissing.phi.setValue(EtMissing.phi.value() + 36);
     }
+    if (EtMissing.mag.value() == etMissMaxValue) EtMissing.mag.setOverFlow(true);
 
     m_outputEtMiss.store    (EtMissing.mag, bxRel());
     m_outputEtMissPhi.store (EtMissing.phi, bxRel());
