@@ -20,8 +20,8 @@ class EcalUncalibratedRecHit {
   };
 
   EcalUncalibratedRecHit();
-  EcalUncalibratedRecHit(const DetId& detId, const double& ampl, const double& ped,
-                          const double& jit, const double& chi2, const uint32_t &flags = 0);
+  EcalUncalibratedRecHit(const DetId& detId, double ampl, double ped,
+                          double jit, double chi2, uint32_t flags = 0, uint32_t aux = 0);
 
   virtual ~EcalUncalibratedRecHit();
   double amplitude() const { return amplitude_; }
@@ -53,6 +53,7 @@ class EcalUncalibratedRecHit {
   double jitter_;      //< Reconstructed time jitter
   double chi2_;        //< Chi2 of the fit
   uint32_t flags_;     //< flag to be propagated to RecHit
+  uint32_t aux_;
   DetId  id_;          //< Detector ID
 };
 
