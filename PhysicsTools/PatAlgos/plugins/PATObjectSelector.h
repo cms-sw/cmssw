@@ -1,5 +1,5 @@
 //
-// $Id: PATObjectSelector.h,v 1.5 2009/12/29 00:07:13 hegner Exp $
+// $Id: PATObjectSelector.h,v 1.6 2010/06/16 18:21:38 srappocc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATObjectSelector_h
@@ -20,6 +20,8 @@
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/PFParticle.h"
 #include "DataFormats/PatCandidates/interface/GenericParticle.h"
+#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
+#include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetSelector.h"
 
@@ -57,6 +59,14 @@ namespace pat {
               std::vector<PFParticle>,
               StringCutObjectSelector<PFParticle>
           > PATPFParticleSelector;
+  typedef SingleObjectSelector<
+              std::vector<CompositeCandidate>,
+              StringCutObjectSelector<CompositeCandidate, true> // true => lazy parsing => get all methods of daughters
+          > PATCompositeCandidateSelector;
+  typedef SingleObjectSelector<
+              std::vector<TriggerObjectStandAlone>,
+              StringCutObjectSelector<TriggerObjectStandAlone>
+          > PATTriggerObjectStandAloneSelector;
   typedef SingleObjectSelector<
               std::vector<GenericParticle>,
               StringCutObjectSelector<GenericParticle>
@@ -102,6 +112,11 @@ namespace pat {
               StringCutObjectSelector<GenericParticle>,
               edm::RefVector<std::vector<GenericParticle> >
           > PATGenericParticleRefSelector;
+  typedef SingleObjectSelector<
+              std::vector<CompositeCandidate>,
+              StringCutObjectSelector<CompositeCandidate, true>, // true => lazy parsing => get all methods of daughters
+              edm::RefVector<std::vector<CompositeCandidate> >
+          > PATCompositeCandidateRefSelector;
 
 
 
