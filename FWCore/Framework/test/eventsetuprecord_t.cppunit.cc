@@ -12,6 +12,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordProviderTemplate.h"
 #include "FWCore/Framework/interface/EventSetupRecordProviderFactoryManager.h"
 #include "FWCore/Framework/interface/EventSetupRecordProviderFactoryTemplate.h"
+#include "FWCore/Framework/interface/MakeDataException.h"
 
 #include "FWCore/Framework/interface/HCMethods.icc"
 #include "FWCore/Framework/interface/HCTypeTag.h"
@@ -20,7 +21,6 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/recordGetImplementation.icc"
 
 using namespace edm;
 using namespace edm::eventsetup;
