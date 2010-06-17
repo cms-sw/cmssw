@@ -56,4 +56,3 @@ makeCreateConfig
 for TABLE in $TABLES; do
   runCreateConfig "hltdev" "$PASSWORD" "$MASTER" "$TABLE.txt" "$TARGET/$TABLE"
 done
-

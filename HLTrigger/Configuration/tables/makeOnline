@@ -52,4 +52,3 @@ fi
 
 makeCreateConfig
 runCreateConfig "hltdev" "$PASSWORD" "$MASTER" "online.txt" "$TARGET"
-
