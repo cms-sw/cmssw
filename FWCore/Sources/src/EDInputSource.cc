@@ -45,5 +45,6 @@ namespace edm {
     desc.addUntracked<std::vector<std::string> >("secondaryFileNames", defaultStrings);
     desc.addUntracked<bool>("needSecondaryFileNames", false);
     InputSource::fillDescription(desc);
+    InputFileCatalog::fillDescription(desc);
   }
 }

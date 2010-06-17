@@ -13,6 +13,7 @@
 
 namespace edm {
   class ParameterSet;
+  class ParameterSetDescription;
   class FileCatalogItem {
   public:
     FileCatalogItem() : pfn_(), lfn_() {}
@@ -36,6 +37,7 @@ namespace edm {
     static bool isPhysical(std::string const& name) {
       return (name.empty() || name.find(':') != std::string::npos);
     }
+    static void fillDescription(ParameterSetDescription & desc);
     
   private:
     void findFile(std::string & pfn, std::string const& lfn, bool noThrow);

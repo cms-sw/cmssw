@@ -8,6 +8,7 @@
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -52,5 +53,14 @@ namespace edm {
 	<< "before the file name in your configuration file.\n";
     }
   }
+
+
+  void
+  InputFileCatalog::fillDescription(ParameterSetDescription & desc) {
+    std::string defaultString;
+    desc.addUntracked<std::string>("overrideCatalog", defaultString);
+  }
+
   
 }
+
