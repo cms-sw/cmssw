@@ -7,10 +7,14 @@
 // 
 /**\class EventSetupRecordImplementation EventSetupRecordImplementation.h FWCore/Framework/interface/EventSetupRecordImplementation.h
 
- Description: <one line class summary>
+ Description: Help class which implements the necessary virtual methods for a new Record class
 
  Usage:
-    <usage>
+    This class handles implementing the necessary 'meta data' methods for a Record. To use the class, a new Record type should
+ inherit from EventSetupRecordImplementation and pass itself as the argument to the template parameter. For example, for a 
+ Record named FooRcd, you would declare it like
+ 
+      class FooRcd : public edm::eventsetup::EventSetupRecordImplementation< FooRcd > {};
 
 */
 //
@@ -24,83 +28,42 @@
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
-#include "FWCore/Framework/interface/DataProxy.h"
-#include "FWCore/Utilities/interface/ESInputTag.h"
 
 // forward declarations
 namespace edm {
    namespace eventsetup {
      class ComponentDescription;
      
-template<class T>
-class EventSetupRecordImplementation : public EventSetupRecord
-{
-
-   public:
-      //virtual ~EventSetupRecordImplementation();
-
-      // ---------- const member functions ---------------------
-      template< typename HolderT>
-         void get(HolderT& iHolder) const {
-            const typename HolderT::value_type* value = 0;
-            const ComponentDescription* desc = 0;
-            this->getImplementation(value, "",desc,iHolder.transientAccessOnly);
-                                                      
-            iHolder = HolderT(value,desc);
+      template<class T>
+      class EventSetupRecordImplementation : public EventSetupRecord {
+         
+      public:
+         //virtual ~EventSetupRecordImplementation();
+         
+         // ---------- const member functions ---------------------
+         virtual EventSetupRecordKey key() const {
+            return EventSetupRecordKey::makeKey<T>();
          }
-
-      template< typename HolderT>
-      void get(const char* iName, HolderT& iHolder) const {
-         const typename HolderT::value_type* value = 0;
-         const ComponentDescription* desc = 0;
-         this->getImplementation(value, iName,desc,iHolder.transientAccessOnly);
-         iHolder = HolderT(value,desc);
-      }
-      template< typename HolderT>
-      void get(const std::string& iName, HolderT& iHolder) const {
-         const typename HolderT::value_type* value = 0;
-         const ComponentDescription* desc = 0;
-         this->getImplementation(value, iName.c_str(),desc,iHolder.transientAccessOnly);
-         iHolder = HolderT(value,desc);
-      }
-      
-      template< typename HolderT>
-      void get(const edm::ESInputTag& iTag, HolderT& iHolder) const {
-         const typename HolderT::value_type* value = 0;
-         const ComponentDescription* desc = 0;
-         this->getImplementation(value, iTag.data().c_str(),desc,iHolder.transientAccessOnly);
-         validate(desc,iTag);
-         iHolder = HolderT(value,desc);
-      }
-   
-      virtual EventSetupRecordKey key() const {
-         return EventSetupRecordKey::makeKey<T>();
-      }
-      
-      // ---------- static member functions --------------------
-      static EventSetupRecordKey keyForClass()  {
-         return EventSetupRecordKey::makeKey<T>();
-      }
-   
-      // ---------- member functions ---------------------------
- 
-   protected:
-      EventSetupRecordImplementation() {}
-
-   private:
-      EventSetupRecordImplementation(const EventSetupRecordImplementation&); // stop default
-
-      const EventSetupRecordImplementation& operator=(const EventSetupRecordImplementation&); // stop default
-      
-      template < typename DataT > 
-         void getImplementation(DataT const *& iData ,
-                                const char* iName,
-                                const ComponentDescription*& iDesc,
-                                bool iTransientAccessOnly) const;       // ---------- member data --------------------------------
-
-};
+         
+         // ---------- static member functions --------------------
+         static EventSetupRecordKey keyForClass()  {
+            return EventSetupRecordKey::makeKey<T>();
+         }
+         
+         // ---------- member functions ---------------------------
+         
+      protected:
+         EventSetupRecordImplementation() {}
+         
+      private:
+         EventSetupRecordImplementation(const EventSetupRecordImplementation&); // stop default
+         
+         const EventSetupRecordImplementation& operator=(const EventSetupRecordImplementation&); // stop default
+         
+         // ---------- member data --------------------------------
+         
+      };
    }
 }
-#include "FWCore/Framework/interface/recordGetImplementation.icc"
 
 #endif
