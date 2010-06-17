@@ -6,7 +6,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: FWRPCRecHitProxyBuilder.cc,v 1.5 2010/05/04 11:40:19 amraktad Exp $
+// $Id: FWRPCRecHitProxyBuilder.cc,v 1.6 2010/05/05 08:35:08 mccauley Exp $
 //
 
 #include "TEveGeoNode.h"
@@ -24,19 +24,46 @@ public:
    FWRPCRecHitProxyBuilder() {}
    virtual ~FWRPCRecHitProxyBuilder() {}
   
+   virtual bool haveSingleProduct() const 
+    { 
+      return false; 
+    }
+
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
   FWRPCRecHitProxyBuilder(const FWRPCRecHitProxyBuilder&);
   const FWRPCRecHitProxyBuilder& operator=(const FWRPCRecHitProxyBuilder&); 
   
+  /*
   void build(const RPCRecHit& iData,
-             unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*);
+             unsigned int iIndex, 
+             TEveElement& oItemHolder, 
+             const FWViewContext*);
+  */
+
+  virtual void buildViewType(const RPCRecHit& iData, 
+                             unsigned int iIndex, 
+                             TEveElement& oItemHolder, 
+                             FWViewType::EType type, 
+                             const FWViewContext*);
 };
 
+
+void
+FWRPCRecHitProxyBuilder::buildViewType(const RPCRecHit& iData,
+                                       unsigned int iIndex, 
+                                       TEveElement& oItemHolder, 
+                                       FWViewType::EType type,
+                                       const FWViewContext*)
+
+/*
 void
 FWRPCRecHitProxyBuilder::build(const RPCRecHit& iData,
-                               unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*)
+                               unsigned int iIndex, 
+                               TEveElement& oItemHolder, 
+                               const FWViewContext*)
+*/
 {
   RPCDetId rpcId = iData.rpcId();
 
@@ -57,7 +84,7 @@ FWRPCRecHitProxyBuilder::build(const RPCRecHit& iData,
 
   TEveGeoShape* shape = item()->getGeom()->getShape(rpcId);
 
-  if ( shape ) 
+  if ( shape && ( type == FWViewType::k3D || type == FWViewType::kISpy ) ) 
   {
     shape->SetMainTransparency(75);
     shape->SetMainColor(item()->defaultDisplayProperties().color());
