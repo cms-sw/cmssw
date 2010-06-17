@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.86 2010/01/13 11:53:33 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.87 2010/03/26 20:20:20 matevz Exp $
 //
 #define private public
 #include "DataFormats/FWLite/interface/Event.h"
@@ -24,7 +24,6 @@
 
 #include  <TApplication.h>
 #include  <TSystem.h>
-#include  <TGraph.h>
 #include  <TObject.h>
 
 // user include files
@@ -53,12 +52,8 @@ CmsShowNavigator::CmsShowNavigator(const CmsShowMain &main):
    m_maxNumberOfFilesToChain(1),
 
    m_main(main),
-   m_guiFilter(0),
-
-   m_memoryInfoSamples(0)
+   m_guiFilter(0)
 {
-   // write memory info to TGraph
-   // setupMemoryInfo(200);
 }
 
 CmsShowNavigator::~CmsShowNavigator()
@@ -195,7 +190,6 @@ CmsShowNavigator::goTo(FileQueue_i fi, int event)
    (*m_currentFile)->event()->to(event);
    m_currentEvent = event;
 
-   if (m_memoryInfoSamples) writeMemoryInfo();
    newEvent_.emit();
 }
 
@@ -842,59 +836,5 @@ CmsShowNavigator::addTo(FWConfiguration& iTo) const
    }
    iTo.addKeyValue("EventFilter_total",FWConfiguration(Form("%d",numberOfFilters)));
    iTo.addKeyValue("EventFilter_enabled",FWConfiguration(Form("%d", m_filterState == kOn ? 1 : 0)));
-}
-
-
-//______________________________________________________________________________
-//
-void
-CmsShowNavigator::setupMemoryInfo(int numEvents)
-{
-   m_memoryInfoSamples = numEvents;
-   m_memoryVirtualVec.reserve (m_memoryInfoSamples);
-   m_memoryResidentVec.reserve(m_memoryInfoSamples);
-}
-
-void
-CmsShowNavigator::writeMemoryInfo()
-{
-   if (m_memoryResidentVec.size() < (unsigned int)m_memoryInfoSamples )
-   {
-      ProcInfo_t pInf;
-      gSystem->GetProcInfo(&pInf);
-      m_memoryResidentVec.push_back(pInf.fMemResident/1024.0);
-      m_memoryVirtualVec.push_back(pInf.fMemVirtual/1024.0);
-      fwLog(fwlog::kInfo) <<  m_memoryResidentVec.size() << " RESIDENT << " <<
-         m_memoryResidentVec.back() << "VIRTUAL << " << m_memoryVirtualVec.back() << std::endl;
-   }
-   if (m_memoryResidentVec.size() % 100 == 0)
-   {
-      fwLog(fwlog::kInfo) << "Writing memory info to file memoryUsage_PID" << std::endl;
-      TDirectory* gd= gDirectory;
-      TFile* gf= gFile;
-      {
-         TFile* file = TFile::Open(Form("memoryUsage_%d.root", gSystem->GetPid()), "RECREATE");
-         file->cd(); 
-         Int_t n = m_memoryResidentVec.size();
-         TGraph gv(n);
-         gv.SetTitle("VirtualMemory");
-         gv.GetXaxis()->SetTitle("events");
-         gv.GetYaxis()->SetTitle("kB");
-         TGraph gr(n);
-         gr.SetTitle("ResidentMemory");
-         gr.GetXaxis()->SetTitle("events");
-         gr.GetYaxis()->SetTitle("kB");
-         for(Int_t i=0; i<n; i++)
-         {
-            gr.SetPoint(i, i, m_memoryResidentVec[i]);
-            gv.SetPoint(i, i, m_memoryVirtualVec[i]);
-         }
-         gr.Write(Form("ResidentMemory"), TObject::kOverwrite);
-         gv.Write(Form("VirtualMemory") , TObject::kOverwrite);
-         file->Close();
-      }
-      gDirectory = gd;
-      gFile = gf;
-   }
 }
 
