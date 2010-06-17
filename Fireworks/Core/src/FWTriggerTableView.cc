@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     FWTriggerTableView
-// $Id: FWTriggerTableView.cc,v 1.8 2010/06/14 13:43:48 yana Exp $
+// $Id: FWTriggerTableView.cc,v 1.9 2010/06/16 17:08:39 amraktad Exp $
 //
 
 // system include files
@@ -193,7 +193,7 @@ FWTriggerTableView::fillAverageAcceptFractions()
          triggerNames = &m_event->triggerNames(*hTriggerResults);
       } catch (cms::Exception&) {
          fwLog(fwlog::kError) <<" exception caught while trying to get trigger info"<<std::endl;
-         return;
+         break;
       }
 
       for(unsigned int i=0; i<triggerNames->size(); ++i) {
