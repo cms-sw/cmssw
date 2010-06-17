@@ -2,7 +2,7 @@
 //
 // Package:     Muons
 // Class  :     FWMuonBuilder
-// $Id: FWMuonBuilder.cc,v 1.25 2010/05/12 10:35:27 mccauley Exp $
+// $Id: FWMuonBuilder.cc,v 1.26 2010/05/21 13:45:46 mccauley Exp $
 //
 
 #include "TEveTrackPropagator.h"
@@ -88,10 +88,10 @@ void addMatchInformation( const reco::Muon* muon,
     {
       TEveGeoShape* shape = geom->getShape(id.rawId());
    
-      if ( shape ) 
+      if (shape) 
       {
+        shape->SetElementName("Chamber");
         shape->RefMainTrans().Scale(0.999, 0.999, 0.999);
-        shape->SetMainTransparency(65);
         pb->setupAddElement(shape, parentList);
       }
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec  4 19:28:07 EST 2008
-// $Id: FWMuonProxyBuilder.cc,v 1.7 2010/05/07 09:03:40 mccauley Exp $
+// $Id: FWMuonProxyBuilder.cc,v 1.8 2010/05/21 13:45:46 mccauley Exp $
 //
 
 #include "TEvePointSet.h"
@@ -38,17 +38,44 @@ private:
    // ---------- member data --------------------------------
    virtual void build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*);
 
+   virtual void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
+                                  FWViewType::EType viewType, const FWViewContext* vc);
+
+   void setChamberTransparency(unsigned int index, TEveElement* holder);
+
    mutable FWMuonBuilder m_builder;
 };
+
+void
+FWMuonProxyBuilder::setChamberTransparency(unsigned int index, TEveElement* holder)
+{
+   const FWDisplayProperties& dp = item()->modelInfo(index).displayProperties();
+   Char_t chamber_transp = TMath::Min(100, 60 + dp.transparency() / 2);
+   TEveElement::List_t chambers;
+   holder->FindChildren(chambers, "Chamber");
+   for (TEveElement::List_i c = chambers.begin(); c != chambers.end(); ++c)
+   {
+      (*c)->SetMainTransparency(chamber_transp);
+   }
+}
 
 void
 FWMuonProxyBuilder::build(const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) 
 {
    m_builder.buildMuon(this, &iData, &oItemHolder, true, false);
-   
+
+   setChamberTransparency(iIndex, &oItemHolder);
+
    // FIXME: To build in RhoPhi we should simply disable the Endcap drawing
    // by passing a false flag to a muon builder:
    // m_builder.buildMuon(item(), &iData, &oItemHolder, false, false);
+}
+
+void
+FWMuonProxyBuilder::localModelChanges(const FWModelId& iId, TEveElement* iCompound,
+                                      FWViewType::EType viewType, const FWViewContext* vc)
+{
+   setChamberTransparency(iId.index(), iCompound);
 }
 
 //______________________________________________________________________________

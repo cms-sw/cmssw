@@ -214,6 +214,7 @@ TEveGeoShape* DetIdToMatrix::getShape(const char* path, const char* name, const 
    if ( !matrix ) matrix = manager_->GetCurrentMatrix();
 
    TEveGeoShape* shape = new TEveGeoShape(name,path);
+   shape->SetElementTitle(name);
    shape->SetTransMatrix(*matrix);
    TGeoShape* gs = manager_->GetCurrentVolume()->GetShape();
    //------------------------------------------------------------------------------//
