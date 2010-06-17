@@ -4,7 +4,7 @@
 namespace edm {
     ExternalInputSource::ExternalInputSource(ParameterSet const& pset, InputSourceDescription const& desc, bool realData) :
       ConfigurableInputSource(pset, desc, realData),
-      catalog_(pset.getUntrackedParameter<std::vector<std::string> >("fileNames")) {
+      catalog_(pset, pset.getUntrackedParameter<std::vector<std::string> >("fileNames")) {
     }
     ExternalInputSource::~ExternalInputSource() {}
 }
