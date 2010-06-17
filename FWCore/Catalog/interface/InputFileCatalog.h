@@ -12,6 +12,7 @@
 #include "FWCore/Catalog/interface/FileLocator.h"
 
 namespace edm {
+  class ParameterSet;
   class FileCatalogItem {
   public:
     FileCatalogItem() : pfn_(), lfn_() {}
@@ -25,7 +26,8 @@ namespace edm {
 
   class InputFileCatalog {
   public:
-    explicit InputFileCatalog(std::vector<std::string> const& fileNames, bool noThrow = false);
+    InputFileCatalog(edm::ParameterSet const & pset,
+    std::vector<std::string> const& fileNames, bool noThrow = false);
     ~InputFileCatalog();
     std::vector<FileCatalogItem> const& fileCatalogItems() const {return fileCatalogItems_;}
     std::vector<std::string> const& logicalFileNames() const {return logicalFileNames_;}
@@ -40,7 +42,7 @@ namespace edm {
     std::vector<std::string> logicalFileNames_;
     std::vector<std::string> fileNames_;
     std::vector<FileCatalogItem> fileCatalogItems_;
-    boost::scoped_ptr<FileLocator> fl_;
+    FileLocator fl_;
   };
 }
 

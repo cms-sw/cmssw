@@ -7,13 +7,17 @@
 
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include <boost/algorithm/string.hpp>
 
 namespace edm {
-  InputFileCatalog::InputFileCatalog(std::vector<std::string> const& fileNames, bool noThrow) :
+  InputFileCatalog::InputFileCatalog(edm::ParameterSet const & pset,
+				     std::vector<std::string> const& fileNames, bool noThrow) :
     logicalFileNames_(fileNames),
     fileNames_(logicalFileNames_),
-    fileCatalogItems_() {
+    fileCatalogItems_(),
+    fl_(pset.getUntrackedParameter<std::string>("overrideCatalog", std::string())){
 
     // Starting the catalog will write a catalog out if it does not exist.
     // So, do not start (or even read) the catalog unless it is needed.
@@ -40,10 +44,7 @@ namespace edm {
   InputFileCatalog::~InputFileCatalog() {}
   
   void InputFileCatalog::findFile(std::string & pfn, std::string const& lfn, bool noThrow) {
-    if (!fl_) {
-      fl_.reset(new FileLocator);
-    }
-    pfn = fl_->pfn(lfn);
+    pfn = fl->pfn(lfn);
     if (pfn.empty() && !noThrow) {
       throw cms::Exception("LogicalFileNameNotFound", "FileCatalog::findFile()\n")
 	<< "Logical file name '" << lfn << "' was not found in the file catalog.\n"
