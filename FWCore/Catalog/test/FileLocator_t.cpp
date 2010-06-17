@@ -25,9 +25,10 @@ int main() {
     //make the services available
     edm::ServiceRegistry::Operate operate(tempToken);
 
-    edm::FileLocator fl;
+    {
+      edm::FileLocator fl("");
 
-    const char * lfn[] = {
+      const char * lfn[] = {
       "/store/group/bha/bho",
       "/bha/bho",
       "bha",
@@ -36,17 +37,42 @@ int main() {
       "/castor/cern.ch/cms/bha/bho",
       "rfio:/castor/cern.ch/cms/bha/bho",
       "rfio:/bha/bho"
-    };
-    int nfile=8;
+      };
+      int nfile=8;
     
-    std::cout << "lfn2pfn" << std::endl;
-    for (int i=0; i<nfile; ++i)
-      std::cout << lfn[i] << " -> " << fl.pfn(lfn[i]) << std::endl;
+      std::cout << "lfn2pfn" << std::endl;
+      for (int i=0; i<nfile; ++i)
+        std::cout << lfn[i] << " -> " << fl.pfn(lfn[i]) << std::endl;
     
-    std::cout << "pfn2lfn" << std::endl;
-    for (int i=0; i<nfile; ++i)
-      std::cout << lfn[i] << " -> " << fl.lfn(lfn[i]) << std::endl;
+      std::cout << "pfn2lfn" << std::endl;
+      for (int i=0; i<nfile; ++i)
+        std::cout << lfn[i] << " -> " << fl.lfn(lfn[i]) << std::endl;
+   }
 
+    {
+      edm::FileLocator fl("trivialcatalog_file:FWCore/Catalog/test/override_catalog.xml?protocol=override");
+    
+      const char * lfn[] = {
+      "/store/unmerged/relval/CMSSW_3_8_0_pre3/RelValZTT/GEN-SIM-DIGI-RAW-HLTDEBUG/START38_V2-v1/0666/80EC0BCD-D279-DF11-B1DB-0030487C90EE.root"
+      "/store/group/bha/bho",
+      "/bha/bho",
+      "bha",
+      "file:bha",
+      "file:/bha/bho",
+      "/castor/cern.ch/cms/bha/bho",
+      "rfio:/castor/cern.ch/cms/bha/bho",
+      "rfio:/bha/bho"
+      };
+      int nfile=9;
+    
+      std::cout << "lfn2pfn" << std::endl;
+      for (int i=0; i<nfile; ++i)
+        std::cout << lfn[i] << " -> " << fl.pfn(lfn[i]) << std::endl;
+    
+      std::cout << "pfn2lfn" << std::endl;
+      for (int i=0; i<nfile; ++i)
+        std::cout << lfn[i] << " -> " << fl.lfn(lfn[i]) << std::endl;
+   }
 
 
   } 

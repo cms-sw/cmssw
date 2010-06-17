@@ -44,7 +44,7 @@ namespace edm {
   InputFileCatalog::~InputFileCatalog() {}
   
   void InputFileCatalog::findFile(std::string & pfn, std::string const& lfn, bool noThrow) {
-    pfn = fl->pfn(lfn);
+    pfn = fl_.pfn(lfn);
     if (pfn.empty() && !noThrow) {
       throw cms::Exception("LogicalFileNameNotFound", "FileCatalog::findFile()\n")
 	<< "Logical file name '" << lfn << "' was not found in the file catalog.\n"

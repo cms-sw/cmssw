@@ -13,7 +13,7 @@ namespace edm {
   class FileLocator {
 
   public:
-    Explicit FileLocator(std::string const & catUrl);
+    explicit FileLocator(std::string const & catUrl);
     ~FileLocator();
 
     std::string pfn(std::string const & ilfn) const;
