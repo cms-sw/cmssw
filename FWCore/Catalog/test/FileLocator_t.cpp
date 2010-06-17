@@ -53,7 +53,7 @@ int main() {
       edm::FileLocator fl("trivialcatalog_file:FWCore/Catalog/test/override_catalog.xml?protocol=override");
     
       const char * lfn[] = {
-      "/store/unmerged/relval/CMSSW_3_8_0_pre3/RelValZTT/GEN-SIM-DIGI-RAW-HLTDEBUG/START38_V2-v1/0666/80EC0BCD-D279-DF11-B1DB-0030487C90EE.root"
+      "/store/unmerged/relval/CMSSW_3_8_0_pre3/RelValZTT/GEN-SIM-DIGI-RAW-HLTDEBUG/START38_V2-v1/0666/80EC0BCD-D279-DF11-B1DB-0030487C90EE.root",
       "/store/group/bha/bho",
       "/bha/bho",
       "bha",
