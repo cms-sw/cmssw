@@ -1,6 +1,6 @@
 <config name="top" version="1">
  <config name="EventItems" version="1">
-  <config name="ECal" version="3">
+  <config name="ECal" version="4">
    <config name="type" version="0">
      <string>edm::SortedCollection&lt;CaloTower,edm::StrictWeakOrdering&lt;CaloTower&gt; &gt;</string>
    </config>
@@ -17,7 +17,7 @@
      <string>$.emEt()&gt;0.2</string>
    </config>
    <config name="color" version="0">
-     <string>8</string>
+     <string>1008</string>
    </config>
    <config name="isVisible" version="0">
      <string>t</string>
@@ -28,8 +28,11 @@
    <config name="purpose" version="0">
      <string>ECal</string>
    </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
   </config>
-  <config name="HCal" version="3">
+  <config name="HCal" version="4">
    <config name="type" version="0">
      <string>edm::SortedCollection&lt;CaloTower,edm::StrictWeakOrdering&lt;CaloTower&gt; &gt;</string>
    </config>
@@ -46,7 +49,7 @@
      <string>$.hadEt()+$.outerEt()&gt;0.2</string>
    </config>
    <config name="color" version="0">
-     <string>5</string>
+     <string>1005</string>
    </config>
    <config name="isVisible" version="0">
      <string>t</string>
@@ -57,8 +60,11 @@
    <config name="purpose" version="0">
      <string>HCal</string>
    </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
   </config>
-  <config name="Jets" version="3">
+  <config name="Jets" version="4">
    <config name="type" version="0">
      <string>std::vector&lt;reco::CaloJet&gt;</string>
    </config>
@@ -75,7 +81,7 @@
      <string>$.pt()&gt;10</string>
    </config>
    <config name="color" version="0">
-     <string>0</string>
+     <string>1000</string>
    </config>
    <config name="isVisible" version="0">
      <string>t</string>
@@ -86,8 +92,11 @@
    <config name="purpose" version="0">
      <string>Jets</string>
    </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
   </config>
-  <config name="Tracks" version="3">
+  <config name="Tracks" version="4">
    <config name="type" version="0">
      <string>std::vector&lt;reco::Track&gt;</string>
    </config>
@@ -104,7 +113,7 @@
      <string>$.pt()&gt;1</string>
    </config>
    <config name="color" version="0">
-     <string>9</string>
+     <string>1009</string>
    </config>
    <config name="isVisible" version="0">
      <string>t</string>
@@ -115,8 +124,11 @@
    <config name="purpose" version="0">
      <string>Tracks</string>
    </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
   </config>
-  <config name="Muons" version="3">
+  <config name="Muons" version="4">
    <config name="type" version="0">
      <string>std::vector&lt;reco::Muon&gt;</string>
    </config>
@@ -133,7 +145,7 @@
      <string>$.isStandAloneMuon()</string>
    </config>
    <config name="color" version="0">
-     <string>8</string>
+     <string>1008</string>
    </config>
    <config name="isVisible" version="0">
      <string>t</string>
@@ -144,8 +156,11 @@
    <config name="purpose" version="0">
      <string>Muons</string>
    </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
   </config>
-  <config name="Electrons" version="3">
+  <config name="Electrons" version="4">
    <config name="type" version="0">
      <string>std::vector&lt;reco::GsfElectron&gt;</string>
    </config>
@@ -162,7 +177,7 @@
      <string>$.hadronicOverEm()&lt;0.05</string>
    </config>
    <config name="color" version="0">
-     <string>7</string>
+     <string>1007</string>
    </config>
    <config name="isVisible" version="0">
      <string>t</string>
@@ -173,8 +188,11 @@
    <config name="purpose" version="0">
      <string>Electrons</string>
    </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
   </config>
-  <config name="Vertices" version="3">
+  <config name="Vertices" version="4">
    <config name="type" version="0">
      <string>std::vector&lt;reco::Vertex&gt;</string>
    </config>
@@ -191,7 +209,7 @@
      <string></string>
    </config>
    <config name="color" version="0">
-     <string>0</string>
+     <string>1000</string>
    </config>
    <config name="isVisible" version="0">
      <string>t</string>
@@ -202,8 +220,11 @@
    <config name="purpose" version="0">
      <string>Vertices</string>
    </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
   </config>
-  <config name="DT-segments" version="3">
+  <config name="DT-segments" version="4">
    <config name="type" version="0">
      <string>edm::RangeMap&lt;DTChamberId,edm::OwnVector&lt;DTRecSegment4D,edm::ClonePolicy&lt;DTRecSegment4D&gt; &gt;,edm::ClonePolicy&lt;DTRecSegment4D&gt; &gt;</string>
    </config>
@@ -220,7 +241,7 @@
      <string></string>
    </config>
    <config name="color" version="0">
-     <string>5</string>
+     <string>1005</string>
    </config>
    <config name="isVisible" version="0">
      <string>t</string>
@@ -231,8 +252,11 @@
    <config name="purpose" version="0">
      <string>DT-segments</string>
    </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
   </config>
-  <config name="CSC-segments" version="3">
+  <config name="CSC-segments" version="4">
    <config name="type" version="0">
      <string>edm::RangeMap&lt;CSCDetId,edm::OwnVector&lt;CSCSegment,edm::ClonePolicy&lt;CSCSegment&gt; &gt;,edm::ClonePolicy&lt;CSCSegment&gt; &gt;</string>
    </config>
@@ -249,7 +273,7 @@
      <string></string>
    </config>
    <config name="color" version="0">
-     <string>5</string>
+     <string>1005</string>
    </config>
    <config name="isVisible" version="0">
      <string>t</string>
@@ -260,8 +284,11 @@
    <config name="purpose" version="0">
      <string>CSC-segments</string>
    </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
   </config>
-  <config name="Photons" version="3">
+  <config name="Photons" version="4">
    <config name="type" version="0">
      <string>std::vector&lt;reco::Photon&gt;</string>
    </config>
@@ -278,7 +305,7 @@
      <string>hadronicOverEm &lt; 0.2</string>
    </config>
    <config name="color" version="0">
-     <string>9</string>
+     <string>1009</string>
    </config>
    <config name="isVisible" version="0">
      <string>t</string>
@@ -289,8 +316,11 @@
    <config name="purpose" version="0">
      <string>Photons</string>
    </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
   </config>
-  <config name="MET" version="3">
+  <config name="MET" version="4">
    <config name="type" version="0">
      <string>std::vector&lt;reco::MET&gt;</string>
    </config>
@@ -307,7 +337,7 @@
      <string>et()&gt;20</string>
    </config>
    <config name="color" version="0">
-     <string>8</string>
+     <string>1008</string>
    </config>
    <config name="isVisible" version="0">
      <string>t</string>
@@ -317,6 +347,9 @@
    </config>
    <config name="purpose" version="0">
      <string>recoMET</string>
+   </config>
+   <config name="transparency" version="0">
+     <string>0</string>
    </config>
   </config>
  </config>
@@ -499,6 +532,9 @@
     </config>
     <config name="Pixels per bin" version="0">
       <string>10</string>
+    </config>
+    <config name="pixel font size in 2D)" version="0">
+      <string>40</string>
     </config>
     <config name="Show scales" version="0">
       <string>1</string>
@@ -1130,12 +1166,12 @@
      </config>
     </config>
    </config>
-   <config name="TriggerTable" version="1">
-    <config name="Filter" version="0">
-      <string></string>
-    </config>
-    <config name="Process" version="0">
-      <string>HLT</string>
+   <config name="L1TriggerTable" version="1">
+    <config name="L1TriggerTableView" version="1">
+     <config name="sortColumn" version="4294967295">
+     </config>
+     <config name="descendingSort" version="1">
+     </config>
     </config>
    </config>
   </config>
@@ -1200,7 +1236,7 @@
      </config>
     </config>
    </config>
-   <config name="TriggerTable" version="2">
+   <config name="L1TriggerTable" version="2">
     <config name="weight" version="0">
       <string>1</string>
     </config>
@@ -1224,7 +1260,7 @@
        <string>359</string>
      </config>
      <config name="height" version="0">
-       <string>378</string>
+       <string>380</string>
      </config>
     </config>
    </config>
