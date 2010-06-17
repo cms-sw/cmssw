@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.54 2010/06/01 12:07:08 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.55 2010/06/16 18:52:34 srappocc Exp $
 //
 //
 
@@ -886,6 +886,7 @@ void objMonData<T>::monitorL1(const int l1Index, FourVectorHLTOffline* fv)
       }
       else {
 
+        ++idtypeiter;
         continue;
 
       }
@@ -1062,7 +1063,7 @@ void objMonData<T>::monitorOnline(const int hltIndex, const int l1Index, FourVec
 	  }
 	  else {
 	
-	    return;
+	    continue;
 	
 	  }
     /*
