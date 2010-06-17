@@ -31,40 +31,37 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
+static const std::string category("Muon|RecoMuon|L3MuonCandidateProducerFromMuons");
+
 /// constructor with config
-L3MuonCandidateProducerFromMuons::L3MuonCandidateProducerFromMuons(const ParameterSet& parameterSet){
-  LogTrace("Muon|RecoMuon|L3MuonCandidateProducerFromMuons")<<" constructor called";
-
-  // StandAlone Collection Label
-  theL3CollectionLabel = parameterSet.getParameter<InputTag>("InputObjects");
-
+L3MuonCandidateProducerFromMuons::L3MuonCandidateProducerFromMuons(const ParameterSet& parameterSet) :
+  m_L3CollectionLabel( parameterSet.getParameter<InputTag>("InputObjects") )       // standAlone Collection Label
+{
+  LogTrace(category)<<" constructor called";
   produces<RecoChargedCandidateCollection>();
-  
-}//destructor
+}
 
+/// destructor
 L3MuonCandidateProducerFromMuons::~L3MuonCandidateProducerFromMuons(){
-  LogTrace("Muon|RecoMuon|L3MuonCandidateProducerFromMuons")<<" L3MuonCandidateProducerFromMuons destructor called";
+  LogTrace(category)<<" L3MuonCandidateProducerFromMuons destructor called";
 }
 
 
 /// reconstruct muons
 void L3MuonCandidateProducerFromMuons::produce(Event& event, const EventSetup& eventSetup){
-  const string metname = "Muon|RecoMuon|L3MuonCandidateProducerFromMuons";
-
-  // Take the L3 container
-  LogTrace(metname)<<" Taking the L3/GLB muons: "<<theL3CollectionLabel.label();
-
-  Handle<reco::MuonCollection> muons;
-  event.getByLabel(theL3CollectionLabel,muons);
-
-
   // Create a RecoChargedCandidate collection
-  LogTrace(metname)<<" Creating the RecoChargedCandidate collection";
+  LogTrace(category)<<" Creating the RecoChargedCandidate collection";
   auto_ptr<RecoChargedCandidateCollection> candidates( new RecoChargedCandidateCollection());
 
+  // Take the L3 container
+  LogTrace(category)<<" Taking the L3/GLB muons: "<<m_L3CollectionLabel.label();
+  Handle<reco::MuonCollection> muons;
+  event.getByLabel(m_L3CollectionLabel,muons);
 
-  for (unsigned int i=0; i<muons->size(); i++) {
-
+  if (not muons.isValid()) {
+    LogError(category) << muons.whyFailed()->what();
+  } else { 
+    for (unsigned int i=0; i<muons->size(); i++) {
       TrackRef tkref = (*muons)[i].innerTrack();
 
       Particle::Charge q = tkref->charge();
@@ -72,19 +69,15 @@ void L3MuonCandidateProducerFromMuons::produce(Event& event, const EventSetup& e
       Particle::Point vtx(tkref->vx(),tkref->vy(), tkref->vz());
 
       int pid = 13;
-      if(abs(q)==1) pid = q < 0 ? 13 : -13;
-      else LogWarning(metname) << "L3MuonCandidate has charge = "<<q;
+      if (abs(q)==1) 
+        pid = q < 0 ? 13 : -13;
+      else 
+        LogWarning(category) << "L3MuonCandidate has charge = " << q;
       RecoChargedCandidate cand(q, p4, vtx, pid);
 
       cand.setTrack(tkref);
       candidates->push_back(cand);
+    }
   }
-
-    
-
-  
-event.put(candidates);
- 
-LogTrace(metname)<<" Event loaded"
-		   <<"================================";
+  event.put(candidates);
 }

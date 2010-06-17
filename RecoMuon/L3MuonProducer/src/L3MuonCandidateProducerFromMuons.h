@@ -30,7 +30,7 @@ class L3MuonCandidateProducerFromMuons : public edm::EDProducer {
  private:
   
   // L3/GLB Collection Label
-  edm::InputTag theL3CollectionLabel; 
+  edm::InputTag m_L3CollectionLabel; 
 };
 
 #endif
