@@ -99,7 +99,7 @@ void DDLSAX2ConfigHandler::startElement(const XMLCh* const uri
 	}
 
       fileName = fileName.substr(0, fileName.find("."));
-      std::cout << fileName << ":" << logicalPartName << " is the ROOT" << std::endl;
+      //      std::cout << fileName << ":" << logicalPartName << " is the ROOT" << std::endl;
       DDLogicalPart root(DDName(logicalPartName,fileName));
       DDRootDef::instance().set(root);//DDName(logicalPartName, fileName));
       /// bad, just testing...
@@ -122,7 +122,7 @@ void DDLSAX2ConfigHandler::startElement(const XMLCh* const uri
 	  ++i;
 	}
     }
-  std::cout <<  "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler::startElement " << myelemname << " completed..." << std::endl;
+  //  std::cout <<  "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler::startElement " << myelemname << " completed..." << std::endl;
 }
 
 const std::vector<std::string>& DDLSAX2ConfigHandler::getFileNames() const

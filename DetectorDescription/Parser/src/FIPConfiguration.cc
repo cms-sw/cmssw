@@ -95,7 +95,7 @@ int FIPConfiguration::readConfig(const std::string& filename)
   // ea. file listed in the config
   for(; ind < maxInd ; ++ind) {
     edm::FileInPath fp(vURLs[ind] + "/" + vFiles[ind]);
-    std::cout << "FileInPath says..." << fp.fullPath() << std::endl;
+    //    std::cout << "FileInPath says..." << fp.fullPath() << std::endl;
     files_.push_back(fp.fullPath());
     urls_.push_back("");
   }

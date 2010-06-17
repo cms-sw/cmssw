@@ -32,7 +32,7 @@ DDErrorDetection::DDErrorDetection( )
 
 void DDErrorDetection::scan( )
 {
-  cout << "DDErrorDetection::scan(): Scanning for DDD errors ..." << flush;
+  std::cout << "DDErrorDetection::scan(): Scanning for DDD errors ..." << std::flush;
   
   DDLogicalPart lp_dummy;
   DDMaterial ma_dummy;
@@ -46,7 +46,7 @@ void DDErrorDetection::scan( )
   sp_err::instance() = dd_error_scan(sp_dummy);
   so_err::instance() = dd_error_scan(so_dummy);  
 
-  cout << " ... finished." << endl;
+  std::cout << " ... finished." << std::endl;
 }
 
 void DDErrorDetection::errors()
@@ -57,24 +57,24 @@ void DDErrorDetection::warnings()
 {
 }
 
-// ddname as string, set<edges>
-const map<string, set<DDLogicalPart> > & DDErrorDetection::lp_cpv( const DDCompactView & cpv)
+// ddname as std::string, std::set<edges>
+const std::map<std::string, std::set<DDLogicalPart> > & DDErrorDetection::lp_cpv( const DDCompactView & cpv)
 {
-  static map<string, set<DDLogicalPart> > result_;
+  static std::map<std::string, std::set<DDLogicalPart> > result_;
   if (result_.size()) return result_;
   
   //  DDCompactView cpv;
   const DDCompactView::graph_type & g = cpv.graph();
   
-  map<string, set<DDLogicalPart> >::const_iterator it(lp_err::instance().begin()),
+  std::map<std::string, std::set<DDLogicalPart> >::const_iterator it(lp_err::instance().begin()),
                                                        ed(lp_err::instance().end());
   for (; it != ed; ++it) {
-    set<DDLogicalPart>::const_iterator sit(it->second.begin()), sed(it->second.end());
+    std::set<DDLogicalPart>::const_iterator sit(it->second.begin()), sed(it->second.end());
     for( ; sit != sed; ++sit) {
       const DDLogicalPart & lp = *sit;
       DDCompactView::graph_type::const_edge_range er = g.edges(lp);
       if (g.nodeIndex(lp).second) {
-        result_.insert(make_pair(lp.ddname().fullname(), set<DDLogicalPart>()));  
+        result_.insert(make_pair(lp.ddname().fullname(), std::set<DDLogicalPart>()));  
       }
       for (; er.first != er.second; ++er.first) {
          result_[lp.ddname().fullname()].insert(g.nodeData(er.first->first));
@@ -85,30 +85,30 @@ const map<string, set<DDLogicalPart> > & DDErrorDetection::lp_cpv( const DDCompa
 }
 
 
-const map<DDSolid, set<DDLogicalPart> > & DDErrorDetection::so_lp()
+const std::map<DDSolid, std::set<DDLogicalPart> > & DDErrorDetection::so_lp()
 {
-  static map<DDSolid, set<DDLogicalPart> > result_;
+  static std::map<DDSolid, std::set<DDLogicalPart> > result_;
   if (result_.size()) return result_;
   
-  const map<DDSolid, set<DDSolid> > & err_mat = so();
-  map<DDSolid, set<DDSolid> >::const_iterator it(err_mat.begin()), ed(err_mat.end());
+  const std::map<DDSolid, std::set<DDSolid> > & err_mat = so();
+  std::map<DDSolid, std::set<DDSolid> >::const_iterator it(err_mat.begin()), ed(err_mat.end());
   for (; it != ed; ++it) {
-    set<DDLogicalPart> s;
+    std::set<DDLogicalPart> s;
     DDSolid m(it->first);
     result_[m]=s;
-    set<DDSolid>::const_iterator sit(it->second.begin()), sed(it->second.end());
+    std::set<DDSolid>::const_iterator sit(it->second.begin()), sed(it->second.end());
     for(; sit != sed; ++sit) {
       result_[*sit] = s;
     }
-    //cout << "insert: " << m.name() << endl;
+    //std::cout << "insert: " << m.name() << std::endl;
   }
   DDLogicalPart::iterator<DDLogicalPart> lpit,lped; lped.end();
   for (; lpit != lped; ++lpit) {
     if (lpit->isDefined().second) {
-      map<DDSolid, set<DDLogicalPart> >::iterator i = result_.find(lpit->solid());
-      //cout << "searching: " << lpit->name() << endl;
+      std::map<DDSolid, std::set<DDLogicalPart> >::iterator i = result_.find(lpit->solid());
+      //std::cout << "searching: " << lpit->name() << std::endl;
       if ( i != result_.end() ) {
-      //cout << endl << "FOUND: " << lpit->name() << endl << endl;
+      //std::cout << std::endl << "FOUND: " << lpit->name() << std::endl << std::endl;
       i->second.insert(*lpit);
      } 
     }  
@@ -117,33 +117,33 @@ const map<DDSolid, set<DDLogicalPart> > & DDErrorDetection::so_lp()
 }
 
 /*
-const map<DDSpecifics, set<pair<DDLogicalPart, string> > & DDErrorDetection::sp()
+const std::map<DDSpecifics, std::set<pair<DDLogicalPart, std::string> > & DDErrorDetection::sp()
 {
-  static map<DDSpecifics, set<pair<DDLogicalPart, string> result_;
+  static std::map<DDSpecifics, std::set<pair<DDLogicalPart, std::string> result_;
   if (result_.size()) return result_;
 }
 */
 
-const map<DDMaterial, set<DDLogicalPart> > & DDErrorDetection::ma_lp()
+const std::map<DDMaterial, std::set<DDLogicalPart> > & DDErrorDetection::ma_lp()
 {
-  static map<DDMaterial, set<DDLogicalPart> > result_;
+  static std::map<DDMaterial, std::set<DDLogicalPart> > result_;
   if (result_.size()) return result_;
   
-  const vector<pair<string,DDName> > & err_mat = ma();
-  vector<pair<string,DDName> >::const_iterator it(err_mat.begin()), ed(err_mat.end());
+  const std::vector<pair<std::string,DDName> > & err_mat = ma();
+  std::vector<pair<std::string,DDName> >::const_iterator it(err_mat.begin()), ed(err_mat.end());
   for (; it != ed; ++it) {
-    set<DDLogicalPart> s;
+    std::set<DDLogicalPart> s;
     DDMaterial m(it->second);
     result_[m]=s;
-    //cout << "insert: " << m.name() << endl;
+    //std::cout << "insert: " << m.name() << std::endl;
   }
   DDLogicalPart::iterator<DDLogicalPart> lpit,lped; lped.end();
   for (; lpit != lped; ++lpit) {
     if (lpit->isDefined().second) {
-      map<DDMaterial, set<DDLogicalPart> >::iterator i = result_.find(lpit->material());
-      //cout << "searching: " << lpit->name() << endl;
+      std::map<DDMaterial, std::set<DDLogicalPart> >::iterator i = result_.find(lpit->material());
+      //std::cout << "searching: " << lpit->name() << std::endl;
       if ( i != result_.end() ) {
-      //cout << endl << "FOUND: " << lpit->name() << endl << endl;
+      //std::cout << std::endl << "FOUND: " << lpit->name() << std::endl << std::endl;
       i->second.insert(*lpit);
      } 
     }  
@@ -152,9 +152,9 @@ const map<DDMaterial, set<DDLogicalPart> > & DDErrorDetection::ma_lp()
 }
 
   
-const vector<pair<string,DDName> > & DDErrorDetection::ma()
+const std::vector<pair<std::string,DDName> > & DDErrorDetection::ma()
 {
-  static vector<pair<string,DDName> > result_;
+  static std::vector<pair<std::string,DDName> > result_;
   ofstream o("/dev/null");
 
   if (result_.size()) return result_;
@@ -167,9 +167,9 @@ const vector<pair<string,DDName> > & DDErrorDetection::ma()
 }
 
 
-const map<DDSolid,set<DDSolid> > & DDErrorDetection::so()
+const std::map<DDSolid,std::set<DDSolid> > & DDErrorDetection::so()
 {
-  static map<DDSolid, set<DDSolid> > result_;
+  static std::map<DDSolid, std::set<DDSolid> > result_;
   if (result_.size()) return result_;
  
   // build the material dependency graph
@@ -177,7 +177,7 @@ const map<DDSolid,set<DDSolid> > & DDErrorDetection::so()
   typedef graphwalker<DDSolid,double> ma_walker_t;
     
   ma_graph_t mag;
-  vector<DDSolid> errs;
+  std::vector<DDSolid> errs;
   DDSolid::iterator<DDSolid> it, ed; ed.end();
   for (; it != ed; ++it) {
     DDSolid  ma = *it;
@@ -197,7 +197,7 @@ const map<DDSolid,set<DDSolid> > & DDErrorDetection::so()
     }
   }
   
-    vector<DDSolid>::const_iterator mit(errs.begin()),
+    std::vector<DDSolid>::const_iterator mit(errs.begin()),
                                       med(errs.end());
     for (; mit != med; ++mit) {
 
@@ -207,11 +207,11 @@ const map<DDSolid,set<DDSolid> > & DDErrorDetection::so()
       while (w.next()) {
         result_[*mit].insert(w.current().first);
       }
-      cout << endl;
+      std::cout << std::endl;
     } 
     catch(DDSolid m) {
       ;
-      //cout << "no such material: " << m << " for creating a walker." << endl;
+      //std::cout << "no such material: " << m << " for creating a walker." << std::endl;
     }
    } 
    return result_;
@@ -221,44 +221,44 @@ const map<DDSolid,set<DDSolid> > & DDErrorDetection::so()
 void DDErrorDetection::report(const DDCompactView& cpv, ostream & o)
 {
   
-  o << endl << endl << "---> DDD ERROR REPORT <---" << endl << endl;
-  o << "MISSING DEFINITIONS:" << endl << endl;
-  o << "LogicalParts:" << endl
-    << lp_err::instance() << endl;
-  o << "Materials:" << endl
-    << ma_err::instance()  << endl;
-  o << "Solids:" << endl
-    << so_err::instance() << endl;
-  o << "Rotations:" << endl
-    << ro_err::instance() << endl;
-  o << "Specifics:" << endl
-    << sp_err::instance() << endl;
-  o << endl << "IMPLICATIONS OF MISSING DEFINITIONS:" << endl << endl;
+  o << std::endl << std::endl << "---> DDD ERROR REPORT <---" << std::endl << std::endl;
+  o << "MISSING DEFINITIONS:" << std::endl << std::endl;
+  o << "LogicalParts:" << std::endl
+    << lp_err::instance() << std::endl;
+  o << "Materials:" << std::endl
+    << ma_err::instance()  << std::endl;
+  o << "Solids:" << std::endl
+    << so_err::instance() << std::endl;
+  o << "Rotations:" << std::endl
+    << ro_err::instance() << std::endl;
+  o << "Specifics:" << std::endl
+    << sp_err::instance() << std::endl;
+  o << std::endl << "IMPLICATIONS OF MISSING DEFINITIONS:" << std::endl << std::endl;
  
-  o << "A) LogicalParts that have missing definitions but are used in the geometr. hierarchy (PosParts):" << endl
-    << "   Format: namespace:name: [name of child]*" << endl;
-  o << lp_cpv(cpv) << endl;
+  o << "A) LogicalParts that have missing definitions but are used in the geometr. hierarchy (PosParts):" << std::endl
+    << "   Format: namespace:name: [name of child]*" << std::endl;
+  o << lp_cpv(cpv) << std::endl;
   
-  o << "B) Detailed report on Materials:" << endl;
-  const vector<pair<string,DDName> > & res = ma();
-  vector<pair<string,DDName> >::const_iterator it(res.begin()), ed(res.end());
+  o << "B) Detailed report on Materials:" << std::endl;
+  const std::vector<pair<std::string,DDName> > & res = ma();
+  std::vector<pair<std::string,DDName> >::const_iterator it(res.begin()), ed(res.end());
   for (; it != ed; ++it) {
-    cout << it->second << ":  " << it->first << endl;
+    std::cout << it->second << ":  " << it->first << std::endl;
   }
-  cout << endl;
+  std::cout << std::endl;
 
   
-  o << "C) Solids affected by Solids that have missing definitions:" << endl;
-  o << so() << endl;
+  o << "C) Solids affected by Solids that have missing definitions:" << std::endl;
+  o << so() << std::endl;
    
-  o << "D) LogicalParts affected by Materials of B):" << endl;
-  o << ma_lp() << endl;
+  o << "D) LogicalParts affected by Materials of B):" << std::endl;
+  o << ma_lp() << std::endl;
   
-  o << "E) LogicalParts affected by Solids of C):" << endl;
-  o << so_lp() << endl;
+  o << "E) LogicalParts affected by Solids of C):" << std::endl;
+  o << so_lp() << std::endl;
   
   // Did this ever exist?
-  //  o << "F) Parent-Child positionings affected by Rotations that have missing definitions:"  << endl;
-  o << endl;
+  //  o << "F) Parent-Child positionings affected by Rotations that have missing definitions:"  << std::endl;
+  o << std::endl;
   //nix();
 }
