@@ -86,47 +86,47 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
   double emax_Sim = -9999.;
 
     
-  // SimHits always
-  edm::Handle<edm::PCaloHitContainer> hcalHits ;
-  iEvent.getByLabel("g4SimHits","HcalHits",hcalHits); 
-  const edm::PCaloHitContainer * simhitResult = hcalHits.product () ;
-
- 
-  if ( subdet != 0 && noise_ == 0) { // signal only SimHits
-
-    for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin ();         simhits != simhitResult->end () ;  ++simhits) {
+  // SimHits MC only
+  if( mc_ == "yes") {
+    edm::Handle<edm::PCaloHitContainer> hcalHits ;
+    iEvent.getByLabel("g4SimHits","HcalHits",hcalHits); 
+    const edm::PCaloHitContainer * simhitResult = hcalHits.product () ;
+    
+    
+    if ( subdet != 0 && noise_ == 0) { // signal only SimHits
       
-      HcalDetId cell(simhits->id());
-      double en    = simhits->energy();
-      int sub      = cell.subdet();
-      int ieta     = cell.ieta();
-      if(ieta > 0) ieta--;
-      int iphi     = cell.iphi()-1; 
-
-  
-      if(en > emax_Sim && sub == subdet) {
-        emax_Sim = en;
-        ieta_Sim = ieta;
-        iphi_Sim = iphi;            
-        // to limit "seed" SimHit energy in case of "multi" event  
-        if (mode_ == "multi" && 
+      for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin ();         simhits != simhitResult->end () ;  ++simhits) {
+	
+	HcalDetId cell(simhits->id());
+	double en    = simhits->energy();
+	int sub      = cell.subdet();
+	int ieta     = cell.ieta();
+	if(ieta > 0) ieta--;
+	int iphi     = cell.iphi()-1; 
+	
+	
+	if(en > emax_Sim && sub == subdet) {
+	  emax_Sim = en;
+	  ieta_Sim = ieta;
+	  iphi_Sim = iphi;            
+	  // to limit "seed" SimHit energy in case of "multi" event  
+	  if (mode_ == "multi" && 
            ((sub == 4 && en < 100. && en > 1.) 
 	    || ((sub !=4) && en < 1. && en > 0.02))) 
-	  {
-            seedSimHit = 1;            
-            break;   
-	  }
-      }
-
-    } // end of SimHits cycle
+	    {
+	      seedSimHit = 1;            
+	      break;   
+	    }
+	}
+	
+      } // end of SimHits cycle
+      
+      
+      // found highest-energy SimHit for single-particle 
+      if(mode_ != "multi" && emax_Sim > 0.) seedSimHit = 1;
+    }   // end of SimHits
     
-
-    // found highest-energy SimHit for single-particle 
-    if(mode_ != "multi" && emax_Sim > 0.) seedSimHit = 1;
-
-  }   // end of SimHits
-    
-
+  } // end of mc_ == "yes"
 
   // CYCLE OVER CELLS ========================================================
   int Ndig = 0;
@@ -464,29 +464,31 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
     double ehits3 = 0.; 
     double ehits4 = 0.; 
  
-    for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin ();         simhits != simhitResult->end () ;  ++simhits) {
-      
-      HcalDetId cell(simhits->id());
-      int ieta   = cell.ieta();
-      if(ieta > 0) ieta--;
-      int iphi   = cell.iphi()-1; 
-      int sub    = cell.subdet();
-      
-      // take cell already found to be max energy in a particular subdet
-      if (sub == subdet && ieta == ieta_Sim && iphi == iphi_Sim){  
-	int depth = cell.depth();
-	double en = simhits->energy();
+    if(mc_ == "yes") {
+      edm::Handle<edm::PCaloHitContainer> hcalHits ;
+      iEvent.getByLabel("g4SimHits","HcalHits",hcalHits); 
+      const edm::PCaloHitContainer * simhitResult = hcalHits.product () ;
+      for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin ();         simhits != simhitResult->end () ;  ++simhits) {
 	
-	ehits += en;
-	if(depth == 1)  ehits1 += en; 
-	if(depth == 2)  ehits2 += en; 
-	if(depth == 3)  ehits3 += en; 
-	if(depth == 4)  ehits4 += en; 
+	HcalDetId cell(simhits->id());
+	int ieta   = cell.ieta();
+	if(ieta > 0) ieta--;
+	int iphi   = cell.iphi()-1; 
+	int sub    = cell.subdet();
+	
+	// take cell already found to be max energy in a particular subdet
+	if (sub == subdet && ieta == ieta_Sim && iphi == iphi_Sim){  
+	  int depth = cell.depth();
+	  double en = simhits->energy();
+	  
+	  ehits += en;
+	  if(depth == 1)  ehits1 += en; 
+	  if(depth == 2)  ehits2 += en; 
+	  if(depth == 3)  ehits3 += en; 
+	  if(depth == 4)  ehits4 += en; 
+	}
       }
-    }
-
-    if(seedSimHit) { // only if seed SimHit was found/defined
-        
+      
       if(ehits  > eps) monitor()->fillmeDigiSimhit (ehits,  ampl_c );
       if(ehits1 > eps) monitor()->fillmeDigiSimhit1(ehits1, ampl1_c);
       if(ehits2 > eps) monitor()->fillmeDigiSimhit2(ehits2, ampl2_c);
@@ -504,12 +506,11 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
       if(ehits2 > eps) monitor()->fillmeRatioDigiSimhit2(ampl2_c / ehits2);
       if(ehits3 > eps) monitor()->fillmeRatioDigiSimhit3(ampl3_c / ehits3);
       if(ehits4 > eps) monitor()->fillmeRatioDigiSimhit4(ampl4_c / ehits4);
-    }    
-
+    } // end of if(mc_ == "yes")
+   
     monitor()->fillmeNdigis(double(Ndig));
-
+    
   } //  end of if( subdet != 0 && noise_ == 0) { // signal only 
-
 
 }
 
@@ -521,6 +522,7 @@ HcalDigiTester::HcalDigiTester(const edm::ParameterSet& iConfig)
     hcalselector_(iConfig.getUntrackedParameter<std::string>("hcalselector", "all")),
     zside_(iConfig.getUntrackedParameter<std::string>("zside", "*")),
     mode_(iConfig.getUntrackedParameter<std::string>("mode", "multi")),
+    mc_(iConfig.getUntrackedParameter<std::string>("mc", "no")),
     monitors_()
 {
   if ( outputFile_.size() != 0 ) {

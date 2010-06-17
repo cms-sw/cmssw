@@ -38,6 +38,7 @@ public:
   std::string hcalselector_;
   std::string zside_;
   std::string mode_;
+  std::string mc_;
   int noise_;             
 // flag to distinguish between 
                           // particular subdet only case and "global" noise one
