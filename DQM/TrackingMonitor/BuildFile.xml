@@ -7,7 +7,7 @@
 <use   name="TrackingTools/TransientTrack"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="TrackingTools/DetLayers"/>
-<use   name="CommonTools/RecoUtils"/>
+<use   name="CommonTools/TriggerUtils"/>
 <export>
   <lib   name="1"/>
 </export>
