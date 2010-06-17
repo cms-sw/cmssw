@@ -34,6 +34,7 @@
         <use name="Geometry/MuonNumbering"/>
         <use name="Geometry/TrackerNumberingBuilder"/>
         <use name="Geometry/CaloGeometry"/>
+        <use name="Geometry/DTGeometry"/>
         <use name="Geometry/EcalAlgo"/>
         <use name="Geometry/EcalCommonData"/>
         <use name="DataFormats/HcalDetId"/>
