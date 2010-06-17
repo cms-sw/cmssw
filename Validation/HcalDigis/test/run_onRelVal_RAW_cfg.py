@@ -7,7 +7,7 @@ process.load("Configuration.StandardSequences.MixingNoPileUp_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load('Configuration/StandardSequences/DigiToRaw_cff')
 process.load('Configuration/StandardSequences/RawToDigi_cff')
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff"
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.PyReleaseValidation.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['mc']
 
@@ -20,12 +20,11 @@ process.options = cms.untracked.PSet(
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(10)
 )
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
- )
+    fileNames = cms.untracked.vstring("file:RAW.root")
 )
 
 process.hcalDigiAnalyzer = cms.EDAnalyzer("HcalDigiTester",
