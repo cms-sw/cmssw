@@ -7,7 +7,7 @@
 // 
 /**\class EventSetupRecord EventSetupRecord.h FWCore/Framework/interface/EventSetupRecord.h
 
- Description: Base class for all Records in a EventSetup.  Holds data with the same lifetime.
+ Description: Base class for all Records in an EventSetup.  Holds data with the same lifetime.
 
  Usage:
 This class contains the Proxies that make up a given Record.  It
@@ -54,6 +54,9 @@ using the 'setEventSetup' and 'clearEventSetup' functions.
 // user include files
 #include "FWCore/Framework/interface/ValidityInterval.h"
 #include "FWCore/Framework/interface/DataKey.h"
+#include "FWCore/Utilities/interface/ESInputTag.h"
+#include "FWCore/Framework/interface/NoProxyException.h"
+
 
 // forward declarations
 namespace cms {
@@ -69,89 +72,143 @@ namespace edm {
       class EventSetupRecordKey;
       class ComponentDescription;
       
-class EventSetupRecord
-{
+      class EventSetupRecord {
+         
+      public:
+         EventSetupRecord();
+         virtual ~EventSetupRecord();
+         
+         // ---------- const member functions ---------------------
+         const ValidityInterval& validityInterval() const {
+            return validity_;
+         }
+         
+         template< typename HolderT>
+         void get(HolderT& iHolder) const {
+            const typename HolderT::value_type* value = 0;
+            const ComponentDescription* desc = 0;
+            this->getImplementation(value, "",desc,iHolder.transientAccessOnly);
+            
+            iHolder = HolderT(value,desc);
+         }
+         
+         template< typename HolderT>
+         void get(const char* iName, HolderT& iHolder) const {
+            const typename HolderT::value_type* value = 0;
+            const ComponentDescription* desc = 0;
+            this->getImplementation(value, iName,desc,iHolder.transientAccessOnly);
+            iHolder = HolderT(value,desc);
+         }
+         template< typename HolderT>
+         void get(const std::string& iName, HolderT& iHolder) const {
+            const typename HolderT::value_type* value = 0;
+            const ComponentDescription* desc = 0;
+            this->getImplementation(value, iName.c_str(),desc,iHolder.transientAccessOnly);
+            iHolder = HolderT(value,desc);
+         }
+         
+         template< typename HolderT>
+         void get(const edm::ESInputTag& iTag, HolderT& iHolder) const {
+            const typename HolderT::value_type* value = 0;
+            const ComponentDescription* desc = 0;
+            this->getImplementation(value, iTag.data().c_str(),desc,iHolder.transientAccessOnly);
+            validate(desc,iTag);
+            iHolder = HolderT(value,desc);
+         }
+         
+         
+         
+         ///returns false if no data available for key
+         bool doGet(const DataKey& aKey, bool aGetTransiently=false) const;
+         
+         /**returns true only if someone has already requested data for this key
+          and the data was retrieved
+          */
+         bool wasGotten(const DataKey& aKey) const;
+         
+         /**returns the ComponentDescription for the module which creates the data or 0
+          if no module has been registered for the data. This does not cause the data to 
+          actually be constructed.
+          */
+         ComponentDescription const* providerDescription(const DataKey& aKey) const;
+         
+         virtual EventSetupRecordKey key() const = 0;
+         
+         /**If you are caching data from the Record, you should also keep
+          this number.  If this number changes then you know that
+          the data you have cached is invalid. This is NOT true if
+          if the validityInterval() hasn't changed since it is possible that
+          the job has gone to a new Record and then come back to the
+          previous SyncValue and your algorithm didn't see the intervening
+          Record.
+          The value of '0' will never be returned so you can use that to 
+          denote that you have not yet checked the value.
+          */
+         unsigned long long cacheIdentifier() const {
+            return cacheIdentifier_;
+         }
+         
+         ///clears the oToFill vector and then fills it with the keys for all registered data keys
+         void fillRegisteredDataKeys(std::vector<DataKey>& oToFill) const;
+         // ---------- static member functions --------------------
+         
+         // ---------- member functions ---------------------------
+         
+         // The following member functions should only be used by EventSetupRecordProvider
+         bool add(const DataKey& iKey ,
+                  const DataProxy* iProxy) ;      
+         void cacheReset() ;
+         /// returns 'true' if a transient request has occurred since the last call to transientReset.
+         bool transientReset() ;
+         void set(const ValidityInterval&);
+         void setEventSetup(const EventSetup* iEventSetup) {eventSetup_ = iEventSetup; }
+      protected:
+         
+         const DataProxy* find(const DataKey& aKey) const ;
+         
+         EventSetup const& eventSetup() const {
+            return *eventSetup_;
+         }
+         
+         void validate(const ComponentDescription*, const ESInputTag&) const;
+         
+         void addTraceInfoToCmsException(cms::Exception& iException, const char* iName, const ComponentDescription*, const DataKey&) const;
+         void changeStdExceptionToCmsException(const char* iExceptionWhatMessage, const char* iName, const ComponentDescription*, const DataKey&) const;
+         
+         void transientAccessRequested() const { transientAccessRequested_ = true;}
+      private:
+         EventSetupRecord(const EventSetupRecord&); // stop default
+         
+         const EventSetupRecord& operator=(const EventSetupRecord&); // stop default
 
-   public:
-      EventSetupRecord();
-      virtual ~EventSetupRecord();
-
-      // ---------- const member functions ---------------------
-      const ValidityInterval& validityInterval() const {
-         return validity_;
-      }
+         const void* getFromProxy(DataKey const & iKey ,
+                                  const ComponentDescription*& iDesc,
+                                  bool iTransientAccessOnly) const;
+            
+         template < typename DataT > 
+         void getImplementation(DataT const *& iData ,
+                                const char* iName,
+                                const ComponentDescription*& iDesc,
+                                bool iTransientAccessOnly) const {
+            DataKey dataKey(DataKey::makeTypeTag<DataT>(),
+                            iName,
+                            DataKey::kDoNotCopyMemory);
+            
+            const void* pValue = this->getFromProxy(dataKey,iDesc,iTransientAccessOnly);
+            if(0==pValue) {
+               throw NoProxyException<DataT>(this->key(), dataKey);
+            }
+            iData = reinterpret_cast<const DataT*> (pValue);
+         }
+         
+         // ---------- member data --------------------------------
+         ValidityInterval validity_;
+         std::map< DataKey , const DataProxy* > proxies_ ;
+         const EventSetup* eventSetup_;
+         unsigned long long cacheIdentifier_;
+         mutable bool transientAccessRequested_;
+      };
       
-      ///returns false if no data available for key
-      bool doGet(const DataKey& aKey, bool aGetTransiently=false) const;
-
-      /**returns true only if someone has already requested data for this key
-       and the data was retrieved
-       */
-      bool wasGotten(const DataKey& aKey) const;
-   
-      /**returns the ComponentDescription for the module which creates the data or 0
-       if no module has been registered for the data. This does not cause the data to 
-       actually be constructed.
-       */
-      ComponentDescription const* providerDescription(const DataKey& aKey) const;
-   
-      virtual EventSetupRecordKey key() const = 0;
-      
-      /**If you are caching data from the Record, you should also keep
-         this number.  If this number changes then you know that
-         the data you have cached is invalid. This is NOT true if
-         if the validityInterval() hasn't changed since it is possible that
-         the job has gone to a new Record and then come back to the
-         previous SyncValue and your algorithm didn't see the intervening
-         Record.
-        The value of '0' will never be returned so you can use that to 
-        denote that you have not yet checked the value.
-        */
-        unsigned long long cacheIdentifier() const {
-        return cacheIdentifier_;
-      }
-        
-      ///clears the oToFill vector and then fills it with the keys for all registered data keys
-      void fillRegisteredDataKeys(std::vector<DataKey>& oToFill) const;
-      // ---------- static member functions --------------------
-
-      // ---------- member functions ---------------------------
-
-      // The following member functions should only be used by EventSetupRecordProvider
-      bool add(const DataKey& iKey ,
-                const DataProxy* iProxy) ;      
-      void cacheReset() ;
-      /// returns 'true' if a transient request has occurred since the last call to transientReset.
-      bool transientReset() ;
-      void set(const ValidityInterval&);
-      void setEventSetup(const EventSetup* iEventSetup) {eventSetup_ = iEventSetup; }
-   protected:
-
-      const DataProxy* find(const DataKey& aKey) const ;
-      
-      EventSetup const& eventSetup() const {
-         return *eventSetup_;
-      }
-   
-      void validate(const ComponentDescription*, const ESInputTag&) const;
-   
-      void addTraceInfoToCmsException(cms::Exception& iException, const char* iName, const ComponentDescription*, const DataKey&) const;
-      void changeStdExceptionToCmsException(const char* iExceptionWhatMessage, const char* iName, const ComponentDescription*, const DataKey&) const;
-      
-      void transientAccessRequested() const { transientAccessRequested_ = true;}
-   private:
-      EventSetupRecord(const EventSetupRecord&); // stop default
-
-      const EventSetupRecord& operator=(const EventSetupRecord&); // stop default
-
-      // ---------- member data --------------------------------
-      ValidityInterval validity_;
-      std::map< DataKey , const DataProxy* > proxies_ ;
-      const EventSetup* eventSetup_;
-      unsigned long long cacheIdentifier_;
-      mutable bool transientAccessRequested_;
-};
-
    }
 }
 #endif

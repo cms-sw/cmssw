@@ -138,6 +138,35 @@ EventSetupRecord::transientReset()
 //
 // const member functions
 //
+      
+const void* 
+EventSetupRecord::getFromProxy(DataKey const & iKey ,
+                               const ComponentDescription*& iDesc,
+                               bool iTransientAccessOnly) const
+{
+   if(iTransientAccessOnly) { this->transientAccessRequested(); }
+
+   const DataProxy* proxy = this->find(iKey);
+   
+   const void* hold = 0;
+   
+   if(0!=proxy) {
+      try{
+         hold = proxy->get(*this, iKey,iTransientAccessOnly);
+         iDesc = proxy->providerDescription();
+         
+      } catch(cms::Exception& e) {
+         addTraceInfoToCmsException(e,iKey.name().value(),proxy->providerDescription(), iKey);
+         //NOTE: the above function can't do the 'throw' since it causes the C++ class type
+         // of the throw to be changed, a 'rethrow' does not have that problem
+         throw;
+      } catch(std::exception& e){
+         changeStdExceptionToCmsException(e.what(),iKey.name().value(),proxy->providerDescription(),iKey);
+      }
+   }
+   return hold;   
+}
+      
 const DataProxy* 
 EventSetupRecord::find(const DataKey& iKey) const 
 {
