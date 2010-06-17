@@ -23,7 +23,7 @@
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "CommonTools/RecoUtils/interface/GenericTriggerEventFlag.h"
+#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
 MonitorTrackResiduals::MonitorTrackResiduals(const edm::ParameterSet& iConfig) 
    : dqmStore_( edm::Service<DQMStore>().operator->() )

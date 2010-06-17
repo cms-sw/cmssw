@@ -17,7 +17,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDCSStatus.h"
-#include "CommonTools/RecoUtils/interface/GenericTriggerEventFlag.h"
+#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
 #include "DQM/SiStripMonitorTrack/interface/SiStripMonitorTrack.h"
 
