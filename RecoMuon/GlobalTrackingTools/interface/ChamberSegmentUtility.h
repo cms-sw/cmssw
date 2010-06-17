@@ -1,5 +1,5 @@
-#ifndef RecoMuon_GlobalTrackingTools_ChamberSegmentUtility_h
-#define RecoMuon_GlobalTrackingTools_ChamberSegmentUtility_h
+#ifndef EstimatorTool_RecSegment_h
+#define EstimatorTool_RecSegment_h
 
 /**
  *  Class: ChamberSegmentUtility
@@ -47,10 +47,16 @@ class ChamberSegmentUtility {
   // Get the 4D segments in a DT chamber
   vector<DTRecSegment4D> getDTSegmentsInChamber(DTChamberId);
 
-  // Get the 1D rechits from a DTRecSegment4D
+  // Get the list of DT chambers with segments
+  map<int, vector<DTRecSegment4D> > getDTlist() { return dtsegMap; };
+
+  // Get the list of CSC chambers with segments
+  map<int, vector<CSCSegment> > getCSClist() { return cscsegMap; };
+
+  // Get the map association between segments4d and rechits
   vector<DTRecHit1D> getDTRHmap(DTRecSegment4D);
 
-  // Get the 2D rechits from a CSCSegment 
+  // Get the map association between segments4d and rechits 
   vector<CSCRecHit2D> getCSCRHmap(CSCSegment);
 
   
@@ -63,6 +69,8 @@ class ChamberSegmentUtility {
 
   vector<DTRecSegment4D> dtseg;
   vector<CSCSegment> cscseg;
+  map<int, vector<DTRecSegment4D> > dtsegMap;
+  map<int, vector<CSCSegment> > cscsegMap;
   DTChamberId selectedDT;
   CSCDetId selectedCSC;
   vector<DTRecHit1D> phiSegRH;

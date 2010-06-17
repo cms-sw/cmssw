@@ -6,7 +6,7 @@
  *  compatibility degree between the extrapolated track
  *  state and the reconstructed segment in the muon chambers
  *
- *  $Date: 2010/05/10 14:23:50 $
+ *  $Date: 2010/06/14 11:02:21 $
  *  $Revision: 1.1 $
  *
  *  Authors :
@@ -39,6 +39,7 @@ DynamicTruncation::DynamicTruncation(const edm::Event& event, const MuonServiceP
   theEvent = &event;
   theSetup = &theService.eventSetup();
   propagator = theService.propagator("SmartPropagator");
+  //propagator = theService.propagator("SteppingHelixPropagatorAny");
   theG = theService.trackingGeometry();
   theService.eventSetup().get<TransientRecHitRecord>().get("MuonRecHitBuilder",theMuonRecHitBuilder);
   theService.eventSetup().get<TrackingComponentsRecord>().get("KFUpdator",updatorHandle);
@@ -139,12 +140,11 @@ void DynamicTruncation::compatibleDets(TrajectoryStateOnSurface& tsos, map<int, 
   navLayers = navigation->compatibleLayers(*(currentState.freeState()), alongMomentum);
   unsigned int nlayer = 0;
   for ( unsigned int ilayer=0; ilayer<navLayers.size(); ilayer++ ) {
-    // skip RPC layers
+    // Skip RPC layers
     if (navLayers[ilayer]->subDetector() == GeomDetEnumerators::RPCEndcap || navLayers[ilayer]->subDetector() == GeomDetEnumerators::RPCBarrel) continue;
-    
     vector<DetLayer::DetWithState> comps = navLayers[ilayer]->compatibleDets(currentState, prop, *theEstimator);
     //    cout << comps.size() << " compatible Dets with " << navLayers[ilayer]->subDetector() << " Layer " << ilayer << " "
-    //         << dumper.dumpLayer(navLayers[ilayer]) << " " << endl;
+    //    	 << dumper.dumpLayer(navLayers[ilayer]) << " " << endl;
     if (comps.size() > 0) {
       DetId id(comps.front().first->geographicalId().rawId());
       detMap[nlayer].push_back(id);
@@ -162,50 +162,64 @@ void DynamicTruncation::filteringAlgo(map<int, vector<DetId> >& detMap) {
     vector<DetId> chamber = detMap[i];
     for (unsigned int j = 0; j < chamber.size(); j++) {
       DetId id = chamber[j];
+      
       if (id.det() == DetId::Muon && id.subdetId() == MuonSubdetId::DT) {
         DTChamberId DTid(id);
-
-	// Gets all segments in the chamber
-	vector<DTRecSegment4D> DTsegs = getSegs.getDTSegmentsInChamber(DTid);
-
-	// Propagate the state to the current chamber
-	TrajectoryStateOnSurface tsosdt = propagator->propagate(currentState, theG->idToDet(DTid)->surface());
-	if (!tsosdt.isValid()) continue;
 	
-	// Get the best segment in the current chamber
-	DTRecSegment4D bestDTSeg;
-	double bestChamberValue = getBest(DTsegs, tsosdt, bestDTSeg);
-	if (bestChamberValue < bestLayerValue) bestLayerValue = bestChamberValue;
+	vector<DTRecSegment4D> allDTsegs;
+	try {allDTsegs = getSegs.getDTlist().find(DTid.station())->second;} catch (...) {;} 
 	
-	// Check if the best estimator value is below the THR and then get the RH componing the segment
-	if (bestChamberValue >= DTThr || bestChamberValue > bestLayerValue) continue; 
-	layerRH.clear();
-	vector<DTRecHit1D> DTrh = getSegs.getDTRHmap(bestDTSeg);
-	for (vector<DTRecHit1D>::iterator it = DTrh.begin(); it != DTrh.end(); it++) {
-	  layerRH.push_back(theMuonRecHitBuilder->build(&*it));
-        }
+	vector<DTRecSegment4D>::size_type sz = allDTsegs.size();
+	for (i=0; i<sz; i++) {
+	  
+	  // Propagate the state to the current chamber
+	  TrajectoryStateOnSurface tsosdt = propagator->propagate(currentState, theG->idToDet(allDTsegs[i].chamberId())->surface());
+	  if (!tsosdt.isValid()) continue;
+
+	  vector<DTRecSegment4D> DTsegs;
+	  DTsegs.push_back(allDTsegs[i]); 
+	  
+	  DTRecSegment4D bestDTSeg;
+	  double bestChamberValue = getBest(DTsegs, tsosdt, bestDTSeg);
+	  if (bestChamberValue < bestLayerValue) bestLayerValue = bestChamberValue;
+	  
+	  // Check if the best estimator value is below the THR and then get the RH componing the segment
+	  if (bestChamberValue >= DTThr || bestChamberValue > bestLayerValue) continue; 
+	  layerRH.clear();
+	  vector<DTRecHit1D> DTrh = getSegs.getDTRHmap(bestDTSeg);
+	  for (vector<DTRecHit1D>::iterator it = DTrh.begin(); it != DTrh.end(); it++) {
+	    layerRH.push_back(theMuonRecHitBuilder->build(&*it));
+	  }
+	}
       }
       if (id.det() == DetId::Muon && id.subdetId() == MuonSubdetId::CSC) {
         CSCDetId CSCid(id);
-
-	// Gets all segments in the chamber
-	vector<CSCSegment> CSCsegs = getSegs.getCSCSegmentsInChamber(CSCid);
-
-	// Propagate the state to the current chamber
-	TrajectoryStateOnSurface tsoscsc = propagator->propagate(currentState, theG->idToDet(CSCid)->surface());
-	if (!tsoscsc.isValid()) continue;
-
-	// Get the best segment in the current chamber
-        CSCSegment bestCSCSeg;
-        double bestChamberValue = getBest(CSCsegs, tsoscsc, bestCSCSeg);
-	if (bestChamberValue < bestLayerValue) bestLayerValue = bestChamberValue;
-
-	// Check if the best estimator value is below the THR and then get the RH componing the segment
-        if (bestChamberValue >= CSCThr || bestChamberValue > bestLayerValue) continue;
-	layerRH.clear();
-	vector<CSCRecHit2D> CSCrh = getSegs.getCSCRHmap(bestCSCSeg);
-	for (vector<CSCRecHit2D>::iterator it = CSCrh.begin(); it != CSCrh.end(); ++it) {
-	  layerRH.push_back(theMuonRecHitBuilder->build(&*it));
+	
+	vector<CSCSegment> allCSCsegs;
+	try {allCSCsegs = getSegs.getCSClist().find(CSCid.station())->second;} catch (...) {;} 
+	
+	vector<CSCSegment>::size_type sz = allCSCsegs.size();
+	for (i=0; i<sz; i++) {
+	  
+	  // Propagate the state to the current chamber
+	  TrajectoryStateOnSurface tsoscsc = propagator->propagate(currentState, theG->idToDet(allCSCsegs[i].cscDetId())->surface());
+	  if (!tsoscsc.isValid()) continue;
+	  
+	  vector<CSCSegment> CSCsegs;
+	  CSCsegs.push_back(allCSCsegs[i]);
+	  
+	  CSCSegment bestCSCSeg;
+	  double bestChamberValue = getBest(CSCsegs, tsoscsc, bestCSCSeg);
+	  if (bestChamberValue < bestLayerValue) bestLayerValue = bestChamberValue;
+	  
+	  // Check if the best estimator value is below the THR and then get the RH componing the segment
+	  if (bestChamberValue >= CSCThr || bestChamberValue > bestLayerValue) continue;
+	  layerRH.clear();
+	  
+	  vector<CSCRecHit2D> CSCrh = getSegs.getCSCRHmap(bestCSCSeg);
+	  for (vector<CSCRecHit2D>::iterator it = CSCrh.begin(); it != CSCrh.end(); ++it) {
+	    layerRH.push_back(theMuonRecHitBuilder->build(&*it));
+	  }
 	}
       }
     }
