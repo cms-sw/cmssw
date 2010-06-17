@@ -58,7 +58,7 @@ PatMCMatching::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel(muonSrc_,muons);
 
   for(edm::View<pat::Muon>::const_iterator muon=muons->begin(); muon!=muons->end(); ++muon){
-
+  
       for(uint i = 0 ; i < muon->genParticleRefs().size() ; ++i ){
 
 	  switch( muon->genParticle(i)->status() ){	
