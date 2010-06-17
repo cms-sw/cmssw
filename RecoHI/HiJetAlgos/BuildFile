@@ -1,0 +1,11 @@
+<use name=FWCore/Framework>
+<use name=RecoJets/JetProducers>
+<export>
+ <lib name=RecoHIHiJetAlgos>
+ <use name=boost>
+ <use name=FWCore/Framework>
+</export>
+
+
+
+
