@@ -24,6 +24,7 @@ int main() {
         L1CaloRegionDetId r(crate, card, rgn);
         if ( (r.rctCrate()!=crate) || (r.rctCard()!=card) || (r.rctRegion()!=rgn) ) {
           cout << "Error! : converting RCT indices to ieta/iphi at RCT crate " << crate << " card " << card << " region " << rgn << endl;
+          fail = true;
         }
         if ( (r.ieta() < 22) && (r.iphi()<18) ) {
           ids[r.ieta()][r.iphi()] = r;
@@ -38,6 +39,7 @@ int main() {
       L1CaloRegionDetId r(crate, 999, rgn);
       if ( (r.rctCrate()!=crate) || (r.rctRegion()!=rgn) ) {
         cerr << "Error! : RCT crate " << crate << " HF region " << rgn << endl;
+          fail = true;
       }
       if ( (r.ieta() < 22) && (r.iphi()<18) ) {
         ids[r.ieta()][r.iphi()] = r;
