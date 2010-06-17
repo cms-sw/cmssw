@@ -7,7 +7,7 @@
 // 
 /**\class DataProxyTemplate DataProxyTemplate.h FWCore/Framework/interface/DataProxyTemplate.h
 
- Description: <one line class summary>
+ Description: A DataProxy base class which allows one to write type-safe proxies
 
  Usage:
     <usage>
@@ -22,7 +22,6 @@
 
 // user include files
 #include "FWCore/Framework/interface/DataProxy.h"
-#include "FWCore/Framework/interface/MakeDataException.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include <cassert>
 
@@ -38,7 +37,7 @@ class DataProxyTemplate : public DataProxy
       typedef DataT value_type;
       typedef RecordT record_type;
    
-      DataProxyTemplate() : cache_(0) {}
+      DataProxyTemplate(){}
       //virtual ~DataProxyTemplate();
 
       // ---------- const member functions ---------------------
@@ -46,38 +45,21 @@ class DataProxyTemplate : public DataProxy
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      virtual const DataT* get(const RecordT& iRecord,
-                               const DataKey& iKey,
-                               bool iTransientAccessOnly = false) const {
-         if(!cacheIsValid()) {
-            cache_ = const_cast<DataProxyTemplate<RecordT, DataT>*>(this)->make(iRecord, iKey);
-            const_cast<DataProxyTemplate<RecordT, DataT>*>(this)->setCacheIsValidAndAccessType(iTransientAccessOnly);
-         }
-         if(0 == cache_) {
-            throwMakeException(iRecord, iKey);
-         }
-         return cache_;
+      virtual const void* getImpl(const EventSetupRecord& iRecord,
+                                  const DataKey& iKey) {
+         assert(iRecord.key() == RecordT::keyForClass());
+         return this->make(static_cast<const RecordT&>(iRecord), iKey);
       }
       
-      void doGet(const EventSetupRecord& iRecord, const DataKey& iKey, bool iTransiently) const {
-         assert(iRecord.key() == RecordT::keyForClass());
-         get(static_cast<const RecordT&>(iRecord), iKey, iTransiently);
-      }
    protected:
       virtual const DataT* make(const RecordT&, const DataKey&) = 0;
       
-      virtual void throwMakeException(const RecordT& /*iRecord*/,
-                                       const DataKey& iKey) const {
-        throw MakeDataException(MakeDataExceptionInfo<record_type, value_type>(iKey));
-      }
-
    private:
       DataProxyTemplate(const DataProxyTemplate&); // stop default
 
       const DataProxyTemplate& operator=(const DataProxyTemplate&); // stop default
 
       // ---------- member data --------------------------------
-      mutable const DataT* cache_;
 };
 
    }
