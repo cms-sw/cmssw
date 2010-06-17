@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_6_2/HIon/V8 (CMSSW_3_6_2_HLT4)
+# /dev/CMSSW_3_6_2/HIon/V9 (CMSSW_3_6_2_HLT5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_2/HIon/V8')
+  tableName = cms.string('/dev/CMSSW_3_6_2/HIon/V9')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -19,10 +19,12 @@ process.streams = cms.PSet(
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
+  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   DQM = cms.vstring(  ),
   EventDisplay = cms.vstring(  ),
   Express = cms.vstring( 'ExpressPhysics' ),
-  A = cms.vstring( 'EGMonitor',
+  A = cms.vstring( 'EG',
+    'EGMonitor',
     'RandomTriggers',
     'JetMETTauMonitor',
     'Cosmics',
@@ -33,11 +35,9 @@ process.streams = cms.PSet(
     'Mu',
     'JetMETTau',
     'MuMonitor',
-    'EG',
     'Commissioning' ),
-  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
-  HLTMON = cms.vstring( 'OfflineMonitor' ),
-  HLTDQM = cms.vstring(  )
+  HLTDQM = cms.vstring(  ),
+  HLTMON = cms.vstring( 'OfflineMonitor' )
 )
 process.datasets = cms.PSet( 
   LogMonitor = cms.vstring(  ),
@@ -46,7 +46,9 @@ process.datasets = cms.PSet(
   EcalLaser = cms.vstring(  ),
   AlCaP0 = cms.vstring(  ),
   RPCMonitor = cms.vstring(  ),
+  AlCaPhiSymEcal = cms.vstring(  ),
   ExpressPhysics = cms.vstring(  ),
+  EG = cms.vstring(  ),
   EGMonitor = cms.vstring(  ),
   RandomTriggers = cms.vstring(  ),
   JetMETTauMonitor = cms.vstring(  ),
@@ -58,9 +60,7 @@ process.datasets = cms.PSet(
   Mu = cms.vstring(  ),
   JetMETTau = cms.vstring(  ),
   MuMonitor = cms.vstring(  ),
-  EG = cms.vstring(  ),
   Commissioning = cms.vstring(  ),
-  AlCaPhiSymEcal = cms.vstring(  ),
   OfflineMonitor = cms.vstring(  )
 )
 
@@ -1390,13 +1390,23 @@ process.ModuleWebRegistry = cms.Service( "ModuleWebRegistry",
 )
 process.PrescaleService = cms.Service( "PrescaleService",
     lvl1DefaultLabel = cms.untracked.string( "4E29" ),
-    lvl1Labels = cms.vstring( '4E29_preL1',
-      '2E29_preL1',
-      '4E29',
+    lvl1Labels = cms.vstring( '4E29',
       '2E29',
       '1E29',
       'Cosmics' ),
     prescaleTable = cms.VPSet( 
+      cms.PSet(  pathName = cms.string( "HLT_HIMinBiasCalo" ),
+        prescales = cms.vuint32( 1, 1, 1, 0 )
+      ),
+      cms.PSet(  pathName = cms.string( "HLT_HIJet35U" ),
+        prescales = cms.vuint32( 1, 1, 1, 0 )
+      ),
+      cms.PSet(  pathName = cms.string( "HLT_HIPhoton15" ),
+        prescales = cms.vuint32( 1, 1, 1, 0 )
+      ),
+      cms.PSet(  pathName = cms.string( "HLT_HIDoubleMu" ),
+        prescales = cms.vuint32( 1, 1, 1, 0 )
+      )
     )
 )
 process.UpdaterService = cms.Service( "UpdaterService",

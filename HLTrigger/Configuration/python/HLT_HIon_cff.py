@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_6_2/HIon/V8 (CMSSW_3_6_2_HLT4)
+# /dev/CMSSW_3_6_2/HIon/V9 (CMSSW_3_6_2_HLT5)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_2/HIon/V8')
+  tableName = cms.string('/dev/CMSSW_3_6_2/HIon/V9')
 )
 
 streams = cms.PSet( 
@@ -15,10 +15,12 @@ streams = cms.PSet(
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
+  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   DQM = cms.vstring(  ),
   EventDisplay = cms.vstring(  ),
   Express = cms.vstring( 'ExpressPhysics' ),
-  A = cms.vstring( 'EGMonitor',
+  A = cms.vstring( 'EG',
+    'EGMonitor',
     'RandomTriggers',
     'JetMETTauMonitor',
     'Cosmics',
@@ -29,11 +31,9 @@ streams = cms.PSet(
     'Mu',
     'JetMETTau',
     'MuMonitor',
-    'EG',
     'Commissioning' ),
-  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
-  HLTMON = cms.vstring( 'OfflineMonitor' ),
-  HLTDQM = cms.vstring(  )
+  HLTDQM = cms.vstring(  ),
+  HLTMON = cms.vstring( 'OfflineMonitor' )
 )
 datasets = cms.PSet( 
   LogMonitor = cms.vstring(  ),
@@ -42,7 +42,9 @@ datasets = cms.PSet(
   EcalLaser = cms.vstring(  ),
   AlCaP0 = cms.vstring(  ),
   RPCMonitor = cms.vstring(  ),
+  AlCaPhiSymEcal = cms.vstring(  ),
   ExpressPhysics = cms.vstring(  ),
+  EG = cms.vstring(  ),
   EGMonitor = cms.vstring(  ),
   RandomTriggers = cms.vstring(  ),
   JetMETTauMonitor = cms.vstring(  ),
@@ -54,9 +56,7 @@ datasets = cms.PSet(
   Mu = cms.vstring(  ),
   JetMETTau = cms.vstring(  ),
   MuMonitor = cms.vstring(  ),
-  EG = cms.vstring(  ),
   Commissioning = cms.vstring(  ),
-  AlCaPhiSymEcal = cms.vstring(  ),
   OfflineMonitor = cms.vstring(  )
 )
 
