@@ -118,7 +118,6 @@ class FWColorSelect : public TGColorSelect
 private:
    std::string           fLabel;
    Color_t               fSelectedColor;
-   std::vector<Color_t>  fPalette;
    FWColorPopup         *fFireworksPopup;
    const FWColorManager *fColorManager;
    

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:07:58 CET 2009
-// $Id: FWColorManager.h,v 1.18 2010/03/16 20:19:36 matevz Exp $
+// $Id: FWColorManager.h,v 1.19 2010/06/16 14:04:37 matevz Exp $
 //
 
 // system include files
@@ -79,6 +79,9 @@ public:
    
    static Bool_t setColorSetViewer(TGLViewer*, Color_t);
 
+   static Color_t getDefaultStartColorIndex();
+   static Color_t getDefaultStartGeometryIndex();
+
    // ---------- member functions ---------------------------
 
    void defaultBrightness();
@@ -109,6 +112,9 @@ private:
    Color_t m_startColorIndex;
    Color_t m_numColorIndices;
    Color_t m_startGeomColorIndex;
+
+   static const Color_t s_defaultStartColorIndex;
+   static const Color_t s_defaultStartGeometryIndex;
 };
 
 

@@ -343,8 +343,6 @@ FWColorSelect::FWColorSelect(const TGWindow *p, const char* label, Color_t index
    fFireworksPopup(0),
    fColorManager(iManager)
 {
-   fPalette.reserve(iManager->numberOfLimitedColors());
-
    std::vector<Color_t> colors;
    fColorManager->fillLimitedColors(colors);
 

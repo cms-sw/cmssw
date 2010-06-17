@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id: FWColorManager.cc,v 1.25 2010/03/16 20:19:36 matevz Exp $
+// $Id: FWColorManager.cc,v 1.26 2010/06/16 14:04:40 matevz Exp $
 //
 
 // system include files
@@ -36,6 +36,11 @@
 //static std::vector<Color_t>* s_forWhite=0;
 //static std::vector<Color_t>* s_forBlack=0;
 
+const Color_t FWColorManager::s_defaultStartColorIndex    = 1000;
+const Color_t FWColorManager::s_defaultStartGeometryIndex = 1100;
+
+Color_t FWColorManager::getDefaultStartColorIndex()    { return s_defaultStartColorIndex; }
+Color_t FWColorManager::getDefaultStartGeometryIndex() { return s_defaultStartGeometryIndex; }
 
 enum {
    kFWRed     = 1008,
@@ -45,16 +50,6 @@ enum {
    kFWMagenta = 1001,
    kFWOrange  = 1004,
    kFWYellow  = 1000
-/*
-   kFWRed =0,
-   kFWBlue = 1,
-   kFWCyan = 2,
-   kFWGreen = 3,
-   kFWMagenta = 4,
-   kFWOrange = 5,
-   kFWYellow = 6,
-   kFWGray = 7
- */
 };
 
 static const float s_forWhite[][3] ={
@@ -235,7 +230,7 @@ void FWColorManager::initialize()
   // Save default ROOT colors.
   TEveUtil::SetColorBrightness(0, kFALSE);
 
-  m_startColorIndex = 1000;
+  m_startColorIndex = s_defaultStartColorIndex;
   m_numColorIndices = s_size;
 
   unsigned int index = m_startColorIndex;
@@ -250,7 +245,7 @@ void FWColorManager::initialize()
     new TColor(index++,(*it)[0],(*it)[1],(*it)[2]);
   }
 
-  m_startGeomColorIndex = index = 1100;
+  m_startGeomColorIndex = index = s_defaultStartGeometryIndex;
   itEnd = s_geomForBlack+s_geomSize;
   for(const float(* it)[3] = s_geomForBlack;
       it != itEnd;
