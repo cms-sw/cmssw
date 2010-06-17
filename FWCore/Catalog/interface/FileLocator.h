@@ -13,7 +13,7 @@ namespace edm {
   class FileLocator {
 
   public:
-    FileLocator();
+    Explicit FileLocator(std::string const & catUrl);
     ~FileLocator();
 
     std::string pfn(std::string const & ilfn) const;
@@ -39,7 +39,7 @@ private:
     typedef std::list <Rule> Rules;
     typedef std::map <std::string, Rules> ProtocolRules;
 
-    void init();
+    void init(std::string const & catUrl);
 
     void parseRule (xercesc::DOMNode *ruleNode, 
 		    ProtocolRules &rules);

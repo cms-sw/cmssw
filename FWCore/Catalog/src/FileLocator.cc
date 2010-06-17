@@ -66,7 +66,7 @@ namespace edm {
   
   int FileLocator::s_numberOfInstances=0;
 
-  FileLocator::FileLocator(): 
+  FileLocator::FileLocator(std::string const & catUrl): 
       m_destination ("any")
   {  
     try { 
@@ -84,7 +84,7 @@ namespace edm {
     }
     ++s_numberOfInstances;
     
-    init();
+    init(catUrl);
 
     // std::cout << m_protocols.size() << " protocols" << std::endl;
     // std::cout << m_directRules[m_protocols[0]].size() << " rules" << std::endl;
@@ -179,14 +179,16 @@ namespace edm {
   }
   
   void
-  FileLocator::init () {
-    
-    edm::Service<edm::SiteLocalConfig> localconfservice;
-    if( !localconfservice.isAvailable() ){
-      throw cms::Exception("edm::SiteLocalConfigService is not available");       
+  FileLocator::init (std::string const & catUrl) {
+    std::string m_url = catUrl;
+
+    if (m_url.empty()) {
+      edm::Service<edm::SiteLocalConfig> localconfservice;
+      if( !localconfservice.isAvailable() ){
+	throw cms::Exception("edm::SiteLocalConfigService is not available");       
+      }
+      m_url=localconfservice->dataCatalog();
     }
-    std::string m_url=localconfservice->dataCatalog();
-    
     
     // std::cout << "Connecting to the catalog " << m_url << std::endl;
 
