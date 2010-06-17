@@ -86,20 +86,23 @@ FWMagField::GetMaxFieldMag() const
          if ( m_guessValHist->GetEntries() > 2  && m_guessValHist->GetRMS()  < 0.5 )
          {
             m_guessedField = m_guessValHist->GetMean();
-            fwLog(fwlog::kDebug) << "FWMagField::GetMaxFieldMag(), get average "
-                                << m_guessValHist->GetMean() << " guessed value: RMS= "<< m_guessValHist->GetRMS()
-                                <<" samples "<< m_guessValHist->GetEntries() << std::endl;
+            
+
+            // std::cout << "FWMagField::GetMaxFieldMag(), get average "
+            //  << m_guessValHist->GetMean() << " guessed value: RMS= "<< m_guessValHist->GetRMS()
+            //  <<" samples "<< m_guessValHist->GetEntries() << std::endl;
+            
          }
          else if ( m_numberOfFieldIsOnEstimates > m_numberOfFieldEstimates/2 || m_numberOfFieldEstimates == 0 )
          {
             m_guessedField = m_userField;
-            fwLog(fwlog::kDebug) << "FWMagField::GetMaxFieldMag() get default field, number estimates "
-                                << m_numberOfFieldEstimates << " number fields is on  m_numberOfFieldIsOnEstimates" <<std::endl;
+            // fwLog(fwlog::kDebug) << "FWMagField::GetMaxFieldMag() get default field, number estimates "
+            //  << m_numberOfFieldEstimates << " number fields is on  m_numberOfFieldIsOnEstimates" <<std::endl;
          }
          else
          {
             m_guessedField = 0;
-            fwLog(fwlog::kDebug) << "Update field estimate, guess field is OFF." <<std::endl;
+            //  fwLog(fwlog::kDebug) << "Update field estimate, guess field is OFF." <<std::endl;
          }
          m_updateFieldEstimate  = false;
       }
@@ -122,7 +125,7 @@ void FWMagField::guessFieldIsOn(bool isOn) const
 
 void FWMagField::guessField(float val) const
 {
-   fwLog(fwlog::kDebug) <<  "FWMagField::guessField "<< val << std::endl;
+   // fwLog(filedDebug) <<  "FWMagField::guessField "<< val << std::endl;
    m_guessValHist->Fill(val);
    m_updateFieldEstimate = true; 
 }
