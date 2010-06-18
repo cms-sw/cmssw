@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: PVFitter.h,v 1.5 2010/05/31 20:28:48 yumiceva Exp $
+ version $Id: PVFitter.h,v 1.6 2010/06/04 00:05:36 jengbou Exp $
 
  ________________________________________________________________**/
 
@@ -64,6 +64,8 @@ class PVFitter {
     dynamicQualityCut_ = 1.e30;
     hPVx->Reset();
     hPVy->Reset();
+    fbeamspot = reco::BeamSpot();
+    fbspotMap.clear();
   };
   reco::BeamSpot getBeamSpot() { return fbeamspot; }
   std::map<int, reco::BeamSpot> getBeamSpotMap() { return fbspotMap; }
@@ -80,6 +82,14 @@ class PVFitter {
   double pvQuality (const reco::Vertex& pv) const;
   /// vertex quality measure
   double pvQuality (const BeamSpotFitPVData& pv) const;
+  int getNPVs() { return pvStore_.size(); }
+  void getNPVsperBX() {
+    for ( std::map<int,std::vector<BeamSpotFitPVData> >::const_iterator pvStore = bxMap_.begin(); 
+	  pvStore!=bxMap_.end(); ++pvStore) {
+
+      std::cout << "bx " << pvStore->first << " NPVs = " << (pvStore->second).size() << std::endl;
+    }
+  }
 
  private:
 

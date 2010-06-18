@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: PVFitter.cc,v 1.12 2010/06/04 00:50:18 jengbou Exp $
+   version $Id: PVFitter.cc,v 1.13 2010/06/09 19:19:24 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -180,16 +180,22 @@ void PVFitter::readEvent(const edm::Event& iEvent)
 
 bool PVFitter::runBXFitter() {
 
-    edm::LogInfo("PVFitter") << " Number of bunch crossings: " << bxMap_.size() << std::endl;
+  edm::LogInfo("PVFitter") << " Number of bunch crossings: " << bxMap_.size() << std::endl;
+
+  bool fit_ok = true;
 
   for ( std::map<int,std::vector<BeamSpotFitPVData> >::const_iterator pvStore = bxMap_.begin(); 
 	pvStore!=bxMap_.end(); ++pvStore) {
 
-
-      edm::LogInfo("PVFitter") << " Number of PVs collected for PVFitter: " << (pvStore->second).size() << " in bx: " << pvStore->first << std::endl;
+    // first set null beam spot in case
+    // fit fails
+    fbspotMap[pvStore->first] = reco::BeamSpot();
+    
+    edm::LogInfo("PVFitter") << " Number of PVs collected for PVFitter: " << (pvStore->second).size() << " in bx: " << pvStore->first << std::endl;
 
     if ( (pvStore->second).size() <= minNrVertices_ ) {
         edm::LogWarning("PVFitter") << " not enough PVs, continue" << std::endl;
+	fit_ok = false;
       continue;
     }
 
@@ -230,6 +236,7 @@ bool PVFitter::runBXFitter() {
     ierr = minuitx.Minimize();
     if ( ierr ) {
         edm::LogInfo("PVFitter") << "3D beam spot fit failed in 1st iteration" << std::endl;
+	fit_ok = false;
       continue;
     }
     //
@@ -243,7 +250,8 @@ bool PVFitter::runBXFitter() {
 		   minuitx.GetParameter(2)+sigmaCut_*minuitx.GetParameter(8));
     ierr = minuitx.Minimize();
     if ( ierr ) {
-        edm::LogInfo("PVFitter") << "3D beam spot fit failed in 2nd iteration" << std::endl;
+      edm::LogInfo("PVFitter") << "3D beam spot fit failed in 2nd iteration" << std::endl;
+      fit_ok = false;
       continue;
     }
     //
@@ -256,6 +264,7 @@ bool PVFitter::runBXFitter() {
     ierr = minuitx.Minimize();
     if ( ierr ) {
         edm::LogInfo("PVFitter") << "3D beam spot fit failed in 3rd iteration" << std::endl;
+	fit_ok = false;
       continue;
     }
     // refit with floating scale factor
@@ -296,10 +305,10 @@ bool PVFitter::runBXFitter() {
     edm::LogInfo("PVFitter") << "3D PV fit done for this bunch crossing."<<std::endl;
     minuitx.Clear();
     //delete fcn;
-
+    fit_ok = fit_ok & true;
   }
 
-  return true;
+  return fit_ok;
 }
 
 

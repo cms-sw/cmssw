@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.33 2010/05/31 20:28:48 yumiceva Exp $
+ version $Id: BeamFitter.h,v 1.34 2010/06/03 22:56:31 jengbou Exp $
 
  ________________________________________________________________**/
 
@@ -76,8 +76,16 @@ class BeamFitter {
     fendLumiOfFit = ls1;
   }
   void setRun( int run) { frun = run; }
-  
 
+  int getNTracks() {
+    return fBSvector.size();
+  }
+  int getNPVs() {
+    return MyPVFitter->getNPVs();
+  }
+  void getNPVsperBX() {
+    MyPVFitter->getNPVsperBX();
+  }
  private:
 
   std::vector<BSTrkParameters> fBSvector;
