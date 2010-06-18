@@ -15,6 +15,12 @@ postValidation = cms.Sequence(
     + hcalrechitsPostProcessor
 )
 
+postValidation_preprod = cms.Sequence(
+    recoMuonPostProcessors
+  + postProcessorTrack
+  + MuIsoValPostProcessor
+)  
+
 
 postValidation_fastsim = cms.Sequence(
       recoMuonPostProcessorsFastSim
