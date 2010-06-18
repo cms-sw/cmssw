@@ -8,10 +8,11 @@ tevMuons = cms.EDProducer("TevMuonProducer",
     MuonTrackLoaderForGLB,
     #    InputTag MuonCollectionLabel = standAloneMuons:UpdatedAtVtx
     MuonServiceProxy,
-    RefitIndex = cms.vint32(1, 2, 3),
+    RefitIndex = cms.vint32(1, 2, 3, 4),
     Refits = cms.vstring('default', 
         'firstHit', 
-        'picky'),
+        'picky', 
+        'dyt'),
     MuonCollectionLabel = cms.InputTag("globalMuons"),
     RefitterParameters = cms.PSet(
         GlobalMuonRefitter
