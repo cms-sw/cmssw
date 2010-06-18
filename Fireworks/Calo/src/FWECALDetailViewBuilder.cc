@@ -272,8 +272,8 @@ FWECALDetailViewBuilder::fillData( const EcalRecHitCollection *hits,
          else 
          {
             minEta = v.Eta() - 0.0172 / 2;
-            maxEta = v.Eta() - 0.0172 / 2;
-            minPhi = phi     + 0.0172 / 2;
+            maxEta = v.Eta() + 0.0172 / 2;
+            minPhi = phi     - 0.0172 / 2;
             maxPhi = phi     + 0.0172 / 2;
          }
          if (minPhi >= (m_phi-barrelCR) && maxPhi <= (m_phi+barrelCR) &&
