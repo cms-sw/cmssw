@@ -58,7 +58,7 @@
 
 <class name="EcalMappingElectronics"/>
 
-<class name="EcalAlignmentEB"/>
+<class name="EcalAlignment"/>
 <class name="AlignTransform"/>
 <class name="std::vector<AlignTransform>"/>
 
