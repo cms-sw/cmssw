@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.28 2010/06/16 07:44:23 eulisse Exp $
+// $Id: FWEveViewManager.cc,v 1.29 2010/06/18 10:17:15 yana Exp $
 //
 
 // system include files
@@ -583,6 +583,11 @@ void
 FWEveViewManager::eventBegin()
 {
    gEve->DisableRedraw();
+   for (int t = 0 ; t < FWViewType::kSize; ++t)
+   {
+      for(EveViewVec_it i = m_views[t].begin(); i != m_views[t].end(); ++i)   
+         (*i)->eventBegin();
+   }
 }
 
 void

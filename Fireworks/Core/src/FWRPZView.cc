@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.15 2010/05/12 13:31:10 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.16 2010/06/18 10:17:16 yana Exp $
 //
 
 // system include files
@@ -31,6 +31,8 @@
 #include "Fireworks/Core/interface/FWRPZViewGeometry.h"
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWViewContext.h"
+#include "Fireworks/Core/interface/FWViewContext.h"
+#include "Fireworks/Core/interface/FWViewEnergyScale.h"
 
 //
 // constructors and destructor
@@ -47,6 +49,9 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
    m_showHF(0),
    m_showEndcaps(0)
 {
+   FWViewEnergyScale* caloScale = new FWViewEnergyScale();
+   viewContext()->addScale("Calo", caloScale);
+
    TEveProjection::EPType_e projType = (id == FWViewType::kRhoZ) ? TEveProjection::kPT_RhoZ : TEveProjection::kPT_RPhi;
 
    m_projMgr.reset(new TEveProjectionManager(projType));
@@ -187,7 +192,8 @@ FWRPZView::updateCaloParameters()
 void
 FWRPZView::updateScaleParameters()
 {
-   viewContext()->setEnergyScale(m_calo->GetValToHeight());
+   viewContext()->getEnergyScale("Calo")->setVal(m_calo->GetValToHeight());
+   viewContext()->scaleChanged();
 }
 
 void FWRPZView::showProjectionAxes( )

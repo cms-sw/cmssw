@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.h,v 1.10 2010/05/03 15:47:37 amraktad Exp $
+// $Id: FWEveView.h,v 1.11 2010/06/18 17:49:29 matevz Exp $
 //
 
 
@@ -59,6 +59,7 @@ public:
    virtual void saveImageTo(const std::string& iName) const;
    virtual void setBackgroundColor(Color_t);
    virtual void eventEnd();
+   virtual void eventBegin();
 
    virtual void setContext(fireworks::Context&) {}
 

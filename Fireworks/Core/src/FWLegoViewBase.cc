@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWLegoViewBase.cc,v 1.3 2010/06/08 18:43:16 amraktad Exp $
+// $Id: FWLegoViewBase.cc,v 1.4 2010/06/18 10:17:15 yana Exp $
 //
 
 // system include files
@@ -29,6 +29,8 @@
 #include "Fireworks/Core/interface/FWGLEventHandler.h"
 #include "Fireworks/Core/interface/FWConfiguration.h"
 #include "Fireworks/Core/interface/FWLegoViewBase.h"
+#include "Fireworks/Core/interface/FWViewEnergyScale.h"
+#include "Fireworks/Core/interface/FWViewContext.h"
 
 
 //
@@ -54,6 +56,9 @@ FWLegoViewBase::FWLegoViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId
    m_legoFixedScale(this,"Lego scale GeV)",100.,1.,1000.),
    m_legoAutoScale (this,"Lego auto scale",true)
 {
+   FWViewEnergyScale* caloScale = new FWViewEnergyScale();
+   viewContext()->addScale("Calo", caloScale);
+
    viewerGL()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
 
    m_autoRebin.changed_.connect(boost::bind(&FWLegoViewBase::setAutoRebin,this));
@@ -201,4 +206,18 @@ FWLegoViewBase::setFontSizein2D()
 {
    m_lego->SetDrawNumberCellPixels( m_drawValuesIn2D.value());
    m_lego->ElementChanged(kTRUE,kTRUE);
+}
+
+void
+FWLegoViewBase::eventBegin()
+{
+   viewContext()->resetScale();
+}
+
+void
+FWLegoViewBase::eventEnd()
+{
+   FWEveView::eventEnd();
+   viewContext()->scaleChanged();
+
 }

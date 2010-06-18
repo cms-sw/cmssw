@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Apr  7 14:40:47 CEST 2010
-// $Id: FW3DView.cc,v 1.39 2010/06/08 21:16:17 matevz Exp $
+// $Id: FW3DView.cc,v 1.40 2010/06/08 21:17:35 matevz Exp $
 //
 
 // system include files
@@ -23,6 +23,7 @@
 #include "Fireworks/Core/interface/FW3DView.h"
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWViewContext.h"
+#include "Fireworks/Core/interface/FWViewEnergyScale.h"
 
 //
 // constants, enums and typedefs
@@ -41,6 +42,9 @@ FW3DView::FW3DView(TEveWindowSlot* slot, FWViewType::EType typeId):
    m_caloAutoScale (this,"Calo auto scale",true),
    m_calo(0)
 {
+   FWViewEnergyScale* caloScale = new FWViewEnergyScale();
+   viewContext()->addScale("Calo", caloScale);
+
    viewerGL()->CurrentCamera().SetFixDefCenter(kTRUE);
    m_caloFixedScale.changed_.connect(boost::bind(&FW3DView::updateCaloParameters, this));
    m_caloAutoScale.changed_.connect(boost::bind(&FW3DView::updateCaloParameters, this));
@@ -96,7 +100,8 @@ void FW3DView::updateCaloParameters()
 
 void FW3DView::updateScaleParameters()
 {
-   viewContext()->setEnergyScale(m_calo->GetValToHeight());
+   viewContext()->getEnergyScale("Calo")->setVal(m_calo->GetValToHeight());
+   viewContext()->scaleChanged();
 }
 
 

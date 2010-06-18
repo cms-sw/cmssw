@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.21 2010/06/16 18:45:30 amraktad Exp $
+// $Id: FWEveView.cc,v 1.22 2010/06/18 17:49:30 matevz Exp $
 //
 
 
@@ -181,6 +181,11 @@ FWEveView::lineWidthChanged()
    viewerGL()->SetLineScale(m_lineWidth.value());
    viewerGL()->RequestDraw();
 #endif
+}
+
+void
+FWEveView::eventBegin()
+{
 }
 
 void

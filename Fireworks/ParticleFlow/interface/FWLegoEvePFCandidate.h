@@ -4,10 +4,7 @@
 
 #include "TEveLine.h"
 #include "TEveStraightLineSet.h"
-
 #include "Rtypes.h"
-
-
 
 class TEveTrack;
 
@@ -15,13 +12,15 @@ namespace reco {
   class PFCandidate;
 }
 
-class FWLegoEvePFCandidate : public TEveStraightLineSet {
+class FWLegoEvePFCandidate : public TEveStraightLineSet 
+{
+public:
+   FWLegoEvePFCandidate(const reco::PFCandidate& pfc);
+   void UpdateScale(float s);
 
- public:
-  FWLegoEvePFCandidate(const reco::PFCandidate& pfc);
-
- private:
-
+private:
+   float  m_et;
+   float  m_pt;
 };
 
 #endif

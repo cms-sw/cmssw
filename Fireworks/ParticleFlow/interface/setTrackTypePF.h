@@ -18,7 +18,7 @@ class TEveTrack;
 
 namespace fireworks {
    void setTrackTypePF(const reco::PFCandidate& pfCand,
-		       TEveTrack* track );
+		       TAttLine* track );
  
 }
 

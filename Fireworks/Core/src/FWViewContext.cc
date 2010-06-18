@@ -6,15 +6,16 @@
 // Implementation:
 //     [Notes on implementation]
 //
-// Original Author:  
+// Original Author:  Alja Mrak-Tadel
 //         Created:  Wed Apr 14 18:31:58 CEST 2010
-// $Id: FWViewContext.cc,v 1.1 2010/04/15 20:15:15 amraktad Exp $
+// $Id: FWViewContext.cc,v 1.2 2010/05/03 15:47:38 amraktad Exp $
 //
 
 // system include files
 
 // user include files
 #include "Fireworks/Core/interface/FWViewContext.h"
+#include "Fireworks/Core/interface/FWViewEnergyScale.h"
 
 
 //
@@ -28,8 +29,7 @@
 //
 // constructors and destructor
 //
-FWViewContext::FWViewContext():
-m_energyScale(1.f)
+FWViewContext::FWViewContext()
 {
 }
 
@@ -40,6 +40,10 @@ m_energyScale(1.f)
 
 FWViewContext::~FWViewContext()
 {
+   for (Scales_i i = m_scales.begin(); i != m_scales.end(); i++)
+   {
+      delete i->second;
+   }
 }
 
 //
@@ -57,21 +61,35 @@ FWViewContext::~FWViewContext()
 //
 // member functions
 //
+
 void
-FWViewContext::setEnergyScale(float s)
+FWViewContext::scaleChanged()
 {
-   m_energyScale = s;
    scaleChanged_.emit(this);
 }
 
-//
-// const member functions
-//
-float
-FWViewContext::getEnergyScale() const
+void
+FWViewContext::resetScale()
 {
-   return  m_energyScale;
+   for (Scales_i i = m_scales.begin(); i != m_scales.end(); ++i)
+   {
+      i->second->reset();
+   }
 }
-//
-// static member functions
-//
+
+void 
+FWViewContext::addScale(const std::string& name, FWViewEnergyScale* s) const
+{
+   m_scales[name] = s;
+}
+
+FWViewEnergyScale*
+FWViewContext::getEnergyScale(const std::string& type) const
+{
+   Scales_i it = m_scales.find(type);
+   if (it != m_scales.end())
+   {
+      return it->second;
+   }
+   return 0;
+}

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWJetProxyBuilder.cc,v 1.13 2010/06/07 17:54:00 amraktad Exp $
+// $Id: FWJetProxyBuilder.cc,v 1.14 2010/06/18 12:31:56 matevz Exp $
 //
 #include "TGeoArb8.h"
 #include "TEveGeoNode.h"
@@ -21,6 +21,7 @@
 #include "Fireworks/Core/interface/BuilderUtils.h"
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWViewContext.h"
+#include "Fireworks/Core/interface/FWViewEnergyScale.h"
 
 #include "Fireworks/Calo/interface/FW3DEveJet.h"
 #include "Fireworks/Calo/interface/FWGlimpseEveJet.h"
@@ -86,15 +87,15 @@ private:
 void
 FWJetRPZProxyBuilderBase::scaleProduct(TEveElementList* parent, FWViewType::EType type, const FWViewContext* vc)
 {
-   for (TEveElement::List_i i = parent->BeginChildren(); i!= parent->EndChildren(); ++i)
+  for (TEveElement::List_i i = parent->BeginChildren(); i!= parent->EndChildren(); ++i)
    {
       TEveElement* comp = (*i);
       for (TEveElement::List_i j = comp->BeginChildren(); j!= comp->EndChildren(); ++j)
       {
          TEveScalableStraightLineSet* ls = dynamic_cast<TEveScalableStraightLineSet*> (*j);
          if (ls ) 
-         {
-            ls->SetScale(vc->getEnergyScale());
+         { 
+            ls->SetScale(vc->getEnergyScale("Calo")->getVal());
             TEveProjected* proj = *ls->BeginProjecteds();
             proj->UpdateProjection();
          }
@@ -172,7 +173,7 @@ FWJetRhoPhiProxyBuilder::build(const reco::Jet& iData, unsigned int iIndex, TEve
 
    marker->SetScaleCenter(ecalR*cos(phi), ecalR*sin(phi), 0);
    marker->AddLine(ecalR*cos(phi), ecalR*sin(phi), 0, (ecalR+size)*cos(phi), (ecalR+size)*sin(phi), 0);
-   marker->SetScale(vc->getEnergyScale());
+   marker->SetScale(vc->getEnergyScale("Calo")->getVal());
    setupAddElement(marker, &oItemHolder);
 }
 
@@ -247,7 +248,7 @@ FWJetRhoZProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveE
 		    0., (phi>0 ? (r+size)*fabs(sin(theta)) : -(r+size)*fabs(sin(theta))), (r+size)*cos(theta) );
 
    
-   marker->SetScale(vc->getEnergyScale());
+   marker->SetScale(vc->getEnergyScale("Calo")->getVal());
    setupAddElement( marker, &oItemHolder );
 
    double min_theta = 2*atan(exp(-( eta+etaSize )));
@@ -386,10 +387,10 @@ FWJetLegoProxyBuilder::build(const reco::Jet& iData, unsigned int iIndex, TEveEl
    {
       container->AddLine(iData.eta()+jetRadius*cos(2*M_PI/nLineSegments*iphi),
                          iData.phi()+jetRadius*sin(2*M_PI/nLineSegments*iphi),
-                         0.1,
+                         0.01,
                          iData.eta()+jetRadius*cos(2*M_PI/nLineSegments*(iphi+1)),
                          iData.phi()+jetRadius*sin(2*M_PI/nLineSegments*(iphi+1)),
-                         0.1);
+                         0.01);
    }
    setupAddElement(container, &oItemHolder);
 }

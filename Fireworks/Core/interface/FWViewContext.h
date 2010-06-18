@@ -14,31 +14,32 @@
 
 */
 //
-// Original Author:  
+// Original Author:  Alja Mrak-Tadel
 //         Created:  Wed Apr 14 18:31:27 CEST 2010
-// $Id: FWViewContext.h,v 1.1 2010/04/15 20:15:15 amraktad Exp $
+// $Id: FWViewContext.h,v 1.2 2010/05/03 15:47:37 amraktad Exp $
 //
 
 // system include files
 #include <sigc++/sigc++.h>
+#include <map>
+#include <string>
 
 // user include files
 
 // forward declarations
+class FWViewEnergyScale;
 
 class FWViewContext
 {
-
 public:
    FWViewContext();
    virtual ~FWViewContext();
 
-   // ---------- const member functions ---------------------
-   float getEnergyScale() const;
-   // ---------- static member functions --------------------
+   FWViewEnergyScale* getEnergyScale(const std::string&) const;
+   void scaleChanged();
+   void resetScale();
+   void addScale( const std::string& name, FWViewEnergyScale* s) const;
 
-   // ---------- member functions ---------------------------
-   void  setEnergyScale(float);
    mutable sigc::signal<void, const FWViewContext*> scaleChanged_;
    
 private:
@@ -47,8 +48,10 @@ private:
    const FWViewContext& operator=(const FWViewContext&); // stop default
 
    // ---------- member data --------------------------------
+   typedef std::map<std::string, FWViewEnergyScale*> Scales_t;
+   typedef Scales_t::iterator Scales_i;
 
-   float m_energyScale;
+   mutable Scales_t m_scales;
 };
 
 

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWLegoViewBase.h,v 1.2 2010/06/07 17:54:01 amraktad Exp $
+// $Id: FWLegoViewBase.h,v 1.3 2010/06/08 18:43:16 amraktad Exp $
 //
 
 // system include files
@@ -47,6 +47,8 @@ public:
 
    virtual void setContext(fireworks::Context&);
 
+   virtual void eventBegin();
+   virtual void eventEnd();
    // ---------- const member functions ---------------------
 
    virtual void addTo(FWConfiguration&) const;

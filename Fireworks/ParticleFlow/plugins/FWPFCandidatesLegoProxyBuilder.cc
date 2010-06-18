@@ -17,12 +17,16 @@
 //
 //
 
-// system include files
 
-// user include files
+#include "TEveCaloData.h"
+
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
+#include "Fireworks/Core/interface/Context.h"
+#include "Fireworks/Core/interface/FWEventItem.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "Fireworks/ParticleFlow/interface/FWLegoEvePFCandidate.h"
+#include "Fireworks/ParticleFlow/src/FWPFScale.h"
+#include "Fireworks/ParticleFlow/interface/setTrackTypePF.h"
 
 // forward declarations
 
@@ -36,7 +40,12 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
+   virtual bool havePerViewProduct(FWViewType::EType) const { return true; }
 
+   virtual void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc);
+
+   virtual void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
+                                  FWViewType::EType viewType, const FWViewContext* vc);
    REGISTER_PROXYBUILDER_METHODS();
 private:
    FWPFCandidatesLegoProxyBuilder(const FWPFCandidatesLegoProxyBuilder&); // stop default
@@ -62,18 +71,47 @@ FWPFCandidatesLegoProxyBuilder::~FWPFCandidatesLegoProxyBuilder()
 // member functions
 //
 void 
-FWPFCandidatesLegoProxyBuilder::build(const reco::PFCandidate& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*)
+FWPFCandidatesLegoProxyBuilder::build(const reco::PFCandidate& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* vc)
 {
-  FWLegoEvePFCandidate* evePFCandidate = new FWLegoEvePFCandidate( iData );
-  setupAddElement( evePFCandidate, &oItemHolder );
+   FWViewEnergyScale* scale = vc->getEnergyScale("ParticleFlow");
+   if (!scale)
+   {
+      scale = new FWPFScale();
+      vc->addScale("ParticleFlow", scale);
+   }
+   scale->setVal(iData.et());
+   FWLegoEvePFCandidate* evePFCandidate = new FWLegoEvePFCandidate( iData );
+   evePFCandidate->SetMarkerColor(item()->defaultDisplayProperties().color());
+   fireworks::setTrackTypePF( iData,  evePFCandidate);
+   setupAddElement( evePFCandidate, &oItemHolder );
 }
 
-//
-// const member functions
-//
+void
+FWPFCandidatesLegoProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType::EType type, const FWViewContext* vc)
+{
+   for (TEveElement::List_i i = parent->BeginChildren(); i!= parent->EndChildren(); ++i)
+   {
+      if ((*i)->HasChildren())
+      {
+         TEveElement* el = (*i)->FirstChild();  // there is only one child added in this proxy builder
+         FWLegoEvePFCandidate* cand = dynamic_cast<FWLegoEvePFCandidate*> (el);  
+         cand->UpdateScale(vc->getEnergyScale("ParticleFlow")->getVal());
+      }
+   }
+}
 
-//
-// static member functions
-//
+void
+FWPFCandidatesLegoProxyBuilder::localModelChanges(const FWModelId& iId, TEveElement* parent,
+                                                  FWViewType::EType viewType, const FWViewContext* vc)
+{
+   if ((parent)->HasChildren())
+   {
+      TEveElement* el = (parent)->FirstChild();  // we know there is only one child added in this proxy builder
+      FWLegoEvePFCandidate* cand = dynamic_cast<FWLegoEvePFCandidate*> (el); 
+      const FWDisplayProperties& dp = item()->modelInfo(iId.index()).displayProperties();
+      cand->SetMarkerColor( dp.color());
+      cand->ElementChanged();
+   }  
+}
 
 REGISTER_FWPROXYBUILDER(FWPFCandidatesLegoProxyBuilder, reco::PFCandidate, "PFCandidates", FWViewType::kLegoBit);

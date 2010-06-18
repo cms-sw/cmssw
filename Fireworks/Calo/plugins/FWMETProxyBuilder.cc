@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWMETProxyBuilder.cc,v 1.12 2010/05/07 16:54:02 amraktad Exp $
+// $Id: FWMETProxyBuilder.cc,v 1.13 2010/06/18 10:17:51 yana Exp $
 //
 
 // system include files
@@ -21,6 +21,7 @@
 #include "Fireworks/Core/interface/FWViewType.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
 #include "Fireworks/Core/interface/Context.h"
+#include "Fireworks/Core/interface/FWViewEnergyScale.h"
 
 #include "DataFormats/METReco/interface/MET.h"
 
@@ -62,7 +63,7 @@ FWMETProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType::EType type,
          TEveScalableStraightLineSet* ls = dynamic_cast<TEveScalableStraightLineSet*> (*j);
          if (ls ) 
          {
-            ls->SetScale(vc->getEnergyScale());
+            ls->SetScale(vc->getEnergyScale("Calo")->getVal());
             if (FWViewType::isProjected(type))
             {
                TEveProjected* proj = *ls->BeginProjecteds();
@@ -92,7 +93,7 @@ FWMETProxyBuilder::buildViewType(const reco::MET& met, unsigned int iIndex, TEve
    marker->AddLine( -dx*sin(phi) + (dy+r_ecal)*cos(phi), dx*cos(phi) + (dy+r_ecal)*sin(phi), 0,
                     (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
 
-   marker->SetScale(vc->getEnergyScale());
+   marker->SetScale(vc->getEnergyScale("Calo")->getVal());
    setupAddElement( marker, &oItemHolder );
       
    if( type == FWViewType::kRhoPhi )
@@ -115,7 +116,7 @@ FWMETProxyBuilder::buildViewType(const reco::MET& met, unsigned int iIndex, TEve
                    0., (phi>0 ? (r_ecal+size) : -(r_ecal+size)), 0 );
       tip->AddLine(0., (phi>0 ? r_ecal+dy : -(r_ecal+dy) ), -dx,
                    0., (phi>0 ? (r_ecal+size) : -(r_ecal+size)), 0 );
-      tip->SetScale(vc->getEnergyScale());
+      tip->SetScale(vc->getEnergyScale("Calo")->getVal());
       setupAddElement( tip, &oItemHolder );
    }   
 
@@ -181,14 +182,14 @@ void
 FWMETLegoProxyBuilder::build( const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*) 
 {
    TEveStraightLineSet* mainLine = new TEveStraightLineSet( "MET phi" );
-   mainLine->AddLine(-5.191, iData.phi(), 0.1, 5.191, iData.phi(), 0.1 );
+   mainLine->AddLine(-5.191, iData.phi(), 0.01, 5.191, iData.phi(), 0.01 );
    setupAddElement( mainLine, &oItemHolder );
 
    double phi = iData.phi();
    phi = phi > 0 ? phi - M_PI : phi + M_PI;
    TEveStraightLineSet* secondLine = new TEveStraightLineSet( "MET opposite phi" );
    secondLine->SetLineStyle( 7 );
-   secondLine->AddLine(-5.191, phi, 0.1, 5.191, phi, 0.1 );
+   secondLine->AddLine(-5.191, phi, 0.01, 5.191, phi, 0.01 );
    setupAddElement( secondLine, &oItemHolder );
 }
 
