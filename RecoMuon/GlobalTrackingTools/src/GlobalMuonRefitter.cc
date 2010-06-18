@@ -4,8 +4,8 @@
  *  Description:
  *
  *
- *  $Date: 2009/09/12 20:33:33 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/10/20 14:23:50 $
+ *  $Revision: 1.12 $
  *
  *  Authors :
  *  P. Traczyk, SINS Warsaw
@@ -63,6 +63,7 @@
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+#include "RecoMuon/GlobalTrackingTools/interface/DynamicTruncation.h"
 
 using namespace std;
 using namespace edm;
@@ -127,6 +128,7 @@ GlobalMuonRefitter::~GlobalMuonRefitter() {
 //
 void GlobalMuonRefitter::setEvent(const edm::Event& event) {
 
+  theEvent = &event;
   event.getByLabel(theDTRecHitLabel, theDTRecHits);
   event.getByLabel(theCSCRecHitLabel, theCSCRecHits);
 }
@@ -185,12 +187,14 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
   //                 1 - include all muon hits
   //                 2 - include only first muon hit(s)
   //                 3 - include only selected muon hits
+  //                 4 - redo pattern recognition with dynamic truncation
 
   vector<int> stationHits(4,0);
 
   ConstRecHitContainer allRecHits; // all muon rechits
   ConstRecHitContainer fmsRecHits; // only first muon rechits
   ConstRecHitContainer selectedRecHits; // selected muon rechits
+  ConstRecHitContainer DYTRecHits; // rec hits from dynamic truncation algorithm
 
    LogTrace(theCategory) << " *** GlobalMuonRefitter *** option " << theMuonHitsOption << endl;
 
@@ -203,7 +207,7 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
 
   vector <Trajectory> outputTraj;
 
-  if ((theMuonHitsOption == 1) || (theMuonHitsOption == 3)) {
+  if ((theMuonHitsOption == 1) || (theMuonHitsOption == 3) || (theMuonHitsOption == 4) ) {
     // refit the full track with all muon hits
     vector <Trajectory> globalTraj = transform(globalTrack, track, allRecHits);
 
@@ -224,10 +228,24 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
       LogTrace(theCategory) << " Selected hits size: " << selectedRecHits.size() << endl;  
       outputTraj = transform(globalTrack, track, selectedRecHits);
     }     
+
+    if (theMuonHitsOption == 4 ) {
+      // here we use the single thr per subdetector (better performance can be obtained using thr as function of eta)
+	
+      DynamicTruncation dytRefit(*theEvent,*theService);
+      dytRefit.setThr(30,15);                                
+      //dytRefit.setThr(20,20,20,20,20,15,15,15,15,15,15,15,15);
+      DYTRecHits = dytRefit.filter(globalTraj.front());
+      if ((DYTRecHits.size() > 1) && (DYTRecHits.front()->globalPosition().mag() > DYTRecHits.back()->globalPosition().mag()))
+        stable_sort(DYTRecHits.begin(),DYTRecHits.end(),RecHitLessByDet(alongMomentum));
+      outputTraj = transform(globalTrack, track, DYTRecHits);
+    }
+
   } else if (theMuonHitsOption == 2 )  {
       getFirstHits(globalTrack, allRecHits, fmsRecHits);
       outputTraj = transform(globalTrack, track, fmsRecHits);
     } 
+
 
   if (outputTraj.size()) {
     LogTrace(theCategory) << "Refitted pt: " << outputTraj.front().firstMeasurement().updatedState().globalParameters().momentum().perp() << endl;

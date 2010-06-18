@@ -4,8 +4,8 @@
 /** \class GlobalMuonRefitter
  *  class to build muon trajectory
  *
- *  $Date: 2009/09/04 19:47:19 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/02/20 21:01:05 $
+ *  $Revision: 1.8 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -152,5 +152,6 @@ class GlobalMuonRefitter {
     edm::ESHandle<TransientTrackingRecHitBuilder> theMuonRecHitBuilder;
 
     const MuonServiceProxy* theService;
+    const edm::Event* theEvent;
 };
 #endif
