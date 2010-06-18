@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.h,v 1.9 2010/04/30 15:29:44 matevz Exp $
+// $Id: FWEveView.h,v 1.10 2010/05/03 15:47:37 amraktad Exp $
 //
 
 
@@ -28,6 +28,7 @@
 class TGLViewer;
 class TGLOrthoCamera;
 class TGLPerspectiveCamera;
+class TGLCameraGuide;
 class TEveViewer;
 class TEveElementList;
 class TEveScene;
@@ -101,6 +102,7 @@ private:
 
    FWEventAnnotation*   m_overlayEventInfo;  
    CmsAnnotation*       m_overlayLogo;
+   TGLCameraGuide*      m_cameraGuide;
 
    // parameters
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
@@ -112,6 +114,7 @@ private:
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,26,0)
    FWDoubleParameter m_lineWidth;
 #endif
+   FWBoolParameter   m_showCameraGuide;
 
    boost::shared_ptr<FWViewContextMenuHandlerGL>   m_viewContextMenu;
    std::auto_ptr<FWViewContext> m_viewContext;

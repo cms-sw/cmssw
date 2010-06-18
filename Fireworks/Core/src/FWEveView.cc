@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.20 2010/06/15 14:50:50 eulisse Exp $
+// $Id: FWEveView.cc,v 1.21 2010/06/16 18:45:30 amraktad Exp $
 //
 
 
@@ -24,6 +24,7 @@
 #include "TGLOrthoCamera.h"
 #include "TGLPerspectiveCamera.h"
 #undef private
+#include "TGLCameraGuide.h"
 
 #include "TGLEmbeddedViewer.h"
 #include "TEveViewer.h"
@@ -61,6 +62,8 @@ FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type) :
    m_ownedProducts(0),
    m_geoScene(0),
    m_overlayEventInfo(0),
+   m_overlayLogo(0),
+   m_cameraGuide(0),
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
    m_imageScale(this, "Image Scale", 1.0, 1.0, 6.0),
    m_eventInfoLevel(this, "Overlay Event Info", 0l, 0l, 2l),
@@ -70,6 +73,7 @@ FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type) :
    m_drawCMSLogo(this,"Show Logo",false),
    m_lineWidth(this,"Line width",1.0,1.0,10.0),
 #endif
+   m_showCameraGuide(this,"Show Camera Guide",false),
    m_viewContext(new FWViewContext())
 {
    m_viewer = new TEveViewer(typeName().c_str());
@@ -115,7 +119,12 @@ FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type) :
    m_overlayLogo = new CmsAnnotation(embeddedViewer, 0.02, 0.98);
    m_overlayLogo->setVisible(false);
    m_drawCMSLogo.changed_.connect(boost::bind(&CmsAnnotation::setVisible,m_overlayLogo, _1));
- 
+
+   m_cameraGuide = new TGLCameraGuide(0.9, 0.1, 0.08);
+   m_cameraGuide->SetState(TGLOverlayElement::kInvisible);
+   embeddedViewer->AddOverlayElement(m_cameraGuide);
+   m_showCameraGuide.changed_.connect(boost::bind(&TGLCameraGuide::SetBinaryState,m_cameraGuide, _1));
+
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,26,0)  
    m_lineWidth.changed_.connect(boost::bind(&FWEveView::lineWidthChanged,this));
 #endif
