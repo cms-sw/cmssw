@@ -17,6 +17,7 @@
 #include "DataFormats/MuonReco/interface/MuonTime.h"
 #include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
 #include "DataFormats/MuonReco/interface/MuonQuality.h"
+#include "DataFormats/MuonReco/interface/MuonCosmicCompatibility.h"
 #include "DataFormats/TrackReco/interface/Track.h" 
 #include "DataFormats/Common/interface/AssociationMap.h"
 
@@ -86,6 +87,14 @@ namespace {
     edm::ValueMap<reco::MuonQuality> rmq_vm;
     edm::ValueMap<reco::MuonQuality>::const_iterator rmq_vmci;
     edm::Wrapper<edm::ValueMap<reco::MuonQuality> > rmq_wvm;
+
+    reco::MuonCosmicCompatibility rmcc;
+    std::vector<reco::MuonCosmicCompatibility> rmcc_v;
+    std::vector<reco::MuonCosmicCompatibility>::const_iterator rmcc_vci;
+    edm::Wrapper<std::vector<reco::MuonCosmicCompatibility> > rmcc_wv;
+    edm::ValueMap<reco::MuonCosmicCompatibility> rmcc_vm;
+    edm::ValueMap<reco::MuonCosmicCompatibility>::const_iterator rmcc_vmci;
+    edm::Wrapper<edm::ValueMap<reco::MuonCosmicCompatibility> > rmcc_wvm;
     
     //Ptrs
 #include "DataFormats/Common/interface/Ptr.h"

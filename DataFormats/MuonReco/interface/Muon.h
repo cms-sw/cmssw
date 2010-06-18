@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik
  *
- * \version $Id: Muon.h,v 1.54 2009/09/11 19:12:38 aeverett Exp $
+ * \version $Id: Muon.h,v 1.55 2010/01/19 12:18:52 jribnik Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -19,6 +19,7 @@
 #include "DataFormats/MuonReco/interface/MuonEnergy.h"
 #include "DataFormats/MuonReco/interface/MuonTime.h"
 #include "DataFormats/MuonReco/interface/MuonQuality.h"
+#include "DataFormats/MuonReco/interface/MuonCosmicCompatibility.h"
 
 namespace reco {
  
@@ -66,12 +67,22 @@ namespace reco {
     ///
     /// ====================== Quality BLOCK ===========================
     ///
-    /// energy deposition
+    /// quality filled
     bool isQualityValid() const { return qualityValid_; }
-    /// get energy deposition information
+    /// get global fit quality information
     MuonQuality combinedQuality() const { return combinedQuality_; }
-    /// set energy deposition information
+    /// set globalfit quality information
     void setCombinedQuality( const MuonQuality& combinedQuality ) { combinedQuality_ = combinedQuality; qualityValid_ = true; }
+
+    ///
+    /// ================== Cosmic Compatibility BLOCK ==================
+    ///
+    /// compatibility filled
+    bool isCosmicCompatibilityValid() const { return cosmicCompatibilityValid_; }
+    /// get global fit quality information
+    MuonCosmicCompatibility cosmicCompatibility() const { return cosmicCompatibility_; }
+    /// set globalfit quality information
+    void setCosmicCompatibility( const MuonCosmicCompatibility& cosmicCompatibility ) { cosmicCompatibility_ = cosmicCompatibility; cosmicCompatibilityValid_ = true; }
 
     ///
     /// ====================== TIMING BLOCK ===========================
@@ -160,6 +171,8 @@ namespace reco {
     MuonEnergy calEnergy_;
     /// quality block
     MuonQuality combinedQuality_;
+    /// cosmic compatibility
+    MuonCosmicCompatibility cosmicCompatibility_;
     /// Information on matching between tracks and segments
     std::vector<MuonChamberMatch> muMatches_;
     /// timing
@@ -169,6 +182,7 @@ namespace reco {
     bool matchesValid_;
     bool isolationValid_;
     bool qualityValid_;
+    bool cosmicCompatibilityValid_;
     /// muon hypothesis compatibility with observer calorimeter energy
     float caloCompatibility_;
     /// Isolation information for two cones with dR=0.3 and dR=0.5
