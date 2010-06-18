@@ -3,16 +3,14 @@
 // Package:     Muons
 // Class  :     FWPhotonLegoProxyBuilder
 //
-// $Id: FWPhotonLegoProxyBuilder.cc,v 1.1 2010/05/07 09:04:32 mccauley Exp $
+// $Id: FWPhotonLegoProxyBuilder.cc,v 1.2 2010/05/12 18:22:27 dmytro Exp $
 //
 
 #include "TEveStraightLineSet.h"
 
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
-#include "Fireworks/Core/interface/FWEventItem.h"
 
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
 class FWPhotonLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Photon>  
 {

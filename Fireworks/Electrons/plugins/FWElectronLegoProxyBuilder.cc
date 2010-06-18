@@ -3,10 +3,9 @@
 // Package:     Muons
 // Class  :     FWElectronLegoProxyBuilder
 //
-// $Id: FWElectronLegoProxyBuilder.cc,v 1.2 2010/05/07 09:04:32 mccauley Exp $
+// $Id: FWElectronLegoProxyBuilder.cc,v 1.3 2010/05/12 18:22:27 dmytro Exp $
 //
 
-#include "TEvePointSet.h"
 #include "TEveStraightLineSet.h"
 #include "TEveTrack.h"
 
@@ -17,7 +16,6 @@
 #include "Fireworks/Tracks/interface/TrackUtils.h"
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 
 class FWElectronLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::GsfElectron>  

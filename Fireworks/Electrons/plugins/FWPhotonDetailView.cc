@@ -1,24 +1,20 @@
 //
 // Package:     Electrons
 // Class  :     FWPhotonDetailView
-// $Id: FWPhotonDetailView.cc,v 1.25 2010/05/12 12:36:13 amraktad Exp $
+// $Id: FWPhotonDetailView.cc,v 1.26 2010/05/12 17:05:14 amraktad Exp $
 
 #include "TLatex.h"
 #include "TEveCalo.h"
-#include "TEveStraightLineSet.h"
 #include "TEvePointSet.h"
 #include "TEveScene.h"
 #include "TEveViewer.h"
 #include "TGLViewer.h"
 #include "TCanvas.h"
 #include "TEveCaloLegoOverlay.h"
-#include "TRootEmbeddedCanvas.h"
 #include "TEveLegoEventHandler.h"
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
 #include "Fireworks/Electrons/plugins/FWPhotonDetailView.h"
 #include "Fireworks/Calo/interface/FWECALDetailViewBuilder.h"

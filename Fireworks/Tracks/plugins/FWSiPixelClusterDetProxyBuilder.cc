@@ -6,16 +6,14 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiPixelClusterDetProxyBuilder.cc,v 1.1 2010/05/04 17:52:34 mccauley Exp $
+// $Id: FWSiPixelClusterDetProxyBuilder.cc,v 1.2 2010/05/05 10:42:18 mccauley Exp $
 //
 
-#include "TEveCompound.h"
 #include "TEveGeoNode.h"
 
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
-#include "Fireworks/Tracks/interface/TrackUtils.h"
 
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/DetId/interface/DetId.h"

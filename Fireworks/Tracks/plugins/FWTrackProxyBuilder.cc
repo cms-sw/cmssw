@@ -8,16 +8,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 25 14:42:13 EST 2008
-// $Id: FWTrackProxyBuilder.cc,v 1.9 2010/04/30 12:29:30 amraktad Exp $
+// $Id: FWTrackProxyBuilder.cc,v 1.10 2010/05/03 15:47:46 amraktad Exp $
 //
 
 // system include files
 #include "TEveTrack.h"
-#include "TEveTrackPropagator.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
-#include "Fireworks/Core/interface/FWEvePtr.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWMagField.h"
 #include "Fireworks/Tracks/interface/TrackUtils.h"

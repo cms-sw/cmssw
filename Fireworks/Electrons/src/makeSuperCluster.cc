@@ -8,14 +8,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Dec  5 15:32:33 EST 2008
-// $Id: makeSuperCluster.cc,v 1.4 2010/04/20 20:49:42 amraktad Exp $
+// $Id: makeSuperCluster.cc,v 1.5 2010/04/29 12:16:52 mccauley Exp $
 //
 
 // system include files
 #include "TEveGeoNode.h"
 #include "TGeoBBox.h"
 #include "TGeoTube.h"
-#include "TEveManager.h"
 
 // user include files
 #include "Fireworks/Electrons/interface/makeSuperCluster.h"

@@ -1,8 +1,7 @@
 // -*- C++ -*-
-// $Id: FWSiStripClusterProxyBuilder.cc,v 1.11 2010/06/01 11:15:30 matevz Exp $
+// $Id: FWSiStripClusterProxyBuilder.cc,v 1.12 2010/06/03 13:38:32 eulisse Exp $
 //
 
-#include "TEveCompound.h"
 #include "TEveGeoNode.h"
 #include "TEveStraightLineSet.h"
 

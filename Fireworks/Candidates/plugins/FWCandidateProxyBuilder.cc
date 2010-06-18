@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Dec  5 09:56:09 EST 2008
-// $Id: FWCandidateProxyBuilder.cc,v 1.6 2010/04/20 20:49:41 amraktad Exp $
+// $Id: FWCandidateProxyBuilder.cc,v 1.7 2010/05/03 15:47:36 amraktad Exp $
 //
 
 #include "TEveTrack.h"
@@ -16,7 +16,7 @@
 // user include files
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/Context.h"
-#include "Fireworks/Core/interface/FWEventItem.h"
+
 #include "Fireworks/Candidates/interface/CandidateUtils.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"

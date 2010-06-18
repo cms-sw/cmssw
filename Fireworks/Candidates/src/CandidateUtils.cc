@@ -1,7 +1,7 @@
 #include "Fireworks/Candidates/interface/CandidateUtils.h"
 #include "TEveVSDStructs.h"
 #include "TEveTrack.h"
-#include "TEveTrackPropagator.h"
+#include "TEveVector.h"
 #include "TEveStraightLineSet.h"
 
 namespace fireworks {

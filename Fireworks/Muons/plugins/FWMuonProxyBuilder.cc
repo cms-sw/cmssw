@@ -8,14 +8,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec  4 19:28:07 EST 2008
-// $Id: FWMuonProxyBuilder.cc,v 1.9 2010/06/17 14:50:50 matevz Exp $
+// $Id: FWMuonProxyBuilder.cc,v 1.10 2010/06/18 12:31:57 matevz Exp $
 //
 
 #include "TEvePointSet.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
-#include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWEveScalableStraightLineSet.h"
 #include "Fireworks/Candidates/interface/CandidateUtils.h"
 #include "Fireworks/Muons/interface/FWMuonBuilder.h"

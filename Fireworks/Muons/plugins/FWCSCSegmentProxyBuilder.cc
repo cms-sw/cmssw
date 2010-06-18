@@ -8,11 +8,10 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCSegmentProxyBuilder.cc,v 1.11 2010/05/12 15:13:00 dmytro Exp $
+// $Id: FWCSCSegmentProxyBuilder.cc,v 1.12 2010/05/21 13:45:46 mccauley Exp $
 //
 
 #include "TEveStraightLineSet.h"
-#include "TEveGeoNode.h"
 
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"

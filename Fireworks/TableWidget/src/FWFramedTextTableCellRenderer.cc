@@ -8,13 +8,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:43:54 EST 2009
-// $Id: FWFramedTextTableCellRenderer.cc,v 1.1 2010/04/23 21:36:27 chrjones Exp $
+// $Id: FWFramedTextTableCellRenderer.cc,v 1.2 2010/06/02 21:47:59 matevz Exp $
 //
 
 // system include files
 #include <iostream>
 #include "TGClient.h"
-#include "TGResourcePool.h"
 #include "TGFont.h"
 #include "TVirtualX.h"
 

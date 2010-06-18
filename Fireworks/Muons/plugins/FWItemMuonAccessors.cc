@@ -8,12 +8,12 @@
 //
 // Original Author:  Giulio Eulisse
 //         Created:  Thu Feb 18 15:19:44 EDT 2008
-// $Id: FWItemMuonAccessors.cc,v 1.4.2.6 2010/06/07 16:42:27 mccauley Exp $
+// $Id: FWItemMuonAccessors.cc,v 1.6 2010/06/11 08:21:07 mccauley Exp $
 //
 
 // system include files
 #include <assert.h>
-#include "Reflex/Object.h"
+
 #include "TClass.h"
 
 // user include files

@@ -6,10 +6,9 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiPixelDigiProxyBuilder.cc,v 1.11 2010/05/05 10:42:18 mccauley Exp $
+// $Id: FWSiPixelDigiProxyBuilder.cc,v 1.9 2010/05/06 14:14:10 mccauley Exp $
 //
 
-#include "TEveManager.h"
 #include "TEveCompound.h"
 #include "TEvePointSet.h"
 #include "TEveVSDStructs.h"

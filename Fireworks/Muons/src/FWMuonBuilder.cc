@@ -2,12 +2,10 @@
 //
 // Package:     Muons
 // Class  :     FWMuonBuilder
-// $Id: FWMuonBuilder.cc,v 1.26 2010/05/21 13:45:46 mccauley Exp $
+// $Id: FWMuonBuilder.cc,v 1.27 2010/06/17 14:50:50 matevz Exp $
 //
 
-#include "TEveTrackPropagator.h"
 #include "TEveVSDStructs.h"
-#include "TEveManager.h"
 #include "TEveTrack.h"
 #include "TEveStraightLineSet.h"
 #include "TEveGeoNode.h"

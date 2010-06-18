@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWElectronProxyBuilder.cc,v 1.14 2010/04/29 12:16:52 mccauley Exp $
+// $Id: FWElectronProxyBuilder.cc,v 1.15 2010/05/03 15:47:40 amraktad Exp $
 //
 #include "TEveCompound.h"
 #include "TEveTrack.h"
@@ -22,7 +22,6 @@
 #include "Fireworks/Electrons/interface/makeSuperCluster.h" 
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -130,7 +129,6 @@ REGISTER_FWPROXYBUILDER( FWElectronProxyBuilder, reco::GsfElectron, "Electrons",
 // 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEveScalableStraightLineSet.h"
 
 class FWElectronGlimpseProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::GsfElectron> {

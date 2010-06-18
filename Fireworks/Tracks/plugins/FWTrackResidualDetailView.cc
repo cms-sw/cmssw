@@ -1,28 +1,20 @@
 
 #include "TVector3.h"
-#include "TGLUtil.h"
 #include <TH2.h>
-#include <TBox.h>
 #include <TLine.h>
 #include <TLatex.h>
 #include <TPaveText.h>
 #include <TCanvas.h>
 #include <TEveWindow.h>
-#include "TRootEmbeddedCanvas.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 
 #include "Fireworks/Core/interface/FWDetailView.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWModelId.h"
-#include "Fireworks/Core/interface/FWDetailView.h"
 #include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Tracks/plugins/FWTrackResidualDetailView.h"
 

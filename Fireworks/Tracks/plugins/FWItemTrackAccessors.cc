@@ -7,11 +7,11 @@
 //
 // Original Author:  Tom McCauley
 //         Created:  Thu Feb 18 15:19:44 EDT 2008
-// $Id: FWItemTrackAccessors.cc,v 1.6 2010/05/03 10:36:42 mccauley Exp $
+// $Id: FWItemTrackAccessors.cc,v 1.7 2010/05/04 17:52:03 mccauley Exp $
 //
 
 #include <assert.h>
-#include "Reflex/Object.h"
+
 #include "TClass.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"

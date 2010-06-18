@@ -8,22 +8,18 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 26 14:52:01 EST 2008
-// $Id: FWPhotonProxyBuilder.cc,v 1.12 2010/05/07 09:04:32 mccauley Exp $
+// $Id: FWPhotonProxyBuilder.cc,v 1.13 2010/06/01 14:48:57 mccauley Exp $
 //
 
-#include "TEveCompound.h"
-#include "TEveStraightLineSet.h"
 #include "TEveBox.h"
 
 #include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWViewType.h"
-#include "Fireworks/Calo/interface/CaloUtils.h"
 #include "Fireworks/Electrons/interface/makeSuperCluster.h"
 
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 
