@@ -17,9 +17,10 @@ dqmHarvestingPOGMC = cms.Path( DQMOffline_SecondStep_PrePOGMC )
 
 validationHarvesting = cms.Path(postValidation*hltpostvalidation)
 
-validationpreprodHarvesting = cms.Path(postValidation*hltpostvalidation_preprod)
+validationpreprodHarvesting = cms.Path(postValidation_preprod*hltpostvalidation_preprod)
 
-validationprodHarvesting = cms.Path(postValidation*hltpostvalidation_prod)
+# empty (non-hlt) postvalidation sequence here yet
+validationprodHarvesting = cms.Path(hltpostvalidation_prod)
 
 validationHarvestingFS = cms.Path(HarvestingFastSim)
 
