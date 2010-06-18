@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWJetProxyBuilder.cc,v 1.12 2010/06/03 13:38:31 eulisse Exp $
+// $Id: FWJetProxyBuilder.cc,v 1.13 2010/06/07 17:54:00 amraktad Exp $
 //
 #include "TGeoArb8.h"
 #include "TEveGeoNode.h"
@@ -50,7 +50,7 @@ private:
 void
 FWJetProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*) 
 {
-   FW3DEveJet* cone = new FW3DEveJet(iData, "cone");
+   FW3DEveJet* cone = new FW3DEveJet(iData, "Cone");
    cone->SetPickable(kTRUE);
    setupAddElement(cone, &oItemHolder);
 
@@ -62,14 +62,7 @@ void
 FWJetProxyBuilder::localModelChanges(const FWModelId& iId, TEveElement* iCompound,
                                            FWViewType::EType viewType, const FWViewContext* vc)
 {
-  const FWDisplayProperties& dp = item()->modelInfo(iId.index()).displayProperties();
-
-  TEveElement* cone = iCompound->FindChild("cone");
-  if (cone)
-  {
-     Char_t cone_transp = TMath::Min(100, 80 + dp.transparency() / 5);
-     cone->SetMainTransparency(cone_transp);
-  }
+   increaseComponentTransparency(iId.index(), iCompound, "Cone", 80);
 }
 
 

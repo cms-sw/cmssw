@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Tue March 28 09:46:41 EST 2010
-// $Id: FWSimpleProxyBuilder.cc,v 1.7 2010/05/31 19:44:03 matevz Exp $
+// $Id: FWSimpleProxyBuilder.cc,v 1.8 2010/06/18 10:17:16 yana Exp $
 //
 
 // system include files
@@ -121,6 +121,21 @@ FWSimpleProxyBuilder::visibilityModelChanges(const FWModelId& iId, TEveElement* 
    return returnValue;
 }
 
+void
+FWSimpleProxyBuilder::increaseComponentTransparency(unsigned int index, TEveElement* holder,
+                                                    const std::string& name, Char_t transpOffset)
+{
+   // Helper function to increse transparency of certain components.
+
+   const FWDisplayProperties& dp = item()->modelInfo(index).displayProperties();
+   Char_t transp = TMath::Min(100, transpOffset + (100 - transpOffset) * dp.transparency() / 100);
+   TEveElement::List_t matches;
+   holder->FindChildren(matches, name.c_str());
+   for (TEveElement::List_i m = matches.begin(); m != matches.end(); ++m)
+   {
+      (*m)->SetMainTransparency(transp);
+   }
+}
 
 //
 // const member functions
