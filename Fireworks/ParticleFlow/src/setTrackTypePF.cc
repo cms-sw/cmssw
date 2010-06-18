@@ -3,10 +3,6 @@
 
 // system include files
 #include "TEveTrack.h"
-
-// user include files
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-
 #include "Fireworks/ParticleFlow/interface/setTrackTypePF.h"
 
 
