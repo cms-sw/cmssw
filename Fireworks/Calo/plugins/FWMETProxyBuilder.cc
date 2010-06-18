@@ -8,24 +8,21 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWMETProxyBuilder.cc,v 1.11 2010/05/03 15:47:35 amraktad Exp $
+// $Id: FWMETProxyBuilder.cc,v 1.12 2010/05/07 16:54:02 amraktad Exp $
 //
 
 // system include files
-#include "TEveCompound.h"
 #include "TEveGeoNode.h"
 #include "TEveScalableStraightLineSet.h"
 #include "TGeoTube.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
-#include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWViewType.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
 #include "Fireworks/Core/interface/Context.h"
 
 #include "DataFormats/METReco/interface/MET.h"
-#include "DataFormats/METReco/interface/METCollection.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -130,7 +127,6 @@ FWMETProxyBuilder::buildViewType(const reco::MET& met, unsigned int iIndex, TEve
 // 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 
 class FWMETGlimpseProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::MET>
 {

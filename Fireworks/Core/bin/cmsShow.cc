@@ -1,8 +1,5 @@
-#include "Rtypes.h"
-#include "TROOT.h"
 #include "TEnv.h"
 #include "TSystem.h" 
-#include "TGLSAViewer.h"
 #include "TEveManager.h"
 #include "TRint.h"
 #include "TApplication.h"

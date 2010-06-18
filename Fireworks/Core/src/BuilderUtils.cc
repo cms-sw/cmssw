@@ -2,20 +2,17 @@
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include <math.h>
-#include "TEveTrack.h"
-#include "TEveTrackPropagator.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "Fireworks/Core/interface/FWEventItem.h"
+#include "DataFormats/FWLite/interface/Event.h"
+
 #include "TGeoBBox.h"
 #include "TGeoArb8.h"
 #include "TColor.h"
 #include "TROOT.h"
 #include "TEveTrans.h"
-#include "TEveManager.h"
 #include "TEveGeoNode.h"
 #include <time.h>
-#include "DataFormats/FWLite/interface/Event.h"
 
 std::pair<double,double> fw::getPhiRange( const std::vector<double>& phis, double phi )
 {

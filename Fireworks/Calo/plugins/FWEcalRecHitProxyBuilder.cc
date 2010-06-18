@@ -12,9 +12,7 @@
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Calo/interface/CaloUtils.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "TEveCompound.h"
 
 class FWEcalRecHitProxyBuilder : public FWSimpleProxyBuilderTemplate<EcalRecHit>
 {

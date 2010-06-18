@@ -2,16 +2,17 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.88 2010/06/17 20:17:20 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.89 2010/06/17 20:43:23 amraktad Exp $
 //
 #define private public
+// FIXME: need access to private data members 
 #include "DataFormats/FWLite/interface/Event.h"
 #include "Fireworks/Core/src/CmsShowMain.h"
-#include "Fireworks/Core/interface/FWEventItem.h"
 #undef private
 
+#include "Fireworks/Core/interface/FWEventItem.h"
+
 // system include files
-#include <string>
 #include <boost/regex.hpp>
 #include "TROOT.h"
 #include "TTree.h"

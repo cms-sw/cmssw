@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     FWHLTValidator
-// $Id: FWHLTValidator.cc,v 1.4 2009/12/13 12:28:06 amraktad Exp $
+// $Id: FWHLTValidator.cc,v 1.5 2010/05/06 18:03:08 amraktad Exp $
 //
 
 // system include files
@@ -14,7 +14,6 @@
 #include "Fireworks/Core/interface/FWHLTValidator.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/fwLog.h"
-#include "CommonTools/Utils/src/returnType.h"
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"

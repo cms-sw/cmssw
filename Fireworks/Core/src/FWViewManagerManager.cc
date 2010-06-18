@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 10:27:12 EST 2008
-// $Id: FWViewManagerManager.cc,v 1.16 2009/12/06 22:21:18 amraktad Exp $
+// $Id: FWViewManagerManager.cc,v 1.17 2010/05/06 18:03:08 amraktad Exp $
 //
 
 // system include files
@@ -22,8 +22,6 @@
 #include "Fireworks/Core/interface/FWViewManagerBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/fwLog.h"
-
-#include "FWCore/PluginManager/interface/PluginCapabilities.h"
 #include "Fireworks/Core/interface/FWTypeToRepresentations.h"
 
 //

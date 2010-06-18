@@ -8,13 +8,11 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWL1MuonParticleProxyBuilder.cc,v 1.4 2010/04/21 15:38:20 yana Exp $
+// $Id: FWL1MuonParticleProxyBuilder.cc,v 1.5 2010/05/03 15:47:35 amraktad Exp $
 //
 
 // system include files
 #include "TEveScalableStraightLineSet.h"
-#include "TEveGeoNode.h"
-#include "TGeoTube.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"

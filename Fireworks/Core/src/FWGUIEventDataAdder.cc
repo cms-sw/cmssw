@@ -8,20 +8,18 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.46 2010/06/16 16:35:09 eulisse Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.47 2010/06/17 07:02:32 eulisse Exp $
 //
 
 // system include files
 #include <iostream>
 #include <sigc++/signal.h>
 #include <boost/bind.hpp>
-#include <boost/regex.hpp>
 #include <algorithm>
 #include <cctype>
 
 #include "TGFrame.h"
 #include "TGTextEntry.h"
-#include "TGLabel.h"
 #include "TGButton.h"
 #include "TGMsgBox.h"
 #include "TClass.h"
@@ -46,6 +44,7 @@
 
 //Had to hide this type from Cint
 #include "Fireworks/Core/interface/FWTypeToRepresentations.h"
+
 //
 // constants, enums and typedefs
 //

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 22 10:13:39 CST 2009
-// $Id: FWCollectionSummaryTableManager.cc,v 1.5 2010/06/07 21:08:10 chrjones Exp $
+// $Id: FWCollectionSummaryTableManager.cc,v 1.6 2010/06/07 21:59:03 chrjones Exp $
 //
 
 // system include files
@@ -20,8 +20,6 @@
 #include "Fireworks/Core/src/FWCollectionSummaryTableManager.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWItemValueGetter.h"
-#include "Fireworks/TableWidget/interface/FWTextTableCellRenderer.h"
-
 #include "Fireworks/Core/src/FWCollectionSummaryWidget.h"
 
 //

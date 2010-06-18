@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.45 2010/05/27 16:53:08 chrjones Exp $
+// $Id: FWEventItem.cc,v 1.46 2010/06/03 13:38:32 eulisse Exp $
 //
 
 // system include files
@@ -16,7 +16,6 @@
 #include <algorithm>
 #include <exception>
 #include <TClass.h>
-#include "TVirtualCollectionProxy.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWEventItem.h"

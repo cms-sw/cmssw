@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id: FWColorManager.cc,v 1.26 2010/06/16 14:04:40 matevz Exp $
+// $Id: FWColorManager.cc,v 1.27 2010/06/17 14:02:37 matevz Exp $
 //
 
 // system include files
@@ -17,7 +17,6 @@
 #include <boost/shared_ptr.hpp>
 #include "TColor.h"
 #include "TROOT.h"
-#include "TGLUtil.h"
 #include "TMath.h"
 #include "TEveUtil.h"
 #include "TGLViewer.h"

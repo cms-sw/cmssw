@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.57 2010/06/01 19:30:15 amraktad Exp $
+// $Id: FWDetailViewManager.cc,v 1.58 2010/06/02 22:39:21 chrjones Exp $
 //
 
 #include <stdio.h>
@@ -19,8 +19,6 @@
 #include "TGWindow.h"
 #include "TGFrame.h"
 #include "TEveWindow.h"
-#include "TEveManager.h"
-#include "TEveWindowManager.h"
 
 #include "Fireworks/Core/interface/FWDetailViewManager.h"
 #include "Fireworks/Core/interface/FWColorManager.h"

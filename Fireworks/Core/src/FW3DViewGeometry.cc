@@ -8,19 +8,15 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 22:06:57 CET 2010
-// $Id$
+// $Id: FW3DViewGeometry.cc,v 1.1 2010/04/06 20:00:35 amraktad Exp $
 //
 
 // system include files
 #include <sstream>
 
-
 // user include files
-#include "TGLRnrCtx.h"
-#include "TGLScenePad.h"
 
 #include "TEveManager.h"
-#include "TEveScene.h"
 #include "TEveGeoNode.h"
 
 #include "Fireworks/Core/interface/FW3DViewGeometry.h"
@@ -29,7 +25,6 @@
 
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include "DataFormats/Math/interface/deltaR.h"
 
 //
 // constants, enums and typedefs

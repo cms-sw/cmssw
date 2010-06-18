@@ -4,15 +4,10 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TEveGeoNode.h"
-#include "TEveTrans.h"
-#include "TColor.h"
-#include "TROOT.h"
 #include <iostream>
 #include <sstream>
 #include "TPRegexp.h"
 #include "TSystem.h"
-#include "TGeoArb8.h"
-#include "TEveVSDStructs.h"
 #include "TGeoCompositeShape.h"
 #include "TGeoBoolNode.h"
 

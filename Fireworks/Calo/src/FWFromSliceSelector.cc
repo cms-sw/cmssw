@@ -8,15 +8,13 @@
 //
 // Original Author:  
 //         Created:  Wed Jun  2 17:30:49 CEST 2010
-// $Id: FWFromSliceSelector.cc,v 1.2 2010/06/02 18:49:07 amraktad Exp $
+// $Id: FWFromSliceSelector.cc,v 1.3 2010/06/07 17:54:00 amraktad Exp $
 //
 
 // system include files
 
 // user include files
 #include "Fireworks/Calo/src/FWFromSliceSelector.h"
-#include "Fireworks/Core/interface/FWModelChangeManager.h"
-
 #include "Fireworks/Core/interface/FWEventItem.h"
 
 //

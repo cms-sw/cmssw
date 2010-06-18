@@ -8,33 +8,25 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWTableViewManager.cc,v 1.17 2010/05/06 18:57:44 chrjones Exp $
+// $Id: FWTableViewManager.cc,v 1.18 2010/05/27 08:45:00 eulisse Exp $
 //
 
 // system include files
 #include <iostream>
 #include <boost/bind.hpp>
 #include <algorithm>
-#include "TView.h"
-#include "TList.h"
+
 #include "TEveManager.h"
 #include "TClass.h"
 #include "Reflex/Base.h"
-#include "Reflex/Type.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWConfiguration.h"
 #include "Fireworks/Core/interface/FWTableViewManager.h"
-#include "Fireworks/Core/interface/FWTableView.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
 
-#include "TEveSelection.h"
-#include "Fireworks/Core/interface/FWSelectionManager.h"
-
-#include "Fireworks/Core/interface/FWEDProductRepresentationChecker.h"
-#include "Fireworks/Core/interface/FWSimpleRepresentationChecker.h"
 #include "Fireworks/Core/interface/FWTypeToRepresentations.h"
 #include "Fireworks/Core/interface/fwLog.h"
 

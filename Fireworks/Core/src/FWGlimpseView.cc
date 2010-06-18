@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.38 2010/04/06 20:00:36 amraktad Exp $
+// $Id: FWGlimpseView.cc,v 1.39 2010/04/16 13:44:07 amraktad Exp $
 //
 
 #include <boost/bind.hpp>
@@ -33,9 +33,7 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWGlimpseView.h"
-#include "Fireworks/Core/interface/FWConfiguration.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
-
 
 //
 // constants, enums and typedefs

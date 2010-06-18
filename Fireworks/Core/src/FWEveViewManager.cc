@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.27 2010/06/02 22:41:11 chrjones Exp $
+// $Id: FWEveViewManager.cc,v 1.28 2010/06/16 07:44:23 eulisse Exp $
 //
 
 // system include files
@@ -17,10 +17,8 @@
 #include "TEveSelection.h"
 #include "TEveManager.h"
 #include "TEveScene.h"
-#include "TEveCompound.h"
 #include "TEveCalo.h"
 #include "TGLViewer.h"
-#include "TSystem.h"
 
 // common
 #include "Fireworks/Core/interface/FWEveViewManager.h"
@@ -34,7 +32,6 @@
 #include "Fireworks/Core/interface/FWSimpleRepresentationChecker.h"
 #include "Fireworks/Core/interface/FWTypeToRepresentations.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWProxyBuilderFactory.h"
 
 // viewes

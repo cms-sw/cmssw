@@ -8,21 +8,16 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Tue March 28 09:46:41 EST 2010
-// $Id: FWSimpleProxyBuilder.cc,v 1.6 2010/05/03 15:47:38 amraktad Exp $
+// $Id: FWSimpleProxyBuilder.cc,v 1.7 2010/05/31 19:44:03 matevz Exp $
 //
 
 // system include files
 #include <memory>
-#include <boost/shared_ptr.hpp>
-#include <boost/mem_fn.hpp>
 
 // user include files
 #include "TEveCompound.h"
 #include "Fireworks/Core/interface/FWSimpleProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/FWInteractionList.h"
-
-
 
 //
 // constants, enums and typedefs

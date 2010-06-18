@@ -8,22 +8,17 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 13:42:13 CEST 2010
-// $Id: FWHFView.cc,v 1.5 2010/06/08 18:43:16 amraktad Exp $
+// $Id: FWHFView.cc,v 1.6 2010/06/09 18:53:04 amraktad Exp $
 //
 
 // system include files
-#include <boost/bind.hpp>
 
 // user include files
-#include "TAxis.h"
 #include "TEveCalo.h"
 #include "TEveCaloData.h"
-#include "TEveScene.h"
-//#include "TEveCaloLegoOverlay.h"
 #include "TEveTrans.h"
 
 #include "Fireworks/Core/interface/FWHFView.h"
-#include "Fireworks/Core/interface/FWEveLegoView.h"
 #include "Fireworks/Core/interface/Context.h"
 
 //

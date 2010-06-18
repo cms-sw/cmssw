@@ -11,21 +11,15 @@
     FWColorSelect to receive colour changes.
  */
 #include <boost/bind.hpp>
-#include "TGColorSelect.h"
+
 #include "TGLayout.h"
 #include "TGClient.h"
-#include "TGMsgBox.h"
 #include "TGGC.h"
-#include "TGColorSelect.h"
 #include "TGColorDialog.h"
-#include "TGResourcePool.h"
-#include "TG3DLine.h"
 #include "TColor.h"
-#include "Riostream.h"
 
 #include "Fireworks/Core/src/FWColorSelect.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
-#include "Fireworks/Core/interface/fwLog.h"
 
 //------------------------------Constants------------------------------//
 

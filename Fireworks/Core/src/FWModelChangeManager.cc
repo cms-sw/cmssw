@@ -8,12 +8,11 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan 17 19:13:46 EST 2008
-// $Id: FWModelChangeManager.cc,v 1.13 2010/05/27 08:39:34 eulisse Exp $
+// $Id: FWModelChangeManager.cc,v 1.14 2010/05/28 09:58:05 amraktad Exp $
 //
 
 // system include files
 #include <boost/shared_ptr.hpp>
-#include <boost/mem_fn.hpp>
 #include <exception>
 
 // user include files

@@ -9,34 +9,26 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.93 2010/05/10 11:52:17 matevz Exp $
+// $Id: CmsShowMainFrame.cc,v 1.94 2010/06/08 18:30:46 matevz Exp $
 //
 // hacks
 #include "DataFormats/FWLite/interface/Event.h"
 
 // system include files
-#include <sigc++/sigc++.h>
 #include <TCollection.h>
 #include <TApplication.h>
 #include <TGClient.h>
-#include <TGResourcePool.h>
-#include <TGFrame.h>
-#include <TGSplitter.h>
 #include <TGSplitFrame.h>
 #include <TGLayout.h>
-#include <TCanvas.h>
 #include <TGButton.h>
 #include <TGMenu.h>
 #include <TGLabel.h>
 #include <TGTab.h>
 #include <TGStatusBar.h>
 #include <TGNumberEntry.h>
-#include <TTimer.h>
 #include <KeySymbols.h>
 #include <TGTextEntry.h>
-#include <TG3DLine.h>
 #include <TGSlider.h>
-#include <TGMsgBox.h>
 
 #include <TSystem.h>
 #include <TImage.h>

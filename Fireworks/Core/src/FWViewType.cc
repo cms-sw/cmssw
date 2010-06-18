@@ -8,13 +8,12 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Mar 26 12:25:02 CET 2010
-// $Id: FWViewType.cc,v 1.10 2010/05/31 13:01:25 amraktad Exp $
+// $Id: FWViewType.cc,v 1.11 2010/05/31 15:36:45 amraktad Exp $
 //
 
 // system include files
 
 // user include files
-#include "TMath.h"
 #include "Fireworks/Core/interface/FWViewType.h"
 
 

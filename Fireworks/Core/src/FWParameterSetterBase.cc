@@ -8,13 +8,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:16:20 EST 2008
-// $Id: FWParameterSetterBase.cc,v 1.10 2010/03/16 14:51:33 amraktad Exp $
+// $Id: FWParameterSetterBase.cc,v 1.11 2010/05/06 18:03:08 amraktad Exp $
 //
 
 // system include files
 #include "Reflex/Type.h"
 #include "Reflex/Object.h"
-#include "TGedFrame.h"
 
 #include <assert.h>
 #include <iostream>

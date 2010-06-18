@@ -8,14 +8,13 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 10:56:17 EST 2008
-// $Id: FWViewManagerBase.cc,v 1.13 2009/04/07 21:33:29 chrjones Exp $
+// $Id: FWViewManagerBase.cc,v 1.14 2010/04/08 19:45:25 amraktad Exp $
 //
 
 // system include files
 #include "TClass.h"
 #include "TROOT.h"
 #include <assert.h>
-#include <string>
 #include <iostream>
 #include <boost/bind.hpp>
 

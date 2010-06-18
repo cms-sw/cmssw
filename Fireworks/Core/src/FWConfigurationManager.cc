@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 24 14:42:32 EST 2008
-// $Id: FWConfigurationManager.cc,v 1.13 2010/05/06 14:28:16 amraktad Exp $
+// $Id: FWConfigurationManager.cc,v 1.14 2010/05/18 14:40:28 eulisse Exp $
 //
 
 // system include files
@@ -17,7 +17,6 @@
 #include <memory>
 #include <stdexcept>
 #include "TROOT.h"
-#include "TInterpreter.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWConfigurationManager.h"

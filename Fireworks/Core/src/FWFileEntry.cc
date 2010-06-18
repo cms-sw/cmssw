@@ -1,9 +1,7 @@
-#include <string>
 #include <boost/regex.hpp>
 
 #include "TFile.h"
 #include "TError.h"
-#include "TTree.h"
 #include "TMath.h"
 
 #include "Fireworks/Core/interface/FWFileEntry.h"
@@ -11,12 +9,12 @@
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 
-
 #define private public
 #include "Fireworks/Core/interface/FWEventItem.h"
+#undef private
+
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/fwLog.h"
-#undef private
 
 FWFileEntry::FWFileEntry(const std::string& name) :
    m_name(name), m_file(0), m_eventTree(0), m_event(0),

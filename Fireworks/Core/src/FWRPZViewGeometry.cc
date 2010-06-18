@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 20:33:06 CET 2010
-// $Id: FWRPZViewGeometry.cc,v 1.1 2010/04/06 20:00:36 amraktad Exp $
+// $Id: FWRPZViewGeometry.cc,v 1.2 2010/05/06 18:03:08 amraktad Exp $
 //
 
 // system include files
@@ -18,8 +18,6 @@
 // user include files
 
 #include "TClass.h"
-#include "TEveProjectionManager.h"
-#include "TEveManager.h"
 #include "TGeoManager.h"
 #include "TGeoBBox.h"
 

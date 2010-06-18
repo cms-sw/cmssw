@@ -8,13 +8,11 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 22 13:26:04 CDT 2009
-// $Id: FWModelContextMenuHandler.cc,v 1.14 2010/06/15 17:28:29 matevz Exp $
+// $Id: FWModelContextMenuHandler.cc,v 1.15 2010/06/16 14:04:40 matevz Exp $
 //
 
 // system include files
 #include <cassert>
-#include "TColor.h"
-#include "TGColorDialog.h"
 #include "TGMenu.h"
 #include "KeySymbols.h"
 

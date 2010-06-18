@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 17 12:10:42 CDT 2009
-// $Id$
+// $Id: FWCompactVerticalLayout.cc,v 1.1 2009/03/18 15:36:41 chrjones Exp $
 //
 
 // system include files
@@ -18,7 +18,6 @@
 
 // user include files
 #include "Fireworks/Core/src/FWCompactVerticalLayout.h"
-
 
 //
 // constants, enums and typedefs

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DViewBase.cc,v 1.4 2010/04/16 13:44:07 amraktad Exp $
+// $Id: FW3DViewBase.cc,v 1.5 2010/05/03 15:47:38 amraktad Exp $
 //
 #include <boost/bind.hpp>
 
@@ -17,20 +17,12 @@
 #include "TGLScenePad.h"
 #include "TGLViewer.h"
 #include "TGLPerspectiveCamera.h"
-
-#include "TEveManager.h"
 #include "TEveElement.h"
 #include "TEveScene.h"
-#include "TEveViewer.h"
-#include "TEveGeoNode.h"
 
 #include "Fireworks/Core/interface/FW3DViewBase.h"
-#include "Fireworks/Core/interface/FWEveValueScaler.h"
-#include "Fireworks/Core/interface/FWConfiguration.h"
 #include "Fireworks/Core/interface/FW3DViewGeometry.h"
-#include "Fireworks/Core/interface/TEveElementIter.h"
 #include "Fireworks/Core/interface/Context.h"
-
 
 //
 // constants, enums and typedefs

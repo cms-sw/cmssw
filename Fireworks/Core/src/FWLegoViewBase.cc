@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWLegoViewBase.cc,v 1.2 2010/06/07 17:54:01 amraktad Exp $
+// $Id: FWLegoViewBase.cc,v 1.3 2010/06/08 18:43:16 amraktad Exp $
 //
 
 // system include files
@@ -19,12 +19,8 @@
 #include "TGLViewer.h"
 #include "TGLPerspectiveCamera.h"
 #include "TGLOrthoCamera.h"
-#include "TGLWidget.h"
-
 #include "TEveElement.h"
-#include "TEveManager.h"
 #include "TEveScene.h"
-#include "TEveViewer.h"
 #include "TEveCalo.h"
 #include "TEveTrans.h"
 #include "TEveCaloLegoOverlay.h"
@@ -32,10 +28,7 @@
 // user include files
 #include "Fireworks/Core/interface/FWGLEventHandler.h"
 #include "Fireworks/Core/interface/FWConfiguration.h"
-#include "Fireworks/Core/interface/BuilderUtils.h"
 #include "Fireworks/Core/interface/FWLegoViewBase.h"
-#include "Fireworks/Core/interface/FWColorManager.h"
-#include "Fireworks/Core/interface/Context.h"
 
 
 //

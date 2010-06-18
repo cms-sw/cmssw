@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 10:19:07 EST 2008
-// $Id: unittest_eventitemsmanager.cc,v 1.4 2010/04/29 17:52:30 amraktad Exp $
+// $Id: unittest_eventitemsmanager.cc,v 1.5 2010/06/02 19:05:09 matevz Exp $
 //
 
 // system include files
@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE( eventitemmanager )
    FWPhysicsObjectDesc tracks("Tracks",
                               cls,
                               "Tracks",
-                              FWDisplayProperties(colm.indexToColor(1), true, 100),
+                              FWDisplayProperties(1, true, 100),
                               "label",
                               "instance",
                               "proc");
@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE( eventitemmanager )
    BOOST_REQUIRE(listener.nMessages_==0);
    BOOST_REQUIRE(eim.begin()==eim.end());
 
-   Color_t color1 = colm.indexToColor(0);
+   Color_t color1 = 0;
    eim.add(tracks);
    BOOST_CHECK(listener.nMessages_==1);
    BOOST_CHECK(eim.end()-eim.begin() == 1);

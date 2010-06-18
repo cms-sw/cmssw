@@ -1,13 +1,9 @@
 #include "TLatex.h"
 #include "TEveCalo.h"
-#include "TEveStraightLineSet.h"
-#include "TEvePointSet.h"
 #include "TEveScene.h"
-#include "TEveViewer.h"
 #include "TGLViewer.h"
 #include "TCanvas.h"
 #include "TEveCaloLegoOverlay.h"
-#include "TRootEmbeddedCanvas.h"
 #include "TEveLegoEventHandler.h"
 
 #include "DataFormats/CaloTowers/interface/CaloTower.h"

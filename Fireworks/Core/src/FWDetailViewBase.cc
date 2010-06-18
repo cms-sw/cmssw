@@ -8,22 +8,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan  9 13:35:56 EST 2009
-// $Id: FWDetailViewBase.cc,v 1.21 2010/01/21 21:01:33 amraktad Exp $
+// $Id: FWDetailViewBase.cc,v 1.22 2010/06/01 19:02:08 amraktad Exp $
 //
 
 // system include files
-#include "TGPack.h"
-#include "TCanvas.h"
 #include "TBox.h"
 #include "TEllipse.h"
-
-#include "TRootEmbeddedCanvas.h"
-#include "TGLEmbeddedViewer.h"
-#include "TGLViewer.h"
 #include "TEveViewer.h"
-#include "TEveManager.h"
-#include "TEveScene.h"
-#include "RVersion.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWDetailViewBase.h"

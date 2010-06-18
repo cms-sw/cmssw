@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCaloTauProxyBuilder.cc,v 1.9 2010/04/22 13:05:49 yana Exp $
+// $Id: FWCaloTauProxyBuilder.cc,v 1.10 2010/05/03 15:47:33 amraktad Exp $
 //
 
 // system include files
@@ -29,7 +29,6 @@
 #include "Fireworks/Calo/interface/thetaBins.h"
 #include "Fireworks/Tracks/interface/TrackUtils.h"
 
-#include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TauReco/interface/CaloTau.h"
 #include "DataFormats/TauReco/interface/CaloTauFwd.h"

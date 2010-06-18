@@ -8,18 +8,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 14 10:02:32 CST 2009
-// $Id: FWCollectionSummaryWidget.cc,v 1.22 2010/05/31 09:44:45 eulisse Exp $
+// $Id: FWCollectionSummaryWidget.cc,v 1.23 2010/06/16 14:04:39 matevz Exp $
 //
 
 // system include files
 #include <iostream>
 #include <vector>
 #include <boost/bind.hpp>
-#include "TSystem.h"
-#include "TColor.h"
-#include "TGColorDialog.h"
-#include "TGButton.h"
-//#include "TGLabel.h"
 #include "TGButton.h"
 #include "TGResourcePool.h"
 #include "Fireworks/Core/src/FWColorSelect.h"
@@ -38,7 +33,6 @@
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
-#include "Fireworks/Core/src/FWCheckBoxIcon.h"
 
 //
 // constants, enums and typedefs

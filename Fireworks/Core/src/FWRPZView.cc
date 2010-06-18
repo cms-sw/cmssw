@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.14 2010/05/10 19:36:47 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.15 2010/05/12 13:31:10 amraktad Exp $
 //
 
 // system include files
@@ -16,31 +16,19 @@
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include "TClass.h"
 #include "TGLViewer.h"
 #include "TGLScenePad.h"
-
 #include "TEveManager.h"
 #include "TEveElement.h"
 #include "TEveScene.h"
-#include "TEveViewer.h"
-
 #include "TEveProjections.h"
 #include "TEveProjectionManager.h"
-#include "TEveProjectionBases.h"
-#include "TEvePolygonSetProjected.h"
-#include "TEveProjections.h"
 #include "TEveProjectionAxes.h"
-#include "TEveScalableStraightLineSet.h"
-
 #include "TEveCalo.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWRPZView.h"
-#include "Fireworks/Core/interface/FWConfiguration.h"
-#include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/FWRPZViewGeometry.h"
-#include "Fireworks/Core/interface/TEveElementIter.h"
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWViewContext.h"
 

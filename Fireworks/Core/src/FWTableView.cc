@@ -8,49 +8,23 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWTableView.cc,v 1.24 2010/06/10 09:57:36 matevz Exp $
+// $Id: FWTableView.cc,v 1.25 2010/06/15 16:41:31 eulisse Exp $
 //
 
 // system include files
 #include <stdlib.h>
 #include <algorithm>
-#include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/numeric/conversion/converter.hpp>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
 
-#include "TRootEmbeddedCanvas.h"
-#include "THStack.h"
-#include "TCanvas.h"
 #include "TClass.h"
-#include "TH2F.h"
-#include "TView.h"
-#include "TColor.h"
-#include "TEveScene.h"
-#include "TGLViewer.h"
 #include "TSystem.h"
 #include "TGComboBox.h"
 #include "TGLabel.h"
-#include "TGTextView.h"
 #include "TGTextEntry.h"
-#include "TEveViewer.h"
-#include "TEveManager.h"
 #include "TEveWindow.h"
-#include "TEveElement.h"
-#include "TEveCalo.h"
-#include "TEveElement.h"
-#include "TEveLegoEventHandler.h"
-#include "TGLWidget.h"
-#include "TGLScenePad.h"
-#include "TGLFontManager.h"
-#include "TEveTrans.h"
-#include "TGeoTube.h"
-#include "TEveGeoNode.h"
-#include "TEveStraightLineSet.h"
-#include "TEveText.h"
-#include "TGeoArb8.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWColorManager.h"
@@ -60,10 +34,7 @@
 #include "Fireworks/Core/interface/FWTableView.h"
 #include "Fireworks/Core/interface/FWTableViewManager.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/FWEveValueScaler.h"
 #include "Fireworks/Core/interface/FWConfiguration.h"
-#include "Fireworks/Core/interface/BuilderUtils.h"
-#include "Fireworks/Core/interface/FWExpressionEvaluator.h"
 #include "Fireworks/Core/interface/FWTableViewTableManager.h"
 #include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/src/FWGUIValidatingTextEntry.h"

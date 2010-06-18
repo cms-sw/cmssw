@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.206 2010/06/14 18:12:03 matevz Exp $
+// $Id: FWGUIManager.cc,v 1.207 2010/06/15 16:28:17 matevz Exp $
 
 //
 
@@ -19,53 +19,36 @@
 #include <iostream>
 #include <cstdio>
 #include <sstream>
-#include <memory>
 
 #include "TGButton.h"
 #include "TGLabel.h"
-#include "TGComboBox.h"
 #include "TGTextEntry.h"
 #include "TGNumberEntry.h"
-#include "TApplication.h"
-#include "TROOT.h"
 #include "TSystem.h"
 #include "TGSplitFrame.h"
-#include "TGTab.h"
-#include "TG3DLine.h"
-#include "TGListTree.h"
 #include "TGLViewer.h"
 #include "TEveBrowser.h"
-#include "TBrowser.h"
-#include "TGMenu.h"
 #include "TEveManager.h"
 #include "TGPack.h"
 #include "TEveWindow.h"
 #include "TEveViewer.h"
 #include "TEveWindowManager.h"
 #include "TEveSelection.h"
-#include "TGFileDialog.h"
-#include "TGSlider.h"
-#include "TColor.h"
 #include "TVirtualX.h"
 #include "TFile.h"
 
 // user include files
-#include "DataFormats/FWLite/interface/Event.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/FWGUISubviewArea.h"
 
 #include "Fireworks/Core/interface/FWSelectionManager.h"
-#include "Fireworks/Core/interface/FWModelExpressionSelector.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWSummaryManager.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/FWDetailViewManager.h"
 #include "Fireworks/Core/interface/FWViewBase.h"
 #include "Fireworks/Core/interface/FWViewType.h"
-#include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
-
-#include "Fireworks/Core/interface/FWEventItem.h"
 
 #include "Fireworks/Core/interface/FWConfiguration.h"
 
@@ -93,9 +76,8 @@
 
 #include "Fireworks/Core/src/FWModelContextMenuHandler.h"
 
-#include "Fireworks/Core/interface/CmsShowNavigator.h"
-#include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/fwLog.h"
+
 //
 // constants, enums and typedefs
 //

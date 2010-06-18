@@ -1,17 +1,18 @@
-// $Id: FWTableViewTableManager.cc,v 1.15 2010/05/06 18:03:08 amraktad Exp $
+// $Id: FWTableViewTableManager.cc,v 1.16 2010/05/27 16:50:03 chrjones Exp $
 
 #include <math.h>
 #include <sstream>
+
 #include "TClass.h"
 #include "TGClient.h"
+
 #include "Fireworks/Core/interface/FWTableViewTableManager.h"
-#include "Fireworks/Core/interface/FWTableViewManager.h"
 #include "Fireworks/Core/interface/FWTableView.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/fwLog.h"
+
 #include "Fireworks/TableWidget/interface/FWTableWidget.h"
-#include "Fireworks/TableWidget/interface/FWTextTableCellRenderer.h"
 #include "Fireworks/TableWidget/interface/FWFramedTextTableCellRenderer.h"
 
 FWTableViewTableManager::FWTableViewTableManager (const FWTableView *view)

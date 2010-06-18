@@ -8,33 +8,22 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWL1TriggerTableViewManager.cc,v 1.2 2010/03/30 05:47:11 yana Exp $
+// $Id: FWL1TriggerTableViewManager.cc,v 1.3 2010/05/06 18:03:08 amraktad Exp $
 //
 
 // system include files
 #include <iostream>
 #include <boost/bind.hpp>
 #include <algorithm>
-#include "TView.h"
-#include "TList.h"
+
 #include "TEveManager.h"
-#include "TClass.h"
-#include "Reflex/Base.h"
-#include "Reflex/Type.h"
 
 // user include files
-#include "Fireworks/Core/interface/FWConfiguration.h"
 #include "Fireworks/Core/interface/FWL1TriggerTableViewManager.h"
 #include "Fireworks/Core/interface/FWL1TriggerTableView.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
-
-#include "TEveSelection.h"
-#include "Fireworks/Core/interface/FWSelectionManager.h"
-
-#include "Fireworks/Core/interface/FWEDProductRepresentationChecker.h"
-#include "Fireworks/Core/interface/FWSimpleRepresentationChecker.h"
 #include "Fireworks/Core/interface/FWTypeToRepresentations.h"
 
 

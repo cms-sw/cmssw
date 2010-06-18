@@ -8,22 +8,18 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.165 2010/06/16 11:41:13 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.166 2010/06/16 14:04:38 matevz Exp $
 //
 
 // system include files
 #include <sstream>
-#include <sigc++/sigc++.h>
 #include <boost/bind.hpp>
 #include <boost/program_options.hpp>
 #include <string.h>
 
 #include "TSystem.h"
-#include "TClass.h"
 #include "TGLWidget.h"
 #include "TTimer.h"
-#include "TStopwatch.h"
-#include "TFile.h"
 #include "TROOT.h"
 #include "TGFileDialog.h"
 #include "TGMsgBox.h"
@@ -47,8 +43,6 @@
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/src/FWColorSelect.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
-#include "Fireworks/Core/interface/FWModelExpressionSelector.h"
-#include "Fireworks/Core/interface/FWPhysicsObjectDesc.h"
 #include "Fireworks/Core/interface/FWConfigurationManager.h"
 #include "Fireworks/Core/interface/FWMagField.h"
 #include "Fireworks/Core/interface/Context.h"
@@ -68,7 +62,6 @@
 #include "Fireworks/Core/interface/fwLog.h"
 
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
-#include "DataFormats/FWLite/interface/Event.h"
 
 //
 // constants, enums and typedefs

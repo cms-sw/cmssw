@@ -8,27 +8,22 @@
 //
 // Original Author:
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.34 2010/06/16 07:28:54 eulisse Exp $
+// $Id: FWEventItemsManager.cc,v 1.35 2010/06/16 14:04:40 matevz Exp $
 //
 
 // system include files
 #include <sstream>
 #include <boost/bind.hpp>
 #include "TClass.h"
-#include "TEveManager.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
-
 #include "Fireworks/Core/interface/FWConfiguration.h"
-
 #include "Fireworks/Core/interface/FWDisplayProperties.h"
-
 #include "Fireworks/Core/interface/FWItemAccessorFactory.h"
-#include "Fireworks/Core/interface/fwLog.h"
 
 //
 // constants, enums and typedefs

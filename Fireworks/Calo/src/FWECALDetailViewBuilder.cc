@@ -4,40 +4,23 @@
 
 #include "TEveCaloData.h"
 #include "TEveViewer.h"
-#include "TEveScene.h"
-#include "TEveManager.h"
 #include "TEveCalo.h"
-#include "TColor.h"
 #include "TAxis.h"
-#include "TGLViewer.h"
 #include "THLimitsFinder.h"
-#include "TEveCaloLegoOverlay.h"
 #include "TLatex.h"
-#include "TBox.h"
 
-#include "Fireworks/Core/interface/FWModelId.h"
-#include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWDetailViewBase.h"
 #include "Fireworks/Calo/interface/FWECALDetailViewBuilder.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Core/interface/fw3dlego_xbins.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/FWLite/interface/Event.h"
-
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
-#include <utility>
-
-
 #include "TGeoMatrix.h"
 #include "TEveTrans.h"
-#include "TEveStraightLineSet.h"
 
 #include <utility>
 

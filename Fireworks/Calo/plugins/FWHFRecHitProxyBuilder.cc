@@ -5,7 +5,6 @@
 #include "DataFormats/HcalRecHit/interface/HFRecHit.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "TEveCompound.h"
-#include "TEveManager.h"
 
 class FWHFRecHitProxyBuilder : public FWProxyBuilderBase
 {
