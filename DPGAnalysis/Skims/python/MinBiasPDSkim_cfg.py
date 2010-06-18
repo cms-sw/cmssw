@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.31 $'),
+    version = cms.untracked.string('$Revision: 1.32 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/MinBiasPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Combined MinBias skim')
 )
@@ -289,8 +289,14 @@ process.outputpfgskim3 = cms.OutputModule("PoolOutputModule",
 
 #################################logerrorharvester############################################
 process.load("FWCore.Modules.logErrorFilter_cfi")
+from Configuration.StandardSequences.RawToDigi_cff import gtEvmDigis
+process.gtEvmDigis = gtEvmDigis.clone()
+process.stableBeam = cms.EDFilter("HLTBeamModeFilter",
+                                  L1GtEvmReadoutRecordTag = cms.InputTag("gtEvmDigis"),
+                                  AllowedBeamMode = cms.vuint32(11)
+                                  )
 
-process.logerrorpath=cms.Path(process.logErrorFilter)
+process.logerrorpath=cms.Path(process.gtEvmDigis+process.stableBeam+process.logErrorFilter)
 
 process.outlogerr = cms.OutputModule("PoolOutputModule",
                                outputCommands =  process.FEVTEventContent.outputCommands,
