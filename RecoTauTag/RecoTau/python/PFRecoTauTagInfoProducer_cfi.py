@@ -16,7 +16,7 @@ pfRecoTauTagInfoProducer = cms.EDProducer("PFRecoTauTagInfoProducer",
     PVProducer                    = cms.InputTag('offlinePrimaryVertices'),
     UsePVconstraint               = cms.bool(True),
     PFCandidateProducer           = cms.InputTag('particleFlow'),
-    PFJetTracksAssociatorProducer = cms.InputTag('ic5PFJetTracksAssociatorAtVertex'),
+    PFJetTracksAssociatorProducer = cms.InputTag('ak5PFJetTracksAssociatorAtVertex'),
 
     # Quality cuts for tracks (non-PF, from JetTracksAssociator)
     tkminTrackerHitsn = cms.int32(3),
