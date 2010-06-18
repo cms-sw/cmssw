@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/06/15 14:49:30 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/06/16 17:13:22 $
+ *  $Revision: 1.2 $
  *  \author L. Uplegger F. Yumiceva - Fermilab
  */
 
@@ -21,18 +21,20 @@
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
+#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
+#include "CondCore/Utilities/interface/Utilities.h"
 
 #include <iostream> 
 
+using namespace edm;
+using namespace reco;
+
 //--------------------------------------------------------------------------------------------------
-AlcaBeamSpotHarvester::AlcaBeamSpotHarvester(const edm::ParameterSet& iConfig){  
-  beamSpotOutputBase_ = iConfig.getParameter<edm::ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("BeamSpotOutputBase");
-  edm::LogInfo("AlcaBeamSpotHarvester")
-      << "Output base: " << beamSpotOutputBase_ 
-      << std::endl;
+AlcaBeamSpotHarvester::AlcaBeamSpotHarvester(const edm::ParameterSet& iConfig) :
+  theAlcaBeamSpotManager_(iConfig)
+{  
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -51,70 +53,63 @@ void AlcaBeamSpotHarvester::analyze(const edm::Event&, const edm::EventSetup&) {
 void AlcaBeamSpotHarvester::beginRun(const edm::Run&, const edm::EventSetup&) {}
 
 //--------------------------------------------------------------------------------------------------
-void AlcaBeamSpotHarvester::endRun(const edm::Run&, const edm::EventSetup&) {}
+void AlcaBeamSpotHarvester::endRun(const edm::Run&, const edm::EventSetup&){
+  theAlcaBeamSpotManager_.createWeightedPayloads();
+  std::map<edm::LuminosityBlockNumber_t,reco::BeamSpot> beamSpotMap = theAlcaBeamSpotManager_.getPayloads();
+  Service<cond::service::PoolDBOutputService> poolDbService;
+  cond::Utilities utilities("beamspot_iov_exporter");
+  if(poolDbService.isAvailable() ) {
+    for(AlcaBeamSpotManager::bsMap_iterator it=beamSpotMap.begin(); it!=beamSpotMap.end();it++){
+      BeamSpotObjects *aBeamSpot = new BeamSpotObjects();
+      aBeamSpot->SetType(it->second.type());
+      aBeamSpot->SetPosition(it->second.x0(),it->second.y0(),it->second.z0());
+      aBeamSpot->SetSigmaZ(it->second.sigmaZ());
+      aBeamSpot->Setdxdz(it->second.dxdz());
+      aBeamSpot->Setdydz(it->second.dydz());
+      aBeamSpot->SetBeamWidthX(it->second.BeamWidthX());
+      aBeamSpot->SetBeamWidthY(it->second.BeamWidthY());
+      aBeamSpot->SetEmittanceX(it->second.emittanceX());
+      aBeamSpot->SetEmittanceY(it->second.emittanceY());
+      aBeamSpot->SetBetaStar(it->second.betaStar() );
+	
+      for (int i=0; i<7; ++i) {
+	for (int j=0; j<7; ++j) {
+	  aBeamSpot->SetCovariance(i,j,it->second.covariance(i,j));
+	}
+      }
+      if (poolDbService->isNewTagRequest( "BeamSpotObjectsRcd" ) ) {
+          edm::LogInfo("AlcaBeamSpotSpotHarvester")
+              << "new tag requested" << std::endl;
+          poolDbService->createNewIOV<BeamSpotObjects>(aBeamSpot, poolDbService->beginOfTime(),poolDbService->endOfTime(),"BeamSpotObjectsRcd");
+      } 
+      else {
+        edm::LogInfo("AlcaBeamSpotSpotHarvester")
+            << "no new tag requested" << std::endl;
+        poolDbService->appendSinceTime<BeamSpotObjects>(aBeamSpot, poolDbService->currentTime(),"BeamSpotObjectsRcd");
+      }
+      int         argc = 15;
+      const char* argv[] = {"endRun"
+                           ,"-d","sqlite_file:combined.db"
+                           ,"-s","sqlite_file:testbs2.db"
+                           ,"-l","sqlite_file:log.db"
+			   ,"-i","TestLSBasedBS"
+			   ,"-t","TestLSBasedBS"
+			   ,"-b","5"
+			   ,"-e","10"
+			   };
+       
+      utilities.run(argc,(char**)argv);
+
+    }
+  }
+}
 
 //--------------------------------------------------------------------------------------------------
 void AlcaBeamSpotHarvester::beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) {}
 
 //--------------------------------------------------------------------------------------------------
-void AlcaBeamSpotHarvester::endLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup&) {
-  using namespace edm;
-  using namespace reco;
-  
-  Handle<reco::BeamSpot> bsHandle;
-  lumi.getByLabel("alcaBeamSpotProducer","alcaBeamSpot", bsHandle);
-
-  const BeamSpot *bs =  0;
-  if(bsHandle.isValid()) { // check the product
-      bs = bsHandle.product();
-      edm::LogInfo("AlcaBeamSpotHarvester")
-          << "Lumi: " << lumi.luminosityBlock() << std::endl;
-      edm::LogInfo("AlcaBeamSpotHarvester")
-          << *bs << std::endl;
-
-      // create the DB object
-      BeamSpotObjects *abeam = new BeamSpotObjects();
-      abeam->SetType(bs->type());
-      abeam->SetPosition(bs->x0(),bs->y0(),bs->z0());
-      abeam->SetSigmaZ(bs->sigmaZ());
-      abeam->Setdxdz(bs->dxdz());
-      abeam->Setdydz(bs->dydz());
-      abeam->SetBeamWidthX(bs->BeamWidthX());
-      abeam->SetBeamWidthY(bs->BeamWidthY());
-      abeam->SetEmittanceX(bs->emittanceX());
-      abeam->SetEmittanceY(bs->emittanceY());
-      abeam->SetBetaStar(bs->betaStar() );
-	
-      for (int i=0; i<7; ++i) {
-	for (int j=0; j<7; ++j) {
-	  abeam->SetCovariance(i,j,bs->covariance(i,j));
-	}
-      }
-
-      Service<cond::service::PoolDBOutputService> poolDbService;
-      if(poolDbService.isAvailable() ) {
-	if (poolDbService->isNewTagRequest( "BeamSpotObjectsRcd" ) ) {
-            edm::LogInfo("AlcaBeamSpotHarvester")
-	        << "new tag requested" << std::endl;
-	    poolDbService->createNewIOV<BeamSpotObjects>(abeam, poolDbService->beginOfTime(),poolDbService->endOfTime(),
-								  "BeamSpotObjectsRcd"  );
-	} 
-	else {
-          edm::LogInfo("AlcaBeamSpotHarvester")
-	      << "no new tag requested" << std::endl;
-	  poolDbService->appendSinceTime<BeamSpotObjects>( abeam, poolDbService->currentTime(),
-							   "BeamSpotObjectsRcd" );
-	}
-	
-      }
-
-  } 
-  else {
-    edm::LogInfo("AlcaBeamSpotHarvester")
-        << "Lumi: " << lumi.luminosityBlock() << std::endl;
-    edm::LogInfo("AlcaBeamSpotHarvester")
-        << "   BS is not valid!" << std::endl;
-  }
+void AlcaBeamSpotHarvester::endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup&) {
+  theAlcaBeamSpotManager_.readLumi(iLumi);
 }
 
 
