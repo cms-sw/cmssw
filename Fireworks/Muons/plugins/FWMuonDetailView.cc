@@ -3,10 +3,8 @@
 //
 // Package:     Calo
 // Class  :     FWMuonDetailView
-// $Id: FWMuonDetailView.cc,v 1.24 2010/05/12 17:05:14 amraktad Exp $
+// $Id: FWMuonDetailView.cc,v 1.25 2010/06/10 14:43:27 matevz Exp $
 //
-
-#include "TEveLegoEventHandler.h"
 
 // ROOT includes
 #include "TLatex.h"
@@ -26,6 +24,7 @@
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
+#include "Fireworks/Core/interface/FWGLEventHandler.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 //
@@ -85,8 +84,8 @@ void FWMuonDetailView::build(const FWModelId &id, const reco::Muon* iMuon)
 
    // set event handler and flip camera to top view at beginning
    viewerGL()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
-   TEveLegoEventHandler* eh =
-      new TEveLegoEventHandler((TGWindow*)viewerGL()->GetGLWidget(), (TObject*)viewerGL(), lego);
+   FWGLEventHandler* eh =
+      new FWGLEventHandler((TGWindow*)viewerGL()->GetGLWidget(), (TObject*)viewerGL(), lego);
    viewerGL()->SetEventHandler(eh);
 
    viewerGL()->ResetCamerasAfterNextUpdate();

@@ -4,7 +4,6 @@
 #include "TGLViewer.h"
 #include "TCanvas.h"
 #include "TEveCaloLegoOverlay.h"
-#include "TEveLegoEventHandler.h"
 
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 
@@ -12,6 +11,7 @@
 #include "Fireworks/Calo/interface/FWECALDetailViewBuilder.h"
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/FWGLEventHandler.h"
 
 //
 // constructors and destructor
@@ -52,8 +52,8 @@ void FWCaloTowerDetailView::build(const FWModelId &id, const CaloTower* iTower)
 
    // set event handler and flip camera to top view at beginning
    viewerGL()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
-   TEveLegoEventHandler* eh =
-      new TEveLegoEventHandler((TGWindow*)viewerGL()->GetGLWidget(), (TObject*)viewerGL(), lego);
+   FWGLEventHandler* eh =
+      new FWGLEventHandler((TGWindow*)viewerGL()->GetGLWidget(), (TObject*)viewerGL(), lego);
    viewerGL()->SetEventHandler(eh);
    viewerGL()->UpdateScene();
    viewerGL()->CurrentCamera().Reset();

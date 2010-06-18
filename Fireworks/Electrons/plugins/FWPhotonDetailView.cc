@@ -1,7 +1,7 @@
 //
 // Package:     Electrons
 // Class  :     FWPhotonDetailView
-// $Id: FWPhotonDetailView.cc,v 1.26 2010/05/12 17:05:14 amraktad Exp $
+// $Id: FWPhotonDetailView.cc,v 1.27 2010/06/18 12:42:18 yana Exp $
 
 #include "TLatex.h"
 #include "TEveCalo.h"
@@ -11,7 +11,6 @@
 #include "TGLViewer.h"
 #include "TCanvas.h"
 #include "TEveCaloLegoOverlay.h"
-#include "TEveLegoEventHandler.h"
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -20,6 +19,7 @@
 #include "Fireworks/Calo/interface/FWECALDetailViewBuilder.h"
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/FWGLEventHandler.h"
 
 //
 // constructors and destructor
@@ -71,8 +71,8 @@ void FWPhotonDetailView::build (const FWModelId &id, const reco::Photon* iPhoton
 
    // set event handler and flip camera to top view at beginning
    viewerGL()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
-   TEveLegoEventHandler* eh =
-      new TEveLegoEventHandler((TGWindow*)viewerGL()->GetGLWidget(), (TObject*)viewerGL(), lego);
+   FWGLEventHandler* eh =
+      new FWGLEventHandler((TGWindow*)viewerGL()->GetGLWidget(), (TObject*)viewerGL(), lego);
    viewerGL()->SetEventHandler(eh);
    viewerGL()->UpdateScene();
    viewerGL()->CurrentCamera().Reset();

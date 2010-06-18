@@ -2,10 +2,8 @@
 //
 // Package:     Electrons
 // Class  :     FWElectronDetailView
-// $Id: FWElectronDetailView.cc,v 1.51 2010/05/12 16:00:51 amraktad Exp $
+// $Id: FWElectronDetailView.cc,v 1.52 2010/06/10 14:43:27 matevz Exp $
 //
-
-#include "TEveLegoEventHandler.h"
 
 // ROOT includes
 #include "TLatex.h"
@@ -26,6 +24,7 @@
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/FWGLEventHandler.h"
 
 // CMSSW includes
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
@@ -100,8 +99,8 @@ FWElectronDetailView::build( const FWModelId &id, const reco::GsfElectron* iElec
    }
    // set event handler and flip camera to top view at beginning
    viewerGL()->SetCurrentCamera( TGLViewer::kCameraOrthoXOY );
-   TEveLegoEventHandler* eh =
-      new TEveLegoEventHandler( (TGWindow*)viewerGL()->GetGLWidget(), (TObject*)viewerGL(), lego );
+   FWGLEventHandler* eh =
+      new FWGLEventHandler( (TGWindow*)viewerGL()->GetGLWidget(), (TObject*)viewerGL(), lego );
    viewerGL()->SetEventHandler( eh );
    viewerGL()->ResetCamerasAfterNextUpdate();
    viewerGL()->UpdateScene(kFALSE);
