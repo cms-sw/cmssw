@@ -2,7 +2,6 @@
 #define FWCore_Sources_EDInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: EDInputSource.h,v 1.6 2010/01/04 16:10:59 wdd Exp $
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"

@@ -5,7 +5,8 @@
 namespace edm {
     ExternalInputSource::ExternalInputSource(ParameterSet const& pset, InputSourceDescription const& desc, bool realData) :
       ConfigurableInputSource(pset, desc, realData),
-      catalog_(pset, pset.getUntrackedParameter<std::vector<std::string> >("fileNames")) {
+      catalog_(pset.getUntrackedParameter<std::vector<std::string> >("fileNames"),
+               pset.getUntrackedParameter<std::string>("overrideCatalog", std::string())) {
     }
     ExternalInputSource::~ExternalInputSource() {}
 
@@ -14,10 +15,9 @@ namespace edm {
    ExternalInputSource::fillDescription(ParameterSetDescription & desc) {
     std::vector<std::string> defaultStrings;
     desc.addUntracked<std::vector<std::string> >("fileNames", defaultStrings);
+    desc.addUntracked<std::string>("overrideCatalog", std::string());
     ConfigurableInputSource::fillDescription(desc);
-    InputFileCatalog::fillDescription(desc);
   }
-
 }
 
 

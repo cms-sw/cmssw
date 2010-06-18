@@ -15,10 +15,12 @@ namespace edm {
   // calls can and should be deleted from the code.
   EDInputSource::EDInputSource(ParameterSet const& pset, InputSourceDescription const& desc) :
       InputSource(pset, desc),
-      catalog_(pset, pset.getUntrackedParameter<std::vector<std::string> >("fileNames")) ,
-      secondaryCatalog_(pset, pset.getUntrackedParameter<bool>("needSecondaryFileNames", false) ?
+      catalog_(pset.getUntrackedParameter<std::vector<std::string> >("fileNames"),
+        pset.getUntrackedParameter<std::string>("overrideCatalog", std::string())),
+      secondaryCatalog_((pset.getUntrackedParameter<bool>("needSecondaryFileNames", false) ?
 	pset.getUntrackedParameter<std::vector<std::string> >("secondaryFileNames") : 
-	pset.getUntrackedParameter<std::vector<std::string> >("secondaryFileNames", std::vector<std::string>()))
+	pset.getUntrackedParameter<std::vector<std::string> >("secondaryFileNames", std::vector<std::string>())),
+        pset.getUntrackedParameter<std::string>("overrideCatalog", std::string()))
   {}
 
   EDInputSource::~EDInputSource() {
@@ -44,7 +46,7 @@ namespace edm {
     desc.addUntracked<std::vector<std::string> >("fileNames", defaultStrings);
     desc.addUntracked<std::vector<std::string> >("secondaryFileNames", defaultStrings);
     desc.addUntracked<bool>("needSecondaryFileNames", false);
+    desc.addUntracked<std::string>("overrideCatalog", std::string());
     InputSource::fillDescription(desc);
-    InputFileCatalog::fillDescription(desc);
   }
 }

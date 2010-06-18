@@ -2,7 +2,6 @@
 #define FWCore_Sources_ExternalInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: ExternalInputSource.h,v 1.6 2010/06/09 07:33:58 innocent Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -25,7 +24,7 @@ namespace edm {
     std::vector<std::string> const& fileNames() const {return catalog_.fileNames();}
     InputFileCatalog& catalog() {return catalog_;}
     
-    static void fillDescription(ParameterSetDescription & desc);
+    static void fillDescription(ParameterSetDescription& desc);
 
   private:
     InputFileCatalog catalog_;
