@@ -60,7 +60,7 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
    data->RefSliceInfo(0).Setup("hits (not clustered)", 0.0, m_defaultColor );
    for( size_t i = 0; i < m_colors.size(); ++i )
    {
-      data->RefSliceInfo(i + 1).Setup( "hits (not clustered)", 0.0, m_colors[i] );
+      data->RefSliceInfo(i + 1).Setup( "hits (clustered)", 0.0, m_colors[i] );
    }
 
    if( handle_hits.isValid() ) 
