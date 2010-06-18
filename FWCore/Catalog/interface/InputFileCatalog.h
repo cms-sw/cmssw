@@ -12,8 +12,6 @@
 #include "FWCore/Catalog/interface/FileLocator.h"
 
 namespace edm {
-  class ParameterSet;
-  class ParameterSetDescription;
   class FileCatalogItem {
   public:
     FileCatalogItem() : pfn_(), lfn_() {}
@@ -27,8 +25,7 @@ namespace edm {
 
   class InputFileCatalog {
   public:
-    InputFileCatalog(edm::ParameterSet const & pset,
-    std::vector<std::string> const& fileNames, bool noThrow = false);
+    InputFileCatalog(std::vector<std::string> const& fileNames, std::string const& override, bool noThrow = false);
     ~InputFileCatalog();
     std::vector<FileCatalogItem> const& fileCatalogItems() const {return fileCatalogItems_;}
     std::vector<std::string> const& logicalFileNames() const {return logicalFileNames_;}
@@ -37,14 +34,13 @@ namespace edm {
     static bool isPhysical(std::string const& name) {
       return (name.empty() || name.find(':') != std::string::npos);
     }
-    static void fillDescription(ParameterSetDescription & desc);
     
   private:
     void findFile(std::string & pfn, std::string const& lfn, bool noThrow);
     std::vector<std::string> logicalFileNames_;
     std::vector<std::string> fileNames_;
     std::vector<FileCatalogItem> fileCatalogItems_;
-    FileLocator fl_;
+    boost::scoped_ptr<FileLocator> fl_;
   };
 }
 
