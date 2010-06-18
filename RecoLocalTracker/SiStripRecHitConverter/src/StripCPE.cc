@@ -42,9 +42,10 @@ StripCPE::StripCPE( edm::ParameterSet & conf,
 
   for(map_t::const_iterator it=modules.begin(); it!=modules.end(); it++) {
     const std::string 
-      shiftS("shift_"+it->first),
-      xtalk1S("xtalk1_"+it->first+(peakMode_?"Peak":"Deco")),
-      xtalk2S("xtalk2_"+it->first+(peakMode_?"Peak":"Deco"));
+      modeS(peakMode_?"Peak":"Deco"),
+      shiftS( "shift_"  + it->first + modeS ),
+      xtalk1S("xtalk1_" + it->first + modeS ),
+      xtalk2S("xtalk2_" + it->first + modeS );
 
     if(!confObj.isParameter(shiftS)) throw cms::Exception("SiStripConfObject does not contain: ") << shiftS;
     if(!confObj.isParameter(xtalk1S)) throw cms::Exception("SiStripConfObject does not contain: ") << xtalk1S;
