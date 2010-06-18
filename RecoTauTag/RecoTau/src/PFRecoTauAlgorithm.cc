@@ -94,9 +94,6 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
   myPFTau.setpfTauTagInfoRef(myPFTauTagInfoRef);
   
   PFCandidateRefVector myPFCands=(*myPFTauTagInfoRef).PFCands();
-  PFCandidateRefVector myPFChargedHadrCands=(*myPFTauTagInfoRef).PFChargedHadrCands();
-  PFCandidateRefVector myPFNeutrHadrCands=(*myPFTauTagInfoRef).PFNeutrHadrCands();
-  PFCandidateRefVector myPFGammaCands=(*myPFTauTagInfoRef).PFGammaCands();
   
   PFTauElementsOperators myPFTauElementsOperators(myPFTau);
   double myMatchingConeSize=myPFTauElementsOperators.computeConeSize(myMatchingConeSizeTFormula,MatchingConeSize_min_,MatchingConeSize_max_);
@@ -117,31 +114,23 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
      myPFTau.setleadPFNeutralCand(myleadPFNeutralCand); 
   }
 
-  //Modification to consider leading neutral particle
+  // Determine the SIPT of the lead track
   if(myleadPFChargedCand.isNonnull()) 
   {
     myPFTau.setleadPFChargedHadrCand(myleadPFChargedCand);
     TrackRef myleadPFCand_rectk=(*myleadPFChargedCand).trackRef();
-    if(myleadPFCand_rectk.isNonnull()){
-      myleadPFCand_rectkavailable=true;
-      myleadPFCand_rectkDZ=(*myleadPFCand_rectk).dz(myPV.position());
-      if(TransientTrackBuilder_!=0){ 
-	const TransientTrack myleadPFCand_rectransienttk=TransientTrackBuilder_->build(&(*myleadPFCand_rectk));
-	GlobalVector myPFJetdir((*myPFJet).px(),(*myPFJet).py(),(*myPFJet).pz());
-	if(IPTools::signedTransverseImpactParameter(myleadPFCand_rectransienttk,myPFJetdir,myPV).first)
-	  myPFTau.setleadPFChargedHadrCandsignedSipt(IPTools::signedTransverseImpactParameter(myleadPFCand_rectransienttk,myPFJetdir,myPV).second.significance());
-      }
+    if(myleadPFCand_rectk.isNonnull())
+    {
+       myleadPFCand_rectkavailable=true;
+       myleadPFCand_rectkDZ=(*myleadPFCand_rectk).dz(myPV.position());
+       if(TransientTrackBuilder_!=0)
+       { 
+          const TransientTrack myleadPFCand_rectransienttk=TransientTrackBuilder_->build(&(*myleadPFCand_rectk));
+          GlobalVector myPFJetdir((*myPFJet).px(),(*myPFJet).py(),(*myPFJet).pz());
+          if(IPTools::signedTransverseImpactParameter(myleadPFCand_rectransienttk,myPFJetdir,myPV).first)
+             myPFTau.setleadPFChargedHadrCandsignedSipt(IPTools::signedTransverseImpactParameter(myleadPFCand_rectransienttk,myPFJetdir,myPV).second.significance());
+       }
     }
-    if (UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint_ && myleadPFCand_rectkavailable){
-      PFCandidateRefVector myPFChargedHadrCandsbis;
-      for(PFCandidateRefVector::const_iterator iPFCand=myPFChargedHadrCands.begin();iPFCand!=myPFChargedHadrCands.end();iPFCand++){
-	TrackRef iPFChargedHadrCand_track=(**iPFCand).trackRef();
-	if (!iPFChargedHadrCand_track)continue;
-	if (fabs((*iPFChargedHadrCand_track).dz(myPV.position())-myleadPFCand_rectkDZ)<=ChargedHadrCandLeadChargedHadrCand_tksmaxDZ_) myPFChargedHadrCandsbis.push_back(*iPFCand);
-      }
-      myPFChargedHadrCands=myPFChargedHadrCandsbis;
-    }
-
   }
   
   bool foundLeadingPion = false;
