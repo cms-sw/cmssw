@@ -104,10 +104,6 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
 
   bool myleadPFCand_rectkavailable = false;
   double myleadPFCand_rectkDZ      = 0.;
-  // Set PFTau candidate vertex to the associated PV we are using
-  double myPFTau_refInnerPosition_x = myPV.x();
-  double myPFTau_refInnerPosition_y = myPV.y();
-  double myPFTau_refInnerPosition_z = myPV.z();
 
   if(myleadPFNeutralCand.isNonnull())
   {
@@ -325,7 +321,8 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
     myPFTau.setalternatLorentzVect(alternatLorentzVect);
     myPFTau.setP4(alternatLorentzVect);
 
-    myPFTau.setVertex(math::XYZPoint(myPFTau_refInnerPosition_x,myPFTau_refInnerPosition_y,myPFTau_refInnerPosition_z));
+    // Set tau vertex as PV vertex
+    myPFTau.setVertex(math::XYZPoint(myPV.x(), myPV.y(), myPV.z()));
   }  
     
   /* For elecron rejection */
