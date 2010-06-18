@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/06/16 17:13:22 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/06/18 14:25:43 $
+ *  $Revision: 1.3 $
  *  \author L. Uplegger F. Yumiceva - Fermilab
  */
 
@@ -24,12 +24,14 @@
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "CondCore/Utilities/interface/Utilities.h"
+//#include "CondCore/Utilities/bin/cmscond_export_iov.cpp"
+//#include "CondCore/Utilities/interface/Utilities.h"
 
 #include <iostream> 
 
 using namespace edm;
 using namespace reco;
+//using namespace std;
 
 //--------------------------------------------------------------------------------------------------
 AlcaBeamSpotHarvester::AlcaBeamSpotHarvester(const edm::ParameterSet& iConfig) :
@@ -57,7 +59,7 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run&, const edm::EventSetup&){
   theAlcaBeamSpotManager_.createWeightedPayloads();
   std::map<edm::LuminosityBlockNumber_t,reco::BeamSpot> beamSpotMap = theAlcaBeamSpotManager_.getPayloads();
   Service<cond::service::PoolDBOutputService> poolDbService;
-  cond::Utilities utilities("beamspot_iov_exporter");
+//  cond::ExportIOVUtilities utilities;
   if(poolDbService.isAvailable() ) {
     for(AlcaBeamSpotManager::bsMap_iterator it=beamSpotMap.begin(); it!=beamSpotMap.end();it++){
       BeamSpotObjects *aBeamSpot = new BeamSpotObjects();
@@ -87,6 +89,7 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run&, const edm::EventSetup&){
             << "no new tag requested" << std::endl;
         poolDbService->appendSinceTime<BeamSpotObjects>(aBeamSpot, poolDbService->currentTime(),"BeamSpotObjectsRcd");
       }
+/*
       int         argc = 15;
       const char* argv[] = {"endRun"
                            ,"-d","sqlite_file:combined.db"
@@ -94,12 +97,17 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run&, const edm::EventSetup&){
                            ,"-l","sqlite_file:log.db"
 			   ,"-i","TestLSBasedBS"
 			   ,"-t","TestLSBasedBS"
-			   ,"-b","5"
+			   ,"-b","1"
 			   ,"-e","10"
 			   };
-       
-      utilities.run(argc,(char**)argv);
-
+      
+      edm::LogInfo("AlcaBeamSpotSpotHarvester")
+        << "Running utilities!" 
+	<< utilities.run(argc,(char**)argv);
+      edm::LogInfo("AlcaBeamSpotSpotHarvester")
+        << "Run utilities!" 
+	<< std::endl;
+*/
     }
   }
 }
