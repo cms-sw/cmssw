@@ -124,4 +124,4 @@ FWPFJet3DProxyBuilder::buildJet3D(const FWEventItem* iItem,
 // static member functions
 //
 
-REGISTER_FWPROXYBUILDER(FWPFJet3DProxyBuilder, reco::PFJet, "PFJet", FWViewType::kAll3DBits);
+REGISTER_FWPROXYBUILDER(FWPFJet3DProxyBuilder, reco::PFJet, "PFJet", FWViewType::kAll3DBits | FWViewType::kAllRPZBits);
