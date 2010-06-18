@@ -283,8 +283,11 @@ void QcdUeDQM::book1D(std::vector<MonitorElement*> &mes,
                                         Form("%s: %s",hltTrgUsedNames_.at(i).c_str(), title.c_str()), 
                                         nx, x1, x2);
     TH1 *h1 = e->getTH1();
-    if (sumw2)
-      h1->Sumw2();
+    if (sumw2) {
+      if( h1->GetSumw2N() ) { // protect against re-summing (would cause exception)
+	h1->Sumw2();
+      }
+    }
     h1->SetStats(sbox);
     mes.push_back(e);
   }
@@ -305,8 +308,11 @@ void QcdUeDQM::book2D(std::vector<MonitorElement*> &mes,
                                         Form("%s: %s",hltTrgUsedNames_.at(i).c_str(), title.c_str()), 
                                         nx, x1, x2, ny, y1, y2);
     TH1 *h1 = e->getTH1();
-    if (sumw2)
-      h1->Sumw2();
+    if (sumw2) {
+      if( h1->GetSumw2N() ) { // protect against re-summing (would cause exception)
+	h1->Sumw2();
+      }
+    }
     h1->SetStats(sbox);
     mes.push_back(e);
   }
