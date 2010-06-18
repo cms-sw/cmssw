@@ -1,6 +1,6 @@
 <config name="top" version="1">
  <config name="EventItems" version="1">
-  <config name="ECal" version="3">
+  <config name="ECal" version="4">
    <config name="type" version="0">
      <string>edm::SortedCollection&lt;CaloTower,edm::StrictWeakOrdering&lt;CaloTower&gt; &gt;</string>
    </config>
@@ -17,7 +17,7 @@
      <string>$.emEt()&gt;0.2</string>
    </config>
    <config name="color" version="0">
-     <string>8</string>
+     <string>1008</string>
    </config>
    <config name="isVisible" version="0">
      <string>f</string>
@@ -28,8 +28,11 @@
    <config name="purpose" version="0">
      <string>ECal</string>
    </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
   </config>
-  <config name="HCal" version="3">
+  <config name="HCal" version="4">
    <config name="type" version="0">
      <string>edm::SortedCollection&lt;CaloTower,edm::StrictWeakOrdering&lt;CaloTower&gt; &gt;</string>
    </config>
@@ -46,7 +49,7 @@
      <string>$.hadEt()+$.outerEt()&gt;0.2</string>
    </config>
    <config name="color" version="0">
-     <string>5</string>
+     <string>1005</string>
    </config>
    <config name="isVisible" version="0">
      <string>f</string>
@@ -57,8 +60,11 @@
    <config name="purpose" version="0">
      <string>HCal</string>
    </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
   </config>
-  <config name="Jets" version="3">
+  <config name="Jets" version="4">
    <config name="type" version="0">
      <string>std::vector&lt;reco::CaloJet&gt;</string>
    </config>
@@ -75,7 +81,7 @@
      <string>$.pt()&gt;10</string>
    </config>
    <config name="color" version="0">
-     <string>0</string>
+     <string>1000</string>
    </config>
    <config name="isVisible" version="0">
      <string>f</string>
@@ -86,8 +92,11 @@
    <config name="purpose" version="0">
      <string>Jets</string>
    </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
   </config>
-  <config name="Tracks" version="3">
+  <config name="Tracks" version="4">
    <config name="type" version="0">
      <string>std::vector&lt;reco::Track&gt;</string>
    </config>
@@ -104,7 +113,7 @@
      <string>$.pt()&gt;1</string>
    </config>
    <config name="color" version="0">
-     <string>9</string>
+     <string>1009</string>
    </config>
    <config name="isVisible" version="0">
      <string>f</string>
@@ -115,8 +124,11 @@
    <config name="purpose" version="0">
      <string>Tracks</string>
    </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
   </config>
-  <config name="Muons" version="3">
+  <config name="Muons" version="4">
    <config name="type" version="0">
      <string>std::vector&lt;reco::Muon&gt;</string>
    </config>
@@ -133,10 +145,10 @@
      <string>$.isStandAloneMuon()</string>
    </config>
    <config name="color" version="0">
-     <string>8</string>
+     <string>1008</string>
    </config>
    <config name="isVisible" version="0">
-     <string>f</string>
+     <string>t</string>
    </config>
    <config name="layer" version="0">
      <string>5</string>
@@ -144,8 +156,11 @@
    <config name="purpose" version="0">
      <string>Muons</string>
    </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
   </config>
-  <config name="Electrons" version="3">
+  <config name="Electrons" version="4">
    <config name="type" version="0">
      <string>std::vector&lt;reco::GsfElectron&gt;</string>
    </config>
@@ -162,7 +177,7 @@
      <string>$.hadronicOverEm()&lt;0.05</string>
    </config>
    <config name="color" version="0">
-     <string>7</string>
+     <string>1007</string>
    </config>
    <config name="isVisible" version="0">
      <string>f</string>
@@ -173,8 +188,11 @@
    <config name="purpose" version="0">
      <string>Electrons</string>
    </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
   </config>
-  <config name="Vertices" version="3">
+  <config name="Vertices" version="4">
    <config name="type" version="0">
      <string>std::vector&lt;reco::Vertex&gt;</string>
    </config>
@@ -191,7 +209,7 @@
      <string></string>
    </config>
    <config name="color" version="0">
-     <string>0</string>
+     <string>1000</string>
    </config>
    <config name="isVisible" version="0">
      <string>t</string>
@@ -202,8 +220,11 @@
    <config name="purpose" version="0">
      <string>Vertices</string>
    </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
   </config>
-  <config name="DT-segments" version="3">
+  <config name="DT-segments" version="4">
    <config name="type" version="0">
      <string>edm::RangeMap&lt;DTChamberId,edm::OwnVector&lt;DTRecSegment4D,edm::ClonePolicy&lt;DTRecSegment4D&gt; &gt;,edm::ClonePolicy&lt;DTRecSegment4D&gt; &gt;</string>
    </config>
@@ -220,7 +241,7 @@
      <string></string>
    </config>
    <config name="color" version="0">
-     <string>5</string>
+     <string>1005</string>
    </config>
    <config name="isVisible" version="0">
      <string>f</string>
@@ -231,8 +252,11 @@
    <config name="purpose" version="0">
      <string>DT-segments</string>
    </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
   </config>
-  <config name="CSC-segments" version="3">
+  <config name="CSC-segments" version="4">
    <config name="type" version="0">
      <string>edm::RangeMap&lt;CSCDetId,edm::OwnVector&lt;CSCSegment,edm::ClonePolicy&lt;CSCSegment&gt; &gt;,edm::ClonePolicy&lt;CSCSegment&gt; &gt;</string>
    </config>
@@ -249,7 +273,7 @@
      <string></string>
    </config>
    <config name="color" version="0">
-     <string>5</string>
+     <string>1005</string>
    </config>
    <config name="isVisible" version="0">
      <string>f</string>
@@ -260,8 +284,11 @@
    <config name="purpose" version="0">
      <string>CSC-segments</string>
    </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
   </config>
-  <config name="Photons" version="3">
+  <config name="Photons" version="4">
    <config name="type" version="0">
      <string>std::vector&lt;reco::Photon&gt;</string>
    </config>
@@ -278,7 +305,7 @@
      <string>hadronicOverEm &lt; 0.2</string>
    </config>
    <config name="color" version="0">
-     <string>9</string>
+     <string>1009</string>
    </config>
    <config name="isVisible" version="0">
      <string>f</string>
@@ -289,8 +316,11 @@
    <config name="purpose" version="0">
      <string>Photons</string>
    </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
   </config>
-  <config name="MET" version="3">
+  <config name="MET" version="4">
    <config name="type" version="0">
      <string>std::vector&lt;reco::MET&gt;</string>
    </config>
@@ -307,7 +337,7 @@
      <string>et()&gt;20</string>
    </config>
    <config name="color" version="0">
-     <string>8</string>
+     <string>1008</string>
    </config>
    <config name="isVisible" version="0">
      <string>f</string>
@@ -318,8 +348,11 @@
    <config name="purpose" version="0">
      <string>recoMET</string>
    </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
   </config>
-  <config name="PF charged hadrons" version="3">
+  <config name="PF charged hadrons" version="4">
    <config name="type" version="0">
      <string>std::vector&lt;reco::PFCandidate&gt;</string>
    </config>
@@ -336,7 +369,7 @@
      <string>abs(pdgId())==211</string>
    </config>
    <config name="color" version="0">
-     <string>5</string>
+     <string>1005</string>
    </config>
    <config name="isVisible" version="0">
      <string>t</string>
@@ -347,8 +380,11 @@
    <config name="purpose" version="0">
      <string>PFCandidates</string>
    </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
   </config>
-  <config name="PF neutral hadrons" version="3">
+  <config name="PF neutral hadrons" version="4">
    <config name="type" version="0">
      <string>std::vector&lt;reco::PFCandidate&gt;</string>
    </config>
@@ -365,7 +401,7 @@
      <string>pdgId()==130</string>
    </config>
    <config name="color" version="0">
-     <string>9</string>
+     <string>1009</string>
    </config>
    <config name="isVisible" version="0">
      <string>t</string>
@@ -376,8 +412,11 @@
    <config name="purpose" version="0">
      <string>PFCandidates</string>
    </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
   </config>
-  <config name="PF photons" version="3">
+  <config name="PF photons" version="4">
    <config name="type" version="0">
      <string>std::vector&lt;reco::PFCandidate&gt;</string>
    </config>
@@ -394,7 +433,7 @@
      <string>pdgId()==22</string>
    </config>
    <config name="color" version="0">
-     <string>8</string>
+     <string>1008</string>
    </config>
    <config name="isVisible" version="0">
      <string>t</string>
@@ -405,54 +444,60 @@
    <config name="purpose" version="0">
      <string>PFCandidates</string>
    </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
   </config>
-  <config name="PFJet contents" version="3">
+  <config name="PF electrons" version="4">
    <config name="type" version="0">
-     <string>std::vector&lt;reco::PFJet&gt;</string>
+     <string>std::vector&lt;reco::PFCandidate&gt;</string>
    </config>
    <config name="moduleLabel" version="0">
-     <string>ak5PFJets</string>
+     <string>particleFlow</string>
    </config>
    <config name="productInstanceLabel" version="0">
      <string></string>
    </config>
    <config name="processName" version="0">
-     <string>RECO</string>
+     <string></string>
    </config>
    <config name="filterExpression" version="0">
-     <string>pt()&gt;20</string>
+     <string>abs(pdgId())==11</string>
    </config>
    <config name="color" version="0">
-     <string>0</string>
+     <string>1007</string>
    </config>
    <config name="isVisible" version="0">
-     <string>f</string>
+     <string>t</string>
    </config>
    <config name="layer" version="0">
      <string>15</string>
    </config>
    <config name="purpose" version="0">
-     <string>PFJet</string>
+     <string>PFCandidates</string>
+   </config>
+   <config name="transparency" version="0">
+     <string>0</string>
    </config>
   </config>
-  <config name="PFJets" version="3">
+  <config name="PF muons" version="4">
    <config name="type" version="0">
-     <string>std::vector&lt;reco::PFJet&gt;</string>
+     <string>std::vector&lt;reco::PFCandidate&gt;</string>
    </config>
    <config name="moduleLabel" version="0">
-     <string>ak5PFJets</string>
+     <string>particleFlow</string>
    </config>
    <config name="productInstanceLabel" version="0">
      <string></string>
    </config>
    <config name="processName" version="0">
-     <string>RECO</string>
+     <string></string>
    </config>
    <config name="filterExpression" version="0">
-     <string>pt()&gt;20</string>
+     <string>abs(pdgId())==13</string>
    </config>
    <config name="color" version="0">
-     <string>0</string>
+     <string>1007</string>
    </config>
    <config name="isVisible" version="0">
      <string>t</string>
@@ -461,10 +506,77 @@
      <string>16</string>
    </config>
    <config name="purpose" version="0">
-     <string>Jets</string>
+     <string>PFCandidates</string>
+   </config>
+   <config name="transparency" version="0">
+     <string>0</string>
    </config>
   </config>
-  <config name="pfMet" version="3">
+  <config name="PF jets" version="4">
+   <config name="type" version="0">
+     <string>std::vector&lt;reco::PFJet&gt;</string>
+   </config>
+   <config name="moduleLabel" version="0">
+     <string>ak5PFJets</string>
+   </config>
+   <config name="productInstanceLabel" version="0">
+     <string></string>
+   </config>
+   <config name="processName" version="0">
+     <string></string>
+   </config>
+   <config name="filterExpression" version="0">
+     <string>pt()&gt;15</string>
+   </config>
+   <config name="color" version="0">
+     <string>1000</string>
+   </config>
+   <config name="isVisible" version="0">
+     <string>t</string>
+   </config>
+   <config name="layer" version="0">
+     <string>17</string>
+   </config>
+   <config name="purpose" version="0">
+     <string>Jets</string>
+   </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
+  </config>
+  <config name="PF jet contents" version="4">
+   <config name="type" version="0">
+     <string>std::vector&lt;reco::PFJet&gt;</string>
+   </config>
+   <config name="moduleLabel" version="0">
+     <string>ak5PFJets</string>
+   </config>
+   <config name="productInstanceLabel" version="0">
+     <string></string>
+   </config>
+   <config name="processName" version="0">
+     <string></string>
+   </config>
+   <config name="filterExpression" version="0">
+     <string>pt()&gt;15</string>
+   </config>
+   <config name="color" version="0">
+     <string>1002</string>
+   </config>
+   <config name="isVisible" version="0">
+     <string>f</string>
+   </config>
+   <config name="layer" version="0">
+     <string>18</string>
+   </config>
+   <config name="purpose" version="0">
+     <string>PFJet</string>
+   </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
+  </config>
+  <config name="PF MET" version="4">
    <config name="type" version="0">
      <string>std::vector&lt;reco::PFMET&gt;</string>
    </config>
@@ -481,16 +593,19 @@
      <string></string>
    </config>
    <config name="color" version="0">
-     <string>7</string>
+     <string>1007</string>
    </config>
    <config name="isVisible" version="0">
      <string>t</string>
    </config>
    <config name="layer" version="0">
-     <string>17</string>
+     <string>19</string>
    </config>
    <config name="purpose" version="0">
      <string>recoMET</string>
+   </config>
+   <config name="transparency" version="0">
+     <string>0</string>
    </config>
   </config>
  </config>
@@ -532,10 +647,10 @@
  <config name="GUI" version="1">
   <config name="main window" version="2">
    <config name="x" version="0">
-     <string>1681</string>
+     <string>249</string>
    </config>
    <config name="y" version="0">
-     <string>184</string>
+     <string>80</string>
    </config>
    <config name="width" version="0">
      <string>1026</string>
@@ -604,7 +719,7 @@
       <string>0.98</string>
     </config>
     <config name="cameraZoomRho Phi" version="0">
-      <string>1.86325</string>
+      <string>2.41943</string>
     </config>
     <config name="cameraMatrix0Rho Phi" version="0">
       <string>1</string>
@@ -708,7 +823,7 @@
       <string>1</string>
     </config>
     <config name="cameraZoomLego" version="0">
-      <string>0.995799</string>
+      <string>0.82149</string>
     </config>
     <config name="cameraMatrix0Lego" version="0">
       <string>1</string>
@@ -750,10 +865,10 @@
       <string>16.1268</string>
     </config>
     <config name="cameraMatrix13Lego" version="0">
-      <string>7.10543e-15</string>
+      <string>3.64153e-14</string>
     </config>
     <config name="cameraMatrix14Lego" version="0">
-      <string>8.88178e-15</string>
+      <string>-3.90799e-14</string>
     </config>
     <config name="cameraMatrix15Lego" version="0">
       <string>1</string>
@@ -916,22 +1031,22 @@
       <string>0.98</string>
     </config>
     <config name="cameraMatrix0Plain3D" version="0">
-      <string>0.0163602</string>
+      <string>0.569267</string>
     </config>
     <config name="cameraMatrix1Plain3D" version="0">
-      <string>-0.891429</string>
+      <string>-0.735502</string>
     </config>
     <config name="cameraMatrix2Plain3D" version="0">
-      <string>0.452866</string>
+      <string>0.367387</string>
     </config>
     <config name="cameraMatrix3Plain3D" version="0">
       <string>0</string>
     </config>
     <config name="cameraMatrix4Plain3D" version="0">
-      <string>0.999831</string>
+      <string>0.790803</string>
     </config>
     <config name="cameraMatrix5Plain3D" version="0">
-      <string>0.0183495</string>
+      <string>0.612069</string>
     </config>
     <config name="cameraMatrix6Plain3D" version="0">
       <string>0</string>
@@ -940,25 +1055,25 @@
       <string>0</string>
     </config>
     <config name="cameraMatrix8Plain3D" version="0">
-      <string>-0.0083086</string>
+      <string>-0.224865</string>
     </config>
     <config name="cameraMatrix9Plain3D" version="0">
-      <string>0.452789</string>
+      <string>0.290531</string>
     </config>
     <config name="cameraMatrix10Plain3D" version="0">
-      <string>0.891579</string>
+      <string>0.930068</string>
     </config>
     <config name="cameraMatrix11Plain3D" version="0">
       <string>0</string>
     </config>
     <config name="cameraMatrix12Plain3D" version="0">
-      <string>51.2371</string>
+      <string>2767.42</string>
     </config>
     <config name="cameraMatrix13Plain3D" version="0">
-      <string>-4372.59</string>
+      <string>-3622.95</string>
     </config>
     <config name="cameraMatrix14Plain3D" version="0">
-      <string>2192.6</string>
+      <string>1773.49</string>
     </config>
     <config name="cameraMatrix15Plain3D" version="0">
       <string>1</string>
@@ -1308,6 +1423,12 @@
     </config>
    </config>
    <config name="TriggerTable" version="1">
+    <config name="TriggerTableView" version="1">
+     <config name="sortColumn" version="4294967295">
+     </config>
+     <config name="descendingSort" version="1">
+     </config>
+    </config>
     <config name="Filter" version="0">
       <string></string>
     </config>
@@ -1364,10 +1485,10 @@
        <string>1</string>
      </config>
      <config name="x" version="0">
-       <string>2712</string>
+       <string>1276</string>
      </config>
      <config name="y" version="0">
-       <string>205</string>
+       <string>79</string>
      </config>
      <config name="width" version="0">
        <string>318</string>
@@ -1392,10 +1513,10 @@
        <string>1</string>
      </config>
      <config name="x" version="0">
-       <string>2708</string>
+       <string>1277</string>
      </config>
      <config name="y" version="0">
-       <string>626</string>
+       <string>505</string>
      </config>
      <config name="width" version="0">
        <string>327</string>
