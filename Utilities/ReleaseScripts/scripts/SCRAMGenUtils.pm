@@ -1713,4 +1713,38 @@ sub writeMsg ()
   close($ref);
 }
 
+sub writeJson()
+{
+  my ($obj,$tab)=@_;
+  my $str="";
+  my $ref=ref($obj);
+  my $indent=&_indent($tab);
+  if ($ref eq "HASH")
+  {
+    $str="{";
+    foreach my $k (sort keys %$obj){$str.="\n${indent}  \"$k\": ".&writeJson($obj->{$k},$tab+length($k)+6);}
+    chomp($str);
+    $str=~s/, *$//;
+    $str.="\n${indent}},";
+  }
+  elsif($ref eq "ARRAY")
+  {
+    $str.="[";
+    foreach my $i (@$obj){$str.="\n${indent}  ".&writeJson($i,$tab+2);chomp($str);}
+    chomp($str);
+    $str=~s/, *$//;
+    $str.="\n${indent}],";
+  }
+  else{$str.="\"$obj\",";}
+  return $str;
+}
+
+sub _indent()
+{
+  my $l=shift;
+  my $s="";
+  for(my $i=0;$i<$l;$i++){$s.=" ";}
+  return $s;
+}
+
 1;
