@@ -18,6 +18,7 @@ process.out.fileName = cms.untracked.string('patTuple_PF2PAT.root')
 # load the PAT config
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
+
 # Configure PAT to use PF2PAT instead of AOD sources
 # this function will modify the PAT sequences. It is currently 
 # not possible to run PF2PAT+PAT and standart PAT at the same time
