@@ -23,10 +23,7 @@ process.load("PhysicsTools.PatAlgos.patSequences_cff")
 # not possible to run PF2PAT+PAT and standart PAT at the same time
 from PhysicsTools.PatAlgos.tools.pfTools import *
 
-# An empty postfix means that only PF2PAT is run,
-# otherwise both standard PAT and PF2PAT are run. In the latter case PF2PAT
-# collections have standard names + postfix (e.g. patElectronPFlow)  
-postfix = ""
+postfix = "PFlow"
 usePF2PAT(process,runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix=postfix) 
 
 # turn to false when running on data
@@ -35,10 +32,9 @@ getattr(process, "patMuons"+postfix).embedGenMatch = True
 
 # Let it run
 process.p = cms.Path(
+#    process.patDefaultSequence  +
     getattr(process,"patPF2PATSequence"+postfix)
 )
-if not postfix=="":
-    process.p += process.patDefaultSequence
 
 # Add PF2PAT output to the created file
 from PhysicsTools.PatAlgos.patEventContent_cff import patEventContentNoCleaning
