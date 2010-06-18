@@ -12,7 +12,7 @@ RecoTauTagFEVT = cms.PSet(
         'keep *_shrinkingConePFTauDecayModeProducer*_*_*', 
         'keep *_shrinkingConePFTauDecayModeIndexProducer*_*_*', 
         'keep *_shrinkingConePFTauDiscrimination*_*_*', 
-	'keep *_TCTauJetPlusTrackZSPCorJetAntiKt5_*_*',
+	    'keep *_TCTauJetPlusTrackZSPCorJetAntiKt5_*_*',
         'keep *_caloRecoTauTagInfoProducer_*_*', 
         'keep recoCaloTaus_caloRecoTauProducer*_*_*', 
         'keep *_caloRecoTauDiscrimination*_*_*')
@@ -44,7 +44,7 @@ RecoTauTagAOD = cms.PSet(
         'keep *_shrinkingConePFTauProducer*_*_*', 
         'keep *_shrinkingConePFTauDecayModeIndexProducer*_*_*', 
         'keep *_shrinkingConePFTauDiscrimination*_*_*',
-	'keep *_TCTauJetPlusTrackZSPCorJetAntiKt5_*_*', 
+	    'keep *_TCTauJetPlusTrackZSPCorJetAntiKt5_*_*', 
         'keep *_caloRecoTauTagInfoProducer_*_*', 
         'keep recoCaloTaus_caloRecoTauProducer*_*_*', 
         'keep *_caloRecoTauDiscrimination*_*_*')

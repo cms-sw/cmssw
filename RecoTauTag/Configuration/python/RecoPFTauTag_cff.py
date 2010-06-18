@@ -37,11 +37,21 @@ import FWCore.ParameterSet.Config as cms
 
 #Necessary for building PFTauTagInfos
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
-from RecoJets.JetAssociationProducers.ic5PFJetTracksAssociatorAtVertex_cfi import *
+from RecoJets.JetAssociationProducers.ic5PFJetTracksAssociatorAtVertex_cfi \
+        import ic5PFJetTracksAssociatorAtVertex
+
+# Switch to anti-kt 5 jets.
+# Eventually this should be implemented in RecoJets.JetAssociationProducers
+ak5PFJetTracksAssociatorAtVertex = ic5PFJetTracksAssociatorAtVertex.clone()
+ak5PFJetTracksAssociatorAtVertex.jets = cms.InputTag("ak5PFJets")
 
 # PFTauTagInfos are wrappers around jets and provide tau specific quality cuts
 # Required for the production of PFTaus.
 from RecoTauTag.RecoTau.PFRecoTauTagInfoProducer_cfi import *
+
+# Ensure ak5PFJets are used
+pfRecoTauTagInfoProducer.PFJetTracksAssociatorProducer = \
+        cms.InputTag("ak5PFJetTracksAssociatorAtVertex")
 
 # Get the standard PFTau production sequeneces
 from RecoTauTag.Configuration.FixedConePFTaus_cfi import *
@@ -49,7 +59,7 @@ from RecoTauTag.Configuration.ShrinkingConePFTaus_cfi import *
 from RecoTauTag.Configuration.HPSPFTaus_cfi import *
 
 PFTau = cms.Sequence(
-    ic5PFJetTracksAssociatorAtVertex *
+    ak5PFJetTracksAssociatorAtVertex *
     pfRecoTauTagInfoProducer *
     produceAndDiscriminateShrinkingConePFTaus +
     produceShrinkingConeDiscriminationByTauNeuralClassifier +
