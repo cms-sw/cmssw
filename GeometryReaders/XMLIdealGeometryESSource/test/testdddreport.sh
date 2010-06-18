@@ -1,11 +1,14 @@
-#! /bin/csh -f
+#! /bin/tcsh -f
 cmsenv
 if ($#argv == 0) then
     setenv geomxml "${CMSSW_RELEASE_BASE}/src/Geometry/CMSCommonData/python/cmsIdealGeometryXML_cfi.py"
 else
     if ($#argv == 1) then
-	setenv geomxml `echo ${1}`
+	setenv geomxml `echo ${CMSSW_RELEASE_BASE}/src/Geometry/CMSCommonData/python/${1}`
     endif
+endif
+if ( ! -e ${geomxml} ) then 
+   echo "ERROR- ${geomxml} file not found"
 endif
 echo "START - All messages in this script pertain to geometry data described in xml files in: ${geomxml}" 
 echo '<?xml version="1.0"?>' > $CMSSW_BASE/src/dddreportconfig.xml
