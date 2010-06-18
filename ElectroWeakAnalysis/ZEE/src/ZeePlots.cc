@@ -14,6 +14,7 @@
   24Feb10: more variables added E/P and TIP
            option to choose CMSSW defined electron ID, the same or different
            for each leg
+  18June10: bug corrected thanks to Jie Chen
 */
 //
 // Original Author:  Nikolaos Rompotis
@@ -729,9 +730,9 @@ ZeePlots::beginJob()
   CutVars2_.push_back( cIso2_EB_ );    //7
   CutVars2_.push_back( tip_bspot2_EB_);//8
   CutVars2_.push_back( eop2_EB_ );     //9
-  CutVars_.push_back( trackIsoUser2_EB_ );//10
-  CutVars_.push_back( ecalIsoUser2_EB_  );//11
-  CutVars_.push_back( hcalIsoUser2_EB_  );//12
+  CutVars2_.push_back( trackIsoUser2_EB_ );//10
+  CutVars2_.push_back( ecalIsoUser2_EB_  );//11
+  CutVars2_.push_back( hcalIsoUser2_EB_  );//12
 
   CutVars2_.push_back( trackIso2_EE_);//0
   CutVars2_.push_back( ecalIso2_EE_); //1
@@ -743,9 +744,9 @@ ZeePlots::beginJob()
   CutVars2_.push_back( cIso2_EE_ );   //7 
   CutVars2_.push_back(tip_bspot2_EE_);//8
   CutVars2_.push_back( eop2_EE_ );    //9
-  CutVars_.push_back( trackIsoUser2_EE_ );//10
-  CutVars_.push_back( ecalIsoUser2_EE_  );//11
-  CutVars_.push_back( hcalIsoUser2_EE_  );//12
+  CutVars2_.push_back( trackIsoUser2_EE_ );//10
+  CutVars2_.push_back( ecalIsoUser2_EE_  );//11
+  CutVars2_.push_back( hcalIsoUser2_EE_  );//12
   //...........................................
   InvVars_.push_back( trackIso_EB_inv);//0
   InvVars_.push_back( ecalIso_EB_inv); //1
