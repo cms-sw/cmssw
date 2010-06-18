@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.52 2010/03/25 14:08:49 jribnik Exp $
+// $Id: MuonIdProducer.cc,v 1.54 2010/06/02 15:50:51 andersj Exp $
 //
 //
 
@@ -25,6 +25,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonCosmicCompatibility.h"
 #include "DataFormats/MuonReco/interface/CaloMuon.h"
 #include "DataFormats/MuonReco/interface/MuonTime.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
@@ -77,6 +78,7 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
    fillIsolation_           = iConfig.getParameter<bool>("fillIsolation");
    writeIsoDeposits_        = iConfig.getParameter<bool>("writeIsoDeposits");
    fillGlobalTrackQuality_  = iConfig.getParameter<bool>("fillGlobalTrackQuality");
+   fillGlobalCosmicCompatibility_  = iConfig.getParameter<bool>("fillGlobalCosmicCompatibility");
    ptThresholdToFillCandidateP4WithGlobalFit_    = iConfig.getParameter<double>("ptThresholdToFillCandidateP4WithGlobalFit");
    sigmaThresholdToFillCandidateP4WithGlobalFit_ = iConfig.getParameter<double>("sigmaThresholdToFillCandidateP4WithGlobalFit");
    caloCut_ = iConfig.getParameter<double>("minCaloCompatibility"); //CaloMuons
@@ -88,6 +90,13 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
    // Load parameters for the TimingFiller
    edm::ParameterSet timingParameters = iConfig.getParameter<edm::ParameterSet>("TimingFillerParameters");
    theTimingFiller_ = new MuonTimingFiller(timingParameters);
+
+   if (fillGlobalCosmicCompatibility_){
+     //globalCosmicCompatibilityInputTag_ = iConfig.getParameter<edm::InputTag>("globalCosmicCompatibilityInputTag");
+     // Load parameters for the CosmicFiller
+     edm::ParameterSet cosmicParameters = iConfig.getParameter<edm::ParameterSet>("CosmicCompFillerParameters");
+     theCosmicFiller_ = new GlobalCosmicCompatibilityFiller(cosmicParameters);
+   }
    
    if (fillCaloCompatibility_){
       // Load MuonCaloCompatibility parameters
@@ -147,6 +156,7 @@ MuonIdProducer::~MuonIdProducer()
    if (muIsoExtractorTrack_) delete muIsoExtractorTrack_;
    if (muIsoExtractorJet_) delete muIsoExtractorJet_;
    if (theTimingFiller_) delete theTimingFiller_;
+   if (theCosmicFiller_) delete theCosmicFiller_;
    // TimingReport::current()->dump(std::cout);
 }
 
@@ -568,15 +578,25 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         dtTimeColl[i] = dtTime;
         cscTimeColl[i] = cscTime;
         combinedTimeColl[i] = combinedTime;
+
+	// adam inset cosmic stuff here
+	if (fillGlobalCosmicCompatibility_ && muon->isGlobalMuon()){
+	  // Fill global cosmic compatability information
+	  reco::MuonCosmicCompatibility muonCosComp;
+	  muonCosComp = theCosmicFiller_->fillCompatibility(*muon, iEvent, iSetup);
+	  muon->setCosmicCompatibility(muonCosComp);
+	}
+	LogDebug("MuonIdentification");
         
         i++;
-     
      }
 	
    LogTrace("MuonIdentification") << "number of muons produced: " << outputMuons->size();
    // timers.push("MuonIdProducer::produce::fillArbitration");
    if ( fillMatching_ ) fillArbitrationInfo( outputMuons.get() );
    // timers.pop();
+
+
    edm::OrphanHandle<reco::MuonCollection> muonHandle = iEvent.put(outputMuons);
 
    filler.insert(muonHandle, combinedTimeColl.begin(), combinedTimeColl.end());
@@ -1013,3 +1033,16 @@ void MuonIdProducer::fillGlbQuality(edm::Event& iEvent, const edm::EventSetup& i
   LogDebug("MuonIdentification") << "tkChiVal " << aMuon.combinedQuality().trkRelChi2;
 
 }
+
+/*
+void MuonIdProducer::fillCosmicComp(edm::Event& iEvent, const edm::EventSetup& iSetup, reco::Muon& aMuon)
+{
+  edm::Handle<edm::ValueMap<reco::MuonCosmicCompatibility> > glbCosCompH;
+  iEvent.getByLabel(globalCosmicCompatibilityInputTag_, glbCosCompH);
+
+  if(aMuon.isGlobalMuon() && !glbCosCompH.failedToGet()) {
+    aMuon.setCosmicCompatibility((*glbCosCompH)[aMuon.combinedMuon()]);
+  }
+
+}
+*/
