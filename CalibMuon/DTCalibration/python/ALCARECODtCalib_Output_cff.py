@@ -13,6 +13,8 @@ OutALCARECODtCalib_noDrop = cms.PSet(
         'keep *_dttfDigis_*_*',
         'keep *_gtDigis_*_*',
         'keep *_TriggerResults_*_*',
+        'keep recoMuons_muons_*_*',
+        'keep booledmValueMap_muid*_*_*',
 	'keep *_MEtoEDMConverter_*_*')
 )
 
