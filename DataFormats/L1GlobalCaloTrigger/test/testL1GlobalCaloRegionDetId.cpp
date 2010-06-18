@@ -22,7 +22,7 @@ int main() {
         for (unsigned etaSign=0; etaSign<2; etaSign++) {
           for (unsigned iso=0; iso<2; iso++) {
             unsigned gctEta = (etaSign<<3)|(eta&0x7);
-            L1GctEmCand e(rank,phi,gctEta,iso);
+            L1GctEmCand e(rank,gctEta,phi, iso);
             if (e.rank()!=rank || e.etaIndex()!=gctEta || e.phiIndex()!=phi || e.isolated()!=iso) {
               cout << "Error in L1GctEmCand constructor rank=" << rank << " phi=" << phi << " eta=" << gctEta << " iso=" << iso << endl; 
               fail = true; 
