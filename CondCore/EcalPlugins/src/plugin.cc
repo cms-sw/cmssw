@@ -124,9 +124,6 @@
 #include "CondFormats/EcalObjects/interface/EcalSRSettings.h"
 #include "CondFormats/DataRecord/interface/EcalSRSettingsRcd.h"
 
-#include "CondFormats/EcalObjects/interface/EcalAlignmentEB.h"
-#include "CondFormats/DataRecord/interface/EcalAlignmentEBRcd.h"
-
 REGISTER_PLUGIN(EcalPedestalsRcd,EcalPedestals);
 REGISTER_PLUGIN(EcalWeightXtalGroupsRcd,EcalWeightXtalGroups);
 REGISTER_PLUGIN(EcalTBWeightsRcd,EcalTBWeights);
@@ -171,5 +168,3 @@ REGISTER_PLUGIN(EcalDQMChannelStatusRcd,EcalDQMChannelStatus);
 REGISTER_PLUGIN(EcalDQMTowerStatusRcd,EcalDQMTowerStatus);
 
 REGISTER_PLUGIN(EcalSRSettingsRcd, EcalSRSettings);
-
-REGISTER_PLUGIN(EcalAlignmentEBRcd,EcalAlignmentEB);
