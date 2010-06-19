@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.46 2010/03/30 20:25:50 drell Exp $
+// $Id: V0Fitter.cc,v 1.47 2010/03/30 22:38:00 drell Exp $
 //
 //
 
@@ -71,6 +71,7 @@ V0Fitter::V0Fitter(const edm::ParameterSet& theParameters,
   tkNhitsCut = theParameters.getParameter<int>(string("tkNhitsCut"));
   rVtxCut = theParameters.getParameter<double>(string("rVtxCut"));
   vtxSigCut = theParameters.getParameter<double>(string("vtxSignificance2DCut"));
+  vtxSigCut3D = theParameters.getParameter<double>(string("vtxSignificance3DCut"));
   collinCut = theParameters.getParameter<double>(string("collinearityCut"));
   kShortMassCut = theParameters.getParameter<double>(string("kShortMassCut"));
   lambdaMassCut = theParameters.getParameter<double>(string("lambdaMassCut"));
@@ -319,10 +320,17 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       SVector3 distanceVector( vtxPos.x() - bestPriVtxPosition.x(),
 			       vtxPos.y() - bestPriVtxPosition.y(),
 			       0. );
+      SVector3 distanceVector3D( vtxPos.x() - bestPriVtxPosition.x(),
+				 vtxPos.y() - bestPriVtxPosition.y(),
+				 vtxPos.z() - bestPriVtxPosition.z() );
       GlobalPoint beamSpotPos = bestPriVtxPosition;
 
       double rVtxMag = ROOT::Math::Mag(distanceVector);
-      double sigmaRvtxMag = sqrt(ROOT::Math::Similarity(totalCov, distanceVector)) / rVtxMag;
+      double rVtxMag3D = ROOT::Math::Mag(distanceVector3D);
+      double sigmaRvtxMag = 
+	sqrt(ROOT::Math::Similarity(totalCov, distanceVector)) / rVtxMag;
+      double sigmaRvtxMag3D 
+	= sqrt(ROOT::Math::Similarity(totalCov, distanceVector3D)) / rVtxMag3D;
       
       // The methods innerOk() and innerPosition() require TrackExtra, which
       // is only available in the RECO data tier, not AOD. Setting innerHitPosCut
@@ -350,7 +358,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       
       if( theVtx.normalizedChi2() > chi2Cut ||
 	  rVtxMag < rVtxCut ||
-	  rVtxMag / sigmaRvtxMag < vtxSigCut ) {
+	  rVtxMag / sigmaRvtxMag < vtxSigCut ||
+	  rVtxMag3D/sigmaRvtxMag3D < vtxSigCut3D ) {
 	continue;
       }
 

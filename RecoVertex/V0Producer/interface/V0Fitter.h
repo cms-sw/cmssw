@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.h,v 1.20 2010/02/20 21:02:01 wmtan Exp $
+// $Id: V0Fitter.h,v 1.21 2010/02/25 17:26:31 drell Exp $
 //
 //
 
@@ -89,6 +89,7 @@ class V0Fitter {
   int tkNhitsCut;
   double rVtxCut;
   double vtxSigCut;
+  double vtxSigCut3D;
   double collinCut;
   double kShortMassCut;
   double lambdaMassCut;
