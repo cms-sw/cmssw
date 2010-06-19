@@ -177,6 +177,13 @@ process.badSuperClustersClean = cms.EDFilter("CandViewCleaner",
 #process.load("JetMETCorrections.Configuration.DefaultJEC_cff")
 JET_COLL = "ak5CaloJets"
 JET_CUTS = "pt > 5.0 && abs(eta)<3.0 && (.05 < emEnergyFraction < .9)"
+###### Kalanand  Mishra, June 19, 2010
+### Apparently, the above "string-based" jet cut is not being
+## applied at all, so the resulting ROOT tree contains all jets.
+## I will investigate the behavior of the CMS string parser.
+## Meanwhile, you can either use 'CaloJetSelector' to apply these
+## cuts or apply the cut at analysis level.
+
 
 process.superClusterDRToNearestJet = cms.EDProducer("DeltaRNearestObjectComputer",
     probes = cms.InputTag("goodSuperClusters"),
@@ -188,7 +195,7 @@ process.superClusterDRToNearestJet = cms.EDProducer("DeltaRNearestObjectComputer
 
 
 process.JetMultiplicityInSCEvents = cms.EDProducer("ObjectMultiplicityCounter",
-    probes = cms.InputTag("goodSuperClustersClean"),
+    probes = cms.InputTag("goodSuperClusters"),
     objects = cms.InputTag(JET_COLL),
     objectSelection = cms.InputTag(JET_CUTS),
 )
