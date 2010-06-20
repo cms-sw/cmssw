@@ -15,6 +15,7 @@ from RecoMuon.GlobalMuonProducer.tevMuons_cfi import *
 # Muon Id producer
 from RecoMuon.MuonIdentification.muonIdProducerSequence_cff import *
 muons.fillGlobalTrackQuality = True
+muons.fillGlobalCosmicCompatibility = True
 
 #Muon Id isGood flag ValueMap producer sequence
 from RecoMuon.MuonIdentification.muonSelectionTypeValueMapProducer_cff import *
