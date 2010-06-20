@@ -150,6 +150,8 @@ void SETPatternRecognition::produce(const edm::Event& event, const edm::EventSet
   if(int(chambers_DT.size() + chambers_CSC.size()) > maxActiveChambers){
     // std::cout <<" Too many active chambers : nDT = "<<chambers_DT.size()<<
     // " nCSC = "<<chambers_CSC.size()<<"  Skip them all."<<std::endl;
+    edm::LogWarning("tooManyActiveChambers")<<" Too many active chambers : nDT = "<<chambers_DT.size()
+		     <<" nCSC = "<<chambers_CSC.size()<<"  Skip them all.";
     muonRecHits.clear();                                
     muonRecHits_DT2D_hasPhi.clear();    
     muonRecHits_DT2D_hasZed.clear();
