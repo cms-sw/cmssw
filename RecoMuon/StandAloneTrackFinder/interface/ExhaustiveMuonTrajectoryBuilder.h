@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneTrajectoryBuilder.h"
-#include "RecoMuon/MuonSeedGenerator/src/MuonSeedFromRecHits.h"
+#include "RecoMuon/TrackingTools/interface/MuonSeedFromRecHits.h"
 
 class ExhaustiveMuonTrajectoryBuilder : public MuonTrajectoryBuilder
 {
