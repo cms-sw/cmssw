@@ -60,9 +60,10 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
 {
   gROOT ->Reset();
     
-  char*  sfilename = "./DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root"; // file to be checked
-  char*  rfilename = "./DQM_V0001_R000000001__RelValSingleMuPt10__CMSSW_3_6_1-MC_36Y_V7A-v1__GEN-SIM-RECO.root"; // reference file 
+  char*  rfilename = "pixeltrackingrechitshist.root";
+  char*  sfilename = "../pixeltrackingrechitshist.root";
   
+
   delete gROOT->GetListOfFiles()->FindObject(rfilename);
   delete gROOT->GetListOfFiles()->FindObject(sfilename);
   
