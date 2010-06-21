@@ -8,7 +8,6 @@
 #include "DataFormats/HcalDigi/interface/HcalCalibDataFrame.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBTriggerData.h"
 #include "RecoTBCalo/HcalPlotter/src/HcalQLPlotHistoMgr.h"
-#include "TFile.h"
 
 //
 // class declaration
@@ -16,8 +15,8 @@
 
 class HcalQLPlotAnalAlgos {
 public:
-  HcalQLPlotAnalAlgos(const char *outputFilename,
-		   edm::ParameterSet histoParams);
+  HcalQLPlotAnalAlgos(
+		   const edm::ParameterSet& histoParams);
 
   void end(void);
   void SetEventType(const HcalTBTriggerData& trigd) ;
@@ -39,7 +38,6 @@ private:
   // ----------member data ---------------------------
   HcalQLPlotHistoMgr::EventType triggerID_;
   HcalQLPlotHistoMgr *histos_;
-  TFile              *mf_;
 };
 
 #endif // HcalQLPlotAnalAlgos_included
