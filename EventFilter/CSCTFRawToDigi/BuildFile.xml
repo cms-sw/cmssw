@@ -7,5 +7,4 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="Utilities/Timing"/>
 <export>
-  <lib   name="1"/>
 </export>

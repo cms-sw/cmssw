@@ -65,9 +65,9 @@ private:
 public:
 	bool check(void) const throw() {
 		return zero_1 !=0 || zero_2 !=0 || zero_3 !=0 || zero_4 !=0
-			|| zero_5 !=0 || zero_6 !=0 || zero_7 !=0 || zero_8 !=0
-			|| spare_1!=0 || spare_2!=0 || spare_3!=0 || spare_4!=0
-			|| spare_5!=0 || spare_6!=0 || spare_7!=0 || spare_8!=0 || spare_9!=0;
+			|| zero_5 !=0 || zero_6 !=0 || zero_7 !=0 || zero_8 !=0 // || spare_1!=0
+			|| spare_2!=0 || spare_3!=0 || spare_4!=0 || spare_5!=0
+			|| spare_6!=0 || spare_7!=0 || spare_8!=0 || spare_9!=0;
 	}
 
 	// Following functions return empty vector if no LCTs/MB_stubs/tracks are available

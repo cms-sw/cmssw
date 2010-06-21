@@ -1,7 +1,7 @@
 /* \file testCSCTFRawToDigi.cc
  *
- *  $Date: 2008/01/22 19:13:14 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/01/31 12:34:00 $
+ *  $Revision: 1.6 $
  *  \author L. Gray , ripped from testDaqSource
  */
 
@@ -37,13 +37,13 @@ public:
     }
   }
 
-  void tearDown(){}  
+  void tearDown(){}
 
   void testCreateDigis();
- 
+
   int  runIt(const std::string& config);
- 
-}; 
+
+};
 
 
 int testCSCTFRawToDigi::runIt(const std::string& config){
@@ -53,7 +53,7 @@ int testCSCTFRawToDigi::runIt(const std::string& config){
     edm::EventProcessor proc(config);
     proc.run();
   } catch (cms::Exception& e){
-    std::cerr << "Exception caught:  " 
+    std::cerr << "Exception caught:  "
 	      << e.explainSelf()
 	      << std::endl;
     rc=1;
@@ -67,27 +67,30 @@ void testCSCTFRawToDigi::testCreateDigis(){
   cout << endl << endl << " ---- testCSCTFRawToDigi::testCreateDigis ---- "
        << endl << endl;
 
-  const std::string config=
-    "process TEST = { \n"
-    "source = DaqSource{ string reader = \"CSCTFFileReader\"\n"
-    "                    untracked int32 maxEvents = 10\n"
-    "                    PSet pset = { string fileName = \"" + testfileLocation+ "testdata.bin" +"\"}} \n"
-    "module csctfunpacker = CSCTFUnpacker{ untracked bool TestBeamData = true\n"
-    "                                      untracked int32 TBFedId = 4       \n"
-    "                                      untracked int32 TBEndcap = 1      \n"
-    "                                      untracked int32 TBSector = 5      \n"
-    "                                      untracked string MappingFile = \"src/EventFilter/CSCTFRawToDigi/test/testmapping.map\" }\n"
-    "module csctfvalidator = CSCTFValidator { untracked int32 TBFedId = 4 \n"
-    "                                         untracked int32 TBEndcap = 1 \n"
-    "                                         untracked int32 TBSector = 5 \n"
-    "                                         untracked string MappingFile = \"src/EventFilter/CSCTFRawToDigi/test/testmapping.map\" }\n"
-    "module poolout = PoolOutputModule {\n"
-    "                            untracked string fileName = \"" + testfileLocation + "digis.root" +"\"} \n"
-    "path p = {csctfunpacker,csctfvalidator}\n"
-    "endpath e = {poolout} \n" 
-  "}\n";
-  
-  int rc = runIt(config);  
+  const std::string config= "import FWCore.ParameterSet.Config as cms  \n"
+                            "process = cms.Process(\"analyzer\")       \n"
+                            "process.load(\"EventFilter.CSCTFRawToDigi.csctfunpacker_cfi\")            \n"
+                            "process.load(\"EventFilter.CSCTFRawToDigi.csctfpacker_cfi\")              \n"
+                            "process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(128) )\n"
+                            "process.load(\"FWCore.MessageLogger.MessageLogger_cfi\")                  \n"
+                            "process.MessageLogger.cout.placeholder = cms.untracked.bool(False)        \n"
+                            "process.MessageLogger.cout.threshold = cms.untracked.string('INFO')       \n"
+                            "process.MessageLogger.debugModules = cms.untracked.vstring('*')           \n"
+                            "process.source = cms.Source(\"EmptySource\")                              \n"
+                            "process.csctfsinglegen = cms.EDProducer(\"CSCTFSingleGen\")               \n"
+                            "process.csctfpacker.lctProducer = cms.untracked.InputTag(\"csctfsinglegen:\")\n"
+                            "process.csctfpacker.mbProducer   = cms.untracked.InputTag(\"null:\")      \n"
+                            "process.csctfpacker.trackProducer = cms.untracked.InputTag(\"null:\")     \n"
+                            "process.csctfunpacker.producer = cms.untracked.InputTag(\"csctfpacker\",\"CSCTFRawData\")\n"
+                            "process.csctfanalyzer = cms.EDAnalyzer(\"CSCTFAnalyzer\",                 \n"
+                            "  mbProducer     = cms.untracked.InputTag(\"csctfunpacker:DT\"),          \n"
+                            "  lctProducer    = cms.untracked.InputTag(\"csctfunpacker:\"),            \n"
+                            "  trackProducer  = cms.untracked.InputTag(\"csctfunpacker:\"),            \n"
+                            "  statusProducer = cms.untracked.InputTag(\"csctfunpacker:\")             \n"
+                            ")                                                                         \n"
+                            "process.p = cms.Path(process.csctfsinglegen*process.csctfpacker*process.csctfunpacker*process.csctfanalyzer) \n";
+
+  int rc = runIt(config);
   CPPUNIT_ASSERT(rc==0);
 }
 
