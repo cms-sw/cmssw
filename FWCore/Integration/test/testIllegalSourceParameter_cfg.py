@@ -13,5 +13,6 @@ process.MessageLogger.cerr_stats.output = 'NULL'
 # exist in the ParameterSetDescription which
 # should result in an exception.
 process.source = cms.Source("PoolSource",
+			    fileNames = cms.untracked.vstring("file:dummy.root"),
                             doesNotExist = cms.bool(True))
 
