@@ -80,10 +80,6 @@ def customisePPData(process):
     process= customiseCommon(process)
     process.hfreco.firstSample=3
 
-    ## local tracker strip reconstruction
-    process.OutOfTime.TOBlateBP=0.071
-    process.OutOfTime.TIBlateBP=0.036
-            
     ## particle flow HF cleaning
     process.particleFlowRecHitHCAL.LongShortFibre_Cut = 30.
     process.particleFlowRecHitHCAL.ApplyPulseDPG = True
