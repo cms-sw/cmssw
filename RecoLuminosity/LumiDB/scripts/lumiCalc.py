@@ -2,7 +2,7 @@
 VERSION='2.00'
 import os,sys
 import coral
-from RecoLuminosity.LumiDB import argparse,nameDealer,selectionParser,hltTrgSeedMapper,connectstrParser,cacheconfigParser,tablePrinter,csvReporter
+from RecoLuminosity.LumiDB import argparse,nameDealer,selectionParser,hltTrgSeedMapper,connectstrParser,cacheconfigParser,tablePrinter,csvReporter,csvSelectionParser
 from RecoLuminosity.LumiDB.wordWrappers import wrap_always,wrap_onspace,wrap_onspace_strict
 class constants(object):
     def __init__(self):
@@ -598,9 +598,16 @@ def main():
     inputfilecontent=''
     fileparsingResult=''
     if runnumber==0 and len(ifilename)!=0 :
-        f=open(ifilename,'r')
-        inputfilecontent=f.read()
-        fileparsingResult=selectionParser.selectionParser(inputfilecontent)
+        basename,extension=os.path.splitext(ifilename)
+        if extension=='.csv':#if file ends with .csv,use csv parser,else parse as json file
+            fileparsingResult=csvSelectionParser.csvSelectionParser(ifilename)
+        else:
+            f=open(ifilename,'r')
+            inputfilecontent=f.read()
+            fileparsingResult=selectionParser.selectionParser(inputfilecontent)
+        if not fileparsingResult:
+            print 'failed to parse the input file',ifilename
+            raise 
     lumidata=[]
     if args.action == 'delivered':
         if runnumber!=0:
