@@ -15,15 +15,6 @@
 <library   file="BeamSpotProducer.cc" name="BeamSpotProducer">
   <flags   EDM_PLUGIN="1"/>
 </library>
-<library   file="AlcaBeamSpotProducer.cc" name="AlcaBeamSpotProducer">
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="AlcaBeamSpotHarvester.cc" name="AlcaBeamSpotHarvester">
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="AlcaBeamSpotFromDB.cc" name="AlcaBeamSpotFromDB">
-  <flags   EDM_PLUGIN="1"/>
-</library>
 <library   file="BeamSpotOnlineProducer.cc" name="BeamSpotOnlineProducer">
   <flags   EDM_PLUGIN="1"/>
 </library>
@@ -40,6 +31,4 @@
 <library   file="BeamSpotFromDB.cc" name="BeamSpotFromDB">
   <flags   EDM_PLUGIN="1"/>
 </library>
-<library   file="AlcaBeamSpotFromDB.cc" name="AlcaBeamSpotFromDB">
-  <flags   EDM_PLUGIN="1"/>
-</library>
+
