@@ -40,8 +40,8 @@ HcalNoiseParameterSet = cms.PSet(
     lMinZeros = cms.int32(10),
     lMinLowEHitTime = cms.double(-9999.0),
     lMaxLowEHitTime = cms.double(9999.0),
-    lMinHighEHitTime = cms.double(-7.0),
-    lMaxHighEHitTime = cms.double(6.0),
+    lMinHighEHitTime = cms.double(-9999.0),
+    lMaxHighEHitTime = cms.double(9999.0),
 
     # define tight noise cuts
     tMinRatio = cms.double(0.73),
@@ -52,8 +52,8 @@ HcalNoiseParameterSet = cms.PSet(
     tMinZeros = cms.int32(8),
     tMinLowEHitTime = cms.double(-9999.0),
     tMaxLowEHitTime = cms.double(9999.0),
-    tMinHighEHitTime = cms.double(-5.0),
-    tMaxHighEHitTime = cms.double(4.0),
+    tMinHighEHitTime = cms.double(-7.0),
+    tMaxHighEHitTime = cms.double(6.0),
 
     # define high level noise cuts
     hlMaxHPDEMF = cms.double(-9999.0),
