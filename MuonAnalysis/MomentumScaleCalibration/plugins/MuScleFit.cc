@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2010/06/14 12:32:32 $
-//  $Revision: 1.87 $
+//  $Date: 2010/06/21 15:20:23 $
+//  $Revision: 1.88 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -775,42 +775,47 @@ void MuScleFit::selectMuons(const edm::Event & event)
     }
     else if( PATmuons_ == true ){
       reco::GenParticleCollection* genPatParticles = new reco::GenParticleCollection;
+      
+      //explicitly for JPsi but can be adapted!!!!!
+      for(std::vector<pat::CompositeCandidate>::const_iterator it=collAll->begin();
+	  it!=collAll->end();++it){
+	reco::GenParticleRef genJpsi = it->genParticleRef();
+	bool isMatched = (genJpsi.isAvailable() && genJpsi->pdgId() == 443);  
+	if (isMatched){
+	  genPatParticles->push_back(*(const_cast<reco::GenParticle*>(genJpsi.get())));
+	} 
+      }   
 
-	for(std::vector<pat::CompositeCandidate>::const_iterator it=collAll->begin();
-	    it!=collAll->end();++it){
-	  reco::GenParticleRef genJpsi = it->genParticleRef();
-	  bool isMatched = (genJpsi.isAvailable() && genJpsi->pdgId() == 443);  
-	  if (isMatched){
-	    genPatParticles->push_back(*(const_cast<reco::GenParticle*>(genJpsi.get())));
-	  } 
-	}   
+      if(collMuSel.size()==2){
+	reco::GenParticleRef genMu1 = collMuSel[0]->genParticleRef();
+	reco::GenParticleRef genMu2 = collMuSel[1]->genParticleRef();
+	bool isMuMatched = (genMu1.isAvailable() && genMu2.isAvailable() && 
+			    genMu1->pdgId()*genMu2->pdgId() == -169);
+	if (isMuMatched){
+	  genPatParticles->push_back(*(const_cast<reco::GenParticle*>(genMu1.get())));
+	  genPatParticles->push_back(*(const_cast<reco::GenParticle*>(genMu2.get())));
 
-	if(collMuSel.size()){
-	  reco::GenParticleRef genMu1 = collMuSel[0]->genParticleRef();
-	  reco::GenParticleRef genMu2 = collMuSel[1]->genParticleRef();
-	  bool isMuMatched = (genMu1.isAvailable() && genMu2.isAvailable() && 
-			      genMu1->pdgId()*genMu2->pdgId() == -169);// && 
-	  //genMu1->momentum().rho() > 2.5 && genMu2->momentum().rho() > 2.5);
-	  if (isMuMatched){
-	    genPatParticles->push_back(*(const_cast<reco::GenParticle*>(genMu1.get())));
-	    genPatParticles->push_back(*(const_cast<reco::GenParticle*>(genMu2.get())));
-	    MuScleFitUtils::genPair.push_back(std::make_pair((*genPatParticles)[1].p4(),(*genPatParticles)[2].p4()) );
-	    plotter->fillGen1(const_cast <reco::GenParticleCollection*> (genPatParticles), true);
-	    if (debug_>0) std::cout << "Found genParticles in PAT" << std::endl;
-	  }
-	  else{
-	    std::cout << "No recomuon selected so no access to generated info"<<std::endl;
-	    // Fill it in any case, otherwise it will not be in sync with the event number
-	    MuScleFitUtils::genPair.push_back( std::make_pair( lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.) ) );
-	    
-	  }
+	  if(genMu1->pdgId()==13)
+	    MuScleFitUtils::genPair.push_back(std::make_pair(genMu1.get()->p4(),genMu2.get()->p4()) );
+	  else
+	    MuScleFitUtils::genPair.push_back(std::make_pair(genMu2.get()->p4(),genMu1.get()->p4()) );
+
+	  plotter->fillGen1(const_cast <reco::GenParticleCollection*> (genPatParticles), true);
+
+	  if (debug_>0) std::cout << "Found genParticles in PAT" << std::endl;
 	}
 	else{
+	  std::cout << "No recomuon selected so no access to generated info"<<std::endl;
+	  // Fill it in any case, otherwise it will not be in sync with the event number
+	  MuScleFitUtils::genPair.push_back( std::make_pair( lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.) ) );
+	    
+	}
+      }
+      else{
 	std::cout << "No recomuon selected so no access to generated info"<<std::endl;
-	 // Fill it in any case, otherwise it will not be in sync with the event number
+	// Fill it in any case, otherwise it will not be in sync with the event number
         MuScleFitUtils::genPair.push_back( std::make_pair( lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.) ) );
       }
-
     }
     else {
         std::cout<<"ERROR "<<"non generation info and speedup true!!!!!!!!!!!!"<<std::endl;
@@ -818,7 +823,6 @@ void MuScleFit::selectMuons(const edm::Event & event)
         MuScleFitUtils::genPair.push_back( std::make_pair( lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.) ) );
     }
     
-
     if(!(MuScleFitUtils::speedup) && debug_>0) {
       std::cout << "genParticles:" << std::endl;
       std::cout << MuScleFitUtils::genPair.back().first << " , " << MuScleFitUtils::genPair.back().second << std::endl;
