@@ -46,9 +46,7 @@
 
 #include "RecoMuon/MuonIdentification/interface/MuonTimingFiller.h"
 #include "RecoMuon/MuonIdentification/interface/MuonCaloCompatibility.h"
-#include "RecoMuon/GlobalTrackingTools/interface/GlobalCosmicCompatibilityFiller.h"
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
-
 
 class MuonIdProducer : public edm::EDProducer {
  public:
@@ -70,7 +68,6 @@ class MuonIdProducer : public edm::EDProducer {
 				    reco::IsoDeposit& trackDep, reco::IsoDeposit& ecalDep, reco::IsoDeposit& hcalDep, reco::IsoDeposit& hoDep,
 				    reco::IsoDeposit& jetDep);
    void          fillGlbQuality( edm::Event&, const edm::EventSetup&, reco::Muon& aMuon );
-   //   void          fillCosmicComp( edm::Event&, const edm::EventSetup&, reco::Muon& aMuon );
    void          init( edm::Event&, const edm::EventSetup& );
    
    // make a muon based on a track ref
@@ -104,7 +101,6 @@ class MuonIdProducer : public edm::EDProducer {
    std::vector<std::string>   inputCollectionTypes_;
 
    MuonTimingFiller* theTimingFiller_;
-   GlobalCosmicCompatibilityFiller* theCosmicFiller_;
 
    // selections
    double minPt_;
@@ -148,8 +144,6 @@ class MuonIdProducer : public edm::EDProducer {
 
    bool          fillGlobalTrackQuality_;
    edm::InputTag globalTrackQualityInputTag_;
-   bool          fillGlobalCosmicCompatibility_;
-   //edm::InputTag globalCosmicCompatibilityInputTag_;
    double caloCut_;
 };
 #endif
