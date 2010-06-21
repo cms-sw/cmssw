@@ -499,28 +499,11 @@ double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron ,
         result = 2.;
     }
 
-    if (hOverE > cut[0]) 
-      return result;    
-
-    if (sigmaee > cut[1]) 
-      return result;    
-
-    if (fabs(deltaPhiIn) > cut[2]) 
-      return result;    
-
-    if (fabs(deltaEtaIn) > cut[3]) 
-      return result;    
-    
-    if (e25Maxoe55 < cut[4] && e15oe55 < cut[5])
-      return result;
-    // some extra electron id cuts
-    if (sigmaee < cut[18]) // inverted sigmaee cut - spike removal related
-      return result;
-
-    if (  eOverP < cut[19] ||  eOverP > cut[20]) // lower and upper cut in E/P
-      return result;
-    
-    result = result + 1;
+    if ((hOverE > cut[0]) && (sigmaee > cut[1]) && (fabs(deltaPhiIn) > cut[2]) &&
+        (fabs(deltaEtaIn) > cut[3]) && (e25Maxoe55 < cut[4] && e15oe55 < cut[5]) &&
+        (sigmaee < cut[18]) && (eOverP < cut[19] ||  eOverP > cut[20]) ) {
+      result = result + 1;
+    }
 
     if (ip > cut[21])
       return result;
