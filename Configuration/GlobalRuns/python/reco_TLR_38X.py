@@ -54,10 +54,6 @@ def customiseCommon(process):
     ## ECAL 
     process.ecalRecHit.ChannelStatusToBeExcluded = [ 1, 2, 3, 4, 8, 9, 10, 11, 12, 13, 14, 78, 142 ]
 
-
-    ## HCAL temporary fixes
-    process.hfreco.samplesToAdd = 4
-    
     ## EGAMMA
     process.photons.minSCEtBarrel = 5.
     process.photons.minSCEtEndcap =5.
@@ -78,7 +74,6 @@ def customiseCommon(process):
 ##############################################################################
 def customisePPData(process):
     process= customiseCommon(process)
-    process.hfreco.firstSample=3
 
     ## particle flow HF cleaning
     process.particleFlowRecHitHCAL.LongShortFibre_Cut = 30.
@@ -94,7 +89,6 @@ def customisePPData(process):
 ##############################################################################
 def customisePPMC(process):
     process=customiseCommon(process)
-    process.hfreco.firstSample=1
     
     return process
 
