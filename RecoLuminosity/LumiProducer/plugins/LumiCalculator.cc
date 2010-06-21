@@ -85,7 +85,12 @@ void LumiCalculator::beginJob(){
 
 void LumiCalculator::beginRun(const edm::Run& run, const edm::EventSetup& c){
   //std::cout<<"I'm in run number "<<run.run()<<std::endl;
-  if(!hltConfig_.init("HLT")){
+  //if(!hltConfig_.init("HLT")){
+  // throw cms::Exception("HLT process cannot be initialized");
+  //}
+  bool changed(true);
+  const std::string processname("HLT");
+  if(!hltConfig_.init(run,c,processname,changed)){
     throw cms::Exception("HLT process cannot be initialized");
   }
   perrunlumiinfo_.clear();
