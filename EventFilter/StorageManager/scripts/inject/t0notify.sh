@@ -1,5 +1,5 @@
 #!/bin/sh
-#$Id$
+#$Id: t0notify.sh,v 1.1 2010/06/01 14:33:59 babar Exp $
 
 . /etc/init.d/functions
 
@@ -35,11 +35,7 @@ if [ ! -x $SMT0_NW ]; then
 fi
 
 # directory to monitor
-SMT0_MONDIR=/store/global/log
-
-if test -n "$SM_STORE"; then
-    SMT0_MONDIR=$SM_STORE/global/log
-fi
+SMT0_MONDIR=$SMT0_LOCAL_RUN_DIR/logs
 
 if [ ! -d $SMT0_MONDIR ]; then
     echo "SMT0_MONDIR ($SMT0_MONDIR) does not exist or is no directory"

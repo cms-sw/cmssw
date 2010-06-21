@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id$
+# $Id: InjectWorker.pl,v 1.41 2010/06/01 13:39:09 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -11,7 +11,7 @@ use strict;
 use warnings;
 
 use Linux::Inotify2;
-use POE qw( Wheel::FollowTail Component::Log4perl );
+use POE qw( Wheel::FollowTail Component::Log4perl Wheel::Run Filter::Line );
 use POSIX qw( strftime );
 use File::Basename;
 use DBI;
@@ -25,6 +25,7 @@ my $log4perlConfig = '/opt/injectworker/log4perl.conf';
 my $nodbint     = 0; # SM_DONTACCESSDB: no access any DB at all
 my $nodbwrite   = 0; # SM_DONTWRITEDB : no write to DB but retrieve HLT key
 my $nofilecheck = 0; # SM_NOFILECHECK : no check if files are locally accessible
+my $maxhooks    = 3; # Number of parallel hooks
 ################################################################################
 
 # global vars
@@ -104,6 +105,10 @@ POE::Session->create(
         setup_main_db    => \&setup_main_db,
         setup_hlt_db     => \&setup_hlt_db,
         get_hlt_key      => \&get_hlt_key,
+        start_hook       => \&start_hook,
+        hook_result      => \&hook_result,
+        hook_error       => \&hook_error,
+        hook_done        => \&hook_done,
         parse_line       => \&parse_line,
         read_offsets     => \&read_offsets,
         read_changes     => \&read_changes,
@@ -324,6 +329,7 @@ sub get_hlt_key {
     }
     else {
         $heap->{args}->{COMMENT} = 'HLTKEY=' . $hltkey;
+        $heap->{args}->{HLTKEY}  = $hltkey;
     }
 }
 
@@ -345,10 +351,11 @@ sub parse_line {
             my $value = $args[ $i + 1 ];
             for( $args[$i] ) {
                 s/^--//;
-                s/_//g;
+#                s/_//g; # This breaks too many things
                 s/^COUNT$/FILECOUNTER/;
                 s/^DATASET$/SETUPLABEL/;
                 $heap->{args}->{$_} = $value;
+                $heap->{args}->{$_} = $value if s/_//g;
             }
         }
     }
@@ -384,24 +391,27 @@ sub update_db {
     my $errflag = 0;
     my $rows = $heap->{$handler}->execute( @bind_params ) or $errflag = 1;
 
+    $rows = 'undef' unless defined $rows;
+    if ($errflag) {
+        $kernel->call( 'logger',
+            error => "DB access error (rows: $rows)"
+              . " for $handler when executing ("
+              . join( ', ', @bind_params ) . '), DB returned: '
+              . $heap->{$handler}->errstr );
+        return;
+    }
+
     # Print any messages from the DB's dbms output
     for ( $heap->{dbh}->func('dbms_output_get') ) {
         $kernel->call( 'logger', info => $_ );
     }
 
-    if ($errflag) {
-        $kernel->call( 'logger',
-            error => "DB access error for $handler when executing, DB returned "
-              . $heap->{$handler}->errstr );
-        return;
-    }
-
     if ( $rows != 1 ) {
         $kernel->call( 'logger',
-            error => "DB did not return one row for $handler, but $rows" );
+            error => "DB did not return one row for $handler ("
+            . join( ', ', @bind_params ) . "), but $rows" );
         return;
     }
-    $kernel->call( 'logger', debug => "Inserted event, notifying: " . join( ' ', $handler, map { "--$_=$heap->{args}->{$_}" } sort keys %{ $heap->{args} } ) );
 }
 
 sub insert_file {
@@ -410,7 +420,7 @@ sub insert_file {
     $heap->{args}->{PRODUCER} = 'StorageManager';
     $kernel->call( $session, 'update_db', insertFile => qw(
         FILENAME PATHNAME HOSTNAME SETUPLABEL STREAM TYPE
-        PRODUCER APPVERSION APPNAME RUNNUMBER LUMISECTION
+        PRODUCER APPNAME APPVERSION RUNNUMBER LUMISECTION
         FILECOUNTER INSTANCE STARTTIME
         ) );
 }
@@ -422,9 +432,10 @@ sub close_file {
     $heap->{args}->{INDFILE} = $heap->{args}->{FILENAME};
     $heap->{args}->{INDFILE} =~ s/\.dat$/\.ind/;
     $heap->{args}->{INDFILESIZE} = -1;
+    $kernel->call( 'logger', debug => "Indfile: $heap->{args}->{PATHNAME}/$heap->{args}->{INDFILE} for $heap->{args}->{FILENAME}" );
     if ( $host eq $heap->{args}->{HOSTNAME} ) {
         if ( -e "$heap->{args}->{PATHNAME}/$heap->{args}->{INDFILE}" ) {
-            $heap->{args}->{INDFILESIZE} = -s _;
+            $heap->{args}->{INDFILESIZE} =  (stat(_))[7];
         }
         elsif ( $nofilecheck == 0 ) {
             $heap->{args}->{INDFILE} = '';
@@ -432,8 +443,8 @@ sub close_file {
     }
 
     $heap->{args}->{DESTINATION} = 'Global';
-    my $setuplabel                  = $heap->{args}->{SETUPLABEL};
-    my $stream                      = $heap->{args}->{STREAM};
+    my $setuplabel               = $heap->{args}->{SETUPLABEL};
+    my $stream                   = $heap->{args}->{STREAM};
     if (   $setuplabel =~ 'TransferTest'
         || $stream =~ '_TransferTest$' )
     {
@@ -451,8 +462,79 @@ sub close_file {
         CHECKSUM STOPTIME INDFILE INDFILESIZE COMMENT
         ) );
 
+    # Alias index for Tier0
+    $heap->{args}->{INDEX} = $heap->{args}->{INDFILE};
+
+    # Run the hook
+    $kernel->call( $session, 'start_hook' );
+
     # XXX Write a proper log for the notification part
-    $kernel->post( 'notify', info => join( ' ', 'closeFile.pl', map { "--$_=$heap->{args}->{$_}" } sort keys %{ $heap->{args} } ) );
+    # XXX Remove this duplicate code...
+    # redirect setuplabel/streams to different destinations according to
+    # https://twiki.cern.ch/twiki/bin/view/CMS/SMT0StreamTransferOptions
+    return
+      if $stream eq 'EcalCalibration'
+        || $stream =~ '_EcalNFS$'     #skip EcalCalibration
+        || $stream =~ '_NoTransfer$'    #skip if NoTransfer option is set
+        || $stream =~ '_DontNotifyT0$'; #skip if DontNotify
+
+    $kernel->post( 'notify', info => join( ' ', 'notifyTier0.pl', grep defined, map {
+        $heap->{args}->{$_} ? "--$_=$heap->{args}->{$_}" : undef } 
+                        qw( APPNAME APPVERSION RUNNUMBER LUMISECTION FILENAME
+                        PATHNAME HOSTNAME DESTINATION SETUPLABEL
+                        STREAM TYPE NEVENTS FILESIZE CHECKSUM
+                        HLTKEY INDEX STARTTIME STOPTIME ) ) );
+
+}
+
+sub start_hook {
+    my ( $kernel, $session, $heap ) = @_[ KERNEL, SESSION, HEAP ];
+    my $cmd = $ENV{'SM_HOOKSCRIPT'};
+    return unless $cmd;
+    my @args = grep defined, map {
+        $heap->{args}->{$_} ? "--$_=$heap->{args}->{$_}" : undef } 
+                        qw( APPNAME APPVERSION RUNNUMBER LUMISECTION FILENAME
+                        PATHNAME HOSTNAME DESTINATION SETUPLABEL
+                        STREAM TYPE NEVENTS FILESIZE CHECKSUM INSTANCE
+                        HLTKEY INDEX STARTTIME STOPTIME FILECOUNTER );
+    unshift @args, $cmd;
+    $kernel->call( 'logger', debug => "Running hook: " . join( " ", @args) );
+    my $task = POE::Wheel::Run->new(
+            Program      => sub { system( @args ); },
+            StdoutFilter => POE::Filter::Line->new(),
+            StderrFilter => POE::Filter::Line->new(),
+            StdoutEvent  => 'hook_result',
+            StderrEvent  => 'hook_error',
+            CloseEvent   => 'hook_done',
+    );
+    $heap->{task}->{$task->ID} = $task;
+    $kernel->sig_child($task->PID, "sig_child");
+}
+
+# Catch and display information from the hook's STDOUT.
+sub hook_result {
+    my ($kernel, $result) = @_[ KERNEL, ARG0 ];
+    $kernel->call( 'logger', debug => "Hook output: $result" );
+}
+
+# Catch and display information from the hook's STDERR.
+sub hook_error {
+    my ($kernel, $result) = @_[ KERNEL, ARG0 ];
+    $kernel->call( 'logger', info => "Hook error: $result" );
+}
+
+# The task is done.  Delete the child wheel, and try to start a new
+# task to take its place.
+sub hook_done {
+    my ($kernel, $heap, $task_id) = @_[KERNEL, HEAP, ARG0];
+    delete $heap->{task}->{$task_id};
+#    $kernel->yield("next_hook"); # For when it will be more clever
+}
+
+# Detect the CHLD signal as each of our children exits.
+sub sig_child {
+    my ($heap, $sig, $pid, $exit_val) = @_[HEAP, ARG0, ARG1, ARG2];
+    my $details = delete $heap->{$pid};
 }
 
 sub got_log_line {
@@ -593,7 +675,7 @@ sub read_offsets {
             my $fsize = (stat(_))[7];
             if( $offset != $fsize ) {
                 $kernel->call( 'logger',
-                    debug => "File $file has a different size: $offset != $size" );
+                    debug => "File $file has a different size: $offset != $fsize" );
                 $kernel->yield( read_changes => $file );
             }
             $heap->{offsets}{$file} = $offset;

@@ -1,5 +1,5 @@
 #!/bin/sh
-#$Id: t0inject.sh,v 1.18 2008/11/08 19:30:44 loizides Exp $
+#$Id: t0inject.sh,v 1.19 2010/06/01 14:33:59 babar Exp $
 
 . /etc/init.d/functions
 
@@ -68,6 +68,7 @@ start(){
 
     cd ${SMT0_LOCAL_RUN_DIR}/workdir
 
+    export SMIW_RUNNUM=0
     echo "Starting $SMT0_IW"
     nohup ${SMT0_IW} ${SMT0_MONDIR} ${SMT0_LOCAL_RUN_DIR}/logs \
         ${SMT0_CONFIG} > `hostname`.$$ 2>&1 &
