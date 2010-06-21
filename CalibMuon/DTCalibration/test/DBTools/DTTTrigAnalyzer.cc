@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/17 09:15:48 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/02/15 16:45:47 $
+ *  $Revision: 1.10 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "CondFormats/DTObjects/interface/DTTtrig.h"
 #include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
-
+#include <iostream>
 #include "TFile.h"
 #include "TH1D.h"
 #include "TString.h"

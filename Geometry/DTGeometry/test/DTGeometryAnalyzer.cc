@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/01/16 11:11:45 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/04/06 20:00:51 $
+ *  $Revision: 1.8 $
  *  \author N. Amapane - CERN
  */
 
@@ -18,6 +18,7 @@
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 //#include <Geometry/DTGeometry/interface/DTLayer.h>
 
+#include <iostream>
 #include <string>
 #include <cmath>
 #include <iomanip> // for setw() etc.
