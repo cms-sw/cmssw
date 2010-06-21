@@ -21,7 +21,6 @@ muons.inputCollectionLabels = ['ctfWithMaterialTracksP5LHCNavigation', 'globalCo
 muons.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks']
 muons.fillIsolation = True
 muons.fillGlobalTrackQuality = True
-muons.fillGlobalCosmicCompatibility = True
 # need to modify track selection as well (not clear to what)
 muons.TrackExtractorPSet.inputTrackCollection = 'ctfWithMaterialTracksP5LHCNavigation'
 muons.CaloExtractorPSet.CenterConeOnCalIntersection = True
