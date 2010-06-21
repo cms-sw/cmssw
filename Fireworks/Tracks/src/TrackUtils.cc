@@ -2,7 +2,7 @@
 //
 // Package:     Tracks
 // Class  :     TrackUtils
-// $Id: TrackUtils.cc,v 1.29 2010/06/10 17:16:03 amraktad Exp $
+// $Id: TrackUtils.cc,v 1.30 2010/06/21 16:14:52 matevz Exp $
 //
 
 // system include files
@@ -93,24 +93,20 @@ prepareTrack(const reco::Track& track,
    // properly first. Propagator should take care of y=0 transition.
 
    std::vector<State> refStates;
-   TEveVector trackMomentum( track.px(), track.py(), track.pz() );
-   refStates.push_back(State(TEveVector(track.vertex().x(),
-                                        track.vertex().y(),
-                                        track.vertex().z()),
+   TEveVector trackMomentum(track.px(), track.py(), track.pz());
+   refStates.push_back(State(TEveVector(track.vx(), track.vy(), track.vz()),
                              trackMomentum));
    if( track.extra().isAvailable() ) {
-      refStates.push_back(State(TEveVector( track.innerPosition().x(),
-                                            track.innerPosition().y(),
-                                            track.innerPosition().z() ),
-                                TEveVector( track.innerMomentum().x(),
-                                            track.innerMomentum().y(),
-                                            track.innerMomentum().z() )));
-      refStates.push_back(State(TEveVector( track.outerPosition().x(),
-                                            track.outerPosition().y(),
-                                            track.outerPosition().z() ),
-                                TEveVector( track.outerMomentum().x(),
-                                            track.outerMomentum().y(),
-                                            track.outerMomentum().z() )));
+      if (track.innerOk()) {
+         const reco::TrackBase::Point  &v = track.innerPosition();
+         const reco::TrackBase::Vector &p = track.innerMomentum();
+         refStates.push_back(State(TEveVector(v.x(), v.y(), v.z()), TEveVector(p.x(), p.y(), p.z())));
+      }
+      if (track.outerOk()) {
+         const reco::TrackBase::Point  &v = track.outerPosition();
+         const reco::TrackBase::Vector &p = track.outerMomentum();
+         refStates.push_back(State(TEveVector(v.x(), v.y(), v.z()), TEveVector(p.x(), p.y(), p.z())));
+      }
    }
    for( std::vector<TEveVector>::const_iterator point = extraRefPoints.begin(), pointEnd = extraRefPoints.end();
         point != pointEnd; ++point )
