@@ -8,6 +8,7 @@
 <use   name="CondFormats/BeamSpotObjects"/>
 <use   name="CondCore/DBOutputService"/>
 <use   name="RecoVertex/BeamSpotProducer"/>
+<use   name="Calibration/TkAlCaRecoProducers"/>
 
 
 <library   file="CalibrationTrackSelectorModule.cc">
