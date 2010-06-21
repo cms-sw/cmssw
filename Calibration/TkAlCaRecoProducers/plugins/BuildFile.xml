@@ -1,9 +1,31 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
+
+<use   name="CondCore/Utilities"/> 
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="CondFormats/BeamSpotObjects"/>
+<use   name="CondCore/DBOutputService"/>
+<use   name="RecoVertex/BeamSpotProducer"/>
+
+
 <library   file="CalibrationTrackSelectorModule.cc">
   <use   name="Calibration/TkAlCaRecoProducers"/>
   <use   name="CommonTools/RecoAlgos"/>
   <use   name="PhysicsTools/UtilAlgos"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+
+<library   file="AlcaBeamSpotProducer.cc" name="AlcaBeamSpotProducer">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="AlcaBeamSpotHarvester.cc" name="AlcaBeamSpotHarvester">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="AlcaBeamSpotFromDB.cc" name="AlcaBeamSpotFromDB">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="AlcaBeamSpotFromDB.cc" name="AlcaBeamSpotFromDB">
   <flags   EDM_PLUGIN="1"/>
 </library>
