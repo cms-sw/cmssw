@@ -60,9 +60,9 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
 {
   gROOT ->Reset();
     
-  char*  rfilename = "pixeltrackingrechitshist.root";
-  char*  sfilename = "../pixeltrackingrechitshist.root";
-  
+  char*  sfilename = "pixeltrackingrechitshist.root";
+  char*  rfilename = "../pixeltrackingrechitshist.root";
+  /// WARNING: in other validation macros, rfilename is "new" and sfilename is "reference", while here is inverted.
 
   delete gROOT->GetListOfFiles()->FindObject(rfilename);
   delete gROOT->GetListOfFiles()->FindObject(sfilename);
