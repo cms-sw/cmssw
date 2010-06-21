@@ -140,7 +140,7 @@ void ResolutionAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     // --------------------------------------------
 
     //first is always mu-, second is always mu+
-    std::pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> genMu = MuScleFitUtils::findGenMuFromRes(evtMC);
+    std::pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> genMu = MuScleFitUtils::findGenMuFromRes(evtMC.product());
   
     reco::Particle::LorentzVector genMother( genMu.first + genMu.second );
   

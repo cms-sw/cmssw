@@ -1,8 +1,8 @@
 //  \class MuScleFitPlotter
 //  Plotter for simulated,generated and reco info of muons
 //
-//  $Date: 2010/03/29 18:15:57 $
-//  $Revision: 1.17 $
+//  $Date: 2010/05/25 10:26:26 $
+//  $Revision: 1.18 $
 //  \author  C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 // ----------------------------------------------------------------------------------
@@ -46,7 +46,7 @@ MuScleFitPlotter::~MuScleFitPlotter(){
 
 // Find and store in histograms the generated resonance and muons
 // --------------------------------------------------------------
-void MuScleFitPlotter::fillGen1(edm::Handle<reco::GenParticleCollection> genParticles)
+void MuScleFitPlotter::fillGen1(const reco::GenParticleCollection* genParticles, bool PATmuons)
 {
   //  bool prova = false;
   //Loop on generated particles
@@ -69,7 +69,7 @@ void MuScleFitPlotter::fillGen1(edm::Handle<reco::GenParticleCollection> genPart
       else if( pdgId == 553 || pdgId == 100553 || pdgId == 200553 ) mapHisto["hGenResUpsilon1S"]->Fill(genRes);
     }
     //Check if it's a muon from a resonance
-    if( status==1 && pdgId==13 ) {
+    if( status==1 && pdgId==13 && !PATmuons) {
       int momPdgId = abs(mcIter->mother()->pdgId());
       if( momPdgId==23  || momPdgId==443    || momPdgId==100443 || 
           momPdgId==553 || momPdgId==100553 || momPdgId==200553 ) {
@@ -84,6 +84,16 @@ void MuScleFitPlotter::fillGen1(edm::Handle<reco::GenParticleCollection> genPart
 	}
 	else muFromRes.second = mcIter->p4();
       }
+    }
+    if( status==1 && pdgId==13 && PATmuons) {
+      mothersFound[5] = 1;
+      mapHisto["hGenMu"]->Fill(mcIter->p4());
+      std::cout<<"genmu "<<mcIter->p4()<<std::endl;
+      if(mcIter->charge()>0){
+	muFromRes.first = mcIter->p4();
+	// prova = true;
+      }
+      else muFromRes.second = mcIter->p4();
     }
   }
   //   if(!prova)
@@ -110,7 +120,7 @@ void MuScleFitPlotter::fillGen1(edm::Handle<reco::GenParticleCollection> genPart
 
 // Find and store in histograms the generated resonance and muons
 // --------------------------------------------------------------
-void MuScleFitPlotter::fillGen2(edm::Handle<edm::HepMCProduct> evtMC, bool sherpaFlag_)
+void MuScleFitPlotter::fillGen2(const edm::HepMCProduct* evtMC, bool sherpaFlag_)
 {
   //Loop on generated particles
   const HepMC::GenEvent* Evt = evtMC->GetEvent();

@@ -1,7 +1,7 @@
 /** See header file for a class description
  *
- *  $Date: 2010/05/25 10:26:26 $
- *  $Revision: 1.37 $
+ *  $Date: 2010/06/21 11:26:17 $
+ *  $Revision: 1.38 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -372,7 +372,7 @@ std::pair<lorentzVector,lorentzVector> MuScleFitUtils::findBestRecoRes( const st
   return recMuFromBestRes;
 }
 
-std::pair<lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes( const edm::Handle<edm::HepMCProduct> & evtMC )
+std::pair<lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes( const edm::HepMCProduct* evtMC )
 {
   const HepMC::GenEvent* Evt = evtMC->GetEvent();
   std::pair<lorentzVector,lorentzVector> muFromRes;
@@ -410,7 +410,7 @@ std::pair<lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes( const 
   return muFromRes;
 }
 
-std::pair<lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes( const edm::Handle<reco::GenParticleCollection> & genParticles)
+std::pair<lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes( const reco::GenParticleCollection* genParticles)
 {
   std::pair<lorentzVector,lorentzVector> muFromRes;
 

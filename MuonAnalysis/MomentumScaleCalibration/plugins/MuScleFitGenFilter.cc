@@ -53,7 +53,7 @@ bool MuScleFitGenFilter::filter(edm::Event& event, const edm::EventSetup& iSetup
   event.getByLabel( genParticlesName_, evtMC );
   if( evtMC.isValid() ) {
 
-    genPair = MuScleFitUtils::findGenMuFromRes(evtMC);
+    genPair = MuScleFitUtils::findGenMuFromRes(evtMC.product());
 
     ifHepMC = true;
   }
@@ -62,7 +62,7 @@ bool MuScleFitGenFilter::filter(edm::Event& event, const edm::EventSetup& iSetup
     event.getByLabel( genParticlesName_, genParticles );
     if( genParticles.isValid() ) {
       
-      genPair = MuScleFitUtils::findGenMuFromRes(genParticles);
+      genPair = MuScleFitUtils::findGenMuFromRes(genParticles.product());
 
       ifGenPart=true;
     }

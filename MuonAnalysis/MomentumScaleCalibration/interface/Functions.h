@@ -1856,6 +1856,77 @@ protected:
   }
 };
 
+template <class T>
+class resolutionFunctionType20 : public resolutionFunctionBase<T> {
+ public:
+  resolutionFunctionType20() { this->parNum_ = 9; }
+  // linear in pt and by points in eta
+  virtual double sigmaPt(const double & pt, const double & eta, const T & parval) {
+    double fabsEta = fabs(eta);
+
+    if(fabsEta<parval[0]) {
+      // To impose continuity we require that the parval[0] of type11 is
+      double par = parval[1] + parval[4]*fabs((parval[0]-parval[6])) + parval[5]*(parval[0]-parval[6])*(parval[0]-parval[6]) - (parval[2]*parval[0] + parval[3]*parval[0]*parval[0]);
+      return( par + parval[2]*fabsEta + parval[3]*eta*eta );
+    }
+    else {
+      return( parval[1]+ parval[4]*fabs((fabsEta-parval[6])) + parval[5]*(fabsEta-parval[6])*(fabsEta-parval[6]) );
+    }
+  }
+
+  // 1/pt in pt and quadratic in eta
+  virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
+    return( parval[7]+parval[8]/pt  );
+  }
+
+  // // 1/pt in pt and quadratic in eta
+  // virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
+  //   return( parval[15]+parval[16]/pt + parval[17]*fabs(eta)+parval[18]*eta*eta );
+  // }
+
+  // constant sigmaCotgTh
+  // virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
+  //   return( 0.004 );
+  // }
+
+  // constant sigmaPhi
+  virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
+    return( 0.001 );
+  }
+
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parResol, const std::vector<int> & parResolOrder, const int muonType) {
+
+    double thisStep[] = { 0.001, 0.00001, 
+                          0.00000001, 0.00000001, 0.00000001, 0.00000001,
+                          0.001,
+			  0.00002, 0.0002 };
+			  // 0.00002, 0.0002, 0.00000002, 0.000002 };
+    TString thisParName[] = { "etaTransition", "offsetEtaHigh", 
+                              "linaerEtaCentral", "parabEtaCentral", "linaerEtaHigh", "parabEtaHigh",
+                              "secondParabolaCenter",
+                              "Cth res. sc.", "Cth res. 1/Pt sc." };
+			      // "Phi res. sc.", "Phi res. 1/Pt sc.", "Phi res. Eta sc.", "Phi res. Eta^2 sc." };
+    double thisMini[] = { 0.8, -1.1, 
+                          0., 0.0005, 0.0005, 0.001,
+                          1.4,
+                          -0.1, 0. };
+    if( muonType == 1 ) {
+      double thisMaxi[] = { 1., 1., 1., 1.,
+                            1., 1., 1., 1.,1.};
+
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
+    } else {
+      double thisMaxi[] = { 1.8, 0.8,
+                            0.005, 0.05, 0.05, 0.05,
+                            2.0, 
+			    0.1, 0.05 };
+
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
+    }
+  }
+};
+
+
 
 // ------------ ATTENTION ----------- //
 // Other functions are not in for now //

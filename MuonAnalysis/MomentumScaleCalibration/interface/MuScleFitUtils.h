@@ -5,8 +5,8 @@
  *
  *  Provide basic functionalities useful for MuScleFit
  *
- *  $Date: 2010/05/10 09:46:51 $
- *  $Revision: 1.22 $
+ *  $Date: 2010/05/25 10:26:05 $
+ *  $Revision: 1.23 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo - INFN Padova
  */
 
@@ -58,8 +58,8 @@ public:
   // ----------
   static std::pair<SimTrack, SimTrack> findBestSimuRes( const std::vector<SimTrack>& simMuons );
   static std::pair<lorentzVector, lorentzVector> findBestRecoRes( const std::vector<reco::LeafCandidate>& muons );
-  static std::pair <lorentzVector, lorentzVector> findGenMuFromRes( const edm::Handle<reco::GenParticleCollection> & genParticles);
-  static std::pair<lorentzVector, lorentzVector> findGenMuFromRes( const edm::Handle<edm::HepMCProduct> & evtMC );
+  static std::pair <lorentzVector, lorentzVector> findGenMuFromRes( const reco::GenParticleCollection* genParticles);
+  static std::pair<lorentzVector, lorentzVector> findGenMuFromRes( const edm::HepMCProduct* evtMC );
   static std::pair<lorentzVector, lorentzVector> findSimMuFromRes( const edm::Handle<edm::HepMCProduct> & evtMC,
 								   const edm::Handle<edm::SimTrackContainer> & simTracks);
 
