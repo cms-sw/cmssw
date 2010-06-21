@@ -160,7 +160,7 @@ void SiPixelEDAClient::beginRun(Run const& run, edm::EventSetup const& eSetup) {
   
   bei_->setCurrentFolder("Pixel/");
   // Setting up QTests:
-  sipixelActionExecutor_->setupQTests(bei_);
+//  sipixelActionExecutor_->setupQTests(bei_);
   // Creating Summary Histos:
   sipixelActionExecutor_->createSummary(bei_);
   // Booking Deviation Histos:
