@@ -50,7 +50,7 @@ FWTracksRecHitsProxyBuilder::build(const reco::Track& track, unsigned int iIndex
          pointSet->SetNextPoint(it->x(), it->y(), it->z());
       }
       setupAddElement(pointSet, &oItemHolder);
-      fireworks::addSiStripClusters(item(), track, &oItemHolder,false, true);
+      fireworks::addSiStripClusters(item(), track, &oItemHolder, false, true);
    }
 }
 
@@ -60,6 +60,8 @@ bool FWTracksRecHitsProxyBuilder::representsSubPart()
 }
 
 REGISTER_FWPROXYBUILDER(FWTracksRecHitsProxyBuilder, reco::Track, "TrackHits", FWViewType::kAll3DBits | FWViewType::kAllRPZBits);
+
+
 //______________________________________________________________________________
 
 
