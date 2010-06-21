@@ -90,7 +90,7 @@ FWTracksModulesProxyBuilder::build(const reco::Track& track, unsigned int iIndex
            recIt != recItEnd; ++recIt )
       {
          DetId detid = (*recIt)->geographicalId();
-         if ((*recIt)->isValid()) continue;
+         if ((*recIt)->isValid())
          {
             if (detid.det() ==  DetId::Muon)
             {
@@ -105,7 +105,7 @@ FWTracksModulesProxyBuilder::build(const reco::Track& track, unsigned int iIndex
             }
             else
             {
-               fwLog(fwlog::kDebug) <<  "Failed to get shape extract for a tracking rec hit: "
+               fwLog(fwlog::kDebug) <<  "Failed to get shape extract for track-id "<< iIndex <<", tracking rec hit: "
                                     << "\n" << fireworks::info(detid) << std::endl;
             }
          }
