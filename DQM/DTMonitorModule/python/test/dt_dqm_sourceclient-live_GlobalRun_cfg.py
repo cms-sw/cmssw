@@ -7,14 +7,15 @@ process = cms.Process("DTDQM")
 #----------------------------
 process.load("DQM.Integration.test.inputsource_cfi")
 process.EventStreamHttpReader.consumerName = 'DT DQM Consumer'
-#process.EventStreamHttpReader.sourceURL = cms.string('http://dqm-c2d07-30:50082/urn:xdaq-application:lid=29')
-process.EventStreamHttpReader.sourceURL = cms.string('http://dqm-c2d07-14:22100/urn:xdaq-application:lid=30')
+#process.source.sourceURL = cms.string('http://dqm-c2d07-30:50082/urn:xdaq-application:lid=29')
+process.source.sourceURL = cms.string('http://dqm-c2d07-04:22100/urn:xdaq-application:lid=30')
 
 #----------------------------
 #### DQM Environment
 #----------------------------
 process.load("DQMServices.Core.DQM_cfg")
 #process.DQMStore.referenceFileName = "DT_reference.root"
+process.DQMStore.referenceFileName = "/localdatadisk/DTDQM/dqmdata/DQM_V0001_DT_R000136100.root"
 
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
@@ -71,3 +72,4 @@ process.dtDQMPathPhys = cms.Path(process.unpackers + process.dqmmodules + proces
 
 process.dtDQMPathCalib = cms.Path(process.unpackers + process.dqmmodules + process.calibrationEventsFilter * process.dtDQMCalib)
 
+print process.source.sourceURL
