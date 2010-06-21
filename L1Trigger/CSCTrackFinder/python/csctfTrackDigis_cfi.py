@@ -22,7 +22,7 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
                                                             ##########################
                                                             AllowALCTonly = cms.bool(False),
                                                             AllowCLCTonly = cms.bool(False),
-                                                            rescaleSinglesPhi  = cms.bool(False),
+                                                            rescaleSinglesPhi  = cms.bool(True),
                                                             run_core = cms.bool(True),
                                                             trigger_on_MB1a = cms.bool(False),
                                                             trigger_on_MB1d = cms.bool(False),

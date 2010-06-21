@@ -530,7 +530,12 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
                          bestStub  = st_iter;
                      }
                  }
-                 unsigned rescaled_phi = unsigned(24*(bestStub->phiPacked()>>5)/128.);
+                 // correct future implementation
+                 // unsigned rescaled_phi = unsigned(24*(bestStub->phiPacked()>>5)/128.);
+                 // buggy implementation in the current firmware... at the end
+                 //data/emulator have to agree: e.g. wrong in the same way
+                 unsigned rescaled_phi = unsigned(24*(bestStub->phiPacked()&0x7f)/128.);
+
                  unsigned unscaled_phi =              bestStub->phiPacked()>>7       ;
                  track.setLocalPhi(rescaleSinglesPhi?rescaled_phi:unscaled_phi);
                  track.setEtaPacked((bestStub->etaPacked()>>2)&0x1f);
