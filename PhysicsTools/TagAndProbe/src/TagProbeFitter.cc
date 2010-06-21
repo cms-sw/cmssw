@@ -341,7 +341,9 @@ void TagProbeFitter::doFitEfficiency(RooWorkspace* w, string pdfName, RooRealVar
   //What's wrong with this? and why don't they copy the errors!
   //efficiency = *e;
   efficiency.setVal(e->getVal());
-  efficiency.setAsymError(e->getErrorLo(), e->getErrorHi());
+  Double_t errLo = e->getErrorLo()!=0 ? e->getErrorLo() : e->getMin()-e->getVal();
+  Double_t errHi = e->getErrorHi()!=0 ? e->getErrorHi() : e->getMax()-e->getVal();
+  efficiency.setAsymError(errLo, errHi);
 }
 
 void TagProbeFitter::createPdf(RooWorkspace* w, vector<string>& pdfCommands){
