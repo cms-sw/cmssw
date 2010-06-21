@@ -43,8 +43,8 @@ namespace edm {
   void
   EDInputSource::fillDescription(ParameterSetDescription & desc) {
     std::vector<std::string> defaultStrings;
-    desc.addUntracked<std::vector<std::string> >("fileNames", defaultStrings);
-    desc.addUntracked<std::vector<std::string> >("secondaryFileNames", defaultStrings);
+    desc.addUntracked<std::vector<std::string> >("fileNames");
+    desc.addOptionalUntracked<std::vector<std::string> >("secondaryFileNames", defaultStrings);
     desc.addUntracked<bool>("needSecondaryFileNames", false);
     desc.addUntracked<std::string>("overrideCatalog", std::string());
     InputSource::fillDescription(desc);
