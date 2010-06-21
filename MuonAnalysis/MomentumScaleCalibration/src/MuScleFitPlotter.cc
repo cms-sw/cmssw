@@ -1,8 +1,8 @@
 //  \class MuScleFitPlotter
 //  Plotter for simulated,generated and reco info of muons
 //
-//  $Date: 2010/05/25 10:26:26 $
-//  $Revision: 1.18 $
+//  $Date: 2010/06/21 15:20:29 $
+//  $Revision: 1.19 $
 //  \author  C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 // ----------------------------------------------------------------------------------
@@ -84,7 +84,7 @@ void MuScleFitPlotter::fillGen1(const reco::GenParticleCollection* genParticles,
 	}
 	else muFromRes.second = mcIter->p4();
       }
-    }
+    }//if PATmuons you don't have the info of the mother !!! Here I assume is a JPsi
     if( status==1 && pdgId==13 && PATmuons) {
       mothersFound[5] = 1;
       mapHisto["hGenMu"]->Fill(mcIter->p4());
