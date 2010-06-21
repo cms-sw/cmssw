@@ -93,10 +93,13 @@ def printCrabStatusFromReport(filename):
 
 def crabStatusFromReport(filename):
     Jobs = queryStatusXML(filename)
+    #statusField = "statusScheduler"
+    #statusField = "state"
+    statusField = "status"
     summary = {}
     nJobs = 0
     for j in Jobs:
-        jobStatus = str(j.attrs.get("statusScheduler",None))
+        jobStatus = str(j.attrs.get(statusField,None))
         if summary.has_key(jobStatus): summary[jobStatus] += 1
         else: summary[jobStatus] = 1
         nJobs += 1

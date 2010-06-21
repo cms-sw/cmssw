@@ -97,19 +97,19 @@ def runTtrigValidResidCorr(run,runselection,trial,input_file,config):
     castor_dir = config.castor_prefix + dtTtrigValid_ResidCorr.crab_opts['USERDIRCAF']
     haddInCastor(castor_dir,result_file,'residuals')
 
-def runTtrigValidSummary(input_file,output_file,config):
+def runTtrigValidSummary(run,input_file,output_file,config):
 
     print "Processing Validation Summary"
-    dtTtrigValidSummary = DTValidSummary(config.run_dir,input_file,output_file,config.template_path)
+    dtTtrigValidSummary = DTValidSummary(run,config.run_dir,input_file,output_file,config.template_path)
     dtTtrigValidSummary.writeCfg()
     dtTtrigValidSummary.run()
  
     print "...Validation Summary finished"
-def runDQMMerge(castor_dir,config):
+def runDQMMerge(run,castor_dir,config):
 
     print "Processing DQM Merge"
     dqm_files = listFilesInCastor(castor_dir,'DQM')
-    dtDqmFinal = DTDqm(config.run_dir,dqm_files,config.result_dir,config.template_path)
+    dtDqmFinal = DTDqm(run,config.run_dir,dqm_files,config.result_dir,config.template_path)
     dtDqmFinal.writeCfg()
     dtDqmFinal.run()
 
@@ -203,12 +203,12 @@ if __name__ == '__main__':
 
     summaryResiduals = os.path.abspath(result_dir + '/' + 'SummaryResiduals_' + run + '.root')
 
-    if not os.path.exists(summaryResiduals): runTtrigValidSummary(residualsResidCorr,summaryResiduals,config)
+    if not os.path.exists(summaryResiduals): runTtrigValidSummary(run,residualsResidCorr,summaryResiduals,config)
 
     if not os.path.exists(summaryResiduals): raise RuntimeError,'Could not produce %s'%summaryResiduals
 
     castorDirResidCorr = config.castor_prefix + 'TTRIGCalibration/Validation/ResidCorr/Run' + str(run) + '/v' + str(trial)
-    runDQMMerge(castorDirResidCorr,config)
+    runDQMMerge(run,castorDirResidCorr,config)
 
     #sys.stdout = stdout_original
  

@@ -3,7 +3,8 @@ from CmsswTask import *
 import os
 
 class DTValidSummary:
-    def __init__(self, dir, input_file, output_file, template_path):
+    def __init__(self, run, dir, input_file, output_file, template_path):
+        self.run = run
         self.dir = dir 
         self.input_file = input_file
         self.output_file = output_file
