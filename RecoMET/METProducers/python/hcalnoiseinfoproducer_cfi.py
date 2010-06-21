@@ -17,7 +17,7 @@ HcalNoiseParameterSet = cms.PSet(
     minEEMF = cms.double(50.0),
 
     # define problematic RBX
-    pMinE = cms.double(100.0),
+    pMinE = cms.double(40.0),
     pMinRatio = cms.double(0.75),
     pMaxRatio = cms.double(0.85),
     pMinHPDHits = cms.int32(10),
