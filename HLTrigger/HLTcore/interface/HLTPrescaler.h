@@ -7,8 +7,8 @@
  *  This class is an HLTFilter (-> EDFilter) implementing an HLT
  *  Prescaler module with associated book keeping.
  *
- *  $Date: 2008/04/29 11:21:05 $
- *  $Revision: 1.15 $
+ *  $Date: 2009/12/02 18:47:06 $
+ *  $Revision: 1.16 $
  *
  *  \author Martin Grunewald
  *  \author Philipp Schieferdecker
@@ -57,6 +57,12 @@ private:
   /// prescale service
   edm::service::PrescaleService* prescaleService_;
   
+  /// check for (re)initialization of the prescale
+  bool newLumi_;
+
+  /// GT payload, to extract the prescale column index
+  edm::InputTag gtDigi_;
+
 };
 
 #endif
