@@ -17,7 +17,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
 )
 #process.MessageLogger.statistics.append('cout')
 
-process.load("Calibration.TKAlCaRecoProducers.AlcaBeamSpotProducer_cff")
+process.load("Calibration.TkAlCaRecoProducers.AlcaBeamSpotProducer_cff")
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
@@ -35,7 +35,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(200000) #1500
+    input = cms.untracked.int32(50000) #1500
 )
 
 process.options = cms.untracked.PSet(
