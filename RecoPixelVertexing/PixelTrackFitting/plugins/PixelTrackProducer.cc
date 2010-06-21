@@ -49,9 +49,9 @@ void PixelTrackProducer::produce(edm::Event& ev, const edm::EventSetup& es)
 
 void PixelTrackProducer::store(edm::Event& ev, const TracksWithTTRHs& tracksWithHits)
 {
-  std::auto_ptr<reco::TrackCollection> tracks(new reco::TrackCollection);
-  std::auto_ptr<TrackingRecHitCollection> recHits(new TrackingRecHitCollection);
-  std::auto_ptr<reco::TrackExtraCollection> trackExtras(new reco::TrackExtraCollection);
+  std::auto_ptr<reco::TrackCollection> tracks(new reco::TrackCollection());
+  std::auto_ptr<TrackingRecHitCollection> recHits(new TrackingRecHitCollection());
+  std::auto_ptr<reco::TrackExtraCollection> trackExtras(new reco::TrackExtraCollection());
 
   int cc = 0, nTracks = tracksWithHits.size();
 
