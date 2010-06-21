@@ -1,7 +1,7 @@
 /** See header file for a class description
  *
- *  $Date: 2010/05/10 09:47:12 $
- *  $Revision: 1.36 $
+ *  $Date: 2010/05/25 10:26:26 $
+ *  $Revision: 1.37 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -1261,14 +1261,19 @@ void MuScleFitUtils::minimizeLikelihood()
     std::cout << "tmpVec["<<i<<"] = " << *it << std::endl;
   }
 
+  // Empty vector of size = number of cross section fitted parameters. Note that the cross section
+  // fit works in a different way than the others and it uses ratios of the paramters passed via cfg.
+  // We use this empty vector for compatibility with the rest of the structure.
+  std::vector<int> crossSectionParNumSizeVec( MuScleFitUtils::crossSectionHandler->parNum(), 0 );
+
   std::vector<int> parfix(parResolFix);
   parfix.insert( parfix.end(), parScaleFix.begin(), parScaleFix.end() );
-  parfix.insert( parfix.end(), parCrossSectionFix.begin(), parCrossSectionFix.end() );
+  parfix.insert( parfix.end(), crossSectionParNumSizeVec.begin(), crossSectionParNumSizeVec.end() );
   parfix.insert( parfix.end(), parBgrFix.begin(), parBgrFix.end() );
 
   std::vector<int> parorder(parResolOrder);
   parorder.insert( parorder.end(), parScaleOrder.begin(), parScaleOrder.end() );
-  parorder.insert( parorder.end(), parCrossSectionFix.begin(), parCrossSectionFix.end() );
+  parorder.insert( parorder.end(), crossSectionParNumSizeVec.begin(), crossSectionParNumSizeVec.end() );
   parorder.insert( parorder.end(), parBgrOrder.begin(), parBgrOrder.end() );
 
   // This is filled later
@@ -1451,10 +1456,6 @@ void MuScleFitUtils::minimizeLikelihood()
       // Note that only cross sections of resonances that are being fitted are released
       bool doCrossSection = crossSectionHandler->releaseParameters( rmin, resfind, parfix, ind, iorder, crossSectionParShift );
       if( doCrossSection ) somethingtodo = true;
-      //         if( parfix[ipar]==0 && ind[ipar]==iorder && resfind[ipar] == 1 ) { // parfix=0 means parameter is free
-      //           rmin.Release( ipar );
-      //           somethingtodo = true;
-      //         }
     }
     if( doBackgroundFit[loopCounter] ) {
       // Release background parameters and fit them
