@@ -13,5 +13,7 @@ ecalRatioUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
     EBtimeFitLimits_Upper = cms.double(1.4),
     EEtimeFitLimits_Lower = cms.double(0.2),
     EEtimeFitLimits_Upper = cms.double(1.4),
+    EBtimeConstantTerm = cms.double(.26),
+    EEtimeConstantTerm = cms.double(.18),
     algo = cms.string("EcalUncalibRecHitWorkerRatio")
 )

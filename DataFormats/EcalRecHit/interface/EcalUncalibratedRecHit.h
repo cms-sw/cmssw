@@ -31,11 +31,14 @@ class EcalUncalibratedRecHit {
   uint32_t recoFlag() const { return 0xF & flags_; }
   float  outOfTimeEnergy() const;
   float  outOfTimeChi2() const;
+  float jitterError() const;
+  uint8_t jitterErrorBits() const;
   DetId  id() const { return id_; }
 
   void setAmplitude( double amplitude ) { amplitude_ = amplitude; }
   void setPedestal( double pedestal ) { pedestal_ = pedestal; }
   void setJitter( double jitter ) { jitter_ = jitter; }
+  void setJitterError( float jitterErr );
   void setChi2( double chi2 ) { chi2_ = chi2; }
   void setFlags( uint32_t flags ) { flags_ = flags; }
   void setRecoFlag( uint32_t flags );
@@ -44,8 +47,11 @@ class EcalUncalibratedRecHit {
   void setOutOfTimeEnergy( float energy );
   void setOutOfTimeChi2( float chi2 );
   void setId( DetId id ) { id_ = id; }
+  void setAux( uint32_t aux ) { aux_ = aux; }
   
   bool isSaturated() const;
+  bool isJitterValid() const;
+  bool isJitterErrorValid() const;
 
  private:
   double amplitude_;   //< Reconstructed amplitude
@@ -53,7 +59,7 @@ class EcalUncalibratedRecHit {
   double jitter_;      //< Reconstructed time jitter
   double chi2_;        //< Chi2 of the fit
   uint32_t flags_;     //< flag to be propagated to RecHit
-  uint32_t aux_;
+  uint32_t aux_;       //< aux word; first 8 bits contain time (jitter) error
   DetId  id_;          //< Detector ID
 };
 

@@ -21,6 +21,9 @@ EcalUncalibRecHitWorkerRatio::EcalUncalibRecHitWorkerRatio(const edm::ParameterS
  
   EEtimeFitLimits_.first  = ps.getParameter<double>("EEtimeFitLimits_Lower"); 
   EEtimeFitLimits_.second = ps.getParameter<double>("EEtimeFitLimits_Upper"); 
+
+  EBtimeConstantTerm_ = ps.getParameter<double>("EBtimeConstantTerm");
+  EEtimeConstantTerm_ = ps.getParameter<double>("EEtimeConstantTerm");
 }
 
 void
@@ -62,11 +65,19 @@ EcalUncalibRecHitWorkerRatio::run( const edm::Event & evt,
         gainRatios[1] = aGain->gain12Over6();
         gainRatios[2] = aGain->gain6Over1()*aGain->gain12Over6();
 
+        float clockToNsConstant = 25.;
+        EcalUncalibratedRecHit uncalibRecHit;
+
 	if (detid.subdetId()==EcalEndcap) {
-	  result.push_back(uncalibMaker_endcap_.makeRecHit(*itdg, pedVec, pedRMSVec, gainRatios, EEtimeFitParameters_, EEamplitudeFitParameters_, EEtimeFitLimits_));
+	   uncalibRecHit = uncalibMaker_endcap_.makeRecHit(*itdg, pedVec, pedRMSVec, gainRatios, EEtimeFitParameters_, EEamplitudeFitParameters_, EEtimeFitLimits_);
+           EcalUncalibRecHitRatioMethodAlgo<EEDataFrame>::CalculatedRecHit crh = uncalibMaker_endcap_.getCalculatedRecHit();
+           uncalibRecHit.setJitterError( sqrt(pow(crh.timeError,2) + pow(EEtimeConstantTerm_,2)/pow(clockToNsConstant,2)) );
         } else {
-	  result.push_back(uncalibMaker_barrel_.makeRecHit(*itdg, pedVec, pedRMSVec, gainRatios, EBtimeFitParameters_, EBamplitudeFitParameters_, EBtimeFitLimits_));
+           uncalibRecHit = uncalibMaker_barrel_.makeRecHit(*itdg, pedVec, pedRMSVec, gainRatios, EBtimeFitParameters_, EBamplitudeFitParameters_, EBtimeFitLimits_);
+           EcalUncalibRecHitRatioMethodAlgo<EBDataFrame>::CalculatedRecHit crh = uncalibMaker_barrel_.getCalculatedRecHit();
+           uncalibRecHit.setJitterError( sqrt(pow(crh.timeError,2) + pow(EBtimeConstantTerm_,2)/pow(clockToNsConstant,2)) );
         }
+        result.push_back(uncalibRecHit);
 
         return true;
 }

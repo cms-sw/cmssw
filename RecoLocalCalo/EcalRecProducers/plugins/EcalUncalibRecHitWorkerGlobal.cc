@@ -203,6 +203,7 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                                 ratioMethod_endcap_.computeAmplitude( EEamplitudeFitParameters_);
                                 EcalUncalibRecHitRatioMethodAlgo<EEDataFrame>::CalculatedRecHit crh = ratioMethod_endcap_.getCalculatedRecHit();
                                 uncalibRecHit.setJitter( crh.timeMax - 5 );
+                                uncalibRecHit.setJitterError( sqrt(pow(crh.timeError,2) + pow(EEtimeConstantTerm_,2)/pow(clockToNsConstant,2)) );
                                 uncalibRecHit.setOutOfTimeEnergy( crh.amplitudeMax );
                                 if (uncalibRecHit.amplitude() > pedRMSVec[1] * amplitudeThreshEE_){
                                   int maxGain=1;
@@ -230,6 +231,7 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                                 ratioMethod_barrel_.computeAmplitude( EBamplitudeFitParameters_);
                                 EcalUncalibRecHitRatioMethodAlgo<EBDataFrame>::CalculatedRecHit crh = ratioMethod_barrel_.getCalculatedRecHit();
                                 uncalibRecHit.setJitter( crh.timeMax - 5 );
+                                uncalibRecHit.setJitterError( sqrt(pow(crh.timeError,2) + pow(EBtimeConstantTerm_,2)/pow(clockToNsConstant,2)) );
                                 uncalibRecHit.setOutOfTimeEnergy( crh.amplitudeMax );
                                 if (uncalibRecHit.amplitude() > pedRMSVec[1] * amplitudeThreshEB_){
                                   int maxGain=1;

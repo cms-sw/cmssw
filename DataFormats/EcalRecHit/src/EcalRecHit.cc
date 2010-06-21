@@ -147,6 +147,49 @@ void EcalRecHit::setOutOfTimeChi2( float chi2 )
 }
 
 
+void EcalRecHit::setTimeError( uint8_t timeErrBits )
+{
+        // take the bits and put them in the right spot
+        setAux( (~0xFF & aux()) | timeErrBits );
+}
+
+
+float EcalRecHit::timeError() const
+{
+        uint32_t timeErrorBits = 0xFF & aux();
+        // all bits off --> time reco bailed out (return negative value)
+        if( (0xFF & timeErrorBits) == 0x00 )
+                return -1;
+        // all bits on  --> time error over 5 ns (return large value)
+        if( (0xFF & timeErrorBits) == 0xFF )
+                return 10000;
+
+        float LSB = 1.26008;
+        uint8_t exponent = timeErrorBits>>5;
+        uint8_t significand = timeErrorBits & ~(0x7<<5);
+        return pow(2.,exponent)*significand*LSB/1000.;
+}
+
+
+bool EcalRecHit::isTimeValid() const
+{
+        if(timeError() <= 0)
+          return false;
+        else
+          return true;
+}
+
+
+bool EcalRecHit::isTimeErrorValid() const
+{
+        if(!isTimeValid())
+          return false;
+        if(timeError() >= 10000)
+          return false;
+
+        return true;
+}
+
 std::ostream& operator<<(std::ostream& s, const EcalRecHit& hit) {
   if (hit.detid().det() == DetId::Ecal && hit.detid().subdetId() == EcalBarrel) 
     return s << EBDetId(hit.detid()) << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
