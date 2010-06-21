@@ -284,7 +284,7 @@ void QcdUeDQM::book1D(std::vector<MonitorElement*> &mes,
                                         nx, x1, x2);
     TH1 *h1 = e->getTH1();
     if (sumw2) {
-      if( h1->GetSumw2N() ) { // protect against re-summing (would cause exception)
+      if( 0 == h1->GetSumw2N() ) { // protect against re-summing (would cause exception)
 	h1->Sumw2();
       }
     }
@@ -309,7 +309,7 @@ void QcdUeDQM::book2D(std::vector<MonitorElement*> &mes,
                                         nx, x1, x2, ny, y1, y2);
     TH1 *h1 = e->getTH1();
     if (sumw2) {
-      if( h1->GetSumw2N() ) { // protect against re-summing (would cause exception)
+      if( 0 == h1->GetSumw2N() ) { // protect against re-summing (would cause exception)
 	h1->Sumw2();
       }
     }
