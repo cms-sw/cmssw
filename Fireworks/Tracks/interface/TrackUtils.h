@@ -4,7 +4,7 @@
 //
 // Package:     Tracks
 // Class  :     TrackUtils
-// $Id: TrackUtils.h,v 1.16 2010/04/29 14:28:52 yana Exp $
+// $Id: TrackUtils.h,v 1.17 2010/06/10 17:16:03 amraktad Exp $
 //
 
 // system include files
@@ -26,6 +26,8 @@ class TGeoHMatrix;
 class TEveStraightLineSet;
 
 class SiPixelCluster;
+class SiStripCluster;
+class TrackingRecHit;
 
 namespace fireworks {
   
@@ -93,6 +95,11 @@ addModules(const reco::Track& track,
            const FWEventItem* iItem,
            TEveElement* trkList,
            bool addLostHits);
+
+
+// Helpers for data extraction
+const SiStripCluster* extractClusterFromTrackingRecHit(const TrackingRecHit* rh);
+
 
 // Helper functions to get human readable informationa about given DetId
 // (copied from TrackingTools/TrackAssociator)
