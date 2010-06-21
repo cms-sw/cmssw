@@ -53,7 +53,16 @@ process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
 # message logger
 process.MessageLogger = cms.Service("MessageLogger",
                                     destinations = cms.untracked.vstring('cout'),
-                                    cout = cms.untracked.PSet(threshold = cms.untracked.string('WARNING'))
+                                    categories = cms.untracked.vstring('DTSynchNoise'), 
+                                    cout = cms.untracked.PSet(threshold = cms.untracked.string('INFO'),
+                                                              noLineBreaks = cms.untracked.bool(False),
+                                                              DEBUG = cms.untracked.PSet(
+                                                                      limit = cms.untracked.int32(0)),
+                                                              INFO = cms.untracked.PSet(
+                                                                      limit = cms.untracked.int32(0)),
+                                                              DTSynchNoise = cms.untracked.PSet(
+                                                                      limit = cms.untracked.int32(-1))
+                                                              )
                                     )
 
 process.dqmmodules = cms.Sequence(process.dqmEnv + process.dqmSaver)
