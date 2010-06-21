@@ -1,7 +1,6 @@
-from RecoLuminosity.LumiProducer.lumiProducerFromLumiDB_cff import *
+from RecoLuminosity.LumiProducer.lumiProducer_cff import *
 process = cms.Process("dbprodtest")
-process.load('RecoLuminosity/LumiProducer/lumiProducerFromLumiDB_cff')
-#process.DBService=cms.Service("DBService")
+process.load('RecoLuminosity/LumiProducer/lumiProducer_cff')
 process.source= cms.Source("PoolSource",
              processingMode=cms.untracked.string('RunsAndLumis'),        
              fileNames=cms.untracked.vstring(
