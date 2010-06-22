@@ -35,7 +35,7 @@ void FWCaloTowerDetailView::build(const FWModelId &id, const CaloTower* iTower)
    // build ECAL objects
    m_builder = new FWECALDetailViewBuilder(id.item()->getEvent(), id.item()->getGeom(),
 					   iTower->eta(), iTower->phi(), 25);
-   m_builder->showSuperClusters(kGreen+2, kTeal);
+   m_builder->showSuperClusters();
    
    TEveCaloLego* lego = m_builder->build();
    m_data = lego->GetData();
@@ -85,7 +85,7 @@ FWCaloTowerDetailView::setTextInfo(const FWModelId& id, const CaloTower* tower)
    latex->DrawLatex(x, y, Form(" #eta = %0.2f, #varphi = %0.2f",
                                tower->eta(), tower->phi()) );
    y -= h;
-   m_builder->makeLegend(x,y,kGreen+2,kTeal,kYellow);
+   m_builder->makeLegend(x, y);
 }
 
 REGISTER_FWDETAILVIEW(FWCaloTowerDetailView, Tower);

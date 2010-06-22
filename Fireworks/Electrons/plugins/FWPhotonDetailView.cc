@@ -1,7 +1,7 @@
 //
 // Package:     Electrons
 // Class  :     FWPhotonDetailView
-// $Id: FWPhotonDetailView.cc,v 1.27 2010/06/18 12:42:18 yana Exp $
+// $Id: FWPhotonDetailView.cc,v 1.28 2010/06/18 16:57:26 matevz Exp $
 
 #include "TLatex.h"
 #include "TEveCalo.h"
@@ -47,7 +47,7 @@ void FWPhotonDetailView::build (const FWModelId &id, const reco::Photon* iPhoton
    // build ECAL objects
    m_builder = new FWECALDetailViewBuilder(id.item()->getEvent(), id.item()->getGeom(),
                                    iPhoton->caloPosition().eta(), iPhoton->caloPosition().phi(), 25);
-   m_builder->showSuperClusters(kGreen+2, kGreen+4);
+   m_builder->showSuperClusters();
 
    if ( iPhoton->superCluster().isAvailable() )
       m_builder->showSuperCluster(*(iPhoton->superCluster()), kYellow);
@@ -101,7 +101,7 @@ FWPhotonDetailView::setTextInfo(const FWModelId& id, const reco::Photon *photon)
    latex->DrawLatex(x, y, Form(" E_{T} = %.1f GeV, #eta = %0.2f, #varphi = %0.2f",
                                photon->et(), photon->eta(), photon->phi()) );
    y -= h;
-   m_builder->makeLegend(x,y,kGreen+2,kGreen+4,kYellow);
+   m_builder->makeLegend(x, y);
 }
 
 //______________________________________________________________________________

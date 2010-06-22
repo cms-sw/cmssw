@@ -2,7 +2,7 @@
 //
 // Package:     Electrons
 // Class  :     FWElectronDetailView
-// $Id: FWElectronDetailView.cc,v 1.52 2010/06/10 14:43:27 matevz Exp $
+// $Id: FWElectronDetailView.cc,v 1.53 2010/06/18 16:57:26 matevz Exp $
 //
 
 // ROOT includes
@@ -73,9 +73,9 @@ FWElectronDetailView::build( const FWModelId &id, const reco::GsfElectron* iElec
    m_builder = new FWECALDetailViewBuilder( id.item()->getEvent(), id.item()->getGeom(),
 					    eta, phi, 25);
  
-   m_builder->showSuperClusters( kGreen+2, kGreen+4 );
+   m_builder->showSuperClusters();
    if( iElectron->superCluster().isAvailable() )
-      m_builder->showSuperCluster( *(iElectron->superCluster() ), kYellow );
+      m_builder->showSuperCluster( *(iElectron->superCluster() ), kYellow);
    TEveCaloLego* lego = m_builder->build();
    m_data = lego->GetData();
    m_eveScene->AddElement( lego );
@@ -180,7 +180,7 @@ FWElectronDetailView::setTextInfo( const FWModelId& id, const reco::GsfElectron 
    } else
      latex->DrawLatex( x, y, "Ref to SuperCluster is not available" );
    
-   m_builder->makeLegend( 0.02, y, kGreen+2, kGreen+4, kYellow );
+   m_builder->makeLegend( 0.02, y );
 }
 
 void

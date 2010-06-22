@@ -3,7 +3,7 @@
 //
 // Package:     Calo
 // Class  :     FWMuonDetailView
-// $Id: FWMuonDetailView.cc,v 1.25 2010/06/10 14:43:27 matevz Exp $
+// $Id: FWMuonDetailView.cc,v 1.26 2010/06/18 16:57:26 matevz Exp $
 //
 
 // ROOT includes
@@ -61,7 +61,7 @@ void FWMuonDetailView::build(const FWModelId &id, const reco::Muon* iMuon)
    m_builder = new FWECALDetailViewBuilder(id.item()->getEvent(), id.item()->getGeom(),
                                            eta, phi, 10);
  
-   m_builder->showSuperClusters(kGreen+2, kGreen+4);
+   m_builder->showSuperClusters();
    if ( iMuon->isEnergyValid() ) {
       std::vector<DetId> ids;
       ids.push_back(iMuon->calEnergy().ecal_id);
@@ -139,7 +139,7 @@ FWMuonDetailView::setTextInfo(const FWModelId& id, const reco::Muon *muon)
       latex->DrawLatex(x, y,  Form(" 5x5 crystall shape = %.3f",
                                    muon->calEnergy().emS25) );
    }
-   m_builder->makeLegend(0.02,y,kGreen+2,kGreen+4,kYellow);
+   m_builder->makeLegend(0.02, y);
 }
 
 void
