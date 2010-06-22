@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: FourVectorHLTOffline_cfi.py,v 1.34 2010/04/23 16:35:38 rekovic Exp $
+# $Id: FourVectorHLTOffline_cfi.py,v 1.35 2010/06/01 11:37:12 rekovic Exp $
 hltResults = cms.EDAnalyzer("FourVectorHLTOffline",
     dirname = cms.untracked.string("HLT/FourVector/paths"),
     muonRecoCollectionName = cms.untracked.string("muons"),
@@ -8,13 +8,13 @@ hltResults = cms.EDAnalyzer("FourVectorHLTOffline",
     dRMax = cms.untracked.double(4.0),
     ptMax = cms.untracked.double(100.0),
     ptMin = cms.untracked.double(0.0),
-		Nbins = cms.untracked.uint32(50),
+    Nbins = cms.untracked.uint32(50),
     referenceBX= cms.untracked.uint32(1),
-		NLuminositySegments= cms.untracked.uint32(2000),
-		LuminositySegmentSize= cms.untracked.double(23),
-		NbinsOneOverEt = cms.untracked.uint32(10000),
+    NLuminositySegments= cms.untracked.uint32(2000),
+    LuminositySegmentSize= cms.untracked.double(23),
+    NbinsOneOverEt = cms.untracked.uint32(10000),
 
-		muonEtaMax = cms.untracked.double(2.1),
+    muonEtaMax = cms.untracked.double(2.1),
     muonDRMatch = cms.untracked.double(0.3),
 
     jetDRMatch = cms.untracked.double(0.3),
@@ -22,9 +22,12 @@ hltResults = cms.EDAnalyzer("FourVectorHLTOffline",
     jetEtMin = cms.untracked.double(5.0),
 
     electronDRMatch = cms.untracked.double(0.5),
+    electronL1DRMatch = cms.untracked.double(0.5),
+    electronEtMin = cms.untracked.double(5.0),
 
-    photonEtMin = cms.untracked.double(5.0),
     photonDRMatch = cms.untracked.double(0.5),
+    photonL1DRMatch = cms.untracked.double(0.5),
+    photonEtMin = cms.untracked.double(5.0),
 
     #tauDRMatch = cms.untracked.double(0.1),
 
@@ -55,16 +58,32 @@ hltResults = cms.EDAnalyzer("FourVectorHLTOffline",
               denompathname = cms.string("Mu")  
              ),
              cms.PSet(
+              pathname = cms.string("EG"),
+              denompathname = cms.string("HLT_Mu3")  
+             ),
+             cms.PSet(
               pathname = cms.string("Jet"),
               denompathname = cms.string("Mu")  
+             ),
+             cms.PSet(
+              pathname = cms.string("Jet"),
+              denompathname = cms.string("HLT_Mu3")  
              ),
              cms.PSet(
               pathname = cms.string("Ele"),
               denompathname = cms.string("Mu")  
              ),
              cms.PSet(
+              pathname = cms.string("Ele"),
+              denompathname = cms.string("HLT_Mu3")  
+             ),
+             cms.PSet(
               pathname = cms.string("Pho"),
               denompathname = cms.string("Mu")  
+             ),
+             cms.PSet(
+              pathname = cms.string("Pho"),
+              denompathname = cms.string("HLT_Mu3")  
              ),
              cms.PSet(
               pathname = cms.string("Tau"),
@@ -104,3 +123,4 @@ hltResults = cms.EDAnalyzer("FourVectorHLTOffline",
     #processname = cms.string("FU")
 
  )
+
