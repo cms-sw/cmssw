@@ -85,10 +85,20 @@ bool CSCHaloFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup)
   edm::Handle<reco::CSCHaloData> TheCSCDataHandle;
   iEvent.getByLabel(IT_CSCHaloData,TheCSCDataHandle);
 
+
   int nHaloCands  = 0;
   int nHaloDigis  = 0;
   int nHaloTracks = 0;
 
+  if(TheCSCDataHandle.isValid())                                                                                                                        
+    {                                                                                                                                                     
+      const reco::CSCHaloData CSCData = (*TheCSCDataHandle.product());                                                                                    
+      nHaloDigis = CSCData.NumberOfOutOfTimeTriggers() ;                                                                                                    
+      nHaloCands = CSCData.NumberOfHaloTriggers();
+    }      
+
+
+  /*
   if( FilterTriggerLevel )
     {
       //Get L1MuGMT 
@@ -183,7 +193,7 @@ bool CSCHaloFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup)
     {
       //Get Chamber Anode Trigger Information                                                                                                                      
       edm::Handle<CSCALCTDigiCollection> TheALCTs;
-      iEvent.getByLabel (IT_ALCTDigi, TheALCTs);
+   iEvent.getByLabel (IT_ALCTDigi, TheALCTs);
       if(TheALCTs.isValid())
 	{
 	  for (CSCALCTDigiCollection::DigiRangeIterator j=TheALCTs->begin(); j!=TheALCTs->end(); j++)
@@ -195,7 +205,7 @@ bool CSCHaloFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup)
 		  if( (*digiIt).isValid() && ( (*digiIt).getBX() < expected_BX ) )
 		    {
 		      bool DigiIsHalo = true;
-		      /* MATCHING CHECK NOT AVAILABLE UNTIL 36X 
+		      // MATCHING CHECK NOT AVAILABLE UNTIL 36X 
 			 
 		      int digi_endcap  = detId.endcap();
 		      int digi_station = detId.station();
@@ -244,14 +254,14 @@ bool CSCHaloFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup)
 		      if( dwire <=  matching_dwire_threshold ) 
 		      DigiIsHalo = false;
 		      }
-		      */
+
 		      if( DigiIsHalo )
 			nHaloDigis++;
 		    }
 		}
 	    }
 	}
-      /*
+
 	else if( TheCSCDataHandle.isValid() )
 	{
 	//FOR >= 36X 
@@ -269,7 +279,7 @@ bool CSCHaloFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup)
 	nHaloDigis = CSCData.NumberOfOutOfTimeTriggers() ;
 	}
 	}
-      */
+
       else
 	{
 	  LogWarning("Collection Not Found") << "You have requested Digi-level filtering, but the CSCALCTDigiCollection does not appear"
@@ -278,6 +288,8 @@ bool CSCHaloFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup)
 	  FilterDigiLevel = false ; // NO DIGI LEVEL DECISION CAN BE MADE
 	}
     }
+
+*/
   
   if(FilterRecoLevel)
     {
