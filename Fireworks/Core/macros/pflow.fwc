@@ -17,10 +17,10 @@
      <string>$.emEt()&gt;0.2</string>
    </config>
    <config name="color" version="0">
-     <string>1008</string>
+     <string>1004</string>
    </config>
    <config name="isVisible" version="0">
-     <string>f</string>
+     <string>t</string>
    </config>
    <config name="layer" version="0">
      <string>2</string>
@@ -49,10 +49,10 @@
      <string>$.hadEt()+$.outerEt()&gt;0.2</string>
    </config>
    <config name="color" version="0">
-     <string>1005</string>
+     <string>1001</string>
    </config>
    <config name="isVisible" version="0">
-     <string>f</string>
+     <string>t</string>
    </config>
    <config name="layer" version="0">
      <string>2</string>
@@ -676,6 +676,9 @@
     <config name="Line width" version="0">
       <string>1</string>
     </config>
+    <config name="Show Camera Guide" version="0">
+      <string>0</string>
+    </config>
     <config name="Calo compression" version="0">
       <string>1</string>
     </config>
@@ -780,11 +783,14 @@
     <config name="Line width" version="0">
       <string>1</string>
     </config>
+    <config name="Show Camera Guide" version="0">
+      <string>0</string>
+    </config>
     <config name="Plot Et" version="0">
       <string>1</string>
     </config>
     <config name="Auto rebin on zoom" version="0">
-      <string>1</string>
+      <string>0</string>
     </config>
     <config name="Pixels per bin" version="0">
       <string>10</string>
@@ -793,7 +799,7 @@
       <string>40</string>
     </config>
     <config name="Show scales" version="0">
-      <string>1</string>
+      <string>0</string>
     </config>
     <config name="Lego scale GeV)" version="0">
       <string>100</string>
@@ -823,7 +829,7 @@
       <string>1</string>
     </config>
     <config name="cameraZoomLego" version="0">
-      <string>0.82149</string>
+      <string>0.902546</string>
     </config>
     <config name="cameraMatrix0Lego" version="0">
       <string>1</string>
@@ -865,10 +871,10 @@
       <string>16.1268</string>
     </config>
     <config name="cameraMatrix13Lego" version="0">
-      <string>3.64153e-14</string>
+      <string>-4.44089e-14</string>
     </config>
     <config name="cameraMatrix14Lego" version="0">
-      <string>-3.90799e-14</string>
+      <string>-3.37508e-14</string>
     </config>
     <config name="cameraMatrix15Lego" version="0">
       <string>1</string>
@@ -883,6 +889,9 @@
     </config>
     <config name="Line width" version="0">
       <string>1</string>
+    </config>
+    <config name="Show Camera Guide" version="0">
+      <string>0</string>
     </config>
     <config name="Calo compression" version="0">
       <string>1</string>
@@ -981,6 +990,9 @@
     </config>
     <config name="Line width" version="0">
       <string>2</string>
+    </config>
+    <config name="Show Camera Guide" version="0">
+      <string>0</string>
     </config>
     <config name="Show Muon Barrel" version="0">
       <string>0</string>
@@ -1307,6 +1319,23 @@
       <string>charge</string>
       <string>0</string>
     </config>
+    <config name="reco::PFCandidate" version="1">
+      <string>ecalEnergy</string>
+      <string>ecalEnergy</string>
+      <string>5</string>
+      <string>hcalEnergy</string>
+      <string>hcalEnergy</string>
+      <string>5</string>
+      <string>et</string>
+      <string>et</string>
+      <string>1</string>
+      <string>energy</string>
+      <string>energy</string>
+      <string>0</string>
+      <string>pt</string>
+      <string>pt</string>
+      <string>1</string>
+    </config>
     <config name="reco::Photon" version="1">
       <string>pT</string>
       <string>pt</string>
@@ -1408,15 +1437,16 @@
       <string>reco::Jet</string>
       <string>reco::MET</string>
       <string>reco::Muon</string>
+      <string>reco::PFCandidate</string>
       <string>reco::Photon</string>
       <string>reco::Track</string>
       <string>reco::Vertex</string>
     </config>
     <config name="TableView" version="1">
      <config name="collection" version="0">
-       <string>Jets</string>
+       <string>PF charged hadrons</string>
      </config>
-     <config name="sortColumn" version="0">
+     <config name="sortColumn" version="3">
      </config>
      <config name="descendingSort" version="1">
      </config>
@@ -1448,7 +1478,7 @@
    </config>
    <config name="Lego" version="2">
     <config name="weight" version="0">
-      <string>1</string>
+      <string>1.07992</string>
     </config>
     <config name="undocked" version="0">
       <string>0</string>
@@ -1456,7 +1486,7 @@
    </config>
    <config name="Rho Z" version="2">
     <config name="weight" version="0">
-      <string>0.94597</string>
+      <string>0.866055</string>
     </config>
     <config name="undocked" version="0">
       <string>0</string>
