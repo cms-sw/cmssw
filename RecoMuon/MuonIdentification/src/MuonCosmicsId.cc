@@ -7,6 +7,21 @@ bool directionAlongMomentum(const reco::Track& track){
     (track.innerPosition().y()-track.vy())*track.py() > 0;
 }
 
+// returns angle and dPt/Pt
+std::pair<double, double> 
+muonid::matchTracks(const reco::Track& ref, const reco::Track& probe)
+{
+  std::pair<double,double> result(0,0);
+  // When both tracks are reconstructed as outside going, sign is -1
+  // otherwise it's +1. There is also a crazy case of both are outside
+  // going, then sign is -1 as well.
+  int match_sign = directionAlongMomentum(ref)==directionAlongMomentum(probe) ? -1 : +1; 
+  double sprod = ref.px()*probe.px() + ref.py()*probe.py() + ref.pz()*probe.pz();
+  result.first = acos( match_sign*(sprod/ref.p()/probe.p()) );
+  result.second = fabs(probe.pt()-ref.pt())/ref.pt();
+  return result;
+}
+
 reco::TrackRef 
 muonid::findOppositeTrack(const edm::Handle<reco::TrackCollection>& tracks, 
 			const reco::Track& muonTrack,
@@ -17,11 +32,8 @@ muonid::findOppositeTrack(const edm::Handle<reco::TrackCollection>& tracks,
     // When both tracks are reconstructed as outside going, sign is -1
     // otherwise it's +1. There is also a crazy case of both are outside
     // going, then sign is -1 as well.
-    int match_sign = directionAlongMomentum(muonTrack)==directionAlongMomentum(tracks->at(i)) ? -1 : +1; 
-    double sprod = muonTrack.px()*tracks->at(i).px() + 
-      muonTrack.py()*tracks->at(i).py() + muonTrack.pz()*tracks->at(i).pz();
-    if ( acos( match_sign*(sprod/tracks->at(i).p()/muonTrack.p()) ) < angleMatch &&
-	 fabs(tracks->at(i).pt()-muonTrack.pt())/muonTrack.pt() < momentumMatch )
+    const std::pair<double,double>& match = matchTracks(muonTrack,tracks->at(i));
+    if ( match.first < angleMatch && match.second < momentumMatch )
       return reco::TrackRef(tracks,i);
   }
   return reco::TrackRef();
