@@ -19,9 +19,10 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.55 2010/06/16 18:52:34 srappocc Exp $
+// $Id: FourVectorHLTOffline.h,v 1.56 2010/06/17 07:40:10 rekovic Exp $
 //
 //
+// system include files
 
 // system include files
 #include <memory>
@@ -76,7 +77,7 @@
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "RecoJets/JetProducers/interface/JetIDHelper.h"
-
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "DataFormats/JetReco/interface/JetFloatAssociation.h"
@@ -126,21 +127,22 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       // EndRun
       void endRun(const edm::Run& run, const edm::EventSetup& c);
       void fillHltMatrix(const edm::TriggerNames & triggerNames);
-      void setupHltMatrix(const std::string& label, std::vector<std::string>&  paths);
+      void setupHltMatrix(const std::string& label, std::vector<std::string> &  paths);
 
       void setupHltLsPlots();
       void setupHltBxPlots();
-      void countHLTPathHitsEndLumiBlock(const int& lumi);
-      void countHLTGroupHitsEndLumiBlock(const int& lumi);
-      void countHLTGroupL1HitsEndLumiBlock(const int& lumi);
-      void countHLTGroupBXHitsEndLumiBlock(const int& lumi);
-      int getTriggerTypeParsePathName(const std::string& pathname);
-      const std::string getL1ConditionModuleName(const std::string& pathname);
-      bool hasL1Passed(const std::string& pathname, const edm::TriggerNames & triggerNames);
-      bool hasHLTPassed(const std::string& pathname, const edm::TriggerNames& triggerNames);
+      void countHLTPathHitsEndLumiBlock(const int & lumi);
+      void countHLTGroupHitsEndLumiBlock(const int & lumi);
+      void countHLTGroupL1HitsEndLumiBlock(const int & lumi);
+      void countHLTGroupBXHitsEndLumiBlock(const int & lumi);
+      int getTriggerTypeParsePathName(const std::string & pathname);
+      const std::string getL1ConditionModuleName(const std::string & pathname);
+      bool hasL1Passed(const std::string & pathname, const edm::TriggerNames & triggerNames);
+      bool hasHLTPassed(const std::string & pathname, const edm::TriggerNames& triggerNames);
+      int getHltThresholdFromName(const std::string & pathname);
 
       void selectMuons(const edm::Handle<reco::MuonCollection> & muonHandle);
-      void selectElectrons(const edm::Handle<reco::GsfElectronCollection> & eleHandle);
+      void selectElectrons(const edm::Event& iEvent, const edm::EventSetup& iSetup, const edm::Handle<reco::GsfElectronCollection> & eleHandle);
       void selectPhotons(const edm::Handle<reco::PhotonCollection> & phoHandle);
       void selectJets(const edm::Event& iEvent,const edm::Handle<reco::CaloJetCollection> & jetHandle);
       void selectMet(const edm::Handle<reco::CaloMETCollection> & metHandle);
@@ -201,7 +203,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       unsigned int Nbx_; 
 
       bool plotAll_;
-      bool resetMe_;
+      bool doCombineRuns_;
       int currentRun_;
       
       unsigned int nBins_; 
@@ -267,6 +269,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       int theHLTOutputType;
       edm::InputTag triggerSummaryLabel_;
       edm::InputTag triggerResultsLabel_;
+      edm::InputTag recHitsEBTag_, recHitsEETag_;
       HLTConfigProvider hltConfig_;
       // data across paths
       MonitorElement* scalersSelect;
@@ -484,7 +487,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 
         ~PathInfo() {};
 
-        PathInfo(std::string denomPathName, std::string pathName, std::string l1pathName, int l1ModuleIndex, std::string filterName, std::string processName, size_t type, float ptmin, float ptmax):
+        PathInfo(std::string denomPathName, std::string pathName, std::string l1pathName, int l1ModuleIndex, std::string filterName, std::string processName, size_t type, float ptmin, float ptmax, float hltThreshold, float l1Threshold):
 
           denomPathName_(denomPathName), 
           pathName_(pathName), 
@@ -503,7 +506,8 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
           NL1OffUM_(0), offEtL1OffUM_(0), offEtavsoffPhiL1OffUM_(0),
           NOnOffUM_(0), offEtOnOffUM_(0), offEtavsoffPhiOnOffUM_(0),
           offDRL1Off_(0), offDROnOff_(0), l1DRL1On_(0), filters_(0),
-          ptmin_(ptmin), ptmax_(ptmax)
+          ptmin_(ptmin), ptmax_(ptmax),
+          hltThreshold_(hltThreshold), l1Threshold_(l1Threshold)
 
         {
         };
@@ -576,6 +580,8 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 
         float getPtMin() const { return ptmin_; }
         float getPtMax() const { return ptmax_; }
+        float getHltThreshold() const { return hltThreshold_; }
+        float getL1Threshold() const { return l1Threshold_; }
 
         std::vector< std::pair<std::string,unsigned int> > filtersAndIndices;
 
@@ -605,6 +611,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
         MonitorElement *filters_;
         
         float ptmin_, ptmax_;
+        float hltThreshold_, l1Threshold_;
         
         const int index() { 
           return pathIndex_;
@@ -677,8 +684,8 @@ public:
     void setPath(FourVectorHLTOffline::PathInfoCollection::iterator v) { v_ = v; }
     void setReco(edm::Handle<T> offColl) { offColl_ = offColl; }
     void setRecoB(edm::Handle<reco::JetTagCollection> offCollB) { offCollB_ = offCollB; }
-
     void setRecoMu(edm::Handle<reco::MuonCollection> offCollMu) { offCollMu_ = offCollMu; }
+    void setRecoEle(edm::Handle<reco::GsfElectronCollection> offCollEle) { offCollEle_ = offCollEle; }
 
 
 
@@ -741,6 +748,7 @@ private:
     edm::Handle<T> offColl_;
     edm::Handle<reco::JetTagCollection> offCollB_;
     edm::Handle<reco::MuonCollection> offCollMu_;
+    edm::Handle<reco::GsfElectronCollection> offCollEle_;
 
     FourVectorHLTOffline::PathInfoCollection::iterator v_;
 
@@ -808,18 +816,48 @@ void objMonData<T>::monitorOffline()
      
        NOff++;
        v_->getOffEtOffHisto()->Fill(recoPt);
+       if(recoPt >= 2*v_->getHltThreshold())
        v_->getOffEtaVsOffPhiOffHisto()->Fill(recoEta, recoPhi);
 
     }
+    /*
     else {
 
       continue;
 
     }
+    */
 
   }
 
  }
+ else if(offCollEle_.isValid()) {
+
+  typedef typename reco::GsfElectronCollection::const_iterator const_iterator;
+  for( const_iterator iter = offCollEle_->begin(), iend = offCollEle_->end(); iter != iend; ++iter )
+  {
+
+   if (fabs(iter->eta()) <= EtaMax_ && iter->superCluster()->energy()*sin(iter->superCluster()->position().Theta()) >=  EtMin_ )
+   {
+
+     NOff++;
+     v_->getOffEtOffHisto()->Fill(iter->superCluster()->energy()*sin(iter->superCluster()->position().Theta()));
+
+     if(iter->pt() >= 2*v_->getHltThreshold())
+     v_->getOffEtaVsOffPhiOffHisto()->Fill(iter->eta(), iter->phi());
+
+   }
+   /*
+   else {
+
+     continue;
+
+   }
+   */
+
+  }
+
+ } // end else if
  else if(offColl_.isValid()) {
 
   typedef typename T::const_iterator const_iterator;
@@ -831,14 +869,18 @@ void objMonData<T>::monitorOffline()
 
      NOff++;
      v_->getOffEtOffHisto()->Fill(iter->pt());
+
+     if(iter->pt() >= 2*v_->getHltThreshold())
      v_->getOffEtaVsOffPhiOffHisto()->Fill(iter->eta(), iter->phi());
 
    }
+   /*
    else {
 
      continue;
 
    }
+   */
 
   }
 
@@ -884,13 +926,13 @@ void objMonData<T>::monitorL1(const int l1Index, FourVectorHLTOffline* fv)
         v_->getL1EtaVsL1PhiL1Histo()->Fill(l1FV.eta(), l1FV.phi());
 
       }
+      /*
       else {
 
         ++idtypeiter;
         continue;
 
       }
-      /*
       */
 
       matchL1Offline(l1FV, fv, NL1, NL1OffUM);
@@ -993,6 +1035,41 @@ void objMonData<T>::matchL1Offline(const trigger::TriggerObject& l1FV, FourVecto
     }
 
   }
+  else if (offCollEle_.isValid()) {
+
+    int j=0;
+    typedef typename reco::GsfElectronCollection::const_iterator const_iterator;
+    for( const_iterator iter = offCollEle_->begin(), iend = offCollEle_->end(); iter != iend; ++iter )
+    {
+
+      if (fabs(iter->eta()) <= EtaMax_ && iter->superCluster()->energy()*sin(iter->superCluster()->position().Theta()) >=  EtMin_ )
+      {
+
+        // fill UM histos (no matching required)
+        if(NL1 == 1) {
+
+          NL1OffUM++;
+          v_->getOffEtL1OffUMHisto()->Fill(iter->superCluster()->energy()*sin(iter->superCluster()->position().Theta()));
+          v_->getOffEtaVsOffPhiL1OffUMHisto()->Fill(iter->eta(),iter->phi());
+
+        }
+
+        // make maps of matched objects
+        float dR = reco::deltaR(iter->eta(),iter->phi(),l1FV.eta(),l1FV.phi());
+        if ( dR < DRRange_) 
+        {
+
+         L1OffDRMatchMap.insert(std::pair<float,int>(dR,j));
+
+        }
+
+      }
+
+      j++;
+
+    }
+
+  }
   else if (offColl_.isValid()) {
 
     int j=0;
@@ -1037,7 +1114,7 @@ template <class T>
 void objMonData<T>::monitorOnline(const int hltIndex, const int l1Index, FourVectorHLTOffline* fv)
 {
 
-  //if(! isTriggerType(v_->getObjectType()) ) return;
+  if(! isTriggerType(v_->getObjectType()) ) return;
 
   // Get keys of objects passed by the last filter
   const trigger::Keys & k = fv->fTriggerObj->filterKeys(hltIndex);
@@ -1061,12 +1138,13 @@ void objMonData<T>::monitorOnline(const int hltIndex, const int l1Index, FourVec
 	    v_->getOnEtaVsOnPhiOnHisto()->Fill(onlineFV.eta(), onlineFV.phi());
 	
 	  }
+    /*
 	  else {
 	
-	    continue;
+	    //return;
+      continue;
 	
 	  }
-    /*
     */
 
     matchOnlineL1(onlineFV,l1Index, fv, NOn);
@@ -1228,7 +1306,43 @@ void objMonData<T>::matchOnlineOffline(const trigger::TriggerObject& onlineFV, F
      }
 
   }
+  else if (offCollEle_.isValid()) {
 
+     int j=0;
+
+     typedef typename reco::GsfElectronCollection::const_iterator const_iterator;
+     for( const_iterator iter = offCollEle_->begin(), iend = offCollEle_->end(); iter != iend; ++iter )
+     {
+
+       if (fabs(iter->eta()) <= EtaMax_ && iter->superCluster()->energy()*sin(iter->superCluster()->position().Theta()) >=  EtMin_ )
+       {
+
+         // fill UM histos (no matching required)
+         if(NOn == 1) {
+
+           NOnOffUM++;
+           v_->getOffEtOnOffUMHisto()->Fill(iter->superCluster()->energy()*sin(iter->superCluster()->position().Theta()));
+           v_->getOffEtaVsOffPhiOnOffUMHisto()->Fill(iter->eta(),iter->phi());
+
+         }
+
+          // make maps of matched objects
+         float dR = reco::deltaR(iter->eta(),iter->phi(),onlineFV.eta(),onlineFV.phi());
+         if ( dR < DRRange_)
+         {
+
+           OnOffDRMatchMap.insert(std::pair<float,int>(dR,j));
+
+         }
+
+       }
+
+       j++;
+
+
+     }
+
+  }
   else if (offColl_.isValid()) {
 
      int j=0;
@@ -1305,6 +1419,7 @@ void objMonData<T>::fillL1OffMatch(FourVectorHLTOffline* fv)
 
          NL1Off++;
          v_->getOffEtL1OffHisto()->Fill((*iter).first->pt());
+         if((*iter).first->pt() >= 2*v_->getHltThreshold())
          v_->getOffEtaVsOffPhiL1OffHisto()->Fill((*iter).first->eta(),(*iter).first->phi());
 
 
@@ -1318,7 +1433,21 @@ void objMonData<T>::fillL1OffMatch(FourVectorHLTOffline* fv)
 
         NL1Off++;
         v_->getOffEtL1OffHisto()->Fill(iter->pt());
+        if(iter->pt() >= 2*v_->getHltThreshold())
         v_->getOffEtaVsOffPhiL1OffHisto()->Fill(iter->outerTrack()->innerPosition().eta(),iter->outerTrack()->innerPosition().phi());
+
+      }
+      else if( offCollEle_.isValid()) {
+
+         typedef typename reco::GsfElectronCollection::const_iterator const_iterator;
+         const_iterator iter = offCollEle_->begin();
+         for (int count = 0; count < i; count++) iter++;
+
+
+         NL1Off++;
+         v_->getOffEtL1OffHisto()->Fill(iter->superCluster()->energy()*sin(iter->superCluster()->position().Theta()));
+         if(iter->pt() >= 2*v_->getHltThreshold())
+         v_->getOffEtaVsOffPhiL1OffHisto()->Fill(iter->eta(),iter->phi());
 
       }
       else if( offColl_.isValid()) {
@@ -1330,6 +1459,7 @@ void objMonData<T>::fillL1OffMatch(FourVectorHLTOffline* fv)
 
          NL1Off++;
          v_->getOffEtL1OffHisto()->Fill(iter->pt());
+         if(iter->pt() >= 2*v_->getHltThreshold())
          v_->getOffEtaVsOffPhiL1OffHisto()->Fill(iter->eta(),iter->phi());
 
       }
@@ -1379,6 +1509,7 @@ void objMonData<T>::fillOnOffMatch(FourVectorHLTOffline* fv)
 
          NOnOff++;
          v_->getOffEtOnOffHisto()->Fill((*iter).first->pt());
+         if((*iter).first->pt() >= 2*v_->getHltThreshold())
          v_->getOffEtaVsOffPhiOnOffHisto()->Fill((*iter).first->eta(),(*iter).first->phi());
 
        }
@@ -1391,9 +1522,22 @@ void objMonData<T>::fillOnOffMatch(FourVectorHLTOffline* fv)
 
          NOnOff++;
          v_->getOffEtOnOffHisto()->Fill(iter->pt());
+         if(iter->pt() >= 2*v_->getHltThreshold())
          v_->getOffEtaVsOffPhiOnOffHisto()->Fill(iter->outerTrack()->innerPosition().eta(),iter->outerTrack()->innerPosition().phi());
 
       }
+       else if( offCollEle_.isValid()) {
+
+         typedef typename reco::GsfElectronCollection::const_iterator const_iterator;
+         const_iterator iter = offCollEle_->begin();
+         for (int count = 0; count < i; count++) iter++;
+
+         NOnOff++;
+         v_->getOffEtOnOffHisto()->Fill(iter->superCluster()->energy()*sin(iter->superCluster()->position().Theta()));
+         if(iter->superCluster()->energy()*abs(sin(iter->superCluster()->position().Theta())) >= 2*v_->getHltThreshold())
+         v_->getOffEtaVsOffPhiOnOffHisto()->Fill(iter->eta(),iter->phi());
+
+       }
        else if( offColl_.isValid()) {
 
          typedef typename T::const_iterator const_iterator;
@@ -1402,6 +1546,7 @@ void objMonData<T>::fillOnOffMatch(FourVectorHLTOffline* fv)
 
          NOnOff++;
          v_->getOffEtOnOffHisto()->Fill(iter->pt());
+         if(iter->pt() >= 2*v_->getHltThreshold())
          v_->getOffEtaVsOffPhiOnOffHisto()->Fill(iter->eta(),iter->phi());
 
        }
