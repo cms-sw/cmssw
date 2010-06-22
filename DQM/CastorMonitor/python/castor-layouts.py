@@ -1,9 +1,19 @@
 def castorlayout(i, p, *rows): i["Castor/Layouts/" + p] = DQMItem(layout=rows)
 
 
-castorlayout(dqmitems, "CASTOR Channel Status",
+castorlayout(dqmitems, "CASTOR Digi ChannelSummaryMap",
            [{ 'path': "Castor/EventInfo/reportSummaryMap",
-             'description':"green - OK, red - dead, yellow - noisy"}]
+             'description':"Green - OK:signal, Cyan - OK:pedestal, Red - dead, Yellow - noisy"}]
+           )
+
+castorlayout(dqmitems, "CASTOR Digi Occupancy Map",
+           [{ 'path': "Castor/CastorPSMonitor/CASTOR Digi Occupancy Map",
+             'description':"dynamic scale"}]
+           )
+
+castorlayout(dqmitems, "CASTOR RecHit Energy based Channel Status",
+           [{ 'path': "Castor/CastorChannelQuality/RecHitEnergyBasedSummaryMap",
+             'description':"Green - OK, Red - dead, Yellow - noisy"}]
            )
 
 castorlayout(dqmitems, "CASTOR event products",
@@ -26,7 +36,7 @@ castorlayout(dqmitems, "CASTOR RecHit Energy in sectors",
              'description':"RecHitEnergy in each of 16 CASTOR sectors"}]
            )         
 	  
-castorlayout(dqmitems, "CASTOR RecHitEnergy 2D Map",
+castorlayout(dqmitems, "CASTOR RecHit Energy 2D Map",
            [{ 'path': "Castor/CastorRecHitMonitor/CastorRecHit 2D Energy Map- above threshold",
              'description':"2D Energy Map"}]
            )
