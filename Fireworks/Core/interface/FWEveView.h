@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.h,v 1.11 2010/06/18 17:49:29 matevz Exp $
+// $Id: FWEveView.h,v 1.12 2010/06/18 19:51:24 amraktad Exp $
 //
 
 
@@ -49,7 +49,7 @@ class Context;
 class FWEveView : public FWViewBase
 {
 public:
-   FWEveView(TEveWindowSlot*, FWViewType::EType);
+   FWEveView(TEveWindowSlot*, FWViewType::EType, unsigned int version = 2);
    virtual ~FWEveView();
 
    virtual void addTo(FWConfiguration&) const;

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 13:42:13 CEST 2010
-// $Id: FWHFView.cc,v 1.6 2010/06/09 18:53:04 amraktad Exp $
+// $Id: FWHFView.cc,v 1.7 2010/06/18 10:17:15 yana Exp $
 //
 
 // system include files
@@ -80,8 +80,20 @@ void
 FWHFView::setContext(fireworks::Context& context)
 {  
    FWLegoViewBase::setContext(context);
-   m_lego->Set2DMode(TEveCaloLego::kValSizeOutline);
 
    // phi bins center shifted for 10 degres
    m_lego->RefMainTrans().SetPos(0, -TMath::DegToRad()*10, 0);
 }
+
+void
+FWHFView::setFrom(const FWConfiguration& iFrom)
+{
+   FWLegoViewBase::setFrom(iFrom);
+
+   if (iFrom.version() < 3)
+   {
+      m_lego->Set2DMode(TEveCaloLego::kValSizeOutline);
+   }
+}
+
+

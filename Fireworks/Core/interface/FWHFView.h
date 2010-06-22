@@ -16,7 +16,7 @@
 //
 // Original Author:  Yanjun
 //         Created:  Mon May 31 13:42:21 CEST 2010
-// $Id: FWHFView.h,v 1.3 2010/06/08 11:35:00 amraktad Exp $
+// $Id: FWHFView.h,v 1.4 2010/06/08 18:43:16 amraktad Exp $
 //
 
 // system include files
@@ -39,6 +39,8 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
+   virtual void setFrom(const FWConfiguration&);
+
 private:
    FWHFView(const FWHFView&); // stop default
 

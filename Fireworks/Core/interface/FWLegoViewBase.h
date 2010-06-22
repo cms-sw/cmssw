@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWLegoViewBase.h,v 1.4 2010/06/18 19:51:24 amraktad Exp $
+// $Id: FWLegoViewBase.h,v 1.5 2010/06/22 09:44:33 amraktad Exp $
 //
 
 // system include files
@@ -77,6 +77,8 @@ private:
    void autoScale();
    void updateLegoScale();
    void showScales();
+   void setProjectionMode();
+   void setCell2DMode();
    
    // ---------- member data --------------------------------
    
@@ -87,6 +89,8 @@ private:
    FWBoolParameter   m_showScales;
    FWDoubleParameter m_legoFixedScale;
    FWBoolParameter   m_legoAutoScale;
+   FWEnumParameter   m_projectionMode;
+   FWEnumParameter   m_cell2DMode;
 };
 
 

@@ -34,7 +34,7 @@ FWLegoEvePFCandidate::FWLegoEvePFCandidate(const reco::PFCandidate& iData, const
    scaleEt->setVal(m_et);
    
 
-   float base = 0.01; // flour offset 1%
+   float base = 0.001; // flour offset 1%
 
    // first vertical  line , which is et/energy
    float val = vc->getPlotEt() ?  m_et : m_energy;
@@ -68,7 +68,7 @@ FWLegoEvePFCandidate::getScale(const FWViewContext* vc, const fireworks::Context
    float s = 1.f;
    if (context.getCaloData()->Empty()  && vc->getAutoScale())
    {
-       if (vc->getPlotEt())
+      if (vc->getPlotEt())
       {
          s = vc->getEnergyScale("PFet")->getVal();
       }
@@ -76,13 +76,15 @@ FWLegoEvePFCandidate::getScale(const FWViewContext* vc, const fireworks::Context
       {
          s = vc->getEnergyScale("PFenergy")->getVal();
       }
+      // printf("pf scale %f \n", s);
    }
    else
    {
-      // calorimeter TEveCaloLego scale
+      //  printf("TEveCaloLego scale %f \n", s);
       s = vc->getEnergyScale("Calo")->getVal();
    }
 
+   // heigh of TEveCaloLego id TMath::Pi(), see FWLegoViewBase::setContext()
    return s*TMath::Pi();
 }
 

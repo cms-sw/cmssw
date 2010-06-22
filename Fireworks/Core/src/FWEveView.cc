@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.22 2010/06/18 17:49:30 matevz Exp $
+// $Id: FWEveView.cc,v 1.23 2010/06/18 19:51:24 amraktad Exp $
 //
 
 
@@ -54,8 +54,8 @@ class Context;
 // constructors and destructor
 //
 
-FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type) :
-   FWViewBase(2),
+FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type, unsigned int version) :
+   FWViewBase(version),
    m_type(type),
    m_viewer(0),
    m_eventScene(0),

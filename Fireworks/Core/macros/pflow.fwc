@@ -790,7 +790,7 @@
       <string>1</string>
     </config>
     <config name="Auto rebin on zoom" version="0">
-      <string>0</string>
+      <string>1</string>
     </config>
     <config name="Pixels per bin" version="0">
       <string>10</string>
@@ -806,6 +806,12 @@
     </config>
     <config name="Lego auto scale" version="0">
       <string>1</string>
+    </config>
+    <config name="ProjectionMode" version="0">
+      <string>2</string>
+    </config>
+    <config name="Cell2DMode" version="0">
+      <string>2</string>
     </config>
     <config name="EventInfoTextSize" version="0">
       <string>0.03</string>
@@ -829,7 +835,7 @@
       <string>1</string>
     </config>
     <config name="cameraZoomLego" version="0">
-      <string>0.902546</string>
+      <string>0.936</string>
     </config>
     <config name="cameraMatrix0Lego" version="0">
       <string>1</string>
@@ -868,13 +874,13 @@
       <string>0</string>
     </config>
     <config name="cameraMatrix12Lego" version="0">
-      <string>16.1268</string>
+      <string>16.5251</string>
     </config>
     <config name="cameraMatrix13Lego" version="0">
-      <string>-4.44089e-14</string>
+      <string>0</string>
     </config>
     <config name="cameraMatrix14Lego" version="0">
-      <string>-3.37508e-14</string>
+      <string>0</string>
     </config>
     <config name="cameraMatrix15Lego" version="0">
       <string>1</string>

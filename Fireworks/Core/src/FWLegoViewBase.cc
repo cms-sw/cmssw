@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWLegoViewBase.cc,v 1.5 2010/06/18 19:51:24 amraktad Exp $
+// $Id: FWLegoViewBase.cc,v 1.6 2010/06/22 09:44:34 amraktad Exp $
 //
 
 // system include files
@@ -45,7 +45,7 @@
 // constructors and destructor
 //
 FWLegoViewBase::FWLegoViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId) :
-   FWEveView(iParent, typeId),
+   FWEveView(iParent, typeId, 3),
    m_lego(0),
    m_overlay(0),
    m_plotEt(this,"Plot Et",true),  
@@ -54,14 +54,21 @@ FWLegoViewBase::FWLegoViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId
    m_drawValuesIn2D(this,"pixel font size in 2D)",40l,16l,200l),
    m_showScales(this,"Show scales", true),
    m_legoFixedScale(this,"Lego scale GeV)",100.,1.,1000.),
-   m_legoAutoScale (this,"Lego auto scale",true)
+   m_legoAutoScale (this,"Lego auto scale",true),
+   m_projectionMode(this, "ProjectionMode", 0l, 0l, 2l),
+   m_cell2DMode(this, "Cell2DMode", 1l, 1l, 2l)
 {
    FWViewEnergyScale* caloScale = new FWViewEnergyScale();
    viewContext()->addScale("Calo", caloScale);
-   viewContext()->setAutoScale(m_legoAutoScale.value());
-   viewContext()->setPlotEt(m_plotEt.value());
 
    viewerGL()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
+
+   m_projectionMode.addEntry(0, "Auto");
+   m_projectionMode.addEntry(1, "3D");
+   m_projectionMode.addEntry(2, "2D");
+
+   m_cell2DMode.addEntry(1, "Plain");
+   m_cell2DMode.addEntry(2, "Outline");
 
    m_autoRebin.changed_.connect(boost::bind(&FWLegoViewBase::setAutoRebin,this));
    m_pixelsPerBin.changed_.connect(boost::bind(&FWLegoViewBase::setPixelsPerBin,this));
@@ -70,6 +77,8 @@ FWLegoViewBase::FWLegoViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId
    m_showScales.changed_.connect(boost::bind(&FWLegoViewBase::showScales,this));
    m_legoFixedScale.changed_.connect(boost::bind(&FWLegoViewBase::autoScale, this));
    m_legoAutoScale.changed_.connect(boost::bind(&FWLegoViewBase::autoScale, this));
+   m_projectionMode.changed_.connect(boost::bind(&FWLegoViewBase::setProjectionMode, this));
+   m_cell2DMode.changed_.connect(boost::bind(&FWLegoViewBase::setCell2DMode, this));
 }
 
 FWLegoViewBase::~FWLegoViewBase()
@@ -92,11 +101,28 @@ void FWLegoViewBase::setContext(fireworks::Context& context)
    m_lego = new TEveCaloLego(data);
    m_lego->InitMainTrans();
    m_lego->RefMainTrans().SetScale(TMath::TwoPi(), TMath::TwoPi(), TMath::Pi());
-   m_lego->Set2DMode(TEveCaloLego::kValSize);
-   m_lego->SetDrawNumberCellPixels(20);
-   m_lego->SetAutoRebin(false);
+   m_lego->Set2DMode((TEveCaloLego::E2DMode_e)m_cell2DMode.value());
+   m_lego->SetDrawNumberCellPixels(m_drawValuesIn2D.value());
+   m_lego->SetAutoRebin(m_autoRebin.value());
+   m_lego->SetPixelsPerBin(m_pixelsPerBin.value());
+
+   // set falt in 2D
+   m_lego->SetHasFixedHeightIn2DMode(true);
+   m_lego->SetFixedHeightValIn2DMode(0.001);
    eventScene()->AddElement(m_lego);
+
+   // possiblity for outline
+
+
+   m_lego->SetPlotEt(m_plotEt.value());
+   m_lego->SetMaxValAbs( m_legoFixedScale.value() );
+   m_lego->SetScaleAbs ( ! m_legoAutoScale.value() );
  
+   viewContext()->setPlotEt(m_plotEt.value());
+   viewContext()->setAutoScale(m_legoAutoScale.value());
+   viewContext()->setPlotEt(m_plotEt.value());
+
+
    TEveLegoEventHandler* eh = dynamic_cast<TEveLegoEventHandler*>( viewerGL()->GetEventHandler());
    eh->SetLego(m_lego);
   
@@ -221,6 +247,22 @@ FWLegoViewBase::setFontSizein2D()
 }
 
 void
+FWLegoViewBase::setProjectionMode()
+{
+   m_lego->SetProjection((TEveCaloLego::EProjection_e)m_projectionMode.value());
+   m_lego->ElementChanged();
+   viewerGL()->RequestDraw();
+}
+
+void
+FWLegoViewBase::setCell2DMode()
+{
+   m_lego->Set2DMode((TEveCaloLego::E2DMode_e)m_cell2DMode.value());
+   m_lego->ElementChanged();
+   viewerGL()->RequestDraw();
+}
+
+void
 FWLegoViewBase::eventBegin()
 {
    viewContext()->resetScale();
@@ -230,6 +272,7 @@ void
 FWLegoViewBase::eventEnd()
 {
    FWEveView::eventEnd();
+   viewContext()->getEnergyScale("Calo")->setVal(m_lego->GetValToHeight());
    viewContext()->scaleChanged();
 
 }
