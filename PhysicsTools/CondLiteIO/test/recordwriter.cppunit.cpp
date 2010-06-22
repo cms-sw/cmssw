@@ -109,8 +109,8 @@ void testRecordWriter::testInheritance()
          recordTree->GetEntry(index);
          CPPUNIT_ASSERT( aux->eventID().run()==static_cast<unsigned int>(index+1));
          CPPUNIT_ASSERT( pS->key==index);
-         CPPUNIT_ASSERT(0 != reinterpret_cast<edmtest::SimpleDerived*>(pS));
-         CPPUNIT_ASSERT(index != reinterpret_cast<edmtest::SimpleDerived*>(pS)->dummy);
+         CPPUNIT_ASSERT(0 != dynamic_cast<edmtest::SimpleDerived*>(pS));
+         CPPUNIT_ASSERT(index == dynamic_cast<edmtest::SimpleDerived*>(pS)->dummy);
       }      
    }
 }
