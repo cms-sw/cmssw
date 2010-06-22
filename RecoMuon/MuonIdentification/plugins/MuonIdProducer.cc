@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.52 2010/03/25 14:08:49 jribnik Exp $
+// $Id: MuonIdProducer.cc,v 1.56 2010/06/21 19:19:06 slava77 Exp $
 //
 //
 
@@ -328,6 +328,22 @@ int MuonIdProducer::overlap(const reco::Muon& muon, const reco::Track& track)
 }
 
 
+bool validateGlobalMuonPair( const reco::MuonTrackLinks& goodMuon, 
+			     const reco::MuonTrackLinks& badMuon )
+{
+  if ( std::min(goodMuon.globalTrack()->hitPattern().numberOfValidMuonHits(),
+		 badMuon.globalTrack()->hitPattern().numberOfValidMuonHits()) > 10 ){
+    if ( goodMuon.globalTrack()->normalizedChi2() >
+	  badMuon.globalTrack()->normalizedChi2() )
+      return false;
+    else
+      return true;
+  } 
+  if ( goodMuon.globalTrack()->hitPattern().numberOfValidMuonHits() <
+       badMuon.globalTrack()->hitPattern().numberOfValidMuonHits() ) return false;
+  return true;
+}
+
 void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    // TimerStack timers;
@@ -358,38 +374,76 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // loop over input collections
    
-   // muons first
+   // muons first - no cleaning, take as is.
    if ( muonCollectionHandle_.isValid() )
      for ( reco::MuonCollection::const_iterator muon = muonCollectionHandle_->begin();
 	   muon !=  muonCollectionHandle_->end(); ++muon )
        outputMuons->push_back(*muon);
    
    // links second ( assume global muon type )
-   if ( linkCollectionHandle_.isValid() )
-     for ( reco::MuonTrackLinksCollection::const_iterator links = linkCollectionHandle_->begin();
-	   links != linkCollectionHandle_->end(); ++links )
-       {
-	  if ( links->trackerTrack().isNull() ||
-	       links->standAloneTrack().isNull() ||
-	       links->globalTrack().isNull() ) 
-	    {
-	       edm::LogWarning("MuonIdentification") << "Global muon links to constituent tracks are invalid. There should be no such object. Muon is skipped.";
-	       continue;
-	    }
-	  // check if this muon is already in the list
-	  bool newMuon = true;
-	  for ( reco::MuonCollection::const_iterator muon = outputMuons->begin();
-		muon !=  outputMuons->end(); ++muon )
-	     if ( muon->track() == links->trackerTrack() &&
-		  muon->standAloneMuon() == links->standAloneTrack() &&
-		  muon->combinedMuon() == links->globalTrack() )
-	      newMuon = false;
-	  if ( newMuon ) {
-	     outputMuons->push_back( makeMuon( *links ) );
-	     outputMuons->back().setType(reco::Muon::GlobalMuon | reco::Muon::StandAloneMuon);
-	  }
+   if ( linkCollectionHandle_.isValid() ){
+     std::vector<bool> goodmuons(linkCollectionHandle_->size(),true);
+     if ( goodmuons.size()>1 ){
+       // check for shared tracker tracks
+       for ( unsigned int i=0; i<linkCollectionHandle_->size()-1; ++i )
+	 for ( unsigned int j=i+1; j<linkCollectionHandle_->size(); ++j ){
+	   if ( linkCollectionHandle_->at(i).trackerTrack().isNonnull() &&
+		linkCollectionHandle_->at(i).trackerTrack() == 
+		linkCollectionHandle_->at(j).trackerTrack() )
+	     {
+	       // Tracker track is the essential part that dominates muon resolution
+	       // so taking either muon is fine. All that is important is to preserve
+	       // the muon identification information. If number of hits is small,
+	       // keep the one with large number of hits, otherwise take the smalest chi2/ndof
+	       if ( validateGlobalMuonPair(linkCollectionHandle_->at(i),linkCollectionHandle_->at(j)) )
+		 goodmuons[j] = false;
+	       else
+		 goodmuons[i] = false;
+	     }
+	 }
+       // check for shared stand-alone muons.
+       for ( unsigned int i=0; i<linkCollectionHandle_->size()-1; ++i ){
+	 if ( !goodmuons[i] ) continue;
+	 for ( unsigned int j=i+1; j<linkCollectionHandle_->size(); ++j ){
+	   if ( !goodmuons[j] ) continue;
+	   if ( linkCollectionHandle_->at(i).standAloneTrack().isNonnull() &&
+		linkCollectionHandle_->at(i).standAloneTrack() == 
+		linkCollectionHandle_->at(j).standAloneTrack() )
+	     {
+	       if ( validateGlobalMuonPair(linkCollectionHandle_->at(i),linkCollectionHandle_->at(j)) )
+		 goodmuons[j] = false;
+	       else
+		 goodmuons[i] = false;
+	     }
+	 }
        }
-   
+     }
+     
+     for ( unsigned int i=0; i<linkCollectionHandle_->size(); ++i ){
+       if ( !goodmuons[i] ) continue;
+       const reco::MuonTrackLinks* links = &linkCollectionHandle_->at(i);
+       if ( links->trackerTrack().isNull() ||
+	    links->standAloneTrack().isNull() ||
+	    links->globalTrack().isNull() ) 
+	 {
+	   edm::LogWarning("MuonIdentification") << "Global muon links to constituent tracks are invalid. There should be no such object. Muon is skipped.";
+	   continue;
+	 }
+       // check if this muon is already in the list
+       bool newMuon = true;
+       for ( reco::MuonCollection::const_iterator muon = outputMuons->begin();
+	     muon !=  outputMuons->end(); ++muon )
+	 if ( muon->track() == links->trackerTrack() &&
+	      muon->standAloneMuon() == links->standAloneTrack() &&
+	      muon->combinedMuon() == links->globalTrack() )
+	   newMuon = false;
+       if ( newMuon ) {
+	 outputMuons->push_back( makeMuon( *links ) );
+	 outputMuons->back().setType(reco::Muon::GlobalMuon | reco::Muon::StandAloneMuon);
+       }
+     }
+   }
+
    // tracker and calo muons are next
    if ( innerTrackCollectionHandle_.isValid() ) {
       LogTrace("MuonIdentification") << "Creating tracker muons";
