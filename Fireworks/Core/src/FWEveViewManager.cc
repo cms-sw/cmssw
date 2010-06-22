@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.29 2010/06/18 10:17:15 yana Exp $
+// $Id: FWEveViewManager.cc,v 1.30 2010/06/18 19:51:24 amraktad Exp $
 //
 
 // system include files
@@ -403,31 +403,26 @@ FWEveViewManager::beingDestroyed(const FWViewBase* vb)
 {
    FWEveView* view = (FWEveView*) vb;
    int typeId = view->typeId();
-   for(EveViewVec_it i= m_views[typeId].begin(); i != m_views[typeId].end(); ++i) {
-      if(i->get() == vb) {
-         m_views[typeId].erase(i);
-         return;
-      }
-   }
-
-   if (m_views[typeId].empty())
+  
+   int viewerBit = 1 << typeId;
+   int nviews = m_views[typeId].size(); 
+   for ( std::map<int, BuilderVec>::iterator i = m_builders.begin(); i!= m_builders.end(); ++i)
    {
-      int viewerBit = 1 << typeId;
-      for ( std::map<int, BuilderVec>::iterator i = m_builders.begin(); i!= m_builders.end(); ++i)
+      int builderBit = i->first;
+      if (viewerBit == (builderBit & viewerBit)) // check only in case if connected
       {
-         int builderBit = i->first;
-         if (viewerBit == (builderBit & viewerBit)) // check only in case if connected
+         BuilderVec& bv =  i->second;
+
+         // remove view-owned product
+         if (viewerBit == (builderBit & viewerBit))
          {
-            BuilderVec& bv =  i->second;
+            for(BuilderVec_it bIt = bv.begin(); bIt != bv.end(); ++bIt)
+               (*bIt)->removePerViewProduct(view->typeId(), view->viewContext());
+         }
 
-            // remove view-owned product
-            if (viewerBit == (builderBit & viewerBit))
-            {
-               for(BuilderVec_it bIt = bv.begin(); bIt != bv.end(); ++bIt)
-                  (*bIt)->removePerViewProduct(view->typeId(), view->viewContext());
-            }
-
-            // and setup proxy builders have-a-window flag
+         // and setup proxy builders have-a-window flag
+         if (nviews == 1)
+         {
             if (!haveViewForBit(builderBit))
             {
                if (viewerBit == (builderBit & viewerBit))
@@ -437,6 +432,14 @@ FWEveViewManager::beingDestroyed(const FWViewBase* vb)
                }
             }
          }
+      }
+   }
+  
+
+   for(EveViewVec_it i= m_views[typeId].begin(); i != m_views[typeId].end(); ++i) {
+      if(i->get() == vb) {
+         m_views[typeId].erase(i);
+         break;
       }
    }
 }

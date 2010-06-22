@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:00 CET 2010
-// $Id: FWProxyBuilderBase.cc,v 1.21 2010/06/02 22:35:17 chrjones Exp $
+// $Id: FWProxyBuilderBase.cc,v 1.22 2010/06/03 13:38:32 eulisse Exp $
 //
 
 // system include files
@@ -296,6 +296,9 @@ FWProxyBuilderBase::removePerViewProduct(FWViewType::EType type, const FWViewCon
       { 
          if ((*i)->m_elements)
             (*i)->m_elements->DestroyElements();
+
+         if ( (*i)->m_viewContext)
+            (*i)->m_scaleConnection.disconnect();
 
          delete (*i);
          m_products.erase(i);
