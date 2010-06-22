@@ -17,6 +17,9 @@
 //======================= Constructor ==============================//
 //==================================================================//
 CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps){
+
+
+
  
    ////---- get steerable variables
   inputLabelDigi_        = ps.getParameter<edm::InputTag>("digiLabel");
@@ -85,7 +88,7 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps){
     LedMon_->setup(ps, dbe_);
   }
  //-------------------------------------------------------------//
- 
+
  //---------------------- PSMonitor ----------------------// 
   if ( ps.getUntrackedParameter<bool>("PSMonitor", false) ) {
     if(fVerbosity>0) cout << "CastorMonitorModule: PS monitor flag is on...." << endl;
@@ -226,9 +229,35 @@ void CastorMonitorModule::beginRun(const edm::Run& iRun, const edm::EventSetup& 
   fedsListed_ = false;
   reset();
 
-  //--- get Castor Conditions at the begiining of each new run
+  ////---- get Castor Conditions at the begiining of each new run
   iSetup.get<CastorDbRecord>().get(conditions_);
   
+  ////---- get Castor Pedestal Values from the DB
+  iSetup.get<CastorPedestalsRcd>().get(dbPedestals);
+  if(!dbPedestals.isValid() && fVerbosity>0)    cout << "CASTOR  has no CastorPedestals in the CondDB !!!" << endl;
+ 
+  ////----------------- fill fPedestalSigmaAverage ----------////
+  float        sigma_averaged;
+  unsigned int iChannel  = 0;
+  std::vector<DetId> channels = dbPedestals->getAllChannels();
+  
+  ////---- loop over channels
+  for (std::vector<DetId>::iterator ch=channels.begin(); ch!=channels.end(); ch++) {
+    const CastorPedestal * pedestals_mean  = dbPedestals->getValues(*ch);
+    sigma_averaged = 0.;
+
+    ////---- loop over CapIDs
+    for (short unsigned int iCapId = 0; iCapId < 4; iCapId++){
+      sigma_averaged += sqrt(pedestals_mean->getWidth(iCapId));
+    };
+
+    ////--- fill the array
+    fPedestalNSigmaAverage[HcalCastorDetId(*ch).module()-1][HcalCastorDetId(*ch).sector()-1] = sigma_averaged/4;
+    iChannel++;
+  };
+
+  if(iChannel<224 && fVerbosity>0)  cout << "There are less that 224 channels in CastorPedestalsRcd record !!!" << endl;
+
   return;
 }
 
@@ -310,6 +339,8 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   using namespace edm;
 
+
+
   ////---- environment datamembers
   irun_     = iEvent.id().run();
   ilumisec_ = iEvent.luminosityBlock();
@@ -379,7 +410,6 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
       }
     }
   
-
   //---------------------------------------------------------------//
   //-------------------  try to get digis ------------------------//
   //---------------------------------------------------------------//
@@ -443,7 +473,6 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
     }
 
 
-
  //----------------- Rec Hit monitor task -------------------------//
   //  if((RecHitMon_ != NULL) && (evtMask&DO_CASTOR_RECHITMON) && rechitOK_) 
  if(rechitOK_) RecHitMon_->processEvent(*CastorHits);
@@ -453,7 +482,6 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
       cpu_timer.reset(); cpu_timer.start();
     }
  
-
    //----------------- Channel Quality Monitor task -------------------------//
  if(rechitOK_) CQMon_->processEvent(*CastorHits);
  if (showTiming_){
@@ -474,34 +502,30 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
    
  //---------------- Pulse Shape monitor task ------------------------//
  ////---- get electronics map
+ 
   edm::ESHandle<CastorElectronicsMap> refEMap;
   eventSetup.get<CastorElectronicsMapRcd>().get(refEMap);
   const CastorElectronicsMap* myRefEMap = refEMap.product();
   listEMap = myRefEMap->allPrecisionId();
-
- if(digiOK_) PSMon_->processEvent(*CastorDigi,*conditions_, listEMap, ibunch_);  
+  if(digiOK_) PSMon_->processEvent(*CastorDigi,*conditions_, listEMap, ibunch_, fPedestalNSigmaAverage);  
   if (showTiming_) {
       cpu_timer.stop();
       if (PSMon_!=NULL) cout <<"TIMER:: PULSE SHAPE  ->"<<cpu_timer.cpuTime()<<endl;
       cpu_timer.reset(); cpu_timer.start();
     }
-  
-   
+
+
   //---------------- EventDisplay monitor task ------------------------//
   ////---- get calo geometry
   edm::ESHandle<CaloGeometry> caloGeometry;
   eventSetup.get<CaloGeometryRecord>().get(caloGeometry);
   
-  if(rechitOK_) EDMon_->processEvent(*CastorHits, *caloGeometry);
+ if(rechitOK_) EDMon_->processEvent(*CastorHits, *caloGeometry);
  if (showTiming_){
       cpu_timer.stop();
       if (EDMon_!=NULL) cout <<"TIMER:: EVENTDISPLAY MONITOR ->"<<cpu_timer.cpuTime()<<endl;
       cpu_timer.reset(); cpu_timer.start();
-    }
-   
-
-
-
+    }   
 
   if(fVerbosity>0 && ievt_%100 == 0)
     cout << "CastorMonitorModule: processed " << ievt_ << " events" << endl;
