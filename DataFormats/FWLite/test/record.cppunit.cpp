@@ -79,7 +79,35 @@ void testRecord::testGood()
       
       fwlite::EventSetup es(&f);
       
+      std::vector<std::string> recordNames = es.namesOfAvailableRecords();
+      CPPUNIT_ASSERT(recordNames.size() == 1);
+      CPPUNIT_ASSERT(recordNames[0] == "TestRecord");
+      
+      
       fwlite::RecordID testRecID = es.recordID("TestRecord");
+
+      std::vector<std::pair<std::string,std::string> > dataIds = 
+      es.get(testRecID).typeAndLabelOfAvailableData();
+      
+      CPPUNIT_ASSERT(dataIds.size() == 2);
+      unsigned int matches =0;
+      for(std::vector<std::pair<std::string,std::string> >::const_iterator it = dataIds.begin(),
+          itEnd = dataIds.end();
+          it != itEnd;
+          ++it) {
+         std::cout <<it->first<< " '"<<it->second<<"'"<<std::endl;
+         if( (it->first == "std::vector<int>") &&
+            (it->second =="") ) {
+            ++matches;
+            continue;
+         }
+         if( (it->first == "edmtest::Simple") &&
+            (it->second =="") ) {
+            ++matches;
+         }
+      }
+      
+      CPPUNIT_ASSERT(2==matches);
       
       for(unsigned int index=1; index<10; ++index) {
          es.syncTo(edm::EventID(index,0,0),edm::Timestamp());

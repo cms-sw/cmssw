@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec 10 15:58:26 CST 2009
-// $Id$
+// $Id: EventSetup.cc,v 1.1 2009/12/16 17:42:32 chrjones Exp $
 //
 
 // system include files
@@ -17,6 +17,7 @@
 #include "boost/bind.hpp"
 #include "TTree.h"
 #include "TFile.h"
+#include "TKey.h"
 
 // user include files
 #include "DataFormats/FWLite/interface/EventSetup.h"
@@ -129,6 +130,23 @@ EventSetup::get(const RecordID& iID) const
 {
    assert(iID<m_records.size());
    return *(m_records[iID]);
+}
+
+std::vector<std::string> 
+EventSetup::namesOfAvailableRecords() const
+{
+   std::vector<std::string> returnValue;
+   
+   TList* keys = m_file->GetListOfKeys();
+   //this is ROOT's recommended way to iterate
+   TIter next(keys);
+   while(TObject* obj = next() ) {
+      TKey* key = static_cast<TKey*> (obj);
+      if(0==strcmp(key->GetClassName(),"TTree")) {
+         returnValue.push_back(unformat_mangled_to_type(key->GetName()));
+      }
+   }
+   return returnValue;
 }
 
 //

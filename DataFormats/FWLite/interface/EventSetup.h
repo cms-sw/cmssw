@@ -41,10 +41,12 @@
 //
 // Original Author:  
 //         Created:  Thu Dec 10 15:57:46 CST 2009
-// $Id$
+// $Id: EventSetup.h,v 1.1 2009/12/16 17:42:31 chrjones Exp $
 //
 
 // system include files
+#include <vector>
+#include <string>
 
 // user include files
 #include "DataFormats/Provenance/interface/EventID.h"
@@ -62,13 +64,12 @@ namespace fwlite
    class Record;
    typedef unsigned int RecordID;
    
-class EventSetup
-{
-
+   class EventSetup {
+      
    public:
       EventSetup(TFile*);
       virtual ~EventSetup();
-
+      
       // ---------- const member functions ---------------------
       const Record& get(const RecordID&) const;
 
@@ -81,6 +82,8 @@ class EventSetup
       /**Returns true if a record with the name iRecordName is available in the file
       */
       bool exists(const char* iRecordName) const;
+      
+      std::vector<std::string> namesOfAvailableRecords() const;
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
@@ -92,6 +95,7 @@ class EventSetup
       void syncTo(const edm::EventID&, const edm::Timestamp&);
 
       //void autoSyncTo(const edm::EventBase&);
+   
 
    private:
       EventSetup(const EventSetup&); // stop default
@@ -106,7 +110,7 @@ class EventSetup
       TFile* m_file;
 
       mutable std::vector<Record*> m_records;
-};
+   };
 } /* fwlite */
 
 

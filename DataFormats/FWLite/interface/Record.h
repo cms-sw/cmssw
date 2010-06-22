@@ -17,7 +17,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec 10 15:58:15 CST 2009
-// $Id$
+// $Id: Record.h,v 1.1 2009/12/16 17:42:31 chrjones Exp $
 //
 
 // system include files
@@ -43,13 +43,12 @@ namespace cms {
 namespace fwlite
 {
    
-class Record
-{
-   class TypeID : public edm::TypeIDBase {
-   public:
-      TypeID(const type_info& iInfo): edm::TypeIDBase(iInfo) {}
-      using TypeIDBase::typeInfo;
-   };
+   class Record {
+      class TypeID : public edm::TypeIDBase {
+      public:
+         TypeID(const type_info& iInfo): edm::TypeIDBase(iInfo) {}
+         using TypeIDBase::typeInfo;
+      };
 
    public:
       Record(const char* iName, TTree*);
@@ -63,6 +62,8 @@ class Record
       
       const IOVSyncValue& startSyncValue() const;
       const IOVSyncValue& endSyncValue() const;
+   
+      std::vector<std::pair<std::string,std::string> > typeAndLabelOfAvailableData() const;
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
@@ -83,21 +84,21 @@ class Record
       IOVSyncValue m_end;
       
       mutable std::map<std::pair<TypeID,std::string>, TBranch*> m_branches;
-};
+   };
 
-template <typename HANDLE>
-bool
-Record::get(HANDLE& iHandle, const char* iLabel) const
-{
-   const void* value = 0;
-   cms::Exception* e = get(TypeID(iHandle.typeInfo()),iLabel,value);
-   if(0==e){
-      iHandle = HANDLE(value);
-   } else {
-      iHandle = HANDLE(e);
+   template <typename HANDLE>
+   bool
+   Record::get(HANDLE& iHandle, const char* iLabel) const
+   {
+      const void* value = 0;
+      cms::Exception* e = get(TypeID(iHandle.typeInfo()),iLabel,value);
+      if(0==e){
+         iHandle = HANDLE(value);
+      } else {
+         iHandle = HANDLE(e);
+      }
+      return 0==e;
    }
-   return 0==e;
-}
 
 } /* fwlite */
 

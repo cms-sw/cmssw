@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec 10 15:58:33 CST 2009
-// $Id$
+// $Id: Record.cc,v 1.1 2009/12/16 17:42:32 chrjones Exp $
 //
 
 // system include files
@@ -192,6 +192,37 @@ Record::get(const TypeID& iType,
    }
    branch->SetAddress(&iData);
    branch->GetEntry(m_entry);
+   return returnValue;
+}
+
+std::vector<std::pair<std::string,std::string> > 
+Record::typeAndLabelOfAvailableData() const
+{
+   std::vector<std::pair<std::string,std::string> > returnValue;
+   
+   TObjArray* branches = m_tree->GetListOfBranches();
+   TIter next( branches );
+   while (TObject* obj = next()) {
+      TBranch* branch = static_cast<TBranch*> (obj);
+      const char* name = branch->GetName();
+      if (0!=strcmp(name, "ESRecordAuxiliary") ) {
+         //The type and label are separated by a double underscore so we need to find that
+         size_t len = strlen(name);
+         const char* cIndex = name+len;
+         std::string label;
+         while (name != --cIndex) {
+            if(*cIndex == '_') {
+               if( *(cIndex-1)=='_') {
+                  label = std::string(cIndex+1);
+                  break;
+               }
+            }
+         }
+         std::string type(name, cIndex-name-1);
+         type = fwlite::unformat_mangled_to_type(type);
+         returnValue.push_back(std::make_pair(type,label));
+      }
+   }
    return returnValue;
 }
 
