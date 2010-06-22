@@ -19,6 +19,22 @@ def lslengthsec(numorbit,numbx):
     l=numorbit*numbx*25e-09
     return l
 
+def lsBylsLumi(deadtable):
+    """
+    input: {lsnum:[deadtime,instlumi,bit_0,norbits]}
+    output: {lsnum:[instlumi,recordedlumi]}
+    """
+    result={}
+    for myls,d in deadtable.items():
+        lstime=lslengthsec(d[3],3564)
+        instlumi=d[1]*lstime
+        if float(d[2])==0.0:
+            deadfrac=1.0
+        else:
+            deadfrac=float(d[0])/float(d[2])
+        recordedLumi=instlumi*(1.0-deadfrac)
+        result[myls]=[instlumi,recordedLumi]
+    return result
 def deliveredLumiForRun(dbsession,c,runnum):
     #
     #select sum(INSTLUMI),count(INSTLUMI) from lumisummary where runnum=124025 and lumiversion='0001';
@@ -329,6 +345,41 @@ def getDeadfractions(deadtable):
         result[myls]=deadfrac
     return result
 
+def printPerLSLumi(lumidata,isVerbose=False,hltpath=''):
+    '''
+    input lumidata  [['runnumber','trgtable{}','deadtable{}']]
+    deadtable {lsnum:[deadtime,instlumi,bit_0,norbits]}
+    '''
+    for perrundata in lumidata:
+        runnumber=perrundata[0]
+        deadtable=perrundata[2]
+        lumiresult=lsBylsLumi(deadtable)
+        for lsnum,dataperls in lumiresult.items():
+            rowdata=[]
+            labels=[('Run','LS','Delivered','Recorded'+u' (/\u03bcb)'.encode('utf-8'))]
+            if len(dataperls)==0:
+                rowdata+=[str(runnum),str(lsnum),'N/A','N/A']
+            else:
+                rowdata+=[str(runnum),str(lsnum),'%.3f'%(dataperls[0]),'%.3f'%(dataperls[1])]
+            datatoprint.append(rowdata)
+    #print datatoprint
+    print '==='
+    print tablePrinter.indent(labels+datatoprint,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',justify='right',delim=' | ',wrapfunc=lambda x: wrap_onspace_strict(x,22))
+    
+def dumpPerLSLumi(lumidata,hltpath=''):
+    datatodump=[]
+    for perrundata in lumidata:
+        runnumber=perrundata[0]
+        deadtable=perrundata[2]
+        lumiresult=lsBylsLumi(deadtable)
+        for lsnum,dataperls in lumiresult.items():
+            rowdata=[]
+            if len(dataperls)==0:
+                rowdata+=[str(runnumber),str(lsnum),'N/A','N/A']
+            else:
+                rowdata+=[str(runnumber),str(lsnum),dataperls[0],dataperls[1]]
+            datatodump.append(rowdata)
+    return datatodump
 def printRecordedLumi(lumidata,isVerbose=False,hltpath=''):
     datatoprint=[]
     labels=[('Run','HLT path','Recorded'+u' (/\u03bcb)'.encode('utf-8'))]
@@ -411,6 +462,9 @@ def printRecordedLumi(lumidata,isVerbose=False,hltpath=''):
         print '==='
         print tablePrinter.indent(deadtimelabels+deadtoprint,hasHeader=True,separateRows=True,prefix='| ',postfix=' |',justify='right',delim=' | ',wrapfunc=lambda x: wrap_onspace(x,80))
         
+
+
+
 def dumpRecordedLumi(lumidata,hltpath=''):
     #labels=['Run','HLT path','Recorded']
     datatodump=[]
@@ -536,7 +590,7 @@ def main():
     parser.add_argument('-lumiversion',dest='lumiversion',action='store',help='lumi data version, optional for all, default 0001')
     parser.add_argument('-hltpath',dest='hltpath',action='store',help='specific hltpath to calculate the recorded luminosity, default to all')
     parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',help='specific path to site-local-config.xml file, default to $CMS_PATH/SITECONF/local/JobConfig, if path undefined, fallback to cern proxy&server')
-    parser.add_argument('action',choices=['overview','delivered','recorded'],help='command actions')
+    parser.add_argument('action',choices=['overview','delivered','recorded','lumibyls'],help='command actions')
     parser.add_argument('--verbose',dest='verbose',action='store_true',help='verbose mode for printing' )
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
     # parse arguments
@@ -650,6 +704,20 @@ def main():
             if len(hpath)==0:
                 hpath='all'
             todump.insert(0,['run','delivered','recorded','hltpath:'+hpath])
+            dumpData(todump,ofilename)
+    if args.action == 'lumibyls':
+        recordeddata=[]
+        if runnumber!=0:
+            recordeddata.append(recordedLumiForRun(session,c,runnumber))
+        else:
+            recordeddata=recordedLumiForRange(session,c,fileparsingResult)
+        if not ofilename:
+            printPerLSLumi(recordeddata,c.VERBOSE,hpath)
+        else:
+            todump=dumpPerLSLumi(recordeddata,hpath)
+            if len(hpath)==0:
+                hpath='all'
+            todump.insert(0,['run','ls','delivered','recorded'])
             dumpData(todump,ofilename)
     #print lumidata
     
