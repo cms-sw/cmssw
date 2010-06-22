@@ -1,8 +1,6 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <math.h>
-//SIC DEBUG
-#include <iostream>
 
 EcalUncalibratedRecHit::EcalUncalibratedRecHit() :
      amplitude_(0.), pedestal_(0.), jitter_(0.), chi2_(10000.), flags_(0), aux_(0) { }
@@ -75,24 +73,18 @@ float EcalUncalibratedRecHit::jitterError() const
 
 void EcalUncalibratedRecHit::setJitterError( float jitterErr )
 {
-  //SIC DEBUG
-  //std::cout << "SIC DEBUG: set jitterError to (ns): " << 25*jitterErr << std::endl;
         // use 8 bits (3 exp, 5 mant) and store in ps
         // has range of 5 ps - 5000 ps
         // expect input in BX units
         // all bits off --> time reco bailed out
         if(jitterErr < 0)
         {
-  //SIC DEBUG
-  //std::cout << "SIC DEBUG: jitterError less than zero! " << std::endl;
                 aux_ = (~0xFF & aux_);
                 return;
         }
         // all bits on  --> time error over 5 ns
         if(25*jitterErr >= 5)
         {
-  //SIC DEBUG
-  //std::cout << "SIC DEBUG: jitterError > 5 ns " << std::endl;
                 aux_ = (0xFF | aux_);
                 return;
         }
@@ -105,11 +97,6 @@ void EcalUncalibratedRecHit::setJitterError( float jitterErr )
         if (exponentTmp>0) exponent = exponentTmp;
         uint8_t significand = (int) ( lround( quantityInLSB / pow(2.,exponent) )   );
         uint32_t jitterErrorBits = exponent<<5 | significand;
-  //SIC DEBUG
-  //std::cout << "SIC DEBUG: jitterErrorBits: " << (int)jitterErrorBits << std::endl;
-  uint8_t exponentTmp2 = jitterErrorBits>>5;
-  uint8_t significandTmp2 = jitterErrorBits & ~(0x7<<5);
-  //std::cout << "SIC DEBUG: returned jitterError (ns): " << (float)(pow(2.,exponentTmp2)*significandTmp2*LSB)/(1000) << std::endl;
   
         if( (0xFF & jitterErrorBits) == 0xFF)
           jitterErrorBits = 0xFE;
