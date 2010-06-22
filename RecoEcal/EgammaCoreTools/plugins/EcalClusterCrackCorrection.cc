@@ -25,6 +25,7 @@
 
 float EcalClusterCrackCorrection::getValue( const reco::BasicCluster & basicCluster, const EcalRecHitCollection & recHit) const
 {
+  //this is a dummy function, could be deleted in mother classes and here
         checkInit();
 
         // private member params_ = EcalClusterCrackCorrectionParameters
@@ -40,32 +41,32 @@ float EcalClusterCrackCorrection::getValue( const reco::BasicCluster & basicClus
 }
 
 
-       	  
-float EcalClusterCrackCorrection::getValue( const reco::SuperCluster & superCluster, const int mode ) const
+float EcalClusterCrackCorrection::getValue( const reco::CaloCluster & seedbclus) const
 {
   checkInit();
-  
+
   //correction factor to be returned, and to be calculated in this present function:
   double correction_factor=1.;
   double fetacor=1.; //eta dependent part of the correction factor
   double fphicor=1.; //phi dependent part of the correction factor
+
 
   //********************************************************************************************************************//
   //These ECAL barrel module and supermodule border corrections correct a photon energy for leakage outside a 5x5 crystal cluster. They  depend on the local position in the hit crystal. The hit crystal needs to be at the border of a barrel module. The local position coordinates, called later EtaCry and PhiCry in the code, are comprised between -0.5 and 0.5 and correspond to the distance between the photon supercluster position and the center of the hit crystal, expressed in number of  crystal widthes. The correction parameters (that should be filled in CalibCalorimetry/EcalTrivialCondModules/python/EcalTrivialCondRetriever_cfi.py) were calculated using simulaion and thus take into account the effect of the magnetic field. They  only apply to unconverted photons in the barrel, but a use for non brem electrons could be considered (not tested yet). For more details, cf the CMS internal note 2009-013 by S. Tourneur and C. Seez
 
   //Beware: The user should make sure it only uses this correction factor for unconverted photons (or not breming electrons)
 
-  const reco::CaloClusterPtr & seedbclus =  superCluster.seed();
+  //const reco::CaloClusterPtr & seedbclus =  superCluster.seed();
   
   //If not barrel, return 1:
-  if (TMath::Abs(seedbclus->eta()) >1.4442 ) return 1.;
+  if (TMath::Abs(seedbclus.eta()) >1.4442 ) return 1.;
 
   edm::ESHandle<CaloGeometry> pG;
   es_->get<CaloGeometryRecord>().get(pG); 
   
   const CaloSubdetectorGeometry* geom=pG->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);//EcalBarrel = 1
   
-  const math::XYZPoint position_ = seedbclus->position(); 
+  const math::XYZPoint position_ = seedbclus.position(); 
   double Theta = -position_.theta()+0.5*TMath::Pi();
   double Eta = position_.eta();
   double Phi = TVector2::Phi_mpi_pi(position_.phi());
@@ -73,12 +74,12 @@ float EcalClusterCrackCorrection::getValue( const reco::SuperCluster & superClus
   //Calculate expected depth of the maximum shower from energy (like in PositionCalc::Calculate_Location()):
   // The parameters X0 and T0 are hardcoded here because these values were used to calculate the corrections:
   const float X0 = 0.89; const float T0 = 7.4;
-  double depth = X0 * (T0 + log(seedbclus->energy()));
+  double depth = X0 * (T0 + log(seedbclus.energy()));
   
   
   //search which crystal is closest to the cluster position and call it crystalseed:
-  //std::vector<DetId> crystals_vector = seedbclus->getHitsByDetId();   //deprecated
-  std::vector< std::pair<DetId, float> > crystals_vector = seedbclus->hitsAndFractions();
+  //std::vector<DetId> crystals_vector = seedbclus.getHitsByDetId();   //deprecated
+  std::vector< std::pair<DetId, float> > crystals_vector = seedbclus.hitsAndFractions();
   float dphimin=999.;
   float detamin=999.;
   int ietaclosest = 0;
@@ -159,6 +160,29 @@ float EcalClusterCrackCorrection::getValue( const reco::SuperCluster & superClus
   
   //return the correction factor. Use it to multiply the cluster energy.
   return correction_factor;
+}
+
+  
+
+
+
+
+
+
+
+       	  
+float EcalClusterCrackCorrection::getValue( const reco::SuperCluster & superCluster, const int mode ) const
+{
+  checkInit();
+
+  //********************************************************************************************************************//
+  //These ECAL barrel module and supermodule border corrections correct a photon energy for leakage outside a 5x5 crystal cluster. They  depend on the local position in the hit crystal. The hit crystal needs to be at the border of a barrel module. The local position coordinates, called later EtaCry and PhiCry in the code, are comprised between -0.5 and 0.5 and correspond to the distance between the photon supercluster position and the center of the hit crystal, expressed in number of  crystal widthes. The correction parameters (that should be filled in CalibCalorimetry/EcalTrivialCondModules/python/EcalTrivialCondRetriever_cfi.py) were calculated using simulaion and thus take into account the effect of the magnetic field. They  only apply to unconverted photons in the barrel, but a use for non brem electrons could be considered (not tested yet). For more details, cf the CMS internal note 2009-013 by S. Tourneur and C. Seez
+
+  //Beware: The user should make sure it only uses this correction factor for unconverted photons (or not breming electrons)
+
+  return getValue(*(superCluster.seed()));
+
+ 
 }
 
 

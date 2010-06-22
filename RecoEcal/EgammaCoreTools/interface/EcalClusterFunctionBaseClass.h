@@ -30,6 +30,9 @@ class EcalClusterFunctionBaseClass {
                 virtual void  init( const edm::EventSetup& es ) = 0;
                 virtual float getValue( const reco::BasicCluster &, const EcalRecHitCollection & ) const = 0;
                 virtual float getValue( const reco::SuperCluster &, const int mode ) const = 0;
+	        //this one is needed for EcalClusterCrackCorrection:
+	        virtual float getValue( const reco::CaloCluster &) const {return 0;};
+
 };
 
 #endif
