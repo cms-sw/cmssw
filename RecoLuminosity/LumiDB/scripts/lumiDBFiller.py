@@ -43,7 +43,7 @@ def getRunsToBeUploaded(connectionString, dropbox, authpath=''):
         #print 'lastana ',lastAnalyzedRunNumber
         for file in files:
             thisrun=getRunnumberFromFileName(file)
-            print 'this run ',thisrun
+            #print 'this run ',thisrun
             if  thisrun>lastAnalyzedRunNumber and isCollisionRun(str(thisrun),authpath): 
                     runsToBeAnalyzed[str(thisrun)] = file
     #print 'runsToBeAnalyzed ', runsToBeAnalyzed
