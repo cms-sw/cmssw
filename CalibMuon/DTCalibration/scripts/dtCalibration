@@ -8,7 +8,7 @@ from CalibMuon.DTCalibration.Workflow.DTValidSummary import DTValidSummary
 from CalibMuon.DTCalibration.Workflow.DTDqm import DTDqm
 from CalibMuon.DTCalibration.Workflow.CrabWatch import CrabWatch
 from CalibMuon.DTCalibration.Workflow.tools import listFilesInCastor,haddInCastor,parseInput
-import sys,os,time
+import sys,os,time,optparse
 
 def runTtrigProd(run,runselection,trial,config):
 
@@ -117,11 +117,31 @@ def runDQMMerge(run,castor_dir,config):
 
 if __name__ == '__main__':
     start = time.time()
-    
+
+    """
     inputFields = ('run','runselection','trial','castorpath','datasetpath','globaltag','email','templatepath')
     requiredFields = ('run','castorpath','datasetpath','globaltag','email','templatepath')
 
     input = parseInput(inputFields,requiredFields)
+    """
+    
+    parser = optparse.OptionParser(usage="usage: %prog [options]")
+    parser.add_option("-r","--run",dest="run", help="set reference run number (typically first run in list)")
+    parser.add_option("--runselection",dest="runselection", help="run list or range")
+    parser.add_option("--trial",dest="trial", help="trial number used to in the naming of output directories")
+    parser.add_option("--castorpath",dest="castorpath", help="path to user area at CAF")
+    parser.add_option("--datasetpath",dest="datasetpath", help="dataset name to process")
+    parser.add_option("--globaltag",dest="globaltag", help="global tag identifier (without the '::All' string)")
+    parser.add_option("--email",dest="email", help="user email")
+    parser.add_option("--templatepath",dest="templatepath", help="path to dir with template cfg files")
+ 
+    (input, args) = parser.parse_args()
+
+    requiredFields = ('run','castorpath','datasetpath','globaltag','email','templatepath')
+    for item in requiredFields:
+        if not getattr(input,item):
+            parser.error('field "%s" needs to be set' % item) 
+            #raise RuntimeError,'Need to set "%s"' % item
 
     run = input.run
     runselection = None
