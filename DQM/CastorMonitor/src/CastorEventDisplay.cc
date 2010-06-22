@@ -53,7 +53,7 @@ void CastorEventDisplay::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   meEVT_ = m_dbe->bookInt("EventDisplay Event Number"); // meEVT_->Fill(ievt_);
   
   ////---- cumulative event display
-  meCastor3Dhits = m_dbe->book3D("CASTOR 3D hits- cumulative", "CASTOR 3D hits - cumulative", 30, -1600, -1420, 35, -35, 35, 35, -35, 35);
+  meCastor3Dhits = m_dbe->book3D("CASTOR 3D hits- cumulative", "CASTOR 3D hits - cumulative", 30, 1420, 1600, 35, -35, 35, 35, -35, 35);
 
 
   if( offline_ ){
@@ -65,7 +65,7 @@ void CastorEventDisplay::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   }
 
   ////---- event display of an event with the largest deposited energy
-  meCastor3DhitsMaxEnergy = m_dbe->book3D("CASTOR 3D hits- event with the largest deposited E", "CASTOR 3D hits- event with the largest deposited E",  30, -1600, -1420, 20, -30, 30, 20, -30, 30); //-- swap z and y axis
+  meCastor3DhitsMaxEnergy = m_dbe->book3D("CASTOR 3D hits- event with the largest deposited E", "CASTOR 3D hits- event with the largest deposited E",  30, 1420, 1600, 20, -30, 30, 20, -30, 30); //-- swap z and y axis
 
   if( offline_ ){
   TH3F* Castor3DhitsMaxEnergy = meCastor3DhitsMaxEnergy->getTH3F();
@@ -135,7 +135,7 @@ void CastorEventDisplay::processEvent(const CastorRecHitCollection& castorHits, 
           ////--- fill the cumulative energy in an event
          allEnergyEvent= allEnergyEvent+energy ;
          ////--- fill the cumulative distribution
-         meCastor3Dhits->Fill(Z_pos,X_pos,Y_pos, energy);
+         meCastor3Dhits->Fill(abs(Z_pos),X_pos,Y_pos, energy);
 	}
 
 	if(fVerbosity>0)  cout<<"ENERGY="<< energy <<" X_pos="<< X_pos <<" Y_pos="<< Y_pos <<" Z_pos="<< Z_pos << endl;   
@@ -158,7 +158,7 @@ void CastorEventDisplay::processEvent(const CastorRecHitCollection& castorHits, 
        X_pos_maxE = caloGeometry.getSubdetectorGeometry(CastorID_maxE)->getGeometry(CastorID_maxE)->getPosition().x() ;
        Y_pos_maxE = caloGeometry.getSubdetectorGeometry(CastorID_maxE)->getGeometry(CastorID_maxE)->getPosition().y() ;
        Z_pos_maxE = caloGeometry.getSubdetectorGeometry(CastorID_maxE)->getGeometry(CastorID_maxE)->getPosition().z() ;
-       meCastor3DhitsMaxEnergy->Fill(Z_pos_maxE,X_pos_maxE,Y_pos_maxE, CASTORiter->energy() );
+       meCastor3DhitsMaxEnergy->Fill(abs(Z_pos_maxE),X_pos_maxE,Y_pos_maxE, CASTORiter->energy() );
       }
      meCastor3DhitsMaxEnergy->getTH3F()->SetOption("BOX");
      meCastor3DhitsMaxEnergy->update();
