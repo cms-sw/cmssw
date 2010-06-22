@@ -15,7 +15,7 @@ from RecoLocalCalo.Configuration.hcalLocalReco_cff import *
 
 # Muons
 from RecoLocalMuon.Configuration.RecoLocalMuon_cff import *
-from RecoLuminosity.LumiProducer.lumiProducer_cfi import *
+from RecoLuminosity.LumiProducer.lumiProducer_cff import *
 
 #--------------------------------------------------------------------------
 # HIGH LEVEL RECO
