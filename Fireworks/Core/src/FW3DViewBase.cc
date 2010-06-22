@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DViewBase.cc,v 1.5 2010/05/03 15:47:38 amraktad Exp $
+// $Id: FW3DViewBase.cc,v 1.6 2010/06/18 10:17:14 yana Exp $
 //
 #include <boost/bind.hpp>
 
@@ -23,6 +23,8 @@
 #include "Fireworks/Core/interface/FW3DViewBase.h"
 #include "Fireworks/Core/interface/FW3DViewGeometry.h"
 #include "Fireworks/Core/interface/Context.h"
+#include "Fireworks/Core/interface/FWViewContext.h"
+#include "Fireworks/Core/interface/FWViewEnergyScale.h"
 
 //
 // constants, enums and typedefs
@@ -46,8 +48,11 @@ FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId):
    m_showTrackerBarrel(this, "Show Tracker Barrel", false ),
    m_showTrackerEndcap(this, "Show Tracker Endcap", false),
    m_showWireFrame(this, "Show Wire Frame", true),
-   m_geomTransparency(this,"Detector Transparency", 95l, 0l, 100l){
+   m_geomTransparency(this,"Detector Transparency", 95l, 0l, 100l)
+{
    viewerGL()->SetCurrentCamera(TGLViewer::kCameraPerspXOZ);
+   FWViewEnergyScale* caloScale = new FWViewEnergyScale();
+   viewContext()->addScale("Calo", caloScale);
 }
 
 FW3DViewBase::~FW3DViewBase()

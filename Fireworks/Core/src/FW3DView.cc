@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Apr  7 14:40:47 CEST 2010
-// $Id: FW3DView.cc,v 1.40 2010/06/08 21:17:35 matevz Exp $
+// $Id: FW3DView.cc,v 1.41 2010/06/18 19:51:24 amraktad Exp $
 //
 
 // system include files
@@ -42,9 +42,6 @@ FW3DView::FW3DView(TEveWindowSlot* slot, FWViewType::EType typeId):
    m_caloAutoScale (this,"Calo auto scale",true),
    m_calo(0)
 {
-   FWViewEnergyScale* caloScale = new FWViewEnergyScale();
-   viewContext()->addScale("Calo", caloScale);
-
    viewerGL()->CurrentCamera().SetFixDefCenter(kTRUE);
    m_caloFixedScale.changed_.connect(boost::bind(&FW3DView::updateCaloParameters, this));
    m_caloAutoScale.changed_.connect(boost::bind(&FW3DView::updateCaloParameters, this));
