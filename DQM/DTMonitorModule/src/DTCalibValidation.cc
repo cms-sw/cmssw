@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/05/12 10:28:47 $
- *  $Revision: 1.12 $
+ *  $Date: 2010/05/12 10:32:40 $
+ *  $Revision: 1.13 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -35,7 +35,7 @@ using namespace std;
 
 DTCalibValidation::DTCalibValidation(const ParameterSet& pset) {
 
-  debug = pset.getUntrackedParameter<bool>("debug",false);
+  //debug = pset.getUntrackedParameter<bool>("debug",false);
 
   // Get the DQM needed services
 
@@ -105,8 +105,8 @@ void DTCalibValidation::beginRun(const Run& run, const EventSetup& setup) {
 
 void DTCalibValidation::endJob(){
 
- cout<<"Segments used to compute residuals: "<<rightSegment<<endl;
- cout<<"Segments not used to compute residuals: "<<wrongSegment<<endl;
+ LogVerbatim("DTCalibValidation") << "Segments used to compute residuals: " << rightSegment;
+ LogVerbatim("DTCalibValidation") << "Segments not used to compute residuals: " << wrongSegment;
 
  //theDbe->showDirStructure();
  bool outputMEsInRootFile = parameters.getParameter<bool>("OutputMEsInRootFile");
@@ -124,8 +124,8 @@ void DTCalibValidation::endJob(){
 void DTCalibValidation::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 
   ++nevent;
-  cout << "[DTCalibValidation] Analyze #Run: " << event.id().run()
-       << " #Event: " << nevent << endl;
+  LogTrace("DTCalibValidation") << "[DTCalibValidation] Analyze #Run: " << event.id().run()
+                                << " #Event: " << nevent;
 
   // RecHit mapping at Step 1 -------------------------------
   map<DTWireId,vector<DTRecHit1DPair> > recHitsPerWire_1S;
@@ -134,13 +134,13 @@ void DTCalibValidation::analyze(const edm::Event& event, const edm::EventSetup& 
   map<DTWireId,vector<DTRecHit1D> > recHitsPerWire_2S;
 
   if(detailedAnalysis){
-     if(debug) cout << "  -- DTRecHit S1: begin analysis:" << endl;
+     LogTrace("DTCalibValidation") << "  -- DTRecHit S1: begin analysis:";
      // Get the rechit collection from the event
      Handle<DTRecHitCollection> dtRecHits;
      event.getByLabel(recHits1DLabel, dtRecHits);
      recHitsPerWire_1S = map1DRecHitsPerWire(dtRecHits.product());
  
-     if(debug) cout << "  -- DTRecHit S2: begin analysis:" << endl;
+     LogTrace("DTCalibValidation") << "  -- DTRecHit S2: begin analysis:";
      // Get the 2D rechits from the event
      Handle<DTRecSegment2DCollection> segment2Ds;
      event.getByLabel(segment2DLabel, segment2Ds);
@@ -148,7 +148,7 @@ void DTCalibValidation::analyze(const edm::Event& event, const edm::EventSetup& 
   }
 
   // RecHit mapping at Step 3 ---------------------------------
-  if(debug) cout << "  -- DTRecHit S3: begin analysis:" << endl;
+  LogTrace("DTCalibValidation") << "  -- DTRecHit S3: begin analysis:";
   // Get the 4D rechits from the event
   Handle<DTRecSegment4DCollection> segment4Ds;
   event.getByLabel(segment4DLabel, segment4Ds);
@@ -161,14 +161,14 @@ void DTCalibValidation::analyze(const edm::Event& event, const edm::EventSetup& 
       ++segment) {
 
     if(detailedAnalysis){
-       if(debug) cout<<"Anlysis on recHit at step 1"<<endl;
+       LogTrace("DTCalibValidation") << "Anlysis on recHit at step 1";
        compute(dtGeom.product(), (*segment), recHitsPerWire_1S, 1);
 
-       if(debug) cout<<"Anlysis on recHit at step 2"<<endl;
+       LogTrace("DTCalibValidation") << "Anlysis on recHit at step 2";
        compute(dtGeom.product(), (*segment), recHitsPerWire_2S, 2);
     }
 
-    if(debug) cout<<"Anlysis on recHit at step 3"<<endl;
+    LogTrace("DTCalibValidation") << "Anlysis on recHit at step 3";
     compute(dtGeom.product(), (*segment), recHitsPerWire_3S, 3);
   }
 
@@ -363,16 +363,14 @@ void DTCalibValidation::compute(const DTGeometry *dtGeom,
   if(phiSeg){
     vector<DTRecHit1D> phiRecHits = phiSeg->specificRecHits();
     if(phiRecHits.size() != 8) {
-      if(debug)
-	cout << "[DTCalibValidation] Phi segments has: " << phiRecHits.size()
-	     << " hits, skipping" << endl; // FIXME: info output
+      LogTrace("DTCalibValidation") << "[DTCalibValidation] Phi segments has: " << phiRecHits.size()
+                                    << " hits, skipping"; // FIXME: info output
       computeResidual = false;
     }
     copy(phiRecHits.begin(), phiRecHits.end(), back_inserter(recHits1D_S3));
   }
   if(!phiSeg){
-    if(debug)
-      cout<< " [DTCalibValidation] 4D segment has not the phi segment! "<<endl;
+    LogTrace("DTCalibValidation") << " [DTCalibValidation] 4D segment has not the phi segment! ";
     computeResidual = false;
   }
   
@@ -381,16 +379,14 @@ void DTCalibValidation::compute(const DTGeometry *dtGeom,
     if(zSeg){
       vector<DTRecHit1D> zRecHits = zSeg->specificRecHits();
       if(zRecHits.size() != 4) {
-	if(debug)
-	  cout << "[DTCalibValidation] Theta segments has: " << zRecHits.size()
-	       << " hits, skipping" << endl; // FIXME: info output
+        LogTrace("DTCalibValidation") << "[DTCalibValidation] Theta segments has: " << zRecHits.size()
+	                              << " hits, skipping"; // FIXME: info output
 	computeResidual = false;
       }
       copy(zRecHits.begin(), zRecHits.end(), back_inserter(recHits1D_S3));
     }
     if(!zSeg){
-      if(debug)
-	cout<< " [DTCalibValidation] 4D segment has not the z segment! "<<endl;
+      LogTrace("DTCalibValidation") << " [DTCalibValidation] 4D segment has not the z segment! ";
       computeResidual = false;
     }
   }
@@ -427,25 +423,21 @@ void DTCalibValidation::compute(const DTGeometry *dtGeom,
       if(sl == 1 || sl == 3) {
 	// RPhi SL
 	SegmDistance = fabs(wirePosInChamber.x() - segPosAtZWire.x());
-	if(debug)
-	  cout<<"SegmDistance: "<<SegmDistance<<endl;
+	LogTrace("DTCalibValidation") << "SegmDistance: " << SegmDistance;
       } else if(sl == 2) {
 	// RZ SL
 	SegmDistance =  fabs(segPosAtZWire.y() - wirePosInChamber.y());
-	if(debug)
-	  cout<<"SegmDistance: "<<SegmDistance<<endl;
+	LogTrace("DTCalibValidation") << "SegmDistance: " << SegmDistance;
       }
-      if(SegmDistance > 2.1 && debug)
-	cout << "  Warning: dist segment-wire: " << SegmDistance << endl;
+      if(SegmDistance > 2.1)
+	LogTrace("DTCalibValidation") << "  Warning: dist segment-wire: " << SegmDistance;
 
       // Look for RecHits in the same cell
       if(recHitsPerWire.find(wireId) == recHitsPerWire.end()) {
-	if(debug)
-	  cout << "   No RecHit found at Step: " << step << " in cell: " << wireId << endl;
+        LogTrace("DTCalibValidation") << "   No RecHit found at Step: " << step << " in cell: " << wireId;
       } else {
 	vector<type> recHits = recHitsPerWire[wireId];
-	if(debug)
-	  cout << "   " << recHits.size() << " RecHits, Step " << step << " in channel: " << wireId << endl;
+	LogTrace("DTCalibValidation") << "   " << recHits.size() << " RecHits, Step " << step << " in channel: " << wireId;
 	
 	// Get the layer
 	const DTLayer* layer = dtGeom->layer(wireId);
@@ -453,13 +445,11 @@ void DTCalibValidation::compute(const DTGeometry *dtGeom,
 	const type* theBestRecHit = findBestRecHit(layer, wireId, recHits, SegmDistance);
 	// Compute the distance of the recHit from the wire
 	float recHitWireDist =  recHitDistFromWire(*theBestRecHit, layer);
-	if(debug)
-	  cout<<"recHitWireDist: "<<recHitWireDist<<endl;
+	LogTrace("DTCalibValidation") << "recHitWireDist: " << recHitWireDist;
 
 	// Compute the residuals
 	float residualOnDistance = recHitWireDist - SegmDistance;
-	if(debug)
-	  cout<<"WireId: "<<wireId<<"  ResidualOnDistance: "<<residualOnDistance<<endl;
+	LogTrace("DTCalibValidation") << "WireId: " << wireId << "  ResidualOnDistance: " << residualOnDistance;
  	float residualOnPosition = -1;
 	float recHitPos = -1;
 	if(sl == 1 || sl == 3) {
@@ -470,8 +460,7 @@ void DTCalibValidation::compute(const DTGeometry *dtGeom,
 	  recHitPos = recHitPosition(*theBestRecHit, layer, chamber,  segPosAtZWire.y(), sl);
 	  residualOnPosition = recHitPos - segPosAtZWire.y();
 	}
- 	if(debug)
-	  cout<<"WireId: "<<wireId<<"  ResidualOnPosition: "<<residualOnPosition<<endl;
+	LogTrace("DTCalibValidation") << "WireId: " << wireId << "  ResidualOnPosition: " << residualOnPosition;
 
 	// Fill the histos
 	if(sl == 1 || sl == 3)
@@ -490,8 +479,7 @@ void DTCalibValidation::compute(const DTGeometry *dtGeom,
 
 // Book a set of histograms for a given SL
 void DTCalibValidation::bookHistos(DTSuperLayerId slId, int step) {
-  if(debug)
-    cout << "   Booking histos for SL: " << slId << endl;
+  LogTrace("DTCalibValidation") << "   Booking histos for SL: " << slId;
 
   // Compose the chamber name
   stringstream wheel; wheel << slId.wheel();	
