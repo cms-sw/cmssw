@@ -43,7 +43,8 @@ eventSetup_(),
 providers_(),
 mustFinishConfiguration_(true),
 preferredProviderInfo_((0!=iInfo) ? (new PreferredProviderInfo(*iInfo)): 0),
-finders_(new std::vector<boost::shared_ptr<EventSetupRecordIntervalFinder> >() )
+finders_(new std::vector<boost::shared_ptr<EventSetupRecordIntervalFinder> >() ),
+dataProviders_(new std::vector<boost::shared_ptr<DataProxyProvider> >() )
 {
 }
 
@@ -84,20 +85,7 @@ EventSetupProvider::add(boost::shared_ptr<DataProxyProvider> iProvider)
 {
    mustFinishConfiguration_ = true;
    assert(&(*iProvider) != 0);
-   typedef std::set<EventSetupRecordKey> Keys;
-   const Keys recordsUsing = iProvider->usingRecords();
-
-   for(Keys::const_iterator itKey = recordsUsing.begin(), itKeyEnd = recordsUsing.end();
-       itKey != itKeyEnd;
-       ++itKey) {
-      Providers::iterator itFound = providers_.find(*itKey);
-      if(providers_.end() == itFound) {
-         //create a provider for this record
-         insert(*itKey, EventSetupRecordProviderFactoryManager::instance().makeRecordProvider(*itKey));
-         itFound = providers_.find(*itKey);
-      }
-      itFound->second->add(iProvider);
-   }
+   dataProviders_->push_back(iProvider);
 }
 
 
@@ -252,7 +240,7 @@ RecordToPreferred determinePreferred(const EventSetupProvider::PreferredProvider
 
 void
 EventSetupProvider::finishConfiguration()
-{
+{   
    //we delayed adding finders to the system till here so that everything would be loaded first
    for(std::vector<boost::shared_ptr<EventSetupRecordIntervalFinder> >::iterator itFinder=finders_->begin(),
        itEnd = finders_->end();
@@ -276,6 +264,29 @@ EventSetupProvider::finishConfiguration()
    //we've transfered our ownership so this is no longer needed
    finders_.reset();
    
+   //Now handle providers since sources can also be finders and the sources can delay registering
+   // their Records and therefore could delay setting up their Proxies
+   typedef std::set<EventSetupRecordKey> Keys;
+   for(std::vector<boost::shared_ptr<DataProxyProvider> >::iterator itProvider=dataProviders_->begin(),
+       itEnd = dataProviders_->end();
+       itProvider != itEnd;
+       ++itProvider) {
+      
+      const Keys recordsUsing = (*itProvider)->usingRecords();
+      
+      for(Keys::const_iterator itKey = recordsUsing.begin(), itKeyEnd = recordsUsing.end();
+          itKey != itKeyEnd;
+          ++itKey) {
+         Providers::iterator itFound = providers_.find(*itKey);
+         if(providers_.end() == itFound) {
+            //create a provider for this record
+            insert(*itKey, EventSetupRecordProviderFactoryManager::instance().makeRecordProvider(*itKey));
+            itFound = providers_.find(*itKey);
+         }
+         itFound->second->add(*itProvider);
+      }
+   }
+   dataProviders_.reset();
    
    //used for the case where no preferred Providers have been specified for the Record
    static const EventSetupRecordProvider::DataToPreferredProviderMap kEmptyMap;
@@ -431,6 +442,15 @@ EventSetupProvider::proxyProviderDescriptions() const
                  bind(InsertAll(descriptions),
                       bind(&EventSetupRecordProvider::proxyProviderDescriptions,
                            bind(&Providers::value_type::second,_1))));
+   if(dataProviders_.get()) {
+      for(std::vector<boost::shared_ptr<DataProxyProvider> >::const_iterator it = dataProviders_->begin(),
+          itEnd = dataProviders_->end();
+          it != itEnd;
+          ++it) {
+         descriptions.insert((*it)->description());
+      }
+         
+   }
                        
    return descriptions;
 }

@@ -106,6 +106,7 @@ class EventSetupProvider
       
       std::auto_ptr<PreferredProviderInfo> preferredProviderInfo_;
       std::auto_ptr<std::vector<boost::shared_ptr<EventSetupRecordIntervalFinder> > > finders_;
+      std::auto_ptr<std::vector<boost::shared_ptr<DataProxyProvider> > > dataProviders_;
 };
 
    }
