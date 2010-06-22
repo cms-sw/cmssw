@@ -1,5 +1,5 @@
 #from CrabTask import CrabTask
-from crabWrap import checkStatus,getOutput
+from crabWrap import crabStatus,convertStatus,getOutput
 import os,time
 from threading import Thread,Lock,Event
 
@@ -18,7 +18,15 @@ class CrabWatch(Thread):
     def run(self):
         exit = False
         while not exit:
-            if checkStatus(self.project,80.0): break
+            #if checkStatus(self.project,80.0): break
+            threshold = 85.0
+            status = crabStatus(self.project)
+            statusNew = convertStatus(status)
+            print "Relative percentage finished: %.0f%%" % statusNew['Finished']
+            print "Relative percentage failed  : %.0f%%" % statusNew['Failed']
+            print "Relative percentage running : %.0f%%" % statusNew['Running']
+            if statusNew['Failed'] > 50.0: raise RuntimeError,'Too many jobs have failed (%.0f%%).' % statusNew['Failed']
+            if statusNew['Finished'] > threshold: break
 
             self.lock.acquire()
             if self.finish.isSet(): exit = True 
@@ -28,7 +36,7 @@ class CrabWatch(Thread):
  
         print "Finished..."
 
-        self.action(self.project)
+        if self.action: self.action(self.project)
 
 if __name__ == '__main__':
 
