@@ -46,9 +46,9 @@ void CastorChannelQualityMonitor::setup(const edm::ParameterSet& ps, DQMStore* d
 
   if ( m_dbe !=NULL ) {    
     ////---- create ReportSummary Map 
-    m_dbe->setCurrentFolder(rootFolder_+"EventInfo");
-    reportSummary    = m_dbe->bookFloat("reportSummary");
-    reportSummaryMap = m_dbe->book2D("reportSummaryMap","reportSummaryMap",14,0.0,14.0,16,0.0,16.0);
+    m_dbe->setCurrentFolder(rootFolder_+"CastorChannelQuality");
+    reportSummary    = m_dbe->bookFloat("RecHit Energy based reportSummary");
+    reportSummaryMap = m_dbe->book2D("RecHitEnergyBasedSummaryMap","RecHitEnergyBasedSummaryMap",14,0.0,14.0,16,0.0,16.0);
     if(offline_){
       h_reportSummaryMap =reportSummaryMap->getTH2F();
       h_reportSummaryMap->SetOption("textcolz");
@@ -56,8 +56,7 @@ void CastorChannelQualityMonitor::setup(const edm::ParameterSet& ps, DQMStore* d
       h_reportSummaryMap->GetYaxis()->SetTitle("sector");
     }
     
-    m_dbe->setCurrentFolder(rootFolder_+"EventInfo/reportSummaryContents");
-    overallStatus = m_dbe->bookFloat("fraction of good channels");
+    overallStatus = m_dbe->bookFloat("RecHit Energy based fraction of good channels");
    } 
 
   else{
