@@ -99,6 +99,7 @@ def customisePPData(process):
 def customisePPMC(process):
     process=customiseCommon(process)
     process.hfreco.firstSample=1
+    process.CSCHaloData.ExpectedBX = cms.int33(6)
     
     return process
 
