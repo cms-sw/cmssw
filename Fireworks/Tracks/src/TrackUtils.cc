@@ -2,7 +2,7 @@
 //
 // Package:     Tracks
 // Class  :     TrackUtils
-// $Id: TrackUtils.cc,v 1.30 2010/06/21 16:14:52 matevz Exp $
+// $Id: TrackUtils.cc,v 1.31 2010/06/21 18:45:19 matevz Exp $
 //
 
 // system include files
@@ -587,6 +587,7 @@ addSiStripClusters(const FWEventItem* iItem, const reco::Track &t, class TEveEle
 {
    // master is true if the product is for proxy builder
    const char* title = "TrackHits";
+
    const edmNew::DetSetVector<SiStripCluster> * allClusters = 0;
    if (addNearbyClusters)
    {
@@ -595,6 +596,14 @@ addSiStripClusters(const FWEventItem* iItem, const reco::Track &t, class TEveEle
          if (typeid(**it) == typeid(SiStripRecHit2D))
          {
             const SiStripRecHit2D &hit = static_cast<const SiStripRecHit2D &>(**it);
+            if( hit.cluster().isNonnull() && hit.cluster().isAvailable() ) {
+               allClusters = hit.cluster().product();
+               break;
+            }
+         }
+         else if (typeid(**it) == typeid(SiStripRecHit1D))
+         {
+            const SiStripRecHit1D &hit = static_cast<const SiStripRecHit1D &>(**it);
             if( hit.cluster().isNonnull() && hit.cluster().isAvailable() ) {
                allClusters = hit.cluster().product();
                break;
@@ -878,61 +887,48 @@ pushTrackerHits(std::vector<TVector3> &monoPoints, std::vector<TVector3> &stereo
 
       // -- get phi from SiStripHit
 
-      const SiStripRecHit2D* single = dynamic_cast<const SiStripRecHit2D*>(rh);
-      if (single)     {
-         if (PRINT) std::cout << " single hit ";
-
-         const SiStripCluster* Cluster = 0;
-         if (single->cluster().isNonnull())
-            Cluster = single->cluster().get();
-         else if (single->cluster_regional().isNonnull())
-            Cluster = single->cluster_regional().get();
-         else 
-            if (PRINT) std::cout << " no cluster found!";
-
-         if (Cluster) {
-            /*
-              const RecHit2DLocalPos* rechit2D = dynamic_cast<const RecHit2DLocalPos*>(rh);
-              DetId detectorId = rechit2D->geographicalId();
-              const StripTopology* topology = dynamic_cast<const StripTopology*>(&(geometry->idToDetUnit(detectorId)->topology()));
-              ASSERT(topology);
-              LocalPoint lp = topology->localPosition(Cluster->barycenter());
-            */
+      const SiStripCluster *Cluster = extractClusterFromTrackingRecHit(rh);
+      if (Cluster) {
+         /*
+           const RecHit2DLocalPos* rechit2D = dynamic_cast<const RecHit2DLocalPos*>(rh);
+           DetId detectorId = rechit2D->geographicalId();
+           const StripTopology* topology = dynamic_cast<const StripTopology*>(&(geometry->idToDetUnit(detectorId)->topology()));
+           ASSERT(topology);
+           LocalPoint lp = topology->localPosition(Cluster->barycenter());
+         */
 
 
-            // -- here's my mini SiTracker topology function
-            // -- in goes rhoDet, Cluster->barycenter(), subdet (to figure out E vs B)
-            // -- out comes dPhi
+         // -- here's my mini SiTracker topology function
+         // -- in goes rhoDet, Cluster->barycenter(), subdet (to figure out E vs B)
+         // -- out comes dPhi
 
-            double bc = Cluster->barycenter();
+         double bc = Cluster->barycenter();
 
-            if ((subdet == SiStripDetId::TID) || (subdet == SiStripDetId::TEC)) {
-               bc = bc - nEStrips[rNumber]/2.;
-               double dPhi = bc*dpEStrips[rNumber] * dPhiDet;
-               phi = phiDet + dPhi;
+         if ((subdet == SiStripDetId::TID) || (subdet == SiStripDetId::TEC)) {
+            bc = bc - nEStrips[rNumber]/2.;
+            double dPhi = bc*dpEStrips[rNumber] * dPhiDet;
+            phi = phiDet + dPhi;
 
-               if (PRINT) std::cout << " bc: "<< bc << ", dPhi: " << dPhi;
+            if (PRINT) std::cout << " bc: "<< bc << ", dPhi: " << dPhi;
 
-            } else {
-               bc = bc - nBStrips[rNumber]/2.;
-               double dx = bc*dpBStrips[rNumber];
+         } else {
+            bc = bc - nBStrips[rNumber]/2.;
+            double dx = bc*dpBStrips[rNumber];
 
-               // mysterious shifts for TOB
+            // mysterious shifts for TOB
 
-               if (rNumber == 4) dx = dx + 2.3444;
-               if (rNumber == 5) dx = dx + 2.3444;
-               if (rNumber == 8) dx = dx - 1.5595;
-               if (rNumber == 9) dx = dx - 1.5595;
+            if (rNumber == 4) dx = dx + 2.3444;
+            if (rNumber == 5) dx = dx + 2.3444;
+            if (rNumber == 8) dx = dx - 1.5595;
+            if (rNumber == 9) dx = dx - 1.5595;
 
-               local[0] = dx;
-               local[1] = 0.;
-               local[2] = 0.;
-               m->LocalToMaster(local, global);
-               TVector3 pb(global[0], global[1], global[2]-zv);
-               phi = pb.Phi();
-               if (PRINT) std::cout << " bc: "<< bc  << ", dx: " << dx;
-
-            }
+            local[0] = dx;
+            local[1] = 0.;
+            local[2] = 0.;
+            m->LocalToMaster(local, global);
+            TVector3 pb(global[0], global[1], global[2]-zv);
+            phi = pb.Phi();
+            if (PRINT) std::cout << " bc: "<< bc  << ", dx: " << dx;
 
          }
       }
@@ -1234,64 +1230,53 @@ pushSiStripHits(std::vector<TVector3> &monoPoints, std::vector<TVector3> &stereo
 			
       // -- get phi from SiStripHit
 			
-      const SiStripRecHit2D* single = dynamic_cast<const SiStripRecHit2D*>(rh);
-      if( single ) {
-         if( PRINT ) std::cout << " single hit ";
-				
-         const SiStripCluster* Cluster = 0;
-         if( single->cluster().isNonnull() )
-            Cluster = single->cluster().get();
-         else if( single->cluster_regional().isNonnull() )
-            Cluster = single->cluster_regional().get();
-         else 
-            if( PRINT ) std::cout << " no cluster found!";
-				
-         if( Cluster ) {
-            /*
-              const RecHit2DLocalPos* rechit2D = dynamic_cast<const RecHit2DLocalPos*>(rh);
-              DetId detectorId = rechit2D->geographicalId();
-              const StripTopology* topology = dynamic_cast<const StripTopology*>(&(geometry->idToDetUnit(detectorId)->topology()));
-              ASSERT(topology);
-              LocalPoint lp = topology->localPosition(Cluster->barycenter());
-            */
+      const SiStripCluster *Cluster = extractClusterFromTrackingRecHit(rh);
+      if (Cluster)
+      {
+         /*
+           const RecHit2DLocalPos* rechit2D = dynamic_cast<const RecHit2DLocalPos*>(rh);
+           DetId detectorId = rechit2D->geographicalId();
+           const StripTopology* topology = dynamic_cast<const StripTopology*>(&(geometry->idToDetUnit(detectorId)->topology()));
+           ASSERT(topology);
+           LocalPoint lp = topology->localPosition(Cluster->barycenter());
+         */
 					
-            // -- here's my mini SiTracker topology function
-            // -- in goes rhoDet, Cluster->barycenter(), subdet (to figure out E vs B)
-            // -- out comes dPhi
+         // -- here's my mini SiTracker topology function
+         // -- in goes rhoDet, Cluster->barycenter(), subdet (to figure out E vs B)
+         // -- out comes dPhi
 					
-            // E nModules: 24, 24, 40, 56, 40, 56, 80
-            // E nStrips: 768, 768, 512, 512, 768, 512, 512
-            // B dStrip: 80, 80, 120, 120, 183, 183, 183, 183, 122, 122
+         // E nModules: 24, 24, 40, 56, 40, 56, 80
+         // E nStrips: 768, 768, 512, 512, 768, 512, 512
+         // B dStrip: 80, 80, 120, 120, 183, 183, 183, 183, 122, 122
 					
-            double bc = Cluster->barycenter();
+         double bc = Cluster->barycenter();
 					
-            if( (subdet == SiStripDetId::TID) || (subdet == SiStripDetId::TEC) ) {
-               // -- end cap
-               bc = bc - nEStrips[rNumber]/2.;
-               double dPhi = bc*dpEStrips[rNumber] * dPhiDet;
-               phi = phiDet + dPhi;
+         if( (subdet == SiStripDetId::TID) || (subdet == SiStripDetId::TEC) ) {
+            // -- end cap
+            bc = bc - nEStrips[rNumber]/2.;
+            double dPhi = bc*dpEStrips[rNumber] * dPhiDet;
+            phi = phiDet + dPhi;
 						
-               if (PRINT) std::cout << " bc: "<< bc << ", dPhi: " << dPhi;
-            } else {
-               // -- barrel
-               bc = bc - nBStrips[rNumber]/2.;
-               double dx = bc*dpBStrips[rNumber];
+            if (PRINT) std::cout << " bc: "<< bc << ", dPhi: " << dPhi;
+         } else {
+            // -- barrel
+            bc = bc - nBStrips[rNumber]/2.;
+            double dx = bc*dpBStrips[rNumber];
 						
-               // mysterious shifts for TOB
+            // mysterious shifts for TOB
 						
-               if (rNumber == 4) dx = dx + 2.3444;
-               if (rNumber == 5) dx = dx + 2.3444;
-               if (rNumber == 8) dx = dx - 1.5595;
-               if (rNumber == 9) dx = dx - 1.5595;
+            if (rNumber == 4) dx = dx + 2.3444;
+            if (rNumber == 5) dx = dx + 2.3444;
+            if (rNumber == 8) dx = dx - 1.5595;
+            if (rNumber == 9) dx = dx - 1.5595;
 						
-               local[0] = dx;
-               local[1] = 0.;
-               local[2] = 0.;
-               m->LocalToMaster(local, global);
-               TVector3 pb(global[0], global[1], global[2]-zv);
-               phi = pb.Phi();
-               if (PRINT) std::cout << " bc: "<< bc  << ", dx: " << dx;
-            }
+            local[0] = dx;
+            local[1] = 0.;
+            local[2] = 0.;
+            m->LocalToMaster(local, global);
+            TVector3 pb(global[0], global[1], global[2]-zv);
+            phi = pb.Phi();
+            if (PRINT) std::cout << " bc: "<< bc  << ", dx: " << dx;
          }
       }
       else
