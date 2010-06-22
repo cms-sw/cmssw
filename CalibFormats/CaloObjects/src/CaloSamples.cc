@@ -1,40 +1,44 @@
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
+#include <math.h>
 
-CaloSamples::CaloSamples() : id_(), size_(0), presamples_(0) {
-  for (int i=0; i<MAXSAMPLES; i++) data_[i]=0;
+CaloSamples::CaloSamples() : id_(), size_(0), presamples_(0) { setBlank() ; }
+
+CaloSamples::CaloSamples(const DetId& id, int size) :
+   id_          ( id   ) , 
+   size_        ( size ) , 
+   presamples_  ( 0    ) 
+{
+   setBlank() ;
 }
 
-CaloSamples::CaloSamples(const DetId& id, int size) : id_(id), size_(size), presamples_(0) {
-  for (int i=0; i<MAXSAMPLES; i++) data_[i]=0;
+void
+CaloSamples::setPresamples( int pre ) 
+{
+   presamples_ = pre ;
 }
 
-void CaloSamples::setPresamples(int pre) {
-  presamples_=pre;
+CaloSamples& 
+CaloSamples::scale( double value )
+{
+   for (int i=0; i<MAXSAMPLES; i++) data_[i]*=value;
+   return (*this);
 }
 
-CaloSamples& CaloSamples::scale(double value) {
-  for (int i=0; i<MAXSAMPLES; i++) data_[i]*=value;
-  return (*this);
-}
-
-CaloSamples& CaloSamples::operator+=(double value) {
-  for (int i=0; i<MAXSAMPLES; i++) data_[i]+=value;
-  return (*this);
+CaloSamples& 
+CaloSamples::operator+=(double value) 
+{  
+   for (int i=0; i<MAXSAMPLES; i++) data_[i]+=value;
+   return (*this);
 }
 
 bool 
 CaloSamples::isBlank() const // are the samples blank (zero?)
 {
-   return ( 0.0 == data_[5] &&
-	    0.0 == data_[6] &&
-	    0.0 == data_[4] &&
-	    0.0 == data_[7] &&
-	    0.0 == data_[3] &&
-	    0.0 == data_[8] &&
-	    0.0 == data_[2] &&
-	    0.0 == data_[9] &&
-	    0.0 == data_[1] &&
-	    0.0 == data_[0]    ) ;
+   for( int i ( 0 ) ; i != MAXSAMPLES ; ++i )
+   {
+      if( 1.e-6 < fabs( data_[i] ) ) return false ;
+   }
+   return true ;
 }
 
 void 

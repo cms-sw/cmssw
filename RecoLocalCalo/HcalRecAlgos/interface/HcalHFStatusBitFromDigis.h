@@ -6,13 +6,14 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 
 /** \class HcalHFStatusBitFromDigis
     
    This class sets status bit in the status words for the revised CaloRecHit objets according to informatino from the digi associated to the hit.
     
-   $Date: 2010/05/06 15:20:20 $
-   $Revision: 1.7 $
+   $Date: 2010/05/10 08:34:02 $
+   $Revision: 1.8 $
    \author J. Temple -- University of Maryland and E. Yazgan
 */
 
@@ -28,7 +29,9 @@ public:
   ~HcalHFStatusBitFromDigis();
 
   // The important stuff!  Methods for setting the status flag values
-  void hfSetFlagFromDigi(HFRecHit& hf, const HFDataFrame& digi, const HcalCalibrations& calib);
+  void hfSetFlagFromDigi(HFRecHit& hf, const HFDataFrame& digi,
+			 const HcalCoder& coder,
+			 const HcalCalibrations& calib);
 
 private:
   // variables for cfg files

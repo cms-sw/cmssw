@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 10:19:07 EST 2008
-// $Id: unittest_parameters.cc,v 1.1 2009/03/05 22:01:53 chrjones Exp $
+// $Id: unittest_parameters.cc,v 1.2 2008/03/11 14:04:26 chrjones Exp $
 //
 
 // system include files
@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE( parameters )
    FWConfiguration ctConf;
    ct.m_comp.addTo(ctConf);
 
-   streamTo(std::cout, ctConf, "top");
+   std::cout << ctConf<<std::endl;
    
    ct.m_d1.set(0);
    ct.m_d2.set(1);

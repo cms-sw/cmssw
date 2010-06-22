@@ -40,6 +40,10 @@ REGISTER_PLUGIN(SiStripBadFiberRcd,SiStripBadStrip);
 REGISTER_PLUGIN(SiStripBadChannelRcd,SiStripBadStrip);
 REGISTER_PLUGIN(SiStripDCSStatusRcd,SiStripBadStrip);
 
+#include "CondFormats/SiStripObjects/interface/SiStripModuleHV.h"
+REGISTER_PLUGIN(SiStripModuleHVRcd,SiStripModuleHV);
+REGISTER_PLUGIN(SiStripModuleLVRcd,SiStripModuleHV);
+
 #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
 REGISTER_PLUGIN(SiStripDetVOffRcd,SiStripDetVOff);
 
@@ -48,6 +52,9 @@ REGISTER_PLUGIN(SiStripLatencyRcd,SiStripLatency);
 
 #include "CondFormats/SiStripObjects/interface/SiStripRunSummary.h"
 REGISTER_PLUGIN(SiStripRunSummaryRcd,SiStripRunSummary);
+
+#include "CondFormats/SiStripObjects/interface/SiStripPerformanceSummary.h"
+REGISTER_PLUGIN(SiStripPerformanceSummaryRcd,SiStripPerformanceSummary);
 
 #include "CondFormats/SiStripObjects/interface/SiStripThreshold.h"
 REGISTER_PLUGIN(SiStripThresholdRcd,SiStripThreshold);

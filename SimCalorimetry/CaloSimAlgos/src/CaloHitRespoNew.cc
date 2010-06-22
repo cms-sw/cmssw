@@ -209,8 +209,6 @@ CaloHitRespoNew::putAnalogSignal( const PCaloHit& inputHit )
 
    CaloSamples& result ( *findSignal( detId ) ) ;
 
-   if( result.isBlank() ) m_index.push_back( &result - &m_vSamp.front() ) ;
-
    const unsigned int rsize ( result.size() ) ;
 
    for( unsigned int bin ( 0 ) ; bin != rsize ; ++bin )
@@ -223,7 +221,9 @@ CaloHitRespoNew::putAnalogSignal( const PCaloHit& inputHit )
 CaloSamples* 
 CaloHitRespoNew::findSignal( const DetId& detId )
 {
-   return &m_vSamp[ CaloGenericDetId( detId ).denseIndex() ] ;
+   CaloSamples& result ( m_vSamp[ CaloGenericDetId( detId ).denseIndex() ] ) ;
+   if( result.isBlank() ) m_index.push_back( &result - &m_vSamp.front() ) ;
+   return &result ;
 }
 
 double 

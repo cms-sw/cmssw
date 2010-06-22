@@ -126,8 +126,9 @@ TrackTransformerForGlobalCosmicMuons::getTransientRecHits(const reco::TransientT
   
   if(staHits.empty()) return staHits;
 
-  bool up = staHits.front()->globalPosition().y()>0 ? true : false;
 /*
+  bool up = staHits.front()->globalPosition().y()>0 ? true : false;
+
   if(up){
     reverse(staHits.begin(),staHits.end());
     reverse(tkHits.begin(),tkHits.end());

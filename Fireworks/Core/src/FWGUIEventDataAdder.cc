@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.32 2010/05/11 09:24:55 eulisse Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.27 2009/12/07 01:15:09 dmytro Exp $
 //
 
 // system include files
@@ -20,7 +20,6 @@
 #include "TGTextEntry.h"
 #include "TGLabel.h"
 #include "TGButton.h"
-#include "TGMsgBox.h"
 #include "TClass.h"
 #include "TFile.h"
 #include "TTree.h"
@@ -31,11 +30,9 @@
 #include "Fireworks/Core/interface/FWPhysicsObjectDesc.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/FWItemAccessorFactory.h"
 #include "Fireworks/TableWidget/interface/FWTableWidget.h"
 #include "Fireworks/TableWidget/interface/FWTableManagerBase.h"
 #include "Fireworks/TableWidget/interface/FWTextTableCellRenderer.h"
-#include "Fireworks/Core/interface/fwLog.h"
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/FWLite/interface/Event.h"
@@ -291,12 +288,8 @@ FWGUIEventDataAdder::addNewItem()
    }
 
    if ( m_manager->find( name ) ) {
-      TString msg("Event item '");
-      msg += name;
-      msg += "' is already registered. Please use another name.";
-      fwLog(fwlog::kWarning) << msg.Data() << std::endl;
-      new TGMsgBox(gClient->GetDefaultRoot(), m_frame,
-                   "Error - Name conflict", msg, kMBIconExclamation, kMBOk);
+      std::cout << "Event item " << name <<
+      " is already registered. Please use another name" << std::endl;
       return;
    }
 
@@ -421,112 +414,78 @@ FWGUIEventDataAdder::update(const TFile* iFile, const fwlite::Event* iEvent)
    }
 }
 
-/** This method inspects the opened TFile @a iFile and for each branch containing 
-    products for which we can either build a TCollectionProxy or for which
-    we have a specialized accessor, it registers it as a viewable item.
- */
 void
 FWGUIEventDataAdder::fillData(const TFile* iFile)
 {
    m_useableData.clear();
-   
-   if (!m_presentEvent)
-      return;
-
-   const std::vector<std::string>& history = m_presentEvent->getProcessHistory();
-
-   // Turns out, in the online system we do sometimes gets files without any  
-   // history, this really should be investigated
-   if (0 == history.size())
-      fwLog(fwlog::kWarning) << "WARNING: the file '"
-         << iFile->GetName() << "' contains no processing history"
-            " and therefore should have no accessible data";
-   
-   std::copy(history.rbegin(),history.rend(),
-             std::back_inserter(m_processNamesInFile));
-   
-   static const std::string s_blank;
-   const std::vector<edm::BranchDescription>& descriptions =
-      m_presentEvent->getBranchDescriptions();
-   Data d;
-   
-   //I'm not going to modify TFile but I need to see what it is holding
-   TTree* eventsTree = dynamic_cast<TTree*>(const_cast<TFile*>(iFile)->Get("Events"));
-   assert(eventsTree);
-   
-   std::set<std::string> branchNamesInFile;
-   TIter nextBranch(eventsTree->GetListOfBranches());
-   while(TBranch* branch = static_cast<TBranch*>(nextBranch()))
-      branchNamesInFile.insert(branch->GetName());
-   
-   typedef std::set<std::string> Purposes;
-   Purposes purposes;
-   std::string classType;
-   
-   for(size_t bi = 0, be = descriptions.size(); bi != be; ++bi) 
-   {
-      const edm::BranchDescription &desc = descriptions[bi];
+   if(0!=m_presentEvent) {
+      const std::vector<std::string>& history = m_presentEvent->getProcessHistory();
+      //Turns out, in the online system we do sometimes gets files without any history, 
+      // this really should be investigated
+      //assert(0!=history.size());
+      if(0==history.size()) {
+         std::cerr <<"WARNING: the file '"<<iFile->GetName()<<"' contains no processing history and therefore should have no accessible data";
+      }
+      std::copy(history.rbegin(),history.rend(),
+                std::back_inserter(m_processNamesInFile));
       
-      if(desc.present() &&
-         branchNamesInFile.end() != branchNamesInFile.find(desc.branchName()))
-      {
-         const std::vector<FWRepresentationInfo>& infos 
-            = m_typeAndReps->representationsForType(desc.fullClassName());
-   
-         //std::cout <<"try to find match "<<itBranch->fullClassName()<<std::endl;
-         //the infos list can contain multiple items with the same purpose so we will just find
-         // the unique ones
-         purposes.clear();
-         for (size_t ii = 0, ei = infos.size(); ii != ei; ++ii)
-            purposes.insert(infos[ii].purpose());
-   
-         if (purposes.empty())
-            purposes.insert("Table");
-         
-         for (Purposes::const_iterator itPurpose = purposes.begin(),
-                                      itEnd = purposes.end();
-              itPurpose != itEnd;
-              ++itPurpose) 
-         {
-            // Determine whether or not the class can be iterated
-            // either by using a TVirtualCollectionProxy (of the class 
-            // itself or on one of its members), or by using a 
-            // FWItemAccessor plugin.
-            TClass* theClass = TClass::GetClass(desc.fullClassName().c_str());
-            
-            if (!theClass)
-               continue;
+      static const std::string s_blank;
+      const std::vector<edm::BranchDescription>& branches =
+         m_presentEvent->getBranchDescriptions();
+      Data d;
 
-            if (!theClass->GetTypeInfo())
-               continue;
-            
-            std::string accessorName;
-            TClass *member = 0;
-            
-            // This is pretty much the same thing that happens 
-            if (!FWItemAccessorFactory::hasTVirtualCollectionProxy(theClass) 
-                && !FWItemAccessorFactory::hasMemberTVirtualCollectionProxy(theClass, member)
-		          && !FWItemAccessorFactory::hasAccessor(theClass, accessorName))
-	         {
-		         fwLog(fwlog::kDebug) << theClass->GetName() 
-                          << " will not be displayed in table." << std::endl;
-		         continue;
-	         }
-            d.type_ = desc.fullClassName();
-            d.purpose_ = *itPurpose;
-            d.moduleLabel_ = desc.moduleLabel();
-            d.productInstanceLabel_ = desc.productInstanceName();
-            d.processName_ = desc.processName();
-            m_useableData.push_back(d);
-	         fwLog(fwlog::kDebug) << "Add collection will display " << d.type_ 
-                                 << " " << d.moduleLabel_ 
-                                 << " " << d.productInstanceLabel_
-                                 << " " << d.processName_ << std::endl;
+      //I'm not going to modify TFile but I need to see what it is holding
+      TTree* eventsTree = dynamic_cast<TTree*>(const_cast<TFile*>(iFile)->Get("Events"));
+      assert(0!=eventsTree);
+
+      std::set<std::string> branchNamesInFile;
+      TIter nextBranch(eventsTree->GetListOfBranches());
+      while(TBranch* branch = static_cast<TBranch*>(nextBranch())) {
+         branchNamesInFile.insert(branch->GetName());
+      }
+
+
+      std::set<std::string> purposes;
+      for(std::vector<edm::BranchDescription>::const_iterator itBranch =
+             branches.begin(), itEnd=branches.end();
+          itBranch != itEnd;
+          ++itBranch) {
+         if(itBranch->present() &&
+            branchNamesInFile.end() != branchNamesInFile.find(itBranch->branchName())){
+            const std::vector<FWRepresentationInfo>& infos = m_typeAndReps->representationsForType(itBranch->fullClassName());
+
+            //std::cout <<"try to find match "<<itBranch->fullClassName()<<std::endl;
+            //the infos list can contain multiple items with the same purpose so we will just find
+            // the unique ones
+            purposes.clear();
+            for(std::vector<FWRepresentationInfo>::const_iterator itInfo = infos.begin(),
+                                                                  itInfoEnd = infos.end();
+                itInfo != itInfoEnd;
+                ++itInfo) {
+               purposes.insert(itInfo->purpose());
+            }
+            for(std::set<std::string>::const_iterator itPurpose = purposes.begin(),
+                                                      itEnd = purposes.end();
+                itPurpose != itEnd;
+                ++itPurpose) {
+               d.purpose_ = *itPurpose;
+               d.type_ = itBranch->fullClassName();
+               d.moduleLabel_ = itBranch->moduleLabel();
+               d.productInstanceLabel_ = itBranch->productInstanceName();
+               d.processName_ = itBranch->processName();
+               m_useableData.push_back(d);
+               /*
+                  std::cout <<d.purpose_<<" "<<d.type_<<" "
+                  <<d.moduleLabel_<<" "
+                  <<d.productInstanceLabel_<<" "
+                  <<d.processName_<<std::endl;
+                */
+            }
          }
       }
+      m_tableManager->reset();
+      m_tableManager->sort(0,true);
    }
-   m_tableManager->reset();
-   m_tableManager->sort(0, true);
 }
 
 void

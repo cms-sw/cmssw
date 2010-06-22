@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.162 2010/05/18 12:48:59 eulisse Exp $
+// $Id: CmsShowMain.cc,v 1.150 2010/03/26 20:20:20 matevz Exp $
 //
 
 // system include files
@@ -26,20 +26,26 @@
 #include "TFile.h"
 #include "TROOT.h"
 #include "TGFileDialog.h"
-#include "TGMsgBox.h"
 #include "TMonitor.h"
 #include "TServerSocket.h"
-#include "TEveLine.h"
-#include "TEveManager.h"
 
+#include "TEveManager.h"
+#include "TEveBrowser.h"
+#include "TEveTrackProjected.h"
+#include "TEveSelection.h"
+
+//needed to work around a bug
+//#include "TApplication.h"
 
 #include "Fireworks/Core/src/CmsShowMain.h"
-
-#include "Fireworks/Core/interface/FWEveViewManager.h"
-
+#include "Fireworks/Core/interface/FWRhoPhiZViewManager.h"
+#include "Fireworks/Core/interface/FWEveLegoViewManager.h"
+#include "Fireworks/Core/interface/FWGlimpseViewManager.h"
 #include "Fireworks/Core/interface/FWTableViewManager.h"
-#include "Fireworks/Core/interface/FWL1TriggerTableViewManager.h"
 #include "Fireworks/Core/interface/FWTriggerTableViewManager.h"
+#include "Fireworks/Core/interface/FWL1TriggerTableViewManager.h"
+#include "Fireworks/Core/interface/FW3DViewManager.h"
+
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
@@ -61,8 +67,6 @@
 #include "Fireworks/Core/src/CmsShowTaskExecutor.h"
 #include "Fireworks/Core/interface/CmsShowMainFrame.h"
 #include "Fireworks/Core/interface/CmsShowSearchFiles.h"
-
-#include "Fireworks/Core/src/SimpleSAXParser.h"
 
 #include "Fireworks/Core/interface/fwLog.h"
 
@@ -97,7 +101,7 @@ static const char* const kHelpOpt        = "help";
 static const char* const kHelpCommandOpt = "help,h";
 static const char* const kSoftCommandOpt = "soft";
 static const char* const kPortCommandOpt = "port";
-static const char* const kPlainRootCommandOpt = "prompt";
+static const char* const kPlainRootCommandOpt = "root";
 static const char* const kRootInteractiveCommandOpt = "root-interactive,r";
 static const char* const kChainCommandOpt = "chain";
 static const char* const kLiveCommandOpt  = "live";
@@ -144,7 +148,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       std::cerr <<"Insufficient GL support. " << iException.what() << std::endl;
       throw;
    } 
-
+   
    m_eiManager->setContext(m_context.get());
    
    try {
@@ -196,7 +200,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       }
 
       if(vm.count(kPlainRootCommandOpt)) {
-         fwLog(fwlog::kInfo) << "Plain ROOT prompt requested" << std::endl;
+         std::cout << "Plain ROOT prompt requested" <<std::endl;
          return;
       }
 
@@ -211,43 +215,39 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       }
 
       if (!m_inputFiles.size())
-         fwLog(fwlog::kInfo) << "No data file given." << std::endl;
+         std::cout << "No data file given." << std::endl;
       else if (m_inputFiles.size() == 1)
-         fwLog(fwlog::kInfo) << "Input " << m_inputFiles.front() << std::endl;
+         std::cout << "Input: " << m_inputFiles.front() << std::endl;
       else
-         fwLog(fwlog::kInfo) << m_inputFiles.size() << " input files; first: " << m_inputFiles.front() << ", last: " << m_inputFiles.back() << std::endl;
+         std::cout << m_inputFiles.size() << " input files; first: " << m_inputFiles.front() << ", last: " << m_inputFiles.back() << std::endl;
 
       // configuration file
       if (vm.count(kConfigFileOpt)) {
          m_configFileName = vm[kConfigFileOpt].as<std::string>();
-         if (access(m_configFileName.c_str(), R_OK) == -1)
-         {
-            fwLog(fwlog::kError) << "Specified configuration file does not exist. Quitting.\n";
-            exit(1);
-         }
       } else {
          if (vm.count(kNoConfigFileOpt)) {
-            fwLog(fwlog::kInfo) << "No configuration is loaded, show everything.\n";
+            printf("No configuration is loaded, show everything.\n");
             m_configFileName = "";
          } else {
             m_configFileName = "src/Fireworks/Core/macros/default.fwc";
          }
       }
-      fwLog(fwlog::kInfo) << "Config "  <<  m_configFileName.c_str() << std::endl;
+      std::cout << "Config: "  <<  m_configFileName.c_str() << std::endl;
 
       // geometry
       if (vm.count(kGeomFileOpt)) {
          m_geomFileName = vm[kGeomFileOpt].as<std::string>();
       } else {
-         fwLog(fwlog::kInfo) << "No geom file name.  Choosing default.\n";
+         printf("No geom file name.  Choosing default.\n");
+         // m_geomFileName =cmspath;
          m_geomFileName.append("cmsGeom10.root");
       }
-      fwLog(fwlog::kInfo) << "Geom " <<  m_geomFileName.c_str() << std::endl;
+      std::cout << "Geom: " <<  m_geomFileName.c_str() << std::endl;
 
       // non-restricted palette
       if (vm.count(kFreePaletteCommandOpt)) {
          m_colorManager->initialize(false);
-          fwLog(fwlog::kInfo) << "Palette restriction removed on user request!\n";
+         std::cout << "Palette restriction removed on user request!\n";
       } else {
          m_colorManager->initialize(true);
       }
@@ -258,10 +258,6 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       //Delay creating guiManager and enabling autoloading until here so that if we have a 'help' request we don't
       // open any graphics or build dictionaries
       AutoLibraryLoader::enable();
-       
-      TEveManager::Create(kFALSE, "FIV");
-
-      m_context->initEveElements();
 
       m_guiManager = std::auto_ptr<FWGUIManager>(new FWGUIManager(m_selectionManager.get(),
                                                                   m_eiManager.get(),
@@ -286,8 +282,6 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       m_configurationManager->add("EventNavigator",m_navigator);
       m_guiManager->writeToConfigurationFile_.connect(boost::bind(&FWConfigurationManager::writeToFile,
                                                                   m_configurationManager.get(),_1));
-      m_guiManager->loadFromConfigurationFile_.connect(boost::bind(&CmsShowMain::reloadConfiguration,
-                                                                   this, _1));
       //figure out where to find macros
       //tell ROOT where to find our macros
       std::string macPath(cmspath);
@@ -299,6 +293,9 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          macPath +="/src/Fireworks/Core/macros";
       }
       gROOT->SetMacroPath((std::string("./:")+macPath).c_str());
+
+      gEve->GetHighlight()->SetPickToSelect(TEveSelection::kPS_PableCompound);
+      TEveTrack::SetDefaultBreakProjectedTracks(kFALSE);
 
       m_startupTasks = std::auto_ptr<CmsShowTaskExecutor>(new CmsShowTaskExecutor);
       m_startupTasks->tasksCompleted_.connect(boost::bind(&FWGUIManager::clearStatus,
@@ -348,7 +345,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       if(vm.count(kAutoSaveAllViews)) {
          m_autoSaveAllViewsFormat  = vm[kAutoSaveAllViews].as<std::string>();
          m_autoSaveAllViewsFormat += "%d_%d_%d_%s.png";
-      }
+       }
       m_startupTasks->startDoingTasks();
    } catch(std::exception& iException) {
       std::cerr <<"CmsShowMain caught exception "<<iException.what()<<std::endl;
@@ -395,10 +392,8 @@ void CmsShowMain::quit()
 
 void CmsShowMain::doExit()
 {
-   // pre terminate eve
-   m_context->deleteEveElements();
+   // fflush(stdout);
    m_guiManager->evePreTerminate();
-
    // sleep at least 150 ms
    // windows in ROOT GUI are destroyed in 150 ms timeout after
    gSystem->Sleep(151);
@@ -406,6 +401,7 @@ void CmsShowMain::doExit()
 
    gSystem->ExitLoop();
 }
+
 
 //
 // assignment operators
@@ -441,6 +437,7 @@ void CmsShowMain::draw()
    m_guiManager->updateStatus("loading event ...");
 
    m_viewManager->eventBegin();
+   m_eiManager->setGeom(&m_detIdToGeo);
    m_eiManager->newEvent(m_navigator->getCurrentEvent());
    m_viewManager->eventEnd();
 
@@ -536,30 +533,24 @@ void CmsShowMain::registerPhysicsObject(const FWPhysicsObjectDesc&iItem)
 
 void
 CmsShowMain::loadGeometry()
-{   // prepare geometry service
+{      // prepare geometry service
    // ATTN: this should be made configurable
-   try {
-      m_guiManager->updateStatus("Loading geometry...");
-      m_detIdToGeo.loadGeometry( m_geomFileName.c_str() );
-      m_detIdToGeo.loadMap( m_geomFileName.c_str() );
-      m_context->setGeom(&m_detIdToGeo);
-   }
-   catch (const std::runtime_error& iException)
-   {
-      fwLog(fwlog::kError) << "CmsShowMain::loadGeometry() caught exception: \n"
-                           << iException.what() << std::endl;
-      exit(0);
-   }
+   m_guiManager->updateStatus("Loading geometry...");
+   m_detIdToGeo.loadGeometry( m_geomFileName.c_str() );
+   m_detIdToGeo.loadMap( m_geomFileName.c_str() );
 }
 
 void
 CmsShowMain::setupViewManagers()
 {
    m_guiManager->updateStatus("Setting up view manager...");
+   boost::shared_ptr<FWViewManagerBase> rpzViewManager( new FWRhoPhiZViewManager(m_guiManager.get()) );
+   rpzViewManager->setGeom(&m_detIdToGeo);
+   m_viewManager->add(rpzViewManager);
 
-   boost::shared_ptr<FWViewManagerBase> eveViewManager( new FWEveViewManager(m_guiManager.get()) );
-   eveViewManager->setContext(m_context.get());
-   m_viewManager->add(eveViewManager);
+   m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWEveLegoViewManager(m_guiManager.get()) ) );
+
+   m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWGlimpseViewManager(m_guiManager.get()) ) );
 
    boost::shared_ptr<FWTableViewManager> tableViewManager( new FWTableViewManager(m_guiManager.get()) );
    m_configurationManager->add(std::string("Tables"), tableViewManager.get());
@@ -572,48 +563,10 @@ CmsShowMain::setupViewManagers()
    boost::shared_ptr<FWL1TriggerTableViewManager> l1TriggerTableViewManager( new FWL1TriggerTableViewManager(m_guiManager.get()) );
    m_configurationManager->add(std::string("L1TriggerTables"), l1TriggerTableViewManager.get());
    m_viewManager->add( l1TriggerTableViewManager );
-}
 
-void
-CmsShowMain::reloadConfiguration(const std::string &config)
-{
-   if (config.empty())
-      return;
-
-   std::string msg = "Reloading configuration "
-                               + config + "...";
-   fwLog(fwlog::kDebug) << msg << std::endl;
-   m_guiManager->updateStatus(msg.c_str());
-   m_eiManager->clearItems();
-   m_configFileName = config;
-   m_guiManager->subviewDestroyAll();
-   try
-   {
-      m_configurationManager->readFromFile(config);
-   }
-   catch (std::runtime_error &e)
-   {
-      Int_t chosen;
-      new TGMsgBox(gClient->GetDefaultRoot(),
-                   gClient->GetDefaultRoot(),
-                   "Bad configuration",
-                   ("Configuration " + config + " cannot be parsed.").c_str(),
-                   kMBIconExclamation,
-                   kMBCancel,
-                   &chosen);
-   }
-   catch (SimpleSAXParser::ParserError &e)
-   {
-      Int_t chosen;
-      new TGMsgBox(gClient->GetDefaultRoot(),
-                   gClient->GetDefaultRoot(),
-                   "Bad configuration",
-                   ("Configuration " + config + " cannot be parsed.").c_str(),
-                   kMBIconExclamation,
-                   kMBCancel,
-                   &chosen);
-   }
-   m_guiManager->updateStatus("");
+   boost::shared_ptr<FWViewManagerBase> plain3DViewManager( new FW3DViewManager(m_guiManager.get()) );
+   plain3DViewManager->setGeom(&m_detIdToGeo);
+   m_viewManager->add( plain3DViewManager );
 }
 
 void
@@ -621,44 +574,190 @@ CmsShowMain::setupConfiguration()
 {
    m_guiManager->updateStatus("Setting up configuration...");
    if(m_configFileName.empty() ) {
-      fwLog(fwlog::kInfo) << "no configuration is loaded." << std::endl;
-      m_guiManager->getMainFrame()->MapSubwindows();
-      m_guiManager->getMainFrame()->Layout();
-      m_guiManager->getMainFrame()->MapRaised();
+      std::cout << "WARNING: no configuration is loaded." << std::endl;
       m_configFileName = "newconfig.fwc";
-      m_guiManager->createView("Rho Phi"); 
-      m_guiManager->createView("Rho Z"); 
-   }
-   else {
+      m_guiManager->createView("Rho Phi");
+      m_guiManager->createView("Rho Z");
+      m_guiManager->createView("3D Lego");
+      m_guiManager->createView("Glimpse");
+
+      FWPhysicsObjectDesc ecal("ECal",
+                               TClass::GetClass("CaloTowerCollection"),
+                               "ECal",
+                               FWDisplayProperties(kRed),
+                               "towerMaker",
+                               "",
+                               "",
+                               "",
+                               2);
+
+      FWPhysicsObjectDesc hcal("HCal",
+                               TClass::GetClass("CaloTowerCollection"),
+                               "HCal",
+                               FWDisplayProperties(kBlue),
+                               "towerMaker",
+                               "",
+                               "",
+                               "",
+                               2);
+
+      FWPhysicsObjectDesc jets("Jets",
+                               TClass::GetClass("reco::CaloJetCollection"),
+                               "Jets",
+                               FWDisplayProperties(kYellow),
+                               "iterativeCone5CaloJets",
+                               "",
+                               "",
+                               "$.pt()>15",
+                               3);
+
+
+      FWPhysicsObjectDesc l1EmTrigs("L1EmTrig",
+                                    TClass::GetClass("l1extra::L1EmParticleCollection"),
+                                    "L1EmTrig",
+                                    FWDisplayProperties(kOrange),
+                                    "hltL1extraParticles",
+                                    "Isolated",
+                                    "",
+                                    "$.pt()>15",
+                                    3);
+
+      FWPhysicsObjectDesc l1Muons("L1-Muons",
+                                  TClass::GetClass("l1extra::L1MuonParticleCollection"),
+                                  "L1-Muons",
+                                  FWDisplayProperties(kViolet),
+                                  "hltL1extraParticles",
+                                  "",
+                                  "",
+                                  "",
+                                  3);
+
+      FWPhysicsObjectDesc l1MET("L1-MET",
+                                TClass::GetClass("l1extra::L1EtMissParticleCollection"),
+                                "L1-MET",
+                                FWDisplayProperties(kTeal),
+                                "hltL1extraParticles",
+                                "",
+                                "",
+                                "",
+                                3);
+
+      FWPhysicsObjectDesc l1Jets("L1-Jets",
+                                 TClass::GetClass("l1extra::L1JetParticleCollection"),
+                                 "L1-Jets",
+                                 FWDisplayProperties(kMagenta),
+                                 "hltL1extraParticles",
+                                 "Central",
+                                 "",
+                                 "$.pt()>15",
+                                 3);
+
+
+      FWPhysicsObjectDesc tracks("Tracks",
+                                 TClass::GetClass("reco::TrackCollection"),
+                                 "Tracks",
+                                 FWDisplayProperties(kGreen),
+                                 "generalTracks",
+                                 "",
+                                 "",
+                                 "$.pt()>2",
+                                 1);
+
+      FWPhysicsObjectDesc muons("Muons",
+                                TClass::GetClass("reco::MuonCollection"),
+                                "Muons",
+                                FWDisplayProperties(kRed),
+                                "muons",
+                                "",
+                                "",
+                                "$.isGlobalMuon()",
+                                5);
+
+      FWPhysicsObjectDesc electrons("Electrons",
+                                    TClass::GetClass("reco::GsfElectronCollection"),
+                                    "Electrons",
+                                    FWDisplayProperties(kCyan),
+                                    "pixelMatchGsfElectrons",
+                                    "",
+                                    "",
+                                    "$.hadronicOverEm()<0.05",
+                                    3);
+
+      FWPhysicsObjectDesc genParticles("GenParticles",
+                                       TClass::GetClass("reco::GenParticleCollection"),
+                                       "GenParticles",
+                                       FWDisplayProperties(kMagenta),
+                                       "genParticles",
+                                       "",
+                                       "",
+                                       "abs($.pdgId())==11 || abs($.pdgId())==13",
+                                       6);
+
+      // Vertices
+      FWPhysicsObjectDesc vertices("Vertices",
+                                   TClass::GetClass("std::vector<reco::Vertex>"),
+                                   "Vertices",
+                                   FWDisplayProperties(kYellow),
+                                   "offlinePrimaryVertices",
+                                   "",
+                                   "",
+                                   "",
+                                   10);
+
+      FWPhysicsObjectDesc mets("MET",
+                               TClass::GetClass("reco::CaloMETCollection"),
+                               "MET",
+                               FWDisplayProperties(kRed),
+                               "metNoHF",
+                               "",
+                               "",
+                               "",
+                               3);
+
+      FWPhysicsObjectDesc dtSegments("DT-segments",
+                                     TClass::GetClass("DTRecSegment4DCollection"),
+                                     "DT-segments",
+                                     FWDisplayProperties(kBlue),
+                                     "dt4DSegments",
+                                     "",
+                                     "",
+                                     "",
+                                     1);
+
+      FWPhysicsObjectDesc cscSegments("CSC-segments",
+                                      TClass::GetClass("CSCSegmentCollection"),
+                                      "CSC-segments",
+                                      FWDisplayProperties(kBlue),
+                                      "cscSegments",
+                                      "",
+                                      "",
+                                      "",
+                                      1);
+      registerPhysicsObject(ecal);
+      registerPhysicsObject(hcal);
+      registerPhysicsObject(jets);
+      registerPhysicsObject(l1EmTrigs);
+      registerPhysicsObject(l1Muons);
+      registerPhysicsObject(l1MET);
+      registerPhysicsObject(l1Jets);
+      registerPhysicsObject(tracks);
+      registerPhysicsObject(muons);
+      registerPhysicsObject(electrons);
+      registerPhysicsObject(genParticles);
+      registerPhysicsObject(vertices);
+      registerPhysicsObject(mets);
+      registerPhysicsObject(dtSegments);
+      registerPhysicsObject(cscSegments);
+
+   } else {
       char* whereConfig = gSystem->Which(TROOT::GetMacroPath(), m_configFileName.c_str(), kReadPermission);
       if(0==whereConfig) {
-         fwLog(fwlog::kInfo) <<"unable to load configuration file '"<<m_configFileName<<"' will load default instead."<<std::endl;
-         whereConfig = gSystem->Which(TROOT::GetMacroPath(), "default.fwc", kReadPermission);
-         assert(whereConfig && "Default configuration cannot be found. Malformed Fireworks installation?");
-         m_configFileName = whereConfig;
+         std::cerr <<"unable to load configuration file '"<<m_configFileName<<"' will load default instead"<<std::endl;
+         m_configFileName = "default.fwc";
       }
 
       delete [] whereConfig;
-      try
-      {
-         m_configurationManager->readFromFile(m_configFileName);
-      }
-      catch (std::runtime_error &e)
-      {
-         fwLog(fwlog::kError) <<"Unable to load configuration file '" 
-                              << m_configFileName 
-                              << "' which was specified on command line. Quitting." 
-                              << std::endl;
-         exit(1);
-      }
-      catch (SimpleSAXParser::ParserError &e)
-      {
-         fwLog(fwlog::kError) <<"Unable to load configuration file '" 
-                              << m_configFileName 
-                              << "' which was specified on command line. Quitting." 
-                              << std::endl;
-         exit(1);
-      }
+      m_configurationManager->readFromFile(m_configFileName);
    }
 
    if(not m_configFileName.empty() ) {

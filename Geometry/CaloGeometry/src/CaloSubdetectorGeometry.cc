@@ -4,6 +4,15 @@
 #include <Math/Transform3D.h>
 #include <Math/EulerAngles.h>
 
+CaloSubdetectorGeometry::CaloSubdetectorGeometry() : 
+   m_parMgr ( 0 ) ,
+   m_cmgr   ( 0 ) ,
+   m_sortedIds (false) ,
+   m_deltaPhi  ( 0 ) ,
+   m_deltaEta  ( 0 )  
+{
+}
+
 
 CaloSubdetectorGeometry::~CaloSubdetectorGeometry() 
 { 
@@ -15,6 +24,8 @@ CaloSubdetectorGeometry::~CaloSubdetectorGeometry()
 
    delete m_cmgr ; // must delete *after* geometries!
    delete m_parMgr ; 
+   delete m_deltaPhi ;
+   delete m_deltaEta ;
 }
 
 void 
@@ -236,4 +247,92 @@ CaloSubdetectorGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec ,
       const unsigned int nn (( numberOfShapes()==1) ? (unsigned int)1 : cellGeometries().size() ) ; 
       if( iVec.size() < nn ) iVec.push_back( ishape ) ;
    }
+}
+
+double 
+CaloSubdetectorGeometry::deltaPhi( const DetId& detId ) const
+{
+   const CaloGenericDetId cgId ( detId ) ;
+
+   if( 0 == m_deltaPhi )
+   {
+      const uint32_t kSize ( cgId.sizeForDenseIndexing() ) ;
+      m_deltaPhi = new std::vector<double> ( kSize ) ;
+      for( uint32_t i ( 0 ) ; i != kSize ; ++i )
+      {
+	 const CaloCellGeometry& cell ( *cellGeometries()[ i ] ) ;
+	 const double dPhi1 ( fabs(
+	    GlobalPoint( ( cell.getCorners()[0].x() + 
+			   cell.getCorners()[1].x() )/2. ,
+			 ( cell.getCorners()[0].y() + 
+			   cell.getCorners()[1].y() )/2. ,
+			 ( cell.getCorners()[0].z() + 
+			   cell.getCorners()[1].z() )/2.  ).phi() -
+	    GlobalPoint( ( cell.getCorners()[2].x() + 
+			   cell.getCorners()[3].x() )/2. ,
+			 ( cell.getCorners()[2].y() + 
+			   cell.getCorners()[3].y() )/2. ,
+			 ( cell.getCorners()[2].z() + 
+			   cell.getCorners()[3].z() )/2.  ).phi() ) ) ;
+	 const double dPhi2 ( fabs(
+	    GlobalPoint( ( cell.getCorners()[0].x() + 
+			   cell.getCorners()[3].x() )/2. ,
+			 ( cell.getCorners()[0].y() + 
+			   cell.getCorners()[3].y() )/2. ,
+			 ( cell.getCorners()[0].z() + 
+			   cell.getCorners()[3].z() )/2.  ).phi() -
+	    GlobalPoint( ( cell.getCorners()[2].x() + 
+			   cell.getCorners()[1].x() )/2. ,
+			 ( cell.getCorners()[2].y() + 
+			   cell.getCorners()[1].y() )/2. ,
+			 ( cell.getCorners()[2].z() + 
+			   cell.getCorners()[1].z() )/2.  ).phi() ) ) ;
+	 (*m_deltaPhi)[i] = dPhi1>dPhi2 ? dPhi1 : dPhi2 ;
+      }
+   }
+   return (*m_deltaPhi)[ cgId.denseIndex() ] ;
+}
+
+double 
+CaloSubdetectorGeometry::deltaEta( const DetId& detId ) const
+{
+   const CaloGenericDetId cgId ( detId ) ;
+
+   if( 0 == m_deltaEta )
+   {
+      const uint32_t kSize ( cgId.sizeForDenseIndexing() ) ;
+      m_deltaEta = new std::vector<double> ( kSize ) ;
+      for( uint32_t i ( 0 ) ; i != kSize ; ++i )
+      {
+	 const CaloCellGeometry& cell ( *cellGeometries()[ i ] ) ;
+	 const double dEta1 ( fabs(
+	    GlobalPoint( ( cell.getCorners()[0].x() + 
+			   cell.getCorners()[1].x() )/2. ,
+			 ( cell.getCorners()[0].y() + 
+			   cell.getCorners()[1].y() )/2. ,
+			 ( cell.getCorners()[0].z() + 
+			   cell.getCorners()[1].z() )/2.  ).eta() -
+	    GlobalPoint( ( cell.getCorners()[2].x() + 
+			   cell.getCorners()[3].x() )/2. ,
+			 ( cell.getCorners()[2].y() + 
+			   cell.getCorners()[3].y() )/2. ,
+			 ( cell.getCorners()[2].z() + 
+			   cell.getCorners()[3].z() )/2.  ).eta() ) ) ;
+	 const double dEta2 ( fabs(
+	    GlobalPoint( ( cell.getCorners()[0].x() + 
+			   cell.getCorners()[3].x() )/2. ,
+			 ( cell.getCorners()[0].y() + 
+			   cell.getCorners()[3].y() )/2. ,
+			 ( cell.getCorners()[0].z() + 
+			   cell.getCorners()[3].z() )/2.  ).eta() -
+	    GlobalPoint( ( cell.getCorners()[2].x() + 
+			   cell.getCorners()[1].x() )/2. ,
+			 ( cell.getCorners()[2].y() + 
+			   cell.getCorners()[1].y() )/2. ,
+			 ( cell.getCorners()[2].z() + 
+			   cell.getCorners()[1].z() )/2.  ).eta() ) ) ;
+	 (*m_deltaEta)[i] = dEta1>dEta2 ? dEta1 : dEta2 ;
+      }
+   }
+   return (*m_deltaEta)[ cgId.denseIndex() ] ;
 }

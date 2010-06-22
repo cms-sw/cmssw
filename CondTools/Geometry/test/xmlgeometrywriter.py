@@ -13,7 +13,7 @@ process.source = cms.Source("EmptyIOVSource",
                             )
 
 process.XMLGeometryWriter = cms.EDAnalyzer("XMLGeometryBuilder",
-                                           XMLFileName = cms.untracked.string("./fred.xml"),
+                                           XMLFileName = cms.untracked.string("./geTagXX.xml"),
                                            ZIP = cms.untracked.bool(True)
                                            )
 

@@ -1,8 +1,8 @@
 # Auto generated configuration file
 # using: 
-# Revision: 1.168.2.1 
+# Revision: 1.172 
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: alCaRecoSplitting -s ALCAOUTPUT:MuAlCalIsolatedMu+MuAlOverlaps+TkAlMuonIsolated --conditions FrontierConditions_GlobalTag,GR10_P_V5::All --no_exec --triggerResultsProcess RECO --filein=/store/temp/data/Run2010A/Mu/ALCARECO/v1/000/135/836/8C8EBAAF-F963-DF11-BB6A-000423D9997E.root --no_output --python_filename=alCaRecoSplitting_Mu_cfg.py --data
+# with command line options: alCaRecoSplitting -s ALCAOUTPUT:MuAlCalIsolatedMu+MuAlOverlaps+TkAlMuonIsolated+DtCalib --conditions FrontierConditions_GlobalTag,GR10_P_V5::All --no_ex ec --triggerResultsProcess RECO --filein=/store/temp/data/Run2010A/Mu/ALCARECO/v1/000/135/836/8C8EBAAF-F963-DF11-BB6A-000423D9997E.root --no_output --python_filename=alCaRecoSplitting_Mu_cfg.py --data
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('ALCAOUTPUT')
@@ -19,7 +19,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.168.2.1 $'),
+    version = cms.untracked.string('$Revision: 1.172 $'),
     annotation = cms.untracked.string('alCaRecoSplitting nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -31,7 +31,7 @@ process.options = cms.untracked.PSet(
 )
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/temp/data/Run2010A/Mu/ALCARECO/v1/000/135/836/8C8EBAAF-F963-DF11-BB6A-000423D9997E.root')
+    fileNames = cms.untracked.vstring('file:/build/cerminar/GlobalTag/Validation/2010-05-21/CMSSW_3_6_1_patch1/src/Configuration/GlobalRuns/python/promptReco_RAW2DIGI_L1Reco_RECO_DQM_ALCAPRODUCER_secondary.root')
 )
 
 # Additional output definition
@@ -57,6 +57,17 @@ process.ALCARECOStreamMuAlCalIsolatedMu = cms.OutputModule("PoolOutputModule",
         dataTier = cms.untracked.string('ALCARECO')
     )
 )
+process.ALCARECOStreamDtCalib = cms.OutputModule("PoolOutputModule",
+    SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('pathALCARECODtCalib:RECO')
+    ),
+    outputCommands = process.OutALCARECODtCalib_noDrop.outputCommands,
+    fileName = cms.untracked.string('DtCalib.root'),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string('DtCalib'),
+        dataTier = cms.untracked.string('ALCARECO')
+    )
+)
 process.ALCARECOStreamMuAlOverlaps = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOMuAlOverlaps:RECO')
@@ -70,7 +81,7 @@ process.ALCARECOStreamMuAlOverlaps = cms.OutputModule("PoolOutputModule",
 )
 
 # Other statements
-process.GlobalTag.globaltag = 'GR10_P_V5::All'
+process.GlobalTag.globaltag = 'GR10_P_V6::All'
 
 # Path and EndPath definitions
 process.pathALCARECOHcalCalHOCosmics = cms.Path(process.seqALCARECOHcalCalHOCosmics)
@@ -78,12 +89,10 @@ process.pathALCARECOMuAlStandAloneCosmics = cms.Path(process.seqALCARECOMuAlStan
 process.pathALCARECOTkAlZMuMu = cms.Path(process.seqALCARECOTkAlZMuMu*process.ALCARECOTkAlZMuMuDQM)
 process.pathALCARECOTkAlCosmicsCTF0T = cms.Path(process.seqALCARECOTkAlCosmicsCTF0T*process.ALCARECOTkAlCosmicsCTF0TDQM)
 process.pathALCARECOMuAlBeamHalo = cms.Path(process.seqALCARECOMuAlBeamHalo*process.ALCARECOMuAlBeamHaloDQM)
-process.pathALCARECOTkAlCosmicsRS0THLT = cms.Path(process.seqALCARECOTkAlCosmicsRS0THLT*process.ALCARECOTkAlCosmicsRS0TDQM)
 process.pathALCARECOTkAlCosmicsCTF = cms.Path(process.seqALCARECOTkAlCosmicsCTF*process.ALCARECOTkAlCosmicsCTFDQM)
-process.pathALCARECOHcalCalIsoTrk = cms.Path(process.seqALCARECOHcalCalIsoTrk*process.ALCARECOHcalCalIsoTrackDQM)
 process.pathALCARECOHcalCalHO = cms.Path(process.seqALCARECOHcalCalHO*process.ALCARECOHcalCalHODQM)
 process.pathALCARECOTkAlCosmicsCTFHLT = cms.Path(process.seqALCARECOTkAlCosmicsCTFHLT*process.ALCARECOTkAlCosmicsCTFDQM)
-process.pathALCARECOTkAlCosmicsRS0T = cms.Path(process.seqALCARECOTkAlCosmicsRS0T*process.ALCARECOTkAlCosmicsRS0TDQM)
+process.pathALCARECODtCalib = cms.Path(process.seqALCARECODtCalib*process.ALCARECODTCalibSynchDQM)
 process.pathALCARECOTkAlCosmicsCosmicTFHLT = cms.Path(process.seqALCARECOTkAlCosmicsCosmicTFHLT*process.ALCARECOTkAlCosmicsCosmicTFDQM)
 process.pathALCARECOHcalCalMinBias = cms.Path(process.seqALCARECOHcalCalMinBias*process.ALCARECOHcalCalPhisymDQM)
 process.pathALCARECOTkAlMuonIsolated = cms.Path(process.seqALCARECOTkAlMuonIsolated*process.ALCARECOTkAlMuonIsolatedDQM)
@@ -98,13 +107,12 @@ process.pathALCARECOEcalCalElectron = cms.Path(process.seqALCARECOEcalCalElectro
 process.pathALCARECOTkAlCosmicsCTF0THLT = cms.Path(process.seqALCARECOTkAlCosmicsCTF0THLT*process.ALCARECOTkAlCosmicsCTF0TDQM)
 process.pathALCARECOMuAlCalIsolatedMu = cms.Path(process.seqALCARECOMuAlCalIsolatedMu*process.ALCARECOMuAlCalIsolatedMuDQM*process.ALCARECODTCalibrationDQM)
 process.pathALCARECOSiStripCalZeroBias = cms.Path(process.seqALCARECOSiStripCalZeroBias*process.ALCARECOSiStripCalZeroBiasDQM)
-process.pathALCARECOTkAlCosmicsRSHLT = cms.Path(process.seqALCARECOTkAlCosmicsRSHLT*process.ALCARECOTkAlCosmicsRSDQM)
 process.pathALCARECOEcalCalEtaCalib = cms.Path(process.seqALCARECOEcalCalEtaCalib*process.ALCARECOEcalCalEtaCalibDQM)
-process.pathALCARECOSiStripCalMinBias = cms.Path(process.seqALCARECOSiStripCalMinBias)
+process.pathALCARECOHcalCalIsoTrk = cms.Path(process.seqALCARECOHcalCalIsoTrk*process.ALCARECOHcalCalIsoTrackDQM)
+process.pathALCARECOSiStripCalMinBias = cms.Path(process.seqALCARECOSiStripCalMinBias*process.ALCARECOSiStripCalMinBiasDQM)
 process.pathALCARECODQM = cms.Path(process.MEtoEDMConverter)
 process.pathALCARECOTkAlLAS = cms.Path(process.seqALCARECOTkAlLAS*process.ALCARECOTkAlLASDQM)
 process.pathALCARECOTkAlMinBias = cms.Path(process.seqALCARECOTkAlMinBias*process.ALCARECOTkAlMinBiasDQM)
-process.pathALCARECOTkAlCosmicsRS = cms.Path(process.seqALCARECOTkAlCosmicsRS*process.ALCARECOTkAlCosmicsRSDQM)
 process.pathALCARECORpcCalHLT = cms.Path(process.seqALCARECORpcCalHLT)
 process.pathALCARECOHcalCalGammaJet = cms.Path(process.seqALCARECOHcalCalGammaJet)
 process.pathALCARECOMuAlBeamHaloOverlaps = cms.Path(process.seqALCARECOMuAlBeamHaloOverlaps*process.ALCARECOMuAlBeamHaloOverlapsDQM)
@@ -119,7 +127,8 @@ process.pathALCARECOTkAlJpsiMuMu = cms.Path(process.seqALCARECOTkAlJpsiMuMu*proc
 
 process.ALCARECOStreamTkAlMuonIsolatedOutPath = cms.EndPath(process.ALCARECOStreamTkAlMuonIsolated)
 process.ALCARECOStreamMuAlCalIsolatedMuOutPath = cms.EndPath(process.ALCARECOStreamMuAlCalIsolatedMu)
+process.ALCARECOStreamDtCalibOutPath = cms.EndPath(process.ALCARECOStreamDtCalib)
 process.ALCARECOStreamMuAlOverlapsOutPath = cms.EndPath(process.ALCARECOStreamMuAlOverlaps)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.ALCARECOStreamTkAlMuonIsolatedOutPath,process.ALCARECOStreamMuAlCalIsolatedMuOutPath,process.ALCARECOStreamMuAlOverlapsOutPath)
+process.schedule = cms.Schedule(process.ALCARECOStreamTkAlMuonIsolatedOutPath,process.ALCARECOStreamMuAlCalIsolatedMuOutPath,process.ALCARECOStreamDtCalibOutPath,process.ALCARECOStreamMuAlOverlapsOutPath)

@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="SiStripLatency" >
+   <Class table="SISTRIPLATENCY" id_columns="IOV_VALUE_ID" name="SiStripLatency" mapping_version="SiStripLatency_basic" >
+     <Blob column="LATENCY" name="latencies_"/>
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >

@@ -23,23 +23,3 @@ reco::isodeposit::OtherCandidatesDeltaRVeto::setEvent(const edm::Event &iEvent, 
     }
 }
 
-bool 
-reco::isodeposit::OtherCandVeto::veto(double eta, double phi, float value) const 
-{
-    for (std::vector<Direction>::const_iterator it = items_.begin(), ed = items_.end(); it != ed; ++it) {
-        veto_->centerOn(it->eta(), it->phi());
-        if ( veto_->veto(eta,phi,value) ) return true;
-    }
-    return false;
-}
-
-void
-reco::isodeposit::OtherCandVeto::setEvent(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-    items_.clear();
-    edm::Handle<edm::View<reco::Candidate> > candidates;
-    iEvent.getByLabel(src_, candidates);
-    for (edm::View<reco::Candidate>::const_iterator it = candidates->begin(), ed = candidates->end(); it != ed; ++it) {
-        items_.push_back(Direction(it->eta(), it->phi()));
-    }
-}
-

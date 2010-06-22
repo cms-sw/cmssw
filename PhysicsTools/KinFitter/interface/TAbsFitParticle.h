@@ -63,6 +63,7 @@ protected :
   TLorentzVector _pini;     // measured 4vector
   TLorentzVector _pcurr;    // fitted 4vector
   
+  ClassDef(TAbsFitParticle, 1)  // Abstract base class for fit particles
 };
 
 #endif

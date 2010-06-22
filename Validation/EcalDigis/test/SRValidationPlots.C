@@ -9,14 +9,7 @@ using namespace std;
 void fixcolz(){
    //to leave room for colz axis
    gPad->SetMargin(0.1,0.15,0.1,0.1);
-}
-
-//Fix z-axis of sparse TH2 map, excluding empty bin from axis range computation
-void fixcolzRange(TH1* h){
-  double xmin = h->GetMinimum(0);
-  double xmax = h->GetMaximum();
-  h->GetZaxis()->SetRangeUser(xmin, xmax);
-}
+ }
 
 /** Macro to plot histograms produce by the EcalSelectiveReadoutValidation package
  * @param inputfile path to the input ROOT file containing the histograms
@@ -27,35 +20,22 @@ void fixcolzRange(TH1* h){
  */
 void SRValidationPlots(TString inputfile = "srvalid_hists.root",
                        const char* ext = ".gif",
-                       int mode_ = 1111){
-
-  gStyle->SetPalette(1);
+                       int mode = 1111){
   Plot p;
-  p.run(inputfile, ext, mode_);
+  p.run(inputfile, ext, mode);
 }
 
 struct Plot{
 
-  bool sim;
-  bool etsum;
-  bool rec;
-  bool barrel;
-  bool endcap;
-  bool autoLog;
+  bool sim = false;
+  bool rec = false;
+  bool barrel; //set in ctor from mode
+  bool endcap;//set in ctor from mode
+  bool autoLog  = false;
   
   static TH1* h1Dummy;
   
   int mode = 1111;
-
-  Plot(){
-    sim = false;
-    etsum = false;
-    rec = true;
-    autoLog = true; //false;
-    mode = 1111;
-    barrel = true; //overwritten in run(...)
-    endcap = true; //overwritten in run(...)
-  }
   
   int digit(int num, int idigit){
     for(int i = 0; i< idigit; ++i) num /= 10;
@@ -66,15 +46,14 @@ struct Plot{
            const char* ext = ".gif",
            int mode_ = 1111){
 
-    mode = mode_;
-
     barrel = digit(mode, 1) || digit(mode, 2);
 
     endcap = digit(mode, 0) || digit(mode, 3);
 
+    mode = mode_;
     gROOT ->Reset();
 
-    gStyle->SetOptStat(111110);
+    gStyle->SetOptStat(111100);
     gStyle->SetStatFontSize(.025);
   
     gSystem->Exec("mkdir plots");
@@ -100,22 +79,22 @@ struct Plot{
     plotAndSave("h2ChOcc", ext, "colz", false, false, 3);//("hChOcc", ext, "colz");
     plotAndSave("hEbEMean", ext);
     if(sim) plotAndSave("hEbNoZsRecVsSimE", ext, "colz");
-    if(sim) plotAndSave("hEbNoise", ext, "", true);
+    plotAndSave("hEbNoise", ext, "", true);
     if(rec) plotAndSave("hEbRecE", ext, "", true);
-    if(rec && sim) plotAndSave("hEbRecEHitXtal", ext);
+    if(rec) plotAndSave("hEbRecEHitXtal", ext);
     if(rec && sim) plotAndSave("hEbRecVsSimE", ext, "colz");
     if(sim) plotAndSave("hEbSimE", ext);
     plotAndSave("hEeEMean", ext);
     if(rec && sim) plotAndSave("hEeNoZsRecVsSimE", ext, "colz");
     if(sim) plotAndSave("hEeNoise", ext);
     if(rec) plotAndSave("hEeRecE", ext, "colz");
-    if(rec && sim) plotAndSave("hEeRecEHitXtal", ext);
+    if(rec) plotAndSave("hEeRecEHitXtal", ext);
     if(sim) plotAndSave("hEeRecVsSimE", ext, "colz");
     if(sim) plotAndSave("hEeSimE", ext);
     plotAndSave("hTp", ext, "", true);
-    if(etsum) plotAndSave("h2TpVsEtSum", ext, "colz", false, false);
-    //plotAndSave("hTtFlag", ext, "", true);
-    if(etsum) plotAndSave("h2TtfVsEtSum", ext, "colz", false, true);
+    plotAndSave("h2TpVsEtSum", ext, "colz", false, false);
+    //    plotAndSave("hTtFlag", ext, "", true);
+    plotAndSave("h2TtfVsEtSum", ext, "colz", false, true);
     plotAndSave("h2TtfVsTp", ext, "colz", false, true);
 
     const char* dccVolHists[] = { "hDccVolFromData", "hDccVol", "hDccLiVol", "hDccHiVol" };
@@ -130,7 +109,6 @@ struct Plot{
     
 
     plotAndSave("hVol", ext);   //("volB");
-    plotAndSave("hVolB", ext);//("volB");
     plotAndSave("hVolBHI", ext);//("volBHI");
     plotAndSave("hVolBLI", ext); //("volBLI");
     plotAndSave("hVolE", ext);//("volE");
@@ -151,34 +129,27 @@ struct Plot{
 
 
     plotAndSave("hCompleteZSMap", ext, "colz", false, true, 1);
-    plotAndSave("hCompleteZSRate", ext, "colz", false, true, 1);
-
     hist("hCompleteZsCnt")->GetXaxis()->SetRangeUser(0,20);
     plotAndSave("hCompleteZsCnt", ext);
-
     hist("hDroppedFROCnt")->GetXaxis()->SetRangeUser(0,10);
     plotAndSave("hDroppedFROCnt", ext);
-
     plotAndSave("hDroppedFROMap", ext, "colz", false, true, 1);
     plotAndSave("hDroppedFRORateMap", ext, "colz", false, true, 1);
     plotAndSave("hEbEMean", ext);
     plotAndSave("hEbFROCnt", ext);
-
-
+    plotAndSave("hEbZsErrCnt", ext);
+    plotAndSave("hEbZsErrType1Cnt", ext);
     plotAndSave("hEeFROCnt", ext, "", true);
+    plotAndSave("hEeZsErrCnt", ext);
+    plotAndSave("hEeZsErrType1Cnt", ext);
     plotAndSave("hFROCnt", ext);
+    plotAndSave("hIncompleteFROCnt", ext);
     plotAndSave("hIncompleteFROMap", ext, "colz", false, true, 1);
     plotAndSave("hSRAlgoErrorMap", ext, "colz", false, false, 1);
-
-
-    plotAndSave("hEbZsErrCnt", ext, "", false, false, 0, true);
-    plotAndSave("hEbZsErrType1Cnt", ext, "", false, false, 0, true);
-    plotAndSave("hEeZsErrCnt", ext, "", false, false, 0, true);
-    plotAndSave("hEeZsErrType1Cnt", ext, "", false, false, 0, true);
-    plotAndSave("hIncompleteFROCnt", ext, "", false, false, 0, true);
-    plotAndSave("hZsErrCnt", ext, "", false, false, 0, true);
-    plotAndSave("hZsErrType1Cnt", ext, "", false, false, 0, true);
-
+    hist("hZsErrCnt")->GetXaxis()->SetRangeUser(0.,200.);
+    plotAndSave("hZsErrCnt", ext);
+    hist("hZsErrType1Cnt")->GetXaxis()->SetRangeUser(0.,20.);
+    plotAndSave("hZsErrType1Cnt", ext);
     plotAndSave("zsEbHiFIRemu", ext);
     plotAndSave("zsEbLiFIRemu", ext);
     plotAndSave("zsEeHiFIRemu", ext);
@@ -198,7 +169,7 @@ struct Plot{
 
   bool plotAndSave(const char* name, const char* fileExt = ".gif",
                    const char* opt = "", bool logy = false,
-                   bool logz = false, int map=0, bool logx = false){
+                   bool logz = false, int map=0){
 
     if(!barrel 
        && (strncmp(name, "hEb", 3) == 0 || strncmp(name, "zsEb", 4) ==0)) return false;
@@ -209,6 +180,13 @@ struct Plot{
 
     int optStat = gStyle->GetOptStat();
     double optFontSize = gStyle->GetStatFontSize();
+
+    if(strcmp(opt, "colz")==0){
+      fixcolz();
+      gStyle->SetOptStat(110000);
+      gStyle->SetStatFontSize(0.02);                       
+    }
+    
   
     TH1* h = 0;
     gDirectory->GetObject(name, h);
@@ -217,13 +195,6 @@ struct Plot{
       return false;
     }
 
-    if(strcmp(opt, "colz")==0){
-      fixcolz();
-      fixcolzRange(h);
-      gStyle->SetOptStat(110000);
-      gStyle->SetStatFontSize(0.02);                       
-    }
-    
     if(autoLog){
       int useLog;
       if((h->GetMaximum() > 100*h->GetMinimum(0))){
@@ -244,12 +215,8 @@ struct Plot{
       gPad->SetLogy(logy?1:0);
       gPad->SetLogz(logz?1:0);
     }
-    gPad->SetLogx(logx?1:0);
 
     h->Draw(opt);
-
-    //no statistics box for maps
-    if(map!=0) h->SetStats(kFALSE);
 
     if(map==1){
       setAxisRange(h, -40, -20.5, 0, 20.5, 40, 20);
@@ -263,18 +230,7 @@ struct Plot{
       setAxisRange(h, -200, -100, 0, 100, 200, 100);
       xtalGrid(mode);
     }
-
-    TProfile* p = dynamic_cast<TProfile*>(h);
-    if(p){
-      char* err_opt = (char*) p->GetErrorOption();
-      if(TString(err_opt).Contains("s", TString::kIgnoreCase)){
-	TPaveLabel* lb = new TPaveLabel(0.55614, 0.939227, 0.698246, 0.98895, "Bars = spread", "NDC");
-	lb->SetTextColor(4);
-	lb->SetFillStyle(0);
-	lb->Draw();
-      }
-    }
-    
+  
     stringstream s;
     s << "plots/" << name << fileExt;
     gPad->SaveAs(s.str().c_str());
@@ -311,3 +267,4 @@ struct Plot{
     }
   }
 };
+

@@ -130,7 +130,7 @@ c                             ********************
       subroutine setctq6 (iset)
       implicit double precision (a-h,o-z)
       parameter (isetmax0=5)
-      character flnm(isetmax0)*6, nn*3, tablefile*140
+      character flnm(isetmax0)*6, nn*3, tablefile*120
       data (flnm(i), i=1,isetmax0)
      > / 'cteq6m', 'cteq6d', 'cteq6l', 'cteq6l','ctq61.'/
       data isetold, isetmin0, isetmin1, isetmax1 /-987,1,100,140/
@@ -359,16 +359,6 @@ c          ---------- note: jlx uniquely identifies the x-bin; jx does not.
 c                       this is the variable to be interpolated in
       ss = x**xpow
 
-      const1 = 0.
-      const2 = 0.
-      const3 = 0.
-      const4 = 0.
-      const5 = 0.
-      const6 = 0.
-      sy2 = 0.
-      sy3 = 0.
-      s23 = 0.
-
       if (jlx.ge.2 .and. jlx.le.nx-2) then
 
 c     initiation work for "interior bins": store the lattice points in s...
@@ -426,18 +416,6 @@ c                         jlq .ge. nt-1 case:  keep at least 4 points >= jq.
       endif
 c                                   this is the interpolation variable in q
 
-      tdet = 0.
-      t12 = 0.
-      t13 = 0.
-      t23 = 0.
-      t24 = 0.
-      t34 = 0.
-      ty2 = 0.
-      ty3 = 0.
-      tmp1 = 0.
-      tmp2 = 0.
-
-	
       if (jlq.ge.1 .and. jlq.le.nt-2) then
 c                                        store the lattice points in t...
       tvec1 = tv(jq)
@@ -1386,10 +1364,6 @@ c.
           t=dlog(qs/al2)
           tt=t
       endif
-
-      alfqc5=0.
-      alfqc4=0.
-      alfqc3=0.
 
       if(qs.gt.qsctt) go	to 12  
       if(qs.lt.qsdtt) go	to 312  

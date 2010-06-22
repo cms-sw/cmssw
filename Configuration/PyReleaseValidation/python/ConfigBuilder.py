@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.176 $"
+__version__ = "$Revision: 1.181 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -185,6 +185,15 @@ class ConfigBuilder(object):
 					   dataset = cms.untracked.PSet(dataTier = cms.untracked.string(evtContent))
 					   ) 
 
+	if 'DQM' in self.eventcontent.split(','):
+		dqmOutput = cms.OutputModule("PoolOutputModule",
+					     outputCommands = cms.untracked.vstring('drop *','keep *_MEtoEDMConverter_*_*'),
+					     fileName = cms.untracked.string('DQMStream.root'),
+					     dataset = cms.untracked.PSet(filterName = cms.untracked.string(''),dataTier = cms.untracked.string('DQM'))
+					     )
+		self.additionalOutputs['DQMStream'] = dqmOutput
+		setattr(self.process,'DQMStream',dqmOutput)
+	
         # if there is a generation step in the process, that one should be used as filter decision
         if hasattr(self.process,"generation_step"):
             output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('generation_step')) 
@@ -338,7 +347,7 @@ class ConfigBuilder(object):
         
         final_snippet += '\n\n# End of customisation function definition'
 
-        return final_snippet + "\n\nprocess = customise(process)\n"
+	return final_snippet + "\n\nprocess = %s(process)\n"%(self._options.cust_function,)
 
     #----------------------------------------------------------------------------
     # here the methods to define the python includes for each step or
@@ -484,7 +493,10 @@ class ConfigBuilder(object):
         output = cms.OutputModule("PoolOutputModule")
 	output.SelectEvents = stream.selectEvents
 	output.outputCommands = stream.content
-	output.fileName = cms.untracked.string(self._options.dirout+stream.name+'.root')
+	if (hasattr(self._options, 'dirout')):
+		output.fileName = cms.untracked.string(self._options.dirout+stream.name+'.root')
+	else:
+		output.fileName = cms.untracked.string(stream.name+'.root')
 	output.dataset  = cms.untracked.PSet( dataTier = stream.dataTier, 
 					      filterName = cms.untracked.string(stream.name))
 	if workflow in ("producers,full"):
@@ -730,6 +742,8 @@ class ConfigBuilder(object):
         else:    
             self.loadAndRemember(sequence.split(',')[0])
         self.process.validation_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
+        if 'genvalid' in sequence.split(',')[-1]:
+            self.loadAndRemember("IOMC.RandomEngine.IOMC_cff")    
         self.schedule.append(self.process.validation_step)
         print self._options.step
         if not "DIGI"  in self._options.step.split(","):
@@ -769,7 +783,7 @@ class ConfigBuilder(object):
         if 'alcaHarvesting' in harvestingList:
             harvestingList.remove('alcaHarvesting')
                     
-        if len(harvestingList) != 0:
+        if len(harvestingList) != 0 and 'dummyHarvesting' not in harvestingList :
             print "The following harvesting could not be found : ", harvestingList
             raise
 
@@ -856,7 +870,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.176 $"),
+              (version=cms.untracked.string("$Revision: 1.181 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -914,7 +928,11 @@ class ConfigBuilder(object):
 
         # dump all additional outputs (e.g. alca or skim streams)
 	self.pythonCfgCode += "\n# Additional output definition\n"
-	for name, output in self.additionalOutputs.iteritems():
+	#I do not understand why the keys are not normally ordered.
+	nl=self.additionalOutputs.keys()
+	nl.sort()
+	for name in nl:
+		output = self.additionalOutputs[name]
 		self.pythonCfgCode += "process.%s = %s" %(name, output.dumpPython())
                 tmpOut = cms.EndPath(output)  
                 setattr(self.process,name+'OutPath',tmpOut)

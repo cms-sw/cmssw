@@ -19,13 +19,13 @@ void EcalElectronicsMapper::resetPointers(){
   // Reset Arrays
   for(uint sm=0; sm < NUMB_SM; sm++){
     for(uint fe=0; fe< NUMB_FE; fe++){
-          
+	  
       for(uint strip=0; strip<NUMB_STRIP;strip++){
         for(uint xtal=0; xtal<NUMB_XTAL;xtal++){
-                    
-             //Reset DFrames and xtalDetIds
-          xtalDetIds_[sm][fe][strip][xtal]=0;
-        }
+		    
+   	  //Reset DFrames and xtalDetIds
+	  xtalDetIds_[sm][fe][strip][xtal]=0;
+	}
       }
 
       //Reset SC Det Ids
@@ -66,75 +66,75 @@ void EcalElectronicsMapper::resetPointers(){
   ids = new std::vector<uint>;
   ids->push_back(1); ids->push_back(18);ids->push_back(19);ids->push_back(36);
   mapSmIdToTccIds_[1]= ids;
-                
+		
   ids = new std::vector<uint>;
   ids->push_back(2); ids->push_back(3);ids->push_back(20);ids->push_back(21);
   mapSmIdToTccIds_[2]= ids;
-                
+		
   ids = new std::vector<uint>;
   ids->push_back(4); ids->push_back(5);ids->push_back(22);ids->push_back(23);
   mapSmIdToTccIds_[3]= ids;
-                
+		
   ids = new std::vector<uint>;
   ids->push_back(6); ids->push_back(7);ids->push_back(24);ids->push_back(25);
   mapSmIdToTccIds_[4]= ids;
-                
+		
   ids = new std::vector<uint>;
   ids->push_back(8); ids->push_back(9);ids->push_back(26);ids->push_back(27);
   mapSmIdToTccIds_[5]= ids;
-                
+		
   ids = new std::vector<uint>;
   ids->push_back(10); ids->push_back(11);ids->push_back(28);ids->push_back(29);
   mapSmIdToTccIds_[6]= ids;
-                
+		
   ids = new std::vector<uint>;
   ids->push_back(12); ids->push_back(13);ids->push_back(30);ids->push_back(31);
   mapSmIdToTccIds_[7]= ids;
-                
+		
   ids = new std::vector<uint>;
   ids->push_back(14); ids->push_back(15);ids->push_back(32);ids->push_back(33);
   mapSmIdToTccIds_[8]= ids;
-                
+		
   ids = new std::vector<uint>;
   ids->push_back(16); ids->push_back(17);ids->push_back(34);ids->push_back(35);
   mapSmIdToTccIds_[9]= ids;
-                
+		
   ids = new std::vector<uint>;
   ids->push_back(73); ids->push_back(90);ids->push_back(91);ids->push_back(108);
   mapSmIdToTccIds_[46]= ids;
-                
+		
   ids = new std::vector<uint>;
   ids->push_back(74); ids->push_back(75);ids->push_back(92);ids->push_back(93);
   mapSmIdToTccIds_[47]= ids;
-                
+		
   ids = new std::vector<uint>;
   ids->push_back(76); ids->push_back(77);ids->push_back(94);ids->push_back(95);
   mapSmIdToTccIds_[48]= ids;
-                
+		
   ids = new std::vector<uint>;
   ids->push_back(78); ids->push_back(79);ids->push_back(96);ids->push_back(97);
   mapSmIdToTccIds_[49]= ids;
-                
+		
   ids = new std::vector<uint>;
   ids->push_back(80); ids->push_back(81);ids->push_back(98);ids->push_back(99);  
   mapSmIdToTccIds_[50]= ids;
-                 
+		 
   ids = new std::vector<uint>;
   ids->push_back(82); ids->push_back(83);ids->push_back(100);ids->push_back(101);
   mapSmIdToTccIds_[51]= ids;
-                
+		
   ids = new std::vector<uint>;
   ids->push_back(84); ids->push_back(85);ids->push_back(102);ids->push_back(103);
   mapSmIdToTccIds_[52]= ids;
-                
+		
   ids = new std::vector<uint>;
   ids->push_back(86); ids->push_back(87);ids->push_back(104);ids->push_back(105);
   mapSmIdToTccIds_[53]= ids;
-                
+		
   ids = new std::vector<uint>;
   ids->push_back(88); ids->push_back(89);ids->push_back(106);ids->push_back(107);
   mapSmIdToTccIds_[54]= ids;
-        
+	
   
   //Compute data block sizes
   unfilteredFEBlockLength_= computeUnfilteredFEBlockLength();  
@@ -210,16 +210,16 @@ void EcalElectronicsMapper::setEcalElectronicsMapping(const EcalElectronicsMappi
 bool EcalElectronicsMapper::setActiveDCC(uint dccId){
    
   bool ret(true);
-        
+	
   //Update active dcc and associated smId
   dccId_ = dccId;
    
   smId_  = getSMId(dccId_);
-        
+	
   if(!smId_) ret = false;
-        
+	
   return ret;
-        
+	
  } 
  
  
@@ -276,7 +276,7 @@ bool EcalElectronicsMapper::setDCCMapFilePath(std::string aPath_){
 
 
 bool EcalElectronicsMapper::makeMapFromVectors( std::vector<int>& orderedFedUnpackList,
-                                               std::vector<int>& orderedDCCIdList )
+					       std::vector<int>& orderedDCCIdList )
 {
 
   // in case as non standard set of DCCId:FedId pairs was provided
@@ -287,12 +287,12 @@ bool EcalElectronicsMapper::makeMapFromVectors( std::vector<int>& orderedFedUnpa
       
       std::string correspondence("list of pairs DCCId:FedId :  ");
       char           onePair[50];
-      for (int v=0;  v< ((int)orderedFedUnpackList.size());  v++)        {
-        myDCCMap_[ orderedDCCIdList[v]  ] = orderedFedUnpackList[v] ;
-        
-        sprintf( onePair, "  %d:%d",  orderedDCCIdList[v], orderedFedUnpackList[v]);
-        std::string                 tmp(onePair);
-        correspondence += tmp;
+      for (int v=0;  v< ((int)orderedFedUnpackList.size());  v++)	{
+	myDCCMap_[ orderedDCCIdList[v]  ] = orderedFedUnpackList[v] ;
+	
+	sprintf( onePair, "  %d:%d",  orderedDCCIdList[v], orderedFedUnpackList[v]);
+	std::string                 tmp(onePair);
+	correspondence += tmp;
       }
       edm::LogInfo("EcalElectronicsMapper") << correspondence;
       
@@ -301,12 +301,12 @@ bool EcalElectronicsMapper::makeMapFromVectors( std::vector<int>& orderedFedUnpa
     {  // default set of DCCId:FedId for ECAL
 
       edm::LogInfo("EcalElectronicsMapper") << "No input DCCIdList/FedUnpackList lists given for ECAL unpacker"
-                                            << "(or given with different number of elements). "
-                                            << " Loading default association DCCIdList:FedUnpackList,"
-                                            << "i.e.  1:601 ... 53:653,  54:654.";
+					    << "(or given with different number of elements). "
+					    << " Loading default association DCCIdList:FedUnpackList,"
+					    << "i.e.  1:601 ... 53:653,  54:654.";
       
-      for (uint v=1; v<=54; v++)        {
-        myDCCMap_[ v ] = (v+600) ;   }
+      for (uint v=1; v<=54; v++)	{
+	myDCCMap_[ v ] = (v+600) ;   }
     }
 
   return true;
@@ -350,7 +350,7 @@ uint EcalElectronicsMapper::computeEBTCCBlockLength(){
 
   uint nTT=68;
   uint tf;
-          
+	  
   //TCC block size: header (8 bytes) + 17 words with 4 trigger primitives (17*8bytes)
   if( (nTT*numbTriggerTSamples_)<4 || (nTT*numbTriggerTSamples_)%4 ) tf=1;  
   else tf=0;
@@ -414,18 +414,18 @@ void EcalElectronicsMapper::fillMaps(){
     
     // Fill EB arrays  
     if( smId > 9 && smId < 46 ){
-         
+	 
       for(int feChannel =1; feChannel<=68; feChannel++){
-                   
+		   
         uint tccId = smId + TCCID_SMID_SHIFT_EB;
-                  
+		  
         // Builds Ecal Trigger Tower Det Id 
 
         uint rawid = (mappingBuilder_->getTrigTowerDetId(tccId, feChannel)).rawId();
         EcalTrigTowerDetId * ttDetId = new EcalTrigTowerDetId(rawid);
         ttDetIds_[tccId-1][feChannel-1] = ttDetId;
-        EcalElectronicsId * ttEleId = new EcalElectronicsId(smId, feChannel, 1, 1);
-        ttEleIds_[tccId-1][feChannel-1] = ttEleId;
+	EcalElectronicsId * ttEleId = new EcalElectronicsId(smId, feChannel, 1, 1);
+	ttEleIds_[tccId-1][feChannel-1] = ttEleId;
         EcalTriggerPrimitiveDigi * tp     = new EcalTriggerPrimitiveDigi(*ttDetId);
         tp->setSize(numbTriggerTSamples_);
         for(uint i=0;i<numbTriggerTSamples_;i++){
@@ -443,37 +443,37 @@ void EcalElectronicsMapper::fillMaps(){
         // Buil SRP Flag
         srFlags_[smId-1][feChannel-1].push_back(new EBSrFlag(*ttDetId,0));
 
-        //only one element for barrel: 1-to-1 correspondance between
-        //DCC channels and EB trigger tower:
-        assert(srFlags_[smId-1][feChannel-1].size()==1);
+	//only one element for barrel: 1-to-1 correspondance between
+	//DCC channels and EB trigger tower:
+	assert(srFlags_[smId-1][feChannel-1].size()==1);
  
         for(uint stripId =1; stripId<=5; stripId++){
-                    
-          for(uint xtalId =1;xtalId<=5;xtalId++){
-                   
-              EcalElectronicsId eid(smId,feChannel,stripId,xtalId);
-              EBDetId * detId = new EBDetId( (mappingBuilder_->getDetId(eid)).rawId());
-              xtalDetIds_[smId-1][feChannel-1][stripId-1][xtalId-1] = detId;
-                         
-           } // close loop over xtals
-        }// close loop over strips
-                                  
+		    
+	  for(uint xtalId =1;xtalId<=5;xtalId++){
+ 		  
+	      EcalElectronicsId eid(smId,feChannel,stripId,xtalId);
+	      EBDetId * detId = new EBDetId( (mappingBuilder_->getDetId(eid)).rawId());
+	      xtalDetIds_[smId-1][feChannel-1][stripId-1][xtalId-1] = detId;
+			 
+	   } // close loop over xtals
+	}// close loop over strips
+		  		
       }// close loop over fechannels
-                
+		
     }//close loop over sm ids in the EB
     // Fill EE arrays (Todo : waiting SC correction)
     
     else{
-         
-        std::vector<uint> * pTCCIds = mapSmIdToTccIds_[smId];
-        std::vector<uint>::iterator it;
-                
-        for(it= pTCCIds->begin(); it!= pTCCIds->end(); it++){
-                        
+	 
+	std::vector<uint> * pTCCIds = mapSmIdToTccIds_[smId];
+	std::vector<uint>::iterator it;
+		
+	for(it= pTCCIds->begin(); it!= pTCCIds->end(); it++){
+			
           uint tccId = *it;
           
           // creating arrays of pointers for trigger objects
-          for(uint towerInTCC =1; towerInTCC <= numChannelsInDcc_[smId-1]; towerInTCC++){
+	  for(uint towerInTCC =1; towerInTCC <= numChannelsInDcc_[smId-1]; towerInTCC++){
               
               // Builds Ecal Trigger Tower Det Id 
               EcalTrigTowerDetId ttDetId = mappingBuilder_->getTrigTowerDetId(tccId, towerInTCC);
@@ -494,51 +494,51 @@ void EcalElectronicsMapper::fillMaps(){
                    psInput_[tccId-1][towerInTCC-1][ps-1]->setSample( 0, EcalPseudoStripInputSample(0) );
                }
               
-          }
+	  }
         }
         
         // creating arrays of pointers for digi objects
-        for(uint feChannel = 1; feChannel <= numChannelsInDcc_[smId-1]; feChannel++){
-          
-          // to avoid gap in CCU_id's
-          if((smId==SECTOR_EEM_CCU_JUMP   || smId== SECTOR_EEP_CCU_JUMP) &&
-             (MIN_CCUID_JUMP <= feChannel && feChannel <=MAX_CCUID_JUMP )
-             ) continue;
-          
-          vector<EcalScDetId> scDetIds = mappingBuilder_->getEcalScDetId(smId,feChannel);
-          // scDetIds_[smId-1][feChannel-1] = new EcalScDetId(scDetId.rawId());
-          scEleIds_[smId-1][feChannel-1] = new EcalElectronicsId(smId,feChannel,1,1);
+	for(uint feChannel = 1; feChannel <= numChannelsInDcc_[smId-1]; feChannel++){
 
-          for(size_t i = 0; i < scDetIds.size(); ++i){
-            // std::cout << __FILE__ << ":" << __LINE__ << ": "
-            //            << "(DCC,RU) = (" <<  smId << "," << feChannel
-            //            << ") -> " << scDetIds[i] << "\n";
+            // to avoid gap in CCU_id's
+            if((smId==SECTOR_EEM_CCU_JUMP   || smId== SECTOR_EEP_CCU_JUMP) &&
+               (MIN_CCUID_JUMP <= feChannel && feChannel <=MAX_CCUID_JUMP )
+               ) continue;
             
-            srFlags_[smId-1][feChannel-1].push_back(new EESrFlag( EcalScDetId( scDetIds[i].rawId() ) , 0 ));
-          }
-          //usually only one element 1 DCC channel <-> 1 SC
-          //in few case two or three elements: partial SCs grouped. 
-          assert(srFlags_[smId-1][feChannel-1].size()<=3);
-          
+	    vector<EcalScDetId> scDetIds = mappingBuilder_->getEcalScDetId(smId,feChannel);
+	    // scDetIds_[smId-1][feChannel-1] = new EcalScDetId(scDetId.rawId());
+	    scEleIds_[smId-1][feChannel-1] = new EcalElectronicsId(smId,feChannel,1,1);
+
+	    for(size_t i = 0; i < scDetIds.size(); ++i){
+	      // std::cout << __FILE__ << ":" << __LINE__ << ": "
+	      // 	   << "(DCC,RU) = (" <<  smId << "," << feChannel
+	      // 	   << ") -> " << scDetIds[i] << "\n";
+	      
+	      srFlags_[smId-1][feChannel-1].push_back(new EESrFlag( EcalScDetId( scDetIds[i].rawId() ) , 0 ));
+	    }
+	    //usually only one element 1 DCC channel <-> 1 SC
+	    //in few case two or three elements: partial SCs grouped. 
+	    assert(srFlags_[smId-1][feChannel-1].size()<=3);
+	    
           std::vector<DetId> ecalDetIds = mappingBuilder_->dccTowerConstituents(smId,feChannel);
           std::vector<DetId>::iterator it;
-                                  
-          //EEDetIds        
+				  
+          //EEDetIds	
           for(it = ecalDetIds.begin(); it!= ecalDetIds.end(); it++){
-            
-            EcalElectronicsId ids = mappingBuilder_->getElectronicsId((*it));
-            
-            int stripId    = ids.stripId();
-            int xtalId     = ids.xtalId();
-            
-            EEDetId * detId = new EEDetId((*it).rawId());
-            xtalDetIds_[smId-1][feChannel-1][stripId-1][xtalId-1] = detId;
-          }// close loop over tower constituents
-          
-        }// close loop over  FE Channels                
-        
+		    
+          EcalElectronicsId ids = mappingBuilder_->getElectronicsId((*it));
+			 
+          int stripId    = ids.stripId();
+          int xtalId     = ids.xtalId();
+		 
+          EEDetId * detId = new EEDetId((*it).rawId());
+          xtalDetIds_[smId-1][feChannel-1][stripId-1][xtalId-1] = detId;
+	}// close loop over tower constituents
+	  
+	}// close loop over  FE Channels		
+	
     }// closing loop over sm ids in EE
-        
+	
   }
 
 

@@ -14,8 +14,6 @@
 #include "CondFormats/CSCObjects/interface/CSCBadStrips.h"
 #include "CondFormats/CSCObjects/interface/CSCBadWires.h"
 #include "CondFormats/CSCObjects/interface/CSCBadChambers.h"
-#include "CondFormats/CSCObjects/interface/CSCDBChipSpeedCorrection.h"
-#include "CondFormats/CSCObjects/interface/CSCChamberTimeCorrections.h"
 #include "DataFormats/MuonDetId/interface/CSCIndexer.h"
 
 CSCConditions::CSCConditions( const edm::ParameterSet& ps ) 
@@ -26,14 +24,11 @@ CSCConditions::CSCConditions( const edm::ParameterSet& ps )
   theBadStrips(),
   theBadWires(),
   theBadChambers(),
-  theChipCorrections(),
-  theChamberTimingCorrections(),
-  readBadChannels_(false), readBadChambers_(false),useTimingCorrections_(false),
+  readBadChannels_(false), readBadChambers_(false),
   theAverageGain( -1.0 )
 {
   readBadChannels_ = ps.getParameter<bool>("readBadChannels");
   readBadChambers_ = ps.getParameter<bool>("readBadChambers");
-  useTimingCorrections_ = ps.getParameter<bool>("CSCUseTimingCorrections");
   // set size to hold all layers, using enum defined in .h
   badStripWords.resize( MAX_LAYERS, 0 );
   badWireWords.resize( MAX_LAYERS, 0 );
@@ -54,13 +49,6 @@ void CSCConditions::initializeEvent(const edm::EventSetup & es)
   es.get<CSCDBPedestalsRcd>().get( thePedestals );
   // Strip autocorrelation noise matrix
   es.get<CSCDBNoiseMatrixRcd>().get(theNoiseMatrix);
-
-  if ( useTimingCorrections()){
-    // Buckeye chip speeds
-    es.get<CSCDBChipSpeedCorrectionRcd>().get( theChipCorrections );
-    // Cable lengths from chambers to peripheral crate and additional chamber level timing correction
-    es.get<CSCChamberTimeCorrectionsRcd>().get( theChamberTimingCorrections );
-  }
 
   if ( readBadChannels() ) {
   // Bad strip channels
@@ -276,31 +264,6 @@ void CSCConditions::crossTalk( const CSCDetId& id, int channel, std::vector<floa
   ct[3] = float ( item.xtalk_intercept_right )/theCrosstalk->factor_intercept;
 }
 
-float CSCConditions::chipCorrection(const CSCDetId & detId, int stripChannel) const
-{
-  if ( useTimingCorrections() ){
-    assert(theChipCorrections.isValid());
-    CSCIndexer indexer;
-    int chip = indexer.chipIndex(stripChannel); //Converts 1-80(64) in a layer to 1-5(4), expects ME1/1a to be channel 65-80
-    //printf("CSCCondition  e:%d s:%d r:%d c:%d l:%d strip:%d chip: %d\n",detId.endcap(),detId.station(), detId.ring(),detId.chamber(),detId.layer(),stripChannel,chip);
-    return float ( theChipCorrections->item(detId,chip).speedCorr )/theChipCorrections->factor_speedCorr;
-  }
-  else
-    return 0;
-}
-float CSCConditions::chamberTimingCorrection(const CSCDetId & detId) const
-{
-  if ( useTimingCorrections() ){
-    assert(theChamberTimingCorrections.isValid());
-    return float ( theChamberTimingCorrections->item(detId).cfeb_tmb_skew_delay*1./theChamberTimingCorrections->factor_precision
-		   + theChamberTimingCorrections->item(detId).cfeb_timing_corr*1./theChamberTimingCorrections->factor_precision
-		   + (theChamberTimingCorrections->item(detId).cfeb_cable_delay*25.)
-);
-  }
-  else
-    return 0;
-}
-
 const std::bitset<80>& CSCConditions::badStripWord( const CSCDetId& id ) const {
   CSCIndexer indexer;
   return badStripWords[indexer.layerIndex(id) - 1];
@@ -308,7 +271,7 @@ const std::bitset<80>& CSCConditions::badStripWord( const CSCDetId& id ) const {
 
 const std::bitset<112>& CSCConditions::badWireWord( const CSCDetId& id ) const {
   CSCIndexer indexer;
-  return badWireWords[indexer.layerIndex(id) - 1]; 
+  return badWireWords[indexer.layerIndex(id) - 1];
 }
 
 /// Return average strip gain for full CSC system. Lazy evaluation.

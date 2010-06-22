@@ -8,10 +8,6 @@
 
 #include <DataFormats/EcalDetId/interface/EEDetId.h>
 
-#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
-#include "CondFormats/RunInfo/interface/RunSummary.h"
-#include "CondFormats/RunInfo/interface/RunInfo.h"
-
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -100,10 +96,9 @@ void EEDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
   // evaluate the DQM quality of observables checked by lumi
   float DQMVal[18];
   for (int i = 0; i < 18; i++) {
-    DQMVal[i] = 0.;
+    DQMVal[i] = -1.;
   }
 
-  // evaluate the quality of observables checked by lumi
   sprintf(histo, (prefixME_ + "/EEIntegrityTask/EEIT weighted integrity errors by lumi").c_str());
   me = dqmStore_->get(histo);
   hIntegrityByLumi_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hIntegrityByLumi_ );
@@ -111,58 +106,57 @@ void EEDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
   sprintf(histo, (prefixME_ + "/EEStatusFlagsTask/FEStatus/EESFT weighted frontend errors by lumi").c_str());
   me = dqmStore_->get(histo);
   hFrontendByLumi_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hFrontendByLumi_ );
-  
-  float integrityErrSum, frontendErrSum;
-  integrityErrSum = frontendErrSum = 0.;
-  for ( int i=0; i<18; i++) {
-    float ismIntegrityQual = 1.0;
-    if( hIntegrityByLumi_ && hIntegrityByLumi_->GetBinContent(0) > 0 ) {
-      float errors = hIntegrityByLumi_->GetBinContent(i+1);
-      ismIntegrityQual = 1.0 - errors/hIntegrityByLumi_->GetBinContent(0);
-      integrityErrSum += errors;
+
+  if( hIntegrityByLumi_ && hFrontendByLumi_ ) {
+
+    float integrityErrSum = 0.;
+    float integrityQual = 1.0;
+    float frontendErrSum = 0.;
+    float frontendQual = 1.0;
+
+    for ( int i=0; i<18; i++) {
+      float ismIntegrityQual = 1.0;
+      if( hIntegrityByLumi_->GetBinContent(0) > 0 ) {
+        float errors = hIntegrityByLumi_->GetBinContent(i+1);
+        ismIntegrityQual = 1.0 - errors/hIntegrityByLumi_->GetBinContent(0);
+        integrityErrSum += errors;
+      }
+      float ismFrontendQual = 1.0;
+      if( hFrontendByLumi_->GetBinContent(0) > 0 ) {
+        float errors = hFrontendByLumi_->GetBinContent(i+1);
+        ismFrontendQual = 1.0 - errors/hFrontendByLumi_->GetBinContent(0);
+        frontendErrSum += errors;
+      }
+      DQMVal[i] = std::min(ismIntegrityQual,ismFrontendQual);
     }
-    float ismFrontendQual = 1.0;
-    if( hFrontendByLumi_ && hFrontendByLumi_->GetBinContent(0) > 0 ) {
-      float errors = hFrontendByLumi_->GetBinContent(i+1);
-      ismFrontendQual = 1.0 - errors/hFrontendByLumi_->GetBinContent(0);
-      frontendErrSum += errors;
-    }
-    DQMVal[i] = std::min(ismIntegrityQual,ismFrontendQual);
 
-    sprintf(histo, "EcalEndcap_%s", Numbers::sEE(i+1).c_str());
-    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
-    if( me ) me->Fill(DQMVal[i]);
+    if( hIntegrityByLumi_->GetBinContent(0) > 0 ) integrityQual = 1.0 - integrityErrSum/hIntegrityByLumi_->GetBinContent(0)/18.;
+    if( hFrontendByLumi_->GetBinContent(0) > 0 ) frontendQual = 1.0 - frontendErrSum/hFrontendByLumi_->GetBinContent(0)/18.;
+    float totDQMVal = std::min(integrityQual,frontendQual);
 
-    sprintf(histo, "reportSummaryMap");
-    me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo );
+    sprintf(histo, (prefixME_ + "/EventInfo/reportSummary").c_str());
+    me = dqmStore_->get(histo);
+    if( me ) me->Fill(totDQMVal);
 
-    if( me ) {
-      for ( int iz = -1; iz < 2; iz+=2 ) {
+    for ( int i=0; i<18; i++) {
+      sprintf(histo, "EcalEndcap_%s", Numbers::sEE(i+1).c_str());
+      me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
+      if( me ) me->Fill(DQMVal[i]);
+
+      sprintf(histo, "reportSummaryMap");
+      me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo );
+      if( me ) {
         for ( int ix = 1; ix <= 100; ix++ ) {
           for ( int iy = 1; iy <= 100; iy++ ) {
-            int jx = (iz==1) ? 100 + ix : ix;
+            int jx = ( i < 9 ) ? ix : 100 + ix;
             int jy = iy;
-            if( EEDetId::validDetId(ix, iy, iz) ) me->setBinContent( jx, jy, DQMVal[i] );
-            else me->setBinContent( jx, jy, -1.0 );
+            if ( Numbers::validEE(i+1, ix, iy) ) me->setBinContent(jx, jy, DQMVal[i]);
           }
         }
       }
     }
 
   }
-
-  float totDQMVal = 0.;
-  
-  float integrityQual = 1.0;
-  if( hIntegrityByLumi_ && hIntegrityByLumi_->GetBinContent(0) > 0 ) integrityQual = 1.0 - integrityErrSum/hIntegrityByLumi_->GetBinContent(0);
-  float frontendQual = 1.0;
-  if( hFrontendByLumi_ && hFrontendByLumi_->GetBinContent(0) > 0 ) frontendQual = 1.0 - frontendErrSum/hFrontendByLumi_->GetBinContent(0);
-  
-  totDQMVal = std::min(integrityQual,frontendQual);
-
-  sprintf(histo, (prefixME_ + "/EventInfo/reportSummary").c_str());
-  me = dqmStore_->get(histo);
-  if( me ) me->Fill(totDQMVal);
 
   // now combine reduced DQM with DCS and DAQ
   sprintf(histo, (prefixME_ + "/EventInfo/DAQSummaryMap").c_str());
@@ -202,14 +196,15 @@ void EEDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
 
           float xvalDAQ, xvalDCS;
           xvalDAQ = xvalDCS = -1.;
-          float xcert = -1;
+          float xcert = -1.;
           
           if ( hDAQ_ ) xvalDAQ = hDAQ_->GetBinContent( jx, jy );
           if ( hDCS_ ) xvalDCS = hDCS_->GetBinContent( jx, jy );
 
-          // all white means problems: DAQ and DCS not available and DQM empty
-          if ( xvalDQM == -1 && xvalDAQ == -1 && xvalDCS == -1) xcert = 0.0;
-          else {
+          if ( xvalDQM == -1 || ( xvalDAQ == -1 && xvalDCS == -1 ) ) {
+            // problems: DQM empty or DAQ and DCS not available 
+            xcert = 0.0;
+          } else {
             // do not consider the white value of DAQ and DCS (problems with DB)
             xcert = fabs(xvalDQM) * fabs(xvalDAQ) * fabs(xvalDCS);
           }
@@ -275,7 +270,7 @@ void EEDataCertificationTask::endRun(const edm::Run& r, const edm::EventSetup& c
   int nValidChannelsEE[18];
 
   for (int i = 0; i < 18; i++) {
-    sumCertEE[i] = 0;
+    sumCertEE[i] = 0.;
     nValidChannelsEE[i] = 0;
   }
 
@@ -288,15 +283,16 @@ void EEDataCertificationTask::endRun(const edm::Run& r, const edm::EventSetup& c
 
           float xvalDQM, xvalDAQ, xvalDCS;
           xvalDQM = xvalDAQ = xvalDCS = -1.;
-          float xcert = -1;
+          float xcert = -1.;
           
           if ( hDQM_ ) xvalDQM = hDQM_->GetBinContent( jx, jy );
           if ( hDAQ_ ) xvalDAQ = hDAQ_->GetBinContent( jx, jy );
           if ( hDCS_ ) xvalDCS = hDCS_->GetBinContent( jx, jy );
 
-          // all white means problems: DAQ and DCS not available and DQM empty
-          if ( xvalDQM == -1 && xvalDAQ == -1 && xvalDCS == -1) xcert = 0.0;
-          else {
+          if ( xvalDQM == -1 || ( xvalDAQ == -1 && xvalDCS == -1 ) ) {
+            // problems: DQM empty or DAQ and DCS not available
+            xcert = 0.0;
+          } else {
             // do not consider the white value of DAQ and DCS (problems with DB)
             xcert = fabs(xvalDQM) * fabs(xvalDAQ) * fabs(xvalDCS);
           }
@@ -324,14 +320,20 @@ void EEDataCertificationTask::endRun(const edm::Run& r, const edm::EventSetup& c
   }
 
   if( meEEDataCertificationSummary_ ) { 
-    if( nValidChannels>0 ) meEEDataCertificationSummary_->Fill( sumCert/nValidChannels );
-    else meEEDataCertificationSummary_->Fill( 0.0 );
+    if( nValidChannels>0 ) {
+      meEEDataCertificationSummary_->Fill( sumCert/nValidChannels );
+    } else {
+      meEEDataCertificationSummary_->Fill( 0.0 );
+    }
   }
 
   for (int i = 0; i < 18; i++) {
     if( meEEDataCertification_[i] ) {
-      if( nValidChannelsEE[i]>0 ) meEEDataCertification_[i]->Fill( sumCertEE[i]/nValidChannelsEE[i] );
-      else meEEDataCertification_[i]->Fill( 0.0 );
+      if( nValidChannelsEE[i]>0 ) {
+        meEEDataCertification_[i]->Fill( sumCertEE[i]/nValidChannelsEE[i] );
+      } else {
+        meEEDataCertification_[i]->Fill( 0.0 );
+      }
     }
   }
 

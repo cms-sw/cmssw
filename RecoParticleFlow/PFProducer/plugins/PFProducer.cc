@@ -289,12 +289,16 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
     = iConfig.getParameter<std::vector<double> >("factors_45");  
   assert ( factors45.size() == 2 );
   
+  bool usePFMuonMomAssign
+    = iConfig.getParameter<bool>("usePFMuonMomAssign");
+
   // Set muon and fake track parameters
   pfAlgo_->setPFMuonAndFakeParameters(muonHCAL,
 				      muonECAL,
 				      nSigmaTRACK,
 				      ptError,
-				      factors45);
+				      factors45,
+				      usePFMuonMomAssign);
   
   //Post cleaning of the HF
   bool postHFCleaning

@@ -9,6 +9,7 @@
 #include "TRandom.h"
 #include "TString.h"
 
+ClassImp(TSLToyGen)
 
 
 TSLToyGen::TSLToyGen( const TAbsFitParticle* bReco, const TAbsFitParticle* lepton, 

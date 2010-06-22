@@ -9,12 +9,6 @@
 MuonSeedPtExtractor::MuonSeedPtExtractor(const edm::ParameterSet& par)
 : scaleDT_( par.getParameter<bool>("scaleDT") )
 {
-  init(par);
-}
-
-
-void MuonSeedPtExtractor::init(const edm::ParameterSet& par)
-{
   // load pT seed parameters
   // DT combinations
   fillParametersForCombo("DT_12", par);

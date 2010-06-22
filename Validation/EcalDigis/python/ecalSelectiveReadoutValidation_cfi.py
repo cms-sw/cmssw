@@ -44,13 +44,9 @@ ecalSelectiveReadoutValidation = cms.EDAnalyzer("EcalSelectiveReadoutValidation"
     dccWeights = cms.vdouble(-0.374, -0.374, -0.3629, 0.2721,
                              0.4681, 0.3707),
 
-    #ZS threshold used to validate ZS application in EB
+    #ZS threshold used to validate ZS application
     #Threshold in ADC count. Resolution of 1/4th ADC count.
-    ebZsThrADCCount = cms.double(9./4.),
-
-    #ZS threshold used to validate ZS application in EE
-    #Threshold in ADC count. Resolution of 1/4th ADC count.
-    eeZsThrADCCount = cms.double(15./4.),
+    zsThrADCCount = cms.double(9./4.),
 
     #Switch to express TP in GeV for the histograms:
     tpInGeV = cms.bool(True),

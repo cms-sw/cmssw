@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.55 2010/05/03 22:17:03 yumiceva Exp $
+   version $Id: BeamFitter.cc,v 1.49 2010/04/03 10:17:13 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -165,10 +165,6 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
   // Primary vertex fitter
   MyPVFitter = new PVFitter(iConfig);
   MyPVFitter->resetAll();
-
-  // check filename
-  ffilename_changed = false;
-  
 }
 
 BeamFitter::~BeamFitter() {
@@ -192,7 +188,21 @@ BeamFitter::~BeamFitter() {
 void BeamFitter::readEvent(const edm::Event& iEvent)
 {
 
-  
+  //open txt files at begin of run
+  if (frun == -1) {
+    if (writeDIPTxt_)
+      fasciiDIP.open(outputDIPTxt_.c_str());
+    if (writeTxt_) {
+      std::string tmpname = outputTxt_;
+      char index[15];
+      if (appendRunTxt_) {
+          sprintf(index,"%s%i","_Run", int(iEvent.id().run()));
+          tmpname.insert(outputTxt_.length()-4,index);
+      }
+      fasciiFile.open(tmpname.c_str());
+      outputTxt_ = tmpname;
+    }
+  }
   frun = iEvent.id().run();
   const edm::TimeValue_t ftimestamp = iEvent.time().value();
   const std::time_t ftmptime = ftimestamp >> 32;
@@ -377,10 +387,7 @@ bool BeamFitter::runFitter() {
   sprintf(fbeginTimeOfFit,"%s",fbeginTime);
   const char* fendTime = formatTime(freftime[1]);
   sprintf(fendTimeOfFit,"%s",fendTime);
-  if (fbeginLumiOfFit == -1 || fendLumiOfFit == -1) {
-    std::cout << "No event read! No Fitting!" << std::endl;
-    return false;
-  }
+  if (freftime[0] == 0 || freftime[1] == 0 || fbeginLumiOfFit == -1 || fendLumiOfFit == -1) return false;
 
   bool fit_ok = false;
   // default fit to extract beam spot info
@@ -435,7 +442,7 @@ bool BeamFitter::runFitter() {
       // 	fbeamspot.setType(reco::BeamSpot::Bad); // bad d0-phi and PV fits ==> FIXME: Add type to BeamSpot.h?
     }
 
-    if(writeTxt_ ) dumpTxtFile(outputTxt_,true); // all reaults
+    if(writeTxt_ && fasciiFile.is_open()) dumpTxtFile(outputTxt_,true); // all reaults
     if(writeDIPTxt_ && fasciiDIP.is_open()) dumpTxtFile(outputDIPTxt_,false); // for DQM/DIP
 
     // retrieve histogram for Vz
@@ -470,7 +477,7 @@ bool BeamFitter::runFitter() {
     fbeamspot = tmpbs;
     fbeamspot.setType(reco::BeamSpot::Fake);
     if(debug_) std::cout << "Not enough good tracks selected! No beam fit!" << std::endl;
-    if(writeTxt_) dumpTxtFile(outputTxt_,true);  // all results
+    if(writeTxt_ && fasciiFile.is_open()) dumpTxtFile(outputTxt_,true);  // all results
     if(writeDIPTxt_ && fasciiDIP.is_open()) dumpTxtFile(outputDIPTxt_,false);// for DQM/DIP
   }
   fitted_ = true;
@@ -528,16 +535,6 @@ void BeamFitter::dumpBWTxtFile(std::string & fileName ){
 
 void BeamFitter::dumpTxtFile(std::string & fileName, bool append){
   std::ofstream outFile;
-
-  std::string tmpname = outputTxt_;
-  char index[15];
-  if (appendRunTxt_ && !ffilename_changed ) {
-      sprintf(index,"%s%i","_Run", frun );
-      tmpname.insert(outputTxt_.length()-4,index);
-      fileName = tmpname;
-      ffilename_changed = true;
-  }
-  
   if (!append)
     outFile.open(fileName.c_str());
   else

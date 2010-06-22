@@ -5,7 +5,6 @@
 #include "Fireworks/Core/interface/FWL1TriggerTableView.h"
 #include "Fireworks/Core/interface/FWL1TriggerTableViewManager.h"
 #include "Fireworks/Core/interface/FWL1TriggerTableViewTableManager.h"
-#include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/TableWidget/interface/FWTableWidget.h"
 
 #include "DataFormats/FWLite/interface/Handle.h"
@@ -85,7 +84,7 @@ FWL1TriggerTableView::typeName(void) const
 void
 FWL1TriggerTableView::saveImageTo(const std::string& iName) const
 {
-  fwLog(fwlog::kWarning) << "FWL1TriggerTableView::saveImageTo is not implemented." << std::endl;
+  std::cout << "FWL1TriggerTableView::saveImageTo is not implemented." << std::endl;
 }
 
 void FWL1TriggerTableView::dataChanged(void)
@@ -103,12 +102,12 @@ void FWL1TriggerTableView::dataChanged(void)
 	 try
 	 {
 	    // FIXME: Replace magic strings with configurable ones
-	    triggerMenuLite.getByLabel(event->getRun(), "l1GtTriggerMenuLite", "", "");
-	    triggerRecord.getByLabel(*event, "gtDigis", "", "");
+	    triggerMenuLite.getByLabel(event->getRun(), "l1GtTriggerMenuLite", "", "HLT");
+	    triggerRecord.getByLabel(*event, "gtDigis", "", "HLT");
 	 }
 	 catch(cms::Exception&)
 	 {
-	    fwLog(fwlog::kWarning) << "FWL1TriggerTableView: no L1Trigger menu is available." << std::endl;
+	    std::cout << "Warning: no L1Trigger menu is available" << std::endl;
 	    m_tableManager->dataChanged();
 	    return;
 	 }
@@ -131,12 +130,6 @@ void FWL1TriggerTableView::dataChanged(void)
 	       m_columns.at(2).values.push_back(Form("%d",bitNumber));
 	    }
 	 }
-         else
-         {
-            fwLog(fwlog::kWarning) << "FWL1TriggerTableView: " <<
-               "L1GtTriggerMenuLite.isValid()=" << triggerMenuLite.isValid() << ", " <<
-               "L1GlobalTriggerReadoutRecord.isValid()=" << triggerRecord.isValid() << "." << std::endl;
-         }
       }
    }
    

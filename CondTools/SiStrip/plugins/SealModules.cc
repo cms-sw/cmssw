@@ -42,6 +42,12 @@ DEFINE_FWK_MODULE(SiStripDetVOffFakeBuilder);
 #include "CondTools/SiStrip/plugins/SiStripDetVOffReader.h"
 DEFINE_FWK_MODULE(SiStripDetVOffReader);
 
+#include "CondTools/SiStrip/plugins/SiStripPerformanceSummaryBuilder.h"
+DEFINE_FWK_MODULE(SiStripPerformanceSummaryBuilder);
+
+#include "CondTools/SiStrip/plugins/SiStripPerformanceSummaryReader.h"
+DEFINE_FWK_MODULE(SiStripPerformanceSummaryReader);
+
 #include "CondTools/SiStrip/plugins/SiStripCablingTrackerMap.h"
 DEFINE_FWK_MODULE(SiStripCablingTrackerMap);
 
