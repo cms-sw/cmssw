@@ -199,6 +199,14 @@ public:
   edm::ESHandle<CastorDbService> conditions_;
   const CastorElectronicsMap*    readoutMap_;
 
+  ////---- pedestal parameters from CastorPedestalsRcd, initialized in beginRun
+  edm::ESHandle<CastorPedestals> dbPedestals;
+
+  // pedestal width averaged over capIDs, calculated in beginRun
+  // aware of the difference between index[0..15][0..13] 
+  // and sector/module numeration[1..16][1..14]
+  float        fPedestalNSigmaAverage[14][16];
+
   vector<HcalGenericDetId> listEMap; //electronics Emap
 
 
