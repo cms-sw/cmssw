@@ -16,4 +16,5 @@
   <bin   file="PatBasicFWLiteAnalyzer_PyConfig.cc"></bin>
   <bin   file="PatBasicFWLiteAnalyzer_Selector.cc"></bin>
   <bin   file="PatBasicFWLiteJetAnalyzer_Selector.cc"></bin>
+  <bin   file="PatCleaningExercise.cc"></bin>
 </environment>
