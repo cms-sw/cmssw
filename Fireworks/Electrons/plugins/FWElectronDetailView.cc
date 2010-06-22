@@ -2,7 +2,7 @@
 //
 // Package:     Electrons
 // Class  :     FWElectronDetailView
-// $Id: FWElectronDetailView.cc,v 1.53 2010/06/18 16:57:26 matevz Exp $
+// $Id: FWElectronDetailView.cc,v 1.54 2010/06/22 14:03:10 matevz Exp $
 //
 
 // ROOT includes
@@ -15,6 +15,7 @@
 #include "TGLViewer.h"
 #include "TGLOverlay.h"
 #include "TCanvas.h"
+#include "TLegend.h"
 #include "TEveCaloLegoOverlay.h"
 #include "TRootEmbeddedCanvas.h"
 
@@ -36,7 +37,9 @@
 // constructors and destructor
 //
 FWElectronDetailView::FWElectronDetailView() :
-   m_data(0)
+   m_data(0),
+   m_builder(0),
+   m_legend(0)
 {
 }
 
@@ -79,7 +82,13 @@ FWElectronDetailView::build( const FWModelId &id, const reco::GsfElectron* iElec
    TEveCaloLego* lego = m_builder->build();
    m_data = lego->GetData();
    m_eveScene->AddElement( lego );
-   
+
+   m_legend = new TLegend(0.01, 0.01, 0.99, 0.99, 0, "NDC");
+   m_legend->SetTextSize(0.075);
+   m_legend->SetBorderSize(0);
+   m_legend->SetMargin(0.15);
+   m_legend->SetEntrySeparation(0.05);
+
    // add Electron specific details
    if( iElectron->superCluster().isAvailable() ) {
       addTrackPointsInCaloData( iElectron, lego );
@@ -180,7 +189,12 @@ FWElectronDetailView::setTextInfo( const FWModelId& id, const reco::GsfElectron 
    } else
      latex->DrawLatex( x, y, "Ref to SuperCluster is not available" );
    
-   m_builder->makeLegend( 0.02, y );
+   y = m_builder->makeLegend( 0.02, y );
+   y -= lineH;
+
+   m_legend->SetY2(y);
+   m_legend->Draw();
+   m_legend = 0; // Deleted together with TPad.
 }
 
 void
@@ -222,6 +236,8 @@ FWElectronDetailView::drawCrossHair (const reco::GsfElectron* i, TEveCaloLego *l
       trackpositionAtCalo->SetDepthTest(kFALSE);
       trackpositionAtCalo->SetLineColor(kBlue);
       tList->AddElement(trackpositionAtCalo);
+
+      m_legend->AddEntry(trackpositionAtCalo, "From outermost state", "l");
    }
    //
    // pin position
@@ -248,6 +264,8 @@ FWElectronDetailView::drawCrossHair (const reco::GsfElectron* i, TEveCaloLego *l
       pinposition->SetDepthTest(kFALSE);
       pinposition->SetLineColor(kRed);
       tList->AddElement(pinposition);
+
+      m_legend->AddEntry(pinposition, "From innermost state", "l");
    }
 }
 
@@ -379,6 +397,10 @@ FWElectronDetailView::addSceneInfo(const reco::GsfElectron *i, TEveElementList* 
    scposition->SetDepthTest(kFALSE);
    tList->AddElement(scposition);
 
+   scposition->SetMarkerColor(kBlue);
+   scposition->SetMarkerStyle(2);
+   m_legend->AddEntry(scposition, "Super cluster centroid", "p");
+
    // seed position
    TEveStraightLineSet *seedposition = new TEveStraightLineSet("seed position");
    seedposition->SetTitle("Seed cluster centroid");
@@ -386,11 +408,9 @@ FWElectronDetailView::addSceneInfo(const reco::GsfElectron *i, TEveElementList* 
    if (subdetId == EcalBarrel) {
       x  = i->superCluster()->seed()->position().eta();
       y  = i->superCluster()->seed()->position().phi();
-      seedposition->SetMarkerSize(delta);
    } else if (subdetId == EcalEndcap) {
       x  = i->superCluster()->seed()->position().x();
       y  = i->superCluster()->seed()->position().y();
-      seedposition->SetMarkerSize(1);
    }
    seedposition->AddLine(x-delta,y-delta,z,x+delta,y+delta,z);
    seedposition->AddLine(x-delta,y+delta,z,x+delta,y-delta,z);
@@ -398,6 +418,10 @@ FWElectronDetailView::addSceneInfo(const reco::GsfElectron *i, TEveElementList* 
    seedposition->SetLineWidth(2);
    seedposition->SetDepthTest(kFALSE);
    tList->AddElement(seedposition);
+
+   seedposition->SetMarkerColor(kRed);
+   seedposition->SetMarkerStyle(5);
+   m_legend->AddEntry(seedposition, "Seed cluster centroid", "p");
 
    // electron direction (show it if it's within
    // the area of interest)
@@ -416,9 +440,13 @@ FWElectronDetailView::addSceneInfo(const reco::GsfElectron *i, TEveElementList* 
       }
       eldirection->AddLine(x-delta,y-delta,z,x+delta,y+delta,z);
       eldirection->AddLine(x-delta,y+delta,z,x+delta,y-delta,z);
-      eldirection->SetLineColor(kYellow);
+      eldirection->SetLineColor(kGreen);
       eldirection->SetDepthTest(kFALSE);
       tList->AddElement(eldirection);
+
+      eldirection->SetMarkerColor(kGreen);
+      eldirection->SetMarkerStyle(5);
+      m_legend->AddEntry(eldirection, "Direction at vertex", "p");
    }
 }
 
