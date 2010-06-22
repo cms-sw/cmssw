@@ -2,7 +2,7 @@
 //
 // Package:     Electrons
 // Class  :     FWElectronDetailView
-// $Id: FWElectronDetailView.cc,v 1.54 2010/06/22 14:03:10 matevz Exp $
+// $Id: FWElectronDetailView.cc,v 1.55 2010/06/22 17:02:42 matevz Exp $
 //
 
 // ROOT includes
@@ -169,26 +169,21 @@ FWElectronDetailView::setTextInfo( const FWModelId& id, const reco::GsfElectron 
       // delta phi/eta in
       latex->DrawLatex( x, y, "SuperCluster vs inner state extrapolation" );
       y -= lineH;
-      latex->DrawLatex( x, y,  Form( " #Delta#eta_{in} = %.3f",
-				     electron->deltaEtaSuperClusterTrackAtVtx()) );
-      latex->DrawLatex( x2, y, Form( "#Delta#varphi_{in} = %.3f",
-				     electron->deltaPhiSuperClusterTrackAtVtx()) );
+      latex->DrawLatex(  x, y, TString::Format(" #Delta#eta_{in} = %.3f",   electron->deltaEtaSuperClusterTrackAtVtx()) );
+      latex->DrawLatex( x2, y, TString::Format("#Delta#varphi_{in} = %.3f", electron->deltaPhiSuperClusterTrackAtVtx()) );
       y -= lineH;
 
       // delta phi/eta out
       latex->DrawLatex( x, y, "SeedCluster vs outer state extrapolation" );
       y -= lineH;
-      char dout[128];
-      sprintf( dout, " #Delta#eta_{out} = %.3f",
-	       electron->deltaEtaSeedClusterTrackAtCalo() );
-      latex->DrawLatex( x, y, dout );
-      sprintf( dout, " #Delta#varphi_{out} = %.3f",
-	       electron->deltaPhiSeedClusterTrackAtCalo() );
-      latex->DrawLatex( x2, y, dout );
+
+      latex->DrawLatex(  x, y, TString::Format(" #Delta#eta_{out} = %.3f",    electron->deltaEtaSeedClusterTrackAtCalo()) );
+      latex->DrawLatex( x2, y, TString::Format(" #Delta#varphi_{out} = %.3f", electron->deltaPhiSeedClusterTrackAtCalo()) );
       y -= 2*lineH;
-   } else
+   } else {
      latex->DrawLatex( x, y, "Ref to SuperCluster is not available" );
-   
+   }
+
    y = m_builder->makeLegend( 0.02, y );
    y -= lineH;
 
