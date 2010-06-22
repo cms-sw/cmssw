@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWLegoViewBase.h,v 1.3 2010/06/08 18:43:16 amraktad Exp $
+// $Id: FWLegoViewBase.h,v 1.4 2010/06/18 19:51:24 amraktad Exp $
 //
 
 // system include files
@@ -74,8 +74,9 @@ private:
    void setPixelsPerBin();
    void setFontSizein2D();
    void plotEt();
-   void showScales();
+   void autoScale();
    void updateLegoScale();
+   void showScales();
    
    // ---------- member data --------------------------------
    

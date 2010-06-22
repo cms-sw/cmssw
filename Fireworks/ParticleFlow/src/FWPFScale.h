@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Jun 18 17:01:24 CEST 2010
-// $Id$
+// $Id: FWPFScale.h,v 1.1 2010/06/18 19:51:25 amraktad Exp $
 //
 
 // system include files
@@ -27,28 +27,26 @@
 
 class FWPFScale : public FWViewEnergyScale
 {
-
 public:
    FWPFScale();
    virtual ~FWPFScale();
 
    // ---------- const member functions ---------------------
+   virtual float getVal() const;
 
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
 
-   virtual void  setVal(float s);
-   virtual float getVal() const;
-   virtual void  reset(); 
+   virtual void reset(); 
+   virtual void setVal(float);
 
-private:
+   private:
    FWPFScale(const FWPFScale&); // stop default
    const FWPFScale& operator=(const FWPFScale&); // stop default
 
    // ---------- member data --------------------------------
-   float m_et;
-   float m_pt;
+
 };
 
 

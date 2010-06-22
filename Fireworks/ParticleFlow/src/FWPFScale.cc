@@ -8,14 +8,14 @@
 //
 // Original Author:  
 //         Created:  Fri Jun 18 19:06:47 CEST 2010
-// $Id$
+// $Id: FWPFScale.cc,v 1.1 2010/06/18 19:51:25 amraktad Exp $
 //
 
 // system include files
 
 // user include files
-#include "TMath.h"
 #include "Fireworks/ParticleFlow/src/FWPFScale.h"
+#include "TMath.h"
 
 
 //
@@ -30,8 +30,7 @@
 // constructors and destructor
 //
 FWPFScale::FWPFScale():
-   m_et(0),
-   m_pt(0)
+   FWViewEnergyScale(0.f)
 {
 }
 
@@ -47,25 +46,21 @@ FWPFScale::~FWPFScale()
 void 
 FWPFScale::setVal(float s)
 {
-   // after begin event search max et
-   if (s > m_et) m_et = s;
+   if (s > m_value)
+      m_value = s;
 }
 
 float 
 FWPFScale::getVal() const
 {
-   // lego height is by default TMath::Pi()
-   // as it is scales in lego view
-
-   if (m_et > 0.f)
-      return TMath::Pi()/m_et;
+   if (m_value > 0.f)
+      return 1.f/m_value;
    else 
-      return TMath::Pi();
+      return 1.f;
 }
 
 void
 FWPFScale::reset()
 {
-   m_et = 0.f; 
-   m_pt = 0; 
+   m_value = 0; 
 }

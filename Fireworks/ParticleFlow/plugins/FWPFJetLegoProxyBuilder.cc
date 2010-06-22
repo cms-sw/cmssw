@@ -49,6 +49,10 @@ public:
 
    virtual void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc);
 
+
+   virtual void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
+                                  FWViewType::EType viewType, const FWViewContext* vc);
+
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
@@ -80,22 +84,15 @@ FWPFJetLegoProxyBuilder::build(const reco::PFJet& iData, unsigned int iIndex, TE
    std::vector<reco::PFCandidatePtr > consts = iData.getPFConstituents();
 
    typedef std::vector<reco::PFCandidatePtr >::const_iterator IC;
-   FWViewEnergyScale* scale = vc->getEnergyScale("ParticleFlow");
-   if (!scale)
-   {
-      scale = new FWPFScale();
-      vc->addScale("ParticleFlow", scale);
-   }
+ 
    for(IC ic=consts.begin();
        ic!=consts.end(); ++ic) {
 
       const reco::PFCandidatePtr pfCandPtr = *ic;
-      scale->setVal( pfCandPtr->et());
-      FWLegoEvePFCandidate* evePFCandidate = new FWLegoEvePFCandidate( *pfCandPtr );
+      FWLegoEvePFCandidate* evePFCandidate = new FWLegoEvePFCandidate( *pfCandPtr, vc, context());
 
       evePFCandidate->SetLineWidth(3);
       evePFCandidate->SetMarkerColor(item()->defaultDisplayProperties().color());
-      evePFCandidate->SetMarkerSize(0.01); 
       fireworks::setTrackTypePF(  (*pfCandPtr), evePFCandidate); 
       setupAddElement( evePFCandidate, &oItemHolder );
    }
@@ -104,15 +101,36 @@ FWPFJetLegoProxyBuilder::build(const reco::PFJet& iData, unsigned int iIndex, TE
 void
 FWPFJetLegoProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType::EType type, const FWViewContext* vc)
 {
+   // loop items in product
    for (TEveElement::List_i i = parent->BeginChildren(); i!= parent->EndChildren(); ++i)
    {
       if ((*i)->HasChildren())
       {
-         TEveElement* el = (*i)->FirstChild();  // there is only one child added in this proxy builder
-         FWLegoEvePFCandidate* cand = dynamic_cast<FWLegoEvePFCandidate*> (el);  
-         cand->UpdateScale(vc->getEnergyScale("ParticleFlow")->getVal());
+         // loop elements for the reco::PFJet item
+         for (TEveElement::List_i j = (*i)->BeginChildren(); j != (*i)->EndChildren(); ++j)
+         {
+            FWLegoEvePFCandidate* cand = dynamic_cast<FWLegoEvePFCandidate*> (*j);  
+            cand->updateScale( vc, context());
+         }
       }
    }
+}
+
+void
+FWPFJetLegoProxyBuilder::localModelChanges(const FWModelId& iId, TEveElement* parent,
+                                                  FWViewType::EType viewType, const FWViewContext* vc)
+{
+   // line set marker is not same color as line, have to fix it here
+   if ((parent)->HasChildren())
+   {
+      for (TEveElement::List_i j = parent->BeginChildren(); j != parent->EndChildren(); ++j)
+      {
+         FWLegoEvePFCandidate* cand = dynamic_cast<FWLegoEvePFCandidate*> (*j); 
+         const FWDisplayProperties& dp = item()->modelInfo(iId.index()).displayProperties();
+         cand->SetMarkerColor( dp.color());
+         cand->ElementChanged();
+      }
+   }  
 }
 
 REGISTER_FWPROXYBUILDER(FWPFJetLegoProxyBuilder, reco::PFJet, "PFJet", FWViewType::kLegoBit);

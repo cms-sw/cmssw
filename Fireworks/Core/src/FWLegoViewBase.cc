@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWLegoViewBase.cc,v 1.4 2010/06/18 10:17:15 yana Exp $
+// $Id: FWLegoViewBase.cc,v 1.5 2010/06/18 19:51:24 amraktad Exp $
 //
 
 // system include files
@@ -48,7 +48,7 @@ FWLegoViewBase::FWLegoViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId
    FWEveView(iParent, typeId),
    m_lego(0),
    m_overlay(0),
-   m_plotEt(this,"Plot Et",true),   
+   m_plotEt(this,"Plot Et",true),  
    m_autoRebin(this,"Auto rebin on zoom",false),
    m_pixelsPerBin(this, "Pixels per bin", 10., 1., 20.),
    m_drawValuesIn2D(this,"pixel font size in 2D)",40l,16l,200l),
@@ -58,6 +58,8 @@ FWLegoViewBase::FWLegoViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId
 {
    FWViewEnergyScale* caloScale = new FWViewEnergyScale();
    viewContext()->addScale("Calo", caloScale);
+   viewContext()->setAutoScale(m_legoAutoScale.value());
+   viewContext()->setPlotEt(m_plotEt.value());
 
    viewerGL()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
 
@@ -66,8 +68,8 @@ FWLegoViewBase::FWLegoViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId
    m_drawValuesIn2D.changed_.connect(boost::bind(&FWLegoViewBase::setFontSizein2D,this));
    m_plotEt.changed_.connect(boost::bind(&FWLegoViewBase::plotEt,this));
    m_showScales.changed_.connect(boost::bind(&FWLegoViewBase::showScales,this));
-   m_legoFixedScale.changed_.connect(boost::bind(&FWLegoViewBase::updateLegoScale, this));
-   m_legoAutoScale .changed_.connect(boost::bind(&FWLegoViewBase::updateLegoScale, this));
+   m_legoFixedScale.changed_.connect(boost::bind(&FWLegoViewBase::autoScale, this));
+   m_legoAutoScale.changed_.connect(boost::bind(&FWLegoViewBase::autoScale, this));
 }
 
 FWLegoViewBase::~FWLegoViewBase()
@@ -124,6 +126,25 @@ void
 FWLegoViewBase::plotEt()
 {
    m_lego->SetPlotEt(m_plotEt.value());
+   viewContext()->setPlotEt(m_plotEt.value());
+   updateLegoScale();
+}
+
+void
+FWLegoViewBase::autoScale()
+{
+   m_lego->SetMaxValAbs( m_legoFixedScale.value() );
+   m_lego->SetScaleAbs ( ! m_legoAutoScale.value() );
+   viewContext()->setAutoScale(m_legoAutoScale.value());
+   updateLegoScale();
+}
+
+void
+FWLegoViewBase::updateLegoScale()
+{
+   m_lego->ElementChanged(kTRUE,kTRUE);
+   viewContext()->getEnergyScale("Calo")->setVal(m_lego->GetValToHeight());
+   viewContext()->scaleChanged();
    viewerGL()->RequestDraw();
 }
 
@@ -133,15 +154,6 @@ FWLegoViewBase::showScales()
    if (m_overlay) m_overlay->SetShowScales(m_showScales.value());
    viewerGL()->RequestDraw();
 }
-
-void
-FWLegoViewBase::updateLegoScale()
-{
-   m_lego->SetMaxValAbs( m_legoFixedScale.value() );
-   m_lego->SetScaleAbs ( ! m_legoAutoScale.value() );
-   m_lego->ElementChanged(kTRUE,kTRUE);
-}
-
 //_______________________________________________________________________________
 
 void

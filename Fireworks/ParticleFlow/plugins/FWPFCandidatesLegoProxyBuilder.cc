@@ -18,8 +18,6 @@
 //
 
 
-#include "TEveCaloData.h"
-
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
@@ -73,14 +71,7 @@ FWPFCandidatesLegoProxyBuilder::~FWPFCandidatesLegoProxyBuilder()
 void 
 FWPFCandidatesLegoProxyBuilder::build(const reco::PFCandidate& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* vc)
 {
-   FWViewEnergyScale* scale = vc->getEnergyScale("ParticleFlow");
-   if (!scale)
-   {
-      scale = new FWPFScale();
-      vc->addScale("ParticleFlow", scale);
-   }
-   scale->setVal(iData.et());
-   FWLegoEvePFCandidate* evePFCandidate = new FWLegoEvePFCandidate( iData );
+   FWLegoEvePFCandidate* evePFCandidate = new FWLegoEvePFCandidate( iData , vc, context());
    evePFCandidate->SetMarkerColor(item()->defaultDisplayProperties().color());
    fireworks::setTrackTypePF( iData,  evePFCandidate);
    setupAddElement( evePFCandidate, &oItemHolder );
@@ -95,7 +86,7 @@ FWPFCandidatesLegoProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType
       {
          TEveElement* el = (*i)->FirstChild();  // there is only one child added in this proxy builder
          FWLegoEvePFCandidate* cand = dynamic_cast<FWLegoEvePFCandidate*> (el);  
-         cand->UpdateScale(vc->getEnergyScale("ParticleFlow")->getVal());
+         cand->updateScale(vc, context());
       }
    }
 }
@@ -104,6 +95,7 @@ void
 FWPFCandidatesLegoProxyBuilder::localModelChanges(const FWModelId& iId, TEveElement* parent,
                                                   FWViewType::EType viewType, const FWViewContext* vc)
 {
+   // line set marker is not same color as line, have to fix it here
    if ((parent)->HasChildren())
    {
       TEveElement* el = (parent)->FirstChild();  // we know there is only one child added in this proxy builder
