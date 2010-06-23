@@ -18,6 +18,7 @@
 /// To be called from the ED module's c'tor
 GenericTriggerEventFlag::GenericTriggerEventFlag( const edm::ParameterSet & config )
   : watchDB_( 0 )
+  , dbLabel_( "" )
   , verbose_( 0 )
   , gtDBKey_( "" )
   , l1BeforeMask_( true )
@@ -80,7 +81,10 @@ GenericTriggerEventFlag::GenericTriggerEventFlag( const edm::ParameterSet & conf
       onHlt_ = false;
     }
     if ( ! onDcs_ && ! onGt_ && ! onL1_ && ! onHlt_ ) on_      = false;
-    else                                              watchDB_ = new edm::ESWatcher< AlCaRecoTriggerBitsRcd> ;
+    else {
+      if ( config.exists( "dbLabel" ) ) dbLabel_ = config.getParameter< std::string >( "dbLabel" );
+      watchDB_ = new edm::ESWatcher< AlCaRecoTriggerBitsRcd >;
+    }
   }
 
 }
@@ -452,7 +456,7 @@ std::vector< std::string > GenericTriggerEventFlag::expressionsFromDB( const std
 {
 
   edm::ESHandle< AlCaRecoTriggerBits > logicalExpressions;
-  setup.get< AlCaRecoTriggerBitsRcd >().get( logicalExpressions );
+  setup.get< AlCaRecoTriggerBitsRcd >().get( dbLabel_, logicalExpressions );
   const std::map< std::string, std::string > & expressionMap = logicalExpressions->m_alcarecoToTrig;
   std::map< std::string, std::string >::const_iterator listIter = expressionMap.find( key );
   if ( listIter == expressionMap.end() ) {
