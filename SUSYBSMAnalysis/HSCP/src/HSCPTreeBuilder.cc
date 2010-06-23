@@ -13,7 +13,7 @@
 //
 // Original Author:  Loic QUERTENMONT
 //         Created:  Thu Mar 11 12:19:07 CEST 2010
-// $Id: HSCPTreeBuilder.cc,v 1.3 2010/04/29 12:35:11 querten Exp $
+// $Id: HSCPTreeBuilder.cc,v 1.4 2010/05/12 04:58:29 querten Exp $
 //
 
 
@@ -74,7 +74,7 @@
 
 
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"

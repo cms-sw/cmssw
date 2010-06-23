@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth Cooper,27 1-024,+41227672342,
 //         Created:  Wed Apr 14 14:27:52 CEST 2010
-// $Id: HSCPValidator.cc,v 1.2 2010/04/14 18:08:23 scooper Exp $
+// $Id: HSCPValidator.cc,v 1.3 2010/04/15 12:57:39 carrillo Exp $
 //
 //
 
@@ -249,12 +249,13 @@ void HSCPValidator::makeGenPlots(const edm::Event& iEvent)
       ++(pair.first->second);
     }
 
+    double mag = sqrt(pow((*p)->momentum().px(),2) + pow((*p)->momentum().py(),2) + pow((*p)->momentum().pz(),2) );
     particleEtaHist_->Fill((*p)->momentum().eta());
     particlePhiHist_->Fill((*p)->momentum().phi());
-    particlePHist_->Fill((*p)->momentum().mag());
+    particlePHist_->Fill(mag);
     particlePtHist_->Fill((*p)->momentum().perp());
     particleMassHist_->Fill((*p)->generated_mass());
-    float particleP = (*p)->momentum().mag();
+    float particleP = mag;
     float particleM = (*p)->generated_mass();
     particleBetaHist_->Fill(particleP/sqrt(particleP*particleP+particleM*particleM));
     particleBetaInverseHist_->Fill(sqrt(particleP*particleP+particleM*particleM)/particleP);
