@@ -181,7 +181,7 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
        sigmaee = sigmaee - 0.02*(fabs(eta) - 2.3);   //correct sigmaetaeta dependence on eta in endcap
   }
 
-  if (version_ != "V01" and version_ != "V00") {
+  if (version_ != "V01" or version_ != "V00") {
     edm::Handle<reco::VertexCollection> vtxH;
     e.getByLabel(verticesCollection_, vtxH);
     if (vtxH->size() != 0) {
@@ -434,7 +434,7 @@ double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron ,
        sigmaee = sigmaee - 0.02*(fabs(eta) - 2.3);   //correct sigmaetaeta dependence on eta in endcap
   }
 
-  if (version_ == "V03" and version_ == "V04") {
+  if (version_ == "V03" or version_ == "V04") {
     edm::Handle<reco::BeamSpot> pBeamSpot;
     // uses the same name for the vertex collection to avoid adding more new names
     e.getByLabel(verticesCollection_, pBeamSpot); 
@@ -499,9 +499,9 @@ double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron ,
         result = 2.;
     }
 
-    if ((hOverE > cut[0]) && (sigmaee > cut[1]) && (fabs(deltaPhiIn) > cut[2]) &&
-        (fabs(deltaEtaIn) > cut[3]) && (e25Maxoe55 < cut[4] && e15oe55 < cut[5]) &&
-        (sigmaee < cut[18]) && (eOverP < cut[19] ||  eOverP > cut[20]) ) {
+    if ((hOverE < cut[0]) && (sigmaee < cut[1]) && (fabs(deltaPhiIn) < cut[2]) &&
+        (fabs(deltaEtaIn) < cut[3]) && (e25Maxoe55 > cut[4] && e15oe55 > cut[5]) &&
+        (sigmaee >= cut[18]) && (eOverP > cut[19] &&  eOverP < cut[20]) ) {
       result = result + 1;
     }
 
