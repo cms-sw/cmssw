@@ -40,4 +40,7 @@ private:
 
    void build (const FWModelId &id, const reco::Track*);
    void setTextInfo (const FWModelId &id, const reco::Track*);
+   void makeLegend( void );
+  
+   TLegend             *m_legend;
 };

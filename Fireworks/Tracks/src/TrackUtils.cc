@@ -2,7 +2,7 @@
 //
 // Package:     Tracks
 // Class  :     TrackUtils
-// $Id: TrackUtils.cc,v 1.31 2010/06/21 18:45:19 matevz Exp $
+// $Id: TrackUtils.cc,v 1.32 2010/06/22 10:51:48 matevz Exp $
 //
 
 // system include files
@@ -683,10 +683,19 @@ addSiStripClusters(const FWEventItem* iItem, const reco::Track &t, class TEveEle
                if (PRINT) std::cout<<"SiStripCluster, bary center "<<bc<<", phi "<<point.Phi()<<std::endl;
                TEveStraightLineSet *scposition = new TEveStraightLineSet(title);
                scposition->SetDepthTest(false);
+	       scposition->SetPickable(kTRUE);
                scposition->AddLine(pointA.X(), pointA.Y(), pointA.Z(), pointB.X(), pointB.Y(), pointB.Z());
-               scposition->SetLineColor(&*itc == Cluster ? kGreen : kRed); 
+	       if( &*itc == Cluster )
+	       {
+		  scposition->SetTitle( "Exact SiStripCluster from TrackingRecHit" );
+		  scposition->SetLineColor( kGreen );
+	       }
+	       else
+	       {
+		  scposition->SetTitle( "SiStripCluster on this Det" );
+		  scposition->SetLineColor( kRed );
+	       }
                setupAddElement(scposition, tList, iItem, master, false);
-                
             }
          }
          else
@@ -697,6 +706,8 @@ addSiStripClusters(const FWEventItem* iItem, const reco::Track &t, class TEveEle
             if (PRINT) std::cout<<"SiStripCluster, bary center "<<bc<<", phi "<<point.Phi()<<std::endl;
             TEveStraightLineSet *scposition = new TEveStraightLineSet(title);
             scposition->SetDepthTest(false);
+	    scposition->SetPickable(kTRUE);
+	    scposition->SetTitle("SiStripCluster");
             scposition->AddLine(pointA.X(), pointA.Y(), pointA.Z(), pointB.X(), pointB.Y(), pointB.Z());
             setupAddElement(scposition, tList, iItem, master, true);
          }		
@@ -717,7 +728,9 @@ addSiStripClusters(const FWEventItem* iItem, const reco::Track &t, class TEveEle
                   if (PRINT) std::cout<<"SiStripCluster, bary center "<<bc<<", phi "<<point.Phi()<<std::endl;
                   TEveStraightLineSet *scposition = new TEveStraightLineSet(title);
                   scposition->SetDepthTest(false);
-                  scposition->AddLine(pointA.X(), pointA.Y(), pointA.Z(), pointB.X(), pointB.Y(), pointB.Z());
+		  scposition->SetPickable(kTRUE);
+		  scposition->SetTitle("Lost SiStripCluster");
+		  scposition->AddLine(pointA.X(), pointA.Y(), pointA.Z(), pointB.X(), pointB.Y(), pointB.Z());
                   setupAddElement(scposition, tList, iItem, master, false);
                   scposition->SetLineColor(kRed);
                }
@@ -1333,6 +1346,8 @@ addTrackerHits3D( std::vector<TVector3> &points, class TEveElementList *tList, C
    TEvePointSet* pointSet = new TEvePointSet();
    pointSet->SetMarkerSize(size);
    pointSet->SetMarkerStyle(4);
+   pointSet->SetPickable(kTRUE);
+   pointSet->SetTitle("Pixel Hits");
    pointSet->SetMarkerColor(color);
 		
    for( std::vector<TVector3>::const_iterator it = points.begin(), itEnd = points.end(); it != itEnd; ++it) {

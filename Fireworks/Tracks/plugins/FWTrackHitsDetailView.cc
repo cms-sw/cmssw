@@ -2,6 +2,7 @@
 #include "TGLFontManager.h"
 #include "TEveScene.h"
 #include "TEveManager.h"
+#include "TEveStraightLineSet.h"
 #include "TEveTrack.h"
 #include "TEveTrackPropagator.h"
 #include "TEveTrans.h"
@@ -13,6 +14,7 @@
 #include "TGLViewer.h"
 #include "TCanvas.h"
 #include "TLatex.h"
+#include "TLegend.h"
 
 // CMSSW includes
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -34,7 +36,8 @@ FWTrackHitsDetailView::FWTrackHitsDetailView ():
   m_moduleLabels(0),
   m_hits(0),
   m_slider(0),
-  m_sliderListener()
+  m_sliderListener(),
+  m_legend(0)
 {}
 
 FWTrackHitsDetailView::~FWTrackHitsDetailView ()
@@ -73,11 +76,12 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track)
       action->setToolTip("Click on object in viewer to set camera center.");
       action->activated.connect(sigc::mem_fun(this, &FWTrackHitsDetailView::pickCameraCenter));
    }
-
+   makeLegend();
+   
    TGCompositeFrame* p = (TGCompositeFrame*)m_guiFrame->GetParent();
    p->MapSubwindows();
    p->Layout();
-    
+
    m_modules = new TEveElementList("Modules");
    m_eveScene->AddElement(m_modules);
    m_moduleLabels = new TEveElementList("Modules");
@@ -111,7 +115,7 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track)
    m_moduleLabels->SetRnrChildren(labelsOn);
 
    TEveTrackPropagator* prop = new TEveTrackPropagator();
-   prop->SetMagFieldObj (item()->context().getField(), false);
+   prop->SetMagFieldObj(item()->context().getField(), false);
    prop->SetStepper(TEveTrackPropagator::kRungeKutta);
    prop->SetMaxR(123);
    prop->SetMaxZ(300);
@@ -119,13 +123,13 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track)
    TEveTrack* trk = fireworks::prepareTrack( *track, prop );
    trk->MakeTrack();
    trk->SetLineWidth(2);
+   trk->SetTitle( "Track and its ref states" );
    prop->SetRnrDaughters(kTRUE);
    prop->SetRnrReferences(kTRUE);
    prop->SetRnrDecay(kTRUE);
    prop->SetRnrFV(kTRUE);
    trk->SetMainColor(id.item()->defaultDisplayProperties().color());
    m_eveScene->AddElement(trk);
-
 
 // -- add PixelHits
 //LatB
@@ -167,7 +171,6 @@ FWTrackHitsDetailView::setBackgroundColor(Color_t col)
    }
 }
 
-
 void
 FWTrackHitsDetailView::pickCameraCenter()
 {
@@ -185,24 +188,103 @@ FWTrackHitsDetailView::transparencyChanged(int x)
 }
 
 void
-FWTrackHitsDetailView::setTextInfo(const FWModelId &id, const reco::Track*)
+FWTrackHitsDetailView::setTextInfo(const FWModelId &id, const reco::Track* track)
 {
    m_infoCanvas->cd();
 
-   Double_t fontSize = 0.07;
-   TLatex* latex = new TLatex();
-   latex->SetTextSize(fontSize);
-   Double_t y = 0.9;
-   Double_t x = 0.02;
-   Double_t yStep = 0.04;
-   latex->DrawLatex(x, y, "Track hits info:");
-   y -= yStep;
+   float_t x  = 0.02;
+   float   y  = 0.95;
+
+   TLatex* latex = new TLatex( x, y, "" );
+   const double textsize( 0.07 );
+   latex->SetTextSize( 2*textsize );
+
+   latex->DrawLatex( x, y, id.item()->modelName( id.index() ).c_str() );
+   y -= latex->GetTextSize()*0.6;
+
+   latex->SetTextSize( textsize );
+   float lineH = latex->GetTextSize()*0.6;
+
+   latex->DrawLatex( x, y, Form( " P_{T} = %.1f GeV, #eta = %0.2f, #varphi = %0.2f",
+				 track->pt(), track->eta(), track->phi()) );
+   y -= lineH;
+
+   if( track->charge() > 0 )
+      latex->DrawLatex( x, y, " charge = +1" );
+   else
+      latex->DrawLatex( x, y, " charge = -1" );
+   y -= lineH;
+
+   latex->DrawLatex( x, y, "Track modules:");
+   y -= lineH;
+
+   Double_t pos[4];
+   pos[0] = x+0.05;
+   pos[2] = x+0.20;
+   Double_t boxH = 0.25*textsize;
+
+   pos[1] = y; pos[3] = pos[1] + boxH;
+   FWDetailViewBase::drawCanvasBox( pos, kBlue );
+   latex->DrawLatex( x + 0.25, y, "Module" );
+   y -= lineH;
+
+   pos[1] = y; pos[3] = pos[1] + boxH;
+   FWDetailViewBase::drawCanvasBox( pos, kRed );
+   latex->DrawLatex( x + 0.25, y, "LOST Module" );
+   y -= lineH;
+
+   pos[1] = y; pos[3] = pos[1] + boxH;
+   FWDetailViewBase::drawCanvasBox( pos, 28 );
+   latex->DrawLatex( x + 0.25, y, "INACTIVE Module" );
+   y -= lineH;
+
+   pos[1] = y; pos[3] = pos[1] + boxH;
+   FWDetailViewBase::drawCanvasBox( pos, 218 );
+   latex->DrawLatex( x + 0.25, y, "BAD Module" );
+   y -= lineH;
 
    Float_t r = 0.02;
    drawCanvasDot(x + r, y, r, kCyan);
    y -= r*0.5;
    latex->DrawLatex(x+ 3*r, y, "Camera center");
+   y -= lineH;
+
+   drawCanvasDot(x + r, y, r, kRed);
+   y -= r*0.5;
+   latex->DrawLatex(x+ 3*r, y, "Vertex");
+   y -= lineH;
+
+   drawCanvasDot(x + r, y, r, kGreen);
+   y -= r*0.5;
+   latex->DrawLatex(x+ 3*r, y, "Pixel Hits");
+   y -= lineH;
+
+   m_legend->SetY2(y);
+   m_legend->Draw();
+   m_legend = 0; // Deleted together with TPad.
 }
+
+void
+FWTrackHitsDetailView::makeLegend( void )
+{
+   m_legend = new TLegend( 0.01, 0.01, 0.99, 0.99, 0, "NDC" );
+   m_legend->SetTextSize( 0.07 );
+   m_legend->SetBorderSize( 0 );
+   m_legend->SetMargin( 0.15 );
+   m_legend->SetEntrySeparation( 0.05 );
+
+   TEveStraightLineSet *legend = new TEveStraightLineSet( "siStripCluster" );
+   legend->SetLineColor( kGreen );
+   m_legend->AddEntry( legend, "Exact SiStripCluster from TrackingRecHit", "l");
+
+   TEveStraightLineSet *legend2 = new TEveStraightLineSet( "siStripCluster2" );
+   legend2->SetLineColor( kRed );
+   m_legend->AddEntry( legend2, "SiStripCluster on this Det", "l");
+
+   TEveStraightLineSet *legend3 = new TEveStraightLineSet( "siStripCluster2" );
+   legend3->SetLineColor( kYellow );
+   m_legend->AddEntry( legend3, "Innermost and outermost states", "l");
+}   
 
 void
 FWTrackHitsDetailView::rnrLabels()
