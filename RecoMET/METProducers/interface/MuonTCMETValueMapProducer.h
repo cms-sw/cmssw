@@ -66,7 +66,14 @@ class MuonTCMETValueMapProducer : public edm::EDProducer {
       bool hasValidVertex;
 
       int rfType_;
-
+      int     nLayers_;
+      int     nLayersTight_;
+      int     vertexNdof_;
+      double  vertexZ_;
+      double  vertexRho_;
+      double  vertexMaxDZ_;
+      double  maxpt_eta25_;
+      double  maxpt_eta20_;
       int     maxTrackAlgo_;
       double  minpt_;
       double  maxpt_;
@@ -97,6 +104,9 @@ class MuonTCMETValueMapProducer : public edm::EDProducer {
       bool isGoodCaloMuon( const reco::Muon*, const unsigned int );
       bool isGoodTrack( const reco::Muon* );
       class TVector3 propagateTrack( const reco::Muon* );
+      int nLayers(const reco::TrackRef);
+      bool isValidVertex();
+
   };
 }
 #endif

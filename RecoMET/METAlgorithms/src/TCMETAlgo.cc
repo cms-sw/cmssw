@@ -64,6 +64,19 @@ TCMETAlgo::~TCMETAlgo() {}
 reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& setup, const edm::ParameterSet& iConfig, TH2D* response_function, TH2D* showerRF)
 { 
      // get configuration parameters
+     nLayers_                = iConfig.getParameter<int>      ("nLayers");
+     nLayersTight_           = iConfig.getParameter<int>      ("nLayersTight");
+     vertexNdof_             = iConfig.getParameter<int>      ("vertexNdof");
+     vertexZ_                = iConfig.getParameter<double>   ("vertexZ");
+     vertexRho_              = iConfig.getParameter<double>   ("vertexRho");
+     vertexMaxDZ_            = iConfig.getParameter<double>   ("vertexMaxDZ");
+     maxpt_eta20_            = iConfig.getParameter<double>   ("maxpt_eta20");
+     maxpt_eta25_            = iConfig.getParameter<double>   ("maxpt_eta25");
+     vetoDuplicates_         = iConfig.getParameter<bool>     ("vetoDuplicates");
+     dupMinPt_               = iConfig.getParameter<double>   ("dupMinPt");
+     dupDPhi_                = iConfig.getParameter<double>   ("dupDPhi");
+     dupDCotTh_              = iConfig.getParameter<double>   ("dupDCotTh");
+
      electronVetoCone_       = iConfig.getParameter<bool>  ("electronVetoCone");
      eVetoDeltaR_            = iConfig.getParameter<double>("eVetoDeltaR");
      eVetoDeltaPhi_          = iConfig.getParameter<double>("eVetoDeltaPhi");
@@ -128,13 +141,17 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
      hasValidVertex = false;
      if( usePvtxd0_ ){
        event.getByLabel( vertexInputTag_  , VertexHandle  );
-       
        if( VertexHandle.isValid() ) {
-	 hasValidVertex = true;
-	 vertexColl = VertexHandle.product();
+         vertexColl = VertexHandle.product();
+         hasValidVertex = isValidVertex();
        } 
      }
      
+     if( vetoDuplicates_ ){
+       duplicateTracks_.clear();
+       findDuplicateTracks();
+     }
+
      // get input value maps
      event.getByLabel( muonDepValueMap_ , muon_data_h );
      event.getByLabel( tcmetDepValueMap_, tcmet_data_h );
@@ -248,7 +265,7 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
 
 	  reco::TrackRef trkref( TrackHandle, trk_idx);
 
-	  if( !isGoodTrack( trkref ) ) continue;
+	  if( !isGoodTrack( trkref , trk_idx ) ) continue;
 
           if( electronVetoCone_ && closeToElectron( trkref ) )
             continue;
@@ -291,9 +308,78 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
      math::XYZPointD vtx(0,0,0);
      reco::MET tcmet(TCMETData.sumet, p4, vtx);
      return tcmet;
-
-//------------------------------------------------------------------------
 }
+
+//--------------------------------------------------------------------
+
+void TCMETAlgo::findDuplicateTracks(){
+
+  unsigned int nTracks = TrackHandle->size();
+
+  for( unsigned int trk_idx = 0; trk_idx < nTracks; trk_idx++ ) {
+    
+    if( isMuon( trk_idx ) )                    continue;
+    if( !isCosmics_ && isElectron( trk_idx ) ) continue;
+
+    reco::TrackRef trkref( TrackHandle, trk_idx );
+    if( trkref->pt() < dupMinPt_ ) continue;
+
+    for( unsigned int trk_idx2 = trk_idx + 1 ; trk_idx2 < nTracks; trk_idx2++ ) {
+    
+      if( isMuon( trk_idx2 ) )                    continue;
+      if( !isCosmics_ && isElectron( trk_idx2 ) ) continue;
+      
+      reco::TrackRef trkref2( TrackHandle, trk_idx2 );
+      if( trkref->charge() * trkref2->charge() < 0 ) continue;
+      if( trkref2->pt() < dupMinPt_ )                continue;
+
+      float dphi = fabs( trkref->phi() - trkref2->phi() );
+      if( dphi > TMath::Pi() ) dphi = TMath::TwoPi() - dphi;
+
+      float dcotth = fabs( 1./tan( trkref->theta() ) - 1./tan( trkref2->theta() ) );
+
+      if( dphi   > dupDPhi_    ) continue;
+      if( dcotth > dupDCotTh_  ) continue;
+
+      int iVeto = vetoTrack( trk_idx , trk_idx2 );
+      duplicateTracks_.push_back( iVeto );
+
+    }
+  }
+}
+
+//--------------------------------------------------------------------
+
+int TCMETAlgo::vetoTrack( int i1 , int i2 ){
+
+  //given 2 tracks, decide which one to veto
+  reco::TrackRef t1( TrackHandle, i1 );
+  reco::TrackRef t2( TrackHandle, i2 );
+
+  if     ( t1->numberOfValidHits() < t2->numberOfValidHits() )   return i1;
+  else if( t1->numberOfValidHits() > t2->numberOfValidHits() )   return i2;
+  else if( t1->chi2() / t1->ndof() > t2->chi2() / t2->ndof() )   return i1;
+  else if( t1->chi2() / t1->ndof() < t2->chi2() / t2->ndof() )   return i2;
+  else if( t1->ptError() > t2->ptError() )                       return i1;
+  else if( t1->ptError() < t2->ptError() )                       return i2;
+  else                                                           return i1; 
+
+}
+
+//--------------------------------------------------------------------
+
+bool TCMETAlgo::isValidVertex(){
+
+  if( vertexColl->begin()->isFake()                ) return false;
+  if( vertexColl->begin()->ndof() < vertexNdof_    ) return false;
+  if( fabs( vertexColl->begin()->z() ) > vertexZ_  ) return false;
+  if( sqrt( pow( vertexColl->begin()->x() , 2 ) + pow( vertexColl->begin()->y() , 2 ) ) > vertexRho_ ) return false;
+
+  return true;
+
+}
+
+//--------------------------------------------------------------------
 
 bool TCMETAlgo::closeToElectron( const reco::TrackRef track ){
  
@@ -327,6 +413,8 @@ bool TCMETAlgo::closeToElectron( const reco::TrackRef track ){
   return false;
 }
 
+//--------------------------------------------------------------------
+
 bool TCMETAlgo::nearGoodShowerTrack( const reco::TrackRef track , vector<int> goodShowerTracks ){
   
   //checks if 'track' is within dR < deltaRShower_ of any good shower tracks
@@ -347,6 +435,8 @@ bool TCMETAlgo::nearGoodShowerTrack( const reco::TrackRef track , vector<int> go
   return false;
 }
 
+//--------------------------------------------------------------------
+
 void TCMETAlgo::findGoodShowerTracks(vector<int>& goodShowerTracks){
 
   //stores the indices of tracks which pass quality selection and
@@ -363,7 +453,7 @@ void TCMETAlgo::findGoodShowerTracks(vector<int>& goodShowerTracks){
     
     reco::TrackRef trkref( TrackHandle, trk_idx);
     
-    if( !isGoodTrack( trkref ) ) 
+    if( !isGoodTrack( trkref , trk_idx ) ) 
       continue;
     
     if(nExpectedOuterHits( trkref ) < nMinOuterHits_)
@@ -374,15 +464,28 @@ void TCMETAlgo::findGoodShowerTracks(vector<int>& goodShowerTracks){
   }
 }
 
+//--------------------------------------------------------------------
+
 int TCMETAlgo::nExpectedInnerHits(const reco::TrackRef track){
   const reco::HitPattern& p_inner = track->trackerExpectedHitsInner();
   return p_inner.numberOfHits();
 }
 
+//--------------------------------------------------------------------
+
 int TCMETAlgo::nExpectedOuterHits(const reco::TrackRef track){
   const reco::HitPattern& p_outer = track->trackerExpectedHitsOuter();
   return p_outer.numberOfHits();
 }
+
+//--------------------------------------------------------------------
+
+int TCMETAlgo::nLayers(const reco::TrackRef track){
+  const reco::HitPattern& p = track->hitPattern();
+  return p.trackerLayersWithMeasurement();
+}
+
+//--------------------------------------------------------------------
 
 //determines if track is matched to a muon
 bool TCMETAlgo::isMuon( unsigned int trk_idx ) {
@@ -398,6 +501,8 @@ bool TCMETAlgo::isMuon( unsigned int trk_idx ) {
 
      return false;
 }
+
+//--------------------------------------------------------------------
 
 //determines if track is matched to an "electron-like" object
 bool TCMETAlgo::isElectron( unsigned int trk_idx ) {
@@ -417,9 +522,10 @@ bool TCMETAlgo::isElectron( unsigned int trk_idx ) {
      return false;
 }
 
+//--------------------------------------------------------------------
 
 //determines if track is "good" - i.e. passes quality and kinematic cuts
-bool TCMETAlgo::isGoodTrack( const reco::TrackRef track ) {
+bool TCMETAlgo::isGoodTrack( const reco::TrackRef track , int trk_idx) {
   
      double d0 = 9999.;
 
@@ -430,7 +536,23 @@ bool TCMETAlgo::isGoodTrack( const reco::TrackRef track ) {
 				vertexColl->begin()->y(), 
 				vertexColl->begin()->z());
        
-       d0 = -1 * track->dxy( pvtx );
+       double dz = track->dz( pvtx );
+       
+       if( fabs( dz ) < vertexMaxDZ_ ){
+         
+         //get d0 corrected for pvtx
+         d0 = -1 * track->dxy( pvtx );
+      
+       }
+       else{
+
+         // get d0 corrected for beam spot
+         bool haveBeamSpot = true;
+         if( !beamSpotHandle.isValid() ) haveBeamSpot = false;
+         
+         Point bspot = haveBeamSpot ? beamSpotHandle->position() : Point(0,0,0);
+         d0 = -1 * track->dxy( bspot );
+       }
        
      }else{
        
@@ -443,28 +565,32 @@ bool TCMETAlgo::isGoodTrack( const reco::TrackRef track ) {
      }
      
      if( track->algo() < maxTrackAlgo_ ){
-       //1st 4 tracking iterations (pT-dependent d0 cut)
+       //1st 4 tracking iterations (pT-dependent d0 cut + nlayers cut)
        
        float d0cut = sqrt(pow(d0cuta_,2) + pow(d0cutb_/track->pt(),2)); 
        if(d0cut > maxd0cut_) d0cut = maxd0cut_;
        
-       if( fabs( d0 ) > d0cut ) return false;
+       if( fabs( d0 ) > d0cut )          return false;
+       if( nLayers( track ) < nLayers_ ) return false;
     
      }
      else{
-       //last 2 tracking iterations (tighten chi2, nhits, pt error cuts)
+       //last 2 tracking iterations (tighten chi2, nhits, pt error, nlayers cuts)
      
        if( track->normalizedChi2() > maxchi2_tight_ )             return false;
        if( track->numberOfValidHits() < minhits_tight_ )          return false;
        if( (track->ptError() / track->pt()) > maxPtErr_tight_ )   return false;
+       if( nLayers( track ) < nLayersTight_ )                     return false;
 
      }
 
-     if( track->numberOfValidHits() < minhits_ )         return false;
-     if( track->normalizedChi2() > maxchi2_ )            return false;
-     if( fabs( track->eta() ) > maxeta_ )                return false;
-     if( track->pt() > maxpt_ )                          return false;
-     if( (track->ptError() / track->pt()) > maxPtErr_ )  return false;
+     if( track->numberOfValidHits() < minhits_ )                       return false;
+     if( track->normalizedChi2() > maxchi2_ )                          return false;
+     if( fabs( track->eta() ) > maxeta_ )                              return false;
+     if( track->pt() > maxpt_ )                                        return false;
+     if( (track->ptError() / track->pt()) > maxPtErr_ )                return false;
+     if( fabs( track->eta() ) > 2.5 && track->pt() > maxpt_eta25_ )    return false;
+     if( fabs( track->eta() ) > 2.0 && track->pt() > maxpt_eta20_ )    return false;
 
      int cut = 0;
      for( unsigned int i = 0; i < trkQuality_.size(); i++ ) {
@@ -482,9 +608,17 @@ bool TCMETAlgo::isGoodTrack( const reco::TrackRef track ) {
      }
 
      if( !isGoodAlgo ) return false;
+         
+     if( vetoDuplicates_ ) {
+       for( unsigned int iDup = 0 ; iDup < duplicateTracks_.size() ; iDup++ ){
+         if( trk_idx == duplicateTracks_.at( iDup ) ) return false;
+       } 
+     }   
 
      return true;
 }
+
+//--------------------------------------------------------------------
 
 //correct MET for muon
 
@@ -499,6 +633,8 @@ void TCMETAlgo::correctMETforMuon( const reco::TrackRef track, const unsigned in
      met_y -= ( track->py() - dely );
 }
 
+//--------------------------------------------------------------------
+
 void TCMETAlgo::correctMETforMuon( const unsigned int index ) {
      reco::MuonRef muref( MuonHandle, index);
      reco::MuonMETCorrectionData muCorrData = (muon_data)[muref];
@@ -512,6 +648,8 @@ void TCMETAlgo::correctMETforMuon( const unsigned int index ) {
      met_y -= ( muon->py() - dely );
 }
 
+//--------------------------------------------------------------------
+
 //correct sumEt for muon
 
 void TCMETAlgo::correctSumEtForMuon( const reco::TrackRef track, const unsigned int index ) {
@@ -524,6 +662,8 @@ void TCMETAlgo::correctSumEtForMuon( const reco::TrackRef track, const unsigned 
      sumEt += ( track->pt() - TMath::Sqrt( delx * delx + dely * dely ) );
 }
 
+//--------------------------------------------------------------------
+
 void TCMETAlgo::correctSumEtForMuon( const unsigned int index ) {
      reco::MuonRef muref( MuonHandle, index);
      reco::MuonMETCorrectionData muCorrData = (muon_data)[muref];
@@ -535,6 +675,8 @@ void TCMETAlgo::correctSumEtForMuon( const unsigned int index ) {
 
      sumEt += ( muon->pt() - TMath::Sqrt( delx * delx + dely * dely ) );
 }
+
+//--------------------------------------------------------------------
 
 //correct MET for track
 
@@ -567,6 +709,8 @@ void TCMETAlgo::correctMETforTrack( const reco::TrackRef track , TH2D* rf , cons
      
 }
 
+//--------------------------------------------------------------------
+
 //correct sumEt for track
 
 void TCMETAlgo::correctSumEtForTrack( const reco::TrackRef track  , TH2D* rf , const TVector3 outerTrackPosition) {
@@ -588,6 +732,8 @@ void TCMETAlgo::correctSumEtForTrack( const reco::TrackRef track  , TH2D* rf , c
 	  }
      }
 }
+
+//--------------------------------------------------------------------
 
 //propagate track from vertex to calorimeter face
 

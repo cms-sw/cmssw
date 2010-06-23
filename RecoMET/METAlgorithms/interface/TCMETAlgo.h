@@ -82,6 +82,20 @@ class TCMETAlgo
   edm::InputTag muonDepValueMap_;
   edm::InputTag tcmetDepValueMap_;
   
+  int     nLayers_;
+  int     nLayersTight_;
+  int     vertexNdof_;
+  double  vertexZ_;
+  double  vertexRho_;
+  double  vertexMaxDZ_;
+  double  maxpt_eta25_;
+  double  maxpt_eta20_;
+  bool    vetoDuplicates_;
+  double  dupMinPt_;
+  double  dupDPhi_;
+  double  dupDCotTh_;
+  std::vector<int> duplicateTracks_;
+
   double  d0cuta_;
   double  d0cutb_;
   double  maxd0cut_;
@@ -128,7 +142,7 @@ class TCMETAlgo
 
   bool isMuon( unsigned int );
   bool isElectron( unsigned int ); 
-  bool isGoodTrack( const reco::TrackRef );
+  bool isGoodTrack( const reco::TrackRef , int trk_idx );
   bool closeToElectron( const reco::TrackRef );
   void correctMETforMuon( const reco::TrackRef, const unsigned int );
   void correctSumEtForMuon( const reco::TrackRef, const unsigned int );
@@ -142,7 +156,10 @@ class TCMETAlgo
   bool nearGoodShowerTrack( const reco::TrackRef , vector<int> goodShowerTracks );
   int nExpectedInnerHits(const reco::TrackRef);
   int nExpectedOuterHits(const reco::TrackRef);
-
+  int nLayers(const reco::TrackRef);
+  bool isValidVertex();
+  void findDuplicateTracks();
+  int vetoTrack( int i1 , int i2 );
 };
 
 #endif // TCMETAlgo_h
