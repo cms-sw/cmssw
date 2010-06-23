@@ -17,7 +17,8 @@ EcalBarrelGeometry::EcalBarrelGeometry() :
    _nnxtalPhi     ( 360 ) ,
    _PhiBaskets    ( 18 ) ,
    m_borderMgr    ( 0 ),
-   m_borderPtrVec ( 0 ) 
+   m_borderPtrVec ( 0 ) ,
+   m_radius       ( -1. )
 {
    const int neba[] = {25,45,65,85} ;
    _EtaBaskets = std::vector<int>( &neba[0], &neba[3] ) ;
@@ -450,3 +451,20 @@ EcalBarrelGeometry::newCell( const GlobalPoint& f1 ,
 {
    return ( new TruncatedPyramid( mgr, f1, f2, f3, parm ) ) ;
 }
+
+double 
+EcalBarrelGeometry::avgRadiusXYFrontFaceCenter() const 
+{
+   if( 0 > m_radius )
+   {
+      double sum ( 0 ) ;
+      const CaloSubdetectorGeometry::CellCont& cells ( cellGeometries() ) ;
+      for( unsigned int i ( 0 ) ; i != cells.size() ; ++i )
+      {
+	 sum += cells[i]->getPosition().perp() ;
+      }
+      m_radius = sum/cells.size() ;
+   }
+   return m_radius ;
+}
+

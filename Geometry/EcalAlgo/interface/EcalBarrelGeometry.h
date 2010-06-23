@@ -69,6 +69,8 @@ class EcalBarrelGeometry : public CaloSubdetectorGeometry
       virtual CaloSubdetectorGeometry::DetIdSet getCells( const GlobalPoint& r,
 							  double             dR ) const ;
 
+      double avgRadiusXYFrontFaceCenter() const ;
+
       static std::string hitString() { return "EcalHitsEB" ; }
 
       static std::string producerTag() { return "EcalBarrel" ; }
@@ -111,6 +113,8 @@ class EcalBarrelGeometry : public CaloSubdetectorGeometry
       mutable EZMgrFL<EEDetId>*     m_borderMgr ;
 
       mutable VecOrdListEEDetIdPtr* m_borderPtrVec ;
+
+      mutable double m_radius ;
 };
 
 

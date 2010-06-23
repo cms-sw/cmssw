@@ -10,7 +10,8 @@ EcalEndcapGeometry::EcalEndcapGeometry() :
    _nnmods ( 316 ) ,
    _nncrys ( 25 ) ,
    m_borderMgr ( 0 ),
-   m_borderPtrVec ( 0 )
+   m_borderPtrVec ( 0 ),
+   m_avgZ ( -1 )
 {
 }
 
@@ -457,4 +458,21 @@ EcalEndcapGeometry::newCell( const GlobalPoint& f1 ,
 			     const DetId&       detId   ) 
 {
    return ( new TruncatedPyramid( mgr, f1, f2, f3, parm ) ) ;
+}
+
+
+double 
+EcalEndcapGeometry::avgAbsZFrontFaceCenter() const
+{
+   if( 0 > m_avgZ )
+   {
+      double sum ( 0 ) ;
+      const CaloSubdetectorGeometry::CellCont& cells ( cellGeometries() ) ;
+      for( unsigned int i ( 0 ) ; i != cells.size() ; ++i )
+      {
+	 sum += fabs( cells[i]->getPosition().z() ) ;
+      }
+      m_avgZ = sum/cells.size() ;
+   }
+   return m_avgZ ;
 }

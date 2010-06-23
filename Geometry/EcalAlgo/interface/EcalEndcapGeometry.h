@@ -65,6 +65,8 @@ class EcalEndcapGeometry : public CaloSubdetectorGeometry
 
       virtual void initializeParms() ;
 
+      double avgAbsZFrontFaceCenter() const ; // average over both endcaps. Positive!
+
       static std::string hitString() { return "EcalHitsEE" ; }
 
       static std::string producerTag() { return "EcalEndcap" ; }
@@ -112,6 +114,8 @@ class EcalEndcapGeometry : public CaloSubdetectorGeometry
       mutable EZMgrFL<EBDetId>*     m_borderMgr ;
 
       mutable VecOrdListEBDetIdPtr* m_borderPtrVec ;
+
+      mutable double m_avgZ ;
 } ;
 
 
