@@ -2,7 +2,7 @@
 //
 // Package:     Electrons
 // Class  :     FWElectronDetailView
-// $Id: FWElectronDetailView.cc,v 1.55 2010/06/22 17:02:42 matevz Exp $
+// $Id: FWElectronDetailView.cc,v 1.56 2010/06/22 17:21:24 matevz Exp $
 //
 
 // ROOT includes
@@ -183,6 +183,11 @@ FWElectronDetailView::setTextInfo( const FWModelId& id, const reco::GsfElectron 
    } else {
      latex->DrawLatex( x, y, "Ref to SuperCluster is not available" );
    }
+
+   latex->DrawLatex(x, y, TString::Format(" Tracker driven seed: %s", electron->trackerDrivenSeed() ? "YES" : "NO"));
+   y -= lineH;
+   latex->DrawLatex(x, y, TString::Format(" ECAL driven seed: %s",    electron->ecalDrivenSeed() ? "YES" : "NO"));
+   y -= lineH;
 
    y = m_builder->makeLegend( 0.02, y );
    y -= lineH;
