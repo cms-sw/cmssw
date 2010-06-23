@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: sm_hookscript.pl,v 1.19 2010/02/09 12:31:47 gbauer Exp $
+# $Id: sm_hookscript.pl,v 1.20 2010/06/21 08:48:22 babar Exp $
 ################################################################################
 
 # XXX This should be converted into a POE::Wheel object so it's asynchronous
@@ -9,17 +9,17 @@ use warnings;
 use Getopt::Long;
 
 #define parameters for copy to LOOKAREA
-my $lookfreq   = 20;     #copy cycle: copy every n-th LumiSec
-my $lookhosts  = 16;     #max-number of hosts assumed
-my $lookmodulo   = $lookfreq*$lookhosts;
+my $lookfreq   = 20;                       #copy cycle: copy every n-th LumiSec
+my $lookhosts  = 16;                       #max-number of hosts assumed
+my $lookmodulo = $lookfreq * $lookhosts;
 
 # XXX Should clean this up
-my $filename   =  $ENV{'SM_FILENAME'};
-my $count      =  $ENV{'SM_FILECOUNTER'};
-my $nevents    =  $ENV{'SM_NEVENTS'};;
-my $filesize   =  $ENV{'SM_FILESIZE'};
-my $starttime  =  $ENV{'SM_STARTTIME'};
-my $stoptime   =  $ENV{'SM_STOPTIME'};
+my $filename    = $ENV{'SM_FILENAME'};
+my $count       = $ENV{'SM_FILECOUNTER'};
+my $nevents     = $ENV{'SM_NEVENTS'};
+my $filesize    = $ENV{'SM_FILESIZE'};
+my $starttime   = $ENV{'SM_STARTTIME'};
+my $stoptime    = $ENV{'SM_STOPTIME'};
 my $status      = $ENV{'SM_STATUS'};
 my $runnumber   = $ENV{'SM_RUNNUMBER'};
 my $lumisection = $ENV{'SM_LUMISECTION'};
@@ -43,27 +43,27 @@ my $copydelay   = 3;
 
 # XXX That too
 GetOptions(
-       "FILENAME=s"    => \$filename,
-       "PATHNAME=s"    => \$pathname,
-       "HOSTNAME=s"    => \$hostname,
-       "FILESIZE=i"    => \$filesize,
-       "TYPE=s"        => \$type,
-       "SETUPLABEL=s"  => \$setuplabel,
-       "STREAM=s"      => \$stream,
-       "RUNNUMBER=i"   => \$runnumber,
-       "LUMISECTION=i" => \$lumisection,
-       "NEVENTS=i"     => \$nevents,
-       "APPNAME=s"     => \$appname,
-       "APPVERSION=s"  => \$appversion,
-       "STARTTIME=i"   => \$starttime,
-       "STOPTIME=i"    => \$stoptime,
-       "CHECKSUM=s"    => \$checksum,
-       "DESTINATION=s" => \$destination,
-       "INDEX=s"       => \$index,
-       "HLTKEY=s"      => \$hltkey,
-       "INSTANCE=i"    => \$instance,
-       "FILECOUNTER=i" => \$count,
-          );
+    "FILENAME=s"    => \$filename,
+    "PATHNAME=s"    => \$pathname,
+    "HOSTNAME=s"    => \$hostname,
+    "FILESIZE=i"    => \$filesize,
+    "TYPE=s"        => \$type,
+    "SETUPLABEL=s"  => \$setuplabel,
+    "STREAM=s"      => \$stream,
+    "RUNNUMBER=i"   => \$runnumber,
+    "LUMISECTION=i" => \$lumisection,
+    "NEVENTS=i"     => \$nevents,
+    "APPNAME=s"     => \$appname,
+    "APPVERSION=s"  => \$appversion,
+    "STARTTIME=i"   => \$starttime,
+    "STOPTIME=i"    => \$stoptime,
+    "CHECKSUM=s"    => \$checksum,
+    "DESTINATION=s" => \$destination,
+    "INDEX=s"       => \$index,
+    "HLTKEY=s"      => \$hltkey,
+    "INSTANCE=i"    => \$instance,
+    "FILECOUNTER=i" => \$count,
+);
 
 # XXX and that...
 my $filepathname = "$pathname/$filename";
@@ -71,14 +71,15 @@ my $filepathname = "$pathname/$filename";
 # special treatment for EcalCalibration
 my $doca = $ENV{'SM_CALIB_NFS'};
 
-if ($stream eq "EcalCalibration" || $stream =~ '_EcalNFS$') {
+if ( $stream eq "EcalCalibration" || $stream =~ '_EcalNFS$' ) {
     if ($doca) {
-        my $COPYCOMMAND = "$ENV{SMT0_BASE_DIR}/sm_nfscopy.sh $doca $filepathname $ENV{SM_CALIBAREA} 5";
+        my $COPYCOMMAND =
+"$ENV{SMT0_BASE_DIR}/sm_nfscopy.sh $doca $filepathname $ENV{SM_CALIBAREA} 5";
         my $copyresult = 1;
-        while ($copyresult && $retries) {
-           $copyresult = system($COPYCOMMAND);
-           $retries--;
-           sleep($copydelay);
+        while ( $copyresult && $retries ) {
+            $copyresult = system($COPYCOMMAND);
+            $retries--;
+            sleep($copydelay);
         }
     }
     unlink $filepathname;
@@ -87,17 +88,20 @@ if ($stream eq "EcalCalibration" || $stream =~ '_EcalNFS$') {
     exit 0;
 }
 
-# copy one file per instance to look area 
+# copy one file per instance to look area
 my $dola = $ENV{'SM_LA_NFS'};
 if ($dola) {
-    if ($lumisection%$lookmodulo == (($lookfreq * $instance) + 1)  && $count < 1 ) {
-        my $COPYCOMMAND = "$ENV{SMT0_BASE_DIR}/sm_nfscopy.sh $dola $filepathname $ENV{SM_LOOKAREA} 10";
+    if (   $lumisection % $lookmodulo == ( ( $lookfreq * $instance ) + 1 )
+        && $count < 1 )
+    {
+        my $COPYCOMMAND =
+"$ENV{SMT0_BASE_DIR}/sm_nfscopy.sh $dola $filepathname $ENV{SM_LOOKAREA} 10";
         system($COPYCOMMAND);
     }
 }
 
 # delete if NoTransfer option is set
-if ($stream =~ '_NoTransfer$') {
+if ( $stream =~ '_NoTransfer$' ) {
     $filename = "$pathname/$filename";
     unlink $filepathname;
     $filepathname =~ s/\.dat$/.ind/;

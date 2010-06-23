@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id$
+# $Id: InjectWorker.pl,v 1.43 2010/06/23 08:35:45 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -18,7 +18,7 @@ use DBI;
 use Getopt::Long;
 
 # Configuration
-my $savedelay      = 300; # Frequency to save offset file, in seconds
+my $savedelay = 300;    # Frequency to save offset file, in seconds
 my $log4perlConfig = '/opt/injectworker/log4perl.conf';
 
 ################################################################################
@@ -31,7 +31,7 @@ my $maxhooks    = 3; # Number of parallel hooks
 # global vars
 chomp( my $host = `hostname -s` );
 
-my $heartbeat = 300;                        # Print a heartbeat every 5 minutes
+my $heartbeat = 300;    # Print a heartbeat every 5 minutes
 
 # get options from environment
 # XXX Do we really need to test for existence???
@@ -58,23 +58,25 @@ if ( -f $inpath ) {
     die "Error: this version of InjectWorker only supports path.\n"
       . "You might want to simply: cat yourFile > /\$inpath/\$date-manual.log";
 }
-elsif ( ! -d _ ) {
+elsif ( !-d _ ) {
     die "Error: Specified input path \"$inpath\" does not exist";
 }
-if ( ! -d $logpath ) {
+if ( !-d $logpath ) {
     die "Error: Specified logpath \"$logpath\" does not exist";
 }
-if ( ! -e $config ) {
+if ( !-e $config ) {
     die "Error: Specified config file \"$config\" does not exist";
 }
 
 #########################################################################################
 
 # To rotate logfiles daily
-sub get_logfile { return strftime "$logpath/$_[0]-%Y%m%d-$host.log", localtime time; }
+sub get_logfile {
+    return strftime "$logpath/$_[0]-%Y%m%d-$host.log", localtime time;
+}
 
 # Create logger
-Log::Log4perl->init_and_watch( $log4perlConfig, 'HUP');
+Log::Log4perl->init_and_watch( $log4perlConfig, 'HUP' );
 POE::Component::Log4perl->spawn(
     Alias      => 'logger',
     Category   => 'InjectWorker',
@@ -161,22 +163,25 @@ sub start {
 # lockfile
 sub setup_lock {
     my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
-    my $lockfile = "/tmp/." . basename($0, '.pl') . ".lock";
+    my $lockfile = "/tmp/." . basename( $0, '.pl' ) . ".lock";
     if ( -e $lockfile ) {
         open my $fh, '<', $lockfile
           or die "Error: Lock \"$lockfile\" exists and is unreadable: $!";
         chomp( my $pid = <$fh> );
         close $fh;
         chomp( my $process = `ps -p $pid -o comm=` );
-        if( $process && $0 =~ /$process/ ) {
+        if ( $process && $0 =~ /$process/ ) {
             die "Error: Lock \"$lockfile\" exists, pid $pid (running).";
         }
-        elsif( $process ) {
-            die "Error: Lock \"$lockfile\" exists, pid $pid (running: $process). Stale lock file?";
+        elsif ($process) {
+            die
+"Error: Lock \"$lockfile\" exists, pid $pid (running: $process). Stale lock file?";
         }
         else {
-            $kernel->call( 'logger', warn => "Warning: Lock \"$lockfile\""
-            . "exists, pid $pid (NOT running). Removing stale lock file?" );
+            $kernel->call( 'logger',
+                warn => "Warning: Lock \"$lockfile\""
+                  . "exists, pid $pid (NOT running). Removing stale lock file?"
+            );
         }
     }
     open my $fh, '>', $lockfile or die "Cannot create $lockfile: $!";
@@ -190,7 +195,7 @@ sub setup_lock {
     }
     $SIG{TERM} = $SIG{INT} = $SIG{QUIT} = $SIG{HUP} = sub {
         print STDERR "Caught a SIG$_[0] -- Shutting down\n";
-        exit 0; # Ensure END block is called
+        exit 0;          # Ensure END block is called
     };
 }
 
@@ -224,10 +229,10 @@ sub setup_main_db {
 
     $kernel->call( 'logger',
         debug =>
-          "Setting up DB connection for $heap->{dbi} and $heap->{reader} write access"
+"Setting up DB connection for $heap->{dbi} and $heap->{reader} write access"
     );
     my $failed = 0;
-    $heap->{dbh} = DBI->connect_cached( @$heap{ qw( dbi reader phrase ) } )
+    $heap->{dbh} = DBI->connect_cached( @$heap{qw( dbi reader phrase )} )
       or $failed++;
     if ($failed) {
         $kernel->call( 'logger',
@@ -265,7 +270,7 @@ sub setup_hlt_db {
     # this is for HLT key queries
     $kernel->call( 'logger',
         debug =>
-          "Setting up DB connection for $heap->{hltdbi} and $heap->{hltreader} read access"
+"Setting up DB connection for $heap->{hltdbi} and $heap->{hltreader} read access"
     );
 
     my $failed = 0;
@@ -291,7 +296,8 @@ sub get_hlt_key {
 
     my $runnumber = $heap->{args}->{RUNNUMBER};
     unless ( defined $runnumber ) {
-        $kernel->call( 'logger', error => "Trying to get HLT key without RUNNUMBER!" );
+        $kernel->call( 'logger',
+            error => "Trying to get HLT key without RUNNUMBER!" );
         return;
     }
     my $hltkey = $heap->{hltkeys}->{$runnumber};
@@ -305,16 +311,16 @@ sub get_hlt_key {
         if ($errflag) {
             $kernel->call( 'logger',
                 error => "DB query get HLT KEY for run $runnumber returned "
-                . $heap->{hltHandle}->errstr );
+                  . $heap->{hltHandle}->errstr );
         }
         else {
-            ($heap->{hltkeys}->{$runnumber}) = ($hltkey) =
-                $heap->{hltHandle}->fetchrow_array
-            or $errflag = 1;
+            ( $heap->{hltkeys}->{$runnumber} ) = ($hltkey) =
+                 $heap->{hltHandle}->fetchrow_array
+              or $errflag = 1;
             if ($errflag) {
                 $kernel->call( 'logger',
                     error => "Fetching HLT KEY for run $runnumber returned "
-                    . $heap->{hltHandle}->errstr );
+                      . $heap->{hltHandle}->errstr );
             }
             else {
                 $kernel->call( 'logger',
@@ -323,9 +329,11 @@ sub get_hlt_key {
         }
         $heap->{hltHandle}->finish;
     }
-    unless( defined $hltkey ) {
-        $kernel->call( 'logger', error => "Could not get an HLTKEY for run
-            $runnumber" );
+    unless ( defined $hltkey ) {
+        $kernel->call(
+            'logger', error => "Could not get an HLTKEY for run
+            $runnumber"
+        );
     }
     else {
         $heap->{args}->{COMMENT} = 'HLTKEY=' . $hltkey;
@@ -349,9 +357,10 @@ sub parse_line {
         delete $heap->{args};
         for ( my $i = 0 ; $i < $#args ; $i += 2 ) {
             my $value = $args[ $i + 1 ];
-            for( $args[$i] ) {
+            for ( $args[$i] ) {
                 s/^--//;
-#                s/_//g; # This breaks too many things
+
+                #                s/_//g; # This breaks too many things
                 s/^COUNT$/FILECOUNTER/;
                 s/^DATASET$/SETUPLABEL/;
                 $heap->{args}->{$_} = $value;
@@ -367,7 +376,7 @@ sub update_db {
 
     # Check that all required parameters are there
     my @bind_params;
-    for ( @params) {
+    for (@params) {
         if ( exists $heap->{args}->{$_} ) {
             my $value = $heap->{args}->{$_};
             if (/TIME$/) {
@@ -376,10 +385,12 @@ sub update_db {
             push @bind_params, $value;
         }
         else {
-            $kernel->call( 'logger', error => "$handler failed: Could not obtain parameter $_" );
+            $kernel->call( 'logger',
+                error => "$handler failed: Could not obtain parameter $_" );
             return;
         }
     }
+
     # redirect setuplabel/streams to different destinations according to
     # https://twiki.cern.ch/twiki/bin/view/CMS/SMT0StreamTransferOptions
     my $stream = $heap->{args}->{STREAM};
@@ -389,14 +400,15 @@ sub update_db {
       || $stream =~ '_NoTransfer$';    #skip if NoTransfer option is set
 
     my $errflag = 0;
-    my $rows = $heap->{$handler}->execute( @bind_params ) or $errflag = 1;
+    my $rows = $heap->{$handler}->execute(@bind_params) or $errflag = 1;
 
     $rows = 'undef' unless defined $rows;
     if ($errflag) {
         $kernel->call( 'logger',
-            error => "DB access error (rows: $rows)"
+                error => "DB access error (rows: $rows)"
               . " for $handler when executing ("
-              . join( ', ', @bind_params ) . '), DB returned: '
+              . join( ', ', @bind_params )
+              . '), DB returned: '
               . $heap->{$handler}->errstr );
         return;
     }
@@ -408,8 +420,9 @@ sub update_db {
 
     if ( $rows != 1 ) {
         $kernel->call( 'logger',
-            error => "DB did not return one row for $handler ("
-            . join( ', ', @bind_params ) . "), but $rows" );
+                error => "DB did not return one row for $handler ("
+              . join( ', ', @bind_params )
+              . "), but $rows" );
         return;
     }
 }
@@ -418,11 +431,13 @@ sub insert_file {
     my ( $kernel, $session, $heap ) = @_[ KERNEL, SESSION, HEAP ];
 
     $heap->{args}->{PRODUCER} = 'StorageManager';
-    $kernel->call( $session, 'update_db', insertFile => qw(
-        FILENAME PATHNAME HOSTNAME SETUPLABEL STREAM TYPE
-        PRODUCER APPNAME APPVERSION RUNNUMBER LUMISECTION
-        FILECOUNTER INSTANCE STARTTIME
-        ) );
+    $kernel->call(
+        $session, 'update_db', insertFile => qw(
+          FILENAME PATHNAME HOSTNAME SETUPLABEL STREAM TYPE
+          PRODUCER APPNAME APPVERSION RUNNUMBER LUMISECTION
+          FILECOUNTER INSTANCE STARTTIME
+          )
+    );
 }
 
 sub close_file {
@@ -432,10 +447,13 @@ sub close_file {
     $heap->{args}->{INDFILE} = $heap->{args}->{FILENAME};
     $heap->{args}->{INDFILE} =~ s/\.dat$/\.ind/;
     $heap->{args}->{INDFILESIZE} = -1;
-    $kernel->call( 'logger', debug => "Indfile: $heap->{args}->{PATHNAME}/$heap->{args}->{INDFILE} for $heap->{args}->{FILENAME}" );
+    $kernel->call( 'logger',
+        debug =>
+"Indfile: $heap->{args}->{PATHNAME}/$heap->{args}->{INDFILE} for $heap->{args}->{FILENAME}"
+    );
     if ( $host eq $heap->{args}->{HOSTNAME} ) {
         if ( -e "$heap->{args}->{PATHNAME}/$heap->{args}->{INDFILE}" ) {
-            $heap->{args}->{INDFILESIZE} =  (stat(_))[7];
+            $heap->{args}->{INDFILESIZE} = ( stat(_) )[7];
         }
         elsif ( $nofilecheck == 0 ) {
             $heap->{args}->{INDFILE} = '';
@@ -443,8 +461,8 @@ sub close_file {
     }
 
     $heap->{args}->{DESTINATION} = 'Global';
-    my $setuplabel               = $heap->{args}->{SETUPLABEL};
-    my $stream                   = $heap->{args}->{STREAM};
+    my $setuplabel = $heap->{args}->{SETUPLABEL};
+    my $stream     = $heap->{args}->{STREAM};
     if (   $setuplabel =~ 'TransferTest'
         || $stream =~ '_TransferTest$' )
     {
@@ -457,10 +475,12 @@ sub close_file {
         $heap->{args}->{INDFILESIZE} = -1;
     }
 
-    $kernel->call( $session, 'update_db', closeFile => qw(
-        FILENAME PATHNAME DESTINATION NEVENTS FILESIZE
-        CHECKSUM STOPTIME INDFILE INDFILESIZE COMMENT
-        ) );
+    $kernel->call(
+        $session, 'update_db', closeFile => qw(
+          FILENAME PATHNAME DESTINATION NEVENTS FILESIZE
+          CHECKSUM STOPTIME INDFILE INDFILESIZE COMMENT
+          )
+    );
 
     # Alias index for Tier0
     $heap->{args}->{INDEX} = $heap->{args}->{INDFILE};
@@ -474,16 +494,26 @@ sub close_file {
     # https://twiki.cern.ch/twiki/bin/view/CMS/SMT0StreamTransferOptions
     return
       if $stream eq 'EcalCalibration'
-        || $stream =~ '_EcalNFS$'     #skip EcalCalibration
-        || $stream =~ '_NoTransfer$'    #skip if NoTransfer option is set
-        || $stream =~ '_DontNotifyT0$'; #skip if DontNotify
+          || $stream =~ '_EcalNFS$'          #skip EcalCalibration
+          || $stream =~ '_NoTransfer$'       #skip if NoTransfer option is set
+          || $stream =~ '_DontNotifyT0$';    #skip if DontNotify
 
-    $kernel->post( 'notify', info => join( ' ', 'notifyTier0.pl', grep defined, map {
-        exists $heap->{args}->{$_} ? "--$_=$heap->{args}->{$_}" : undef } 
-                        qw( APPNAME APPVERSION RUNNUMBER LUMISECTION FILENAME
-                        PATHNAME HOSTNAME DESTINATION SETUPLABEL
-                        STREAM TYPE NEVENTS FILESIZE CHECKSUM
-                        HLTKEY INDEX STARTTIME STOPTIME ) ) );
+    $kernel->post(
+        'notify',
+        info => join(
+            ' ',
+            'notifyTier0.pl',
+            grep defined,
+            map {
+                exists $heap->{args}->{$_}
+                  ? "--$_=$heap->{args}->{$_}"
+                  : undef
+              } qw( APPNAME APPVERSION RUNNUMBER LUMISECTION FILENAME
+              PATHNAME HOSTNAME DESTINATION SETUPLABEL
+              STREAM TYPE NEVENTS FILESIZE CHECKSUM
+              HLTKEY INDEX STARTTIME STOPTIME )
+        )
+    );
 
 }
 
@@ -491,54 +521,56 @@ sub start_hook {
     my ( $kernel, $session, $heap ) = @_[ KERNEL, SESSION, HEAP ];
     my $cmd = $ENV{'SM_HOOKSCRIPT'};
     return unless $cmd;
-    my @args = grep defined, map {
-        exists $heap->{args}->{$_} ? "--$_=$heap->{args}->{$_}" : undef } 
-                        qw( APPNAME APPVERSION RUNNUMBER LUMISECTION FILENAME
-                        PATHNAME HOSTNAME DESTINATION SETUPLABEL
-                        STREAM TYPE NEVENTS FILESIZE CHECKSUM INSTANCE
-                        HLTKEY INDEX STARTTIME STOPTIME FILECOUNTER );
+    my @args = grep defined,
+      map { exists $heap->{args}->{$_} ? "--$_=$heap->{args}->{$_}" : undef }
+      qw( APPNAME APPVERSION RUNNUMBER LUMISECTION FILENAME
+      PATHNAME HOSTNAME DESTINATION SETUPLABEL
+      STREAM TYPE NEVENTS FILESIZE CHECKSUM INSTANCE
+      HLTKEY INDEX STARTTIME STOPTIME FILECOUNTER );
     unshift @args, $cmd;
-    $kernel->call( 'logger', debug => "Running hook: " . join( " ", @args) );
+    $kernel->call( 'logger', debug => "Running hook: " . join( " ", @args ) );
     my $task = POE::Wheel::Run->new(
-            Program      => sub { system( @args ); },
-            StdoutFilter => POE::Filter::Line->new(),
-            StderrFilter => POE::Filter::Line->new(),
-            StdoutEvent  => 'hook_result',
-            StderrEvent  => 'hook_error',
-            CloseEvent   => 'hook_done',
+        Program      => sub { system(@args); },
+        StdoutFilter => POE::Filter::Line->new(),
+        StderrFilter => POE::Filter::Line->new(),
+        StdoutEvent  => 'hook_result',
+        StderrEvent  => 'hook_error',
+        CloseEvent   => 'hook_done',
     );
-    $heap->{task}->{$task->ID} = $task;
-    $kernel->sig_child($task->PID, "sig_child");
+    $heap->{task}->{ $task->ID } = $task;
+    $kernel->sig_child( $task->PID, "sig_child" );
 }
 
 # Catch and display information from the hook's STDOUT.
 sub hook_result {
-    my ($kernel, $result) = @_[ KERNEL, ARG0 ];
+    my ( $kernel, $result ) = @_[ KERNEL, ARG0 ];
     $kernel->call( 'logger', debug => "Hook output: $result" );
 }
 
 # Catch and display information from the hook's STDERR.
 sub hook_error {
-    my ($kernel, $result) = @_[ KERNEL, ARG0 ];
+    my ( $kernel, $result ) = @_[ KERNEL, ARG0 ];
     $kernel->call( 'logger', info => "Hook error: $result" );
 }
 
 # The task is done.  Delete the child wheel, and try to start a new
 # task to take its place.
 sub hook_done {
-    my ($kernel, $heap, $task_id) = @_[KERNEL, HEAP, ARG0];
+    my ( $kernel, $heap, $task_id ) = @_[ KERNEL, HEAP, ARG0 ];
     delete $heap->{task}->{$task_id};
-#    $kernel->yield("next_hook"); # For when it will be more clever
+
+    #    $kernel->yield("next_hook"); # For when it will be more clever
 }
 
 # Detect the CHLD signal as each of our children exits.
 sub sig_child {
-    my ($heap, $sig, $pid, $exit_val) = @_[HEAP, ARG0, ARG1, ARG2];
+    my ( $heap, $sig, $pid, $exit_val ) = @_[ HEAP, ARG0, ARG1, ARG2 ];
     my $details = delete $heap->{$pid};
 }
 
 sub got_log_line {
-    my ( $kernel, $session, $heap, $line, $wheelID ) = @_[ KERNEL, SESSION, HEAP, ARG0, ARG1 ];
+    my ( $kernel, $session, $heap, $line, $wheelID ) =
+      @_[ KERNEL, SESSION, HEAP, ARG0, ARG1 ];
     my $file = $heap->{watchlist}{$wheelID};
     $kernel->call( 'logger', debug => "In $file, got line: $line" );
     if ( $line =~ /(?:(insert|close)File)/i ) {
@@ -583,7 +615,7 @@ sub read_changes {
 # Clean shutdown
 sub shutdown {
     my ( $kernel, $heap, $session ) = @_[ KERNEL, HEAP, SESSION ];
-    for ( qw( insertFile closeFile hltHandle ) ) {
+    for (qw( insertFile closeFile hltHandle )) {
         $heap->{$_}->finish;
     }
     for ( dbh dbhlt ) {
@@ -622,11 +654,12 @@ sub read_db_config {
         while (<$fh>) {
             next if /^\s*#/;
             if ( my ( $key, $value ) = /^\s*\$(\w+)\s*=\s*"?(\S+?)"?\s*;/ ) {
-                if( $key =~ /^(?:hlt)?(?:dbi|reader|phrase)$/ ) {
+                if ( $key =~ /^(?:hlt)?(?:dbi|reader|phrase)$/ ) {
                     $heap->{$key} = $value;
                     next;
                 }
-                #$heap->{$key} = $value and next if $key =~ /^(?:hlt)?(?:dbi|reader|phrase)$/;
+
+  #$heap->{$key} = $value and next if $key =~ /^(?:hlt)?(?:dbi|reader|phrase)$/;
                 $kernel->call( 'logger',
                     warning =>
                       "Ignoring unknown configuration variable: $key" );
@@ -671,11 +704,12 @@ sub read_offsets {
     open my $save, '<', $savefile or die "Can't open $savefile: $!";
     while (<$save>) {
         my ( $file, $offset ) = /^(\S+) ([0-9]+)$/;
-        if( -f $file ) {
-            my $fsize = (stat(_))[7];
-            if( $offset != $fsize ) {
+        if ( -f $file ) {
+            my $fsize = ( stat(_) )[7];
+            if ( $offset != $fsize ) {
                 $kernel->call( 'logger',
-                    debug => "File $file has a different size: $offset != $fsize" );
+                    debug =>
+                      "File $file has a different size: $offset != $fsize" );
                 $kernel->yield( read_changes => $file );
             }
             $heap->{offsets}{$file} = $offset;
@@ -684,7 +718,9 @@ sub read_offsets {
         }
         else {
             $kernel->call( 'logger',
-                debug => "Discarding session information for non-existing $file: $offset" );
+                debug =>
+"Discarding session information for non-existing $file: $offset"
+            );
         }
     }
     close $save;
@@ -700,7 +736,9 @@ sub heartbeat {
 # Do something with all POE events which are not caught
 sub handle_default {
     my ( $kernel, $event, $args ) = @_[ KERNEL, ARG0, ARG1 ];
-    print STDERR "WARNING: Session ".$_[SESSION]->ID."caught unhandled event $event with (@$args).";
+    print STDERR "WARNING: Session "
+      . $_[SESSION]->ID
+      . "caught unhandled event $event with (@$args).";
     $kernel->call( 'logger',
             warning => "Session "
           . $_[SESSION]->ID

@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: NotifyWoker.pl,v 1.1 2010/06/01 13:39:09 babar Exp $
+# $Id: NotifyWorker.pl,v 1.2 2010/06/21 08:48:22 babar Exp $
 # --
 # NotifyWoker.pl
 # Monitors a directory, and sends notifications to Tier0
@@ -27,30 +27,30 @@ if ( -f $inpath ) {
     die "Error: this version of NotifyWorker only supports path.\n"
       . "You might want to simply: cat yourFile > /\$inpath/\$date-manual.log";
 }
-elsif ( ! -d _ ) {
+elsif ( !-d _ ) {
     die "Error: Specified input path \"$inpath\" does not exist";
 }
-if ( ! -d $logpath ) {
+if ( !-d $logpath ) {
     die "Error: Specified logpath \"$logpath\" does not exist";
 }
-if ( ! -e $config ) {
+if ( !-e $config ) {
     die "Error: Specified config file \"$config\" does not exist";
 }
 
 #########################################################################################
-chomp( my $host    = `hostname -s` );
-my $offsetfile     = $logpath . '/notify-offset.txt';
-my $heartbeat      = 300; # Print a heartbeat every 5 minutes
-my $savedelay      = 300; # Frequency to save offset file, in seconds
+chomp( my $host = `hostname -s` );
+my $offsetfile = $logpath . '/notify-offset.txt';
+my $heartbeat = 300;    # Print a heartbeat every 5 minutes
+my $savedelay = 300;    # Frequency to save offset file, in seconds
 my $log4perlConfig = '/opt/injectworker/log4perl.conf';
 
-
-
 # To rotate logfiles daily
-sub get_logfile { return strftime "$logpath/$_[0]-%Y%m%d-$host.log", localtime time; }
+sub get_logfile {
+    return strftime "$logpath/$_[0]-%Y%m%d-$host.log", localtime time;
+}
 
 # Create logger
-Log::Log4perl->init_and_watch( $log4perlConfig, 'HUP');
+Log::Log4perl->init_and_watch( $log4perlConfig, 'HUP' );
 POE::Component::Log4perl->spawn(
     Alias      => 'logger',
     Category   => 'NotifyWorker',
@@ -117,22 +117,25 @@ sub start {
 # lockfile
 sub setup_lock {
     my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
-    my $lockfile = "/tmp/." . basename($0, '.pl') . ".lock";
+    my $lockfile = "/tmp/." . basename( $0, '.pl' ) . ".lock";
     if ( -e $lockfile ) {
         open my $fh, '<', $lockfile
           or die "Error: Lock \"$lockfile\" exists and is unreadable: $!";
         chomp( my $pid = <$fh> );
         close $fh;
         chomp( my $process = `ps -p $pid -o comm=` );
-        if( $process && $0 =~ /$process/ ) {
+        if ( $process && $0 =~ /$process/ ) {
             die "Error: Lock \"$lockfile\" exists, pid $pid (running).";
         }
-        elsif( $process ) {
-            die "Error: Lock \"$lockfile\" exists, pid $pid (running: $process). Stale lock file?";
+        elsif ($process) {
+            die
+"Error: Lock \"$lockfile\" exists, pid $pid (running: $process). Stale lock file?";
         }
         else {
-            $kernel->call( 'logger', warn => "Warning: Lock \"$lockfile\""
-            . "exists, pid $pid (NOT running). Removing stale lock file?" );
+            $kernel->call( 'logger',
+                warn => "Warning: Lock \"$lockfile\""
+                  . "exists, pid $pid (NOT running). Removing stale lock file?"
+            );
         }
     }
     open my $fh, '>', $lockfile or die "Cannot create $lockfile: $!";
@@ -146,7 +149,7 @@ sub setup_lock {
     }
     $SIG{TERM} = $SIG{INT} = $SIG{QUIT} = $SIG{HUP} = sub {
         print STDERR "Caught a SIG$_[0] -- Shutting down\n";
-        exit 0; # Ensure END block is called
+        exit 0;          # Ensure END block is called
     };
 }
 
@@ -155,14 +158,17 @@ sub setup_lock {
 
 sub parse_line {
     my ( $kernel, $heap, $line ) = @_[ KERNEL, HEAP, ARG0 ];
-    return unless $line =~ s/^\[[^\]]*] INFO (?:closeFile|notifyTier0)\.pl //; # Remove [date] INFO notifyTier0.pl
+    return
+      unless $line =~ s/^\[[^\]]*] INFO (?:closeFile|notifyTier0)\.pl //
+    ;                    # Remove [date] INFO notifyTier0.pl
     $line =~ s/(START|STOP)TIME/${1}_TIME/g;
     $line =~ s/APP(VERSION|NAME)/APP_$1/g;
     $heap->{args} = $line;
 }
 
 sub got_log_line {
-    my ( $kernel, $session, $heap, $line, $wheelID ) = @_[ KERNEL, SESSION, HEAP, ARG0, ARG1 ];
+    my ( $kernel, $session, $heap, $line, $wheelID ) =
+      @_[ KERNEL, SESSION, HEAP, ARG0, ARG1 ];
     my $file = $heap->{watchlist}{$wheelID};
     $kernel->call( 'logger', debug => "In $file, got line: $line" );
     if ( $line =~ /(?:closeFile|notifyTier0)/i ) {
@@ -205,18 +211,19 @@ sub read_changes {
 sub notify_tier0 {
     my ( $kernel, $heap, $session ) = @_[ KERNEL, HEAP, SESSION ];
     my $t0script = $ENV{'SM_NOTIFYSCRIPT'};
-    if (!defined $t0script) {
-        $t0script = "/nfshome0/cmsprod/TransferTest/injection/sendNotification.sh";
+    if ( !defined $t0script ) {
+        $t0script =
+          "/nfshome0/cmsprod/TransferTest/injection/sendNotification.sh";
     }
     my $notify = $t0script . ' ' . $heap->{args};
     $kernel->call( 'logger', info => "Notifying Tier0: $notify" );
-    system( $notify );
+    system($notify );
 }
 
 # Clean shutdown
 sub shutdown {
     my ( $kernel, $heap, $session ) = @_[ KERNEL, HEAP, SESSION ];
-    for ( qw( insertFile closeFile hltHandle ) ) {
+    for (qw( insertFile closeFile hltHandle )) {
         $heap->{$_}->finish;
     }
     for ( dbh dbhlt ) {
@@ -277,11 +284,12 @@ sub read_offsets {
     open my $save, '<', $offsetfile or die "Can't open $offsetfile: $!";
     while (<$save>) {
         my ( $file, $offset ) = /^(\S+) ([0-9]+)$/;
-        if( -f $file ) {
-            my $fsize = (stat(_))[7];
-            if( $offset != $fsize ) {
+        if ( -f $file ) {
+            my $fsize = ( stat(_) )[7];
+            if ( $offset != $fsize ) {
                 $kernel->call( 'logger',
-                    debug => "File $file has a different size: $offset != $fsize" );
+                    debug =>
+                      "File $file has a different size: $offset != $fsize" );
                 $kernel->yield( read_changes => $file );
             }
             $heap->{offsets}{$file} = $offset;
@@ -290,7 +298,9 @@ sub read_offsets {
         }
         else {
             $kernel->call( 'logger',
-                debug => "Discarding session information for non-existing $file: $offset" );
+                debug =>
+"Discarding session information for non-existing $file: $offset"
+            );
         }
     }
     close $save;
@@ -306,7 +316,9 @@ sub heartbeat {
 # Do something with all POE events which are not caught
 sub handle_default {
     my ( $kernel, $event, $args ) = @_[ KERNEL, ARG0, ARG1 ];
-    print STDERR "WARNING: Session ".$_[SESSION]->ID."caught unhandled event $event with (@$args).";
+    print STDERR "WARNING: Session "
+      . $_[SESSION]->ID
+      . "caught unhandled event $event with (@$args).";
     $kernel->call( 'logger',
             warning => "Session "
           . $_[SESSION]->ID
