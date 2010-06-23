@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Wed Apr 14 18:31:58 CEST 2010
-// $Id: FWViewContext.cc,v 1.3 2010/06/18 19:51:24 amraktad Exp $
+// $Id: FWViewContext.cc,v 1.4 2010/06/22 09:44:34 amraktad Exp $
 //
 
 // system include files
@@ -30,8 +30,8 @@
 // constructors and destructor
 //
 FWViewContext::FWViewContext():
-   m_autoScale(true),
-   m_plotEt(false)
+   m_plotEt(false),
+m_autoScale(true)
 {
 }
 
