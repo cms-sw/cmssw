@@ -75,6 +75,8 @@ class PFJetBenchmark {
   TH1F *hjetsPt;
   TH1F *hjetsEta;
   TH2F *hRPtvsEta ;
+  TH2F *hDEtavsEta ;
+  TH2F *hDPhivsEta ;
   TH2F *hRNeutvsEta ;
   TH2F *hRNEUTvsEta ; 
   TH2F *hRNONLvsEta ;

@@ -81,7 +81,9 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.connect ="sqlite_file:/afs/cern.ch/user/m/malgeri/public/globtag/CRZT210_V1.db"
 #process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
 ###process.GlobalTag.globaltag = "GR09_R_V4::All"
-process.GlobalTag.globaltag = "CRAFT09_R_V9::All"
+###process.GlobalTag.globaltag = "CRAFT09_R_V9::All"
+process.GlobalTag.globaltag = "GR09_R_36X_V3::All"
+
 
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 process.source = cms.Source("PoolSource",
@@ -96,14 +98,19 @@ process.source = cms.Source("PoolSource",
     #'/store/express/BeamCommissioning09/StreamExpress/ALCARECO/v2/000/124/275/42B6AB0A-F5E9-DE11-8A92-001D09F2546F.root',
     #'/store/express/BeamCommissioning09/StreamExpress/ALCARECO/v2/000/124/275/228BA375-F6E9-DE11-8D89-000423D6A6F4.root',
     #'/store/express/BeamCommissioning09/StreamExpress/ALCARECO/v2/000/124/275/026B6140-F9E9-DE11-A392-001D09F28755.root'
-    '/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/275/FA12DE16-FCE9-DE11-8FFE-001D09F24DA8.root',
-    '/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/275/DE3F1AC9-F7E9-DE11-85C9-001D09F24303.root',
-    '/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/275/C83B2F2C-FEE9-DE11-8F2E-001D09F24934.root',
-    '/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/275/A8E551ED-F9E9-DE11-A59E-001D09F29849.root'
+    #'/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/275/FA12DE16-FCE9-DE11-8FFE-001D09F24DA8.root',
+    #'/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/275/DE3F1AC9-F7E9-DE11-85C9-001D09F24303.root',
+    #'/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/275/C83B2F2C-FEE9-DE11-8F2E-001D09F24934.root',
+    #'/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/275/A8E551ED-F9E9-DE11-A59E-001D09F29849.root'
+    #'/store/data/Commissioning10/Cosmics/RAW/v4/000/133/874/F40E13A3-6B4F-DF11-A156-000423D987FC.root',
+    #'/store/data/Commissioning10/Cosmics/RAW/v4/000/133/874/F0F602C6-794F-DF11-B259-001D09F23A84.root'
+    #'/store/data/Commissioning10/MinimumBias/RAW/v4/000/133/877/FAC1761E-A64F-DF11-BD37-003048D2BDD8.root',
+    '/store/data/Commissioning10/MinimumBias/RAW/v4/000/133/877/FADF1B51-BF4F-DF11-9CE2-001D09F24353.root'
+    
 	    )
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(2000)
+    input = cms.untracked.int32(1000)
 )
 
 ##----## Sequences and Paths:
@@ -119,5 +126,6 @@ process.p = cms.Path(
 		     #process.TrackReco*
 		     process.DQMmodules*
 		     process.siPixelP5DQM_source_woTrack*
+		     #process.siPixelP5DQM_source*
 		     process.PixelP5DQMClientWithDataCertification
 		    )

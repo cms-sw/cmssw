@@ -117,7 +117,12 @@ ServicesManager::ServicesManager(ServiceToken iToken,
             for(IntersectionType::iterator itType = intersection.begin(), itTypeEnd = intersection.end();
                 itType != itTypeEnd;
                 ++itType) {
-               type2Maker_->erase(type2Maker_->find(*itType)); 
+               Type2Maker::iterator itFound = type2Maker_->find(*itType);
+               //HLT needs it such that even if a service isn't created we store is PSet if needed
+               if(itFound->second.maker_->saveConfiguration()) {
+                  itFound->second.pset_->addUntrackedParameter("@save_config",true);
+               }
+               type2Maker_->erase(itFound); 
             }
             break;
          case kConfigurationOverrides:

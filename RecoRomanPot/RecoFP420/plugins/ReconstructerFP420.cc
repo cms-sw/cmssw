@@ -18,9 +18,6 @@
 #include "DataFormats/FP420Cluster/interface/TrackCollectionFP420.h"
 #include "DataFormats/FP420Cluster/interface/RecoCollectionFP420.h"
 
-//#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-//#include "HepMC/GenEvent.h"
-
 #include <iostream> 
 using namespace std;
 
@@ -44,8 +41,6 @@ namespace cms
     
     trackerContainers.clear();
     trackerContainers = conf.getParameter<std::vector<std::string> >("ROUList");
-    VtxFlag                = conf.getParameter<int>("VtxFlagGenRec");
-    m_genReadoutName        = conf.getParameter<string>("genReadoutName");
     
     
     // Initialization:
@@ -77,88 +72,6 @@ namespace cms
     using namespace std;   
     
     // Get input
-
-    // Vtx info:
-    
-    // define GEN Vtx of Signal
-    double vtxGenX = 0.;
-    double vtxGenY = 0.;
-    double vtxGenZ = 0.;
-
-    /*
-    if(VtxFlag == 1) {
-      
-      Handle<HepMCProduct> EvtHandle;
-      try{
-	iEvent.getByLabel(m_genReadoutName,EvtHandle);
-      }catch(const Exception&){
-	if(verbosity>0){
-	  std::cout << "no HepMCProduct found"<< std::endl;
-	}
-      }
-      
-      const HepMC::GenEvent* evt = EvtHandle->GetEvent() ;
-      HepMC::GenParticle* proton1 = 0;
-      HepMC::GenParticle* proton2 = 0;	
-      double partmomcut=4000.;
-      double pz1max = 0.;
-      double pz2min = 0.;
-      for ( HepMC::GenEvent::particle_const_iterator p = evt->particles_begin(); p != evt->particles_end(); ++p ) {
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	double pz = (*p)->momentum().pz();
-	//	if (((*p)->pdg_id() == ipdgproton)&&((*p)->status() == 1)&&(pz > partmomcut)){
-	if( pz > partmomcut){
-	  if(pz > pz1max){
-	    proton1 = *p;pz1max=pz;
-	  }
-	} 
-	//	else if(( (*p)->pdg_id() == ipdgproton)&&((*p)->status() == 1)&&(pz < -1.*partmomcut)) {
-	else if(pz < -1.*partmomcut) {
-	  if(pz < pz2min){
-	    proton2 = *p;pz2min=pz;
-	  }
-	}
-	
-      }// for
-      if(proton1 && !proton2){
-	vtxGenX = (proton1)->production_vertex()->position().x();
-	vtxGenY = (proton1)->production_vertex()->position().y();
-	vtxGenZ = (proton1)->production_vertex()->position().z();
-      }
-      else if(proton2 && !proton1){
-	vtxGenX = (proton2)->production_vertex()->position().x();
-	vtxGenY = (proton2)->production_vertex()->position().y();
-	vtxGenZ = (proton2)->production_vertex()->position().z();
-      }
-      else if(proton1 && proton2){
-	if(abs((proton1)->momentum().pz()) >= abs((proton2)->momentum().pz()) ) {
-	  vtxGenX = (proton1)->production_vertex()->position().x();
-	  vtxGenY = (proton1)->production_vertex()->position().y();
-	  vtxGenZ = (proton1)->production_vertex()->position().z();
-	}
-	else {
-	  vtxGenX = (proton2)->production_vertex()->position().x();
-	  vtxGenY = (proton2)->production_vertex()->position().y();
-	  vtxGenZ = (proton2)->production_vertex()->position().z();
-	}
-      }
-    }// if(VtxFlag == 1 
-
-*/
-    
-    double VtxX = 0.;
-    double VtxY = 0.;
-    double VtxZ = 0.;
-    if(VtxFlag == 1) {
-      VtxX = vtxGenX;// mm
-      VtxY = vtxGenY;// mm
-      VtxZ = vtxGenZ;// mm
-    }
-    
-    
-
-
-    // track collection:
     //A
     //   edm::Handle<ClusterCollectionFP420> icf_simhit;
     /*
@@ -209,7 +122,7 @@ namespace cms
     
     //                                RUN now:                                                                                 !!!!!!     
     //   startFP420RecoMain_.run(input, toutput);
-    sFP420RecoMain_->run(input, toutput, VtxX, VtxY, VtxZ);
+    sFP420RecoMain_->run(input, toutput);
     // cout <<"=======           ReconstructerFP420:                    end of produce     " << endl;
     
 	// Step D: write output to file

@@ -13,6 +13,8 @@
 
 
 namespace evf {
+
+  class EvffedFillerRB;
   
   class FUResource
   {
@@ -20,7 +22,7 @@ namespace evf {
     //
     // construction/destruction
     //
-    FUResource(UInt_t fuResourceId,log4cplus::Logger logger);
+    FUResource(UInt_t fuResourceId,log4cplus::Logger, EvffedFillerRB *);
     virtual ~FUResource();
     
     
@@ -34,6 +36,7 @@ namespace evf {
     void   processDataBlock(MemRef_t* bufRef) throw (evf::Exception);
     void   checkDataBlockPayload(MemRef_t* bufRef) throw (evf::Exception);
     void   appendBlockToSuperFrag(MemRef_t* bufRef);
+    void   removeLastAppendedBlockFromSuperFrag();
     
     void   superFragSize()        throw (evf::Exception);
     void   fillSuperFragPayload() throw (evf::Exception);
@@ -108,7 +111,7 @@ namespace evf {
     UInt_t    eventSize_;
     
     evf::FUShmRawCell* shmCell_;
-    
+    EvffedFillerRB *frb_;    
 
     static unsigned int gtpDaqId_;
     static unsigned int gtpEvmId_;

@@ -118,7 +118,7 @@ void TauolaInterface::init( const edm::EventSetup& es )
    return;
 }
 
-HepMC::GenEvent* TauolaInterface::decay( HepMC::GenEvent* evt )
+HepMC::GenEvent* TauolaInterface::decay( const HepMC::GenEvent* evt )
 {
    
    // event record convertor

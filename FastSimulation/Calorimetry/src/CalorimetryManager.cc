@@ -419,10 +419,19 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
   myGrid.setPulledPadSurvivalProbability(pulledPadSurvivalProbability_);
   myGrid.setCrackPadSurvivalProbability(crackPadSurvivalProbability_);
   myGrid.setRadiusFactor(radiusFactor_);
-  // tuned radius factor behind the preshower
+ //maximumdepth dependence of the radiusfactorbehindpreshower
+ // adjusted by Shilpi Jain (Mar-Apr 2010)
   if(onLayer1 || onLayer2)
     {
-      myGrid.setRadiusFactor(radiusFactorBehindPreshower_);
+      float b               = radiusPreshowerCorrections_[0];
+      float a               = radiusFactor_*( 1.+radiusPreshowerCorrections_[1]*radiusPreshowerCorrections_[0] );
+      float maxdepth        = X0depth+theShower.getMaximumOfShower();
+      float newRadiusFactor = radiusFactor_;
+      if(myPart.e()<=250.)
+        {
+	  newRadiusFactor = a/(1.+b*maxdepth); 
+	}
+      
     }
   else // otherwise use the normal radius factor
     {
@@ -1250,7 +1259,7 @@ void CalorimetryManager::readParameters(const edm::ParameterSet& fastCalo) {
   RCFactor_ = ECALparameters.getParameter<double>("RCFactor");
   RTFactor_ = ECALparameters.getParameter<double>("RTFactor");
   radiusFactor_ = ECALparameters.getParameter<double>("RadiusFactor");
-  radiusFactorBehindPreshower_ = ECALparameters.getParameter<double>("RadiusFactorBehindPreshower");
+  radiusPreshowerCorrections_ = ECALparameters.getParameter<std::vector<double> >("RadiusPreshowerCorrections");
   simulatePreshower_ = ECALparameters.getParameter<bool>("SimulatePreshower");
 
   if(gridSize_ <1) gridSize_= 7;

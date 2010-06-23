@@ -27,8 +27,6 @@ SiStripMonitorCluster.TProfTotalNumberOfClusters.subdetswitchon = True
 from DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi import *
 SiStripMonitorTrack.TrackProducer = 'generalTracks'
 SiStripMonitorTrack.Mod_On        = False
-SiStripMonitorTrack.FolderName    = 'Tracking/TrackParameters'
-SiStripMonitorTrack.TH1ClusterStoNCorr.Nbinx = 200
 
 # TrackerMonitorTrack ####
 from DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi import *

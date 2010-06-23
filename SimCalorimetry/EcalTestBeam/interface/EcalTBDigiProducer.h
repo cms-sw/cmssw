@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "SimCalorimetry/CaloSimAlgos/interface/CaloHitRespoNew.h"
+#include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalTDigitizer.h"
 #include "SimGeneral/NoiseGenerators/interface/CorrelatedNoisifier.h"
@@ -74,8 +74,8 @@ private:
   const EEShape theEEShape;
 //TB  const ESShape * theESShape;
 
-  CaloHitRespoNew * theEBResponse;
-  CaloHitRespoNew * theEEResponse;
+  CaloHitResponse * theEBResponse;
+  CaloHitResponse * theEEResponse;
 //TB  CaloHitResponse * theESResponse;
 
   CorrelatedNoisifier<EcalCorrMatrix> * theCorrNoise;

@@ -19,7 +19,7 @@
 // Updated by: Lukas Wehrli
 // for pixel offline DQM 
 //         Created:  
-// $Id: SiPixelClusterSource.h,v 1.16 2010/01/11 16:18:43 merkelp Exp $
+// $Id: SiPixelClusterSource.h,v 1.17 2010/03/10 15:28:33 merkelp Exp $
 
 #include <memory>
 
@@ -97,6 +97,16 @@
        int nBigEvents;
        MonitorElement* bigFpixClusterEventRate;
        int bigEventSize;
+
+  MonitorElement* meClPosLayer1;
+  MonitorElement* meClPosLayer2;
+  MonitorElement* meClPosLayer3;
+  MonitorElement* meClPosDisk1pz;
+  MonitorElement* meClPosDisk2pz;
+  MonitorElement* meClPosDisk1mz;
+  MonitorElement* meClPosDisk2mz;
+
+
 };
 
 #endif

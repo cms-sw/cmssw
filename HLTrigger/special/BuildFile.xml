@@ -1,6 +1,7 @@
 <use   name="root"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/L1TObjects"/>
+<use   name="DataFormats/CSCDigi"/>
 <use   name="DataFormats/CSCRecHit"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/DTDigi"/>
@@ -35,6 +36,5 @@
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="RecoEcal/EgammaClusterAlgos"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
-<use   name="Utilities/Timing"/>
 <use   name="Geometry/EcalAlgo"/>
 <flags   EDM_PLUGIN="1"/>

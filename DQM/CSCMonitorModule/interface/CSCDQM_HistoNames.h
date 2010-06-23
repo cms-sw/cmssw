@@ -260,6 +260,7 @@ namespace h {
   (( EMU_CSC_UNPACKED_FRACT, "CSC_Unpacked_Fract" )) \
   (( EMU_CSC_UNPACKED_WITH_ERRORS, "CSC_Unpacked_with_errors" )) \
   (( EMU_CSC_WO_ALCT, "CSC_wo_ALCT" )) \
+  (( EMU_CSC_STANDBY, "CSC_standby" )) \
   (( EMU_CSC_WO_ALCT_FRACT, "CSC_wo_ALCT_Fract" )) \
   (( EMU_CSC_WO_CFEB, "CSC_wo_CFEB" )) \
   (( EMU_CSC_WO_CFEB_FRACT, "CSC_wo_CFEB_Fract" )) \

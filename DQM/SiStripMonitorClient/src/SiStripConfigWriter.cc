@@ -18,17 +18,15 @@ SiStripConfigWriter::~SiStripConfigWriter() {
 // -- Initialize XML
 // 
 bool SiStripConfigWriter::init(std::string main) {
-  try {
-    xercesc::XMLPlatformUtils::Initialize();
-  }
-  catch (const xercesc::XMLException& toCatch) {
-    std::cout << "Problem to initialise XML !!! " << std::endl;
-    return false;
-  }
+  xercesc::XMLPlatformUtils::Initialize();
+
   xercesc::DOMImplementation* domImpl = xercesc::DOMImplementationRegistry::getDOMImplementation(qtxml::_toDOMS("Range"));
+  if (!domImpl) return false;
   domWriter = (dynamic_cast<xercesc::DOMImplementation*>(domImpl))->createDOMWriter();
+  if (!domWriter) return false;
   domWriter->canSetFeature(xercesc::XMLUni::fgDOMWRTFormatPrettyPrint, true);
   theDoc = domImpl->createDocument(0,qtxml::_toDOMS(main), 0);
+  if (!theDoc) return false;
   theTopElement = theDoc->getDocumentElement();
   return true;
 }

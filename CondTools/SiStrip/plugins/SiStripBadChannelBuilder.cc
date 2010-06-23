@@ -5,9 +5,8 @@
 #include <fstream>
 
 
-SiStripBadChannelBuilder::SiStripBadChannelBuilder(const edm::ParameterSet& iConfig) : ConditionDBWriter<SiStripBadStrip>::ConditionDBWriter<SiStripBadStrip>(iConfig){
+SiStripBadChannelBuilder::SiStripBadChannelBuilder(const edm::ParameterSet& iConfig) : ConditionDBWriter<SiStripBadStrip>(iConfig){
 
-  edm::LogInfo("SiStripBadChannelBuilder") << " ctor ";
   fp_ = iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"));
   printdebug_ = iConfig.getUntrackedParameter<bool>("printDebug",false);
   BadComponentList_ =  iConfig.getUntrackedParameter<Parameters>("BadComponentList");
@@ -15,12 +14,10 @@ SiStripBadChannelBuilder::SiStripBadChannelBuilder(const edm::ParameterSet& iCon
 
 
 SiStripBadChannelBuilder::~SiStripBadChannelBuilder(){
-  edm::LogInfo("SiStripBadChannelBuilder") << " dtor";
 }
 
 void SiStripBadChannelBuilder::algoAnalyze(const edm::Event & event, const edm::EventSetup& iSetup){
   
-  edm::LogInfo("SiStripBadChannelBuilder") <<"SiStripBadChannelBuilder::algoAnalyze called"<<std::endl;
   unsigned int run=event.id().run();
 
   edm::LogInfo("SiStripBadChannelBuilder") << "... creating dummy SiStripBadStrip Data for Run " << run << "\n " << std::endl;

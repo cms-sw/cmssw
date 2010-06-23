@@ -125,6 +125,7 @@ namespace cscdqm {
    * @brief  Process event (Global DQM)
    * @param  e Event object
    * @param  inputTag Tag to search Event Data in
+   * @param  standby HW standby status indicator
    * @return 
    */
   void EventProcessor::processEvent(const edm::Event& e, const edm::InputTag& inputTag) {

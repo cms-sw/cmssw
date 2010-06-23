@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/04/09 17:12:38 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/01/14 14:04:53 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - CERN
  */
 
@@ -15,7 +15,6 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-#include "Utilities/Timing/interface/TimingReport.h"
 #include "MagneticField/Layers/interface/MagVerbosity.h"
 
 //dirty hack
@@ -41,7 +40,6 @@ class MagGeometryAnalyzer : public edm::EDAnalyzer {
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
 
   virtual void endJob() {
-    delete TimingReport::current();
   }
   
  private:

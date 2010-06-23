@@ -35,6 +35,7 @@ namespace evf {
 
   class BUProxy;
   class SMProxy;
+  class EvffedFillerRB;
   
   class FUResourceBroker : public xdaq::Application,
 			   public xdata::ActionListener
@@ -93,6 +94,7 @@ namespace evf {
     void startWatchingWorkLoop() throw (evf::Exception);
     bool watching(toolbox::task::WorkLoop* wl);
     
+    unsigned int instanceNumber() const {return instance_.value_;}
     
   private:
     //
@@ -220,6 +222,10 @@ namespace evf {
     
     // lock
     toolbox::BSem            lock_;
+    EvffedFillerRB          *frb_;
+    
+
+    friend class evf::EvffedFillerRB;
   };
 
 } // namespace evf

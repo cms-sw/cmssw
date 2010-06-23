@@ -23,8 +23,7 @@ void TrackerMapDDDtoID::buildAll(const GeometricDet* iDet){
 
 void TrackerMapDDDtoID::buildAllStep2(const GeometricDet* theTracker){
   
-  std::vector<const GeometricDet*> allDetectors;
-  theTracker->deepComponents(allDetectors);
+  std::vector<const GeometricDet*> allDetectors=theTracker->deepComponents();
   
   //
   // Also build a map! (for slower access)

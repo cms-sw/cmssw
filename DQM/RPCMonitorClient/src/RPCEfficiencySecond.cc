@@ -35,7 +35,7 @@ camilo.carrilloATcern.ch
 
 #include "TH1F.h"
 
-int rollY(std::string shortname,std::vector<std::string> rollNames){
+int RPCEfficiencySecond::rollY(std::string shortname,std::vector<std::string> rollNames){
   int myy=0;
   for(int i=1;i<22;i++){
     //std::cout<<"In map="<<rollNames[i]<<" shortname="<<shortname<<std::endl;
@@ -45,7 +45,7 @@ int rollY(std::string shortname,std::vector<std::string> rollNames){
     }
   }
   if(myy==0){
-    std::cout<<"Problem with "<<shortname<<std::endl;
+    if(debug) std::cout<<"Problem with "<<shortname<<std::endl;
   }
   return myy;
 }

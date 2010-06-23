@@ -25,7 +25,7 @@ InOutConversionTrackFinder::InOutConversionTrackFinder(const edm::EventSetup& es
 						       const edm::ParameterSet& conf ) : ConversionTrackFinder (es,  conf ) 
 { 
 
- theTrajectoryCleaner_ = new TrajectoryCleanerBySharedHits();
+ theTrajectoryCleaner_ = new TrajectoryCleanerBySharedHits(conf);
  
  
  // get the seed cleaner

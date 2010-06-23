@@ -9,7 +9,7 @@
    to access the underlying bits by a string name instead of via an index.
 
   \author Salvatore Rappoccio
-  \version  $Id: strbitset.h,v 1.2 2010/02/10 13:53:49 srappocc Exp $
+  \version  $Id: strbitset.h,v 1.4 2010/04/25 17:06:34 hegner Exp $
 */
 
 
@@ -19,7 +19,7 @@
 #include <iostream>
 #include <fstream>
 
-namespace std {
+namespace pat {
 
 class strbitset {
  public:
@@ -84,13 +84,13 @@ class strbitset {
   }
 
   //! access method const
-  bit_vector::const_reference operator[] ( std::string s) const {
+  bit_vector::const_reference operator[] ( const std::string s) const {
     size_t index = this->index(s);
     return bits_.operator[](index);
   }
 
   //! access method non-const
-  bit_vector::reference operator[] ( std::string s) {
+  bit_vector::reference operator[] ( const std::string s) {
     size_t index = this->index(s);
     return bits_.operator[](index);
   }

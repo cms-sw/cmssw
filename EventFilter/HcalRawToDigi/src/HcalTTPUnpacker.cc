@@ -10,6 +10,8 @@ bool HcalTTPUnpacker::unpack(const HcalHTRData& theData, HcalTTPDigi& theDigi) {
     unsigned int fwVersion = theData.getFirmwareRevision() ;
     unsigned int lPipe = theData.getPipelineLength() ; 
 
+    if (nSamples>8) nSamples=8; // protection in case nSamples is too large
+
     theDigi = HcalTTPDigi(theID,nSamples,nPresamples,fwVersion,algorithm,lPipe) ;
 
     // Get the data pointers

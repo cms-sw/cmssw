@@ -146,19 +146,19 @@ int main(int argc, char* argv[])
   // 
   // The parameters for these can be overridden from the configuration files.
   std::vector<std::string> defaultServices;
-  defaultServices.reserve(5);
+  defaultServices.reserve(6);
   defaultServices.push_back("MessageLogger");
   defaultServices.push_back("InitRootHandlers");
   defaultServices.push_back("AdaptorConfig");
   defaultServices.push_back("EnableFloatingPointExceptions");
   defaultServices.push_back("UnixSignalService");
+  defaultServices.push_back("SiteLocalConfigService");
 
   // These cannot be overridden from the configuration files.
   // An exception will be thrown if any of these is specified there.
   std::vector<std::string> forcedServices;
-  forcedServices.reserve(2);
+  forcedServices.reserve(1);
   forcedServices.push_back("JobReportService");
-  forcedServices.push_back("SiteLocalConfigService");
 
   std::string descString(argv[0]);
   descString += " [options] [--";

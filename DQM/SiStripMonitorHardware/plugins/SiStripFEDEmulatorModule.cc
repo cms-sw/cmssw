@@ -1,6 +1,6 @@
 // Original Author:  Anne-Marie Magnan
 //         Created:  2010/01/21
-// $Id: SiStripFEDEmulatorModule.cc,v 1.1 2010/03/12 19:26:37 amagnan Exp $
+// $Id: SiStripFEDEmulatorModule.cc,v 1.2 2010/03/15 03:33:35 wmtan Exp $
 //
 
 #include <sstream>
@@ -8,6 +8,7 @@
 #include <list>
 #include <algorithm>
 #include <cassert>
+#include <vector>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -106,7 +107,7 @@ namespace sistrip {
 
     if (!byModule_) { //if not by module
       //the medians will be produced by fed id/channel
-      produces<std::map<uint32_t,vector<uint32_t> > >("Medians");
+      produces<std::map<uint32_t,std::vector<uint32_t> > >("Medians");
       produces<edm::DetSetVector<SiStripRawDigi> >("PedestalsOrdered");
       produces<edm::DetSetVector<SiStripProcessedRawDigi> >("NoisesOrdered");
       produces<edm::DetSetVector<SiStripRawDigi> >("PedSubtrDigisOrdered");
@@ -116,7 +117,7 @@ namespace sistrip {
       produces<edm::DetSetVector<SiStripRawDigi> >("ModulePedestals");
       produces<edm::DetSetVector<SiStripProcessedRawDigi> >("ModuleNoises");
       produces<edm::DetSetVector<SiStripRawDigi> >("PedSubtrModuleDigis");
-      produces<std::map<uint32_t,vector<uint32_t> > >("ModuleMedians");
+      produces<std::map<uint32_t,std::vector<uint32_t> > >("ModuleMedians");
       produces<edm::DetSetVector<SiStripRawDigi> >("CMSubtrModuleDigis");
       produces<edm::DetSetVector<SiStripDigi> >("ZSModuleDigis");
     }//end of by module check
@@ -171,7 +172,7 @@ namespace sistrip {
     std::vector< edm::DetSet<SiStripDigi> > zsData;
     
     //this is a map: no reserve/resize
-    std::map<uint32_t,vector<uint32_t> > medsData;
+    std::map<uint32_t,std::vector<uint32_t> > medsData;
 
     edm::DetSetVector<SiStripRawDigi>::const_iterator inputChannel = lInputDigis->begin();
 

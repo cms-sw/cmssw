@@ -178,7 +178,7 @@ void ClusterShapeExtractor::endJob()
 /*****************************************************************************/
 ClusterShapeExtractor::~ClusterShapeExtractor()
 {
-//  delete theClusterShape;
+  delete theClusterShape;
 }
 
 /*****************************************************************************/
@@ -221,17 +221,14 @@ void ClusterShapeExtractor::processRec(const SiPixelRecHit & recHit,
      LocalVector ldir, vector<TH2F *> & histo)
 {
   int part;
-  vector<pair<int,int> > meas;
+  pair<int,int> meas;
   pair<float,float> pred;
  
   if(theClusterShape->getSizes(recHit,ldir, part,meas,pred))
-   if(meas.size() == 1)
-    if(meas.front().first  <= exMax && 
-       meas.front().second <= eyMax)
+    if(meas.first  <= exMax && 
+       meas.second <= eyMax)
     {
-      int i = (part * (exMax + 1) +
-               meas.front().first) * (eyMax + 1) +
-               meas.front().second;
+      int i = (part * (exMax + 1) + meas.first) * (eyMax + 1) + meas.second;
       histo[i]->Fill(pred.first, pred.second);
     }
 }

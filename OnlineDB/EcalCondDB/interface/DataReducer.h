@@ -18,6 +18,7 @@
 // this class is used to reduce the DCS data to a 
 // reasonable amount of offline DB IOVs 
 
+
 template < typename T > 
 class DataReducer
 {
@@ -27,16 +28,41 @@ class DataReducer
   typedef DataReducer<T> self;
   typedef typename std::pair< EcalLogicID, T >  DataItem;
   typedef typename std::map<  EcalLogicID, T >  DataMap ;
-  typedef typename std::list< std::pair< Tm, DataItem > >::iterator iterator;
   typedef typename  std::list< std::pair< Tm, DataMap > >::iterator list_iterator; 
   typedef typename std::map<  EcalLogicID, T >::iterator map_iterator; 
+
+  
+  template < typename U > 
+    class MyData
+    {
+    public:
+      typedef MyData<U> self;
+      bool operator < (const MyData& rhs)
+	{
+	  Tm t1=m_iData.first;
+	  Tm t2=rhs.m_iData.first;
+	  long long diff_time= (t1.microsTime() - t2.microsTime())  ;
+	  return ( diff_time<0 );
+	};
+
+      std::pair< Tm, std::pair< EcalLogicID, U > > m_iData;
+
+    };
+  
+  typedef typename std::list< MyData<T> >::iterator iterator;
+
 
   DataReducer() { m_printout=false; };
   ~DataReducer() {};
 
   static const int TIMELIMIT=60; // the time limit in seconds to consider two events in the same IOV creation
 
-  void setDataList( std::list< std::pair< Tm, DataItem > > _list ){ m_list = _list;};
+  void setDataList( std::list< MyData<T> > _list ){ 
+
+    m_list = _list;
+    m_list.sort();
+
+  };
 
   void getReducedDataList(std::list< std::pair< Tm, DataMap > >* my_new_list) {
     /* *************************************** 
@@ -52,8 +78,8 @@ class DataReducer
     unsigned int s_old=0;
     for ( i=m_list.begin(); i!=m_list.end(); i++){
 
-      Tm t = (*i).first;
-      DataItem d = (*i).second;
+      Tm t = (*i).m_iData.first;
+      DataItem d = (*i).m_iData.second;
       bool new_time_change=true;
 
       DataMap the_data;
@@ -84,7 +110,7 @@ class DataReducer
 	  if(diff_time<0) diff_time=-diff_time;
 	  if( diff_time  < TIMELIMIT ) {
 	    // data change happened at the same moment
-	    // TO BE DONE : add a a check that the state is not equal to the previous one 
+
 	    
 	    new_time_change=false;
 	    // add data to the list
@@ -163,7 +189,8 @@ class DataReducer
 
 
  private:
-  std::list< std::pair< Tm, DataItem >  > m_list;
+  //  std::list< std::pair< Tm, DataItem >  > m_list;
+  std::list< MyData<T>  > m_list;
   bool m_printout;
 };
 

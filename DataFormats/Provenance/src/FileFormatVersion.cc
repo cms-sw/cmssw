@@ -62,6 +62,11 @@ namespace edm {
     return value_ >= 14;
   }
 
+  bool
+  FileFormatVersion::processHistorySameWithinRun() const {
+    return value_ >= 15;
+  }
+
   std::ostream&
   operator<< (std::ostream& os, FileFormatVersion const& ff) {
     os << ff.value();

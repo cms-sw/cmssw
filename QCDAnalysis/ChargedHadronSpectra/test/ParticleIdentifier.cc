@@ -147,7 +147,7 @@ void ParticleIdentifier::analyze
   (const edm::Event& ev, const edm::EventSetup& es)
 {
   // Get associator
-  theHitAssociator = new TrackerHitAssociator::TrackerHitAssociator(ev);
+  theHitAssociator = new TrackerHitAssociator(ev);
   
   // Process ecal rechits
   processEcalRecHits(ev, es);

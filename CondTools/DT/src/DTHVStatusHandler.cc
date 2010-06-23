@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/18 18:53:42 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/12/08 16:12:01 $
+ *  $Revision: 1.5 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -15,15 +15,14 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-//#include "CondTools/DT/interface/DTDBSession.h"
+#include "CondTools/DT/interface/DTDBSession.h"
 #include "CondTools/DT/interface/DTHVAbstractCheck.h"
 #include "CondFormats/DTObjects/interface/DTHVStatus.h"
 #include "CondCore/DBCommon/interface/AuthenticationMethod.h"
-
-#include "CondCore/DBCommon/interface/DbConnection.h"
-#include "CondCore/DBCommon/interface/DbSession.h"
-#include "CondCore/DBCommon/interface/DbTransaction.h"
-
+#include "CondCore/DBCommon/interface/DBSession.h"
+#include "CondCore/DBCommon/interface/Connection.h"
+#include "CondCore/DBCommon/interface/CoralTransaction.h"
+#include "CondCore/DBCommon/interface/SessionConfiguration.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -80,6 +79,19 @@ DTHVStatusHandler::DTHVStatusHandler( const edm::ParameterSet& ps ) :
   std::cout << " PopCon application for DT HV data export "
             << onlineAuthentication
             << std::endl;
+/*
+  minHV = new float[4];
+  maxHV = new float[4];
+  minHV[0] = 3500.0;
+  minHV[1] = 3500.0;
+  minHV[2] = 1700.0;
+  minHV[3] = 1100.0;
+  maxHV[0] = 4000.0;
+  maxHV[1] = 4000.0;
+  maxHV[2] = 2200.0;
+  maxHV[3] = 1600.0;
+  maxCurrent = 3.0;
+*/
   hvChecker = DTHVAbstractCheck::getInstance();
   maxPayload = 1000;
 }
@@ -98,38 +110,66 @@ void DTHVStatusHandler::getNewObjects() {
   std::cout << "get new objects..." << std::endl;
 
 // online DB connection
-  std::cout << "create omds DbConnection" << std::endl;
-  cond::DbConnection* omds_conn = new cond::DbConnection;
-  std::cout << "configure omds DbConnection" << std::endl;
-//  conn->configure( cond::CmsDefaults );
-  omds_conn->configuration().setAuthenticationPath( onlineAuthentication );
-  omds_conn->configure();
-  std::cout << "create omds DbSession" << std::endl;
-  cond::DbSession omds_session = omds_conn->createSession();
-  std::cout << "open omds session" << std::endl;
-  omds_session.open( onlineConnect );
-  std::cout << "start omds transaction" << std::endl;
-  omds_session.transaction().start();
-  std::cout << "create omds coralSession" << std::endl;
-  omds_s_proxy = &( omds_session.coralSession() );
-  std::cout << "" << std::endl;
+
+  cond::DBSession* omds_session;
+  cond::Connection* omds_connect;
+  cond::CoralTransaction* omds_transaction;
+
+  std::cout << "open omds session... " << onlineAuthentication << std::endl;
+
+  omds_session = new cond::DBSession();
+  // to get the username/passwd from $CORAL_AUTH_PATH/authentication.xml
+  omds_session->configuration().setAuthenticationMethod( cond::XML );
+  omds_session->configuration().setAuthenticationPath( onlineAuthentication );
+  // set message level to Error or Debug
+  omds_session->configuration().setMessageLevel( cond::Error );
+//  omds_session->connectionConfiguration().setConnectionRetrialTimeOut( 60 );
+  omds_session->open();
+
+  std::cout << "omds session open, start transaction" << std::endl;
+
+  omds_connect = new cond::Connection( onlineConnect );
+  omds_connect->connect( omds_session );
+  omds_transaction = &( omds_connect->coralTransaction() );
+  omds_transaction->start( true );
+
+  std::cout << "omds transaction started" << std::endl;
+
+  std::cout << "get omds session proxy... " << std::endl;
+  omds_s_proxy = &( omds_transaction->coralSessionProxy() );
+  std::cout << "omds session proxy got" << std::endl;
+  omds_transaction->start( true );
 
 // buffer DB connection
-  std::cout << "create buffer DbConnection" << std::endl;
-  cond::DbConnection* buff_conn = new cond::DbConnection;
-  std::cout << "configure buffer DbConnection" << std::endl;
-//  conn->configure( cond::CmsDefaults );
-  buff_conn->configuration().setAuthenticationPath( onlineAuthentication );
-  buff_conn->configure();
-  std::cout << "create buffer DbSession" << std::endl;
-  cond::DbSession buff_session = buff_conn->createSession();
-  std::cout << "open buffer session" << std::endl;
-  buff_session.open( bufferConnect );
-  std::cout << "start buffer transaction" << std::endl;
-  buff_session.transaction().start();
-  std::cout << "create buffer coralSession" << std::endl;
-  buff_s_proxy = &( buff_session.coralSession() );
+
+  cond::DBSession* buff_session;
+  cond::Connection* buff_connect;
+  cond::CoralTransaction* buff_transaction;
+
+  std::cout << "open buffer session..." << std::endl;
+
+  buff_session = new cond::DBSession();
+  // to get the username/passwd from $CORAL_AUTH_PATH/authentication.xml
+  buff_session->configuration().setAuthenticationMethod( cond::XML );
+  buff_session->configuration().setAuthenticationPath( onlineAuthentication );
+  // set message level to Error or Debug
+  buff_session->configuration().setMessageLevel( cond::Error );
+//  buff_session->connectionConfiguration().setConnectionRetrialTimeOut( 60 );
+  buff_session->open();
+
+  std::cout << "buffer session open, start transaction" << std::endl;
+
+  buff_connect = new cond::Connection( bufferConnect );
+  buff_connect->connect( buff_session );
+  buff_transaction = &( buff_connect->coralTransaction() );
+  buff_transaction->start( false );
+
+  std::cout << "buffer transaction started" << std::endl;
+
+  std::cout << "get buffer session proxy... " << std::endl;
+  buff_s_proxy = &( buff_transaction->coralSessionProxy() );
   std::cout << "buffer session proxy got" << std::endl;
+  buff_transaction->start( false );
 
 // offline info
 
@@ -202,10 +242,11 @@ void DTHVStatusHandler::getNewObjects() {
               << " ( "          << procSince << " )" << std::endl;
   }
 
-  buff_session.transaction().commit();
-  buff_session.close();
-  omds_session.close();
-
+  delete omds_connect;
+  delete omds_session;
+  buff_transaction->commit();
+  delete buff_connect;
+  delete buff_session;
   return;
 
 }
@@ -219,24 +260,10 @@ void DTHVStatusHandler::checkNewData() {
   //to access the lastest payload (Ref is a smart pointer)
   Ref payload = lastPayload();
 
-  std::cout << "check for new data since "
-            << procSince << " "
-            << coralTime( procSince ).total_nanoseconds() << " "
-            << coralTime( procSince ).year(  ) << " "
-            << coralTime( procSince ).month( ) << " "
-            << coralTime( procSince ).day(   ) << " "
-            << coralTime( procSince ).hour(  ) << " "
-            << coralTime( procSince ).minute() << " "
-            << coralTime( procSince ).second() << std::endl;
-  std::cout << "                   until "
-            << procUntil << " "
-            << coralTime( procUntil ).total_nanoseconds() << " "
-            << coralTime( procUntil ).year(  ) << " "
-            << coralTime( procUntil ).month( ) << " "
-            << coralTime( procUntil ).day(   ) << " "
-            << coralTime( procUntil ).hour(  ) << " "
-            << coralTime( procUntil ).minute() << " "
-            << coralTime( procUntil ).second() << std::endl;
+//  unsigned lastIOV = last;
+//  cond::Time_t lastIOV = last;
+//  std::cout << "check for new data since " << lastIOV << std::endl;
+  std::cout << "check for new data since " << procSince << std::endl;
 
   std::set<std::string> lt( omds_s_proxy->nominalSchema().listTables() );
   std::set<std::string>::const_iterator iter = lt.begin();
@@ -637,7 +664,8 @@ void DTHVStatusHandler::createSnapshot() {
 
 
 void DTHVStatusHandler::updateHVStatus() {
-  int missingChannels = recoverSnapshot();
+  std::map<int,timedMeasurement> snapshotValues;
+  int missingChannels = recoverSnapshot( snapshotValues );
   cond::Time_t snapshotTime = recoverLastTime();
   std::cout << " snapshot at " << snapshotTime << " ( "
                                << coralTime( snapshotTime )
@@ -656,6 +684,7 @@ void DTHVStatusHandler::updateHVStatus() {
     return;
   }
   long long int dTime = bwdTime;
+//  long long int dTime = 3600;//43200;
   dTime <<= 32;
   cond::Time_t condUntil = procSince;
   cond::Time_t condSince = condUntil - dTime;
@@ -674,20 +703,23 @@ void DTHVStatusHandler::updateHVStatus() {
               << std::endl;
     if ( condSince >= condUntil    ) break;
     std::cout << "missing... " << missingChannels << std::endl;
-    checkForPeriod( condSince, condUntil, missingChannels, false );
+    checkForPeriod( condSince, condUntil,
+                    snapshotValues, missingChannels, false );
     condUntil = condSince;
     condSince = condUntil - dTime;
   }
 
-  dumpSnapshot( coralTime( procSince ) );
+  dumpSnapshot( coralTime( procSince ), snapshotValues );
 
-  copyHVData();
+  copyHVData( snapshotValues );
+
+  dumpSnapshot( coral::TimeStamp( lastStamp ), snapshotValues );
 
   return;
 }
 
-
-int DTHVStatusHandler::recoverSnapshot() {
+int DTHVStatusHandler::recoverSnapshot( std::map<int,timedMeasurement>&
+                                         snapshotValues ) {
   int missingChannels = 0;
   std::map<int,int>::const_iterator layIter = layerMap.begin();
   std::map<int,int>::const_iterator layIend = layerMap.end();
@@ -746,7 +778,9 @@ cond::Time_t DTHVStatusHandler::recoverLastTime() {
 }
 
 
-void DTHVStatusHandler::dumpSnapshot( const coral::TimeStamp& time ) {
+void DTHVStatusHandler::dumpSnapshot( const coral::TimeStamp& time,
+                                      std::map<int,timedMeasurement>&
+                                      snapshotValues ) {
 
   std::cout << "dump snapshot to buffer db..." << std::endl;
   std::string emptyCondition( "" );
@@ -828,6 +862,8 @@ void DTHVStatusHandler::dumpSnapshot( const coral::TimeStamp& time ) {
 
 int DTHVStatusHandler::checkForPeriod( cond::Time_t condSince,
                                        cond::Time_t condUntil,
+                                       std::map<int,timedMeasurement>&
+                                                snapshotValues,
                                        int& missingChannels,
                                        bool copyOffline ) {
 
@@ -852,18 +888,14 @@ int DTHVStatusHandler::checkForPeriod( cond::Time_t condSince,
   coral::TimeStamp coralSince = coralTime( condSince );
   coral::TimeStamp coralUntil = coralTime( condUntil );
   std::cout << "look for data since "            
-            << coralSince.year(  ) << " "
-            << coralSince.month( ) << " "
-            << coralSince.day(   ) << " "
-            << coralSince.hour(  ) << ":"
-            << coralSince.minute() << ":"
-            << coralSince.second() << " until "
-            << coralUntil.year(  ) << " "
-            << coralUntil.month( ) << " "
-            << coralUntil.day(   ) << " "
-            << coralUntil.hour(  ) << ":"
-            << coralUntil.minute() << ":"
-            << coralUntil.second() << std::endl;
+            << coralSince.year( ) << " "
+            << coralSince.month() << " "
+            << coralSince.day(  ) << " "
+            << coralSince.hour( ) << " until "
+            << coralUntil.year( ) << " "
+            << coralUntil.month() << " "
+            << coralUntil.day(  ) << " "
+            << coralUntil.hour( ) << std::endl;
   timeBindVariableList["since"].data<coral::TimeStamp>() =
                                      coralTime( condSince );
   timeBindVariableList["until"].data<coral::TimeStamp>() =
@@ -907,6 +939,7 @@ int DTHVStatusHandler::checkForPeriod( cond::Time_t condSince,
   }
 
   long long int dTime = minTime;
+//  long long int dTime = 1;
   dTime <<= 32;
   std::cout << "data found in period: " << periodBuffer.size() << std::endl;
   std::map<long long int,channelValue>::const_iterator bufIter =
@@ -928,12 +961,11 @@ int DTHVStatusHandler::checkForPeriod( cond::Time_t condSince,
       nextFound = condTime( mTime );
       if ( changedStatus ) {
         if ( nextFound > timeLimit ) {
-          DTHVStatus* hvStatus = offlineList();
-          tmpContainer.push_back( std::make_pair( hvStatus, lastFound ) );
+          DTHVStatus* hvStatus = offlineList( snapshotValues );
+          m_to_transfer.push_back( std::make_pair( hvStatus, lastFound ) );
           changedStatus = false;
           if ( !( --maxPayload ) ) {
             procUntil = lastFound;
-            std::cout << "max payload number reached" << std::endl;
             break;
           }
         }
@@ -955,8 +987,10 @@ int DTHVStatusHandler::checkForPeriod( cond::Time_t condSince,
 }
 
 
-void DTHVStatusHandler::copyHVData() {
+void DTHVStatusHandler::copyHVData( std::map<int,timedMeasurement>&
+                                         snapshotValues ) {
   long long int dTime = fwdTime;
+//  long long int dTime = 3600;//43200;
   dTime <<= 32;
 
   cond::Time_t condSince = procSince;
@@ -966,20 +1000,13 @@ void DTHVStatusHandler::copyHVData() {
   int dum = 0;
   lastStatus = 0;
   while ( condSince < condUntil ) {
-    checkForPeriod( condSince, condUntil, dum, true );
+    checkForPeriod( condSince, condUntil, snapshotValues, dum, true );
     condSince = condUntil;
     condUntil = condSince + dTime;
     if ( condUntil > procUntil ) condUntil = procUntil;
   }
-  std::cout << "call filterData " << std::endl;
-  filterData();
-  std::cout << "filterData return "
-            << switchOff  << " "
-            << lastFound  << " "
-            << maxPayload << " "
-            << m_to_transfer.size() << std::endl;
-  if ( switchOff || ( ( lastFound != 0 ) && ( maxPayload > 0 ) ) ) {
-    DTHVStatus* hvStatus = offlineList();
+  if ( ( lastFound != 0 ) && ( maxPayload > 0 ) ) {
+    DTHVStatus* hvStatus = offlineList( snapshotValues );
     m_to_transfer.push_back( std::make_pair( hvStatus, lastFound ) );
   }
 
@@ -987,7 +1014,8 @@ void DTHVStatusHandler::copyHVData() {
 }
 
 
-DTHVStatus* DTHVStatusHandler::offlineList() {
+DTHVStatus* DTHVStatusHandler::offlineList(
+            std::map<int,timedMeasurement>& snapshotValues ) {
   DTHVStatus* hv = new DTHVStatus( dataTag );
   std::map<int,timedMeasurement>::const_iterator mapIter =
                                                  snapshotValues.begin();
@@ -1006,12 +1034,7 @@ DTHVStatus* DTHVStatusHandler::offlineList() {
     aliasIter = aliasMap.find( dpId );
     if ( aliasIter == aliasIend ) continue;
     int rawId = aliasIter->second;
-    DTWireId chlId( rawId );
-    int flag = hvChecker->checkCurrentStatus( dpId, rawId, type, value,
-                                              snapshotValues,
-                                              aliasMap, layerMap );
-    if ( !flag ) continue;
-    setFlags( hv, rawId, flag );
+    setFlags( hv, rawId, type, value );
     std::map< int,std::vector<int>* >::const_iterator m_iter =
                                        channelSplit.find( rawId );
     std::map< int,std::vector<int>* >::const_iterator m_iend =
@@ -1020,14 +1043,17 @@ DTHVStatus* DTHVStatusHandler::offlineList() {
       std::vector<int>* cList = m_iter->second;
       std::vector<int>::const_iterator l_iter = cList->begin();
       std::vector<int>::const_iterator l_iend = cList->end();
-      while ( l_iter != l_iend ) setFlags( hv, *l_iter++, flag );
+      while ( l_iter != l_iend ) {
+        setFlags( hv, *l_iter++, type, value );
+      }
     }
   }
   return hv;
 }
 
 
-void DTHVStatusHandler::setFlags( DTHVStatus* hv, int rawId, int flag ) {
+void DTHVStatusHandler::setFlags( DTHVStatus* hv,
+                                  int rawId, int type, float value ) {
   DTWireId chlId( rawId );
   int whe = chlId.wheel     ();
   int sta = chlId.station   ();
@@ -1035,21 +1061,22 @@ void DTHVStatusHandler::setFlags( DTHVStatus* hv, int rawId, int flag ) {
   int qua = chlId.superLayer();
   int lay = chlId.layer     ();
   int l_p = chlId.wire      () - 10;
-  if ( !flag ) return;
+  int chanError = hvChecker->checkCurrentStatus( l_p, type, value );
+  if ( !chanError ) return;
   switch ( l_p ) {
   case 0:
-    setChannelFlag( hv, whe, sta, sec, qua, lay, 0, 'A', flag );
+    setChannelFlag( hv, whe, sta, sec, qua, lay, 0, 'A', chanError );
     break;
   case 1:
-    setChannelFlag( hv, whe, sta, sec, qua, lay, 1, 'A', flag );
+    setChannelFlag( hv, whe, sta, sec, qua, lay, 1, 'A', chanError );
     break;
   case 2:
-    setChannelFlag( hv, whe, sta, sec, qua, lay, 0, 'C', flag );
-    setChannelFlag( hv, whe, sta, sec, qua, lay, 1, 'C', flag );
+    setChannelFlag( hv, whe, sta, sec, qua, lay, 0, 'C', chanError );
+    setChannelFlag( hv, whe, sta, sec, qua, lay, 1, 'C', chanError );
     break;
   case 3:
-    setChannelFlag( hv, whe, sta, sec, qua, lay, 0, 'S', flag );
-    setChannelFlag( hv, whe, sta, sec, qua, lay, 1, 'S', flag );
+    setChannelFlag( hv, whe, sta, sec, qua, lay, 0, 'S', chanError );
+    setChannelFlag( hv, whe, sta, sec, qua, lay, 1, 'S', chanError );
     break;
   }
   return;
@@ -1097,6 +1124,22 @@ void DTHVStatusHandler::setChannelFlag( DTHVStatus* hv,
   return;
 }
 
+/*
+int DTHVStatusHandler::checkCurrentStatus( int part, int type, float value ) {
+  if ( part < 0 ) return 0;
+  if ( part > 3 ) return 0;
+  int status = 0;
+  if ( type == 1 ) {
+    if ( value < minHV[part] ) status += 1;
+    if ( value > maxHV[part] ) status += 2;
+  }
+  if ( type == 2 ) {
+    float maxCurrent = 10.0;
+    if ( value > maxCurrent ) status += 4;
+  }
+  return status;
+}
+*/
 
 int DTHVStatusHandler::checkStatusChange( int chan,
                                           float oldValue, float newValue ) {
@@ -1105,98 +1148,13 @@ int DTHVStatusHandler::checkStatusChange( int chan,
   std::map<int,int>::const_iterator aliasIter = aliasMap.find( dpId );
   std::map<int,int>::const_iterator aliasIend = aliasMap.end();
   if ( aliasIter == aliasIend ) return false;
-  int rawId = aliasIter->second;
-  int oldStatus = hvChecker->checkCurrentStatus( dpId, rawId, type, oldValue,
-                                                 snapshotValues,
-                                                 aliasMap, layerMap );
-  int newStatus = hvChecker->checkCurrentStatus( dpId, rawId, type, newValue,
-                                                 snapshotValues,
-                                                 aliasMap, layerMap );
+  DTWireId chlId( aliasIter->second );
+  int l_p = chlId.wire() - 10;
+  int oldStatus = hvChecker->checkCurrentStatus( l_p, type, oldValue );
+  int newStatus = hvChecker->checkCurrentStatus( l_p, type, newValue );
   if ( newStatus == oldStatus ) return 0;
   if ( newStatus ) return +1;
   return -1;
-}
-
-
-void DTHVStatusHandler::filterData() {
-
-  int maxTime = 100;
-  int maxTtot = 600;
-  int minDiff = 88;
-
-  int iTime = 0;
-  int pTime = 0;
-  int nTime = 0;
-  int iSize;
-  int pSize;
-  int nSize;
-
-  std::vector< std::pair<DTHVStatus*, cond::Time_t> >::const_iterator iter =
-                                                       tmpContainer.begin();
-  std::vector< std::pair<DTHVStatus*, cond::Time_t> >::const_iterator iend =
-                                                       tmpContainer.end();
-  std::vector< std::pair<DTHVStatus*, cond::Time_t> >::const_iterator prev;
-  std::vector< std::pair<DTHVStatus*, cond::Time_t> >::const_iterator next;
-
-  while ( iter != iend ) {
-    switchOff = false;
-    next = iter;
-    prev = next++;
-    if ( next == iend ) next = prev;
-    const DTHVStatus* iPtr = iter->first;
-    const DTHVStatus* pPtr = prev->first;
-    const DTHVStatus* nPtr = next->first;
-    iSize = std::distance( iPtr->begin(), iPtr->end() );
-    pSize = std::distance( pPtr->begin(), pPtr->end() );
-    nSize = std::distance( nPtr->begin(), nPtr->end() );
-    int dtot = nSize - pSize;
-    prev = next;
-    while ( ++next != iend ) {
-      pPtr = prev->first;
-      nPtr = next->first;
-      pSize = std::distance( pPtr->begin(), pPtr->end() );
-      nSize = std::distance( nPtr->begin(), nPtr->end() );
-      int diff = nSize - pSize;
-      iTime = static_cast<int>( ( iter->second >> 32 ) & 0xffffffff );
-      pTime = static_cast<int>( ( prev->second >> 32 ) & 0xffffffff );
-      nTime = static_cast<int>( ( next->second >> 32 ) & 0xffffffff );
-      if ( ( nTime - pTime ) > maxTime ) break;
-      if ( ( nTime - iTime ) > maxTtot ) break;
-      if ( ( dtot * diff ) < 0 ) break;
-      prev = next;
-    }
-    pPtr = prev->first;
-    iSize = std::distance( iPtr->begin(), iPtr->end() );
-    pSize = std::distance( pPtr->begin(), pPtr->end() );
-    dtot = pSize - iSize;
-    int dist = pTime - iTime;
-    if ( ( dtot >  minDiff ) &&
-         ( dist <  maxTtot ) ) {
-      std::cout << "  ******** SWITCH ON "
-                << std::distance( iter, prev ) << " "
-                << iTime << " " << pTime << std::endl;
-      m_to_transfer.push_back( std::make_pair( prev->first, prev->second ) );
-      while ( iter != prev ) delete ( iter++->first );
-    }
-    if ( ( dtot < -minDiff ) &&
-         ( dist <  maxTtot ) ) {
-      std::cout << "  ******** SWITCH OFF "
-                << std::distance( iter, prev ) << " "
-                << iTime << " " << pTime << std::endl;
-      m_to_transfer.push_back( std::make_pair( prev->first, iter->second ) );
-      switchOff = true;
-      while ( iter != prev ) delete ( iter++->first );
-    }
-    if ( ( ( dtot >= -minDiff ) && ( dtot <= minDiff ) ) ||
-         ( dist >= maxTtot ) ) {
-      while ( iter != next ) {
-        const std::pair<DTHVStatus*, cond::Time_t>& entry = *iter++;
-        m_to_transfer.push_back( std::make_pair( entry.first, entry.second ) );
-      }
-    }
-    iter = next;
-  }
-
 }
 
 

@@ -43,6 +43,8 @@ namespace edm {
     Hash(Hash<I> const&);
     Hash<I> const& operator=(Hash<I> const& iRHS);
 
+    void reset();
+
     // For now, just check the most basic: a default constructed
     // ParameterSetID is not valid. This is very crude: we are
     // assuming that nobody created a ParameterSetID from an empty
@@ -92,9 +94,7 @@ namespace edm {
 
   template <int I>
   inline
-  Hash<I>::Hash() : hash_() {
-    hash_detail::fixup_(hash_);
-  }
+  Hash<I>::Hash() : hash_(detail::InvalidHash()) {}
 
   template <int I>
   inline
@@ -112,9 +112,16 @@ namespace edm {
   inline
   Hash<I> const& 
   Hash<I>::operator=(Hash<I> const& iRHS) {
-    hash_=iRHS.hash_;
+    hash_ = iRHS.hash_;
     hash_detail::fixup_(hash_);
     return *this;
+  }
+  
+  template <int I>
+  inline
+  void 
+  Hash<I>::reset() {
+    hash_ = detail::InvalidHash();
   }
   
   template <int I>

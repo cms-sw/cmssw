@@ -270,8 +270,9 @@ void ZDCMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& event
   bool digiOK_   = true;
   bool zdchitOK_ = true;
 
-  edm::Handle<HcalUnpackerReport> report;  
-  if (!(e.getByLabel(inputLabelDigi_,report)))
+  edm::Handle<HcalUnpackerReport> report; 
+  e.getByLabel(inputLabelDigi_,report);
+  if (!report.isValid())
     {
       rawOK_=false;
       edm::LogWarning("ZDCMonitorModule")<<" Unpacker Report Digi Collection "<<inputLabelDigi_<<" not available";
@@ -333,11 +334,12 @@ void ZDCMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& event
   ///////////////////////////////////////////////////////////////////////////////////////////
   // try to get digis
   edm::Handle<ZDCDigiCollection> zdc_digi;
-  if (!(e.getByLabel(inputLabelDigi_,zdc_digi)))
+  e.getByLabel(inputLabelDigi_,zdc_digi);
+  if (!zdc_digi.isValid())
     {
       digiOK_=false;
       if (debug_>1) std::cout <<"<ZDCMonitorModule> COULDN'T GET ZDC DIGI"<<std::endl;
-      //edm::LogWarning("HcalMonitorModule")<< inputLabelDigi_<<" zdc_digi not available";
+      //edm::LogWarning("ZDCMonitorModule")<< inputLabelDigi_<<" zdc_digi not available";
     }
   if (digiOK_) ++ievt_digi_;
 
@@ -345,7 +347,8 @@ void ZDCMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& event
 
   // try to get rechits
   edm::Handle<ZDCRecHitCollection> zdc_hits;
-  if (!(e.getByLabel(inputLabelRecHitZDC_,zdc_hits)))
+  e.getByLabel(inputLabelRecHitZDC_,zdc_hits);
+  if (!zdc_hits.isValid())
     {
       zdchitOK_=false;
       // ZDC Warnings should be suppressed unless debugging is on (since we don't yet normally run zdcreco)

@@ -62,7 +62,7 @@ namespace edm {
       productLookupIndexList_(),
       historyIDsForBranchType_(static_cast<unsigned int>(NumBranchTypes), ProcessHistoryID()),
       processNameOrderingForBranchType_(static_cast<unsigned int>(NumBranchTypes), std::vector<std::string>()),
-      fillCount_() {
+      fillCount_(0) {
   }
   
   // TransientProductLookupMap::TransientProductLookupMap(TransientProductLookupMap const& rhs) {
@@ -71,6 +71,17 @@ namespace edm {
   
   //TransientProductLookupMap::~TransientProductLookupMap() {
   //}
+  
+  void
+  TransientProductLookupMap::reset() {
+      branchLookup_.clear();
+      productLookupIndexList_.clear();
+      for (unsigned int i = 0; i < static_cast<unsigned int>(NumBranchTypes); ++i) {
+        historyIDsForBranchType_[i].reset();
+        processNameOrderingForBranchType_[i].clear();
+      }
+      fillCount_ = 0;
+  }
   
   //
   // assignment operators

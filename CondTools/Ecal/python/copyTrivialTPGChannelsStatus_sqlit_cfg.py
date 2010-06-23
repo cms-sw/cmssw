@@ -6,7 +6,7 @@ process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_c
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.CondDBCommon.connect = 'sqlite_file:DB.db'
 
-process.CondDBCommon.DBParameters.authenticationPath = '/nfshome0/xiezhen/conddb'
+process.CondDBCommon.DBParameters.authenticationPath = '/nfshome0/popcondev/conddb'
 
 
 
