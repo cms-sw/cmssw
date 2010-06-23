@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWLegoViewBase.cc,v 1.6 2010/06/22 09:44:34 amraktad Exp $
+// $Id: FWLegoViewBase.cc,v 1.7 2010/06/22 17:09:11 amraktad Exp $
 //
 
 // system include files
@@ -112,8 +112,6 @@ void FWLegoViewBase::setContext(fireworks::Context& context)
    eventScene()->AddElement(m_lego);
 
    // possiblity for outline
-
-
    m_lego->SetPlotEt(m_plotEt.value());
    m_lego->SetMaxValAbs( m_legoFixedScale.value() );
    m_lego->SetScaleAbs ( ! m_legoAutoScale.value() );
@@ -121,6 +119,7 @@ void FWLegoViewBase::setContext(fireworks::Context& context)
    viewContext()->setPlotEt(m_plotEt.value());
    viewContext()->setAutoScale(m_legoAutoScale.value());
    viewContext()->setPlotEt(m_plotEt.value());
+   viewContext()->getEnergyScale("Calo")->setVal(m_lego->GetValToHeight());
 
 
    TEveLegoEventHandler* eh = dynamic_cast<TEveLegoEventHandler*>( viewerGL()->GetEventHandler());
