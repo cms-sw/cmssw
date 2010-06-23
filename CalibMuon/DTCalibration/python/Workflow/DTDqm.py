@@ -7,7 +7,7 @@ class DTDqm:
         #basedir = 'Run%s/Ttrig' % run
         #self.dir = basedir + '/' + 'Exec'
         #self.result_dir = basedir + '/' + 'Results'
-        self.run = run
+        self.runnumber = int(run)
         self.dir = dir
         self.result_dir = result_dir
         self.dqm_files = dqm_files
@@ -24,7 +24,7 @@ class DTDqm:
         self.process = loadCmsProcess(self.pset_template)
         self.process.source.fileNames = self.dqm_files
         self.process.dqmSaver.dirName = os.path.abspath(self.result_dir)
-        if self.process.DQMStore.collateHistograms: self.process.dqmSaver.forceRunNumber = self.run 
+        if self.process.DQMStore.collateHistograms: self.process.dqmSaver.forceRunNumber = self.runnumber
 
     def writeCfg(self):
         writeCfg(self.process,self.dir,self.pset_name) 
