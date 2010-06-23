@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.41 2010/06/01 13:39:09 babar Exp $
+# $Id$
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -479,7 +479,7 @@ sub close_file {
         || $stream =~ '_DontNotifyT0$'; #skip if DontNotify
 
     $kernel->post( 'notify', info => join( ' ', 'notifyTier0.pl', grep defined, map {
-        $heap->{args}->{$_} ? "--$_=$heap->{args}->{$_}" : undef } 
+        exists $heap->{args}->{$_} ? "--$_=$heap->{args}->{$_}" : undef } 
                         qw( APPNAME APPVERSION RUNNUMBER LUMISECTION FILENAME
                         PATHNAME HOSTNAME DESTINATION SETUPLABEL
                         STREAM TYPE NEVENTS FILESIZE CHECKSUM
@@ -492,7 +492,7 @@ sub start_hook {
     my $cmd = $ENV{'SM_HOOKSCRIPT'};
     return unless $cmd;
     my @args = grep defined, map {
-        $heap->{args}->{$_} ? "--$_=$heap->{args}->{$_}" : undef } 
+        exists $heap->{args}->{$_} ? "--$_=$heap->{args}->{$_}" : undef } 
                         qw( APPNAME APPVERSION RUNNUMBER LUMISECTION FILENAME
                         PATHNAME HOSTNAME DESTINATION SETUPLABEL
                         STREAM TYPE NEVENTS FILESIZE CHECKSUM INSTANCE
