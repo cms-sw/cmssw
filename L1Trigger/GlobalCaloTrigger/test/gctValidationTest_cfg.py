@@ -127,11 +127,7 @@ secFiles.extend( (
 #
 # standard includes
 process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-if startupConfig:
-    process.GlobalTag.globaltag = 'STARTUP31X_V1::All'
-else:
-    process.GlobalTag.globaltag = 'MC_31X_V1::All'
+process.load("L1Trigger.GlobalCaloTrigger.test.gctConfig_cff")
 
 # unpack raw data
 process.load("Configuration.StandardSequences.RawToDigi_cff")

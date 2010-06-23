@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TestGct")
 process.load("L1Trigger.GlobalCaloTrigger.test.gctTest_cff")
+process.load("L1Trigger.GlobalCaloTrigger.test.gctConfig_cff")
 
 process.source = cms.Source("EmptySource")
 
