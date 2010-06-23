@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 18 14:23:07 CDT 2010
-// $Id$
+// $Id: FWLiteESRecordWriterAnalyzer.cc,v 1.1 2010/06/22 21:51:16 chrjones Exp $
 //
 //
 
@@ -155,6 +155,10 @@ class FWLiteESRecordWriterAnalyzer : public edm::EDAnalyzer {
       virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
+      virtual void beginRun(edm::Run const&, edm::EventSetup const&);
+      virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+   
+      void update(const edm::EventSetup&);
 
       // ----------member data ---------------------------
    std::vector<boost::shared_ptr<RecordHandler> > m_handlers;
@@ -209,10 +213,8 @@ FWLiteESRecordWriterAnalyzer::~FWLiteESRecordWriterAnalyzer()
 //
 // member functions
 //
-
-// ------------ method called to for each event  ------------
 void
-FWLiteESRecordWriterAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
+FWLiteESRecordWriterAnalyzer::update(const edm::EventSetup& iSetup)
 {
    using edm::eventsetup::heterocontainer::HCTypeTag;
    if(m_handlers.empty()) {
@@ -275,6 +277,14 @@ FWLiteESRecordWriterAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::E
 }
 
 
+// ------------ method called to for each event  ------------
+void
+FWLiteESRecordWriterAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
+{
+   update(iSetup);
+}
+
+
 // ------------ method called once each job just before starting event loop  ------------
 void 
 FWLiteESRecordWriterAnalyzer::beginJob()
@@ -286,6 +296,16 @@ void
 FWLiteESRecordWriterAnalyzer::endJob() {
    m_file->Write();
 }
+
+void 
+FWLiteESRecordWriterAnalyzer::beginRun(edm::Run const&, edm::EventSetup const& iSetup){
+   update(iSetup);
+}
+void 
+FWLiteESRecordWriterAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const& iSetup){
+   update(iSetup);
+}
+
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(FWLiteESRecordWriterAnalyzer);
