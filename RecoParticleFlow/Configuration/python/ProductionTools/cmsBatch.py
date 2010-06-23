@@ -108,6 +108,25 @@ echo 'sending the job directory back'
    return script
 
 
+def batchScriptcmsphys01( remoteFile, remoteDir, index ):
+   
+   
+   script = """#!/bin/bash
+echo 'running'
+%s run_cfg.py
+echo
+echo 'sending the job directory back'
+""" % prog
+   castorCopy = ''
+   if dir != '':
+      newFileName = re.sub("\.root", "_%d.root" % index, remoteFile)
+      script += 'rfcp %s %s/%s\n' % (remoteFile, remoteDir, newFileName) 
+      script += 'rm *.root\n'
+   script += 'cp -rf * .\n'
+   
+   return script
+
+
 class MyBatchManager( BatchManager ):
 
     # prepare a job
@@ -122,17 +141,19 @@ class MyBatchManager( BatchManager ):
        # are we at CERN or somewhere else? testing the afs path
        cwd = os.getcwd()
        patternCern = re.compile( '^/afs/cern.ch' )
-       patternIn2p3 = re.compile( '^/afs/in2p3.fr' )
+       patterncmsphys01 = re.compile( '/data' )
        if patternCern.match( cwd ):
           print '@ CERN'
           scriptFile.write( batchScriptCERN( self.remoteOutputFile_,
                                              self.remoteOutputDir_,
                                              value) )
-       elif patternIn2p3.match( cwd ):
-          print '@ IN2P3 - not supported yet'
-          sys.exit(2)
+       elif patterncmsphys01.match( cwd ):
+          print '@ cmsphys01'
+          scriptFile.write( batchScriptcmsphys01( self.remoteOutputFile_,
+                                                  self.remoteOutputDir_,
+                                                  value) )          
        else:
-          print "I don't know on which computing cern you are... "
+          print "I don't know on which computing site you are... "
           sys.exit(2)
        
        scriptFile.close()
@@ -160,7 +181,7 @@ class MyBatchManager( BatchManager ):
        cfgFile.close()
        
     def SubmitJob( self, jobDir ):
-       os.system('bsub -q %s < batchScript.sh' % queue)
+       os.system( self.options_.batch )
 
 
 batchManager = MyBatchManager()
@@ -174,6 +195,9 @@ batchManager.parser_.usage = "%prog [options] <number of input files per job> <y
 batchManager.parser_.add_option("-p", "--program", dest="prog",
                                 help="program to run on your cfg file",
                                 default="cmsRun")
+batchManager.parser_.add_option("-b", "--batch", dest="batch",
+                                help="batch command",
+                                default="bsub -q cmst3 < batchScript.sh")
 
 (options,args) = batchManager.parser_.parse_args()
 batchManager.ParseOptions()

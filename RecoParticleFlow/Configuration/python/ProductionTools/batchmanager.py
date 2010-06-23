@@ -38,11 +38,11 @@ class BatchManager:
                           dest="queue",
                           help="batch queue where to send the jobs. default is cms8nht3 (you need to be in the CERN group to have access)",
                           default="cms8nht3")
-        self.parser_.add_option(
-            "-b", "--batch-script",  
-            dest="batchScript",
-            help="give a script to run the jobs on the batch. This option is... optional!",
-            default="")
+        #self.parser_.add_option(
+        #    "-b", "--batch-script",  
+        #    dest="batchScript",
+        #    help="give a script to run the jobs on the batch. This option is... optional!",
+        #    default="")
         
     def ParseOptions(self):
         (self.options_,args) = self.parser_.parse_args()
@@ -61,7 +61,7 @@ class BatchManager:
         # self.ParseOptions()
  
         self.ManageOutputDir()
-        self.CheckBatchScript( self.options_.batchScript )
+        #self.CheckBatchScript( self.options_.batchScript )
 
         self.listOfJobs_ = []
 
@@ -108,8 +108,8 @@ class BatchManager:
         self.mkdir( jobDir )
         self.listOfJobs_.append( jobDir )
 
-        if self.options_.batchScript != '':
-            shutil.copy( self.options_.batchScript, jobDir)
+        # if self.options_.batchScript != '':
+        #    shutil.copy( self.options_.batchScript, jobDir)
 
         self.PrepareJobUser( jobDir, value )
         
