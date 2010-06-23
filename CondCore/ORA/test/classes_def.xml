@@ -7,18 +7,21 @@
   <class name="std::vector<std::vector<OtherMember> >"/>
   <class name="std::map<std::string,std::string>"/>
   <class name="std::map<std::string,std::string>::value_type"/>
+  <class name="BObj"/>
   <class name="BaseClass"/>
   <class name="SimpleMember"/>
   <class name="OtherMember"/>
   <class name="SimpleClass"/>
-  <class name="SimpleCl"/>
   <class name="ArrayClass"/>
+  <class name="std::vector<std::string>"/>
+  <class name="std::map<std::string,std::vector<std::string> >"/>
+  <class name="std::map<std::string,std::vector<std::string> >::value_type"/>
   <class name="MultiArrayClass"/>
   <class name="MultiArrayClass2"/>
   <class name="SM"/>
   <class name="SA"/>
   <class name="SimpleStruct"/>
-  <class name="SA::Inner"/>
+  <class name="MultiArrayClass2::Inner"/>
   <class name="std::map<std::string,std::string>"/>
   <class name="std::map<unsigned long long,unsigned long long>"/>
   <class name="std::map<unsigned long long,unsigned long long>::value_type" />
@@ -43,10 +46,10 @@
   <class name="ora::Reference"/>
   <class name="RefBase">
   </class>
-  <class name="Ref<SimpleCl>"/>
-  <class name="std::vector<Ref<SimpleCl> >"/>
+  <class name="Ref<SimpleClass>"/>
+  <class name="std::vector<Ref<SimpleClass> >"/>
   <class name="SC"/>
-  <class name="ora::Ptr<SimpleCl>"/>
+  <class name="ora::Ptr<SimpleClass>"/>
   <class name="ora::Ptr<SimpleMember>"/>
   <class name="std::vector<ora::Ptr<SimpleMember> >"/>
   <class name="SD"/>

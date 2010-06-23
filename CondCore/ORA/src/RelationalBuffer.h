@@ -31,8 +31,8 @@ namespace ora {
 
     InsertOperation& newInsert( const std::string& tableName );
     BulkInsertOperation& newBulkInsert( const std::string& tableName );
-    UpdateOperation& newUpdate( const std::string& tableName );
-    DeleteOperation& newDelete( const std::string& tableName );
+    UpdateOperation& newUpdate( const std::string& tableName, bool addToResult=false );
+    DeleteOperation& newDelete( const std::string& tableName, bool addToResult=false );
 
     RelationalBuffer& addVolatileBuffer();
 
@@ -44,7 +44,7 @@ namespace ora {
     private:
     
     coral::ISchema& m_schema;
-    std::vector< IRelationalOperation* > m_operations;
+    std::vector< std::pair<IRelationalOperation*, bool> > m_operations;
     std::vector<RelationalBuffer*> m_volatileBuffers;
     std::vector< boost::shared_ptr<coral::Blob> > m_blobBuffer;
   };

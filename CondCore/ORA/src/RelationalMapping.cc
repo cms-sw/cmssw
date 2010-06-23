@@ -7,6 +7,7 @@
 #include "ClassUtils.h"
 // externals 
 #include "Reflex/Reflex.h"
+#include "CoralBase/AttributeSpecification.h"
 
 size_t
 ora::RelationalMapping::sizeInColumns(const Reflex::Type& topLevelClassType ){
@@ -170,8 +171,9 @@ void ora::PrimitiveMapping::process( MappingElement& parentElement,
   const std::type_info* attrType = &m_type.TypeInfo();
   if(m_type.IsEnum()) attrType = &typeid(int);
   if(ClassUtils::isTypeString( m_type )) attrType = &typeid(std::string);
-  std::string typeName = ClassUtils::demangledName(*attrType);
-
+  //std::string typeName = ClassUtils::demangledName(*attrType);
+  std::string typeName = coral::AttributeSpecification::typeNameForId(*attrType);
+  
   processLeafElement(parentElement,
                      ora::MappingElement::primitiveMappingElementType(),
                      typeName,

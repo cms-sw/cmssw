@@ -1,6 +1,7 @@
 #include "CondCore/ORA/interface/Database.h"
 #include "CondCore/ORA/interface/Container.h"
 #include "CondCore/ORA/interface/Transaction.h"
+#include "CondCore/ORA/interface/ScopedTransaction.h"
 #include "CondCore/ORA/interface/Exception.h"
 #include <iostream>
 //#include <typeinfo>
@@ -9,179 +10,238 @@ int main(){
     // writing...  
   ora::Database db;
   db.configuration().setMessageVerbosity( coral::Debug );
-  //try {
+  try {
 
-    //std::string connStr( "oracle://devdb10/giacomo" );
-    std::string connStr( "sqlite_file:test.db" );
-  db.connect( connStr );
-  db.transaction().start( false );
-  bool exists = db.exists();
-  if(exists){
-    db.dropContainer( "Cont0" );
-    db.dropContainer( "std::string" );
-    std::cout << "############# ORA database does exist in "<< connStr<<"."<<std::endl;
-  } else {
-    std::cout << "############# ORA database does not exist in "<< connStr<<", creating it..."<<std::endl;
-    db.create();
-  }
-  std::cout <<" ############# opening db...."<<std::endl;
-  std::set< std::string > conts = db.containers();
-  std::cout << conts.size() <<" ############# container(s) found."<<std::endl;
-  for(std::set<std::string>::const_iterator iC = conts.begin();
-      iC != conts.end(); iC++ ){
-    std::cout << "############# CONT=\""<<*iC<<"\""<<std::endl;
-  }
-  db.createContainer<int>("Cont0");
-  ora::Container contH0 = db.containerHandle( "Cont0" );
-  int myData0(999);
-  int oid0 = contH0.insert( myData0 );
-  int myData01(1234567890);
-  int oid01 = contH0.insert( myData01 );
-  contH0.flush();
-  int contId = db.createContainer<std::string>().id();
-  ora::Container contH1 = db.containerHandle( contId );
-  std::string myData1("ABCDEFGHILMNOPQRSTUVZ1234567890");
-  int oid1 = contH1.insert( myData1 );
-  std::string myData11("GiacomoGovi");
-  int oid11 = contH1.insert( myData11 );
-  contH1.flush();
-  db.transaction().commit();
-  db.disconnect();
-  ::sleep(1);
-  db.connect( connStr );  
-  db.transaction().start( true );
-  bool exists2 = db.exists();
-  if(exists2){
-    std::cout << "############# ORA database does exist in "<< connStr<<"."<<std::endl;
-  } else {
-    std::cout << "############# ERROR!! ORA database does not exist in "<< connStr<<std::endl;
-  }
-  std::set<std::string> conts2 = db.containers();
-  std::cout << conts2.size() <<" ############# container(s) found."<<std::endl;
-  for(std::set<std::string>::const_iterator iC = conts2.begin();
-      iC != conts2.end(); iC++ ){
-    std::cout << "############# CONT=\""<<*iC<<"\""<<std::endl;
-  }
-  ora::Container contHR0 = db.containerHandle( "Cont0" );
-  std::cout << "############# ContID="<<contHR0.id()<<std::endl;
-  boost::shared_ptr<int> readData0 = contHR0.fetch<int>( oid0);
-  std::cout << "############# Read out data="<<*readData0<<std::endl;
-  readData0 = contHR0.fetch<int>( oid01);
-  std::cout << "############# Read out data="<<*readData0<<std::endl;
-  ora::Container contHR1 = db.containerHandle( contId );
-  std::cout << "############# ContID="<<contHR1.id()<<std::endl;
-  boost::shared_ptr<std::string> readData1 = contHR1.fetch<std::string>( oid1 );
-  std::cout << "############# Read out data="<<*readData1<<std::endl;
-  readData1 = contHR1.fetch<std::string>( oid11 );
-  std::cout << "############# Read out data="<<*readData1<<std::endl;
-  db.transaction().commit();
-  db.disconnect();
-  db.connect( connStr );  
-  db.transaction().start( false );
-  ora::Container contHU0 = db.containerHandle( "Cont0" );
-  int new0(888);
-  contHU0.update( oid0, new0 );
-  int new1(987654321);
-  contHU0.update( oid01, new1 );
-  contHU0.flush();
-  boost::shared_ptr<int> rd0 = contHU0.fetch<int>( oid0);
-  std::cout << "############# Read data before commit="<<*rd0<<std::endl;
-  rd0 = contHU0.fetch<int>( oid01);
-  std::cout << "############# Read data before commit="<<*rd0<<std::endl;
-  ora::Container contHU1 = db.containerHandle( contId );
-  std::string ns0("0987654321abcdefghilmnopqrstuvz");
-  contHU1.update( oid1, ns0 );
-  std::string ns1("PincoPallino");
-  contHU1.update( oid11, ns1 );
-  contHU1.flush();
-  boost::shared_ptr<std::string> rd1 = contHU1.fetch<std::string>( oid1 );
-  std::cout << "############# Read data before commit="<<*rd1<<std::endl;
-  rd1 = contHU1.fetch<std::string>( oid11 );
-  std::cout << "############# Read data before commit="<<*rd1<<std::endl;
-  std::cout << "############# COMMIT 1 "<<std::endl;
-  db.transaction().commit();
-  std::cout << "############# DISCO 1 "<<std::endl;
-  db.disconnect();
-  db.connect( connStr );  
-  db.transaction().start( true );
-  std::cout << "############# opening 2."<<std::endl;
-  ora::Container contHRR0 = db.containerHandle( "Cont0" );
-  boost::shared_ptr<int> rd00 = contHRR0.fetch<int>( oid0);
-  std::cout << "############# Read out data="<<*rd00<<std::endl;
-  rd00 = contHRR0.fetch<int>( oid01);
-  std::cout << "############# Read out data="<<*rd00<<std::endl;
-  ora::Container contHRR1 = db.containerHandle( contId );
-  boost::shared_ptr<std::string> rd11 = contHRR1.fetch<std::string>( oid1 );
-  std::cout << "############# Read out data="<<*rd11<<std::endl;
-  rd11 = contHRR1.fetch<std::string>( oid11 );
-  std::cout << "############# Read out data="<<*rd11<<std::endl;
-  ora::ContainerIterator iter0 = contHRR0.iterator();
-  while( iter0.next() ){
-    boost::shared_ptr<int> o = iter0.get<int>();
-    std::cout << " **** Cont="<<contHRR0.name()<<" val="<<*o<<std::endl;
-  }
-  ora::ContainerIterator iter1 = contHRR1.iterator();
-  while( iter1.next() ){
-    boost::shared_ptr<std::string> s = iter1.get<std::string>();
-    std::cout << " **** Cont="<<contHRR1.name()<<" val="<<*s<<std::endl;
-  }
-  db.transaction().commit();
-  try {
-    rd11 = contHRR1.fetch<std::string>( oid11 );
-  } catch (ora::Exception& e){
-    std::cout << "*** expected exception:"<<e.what()<<std::endl;
-  }
-  db.disconnect();
-  try {
-    boost::shared_ptr<std::string> null = iter1.get<std::string>();
-  } catch (ora::Exception& e){
-    std::cout << "*** expected exception:"<<e.what()<<std::endl;
-  }
-  std::cout << "#### deleting..."<<std::endl;
-  db.connect( connStr );  
-  db.transaction().start( false );
-  ora::OId foid0( db.containerHandle( "Cont0" ).id(), oid0);
-  db.erase( foid0 );
-  db.containerHandle( contId ).erase( oid11 );
-  db.flush();
-  db.transaction().commit();
-  db.disconnect();
-  std::cout << "#### reading after delete..."<<std::endl;
-  db.connect( connStr );  
-  db.transaction().start( true );
-  std::cout << "############# opening 3."<<std::endl;
-  contHRR0 = db.containerHandle( "Cont0" );
-  rd00 = contHRR0.fetch<int>( oid0);
-  if( rd00 ){
-    std::cout << "## ERROR: Read out data="<<*rd00<<std::endl;
-  } else {
-    std::cout << "## No data for oid="<<oid0<<std::endl;    
-  }
-  rd00 = contHRR0.fetch<int>( oid01);
-  std::cout << "############# Read out data="<<*rd00<<std::endl;
-  contHRR1 = db.containerHandle( contId );
-  rd11 = contHRR1.fetch<std::string>( oid11 );
-  if( rd11 ){
-    std::cout << "## ERROR: Read out data="<<*rd11<<std::endl;
-  } else {
-    std::cout << "## No data for oid="<<oid11<<std::endl;    
-  }
-  rd11 = contHRR1.fetch<std::string>( oid1 );
-  std::cout << "############# Read out data="<<*rd11<<std::endl;
-  iter0 = contHRR0.iterator();
-  while( iter0.next() ){
-    boost::shared_ptr<int> o = iter0.get<int>();
-    std::cout << " **** Cont="<<contHRR0.name()<<" val="<<*o<<std::endl;
-  }
-  iter1 = contHRR1.iterator();
-  while( iter1.next() ){
-    boost::shared_ptr<std::string> s = iter1.get<std::string>();
-    std::cout << " **** Cont="<<contHRR1.name()<<" val="<<*s<<std::endl;
+    std::string connStr( "oracle://devdb10/giacomo" );
+    //std::string connStr( "sqlite_file:test.db" );
+    db.connect( connStr );
+    ora::ScopedTransaction trans0( db.transaction() );
+    trans0.start( false );
+    bool exists = db.exists();
+    if(!exists){
+      std::cout << "#### creating db..."<<std::endl;
+      db.create();
     }
-  db.transaction().commit();
-  db.disconnect();  
-  //} catch ( const ora::Exception& exc ){
-  //  std::cout << "### ############# ERROR: "<<exc.what()<<std::endl;
-  //}
+    std::set< std::string > conts = db.containers();
+    std::cout << "#### creating containers..."<<std::endl;
+    if( conts.find( "Cont0" )!= conts.end() ) db.dropContainer( "Cont0" );
+    if( conts.find( "std::string" )!= conts.end() ) db.dropContainer( "std::string" );
+    db.createContainer<int>("Cont0");
+    int contId = db.createContainer<std::string>().id();
+    //**
+    std::cout << "#### writing..."<<std::endl;
+    ora::Container contH0 = db.containerHandle( "Cont0" );
+    int myInt0(999);
+    int myInt1(1234567890);
+    int oid00 = contH0.insert( myInt0 );
+    int oid01 = contH0.insert( myInt1 );
+    contH0.flush();
+    //**
+    ora::Container contH1 = db.containerHandle( contId );
+    std::string myStr0("ABCDEFGHILMNOPQRSTUVZ1234567890");
+    std::string myStr1("BlaBlaBlaBla");
+    int oid10 = contH1.insert( myStr0 );
+    int oid11 = contH1.insert( myStr1 );
+    contH1.flush();
+    //**
+    trans0.commit();
+    db.disconnect();
+    ::sleep(1);
+    db.connect( connStr );
+    ora::ScopedTransaction trans1( db.transaction() );
+    trans1.start( true );
+    bool exists2 = db.exists();
+    if(!exists2){
+      ora::throwException( "ORA database does not exist in "+connStr,"testORA_0");
+    }
+    conts = db.containers();
+    if( conts.find( "Cont0" )== conts.end() ) {
+      ora::throwException( "Container Cont0 has not been found.","testORA_0");
+    }
+    std::cout << "#### reading..."<<std::endl;
+    contH0 = db.containerHandle( "Cont0" );
+    boost::shared_ptr<int> rInt0 = contH0.fetch<int>( oid00);
+    if( *rInt0 != myInt0 ){
+      ora::throwException( "Data read on oid00 different from expected.","testORA_0");      
+    } else {
+      std::cout << "Data read on oid="<<oid00<<" is correct."<<std::endl;
+    }
+    boost::shared_ptr<int> rInt1 = contH0.fetch<int>( oid01);
+    if( *rInt1 != myInt1 ){
+      ora::throwException( "Data read on oid01 different from expected.","testORA_0");      
+    } else {
+      std::cout << "Data read on oid="<<oid00<<" is correct."<<std::endl;
+    } 
+    //**
+    if( conts.find( "std::string" )== conts.end() ) {
+      ora::throwException( "Container std::string has not been found.","testORA_0");
+    }
+    contH1  = db.containerHandle( contId );
+    boost::shared_ptr<std::string> rStr0 = contH1.fetch<std::string>( oid10 );
+    if( *rStr0 != myStr0 ){
+      ora::throwException( "Data read on oid10 different from expected.","testORA_0");      
+    } else {
+      std::cout << "Data read on oid="<<oid10<<" is correct."<<std::endl;
+    }
+    boost::shared_ptr<std::string> rStr1 = contH1.fetch<std::string>( oid11 );
+    if( *rStr1 != myStr1 ){
+      ora::throwException( "Data read on oid11 different from expected.","testORA_0");      
+    } else {
+      std::cout << "Data read on oid="<<oid11<<" is correct."<<std::endl;
+    }
+    trans1.commit();
+    db.disconnect();
+    //***
+    std::cout << "#### updating..."<<std::endl;
+    db.connect( connStr );  
+    ora::ScopedTransaction trans2( db.transaction() );
+    trans2.start( false );
+    contH0 = db.containerHandle( "Cont0" );
+    int nInt0(888);
+    contH0.update( oid00, nInt0 );
+    int nInt1(987654321);
+    contH0.update( oid01, nInt1 );
+    contH0.flush();
+    rInt0 = contH0.fetch<int>( oid00);
+    if( *rInt0 != nInt0 ){
+      ora::throwException( "Data read after update (bc) on oid00 different from expected.","testORA_0");      
+    } else {
+      std::cout << "Data read after update (bc) on oid="<<oid00<<" is correct."<<std::endl;
+    }
+    rInt1 = contH0.fetch<int>( oid01);
+    if( *rInt1 != nInt1 ){
+      ora::throwException( "Data read after update (bc) on oid01 different from expected.","testORA_0");      
+    } else {
+      std::cout << "Data read after update on (bc) oid="<<oid01<<" is correct."<<std::endl;
+    }
+    contH1 = db.containerHandle( contId );
+    std::string nStr0("0987654321abcdefghilmnopqrstuvz");
+    contH1.update( oid10, nStr0 );
+    std::string nStr1("PincoPallino");
+    contH1.update( oid11, nStr1 );
+    contH1.flush();
+    rStr0 = contH1.fetch<std::string>( oid10 );
+    if( *rStr0 != nStr0 ){
+      ora::throwException( "Data read after update (bc) on oid10 different from expected.","testORA_0");      
+    } else {
+      std::cout << "Data read after update (bc) on oid="<<oid10<<" is correct."<<std::endl;
+    }
+    rStr1 = contH1.fetch<std::string>( oid11 );
+    if( *rStr1 != nStr1 ){
+      ora::throwException( "Data read after update (bc) on oid11 different from expected.","testORA_0");      
+    } else {
+      std::cout << "Data read after update (bc) on oid="<<oid11<<" is correct."<<std::endl;
+    }
+    trans2.commit();
+    db.disconnect();
+    //**
+    std::cout << "#### reading after update..."<<std::endl;
+    db.connect( connStr );
+    ora::ScopedTransaction trans3( db.transaction() );
+    trans3.start( true );
+    contH0 = db.containerHandle( "Cont0" );
+    rInt0 = contH0.fetch<int>( oid00);
+    if( *rInt0 != nInt0 ){
+      ora::throwException( "Data read after update on oid00 different from expected.","testORA_0");      
+    } else {
+      std::cout << "Data read after update on oid="<<oid00<<" is correct."<<std::endl;
+    }
+    rInt1 = contH0.fetch<int>( oid01);
+    if( *rInt1 != nInt1 ){
+      ora::throwException( "Data read after update on oid01 different from expected.","testORA_0");      
+    } else {
+      std::cout << "Data read after update on oid="<<oid01<<" is correct."<<std::endl;
+    }
+    contH1 = db.containerHandle( contId );
+    rStr0 = contH1.fetch<std::string>( oid10 );
+    if( *rStr0 != nStr0 ){
+      ora::throwException( "Data read after update on oid10 different from expected.","testORA_0");      
+    } else {
+      std::cout << "Data read after update on oid="<<oid10<<" is correct."<<std::endl;
+    }
+    rStr1 = contH1.fetch<std::string>( oid11 );
+    if( *rStr1 != nStr1 ){
+      ora::throwException( "Data read after update on oid11 different from expected.","testORA_0");      
+    } else {
+      std::cout << "Data read after update on oid="<<oid11<<" is correct."<<std::endl;
+    }
+    //*
+    ora::ContainerIterator iter0 = contH0.iterator();
+    while( iter0.next() ){
+      boost::shared_ptr<int> o = iter0.get<int>();
+      std::cout << " **** Cont="<<contH0.name()<<" val="<<*o<<std::endl;
+    }
+    ora::ContainerIterator iter1 = contH1.iterator();
+    while( iter1.next() ){
+      boost::shared_ptr<std::string> s = iter1.get<std::string>();
+      std::cout << " **** Cont="<<contH1.name()<<" val="<<*s<<std::endl;
+    }
+    trans3.commit();
+    try {
+      rStr1 = contH1.fetch<std::string>( oid11 );
+    } catch (ora::Exception& e){
+      std::cout << "*** expected exception:"<<e.what()<<std::endl;
+    }
+    db.disconnect();
+    try {
+      boost::shared_ptr<std::string> null = iter1.get<std::string>();
+    } catch (ora::Exception& e){
+      std::cout << "*** expected exception:"<<e.what()<<std::endl;
+    }
+    std::cout << "#### deleting..."<<std::endl;
+    db.connect( connStr );
+    ora::ScopedTransaction trans4( db.transaction() );
+    trans4.start( false );
+    ora::OId foid00( db.containerHandle( "Cont0" ).id(), oid00);
+    db.erase( foid00 );
+    db.containerHandle( contId ).erase( oid11 );
+    db.flush();
+    trans4.commit();
+    db.disconnect();
+    std::cout << "#### reading after delete..."<<std::endl;
+    db.connect( connStr );  
+    ora::ScopedTransaction trans5( db.transaction() );
+    trans5.start( true );
+    contH0 = db.containerHandle( "Cont0" );
+    rInt0 = contH0.fetch<int>( oid00);
+    if( rInt0 ){
+      ora::throwException( "Found entry for deleted oid="+oid00,"testORA_0");
+    } else {
+      std::cout << "## Entry for oid="<<oid00<<" deleted as expected."<<std::endl;
+    }
+    rInt1 = contH0.fetch<int>( oid01);
+    if( rInt1 ){
+      std::cout << "## Entry for oid="<<oid01<<" found as expected."<<std::endl;
+    } else {
+      ora::throwException( "Entry for oid01 not found.","testORA_0");
+    }
+    contH1 = db.containerHandle( contId );
+    rStr0 = contH1.fetch<std::string>( oid10);
+    if( rStr0 ){
+      std::cout << "## Entry for oid="<<oid10<<" found as expected."<<std::endl;
+    } else {
+      ora::throwException( "Entry for oid10 not found.","testORA_0");
+    }
+    rStr1 = contH1.fetch<std::string>( oid11);
+    if( rStr1 ){
+      ora::throwException( "Found entry for deleted oid="+oid11,"testORA_0");
+    } else {
+      std::cout << "## Entry for oid="<<oid11<<" deleted as expected."<<std::endl;
+    }
+    iter0 = contH0.iterator();
+    while( iter0.next() ){
+      boost::shared_ptr<int> o = iter0.get<int>();
+      std::cout << " **** Cont="<<contH0.name()<<" val="<<*o<<std::endl;
+    }
+    iter1 = contH1.iterator();
+    while( iter1.next() ){
+      boost::shared_ptr<std::string> s = iter1.get<std::string>();
+      std::cout << " **** Cont="<<contH1.name()<<" val="<<*s<<std::endl;
+    }
+    trans5.commit();
+    db.disconnect();
+  } catch ( const ora::Exception& exc ){
+    std::cout << "### ############# ERROR: "<<exc.what()<<std::endl;
+  }
 }
 

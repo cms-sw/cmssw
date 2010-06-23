@@ -34,11 +34,11 @@ void ora::RelationalDeleter::build( RelationalBuffer& buffer ){
   for( std::vector<const MappingElement*>::iterator iMe = m_mappings.begin();
        iMe != m_mappings.end(); iMe++  ){
     std::vector<std::pair<std::string,std::string> > tableHierarchy = (*iMe)->tableHierarchy();
-    for( std::vector<std::pair<std::string,std::string> >::const_reverse_iterator iT = tableHierarchy.rbegin();
-         iT != tableHierarchy.rend(); ++iT ){
-      DeleteOperation& delOperation = buffer.newDelete( iT->first );
-      delOperation.addWhereId( iT->second );
-      m_operations.push_back(&delOperation);
+    size_t sz = tableHierarchy.size();
+    for( size_t i=1; i<sz+1; i++ ){
+      DeleteOperation& delOperation = buffer.newDelete( tableHierarchy[sz-i].first, i==sz );
+      delOperation.addWhereId( tableHierarchy[sz-i].second );
+      m_operations.push_back(&delOperation);      
     }
   }
 }

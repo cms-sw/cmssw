@@ -64,11 +64,13 @@ namespace ora {
   void scanElement( const MappingElement& element,
                     const TableInfo& currentTable,
                     bool isDependency,
-                    std::map<std::string,TableInfo>& destination ){
+                    std::vector<std::string>& tableHierarchy,
+                    std::map<std::string,TableInfo>& tableMap ){
     const std::string& tName = element.tableName();
-    std::map<std::string,TableInfo>::iterator iT = destination.find( tName );
-    if( iT == destination.end() ){
-      iT = destination.insert( std::make_pair( tName, TableInfo() ) ).first;
+    std::map<std::string,TableInfo>::iterator iT = tableMap.find( tName );
+    if( iT == tableMap.end() ){
+      tableHierarchy.push_back( tName );
+      iT = tableMap.insert( std::make_pair( tName, TableInfo() ) ).first;
       iT->second.m_dependency = isDependency;
       iT->second.m_tableName = tName;
       iT->second.m_idColumns = element.columnNames();
@@ -105,13 +107,14 @@ namespace ora {
     TableInfo currT = iT->second;
     for( MappingElement::const_iterator iM = element.begin();
          iM != element.end(); ++iM ){
-      scanElement( iM->second, currT, isDependency, destination );
+      scanElement( iM->second, currT, isDependency, tableHierarchy, tableMap );
     }
   }
   
 }
 
 std::vector<ora::TableInfo> ora::MappingTree::tables() const {
+  std::vector<std::string> tableHierarchy;
   std::map<std::string,TableInfo> tableMap;
   TableInfo mainTable;
   bool isDependency = false;
@@ -119,11 +122,12 @@ std::vector<ora::TableInfo> ora::MappingTree::tables() const {
     isDependency = true;
     mainTable = *m_parentTable;
   }
-  scanElement( m_element, mainTable, isDependency, tableMap );
+  scanElement( m_element, mainTable, isDependency, tableHierarchy, tableMap );
   std::vector<TableInfo> ret;
-  for( std::map<std::string,TableInfo>::const_iterator iT = tableMap.begin();
-       iT != tableMap.end(); ++iT ){
-    ret.push_back( iT->second );
+  for( std::vector<std::string>::const_iterator iT = tableHierarchy.begin();
+       iT != tableHierarchy.end(); ++iT ){
+    std::map<std::string,TableInfo>::const_iterator iM = tableMap.find( *iT );
+    ret.push_back( iM->second );
   }
   return ret;
 }

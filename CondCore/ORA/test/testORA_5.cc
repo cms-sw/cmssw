@@ -1,151 +1,140 @@
 #include "CondCore/ORA/interface/Database.h"
 #include "CondCore/ORA/interface/Container.h"
+#include "CondCore/ORA/interface/ScopedTransaction.h"
 #include "CondCore/ORA/interface/Transaction.h"
 #include "CondCore/ORA/interface/Exception.h"
 #include <iostream>
-
-//#include <typeinfo>
-//#include "FWCore/PluginManager/interface/SharedLibrary.h"
 #include "classes.h"
 
 int main(){
   try {
 
-    //const boost::filesystem::path dict_path("testORADict");
-    //edmplugin::SharedLibrary shared( dict_path );
-    // writing...  
-  ora::Database db;
+    // writing...
+    ora::Database db;
     db.configuration().setMessageVerbosity( coral::Debug );
-  //std::string connStr( "sqlite_file:test.db" );
-  //std::string connStr( "myalias" );
-  std::string connStr( "oracle://devdb10/giacomo" );
-  db.connect( connStr );
-  db.transaction().start( false );
-  bool exists = db.exists();
-  if(exists){
-    std::cout << "############# ORA database does exist in "<< connStr<<"."<<std::endl;
-    db.dropContainer( "Cont0" );
-  } else {
-    std::cout << "############# ORA database does not exist in "<< connStr<<", creating it..."<<std::endl;
-    db.create();
-  }
-  std::set< std::string > conts = db.containers();
-  std::cout << conts.size() <<" ############# container(s) found."<<std::endl;
-  for(std::set<std::string>::const_iterator iC = conts.begin();
-      iC != conts.end(); iC++ ){
-    std::cout << "############# CONT=\""<<*iC<<"\""<<std::endl;
-  }
-  db.createContainer<MultiArrayClass2>("Cont0");
-  ora::Container contH0 = db.containerHandle( "Cont0" );
-  std::cout << "** W start objs in container="<<contH0.size()<<std::endl;
-  int oid0, oid1;
-  {
+    //std::string connStr( "sqlite_file:test.db" );
+    std::string connStr( "oracle://devdb10/giacomo" );
+    db.connect( connStr );
+    ora::ScopedTransaction trans0( db.transaction() );
+    trans0.start( false );
+    if(!db.exists()){
+      db.create();
+    }
+    std::set< std::string > conts = db.containers();
+    if( conts.find( "Cont0" )!= conts.end() ) db.dropContainer( "Cont0" );
+    //
+    db.createContainer<MultiArrayClass2>("Cont0");
+    ora::Container contH0 = db.containerHandle( "Cont0" );
+    if( contH0.size() != 0 ){
+      ora::throwException( "(0) Container Cont0 size is not 0 as expected.","testORA_5");
+    } else {
+      std::cout << "Container Cont0 size is 0 as expected."<<std::endl;
+    }
+    int oid0, oid1;
     MultiArrayClass2 a0(2);
-    //a0.print();
-    oid0 = contH0.insert( a0 );
     MultiArrayClass2 a1(3);
-    oid1 = contH0.insert( a1 );
-    std::cout << "** W start objs in container bef flush="<<contH0.size()<<std::endl;
-    contH0.flush();
-    std::cout << "** W start objs in container aft flush="<<contH0.size()<<std::endl;
-  }
-  ora::OId id0( contH0.id(), oid0 );
-  ora::OId id1( contH0.id(), oid1 );
-  db.transaction().commit();
-  db.disconnect();
-  ::sleep(1);
-  // reading back...
-  db.connect( connStr );  
-  db.transaction().start( true );
-  exists = db.exists();
-  if(exists){
-    std::cout << "############# ORA database does exist in "<< connStr<<"."<<std::endl;
-  } else {
-    std::cout << "############# ERROR!! ORA database does not exist in "<< connStr<<std::endl;
-  }
-  conts = db.containers();
-  std::cout << conts.size() <<" ############# container(s) found."<<std::endl;
-  for(std::set<std::string>::const_iterator iC = conts.begin();
-      iC != conts.end(); iC++ ){
-    std::cout << "############# CONT=\""<<*iC<<"\""<<std::endl;
-  }
-  ora::Container contHR0 = db.containerHandle( "Cont0" );
-  std::cout << "############# ContID="<<contHR0.id()<<std::endl;
-  std::cout << "** R start objs in container="<<contHR0.size()<<std::endl;
-  boost::shared_ptr<MultiArrayClass2> ar0 = contHR0.fetch<MultiArrayClass2 >( oid0 );
-  if( ar0 ){
-    std::cout << "Read out vector size="<<ar0->m_a.size()<<std::endl;
-    ar0->print();
-  } else {
-    std::cout << "############# No data for oid="<<oid0<<std::endl;
-  }
-  boost::shared_ptr<MultiArrayClass2> ar1 = contHR0.fetch<MultiArrayClass2 >( oid1 );
-  if( ar1 ){
-    std::cout << "Read out vector size="<<ar1->m_a.size()<<std::endl;
-    ar1->print();
-  } else {
-    std::cout << "############# No data for oid="<<oid1<<std::endl;
-  } 
-  db.transaction().commit();
-  db.disconnect();
-// update...
-  std::cout << "++++++++++++ update +++++++++++"<<std::endl;
-  db.connect( connStr );
-  db.transaction().start( false );
-  MultiArrayClass2 au0(3);
-  std::cout << "update oid="<<id0.itemId()<<std::endl;
-  db.update( id0, au0 );
-  MultiArrayClass2* au1 = new MultiArrayClass2(4);
-  std::cout << "update oid="<<id1.itemId()<<std::endl;
-  db.update( id1, *au1 );
-  db.flush();
-  delete au1;
-  ora::OId id2( id1.containerId(), 400 );
-  std::cout << "update oid="<<id2.itemId()<<std::endl;
-  db.update( id2, au0 );
-  db.transaction().commit();
-  db.disconnect();
-  // reading back...
-  std::cout << "++++++++++++ Reading II +++++++++++"<<std::endl;
-  db.connect( connStr );  
-  db.transaction().start( true );
-  ar0 = db.fetch<MultiArrayClass2 >( id0 );
-  if( ar0 ){
-    std::cout << "Read after update vector size="<<ar0->m_a.size()<<std::endl;
-    ar0->print();
-  } else {
-    std::cout << "############# No data for oid="<<id0.itemId()<<std::endl;
-  }
-  ar1 = db.fetch<MultiArrayClass2 >( id1 );
-  if( ar1 ){
-    std::cout << "Read after update vector size="<<ar1->m_a.size()<<std::endl;
-    ar1->print();
-  } else {
-    std::cout << "############# No data for oid="<<id1.itemId()<<std::endl;
-  } 
-  db.transaction().commit();
-  db.disconnect();
-  // delete...
-  std::cout << "++++++++++++ delete +++++++++++"<<std::endl;
-  db.connect( connStr );
-  db.transaction().start( false );
-  contHR0 = db.containerHandle( "Cont0" );
-  std::cout << "** start objs in container="<<contHR0.size()<<std::endl;
-  std::cout << "delete oid="<<id0.itemId()<<std::endl;
-  db.erase( id0 );
-  std::cout << "delete oid="<<id2.itemId()<<std::endl;
-  db.erase( id2 );
-  std::cout << "** objs in container before flush="<<contHR0.size()<<std::endl;
-  db.flush();
-  std::cout << "** objs in container after flush="<<contHR0.size()<<std::endl;
-  db.transaction().commit();
-  db.disconnect();
-  db.connect( connStr );  
-  db.transaction().start( true );
-  contHR0 = db.containerHandle( "Cont0" );
-  std::cout << "** start objs in container="<<contHR0.size()<<std::endl;
-  db.transaction().commit();
-  db.disconnect();
+    {
+      oid0 = contH0.insert( a0 );
+      oid1 = contH0.insert( a1 );
+      contH0.flush();
+    }
+    ora::OId id0( contH0.id(), oid0 );
+    ora::OId id1( contH0.id(), oid1 );
+    trans0.commit();
+    db.disconnect();
+    ::sleep(1);
+    // reading back...
+    db.connect( connStr );
+    trans0.start( true );
+    contH0 = db.containerHandle( "Cont0" );
+    if( contH0.size() != 2 ){
+      std::cout << "Container Cont0 size is="<<contH0.size()<<std::endl;
+      ora::throwException( "(1) Container Cont0 size is not 2 as expected.","testORA_5");
+    } else {
+      std::cout << "Container Cont0 size is 2 as expected."<<std::endl;
+    }
+    boost::shared_ptr<MultiArrayClass2> ar0 = contH0.fetch<MultiArrayClass2 >( oid0 );
+    if( *ar0 != a0 ){
+      ora::throwException( "(2) Data read on oid0 different from expected.","testORA_5");
+    } else {
+      std::cout << "Data read on oid="<<oid0<<" is correct."<<std::endl;
+    }
+    boost::shared_ptr<MultiArrayClass2> ar1 = contH0.fetch<MultiArrayClass2 >( oid1 );
+    if( *ar1 != a1 ){
+      ora::throwException( "(3) Data read on oid1 different from expected.","testORA_5");
+    } else {
+      std::cout << "Data read on oid="<<oid1<<" is correct."<<std::endl;
+    }
+    trans0.commit();
+    db.disconnect();
+    // update...
+    db.connect( connStr );
+    trans0.start( false );
+    MultiArrayClass2 au0(3);
+    db.update( id0, au0 );
+    std::auto_ptr<MultiArrayClass2> au1( new MultiArrayClass2(4) );
+    db.update( id1, *au1 );
+    db.flush();
+    ora::OId id2( id1.containerId(), 400 );
+    db.update( id2, au0 );
+    trans0.commit();
+    db.disconnect();
+    // reading back...
+    db.connect( connStr );
+    trans0.start( true );
+    ar0 = db.fetch<MultiArrayClass2 >( id0 );
+    if( *ar0 != au0 ){
+      ora::throwException( "(4) Data read on oid0 after update different from expected.","testORA_5");
+    } else {
+      std::cout << "Data read on oid="<<oid0<<" after update is correct."<<std::endl;
+    }
+    ar1 = db.fetch<MultiArrayClass2 >( id1 );
+    if( *ar1 != *au1 ){
+      ora::throwException( "(5) Data read on oid1 after update different from expected.","testORA_5");
+    } else {
+      std::cout << "Data read on oid="<<oid1<<" after update is correct."<<std::endl;
+    }
+    trans0.commit();
+    db.disconnect();
+    // delete...
+    db.connect( connStr );
+    trans0.start( false );
+    contH0 = db.containerHandle( "Cont0" );
+    if( contH0.size() != 2 ){
+      ora::throwException( "(6) Container Cont0 size before delete is not 2 as expected.","testORA_5");
+    } else {
+      std::cout << "Container Cont0 size is 2 before delete as expected."<<std::endl;
+    }
+    db.erase( id0 );
+    db.erase( id2 );
+    if( contH0.size() != 2 ){
+      ora::throwException( "(7) Container Cont0 size is not 2 before delete flush as expected.","testORA_5");
+    } else {
+      std::cout << "Container Cont0 size is 2 before delete flush as expected."<<std::endl;
+    }
+    db.flush();
+    std::cout << "%%%% size after flush="<<contH0.size()<<std::endl;
+    if( contH0.size() != 1 ){
+      std::stringstream mess;
+      mess << "(8) Container Cont0 after delete flush size="<<contH0.size();
+      mess << " (expected=1)"<<std::endl;
+      ora::throwException( mess.str(),"testORA_5");
+    } else {
+      std::cout << "Container Cont0 size is 2 after delete flush as expected."<<std::endl;
+    }
+    trans0.commit();
+    db.disconnect();
+    //
+    db.connect( connStr );
+    trans0.start( true );
+    contH0 = db.containerHandle( "Cont0" );
+    if( contH0.size() != 1 ){
+      ora::throwException( "(9) Container Cont0 size is not 1 after delete as expected.","testORA_5");
+    } else {
+      std::cout << "Container Cont0 size is 1 after delete as expected."<<std::endl;
+    }
+    trans0.commit();
+    db.disconnect();
   } catch ( const ora::Exception& exc ){
     std::cout << "### ############# ERROR: "<<exc.what()<<std::endl;
   }

@@ -93,7 +93,7 @@ namespace ora {
         dependentMappings.clear();
 
         MappingElement& topLevelMapping = contSchema.mapping( true ).topElement();
-        m_topLevelUpdate = &m_operationBuffer.newUpdate( topLevelMapping.tableName() );
+        m_topLevelUpdate = &m_operationBuffer.newUpdate( topLevelMapping.tableName(), true );
         m_topLevelUpdate->addId(  topLevelMapping.columnNames()[ 0 ] );
         m_topLevelUpdate->addWhereId(  topLevelMapping.columnNames()[ 0 ] );
         const Reflex::Type& type = contSchema.type();

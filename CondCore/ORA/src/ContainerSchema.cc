@@ -114,6 +114,7 @@ void ora::ContainerSchema::create(){
   m_session.mappingDatabase().storeMapping( m_mapping );
   m_session.mappingDatabase().insertClassVersion( m_classDict, 0, m_containerId, newMappingVersion, true );
   MappingToSchema mapping2Schema( m_session.schema().storageSchema() );
+  m_mapping.tables();
   mapping2Schema.create(  m_mapping );
   m_loaded = true;
 }

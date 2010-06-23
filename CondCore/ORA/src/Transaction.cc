@@ -40,6 +40,7 @@ bool ora::Transaction::rollback(){
 }
 
 bool ora::Transaction::isActive( bool checkIfReadOnly ) const {
+  if( !m_session.isConnected() ) return false;
   return m_session.isTransactionActive( checkIfReadOnly );
 }
 

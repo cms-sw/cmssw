@@ -32,7 +32,6 @@ void ora::MappingGenerator::createNewMapping( const std::string& containerName,
                     "MappingGenerator::processClass");
   }
   m_tableRegister.insertTable(tableName);
-  
   // Define the top level element
   MappingElement& topElement = destination.setTopElement( className, tableName );
   topElement.setColumnNames( std::vector< std::string >( 1, ora::MappingRules::columnNameForId() ) );

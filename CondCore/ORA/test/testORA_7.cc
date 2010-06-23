@@ -1,5 +1,6 @@
 #include "CondCore/ORA/interface/Database.h"
 #include "CondCore/ORA/interface/Container.h"
+#include "CondCore/ORA/interface/ScopedTransaction.h"
 #include "CondCore/ORA/interface/Transaction.h"
 #include "CondCore/ORA/interface/Exception.h"
 #include "CondCore/ORA/interface/IBlobStreamingService.h"
@@ -158,101 +159,77 @@ void PrimitiveContainerStreamingService::read( const coral::Blob& blobData,
 int main(){
   try {
 
-    //const boost::filesystem::path dict_path("testORADict");
-    //edmplugin::SharedLibrary shared( dict_path );
-    // writing...  
-  ora::Database db;
-  db.configuration().setMessageVerbosity( coral::Debug );
-  PrimitiveContainerStreamingService* blobServ = new PrimitiveContainerStreamingService;
-  db.configuration().setBlobStreamingService( blobServ );
-    //std::string connStr( "sqlite_file:test.db" );
-  //std::string connStr( "myalias" );
-  std::string connStr( "oracle://devdb10/giacomo" );
-  db.connect( connStr );
-  db.transaction().start( false );
-  bool exists = db.exists();
-  if(exists){
-    std::cout << "############# ORA database does exist in "<< connStr<<"."<<std::endl;
-    db.dropContainer( "Cont0" );
-    db.dropContainer("SiStripNoises");
-  } else {
-    std::cout << "############# ORA database does not exist in "<< connStr<<", creating it..."<<std::endl;
-    db.create();
-  }
-  std::set< std::string > conts = db.containers();
-  std::cout << conts.size() <<" ############# container(s) found."<<std::endl;
-  for(std::set<std::string>::const_iterator iC = conts.begin();
-      iC != conts.end(); iC++ ){
-    std::cout << "############# CONT=\""<<*iC<<"\""<<std::endl;
-  }
-  db.createContainer<SB>("Cont0");
-  ora::Container contH0 = db.containerHandle( "Cont0" );
-  std::cout << "** W start objs in container="<<contH0.size()<<std::endl;
-  std::vector<boost::shared_ptr<SB> > buff;
-  for( unsigned int i=0;i<10;i++){
-    boost::shared_ptr<SB> obj( new SB(i) );
-    contH0.insert( *obj );
-    buff.push_back( obj );
-  }
-  contH0.flush();
-  buff.clear();
-  ora::Container cont2 = db.createContainer<SiStripNoises>();
-  std::vector<boost::shared_ptr<SiStripNoises> > buff2;
-  for( unsigned int i=0;i<10;i++){
-    boost::shared_ptr<SiStripNoises> obj( new SiStripNoises(i) );
-    db.insert("SiStripNoises", *obj );
-    buff2.push_back( obj );
-  }
-  db.flush();
-  buff2.clear();
-  db.transaction().commit();
-  db.disconnect();
-  ::sleep(1);
-  // reading back...
-  db.connect( connStr );  
-  db.transaction().start( true );
-  exists = db.exists();
-  if(exists){
-    std::cout << "############# ORA database does exist in "<< connStr<<"."<<std::endl;
-  } else {
-    std::cout << "############# ERROR!! ORA database does not exist in "<< connStr<<std::endl;
-  }
-  conts = db.containers();
-  std::cout << conts.size() <<" ############# container(s) found."<<std::endl;
-  for(std::set<std::string>::const_iterator iC = conts.begin();
-      iC != conts.end(); iC++ ){
-    std::cout << "############# CONT=\""<<*iC<<"\""<<std::endl;
-  }
-  contH0 = db.containerHandle( "Cont0" );
-  std::cout << "############# ContID="<<contH0.id()<<std::endl;
-  std::cout << "** R start objs in container="<<contH0.size()<<std::endl;
-  ora::ContainerIterator iter = contH0.iterator();
-  while( iter.next() ){
-    boost::shared_ptr<SB> obj = iter.get<SB>();
-    int seed = obj->m_intData;
-    SB r(seed);
-    if( r != *obj ){
-      std::cout <<"** test ERROR: data for class SB different from expected for seed = "<<seed<<std::endl;
-    } else{
-      std::cout << "** Read out data for class SB with seed="<<seed<<" is ok."<<std::endl;
+    // writing...
+    ora::Database db;
+    db.configuration().setMessageVerbosity( coral::Debug );
+    PrimitiveContainerStreamingService* blobServ = new PrimitiveContainerStreamingService;
+    db.configuration().setBlobStreamingService( blobServ );
+    std::string connStr( "oracle://devdb10/giacomo" );
+    db.connect( connStr );
+    ora::ScopedTransaction trans( db.transaction() );
+    trans.start( false );
+    if(!db.exists()){
+      db.create();
     }
-  }
-  cont2 = db.containerHandle( "SiStripNoises" );
-  std::cout << "############# ContID="<<cont2.id()<<std::endl;
-  std::cout << "** R start objs in container="<<cont2.size()<<std::endl;
-  iter = cont2.iterator();
-  while( iter.next() ){
-    boost::shared_ptr<SiStripNoises> obj = iter.get<SiStripNoises>();
-    unsigned int seed = obj->m_id;
-    SiStripNoises r(seed);
-    if( r != *obj ){
-      std::cout <<"** test ERROR: data for class SiStripNoises different from expected for seed = "<<seed<<std::endl;
-    } else{
-      std::cout << "** Read out data for class SiStripNoises with seed="<<seed<<" is ok."<<std::endl;
+    std::set< std::string > conts = db.containers();
+    if( conts.find( "Cont0" )!= conts.end() ) db.dropContainer( "Cont0" );
+    if( conts.find( "SiStripNoises" )!= conts.end() ) db.dropContainer( "SiStripNoises" );
+    //
+    db.createContainer<SB>("Cont0");
+    ora::Container contH0 = db.containerHandle( "Cont0" );
+    std::vector<boost::shared_ptr<SB> > buff;
+    for( unsigned int i=0;i<10;i++){
+      boost::shared_ptr<SB> obj( new SB(i) );
+      contH0.insert( *obj );
+      buff.push_back( obj );
     }
-  }
-  db.transaction().commit();
-  db.disconnect();
+    contH0.flush();
+    buff.clear();
+    ora::Container cont2 = db.createContainer<SiStripNoises>();
+    std::vector<boost::shared_ptr<SiStripNoises> > buff2;
+    for( unsigned int i=0;i<10;i++){
+      boost::shared_ptr<SiStripNoises> obj( new SiStripNoises(i) );
+      db.insert("SiStripNoises", *obj );
+      buff2.push_back( obj );
+    }
+    db.flush();
+    buff2.clear();
+    trans.commit();
+    db.disconnect();
+    ::sleep(1);
+    // reading back...
+    db.connect( connStr );
+    trans.start( true );
+    contH0 = db.containerHandle( "Cont0" );
+    ora::ContainerIterator iter = contH0.iterator();
+    while( iter.next() ){
+      boost::shared_ptr<SB> obj = iter.get<SB>();
+      int seed = obj->m_intData;
+      SB r(seed);
+      if( r != *obj ){
+        std::stringstream mess;
+        mess << "Data for class SB different from expected for seed = "<<seed;
+        ora::throwException( mess.str(),"testORA_7");
+      } else{
+        std::cout << "** Read out data for class SB with seed="<<seed<<" is ok."<<std::endl;
+      }
+    }
+    cont2 = db.containerHandle( "SiStripNoises" );
+    iter = cont2.iterator();
+    while( iter.next() ){
+      boost::shared_ptr<SiStripNoises> obj = iter.get<SiStripNoises>();
+      unsigned int seed = obj->m_id;
+      SiStripNoises r(seed);
+      if( r != *obj ){
+        std::stringstream mess;
+        mess << "Data for class SiStripNoises different from expected for seed = "<<seed;
+        ora::throwException( mess.str(),"testORA_7");
+      } else{
+        std::cout << "** Read out data for class SiStripNoises with seed="<<seed<<" is ok."<<std::endl;
+      }
+    }
+    trans.commit();
+    db.disconnect();
   } catch ( const ora::Exception& exc ){
     std::cout << "### ############# ERROR: "<<exc.what()<<std::endl;
   }

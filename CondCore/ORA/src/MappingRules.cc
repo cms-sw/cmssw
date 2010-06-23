@@ -167,6 +167,22 @@ ora::MappingRules::scopedVariableForSchemaObjects( const std::string& variableNa
   return scopedName.str();  
 }
 
+/// TO BE REMOVED
+#include "CondCore/ORA/interface/Exception.h"
+namespace ora {
+  static std::string validChars("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_-0123456789");
+  void checkString( const std::string& s, int code, bool thro=true){
+    for( size_t i=0;i<s.size();i++){
+      if( validChars.find( s[i])==std::string::npos ) {
+        std::stringstream mess;
+        mess <<" code="<<code<<" in string ["<<s<<"] found a wrong char=["<<s[i]<<"].";
+        if( thro ) throwException( mess.str(),"validChars");
+      }
+    }    
+  } 
+  
+}
+
 std::string
 ora::MappingRules::newNameForSchemaObject( const std::string& initialName,
                                            unsigned int index,
@@ -178,9 +194,12 @@ ora::MappingRules::newNameForSchemaObject( const std::string& initialName,
   if(newSize > maxLength) newSize = maxLength;
   unsigned int cutSize = newSize - digitsForPostfix;
   std::stringstream newStr("");
-  if( initialName[cutSize]=='_' ) cutSize -= 1;
+  if( initialName[cutSize-1]=='_' ) cutSize -= 1;
   std::string cutString = initialName.substr(0, cutSize );
-  newStr << cutString << "_" << indexTrailer << index;
+  newStr << cutString << "_";
+  if( indexTrailer !=0 ) newStr<< indexTrailer;
+  newStr<< index;
+  //checkString( newStr.str(), 7 );
   return newStr.str();
 }
 
@@ -212,23 +231,6 @@ ora::MappingRules::nameForSchema( const std::string& variableName ){
   size_t start = 0;
   if(varName.size() && varName[0]== '_' ) start = 1;
   return varName.substr(start,cutPoint);
-}
-
-/// TO BE REMOVED
-#include "CondCore/ORA/interface/Exception.h"
-namespace ora {
-  static std::string validChars("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_-0123456789");
-  void checkString( const std::string& s, int code, bool thro=true){
-    for( size_t i=0;i<s.size();i++){
-      if( validChars.find( s[i])==std::string::npos ) {
-        std::stringstream mess;
-        mess <<" code="<<code<<" in string ["<<s<<"] found a wrong char=["<<s[i]<<"].";
-        if( thro ) throwException( mess.str(),"validChars");
-      }
-    }
-    
-  } 
-  
 }
 
 std::string ora::MappingRules::shortNameByUpperCase( const std::string& className,

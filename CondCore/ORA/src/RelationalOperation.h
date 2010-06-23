@@ -22,6 +22,8 @@ namespace ora {
     virtual ~IRelationalOperation(){
     }
 
+    virtual bool isRequired() = 0;
+
     virtual bool execute() = 0 ;
 
     virtual void reset() = 0;
@@ -96,6 +98,7 @@ namespace ora {
     ~InsertOperation();
 
     public:
+    bool isRequired();
     bool execute();
     void reset();
 
@@ -111,6 +114,7 @@ namespace ora {
     coral::IBulkOperation& setUp( int rowCacheSize );
 
     public:
+    bool isRequired();
     bool execute();
     void reset();
     private:
@@ -126,6 +130,7 @@ namespace ora {
     ~UpdateOperation();
 
     public:
+    bool isRequired();
     bool execute();
     void reset();
     private:
@@ -141,6 +146,7 @@ namespace ora {
     ~DeleteOperation();
 
     public:
+    bool isRequired();
     bool execute();
     void reset();
     private:

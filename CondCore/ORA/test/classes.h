@@ -14,24 +14,67 @@
 #include "CondCore/ORA/interface/UniqueRef.h"
 #include <boost/shared_ptr.hpp>
 
-class SimpleMember {
+class BObj {
+  public:
+  BObj(): id(0){
+  } 
+  BObj( unsigned int i ):id(i){
+  }
+  BObj( const BObj& rhs ): id( rhs.id){
+  }
+  virtual ~BObj(){
+  }
+  BObj& operator=( const BObj& rhs ){
+   id = rhs.id;
+   return *this;
+  }
+  bool operator==( const BObj& rhs ) const {
+    if( id != rhs.id ) {
+      std::cout << "## BObj: exp id="<<id<<" found="<<rhs.id<<std::endl;
+      return false;
+    }
+    return true;
+  }
+  bool operator!=( const BObj& rhs ) const {
+    return !operator==( rhs );
+  }
+  
+  unsigned int id;  
+};
+
+class SimpleMember : public BObj {
 
  public:
-  SimpleMember():m_flag(false),m_id(0){}
-  SimpleMember( long id ):m_flag(true),m_id(id){}
-  SimpleMember(const SimpleMember& mem):m_flag(mem.m_flag),m_id(mem.m_id){}
-  SimpleMember& operator=(const SimpleMember& mem){
+  SimpleMember():BObj(),m_flag(false),m_f(0.),m_s("-"){}
+  SimpleMember( unsigned int id ):BObj(id),m_flag(true),m_f(id),m_s(""){
+      std::stringstream ss;
+      ss << "SimpleMember_"<<id;
+      m_s = ss.str();
+  }
+
+  SimpleMember(const SimpleMember& mem):BObj(mem),m_flag(mem.m_flag),m_f(mem.m_f),m_s(mem.m_s){}
+    SimpleMember& operator=(const SimpleMember& mem){
+      BObj::operator=( mem );
     m_flag = mem.m_flag;
-    m_id = mem.m_id;
+    m_f = mem.m_f;
+    m_s = mem.m_s;
     return *this;
   }
   bool operator==(const SimpleMember& rhs) const {
+    if(BObj::operator!=( rhs )) {
+      std::cout << "## SimpleMember: BObj is different."<<std::endl;
+      return false;
+    }
     if(m_flag!=rhs.m_flag) {
       std::cout << "## SimpleMember: m_flag is different."<<std::endl;
       return false;
     }
-    if(m_id!=rhs.m_id) {
-      std::cout << "## SimpleMember: exp m_id="<<m_id<<" found="<<rhs.m_id<<std::endl;
+    if(m_f!=rhs.m_f) {
+      std::cout << "## SimpleMember: exp m_f="<<m_f<<" found="<<rhs.m_f<<std::endl;
+      return false;
+    }
+    if(m_s!=rhs.m_s) {
+      std::cout << "## SimpleMember: exp m_s="<<m_s<<" found="<<rhs.m_s<<std::endl;
       return false;
     }
     return true;
@@ -41,33 +84,46 @@ class SimpleMember {
   }
   
   bool m_flag;
-  long m_id;
+  float m_f;
+  std::string m_s;
 };
 
 struct Dummy {
     std::vector<SimpleMember> dm;
+    std::vector<int> m_arrayData;
+    std::map<unsigned long long,unsigned long long> m_map;
 };
 
-class BaseClass {
+class BaseClass :public BObj {
   public:
-  BaseClass():m_f(0.),m_s(""),m_objectData(){
+  BaseClass():BObj(),m_f(0.),m_s(""),m_objectData(){
   }
-  BaseClass(unsigned int id):m_f(0.+id),m_s(""),m_objectData(){
+  BaseClass(unsigned int id):BObj(id),m_f(0.+id),m_s(""),m_objectData(id){
     std::ostringstream os;
     os << "BaseClass_"<<id;    
     m_s = os.str();
-    m_objectData.m_flag = true;
-    m_objectData.m_id = id+1;
   }
   
-  bool operator==(const BaseClass& rhs){
-    if(m_f!=rhs.m_f) return false;
-    if(m_s!=rhs.m_s) return false;
-    if(m_objectData.m_flag!=rhs.m_objectData.m_flag) return false;
-    if(m_objectData.m_id!=rhs.m_objectData.m_id) return false;
+  bool operator==(const BaseClass& rhs) const {
+    if(BObj::operator!=( rhs )){
+      std::cout << "## BaseClass: BObj is different"<<std::endl;
+      return false;
+    }
+    if(m_f!=rhs.m_f) {
+      std::cout << "## BaseClass: exp m_f="<<m_f<<" found="<<rhs.m_f<<std::endl;
+      return false;
+    }
+    if(m_s!=rhs.m_s) {
+      std::cout << "## BaseClass: exp m_s="<<m_s<<" found="<<rhs.m_s<<std::endl;
+      return false;
+    }
+    if(m_objectData !=rhs.m_objectData) {
+      std::cout << "## BaseClass: m_objectData is different"<<std::endl;
+      return false;
+    }
     return true;
   }
-  bool operator!=(const BaseClass& rhs){
+  bool operator!=(const BaseClass& rhs) const {
     return !operator==(rhs);
   }
   
@@ -80,16 +136,11 @@ class SimpleClass : public BaseClass {
 
  public:
 
-  SimpleClass():BaseClass(),m_intData(0),m_stringData(""),m_objectData(),m_arrayData(),m_map(),m_code(ZERO){}
-  SimpleClass(unsigned int id):BaseClass(id),m_intData(id),m_stringData(""),m_objectData(),m_arrayData(),m_map(),m_code(ZERO){
-  //SimpleClass():BaseClass(),m_intData(0),m_stringData(""),m_objectData(),m_code(ZERO){}
-  //SimpleClass(unsigned int id):BaseClass(id),m_intData(id),m_stringData(""),m_objectData(),m_code(ZERO){
-    m_intData = id;
+  SimpleClass():BaseClass(),m_longData(0),m_stringData(""),m_objectData(),m_arrayData(),m_map(),m_code(ZERO){}
+  SimpleClass(unsigned int id):BaseClass(id),m_longData(id),m_stringData(""),m_objectData(id),m_arrayData(),m_map(),m_code(ZERO){
     std::ostringstream os;
     os << "SimpleClass_"<<id; 
     m_stringData = os.str();
-    m_objectData.m_flag = true;
-    m_objectData.m_id = id;
     for(int i=0;i<(int)id;i++){
       m_arrayData.push_back(i);
     }
@@ -102,57 +153,43 @@ class SimpleClass : public BaseClass {
     }
   }
 
-  SimpleClass(const SimpleClass& obj){
-    m_intData = obj.m_intData;
-    m_stringData = obj.m_stringData;
-    m_objectData = obj.m_objectData;
-    m_arrayData = obj.m_arrayData;
-    m_map = obj.m_map;
-    m_code = obj.m_code;
-  }
-  SimpleClass& operator=(const SimpleClass& obj){
-    m_intData = obj.m_intData;
-    m_stringData = obj.m_stringData;
-    m_objectData = obj.m_objectData;
-    m_arrayData = obj.m_arrayData;
-    m_map = obj.m_map;
-    m_code = obj.m_code;
-    return *this;
-  }
-
-  bool operator==(const SimpleClass& rhs){
-    if(BaseClass::operator!=(rhs)) return false;
-    if(m_intData!=rhs.m_intData) return false;
-    if(m_stringData!=rhs.m_stringData) return false;
-    if(m_objectData.m_flag!=rhs.m_objectData.m_flag) return false;
-    if(m_objectData.m_id!=rhs.m_objectData.m_id) return false;
-    if(m_arrayData!=rhs.m_arrayData) return false;
-    if(m_map!=rhs.m_map) return false;
-    if(m_code!=rhs.m_code) return false;
+  bool operator==(const SimpleClass& rhs) const {
+    if(BaseClass::operator!=(rhs)) {
+      std::cout << "## SimpleClass: BaseClass is different"<<std::endl;
+      return false;
+    }
+    if(m_longData!=rhs.m_longData) {
+      std::cout << "## SimpleClass: exp m_longData="<<m_longData<<" found="<<rhs.m_longData<<std::endl;
+      return false;
+    }
+    if(m_stringData!=rhs.m_stringData) {
+      std::cout << "## SimpleClass: exp m_stringData="<<m_longData<<" found="<<rhs.m_stringData<<std::endl;
+      return false;
+    }
+    if(m_objectData !=rhs.m_objectData ) {
+      std::cout << "## SimpleClass: m_objectData is different"<<std::endl;
+      return false;
+    }
+    if(m_arrayData!=rhs.m_arrayData) {
+      std::cout << "## SimpleClass: m_arrayData is different"<<std::endl;
+      return false;
+    }
+    if(m_map!=rhs.m_map) {
+      std::cout << "## SimpleClass: m_map is different"<<std::endl;
+      return false;
+    }
+    if(m_code!=rhs.m_code) {
+      std::cout << "## SimpleClass: exp m_code="<<m_code<<" found="<<rhs.m_code<<std::endl;
+      return false;
+    }
     return true;
   }
-  bool operator!=(const SimpleClass& rhs){
+  bool operator!=(const SimpleClass& rhs) const {
     return !operator==(rhs);
   }
 
-  void print(){
-    std::cout << "BASE F="<<BaseClass::m_f<<std::endl;
-    std::cout << "BASE S="<<BaseClass::m_s<<std::endl;
-    std::string bbs("TRUE");
-    if(!BaseClass::m_objectData.m_flag) bbs = "FALSE";
-    std::cout << "BASE ODFLAG="<<bbs<<std::endl;
-    std::cout << "BASE ODID="<<BaseClass::m_objectData.m_id<<std::endl;
-    std::cout << "ID="<<m_intData<<std::endl;
-    std::cout << "STR="<<m_stringData<<std::endl;
-    std::string bs("TRUE");
-    if(!m_objectData.m_flag) bs = "FALSE";
-    std::cout << "ODFLAG="<<bs<<std::endl;
-    std::cout << "ODID="<<m_objectData.m_id<<std::endl;
-    std::cout << "CODE="<<m_code<<std::endl;
-  }
-
   enum MySimpleClassCode { ZERO, ONE, TWO };
-  unsigned int m_intData;
+  long m_longData;
   std::string m_stringData;
   SimpleMember m_objectData;
   std::vector<int> m_arrayData;
@@ -165,7 +202,7 @@ class ArrayClass {
  public:
 
   ArrayClass():m_arrayData(),m_map(){}
-  ArrayClass(unsigned int id):m_arrayData(),m_map(){
+    ArrayClass(unsigned int id):m_arrayData(),m_map(){
     for(int i=0;i<(int)id;i++){
       m_arrayData.push_back(i);
     }
@@ -178,22 +215,19 @@ class ArrayClass {
     }
   }
   
-  bool operator==(const ArrayClass& rhs){
-    if(m_arrayData!=rhs.m_arrayData) return false;
-    if(m_map!=rhs.m_map) return false;
+  bool operator==(const ArrayClass& rhs) const {
+    if(m_arrayData!=rhs.m_arrayData) {
+      std::cout << "## ArrayClass: m_arrayData is different"<<std::endl;
+      return false;
+    }
+    if(m_map!=rhs.m_map) {
+      std::cout << "## ArrayClass: m_map is different"<<std::endl;
+      return false;
+    }
     return true;
   }
-  bool operator!=(const ArrayClass& rhs){
+  bool operator!=(const ArrayClass& rhs) const {
     return !operator==(rhs);
-  }
-
-  void print(){
-    for(size_t j=0;j<m_arrayData.size();j++) std::cout << "v["<<j<<"]="<<m_arrayData[j]<<std::endl;
-    for( std::map<std::string,std::string>::const_iterator iM = m_map.begin();
-         iM != m_map.end(); iM++ ){
-      std::cout << "m["<<iM->first<<"]="<<iM->second<<std::endl;
-    }
-    
   }
 
   std::vector<int> m_arrayData;
@@ -204,8 +238,8 @@ class MultiArrayClass {
 
  public:
 
-  MultiArrayClass():m_a(){}
-  MultiArrayClass(unsigned int id):m_a(){
+  MultiArrayClass():m_a(),m_m(){}
+    MultiArrayClass(unsigned int id):m_a(),m_m(){
     for(int i=0;i<(int)id;i++){
       std::vector<int> vj;
       for(int j=0;j<i+1;j++){
@@ -213,44 +247,65 @@ class MultiArrayClass {
       }
       m_a.push_back(vj);
     }
+    for(unsigned int i=0;i<id;i++){
+      std::vector<std::string> vj;
+      for(unsigned int j=0;j<i+1;j++){
+        std::stringstream sss;
+        sss << "MA_"<<i<<"_"<<j;
+        vj.push_back(sss.str());
+      }
+      std::stringstream ss;
+      ss <<"MA_"<<i;
+      m_m.insert(std::make_pair(ss.str(),vj));
+    }
   }
   
-  bool operator==(const MultiArrayClass& rhs){
-    if(m_a!=rhs.m_a) return false;
+  bool operator==(const MultiArrayClass& rhs) const {
+    if(m_a!=rhs.m_a) {
+      std::cout << "## MultiArrayClass: m_a is different"<<std::endl;
+      return false;
+    }
+    if(m_m!=rhs.m_m) {
+      std::cout << "## MultiArrayClass: m_m is different"<<std::endl;
+      return false;
+    }
     return true;
   }
-  bool operator!=(const MultiArrayClass& rhs){
+  bool operator!=(const MultiArrayClass& rhs) const {
     return !operator==(rhs);
   }
 
-  void print(){
-    for(size_t j=0;j<m_a.size();j++) {
-      std::cout <<"*** vec["<<j<<"]*** size="<<m_a[j].size()<<std::endl;
-      for( size_t ij=0;ij<m_a[j].size();ij++) std::cout << "m_a["<<j<<"]["<<ij<<"]="<<m_a[j][ij]<<std::endl;
-    }
-  }
-
   std::vector<std::vector<int> > m_a;
+  std::map<std::string,std::vector<std::string> > m_m;
 };
 
 class OtherMember {
 
  public:
-  OtherMember():m_flag(false),m_id(0),m_v(){}
-  OtherMember( long id ):m_flag(true),m_id(id),m_v(){
+  OtherMember():m_flag(false),m_i(0),m_v(){}
+  OtherMember( unsigned int id ):m_flag(true),m_i(id),m_v(){
     for(int i=10;i<15;i++) m_v.push_back(i);
   }
-  OtherMember(const OtherMember& mem):m_flag(mem.m_flag),m_id(mem.m_id),m_v(mem.m_v){}
+  OtherMember(const OtherMember& mem):m_flag(mem.m_flag),m_i(mem.m_i),m_v(mem.m_v){}
   OtherMember& operator=(const OtherMember& mem){
     m_flag = mem.m_flag;
-    m_id = mem.m_id;
+    m_i = mem.m_i;
     m_v = mem.m_v;
     return *this;
   }
   bool operator==(const OtherMember& rhs) const {
-    if(m_flag!=rhs.m_flag) return false;
-    if(m_id!=rhs.m_id) return false;
-    if(m_v!=rhs.m_v) return false;
+    if(m_flag!=rhs.m_flag) {
+      std::cout << "## OtherMember: m_flag is different"<<std::endl;
+      return false;
+    }
+    if(m_i!=rhs.m_i) {
+      std::cout << "## OtherMember: exp m_i="<<m_i<<" found="<<rhs.m_i<<std::endl;
+      return false;
+    }
+    if(m_v!=rhs.m_v) {
+      std::cout << "## OtherMember: exp m_v siz="<<m_v.size()<<" found="<<rhs.m_v.size()<<std::endl;
+      return false;
+    }
     return true;
   }
   bool operator!=(const OtherMember& rhs) const {
@@ -258,15 +313,37 @@ class OtherMember {
   }
   
   bool m_flag;
-  long m_id;
+  unsigned int m_i;
   std::vector<int> m_v;
 };
 
 class MultiArrayClass2 {
 
   public:
-  MultiArrayClass2():m_a(){}
-  MultiArrayClass2(unsigned int id):m_a(){
+
+  class Inner {
+      public:
+      Inner():m_v(){}
+      Inner(unsigned int id):m_v(){
+        for(unsigned int i=0;i<id;i++) m_v.push_back((int)i);
+      }
+      virtual ~Inner(){}
+      bool operator==(const Inner& rhs) const {
+        if(m_v!=rhs.m_v) {
+          std::cout << "## Inner: m_v is different."<<std::endl;
+          return false;
+        }
+        return true;
+      }
+      bool operator!=(const Inner& rhs) const {
+        return !operator==(rhs);
+      }
+      std::vector<int> m_v;
+  };
+
+  public:
+  MultiArrayClass2():m_a(),m_innData(){}
+    MultiArrayClass2(unsigned int id):m_a(),m_innData(id){
     for(int i=0;i<(int)id;i++){
       std::vector<OtherMember> vj;
       for(int j=0;j<i+1;j++){
@@ -278,11 +355,18 @@ class MultiArrayClass2 {
     }
   }
   
-  bool operator==(const MultiArrayClass2& rhs){
-    if(m_a!=rhs.m_a) return false;
+  bool operator==(const MultiArrayClass2& rhs) const {
+    if(m_a!=rhs.m_a) {
+      std::cout << "## MultiArrayClass2: m_a is different"<<std::endl;
+      return false;
+    }
+    if(m_innData!=rhs.m_innData) {
+      std::cout << "## MultiArrayClass2: m_innData is different"<<std::endl;
+      return false;
+    }
     return true;
   }
-  bool operator!=(const MultiArrayClass2& rhs){
+  bool operator!=(const MultiArrayClass2& rhs) const {
     return !operator==(rhs);
   }
 
@@ -292,7 +376,7 @@ class MultiArrayClass2 {
       for( size_t ij=0;ij<m_a[j].size();ij++) {
         std::string f("FALSE");
         if(m_a[j][ij].m_flag) f = "TRUE";
-        std::cout << "m_a["<<j<<"]["<<ij<<"] id="<<m_a[j][ij].m_id<<" flag="<<f<<std::endl;
+        std::cout << "m_a["<<j<<"]["<<ij<<"] id="<<m_a[j][ij].m_i<<" flag="<<f<<std::endl;
         for(size_t ijk=0;ijk<m_a[j][ij].m_v.size();ijk++)
           std::cout << "m_a["<<j<<"]["<<ij<<"] mv="<<m_a[j][ij].m_v[ijk]<<std::endl;
       }
@@ -300,99 +384,38 @@ class MultiArrayClass2 {
   }
 
   std::vector<std::vector<OtherMember> > m_a;
+  Inner m_innData;
 };
 
-class SimpleCl {
-
- public:
-
-  SimpleCl():m_intData(0),m_stringData(""),m_objectData(),m_arrayData(),m_map(),m_code(ZERO){}
-  SimpleCl(unsigned int id):m_intData(id),m_stringData(""),m_objectData(),m_arrayData(),m_map(),m_code(ZERO){
-    //SimpleCl():m_intData(0),m_stringData(""),m_objectData(),m_arrayData(),m_code(ZERO){}
-    //SimpleCl(unsigned int id):m_intData(id),m_stringData(""),m_objectData(),m_arrayData(),m_code(ZERO){
-    m_intData = id;
-    std::ostringstream os;
-    os << "SimpleCl_"<<id; 
-    m_stringData = os.str();
-    m_objectData.m_flag = true;
-    m_objectData.m_id = id;
-    for(int i=0;i<(int)id;i++){
-      m_arrayData.push_back(i);
-    }
-    for(unsigned long long i=0;i<(unsigned long long)id;i++){
-       m_map.insert(std::make_pair(i,i));
-    }
-    m_code = ONE;
-    if(id % 2 !=0 ){
-      m_code = TWO;
-    }
-  }
-
-  SimpleCl(const SimpleCl& obj){
-    m_intData = obj.m_intData;
-    m_stringData = obj.m_stringData;
-    m_objectData = obj.m_objectData;
-    m_arrayData = obj.m_arrayData;
-    m_map = obj.m_map;
-    m_code = obj.m_code;
-  }
-
-  ~SimpleCl(){
-   }
-  
-  
-  SimpleCl& operator=(const SimpleCl& obj){
-    m_intData = obj.m_intData;
-    m_stringData = obj.m_stringData;
-    m_objectData = obj.m_objectData;
-    m_arrayData = obj.m_arrayData;
-    m_map = obj.m_map;
-    m_code = obj.m_code;
-    return *this;
-  }
-
-  bool operator==(const SimpleCl& rhs){
-    if(m_intData!=rhs.m_intData) return false;
-    if(m_stringData!=rhs.m_stringData) return false;
-    if(m_objectData.m_flag!=rhs.m_objectData.m_flag) return false;
-    if(m_objectData.m_id!=rhs.m_objectData.m_id) return false;
-    if(m_arrayData!=rhs.m_arrayData) return false;
-    if(m_map!=rhs.m_map) return false;
-    if(m_code!=rhs.m_code) return false;
-    return true;
-  }
-  bool operator!=(const SimpleCl& rhs){
-    return !operator==(rhs);
-  }
-
-  enum MySimpleClCode { ZERO, ONE, TWO };
-  unsigned int m_intData;
-  std::string m_stringData;
-  SimpleMember m_objectData;
-  std::vector<int> m_arrayData;
-  std::map<unsigned long long,unsigned long long> m_map;
-  MySimpleClCode m_code;
-};
 
 class SM {
 
  public:
-  SM():m_flag(false),m_id(0){}
-  SM(long id):m_flag(true),m_id(id){
-    //for(int i=0;i<3;i++) m_v.push_back(i);
+  SM():m_flag(false),m_id(0),m_v(){}
+  SM(unsigned id):m_flag(true),m_id(id),m_v(){
+    for(int i=0;i<3;i++) m_v.push_back(i);
   }
-  SM(const SM& mem):m_flag(mem.m_flag),m_id(mem.m_id){}
-  SM& operator=(const SM& mem){
+  SM(const SM& mem):m_flag(mem.m_flag),m_id(mem.m_id),m_v(mem.m_v){}
+  SM& operator=(const SM& mem){        
     m_flag = mem.m_flag;
     m_id = mem.m_id;
-    //m_v = mem.m_v;
+    m_v = mem.m_v;
     return *this;
   }
 
   bool operator==(const SM& mem)const{
-    if(m_flag!=mem.m_flag) return false;
-    if(m_id!=mem.m_id) return false;
-    //if(m_v!=mem.m_v) return false;
+    if(m_flag!=mem.m_flag) {
+      std::cout << "## SM: m_flag is different"<<std::endl;
+      return false;
+    }
+    if(m_id!=mem.m_id) {
+      std::cout << "## SM: exp m_id="<<m_id<<" found="<<mem.m_id<<std::endl;
+      return false;
+    }
+    if(m_v!=mem.m_v) {
+      std::cout << "## SM: m_v is different"<<std::endl;
+      return false;
+    }
     return true;
   }
   bool operator!=(const SM& mem)const{
@@ -401,7 +424,7 @@ class SM {
   
   bool m_flag;
   long m_id;
-  //std::vector<int> m_v;
+  std::vector<int> m_v;
 
 };
 
@@ -411,7 +434,7 @@ class SimpleStruct {
     for(int i=0;i<3;i++) m_arr0[i]=0;    
     for(int i=0;i<15;i++) m_arr1[i]=0;
   }
-  SimpleStruct(int id):m_i(id){
+  SimpleStruct(unsigned int id):m_i(id){
     for(int i=0;i<3;i++) m_arr0[i]=i+id;    
     for(int i=0;i<15;i++) m_arr1[i]=i+id;
   }
@@ -425,28 +448,27 @@ class SimpleStruct {
     for(int i=0;i<15;i++) m_arr1[i]=mem.m_arr1[i];
     return *this;
   }
-  bool operator==(const SimpleStruct& rhs){
+  bool operator==(const SimpleStruct& rhs) const {
     if(m_i!=rhs.m_i) {
-      std::cout << "** ERROR: m_i exp="<<m_i<<" found="<<rhs.m_i<<std::endl;
+      std::cout << "## SimpleStruct: m_i exp="<<m_i<<" found="<<rhs.m_i<<std::endl;
       return false;
     }
     for(int i=0;i<3;i++) if(m_arr0[i]!=rhs.m_arr0[i]) {
-      std::cout << "** ERROR: m_arr0["<<i<<"] exp="<<m_arr0[i]<<" found="<<rhs.m_arr0[i]<<std::endl;
+      std::cout << "## SimpleStruct: m_arr0["<<i<<"] exp="<<m_arr0[i]<<" found="<<rhs.m_arr0[i]<<std::endl;
       return false;
     }
     
     for(int i=0;i<15;i++) if(m_arr1[i]!=rhs.m_arr1[i]) {
-      std::cout << "** ERROR: m_arr1["<<i<<"] exp="<<m_arr1[i]<<std::endl;
-      //for(int j=0;j<110;j++) std::cout << "** m_arr1 ["<<j<<"] exp="<<m_arr1[j]<<" found="<<rhs.m_arr1[j]<<std::endl;
+      std::cout << "## SimpleStruct: m_arr1["<<i<<"] exp="<<m_arr1[i]<<std::endl;
       return false;
     }
     
     return true;
   }
-  bool operator!=(const SimpleStruct& rhs){
+  bool operator!=(const SimpleStruct& rhs) const {
     return !operator==(rhs);
   }
-  int m_i;
+  unsigned int m_i;
   int m_arr0[3];
   int m_arr1[15];
 };
@@ -454,28 +476,6 @@ class SimpleStruct {
 class SA {
   public:
 
-  class Inner 
-    {
-      public:
-      Inner():m_v(){}
-      Inner(int id):m_v(){
-        for(int i=0;i<id;i++) m_v.push_back(i);
-      }
-      virtual ~Inner(){}
-      bool operator==(const Inner& rhs){
-        if(m_v!=rhs.m_v) return false;
-        return true;
-      }
-      bool operator!=(const Inner& rhs){
-        return !operator==(rhs);
-      }
-      std::vector<int> m_v;
-      
-    };
-
-  public:
-
-  //SA():m_intData(0),m_0_i1_i2_i3_m_id(0),m_stringData012345678012345678012345678012345678012345678(""),m_objectData(),m_arrayData(),m_2(),m_innData(){
   SA():m_intData(0),m_0_i1_i2_i3_m_id(0),m_stringData012345678012345678012345678012345678012345678(""){
     for(int i=0;i<5;i++)
       for(int j=0;j<4;j++) m_carra0[i][j]=0;
@@ -498,20 +498,12 @@ class SA {
         for(int k=0;k<30;k++) m_1[i][j][k] = SM();
   }
 
-    //SA(unsigned int id):m_intData(id),m_0_i1_i2_i3_m_id(id),m_stringData012345678012345678012345678012345678012345678(""),m_objectData(),m_arrayData(),m_2(),m_innData(id){
   SA(unsigned int id):m_intData(id),m_0_i1_i2_i3_m_id(id),m_stringData012345678012345678012345678012345678012345678(""){
     m_intData = id;
     m_0_i1_i2_i3_m_id = id;
     std::ostringstream os;
-    os << "SimpleClass_"<<id; 
+    os << "SA_"<<id; 
     m_stringData012345678012345678012345678012345678012345678 = os.str();
-    /**
-    m_objectData.m_flag = true;
-    m_objectData.m_id = id;
-    for(int i=0;i<(int)id;i++){
-      m_arrayData.push_back(i);
-      }
-    **/  
     for(int i=0;i<5;i++)
       for(int j=0;j<4;j++) m_carra0[i][j]=id*1000+i*j;
     for(int i=0;i<5;i++) m_carra[i]=id*1000+i;
@@ -539,119 +531,76 @@ class SA {
     for(int i=0;i<10;i++)
       for(int j=0;j<20;j++)
         for(int k=0;k<30;k++) m_1[i][j][k] = SM(i*j*k);;
-    /**
-    for(int i=0;i<(int)id;i++){
-      std::vector<std::vector<int> > v0;
-      for(int j=0;j<2;j++){
-        std::vector<int> v1;
-        for(int k=0;k<3;k++) v1.push_back(i*j*k);
-        v0.push_back(v1);
+  }
+    
+  bool operator==(const SA& rhs) const {
+    if(m_intData!=rhs.m_intData) {
+      std::cout << "## SA: exp m_intData="<<m_intData<<" found="<<rhs.m_intData<<std::endl;
+      return false;
+    }
+    if(m_0_i1_i2_i3_m_id!=rhs.m_0_i1_i2_i3_m_id) {
+      std::cout << "## SA: exp m_0_i1_i2_i3_m_id="<<m_0_i1_i2_i3_m_id<<" found="<<rhs.m_0_i1_i2_i3_m_id<<std::endl;
+      return false;
+    }
+    if(m_stringData012345678012345678012345678012345678012345678!=rhs.m_stringData012345678012345678012345678012345678012345678) {
+      std::cout << "## SA: exp m_stringData...="<<m_stringData012345678012345678012345678012345678012345678<<" found="<<rhs.m_stringData012345678012345678012345678012345678012345678<<std::endl;
+      return false;
+    }
+    for(int i=0;i<5;i++)
+      for(int j=0;j<4;j++) if(m_carra0[i][j]!=rhs.m_carra0[i][j]) {
+        std::cout << "## SA: m_carra0 is different"<<std::endl;
+        return false;
       }
-      m_2.push_back(v0);
+    for(int i=0;i<5;i++) {
+      if(m_carra[i]!=rhs.m_carra[i]) {
+        std::cout << "## SA: m_carra is different"<<std::endl;
+        return false;
+      }
     }
-    **/  
-  }
-  
-
-    //SA(const SA& obj):m_intData(obj.m_intData),m_0_i1_i2_i3_m_id(obj.m_0_i1_i2_i3_m_id),m_stringData012345678012345678012345678012345678012345678(obj.m_stringData012345678012345678012345678012345678012345678),m_objectData(obj.m_objectData),m_arrayData(obj.m_arrayData),m_2(obj.m_2),m_innData(){
-    SA(const SA& obj):m_intData(obj.m_intData),m_0_i1_i2_i3_m_id(obj.m_0_i1_i2_i3_m_id),m_stringData012345678012345678012345678012345678012345678(obj.m_stringData012345678012345678012345678012345678012345678){
-    for(int i=0;i<5;i++)
-      for(int j=0;j<4;j++) m_carra0[i][j]=obj.m_carra0[i][j];
-    for(int i=0;i<5;i++) m_carra[i]=obj.m_carra[i];
-    for(int i=0;i<150;i++) m_carra1[i]=obj.m_carra1[i];
-    for(int i=0;i<110;i++)
-      for(int j=0;j<2;j++) m_carra2[i][j]=obj.m_carra2[i][j];
-    for(int i=0;i<30;i++) m_ocarra[i]=obj.m_ocarra[i];
-    for(int i=0;i<10;i++) m_maps[i] = obj.m_maps[i];
-    for(int i=0;i<2;i++) m_vecs[i] = obj.m_vecs[i];
-    for(int i=0;i<2;i++)
-      for(int j=0;j<3;j++)
-        for(int k=0;k<4;k++) m_0[i][j][k] = obj.m_0[i][j][k];
-    for(int i=0;i<10;i++)
-      for(int j=0;j<20;j++)
-        for(int k=0;k<30;k++) m_1[i][j][k] = obj.m_1[i][j][k];
-    /**
-    //m_innData.m_v = obj.m_innData.m_v;
-    **/    
-  }
-  
-  SA& operator=(const SA& obj){
-    m_intData = obj.m_intData;
-    m_0_i1_i2_i3_m_id = obj.m_0_i1_i2_i3_m_id;
-    m_stringData012345678012345678012345678012345678012345678 = obj.m_stringData012345678012345678012345678012345678012345678;
-    /**
-    m_objectData = obj.m_objectData;
-    m_arrayData = obj.m_arrayData;
-    **/
-    for(int i=0;i<5;i++)
-      for(int j=0;j<4;j++) m_carra0[i][j]=obj.m_carra0[i][j];
-    for(int i=0;i<5;i++) m_carra[i]=obj.m_carra[i];
-    for(int i=0;i<150;i++) m_carra1[i]=obj.m_carra1[i];    
-    for(int i=0;i<110;i++)
-      for(int j=0;j<2;j++) m_carra2[i][j]=obj.m_carra2[i][j];
-    for(int i=0;i<30;i++) m_ocarra[i]=obj.m_ocarra[i];
-    for(int i=0;i<10;i++) m_maps[i] = obj.m_maps[i];
-    for(int i=0;i<2;i++) m_vecs[i] = obj.m_vecs[i];
-    for(int i=0;i<2;i++)
-      for(int j=0;j<3;j++)
-        for(int k=0;k<4;k++) m_0[i][j][k] = obj.m_0[i][j][k];
-    for(int i=0;i<10;i++)
-      for(int j=0;j<20;j++)
-        for(int k=0;k<30;k++) m_1[i][j][k] = obj.m_1[i][j][k];
-    /**
-    //m_2 = obj.m_2;
-    //m_innData.m_v = obj.m_innData.m_v;
-    **/
-    return *this;
-  }
-
-  bool operator==(const SA& rhs){
-    if(m_intData!=rhs.m_intData) return false;
-    if(m_0_i1_i2_i3_m_id!=rhs.m_0_i1_i2_i3_m_id) return false;
-    if(m_stringData012345678012345678012345678012345678012345678!=rhs.m_stringData012345678012345678012345678012345678012345678) return false;
-    //if(m_objectData.m_flag!=rhs.m_objectData.m_flag) return false;
-    //if(m_objectData.m_id!=rhs.m_objectData.m_id) return false;
-    //if(m_arrayData!=rhs.m_arrayData) return false;
-    for(int i=0;i<5;i++)
-    for(int j=0;j<4;j++) if(m_carra0[i][j]!=rhs.m_carra0[i][j]) return false;
-    for(int i=0;i<5;i++) if(m_carra[i]!=rhs.m_carra[i]) return false;
     for(int i=0;i<150;i++) if(m_carra1[i]!=rhs.m_carra1[i]) {
+      std::cout << "## SA: m_carra1 is different"<<std::endl;
       return false;
     }
     for(int i=0;i<110;i++)
-      for(int j=0;j<2;j++) if(m_carra2[i][j]!=rhs.m_carra2[i][j]) return false;
+      for(int j=0;j<2;j++) if(m_carra2[i][j]!=rhs.m_carra2[i][j]) {
+        std::cout << "## SA: m_carra2 is different"<<std::endl;
+        return false;
+      }
     for(int i=0;i<30;i++) if(m_ocarra[i]!=rhs.m_ocarra[i]) {
-      std::cout << "** ERROR for ind i="<<i<<std::endl;
+      std::cout << "## SA: m_ocarra is different"<<std::endl;
       return false;
     }
-    for(int i=0;i<10;i++) if(m_maps[i]!=rhs.m_maps[i]) return false;
-    for(int i=0;i<2;i++) if(m_vecs[i]!=rhs.m_vecs[i]) return false;
+    for(int i=0;i<10;i++) if(m_maps[i]!=rhs.m_maps[i]) {
+      std::cout << "## SA: m_maps is different"<<std::endl;
+      return false;
+    }
+    for(int i=0;i<2;i++) if(m_vecs[i]!=rhs.m_vecs[i]) {
+      std::cout << "## SA: m_vecs is different"<<std::endl;
+      return false;
+    }
     bool ok = true;
     for(int i=0;i<2;i++)
       for(int j=0;j<3;j++)
         for(int k=0;k<4;k++) if(m_0[i][j][k]!=rhs.m_0[i][j][k]) {
-          std::cout << "## Error: found="<<m_0[i][j][k].m_id<<" exp="<<rhs.m_0[i][j][k].m_id<<std::endl;
+          std::cout << "## SA: m_0 is different"<<std::endl;
           ok = false;
         }
     if(!ok) return false;
     for(int i=0;i<10;i++)
       for(int j=0;j<20;j++)
-        for(int k=0;k<30;k++) if(m_1[i][j][k]!=rhs.m_1[i][j][k]) return false;
-    /**
-    //if(m_2!=rhs.m_2) return false;
-    //if(m_innData!=rhs.m_innData) return false;
-    **/
+        for(int k=0;k<30;k++) if(m_1[i][j][k]!=rhs.m_1[i][j][k]) {
+          std::cout << "## SA: m_1 is different"<<std::endl;
+          return false;
+        }
     return true;
   }
-  bool operator!=(const SA& rhs){
+  bool operator!=(const SA& rhs) const {
     return !operator==(rhs);
   }
 
   unsigned int m_intData;
   unsigned int m_0_i1_i2_i3_m_id;
   std::string m_stringData012345678012345678012345678012345678012345678;
-  //SM m_objectData;
-  //std::vector<int> m_arrayData;
   int m_carra[3];
   int m_carra0[5][4];
   int m_carra1[150];
@@ -661,10 +610,6 @@ class SA {
   std::vector<int> m_vecs[2];
   SM m_0[2][3][4];
   SM m_1[10][20][30];
-  /**
-  //std::vector<std::vector<std::vector<int> > > m_2;
-  //Inner m_innData;
-  **/
 };
 
 struct Metadata{
@@ -715,13 +660,11 @@ class SB {
  public:
 
   SB():m_intData(0),m_stringData(""),m_objectData(),m_arrayData(),m_nestedArrayData(),m_entries(){}
-  SB(unsigned int id):m_intData(id),m_stringData(""),m_objectData(),m_arrayData(),m_nestedArrayData(),m_entries(){
+  SB(unsigned int id):m_intData(id),m_stringData(""),m_objectData(id),m_arrayData(),m_nestedArrayData(),m_entries(){
     m_intData = id;
     std::ostringstream os;
     os << "SimpleClass_"<<id; 
     m_stringData = os.str();
-    m_objectData.m_flag = true;
-    m_objectData.m_id = id;
     for(int i=0;i<(int)id+1;i++){
       m_arrayData.push_back(i);
     }
@@ -771,11 +714,10 @@ class SB {
     return *this;
   }
 
-  bool operator==(const SB& rhs){
+  bool operator==(const SB& rhs) const {
     if(m_intData!=rhs.m_intData) return false;
     if(m_stringData!=rhs.m_stringData) return false;
-    if(m_objectData.m_flag!=rhs.m_objectData.m_flag) return false;
-    if(m_objectData.m_id!=rhs.m_objectData.m_id) return false;
+    if(m_objectData!=rhs.m_objectData) return false;
     if(m_arrayData!=rhs.m_arrayData) return false;
     if(m_nestedArrayData!=rhs.m_nestedArrayData) {
       std::cout << "Size expected="<<m_nestedArrayData.size()<<" - found="<<rhs.m_nestedArrayData.size()<<std::endl;
@@ -787,7 +729,7 @@ class SB {
     //}
     return true;
   }
-  bool operator!=(const SB& rhs){
+  bool operator!=(const SB& rhs) const {
     return !operator==(rhs);
   }
 
@@ -908,15 +850,20 @@ class SC {
     SC(unsigned int id):m_intData(id),m_ref(),m_refVec(){
   }
     
-  bool operator==(const SC& rhs){
-    if(m_intData!=rhs.m_intData) return false;
-    if(*m_ref.m_data != *rhs.m_ref.m_data ) return false;
+  bool operator==(const SC& rhs) const {
+    if(m_intData!=rhs.m_intData) {
+      std::cout << "## intData is different"<<std::endl;
+      return false;
+    }
+    if(*m_ref.m_data != *rhs.m_ref.m_data ) {
+      std::cout << "## m_ref is different"<<std::endl;
+      return false;
+    }
     if(m_refVec.size() != rhs.m_refVec.size()) {
       std::cout << "## size is different exp="<<m_refVec.size()<<" found="<<rhs.m_refVec.size()<<std::endl;
       return false;
     }
     for( size_t i=0;i<m_refVec.size();i++ ){
-      std::cout << "## checking differecne for i="<<i<<std::endl;
       if( !m_refVec[i].m_data ){
         std::cout << "## current data null."<<std::endl;
         return false;
@@ -932,13 +879,13 @@ class SC {
     }
     return true;
   }
-  bool operator!=(const SC& rhs){
+  bool operator!=(const SC& rhs) const {
     return !operator==(rhs);
   }
   
   unsigned int m_intData;
-  Ref<SimpleCl> m_ref;
-  std::vector<Ref<SimpleCl> > m_refVec;
+  Ref<SimpleClass> m_ref;
+  std::vector<Ref<SimpleClass> > m_refVec;
 };
 
 class SD {
@@ -953,7 +900,7 @@ class SD {
   }
     
     
-  bool operator==(const SD& rhs){
+  bool operator==(const SD& rhs) const {
     if(m_intData!=rhs.m_intData) return false;
     if(*m_ptr != *rhs.m_ptr ) return false;
     if( m_ptrVec.size() != rhs.m_ptrVec.size() ) {
@@ -970,12 +917,12 @@ class SD {
     if( !ret ) return false;
     return true;
   }
-  bool operator!=(const SD& rhs){
+  bool operator!=(const SD& rhs) const {
     return !operator==(rhs);
   }
   
   unsigned int m_intData;
-  ora::Ptr<SimpleCl> m_ptr;
+  ora::Ptr<SimpleClass> m_ptr;
   std::vector<ora::Ptr<SimpleMember> > m_ptrVec;
 };
 
@@ -994,14 +941,18 @@ class SE {
   }
     
     
-  bool operator==(const SE& rhs){
-    if(m_intData!=rhs.m_intData) return false;
+  bool operator==(const SE& rhs) const {
+    if(m_intData!=rhs.m_intData) {
+      std::cout << "### error: m_intData is different."<<std::endl;
+      return false;
+    }
     if( m_vec != rhs.m_vec ) {
+      std::cout << "### error: m_vec is different."<<std::endl;
       return false;
     }
     return true;
   }
-  bool operator!=(const SE& rhs){
+  bool operator!=(const SE& rhs) const {
     return !operator==(rhs);
   }
   
@@ -1024,14 +975,14 @@ class SF {
   }
     
     
-  bool operator==(const SF& rhs){
+  bool operator==(const SF& rhs) const {
     if(m_intData!=rhs.m_intData) return false;
     if( m_vec != rhs.m_vec ) {
       return false;
     }
     return true;
   }
-  bool operator!=(const SF& rhs){
+  bool operator!=(const SF& rhs) const {
     return !operator==(rhs);
   }
   
@@ -1049,7 +1000,7 @@ class IBase {
   virtual ~IBase(){
   }
 
-  virtual bool equals( const IBase& rhs ){
+  virtual bool equals( const IBase& rhs ) const {
     if( mt != rhs.mt ) return false;
     return true;
   }
@@ -1073,18 +1024,18 @@ class D0: public IBase {
     }
   }
 
-    bool operator==(const D0& rhs){
+    bool operator==(const D0& rhs) const {
       if(mid != rhs.mid) return false;
       if(ms != rhs.ms ) return false;
       if(msm != rhs.msm ) return false;
       if( mv != rhs.mv ) return false;
       return true;
     }
-    bool operator!=(const D0& rhs){
+    bool operator!=(const D0& rhs) const {
       return !operator==(rhs);
     }
 
-    bool equals( const IBase& rhs ){
+    bool equals( const IBase& rhs ) const {
       const D0& comp = dynamic_cast<const D0&>(rhs);
     if( !IBase::equals( rhs )) return false;
     if( *this != comp ) return false;
@@ -1116,18 +1067,18 @@ class D1 : public IBase {
     }
   }
 
-    bool operator==(const D1& rhs){
+    bool operator==(const D1& rhs) const {
       if(mid != rhs.mid) return false;
       if(ms != rhs.ms ) return false;
       if(msm != rhs.msm ) return false;
       if( mm != rhs.mm ) return false;
       return true;
     }
-    bool operator!=(const D1& rhs){
+    bool operator!=(const D1& rhs) const {
       return !operator==(rhs);
     }
     
-    bool equals( const IBase& rhs ){
+    bool equals( const IBase& rhs ) const {
       const D1& comp = dynamic_cast<const D1&>(rhs);
     if( !IBase::equals( rhs )) return false;
     if( *this != comp ) return false;
@@ -1153,17 +1104,17 @@ class D2: public IBase {
   virtual ~D2(){
   }
 
-    bool operator==(const D2& rhs){
+    bool operator==(const D2& rhs) const {
       if(md != rhs.md) return false;
       for( unsigned j=0;j<100;j++ ){
         if( mca[j] != rhs.mca[j] ) return false;
       }
       return true;
     }
-    bool operator!=(const D2& rhs){
+    bool operator!=(const D2& rhs) const {
       return !operator==(rhs);
     }
-  virtual bool equals( const IBase& rhs ){
+  virtual bool equals( const IBase& rhs ) const {
     const D2& comp = dynamic_cast<const D2&>(rhs);
     if( !IBase::equals( rhs )) return false;
     if( *this != comp ) return false;
@@ -1187,7 +1138,7 @@ class SG {
   }
     
     
-  bool operator==(const SG& rhs){
+  bool operator==(const SG& rhs) const {
     if(m_intData!=rhs.m_intData) return false;
     if( !m_ref->equals( *rhs.m_ref )) {
       return false;
@@ -1197,7 +1148,7 @@ class SG {
     }
     return true;
   }
-  bool operator!=(const SG& rhs){
+  bool operator!=(const SG& rhs) const {
     return !operator==(rhs);
   }
   

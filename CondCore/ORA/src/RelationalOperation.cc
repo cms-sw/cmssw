@@ -106,6 +106,11 @@ ora::InsertOperation::InsertOperation( const std::string& tableName,
 ora::InsertOperation::~InsertOperation(){
 }
 
+bool
+ora::InsertOperation::isRequired(){
+  return false;
+}
+
 bool ora::InsertOperation::execute(){
   coral::ITable& table = m_schema.tableHandle( m_tableName );
   table.dataEditor().insertRow( data() );
@@ -137,6 +142,11 @@ coral::IBulkOperation& ora::BulkInsertOperation::setUp( int rowCacheSize ){
   return *m_bulkOperations.back();
 }
 
+bool
+ora::BulkInsertOperation::isRequired(){
+  return false;
+}
+
 bool ora::BulkInsertOperation::execute(){
   for( std::vector<coral::IBulkOperation*>::iterator iB = m_bulkOperations.begin();
        iB != m_bulkOperations.end(); ++iB ){
@@ -165,6 +175,11 @@ ora::UpdateOperation::UpdateOperation( const std::string& tableName,
 ora::UpdateOperation::~UpdateOperation(){
 }
 
+bool
+ora::UpdateOperation::isRequired(){
+  return true;
+}
+
 bool ora::UpdateOperation::execute(){
   bool ret = false;
   if( updateClause().size() && whereClause().size() ){
@@ -188,14 +203,19 @@ ora::DeleteOperation::DeleteOperation( const std::string& tableName,
 ora::DeleteOperation::~DeleteOperation(){
 }
 
+bool
+ora::DeleteOperation::isRequired(){
+  return false;
+}
+
 bool ora::DeleteOperation::execute(){
+  bool ret = false;
   if( whereClause().size() ){
     coral::ITable& table = m_schema.tableHandle( m_tableName );
-    table.dataEditor().deleteRows( whereClause(), whereData() );
-    //long nr = table.dataEditor().deleteRows( whereClause(), whereData() );
-    //ret = nr > 0;
+    long nr = table.dataEditor().deleteRows( whereClause(), whereData() );
+    ret = nr > 0;
   }
-  return true;
+  return ret;
 }
 
 void ora::DeleteOperation::reset(){
