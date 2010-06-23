@@ -156,6 +156,26 @@ goodZToMuMuEdmNtuple = cms.EDProducer(
     quantity = cms.untracked.string("daughter(0).masterClone.userFloat('zDau_HLTBit')")
     ),
     cms.PSet(
+    tag = cms.untracked.string("Dau1HLTSize"),
+    quantity = cms.untracked.string("daughter(0).masterClone.userFloat('zDau_HLTSize')")
+    ),
+cms.PSet(
+    tag = cms.untracked.string("Dau1HLTDeltaR"),
+    quantity = cms.untracked.string("daughter(0).masterClone.userFloat('zDau_HLTDeltaR')")
+    ),
+cms.PSet(
+    tag = cms.untracked.string("Dau1HLTDeltaEta"),
+    quantity = cms.untracked.string("daughter(0).masterClone.userFloat('zDau_HLTDeltaEta')")
+    ),
+cms.PSet(
+    tag = cms.untracked.string("Dau1HLTDeltaPhi"),
+    quantity = cms.untracked.string("daughter(0).masterClone.userFloat('zDau_HLTDeltaPhi')")
+    ),
+cms.PSet(
+    tag = cms.untracked.string("Dau1HLTDeltaPtOverPt"),
+    quantity = cms.untracked.string("daughter(0).masterClone.userFloat('zDau_HLTDeltaPtOverPt')")
+    ),
+    cms.PSet(
     tag = cms.untracked.string("Dau2dxyFromBS"),
     quantity = cms.untracked.string("daughter(1).masterClone.userFloat('zDau_dxyFromBS')")
     ),
@@ -333,6 +353,30 @@ zMuMu=(
     tag = cms.untracked.string("Dau2HLTBit"),
     quantity = cms.untracked.string("daughter(1).masterClone.userFloat('zDau_HLTBit')")
     ),
+cms.PSet(
+    tag = cms.untracked.string("Dau2HLTSize"),
+    quantity = cms.untracked.string("daughter(1).masterClone.userFloat('zDau_HLTSize')")
+    ),
+cms.PSet(
+    tag = cms.untracked.string("Dau2HLTDeltaR"),
+    quantity = cms.untracked.string("daughter(1).masterClone.userFloat('zDau_HLTDeltaR')")
+    ),
+cms.PSet(
+    tag = cms.untracked.string("Dau2HLTDeltaEta"),
+    quantity = cms.untracked.string("daughter(1).masterClone.userFloat('zDau_HLTDeltaEta')")
+    ),
+cms.PSet(
+    tag = cms.untracked.string("Dau2HLTDeltaPhi"),
+    quantity = cms.untracked.string("daughter(1).masterClone.userFloat('zDau_HLTDeltaPhi')")
+    ),
+cms.PSet(
+    tag = cms.untracked.string("Dau2HLTDeltaPtOverPt"),
+    quantity = cms.untracked.string("daughter(1).masterClone.userFloat('zDau_HLTDeltaPtOverPt')")
+    ),
+
+
+
+    
 #    cms.PSet(
 #    tag = cms.untracked.string("Dau2MuEnergyHad"),
 #    quantity = cms.untracked.string("?daughter(1).masterClone.isGlobalMuon==1 ||daughter(1).masterClone.isTrackerMuon==1?daughter(1).masterClone.calEnergy.had:-1")
