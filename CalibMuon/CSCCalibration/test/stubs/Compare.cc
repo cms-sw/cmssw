@@ -13,7 +13,7 @@
 //
 // Original Author:  Thomas Nummy,Bld. 32 Room 4-C21,+41227671337,
 //         Created:  Thu Oct 29 13:55:15 CET 2009
-// $Id: Compare.cc,v 1.1 2009/11/03 14:45:29 nummy Exp $
+// $Id: Compare.cc,v 1.2 2010/06/04 08:52:50 boeriu Exp $
 //
 //
 //////////////////////////////////READ THIS FIRST//////////////////////////////////////////////////////////
@@ -125,7 +125,7 @@ Compare::Compare(const edm::ParameterSet& iConfig)
   for(int i=0; i<MAX_SIZE;++i){
     for (unsigned int k=0;k<new_index_id.size()-1;++k){
       if(old_index_id[i] == new_index_id[k]){
-	diffPeds[k]=old_peds[i] - new_peds[k];
+	diffPeds[k]=old_peds[i]/10. - new_peds[k];
 	new_peds.erase(new_peds.begin());
 	new_index_id.erase(new_index_id.begin());
 	myPedsFile<<old_index_id[i]<<"  "<<diffPeds[k]<<std::endl;	
@@ -219,10 +219,10 @@ Compare::Compare(const edm::ParameterSet& iConfig)
     for (unsigned int k=0;k<new_index_id.size()-1;k++){
       counter1=new_index_id[k];
       if(counter == counter1){
-	diffXtalkR[k]=old_Rxtalk[i] - new_Rxtalk[k];
-	diffXtalkL[k]=old_Lxtalk[i] - new_Lxtalk[k];
-	diffIntR[k]=old_Rint[i] - new_Rint[k];
-	diffIntL[k]=old_Rint[i] - new_Rint[k];
+	diffXtalkR[k]=old_Rxtalk[i]/10000000. - new_Rxtalk[k];
+	diffXtalkL[k]=old_Lxtalk[i]/10000000. - new_Lxtalk[k];
+	diffIntR[k]=old_Rint[i]/100000. - new_Rint[k];
+	diffIntL[k]=old_Rint[i]/100000. - new_Rint[k];
 	myXtalkFile<<counter<<"  "<<diffXtalkL[k]<<"  "<<diffIntL[k]<<"  "<<diffXtalkR[k]<<"  "<<diffIntR[k]<<"  "<<std::endl;	
       }
     }
@@ -295,7 +295,7 @@ Compare::Compare(const edm::ParameterSet& iConfig)
     for (unsigned int k=0;k<new_index_id.size()-1;k++){
       counter1=new_index_id[k];
       if(counter == counter1){
-	diffGains[k]=old_gains[i] - new_gains[k];
+	diffGains[k]=old_gains[i]/1000. - new_gains[k];
 	myGainsFile<<counter<<"  "<<diffGains[k]<<std::endl;	
       }
     }
@@ -470,18 +470,18 @@ Compare::Compare(const edm::ParameterSet& iConfig)
     for (unsigned int k=0;k<new_index_id.size()-1;k++){
       counter1=new_index_id[k];
       if(counter == counter1){
-	diff_el33[k]=old_el33[i] - new_el33[k];
-	diff_el34[k]=old_el34[i] - new_el34[k];
-	diff_el35[k]=old_el35[i] - new_el35[k];
-	diff_el44[k]=old_el44[i] - new_el44[k];
-	diff_el45[k]=old_el45[i] - new_el45[k];
-	diff_el46[k]=old_el46[i] - new_el46[k];
-	diff_el55[k]=old_el55[i] - new_el55[k];
-	diff_el56[k]=old_el56[i] - new_el56[k];
-	diff_el57[k]=old_el57[i] - new_el57[k];
-	diff_el66[k]=old_el66[i] - new_el66[k];
-	diff_el67[k]=old_el67[i] - new_el67[k];
-	diff_el77[k]=old_el77[i] - new_el77[k];
+	diff_el33[k]=old_el33[i]/1000. - new_el33[k];
+	diff_el34[k]=old_el34[i]/1000. - new_el34[k];
+	diff_el35[k]=old_el35[i]/1000. - new_el35[k];
+	diff_el44[k]=old_el44[i]/1000. - new_el44[k];
+	diff_el45[k]=old_el45[i]/1000. - new_el45[k];
+	diff_el46[k]=old_el46[i]/1000. - new_el46[k];
+	diff_el55[k]=old_el55[i]/1000. - new_el55[k];
+	diff_el56[k]=old_el56[i]/1000. - new_el56[k];
+	diff_el57[k]=old_el57[i]/1000. - new_el57[k];
+	diff_el66[k]=old_el66[i]/1000. - new_el66[k];
+	diff_el67[k]=old_el67[i]/1000. - new_el67[k];
+	diff_el77[k]=old_el77[i]/1000. - new_el77[k];
 	myMatrixFile<<counter<<"  "<<diff_el33[k]<<"  "<< diff_el34[k]<<"  "<<diff_el35[k]<<"  "<<diff_el44[k]<<"  "<<diff_el45[k]<<"  "<<diff_el46[k]<<"  "<<diff_el55[k]<<"  "<<diff_el56[k]<<"  "<<diff_el57[k]<<"  "<<diff_el66[k]<<"  "<<diff_el67[k]<<"  "<<diff_el77[k]<<"  "<<std::endl;	
       }
     }
