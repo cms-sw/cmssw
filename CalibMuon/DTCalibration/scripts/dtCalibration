@@ -12,14 +12,12 @@ import sys,os,time,optparse
 
 def runTtrigProd(run,runselection,trial,config):
 
-    crab_opts = {'RUNSELECTION':runselection,
-                 'USERDIRCAF':'TTRIGCalibration/Production/Run' + str(run) + '/v' + str(trial)}
-    crab_opts.update(config.crab_opts)
-
-    pset_opts = {'MUDIGILABEL':'muonDTDigis'}
-    pset_opts.update(config.pset_opts)
-
-    dtTtrigProd = DTTTrigProd(run,crab_opts,pset_opts,config.template_path) 
+    config.runselection = runselection
+    config.userdircaf = 'TTRIGCalibration/Production/Run' + str(run) + '/v' + str(trial)
+    config.digilabel = 'muonDTDigis'
+   
+    dtTtrigProd = DTTTrigProd(run,config.prod_dir,config) 
+    dtTtrigProd.writeCfg()
     project_prod = dtTtrigProd.run()
 
     print "Sent production jobs with project",project_prod
@@ -28,7 +26,7 @@ def runTtrigProd(run,runselection,trial,config):
     crabProd.start()
     crabProd.join()
 
-    castor_dir = config.castor_prefix + dtTtrigProd.crab_opts['USERDIRCAF']
+    castor_dir = config.castorpath + "/" + config.userdircaf
 
     result_file = config.result_dir + '/DTTimeBoxes_%s.root'%run
     haddInCastor(castor_dir,result_file)
@@ -43,16 +41,11 @@ def runTtrigCorrFirst(run,config):
 def runTtrigValid(run,runselection,trial,input_file,config):
     #ttrig_second_db = os.path.abspath(result_dir + '/' + 'ttrig_second_' + run + '.db')
 
-    crab_opts = {'RUNSELECTION':runselection,
-                 'USERDIRCAF':'TTRIGCalibration/Validation/First/Run' + str(run) + '/v' + str(trial),
-                 'INPUTFILE':input_file}
-
-    crab_opts.update(config.crab_opts)
- 
-    pset_opts = {'INPUTFILE':input_file.split('/')[-1]}
-    pset_opts.update(config.pset_opts)
-
-    dtTtrigValid = DTTTrigValid(run,crab_opts,pset_opts,config.template_path) 
+    config.runselection = runselection
+    config.userdircaf = 'TTRIGCalibration/Validation/First/Run' + str(run) + '/v' + str(trial)
+    
+    dtTtrigValid = DTTTrigValid(run,config.valid_dir,input_file,config) 
+    dtTtrigValid.writeCfg()
     project_valid_first = dtTtrigValid.run()
 
     print "Sent validation jobs with project",project_valid_first
@@ -62,7 +55,7 @@ def runTtrigValid(run,runselection,trial,input_file,config):
     crabValidFirst.join()
 
     result_file = config.result_dir + '/DTkFactValidation_%s.root'%run
-    castor_dir = config.castor_prefix + dtTtrigValid.crab_opts['USERDIRCAF']
+    castor_dir = config.castorpath + config.userdircaf
     haddInCastor(castor_dir,result_file,'residuals')
 
 def runTtrigResidualCorr(run,config):
@@ -75,16 +68,11 @@ def runTtrigResidualCorr(run,config):
 def runTtrigValidResidCorr(run,runselection,trial,input_file,config):
     #ttrig_ResidCorr_db = os.path.abspath(result_dir + '/' + 'ttrig_ResidCorr_' + run + '.db')
 
-    crab_opts = {'RUNSELECTION':runselection,
-                 'USERDIRCAF':'TTRIGCalibration/Validation/ResidCorr/Run' + str(run) + '/v' + str(trial),
-                 'INPUTFILE':input_file}
+    config.runselection = runselection
+    config.userdircaf = 'TTRIGCalibration/Validation/ResidCorr/Run' + str(run) + '/v' + str(trial)
 
-    crab_opts.update(config.crab_opts)
-
-    pset_opts = {'INPUTFILE':input_file.split('/')[-1]}
-    pset_opts.update(config.pset_opts)
-
-    dtTtrigValid_ResidCorr = DTTTrigValid(run,crab_opts,pset_opts,config.template_path) 
+    dtTtrigValid_ResidCorr = DTTTrigValid(run,config.valid_dir,input_file,config)
+    dtTtrigValid_ResidCorr.writeCfg()
     project_valid_ResidCorr = dtTtrigValid_ResidCorr.run()
 
     print "Sent validation jobs with project",project_valid_ResidCorr
@@ -94,7 +82,7 @@ def runTtrigValidResidCorr(run,runselection,trial,input_file,config):
     crabValidResidCorr.join()
 
     result_file = config.result_dir + '/DTkFactValidation_ResidCorr_%s.root'%run
-    castor_dir = config.castor_prefix + dtTtrigValid_ResidCorr.crab_opts['USERDIRCAF']
+    castor_dir = config.castorpath + dtTtrigValid_ResidCorr.crab_opts['USERDIRCAF']
     haddInCastor(castor_dir,result_file,'residuals')
 
 def runTtrigValidSummary(run,input_file,output_file,config):
@@ -154,22 +142,34 @@ if __name__ == '__main__':
 
     class config: pass
 
+    config.scheduler = 'CAF'
+    config.useserver = False
+    config.datasetpath = input.datasetpath
+    config.runselection = runselection
+    #config.totalnumberevents = 1000000
+    #config.eventsperjob = 50000
+    config.stageOutCAF = True
+    config.stageOutLocal = False
+    if hasattr(input,'email'): config.email = input.email    
+
+    config.globaltag = input.globaltag + '::All'
+
     config.castor_prefix = input.castorpath
-
-    config.crab_opts = {}
-    config.crab_opts['DATASETPATH'] = input.datasetpath
-    config.crab_opts['EMAIL'] = input.email
-
-    config.pset_opts = {}
-    config.pset_opts['GLOBALTAG'] = input.globaltag + '::All'
- 
+    config.castorpath = input.castorpath
     config.template_path = input.templatepath
-
-    #print run,runselection,trial,config.castor_prefix,config.crab_opts,config.pset_opts,config.template_path
+    config.templatepath =  input.templatepath
 
     run_dir = 'Run%s/Ttrig/Exec' % run
     if not os.path.exists(run_dir): os.makedirs(run_dir)
     config.run_dir = run_dir
+
+    prod_dir = 'Run%s/Ttrig/Production' % run
+    if not os.path.exists(prod_dir): os.makedirs(prod_dir)
+    config.prod_dir = prod_dir
+
+    valid_dir = 'Run%s/Ttrig/Validation' % run
+    if not os.path.exists(valid_dir): os.makedirs(valid_dir)
+    config.valid_dir = valid_dir
 
     result_dir = 'Run%s/Ttrig/Results' % run
     if not os.path.exists(result_dir): os.makedirs(result_dir)

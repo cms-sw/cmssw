@@ -106,9 +106,9 @@ def crabAction(options, action = None):
         print 'Log file is %s%s.log'%(common.work_space.logDir(),common.prog_name) 
     except CrabException, e:
         del crab
-        print '\n' + common.prog_name + ': ' + str(e) + '\n' 
-        pass
-    pass
+        #print '\n' + common.prog_name + ': ' + str(e) + '\n' 
+        raise
+        
     if (common.logger): common.logger.delete()
 
     if result: return result

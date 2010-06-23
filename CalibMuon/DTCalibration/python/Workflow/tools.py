@@ -1,4 +1,5 @@
 import os,sys,imp
+import ConfigParser
 
 def replaceTemplate(template,**opts):
     result = open(template).read()
@@ -72,3 +73,41 @@ def loadCmsProcess(pset_name):
 def writeCfg(process,dir,pset_name):
     if not os.path.exists(dir): os.makedirs(dir)
     open(dir + '/' + pset_name,'w').write(process.dumpPython())
+
+def loadCrabCfg(cfg_name):
+    config = ConfigParser.ConfigParser()
+    config.read(cfg_name)
+    return config
+
+def loadCrabDefault(crab_cfg,config):
+    # CRAB section
+    if not crab_cfg.has_section('CRAB'): crab_cfg.add_section('CRAB')
+    crab_cfg.set('CRAB','jobtype','cmssw')
+    crab_cfg.set('CRAB','scheduler',config.scheduler) 
+    if config.useserver: crab_cfg.set('CRAB','use_server',1)
+    # CMSSW section
+    if not crab_cfg.has_section('CMSSW'): crab_cfg.add_section('CMSSW')
+    crab_cfg.set('CMSSW','datasetpath',config.datasetpath)
+    crab_cfg.set('CMSSW','pset','pset.py')
+    # Splitting config
+    crab_cfg.set('CMSSW','runselection',config.runselection) 
+    if hasattr(config,'totalnumberevents'): crab_cfg.set('CMSSW','total_number_of_events',config.totalnumberevents)
+    if hasattr(config,'eventsperjob'): crab_cfg.set('CMSSW','events_per_job',config.eventsperjob)
+    # USER section
+    if not crab_cfg.has_section('USER'): crab_cfg.add_section('USER')  
+    # Stageout config
+    if hasattr(config,'stageOutCAF') and config.stageOutCAF:
+        crab_cfg.set('USER','return_data',0)                
+        crab_cfg.set('USER','copy_data',1)  
+        crab_cfg.set('USER','storage_element','T2_CH_CAF')
+        crab_cfg.set('USER','user_remote_dir',config.userdircaf)
+        crab_cfg.set('USER','check_user_remote_dir',0)
+    elif hasattr(config,'stageOutLocal') and config.stageOutLocal:
+        crab_cfg.set('USER','return_data',1)                
+        crab_cfg.set('USER','copy_data',0)
+        crab_cfg.remove_option('USER','storage_element')
+        crab_cfg.remove_option('USER','user_remote_dir')
+        crab_cfg.remove_option('USER','check_user_remote_dir')
+
+    if hasattr(config,'email') and config.email: crab_cfg.set('USER','eMail',config.email)
+    crab_cfg.set('USER','xml_report','crabReport.xml')
