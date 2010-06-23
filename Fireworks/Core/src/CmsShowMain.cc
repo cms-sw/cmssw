@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.166 2010/06/16 14:04:38 matevz Exp $
+// $Id: CmsShowMain.cc,v 1.167 2010/06/18 10:17:14 yana Exp $
 //
 
 // system include files
@@ -39,6 +39,7 @@
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
+#include "Fireworks/Core/interface/FWLiteJobMetadataManager.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/src/FWColorSelect.h"
@@ -110,6 +111,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
    m_selectionManager(new FWSelectionManager(m_changeManager.get())),
    m_eiManager(new FWEventItemsManager(m_changeManager.get())),
    m_viewManager( new FWViewManagerManager(m_changeManager.get(), m_colorManager.get())),
+   m_metadataManager(new FWLiteJobMetadataManager()),
    m_context(new fireworks::Context(m_changeManager.get(),
                                     m_selectionManager.get(),
                                     m_eiManager.get(),
@@ -255,12 +257,12 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       TEveManager::Create(kFALSE, "FIV");
 
       m_context->initEveElements();
-
       m_guiManager = std::auto_ptr<FWGUIManager>(new FWGUIManager(m_selectionManager.get(),
                                                                   m_eiManager.get(),
                                                                   m_changeManager.get(),
                                                                   m_colorManager.get(),
                                                                   m_viewManager.get(),
+                                                                  m_metadataManager.get(),
                                                                   this,
                                                                   false));
 
@@ -566,6 +568,14 @@ CmsShowMain::setupViewManagers()
    boost::shared_ptr<FWL1TriggerTableViewManager> l1TriggerTableViewManager( new FWL1TriggerTableViewManager(m_guiManager.get()) );
    m_configurationManager->add(std::string("L1TriggerTables"), l1TriggerTableViewManager.get());
    m_viewManager->add( l1TriggerTableViewManager );
+   
+   // Unfortunately, due to the plugin mechanism, we need to delay
+   // until here the creation of the FWJobMetadataManager, because
+   // otherwise the supportedTypesAndRepresentations map is empty.
+   // FIXME: should we have a signal for whenever the above mentioned map
+   //        changes? Can that actually happer (maybe if we add support
+   //        for loading plugins on the fly??).
+   m_metadataManager->initReps(m_viewManager->supportedTypesAndRepresentations());
 }
 
 void

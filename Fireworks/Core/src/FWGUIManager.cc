@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.207 2010/06/15 16:28:17 matevz Exp $
+// $Id: FWGUIManager.cc,v 1.208 2010/06/18 10:17:15 yana Exp $
 
 //
 
@@ -49,6 +49,8 @@
 #include "Fireworks/Core/interface/FWViewBase.h"
 #include "Fireworks/Core/interface/FWViewType.h"
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
+#include "Fireworks/Core/interface/FWJobMetadataManager.h"
+#include "Fireworks/Core/interface/FWLiteJobMetadataUpdateRequest.h"
 
 #include "Fireworks/Core/interface/FWConfiguration.h"
 
@@ -99,7 +101,8 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
                            FWModelChangeManager* iCMgr,
                            FWColorManager* iColorMgr,
                            const FWViewManagerManager* iVMMgr,
-			                     const CmsShowMain* iCmsShowMain,
+                           FWJobMetadataManager *metadataManager,
+                           const CmsShowMain* iCmsShowMain,
                            bool iDebugInterface
                            ) :
    m_selectionManager(iSelMgr),
@@ -108,6 +111,7 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
    m_colorManager(iColorMgr),
    m_detailViewManager(0),
    m_viewManagerManager(iVMMgr),
+   m_metadataManager(metadataManager),
    m_contextMenuHandler(0),
    m_cmsShowMain(iCmsShowMain),
    m_dataAdder(0),
@@ -335,9 +339,7 @@ FWGUIManager::loadEvent() {
    
    m_cmsShowMainFrame->loadEvent(*getCurrentEvent());
    m_detailViewManager->newEventCallback();
-   if(m_dataAdder) {
-      m_dataAdder->update(m_openFile, getCurrentEvent());
-   }
+   m_metadataManager->update(new FWLiteJobMetadataUpdateRequest(getCurrentEvent(), m_openFile));
 }
 
 CSGAction*
@@ -421,14 +423,13 @@ FWGUIManager::newItem(const FWEventItem* iItem)
 void
 FWGUIManager::addData()
 {
-   if(0==m_dataAdder) {
+   if (0==m_dataAdder) {
       m_dataAdder = new FWGUIEventDataAdder(100,100,
                                             m_eiManager,
                                             m_cmsShowMainFrame,
-                                            getCurrentEvent(),
-                                            m_openFile,
-                                            m_viewManagerManager->supportedTypesAndRepresentations());
+                                            m_metadataManager);
    }
+   m_metadataManager->update(new FWLiteJobMetadataUpdateRequest(getCurrentEvent(), m_openFile));
    m_dataAdder->show();
 }
 

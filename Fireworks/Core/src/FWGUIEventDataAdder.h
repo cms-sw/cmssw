@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:12:36 EDT 2008
-// $Id: FWGUIEventDataAdder.h,v 1.13 2010/06/03 11:46:06 mccauley Exp $
+// $Id: FWGUIEventDataAdder.h,v 1.14 2010/06/05 15:27:43 eulisse Exp $
 //
 
 // system include files
@@ -29,15 +29,12 @@
 
 // forward declarations
 class FWEventItemsManager;
+class FWJobMetadataManager;
 class TGTransientFrame;
 class TGTextEntry;
 class TGTextButton;
 class TGCheckButton;
 class TFile;
-class FWTypeToRepresentations;
-namespace fwlite {
-   class Event;
-}
 class FWTableWidget;
 class DataAdderTableManager;
 
@@ -48,19 +45,8 @@ class FWGUIEventDataAdder
 public:
    FWGUIEventDataAdder(UInt_t w,UInt_t,
                        FWEventItemsManager*, TGFrame*,
-                       const fwlite::Event*,
-                       const TFile*,
-                       const FWTypeToRepresentations& iTypeAndReps);
+                       FWJobMetadataManager *);
    virtual ~FWGUIEventDataAdder();
-
-   struct Data
-   {
-      std::string purpose_;
-      std::string type_;
-      std::string moduleLabel_;
-      std::string productInstanceLabel_;
-      std::string processName_;
-   };
 
    // ---------- const member functions ---------------------
 
@@ -71,21 +57,21 @@ public:
    void show();
 
    void windowIsClosing();
-   void update(const TFile*, const fwlite::Event*);
    void updateFilterString(const char *str);   
    void rowClicked(Int_t iRow,Int_t iButton,Int_t iKeyMod,Int_t,Int_t);
+
+   void metadataUpdatedSlot(void);
 
 private:
    FWGUIEventDataAdder(const FWGUIEventDataAdder&); // stop default
    void createWindow();
  
-   void fillData(const TFile*);
    void newIndexSelected(int);
    const FWGUIEventDataAdder& operator=(const FWGUIEventDataAdder&); // stop default
 
    // ---------- member data --------------------------------
-   FWEventItemsManager* m_manager;
-   const fwlite::Event* m_presentEvent;
+   FWEventItemsManager*     m_manager;
+   FWJobMetadataManager*    m_metadataManager;
 
    TGFrame*          m_parentFrame;
    TGTransientFrame* m_frame;
@@ -102,14 +88,9 @@ private:
    std::string m_processName;
 
    std::string m_expr; // this the search term for use in searchData()
-
-   std::vector<std::string> m_processNamesInFile;
    
    DataAdderTableManager*   m_tableManager;
    FWTableWidget*           m_tableWidget;
-
-   FWTypeToRepresentations* m_typeAndReps;
-   std::vector<Data>        m_useableData;
 };
 
 

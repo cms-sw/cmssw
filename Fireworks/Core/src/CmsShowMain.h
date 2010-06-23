@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.45 2010/04/27 13:36:33 amraktad Exp $
+// $Id: CmsShowMain.h,v 1.46 2010/04/29 16:58:05 amraktad Exp $
 //
 
 // system include files
@@ -43,6 +43,7 @@ class FWGUIManager;
 class FWEventItem;
 class FWPhysicsObjectDesc;
 class FWConfigurationManager;
+class FWJobMetadataManager;
 class TTimer;
 class TMonitor;
 class TSocket;
@@ -141,6 +142,7 @@ private:
    std::auto_ptr<FWSelectionManager>     m_selectionManager;
    std::auto_ptr<FWEventItemsManager>    m_eiManager;
    std::auto_ptr<FWViewManagerManager>   m_viewManager;
+   std::auto_ptr<FWJobMetadataManager>   m_metadataManager;
    std::auto_ptr<FWGUIManager>           m_guiManager;
    std::auto_ptr<fireworks::Context>     m_context;
 

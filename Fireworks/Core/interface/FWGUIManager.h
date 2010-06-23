@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.102 2010/05/10 11:52:16 matevz Exp $
+// $Id: FWGUIManager.h,v 1.103 2010/06/14 18:12:03 matevz Exp $
 //
 
 // system include files
@@ -93,6 +93,7 @@ class FWViewManagerManager;
 class FWColorManager;
 class CmsShowBrightnessPopup;
 class CmsShowHelpPopup;
+class FWJobMetadataManager;
 
 class FWGUIManager : public FWConfigurable
 {
@@ -111,6 +112,7 @@ public:
                 FWModelChangeManager*,
                 FWColorManager*,
                 const FWViewManagerManager*,
+                FWJobMetadataManager*,
 		          const CmsShowMain*,
                 bool iDebugInterface = false);
    virtual ~FWGUIManager();
@@ -250,6 +252,7 @@ private:
    //views are owned by their individual view managers
    FWDetailViewManager*        m_detailViewManager;
    const FWViewManagerManager* m_viewManagerManager;
+   FWJobMetadataManager *      m_metadataManager;
    FWModelContextMenuHandler*  m_contextMenuHandler;
    
    const CmsShowMain*    m_cmsShowMain;
