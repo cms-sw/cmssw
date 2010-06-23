@@ -32,9 +32,15 @@ class  BetaCalculatorTK{
       edm::InputTag m_dedxEstimator1Tag;
       edm::InputTag m_dedxEstimator2Tag;
       edm::InputTag m_dedxEstimator3Tag;
+      edm::InputTag m_dedxEstimator4Tag;
+      edm::InputTag m_dedxEstimator5Tag;
+      edm::InputTag m_dedxEstimator6Tag;
       edm::InputTag m_dedxDiscriminator1Tag;
       edm::InputTag m_dedxDiscriminator2Tag;
       edm::InputTag m_dedxDiscriminator3Tag;
+      edm::InputTag m_dedxDiscriminator4Tag;
+      edm::InputTag m_dedxDiscriminator5Tag;
+      edm::InputTag m_dedxDiscriminator6Tag;
 };
 
 

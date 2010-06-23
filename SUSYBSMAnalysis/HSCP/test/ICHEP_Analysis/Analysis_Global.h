@@ -3,12 +3,12 @@ std::map<string,double>  CrossSections;
 
 
 const unsigned int dEdxLabelSize   = 4;
-const char*        dEdxLabel    [] = {"dedxCNPHarm2", "dedxCNPTru40", "dedxCNPMed", "dedxProd", "dedxSmi", "dedxASmi"};
-const double       dEdxK_Data   [] = {2.5857        , 2.4496        , 2.8284 };
-const double       dEdxC_Data   [] = {2.5497        , 2.2364        , 2.2459 };
-const double       dEdxK_MC     [] = {2.5404        , 2.5272        , 2.5853 };
-const double       dEdxC_MC     [] = {2.6433        , 2.2315        , 1.6376 };
-const double       dEdxUpLim    [] = {40            , 40            , 40          , 1         , 1        ,  1  };
+const char*        dEdxLabel    [] = {"dedxCNPHarm2", "dedxCNPTru40", "dedxCNPMed", "dedxSTCNPHarm2", "dedxSTCNPTru40", "dedxSTCNPMed", "dedxProd", "dedxSmi", "dedxASmi", "dedxSTProd", "dedxSTSmi", "dedxSTASmi"};
+const double       dEdxK_Data   [] = {2.5857        , 2.4496        , 2.8284      , 2.5857        , 2.4496        , 2.8284};
+const double       dEdxC_Data   [] = {2.5497        , 2.2364        , 2.2459      , 2.5497        , 2.2364        , 2.2459};
+const double       dEdxK_MC     [] = {2.5404        , 2.5272        , 2.5853      , 2.5404        , 2.5272        , 2.5853};
+const double       dEdxC_MC     [] = {2.6433        , 2.2315        , 1.6376      , 2.6433        , 2.2315        , 1.6376};
+const double       dEdxUpLim    [] = {40            , 40            , 40          , 40            , 40            , 40, 1         , 1        ,  1, 1         , 1        ,  1  };
 
 int                dEdxSeleIndex;
 int                dEdxMassIndex;
@@ -28,12 +28,13 @@ float              GlobalMaxDZ   =  10.00;
 float              GlobalMaxDXY  =   1.00;
 float              GlobalMaxChi2 =  10.00;
 int                GlobalMinQual =   2;
-unsigned int       GlobalMinHit  =   1;
+unsigned int       GlobalMinNOH  =   1;
+unsigned int       GlobalMinNOM  =   3;
 double             GlobalMaxPterr=   0.15;
 double             GlobalMinPt   =   5.00;
-double             GlobalMinI    =   0.001;
+double             GlobalMinI    =   0.0;
 
-double		   MinCandidateMass = 100;
+double		   MinCandidateMass = 75;
 
 char               SplitMode        = 2;   // 0 = No decomposition in Hit/Eta intervals
                                         // 1 = Decomposition in Hit Intervals, but not in Eta intervals
@@ -44,5 +45,4 @@ char		   TypeMode         = 0; //0 = All Candidates
 
 bool	           AbsolutePredictiction = true;//false;
 
-double             IntegratedLuminosity = 0.0084;
 

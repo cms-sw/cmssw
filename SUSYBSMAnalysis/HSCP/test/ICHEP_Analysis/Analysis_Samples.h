@@ -1,4 +1,5 @@
 
+double             IntegratedLuminosity = 0.0084;
 
 struct stSignal{
    string Type;
@@ -22,11 +23,11 @@ void GetSignalDefinition(std::vector<stSignal>& signals){
    signals.push_back(stSignal("Stop"  , "Stop300"  , 300,   0.647800) );
    signals.push_back(stSignal("Stop"  , "Stop500"  , 500,   0.022920) );
    signals.push_back(stSignal("Stop"  , "Stop800"  , 800,   0.000542) );
-   signals.push_back(stSignal("MGStop", "MGStop130", 130, 181.590000) );
-   signals.push_back(stSignal("MGStop", "MGStop200", 200,  22.230000) );
-   signals.push_back(stSignal("MGStop", "MGStop300", 300,   2.470000) );
-   signals.push_back(stSignal("MGStop", "MGStop500", 500,   0.064000) );
-   signals.push_back(stSignal("MGStop", "MGStop800", 800,   0.001560) );
+   signals.push_back(stSignal("MGStop", "MGStop130", 130,  73.270000) );
+   signals.push_back(stSignal("MGStop", "MGStop200", 200,   7.65100)  );
+   signals.push_back(stSignal("MGStop", "MGStop300", 300,   0.754000) );
+   signals.push_back(stSignal("MGStop", "MGStop500", 500,   0.026490) );
+   signals.push_back(stSignal("MGStop", "MGStop800", 800,   0.000621) );
    signals.push_back(stSignal("Stau"  , "Stau100"  , 100,   1.326000) );
    signals.push_back(stSignal("Stau"  , "Stau126"  , 126,   0.330000) );
    signals.push_back(stSignal("Stau"  , "Stau156"  , 156,   0.105000) );
@@ -36,55 +37,63 @@ void GetSignalDefinition(std::vector<stSignal>& signals){
 }
 
 void GetInputFiles(std::vector<string>& inputFiles, string SampleName){
+   string BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_3_5_8_patch4/";
+   switch(rand()%3){
+      case  0: BaseDirectory += "Set1/"; break;
+      case  1: BaseDirectory += "Set2/"; break;
+      case  2: BaseDirectory += "Set3/"; break;
+      default: BaseDirectory += "Set1/"; break;           
+   }
+   std::cout<<"BASE DATASET DIRECTORY FIXED TO: " << BaseDirectory << " For Sample " << SampleName << endl;
 
    if(SampleName=="Data"){
-      inputFiles.push_back("InputFiles/Data.root");
+      inputFiles.push_back(BaseDirectory + "Data.root");
    }else if(SampleName=="MC"){
-      inputFiles.push_back("InputFiles/MC.root");
+      inputFiles.push_back(BaseDirectory + "MC.root");
    }else if(SampleName=="Gluino200"){
-      inputFiles.push_back("InputFiles/Gluino200.root");
+      inputFiles.push_back(BaseDirectory + "Gluino200.root");
    }else if(SampleName=="Gluino300"){
-      inputFiles.push_back("InputFiles/Gluino300.root");
+      inputFiles.push_back(BaseDirectory + "Gluino300.root");
    }else if(SampleName=="Gluino400"){
-      inputFiles.push_back("InputFiles/Gluino400.root");
+      inputFiles.push_back(BaseDirectory + "Gluino400.root");
    }else if(SampleName=="Gluino500"){
-      inputFiles.push_back("InputFiles/Gluino500.root");
+      inputFiles.push_back(BaseDirectory + "Gluino500.root");
    }else if(SampleName=="Gluino600"){
-      inputFiles.push_back("InputFiles/Gluino600.root");
+      inputFiles.push_back(BaseDirectory + "Gluino600.root");
    }else if(SampleName=="Gluino900"){
-      inputFiles.push_back("InputFiles/Gluino900.root");
+      inputFiles.push_back(BaseDirectory + "Gluino900.root");
    }else if(SampleName=="MGStop130"){
-      inputFiles.push_back("InputFiles/MGStop130.root");
+      inputFiles.push_back(BaseDirectory + "MGStop130.root");
    }else if(SampleName=="MGStop200"){
-      inputFiles.push_back("InputFiles/MGStop200.root");
+      inputFiles.push_back(BaseDirectory + "MGStop200.root");
    }else if(SampleName=="MGStop300"){
-      inputFiles.push_back("InputFiles/MGStop300.root");
+      inputFiles.push_back(BaseDirectory + "MGStop300.root");
    }else if(SampleName=="MGStop500"){
-      inputFiles.push_back("InputFiles/MGStop500.root");
+      inputFiles.push_back(BaseDirectory + "MGStop500.root");
    }else if(SampleName=="MGStop800"){
-      inputFiles.push_back("InputFiles/MGStop800.root");
+      inputFiles.push_back(BaseDirectory + "MGStop800.root");
    }else if(SampleName=="Stau100"){
-      inputFiles.push_back("InputFiles/Stau100.root");
+      inputFiles.push_back(BaseDirectory + "Stau100.root");
    }else if(SampleName=="Stau126"){
-      inputFiles.push_back("InputFiles/Stau126.root");
+      inputFiles.push_back(BaseDirectory + "Stau126.root");
    }else if(SampleName=="Stau156"){
-      inputFiles.push_back("InputFiles/Stau156.root");
+      inputFiles.push_back(BaseDirectory + "Stau156.root");
    }else if(SampleName=="Stau200"){
-      inputFiles.push_back("InputFiles/Stau200.root");
+      inputFiles.push_back(BaseDirectory + "Stau200.root");
    }else if(SampleName=="Stau247"){
-      inputFiles.push_back("InputFiles/Stau247.root");
+      inputFiles.push_back(BaseDirectory + "Stau247.root");
    }else if(SampleName=="Stau308"){
-      inputFiles.push_back("InputFiles/Stau308.root");
+      inputFiles.push_back(BaseDirectory + "Stau308.root");
    }else if(SampleName=="Stop130"){
-      inputFiles.push_back("InputFiles/Stop130.root");
+      inputFiles.push_back(BaseDirectory + "Stop130.root");
    }else if(SampleName=="Stop200"){
-      inputFiles.push_back("InputFiles/Stop200.root");
+      inputFiles.push_back(BaseDirectory + "Stop200.root");
    }else if(SampleName=="Stop300"){
-      inputFiles.push_back("InputFiles/Stop300.root");
+      inputFiles.push_back(BaseDirectory + "Stop300.root");
    }else if(SampleName=="Stop500"){
-      inputFiles.push_back("InputFiles/Stop500.root");
+      inputFiles.push_back(BaseDirectory + "Stop500.root");
    }else if(SampleName=="Stop800"){
-      inputFiles.push_back("InputFiles/Stop800.root");
+      inputFiles.push_back(BaseDirectory + "Stop800.root");
    }else{
       printf("\n\n\n!!!UNKOWN SAMPLE:%s!!!\n\n\n",SampleName.c_str());
    }

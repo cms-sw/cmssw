@@ -1,5 +1,5 @@
 int Color [] = {2,4,1,8,6,7,3,9,5};
-int Marker[] = {21,22,23,20,20,3,2};
+int Marker[] = {21,22,23,20,29,3,2};
 int Style [] = {1,2,5,7,9,10};
 
 
@@ -192,6 +192,7 @@ void DrawSuperposedHistos(TH1** Histos, std::vector<string> legend, string Style
          Histos[HistoHeighest]->Draw("HIST");
       }
       for(int i=0;i<N;i++){
+           if(i==HistoHeighest)continue;
            if(i==0){
               Histos[i]->Draw("same E1");
            }else{
@@ -201,6 +202,7 @@ void DrawSuperposedHistos(TH1** Histos, std::vector<string> legend, string Style
    }else{
       Histos[HistoHeighest]->Draw(Style.c_str());
       for(int i=0;i<N;i++){
+           if(i==HistoHeighest)continue;
            if(Style!=""){
               sprintf(Buffer,"same %s",Style.c_str());
            }else{
@@ -212,5 +214,16 @@ void DrawSuperposedHistos(TH1** Histos, std::vector<string> legend, string Style
 }
 
 
+void Smart_SetAxisRange(TH2D* histo){
+   double Min=1E50;
+   double Max=1E-50;
+   for(int x=1;x<=histo->GetNbinsX();x++){
+   for(int y=1;y<=histo->GetNbinsY();y++){
+      double c = histo->GetBinContent(x,y);
+      if(c<Min && c>0)Min=c;
+      if(c>Max)Max=c;
+   }}   
+   histo->SetAxisRange(Min,Max,"Z");
+}
 
 

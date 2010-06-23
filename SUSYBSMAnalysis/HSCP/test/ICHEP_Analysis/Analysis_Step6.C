@@ -22,6 +22,7 @@
 #include "tdrstyle.C"
 #include "Analysis_PlotFunction.h"
 #include "Analysis_Samples.h"
+#include "CL95.h"
 
 struct stResult{
    double SignalCrossSection;
@@ -47,19 +48,23 @@ double   SigmaFromProb(double p, string where="outside");
 double   LogLikeliHood(TH1D* Histo1, TH1D* Histo2);
 double   LogLikeliHood(TH1D* Histo1, TF1*  Histo2);
 double   GetS(TH1D* Data, double* FitParams, double SignalMean, double SignalSigma, TCanvas* c0=NULL);
+void     Analysis_Step6_Core(string);
 void     Analysis_Step6_Init(string signal, string Path);
 void     Analysis_Step6_SLDistrib(stResult& results);
 double   GetIntegralOnLeft(TH1D* pdf, double IntegralRatio);
+
 double   Exclusion(string signal, string pattern);
+double   Exclusion_LL(string signal, string pattern);
+double   Exclusion_Counting(string signal, string pattern);
 
 void     SimRecoCorrelation(string InputPattern);
 int      JobIdToIndex(string JobId);
 
 
+void GetSignalMeanHSCPPerEvent(string InputPattern);
 
-
-double MinRange = 50;
-double MaxRange = 300;
+double MinRange = 75;
+double MaxRange = 999;
 
 unsigned int NPseudoExperiment = 1000;
 
@@ -78,13 +83,18 @@ TH1D* MassPredPDF   = NULL;
 double FitParam[10];
 TF1* Stau_MMC_Fit   = NULL;
 TF1* Stop_MMC_Fit   = NULL;
+TF1* MGStop_MMC_Fit = NULL;
 TF1* Gluino_MMC_Fit = NULL;
 TF1* Stau_SMC_Fit   = NULL;
 TF1* Stop_SMC_Fit   = NULL;
+TF1* MGStop_SMC_Fit = NULL;
 TF1* Gluino_SMC_Fit = NULL;
 
 std::vector<stSignal> signals;
+std::vector<double> signalsMeanHSCPPerEvent;
 
+int Mode=0;
+bool EXPECTED=false;
 void Analysis_Step6(){
    setTDRStyle();
    gStyle->SetPadTopMargin   (0.05);
@@ -96,19 +106,112 @@ void Analysis_Step6(){
    gStyle->SetTitleYOffset(1.35);
    gStyle->SetPalette(1);
    gStyle->SetNdivisions(505,"X");
+
+   for(unsigned int i=0;i<2;i++){
+   EXPECTED = (i==1);
+
+   MinRange = 75;
+   Mode     = 0;   
+   Analysis_Step6_Core("SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-20/WPI-30/");
+//   Analysis_Step6_Core("SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-10/WPI-10/");
+
+
+   MinRange = 75;
+   Mode     = 0;
+   Analysis_Step6_Core("SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-35/WPI-35/");
+//   Analysis_Step6_Core("SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-20/WPI-20/");
+  }
+}
+
+void Analysis_Step6_Core(string ResultPattern){
    TCanvas* c1;
 
    GetSignalDefinition(signals);
-   SimRecoCorrelation("SplitMode2/MinHit01/Sele_dedxASmi/Mass_dedxCNPHarm2/WPPt-20/WPI-25/");
+   SimRecoCorrelation(ResultPattern);
+   GetSignalMeanHSCPPerEvent(ResultPattern);
+
+   string outpath = string("Results/EXCLUSION/") + ResultPattern;
+   MakeDirectories(outpath);
+
+   double MassThGluino[] = {200,300,400,500,600,900};
+   double XSecThGluino[] = {signals[JobIdToIndex("Gluino200")].XSec, signals[JobIdToIndex("Gluino300")].XSec,signals[JobIdToIndex("Gluino400")].XSec,signals[JobIdToIndex("Gluino500")].XSec,signals[JobIdToIndex("Gluino600")].XSec,signals[JobIdToIndex("Gluino900")].XSec};
+
+   double MassThStop[] = {130,200,300,500,800};
+   double XSecThStop[] = {signals[JobIdToIndex("Stop130")].XSec, signals[JobIdToIndex("Stop200")].XSec,signals[JobIdToIndex("Stop300")].XSec,signals[JobIdToIndex("Stop500")].XSec,signals[JobIdToIndex("Stop800")].XSec};
+
+
+   double MassThStau[] = {100, 126, 156, 200, 247, 308};
+   double XSecThStau[] = {signals[JobIdToIndex("Stau100")].XSec, signals[JobIdToIndex("Stau126")].XSec,signals[JobIdToIndex("Stau156")].XSec,signals[JobIdToIndex("Stau200")].XSec,signals[JobIdToIndex("Stau247")].XSec, signals[JobIdToIndex("Stau308")].XSec};
+
+
+
+   TGraph* GluinoXSec = new TGraph(6,MassThGluino,XSecThGluino);
+   GluinoXSec->SetLineColor(4);
+   GluinoXSec->SetMarkerColor(4);
+   GluinoXSec->SetTitle("");
+   GluinoXSec->GetXaxis()->SetTitle("Gluino HSCP Mass [ GeV/c^{2} ]");
+   GluinoXSec->GetYaxis()->SetTitle("CrossSection [ Pb ]");
+   GluinoXSec->GetYaxis()->SetTitleOffset(1.70);
+
+   TGraph* StopXSec = new TGraph(5,MassThStop,XSecThStop);
+   StopXSec->SetLineColor(2);
+   StopXSec->SetFillColor(2);
+   StopXSec->SetMarkerColor(2);
+   StopXSec->SetTitle("");
+   StopXSec->GetXaxis()->SetTitle("Stop HSCP Mass [ GeV/c^{2} ]");
+   StopXSec->GetYaxis()->SetTitle("CrossSection [ Pb ]");
+   StopXSec->GetYaxis()->SetTitleOffset(1.70);
+
+   TGraph* StauXSec = new TGraph(6,MassThStau,XSecThStau);
+   StauXSec->SetLineColor(8);
+   StauXSec->SetFillColor(8);
+   StauXSec->SetMarkerColor(8);
+   StauXSec->SetTitle("");
+   StauXSec->GetXaxis()->SetTitle("Stau HSCP Mass [ GeV/c^{2} ]");
+   StauXSec->GetYaxis()->SetTitle("CrossSection [ Pb ]");
+   StauXSec->GetYaxis()->SetTitleOffset(1.70);
+
+
 
 
    
-   double Gluino200 = Exclusion("Gluino200","SplitMode2/MinHit01/Sele_dedxASmi/Mass_dedxCNPHarm2/WPPt-20/WPI-25/");
-   double Gluino300 = Exclusion("Gluino300","SplitMode2/MinHit01/Sele_dedxASmi/Mass_dedxCNPHarm2/WPPt-20/WPI-25/");
-   double Gluino400 = Exclusion("Gluino400","SplitMode2/MinHit01/Sele_dedxASmi/Mass_dedxCNPHarm2/WPPt-20/WPI-25/");
-   double Gluino500 = Exclusion("Gluino500","SplitMode2/MinHit01/Sele_dedxASmi/Mass_dedxCNPHarm2/WPPt-20/WPI-25/");
-   double Gluino600 = Exclusion("Gluino600","SplitMode2/MinHit01/Sele_dedxASmi/Mass_dedxCNPHarm2/WPPt-20/WPI-25/");
-   double Gluino900 = Exclusion("Gluino900","SplitMode2/MinHit01/Sele_dedxASmi/Mass_dedxCNPHarm2/WPPt-20/WPI-25/");
+   double Gluino200 = Exclusion("Gluino200",ResultPattern);
+   double Gluino300 = Exclusion("Gluino300",ResultPattern);
+   double Gluino400 = Exclusion("Gluino400",ResultPattern);
+   double Gluino500 = Exclusion("Gluino500",ResultPattern);
+   double Gluino600 = Exclusion("Gluino600",ResultPattern);
+   double Gluino900 = Exclusion("Gluino900",ResultPattern);
+
+   double Stop130 = Exclusion("Stop130",ResultPattern);
+   double Stop200 = Exclusion("Stop200",ResultPattern);
+   double Stop300 = Exclusion("Stop300",ResultPattern);
+   double Stop500 = Exclusion("Stop500",ResultPattern);
+   double Stop800 = Exclusion("Stop800",ResultPattern);
+
+   double MGStop130 = Exclusion("MGStop130",ResultPattern);
+   double MGStop200 = Exclusion("MGStop200",ResultPattern);
+   double MGStop300 = Exclusion("MGStop300",ResultPattern);
+   double MGStop500 = Exclusion("MGStop500",ResultPattern);
+   double MGStop800 = Exclusion("MGStop800",ResultPattern);
+
+   double Stau100 = Exclusion("Stau100",ResultPattern);
+   double Stau126 = Exclusion("Stau126",ResultPattern);
+   double Stau156 = Exclusion("Stau156",ResultPattern);
+   double Stau200 = Exclusion("Stau200",ResultPattern);
+   double Stau247 = Exclusion("Stau247",ResultPattern);
+   double Stau308 = Exclusion("Stau308",ResultPattern);
+
+   double MassGluino[] = {200,300,400,500,600,900};
+   double XSecGluino[] = {Gluino200, Gluino300, Gluino400, Gluino500, Gluino600, Gluino900};
+
+   double MassStop[] = {130,200,300,500,800};
+   double XSecStop[] = {Stop130, Stop200, Stop300, Stop500, Stop800};
+
+   double MassMGStop[] = {130,200,300,500,800};
+   double XSecMGStop[] = {MGStop130, MGStop200, MGStop300, MGStop500, MGStop800};
+
+   double MassStau[] = {100, 126, 156, 200, 247, 308};
+   double XSecStau[] = {Stau100, Stau126, Stau156, Stau200, Stau247, Stau308};
 
    printf("200 --> Excluded Above %f\n",Gluino200);
    printf("300 --> Excluded Above %f\n",Gluino300);
@@ -117,61 +220,17 @@ void Analysis_Step6(){
    printf("600 --> Excluded Above %f\n",Gluino600);
    printf("900 --> Excluded Above %f\n",Gluino900);
 
-
-   double MassGluino[] = {200,300,400,500,600,900};
-   double XSecGluino[] = {Gluino200, Gluino300, Gluino400, Gluino500, Gluino600, Gluino900};
-
-   c1 = new TCanvas("c1", "c1",800,600);
-   TGraph* GluinoExclusion = new TGraph(6,MassGluino,XSecGluino);
-   GluinoExclusion->SetLineColor(4);
-   GluinoExclusion->SetFillColor(4);
-   GluinoExclusion->SetLineWidth(2001);
-   GluinoExclusion->SetFillStyle(3004);
-   GluinoExclusion->Draw("AL* same");
-   GluinoExclusion->SetTitle("");
-   GluinoExclusion->GetXaxis()->SetTitle("Gluino HSCP Mass [ GeV/c^{2} ]");
-   GluinoExclusion->GetYaxis()->SetTitle("CrossSection [ Pb ]");
-   GluinoExclusion->GetYaxis()->SetTitleOffset(1.70);
-   SaveCanvas(c1, "Results/EXCLUSION/ExclusionPlot", "Gluino");
-   delete c1;
-
-
-   double Stop130 = Exclusion("Stop130","SplitMode2/MinHit01/Sele_dedxASmi/Mass_dedxCNPHarm2/WPPt-20/WPI-25/");
-   double Stop200 = Exclusion("Stop200","SplitMode2/MinHit01/Sele_dedxASmi/Mass_dedxCNPHarm2/WPPt-20/WPI-25/");
-   double Stop300 = Exclusion("Stop300","SplitMode2/MinHit01/Sele_dedxASmi/Mass_dedxCNPHarm2/WPPt-20/WPI-25/");
-   double Stop500 = Exclusion("Stop500","SplitMode2/MinHit01/Sele_dedxASmi/Mass_dedxCNPHarm2/WPPt-20/WPI-25/");
-   double Stop800 = Exclusion("Stop800","SplitMode2/MinHit01/Sele_dedxASmi/Mass_dedxCNPHarm2/WPPt-20/WPI-25/");
-
    printf("130 --> Excluded Above %f\n",Stop130);
    printf("200 --> Excluded Above %f\n",Stop200);
    printf("300 --> Excluded Above %f\n",Stop300);
    printf("500 --> Excluded Above %f\n",Stop500);
    printf("800 --> Excluded Above %f\n",Stop800);
 
-   double MassStop[] = {130,200,300,500,800};
-   double XSecStop[] = {Stop130, Stop200, Stop300, Stop500, Stop800};
-
-   c1 = new TCanvas("c1", "c1",800,600);
-   TGraph* StopExclusion = new TGraph(5,MassStop,XSecStop);
-   StopExclusion->SetLineColor(2);
-   StopExclusion->SetFillColor(2);
-   StopExclusion->SetLineWidth(2001);
-   StopExclusion->SetFillStyle(3004);
-   StopExclusion->Draw("AL* same");
-   StopExclusion->SetTitle("");
-   StopExclusion->GetXaxis()->SetTitle("Stop HSCP Mass [ GeV/c^{2} ]");
-   StopExclusion->GetYaxis()->SetTitle("CrossSection [ Pb ]");
-   StopExclusion->GetYaxis()->SetTitleOffset(1.70);
-   SaveCanvas(c1, "Results/EXCLUSION/ExclusionPlot", "Stop");
-   delete c1;
-
-
-   double Stau100 = Exclusion("Stau100","SplitMode2/MinHit01/Sele_dedxASmi/Mass_dedxCNPHarm2/WPPt-20/WPI-25/");
-   double Stau126 = Exclusion("Stau126","SplitMode2/MinHit01/Sele_dedxASmi/Mass_dedxCNPHarm2/WPPt-20/WPI-25/");
-   double Stau156 = Exclusion("Stau156","SplitMode2/MinHit01/Sele_dedxASmi/Mass_dedxCNPHarm2/WPPt-20/WPI-25/");
-   double Stau200 = Exclusion("Stau200","SplitMode2/MinHit01/Sele_dedxASmi/Mass_dedxCNPHarm2/WPPt-20/WPI-25/");
-   double Stau247 = Exclusion("Stau247","SplitMode2/MinHit01/Sele_dedxASmi/Mass_dedxCNPHarm2/WPPt-20/WPI-25/");
-   double Stau308 = Exclusion("Stau308","SplitMode2/MinHit01/Sele_dedxASmi/Mass_dedxCNPHarm2/WPPt-20/WPI-25/");
+   printf("130 --> Excluded Above %f\n",MGStop130);
+   printf("200 --> Excluded Above %f\n",MGStop200);
+   printf("300 --> Excluded Above %f\n",MGStop300);
+   printf("500 --> Excluded Above %f\n",MGStop500);
+   printf("800 --> Excluded Above %f\n",MGStop800);
 
    printf("100 --> Excluded Above %f\n",Stau100);
    printf("126 --> Excluded Above %f\n",Stau126);
@@ -180,26 +239,169 @@ void Analysis_Step6(){
    printf("247 --> Excluded Above %f\n",Stau247);
    printf("308 --> Excluded Above %f\n",Stau308);
 
-   double MassStau[] = {100, 126, 156, 200, 247, 308};
-   double XSecStau[] = {Stau100, Stau126, Stau156, Stau200, Stau247, Stau308};
+   c1 = new TCanvas("c1", "c1",800,600);
+   TGraph* GluinoExclusion = new TGraph(6,MassGluino,XSecGluino);
+   GluinoExclusion->SetLineColor(4);
+   GluinoExclusion->SetFillColor(4);
+   GluinoExclusion->SetMarkerColor(4);
+   GluinoExclusion->SetLineWidth(501);
+   GluinoExclusion->SetFillStyle(3004);
+   GluinoExclusion->Draw("AL* same");
+   GluinoExclusion->SetTitle("");
+   GluinoExclusion->GetXaxis()->SetTitle("Gluino HSCP Mass [ GeV/c^{2} ]");
+   GluinoExclusion->GetYaxis()->SetTitle("CrossSection [ Pb ]");
+   GluinoExclusion->GetYaxis()->SetTitleOffset(1.70);
+   SaveCanvas(c1, outpath, "ExclusionPlot_Gluino");
+   delete c1;
+
+   c1 = new TCanvas("c1", "c1",800,600);
+   TGraph* StopExclusion = new TGraph(5,MassStop,XSecStop);
+   StopExclusion->SetLineColor(2);
+   StopExclusion->SetFillColor(2);
+   StopExclusion->SetMarkerColor(2);
+   StopExclusion->SetLineWidth(501);
+   StopExclusion->SetFillStyle(3005);
+   StopExclusion->Draw("AL* same");
+   StopExclusion->SetTitle("");
+   StopExclusion->GetXaxis()->SetTitle("Stop HSCP Mass [ GeV/c^{2} ]");
+   StopExclusion->GetYaxis()->SetTitle("CrossSection [ Pb ]");
+   StopExclusion->GetYaxis()->SetTitleOffset(1.70);
+   SaveCanvas(c1, outpath, "ExclusionPlot_Stop");
+   delete c1;
+
+   c1 = new TCanvas("c1", "c1",800,600);
+   TGraph* MGStopExclusion = new TGraph(5,MassMGStop,XSecMGStop);
+   MGStopExclusion->SetLineColor(1);
+   MGStopExclusion->SetFillColor(1);
+   MGStopExclusion->SetMarkerColor(1);
+   MGStopExclusion->SetLineWidth(501);
+   MGStopExclusion->SetFillStyle(3006);
+   MGStopExclusion->Draw("AL* same");
+   MGStopExclusion->SetTitle("");
+   MGStopExclusion->GetXaxis()->SetTitle("Stop HSCP Mass [ GeV/c^{2} ]");
+   MGStopExclusion->GetYaxis()->SetTitle("CrossSection [ Pb ]");
+   MGStopExclusion->GetYaxis()->SetTitleOffset(1.70);
+   SaveCanvas(c1, outpath, "ExclusionPlot_MGStop");
+   delete c1;
 
    c1 = new TCanvas("c1", "c1",800,600);
    TGraph* StauExclusion = new TGraph(6,MassStau,XSecStau);
    StauExclusion->SetLineColor(8);
    StauExclusion->SetFillColor(8);
-   StauExclusion->SetLineWidth(2001);
-   StauExclusion->SetFillStyle(3004);
+   StauExclusion->SetMarkerColor(8);
+   StauExclusion->SetLineWidth(501);
+   StauExclusion->SetFillStyle(3007);
    StauExclusion->Draw("AL* same");
    StauExclusion->SetTitle("");
    StauExclusion->GetXaxis()->SetTitle("Stau HSCP Mass [ GeV/c^{2} ]");
    StauExclusion->GetYaxis()->SetTitle("CrossSection [ Pb ]");
    StauExclusion->GetYaxis()->SetTitleOffset(1.70);
-   SaveCanvas(c1, "Results/EXCLUSION/ExclusionPlot", "Stau");
+   SaveCanvas(c1, outpath, "ExclusionPlot_Stau");
    delete c1;
+
+   c1 = new TCanvas("c1", "c1",800,600);
+   TMultiGraph* mg = new TMultiGraph();
+   mg->Add(StauXSec, "L");
+   mg->Add(StopXSec, "L");
+   mg->Add(GluinoXSec, "L");
+   mg->Add(StauExclusion, "L*");
+//   mg->Add(StopExclusion, "L*");
+   mg->Add(MGStopExclusion, "L*");
+   mg->Add(GluinoExclusion, "L*");
+   mg->Draw("A");
+   mg->SetTitle("");
+   mg->GetXaxis()->SetTitle("HSCP Mass [ GeV/c^{2} ]");
+   mg->GetYaxis()->SetTitle("CrossSection [ Pb ]");
+   mg->GetYaxis()->SetTitleOffset(1.70);
+//   mg->GetYaxis()->SetRangeUser(0.0001,mg->GetYaxis()->GetXmax());
+   mg->GetYaxis()->SetRangeUser(0.001,10000);
+
+//   TLegend* leg = new TLegend(0.15,0.93,0.35,0.73);
+//   TLegend* leg = new TLegend(0.40,0.93,0.60,0.73);
+   TLegend* leg = new TLegend(0.55,0.45,0.80,0.65);
+   leg->SetFillColor(0);
+   leg->SetBorderSize(0);
+   leg->AddEntry(StauExclusion  , "Exclusion Stau"  ,"FP");
+//   leg->AddEntry(StopExclusion  , "Exclusion Stop"  ,"FP");
+   leg->AddEntry(MGStopExclusion, "Exclusion Stop","FP");
+   leg->AddEntry(GluinoExclusion, "Exclusion Gluino","FP");
+   leg->AddEntry(StauXSec  , "TH Stau"  ,"L");
+   leg->AddEntry(StopXSec  , "TH Stop"  ,"L");
+   leg->AddEntry(GluinoXSec, "TH Gluino","L");
+   leg->Draw();
+   if(EXPECTED){   SaveCanvas(c1, outpath, string("ExpectedExclusionPlot"));
+   }else{          SaveCanvas(c1, outpath, string("ExclusionPlot")); }
+   c1->SetLogy(true);
+   if(EXPECTED){   SaveCanvas(c1, outpath, string("ExpectedExclusionPlotLog"));
+   }else{          SaveCanvas(c1, outpath, string("ExclusionPlotLog")); }
+   delete c1;
+
 }
 
-
 double Exclusion(string signal, string pattern){
+   if(Mode==0){
+      return Exclusion_Counting(signal,pattern);
+   }else{
+      return Exclusion_LL(signal,pattern);
+   }
+}
+
+double Exclusion_Counting(string signal, string pattern){
+   CurrentSampleIndex = JobIdToIndex(signal);
+   if(CurrentSampleIndex<0){
+      printf("There is no signal corresponding to the JobId Given\n");
+      return -1;
+   }
+
+   InputPath  = "Results/ANALYSE/" + pattern + "Histos.root";
+   TFile* InputFile = new TFile(InputPath.c_str());
+   MassSign = (TH1D*)GetObjectFromPath(InputFile, string("Mass_") + signals[CurrentSampleIndex].Name);
+   MassData = (TH1D*)GetObjectFromPath(InputFile, "Mass_Data");
+   MassPred = (TH1D*)GetObjectFromPath(InputFile, "Mass_Pred");
+
+
+   double NPredErr2 = 0;
+   for(int i=MassPred->GetXaxis()->FindBin(0.0); i<=MassPred->GetXaxis()->FindBin(MaxRange) ;i++){NPredErr2+=MassPred->GetBinError(i)*MassPred->GetBinError(i);}NPredErr2=sqrt(NPredErr2);
+   double NPred2 = MassPred->Integral(MassPred->GetXaxis()->FindBin(0.0), MassPred->GetXaxis()->FindBin(MaxRange));
+   double NData2 = MassData->Integral(MassData->GetXaxis()->FindBin(0.0), MassData->GetXaxis()->FindBin(MaxRange));
+   double NSign2 = MassSign->Integral(MassSign->GetXaxis()->FindBin(0.0), MassSign->GetXaxis()->FindBin(MaxRange));
+   double ESign2 = NSign2/signalsMeanHSCPPerEvent[CurrentSampleIndex]; //Factor signalsMeanHSCPPerEvent[CurrentSampleIndex] is there because we want to count the number of events and not the number of HSCP tracks, and NSIgn is at Track (and Not Event) Level.
+
+   double NPredErr = 0;
+   for(int i=MassPred->GetXaxis()->FindBin(MinRange); i<=MassPred->GetXaxis()->FindBin(MaxRange) ;i++){NPredErr+=(MassPred->GetBinError(i)*MassPred->GetBinError(i));}NPredErr=sqrt(NPredErr);
+   double NPred = MassPred->Integral(MassPred->GetXaxis()->FindBin(MinRange), MassPred->GetXaxis()->FindBin(MaxRange));
+   double NData = MassData->Integral(MassData->GetXaxis()->FindBin(MinRange), MassData->GetXaxis()->FindBin(MaxRange));
+   double NSign = MassSign->Integral(MassSign->GetXaxis()->FindBin(MinRange), MassSign->GetXaxis()->FindBin(MaxRange));
+   double ESign = NSign/signalsMeanHSCPPerEvent[CurrentSampleIndex]; //Factor signalsMeanHSCPPerEvent[CurrentSampleIndex] is there because we want to count the number of events and not the number of HSCP tracks, and NSIgn is at Track (and Not Event) Level.
+   double Eff   = ESign / (signals[CurrentSampleIndex].XSec*IntegratedLuminosity);
+
+   double Alpha = 0.2;
+   double Rescale = 2.996 * (1+2.996*Alpha*Alpha*0.5) / ESign;
+/*   printf("Sample: %15s --> Total Efficiency = %f\n", signals[CurrentSampleIndex].Name.c_str(), Eff);
+   printf("Luminosity= %6.2E  XSec=%6.2Epb --> SignTrack=%6.2E SignalEvent=%6.2E ObservedInData=%6.2E\n", IntegratedLuminosity,signals[CurrentSampleIndex].XSec,NSign,ESign,NData);
+   printf("Luminosity= %6.2E  XSec=%6.2Epb --> SignTrack=%6.2E SignalEvent=%6.2E ObservedInData=%6.2E\n", IntegratedLuminosity,signals[CurrentSampleIndex].XSec*Rescale,NSign*Rescale,ESign*Rescale,NData);
+   printf("In [%4.0f,%4.0f]Observing %3f (data) while %3f+-%3f (Pred) and %3f (sign) are expected--> Probability = %6.3f%%\n",MinRange,MaxRange,NData,NPred,NPredErr,ESign*Rescale,100.0*TMath::Poisson(NData, ESign*Rescale));
+   printf("In [%4.0f,%4.0f]Observing %3f (data) while %3f+-%3f (Pred) and %3f (sign) are expected--> Probability = %6.3f%%\n",0.0,MaxRange,NData2,NPred2,NPredErr2,ESign2*Rescale,100.0*TMath::Poisson(NData2, ESign2*Rescale));*/
+
+   NPred*=1.5;
+   if(!EXPECTED){
+      double sigma95Gauss = CL95(IntegratedLuminosity, IntegratedLuminosity*0.11, Eff, Eff*0.15, NPred, NPred*0.20, 0, false, 0);
+      double sigma95LogG  = CL95(IntegratedLuminosity, IntegratedLuminosity*0.11, Eff, Eff*0.15, NPred, NPred*0.20, 0, false, 1);
+      double sigma95Gamma = CL95(IntegratedLuminosity, IntegratedLuminosity*0.11, Eff, Eff*0.15, NPred, NPred*0.20, 0, false, 2);
+      printf("%15s: %7.3E (Gauss) %7.3E (LogNormal) %7.3E (Gamma) %7.3E (Loic)\n",signals[CurrentSampleIndex].Name.c_str(), sigma95Gauss, sigma95LogG, sigma95Gamma, signals[CurrentSampleIndex].XSec*Rescale);
+      return sigma95LogG;
+   }else{
+      double sigma95Gauss = CLA(IntegratedLuminosity, IntegratedLuminosity*0.11, Eff, Eff*0.15, NPred, NPred*0.20, 0);
+      double sigma95LogG  = CLA(IntegratedLuminosity, IntegratedLuminosity*0.11, Eff, Eff*0.15, NPred, NPred*0.20, 1);
+      double sigma95Gamma = CLA(IntegratedLuminosity, IntegratedLuminosity*0.11, Eff, Eff*0.15, NPred, NPred*0.20, 2);
+      printf("%15s: %7.3E (Gauss) %7.3E (LogNormal) %7.3E (Gamma)\n",signals[CurrentSampleIndex].Name.c_str(), sigma95Gauss, sigma95LogG, sigma95Gamma);
+      return sigma95LogG;
+   }
+
+   return signals[CurrentSampleIndex].XSec*Rescale;
+}
+
+double Exclusion_LL(string signal, string pattern){
    Analysis_Step6_Init(signal, pattern);
 
    std::vector<double> TestCrossSection;
@@ -243,6 +445,9 @@ double Exclusion(string signal, string pattern){
       }else if(signals[CurrentJobIndex].Type=="Stop"){
          results.SignalMean = Stop_MMC_Fit->Eval(signals[CurrentJobIndex].Mass);
          results.SignalSigma= Stop_SMC_Fit->Eval(results.SignalMean);
+      }else if(signals[CurrentJobIndex].Type=="MGStop"){
+         results.SignalMean = MGStop_MMC_Fit->Eval(signals[CurrentJobIndex].Mass);
+         results.SignalSigma= MGStop_SMC_Fit->Eval(results.SignalMean);
       }else if(signals[CurrentJobIndex].Type=="Stau"){
          results.SignalMean = Stau_MMC_Fit->Eval(signals[CurrentJobIndex].Mass);
          results.SignalSigma= Stau_SMC_Fit->Eval(results.SignalMean);
@@ -306,7 +511,7 @@ void Analysis_Step6_Init(string signal, string pattern)
    }
 
    InputPath  = "Results/ANALYSE/" + pattern + "Histos.root";
-   OutputPath = string("Results/EXCLUSION/") + pattern + signals[CurrentSampleIndex].Name;
+   OutputPath = string("Results/EXCLUSION/") + pattern + signals[CurrentSampleIndex].Name + "/";
    MakeDirectories(OutputPath);
 
 
@@ -353,7 +558,7 @@ void Analysis_Step6_Init(string signal, string pattern)
    MassSignFit->SetParameter(1, 400);
    MassSignFit->SetParLimits(1, 50,1000);
    MassSignFit->SetParameter(2, 100);
-   MassSignFit->SetParLimits(2, 10,500);
+   MassSignFit->SetParLimits(2, 10,400);
 
    MassPred->SetStats(kFALSE);
    TF1*  MassPredFit    = new TF1("MassPredFit",fitPred,0,1500,5);
@@ -556,7 +761,7 @@ void Analysis_Step6_SLDistrib(stResult& results){
    l4->SetLineWidth(3);   l4->SetLineColor(2);   l4->Draw("same");
 
    c1->SetLogy(true);
-   SaveCanvas(c1, Path, "SL_Distrib");
+   SaveCanvas(c1, Path, "SL_Distrib", true);
    delete c1;
 
    delete PredPoissonPdf;
@@ -782,6 +987,9 @@ void SimRecoCorrelation(string InputPattern)
    std::vector<double> SampleSigma;
 
    string Input = "Results/ANALYSE/" + InputPattern + "Histos.root";
+   string outpath = string("Results/EXCLUSION/") + InputPattern;
+   MakeDirectories(outpath);
+
    TFile* InputFile = new TFile(Input.c_str());
 
    for(unsigned int s=0;s<signals.size();s++){
@@ -792,9 +1000,9 @@ void SimRecoCorrelation(string InputPattern)
       SignFit->SetParameter(1, 400);
       SignFit->SetParLimits(1, 50,1000);
       SignFit->SetParameter(2, 100);
-      SignFit->SetParLimits(2, 10,500);
+      SignFit->SetParLimits(2, 10,400);
       Sign->SetStats(kFALSE);
-      Sign->Fit("SignFit","LL R 0");
+      Sign->Fit("SignFit","LL M R 0Q");
 
       SampleMean .push_back(SignFit->GetParameter(1));
       SampleSigma.push_back(SignFit->GetParameter(2));      
@@ -802,7 +1010,7 @@ void SimRecoCorrelation(string InputPattern)
       TCanvas* c1 = new TCanvas("c1", "c1",600,600);
       Sign->Draw();
       SignFit->Draw("same");
-      SaveCanvas(c1, "Results/EXCLUSION/MassFit", signals[s].Name,true);
+      SaveCanvas(c1, outpath + "MassFit", signals[s].Name,true);
       delete c1;
 
       delete SignFit;
@@ -814,10 +1022,12 @@ void SimRecoCorrelation(string InputPattern)
    int    NSample = signals.size();
    int    NStau   = 0;   double StauMass  [NSample];   double StauMean  [NSample];   double StauSigma  [NSample];
    int    NStop   = 0;   double StopMass  [NSample];   double StopMean  [NSample];   double StopSigma  [NSample];
+   int    NMGStop = 0;   double MGStopMass[NSample];   double MGStopMean[NSample];   double MGStopSigma[NSample];
    int    NGluino = 0;   double GluinoMass[NSample];   double GluinoMean[NSample];   double GluinoSigma[NSample];
    for(unsigned int s=0;s<signals.size();s++){
       if(signals[s].Type=="Gluino"){GluinoMass[NGluino] = signals[s].Mass; GluinoMean[NGluino]= SampleMean[s]; GluinoSigma[NGluino] = SampleSigma[s]; NGluino++;}
       if(signals[s].Type=="Stop"  ){StopMass  [NStop]   = signals[s].Mass; StopMean  [NStop]  = SampleMean[s]; StopSigma  [NStop]   = SampleSigma[s]; NStop++;  }
+      if(signals[s].Type=="MGStop"){MGStopMass[NMGStop] = signals[s].Mass; MGStopMean[NMGStop]= SampleMean[s]; MGStopSigma[NMGStop] = SampleSigma[s]; NMGStop++;}
       if(signals[s].Type=="Stau"  ){StauMass  [NStau]   = signals[s].Mass; StauMean  [NStau]  = SampleMean[s]; StauSigma  [NStau]   = SampleSigma[s]; NStau++;  }
    }
 
@@ -825,7 +1035,7 @@ void SimRecoCorrelation(string InputPattern)
    Stop_MMC_Fit    = new TF1("Stop_MMC_Fit","[0]+[1]*x+[2]*x*x",0,1000);
    Stop_MMC_Fit->SetParLimits(0, 0,10);
    Stop_MMC_Fit->SetParameter(0,10);
-   Stop_MMC->Fit("Stop_MMC_Fit","NR");
+   Stop_MMC->Fit("Stop_MMC_Fit","M NR");
    Stop_MMC_Fit->SetLineWidth(2);
    Stop_MMC_Fit->SetLineColor(4);
    Stop_MMC_Fit->SetLineStyle(2);
@@ -835,11 +1045,25 @@ void SimRecoCorrelation(string InputPattern)
    Stop_MMC->SetLineColor  (Stop_MMC_Fit->GetLineColor());
    Stop_MMC->SetLineStyle  (Stop_MMC_Fit->GetLineStyle());
 
+   TGraph* MGStop_MMC = new TGraph(NMGStop,MGStopMass,MGStopMean);
+   MGStop_MMC_Fit    = new TF1("MGStop_MMC_Fit","[0]+[1]*x+[2]*x*x",0,1000);
+   MGStop_MMC_Fit->SetParLimits(0, 0,10);
+   MGStop_MMC_Fit->SetParameter(0,10);
+   MGStop_MMC->Fit("MGStop_MMC_Fit","M NR");
+   MGStop_MMC_Fit->SetLineWidth(2);
+   MGStop_MMC_Fit->SetLineColor(1);
+   MGStop_MMC_Fit->SetLineStyle(2);
+   MGStop_MMC_Fit->GetXaxis()->SetTitle("HSCP Simulated Mass [ GeV/c^{2} ]");
+   MGStop_MMC_Fit->GetYaxis()->SetTitle("HSCP Reconstructed Mass [ GeV/c^{2} ]");
+   MGStop_MMC->SetMarkerColor(MGStop_MMC_Fit->GetLineColor());
+   MGStop_MMC->SetLineColor  (MGStop_MMC_Fit->GetLineColor());
+   MGStop_MMC->SetLineStyle  (MGStop_MMC_Fit->GetLineStyle());
+
    TGraph* Gluino_MMC = new TGraph(NGluino,GluinoMass,GluinoMean);
    Gluino_MMC_Fit    = new TF1("Gluino_MMC_Fit","[0]+[1]*x+[2]*x*x",0,1000);
    Gluino_MMC_Fit->SetParLimits(0, 0,10);
    Gluino_MMC_Fit->SetParameter(0,10);
-   Gluino_MMC->Fit("Gluino_MMC_Fit","NR");
+   Gluino_MMC->Fit("Gluino_MMC_Fit","M NR");
    Gluino_MMC_Fit->SetLineWidth(2);
    Gluino_MMC_Fit->SetLineColor(2);
    Gluino_MMC_Fit->SetLineStyle(2);
@@ -853,7 +1077,7 @@ void SimRecoCorrelation(string InputPattern)
    Stau_MMC_Fit    = new TF1("Stau_MMC_Fit","[0]+[1]*x+[2]*x*x",0,1000);
    Stau_MMC_Fit->SetParLimits(0, 0,10);
    Stau_MMC_Fit->SetParameter(0,10);
-   Stau_MMC->Fit("Stau_MMC_Fit","NR");
+   Stau_MMC->Fit("Stau_MMC_Fit","M NR");
    Stau_MMC_Fit->SetLineWidth(2);
    Stau_MMC_Fit->SetLineColor(8);
    Stau_MMC_Fit->SetLineStyle(2);
@@ -864,10 +1088,10 @@ void SimRecoCorrelation(string InputPattern)
    Stau_MMC->SetLineStyle  (Stau_MMC_Fit->GetLineStyle());
 
    TGraph* Stop_SMC = new TGraph(NStop,StopMean,StopSigma);
-   Stop_SMC_Fit    = new TF1("Stop_SMC_Fit","[0]+[1]*x+[2]*x*x",0,1000);
-   Stop_SMC_Fit->SetParLimits(0, 0,10);
+   Stop_SMC_Fit    = new TF1("Stop_SMC_Fit","[0]+[1]*x+[2]*x*x",0,800);
+   Stop_SMC_Fit->SetParLimits(0, 0,20);
    Stop_SMC_Fit->SetParameter(0,10);
-   Stop_SMC->Fit("Stop_SMC_Fit","NR");
+   Stop_SMC->Fit("Stop_SMC_Fit","M NR");
    Stop_SMC_Fit->SetLineWidth(Stop_MMC_Fit->GetLineWidth());
    Stop_SMC_Fit->SetLineColor(Stop_MMC_Fit->GetLineColor());
    Stop_SMC_Fit->SetLineStyle(Stop_MMC_Fit->GetLineStyle());
@@ -877,11 +1101,25 @@ void SimRecoCorrelation(string InputPattern)
    Stop_SMC->SetLineColor  (Stop_SMC_Fit->GetLineColor());
    Stop_SMC->SetLineStyle  (Stop_SMC_Fit->GetLineStyle());
 
+   TGraph* MGStop_SMC = new TGraph(NMGStop,MGStopMean,MGStopSigma);
+   MGStop_SMC_Fit    = new TF1("MGStop_SMC_Fit","[0]+[1]*x+[2]*x*x",0,1000);
+   MGStop_SMC_Fit->SetParLimits(0, 0,20);
+   MGStop_SMC_Fit->SetParameter(0,10);
+   MGStop_SMC->Fit("MGStop_SMC_Fit","M NR");
+   MGStop_SMC_Fit->SetLineWidth(MGStop_MMC_Fit->GetLineWidth());
+   MGStop_SMC_Fit->SetLineColor(MGStop_MMC_Fit->GetLineColor());
+   MGStop_SMC_Fit->SetLineStyle(MGStop_MMC_Fit->GetLineStyle());
+   MGStop_SMC_Fit->GetXaxis()->SetTitle("HSCP Reconstructed Mass [ GeV/c^{2} ]");
+   MGStop_SMC_Fit->GetYaxis()->SetTitle("HSCP Reconstructed Sigma [ GeV/c^{2} ]");
+   MGStop_SMC->SetMarkerColor(MGStop_SMC_Fit->GetLineColor());
+   MGStop_SMC->SetLineColor  (MGStop_SMC_Fit->GetLineColor());
+   MGStop_SMC->SetLineStyle  (MGStop_SMC_Fit->GetLineStyle());
+
    TGraph* Gluino_SMC = new TGraph(NGluino,GluinoMean,GluinoSigma);
    Gluino_SMC_Fit    = new TF1("Gluino_SMC_Fit","[0]+[1]*x+[2]*x*x",0,1000);
-   Gluino_SMC_Fit->SetParLimits(0, 0,10);
+   Gluino_SMC_Fit->SetParLimits(0, 0,20);
    Gluino_SMC_Fit->SetParameter(0,10);
-   Gluino_SMC->Fit("Gluino_SMC_Fit","NR");
+   Gluino_SMC->Fit("Gluino_SMC_Fit","M NR");
    Gluino_SMC_Fit->SetLineWidth(Gluino_MMC_Fit->GetLineWidth());
    Gluino_SMC_Fit->SetLineColor(Gluino_MMC_Fit->GetLineColor());
    Gluino_SMC_Fit->SetLineStyle(Gluino_MMC_Fit->GetLineStyle());
@@ -893,9 +1131,9 @@ void SimRecoCorrelation(string InputPattern)
 
    TGraph* Stau_SMC = new TGraph(NStau,StauMean,StauSigma);
    Stau_SMC_Fit    = new TF1("Stau_SMC_Fit","[0]+[1]*x+[2]*x*x",0,1000);
-   Stau_SMC_Fit->SetParLimits(0, 0,10);
+   Stau_SMC_Fit->SetParLimits(0, 0,20);
    Stau_SMC_Fit->SetParameter(0,10);
-   Stau_SMC->Fit("Stau_SMC_Fit","NR");
+   Stau_SMC->Fit("Stau_SMC_Fit","M NR");
    Stau_SMC_Fit->SetLineWidth(Stau_MMC_Fit->GetLineWidth());
    Stau_SMC_Fit->SetLineColor(Stau_MMC_Fit->GetLineColor());
    Stau_SMC_Fit->SetLineStyle(Stau_MMC_Fit->GetLineStyle());
@@ -912,6 +1150,8 @@ void SimRecoCorrelation(string InputPattern)
    c1->SetGridy(true);
    Stop_MMC_Fit->Draw("");
    Stop_MMC->Draw("* same");
+   MGStop_MMC_Fit->Draw("same");
+   MGStop_MMC->Draw("* same");
    Gluino_MMC_Fit->Draw("same");
    Gluino_MMC->Draw("* same");
    Stau_MMC_Fit->Draw("same");
@@ -922,9 +1162,10 @@ void SimRecoCorrelation(string InputPattern)
    leg->SetBorderSize(0);
    leg->AddEntry(Stau_MMC  , "Stau"  ,"PL");
    leg->AddEntry(Stop_MMC  , "Stop"  ,"PL");
+   leg->AddEntry(MGStop_MMC, "MGStop","PL");
    leg->AddEntry(Gluino_MMC, "Gluino","PL");
    leg->Draw();
-   SaveCanvas(c1, "Results/EXCLUSION/Correlation", "MassMass",true);
+   SaveCanvas(c1, outpath, "Correlation_MassMass");
    delete c1;
 
    c1 = new TCanvas("MassMassCorrelation", "MassMassCorrelation",800,600);
@@ -932,6 +1173,8 @@ void SimRecoCorrelation(string InputPattern)
    c1->SetGridy(true);
    Stop_SMC_Fit->Draw("");
    Stop_SMC->Draw("* same");
+   MGStop_SMC_Fit->Draw("same");
+   MGStop_SMC->Draw("* same");
    Gluino_SMC_Fit->Draw("same");
    Gluino_SMC->Draw("* same");
    Stau_SMC_Fit->Draw("same");
@@ -942,9 +1185,10 @@ void SimRecoCorrelation(string InputPattern)
    leg->SetBorderSize(0);
    leg->AddEntry(Stau_SMC  , "Stau"  ,"PL");
    leg->AddEntry(Stop_SMC  , "Stop"  ,"PL");
+   leg->AddEntry(MGStop_SMC, "MGStop","PL");
    leg->AddEntry(Gluino_SMC, "Gluino","PL");
    leg->Draw();
-   SaveCanvas(c1, "Results/EXCLUSION/Correlation", "SigmaMass",true);
+   SaveCanvas(c1, outpath, "Correlation_SigmaMass");
    delete c1;
 }
 
@@ -955,4 +1199,34 @@ int JobIdToIndex(string JobId){
 }
 
 
+void GetSignalMeanHSCPPerEvent(string InputPattern)
+{
+   string Input = string("Results/ANALYSE/") + InputPattern + "Aeff.tmp";
+   FILE* pFile = fopen(Input.c_str(),"r");
+   if(!pFile){
+      printf("Not Found: %s\n",Input.c_str());
+      return;
+   }
 
+   signalsMeanHSCPPerEvent.clear();
+   for(unsigned int s=0;s<signals.size();s++){
+      signalsMeanHSCPPerEvent.push_back(2.0);
+   }
+
+   for(unsigned int s=0;s<signals.size();s++){
+     char  sname[256];
+     float weff, ueff;
+     fscanf(pFile,"%s Eff=%E (%E)\n",sname,&weff,&ueff);
+
+     int Index = JobIdToIndex(sname);
+     if(Index<0){
+        printf("BUG UNKNOWN SIGNAL (%s) WHEN READING AVERAGE SELECTED HSCP PER EVENT\n",sname);
+     }else{
+        signalsMeanHSCPPerEvent[JobIdToIndex(sname)] = weff;
+     }
+   }
+
+   fclose(pFile);
+
+   return;
+}

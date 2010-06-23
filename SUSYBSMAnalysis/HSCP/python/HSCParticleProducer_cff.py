@@ -29,6 +29,7 @@ dedxHarm2 = cms.EDProducer("DeDxEstimatorProducer",
 
     UseCalibration  = cms.bool(False),
     calibrationPath = cms.string(""),
+    ShapeTest       = cms.bool(False),
 )
 
 dedxTru40 = cms.EDProducer("DeDxEstimatorProducer",
@@ -48,6 +49,7 @@ dedxTru40 = cms.EDProducer("DeDxEstimatorProducer",
 
     UseCalibration  = cms.bool(False),
     calibrationPath = cms.string(""),
+    ShapeTest       = cms.bool(False),
 )
 
 
@@ -67,6 +69,7 @@ dedxMed = cms.EDProducer("DeDxEstimatorProducer",
 
     UseCalibration  = cms.bool(False),
     calibrationPath = cms.string(""),
+    ShapeTest       = cms.bool(False),
 )
 
 dedxNPHarm2                  = dedxHarm2.clone()
@@ -102,6 +105,14 @@ dedxCNPMed                   = dedxNPMed.clone()
 dedxCNPMed.UseCalibration    = cms.bool(True)
 dedxCNPMed.calibrationPath   = cms.string("file:Gains.root")
 
+dedxSTCNPHarm2                = dedxCNPHarm2.clone()
+dedxSTCNPHarm2.ShapeTest      = cms.bool(True)
+
+dedxSTCNPTru40                = dedxCNPTru40.clone()
+dedxSTCNPTru40.ShapeTest      = cms.bool(True)
+
+dedxSTCNPMed                  = dedxCNPMed.clone()
+dedxSTCNPMed.ShapeTest        = cms.bool(True)
 
 ####################################################################################
 #   DEDX DISCRIMINATORS 
@@ -127,6 +138,7 @@ dedxProd               = cms.EDProducer("DeDxDiscriminatorProducer",
 
     UseCalibration  = cms.bool(True),
     calibrationPath = cms.string("file:Gains.root"),
+    ShapeTest          = cms.bool(False),
 
     MaxNrStrips        = cms.untracked.uint32(255)
 )
@@ -136,6 +148,17 @@ dedxSmi.Formula = cms.untracked.uint32(2)
 
 dedxASmi = dedxProd.clone()
 dedxASmi.Formula = cms.untracked.uint32(3)
+
+
+dedxSTProd                  = dedxProd.clone()
+dedxSTProd.ShapeTest        = cms.bool(True)
+
+dedxSTSmi                   = dedxSmi.clone()
+dedxSTSmi.ShapeTest         = cms.bool(True)
+
+dedxSTASmi                  = dedxASmi.clone()
+dedxSTASmi.ShapeTest        = cms.bool(True)
+
 
 
 ####################################################################################
@@ -188,9 +211,15 @@ HSCParticleProducer = cms.EDProducer("HSCParticleProducer",
    dedxEstimator1     = cms.InputTag("dedxCNPHarm2"),
    dedxEstimator2     = cms.InputTag("dedxCNPTru40"),
    dedxEstimator3     = cms.InputTag("dedxCNPMed"),
+   dedxEstimator4     = cms.InputTag("dedxSTCNPHarm2"),
+   dedxEstimator5     = cms.InputTag("dedxSTCNPTru40"),
+   dedxEstimator6     = cms.InputTag("dedxSTCNPMed"),
    dedxDiscriminator1 = cms.InputTag("dedxProd"),
    dedxDiscriminator2 = cms.InputTag("dedxSmi"),
    dedxDiscriminator3 = cms.InputTag("dedxASmi"),
+   dedxDiscriminator4 = cms.InputTag("dedxSTProd"),
+   dedxDiscriminator5 = cms.InputTag("dedxSTSmi"),
+   dedxDiscriminator6 = cms.InputTag("dedxSTASmi"),
    muontimingDt       = cms.InputTag("muontiming:dt"),
    muontimingCsc      = cms.InputTag("muontiming:csc"),
    muontimingCombined = cms.InputTag("muontiming:combined"),
@@ -230,6 +259,6 @@ HSCParticleSelector = cms.EDFilter("HSCParticleSelector",
 #   HSCP Candidate Sequence
 ####################################################################################
 
-HSCParticleProducerSeq = cms.Sequence(offlineBeamSpot + TrackRefitter + dedxCNPHarm2 + dedxCNPTru40 + dedxCNPMed + dedxProd + dedxSmi + dedxASmi + muontiming + HSCParticleProducer)
+HSCParticleProducerSeq = cms.Sequence(offlineBeamSpot + TrackRefitter + dedxCNPHarm2 + dedxCNPTru40 + dedxCNPMed + dedxSTCNPHarm2 + dedxSTCNPTru40 + dedxSTCNPMed + dedxProd + dedxSmi + dedxASmi + dedxSTProd + dedxSTSmi + dedxSTASmi + muontiming + HSCParticleProducer)
 
 

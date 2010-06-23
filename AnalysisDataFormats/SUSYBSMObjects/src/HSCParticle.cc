@@ -5,8 +5,9 @@ namespace susybsm {
 int HSCParticle::type() const {
    if      ( hasTrackRef() && !hasMuonRef()){                               return HSCParticleType::innerTrack;
    }else if(!hasTrackRef() &&  hasMuonRef()){                               return HSCParticleType::standAloneMuon;
-   }else if( hasTrackRef() &&  hasMuonRef() && !muonRef()->isGlobalMuon()){ return HSCParticleType::matchedStandAloneMuon;
-   }else if( hasTrackRef() &&  hasMuonRef() &&  muonRef()->isGlobalMuon()){ return HSCParticleType::globalMuon;
+   }else if( hasTrackRef() &&  hasMuonRef() && muonRef()->isGlobalMuon()){ return HSCParticleType::globalMuon;
+   }else if( hasTrackRef() &&  hasMuonRef() && muonRef()->isStandAloneMuon()){ return HSCParticleType::matchedStandAloneMuon;
+   }else if( hasTrackRef() &&  hasMuonRef() && muonRef()->isTrackerMuon()){ return HSCParticleType::trackerMuon;
    }else                                                                    return HSCParticleType::unknown;
 }
 
@@ -28,13 +29,19 @@ float HSCParticle::pt() const {
 
 const reco::DeDxData& HSCParticle::dedx (int i) const {
    switch(i){
-      case 0:    return dedxEstim1_;   break;
-      case 1:    return dedxEstim2_;   break;
-      case 2:    return dedxEstim3_;   break;
-      case 3:    return dedxDiscrim1_; break;
-      case 4:    return dedxDiscrim2_; break;
-      case 5:    return dedxDiscrim3_; break;
-      default:   return dedxEstim1_;   break;
+      case  0:    return dedxEstim1_;   break;
+      case  1:    return dedxEstim2_;   break;
+      case  2:    return dedxEstim3_;   break;
+      case  3:    return dedxEstim4_;   break;
+      case  4:    return dedxEstim5_;   break;
+      case  5:    return dedxEstim6_;   break;
+      case  6:    return dedxDiscrim1_; break;
+      case  7:    return dedxDiscrim2_; break;
+      case  8:    return dedxDiscrim3_; break;
+      case  9:    return dedxDiscrim4_; break;
+      case 10:    return dedxDiscrim5_; break;
+      case 11:    return dedxDiscrim6_; break;
+      default:    return dedxEstim1_;   break;
    }
 }
 
