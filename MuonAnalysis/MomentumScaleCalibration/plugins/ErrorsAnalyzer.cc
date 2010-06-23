@@ -114,11 +114,11 @@ void ErrorsAnalyzer::drawHistograms(const TProfile * histo, const TProfile * his
   for( int i=1; i<=numBins; ++i ) {
     // std::cout << "filling " << i << std::endl;
     posErrors[i-1] = valuesPlus[i] - values[i];
-    if( valuesMinus[i-1] < 0 ) negErrors[i-1] = values[i];
+    if( valuesMinus[i] < 0 ) negErrors[i-1] = values[i];
     else negErrors[i-1] = values[i] - valuesMinus[i];
 
-    graphAsymmErrors->SetPointEYlow(i, negErrors[i-1]);
-    graphAsymmErrors->SetPointEYhigh(i, posErrors[i-1]);
+    graphAsymmErrors->SetPointEYlow(i-1, negErrors[i-1]);
+    graphAsymmErrors->SetPointEYhigh(i-1, posErrors[i-1]);
   }
 
   canvas->Draw();
@@ -201,6 +201,10 @@ void ErrorsAnalyzer::fillHistograms()
     double pt2 = it->second.pt();
     double eta2 = it->second.eta();
 
+    if( debug_ ) {
+      std::cout << "pt1 = " << pt1 << ", eta1 = " << eta1 << ", pt2 = " << pt2 << ", eta2 = " << eta2 << std::endl;
+    }
+
     if( pt1 == 0 && pt2 == 0 && eta1 == 0 && eta2 == 0 ) continue;
 
     double sigmaPt1 = resolutionFunctionForVec->sigmaPt( pt1,eta1,parameters_ );
@@ -210,12 +214,17 @@ void ErrorsAnalyzer::fillHistograms()
     double sigmaPtMinusErr1 = resolutionFunctionForVec->sigmaPt( pt1,eta1,valueMinusError_ );
     double sigmaPtMinusErr2 = resolutionFunctionForVec->sigmaPt( pt2,eta2,valueMinusError_ );
 
-
     double sigmaMass = MuScleFitUtils::massResolution( it->first, it->second, parameters_ );
     double sigmaMassPlusErr = MuScleFitUtils::massResolution( it->first, it->second, valuePlusError_ );
     double sigmaMassMinusErr = MuScleFitUtils::massResolution( it->first, it->second, valueMinusError_ );
 
+    if( debug_ ) {
+      std::cout << "sigmaPt1 = " << sigmaPt1 << " + " << sigmaPtPlusErr1 << " - " << sigmaPtMinusErr1 << std::endl;
+      std::cout << "sigmaPt2 = " << sigmaPt2 << " + " << sigmaPtPlusErr2 << " - " << sigmaPtMinusErr2 << std::endl;
+      std::cout << "sigmaMass = " << sigmaMass << " + " << sigmaMassPlusErr << " - " << sigmaMassMinusErr << std::endl;
+    }
 
+    // Protections from nans
     if( pt1 != pt1 ) continue;
     if( pt2 != pt2 ) continue;
     if( eta1 != eta1 ) continue;
@@ -226,7 +235,6 @@ void ErrorsAnalyzer::fillHistograms()
     if( sigmaPtPlusErr2 != sigmaPtPlusErr2 ) continue;
     if( sigmaPtMinusErr1 != sigmaPtMinusErr1 ) continue;
     if( sigmaPtMinusErr2 != sigmaPtMinusErr2 ) continue;
-
     if( sigmaMass != sigmaMass ) continue;
     if( sigmaMassPlusErr != sigmaMassPlusErr ) continue;
     if( sigmaMassMinusErr != sigmaMassMinusErr ) continue;
