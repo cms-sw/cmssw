@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 22:06:57 CET 2010
-// $Id: FW3DViewGeometry.cc,v 1.1 2010/04/06 20:00:35 amraktad Exp $
+// $Id: FW3DViewGeometry.cc,v 1.2 2010/06/18 10:17:14 yana Exp $
 //
 
 // system include files
@@ -85,88 +85,101 @@ FW3DViewGeometry::~FW3DViewGeometry()
 //
 
 void
-FW3DViewGeometry::showMuonBarrel(bool  showMuonBarrel)
+FW3DViewGeometry::showMuonBarrel( bool showMuonBarrel )
 {
-   if (!m_muonBarrelElements && showMuonBarrel)
+   if( !m_muonBarrelElements && showMuonBarrel )
    {
       m_muonBarrelElements = new TEveElementList( "DT" );
-      for ( Int_t iWheel = -2; iWheel <= 2; ++iWheel)
+      for( Int_t iWheel = -2; iWheel <= 2; ++iWheel )
       {
-         for (Int_t iStation = 1; iStation <= 4; ++iStation)
+         for ( Int_t iStation = 1; iStation <= 4; ++iStation )
          {
-            std::ostringstream s;
-            s << "Station" << iStation;
-            TEveElementList* cStation  = new TEveElementList( s.str().c_str() );
-            m_muonBarrelElements->AddElement( cStation );
-            for (Int_t iSector = 1 ; iSector <= 14; ++iSector)
-            {
-               if ( iStation < 4 && iSector > 12 ) continue;
-               DTChamberId id(iWheel, iStation, iSector);
-               TEveGeoShape* shape = m_detIdToMatrix->getShape( id.rawId() );
-               if ( !shape ) continue;
-               shape->SetMainTransparency(m_geomTransparency);
-               cStation->AddElement(shape);
-            }
+	    // We display only the outer chambers to make the event look more
+	    // prominent
+	    if( iWheel == -2 || iWheel == 2 || iStation == 4 )
+	    {
+	       std::ostringstream s;
+	       s << "Station" << iStation;
+	       TEveElementList* cStation  = new TEveElementList( s.str().c_str() );
+	       m_muonBarrelElements->AddElement( cStation );
+	       for( Int_t iSector = 1 ; iSector <= 14; ++iSector )
+	       {
+		  if( iStation < 4 && iSector > 12 ) continue;
+		  DTChamberId id( iWheel, iStation, iSector );
+		  TEveGeoShape* shape = m_detIdToMatrix->getShape( id.rawId() );
+		  if( !shape ) continue;
+		  shape->SetMainTransparency( m_geomTransparency );
+		  // FIXME: It looks like we pick up some
+		  // chambers with different material (shown in blue if non transparent).
+		  // I'll make them all read.
+		  shape->SetMainColor( kRed );
+		  cStation->AddElement( shape );
+	       }
+	    }
          }
       }
-      AddElement(m_muonBarrelElements);
+      AddElement( m_muonBarrelElements );
    }
 
-   if (m_muonBarrelElements)
+   if( m_muonBarrelElements )
    {
-      m_muonBarrelElements->SetRnrState(showMuonBarrel);
+      m_muonBarrelElements->SetRnrState( showMuonBarrel );
       gEve->Redraw3D();
    }
 }
 
 //______________________________________________________________________________
 void
-FW3DViewGeometry::showMuonEndcap(bool showMuonEndcap )
+FW3DViewGeometry::showMuonEndcap( bool showMuonEndcap )
 {
-   if ( showMuonEndcap && !m_muonEndcapElements )
+   if( showMuonEndcap && !m_muonEndcapElements )
    {
       m_muonEndcapElements = new TEveElementList( "CSC" );
-      for ( Int_t iEndcap = 1; iEndcap <= 2; ++iEndcap ) { // 1=forward (+Z), 2=backward(-Z)
+      for( Int_t iEndcap = 1; iEndcap <= 2; ++iEndcap ) // 1=forward (+Z), 2=backward(-Z)
+      { 
          TEveElementList* cEndcap = 0;
-         if (iEndcap == 1)
+         if( iEndcap == 1 )
             cEndcap = new TEveElementList( "Forward" );
          else
             cEndcap = new TEveElementList( "Backward" );
          m_muonEndcapElements->AddElement( cEndcap );
-         for ( Int_t iStation=1; iStation<=4; ++iStation)
+	 // Actual CSC geometry:
+	 // Station 1 has 4 rings with 36 chambers in each
+	 // Station 2: ring 1 has 18 chambers, ring 2 has 36 chambers
+	 // Station 3: ring 1 has 18 chambers, ring 2 has 36 chambers
+	 // Station 4: ring 1 has 18 chambers
+	 Int_t maxChambers = 36;
+         for( Int_t iStation = 1; iStation <= 4; ++iStation )
          {
             std::ostringstream s; s << "Station" << iStation;
             TEveElementList* cStation  = new TEveElementList( s.str().c_str() );
             cEndcap->AddElement( cStation );
-            for ( Int_t iRing=1; iRing<=4; ++iRing) {
-               if (iStation > 1 && iRing > 2) continue;
+            for( Int_t iRing = 1; iRing <= 4; ++iRing )
+	    {
+               if( iStation > 1 && iRing > 2 ) continue;
+               if( iStation > 3 && iRing > 1 ) continue;
                std::ostringstream s; s << "Ring" << iRing;
                TEveElementList* cRing  = new TEveElementList( s.str().c_str() );
                cStation->AddElement( cRing );
-               for ( Int_t iChamber=1; iChamber<=72; ++iChamber)
+	       ( iRing == 1 && iStation > 1 ) ? ( maxChambers = 18 ) : ( maxChambers = 36 );
+               for( Int_t iChamber = 1; iChamber <= maxChambers; ++iChamber )
                {
-                  if (iStation>1 && iChamber>36) continue;
                   Int_t iLayer = 0; // chamber
-                  // exception is thrown if parameters are not correct and I keep
-                  // forgetting how many chambers we have in each ring.
-                  try {
-                     CSCDetId id(iEndcap, iStation, iRing, iChamber, iLayer);
-                     TEveGeoShape* shape = m_detIdToMatrix->getShape( id.rawId() );
-                     if ( !shape ) continue;
-                     shape->SetMainTransparency(m_geomTransparency);
-                     cRing->AddElement( shape );
-                  }
-                  catch (... ) {}
+		  CSCDetId id( iEndcap, iStation, iRing, iChamber, iLayer );
+		  TEveGeoShape* shape = m_detIdToMatrix->getShape( id.rawId() );
+		  if( !shape ) continue;
+		  shape->SetMainTransparency( m_geomTransparency );
+		  cRing->AddElement( shape );
                }
             }
          }
       }
-      AddElement( m_muonEndcapElements);
+      AddElement( m_muonEndcapElements );
    }
 
-   if (m_muonEndcapElements)
+   if( m_muonEndcapElements )
    {
-      m_muonEndcapElements->SetRnrState(showMuonEndcap);
+      m_muonEndcapElements->SetRnrState( showMuonEndcap );
       gEve->Redraw3D();
    }
 }
