@@ -113,7 +113,7 @@ void CastorPSMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
     ////---- create Digi based reportSummaryMap
     m_dbe->setCurrentFolder(rootFolder_+"EventInfo");
     reportSummary    = m_dbe->bookFloat("reportSummary");
-    reportSummaryMap = m_dbe->book2D("reportSummaryMap","ChannelSummaryMap",14,0.0,14.0,16,0.0,16.0);
+    reportSummaryMap = m_dbe->book2D("reportSummaryMap","ChannelSummaryMap",14,0.0,14.0,20,0.0,20.0); // put 20 instead of 16 to get some space for the legend
     if(offline_){
       h_reportSummaryMap =reportSummaryMap->getTH2F();
       h_reportSummaryMap->SetOption("textcolz");
@@ -305,12 +305,22 @@ void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, cons
    ////---- fill the reportSummaryMap
    reportSummaryMap->getTH2F()->SetBinContent(module+1,sector+1,status);
    if ( status > 0) numOK++;
+
        }
     }
     ////--- calculate the fraction of good channels and fill it in
     fraction=double(numOK)/224;
     overallStatus->Fill(fraction); reportSummary->Fill(fraction); 
   } //
+
+
+    ////---- set 0 for these
+      for (int sector=16; sector<20; sector++){
+        for (int module=0; module<14; module++){
+      reportSummaryMap->getTH2F()->SetBinContent(module+1,sector+1,0);
+        }
+    }
+
 
  } //-- end of the if castDigi
        
