@@ -239,13 +239,15 @@ L1GctRegion L1GctHardwareJetFinder::makeProtoJet(L1GctRegion localMax) {
   bool wrongEtaWheel = ( (!m_positiveEtaWheel) && (eta>=midEta) ) || ( (m_positiveEtaWheel) && (eta<midEta) );
 
   // Which rows are we looking over?
-  unsigned rowStart, rowEnd;
+  unsigned rowStart, rowEnd, rowMid;
   static const unsigned row0 = N_EXTRA_REGIONS_ETA00 - 1;
   if (wrongEtaWheel) {
     if (localEta > row0 - 1) {
       rowStart = 0;
+      rowMid = 0;
     } else {
       rowStart = row0 - 1 - localEta;
+      rowMid = rowStart + 1;
     }
     if (localEta > row0 + 2) { // Shouldn't happen, but big problems if it does
       rowEnd = 0;
@@ -254,6 +256,7 @@ L1GctRegion L1GctHardwareJetFinder::makeProtoJet(L1GctRegion localMax) {
     }
   } else {
     rowStart = row0 + localEta;
+    rowMid = rowStart + 1;
     if (localEta < COL_OFFSET - row0 - 2) {
       rowEnd = rowStart + 3;
     } else {
@@ -288,7 +291,7 @@ L1GctRegion L1GctHardwareJetFinder::makeProtoJet(L1GctRegion localMax) {
 
         // In the hardware, the ignoreTauVetoBitsForIsolation switch ignores all the veto bits,
         // including the one for the central region.
-	if (!(row==(localEta+N_EXTRA_REGIONS_ETA00)) && (column==localPhi)) {
+	if (!((row==rowMid) && (column==localPhi))) {
 	  // non-central region - check the region energy against the isolation threshold
 	  if (m_inputRegions.at(index).et() >= m_tauIsolationThreshold) {
 	    rgnsAboveIsoThreshold++;
