@@ -14,6 +14,7 @@
 
 #include "L1Trigger/GlobalCaloTrigger/test/gctTestElectrons.h"
 #include "L1Trigger/GlobalCaloTrigger/test/gctTestSingleEvent.h"
+#include "L1Trigger/GlobalCaloTrigger/test/gctTestUsingLhcData.h"
 #include "L1Trigger/GlobalCaloTrigger/test/gctTestEnergyAlgos.h"
 #include "L1Trigger/GlobalCaloTrigger/test/gctTestFirmware.h"
 #include "L1Trigger/GlobalCaloTrigger/test/gctTestHt.h"
@@ -30,6 +31,7 @@ gctTestFunctions::gctTestFunctions() :
   theSingleEventTester (new gctTestSingleEvent()),
   theEnergyAlgosTester (new gctTestEnergyAlgos()),
   theFirmwareTester    (new gctTestFirmware()),
+  theRealDataTester    (new gctTestUsingLhcData()),
   theHtTester          (new gctTestHt()),
   theHfEtSumsTester    (new gctTestHfEtSums()),
   m_inputEmCands(), m_inputRegions(),
@@ -40,6 +42,7 @@ gctTestFunctions::~gctTestFunctions() {
   delete theElectronsTester;
   delete theEnergyAlgosTester;
   delete theFirmwareTester;
+  delete theRealDataTester;
   delete theHtTester;
   delete theHfEtSumsTester;
 }
@@ -104,6 +107,12 @@ void gctTestFunctions::loadNextEvent(L1GlobalCaloTrigger* &gct, const std::strin
 {
   bxRangeUpdate(bx);
   m_inputEmCands.at(bx-m_bxStart) = theElectronsTester->loadEvent(gct, fileName, bx);
+}
+
+void gctTestFunctions::loadNextEvent(L1GlobalCaloTrigger* &gct, const edm::Event& iEvent, const int16_t bx)
+{
+  bxRangeUpdate(bx);
+  m_inputRegions.at(bx-m_bxStart) = theEnergyAlgosTester->loadEvent(gct, theRealDataTester->loadEvent(iEvent, bx), bx);
 }
 
 void gctTestFunctions::loadSingleEvent(L1GlobalCaloTrigger* &gct, const std::string fileName, const int16_t bx)
