@@ -362,6 +362,9 @@ gctTestHt::rawJetData gctTestHt::rawJetFinderOutput(const L1GctJetFinderBase* jf
 //   	   << " eta " << jet->globalEta()
 //   	   << " phi " << jet->globalPhi()
 // 	   << (jet->overFlow() ? " overflow set " : " ") 
+// 	   << (jet->isTauJet() ? " tau jet " : " ") 
+// 	   << (jet->isCentralJet() ? " central jet " : " ") 
+// 	   << (jet->isForwardJet() ? " forward jet " : " ") 
 // 	   << " bx " << jet->bx() << endl;
       jetList.push_back(*jet);
       // Find jet ht using event setup information
