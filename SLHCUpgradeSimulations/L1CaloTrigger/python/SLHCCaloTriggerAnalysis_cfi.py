@@ -41,7 +41,7 @@ tauGenJetsSelectorAllHadrons = cms.EDFilter("TauGenJetDecayModeSelector",
 )
 
 SLHCTaus = cms.EDAnalyzer('CaloTriggerAnalyzer',
-	src    = cms.InputTag("L1ExtraParticles","Taus"),
+	src    = cms.InputTag("SLHCL1ExtraParticles","Taus"),
 	ref    = cms.InputTag("tauGenJetsSelectorAllHadrons"),
 	deltaR = cms.double(0.5),
 	threshold = cms.double(5)
@@ -66,38 +66,67 @@ mcSequence = cms.Sequence(mcElectrons*
 
 
 SLHCelectrons = cms.EDAnalyzer('CaloTriggerAnalyzer',
-                           src    = cms.InputTag("L1ExtraParticles","EGamma"),
+                           src    = cms.InputTag("SLHCL1ExtraParticles","EGamma"),
                            ref    = cms.InputTag("mcElectrons"),
                            deltaR = cms.double(0.3),
                            threshold = cms.double(5.)
-)                           
+)               
+
+LHCelectrons = cms.EDAnalyzer('CaloTriggerAnalyzer',
+                           src    = cms.InputTag("l1extraParticles","NonIsolated"),
+                           ref    = cms.InputTag("mcElectrons"),
+                           deltaR = cms.double(0.3),
+                           threshold = cms.double(5.)
+)    
 
 SLHCisoElectrons = cms.EDAnalyzer('CaloTriggerAnalyzer',
-                           src    = cms.InputTag("L1ExtraParticles","IsoEGamma"),
+                           src    = cms.InputTag("SLHCL1ExtraParticles","IsoEGamma"),
                            ref    = cms.InputTag("mcElectrons"),
                            deltaR = cms.double(0.3),
                            threshold = cms.double(5.)
-)                           
+)      
+
+LHCisoElectrons = cms.EDAnalyzer('CaloTriggerAnalyzer',
+                           src    = cms.InputTag("l1extraParticles","Isolated"),
+                           ref    = cms.InputTag("mcElectrons"),
+                           deltaR = cms.double(0.3),
+                           threshold = cms.double(5.)
+)       
 
 
 SLHCphotons = cms.EDAnalyzer('CaloTriggerAnalyzer',
-                           src    = cms.InputTag("L1ExtraParticles","EGamma"),
+                           src    = cms.InputTag("SLHCL1ExtraParticles","EGamma"),
                            ref    = cms.InputTag("mcPhotons"),
                            deltaR = cms.double(0.3),
                            threshold = cms.double(10.)
-)                           
+)   
+
+LHCphotons = cms.EDAnalyzer('CaloTriggerAnalyzer',
+                           src    = cms.InputTag("l1extraParticles","NonIsolated"),
+                           ref    = cms.InputTag("mcPhotons"),
+                           deltaR = cms.double(0.3),
+                           threshold = cms.double(10.)
+)   
+
 
 SLHCisoPhotons = cms.EDAnalyzer('CaloTriggerAnalyzer',
-                           src    = cms.InputTag("L1ExtraParticles","IsoEGamma"),
+                           src    = cms.InputTag("SLHCL1ExtraParticles","IsoEGamma"),
                            ref    = cms.InputTag("mcPhotons"),
                            deltaR = cms.double(0.3),
                            threshold = cms.double(5.)
 )                           
+
+LHCisoPhotons = cms.EDAnalyzer('CaloTriggerAnalyzer',
+                           src    = cms.InputTag("l1extraParticles","Isolated"),
+                           ref    = cms.InputTag("mcPhotons"),
+                           deltaR = cms.double(0.3),
+                           threshold = cms.double(5.)
+)                         
 
 
 
 SLHCjets = cms.EDAnalyzer('CaloTriggerAnalyzer',
-                           src    = cms.InputTag("L1ExtraParticles","Jets"),
+                           src    = cms.InputTag("SLHCL1ExtraParticles","Jets"),
                            ref    = cms.InputTag("ak5CaloJets"),
                            deltaR = cms.double(0.5),
                            threshold = cms.double(30.)
@@ -108,9 +137,13 @@ SLHCjets = cms.EDAnalyzer('CaloTriggerAnalyzer',
 
 
 analysisSequence = cms.Sequence(SLHCelectrons*
+								LHCelectrons*
                                 SLHCisoElectrons*
+                                LHCisoElectrons*
                                 SLHCphotons*
+                                LHCphotons*
                                 SLHCisoPhotons*
+                                LHCisoPhotons*
                                 SLHCTaus*
                                 LHCTaus*
                                 SLHCjets

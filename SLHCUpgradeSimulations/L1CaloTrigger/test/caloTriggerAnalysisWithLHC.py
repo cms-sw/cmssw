@@ -107,9 +107,9 @@ process.load("FastSimulation.Configuration.EventContent_cff")
 process.o1 = cms.OutputModule("PoolOutputModule",
 	outputCommands = cms.untracked.vstring('drop *_*_*_*',
                                  'keep *_L1Calo*_*_*',
-                                 'keep *_L1ExtraParticles_*_*',
+                                 'keep *_SLHCL1ExtraParticles_*_*',
                                  'keep *_l1extraParticles_*_*'),
-    fileName = cms.untracked.string('SLHC_HLT_Output.root')
+    fileName = cms.untracked.string('SLHC_LHC_Output.root')
 )
 process.outpath = cms.EndPath(process.o1)
 

@@ -44,7 +44,7 @@ L1CaloJetExpander = cms.EDProducer("L1CaloJetExpander",
 )
 
 
-L1ExtraParticles = cms.EDProducer("L1ExtraTranslator",
+SLHCL1ExtraParticles = cms.EDProducer("L1ExtraTranslator",
                                   Clusters = cms.InputTag("L1CaloClusterIsolator"),
                                   Jets = cms.InputTag("L1CaloJetExpander"),
                                   NParticles = cms.int32(8),
