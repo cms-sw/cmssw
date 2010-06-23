@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Apr  7 14:40:47 CEST 2010
-// $Id: FW3DView.cc,v 1.42 2010/06/22 17:38:11 amraktad Exp $
+// $Id: FW3DView.cc,v 1.43 2010/06/23 10:24:53 amraktad Exp $
 //
 
 // system include files
@@ -83,7 +83,7 @@ void FW3DView::setContext(fireworks::Context& context)
    m_calo->SetBarrelRadius(129);
    m_calo->SetEndCapPos(310);
    m_calo->SetFrameTransparency(80);
-   viewContext()->getEnergyScale("Calo")->setVal(m_lego->GetValToHeight());
+   viewContext()->getEnergyScale("Calo")->setVal(m_calo->GetValToHeight());
 
    eventScene()->AddElement(m_calo);
 }
