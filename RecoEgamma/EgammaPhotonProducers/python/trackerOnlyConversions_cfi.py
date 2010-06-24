@@ -39,13 +39,13 @@ trackerOnlyConversions = cms.EDProducer('TrackerOnlyConversionProducer',
     MinHitsRight = cms.int32(2),
     DeltaCotTheta = cms.double(.1), #Track pair opening angle on R-Z
     DeltaPhi = cms.double(.2), #Track pair opening angle on X-Y (not a final selection cut)
-    vtxChi2 = cms.double(0.003),
+    vtxChi2 = cms.double(0.0005),
     MinApproachLow = cms.double(-.25), #Track pair min distance at approaching point on X-Y
     MinApproachHigh = cms.double(1.), #Track pair min distance at approaching point on X-Y
     maxDistance = cms.double(0.001),#vertex fitting quality
     maxOfInitialValue = cms.double(9999.),#fitting initial value
     maxNbrOfIterations = cms.int32(40),#fitting steps
-    rCut = cms.double(2.9),#analytical track cross point
+    rCut = cms.double(2),#analytical track cross point
     dz = cms.double(5.0),#track pair inner position difference
 
     UsePvtx = cms.bool(True),
