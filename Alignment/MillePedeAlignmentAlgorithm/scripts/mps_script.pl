@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     06-Jul-2007
 #     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.4 $
-#     $Date: 2009/01/07 18:26:47 $
+#     $Revision: 1.5 $
+#     $Date: 2009/05/13 13:48:50 $
 #
 #  Prepare the run script for this job.
 #  The main action is to embed the output directory
@@ -24,7 +24,7 @@ $fileSplit = "undefined";
 $isn = "undefined";
 $mssDirLocal = "undefined"; # not to confuse with mssDir from 'mpslib'.
 $castorPool = "undefined";
-
+$cmsCafPool = 0;
 
 # parse the arguments
 while (@ARGV) {
@@ -135,6 +135,12 @@ if ($fileSplit ne "undefined") {
     # Format 3: CastorPool definition (should happen only for first entry... FIXME?)
     elsif ($text =~ /^CastorPool=/) {
       $text =~ s/CastorPool=//; # first appearance of CastorPool erased
+
+      if ($text =~ /cmscaf/) {
+# AP 24.06.2010 - Input data resides on cmscaf pool
+	$cmsCafPool = 1;
+      }
+
       if ($body =~ /^\#!\/bin\/(tcsh|csh)/) { # script starts with #!/bin/tcsh or #!/bin/csh
 	$text = "setenv STAGE_SVCCLASS ".$text # (t)csh way of setting variables
       } else { # other shells
@@ -147,6 +153,12 @@ if ($fileSplit ne "undefined") {
   }
   close SPLITFILE;
   $prestageBlock = "$prestageBlock\n# End of Castor Prestage Block";
+
+  if ($cmsCafPool eq 1) {
+# AP 24.06.2010 - Input data resides on cmscaf pool... no prestaging, just setup cmscaf!
+    $prestageBlock = ". /afs/cern.ch/cms/caf/setup.sh";
+  }
+
   # insert prestage block at the beginning (after the first line)
   $body =~ s/.+/$&\n$prestageBlock\n/;
 } 
