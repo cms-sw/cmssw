@@ -2,7 +2,7 @@
 //
 // Package:     Tracks
 // Class  :     TrackUtils
-// $Id: TrackUtils.cc,v 1.32 2010/06/22 10:51:48 matevz Exp $
+// $Id: TrackUtils.cc,v 1.33 2010/06/23 16:11:30 yana Exp $
 //
 
 // system include files
@@ -687,12 +687,12 @@ addSiStripClusters(const FWEventItem* iItem, const reco::Track &t, class TEveEle
                scposition->AddLine(pointA.X(), pointA.Y(), pointA.Z(), pointB.X(), pointB.Y(), pointB.Z());
 	       if( &*itc == Cluster )
 	       {
-		  scposition->SetTitle( "Exact SiStripCluster from TrackingRecHit" );
+		  scposition->SetTitle( Form( "Exact SiStripCluster from TrackingRecHit, bary center %0.2f, Phi %0.2f", bc, point.Phi()));
 		  scposition->SetLineColor( kGreen );
 	       }
 	       else
 	       {
-		  scposition->SetTitle( "SiStripCluster on this Det" );
+		  scposition->SetTitle( Form( "SiStripCluster, bary center %0.2f, Phi %0.2f", bc, point.Phi()));
 		  scposition->SetLineColor( kRed );
 	       }
                setupAddElement(scposition, tList, iItem, master, false);
@@ -707,7 +707,7 @@ addSiStripClusters(const FWEventItem* iItem, const reco::Track &t, class TEveEle
             TEveStraightLineSet *scposition = new TEveStraightLineSet(title);
             scposition->SetDepthTest(false);
 	    scposition->SetPickable(kTRUE);
-	    scposition->SetTitle("SiStripCluster");
+	    scposition->SetTitle( Form( "SiStripCluster, bary center %0.2f, Phi %0.2f", bc, point.Phi()));
             scposition->AddLine(pointA.X(), pointA.Y(), pointA.Z(), pointB.X(), pointB.Y(), pointB.Z());
             setupAddElement(scposition, tList, iItem, master, true);
          }		
@@ -729,7 +729,7 @@ addSiStripClusters(const FWEventItem* iItem, const reco::Track &t, class TEveEle
                   TEveStraightLineSet *scposition = new TEveStraightLineSet(title);
                   scposition->SetDepthTest(false);
 		  scposition->SetPickable(kTRUE);
-		  scposition->SetTitle("Lost SiStripCluster");
+		  scposition->SetTitle( Form( "Lost SiStripCluster, bary center %0.2f, Phi %0.2f", bc, point.Phi()));
 		  scposition->AddLine(pointA.X(), pointA.Y(), pointA.Z(), pointB.X(), pointB.Y(), pointB.Z());
                   setupAddElement(scposition, tList, iItem, master, false);
                   scposition->SetLineColor(kRed);

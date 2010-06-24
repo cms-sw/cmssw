@@ -199,20 +199,21 @@ FWTrackHitsDetailView::setTextInfo(const FWModelId &id, const reco::Track* track
    const double textsize( 0.07 );
    latex->SetTextSize( 2*textsize );
 
-   latex->DrawLatex( x, y, id.item()->modelName( id.index() ).c_str() );
+   latex->DrawLatex( x, y, id.item()->modelName( id.index()).c_str());
    y -= latex->GetTextSize()*0.6;
 
    latex->SetTextSize( textsize );
    float lineH = latex->GetTextSize()*0.6;
 
    latex->DrawLatex( x, y, Form( " P_{T} = %.1f GeV, #eta = %0.2f, #varphi = %0.2f",
-				 track->pt(), track->eta(), track->phi()) );
+				 track->pt(), track->eta(), track->phi()));
    y -= lineH;
 
    if( track->charge() > 0 )
       latex->DrawLatex( x, y, " charge = +1" );
    else
       latex->DrawLatex( x, y, " charge = -1" );
+   y -= lineH;
    y -= lineH;
 
    latex->DrawLatex( x, y, "Track modules:");
@@ -243,20 +244,27 @@ FWTrackHitsDetailView::setTextInfo(const FWModelId &id, const reco::Track* track
    latex->DrawLatex( x + 0.25, y, "BAD Module" );
    y -= lineH;
 
-   Float_t r = 0.02;
-   drawCanvasDot(x + r, y, r, kCyan);
-   y -= r*0.5;
-   latex->DrawLatex(x+ 3*r, y, "Camera center");
+   Float_t r = 0.015;
+   Float_t r2 = 0.02;
+   y -= lineH;
+   drawCanvasDot(x + r2, y, r, kGreen);
+   y -= r2*0.5;
+   latex->DrawLatex(x+ 3*r2, y, "Pixel Hits");
    y -= lineH;
 
-   drawCanvasDot(x + r, y, r, kRed);
-   y -= r*0.5;
-   latex->DrawLatex(x+ 3*r, y, "Vertex");
+   drawCanvasDot(x + r2, y, r, kRed);
+   y -= r2*0.5;
+   latex->DrawLatex(x + 3*r2, y, "Extra Pixel Hits");
    y -= lineH;
 
-   drawCanvasDot(x + r, y, r, kGreen);
-   y -= r*0.5;
-   latex->DrawLatex(x+ 3*r, y, "Pixel Hits");
+   drawCanvasDot(x + r2, y, r2, kCyan);
+   y -= r2*0.5;
+   latex->DrawLatex(x + 3 * r2, y, "Camera center");
+   y -= lineH;
+
+   drawCanvasDot(x + r2, y, r2, kRed);
+   y -= r2*0.5;
+   latex->DrawLatex(x + 3 * r2, y, "Vertex");
    y -= lineH;
 
    m_legend->SetY2(y);
@@ -271,19 +279,22 @@ FWTrackHitsDetailView::makeLegend( void )
    m_legend->SetTextSize( 0.07 );
    m_legend->SetBorderSize( 0 );
    m_legend->SetMargin( 0.15 );
-   m_legend->SetEntrySeparation( 0.05 );
+   m_legend->SetEntrySeparation( 0.01 );
 
    TEveStraightLineSet *legend = new TEveStraightLineSet( "siStripCluster" );
+   legend->SetLineWidth( 3 );
    legend->SetLineColor( kGreen );
-   m_legend->AddEntry( legend, "Exact SiStripCluster from TrackingRecHit", "l");
+   m_legend->AddEntry( legend, "Exact SiStripCluster", "l");
 
    TEveStraightLineSet *legend2 = new TEveStraightLineSet( "siStripCluster2" );
+   legend2->SetLineWidth( 3 );
    legend2->SetLineColor( kRed );
-   m_legend->AddEntry( legend2, "SiStripCluster on this Det", "l");
+   m_legend->AddEntry( legend2, "Extra SiStripCluster", "l");
 
    TEveStraightLineSet *legend3 = new TEveStraightLineSet( "siStripCluster2" );
+   legend3->SetLineWidth( 3 );
    legend3->SetLineColor( kYellow );
-   m_legend->AddEntry( legend3, "Innermost and outermost states", "l");
+   m_legend->AddEntry( legend3, "Inner/Outermost States", "l");
 }   
 
 void
