@@ -151,8 +151,8 @@ void SinglePi(const TString ref_vers="330pre6", const TString val_vers="330pre6"
    f1_hist1[1]->GetXaxis()->SetRangeUser(0.,150.);
    f2_hist1[1]->GetXaxis()->SetRangeUser(0.,150.);
 
-   f1_hist1[2]->GetXaxis()->SetRangeUser(0.,20.);
-   f2_hist1[2]->GetXaxis()->SetRangeUser(0.,20.);
+   f1_hist1[2]->GetXaxis()->SetRangeUser(0.,100.);
+   f2_hist1[2]->GetXaxis()->SetRangeUser(0.,100.);
 
    f1_hist1[3]->GetXaxis()->SetRangeUser(0.,100.);
    f2_hist1[3]->GetXaxis()->SetRangeUser(0.,100.);
