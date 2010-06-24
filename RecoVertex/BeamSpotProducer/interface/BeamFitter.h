@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.34 2010/06/03 22:56:31 jengbou Exp $
+ version $Id: BeamFitter.h,v 1.35 2010/06/18 19:35:59 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -126,6 +126,7 @@ class BeamFitter {
   TH1F* h1z;
   bool saveNtuple_;
   bool saveBeamFit_;
+  bool savePVVertices_;
   std::string outputfilename_;
   TFile* file_;
   TTree* ftree_;
@@ -192,6 +193,7 @@ class BeamFitter {
   int countPass[9];
 
   PVFitter *MyPVFitter;
+  TTree* fPVTree_;
 
 };
 

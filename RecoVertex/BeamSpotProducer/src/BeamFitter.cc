@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.64 2010/06/04 22:54:08 jengbou Exp $
+   version $Id: BeamFitter.cc,v 1.65 2010/06/09 19:19:24 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -39,7 +39,7 @@ static char * formatTime(const std::time_t & t)  {
   return ts;
 }
 
-BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
+BeamFitter::BeamFitter(const edm::ParameterSet& iConfig): fPVTree_(0)
 {
 
   debug_             = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("Debug");
@@ -51,6 +51,7 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
   outputDIPTxt_      = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<std::string>("DIPFileName");
   saveNtuple_        = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("SaveNtuple");
   saveBeamFit_       = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("SaveFitResults");
+  savePVVertices_    = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("SavePVVertices");
   isMuon_            = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("IsMuonCollection");
 
   trk_MinpT_         = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<double>("MinimumPt");
@@ -71,7 +72,7 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
   for (unsigned int j=0;j<trk_Quality_.size();j++)
     quality_.push_back(reco::TrackBase::qualityByName(trk_Quality_[j]));
   
-  if (saveNtuple_ || saveBeamFit_) {
+  if (saveNtuple_ || saveBeamFit_ || savePVVertices_) {
     outputfilename_ = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<std::string>("OutputFileName");
     file_ = TFile::Open(outputfilename_.c_str(),"RECREATE");
   }
@@ -167,6 +168,10 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
   // Primary vertex fitter
   MyPVFitter = new PVFitter(iConfig);
   MyPVFitter->resetAll();
+  if (savePVVertices_){
+    fPVTree_ = new TTree("PrimaryVertices","PrimaryVertices");
+    MyPVFitter->setTree(fPVTree_);
+  }
 
   // check filename
   ffilename_changed = false;
@@ -175,6 +180,7 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
 }
 
 BeamFitter::~BeamFitter() {
+
   if (saveNtuple_) {
     file_->cd();
     if (fitted_ && h1z) h1z->Write();
@@ -187,8 +193,17 @@ BeamFitter::~BeamFitter() {
     file_->cd();
     ftreeFit_->Write();
   }
-  if (saveNtuple_ || saveBeamFit_)
+  if (savePVVertices_){
+    file_->cd();
+    fPVTree_->Write();
+  }
+  
+
+  if (saveNtuple_ || saveBeamFit_ || savePVVertices_){
     file_->Close();
+  }
+  delete MyPVFitter;
+  delete file_;
 }
 
 

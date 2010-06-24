@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: PVFitter.h,v 1.6 2010/06/04 00:05:36 jengbou Exp $
+ version $Id: PVFitter.h,v 1.7 2010/06/18 19:35:59 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -22,6 +22,7 @@
 #include "RecoVertex/BeamSpotProducer/interface/BSTrkParameters.h"
 #include "RecoVertex/BeamSpotProducer/interface/BSFitter.h"
 
+#include "RecoVertex/BeamSpotProducer/interface/BeamSpotTreeData.h"
 #include "RecoVertex/BeamSpotProducer/interface/BeamSpotFitPVData.h"
 
 // ROOT
@@ -42,6 +43,7 @@ class PVFitter {
   virtual ~PVFitter();
 
   void readEvent(const edm::Event& iEvent);
+  void setTree(TTree* tree);
   
   double getWidthX() { return fwidthX; }
   double getWidthY() { return fwidthY; }
@@ -122,6 +124,7 @@ class PVFitter {
 
   TH2F* hPVx; TH2F* hPVy; 
 
+  TTree* ftree_;
   //bool saveNtuple_;
   //bool saveBeamFit_;
   //std::string outputfilename_;
@@ -159,6 +162,8 @@ class PVFitter {
   std::map< int, std::vector<BeamSpotFitPVData> > bxMap_; // store PV data as a function of bunch crossings
   double dynamicQualityCut_;               //< quality cut for vertices (dynamic adjustment)
   std::vector<double> pvQualities_;        //< working space for PV store adjustement
+
+  BeamSpotTreeData theBeamSpotTreeData_;
 };
 
 #endif
