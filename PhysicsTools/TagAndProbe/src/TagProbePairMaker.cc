@@ -2,7 +2,8 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 tnp::TagProbePairMaker::TagProbePairMaker(const edm::ParameterSet &iConfig) :
-    src_(iConfig.getParameter<edm::InputTag>("tagProbePairs"))
+    src_(iConfig.getParameter<edm::InputTag>("tagProbePairs")),
+    randGen_(0)
 {
     std::string arbitration = iConfig.getParameter<std::string>("arbitration");
     if (arbitration == "None") {
@@ -12,7 +13,12 @@ tnp::TagProbePairMaker::TagProbePairMaker(const edm::ParameterSet &iConfig) :
     } else if (arbitration == "BestMass") {
         arbitration_ = BestMass;
         arbitrationMass_ = iConfig.getParameter<double>("massForArbitration");
-    } else throw cms::Exception("Configuration") << "TagProbePairMakerOnTheFly: the only currently allowed values for 'arbitration' are 'None', 'OneProbe', 'BestMass'\n";
+    } else if (arbitration == "Random2") {
+      arbitration_ = Random2;
+      randGen_ = new TRandom2(7777);
+    } else throw cms::Exception("Configuration") << "TagProbePairMakerOnTheFly: the only currently "
+						 << "allowed values for 'arbitration' are "
+						 << "'None', 'OneProbe', 'BestMass', 'Random2'\n";
 }
 
 
@@ -50,7 +56,8 @@ tnp::TagProbePairMaker::arbitrate(TagProbePairs &pairs) const
     for (TagProbePairs::iterator it = pairs.begin(), ed = pairs.end(); it != ed; ++it) {
         if (it->tag.isNull()) continue; // skip already invalidated pairs
         bool invalidateThis = false;
-        for (TagProbePairs::iterator it2 = it + 1; it2 != ed; ++it2) {   // it+1 <= ed, otherwise we don't arrive here
+	int numberOfProbes=0;
+	for (TagProbePairs::iterator it2 = it + 1; it2 != ed; ++it2) {   // it+1 <= ed, otherwise we don't arrive here
             if (it->tag == it2->tag) {
                 if (arbitration_ == OneProbe) {
                     // invalidate this one
@@ -60,11 +67,27 @@ tnp::TagProbePairMaker::arbitrate(TagProbePairs &pairs) const
                 } else if (arbitration_ == BestMass) {
                     // but the best one in the first  iterator
                     if (fabs(it2->mass-arbitrationMass_) < fabs(it->mass-arbitrationMass_)) {
-                        std::swap(*it, *it2);
+		    std::swap(*it, *it2);
                     }
                     // and invalidate it2
                     it2->tag = reco::CandidateBaseRef(); --nclean;
-                }
+                } else if (arbitration_ == Random2) {
+		  numberOfProbes++;
+		  if (numberOfProbes>1) {
+		    //std::cout << "more than 2 probes!" << std::endl;
+		    invalidateThis=true;
+		    it2->tag = reco::CandidateBaseRef();
+		    --nclean;
+		  } else{
+		    // do a coin toss to decide if we want to swap them
+		    if (randGen_->Rndm()>0.5) {
+		      std::swap(*it, *it2);
+		    }
+		    // and invalidate it2
+		    it2->tag = reco::CandidateBaseRef();
+		    --nclean;
+		  } 
+		}
             }
         }
         if (invalidateThis) { it->tag = reco::CandidateBaseRef(); --nclean; }

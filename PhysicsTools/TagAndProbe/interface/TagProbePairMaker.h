@@ -6,6 +6,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "TRandom2.h"
+
 namespace tnp {
     
     /// a simple struct to hold tag, probe and mass
@@ -23,15 +25,16 @@ namespace tnp {
             TagProbePairMaker(const edm::ParameterSet &iConfig) ;
                  
                 
-            ~TagProbePairMaker() {}
+            ~TagProbePairMaker() {delete randGen_;}
             /// fill in tghe T&P pairs for this event
             TagProbePairs run(const edm::Event &iEvent) const ;
         private:
             edm::InputTag src_;
-            enum Arbitration { None, OneProbe, BestMass };
+            enum Arbitration { None, OneProbe, BestMass, Random2 };
             Arbitration arbitration_;
             double arbitrationMass_;
             void arbitrate(TagProbePairs &pairs) const ;
+	    TRandom2* randGen_;
     };
 }
 

@@ -53,6 +53,7 @@ tnp::BaseTreeFiller::BaseTreeFiller(const char *name, const edm::ParameterSet iC
     if (addRunLumiInfo_) {
          tree_->Branch("run",  &run_,  "run/i");
          tree_->Branch("lumi", &lumi_, "lumi/i");
+         tree_->Branch("event", &event_, "event/i");
     }
 
     ignoreExceptions_ = iConfig.existsAs<bool>("ignoreExceptions") ? iConfig.getParameter<bool>("ignoreExceptions") : false;
@@ -108,6 +109,7 @@ tnp::BaseTreeFiller::~BaseTreeFiller() { }
 void tnp::BaseTreeFiller::init(const edm::Event &iEvent) const {
     run_  = iEvent.id().run();
     lumi_ = iEvent.id().luminosityBlock();
+    event_ = iEvent.id().event(); 
 
     for (std::vector<tnp::ProbeVariable>::const_iterator it = vars_.begin(), ed = vars_.end(); it != ed; ++it) {
         it->init(iEvent);

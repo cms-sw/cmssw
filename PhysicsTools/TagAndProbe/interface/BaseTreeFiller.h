@@ -168,7 +168,7 @@ class BaseTreeFiller : boost::noncopyable {
         //implementation notice: these two are 'mutable' because we will fill them from a 'const' method
         mutable TTree * tree_;
         mutable float weight_;
-        mutable uint32_t run_, lumi_;
+        mutable uint32_t run_, lumi_, event_;
 };
 
 

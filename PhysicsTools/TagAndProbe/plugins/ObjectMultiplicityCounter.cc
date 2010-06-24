@@ -66,12 +66,13 @@ ObjectMultiplicityCounter::produce(edm::Event & iEvent, const edm::EventSetup & 
     View<reco::Jet>::const_iterator object, endobjects = objects->end();
     for (object = objects->begin(); object != endobjects; ++object) {
       if ( !(objCut_(*object)) ) continue;
+ 
       count += 1.0;
     }
 
     for (probe = probes->begin(); probe != endprobes; ++probe) values.push_back(count);
  
-    
+
     // convert into ValueMap and store
     std::auto_ptr<ValueMap<float> > valMap(new ValueMap<float>());
     ValueMap<float>::Filler filler(*valMap);

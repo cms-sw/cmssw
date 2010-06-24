@@ -11,7 +11,7 @@ process = cms.Process("TagProbe")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 #process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
-process.MessageLogger.cerr.FwkReport.reportEvery = 100
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 
 ##   ____             _ ____                           
@@ -102,7 +102,7 @@ process.sc_sequence = cms.Sequence( process.superClusters *
 process.PassingGsf = cms.EDFilter("GsfElectronRefSelector",
     src = cms.InputTag("gsfElectrons"),
     cut = cms.string("(abs(superCluster.eta)<2.5) && !(1.4442<abs(superCluster.eta)<1.560)"
-                     " && (ecalEnergy*sin(superClusterPosition.theta)>20.0)")    
+                     " && (ecalEnergy*sin(superClusterPosition.theta)>20.0) && (hadronicOverEm<0.15)")    
 )
 
 
@@ -124,8 +124,8 @@ process.GsfMatchedSuperClusterCands = cms.EDProducer("ElectronMatchedCandidatePr
 process.PassingIsolation = cms.EDFilter("GsfElectronRefSelector",
     src = cms.InputTag("gsfElectrons"),
     cut = cms.string(process.PassingGsf.cut.value() +
-         " && ( isEB && (dr03TkSumPt<7.2) && (dr04EcalRecHitSumEt<5.7) && (dr04HcalTowerSumEt<8.1))"
-         " || (isEE && (dr03TkSumPt<5.1) && (dr04EcalRecHitSumEt<5.0) && (dr04HcalTowerSumEt<3.4))")
+         " && (( isEB && ( (dr03TkSumPt + max(0., dr03EcalRecHitSumEt - 1.) + dr03HcalTowerSumEt)/(p4.Pt) < 0.15 ))"
+         " || (isEE && ((dr03TkSumPt + dr03EcalRecHitSumEt + dr03HcalTowerSumEt)/(p4.Pt) < 0.1 )))")
 )
 
 ##    _____ _           _                     ___    _ 
@@ -139,8 +139,20 @@ process.PassingIsolation = cms.EDFilter("GsfElectronRefSelector",
 process.PassingId = cms.EDFilter("GsfElectronRefSelector",
     src = cms.InputTag("gsfElectrons"),
     cut = cms.string(process.PassingIsolation.cut.value() +
-          " && ( (isEB && sigmaIetaIeta<0.01 && deltaEtaSuperClusterTrackAtVtx<0.0071)"
-          "|| (isEE && sigmaIetaIeta<0.028 && deltaEtaSuperClusterTrackAtVtx<0.0066) )")   
+                     " && (gsfTrack.trackerExpectedHitsInner.numberOfHits <= 1)"
+                     " && ((isEB"
+                                   " && (sigmaIetaIeta<0.01)"
+                                   " && ( -0.8<deltaPhiSuperClusterTrackAtVtx<0.8 )"
+                                   " && ( abs(deltaEtaSuperClusterTrackAtVtx)<0.007 )"
+                                   " && (hadronicOverEm<0.15)"
+                                   ")"
+                     " || (isEE"
+                                   " && (sigmaIetaIeta<0.03)"
+                                   " && ( -0.7<deltaPhiSuperClusterTrackAtVtx<0.7 )"
+                                   " && ( abs(deltaEtaSuperClusterTrackAtVtx)<0.01 )"
+                                   " && (hadronicOverEm<0.07) "
+                                   "))"
+                     ) 
 )
 
 ##    _____     _                         __  __       _       _     _             
@@ -154,7 +166,7 @@ process.PassingId = cms.EDFilter("GsfElectronRefSelector",
 # Trigger  ##################
 process.PassingHLT = cms.EDProducer("trgMatchedGsfElectronProducer",                     
     InputProducer = cms.InputTag("PassingId"),                          
-    hltTag = cms.untracked.InputTag("HLT_Ele15_SW_L1R","","HLT"),
+    hltTag = cms.untracked.InputTag("HLT_Photon15_L1R","","HLT"),
     triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","","HLT")
 )
 
@@ -176,7 +188,7 @@ process.badSuperClustersClean = cms.EDFilter("CandViewCleaner",
 ## Here we show how to use a module to compute an external variable
 #process.load("JetMETCorrections.Configuration.DefaultJEC_cff")
 JET_COLL = "ak5CaloJets"
-JET_CUTS = "pt > 5.0 && abs(eta)<3.0 && (.05 < emEnergyFraction < .9)"
+JET_CUTS = "pt > 5.0 && abs(eta)<3.0 && (0.05 < emEnergyFraction < 0.9)"
 ###### Kalanand  Mishra, June 19, 2010
 ### Apparently, the above "string-based" jet cut is not being
 ## applied at all, so the resulting ROOT tree contains all jets.
@@ -190,21 +202,21 @@ process.superClusterDRToNearestJet = cms.EDProducer("DeltaRNearestObjectComputer
        # ^^--- NOTA BENE: if probes are defined by ref, as in this case, 
        #       this must be the full collection, not the subset by refs.
     objects = cms.InputTag(JET_COLL),
-    objectSelection = cms.InputTag(JET_CUTS),
+    objectSelection = cms.string(JET_CUTS),
 )
 
 
 process.JetMultiplicityInSCEvents = cms.EDProducer("ObjectMultiplicityCounter",
     probes = cms.InputTag("goodSuperClusters"),
     objects = cms.InputTag(JET_COLL),
-    objectSelection = cms.InputTag(JET_CUTS),
+    objectSelection = cms.string(JET_CUTS),
 )
 
 
 process.GsfDRToNearestJet = cms.EDProducer("DeltaRNearestObjectComputer",
     probes = cms.InputTag("gsfElectrons"),
     objects = cms.InputTag(JET_COLL),
-    objectSelection = cms.InputTag(JET_CUTS),
+    objectSelection = cms.string(JET_CUTS),
 )
 
 
@@ -212,7 +224,7 @@ process.GsfDRToNearestJet = cms.EDProducer("DeltaRNearestObjectComputer",
 process.JetMultiplicityInGsfEvents = cms.EDProducer("ObjectMultiplicityCounter",
     probes = cms.InputTag("gsfElectrons"),
     objects = cms.InputTag(JET_COLL),
-    objectSelection = cms.InputTag(JET_CUTS),
+    objectSelection = cms.string(JET_CUTS),
 )
 
 
@@ -401,19 +413,20 @@ process.mc_sequence = cms.Sequence(
 
 recoCommonStuff = cms.PSet(
     variables = cms.PSet(
-        eta = cms.string("eta()"),
-        pt  = cms.string("pt()"),
-        phi  = cms.string("phi()"),
-        et  = cms.string("et()"),
-        e  = cms.string("energy()"),
-        p  = cms.string("p()"),
-        px  = cms.string("px()"),
-        py  = cms.string("py()"),
-        pz  = cms.string("pz()"),
-        theta  = cms.string("theta()"),
+        eta = cms.string("eta"),
+        pt  = cms.string("pt"),
+        phi  = cms.string("phi"),
+        et  = cms.string("et"),
+        e  = cms.string("energy"),
+        p  = cms.string("p"),
+        px  = cms.string("px"),
+        py  = cms.string("py"),
+        pz  = cms.string("pz"),
+        theta  = cms.string("theta"),
     ),
    ignoreExceptions =  cms.bool (True),
-   fillTagTree      =  cms.bool (True),  
+   fillTagTree      =  cms.bool (True),
+   addRunLumiInfo   =  cms.bool (True),    
 )
 
 mcTruthCommonStuff = cms.PSet(
@@ -426,42 +439,44 @@ mcTruthCommonStuff = cms.PSet(
 
 gsfEleCommonStuff = cms.PSet(
     variables = cms.PSet(
-        eta = cms.string("eta()"),
-        pt  = cms.string("pt()"),
-        phi  = cms.string("phi()"),
-        et  = cms.string("et()"),
-        e  = cms.string("energy()"),
-        p  = cms.string("p()"),
-        px  = cms.string("px()"),
-        py  = cms.string("py()"),
-        pz  = cms.string("pz()"),
-        theta  = cms.string("theta()"),    
-        charge = cms.string("charge()"),
-        vx     = cms.string("vx()"),
-        vy     = cms.string("vy()"),
-        vz     = cms.string("vz()"),
-        rapidity  = cms.string("rapidity()"),
+        eta = cms.string("eta"),
+        pt  = cms.string("pt"),
+        phi  = cms.string("phi"),
+        et  = cms.string("et"),
+        e  = cms.string("energy"),
+        p  = cms.string("p"),
+        px  = cms.string("px"),
+        py  = cms.string("py"),
+        pz  = cms.string("pz"),
+        theta  = cms.string("theta"),    
+        charge = cms.string("charge"),
+        vx     = cms.string("vx"),
+        vy     = cms.string("vy"),
+        vz     = cms.string("vz"),
+        rapidity  = cms.string("rapidity"),
+        missingHits = cms.string("gsfTrack.trackerExpectedHitsInner.numberOfHits"),
         ## isolation 
-        trackiso = cms.string("dr04TkSumPt()"),
-        ecaliso  = cms.string("dr04EcalRecHitSumEt()"),
-        hcaliso  = cms.string("dr04HcalTowerSumEt()"),
-        classification = cms.string("classification()"),
-        numberOfBrems  = cms.string("numberOfBrems()"),     
-        bremFraction   = cms.string("fbrem()"),
-        deltaEtaIn     = cms.string("deltaEtaSuperClusterTrackAtVtx()"),
-        deltaPhiIn     = cms.string("deltaPhiSuperClusterTrackAtVtx()"),
-        deltaPhiOut    = cms.string("deltaPhiSeedClusterTrackAtCalo()"),
-        deltaEtaOut    = cms.string("deltaEtaSeedClusterTrackAtCalo()"),
+        trackiso = cms.string("dr04TkSumPt"),
+        ecaliso  = cms.string("dr04EcalRecHitSumEt"),
+        hcaliso  = cms.string("dr04HcalTowerSumEt"),
+        classification = cms.string("classification"),
+        numberOfBrems  = cms.string("numberOfBrems"),     
+        bremFraction   = cms.string("fbrem"),
+        deltaEtaIn     = cms.string("deltaEtaSuperClusterTrackAtVtx"),
+        deltaPhiIn     = cms.string("deltaPhiSuperClusterTrackAtVtx"),
+        deltaPhiOut    = cms.string("deltaPhiSeedClusterTrackAtCalo"),
+        deltaEtaOut    = cms.string("deltaEtaSeedClusterTrackAtCalo"),
         ## Hcal energy over Ecal Energy
-        HoverE = cms.string("hadronicOverEm()"),
-        EoverPout = cms.string("eSeedClusterOverPout()"),
-        EoverPin  = cms.string("eSuperClusterOverP()"),
+        HoverE = cms.string("hadronicOverEm"),
+        EoverPout = cms.string("eSeedClusterOverPout"),
+        EoverPin  = cms.string("eSuperClusterOverP"),
         ## Cluster shape information
-        sigmaEtaEta  = cms.string("sigmaEtaEta()"),
-        sigmaIetaIeta = cms.string("sigmaIetaIeta()"),
+        sigmaEtaEta  = cms.string("sigmaEtaEta"),
+        sigmaIetaIeta = cms.string("sigmaIetaIeta"),
         ),
     ignoreExceptions =  cms.bool (True),
-    fillTagTree      =  cms.bool (True),  
+    fillTagTree      =  cms.bool (True),
+    addRunLumiInfo   =  cms.bool (True),
 )
 
 
@@ -477,7 +492,7 @@ process.SCToGsf = cms.EDAnalyzer("TagProbeFitTreeProducer",
     recoCommonStuff, mcTruthCommonStuff,
     # choice of tag and probe pairs, and arbitration                 
     tagProbePairs = cms.InputTag("tagSC"),
-    arbitration   = cms.string("OneProbe"),                      
+    arbitration   = cms.string("Random2"),                      
     flags = cms.PSet(
         passing = cms.InputTag("GsfMatchedSuperClusterCands"),
         passingALL = cms.InputTag("TagMatchedSuperClusterCandsClean")
@@ -499,7 +514,7 @@ process.SCSCtoTagSC = cms.EDAnalyzer("TagProbeFitTreeProducer",
     #mcTruthCommonStuff,
     # choice of tag and probe pairs, and arbitration                      
     tagProbePairs = cms.InputTag("SCSC"),
-    arbitration   = cms.string("OneProbe"),
+    arbitration   = cms.string("Random2"),
     massForArbitration = cms.double(91.1876),
     flags = cms.PSet(
           passing = cms.InputTag("TagMatchedSuperClusterCandsClean")
@@ -520,7 +535,7 @@ process.SCSCtoTagSC = cms.EDAnalyzer("TagProbeFitTreeProducer",
 process.GsfToIso = cms.EDAnalyzer("TagProbeFitTreeProducer",
     mcTruthCommonStuff, gsfEleCommonStuff,                        
     tagProbePairs = cms.InputTag("tagGsf"),
-    arbitration   = cms.string("OneProbe"),
+    arbitration   = cms.string("Random2"),
     flags = cms.PSet(
         passing = cms.InputTag("PassingIsolation")
     ),
@@ -541,7 +556,7 @@ process.GsfToIso.variables.nJets = cms.InputTag("JetMultiplicityInGsfEvents")
 process.IsoToId = cms.EDAnalyzer("TagProbeFitTreeProducer",
     mcTruthCommonStuff, gsfEleCommonStuff,                              
     tagProbePairs = cms.InputTag("tagIso"),
-    arbitration   = cms.string("OneProbe"),
+    arbitration   = cms.string("Random2"),
     flags = cms.PSet(
         passing = cms.InputTag("PassingId")
     ),
@@ -561,7 +576,7 @@ process.IsoToId.variables.nJets = cms.InputTag("JetMultiplicityInGsfEvents")
 process.IdToHLT = cms.EDAnalyzer("TagProbeFitTreeProducer",
     mcTruthCommonStuff, gsfEleCommonStuff,                             
     tagProbePairs = cms.InputTag("tagId"),
-    arbitration   = cms.string("OneProbe"),
+    arbitration   = cms.string("Random2"),
     flags = cms.PSet(
         passing = cms.InputTag("PassingHLT")
     ),
