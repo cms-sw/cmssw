@@ -51,7 +51,7 @@ else
   . /afs/cern.ch/cms/caf/setup.sh
   MSSCAFDIR=`echo $MSSDIR | awk 'sub("/castor/cern.ch/cms","")'`
   echo "cmsStageOut milleBinaryISN.dat $MSSCAFDIR/milleBinaryISN.dat"
-  cmsStageOut milleBinaryISN.dat    $MSSCAFDIR/milleBinaryISN.dat
-  cmsStageOut treeFile*root         $MSSCAFDIR/treeFileISN.root
-  cmsStageOut millePedeMonitor*root $MSSCAFDIR/millePedeMonitorISN.root
+  cmsStageOut milleBinaryISN.dat    $MSSCAFDIR/milleBinaryISN.dat > /dev/null
+  cmsStageOut treeFile*root         $MSSCAFDIR/treeFileISN.root > /dev/null
+  cmsStageOut millePedeMonitor*root $MSSCAFDIR/millePedeMonitorISN.root > /dev/null
 fi

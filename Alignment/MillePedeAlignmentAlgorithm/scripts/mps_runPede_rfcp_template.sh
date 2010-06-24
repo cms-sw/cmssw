@@ -29,9 +29,9 @@ else
   . /afs/cern.ch/cms/caf/setup.sh
   MSSCAFDIR=`echo $MSSDIR | awk 'sub("/castor/cern.ch/cms","")'`
   echo "cmsStageIn $MSSCAFDIR/milleBinaryISN.dat milleBinaryISN.dat"
-  cmsStageIn $MSSCAFDIR/milleBinaryISN.dat milleBinaryISN.dat
+  cmsStageIn $MSSCAFDIR/milleBinaryISN.dat milleBinaryISN.dat > /dev/null
   echo "cmsStageIn $MSSCAFDIR/treeFileISN.root treeFileISN.root"
-  cmsStageIn $MSSCAFDIR/treeFileISN.root treeFileISN.root
+  cmsStageIn $MSSCAFDIR/treeFileISN.root treeFileISN.root > /dev/null
 fi
 
 # set up the CMS environment
