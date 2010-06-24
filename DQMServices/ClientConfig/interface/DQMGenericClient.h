@@ -6,8 +6,8 @@
  *
  *  DQM histogram post processor
  *
- *  $Date: 2009/10/20 09:05:26 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/11/14 09:07:59 $
+ *  $Revision: 1.7 $
  *
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -17,15 +17,11 @@
 #include <set>
 #include <string>
 #include <vector>
-#include <boost/tokenizer.hpp>
 #include <TH1.h>
-#include <TPRegexp.h>
 #include <TGraphAsymmErrors.h>
 
 class DQMStore;
 class MonitorElement;
-
-typedef boost::escaped_list_separator<char> elsc;
 
 class DQMGenericClient : public edm::EDAnalyzer
 {
@@ -36,21 +32,45 @@ class DQMGenericClient : public edm::EDAnalyzer
   void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {};
   void endJob();
 
- /// EndRun
- void endRun(const edm::Run& r, const edm::EventSetup& c);
+  /// EndRun
+  void endRun(const edm::Run& r, const edm::EventSetup& c);
 
+  struct EfficOption
+  {
+    std::string name, title;
+    std::string numerator, denominator;
+    int type;
+    bool isProfile;
+  };
+
+  struct ResolOption
+  {
+    std::string namePrefix, titlePrefix;
+    std::string srcName;
+  };
+
+  struct NormOption
+  {
+    std::string name, normHistName;
+  };
+
+  struct CDOption
+  {
+    std::string name;
+  };
 
   void computeEfficiency(const std::string& startDir, 
                          const std::string& efficMEName, 
                          const std::string& efficMETitle,
                          const std::string& recoMEName, 
                          const std::string& simMEName, 
-                         const std::string& type="eff",
+                         const int type=1,
                          const bool makeProfile = false);
   void computeResolution(const std::string& startDir, 
                          const std::string& fitMEPrefix, const std::string& fitMETitlePrefix, 
                          const std::string& srcMEName);
-  void normalizeToEntries(const std::string& startDir, const std::string& histName);
+
+  void normalizeToEntries(const std::string& startDir, const std::string& histName, const std::string& normHistName);
   void makeCumulativeDist(const std::string& startDir, const std::string& cdName);
 
   void limitedFit(MonitorElement * srcME, MonitorElement * meanME, MonitorElement * sigmaME);
@@ -58,26 +78,30 @@ class DQMGenericClient : public edm::EDAnalyzer
  private:
   unsigned int verbose_;
   bool isWildcardUsed_;
+  bool resLimitedFit_;
 
   DQMStore* theDQM;
   std::vector<std::string> subDirs_;
   std::string outputFileName_;
-  std::vector<std::string> effCmds_, profileCmds_, resCmds_, normCmds_, cdCmds_;
-  bool resLimitedFit_;
 
- void generic_eff (TH1 * denom, TH1 * numer, MonitorElement * efficiencyHist, const std::string& type="eff");
+  std::vector<EfficOption> efficOptions_;
+  std::vector<ResolOption> resolOptions_;
+  std::vector<NormOption> normOptions_;
+  std::vector<CDOption> cdOptions_;
 
- void findAllSubdirectories (std::string dir, std::set<std::string> * myList, TString pattern);
+  void generic_eff (TH1 * denom, TH1 * numer, MonitorElement * efficiencyHist, const int type=1);
 
- class TGraphAsymmErrorsWrapper : public TGraphAsymmErrors {
- public:
-   std::pair<double, double> efficiency(int numerator, int denominator) {
-     double eff, low, high;
-     Efficiency(numerator, denominator, 0.683, eff, low, high);
-     double error = (eff - low > high - eff) ? eff - low : high - eff;
-     return std::pair<double, double>(eff, error);
-   }
- };
+  void findAllSubdirectories (std::string dir, std::set<std::string> * myList, TString pattern);
+
+  class TGraphAsymmErrorsWrapper : public TGraphAsymmErrors {
+   public:
+    std::pair<double, double> efficiency(int numerator, int denominator) {
+      double eff, low, high;
+      Efficiency(numerator, denominator, 0.683, eff, low, high);
+      double error = (eff - low > high - eff) ? eff - low : high - eff;
+      return std::pair<double, double>(eff, error);
+    }
+  };
 
 };
 

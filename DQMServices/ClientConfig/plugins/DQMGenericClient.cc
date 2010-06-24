@@ -2,8 +2,8 @@
  *  Class:DQMGenericClient 
  *
  *
- *  $Date: 2009/10/20 09:05:27 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/11/14 09:08:00 $
+ *  $Revision: 1.14 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -17,42 +17,261 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <TH1F.h>
-#include <cmath>
 #include <TClass.h>
 #include <TString.h>
+#include <TPRegexp.h>
 
+#include <cmath>
+#include <boost/tokenizer.hpp>
 
 using namespace std;
 using namespace edm;
 
 typedef MonitorElement ME;
-typedef vector<string> vstring;
 
 TPRegexp metacharacters("[\\^\\$\\.\\*\\+\\?\\|\\(\\)\\{\\}\\[\\]]");
 TPRegexp nonPerlWildcard("\\w\\*|^\\*");
 
 DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
 {
+  typedef std::vector<edm::ParameterSet> VPSet;
+  typedef std::vector<std::string> vstring;
+  typedef boost::escaped_list_separator<char> elsc;
 
-  vstring dummy;
+  elsc commonEscapes("\\", " \t", "\'");
 
   verbose_ = pset.getUntrackedParameter<unsigned int>("verbose", 0);
 
-  effCmds_  = pset.getParameter<vstring>("efficiency");
-  profileCmds_ = pset.getUntrackedParameter<vstring>("efficiencyProfile", vstring());
-  resCmds_  = pset.getParameter<vstring>("resolution");
-  normCmds_ = pset.getUntrackedParameter<vstring>("normalization", dummy);
-  cdCmds_ = pset.getUntrackedParameter<vstring>("cumulativeDists", dummy);
+  // Parse efficiency commands
+  vstring effCmds = pset.getParameter<vstring>("efficiency");
+  for ( vstring::const_iterator effCmd = effCmds.begin();
+        effCmd != effCmds.end(); ++effCmd )
+  {
+    if ( effCmd->empty() ) continue;
 
-  resLimitedFit_ = pset.getUntrackedParameter<bool>("resolutionLimitedFit",false);
+    boost::tokenizer<elsc> tokens(*effCmd, commonEscapes);
+
+    vector<string> args;
+    for(boost::tokenizer<elsc>::const_iterator iToken = tokens.begin();
+        iToken != tokens.end(); ++iToken) {
+      if ( iToken->empty() ) continue;
+      args.push_back(*iToken);
+    }
+
+    if ( args.size() < 4 ) {
+      LogInfo("DQMGenericClient") << "Wrong input to effCmds\n";
+      continue;
+    }
+
+    EfficOption opt;
+    opt.name = args[0];
+    opt.title = args[1];
+    opt.numerator = args[2];
+    opt.denominator = args[3];
+    opt.isProfile = false;
+
+    const string typeName = args.size() == 4 ? "eff" : args[4];
+    if ( typeName == "eff" ) opt.type = 1;
+    else if ( typeName == "fake" ) opt.type = 2;
+    else opt.type = 0;
+ 
+    efficOptions_.push_back(opt);
+  }
+  
+  VPSet efficSets = pset.getUntrackedParameter<VPSet>("efficiencySets", VPSet());
+  for ( VPSet::const_iterator efficSet = efficSets.begin();
+        efficSet != efficSets.end(); ++efficSet )
+  {
+    EfficOption opt;
+    opt.name = efficSet->getUntrackedParameter<string>("name");
+    opt.title = efficSet->getUntrackedParameter<string>("title");
+    opt.numerator = efficSet->getUntrackedParameter<string>("numerator");
+    opt.denominator = efficSet->getUntrackedParameter<string>("denominator");
+    opt.isProfile = false;
+
+    const string typeName = efficSet->getUntrackedParameter<string>("typeName", "eff");
+    if ( typeName == "eff" ) opt.type = 1;
+    else if ( typeName == "fake" ) opt.type = 2;
+    else opt.type = 0;
+
+    efficOptions_.push_back(opt);
+  }
+
+  // Parse profiles
+  vstring profileCmds = pset.getUntrackedParameter<vstring>("efficiencyProfile", vstring());
+  for ( vstring::const_iterator profileCmd = profileCmds.begin();
+        profileCmd != profileCmds.end(); ++profileCmd )
+  {
+    if ( profileCmd->empty() ) continue;
+
+    boost::tokenizer<elsc> tokens(*profileCmd, commonEscapes);
+
+    vector<string> args;
+    for(boost::tokenizer<elsc>::const_iterator iToken = tokens.begin();
+        iToken != tokens.end(); ++iToken) {
+      if ( iToken->empty() ) continue;
+      args.push_back(*iToken);
+    }
+
+    if ( args.size() < 4 ) {
+      LogInfo("DQMGenericClient") << "Wrong input to profileCmds\n";
+      continue;
+    }
+
+    EfficOption opt;
+    opt.name = args[0];
+    opt.title = args[1];
+    opt.numerator = args[2];
+    opt.denominator = args[3];
+    opt.isProfile = false;
+
+    const string typeName = args.size() == 4 ? "eff" : args[4];
+    if ( typeName == "eff" ) opt.type = 1;
+    else if ( typeName == "fake" ) opt.type = 2;
+    else opt.type = 0;
+ 
+    efficOptions_.push_back(opt);
+  }
+
+  VPSet profileSets = pset.getUntrackedParameter<VPSet>("efficiencyProfileSets", VPSet());
+  for ( VPSet::const_iterator profileSet = profileSets.begin();
+        profileSet != profileSets.end(); ++profileSet )
+  {
+    EfficOption opt;
+    opt.name = profileSet->getUntrackedParameter<string>("name");
+    opt.title = profileSet->getUntrackedParameter<string>("title");
+    opt.numerator = profileSet->getUntrackedParameter<string>("numerator");
+    opt.denominator = profileSet->getUntrackedParameter<string>("denominator");
+    opt.isProfile = true;
+
+    const string typeName = profileSet->getUntrackedParameter<string>("typeName", "eff");
+    if ( typeName == "eff" ) opt.type = 1;
+    else if ( typeName == "fake" ) opt.type = 2;
+    else opt.type = 0;
+
+    efficOptions_.push_back(opt);
+  }
+
+  // Parse resolution commands
+  vstring resCmds = pset.getParameter<vstring>("resolution");
+  for ( vstring::const_iterator resCmd = resCmds.begin();
+        resCmd != resCmds.end(); ++resCmd )
+  {
+    if ( resCmd->empty() ) continue;
+    boost::tokenizer<elsc> tokens(*resCmd, commonEscapes);
+
+    vector<string> args;
+    for(boost::tokenizer<elsc>::const_iterator iToken = tokens.begin();
+        iToken != tokens.end(); ++iToken) {
+      if ( iToken->empty() ) continue;
+      args.push_back(*iToken);
+    }
+
+    if ( args.size() != 3 ) {
+      LogInfo("DQMGenericClient") << "Wrong input to resCmds\n";
+      continue;
+    }
+
+    ResolOption opt;
+    opt.namePrefix = args[0];
+    opt.titlePrefix = args[1];
+    opt.srcName = args[2];
+  }
+
+  VPSet resolSets = pset.getUntrackedParameter<VPSet>("resolutionSets", VPSet());
+  for ( VPSet::const_iterator resolSet = resolSets.begin();
+        resolSet != resolSets.end(); ++resolSet )
+  {
+    ResolOption opt;
+    opt.namePrefix = resolSet->getUntrackedParameter<string>("namePrefix");
+    opt.titlePrefix = resolSet->getUntrackedParameter<string>("titlePrefix");
+    opt.srcName = resolSet->getUntrackedParameter<string>("srcName");
+  }
+
+  // Parse Normalization commands
+  vstring normCmds = pset.getUntrackedParameter<vstring>("normalization", vstring());
+  for ( vstring::const_iterator normCmd = normCmds.begin();
+        normCmd != normCmds.end(); ++normCmd )
+  {
+    if ( normCmd->empty() ) continue;
+    boost::tokenizer<elsc> tokens(*normCmd, commonEscapes);
+
+    vector<string> args;
+    for(boost::tokenizer<elsc>::const_iterator iToken = tokens.begin();
+        iToken != tokens.end(); ++iToken) {
+      if ( iToken->empty() ) continue;
+      args.push_back(*iToken);
+    }
+
+    if ( args.size() < 3 ) {
+      LogInfo("DQMGenericClient") << "Wrong input to normCmds\n";
+      continue;
+    }
+
+    NormOption opt;
+    opt.name = args[0];
+    opt.normHistName = args.size() == 2 ? args[1] : args[0];
+
+    normOptions_.push_back(opt);
+  }
+
+  VPSet normSets = pset.getUntrackedParameter<VPSet>("normalizationSets", VPSet());
+  for ( VPSet::const_iterator normSet = normSets.begin();
+        normSet != normSets.end(); ++normSet )
+  {
+    NormOption opt;
+    opt.name = normSet->getUntrackedParameter<string>("name");
+    opt.normHistName = normSet->getUntrackedParameter<string>("normalizeTo", opt.name);
+
+    normOptions_.push_back(opt);
+  }
+
+  // Cumulative distributions
+  vstring cdCmds = pset.getUntrackedParameter<vstring>("cumulativeDists", vstring());
+  for ( vstring::const_iterator cdCmd = cdCmds.begin();
+        cdCmd != cdCmds.end(); ++cdCmd )
+  {
+    if ( cdCmd->empty() ) continue;
+    boost::tokenizer<elsc> tokens(*cdCmd, commonEscapes);
+
+    vector<string> args;
+    for(boost::tokenizer<elsc>::const_iterator iToken = tokens.begin();
+        iToken != tokens.end(); ++iToken) {
+      if ( iToken->empty() ) continue;
+      args.push_back(*iToken);
+    }
+
+    if ( args.size() != 1 ) {
+      LogInfo("DQMGenericClient") << "Wrong input to cdCmds\n";
+      continue;
+    }
+
+    CDOption opt;
+    opt.name = args[0];
+
+    cdOptions_.push_back(opt);
+  }
+
+  VPSet cdSets = pset.getUntrackedParameter<VPSet>("cumulativeDistSets", VPSet());
+  for ( VPSet::const_iterator cdSet = cdSets.begin();
+        cdSet != cdSets.end(); ++cdSet )
+  {
+    CDOption opt;
+    opt.name = cdSet->getUntrackedParameter<string>("name");
+
+    cdOptions_.push_back(opt);
+  }
 
   outputFileName_ = pset.getUntrackedParameter<string>("outputFileName", "");
   subDirs_ = pset.getUntrackedParameter<vstring>("subDirs");
 
+  resLimitedFit_ = pset.getUntrackedParameter<bool>("resolutionLimitedFit",false);
   isWildcardUsed_ = false;
 }
 
 void DQMGenericClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
+
+  typedef vector<string> vstring;
 
   // Update 2009-09-23
   // Migrated all code from endJob to this function
@@ -99,96 +318,32 @@ void DQMGenericClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
   for(set<string>::const_iterator iSubDir = subDirSet.begin();
       iSubDir != subDirSet.end(); ++iSubDir) {
-    typedef boost::escaped_list_separator<char> elsc;
-
     const string& dirName = *iSubDir;
 
-    vstring allEffCmds = effCmds_;
-    allEffCmds.insert(allEffCmds.end(), profileCmds_.begin(), profileCmds_.end());
-    for(vstring::const_iterator iCmd = allEffCmds.begin();
-        iCmd != allEffCmds.end(); ++iCmd) {
-      if ( iCmd->empty() ) continue;
-      bool isProfile = iCmd - allEffCmds.begin() >= (int)effCmds_.size();
-      boost::tokenizer<elsc> tokens(*iCmd, elsc("\\", " \t", "\'"));
-
-      vector<string> args;
-      for(boost::tokenizer<elsc>::const_iterator iToken = tokens.begin();
-          iToken != tokens.end(); ++iToken) {
-        if ( iToken->empty() ) continue;
-        args.push_back(*iToken);
-      }
-
-      if ( args.size() < 4 ) {
-        LogInfo("DQMGenericClient") << "Wrong input to effCmds\n";
-        continue;
-      }
-
-      if ( args.size() == 4 ) args.push_back("eff");
-
-      if (isProfile)
-        computeEfficiency(dirName, args[0], args[1], args[2], args[3], args[4], true);
-      else 
-        computeEfficiency(dirName, args[0], args[1], args[2], args[3], args[4]);
+    for ( vector<EfficOption>::const_iterator efficOption = efficOptions_.begin();
+          efficOption != efficOptions_.end(); ++efficOption )
+    {
+      computeEfficiency(dirName, efficOption->name, efficOption->title, 
+                        efficOption->numerator, efficOption->denominator,
+                        efficOption->type, efficOption->isProfile);
     }
 
-    for(vstring::const_iterator iCmd = resCmds_.begin();
-        iCmd != resCmds_.end(); ++ iCmd) {
-      if ( iCmd->empty() ) continue;
-      boost::tokenizer<elsc> tokens(*iCmd, elsc("\\", " \t", "\'"));
-
-      vector<string> args;
-      for(boost::tokenizer<elsc>::const_iterator iToken = tokens.begin();
-          iToken != tokens.end(); ++iToken) {
-        if ( iToken->empty() ) continue;
-        args.push_back(*iToken);
-      }
-
-      if ( args.size() != 3 ) {
-        LogInfo("DQMGenericClient") << "Wrong input to resCmds\n";
-        continue;
-      }
-
-      computeResolution(dirName, args[0], args[1], args[2]);
+    for ( vector<ResolOption>::const_iterator resolOption = resolOptions_.begin();
+          resolOption != resolOptions_.end(); ++resolOption )
+    {
+      computeResolution(dirName, resolOption->namePrefix, resolOption->titlePrefix, resolOption->srcName);
     }
 
-    for(vstring::const_iterator iCmd = normCmds_.begin();
-        iCmd != normCmds_.end(); ++iCmd) {
-      if ( iCmd->empty() ) continue;
-      boost::tokenizer<elsc> tokens(*iCmd, elsc("\\", "\t", "\'"));
-
-      vector<string> args;
-      for(boost::tokenizer<elsc>::const_iterator iToken = tokens.begin();
-          iToken != tokens.end(); ++iToken) {
-        if ( iToken->empty() ) continue;
-        args.push_back(*iToken);
-      }
-
-      if ( args.size() != 1 ) {
-        LogInfo("DQMGenericClient") << "Wrong input to normCmds\n";
-        continue;
-      }
-
-      normalizeToEntries(dirName, args[0]);
+    for ( vector<NormOption>::const_iterator normOption = normOptions_.begin();
+          normOption != normOptions_.end(); ++normOption )
+    {
+      normalizeToEntries(dirName, normOption->name, normOption->normHistName);
     }
 
-    for(vstring::const_iterator iCmd = cdCmds_.begin();
-        iCmd != cdCmds_.end(); ++ iCmd) {
-      if ( iCmd->empty() ) continue;
-      boost::tokenizer<elsc> tokens(*iCmd, elsc("\\", " \t", "\'"));
-
-      vector<string> args;
-      for(boost::tokenizer<elsc>::const_iterator iToken = tokens.begin();
-          iToken != tokens.end(); ++iToken) {
-        if ( iToken->empty() ) continue;
-        args.push_back(*iToken);
-      }
-
-      if ( args.size() != 1 ) {
-        LogInfo("DQMGenericClient") << "Wrong input to cdCmds\n";
-        continue;
-      }
-
-      makeCumulativeDist(dirName, args[0]);
+    for ( vector<CDOption>::const_iterator cdOption = cdOptions_.begin();
+          cdOption != cdOptions_.end(); ++cdOption )
+    {
+      makeCumulativeDist(dirName, cdOption->name);
     }
   }
 
@@ -209,8 +364,8 @@ void DQMGenericClient::endJob()
 
 }
 
-void DQMGenericClient::computeEfficiency(const string& startDir, const string& efficMEName, const string& efficMETitle,
-                                         const string& recoMEName, const string& simMEName, const std::string & type, const bool makeProfile)
+void DQMGenericClient::computeEfficiency(const string& startDir, const string& efficMEName, const string& efficMETitle, 
+                                         const string& recoMEName, const string& simMEName, const int type, const bool makeProfile)
 {
   if ( ! theDQM->dirExists(startDir) ) {
     if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
@@ -358,8 +513,8 @@ void DQMGenericClient::computeEfficiency(const string& startDir, const string& e
   const float nSimAll = hSim->GetEntries();
   const float nRecoAll = hReco->GetEntries();
   float efficAll=0; 
-  if (type=="fake")   efficAll = nSimAll ? 1-nRecoAll/nSimAll : 0;
-  else   efficAll = nSimAll ? nRecoAll/nSimAll : 0;
+  if ( type == 1 ) efficAll = nSimAll ? 1-nRecoAll/nSimAll : 0;
+  else if ( type == 2 ) efficAll = nSimAll ? nRecoAll/nSimAll : 0;
   const float errorAll = nSimAll && efficAll < 1 ? sqrt(efficAll*(1-efficAll)/nSimAll) : 0;
 
   const int iBin = hGlobalEffic->Fill(newEfficMEName.c_str(), 0);
@@ -426,7 +581,7 @@ void DQMGenericClient::computeResolution(const string& startDir, const string& n
   }
 }
 
-void DQMGenericClient::normalizeToEntries(const std::string& startDir, const std::string& histName) 
+void DQMGenericClient::normalizeToEntries(const std::string& startDir, const std::string& histName, const std::string& normHistName) 
 {
   if ( ! theDQM->dirExists(startDir) ) {
     if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
@@ -439,11 +594,20 @@ void DQMGenericClient::normalizeToEntries(const std::string& startDir, const std
   theDQM->cd();
 
   ME* element = theDQM->get(startDir+"/"+histName);
+  ME* normME = theDQM->get(startDir+"/"+normHistName);
 
   if ( !element ) {
     if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
       LogInfo("DQMGenericClient") << "normalizeToEntries() : "
                                      << "No such element '" << histName << "' found\n";
+    }
+    return;
+  }
+
+  if ( !normME ) {
+    if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
+      LogInfo("DQMGenericClient") << "normalizeToEntries() : "
+                                     << "No such element '" << normHistName << "' found\n";
     }
     return;
   }
@@ -457,7 +621,16 @@ void DQMGenericClient::normalizeToEntries(const std::string& startDir, const std
     return;
   }
 
-  const double entries = hist->GetEntries();
+  TH1F* normHist = normME->getTH1F();
+  if ( !normHist ) {
+    if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
+      LogInfo("DQMGenericClient") << "normalizeToEntries() : "
+                                     << "Cannot create TH1F from ME\n";
+    }
+    return;
+  }
+
+  const double entries = normHist->GetEntries();
   if ( entries != 0 ) {
     hist->Scale(1./entries);
   }
@@ -589,21 +762,20 @@ void DQMGenericClient::findAllSubdirectories (std::string dir, std::set<std::str
 }
 
 
-void DQMGenericClient::generic_eff (TH1* denom, TH1* numer, MonitorElement* efficiencyHist, const std::string & type) {
+void DQMGenericClient::generic_eff (TH1* denom, TH1* numer, MonitorElement* efficiencyHist, const int type) {
   for (int iBinX = 1; iBinX < denom->GetNbinsX()+1; iBinX++){
     for (int iBinY = 1; iBinY < denom->GetNbinsY()+1; iBinY++){
       for (int iBinZ = 1; iBinZ < denom->GetNbinsZ()+1; iBinZ++){
 
         int globalBinNum = denom->GetBin(iBinX, iBinY, iBinZ);
         
-               
         float numerVal = numer->GetBinContent(globalBinNum);
         float denomVal = denom->GetBinContent(globalBinNum);
 
         float effVal = 0;
 
         // fake eff is in use
-        if (type == "fake") {          
+        if (type == 2 ) {          
           effVal = denomVal ? (1 - numerVal / denomVal) : 0;
         } else {
           effVal = denomVal ? numerVal / denomVal : 0;
