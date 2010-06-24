@@ -18,6 +18,8 @@
 #include "RecoLuminosity/LumiProducer/interface/Exception.h"
 #include "RecoLuminosity/LumiProducer/interface/DBConfig.h"
 #include <iostream>
+#include <cstdio>
+
 namespace lumi{
   class HLTConfDummy2DB : public DataPipe{
   public:
