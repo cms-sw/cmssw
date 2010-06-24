@@ -83,6 +83,7 @@ EcalRecHit ESRecHitFitAlgo::reconstruct(const ESDataFrame& digi) const {
   ESPedestals::const_iterator it_ped = peds_->find(digi.id());
   
   ESIntercalibConstantMap::const_iterator it_mip = mips_->getMap().find(digi.id());
+  ESAngleCorrectionFactors::const_iterator it_ang = ang_->getMap().find(digi.id());
 
   ESChannelStatusMap::const_iterator it_status = channelStatus_->getMap().find(digi.id());
 
@@ -95,7 +96,8 @@ EcalRecHit ESRecHitFitAlgo::reconstruct(const ESDataFrame& digi) const {
   int status = (int) results[2];
   delete[] results;
 
-  energy *= MIPGeV_/(*it_mip);
+  double mipCalib = (*it_mip)/fabs(cos(*it_ang));
+  energy *= MIPGeV_/mipCalib;
 
   DetId detId = digi.id();
 

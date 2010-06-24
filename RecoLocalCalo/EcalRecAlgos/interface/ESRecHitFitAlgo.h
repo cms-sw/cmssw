@@ -7,6 +7,7 @@
 #include "CondFormats/ESObjects/interface/ESIntercalibConstants.h"
 #include "CondFormats/ESObjects/interface/ESChannelStatus.h"
 #include "CondFormats/ESObjects/interface/ESRecHitRatioCuts.h"
+#include "CondFormats/ESObjects/interface/ESAngleCorrectionFactors.h"
 
 #include "TF1.h"
 
@@ -23,7 +24,7 @@ class ESRecHitFitAlgo {
   void setIntercalibConstants(const ESIntercalibConstants* mips) { mips_ = mips; }
   void setChannelStatus(const ESChannelStatus* status) { channelStatus_ = status; }
   void setRatioCuts(const ESRecHitRatioCuts* ratioCuts) { ratioCuts_ = ratioCuts; }
-
+  void setAngleCorrectionFactors(const ESAngleCorrectionFactors* ang) { ang_ = ang; }
   double* EvalAmplitude(const ESDataFrame& digi, double ped) const;
   EcalRecHit reconstruct(const ESDataFrame& digi) const;
 
@@ -35,6 +36,7 @@ class ESRecHitFitAlgo {
   const ESIntercalibConstants *mips_;
   const ESChannelStatus *channelStatus_;
   const ESRecHitRatioCuts *ratioCuts_;
+  const ESAngleCorrectionFactors *ang_;
   double MIPGeV_;
 
 };

@@ -7,6 +7,7 @@
 #include "CondFormats/ESObjects/interface/ESIntercalibConstants.h"
 #include "CondFormats/ESObjects/interface/ESChannelStatus.h"
 #include "CondFormats/ESObjects/interface/ESRecHitRatioCuts.h"
+#include "CondFormats/ESObjects/interface/ESAngleCorrectionFactors.h"
 
 class ESRecHitSimAlgo {
 
@@ -21,6 +22,7 @@ class ESRecHitSimAlgo {
   void setIntercalibConstants(const ESIntercalibConstants* mips) { mips_ = mips; }
   void setChannelStatus(const ESChannelStatus* status) { channelStatus_ = status; }
   void setRatioCuts(const ESRecHitRatioCuts* ratioCuts) { ratioCuts_ = ratioCuts; }
+  void setAngleCorrectionFactors(const ESAngleCorrectionFactors* ang) { ang_ = ang; }
   void setW0(const double& value) { w0_ = value; } 
   void setW1(const double& value) { w1_ = value; } 
   void setW2(const double& value) { w2_ = value; } 
@@ -35,6 +37,7 @@ class ESRecHitSimAlgo {
   const ESIntercalibConstants *mips_;
   const ESChannelStatus *channelStatus_;
   const ESRecHitRatioCuts *ratioCuts_;
+  const ESAngleCorrectionFactors *ang_;
   double w0_;
   double w1_;
   double w2_;
