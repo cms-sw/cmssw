@@ -764,8 +764,9 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
    
       TrajectoryMeasurement meas = *im;
 
-      const TransientTrackingRecHit* ttrhit = &(*meas.recHit());
-      const TrackingRecHit *hit = ttrhit->hit();
+      // const TransientTrackingRecHit* ttrhit = &(*meas.recHit());
+      // const TrackingRecHit *hit = ttrhit->hit();
+      const TransientTrackingRecHit* hit = &(*meas.recHit());
 
       if (hit->isValid() && theAlignableDetAccessor->detAndSubdetInMap( hit->geographicalId() )) {
 
@@ -1410,6 +1411,6 @@ int HIPAlignmentAlgorithm::fillEventwiseTree(const char* filename, int iter, int
   //clean up
   delete jobtree;
   delete jobfile;
-	
+  
   return totntrk;
 }//end fillEventwiseTree
