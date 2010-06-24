@@ -2,8 +2,8 @@ def castorlayout(i, p, *rows): i["Castor/Layouts/" + p] = DQMItem(layout=rows)
 
 
 castorlayout(dqmitems, "CASTOR Digi ChannelSummaryMap",
-           [{ 'path': "Castor/EventInfo/reportSummaryMap",
-             'description':"Green - OK:signal, Cyan - OK:pedestal, Red - dead, Yellow - noisy"}]
+           [{ 'path': "Castor/CastorPSMonitor/CASTOR Digi ChannelSummaryMap",
+             'description':""}]
            )
 
 castorlayout(dqmitems, "CASTOR Digi Occupancy Map",
