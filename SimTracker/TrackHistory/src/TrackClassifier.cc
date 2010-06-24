@@ -266,6 +266,17 @@ void TrackClassifier::processesAtGenerator()
         // Get the pointer to the vertex by removing the const-ness (no const methos in HepMC::GenVertex)
         HepMC::GenVertex * vertex = const_cast<HepMC::GenVertex *>(*ivertex);
 
+        // List of dauther PDG-IDs 
+        std::set<int> daughterIds;
+
+        // Loop over the sources looking for specific decays
+        for (
+            HepMC::GenVertex::particle_iterator idaughter = vertex->particles_begin(HepMC::children);
+            idaughter != vertex->particles_end(HepMC::children);
+            ++idaughter
+        )
+            daughterIds.insert(std::abs((*idaughter)->pdg_id()));
+ 
         // Loop over the sources looking for specific decays
         for (
             HepMC::GenVertex::particle_iterator iparent = vertex->particles_begin(HepMC::parents);
@@ -292,6 +303,12 @@ void TrackClassifier::processesAtGenerator()
                         // Check for B, C weak decays and long lived decays
                         update(flags_[BWeakDecay], particleID.hasBottom());
                         update(flags_[CWeakDecay], particleID.hasCharm());
+
+                        // Check for B or C leptonic decays 
+                        bool flag = (daughterIds.find(13) != daughterIds.end());  
+                        update(flags_[FromBWeakDecayMuon], flags_[BWeakDecay] && flag);
+                        update(flags_[FromCWeakDecayMuon], flags_[CWeakDecay] && flag);
+
                         update(flags_[LongLivedDecay], true);
                     }
                     // Check Tau, Ks and Lambda decay
@@ -408,6 +425,12 @@ void TrackClassifier::processesAtSimulation()
                             // Check for B, C weak decays and long lived decays
                             update(flags_[BWeakDecay], particleID.hasBottom());
                             update(flags_[CWeakDecay], particleID.hasCharm());
+
+                            // Check for B or C leptonic decays 
+                            update(flags_[FromBWeakDecayMuon], flags_[BWeakDecay] && abs((*iparticle)->pdgId()) == 13);
+                            update(flags_[FromCWeakDecayMuon], flags_[CWeakDecay] && abs((*iparticle)->pdgId()) == 13);
+
+                            // Check for long live particles
                             update(flags_[LongLivedDecay], true);
                         }
 

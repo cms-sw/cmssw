@@ -26,7 +26,7 @@ process.GlobalTag.globaltag = 'MC_36Y_V7A::All'
 
 process.p = cms.Path(process.playback * process.muonHistoryAnalyzer)
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(200) )
 readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
