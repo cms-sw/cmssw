@@ -21,9 +21,11 @@
 #include <vector>
 #include <iostream>
 #include "TFile.h"
+#include "TTree.h"
 #include "TString.h"
 #include "TH1F.h"
 #include "TMath.h"
+
 //
 // class decleration
 //
@@ -60,6 +62,8 @@ class WenuPlots : public edm::EDAnalyzer {
   Bool_t usePreselection_;
   std::string outputFile_;
   edm::InputTag wenuCollectionTag_;
+  edm::InputTag caloJetCollectionTag_;
+  edm::InputTag pfJetCollectionTag_;
   TFile *histofile;
   //
   //  math::XYZPoint bspotPosition_; // comment out only if you don't use pat
@@ -175,6 +179,41 @@ class WenuPlots : public edm::EDAnalyzer {
   //
   std::vector<Double_t> CutVars_;
   std::vector<Bool_t> InvVars_;
+  //
+  // variables related to the VBTF root tuples:
+  //
+  Int_t runNumber, lumiSection;
+  Long64_t eventNumber;
+  Float_t ele_sc_energy, ele_sc_eta, ele_sc_phi;
+  Float_t ele_sc_gsf_et;
+  Float_t ele_cand_et, ele_cand_eta, ele_cand_phi;
+  Float_t ele_iso_track, ele_iso_ecal, ele_iso_hcal;
+  Float_t ele_id_sihih, ele_id_dphi, ele_id_deta, ele_id_hoe;
+  Float_t ele_cr_mhitsinner, ele_cr_dcot, ele_cr_dist;
+  Float_t ele_vx, ele_vy, ele_vz;
+  Float_t pv_x, pv_y, pv_z;
+  Int_t   ele_gsfCharge, ele_ctfCharge, ele_scPixCharge;
+  Float_t ele_eop, ele_tip_bs, ele_tip_pv;
+  Float_t event_caloMET, event_pfMET, event_tcMET;
+  Float_t event_caloMET_phi, event_pfMET_phi, event_tcMET_phi;
+  Float_t event_caloMT, event_pfMT, event_tcMT;
+  Float_t calojet_et[5];
+  Float_t calojet_eta[5];
+  Float_t calojet_phi[5];
+  Float_t pfjet_et[5];
+  Float_t pfjet_eta[5];
+  Float_t pfjet_phi[5];
+  Int_t event_datasetTag;
+
+  TFile *WENU_VBTFpreseleFile_;
+  TFile *WENU_VBTFselectionFile_;
+  TTree *vbtfSele_tree;
+  TTree *vbtfPresele_tree;
+  std::string WENU_VBTFselectionFileName_;
+  std::string WENU_VBTFpreseleFileName_;
+  Bool_t includeJetInformationInNtuples_;
+  Double_t DRJetFromElectron_;
+  Int_t DatasetTag_;
 };
 
 #endif
