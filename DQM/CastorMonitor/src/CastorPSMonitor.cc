@@ -51,7 +51,7 @@ CastorPSMonitor::CastorPSMonitor() {
   firstRegionThreshold_=0.;
   secondRegionThreshold_=0.;
   status=-99;
-
+  statusRS=-99;
 }
 
 //==================================================================//
@@ -109,11 +109,13 @@ void CastorPSMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
 
     ////---- digi occupancy map
     DigiOccupancyMap = m_dbe->book2D("CASTOR Digi Occupancy Map","CASTOR Digi Occupancy Map",14,0.0,14.0,16,0.0,16.0);
-   
+    ////---- channel summary map
+    ChannelSummaryMap = m_dbe->book2D("CASTOR Digi ChannelSummaryMap","CASTOR Digi ChannelSummaryMap",14,0.0,14.0,20,0.0,20.0); // put 20 instead of 16 to get some space for the legend
+
     ////---- create Digi based reportSummaryMap
     m_dbe->setCurrentFolder(rootFolder_+"EventInfo");
     reportSummary    = m_dbe->bookFloat("reportSummary");
-    reportSummaryMap = m_dbe->book2D("reportSummaryMap","ChannelSummaryMap",14,0.0,14.0,20,0.0,20.0); // put 20 instead of 16 to get some space for the legend
+    reportSummaryMap = m_dbe->book2D("reportSummaryMap","CASTOR reportSummaryMap",14,0.0,14.0,16,0.0,16.0);
     if(offline_){
       h_reportSummaryMap =reportSummaryMap->getTH2F();
       h_reportSummaryMap->SetOption("textcolz");
@@ -154,7 +156,7 @@ void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, cons
   ////---- increment here
   ievt_++;
 
-  status = -99;
+  status = -99; statusRS = -99;
 
   ////---- get Castor Shape from the Conditions
   const CastorQIEShape* shape = conditions.getCastorShape();
@@ -288,24 +290,26 @@ void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, cons
 
  ////---- channel is dead => no DAQ
  if(double(sumDigiForEachChannel[module][sector]/(10*ievt_)) < firstRegionThreshold_ )  
-    status = -1.;
+   { status = -1.; statusRS=0.; }
               
  ////---- channel is OK => just pedestal in it
  if(double(sumDigiForEachChannel[module][sector]/(10*ievt_)) > firstRegionThreshold_ && double(sumDigiForEachChannel[module][sector]/(10*ievt_)) < secondRegionThreshold_ ) 
-    status = 0.25;
+   { status = 0.25; statusRS=0.95; }
   
  ////---- channel is OK -> signal in it
  if(double(sumDigiForEachChannel[module][sector]/(10*ievt_)) > secondRegionThreshold_ && double(sumDigiForEachChannel[module][sector]/(10*ievt_))< thirdRegionThreshold_ ) 
-    status = 1.;
+   { status = 1.; statusRS=1.0; }
 
  ////---- channel is noisy 
  if(double(sumDigiForEachChannel[module][sector]/(10*ievt_)) > thirdRegionThreshold_ ) 
-    status = -0.25;   	      
+   { status = -0.25; statusRS=0.88 ; }
     
+   ////---- fill the ChannelSummaryMap
+   ChannelSummaryMap->getTH2F()->SetBinContent(module+1,sector+1,status);
    ////---- fill the reportSummaryMap
-   reportSummaryMap->getTH2F()->SetBinContent(module+1,sector+1,status);
-   if ( status > 0) numOK++;
-
+   reportSummaryMap->getTH2F()->SetBinContent(module+1,sector+1,statusRS);
+   ////---- calculate the number of good channels
+   if ( statusRS > 0.9) numOK++;
        }
     }
     ////--- calculate the fraction of good channels and fill it in
@@ -313,11 +317,10 @@ void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, cons
     overallStatus->Fill(fraction); reportSummary->Fill(fraction); 
   } //
 
-
     ////---- set 0 for these
       for (int sector=16; sector<20; sector++){
         for (int module=0; module<14; module++){
-      reportSummaryMap->getTH2F()->SetBinContent(module+1,sector+1,0);
+      ChannelSummaryMap->getTH2F()->SetBinContent(module+1,sector+1,0);
         }
     }
 
