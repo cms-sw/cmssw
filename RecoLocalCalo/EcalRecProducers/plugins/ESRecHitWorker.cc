@@ -13,6 +13,7 @@
 #include "CondFormats/DataRecord/interface/ESPedestalsRcd.h"
 #include "CondFormats/DataRecord/interface/ESIntercalibConstantsRcd.h"
 #include "CondFormats/DataRecord/interface/ESRecHitRatioCutsRcd.h"
+#include "CondFormats/DataRecord/interface/ESAngleCorrectionFactorsRcd.h"
 
 #include <cmath>
 #include <iomanip>
@@ -64,6 +65,9 @@ void ESRecHitWorker::set(const edm::EventSetup& es) {
   es.get<ESIntercalibConstantsRcd>().get(esMIPs_);
   const ESIntercalibConstants *mips = esMIPs_.product();
 
+  es.get<ESAngleCorrectionFactorsRcd>().get(esAngleCorrFactors_);
+  const ESAngleCorrectionFactors *ang = esAngleCorrFactors_.product();
+
   es.get<ESChannelStatusRcd>().get(esChannelStatus_);
   const ESChannelStatus *channelStatus = esChannelStatus_.product();
 
@@ -80,6 +84,7 @@ void ESRecHitWorker::set(const edm::EventSetup& es) {
     algoW_->setIntercalibConstants(mips);
     algoW_->setChannelStatus(channelStatus);
     algoW_->setRatioCuts(ratioCuts);
+    algoW_->setAngleCorrectionFactors(ang);
   } else if (recoAlgo_ == 1) {
     algoF_->setESGain(ESGain);
     algoF_->setMIPGeV(ESMIPToGeV);
@@ -87,6 +92,7 @@ void ESRecHitWorker::set(const edm::EventSetup& es) {
     algoF_->setIntercalibConstants(mips);
     algoF_->setChannelStatus(channelStatus);
     algoF_->setRatioCuts(ratioCuts);
+    algoF_->setAngleCorrectionFactors(ang);
   } else {
     algoA_->setESGain(ESGain);
     algoA_->setMIPGeV(ESMIPToGeV);
@@ -94,6 +100,7 @@ void ESRecHitWorker::set(const edm::EventSetup& es) {
     algoA_->setIntercalibConstants(mips);
     algoA_->setChannelStatus(channelStatus);
     algoA_->setRatioCuts(ratioCuts);
+    algoA_->setAngleCorrectionFactors(ang);
   }
 }
 

@@ -15,6 +15,7 @@
 #include "CondFormats/ESObjects/interface/ESPedestals.h"
 #include "CondFormats/ESObjects/interface/ESIntercalibConstants.h"
 #include "CondFormats/ESObjects/interface/ESRecHitRatioCuts.h"
+#include "CondFormats/ESObjects/interface/ESAngleCorrectionFactors.h"
 
 #include <vector>
 
@@ -48,6 +49,7 @@ class ESRecHitWorker : public ESRecHitWorkerBaseClass {
   edm::ESHandle<ESIntercalibConstants> esMIPs_;
   edm::ESHandle<ESChannelStatus> esChannelStatus_;
   edm::ESHandle<ESRecHitRatioCuts> esRatioCuts_;
+  edm::ESHandle<ESAngleCorrectionFactors> esAngleCorrFactors_;
 
 };
 #endif
