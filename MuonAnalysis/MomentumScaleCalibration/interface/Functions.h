@@ -7,6 +7,7 @@
 #include "TString.h"
 #include "TF1.h"
 #include "TRandom.h"
+#include "MuonAnalysis/MomentumScaleCalibration/interface/SigmaPtDiff.h"
 
 // ----------------------- //
 // Bias and scale functors //
@@ -771,6 +772,47 @@ public:
 };
 
 
+// Linear in pt and up to cubic in |eta| with possible eta asymmetry: two parabolic branches are used one for eta+ and one for eta-
+// --------------------------------------------------------------------------------------------------------------------------------
+template <class T>
+class scaleFunctionType21 : public scaleFunctionBase<T> {
+public:
+  scaleFunctionType21() { this->parNum_ = 8; }
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
+    double ptPart = parScale[0] + parScale[1]*pt;
+    if( eta >= 0 ) {
+      return( (ptPart+
+	       parScale[2]*eta +
+	       parScale[3]*eta*eta +
+	       parScale[4]*eta*eta*eta)*pt );
+    }
+    return( (ptPart +
+             parScale[5]*(-eta) +
+             parScale[6]*eta*eta +
+	     parScale[7]*(-eta*eta*eta))*pt );
+  }
+  // Fill the scaleVec with neutral parameters
+  virtual void resetParameters(std::vector<double> * scaleVec) const {
+    scaleVec->push_back(1);
+    for( int i=1; i<this->parNum_; ++i ) {
+      scaleVec->push_back(0);
+    }
+  }
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const std::vector<int> & parScaleOrder, const int muonType) {
+    double thisStep[] = {0.00001, 0.000001, 0.0000001, 0.0000001, 0.0000001, 0.0000001, 0.0000001, 0.0000001};
+    TString thisParName[] = {"Pt offset", "Pt slope", "Eta slope pos eta", "Eta quadr pos eta", "Eta cubic pos eta", "Eta slope neg eta", "Eta quadr neg eta", "Eta cubic neg eta"};
+    if( muonType == 1 ) {
+      double thisMini[] = {0.9, -0.3, -0.3, -0.3, -0.3, -0.3, -0.3, -0.3};
+      double thisMaxi[] = {1.1, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
+    } else {
+      double thisMini[] = {0.9, -0.002, -0.01, -0.005, -0.005, -0.01, -0.005, -0.005};
+      double thisMaxi[] = {1.1,  0.002,  0.01,  0.005,  0.005, 0.01,  0.005,  0.005};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
+    }
+  }
+};
+
 
 /// Service to build the scale functor corresponding to the passed identifier
 scaleFunctionBase<double * > * scaleFunctionService( const int identifier );
@@ -900,9 +942,7 @@ class smearFunctionType6 : public smearFunctionBase {
       sigmaSmear = sqrt(fabs(pow(sigmaPtMisal,2)-pow(sigmaPtAl,2)));
       pt = pt*gRandom_->Gaus(1,sigmaSmear);
     }
-
   }
-
  protected:
   /**
    * This is the pt vs eta resolution by points. It uses fabs(eta) assuming symmetry.
@@ -926,6 +966,21 @@ class smearFunctionType6 : public smearFunctionBase {
     else if( 2.4 < eta && eta <= 2.6 ) return border;
     return ( 0. );
   }
+};
+
+class smearFunctionType7 : public smearFunctionBase
+{
+ public:
+  virtual void smear(double & pt, double & eta, double & phi, const double * y, const std::vector<double> & parSmear)
+  {
+    double sigmaSquared = sigmaPtDiff.squaredDiff(eta);
+    TF1 G("G", "[0]*exp(-0.5*pow(x,2)/[1])", -5., 5.);
+    double norm = 1/(sqrt(2*TMath::Pi()*sigmaSquared));
+    G.SetParameter (0,norm);
+    G.SetParameter (1,sigmaSquared);
+    pt = pt*(1-G.GetRandom());
+  }
+  SigmaPtDiff sigmaPtDiff;
 };
 
 /// Service to build the smearing functor corresponding to the passed identifier

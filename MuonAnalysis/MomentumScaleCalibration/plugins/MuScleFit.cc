@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2010/06/21 15:20:23 $
-//  $Revision: 1.88 $
+//  $Date: 2010/06/21 15:52:20 $
+//  $Revision: 1.89 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -864,36 +864,36 @@ void MuScleFit::selectMuons(const int maxEvents, const TString & treeFileName)
   std::vector<std::pair<lorentzVector,lorentzVector> >::iterator it = MuScleFitUtils::SavedPair.begin();
   for( ; it != MuScleFitUtils::SavedPair.end(); ++it ) {
 
-      // Apply any cut if requested
-      // Note that cuts here are only applied to already selected muons. They should not be used unless
-      // you are sure that the difference is negligible (e.g. the number of events with > 2 muons is negligible).
-      double pt1 = it->first.pt();
-      std::cout << "pt1 = " << pt1 << std::endl;
-      double pt2 = it->second.pt();
-      std::cout << "pt2 = " << pt2 << std::endl;
-      double eta1 = it->first.eta();
-      std::cout << "eta1 = " << eta1 << std::endl;
-      double eta2 = it->second.eta();
-      std::cout << "eta2 = " << eta2 << std::endl;
-      // If they don't pass the cuts set to null vectors
-      if( !(pt1 > MuScleFitUtils::minMuonPt_ && pt1 < MuScleFitUtils::maxMuonPt_ &&
-	    pt2 > MuScleFitUtils::minMuonPt_ && pt2 < MuScleFitUtils::maxMuonPt_ &&
-	    ( (eta1 > MuScleFitUtils::minMuonEtaFirstRange_ && eta1 < MuScleFitUtils::maxMuonEtaFirstRange_ &&
-	       eta2 > MuScleFitUtils::minMuonEtaFirstRange_ && eta2 < MuScleFitUtils::maxMuonEtaFirstRange_) ||
-	      (eta1 > MuScleFitUtils::minMuonEtaSecondRange_ && eta1 < MuScleFitUtils::maxMuonEtaSecondRange_ &&
-	       eta2 > MuScleFitUtils::minMuonEtaSecondRange_ && eta2 < MuScleFitUtils::maxMuonEtaSecondRange_) ) ) ) {
-	// std::cout << "removing muons not passing cuts" << std::endl;
-	it->first = reco::Particle::LorentzVector(0,0,0,0);
-	it->second = reco::Particle::LorentzVector(0,0,0,0);
-      }
+    // Apply any cut if requested
+    // Note that cuts here are only applied to already selected muons. They should not be used unless
+    // you are sure that the difference is negligible (e.g. the number of events with > 2 muons is negligible).
+    double pt1 = it->first.pt();
+    std::cout << "pt1 = " << pt1 << std::endl;
+    double pt2 = it->second.pt();
+    std::cout << "pt2 = " << pt2 << std::endl;
+    double eta1 = it->first.eta();
+    std::cout << "eta1 = " << eta1 << std::endl;
+    double eta2 = it->second.eta();
+    std::cout << "eta2 = " << eta2 << std::endl;
+    // If they don't pass the cuts set to null vectors
+    if( !(pt1 > MuScleFitUtils::minMuonPt_ && pt1 < MuScleFitUtils::maxMuonPt_ &&
+	  pt2 > MuScleFitUtils::minMuonPt_ && pt2 < MuScleFitUtils::maxMuonPt_ &&
+	  ( (eta1 > MuScleFitUtils::minMuonEtaFirstRange_ && eta1 < MuScleFitUtils::maxMuonEtaFirstRange_ &&
+	     eta2 > MuScleFitUtils::minMuonEtaFirstRange_ && eta2 < MuScleFitUtils::maxMuonEtaFirstRange_) ||
+	    (eta1 > MuScleFitUtils::minMuonEtaSecondRange_ && eta1 < MuScleFitUtils::maxMuonEtaSecondRange_ &&
+	     eta2 > MuScleFitUtils::minMuonEtaSecondRange_ && eta2 < MuScleFitUtils::maxMuonEtaSecondRange_) ) ) ) {
+      // std::cout << "removing muons not passing cuts" << std::endl;
+      it->first = reco::Particle::LorentzVector(0,0,0,0);
+      it->second = reco::Particle::LorentzVector(0,0,0,0);
+    }
 
-      // First is always mu-, second mu+
-      if( (MuScleFitUtils::SmearType != 0) || (MuScleFitUtils::BiasType != 0) ) {
-	applySmearing(it->first);
-	applyBias(it->first, -1);
-	applySmearing(it->second);
-	applyBias(it->second, 1);
-      }
+    // First is always mu-, second mu+
+    if( (MuScleFitUtils::SmearType != 0) || (MuScleFitUtils::BiasType != 0) ) {
+      applySmearing(it->first);
+      applyBias(it->first, -1);
+      applySmearing(it->second);
+      applyBias(it->second, 1);
+    }
   }
   plotter->fillRec(MuScleFitUtils::SavedPair);
   if( !(MuScleFitUtils::speedup) ) {
@@ -1222,13 +1222,14 @@ void MuScleFit::checkParameters() {
   }
   // Smear parameters: dimension check
   // ---------------------------------
-  if ((MuScleFitUtils::SmearType==1  && MuScleFitUtils::parSmear.size()!=3) ||
-      (MuScleFitUtils::SmearType==2  && MuScleFitUtils::parSmear.size()!=4) ||
-      (MuScleFitUtils::SmearType==3  && MuScleFitUtils::parSmear.size()!=5) ||
-      (MuScleFitUtils::SmearType==4  && MuScleFitUtils::parSmear.size()!=6) ||
-      (MuScleFitUtils::SmearType==5  && MuScleFitUtils::parSmear.size()!=7) ||
-      (MuScleFitUtils::SmearType==6  && MuScleFitUtils::parSmear.size()!=16) ||
-      MuScleFitUtils::SmearType<0 || MuScleFitUtils::SmearType>6) {
+  if ((MuScleFitUtils::SmearType==1 && MuScleFitUtils::parSmear.size()!=3) ||
+      (MuScleFitUtils::SmearType==2 && MuScleFitUtils::parSmear.size()!=4) ||
+      (MuScleFitUtils::SmearType==3 && MuScleFitUtils::parSmear.size()!=5) ||
+      (MuScleFitUtils::SmearType==4 && MuScleFitUtils::parSmear.size()!=6) ||
+      (MuScleFitUtils::SmearType==5 && MuScleFitUtils::parSmear.size()!=7) ||
+      (MuScleFitUtils::SmearType==6 && MuScleFitUtils::parSmear.size()!=16) ||
+      (MuScleFitUtils::SmearType==7 && MuScleFitUtils::parSmear.size()!=0) ||
+      MuScleFitUtils::SmearType<0 || MuScleFitUtils::SmearType>7) {
     std::cout << "[MuScleFit-Constructor]: Wrong smear type or number of parameters: aborting!" << std::endl;
     abort();
   }
