@@ -161,6 +161,7 @@ void ShowMassesComparison(const TString & resonance = "Z")
  */
 void getHistograms(const TString canvasName, TH1F * & histo1, TH1D * & histo2, const TString & resonance)
 {
+  std::cout << "canvasName = " << canvasName << std::endl;
   TFile * inputFile = new TFile("plotMassOutput.root");
   TCanvas * canvas = (TCanvas*)inputFile->Get(canvasName);
   TString resonanceNum("_1");
@@ -176,7 +177,7 @@ void getHistograms(const TString canvasName, TH1F * & histo1, TH1D * & histo2, c
   if( resonance == "AllResonances" ) resonanceNum = "_4";
 
   TPad * pad = (TPad*)canvas->GetPrimitive(canvasName+resonanceNum);
-  histo1 = (TH1F*)pad->GetPrimitive("hRecBestRes_Mass");
+  histo1 = (TH1F*)pad->GetPrimitive("hRecBestResAllEvents_Mass");
   if( resonance == "Z" || resonance == "AllResonances" ) histo2 = (TH1D*)pad->GetPrimitive("Mass_PProf");
   else histo2 = (TH1D*)pad->GetPrimitive("Mass_fine_PProf");
   // if( resonance == "Z" || resonance == "AllResonances" ) histo2 = (TH1D*)pad->GetPrimitive("Mass_Probability");

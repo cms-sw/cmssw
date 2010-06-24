@@ -201,7 +201,7 @@ process.looper = cms.Looper(
     # -2 = onia guys selection - only GG
     # -3 = onia guys selection - only GT
     # -4 = onia guys selection - only TT
-    # Note that the above samples are independent and represente the composition of the inclusive sample
+    # Note that the above samples are independent and represent the composition of the inclusive sample
     # 1 = global muon
     # 2 = standalone muon
     # 3 = tracker muon
@@ -301,6 +301,9 @@ process.looper = cms.Looper(
     # ---------------------------- #
     # Cross section fit parameters #
     # ---------------------------- #
+    # Note that the cross section fit works differently than the others, it
+    # fits ratios of parameters. Fix and Order should not be used as is, they
+    # are there mainly for compatibility.
     parCrossSectionOrder = cms.vint32(0, 0, 0, 0, 0, 0),
     parCrossSectionFix =   cms.vint32(0, 0, 0, 0, 0, 0),
     parCrossSection = cms.vdouble(1.233, 2.07, 6.33, 13.9, 2.169, 127.2),
@@ -404,6 +407,7 @@ process.MessageLogger = cms.Service(
     # logMuScleFit = cms.untracked.PSet(
     threshold = cms.untracked.string('INFO'),
     #default = cms.untracked.PSet(
+
     #    limit = cms.untracked.int32(10000000)
     #    )
     # )
