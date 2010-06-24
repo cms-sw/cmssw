@@ -49,8 +49,9 @@ unsigned int CSCTFEvent::unpack(const unsigned short *buf, unsigned int length) 
 			header.unpack(spWord);
 
 			// Counter block exists only in format version 4.3 and higher
-			if( header.format_version() && !header.empty() )
+			if( header.format_version() && !header.empty() ){
 				if( length > index+1 ){ spWord += 4; } else { coruptions |= OUT_OF_BUFFER; break; }
+			}
 
 			// Calculate expected record length (internal variable 'shift' counts 16-bit words)
 			for(unsigned short tbin=0,shift=0; tbin<header.nTBINs() && !header.empty(); tbin++){

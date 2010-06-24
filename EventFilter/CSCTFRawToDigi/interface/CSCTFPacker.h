@@ -11,7 +11,7 @@
 
 class CSCTFPacker : public edm::EDProducer {
 private:
-	edm::InputTag lctProducer, trackProducer;
+	edm::InputTag lctProducer, mbProducer, trackProducer;
 
 	bool zeroSuppression;
 	unsigned short nTBINs;

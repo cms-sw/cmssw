@@ -1,6 +1,7 @@
 #include "EventFilter/CSCTFRawToDigi/src/CSCSPEvent.h"
 #include <map>
 #include <list>
+#include <iostream>
 
 bool CSCSPEvent::unpack(const unsigned short *&buf) throw() {
 	bool unpackError = false;
@@ -11,6 +12,7 @@ bool CSCSPEvent::unpack(const unsigned short *&buf) throw() {
 	else
 		unpackError |= header_.unpack(buf);
 
+//std::cout<<"unpackError3="<<unpackError<<std::endl;
 	if( !header_.empty() ){
 		// Block of Counters is added in format version 4.3 (dated by 05/27/2007)
 		if( header_.format_version() )
@@ -34,6 +36,7 @@ bool CSCSPEvent::unpack(const unsigned short *&buf) throw() {
 			}
 		}
 
+//std::cout<<"unpackError4="<<unpackError<<std::endl;
 		// Link initial LCTs to the tracks in each time bin
 		for(unsigned short tbin=0; tbin<header_.nTBINs(); tbin++){
 			for(unsigned short trk=0; trk<3; trk++){
@@ -48,6 +51,7 @@ bool CSCSPEvent::unpack(const unsigned short *&buf) throw() {
 					if( track.ME2_id() ) timeline[track.ME2_tbin()].push_back(2);
 					if( track.ME3_id() ) timeline[track.ME3_tbin()].push_back(3);
 					if( track.ME4_id() ) timeline[track.ME4_tbin()].push_back(4);
+					if( track.MB_id()  ) timeline[track.MB_tbin() ].push_back(5);
 					int earliest_lct_delay = -1; //, second_earliest_lct_delay = -1;
 					// Going from largest to smallest delay (earliest LCT pops up first in the loop)
 					for(int delay=7; delay>=0 && second_earliest_lct_delay==-1; delay--){
@@ -60,13 +64,14 @@ bool CSCSPEvent::unpack(const unsigned short *&buf) throw() {
 					}
 				} else second_earliest_lct_delay = 0;
 
+//std::cout<<"unpackError5["<<tbin<<"]="<<unpackError<<", ME1_id="<<track.ME1_id()<<", ME1_tbin="<<track.ME1_tbin()<<std::endl;
 				// MEx_tbin are LCTs delays shifting all of them to the bx of last LCT used to build a track
 				//  let's convert delays to TBINs keeping in mind that absolute_lct_tbin = track_tbin + (second_earliest_delay - lct_delay)
 				if( track.ME1_id() ){ // if track contains LCT from the ME1
 					unsigned int mpc = ( track.ME1_id()>3 ? 1 : 0 );
 					int ME1_tbin = tbin + second_earliest_lct_delay - track.ME1_tbin();
-					if( ME1_tbin<0 || ME1_tbin>7 ) unpackError |= true;
-					else {
+///					if( track.ME1_tbin()>2 ) unpackError |= true; // because bxaDepth<=2
+					if( ME1_tbin>=0 && ME1_tbin<7 ) {
 						std::vector<CSCSP_MEblock> lcts = record_[ME1_tbin].LCTs(mpc);
 						for(std::vector<CSCSP_MEblock>::const_iterator lct=lcts.begin(); lct!=lcts.end(); lct++)
 							// Due to old MPC firmware link information was not accessible for some data:
@@ -77,10 +82,11 @@ bool CSCSPEvent::unpack(const unsigned short *&buf) throw() {
 							}
 					}
 				}
+//std::cout<<"unpackError4["<<tbin<<"]="<<unpackError<<", ME2_id="<<track.ME2_id()<<", ME2_tbin="<<track.ME2_tbin()<<std::endl;
 				if( track.ME2_id() ){ // ... ME2
 					int ME2_tbin = tbin + second_earliest_lct_delay - track.ME2_tbin();
-					if( ME2_tbin<0 || ME2_tbin>7 ) unpackError |= true;
-					else {
+///					if( track.ME2_tbin()>2 ) unpackError |= true; // because bxaDepth<=2
+					if( ME2_tbin>=0 && ME2_tbin<7 ) {
 						std::vector<CSCSP_MEblock> lcts = record_[ME2_tbin].LCTs(2);
 						for(std::vector<CSCSP_MEblock>::const_iterator lct=lcts.begin(); lct!=lcts.end(); lct++)
 							// Due to old MPC firmware link information was not accessible for some data:
@@ -91,10 +97,11 @@ bool CSCSPEvent::unpack(const unsigned short *&buf) throw() {
 							}
 					}
 				}
+//std::cout<<"unpackError5["<<tbin<<"]="<<unpackError<<", ME3_id="<<track.ME3_id()<<", ME3_tbin="<<track.ME3_tbin()<<std::endl;
 				if( track.ME3_id() ){ // ... ME3
 					int ME3_tbin = tbin + second_earliest_lct_delay - track.ME3_tbin();
-					if( ME3_tbin<0 || ME3_tbin>7 ) unpackError |= true;
-					else {
+///					if( track.ME3_tbin()>2 ) unpackError |= true; // because bxaDepth<=2
+					if( ME3_tbin>=0 && ME3_tbin<7 ) {
 						std::vector<CSCSP_MEblock> lcts = record_[ME3_tbin].LCTs(3);
 						for(std::vector<CSCSP_MEblock>::const_iterator lct=lcts.begin(); lct!=lcts.end(); lct++)
 							// Due to old MPC firmware link information was not accessible for some data:
@@ -105,10 +112,11 @@ bool CSCSPEvent::unpack(const unsigned short *&buf) throw() {
 							}
 					}
 				}
+//std::cout<<"unpackError6["<<tbin<<"]="<<unpackError<<", ME4_id="<<track.ME4_id()<<", ME4_tbin="<<track.ME4_tbin()<<std::endl;
 				if( track.ME4_id() ){ // ... fourth station
 					int ME4_tbin = tbin + second_earliest_lct_delay - track.ME4_tbin();
-					if( ME4_tbin<0 || ME4_tbin>7 ) unpackError |= true;
-					else {
+///					if( track.ME4_tbin()>2 ) unpackError |= true; // because bxaDepth<=2
+					if( ME4_tbin>=0 && ME4_tbin<7 ) {
 						std::vector<CSCSP_MEblock> lcts = record_[ME4_tbin].LCTs(4);
 						for(std::vector<CSCSP_MEblock>::const_iterator lct=lcts.begin(); lct!=lcts.end(); lct++)
 							// Due to old MPC firmware link information was not accessible for some data:
@@ -119,19 +127,21 @@ bool CSCSPEvent::unpack(const unsigned short *&buf) throw() {
 							}
 					}
 				}
+//std::cout<<"unpackError7["<<tbin<<"]="<<unpackError<<", MB_id="<<track.MB_id()<<", MB_tbin="<<track.MB_tbin()<<std::endl;
 				if( track.MB_id() ){  // ... barrel
-					if( (tbin==0 && track.MB_tbin()) || (tbin==6 && track.MB_id()%2==0) ) unpackError |= true;
-					else {
-						std::vector<CSCSP_MBblock> stubs = ( track.MB_id()%2==0 ? record_[tbin+1].mbStubs() : record_[tbin].mbStubs() );
+					int MB_tbin = tbin + second_earliest_lct_delay - track.MB_tbin();
+					if( track.MB_tbin()>2 ) unpackError |= true; // because bxaDepth<=2
+					if( MB_tbin>=0 && MB_tbin<7 ) {
+						std::vector<CSCSP_MBblock> stubs = record_[MB_tbin].mbStubs();
 						for(std::vector<CSCSP_MBblock>::const_iterator stub=stubs.begin(); stub!=stubs.end(); stub++)
-							if( (stub->id()==1 && track.MB_id()<=2) || (stub->id()==2 && track.MB_id()>2) ){
+							if( (stub->id()==1 && track.MB_id()==1) || (stub->id()==2 && track.MB_id()==2) ){
 								track.dt_ = *stub;
 								track.dtFilled = true;
 							}
 						if( !track.dtFilled ) unpackError |= true;
 					}
 				}
-
+//std::cout<<"unpackError8["<<tbin<<"]="<<unpackError<<std::endl;
 			}
 		}
 	}

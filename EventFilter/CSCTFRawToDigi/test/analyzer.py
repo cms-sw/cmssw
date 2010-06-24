@@ -20,9 +20,9 @@ process.source = cms.Source("DaqSource",
     readerPset = cms.untracked.PSet(
         firstEvent  = cms.untracked.int32(0),
         tfDDUnumber = cms.untracked.int32(0),
-        FED760 = cms.untracked.vstring('RUI01'),
-        RUI01  = cms.untracked.vstring('/tmp/kkotov/csc_00134950_EmuRUI00_Monitor_001.raw')
-#        RUI01  = cms.untracked.vstring('ev.raw')
+        FED760 = cms.untracked.vstring('RUI00'),
+#        RUI00  = cms.untracked.vstring('./133877_2badEvents.raw_760')
+        RUI00  = cms.untracked.vstring('./133877_badEvent.raw_760')
   )
 )
 
@@ -34,4 +34,11 @@ process.csctfanalyzer = cms.EDAnalyzer("CSCTFAnalyzer",
 )
 
 process.p = cms.Path(process.csctfunpacker*process.csctfanalyzer)
+
+#process.cscdumper = cms.EDAnalyzer("CSCFileDumper",
+#    output = cms.untracked.string("133877_2badEvents.raw"),
+#    events = cms.untracked.string("4768853,1373027")
+#)
+#
+#process.p = cms.Path(process.cscdumper)
 
