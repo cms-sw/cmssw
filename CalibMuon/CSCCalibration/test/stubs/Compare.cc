@@ -13,7 +13,7 @@
 //
 // Original Author:  Thomas Nummy,Bld. 32 Room 4-C21,+41227671337,
 //         Created:  Thu Oct 29 13:55:15 CET 2009
-// $Id: Compare.cc,v 1.2 2010/06/04 08:52:50 boeriu Exp $
+// $Id: Compare.cc,v 1.3 2010/06/23 11:31:59 boeriu Exp $
 //
 //
 //////////////////////////////////READ THIS FIRST//////////////////////////////////////////////////////////
@@ -126,8 +126,6 @@ Compare::Compare(const edm::ParameterSet& iConfig)
     for (unsigned int k=0;k<new_index_id.size()-1;++k){
       if(old_index_id[i] == new_index_id[k]){
 	diffPeds[k]=old_peds[i]/10. - new_peds[k];
-	new_peds.erase(new_peds.begin());
-	new_index_id.erase(new_index_id.begin());
 	myPedsFile<<old_index_id[i]<<"  "<<diffPeds[k]<<std::endl;	
       }
     }
