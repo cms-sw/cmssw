@@ -244,27 +244,17 @@ FWTrackHitsDetailView::setTextInfo(const FWModelId &id, const reco::Track* track
    latex->DrawLatex( x + 0.25, y, "BAD Module" );
    y -= lineH;
 
-   Float_t r = 0.015;
+   Float_t r = 0.01;
    Float_t r2 = 0.02;
    y -= lineH;
-   drawCanvasDot(x + r2, y, r, kGreen);
-   y -= r2*0.5;
-   latex->DrawLatex(x+ 3*r2, y, "Pixel Hits");
+   drawCanvasDot( x + r2, y, r2, kGreen );
+   y -= r;
+   latex->DrawLatex( x + 3 * r2, y, "Pixel Hits" );
    y -= lineH;
 
-   drawCanvasDot(x + r2, y, r, kRed);
-   y -= r2*0.5;
-   latex->DrawLatex(x + 3*r2, y, "Extra Pixel Hits");
-   y -= lineH;
-
-   drawCanvasDot(x + r2, y, r2, kCyan);
-   y -= r2*0.5;
-   latex->DrawLatex(x + 3 * r2, y, "Camera center");
-   y -= lineH;
-
-   drawCanvasDot(x + r2, y, r2, kRed);
-   y -= r2*0.5;
-   latex->DrawLatex(x + 3 * r2, y, "Vertex");
+   drawCanvasDot( x + r2, y, r2, kRed);
+   y -= r;
+   latex->DrawLatex( x + 3 * r2, y, "Extra Pixel Hits" );
    y -= lineH;
 
    m_legend->SetY2(y);
@@ -291,10 +281,26 @@ FWTrackHitsDetailView::makeLegend( void )
    legend2->SetLineColor( kRed );
    m_legend->AddEntry( legend2, "Extra SiStripCluster", "l");
 
-   TEveStraightLineSet *legend3 = new TEveStraightLineSet( "siStripCluster2" );
-   legend3->SetLineWidth( 3 );
-   legend3->SetLineColor( kYellow );
-   m_legend->AddEntry( legend3, "Inner/Outermost States", "l");
+   TEveStraightLineSet *legend3 = new TEveStraightLineSet( "refStates" );
+   legend3->SetDepthTest( kFALSE );
+   legend3->SetMarkerColor( kYellow );
+   legend3->SetMarkerStyle( kPlus );
+   legend3->SetMarkerSize( 2 );
+   m_legend->AddEntry( legend3, "Inner/Outermost States", "p");
+
+   TEveStraightLineSet *legend4 = new TEveStraightLineSet( "vertex" );
+   legend4->SetDepthTest( kFALSE );
+   legend4->SetMarkerColor( kRed );
+   legend4->SetMarkerStyle( kFullDotLarge );
+   legend4->SetMarkerSize( 2 );
+   m_legend->AddEntry( legend4, "Vertex", "p");
+
+   TEveStraightLineSet *legend5 = new TEveStraightLineSet( "cameraCenter" );
+   legend5->SetDepthTest( kFALSE );
+   legend5->SetMarkerColor( kCyan );
+   legend5->SetMarkerStyle( kFullDotLarge );
+   legend5->SetMarkerSize( 2 );
+   m_legend->AddEntry( legend5, "Camera center", "p");
 }   
 
 void
