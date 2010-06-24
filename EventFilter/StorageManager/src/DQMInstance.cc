@@ -1,4 +1,4 @@
-// $Id: DQMInstance.cc,v 1.21 2010/03/08 11:56:02 mommsen Exp $
+// $Id: DQMInstance.cc,v 1.22 2010/05/17 15:59:10 mommsen Exp $
 /// @file: DQMInstance.cc
 
 #include <cstdio>
@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <stdint.h>
 
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "EventFilter/StorageManager/interface/DQMInstance.h"
