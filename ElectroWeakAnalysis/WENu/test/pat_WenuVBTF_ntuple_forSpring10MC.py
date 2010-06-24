@@ -13,14 +13,30 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PAT")
 
 
-process.MessageLogger = cms.Service(
-        "MessageLogger",
-            categories = cms.untracked.vstring('info', 'debug','cout')
-            )
+#process.MessageLogger = cms.Service(
+#        "MessageLogger",
+#            categories = cms.untracked.vstring('info', 'debug','cout')
+#            )
 
 process.options = cms.untracked.PSet(
     Rethrow = cms.untracked.vstring('ProductNotFound')
 )
+
+
+process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.cerr.threshold = cms.untracked.string("INFO")
+process.MessageLogger.cerr.FwkSummary = cms.untracked.PSet(
+       reportEvery = cms.untracked.int32(1000000),
+          limit = cms.untracked.int32(10000000)
+       )
+process.MessageLogger.cerr.FwkReport = cms.untracked.PSet(
+      reportEvery = cms.untracked.int32(100000),
+         limit = cms.untracked.int32(10000000)
+      )
+process.options = cms.untracked.PSet(
+       wantSummary = cms.untracked.bool(True)
+       )
+
 
 
 # source
@@ -86,18 +102,7 @@ process.load("RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequence_cff")
 #process.patElectronIsolation = cms.Sequence(process.egammaIsolationSequence)
 
 process.patElectrons.isoDeposits = cms.PSet()
-process.patElectrons.userIsolation = cms.PSet(
-#       tracker = cms.PSet(
-#            src = cms.InputTag("electronTrackIsolationScone"),
-#        ),
-#        ecal = cms.PSet(
-#            src = cms.InputTag("electronEcalRecHitIsolationScone"),
-#        ),
-#       hcal = cms.PSet(
-#            src = cms.InputTag("electronHcalTowerIsolationScone"),
-#        ),
-#        user = cms.VPSet(),
-    )
+process.patElectrons.userIsolation = cms.PSet( )
 process.patElectrons.addElectronID = cms.bool(True)
 process.patElectrons.electronIDSources = cms.PSet(
     simpleEleId95relIso= cms.InputTag("simpleEleId95relIso"),
@@ -131,7 +136,7 @@ process.patDefaultSequence = cms.Sequence(process.makePatCandidates)
 ##
 ##
 ## WARNING: you may want to modify this item:
-HLT_process_name = "REDIGI"   # REDIGI for the Spring10 production traditional MC
+HLT_process_name = "REDIGI"   # REDIGI for the Spring10 production traditional MC / HLT for the powheg samples or data
 # trigger path selection
 HLT_path_name     = "HLT_Photon10_L1R" #= "HLT_Ele15_LW_L1R" #
 # trigger filter name
@@ -184,6 +189,9 @@ process.wenuFilter = cms.EDFilter('WenuCandidateFilter',
                                   calculateValidFirstPXBHit = cms.untracked.bool(True),
                                   calculateConversionRejection = cms.untracked.bool(True),
                                   calculateExpectedMissingHits = cms.untracked.bool(True),
+                                  # it is MC, not data
+                                  dataMagneticFieldSetUp = cms.untracked.bool(False),
+                                  dcsTag = cms.untracked.InputTag("scalersRawToDigi"),
                                   )
 ####################################################################################
 ##
@@ -227,7 +235,7 @@ process.plotter = cms.EDAnalyzer('WenuPlots',
                                  wenuCollectionTag = cms.untracked.InputTag("wenuFilter","selectedWenuCandidates","PAT"),
                                  WENU_VBTFselectionFileName = cms.untracked.string("WENU_VBTFselection.root"),
                                  WENU_VBTFpreseleFileName = cms.untracked.string("WENU_VBTFpreselection.root"),
-                                 DatasetTag =  cms.untracked.int32(0),
+                                 DatasetTag =  cms.untracked.int32(17),
                                  )
 #
 # if you run on data then you have to do misalignment  corrections first!!!
