@@ -23,15 +23,11 @@ DQMFileReader::beginJob()
   
   if (referenceFileName_ != "") 
   {
-    // FIXME: this is a very awkward way of initializing the catalog. ...
+    const std::string override = "";
     std::vector<std::string> in ; in.push_back(referenceFileName_);
-    pset_.addUntrackedParameter<std::vector<std::string> >("fileNames", in);
-
-    edm::PoolCatalog poolcat;
-    edm::InputFileCatalog catalog(pset_, poolcat);
+    edm::InputFileCatalog catalog(in,override,true);
 
     std::string ff=catalog.fileNames()[0];
-
     std::cout << "DQMFileReader: reading reference file '" << ff << "'\n";
 
     // now open file, quietly continuing if it does not exist
