@@ -2,6 +2,7 @@
 #define Alignment_HIPAlignmentAlgorithm_HIPAlignmentAlgorithm_h
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
+#include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORoot.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Riostream.h"
@@ -49,22 +50,32 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
 
   // private member functions
 
+  bool processHit1D(const AlignableDetOrUnitPtr alidet,
+		    const Alignable* ali,
+		    const TrajectoryStateOnSurface & tsos,
+		    const TransientTrackingRecHit* hit);
+
+  bool processHit2D(const AlignableDetOrUnitPtr alidet,
+		    const Alignable* ali,
+		    const TrajectoryStateOnSurface & tsos,
+		    const TransientTrackingRecHit* hit);
+  
   int readIterationFile(std::string filename);
-  void writeIterationFile(std::string filename,int iter);
+  void writeIterationFile(std::string filename, int iter);
   void setAlignmentPositionError(void);
   double calcAPE(double* par, int iter, double function);
   void bookRoot(void);
   void fillRoot(void);
   bool calcParameters(Alignable* ali);
   void collector(void);
-  int  fillEventwiseTree(char *filename,int iter,int ierr);
+  int  fillEventwiseTree(const char *filename, int iter, int ierr);
   // private data members
 
   AlignmentParameterStore* theAlignmentParameterStore;
   std::vector<Alignable*> theAlignables;
   AlignableNavigator* theAlignableDetAccessor;
 
-  AlignmentIORoot    theIO;
+  AlignmentIORoot theIO;
   int ioerr;
   int theIteration;
 
@@ -75,8 +86,6 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
   // names of IO root files
   std::string outfile,outfile2,outpath,suvarfile,sparameterfile;
   std::string struefile,smisalignedfile,salignedfile,siterationfile,ssurveyfile;
-
- 
 
   // alignment position error parameters
   bool theApplyAPE;
@@ -105,7 +114,6 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
   TFile* theFile3;
   TTree* theTree3; // survey tree
 
-
   // variables for event-wise tree
   static const int MAXREC = 99;
   //int m_Run,m_Event;
@@ -118,12 +126,10 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
   align::ID m2_Id;
   align::StructureType m2_ObjId;
 
-
   // variables for survey tree 
   align::ID m3_Id;
   align::StructureType m3_ObjId;
   float m3_par[6];
-  
 };
 
 #endif
