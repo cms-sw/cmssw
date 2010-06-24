@@ -49,6 +49,11 @@
 
 
 #include "ElectroWeakAnalysis/WENu/interface/WenuPlots.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
 WenuPlots::WenuPlots(const edm::ParameterSet& iConfig)
 
@@ -67,8 +72,10 @@ WenuPlots::WenuPlots(const edm::ParameterSet& iConfig)
   // code parameters
   //
   std::string outputFile_D = "histos.root";
-  outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile",
-							   outputFile_D);
+  outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile", outputFile_D);
+  WENU_VBTFselectionFileName_ = iConfig.getUntrackedParameter<std::string>("WENU_VBTFselectionFileName");
+  WENU_VBTFpreseleFileName_ = iConfig.getUntrackedParameter<std::string>("WENU_VBTFpreseleFileName");
+  DatasetTag_ = iConfig.getUntrackedParameter<Int_t>("DatasetTag");
   //
   // use of precalculatedID
   // if you use it, then no other cuts are applied
@@ -81,14 +88,27 @@ WenuPlots::WenuPlots(const edm::ParameterSet& iConfig)
   useValidFirstPXBHit_ = iConfig.getUntrackedParameter<Bool_t>("useValidFirstPXBHit",false);
   useConversionRejection_ = iConfig.getUntrackedParameter<Bool_t>("useConversionRejection",false);
   useExpectedMissingHits_ = iConfig.getUntrackedParameter<Bool_t>("useExpectedMissingHits",false);
+
   maxNumberOfExpectedMissingHits_ = iConfig.getUntrackedParameter<Int_t>("maxNumberOfExpectedMissingHits",1);
-  if (useValidFirstPXBHit_) std::cout << "WenuPlots: Warning: you have demanded a valid 1st layer PXB hit" << std::endl;
-  if (useConversionRejection_) std::cout << "WenuPlots: Warning: you have demanded egamma conversion rejection criteria to be applied" << std::endl;
-  if (useExpectedMissingHits_) std::cout << "WenuPlots: Warning: you have demanded at most " 
-      <<maxNumberOfExpectedMissingHits_ << " missing inner hits "<< std::endl;
-  if (useValidFirstPXBHit_ || useExpectedMissingHits_ || useConversionRejection_) {
+  if (not usePrecalcID_) {
+    if (useValidFirstPXBHit_) std::cout << "WenuPlots: Warning: you have demanded a valid 1st layer PXB hit" << std::endl;
+    if (useConversionRejection_) std::cout << "WenuPlots: Warning: you have demanded egamma conversion rejection criteria to be applied" << std::endl;
+    if (useExpectedMissingHits_) std::cout << "WenuPlots: Warning: you have demanded at most " 
+					   <<maxNumberOfExpectedMissingHits_ << " missing inner hits "<< std::endl;
+  }
+  else {
+    std::cout << "WenuPlots: Using Precalculated ID with type " << usePrecalcIDType_ 
+	      << usePrecalcIDSign_ << usePrecalcIDValue_ << std::endl;
+  }
+  if ((useValidFirstPXBHit_ || useExpectedMissingHits_ || useConversionRejection_) && (not usePrecalcID_)) {
     usePreselection_ = true;
   } else { usePreselection_ = false; }
+  includeJetInformationInNtuples_ = iConfig.getUntrackedParameter<Bool_t>("includeJetInformationInNtuples", false);
+  if (includeJetInformationInNtuples_) {
+    caloJetCollectionTag_ = iConfig.getUntrackedParameter<edm::InputTag>("caloJetCollectionTag");
+    pfJetCollectionTag_   = iConfig.getUntrackedParameter<edm::InputTag>("pfJetCollectionTag");
+    DRJetFromElectron_    = iConfig.getUntrackedParameter<Double_t>("DRJetFromElectron");
+  }
   //
   // the selection cuts:
   trackIso_EB_ = iConfig.getUntrackedParameter<Double_t>("trackIso_EB", 1000.);
@@ -185,24 +205,6 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
     cout << "Warning: no wenu candidates in this event..." << endl;
     return;
   }
-  // calculate the beam spot position for the TIP calculation
-  //
-  // this is how one should do it, however, the beam spot is given in
-  // the pat electron producer cfi, hence it is stored there
-  // The reason that we don't do like that is that we want if possible the
-  // code to run only on WenuCandidate objects and nothing else
-  // facilitating the analysis from super-skimmed edmFiles
-  //
-  // edm::Handle<reco::BeamSpot> pBeamSpot;
-  // if(iEvent.getByLabel("offlineBeamSpot", pBeamSpot)) {
-  //   const reco::BeamSpot *bspot = pBeamSpot.product();
-  //   bspotPosition_ = bspot->position();
-  // } else {
-  //   std::cout << "Offline beam spot was not found with collection name " 
-  // 	      << " offlineBeamSpot  --> it will be set to zero" << std::endl;
-  //   bspotPosition_.SetXYZ(0,0,0);
-  // }
-  //
   const pat::CompositeCandidateCollection *wcands = WenuCands.product();
   const pat::CompositeCandidateCollection::const_iterator 
     wenuIter = wcands->begin();
@@ -213,6 +215,189 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
     dynamic_cast<const pat::Electron*> (wenu.daughter("electron"));
   const pat::MET * myMet=
     dynamic_cast<const pat::MET*> (wenu.daughter("met"));
+  const pat::MET * myPfMet=
+    dynamic_cast<const pat::MET*> (wenu.daughter("pfmet"));
+  const pat::MET * myTcMet=
+    dynamic_cast<const pat::MET*> (wenu.daughter("tcmet"));
+  // _______________________________________________________________________
+  //
+  // VBTF Root tuple production --------------------------------------------
+  // _______________________________________________________________________
+  //
+  // .......................................................................
+  // vbtf  produces 2 root tuples: one that contains the highest pT electron
+  //  that  passes a  user  defined selection  and one  other  with only the
+  //  preselection criteria applied
+  // .......................................................................
+  //
+  // fill the tree variables
+  runNumber   = iEvent.run();
+  eventNumber = Long64_t( iEvent.eventAuxiliary().event() );
+  lumiSection = iEvent.getLuminosityBlock().luminosityBlock();
+  //
+  ele_sc_eta       = (Float_t)  myElec->superCluster()->eta();
+  ele_sc_phi       = (Float_t)  myElec->superCluster()->phi();
+  ele_sc_energy    = (Float_t)  myElec->superCluster()->energy();
+  ele_sc_gsf_et    = (Float_t)  myElec->superCluster()->energy()/TMath::CosH(myElec->gsfTrack()->eta());
+  ele_cand_eta     = (Float_t)  myElec->eta();
+  ele_cand_phi     = (Float_t)  myElec->phi();
+  ele_cand_et      = (Float_t)  myElec->et();
+  //
+  ele_iso_track    = (Float_t)  myElec->dr03IsolationVariables().tkSumPt / ele_cand_et;
+  ele_iso_ecal     = (Float_t)  myElec->dr03IsolationVariables().ecalRecHitSumEt/ele_cand_et;
+  ele_iso_hcal     = (Float_t)  ( myElec->dr03IsolationVariables().hcalDepth1TowerSumEt +
+       myElec->dr03IsolationVariables().hcalDepth2TowerSumEt) / ele_cand_et;
+  //
+  ele_id_sihih     = (Float_t)  myElec->sigmaIetaIeta();
+  ele_id_deta      = (Float_t)  myElec->deltaEtaSuperClusterTrackAtVtx();
+  ele_id_dphi      = (Float_t)  myElec->deltaPhiSuperClusterTrackAtVtx();
+  ele_id_hoe       = (Float_t)  myElec->hadronicOverEm();
+  //
+  ele_cr_mhitsinner= myElec->gsfTrack()->trackerExpectedHitsInner().numberOfHits();
+  ele_cr_dcot      = myElec->userFloat("Dcot");
+  ele_cr_dist      = myElec->userFloat("Dist");
+  //
+  ele_vx           = (Float_t) myElec->vx();
+  ele_vy           = (Float_t) myElec->vy();
+  ele_vz           = (Float_t) myElec->vz();
+  pv_x             = (Float_t) myElec->userFloat("pv_x");
+  pv_y             = (Float_t) myElec->userFloat("pv_y");
+  pv_z             = (Float_t) myElec->userFloat("pv_z");
+  //
+  ele_gsfCharge    = (Int_t) myElec->gsfTrack()->charge();
+  // must keep the ctf track collection, i.e. general track collection
+  ele_ctfCharge    = (Int_t) myElec->closestCtfTrackRef().isNonnull() ? myElec->closestCtfTrackRef()->charge():-9999;
+  ele_scPixCharge  = (Int_t) myElec->chargeInfo().scPixCharge;
+  ele_eop          = (Float_t) myElec->eSuperClusterOverP();
+  ele_tip_bs       = (Float_t) -myElec->dB();
+  ele_tip_pv       = myElec->userFloat("ele_tip_pv");
+  //
+  event_caloMET    = (Float_t) myMet->et();
+  event_pfMET      = (Float_t) myPfMet->et();
+  event_tcMET      = (Float_t) myTcMet->et();
+  event_caloMET_phi= (Float_t) myMet->phi();
+  event_pfMET_phi  = (Float_t) myPfMet->phi();
+  event_tcMET_phi  = (Float_t) myTcMet->phi();
+  // transverse mass for the user's convenience
+  event_caloMT     = (Float_t) TMath::Sqrt(2.*(ele_sc_gsf_et*event_caloMET -
+    (ele_sc_gsf_et*TMath::Cos(ele_sc_phi)*event_caloMET*TMath::Cos(event_caloMET_phi)
+     + ele_sc_gsf_et*TMath::Sin(ele_sc_phi)*event_caloMET*TMath::Sin(event_caloMET_phi)
+     ) )  );
+  event_pfMT       = (Float_t) TMath::Sqrt(2.*(ele_sc_gsf_et*event_pfMET -
+    (ele_sc_gsf_et*TMath::Cos(ele_sc_phi)*event_pfMET*TMath::Cos(event_pfMET_phi)
+     + ele_sc_gsf_et*TMath::Sin(ele_sc_phi)*event_pfMET*TMath::Sin(event_pfMET_phi)
+     ) )  );
+  event_tcMT       = (Float_t) TMath::Sqrt(2.*(ele_sc_gsf_et*event_tcMET -
+    (ele_sc_gsf_et*TMath::Cos(ele_sc_phi)*event_tcMET*TMath::Cos(event_tcMET_phi)
+     + ele_sc_gsf_et*TMath::Sin(ele_sc_phi)*event_tcMET*TMath::Sin(event_tcMET_phi)
+     ) )  );
+  event_datasetTag = DatasetTag_;
+  // jet information - only if the user asks for it
+  // keep the 5 highest et jets of the event that are further than DR> DRJetFromElectron_
+  if (includeJetInformationInNtuples_) {
+    // initialize the array of the jet information
+    for (int i=0; i<5; ++i) {
+      calojet_et[i] = -999999;  calojet_eta[i] = -999999; calojet_phi[i] = -999999;
+      pfjet_et[i] = -999999;    pfjet_eta[i] = -999999;   pfjet_phi[i] = -999999;
+    }
+    // get hold of the jet collections
+    edm::Handle< reco::CaloJetCollection > pCaloJets;
+    edm::Handle< reco::PFJetCollection > pPfJets;
+    iEvent.getByLabel(caloJetCollectionTag_, pCaloJets);
+    iEvent.getByLabel(pfJetCollectionTag_, pPfJets);
+    //
+    // calo jets now:
+    if (pCaloJets.isValid()) {
+      const  reco::CaloJetCollection  *caloJets =  pCaloJets.product();
+      int nCaloJets = (int) caloJets->size();
+      if (nCaloJets>0) {
+	float *nCaloET = new float[nCaloJets];
+	float *nCaloEta = new float[nCaloJets];
+	float *nCaloPhi = new float[nCaloJets];
+	reco::CaloJetCollection::const_iterator cjet = caloJets->begin();
+	int counter = 0;
+	for (; cjet != caloJets->end(); ++cjet) {
+	  // store them only if they are far enough from the electron
+	  Double_t DR = reco::deltaR(cjet->eta(), cjet->phi(), myElec->gsfTrack()->eta(), ele_sc_phi);
+	  if (DR > DRJetFromElectron_) {
+	    nCaloET[counter]  = cjet->et();
+	    nCaloEta[counter] = cjet->eta();
+	    nCaloPhi[counter] = cjet->phi();
+	    ++counter;
+	  }
+	}
+	int *caloJetSorted = new int[nCaloJets];
+	TMath::Sort(nCaloJets, nCaloET, caloJetSorted, true);
+	for (int i=0; i<nCaloJets; ++i) {
+	  if (i>=5) break;
+	  calojet_et[i] = nCaloET[ caloJetSorted[i] ];
+	  calojet_eta[i] = nCaloEta[ caloJetSorted[i] ];
+	  calojet_phi[i] = nCaloPhi[ caloJetSorted[i] ];
+	}
+	delete [] caloJetSorted;
+	delete [] nCaloET;
+	delete [] nCaloEta;
+	delete [] nCaloPhi;	
+      }
+    } else {
+      std::cout << "WenuPlots: Could not get caloJet collection with name " 
+		<< caloJetCollectionTag_ << std::endl;
+    }
+    //
+    // pf jets now:
+    if (pPfJets.isValid()) {
+      const  reco::PFJetCollection  *pfJets =  pPfJets.product();
+      int nPfJets = (int) pfJets->size();
+      if (nPfJets>0) {
+	float *nPfET  = new float[nPfJets];
+	float *nPfEta = new float[nPfJets];
+	float *nPfPhi = new float[nPfJets];
+	reco::PFJetCollection::const_iterator pjet = pfJets->begin();
+	int counter = 0;
+	for (; pjet != pfJets->end(); ++pjet) {
+	  // store them only if they are far enough from the electron
+	  Double_t DR = reco::deltaR(pjet->eta(), pjet->phi(), myElec->gsfTrack()->eta(), ele_sc_phi);
+	  if (DR > DRJetFromElectron_) {
+	    nPfET[counter]  = pjet->et();
+	    nPfEta[counter] = pjet->eta();
+	    nPfPhi[counter] = pjet->phi();
+	    ++counter;
+	  }
+	}
+	int *pfJetSorted = new int[nPfJets];
+	TMath::Sort(nPfJets, nPfET, pfJetSorted, true);
+	for (int i=0; i<nPfJets; ++i) {
+	  if (i>=5) break;
+	  pfjet_et[i]  = nPfET[ pfJetSorted[i] ];
+	  pfjet_eta[i] = nPfEta[ pfJetSorted[i] ];
+	  pfjet_phi[i] = nPfPhi[ pfJetSorted[i] ];
+	}
+	delete [] pfJetSorted;
+	delete [] nPfET;
+	delete [] nPfEta;
+	delete [] nPfPhi;	
+      }
+    } else {
+      std::cout << "WenuPlots: Could not get pfJet collection with name " 
+		<< pfJetCollectionTag_ << std::endl;
+    }
+
+  }
+  // if the electron passes the selection
+  // it is meant to be a precalculated selection here, in order to include
+  // conversion rejection too
+  if (CheckCuts(myElec)) {
+    vbtfSele_tree->Fill();
+  }
+  vbtfPresele_tree->Fill();
+
+
+
+  //
+  // _______________________________________________________________________
+  //
+  // histogram production --------------------------------------------------
+  // _______________________________________________________________________
   //
   // if you want some preselection: Conv rejection, hit pattern 
   if (usePreselection_) {
@@ -435,7 +620,7 @@ Double_t WenuPlots::ReturnCandVar(const pat::Electron *ele, int i) {
 	       + ele->dr03HcalTowerSumEt())/ele->p4().Pt(); }
   }
   //  else if (i==8) return ele->gsfTrack()->dxy(bspotPosition_);
-  else if (i==8) return ele->dB();
+  else if (i==8) return fabs(ele->dB());
   else if (i==9) return ele->eSuperClusterOverP();
   else if (i==10) return ele->userIsolation(pat::TrackIso);
   else if (i==11) return ele->userIsolation(pat::EcalIso);
@@ -611,6 +796,137 @@ WenuPlots::beginJob()
   InvVars_.push_back( ecalIsoUser_EE_inv  );//11
   InvVars_.push_back( hcalIsoUser_EE_inv  );//12
   //
+  //
+  // ________________________________________________________________________
+  //
+  // The VBTF Root Tuples ---------------------------------------------------
+  // ________________________________________________________________________
+  //
+  WENU_VBTFselectionFile_ = new TFile(TString(WENU_VBTFselectionFileName_),
+				      "RECREATE");
+  
+  vbtfSele_tree = new TTree("vbtfSele_tree",
+	       "Tree to store the W Candidates that pass the VBTF selection"); 
+  vbtfSele_tree->Branch("runNumber", &runNumber, "runNumber/I");
+  vbtfSele_tree->Branch("eventNumber", &eventNumber, "eventNumber/L");
+  vbtfSele_tree->Branch("lumiSection", &lumiSection, "lumiSection/I");
+  //
+  vbtfSele_tree->Branch("ele_sc_gsf_et", &ele_sc_gsf_et,"ele_sc_gsf_et/F");
+  vbtfSele_tree->Branch("ele_sc_energy", &ele_sc_energy,"ele_sc_energy/F");
+  vbtfSele_tree->Branch("ele_sc_eta", &ele_sc_eta,"ele_sc_eta/F");
+  vbtfSele_tree->Branch("ele_sc_phi", &ele_sc_phi,"ele_sc_phi/F");
+  vbtfSele_tree->Branch("ele_cand_et", &ele_cand_et, "ele_cand_et/F");
+  vbtfSele_tree->Branch("ele_cand_eta", &ele_cand_eta,"ele_cand_eta/F");
+  vbtfSele_tree->Branch("ele_cand_phi",&ele_cand_phi,"ele_cand_phi/F");
+  vbtfSele_tree->Branch("ele_iso_track",&ele_iso_track,"ele_iso_track/F");
+  vbtfSele_tree->Branch("ele_iso_ecal",&ele_iso_ecal,"ele_iso_ecal/F");
+  vbtfSele_tree->Branch("ele_iso_hcal",&ele_iso_hcal,"ele_iso_hcal/F");
+  vbtfSele_tree->Branch("ele_id_sihih",&ele_id_sihih,"ele_id_sihih/F");
+  vbtfSele_tree->Branch("ele_id_deta",&ele_id_deta,"ele_id_deta/F");
+  vbtfSele_tree->Branch("ele_id_dphi",&ele_id_dphi,"ele_id_dphi/F");
+  vbtfSele_tree->Branch("ele_id_hoe",&ele_id_hoe,"ele_id_hoe/F");
+  vbtfSele_tree->Branch("ele_cr_mhitsinner",&ele_cr_mhitsinner,"ele_cr_mhitsinner/I");
+  vbtfSele_tree->Branch("ele_cr_dcot",&ele_cr_dcot,"ele_cr_dcot/F");
+  vbtfSele_tree->Branch("ele_cr_dist",&ele_cr_dist,"ele_cr_dist/F");
+  vbtfSele_tree->Branch("ele_vx",&ele_vx,"ele_vx/F");
+  vbtfSele_tree->Branch("ele_vy",&ele_vy,"ele_vy/F");
+  vbtfSele_tree->Branch("ele_vz",&ele_vz,"ele_vz/F");
+  vbtfSele_tree->Branch("pv_x",&pv_x,"pv_x/F");
+  vbtfSele_tree->Branch("pv_y",&pv_y,"pv_y/F");
+  vbtfSele_tree->Branch("pv_z",&pv_z,"pv_z/F");
+  vbtfSele_tree->Branch("ele_gsfCharge",&ele_gsfCharge,"ele_gsfCharge/I");
+  vbtfSele_tree->Branch("ele_ctfCharge",&ele_ctfCharge,"ele_ctfCharge/I");
+  vbtfSele_tree->Branch("ele_scPixCharge",&ele_scPixCharge,"ele_scPixCharge/I");
+  vbtfSele_tree->Branch("ele_eop",&ele_eop,"ele_eop/F");
+  vbtfSele_tree->Branch("ele_tip_bs",&ele_tip_bs,"ele_tip_bs/F");
+  vbtfSele_tree->Branch("ele_tip_pv",&ele_tip_pv,"ele_tip_pv/F");
+  vbtfSele_tree->Branch("event_caloMET",&event_caloMET,"event_caloMET/F");  
+  vbtfSele_tree->Branch("event_pfMET",&event_pfMET,"event_pfMET/F");
+  vbtfSele_tree->Branch("event_tcMET",&event_tcMET,"event_tcMET/F");
+  vbtfSele_tree->Branch("event_caloMT",&event_caloMT,"event_caloMT/F");  
+  vbtfSele_tree->Branch("event_pfMT",&event_pfMT,"event_pfMT/F");
+  vbtfSele_tree->Branch("event_tcMT",&event_tcMT,"event_tcMT/F");
+  vbtfSele_tree->Branch("event_caloMET_phi",&event_caloMET_phi,"event_caloMET_phi/F");  
+  vbtfSele_tree->Branch("event_pfMET_phi",&event_pfMET_phi,"event_pfMET_phi/F");
+  vbtfSele_tree->Branch("event_tcMET_phi",&event_tcMET_phi,"event_tcMET_phi/F");
+  //
+  // the extra jet variables:
+  if (includeJetInformationInNtuples_) {
+    vbtfSele_tree->Branch("calojet_et",calojet_et,"calojet_et[5]/F");
+    vbtfSele_tree->Branch("calojet_eta",calojet_eta,"calojet_eta[5]/F");
+    vbtfSele_tree->Branch("calojet_phi",calojet_phi,"calojet_phi[5]/F");
+    vbtfSele_tree->Branch("pfjet_et",pfjet_et,"pfjet_et[5]/F");
+    vbtfSele_tree->Branch("pfjet_eta",pfjet_eta,"pfjet_eta[5]/F");
+    vbtfSele_tree->Branch("pfjet_phi",pfjet_phi,"pfjet_phi[5]/F");
+  }
+  vbtfSele_tree->Branch("event_datasetTag",&event_datasetTag,"event_dataSetTag/I");  
+  // 
+  //
+  // everything after preselection
+  //
+  WENU_VBTFpreseleFile_ = new TFile(TString(WENU_VBTFpreseleFileName_),
+				    "RECREATE");
+  
+  vbtfPresele_tree = new TTree("vbtfPresele_tree",
+	    "Tree to store the W Candidates that pass the VBTF preselection"); 
+  vbtfPresele_tree->Branch("runNumber", &runNumber, "runNumber/I");
+  vbtfPresele_tree->Branch("eventNumber", &eventNumber, "eventNumber/L");
+  vbtfPresele_tree->Branch("lumiSection", &lumiSection, "lumiSection/I");
+  //
+  vbtfPresele_tree->Branch("ele_sc_gsf_et", &ele_sc_gsf_et,"ele_sc_gsf_et/F");
+  vbtfPresele_tree->Branch("ele_sc_energy", &ele_sc_energy,"ele_sc_energy/F");
+  vbtfPresele_tree->Branch("ele_sc_eta", &ele_sc_eta,"ele_sc_eta/F");
+  vbtfPresele_tree->Branch("ele_sc_phi", &ele_sc_phi,"ele_sc_phi/F");
+  vbtfPresele_tree->Branch("ele_cand_et", &ele_cand_et, "ele_cand_et/F");
+  vbtfPresele_tree->Branch("ele_cand_eta", &ele_cand_eta,"ele_cand_eta/F");
+  vbtfPresele_tree->Branch("ele_cand_phi",&ele_cand_phi,"ele_cand_phi/F");
+  vbtfPresele_tree->Branch("ele_iso_track",&ele_iso_track,"ele_iso_track/F");
+  vbtfPresele_tree->Branch("ele_iso_ecal",&ele_iso_ecal,"ele_iso_ecal/F");
+  vbtfPresele_tree->Branch("ele_iso_hcal",&ele_iso_hcal,"ele_iso_hcal/F");
+  vbtfPresele_tree->Branch("ele_id_sihih",&ele_id_sihih,"ele_id_sihih/F");
+  vbtfPresele_tree->Branch("ele_id_deta",&ele_id_deta,"ele_id_deta/F");
+  vbtfPresele_tree->Branch("ele_id_dphi",&ele_id_dphi,"ele_id_dphi/F");
+  vbtfPresele_tree->Branch("ele_id_hoe",&ele_id_hoe,"ele_id_hoe/F");
+  vbtfPresele_tree->Branch("ele_cr_mhitsinner",&ele_cr_mhitsinner,"ele_cr_mhitsinner/I");
+  vbtfPresele_tree->Branch("ele_cr_dcot",&ele_cr_dcot,"ele_cr_dcot/F");
+  vbtfPresele_tree->Branch("ele_cr_dist",&ele_cr_dist,"ele_cr_dist/F");
+  vbtfPresele_tree->Branch("ele_vx",&ele_vx,"ele_vx/F");
+  vbtfPresele_tree->Branch("ele_vy",&ele_vy,"ele_vy/F");
+  vbtfPresele_tree->Branch("ele_vz",&ele_vz,"ele_vz/F");
+  vbtfPresele_tree->Branch("pv_x",&pv_x,"pv_x/F");
+  vbtfPresele_tree->Branch("pv_y",&pv_y,"pv_y/F");
+  vbtfPresele_tree->Branch("pv_z",&pv_z,"pv_z/F");
+  vbtfPresele_tree->Branch("ele_gsfCharge",&ele_gsfCharge,"ele_gsfCharge/I");
+  vbtfPresele_tree->Branch("ele_ctfCharge",&ele_ctfCharge,"ele_ctfCharge/I");
+  vbtfPresele_tree->Branch("ele_scPixCharge",&ele_scPixCharge,"ele_scPixCharge/I");
+  vbtfPresele_tree->Branch("ele_eop",&ele_eop,"ele_eop/F");
+  vbtfPresele_tree->Branch("ele_tip_bs",&ele_tip_bs,"ele_tip_bs/F");
+  vbtfPresele_tree->Branch("ele_tip_pv",&ele_tip_pv,"ele_tip_pv/F");
+  vbtfPresele_tree->Branch("event_caloMET",&event_caloMET,"event_caloMET/F");  
+  vbtfPresele_tree->Branch("event_pfMET",&event_pfMET,"event_pfMET/F");
+  vbtfPresele_tree->Branch("event_tcMET",&event_tcMET,"event_tcMET/F");
+  vbtfPresele_tree->Branch("event_caloMT",&event_caloMT,"event_caloMT/F");  
+  vbtfPresele_tree->Branch("event_pfMT",&event_pfMT,"event_pfMT/F");
+  vbtfPresele_tree->Branch("event_tcMT",&event_tcMT,"event_tcMT/F");
+  vbtfPresele_tree->Branch("event_caloMET_phi",&event_caloMET_phi,"event_caloMET_phi/F");  
+  vbtfPresele_tree->Branch("event_pfMET_phi",&event_pfMET_phi,"event_pfMET_phi/F");
+  vbtfPresele_tree->Branch("event_tcMET_phi",&event_tcMET_phi,"event_tcMET_phi/F");
+  // the extra jet variables:
+  if (includeJetInformationInNtuples_) {
+    vbtfPresele_tree->Branch("calojet_et",calojet_et,"calojet_et[5]/F");
+    vbtfPresele_tree->Branch("calojet_eta",calojet_eta,"calojet_eta[5]/F");
+    vbtfPresele_tree->Branch("calojet_phi",calojet_phi,"calojet_phi[5]/F");
+    vbtfPresele_tree->Branch("pfjet_et",pfjet_et,"pfjet_et[5]/F");
+    vbtfPresele_tree->Branch("pfjet_eta",pfjet_eta,"pfjet_eta[5]/F");
+    vbtfPresele_tree->Branch("pfjet_phi",pfjet_phi,"pfjet_phi[5]/F");
+  }
+  vbtfPresele_tree->Branch("event_datasetTag",&event_datasetTag,"event_dataSetTag/I");  
+
+  //
+  // _________________________________________________________________________
+  //
+  //
+  //
 
 
 }
@@ -663,6 +979,13 @@ WenuPlots::endJob() {
   h_trackIso_ee_NmOne->Write();
   //
   newfile->Close();
+  //
+  // write the VBTF trees
+  //
+  WENU_VBTFpreseleFile_->Write();
+  WENU_VBTFpreseleFile_->Close();
+  WENU_VBTFselectionFile_->Write();
+  WENU_VBTFselectionFile_->Close();
 
 }
 

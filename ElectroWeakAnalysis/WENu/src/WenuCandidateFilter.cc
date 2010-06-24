@@ -38,6 +38,8 @@
           myElec.userInt("PassConversionRejection")   0 fail, 1 passes
           myElec.userInt("NumberOfExpectedMissingHits") the number of lost hits
  01Mar10  2nd electron option to be isolated if requested by user
+ 22Jun10  modification to allow for the ICHEP VBTF preselection and the
+          creation of the VBTF ntuple
  Contact:
  Nikolaos.Rompotis@Cern.ch
  Imperial College London
@@ -70,8 +72,6 @@
 #include "TString.h"
 #include "TMath.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
-// this file used to exist in 22X, in 312 replaced by TriggerObject.h
-//#include "DataFormats/PatCandidates/interface/TriggerPrimitive.h"
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 #include "DataFormats/PatCandidates/interface/TriggerObject.h"
 // for conversion finder
@@ -82,6 +82,10 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 //
 #include "DataFormats/Scalers/interface/DcsStatus.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 //
 // class declaration
 //
@@ -106,7 +110,11 @@ class WenuCandidateFilter : public edm::EDFilter {
   edm::InputTag hltpathFilter_;
   edm::InputTag electronCollectionTag_;
   edm::InputTag metCollectionTag_;
-
+  edm::InputTag pfMetCollectionTag_;
+  edm::InputTag tcMetCollectionTag_;
+  edm::InputTag ebRecHits_;
+  edm::InputTag eeRecHits_;
+  edm::InputTag PrimaryVerticesCollection_;
   Double_t BarrelMaxEta_;
   Double_t EndCapMaxEta_;
   Double_t EndCapMinEta_;
@@ -128,6 +136,11 @@ class WenuCandidateFilter : public edm::EDFilter {
   Int_t  maxNumberOfExpectedMissingHits_;
   Bool_t dataMagneticFieldSetUp_;
   edm::InputTag dcsTag_;
+  Bool_t useEcalDrivenElectrons_;
+  Bool_t useSpikeRejection_;
+  Double_t spikeCleaningSwissCrossCut_;
+  Bool_t useHLTObjectETCut_;
+  Double_t hltObjectETCut_;
 };
 #endif
 //
@@ -148,84 +161,70 @@ WenuCandidateFilter::WenuCandidateFilter(const edm::ParameterSet& iConfig)
   // I N P U T      P A R A M E T E R S  *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
   // *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
   // Cuts
-  Double_t ETCut_D = 30.;
-  ETCut_ = iConfig.getUntrackedParameter<double>("ETCut",ETCut_D);
-  Double_t METCut_D = 0.;
-  METCut_ = iConfig.getUntrackedParameter<double>("METCut",METCut_D);
-  Double_t ETCut2ndEle_D = 20.;
-  ETCut2ndEle_ = iConfig.getUntrackedParameter<double>("ETCut2ndEle",
-						       ETCut2ndEle_D);
+  ETCut_ = iConfig.getUntrackedParameter<double>("ETCut");
+  METCut_ = iConfig.getUntrackedParameter<double>("METCut");
+
   vetoSecondElectronEvents_ = iConfig.getUntrackedParameter<bool>("vetoSecondElectronEvents",false);
-  vetoSecondElectronIDType_ = iConfig.getUntrackedParameter<std::string>
-    ("vetoSecondElectronIDType", "NULL");
+  if (vetoSecondElectronEvents_) {
+    ETCut2ndEle_ = iConfig.getUntrackedParameter<double>("ETCut2ndEle");
+  }
+  vetoSecondElectronIDType_ = iConfig.getUntrackedParameter<std::string>("vetoSecondElectronIDType", "NULL");
   if (vetoSecondElectronIDType_ != "NULL") {
     useVetoSecondElectronID_ = true;
-    vetoSecondElectronIDValue_ = iConfig.getUntrackedParameter<double>
-      ("vetoSecondElectronIDValue");
-    vetoSecondElectronIDSign_ = iConfig.getUntrackedParameter<std::string>
-      ("vetoSecondElectronIDSign","=");
+    vetoSecondElectronIDValue_ = iConfig.getUntrackedParameter<double>("vetoSecondElectronIDValue");
+    vetoSecondElectronIDSign_ = iConfig.getUntrackedParameter<std::string>("vetoSecondElectronIDSign","=");
   }
   else useVetoSecondElectronID_ = false;
+  useEcalDrivenElectrons_ = iConfig.getUntrackedParameter<Bool_t>("useEcalDrivenElectrons", false);
   //
   // preselection criteria: hit pattern
-  useValidFirstPXBHit_ = 
-    iConfig.getUntrackedParameter<Bool_t>("useValidFirstPXBHit",false);
-  calculateValidFirstPXBHit_ = 
-    iConfig.getUntrackedParameter<Bool_t>("calculateValidFirstPXBHit",false);
-  useConversionRejection_ = 
-    iConfig.getUntrackedParameter<Bool_t>("useConversionRejection",false);
-  calculateConversionRejection_ =
-    iConfig.getUntrackedParameter<Bool_t>("calculateConversionRejection",false);
+  useValidFirstPXBHit_ =  iConfig.getUntrackedParameter<Bool_t>("useValidFirstPXBHit",false);
+  calculateValidFirstPXBHit_ =  iConfig.getUntrackedParameter<Bool_t>("calculateValidFirstPXBHit",false);
+  useConversionRejection_ =   iConfig.getUntrackedParameter<Bool_t>("useConversionRejection",false);
+  calculateConversionRejection_ = iConfig.getUntrackedParameter<Bool_t>("calculateConversionRejection",false);
   dist_ = iConfig.getUntrackedParameter<Double_t>("conversionRejectionDist", 0.02);
   dcot_ = iConfig.getUntrackedParameter<Double_t>("conversionRejectionDcot", 0.02);
   dataMagneticFieldSetUp_ = iConfig.getUntrackedParameter<Bool_t>("dataMagneticFieldSetUp",false);
   if (dataMagneticFieldSetUp_) {
     dcsTag_ = iConfig.getUntrackedParameter<edm::InputTag>("dcsTag");
   }
-  useExpectedMissingHits_ = 
-    iConfig.getUntrackedParameter<Bool_t>("useExpectedMissingHits",false);
-  calculateExpectedMissingHits_ = 
-    iConfig.getUntrackedParameter<Bool_t>("calculateExpectedMissingHits",false);
-  maxNumberOfExpectedMissingHits_ = 
-    iConfig.getUntrackedParameter<int>("maxNumberOfExpectedMissingHits",1);
-  //
-  //
+  useExpectedMissingHits_ = iConfig.getUntrackedParameter<Bool_t>("useExpectedMissingHits",false);
+  calculateExpectedMissingHits_ = iConfig.getUntrackedParameter<Bool_t>("calculateExpectedMissingHits",false);
+  maxNumberOfExpectedMissingHits_ =  iConfig.getUntrackedParameter<int>("maxNumberOfExpectedMissingHits",1);
   //
   Double_t BarrelMaxEta_D = 1.4442;
-  Double_t EndCapMinEta_D = 1.56;
+  Double_t EndCapMinEta_D = 1.566;
   Double_t EndCapMaxEta_D = 2.5;
-  BarrelMaxEta_ = iConfig.getUntrackedParameter<double>("BarrelMaxEta",
-                                                        BarrelMaxEta_D);
-  EndCapMaxEta_ = iConfig.getUntrackedParameter<double>("EndCapMaxEta",
-                                                        EndCapMaxEta_D);
-  EndCapMinEta_ = iConfig.getUntrackedParameter<double>("EndCapMinEta",
-                                                        EndCapMinEta_D);
+  BarrelMaxEta_ = iConfig.getUntrackedParameter<double>("BarrelMaxEta", BarrelMaxEta_D);
+  EndCapMaxEta_ = iConfig.getUntrackedParameter<double>("EndCapMaxEta", EndCapMaxEta_D);
+  EndCapMinEta_ = iConfig.getUntrackedParameter<double>("EndCapMinEta", EndCapMinEta_D);
   // trigger related
-  std::string hltpath_D = "HLT_Ele15_LW_L1R";
-  edm::InputTag triggerCollectionTag_D("TriggerResults","","HLT");
-  edm::InputTag triggerEventTag_D("hltTriggerSummaryAOD", "", "HLT");
-  edm::InputTag hltpathFilter_D("hltL1NonIsoHLTNonIsoSingleElectronLWEt15Track\
-IsolFilter","","HLT");
-  hltpath_=iConfig.getUntrackedParameter<std::string>("hltpath", hltpath_D);
-  triggerCollectionTag_=iConfig.getUntrackedParameter<edm::InputTag>
-    ("triggerCollectionTag", triggerCollectionTag_D);
-  triggerEventTag_=iConfig.getUntrackedParameter<edm::InputTag>
-    ("triggerEventTag", triggerEventTag_D);
-  hltpathFilter_=iConfig.getUntrackedParameter<edm::InputTag>
-    ("hltpathFilter",hltpathFilter_D);
+  hltpath_=iConfig.getUntrackedParameter<std::string>("hltpath");
+  triggerCollectionTag_=iConfig.getUntrackedParameter<edm::InputTag>("triggerCollectionTag");
+  triggerEventTag_=iConfig.getUntrackedParameter<edm::InputTag>("triggerEventTag");
+  hltpathFilter_=iConfig.getUntrackedParameter<edm::InputTag>("hltpathFilter");
+  useHLTObjectETCut_ = iConfig.getUntrackedParameter<Bool_t>("useHLTObjectETCut", false);
+  if (useHLTObjectETCut_) {
+    hltObjectETCut_=iConfig.getUntrackedParameter<Double_t>("hltObjectETCut");
+  }
   // trigger matching related:
   useTriggerInfo_ = iConfig.getUntrackedParameter<bool>("useTriggerInfo",true);
   electronMatched2HLT_ = iConfig.getUntrackedParameter<bool>("electronMatched2HLT");
   electronMatched2HLT_DR_=iConfig.getUntrackedParameter<double>("electronMatched2HLT_DR");
   // electrons and other
-  edm::InputTag electronCollectionTag_D("selectedLayer1Electrons","","PAT");
-  electronCollectionTag_=iConfig.getUntrackedParameter<edm::InputTag>
-    ("electronCollectionTag",electronCollectionTag_D);
+  electronCollectionTag_=iConfig.getUntrackedParameter<edm::InputTag>("electronCollectionTag");
   //
-  edm::InputTag metCollectionTag_D("selectedLayer1METs","","PAT");
-  metCollectionTag_ = iConfig.getUntrackedParameter<edm::InputTag>
-    ("metCollectionTag", metCollectionTag_D);
-
+  metCollectionTag_ = iConfig.getUntrackedParameter<edm::InputTag>("metCollectionTag");
+  pfMetCollectionTag_ = iConfig.getUntrackedParameter<edm::InputTag>("pfMetCollectionTag");
+  tcMetCollectionTag_ = iConfig.getUntrackedParameter<edm::InputTag>("tcMetCollectionTag");
+  PrimaryVerticesCollection_ = iConfig.getUntrackedParameter<edm::InputTag>("PrimaryVerticesCollection");
+  ebRecHits_ =  iConfig.getUntrackedParameter<edm::InputTag>("ebRecHits");
+  eeRecHits_ =  iConfig.getUntrackedParameter<edm::InputTag>("eeRecHits");
+  // spike cleaning:
+  useSpikeRejection_ = iConfig.getUntrackedParameter<Bool_t>("useSpikeRejection");
+  if (useSpikeRejection_) {
+    spikeCleaningSwissCrossCut_= iConfig.getUntrackedParameter<Double_t>("spikeCleaningSwissCrossCut");
+  }
   //
   // *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
   //
@@ -254,6 +253,10 @@ IsolFilter","","HLT");
   else {
     std::cout << "WenuCandidateFilter: No veto for 2nd electron applied " 
 	      << std::endl;
+  }
+  if (useEcalDrivenElectrons_) {
+    std::cout << "WenuCandidateFilter: Electron Candidate is required to"
+	      << " be ecal driven" << std::endl;
   }
   if (electronMatched2HLT_ && useTriggerInfo_) {
     std::cout << "WenuCandidateFilter: Electron Candidate is required to "
@@ -298,6 +301,10 @@ IsolFilter","","HLT");
     std::cout << "WenuCandidateFilter: Data Configuration for Magnetic Field DCS tag " 
 	      << dcsTag_  << std::endl;
   }
+  if (useSpikeRejection_) {
+    std::cout << "WenuCandidateFilter: Spike Cleaning will be done with the Swiss Cross Criterion"
+	      << " cutting at " << spikeCleaningSwissCrossCut_ << std::endl;
+  }
   std::cout << "WenuCandidateFilter: Fiducial Cut: " << std::endl;
   std::cout << "WenuCandidateFilter:    BarrelMax: "<<BarrelMaxEta_<<std::endl;
   std::cout << "WenuCandidateFilter:    EndcapMin: " << EndCapMinEta_
@@ -333,6 +340,7 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace edm;
    using namespace std;
    using namespace pat;
+   //
    // *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    // TRIGGER REQUIREMENT                       *-*-*-*-*-*-*-*-*-*-*-*-*
    // *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -393,6 +401,10 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // MET collection
    edm::Handle<pat::METCollection> patMET;
    iEvent.getByLabel(metCollectionTag_,  patMET);
+   edm::Handle<pat::METCollection> patpfMET;
+   iEvent.getByLabel(pfMetCollectionTag_,  patpfMET);
+   edm::Handle<pat::METCollection> pattcMET;
+   iEvent.getByLabel(tcMetCollectionTag_,  pattcMET);
    //
    // Note: best to do Duplicate removal here, since the current
    // implementation does not remove triplicates
@@ -414,12 +426,11 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    std::vector<double> ETs;
    pat::ElectronCollection myElectrons;
    for (elec = pElecs->begin(); elec != pElecs->end(); ++elec) {
-     if (isInFiducial(elec->caloPosition().eta())) {
-       Double_t sc_et = elec->caloEnergy()/TMath::CosH(elec->caloPosition().eta());
-       indices.push_back(counter); ETs.push_back(sc_et);
-       myElectrons.push_back(*elec);
-       ++counter;
-     }
+     // the definition of  the electron ET is wrt Gsf track eta
+     Double_t sc_et=elec->caloEnergy()/TMath::CosH(elec->gsfTrack()->eta());
+     indices.push_back(counter); ETs.push_back(sc_et);
+     myElectrons.push_back(*elec);
+     ++counter;
    }
    const Int_t  event_elec_number = (int) indices.size();
    if (event_elec_number == 0) {
@@ -450,16 +461,64 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //
    // now search for a second Gsf electron with ET > ETCut2ndEle_
    if (event_elec_number>=2 && vetoSecondElectronEvents_) {
-     pat::Electron secElec = myElectrons[ sorted[1] ];
-     //std::cout << "Second Electron with ET=" << ETs[ sorted[1] ] << " and ID: " << passEleIDCuts(&secElec)  <<std::endl;
-     if (ETs[ sorted[1] ] > ETCut2ndEle_ && passEleIDCuts(&secElec)) {
-       delete [] sorted;  delete [] et;
-       return false;  // RETURN if you have more that 1 electron with ET>cut
+     for (int ie=1; ie<event_elec_number; ++ie) {
+       pat::Electron secElec = myElectrons[ sorted[ie] ];
+       if (ETs[ sorted[ie] ] > ETCut2ndEle_ && passEleIDCuts(&secElec)) {
+	 delete [] sorted;  delete [] et;
+	 return false;  // RETURN if you have more that 1 electron with ET>cut
+       }
      }
    }
    //
    // get the most high-ET electron:
    pat::Electron maxETelec = myElectrons[max_et_index];
+   // demand that it is in fiducial:
+   if (not isInFiducial(maxETelec.caloPosition().eta())) {
+       delete [] sorted;  delete [] et;
+       return false; // RETURN highest ET electron is not in fiducial
+   }
+   // demand that it is ecal driven
+   if (useEcalDrivenElectrons_) {
+     if (not maxETelec.ecalDrivenSeed()) {
+       delete [] sorted;  delete [] et;
+       return false; // RETURN highest ET electron is not ecal driven
+     }
+   }
+   // spike rejection;
+   if (useSpikeRejection_ && maxETelec.isEB()) {
+     edm::Handle<EcalRecHitCollection> recHits;
+     if (maxETelec.isEB())
+       iEvent.getByLabel(ebRecHits_, recHits);
+     else 
+       iEvent.getByLabel(eeRecHits_, recHits);
+     const EcalRecHitCollection *myRecHits = recHits.product();     
+     const DetId seedId = maxETelec.superCluster()->seed()->seed();
+     EcalSeverityLevelAlgo severity;
+     Double_t swissCross = severity.swissCross(seedId, *myRecHits);
+     if (swissCross > spikeCleaningSwissCrossCut_) {
+       delete [] sorted;  delete [] et;
+       return false; // RETURN highest ET electron is a spike
+     }
+   }
+   // add the primary vtx information in the electron:
+   edm::Handle< std::vector<reco::Vertex> > pVtx;
+   iEvent.getByLabel(PrimaryVerticesCollection_, pVtx);
+   const std::vector<reco::Vertex> Vtx = *(pVtx.product());
+   double pv_x = -999999.;
+   double pv_y = -999999.;
+   double pv_z = -999999.;
+   double ele_tip_pv = -999999.;
+   if (Vtx.size() >=1) {
+     pv_x = Vtx[0].position().x();
+     pv_y = Vtx[0].position().y();
+     pv_z = Vtx[0].position().z();
+     ele_tip_pv = -maxETelec.gsfTrack()->dxy(Vtx[0].position());
+   }
+   //
+   maxETelec.addUserFloat("pv_x", Float_t(pv_x));
+   maxETelec.addUserFloat("pv_x", Float_t(pv_y));
+   maxETelec.addUserFloat("pv_z", Float_t(pv_z));
+   maxETelec.addUserFloat("ele_tip_pv", Float_t(ele_tip_pv));
    //std::cout << "** selected ele phi: " << maxETelec.phi()
    //	     << ", eta=" << maxETelec.eta() << ", sihih="
    //	     << maxETelec.scSigmaIEtaIEta() << ", hoe=" 
@@ -523,15 +582,20 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
      edm::Handle<reco::TrackCollection> ctfTracks;
      if ( iEvent.getByLabel("generalTracks", ctfTracks) ) {
-       ConversionFinder cf;
-       //Double_t bfield = mField->inTesla(GlobalPoint(0.,0.,0.)).z();
-       Bool_t isConv = cf.isElFromConversion(maxETelec, ctfTracks, bfield, dist_,dcot_);
+       ConversionFinder convFinder;
+       ConversionInfo convInfo = 
+	 convFinder.getConversionInfo(maxETelec, ctfTracks, bfield);
+       Double_t dist = convInfo.dist();
+       Double_t dcot = convInfo.dcot();
+       Bool_t isConv = ( fabs(dist) < dist_ ) && ( fabs(dcot) < dcot_ );
        //std::cout << "Filter: for this elec the conversion says " << isConv << std::endl;
        if (isConv && useConversionRejection_) {
        	 delete [] sorted;  delete [] et;
        	 return false;	 
        }
        if (calculateConversionRejection_) {
+	 maxETelec.addUserFloat("Dist", Float_t(dist));
+	 maxETelec.addUserFloat("Dcot", Float_t(dcot));
 	 if (isConv) 
 	   maxETelec.addUserInt("PassConversionRejection",0);
 	 else
@@ -553,6 +617,10 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        //std::cout << "Found trig objects #" << nK << std::endl;
        for (Int_t iTrig = 0;iTrig <nK; ++iTrig ) {
 	 const trigger::TriggerObject& TO(TOC[KEYS[iTrig]]);
+	 //
+	 if (useHLTObjectETCut_) {
+	   if (TO.et() < hltObjectETCut_) continue;
+	 }
 	 Double_t dr_ele_HLT = 
 	   reco::deltaR(maxETelec.eta(),maxETelec.phi(),TO.eta(),TO.phi());
 	 //std::cout << "-->found dr=" << dr_ele_HLT << std::endl;
@@ -579,6 +647,15 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    const pat::METCollection *pMet = patMET.product();
    const pat::METCollection::const_iterator met = pMet->begin();
    const pat::MET theMET = *met;
+   //
+   const pat::METCollection *pPfMet = patpfMET.product();
+   const pat::METCollection::const_iterator pfmet = pPfMet->begin();
+   const pat::MET thePfMET = *pfmet;
+   //
+   const pat::METCollection *pTcMet = pattcMET.product();
+   const pat::METCollection::const_iterator tcmet = pTcMet->begin();
+   const pat::MET theTcMET = *tcmet;
+
    Double_t metEt = met->et();
    //Double_t metEta = met->eta();
    //Double_t metMt = met->mt();
@@ -598,6 +675,8 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    pat::CompositeCandidate wenu;
    wenu.addDaughter(maxETelec, "electron");
    wenu.addDaughter(theMET, "met");
+   wenu.addDaughter(thePfMET, "pfmet");
+   wenu.addDaughter(theTcMET, "tcmet");
 
    auto_ptr<pat::CompositeCandidateCollection> 
      selectedWenuCandidates(new pat::CompositeCandidateCollection);
