@@ -38,12 +38,15 @@ private:
   MonitorElement* reportSummary;
   MonitorElement* reportSummaryMap;
   MonitorElement* overallStatus;
+  MonitorElement* ChannelSummaryMap;
+
 
   bool firstTime_;
   bool offline_;
   double numberSigma_; 
   int  numOK;
   double status;
+  double statusRS;
   double fraction;
   TH2F* h_reportSummaryMap;
 
