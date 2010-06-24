@@ -847,7 +847,8 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 							 meas.backwardPredictedState());
 	
 	if(tsos.isValid()){
-	  hitvec.push_back(ttrhit);
+	  // hitvec.push_back(ttrhit);
+	  hitvec.push_back(hit);
 	  tsosvec.push_back(tsos);
 	}
 
