@@ -75,6 +75,7 @@ WPlusJetsEventSelector::WPlusJetsEventSelector( edm::ParameterSet const & params
   set( ">=5 Jets", minJets_ >= 5); 
 
   dR_ = 0.3;
+  muJetDR_ = 0.3;
 
   if ( params.exists("cutsToIgnore") )
     setIgnoredCuts( params.getParameter<std::vector<std::string> >("cutsToIgnore") );
@@ -151,26 +152,6 @@ bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, pat::str
       edm::Handle< vector< pat::MET > > metHandle;
       event.getByLabel (metTag_, metHandle);
 
-      std::vector<pat::Muon>::const_iterator theMuon = muonHandle->end();
-      for ( std::vector<pat::Muon>::const_iterator muonBegin = muonHandle->begin(),
-	      muonEnd = muonHandle->end(), imuon = muonBegin;
-	    imuon != muonEnd; ++imuon ) {
-	if ( !imuon->isGlobalMuon()) continue;
-	// Tight cuts
-	bool passTight = muonIdTight_(*imuon);
-	if (  imuon->pt() > muPtMin_ && fabs(imuon->eta()) < muEtaMax_ && 
-	     passTight ) {
-	  selectedMuons_.push_back( reco::ShallowClonePtrCandidate( edm::Ptr<pat::Muon>( muonHandle, imuon - muonBegin ) ) );
-	  theMuon = imuon;
-	} else {
-	  // Loose cuts
-	  if ( imuon->pt() > muPtMinLoose_ && fabs(imuon->eta()) < muEtaMaxLoose_ && 
-	       muonIdLoose_(*imuon) ) {
-	    looseMuons_.push_back( reco::ShallowClonePtrCandidate( edm::Ptr<pat::Muon>( muonHandle, imuon - muonBegin ) ) );
-	  }
-	}
-      }
-
       int nElectrons = 0;
       for ( std::vector<pat::Electron>::const_iterator electronBegin = electronHandle->begin(),
 	      electronEnd = electronHandle->end(), ielectron = electronBegin;
@@ -229,6 +210,32 @@ bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, pat::str
 	}
       }
 
+      for ( std::vector<pat::Muon>::const_iterator muonBegin = muonHandle->begin(),
+	      muonEnd = muonHandle->end(), imuon = muonBegin;
+	    imuon != muonEnd; ++imuon ) {
+	if ( !imuon->isGlobalMuon() ) continue;
+
+	//Now, check that the muon isn't within muJetDR_ of any jet
+	bool inDeltaR = false;
+	for (std::vector<reco::ShallowClonePtrCandidate>::const_iterator iJet = selectedJets_.begin();
+	     iJet != selectedJets_.end(); ++iJet) {
+	  if ( reco::deltaR(imuon->eta(), imuon->phi(), iJet->eta(), iJet->phi()) < muJetDR_ ) inDeltaR = true;
+	}
+	
+	// Tight cuts
+	bool passTight = muonIdTight_(*imuon,event) && imuon->isTrackerMuon() && !inDeltaR;
+	if (  imuon->pt() > muPtMin_ && fabs(imuon->eta()) < muEtaMax_ && 
+	     passTight ) {
+
+	  selectedMuons_.push_back( reco::ShallowClonePtrCandidate( edm::Ptr<pat::Muon>( muonHandle, imuon - muonBegin ) ) );
+	} else {
+	  // Loose cuts
+	  if ( imuon->pt() > muPtMinLoose_ && fabs(imuon->eta()) < muEtaMaxLoose_ && 
+	       muonIdLoose_(*imuon,event) ) {
+	    looseMuons_.push_back( reco::ShallowClonePtrCandidate( edm::Ptr<pat::Muon>( muonHandle, imuon - muonBegin ) ) );
+	  }
+	}
+      }
 
 
 
