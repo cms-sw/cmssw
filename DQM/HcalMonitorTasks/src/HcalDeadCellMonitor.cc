@@ -368,7 +368,9 @@ void HcalDeadCellMonitor::reset()
       for (int ieta=11;ieta<=15;++ieta)
 	for (int iphi=1;iphi<=72;++iphi)
 	  {
-	    DigiPresentByDepth.depth[3]->Fill(ieta,iphi,2);
+	    // Don't fill ring2 SiPMs, since they will still be active even if the rest of HO is excluded.
+	    if (isSiPM(ieta,iphi,4)==false)
+	      DigiPresentByDepth.depth[3]->Fill(ieta,iphi,2);
 	    DigiPresentByDepth.depth[3]->Fill(-1*ieta,iphi,2);
 	  }
     }
