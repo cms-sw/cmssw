@@ -65,11 +65,13 @@ CSCTFPtLUT::CSCTFPtLUT(const edm::ParameterSet& pset,
     read_pt_lut(false),
     isBinary(false)
 {
-  read_pt_lut = pset.getUntrackedParameter<bool>("ReadPtLUT",false);
+  //read_pt_lut = pset.getUntrackedParameter<bool>("ReadPtLUT",false);
+  read_pt_lut = pset.getParameter<bool>("ReadPtLUT");
   if(read_pt_lut)
     {
       pt_lut_file = pset.getParameter<edm::FileInPath>("PtLUTFile");
-      isBinary = pset.getUntrackedParameter<bool>("isBinary", false);
+      //isBinary = pset.getUntrackedParameter<bool>("isBinary", false);
+      isBinary = pset.getParameter<bool>("isBinary");
 
       edm::LogInfo("CSCTFPtLUT::CSCTFPtLUT") << "Reading file: "
 					     << pt_lut_file.fullPath().c_str()
