@@ -3620,8 +3620,7 @@ void OHltTree::SetMapL1BitOfStandardHLTPathUsingLogicParser(OHltMenu *menu, int 
   //  std::cout<<"########################### \n";
   //  std::cout <<  "@@@ Level1GTSeedResult\n";
   
-  //  if (nentry == 0) { // do this only for first event - speed up code!
-  if(1) {
+  if (nentry == 0) { // do this only for first event - speed up code!
     for (unsigned int i=0;i<ts;i++) {
       vtmp.clear(); 
       vtokentmp.clear(); 
