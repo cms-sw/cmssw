@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWLegoViewBase.h,v 1.6 2010/06/22 17:09:11 amraktad Exp $
+// $Id: FWLegoViewBase.h,v 1.7 2010/06/25 14:46:15 amraktad Exp $
 //
 
 // system include files
@@ -82,7 +82,6 @@ private:
    
    // ---------- member data --------------------------------
    
-protected:
    FWBoolParameter   m_plotEt;
    FWBoolParameter   m_autoRebin;
    FWDoubleParameter m_pixelsPerBin;
