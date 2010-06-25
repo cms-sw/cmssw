@@ -1,3 +1,14 @@
+2010-06-25 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-02-02
+	* Add hostname and instance number to BoR, EoR, and LS entries in
+	  the db log file. (Merge from V05-10-03 branch tag.)
+
+2010-06-24 Peter Elmer <Peter.Elmer@cern.ch>
+
+	* tag V06-02-01
+	* Add missing <stdint.h> include, required for gcc45
+
 2010-06-03 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V06-02-00
@@ -46,6 +57,12 @@
 	  This requires the new IOPool/Streamer data format.
 	* First round of refactoring of the consumer handling code to
 	  make it usable for the SM proxy server.
+
+2010-06-25 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-10-03
+	* Add hostname and instance number to BoR, EoR, and LS entries in
+	  the db log file.
 
 2010-04-28 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
