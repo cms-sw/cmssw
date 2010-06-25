@@ -16,25 +16,30 @@ MSSDIRPOOL=
 BATCH_DIR=$(pwd)
 echo "Running at $(date) \n        on $HOST \n        in directory $BATCH_DIR."
 
-# AP 28.05.2010 - Unique ID, to be used for fifo's name(s)
-UUID=`uuidgen -r`
+# AP 18.06.2010 - Use current dir (when possible) for fifos
+if [ `echo $(pwd) | cut -d / -f 1-2` != '/afs' ]; then
+  FIFODIR=$(pwd)/`uuidgen -r`
+else
+  # fifos cannot be create on /afs... so create unique dir in /tmp
+  FIFODIR=/tmp/`uuidgen -r`
+fi
+mkdir $FIFODIR
 
 function rfcpgunzip {
 # AP 28.05.2010 - To rfcp and gunzip at the same time, using the fifo(s)
 # Arguments: filename (without extension), unique identifier
   fname=$1
-  UUID=$2
 
 # Creates fifo
-  mkfifo /tmp/$fname-$UUID.dat.gz
+  mkfifo $FIFODIR/$fname.dat.gz
 
 # Stages the file
   stager_get -M $MSSDIR/$fname.dat.gz
 
 # Starts rfcp and gunzip
-  echo "rfcp $MSSDIR/$fname.dat.gz /tmp/$fname-$UUID.dat.gz"
-  rfcp $MSSDIR/$fname.dat.gz /tmp/$fname-$UUID.dat.gz &
-  cat /tmp/$fname-$UUID.dat.gz | gzip -d -c > $fname.dat &
+  echo "rfcp $MSSDIR/$fname.dat.gz $FIFODIR/$fname.dat.gz"
+  rfcp $MSSDIR/$fname.dat.gz $FIFODIR/$fname.dat.gz &
+  cat $FIFODIR/$fname.dat.gz | gzip -d -c > $fname.dat &
 
 # Checks every 10 secs that rfcp is still running...
 # ... when it is not running any more, rm the fifo (which kills the gunzipping)
@@ -45,7 +50,7 @@ function rfcpgunzip {
       break
     fi
   done
-  rm -f /tmp/$fname-$UUID.dat.gz
+  rm -f $FIFODIR/$fname.dat.gz
 }
 
 
@@ -54,17 +59,16 @@ function stageingunzip {
 # AP 28.05.2010 - To cmsStageIn and gunzip at the same time, using the fifo(s)
 # Arguments: filename (without extension), unique identifier
   fname=$1
-  UUID=$2
 
 # Creates fifo
-  mkfifo /tmp/$fname-$UUID.dat.gz
+  mkfifo $FIFODIR/$fname.dat.gz
 
 # Starts cmsStageIn and gunzip
-  echo "cmsStageIn $MSSCAFDIR/$fname.dat.gz /tmp/$fname-$UUID.dat.gz"
-  cd /tmp
-  cmsStageIn $MSSCAFDIR/$fname.dat.gz $fname-$UUID.dat.gz &
+  echo "cmsStageIn $MSSCAFDIR/$fname.dat.gz $FIFODIR/$fname.dat.gz"
+  cd $FIFODIR
+  cmsStageIn $MSSCAFDIR/$fname.dat.gz $fname.dat.gz > /dev/null &
   cd -
-  cat /tmp/$fname-$UUID.dat.gz | gzip -d -c > $fname.dat &
+  cat $FIFODIR/$fname.dat.gz | gzip -d -c > $fname.dat &
 
 # Checks every 10 secs that cmsStageIn is still running...
 # ... when it is not running any more, rm the fifo (which kills the gunzipping)
@@ -75,7 +79,7 @@ function stageingunzip {
       break
     fi
   done
-  rm -f /tmp/$fname-$UUID.dat.gz
+  rm -f $FIFODIR/$fname.dat.gz
 }
 
 
@@ -84,7 +88,9 @@ function stageingunzip {
 if [ "$MSSDIRPOOL" != "cmscafuser" ]; then
 # Not using cmscafuser pool => rfcp command must be used
   export STAGE_SVCCLASS=$MSSDIRPOOL
-  rfcpgunzip milleBinaryISN $UUID
+  export STAGER_TRACE=
+
+  rfcpgunzip milleBinaryISN
 
   stager_get -M $MSSDIR/treeFileISN.root
   rfcp $MSSDIR/treeFileISN.root $BATCH_DIR
@@ -92,10 +98,10 @@ else
 # Using cmscafuser pool => cmsStageIn command must be used
   . /afs/cern.ch/cms/caf/setup.sh
   MSSCAFDIR=`echo $MSSDIR | awk 'sub("/castor/cern.ch/cms","")'`
-  stageingunzip milleBinaryISN $UUID
+  stageingunzip milleBinaryISN
 
   echo "cmsStageIn $MSSCAFDIR/treeFileISN.root treeFileISN.root"
-  cmsStageIn $MSSCAFDIR/treeFileISN.root treeFileISN.root
+  cmsStageIn $MSSCAFDIR/treeFileISN.root treeFileISN.root > /dev/null
 fi
 
 # set up the CMS environment
@@ -111,6 +117,9 @@ time cmsRun the.cfg
 
 # clean up what has been staged in (to avoid copy mistakes...)
 rm  treeFileISN.root
+
+# clean up fifo dir
+rm -r $FIFODIR
 
 # Gzip one by one in case one argument cannot be expanded:
 gzip -f *.log
