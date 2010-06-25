@@ -41,6 +41,7 @@ cp -p millePedeMonitor*root $RUNDIR
 if [ "$MSSDIRPOOL" != "cmscafuser" ]; then
 # Not using cmscafuser pool => rfcp command must be used
   export STAGE_SVCCLASS=$MSSDIRPOOL
+  export STAGER_TRACE=
   nsrm -f $MSSDIR/milleBinaryISN.dat
   echo "rfcp milleBinaryISN.dat $MSSDIR/"
   rfcp milleBinaryISN.dat    $MSSDIR/
