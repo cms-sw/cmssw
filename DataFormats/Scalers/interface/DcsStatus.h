@@ -50,6 +50,7 @@ class DcsStatus
     CSCp        =    16,
     CSCm        =    17,
     CASTOR      =    20,
+    ZDC         =    22,
     TIBTID      =    24,
     TOB         =    25,
     TECp        =    26,
@@ -58,7 +59,7 @@ class DcsStatus
     FPIX        =    29,
     ESp         =    30,
     ESm         =    31,
-    nPartitions =    24
+    nPartitions =    25
   };
 
 
