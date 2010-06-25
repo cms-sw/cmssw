@@ -1,3 +1,3 @@
 import FWCore.ParameterSet.Config as cms
 
-rpcDCSSummary = cms.EDAnalyzer("RPCDCSSummary")
+rpcDaqInfo = cms.EDAnalyzer("RPCDaqInfo")

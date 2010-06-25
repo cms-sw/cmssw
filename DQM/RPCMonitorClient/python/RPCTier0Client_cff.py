@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 
 # report summary
 from DQM.RPCMonitorClient.RPCEventSummary_cfi import *
-rpcEventSummary.Tier0 = False
 
 from DQM.RPCMonitorClient.RPCDqmClient_cfi import *
 
@@ -17,5 +16,7 @@ qTesterRPC = cms.EDAnalyzer("QualityTester",
 )
 
 
+# DCS
+from DQM.RPCMonitorClient.RPCDcsInfoClient_cfi import *
 
-rpcTier0Client = cms.Sequence(qTesterRPC*rpcdqmclient*rpcChamberQuality*rpcEventSummary*rpcefficiencysecond )
+rpcTier0Client = cms.Sequence(qTesterRPC*rpcdqmclient*rpcChamberQuality*rpcDcsInfoClient*rpcEventSummary*rpcefficiencysecond )

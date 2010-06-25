@@ -21,7 +21,8 @@ rpcEventInfo = cms.EDAnalyzer("DQMEventInfo",
     subSystemFolder = cms.untracked.string('RPC')
 )
 
+# DCS
+from DQM.RPCMonitorDigi.RPCDcsInfo_cfi import *
 
-
-rpcTier0Source = cms.Sequence(rpcdigidqm*rpcEventInfo*rpcFEDIntegrity*rpcefficiency)
+rpcTier0Source = cms.Sequence(rpcdigidqm*rpcDcsInfo*rpcEventInfo*rpcFEDIntegrity*rpcefficiency)
 
