@@ -35,16 +35,13 @@ from RecoLocalMuon.RPCRecHit.rpcRecHits_cfi import *
 # DT sequence for the standard reconstruction chain 
 # The reconstruction of the 2D segments are not required for the 4D segments reconstruction, they are used
 # only for debuging purpose and for specific studies
-dtlocalreco = cms.Sequence(dt1DRecHits*dt4DSegments)
+dtlocalreco = cms.Sequence(dt1DRecHits*dt4DSegments + dt1DCosmicRecHits*dt4DCosmicSegments)
 # DT sequence with the 2D segment reconstruction
-dtlocalreco_with_2DSegments = cms.Sequence(dt1DRecHits*dt2DSegments*dt4DSegments)
+dtlocalreco_with_2DSegments = cms.Sequence(dt1DRecHits*dt2DSegments*dt4DSegments + dt1DCosmicRecHits*dt2DCosmicSegments*dt4DCosmicSegments)
 # DT sequence with T0seg correction
-dtlocalrecoT0Seg = cms.Sequence(dtlocalreco*dt4DSegmentsT0Seg)
 # CSC sequence
 csclocalreco = cms.Sequence(csc2DRecHits*cscSegments)
 # DT, CSC and RPC together
 muonlocalreco_with_2DSegments = cms.Sequence(dtlocalreco_with_2DSegments+csclocalreco+rpcRecHits)
-# DT, CSC and RPC together (with t0seg correction for DTs)
-muonlocalrecoT0Seg = cms.Sequence(dtlocalrecoT0Seg+csclocalreco+rpcRecHits)
 # DT, CSC and RPC together (correct sequence for the standard path)
 muonlocalreco = cms.Sequence(dtlocalreco+csclocalreco+rpcRecHits)

@@ -11,4 +11,13 @@ dt1DRecHits = cms.EDProducer("DTRecHitProducer",
     dtDigiLabel = cms.InputTag("muonDTDigis")
 )
 
-
+# add cosmics reconstruction in collisions
+from RecoLocalMuon.DTRecHit.DTLinearDriftAlgo_CosmicData_cfi import *
+dt1DCosmicRecHits = cms.EDProducer("DTRecHitProducer",
+    # The reconstruction algo and its parameter set
+    DTLinearDriftAlgo_CosmicData,
+    debug = cms.untracked.bool(False),
+    # The label to retrieve digis from the event
+    #dtDigiLabel = cms.InputTag("dtunpacker")
+    dtDigiLabel = cms.InputTag("muonDTDigis")
+)
