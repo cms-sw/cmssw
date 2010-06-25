@@ -70,8 +70,8 @@ std::string trackerHierarchy(unsigned int rawid) {
       // part = (theModule[0] == 1 ) ? "back" : "front";
       char key[] = { 4, 
 		     char(module.side()),
-		     theDisk , 
-		     theRing,
+		     char(theDisk) , 
+		     char(theRing),
 		     char(theModule[0]), 
 		     char(theModule[1]),
 		     char(module.glued() ? module.stereo()+1 : 0)
@@ -87,10 +87,10 @@ std::string trackerHierarchy(unsigned int rawid) {
       std::vector<unsigned int> theRod    = module.rod();
       unsigned int              theModule = module.module();
       //	side = (theRod[0] == 1 ) ? "-" : "+";
-      char key[] = { 5, theLayer , 
+      char key[] = { 5, char(theLayer) , 
 		     char(theRod[0]), 
 		     char(theRod[1]), 
-		     theModule,
+		     char(theModule),
 		     char(module.glued() ? module.stereo()+1 : 0)
       };
       return std::string(key, module.glued() ?  6 : 5);
@@ -110,11 +110,11 @@ std::string trackerHierarchy(unsigned int rawid) {
       
       char key[] = { 6, 
 		     char(module.side()),
-		     theWheel,
+		     char(theWheel),
 		     char(thePetal[0]), 
 		     char(thePetal[1]),
-		     theRing,
-		     theModule,
+		     char(theRing),
+		     char(theModule),
 		     char(module.glued() ? module.stereo()+1 : 0)
       };
       return std::string(key, module.glued() ? 8 : 7);
