@@ -331,7 +331,7 @@ void TrackClassifier::processesAtGenerator()
     // Decays in flight
     update(flags_[FromChargePionMuon], flags_[Muon] && flags_[ChargePionDecay]);
     update(flags_[FromChargeKaonMuon], flags_[Muon] && flags_[ChargeKaonDecay]);
-    update(flags_[DecayInFlightMuon], (flags_[FromChargePionMuon] && flags_[FromChargeKaonMuon]));
+    update(flags_[DecayOnFlightMuon], (flags_[FromChargePionMuon] || flags_[FromChargeKaonMuon]));
 }
 
 
@@ -455,7 +455,7 @@ void TrackClassifier::processesAtSimulation()
     // Decays in flight
     update(flags_[FromChargePionMuon], flags_[Muon] && flags_[ChargePionDecay]);
     update(flags_[FromChargeKaonMuon], flags_[Muon] && flags_[ChargeKaonDecay]);
-    update(flags_[DecayInFlightMuon], flags_[FromChargePionMuon] && flags_[FromChargeKaonMuon]);
+    update(flags_[DecayOnFlightMuon], flags_[FromChargePionMuon] || flags_[FromChargeKaonMuon]);
 }
 
 

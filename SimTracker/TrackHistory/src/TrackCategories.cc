@@ -48,7 +48,7 @@ const char * TrackCategories::Names[] =
     "MuNuclProcess",
     "FromBWeakDecayMuon",
     "FromCWeakDecayMuon",
-    "DecayInFlightMuon",
+    "DecayOnFlightMuon",
     "FromChargePionMuon",
     "FromChargeKaonMuon",
     "PrimaryVertex",

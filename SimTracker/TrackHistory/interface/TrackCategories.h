@@ -56,7 +56,7 @@ public:
         MuNuclProcess,
         FromBWeakDecayMuon,
         FromCWeakDecayMuon,
-        DecayInFlightMuon,
+        DecayOnFlightMuon,
         FromChargePionMuon,
         FromChargeKaonMuon,
         PrimaryVertex,
