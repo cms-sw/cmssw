@@ -63,6 +63,8 @@ hcalHotCellMonitor.minEvents = 200
 #LSbyLSmonitor must require at least as many events/LS as dead cell monitor
 hcalLSbyLSMonitor.minEvents = 1000
 
+# Ignore checks on HO Ring2 channels in dead cell monitor (except for SiPM)
+hcalDeadCellMonitor.excludeHORing2=True
 
 hcalOfflineDQMSource = cms.Sequence(hcalMonitor
                                     + zdcMonitor
