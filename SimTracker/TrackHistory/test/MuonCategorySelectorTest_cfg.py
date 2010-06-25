@@ -17,14 +17,23 @@ process.load('Configuration/EventContent/EventContent_cff')
 process.load("SimTracker.TrackHistory.Playback_cff")
 process.load("SimTracker.TrackHistory.MuonClassifier_cff")
 
+from SimTracker.TrackHistory.CategorySelectors_cff import *
+
+process.muonSelector = MuonCategorySelector(
+    src = cms.InputTag('standAloneMuons'),
+    cut = cms.string("is('FromChargePionMuon') || is('FromChargeKaonMuon')"),
+)
+
 process.muonHistoryAnalyzer = cms.EDAnalyzer("TrackHistoryAnalyzer",
     process.MuonClassifier,
     pset = process.MuonClassifier
 )
 
+process.muonHistoryAnalyzer.trackProducer = 'muonSelector'
+
 process.GlobalTag.globaltag = 'MC_36Y_V7A::All'
 
-process.p = cms.Path(process.playback * process.muonHistoryAnalyzer)
+process.p = cms.Path(process.playback * process.muonSelector * process.muonHistoryAnalyzer)
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(200) )
 readFiles = cms.untracked.vstring()
