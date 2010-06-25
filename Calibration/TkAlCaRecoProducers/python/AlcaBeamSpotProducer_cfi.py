@@ -19,6 +19,7 @@ alcaBeamSpotProducer = cms.EDProducer("AlcaBeamSpotProducer",
 	DIPFileName = cms.untracked.string('BeamFitDIP.txt'), ## only the last results, for DIP
 	SaveNtuple = cms.untracked.bool(False),
 	SaveFitResults = cms.untracked.bool(False),
+        SavePVVertices = cms.untracked.bool(False),
 	OutputFileName = cms.untracked.string('analyze_d0_phi.root'),
 	MinimumPt = cms.untracked.double(1.2),
 	MaximumEta = cms.untracked.double(2.4),
