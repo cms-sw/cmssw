@@ -93,7 +93,7 @@ void StdHitNtuplizer::endJob()
 
 
 
-void StdHitNtuplizer::beginJob(const edm::EventSetup& es)
+void StdHitNtuplizer::beginJob()
 {
   std::cout << " StdHitNtuplizer::beginJob" << std::endl;
   std::string outputFile = conf_.getParameter<std::string>("OutputFile");
@@ -118,17 +118,17 @@ void StdHitNtuplizer::beginJob(const edm::EventSetup& es)
   striptree_->Branch("strip_recHit", &striprecHit_,
     "x/F:y:xx:xy:yy:row:col:gx:gy:gz:subid/I:layer:nsimhit:hx/F:hy:tx:ty:theta:phi", bufsize);
 
-  // geometry setup
-  edm::ESHandle<TrackerGeometry>        geometry;
-
-  es.get<TrackerDigiGeometryRecord>().get(geometry);
-
-  theGeometry = &(*geometry);
 }
 
 // Functions that gets called by framework every event
 void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 {
+  // geometry setup
+  edm::ESHandle<TrackerGeometry>        geometry;
+
+  es.get<TrackerDigiGeometryRecord>().get(geometry);
+  const TrackerGeometry*  theGeometry = &(*geometry);
+
   // fastsim rechits
   //edm::Handle<SiTrackerGSRecHit2DCollection> theGSRecHits;
   //edm::InputTag hitProducer;
@@ -287,8 +287,6 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
   edm::Handle<View<reco::Track> >  trackCollection;
   edm::InputTag trackProducer;
   trackProducer = conf_.getParameter<edm::InputTag>("trackProducer");
-  if( (trackProducer.encode().size()) ) {
-
   e.getByLabel(trackProducer, trackCollection);
 
 /*
@@ -377,15 +375,11 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
                 << " err x/y = " << sqrt(le.xx()) << " " << sqrt(le.yy()) << std::endl;
 */
           }
-          // clone uses new so delete it
-          delete hit;
         }
       } //end of loop on tracking rechits
   } // end of loop on recotracks
-  }
 
-  // now for strip rechits - but only if we ask for them (they do not exist for Longbarrel maybe)
-  if( (rphiRecHits_.encode().size()) && (stereoRecHits_.encode().size()) && (matchedRecHits_.encode().size()) ) {
+  // now for strip rechits
   edm::Handle<SiStripRecHit2DCollection> rechitsrphi;
   edm::Handle<SiStripRecHit2DCollection> rechitsstereo;
   edm::Handle<SiStripMatchedRecHit2DCollection> rechitsmatched;
@@ -658,7 +652,6 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
       } // end of rechit loop
     } // end of detidt loop
   } // end of loop test on rechit size
-  }// end of test if strip input tag labels are empty
             
 } // end analyze function
 
@@ -780,8 +773,6 @@ void StdHitNtuplizer::fillPRecHit(const int subid,
   recHit_.gy = GP.y();
   recHit_.gz = GP.z();
   recHit_.subid = subid;
-  // clone uses new so delete it
-  delete pixeliter;
 }
 
 void
@@ -830,5 +821,5 @@ void StdHitNtuplizer::RecHit::init()
 }
 
 //define this as a plug-in
-DEFINE_ANOTHER_FWK_MODULE(StdHitNtuplizer);
+DEFINE_FWK_MODULE(StdHitNtuplizer);
 

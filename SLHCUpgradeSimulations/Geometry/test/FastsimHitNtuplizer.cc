@@ -289,5 +289,5 @@ void FastsimHitNtuplizer::RecHit::init()
 }
 
 //define this as a plug-in
-DEFINE_ANOTHER_FWK_MODULE(FastsimHitNtuplizer);
+DEFINE_FWK_MODULE(FastsimHitNtuplizer);
 

@@ -22,5 +22,5 @@ DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDPixBarStackTrigLayerAlgo, "track:DDPixB
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDPixFwdDiskAlgo,      "track:DDPixFwdDiskAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDPixBarLayerUpgradeAlgo, "track:DDPixBarLayerUpgradeAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDPixBarLayerUpgradeAlgoCoverage, "track:DDPixBarLayerUpgradeAlgoCoverage");
-DEFINE_SEAL_MODULE ();
+//DEFINE_SEAL_MODULE (); //obsolete?  idr 10/6/10
 DEFINE_SIMWATCHER(PrintGeomMatInfo);

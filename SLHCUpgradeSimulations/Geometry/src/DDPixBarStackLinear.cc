@@ -7,7 +7,6 @@
 #include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "SLHCUpgradeSimulations/Geometry/interface/DDPixBarStackLinear.h"
@@ -51,7 +50,7 @@ void DDPixBarStackLinear::initialize(const DDNumericArguments & nArgs,
 			  << rotMat;
 }
 
-void DDPixBarStackLinear::execute() {
+void DDPixBarStackLinear::execute(DDCompactView& cpv) {
 
   DDName mother = parent().name();
   DDName child(DDSplit(childName).first, DDSplit(childName).second);
@@ -72,13 +71,13 @@ void DDPixBarStackLinear::execute() {
     }
 	
     DDTranslation tran = base + (offset + double(i)*delta)*direction;
-    DDpos (child, mother, 2*i+1, tran, rot);
+    cpv.position (child, mother, 2*i+1, tran, rot);
     LogDebug("TrackerGeom") << "DDPixBarStackLinear test: " << child << " number "
 			    << 2*i+1 << " positioned in " << mother << " at "
 			    << tran << " with " << rot;
 
     DDTranslation tran2 = base - (offset + double(i)*delta)*direction;
-    DDpos (child, mother, 2*i+2, tran2, rot);
+    cpv.position (child, mother, 2*i+2, tran2, rot);
     LogDebug("TrackerGeom") << "DDPixBarStackLinear test: " << child << " number "
                             << 2*i+2 << " positioned in " << mother << " at "
                             << tran << " with " << rot;
@@ -87,13 +86,13 @@ void DDPixBarStackLinear::execute() {
       if((i+1)!=number){
         i++;
         DDTranslation tran3 = zbase + (offset + double(i)*delta)*direction;
-        DDpos (child, mother, 2*i+1, tran3, rot);
+        cpv.position (child, mother, 2*i+1, tran3, rot);
         LogDebug("TrackerGeom") << "DDPixBarStackLinear test: " << child << " number "
                             << 2*i+1 << " positioned in " << mother << " at "
                             << tran << " with " << rot;
     
         DDTranslation tran4 = zbase - (offset + double(i)*delta)*direction;
-        DDpos (child, mother, 2*i+2, tran4, rot);
+        cpv.position (child, mother, 2*i+2, tran4, rot);
         LogDebug("TrackerGeom") << "DDPixBarStackLinear test: " << child << " number "
                             << 2*i+2 << " positioned in " << mother << " at "
                             << tran << " with " << rot;

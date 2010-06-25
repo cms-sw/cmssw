@@ -43,7 +43,7 @@ process.generator.AddAntiParticle = True
 # from std full sim 
 #process.load("Configuration.StandardSequences.FakeConditions_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'MC_31X_V8::All'
+process.GlobalTag.globaltag = 'MC_36Y_V9::All'
 
 # Famos sequences (fake conditions)
 #process.load("FastSimulation.Configuration.CommonInputsFake_cff")
@@ -64,8 +64,8 @@ process.siPixelFakeLorentzAngleESSource = cms.ESSource("SiPixelFakeLorentzAngleE
 process.es_prefer_fake_lorentz = cms.ESPrefer("SiPixelFakeLorentzAngleESSource","siPixelFakeLorentzAngleESSource")
 
 process.load("CalibTracker.SiStripESProducers.fake.SiStripNoisesFakeESSource_cfi")
-process.SiStripNoisesGenerator.NoiseStripLengthSlope=51. #dec mode
-process.SiStripNoisesGenerator.NoiseStripLengthQuote=630.
+process.SiStripNoisesGenerator.NoiseStripLengthSlope=cms.vdouble(51.) #dec mode
+process.SiStripNoisesGenerator.NoiseStripLengthQuote=cms.vdouble(630.)
 
 process.siStripNoisesFakeESSource  = cms.ESSource("SiStripNoisesFakeESSource")
 process.es_prefer_fake_strip_noise = cms.ESPrefer("SiStripNoisesFakeESSource",
@@ -113,6 +113,11 @@ process.es_prefer_fake_strip_threshold = cms.ESPrefer("SiStripThresholdFakeESSou
                                                      "siStripThresholdFakeESSource")
 
 process.TrackerDigiGeometryESModule.applyAlignment = False
+
+process.TrackerGeometricDetESModule.fromDDD=cms.bool(True)
+process.TrackerDigiGeometryESModule.fromDDD=cms.bool(True)
+#print process.TrackerGeometricDetESModule.fromDDD
+#print process.TrackerDigiGeometryESModule.fromDDD,process.TrackerDigiGeometryESModule.applyAlignment
 
 # Parametrized magnetic field (new mapping, 4.0 and 3.8T)
 #process.load("Configuration.StandardSequences.MagneticField_40T_cff")
@@ -261,9 +266,9 @@ process.cutsTPFake.lip = cms.double(90.0)
 ############ end John's changes ###########################
 
 ### make sure the correct (modified) error routine is used
-process.siPixelRecHits.CPE = 'PixelCPEGeneric'
-process.MeasurementTracker.PixelCPE = 'PixelCPEGeneric'
-process.ttrhbwr.PixelCPE = 'PixelCPEGeneric'
+process.siPixelRecHits.CPE = 'PixelCPEfromTrackAngle'
+process.MeasurementTracker.PixelCPE = 'PixelCPEfromTrackAngle'
+process.ttrhbwr.PixelCPE = 'PixelCPEfromTrackAngle'
 process.mixedlayerpairs.BPix.TTRHBuilder = cms.string('WithTrackAngle')
 process.mixedlayerpairs.FPix.TTRHBuilder = cms.string('WithTrackAngle')
 process.pixellayertriplets.BPix.TTRHBuilder = cms.string('WithTrackAngle')
@@ -286,15 +291,15 @@ process.siTrackerMultiRecHitUpdator.TTRHBuilder = cms.string('WithTrackAngle')
 
 #replace with correct component in cloned version (replace with original TTRH producer)
 #process.preFilterFirstStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
-process.secPixelRecHits.CPE = cms.string('PixelCPEGeneric')
+process.secPixelRecHits.CPE = cms.string('PixelCPEfromTrackAngle')
 process.seclayertriplets.BPix.TTRHBuilder = cms.string('WithTrackAngle')
 process.seclayertriplets.FPix.TTRHBuilder = cms.string('WithTrackAngle')
-process.secMeasurementTracker.PixelCPE = cms.string('PixelCPEGeneric')
+process.secMeasurementTracker.PixelCPE = cms.string('PixelCPEfromTrackAngle')
 process.secWithMaterialTracks.TTRHBuilder = cms.string('WithTrackAngle')
-process.thPixelRecHits.CPE = cms.string('PixelCPEGeneric')
-process.thlayerpairs.BPix.TTRHBuilder = cms.string('WithTrackAngle')
-process.thlayerpairs.FPix.TTRHBuilder = cms.string('WithTrackAngle')
-process.thMeasurementTracker.PixelCPE = cms.string('PixelCPEGeneric')
+process.thPixelRecHits.CPE = cms.string('PixelCPEfromTrackAngle')
+process.thlayertripletsa.BPix.TTRHBuilder = cms.string('WithTrackAngle')
+process.thlayertripletsa.FPix.TTRHBuilder = cms.string('WithTrackAngle')
+process.thMeasurementTracker.PixelCPE = cms.string('PixelCPEfromTrackAngle')
 process.thWithMaterialTracks.TTRHBuilder = cms.string('WithTrackAngle')
 
 ### produce an ntuple with hits for analysis
@@ -324,7 +329,7 @@ process.o1 = cms.OutputModule(
     "PoolOutputModule",
     outputCommands = cms.untracked.vstring('keep *',
                                            'drop *_mix_*_*'),
-    fileName = cms.untracked.string('/uscms_data/d2/cheung/slhc/fastsimPI_50mu.root')
+    fileName = cms.untracked.string('./fastsimPI_50mu.root')
 )
 
 process.outpath = cms.EndPath(process.o1)

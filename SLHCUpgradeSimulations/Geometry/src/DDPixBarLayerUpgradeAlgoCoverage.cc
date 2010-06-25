@@ -8,7 +8,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
-#include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
@@ -71,7 +70,7 @@ void DDPixBarLayerUpgradeAlgoCoverage::initialize(const DDNumericArguments & nAr
   std::cout << " ActiveWidth = " << activeWidth << std::endl;
 }
 
-void DDPixBarLayerUpgradeAlgoCoverage::execute() {
+void DDPixBarLayerUpgradeAlgoCoverage::execute(DDCompactView& cpv) {
 
   DDName      mother = parent().name();
   std::string idName = DDSplit(mother).first;
@@ -130,7 +129,7 @@ void DDPixBarLayerUpgradeAlgoCoverage::execute() {
 			<< d1 << ", 0";
   matter = DDMaterial(DDName(DDSplit(coolMat).first, DDSplit(coolMat).second));
   DDLogicalPart cool(solid.ddname(), matter, solid);
-  DDpos (cool, coolTube, 1, DDTranslation(0.0, 0.0, 0.0), DDRotation());
+  cpv.position (cool, coolTube, 1, DDTranslation(0.0, 0.0, 0.0), DDRotation());
   LogDebug("PixelGeom") << "DDPixBarLayerUpgradeAlgoCoverage test: " << cool.name() 
 			<< " number 1 positioned in " << coolTube.name() 
 			<< " at (0,0,0) with no rotation";
@@ -154,7 +153,7 @@ void DDPixBarLayerUpgradeAlgoCoverage::execute() {
 	                  << "rotation: " << rots << "\t90., " << phix/CLHEP::deg 
 		          << ", 90.," << phiy/CLHEP::deg << ", 0, 0";
     rot = DDrot(DDName(rots,idNameSpace), 90*CLHEP::deg, phix, 90*CLHEP::deg, phiy, 0.,0.);
-    DDpos (ladderFull, layer, copy, tran, rot);
+    cpv.position (ladderFull, layer, copy, tran, rot);
     LogDebug("PixelGeom") << "DDPixBarLayerUpgradeAlgoCoverage test: " << ladderFull 
 	                  << " number " << copy << " positioned in " 
 			  << layer.name() << " at " << tran << " with " 
@@ -174,7 +173,7 @@ void DDPixBarLayerUpgradeAlgoCoverage::execute() {
 			  << "rotation: " << rots << "\t90., " << phix/CLHEP::deg 
 			  << ", 90.," << phiy/CLHEP::deg << ", 0, 0";
     rot = DDrot(DDName(rots,idNameSpace), 90*CLHEP::deg, phix, 90*CLHEP::deg, phiy, 0.,0.);
-    DDpos (coolTube, layer, i+1, tran, rot);
+    cpv.position (coolTube, layer, i+1, tran, rot);
     LogDebug("PixelGeom") << "DDPixBarLayerUpgradeAlgoCoverage test: " << coolTube.name() 
 			  << " number " << i+1 << " positioned in " 
 			  << layer.name() << " at " << tran << " with "<< rot;

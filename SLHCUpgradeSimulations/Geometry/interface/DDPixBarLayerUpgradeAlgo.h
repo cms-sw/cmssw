@@ -19,7 +19,7 @@ class DDPixBarLayerUpgradeAlgo : public DDAlgorithm {
 		  const DDStringArguments & sArgs,
 		  const DDStringVectorArguments & vsArgs);
 
-  void execute();
+  void execute(DDCompactView& cpv);
 
 private:
 

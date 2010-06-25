@@ -47,7 +47,7 @@ class StdHitNtuplizer : public edm::EDAnalyzer
   
   explicit StdHitNtuplizer(const edm::ParameterSet& conf);
   virtual ~StdHitNtuplizer();
-  virtual void beginJob(const edm::EventSetup& es);
+  virtual void beginJob();
   virtual void endJob();
   virtual void analyze(const edm::Event& e, const edm::EventSetup& es);
 
@@ -72,7 +72,6 @@ class StdHitNtuplizer : public edm::EDAnalyzer
 
  private:
   edm::ParameterSet conf_;
-  const TrackerGeometry*  theGeometry;
   edm::InputTag src_;
   edm::InputTag rphiRecHits_;
   edm::InputTag stereoRecHits_;
