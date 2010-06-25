@@ -67,10 +67,7 @@ CSCTFConfigOnlineProd::newObject( const std::string& objectKey )
 	 conf_eta[pos+1]='\n'; 
        }
   
-     std::string conf_fixed= "CSR_LQE F1 M1 0xFFFF \nCSR_LQE F1 M2 0xFFFF \nCSR_LQE F1 M3 0xFFFF \nCSR_LQE F2 M1 0xFFFF \nCSR_LQE F2 M2 0xFFFF \nCSR_LQE F2 M3 0xFFFF \nCSR_LQE F3 M1 0xFFFF \nCSR_LQE F3 M2 0xFFFF \nCSR_LQE F3 M3 0xFFFF \nCSR_LQE F4 M1 0xFFFF \nCSR_LQE F4 M2 0xFFFF \nCSR_LQE F4 M3 0xFFFF \nCSR_LQE F5 M1 0xFFFF \nCSR_LQE F5 M2 0xFFFF \nCSR_LQE F5 M3 0xFFFF \nCSR_KFL SP MA 0x0000 \nDAT_FTR SP MA 0xFF   \nCSR_SFC SP MA 0x1000 \n";
-  
-    
-     std::string conf_read=conf_fixed+conf_eta+conf_stat;
+     std::string conf_read=conf_eta+conf_stat;
      // write all registers for a given SP
      csctfreg[iSP-1]=conf_read;
   }  
