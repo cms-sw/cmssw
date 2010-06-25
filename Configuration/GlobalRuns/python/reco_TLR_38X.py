@@ -60,8 +60,6 @@ def customiseCommon(process):
     process.photonCore.minSCEt = 5.
     process.conversionTrackCandidates.minSCEt =5.
     process.conversions.minSCEt =5.
-    process.trackerOnlyConversions.rCut = 2.
-    process.trackerOnlyConversions.vtxChi2 = 0.0005
     
     ###
     ###  end of top level replacements
