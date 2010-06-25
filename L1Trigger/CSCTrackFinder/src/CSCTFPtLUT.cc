@@ -61,7 +61,9 @@ CSCTFPtLUT::CSCTFPtLUT(const edm::ParameterSet& pset,
 		       const L1MuTriggerPtScale* ptScale)
   : trigger_scale( scales ),
     trigger_ptscale( ptScale ),
-    ptMethods( ptScale )
+    ptMethods( ptScale ),
+    read_pt_lut(false),
+    isBinary(false)
 {
   read_pt_lut = pset.getUntrackedParameter<bool>("ReadPtLUT",false);
   if(read_pt_lut)
