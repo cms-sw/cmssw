@@ -413,7 +413,7 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   
   // container for subsystem's leading candidate
   const int ncorr = 3;
-  float LeadCandVal[DEnsys][ncorr] = {{nullVal}};
+  float LeadCandVal[DEnsys][ncorr] = {{(float)nullVal}};
   for(int i=0; i<DEnsys; i++) 
     for(int j=0; j<ncorr; j++)
       LeadCandVal[i][j]=nullVal;
