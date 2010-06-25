@@ -36,12 +36,17 @@ cp -p *.log.gz $RUNDIR
 # store  millePedeMonitor also in $RUNDIR, below is backup in $MSSDIR
 cp -p millePedeMonitor*root $RUNDIR
 
-# AP 08.02.2010 - Unique filename
-UUID=`uuidgen -r`
-fname=/tmp/milleBinaryISN-$UUID.dat.gz
+# AP 18.06.2010 - Use current dir (when possible) for fifos
+if [ `echo $(pwd) | cut -d / -f 1-2` != '/afs' ]; then
+  FIFODIR=$(pwd)/`uuidgen -r`
+else
+  # fifos cannot be create on /afs... so create unique dir in /tmp
+  FIFODIR=/tmp/`uuidgen -r`
+fi
+mkdir $FIFODIR
 
 # AP 19.01.2010 - Create the fifo and start gzipping file
-# rm -f $fname
+fname=$FIFODIR/milleBinaryISN.dat.gz
 mkfifo $fname
 gzip -1 -c milleBinaryISN.dat >> $fname &
 
@@ -50,20 +55,22 @@ gzip -1 -c milleBinaryISN.dat >> $fname &
 if [ "$MSSDIRPOOL" != "cmscafuser" ]; then
 # Not using cmscafuser pool => rfcp command must be used
   export STAGE_SVCCLASS=$MSSDIRPOOL
+  export STAGER_TRACE=
   nsrm -f $MSSDIR/milleBinaryISN.dat
   echo "rfcp $fname $MSSDIR/milleBinaryISN.dat.gz"
-  rfcp $fname                     $MSSDIR/milleBinaryISN.dat.gz
-  rfcp treeFile*root              $MSSDIR/treeFileISN.root
-  rfcp millePedeMonitor*root      $MSSDIR/millePedeMonitorISN.root
+  rfcp $fname                 $MSSDIR/milleBinaryISN.dat.gz
+  rfcp treeFile*root          $MSSDIR/treeFileISN.root
+  rfcp millePedeMonitor*root  $MSSDIR/millePedeMonitorISN.root
 else
 # Using cmscafuser pool => cmsStageOut command must be used
   . /afs/cern.ch/cms/caf/setup.sh
   MSSCAFDIR=`echo $MSSDIR | awk 'sub("/castor/cern.ch/cms","")'`
   echo "cmsStageOut $fname $MSSCAFDIR/milleBinaryISN.dat.gz"
-  cmsStageOut $fname                     $MSSCAFDIR/milleBinaryISN.dat.gz
-  cmsStageOut treeFile*root              $MSSCAFDIR/treeFileISN.root
-  cmsStageOut millePedeMonitor*root      $MSSCAFDIR/millePedeMonitorISN.root
+  cmsStageOut $fname                 $MSSCAFDIR/milleBinaryISN.dat.gz > /dev/null
+  cmsStageOut treeFile*root          $MSSCAFDIR/treeFileISN.root > /dev/null
+  cmsStageOut millePedeMonitor*root  $MSSCAFDIR/millePedeMonitorISN.root > /dev/null
 fi
 
 # AP 21.01.2010 - Delete the fifo
 rm -f $fname
+rm -r $FIFODIR
