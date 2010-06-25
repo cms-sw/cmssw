@@ -121,6 +121,33 @@ void HcalRecHitMonitor::setup()
 			      "Hcal RecHit iphi",
 			      72,0.5,72.5);
 
+  h_rechitieta_05 = dbe_->book1D("HcalRecHitIeta05",
+				 "Hcal RecHit ieta E>0.5 GeV",
+				 83,-41.5,41.5);
+  h_rechitiphi_05 = dbe_->book1D("HcalRecHitIphi05",
+				 "Hcal RecHit iphi E>0.5 GeV",
+				 72,0.5,72.5);
+  h_rechitieta_10 = dbe_->book1D("HcalRecHitIeta10",
+				 "Hcal RecHit ieta E>1.0 GeV",
+				 83,-41.5,41.5);
+  h_rechitiphi_10 = dbe_->book1D("HcalRecHitIphi10",
+				 "Hcal RecHit iphi E>1.0 GeV",
+				 72,0.5,72.5);
+  h_rechitieta_25 = dbe_->book1D("HcalRecHitIeta25",
+				 "Hcal RecHit ieta E>2.5 GeV",
+				 83,-41.5,41.5);
+  h_rechitiphi_25 = dbe_->book1D("HcalRecHitIphi25",
+				 "Hcal RecHit iphi E>2.5 GeV",
+				 72,0.5,72.5);
+  h_rechitieta_100 = dbe_->book1D("HcalRecHitIeta100",
+				  "Hcal RecHit ieta E>10.0 GeV",
+				  83,-41.5,41.5);
+  h_rechitiphi_100 = dbe_->book1D("HcalRecHitIphi100",
+				  "Hcal RecHit iphi E>10.0 GeV",
+				  72,0.5,72.5);
+
+
+
   h_LumiPlot_LS_allevents = dbe_->book1D("AllEventsPerLS",
 					 "LS # of all events",
 					 NLumiBlocks_,0.5,NLumiBlocks_+0.5);
@@ -696,6 +723,30 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
       int ieta = id.ieta();
       int iphi = id.iphi();
       int depth = id.depth();
+
+      if (en>0.5)
+        {
+          h_rechitieta_05->Fill(ieta);
+          h_rechitiphi_05->Fill(iphi);
+          if (en>1.)
+            {
+              h_rechitieta_10->Fill(ieta);
+              h_rechitiphi_10->Fill(iphi);
+              if (en>2.5)
+                {
+                  h_rechitieta_25->Fill(ieta);
+                  h_rechitiphi_25->Fill(iphi);
+                  if (en>10.)
+                    {
+                      h_rechitieta_100->Fill(ieta);
+                      h_rechitiphi_100->Fill(iphi);
+                    }
+                }
+            }
+        }
+
+
+
       HcalSubdetector subdet = id.subdet();
       double fEta=fabs(0.5*(theHBHEEtaBounds[abs(ieta)-1]+theHBHEEtaBounds[abs(ieta)]));
 
@@ -874,6 +925,30 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
       int ieta = id.ieta();
       int iphi = id.iphi();
       int depth = id.depth();
+
+      if (en>0.5)
+        {
+          h_rechitieta_05->Fill(ieta);
+          h_rechitiphi_05->Fill(iphi);
+          if (en>1.)
+            {
+              h_rechitieta_10->Fill(ieta);
+              h_rechitiphi_10->Fill(iphi);
+              if (en>2.5)
+                {
+                  h_rechitieta_25->Fill(ieta);
+                  h_rechitiphi_25->Fill(iphi);
+                  if (en>10.)
+                    {
+                      h_rechitieta_100->Fill(ieta);
+                      h_rechitiphi_100->Fill(iphi);
+                    }
+                }
+            }
+        }
+
+
+
       int calcEta = CalcEtaBin(HcalOuter,ieta,depth);
       double fEta=fabs(0.5*(theHBHEEtaBounds[abs(ieta)-1]+theHBHEEtaBounds[abs(ieta)]));
       
@@ -947,6 +1022,27 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
       int ieta = id.ieta();
       int iphi = id.iphi();
       int depth = id.depth();
+
+      if (en>0.5)
+	{
+	  h_rechitieta_05->Fill(ieta);
+	  h_rechitiphi_05->Fill(iphi);
+	  if (en>1.)
+	    {
+	      h_rechitieta_10->Fill(ieta);
+	      h_rechitiphi_10->Fill(iphi);
+	      if (en>2.5)
+		{
+		  h_rechitieta_25->Fill(ieta);
+		  h_rechitiphi_25->Fill(iphi);
+		  if (en>10.)
+		    {
+		      h_rechitieta_100->Fill(ieta);
+		      h_rechitiphi_100->Fill(iphi);
+		    }
+		}
+	    }
+	}
 
       double fEta=fabs(0.5*(theHFEtaBounds[abs(ieta)-29]+theHFEtaBounds[abs(ieta)-28]));
       int calcEta = CalcEtaBin(HcalForward,ieta,depth);

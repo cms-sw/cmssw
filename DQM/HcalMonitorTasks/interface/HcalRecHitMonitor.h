@@ -10,8 +10,8 @@
 
 /** \class HcalRecHitMonitor
   *
-  * $Date: 2010/03/25 11:00:58 $
-  * $Revision: 1.47 $
+  * $Date: 2010/03/26 15:30:22 $
+  * $Revision: 1.48 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -123,6 +123,16 @@ class HcalRecHitMonitor: public HcalBaseDQMonitor {
 
   MonitorElement* h_rechitieta;
   MonitorElement* h_rechitiphi;
+
+  MonitorElement* h_rechitieta_05;
+  MonitorElement* h_rechitieta_10;
+  MonitorElement* h_rechitieta_25;
+  MonitorElement* h_rechitieta_100;
+  MonitorElement* h_rechitiphi_05;
+  MonitorElement* h_rechitiphi_10;
+  MonitorElement* h_rechitiphi_25;
+  MonitorElement* h_rechitiphi_100;
+
   MonitorElement* h_rechitieta_thresh;
   MonitorElement* h_rechitiphi_thresh;
 
