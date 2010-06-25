@@ -163,7 +163,7 @@ def dirExists(dir):
         return os.path.exists(dir)
 
 ########################################################################
-def ls(dir):
+def ls(dir,filter=""):
     lsCommand      = ''
     listOfFiles    = []
     if dir.find('castor') != -1:
@@ -172,7 +172,9 @@ def ls(dir):
         print "ERROR: File or directory " + dir + " doesn't exist"
         return listOfFiles
 
-    aCommand  = lsCommand  + 'ls '+ dir + " | grep .txt"
+    aCommand  = lsCommand  + 'ls '+ dir
+    if filter != "":
+        aCommand  += " | grep " + filter 
 
     tmpStatus = commands.getstatusoutput( aCommand )
     listOfFiles = tmpStatus[1].split('\n')

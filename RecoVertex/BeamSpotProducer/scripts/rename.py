@@ -2,10 +2,10 @@
 import sys,os,commands,re
 from CommonMethods import *
 def main():
-    castor = "/castor/cern.ch/cms/store/caf/user/uplegger/Workflows/Repro_2010June08/"
-    sourceDirList = [castor+"v1",castor+"v2",castor+"v7",castor+"v8",castor+"v9"]
-    destDirList   = ["v1","v2","v7","v8","v9"]
-    path = "Repro_2010June08/"
+    castor = "/castor/cern.ch/cms/store/caf/user/uplegger/Workflows/3_6_1_patch4/"
+    sourceDirList = [castor+"CAF_v0"]
+    destDirList   = ["CAF_v0"]
+    path = "Files/"
     finalDir = path + "Results/"
 
     if not os.path.isdir(path):
@@ -24,7 +24,7 @@ def main():
         destDir   = path + destDirList[n] + '/'
         if not dirExists(sourceDir):
             continue
-        fileList = ls(sourceDir)
+        fileList = ls(sourceDir,".root")
         if not os.path.isdir(destDir):
             error = "WARNING: destination directory doesn't exist! Creating it..."
             print error

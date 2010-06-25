@@ -200,7 +200,7 @@ def getRunNumberFromDBSName(fileName):
 ########################################################################
 def getNewRunList(fromDir,lastUploadedIOV):
     newRunList = []
-    listOfFiles = ls(fromDir)
+    listOfFiles = ls(fromDir,".txt")
     runFileMap = {}
     for fileName in listOfFiles:
         runNumber = getRunNumberFromFileName(fileName) 
