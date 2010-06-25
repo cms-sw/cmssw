@@ -1,17 +1,6 @@
 #ifndef RPCMonitorDigi_h
 #define RPCMonitorDigi_h
 
-/** \class RPCMonitor
- *
- * Class for RPC Monitoring (strip id, cluster size).
- *
- *  $Date: 2009/06/08 10:56:13 $
- *  $Revision: 1.24 $
- *
- * \author Ilaria Segoni (CERN)
- *
- */
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -43,21 +32,19 @@ class RPCMonitorDigi : public edm::EDAnalyzer {
         void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
 	/// Booking of MonitoringElemnt for one RPCDetId (= roll)
-	std::map<std::string, MonitorElement*> bookDetUnitME(RPCDetId& , const edm::EventSetup&);	
-	
+	std::map<std::string, MonitorElement*> bookDetUnitME(RPCDetId& , const edm::EventSetup&);		
 	
 	/// Booking of MonitoringElemnt at Wheel/Disk level
 	std::map<std::string, MonitorElement*> bookRegionRing(int region, int ring);
 
       
-	
-
    private:
-	
-	int stripsInRoll(RPCDetId & ,const edm::EventSetup& );
+	void makeDcsInfo(const edm::Event& ) ;
+       	int stripsInRoll(RPCDetId & ,const edm::EventSetup& );
 	int counter;
 	/// DQM store 
 	DQMStore * dbe;
+	bool dcs_;
 
 	MonitorElement * NumberOfDigis_for_Barrel;
 	MonitorElement * NumberOfDigis_for_EndcapPositive;
@@ -89,6 +76,8 @@ class RPCMonitorDigi : public edm::EDAnalyzer {
 	std::string digiLabel;
 
 	bool mergeRuns_;
+	std::string muonNoise_;
+	std::string globalFolder_;
 
 	std::string nameInLog;
 	bool saveRootFile;
@@ -98,8 +87,6 @@ class RPCMonitorDigi : public edm::EDAnalyzer {
 	bool dqmexpert;
 	bool dqmsuperexpert;
 	std::string GlobalHistogramsFolder;
-	std::map<uint32_t,bool> foundHitsInChamber;
-
 
 	edm::ESHandle<RPCGeometry> rpcGeo;
 

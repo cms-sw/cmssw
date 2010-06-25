@@ -1,12 +1,9 @@
  /***********************************************
- *						*
  *  implementation of RPCMonitorDigi class	*
- *						*
  ***********************************************/
 #include <TRandom.h>
 #include <string>
 #include <sstream>
-#include <set>
 #include "DQM/RPCMonitorDigi/interface/RPCMonitorDigi.h"
 #include "DQM/RPCMonitorDigi/interface/utils.h"
 ///Data Format
@@ -16,6 +13,7 @@
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/Scalers/interface/DcsStatus.h"
 ///Geometry
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -26,13 +24,16 @@
 using namespace std;
 using namespace edm;
 RPCMonitorDigi::RPCMonitorDigi( const ParameterSet& pset ):counter(0){
-  foundHitsInChamber.clear();
-  nameInLog = pset.getUntrackedParameter<string>("moduleLogName", "RPC_DQM");
+
+  nameInLog = pset.getUntrackedParameter<string>("moduleLogName", "rpcmonitordigi");
 
   saveRootFile  = pset.getUntrackedParameter<bool>("DigiDQMSaveRootFile", false); 
   mergeRuns_  = pset.getUntrackedParameter<bool>("MergeDifferentRuns", false); 
   saveRootFileEventsInterval  = pset.getUntrackedParameter<int>("DigiEventsInterval", 10000);
   RootFileName  = pset.getUntrackedParameter<string>("RootFileNameDigi", "RPCMonitor.root"); 
+
+  globalFolder_ = pset.getUntrackedParameter<string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms");
+  muonNoise_ = pset.getUntrackedParameter<string>("DataType", "Noise");
 
   dqmshifter = pset.getUntrackedParameter<bool>("dqmshifter", false);
   dqmexpert = pset.getUntrackedParameter<bool>("dqmexpert", false);
@@ -40,10 +41,11 @@ RPCMonitorDigi::RPCMonitorDigi( const ParameterSet& pset ):counter(0){
 
   RPCDataLabel = pset.getUntrackedParameter<std::string>("RecHitLabel","rpcRecHitLabel");
   digiLabel = pset.getUntrackedParameter<std::string>("DigiLabel","muonRPCDigis");
-
 }
 
 RPCMonitorDigi::~RPCMonitorDigi(){}
+
+
 
 void RPCMonitorDigi::beginJob(){
   LogInfo (nameInLog) <<"[RPCMonitorDigi]: Begin job" ;
@@ -51,8 +53,7 @@ void RPCMonitorDigi::beginJob(){
   /// get hold of back-end interface
   dbe = Service<DQMStore>().operator->();
 
-  GlobalHistogramsFolder="RPC/RecHits/SummaryHistograms";
-  dbe->setCurrentFolder(GlobalHistogramsFolder);  
+  dbe->setCurrentFolder(globalFolder_);  
 
   ClusterSize_for_Barrel = dbe->book1D("ClusterSize_for_Barrel", "ClusterSize for Barrel", 20, 0.5, 20.5);
   ClusterSize_for_EndcapPositive = dbe->book1D("ClusterSize_for_EndcapPositive", "ClusterSize for PositiveEndcap",  20, 0.5, 20.5);
@@ -75,7 +76,8 @@ void RPCMonitorDigi::beginJob(){
   BarrelOccupancy = dbe -> book2D("Occupancy_for_Barrel", "Barrel Occupancy Wheel vs Sector", 12, 0.5, 12.5, 5, -2.5, 2.5);
   EndcapPositiveOccupancy = dbe -> book2D("Occupancy_for_EndcapPositive", "Endcap Positive Occupancy Disk vs Sector", 6, 0.5, 6.5, 4, 0.5, 4.5);
   EndcapNegativeOccupancy = dbe -> book2D("Occupancy_for_EndcapNegative", "Endcap Negative Occupancy Disk vs Sector", 6, 0.5, 6.5, 4, 0.5, 4.5);
-  
+
+  dbe->setCurrentFolder(globalFolder_);   
   RPCEvents = dbe -> book1D("RPCEvents", "RPC Events Barrel+EndCap", 1, 0.5, 1.5);
  
   stringstream binLabel;
@@ -146,11 +148,16 @@ void RPCMonitorDigi::endJob(void){
   dbe = 0;
 }
 
+
+
 void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
 
   counter++;
-  LogInfo (nameInLog) <<"[RPCMonitorDigi]: Beginning analyzing event " << counter;
+
+  LogInfo (nameInLog) <<"[RPCMonitorDigi]: Beginning analyzing event " << counter;  
   
+
+  if( !dcs_) return;//if RPC not ON there's no need to continue
 
   /// Digis
   Handle<RPCDigiCollection> rpcdigis;
@@ -406,4 +413,32 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
        myItr!=bxMap.end(); myItr++){
     SameBxDigisMeBarrel_ ->Fill((*myItr).second);///must be fixed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   } 
+}
+
+
+void  RPCMonitorDigi::makeDcsInfo(const edm::Event& e) {
+
+  edm::Handle<DcsStatusCollection> dcsStatus;
+
+  if ( ! e.getByLabel("scalersRawToDigi", dcsStatus) ){
+    dcs_ = false;
+    return;
+  }
+  
+  if ( ! dcsStatus.isValid() ) 
+  {
+    edm::LogWarning("RPCDcsInfo") << "scalersRawToDigi not found" ;
+    dcs_ = false; // info not available: set to false
+    return;
+  }
+    
+
+  for (DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin(); 
+                            dcsStatusItr != dcsStatus->end(); ++dcsStatusItr)   {
+
+      if (!dcsStatusItr->ready(DcsStatus::RPC)) dcs_=false;
+      
+  }
+      
+  return ;
 }
