@@ -64,6 +64,7 @@ HLT_L1SingleEG5
 HLT_L1SingleEG8
 HLT_Ele10_LW_L1R
 HLT_Ele10_LW_EleId_L1R
+HLT_Ele10_SW_L1R
 HLT_Ele15_LW_L1R
 HLT_Ele15_SiStrip_L1R
 HLT_Ele15_SC10_LW_L1R
@@ -99,6 +100,9 @@ HLT_MinBiasPixel_SingleTrack
 HLT_MinBiasPixel_DoubleTrack
 HLT_MinBiasPixel_DoubleIsoTrack5
 HLT_PixelTracks_Multiplicity70
+HLT_PixelTracks_Multiplicity85
+HLT_MultiVertex6
+HLT_MultiVertex8_ETT60
 HLT_CSCBeamHalo
 HLT_CSCBeamHaloOverlapRing1
 HLT_CSCBeamHaloOverlapRing2
