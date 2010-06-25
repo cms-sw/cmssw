@@ -10,8 +10,57 @@ edm::ParameterSet L1MuCSCTFConfiguration::parameters(int sp) const {
   edm::ParameterSet pset;
   if(sp>=12) return pset;
 
-  pset.addParameter<int>("CoreLatency",8);
+  // ------------------------------------------------------
+  // core configuration
+  // by default everything is disabled: we need to set them
+  // coincidence and singles
+  bool run_core        = 0;
+  bool trigger_on_ME1a = 0;
+  bool trigger_on_ME1b = 0;
+  bool trigger_on_ME2  = 0;
+  bool trigger_on_ME3  = 0;
+  bool trigger_on_ME4  = 0;
+  bool trigger_on_MB1a = 0;
+  bool trigger_on_MB1d = 0;
 
+  unsigned int BXAdepth   = 0;
+  unsigned int useDT      = 0;
+  unsigned int widePhi    = 0;
+  unsigned int PreTrigger = 0;
+  // ------------------------------------------------------
+
+  // ------------------------------------------------------
+  // these are very important parameters.
+  // Double check with Alex
+  unsigned int CoreLatency = 7;
+  bool rescaleSinglesPhi = 1;
+
+  // ask Alex if use or remove them or what
+  bool AllowALCTonly = 0;
+  bool AllowCLCTonly = 0;
+
+  // other useful parameters in general not set in the OMDS  
+  unsigned int QualityEnableME1a = 0xFFFF;
+  unsigned int QualityEnableME1b = 0xFFFF;
+  unsigned int QualityEnableME1c = 0xFFFF;
+  unsigned int QualityEnableME1d = 0xFFFF;
+  unsigned int QualityEnableME1e = 0xFFFF;
+  unsigned int QualityEnableME1f = 0xFFFF;
+  unsigned int QualityEnableME2a = 0xFFFF;
+  unsigned int QualityEnableME2b = 0xFFFF;
+  unsigned int QualityEnableME2c = 0xFFFF;
+  unsigned int QualityEnableME3a = 0xFFFF;
+  unsigned int QualityEnableME3b = 0xFFFF;
+  unsigned int QualityEnableME3c = 0xFFFF;
+  unsigned int QualityEnableME4a = 0xFFFF;
+  unsigned int QualityEnableME4b = 0xFFFF;
+  unsigned int QualityEnableME4c = 0xFFFF;
+	       
+  unsigned int kill_fiber = 0;
+  unsigned int singlesTrackOutput = 1;
+  // ------------------------------------------------------
+
+  
   //initialization of the DAT_ETA registers with default values
   //the DAT_ETA registers meaning are explained at Table 2 of
   //http://www.phys.ufl.edu/~uvarov/SP05/LU-SP_ReferenceGuide_090915_Update.pdf
@@ -78,58 +127,99 @@ edm::ParameterSet L1MuCSCTFConfiguration::parameters(int sp) const {
   int eta_cnt=0;
 
   // default printout
-  LogDebug("L1MuCSCTFConfiguration") << "DEFAULT VALUES FOR DAT_ETA" << std::endl
-                                     << "mindetap     =" << mindetap      << std::endl
-                                     << "mindetap_halo=" << mindetap_halo << std::endl
-      
-                                     << "etamin[0]=" << etamin[0] << std::endl
-                                     << "etamin[1]=" << etamin[1] << std::endl
-                                     << "etamin[2]=" << etamin[2] << std::endl
-                                     << "etamin[3]=" << etamin[3] << std::endl
-                                     << "etamin[4]=" << etamin[4] << std::endl
-                                     << "etamin[5]=" << etamin[5] << std::endl
-                                     << "etamin[6]=" << etamin[6] << std::endl
-                                     << "etamin[7]=" << etamin[7] << std::endl
+  LogDebug("L1MuCSCTFConfiguration") << "\nCORE CONFIGURATION  DEFAULT VALUES" 
+				     << "\nrun_core="        << run_core       
+				     << "\ntrigger_on_ME1a=" << trigger_on_ME1a
+				     << "\ntrigger_on_ME1b=" << trigger_on_ME1b
+				     << "\ntrigger_on_ME2="  << trigger_on_ME2 
+				     << "\ntrigger_on_ME3="  << trigger_on_ME3 
+				     << "\ntrigger_on_ME4="  << trigger_on_ME4 
+				     << "\ntrigger_on_MB1a=" << trigger_on_MB1a
+				     << "\ntrigger_on_MB1d=" << trigger_on_MB1d
 
-                                     << "mindeta12_accp =" << mindeta12_accp  << std::endl 
-                                     << "mindeta13_accp =" << mindeta13_accp  << std::endl
-                                     << "mindeta112_accp=" << mindeta112_accp << std::endl
-                                     << "mindeta113_accp=" << mindeta113_accp << std::endl
+				     << "\nBXAdepth="   << BXAdepth   
+				     << "\nuseDT="      << useDT      
+				     << "\nwidePhi="    << widePhi    
+				     << "\nPreTrigger=" << PreTrigger 
       
-                                     << "etamax[0]=" << etamax[0] << std::endl
-                                     << "etamax[1]=" << etamax[1] << std::endl
-                                     << "etamax[2]=" << etamax[2] << std::endl
-                                     << "etamax[3]=" << etamax[3] << std::endl
-                                     << "etamax[4]=" << etamax[4] << std::endl
-                                     << "etamax[5]=" << etamax[5] << std::endl
-                                     << "etamax[6]=" << etamax[6] << std::endl
-                                     << "etamax[7]=" << etamax[7] << std::endl
+				     << "\nCoreLatency="<< CoreLatency
+				     << "\nrescaleSinglesPhi=" << rescaleSinglesPhi 
 
-                                     << "maxdeta12_accp =" << maxdeta12_accp  << std::endl
-                                     << "maxdeta13_accp =" << maxdeta13_accp  << std::endl
-                                     << "maxdeta112_accp=" << maxdeta112_accp << std::endl
-                                     << "maxdeta113_accp=" << maxdeta113_accp << std::endl
+                                     << "\n\nVARIOUS CONFIGURATION PARAMETERS DEFAULT VALUES" 
+				     << "\nAllowALCTonly=" <<  AllowALCTonly 
+				     << "\nAllowCLCTonly=" <<  AllowCLCTonly 
+
+				     << "\nQualityEnableME1a=" << QualityEnableME1a 
+				     << "\nQualityEnableME1b=" << QualityEnableME1b 
+				     << "\nQualityEnableME1c=" << QualityEnableME1c 
+				     << "\nQualityEnableME1d=" << QualityEnableME1d 
+				     << "\nQualityEnableME1e=" << QualityEnableME1e 
+				     << "\nQualityEnableME1f=" << QualityEnableME1f 
+				     << "\nQualityEnableME2a=" << QualityEnableME2a 
+				     << "\nQualityEnableME2b=" << QualityEnableME2b 
+				     << "\nQualityEnableME2c=" << QualityEnableME2c 
+				     << "\nQualityEnableME3a=" << QualityEnableME3a 
+				     << "\nQualityEnableME3b=" << QualityEnableME3b 
+				     << "\nQualityEnableME3c=" << QualityEnableME3c 
+				     << "\nQualityEnableME4a=" << QualityEnableME4a 
+				     << "\nQualityEnableME4b=" << QualityEnableME4b 
+				     << "\nQualityEnableME4c=" << QualityEnableME4c 
+				     
+				     << "\nkill_fiber="         << kill_fiber 
+				     << "\nsinglesTrackOutput=" << singlesTrackOutput 
+
+                                     << "\n\nDEFAULT VALUES FOR DAT_ETA" 
+                                     << "\nmindetap     =" << mindetap      
+                                     << "\nmindetap_halo=" << mindetap_halo 
+      
+                                     << "\netamin[0]=" << etamin[0] 
+                                     << "\netamin[1]=" << etamin[1] 
+                                     << "\netamin[2]=" << etamin[2] 
+                                     << "\netamin[3]=" << etamin[3] 
+                                     << "\netamin[4]=" << etamin[4] 
+                                     << "\netamin[5]=" << etamin[5] 
+                                     << "\netamin[6]=" << etamin[6] 
+                                     << "\netamin[7]=" << etamin[7] 
+
+                                     << "\nmindeta12_accp =" << mindeta12_accp   
+                                     << "\nmindeta13_accp =" << mindeta13_accp  
+                                     << "\nmindeta112_accp=" << mindeta112_accp 
+                                     << "\nmindeta113_accp=" << mindeta113_accp 
+      
+                                     << "\netamax[0]=" << etamax[0] 
+                                     << "\netamax[1]=" << etamax[1] 
+                                     << "\netamax[2]=" << etamax[2] 
+                                     << "\netamax[3]=" << etamax[3] 
+                                     << "\netamax[4]=" << etamax[4] 
+                                     << "\netamax[5]=" << etamax[5] 
+                                     << "\netamax[6]=" << etamax[6] 
+                                     << "\netamax[7]=" << etamax[7] 
+
+                                     << "\nmaxdeta12_accp =" << maxdeta12_accp  
+                                     << "\nmaxdeta13_accp =" << maxdeta13_accp  
+                                     << "\nmaxdeta112_accp=" << maxdeta112_accp 
+                                     << "\nmaxdeta113_accp=" << maxdeta113_accp 
   
-                                     << "etawin[0]=" << etawin[0] << std::endl
-                                     << "etawin[1]=" << etawin[1] << std::endl
-                                     << "etawin[2]=" << etawin[2] << std::endl
-                                     << "etawin[3]=" << etawin[3] << std::endl
-                                     << "etawin[4]=" << etawin[4] << std::endl
-                                     << "etawin[5]=" << etawin[5] << std::endl
-                                     << "etawin[6]=" << etawin[6] << std::endl
+                                     << "\netawin[0]=" << etawin[0] 
+                                     << "\netawin[1]=" << etawin[1] 
+                                     << "\netawin[2]=" << etawin[2] 
+                                     << "\netawin[3]=" << etawin[3] 
+                                     << "\netawin[4]=" << etawin[4] 
+                                     << "\netawin[5]=" << etawin[5] 
+                                     << "\netawin[6]=" << etawin[6] 
   
-                                     << "maxdphi12_accp =" << maxdphi12_accp  << std::endl
-                                     << "maxdphi13_accp =" << maxdphi13_accp  << std::endl
-                                     << "maxdphi112_accp=" << maxdphi112_accp << std::endl
-                                     << "maxdphi113_accp=" << maxdphi113_accp << std::endl
+                                     << "\nmaxdphi12_accp =" << maxdphi12_accp  
+                                     << "\nmaxdphi13_accp =" << maxdphi13_accp  
+                                     << "\nmaxdphi112_accp=" << maxdphi112_accp 
+                                     << "\nmaxdphi113_accp=" << maxdphi113_accp 
                            
-                                     << "mindphip     =" << mindphip      << std::endl
-                                     << "mindphip_halo=" << mindphip_halo << std::endl
+                                     << "\nmindphip     =" << mindphip      
+                                     << "\nmindphip_halo=" << mindphip_halo 
   
-                                     << "straightp=" << straightp << std::endl
-                                     << "curvedp  =" << curvedp   << std::endl
-                                     << "mbaPhiOff=" << mbaPhiOff << std::endl
-                                     << "mbbPhiOff=" << mbbPhiOff << std::endl;
+                                     << "\nstraightp=" << straightp 
+                                     << "\ncurvedp  =" << curvedp   
+                                     << "\nmbaPhiOff=" << mbaPhiOff 
+                                     << "\nmbbPhiOff=" << mbbPhiOff ;
   
   // start filling the registers with the values in the DBS
   std::stringstream conf(registers[sp]);
@@ -146,40 +236,71 @@ edm::ParameterSet L1MuCSCTFConfiguration::parameters(int sp) const {
 
     if( register_=="CSR_REQ" && chip_=="SP" ){
       unsigned int value = strtol(writeValue_.c_str(),'\0',16);
-      pset.addParameter<bool>("run_core",       value&0x8000);
-      pset.addParameter<bool>("trigger_on_ME1a",value&0x0001);
-      pset.addParameter<bool>("trigger_on_ME1b",value&0x0002);
-      pset.addParameter<bool>("trigger_on_ME2", value&0x0004);
-      pset.addParameter<bool>("trigger_on_ME3", value&0x0008);
-      pset.addParameter<bool>("trigger_on_ME4", value&0x0010);
-      pset.addParameter<bool>("trigger_on_MB1a",value&0x0100);
-      pset.addParameter<bool>("trigger_on_MB1d",value&0x0200);
+      run_core        = (value&0x8000);
+      trigger_on_ME1a = (value&0x0001);
+      trigger_on_ME1b = (value&0x0002);
+      trigger_on_ME2  = (value&0x0004);
+      trigger_on_ME3  = (value&0x0008);
+      trigger_on_ME4  = (value&0x0010);
+      trigger_on_MB1a = (value&0x0100);
+      trigger_on_MB1d = (value&0x0200);
     }
-    if( register_=="DAT_FTR" && chip_=="SP" ){
+
+
+    if( register_=="CSR_SCC" && chip_=="SP" ){
       unsigned int value = strtol(writeValue_.c_str(),'\0',16);
-      pset.addParameter<unsigned int>("singlesTrackPt",value); // 0x1F - rank, 0x60 - Q1,Q0, 0x80 - charge
+      
+      BXAdepth   = (value&0x3);
+      useDT      = ( (value&0x80)>>7 );
+      widePhi    = ( (value&0x40)>>6 );
+      PreTrigger = ( (value&0x300)>>8);      
     }
+
+
+    if( register_=="CSR_LQE" && chip_=="F1" && muon_=="M1" )
+      QualityEnableME1a = strtol(writeValue_.c_str(),'\0',16);
+    if( register_=="CSR_LQE" && chip_=="F1" && muon_=="M2" )
+      QualityEnableME1b = strtol(writeValue_.c_str(),'\0',16);
+    if( register_=="CSR_LQE" && chip_=="F1" && muon_=="M3" )
+      QualityEnableME1c = strtol(writeValue_.c_str(),'\0',16);
+    if( register_=="CSR_LQE" && chip_=="F2" && muon_=="M1" )
+      QualityEnableME1d = strtol(writeValue_.c_str(),'\0',16);
+    if( register_=="CSR_LQE" && chip_=="F2" && muon_=="M2" )
+      QualityEnableME1e = strtol(writeValue_.c_str(),'\0',16);
+    if( register_=="CSR_LQE" && chip_=="F2" && muon_=="M3" )
+      QualityEnableME1f = strtol(writeValue_.c_str(),'\0',16);
+    if( register_=="CSR_LQE" && chip_=="F3" && muon_=="M1" )
+      QualityEnableME2a = strtol(writeValue_.c_str(),'\0',16);
+    if( register_=="CSR_LQE" && chip_=="F3" && muon_=="M2" )
+      QualityEnableME2b = strtol(writeValue_.c_str(),'\0',16);
+    if( register_=="CSR_LQE" && chip_=="F3" && muon_=="M3" )
+      QualityEnableME2c = strtol(writeValue_.c_str(),'\0',16);
+    if( register_=="CSR_LQE" && chip_=="F4" && muon_=="M1" )
+      QualityEnableME3a = strtol(writeValue_.c_str(),'\0',16);
+    if( register_=="CSR_LQE" && chip_=="F4" && muon_=="M2" )
+      QualityEnableME3b = strtol(writeValue_.c_str(),'\0',16);
+    if( register_=="CSR_LQE" && chip_=="F4" && muon_=="M3" )
+      QualityEnableME3c = strtol(writeValue_.c_str(),'\0',16);
+    if( register_=="CSR_LQE" && chip_=="F5" && muon_=="M1" )
+      QualityEnableME4a = strtol(writeValue_.c_str(),'\0',16);
+    if( register_=="CSR_LQE" && chip_=="F5" && muon_=="M2" )
+      QualityEnableME4b = strtol(writeValue_.c_str(),'\0',16);
+    if( register_=="CSR_LQE" && chip_=="F5" && muon_=="M3" )
+      QualityEnableME4c = strtol(writeValue_.c_str(),'\0',16);
+
+    if( register_=="CSR_KFL" )
+      kill_fiber = strtol(writeValue_.c_str(),'\0',16);
+
     if( register_=="CSR_SFC" && chip_=="SP" ){
       unsigned int value = strtol(writeValue_.c_str(),'\0',16);
-      pset.addParameter<unsigned int>("singlesTrackOutput",(value&0x3000)>>12);
+      singlesTrackOutput = ((value&0x3000)>>12);
     }
+
     if( register_=="CNT_ETA" && chip_=="SP" ){
       unsigned int value = strtol(writeValue_.c_str(),'\0',16);
       eta_cnt = value;
     }
-    if( register_=="CSR_SCC" && chip_=="SP" ){
-      unsigned int value = strtol(writeValue_.c_str(),'\0',16);
-      pset.addParameter<unsigned int>("BXAdepth",    value&0x3      );
-      pset.addParameter<unsigned int>("useDT",      (value&0x80)>>7 );
-      pset.addParameter<unsigned int>("widePhi",    (value&0x40)>>6 );
-      pset.addParameter<unsigned int>("PreTrigger", (value&0x300)>>8);
-      
-      // this were two old settings, not used anymore. Set them to zero
-      // ask Alex if he can remove them altogether
-      pset.addParameter<bool>        ("AllowALCTonly"    , 0);
-      pset.addParameter<bool>        ("AllowCLCTonly"    , 0);
-      pset.addParameter<bool>        ("rescaleSinglesPhi", 0);
-    }
+    
 
     // LATEST VERSION FROM CORE 2010-01-22 at http://www.phys.ufl.edu/~madorsky/sp/2010-01-22
     if( register_=="DAT_ETA" && chip_=="SP" ){
@@ -223,41 +344,48 @@ edm::ParameterSet L1MuCSCTFConfiguration::parameters(int sp) const {
       eta_cnt++;
     }
 
-    if( register_=="CSR_LQE" && chip_=="F1" && muon_=="M1" )
-      pset.addParameter<unsigned int>("QualityEnableME1a",strtol(writeValue_.c_str(),'\0',16));
-    if( register_=="CSR_LQE" && chip_=="F1" && muon_=="M2" )
-      pset.addParameter<unsigned int>("QualityEnableME1b",strtol(writeValue_.c_str(),'\0',16));
-    if( register_=="CSR_LQE" && chip_=="F1" && muon_=="M3" )
-      pset.addParameter<unsigned int>("QualityEnableME1c",strtol(writeValue_.c_str(),'\0',16));
-    if( register_=="CSR_LQE" && chip_=="F2" && muon_=="M1" )
-      pset.addParameter<unsigned int>("QualityEnableME1d",strtol(writeValue_.c_str(),'\0',16));
-    if( register_=="CSR_LQE" && chip_=="F2" && muon_=="M2" )
-      pset.addParameter<unsigned int>("QualityEnableME1e",strtol(writeValue_.c_str(),'\0',16));
-    if( register_=="CSR_LQE" && chip_=="F2" && muon_=="M3" )
-      pset.addParameter<unsigned int>("QualityEnableME1f",strtol(writeValue_.c_str(),'\0',16));
-    if( register_=="CSR_LQE" && chip_=="F3" && muon_=="M1" )
-      pset.addParameter<unsigned int>("QualityEnableME2a",strtol(writeValue_.c_str(),'\0',16));
-    if( register_=="CSR_LQE" && chip_=="F3" && muon_=="M2" )
-      pset.addParameter<unsigned int>("QualityEnableME2b",strtol(writeValue_.c_str(),'\0',16));
-    if( register_=="CSR_LQE" && chip_=="F3" && muon_=="M3" )
-      pset.addParameter<unsigned int>("QualityEnableME2c",strtol(writeValue_.c_str(),'\0',16));
-    if( register_=="CSR_LQE" && chip_=="F4" && muon_=="M1" )
-      pset.addParameter<unsigned int>("QualityEnableME3a",strtol(writeValue_.c_str(),'\0',16));
-    if( register_=="CSR_LQE" && chip_=="F4" && muon_=="M2" )
-      pset.addParameter<unsigned int>("QualityEnableME3b",strtol(writeValue_.c_str(),'\0',16));
-    if( register_=="CSR_LQE" && chip_=="F4" && muon_=="M3" )
-      pset.addParameter<unsigned int>("QualityEnableME3c",strtol(writeValue_.c_str(),'\0',16));
-    if( register_=="CSR_LQE" && chip_=="F5" && muon_=="M1" )
-      pset.addParameter<unsigned int>("QualityEnableME4a",strtol(writeValue_.c_str(),'\0',16));
-    if( register_=="CSR_LQE" && chip_=="F5" && muon_=="M2" )
-      pset.addParameter<unsigned int>("QualityEnableME4b",strtol(writeValue_.c_str(),'\0',16));
-    if( register_=="CSR_LQE" && chip_=="F5" && muon_=="M3" )
-      pset.addParameter<unsigned int>("QualityEnableME4c",strtol(writeValue_.c_str(),'\0',16));
-
-    if( register_=="CSR_KFL" )//&& chip_=="SP" && muon_=="MA" )
-      pset.addParameter<unsigned int>("kill_fiber",strtol(writeValue_.c_str(),'\0',16));
   }
 
+  pset.addParameter<bool>("run_core"       , run_core       );
+  pset.addParameter<bool>("trigger_on_ME1a", trigger_on_ME1a);
+  pset.addParameter<bool>("trigger_on_ME1b", trigger_on_ME1b);
+  pset.addParameter<bool>("trigger_on_ME2" , trigger_on_ME2 );
+  pset.addParameter<bool>("trigger_on_ME3" , trigger_on_ME3 );
+  pset.addParameter<bool>("trigger_on_ME4" , trigger_on_ME4 );
+  pset.addParameter<bool>("trigger_on_MB1a", trigger_on_MB1a);
+  pset.addParameter<bool>("trigger_on_MB1d", trigger_on_MB1d);
+
+  pset.addParameter<unsigned int>("BXAdepth"  , BXAdepth  );
+  pset.addParameter<unsigned int>("useDT"     , useDT     );
+  pset.addParameter<unsigned int>("widePhi"   , widePhi   );
+  pset.addParameter<unsigned int>("PreTrigger", PreTrigger);
+      
+  // this were two old settings, not used anymore. Set them to zero
+  // ask Alex if he can remove them altogether
+  pset.addParameter<bool>("AllowALCTonly", AllowALCTonly);
+  pset.addParameter<bool>("AllowCLCTonly", AllowCLCTonly);
+
+  pset.addParameter<int>("CoreLatency", CoreLatency);
+  pset.addParameter<bool>("rescaleSinglesPhi", rescaleSinglesPhi);
+
+  pset.addParameter<unsigned int>("QualityEnableME1a",QualityEnableME1a);
+  pset.addParameter<unsigned int>("QualityEnableME1b",QualityEnableME1b);
+  pset.addParameter<unsigned int>("QualityEnableME1c",QualityEnableME1c);
+  pset.addParameter<unsigned int>("QualityEnableME1d",QualityEnableME1d);
+  pset.addParameter<unsigned int>("QualityEnableME1e",QualityEnableME1e);
+  pset.addParameter<unsigned int>("QualityEnableME1f",QualityEnableME1f);
+  pset.addParameter<unsigned int>("QualityEnableME2a",QualityEnableME2a);
+  pset.addParameter<unsigned int>("QualityEnableME2b",QualityEnableME2b);
+  pset.addParameter<unsigned int>("QualityEnableME2c",QualityEnableME2c);
+  pset.addParameter<unsigned int>("QualityEnableME3a",QualityEnableME3a);
+  pset.addParameter<unsigned int>("QualityEnableME3b",QualityEnableME3b);
+  pset.addParameter<unsigned int>("QualityEnableME3c",QualityEnableME3c);
+  pset.addParameter<unsigned int>("QualityEnableME4a",QualityEnableME4a);
+  pset.addParameter<unsigned int>("QualityEnableME4b",QualityEnableME4b);
+  pset.addParameter<unsigned int>("QualityEnableME4c",QualityEnableME4c);
+
+  pset.addParameter<unsigned int>("kill_fiber",kill_fiber);
+  pset.addParameter<unsigned int>("singlesTrackOutput",singlesTrackOutput);
 
   // add the DAT_ETA registers to the pset
   pset.addParameter<unsigned int>("mindetap"     , mindetap     );
@@ -292,59 +420,101 @@ edm::ParameterSet L1MuCSCTFConfiguration::parameters(int sp) const {
   pset.addParameter<unsigned int>("mbaPhiOff", mbaPhiOff);
   pset.addParameter<unsigned int>("mbbPhiOff", mbbPhiOff);
 
-  
-  LogDebug("L1MuCSCTFConfiguration") << "AFTER READING THE DBS VALUES" << std::endl
-                                     << "mindetap     =" << mindetap      << std::endl
-                                     << "mindetap_halo=" << mindetap_halo << std::endl
-      
-                                     << "etamin[0]=" << etamin[0] << std::endl
-                                     << "etamin[1]=" << etamin[1] << std::endl
-                                     << "etamin[2]=" << etamin[2] << std::endl
-                                     << "etamin[3]=" << etamin[3] << std::endl
-                                     << "etamin[4]=" << etamin[4] << std::endl
-                                     << "etamin[5]=" << etamin[5] << std::endl
-                                     << "etamin[6]=" << etamin[6] << std::endl
-                                     << "etamin[7]=" << etamin[7] << std::endl
 
-                                     << "mindeta12_accp =" << mindeta12_accp  << std::endl 
-                                     << "mindeta13_accp =" << mindeta13_accp  << std::endl
-                                     << "mindeta112_accp=" << mindeta112_accp << std::endl
-                                     << "mindeta113_accp=" << mindeta113_accp << std::endl
-      
-                                     << "etamax[0]=" << etamax[0] << std::endl
-                                     << "etamax[1]=" << etamax[1] << std::endl
-                                     << "etamax[2]=" << etamax[2] << std::endl
-                                     << "etamax[3]=" << etamax[3] << std::endl
-                                     << "etamax[4]=" << etamax[4] << std::endl
-                                     << "etamax[5]=" << etamax[5] << std::endl
-                                     << "etamax[6]=" << etamax[6] << std::endl
-                                     << "etamax[7]=" << etamax[7] << std::endl
+  // printout
+  LogDebug("L1MuCSCTFConfiguration") << "\nCORE CONFIGURATION AFTER READING THE DBS VALUES" 
+				     << "\nrun_core="        << run_core       
+				     << "\ntrigger_on_ME1a=" << trigger_on_ME1a
+				     << "\ntrigger_on_ME1b=" << trigger_on_ME1b
+				     << "\ntrigger_on_ME2="  << trigger_on_ME2 
+				     << "\ntrigger_on_ME3="  << trigger_on_ME3 
+				     << "\ntrigger_on_ME4="  << trigger_on_ME4 
+				     << "\ntrigger_on_MB1a=" << trigger_on_MB1a
+				     << "\ntrigger_on_MB1d=" << trigger_on_MB1d
 
-                                     << "maxdeta12_accp =" << maxdeta12_accp  << std::endl
-                                     << "maxdeta13_accp =" << maxdeta13_accp  << std::endl
-                                     << "maxdeta112_accp=" << maxdeta112_accp << std::endl
-                                     << "maxdeta113_accp=" << maxdeta113_accp << std::endl
+				     << "\nBXAdepth="   << BXAdepth   
+				     << "\nuseDT="      << useDT      
+				     << "\nwidePhi="    << widePhi    
+				     << "\nPreTrigger=" << PreTrigger 
+      
+				     << "\nCoreLatency="       << CoreLatency       
+				     << "\nrescaleSinglesPhi=" << rescaleSinglesPhi 
+                                     
+                                     << "\n\nVARIOUS CONFIGURATION PARAMETERS AFTER READING THE DBS VALUES" 
+				     << "\nAllowALCTonly=" <<  AllowALCTonly 
+				     << "\nAllowCLCTonly=" <<  AllowCLCTonly 
+
+				     << "\nQualityEnableME1a=" << QualityEnableME1a 
+				     << "\nQualityEnableME1b=" << QualityEnableME1b 
+				     << "\nQualityEnableME1c=" << QualityEnableME1c 
+				     << "\nQualityEnableME1d=" << QualityEnableME1d 
+				     << "\nQualityEnableME1e=" << QualityEnableME1e 
+				     << "\nQualityEnableME1f=" << QualityEnableME1f 
+				     << "\nQualityEnableME2a=" << QualityEnableME2a 
+				     << "\nQualityEnableME2b=" << QualityEnableME2b 
+				     << "\nQualityEnableME2c=" << QualityEnableME2c 
+				     << "\nQualityEnableME3a=" << QualityEnableME3a 
+				     << "\nQualityEnableME3b=" << QualityEnableME3b 
+				     << "\nQualityEnableME3c=" << QualityEnableME3c 
+				     << "\nQualityEnableME4a=" << QualityEnableME4a 
+				     << "\nQualityEnableME4b=" << QualityEnableME4b 
+				     << "\nQualityEnableME4c=" << QualityEnableME4c 
+				     
+				     << "\nkill_fiber="         << kill_fiber 
+				     << "\nsinglesTrackOutput=" << singlesTrackOutput 
+    
+                                     << "\n\nDAT_ETA AFTER READING THE DBS VALUES" 
+                                     << "\nmindetap     =" << mindetap      
+                                     << "\nmindetap_halo=" << mindetap_halo 
+      
+                                     << "\netamin[0]=" << etamin[0] 
+                                     << "\netamin[1]=" << etamin[1] 
+                                     << "\netamin[2]=" << etamin[2] 
+                                     << "\netamin[3]=" << etamin[3] 
+                                     << "\netamin[4]=" << etamin[4] 
+                                     << "\netamin[5]=" << etamin[5] 
+                                     << "\netamin[6]=" << etamin[6] 
+                                     << "\netamin[7]=" << etamin[7] 
+
+                                     << "\nmindeta12_accp =" << mindeta12_accp   
+                                     << "\nmindeta13_accp =" << mindeta13_accp  
+                                     << "\nmindeta112_accp=" << mindeta112_accp 
+                                     << "\nmindeta113_accp=" << mindeta113_accp 
+      
+                                     << "\netamax[0]=" << etamax[0] 
+                                     << "\netamax[1]=" << etamax[1] 
+                                     << "\netamax[2]=" << etamax[2] 
+                                     << "\netamax[3]=" << etamax[3] 
+                                     << "\netamax[4]=" << etamax[4] 
+                                     << "\netamax[5]=" << etamax[5] 
+                                     << "\netamax[6]=" << etamax[6] 
+                                     << "\netamax[7]=" << etamax[7] 
+
+                                     << "\nmaxdeta12_accp =" << maxdeta12_accp  
+                                     << "\nmaxdeta13_accp =" << maxdeta13_accp  
+                                     << "\nmaxdeta112_accp=" << maxdeta112_accp 
+                                     << "\nmaxdeta113_accp=" << maxdeta113_accp 
   
-                                     << "etawin[0]=" << etawin[0] << std::endl
-                                     << "etawin[1]=" << etawin[1] << std::endl
-                                     << "etawin[2]=" << etawin[2] << std::endl
-                                     << "etawin[3]=" << etawin[3] << std::endl
-                                     << "etawin[4]=" << etawin[4] << std::endl
-                                     << "etawin[5]=" << etawin[5] << std::endl
-                                     << "etawin[6]=" << etawin[6] << std::endl
+                                     << "\netawin[0]=" << etawin[0] 
+                                     << "\netawin[1]=" << etawin[1] 
+                                     << "\netawin[2]=" << etawin[2] 
+                                     << "\netawin[3]=" << etawin[3] 
+                                     << "\netawin[4]=" << etawin[4] 
+                                     << "\netawin[5]=" << etawin[5] 
+                                     << "\netawin[6]=" << etawin[6] 
   
-                                     << "maxdphi12_accp =" << maxdphi12_accp  << std::endl
-                                     << "maxdphi13_accp =" << maxdphi13_accp  << std::endl
-                                     << "maxdphi112_accp=" << maxdphi112_accp << std::endl
-                                     << "maxdphi113_accp=" << maxdphi113_accp << std::endl
+                                     << "\nmaxdphi12_accp =" << maxdphi12_accp  
+                                     << "\nmaxdphi13_accp =" << maxdphi13_accp  
+                                     << "\nmaxdphi112_accp=" << maxdphi112_accp 
+                                     << "\nmaxdphi113_accp=" << maxdphi113_accp 
                            
-                                     << "mindphip     =" << mindphip      << std::endl
-                                     << "mindphip_halo=" << mindphip_halo << std::endl
+                                     << "\nmindphip     =" << mindphip      
+                                     << "\nmindphip_halo=" << mindphip_halo 
   
-                                     << "straightp=" << straightp << std::endl
-                                     << "curvedp  =" << curvedp   << std::endl
-                                     << "mbaPhiOff=" << mbaPhiOff << std::endl
-                                     << "mbbPhiOff=" << mbbPhiOff << std::endl;
+                                     << "\nstraightp=" << straightp 
+                                     << "\ncurvedp  =" << curvedp   
+                                     << "\nmbaPhiOff=" << mbaPhiOff 
+                                     << "\nmbbPhiOff=" << mbbPhiOff ;
   
   // ---------------------------------------------------------
 
