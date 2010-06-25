@@ -29,7 +29,7 @@ RPCMonitorDigi::RPCMonitorDigi( const ParameterSet& pset ):counter(0){
 
   saveRootFile  = pset.getUntrackedParameter<bool>("DigiDQMSaveRootFile", false); 
   mergeRuns_  = pset.getUntrackedParameter<bool>("MergeDifferentRuns", false); 
-  saveRootFileEventsInterval  = pset.getUntrackedParameter<int>("DigiEventsInterval", 10000);
+  // saveRootFileEventsInterval  = pset.getUntrackedParameter<int>("DigiEventsInterval", 10000);
   RootFileName  = pset.getUntrackedParameter<string>("RootFileNameDigi", "RPCMonitor.root"); 
 
   globalFolder_ = pset.getUntrackedParameter<string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms");
@@ -105,6 +105,8 @@ void RPCMonitorDigi::beginJob(){
       EndcapNegativeOccupancy -> setBinLabel(i, binLabel.str(), 2);
     }
   }
+  dcs_ = true;
+
 }
 
 void RPCMonitorDigi::beginRun(const Run& r, const EventSetup& iSetup){
@@ -150,14 +152,14 @@ void RPCMonitorDigi::endJob(void){
 
 
 
-void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
+void RPCMonitorDigi::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup ){
+  
+  this->makeDcsInfo(iEvent);
+  if( !dcs_) return;//if RPC not ON there's no need to continue
 
   counter++;
 
   LogInfo (nameInLog) <<"[RPCMonitorDigi]: Beginning analyzing event " << counter;  
-  
-
-  if( !dcs_) return;//if RPC not ON there's no need to continue
 
   /// Digis
   Handle<RPCDigiCollection> rpcdigis;
@@ -421,14 +423,14 @@ void  RPCMonitorDigi::makeDcsInfo(const edm::Event& e) {
   edm::Handle<DcsStatusCollection> dcsStatus;
 
   if ( ! e.getByLabel("scalersRawToDigi", dcsStatus) ){
-    dcs_ = false;
+    dcs_ = true;
     return;
   }
   
   if ( ! dcsStatus.isValid() ) 
   {
     edm::LogWarning("RPCDcsInfo") << "scalersRawToDigi not found" ;
-    dcs_ = false; // info not available: set to false
+    dcs_ = true; // info not available: set to true
     return;
   }
     
