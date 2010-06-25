@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWTableView.cc,v 1.26 2010/06/18 10:17:16 yana Exp $
+// $Id: FWTableView.cc,v 1.27 2010/06/25 13:13:15 matevz Exp $
 //
 
 // system include files
@@ -649,7 +649,7 @@ void FWTableView::modifyColumn ()
      std::string expr = m_column_expr_field->GetText();
      // convert the precision to a long int
      char *endptr = 0;
-     int prec = (int) strtol(m_column_prec_field->GetText(), &endptr, 0));
+     int prec = (int) strtol(m_column_prec_field->GetText(), &endptr, 0);
      if (name == "" || expr == "" || 
 	 m_column_prec_field->GetText() == 0 || *endptr != 0) {
         fwLog(fwlog::kInfo) << "bad input\n";
