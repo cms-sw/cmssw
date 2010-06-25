@@ -32,7 +32,7 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
                                                             trigger_on_ME3 = cms.bool(False),
                                                             trigger_on_ME4 = cms.bool(False),
                                                             singlesTrackOutput = cms.uint32(1),
-                                                            singlesTrackPt = cms.uint32(63),  #Variable sets Rank, not just Pt, so it is pt = 31, Q=1
+
                                                             CoreLatency = cms.uint32(7),
                                                             PreTrigger = cms.uint32(2),
                                                             BXAdepth = cms.uint32(2),

@@ -61,9 +61,9 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
   m_maxdphi113_accp=-1;
   m_mindphip_halo=-1;
 	m_mindetap_halo=-1;
-	
+
   m_widePhi=-1;
-  
+
   m_straightp=-1;
   m_curvedp=-1;
 
@@ -95,7 +95,7 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
   trigger_on_ME4  = -1;
   trigger_on_MB1a = -1;
   trigger_on_MB1d = -1;
-  singlesTrackPt  = -1;
+
   singlesTrackOutput = 999;
   rescaleSinglesPhi  = -1;
 
@@ -138,6 +138,110 @@ void CSCTFSectorProcessor::initialize(const edm::EventSetup& c){
 //std::cout<<"Initializing endcap: "<<m_endcap<<" sector:"<<m_sector<<std::endl<<config.product()->parameters((m_endcap-1)*6+(m_sector-1))<<std::endl;;
     readParameters(config.product()->parameters((m_endcap-1)*6+(m_sector-1)));
   }
+
+  // ---------------------------------------------------------------------------
+  // This part is added per Vasile's request.
+  // It will help people understanding the emulator configuration
+  // LogDebug
+  LogDebug("CSCTFSectorProcessor") << "\n !!! CSCTF EMULATOR CONFIGURATION !!!"
+                                   << "\n\nCORE CONFIGURATION"
+                                   << "\n Coincidence Trigger? " << run_core
+                                   << "\n Singles in ME1a? "     << trigger_on_ME1a
+                                   << "\n Singles in ME1b? "     << trigger_on_ME1b
+                                   << "\n Singles in ME2? "      << trigger_on_ME2
+                                   << "\n Singles in ME3? "      << trigger_on_ME3
+                                   << "\n Singles in ME4? "      << trigger_on_ME4
+                                   << "\n Singles in MB1a? "     << trigger_on_MB1a
+                                   << "\n Singles in MB1d? "     << trigger_on_MB1d
+
+                                   << "\n BX Analyzer depth: assemble coinc. track with stubs in +/-" << m_bxa_depth << " Bxs"
+                                   << "\n Is Wide Phi Extrapolation (DeltaPhi valid up to ~15 degrees, otherwise ~7.67 degrees)? " << m_widePhi
+                                   << "\n PreTrigger=" << m_preTrigger
+
+                                   << "\n CoreLatency=" << m_latency
+                                   << "\n Is Phi for singles rescaled? " << rescaleSinglesPhi
+
+                                   << "\n\nVARIOUS CONFIGURATION PARAMETERS"
+                                   << "\n Allow ALCT only? " <<  m_allowALCTonly
+                                   << "\n Allow CLCT only? " <<  m_allowCLCTonly
+
+                                   << "\nQualityEnableME1a (in general accept all LCT qualities, i.e. 0xFFFF is expected)=" << QualityEnableME1a
+                                   << "\nQualityEnableME1b (in general accept all LCT qualities, i.e. 0xFFFF is expected)=" << QualityEnableME1b
+                                   << "\nQualityEnableME1c (in general accept all LCT qualities, i.e. 0xFFFF is expected)=" << QualityEnableME1c
+                                   << "\nQualityEnableME1d (in general accept all LCT qualities, i.e. 0xFFFF is expected)=" << QualityEnableME1d
+                                   << "\nQualityEnableME1e (in general accept all LCT qualities, i.e. 0xFFFF is expected)=" << QualityEnableME1e
+                                   << "\nQualityEnableME1f (in general accept all LCT qualities, i.e. 0xFFFF is expected)=" << QualityEnableME1f
+                                   << "\nQualityEnableME2a (in general accept all LCT qualities, i.e. 0xFFFF is expected)=" << QualityEnableME2a
+                                   << "\nQualityEnableME2b (in general accept all LCT qualities, i.e. 0xFFFF is expected)=" << QualityEnableME2b
+                                   << "\nQualityEnableME2c (in general accept all LCT qualities, i.e. 0xFFFF is expected)=" << QualityEnableME2c
+                                   << "\nQualityEnableME3a (in general accept all LCT qualities, i.e. 0xFFFF is expected)=" << QualityEnableME3a
+                                   << "\nQualityEnableME3b (in general accept all LCT qualities, i.e. 0xFFFF is expected)=" << QualityEnableME3b
+                                   << "\nQualityEnableME3c (in general accept all LCT qualities, i.e. 0xFFFF is expected)=" << QualityEnableME3c
+                                   << "\nQualityEnableME4a (in general accept all LCT qualities, i.e. 0xFFFF is expected)=" << QualityEnableME4a
+                                   << "\nQualityEnableME4b (in general accept all LCT qualities, i.e. 0xFFFF is expected)=" << QualityEnableME4b
+                                   << "\nQualityEnableME4c (in general accept all LCT qualities, i.e. 0xFFFF is expected)=" << QualityEnableME4c
+
+                                   << "\nkill_fiber="         << kill_fiber
+                                   << "\nSingles Output Link=" << singlesTrackOutput
+
+    //the DAT_ETA registers meaning are explained at Table 2 of
+    //http://www.phys.ufl.edu/~uvarov/SP05/LU-SP_ReferenceGuide_090915_Update.pdf
+
+                                   << "\n\nDAT_ETA REGISTERS"
+                                   << "\nMinimum eta difference for track cancellation logic=" << m_mindetap
+                                   << "\nMinimum eta difference for halo track cancellation logic=" << m_mindetap_halo
+
+                                   << "\nMinimum eta for ME1-ME2 collision tracks=" << m_etamin[0]
+                                   << "\nMinimum eta for ME1-ME3 collision tracks=" << m_etamin[1]
+                                   << "\nMinimum eta for ME2-ME3 collision tracks=" << m_etamin[2]
+                                   << "\nMinimum eta for ME2-ME4 collision tracks=" << m_etamin[3]
+                                   << "\nMinimum eta for ME3-ME4 collision tracks=" << m_etamin[4]
+                                   << "\nMinimum eta for ME1-ME2 collision tracks in overlap region=" << m_etamin[5]
+                                   << "\nMinimum eta for ME2-MB1 collision tracks=" << m_etamin[6]
+                                   << "\nMinimum eta for ME1-ME4 collision tracks=" << m_etamin[7]
+
+                                   << "\nMinimum eta difference for ME1-ME2 (except ME1/1) halo tracks=" << m_mindeta12_accp
+                                   << "\nMinimum eta difference for ME1-ME3 (except ME1/1) halo tracks=" << m_mindeta13_accp
+                                   << "\nMinimum eta difference for ME1/1-ME2 halo tracks=" << m_mindeta112_accp
+                                   << "\nMinimum eta difference for ME1/1-ME3 halo tracks=" << m_mindeta113_accp
+
+                                   << "\nMaximum eta for ME1-ME2 collision tracks=" << m_etamax[0]
+                                   << "\nMaximum eta for ME1-ME3 collision tracks=" << m_etamax[1]
+                                   << "\nMaximum eta for ME2-ME3 collision tracks=" << m_etamax[2]
+                                   << "\nMaximum eta for ME2-ME4 collision tracks=" << m_etamax[3]
+                                   << "\nMaximum eta for ME3-ME4 collision tracks=" << m_etamax[4]
+                                   << "\nMaximum eta for ME1-ME2 collision tracks in overlap region=" << m_etamax[5]
+                                   << "\nMaximum eta for ME2-MB1 collision tracks=" << m_etamax[6]
+                                   << "\nMaximum eta for ME1-ME4 collision tracks=" << m_etamax[7]
+
+                                   << "\nMaximum eta difference for ME1-ME2 (except ME1/1) halo tracks=" << m_maxdeta12_accp
+                                   << "\nMaximum eta difference for ME1-ME3 (except ME1/1) halo tracks=" << m_maxdeta13_accp
+                                   << "\nMaximum eta difference for ME1/1-ME2 halo tracks=" << m_maxdeta112_accp
+                                   << "\nMaximum eta difference for ME1/1-ME3 halo tracks=" << m_maxdeta113_accp
+
+                                   << "\nEta window for ME1-ME2 collision tracks=" << m_etawin[0]
+                                   << "\nEta window for ME1-ME3 collision tracks=" << m_etawin[1]
+                                   << "\nEta window for ME2-ME3 collision tracks=" << m_etawin[2]
+                                   << "\nEta window for ME2-ME4 collision tracks=" << m_etawin[3]
+                                   << "\nEta window for ME3-ME4 collision tracks=" << m_etawin[4]
+                                   << "\nEta window for ME1-ME2 collision tracks in overlap region=" << m_etawin[5]
+                                   << "\nEta window for ME1-ME4 collision tracks=" << m_etawin[6]
+
+                                   << "\nMaximum phi difference for ME1-ME2 (except ME1/1) halo tracks=" << m_maxdphi12_accp
+                                   << "\nMaximum phi difference for ME1-ME3 (except ME1/1) halo tracks=" << m_maxdphi13_accp
+                                   << "\nMaximum phi difference for ME1/1-ME2 halo tracks=" << m_maxdphi112_accp
+                                   << "\nMaximum phi difference for ME1/1-ME3 halo tracks=" << m_maxdphi113_accp
+
+                                   << "\nMinimum phi difference for track cancellation logic=" << m_mindphip
+                                   << "\nMinimum phi difference for halo track cancellation logic=" << m_mindphip_halo
+
+                                   << "\nParameter for the correction of misaligned 1-2-3-4 straight tracks =" << m_straightp
+                                   << "\nParameter for the correction of misaligned 1-2-3-4 curved tracks=" << m_curvedp
+                                   << "\nPhi Offset for MB1A=" << m_mbaPhiOff
+                                   << "\nPhi Offset for MB1D=" << m_mbbPhiOff ;
+  // ---------------------------------------------------------------------------
+
+
   // Check if parameters were not initialized in both: constuctor (from .cf? file) and initialize method (from EventSetup)
   if(m_bxa_depth<0) throw cms::Exception("CSCTFSectorProcessor")<<"BXAdepth parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
   if(m_allowALCTonly<0) throw cms::Exception("CSCTFSectorProcessor")<<"AllowALCTonly parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
@@ -163,9 +267,9 @@ void CSCTFSectorProcessor::initialize(const edm::EventSetup& c){
   if(m_maxdphi113_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"maxdphi_accp113 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
   if(m_mindphip_halo<0) throw cms::Exception("CSCTFSectorProcessor")<<"mindphip_halo parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
 	if(m_mindetap_halo<0) throw cms::Exception("CSCTFSectorProcessor")<<"mindetep_halo parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
-	
+
 	if(m_widePhi<0) throw cms::Exception("CSCTFSectorProcessor")<<"widePhi parameter left unitialized for endcap="<<m_endcap<<", sector="<<m_sector;
-  
+
   for(int index=0; index<8; index++) if(m_etamax[index]<0) throw cms::Exception("CSCTFSectorProcessor")<<"Some ("<<(8-index)<<") of EtaMax parameters left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
   for(int index=0; index<8; index++) if(m_etamin[index]<0) throw cms::Exception("CSCTFSectorProcessor")<<"Some ("<<(8-index)<<") of EtaMin parameters left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
   for(int index=0; index<7; index++) if(m_etawin[index]<0) throw cms::Exception("CSCTFSectorProcessor")<<"Some ("<<(6-index)<<") of EtaWindows parameters left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
@@ -180,7 +284,7 @@ void CSCTFSectorProcessor::initialize(const edm::EventSetup& c){
   if(trigger_on_MB1d<0) throw cms::Exception("CSCTFTrackBuilder")<<"trigger_on_MB1d parameter left uninitialized";
   if( trigger_on_ME1a>0 || trigger_on_ME1b>0 ||trigger_on_ME2>0  ||
       trigger_on_ME3>0  || trigger_on_ME4>0  ||trigger_on_MB1a>0 ||trigger_on_MB1d>0 ){
-      if(singlesTrackPt<0) throw cms::Exception("CSCTFTrackBuilder")<<"singlesTrackPt parameter left uninitialized";
+
       if(singlesTrackOutput==999) throw cms::Exception("CSCTFTrackBuilder")<<"singlesTrackOutput parameter left uninitialized";
       if(rescaleSinglesPhi<0)  throw cms::Exception("CSCTFTrackBuilder")<<"rescaleSinglesPhi parameter left uninitialized";
   }
@@ -246,7 +350,7 @@ void CSCTFSectorProcessor::readParameters(const edm::ParameterSet& pset){
       trigger_on_ME4 = pset.getParameter<bool>("trigger_on_ME4");
       trigger_on_MB1a = pset.getParameter<bool>("trigger_on_MB1a");
       trigger_on_MB1d = pset.getParameter<bool>("trigger_on_MB1d");
-      singlesTrackPt = pset.getParameter<unsigned int>("singlesTrackPt");
+
       singlesTrackOutput = pset.getParameter<unsigned int>("singlesTrackOutput");
       rescaleSinglesPhi  = pset.getParameter<bool>("rescaleSinglesPhi");
       QualityEnableME1a = pset.getParameter<unsigned int>("QualityEnableME1a");
@@ -407,7 +511,7 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
 										m_etamax[4], m_etamax[5], m_etamax[6], m_etamax[7],
 										m_etawin[0], m_etawin[1], m_etawin[2],
 										m_etawin[3], m_etawin[4], m_etawin[5], m_etawin[6],
-										m_mindphip, m_mindetap,  
+										m_mindphip, m_mindetap,
 										m_mindeta12_accp,  m_maxdeta12_accp, m_maxdphi12_accp,
 										m_mindeta13_accp,  m_maxdeta13_accp, m_maxdphi13_accp,
 										m_mindeta112_accp,  m_maxdeta112_accp, m_maxdphi112_accp,
@@ -445,7 +549,7 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
           titr->setRank(thePtData.rear_rank);
           titr->setChargeValidPacked(thePtData.charge_valid_rear);
         }
-				
+
 				if( ((titr->ptLUTAddress()>>16)&0xf)==15 )
 				{
 					int unmodBx = titr->bx();
@@ -463,9 +567,8 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
     if( trigger_on_ME1a || trigger_on_ME1b || trigger_on_ME2 || trigger_on_ME3 || trigger_on_ME4 || trigger_on_MB1a || trigger_on_MB1d )
         for(std::vector<csctf::TrackStub>::iterator itr=stub_vec_filtered.begin(); itr!=stub_vec_filtered.end(); itr++){
               int station = itr->station()-1;
-							if(station != 4)
-              {
-								int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(itr->getDetId().rawId()));
+              if(station != 4){
+                int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(itr->getDetId().rawId()));
               	int mpc = ( subSector ? subSector-1 : station+1 );
               	if( (mpc==0&&trigger_on_ME1a) || (mpc==1&&trigger_on_ME1b) ||
                 	  (mpc==2&&trigger_on_ME2)  || (mpc==3&&trigger_on_ME3)  ||
@@ -493,15 +596,13 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
           std::vector<csc::L1Track> tracks = l1_tracks.get();
           for(std::vector<csc::L1Track>::iterator trk=tracks.begin(); trk<tracks.end(); trk++)
           	if( (trk->BX() == bx-shift && trk->outputLink() == singlesTrackOutput)
-							|| (((trk->ptLUTAddress()>>16)&0xf)==15 && trk->BX()-2 == bx-shift) ) 
-						{
+                || (((trk->ptLUTAddress()>>16)&0xf)==15 && trk->BX()-2 == bx-shift) ){
                  coreTrackExists = true;
                  break;
              }
              if( coreTrackExists == false ){
                  csc::L1TrackId trackId(m_endcap,m_sector);
                  csc::L1Track   track(trackId);
-                 track.setRank(singlesTrackPt);
                  track.setBx(bx-shift);
                  track.setOutputLink(singlesTrackOutput);
                  //CSCCorrelatedLCTDigiCollection singles;
@@ -514,19 +615,18 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
                      int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(st_iter->getDetId().rawId()));
                      int mpc = ( subSector ? subSector-1 : station+1 );
                      // Sort MB stubs first (priority: quality OR MB1a > MB1b for the same quality)
-                     if( mpc==5 && (st_iter->getQuality()>qualityMB || (st_iter->getQuality()==qualityMB&&subSector<MB)) ){
+                     if( mpc==5 &&  (st_iter->getQuality()>qualityMB || (st_iter->getQuality()==qualityMB&&subSector<MB)) ){
                          qualityMB = st_iter->getQuality();
                          MB        = subSector;
                          if(ME>4) bestStub = st_iter; // do not select this stub if ME already had any candidate
                      }
                      // Sort ME stubs (priority: quality OR ME1a > ME1b > ME2 > ME3 > ME4 for the same quality)
-                     if( mpc<5  && (st_iter->getQuality()>qualityME 
-										 	|| (st_iter->getQuality()==qualityME && mpc<ME)
-											|| (st_iter->getQuality()==qualityME && mpc==ME && st_iter->getMPCLink()<linkME))) 
-										{
+                     if( mpc<5  && (st_iter->getQuality()> qualityME
+                                || (st_iter->getQuality()==qualityME && mpc< ME)
+                                || (st_iter->getQuality()==qualityME && mpc==ME && st_iter->getMPCLink()<linkME))) {
                          qualityME = st_iter->getQuality();
                          ME        = mpc;
-												 linkME    = st_iter->getMPCLink();
+                         linkME    = st_iter->getMPCLink();
                          bestStub  = st_iter;
                      }
                  }
@@ -535,7 +635,6 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
                  // buggy implementation in the current firmware... at the end
                  //data/emulator have to agree: e.g. wrong in the same way
                  unsigned rescaled_phi = unsigned(24*(bestStub->phiPacked()&0x7f)/128.);
-
                  unsigned unscaled_phi =              bestStub->phiPacked()>>7       ;
                  track.setLocalPhi(rescaleSinglesPhi?rescaled_phi:unscaled_phi);
                  track.setEtaPacked((bestStub->etaPacked()>>2)&0x1f);
@@ -549,7 +648,16 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
                  }
                  //   singles.insertDigi(CSCDetId(st_iter->getDetId().rawId()),*st_iter);
                  //tracksFromSingles.push_back(L1CSCTrack(track,singles));
-								 track.setPtLUTAddress( (11<<16) | ((bestStub->etaPacked()<<9)&0xf000) );
+                 track.setPtLUTAddress( (11<<16) | ((bestStub->etaPacked()<<9)&0xf000) );
+                 ptadd thePtAddress( track.ptLUTAddress() );
+                 ptdat thePtData = ptLUT_->Pt(thePtAddress);
+                 if( thePtAddress.track_fr ){
+                     track.setRank(thePtData.front_rank);
+                     track.setChargeValidPacked(thePtData.charge_valid_front);
+                 } else {
+                     track.setRank(thePtData.rear_rank);
+                     track.setChargeValidPacked(thePtData.charge_valid_rear);
+                 }
                  tracksFromSingles.push_back(track);
              }
        }
