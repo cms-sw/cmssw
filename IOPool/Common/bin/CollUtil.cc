@@ -176,7 +176,8 @@ namespace edm {
        << std::setw(15) << "TTree Entry"
        << "\n";
     
-    for(IndexIntoFile::IndexIntoFileItr it = indexIntoFile.begin(false), itEnd = indexIntoFile.end(false);
+    for(IndexIntoFile::IndexIntoFileItr it = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder),
+                                     itEnd = indexIntoFile.end(IndexIntoFile::firstAppearanceOrder);
     it != itEnd;
     ++it) {
       IndexIntoFile::EntryType t = it.getEntryType();
@@ -204,19 +205,21 @@ namespace edm {
     if (fileFormatVersion.fastCopyPossible()) std::cout << "This version supports fast copy\n";
     else std::cout << "This version does not support fast copy\n";
 
-    if (indexIntoFile.allEventsInEntryOrder(false)) {
+    if (indexIntoFile.iterationWillBeInEntryOrder(IndexIntoFile::firstAppearanceOrder)) {
       std::cout << "Events are sorted such that fast copy is possible in the default mode\n";
     }
     else {
       std::cout << "Events are sorted such that fast copy is NOT possible in the default mode\n";
     }
 
-    if (indexIntoFile.allEventsInEntryOrder(false)) {
-      std::cout << "Events are sorted such that fast copy is possible in the \"noEventSort\" mode\n";
-    }
-    else {
-      std::cout << "Events are sorted such that fast copy is NOT possible in the \"noEventSort\" mode\n";
-    }
+    // This will not work unless the other nonpersistent parts of the Index are filled first
+    // I did not have time to implement this yet.
+    // if (indexIntoFile.iterationWillBeInEntryOrder(IndexIntoFile::numericalOrder)) {
+    //   std::cout << "Events are sorted such that fast copy is possible in the \"noEventSort\" mode\n";
+    // }
+    // else {
+    //   std::cout << "Events are sorted such that fast copy is NOT possible in the \"noEventSort\" mode\n";
+    // }
     std::cout << "(Note that other factors can prevent fast copy from occurring)\n\n";
   }
   
