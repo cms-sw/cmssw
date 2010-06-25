@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 13:42:13 CEST 2010
-// $Id: FWHFView.cc,v 1.7 2010/06/18 10:17:15 yana Exp $
+// $Id: FWHFView.cc,v 1.8 2010/06/22 17:09:11 amraktad Exp $
 //
 
 // system include files
@@ -20,6 +20,9 @@
 
 #include "Fireworks/Core/interface/FWHFView.h"
 #include "Fireworks/Core/interface/Context.h"
+#include "Fireworks/Core/interface/FWGenericParameter.h"
+
+#include "Fireworks/Core/interface/FWEnumParameter.h"
 
 //
 // constants, enums and typedefs
@@ -92,7 +95,18 @@ FWHFView::setFrom(const FWConfiguration& iFrom)
 
    if (iFrom.version() < 3)
    {
-      m_lego->Set2DMode(TEveCaloLego::kValSizeOutline);
+      for(const_iterator it =begin(), itEnd = end();
+          it != itEnd;
+          ++it) {
+         if ((*it)->name() == "Cell2DMode")
+         {
+            const FWParameterBase* pb = (*it);
+            FWEnumParameter* cm;
+            cm =(FWEnumParameter*) (pb);
+            cm->set(2);
+         }
+      }
+
    }
 }
 

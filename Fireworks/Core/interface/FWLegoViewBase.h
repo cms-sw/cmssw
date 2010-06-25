@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWLegoViewBase.h,v 1.5 2010/06/22 09:44:33 amraktad Exp $
+// $Id: FWLegoViewBase.h,v 1.6 2010/06/22 17:09:11 amraktad Exp $
 //
 
 // system include files
@@ -76,21 +76,22 @@ private:
    void plotEt();
    void autoScale();
    void updateLegoScale();
-   void showScales();
+   void showOverlay();
    void setProjectionMode();
    void setCell2DMode();
    
    // ---------- member data --------------------------------
    
+protected:
    FWBoolParameter   m_plotEt;
    FWBoolParameter   m_autoRebin;
    FWDoubleParameter m_pixelsPerBin;
-   FWLongParameter   m_drawValuesIn2D;
-   FWBoolParameter   m_showScales;
-   FWDoubleParameter m_legoFixedScale;
-   FWBoolParameter   m_legoAutoScale;
+   FWBoolParameter   m_legoAbsoluteScale;
+   FWDoubleParameter m_legoMaxAbsoluteVal;
    FWEnumParameter   m_projectionMode;
    FWEnumParameter   m_cell2DMode;
+   FWLongParameter   m_drawValuesIn2D;
+   FWBoolParameter   m_showOverlay;
 };
 
 
