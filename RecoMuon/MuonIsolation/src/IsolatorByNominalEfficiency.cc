@@ -151,7 +151,7 @@ Cuts IsolatorByNominalEfficiency::cuts(float nominalEfficiency) const
     float eta = (*it);
     int icone = bestConeForEfficiencyIndex(nominalEfficiency);
     coneSizes.push_back( theConesInfo.size(icone));
-    NominalEfficiencyThresholds::ThresholdLocation location = {eta-1.e-3, icone};
+    NominalEfficiencyThresholds::ThresholdLocation location = {eta-1.e-3f, icone};
     cutvalues.push_back( thresholds->thresholdValueForEfficiency(location, nominalEfficiency));
   }
   return Cuts(etaBounds,coneSizes,cutvalues);
