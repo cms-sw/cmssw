@@ -102,7 +102,7 @@ HLT_MinBiasPixel_DoubleIsoTrack5
 HLT_PixelTracks_Multiplicity70
 HLT_PixelTracks_Multiplicity85
 HLT_MultiVertex6
-HLT_MultiVertex8_ETT60
+HLT_MultiVertex8_L1ETT60
 HLT_CSCBeamHalo
 HLT_CSCBeamHaloOverlapRing1
 HLT_CSCBeamHaloOverlapRing2
