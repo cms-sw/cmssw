@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2010/03/10 10:12:56 $ by $Author: argiro $
+# last update: $Date: 2010/03/17 17:23:23 $ by $Author: mussgill $
 
 # AlCaReco sequence definitions:
 
@@ -84,6 +84,14 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlLAS_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlBeamHalo_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlBeamHaloOverlaps_cff import *
 
+###############################################################
+# stream for prompt-calibration @ Tier0
+###############################################################
+from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProd_cff import *
+
+
+
+
 # NOTE: the ALCARECO DQM modules can not be placed together in a single path 
 # because the non-DQM sequences act as filters.
 # They are therefore inserted per ALCARECO path.
@@ -126,6 +134,7 @@ pathALCARECOTkAlCosmicsCTF0THLT = cms.Path(seqALCARECOTkAlCosmicsCTF0THLT*ALCARE
 pathALCARECOTkAlCosmicsCosmicTF0THLT = cms.Path(seqALCARECOTkAlCosmicsCosmicTF0THLT*ALCARECOTkAlCosmicsCosmicTF0TDQM)
 pathALCARECOMuAlStandAloneCosmics = cms.Path(seqALCARECOMuAlStandAloneCosmics*ALCARECOMuAlStandAloneCosmicsDQM)
 pathALCARECOMuAlGlobalCosmics = cms.Path(seqALCARECOMuAlGlobalCosmics*ALCARECOMuAlGlobalCosmicsDQM)
+pathALCARECOPromptCalibProd = cms.Path(seqALCARECOPromptCalibProd)
 
 # AlCaReco event content definitions:
 
@@ -403,6 +412,18 @@ ALCARECOStreamTkAlLAS = cms.FilteredStream(
 	selectEvents = OutALCARECOTkAlLAS.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
+
+
+ALCARECOStreamPromptCalibProd = cms.FilteredStream(
+	responsible = 'Gianluca Cerminara',
+	name = 'PromptCalibProd',
+	paths  = (pathALCARECOPromptCalibProd),
+	content = OutALCARECOPromptCalibProd.outputCommands,
+	selectEvents = OutALCARECOPromptCalibProd.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
+
 
 from Configuration.StandardSequences.AlCaRecoStream_EcalCalEtaCalib_cff import *
 from Configuration.StandardSequences.AlCaRecoStream_EcalCalPhiSym_cff import *
