@@ -16,10 +16,11 @@ def main(argv):
     input_fakel1 = 0
     input_orcoffmenu = 0
     input_userefprescales = 0
+    input_referencecolumn = 0
     input_config = "/cdaq/physics/firstCollisions10/v5.0/HLT/V2"
     input_refconfig = "/cdaq/physics/firstCollisions10/v5.1/HLT_900GeV/V3"
 
-    opts, args = getopt.getopt(sys.argv[1:], "c:onfpr:h", ["config=","orcoff","notechnicaltriggers","fakel1seeds","addreferenceprescales","referenceconfig=","help"])
+    opts, args = getopt.getopt(sys.argv[1:], "c:onfp:r:h", ["config=","orcoff","notechnicaltriggers","fakel1seeds","addreferenceprescales=","referenceconfig=","help"])
 
     for o, a in opts:
         if o in ("-c","config="):
@@ -32,6 +33,8 @@ def main(argv):
             input_fakel1 = 1
         if o in ("-p","addreferenceprescales"):
             input_userefprescales = 1
+            input_referencecolumn = a
+            print "Will use reference prescales from column " + str(a)
         if o in ("-r","referenceconfig="):
             input_refconfig = str(a)
         if o in ("-o","orcoff"):
@@ -46,13 +49,13 @@ def main(argv):
             print "-h (Print the help menu)"
             return
 
-    confdbjob = ConfdbToOpenHLT(input_config,input_orcoffmenu,input_notech,input_fakel1,input_userefprescales,input_refconfig)
+    confdbjob = ConfdbToOpenHLT(input_config,input_orcoffmenu,input_notech,input_fakel1,input_userefprescales,input_refconfig,input_referencecolumn)
     confdbjob.BeginJob()
     os.system("mv OHltTree_FromConfDB.h OHltTree.h")
     
             
 class ConfdbToOpenHLT:
-    def __init__(self,cliconfig,cliorcoff,clinotech,clifakel1,clirefprescales,clirefconfig):
+    def __init__(self,cliconfig,cliorcoff,clinotech,clifakel1,clirefprescales,clirefconfig,clireferencecolumn):
 
         self.configname = cliconfig
         self.orcoffmenu = cliorcoff 
@@ -65,6 +68,7 @@ class ConfdbToOpenHLT:
         self.hltprescalemap = {}
         self.l1modulenameseedmap = {}
         self.hltl1modulemap = {}
+        self.referencecolumn = int(clireferencecolumn)
 
     def BeginJob(self):
 
@@ -121,6 +125,10 @@ class ConfdbToOpenHLT:
                             for paramname, paramval in prescalepsetparams.iteritems():
                                 if(paramname == "prescales"):
                                     hltprescale = str(paramval.value()).strip('[').strip(']')
+                                    # Deal with prescale columns
+                                    if(hltprescale.find(',') != -1):
+                                        hltprescalevector = hltprescale.split(',')
+                                        hltprescale = hltprescalevector[self.referencecolumn]
                                 if(paramname == "pathName"):
                                     hltname = str(paramval.value())
                             self.hltprescalemap[hltname] = hltprescale
