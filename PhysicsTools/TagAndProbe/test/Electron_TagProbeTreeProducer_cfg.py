@@ -188,14 +188,7 @@ process.badSuperClustersClean = cms.EDFilter("CandViewCleaner",
 ## Here we show how to use a module to compute an external variable
 #process.load("JetMETCorrections.Configuration.DefaultJEC_cff")
 JET_COLL = "ak5CaloJets"
-JET_CUTS = "pt > 5.0 && abs(eta)<3.0 && (0.05 < emEnergyFraction < 0.9)"
-###### Kalanand  Mishra, June 19, 2010
-### Apparently, the above "string-based" jet cut is not being
-## applied at all, so the resulting ROOT tree contains all jets.
-## I will investigate the behavior of the CMS string parser.
-## Meanwhile, you can either use 'CaloJetSelector' to apply these
-## cuts or apply the cut at analysis level.
-
+JET_CUTS = "pt > 10.0 && abs(eta)<3.0 && (0.02 < emEnergyFraction < 0.9)"
 
 process.superClusterDRToNearestJet = cms.EDProducer("DeltaRNearestObjectComputer",
     probes = cms.InputTag("goodSuperClusters"),
@@ -426,7 +419,8 @@ recoCommonStuff = cms.PSet(
     ),
    ignoreExceptions =  cms.bool (True),
    fillTagTree      =  cms.bool (True),
-   addRunLumiInfo   =  cms.bool (True),    
+   addRunLumiInfo   =  cms.bool (True),
+   addEventVariablesInfo   =  cms.bool (True),  
 )
 
 mcTruthCommonStuff = cms.PSet(
@@ -455,6 +449,18 @@ gsfEleCommonStuff = cms.PSet(
         vz     = cms.string("vz"),
         rapidity  = cms.string("rapidity"),
         missingHits = cms.string("gsfTrack.trackerExpectedHitsInner.numberOfHits"),
+        ## super cluster quantities
+        sc_energy = cms.string("superCluster.energy"),
+        sc_x      = cms.string("superCluster.x"),
+        sc_y      = cms.string("superCluster.y"),
+        sc_z      = cms.string("superCluster.z"),
+        sc_eta    = cms.string("superCluster.eta"),
+        sc_phi    = cms.string("superCluster.phi"),
+        sc_size   = cms.string("superCluster.size"), # number of hits
+        sc_rawEnergy = cms.string("superCluster.rawEnergy"), 
+        sc_preshowerEnergy   = cms.string("superCluster.preshowerEnergy"), 
+        sc_phiWidth   = cms.string("superCluster.phiWidth"), 
+        sc_etaWidth   = cms.string("superCluster.etaWidth"),         
         ## isolation 
         trackiso = cms.string("dr04TkSumPt"),
         ecaliso  = cms.string("dr04EcalRecHitSumEt"),
@@ -477,6 +483,7 @@ gsfEleCommonStuff = cms.PSet(
     ignoreExceptions =  cms.bool (True),
     fillTagTree      =  cms.bool (True),
     addRunLumiInfo   =  cms.bool (True),
+    addEventVariablesInfo   =  cms.bool (True),  
 )
 
 
