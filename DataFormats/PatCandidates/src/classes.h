@@ -19,11 +19,7 @@
 #include "DataFormats/PatCandidates/interface/StringMap.h"
 #include "DataFormats/PatCandidates/interface/EventHypothesis.h"
 #include "DataFormats/PatCandidates/interface/EventHypothesisLooper.h"
-#include "DataFormats/PatCandidates/interface/TriggerObject.h"
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
-#include "DataFormats/PatCandidates/interface/TriggerFilter.h"
-#include "DataFormats/PatCandidates/interface/TriggerPath.h"
-#include "DataFormats/PatCandidates/interface/TriggerAlgorithm.h"
 #include "DataFormats/PatCandidates/interface/TriggerEvent.h"
 
 #include "DataFormats/PatCandidates/interface/Vertexing.h"

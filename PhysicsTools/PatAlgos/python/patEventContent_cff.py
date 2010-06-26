@@ -51,6 +51,10 @@ patTriggerStandAloneEventContent = [
     'keep patTriggerObjectStandAlones_patTrigger_*_*',
     'keep patTriggerObjectStandAlonesedmAssociation_*_*_*'
 ]
+patTriggerL1RefsEventContent = [
+    'keep *_l1extraParticles_*_*',
+    'keep *_gctDigis_*_*'
+]
 
 patEventContentTriggerMatch = [
     'keep *_cleanPatPhotonsTriggerMatch_*_*',
