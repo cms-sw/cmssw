@@ -13,7 +13,7 @@
   for a general overview of the selectors. 
 
   \author Salvatore Rappoccio
-  \version  $Id: PFJetIDSelectionFunctor.h,v 1.9 2010/06/04 19:17:53 srappocc Exp $
+  \version  $Id: PFJetIDSelectionFunctor.h,v 1.11 2010/06/07 16:22:54 srappocc Exp $
 */
 
 
@@ -36,7 +36,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
   
  PFJetIDSelectionFunctor( edm::ParameterSet const & params ) 
  {
-
+   std::cout << "Instantiated PFJetIDSelectionFunctor" << std::endl;
    std::string versionStr = params.getParameter<std::string>("version");
    std::string qualityStr = params.getParameter<std::string>("quality");
 
@@ -60,15 +60,15 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     // Set some default cuts for LOOSE, TIGHT
     if ( quality_ == LOOSE ) {
       set("CHF", 0.0);
-      set("NHF", 1.0);
-      set("CEF", 1.0);
-      set("NEF", 1.0);
+      set("NHF", 0.99);
+      set("CEF", 0.99);
+      set("NEF", 0.99);
       set("NCH", 0);
       set("nConstituents", 1);
     } else if ( quality_ == TIGHT ) {
       set("CHF", 0.0);
       set("NHF", 0.9);
-      set("CEF", 1.0);
+      set("CEF", 0.99);
       set("NEF", 0.9);
       set("NCH", 0);
       set("nConstituents", 1);      
@@ -104,15 +104,15 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     // Set some default cuts for LOOSE, TIGHT
     if ( quality_ == LOOSE ) {
       set("CHF", 0.0);
-      set("NHF", 1.0);
-      set("CEF", 1.0);
-      set("NEF", 1.0);
+      set("NHF", 0.99);
+      set("CEF", 0.99);
+      set("NEF", 0.99);
       set("NCH", 0);
       set("nConstituents", 1);
     } else if ( quality_ == TIGHT ) {
       set("CHF", 0.0);
       set("NHF", 0.9);
-      set("CEF", 1.0);
+      set("CEF", 0.99);
       set("NEF", 0.9);
       set("NCH", 0);
       set("nConstituents", 1);      
@@ -165,22 +165,87 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     // Have to do this because pat::Jet inherits from reco::Jet but not reco::PFJet
     reco::PFJet const * pfJet = dynamic_cast<reco::PFJet const *>(&jet);
     pat::Jet const * patJet = dynamic_cast<pat::Jet const *>(&jet);
+    reco::BasicJet const * basicJet = dynamic_cast<reco::BasicJet const *>(&jet);
 
     if ( patJet != 0 ) {
-      chf = patJet->chargedHadronEnergyFraction();
-      nhf = ( patJet->neutralHadronEnergy() + patJet->HFHadronEnergy() ) / patJet->energy();
-      cef = patJet->chargedEmEnergyFraction();
-      nef = patJet->neutralEmEnergyFraction();
-      nch = patJet->chargedMultiplicity();
-      nconstituents = patJet->numberOfDaughters();
-    } else if ( pfJet != 0 ) {
+
+      if ( patJet->isPFJet() ) {
+	chf = patJet->chargedHadronEnergyFraction();
+	nhf = ( patJet->neutralHadronEnergy() + patJet->HFHadronEnergy() ) / patJet->energy();
+	cef = patJet->chargedEmEnergyFraction();
+	nef = patJet->neutralEmEnergyFraction();
+	nch = patJet->chargedMultiplicity();
+	nconstituents = patJet->numberOfDaughters();
+      } 
+      // Handle the special case where this is a composed jet for
+      // subjet analyses
+      else if ( patJet->isBasicJet() ) {
+	double e_chf = 0.0;
+	double e_nhf = 0.0;
+	double e_cef = 0.0;
+	double e_nef = 0.0;
+	nch = 0;
+	nconstituents = 0;
+
+	for ( reco::Jet::const_iterator ibegin = patJet->begin(),
+		iend = patJet->end(), isub = ibegin;
+	      isub != iend; ++isub ) {
+	  reco::PFJet const * pfsub = dynamic_cast<reco::PFJet const *>( &*isub );
+	  e_chf += pfsub->chargedHadronEnergy();
+	  e_nhf += (pfsub->neutralHadronEnergy() + pfsub->HFHadronEnergy());
+	  e_cef += pfsub->chargedEmEnergy();
+	  e_nef += pfsub->chargedEmEnergy();
+	  nch += pfsub->chargedMultiplicity();
+	  nconstituents += pfsub->numberOfDaughters();
+	}
+	double e = patJet->energy();
+	if ( e > 0.000001 ) {
+	  chf = e_chf / e;
+	  nhf = e_nhf / e;
+	  cef = e_cef / e;
+	  nef = e_nef / e;
+	} else {
+	  chf = nhf = cef = nef = 0.0;
+	}
+      }
+    } // end if pat jet
+    else if ( pfJet != 0 ) {
       chf = pfJet->chargedHadronEnergyFraction();
       nhf = ( pfJet->neutralHadronEnergy() + pfJet->HFHadronEnergy() ) / pfJet->energy();
       cef = pfJet->chargedEmEnergyFraction();
       nef = pfJet->neutralEmEnergyFraction();
       nch = pfJet->chargedMultiplicity();
       nconstituents = pfJet->numberOfDaughters();
-    }
+    } // end if PF jet
+    // Handle the special case where this is a composed jet for
+    // subjet analyses
+    else if ( basicJet != 0 ) {
+      double e_chf = 0.0;
+      double e_nhf = 0.0;
+      double e_cef = 0.0;
+      double e_nef = 0.0;
+      nch = 0;
+      nconstituents = 0;
+      
+      for ( reco::Jet::const_iterator ibegin = basicJet->begin(),
+	      iend = patJet->end(), isub = ibegin;
+	    isub != iend; ++isub ) {
+	reco::PFJet const * pfsub = dynamic_cast<reco::PFJet const *>( &*isub );
+	e_chf += pfsub->chargedHadronEnergy();
+	e_nhf += (pfsub->neutralHadronEnergy() + pfsub->HFHadronEnergy());
+	e_cef += pfsub->chargedEmEnergy();
+	e_nef += pfsub->chargedEmEnergy();
+	nch += pfsub->chargedMultiplicity();
+	nconstituents += pfsub->numberOfDaughters();
+      }
+      double e = basicJet->energy();
+      if ( e > 0.000001 ) {
+	chf = e_chf / e;
+	nhf = e_nhf / e;
+	cef = e_cef / e;
+	nef = e_nef / e;
+      }
+    } // end if basic jet
 
 
     // Cuts for all |eta|:
