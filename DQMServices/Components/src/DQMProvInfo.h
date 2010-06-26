@@ -4,8 +4,8 @@
 /*
  * \file DQMProvInfo.h
  *
- * $Date: 2010/03/29 18:34:06 $
- * $Revision: 1.8 $
+ * $Date: 2010/05/12 17:35:41 $
+ * $Revision: 1.9 $
  * \author A.Meyer - DESY
  *
 */
@@ -57,7 +57,7 @@ private:
   int lastlumi_;
   
   bool physDecl_;
-  bool dcs24[24];
+  bool dcs25[25];
   
   int lhcFill_;
   int beamMode_;
