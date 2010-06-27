@@ -14,6 +14,9 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
   hitLab[2] = ps.getUntrackedParameter<std::string>("ESCollection","EcalHitsES");
   hitLab[3] = ps.getUntrackedParameter<std::string>("HCCollection","HcalHits");
   double maxEnergy_= ps.getUntrackedParameter<double>("MaxEnergy", 200.0);
+  tmax_     = ps.getUntrackedParameter<double>("TimeCut", 100.0);
+  eMIP_     = ps.getUntrackedParameter<double>("MIPCut",  0.70);
+
   muonLab[0]  = "MuonRPCHits";
   muonLab[1]  = "MuonCSCHits";
   muonLab[2]  = "MuonDTHits";
@@ -32,15 +35,15 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
   edm::LogInfo("HitStudy") << "Module Label: " << g4Label << "   Hits: "
 			   << hitLab[0] << ", " << hitLab[1] << ", " 
 			   << hitLab[2] << ", "<< hitLab[3] 
-			   << "   MaxEnergy: " << maxEnergy_;
+			   << "   MaxEnergy: " << maxEnergy_ << "  Tmax: "
+			   << tmax_ << "  MIP Cut: " << eMIP_;
 
   edm::Service<TFileService> tfile;
  
   if ( !tfile.isAvailable() )
     throw cms::Exception("BadConfig") << "TFileService unavailable: "
                                       << "please add it to config file";
-  std::string dets[9] = {"EB", "EB(APD)", "EB(ATJ)", "EE", "ES", "HB", "HE", "HO", "HF"};
-  char  name[20], title[100];
+  char  name[20], title[120];
   sprintf (title, "Incident PT (GeV)");
   ptInc_ = tfile->make<TH1F>("PtInc", title, 1000, 0., maxEnergy_);
   ptInc_->GetXaxis()-> SetTitle(title);
@@ -57,6 +60,7 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
   phiInc_ = tfile->make<TH1F>("PhiInc", title, 200, -3.1415926, 3.1415926);
   phiInc_->GetXaxis()->SetTitle(title);
   phiInc_->GetYaxis()->SetTitle("Events");
+  std::string dets[9] = {"EB", "EB(APD)", "EB(ATJ)", "EE", "ES", "HB", "HE", "HO", "HF"};
   for (int i=0; i<9; i++) {
     sprintf (name, "Hit%d", i);
     sprintf (title, "Number of hits in %s", dets[i].c_str());
@@ -101,6 +105,21 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
     etotg_[i]  = tfile->make<TH1F>(name, title, 5000, 0., ymax);
     etotg_[i]->GetXaxis()->SetTitle(title); 
     etotg_[i]->GetYaxis()->SetTitle("Events");
+  }
+  std::string detx[9] = {"EB/EE (MIP)", "HB/HE (MIP)", "HB/HE/HO (MIP)", "EB/EE (no MIP)", "HB/HE (no MIP)", "HB/HE/HO (no MIP)", "EB/EE (All)", "HB/HE (All)", "HB/HE/HO (All)"};
+  for (int i=0; i<9; i++) {
+    double ymax = 1.0;
+    if (i==0 || i==3 || i==6) ymax = maxEnergy_;
+    sprintf (name, "EdepCal%d", i);
+    sprintf (title, "Energy deposit in %s", detx[i].c_str());
+    edepC_[i]  = tfile->make<TH1F>(name, title, 5000, 0., ymax);
+    edepC_[i]->GetXaxis()->SetTitle(title); 
+    edepC_[i]->GetYaxis()->SetTitle("Events");
+    sprintf (name, "EdepCalT%d", i);
+    sprintf (title, "Energy deposit (t < %f ns) in %s", tmax_,detx[i].c_str());
+    edepT_[i]  = tfile->make<TH1F>(name, title, 5000, 0., ymax);
+    edepT_[i]->GetXaxis()->SetTitle(title); 
+    edepT_[i]->GetYaxis()->SetTitle("Events");
   }
   hitLow = tfile->make<TH1F>("HitLow","Number of hits in Track (Low)",1000,0,10000.);
   hitLow->GetXaxis()->SetTitle("Number of hits in Track (Low)");
@@ -157,6 +176,7 @@ void CaloSimHitStudy::analyze(const edm::Event& e, const edm::EventSetup& ) {
   etaInc_->Fill(etaInc);
   phiInc_->Fill(phiInc);
 
+  std::vector<PCaloHit> ebHits, eeHits, hcHits;
   for (int i=0; i<4; i++) {
     bool getHits = false;
     edm::Handle<edm::PCaloHitContainer> hitsCalo;
@@ -167,11 +187,15 @@ void CaloSimHitStudy::analyze(const edm::Event& e, const edm::EventSetup& ) {
     if (getHits) {
       std::vector<PCaloHit> caloHits;
       caloHits.insert(caloHits.end(),hitsCalo->begin(),hitsCalo->end());
+      if (i == 0) ebHits.insert(ebHits.end(),hitsCalo->begin(),hitsCalo->end());
+      else if (i == 1) eeHits.insert(eeHits.end(),hitsCalo->begin(),hitsCalo->end());
+      else if (i == 3) hcHits.insert(hcHits.end(),hitsCalo->begin(),hitsCalo->end());
       LogDebug("HitStudy") << "HcalValidation: Hit buffer " 
 			   << caloHits.size(); 
       analyzeHits (caloHits, i);
     }
   }
+  analyzeHits (ebHits, eeHits, hcHits);
 
   std::vector<PSimHit>               muonHits;
   edm::Handle<edm::PSimHitContainer> hitsTrack;
@@ -340,6 +364,67 @@ void CaloSimHitStudy::analyzeHits (edm::Handle<edm::PSimHitContainer>& hits,
   hitTk_[indx]->Fill(float(nHit));
   LogDebug("HitStudy") << "CaloSimHitStudy::analyzeHits: for " << label 
 		       << " Index "  << indx << " # of Hits " << nHit;
+}
+
+void CaloSimHitStudy::analyzeHits (std::vector<PCaloHit>& ebHits, 
+				   std::vector<PCaloHit>& eeHits, 
+				   std::vector<PCaloHit>& hcHits) {
+
+  double edepEB=0, edepEBT = 0;
+  for (unsigned int i=0; i<ebHits.size(); i++) {
+    double edep      = ebHits[i].energy();
+    double time      = ebHits[i].time();
+    if  (ebHits[i].depth()==0) {
+      edepEB += edep;
+      if (time < tmax_) edepEBT += edep;
+    }
+  }
+  double edepEE=0, edepEET = 0;
+  for (unsigned int i=0; i<eeHits.size(); i++) {
+    double edep      = eeHits[i].energy();
+    double time      = eeHits[i].time();
+    edepEE += edep;
+    if (time < tmax_) edepEET += edep;
+  }
+  double edepH=0, edepHT = 0, edepHO=0, edepHOT=0;
+  for (unsigned int i=0; i<hcHits.size(); i++) {
+    double edep      = hcHits[i].energy();
+    double time      = hcHits[i].time();
+    HcalDetId id     = HcalDetId(hcHits[i].id());
+    int subdet       = id.subdet();
+    if (subdet == static_cast<int>(HcalBarrel) || 
+	subdet == static_cast<int>(HcalEndcap)) {
+      edepH += edep;
+      if (time < tmax_) edepHT += edep;
+    } else if (subdet == static_cast<int>(HcalOuter)) {
+      edepHO += edep;
+      if (time < tmax_) edepHOT += edep;
+    }
+  }
+  double edepE  = edepEB+edepEE;
+  double edepET = edepEBT+edepEET;
+  double edepHC = edepH+edepHO;
+  double edepHCT= edepHT+edepHOT;
+  LogDebug("HitStudy") << "CaloSimHitStudy::energy in EB " << edepEB << " ("
+		       << edepEBT << ") from " << ebHits.size() << " hits; "
+		       << " energy in EE " << edepEE << " (" << edepEET 
+		       << ") from " << eeHits.size() << " hits; energy in HC "
+		       << edepH << ", " << edepHO << " (" << edepHT << ", "
+		       << edepHOT <<") from " << hcHits.size() << " hits";
+
+  edepC_[6]->Fill(edepE);  edepT_[6]->Fill(edepET);
+  edepC_[7]->Fill(edepH);  edepT_[7]->Fill(edepHT);
+  edepC_[8]->Fill(edepHC); edepT_[8]->Fill(edepHCT);
+  if (edepE < eMIP_) {
+    edepC_[0]->Fill(edepE); edepC_[1]->Fill(edepH); edepC_[2]->Fill(edepHC);
+  } else {
+    edepC_[3]->Fill(edepE); edepC_[4]->Fill(edepH); edepC_[5]->Fill(edepHC);
+  }
+  if (edepET < eMIP_) {
+    edepT_[0]->Fill(edepET); edepT_[1]->Fill(edepHT); edepT_[2]->Fill(edepHCT);
+  } else {
+    edepT_[3]->Fill(edepET); edepT_[4]->Fill(edepHT); edepT_[5]->Fill(edepHCT);
+  }
 }
 
 //define this as a plug-in

@@ -49,8 +49,19 @@ void HFPMTHitAnalyzer::beginJob() {
                                       << "please add it to config file";
 
   TFileDirectory HFHitsDir = fs->mkdir("HFPMTHits");
-  h_HFDepHit = HFHitsDir.make<TH1F>("Hit20", "Depths in HF", 20, 0., 20.);
+  h_HFDepHit = HFHitsDir.make<TH1F>("Hit20", "Depths in HF", 50, 0., 50.);
   h_HFDepHit->GetXaxis()->SetTitle("Depths in HF");
+  for (int i=0; i<3; i++) {
+    if      (i == 0) sprintf (sub, "(PMT)");
+    else if (i == 1) sprintf (sub, "(Bundle)");
+    else             sprintf (sub, "(Jungle)");
+    sprintf (name,"Eta%d",i); sprintf (title,"Eta Index of hits in %s",sub);
+    h_HFEta[i] = HFHitsDir.make<TH1F>(name,title,100,0,100.);
+    h_HFEta[i]->GetXaxis()->SetTitle(title);
+    sprintf (name,"Phi%d",i); sprintf (title,"Phi Index of hits in %s",sub);
+    h_HFPhi[i] = HFHitsDir.make<TH1F>(name,title,100,0,100.);
+    h_HFPhi[i]->GetXaxis()->SetTitle(title);
+  }
   TFileDirectory HFSourcePart = fs->mkdir("HFMCinfo");
   hHF_MC_e = HFSourcePart.make<TH1F>("MCEnergy","Energy of Generated Particle",1000,0.,500.);
   hHF_MC_e->GetXaxis()->SetTitle("Energy of Generated Particle");
@@ -166,8 +177,8 @@ void HFPMTHitAnalyzer::analyzeHits (std::vector<PCaloHit>& hits,
     double had       = hits[i].energyHad();
     double time      = hits[i].time();
     uint32_t id_     = hits[i].id();
-    uint16_t  pmtHit = hits[i].depth();
-    if (pmtHit != 0) pmtHit = 1;
+    uint16_t pmtHit  = hits[i].depth();
+    uint16_t depthX  = pmtHit;
     LogDebug("HFShower") << "HFPMTHitAnalyser::Hit " << i << " ID " << std::hex
 			 << id_ << std::dec <<" PMT " << pmtHit <<" E (e|h|t) "
 			 << em << " " << had << " " << energy <<  " Time " 
@@ -177,11 +188,24 @@ void HFPMTHitAnalyzer::analyzeHits (std::vector<PCaloHit>& hits,
     int det        = id.det();
     int subdet     = id.subdet();
     int depth      = id.depth();
+    if (pmtHit != 0) pmtHit = 1;
 
     if (det ==  4) {
       
       if (subdet == static_cast<int>(HcalForward)) {
-	h_HFDepHit->Fill(double(depth+10*pmtHit));
+	h_HFDepHit->Fill(double(depth+10*depthX));
+	if (depthX > 0) {
+	  int ieta          = id.ietaAbs();
+	  int iphi          = id.iphi();
+	  if (depth != 1) {
+	    ieta += 50;
+	    iphi += 50;
+	  }
+	  if (depthX <= 3) {
+	    h_HFEta[depthX-1]->Fill(double(ieta));
+	    h_HFPhi[depthX-1]->Fill(double(iphi));
+	  }
+	}
 	if (depth==1)  {
 	  energy1[pmtHit]  += energy;
 	  energy12[pmtHit] += energy;

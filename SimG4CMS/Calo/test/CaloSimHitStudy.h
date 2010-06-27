@@ -44,16 +44,18 @@ protected:
 
   void analyzeHits  (std::vector<PCaloHit> &, int);
   void analyzeHits  (edm::Handle<edm::PSimHitContainer>&, int);
+  void analyzeHits  (std::vector<PCaloHit> &, std::vector<PCaloHit> &, std::vector<PCaloHit> &);
 
 private:
 
   std::string    sourceLabel, g4Label, hitLab[4];
   std::string    muonLab[3], tkHighLab[6], tkLowLab[6];
+  double         tmax_, eMIP_;
 
   TH1F           *hit_[9],  *time_[9], *edepEM_[9], *edepHad_[9], *edep_[9];
   TH1F           *etot_[9], *etotg_[9], *timeAll_[9], *hitMu, *hitHigh;
   TH1F           *hitLow, *eneInc_, *etaInc_, *phiInc_, *ptInc_;
-  TH1F           *hitTk_[15], *edepTk_[15], *tofTk_[15];
+  TH1F           *hitTk_[15], *edepTk_[15], *tofTk_[15], *edepC_[9],*edepT_[9];
 };
 
 #endif

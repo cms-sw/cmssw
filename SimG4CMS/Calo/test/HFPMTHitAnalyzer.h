@@ -28,7 +28,7 @@ private:
   int event_no;
 
   //root file name and its objects
-  TH1F *h_HFDepHit, *hHF_MC_e;
+  TH1F *h_HFDepHit, *hHF_MC_e, *h_HFEta[3], *h_HFPhi[3];
 
   TH1F *hHF_e_1[3],  *hHF_em_1[3],  *hHF_had_1[3];
   TH1F *hHF_e_2[3],  *hHF_em_2[3],  *hHF_had_2[3];
