@@ -237,7 +237,8 @@ void TrackingVerboseAction::update(const EndOfTrack * trk) {
 }
 
 void TrackingVerboseAction::update(const G4Step* fStep) {
-  if ((!fG4Verbose) && (fTrackingVerboseON)) {
+
+  if ((fG4Verbose) && (fTrackingVerboseON)) {
     G4Track* fTrack = fStep->GetTrack();
     G4cout << std::setw( 5) << fTrack->GetCurrentStepNumber() << " "
 	   << std::setw( 8) << G4BestUnit(fTrack->GetPosition().x() , "Length") << " "
