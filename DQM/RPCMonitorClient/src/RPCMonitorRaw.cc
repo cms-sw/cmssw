@@ -49,7 +49,7 @@ void RPCMonitorRaw::beginJob()
 // Get DQM interface
   DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
   
-  theDMBE->setCurrentFolder("RPC/LinkMonitor/");
+  theDMBE->setCurrentFolder("RPC/LinkMonitor");
   
   me_t[0]=theDMBE->book1D("recordType_790",RPCRawDataCountsHistoMaker::emptyRecordTypeHisto(790));
   me_t[1]=theDMBE->book1D("recordType_791",RPCRawDataCountsHistoMaker::emptyRecordTypeHisto(791));
