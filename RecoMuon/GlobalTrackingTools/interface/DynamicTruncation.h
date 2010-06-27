@@ -9,7 +9,7 @@
  *  compatibility degree between the extrapolated track
  *  state and the reconstructed segment in the muon chambers
  *
- *  $Date: 2010/05/10 14:23:50 $
+ *  $Date: 2010/06/14 11:01:30 $
  *  $Revision: 1.1 $
  *
  *  Authors :
@@ -43,11 +43,8 @@
 #include "RecoMuon/Navigation/interface/DirectMuonNavigation.h"
 
 
-using namespace std;
-using namespace edm;
-
 class DynamicTruncation {
-
+  
  public:
 
   typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
@@ -65,10 +62,10 @@ class DynamicTruncation {
  
  private:
 
-  void                 compatibleDets(TrajectoryStateOnSurface&, map<int, vector<DetId> >&);
-  void                 filteringAlgo(map<int, vector<DetId> >&);
-  double               getBest(vector<CSCSegment>&, TrajectoryStateOnSurface&, CSCSegment&); 
-  double               getBest(vector<DTRecSegment4D>&, TrajectoryStateOnSurface&, DTRecSegment4D&); 
+  void                 compatibleDets(TrajectoryStateOnSurface&, std::map<int, std::vector<DetId> >&);
+  void                 filteringAlgo(std::map<int, std::vector<DetId> >&);
+  double               getBest(std::vector<CSCSegment>&, TrajectoryStateOnSurface&, CSCSegment&); 
+  double               getBest(std::vector<DTRecSegment4D>&, TrajectoryStateOnSurface&, DTRecSegment4D&); 
   void                 update(TrajectoryStateOnSurface&, ConstRecHitPointer);
   void                 updateWithDThits(ConstRecHitContainer&);
   void                 updateWithCSChits(ConstRecHitContainer&);
@@ -79,14 +76,15 @@ class DynamicTruncation {
   int DTThr;
   int CSCThr;
 
-  ESHandle<Propagator> propagator;
-  ESHandle<GlobalTrackingGeometry> theG;
-  ESHandle<CSCGeometry> cscGeom;
-  ESHandle<TransientTrackingRecHitBuilder> theMuonRecHitBuilder;
-  ESHandle<TrajectoryStateUpdator> updatorHandle;
-  ESHandle<MuonDetLayerGeometry> navMuon;
+  edm::ESHandle<Propagator> propagator;
+  edm::ESHandle<Propagator> propagatorCompatibleDet;
+  edm::ESHandle<GlobalTrackingGeometry> theG;
+  edm::ESHandle<CSCGeometry> cscGeom;
+  edm::ESHandle<TransientTrackingRecHitBuilder> theMuonRecHitBuilder;
+  edm::ESHandle<TrajectoryStateUpdator> updatorHandle;
+  edm::ESHandle<MuonDetLayerGeometry> navMuon;
   DirectMuonNavigation *navigation;
-  ESHandle<MagneticField> magfield;
+  edm::ESHandle<MagneticField> magfield;
   const edm::Event* theEvent;
   const edm::EventSetup* theSetup;
 

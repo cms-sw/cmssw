@@ -6,8 +6,8 @@
  *  compatibility degree between the extrapolated track
  *  state and the reconstructed segment in the muon chambers
  *
- *  $Date: 2010/06/14 11:02:21 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/06/17 11:01:56 $
+ *  $Revision: 1.2 $
  *
  *  Authors :
  *  D. Pagano & G. Bruno - UCL Louvain
@@ -34,12 +34,17 @@
 
 #define MAX_THR 1e7
 
+using namespace edm;
+using namespace std;
+using namespace reco;
 
-DynamicTruncation::DynamicTruncation(const edm::Event& event, const MuonServiceProxy& theService) {
+DynamicTruncation::DynamicTruncation(const edm::Event& event, const MuonServiceProxy& theService):
+  DTThr(0), CSCThr(0) 
+{
   theEvent = &event;
   theSetup = &theService.eventSetup();
   propagator = theService.propagator("SmartPropagator");
-  //propagator = theService.propagator("SteppingHelixPropagatorAny");
+  propagatorCompatibleDet = theService.propagator("SteppingHelixPropagatorAny");
   theG = theService.trackingGeometry();
   theService.eventSetup().get<TransientRecHitRecord>().get("MuonRecHitBuilder",theMuonRecHitBuilder);
   theService.eventSetup().get<TrackingComponentsRecord>().get("KFUpdator",updatorHandle);
@@ -52,14 +57,15 @@ DynamicTruncation::DynamicTruncation(const edm::Event& event, const MuonServiceP
 
 
 DynamicTruncation::~DynamicTruncation() {
+  if (navigation) delete navigation;
 }
 
 
 
 TransientTrackingRecHit::ConstRecHitContainer DynamicTruncation::filter(const Trajectory& traj) {
-
+  result.clear();
   // Put the tracker hits in the final vector and get the last tracker valid measure
-  vector<TrajectoryMeasurement> muonMeasurements = traj.measurements();
+  std::vector<TrajectoryMeasurement> muonMeasurements = traj.measurements();
   TrajectoryMeasurement lastTKm = muonMeasurements.front();
   for (std::vector<TrajectoryMeasurement>::const_iterator imT = muonMeasurements.begin(); imT != muonMeasurements.end(); imT++ ) {
     if ( !(*imT).recHit()->isValid() ) continue;
@@ -67,7 +73,8 @@ TransientTrackingRecHit::ConstRecHitContainer DynamicTruncation::filter(const Tr
     if (hit->geographicalId().det() == DetId::Tracker) {
       result.push_back((*imT).recHit());
       if (!(*imT).forwardPredictedState().isValid()) continue;
-      if ((*imT).forwardPredictedState().globalPosition().mag() > lastTKm.forwardPredictedState().globalPosition().mag()) lastTKm = *imT;
+      if ((*imT).forwardPredictedState().globalPosition().mag() 
+	  > lastTKm.forwardPredictedState().globalPosition().mag()) lastTKm = *imT;
     }
   }
 
@@ -78,7 +85,7 @@ TransientTrackingRecHit::ConstRecHitContainer DynamicTruncation::filter(const Tr
   update(currentState, lastTKm.recHit());
 
   // use the navigation to get the list of compatible dets
-  map<int, vector<DetId> > detMap;
+  map<int, std::vector<DetId> > detMap;
   compatibleDets(currentState, detMap);
   
   // selects the muon hits for the final refit
@@ -98,10 +105,10 @@ void DynamicTruncation::setThr(int bThr, int eThr) {
 
 
 
-double DynamicTruncation::getBest(vector<CSCSegment>& segs, TrajectoryStateOnSurface& tsos, CSCSegment& bestCSCSeg) {
-  unsigned int i;
+double DynamicTruncation::getBest(std::vector<CSCSegment>& segs, TrajectoryStateOnSurface& tsos, CSCSegment& bestCSCSeg) {
+  unsigned int i = 0;
   double val = MAX_THR;
-  vector<CSCSegment>::size_type sz = segs.size();
+  std::vector<CSCSegment>::size_type sz = segs.size();
   for (i=0; i<sz; i++) {
     StateSegmentMatcher estim(&tsos, &segs[i]);
     double tmp = estim.value();
@@ -115,10 +122,10 @@ double DynamicTruncation::getBest(vector<CSCSegment>& segs, TrajectoryStateOnSur
 
 
 
-double DynamicTruncation::getBest(vector<DTRecSegment4D>& segs, TrajectoryStateOnSurface& tsos, DTRecSegment4D& bestDTSeg) {
-  unsigned int i;
+double DynamicTruncation::getBest(std::vector<DTRecSegment4D>& segs, TrajectoryStateOnSurface& tsos, DTRecSegment4D& bestDTSeg) {
+  unsigned int i = 0;
   double val = MAX_THR;
-  vector<DTRecSegment4D>::size_type sz = segs.size();
+  std::vector<DTRecSegment4D>::size_type sz = segs.size();
   for (i=0; i<sz; i++) {
     StateSegmentMatcher estim(&tsos, &segs[i]); 
     double tmp = estim.value();                                                                                                                                              
@@ -132,17 +139,19 @@ double DynamicTruncation::getBest(vector<DTRecSegment4D>& segs, TrajectoryStateO
 
 
 
-void DynamicTruncation::compatibleDets(TrajectoryStateOnSurface& tsos, map<int, vector<DetId> >& detMap) {
-  SteppingHelixPropagator prop(magfield.product(), anyDirection);
-  MuonPatternRecoDumper dumper;
+void DynamicTruncation::compatibleDets(TrajectoryStateOnSurface& tsos, map<int, std::vector<DetId> >& detMap) {
+  //  SteppingHelixPropagator prop(magfield.product(), anyDirection);
+  //  MuonPatternRecoDumper dumper;
   MeasurementEstimator *theEstimator = new Chi2MeasurementEstimator(100, 3);
-  vector<const DetLayer *> navLayers;
+  std::vector<const DetLayer *> navLayers;
   navLayers = navigation->compatibleLayers(*(currentState.freeState()), alongMomentum);
   unsigned int nlayer = 0;
   for ( unsigned int ilayer=0; ilayer<navLayers.size(); ilayer++ ) {
     // Skip RPC layers
-    if (navLayers[ilayer]->subDetector() == GeomDetEnumerators::RPCEndcap || navLayers[ilayer]->subDetector() == GeomDetEnumerators::RPCBarrel) continue;
-    vector<DetLayer::DetWithState> comps = navLayers[ilayer]->compatibleDets(currentState, prop, *theEstimator);
+    if (navLayers[ilayer]->subDetector() == GeomDetEnumerators::RPCEndcap 
+	|| navLayers[ilayer]->subDetector() == GeomDetEnumerators::RPCBarrel) continue;
+    std::vector<DetLayer::DetWithState> comps = navLayers[ilayer]->compatibleDets(currentState, 
+										  *propagatorCompatibleDet, *theEstimator);
     //    cout << comps.size() << " compatible Dets with " << navLayers[ilayer]->subDetector() << " Layer " << ilayer << " "
     //    	 << dumper.dumpLayer(navLayers[ilayer]) << " " << endl;
     if (comps.size() > 0) {
@@ -150,34 +159,39 @@ void DynamicTruncation::compatibleDets(TrajectoryStateOnSurface& tsos, map<int, 
       detMap[nlayer].push_back(id);
     }
   }
+  if (theEstimator) delete theEstimator;
 }
 
 
 
-void DynamicTruncation::filteringAlgo(map<int, vector<DetId> >& detMap) {
+void DynamicTruncation::filteringAlgo(map<int, std::vector<DetId> >& detMap) {
   ChamberSegmentUtility getSegs(*theEvent, *theSetup);
-  for (unsigned int i = 0; i < detMap.size(); ++i) {
+  for (unsigned int iDet = 0; iDet < detMap.size(); ++iDet) {
     double bestLayerValue = MAX_THR;
     ConstRecHitContainer layerRH;
-    vector<DetId> chamber = detMap[i];
-    for (unsigned int j = 0; j < chamber.size(); j++) {
+    std::vector<DetId> chamber = detMap[iDet];
+    for (unsigned int j = 0; j < chamber.size(); ++j) {
       DetId id = chamber[j];
       
       if (id.det() == DetId::Muon && id.subdetId() == MuonSubdetId::DT) {
         DTChamberId DTid(id);
 	
-	vector<DTRecSegment4D> allDTsegs;
-	try {allDTsegs = getSegs.getDTlist().find(DTid.station())->second;} catch (...) {;} 
+	std::vector<DTRecSegment4D> allDTsegs;
+	std::map<int, std::vector<DTRecSegment4D> >::const_iterator dtIter = getSegs.getDTlist().find(DTid.station());
+	if (dtIter != getSegs.getDTlist().end()){
+	  allDTsegs = dtIter->second;
+	}
 	
-	vector<DTRecSegment4D>::size_type sz = allDTsegs.size();
-	for (i=0; i<sz; i++) {
+	std::vector<DTRecSegment4D>::size_type sz = allDTsegs.size();
+	for (unsigned int iSeg=0; iSeg<sz; ++iSeg) {
 	  
 	  // Propagate the state to the current chamber
-	  TrajectoryStateOnSurface tsosdt = propagator->propagate(currentState, theG->idToDet(allDTsegs[i].chamberId())->surface());
+	  TrajectoryStateOnSurface tsosdt = propagator->propagate(currentState, 
+								  theG->idToDet(allDTsegs[iSeg].chamberId())->surface());
 	  if (!tsosdt.isValid()) continue;
 
-	  vector<DTRecSegment4D> DTsegs;
-	  DTsegs.push_back(allDTsegs[i]); 
+	  std::vector<DTRecSegment4D> DTsegs;
+	  DTsegs.push_back(allDTsegs[iSeg]); 
 	  
 	  DTRecSegment4D bestDTSeg;
 	  double bestChamberValue = getBest(DTsegs, tsosdt, bestDTSeg);
@@ -186,8 +200,8 @@ void DynamicTruncation::filteringAlgo(map<int, vector<DetId> >& detMap) {
 	  // Check if the best estimator value is below the THR and then get the RH componing the segment
 	  if (bestChamberValue >= DTThr || bestChamberValue > bestLayerValue) continue; 
 	  layerRH.clear();
-	  vector<DTRecHit1D> DTrh = getSegs.getDTRHmap(bestDTSeg);
-	  for (vector<DTRecHit1D>::iterator it = DTrh.begin(); it != DTrh.end(); it++) {
+	  std::vector<DTRecHit1D> DTrh = getSegs.getDTRHmap(bestDTSeg);
+	  for (std::vector<DTRecHit1D>::iterator it = DTrh.begin(); it != DTrh.end(); it++) {
 	    layerRH.push_back(theMuonRecHitBuilder->build(&*it));
 	  }
 	}
@@ -195,18 +209,22 @@ void DynamicTruncation::filteringAlgo(map<int, vector<DetId> >& detMap) {
       if (id.det() == DetId::Muon && id.subdetId() == MuonSubdetId::CSC) {
         CSCDetId CSCid(id);
 	
-	vector<CSCSegment> allCSCsegs;
-	try {allCSCsegs = getSegs.getCSClist().find(CSCid.station())->second;} catch (...) {;} 
+	std::vector<CSCSegment> allCSCsegs;
+	std::map<int, std::vector<CSCSegment> >::const_iterator cscIter = getSegs.getCSClist().find(CSCid.station()); 
+	if (cscIter != getSegs.getCSClist().end()){
+	  allCSCsegs = cscIter->second;
+	}
 	
-	vector<CSCSegment>::size_type sz = allCSCsegs.size();
-	for (i=0; i<sz; i++) {
+	std::vector<CSCSegment>::size_type sz = allCSCsegs.size();
+	for (unsigned int iSeg=0; iSeg<sz; ++iSeg) {
 	  
 	  // Propagate the state to the current chamber
-	  TrajectoryStateOnSurface tsoscsc = propagator->propagate(currentState, theG->idToDet(allCSCsegs[i].cscDetId())->surface());
+	  TrajectoryStateOnSurface tsoscsc = propagator->propagate(currentState, 
+								   theG->idToDet(allCSCsegs[iSeg].cscDetId())->surface());
 	  if (!tsoscsc.isValid()) continue;
 	  
-	  vector<CSCSegment> CSCsegs;
-	  CSCsegs.push_back(allCSCsegs[i]);
+	  std::vector<CSCSegment> CSCsegs;
+	  CSCsegs.push_back(allCSCsegs[iSeg]);
 	  
 	  CSCSegment bestCSCSeg;
 	  double bestChamberValue = getBest(CSCsegs, tsoscsc, bestCSCSeg);
@@ -216,8 +234,8 @@ void DynamicTruncation::filteringAlgo(map<int, vector<DetId> >& detMap) {
 	  if (bestChamberValue >= CSCThr || bestChamberValue > bestLayerValue) continue;
 	  layerRH.clear();
 	  
-	  vector<CSCRecHit2D> CSCrh = getSegs.getCSCRHmap(bestCSCSeg);
-	  for (vector<CSCRecHit2D>::iterator it = CSCrh.begin(); it != CSCrh.end(); ++it) {
+	  std::vector<CSCRecHit2D> CSCrh = getSegs.getCSCRHmap(bestCSCSeg);
+	  for (std::vector<CSCRecHit2D>::iterator it = CSCrh.begin(); it != CSCrh.end(); ++it) {
 	    layerRH.push_back(theMuonRecHitBuilder->build(&*it));
 	  }
 	}
@@ -272,7 +290,8 @@ void DynamicTruncation::updateWithCSChits(ConstRecHitContainer& recHits) {
 
 
 TransientTrackingRecHit::ConstRecHitContainer DynamicTruncation::sort(ConstRecHitContainer& recHits) {
-  unsigned int i,j;
+  unsigned int i=0;
+  unsigned int j=0;
   ConstRecHitContainer::size_type n = recHits.size();
   for(i=1; i<n; ++i)
     for(j=n-1; j>=i; --j)

@@ -4,8 +4,8 @@
  *  Description:
  *  utility class for the dynamical truncation algorithm
  *
- *  $Date: 2010/05/10 14:23:50 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/06/17 11:01:38 $
+ *  $Revision: 1.2 $
  *
  *  Authors :
  *  D. Pagano & G. Bruno - UCL Louvain
@@ -31,6 +31,9 @@
 #include <vector>
 #include <iostream>
 
+using namespace edm;
+using namespace std;
+using namespace reco;
 
 ChamberSegmentUtility::ChamberSegmentUtility(const edm::Event& Event, const edm::EventSetup& Setup)
 {
