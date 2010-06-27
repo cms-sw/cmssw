@@ -79,16 +79,19 @@ void CSCTFAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c){
 		e.getByLabel(mbProducer.label(),mbProducer.instance(),dtStubs);
 		if( dtStubs.isValid() ){
 			std::vector<csctf::TrackStub> vstubs = dtStubs->get();
+std::cout<<"DT size="<<vstubs.end()-vstubs.begin()<<std::endl;
 			for(std::vector<csctf::TrackStub>::const_iterator stub=vstubs.begin(); stub!=vstubs.end(); stub++){
 				int dtSector =(stub->sector()-1)*2 + stub->subsector()-1;
 				int dtEndcap = stub->endcap()-1;
-				if( dtSector>=0 && dtSector<12 && dtEndcap>=0 && dtEndcap<2 ) dtPhi[dtSector][dtEndcap] = stub->phiPacked();
-				else { edm::LogInfo("CSCTFAnalyzer: CSC digi are out of range: ")<<" dtSector="<<dtSector<<" dtEndcap="<<dtEndcap;
+				if( dtSector>=0 && dtSector<12 && dtEndcap>=0 && dtEndcap<2 ){
+					dtPhi[dtSector][dtEndcap] = stub->phiPacked();
+				} else {
+					edm::LogInfo("CSCTFAnalyzer: DT digi are out of range: ")<<" dtSector="<<dtSector<<" dtEndcap="<<dtEndcap;
+				}
 				edm::LogInfo("CSCTFAnalyzer")<<"   DT data: tbin="<<stub->BX()<<" CSC sector="<<stub->sector()<<" CSC subsector="<<stub->subsector()<<" station="<<stub->station()<<" endcap="<<stub->endcap()
-						<<" phi="<<stub->phiPacked()<<" phiBend="<<stub->getBend()<<" quality="<<stub->getQuality()<<" mb_bxn="<<stub->cscid(); }
+						<<" phi="<<stub->phiPacked()<<" phiBend="<<stub->getBend()<<" quality="<<stub->getQuality()<<" mb_bxn="<<stub->cscid(); 
 			}
-		}
-		else edm::LogInfo("CSCTFAnalyzer")<<"  No valid CSCTriggerContainer<csctf::TrackStub> products found";
+		} else edm::LogInfo("CSCTFAnalyzer")<<"  No valid CSCTriggerContainer<csctf::TrackStub> products found";
 		tree->Fill();
 	}
 
