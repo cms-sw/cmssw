@@ -248,7 +248,8 @@ hltL1IsoLWEleRegPSG = cms.EDProducer( "EgammaHLTRegionalPixelSeedGeneratorProduc
     BSProducer = cms.InputTag( "hltOfflineBeamSpot" ),
     OrderedHitsFactoryPSet = cms.PSet( 
       ComponentName = cms.string( "StandardHitPairGenerator" ),
-      SeedingLayers = cms.string( "MixedLayerPairs" )
+      SeedingLayers = cms.string( "MixedLayerPairs" ),
+      maxElement = cms.uint32( 0 )
     )
 )
 
@@ -297,7 +298,8 @@ hltL1IsoSSEleRegPSG = cms.EDProducer( "EgammaHLTRegionalPixelSeedGeneratorProduc
     BSProducer = cms.InputTag( "hltOfflineBeamSpot" ),
     OrderedHitsFactoryPSet = cms.PSet( 
       ComponentName = cms.string( "StandardHitPairGenerator" ),
-      SeedingLayers = cms.string( "MixedLayerPairs" )
+      SeedingLayers = cms.string( "MixedLayerPairs" ),
+      maxElement = cms.uint32( 0 )      
     )
 )
 
@@ -346,7 +348,8 @@ hltL1NonIsoLWEleRegPSG = cms.EDProducer( "EgammaHLTRegionalPixelSeedGeneratorPro
     BSProducer = cms.InputTag( "hltOfflineBeamSpot" ),
     OrderedHitsFactoryPSet = cms.PSet( 
       ComponentName = cms.string( "StandardHitPairGenerator" ),
-      SeedingLayers = cms.string( "MixedLayerPairs" )
+      SeedingLayers = cms.string( "MixedLayerPairs" ),
+      maxElement = cms.uint32( 0 )
     )
 )
 hltL1NonIsoLWEleRegioCkfTC = cms.EDProducer( "CkfTrackCandidateMaker",
@@ -393,7 +396,8 @@ hltL1NonIsoSSEleRegPSG = cms.EDProducer( "EgammaHLTRegionalPixelSeedGeneratorPro
     BSProducer = cms.InputTag( "hltOfflineBeamSpot" ),
     OrderedHitsFactoryPSet = cms.PSet( 
       ComponentName = cms.string( "StandardHitPairGenerator" ),
-      SeedingLayers = cms.string( "MixedLayerPairs" )
+      SeedingLayers = cms.string( "MixedLayerPairs" ),
+      maxElement = cms.uint32( 0 )      
     )
 )
 hltL1NonIsoSSEleRegioCkfTC = cms.EDProducer( "CkfTrackCandidateMaker",
