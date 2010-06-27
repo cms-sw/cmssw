@@ -115,8 +115,8 @@ double HFShowerFibreBundle::getHits(G4Step * aStep, bool type) {
 
   G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
   const G4VTouchable* touch   = preStepPoint->GetTouchable();
-  int                 boxNo   = touch->GetReplicaNumber(2);
-  int                 pmtNo   = touch->GetReplicaNumber(1);
+  int                 boxNo   = touch->GetReplicaNumber(1);
+  int                 pmtNo   = touch->GetReplicaNumber(0);
   if (boxNo <= 1) {
     indexR = pmtR1[pmtNo-1];
     indexF = pmtFib1[pmtNo-1];
