@@ -18,7 +18,7 @@
 //                   Maurizio Pierini
 //                   Maria Spiropulu
 //         Created:  Wed Aug 29 15:10:56 CEST 2007
-// $Id: TriggerValidator.h,v 1.13 2010/02/26 17:17:16 wdd Exp $
+// $Id: TriggerValidator.h,v 1.14 2010/05/28 10:35:58 chiorbo Exp $
 //
 //
 
@@ -171,7 +171,8 @@ class TriggerValidator : public edm::EDAnalyzer {
 /*       TH2D* hL1OverlapNormToLargestPath; */
 /*       TH2D* hHltOverlapNormToLargestPath; */
 
-
+      std::vector<int> l1bits;
+      std::vector<int> hltbits;
 
       bool firstEvent;
 

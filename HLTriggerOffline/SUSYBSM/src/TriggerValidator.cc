@@ -16,7 +16,7 @@ Implementation:
 //                   Maria Spiropulu
 //         Created:  Wed Aug 29 15:10:56 CEST 2007
 //  Philip Hebda, July 2009
-// $Id: TriggerValidator.cc,v 1.21 2010/05/28 10:35:59 chiorbo Exp $
+// $Id: TriggerValidator.cc,v 1.22 2010/05/28 13:00:10 olzem Exp $
 //
 //
 
@@ -181,7 +181,6 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   Handle<L1GlobalTriggerReadoutRecord> L1GTRR;
   //  try {iEvent.getByType(L1GTRR);} catch (...) {;}
   iEvent.getByLabel("gtDigis",L1GTRR);
-  std::vector<int> l1bits;
   if (!L1GTRR.isValid()) {edm::LogWarning("Readout Error|L1") << "L1ParticleMapCollection Not Valid!";}
   int nL1size = L1GTRR->decisionWord().size();
   if(firstEvent) {
@@ -286,7 +285,6 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     return;
   }  
 
-  std::vector<int> hltbits;
 
 //   if(!trhv.isValid()) {
 //     std::cout << "invalid handle for HLT TriggerResults" << std::endl;
@@ -391,6 +389,8 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   firstEvent = false;
 
   myMuonAnalyzer->FillPlots(iEvent, iSetup);
+  l1bits.clear();
+  hltbits.clear();
 }
 
 
