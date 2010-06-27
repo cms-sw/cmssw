@@ -32,15 +32,15 @@ CSCHaloData = cms.EDProducer("CSCHaloDataProducer",
                              DetaParam = cms.double(0.1),
                              DphiParam = cms.double(1.00),
                              NormChi2Param = cms.double(8.),
-                             InnerRMinParam = cms.double(140.),
-                             OuterRMinParam = cms.double(140.),
-                             InnerRMaxParam = cms.double(310.),
-                             OuterRMaxParam = cms.double(310.),
+                             InnerRMinParam = cms.double(0.),
+                             OuterRMinParam = cms.double(9999.),
+                             InnerRMaxParam = cms.double(0.),
+                             OuterRMaxParam = cms.double(9999.),
 
                              MinOuterMomentumTheta = cms.double(.10),
                              MaxOuterMomentumTheta = cms.double(3.0),
                              MatchingDPhiThreshold = cms.double(0.18),
-                             MatchingDEtaThreshold = cms.double(0.4 ),
+                             MatchingDEtaThreshold = cms.double(0.4),
                              MatchingDWireThreshold = cms.int32(5),
                              # The expected time of a collision recHit will be t = time_0 + time-of-flight
                              # A recHit more than +/- time_window from collision timing will be declared "out-of-time"                      
@@ -48,9 +48,9 @@ CSCHaloData = cms.EDProducer("CSCHaloDataProducer",
                              RecHitTime0 = cms.double(200.), 
                              RecHitTimeWindow = cms.double(10000.),
 
-                             # If this is MC, the expected collision bx will be 6 instead of 3
-                             #IsMC = cms.bool(False)
-                             ExpectedBX = cms.int32(3)
+                             # If this is Data, the expected collision bx will be 3 instead of 6
+                             #ExpectedBX = cms.int32(3)   # if Data
+                             ExpectedBX = cms.int32(6)   # if MC
                              )
 
 
