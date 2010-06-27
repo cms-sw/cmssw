@@ -180,21 +180,17 @@ inline void MuIsolatorResultProducer<BT>::callWhatProduces() {
 
 #include <string>
 
-using namespace edm;
-using namespace std;
-using namespace reco;
-using namespace muonisolation;
 
 //! constructor with config
 template<typename BT>
-MuIsolatorResultProducer<BT>::MuIsolatorResultProducer(const ParameterSet& par) :
+MuIsolatorResultProducer<BT>::MuIsolatorResultProducer(const edm::ParameterSet& par) :
   theConfig(par),
   theRemoveOtherVetos(par.getParameter<bool>("RemoveOtherVetos")),
   theIsolator(0),
   theBeam(0,0,0)
 {
   LogDebug("RecoMuon|MuonIsolation")<<" MuIsolatorResultProducer CTOR";
-
+  
   //! read input config for deposit types and weights and thresholds to apply to them
   std::vector<edm::ParameterSet> depositInputs = 
     par.getParameter<std::vector<edm::ParameterSet> >("InputMuIsoDeposits");    
@@ -222,7 +218,7 @@ MuIsolatorResultProducer<BT>::MuIsolatorResultProducer(const ParameterSet& par) 
     if (coneSizeType == "FixedConeSize"){
       float coneSize(isoPset.getParameter<double>("coneSize"));
 
-      theIsolator = new IsolatorByDeposit(coneSize, dWeights, dThresholds);
+      theIsolator = new muonisolation::IsolatorByDeposit(coneSize, dWeights, dThresholds);
 
       //      theIsolator = new IsolatorByDeposit(isoPset);
     } else if (coneSizeType == "CutsConeSize"){
@@ -233,13 +229,13 @@ MuIsolatorResultProducer<BT>::MuIsolatorResultProducer(const ParameterSet& par) 
     }
   } else if ( isolatorType == "IsolatorByNominalEfficiency"){
     //! FIXME: need to get the file name here
-    theIsolator = new IsolatorByNominalEfficiency("noname", std::vector<std::string>(1,"8:0.97"), dWeights);
+    theIsolator = new muonisolation::IsolatorByNominalEfficiency("noname", std::vector<std::string>(1,"8:0.97"), dWeights);
   } else if ( isolatorType == "IsolatorByDepositCount"){    
     std::string coneSizeType = isoPset.getParameter<std::string>("ConeSizeType");
     if (coneSizeType == "FixedConeSize"){
       float coneSize(isoPset.getParameter<double>("coneSize"));
       
-      theIsolator = new IsolatorByDepositCount(coneSize, dThresholds);
+      theIsolator = new muonisolation::IsolatorByDepositCount(coneSize, dThresholds);
       
       //      theIsolator = new IsolatorByDeposit(isoPset);
     } else if (coneSizeType == "CutsConeSize"){
@@ -268,7 +264,7 @@ MuIsolatorResultProducer<BT>::MuIsolatorResultProducer(const ParameterSet& par) 
       theVetoCuts.muPtMin     = vetoPSet.getParameter<double>("MuPtMin");
       theVetoCuts.muAbsZMax   = vetoPSet.getParameter<double>("MuAbsZMax");
       theVetoCuts.muD0Max      = vetoPSet.getParameter<double>("MuD0Max");    
-      theBeamlineOption = par.getParameter<string>("BeamlineOption");
+      theBeamlineOption = par.getParameter<std::string>("BeamlineOption");
       theBeamSpotLabel = par.getParameter<edm::InputTag>("BeamSpotLabel");
     }
   }
@@ -283,7 +279,7 @@ MuIsolatorResultProducer<BT>::~MuIsolatorResultProducer(){
 
 
 template<typename BT>
-void MuIsolatorResultProducer<BT>::produce(Event& event, const EventSetup& eventSetup){
+void MuIsolatorResultProducer<BT>::produce(edm::Event& event, const edm::EventSetup& eventSetup){
   
   std::string metname = "RecoMuon|MuonIsolationProducers";
   LogDebug(metname)<<" Muon Deposit producing..."
@@ -353,7 +349,7 @@ void MuIsolatorResultProducer<BT>::produce(Event& event, const EventSetup& event
 
 template<typename BT>
 uint
-MuIsolatorResultProducer<BT>::initAssociation(Event& event, CandMap& candMapT) const {
+MuIsolatorResultProducer<BT>::initAssociation(edm::Event& event, CandMap& candMapT) const {
   std::string metname = "RecoMuon|MuonIsolationProducers";
   
   typedef reco::IsoDepositMap::container CT;
