@@ -131,7 +131,7 @@ void MonopoleSteppingAction::update(const G4Step* aStep) {
     double fac0 = magCharge*bZ*cInMByS;
     double fac2 = pZ1*cInMByS*eT2;
     double fac1 = fac0*cInMByS*ts1*eT2 + fac2;
-    double fact1 = (eT1/fac0)*std::sqrt(1+fac1*fac1)-std::sqrt(1+fac2*fac2);
+    double fact1 = (eT1/fac0)*(std::sqrt(1+fac1*fac1)-std::sqrt(1+fac2*fac2));
     double fact2 = (pT1/(magCharge*bZ)*(asinh(fac1)-asinh(fac2)));
     LogDebug("SimG4CoreWatcher") << "MonopoleSeppingAction: Factor eT = "
 				 << eT << " " << eT1 << " " << eT2
