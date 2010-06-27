@@ -112,14 +112,15 @@ process.g4SimHits.SteppingAction = cms.PSet(
 )
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     CheckForHighEtPhotons = cms.untracked.bool(False),
-    EventMin  = cms.untracked.int32(0),
-    EventMax  = cms.untracked.int32(0),
-    EventStep = cms.untracked.int32(1),
-    TrackMin  = cms.untracked.int32(0),
-    TrackMax  = cms.untracked.int32(0),
-    TrackStep = cms.untracked.int32(1),
+    TrackMin     = cms.untracked.int32(0),
+    TrackMax     = cms.untracked.int32(0),
+    TrackStep    = cms.untracked.int32(1),
+    EventMin     = cms.untracked.int32(0),
+    EventMax     = cms.untracked.int32(0),
+    EventStep    = cms.untracked.int32(1),
     VerboseLevel = cms.untracked.int32(0),
-    DEBUG     = cms.untracked.bool(False),
+    G4Verbose = cms.untracked.bool(True),
+    DEBUG        = cms.untracked.bool(False),
     type      = cms.string('TrackingVerboseAction')
 ))
 
