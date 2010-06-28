@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik
  *
- * \version $Id: Muon.h,v 1.55 2010/01/19 12:18:52 jribnik Exp $
+ * \version $Id: Muon.h,v 1.57 2010/06/21 18:47:28 slava77 Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -112,7 +112,7 @@ namespace reco {
     bool isIsolationValid() const { return isolationValid_; }
 
     /// define arbitration schemes
-    enum ArbitrationType { NoArbitration, SegmentArbitration, SegmentAndTrackArbitration };
+    enum ArbitrationType { NoArbitration, SegmentArbitration, SegmentAndTrackArbitration, SegmentAndTrackArbitrationCleaned };
     
     ///
     /// ====================== USEFUL METHODs ===========================

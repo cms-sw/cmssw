@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Jake Ribnik, Dmytro Kovalskyi
-// $Id: MuonSelectors.h,v 1.11 2010/04/19 02:59:57 dmytro Exp $
+// $Id: MuonSelectors.h,v 1.12 2010/04/26 00:36:16 dmytro Exp $
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "TMath.h"
@@ -52,7 +52,8 @@ namespace muon {
    SelectionType selectionTypeFromString( const std::string &label );
      
    /// main GoodMuon wrapper call
-   bool isGoodMuon( const reco::Muon& muon, SelectionType type );
+   bool isGoodMuon( const reco::Muon& muon, SelectionType type, 
+		    reco::Muon::ArbitrationType arbitrationType = reco::Muon::SegmentAndTrackArbitration);
 
    // ===========================================================================
    //                               Support functions

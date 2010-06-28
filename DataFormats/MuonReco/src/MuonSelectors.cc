@@ -530,7 +530,8 @@ bool muon::isGoodMuon( const reco::Muon& muon,
    return goodMuon;
 }
 
-bool muon::isGoodMuon( const reco::Muon& muon, SelectionType type )
+bool muon::isGoodMuon( const reco::Muon& muon, SelectionType type,
+		       reco::Muon::ArbitrationType arbitrationType)
 {
   switch (type)
     {
@@ -547,10 +548,10 @@ bool muon::isGoodMuon( const reco::Muon& muon, SelectionType type )
       return muon.isStandAloneMuon();
       break;
     case muon::TrackerMuonArbitrated:
-      return muon.isTrackerMuon() && muon.numberOfMatches(reco::Muon::SegmentAndTrackArbitration)>0;
+      return muon.isTrackerMuon() && muon.numberOfMatches(arbitrationType)>0;
       break;
     case muon::AllArbitrated:
-      return ! muon.isTrackerMuon() || muon.numberOfMatches(reco::Muon::SegmentAndTrackArbitration)>0;
+      return ! muon.isTrackerMuon() || muon.numberOfMatches(arbitrationType)>0;
       break;
     case muon::GlobalMuonPromptTight:
       return muon.isGlobalMuon() && muon.globalTrack()->normalizedChi2()<10. && muon.globalTrack()->hitPattern().numberOfValidMuonHits() >0;
@@ -566,36 +567,36 @@ bool muon::isGoodMuon( const reco::Muon& muon, SelectionType type )
       // TMLastStation and TMOneStation algorithms we actually use this huge number
       // to determine whether to consider y information at all.
     case muon::TMLastStationLoose:
-      return muon.isTrackerMuon() && isGoodMuon(muon,TMLastStation,2,3,3,1E9,1E9,-3,-3,reco::Muon::SegmentAndTrackArbitration,true,false);
+      return muon.isTrackerMuon() && isGoodMuon(muon,TMLastStation,2,3,3,1E9,1E9,-3,-3,arbitrationType,true,false);
       break;
     case muon::TMLastStationTight:
-      return muon.isTrackerMuon() && isGoodMuon(muon,TMLastStation,2,3,3,3,3,-3,-3,reco::Muon::SegmentAndTrackArbitration,true,false);
+      return muon.isTrackerMuon() && isGoodMuon(muon,TMLastStation,2,3,3,3,3,-3,-3,arbitrationType,true,false);
       break;
     case muon::TMOneStationLoose:
-      return muon.isTrackerMuon() && isGoodMuon(muon,TMOneStation,1,3,3,1E9,1E9,1E9,1E9,reco::Muon::SegmentAndTrackArbitration,false,false);
+      return muon.isTrackerMuon() && isGoodMuon(muon,TMOneStation,1,3,3,1E9,1E9,1E9,1E9,arbitrationType,false,false);
       break;
     case muon::TMOneStationTight:
-      return muon.isTrackerMuon() && isGoodMuon(muon,TMOneStation,1,3,3,3,3,1E9,1E9,reco::Muon::SegmentAndTrackArbitration,false,false);
+      return muon.isTrackerMuon() && isGoodMuon(muon,TMOneStation,1,3,3,3,3,1E9,1E9,arbitrationType,false,false);
       break;
     case muon::TMLastStationOptimizedLowPtLoose:
       if (muon.pt() < 8. && fabs(muon.eta()) < 1.2)
-	return muon.isTrackerMuon() && isGoodMuon(muon,TMOneStation,1,3,3,1E9,1E9,1E9,1E9,reco::Muon::SegmentAndTrackArbitration,false,false);
+	return muon.isTrackerMuon() && isGoodMuon(muon,TMOneStation,1,3,3,1E9,1E9,1E9,1E9,arbitrationType,false,false);
       else
-	return muon.isTrackerMuon() && isGoodMuon(muon,TMLastStation,2,3,3,1E9,1E9,-3,-3,reco::Muon::SegmentAndTrackArbitration,false,false);
+	return muon.isTrackerMuon() && isGoodMuon(muon,TMLastStation,2,3,3,1E9,1E9,-3,-3,arbitrationType,false,false);
       break;
     case muon::TMLastStationOptimizedLowPtTight:
       if (muon.pt() < 8. && fabs(muon.eta()) < 1.2)
-	return muon.isTrackerMuon() && isGoodMuon(muon,TMOneStation,1,3,3,3,3,1E9,1E9,reco::Muon::SegmentAndTrackArbitration,false,false);
+	return muon.isTrackerMuon() && isGoodMuon(muon,TMOneStation,1,3,3,3,3,1E9,1E9,arbitrationType,false,false);
       else
-	return muon.isTrackerMuon() && isGoodMuon(muon,TMLastStation,2,3,3,3,3,-3,-3,reco::Muon::SegmentAndTrackArbitration,false,false);
+	return muon.isTrackerMuon() && isGoodMuon(muon,TMLastStation,2,3,3,3,3,-3,-3,arbitrationType,false,false);
       break;
       //compatibility loose
     case muon::TM2DCompatibilityLoose:
-      return muon.isTrackerMuon() && isGoodMuon(muon,TM2DCompatibility,0.7,reco::Muon::SegmentAndTrackArbitration);
+      return muon.isTrackerMuon() && isGoodMuon(muon,TM2DCompatibility,0.7,arbitrationType);
       break;
       //compatibility tight
     case muon::TM2DCompatibilityTight:
-      return muon.isTrackerMuon() && isGoodMuon(muon,TM2DCompatibility,1.0,reco::Muon::SegmentAndTrackArbitration);
+      return muon.isTrackerMuon() && isGoodMuon(muon,TM2DCompatibility,1.0,arbitrationType);
       break;
     case muon::GMTkChiCompatibility:
       return muon.isGlobalMuon() && muon.isQualityValid() && fabs(muon.combinedQuality().trkRelChi2 - muon.innerTrack()->normalizedChi2()) < 2.0;
@@ -607,28 +608,28 @@ bool muon::isGoodMuon( const reco::Muon& muon, SelectionType type )
       return muon.isGlobalMuon() && muon.isQualityValid() && muon.combinedQuality().trkKink < 100.0;
       break;
     case muon::TMLastStationAngLoose:
-      return muon.isTrackerMuon() && isGoodMuon(muon,TMLastStation,2,3,3,1E9,1E9,-3,-3,reco::Muon::SegmentAndTrackArbitration,false,true);
+      return muon.isTrackerMuon() && isGoodMuon(muon,TMLastStation,2,3,3,1E9,1E9,-3,-3,arbitrationType,false,true);
       break;
     case muon::TMLastStationAngTight:
-      return muon.isTrackerMuon() && isGoodMuon(muon,TMLastStation,2,3,3,3,3,-3,-3,reco::Muon::SegmentAndTrackArbitration,false,true);
+      return muon.isTrackerMuon() && isGoodMuon(muon,TMLastStation,2,3,3,3,3,-3,-3,arbitrationType,false,true);
       break;
     case muon::TMOneStationAngLoose:
-      return muon.isTrackerMuon() && isGoodMuon(muon,TMOneStation,1,3,3,1E9,1E9,1E9,1E9,reco::Muon::SegmentAndTrackArbitration,false,true);
+      return muon.isTrackerMuon() && isGoodMuon(muon,TMOneStation,1,3,3,1E9,1E9,1E9,1E9,arbitrationType,false,true);
       break;
     case muon::TMOneStationAngTight:
-      return muon.isTrackerMuon() && isGoodMuon(muon,TMOneStation,1,3,3,3,3,1E9,1E9,reco::Muon::SegmentAndTrackArbitration,false,true);
+      return muon.isTrackerMuon() && isGoodMuon(muon,TMOneStation,1,3,3,3,3,1E9,1E9,arbitrationType,false,true);
       break;
     case muon::TMLastStationOptimizedBarrelLowPtLoose:
       if (muon.pt() < 8. && fabs(muon.eta()) < 1.2)
-	return muon.isTrackerMuon() && isGoodMuon(muon,TMOneStation,1,3,3,1E9,1E9,1E9,1E9,reco::Muon::SegmentAndTrackArbitration,false,false);
+	return muon.isTrackerMuon() && isGoodMuon(muon,TMOneStation,1,3,3,1E9,1E9,1E9,1E9,arbitrationType,false,false);
       else
-	return muon.isTrackerMuon() && isGoodMuon(muon,TMLastStation,2,3,3,1E9,1E9,-3,-3,reco::Muon::SegmentAndTrackArbitration,true,false);
+	return muon.isTrackerMuon() && isGoodMuon(muon,TMLastStation,2,3,3,1E9,1E9,-3,-3,arbitrationType,true,false);
       break;
     case muon::TMLastStationOptimizedBarrelLowPtTight:
       if (muon.pt() < 8. && fabs(muon.eta()) < 1.2)
-	return muon.isTrackerMuon() && isGoodMuon(muon,TMOneStation,1,3,3,3,3,1E9,1E9,reco::Muon::SegmentAndTrackArbitration,false,false);
+	return muon.isTrackerMuon() && isGoodMuon(muon,TMOneStation,1,3,3,3,3,1E9,1E9,arbitrationType,false,false);
       else
-	return muon.isTrackerMuon() && isGoodMuon(muon,TMLastStation,2,3,3,3,3,-3,-3,reco::Muon::SegmentAndTrackArbitration,true,false);
+	return muon.isTrackerMuon() && isGoodMuon(muon,TMLastStation,2,3,3,3,3,-3,-3,arbitrationType,true,false);
       break;
     default:
       return false;
