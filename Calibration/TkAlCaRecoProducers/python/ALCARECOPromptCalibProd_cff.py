@@ -44,30 +44,32 @@ from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import hltLevel1GTSeed
 L1CollTrigger = hltLevel1GTSeed.clone()
 
 L1CollTrigger.L1TechTriggerSeeding = cms.bool(True)
-L1CollTrigger.L1SeedsLogicalExpression = cms.string('0 AND ( 40 OR 41 )')
-
+L1CollTrigger.L1SeedsLogicalExpression = cms.string('0 AND ( 40 OR 41 ) AND NOT (36 OR 37 OR 38 OR 39)')
+# FIXME: to be checked
 
 # ------------------------------------------------------------------------------
 # configuration to reproduce offlinePrimaryVertices
 # FIXME: needs to be moved in the TkAlMinBias definition
-from RecoVertex.BeamSpotProducer.BeamSpot_cfi import *
-from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import *
+# from RecoVertex.BeamSpotProducer.BeamSpot_cfi import *
+# offlineBeamSpotForBS = offlineBeamSpot.clone()
+# from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import *
 
-# overwrite some defaults for PV producer
-offlinePrimaryVerticesForBS = offlinePrimaryVertices.clone()
-offlinePrimaryVerticesForBS.TrackLabel = cms.InputTag("ALCARECOTkAlMinBias") 
-offlinePrimaryVerticesForBS.PVSelParameters.maxDistanceToBeam = 2
-offlinePrimaryVerticesForBS.TkFilterParameters.maxNormalizedChi2 = 20
-offlinePrimaryVerticesForBS.TkFilterParameters.minSiliconLayersWithHits = 5
-offlinePrimaryVerticesForBS.TkFilterParameters.maxD0Significance = 100
-offlinePrimaryVerticesForBS.TkFilterParameters.minPixelLayersWithHits = 1
-offlinePrimaryVerticesForBS.TkClusParameters.TkGapClusParameters.zSeparation = 1
-
+# # overwrite some defaults for PV producer
+# offlinePrimaryVerticesForBS = offlinePrimaryVertices.clone()
+# offlinePrimaryVerticesForBS.TrackLabel = cms.InputTag("ALCARECOTkAlMinBias")
+# offlinePrimaryVerticesForBS.beamSpotLabel = cms.InputTag("offlineBeamSpotForBS")
+# offlinePrimaryVerticesForBS.PVSelParameters.maxDistanceToBeam = 2
+# offlinePrimaryVerticesForBS.TkFilterParameters.maxNormalizedChi2 = 20
+# offlinePrimaryVerticesForBS.TkFilterParameters.minSiliconLayersWithHits = 5
+# offlinePrimaryVerticesForBS.TkFilterParameters.maxD0Significance = 100
+# offlinePrimaryVerticesForBS.TkFilterParameters.minPixelLayersWithHits = 1
+# offlinePrimaryVerticesForBS.TkClusParameters.TkGapClusParameters.zSeparation = 1
+# alcaBeamSpotProducer.PVFitter.VertexCollection = "offlinePrimaryVerticesForBS"
                      
 seqALCARECOPromptCalibProd = cms.Sequence(ALCARECOTkAlMinBiasFilterForBS *
                                           L1CollTrigger *
-                                          offlineBeamSpot +
-                                          offlinePrimaryVerticesForBS +
+#                                           offlineBeamSpotForBS +
+#                                           offlinePrimaryVerticesForBS +
                                           alcaBeamSpotProducer)
 
 #process.bsProductionPath = cms.Path(process.TkAlMinBiasFilterForBS+process.alcaBeamSpotProducer)
