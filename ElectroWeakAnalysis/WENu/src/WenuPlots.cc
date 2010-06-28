@@ -271,6 +271,8 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   ele_eop          = (Float_t) myElec->eSuperClusterOverP();
   ele_tip_bs       = (Float_t) -myElec->dB();
   ele_tip_pv       = myElec->userFloat("ele_tip_pv");
+  ele_pin          = (Float_t)  myElec->trackMomentumAtVtx().R();
+  ele_pout         = (Float_t)  myElec->trackMomentumOut().R();
   //
   event_caloMET    = (Float_t) myMet->et();
   event_pfMET      = (Float_t) myPfMet->et();
@@ -840,6 +842,8 @@ WenuPlots::beginJob()
   vbtfSele_tree->Branch("ele_eop",&ele_eop,"ele_eop/F");
   vbtfSele_tree->Branch("ele_tip_bs",&ele_tip_bs,"ele_tip_bs/F");
   vbtfSele_tree->Branch("ele_tip_pv",&ele_tip_pv,"ele_tip_pv/F");
+  vbtfSele_tree->Branch("ele_pin",&ele_pin,"ele_pin/F");
+  vbtfSele_tree->Branch("ele_pout",&ele_pout,"ele_pout/F");
   vbtfSele_tree->Branch("event_caloMET",&event_caloMET,"event_caloMET/F");  
   vbtfSele_tree->Branch("event_pfMET",&event_pfMET,"event_pfMET/F");
   vbtfSele_tree->Branch("event_tcMET",&event_tcMET,"event_tcMET/F");
@@ -902,6 +906,8 @@ WenuPlots::beginJob()
   vbtfPresele_tree->Branch("ele_eop",&ele_eop,"ele_eop/F");
   vbtfPresele_tree->Branch("ele_tip_bs",&ele_tip_bs,"ele_tip_bs/F");
   vbtfPresele_tree->Branch("ele_tip_pv",&ele_tip_pv,"ele_tip_pv/F");
+  vbtfPresele_tree->Branch("ele_pin",&ele_pin,"ele_pin/F");
+  vbtfPresele_tree->Branch("ele_pout",&ele_pout,"ele_pout/F");
   vbtfPresele_tree->Branch("event_caloMET",&event_caloMET,"event_caloMET/F");  
   vbtfPresele_tree->Branch("event_pfMET",&event_pfMET,"event_pfMET/F");
   vbtfPresele_tree->Branch("event_tcMET",&event_tcMET,"event_tcMET/F");
