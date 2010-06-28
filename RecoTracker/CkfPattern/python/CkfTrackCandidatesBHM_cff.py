@@ -14,7 +14,7 @@ CkfTrajectoryBuilderBeamHalo = copy.deepcopy(CkfTrajectoryBuilder)
 import copy
 from RecoTracker.CkfPattern.CkfTrackCandidates_cfi import *
 # generate CTF track candidates ############
-ckfTrackCandidatesBeamHaloMuon = copy.deepcopy(ckfTrackCandidates)
+beamhaloTrackCandidates = copy.deepcopy(ckfTrackCandidates)
 
 ckfTrajectoryFilterBeamHaloMuon.ComponentName = 'ckfTrajectoryFilterBeamHaloMuon'
 ckfTrajectoryFilterBeamHaloMuon.filterPset.minimumNumberOfHits = 4
@@ -26,9 +26,9 @@ CkfTrajectoryBuilderBeamHalo.ComponentName = 'CkfTrajectoryBuilderBH'
 CkfTrajectoryBuilderBeamHalo.propagatorAlong = 'BeamHaloPropagatorAlong'
 CkfTrajectoryBuilderBeamHalo.propagatorOpposite = 'BeamHaloPropagatorOpposite'
 CkfTrajectoryBuilderBeamHalo.trajectoryFilterName = 'ckfTrajectoryFilterBeamHaloMuon'
-ckfTrackCandidatesBeamHaloMuon.src = cms.InputTag('combinatorialbeamhaloseedfinder')
-ckfTrackCandidatesBeamHaloMuon.NavigationSchool = 'BeamHaloNavigationSchool'
-ckfTrackCandidatesBeamHaloMuon.TransientInitialStateEstimatorParameters.propagatorAlongTISE = 'BeamHaloPropagatorAlong'
-ckfTrackCandidatesBeamHaloMuon.TransientInitialStateEstimatorParameters.propagatorOppositeTISE = 'BeamHaloPropagatorOpposite'
-ckfTrackCandidatesBeamHaloMuon.TrajectoryBuilder = 'CkfTrajectoryBuilderBH'
+beamhaloTrackCandidates.src = cms.InputTag('beamhaloTrackerSeeds')
+beamhaloTrackCandidates.NavigationSchool = 'BeamHaloNavigationSchool'
+beamhaloTrackCandidates.TransientInitialStateEstimatorParameters.propagatorAlongTISE = 'BeamHaloPropagatorAlong'
+beamhaloTrackCandidates.TransientInitialStateEstimatorParameters.propagatorOppositeTISE = 'BeamHaloPropagatorOpposite'
+beamhaloTrackCandidates.TrajectoryBuilder = 'CkfTrajectoryBuilderBH'
 

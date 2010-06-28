@@ -67,7 +67,7 @@ layerList = cms.vstring(
     'TEC8_pos+TEC9_pos'
     )
 
-combinatorialbeamhaloseedfinder = cms.EDProducer("CtfSpecialSeedGenerator",
+beamhaloTrackerSeeds = cms.EDProducer("CtfSpecialSeedGenerator",
     SeedMomentum = cms.double(15.0), ##initial momentum in GeV !!!set to a lower value for slice test data
 
     ErrorRescaling = cms.double(50.0),
@@ -76,19 +76,20 @@ combinatorialbeamhaloseedfinder = cms.EDProducer("CtfSpecialSeedGenerator",
         ComponentName = cms.string('GlobalRegionProducer')
     ),
     Charges = cms.vint32(-1, 1),
-    OrderedHitsFactoryPSets = cms.VPSet(cms.PSet(
-        ComponentName = cms.string('BeamHaloPairGenerator'),
-        maxTheta = cms.double(1.0),
-        PropagationDirection = cms.string('alongMomentum'),
-        NavigationDirection = cms.string('outsideIn'),
-        LayerPSet = cms.PSet(
-            layerInfo,
-            layerList = layerList
-        )
-    ), 
+    OrderedHitsFactoryPSets = cms.VPSet(
         cms.PSet(
             ComponentName = cms.string('BeamHaloPairGenerator'),
-            maxTheta = cms.double(1.0),
+            maxTheta = cms.double(0.1),
+            PropagationDirection = cms.string('alongMomentum'),
+            NavigationDirection = cms.string('outsideIn'),
+            LayerPSet = cms.PSet(
+                layerInfo,
+                layerList = layerList
+            )
+        ), 
+        cms.PSet(
+            ComponentName = cms.string('BeamHaloPairGenerator'),
+            maxTheta = cms.double(0.1),
             PropagationDirection = cms.string('oppositeToMomentum'),
             NavigationDirection = cms.string('outsideIn'),
             LayerPSet = cms.PSet(
@@ -102,8 +103,8 @@ combinatorialbeamhaloseedfinder = cms.EDProducer("CtfSpecialSeedGenerator",
     SeedsFromNegativeY = cms.bool(False),
     doClusterCheck = cms.bool(True),
     ClusterCollectionLabel = cms.InputTag("siStripClusters"),
-    MaxNumberOfCosmicClusters = cms.uint32(1000),
-    MaxNumberOfPixelClusters = cms.uint32(1000),
+    MaxNumberOfCosmicClusters = cms.uint32(10000),
+    MaxNumberOfPixelClusters = cms.uint32(10000),
     PixelClusterCollectionLabel = cms.InputTag("siPixelClusters"),
     CheckHitsAreOnDifferentLayers = cms.bool(False),
     SetMomentum = cms.bool(True),
