@@ -77,7 +77,7 @@ namespace edm {
       return aux().run();
     }
 
-    bool mergeAuxiliary(LuminosityBlockAuxiliary const& aux) {
+    void mergeAuxiliary(LuminosityBlockAuxiliary const& aux) {
       return aux_->mergeAuxiliary(aux);
     }
 
@@ -91,11 +91,8 @@ namespace edm {
     void readImmediate() const;
 
     void swap(LuminosityBlockPrincipal&);
+
   private:
-    virtual ProcessHistoryID const& processHistoryID() const {return aux().processHistoryID();}
-
-    virtual void setProcessHistoryID(ProcessHistoryID const& phid) const {return aux().setProcessHistoryID(phid);}
-
     virtual bool unscheduledFill(std::string const&) const {return false;}
 
     void resolveProductImmediate(Group const& g) const;

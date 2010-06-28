@@ -135,10 +135,6 @@ namespace edm {
 
     BranchID pidToBid(ProductID const& pid) const;
 
-    virtual ProcessHistoryID const& processHistoryID() const {return history().processHistoryID();}
-
-    virtual void setProcessHistoryID(ProcessHistoryID const& phid) const {return history().setProcessHistoryID(phid);}
-
     virtual ProductID oldToNewProductID_(ProductID const& oldProductID) const;
 
     virtual bool unscheduledFill(std::string const& moduleLabel) const;

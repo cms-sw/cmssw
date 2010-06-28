@@ -9,7 +9,9 @@ Original Authors: W. David Dagenhart, Marc Paterno
 */
 
 #include "FWCore/Framework/interface/IEventProcessor.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "FWCore/Framework/src/EPStates.h"
+
 #include <iostream>
 #include <string>
 
@@ -20,8 +22,7 @@ namespace edm {
     MockEventProcessor(std::string const& mockData,
                        std::ostream& output,
                        statemachine::FileMode const& fileMode,
-                       bool handleEmptyRuns,
-                       bool handleEmptyLumis);
+                       statemachine::EmptyRunLumiMode const& emptyRunLumiMode);
 
     virtual StatusCode runToCompletion(bool onlineStateTransitions);
     virtual StatusCode runEventCount(int numberOfEventsToProcess);
@@ -40,24 +41,22 @@ namespace edm {
     virtual bool endOfLoop();
     virtual void rewindInput();
     virtual void prepareForNextLoop();
-    virtual void writeLumiCache();
-    virtual void writeRunCache();
     virtual bool shouldWeCloseOutput() const;
 
     virtual void doErrorStuff();
 
-    virtual void beginRun(int run);
-    virtual void endRun(int run);
+    virtual void beginRun(statemachine::Run const& run);
+    virtual void endRun(statemachine::Run const& run);
 
-    virtual void beginLumi(int run, int lumi);
-    virtual void endLumi(int run, int lumi);
+    virtual void beginLumi(ProcessHistoryID const& phid, int run, int lumi);
+    virtual void endLumi(ProcessHistoryID const& phid, int run, int lumi);
 
-    virtual int readAndCacheRun();
+    virtual statemachine::Run readAndCacheRun();
     virtual int readAndCacheLumi();
-    virtual void writeRun(int run);
-    virtual void deleteRunFromCache(int run);
-    virtual void writeLumi(int run, int lumi);
-    virtual void deleteLumiFromCache(int run, int lumi);
+    virtual void writeRun(statemachine::Run const& run);
+    virtual void deleteRunFromCache(statemachine::Run const& run);
+    virtual void writeLumi(ProcessHistoryID const& phid, int run, int lumi);
+    virtual void deleteLumiFromCache(ProcessHistoryID const& phid, int run, int lumi);
 
     virtual void readAndProcessEvent();
     virtual bool shouldWeStop() const;
@@ -72,8 +71,7 @@ namespace edm {
     std::string mockData_;
     mutable std::ostream & output_;
     statemachine::FileMode fileMode_;
-    bool handleEmptyRuns_;
-    bool handleEmptyLumis_;
+    statemachine::EmptyRunLumiMode emptyRunLumiMode_;
 
     int run_;
     int lumi_;

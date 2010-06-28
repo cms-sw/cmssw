@@ -1,5 +1,5 @@
 #include "FWCore/Version/interface/GetFileFormatVersion.h"
 
 namespace edm {
-  int getFileFormatVersion() { return 15; }
+  int getFileFormatVersion() { return 16; }
 }

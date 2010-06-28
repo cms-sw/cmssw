@@ -20,19 +20,43 @@ Original Author: W. David Dagenhart
 
 namespace edm {
 
-  class LumiKey {
+  class RunKey {
   public:
+    int processHistoryIDIndex() const { return processHistoryIDIndex_; }
     int run() const { return run_; }
-    int lumi() const { return lumi_; }
 
-    LumiKey(int run, int lumi) : run_(run), lumi_(lumi) { }
+    RunKey(int index, int run) : processHistoryIDIndex_(index), run_(run) { }
 
-    bool operator<(const LumiKey& right) const {
-      if (run_ == right.run_) return lumi_ < right.lumi_;
-      return run_ < right.run_;
+    bool operator<(RunKey const& right) const {
+      if (processHistoryIDIndex_ == right.processHistoryIDIndex_) {
+        return run_ < right.run_;
+      }
+      return processHistoryIDIndex_ < right.processHistoryIDIndex_;
     }
 
   private:
+    int processHistoryIDIndex_;
+    int run_;
+  };
+
+  class LumiKey {
+  public:
+    int processHistoryIDIndex() const { return processHistoryIDIndex_; }
+    int run() const { return run_; }
+    int lumi() const { return lumi_; }
+
+    LumiKey(int index, int run, int lumi) : processHistoryIDIndex_(index), run_(run), lumi_(lumi) { }
+
+    bool operator<(const LumiKey& right) const {
+      if (processHistoryIDIndex_ == right.processHistoryIDIndex_) {
+        if (run_ == right.run_) return lumi_ < right.lumi_;
+        return run_ < right.run_;
+      }
+      return processHistoryIDIndex_ < right.processHistoryIDIndex_;
+    }
+
+  private:
+    int processHistoryIDIndex_;
     int run_;
     int lumi_;
   };
@@ -43,18 +67,18 @@ namespace edm {
     PrincipalCache();
     ~PrincipalCache();
 
-    RunPrincipal& runPrincipal(int run);
-    RunPrincipal const& runPrincipal(int run) const;
-    boost::shared_ptr<RunPrincipal> runPrincipalPtr(int run);
+    RunPrincipal& runPrincipal(ProcessHistoryID const& phid, int run);
+    RunPrincipal const& runPrincipal(ProcessHistoryID const& phid, int run) const;
+    boost::shared_ptr<RunPrincipal> runPrincipalPtr(ProcessHistoryID const& phid, int run);
 
     // Current run (most recently read and inserted run)
     RunPrincipal& runPrincipal();
     RunPrincipal const& runPrincipal() const;
     boost::shared_ptr<RunPrincipal> runPrincipalPtr();
 
-    LuminosityBlockPrincipal& lumiPrincipal(int run, int lumi);
-    LuminosityBlockPrincipal const& lumiPrincipal(int run, int lumi) const;
-    boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipalPtr(int run, int lumi);
+    LuminosityBlockPrincipal& lumiPrincipal(ProcessHistoryID const& phid, int run, int lumi);
+    LuminosityBlockPrincipal const& lumiPrincipal(ProcessHistoryID const& phid, int run, int lumi) const;
+    boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipalPtr(ProcessHistoryID const& phid, int run, int lumi);
 
     // Current luminosity block (most recently read and inserted luminosity block)
     LuminosityBlockPrincipal& lumiPrincipal();
@@ -81,8 +105,8 @@ namespace edm {
     void deleteLowestRun();
     void deleteLowestLumi();
 
-    void deleteRun(int run);
-    void deleteLumi(int run, int lumi);
+    void deleteRun(ProcessHistoryID const& phid, int run);
+    void deleteLumi(ProcessHistoryID const& phid, int run, int lumi);
 
     void adjustEventToNewProductRegistry(boost::shared_ptr<ProductRegistry const> reg);
 
@@ -90,12 +114,15 @@ namespace edm {
 
   private:
 
-    typedef std::map<int, boost::shared_ptr<RunPrincipal> >::iterator RunIterator;
-    typedef std::map<int, boost::shared_ptr<RunPrincipal> >::const_iterator ConstRunIterator;
+    std::vector<ProcessHistoryID> processHistoryIDs_;
+    std::map<ProcessHistoryID, int> processHistoryIDsMap_;
+
+    typedef std::map<RunKey, boost::shared_ptr<RunPrincipal> >::iterator RunIterator;
+    typedef std::map<RunKey, boost::shared_ptr<RunPrincipal> >::const_iterator ConstRunIterator;
     typedef std::map<LumiKey, boost::shared_ptr<LuminosityBlockPrincipal> >::iterator LumiIterator;
     typedef std::map<LumiKey, boost::shared_ptr<LuminosityBlockPrincipal> >::const_iterator ConstLumiIterator;
 
-    std::map<int, boost::shared_ptr<RunPrincipal> > runPrincipals_;
+    std::map<RunKey, boost::shared_ptr<RunPrincipal> > runPrincipals_;
     std::map<LumiKey, boost::shared_ptr<LuminosityBlockPrincipal> > lumiPrincipals_;
 
     boost::shared_ptr<EventPrincipal> eventPrincipal_;

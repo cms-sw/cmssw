@@ -6,28 +6,26 @@ MessageLogger Summary
  type     category        sev    module        subroutine        count    total
  ---- -------------------- -- ---------------- ----------------  -----    -----
     1 FwkJob               -i UnitTestClient_A                       3*       3
-    2 FwkReport            -i AfterModBeginLum                       1        1
-    3 FwkReport            -i AfterSource                            2        2
-    4 cat_A                -i UnitTestClient_A                       3        3
-    5 cat_B                -i UnitTestClient_A                       3        3
-    6 cat_A                -w UnitTestClient_A                       3        3
-    7 cat_B                -w UnitTestClient_A                       3        3
-    8 cat_A                -e UnitTestClient_A                       3        3
-    9 cat_B                -e UnitTestClient_A                       3        3
+    2 FwkReport            -i AfterSource                            3        3
+    3 cat_A                -i UnitTestClient_A                       3        3
+    4 cat_B                -i UnitTestClient_A                       3        3
+    5 cat_A                -w UnitTestClient_A                       3        3
+    6 cat_B                -w UnitTestClient_A                       3        3
+    7 cat_A                -e UnitTestClient_A                       3        3
+    8 cat_B                -e UnitTestClient_A                       3        3
 
 * Some occurrences of this message were suppressed in all logs, due to limits.
 
  type    category    Examples: run/evt        run/evt          run/evt
  ---- -------------------- ---------------- ---------------- ----------------
     1 FwkJob               1/1              1/2              1/3
-    2 FwkReport            PostBeginLumi                     
-    3 FwkReport            PostProcessEvent PostProcessEvent 
-    4 cat_A                1/1              1/2              1/3
-    5 cat_B                1/1              1/2              1/3
-    6 cat_A                1/1              1/2              1/3
-    7 cat_B                1/1              1/2              1/3
-    8 cat_A                1/1              1/2              1/3
-    9 cat_B                1/1              1/2              1/3
+    2 FwkReport            PostBeginLumi    PostProcessEvent PostProcessEvent
+    3 cat_A                1/1              1/2              1/3
+    4 cat_B                1/1              1/2              1/3
+    5 cat_A                1/1              1/2              1/3
+    6 cat_B                1/1              1/2              1/3
+    7 cat_A                1/1              1/2              1/3
+    8 cat_B                1/1              1/2              1/3
 
 Severity    # Occurrences   Total Occurrences
 --------    -------------   -----------------

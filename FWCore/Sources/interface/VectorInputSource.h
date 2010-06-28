@@ -27,7 +27,6 @@ namespace edm {
     virtual ~VectorInputSource();
 
     void readMany(int number, EventPrincipalVector& result);
-    void readMany(int number, EventPrincipalVector& result, EventID const& id, unsigned int fileSeqNumber);
     void readManyRandom(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber); 
     void readManySequential(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber); 
     void readManySpecified(std::vector<EventID> const& events, EventPrincipalVector& result); 
@@ -35,7 +34,6 @@ namespace edm {
 
   private:
     virtual void readMany_(int number, EventPrincipalVector& result) = 0;
-    virtual void readMany_(int number, EventPrincipalVector& result, EventID const& id, unsigned int fileSeqNumber) = 0;
     virtual void readManyRandom_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber) = 0;
     virtual void readManySequential_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber) = 0;
     virtual void readManySpecified_(std::vector<EventID> const& events, EventPrincipalVector& result) = 0;

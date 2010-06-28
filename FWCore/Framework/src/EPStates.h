@@ -2,7 +2,7 @@
 #define Framework_EPStates_h
 
 /*
-$Id: EPStates.h,v 1.7 2008/07/29 02:17:36 wmtan Exp $
+$Id: EPStates.h,v 1.8.14.2 2010/05/28 22:50:16 wdd Exp $
 
 The state machine that controls the processing of runs, luminosity
 blocks, events, and loops is implemented using the boost statechart
@@ -12,6 +12,8 @@ used by the EventProcessor.
 Original Authors: W. David Dagenhart, Marc Paterno
 */
 
+#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
+
 #include "boost/statechart/event.hpp"
 #include "boost/statechart/state_machine.hpp"
 #include <boost/statechart/state.hpp>
@@ -19,7 +21,6 @@ Original Authors: W. David Dagenhart, Marc Paterno
 #include <boost/mpl/list.hpp>
 #include <boost/statechart/custom_reaction.hpp>
 #include <vector>
-#include <set>
 
 namespace sc = boost::statechart;
 namespace mpl = boost::mpl;
@@ -30,25 +31,41 @@ namespace edm {
 
 namespace statemachine {
 
-  enum FileMode { NOMERGE, MERGE, FULLLUMIMERGE, FULLMERGE };
-  int const INVALID_RUN = 0;
-  int const INVALID_LUMI = 0;
+  enum FileMode { NOMERGE, FULLMERGE };
+
+  enum EmptyRunLumiMode { handleEmptyRunsAndLumis,
+                          handleEmptyRuns,
+                          doNotHandleEmptyRunsAndLumis
+  };
 
   // Define the classes representing the "boost statechart events".
   // There are six of them.
 
   class Run : public sc::event<Run> {
   public:
-    Run(int id);
-    int id() const;
+    Run(edm::ProcessHistoryID const& phid, int runNumber);
+    edm::ProcessHistoryID const& processHistoryID() const { return processHistoryID_; }
+    int runNumber() const { return runNumber_; }
+
+    bool operator==(Run const& rh) const {
+      return (runNumber_ == rh.runNumber()) &&
+	     (processHistoryID_ == rh.processHistoryID());
+    }
+
+    bool operator!=(Run const& rh) const {
+      return (runNumber_ != rh.runNumber()) ||
+	     (processHistoryID_ != rh.processHistoryID());
+    }
+
   private:
-    int id_;
+    edm::ProcessHistoryID processHistoryID_;
+    int runNumber_;
   };
 
   class Lumi : public sc::event<Lumi> {
   public:
     Lumi(int id);
-    int id() const;
+    int id() const { return id_; }
   private:
     int id_;
   };
@@ -76,13 +93,11 @@ namespace statemachine {
   public:
     Machine(edm::IEventProcessor* ep,
             FileMode fileMode,
-            bool handleEmptyRuns,
-            bool handleEmptyLumis);
+            EmptyRunLumiMode emptyRunLumiMode);
 
     edm::IEventProcessor& ep() const;
     FileMode fileMode() const;
-    bool handleEmptyRuns() const;
-    bool handleEmptyLumis() const;
+    EmptyRunLumiMode emptyRunLumiMode() const;
 
     void startingNewLoop(File const& file);
     void startingNewLoop(Stop const& stop);
@@ -92,8 +107,7 @@ namespace statemachine {
 
     edm::IEventProcessor* ep_;
     FileMode fileMode_;
-    bool handleEmptyRuns_;
-    bool handleEmptyLumis_;
+    EmptyRunLumiMode emptyRunLumiMode_;
   };
 
   class Error;
@@ -226,11 +240,11 @@ namespace statemachine {
     typedef sc::transition<File, NewInputAndOutputFiles> reactions;
 
     bool beginRunCalled() const;
-    int currentRun() const;
+    Run const& currentRun() const;
     bool runException() const;
     void setupCurrentRun();
-    void beginRun(int run);
-    void endRun(int run);
+    void beginRun(Run const& run);
+    void endRun(Run const& run);
     void finalizeRun(Run const&);
     void finalizeRun();
     void beginRunIfNotDoneAlready();
@@ -238,8 +252,7 @@ namespace statemachine {
     edm::IEventProcessor & ep_;
     bool exitCalled_;
     bool beginRunCalled_;
-    int currentRun_;
-    std::set<int> previousRuns_;
+    Run currentRun_;
     bool runException_;
   };
 
@@ -253,9 +266,10 @@ namespace statemachine {
 
     typedef mpl::list<
       sc::transition<Lumi, HandleLumis>,
-      sc::transition<Run, NewRun, HandleRuns, &HandleRuns::finalizeRun>,
+      sc::custom_reaction<Run>,
       sc::custom_reaction<File> > reactions;
 
+    sc::result react(Run const& run);
     sc::result react(File const& file);
   };
 
@@ -298,19 +312,27 @@ namespace statemachine {
   class HandleLumis : public sc::state<HandleLumis, HandleRuns, FirstLumi>
   {
   public:
-    typedef std::pair<int, int> LumiID;
+    class LumiID {
+    public:
+      LumiID(edm::ProcessHistoryID const& phid, int run, int lumi);
+      edm::ProcessHistoryID const& processHistoryID() const { return processHistoryID_; }
+      int run() const { return run_; }
+      int lumi() const { return lumi_; }
+
+    private:
+      edm::ProcessHistoryID processHistoryID_;
+      int run_;
+      int lumi_;
+    };
     HandleLumis(my_context ctx);
     void exit();
     ~HandleLumis();
     bool checkInvariant();
 
-    LumiID currentLumi() const;
+    LumiID const& currentLumi() const;
     bool currentLumiEmpty() const;
-    std::vector<LumiID> const& unhandledLumis() const;
     void setupCurrentLumi();
-    void finalizeAllLumis();
     void finalizeLumi();
-    void finalizeOutstandingLumis();
     void markLumiNonEmpty();
 
     typedef sc::transition<Run, NewRun, HandleRuns, &HandleRuns::finalizeRun> reactions;
@@ -320,8 +342,6 @@ namespace statemachine {
     bool exitCalled_;
     bool currentLumiEmpty_;
     LumiID currentLumi_;
-    std::set<LumiID> previousLumis_;
-    std::vector<LumiID> unhandledLumis_;
     bool lumiException_;
   };
 
@@ -337,9 +357,10 @@ namespace statemachine {
 
     typedef mpl::list<
       sc::transition<Event, HandleEvent>,
-      sc::transition<Lumi, AnotherLumi>,
+      sc::custom_reaction<Lumi>,
       sc::custom_reaction<File> > reactions;
 
+    sc::result react(Lumi const& lumi);
     sc::result react(File const& file);
   };
 
@@ -352,9 +373,10 @@ namespace statemachine {
 
     typedef mpl::list<
       sc::transition<Event, HandleEvent>,
-      sc::transition<Lumi, AnotherLumi>,
+      sc::custom_reaction<Lumi>,
       sc::custom_reaction<File> > reactions;
 
+    sc::result react(Lumi const& lumi);
     sc::result react(File const& file);
   };
 

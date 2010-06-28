@@ -26,8 +26,8 @@ namespace edm {
                        BranchType bt) :
     EDProductGetter(),
     processHistoryPtr_(boost::shared_ptr<ProcessHistory>(new ProcessHistory)),
+    processHistoryID_(processHistoryPtr_->id()),
     processConfiguration_(&pc),
-    processHistoryModified_(false),
     groups_(reg->constProductList().size(), SharedGroupPtr()),
     preg_(reg),
     branchMapperPtr_(),
@@ -127,8 +127,8 @@ namespace edm {
   // "Zero" the principal so it can be reused for another Event.
   void
   Principal::clearPrincipal() {
-    processHistoryModified_ = false;
     processHistoryPtr_.reset(new ProcessHistory);
+    processHistoryID_ = processHistoryPtr_->id();
     branchMapperPtr_.reset();
     store_.reset();
     for (Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
@@ -147,7 +147,7 @@ namespace edm {
       assert(history.notEmpty());
       bool found = history.getMapped(hist, *processHistoryPtr_);
       assert(found);
-      checkProcessHistory();
+      processHistoryID_ = processHistoryPtr_->id();
     }
     preg_->productLookup().reorderIfNecessary(branchType_, *processHistoryPtr_,
 					 processConfiguration_->processName());
@@ -202,39 +202,9 @@ namespace edm {
   }
 
   void
-  Principal::checkProcessHistory() const {
-    if (processHistoryModified_) return;
-    ProcessHistory& ph = *processHistoryPtr_;
-    std::string const& processName = processConfiguration_->processName();
-    for (ProcessHistory::const_iterator it = ph.begin(), itEnd = ph.end(); it != itEnd; ++it) {
-      if (processName == it->processName()) {
-	throw edm::Exception(errors::Configuration, "Duplicate Process")
-	  << "The process name " << processName << " was previously used on these products.\n"
-	  << "Please modify the configuration file to use a distinct process name.\n";
-      }
-    }
-  }
-
-  void
-  Principal::addToProcessHistory() const {
-    if (processHistoryModified_) return;
-    ProcessHistory& ph = *processHistoryPtr_;
-    ph.push_back(*processConfiguration_);
-    //OPTIMIZATION NOTE:  As of 0_9_0_pre3
-    // For very simple Sources (e.g. EmptySource) this routine takes up nearly 50% of the time per event.
-    // 96% of the time for this routine is being spent in computing the
-    // ProcessHistory id which happens because we are reconstructing the ProcessHistory for each event.
-    // (The process ID is first computed in the call to 'insertMapped(..)' below.)
-    // It would probably be better to move the ProcessHistory construction out to somewhere
-    // which persists for longer than one Event
-    ProcessHistoryRegistry::instance()->insertMapped(ph);
-    setProcessHistoryID(ph.id());
-    processHistoryModified_ = true;
-  }
-
-  ProcessHistory const&
-  Principal::processHistory() const {
-    return *processHistoryPtr_;
+  Principal::setProcessHistory(Principal const& principal) {
+    *processHistoryPtr_ = *principal.processHistoryPtr_;
+    processHistoryID_ = processHistoryPtr_->id();
   }
 
   Principal::SharedConstGroupPtr const
@@ -677,8 +647,8 @@ namespace edm {
   void
   Principal::swapBase(Principal& iOther) {
     std::swap(processHistoryPtr_, iOther.processHistoryPtr_);
+    std::swap(processHistoryID_, iOther.processHistoryID_);
     std::swap(processConfiguration_,iOther.processConfiguration_);
-    std::swap(processHistoryModified_,iOther.processHistoryModified_);
     std::swap(groups_,iOther.groups_);
     std::swap(preg_, iOther.preg_);
     std::swap(branchMapperPtr_,iOther.branchMapperPtr_);

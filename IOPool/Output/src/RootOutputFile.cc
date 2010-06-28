@@ -4,8 +4,6 @@
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
 #include "DataFormats/Provenance/interface/EventAuxiliary.h" 
-#include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h" 
-#include "DataFormats/Provenance/interface/RunAuxiliary.h" 
 #include "FWCore/Version/interface/GetFileFormatVersion.h"
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -73,17 +71,19 @@ namespace edm {
       whyNotFastClonable_(om_->whyNotFastClonable()),
       filePtr_(TFile::Open(file_.c_str(), "recreate", "", om_->compressionLevel())),
       fid_(),
-      fileIndex_(),
       eventEntryNumber_(0LL),
       lumiEntryNumber_(0LL),
       runEntryNumber_(0LL),
+      indexIntoFile_(),
       metaDataTree_(0),
       parameterSetsTree_(0),
       parentageTree_(0),
       eventHistoryTree_(0),
+      lumiAux_(),
+      runAux_(),
       pEventAux_(0),
-      pLumiAux_(0),
-      pRunAux_(0),
+      pLumiAux_(&lumiAux_),
+      pRunAux_(&runAux_),
       eventEntryInfoVector_(),
       lumiEntryInfoVector_(),
       runEntryInfoVector_(),
@@ -351,6 +351,7 @@ namespace edm {
      
     // History branch
     History historyForOutput(e.history());
+    historyForOutput.setProcessHistoryID(e.processHistoryID());
     historyForOutput.addEventSelectionEntry(om_->selectorConfig());
     pHistory_ = &historyForOutput;
     int sz = eventHistoryTree_->Fill();
@@ -371,7 +372,7 @@ namespace edm {
     pHistory_ = &e.history();
 
     // Add event to index
-    fileIndex_.addEntry(pEventAux_->run(), pEventAux_->luminosityBlock(), pEventAux_->event(), eventEntryNumber_);
+    indexIntoFile_.addEntry(e.processHistoryID(), pEventAux_->run(), pEventAux_->luminosityBlock(), pEventAux_->event(), eventEntryNumber_);
     ++eventEntryNumber_;
 
     // Report event written 
@@ -381,22 +382,24 @@ namespace edm {
 
   void RootOutputFile::writeLuminosityBlock(LuminosityBlockPrincipal const& lb) {
     // Auxiliary branch
-    // NOTE: pLumiAux_ must be set before calling fillBranches since it gets written out
-    // in that routine.
-    pLumiAux_ = &lb.aux();
+    // NOTE: lumiAux_ must be filled before calling fillBranches since it gets written out in that routine.
+    lumiAux_ = lb.aux();
+    // Use the updated process historyID
+    lumiAux_.setProcessHistoryID(lb.processHistoryID());
     // Add lumi to index.
-    fileIndex_.addEntry(pLumiAux_->run(), pLumiAux_->luminosityBlock(), 0U, lumiEntryNumber_);
+    indexIntoFile_.addEntry(lb.processHistoryID(), lumiAux_.run(), lumiAux_.luminosityBlock(), 0U, lumiEntryNumber_);
     ++lumiEntryNumber_;
     fillBranches(InLumi, lb, pLumiEntryInfoVector_);
   }
 
   void RootOutputFile::writeRun(RunPrincipal const& r) {
     // Auxiliary branch
-    // NOTE: pRunAux_ must be set before calling fillBranches since it gets written out
-    // in that routine.
-    pRunAux_ = &r.aux();
+    // NOTE: runAux_ must be filled before calling fillBranches since it gets written out in that routine.
+    runAux_ = r.aux();
+    // Use the updated process historyID
+    runAux_.setProcessHistoryID(r.processHistoryID());
     // Add run to index.
-    fileIndex_.addEntry(pRunAux_->run(), 0U, 0U, runEntryNumber_);
+    indexIntoFile_.addEntry(r.processHistoryID(), runAux_.run(), 0U, 0U, runEntryNumber_);
     ++runEntryNumber_;
     fillBranches(InRun, r, pRunEntryInfoVector_);
   }
@@ -434,10 +437,10 @@ namespace edm {
     b->Fill();
   }
 
-  void RootOutputFile::writeFileIndex() {
-    fileIndex_.sortBy_Run_Lumi_Event();
-    FileIndex* findexPtr = &fileIndex_;
-    TBranch* b = metaDataTree_->Branch(poolNames::fileIndexBranchName().c_str(), &findexPtr, om_->basketSize(), 0);
+  void RootOutputFile::writeIndexIntoFile() {
+    indexIntoFile_.sortVector_Run_Or_Lumi_Entries();
+    IndexIntoFile* iifPtr = &indexIntoFile_;
+    TBranch* b = metaDataTree_->Branch(poolNames::indexIntoFileBranchName().c_str(), &iifPtr, om_->basketSize(), 0);
     assert(b);
     b->Fill();
   }

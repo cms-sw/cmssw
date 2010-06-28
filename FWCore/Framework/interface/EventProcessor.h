@@ -26,6 +26,7 @@ configured in the user's main() function, and is set running.
 #include "FWCore/Framework/interface/Actions.h"
 #include "DataFormats/Provenance/interface/PassID.h"
 #include "DataFormats/Provenance/interface/ReleaseVersion.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
@@ -34,6 +35,7 @@ configured in the user's main() function, and is set running.
 
 namespace statemachine {
   class Machine;
+  class Run;
 }
 
 namespace edm {
@@ -316,18 +318,18 @@ namespace edm {
 
     virtual void doErrorStuff();
 
-    virtual void beginRun(int run);
-    virtual void endRun(int run);
+    virtual void beginRun(statemachine::Run const& run);
+    virtual void endRun(statemachine::Run const& run);
 
-    virtual void beginLumi(int run, int lumi);
-    virtual void endLumi(int run, int lumi);
+    virtual void beginLumi(ProcessHistoryID const& phid, int run, int lumi);
+    virtual void endLumi(ProcessHistoryID const& phid, int run, int lumi);
 
-    virtual int readAndCacheRun();
+    virtual statemachine::Run readAndCacheRun();
     virtual int readAndCacheLumi();
-    virtual void writeRun(int run);
-    virtual void deleteRunFromCache(int run);
-    virtual void writeLumi(int run, int lumi);
-    virtual void deleteLumiFromCache(int run, int lumi);
+    virtual void writeRun(statemachine::Run const& run);
+    virtual void deleteRunFromCache(statemachine::Run const& run);
+    virtual void writeLumi(ProcessHistoryID const& phid, int run, int lumi);
+    virtual void deleteLumiFromCache(ProcessHistoryID const& phid, int run, int lumi);
 
     virtual void readAndProcessEvent();
     virtual bool shouldWeStop() const;
@@ -409,8 +411,7 @@ namespace edm {
     bool                                          shouldWeStop_;
     bool                                          stateMachineWasInErrorState_;
     std::string                                   fileMode_;
-    bool                                          handleEmptyRuns_;
-    bool                                          handleEmptyLumis_;
+    std::string                                   emptyRunLumiMode_;
     std::string                                   exceptionMessageFiles_;
     std::string                                   exceptionMessageRuns_;
     std::string                                   exceptionMessageLumis_;

@@ -47,9 +47,9 @@ namespace edm {
     luminosityBlockPrincipal_ = lbp;
     history_ = history;
 
-    if (productRegistry().anyProductProduced()) {
-      addToProcessHistory();
-    }
+   if (luminosityBlockPrincipal_) {
+    setProcessHistory(*luminosityBlockPrincipal_);
+   }
 
     mapper->processHistoryID() = processHistoryID();
     BranchIDListHelper::fixBranchListIndexes(history_->branchListIndexes());

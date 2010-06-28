@@ -61,7 +61,7 @@ namespace edm {
 
   ProcessHistoryID const&
   Event::processHistoryID() const {
-    return eventPrincipal().history().processHistoryID();
+    return eventPrincipal().processHistoryID();
   }
 
 

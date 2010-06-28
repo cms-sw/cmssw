@@ -27,7 +27,7 @@ pushd ${LOCAL_TMP_DIR}
   for i in 3 4
   do
 
-    ${exe} -s -i ${input}${i}.txt -o ${output}${i}.txt || die "TestFWCoreFrameworkStatemachine with input ${i}" $?
+    ${exe} -i ${input}${i}.txt -o ${output}${i}.txt || die "TestFWCoreFrameworkStatemachine with input ${i}" $?
     diff ${reference_output}${i}.txt ${output}${i}.txt || die "comparing ${output}${i}.txt" $?  
 
   done
@@ -35,7 +35,7 @@ pushd ${LOCAL_TMP_DIR}
   for i in 12
   do
 
-    ${exe} -m -i ${input}${i}.txt -o ${output}${i}.txt || die "TestFWCoreFrameworkStatemachine with input ${i}" $?
+    ${exe} -i ${input}${i}.txt -o ${output}${i}.txt || die "TestFWCoreFrameworkStatemachine with input ${i}" $?
     diff ${reference_output}${i}.txt ${output}${i}.txt || die "comparing ${output}${i}.txt" $?  
 
   done

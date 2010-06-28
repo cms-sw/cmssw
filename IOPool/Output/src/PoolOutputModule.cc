@@ -230,7 +230,7 @@ namespace edm {
 
   void PoolOutputModule::writeFileFormatVersion() { rootOutputFile_->writeFileFormatVersion(); }
   void PoolOutputModule::writeFileIdentifier() { rootOutputFile_->writeFileIdentifier(); }
-  void PoolOutputModule::writeFileIndex() { rootOutputFile_->writeFileIndex(); }
+  void PoolOutputModule::writeIndexIntoFile() { rootOutputFile_->writeIndexIntoFile(); }
   void PoolOutputModule::writeEventHistory() { rootOutputFile_->writeEventHistory(); }
   void PoolOutputModule::writeProcessConfigurationRegistry() { rootOutputFile_->writeProcessConfigurationRegistry(); }
   void PoolOutputModule::writeProcessHistoryRegistry() { rootOutputFile_->writeProcessHistoryRegistry(); }

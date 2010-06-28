@@ -25,13 +25,11 @@ namespace edm {
   MockEventProcessor::MockEventProcessor(std::string const& mockData,
                                          std::ostream& output,
                                          statemachine::FileMode const& fileMode,
-                                         bool handleEmptyRuns,
-                                         bool handleEmptyLumis) :
+                                         statemachine::EmptyRunLumiMode const& emptyRunLumiMode) :
     mockData_(mockData),
     output_(output),
     fileMode_(fileMode),
-    handleEmptyRuns_(handleEmptyRuns),
-    handleEmptyLumis_(handleEmptyLumis),
+    emptyRunLumiMode_(emptyRunLumiMode),
     shouldWeCloseOutput_(true),
     shouldWeEndLoop_(true),
     shouldWeStop_(false)  {
@@ -41,8 +39,7 @@ namespace edm {
   MockEventProcessor::runToCompletion(bool onlineStateTransitions) {
     statemachine::Machine myMachine(this,
                                     fileMode_,
-                                    handleEmptyRuns_,
-                                    handleEmptyLumis_);
+                                    emptyRunLumiMode_);
 
   
     myMachine.initiate();
@@ -57,7 +54,7 @@ namespace edm {
       if (ch == 'r') {
         output_ << "    *** nextItemType: Run " << t.value << " ***\n";
         run_ = t.value;
-        myMachine.process_event(statemachine::Run(t.value));
+        myMachine.process_event(statemachine::Run(ProcessHistoryID(), t.value));
       }
       else if (ch == 'l') {
         output_ << "    *** nextItemType: Lumi " << t.value << " ***\n";
@@ -158,14 +155,6 @@ namespace edm {
     output_ << "\tprepareForNextLoop\n";
   }
 
-  void MockEventProcessor::writeLumiCache() {
-    output_ << "\twriteLumiCache\n";
-  }
-
-  void MockEventProcessor::writeRunCache() {
-    output_ << "\twriteRunCache\n";
-  }
-
   bool MockEventProcessor::shouldWeCloseOutput() const {
     output_ << "\tshouldWeCloseOutput\n";
     return shouldWeCloseOutput_;
@@ -175,25 +164,25 @@ namespace edm {
     output_ << "\tdoErrorStuff\n";
   }
 
-  void MockEventProcessor::beginRun(int run) {
-    output_ << "\tbeginRun " << run << "\n";
+  void MockEventProcessor::beginRun(statemachine::Run const& run) {
+    output_ << "\tbeginRun " << run.runNumber() << "\n";
   }
 
-  void MockEventProcessor::endRun(int run) {
-    output_ << "\tendRun " << run << "\n";
+  void MockEventProcessor::endRun(statemachine::Run const& run) {
+    output_ << "\tendRun " << run.runNumber() << "\n";
   }
 
-  void MockEventProcessor::beginLumi(int run, int lumi) {
+  void MockEventProcessor::beginLumi(ProcessHistoryID const& phid, int run, int lumi) {
     output_ << "\tbeginLumi " << run << "/" << lumi << "\n";
   }
 
-  void MockEventProcessor::endLumi(int run, int lumi) {
+  void MockEventProcessor::endLumi(ProcessHistoryID const& phid, int run, int lumi) {
     output_ << "\tendLumi " << run << "/" << lumi << "\n";
   }
 
-  int MockEventProcessor::readAndCacheRun() {
+  statemachine::Run MockEventProcessor::readAndCacheRun() {
     output_ << "\treadAndCacheRun " << run_ << "\n";
-    return run_;
+    return statemachine::Run(ProcessHistoryID(), run_);
   }
 
   int MockEventProcessor::readAndCacheLumi() {
@@ -201,19 +190,19 @@ namespace edm {
     return lumi_;
   }
 
-  void MockEventProcessor::writeRun(int run) {
-    output_ << "\twriteRun " << run << "\n";
+  void MockEventProcessor::writeRun(statemachine::Run const& run) {
+    output_ << "\twriteRun " << run.runNumber() << "\n";
   }
 
-  void MockEventProcessor::deleteRunFromCache(int run) {
-    output_ << "\tdeleteRunFromCache " << run << "\n";
+  void MockEventProcessor::deleteRunFromCache(statemachine::Run const& run) {
+    output_ << "\tdeleteRunFromCache " << run.runNumber() << "\n";
   }
 
-  void MockEventProcessor::writeLumi(int run, int lumi) {
+  void MockEventProcessor::writeLumi(ProcessHistoryID const& phid, int run, int lumi) {
     output_ << "\twriteLumi " << run << "/" << lumi << "\n";
   }
 
-  void MockEventProcessor::deleteLumiFromCache(int run, int lumi) {
+  void MockEventProcessor::deleteLumiFromCache(ProcessHistoryID const& phid, int run, int lumi) {
     output_ << "\tdeleteLumiFromCache " << run << "/" << lumi << "\n";
   }
 

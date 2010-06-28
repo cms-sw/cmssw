@@ -20,9 +20,10 @@ namespace edm {
   LuminosityBlockPrincipal::fillLuminosityBlockPrincipal(
       boost::shared_ptr<BranchMapper> mapper,
       boost::shared_ptr<DelayedReader> rtrv) {
+
     fillPrincipal(aux_->processHistoryID(), mapper, rtrv);
-    if (productRegistry().anyProductProduced()) {
-      addToProcessHistory();
+    if (runPrincipal_) {
+      setProcessHistory(*runPrincipal_);
     }
     mapper->processHistoryID() = processHistoryID();
     for (const_iterator i = this->begin(), iEnd = this->end(); i != iEnd; ++i) {

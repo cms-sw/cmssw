@@ -62,9 +62,14 @@ namespace edm {
       aux_->setEndTime(time);
     }
 
-    bool mergeAuxiliary(RunAuxiliary const& aux) {
+    void mergeAuxiliary(RunAuxiliary const& aux) {
       return aux_->mergeAuxiliary(aux);
     }
+
+    // ----- Mark this RunPrincipal as having been updated in the current Process.
+    void addToProcessHistory();
+
+    void checkProcessHistory() const;
 
     void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler>) {}
 
@@ -78,14 +83,12 @@ namespace edm {
     void swap(RunPrincipal&);
 
   private:
-    virtual ProcessHistoryID const& processHistoryID() const {return aux().processHistoryID();}
-
-    virtual void setProcessHistoryID(ProcessHistoryID const& phid) const {return aux().setProcessHistoryID(phid);}
 
     virtual bool unscheduledFill(std::string const&) const {return false;}
 
     void resolveProductImmediate(Group const& g) const;
 
+    // A vector of groups.
     boost::shared_ptr<RunAuxiliary> aux_;
   };
 }

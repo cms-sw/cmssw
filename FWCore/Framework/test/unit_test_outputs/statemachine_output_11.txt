@@ -1,5 +1,5 @@
 
-Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
+Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRunsAndLumis
     *** nextItemType: Restart 0 ***
 	doErrorStuff
 	endOfLoop
@@ -14,8 +14,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
     *** nextItemType: Restart 0 ***
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
@@ -31,8 +29,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
     *** nextItemType: Lumi 1 ***
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
@@ -48,8 +44,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
     *** nextItemType: Event ***
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
@@ -65,602 +59,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
     *** nextItemType: File 0 ***
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 9 ***
-	readAndCacheRun 9
-    *** nextItemType: File 0 ***
-	writeRun 9
-	deleteRunFromCache 9
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 1 ***
-	readAndCacheRun 1
-    *** nextItemType: File 0 ***
-	writeRun 1
-	deleteRunFromCache 1
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 1 ***
-	readAndCacheRun 1
-    *** nextItemType: Run 2 ***
-	writeRun 1
-	deleteRunFromCache 1
-	readAndCacheRun 2
-    *** nextItemType: File 0 ***
-	writeRun 2
-	deleteRunFromCache 2
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: File 0 ***
-	writeRun 2
-	deleteRunFromCache 2
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: File 0 ***
-	writeLumi 2/1
-	deleteLumiFromCache 2/1
-	writeRun 2
-	deleteRunFromCache 2
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 2 ***
-	readAndCacheLumi 2
-    *** nextItemType: Lumi 3 ***
-	writeLumi 2/2
-	deleteLumiFromCache 2/2
-	readAndCacheLumi 3
-    *** nextItemType: File 0 ***
-	writeLumi 2/3
-	deleteLumiFromCache 2/3
-	writeRun 2
-	deleteRunFromCache 2
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: File 0 ***
-	writeRun 2
-	deleteRunFromCache 2
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 3 ***
-	readAndCacheLumi 3
-    *** nextItemType: File 0 ***
-	writeLumi 2/3
-	deleteLumiFromCache 2/3
-	writeRun 2
-	deleteRunFromCache 2
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Lumi 4 ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 1 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 5 ***
-	readAndCacheRun 5
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: File 0 ***
-	writeLumi 5/1
-	deleteLumiFromCache 5/1
-	writeRun 5
-	deleteRunFromCache 5
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Event ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 1 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 6 ***
-	readAndCacheRun 6
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: Restart 0 ***
-	writeLumi 6/1
-	deleteLumiFromCache 6/1
-	writeRun 6
-	deleteRunFromCache 6
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: Stop 1 ***
-	startingNewLoop
-	endOfLoop
-The state machine reports it has been terminated
-
-Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptyLumis = 1
-    *** nextItemType: Restart 0 ***
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Restart 0 ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Lumi 1 ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Event ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: File 0 ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 9 ***
-	readAndCacheRun 9
-    *** nextItemType: File 0 ***
-	writeRun 9
-	deleteRunFromCache 9
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 1 ***
-	readAndCacheRun 1
-    *** nextItemType: File 0 ***
-	writeRun 1
-	deleteRunFromCache 1
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 1 ***
-	readAndCacheRun 1
-    *** nextItemType: Run 2 ***
-	writeRun 1
-	deleteRunFromCache 1
-	readAndCacheRun 2
-    *** nextItemType: File 0 ***
-	writeRun 2
-	deleteRunFromCache 2
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: File 0 ***
-	writeRun 2
-	deleteRunFromCache 2
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: File 0 ***
-	beginLumi 2/1
-	endLumi 2/1
-	writeLumi 2/1
-	deleteLumiFromCache 2/1
-	writeRun 2
-	deleteRunFromCache 2
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 2 ***
-	readAndCacheLumi 2
-    *** nextItemType: Lumi 3 ***
-	readAndCacheLumi 3
-    *** nextItemType: File 0 ***
-	beginLumi 2/2
-	endLumi 2/2
-	writeLumi 2/2
-	deleteLumiFromCache 2/2
-	beginLumi 2/3
-	endLumi 2/3
-	writeLumi 2/3
-	deleteLumiFromCache 2/3
-	writeRun 2
-	deleteRunFromCache 2
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: File 0 ***
-	writeRun 2
-	deleteRunFromCache 2
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 3 ***
-	readAndCacheLumi 3
-    *** nextItemType: File 0 ***
-	beginLumi 2/3
-	endLumi 2/3
-	writeLumi 2/3
-	deleteLumiFromCache 2/3
-	writeRun 2
-	deleteRunFromCache 2
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Lumi 4 ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 1 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 5 ***
-	readAndCacheRun 5
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: File 0 ***
-	beginLumi 5/1
-	endLumi 5/1
-	writeLumi 5/1
-	deleteLumiFromCache 5/1
-	writeRun 5
-	deleteRunFromCache 5
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Event ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 1 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 6 ***
-	readAndCacheRun 6
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: Restart 0 ***
-	beginLumi 6/1
-	endLumi 6/1
-	writeLumi 6/1
-	deleteLumiFromCache 6/1
-	writeRun 6
-	deleteRunFromCache 6
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: Stop 1 ***
-	startingNewLoop
-	endOfLoop
-The state machine reports it has been terminated
-
-Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
-    *** nextItemType: Restart 0 ***
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Restart 0 ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Lumi 1 ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Event ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: File 0 ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
@@ -676,8 +74,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	deleteRunFromCache 9
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
@@ -693,8 +89,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
@@ -716,8 +110,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
@@ -733,8 +125,299 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Run 2 ***
+	readAndCacheRun 2
+	beginRun 2
+    *** nextItemType: Lumi 1 ***
+	readAndCacheLumi 1
+	beginLumi 2/1
+    *** nextItemType: File 0 ***
+	endLumi 2/1
+	writeLumi 2/1
+	deleteLumiFromCache 2/1
+	endRun 2
+	writeRun 2
+	deleteRunFromCache 2
+	respondToCloseInputFile
+	closeInputFile
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Run 2 ***
+	readAndCacheRun 2
+	beginRun 2
+    *** nextItemType: Lumi 2 ***
+	readAndCacheLumi 2
+	beginLumi 2/2
+    *** nextItemType: Lumi 3 ***
+	endLumi 2/2
+	writeLumi 2/2
+	deleteLumiFromCache 2/2
+	readAndCacheLumi 3
+	beginLumi 2/3
+    *** nextItemType: File 0 ***
+	endLumi 2/3
+	writeLumi 2/3
+	deleteLumiFromCache 2/3
+	endRun 2
+	writeRun 2
+	deleteRunFromCache 2
+	respondToCloseInputFile
+	closeInputFile
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Run 2 ***
+	readAndCacheRun 2
+	beginRun 2
+    *** nextItemType: File 0 ***
+	endRun 2
+	writeRun 2
+	deleteRunFromCache 2
+	respondToCloseInputFile
+	closeInputFile
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Run 2 ***
+	readAndCacheRun 2
+	beginRun 2
+    *** nextItemType: Lumi 3 ***
+	readAndCacheLumi 3
+	beginLumi 2/3
+    *** nextItemType: File 0 ***
+	endLumi 2/3
+	writeLumi 2/3
+	deleteLumiFromCache 2/3
+	endRun 2
+	writeRun 2
+	deleteRunFromCache 2
+	respondToCloseInputFile
+	closeInputFile
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Lumi 4 ***
+	respondToCloseInputFile
+	closeInputFile
+	respondToCloseOutputFiles
+	closeOutputFiles
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: File 1 ***
+	startingNewLoop
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Run 5 ***
+	readAndCacheRun 5
+	beginRun 5
+    *** nextItemType: Lumi 1 ***
+	readAndCacheLumi 1
+	beginLumi 5/1
+    *** nextItemType: File 0 ***
+	endLumi 5/1
+	writeLumi 5/1
+	deleteLumiFromCache 5/1
+	endRun 5
+	writeRun 5
+	deleteRunFromCache 5
+	respondToCloseInputFile
+	closeInputFile
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Event ***
+	respondToCloseInputFile
+	closeInputFile
+	respondToCloseOutputFiles
+	closeOutputFiles
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: File 1 ***
+	startingNewLoop
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Run 6 ***
+	readAndCacheRun 6
+	beginRun 6
+    *** nextItemType: Lumi 1 ***
+	readAndCacheLumi 1
+	beginLumi 6/1
+    *** nextItemType: Restart 0 ***
+	endLumi 6/1
+	writeLumi 6/1
+	deleteLumiFromCache 6/1
+	endRun 6
+	writeRun 6
+	deleteRunFromCache 6
+	respondToCloseInputFile
+	closeInputFile
+	respondToCloseOutputFiles
+	closeOutputFiles
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: Stop 1 ***
+	startingNewLoop
+	endOfLoop
+The state machine reports it has been terminated
+
+Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRuns
+    *** nextItemType: Restart 0 ***
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: File 0 ***
+	startingNewLoop
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Restart 0 ***
+	respondToCloseInputFile
+	closeInputFile
+	respondToCloseOutputFiles
+	closeOutputFiles
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: File 0 ***
+	startingNewLoop
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Lumi 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	respondToCloseOutputFiles
+	closeOutputFiles
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: File 0 ***
+	startingNewLoop
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Event ***
+	respondToCloseInputFile
+	closeInputFile
+	respondToCloseOutputFiles
+	closeOutputFiles
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: File 0 ***
+	startingNewLoop
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 0 ***
+	respondToCloseInputFile
+	closeInputFile
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Run 9 ***
+	readAndCacheRun 9
+	beginRun 9
+    *** nextItemType: File 0 ***
+	endRun 9
+	writeRun 9
+	deleteRunFromCache 9
+	respondToCloseInputFile
+	closeInputFile
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Run 1 ***
+	readAndCacheRun 1
+	beginRun 1
+    *** nextItemType: File 0 ***
+	endRun 1
+	writeRun 1
+	deleteRunFromCache 1
+	respondToCloseInputFile
+	closeInputFile
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Run 1 ***
+	readAndCacheRun 1
+	beginRun 1
+    *** nextItemType: Run 2 ***
+	endRun 1
+	writeRun 1
+	deleteRunFromCache 1
+	readAndCacheRun 2
+	beginRun 2
+    *** nextItemType: File 0 ***
+	endRun 2
+	writeRun 2
+	deleteRunFromCache 2
+	respondToCloseInputFile
+	closeInputFile
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Run 2 ***
+	readAndCacheRun 2
+	beginRun 2
+    *** nextItemType: File 0 ***
+	endRun 2
+	writeRun 2
+	deleteRunFromCache 2
+	respondToCloseInputFile
+	closeInputFile
 	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
@@ -754,8 +437,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
@@ -779,8 +460,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
@@ -796,8 +475,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
@@ -817,8 +494,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
@@ -828,8 +503,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
     *** nextItemType: Lumi 4 ***
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
@@ -855,8 +528,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	deleteRunFromCache 5
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
@@ -866,8 +537,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
     *** nextItemType: Event ***
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
@@ -893,8 +562,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	deleteRunFromCache 6
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
@@ -906,7 +573,7 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	endOfLoop
 The state machine reports it has been terminated
 
-Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
+Machine parameters:  mode = NOMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAndLumis
     *** nextItemType: Restart 0 ***
 	doErrorStuff
 	endOfLoop
@@ -921,8 +588,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
     *** nextItemType: Restart 0 ***
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
@@ -938,8 +603,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
     *** nextItemType: Lumi 1 ***
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
@@ -955,8 +618,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
     *** nextItemType: Event ***
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
@@ -972,8 +633,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
     *** nextItemType: File 0 ***
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
@@ -982,15 +641,11 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	respondToOpenOutputFiles
     *** nextItemType: Run 9 ***
 	readAndCacheRun 9
-	beginRun 9
     *** nextItemType: File 0 ***
-	endRun 9
 	writeRun 9
 	deleteRunFromCache 9
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
@@ -999,15 +654,11 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	respondToOpenOutputFiles
     *** nextItemType: Run 1 ***
 	readAndCacheRun 1
-	beginRun 1
     *** nextItemType: File 0 ***
-	endRun 1
 	writeRun 1
 	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
@@ -1016,21 +667,15 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	respondToOpenOutputFiles
     *** nextItemType: Run 1 ***
 	readAndCacheRun 1
-	beginRun 1
     *** nextItemType: Run 2 ***
-	endRun 1
 	writeRun 1
 	deleteRunFromCache 1
 	readAndCacheRun 2
-	beginRun 2
     *** nextItemType: File 0 ***
-	endRun 2
 	writeRun 2
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
@@ -1039,15 +684,11 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	respondToOpenOutputFiles
     *** nextItemType: Run 2 ***
 	readAndCacheRun 2
-	beginRun 2
     *** nextItemType: File 0 ***
-	endRun 2
 	writeRun 2
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
@@ -1056,21 +697,15 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	respondToOpenOutputFiles
     *** nextItemType: Run 2 ***
 	readAndCacheRun 2
-	beginRun 2
     *** nextItemType: Lumi 1 ***
 	readAndCacheLumi 1
     *** nextItemType: File 0 ***
-	beginLumi 2/1
-	endLumi 2/1
 	writeLumi 2/1
 	deleteLumiFromCache 2/1
-	endRun 2
 	writeRun 2
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
@@ -1079,27 +714,19 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	respondToOpenOutputFiles
     *** nextItemType: Run 2 ***
 	readAndCacheRun 2
-	beginRun 2
     *** nextItemType: Lumi 2 ***
 	readAndCacheLumi 2
     *** nextItemType: Lumi 3 ***
-	beginLumi 2/2
-	endLumi 2/2
 	writeLumi 2/2
 	deleteLumiFromCache 2/2
 	readAndCacheLumi 3
     *** nextItemType: File 0 ***
-	beginLumi 2/3
-	endLumi 2/3
 	writeLumi 2/3
 	deleteLumiFromCache 2/3
-	endRun 2
 	writeRun 2
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
@@ -1108,15 +735,11 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	respondToOpenOutputFiles
     *** nextItemType: Run 2 ***
 	readAndCacheRun 2
-	beginRun 2
     *** nextItemType: File 0 ***
-	endRun 2
 	writeRun 2
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
@@ -1125,21 +748,15 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	respondToOpenOutputFiles
     *** nextItemType: Run 2 ***
 	readAndCacheRun 2
-	beginRun 2
     *** nextItemType: Lumi 3 ***
 	readAndCacheLumi 3
     *** nextItemType: File 0 ***
-	beginLumi 2/3
-	endLumi 2/3
 	writeLumi 2/3
 	deleteLumiFromCache 2/3
-	endRun 2
 	writeRun 2
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
@@ -1149,8 +766,236 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
     *** nextItemType: Lumi 4 ***
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
+	respondToCloseOutputFiles
+	closeOutputFiles
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: File 1 ***
+	startingNewLoop
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Run 5 ***
+	readAndCacheRun 5
+    *** nextItemType: Lumi 1 ***
+	readAndCacheLumi 1
+    *** nextItemType: File 0 ***
+	writeLumi 5/1
+	deleteLumiFromCache 5/1
+	writeRun 5
+	deleteRunFromCache 5
+	respondToCloseInputFile
+	closeInputFile
+	respondToCloseOutputFiles
+	closeOutputFiles
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Event ***
+	respondToCloseInputFile
+	closeInputFile
+	respondToCloseOutputFiles
+	closeOutputFiles
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: File 1 ***
+	startingNewLoop
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Run 6 ***
+	readAndCacheRun 6
+    *** nextItemType: Lumi 1 ***
+	readAndCacheLumi 1
+    *** nextItemType: Restart 0 ***
+	writeLumi 6/1
+	deleteLumiFromCache 6/1
+	writeRun 6
+	deleteRunFromCache 6
+	respondToCloseInputFile
+	closeInputFile
+	respondToCloseOutputFiles
+	closeOutputFiles
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: Stop 1 ***
+	startingNewLoop
+	endOfLoop
+The state machine reports it has been terminated
+
+Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRunsAndLumis
+    *** nextItemType: Restart 0 ***
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: File 0 ***
+	startingNewLoop
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Restart 0 ***
+	respondToCloseInputFile
+	closeInputFile
+	respondToCloseOutputFiles
+	closeOutputFiles
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: File 0 ***
+	startingNewLoop
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Lumi 1 ***
+	respondToCloseInputFile
+	closeInputFile
+	respondToCloseOutputFiles
+	closeOutputFiles
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: File 0 ***
+	startingNewLoop
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: Event ***
+	respondToCloseInputFile
+	closeInputFile
+	respondToCloseOutputFiles
+	closeOutputFiles
+	doErrorStuff
+	endOfLoop
+	prepareForNextLoop
+	rewind
+    *** nextItemType: File 0 ***
+	startingNewLoop
+ 	readFile
+	respondToOpenInputFile
+	openOutputFiles
+	respondToOpenOutputFiles
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: Run 9 ***
+	readAndCacheRun 9
+	beginRun 9
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: Run 1 ***
+	endRun 9
+	writeRun 9
+	deleteRunFromCache 9
+	readAndCacheRun 1
+	beginRun 1
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: Run 1 ***
+	readAndCacheRun 1
+    *** nextItemType: Run 2 ***
+	endRun 1
+	writeRun 1
+	deleteRunFromCache 1
+	readAndCacheRun 2
+	beginRun 2
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: Run 2 ***
+	readAndCacheRun 2
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: Run 2 ***
+	readAndCacheRun 2
+    *** nextItemType: Lumi 1 ***
+	readAndCacheLumi 1
+	beginLumi 2/1
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: Run 2 ***
+	readAndCacheRun 2
+    *** nextItemType: Lumi 2 ***
+	endLumi 2/1
+	writeLumi 2/1
+	deleteLumiFromCache 2/1
+	readAndCacheLumi 2
+	beginLumi 2/2
+    *** nextItemType: Lumi 3 ***
+	endLumi 2/2
+	writeLumi 2/2
+	deleteLumiFromCache 2/2
+	readAndCacheLumi 3
+	beginLumi 2/3
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: Run 2 ***
+	readAndCacheRun 2
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: Run 2 ***
+	readAndCacheRun 2
+    *** nextItemType: Lumi 3 ***
+	readAndCacheLumi 3
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: Lumi 4 ***
+	endLumi 2/3
+	writeLumi 2/3
+	deleteLumiFromCache 2/3
+	endRun 2
+	writeRun 2
+	deleteRunFromCache 2
+	respondToCloseInputFile
+	closeInputFile
 	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
@@ -1168,8 +1013,14 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	beginRun 5
     *** nextItemType: Lumi 1 ***
 	readAndCacheLumi 1
-    *** nextItemType: File 0 ***
 	beginLumi 5/1
+    *** nextItemType: File 0 ***
+	shouldWeCloseOutput
+	respondToCloseInputFile
+	closeInputFile
+ 	readFile
+	respondToOpenInputFile
+    *** nextItemType: Event ***
 	endLumi 5/1
 	writeLumi 5/1
 	deleteLumiFromCache 5/1
@@ -1178,19 +1029,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	deleteRunFromCache 5
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Event ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
@@ -1208,8 +1046,8 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	beginRun 6
     *** nextItemType: Lumi 1 ***
 	readAndCacheLumi 1
-    *** nextItemType: Restart 0 ***
 	beginLumi 6/1
+    *** nextItemType: Restart 0 ***
 	endLumi 6/1
 	writeLumi 6/1
 	deleteLumiFromCache 6/1
@@ -1218,8 +1056,6 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	deleteRunFromCache 6
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
@@ -1231,7 +1067,7 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	endOfLoop
 The state machine reports it has been terminated
 
-Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
+Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRuns
     *** nextItemType: Restart 0 ***
 	doErrorStuff
 	endOfLoop
@@ -1246,8 +1082,6 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
     *** nextItemType: Restart 0 ***
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
@@ -1263,8 +1097,6 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
     *** nextItemType: Lumi 1 ***
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
@@ -1280,472 +1112,6 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
     *** nextItemType: Event ***
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 9 ***
-	readAndCacheRun 9
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	writeRun 9
-	deleteRunFromCache 9
-	readAndCacheRun 1
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	readAndCacheRun 1
-    *** nextItemType: Run 2 ***
-	writeRun 1
-	deleteRunFromCache 1
-	readAndCacheRun 2
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 2 ***
-	writeLumi 2/1
-	deleteLumiFromCache 2/1
-	readAndCacheLumi 2
-    *** nextItemType: Lumi 3 ***
-	writeLumi 2/2
-	deleteLumiFromCache 2/2
-	readAndCacheLumi 3
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 3 ***
-	readAndCacheLumi 3
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Lumi 4 ***
-	writeLumi 2/3
-	deleteLumiFromCache 2/3
-	writeRun 2
-	deleteRunFromCache 2
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 1 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 5 ***
-	readAndCacheRun 5
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Event ***
-	writeLumi 5/1
-	deleteLumiFromCache 5/1
-	writeRun 5
-	deleteRunFromCache 5
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 1 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 6 ***
-	readAndCacheRun 6
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: Restart 0 ***
-	writeLumi 6/1
-	deleteLumiFromCache 6/1
-	writeRun 6
-	deleteRunFromCache 6
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: Stop 1 ***
-	startingNewLoop
-	endOfLoop
-The state machine reports it has been terminated
-
-Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptyLumis = 1
-    *** nextItemType: Restart 0 ***
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Restart 0 ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Lumi 1 ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Event ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 9 ***
-	readAndCacheRun 9
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	writeRun 9
-	deleteRunFromCache 9
-	readAndCacheRun 1
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	readAndCacheRun 1
-    *** nextItemType: Run 2 ***
-	writeRun 1
-	deleteRunFromCache 1
-	readAndCacheRun 2
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 2 ***
-	readAndCacheLumi 2
-    *** nextItemType: Lumi 3 ***
-	readAndCacheLumi 3
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 3 ***
-	readAndCacheLumi 3
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Lumi 4 ***
-	beginLumi 2/1
-	endLumi 2/1
-	writeLumi 2/1
-	deleteLumiFromCache 2/1
-	beginLumi 2/2
-	endLumi 2/2
-	writeLumi 2/2
-	deleteLumiFromCache 2/2
-	beginLumi 2/3
-	endLumi 2/3
-	writeLumi 2/3
-	deleteLumiFromCache 2/3
-	writeRun 2
-	deleteRunFromCache 2
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 1 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 5 ***
-	readAndCacheRun 5
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Event ***
-	beginLumi 5/1
-	endLumi 5/1
-	writeLumi 5/1
-	deleteLumiFromCache 5/1
-	writeRun 5
-	deleteRunFromCache 5
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 1 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 6 ***
-	readAndCacheRun 6
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: Restart 0 ***
-	beginLumi 6/1
-	endLumi 6/1
-	writeLumi 6/1
-	deleteLumiFromCache 6/1
-	writeRun 6
-	deleteRunFromCache 6
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: Stop 1 ***
-	startingNewLoop
-	endOfLoop
-The state machine reports it has been terminated
-
-Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
-    *** nextItemType: Restart 0 ***
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Restart 0 ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Lumi 1 ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Event ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
@@ -1859,8 +1225,6 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
@@ -1892,8 +1256,6 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	deleteRunFromCache 5
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
@@ -1919,8 +1281,6 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	deleteRunFromCache 6
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
@@ -1932,7 +1292,7 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	endOfLoop
 The state machine reports it has been terminated
 
-Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
+Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAndLumis
     *** nextItemType: Restart 0 ***
 	doErrorStuff
 	endOfLoop
@@ -1947,8 +1307,6 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
     *** nextItemType: Restart 0 ***
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
@@ -1964,8 +1322,6 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
     *** nextItemType: Lumi 1 ***
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
@@ -1981,8 +1337,6 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
     *** nextItemType: Event ***
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
@@ -2003,7 +1357,6 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	respondToOpenInputFile
     *** nextItemType: Run 9 ***
 	readAndCacheRun 9
-	beginRun 9
     *** nextItemType: File 0 ***
 	shouldWeCloseOutput
 	respondToCloseInputFile
@@ -2011,11 +1364,9 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
  	readFile
 	respondToOpenInputFile
     *** nextItemType: Run 1 ***
-	endRun 9
 	writeRun 9
 	deleteRunFromCache 9
 	readAndCacheRun 1
-	beginRun 1
     *** nextItemType: File 0 ***
 	shouldWeCloseOutput
 	respondToCloseInputFile
@@ -2025,11 +1376,9 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
     *** nextItemType: Run 1 ***
 	readAndCacheRun 1
     *** nextItemType: Run 2 ***
-	endRun 1
 	writeRun 1
 	deleteRunFromCache 1
 	readAndCacheRun 2
-	beginRun 2
     *** nextItemType: File 0 ***
 	shouldWeCloseOutput
 	respondToCloseInputFile
@@ -2057,14 +1406,10 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
     *** nextItemType: Run 2 ***
 	readAndCacheRun 2
     *** nextItemType: Lumi 2 ***
-	beginLumi 2/1
-	endLumi 2/1
 	writeLumi 2/1
 	deleteLumiFromCache 2/1
 	readAndCacheLumi 2
     *** nextItemType: Lumi 3 ***
-	beginLumi 2/2
-	endLumi 2/2
 	writeLumi 2/2
 	deleteLumiFromCache 2/2
 	readAndCacheLumi 3
@@ -2093,17 +1438,12 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
  	readFile
 	respondToOpenInputFile
     *** nextItemType: Lumi 4 ***
-	beginLumi 2/3
-	endLumi 2/3
 	writeLumi 2/3
 	deleteLumiFromCache 2/3
-	endRun 2
 	writeRun 2
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
@@ -2118,7 +1458,6 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	respondToOpenOutputFiles
     *** nextItemType: Run 5 ***
 	readAndCacheRun 5
-	beginRun 5
     *** nextItemType: Lumi 1 ***
 	readAndCacheLumi 1
     *** nextItemType: File 0 ***
@@ -2128,17 +1467,12 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
  	readFile
 	respondToOpenInputFile
     *** nextItemType: Event ***
-	beginLumi 5/1
-	endLumi 5/1
 	writeLumi 5/1
 	deleteLumiFromCache 5/1
-	endRun 5
 	writeRun 5
 	deleteRunFromCache 5
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff
@@ -2153,1797 +1487,15 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	respondToOpenOutputFiles
     *** nextItemType: Run 6 ***
 	readAndCacheRun 6
-	beginRun 6
     *** nextItemType: Lumi 1 ***
 	readAndCacheLumi 1
     *** nextItemType: Restart 0 ***
-	beginLumi 6/1
-	endLumi 6/1
 	writeLumi 6/1
 	deleteLumiFromCache 6/1
-	endRun 6
 	writeRun 6
 	deleteRunFromCache 6
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: Stop 1 ***
-	startingNewLoop
-	endOfLoop
-The state machine reports it has been terminated
-
-Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
-    *** nextItemType: Restart 0 ***
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Restart 0 ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Lumi 1 ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Event ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 9 ***
-	readAndCacheRun 9
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	writeRun 9
-	deleteRunFromCache 9
-	readAndCacheRun 1
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	readAndCacheRun 1
-    *** nextItemType: Run 2 ***
-	writeRun 1
-	deleteRunFromCache 1
-	readAndCacheRun 2
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 2 ***
-	readAndCacheLumi 2
-    *** nextItemType: Lumi 3 ***
-	readAndCacheLumi 3
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 3 ***
-	readAndCacheLumi 3
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Lumi 4 ***
-	writeRun 2
-	deleteRunFromCache 2
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 1 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 5 ***
-	readAndCacheRun 5
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Event ***
-	writeRun 5
-	deleteRunFromCache 5
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 1 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 6 ***
-	readAndCacheRun 6
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: Restart 0 ***
-	writeRun 6
-	deleteRunFromCache 6
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: Stop 1 ***
-	startingNewLoop
-	endOfLoop
-The state machine reports it has been terminated
-
-Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 0  handleEmptyLumis = 1
-    *** nextItemType: Restart 0 ***
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Restart 0 ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Lumi 1 ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Event ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 9 ***
-	readAndCacheRun 9
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	writeRun 9
-	deleteRunFromCache 9
-	readAndCacheRun 1
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	readAndCacheRun 1
-    *** nextItemType: Run 2 ***
-	writeRun 1
-	deleteRunFromCache 1
-	readAndCacheRun 2
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 2 ***
-	readAndCacheLumi 2
-    *** nextItemType: Lumi 3 ***
-	readAndCacheLumi 3
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 3 ***
-	readAndCacheLumi 3
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Lumi 4 ***
-	beginLumi 2/1
-	endLumi 2/1
-	beginLumi 2/2
-	endLumi 2/2
-	beginLumi 2/3
-	endLumi 2/3
-	writeRun 2
-	deleteRunFromCache 2
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 1 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 5 ***
-	readAndCacheRun 5
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Event ***
-	beginLumi 5/1
-	endLumi 5/1
-	writeRun 5
-	deleteRunFromCache 5
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 1 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 6 ***
-	readAndCacheRun 6
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: Restart 0 ***
-	beginLumi 6/1
-	endLumi 6/1
-	writeRun 6
-	deleteRunFromCache 6
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: Stop 1 ***
-	startingNewLoop
-	endOfLoop
-The state machine reports it has been terminated
-
-Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
-    *** nextItemType: Restart 0 ***
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Restart 0 ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Lumi 1 ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Event ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 9 ***
-	readAndCacheRun 9
-	beginRun 9
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	endRun 9
-	writeRun 9
-	deleteRunFromCache 9
-	readAndCacheRun 1
-	beginRun 1
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	readAndCacheRun 1
-    *** nextItemType: Run 2 ***
-	endRun 1
-	writeRun 1
-	deleteRunFromCache 1
-	readAndCacheRun 2
-	beginRun 2
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 2 ***
-	readAndCacheLumi 2
-    *** nextItemType: Lumi 3 ***
-	readAndCacheLumi 3
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 3 ***
-	readAndCacheLumi 3
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Lumi 4 ***
-	endRun 2
-	writeRun 2
-	deleteRunFromCache 2
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 1 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 5 ***
-	readAndCacheRun 5
-	beginRun 5
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Event ***
-	endRun 5
-	writeRun 5
-	deleteRunFromCache 5
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 1 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 6 ***
-	readAndCacheRun 6
-	beginRun 6
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: Restart 0 ***
-	endRun 6
-	writeRun 6
-	deleteRunFromCache 6
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: Stop 1 ***
-	startingNewLoop
-	endOfLoop
-The state machine reports it has been terminated
-
-Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
-    *** nextItemType: Restart 0 ***
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Restart 0 ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Lumi 1 ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Event ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 9 ***
-	readAndCacheRun 9
-	beginRun 9
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	endRun 9
-	writeRun 9
-	deleteRunFromCache 9
-	readAndCacheRun 1
-	beginRun 1
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	readAndCacheRun 1
-    *** nextItemType: Run 2 ***
-	endRun 1
-	writeRun 1
-	deleteRunFromCache 1
-	readAndCacheRun 2
-	beginRun 2
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 2 ***
-	beginLumi 2/1
-	endLumi 2/1
-	readAndCacheLumi 2
-    *** nextItemType: Lumi 3 ***
-	beginLumi 2/2
-	endLumi 2/2
-	readAndCacheLumi 3
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 3 ***
-	readAndCacheLumi 3
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Lumi 4 ***
-	beginLumi 2/3
-	endLumi 2/3
-	endRun 2
-	writeRun 2
-	deleteRunFromCache 2
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 1 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 5 ***
-	readAndCacheRun 5
-	beginRun 5
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Event ***
-	beginLumi 5/1
-	endLumi 5/1
-	endRun 5
-	writeRun 5
-	deleteRunFromCache 5
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 1 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 6 ***
-	readAndCacheRun 6
-	beginRun 6
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: Restart 0 ***
-	beginLumi 6/1
-	endLumi 6/1
-	endRun 6
-	writeRun 6
-	deleteRunFromCache 6
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: Stop 1 ***
-	startingNewLoop
-	endOfLoop
-The state machine reports it has been terminated
-
-Machine parameters:  mode = FULLMERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
-    *** nextItemType: Restart 0 ***
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Restart 0 ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Lumi 1 ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Event ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 9 ***
-	readAndCacheRun 9
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	readAndCacheRun 1
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	readAndCacheRun 1
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 2 ***
-	readAndCacheLumi 2
-    *** nextItemType: Lumi 3 ***
-	readAndCacheLumi 3
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 3 ***
-	readAndCacheLumi 3
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Lumi 4 ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 1 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 5 ***
-	readAndCacheRun 5
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Event ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 1 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 6 ***
-	readAndCacheRun 6
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: Restart 0 ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: Stop 1 ***
-	startingNewLoop
-	endOfLoop
-The state machine reports it has been terminated
-
-Machine parameters:  mode = FULLMERGE  handleEmptyRuns = 0  handleEmptyLumis = 1
-    *** nextItemType: Restart 0 ***
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Restart 0 ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Lumi 1 ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Event ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 9 ***
-	readAndCacheRun 9
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	readAndCacheRun 1
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	readAndCacheRun 1
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 2 ***
-	readAndCacheLumi 2
-    *** nextItemType: Lumi 3 ***
-	readAndCacheLumi 3
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 3 ***
-	readAndCacheLumi 3
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Lumi 4 ***
-	beginLumi 2/1
-	endLumi 2/1
-	beginLumi 2/2
-	endLumi 2/2
-	beginLumi 2/3
-	endLumi 2/3
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 1 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 5 ***
-	readAndCacheRun 5
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Event ***
-	beginLumi 5/1
-	endLumi 5/1
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 1 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 6 ***
-	readAndCacheRun 6
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: Restart 0 ***
-	beginLumi 6/1
-	endLumi 6/1
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: Stop 1 ***
-	startingNewLoop
-	endOfLoop
-The state machine reports it has been terminated
-
-Machine parameters:  mode = FULLMERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
-    *** nextItemType: Restart 0 ***
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Restart 0 ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Lumi 1 ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Event ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 9 ***
-	readAndCacheRun 9
-	beginRun 9
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	endRun 9
-	readAndCacheRun 1
-	beginRun 1
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	readAndCacheRun 1
-    *** nextItemType: Run 2 ***
-	endRun 1
-	readAndCacheRun 2
-	beginRun 2
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 2 ***
-	readAndCacheLumi 2
-    *** nextItemType: Lumi 3 ***
-	readAndCacheLumi 3
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 3 ***
-	readAndCacheLumi 3
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Lumi 4 ***
-	endRun 2
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 1 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 5 ***
-	readAndCacheRun 5
-	beginRun 5
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Event ***
-	endRun 5
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 1 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 6 ***
-	readAndCacheRun 6
-	beginRun 6
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: Restart 0 ***
-	endRun 6
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: Stop 1 ***
-	startingNewLoop
-	endOfLoop
-The state machine reports it has been terminated
-
-Machine parameters:  mode = FULLMERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
-    *** nextItemType: Restart 0 ***
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Restart 0 ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Lumi 1 ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Event ***
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 0 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 9 ***
-	readAndCacheRun 9
-	beginRun 9
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	endRun 9
-	readAndCacheRun 1
-	beginRun 1
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 1 ***
-	readAndCacheRun 1
-    *** nextItemType: Run 2 ***
-	endRun 1
-	readAndCacheRun 2
-	beginRun 2
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 2 ***
-	beginLumi 2/1
-	endLumi 2/1
-	readAndCacheLumi 2
-    *** nextItemType: Lumi 3 ***
-	beginLumi 2/2
-	endLumi 2/2
-	readAndCacheLumi 3
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Run 2 ***
-	readAndCacheRun 2
-    *** nextItemType: Lumi 3 ***
-	readAndCacheLumi 3
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Lumi 4 ***
-	beginLumi 2/3
-	endLumi 2/3
-	endRun 2
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 1 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 5 ***
-	readAndCacheRun 5
-	beginRun 5
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: File 0 ***
-	shouldWeCloseOutput
-	respondToCloseInputFile
-	closeInputFile
- 	readFile
-	respondToOpenInputFile
-    *** nextItemType: Event ***
-	beginLumi 5/1
-	endLumi 5/1
-	endRun 5
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
-	respondToCloseOutputFiles
-	closeOutputFiles
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: File 1 ***
-	startingNewLoop
- 	readFile
-	respondToOpenInputFile
-	openOutputFiles
-	respondToOpenOutputFiles
-    *** nextItemType: Run 6 ***
-	readAndCacheRun 6
-	beginRun 6
-    *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
-    *** nextItemType: Restart 0 ***
-	beginLumi 6/1
-	endLumi 6/1
-	endRun 6
-	respondToCloseInputFile
-	closeInputFile
-	writeLumiCache
-	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	doErrorStuff

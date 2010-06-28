@@ -2,8 +2,6 @@
 
 Test of the statemachine classes.
 
-$Id: statemachine_t.cc,v 1.5 2008/07/29 03:00:19 wmtan Exp $
-
 ----------------------------------------------------------------------*/  
 
 #include "FWCore/Framework/src/EPStates.h"
@@ -28,9 +26,7 @@ int main(int argc, char* argv[]) {
   desc.add_options()
     ("help,h", "produce help message")
     ("inputFile,i", boost::program_options::value<std::string>(&inputFile)->default_value(""))
-    ("outputFile,o", boost::program_options::value<std::string>(&outputFile)->default_value("statemachine_test_output.txt"))
-    ("skipmode,m", "NOMERGE, FULLLUMIMERGE and FULLMERGE only")
-    ("skipmodes,s", "NOMERGE and FULLMERGE only");
+    ("outputFile,o", boost::program_options::value<std::string>(&outputFile)->default_value("statemachine_test_output.txt"));
   boost::program_options::variables_map vm;
   boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
   boost::program_options::notify(vm);
@@ -64,42 +60,44 @@ int main(int argc, char* argv[]) {
   std::ofstream output(outputFile.c_str());
 
   std::vector<FileMode> fileModes;
-  fileModes.reserve(4);
   fileModes.push_back(NOMERGE);
-  if (!vm.count("skipmode") && !vm.count("skipmodes")) {
-    fileModes.push_back(MERGE);
-  }
-  if (!vm.count("skipmodes")) {
-    fileModes.push_back(FULLLUMIMERGE);
-  }
   fileModes.push_back(FULLMERGE);
+
+  std::vector<EmptyRunLumiMode> emptyRunLumiModes;
+  emptyRunLumiModes.push_back(handleEmptyRunsAndLumis);
+  emptyRunLumiModes.push_back(handleEmptyRuns);
+  emptyRunLumiModes.push_back(doNotHandleEmptyRunsAndLumis);
 
   for (size_t k = 0; k < fileModes.size(); ++k) {
     FileMode fileMode = fileModes[k];
-    for (int i = 0; i < 2; ++i) {
-      bool handleEmptyRuns = i;
-      for (int j = 0; j < 2; ++j) {
-        bool handleEmptyLumis = j;
-        output << "\nMachine parameters:  ";
-        if (fileMode == NOMERGE) output << "mode = NOMERGE";
-        else if (fileMode == MERGE) output << "mode = MERGE";
-        else if (fileMode == FULLLUMIMERGE) output << "mode = FULLLUMIMERGE";
-        else output << "mode = FULLMERGE";
-	output << "  handleEmptyRuns = " << handleEmptyRuns;
-	output << "  handleEmptyLumis = " << handleEmptyLumis << "\n";
 
-        edm::MockEventProcessor mockEventProcessor(mockData,
-                                                   output,
-                                                   fileMode,
-                                                   handleEmptyRuns,
-                                                   handleEmptyLumis);
+    for (size_t i = 0; i < emptyRunLumiModes.size(); ++i) {
+      EmptyRunLumiMode emptyRunLumiMode = emptyRunLumiModes[i];
+      output << "\nMachine parameters:  ";
+      if (fileMode == NOMERGE) output << "mode = NOMERGE";
+      else output << "mode = FULLMERGE";
 
-        bool onlineStateTransitions = false;
-        mockEventProcessor.runToCompletion(onlineStateTransitions);
+      output << "  emptyRunLumiMode = ";
+      if  (emptyRunLumiMode == handleEmptyRunsAndLumis) {
+        output << "handleEmptyRunsAndLumis";
       }
+      else if  (emptyRunLumiMode == handleEmptyRuns) {
+        output << "handleEmptyRuns";
+      }
+      else if  (emptyRunLumiMode == doNotHandleEmptyRunsAndLumis) {
+        output << "doNotHandleEmptyRunsAndLumis";
+      }
+      output << "\n";
+
+      edm::MockEventProcessor mockEventProcessor(mockData,
+                                                 output,
+                                                 fileMode,
+                                                 emptyRunLumiMode);
+
+      bool onlineStateTransitions = false;
+      mockEventProcessor.runToCompletion(onlineStateTransitions);
     }
   }
-
 
   return 0;
 }

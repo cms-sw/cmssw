@@ -1,5 +1,4 @@
 
-// $Id: TestMergeResults.cc,v 1.16 2009/09/21 22:33:30 wdd Exp $
 //
 // Reads some simple test objects in the event, run, and lumi
 // principals.  Then checks to see if the values in these
@@ -292,6 +291,11 @@ namespace edmtest {
       run.getByLabel(tagd, h_thingWithMerge);
       assert(!h_thingWithMerge.isValid());
     }
+
+    index0_ += 3;
+    index4_ += 3;
+    index1_ += 3;
+    index5_ += 3;
   }
 
   void TestMergeResults::endRun(edm::Run const& run, edm::EventSetup const&) {
@@ -348,6 +352,10 @@ namespace edmtest {
       lumi.getByLabel(tagd, h_thingWithMerge);
       assert(!h_thingWithMerge.isValid());
     }
+    index2_ += 3;
+    index6_ += 3;
+    index3_ += 3;
+    index7_ += 3;
   }
 
   void TestMergeResults::endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const&) {

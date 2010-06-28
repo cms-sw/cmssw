@@ -609,8 +609,7 @@ namespace edm {
 
     ParameterSet optionsPset(parameterSet->getUntrackedParameter<ParameterSet>("options", ParameterSet()));
     fileMode_ = optionsPset.getUntrackedParameter<std::string>("fileMode", "");
-    handleEmptyRuns_ = optionsPset.getUntrackedParameter<bool>("handleEmptyRuns", true);
-    handleEmptyLumis_ = optionsPset.getUntrackedParameter<bool>("handleEmptyLumis", true);
+    emptyRunLumiMode_ = optionsPset.getUntrackedParameter<std::string>("emptyRunLumiMode", "");
     forceESCacheClearOnNewRun_ = optionsPset.getUntrackedParameter<bool>("forceEventSetupCacheClearOnNewRun",false);
     ParameterSet forking = optionsPset.getUntrackedParameter<ParameterSet>("multiProcesses", ParameterSet());
     numberOfForkedChildren_ = forking.getUntrackedParameter<int>("maxChildProcesses", 0);
@@ -1004,9 +1003,9 @@ namespace edm {
       itemType = input_->nextItemType();
       assert(itemType == InputSource::IsRun);
       
-      int run = readAndCacheRun();
-      
-      RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
+      statemachine::Run run = readAndCacheRun();
+
+      RunPrincipal& runPrincipal = principalCache_.runPrincipal(run.processHistoryID(), run.runNumber());
       std::cout <<" prefetching for run "<<runPrincipal.run()<<std::endl;
       IOVSyncValue ts(EventID(runPrincipal.run(), 0, 0),
                       runPrincipal.beginTime());
@@ -1520,20 +1519,28 @@ namespace edm {
  
       statemachine::FileMode fileMode;
       if (fileMode_.empty()) fileMode = statemachine::FULLMERGE;
-      else if (fileMode_ == std::string("MERGE")) fileMode = statemachine::MERGE;
       else if (fileMode_ == std::string("NOMERGE")) fileMode = statemachine::NOMERGE;
       else if (fileMode_ == std::string("FULLMERGE")) fileMode = statemachine::FULLMERGE;
-      else if (fileMode_ == std::string("FULLLUMIMERGE")) fileMode = statemachine::FULLLUMIMERGE;
       else {
  	throw edm::Exception(errors::Configuration, "Illegal fileMode parameter value: ")
 	    << fileMode_ << ".\n"
-	    << "Legal values are 'MERGE', 'NOMERGE', 'FULLMERGE', and 'FULLLUMIMERGE'.\n";
+	    << "Legal values are 'NOMERGE' and 'FULLMERGE'.\n";
+      }
+
+      statemachine::EmptyRunLumiMode emptyRunLumiMode;
+      if (emptyRunLumiMode_.empty()) emptyRunLumiMode = statemachine::handleEmptyRunsAndLumis;
+      else if (emptyRunLumiMode_ == std::string("handleEmptyRunsAndLumis")) emptyRunLumiMode = statemachine::handleEmptyRunsAndLumis;
+      else if (emptyRunLumiMode_ == std::string("handleEmptyRuns")) emptyRunLumiMode = statemachine::handleEmptyRuns;
+      else if (emptyRunLumiMode_ == std::string("doNotHandleEmptyRunsAndLumis")) emptyRunLumiMode = statemachine::doNotHandleEmptyRunsAndLumis;
+      else {
+ 	throw edm::Exception(errors::Configuration, "Illegal emptyMode parameter value: ")
+	    << emptyRunLumiMode_ << ".\n"
+	    << "Legal values are 'handleEmptyRunsAndLumis', 'handleEmptyRuns', and 'doNotHandleEmptyRunsAndLumis'.\n";
       }
 
       machine_.reset(new statemachine::Machine(this,
                                                fileMode,
-                                               handleEmptyRuns_,
-                                               handleEmptyLumis_));
+                                               emptyRunLumiMode));
 
       machine_->initiate();
     }
@@ -1592,7 +1599,7 @@ namespace edm {
           machine_->process_event(statemachine::File());
         }
         else if (itemType == InputSource::IsRun) {
-          machine_->process_event(statemachine::Run(input_->run()));
+          machine_->process_event(statemachine::Run(input_->processHistoryID(), input_->run()));
         }
         else if (itemType == InputSource::IsLumi) {
           machine_->process_event(statemachine::Lumi(input_->luminosityBlock()));
@@ -1833,8 +1840,8 @@ namespace edm {
     stateMachineWasInErrorState_ = true;
   }
 
-  void EventProcessor::beginRun(int run) {
-    RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
+  void EventProcessor::beginRun(statemachine::Run const& run) {
+    RunPrincipal& runPrincipal = principalCache_.runPrincipal(run.processHistoryID(), run.runNumber());
     input_->doBeginRun(runPrincipal);
     IOVSyncValue ts(EventID(runPrincipal.run(), 0, 0),
                     runPrincipal.beginTime());
@@ -1848,27 +1855,27 @@ namespace edm {
       looper_->doStartingNewLoop();
     }
     schedule_->processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionBegin> >(runPrincipal, es);
-    FDEBUG(1) << "\tbeginRun " << run << "\n";
+    FDEBUG(1) << "\tbeginRun " << run.runNumber() << "\n";
     if (looper_) {
       looper_->doBeginRun(runPrincipal, es);
     }
   }
 
-  void EventProcessor::endRun(int run) {
-    RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
+  void EventProcessor::endRun(statemachine::Run const& run) {
+    RunPrincipal& runPrincipal = principalCache_.runPrincipal(run.processHistoryID(), run.runNumber());
     input_->doEndRun(runPrincipal);
     IOVSyncValue ts(EventID(runPrincipal.run(), LuminosityBlockID::maxLuminosityBlockNumber(), EventID::maxEventNumber()),
                     runPrincipal.endTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     schedule_->processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionEnd> >(runPrincipal, es);
-    FDEBUG(1) << "\tendRun " << run << "\n";
+    FDEBUG(1) << "\tendRun " << run.runNumber() << "\n";
     if (looper_) {
       looper_->doEndRun(runPrincipal, es);
     }
   }
 
-  void EventProcessor::beginLumi(int run, int lumi) {
-    LuminosityBlockPrincipal& lumiPrincipal = principalCache_.lumiPrincipal(run, lumi);
+  void EventProcessor::beginLumi(ProcessHistoryID const& phid, int run, int lumi) {
+    LuminosityBlockPrincipal& lumiPrincipal = principalCache_.lumiPrincipal(phid, run, lumi);
     input_->doBeginLumi(lumiPrincipal);
     // NOTE: Using 0 as the event number for the begin of a lumi block is a bad idea
     // lumi blocks know their start and end times why not also start and end events?
@@ -1881,8 +1888,8 @@ namespace edm {
     }
   }
 
-  void EventProcessor::endLumi(int run, int lumi) {
-    LuminosityBlockPrincipal& lumiPrincipal = principalCache_.lumiPrincipal(run, lumi);
+  void EventProcessor::endLumi(ProcessHistoryID const& phid, int run, int lumi) {
+    LuminosityBlockPrincipal& lumiPrincipal = principalCache_.lumiPrincipal(phid, run, lumi);
     input_->doEndLumi(lumiPrincipal);
     //NOTE: Using the max event number for the end of a lumi block is a bad idea
     // lumi blocks know their start and end times why not also start and end events?
@@ -1896,33 +1903,36 @@ namespace edm {
     }
   }
 
-  int EventProcessor::readAndCacheRun() {
+  statemachine::Run EventProcessor::readAndCacheRun() {
+
     input_->readAndCacheRun();
-    return input_->markRun();
+    input_->markRun();
+    return statemachine::Run(input_->processHistoryID(), input_->run());
   }
 
   int EventProcessor::readAndCacheLumi() {
     input_->readAndCacheLumi();
-    return input_->markLumi();
+    input_->markLumi();
+    return input_->luminosityBlock();
   }
 
-  void EventProcessor::writeRun(int run) {
-    schedule_->writeRun(principalCache_.runPrincipal(run));
-    FDEBUG(1) << "\twriteRun " << run << "\n";
+  void EventProcessor::writeRun(statemachine::Run const& run) {
+    schedule_->writeRun(principalCache_.runPrincipal(run.processHistoryID(), run.runNumber()));
+    FDEBUG(1) << "\twriteRun " << run.runNumber() << "\n";
   }
 
-  void EventProcessor::deleteRunFromCache(int run) {
-    principalCache_.deleteRun(run);
-    FDEBUG(1) << "\tdeleteRunFromCache " << run << "\n";
+  void EventProcessor::deleteRunFromCache(statemachine::Run const& run) {
+    principalCache_.deleteRun(run.processHistoryID(), run.runNumber());
+    FDEBUG(1) << "\tdeleteRunFromCache " << run.runNumber() << "\n";
   }
 
-  void EventProcessor::writeLumi(int run, int lumi) {
-    schedule_->writeLumi(principalCache_.lumiPrincipal(run, lumi));
+  void EventProcessor::writeLumi(ProcessHistoryID const& phid, int run, int lumi) {
+    schedule_->writeLumi(principalCache_.lumiPrincipal(phid, run, lumi));
     FDEBUG(1) << "\twriteLumi " << run << "/" << lumi << "\n";
   }
 
-  void EventProcessor::deleteLumiFromCache(int run, int lumi) {
-    principalCache_.deleteLumi(run, lumi);
+  void EventProcessor::deleteLumiFromCache(ProcessHistoryID const& phid, int run, int lumi) {
+    principalCache_.deleteLumi(phid, run, lumi);
     FDEBUG(1) << "\tdeleteLumiFromCache " << run << "/" << lumi << "\n";
   }
 

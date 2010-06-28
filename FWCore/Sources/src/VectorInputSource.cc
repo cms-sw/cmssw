@@ -15,11 +15,6 @@ namespace edm {
   }
 
   void
-  VectorInputSource::readMany(int number, EventPrincipalVector& result, EventID const& id, unsigned int fileSeqNumber) {
-    this->readMany_(number, result, id, fileSeqNumber);
-  }
-
-  void
   VectorInputSource::readManyRandom(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber) {
     this->readManyRandom_(number, result, fileSeqNumber);
   }

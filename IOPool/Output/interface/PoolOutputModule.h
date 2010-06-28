@@ -107,8 +107,8 @@ namespace edm {
     virtual void startEndFile();
     virtual void writeFileFormatVersion();
     virtual void writeFileIdentifier();
-    virtual void writeFileIndex();
     virtual void writeEventHistory();
+    virtual void writeIndexIntoFile();
     virtual void writeProcessConfigurationRegistry();
     virtual void writeProcessHistoryRegistry();
     virtual void writeParameterSetRegistry();

@@ -217,6 +217,9 @@ namespace edm {
     /// Accessor for the current time, as seen by the input source
     Timestamp const& timestamp() const {return time_;}
 
+    /// Accessor for the input process history ID of the current run
+    ProcessHistoryID const&  processHistoryID() const;
+
     /// Accessor for current run number
     RunNumber_t run() const;
 

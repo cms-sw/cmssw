@@ -989,37 +989,36 @@ MessageLogger Summary
 
  type     category        sev    module        subroutine        count    total
  ---- -------------------- -- ---------------- ----------------  -----    -----
-    1 FwkReport            -i AfterModBeginLum                       1        1
-    2 FwkReport            -i AfterSource                           15       15
-    3 summary              -i UTC_T2:ssm_2a                          6        6
-    4 summary              -i UTC_T2:ssm_2b                          6        6
-    5 summary              -i UTC_T2:ssm_2c                          6        6
-    6 cat_A                -w UTC_T1:ssm_1a                         16       16
-    7 cat_A                -w UTC_T1:ssm_1b                         16       16
-    8 cat_A                -w UTC_T1:ssm_1c                         16       16
-    9 cat_A                -w UTC_T2:ssm_2a                         16       16
-   10 cat_A                -w UTC_T2:ssm_2b                         16       16
-   11 cat_A                -w UTC_T2:ssm_2c                         16       16
-   12 cat_A                -e UTC_T1:ssm_1a                         16       16
-   13 cat_A                -e UTC_T1:ssm_1b                         16       16
-   14 cat_A                -e UTC_T1:ssm_1c                         16       16
-   15 cat_A                -e UTC_T2:ssm_2a                         16       16
-   16 cat_A                -e UTC_T2:ssm_2b                         16       16
-   17 cat_A                -e UTC_T2:ssm_2c                         16       16
-   18 timer                -e UTC_T1:ssm_1a                         16       16
-   19 timer                -e UTC_T1:ssm_1b                         16       16
-   20 timer                -e UTC_T1:ssm_1c                         16       16
-   21 timer                -e UTC_T2:ssm_2a                         16       16
-   22 timer                -e UTC_T2:ssm_2b                         16       16
-   23 timer                -e UTC_T2:ssm_2c                         16       16
+    1 FwkReport            -i AfterSource                           16       16
+    2 summary              -i UTC_T2:ssm_2a                          6        6
+    3 summary              -i UTC_T2:ssm_2b                          6        6
+    4 summary              -i UTC_T2:ssm_2c                          6        6
+    5 cat_A                -w UTC_T1:ssm_1a                         16       16
+    6 cat_A                -w UTC_T1:ssm_1b                         16       16
+    7 cat_A                -w UTC_T1:ssm_1c                         16       16
+    8 cat_A                -w UTC_T2:ssm_2a                         16       16
+    9 cat_A                -w UTC_T2:ssm_2b                         16       16
+   10 cat_A                -w UTC_T2:ssm_2c                         16       16
+   11 cat_A                -e UTC_T1:ssm_1a                         16       16
+   12 cat_A                -e UTC_T1:ssm_1b                         16       16
+   13 cat_A                -e UTC_T1:ssm_1c                         16       16
+   14 cat_A                -e UTC_T2:ssm_2a                         16       16
+   15 cat_A                -e UTC_T2:ssm_2b                         16       16
+   16 cat_A                -e UTC_T2:ssm_2c                         16       16
+   17 timer                -e UTC_T1:ssm_1a                         16       16
+   18 timer                -e UTC_T1:ssm_1b                         16       16
+   19 timer                -e UTC_T1:ssm_1c                         16       16
+   20 timer                -e UTC_T2:ssm_2a                         16       16
+   21 timer                -e UTC_T2:ssm_2b                         16       16
+   22 timer                -e UTC_T2:ssm_2c                         16       16
 
  type    category    Examples: run/evt        run/evt          run/evt
  ---- -------------------- ---------------- ---------------- ----------------
-    1 FwkReport            PostBeginLumi                     
-    2 FwkReport            PostProcessEvent PostProcessEvent PostProcessEvent
+    1 FwkReport            PostBeginLumi    PostProcessEvent PostProcessEvent
+    2 summary              1/10             1/10             1/16
     3 summary              1/10             1/10             1/16
     4 summary              1/10             1/10             1/16
-    5 summary              1/10             1/10             1/16
+    5 cat_A                1/1              1/2              1/16
     6 cat_A                1/1              1/2              1/16
     7 cat_A                1/1              1/2              1/16
     8 cat_A                1/1              1/2              1/16
@@ -1031,13 +1030,12 @@ MessageLogger Summary
    14 cat_A                1/1              1/2              1/16
    15 cat_A                1/1              1/2              1/16
    16 cat_A                1/1              1/2              1/16
-   17 cat_A                1/1              1/2              1/16
+   17 timer                1/1              1/2              1/16
    18 timer                1/1              1/2              1/16
    19 timer                1/1              1/2              1/16
    20 timer                1/1              1/2              1/16
    21 timer                1/1              1/2              1/16
    22 timer                1/1              1/2              1/16
-   23 timer                1/1              1/2              1/16
 
 Severity    # Occurrences   Total Occurrences
 --------    -------------   -----------------

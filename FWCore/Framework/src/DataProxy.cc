@@ -8,7 +8,6 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 12:49:19 EST 2005
-// $Id: DataProxy.cc,v 1.7 2009/12/16 20:27:01 chrjones Exp $
 //
 
 // system include files

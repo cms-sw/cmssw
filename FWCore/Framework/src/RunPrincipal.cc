@@ -1,5 +1,6 @@
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/Group.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 
@@ -16,6 +17,9 @@ namespace edm {
   RunPrincipal::fillRunPrincipal(
     boost::shared_ptr<BranchMapper> mapper,
     boost::shared_ptr<DelayedReader> rtrv) {
+    if (productRegistry().anyProductProduced()) {
+      checkProcessHistory();
+    }
     fillPrincipal(aux_->processHistoryID(), mapper, rtrv);
     if (productRegistry().anyProductProduced()) {
       addToProcessHistory();
@@ -70,6 +74,36 @@ namespace edm {
     if (edp.get() != 0) {
       putOrMerge(edp, &g);
     }
+  }
+
+  void
+  RunPrincipal::checkProcessHistory() const {
+    ProcessHistory ph;
+    ProcessHistoryRegistry::instance()->getMapped(aux_->processHistoryID(), ph);
+    std::string const& processName = processConfiguration().processName();
+    for (ProcessHistory::const_iterator it = ph.begin(), itEnd = ph.end(); it != itEnd; ++it) {
+      if (processName == it->processName()) {
+	throw edm::Exception(errors::Configuration, "Duplicate Process")
+	  << "The process name " << processName << " was previously used on these products.\n"
+	  << "Please modify the configuration file to use a distinct process name.\n";
+      }
+    }
+  }
+
+  void
+  RunPrincipal::addToProcessHistory() {
+    ProcessHistory& ph = processHistoryUpdate();
+    ph.push_back(processConfiguration());
+    //OPTIMIZATION NOTE:  As of 0_9_0_pre3
+    // For very simple Sources (e.g. EmptySource) this routine takes up nearly 50% of the time per event.
+    // 96% of the time for this routine is being spent in computing the
+    // ProcessHistory id which happens because we are reconstructing the ProcessHistory for each event.
+    // (The process ID is first computed in the call to 'insertMapped(..)' below.)
+    // It would probably be better to move the ProcessHistory construction out to somewhere
+    // which persists for longer than one Event
+
+    ProcessHistoryRegistry::instance()->insertMapped(ph);
+    setProcessHistory(*this);
   }
 
   void

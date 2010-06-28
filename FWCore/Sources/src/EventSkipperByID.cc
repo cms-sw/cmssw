@@ -105,11 +105,6 @@ namespace edm {
     return false;
   }
 
-  bool
-  EventSkipperByID::operator()(FileIndex::Element& e) const {
-    return skipIt(e.run_, e.lumi_, e.event_);
-  }
-
   void
   EventSkipperByID::fillDescription(ParameterSetDescription & desc) {
 

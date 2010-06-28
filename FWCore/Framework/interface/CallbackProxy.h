@@ -17,7 +17,6 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  8 11:50:21 CDT 2005
-// $Id: CallbackProxy.h,v 1.7 2006/08/26 18:38:32 chrjones Exp $
 //
 
 // system include files

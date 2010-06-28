@@ -3,7 +3,7 @@
 
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/EventRange.h"
-#include "DataFormats/Provenance/interface/FileIndex.h"
+#include "DataFormats/Provenance/interface/IndexIntoFile.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockRange.h"
 #include "DataFormats/Provenance/interface/RunID.h"
@@ -18,7 +18,6 @@ namespace edm {
   public:
     explicit EventSkipperByID(ParameterSet const& pset);
     ~EventSkipperByID();
-    bool operator()(FileIndex::Element& e) const;
     bool operator()(LuminosityBlockRange const& lumiRange) const;
     bool operator()(EventRange const& eventRange) const;
     bool skipIt(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) const;

@@ -212,7 +212,7 @@ namespace edm {
     virtual void startEndFile() {}
     virtual void writeFileFormatVersion() {}
     virtual void writeFileIdentifier() {}
-    virtual void writeFileIndex() {}
+    virtual void writeIndexIntoFile() {}
     virtual void writeEventHistory() {}
     virtual void writeProcessConfigurationRegistry() {}
     virtual void writeProcessHistoryRegistry() {}

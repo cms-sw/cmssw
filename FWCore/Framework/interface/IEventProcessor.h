@@ -7,10 +7,13 @@ Abstract base class for Event Processors
 Original Authors: W. David Dagenhart, Marc Paterno
 */
 
+#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
+
 #include <string>
 
 namespace statemachine {
   class Restart;
+  class Run;
 }
 
 namespace edm {
@@ -51,24 +54,22 @@ namespace edm {
     virtual bool endOfLoop() = 0;
     virtual void rewindInput() = 0;
     virtual void prepareForNextLoop() = 0;
-    virtual void writeLumiCache() = 0;
-    virtual void writeRunCache() = 0;
     virtual bool shouldWeCloseOutput() const = 0;
 
     virtual void doErrorStuff() = 0;
 
-    virtual void beginRun(int run) = 0;
-    virtual void endRun(int run) = 0;
+    virtual void beginRun(statemachine::Run const& run) = 0;
+    virtual void endRun(statemachine::Run const& run) = 0;
 
-    virtual void beginLumi(int run, int lumi) = 0;
-    virtual void endLumi(int run, int lumi) = 0;
+    virtual void beginLumi(ProcessHistoryID const& phid, int run, int lumi) = 0;
+    virtual void endLumi(ProcessHistoryID const& phid, int run, int lumi) = 0;
 
-    virtual int readAndCacheRun() = 0;
+    virtual statemachine::Run readAndCacheRun() = 0;
     virtual int readAndCacheLumi() = 0;
-    virtual void writeRun(int run) = 0;
-    virtual void deleteRunFromCache(int run) = 0;
-    virtual void writeLumi(int run, int lumi) = 0;
-    virtual void deleteLumiFromCache(int run, int lumi) = 0;
+    virtual void writeRun(statemachine::Run const& run) = 0;
+    virtual void deleteRunFromCache(statemachine::Run const& run) = 0;
+    virtual void writeLumi(ProcessHistoryID const& phid, int run, int lumi) = 0;
+    virtual void deleteLumiFromCache(ProcessHistoryID const& phid,int run, int lumi) = 0;
 
     virtual void readAndProcessEvent() = 0;
     virtual bool shouldWeStop() const = 0;
