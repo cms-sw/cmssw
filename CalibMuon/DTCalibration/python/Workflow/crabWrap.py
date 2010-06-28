@@ -249,6 +249,65 @@ def crabWatch(action,project = None, threshold = 95.0):
   
     return
 
+def initCrabEnvironment():
+    pythonpathenv = os.environ['PYTHONPATH']
+    pythonpathbegin = pythonpathenv.split(':')[0]
+    pythonpathend = pythonpathenv.split(':')[-1]
+
+    indexBegin = sys.path.index(pythonpathbegin)
+    if os.environ.has_key('CRABPSETPYTHON'): sys.path.insert( indexBegin, os.environ['CRABPSETPYTHON'] )
+    if os.environ.has_key('CRABDLSAPIPYTHON'): sys.path.insert( indexBegin, os.environ['CRABDLSAPIPYTHON'] )
+    if os.environ.has_key('CRABDBSAPIPYTHON'): sys.path.insert( indexBegin, os.environ['CRABDBSAPIPYTHON'] )
+
+    if os.environ['SCRAM_ARCH'].find('32') != -1 and os.environ.has_key('CRABPYSQLITE'):
+        sys.path.insert( indexBegin, os.environ['CRABPYSQLITE'] )
+    elif os.environ['SCRAM_ARCH'].find('64') != -1 and os.environ.has_key('CRABPYSQLITE64'):
+        sys.path.insert( indexBegin, os.environ['CRABPYSQLITE64'] )
+
+    indexEnd = sys.path.index(pythonpathend) + 1
+    if os.environ.has_key('CRABPYTHON'):
+        if indexEnd >= len(sys.path): sys.path.append( os.environ['CRABPYTHON'] )
+        else: sys.path.insert( indexEnd, os.environ['CRABPYTHON'] )
+
+    #print sys.path
+
+    os.environ['LD_LIBRARY_PATH'] = os.environ['GLITE_LOCATION'] + '/lib' + ':' + os.environ['LD_LIBRARY_PATH']
+    os.environ['VOMS_PROXY_INFO_DONT_VERIFY_AC'] = '1'
+    #print os.environ['LD_LIBRARY_PATH']
+    #print os.environ['VOMS_PROXY_INFO_DONT_VERIFY_AC'] 
+    
+    """ 
+    export LD_LIBRARY_PATH=${GLITE_LOCATION}/lib:${LD_LIBRARY_PATH}
+    export VOMS_PROXY_INFO_DONT_VERIFY_AC=1
+    """
+   
+    ## Get rid of some useless warning
+    try:
+        import warnings
+        warnings.simplefilter("ignore", RuntimeWarning)
+        # import socket
+        # socket.setdefaulttimeout(15) # Default timeout in seconds
+    except ImportError:
+        pass # too bad, you'll get the warning
+
+    # Remove libraries which over-ride CRAB libs and DBS_CONFIG setting
+    badPaths = []
+    if os.environ.has_key('DBSCMD_HOME'): # CMSSW's DBS, remove last bit of path
+        badPaths.append('/'.join(os.environ['DBSCMD_HOME'].split('/')[:-1]))
+    if os.environ.has_key('DBS_CLIENT_CONFIG'):
+        del os.environ['DBS_CLIENT_CONFIG']
+
+    def pathIsGood(checkPath):
+        """
+        Filter function for badPaths
+        """
+        for badPath in badPaths:
+            if checkPath.find(badPath) != -1:
+                return False
+        return True
+
+    sys.path = filter(pathIsGood, sys.path)
+
 def run(project = None, threshold = 95.0):
 
     crabWatch(getOutput,project,threshold)

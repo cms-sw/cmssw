@@ -3,7 +3,7 @@ from CmsswTask import *
 import os
 
 class DTDqm:
-    def __init__(self, run, dir, dqm_files, result_dir, template_path):
+    def __init__(self, run, dir, dqm_files, result_dir, config):
         #basedir = 'Run%s/Ttrig' % run
         #self.dir = basedir + '/' + 'Exec'
         #self.result_dir = basedir + '/' + 'Results'
@@ -13,12 +13,12 @@ class DTDqm:
         self.dqm_files = dqm_files
 
         self.pset_name = 'DTkFactValidation_2_DQM_cfg.py'
-        self.pset_template = template_path + '/config/DTkFactValidation_2_DQM_cfg.py'
+        self.pset_template = config.templatepath + '/config/DTkFactValidation_2_DQM_cfg.py'
 
         self.initProcess()
-        configs = []
-        configs.append(self.pset_name)
-        self.task = CmsswTask(self.dir,configs)
+        self.configs = []
+        self.configs.append(self.pset_name)
+        self.task = CmsswTask(self.dir,self.configs)
 
     def initProcess(self):
         self.process = loadCmsProcess(self.pset_template)
@@ -37,6 +37,9 @@ def runDQM(run,castor_dir,result_dir,template_path):
     from CalibMuon.DTCalibration.Workflow.tools import listFilesInCastor
     dqm_files = listFilesInCastor(castor_dir,'DQM')
     runDir = '.'
-    dtDqmFinal = DTDqm(run,runDir,dqm_files,result_dir,template_path)
+    class config: pass
+    config.templatepath = template_path
+
+    dtDqmFinal = DTDqm(run,runDir,dqm_files,result_dir,config)
     dtDqmFinal.writeCfg()
     dtDqmFinal.run()

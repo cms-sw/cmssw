@@ -14,7 +14,7 @@ class CrabTask:
   
         self.pset_name = pset_name
         self.pset = pset
-        #self.initializeTask(dir=self.desc)
+        self.initializeTask(dir=self.dir)
 
     def initializeTask(self, dir):
         if not os.path.exists(dir): os.makedirs(dir)
@@ -44,8 +44,8 @@ class CrabTask:
     #    crabWatch(getOutput,self.project) 
         
     def run(self):
-        self.initializeTask(dir=self.desc)
-        proj = self.create(self.desc) 
+        #self.initializeTask(dir=self.dir)
+        proj = self.create(self.dir) 
         self.submit()
         return proj
 
@@ -78,13 +78,13 @@ if __name__ == '__main__':
     pset_opts = {'GLOBALTAG':'CRAFT_31X::All',
                  'DIGITEMPLATE':'muonDTDigis'}
 
-    desc = 'Run%s'%run
-    desc += '/Ttrig/Production'
+    dir = 'Run%s'%run
+    dir += '/Ttrig/Production'
 
     crab_cfg = replaceTemplate(crab_template,**crab_opts)
     pset = replaceTemplate(pset_template,**pset_opts)
 
-    prod = CrabTask(desc,crab_cfg,pset,pset_name)
+    prod = CrabTask(dir,crab_cfg,pset,pset_name)
     project = prod.run()
 
     print "Sent jobs with project",project
