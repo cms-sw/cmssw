@@ -189,8 +189,10 @@ class WenuPlots : public edm::EDAnalyzer {
   Float_t ele_cand_et, ele_cand_eta, ele_cand_phi;
   Float_t ele_iso_track, ele_iso_ecal, ele_iso_hcal;
   Float_t ele_id_sihih, ele_id_dphi, ele_id_deta, ele_id_hoe;
-  Float_t ele_cr_mhitsinner, ele_cr_dcot, ele_cr_dist;
+  Float_t ele_cr_dcot, ele_cr_dist;
+  Int_t   ele_cr_mhitsinner;
   Float_t ele_vx, ele_vy, ele_vz;
+  Float_t ele_pin, ele_pout;
   Float_t pv_x, pv_y, pv_z;
   Int_t   ele_gsfCharge, ele_ctfCharge, ele_scPixCharge;
   Float_t ele_eop, ele_tip_bs, ele_tip_pv;
