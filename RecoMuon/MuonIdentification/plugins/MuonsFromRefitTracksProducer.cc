@@ -3,7 +3,7 @@
   \brief    Replaces the kinematic information in the input muons with those of the chosen refit tracks.
 
   \author   Jordan Tucker
-  \version  $Id: MuonsFromRefitTracksProducer.cc,v 1.8 2009/10/31 05:19:45 slava77 Exp $
+  \version  $Id: MuonsFromRefitTracksProducer.cc,v 1.9 2010/03/25 14:08:50 jribnik Exp $
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -47,8 +47,8 @@ reco::TrackRef tevOptimizedTMR(const reco::Muon& muon, const reco::TrackToTrackM
     return fmsTrack->val;
   else if (TKok)
     return trackerTrack;
-  else
-    return combinedTrack;
+
+  return combinedTrack;
 }
 
 reco::TrackRef sigmaSwitch(const reco::Muon& muon, const double nSigma, const double ptThreshold) {

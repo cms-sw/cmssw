@@ -54,9 +54,18 @@ muons = cms.EDProducer("MuonIdProducer",
     globalTrackQualityInputTag = cms.InputTag('glbTrackQual'),
     
     # calo muons
-    minCaloCompatibility = cms.double(0.6)
+    minCaloCompatibility = cms.double(0.6),
+    runArbitrationCleaner = cms.bool(False),
+    arbitrationCleanerOptions = cms.PSet( ME1a = cms.bool(True),
+                                          Overlap = cms.bool(True),
+                                          Clustering = cms.bool(True),
+                                          OverlapDPhi   = cms.double(0.0786), # 4.5 degrees
+                                          OverlapDTheta = cms.double(0.02), # 1.14 degrees
+                                          ClusterDPhi   = cms.double(0.6), # 34 degrees
+                                          ClusterDTheta = cms.double(0.02) # 1.14
+    )
 )
-
+                       
 muonEcalDetIds = cms.EDProducer("InterestingEcalDetIdProducer",
     inputCollection = cms.InputTag("muons")
 )

@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.56 2010/06/21 19:19:06 slava77 Exp $
+// $Id: MuonIdProducer.cc,v 1.57 2010/06/22 13:17:06 dmytro Exp $
 //
 //
 
@@ -39,6 +39,7 @@
 #include "RecoMuon/MuonIdentification/plugins/MuonIdProducer.h"
 #include "RecoMuon/MuonIdentification/interface/MuonIdTruthInfo.h"
 #include "RecoMuon/MuonIdentification/interface/MuonArbitrationMethods.h"
+#include "RecoMuon/MuonIdentification/interface/MuonMesh.h"
 
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractorFactory.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
@@ -80,6 +81,7 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
    ptThresholdToFillCandidateP4WithGlobalFit_    = iConfig.getParameter<double>("ptThresholdToFillCandidateP4WithGlobalFit");
    sigmaThresholdToFillCandidateP4WithGlobalFit_ = iConfig.getParameter<double>("sigmaThresholdToFillCandidateP4WithGlobalFit");
    caloCut_ = iConfig.getParameter<double>("minCaloCompatibility"); //CaloMuons
+   arbClean_ = iConfig.getParameter<bool>("runArbitrationCleaner"); // muon mesh 
    
    // Load TrackDetectorAssociator parameters
    edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
@@ -138,6 +140,9 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
    if (fillGlobalTrackQuality_){
      globalTrackQualityInputTag_ = iConfig.getParameter<edm::InputTag>("globalTrackQualityInputTag");
    }
+
+   //create mesh holder
+   meshAlgo_ = new MuonMesh(iConfig.getParameter<edm::ParameterSet>("arbitrationCleanerOptions"));
 }
 
 
@@ -147,6 +152,7 @@ MuonIdProducer::~MuonIdProducer()
    if (muIsoExtractorTrack_) delete muIsoExtractorTrack_;
    if (muIsoExtractorJet_) delete muIsoExtractorJet_;
    if (theTimingFiller_) delete theTimingFiller_;
+   if (meshAlgo_) delete meshAlgo_;
    // TimingReport::current()->dump(std::cout);
 }
 
@@ -327,6 +333,14 @@ int MuonIdProducer::overlap(const reco::Muon& muon, const reco::Track& track)
    return numberOfCommonDetIds;
 }
 
+void MuonIdProducer::beginRun(edm::Run& iRun, const edm::EventSetup& iSetup)
+{
+  edm::ESHandle<CSCGeometry> geomHandle;
+  iSetup.get<MuonGeometryRecord>().get(geomHandle);
+
+  meshAlgo_->setCSCGeometry(geomHandle.product());
+  
+}
 
 bool validateGlobalMuonPair( const reco::MuonTrackLinks& goodMuon, 
 			     const reco::MuonTrackLinks& badMuon )
@@ -837,6 +851,8 @@ void MuonIdProducer::fillArbitrationInfo( reco::MuonCollection* pOutputMuons )
                arbitrationPairs.clear();
                arbitrationPairs.push_back(std::make_pair(&(*chamberIter1), &(*segmentIter1)));
 
+	       
+
                // find identical segments with which to arbitrate
                // tracker muons only
                if (pOutputMuons->at(muonIndex1).isTrackerMuon()) {
@@ -889,6 +905,22 @@ void MuonIdProducer::fillArbitrationInfo( reco::MuonCollection* pOutputMuons )
                      arbitrationPairs.at(it).second->setMask(reco::MuonSegmentMatch::Arbitrated);
                }
             }
+	    
+	    // setup me1a cleaning for later
+	    if( chamberIter1->id.subdetId() == MuonSubdetId::CSC && arbClean_ ) {
+	      CSCDetId cscid(chamberIter1->id);
+	      if(cscid.ring() == 4)
+		for( std::vector<reco::MuonSegmentMatch>::iterator segmentIter2 = chamberIter1->segmentMatches.begin();
+		     segmentIter2 != chamberIter1->segmentMatches.end(); ++segmentIter2 ) {
+		  if( segmentIter1->cscSegmentRef.isNonnull() && segmentIter2->cscSegmentRef.isNonnull() ) 
+		    if( meshAlgo_->isDuplicateOf(segmentIter1->cscSegmentRef,segmentIter2->cscSegmentRef) && 
+			(segmentIter2->mask & 0x1e0000) && 
+			(segmentIter1->mask & 0x1e0000) ) 
+		      segmentIter2->setMask(reco::MuonSegmentMatch::BelongsToTrackByME1aClean);
+		  //if the track has lost the segment already through normal arbitration no need to do it again.
+		}
+	    }// mark all ME1/a duplicates that this track owns
+
          } // segmentIter1
 
          // chamber segment sort
@@ -947,6 +979,12 @@ void MuonIdProducer::fillArbitrationInfo( reco::MuonCollection* pOutputMuons )
          }
 
    } // muonIndex1
+
+   if(arbClean_) {
+     // clear old mesh, create and prune new mesh!
+     meshAlgo_->clearMesh();
+     meshAlgo_->runMesh(pOutputMuons);
+   }
 }
 
 void MuonIdProducer::fillMuonIsolation(edm::Event& iEvent, const edm::EventSetup& iSetup, reco::Muon& aMuon,

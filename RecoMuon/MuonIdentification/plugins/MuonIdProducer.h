@@ -20,7 +20,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.h,v 1.20 2009/11/13 15:48:15 slava77 Exp $
+// $Id: MuonIdProducer.h,v 1.22 2010/06/21 19:19:06 slava77 Exp $
 //
 //
 
@@ -48,6 +48,8 @@
 #include "RecoMuon/MuonIdentification/interface/MuonCaloCompatibility.h"
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 
+class MuonMesh;
+
 class MuonIdProducer : public edm::EDProducer {
  public:
    enum TrackType { InnerTrack, OuterTrack, CombinedTrack };
@@ -57,6 +59,7 @@ class MuonIdProducer : public edm::EDProducer {
    virtual ~MuonIdProducer();
    
    virtual void produce(edm::Event&, const edm::EventSetup&);
+   virtual void beginRun(edm::Run&, const edm::EventSetup&);
    
    static double sectorPhi( const DetId& id );
 
@@ -145,5 +148,9 @@ class MuonIdProducer : public edm::EDProducer {
    bool          fillGlobalTrackQuality_;
    edm::InputTag globalTrackQualityInputTag_;
    double caloCut_;
+   
+   bool arbClean_;
+   MuonMesh* meshAlgo_;
+
 };
 #endif
