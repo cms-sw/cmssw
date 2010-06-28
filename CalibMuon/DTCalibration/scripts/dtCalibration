@@ -7,7 +7,7 @@ from CalibMuon.DTCalibration.Workflow.DTTTrigResidualCorr import DTTTrigResidual
 from CalibMuon.DTCalibration.Workflow.DTValidSummary import DTValidSummary
 from CalibMuon.DTCalibration.Workflow.DTDqm import DTDqm
 from CalibMuon.DTCalibration.Workflow.CrabWatch import CrabWatch
-from CalibMuon.DTCalibration.Workflow.tools import listFilesInCastor,haddInCastor,parseInput
+from CalibMuon.DTCalibration.Workflow.tools import listFilesInCastor,haddInCastor,listFilesLocal,haddLocal,parseInput
 import sys,os,time,optparse
 
 def runTtrigProd(run,runselection,trial,config,runStep=True):
@@ -30,10 +30,13 @@ def runTtrigProd(run,runselection,trial,config,runStep=True):
         crabProd.start()
         crabProd.join()
 
-        castor_dir = config.castorpath + "/" + config.userdircaf
-
         result_file = config.result_dir + '/DTTimeBoxes_%s.root'%run
-        haddInCastor(castor_dir,result_file)
+        if config.stageOutLocal:
+            output_dir = project_prod + "/res"
+            haddLocal(output_dir,result_file) 
+        elif config.stageOutCAF:
+            castor_dir = config.castorpath + "/" + config.userdircaf
+            haddInCastor(castor_dir,result_file)
 
 def runTtrigCorrFirst(run,config,runStep=True):
 
@@ -67,8 +70,12 @@ def runTtrigValid(run,runselection,trial,input_file,config,runStep=True):
         crabValidFirst.join()
 
         result_file = config.result_dir + '/DTkFactValidation_%s.root'%run
-        castor_dir = config.castorpath + config.userdircaf
-        haddInCastor(castor_dir,result_file,'residuals')
+        if config.stageOutLocal:
+            output_dir = project_valid_first + "/res"
+            haddLocal(output_dir,result_file)
+        elif config.stageOutCAF:
+            castor_dir = config.castorpath + config.userdircaf
+            haddInCastor(castor_dir,result_file,'residuals')
 
 def runTtrigResidualCorr(run,config,runStep=True):
 
@@ -102,8 +109,12 @@ def runTtrigValidResidCorr(run,runselection,trial,input_file,config,runStep=True
         crabValidResidCorr.join()
 
         result_file = config.result_dir + '/DTkFactValidation_ResidCorr_%s.root'%run
-        castor_dir = config.castorpath + dtTtrigValid_ResidCorr.crab_opts['USERDIRCAF']
-        haddInCastor(castor_dir,result_file,'residuals')
+        if config.stageOutLocal:
+            output_dir = project_valid_ResidCorr + "/res"
+            haddLocal(output_dir,result_file)
+        elif config.stageOutCAF: 
+            castor_dir = config.castorpath + dtTtrigValid_ResidCorr.crab_opts['USERDIRCAF']
+            haddInCastor(castor_dir,result_file,'residuals')
 
 def runTtrigValidSummary(run,input_file,output_file,config,runStep=True):
 
@@ -119,14 +130,19 @@ def runTtrigValidSummary(run,input_file,output_file,config,runStep=True):
 def runDQMMerge(run,castor_dir,config,runStep=True):
 
     print "Processing DQM Merge"
-    dqm_files = listFilesInCastor(castor_dir,'DQM')
-    dtDqmFinal = DTDqm(run,config.run_dir,dqm_files,config.result_dir,config)
-    dtDqmFinal.writeCfg()
 
     if runStep:
+        dqm_files = listFilesInCastor(castor_dir,'DQM')
+        dtDqmFinal = DTDqm(run,config.run_dir,dqm_files,config.result_dir,config)
+        dtDqmFinal.writeCfg()
         dtDqmFinal.run()
 
-        print "...DQM Merge finished" 
+        print "...DQM Merge finished"
+    else:
+        dqm_files = [] 
+        dtDqmFinal = DTDqm(run,config.run_dir,dqm_files,config.result_dir,config)
+        dtDqmFinal.writeCfg()
+ 
 
 if __name__ == '__main__':
     start = time.time()
@@ -147,11 +163,14 @@ if __name__ == '__main__':
     parser.add_option("--globaltag",dest="globaltag", help="global tag identifier (without the '::All' string)")
     parser.add_option("--email",dest="email", help="user email")
     parser.add_option("--templatepath",dest="templatepath", help="path to dir with template cfg files")
+    parser.add_option("--runOnGrid", action="store_true", dest="runOnGrid", default=False, help="workflow will be run on the Grid (instead of the CAF)")
+    parser.add_option("--stageOutLocal", action="store_true", dest="stageOutLocal", default=False, help="output will be copied locally (if running on the Grid this will be the default)")
+    parser.add_option("--useCRABServer", action="store_true", dest="useserver", default=False, help="will use CRAB server to submit jobs (default = False)")
     parser.add_option("--no_exec", action="store_true", dest="no_exec", default=False, help="script will not execute")
  
     (input, args) = parser.parse_args()
 
-    requiredFields = ('run','castorpath','datasetpath','globaltag','templatepath')
+    requiredFields = ('run','datasetpath','globaltag','templatepath')
     for item in requiredFields:
         if not getattr(input,item):
             parser.error('field "%s" needs to be set' % item) 
@@ -168,20 +187,33 @@ if __name__ == '__main__':
 
     class config: pass
 
-    config.scheduler = 'CAF'
-    config.useserver = False
+    if not input.runOnGrid:
+        config.scheduler = 'CAF'
+        if input.stageOutLocal:
+            config.stageOutCAF = False
+            config.stageOutLocal = True
+        else:
+            config.stageOutCAF = True
+            config.stageOutLocal = False
+    else:
+        config.runOnGrid = True
+        config.scheduler = 'glite'
+        config.stageOutCAF = False
+        config.stageOutLocal = True
+
+    config.useserver = input.useserver
     config.datasetpath = input.datasetpath
     config.runselection = runselection
     #config.totalnumberevents = 1000000
     #config.eventsperjob = 50000
-    config.stageOutCAF = True
-    config.stageOutLocal = False
     if hasattr(input,'email'): config.email = input.email    
 
     config.globaltag = input.globaltag + '::All'
 
-    config.castor_prefix = input.castorpath
-    config.castorpath = input.castorpath
+    if config.stageOutCAF:
+        config.castor_prefix = input.castorpath
+        config.castorpath = input.castorpath
+
     config.template_path = input.templatepath
     config.templatepath =  input.templatepath
 
