@@ -53,6 +53,9 @@ pushd ${LOCAL_TMP_DIR}
   echo ${test}TEST2------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${test}TEST2_cfg.py || die "cmsRun ${test}TEST2_cfg.py" $?
 
+  echo ${test}TEST3------------------------------------------------------------
+  cmsRun -p ${LOCAL_TEST_DIR}/${test}TEST3_cfg.py || die "cmsRun ${test}TEST3_cfg.py" $?
+
   echo ${test}COPY------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${test}COPY_cfg.py || die "cmsRun ${test}COPY_cfg.py" $?
 
