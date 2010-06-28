@@ -22,7 +22,8 @@ process.source = cms.Source("DaqSource",
         tfDDUnumber = cms.untracked.int32(0),
         FED760 = cms.untracked.vstring('RUI00'),
 #        RUI00  = cms.untracked.vstring('./133877_2badEvents.raw_760')
-        RUI00  = cms.untracked.vstring('./133877_badEvent.raw_760')
+#        RUI00  = cms.untracked.vstring('./133877_badEvent.raw_760')
+        RUI00  = cms.untracked.vstring('./133877_3events.raw_760')
   )
 )
 
