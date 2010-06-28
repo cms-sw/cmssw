@@ -58,9 +58,7 @@ void L1TGCTClient::beginRun(const Run& r, const EventSetup& context) {}
 
 void L1TGCTClient::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& context) {}
 
-void L1TGCTClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) {}
-
-void L1TGCTClient::analyze(const Event& e, const EventSetup& context)
+void L1TGCTClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) 
 {
   makeXProjection(dbe_->get("L1T/L1TGCT/IsoEmOccEtaPhi")->getTH2F(),l1GctIsoEmOccEta_);
   makeYProjection(dbe_->get("L1T/L1TGCT/IsoEmOccEtaPhi")->getTH2F(),l1GctIsoEmOccPhi_);
@@ -81,6 +79,7 @@ void L1TGCTClient::analyze(const Event& e, const EventSetup& context)
   makeYProjection(dbe_->get("L1T/L1TGCT/TauJetsOccEtaPhi")->getTH2F(),l1GctTauJetsOccPhi_);
 }
 
+void L1TGCTClient::analyze(const Event& e, const EventSetup& context) {}
 
 void L1TGCTClient::endRun(const Run& r, const EventSetup& context){}
 
