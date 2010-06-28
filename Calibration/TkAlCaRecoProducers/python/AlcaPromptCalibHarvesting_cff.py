@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoVertex.BeamSpotProducer.AlcaBeamSpotHarvester_cfi import *
+from Calibration.TkAlCaRecoProducers.AlcaBeamSpotHarvester_cfi import *
 
 alcaBeamSpotHarvester.BeamSpotOutputBase = cms.untracked.string("lumibased") # runbased - lumibased
 
