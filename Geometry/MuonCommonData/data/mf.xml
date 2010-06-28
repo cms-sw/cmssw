@@ -140,22 +140,13 @@ RE1/1 staged volumes -->
  <Trd1 name="ME_DeadGas_1_ME12_ActiveGasVol" dz="1.5*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="36.68*cm " dx2="36.97*cm " />
  <Trd1 name="ME_DeadGas_2_ME12_ActiveGasVol" dz="1.5*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="30.52*cm " dx2="30.8*cm " />
  <Tubs name="RR12" rMin="2.745*m  " rMax="4.644*m  " dz="5.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+   
  
- <!--Old 
- <Trd1 name="RFBX" dz="92*cm " dy1="5.5*mm " dy2="5.5*mm " dx1="21.251*cm " dx2="37.34*cm " />
- <Trd1 name="RHBX" dz="91.95*cm " dy1="5*mm " dy2="5*mm " dx1="21.201*cm " dx2="37.29*cm " />
- <Trd1 name="REB1" dz="26.75*cm " dy1="1*mm " dy2="1*mm " dx1="31.137*cm " dx2="35.23*cm " />
- <Trd1 name="REB2" dz="24.5*cm " dy1="1*mm " dy2="1*mm " dx1="27.312*cm " dx2="31.061*cm " />
- <Trd1 name="REB3" dz="39.7*cm " dy1="1*mm " dy2="1*mm " dx1="21.161*cm " dx2="27.235*cm " />
-  -->
-  
- <!-- New  - correction of the widths in RE1/2 -->
- <Trd1 name="RFBX" dz="92*cm " dy1="5.5*mm " dy2="5.5*mm " dx1="24.303*cm " dx2="40.503*cm " />
- <Trd1 name="RHBX" dz="91.95*cm " dy1="5*mm " dy2="5*mm " dx1="24.253*cm " dx2="40.453*cm " />
- <Trd1 name="REB1" dz="26.75*cm " dy1="1*mm " dy2="1*mm " dx1="35.6*cm " dx2="40.45*cm " />
- <Trd1 name="REB2" dz="24.5*cm " dy1="1*mm " dy2="1*mm " dx1="31.25*cm " dx2="35.55*cm " />
- <Trd1 name="REB3" dz="39.7*cm " dy1="1*mm " dy2="1*mm " dx1="24.25*cm " dx2="31.25*cm " /> 
-<!-- End New --> 
+  <Trd1 name="RFBX" dz="92*cm " dy1="5.5*mm " dy2="5.5*mm " dx1="24.368*cm " dx2="40.453*cm " />
+ <Trd1 name="RHBX" dz="91.95*cm " dy1="5*mm " dy2="5*mm " dx1="24.318*cm " dx2="40.403*cm " /> 
+ <Trd1 name="REB1" dz="26.75*cm " dy1="1*mm " dy2="1*mm " dx1="35.721*cm " dx2="40.40*cm " />
+ <Trd1 name="REB2" dz="24.5*cm " dy1="1*mm " dy2="1*mm " dx1="31.347*cm " dx2="35.633*cm " />
+ <Trd1 name="REB3" dz="39.7*cm " dy1="1*mm " dy2="1*mm " dx1="24.315*cm " dx2="31.26*cm " /> 
  
  <Polyhedra name="ME13Ring" numSide="36" startPhi="355*deg" deltaPhi="360*deg" >
   <ZSection z="6.625*m  "  rMin="4.955*m  "  rMax="7*m  " />
