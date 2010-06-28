@@ -1,11 +1,14 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2010/06/09 14:39:27 $
- * $Revision: 1.52 $
+ * $Date: 2010/06/14 20:38:45 $
+ * $Revision: 1.53 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.53  2010/06/14 20:38:45  tapper
+ * Fixed stupid bug in MET vs MHT phi correlation.
+ *
  * Revision 1.52  2010/06/09 14:39:27  tapper
  * Fixed labels and binning again.
  *
@@ -371,7 +374,7 @@ void L1TGCT::beginJob(void)
     l1GctHtMissOf_  = dbe->book1D("HtMissOf", "MHT OVERFLOW", OFBINS, OFMIN, OFMAX);
     l1GctHtMissOccBx_ = dbe->book2D("HtMissOccBx","MHT PER BX",BXBINS,BXMIN,BXMAX,R7BINS,R7MIN,R7MAX);
     l1GctEtMissHtMissCorr_ = dbe->book2D("EtMissHtMissCorr", "MET MHT CORRELATION",
-                                         R12BINS, R12MIN, R12MAX,
+                                         R7BINS, R12MIN, R12MAX,
                                          R7BINS, R7MIN, R7MAX); 
     l1GctEtMissHtMissCorrPhi_ = dbe->book2D("EtMissHtMissPhiCorr", "MET MHT  #phi  CORRELATION",
                                             METPHIBINS, METPHIMIN, METPHIMAX,
@@ -383,8 +386,8 @@ void L1TGCT::beginJob(void)
     l1GctEtHadOf_   = dbe->book1D("EtHadOf", "H_{T} OVERFLOW", OFBINS, OFMIN, OFMAX);
     l1GctEtHadOccBx_ = dbe->book2D("EtHadOccBx","H_{T} PER BX",BXBINS,BXMIN,BXMAX,R12BINS,R12MIN,R12MAX);
     l1GctEtTotalEtHadCorr_ = dbe->book2D("EtTotalEtHadCorr", "Sum E_{T} H_{T} CORRELATION",
-                                         R12BINS, R12MIN, R12MAX,
-                                         R12BINS, R12MIN, R12MAX); 
+                                         R7BINS, R12MIN, R12MAX,
+                                         R7BINS, R12MIN, R12MAX); 
   }
 
 }
