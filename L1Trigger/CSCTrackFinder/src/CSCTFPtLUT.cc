@@ -30,7 +30,10 @@ bool CSCTFPtLUT::lut_read_in = false;
 #include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
 
-CSCTFPtLUT::CSCTFPtLUT(const edm::EventSetup& es){
+CSCTFPtLUT::CSCTFPtLUT(const edm::EventSetup& es) 
+    : read_pt_lut(false),
+      isBinary(false)
+{
 	pt_method = 4;
 	lowQualityFlag = 4;
 	isBeamStartConf = true;
