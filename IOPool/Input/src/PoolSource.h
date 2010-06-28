@@ -53,7 +53,6 @@ namespace edm {
     virtual void skip(int offset);
     virtual void rewind_();
     virtual void readMany_(int number, EventPrincipalVector& result);
-    virtual void readMany_(int number, EventPrincipalVector& result, EventID const& id, unsigned int fileSeqNumber);
     virtual void readManyRandom_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber);
     virtual void readManySequential_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber);
     virtual void readManySpecified_(std::vector<EventID> const& events, EventPrincipalVector& result);

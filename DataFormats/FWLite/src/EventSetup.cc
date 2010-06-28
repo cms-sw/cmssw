@@ -8,7 +8,6 @@
 //
 // Original Author:  
 //         Created:  Thu Dec 10 15:58:26 CST 2009
-// $Id: EventSetup.cc,v 1.1 2009/12/16 17:42:32 chrjones Exp $
 //
 
 // system include files

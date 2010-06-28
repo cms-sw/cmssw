@@ -16,7 +16,6 @@
 //
 // Original Author:  Eric Vaandering
 //         Created:  Wed Jan 13 15:01:20 EDT 2007
-// $Id: LuminosityBlock.h,v 1.8 2010/03/12 14:55:38 ewv Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -36,12 +35,12 @@
 #include "DataFormats/FWLite/interface/Run.h"
 #include "DataFormats/FWLite/interface/LuminosityBlockBase.h"
 #include "DataFormats/FWLite/interface/InternalDataKey.h"
+#include "DataFormats/FWLite/interface/EntryFinder.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/EventProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
-#include "DataFormats/Provenance/interface/FileIndex.h"
 
 // forward declarations
 namespace edm {
@@ -123,7 +122,6 @@ namespace fwlite {
 
          const edm::ProcessHistory& history() const;
          void updateAux(Long_t lumiIndex) const;
-         void fillFileIndex() const;
 
 
          // ---------- member data --------------------------------
@@ -136,7 +134,7 @@ namespace fwlite {
          mutable edm::ProcessHistoryMap historyMap_;
          mutable std::vector<std::string> procHistoryNames_;
          mutable edm::LuminosityBlockAuxiliary aux_;
-         mutable edm::FileIndex fileIndex_;
+         mutable EntryFinder entryFinder_;
          edm::LuminosityBlockAuxiliary* pAux_;
          edm::LuminosityBlockAux* pOldAux_;
          TBranch* auxBranch_;

@@ -8,7 +8,6 @@
 //
 // Original Author:  
 //         Created:  Thu Dec 10 15:58:33 CST 2009
-// $Id: Record.cc,v 1.1 2009/12/16 17:42:32 chrjones Exp $
 //
 
 // system include files

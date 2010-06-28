@@ -2,7 +2,6 @@
 
 Test program for edm::Ref use in ROOT.
 
-$Id: test.cppunit.cpp,v 1.10 2009/09/03 22:07:37 chrjones Exp $
  ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -38,6 +37,7 @@ class testRefInROOT: public CppUnit::TestFixture
    CPPUNIT_TEST(testMissingData);
    CPPUNIT_TEST(testEventBase);
    CPPUNIT_TEST(testSometimesMissingData);
+   CPPUNIT_TEST(testTo);
 
   // CPPUNIT_TEST_EXCEPTION(failChainWithMissingFile,std::exception);
   //failTwoDifferentFiles
@@ -77,6 +77,7 @@ public:
   void testMissingData();
   void testEventBase();
   void testSometimesMissingData();
+  void testTo();
   // void failChainWithMissingFile();
   //void failDidNotCallGetEntryForEvents();
 
@@ -187,6 +188,37 @@ void testRefInROOT::testEventBase()
    }
    
 }
+
+void testRefInROOT::testTo()
+{
+   TFile file("good.root");
+   fwlite::Event events(&file);
+   edm::InputTag tag("Thing");
+   edm::EventBase* eventBase = &events;
+   
+   CPPUNIT_ASSERT(events.to(1,1,2));
+   {
+      edm::Handle<edmtest::ThingCollection> pThings;
+      eventBase->getByLabel(tag,pThings);
+      CPPUNIT_ASSERT(pThings.isValid());
+      CPPUNIT_ASSERT(0!=pThings->size());
+      CPPUNIT_ASSERT(3 == (*pThings)[0].a);
+   }
+   std::cout <<events.id()<<std::endl;
+   CPPUNIT_ASSERT(edm::EventID(1,1,2)==events.id());
+   
+   CPPUNIT_ASSERT(events.to(1,1,1));
+   {
+      edm::Handle<edmtest::ThingCollection> pThings;
+      eventBase->getByLabel(tag,pThings);
+      CPPUNIT_ASSERT(pThings.isValid());
+      CPPUNIT_ASSERT(0!=pThings->size());
+      CPPUNIT_ASSERT(2 == (*pThings)[0].a);
+   }
+   CPPUNIT_ASSERT(edm::EventID(1,1,1)==events.id());
+   
+}
+
 
 void testRefInROOT::testRefFirst()
 {

@@ -16,7 +16,6 @@
 //
 // Original Author:  Eric Vaandering
 //         Created:  Wed Jan 13 15:01:20 EDT 2007
-// $Id: Run.h,v 1.4 2010/03/12 14:55:39 ewv Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -35,12 +34,12 @@
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "DataFormats/FWLite/interface/RunBase.h"
 #include "DataFormats/FWLite/interface/InternalDataKey.h"
+#include "DataFormats/FWLite/interface/EntryFinder.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/EventProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
-#include "DataFormats/Provenance/interface/FileIndex.h"
 #include "FWCore/FWLite/interface/BranchMapReader.h"
 #include "DataFormats/FWLite/interface/HistoryGetterBase.h"
 #include "DataFormats/FWLite/interface/DataGetterHelper.h"
@@ -119,7 +118,6 @@ namespace fwlite {
 
          const edm::ProcessHistory& history() const;
          void updateAux(Long_t runIndex) const;
-         void fillFileIndex() const;
 
          // ---------- member data --------------------------------
          mutable boost::shared_ptr<BranchMapReader> branchMap_;
@@ -129,7 +127,7 @@ namespace fwlite {
          mutable edm::ProcessHistoryMap historyMap_;
          mutable std::vector<std::string> procHistoryNames_;
          mutable edm::RunAuxiliary aux_;
-         mutable edm::FileIndex fileIndex_;
+         mutable EntryFinder entryFinder_;
          edm::RunAuxiliary* pAux_;
          edm::RunAux* pOldAux_;
          TBranch* auxBranch_;

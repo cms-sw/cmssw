@@ -16,7 +16,6 @@
 //
 // Original Author: Eric Vaandering
 //         Created:  Fri Jan 29 12:45:17 CST 2010
-// $Id: DataGetterHelper.h,v 1.5 2010/03/23 16:19:21 chrjones Exp $
 //
 
 #if !defined(__CINT__) && !defined(__MAKECINT__)
@@ -34,7 +33,6 @@
 #include "DataFormats/FWLite/interface/InternalDataKey.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
-#include "DataFormats/Provenance/interface/FileIndex.h"
 #include "FWCore/FWLite/interface/BranchMapReader.h"
 #include "DataFormats/FWLite/interface/HistoryGetterBase.h"
 

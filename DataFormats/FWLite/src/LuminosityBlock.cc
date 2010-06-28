@@ -14,7 +14,6 @@
 //
 // Original Author:  Eric Vaandering
 //         Created:  Wed Jan  13 15:01:20 EDT 2007
-// $Id: LuminosityBlock.cc,v 1.10 2010/03/04 15:20:27 dsr Exp $
 //
 
 // system include files
@@ -175,38 +174,14 @@ LuminosityBlock::operator++()
 bool
 LuminosityBlock::to (edm::RunNumber_t run, edm::LuminosityBlockNumber_t luminosityBlock)
 {
-   fillFileIndex();
-   edm::FileIndex::const_iterator i =
-      fileIndex_.findLumiPosition(run, luminosityBlock, true);
-   if (fileIndex_.end() != i)
-   {
-      return branchMap_->updateLuminosityBlock(i->entry_);
+   entryFinder_.fillIndex(*branchMap_);
+   EntryFinder::EntryNumber_t entry = entryFinder_.findLumi(run, luminosityBlock);
+   if (entry == EntryFinder::invalidEntry) {
+      return false;
    }
-   return false;
+   return branchMap_->updateLuminosityBlock(entry);
 }
 
-void
-LuminosityBlock::fillFileIndex() const
-{
-  if (fileIndex_.empty()) {
-    TTree* meta = dynamic_cast<TTree*>(branchMap_->getFile()->Get(edm::poolNames::metaDataTreeName().c_str()));
-    if (0==meta) {
-      throw cms::Exception("NoMetaTree")<<"The TFile does not contain a TTree named "
-        <<edm::poolNames::metaDataTreeName();
-    }
-    if (meta->FindBranch(edm::poolNames::fileIndexBranchName().c_str()) != 0) {
-      edm::FileIndex* findexPtr = &fileIndex_;
-      TBranch* b = meta->GetBranch(edm::poolNames::fileIndexBranchName().c_str());
-      b->SetAddress(&findexPtr);
-      b->GetEntry(0);
-    } else {
-      // TBD: fill the FileIndex for old file formats (prior to CMSSW 2_0_0)
-      throw cms::Exception("NoFileIndexTree")<<"The TFile does not contain a TTree named "
-        <<edm::poolNames::fileIndexBranchName();
-    }
-  }
-  assert(!fileIndex_.empty());
-}
 const LuminosityBlock&
 LuminosityBlock::toBegin()
 {

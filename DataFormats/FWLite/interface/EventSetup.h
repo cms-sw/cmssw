@@ -41,7 +41,6 @@
 //
 // Original Author:  
 //         Created:  Thu Dec 10 15:57:46 CST 2009
-// $Id: EventSetup.h,v 1.1 2009/12/16 17:42:31 chrjones Exp $
 //
 
 // system include files

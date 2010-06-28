@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:07:03 EDT 2007
-// $Id: Event.cc,v 1.44 2010/03/23 16:21:09 chrjones Exp $
 //
 
 // system include files
@@ -196,14 +195,13 @@ Event::to(edm::RunNumber_t run, edm::EventNumber_t event)
 bool
 Event::to(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event)
 {
-   fillFileIndex();
-   edm::FileIndex::const_iterator i =
-      fileIndex_.findEventPosition(run, lumi, event, true);
-   if (fileIndex_.end() != i)
-   {
-      return branchMap_.updateEvent(i->entry_);
+   entryFinder_.fillIndex(branchMap_);
+   entryFinder_.fillEventEntriesInIndex(auxBranch_);
+   EntryFinder::EntryNumber_t entry = entryFinder_.findEvent(run, lumi, event);
+   if (entry == EntryFinder::invalidEntry) {
+      return false;
    }
-   return false;
+   return branchMap_.updateEvent(entry);
 }
 
 bool
@@ -212,28 +210,6 @@ Event::to(const edm::EventID &id)
    return to(id.run(), id.luminosityBlock(), id.event());
 }
 
-void
-Event::fillFileIndex() const
-{
-  if (fileIndex_.empty()) {
-    TTree* meta = dynamic_cast<TTree*>(branchMap_.getFile()->Get(edm::poolNames::metaDataTreeName().c_str()));
-    if (0==meta) {
-      throw cms::Exception("NoMetaTree")<<"The TFile does not contain a TTree named "
-        <<edm::poolNames::metaDataTreeName();
-    }
-    if (meta->FindBranch(edm::poolNames::fileIndexBranchName().c_str()) != 0) {
-      edm::FileIndex* findexPtr = &fileIndex_;
-      TBranch* b = meta->GetBranch(edm::poolNames::fileIndexBranchName().c_str());
-      b->SetAddress(&findexPtr);
-      b->GetEntry(0);
-    } else {
-      // TBD: fill the FileIndex for old file formats (prior to CMSSW 2_0_0)
-      throw cms::Exception("NoFileIndexTree")<<"The TFile does not contain a TTree named "
-        <<edm::poolNames::fileIndexBranchName();
-    }
-  }
-  assert(!fileIndex_.empty());
-}
 const Event&
 Event::toBegin()
 {

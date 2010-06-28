@@ -17,7 +17,6 @@
 //
 // Original Author:  
 //         Created:  Thu Dec 10 15:58:15 CST 2009
-// $Id: Record.h,v 1.1 2009/12/16 17:42:31 chrjones Exp $
 //
 
 // system include files

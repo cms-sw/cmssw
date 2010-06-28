@@ -40,7 +40,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: Event.h,v 1.33 2010/03/12 14:55:38 ewv Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -59,6 +58,7 @@
 // user include files
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "DataFormats/FWLite/interface/EventBase.h"
+#include "DataFormats/FWLite/interface/EntryFinder.h"
 #include "DataFormats/FWLite/interface/LuminosityBlock.h"
 #include "DataFormats/FWLite/interface/Run.h"
 #include "DataFormats/FWLite/interface/InternalDataKey.h"
@@ -67,7 +67,6 @@
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
-#include "DataFormats/Provenance/interface/FileIndex.h"
 
 // forward declarations
 namespace edm {
@@ -170,7 +169,6 @@ namespace fwlite {
 
          const edm::ProcessHistory& history() const;
          void updateAux(Long_t eventIndex) const;
-         void fillFileIndex() const;
          void fillParameterSetRegistry() const;
          void setGetter( boost::shared_ptr<edm::EDProductGetter> getter ) { return dataHelper_.setGetter(getter);}
 
@@ -189,7 +187,7 @@ namespace fwlite {
          mutable std::vector<edm::EventProcessHistoryID> eventProcessHistoryIDs_;
          mutable std::vector<std::string> procHistoryNames_;
          mutable edm::EventAuxiliary aux_;
-         mutable edm::FileIndex fileIndex_;
+         mutable EntryFinder entryFinder_;
          edm::EventAuxiliary* pAux_;
          edm::EventAux* pOldAux_;
          TBranch* auxBranch_;
