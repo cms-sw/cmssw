@@ -172,7 +172,8 @@ def ls(dir,filter=""):
         print "ERROR: File or directory " + dir + " doesn't exist"
         return listOfFiles
 
-    aCommand  = lsCommand  + 'ls '+ dir
+    #aCommand  = lsCommand  + 'ls '+ dir
+    aCommand  = lsCommand  + 'ls '+ dir + " | grep .txt"
     if filter != "":
         aCommand  += " | grep " + filter 
 
@@ -631,8 +632,9 @@ def createWeightedPayloads(fileName,listbeam=[],weighted=True):
         #if False:
         if docheck:
 
+            # limit for x and y
             limit = float(ibeam.beamWidthX)/3.
-            
+            # check movements in X
             adelta1 = delta(ibeam.X, ibeam.Xerr, inextbeam.X, inextbeam.Xerr)
             adelta2 = (0.,1.e9)
             if iNNbeam.Type != -1:
@@ -648,6 +650,8 @@ def createWeightedPayloads(fileName,listbeam=[],weighted=True):
                     #print " negative, "+str(adelta1[0]/adelta2[0])
                 #else:
                 #    print str(adelta1[0]/adelta2[0])
+
+            # check movemnts in Y
             adelta1 = delta(ibeam.Y, ibeam.Yerr, inextbeam.Y, inextbeam.Yerr)
             adelta2 = (0.,1.e9)
             if iNNbeam.Type != -1:
@@ -659,7 +663,7 @@ def createWeightedPayloads(fileName,listbeam=[],weighted=True):
                     deltaY = True
                 elif deltaY==True and adelta1[0]*adelta2[0]<=0 and math.fabs(adelta1[0]/adelta2[0]) > 0.55 and math.fabs(adelta1[0]/adelta2[0]) < 1.45:
                     deltaY = False
-                                                                
+            # check movements in Z                                                    
             adelta = delta(ibeam.Z, ibeam.Zerr, inextbeam.Z, inextbeam.Zerr)
             limit = float(ibeam.sigmaZ)/3.
             deltaZ = deltaSig(adelta) > 3.5 and adelta[0] >= limit
