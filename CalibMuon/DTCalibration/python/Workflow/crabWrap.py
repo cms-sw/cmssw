@@ -1,6 +1,6 @@
-import time,sys
-from crab import *
-import common
+import os,time,sys
+from crab import Crab,common,parseOptions,CrabException
+from crabStatusFromReport import crabStatusFromReport
 
 def computeSummaryCRAB260(up_task):
     """
@@ -166,8 +166,6 @@ def crabStatus(project):
         xml = crab.cfg_params.get("USER.xml_report",'')
         return common.work_space.shareDir() + xml
         
-    from crabStatusFromReport import crabStatusFromReport
-    #status = crabAction(options,action)
     xmlreport = crabAction(options,action)
     status = crabStatusFromReport(xmlreport)
  
