@@ -38,6 +38,10 @@ def runTtrigProd(run,runselection,trial,config,runStep=True):
             castor_dir = config.castorpath + "/" + config.userdircaf
             haddInCastor(castor_dir,result_file)
 
+        return project_prod
+
+    return None
+
 def runTtrigCorrFirst(run,config,runStep=True):
 
     print "Processing tTrig correction"
@@ -74,8 +78,12 @@ def runTtrigValid(run,runselection,trial,input_file,config,runStep=True):
             output_dir = project_valid_first + "/res"
             haddLocal(output_dir,result_file)
         elif config.stageOutCAF:
-            castor_dir = config.castorpath + config.userdircaf
+            castor_dir = config.castorpath + "/" + config.userdircaf
             haddInCastor(castor_dir,result_file,'residuals')
+
+        return project_valid_first
+
+    return None
 
 def runTtrigResidualCorr(run,config,runStep=True):
 
@@ -113,8 +121,12 @@ def runTtrigValidResidCorr(run,runselection,trial,input_file,config,runStep=True
             output_dir = project_valid_ResidCorr + "/res"
             haddLocal(output_dir,result_file)
         elif config.stageOutCAF: 
-            castor_dir = config.castorpath + dtTtrigValid_ResidCorr.crab_opts['USERDIRCAF']
+            castor_dir = config.castorpath + "/" + config.userdircaf
             haddInCastor(castor_dir,result_file,'residuals')
+
+        return project_valid_ResidCorr
+
+    return None
 
 def runTtrigValidSummary(run,input_file,output_file,config,runStep=True):
 
@@ -127,15 +139,24 @@ def runTtrigValidSummary(run,input_file,output_file,config,runStep=True):
  
         print "...Validation Summary finished"
 
-def runDQMMerge(run,castor_dir,config,runStep=True):
+def runDQMMerge(run,output_dir,config,runStep=True):
 
     print "Processing DQM Merge"
 
     if runStep:
-        dqm_files = listFilesInCastor(castor_dir,'DQM')
-        dtDqmFinal = DTDqm(run,config.run_dir,dqm_files,config.result_dir,config)
-        dtDqmFinal.writeCfg()
-        dtDqmFinal.run()
+
+        dqm_files = [] 
+        if config.stageOutLocal:
+            dqm_files = listFilesLocal(output_dir,'DQM')
+            dqm_files = ['file:%s' % item for item in dqm_files]
+            dtDqmFinal = DTDqm(run,config.run_dir,dqm_files,config.result_dir,config)
+            dtDqmFinal.writeCfg()
+            dtDqmFinal.run()
+        elif config.stageOutCAF:
+            dqm_files = listFilesInCastor(output_dir,'DQM')
+            dtDqmFinal = DTDqm(run,config.run_dir,dqm_files,config.result_dir,config)
+            dtDqmFinal.writeCfg()
+            dtDqmFinal.run()
 
         print "...DQM Merge finished"
     else:
@@ -258,9 +279,9 @@ if __name__ == '__main__':
     ttrig_ResidCorr_db = os.path.abspath(result_dir + '/' + 'ttrig_ResidCorr_' + run + '.db')
     residualsResidCorr = os.path.abspath(result_dir + '/' + 'DTkFactValidation_ResidCorr_' + run + '.root')
     summaryResiduals = os.path.abspath(result_dir + '/' + 'SummaryResiduals_' + run + '.root')
-    #castorDirResidCorr = config.castor_prefix + 'TTRIGCalibration/Validation/ResidCorr/Run' + str(run) + '/v' + str(trial) 
-    castorDirResidCorr = config.castor_prefix + 'TTRIGCalibration/Run' + str(run) + '/Validation/ResidCorr/' + 'v' + str(trial)
- 
+    #castorDirResidCorr = config.castor_prefix + 'TTRIGCalibration/Validation/ResidCorr/Run' + str(run) + '/v' + str(trial)
+    dqm_output_dir = ''
+
     if input.no_exec:
         print "Only cfg files will be written"
         runTtrigProd(run,runselection,trial,config,False)
@@ -269,7 +290,7 @@ if __name__ == '__main__':
         runTtrigResidualCorr(run,config,False)
         runTtrigValidResidCorr(run,runselection,trial,ttrig_ResidCorr_db,config,False)
         runTtrigValidSummary(run,residualsResidCorr,summaryResiduals,config,False)
-        runDQMMerge(run,castorDirResidCorr,config,False)
+        runDQMMerge(run,dqm_output_dir,config,False)
 
         sys.exit(0)
 
@@ -289,7 +310,9 @@ if __name__ == '__main__':
 
     if not os.path.exists(ttrig_ResidCorr_db): raise RuntimeError,'Could not produce %s'%ttrig_ResidCorr_db      
 
-    if not os.path.exists(residualsResidCorr): runTtrigValidResidCorr(run,runselection,trial,ttrig_ResidCorr_db,config)
+    project_valid_ResidCorr = None
+    if not os.path.exists(residualsResidCorr):
+        project_valid_ResidCorr = runTtrigValidResidCorr(run,runselection,trial,ttrig_ResidCorr_db,config)
 
     if not os.path.exists(residualsResidCorr): raise RuntimeError,'Could not produce %s'%residualsResidCorr
 
@@ -297,7 +320,11 @@ if __name__ == '__main__':
 
     if not os.path.exists(summaryResiduals): raise RuntimeError,'Could not produce %s'%summaryResiduals
 
-    runDQMMerge(run,castorDirResidCorr,config)
+    if config.stageOutLocal:
+        dqm_output_dir = project_valid_ResidCorr + "/res"
+    elif config.stageOutCAF:
+        dqm_output_dir = config.castorpath + '/TTRIGCalibration/Run' + str(run) + '/Validation/ResidCorr/' + 'v' + str(trial)
+    runDQMMerge(run,dqm_output_dir,config)
 
     #sys.stdout = stdout_original
  
