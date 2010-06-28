@@ -8,9 +8,7 @@ process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load('Configuration/StandardSequences/GeometryDB_cff')
 
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'MC_37Y_V4::All' 
-
-process.load("Geometry.CaloEventSetup.CaloGeometryDBReader_cfi")
+process.GlobalTag.globaltag = 'GR_R_38X_V4::All' 
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
@@ -30,32 +28,6 @@ process.mfa = cms.EDAnalyzer("testMagneticField")
 
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
-#*********************************************************************
-
-#process.EcalBarrelGeometryFromDBEP.applyAlignment = True
-#process.EcalEndcapGeometryFromDBEP.applyAlignment = True
-#process.EcalPreshowerGeometryFromDBEP.applyAlignment = True
-
-process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-    process.CondDBSetup,
-    connect = cms.string('sqlite_file:myfile.db'),
-    toGet = cms.VPSet(
-      cms.PSet(
-        record = cms.string('EBAlignmentRcd'),
-        tag = cms.string('EB')
-      ), 
-      cms.PSet(
-        record = cms.string('EEAlignmentRcd'),
-        tag = cms.string('EE')
-      ),
-      cms.PSet(
-        record = cms.string('ESAlignmentRcd'),
-        tag = cms.string('ES')
-      )
-    )
-)
-
-#*********************************************************************
 
 
 process.Timing = cms.Service("Timing")

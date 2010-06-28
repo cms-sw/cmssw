@@ -8,9 +8,7 @@ process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load('Configuration/StandardSequences/GeometryDB_cff')
 
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'MC_37Y_V4::All' 
-
-process.load("Geometry.CaloEventSetup.CaloGeometryDBReader_cfi")
+process.GlobalTag.globaltag = 'MC_38Y_V4::All' 
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
@@ -27,16 +25,6 @@ process.cga = cms.EDAnalyzer("CaloGeometryAnalyzer",
                              )
 
 process.mfa = cms.EDAnalyzer("testMagneticField")
-
-
-#process.EcalBarrelGeometryFromDBEP.applyAlignment = True
-#process.EcalEndcapGeometryFromDBEP.applyAlignment = True
-#process.EcalPreshowerGeometryFromDBEP.applyAlignment = True
-#process.load("Geometry.CaloEventSetup.TestCaloAlignments_cff")
-
-process.EcalBarrelGeometryFromDBEP.applyAlignment = False
-process.EcalEndcapGeometryFromDBEP.applyAlignment = False
-process.EcalPreshowerGeometryFromDBEP.applyAlignment = False
 
 
 process.Timing = cms.Service("Timing")
