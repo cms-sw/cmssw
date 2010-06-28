@@ -13,4 +13,6 @@
 <use   name="FWCore/PluginManager"/>
 <use   name="HLTrigger/HLTcore"/>
 <use   name="RecoMuon/MuonIsolation"/>
+<use   name="L1Trigger/CSCTrackFinder"/>
 <flags   EDM_PLUGIN="1"/>
+
