@@ -5,7 +5,7 @@ import sys
 import fileinput
 import string
 
-NewVersion='3_8_0_pre1'
+NewVersion='3_8_0_pre5'
 RefVersion='3_7_0'
 NewRelease='CMSSW_'+NewVersion
 RefRelease='CMSSW_'+RefVersion
@@ -37,8 +37,12 @@ Publish=False
 
 GetFilesFromCastor=True
 GetRefsFromCastor=True
-#CastorRepository = '/castor/cern.ch/cms/store/temp/dqm/offline/harvesting_output/mc/relval'
-CastorRepository = '/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'
+CastorRepository = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_3_8_x/'
+if (CastorRepository=='https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_3_8_x/'):
+    print "*** Did you remind doing:"
+    print " > source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.sh"
+    print " > voms-proxy-init"
+#CastorRepository = '/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'
 ### Older repositories:
 #CastorRepository = '/castor/cern.ch/user/n/nuno/relval/harvest'
 #CastorRepository = '/castor/cern.ch/user/n/nuno/preproduction/harvest'
@@ -54,15 +58,15 @@ else:
 
 if (NewFastSim):
     NewTag = NewCondition+'_noPU_ootb_FSIM'
-    NewLabel=NewCondition+'MC_36Y_V2_FastSim'
+    NewLabel='MC_38Y_V3_FastSim'
     if (NewCondition=='STARTUP'):
-        NewLabel=NewCondition+'START36_V2_FastSim'
+        NewLabel='START38_V3_FastSim'
     NewFormat='GEN-SIM-DIGI-RECO'
 else:
     NewTag = NewCondition+'_noPU_ootb'
-    NewLabel=NewCondition+'MC_36Y_V2'
+    NewLabel='MC_38Y_V3'
     if (NewCondition=='STARTUP'):
-        NewLabel=NewCondition+'START36_V2'
+        NewLabel='START38_V3'
     NewFormat='GEN-SIM-RECO'
 
 if (RefFastSim):
@@ -81,7 +85,7 @@ if (RefFastSim):
 NewRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/val'
 RefRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/val'
 CastorRefRepository = '/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'
-
+    
 
 macro='macro/TrackValHistoPublisher.C'
 macroSeed='macro/SeedValHistoPublisher.C'
@@ -127,7 +131,10 @@ for sample in samples :
 
         elif (GetFilesFromCastor):
 # Check the number of events in the harvested samples, needed to retrieve the path on castor
-            if (CastorRepository=='/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'):
+            if (CastorRepository=='https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_3_8_x/'):
+                os.system('wget --ca-directory $X509_CERT_DIR/ --certificate=$X509_USER_PROXY --private-key=$X509_USER_PROXY '+CastorRepository+'DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root ')
+                os.system('mv DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
+            elif (CastorRepository=='/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'):
                 os.system('rfcp '+CastorRepository+'/'+NewRelease+'_'+NewCondition+'_'+sample+'_val.'+sample+'.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
             else:
                 if (NewFastSim):
