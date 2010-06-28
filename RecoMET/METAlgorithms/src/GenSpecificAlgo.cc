@@ -23,7 +23,7 @@ reco::GenMET GenSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > particl
   double sum_ez = 0.0;
 
   // Instantiate the container to hold the calorimeter specific information
-  SpecificGenMETData specific;
+  SpecificGenMETData specific = SpecificGenMETData();
 
   // Initialise the container 
   specific.NeutralEMEtFraction     = 0.0;
