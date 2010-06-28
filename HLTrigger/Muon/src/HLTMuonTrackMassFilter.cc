@@ -293,6 +293,8 @@ HLTMuonTrackMassFilter::pairMatched (std::vector<reco::RecoChargedCandidateRef>&
     // validity of Ref to previous track candidate
     reco::TrackRef prevTrackRef = prevTrackRefs[i]->track();
     if ( prevTrackRef.isNull() )  continue;
+    // if the references are the same then found and return true otherwise compare by hits
+    if (prevTrackRef==trackRef->track()) return true;
     // same #hits
     if ( seedRef->nHits()!=prevTrackRef->recHitsSize() )  continue;
     // hit-by-hit comparison based on the sharesInput method
