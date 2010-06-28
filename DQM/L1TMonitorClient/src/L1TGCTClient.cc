@@ -97,6 +97,7 @@ void L1TGCTClient::makeXProjection(TH2F* input, MonitorElement* output)
   for (Int_t i=0; i<projX->GetNbinsX(); i++) {
     output->setBinContent(i+1,projX->GetBinContent(i+1));
   }
+  delete projX;
 }
 
 void L1TGCTClient::makeYProjection(TH2F* input, MonitorElement* output)
@@ -110,6 +111,7 @@ void L1TGCTClient::makeYProjection(TH2F* input, MonitorElement* output)
   for (Int_t i=0; i<projY->GetNbinsX(); i++) {
     output->setBinContent(i+1,projY->GetBinContent(i+1));
   }
+  delete projY;
 }
 
 
