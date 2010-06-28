@@ -65,6 +65,7 @@ process.test = cms.EDAnalyzer("TestMergeResults",
         0,           0,      0,  # start
         0,           0,      0,  # begin file
         10001,   10002,  10003,  # * begin run
+        10001,   10002,  10003,  # * events
         10001,   10002,  10003   # end run
     ),
 
@@ -72,6 +73,7 @@ process.test = cms.EDAnalyzer("TestMergeResults",
         0,           0,      0,  # start
         0,           0,      0,  # begin file
         0,           0,      0,  # begin run
+        0,           0,      0,  # * events
         100001, 100002, 100003   # * end run
     ),
 
@@ -79,6 +81,7 @@ process.test = cms.EDAnalyzer("TestMergeResults",
         0,           0,      0,  # start
         0,           0,      0,  # begin file
         101,       102,    103,  # * begin lumi
+        101,       102,    103,  # * events
         101,       102,    103   # end lumi
     ),
 
@@ -86,6 +89,7 @@ process.test = cms.EDAnalyzer("TestMergeResults",
         0,           0,      0,  # start
         0,           0,      0,  # begin file
         0,           0,      0,  # begin lumi
+        0,           0,      0,  # * events
         1001,     1002,   1003   # * end lumi
     ),
 

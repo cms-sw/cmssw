@@ -5,6 +5,9 @@ test=testRunMerge
 function die { echo Failure $1: status $2 ; exit $2 ; }
 
 pushd ${LOCAL_TMP_DIR}
+  echo ${test}PROD0 ------------------------------------------------------------
+  cmsRun -p ${LOCAL_TEST_DIR}/${test}PROD0_cfg.py || die "cmsRun ${test}PROD0_cfg.py" $?
+
   echo ${test}PROD1 ------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${test}PROD1_cfg.py || die "cmsRun ${test}PROD1_cfg.py" $?
 
@@ -34,6 +37,9 @@ pushd ${LOCAL_TMP_DIR}
 
   echo ${test}MERGE1------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${test}MERGE1_cfg.py || die "cmsRun ${test}MERGE1_cfg.py" $?
+
+  echo ${test}MERGE2------------------------------------------------------------
+  cmsRun -p ${LOCAL_TEST_DIR}/${test}MERGE2_cfg.py || die "cmsRun ${test}MERGE2_cfg.py" $?
 
   echo ${test}TEST------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${test}TEST_cfg.py || die "cmsRun ${test}TEST_cfg.py" $?

@@ -82,7 +82,7 @@ namespace edm {
   }
 
   FileIndex::const_iterator
-  FileIndex::findEventPosition(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool exact) const {
+  FileIndex::findEventPosition(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) const {
 
     const_iterator it = findPosition(run, lumi, event);
     const_iterator itEnd = entries_.end();
@@ -97,22 +97,21 @@ namespace edm {
     }
     if(it->run_ != run || it->lumi_ != lumi || it->event_ != event) {
       if (sortState() == kSorted_Run_Lumi_Event) {
-	return exact ? itEnd : it;
+	return itEnd;
       }
-      const_iterator itSave = it;
       // not sorted by event, so we need to do a linear search
       while (it != itEnd && it->run_ == run && it->lumi_ == lumi && it->event_ != event) {
  	++it;
       }
       if(it->run_ != run || it->lumi_ != lumi || it->event_ != event) {
-        return exact ? itEnd : itSave;
+        return itEnd;
       }
     }
     return it;
   }
 
   FileIndex::const_iterator
-  FileIndex::findLumiPosition(RunNumber_t run, LuminosityBlockNumber_t lumi, bool exact) const {
+  FileIndex::findLumiPosition(RunNumber_t run, LuminosityBlockNumber_t lumi) const {
     const_iterator it = findPosition(run, lumi, 0U);
     const_iterator itEnd = entries_.end();
     while(it != itEnd && it->getEntryType() != FileIndex::kLumi) {
@@ -121,14 +120,14 @@ namespace edm {
     if(it == itEnd) {
       return itEnd;
     }
-    if(exact && (it->run_ != run || it->lumi_ != lumi)) {
+    if(it->run_ != run || it->lumi_ != lumi) {
       return itEnd;
     }
     return it;
   }
 
   FileIndex::const_iterator
-  FileIndex::findRunPosition(RunNumber_t run, bool exact) const {
+  FileIndex::findRunPosition(RunNumber_t run) const {
     const_iterator it = findPosition(run, 0U, 0U);
     const_iterator itEnd = entries_.end();
     while(it != itEnd && it->getEntryType() != FileIndex::kRun) {
@@ -137,7 +136,7 @@ namespace edm {
     if(it == itEnd) {
       return itEnd;
     }
-    if(exact && (it->run_ != run)) {
+    if(it->run_ != run) {
       return itEnd;
     }
     return it;
@@ -154,7 +153,7 @@ namespace edm {
   }
 
   FileIndex::const_iterator
-  FileIndex::findEventEntryPosition(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, EntryNumber_t entry, bool exact) const {
+  FileIndex::findEventEntryPosition(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, EntryNumber_t entry) const {
     assert(sortState() != kNotSorted);
     const_iterator it;
     const_iterator itEnd = entries_.end();
@@ -163,14 +162,14 @@ namespace edm {
       Element el(run, lumi, event, entry);
       it = lower_bound_all(entries_, el, Compare_Run_Lumi_EventEntry());
     } else {
-      it = findEventPosition(run, lumi, event, exact);
+      it = findEventPosition(run, lumi, event);
       while(it != itEnd && it->entry_ != entry && it->event_ == event) {
         ++it;
       }
     }
     if(it == itEnd) return itEnd;
     if(lumi == 0) lumi = it->lumi_;
-    if(exact && (it->run_ != run || it->lumi_ != lumi || it->event_ != event || it->entry_ != entry)) return itEnd;
+    if(it->run_ != run || it->lumi_ != lumi || it->event_ != event || it->entry_ != entry) return itEnd;
     return it;
   }
 

@@ -1,9 +1,10 @@
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
+#include <cassert>
 #include <ostream>
 
 /*----------------------------------------------------------------------
 
-$Id: RunAuxiliary.cc,v 1.2 2008/01/23 23:34:54 wdd Exp $
+$Id: RunAuxiliary.cc,v 1.3.12.1 2010/05/28 03:56:36 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -14,23 +15,13 @@ namespace edm {
     os << id_ << std::endl;
   }
 
-  bool
+  void
   RunAuxiliary::mergeAuxiliary(RunAuxiliary const& newAux) {
 
+    assert(id_ == newAux.id_);
+    assert(processHistoryID_ == newAux.processHistoryID_);
     mergeNewTimestampsIntoThis_(newAux);
-    mergeNewProcessHistoryIntoThis_(newAux);
 
-    // Keep the process history ID that is in the preexisting principal
-    // It may have been updated to include the current process.
-    // There is one strange other case where the two ProcessHistoryIDs
-    // could be different which should not be important and we just ignore.
-    // There could have been previous processes which only dropped products.
-    // These processes could have dropped the same branches but had different
-    // process names ... Ignore this.
-
-    return id_ == newAux.id();
-//     if (id_ != newAux.id()) return false;
-//     return true;
   }
 
   void
@@ -50,13 +41,5 @@ namespace edm {
     else if (newAux.endTime() > endTime_) {
       endTime_ = newAux.endTime();
     }
-  }
-
-  void
-  RunAuxiliary::mergeNewProcessHistoryIntoThis_(RunAuxiliary const& newAux)
-  {
-    allEventsProcessHistories_.insert(newAux.allEventsProcessHistories_.begin(),
-				      newAux.allEventsProcessHistories_.end());
-				      
   }
 }

@@ -27,6 +27,7 @@ process.source = cms.Source("PoolSource",
     )
     , duplicateCheckMode = cms.untracked.string('checkAllFilesOpened')
     , skipEvents = cms.untracked.uint32(3)
+    , noEventSort = cms.untracked.bool(False)
 )
 
 process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
@@ -75,6 +76,48 @@ process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
 11, 2, 1,
 11, 2, 0,
 11, 0, 0,
+100, 0, 0,
+100, 100, 0,
+100, 100, 100,
+100, 100, 0,
+100, 0, 0,
+1, 0, 0,
+1, 1, 0,
+1, 1, 21,
+1, 1, 22,
+1, 1, 23,
+1, 1, 24,
+1, 1, 25,
+1, 1, 0,
+1, 0, 0,
+2, 0, 0,
+2, 1, 0,
+2, 1, 1,
+2, 1, 2,
+2, 1, 3,
+2, 1, 4,
+2, 1, 5,
+2, 1, 0,
+2, 0, 0,
+1, 0, 0,
+1, 1, 0,
+1, 1, 1,
+1, 1, 2,
+1, 1, 3,
+1, 1, 4,
+1, 1, 5,
+1, 1, 6,
+1, 1, 7,
+1, 1, 8,
+1, 1, 9,
+1, 1, 10,
+1, 1, 0,
+1, 0, 0
+)
+)
+# At this point the first input file is done and
+# we start with the second input file here.
+process.test.expectedRunLumiEvents.extend([
 1, 0, 0,
 1, 1, 0,
 1, 1, 0,
@@ -89,8 +132,23 @@ process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
 11, 2, 0,
 11, 2, 0,
 11, 0, 0,
-)
-)
+100, 0, 0,
+100, 100, 0,
+100, 100, 0,
+100, 0, 0,
+1, 0, 0,
+1, 1, 0,
+1, 1, 0,
+1, 0, 0,
+2, 0, 0,
+2, 1, 0,
+2, 1, 0,
+2, 0, 0,
+1, 0, 0,
+1, 1, 0,
+1, 1, 0,
+1, 0, 0
+])
 
 process.path1 = cms.Path(process.test)
 

@@ -1,9 +1,10 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
+#include <cassert>
 #include <ostream>
 
 /*----------------------------------------------------------------------
 
-$Id: LuminosityBlockAuxiliary.cc,v 1.1 2007/03/04 04:48:09 wmtan Exp $
+$Id: LuminosityBlockAuxiliary.cc,v 1.2.16.1 2010/05/28 03:56:36 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -14,8 +15,10 @@ namespace edm {
     os << id_ << std::endl;
   }
 
-  bool
+  void
   LuminosityBlockAuxiliary::mergeAuxiliary(LuminosityBlockAuxiliary const& newAux) {
+    assert(id_ == newAux.id_);
+    assert(processHistoryID_ == newAux.processHistoryID_);
     if (beginTime_ == Timestamp::invalidTimestamp() ||
         newAux.beginTime() == Timestamp::invalidTimestamp()) {
       beginTime_ = Timestamp::invalidTimestamp();
@@ -32,15 +35,5 @@ namespace edm {
       endTime_ = newAux.endTime();
     }
 
-    // Keep the process history ID that is in the preexisting principal
-    // It may have been updated to include the current process.
-    // There is one strange other case where the two ProcessHistoryIDs
-    // could be different which should not be important and we just ignore.
-    // There could have been previous processes which only dropped products.
-    // These processes could have dropped the same branches but had different
-    // process names ... Ignore this.
-
-    if (id_ != newAux.id()) return false;
-    return true;
   }
 }

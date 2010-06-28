@@ -72,6 +72,16 @@ namespace edm {
     return value_ >= 16;
   }
 
+  bool
+  FileFormatVersion::hasIndexIntoFile() const {
+    return value_ >= 16;
+  }
+
+  bool
+  FileFormatVersion::mergeOnlySequentialRunsOrLumis() const {
+    return value_ >= 16;
+  }
+
   std::ostream&
   operator<< (std::ostream& os, FileFormatVersion const& ff) {
     os << ff.value();

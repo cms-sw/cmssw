@@ -65,12 +65,6 @@ namespace edm {
     // is not found.
     bool getConfigurationForProcess(std::string const& name, ProcessConfiguration& config) const;
 
-    // Used only for backward compatibility
-    // merges the other process history into this one.
-    // Returns true if successful.  Returns false if the merge cannot be done,
-    // in which case the process history will be unchanged.
-    bool mergeProcessHistory(ProcessHistory const& other);
-
     struct Transients {
       Transients() : phid_() {}
       ProcessHistoryID phid_;

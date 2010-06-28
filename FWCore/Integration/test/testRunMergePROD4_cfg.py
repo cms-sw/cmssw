@@ -47,6 +47,8 @@ process.makeThingToBeDropped1 = cms.EDProducer("ThingWithMergeProducer",
 )
 process.dependsOnThingToBeDropped1 = cms.EDProducer("ThingWithMergeProducer")
 
+process.test = cms.EDAnalyzer("TestMergeResults")
+
 process.A = cms.EDProducer("ThingWithMergeProducer")
 
 process.B = cms.EDProducer("ThingWithMergeProducer",
@@ -99,6 +101,7 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 process.p1 = cms.Path((process.m1 + process.m2 + process.m3) *
                      process.thingWithMergeProducer *
+                     process.test *
                      process.tryNoPut *
                      process.makeThingToBeDropped *
                      process.makeThingToBeDropped1 *

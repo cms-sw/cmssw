@@ -13,20 +13,22 @@ process.options = cms.untracked.PSet(
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(32)
+    input = cms.untracked.int32(33)
 )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
+        'file:testRunMerge0.root', 
         'file:testRunMerge1.root', 
-        'file:testRunMerge2.root', 
-        'file:testRunMerge3.root',
+        'file:testRunMerge2extra.root', 
+        'file:testRunMerge3extra.root',
         'file:testRunMerge4.root',
         'file:testRunMerge5.root'
     ),
     inputCommands = cms.untracked.vstring(
         'keep *', 
-        'drop *_C_*_*'
+        'drop *_C_*_*',
+        'drop *_*_*_EXTRA'
     )
     , duplicateCheckMode = cms.untracked.string('checkEachRealDataFile')
 )
@@ -53,11 +55,18 @@ process.test = cms.EDAnalyzer("TestMergeResults",
 
     expectedBeginRunProd = cms.untracked.vint32(
         0,           0,      0,   # start
-        0,           0,      0,   # begin file 1
+        0,           0,      0,   # begin file 0
+        10001,   10002,  10003,   # * begin run 100
+        10001,   10002,  10003,   # * events
+        10001,   10002,  10003,   # begin file 1
+        10001,   10002,  10003,   # end run 100
         10001,   10002,  10003,   # * begin run 1
         10001,   10002,  10003,   # * events
-        10001,   20004,  10003,   # * begin file 2
-        10001,   20004,  10003,   # end run 1
+        10001,   10002,  10003,   # begin file 2
+        10001,   10002,  10003,   # end run 1
+        10001,   10002,  10003,   # * begin run 1
+        10001,   10002,  10003,   # * events
+        10001,   10002,  10003,   # end run 1
         10001,   10002,  10003,   # * begin run 2
         10001,   10002,  10003,   # * events
         10001,   10002,  10003,   # begin file 3
@@ -69,11 +78,18 @@ process.test = cms.EDAnalyzer("TestMergeResults",
                             
     expectedEndRunProd = cms.untracked.vint32(
         0,           0,      0,   # start
-        0,           0,      0,   # begin file 1
+        0,           0,      0,   # begin file 0
+        100001, 100002, 100003,   # begin run 100
+        100001, 100002, 100003,   # * events
+        100001, 100002, 100003,   # begin file 1
+        100001, 100002, 100003,   # * end run 100
         100001, 100002, 100003,   # begin run 1
         100001, 100002, 100003,   # * events
-        100001, 200004, 100003,   # * begin file 2
-        100001, 200004, 100003,   # * end run 1
+        100001, 100002, 100003,   # begin file 2
+        100001, 100002, 100003,   # * end run 1
+        100001, 100002, 100003,   # begin run 1
+        100001, 100002, 100003,   # * events
+        100001, 100002, 100003,   # * end run 1
         100001, 100002, 100003,   # begin run 2
         100001, 100002, 100003,   # * events
         100001, 100002, 100003,   # begin file 3
@@ -85,11 +101,18 @@ process.test = cms.EDAnalyzer("TestMergeResults",
 
     expectedBeginLumiProd = cms.untracked.vint32(
         0,           0,      0,   # start
-        0,           0,      0,   # begin file 1
+        0,           0,      0,   # begin file 0
+        101,       102,    103,   # * begin run 100 lumi 100
+        101,       102,    103,   # * events
+        101,       102,    103,   # begin file 1
+        101,       102,    103,   # end run 100 lumi 100
         101,       102,    103,   # * begin run 1 lumi 1
         101,       102,    103,   # * events
-        101,       204,    103,   # * begin file 2
-        101,       204,    103,   # end run 1 lumi 1
+        101,       102,    103,   # begin file 2
+        101,       102,    103,   # end run 1 lumi 1
+        101,       102,    103,   # * begin run 1 lumi 1
+        101,       102,    103,   # * events
+        101,       102,    103,   # end run 1 lumi 1
         101,       102,    103,   # * begin run 2 lumi 1
         101,       102,    103,   # * events
         101,       102,    103,   # begin file 3
@@ -101,11 +124,18 @@ process.test = cms.EDAnalyzer("TestMergeResults",
 
     expectedEndLumiProd = cms.untracked.vint32(
         0,           0,      0,   # start
-        0,           0,      0,   # begin file 1
+        0,           0,      0,   # begin file 0
+        1001,     1002,   1003,   # begin run 100 lumi 100
+        1001,     1002,   1003,   # * events
+        1001,     1002,   1003,   # begin file 1
+        1001,     1002,   1003,   # * end run 100 lumi 100
         1001,     1002,   1003,   # begin run 1 lumi 1
         1001,     1002,   1003,   # * events
-        1001,     2004,   1003,   # * begin file 2
-        1001,     2004,   1003,   # * end run 1 lumi 1
+        1001,     1002,   1003,   # begin file 2
+        1001,     1002,   1003,   # * end run 1 lumi 1
+        1001,     1002,   1003,   # begin run 1 lumi 1
+        1001,     1002,   1003,   # * events
+        1001,     1002,   1003,   # * end run 1 lumi 1
         1001,     1002,   1003,   # begin run 2 lumi 1
         1001,     1002,   1003,   # * events
         1001,     1002,   1003,   # begin file 3
@@ -117,10 +147,17 @@ process.test = cms.EDAnalyzer("TestMergeResults",
 
     expectedBeginRunNew = cms.untracked.vint32(
         0,           0,      0,   # start
-        0,           0,      0,   # begin file 1
+        0,           0,      0,   # begin file 0
+        10001,   10002,  10003,   # * begin run 100
+        10001,   10002,  10003,   # * events
+        10001,   10002,  10003,   # begin file 1
+        10001,   10002,  10003,   # end run 100
         10001,   10002,  10003,   # * begin run 1
         10001,   10002,  10003,   # * events
-        10001,   10002,  10003,   # * begin file 2
+        10001,   10002,  10003,   # begin file 2
+        10001,   10002,  10003,   # end run 1
+        10001,   10002,  10003,   # * begin run 1
+        10001,   10002,  10003,   # * events
         10001,   10002,  10003,   # end run 1
         10001,   10002,  10003,   # * begin run 2
         10001,   10002,  10003,   # * events
@@ -133,26 +170,40 @@ process.test = cms.EDAnalyzer("TestMergeResults",
 
     expectedEndRunNew = cms.untracked.vint32(
         0,           0,      0,   # start
+        0,           0,      0,   # begin file 0
+        0,           0,      0,   # begin run 100
+        0,           0,      0,   # * events
         0,           0,      0,   # begin file 1
+        100001, 100002, 100003,   # * end run 100
         0,           0,      0,   # begin run 1
         0,           0,      0,   # * events
-        0,           0,      0,   # * begin file 2
+        0,           0,      0,   # begin file 2
+        100001, 100002, 100003,   # * end run 1
+        0,           0,      0,   # begin run 1
+        0,           0,      0,   # * events
         100001, 100002, 100003,   # * end run 1
         0,           0,      0,   # begin run 2
         0,           0,      0,   # * events
         0,           0,      0,   # begin file 3
         100001, 100002, 100003,   # * end run 2
-        0,           0,      0,   # begin run 1
+        0,           0,      0,   # * begin run 1
         0,           0,      0,   # * events
         100001, 100002, 100003    # * end run 1
     ),
 
     expectedBeginLumiNew = cms.untracked.vint32(
         0,           0,      0,   # start
-        0,           0,      0,   # begin file 1
+        0,           0,      0,   # begin file 0
+        101,       102,    103,   # * begin run 100 lumi 100
+        101,       102,    103,   # * events
+        101,       102,    103,   # begin file 1
+        101,       102,    103,   # end run 100 lumi 100
         101,       102,    103,   # * begin run 1 lumi 1
         101,       102,    103,   # * events
-        101,       102,    103,   # * begin file 2
+        101,       102,    103,   # begin file 2
+        101,       102,    103,   # end run 1 lumi 1
+        101,       102,    103,   # * begin run 1 lumi 1
+        101,       102,    103,   # * events
         101,       102,    103,   # end run 1 lumi 1
         101,       102,    103,   # * begin run 2 lumi 1
         101,       102,    103,   # * events
@@ -165,31 +216,39 @@ process.test = cms.EDAnalyzer("TestMergeResults",
 
     expectedEndLumiNew = cms.untracked.vint32(
         0,           0,      0,   # start
+        0,           0,      0,   # begin file 0
+        0,           0,      0,   # begin run 100 lumi 100
+        0,           0,      0,   # * events
         0,           0,      0,   # begin file 1
+        1001,     1002,   1003,   # * end run 100 lumi 100
         0,           0,      0,   # begin run 1 lumi 1
         0,           0,      0,   # * events
-        0,           0,      0,   # * begin file 2
+        0,           0,      0,   # begin file 2
+        1001,     1002,   1003,   # * end run 1 lumi 1
+        0,           0,      0,   # begin run 1 lumi 1
+        0,           0,      0,   # * events
         1001,     1002,   1003,   # * end run 1 lumi 1
         0,           0,      0,   # begin run 2 lumi 1
         0,           0,      0,   # * events
         0,           0,      0,   # begin file 3
         1001,     1002,   1003,   # * end run 2 lumi 1
-        0,           0,      0,   # begin run 1 lumi 1
+        0,           0,      0,   # * begin run 1 lumi 1
         0,           0,      0,   # * events
         1001,     1002,   1003    # * end run 1 lumi 1
     ),
 
-    expectedDroppedEvent1 = cms.untracked.vint32(13, -1, -1, -1, 13),
+    expectedDroppedEvent1 = cms.untracked.vint32(13, 13, -1, -1, -1, 13),
 
-    expectedRespondToOpenInputFile = cms.untracked.int32(5),
-    expectedRespondToCloseInputFile = cms.untracked.int32(5),
+    expectedRespondToOpenInputFile = cms.untracked.int32(6),
+    expectedRespondToCloseInputFile = cms.untracked.int32(6),
     expectedRespondToOpenOutputFiles = cms.untracked.int32(1),
     expectedRespondToCloseOutputFiles = cms.untracked.int32(1),
 
     expectedInputFileNames = cms.untracked.vstring(
+        'file:testRunMerge0.root', 
         'file:testRunMerge1.root', 
-        'file:testRunMerge2.root', 
-        'file:testRunMerge3.root',
+        'file:testRunMerge2extra.root', 
+        'file:testRunMerge3extra.root',
         'file:testRunMerge4.root',
         'file:testRunMerge5.root'
     ),
@@ -198,7 +257,7 @@ process.test = cms.EDAnalyzer("TestMergeResults",
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('testRunMerge.root'),
+    fileName = cms.untracked.string('testRunMergeMERGE2.root'),
     outputCommands = cms.untracked.vstring(
         'keep *', 
         'drop *_makeThingToBeDropped_*_*',

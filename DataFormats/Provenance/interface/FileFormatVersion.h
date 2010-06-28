@@ -24,6 +24,8 @@ namespace edm
     bool lumiInEventID() const;
     bool parameterSetsTree() const;
     bool processHistorySameWithinRun() const;
+    bool hasIndexIntoFile() const;
+    bool mergeOnlySequentialRunsOrLumis() const;
     int value() const {return value_;}
     
    private:

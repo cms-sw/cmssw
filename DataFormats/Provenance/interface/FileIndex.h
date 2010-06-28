@@ -64,38 +64,38 @@ namespace edm {
       findPosition(RunNumber_t run, LuminosityBlockNumber_t lumi = 0U, EventNumber_t event = 0U) const;
 
       const_iterator
-      findEventPosition(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool exact) const;
+      findEventPosition(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) const;
 
       const_iterator
-      findEventEntryPosition(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, EntryNumber_t entry, bool exact) const;
+      findEventEntryPosition(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, EntryNumber_t entry) const;
 
       const_iterator
-      findLumiPosition(RunNumber_t run, LuminosityBlockNumber_t lumi, bool exact) const;
+      findLumiPosition(RunNumber_t run, LuminosityBlockNumber_t lumi) const;
 
       const_iterator
-      findRunPosition(RunNumber_t run, bool exact) const;
+      findRunPosition(RunNumber_t run) const;
 
       const_iterator
       findLumiOrRunPosition(RunNumber_t run, LuminosityBlockNumber_t lumi) const;
 
       bool
-      containsItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool exact) const {
-	return event ? containsEvent(run, lumi, event, exact) : (lumi ? containsLumi(run, lumi, exact) : containsRun(run, exact));
+      containsItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) const {
+	return event ? containsEvent(run, lumi, event) : (lumi ? containsLumi(run, lumi) : containsRun(run));
       }
 
       bool
-      containsEvent(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool exact) const {
-	return findEventPosition(run, lumi, event, exact) != entries_.end();
+      containsEvent(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) const {
+	return findEventPosition(run, lumi, event) != entries_.end();
       }
 
       bool
-      containsLumi(RunNumber_t run, LuminosityBlockNumber_t lumi, bool exact) const {
-        return findLumiPosition(run, lumi, exact) != entries_.end();
+      containsLumi(RunNumber_t run, LuminosityBlockNumber_t lumi) const {
+        return findLumiPosition(run, lumi) != entries_.end();
       }
 
       bool
-      containsRun(RunNumber_t run, bool exact) const {
-        return findRunPosition(run, exact) != entries_.end();
+      containsRun(RunNumber_t run) const {
+        return findRunPosition(run) != entries_.end();
       }
 
       const_iterator begin() const {return entries_.begin();}

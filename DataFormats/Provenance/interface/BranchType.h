@@ -65,6 +65,7 @@ namespace edm {
     std::string const& fileFormatVersionBranchName();
     std::string const& fileIdentifierBranchName();
     std::string const& fileIndexBranchName();
+    std::string const& indexIntoFileBranchName();
 
     // Event History Tree
     std::string const& eventHistoryTreeName();
