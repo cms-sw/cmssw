@@ -55,7 +55,9 @@ muons = cms.EDProducer("MuonIdProducer",
     
     # calo muons
     minCaloCompatibility = cms.double(0.6),
-    runArbitrationCleaner = cms.bool(False),
+
+    # arbitration cleaning                       
+    runArbitrationCleaner = cms.bool(True),
     arbitrationCleanerOptions = cms.PSet( ME1a = cms.bool(True),
                                           Overlap = cms.bool(True),
                                           Clustering = cms.bool(True),
