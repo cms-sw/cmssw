@@ -14,7 +14,7 @@ layerInfo = cms.PSet(
       )
 )
 
-regionalCosmicMuonSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
+regionalCosmicTrackerSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
    RegionFactoryPSet = cms.PSet(                                 
       ComponentName = cms.string( "CosmicRegionalSeedGenerator" ),
       RegionPSet = cms.PSet(
@@ -28,10 +28,10 @@ regionalCosmicMuonSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer
         ),
       ToolsPSet = cms.PSet(
         thePropagatorName           = cms.string("AnalyticalPropagator"),
-        regionBase                  = cms.string("")
+        regionBase                  = cms.string("seedOnCosmicMuons")
         ),
       CollectionsPSet = cms.PSet(
-        muonsCollection          = cms.InputTag("muons"),
+        muonsCollection          = cms.InputTag(""),  # se to "muons" and change ToolsPSet.regionBase to "" in order to use these.
         cosmicMuonsCollection       = cms.InputTag("cosmicMuons")
         )
     ),
