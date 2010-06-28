@@ -169,7 +169,7 @@ def useExistingPATMuons(process, newPatMuonTag, addL1Info=False):
     process.patMuonsWithTriggerSequence.remove(process.muonL1Info)
     process.patMuonsWithTrigger.src = newPatMuonTag
     from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceParam
-    massSearchReplaceParam(process.patMuonsWithTriggerSequence, 'src', cms.InputTag('patMuonsWithTrigger'), newPatMuonTag)
+    massSearchReplaceParam(process.patMuonsWithTriggerSequence, 'src', cms.InputTag('patMuonsWithoutTrigger'), newPatMuonTag)
     if addL1Info:
         process.muonL1Info.src = newPatMuonTag.muonSource
         addL1UserData(getattr(process,newPatMuonTag.moduleLabel), 'muonL1Info')
