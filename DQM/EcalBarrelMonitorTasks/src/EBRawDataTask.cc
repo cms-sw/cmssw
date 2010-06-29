@@ -1,8 +1,8 @@
 /*
  * \file EBRawDataTask.cc
  *
- * $Date: 2010/06/29 12:43:57 $
- * $Revision: 1.29 $
+ * $Date: 2010/06/29 16:14:48 $
+ * $Revision: 1.30 $
  * \author E. Di Marco
  *
 */
@@ -536,7 +536,9 @@ void EBRawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       // vector of TCC channels has 4 elements for both EB and EE. 
       // EB uses [0], EE uses [0-3].
-      if(tccBx[0] != ECALDCC_BunchCrossing && tccBx[0] != -1) meEBBunchCrossingTCCErrors_->Fill( xism );
+      if(tccBx.size() == 4) {
+        if(tccBx[0] != ECALDCC_BunchCrossing && tccBx[0] != -1) meEBBunchCrossingTCCErrors_->Fill( xism );
+      }
 
       if(srpBx != ECALDCC_BunchCrossing && srpBx != -1) meEBBunchCrossingSRPErrors_->Fill( xism );
 

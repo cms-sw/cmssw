@@ -1,8 +1,8 @@
 /*
  * \file EERawDataTask.cc
  *
- * $Date: 2010/03/27 20:08:01 $
- * $Revision: 1.27 $
+ * $Date: 2010/06/29 12:43:57 $
+ * $Revision: 1.28 $
  * \author E. Di Marco
  *
 */
@@ -544,8 +544,10 @@ void EERawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       // vector of TCC channels has 4 elements for both EB and EE. 
       // EB uses [0], EE uses [0-3].
-      for(int tcc=0; tcc<4; tcc++) {
-        if(tccBx[tcc] != ECALDCC_BunchCrossing && tccBx[tcc] != -1) meEEBunchCrossingTCCErrors_->Fill( xism, 1/(float)tccBx.size());
+      if(tccBx.size() == 4) {
+        for(int tcc=0; tcc<4; tcc++) {
+          if(tccBx[tcc] != ECALDCC_BunchCrossing && tccBx[tcc] != -1) meEEBunchCrossingTCCErrors_->Fill( xism, 1/(float)tccBx.size());
+        }
       }
 
       if(srpBx != ECALDCC_BunchCrossing && srpBx != -1) meEEBunchCrossingSRPErrors_->Fill( xism );
