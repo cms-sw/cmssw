@@ -1,8 +1,8 @@
 /*
  * \file EERawDataTask.cc
  *
- * $Date: 2010/06/29 12:43:57 $
- * $Revision: 1.28 $
+ * $Date: 2010/06/29 18:11:11 $
+ * $Revision: 1.29 $
  * \author E. Di Marco
  *
 */
@@ -536,7 +536,7 @@ void EERawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       // DCC vs. FE,TCC, SRP syncronization
       const std::vector<short> feBxs = dcchItr->getFEBxs();
       const std::vector<short> tccBx = dcchItr->getTCCBx();
-      short srpBx = dcchItr->getSRPBx();
+      const short srpBx = dcchItr->getSRPBx();
 
       for(int fe=0; fe<(int)feBxs.size(); fe++) {
         if(feBxs[fe] != ECALDCC_BunchCrossing && feBxs[fe] != -1) meEEBunchCrossingFEErrors_->Fill( xism, 1/(float)feBxs.size());
@@ -544,17 +544,17 @@ void EERawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       // vector of TCC channels has 4 elements for both EB and EE. 
       // EB uses [0], EE uses [0-3].
-      if(tccBx.size() == 4) {
-        for(int tcc=0; tcc<4; tcc++) {
+      if(tccBx.size() == MAX_TCC_SIZE) {
+        for(int tcc=0; tcc<MAX_TCC_SIZE; tcc++) {
           if(tccBx[tcc] != ECALDCC_BunchCrossing && tccBx[tcc] != -1) meEEBunchCrossingTCCErrors_->Fill( xism, 1/(float)tccBx.size());
         }
       }
 
       if(srpBx != ECALDCC_BunchCrossing && srpBx != -1) meEEBunchCrossingSRPErrors_->Fill( xism );
 
-      std::vector<short> feLv1 = dcchItr->getFELv1();
-      std::vector<short> tccLv1 = dcchItr->getTCCLv1();
-      short srpLv1 = dcchItr->getSRPLv1();
+      const std::vector<short> feLv1 = dcchItr->getFELv1();
+      const std::vector<short> tccLv1 = dcchItr->getTCCLv1();
+      const short srpLv1 = dcchItr->getSRPLv1();
 
       // Lv1 in TCC,SRP,FE are limited to 12 bits(LSB), while in the DCC Lv1 has 24 bits
       int ECALDCC_L1A_12bit = ECALDCC_L1A & 0xfff;
@@ -563,8 +563,12 @@ void EERawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
         if(feLv1[fe] != ECALDCC_L1A_12bit - 1 && feLv1[fe] != -1) meEEL1AFEErrors_->Fill( xism, 1/(float)feLv1.size());
       }
 
-      for(int tcc=0; tcc<4; tcc++) {
-        if(tccLv1[tcc] != ECALDCC_L1A_12bit && tccLv1[tcc] != -1) meEEL1ATCCErrors_->Fill( xism, 1/(float)tccLv1.size());
+      // vector of TCC channels has 4 elements for both EB and EE. 
+      // EB uses [0], EE uses [0-3].
+      if(tccLv1.size() == MAX_TCC_SIZE) {
+        for(int tcc=0; tcc<MAX_TCC_SIZE; tcc++) {
+          if(tccLv1[tcc] != ECALDCC_L1A_12bit && tccLv1[tcc] != -1) meEEL1ATCCErrors_->Fill( xism, 1/(float)tccLv1.size());
+        }
       }
 
       if(srpLv1 != ECALDCC_L1A_12bit && srpLv1 != -1) meEEL1ASRPErrors_->Fill( xism );
