@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz,32 4-A08,+41227673039,
 //         Created:  Tue Jun 29 12:19:49 CEST 2010
-// $Id$
+// $Id: CentralityFilter.cc,v 1.1 2010/06/29 11:33:59 yilmaz Exp $
 //
 //
 
@@ -51,6 +51,8 @@ class CentralityFilter : public edm::EDFilter {
   const CentralityBins * cbins_;
   std::vector<int> selectedBins_;
   std::string centralityBase_;
+
+  edm::InputTag src_;
 };
 
 //
@@ -66,7 +68,8 @@ class CentralityFilter : public edm::EDFilter {
 //
 CentralityFilter::CentralityFilter(const edm::ParameterSet& iConfig) :
   selectedBins_(iConfig.getParameter<std::vector<int> >("selectedBins")),
-  centralityBase_(iConfig.getParameter<std::string>("centralityBase"))
+  centralityBase_(iConfig.getParameter<std::string>("centralityBase")),
+  src_(iConfig.getParameter<edm::InputTag>("src"))
 {
    //now do what ever initialization is needed
 
@@ -96,7 +99,7 @@ CentralityFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if(!cbins_) cbins_ = getCentralityBinsFromDB(iSetup);
 
    edm::Handle<reco::Centrality> cent;
-   iEvent.getByLabel(edm::InputTag("hiCentrality"),cent);
+   iEvent.getByLabel(src_,cent);
 
    double hf = cent->EtHFhitSum();
    double hftp = cent->EtHFtowerSumPlus();
