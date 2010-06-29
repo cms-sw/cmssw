@@ -115,7 +115,7 @@ void CSCTFAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c){
 						continue;
 					}
 					edm::LogInfo("CSCTFAnalyzer")<<"   Front data   endcap: "<<(*csc).first.endcap()<<"  station: "<<(station+1)<<"  sector: "<<(sector+1)<<"  subSector: "<<subSector<<"  tbin: "<<tbin<<"  cscId: "<<(cscId+1)<<"  fpga: "<<(fpga+1)<<" "<<
-						"LCT(vp="<<lct->isValid()<<",qual="<<lct->getQuality()<<",wg="<<lct->getKeyWG()<<",strip="<<lct->getStrip()<<")";
+						"LCT(vp="<<lct->isValid()<<",qual="<<lct->getQuality()<<",wg="<<lct->getKeyWG()<<",strip="<<lct->getStrip()<<",link="<<lct->getMPCLink()<<")";
 				}
 			}
 		} else edm::LogInfo("CSCTFAnalyzer")<<"  No valid CSCCorrelatedLCTDigiCollection products found";

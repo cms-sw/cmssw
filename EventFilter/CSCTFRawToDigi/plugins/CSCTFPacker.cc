@@ -214,12 +214,19 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 			spDataRecord[sector][tbin][nTrk[sector][tbin]].mb_id      = trk->first.mb1ID();
 			spDataRecord[sector][tbin][nTrk[sector][tbin]].ms_id      = 0; // don't care winner()
 
+			// Warning, digi copying was broken for <= CMSSW_3_8_x! The 5 lines of code below will give problems there:
 			spDataRecord[sector][tbin][nTrk[sector][tbin]].me1_tbin   = trk->first.me1Tbin();
 			spDataRecord[sector][tbin][nTrk[sector][tbin]].me2_tbin   = trk->first.me2Tbin();
 			spDataRecord[sector][tbin][nTrk[sector][tbin]].me3_tbin   = trk->first.me3Tbin();
 			spDataRecord[sector][tbin][nTrk[sector][tbin]].me4_tbin   = trk->first.me4Tbin();
 			spDataRecord[sector][tbin][nTrk[sector][tbin]].mb_tbin    = trk->first.mb1Tbin();
-
+			// As the MB stubs are not saved in simulation, we have to introduce an artificial ids
+			if( trk->first.mb1ID() ){
+				int subSector = (trk->first.mb1ID() - 1)%2;
+				int MBtbin    = tbin - spDataRecord[sector][tbin][nTrk[sector][tbin]].mb_tbin;
+				if( subSector<0 || subSector>1 || MBtbin<0 || MBtbin>7 || !mbDataRecord[sector][subSector][MBtbin].id_ )
+					spDataRecord[sector][tbin][nTrk[sector][tbin]].mb_id = ( subSector ? 6 : 5 );
+			}
 			spDataRecord[sector][tbin][nTrk[sector][tbin]].id_ = nTrk[sector][tbin]+1; // for later use
 
 			nTrk[sector][tbin]++;

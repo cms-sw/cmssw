@@ -131,20 +131,11 @@ bool CSCSPEvent::unpack(const unsigned short *&buf) throw() {
 								track.dt_ = *stub;
 								track.dtFilled = true;
 							}
-						if( !track.dtFilled ){ // it could have been an old firmware version, which was never tagged; try another algorithm
-							for(std::vector<CSCSP_MBblock>::const_iterator stub=stubs.begin(); stub!=stubs.end(); stub++)
-								if( (stub->id()==1 && track.MB_id()<=2) || (stub->id()==2 && track.MB_id()>2) ){
-									track.dt_ = *stub;
-									track.dtFilled = true;
-								}
-							if( !track.dtFilled ) unpackError |= true; // nope, nothing works
-						}
 					}
 				}
 			}
 		}
 	}
-
 	unpackError |= trailer_.unpack(buf);
 
 	return unpackError;

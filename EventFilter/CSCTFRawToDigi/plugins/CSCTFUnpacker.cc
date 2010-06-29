@@ -235,7 +235,6 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 						track.first.m_winner = iter->MS_id()&(1<<trkNumber);
 
 						std::vector<CSCSP_MEblock> lcts = iter->LCTs();
-
 						for(std::vector<CSCSP_MEblock>::const_iterator lct=lcts.begin(); lct!=lcts.end(); lct++){
 							int station   = ( lct->spInput()>6 ? (lct->spInput()-1)/3 : 1 );
 							int subsector = ( lct->spInput()>6 ? 0 : (lct->spInput()-1)/3 + 1 );
@@ -254,6 +253,15 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 								      <<sp->header().L1A()<<" (endcap="<<track.first.m_endcap<<",station="<<station<<",sector="<<track.first.m_sector<<",subsector="<<subsector<<",cscid="<<lct->csc()<<",spSlot="<<sp->header().slot()<<")";
 							}
 						}
+
+						std::vector<CSCSP_MBblock> mbStubs = iter->dtStub();
+						for(std::vector<CSCSP_MBblock>::const_iterator iter=mbStubs.begin(); iter!=mbStubs.end(); iter++){
+							CSCDetId id = mapping->detId(track.first.m_endcap,1,track.first.m_sector,iter->id(),1,0);
+							track.second.insertDigi(id,
+								CSCCorrelatedLCTDigi(iter->phi(),iter->vq(),iter->quality()+100,iter->cal(),iter->flag(),iter->bc0(),iter->phi_bend(),tbin+(central_lct_bx-central_sp_bx),iter->id(),iter->bxn(),iter->timingError(),iter->BXN())
+							);
+						}
+
 						trackProduct->push_back( track );
 					}
 				}
