@@ -46,7 +46,7 @@ csc2DRecHits = cms.EDProducer("CSCRecHitDProducer",
     #                          
     # Do we use the chip and chamber and L1A phase corrections when filling the recHit time?
     #
-    CSCUseTimingCorrections = cms.bool(False),
+    CSCUseTimingCorrections = cms.bool(True),
                               
     #
     #    Parameters which are not used currently
