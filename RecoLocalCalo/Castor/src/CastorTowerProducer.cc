@@ -13,7 +13,7 @@
 //
 // Original Author:  Hans Van Haevermaet, Benoit Roland
 //         Created:  Wed Jul  9 14:00:40 CEST 2008
-// $Id: CastorTowerProducer.cc,v 1.4 2010/01/25 13:35:12 vlimant Exp $
+// $Id: CastorTowerProducer.cc,v 1.5 2010/01/27 14:43:35 vlimant Exp $
 //
 //
 
@@ -103,7 +103,6 @@ void CastorTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   using namespace edm;
   using namespace reco;
-  using namespace std;
   using namespace TMath;
   
   // Produce CastorTowers from CastorCells
@@ -111,13 +110,13 @@ void CastorTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   edm::Handle<CastorCellCollection> InputCells;
   iEvent.getByLabel(input_,InputCells);
 
-  auto_ptr<CastorTowerCollection> OutputTowers (new CastorTowerCollection);
+  std::auto_ptr<CastorTowerCollection> OutputTowers (new CastorTowerCollection);
    
   // get and check input size
   int nCells = InputCells->size();
 
   LogDebug("CastorTowerProducer")
-    <<"2. entering CastorTowerProducer"<<endl;
+    <<"2. entering CastorTowerProducer"<<std::endl;
 
   if (nCells==0)
     LogDebug("CastorTowerProducer") <<"Warning: You are trying to run the Tower algorithm with 0 input cells.";
@@ -198,7 +197,7 @@ void CastorTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       ComputeTowerVariable(usedCells,Ehot,depth);
 
       LogDebug("CastorTowerProducer")
-	<<"tower "<<k+1<<": fem = "<<fem<<" ,depth = "<<depth<<" ,Ehot = "<<Ehot<<endl;
+	<<"tower "<<k+1<<": fem = "<<fem<<" ,depth = "<<depth<<" ,Ehot = "<<Ehot<<std::endl;
 
       TowerPoint temptowerposition(rhoTower,5.9,poscastortowerarray[3][k]);
       Point towerposition(temptowerposition);
@@ -216,7 +215,7 @@ void CastorTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       ComputeTowerVariable(usedCells,Ehot,depth);
 
       LogDebug("CastorTowerProducer")
-	<<"tower "<<k+1<<": fem = "<<fem<<" ,depth = "<<depth<<" ,Ehot = "<<Ehot<<endl;
+	<<"tower "<<k+1<<": fem = "<<fem<<" ,depth = "<<depth<<" ,Ehot = "<<Ehot<<std::endl;
 
       TowerPoint temptowerposition(rhoTower,-5.9,negcastortowerarray[3][k]);
       Point towerposition(temptowerposition);
@@ -247,7 +246,6 @@ void CastorTowerProducer::endJob() {
 void CastorTowerProducer::ComputeTowerVariable(const reco::CastorCellRefVector& usedCells, double&  Ehot, double& depth) {
 
   using namespace reco;
-  using namespace std;
 
   double Etot = 0;
 

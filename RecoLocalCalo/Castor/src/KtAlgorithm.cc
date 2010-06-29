@@ -15,7 +15,7 @@
 //
 // Original Author:  Hans Van Haevermaet, Benoit Roland
 //         Created:  Sat May 24 12:00:56 CET 2008
-// $Id: KtAlgorithm.cc,v 1.5 2010/01/25 13:35:12 vlimant Exp $
+// $Id: KtAlgorithm.cc,v 1.6 2010/01/27 14:43:35 vlimant Exp $
 //
 //
 
@@ -35,10 +35,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-// namespaces
-using namespace std;
-using namespace reco;
-using namespace math;
 
 // typedef
 typedef math::XYZPointD Point;
@@ -53,8 +49,11 @@ double KtAlgorithm::phiangle (double testphi) {
 }
 
 // recombination scheme function to make new cluster
-CastorCluster KtAlgorithm::calcRecom (CastorCluster a, CastorCluster b, int recom) {
+reco::CastorCluster KtAlgorithm::calcRecom (reco::CastorCluster a, reco::CastorCluster b, int recom) {
   double newE, newEmE, newHadE, newfem, newPhi, deltaPhi, deltaRho, newWidth, newDepth, newRho;
+
+  using namespace reco;
+  using namespace math;
 
   double Ea = a.energy();
   double Eb = b.energy();
@@ -82,9 +81,9 @@ CastorCluster KtAlgorithm::calcRecom (CastorCluster a, CastorCluster b, int reco
   } 
 
   LogDebug("KtAlgorithm")
-    <<"merging of tower"<<endl
-    <<"tower a: "<<" energy: "<<Ea<<" rho: "<<a.rho()<<endl
-    <<"tower b: "<<" energy: "<<Eb<<" rho: "<<b.rho()<<endl
+    <<"merging of tower"<<std::endl
+    <<"tower a: "<<" energy: "<<Ea<<" rho: "<<a.rho()<<std::endl
+    <<"tower b: "<<" energy: "<<Eb<<" rho: "<<b.rho()<<std::endl
     <<"tower new: "<<" energy: "<<newE<<" rho: "<<newRho;
 
   newPhi = phiangle(newPhi);
@@ -113,7 +112,7 @@ CastorCluster KtAlgorithm::calcRecom (CastorCluster a, CastorCluster b, int reco
 }  
 
 // function to calculate distance delta R between 2 clusters
-double KtAlgorithm::calcDistanceDeltaR (CastorCluster a, CastorCluster b) {
+double KtAlgorithm::calcDistanceDeltaR (reco::CastorCluster a, reco::CastorCluster b) {
   double rsq,esq,asq,bsq,kt,deltaPhi;
   deltaPhi = phiangle(a.phi() - b.phi());
   rsq = deltaPhi*deltaPhi;
@@ -125,7 +124,7 @@ double KtAlgorithm::calcDistanceDeltaR (CastorCluster a, CastorCluster b) {
 }
 
 // calculate dPairs vectors
-std::vector<std::vector<double> > KtAlgorithm::calcdPairs (CastorClusterCollection protoclusters, std::vector<std::vector<double> > dPairs) {
+std::vector<std::vector<double> > KtAlgorithm::calcdPairs (reco::CastorClusterCollection protoclusters, std::vector<std::vector<double> > dPairs) {
   int nRows = protoclusters.size();
   dPairs.reserve(nRows);
   // fill dPairs vector with distances
@@ -142,7 +141,7 @@ std::vector<std::vector<double> > KtAlgorithm::calcdPairs (CastorClusterCollecti
 }
 
 // calculate ddi vectors
-std::vector<double> KtAlgorithm::calcddi (CastorClusterCollection protoclusters, std::vector<double> ddi) {  
+std::vector<double> KtAlgorithm::calcddi (reco::CastorClusterCollection protoclusters, std::vector<double> ddi) {  
   int nRows = protoclusters.size();
   ddi.reserve(nRows);
   // fill ddi vector with energy squared
@@ -153,7 +152,10 @@ std::vector<double> KtAlgorithm::calcddi (CastorClusterCollection protoclusters,
 }
 
 // main public function executes Kt algorithm, is called to give results      
-CastorClusterCollection KtAlgorithm::runKtAlgo (const CastorTowerRefVector& InputTowers, const int recom, const double rParameter) {
+reco::CastorClusterCollection KtAlgorithm::runKtAlgo (const reco::CastorTowerRefVector& InputTowers, const int recom, const double rParameter) {
+  using namespace reco;
+  using namespace math;
+
   LogDebug("KtAlgorithm")
     <<"entering Kt algo code";
 
@@ -303,7 +305,7 @@ CastorClusterCollection KtAlgorithm::runKtAlgo (const CastorTowerRefVector& Inpu
 				clusters[i].depth(),clusterfhot,clustersigmaz,clusters[i].getUsedTowers()); 
 
     LogDebug("KtAlgorithm")
-      <<"cluster: "<<i+1<<" sigma z: "<<clusters[i].sigmaz()<<" fhot: "<<clusters[i].fhot()<<" rho: "<<clusters[i].rho()<<endl;
+      <<"cluster: "<<i+1<<" sigma z: "<<clusters[i].sigmaz()<<" fhot: "<<clusters[i].fhot()<<" rho: "<<clusters[i].rho()<<std::endl;
       
   } // end loop over clusters
   

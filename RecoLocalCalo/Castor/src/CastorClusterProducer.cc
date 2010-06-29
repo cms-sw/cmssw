@@ -12,7 +12,7 @@
 //
 // Original Author:  Hans Van Haevermaet, Benoit Roland
 //         Created:  Wed Jul  9 14:00:40 CEST 2008
-// $Id: CastorClusterProducer.cc,v 1.4 2010/01/25 13:35:12 vlimant Exp $
+// $Id: CastorClusterProducer.cc,v 1.5 2010/01/27 14:43:35 vlimant Exp $
 //
 //
 
@@ -120,7 +120,6 @@ void CastorClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   
   using namespace edm;
   using namespace reco;
-  using namespace std;
   using namespace TMath;
   
   LogDebug("CastorClusterProducer")
@@ -133,8 +132,8 @@ void CastorClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   edm::Handle<CastorTowerCollection> InputTowers;
   iEvent.getByLabel(input_, InputTowers);
 
-  auto_ptr<CastorClusterCollection> OutputClustersfromKtAlgo (new CastorClusterCollection);
-  auto_ptr<CastorClusterCollection> OutputClustersfromClusterAlgo (new CastorClusterCollection);
+  std::auto_ptr<CastorClusterCollection> OutputClustersfromKtAlgo (new CastorClusterCollection);
+  std::auto_ptr<CastorClusterCollection> OutputClustersfromClusterAlgo (new CastorClusterCollection);
   
   // get and check input size
   int nTowers = InputTowers->size();
@@ -177,15 +176,13 @@ void CastorClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   
   if ( basicjets_ != "") {
   
-  	//cout << " entering the basicjet --> cluster code " << endl;
-  
   	Handle<BasicJetCollection> bjCollection;
    	iEvent.getByLabel(basicjets_,bjCollection);
 	
 	Handle<CastorTowerCollection> ctCollection;
 	iEvent.getByLabel("CastorTowerReco",ctCollection);
 	
-	auto_ptr<CastorClusterCollection> OutputClustersfromBasicJets (new CastorClusterCollection);
+	std::auto_ptr<CastorClusterCollection> OutputClustersfromBasicJets (new CastorClusterCollection);
 	
 	if (bjCollection->size()==0) LogDebug("CastorClusterProducer")<< "Warning: You are trying to run the Cluster algorithm with 0 input basicjets.";
    
@@ -205,8 +202,8 @@ void CastorClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 		double zmean = 0.;
 		double z2mean = 0.;
 	
-		vector<CandidatePtr> ccp = bj->getJetConstituents();
-		vector<CandidatePtr>::const_iterator itParticle;
+		std::vector<CandidatePtr> ccp = bj->getJetConstituents();
+		std::vector<CandidatePtr>::const_iterator itParticle;
    		for (itParticle=ccp.begin();itParticle!=ccp.end();++itParticle){	    
         		const CastorTower* castorcand = dynamic_cast<const CastorTower*>(itParticle->get());
 			//cout << " castortowercandidate reference energy = " << castorcand->castorTower()->energy() << endl;
