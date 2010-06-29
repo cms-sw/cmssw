@@ -1,4 +1,4 @@
-// $Id: InitMsgCollection.cc,v 1.12 2010/05/11 15:17:41 mommsen Exp $
+// $Id: InitMsgCollection.cc,v 1.10 2009/09/16 10:44:49 mommsen Exp $
 /// @file: InitMsgCollection.cc
 
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
@@ -150,13 +150,9 @@ InitMsgSharedPtr InitMsgCollection::getElementAt(const unsigned int index) const
   boost::mutex::scoped_lock sl(listLock_);
 
   InitMsgSharedPtr ptrToElement;
-  try
-  {
-    ptrToElement = initMsgList_.at(index).first;
+  if (index >= 0 && index < initMsgList_.size()) {
+    ptrToElement = initMsgList_[index].first;
   }
-  catch (std::out_of_range& e)
-  { }
-
   return ptrToElement;
 }
 
@@ -176,7 +172,7 @@ int InitMsgCollection::size() const
 }
 
 
-uint32_t InitMsgCollection::initMsgCount(const std::string& outputModuleLabel) const
+uint32 InitMsgCollection::initMsgCount(const std::string& outputModuleLabel) const
 {
   boost::mutex::scoped_lock sl(listLock_);
 
@@ -198,11 +194,11 @@ uint32_t InitMsgCollection::initMsgCount(const std::string& outputModuleLabel) c
 }
 
 
-uint32_t InitMsgCollection::maxMsgCount() const
+uint32 InitMsgCollection::maxMsgCount() const
 {
   boost::mutex::scoped_lock sl(listLock_);
 
-  uint32_t maxCount = 0;
+  uint32 maxCount = 0;
 
   for (InitMsgList::const_iterator msgIter = initMsgList_.begin(),
          msgIterEnd = initMsgList_.end();
@@ -266,7 +262,7 @@ std::string InitMsgCollection::getSelectionHelpString() const
 }
 
 
-std::string InitMsgCollection::getOutputModuleName(const uint32_t outputModuleId) const
+std::string InitMsgCollection::getOutputModuleName(const uint32 outputModuleId) const
 {
   boost::mutex::scoped_lock sl(listLock_);
 

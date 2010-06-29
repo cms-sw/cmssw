@@ -21,8 +21,6 @@
 #include <memory>
 
 // user include files
-#include <string>
-
 #include "TH1F.h"
 #include "TH2F.h"
 
@@ -42,9 +40,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DPGAnalysis/SiStripTools/interface/EventWithHistory.h"
-#include "DPGAnalysis/SiStripTools/interface/APVCyclePhaseCollection.h"
-
-#include "DPGAnalysis/SiStripTools/interface/RunHistogramManager.h"
 //
 // class decleration
 //
@@ -65,18 +60,12 @@ class EventTimeDistribution : public edm::EDAnalyzer {
       // ----------member data ---------------------------
 
   const edm::InputTag _historyProduct;
-  const edm::InputTag _apvphasecoll;
-  const std::string _phasepart;
   unsigned int _nevents;
-  const double _binsize;
 
-  RunHistogramManager _rhm;
-
-  TH1F** _dbx;
-  TH1F** _bx;
-  TH1F** _bxincycle;
-  TH2F** _dbxvsbx;
-  TH2F** _orbitvsbx;
+  TH1F* _dbx;
+  TH1F* _bxincycle;
+  TH2F* _dbxvsbx;
+  TH2F* _orbitvsbx;
 
 };
 
@@ -93,19 +82,9 @@ class EventTimeDistribution : public edm::EDAnalyzer {
 //
 EventTimeDistribution::EventTimeDistribution(const edm::ParameterSet& iConfig):
   _historyProduct(iConfig.getParameter<edm::InputTag>("historyProduct")),
-  _apvphasecoll(iConfig.getParameter<edm::InputTag>("apvPhaseCollection")),
-  _phasepart(iConfig.getUntrackedParameter<std::string>("phasePartition","None")),
-  _nevents(0),
-  _binsize(iConfig.getUntrackedParameter<double>("minBinSizeInSec",1.)),
-  _rhm()
+  _nevents(0)
 {
    //now do what ever initialization is needed
-
-  _dbx = _rhm.makeTH1F("dbx","dbx",1000,-0.5,999.5);
-  _bx = _rhm.makeTH1F("bx","BX number",3564,-0.5,3563.5);
-  _bxincycle = _rhm.makeTH1F("bxcycle","bxcycle",70,-0.5,69.5);
-  _dbxvsbx = _rhm.makeTH2F("dbxvsbx","dbxvsbx",70,-0.5,69.5,1000,-0.5,999.5);
-  _orbitvsbx = _rhm.makeTH2F("orbitvsbx","orbitvsbx",70,-0.5,69.5,3600,0,11223*_binsize*3600);
 
 }
 
@@ -134,27 +113,12 @@ EventTimeDistribution::analyze(const edm::Event& iEvent, const edm::EventSetup& 
    edm::Handle<EventWithHistory> he;
    iEvent.getByLabel(_historyProduct,he);
 
-   edm::Handle<APVCyclePhaseCollection> apvphase;
-   iEvent.getByLabel(_apvphasecoll,apvphase);
-
-   long long tbx = he->absoluteBX();
-   if(apvphase.isValid() && !apvphase.failedToGet()) {
-     const int thephase = apvphase->getPhase(_phasepart); 
-     if(thephase!=APVCyclePhaseCollection::invalid &&
-	thephase!=APVCyclePhaseCollection::multiphase &&
-	thephase!=APVCyclePhaseCollection::nopartition)
-       tbx -= thephase;
-   }
-
-
-
    // improve the matchin between default and actual partitions
    
-   (*_dbx)->Fill(he->deltaBX());
-   (*_bx)->Fill(iEvent.bunchCrossing());
-   (*_bxincycle)->Fill(tbx%70);
-   (*_dbxvsbx)->Fill(tbx%70,he->deltaBX());
-   (*_orbitvsbx)->Fill(tbx%70,iEvent.orbitNumber());
+   _dbx->Fill(he->deltaBX());
+   _bxincycle->Fill(he->absoluteBX()%70);
+   _dbxvsbx->Fill(he->absoluteBX()%70,he->deltaBX());
+   _orbitvsbx->Fill(he->absoluteBX()%70,iEvent.orbitNumber());
 
 
 }
@@ -162,30 +126,19 @@ EventTimeDistribution::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 void 
 EventTimeDistribution::beginRun(const edm::Run& iRun, const edm::EventSetup&)
 {
-
-  /*  
+  
   edm::Service<TFileService> tfserv;
 
   char dirname[300];
   sprintf(dirname,"run_%d",iRun.run());
   TFileDirectory subrun = tfserv->mkdir(dirname);
-  */
 
-  /*
   _dbx = subrun.make<TH1F>("dbx","dbx",1000,-0.5,999.5);
-  _bx = subrun.make<TH1F>("bx","BX number",3564,-0.5,3563.5);
   _bxincycle = subrun.make<TH1F>("bxcycle","bxcycle",70,-0.5,69.5);
   _dbxvsbx = subrun.make<TH2F>("dbxvsbx","dbxvsbx",70,-0.5,69.5,1000,-0.5,999.5);
-  _orbitvsbx = subrun.make<TH2F>("orbitvsbx","orbitvsbx",70,-0.5,69.5,3600,0,11223*_binsize*3600);
-  */
+  _orbitvsbx = subrun.make<TH2F>("orbitvsbx","orbitvsbx",70,-0.5,69.5,3600,0,11223*3600);
+  _orbitvsbx->SetBit(TH1::kCanRebin);
 
-  _rhm.beginRun(iRun);
-  if(*_orbitvsbx) {
-    (*_orbitvsbx)->SetBit(TH1::kCanRebin);
-  }
-  else {
-    edm::LogWarning("NullPointer") << "The orbitvsbx pointer is null !!";
-  }
 }
 
 void 

@@ -92,7 +92,7 @@ reco::Track* PixelFitterByConformalMappingAndLine::run(
     errRPhi2.push_back( point.perp2()*phiErr2);
   }
   ConformalMappingFit parabola(xy, errRPhi2);
-  if (theConfig.exists("fixImpactParameter") || nhits < 3) 
+  if (theConfig.exists("fixImpactParameter") || nhits < 3)
       parabola.fixImpactParmaeter(theConfig.getParameter<double>("fixImpactParameter"));
   else if (nhits < 3) {
       parabola.fixImpactParmaeter(0.);
@@ -116,7 +116,7 @@ reco::Track* PixelFitterByConformalMappingAndLine::run(
     const GlobalError & error = errors[i];
     r[i] = sqrt( sqr(point.x()-region.origin().x()) + sqr(point.y()-region.origin().y()) );
     r[i] += pixelrecoutilities::LongitudinalBendingCorrection(pt.value(),es)(r[i]);
-    z[i] = point.z()-region.origin().z();  
+    z[i] = point.z();  
     errZ[i] =  (isBarrel[i]) ? sqrt(error.czz()) : sqrt( error.rerr(point) )*simpleCot;
   }
 
@@ -137,7 +137,7 @@ reco::Track* PixelFitterByConformalMappingAndLine::run(
 
 
   PixelTrackBuilder builder;
-  return builder.build(pt, phi, cotTheta, tip, zip, chi2, charge, hits,  field.product(), region.origin());
+  return builder.build(pt, phi, cotTheta, tip, zip, chi2, charge, hits,  field.product());
 }
 
 

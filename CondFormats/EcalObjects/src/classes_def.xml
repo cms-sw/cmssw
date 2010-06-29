@@ -41,8 +41,6 @@
 
 <class name="EcalDCSTowerStatus"/>
 <class name="EcalDAQTowerStatus"/>
-<class name="std::map<uint32_t, uint32_t>"/>
-<class name="std::pair<const uint32_t, uint32_t>"/>
 
 
 <class name="EcalTPGCrystalStatus"/>

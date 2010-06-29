@@ -17,6 +17,9 @@
 #include "TClass.h"
 
 
+ClassImp(TAbsFitConstraint)
+
+
 TAbsFitConstraint::TAbsFitConstraint() 
   : TNamed("NoName","NoTitle")
   ,_covMatrix()

@@ -1,9 +1,8 @@
-
 // -*- C++ -*-
 //
 // Package:     Calo
 // Class  :     FWMuonDetailView
-// $Id: FWMuonDetailView.cc,v 1.23 2010/05/12 12:36:14 amraktad Exp $
+// $Id: FWMuonDetailView.cc,v 1.20 2009/11/27 22:10:40 dmytro Exp $
 //
 
 #include "TEveLegoEventHandler.h"
@@ -39,7 +38,6 @@ FWMuonDetailView::FWMuonDetailView():
 
 FWMuonDetailView::~FWMuonDetailView()
 {
-   m_eveViewer->GetGLViewer()->DeleteOverlayElements(TGLOverlayElement::kUser);
    if (m_data) m_data->DecDenyDestroy();
    delete m_builder;
 }
@@ -71,7 +69,6 @@ void FWMuonDetailView::build(const FWModelId &id, const reco::Muon* iMuon)
 
    TEveCaloLego* lego = m_builder->build();
    m_data = lego->GetData();
-   m_data->IncDenyDestroy();
    m_eveScene->AddElement(lego);
    addSceneInfo(iMuon, m_eveScene);
 

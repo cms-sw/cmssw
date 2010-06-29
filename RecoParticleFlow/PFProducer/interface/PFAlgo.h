@@ -72,7 +72,8 @@ class PFAlgo {
 				  std::vector<double> muonECAL,
 				  double nSigmaTRACK,
 				  double ptError,
-				  std::vector<double> factors45);   
+				  std::vector<double> factors45,
+				  bool usePFMuonMomAssign);   
 
   void setPFEleParameters(double mvaEleCut,
 			  std::string mvaWeightFileEleID,

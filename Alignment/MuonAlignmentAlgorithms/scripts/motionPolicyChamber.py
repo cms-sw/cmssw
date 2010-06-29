@@ -82,7 +82,11 @@ geom0 = MuonGeometry(file(theInXML0))
 geomN = MuonGeometry(file(theInXMLN))
 execfile(theInREPN)
 
+
 def loopover(muSystem):
+
+  movedChamberKeys = []
+  
   if muSystem == "DT":
     keys = geom0.dt.keys()
     keys.sort(dtorder)
@@ -96,15 +100,26 @@ def loopover(muSystem):
   nok_toideal, nok_deltafinal, nok_lowstat, nok_nsigma = 0,0,0,0
   
   for key in keys:
+    is_ch = True
     if muSystem == "DT":
-      if len(key) != 3: continue
+      if len(key) != 3: is_ch = False
+      ch_key = key[:3]
       g1 = geom0.dt[key]
       g2 = geomN.dt[key]
+      ch_g1 = geom0.dt[ch_key]
+      ch_g2 = geomN.dt[ch_key]
     else:
-      if len(key) != 4: continue
+      if len(key) != 4: is_ch = False
+      ch_key = key[:4]
       g1 = geom0.csc[key]
       g2 = geomN.csc[key]
-    nkeys+=1
+      ch_g1 = geom0.csc[ch_key]
+      ch_g2 = geomN.csc[ch_key]
+    if is_ch: nkeys+=1
+
+    chWasntMoved = True
+    if ch_key in movedChamberKeys:
+      chWasntMoved = False
     
     if g1.relativeto != g2.relativeto:
       print "%s %s relativeto=\"%s\" versus relativeto=\"%s\"" % (muSystem, str(key), g1.relativeto, g2.relativeto)
@@ -112,77 +127,86 @@ def loopover(muSystem):
     found = False
     #r = reports[0]
     for r in reports:
-      if r.postal_address[1:] == key:
+      if r.postal_address[1:] == ch_key:
         found = True
         rep = r
         break
     if not found:
-      print muSystem, str(key), "not found in the report. Continue..."
+      if is_ch: print muSystem, str(key), "not found in the report. Continue..."
       continue
-    nkeysr+=1
+    if is_ch: nkeysr+=1
 
     if rep.status != "PASS":
-      print muSystem, str(key), "status is not PASS: %s   Continue..." % rep.status
+      if is_ch: print muSystem, str(key), "status is not PASS: %s   Continue..." % rep.status
       continue
-    #print muSystem, str(key)
-    nkeyspass+=1
+    #print muSystem, str(key), str(ch_key)
+    if is_ch: nkeyspass+=1
     
     ############################################################
     # CHECKS
     
     ok = True
     
-    if muSystem == "DT":
-      st = key[1]
+    if muSystem == "DT" and chWasntMoved:
       
-      # check that movement respective to ideal geometry is in reasonable range of 20 mm or 20 mrad:
-      if abs(g2.x) > 2. or abs(g2.y) > 2. or abs(g2.phiy) > 0.02 or abs(g2.phiz) > 0.02:
+      # check that chamber's movement respective to ideal geometry is in reasonable range of 20 mm or 20 mrad:
+      if abs(ch_g2.x) > 2. or abs(ch_g2.y) > 2. or abs(ch_g2.phiy) > 0.02 or abs(ch_g2.phiz) > 0.02:
         ok = False
-        nfail_toideal += 1
-        print "Warning!!!", muSystem, str(key), \
-          "moved too much with respect to ideal: dx=%.2f mm  dy=%.2f mm  dphiy=%.2f mrad  dphiz=%.2f mrad  skipping..." % (g2.x*10, g2.y*10, g2.phiy*1000, g2.phiz*1000)
-      if ok: nok_toideal +=1
+        if is_ch:
+          nfail_toideal += 1
+          print "Warning!!!", muSystem, str(key), \
+            "moved too much with respect to ideal: dx=%.2f mm  dy=%.2f mm  dphiy=%.2f mrad  dphiz=%.2f mrad  skipping..." % (ch_g2.x*10, ch_g2.y*10, ch_g2.phiy*1000, ch_g2.phiz*1000)
+      if is_ch and ok: nok_toideal +=1
       
       # check that movements during the final iteration were negligible
-      if st != 4 :
+      # separately for station 4
+      if key[1] != 4 :
         if abs(rep.deltax.value) > 0.03 or abs(rep.deltay.value) > 0.03 or abs(rep.deltaphiy.value) > 0.0003 or abs(rep.deltaphiz.value) > 0.0006:
           ok = False
-          nfail_deltafinal += 1
-          print "Warning!!!", muSystem, str(key), \
-            "moved too much at final iteration: dx=%.2f mm  dy=%.2f mm  dphiy=%.2f mrad  dphiz=%.2f mrad   skipping..." % \
-              (rep.deltax.value*10, rep.deltay.value*10, rep.deltaphiy.value*1000, rep.deltaphiz.value*1000)
+          if is_ch:
+            nfail_deltafinal += 1
+            print "Warning!!!", muSystem, str(key), \
+              "moved too much at final iteration: dx=%.2f mm  dy=%.2f mm  dphiy=%.2f mrad  dphiz=%.2f mrad   skipping..." % \
+                (rep.deltax.value*10, rep.deltay.value*10, rep.deltaphiy.value*1000, rep.deltaphiz.value*1000)
       else:
         if abs(rep.deltax.value) > 0.03 or abs(rep.deltaphiy.value) > 0.0003 or abs(rep.deltaphiz.value) > 0.0006:
           ok = False
-          nfail_deltafinal += 1
-          print "Warning!!!", muSystem, str(key), \
-            "moved too much at final iteration: dx=%.2f mm  dphiy=%.2f mrad  dphiz=%.2f mrad   skipping..." % \
-              (rep.deltax.value*10, rep.deltaphiy.value*1000, rep.deltaphiz.value*1000)
-      if ok: nok_deltafinal +=1
+          if is_ch:
+            nfail_deltafinal += 1
+            print "Warning!!!", muSystem, str(key), \
+              "moved too much at final iteration: dx=%.2f mm  dphiy=%.2f mrad  dphiz=%.2f mrad   skipping..." % \
+                (rep.deltax.value*10, rep.deltaphiy.value*1000, rep.deltaphiz.value*1000)
+      if is_ch and ok: nok_deltafinal +=1
 
       # low statictics check:
       if rep.deltax.error > 0.5:
         ok = False
-        nfail_lowstat +=1
-        print "Warning!!!", muSystem, str(key), "low statistics chamber with too big dx.error = %.2f mm   skipping..." % (rep.deltax.error*10.)
-      if ok: nok_lowstat +=1
+        if is_ch:
+          nfail_lowstat +=1
+          print "Warning!!!", muSystem, str(key), "low statistics chamber with too big dx.error = %.2f mm   skipping..." % (rep.deltax.error*10.)
+      if is_ch and ok: nok_lowstat +=1
     
       # N-SIGMA MOTION POLICY CHECK
       #print "%s %s position difference: %g - %g = %g --> %g, nsigma: %g)" % (
       #        muSystem, str(key), g1.x, g2.x, g1.x - g2.x, abs(g1.x - g2.x)/rep.deltax.error, theNSigma * rep.deltax.error)
-      if abs(g1.x - g2.x) < theNSigma * math.sqrt ( rep.deltax.error*rep.deltax.error + 0.02*0.02 ) :
+      if abs(ch_g1.x - ch_g2.x) < theNSigma * math.sqrt ( rep.deltax.error*rep.deltax.error + 0.02*0.02 ) :
         ok = False
-        nfail_nsigma += 1
-        print muSystem, str(key), "not moved: xN-x0 = %.3f - %.3f = %.3f < %.3f mm" % \
-          ( g2.x*10., g1.x*10., (g2.x-g1.x)*10., theNSigma * math.sqrt ( rep.deltax.error*rep.deltax.error + 0.02*0.02 )*10.)
+        if is_ch:
+          nfail_nsigma += 1
+          print muSystem, str(key), "not moved: xN-x0 = %.3f - %.3f = %.3f < %.3f mm" % \
+            ( ch_g2.x*10., ch_g1.x*10., (ch_g2.x-ch_g1.x)*10., theNSigma * math.sqrt ( rep.deltax.error*rep.deltax.error + 0.02*0.02 )*10.)
+
+      if ok: chWasntMoved = False
     
-    if not ok: continue
+    if not ok or chWasntMoved: continue
     
     ############################################################
     # MOTION
-    print muSystem, str(key), "moved!"
-    nmoved+=1
-    #move this chamber:
+    if is_ch:
+      movedChamberKeys.append(ch_key)
+      print muSystem, str(key), "moved!"
+      nmoved+=1
+    #move this chamber/superlayer/layer:
     if muSystem == "DT":
       geom0.dt[key] = copy.copy(geomN.dt[key])
     else:

@@ -8,7 +8,6 @@ int EcalSeverityLevelAlgo::severityLevel( const DetId id,
                 float recHitEtThreshold,
                 SpikeId spId,
 		float spIdThreshold,
-        	bool useTiming,
 		float recHitEnergyThreshold
                 )
 {
@@ -32,8 +31,10 @@ int EcalSeverityLevelAlgo::severityLevel( const DetId id,
         } else {
                 // the channel is in the recHit collection
                 // .. is it a spike?
+                // check the topology
                 if ( id.subdetId() == EcalBarrel && (spikeFromNeighbours(id, recHits, recHitEtThreshold, spId) > spIdThreshold)  ) return kWeird;
-		if ( useTiming && id.subdetId() == EcalBarrel && spikeFromTiming(*it, recHitEnergyThreshold) ) return kWeird;
+                // check the timing (currently only a trivial check)
+		if ( id.subdetId() == EcalBarrel && spikeFromTiming(*it, recHitEnergyThreshold) ) return kTime;
                 // for now no filtering on VPT discharges in the endcap		
 
                 // .. not a spike, return the normal severity level

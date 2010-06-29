@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/07/12 01:04:08 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/06/27 02:56:35 $
+ *  $Revision: 1.9 $
  *  \author A. Tumanov - Rice
  */
 
@@ -26,13 +26,12 @@ using namespace edm;
 using namespace std;
 
 CSCDigiToRawModule::CSCDigiToRawModule(const edm::ParameterSet & pset): 
-  packer(new CSCDigiToRaw(pset)),
+  packer(new CSCDigiToRaw),
   theStripDigiTag(pset.getParameter<edm::InputTag>("stripDigiTag")),
   theWireDigiTag(pset.getParameter<edm::InputTag>("wireDigiTag")),
   theComparatorDigiTag(pset.getParameter<edm::InputTag>("comparatorDigiTag")),
   theALCTDigiTag(pset.getParameter<edm::InputTag>("alctDigiTag")),
   theCLCTDigiTag(pset.getParameter<edm::InputTag>("clctDigiTag")),
-  thePreTriggerTag(pset.getParameter<edm::InputTag>("preTriggerTag")),
   theCorrelatedLCTDigiTag(pset.getParameter<edm::InputTag>("correlatedLCTDigiTag"))
 {
   //theStrip = pset.getUntrackedParameter<string>("DigiCreator", "cscunpacker");
@@ -64,8 +63,6 @@ void CSCDigiToRawModule::produce(Event & e, const EventSetup& c){
   e.getByLabel(theALCTDigiTag, alctDigis);
   Handle<CSCCLCTDigiCollection> clctDigis;
   e.getByLabel(theCLCTDigiTag, clctDigis);
-  Handle<CSCCLCTPreTriggerCollection> preTriggers;
-  e.getByLabel(thePreTriggerTag, preTriggers);
   Handle<CSCCorrelatedLCTDigiCollection> correlatedLCTDigis;
   e.getByLabel(theCorrelatedLCTDigiTag, correlatedLCTDigis);
 
@@ -73,7 +70,7 @@ void CSCDigiToRawModule::produce(Event & e, const EventSetup& c){
 
   // Create the packed data
   packer->createFedBuffers(*stripDigis, *wireDigis, *comparatorDigis, 
-                           *alctDigis, *clctDigis, *preTriggers, *correlatedLCTDigis,
+                           *alctDigis, *clctDigis, *correlatedLCTDigis,
                            *(fed_buffers.get()), theMapping, e);
   
   // put the raw data to the event

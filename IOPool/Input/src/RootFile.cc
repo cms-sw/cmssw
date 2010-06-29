@@ -700,10 +700,12 @@ namespace edm {
       if(eventProcessHistoryIDs_.empty()) {
 	history_->setProcessHistoryID(eventAux().processHistoryID());
       } else {
-        if(eventProcessHistoryIter_->eventID() != eventAux().id()) {
-          EventProcessHistoryID target(eventAux().id(), ProcessHistoryID());
+	// Lumi block number was not in EventID for the relevant releases.
+        EventID id(eventAux().id().run(), 0, eventAux().id().event());        
+        if(eventProcessHistoryIter_->eventID() != id) {
+          EventProcessHistoryID target(id, ProcessHistoryID());
           eventProcessHistoryIter_ = lower_bound_all(eventProcessHistoryIDs_, target);	
-          assert(eventProcessHistoryIter_->eventID() == eventAux().id());
+          assert(eventProcessHistoryIter_->eventID() == id);
         }
 	history_->setProcessHistoryID(eventProcessHistoryIter_->processHistoryID());
         ++eventProcessHistoryIter_;

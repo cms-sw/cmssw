@@ -38,13 +38,11 @@
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManagerRcd.h"
 
-// @@@ remove headers
-//#include "CondFormats/DTObjects/interface/DTConfigList.h"
-////#include "CondTools/DT/interface/DTConfigHandler.h"
-////#include "CondTools/DT/interface/DTDBSession.h"
-//#include "CondFormats/DTObjects/interface/DTConfig1Handler.h"
-//#include "CondFormats/DTObjects/interface/DTDB1Session.h" 
-
+#include "CondFormats/DTObjects/interface/DTConfigList.h"
+//#include "CondTools/DT/interface/DTConfigHandler.h"
+//#include "CondTools/DT/interface/DTDBSession.h"
+#include "CondFormats/DTObjects/interface/DTConfig1Handler.h"
+#include "CondFormats/DTObjects/interface/DTDB1Session.h" 
 //
 // class declaration
 //
@@ -82,20 +80,18 @@ private:
   bool m_TracoLutsFromDB;
   bool m_UseBtiAcceptParam;
 
-// @@@ remove
-//  std::string contact;
-//  std::string auth_path;
-//  std::string catalog;
-//  std::string token;
-//  bool local;
+  std::string contact;
+  std::string auth_path;
+  std::string catalog;
+  std::string token;
+  bool local;
   bool cfgConfig;
-
-// @@@ remove
-//  DTDB1Session* session;
-//  const DTConfigList* rs;
-//  DTConfig1Handler* ri;
   
-  bool flagDBBti, flagDBTraco, flagDBTSS, flagDBTSM, flagDBLUTS;  
+  DTDB1Session* session;
+  const DTConfigList* rs;
+  DTConfig1Handler* ri;
+  
+  bool flagDBBti, flagDBTraco, flagDBTSS, flagDBTSM;  
 };
 
 #endif

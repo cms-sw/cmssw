@@ -22,7 +22,7 @@ private:
   edm::InputTag tracksTag;
   edm::InputTag tpTag;
   bool ignoreMissingTrackCollection;
-  edm::ParameterSet parset_;
+  const edm::ParameterSet parset_;
   MuonAssociatorByHits * associatorByHits;
 };
 

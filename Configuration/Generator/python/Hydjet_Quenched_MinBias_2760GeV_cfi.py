@@ -8,8 +8,17 @@ generator = cms.EDFilter("HydjetGeneratorFilter",
                          hydjetParameters,
                          hydjetMode = cms.string('kHydroQJets'),
                          PythiaParameters = cms.PSet(pyquenPythiaDefaultBlock,
-                                                     # Quarkonia and Weak Bosons removed upon dilepton group's request.
-                                                     parameterSets = cms.vstring('pythiaUESettings','ppDefault','pythiaPromptPhotons'),
+                                                     # Quarkonia and Weak Bosons added back upon dilepton group's request.
+                                                     parameterSets = cms.vstring('pythiaUESettings',
+                                                                                 'hydjetPythiaDefault',
+                                                                                 'pythiaJets',
+                                                                                 'pythiaPromptPhotons',
+                                                                                 'pythiaZjets',
+                                                                                 'pythiaBottomoniumNRQCD',
+                                                                                 'pythiaCharmoniumNRQCD',
+                                                                                 'pythiaQuarkoniaSettings',
+                                                                                 'pythiaWeakBosons'
+                                                                                 )
                                                      ),
                          cFlag = cms.int32(1),
                          bMin = cms.double(0),

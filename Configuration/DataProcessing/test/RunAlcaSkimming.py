@@ -32,7 +32,11 @@ class RunAlcaSkimming:
         if len(self.skims) == 0:
             msg = "No --skims provided, need at least one"
             raise RuntimeError, msg
-        
+
+        if self.globalTag == None:
+            msg = "No --global-tag specified"
+            raise RuntimeError, msg
+
         try:
             scenario = getScenario(self.scenario)
         except Exception, ex:
@@ -47,7 +51,7 @@ class RunAlcaSkimming:
             print " => %s" % skim
             
         try:
-            process = scenario.alcaSkim(self.skims)
+            process = scenario.alcaSkim(self.skims, globaltag = self.globalTag)
         except NotImplementedError, ex:
             print "This scenario does not support Alca Skimming:\n"
             return
@@ -71,7 +75,7 @@ class RunAlcaSkimming:
 
 
 if __name__ == '__main__':
-    valid = ["scenario=", "skims=", "lfn="]
+    valid = ["scenario=", "skims=", "lfn=","global-tag="]
 
     usage = \
 """
@@ -81,7 +85,7 @@ Where options are:
  --scenario=ScenarioName
  --lfn=/store/input/lfn
  --skims=comma,separated,list
-
+ --global-tag=GlobalTag
 
 Example:
 python2.4 RunAlcaSkimming.py --scenario=Cosmics --lfn=/store/whatever --skims=MuAlStandAloneCosmics
@@ -104,5 +108,7 @@ python2.4 RunAlcaSkimming.py --scenario=Cosmics --lfn=/store/whatever --skims=Mu
             skimmer.inputLFN = arg
         if opt == "--skims":
             skimmer.skims = [ x for x in arg.split(',') if len(x) > 0 ]
+        if opt == "--global-tag":
+            skimmer.globalTag = arg
 
     skimmer()

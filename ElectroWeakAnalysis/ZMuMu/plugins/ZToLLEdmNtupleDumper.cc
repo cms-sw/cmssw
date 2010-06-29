@@ -169,11 +169,6 @@ ZToLLEdmNtupleDumper::ZToLLEdmNtupleDumper( const ParameterSet & cfg ) {
     produces<vector<float> >( alias = zName + "Dau2EcalIso" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Dau1HcalIso" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Dau2HcalIso" ).setBranchAlias( alias );
-    produces<vector<float> >( alias = zName + "Dau1MuEnergyEm" ).setBranchAlias( alias );
-    produces<vector<float> >( alias = zName + "Dau1MuEnergyHad" ).setBranchAlias( alias );
-    produces<vector<float> >( alias = zName + "Dau2MuEnergyEm" ).setBranchAlias( alias );
-    produces<vector<float> >( alias = zName + "Dau2MuEnergyHad" ).setBranchAlias( alias );
-
     produces<vector<float> >( alias = zName + "VtxNormChi2" ).setBranchAlias( alias );
     produces<vector<unsigned int> >( alias = zName + "Dau1NofHit" ).setBranchAlias( alias );
     produces<vector<unsigned int> >( alias = zName + "Dau2NofHit" ).setBranchAlias( alias );
@@ -261,10 +256,6 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
     auto_ptr<vector<float> > zDau2EcalIso( new vector<float> );
     auto_ptr<vector<float> > zDau1HcalIso( new vector<float> );
     auto_ptr<vector<float> > zDau2HcalIso( new vector<float> );
-    auto_ptr<vector<float> > zDau1MuEnergyEm( new vector<float> );
-    auto_ptr<vector<float> > zDau2MuEnergyEm( new vector<float> );
-    auto_ptr<vector<float> > zDau1MuEnergyHad( new vector<float> );
-    auto_ptr<vector<float> > zDau2MuEnergyHad( new vector<float> );
     auto_ptr<vector<float> > vtxNormChi2( new vector<float> );
     auto_ptr<vector<unsigned int> > zDau1NofHit( new vector<unsigned int> );
     auto_ptr<vector<unsigned int> > zDau2NofHit( new vector<unsigned int> );
@@ -363,7 +354,7 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
       }      
       // quality variables 
       const pat::Muon * mu1 = dynamic_cast<const pat::Muon*>(m1);
-        // protection for standalone and trackerMuon
+        // protection for standalone 
       if (mu1->isGlobalMuon() == true){
 	zDau1NofHit->push_back(mu1->numberOfValidHits());
 	zDau1NofHitTk->push_back(mu1->innerTrack()->numberOfValidHits());
@@ -375,10 +366,8 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
 	zDau1dzFromBS->push_back(mu1TrkRef->dz(beamSpotHandle->position()));
 	zDau1dxyFromPV->push_back(mu1TrkRef->dxy(primaryVertices->begin()->position() ));
 	zDau1dzFromPV->push_back(mu1TrkRef->dz(primaryVertices->begin()->position() ));     
-	zDau1MuEnergyEm->push_back( mu1->calEnergy().em);
-	zDau1MuEnergyHad->push_back( mu1->calEnergy().had);
 
-      } else  if (mu1->isStandAloneMuon() == true) {
+      } else {
         // the muon is a standalone
 	TrackRef mu1StaRef = mu1->outerTrack(); 
   	zDau1NofHit->push_back(mu1StaRef->numberOfValidHits());
@@ -390,36 +379,19 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
 	zDau1dzFromBS->push_back(mu1StaRef->dz(beamSpotHandle->position()));
 	zDau1dxyFromPV->push_back(mu1StaRef->dxy(primaryVertices->begin()->position() ));
 	zDau1dzFromPV->push_back(mu1StaRef->dz(primaryVertices->begin()->position() ));     
-	zDau1MuEnergyEm->push_back( -1);
-	zDau1MuEnergyHad->push_back( -1);
-      } else  if (mu1->isTrackerMuon() == true) {
-        // the muon is a trackerMuon
-	TrackRef mu1TrkRef = mu1->innerTrack(); 
-	zDau1NofHit->push_back(mu1TrkRef->numberOfValidHits());
-	zDau1NofHitTk->push_back(mu1TrkRef->numberOfValidHits());
-	zDau1NofHitSta->push_back(0);
-	zDau1Chi2->push_back(mu1TrkRef->normalizedChi2()); 
-	zDau1TrkChi2->push_back(mu1TrkRef->normalizedChi2());
-	zDau1dxyFromBS->push_back(mu1TrkRef->dxy(beamSpotHandle->position()));
-	zDau1dzFromBS->push_back(mu1TrkRef->dz(beamSpotHandle->position()));
-	zDau1dxyFromPV->push_back(mu1TrkRef->dxy(primaryVertices->begin()->position() ));
-	zDau1dzFromPV->push_back(mu1TrkRef->dz(primaryVertices->begin()->position() ));     
-	zDau1MuEnergyEm->push_back( mu1->calEnergy().em);
-	zDau1MuEnergyHad->push_back( mu1->calEnergy().had);
+
       }
       zDau1NofMuChambers->push_back(mu1->numberOfChambers());
       zDau1NofMuMatches->push_back(mu1->numberOfMatches());
-
       // would we like to add another variables??? 
       // HLT trigger  bit
       const pat::TriggerObjectStandAloneCollection mu1HLTMatches =  mu1->triggerObjectMatchesByPath( hltPath_[c] );
-
-      int dimTrig1 = mu1HLTMatches.size();
-      if(dimTrig1 !=0 ){
-	zDau1HLTBit->push_back(1);
-      } else {
-	zDau1HLTBit->push_back(0); 
-      }
+	int dimTrig1 = mu1HLTMatches.size();
+	if(dimTrig1 !=0 ){
+	  zDau1HLTBit->push_back(1);
+	} else {
+	  zDau1HLTBit->push_back(0); 
+	}
       const pat::Muon * mu2 = dynamic_cast<const pat::Muon*>(m2);
       if (mu2!=0 ) {
 	if (mu2->isGlobalMuon() == true) {
@@ -433,40 +405,7 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
 	  zDau2dzFromBS->push_back(mu2TrkRef->dz(beamSpotHandle->position()));
 	  zDau2dxyFromPV->push_back(mu2TrkRef->dxy(primaryVertices->begin()->position() ));
 	  zDau2dzFromPV->push_back(mu2TrkRef->dz(primaryVertices->begin()->position() ));  
-	  zDau2MuEnergyEm->push_back( mu2->calEnergy().em);
-	  zDau2MuEnergyHad->push_back( mu2->calEnergy().had); 
-	} else if (mu2->isStandAloneMuon() == true){
-	  // its' a standalone
-	  zDau2HLTBit->push_back(0);
-	  TrackRef mu2StaRef = mu2->outerTrack(); 
-	  zDau2NofHit->push_back(mu2StaRef->numberOfValidHits());
-	  zDau2NofHitTk->push_back(0);
-	  zDau2NofHitSta->push_back(mu2StaRef->numberOfValidHits());
-	  zDau2Chi2->push_back(mu2StaRef->normalizedChi2()); 
-	  zDau2TrkChi2->push_back(0);
-	  zDau2dxyFromBS->push_back(mu2StaRef->dxy(beamSpotHandle->position()));
-	  zDau2dzFromBS->push_back(mu2StaRef->dz(beamSpotHandle->position()));
-	  zDau2dxyFromPV->push_back(mu2StaRef->dxy(primaryVertices->begin()->position() ));
-	  zDau2dzFromPV->push_back(mu2StaRef->dz(primaryVertices->begin()->position() ));     
-	  zDau1MuEnergyEm->push_back( -1);
-	  zDau1MuEnergyHad->push_back(  -1);
-	} else  if (mu2->isTrackerMuon() == true) {
-	  // the muon is a trackerMuon
-	  TrackRef mu2TrkRef = mu2->innerTrack();
-	  zDau2NofHit->push_back(mu2TrkRef->numberOfValidHits());
-	  zDau2NofHitSta->push_back(0);
-	  zDau2NofHitTk->push_back(mu2TrkRef->numberOfValidHits());
-	  zDau2Chi2->push_back(mu2TrkRef->normalizedChi2()); 
-	  zDau2TrkChi2->push_back(mu2TrkRef->normalizedChi2());
-	  zDau2dxyFromBS->push_back(mu2TrkRef->dxy(beamSpotHandle->position()));
-	  zDau2dzFromBS->push_back(mu2TrkRef->dz(beamSpotHandle->position()));
-	  zDau2dxyFromPV->push_back(mu2TrkRef->dxy(primaryVertices->begin()->position() ));
-	  zDau2dzFromPV->push_back(mu2TrkRef->dz(primaryVertices->begin()->position() ));     
-	  zDau2MuEnergyEm->push_back( mu2->calEnergy().em);
-	  zDau2MuEnergyHad->push_back( mu2->calEnergy().had);
-	}
-
-	// HLT trigger  bit
+	  // HLT trigger  bit
 	  const pat::TriggerObjectStandAloneCollection mu2HLTMatches = mu2->triggerObjectMatchesByPath( hltPath_[c] );
 	  int dimTrig2 = mu2HLTMatches.size();
 	  if(dimTrig2 !=0 ){
@@ -476,8 +415,7 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
 	    zDau2HLTBit->push_back(0);
 	  }
 	  /// only for ZGolden evaluated zMassSa for the mu+sta pdf, see zmumuSaMassHistogram.cc
-	  if ( mu1->isGlobalMuon() && mu2->isGlobalMuon() ) {
-          TrackRef stAloneTrack1;
+	  TrackRef stAloneTrack1;
 	  TrackRef stAloneTrack2;
           Vector momentum;
 	  Candidate::PolarLorentzVector p4_1;
@@ -493,7 +431,7 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
 	    p4_1 = dau2->polarP4();
 	    mu_mass = dau1->mass();
 	    /// I fill the dau1 with positive and dau2 with negatove values for the pt, in order to flag the muons used for building zMassSa
-	    zDau1SaPt->push_back(stAloneTrack1 ->pt());
+	    zDau1SaPt->push_back(stAloneTrack1->pt());
 	    zDau2SaPt->push_back(- stAloneTrack2->pt());
 	  }else{
 	    momentum = stAloneTrack2->momentum();
@@ -508,13 +446,26 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
 	  double mass = (p4_1+p4_2).mass();
 	  zMassSa->push_back(mass);  	
 	  ++counter;
-	  }
+	  
 
-
-	  zDau2NofMuChambers->push_back(mu2->numberOfChambers());
-	  zDau2NofMuMatches->push_back(mu2->numberOfMatches());
-      } else{
-	// for ZMuTk case...
+	} else {
+	  // its' a standalone
+	zDau2HLTBit->push_back(0);
+	TrackRef mu2StaRef = mu2->outerTrack(); 
+  	zDau2NofHit->push_back(mu2StaRef->numberOfValidHits());
+	zDau2NofHitTk->push_back(0);
+	zDau2NofHitSta->push_back(mu2StaRef->numberOfValidHits());
+	zDau2Chi2->push_back(mu2StaRef->normalizedChi2()); 
+	zDau2TrkChi2->push_back(0);
+	zDau2dxyFromBS->push_back(mu2StaRef->dxy(beamSpotHandle->position()));
+	zDau2dzFromBS->push_back(mu2StaRef->dz(beamSpotHandle->position()));
+	zDau2dxyFromPV->push_back(mu2StaRef->dxy(primaryVertices->begin()->position() ));
+	zDau2dzFromPV->push_back(mu2StaRef->dz(primaryVertices->begin()->position() ));     
+      }
+      zDau2NofMuChambers->push_back(mu2->numberOfChambers());
+      zDau2NofMuMatches->push_back(mu2->numberOfMatches());
+    } else{
+      // for ZMuTk case...
 	// it's a track......
       const pat::GenericParticle * trk2 = dynamic_cast<const pat::GenericParticle*>(m2);
       TrackRef mu2TrkRef = trk2->track(); 
@@ -528,8 +479,6 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
       zDau2dzFromBS->push_back(mu2TrkRef->dz(beamSpotHandle->position()));
       zDau2dxyFromPV->push_back(mu2TrkRef->dxy(primaryVertices->begin()->position() ));
       zDau2dzFromPV->push_back(mu2TrkRef->dz(primaryVertices->begin()->position() ));	
-	zDau1MuEnergyEm->push_back( -1);
-	zDau1MuEnergyHad->push_back( -1);
     }
   }
   const string & zName = zName_[c];
@@ -566,10 +515,6 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
   evt.put( zDau2EcalIso, zName + "Dau2EcalIso" );
   evt.put( zDau1HcalIso, zName + "Dau1HcalIso" );
   evt.put( zDau2HcalIso, zName + "Dau2HcalIso" );
-  evt.put( zDau1MuEnergyEm, zName + "Dau1MuEnergyEm" );
-  evt.put( zDau2MuEnergyEm, zName + "Dau2MuEnergyEm" );
-  evt.put( zDau1MuEnergyHad, zName + "Dau1MuEnergyHad" );
-  evt.put( zDau2MuEnergyHad, zName + "Dau2MuEnergyHad" );
   evt.put( vtxNormChi2, zName + "VtxNormChi2" );
   evt.put( zDau1NofHit, zName + "Dau1NofHit" );
   evt.put( zDau2NofHit, zName + "Dau2NofHit" );

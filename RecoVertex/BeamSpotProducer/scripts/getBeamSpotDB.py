@@ -19,10 +19,9 @@
    usage: %prog -t <tag name> -r <run number = 1>
    -a, --auth     = AUTH: Authorization path: \"/afs/cern.ch/cms/DB/conddb\"(default), \"/nfshome0/popcondev/conddb\"
    -d, --destDB   = DESTDB: Destination string for DB connection: \"frontier://PromptProd/CMS_COND_31X_BEAMSPOT\"(default), \"oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT\", \"sqlite_file:mysqlitefile.db\"
-   -g, --globaltag= GLOBALTAG: Name of Global tag. If this is provided, no need to provide beam spot tags.
    -l, --lumi     = LUMI: Lumi section.
    -r, --run      = RUN: Run number.
-   -t, --tag      = TAG: Name of Beam Spot DB tag.
+   -t, --tag      = TAG: Name of DB tag.
    
    Francisco Yumiceva (yumiceva@fnal.gov)
    Fermilab 2010
@@ -108,22 +107,12 @@ if __name__ == '__main__':
     if not args and not option: exit()
     
     tagname = ''
-    globaltag = ''
-    
-    if ((option.tag and option.globaltag)) == False: 
-	print " NEED to provide beam spot DB tag name, or global tag"
+    if not option.tag and not option.data: 
+	print " need to provide DB tag name or beam spot data file"
 	exit()
-    elif option.tag:
+    else:
 	tagname = option.tag
-    elif option.globaltag:
-        globaltag = option.globaltag
-        cmd = 'cmscond_tagtree_list -c frontier://cmsfrontier.cern.ch:8000/Frontier/CMS_COND_31X_GLOBALTAG -P /afs/cern.ch/cms/DB/conddb -T '+globaltag+' | grep BeamSpot'
-        outcmd = commands.getstatusoutput( cmd )
-        atag = outcmd[1].split()
-        atag = atag[2]
-        tagname = atag.replace("tag:","")
-        print " Global tag: "+globaltag+" includes the beam spot tag: "+tagname
-    
+
     iov_since = ''
     iov_till = ''
     destDB = 'frontier://PromptProd/CMS_COND_31X_BEAMSPOT'

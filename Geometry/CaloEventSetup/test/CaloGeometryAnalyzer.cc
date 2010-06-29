@@ -24,6 +24,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
+
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -111,6 +114,12 @@ class CaloGeometryAnalyzer : public edm::EDAnalyzer
       edm::Service<TFileService> h_fs;
 
 
+      TProfile* h_dPhi[7] ;
+      TProfile* h_dPhiR[7] ;
+
+      TProfile* h_dEta[7] ;
+      TProfile* h_dEtaR[7] ;
+
       TProfile* h_eta ;
       TProfile* h_phi;
 
@@ -136,6 +145,48 @@ CaloGeometryAnalyzer::CaloGeometryAnalyzer( const edm::ParameterSet& iConfig )
    //now do what ever initialization is needed
   pass_=0;
   //  fullEcalDump_=iConfig.getUntrackedParameter<bool>("fullEcalDump",false);
+  h_dPhi[0] = h_fs->make<TProfile>("dPhi:EB:index", "EB: dPhi vs index", 61200, -0.5, 61199.5, " " ) ;
+  h_dPhiR[0]= h_fs->make<TProfile>("dPhi:EB:R", "EB: dPhi vs R", 100, 125, 135, " " ) ;
+
+  h_dEta[0] = h_fs->make<TProfile>("dEta:EB:index", "EB: dEta vs index", 61200, -0.5, 61199.5, " " ) ;
+  h_dEtaR[0]= h_fs->make<TProfile>("dEta:EB:R", "EB: dEta vs R", 100, 125, 135, " " ) ;
+
+  h_dPhi[1] = h_fs->make<TProfile>("dPhi:EE:index", "EE: dPhi vs index", 14648, -0.5, 14647.5, " " ) ;
+  h_dPhiR[1]= h_fs->make<TProfile>("dPhi:EE:R", "EE: dPhi vs R", 130, 30, 160, " " ) ;
+
+  h_dEta[1] = h_fs->make<TProfile>("dEta:EE:index", "EE: dEta vs index", 14648, -0.5, 14647.5, " " ) ;
+  h_dEtaR[1]= h_fs->make<TProfile>("dEta:EE:R", "EE: dEta vs R", 130, 30, 160, " " ) ;
+
+  h_dPhi[2] = h_fs->make<TProfile>("dPhi:ES:index", "ES: dPhi vs index", 137216, -0.5, 137215.5, " " ) ;
+  h_dPhiR[2]= h_fs->make<TProfile>("dPhi:ES:R", "ES: dPhi vs R", 90, 40, 130, " " ) ;
+
+  h_dEta[2] = h_fs->make<TProfile>("dEta:ES:index", "ES: dEta vs index", 137216, -0.5, 137215.5, " " ) ;
+  h_dEtaR[2]= h_fs->make<TProfile>("dEta:ES:R", "ES: dEta vs R", 90, 40, 130, " " ) ;
+
+  h_dPhi[3] = h_fs->make<TProfile>("dPhi:HC:index", "HC: dPhi vs index", 9072, -0.5, 9071.5, " " ) ;
+  h_dPhiR[3]= h_fs->make<TProfile>("dPhi:HC:R", "HC: dPhi vs R", 400, 0, 400, " " ) ;
+
+  h_dEta[3] = h_fs->make<TProfile>("dEta:HC:index", "HC: dEta vs index", 9072, -0.5, 9071.5, " " ) ;
+  h_dEtaR[3]= h_fs->make<TProfile>("dEta:HC:R", "HC: dEta vs R", 400, 0, 400, " " ) ;
+
+  h_dPhi[4] = h_fs->make<TProfile>("dPhi:ZD:index", "ZD: dPhi vs index", 22, -0.5, 21.5, " " ) ;
+  h_dPhiR[4]= h_fs->make<TProfile>("dPhi:ZD:R", "ZD: dPhi vs R", 100, 0, 10, " " ) ;
+
+  h_dEta[4] = h_fs->make<TProfile>("dEta:ZD:index", "ZD: dEta vs index", 22, -0.5, 21.5, " " ) ;
+  h_dEtaR[4]= h_fs->make<TProfile>("dEta:ZD:R", "ZD: dEta vs R", 100, 0, 10, " " ) ;
+
+  h_dPhi[5] = h_fs->make<TProfile>("dPhi:CA:index", "CA: dPhi vs index", 224, -0.5, 223.5, " " ) ;
+  h_dPhiR[5]= h_fs->make<TProfile>("dPhi:CA:R", "CA: dPhi vs R", 100, 0, 20, " " ) ;
+
+  h_dEta[5] = h_fs->make<TProfile>("dEta:CA:index", "CA: dEta vs index", 224, -0.5, 223.5, " " ) ;
+  h_dEtaR[5]= h_fs->make<TProfile>("dEta:CA:R", "CA: dEta vs R", 100, 0, 20, " " ) ;
+
+  h_dPhi[6] = h_fs->make<TProfile>("dPhi:CT:index", "CT: dPhi vs index", 4320, -0.5, 4319.5, " " ) ;
+  h_dPhiR[6]= h_fs->make<TProfile>("dPhi:CT:R", "CT: dPhi vs R", 150, 0, 150, " " ) ;
+
+  h_dEta[6] = h_fs->make<TProfile>("dEta:CT:index", "CT: dEta vs index", 4320, -0.5, 4319.5, " " ) ;
+  h_dEtaR[6]= h_fs->make<TProfile>("dEta:CT:R", "CT: dEta vs R", 150, 0, 150, " " ) ;
+
   h_eta = h_fs->make<TProfile>("iEta", "Eta vs iEta", 86*2*4, -86, 86, " " ) ;
   h_phi = h_fs->make<TProfile>("iPhi", "Phi vs iPhi", 360*4, 1, 361, " " ) ;
 
@@ -645,6 +696,35 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
       assert( !cell->inside( pointFr ) ) ;
 
 
+      const double deltaPhi ( geom->deltaPhi( id ) ) ;
+      
+      const double deltaEta ( geom->deltaEta( id ) ) ;
+
+      const unsigned int detIndex ( DetId::Ecal == det  && EcalBarrel == subdetn ? 0 :
+				    ( DetId::Ecal == det  && EcalEndcap == subdetn ? 1 :
+				      ( DetId::Ecal == det  && EcalPreshower == subdetn ? 2 :
+					( DetId::Hcal == det                          ? 3 :
+					  ( DetId::Calo == det && HcalZDCDetId::SubdetectorId == subdetn ? 4 :
+					    ( DetId::Calo == det && HcalCastorDetId::SubdetectorId == subdetn ?
+					      5 : 6 )
+					     )
+					   )
+					 )
+				       )
+	 ) ;
+
+      const CaloGenericDetId cgid ( id ) ;
+
+      const GlobalPoint ggp ( cell->getPosition() ) ;
+						
+      h_dPhi [detIndex]->Fill( cgid.denseIndex(), deltaPhi ) ;
+      h_dPhiR[detIndex]->Fill( ggp.perp(), deltaPhi ) ;
+
+      h_dEta [detIndex]->Fill( cgid.denseIndex(), deltaEta ) ;
+      h_dEtaR[detIndex]->Fill( ggp.perp(), deltaEta ) ;
+
+
+
       if( det == DetId::Ecal )
       {
 	 if (subdetn == EcalBarrel )
@@ -687,6 +767,8 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 	    const int ix ( did.ix() ) ;
 	    const int iy ( did.iy() ) ;
 	    const int iz ( did.zside() ) ;
+
+
 /*	    const int isc ( did.isc() ) ;
 	    //std::cout<<"ix, iy="<<ix<<", "<<iy<<std::endl;
 

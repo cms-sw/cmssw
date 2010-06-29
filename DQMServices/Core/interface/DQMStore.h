@@ -299,17 +299,16 @@ public:
 				     const std::string &pattern = "",
 				     const std::string &rewrite = "",
 				     SaveReferenceTag ref = SaveWithReference,
-                                     int minStatus = dqm::qstatus::STATUS_OK,
-				     const std::string &fileupdate = "RECREATE");
-  bool				open(const std::string &filename,
+                                     int minStatus = dqm::qstatus::STATUS_OK);
+  void				open(const std::string &filename,
 				     bool overwrite = false,
 				     const std::string &path ="",
-				     const std::string &prepend = "",
-  				     OpenRunDirs stripdirs = KeepRunDirs,
-				     bool fileMustExist = true);
-  bool                          load(const std::string &filename,
-				     OpenRunDirs stripdirs = StripRunDirs,
-				     bool fileMustExist = true);
+				     const std::string &prepend = "");
+  void                          load(const std::string &filename,
+				     OpenRunDirs stripdirs = StripRunDirs);
+  std::string			getFileReleaseVersion(const std::string &filename);
+  std::string			getFileDQMPatchVersion(const std::string &filename);
+  std::string			getDQMPatchVersion(void);
 
   //-------------------------------------------------------------------------
   // ---------------------- Public print methods -----------------------------
@@ -332,12 +331,11 @@ private:
   bool				isCollateME(MonitorElement *me) const;
 
   // ------------------- Private "getters" ------------------------------
-  bool				readFile(const std::string &filename,
+  void				readFile(const std::string &filename,
 					 bool overwrite = false,
 					 const std::string &path ="",
 					 const std::string &prepend = "",
-					 OpenRunDirs stripdirs = StripRunDirs,
-					 bool fileMustExist = true);
+					 OpenRunDirs stripdirs = StripRunDirs);
   void				makeDirectory(const std::string &path);
   unsigned int			readDirectory(TFile *file,
 					      bool overwrite,
@@ -417,6 +415,7 @@ private:
   bool				reset_;
   bool				collateHistograms_;
   std::string			readSelectedDirectory_;
+  bool				outputFileRecreate_;
 
   std::string			pwd_;
   MEMap				data_;

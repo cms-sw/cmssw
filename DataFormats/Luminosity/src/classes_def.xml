@@ -6,6 +6,4 @@
   <class name="LumiSummary::L1"/>
   <class name="std::vector<LumiSummary::L1>"/>
   <class name="std::vector<LumiSummary::HLT>"/>
-  <class name="std::map<std::basic_string<char>,std::vector<float> >"/>
-  <class name="std::map<std::basic_string<char>,std::vector<short> >"/>
 </lcgdict>

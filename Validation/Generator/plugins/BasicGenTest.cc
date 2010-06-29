@@ -3,8 +3,8 @@
  *  Class to fill dqm monitor elements from existing EDM file
  *
  *  BasicGenTest:
- *  $Date: 2009/11/10 19:00:51 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/01/06 12:39:48 $
+ *  $Revision: 1.7 $
  *  \author Joseph Zennamo SUNY-Buffalo; Based on: ConverterTester*/
  
 #include "HepMC/GenEvent.h"
@@ -140,6 +140,9 @@ void BasicGenTest::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetu
   for(unsigned short int i = 0; i < 100; ++i){
      Part_ID->Fill(float(i), float(part_counter[i]));
   }
+
+  delete myGenEvent;
+
  }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

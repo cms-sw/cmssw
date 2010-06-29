@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     FWTriggerTableView
-// $Id: FWTriggerTableView.cc,v 1.6 2010/04/22 17:29:52 amraktad Exp $
+// $Id: FWTriggerTableView.cc,v 1.4 2010/01/21 23:04:48 chrjones Exp $
 //
 
 // system include files
@@ -16,6 +16,13 @@
 #include <stdexcept>
 #include <boost/regex.hpp>
 
+// FIXME
+// need camera parameters
+#define private public
+#include "TGLPerspectiveCamera.h"
+#undef private
+
+
 #include "TRootEmbeddedCanvas.h"
 #include "THStack.h"
 #include "TCanvas.h"
@@ -26,6 +33,10 @@
 #include "TEveScene.h"
 #include "TGLViewer.h"
 #include "TSystem.h"
+//EVIL, but only way I can avoid a double delete of TGLEmbeddedViewer::fFrame
+#define private public
+#include "TGLEmbeddedViewer.h"
+#undef private
 #include "TGComboBox.h"
 #include "TGLabel.h"
 #include "TGTextView.h"
@@ -62,7 +73,6 @@
 #include "Fireworks/Core/interface/BuilderUtils.h"
 #include "Fireworks/Core/interface/FWExpressionEvaluator.h"
 #include "Fireworks/Core/interface/FWTriggerTableViewTableManager.h"
-#include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/src/FWGUIValidatingTextEntry.h"
 #include "Fireworks/Core/src/FWExpressionValidator.h"
 #include "Fireworks/TableWidget/interface/FWTableWidget.h"
@@ -177,7 +187,7 @@ void FWTriggerTableView::dataChanged ()
             hTriggerResults.getByLabel(*event,"TriggerResults","",m_process.value().c_str());
             triggerNames = &event->triggerNames(*hTriggerResults);
          } catch (cms::Exception&) {
-            fwLog(fwlog::kWarning) << " no trigger results with process name HLT is available" << std::endl;
+            std::cout << "Warning: no trigger results with process name HLT is available" << std::endl;
             m_tableManager->dataChanged();
             return;
          }
@@ -217,7 +227,7 @@ FWTriggerTableView::fillAverageAcceptFractions()
          hTriggerResults.getByLabel(*m_event,"TriggerResults","","HLT");
          triggerNames = &m_event->triggerNames(*hTriggerResults);
       } catch (cms::Exception&) {
-         fwLog(fwlog::kError) <<" exception caught while trying to get trigger info"<<std::endl;
+         std::cout <<"error occurred while trying to get trigger info"<<std::endl;
          return;
       }
 

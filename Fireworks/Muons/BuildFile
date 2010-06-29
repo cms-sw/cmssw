@@ -6,7 +6,6 @@
 <lib name=Geom>
 <lib name=GeomPainter>
 <use name=rootinteractive>
-<use name=Fireworks/Candidates>
 <use name=Fireworks/Tracks>
 <use name=Fireworks/Core>
 <export>

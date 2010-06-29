@@ -14,9 +14,6 @@
       <flags EDM_PLUGIN=1>
 </library>
 
-<library file="TCRecoTauProducer.cc" name=TCRecoTauProducer>
-      <flags EDM_PLUGIN=1>
-</library>
 
 <library file="TCRecoTauDiscriminationAgainstHadronicJets.cc" name=TCRecoTauDiscriminationAgainstHadronicJets>
       <flags EDM_PLUGIN=1>

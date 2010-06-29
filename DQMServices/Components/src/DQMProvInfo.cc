@@ -2,8 +2,8 @@
  * \file DQMProvInfo.cc
  * \author A.Raval / A.Meyer - DESY
  * Last Update:
- * $Date: 2010/05/19 23:19:20 $
- * $Revision: 1.21 $
+ * $Date: 2010/03/29 18:34:06 $
+ * $Revision: 1.16 $
  * $Author: ameyer $
  *
  */
@@ -13,10 +13,8 @@
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 
-const static int XBINS=2500;
-const static int YBINS=27;
+const static int XBINS=2000;
 
 DQMProvInfo::DQMProvInfo(const edm::ParameterSet& ps){
   
@@ -41,12 +39,12 @@ DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
 
   makeProvInfo();
 
-  dbe_->cd(); 
+  dbe_->cd();  
   dbe_->setCurrentFolder(subsystemname_ +"/EventInfo/");
 
   reportSummary_=dbe_->bookFloat("reportSummary");
   reportSummaryMap_ = dbe_->book2D("reportSummaryMap",
-                     "HV and Beam Status vs Lumi", XBINS, 1., XBINS+1, YBINS+1, 0., YBINS+1);
+                     "HV and GT vs Lumi", XBINS, 1., XBINS+1, 26, 0., 26.);
   reportSummaryMap_->setBinLabel(1," CSC+",2);   
   reportSummaryMap_->setBinLabel(2," CSC-",2);   
   reportSummaryMap_->setBinLabel(3," DT0",2);    
@@ -72,59 +70,8 @@ DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
   reportSummaryMap_->setBinLabel(23,"TECm",2);  
   reportSummaryMap_->setBinLabel(24,"CASTOR",2);
   reportSummaryMap_->setBinLabel(25,"PhysDecl",2);
-  reportSummaryMap_->setBinLabel(26,"7 TeV",2);
-  reportSummaryMap_->setBinLabel(27,"Stable B",2);
-  reportSummaryMap_->setBinLabel(28,"Valid",2);
+  reportSummaryMap_->setBinLabel(26,"Valid",2);
   reportSummaryMap_->setAxisTitle("Luminosity Section");
-  reportSummaryMap_->getTH2F()->SetBit(TH1::kCanRebin);
-
-  dbe_->cd();  
-  dbe_->setCurrentFolder(subsystemname_ +"/LhcInfo/");
-  hBeamMode_=dbe_->book1D("beamMode","beamMode",XBINS,1.,XBINS+1);
-  hBeamMode_->getTH1F()->GetYaxis()->Set(21,0.5,21.5);
-  hBeamMode_->getTH1F()->SetMaximum(21.5);
-  hBeamMode_->getTH1F()->SetBit(TH1::kCanRebin);
-
-  hBeamMode_->setAxisTitle("Luminosity Section",1);
-  hBeamMode_->setBinLabel(1,"no mode",2);
-  hBeamMode_->setBinLabel(2,"setup",2);
-  hBeamMode_->setBinLabel(3,"inj pilot",2);
-  hBeamMode_->setBinLabel(4,"inj intr",2);
-  hBeamMode_->setBinLabel(5,"inj nomn",2);
-  hBeamMode_->setBinLabel(6,"pre ramp",2);
-  hBeamMode_->setBinLabel(7,"ramp",2);
-  hBeamMode_->setBinLabel(8,"flat top",2);
-  hBeamMode_->setBinLabel(9,"squeeze",2);
-  hBeamMode_->setBinLabel(10,"adjust",2);
-  hBeamMode_->setBinLabel(11,"stable",2);
-  hBeamMode_->setBinLabel(12,"unstable",2);
-  hBeamMode_->setBinLabel(13,"beam dump",2);
-  hBeamMode_->setBinLabel(14,"ramp down",2);
-  hBeamMode_->setBinLabel(15,"recovery",2);
-  hBeamMode_->setBinLabel(16,"inj dump",2);
-  hBeamMode_->setBinLabel(17,"circ dump",2);
-  hBeamMode_->setBinLabel(18,"abort",2);
-  hBeamMode_->setBinLabel(19,"cycling",2);
-  hBeamMode_->setBinLabel(20,"warn b-dump",2);
-  hBeamMode_->setBinLabel(21,"no beam",2);
-  hBeamMode_->setBinContent(0.,22.);
-  
-  hLhcFill_=dbe_->book1D("lhcFill","LHC Fill Number",XBINS,1.,XBINS+1);
-  hLhcFill_->setAxisTitle("Luminosity Section",1);
-  hLhcFill_->getTH1F()->SetBit(TH1::kCanRebin);
-  
-  hMomentum_=dbe_->book1D("momentum","Beam Energy [GeV]",XBINS,1.,XBINS+1);
-  hMomentum_->setAxisTitle("Luminosity Section",1);
-  hMomentum_->getTH1F()->SetBit(TH1::kCanRebin);
-
-  hIntensity1_=dbe_->book1D("intensity1","Intensity Beam 1",XBINS,1.,XBINS+1);
-  hIntensity1_->setAxisTitle("Luminosity Section",1);
-  hIntensity1_->setAxisTitle("N [E10]",2);
-  hIntensity1_->getTH1F()->SetBit(TH1::kCanRebin);
-  hIntensity2_=dbe_->book1D("intensity2","Intensity Beam 2",XBINS,1.,XBINS+1);
-  hIntensity2_->setAxisTitle("Luminosity Section",1);
-  hIntensity2_->setAxisTitle("N [E10]",2);
-  hIntensity2_->getTH1F()->SetBit(TH1::kCanRebin);
 
   // initialize
   physDecl_=true;
@@ -145,24 +92,22 @@ DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventS
 {
 
   int nlumi = l.id().luminosityBlock();
-  
-  std::cout << "nlumi: " <<  nlumi << " / number of bins: " << hBeamMode_->getTH1F()->GetNbinsX() << std::endl;
-
+  if (nlumi > XBINS) 
+  {
+    edm::LogWarning("DQMProvInfo") 
+         << " lumi " << nlumi << " exceeds histogram boundaries " ;
+    return;
+  }
   if (nlumi <= lastlumi_ ) return;
 
-  hBeamMode_->setBinContent(nlumi,beamMode_);
-  hLhcFill_->setBinContent(nlumi,lhcFill_);
-  hMomentum_->setBinContent(nlumi,momentum_);
-  hIntensity1_->setBinContent(nlumi,intensity1_);
-  hIntensity2_->setBinContent(nlumi,intensity2_);
 
   // set to previous in case there was a jump or no previous fill
   for (int l=lastlumi_+1;l<nlumi;l++)
   {
-    if (lastlumi_ > 0 && reportSummaryMap_->getBinContent(lastlumi_,YBINS+1) == 1) 
+    if (lastlumi_ > 0 && reportSummaryMap_->getBinContent(lastlumi_,25+1) == 1) 
     {
-      reportSummaryMap_->setBinContent(l,YBINS+1,0.);
-      for (int i=0;i<YBINS;i++)
+      reportSummaryMap_->setBinContent(l,25+1,0.);
+      for (int i=0;i<25;i++)
       {
 	  float lastvalue = reportSummaryMap_->getBinContent(lastlumi_,i+1);
 	  reportSummaryMap_->setBinContent(l,i+1,lastvalue);
@@ -170,15 +115,15 @@ DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventS
     }
     else
     {
-      reportSummaryMap_->setBinContent(l,YBINS+1,0.);
-      for (int i=0;i<YBINS;i++)
+      reportSummaryMap_->setBinContent(l,25+1,0.);
+      for (int i=0;i<25;i++)
 	reportSummaryMap_->setBinContent(l,i+1,-1.);
     }
   }
 
       
   // fill dcs vs lumi
-  reportSummaryMap_->setBinContent(nlumi,YBINS+1,1.);
+  reportSummaryMap_->setBinContent(nlumi,25+1,1.);
   for (int i=0;i<24;i++)
   {
     if (dcs24[i])
@@ -192,7 +137,7 @@ DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventS
     dcs24[i]=true;
   }
 
-  // fill physics decl. bit in y bin 25
+  // fill physics decl. bit in y bin 10.
   if (physDecl_) 
   {
     reportSummary_->Fill(1.); 
@@ -206,38 +151,6 @@ DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventS
     reportSummaryMap_->setBinContent(nlumi,24+1,0.);
     if (nlumi < XBINS) 
       reportSummaryMap_->setBinContent(nlumi+1,24+1,-1.);
-  }
-  
-  // fill 7 TeV bit in y bin 26
-  if (momentum_ == 3500) 
-  {
-    reportSummary_->Fill(1.); 
-    reportSummaryMap_->setBinContent(nlumi,25+1,1.);
-    if (nlumi < XBINS) 
-      reportSummaryMap_->setBinContent(nlumi+1,25+1,-1.);
-  }
-  else
-  {
-    reportSummary_->Fill(0.); 
-    reportSummaryMap_->setBinContent(nlumi,25+1,0.);
-    if (nlumi < XBINS) 
-      reportSummaryMap_->setBinContent(nlumi+1,25+1,-1.);
-  }
-
-  // fill stable beams bit in y bin 27
-  if (beamMode_ == 11) 
-  {
-    reportSummary_->Fill(1.); 
-    reportSummaryMap_->setBinContent(nlumi,26+1,1.);
-    if (nlumi < XBINS) 
-      reportSummaryMap_->setBinContent(nlumi+1,26+1,-1.);
-  }
-  else
-  {
-    reportSummary_->Fill(0.); 
-    reportSummaryMap_->setBinContent(nlumi,26+1,0.);
-    if (nlumi < XBINS) 
-      reportSummaryMap_->setBinContent(nlumi+1,26+1,-1.);
   }
 
   // reset   
@@ -374,35 +287,9 @@ DQMProvInfo::makeGtInfo(const edm::Event& e)
     physDecl_=false;
     return;
   }
+
   // cout << "phys decl. bit =" << static_cast<int>(fdlWord.physicsDeclared()) << endl;
   if (fdlWord.physicsDeclared() !=1) physDecl_=false;
-
-
-  //
-  edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtEvm_handle;
-  e.getByLabel("gtEvmDigis", gtEvm_handle);
-  L1GlobalTriggerEvmReadoutRecord const* gtevm = gtEvm_handle.product();
-
-  L1GtfeWord gtfeEvmWord;
-  L1GtfeExtWord gtfeEvmExtWord;
-  if (gtevm)
-  {
-     gtfeEvmWord = gtevm->gtfeWord();
-     gtfeEvmExtWord = gtevm->gtfeWord();
-  }
-  else
-    std::cout << " gtfeEvmWord inaccessible" ;
-   
-  lhcFill_ = gtfeEvmExtWord.lhcFillNumber();
-  beamMode_ = gtfeEvmExtWord.beamMode();
-  momentum_ = gtfeEvmExtWord.beamMomentum();
-  intensity1_ = gtfeEvmExtWord.totalIntensityBeam1();
-  intensity2_ = gtfeEvmExtWord.totalIntensityBeam2();
-  
-  std::cout << lhcFill_ << " " << beamMode_ << " " 
-            << momentum_ << " " 
-	    << intensity1_ << " " << intensity2_ 
-	    << std::endl;
 
   return;
 }

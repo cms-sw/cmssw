@@ -32,6 +32,7 @@ protected :
 
   void init(TLorentzVector* pini, const TMatrixD* theCovMatrix);
 
+  ClassDef(TFitParticleEtEtaPhi, 1)    // Particle with (et, eta, phi) parametrization 
 
 private:
   

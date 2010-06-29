@@ -9,13 +9,9 @@
   <class name="Geom::Phi<double>"/>
   <class name="Geom::Theta<double>"/>
   <class name="Basic2DVector<float>"/>
-  <class name="Basic3DVector<float>">
-     <field name="theW" transient="true"/>  
-   </class>
+  <class name="Basic3DVector<float>"/>
   <class name="Basic2DVector<double>"/>
-  <class name="Basic3DVector<double>">
-     <field name="theW" transient="true"/>  
-   </class>
+  <class name="Basic3DVector<double>"/>
   <class name="PV2DBase<float,PointTag,LocalTag>"/>
   <class name="PV3DBase<float,PointTag,LocalTag>"/>
   <class name="PV2DBase<float,VectorTag,LocalTag>"/>

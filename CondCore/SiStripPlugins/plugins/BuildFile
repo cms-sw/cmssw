@@ -89,7 +89,27 @@
 <flags EDM_PLUGIN=1>
 </library>
 
+<library file="SiStripModuleHVPyWrapper.cc" name=SiStripModuleHVPyInterface>
+<use name=CondCore/Utilities>
+<use name=CondFormats/SiStripObjects>
+<use name=boost>
+<use name=boost_filesystem>
+<use name=boost_python>
+<use name=boost_regex>
+<flags EDM_PLUGIN=1>
+</library>
+
 <library file="SiStripRunSummaryPyWrapper.cc" name=SiStripRunSummaryPyInterface>
+<use name=CondCore/Utilities>
+<use name=CondFormats/SiStripObjects>
+<use name=boost>
+<use name=boost_filesystem>
+<use name=boost_python>
+<use name=boost_regex>
+<flags EDM_PLUGIN=1>
+</library>
+
+<library file="SiStripPerformanceSummaryPyWrapper.cc" name=SiStripPerformanceSummaryPyInterface>
 <use name=CondCore/Utilities>
 <use name=CondFormats/SiStripObjects>
 <use name=boost>

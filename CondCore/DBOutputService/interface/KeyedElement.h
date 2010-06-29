@@ -13,27 +13,25 @@ namespace cond{
   public:
     // constructor from int key
    KeyedElement(BaseKeyed * obj, cond::Time_t key) : 
-     m_obj(obj),  
+     m_obj(obj), 
+     m_sum(0), 
      m_key(key) {
      std::ostringstream ss; ss << key;
-     m_skey  = ss.str();
-     (*obj).setKey(m_skey); 
+     m_sum  = new cond::GenericSummary(ss.str()); 
    }
 
     // constructor from ascii key
    KeyedElement(BaseKeyed * obj, std::string key) : 
       m_obj(obj), 
-      m_skey(key), 
-      m_key(convert(key)) {
-     (*obj).setKey(m_skey);
-   }
+      m_sum(new cond::GenericSummary(key)), 
+      m_key(convert(key)) {}
     
     static cond::Time_t convert(std::string key) {
       return cond::hash64( (unsigned char*)(&key[0]),key.size(),0);
     }
 
     BaseKeyed * m_obj;
-    std::string m_skey;
+    cond::Summary * m_sum;
     cond::Time_t m_key;
   };
   

@@ -3,20 +3,11 @@
 # strip of the directory name for this shell script
 export SHELLDIR=`dirname $0`
 # if no directory specified we need to use the local directory
-if [ ! -n "$SHELLDIR" ] || [ "$SHELLDIR" == "." ] ; then
-  export SHELLDIR=$PWD
+if [ ! -n "$SHELLDIR" ] ; then
+  export SHELLDIR=.
 fi
-
 # see if we are running in standalone mode
-if [ -n "$CMSSW_BASE" ] && [ `expr "$SHELLDIR" : "$CMSSW_BASE"` -gt 0 ]; then
-  export SHELLFROMRELEASE='true'
-  #echo "from CMSSW_BASE"
-fi
-if [ -n "$CMSSW_RELEASE_BASE" ] && [ `expr "$SHELLDIR" : "$CMSSW_RELEASE_BASE"` -gt 0 ]; then
-  export SHELLFROMRELEASE='true'
-  #echo "from CMSSW_RELEASE_BASE"
-fi
-if [ ! -n "$SHELLFROMRELEASE" ]; then
+if [ ! -n "$CMSSW_BASE" ] ; then
   export CMSSW_BASE=$SHELLDIR
   export CMSSW_SEARCH_PATH="."
   export CMSSW_DATA_PATH="."
@@ -39,8 +30,6 @@ do
       --soft)  softflag=on;;
       -d)  debugflag=on;;
       --debug) debugflag=on;;
-      --eve) originalOptions="${originalOptions} -r";;
-      --prompt) originalOptions="${originalOptions} -r";;
       --root-interactive) rootflag=on;;
       -r) rootflag=on;;
     esac
@@ -71,7 +60,7 @@ if [ "$debugflag" != "off" ] ; then
    echo "Crash report saved to '$creport'."
 else
    $SHELLDIR/cmsShow.exe $originalOptions
-   if [ $? -gt 128 ] ; then
+   if [ $? != "0" ] ; then
       if [ "$rootflag" == "off" ] ; then
          echo ""
          echo "  ########################################################################"

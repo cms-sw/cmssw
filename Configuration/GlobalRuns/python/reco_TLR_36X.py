@@ -17,10 +17,6 @@ def customiseCommon(process):
     process.thTripletsA.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000
     process.thTripletsB.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000
 
-    ## local tracker strip reconstruction
-    process.OutOfTime.TOBlateBP=0.071
-    process.OutOfTime.TIBlateBP=0.036
-
     ###### FIXES TRIPLETS FOR LARGE BS DISPLACEMENT ######
 
     ### prevent bias in pixel vertex
@@ -86,8 +82,9 @@ def customisePPData(process):
     ##Preshower
     process.ecalPreshowerRecHit.ESBaseline = 0
 
-    ##Preshower algo for data is different than for MC
-    process.ecalPreshowerRecHit.ESRecoAlgo = 1
+    ## local tracker strip reconstruction
+    process.OutOfTime.TOBlateBP=0.071
+    process.OutOfTime.TIBlateBP=0.036
 
     return process
 
@@ -102,7 +99,6 @@ def customisePPMC(process):
 ##############################################################################
 def customiseCosmicData(process):
     process.ecalPreshowerRecHit.ESBaseline = 0
-    process.ecalPreshowerRecHit.ESRecoAlgo = 1
     
     return process
 
@@ -116,4 +112,16 @@ def customiseCosmicMC(process):
 def customiseExpress(process):
     process= customisePPData(process)
 
+    import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
+    process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
+
+    return process
+
+##############################################################################
+def customisePrompt(process):
+    process= customisePPData(process)
+
+    import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
+    process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
+    
     return process

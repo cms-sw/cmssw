@@ -74,7 +74,7 @@ particleFlowDisplacedVertex = cms.EDProducer("PFDisplacedVertexProducer",
         looper_eta_max = cms.double(0.1),
         # Masses cuts for selections
         #                    CVmin  K0min  K0max  K-min  K-max  Ldmin  Ldmax  Nuclmin_ee
-        masses = cms.vdouble(0.050, 0.470, 0.525, 0.470, 0.525, 1.107, 1.125, 0.200),
+        masses = cms.vdouble(0.050, 0.485, 0.515, 0.480, 0.520, 1.107, 1.125, 0.200),
         # Angle between the primaryVertex-secondaryVertex direction and secondary tracks direction
         # this angle means that the final system shall propagate in the same direction than initial system
         #                    all_max, CV and V0 max

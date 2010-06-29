@@ -60,9 +60,6 @@ def customise(process):
     ##Preshower
     process.ecalPreshowerRecHit.ESBaseline = 0
 
-    ##Preshower algo for data is different than for MC
-    process.ecalPreshowerRecHit.ESRecoAlgo = 1
-
     ## HCAL temporary fixes
     process.hfreco.firstSample  = 3
     process.hfreco.samplesToAdd = 4
@@ -80,5 +77,22 @@ def customise(process):
     ###  end of top level replacements
     ###
     ###############################################################################################
+
+
+    #add the DQM stream for this time only
+    # DQMStream output definition
+    process.outputDQMStream = cms.OutputModule("PoolOutputModule",
+                                               outputCommands = cms.untracked.vstring('drop *',
+                                                                                      'keep *_MEtoEDMConverter_*_*'),
+                                               fileName = cms.untracked.string('DQMStream.root'),
+                                               dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string(''),
+        dataTier = cms.untracked.string('DQM')
+        )
+    )
+    process.outputDQMStreamOutPath = cms.EndPath(process.outputDQMStream)
+    process.schedule.append( process.outputDQMStreamOutPath )
+
+    
 
     return (process)

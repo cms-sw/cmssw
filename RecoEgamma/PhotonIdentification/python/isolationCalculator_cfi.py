@@ -104,9 +104,9 @@ isolationSumsCalculator = cms.PSet(
     EcalRecHitThreshEB_Endcap        = cms.double(0.0),
     EcalRecHitThreshEtB_Endcap       = cms.double(0.1),
 
-    severityLevelCut = cms.int32(3),
+    severityLevelCut = cms.int32(4),
     severityRecHitThreshold = cms.double(5.0),
-    spikeIdString = cms.string('kSwissCross'),
+    spikeIdString = cms.string('kSwissCrossBordersIncluded'),
     spikeIdThreshold = cms.double(0.95),
 
     #Hcal towers

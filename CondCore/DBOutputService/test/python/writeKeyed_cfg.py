@@ -15,18 +15,21 @@ process.source = cms.Source("EmptyIOVSource",
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDBCommon,
     timetype = cms.untracked.string('runnumber'),
+    withWrapper = cms.untracked.bool(False),
     outOfOrder = cms.untracked.bool(True),
     toPut = cms.VPSet(
     cms.PSet(
     record = cms.string('confcont'),
     tag = cms.string('KeyTest'),
     timetype = cms.untracked.string('hash'),
+    withWrapper = cms.untracked.bool(True),
     outOfOrder = cms.untracked.bool(True)
     ),
     cms.PSet(
     record = cms.string('confiov'),
     tag = cms.string('ConfTest'),
     timetype = cms.untracked.string('runnumber'),
+    withWrapper = cms.untracked.bool(True),
     outOfOrder = cms.untracked.bool(False)
     )
     )

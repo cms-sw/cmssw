@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 10:29:00 EST 2008
-// $Id: FWViewManagerBase.h,v 1.17 2009/11/05 22:06:02 dmytro Exp $
+// $Id: FWViewManagerBase.h,v 1.16 2009/04/07 14:02:33 chrjones Exp $
 //
 
 // system include files
@@ -39,11 +39,6 @@ class FWModelChangeManager;
 class FWColorManager;
 class FWTypeToRepresentations;
 
-namespace fireworks
-{
-class Context;
-}
-
 class FWViewManagerBase
 {
 
@@ -57,8 +52,13 @@ public:
    // ---------- member functions ---------------------------
    virtual void newItem(const FWEventItem*) = 0;
 
-   void setContext(fireworks::Context* x) { m_context = x; }
-   
+   void setGeom(const DetIdToMatrix* geom){
+      m_detIdToGeo = geom;
+   }
+   const DetIdToMatrix* getGeom(const DetIdToMatrix* geom){
+      return m_detIdToGeo;
+   }
+
    void setChangeManager(FWModelChangeManager* iCM);
    void setColorManager(FWColorManager* iCM);
 
@@ -71,17 +71,13 @@ public:
    virtual void eventEnd(){
    };
 
-   // ---------- const member functions ---------------------
-
-   fireworks::Context& context() const { return *m_context; }
-
 protected:
    FWViewManagerBase();
 
    /**handles dynamic loading of a library or macro containing the class
       named iNameOfClass which inherits from iBaseClass.  The returned
       void* will correspond to the address of the 'BaseClass'
-   */
+    */
    void* createInstanceOf(const TClass* iBaseClass,
                           const char* iNameOfClass);
 
@@ -92,17 +88,17 @@ protected:
 
    FWModelChangeManager& changeManager() const;
    FWColorManager& colorManager() const;
-
+   const DetIdToMatrix* detIdToGeo() const;
 private:
    FWViewManagerBase(const FWViewManagerBase&);    // stop default
 
    const FWViewManagerBase& operator=(const FWViewManagerBase&);    // stop default
 
    // ---------- member data --------------------------------
-   fireworks::Context*   m_context;
+   const DetIdToMatrix* m_detIdToGeo;
 
    FWModelChangeManager* m_changeManager;
-   FWColorManager*       m_colorManager;
+   FWColorManager* m_colorManager;
 
 };
 

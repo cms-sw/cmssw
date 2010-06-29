@@ -179,16 +179,8 @@ class ConfdbToOpenHLT:
                     aliasedseeds = []
                     thepaths.append(name)
                     thingsinpath = str(value).split('+')
-                    countl1seedmodules = 0
                     for thinginpath in thingsinpath:
                         if(thinginpath.startswith('hltL1s')):
-                            countl1seedmodules = countl1seedmodules + 1
-
-                            # If we have >1 L1 seed module in the path, add an AND
-                            # since both are required to be satisfied 
-                            if(countl1seedmodules > 1):
-                                aliasedseeds.append("AND")
-                                                                
                             self.hltl1modulemap[name] = thinginpath
                             seedexpression = self.l1modulenameseedmap[thinginpath]
                             splitseedexpression = seedexpression.split()
@@ -197,7 +189,6 @@ class ConfdbToOpenHLT:
                                 if(splitseed in self.l1aliasmap):
                                     splitseed = self.l1aliasmap[splitseed]
                                 aliasedseeds.append(splitseed)
-
 
                         reconstructedseedexpression = "" 
                         for aliasedseed in aliasedseeds:

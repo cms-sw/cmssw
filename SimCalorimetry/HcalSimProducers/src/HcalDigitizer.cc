@@ -132,30 +132,12 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   theHOSiPMCode(ps.getParameter<edm::ParameterSet>("ho").getParameter<int>("siPMCode"))
 {
   bool doNoise = ps.getParameter<bool>("doNoise");
-  bool useOldNoiseHB = ps.getParameter<bool>("useOldHB");
-  bool useOldNoiseHE = ps.getParameter<bool>("useOldHE");
-  bool useOldNoiseHF = ps.getParameter<bool>("useOldHF");
-  bool useOldNoiseHO = ps.getParameter<bool>("useOldHO");
   bool doEmpty = ps.getParameter<bool>("doEmpty");
-  double HBtp = ps.getParameter<double>("HBTuningParameter");
-  double HEtp = ps.getParameter<double>("HETuningParameter");
-  double HFtp = ps.getParameter<double>("HFTuningParameter");
-  double HOtp = ps.getParameter<double>("HOTuningParameter");
-
   // need to make copies, because they might get different noise generators
   theHBHEAmplifier = new HcalAmplifier(theParameterMap, doNoise);
   theHFAmplifier = new HcalAmplifier(theParameterMap, doNoise);
   theHOAmplifier = new HcalAmplifier(theParameterMap, doNoise);
   theZDCAmplifier = new HcalAmplifier(theParameterMap, doNoise);
-  theHBHEAmplifier->setHBtuningParameter(HBtp);
-  theHBHEAmplifier->setHEtuningParameter(HEtp);
-  theHFAmplifier->setHFtuningParameter(HFtp);
-  theHOAmplifier->setHOtuningParameter(HOtp);
-  theHBHEAmplifier->setUseOldHB(useOldNoiseHB);
-  theHBHEAmplifier->setUseOldHE(useOldNoiseHE);
-  theHFAmplifier->setUseOldHF(useOldNoiseHF);
-  theHOAmplifier->setUseOldHO(useOldNoiseHO);
-
   theCoderFactory = new HcalCoderFactory(HcalCoderFactory::DB);
   theHBHEElectronicsSim = new HcalElectronicsSim(theHBHEAmplifier, theCoderFactory);
   theHFElectronicsSim = new HcalElectronicsSim(theHFAmplifier, theCoderFactory);
@@ -366,23 +348,6 @@ void HcalDigitizer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
 
   theCoderFactory->setDbService(conditions.product());
   theParameterMap->setDbService(conditions.product());
-
-   edm::ESHandle<HcalCholeskyMatrices> refCholesky;
-   eventSetup.get<HcalCholeskyMatricesRcd>().get("reference",refCholesky);
-   const HcalCholeskyMatrices * myCholesky = refCholesky.product();
-  
-   edm::ESHandle<HcalPedestals> pedshandle;
-   eventSetup.get<HcalPedestalsRcd>().get(pedshandle);
-   const HcalPedestals *  myADCPedestals = pedshandle.product();
-
-  theHBHEAmplifier->setCholesky(myCholesky);
-  theHFAmplifier->setCholesky(myCholesky);
-  theHOAmplifier->setCholesky(myCholesky);
-  
-  theHBHEAmplifier->setADCPeds(myADCPedestals);
-  theHFAmplifier->setADCPeds(myADCPedestals);
-  theHOAmplifier->setADCPeds(myADCPedestals);
-
 
   // get the correct geometry
   checkGeometry(eventSetup);

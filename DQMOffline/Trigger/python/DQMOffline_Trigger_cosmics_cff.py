@@ -38,7 +38,6 @@ l1temumonitor = cms.Sequence(l1demon*dqmEnvL1TEmu)
 from DQM.HLTEvF.HLTAlCaMonPi0_cfi import *
 from DQM.HLTEvF.HLTAlCaMonEcalPhiSym_cfi import *
 #JetMET
-from DQM.HLTEvF.HLTMonJetMET_E28_cfi import *
 from DQM.HLTEvF.HLTMonJetMETDQMSource_cfi import *
 # Electron
 from DQM.HLTEvF.HLTMonEleBits_cfi import *
@@ -75,7 +74,7 @@ from DQMOffline.Trigger.EgHLTOfflineSource_cfi import *
 # Muon
 from DQMOffline.Trigger.MuonOffline_Trigger_cosmics_cff import *
 # Top
-from DQMOffline.Trigger.QuadJetAna_cfi import *
+#from DQMOffline.Trigger.QuadJetAna_cfi import *
 # Tau
 from DQMOffline.Trigger.HLTTauDQMOffline_cff import *
 # JetMET
@@ -87,7 +86,7 @@ import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvHLT= DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
 dqmEnvHLT.subSystemFolder = 'HLT'
 
-offlineHLTSource = cms.Sequence(hltResults*egHLTOffDQMSource*muonFullOfflineDQM*quadJetAna*HLTTauDQMOffline*jetMETHLTOfflineSource*TnPEfficiency*dqmEnvHLT)
+offlineHLTSource = cms.Sequence(hltResults*egHLTOffDQMSource*muonFullOfflineDQM*HLTTauDQMOffline*jetMETHLTOfflineSource*TnPEfficiency*dqmEnvHLT)
 
 
 triggerCosmicOfflineDQMSource =  cms.Sequence(l1temumonitor*l1tmonitor*onlineHLTSource*offlineHLTSource)
