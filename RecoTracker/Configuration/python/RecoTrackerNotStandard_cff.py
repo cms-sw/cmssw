@@ -29,13 +29,20 @@ ctfTracksCombinedSeeds = cms.Sequence(globalSeedsFromPairsWithVertices*globalSee
 from RecoTracker.SpecialSeedGenerators.CombinatorialSeedGeneratorForCosmicsRegionalReconstruction_cff import *
 # Ckf
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
-regionalCosmicCkfTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(src = cms.InputTag( "regionalCosmicMuonSeeds" ),
-                                                                                                      NavigationSchool = cms.string('CosmicNavigationSchool'),
-                                                                                                      TrajectoryBuilder = cms.string( "CkfTrajectoryBuilder" )    )
+regionalCosmicCkfTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
+    src = cms.InputTag( "regionalCosmicTrackerSeeds" ),
+    NavigationSchool = cms.string('CosmicNavigationSchool'),
+    #TrajectoryBuilder = cms.string( "CkfTrajectoryBuilder" ),
+    TrajectoryBuilder = cms.string( "GroupedCkfTrajectoryBuilder" ),
+)
+
 # Track producer
 import RecoTracker.TrackProducer.TrackProducer_cfi
-regionalCosmicCtfWithMaterialTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(src = cms.InputTag( "regionalCosmicCkfTrackCandidates" ))
+regionalCosmicTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
+    src = cms.InputTag( "regionalCosmicCkfTrackCandidates" ),
+    NavigationSchool = 'CosmicNavigationSchool',
+    AlgorithmName = 'cosmics',
+    alias = 'regionalCosmicTracks'
+)
 # Final Sequence
-from RecoLocalTracker.Configuration.RecoLocalTracker_cff import *
-from RecoVertex.BeamSpotProducer.BeamSpot_cfi import *
-regionalCosmic = cms.Sequence( trackerlocalreco * regionalCosmicMuonSeeds * regionalCosmicCkfTrackCandidates * offlineBeamSpot * regionalCosmicCtfWithMaterialTracks )
+regionalCosmicTracksSeq = cms.Sequence( regionalCosmicTrackerSeeds * regionalCosmicCkfTrackCandidates * regionalCosmicTracks )
