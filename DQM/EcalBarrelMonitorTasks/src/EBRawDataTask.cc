@@ -1,8 +1,8 @@
 /*
  * \file EBRawDataTask.cc
  *
- * $Date: 2010/03/27 20:07:58 $
- * $Revision: 1.28 $
+ * $Date: 2010/06/29 12:43:57 $
+ * $Revision: 1.29 $
  * \author E. Di Marco
  *
 */
@@ -526,8 +526,8 @@ void EBRawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
 
       // DCC vs. FE,TCC, SRP syncronization
-      std::vector<short> feBxs = dcchItr->getFEBxs();
-      std::vector<short> tccBx = dcchItr->getTCCBx();
+      const std::vector<short> feBxs = dcchItr->getFEBxs();
+      const std::vector<short> tccBx = dcchItr->getTCCBx();
       short srpBx = dcchItr->getSRPBx();
 
       for(int fe=0; fe<(int)feBxs.size(); fe++) {
