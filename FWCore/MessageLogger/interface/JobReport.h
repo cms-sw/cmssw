@@ -161,13 +161,13 @@ namespace edm {
          * Used when a new output file is opened, all currently open
          * input file tokens are used to initialise its list of contributors
          */
-        std::vector<Token> openInputFiles(void);
+        void openInputFiles(std::vector<Token>& tokens);
 
 	/*
 	 * Get a vector of Tokens for all currently open output files
 	 * Used to add lumi sections to open files
 	 */
-        std::vector<Token> openOutputFiles(void);
+        void openOutputFiles(std::vector<Token>& tokens);
 
 	/*
 	 * Associate a Lumi Section to all open output files
@@ -481,10 +481,10 @@ namespace edm {
     os << "\n<ModuleLabel>" << TiXmlText(f.moduleLabel) << "</ModuleLabel>";
     os << "\n<GUID>" << f.guid << "</GUID>";
     os << "\n<Branches>";
-    std::vector<std::string>::const_iterator iBranch;
-    for (iBranch = f.branchNames.begin();
-        iBranch != f.branchNames.end();
-        iBranch++) {
+    for (std::vector<std::string>::const_iterator iBranch = f.branchNames.begin(),
+        iBranchEnd = f.branchNames.end();
+        iBranch != iBranchEnd;
+        ++iBranch) {
       os << "\n  <Branch>" << TiXmlText(*iBranch) << "</Branch>";
     }
     os << "\n</Branches>";
