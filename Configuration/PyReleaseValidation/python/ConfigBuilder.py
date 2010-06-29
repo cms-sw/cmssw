@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.188 $"
+__version__ = "$Revision: 1.189 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -386,6 +386,7 @@ class ConfigBuilder(object):
 	self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_Data_cff"
 	self.L1RecoDefaultCFF="Configuration/StandardSequences/L1Reco_cff"
 	self.RECODefaultCFF="Configuration/StandardSequences/Reconstruction_cff"
+	self.SKIMDefaultCFF="Configuration/StandardSequences/Skims_cff"
 	self.POSTRECODefaultCFF="Configuration/StandardSequences/PostRecoGenerator_cff"
 	self.VALIDATIONDefaultCFF="Configuration/StandardSequences/Validation_cff"
 	self.L1HwValDefaultCFF = "Configuration/StandardSequences/L1HwVal_cff"
@@ -737,6 +738,25 @@ class ConfigBuilder(object):
         self.schedule.append(self.process.reconstruction_step)
         return
 
+    def prepare_SKIM(self, sequence = "all"):
+	''' Enrich the schedule with skimming fragments'''
+	if (sequence=="all"):
+		print "not implemented yet, please specify a list of skims with -s SKIM:skim1+skim2+..."
+	else:
+		skimlist=sequence.split('+')
+		skimConfig = self.loadAndRemember(self.SKIMDefaultCFF)
+		#print "dictionnary for skims:",skimConfig.__dict__
+		for skim in skimConfig.__dict__:
+			skimstream = getattr(skimConfig,skim)
+			if (not isinstance(skimstream,cms.FilteredStream)):
+				continue
+			shortname = skim.replace('SKIMStream','')
+			if (not shortname in skimlist):
+				continue
+			self.addExtraStream(skim,skimstream)
+			skimlist.remove(shortname)
+			
+
     def prepare_POSTRECO(self, sequence = None):
         """ Enrich the schedule with the postreco step """
         self.loadAndRemember(self.POSTRECODefaultCFF)
@@ -882,7 +902,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.188 $"),
+              (version=cms.untracked.string("$Revision: 1.189 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -900,7 +920,7 @@ class ConfigBuilder(object):
         self.addConditions()
         self.loadAndRemember(self.EVTCONTDefaultCFF)  #load the event contents regardless
 			   
-        if not 'HARVESTING' in self._options.step and self.with_output:
+        if not 'HARVESTING' in self._options.step and not 'SKIM' in self._options.step and self.with_output:
             self.addOutput()
 	    
         self.addCommon()

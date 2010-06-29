@@ -248,8 +248,11 @@ if ( hltRe.match(str(options.step)) and recoRe.match(str(options.step))):
     
 # check whether conditions given
 if options.conditions == None:
-    print "ERROR: No conditions given!\nPlease specify conditions. E.g. via --conditions=FrontierConditions_GlobalTag,IDEAL_30X::All"
-    sys.exit(1)
+    if (options.step.find('SKIM')!=-1):
+        options.conditions = 'auto:mc'
+    else:
+        print "ERROR: No conditions given!\nPlease specify conditions. E.g. via --conditions=FrontierConditions_GlobalTag,IDEAL_30X::All"
+        sys.exit(1)
             
 # sanity check options specifying data or mc
 if options.isData and options.isMC:
@@ -282,6 +285,7 @@ prec_step = {"NONE":"",
              "RECO":"DIGI",
              "ALCA":"RECO",
              "ANA":"RECO",
+             "SKIM":"RECO",
              "DIGI2RAW":"DIGI",
              "RAW2DIGI":"DIGI2RAW",
              "DATAMIX":"DIGI",
@@ -393,6 +397,8 @@ options.step = options.step.replace("SIM_CHAIN","GEN,SIM,DIGI,L1,DIGI2RAW")
 
 addEndJob = True
 if ("FASTSIM" in options.step and not "VALIDATION" in options.step) or "HARVESTING" in options.step or options.step == "": 
+    addEndJob = False
+if ("SKIM" in options.step and not "RECO" in options.step):
     addEndJob = False
 if addEndJob:    
     options.step=options.step+',ENDJOB'
