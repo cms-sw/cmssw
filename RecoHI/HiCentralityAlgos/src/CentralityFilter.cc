@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz,32 4-A08,+41227673039,
 //         Created:  Tue Jun 29 12:19:49 CEST 2010
-// $Id: CentralityFilter.cc,v 1.1 2010/06/29 11:33:59 yilmaz Exp $
+// $Id: CentralityFilter.cc,v 1.2 2010/06/29 11:48:35 yilmaz Exp $
 //
 //
 
@@ -67,6 +67,7 @@ class CentralityFilter : public edm::EDFilter {
 // constructors and destructor
 //
 CentralityFilter::CentralityFilter(const edm::ParameterSet& iConfig) :
+  cbins_(0),
   selectedBins_(iConfig.getParameter<std::vector<int> >("selectedBins")),
   centralityBase_(iConfig.getParameter<std::string>("centralityBase")),
   src_(iConfig.getParameter<edm::InputTag>("src"))
