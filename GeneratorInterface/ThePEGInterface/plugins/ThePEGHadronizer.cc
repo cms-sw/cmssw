@@ -128,10 +128,12 @@ bool ThePEGHadronizer::residualDecay()
 	return true;
 }
 
-typedef edm::GeneratorFilter<ThePEGHadronizer> ThePEGGeneratorFilter;
+#include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
+
+typedef edm::GeneratorFilter<ThePEGHadronizer, gen::ExternalDecayDriver> ThePEGGeneratorFilter;
 DEFINE_FWK_MODULE(ThePEGGeneratorFilter);
 
 #if 0
-typedef edm::HadronizerFilter<ThePEGHadronizer> ThePEGHadronizerFilter;
+typedef edm::HadronizerFilter<ThePEGHadronizer, gen::ExternalDecayDriver> ThePEGHadronizerFilter;
 DEFINE_FWK_MODULE(ThePEGHadronizerFilter);
 #endif

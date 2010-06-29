@@ -21,7 +21,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
+// #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
 // LHE Run
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
@@ -37,10 +37,11 @@
 
 namespace edm
 {
-  template <class HAD> class HadronizerFilter : public EDFilter
+  template <class HAD, class DEC> class HadronizerFilter : public EDFilter
   {
   public:
     typedef HAD Hadronizer;
+    typedef DEC Decayer;
 
     // The given ParameterSet will be passed to the contained
     // Hadronizer object.
@@ -61,7 +62,8 @@ namespace edm
 
   private:
     Hadronizer hadronizer_;
-    gen::ExternalDecayDriver* decayer_;
+    // gen::ExternalDecayDriver* decayer_;
+    Decayer* decayer_;
 
   };
 
@@ -69,8 +71,8 @@ namespace edm
   //
   // Implementation
 
-  template <class HAD>
-  HadronizerFilter<HAD>::HadronizerFilter(ParameterSet const& ps) :
+  template <class HAD, class DEC>
+  HadronizerFilter<HAD,DEC>::HadronizerFilter(ParameterSet const& ps) :
     EDFilter(),
     hadronizer_(ps),
     decayer_(0)
@@ -86,7 +88,9 @@ namespace edm
 
     if ( ps.exists("ExternalDecays") )
     {
-       decayer_ = new gen::ExternalDecayDriver(ps.getParameter<ParameterSet>("ExternalDecays"));
+       //decayer_ = new gen::ExternalDecayDriver(ps.getParameter<ParameterSet>("ExternalDecays"));
+       ParameterSet ps1 = ps.getParameter<ParameterSet>("ExternalDecays");
+       decayer_ = new Decayer(ps1);
     }
 
     produces<edm::HepMCProduct>();
@@ -94,13 +98,13 @@ namespace edm
     produces<GenRunInfoProduct, edm::InRun>();
   }
 
-  template <class HAD>
-  HadronizerFilter<HAD>::~HadronizerFilter()
+  template <class HAD, class DEC>
+  HadronizerFilter<HAD,DEC>::~HadronizerFilter()
   { if (decayer_) delete decayer_; }
 
-  template <class HAD>
+  template <class HAD, class DEC>
   bool
-  HadronizerFilter<HAD>::filter(Event& ev, EventSetup const& /* es */)
+  HadronizerFilter<HAD, DEC>::filter(Event& ev, EventSetup const& /* es */)
   {
     hadronizer_.setEDMEvent(ev);
 
@@ -165,14 +169,14 @@ namespace edm
     return true;
   }
 
-  template <class HAD>
+  template <class HAD, class DEC>
   void
-  HadronizerFilter<HAD>::endJob()
+  HadronizerFilter<HAD,DEC>::endJob()
   { }
 
-  template <class HAD>
+  template <class HAD, class DEC>
   bool
-  HadronizerFilter<HAD>::beginRun(Run& run, EventSetup const& es)
+  HadronizerFilter<HAD,DEC>::beginRun(Run& run, EventSetup const& es)
   {
     
     // init post-generation tools
@@ -209,9 +213,9 @@ namespace edm
   
   }
 
-  template <class HAD>
+  template <class HAD, class DEC>
   bool
-  HadronizerFilter<HAD>::endRun(Run& r, EventSetup const&)
+  HadronizerFilter<HAD,DEC>::endRun(Run& r, EventSetup const&)
   {
     // Retrieve the LHE run info summary and transfer determined
     // cross-section into the generator run info
@@ -237,16 +241,16 @@ namespace edm
     return true;
   }
 
-  template <class HAD>
+  template <class HAD, class DEC>
   bool
-  HadronizerFilter<HAD>::beginLuminosityBlock(LuminosityBlock &, EventSetup const&)
+  HadronizerFilter<HAD,DEC>::beginLuminosityBlock(LuminosityBlock &, EventSetup const&)
   {
     return true;
   }
 
-  template <class HAD>
+  template <class HAD, class DEC>
   bool
-  HadronizerFilter<HAD>::endLuminosityBlock(LuminosityBlock &, EventSetup const&)
+  HadronizerFilter<HAD,DEC>::endLuminosityBlock(LuminosityBlock &, EventSetup const&)
   {
     // If relevant, record the integration luminosity of this
     // luminosity block here.  To do so, we would need a standard
@@ -255,24 +259,24 @@ namespace edm
     return true;
   }
 
-  template <class HAD>
+  template <class HAD, class DEC>
   void
-  HadronizerFilter<HAD>::respondToOpenInputFile(FileBlock const& fb)
+  HadronizerFilter<HAD,DEC>::respondToOpenInputFile(FileBlock const& fb)
   { }
 
-  template <class HAD>
+  template <class HAD, class DEC>
   void
-  HadronizerFilter<HAD>::respondToCloseInputFile(FileBlock const& fb)
+  HadronizerFilter<HAD,DEC>::respondToCloseInputFile(FileBlock const& fb)
   { }
 
-  template <class HAD>
+  template <class HAD, class DEC>
   void
-  HadronizerFilter<HAD>::respondToOpenOutputFiles(FileBlock const& fb)
+  HadronizerFilter<HAD,DEC>::respondToOpenOutputFiles(FileBlock const& fb)
   { }
 
-  template <class HAD>
+  template <class HAD, class DEC>
   void
-  HadronizerFilter<HAD>::respondToCloseOutputFiles(FileBlock const& fb)
+  HadronizerFilter<HAD,DEC>::respondToCloseOutputFiles(FileBlock const& fb)
   { }
 
 }

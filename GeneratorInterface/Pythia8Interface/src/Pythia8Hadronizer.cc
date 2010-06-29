@@ -31,6 +31,8 @@
 
 #include "HepPID/ParticleIDTranslations.hh"
 
+#include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
+
 using namespace gen;
 using namespace Pythia8;
 
@@ -329,8 +331,8 @@ void Pythia8Hadronizer::finalizeEvent()
 	}
 }
 
-typedef edm::GeneratorFilter<Pythia8Hadronizer> Pythia8GeneratorFilter;
+typedef edm::GeneratorFilter<Pythia8Hadronizer, ExternalDecayDriver> Pythia8GeneratorFilter;
 DEFINE_FWK_MODULE(Pythia8GeneratorFilter);
 
-typedef edm::HadronizerFilter<Pythia8Hadronizer> Pythia8HadronizerFilter;
+typedef edm::HadronizerFilter<Pythia8Hadronizer, ExternalDecayDriver> Pythia8HadronizerFilter;
 DEFINE_FWK_MODULE(Pythia8HadronizerFilter);

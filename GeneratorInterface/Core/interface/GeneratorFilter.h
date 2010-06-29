@@ -21,7 +21,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
+// #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
 //#include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -30,10 +30,11 @@
 
 namespace edm
 {
-  template <class HAD> class GeneratorFilter : public EDFilter
+  template <class HAD, class DEC> class GeneratorFilter : public EDFilter
   {
   public:
     typedef HAD Hadronizer;
+    typedef DEC Decayer;
 
     // The given ParameterSet will be passed to the contained
     // Hadronizer object.
@@ -54,7 +55,8 @@ namespace edm
 
   private:
     Hadronizer hadronizer_;
-    gen::ExternalDecayDriver* decayer_;
+    //gen::ExternalDecayDriver* decayer_;
+    Decayer* decayer_;
     
   };
 
@@ -62,8 +64,8 @@ namespace edm
   //
   // Implementation
 
-  template <class HAD>
-  GeneratorFilter<HAD>::GeneratorFilter(ParameterSet const& ps) :
+  template <class HAD, class DEC>
+  GeneratorFilter<HAD,DEC>::GeneratorFilter(ParameterSet const& ps) :
     EDFilter(),
     hadronizer_(ps),
     decayer_(0)
@@ -79,7 +81,9 @@ namespace edm
     
     if ( ps.exists("ExternalDecays") )
     {
-       decayer_ = new gen::ExternalDecayDriver(ps.getParameter<ParameterSet>("ExternalDecays"));
+       //decayer_ = new gen::ExternalDecayDriver(ps.getParameter<ParameterSet>("ExternalDecays"));
+       ParameterSet ps1 = ps.getParameter<ParameterSet>("ExternalDecays");
+       decayer_ = new Decayer(ps1);
     }
 
     produces<edm::HepMCProduct>();
@@ -87,13 +91,13 @@ namespace edm
     produces<GenRunInfoProduct, edm::InRun>();
   }
 
-  template <class HAD>
-  GeneratorFilter<HAD>::~GeneratorFilter()
+  template <class HAD, class DEC>
+  GeneratorFilter<HAD, DEC>::~GeneratorFilter()
   { if ( decayer_ ) delete decayer_;}
 
-  template <class HAD>
+  template <class HAD, class DEC>
   bool
-  GeneratorFilter<HAD>::filter(Event& ev, EventSetup const& /* es */)
+  GeneratorFilter<HAD, DEC>::filter(Event& ev, EventSetup const& /* es */)
   {
     hadronizer_.setEDMEvent(ev);
 
@@ -155,14 +159,14 @@ namespace edm
     return true;
   }
 
-  template <class HAD>
+  template <class HAD, class DEC>
   void
-  GeneratorFilter<HAD>::endJob()
+  GeneratorFilter<HAD, DEC>::endJob()
   { }
 
-  template <class HAD>
+  template <class HAD, class DEC>
   bool
-  GeneratorFilter<HAD>::beginRun(Run &, EventSetup const& es)
+  GeneratorFilter<HAD, DEC>::beginRun(Run &, EventSetup const& es)
   {
 
      // we init external decay tools here to mimic how it was in beginRun
@@ -194,9 +198,9 @@ namespace edm
     return true;
   }
 
-  template <class HAD>
+  template <class HAD, class DEC>
   bool
-  GeneratorFilter<HAD>::endRun(Run& r, EventSetup const&)
+  GeneratorFilter<HAD, DEC>::endRun(Run& r, EventSetup const&)
   {
     // If relevant, record the integrated luminosity for this run
     // here.  To do so, we would need a standard function to invoke on
@@ -213,16 +217,16 @@ namespace edm
     return true;
   }
 
-  template <class HAD>
+  template <class HAD, class DEC>
   bool
-  GeneratorFilter<HAD>::beginLuminosityBlock(LuminosityBlock &, EventSetup const&)
+  GeneratorFilter<HAD, DEC>::beginLuminosityBlock(LuminosityBlock &, EventSetup const&)
   {
     return true;
   }
 
-  template <class HAD>
+  template <class HAD, class DEC>
   bool
-  GeneratorFilter<HAD>::endLuminosityBlock(LuminosityBlock &, EventSetup const&)
+  GeneratorFilter<HAD, DEC>::endLuminosityBlock(LuminosityBlock &, EventSetup const&)
   {
     // If relevant, record the integration luminosity of this
     // luminosity block here.  To do so, we would need a standard
@@ -231,24 +235,24 @@ namespace edm
     return true;
   }
 
-  template <class HAD>
+  template <class HAD, class DEC>
   void
-  GeneratorFilter<HAD>::respondToOpenInputFile(FileBlock const& fb)
+  GeneratorFilter<HAD, DEC>::respondToOpenInputFile(FileBlock const& fb)
   { }
 
-  template <class HAD>
+  template <class HAD, class DEC>
   void
-  GeneratorFilter<HAD>::respondToCloseInputFile(FileBlock const& fb)
+  GeneratorFilter<HAD, DEC>::respondToCloseInputFile(FileBlock const& fb)
   { }
 
-  template <class HAD>
+  template <class HAD, class DEC>
   void
-  GeneratorFilter<HAD>::respondToOpenOutputFiles(FileBlock const& fb)
+  GeneratorFilter<HAD, DEC>::respondToOpenOutputFiles(FileBlock const& fb)
   { }
 
-  template <class HAD>
+  template <class HAD, class DEC>
   void
-  GeneratorFilter<HAD>::respondToCloseOutputFiles(FileBlock const& fb)
+  GeneratorFilter<HAD, DEC>::respondToCloseOutputFiles(FileBlock const& fb)
   { }
 
 }

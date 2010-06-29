@@ -211,6 +211,8 @@ void CMS_SHERPA_RNG_Getter::PrintInfo(std::ostream &str,const size_t) const
 double CMS_SHERPA_RNG::Get(){
    return randomEngine->flat();
    }
+   
+#include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
-typedef edm::GeneratorFilter<SherpaHadronizer> SherpaGeneratorFilter;
+typedef edm::GeneratorFilter<SherpaHadronizer, gen::ExternalDecayDriver> SherpaGeneratorFilter;
 DEFINE_FWK_MODULE(SherpaGeneratorFilter);
