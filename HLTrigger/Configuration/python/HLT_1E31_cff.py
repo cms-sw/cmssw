@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_6_2/1E31/V14 (CMSSW_3_6_2_HLT7)
+# /dev/CMSSW_3_6_2/1E31/V15 (CMSSW_3_6_2_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_2/1E31/V14')
+  tableName = cms.string('/dev/CMSSW_3_6_2/1E31/V15')
 )
 
 streams = cms.PSet( 
@@ -84,24 +84,17 @@ datasets = cms.PSet(
     'HLT_Ele15_SiStrip_L1R',
     'HLT_Photon15_Cleaned_L1R',
     'HLT_Ele10_SW_L1R' ),
-  Cosmics = cms.vstring( 'HLT_CSCBeamHaloOverlapRing2',
-    'HLT_CSCBeamHaloOverlapRing1',
-    'HLT_CSCBeamHalo',
-    'HLT_TrackerCosmics',
+  Cosmics = cms.vstring( 'HLT_TrackerCosmics',
     'HLT_RPCBarrelCosmics',
-    'HLT_CSCBeamHaloRing2or3' ),
-  MinimumBias = cms.vstring( 'HLT_L1Tech_BSC_HighMultiplicity',
-    'HLT_ZeroBiasPixel_SingleTrack',
-    'HLT_PixelTracks_Multiplicity70' ),
-  AlCaPhiSymEcal = cms.vstring(  ),
-  OfflineMonitor = cms.vstring( 'HLT_L1Tech_BSC_HighMultiplicity',
     'HLT_CSCBeamHaloRing2or3',
     'HLT_CSCBeamHaloOverlapRing2',
     'HLT_CSCBeamHaloOverlapRing1',
-    'HLT_CSCBeamHalo',
-    'HLT_ZeroBiasPixel_SingleTrack',
-    'HLT_PixelTracks_Multiplicity70',
-    'HLT_L1Mu14_L1SingleEG10',
+    'HLT_CSCBeamHalo' ),
+  MinimumBias = cms.vstring( 'HLT_PixelTracks_Multiplicity70',
+    'HLT_L1Tech_BSC_HighMultiplicity',
+    'HLT_ZeroBiasPixel_SingleTrack' ),
+  AlCaPhiSymEcal = cms.vstring(  ),
+  OfflineMonitor = cms.vstring( 'HLT_L1Mu14_L1SingleEG10',
     'HLT_DoublePhoton10_L1R',
     'HLT_Photon10_Cleaned_L1R',
     'HLT_Ele15_SiStrip_L1R',
@@ -130,7 +123,14 @@ datasets = cms.PSet(
     'HLT_L2Mu11',
     'HLT_HcalPhiSym',
     'HLT_TrackerCosmics',
-    'HLT_RPCBarrelCosmics' )
+    'HLT_RPCBarrelCosmics',
+    'HLT_L1Tech_BSC_HighMultiplicity',
+    'HLT_CSCBeamHaloRing2or3',
+    'HLT_CSCBeamHaloOverlapRing2',
+    'HLT_CSCBeamHaloOverlapRing1',
+    'HLT_CSCBeamHalo',
+    'HLT_ZeroBiasPixel_SingleTrack',
+    'HLT_PixelTracks_Multiplicity70' )
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -1961,6 +1961,8 @@ hltL1MuOpenL1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
+    ExcludeSingleSegmentCSC = cms.bool( False ),
+    CSCTFtag = cms.InputTag( "csctfDigis" ),
     SaveTag = cms.untracked.bool( True ),
     SelectQualities = cms.vint32(  )
 )
@@ -1984,6 +1986,8 @@ hltL1MuL1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
+    ExcludeSingleSegmentCSC = cms.bool( False ),
+    CSCTFtag = cms.InputTag( "csctfDigis" ),
     SaveTag = cms.untracked.bool( True ),
     SelectQualities = cms.vint32(  )
 )
@@ -2030,6 +2034,8 @@ hltL1Mu30L1Filtered30 = cms.EDFilter( "HLTMuonL1Filter",
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 30.0 ),
     MinN = cms.int32( 1 ),
+    ExcludeSingleSegmentCSC = cms.bool( False ),
+    CSCTFtag = cms.InputTag( "csctfDigis" ),
     SaveTag = cms.untracked.bool( True ),
     SelectQualities = cms.vint32(  )
 )
@@ -2053,6 +2059,8 @@ hltL1SingleMu7L1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
+    ExcludeSingleSegmentCSC = cms.bool( False ),
+    CSCTFtag = cms.InputTag( "csctfDigis" ),
     SelectQualities = cms.vint32(  )
 )
 hltMuonDTDigis = cms.EDProducer( "DTUnpackingModule",
@@ -2439,6 +2447,8 @@ hltSingleMuIsoL1Filtered7 = cms.EDFilter( "HLTMuonL1Filter",
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
+    ExcludeSingleSegmentCSC = cms.bool( False ),
+    CSCTFtag = cms.InputTag( "csctfDigis" ),
     SelectQualities = cms.vint32(  )
 )
 hltSingleMuIsoL2PreFiltered7 = cms.EDFilter( "HLTMuonL2PreFilter",
@@ -2970,6 +2980,8 @@ hltL1SingleMu3L1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
+    ExcludeSingleSegmentCSC = cms.bool( False ),
+    CSCTFtag = cms.InputTag( "csctfDigis" ),
     SelectQualities = cms.vint32(  )
 )
 hltSingleMu5L2Filtered4 = cms.EDFilter( "HLTMuonL2PreFilter",
@@ -3076,6 +3088,8 @@ hltSingleMu15L1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
+    ExcludeSingleSegmentCSC = cms.bool( False ),
+    CSCTFtag = cms.InputTag( "csctfDigis" ),
     SelectQualities = cms.vint32(  )
 )
 hltSingleMu15L2PreFiltered12 = cms.EDFilter( "HLTMuonL2PreFilter",
@@ -3124,6 +3138,8 @@ hltDoubleMuLevel1PathL1OpenFiltered = cms.EDFilter( "HLTMuonL1Filter",
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 2 ),
+    ExcludeSingleSegmentCSC = cms.bool( False ),
+    CSCTFtag = cms.InputTag( "csctfDigis" ),
     SaveTag = cms.untracked.bool( True ),
     SelectQualities = cms.vint32(  )
 )
@@ -3136,6 +3152,8 @@ hltDiMuonL1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 2 ),
+    ExcludeSingleSegmentCSC = cms.bool( False ),
+    CSCTFtag = cms.InputTag( "csctfDigis" ),
     SelectQualities = cms.vint32(  )
 )
 hltDiMuonL2PreFiltered0 = cms.EDFilter( "HLTMuonL2PreFilter",
@@ -3188,6 +3206,8 @@ hltDiMuonL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 2 ),
+    ExcludeSingleSegmentCSC = cms.bool( False ),
+    CSCTFtag = cms.InputTag( "csctfDigis" ),
     SelectQualities = cms.vint32(  )
 )
 hltDiMuonL2PreFiltered = cms.EDFilter( "HLTMuonL2PreFilter",
@@ -3225,6 +3245,8 @@ hltMu0L1MuOpenL1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 2 ),
+    ExcludeSingleSegmentCSC = cms.bool( False ),
+    CSCTFtag = cms.InputTag( "csctfDigis" ),
     SaveTag = cms.untracked.bool( True ),
     SelectQualities = cms.vint32(  )
 )
@@ -3263,6 +3285,8 @@ hltMu3L1MuOpenL1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 2 ),
+    ExcludeSingleSegmentCSC = cms.bool( False ),
+    CSCTFtag = cms.InputTag( "csctfDigis" ),
     SaveTag = cms.untracked.bool( True ),
     SelectQualities = cms.vint32(  )
 )
@@ -3301,6 +3325,8 @@ hltMu5L1MuOpenL1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 2 ),
+    ExcludeSingleSegmentCSC = cms.bool( False ),
+    CSCTFtag = cms.InputTag( "csctfDigis" ),
     SaveTag = cms.untracked.bool( True ),
     SelectQualities = cms.vint32(  )
 )
@@ -3398,6 +3424,8 @@ hltMu0TrackJpsiL1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
+    ExcludeSingleSegmentCSC = cms.bool( False ),
+    CSCTFtag = cms.InputTag( "csctfDigis" ),
     SelectQualities = cms.vint32(  )
 )
 hltMu0TrackJpsiL2Filtered0 = cms.EDFilter( "HLTMuonL2PreFilter",
@@ -3523,6 +3551,8 @@ hltMu3TrackJpsiL1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
+    ExcludeSingleSegmentCSC = cms.bool( False ),
+    CSCTFtag = cms.InputTag( "csctfDigis" ),
     SelectQualities = cms.vint32(  )
 )
 hltMu3TrackJpsiL2Filtered3 = cms.EDFilter( "HLTMuonL2PreFilter",
@@ -3596,6 +3626,8 @@ hltMu5TrackJpsiL1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
+    ExcludeSingleSegmentCSC = cms.bool( False ),
+    CSCTFtag = cms.InputTag( "csctfDigis" ),
     SelectQualities = cms.vint32(  )
 )
 hltMu5TrackJpsiL2Filtered4 = cms.EDFilter( "HLTMuonL2PreFilter",
@@ -7375,6 +7407,8 @@ hltL1Mu3EG5L1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
+    ExcludeSingleSegmentCSC = cms.bool( False ),
+    CSCTFtag = cms.InputTag( "csctfDigis" ),
     SelectQualities = cms.vint32(  )
 )
 hltL2Filtered7L2Mu7Photon9L1R = cms.EDFilter( "HLTMuonL2PreFilter",
@@ -7451,6 +7485,8 @@ hltL1Mu3Jet15L1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
+    ExcludeSingleSegmentCSC = cms.bool( False ),
+    CSCTFtag = cms.InputTag( "csctfDigis" ),
     SelectQualities = cms.vint32(  )
 )
 hltL2Filtered3Mu8HT50 = cms.EDFilter( "HLTMuonL2PreFilter",
@@ -7484,6 +7520,8 @@ hltL1Mu5Jet15L1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
+    ExcludeSingleSegmentCSC = cms.bool( False ),
+    CSCTFtag = cms.InputTag( "csctfDigis" ),
     SelectQualities = cms.vint32(  )
 )
 hltL2Filtered9L2Mu9DoubleJet30 = cms.EDFilter( "HLTMuonL2PreFilter",
@@ -8609,6 +8647,8 @@ hltRPCMuonNoTriggersL1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
     MaxEta = cms.double( 1.6 ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
+    ExcludeSingleSegmentCSC = cms.bool( False ),
+    CSCTFtag = cms.InputTag( "csctfDigis" ),
     SaveTag = cms.untracked.bool( True ),
     SelectQualities = cms.vint32( 6 )
 )
@@ -8621,6 +8661,8 @@ hltRPCMuonNormaL1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
     MaxEta = cms.double( 1.6 ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
+    ExcludeSingleSegmentCSC = cms.bool( False ),
+    CSCTFtag = cms.InputTag( "csctfDigis" ),
     SaveTag = cms.untracked.bool( True ),
     SelectQualities = cms.vint32(  )
 )
