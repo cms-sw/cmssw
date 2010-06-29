@@ -229,3 +229,16 @@ bool gctTestFunctions::checkEnergySumsFromFirmware(const L1GlobalCaloTrigger* gc
 {
   return theFirmwareTester->checkEnergySumsFromFirmware(gct, fileName, m_numOfBx);
 }
+
+//=================================================================================================================
+//
+/// Check against data read from hardware or a different version of the emulator
+void gctTestFunctions::checkHwResults(const L1GlobalCaloTrigger* gct, const edm::Event &iEvent) const
+{
+  theRealDataTester->checkHwResults(gct, iEvent);
+}
+
+void gctTestFunctions::checkEmResults(const L1GlobalCaloTrigger* gct, const edm::Event &iEvent) const
+{
+  theRealDataTester->checkEmResults(gct, iEvent);
+}

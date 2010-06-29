@@ -18,6 +18,10 @@
 // GCT include files
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalEnergyAlgos.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctHtMissLut.h"
+
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 
 //
 // constants, enums and typedefs
@@ -94,7 +98,7 @@ L1GctTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    configureGct(iSetup);
    m_tester->configure(iSetup);
 
-   m_gct->setupTauAlgo(theUseNewTauAlgoFlag, true);
+   m_gct->setupTauAlgo(theUseNewTauAlgoFlag, false);
    if (theConfigParamsPrintFlag) configParamsPrint(std::cout);
 
    // Initialise the gct
@@ -137,11 +141,16 @@ L1GctTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      passAllTests &= m_tester->checkEnergySumsFromFirmware(m_gct, theEnergySumsDataFileName);
    }
 
-   if (theEnergyAlgosTestIsEnabled || theSingleEventTestIsEnabled || (theFirmwareTestIsEnabled && !endOfFile)) {
+   if (theEnergyAlgosTestIsEnabled || theSingleEventTestIsEnabled || theRealDataTestIsEnabled || (theFirmwareTestIsEnabled && !endOfFile)) {
      m_tester->fillRawJetData(m_gct);
      passAllTests &= m_tester->checkEnergySums(m_gct);
      passAllTests &= m_tester->checkHtSums(m_gct);
      passAllTests &= m_tester->checkHfEtSums(m_gct);
+   }
+
+   if (theRealDataTestIsEnabled) {
+     m_tester->checkHwResults(m_gct, iEvent);
+     m_tester->checkEmResults(m_gct, iEvent);
    }
 
    m_eventNo++;
@@ -236,4 +245,5 @@ void L1GctTest::configParamsPrint(std::ostream & out)
       << " GeV; or " << m_gct->getJetFinderParams()->getHtJetEtThresholdGct() << " GCT units" << std::endl;
   out << "Jet threshold for HTM is " << m_gct->getJetFinderParams()->getMHtJetEtThresholdGeV()
       << " GeV; or " << m_gct->getJetFinderParams()->getMHtJetEtThresholdGct() << " GCT units" << std::endl;
+  out << "HtMiss Lut details: " << *m_gct->getEnergyFinalStage()->getHtMissLut()->etScale() << std::endl;
 }

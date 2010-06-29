@@ -85,6 +85,10 @@ public:
   /// Analyse calculation of energy sums in firmware
   bool checkEnergySumsFromFirmware(const L1GlobalCaloTrigger* gct, const std::string &fileName) const;
 
+  /// Check against data read from hardware or a different version of the emulator
+  void checkHwResults(const L1GlobalCaloTrigger* gct, const edm::Event &iEvent) const;
+  void checkEmResults(const L1GlobalCaloTrigger* gct, const edm::Event &iEvent) const;
+
 private:
 
   gctTestElectrons*      theElectronsTester;
