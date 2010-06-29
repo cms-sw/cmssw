@@ -13,7 +13,7 @@
  *
  * \author Steven Lowette
  *
- * $Id: TrackJet.h,v 1.2 2009/12/09 09:06:51 srappocc Exp $
+ * $Id: TrackJet.h,v 1.3 2009/12/10 15:13:43 lowette Exp $
  *
  ************************************************************/
 
@@ -53,6 +53,8 @@ namespace reco {
       const reco::VertexRef primaryVertex() const;
       /// set associated primary vertex
       void setPrimaryVertex(const reco::VertexRef & vtx);
+      /// check jet to be associated to the hard primary vertex
+      bool fromHardVertex() const { return (this->primaryVertex().index() == 0); }
 
       /// Print object
       virtual std::string print () const;
