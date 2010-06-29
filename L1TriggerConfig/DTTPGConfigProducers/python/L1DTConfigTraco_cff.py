@@ -4,7 +4,7 @@ TracoParametersBlock = cms.PSet(
     TracoParameters = cms.PSet(
         SPRGCOMP = cms.int32(2),
 
-        FHTMSK = cms.int32(0), ## single HTRIG enabling on first/second tracks
+        FHTMSK = cms.int32(1), ## single HTRIG enabling on first/second tracks
 
         DD = cms.int32(18), ## DD traco parameter: this is fixed
 
@@ -18,7 +18,7 @@ TracoParametersBlock = cms.PSet(
         SHTPRF = cms.int32(1),
         Debug = cms.untracked.int32(0), ## Debug flag
 
-        SHTMSK = cms.int32(0),
+        SHTMSK = cms.int32(1),
         TRGENB3 = cms.int32(1),
         SHISM = cms.int32(0),
         IBTIOFF = cms.int32(0), ## IBTIOFF traco parameter
@@ -27,11 +27,11 @@ TracoParametersBlock = cms.PSet(
 
         KRAD = cms.int32(0), ## KRAD traco parameter: fixed due to hardware bug
 
-        FLTMSK = cms.int32(0), ## single LTRIG enabling on first/second tracks
+        FLTMSK = cms.int32(1), ## single LTRIG enabling on first/second tracks
 
         LTS = cms.int32(0), ## suppr. of LTRIG in 4 BX before HTRIG
 
-        SLTMSK = cms.int32(0),
+        SLTMSK = cms.int32(1),
         FPRGCOMP = cms.int32(2), ## K tollerance for correlation in TRACO
 
         TRGENB9 = cms.int32(1),
