@@ -54,13 +54,6 @@ def customiseCommon(process):
     ## ECAL 
     process.ecalRecHit.ChannelStatusToBeExcluded = [ 1, 2, 3, 4, 8, 9, 10, 11, 12, 13, 14, 78, 142 ]
 
-    ## EGAMMA
-    process.photons.minSCEtBarrel = 5.
-    process.photons.minSCEtEndcap =5.
-    process.photonCore.minSCEt = 5.
-    process.conversionTrackCandidates.minSCEt =5.
-    process.conversions.minSCEt =5.
-    
     ###
     ###  end of top level replacements
     ###
