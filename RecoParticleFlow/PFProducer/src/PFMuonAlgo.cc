@@ -353,8 +353,9 @@ PFMuonAlgo::isIsolatedMuon( const reco::MuonRef& muonRef ){
   if ( !muonRef.isNonnull() ) return false;
   if ( !muonRef->isIsolationValid() ) return false;
   
-  // Isolated Muons which are missed by standard cuts are nearly always global
+  // Isolated Muons which are missed by standard cuts are nearly always global+tracker
   if ( !muonRef->isGlobalMuon() ) return false;
+  if ( !muonRef->isTrackerMuon() ) return false;
   
 
   reco::TrackRef standAloneMu = muonRef->standAloneMuon();
