@@ -109,6 +109,8 @@ std::ostream& operator << (std::ostream& os, const L1GctHtMissLut& lut)
     os << ", " << *thr;
   }
   os << std::endl;
+  os << "Max values for input to et scale " << lut.m_etScale->linScaleMax()
+     << " and for output " << lut.m_etScale->rankScaleMax() << std::endl;
   os << "LSB used for conversion is " << lut.m_componentLsb << " GeV" << std::endl;
   os << "\n===Lookup table contents===\n" << std::endl;
   const L1GctLut<L1GctHtMissLut::NAddress,L1GctHtMissLut::NData>* temp=&lut;
