@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: TrackExtra.h,v 1.26 2008/02/21 13:16:43 gpetrucc Exp $
+ * \version $Id: TrackExtra.h,v 1.27 2008/05/05 17:49:10 jmuelmen Exp $
  *
  */
 #include <Rtypes.h>
@@ -38,11 +38,18 @@ namespace reco {
     typedef unsigned int index;
 
     /// default constructor
-    TrackExtra(): outerOk_(false),
+    TrackExtra(): 
+      outerMomentum_(),
+      outerOk_(false),
       outerDetId_(0),
+      innerPosition_(),
+      innerMomentum_(),
       innerOk_(false),
       innerDetId_(0),
-      seedDir_(anyDirection) { }
+      seedDir_(anyDirection),
+      seedRef_(),
+      trackResiduals_()
+    { }
 
     /// constructor from outermost/innermost position and momentum and Seed information
     TrackExtra( const Point & outerPosition, const Vector & outerMomentum, bool ok ,
