@@ -76,7 +76,7 @@ def runTtrigValid(run,runselection,trial,input_file,config,runStep=True):
         result_file = config.result_dir + '/DTkFactValidation_%s.root'%run
         if config.stageOutLocal:
             output_dir = project_valid_first + "/res"
-            haddLocal(output_dir,result_file)
+            haddLocal(output_dir,result_file,'residuals')
         elif config.stageOutCAF:
             castor_dir = config.castorpath + "/" + config.userdircaf
             haddInCastor(castor_dir,result_file,'residuals')
@@ -119,7 +119,7 @@ def runTtrigValidResidCorr(run,runselection,trial,input_file,config,runStep=True
         result_file = config.result_dir + '/DTkFactValidation_ResidCorr_%s.root'%run
         if config.stageOutLocal:
             output_dir = project_valid_ResidCorr + "/res"
-            haddLocal(output_dir,result_file)
+            haddLocal(output_dir,result_file,'residuals')
         elif config.stageOutCAF: 
             castor_dir = config.castorpath + "/" + config.userdircaf
             haddInCastor(castor_dir,result_file,'residuals')
