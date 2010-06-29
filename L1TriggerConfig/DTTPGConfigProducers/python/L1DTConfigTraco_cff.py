@@ -4,7 +4,7 @@ TracoParametersBlock = cms.PSet(
     TracoParameters = cms.PSet(
         SPRGCOMP = cms.int32(2),
 
-        FHTMSK = cms.int32(0), ## single HTRIG enabling on first/second tracks
+        FHTMSK = cms.int32(1), ## single HTRIG enabling on first/second tracks
 
         DD = cms.int32(18), ## DD traco parameter: this is fixed
 
@@ -18,7 +18,7 @@ TracoParametersBlock = cms.PSet(
         SHTPRF = cms.int32(1),
         Debug = cms.untracked.int32(0), ## Debug flag
 
-        SHTMSK = cms.int32(0),
+        SHTMSK = cms.int32(1),
         TRGENB3 = cms.int32(1),
         SHISM = cms.int32(0),
         IBTIOFF = cms.int32(0), ## IBTIOFF traco parameter
