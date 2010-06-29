@@ -15,7 +15,6 @@ process.maxEvents = cms.untracked.PSet(
 process.p1 = cms.Path(process.gctemu)
 process.gctemu.doRealData = True
 process.gctemu.useNewTauAlgo = True
-process.gctemu.printConfig = True
 process.gctemu.preSamples = 0
 process.gctemu.postSamples = 0
 
