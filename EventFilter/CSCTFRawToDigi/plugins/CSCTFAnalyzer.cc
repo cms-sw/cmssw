@@ -19,7 +19,7 @@ CSCTFAnalyzer::CSCTFAnalyzer(const edm::ParameterSet &conf):edm::EDAnalyzer(){
 	lctProducer   = conf.getUntrackedParameter<edm::InputTag>("lctProducer",edm::InputTag("csctfunpacker"));
 	trackProducer = conf.getUntrackedParameter<edm::InputTag>("trackProducer",edm::InputTag("csctfunpacker"));
 	statusProducer= conf.getUntrackedParameter<edm::InputTag>("statusProducer",edm::InputTag("csctfunpacker"));
-	file = new TFile("qwe.root","RECREATE");
+	file = new TFile("ewq.root","RECREATE");
 	tree = new TTree("dy","QWE");
 	tree->Branch("dtPhi_1_plus",&dtPhi[0][0],"dtPhi_1_plus/I");
 	tree->Branch("dtPhi_2_plus",&dtPhi[1][0],"dtPhi_2_plus/I");
@@ -79,7 +79,7 @@ void CSCTFAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c){
 		e.getByLabel(mbProducer.label(),mbProducer.instance(),dtStubs);
 		if( dtStubs.isValid() ){
 			std::vector<csctf::TrackStub> vstubs = dtStubs->get();
-std::cout<<"DT size="<<vstubs.end()-vstubs.begin()<<std::endl;
+			std::cout<<"DT size="<<vstubs.end()-vstubs.begin()<<std::endl;
 			for(std::vector<csctf::TrackStub>::const_iterator stub=vstubs.begin(); stub!=vstubs.end(); stub++){
 				int dtSector =(stub->sector()-1)*2 + stub->subsector()-1;
 				int dtEndcap = stub->endcap()-1;
@@ -89,7 +89,7 @@ std::cout<<"DT size="<<vstubs.end()-vstubs.begin()<<std::endl;
 					edm::LogInfo("CSCTFAnalyzer: DT digi are out of range: ")<<" dtSector="<<dtSector<<" dtEndcap="<<dtEndcap;
 				}
 				edm::LogInfo("CSCTFAnalyzer")<<"   DT data: tbin="<<stub->BX()<<" CSC sector="<<stub->sector()<<" CSC subsector="<<stub->subsector()<<" station="<<stub->station()<<" endcap="<<stub->endcap()
-						<<" phi="<<stub->phiPacked()<<" phiBend="<<stub->getBend()<<" quality="<<stub->getQuality()<<" mb_bxn="<<stub->cscid(); 
+						<<" phi="<<stub->phiPacked()<<" phiBend="<<stub->getBend()<<" quality="<<stub->getQuality()<<" mb_bxn="<<stub->cscid();
 			}
 		} else edm::LogInfo("CSCTFAnalyzer")<<"  No valid CSCTriggerContainer<csctf::TrackStub> products found";
 		tree->Fill();
@@ -149,11 +149,16 @@ std::cout<<"DT size="<<vstubs.end()-vstubs.begin()<<std::endl;
 					int fpga    = ( subSector ? subSector-1 : station+1 );
 					// If Det Id is within range
 					if( sector<0 || sector>11 || station<0 || station>3 || cscId<0 || cscId>8 || lctId<0 || lctId>1){
-						edm::LogInfo("CSCTFAnalyzer: CSC digi are out of range: ");
+						edm::LogInfo("CSCTFAnalyzer: Digi are out of range: ");
 						continue;
 					}
-					edm::LogInfo("CSCTFAnalyzer")<<"       Linked LCT: "<<(*csc).first.endcap()<<"  station: "<<(station+1)<<"  sector: "<<(sector+1)<<"  subSector: "<<subSector<<"  tbin: "<<tbin<<"  cscId: "<<(cscId+1)<<"  fpga: "<<(fpga+1)<<" "<<
-						"LCT(vp="<<lct->isValid()<<",qual="<<lct->getQuality()<<",wg="<<lct->getKeyWG()<<",strip="<<lct->getStrip()<<")";
+					if( lct->getQuality() < 100 )
+						edm::LogInfo("CSCTFAnalyzer")<<"       Linked LCT: "<<(*csc).first.endcap()<<"  station: "<<(station+1)<<"  sector: "<<(sector+1)<<"  subSector: "<<subSector<<"  tbin: "<<tbin
+							<<"  cscId: "<<(cscId+1)<<"  fpga: "<<(fpga+1)<<" LCT(vp="<<lct->isValid()<<",qual="<<lct->getQuality()<<",wg="<<lct->getKeyWG()<<",strip="<<lct->getStrip()<<")";
+					else
+						edm::LogInfo("CSCTFAnalyzer")<<"       Linked MB stub: "<<(*csc).first.endcap()<<"  sector: "<<(sector+1)<<"  subSector: "<<subSector<<"  tbin: "<<tbin
+							<<" MB(vp="<<lct->isValid()<<",qual="<<(lct->getQuality()-100)<<",cal="<<lct->getKeyWG()<<",flag="<<lct->getStrip()<<",bc0="<<lct->getPattern()<<",phiBend="<<lct->getBend()
+							<<",tbin="<<lct->getBX()<<",id="<<lct->getMPCLink()<<",bx0="<<lct->getBX0()<<",se="<<lct->getSyncErr()<<",bxn="<<lct->getCSCID()<<",phi="<<lct->getTrknmb()<<")";
 				}
 			}
 			}

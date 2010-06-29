@@ -90,7 +90,7 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 
 			// If Det Id is within range
 			if( sector<0 || sector>11 || station<0 || station>3 || cscId<0 || cscId>8 || lctId<0 || lctId>1){
-				edm::LogInfo("CSCTFPacker: CSC digi are out of range: ");
+				edm::LogInfo("CSCTFPacker: CSC digi are out of range: ")<<"sector="<<sector<<", station="<<station<<", cscId="<<cscId<<", lctId="<<lctId;
 				continue;
 			}
 
@@ -147,12 +147,11 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 		if( barrelStubs.isValid() ){
 			std::vector<csctf::TrackStub> stubs = barrelStubs.product()->get();
 			for(std::vector<csctf::TrackStub>::const_iterator dt=stubs.begin(); dt!=stubs.end(); dt++){
-				int station   = dt->station()-1;
 				int sector    = dt->sector()-1 + ( dt->endcap()==1 ? 0 : 6 );
 				int subSector = dt->subsector()-1;
 				int tbin      = dt->getBX() - (central_lct_bx-central_sp_bx); // Shift back to hardware BX window definition
-				if( station!=5 || tbin<0 || tbin>6 || sector<0 || sector>11 || subSector<0 || subSector>11 ){
-					edm::LogInfo("CSCTFPacker: CSC digi are out of range: ")<<"  station="<<station<<"  sector="<<sector<<"  subSector="<<subSector<<"  tbin="<<tbin;
+				if( tbin<0 || tbin>6 || sector<0 || sector>11 || subSector<0 || subSector>11 ){
+					edm::LogInfo("CSCTFPacker: CSC DT digi are out of range: ")<<" sector="<<sector<<"  subSector="<<subSector<<"  tbin="<<tbin;
 					continue;
 				}
 				mbDataRecord[sector][subSector][tbin].quality_  = dt->getQuality();
