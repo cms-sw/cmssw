@@ -6,7 +6,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: AlcaBeamSpotFromDB.cc,v 1.1 2010/06/18 21:11:23 yumiceva Exp $
+ version $Id: AlcaBeamSpotFromDB.cc,v 1.1 2010/06/21 18:02:20 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -82,7 +82,12 @@ void AlcaBeamSpotFromDB::endLuminosityBlock(edm::LuminosityBlock& lumiSeg, const
   aSpot.setEmittanceY( spotDB->GetEmittanceY() );
   aSpot.setbetaStar( spotDB->GetBetaStar() );
 
-  
+  if ( spotDB->GetBeamType() == 2 ) {
+    aSpot.setType( reco::BeamSpot::Tracker );
+  } else{
+    aSpot.setType( reco::BeamSpot::Fake );
+  }
+
   std::auto_ptr<reco::BeamSpot> result(new reco::BeamSpot);
   *result = aSpot;
   lumiSeg.put(result, std::string("alcaBeamSpot"));

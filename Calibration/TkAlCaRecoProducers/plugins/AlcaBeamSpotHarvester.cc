@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/06/18 22:16:17 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/06/21 18:02:20 $
+ *  $Revision: 1.1 $
  *  \author L. Uplegger F. Yumiceva - Fermilab
  */
 
@@ -55,7 +55,7 @@ void AlcaBeamSpotHarvester::analyze(const edm::Event&, const edm::EventSetup&) {
 void AlcaBeamSpotHarvester::beginRun(const edm::Run&, const edm::EventSetup&) {}
 
 //--------------------------------------------------------------------------------------------------
-void AlcaBeamSpotHarvester::endRun(const edm::Run&, const edm::EventSetup&){
+void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&){
   theAlcaBeamSpotManager_.createWeightedPayloads();
   std::map<edm::LuminosityBlockNumber_t,reco::BeamSpot> beamSpotMap = theAlcaBeamSpotManager_.getPayloads();
   Service<cond::service::PoolDBOutputService> poolDbService;
@@ -79,15 +79,22 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run&, const edm::EventSetup&){
 	  aBeamSpot->SetCovariance(i,j,it->second.covariance(i,j));
 	}
       }
+
+      cond::Time_t thisrun=(cond::Time_t) iRun.id().run();
+
       if (poolDbService->isNewTagRequest( "BeamSpotObjectsRcd" ) ) {
           edm::LogInfo("AlcaBeamSpotSpotHarvester")
               << "new tag requested" << std::endl;
-          poolDbService->createNewIOV<BeamSpotObjects>(aBeamSpot, poolDbService->beginOfTime(),poolDbService->endOfTime(),"BeamSpotObjectsRcd");
+          //poolDbService->createNewIOV<BeamSpotObjects>(aBeamSpot, poolDbService->beginOfTime(),poolDbService->endOfTime(),"BeamSpotObjectsRcd");
+	  
+	  //poolDbService->createNewIOV<BeamSpotObjects>(aBeamSpot, poolDbService->currentTime(), poolDbService->endOfTime(),"BeamSpotObjectsRcd");
+	  poolDbService->writeOne<BeamSpotObjects>(aBeamSpot, thisrun,"BeamSpotObjectsRcd");
       } 
       else {
         edm::LogInfo("AlcaBeamSpotSpotHarvester")
-            << "no new tag requested" << std::endl;
-        poolDbService->appendSinceTime<BeamSpotObjects>(aBeamSpot, poolDbService->currentTime(),"BeamSpotObjectsRcd");
+            << "no new tag requested, appending IOV" << std::endl;
+        //poolDbService->appendSinceTime<BeamSpotObjects>(aBeamSpot, poolDbService->currentTime(),"BeamSpotObjectsRcd");
+	poolDbService->writeOne<BeamSpotObjects>(aBeamSpot, thisrun,"BeamSpotObjectsRcd");
       }
 /*
       int         argc = 15;
