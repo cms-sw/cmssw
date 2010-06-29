@@ -26,10 +26,16 @@ newCombinedSeeds.clusterRemovalInfos = cms.VInputTag(
 #dEdX reconstruction
 from RecoTracker.DeDx.dedxEstimators_cff import *
 
+#BeamHalo tracking
+from RecoTracker.Configuration.RecoTrackerBHM_cff import *
+
+
 #special sequences, such as pixel-less
 from RecoTracker.Configuration.RecoTrackerNotStandard_cff import *
 
-ckftracks = cms.Sequence(iterTracking*trackCollectionMerging*newCombinedSeeds*doAlldEdXEstimators)
+ckftracks_woBH = cms.Sequence(iterTracking*trackCollectionMerging*newCombinedSeeds*doAlldEdXEstimators)
+ckftracks = cms.Sequence(ckftracks_woBH + beamhaloTracksSeq)
+
 ckftracks_wodEdX = ckftracks.copy()
 ckftracks_wodEdX.remove(doAlldEdXEstimators)
 
