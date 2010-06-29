@@ -3,8 +3,8 @@
 
 /** \class BeamMonitor
  * *
- *  $Date: 2010/05/11 23:56:07 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/06/02 05:02:40 $
+ *  $Revision: 1.2 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -106,12 +106,6 @@ class BeamMonitor : public edm::EDAnalyzer {
   // MonitorElements:
   MonitorElement * h_nTrk_lumi;
   MonitorElement * h_d0_phi0;
-  MonitorElement * h_sigmaX0_lumi;
-  MonitorElement * h_sigmaX0_time;
-  MonitorElement * h_sigmaY0_lumi;
-  MonitorElement * h_sigmaY0_time;
-  MonitorElement * h_sigmaZ0_lumi;
-  MonitorElement * h_sigmaZ0_time;
   MonitorElement * h_trk_z0;
   MonitorElement * h_vx_vy;
   MonitorElement * h_vx_dz;
@@ -146,6 +140,7 @@ class BeamMonitor : public edm::EDAnalyzer {
 
   //
   std::time_t tmpTime;
+  std::time_t startTime;
   std::time_t refTime;
   edm::TimeValue_t ftimestamp;
   int lastNZbin; // last non zero bin of time histos
