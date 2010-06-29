@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/06/21 18:02:20 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/06/29 15:51:16 $
+ *  $Revision: 1.2 $
  *  \author L. Uplegger F. Yumiceva - Fermilab
  */
 
@@ -37,6 +37,7 @@ using namespace reco;
 AlcaBeamSpotHarvester::AlcaBeamSpotHarvester(const edm::ParameterSet& iConfig) :
   theAlcaBeamSpotManager_(iConfig)
 {  
+  beamSpotOutputBase_ = iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("BeamSpotOutputBase");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -80,7 +81,17 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
 	}
       }
 
-      cond::Time_t thisrun=(cond::Time_t) iRun.id().run();
+      cond::Time_t thisIOV;
+
+      // run based      
+      if (beamSpotOutputBase_ == "runbased" ) {
+	thisIOV = (cond::Time_t) iRun.id().run();
+      }
+      // lumi based
+      else if (beamSpotOutputBase_ == "lumibased" ) {
+	edm::LuminosityBlockID lu(iRun.id().run(),it->first);
+	thisIOV = (cond::Time_t)(lu.value()); 
+      }
 
       if (poolDbService->isNewTagRequest( "BeamSpotObjectsRcd" ) ) {
           edm::LogInfo("AlcaBeamSpotSpotHarvester")
@@ -88,13 +99,13 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
           //poolDbService->createNewIOV<BeamSpotObjects>(aBeamSpot, poolDbService->beginOfTime(),poolDbService->endOfTime(),"BeamSpotObjectsRcd");
 	  
 	  //poolDbService->createNewIOV<BeamSpotObjects>(aBeamSpot, poolDbService->currentTime(), poolDbService->endOfTime(),"BeamSpotObjectsRcd");
-	  poolDbService->writeOne<BeamSpotObjects>(aBeamSpot, thisrun,"BeamSpotObjectsRcd");
+	  poolDbService->writeOne<BeamSpotObjects>(aBeamSpot, thisIOV,"BeamSpotObjectsRcd");
       } 
       else {
         edm::LogInfo("AlcaBeamSpotSpotHarvester")
             << "no new tag requested, appending IOV" << std::endl;
         //poolDbService->appendSinceTime<BeamSpotObjects>(aBeamSpot, poolDbService->currentTime(),"BeamSpotObjectsRcd");
-	poolDbService->writeOne<BeamSpotObjects>(aBeamSpot, thisrun,"BeamSpotObjectsRcd");
+	poolDbService->writeOne<BeamSpotObjects>(aBeamSpot, thisIOV,"BeamSpotObjectsRcd");
       }
 /*
       int         argc = 15;

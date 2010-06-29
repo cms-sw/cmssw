@@ -14,20 +14,22 @@ process.MessageLogger.cerr = cms.untracked.PSet(placeholder = cms.untracked.bool
 process.MessageLogger.cout = cms.untracked.PSet(
     threshold = cms.untracked.string('INFO'),
     default = cms.untracked.PSet(
-       limit = cms.untracked.int32(0)
+       limit = cms.untracked.int32(-1)
     ),
     AlcaBeamSpotHarvester = cms.untracked.PSet(
         #reportEvery = cms.untracked.int32(100) # every 1000th only
-	limit = cms.untracked.int32(0)
+	limit = cms.untracked.int32(-1)
     ),
     AlcaBeamSpotManager = cms.untracked.PSet(
         #reportEvery = cms.untracked.int32(100) # every 1000th only
-	limit = cms.untracked.int32(0)
+	limit = cms.untracked.int32(-1)
     )
 )
 #process.MessageLogger.statistics.append('cout')
 
 process.load("Calibration.TkAlCaRecoProducers.AlcaBeamSpotHarvester_cff")
+
+process.alcaBeamSpotHarvester.AlcaBeamSpotHarvesterParameters.BeamSpotOutputBase = cms.untracked.string("lumibased") #lumibase
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -40,20 +42,23 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('step3 nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
+#process.maxLuminosityBlocks=cms.untracked.PSet(
+#         input=cms.untracked.int32(1)
+#)
 process.options = cms.untracked.PSet(
     Rethrow = cms.untracked.vstring('ProductNotFound'),
     fileMode = cms.untracked.string('FULLMERGE')
 )
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:AlcaBeamSpot.root'),
+    fileNames = cms.untracked.vstring('file:/tmp/yumiceva/AlcaBeamSpotDB.root'),
     processingMode = cms.untracked.string('RunsAndLumis')
 )
 
@@ -85,8 +90,8 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     record = cms.string('BeamSpotObjectsRcd'),
     tag = cms.string('TestLSBasedBS') )),
     loadBlobStreamer = cms.untracked.bool(False),
-#    timetype   = cms.untracked.string('lumiid')
-    timetype   = cms.untracked.string('runnumber')
+    timetype   = cms.untracked.string('lumiid')
+#    timetype   = cms.untracked.string('runnumber')
 )
 
 

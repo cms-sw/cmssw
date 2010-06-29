@@ -1,7 +1,7 @@
 /** \class AlcaBeamSpotManager
  *  No description available.
  *
- *  $Date: 2010/06/18 14:25:44 $
+ *  $Date: 2010/06/21 18:02:20 $
  *  $Revision: 1.1 $
  *  \author L. Uplegger F. Yumiceva - Fermilab
  */
@@ -38,8 +38,8 @@ AlcaBeamSpotManager::~AlcaBeamSpotManager(void){
 void AlcaBeamSpotManager::readLumi(const LuminosityBlock& iLumi){
 
   Handle<BeamSpot> beamSpotHandle;
-  iLumi.getByLabel("alcaBeamSpotProducer","alcaBeamSpot", beamSpotHandle);
-
+  //iLumi.getByLabel("alcaBeamSpotProducer","alcaBeamSpot", beamSpotHandle);
+  iLumi.getByLabel("beamspot","alcaBeamSpot", beamSpotHandle); 
 
   if(beamSpotHandle.isValid()) { // check the product
     beamSpotMap_[iLumi.luminosityBlock()] = *beamSpotHandle;
