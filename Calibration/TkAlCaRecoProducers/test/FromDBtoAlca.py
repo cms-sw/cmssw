@@ -22,19 +22,25 @@ process.BeamSpotDBSource = cms.ESSource("PoolDBESSource",
                                         )
 
 process.source = cms.Source("EmptySource",
+                            processingMode=cms.untracked.string('RunsLumisAndEvents'),
                             firstRun = cms.untracked.uint32(132601),
-                            lastRun = cms.untracked.uint32(132601),
+                            lastRun = cms.untracked.uint32(138751),
                             numberEventsInLuminosityBlock = cms.untracked.uint32(1),
+                            numberEventsInRun=cms.untracked.uint32(10),
                             firstLuminosityBlock = cms.untracked.uint32(1)                           
                             )
 
 process.out = cms.OutputModule( "PoolOutputModule",
-                                fileName = cms.untracked.string( 'AlcaBeamSpotDB.root' ),
+                                fileName = cms.untracked.string( '/tmp/yumiceva/AlcaBeamSpotDB.root' ),
                                 outputCommands = cms.untracked.vstring("keep *")
                                 )
 
+process.maxEvents = cms.untracked.PSet(
+     input = cms.untracked.int32(100)
+)
+
 process.maxLuminosityBlocks=cms.untracked.PSet(
-     input=cms.untracked.int32(25)
+     input=cms.untracked.int32(100)
 )
  
 process.beamspot = cms.EDProducer("AlcaBeamSpotFromDB")
