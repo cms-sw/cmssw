@@ -35,12 +35,13 @@ lightTrackContent = cms.PSet(
 #muons
 muonContent = cms.PSet(
     outputCommands = cms.untracked.vstring(
-      'keep patMuons_selected*_*_*'
+      'keep patMuons_*_*_*'
       )
     )
 
 muonContentExtended = muonContent.clone()
 muonContentExtended.outputCommands.extend(RecoMuonAOD.outputCommands)
+muonContentExtended.outputCommands.extend(RecoHiMuonAOD.outputCommands)
 
 #photons
 photonContent = cms.PSet(
@@ -89,6 +90,14 @@ jetTrkSkimContent.outputCommands.extend(lightTrackContent.outputCommands)
 # [dilepton] skim
 muonTrkSkimContent = hiCommon.clone()
 muonTrkSkimContent.outputCommands.extend(muonContentExtended.outputCommands)
-muonTrkSkimContent.outputCommands.extend(trkContent.outputCommands)
+muonTrkSkimContent.outputCommands.extend(RecoHiTrackerRECO.outputCommands)
 
-
+# [dilepton] mc skim
+muonSkimContentMC = cms.PSet(
+    outputCommands = cms.untracked.vstring('keep *_generator_*_*',
+          'keep *_hiSignal_*_*',
+          'keep *_genParticles_*_*',
+          'keep *_hiGenParticles_*_*'
+    )
+)
+muonSkimContentMC.outputCommands.extend(muonTrkSkimContent.outputCommands)
