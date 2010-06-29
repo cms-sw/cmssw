@@ -21,6 +21,8 @@ class TestIndexIntoFile: public CppUnit::TestFixture
   CPPUNIT_TEST(testEventEntry);
   CPPUNIT_TEST(testSortedRunOrLumiItr);
   CPPUNIT_TEST(testKeys);
+  CPPUNIT_TEST(testConstructor);
+  CPPUNIT_TEST(testAddEntry);
   // CPPUNIT_TEST(constructAndInsertTest);
   // CPPUNIT_TEST(eventSortAndSearchTest);
   // CPPUNIT_TEST(eventEntrySortAndSearchTest);
@@ -34,12 +36,18 @@ public:
     nullPHID = ProcessHistoryID();
 
     ProcessConfiguration pc;
-    std::auto_ptr<ProcessHistory> processHistory(new ProcessHistory);
-    ProcessHistory& ph = *processHistory;
-    processHistory->push_back(pc);
-    processHistory->push_back(pc);
-    ProcessHistoryRegistry::instance()->insertMapped(ph);
-    fakePHID = ph.id();
+    std::auto_ptr<ProcessHistory> processHistory1(new ProcessHistory);
+    ProcessHistory& ph1 = *processHistory1;
+    processHistory1->push_back(pc);
+    ProcessHistoryRegistry::instance()->insertMapped(ph1);
+    fakePHID1 = ph1.id();
+
+    std::auto_ptr<ProcessHistory> processHistory2(new ProcessHistory);
+    ProcessHistory& ph2 = *processHistory2;
+    processHistory2->push_back(pc);
+    processHistory2->push_back(pc);
+    ProcessHistoryRegistry::instance()->insertMapped(ph2);
+    fakePHID2 = ph2.id();
   }
 
   void tearDown() { }
@@ -49,6 +57,8 @@ public:
   void testEventEntry();
   void testSortedRunOrLumiItr();
   void testKeys();
+  void testConstructor();
+  void testAddEntry();
   // void constructAndInsertTest();
   // void eventSortAndSearchTest();
   // void eventEntrySortAndSearchTest();
@@ -56,7 +66,8 @@ public:
   // bool areEntryVectorsTheSame(edm::IndexIntoFile &i1, edm::IndexIntoFile &i2);
 
   ProcessHistoryID nullPHID;
-  ProcessHistoryID fakePHID;
+  ProcessHistoryID fakePHID1;
+  ProcessHistoryID fakePHID2;
 };
 
 ///registration of the test so that the runner can find it
@@ -198,17 +209,17 @@ void TestIndexIntoFile::testSortedRunOrLumiItr() {
   CPPUNIT_ASSERT(iter == indexIntoFile0.endRunOrLumi());
 
   edm::IndexIntoFile indexIntoFile;
-  indexIntoFile.addEntry(fakePHID, 1, 1, 1, 0); // Event
-  indexIntoFile.addEntry(fakePHID, 1, 1, 2, 1); // Event
-  indexIntoFile.addEntry(fakePHID, 1, 1, 0, 0); // Lumi
-  indexIntoFile.addEntry(fakePHID, 1, 2, 1, 2); // Event
-  indexIntoFile.addEntry(fakePHID, 1, 2, 2, 3); // Event
-  indexIntoFile.addEntry(fakePHID, 1, 2, 3, 4); // Event
-  indexIntoFile.addEntry(fakePHID, 1, 2, 0, 1); // Lumi
-  indexIntoFile.addEntry(fakePHID, 1, 1, 3, 5); // Event
-  indexIntoFile.addEntry(fakePHID, 1, 1, 4, 6); // Event
-  indexIntoFile.addEntry(fakePHID, 1, 1, 0, 0); // Lumi
-  indexIntoFile.addEntry(fakePHID, 1, 0, 0, 0); // Run
+  indexIntoFile.addEntry(fakePHID1, 1, 1, 1, 0); // Event
+  indexIntoFile.addEntry(fakePHID1, 1, 1, 2, 1); // Event
+  indexIntoFile.addEntry(fakePHID1, 1, 1, 0, 0); // Lumi
+  indexIntoFile.addEntry(fakePHID1, 1, 2, 1, 2); // Event
+  indexIntoFile.addEntry(fakePHID1, 1, 2, 2, 3); // Event
+  indexIntoFile.addEntry(fakePHID1, 1, 2, 3, 4); // Event
+  indexIntoFile.addEntry(fakePHID1, 1, 2, 0, 1); // Lumi
+  indexIntoFile.addEntry(fakePHID1, 1, 1, 3, 5); // Event
+  indexIntoFile.addEntry(fakePHID1, 1, 1, 4, 6); // Event
+  indexIntoFile.addEntry(fakePHID1, 1, 1, 0, 0); // Lumi
+  indexIntoFile.addEntry(fakePHID1, 1, 0, 0, 0); // Run
   indexIntoFile.sortVector_Run_Or_Lumi_Entries();
   indexIntoFile.fillRunOrLumiIndexes();
 
@@ -326,6 +337,56 @@ void TestIndexIntoFile::testKeys() {
   IndexIntoFile::IndexRunLumiEventKey e6(11, 1, 1, 1);
   CPPUNIT_ASSERT(e1 < e6);
   CPPUNIT_ASSERT(!(e6 < e1));
+}
+
+void TestIndexIntoFile::testConstructor() {
+  edm::IndexIntoFile indexIntoFile;
+  CPPUNIT_ASSERT(indexIntoFile.runOrLumiEntries().empty());
+  CPPUNIT_ASSERT(indexIntoFile.processHistoryIDs().empty());
+  CPPUNIT_ASSERT(indexIntoFile.eventEntries().empty());
+  CPPUNIT_ASSERT(indexIntoFile.eventNumbers().empty());
+  CPPUNIT_ASSERT(indexIntoFile.setRunOrLumiEntries().empty());
+  CPPUNIT_ASSERT(indexIntoFile.setProcessHistoryIDs().empty());
+}
+
+void TestIndexIntoFile::testAddEntry() {
+  edm::IndexIntoFile indexIntoFile;
+  indexIntoFile.addEntry(fakePHID1, 1, 1, 1, 0); // Event
+  indexIntoFile.addEntry(fakePHID1, 1, 1, 2, 1); // Event
+  indexIntoFile.addEntry(fakePHID1, 1, 1, 0, 0); // Lumi
+  CPPUNIT_ASSERT(indexIntoFile.runOrLumiEntries()[0].processHistoryIDIndex() == 0);
+  CPPUNIT_ASSERT(indexIntoFile.processHistoryIDs().size() == 1);
+  CPPUNIT_ASSERT(indexIntoFile.processHistoryIDs()[0] == fakePHID1);
+
+  indexIntoFile.addEntry(fakePHID1, 1, 0, 0, 0); // Run
+  CPPUNIT_ASSERT(indexIntoFile.runOrLumiEntries()[1].processHistoryIDIndex() == 0);
+  CPPUNIT_ASSERT(indexIntoFile.processHistoryIDs().size() == 1);
+  CPPUNIT_ASSERT(indexIntoFile.processHistoryIDs()[0] == fakePHID1);
+
+  indexIntoFile.addEntry(fakePHID2, 1, 1, 1, 0); // Event
+  indexIntoFile.addEntry(fakePHID2, 1, 1, 2, 1); // Event
+  indexIntoFile.addEntry(fakePHID2, 1, 1, 0, 0); // Lumi
+  CPPUNIT_ASSERT(indexIntoFile.runOrLumiEntries()[2].processHistoryIDIndex() == 1);
+  CPPUNIT_ASSERT(indexIntoFile.processHistoryIDs().size() == 2);
+  CPPUNIT_ASSERT(indexIntoFile.processHistoryIDs()[1] == fakePHID2);
+
+  indexIntoFile.addEntry(fakePHID2, 1, 0, 0, 0); // Run
+  CPPUNIT_ASSERT(indexIntoFile.runOrLumiEntries()[3].processHistoryIDIndex() == 1);
+  CPPUNIT_ASSERT(indexIntoFile.processHistoryIDs().size() == 2);
+  CPPUNIT_ASSERT(indexIntoFile.processHistoryIDs()[1] == fakePHID2);
+
+  indexIntoFile.addEntry(fakePHID1, 1, 1, 1, 0); // Event
+  indexIntoFile.addEntry(fakePHID1, 1, 1, 2, 1); // Event
+  indexIntoFile.addEntry(fakePHID1, 1, 1, 0, 0); // Lumi
+  CPPUNIT_ASSERT(indexIntoFile.runOrLumiEntries()[4].processHistoryIDIndex() == 0);
+  CPPUNIT_ASSERT(indexIntoFile.processHistoryIDs().size() == 2);
+  CPPUNIT_ASSERT(indexIntoFile.processHistoryIDs()[0] == fakePHID1);
+
+  indexIntoFile.addEntry(fakePHID1, 1, 0, 0, 0); // Run
+  CPPUNIT_ASSERT(indexIntoFile.runOrLumiEntries()[5].processHistoryIDIndex() == 0);
+  CPPUNIT_ASSERT(indexIntoFile.processHistoryIDs().size() == 2);
+  CPPUNIT_ASSERT(indexIntoFile.processHistoryIDs()[0] == fakePHID1);
+
 }
 
 /*

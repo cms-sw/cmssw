@@ -978,61 +978,61 @@ namespace edm {
 
   int
   IndexIntoFile::IndexIntoFileItrNoSort::processHistoryIDIndex() const {
-    if (type_ == kEnd) return invalidIndex;
-    return indexIntoFile_->runOrLumiEntries()[indexToRun_].processHistoryIDIndex();
+    if (type() == kEnd) return invalidIndex;
+    return indexIntoFile()->runOrLumiEntries()[indexToRun()].processHistoryIDIndex();
   }
 
   RunNumber_t IndexIntoFile::IndexIntoFileItrNoSort::run() const {
-    if (type_ == kEnd) return invalidRun;
-    return indexIntoFile_->runOrLumiEntries()[indexToRun_].run();
+    if (type() == kEnd) return invalidRun;
+    return indexIntoFile()->runOrLumiEntries()[indexToRun()].run();
   }
 
   LuminosityBlockNumber_t IndexIntoFile::IndexIntoFileItrNoSort::lumi() const {
-    if (type_ == kEnd || type_ == kRun) return invalidLumi;
-    return indexIntoFile_->runOrLumiEntries()[indexToLumi_].lumi();
+    if (type() == kEnd || type() == kRun) return invalidLumi;
+    return indexIntoFile()->runOrLumiEntries()[indexToLumi()].lumi();
   }
 
   IndexIntoFile::EntryNumber_t IndexIntoFile::IndexIntoFileItrNoSort::entry() const {
-    if (type_ == kEnd) return invalidEntry;
-    if (type_ == kRun) return indexIntoFile_->runOrLumiEntries_[indexToRun_].entry();
-    if (type_ == kLumi) return indexIntoFile_->runOrLumiEntries_[indexToLumi_].entry();
+    if (type() == kEnd) return invalidEntry;
+    if (type() == kRun) return indexIntoFile()->runOrLumiEntries()[indexToRun()].entry();
+    if (type() == kLumi) return indexIntoFile()->runOrLumiEntries()[indexToLumi()].entry();
     return
-      indexIntoFile_->runOrLumiEntries()[indexToEventRange_].beginEvents() +
-      indexToEvent_;
+      indexIntoFile()->runOrLumiEntries()[indexToEventRange()].beginEvents() +
+      indexToEvent();
   }
 
   LuminosityBlockNumber_t IndexIntoFile::IndexIntoFileItrNoSort::peekAheadAtLumi() const {
-    if (indexToLumi_ == invalidIndex) return invalidLumi;
-    return indexIntoFile_->runOrLumiEntries()[indexToLumi_].lumi();
+    if (indexToLumi() == invalidIndex) return invalidLumi;
+    return indexIntoFile()->runOrLumiEntries()[indexToLumi()].lumi();
   }
 
   IndexIntoFile::EntryNumber_t IndexIntoFile::IndexIntoFileItrNoSort::peekAheadAtEventEntry() const {
-    if (indexToLumi_ == invalidIndex) return invalidEntry;
-    if (indexToEvent_ >= nEvents_) return invalidEntry;
+    if (indexToLumi() == invalidIndex) return invalidEntry;
+    if (indexToEvent() >= nEvents()) return invalidEntry;
     return
-      indexIntoFile_->runOrLumiEntries()[indexToEventRange_].beginEvents() +
-      indexToEvent_;
+      indexIntoFile()->runOrLumiEntries()[indexToEventRange()].beginEvents() +
+      indexToEvent();
   }
 
   void IndexIntoFile::IndexIntoFileItrNoSort::initializeLumi_() {
 
-    indexToEventRange_ = invalidIndex;
-    indexToEvent_ = 0;
-    nEvents_ = 0;
+    setIndexToEventRange(invalidIndex);
+    setIndexToEvent(0);
+    setNEvents(0);
 
-    for (int i = 0; indexToLumi_ + i < size_; ++i) {
-      if (indexIntoFile_->runOrLumiEntries_[indexToLumi_ + i].isRun()) {
+    for (int i = 0; indexToLumi() + i < size(); ++i) {
+      if (indexIntoFile()->runOrLumiEntries()[indexToLumi() + i].isRun()) {
         break;
       }
-      else if (indexIntoFile_->runOrLumiEntries_[indexToLumi_ + i].lumi() ==
-               indexIntoFile_->runOrLumiEntries_[indexToLumi_].lumi()) {
-        if (indexIntoFile_->runOrLumiEntries_[indexToLumi_ + i].beginEvents() == invalidEntry) {
+      else if (indexIntoFile()->runOrLumiEntries()[indexToLumi() + i].lumi() ==
+               indexIntoFile()->runOrLumiEntries()[indexToLumi()].lumi()) {
+        if (indexIntoFile()->runOrLumiEntries()[indexToLumi() + i].beginEvents() == invalidEntry) {
           continue;
         }
-        indexToEventRange_ = indexToLumi_ + i;
-        indexToEvent_ = 0;
-        nEvents_ = indexIntoFile_->runOrLumiEntries_[indexToEventRange_].endEvents() -
-                   indexIntoFile_->runOrLumiEntries_[indexToEventRange_].beginEvents();
+        setIndexToEventRange(indexToLumi() + i);
+        setIndexToEvent(0);
+        setNEvents(indexIntoFile()->runOrLumiEntries()[indexToEventRange()].endEvents() -
+		   indexIntoFile()->runOrLumiEntries()[indexToEventRange()].beginEvents());
         break;
       }
       else {
@@ -1043,19 +1043,19 @@ namespace edm {
 
   bool IndexIntoFile::IndexIntoFileItrNoSort::nextEventRange() {
     // Look for the next event range, same lumi but different entry 
-    for(int i = 1; indexToEventRange_ + i <= size_; ++i) {
-      if (indexIntoFile_->runOrLumiEntries_[indexToEventRange_ + i ].isRun()) {
+    for(int i = 1; indexToEventRange() + i < size(); ++i) {
+      if (indexIntoFile()->runOrLumiEntries()[indexToEventRange() + i ].isRun()) {
         return false;  // hit next run
       }
-      else if (indexIntoFile_->runOrLumiEntries_[indexToEventRange_ + i].lumi() ==
-               indexIntoFile_->runOrLumiEntries_[indexToEventRange_].lumi()) {
-        if (indexIntoFile_->runOrLumiEntries_[indexToEventRange_ + i].beginEvents() == invalidEntry) {
+      else if (indexIntoFile()->runOrLumiEntries()[indexToEventRange() + i].lumi() ==
+               indexIntoFile()->runOrLumiEntries()[indexToEventRange()].lumi()) {
+        if (indexIntoFile()->runOrLumiEntries()[indexToEventRange() + i].beginEvents() == invalidEntry) {
           continue; // same lumi but has no events, keep looking
         }
-        indexToEventRange_ += i;
-        indexToEvent_ = 0;
-        nEvents_ = indexIntoFile_->runOrLumiEntries_[indexToEventRange_].endEvents() -
-                   indexIntoFile_->runOrLumiEntries_[indexToEventRange_].beginEvents();
+        setIndexToEventRange(indexToEventRange() + i);
+        setIndexToEvent(0);
+        setNEvents(indexIntoFile()->runOrLumiEntries()[indexToEventRange()].endEvents() -
+                   indexIntoFile()->runOrLumiEntries()[indexToEventRange()].beginEvents());
         return true; // found more events in this lumi
       }
       return false; // hit next lumi
@@ -1063,15 +1063,15 @@ namespace edm {
     return false; // hit the end of the IndexIntoFile
   }
   bool IndexIntoFile::IndexIntoFileItrNoSort::skipLumiInRun() { 
-    for(int i = 1; indexToEventRange_ + i <= size_; ++i) {
-      if (indexIntoFile_->runOrLumiEntries_[indexToEventRange_ + i ].isRun()) {
+    for(int i = 1; indexToEventRange() + i < size(); ++i) {
+      if (indexIntoFile()->runOrLumiEntries()[indexToEventRange() + i ].isRun()) {
         return false;  // hit next run
       }
-      else if (indexIntoFile_->runOrLumiEntries_[indexToEventRange_ + i].lumi() ==
-               indexIntoFile_->runOrLumiEntries_[indexToEventRange_].lumi()) {
+      else if (indexIntoFile()->runOrLumiEntries()[indexToEventRange() + i].lumi() ==
+               indexIntoFile()->runOrLumiEntries()[indexToEventRange()].lumi()) {
         continue;
       }
-      indexToLumi_ = indexToEventRange_ + i;
+      setIndexToLumi(indexToEventRange() + i);
       initializeLumi();
       return true; // hit next lumi
     }
@@ -1079,35 +1079,35 @@ namespace edm {
   }
 
   IndexIntoFile::EntryType IndexIntoFile::IndexIntoFileItrNoSort::getRunOrLumiEntryType(int index) const {
-    if (index < 0 || index >= size_) {
+    if (index < 0 || index >= size()) {
       return kEnd;
     }
-    else if (indexIntoFile_->runOrLumiEntries_[index].isRun()) {
+    else if (indexIntoFile()->runOrLumiEntries()[index].isRun()) {
       return kRun;
     }
     return kLumi;
   }
 
   bool IndexIntoFile::IndexIntoFileItrNoSort::lumiHasEvents() const {
-    return indexIntoFile_->runOrLumiEntries()[indexToLumi_].beginEvents() != invalidEntry;
+    return indexIntoFile()->runOrLumiEntries()[indexToLumi()].beginEvents() != invalidEntry;
   }
 
   bool IndexIntoFile::IndexIntoFileItrNoSort::isSameLumi(int index1, int index2) const {
-    if (index1 < 0 || index1 >= size_ || index2 < 0 || index2 >= size_) {
+    if (index1 < 0 || index1 >= size() || index2 < 0 || index2 >= size()) {
       return false;
     }
-    return indexIntoFile_->runOrLumiEntries()[index1].lumi() ==
-           indexIntoFile_->runOrLumiEntries()[index2].lumi();
+    return indexIntoFile()->runOrLumiEntries()[index1].lumi() ==
+           indexIntoFile()->runOrLumiEntries()[index2].lumi();
   }
 
   bool IndexIntoFile::IndexIntoFileItrNoSort::isSameRun(int index1, int index2) const {
-    if (index1 < 0 || index1 >= size_ || index2 < 0 || index2 >= size_) {
+    if (index1 < 0 || index1 >= size() || index2 < 0 || index2 >= size()) {
       return false;
     }
-    return indexIntoFile_->runOrLumiEntries()[index1].run() ==
-           indexIntoFile_->runOrLumiEntries()[index2].run() &&
-           indexIntoFile_->runOrLumiEntries()[index1].processHistoryIDIndex() ==
-           indexIntoFile_->runOrLumiEntries()[index2].processHistoryIDIndex();
+    return indexIntoFile()->runOrLumiEntries()[index1].run() ==
+           indexIntoFile()->runOrLumiEntries()[index2].run() &&
+           indexIntoFile()->runOrLumiEntries()[index1].processHistoryIDIndex() ==
+           indexIntoFile()->runOrLumiEntries()[index2].processHistoryIDIndex();
   }
 
   IndexIntoFile::IndexIntoFileItrSorted::IndexIntoFileItrSorted(IndexIntoFile const* indexIntoFile) :
@@ -1135,58 +1135,58 @@ namespace edm {
   }
 
   int IndexIntoFile::IndexIntoFileItrSorted::processHistoryIDIndex() const {
-    if (type_ == kEnd) return invalidIndex;
-    return indexIntoFile_->runOrLumiIndexes()[indexToRun_].processHistoryIDIndex();
+    if (type() == kEnd) return invalidIndex;
+    return indexIntoFile()->runOrLumiIndexes()[indexToRun()].processHistoryIDIndex();
   }
 
   RunNumber_t IndexIntoFile::IndexIntoFileItrSorted::run() const {
-    if (type_ == kEnd) return invalidRun;
-    return indexIntoFile_->runOrLumiIndexes()[indexToRun_].run();
+    if (type() == kEnd) return invalidRun;
+    return indexIntoFile()->runOrLumiIndexes()[indexToRun()].run();
   }
 
   LuminosityBlockNumber_t IndexIntoFile::IndexIntoFileItrSorted::lumi() const {
-    if (type_ == kEnd || type_ == kRun) return invalidLumi;
-    return indexIntoFile_->runOrLumiIndexes()[indexToLumi_].lumi();
+    if (type() == kEnd || type() == kRun) return invalidLumi;
+    return indexIntoFile()->runOrLumiIndexes()[indexToLumi()].lumi();
   }
 
   IndexIntoFile::EntryNumber_t IndexIntoFile::IndexIntoFileItrSorted::entry() const {
-    if (type_ == kEnd) return invalidEntry;
-    if (type_ == kRun) {
-      int i =  indexIntoFile_->runOrLumiIndexes()[indexToRun_].indexToGetEntry();
-      return indexIntoFile_->runOrLumiEntries()[i].entry();
+    if (type() == kEnd) return invalidEntry;
+    if (type() == kRun) {
+      int i =  indexIntoFile()->runOrLumiIndexes()[indexToRun()].indexToGetEntry();
+      return indexIntoFile()->runOrLumiEntries()[i].entry();
     }
-    if (type_ == kLumi) {
-      int i =  indexIntoFile_->runOrLumiIndexes()[indexToLumi_].indexToGetEntry();
-      return indexIntoFile_->runOrLumiEntries()[i].entry();
+    if (type() == kLumi) {
+      int i =  indexIntoFile()->runOrLumiIndexes()[indexToLumi()].indexToGetEntry();
+      return indexIntoFile()->runOrLumiEntries()[i].entry();
     }
     long long eventNumberIndex = 
-      indexIntoFile_->runOrLumiIndexes()[indexToEventRange_].beginEventNumbers() +
-      indexToEvent_;
-    return indexIntoFile_->eventEntries().at(eventNumberIndex).entry();
+      indexIntoFile()->runOrLumiIndexes()[indexToEventRange()].beginEventNumbers() +
+      indexToEvent();
+    return indexIntoFile()->eventEntries().at(eventNumberIndex).entry();
   }
 
   LuminosityBlockNumber_t IndexIntoFile::IndexIntoFileItrSorted::peekAheadAtLumi() const {
-    if (indexToLumi_ == invalidIndex) return invalidLumi;
-    return indexIntoFile_->runOrLumiIndexes()[indexToLumi_].lumi();
+    if (indexToLumi() == invalidIndex) return invalidLumi;
+    return indexIntoFile()->runOrLumiIndexes()[indexToLumi()].lumi();
   }
 
   IndexIntoFile::EntryNumber_t IndexIntoFile::IndexIntoFileItrSorted::peekAheadAtEventEntry() const {
-    if (indexToLumi_ == invalidIndex) return invalidEntry;
-    if (indexToEvent_ >= nEvents_) return invalidEntry;
+    if (indexToLumi() == invalidIndex) return invalidEntry;
+    if (indexToEvent() >= nEvents()) return invalidEntry;
     long long eventNumberIndex = 
-      indexIntoFile_->runOrLumiIndexes()[indexToEventRange_].beginEventNumbers() +
-      indexToEvent_;
-    return indexIntoFile_->eventEntries().at(eventNumberIndex).entry();
+      indexIntoFile()->runOrLumiIndexes()[indexToEventRange()].beginEventNumbers() +
+      indexToEvent();
+    return indexIntoFile()->eventEntries().at(eventNumberIndex).entry();
   }
 
   void IndexIntoFile::IndexIntoFileItrSorted::initializeLumi_() {
-    indexToEventRange_ = indexToLumi_;
-    indexToEvent_ = 0;
-    nEvents_ = 
-      indexIntoFile_->runOrLumiIndexes()[indexToLumi_].endEventNumbers() -
-      indexIntoFile_->runOrLumiIndexes()[indexToLumi_].beginEventNumbers();
-    if (nEvents_ == 0){
-      indexToEventRange_ = invalidIndex;
+    setIndexToEventRange(indexToLumi());
+    setIndexToEvent(0);
+    setNEvents( 
+      indexIntoFile()->runOrLumiIndexes()[indexToLumi()].endEventNumbers() -
+      indexIntoFile()->runOrLumiIndexes()[indexToLumi()].beginEventNumbers());
+    if (nEvents() == 0){
+      setIndexToEventRange(invalidIndex);
     }
   }
 
@@ -1195,15 +1195,15 @@ namespace edm {
   }
 
   bool IndexIntoFile::IndexIntoFileItrSorted::skipLumiInRun() { 
-    for(int i = 1; indexToEventRange_ + i <= size_; ++i) {
-      if (indexIntoFile_->runOrLumiIndexes()[indexToEventRange_ + i ].isRun()) {
+    for(int i = 1; indexToEventRange() + i < size(); ++i) {
+      if (indexIntoFile()->runOrLumiIndexes()[indexToEventRange() + i ].isRun()) {
         return false;  // hit next run
       }
-      else if (indexIntoFile_->runOrLumiIndexes()[indexToEventRange_ + i].lumi() ==
-               indexIntoFile_->runOrLumiIndexes()[indexToEventRange_].lumi()) {
+      else if (indexIntoFile()->runOrLumiIndexes()[indexToEventRange() + i].lumi() ==
+               indexIntoFile()->runOrLumiIndexes()[indexToEventRange()].lumi()) {
         continue;
       }
-      indexToLumi_ = indexToEventRange_ + i;
+      setIndexToLumi(indexToEventRange() + i);
       initializeLumi();
       return true; // hit next lumi
     }
@@ -1211,36 +1211,36 @@ namespace edm {
   }
 
   IndexIntoFile::EntryType IndexIntoFile::IndexIntoFileItrSorted::getRunOrLumiEntryType(int index) const {
-    if (index < 0 || index >= size_) {
+    if (index < 0 || index >= size()) {
       return kEnd;
     }
-    else if (indexIntoFile_->runOrLumiIndexes()[index].isRun()) {
+    else if (indexIntoFile()->runOrLumiIndexes()[index].isRun()) {
       return kRun;
     }
     return kLumi;
   }
 
   bool IndexIntoFile::IndexIntoFileItrSorted::lumiHasEvents() const {
-    return indexIntoFile_->runOrLumiIndexes()[indexToLumi_].beginEventNumbers() !=
-           indexIntoFile_->runOrLumiIndexes()[indexToLumi_].endEventNumbers();
+    return indexIntoFile()->runOrLumiIndexes()[indexToLumi()].beginEventNumbers() !=
+           indexIntoFile()->runOrLumiIndexes()[indexToLumi()].endEventNumbers();
   }
 
   bool IndexIntoFile::IndexIntoFileItrSorted::isSameLumi(int index1, int index2) const {
-    if (index1 < 0 || index1 >= size_ || index2 < 0 || index2 >= size_) {
+    if (index1 < 0 || index1 >= size() || index2 < 0 || index2 >= size()) {
       return false;
     }
-    return indexIntoFile_->runOrLumiIndexes()[index1].lumi() ==
-           indexIntoFile_->runOrLumiIndexes()[index2].lumi();
+    return indexIntoFile()->runOrLumiIndexes()[index1].lumi() ==
+           indexIntoFile()->runOrLumiIndexes()[index2].lumi();
   }
 
   bool IndexIntoFile::IndexIntoFileItrSorted::isSameRun(int index1, int index2) const {
-    if (index1 < 0 || index1 >= size_ || index2 < 0 || index2 >= size_) {
+    if (index1 < 0 || index1 >= size() || index2 < 0 || index2 >= size()) {
       return false;
     }
-    return indexIntoFile_->runOrLumiIndexes()[index1].run() ==
-           indexIntoFile_->runOrLumiIndexes()[index2].run() &&
-           indexIntoFile_->runOrLumiIndexes()[index1].processHistoryIDIndex() ==
-           indexIntoFile_->runOrLumiIndexes()[index2].processHistoryIDIndex();
+    return indexIntoFile()->runOrLumiIndexes()[index1].run() ==
+           indexIntoFile()->runOrLumiIndexes()[index2].run() &&
+           indexIntoFile()->runOrLumiIndexes()[index1].processHistoryIDIndex() ==
+           indexIntoFile()->runOrLumiIndexes()[index2].processHistoryIDIndex();
   }
 
   IndexIntoFile::IndexIntoFileItr::IndexIntoFileItr(IndexIntoFile const* indexIntoFile, SortOrder sortOrder) :

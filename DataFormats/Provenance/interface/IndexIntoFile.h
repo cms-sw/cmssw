@@ -314,15 +314,21 @@ namespace edm {
 
         void setInvalid();
 
-        IndexIntoFile const* indexIntoFile_;
-        int size_;
+        IndexIntoFile const* indexIntoFile() const { return indexIntoFile_; }
+        int size() const { return size_; }
 
-        EntryType type_;
-        int indexToRun_;
-        int indexToLumi_;
-        int indexToEventRange_;
-        long long indexToEvent_;
-        long long nEvents_;
+        EntryType type() const { return type_; }
+        int indexToRun() const { return indexToRun_; }
+
+        int indexToLumi() const { return indexToLumi_; }
+        int indexToEventRange() const { return indexToEventRange_; }
+        long long indexToEvent() const { return indexToEvent_; }
+        long long nEvents() const { return nEvents_; }
+
+        void setIndexToLumi(int value) { indexToLumi_ = value; }
+        void setIndexToEventRange(int value) { indexToEventRange_ = value; }
+        void setIndexToEvent(long long value) { indexToEvent_ = value; }
+        void setNEvents(long long value) { nEvents_ = value; }
 
       private:
 
@@ -333,6 +339,16 @@ namespace edm {
         virtual bool lumiHasEvents() const = 0;
         virtual bool isSameLumi(int index1, int index2) const = 0;
         virtual bool isSameRun(int index1, int index2) const = 0;
+
+        IndexIntoFile const* indexIntoFile_;
+        int size_;
+
+        EntryType type_;
+        int indexToRun_;
+        int indexToLumi_;
+        int indexToEventRange_;
+        long long indexToEvent_;
+        long long nEvents_;
       };
 
       //*****************************************************************************
