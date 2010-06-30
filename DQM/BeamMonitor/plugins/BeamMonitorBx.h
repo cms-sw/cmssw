@@ -3,8 +3,8 @@
 
 /** \class BeamMonitorBx
  * *
- *  $Date: 2010/06/04 05:37:30 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/06/04 23:17:26 $
+ *  $Revision: 1.2 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -53,8 +53,12 @@ class BeamMonitorBx : public edm::EDAnalyzer {
   
  private:
 
-  void FitAndFill(const edm::LuminosityBlock& lumiSeg,int&,int&,int&);
+  void FitAndFill(const edm::LuminosityBlock& lumiSeg, int&, int&, int&);
   void BookHistos(int, std::map<std::string,std::string>&);
+  void BookTrendHistos(bool, int, std::map<std::string,std::string>&, 
+		       std::string, TString, TString);
+  //void FillHistos(std::map<std::string,std::string>&, reco::BeamSpot&);
+  void FillTrendHistos(int, std::map<std::string,std::string>&, reco::BeamSpot&);
 
   edm::ParameterSet parameters_;
   std::string monitorName_;
@@ -81,12 +85,18 @@ class BeamMonitorBx : public edm::EDAnalyzer {
   // ----------member data ---------------------------
   std::map<int, reco::BeamSpot> fbspotMap;
   std::map<std::string, std::string> varMap;
+  std::map<std::string, std::string> varMap1;
   // MonitorElements:
-  std::map<TString, MonitorElement*> hs;
+  std::map<TString, MonitorElement*> hs; // Tables
+  std::map<TString, MonitorElement*> hst; // Trending Histos
+
+  //Test
+  //  MonitorElement * h_x0;
 
   //
   std::time_t tmpTime;
   std::time_t refTime;
+  std::time_t startTime;
   edm::TimeValue_t ftimestamp;
 
 };

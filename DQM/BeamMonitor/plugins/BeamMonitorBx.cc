@@ -2,8 +2,8 @@
  * \file BeamMonitorBx.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/06/04 07:10:08 $
- * $Revision: 1.2 $
+ * $Date: 2010/06/04 23:17:26 $
+ * $Revision: 1.3 $
  *
  */
 
@@ -68,11 +68,30 @@ void BeamMonitorBx::beginJob() {
   varMap["sigmaY_bx"] = "#sigma_{Y}";
   varMap["sigmaZ_bx"] = "#sigma_{Z}";
 
+  varMap1["x"] = "X_{0} [cm]";
+  varMap1["y"] = "Y_{0} [cm]";
+  varMap1["z"] = "Z_{0} [cm]";
+  varMap1["sigmaX"] = "#sigma_{X} [cm]";
+  varMap1["sigmaY"] = "#sigma_{Y} [cm]";
+  varMap1["sigmaZ"] = "#sigma_{Z} [cm]";
+
+  TDatime *da = new TDatime();
+  gStyle->SetTimeOffset(da->Convert(kTRUE));
+
   // create and cd into new folder
   dbe_->setCurrentFolder(monitorName_+"FitBx");
-
   // Results of good fit:
   BookHistos(1,varMap);
+
+  // create and cd into new folders
+  for (std::map<std::string,std::string>::const_iterator varName = varMap1.begin();
+       varName != varMap1.end(); ++varName) {
+    string subDir_ = "FitBx";
+    subDir_ += "/";
+    subDir_ += "All_";
+    subDir_ += (*varName).first;
+    dbe_->setCurrentFolder(monitorName_+subDir_);
+  }
 }
 
 //--------------------------------------------------------
@@ -80,7 +99,8 @@ void BeamMonitorBx::beginRun(const edm::Run& r, const EventSetup& context) {
 
   ftimestamp = r.beginTime().value();
   tmpTime = ftimestamp >> 32;
-  refTime =  tmpTime;
+  startTime = refTime =  tmpTime;
+
 }
 
 //--------------------------------------------------------
@@ -151,7 +171,7 @@ void BeamMonitorBx::endLuminosityBlock(const LuminosityBlock& lumiSeg,
 void BeamMonitorBx::BookHistos(int nBx, map<string,string> & vMap) {
   // to rebin histograms when number of bx increases
   // create and cd into new folder
-  dbe_->setCurrentFolder(monitorName_+"FitBx");
+  dbe_->cd(monitorName_+"FitBx");
 
   for (std::map<std::string,std::string>::const_iterator varName = vMap.begin();
        varName != vMap.end(); ++varName) {
@@ -170,6 +190,128 @@ void BeamMonitorBx::BookHistos(int nBx, map<string,string> & vMap) {
     }
     hs[tmpName]->getTH1()->SetOption("text");
     hs[tmpName]->Reset();
+  }
+}
+
+//--------------------------------------------------------
+void BeamMonitorBx::BookTrendHistos(bool plotPV,int nBx,map<string,string> & vMap,
+				    string subDir_, TString prefix_, TString suffix_) {
+  int nType_ = 2;
+  if (plotPV) nType_ = 4;
+  for (int i = 0; i < nType_; i++) {
+    for (std::map<std::string,std::string>::const_iterator varName = vMap.begin();
+	 varName != vMap.end(); ++varName) {
+      string tmpDir_ = subDir_ + "/All_" + (*varName).first;
+      dbe_->cd(monitorName_+tmpDir_);
+      TString histTitle((*varName).first);
+      string tmpName;
+      if (prefix_ != "") tmpName = prefix_ + "_" + (*varName).first;
+      if (suffix_ != "") tmpName = tmpName + "_" + suffix_;
+      std::ostringstream ss;
+      std::ostringstream ss1;
+      ss << setfill ('0') << setw (5) << nBx;
+      ss1 << nBx;
+      tmpName = tmpName + "_" + ss.str();
+
+      TString histName(tmpName);
+      string ytitle((*varName).second);
+      string xtitle("");
+      string options("E1");
+      bool createHisto = true;
+      switch(i) {
+      case 1: // BS vs time
+	histName.Insert(histName.Index("_bx_",4),"_time");
+	xtitle = "Time [UTC]  [Bx# " + ss1.str() + "]";
+	if (ytitle.find("sigma") == string::npos)
+	  histTitle += " coordinate of beam spot vs time (Fit)";
+	else
+	  histTitle = histTitle.Insert(5," ") + " of beam spot vs time (Fit)";
+	break;
+      case 2: // PV +/- sigmaPV vs lumi
+	if (ytitle.find("sigma") == string::npos) {
+	  histName.Insert(0,"PV");
+	  histName.Insert(histName.Index("_bx_",4),"_lumi");
+	  histTitle.Insert(0,"Avg. ");
+	  histTitle += " position of primary vtx vs lumi";
+	  xtitle = "Lumisection  [Bx# " + ss1.str() + "]";
+	  ytitle.insert(0,"PV");
+	  ytitle += " #pm #sigma_{PV";
+	  ytitle += (*varName).first;
+	  ytitle += "} (cm)";
+	}
+	else createHisto = false;
+	break;
+      case 3: // PV +/- sigmaPV vs time
+	if (ytitle.find("sigma") == string::npos) {
+	  histName.Insert(0,"PV");
+	  histName.Insert(histName.Index("_bx_",4),"_time");
+	  histTitle.Insert(0,"Avg. ");
+	  histTitle += " position of primary vtx vs time";
+	  xtitle = "Time [UTC]  [Bx# " + ss1.str() + "]";
+	  ytitle.insert(0,"PV");
+	  ytitle += " #pm #sigma_{PV";
+	  ytitle += (*varName).first;
+	  ytitle += "} (cm)";
+	}
+	else createHisto = false;
+	break;
+      default: // BS vs lumi
+	histName.Insert(histName.Index("_bx_",4),"_lumi");
+	xtitle = "Lumisection  [Bx# " + ss1.str() + "]";
+	if (ytitle.find("sigma") == string::npos)
+	  histTitle += " coordinate of beam spot vs lumi (Fit)";
+	else
+	  histTitle = histTitle.Insert(5," ") + " of beam spot vs lumi (Fit)";
+	break;
+      }
+      // check if already exist
+      if (dbe_->get(monitorName_+tmpDir_+"/"+string(histName))) continue;
+
+      if (createHisto) {
+	edm::LogInfo("BX|BeamMonitorBx") << "histName = " << histName << "; histTitle = " << histTitle << std::endl;
+	hst[histName] = dbe_->book1D(histName,histTitle,40,0.5,40.5);
+	hst[histName]->getTH1()->SetBit(TH1::kCanRebin);
+	hst[histName]->setAxisTitle(xtitle,1);
+	hst[histName]->setAxisTitle(ytitle,2);
+	hst[histName]->getTH1()->SetOption("E1");
+	if (histName.Contains("time")) {
+	  hst[histName]->getTH1()->SetBins(3600,0.5,3600+0.5);
+	  hst[histName]->setAxisTimeDisplay(1);
+	  hst[histName]->setAxisTimeFormat("%H:%M:%S",1);
+	}
+      }
+    }//End of variable loop
+  }// End of type loop (lumi, time)
+}
+
+//--------------------------------------------------------
+void BeamMonitorBx::FillTrendHistos(int nthBx, map<string,string> & vMap, 
+				    reco::BeamSpot & bs_) {
+  double val_[6] = {bs_.x0(),bs_.y0(),bs_.z0(),
+		    bs_.BeamWidthX(),bs_.BeamWidthY(),bs_.sigmaZ()};
+  double valErr_[6] = {bs_.x0Error(),bs_.y0Error(),bs_.z0Error(),
+		       bs_.BeamWidthXError(),bs_.BeamWidthYError(),
+		       bs_.sigmaZ0Error()};
+
+  std::ostringstream ss;
+  ss << setfill ('0') << setw (5) << nthBx;
+  int ntbin_ = tmpTime - startTime;
+  for (map<TString,MonitorElement*>::iterator itHst = hst.begin();
+       itHst != hst.end(); ++itHst) {
+    if (!((*itHst).first.Contains(ss.str()))) continue;
+    int ic = 0;
+    for (std::map<std::string,std::string>::const_iterator varName = vMap.begin();
+	 varName != vMap.end(); ++varName, ++ic) {
+      edm::LogInfo("BX|BeamMonitorBx") << "Filling " << (*itHst).first << endl;
+      if ((*itHst).first.Contains("time")) {
+	(*itHst).second->setBinContent(ntbin_,val_[ic]);
+	(*itHst).second->setBinError(ntbin_,valErr_[ic]);
+      }
+      if ((*itHst).first.Contains("lumi")) {
+	(*itHst).second->setBinContent(endLumiOfBSFit_,val_[ic]);
+	(*itHst).second->setBinError(endLumiOfBSFit_,valErr_[ic]);
+      }
+    }
   }
 }
 
@@ -239,6 +381,8 @@ void BeamMonitorBx::FitAndFill(const LuminosityBlock& lumiSeg,
       hs["sigmaZ_bx"]->setBinContent(3,nthBin,bs.sigmaZ0Error());
       hs["sigmaX_bx"]->setBinContent(3,nthBin,bs.BeamWidthXError());
       hs["sigmaY_bx"]->setBinContent(3,nthBin,bs.BeamWidthYError());
+      BookTrendHistos(false,bx,varMap1,"FitBx","Trending","bx");
+      FillTrendHistos(bx,varMap1,bs);
     }
   }
   //   else
