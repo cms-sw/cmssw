@@ -579,7 +579,7 @@ def main():
     c=constants()
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description="Lumi Calculations")
     # add required arguments
-    parser.add_argument('-c',dest='connect',action='store',required=True,help='connect string to lumiDB')
+    parser.add_argument('-c',dest='connect',action='store',required=True,help='connect string to lumiDB (required)')
     # add optional arguments
     parser.add_argument('-P',dest='authpath',action='store',help='path to authentication file')
     parser.add_argument('-n',dest='normfactor',action='store',help='normalization factor (optional, default to 1.0)')
