@@ -2,8 +2,8 @@
  * \file BeamMonitorBx.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/06/04 23:17:26 $
- * $Revision: 1.3 $
+ * $Date: 2010/06/30 00:52:24 $
+ * $Revision: 1.4 $
  *
  */
 
@@ -22,6 +22,23 @@
 
 using namespace std;
 using namespace edm;
+
+static char * formatTime( const time_t t )  {
+#define CET (+1)
+#define CEST (+2)
+
+  static  char ts[] = "yyyy-Mm-dd hh:mm:ss     ";
+  tm * ptm;
+  ptm = gmtime ( &t );
+  sprintf( ts, "%4d-%02d-%02d %02d:%02d:%02d", ptm->tm_year,ptm->tm_mon+1,ptm->tm_mday,(ptm->tm_hour+CEST)%24, ptm->tm_min, ptm->tm_sec);
+
+#ifdef STRIP_TRAILING_BLANKS_IN_TIMEZONE
+  unsigned int b = strlen(ts);
+  while (ts[--b] == ' ') {ts[b] = 0;}
+#endif
+  return ts;
+
+}
 
 //
 // constructors and destructor
@@ -75,13 +92,10 @@ void BeamMonitorBx::beginJob() {
   varMap1["sigmaY"] = "#sigma_{Y} [cm]";
   varMap1["sigmaZ"] = "#sigma_{Z} [cm]";
 
-  TDatime *da = new TDatime();
-  gStyle->SetTimeOffset(da->Convert(kTRUE));
-
   // create and cd into new folder
   dbe_->setCurrentFolder(monitorName_+"FitBx");
   // Results of good fit:
-  BookHistos(1,varMap);
+  BookTables(1,varMap);
 
   // create and cd into new folders
   for (std::map<std::string,std::string>::const_iterator varName = varMap1.begin();
@@ -168,9 +182,8 @@ void BeamMonitorBx::endLuminosityBlock(const LuminosityBlock& lumiSeg,
 
 
 //--------------------------------------------------------
-void BeamMonitorBx::BookHistos(int nBx, map<string,string> & vMap) {
+void BeamMonitorBx::BookTables(int nBx, map<string,string> & vMap) {
   // to rebin histograms when number of bx increases
-  // create and cd into new folder
   dbe_->cd(monitorName_+"FitBx");
 
   for (std::map<std::string,std::string>::const_iterator varName = vMap.begin();
@@ -278,41 +291,17 @@ void BeamMonitorBx::BookTrendHistos(bool plotPV,int nBx,map<string,string> & vMa
 	  hst[histName]->getTH1()->SetBins(3600,0.5,3600+0.5);
 	  hst[histName]->setAxisTimeDisplay(1);
 	  hst[histName]->setAxisTimeFormat("%H:%M:%S",1);
+	  char* eventTime = formatTime(startTime);
+	  TDatime da(eventTime);
+	  if (debug_) {
+	    edm::LogInfo("BX|BeamMonitorBx") << "TimeOffset = ";
+	    da.Print();
+	  }
+	  hst[histName]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
 	}
       }
     }//End of variable loop
   }// End of type loop (lumi, time)
-}
-
-//--------------------------------------------------------
-void BeamMonitorBx::FillTrendHistos(int nthBx, map<string,string> & vMap, 
-				    reco::BeamSpot & bs_) {
-  double val_[6] = {bs_.x0(),bs_.y0(),bs_.z0(),
-		    bs_.BeamWidthX(),bs_.BeamWidthY(),bs_.sigmaZ()};
-  double valErr_[6] = {bs_.x0Error(),bs_.y0Error(),bs_.z0Error(),
-		       bs_.BeamWidthXError(),bs_.BeamWidthYError(),
-		       bs_.sigmaZ0Error()};
-
-  std::ostringstream ss;
-  ss << setfill ('0') << setw (5) << nthBx;
-  int ntbin_ = tmpTime - startTime;
-  for (map<TString,MonitorElement*>::iterator itHst = hst.begin();
-       itHst != hst.end(); ++itHst) {
-    if (!((*itHst).first.Contains(ss.str()))) continue;
-    int ic = 0;
-    for (std::map<std::string,std::string>::const_iterator varName = vMap.begin();
-	 varName != vMap.end(); ++varName, ++ic) {
-      edm::LogInfo("BX|BeamMonitorBx") << "Filling " << (*itHst).first << endl;
-      if ((*itHst).first.Contains("time")) {
-	(*itHst).second->setBinContent(ntbin_,val_[ic]);
-	(*itHst).second->setBinError(ntbin_,valErr_[ic]);
-      }
-      if ((*itHst).first.Contains("lumi")) {
-	(*itHst).second->setBinContent(endLumiOfBSFit_,val_[ic]);
-	(*itHst).second->setBinError(endLumiOfBSFit_,valErr_[ic]);
-      }
-    }
-  }
 }
 
 //--------------------------------------------------------
@@ -347,7 +336,7 @@ void BeamMonitorBx::FitAndFill(const LuminosityBlock& lumiSeg,
     edm::LogInfo("BX|BeamMonitorBx") << "Number of bx = " << bsmap.size() << endl;
     if (countBx_ < bsmap.size()) {
       countBx_ = bsmap.size();
-      BookHistos(countBx_,varMap);
+      BookTables(countBx_,varMap);
     }
 
     int * LSRange = theBeamFitter->getFitLSRange();
@@ -364,25 +353,11 @@ void BeamMonitorBx::FitAndFill(const LuminosityBlock& lumiSeg,
 	 abspot!= bsmap.end(); ++abspot,nthBin--) {
       reco::BeamSpot bs = abspot->second;
       int bx = abspot->first;
-      for (std::map<std::string,std::string>::const_iterator varName = varMap.begin();
-	   varName != varMap.end(); ++varName) {
-	hs[varName->first]->setBinContent(1,nthBin,bx);
-      }
-      hs["x0_bx"]->setBinContent(2,nthBin,bs.x0());
-      hs["y0_bx"]->setBinContent(2,nthBin,bs.y0());
-      hs["z0_bx"]->setBinContent(2,nthBin,bs.z0());
-      hs["sigmaZ_bx"]->setBinContent(2,nthBin,bs.sigmaZ());
-      hs["sigmaX_bx"]->setBinContent(2,nthBin,bs.BeamWidthX());
-      hs["sigmaY_bx"]->setBinContent(2,nthBin,bs.BeamWidthY());
-
-      hs["x0_bx"]->setBinContent(3,nthBin,bs.x0Error());
-      hs["y0_bx"]->setBinContent(3,nthBin,bs.y0Error());
-      hs["z0_bx"]->setBinContent(3,nthBin,bs.z0Error());
-      hs["sigmaZ_bx"]->setBinContent(3,nthBin,bs.sigmaZ0Error());
-      hs["sigmaX_bx"]->setBinContent(3,nthBin,bs.BeamWidthXError());
-      hs["sigmaY_bx"]->setBinContent(3,nthBin,bs.BeamWidthYError());
+      // Tables
+      FillTables(bx,nthBin,varMap,bs);
+      // Histograms
       BookTrendHistos(false,bx,varMap1,"FitBx","Trending","bx");
-      FillTrendHistos(bx,varMap1,bs);
+      FillTrendHistos(bx,varMap1,bs,"Trending");
     }
   }
   //   else
@@ -397,6 +372,60 @@ void BeamMonitorBx::FitAndFill(const LuminosityBlock& lumiSeg,
     theBeamFitter->resetPVFitter();
     beginLumiOfBSFit_ = 0;
     refBStime[0] = 0;
+  }
+}
+
+//--------------------------------------------------------
+void BeamMonitorBx::FillTables(int nthbx,int nthbin_,
+			       map<string,string>&vMap,
+			       reco::BeamSpot&bs_){
+  map<string,pair<double,double> > val_;
+  val_["x0_bx"] = pair<double,double>(bs_.x0(),bs_.x0Error());
+  val_["y0_bx"] = pair<double,double>(bs_.y0(),bs_.y0Error());
+  val_["z0_bx"] = pair<double,double>(bs_.z0(),bs_.z0Error());
+  val_["sigmaX_bx"] = pair<double,double>(bs_.BeamWidthX(),bs_.BeamWidthXError());
+  val_["sigmaY_bx"] = pair<double,double>(bs_.BeamWidthY(),bs_.BeamWidthYError());
+  val_["sigmaZ_bx"] = pair<double,double>(bs_.sigmaZ(),bs_.sigmaZ0Error());
+
+  for (std::map<std::string,std::string>::const_iterator varName = vMap.begin();
+       varName != vMap.end(); ++varName) {
+    hs[varName->first]->setBinContent(1,nthbin_,nthbx);
+    hs[varName->first]->setBinContent(2,nthbin_,val_[varName->first].first);
+    hs[varName->first]->setBinContent(3,nthbin_,val_[varName->first].second);
+  }
+}
+
+//--------------------------------------------------------
+void BeamMonitorBx::FillTrendHistos(int nthBx, map<string,string> & vMap, 
+				    reco::BeamSpot & bs_, TString prefix_) {
+  map<TString,pair<double,double> > val_;
+  val_[TString(prefix_+"_x")] = pair<double,double>(bs_.x0(),bs_.x0Error());
+  val_[TString(prefix_+"_y")] = pair<double,double>(bs_.y0(),bs_.y0Error());
+  val_[TString(prefix_+"_z")] = pair<double,double>(bs_.z0(),bs_.z0Error());
+  val_[TString(prefix_+"_sigmaX")] = pair<double,double>(bs_.BeamWidthX(),bs_.BeamWidthXError());
+  val_[TString(prefix_+"_sigmaY")] = pair<double,double>(bs_.BeamWidthY(),bs_.BeamWidthYError());
+  val_[TString(prefix_+"_sigmaZ")] = pair<double,double>(bs_.sigmaZ(),bs_.sigmaZ0Error());
+
+  std::ostringstream ss;
+  ss << setfill ('0') << setw (5) << nthBx;
+  int ntbin_ = tmpTime - startTime;
+  for (map<TString,MonitorElement*>::iterator itHst = hst.begin();
+       itHst != hst.end(); ++itHst) {
+    if (!((*itHst).first.Contains(ss.str()))) continue;
+    for (std::map<std::string,std::string>::const_iterator varName = vMap.begin();
+	 varName != vMap.end(); ++varName) {
+      edm::LogInfo("BX|BeamMonitorBx") << "Filling histogram: " << (*itHst).first << endl;
+      if ((*itHst).first.Contains("time")) {
+	int idx = (*itHst).first.Index("_time",5);
+	(*itHst).second->setBinContent(ntbin_,val_[(*itHst).first(0,idx)].first);
+	(*itHst).second->setBinError(ntbin_,val_[(*itHst).first(0,idx)].second);
+      }
+      if ((*itHst).first.Contains("lumi")) {
+	int idx = (*itHst).first.Index("_lumi",5);
+	(*itHst).second->setBinContent(endLumiOfBSFit_,val_[(*itHst).first(0,idx)].first);
+	(*itHst).second->setBinError(endLumiOfBSFit_,val_[(*itHst).first(0,idx)].second);
+      }
+    }
   }
 }
 
