@@ -220,7 +220,7 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 			spDataRecord[sector][tbin][nTrk[sector][tbin]].me3_tbin   = trk->first.me3Tbin();
 			spDataRecord[sector][tbin][nTrk[sector][tbin]].me4_tbin   = trk->first.me4Tbin();
 			spDataRecord[sector][tbin][nTrk[sector][tbin]].mb_tbin    = trk->first.mb1Tbin();
-			// As the MB stubs are not saved in simulation, we have to introduce an artificial ids
+			// As the MB stubs are not saved in simulation, we want to introduce an artificial ids
 			if( trk->first.mb1ID() ){
 				int subSector = (trk->first.mb1ID() - 1)%2;
 				int MBtbin    = tbin - spDataRecord[sector][tbin][nTrk[sector][tbin]].mb_tbin;
