@@ -4,8 +4,8 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2010/01/25 21:12:23 $
- * $Revision: 1.55 $
+ * $Date: 2010/03/28 09:21:48 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  *
 */
@@ -75,6 +75,8 @@ private:
 
 int ievt_;
 int jevt_;
+
+float synchErrorThreshold_;
 
 bool cloneME_;
 
@@ -166,6 +168,7 @@ TProfile2D* hot01_[36];
 TProfile2D* hpot01_[36];
 TProfile2D* httt01_[36];
 TProfile2D* htmt01_[36];
+TH1F* norm01_, *synch01_;
 
 };
 

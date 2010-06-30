@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2010/05/27 09:51:31 $
- * $Revision: 1.211 $
+ * $Date: 2010/05/30 13:13:24 $
+ * $Revision: 1.212 $
  * \author G. Della Ricca
  *
 */
@@ -157,6 +157,8 @@ EBSummaryClient::EBSummaryClient(const edm::ParameterSet& ps) {
     htmt01_[ism-1] = 0;
 
   }
+
+  synchErrorThreshold_ = 0.01;
 
 }
 
@@ -1094,6 +1096,14 @@ void EBSummaryClient::analyze(void) {
       me = dqmStore_->get(histo);
       htmt01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, htmt01_[ism-1] );
 
+      sprintf(histo, (prefixME_ + "/EcalInfo/EBMM DCC").c_str());
+      me = dqmStore_->get(histo);
+      norm01_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, norm01_ );
+
+      sprintf(histo, (prefixME_ + "/EBRawDataTask/EBRDT L1A FE errors").c_str());
+      me = dqmStore_->get(histo);
+      synch01_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, synch01_ );
+
       for ( int ie = 1; ie <= 85; ie++ ) {
         for ( int ip = 1; ip <= 20; ip++ ) {
 
@@ -1857,7 +1867,11 @@ void EBSummaryClient::analyze(void) {
   for ( int iex = 1; iex <= 170; iex++ ) {
     for ( int ipx = 1; ipx <= 360; ipx++ ) {
 
-      if(meIntegrity_ && mePedestalOnline_ && meTiming_ && meStatusFlags_ && meTriggerTowerEmulError_) {
+      if(meIntegrity_ && mePedestalOnline_ && meTiming_ && meStatusFlags_ && meTriggerTowerEmulError_ 
+         && norm01_ && synch01_) {
+
+        int ism = (ipx-1)/20 + 1 ;
+        if ( iex>85 ) ism+=18;
 
         float xval = 6;
         float val_in = meIntegrity_->getBinContent(ipx,iex);
@@ -1866,6 +1880,9 @@ void EBSummaryClient::analyze(void) {
         float val_sf = meStatusFlags_->getBinContent((ipx-1)/5+1,(iex-1)/5+1);
         // float val_ee = meTriggerTowerEmulError_->getBinContent((ipx-1)/5+1,(iex-1)/5+1); // removed from the global summary temporarily
         float val_ee = 1;
+
+        float frac_synch_errors = float(synch01_->GetBinContent(ism))/float(norm01_->GetBinContent(ism));
+        float val_sy = (frac_synch_errors < synchErrorThreshold_);
 
         // combine all the available wavelenghts in unique laser status
         // for each laser turn dark color and yellow into bright green
@@ -1909,7 +1926,7 @@ void EBSummaryClient::analyze(void) {
         if(val_ee==2 || val_ee==3 || val_ee==4 || val_ee==5) val_ee=1;
 
         if(val_in==6) xval=6;
-        else if(val_in==0) xval=0;
+        else if(val_in==0 || val_sy==0) xval=0;
         else if(val_po==0 || val_ls==0 || val_tm==0 || val_sf==0 || val_ee==0) xval=0;
         else if(val_po==2 || val_ls==2 || val_tm==2 || val_sf==2 || val_ee==2) xval=2;
         else xval=1;
@@ -1917,9 +1934,6 @@ void EBSummaryClient::analyze(void) {
         // if the SM is entirely not read, the masked channels
         // are reverted back to yellow
         float iEntries=0;
-
-        int ism = (ipx-1)/20 + 1 ;
-        if ( iex>85 ) ism+=18;
 
         std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
         if (iter != superModules_.end()) {
