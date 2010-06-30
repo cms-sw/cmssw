@@ -54,20 +54,26 @@ except:
 # General functions
 #####################################################################################
 def getLastUploadedIOV(tagName,destDB="oracle://cms_orcoff_prod/CMS_COND_31X_BEAMSPOT"):
+    #return 582088327592295
     listIOVCommand = "cmscond_list_iov -c " + destDB + " -P /afs/cern.ch/cms/DB/conddb -t " + tagName 
-    aCommand       = listIOVCommand + " | grep DB= | tail -1 | awk \'{print $1}\'"
-#    print " >> " + aCommand
-    output = commands.getstatusoutput( aCommand )
-    if output[0] != 0 :
-        dbError = commands.getstatusoutput( listIOVCommand )
-        if dbError[1].find("metadata entry \"" + tagName + "\" does not exist"):
+    dbError = commands.getstatusoutput( listIOVCommand )
+    if dbError[0] != 0 :
+        if dbError[1].find("metadata entry \"" + tagName + "\" does not exist") != -1:
             print "Creating a new tag because I got the following error contacting the DB"
-            print output[1]
+            print dbError[1]
             return 1
             #return 133928
         else:
             exit("ERROR: Can\'t connect to db because:\n" + dbError[1])
+
+
+    aCommand = listIOVCommand + " | grep DB= | tail -1 | awk \'{print $1}\'"
+    output = commands.getstatusoutput( aCommand )
+    
     #WARNING when we pass to lumi IOV this should be long long
+    if output[1] == '':
+      exit("ERROR: The tag " + tagName + " exists but I can't get the value of the last IOV")
+      
     return long(output[1])
 
 ########################################################################
@@ -100,7 +106,14 @@ def getListOfRunsAndLumiFromDBS(dataSet,lastRun=-1):
             queryCommand = queryCommand + " and run > " + str(lastRun)
         queryCommand += "\""
         print " >> " + queryCommand
-        output = commands.getstatusoutput( queryCommand )
+        output = []
+        for i in range(0,3):
+	    output = commands.getstatusoutput( queryCommand )
+            if output[0] == 0 and not (output[1].find("ERROR") != -1 or output[1].find("Error") != -1) :
+                break
+        if output[0] != 0:
+            exit("ERROR: I can't contact DBS for the following reason:\n" + output[1])
+        #print output[1]
         tmpList = output[1].split('\n')
         for file in tmpList:
             outputList.append(file)
@@ -253,8 +266,9 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
     #print lastUnclosedRun
     filesToProcess = []
     for run in rrKeys:
-        if run in runsAndLumisProcessed and run < lastUnclosedRun:
-            if not run in listOfRunsAndLumiFromDBS and run != lastUnclosedRun:
+        if run in procKeys and run < lastUnclosedRun:
+            print "run " + str(run) + " is in procKeys"
+            if not run in dbsKeys and run != lastUnclosedRun:
                 error = "Impossible but run " + str(run) + " has been processed and it is also in the run registry but it is not in DBS!" 
                 exit(error)
             print "Working on run " + str(run)
@@ -573,10 +587,11 @@ def main():
     ######### Get from DBS the list of files after last IOV    
     #listOfFilesToProcess = getListOfFilesToProcess(dataSet,lastUploadedIOV) 
     print "Getting list of files from DBS"
-    listOfRunsAndLumiFromDBS = getListOfRunsAndLumiFromDBS(dataSet,lastUploadedIOV) 
+    listOfRunsAndLumiFromDBS = getListOfRunsAndLumiFromDBS(dataSet,lastUploadedIOV)
+    if len(listOfRunsAndLumiFromDBS) == 0:
+       exit("There are no files in DBS to process") 
     print "Getting list of files from RR"
     listOfRunsAndLumiFromRR  = getListOfRunsAndLumiFromRR(dataSet,lastUploadedIOV) 
-
     ######### Get list of files to process for DB
     #selectedFilesToProcess = selectFilesToProcess(listOfFilesToProcess,copiedFiles)
     #completeProcessedRuns = removeUncompleteRuns(copiedFiles,dataSet)

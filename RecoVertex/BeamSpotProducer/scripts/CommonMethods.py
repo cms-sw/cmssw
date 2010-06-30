@@ -172,8 +172,8 @@ def ls(dir,filter=""):
         print "ERROR: File or directory " + dir + " doesn't exist"
         return listOfFiles
 
-    #aCommand  = lsCommand  + 'ls '+ dir
-    aCommand  = lsCommand  + 'ls '+ dir + " | grep .txt"
+    aCommand  = lsCommand  + 'ls '+ dir
+    #aCommand  = lsCommand  + 'ls '+ dir + " | grep .txt"
     if filter != "":
         aCommand  += " | grep " + filter 
 
@@ -191,6 +191,8 @@ def cp(fromDir,toDir,listOfFiles,overwrite=False,smallList=False):
     copiedFiles = []
     if fromDir.find('castor') != -1:
     	cpCommand = 'rf'
+    elif fromDir.find('resilient') != -1:
+    	cpCommand = 'dc'
     if fromDir[len(fromDir)-1] != '/':
         fromDir += '/'
 
