@@ -17,6 +17,7 @@
 <use   name="DataFormats/VertexReco"/>
 <use   name="CondFormats/EcalObjects"/>
 <use   name="Geometry/EcalMapping"/>
+<use   name="Geometry/EcalAlgo"/>
 <use   name="DataFormats/EcalRawData"/>
 <use   name="DataFormats/FEDRawData"/>
 <use   name="RecoEcal/EgammaCoreTools"/>

@@ -20,7 +20,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 
 class IsolatedPixelTrackCandidateProducer : public edm::EDProducer {
 
@@ -39,8 +38,6 @@ class IsolatedPixelTrackCandidateProducer : public edm::EDProducer {
 
  private:
 	
-  void getEcalConstants(const DDCompactView*);
-
   edm::InputTag hltGTseedlabel_;
   edm::InputTag l1eTauJetsSource_;
   std::vector<edm::InputTag> pixelTracksSources_;

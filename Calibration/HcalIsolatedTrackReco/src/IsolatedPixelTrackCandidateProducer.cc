@@ -46,6 +46,14 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/VolumeBasedEngine/interface/VolumeBasedMagneticField.h"
 
+//for ECAL geometry
+#include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
+#include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+
+
 IsolatedPixelTrackCandidateProducer::IsolatedPixelTrackCandidateProducer(const edm::ParameterSet& config){
    
   l1eTauJetsSource_           = config.getParameter<edm::InputTag>("L1eTauJetsSource");
@@ -76,10 +84,16 @@ void IsolatedPixelTrackCandidateProducer::beginJob () {}
 
 void IsolatedPixelTrackCandidateProducer::beginRun(edm::Run &run, const edm::EventSetup &theEventSetup)
 {
-  //get ECAL constants:
-  edm::ESTransientHandle<DDCompactView> pDD;
-  theEventSetup.get<IdealGeometryRecord>().get(pDD);
-  getEcalConstants(&(*pDD));
+
+  edm::ESHandle<CaloGeometry> pG;
+  theEventSetup.get<CaloGeometryRecord>().get(pG);   
+  
+  const double rad (dynamic_cast<const EcalBarrelGeometry*>( pG->getSubdetectorGeometry(DetId::Ecal, EcalBarrel ))->avgRadiusXYFrontFaceCenter() ) ;
+  
+  const double zz (dynamic_cast<const EcalEndcapGeometry*>( pG->getSubdetectorGeometry(DetId::Ecal, EcalEndcap ))->avgAbsZFrontFaceCenter() ) ;
+
+  rEB_=rad;
+  zEE_=zz;
 
 }
 
@@ -334,22 +348,4 @@ IsolatedPixelTrackCandidateProducer::GetEtaPhiAtEcal(const edm::EventSetup& iSet
   return retVal;
 }
 
-void IsolatedPixelTrackCandidateProducer::getEcalConstants(const DDCompactView* cpv) {
 
-  typedef DDCompactView::graph_type graph_type;
-  const graph_type & gra = cpv->graph();
-  typedef graph_type::const_adj_iterator adjl_iterator;
-  adjl_iterator git  = gra.begin();
-  adjl_iterator gend = gra.end();
-  for (; git != gend; ++git) {
-    const DDLogicalPart & log = gra.nodeData(git);
-    if (!strcmp("ECAL",log.name().name().c_str())) {
-      const DDSolid & sol             = log.solid();
-      const std::vector<double> & par = sol.parameters();
-      unsigned int n = par.size()/2;
-      rEB_ = 0.1*par[n+2]; // Given in mm in DDD
-      zEE_ = 0.1*par[n+7];
-      break;
-    }
-  }
-}
