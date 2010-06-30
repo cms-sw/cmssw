@@ -1,12 +1,12 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-
 /*
- * $Id: DumpRaw.cc,v 1.18 2010/05/25 22:15:08 pgras Exp $
+ * $Id: EcalDumpRaw.cc,v 1.1 2010/06/21 22:41:47 pgras Exp $
  *
  * Author: Ph Gras. CEA/IRFU - Saclay
  *
  */
 
-#include "EventFilter/EcalRawToDigi/interface/DumpRaw.h"
+#include "EventFilter/EcalRawToDigi/interface/EcalDumpRaw.h"
 
 #include <iostream>
 #include <fstream>
@@ -14,8 +14,6 @@
 #include <limits>
 #include <algorithm>
 #include <sys/time.h>
-
-#include "TGraph.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 //#include "FWCore/Framework/interface/Handle.h"
@@ -35,7 +33,7 @@
 //Ph. Gras.
 const int feBxOffset = 1;
 
-const int DumpRaw::ttId_[nTccTypes_][maxTpgsPerTcc_] = {
+const int EcalDumpRaw::ttId_[nTccTypes_][maxTpgsPerTcc_] = {
   //EB-
   { 1,   2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16,
     17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32,
@@ -129,7 +127,7 @@ static const char* const ttsNames[] = {
 double mgpaGainFactors[] = {10.63, 1., 10.63/5.43, 10.63};
 double fppaGainFactors[] = {0, 1., 16./1.,  0.};
 
-DumpRaw::DumpRaw(const edm::ParameterSet& ps):
+EcalDumpRaw::EcalDumpRaw(const edm::ParameterSet& ps):
   iEvent_(0),
   adc_(nSamples, 0.),
   amplCut_(ps.getUntrackedParameter<double>("amplCut", 5.)),
@@ -190,7 +188,7 @@ DumpRaw::DumpRaw(const edm::ParameterSet& ps):
   if(writeDcc_){
     dumpFile_.open(filename_.c_str());
     if(dumpFile_.bad()){
-      /*edm::LogError("DumpRaw")*/ std::cout << "Failed to open file '"
+      /*edm::LogError("EcalDumpRaw")*/ std::cout << "Failed to open file '"
                                << filename_.c_str() << "' specified by "
                                << "parameter filename for writing. DCC data "
         " dump will be disabled.";
@@ -199,15 +197,15 @@ DumpRaw::DumpRaw(const edm::ParameterSet& ps):
   }
 }
 
-void DumpRaw::endJob(){
+void EcalDumpRaw::endJob(){
 }
 
-DumpRaw::~DumpRaw(){
+EcalDumpRaw::~EcalDumpRaw(){
 }
 
 // ------------ method called to analyze the data  ------------
 void
-DumpRaw::analyze(const edm::Event& event, const edm::EventSetup& es){
+EcalDumpRaw::analyze(const edm::Event& event, const edm::EventSetup& es){
   ++iEvent_;
   eventId_ = event.id().event();
 
@@ -425,7 +423,7 @@ DumpRaw::analyze(const edm::Event& event, const edm::EventSetup& es){
   //             dt);
 }
 
-string DumpRaw::toNth(int n){
+string EcalDumpRaw::toNth(int n){
   stringstream s;
   s << n;
   if(n%100<10 || n%100>20){
@@ -449,7 +447,7 @@ string DumpRaw::toNth(int n){
 }
 
 
-bool DumpRaw::decode(const uint32_t* data, int iWord64, ostream& out){
+bool EcalDumpRaw::decode(const uint32_t* data, int iWord64, ostream& out){
   bool rc = true;
   const bool d  = dump_;
   if(iWord64==0){//start of event
@@ -815,7 +813,7 @@ bool DumpRaw::decode(const uint32_t* data, int iWord64, ostream& out){
   return rc;
 }
 
-int DumpRaw::lme(int dcc1, int side){
+int EcalDumpRaw::lme(int dcc1, int side){
   int fedid = ((dcc1-1)%600) + 600; //to handle both FED and DCC id.
    vector<int> lmes;
    // EE -
@@ -847,7 +845,7 @@ int DumpRaw::lme(int dcc1, int side){
 }
 
 
-int DumpRaw::sideOfRu(int ru1){
+int EcalDumpRaw::sideOfRu(int ru1){
   if(ru1 < 5 || (ru1-5)%4 >= 2){
     return 0;
   } else{
@@ -856,7 +854,7 @@ int DumpRaw::sideOfRu(int ru1){
 }
 
 
-int DumpRaw::modOfRu(int ru1){
+int EcalDumpRaw::modOfRu(int ru1){
   int iEta0 = (ru1-1)/4;
   if(iEta0<5){
     return 1;
@@ -865,7 +863,7 @@ int DumpRaw::modOfRu(int ru1){
   }
 }
 
-int DumpRaw::lmodOfRu(int ru1){
+int EcalDumpRaw::lmodOfRu(int ru1){
   int iEta0 = (ru1-1)/4;
   int iPhi0 = (ru1-1)%4;
   int rs;
@@ -878,7 +876,7 @@ int DumpRaw::lmodOfRu(int ru1){
   return rs;
 }
 
-std::string DumpRaw::srRange(int offset) const{
+std::string EcalDumpRaw::srRange(int offset) const{
   int min = offset+1;
   int max = offset+4;
   stringstream buf;
@@ -895,7 +893,7 @@ std::string DumpRaw::srRange(int offset) const{
   return buf.str();
 }
 
-std::string DumpRaw::ttfTag(int tccType, unsigned iSeq) const{
+std::string EcalDumpRaw::ttfTag(int tccType, unsigned iSeq) const{
   if((unsigned)iSeq > sizeof(ttId_))
     throw cms::Exception("OutOfRange")
       << __FILE__ << ":"  << __LINE__ << ": "
@@ -912,7 +910,7 @@ std::string DumpRaw::ttfTag(int tccType, unsigned iSeq) const{
   return buf.str();
 }
 
-std::string DumpRaw::tpgTag(int tccType, unsigned iSeq) const{
+std::string EcalDumpRaw::tpgTag(int tccType, unsigned iSeq) const{
   if((unsigned)iSeq > sizeof(ttId_))
     throw cms::Exception("OutOfRange")
       << __FILE__ << ":"  << __LINE__ << ": "

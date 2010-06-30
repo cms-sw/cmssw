@@ -1,5 +1,5 @@
 /*
- * $Id: DumpRaw.h,v 1.8 2009/09/02 07:28:13 pgras Exp $
+ * $Id: EcalDumpRaw.h,v 1.1 2010/06/21 22:41:45 pgras Exp $
  *
  * Author: Ph Gras. CEA/IRFU - Saclay
  */
@@ -29,11 +29,11 @@
  * Author: Ph. Gras CEA/IRFU Saclay
  *
  */
-class DumpRaw : public edm::EDAnalyzer {
+class EcalDumpRaw : public edm::EDAnalyzer {
   //ctors
 public:
-  explicit DumpRaw(const edm::ParameterSet&);
-  ~DumpRaw();
+  explicit EcalDumpRaw(const edm::ParameterSet&);
+  ~EcalDumpRaw();
 
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
