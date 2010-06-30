@@ -255,6 +255,7 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
     dbsKeys.sort()
     #I remove the last entry from DBS since I am not sure it is an already closed run!
     lastUnclosedRun = dbsKeys.pop()
+    #print "Last unclosed run: " + str(lastUnclosedRun)
     procKeys = runsAndLumisProcessed.keys()
     procKeys.sort()
     #print "Run Registry:"    
@@ -266,8 +267,13 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
     #print lastUnclosedRun
     filesToProcess = []
     for run in rrKeys:
+        RRList = []
+        for lumiRange in listOfRunsAndLumiFromRR[run]:
+            if lumiRange != []: 
+                for l in range(lumiRange[0],lumiRange[1]+1):
+                    RRList.append(long(l))
         if run in procKeys and run < lastUnclosedRun:
-            print "run " + str(run) + " is in procKeys"
+            #print "run " + str(run) + " is in procKeys"
             if not run in dbsKeys and run != lastUnclosedRun:
                 error = "Impossible but run " + str(run) + " has been processed and it is also in the run registry but it is not in DBS!" 
                 exit(error)
@@ -326,11 +332,7 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
                 print "This is weird because I processed more lumis than the ones that are in DBS!"
             if len(badDBSProcessed) != 0 and run in listOfRunsAndLumiFromRR:
                 lastError = len(errors)
-                RRList = []
-                for lumiRange in listOfRunsAndLumiFromRR[run]:
-                    if lumiRange != []: 
-                        for l in range(lumiRange[0],lumiRange[1]+1):
-                            RRList.append(long(l))
+                #print RRList            
                 #It is important for runsAndLumisProcessed[run] to be the first because the comparision is not ==
                 badRRProcessed,badRR = compareLumiLists(runsAndLumisProcessed[run],RRList,errors)
                 for i in range(0,len(errors)):
@@ -377,12 +379,13 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
             print error
             timeoutType = timeoutManager("MISSING_RUNREGRUN_Run"+str(run),missingLumisTimeout)
             if timeoutType == 1:
-                if len(listOfRunsAndLumiFromRR[run]) <= rrTolerance:
-                    error = "WARNING: I previously set the MISSING_RUNREGRUN_Run" + str(run) + " timeout that expired...I am missing run " + str(run) + " but it only had " + str(len(listOfRunsAndLumiFromRR[run])) + " <= " + str(rrTolerance) + " lumis. So I will continue and ignore it... "
+                if len(RRList) <= rrTolerance:
+                    error = "WARNING: I previously set the MISSING_RUNREGRUN_Run" + str(run) + " timeout that expired...I am missing run " + str(run) + " but it only had " + str(len(RRList)) + " <= " + str(rrTolerance) + " lumis. So I will continue and ignore it... "
+                    #print listOfRunsAndLumiFromRR[run]
                     print error
-                    sendEmail(mailList,error)
+                    #sendEmail(mailList,error)
                 else:
-                    error = "ERROR: I previously set the MISSING_RUNREGRUN_Run" + str(run) + " timeout that expired...I am missing run " + str(run) + " which has " + str(len(listOfRunsAndLumiFromRR[run])) + " > " + str(rrTolerance) + " lumis. I can't continue... "
+                    error = "ERROR: I previously set the MISSING_RUNREGRUN_Run" + str(run) + " timeout that expired...I am missing run " + str(run) + " which has " + str(len(RRList)) + " > " + str(rrTolerance) + " lumis. I can't continue... "
                     sendEmail(mailList,error)
                     exit(error)
             else:
