@@ -72,6 +72,16 @@ hiCommon = cms.PSet(
     )
 )
 
+#mc content
+hiContentMC =  cms.PSet(
+    outputCommands = cms.untracked.vstring(
+      'keep *_generator_*_*',
+      'keep *_hiSignal_*_*',
+      'keep *_genParticles_*_*',
+      'keep *_hiGenParticles_*_*'
+    )
+)
+
 ##### combinations for specific skims
 
 # HI PAG skim
@@ -87,17 +97,17 @@ jetTrkSkimContent = hiCommon.clone()
 jetTrkSkimContent.outputCommands.extend(jetContentExtended.outputCommands)
 jetTrkSkimContent.outputCommands.extend(lightTrackContent.outputCommands)
 
-# [dilepton] skim
-muonTrkSkimContent = hiCommon.clone()
-muonTrkSkimContent.outputCommands.extend(muonContentExtended.outputCommands)
-muonTrkSkimContent.outputCommands.extend(RecoHiTrackerRECO.outputCommands)
+# [dilepton] skim 0
+muonSkimContent = hiCommon.clone()
+muonSkimContent.outputCommands.extend(cms.untracked.vstring('keep patMuons_*_*_*'))
+muonSkimContent.outputCommands.extend(RecoMuonRECO.outputCommands)
+muonSkimContent.outputCommands.extend(RecoHiTrackerRECO.outputCommands)
 
-# [dilepton] mc skim
-muonSkimContentMC = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_generator_*_*',
-          'keep *_hiSignal_*_*',
-          'keep *_genParticles_*_*',
-          'keep *_hiGenParticles_*_*'
-    )
-)
-muonSkimContentMC.outputCommands.extend(muonTrkSkimContent.outputCommands)
+# [dilepton] skim MC
+muonSkimContentMC = muonSkimContent.clone()
+muonSkimContentMC.outputCommands.extend(hiContentMC.outputCommands)
+
+# [dilepton] skim 1
+muonTrkSkimContent = hiCommon.clone()  # trigger, L!, vertex,centrality, etc
+muonTrkSkimContent.outputCommands.extend(muonContentExtended.outputCommands) # muon AOD
+muonTrkSkimContent.outputCommands.extend(trkContent.outputCommands)
