@@ -350,6 +350,7 @@ def printPerLSLumi(lumidata,isVerbose=False,hltpath=''):
     input lumidata  [['runnumber','trgtable{}','deadtable{}']]
     deadtable {lsnum:[deadtime,instlumi,bit_0,norbits]}
     '''
+    datatoprint=[]
     for perrundata in lumidata:
         runnumber=perrundata[0]
         deadtable=perrundata[2]
@@ -358,9 +359,9 @@ def printPerLSLumi(lumidata,isVerbose=False,hltpath=''):
             rowdata=[]
             labels=[('Run','LS','Delivered','Recorded'+u' (/\u03bcb)'.encode('utf-8'))]
             if len(dataperls)==0:
-                rowdata+=[str(runnum),str(lsnum),'N/A','N/A']
+                rowdata+=[str(runnumber),str(lsnum),'N/A','N/A']
             else:
-                rowdata+=[str(runnum),str(lsnum),'%.3f'%(dataperls[0]),'%.3f'%(dataperls[1])]
+                rowdata+=[str(runnumber),str(lsnum),'%.3f'%(dataperls[0]),'%.3f'%(dataperls[1])]
             datatoprint.append(rowdata)
     #print datatoprint
     print '==='
