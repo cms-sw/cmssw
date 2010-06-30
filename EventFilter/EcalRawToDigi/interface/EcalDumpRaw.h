@@ -1,11 +1,11 @@
 /*
- * $Id: EcalDumpRaw.h,v 1.1 2010/06/21 22:41:45 pgras Exp $
+ * $Id: EcalDumpRaw.h,v 1.1 2010/06/30 08:47:29 pgras Exp $
  *
  * Author: Ph Gras. CEA/IRFU - Saclay
  */
 
-#ifndef ANALYZER_MODULE_H
-#define ANALYZER_MODULE_H
+#ifndef ECALDUMPRAW_H
+#define ECALDUMPRAW_H
 
 #include <vector>
 #include <iostream>
@@ -182,4 +182,4 @@ private:
   int iTcc_;
 };
 
-#endif //ANALYZER_MODULE_H not defined
+#endif //ECALDUMPRAW_H not defined
