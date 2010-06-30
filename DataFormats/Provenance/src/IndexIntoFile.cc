@@ -700,7 +700,6 @@ namespace edm {
 
   IndexIntoFile::RunOrLumiIndexes const&
   IndexIntoFile::SortedRunOrLumiItr::runOrLumiIndexes() const {
-    indexIntoFile_->fillRunOrLumiIndexes();
     return indexIntoFile_->runOrLumiIndexes().at(runOrLumi_);
   }
 
@@ -718,7 +717,6 @@ namespace edm {
     if (size_ == 0) {
       return;
     }
-    indexIntoFile_->fillRunOrLumiIndexes();
     type_ = kRun;
     assert(indexIntoFile_->runOrLumiEntries_[0].isRun());
     initializeRun();
@@ -739,7 +737,6 @@ namespace edm {
     indexToEventRange_(indexToEventRange),
     indexToEvent_(indexToEvent),
     nEvents_(nEvents) {
-    indexIntoFile_->fillRunOrLumiIndexes();
   }
 
   void IndexIntoFile::IndexIntoFileItrImpl::next () {
@@ -1119,6 +1116,7 @@ namespace edm {
 
   IndexIntoFile::IndexIntoFileItrSorted::IndexIntoFileItrSorted(IndexIntoFile const* indexIntoFile) :
     IndexIntoFileItrImpl(indexIntoFile) {
+    indexIntoFile->fillRunOrLumiIndexes();
   }
 
   IndexIntoFile::IndexIntoFileItrSorted::IndexIntoFileItrSorted(IndexIntoFile const* indexIntoFile,
@@ -1135,6 +1133,7 @@ namespace edm {
                          indexToEventRange,
                          indexToEvent,
                          nEvents) {
+    indexIntoFile->fillRunOrLumiIndexes();
   }
 
   IndexIntoFile::IndexIntoFileItrImpl* IndexIntoFile::IndexIntoFileItrSorted::clone() const {
