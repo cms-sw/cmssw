@@ -73,13 +73,13 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 
 	for(CSCCorrelatedLCTDigiCollection::DigiRangeIterator csc=corrlcts.product()->begin(); csc!=corrlcts.product()->end(); csc++){
 		CSCCorrelatedLCTDigiCollection::Range range1 = corrlcts.product()->get((*csc).first);
-		for(CSCCorrelatedLCTDigiCollection::const_iterator lct=range1.first; lct!=range1.second; lct++){
+		int lctId=0;
+		for(CSCCorrelatedLCTDigiCollection::const_iterator lct=range1.first; lct!=range1.second; lct++,lctId++){
 			int station = (*csc).first.station()-1;
 			int cscId   = (*csc).first.triggerCscId()-1;
 			int sector  = (*csc).first.triggerSector()-1 + ( (*csc).first.endcap()==1 ? 0 : 6 );
 			int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels((*csc).first);
 			int tbin = lct->getBX() - (central_lct_bx-central_sp_bx); // Shift back to hardware BX window definition
-			int lctId   = lct->getMPCLink() - 1;
 			if( tbin>6 || tbin<0 ){
 				edm::LogError("CSCTFPacker|produce")<<" LCT's BX="<<tbin<<" is out of 0-6 window";
 				continue;
@@ -297,14 +297,17 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 				pos+=8;
 				for(int fpga=0; fpga<5; fpga++){
 					int nLCTs=0;
-					for(int lctId=0; lctId<2; lctId++)
+					for(int link=0; link<3; link++){
 						for(int cscId=0; cscId<9; cscId++)
-							// Only 3 LCT per BX from the same fpga are allowed (to be valid):
-							if( meDataRecord[sector][tbin][fpga][cscId][lctId].valid_pattern ){
-								memcpy(pos,&meDataRecord[sector][tbin][fpga][cscId][lctId],8);
-								pos+=4;
-								nLCTs++;
-							}
+							for(int lctId=0; lctId<2; lctId++)
+								// Only 3 LCT per BX from the same fpga are allowed (to be valid):
+								if( meDataRecord[sector][tbin][fpga][cscId][lctId].valid_pattern
+									&& meDataRecord[sector][tbin][fpga][cscId][lctId].link_id==link ){
+									memcpy(pos,&meDataRecord[sector][tbin][fpga][cscId][lctId],8);
+									pos+=4;
+									nLCTs++;
+								}
+					}
 					if( !zeroSuppression ) pos += 4*(3-nLCTs);
 				}
 				for(int subSector=0; subSector<2; subSector++)
