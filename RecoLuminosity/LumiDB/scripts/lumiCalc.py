@@ -314,7 +314,7 @@ def splitlistToRangeString(inPut):
             counter+=1
             result.append([i])
         last=i
-    return ','.join(['['+str(min(x))+'-'+str(max(x))+']' for x in result])
+    return ' '.join(['['+str(min(x))+'-'+str(max(x))+']' for x in result])
 
 def calculateEffective(trgtable,totalrecorded):
     """
