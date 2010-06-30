@@ -25,6 +25,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 
 #include "RecoTracker/DeDx/interface/DeDxEstimatorProducer.h"
+//#include "RecoTracker/DeDx/interface/DeDxTools.h"
 #include "DataFormats/TrackReco/interface/DeDxData.h"
 #include "DataFormats/TrackReco/interface/TrackDeDxHits.h"
 #include "DataFormats/TrackReco/interface/DeDxHit.h"
@@ -71,6 +72,7 @@ DeDxEstimatorProducer::DeDxEstimatorProducer(const edm::ParameterSet& iConfig)
    MeVperADCPixel = iConfig.getParameter<double>("MeVperADCPixel"); 
    MeVperADCStrip = iConfig.getParameter<double>("MeVperADCStrip"); 
 
+   shapetest = iConfig.getParameter<bool>("ShapeTest");
    useCalibration = iConfig.getParameter<bool>("UseCalibration");
    m_calibrationPath = iConfig.getParameter<string>("calibrationPath");
 
@@ -182,8 +184,10 @@ void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	   mono.detId= matchedHit->monoHit()->geographicalId();
 	   stereo.detId= matchedHit->stereoHit()->geographicalId();
 
-	   hits.push_back(mono);
+
 	   hits.push_back(stereo);
+	   if(shapetest && !(DeDxTools::shapeSelection(((matchedHit->monoHit()->cluster()).get())->amplitudes()))) continue;
+	   hits.push_back(mono);
         }else if(const ProjectedSiStripRecHit2D* projectedHit=dynamic_cast<const ProjectedSiStripRecHit2D*>(recHit)) {
            if(!useStrip) continue;
            const SiStripRecHit2D* singleHit=&(projectedHit->originalHit());
@@ -193,6 +197,7 @@ void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
            mono.angleCosine = cosine;
            mono.charge = getCharge((singleHit->cluster()).get(),mono.NSaturating);
            mono.detId= singleHit->geographicalId();
+	   if(shapetest && !(DeDxTools::shapeSelection(((singleHit->cluster()).get())->amplitudes()))) continue;
            hits.push_back(mono);
         }else if(const SiStripRecHit2D* singleHit=dynamic_cast<const SiStripRecHit2D*>(recHit)){
            if(!useStrip) continue;
@@ -202,6 +207,7 @@ void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
            mono.angleCosine = cosine; 
            mono.charge = getCharge((singleHit->cluster()).get(),mono.NSaturating);
            mono.detId= singleHit->geographicalId();
+	   if(shapetest && !(DeDxTools::shapeSelection(((singleHit->cluster()).get())->amplitudes()))) continue;
            hits.push_back(mono); 
         }else if(const SiStripRecHit1D* single1DHit=dynamic_cast<const SiStripRecHit1D*>(recHit)){
            if(!useStrip) continue;
@@ -211,6 +217,7 @@ void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
            mono.angleCosine = cosine; 
            mono.charge = getCharge((single1DHit->cluster()).get(),mono.NSaturating);
            mono.detId= single1DHit->geographicalId();
+	   if(shapetest && !(DeDxTools::shapeSelection(((single1DHit->cluster()).get())->amplitudes()))) continue;
            hits.push_back(mono); 
         }else if(const SiPixelRecHit* pixelHit=dynamic_cast<const SiPixelRecHit*>(recHit)){
            if(!usePixel) continue;

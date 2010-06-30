@@ -10,6 +10,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoTracker/DeDx/interface/BaseDeDxEstimator.h"
+#include "RecoTracker/DeDx/interface/DeDxTools.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
@@ -62,6 +63,7 @@ private:
 
   std::string                       m_calibrationPath;
   bool                              useCalibration;
+  bool                              shapetest;
 
    private : 
       struct stModInfo{int DetId; float Thickness; float Distance; float Normalization; double Gain;};

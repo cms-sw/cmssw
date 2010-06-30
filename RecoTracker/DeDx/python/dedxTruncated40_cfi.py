@@ -14,6 +14,7 @@ dedxTruncated40 = cms.EDProducer("DeDxEstimatorProducer",
 
     UseCalibration  = cms.bool(False),
     calibrationPath = cms.string(""),
+    ShapeTest       = cms.bool(False),
 )
 
 
