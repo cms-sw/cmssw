@@ -37,64 +37,72 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore * dbe) {
         char name[128];
         char title[128];
 	
-        h_channel_side_charge_Ave = m_dbe->book2D("2D_DigiChargeAve", "Ave. Charge", 2, 0, 2, 9, 0, 9);
-        h_channel_side_charge_Ave->setBinLabel(1,"ZDC+",1);
-        h_channel_side_charge_Ave->setBinLabel(2,"ZDC-",1);
-        h_channel_side_charge_Ave->setBinLabel(1,"EM1",2);
-        h_channel_side_charge_Ave->setBinLabel(2,"EM2",2);
-        h_channel_side_charge_Ave->setBinLabel(3,"EM3",2);
-        h_channel_side_charge_Ave->setBinLabel(4,"EM4",2);
-        h_channel_side_charge_Ave->setBinLabel(5,"EM5",2);
-        h_channel_side_charge_Ave->setBinLabel(6,"HAD1",2);
-        h_channel_side_charge_Ave->setBinLabel(7,"HAD2",2);
-        h_channel_side_charge_Ave->setBinLabel(8,"HAD3",2);
-        h_channel_side_charge_Ave->setBinLabel(9,"HAD4",2);
+        h_2D_charge = m_dbe->book2D("2D_DigiCharge", "Digi Charge (fC)", 2, 0, 2, 9, 0, 9);
+        h_2D_charge->setBinLabel(1,"ZDC+",1);
+        h_2D_charge->setBinLabel(2,"ZDC-",1);
+        h_2D_charge->setBinLabel(1,"EM1",2);
+        h_2D_charge->setBinLabel(2,"EM2",2);
+        h_2D_charge->setBinLabel(3,"EM3",2);
+        h_2D_charge->setBinLabel(4,"EM4",2);
+        h_2D_charge->setBinLabel(5,"EM5",2);
+        h_2D_charge->setBinLabel(6,"HAD1",2);
+        h_2D_charge->setBinLabel(7,"HAD2",2);
+        h_2D_charge->setBinLabel(8,"HAD3",2);
+        h_2D_charge->setBinLabel(9,"HAD4",2);
 
-        h_channel_side_TSMean_Ave = m_dbe->book2D("2D_TSMeanAve", "Ave. TSMean", 2, 0, 2, 9, 0, 9);
-        h_channel_side_TSMean_Ave->setBinLabel(1,"ZDC+",1);
-        h_channel_side_TSMean_Ave->setBinLabel(2,"ZDC-",1);
-        h_channel_side_TSMean_Ave->setBinLabel(1,"EM1",2);
-        h_channel_side_TSMean_Ave->setBinLabel(2,"EM2",2);
-        h_channel_side_TSMean_Ave->setBinLabel(3,"EM3",2);
-        h_channel_side_TSMean_Ave->setBinLabel(4,"EM4",2);
-        h_channel_side_TSMean_Ave->setBinLabel(5,"EM5",2);
-        h_channel_side_TSMean_Ave->setBinLabel(6,"HAD1",2);
-        h_channel_side_TSMean_Ave->setBinLabel(7,"HAD2",2);
-        h_channel_side_TSMean_Ave->setBinLabel(8,"HAD3",2);
-        h_channel_side_TSMean_Ave->setBinLabel(9,"HAD4",2);
+        h_2D_TSMean = m_dbe->book2D("2D_DigiTiming", "Digi Timing", 2, 0, 2, 9, 0, 9);
+        h_2D_TSMean->setBinLabel(1,"ZDC+",1);
+        h_2D_TSMean->setBinLabel(2,"ZDC-",1);
+        h_2D_TSMean->setBinLabel(1,"EM1",2);
+        h_2D_TSMean->setBinLabel(2,"EM2",2);
+        h_2D_TSMean->setBinLabel(3,"EM3",2);
+        h_2D_TSMean->setBinLabel(4,"EM4",2);
+        h_2D_TSMean->setBinLabel(5,"EM5",2);
+        h_2D_TSMean->setBinLabel(6,"HAD1",2);
+        h_2D_TSMean->setBinLabel(7,"HAD2",2);
+        h_2D_TSMean->setBinLabel(8,"HAD3",2);
+        h_2D_TSMean->setBinLabel(9,"HAD4",2);
 
-        h_channel_side_energy_Ave = m_dbe->book2D("2D_RecHitEnergyAve", "Ave. RechitEnergy", 2, 0, 2, 9, 0, 9);
-        h_channel_side_energy_Ave->setBinLabel(1,"ZDC+",1);
-        h_channel_side_energy_Ave->setBinLabel(2,"ZDC-",1);
-        h_channel_side_energy_Ave->setBinLabel(1,"EM1",2);
-        h_channel_side_energy_Ave->setBinLabel(2,"EM2",2);
-        h_channel_side_energy_Ave->setBinLabel(3,"EM3",2);
-        h_channel_side_energy_Ave->setBinLabel(4,"EM4",2);
-        h_channel_side_energy_Ave->setBinLabel(5,"EM5",2);
-        h_channel_side_energy_Ave->setBinLabel(6,"HAD1",2);
-        h_channel_side_energy_Ave->setBinLabel(7,"HAD2",2);
-        h_channel_side_energy_Ave->setBinLabel(8,"HAD3",2);
-        h_channel_side_energy_Ave->setBinLabel(9,"HAD4",2);
+        h_2D_RecHitEnergy = m_dbe->book2D("2D_RecHitEnergy", "Rechit Energy", 2, 0, 2, 9, 0, 9);
+        h_2D_RecHitEnergy->setBinLabel(1,"ZDC+",1);
+        h_2D_RecHitEnergy->setBinLabel(2,"ZDC-",1);
+        h_2D_RecHitEnergy->setBinLabel(1,"EM1",2);
+        h_2D_RecHitEnergy->setBinLabel(2,"EM2",2);
+        h_2D_RecHitEnergy->setBinLabel(3,"EM3",2);
+        h_2D_RecHitEnergy->setBinLabel(4,"EM4",2);
+        h_2D_RecHitEnergy->setBinLabel(5,"EM5",2);
+        h_2D_RecHitEnergy->setBinLabel(6,"HAD1",2);
+        h_2D_RecHitEnergy->setBinLabel(7,"HAD2",2);
+        h_2D_RecHitEnergy->setBinLabel(8,"HAD3",2);
+        h_2D_RecHitEnergy->setBinLabel(9,"HAD4",2);
 
-        h_channel_side_RecHitTime_Ave = m_dbe->book2D("2D_RecHitTimeAve", "Average RechitTiming", 2, 0, 2, 9, 0, 9);
-        h_channel_side_RecHitTime_Ave->setBinLabel(1,"ZDC+",1);
-        h_channel_side_RecHitTime_Ave->setBinLabel(2,"ZDC-",1);
-        h_channel_side_RecHitTime_Ave->setBinLabel(1,"EM1",2);
-        h_channel_side_RecHitTime_Ave->setBinLabel(2,"EM2",2);
-        h_channel_side_RecHitTime_Ave->setBinLabel(3,"EM3",2);
-        h_channel_side_RecHitTime_Ave->setBinLabel(4,"EM4",2);
-        h_channel_side_RecHitTime_Ave->setBinLabel(5,"EM5",2);
-        h_channel_side_RecHitTime_Ave->setBinLabel(6,"HAD1",2);
-        h_channel_side_RecHitTime_Ave->setBinLabel(7,"HAD2",2);
-        h_channel_side_RecHitTime_Ave->setBinLabel(8,"HAD3",2);
-        h_channel_side_RecHitTime_Ave->setBinLabel(9,"HAD4",2);
+        h_2D_RecHitTime = m_dbe->book2D("2D_RecHitTime", "Rechit Timing", 2, 0, 2, 9, 0, 9);
+        h_2D_RecHitTime->setBinLabel(1,"ZDC+",1);
+        h_2D_RecHitTime->setBinLabel(2,"ZDC-",1);
+        h_2D_RecHitTime->setBinLabel(1,"EM1",2);
+        h_2D_RecHitTime->setBinLabel(2,"EM2",2);
+        h_2D_RecHitTime->setBinLabel(3,"EM3",2);
+        h_2D_RecHitTime->setBinLabel(4,"EM4",2);
+        h_2D_RecHitTime->setBinLabel(5,"EM5",2);
+        h_2D_RecHitTime->setBinLabel(6,"HAD1",2);
+        h_2D_RecHitTime->setBinLabel(7,"HAD2",2);
+        h_2D_RecHitTime->setBinLabel(8,"HAD3",2);
+        h_2D_RecHitTime->setBinLabel(9,"HAD4",2);
 
+        h_2D_saturation = m_dbe->book2D("h_2D_QIE", "Saturation Check", 2, 0, 2, 9, 0, 9);
+        h_2D_saturation->setBinLabel(1,"ZDC+",1);
+        h_2D_saturation->setBinLabel(2,"ZDC-",1);
+        h_2D_saturation->setBinLabel(1,"EM1",2);
+        h_2D_saturation->setBinLabel(2,"EM2",2);
+        h_2D_saturation->setBinLabel(3,"EM3",2);
+        h_2D_saturation->setBinLabel(4,"EM4",2);
+        h_2D_saturation->setBinLabel(5,"EM5",2);
+        h_2D_saturation->setBinLabel(6,"HAD1",2);
+        h_2D_saturation->setBinLabel(7,"HAD2",2);
+        h_2D_saturation->setBinLabel(8,"HAD3",2);
+        h_2D_saturation->setBinLabel(9,"HAD4",2);
 	
         m_dbe->setCurrentFolder(baseFolder_ + "/Digis");
-
-        h_saturation = m_dbe->book1D("h_QIE", "Saturation Check", 128, -0.5, 127.5);
-	h_saturation->setAxisTitle("ADC count",1);
-	h_saturation->setAxisTitle("Number of Digis",2);
 
         for (int i = 0; i < 5; ++i) {
             // pulse Plus Side 
@@ -102,24 +110,24 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore * dbe) {
             sprintf(name, "ZDC Plus EM Section Pulse for channel %i", i + 1);
             h_ZDCP_EM_Pulse[i] = m_dbe->book1D(title, name, 10, -0.5, 9.5);
 	    h_ZDCP_EM_Pulse[i]->setAxisTitle("Time Slice id",1);
-	    h_ZDCP_EM_Pulse[i]->setAxisTitle("Ave. Pulse Height",2);
+	    h_ZDCP_EM_Pulse[i]->setAxisTitle("Pulse Height",2);
             // pulse Minus Side
             sprintf(title, "h_ZDCM_EMChan_%i_Pulse", i + 1);
             sprintf(name, "ZDC Minus EM Section Pulse for channel %i", i + 1);
             h_ZDCM_EM_Pulse[i] = m_dbe->book1D(title, name, 10, -0.5, 9.5);
 	    h_ZDCM_EM_Pulse[i]->setAxisTitle("Time Slice id",1);
-	    h_ZDCM_EM_Pulse[i]->setAxisTitle("Ave. Pulse Height",2);
+	    h_ZDCM_EM_Pulse[i]->setAxisTitle("Pulse Height",2);
             // integrated charge over 10 time samples
             sprintf(title, "h_ZDCP_EMChan_%i_Charge", i + 1);
             sprintf(name, "ZDC Plus EM Section Charge for channel %i", i + 1);
             h_ZDCP_EM_Charge[i] = m_dbe->book1D(title, name, 1000, 0., 30000.);
-	    h_ZDCP_EM_Charge[i]->setAxisTitle("Charge {fC}",1);
+	    h_ZDCP_EM_Charge[i]->setAxisTitle("Charge (fC)",1);
 	    h_ZDCP_EM_Charge[i]->setAxisTitle("Events",2);
             // integrated charge over 10 time samples
             sprintf(title, "h_ZDCM_EMChan_%i_Charge", i + 1);
             sprintf(name, "ZDC Minus EM Section Charge for channel %i", i + 1);
             h_ZDCM_EM_Charge[i] = m_dbe->book1D(title, name, 1000, 0., 30000.);
-	    h_ZDCM_EM_Charge[i]->setAxisTitle("Charge {fC}",1);
+	    h_ZDCM_EM_Charge[i]->setAxisTitle("Charge (fC)",1);
 	    h_ZDCM_EM_Charge[i]->setAxisTitle("Events",2);
             // charge weighted time slice
             sprintf(title, "h_ZDCP_EMChan_%i_TSMean", i + 1);
@@ -141,24 +149,24 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore * dbe) {
             sprintf(name, "ZDC Plus HAD Section Pulse for channel %i", i + 1);
             h_ZDCP_HAD_Pulse[i] = m_dbe->book1D(title, name, 10, -0.5, 9.5);
 	    h_ZDCP_HAD_Pulse[i]->setAxisTitle("Time Slice id",1);
-	    h_ZDCP_HAD_Pulse[i]->setAxisTitle("Ave. Pulse Height",2);
+	    h_ZDCP_HAD_Pulse[i]->setAxisTitle("Pulse Height",2);
             // pulse Minus Side 
             sprintf(title, "h_ZDCM_HADChan_%i_Pulse", i + 1);
             sprintf(name, "ZDC Minus HAD Section Pulse for channel %i", i + 1);
             h_ZDCM_HAD_Pulse[i] = m_dbe->book1D(title, name, 10, -0.5, 9.5);
 	    h_ZDCP_HAD_Pulse[i]->setAxisTitle("Time Slice id",1);
-	    h_ZDCP_HAD_Pulse[i]->setAxisTitle("Ave. Pulse Height",2);
+	    h_ZDCP_HAD_Pulse[i]->setAxisTitle("Pulse Height",2);
             // integrated charge over 10 time samples 
             sprintf(title, "h_ZDCP_HADChan_%i_Charge", i + 1);
             sprintf(name, "ZDC Plus HAD Section Charge for channel %i", i + 1);
             h_ZDCP_HAD_Charge[i] = m_dbe->book1D(title, name, 1000, 0., 30000.);
-	    h_ZDCP_HAD_Charge[i]->setAxisTitle("Charge {fC}",1);
+	    h_ZDCP_HAD_Charge[i]->setAxisTitle("Charge (fC)",1);
 	    h_ZDCP_HAD_Charge[i]->setAxisTitle("Events",2);
             // integrated charge over 10 time samples 
             sprintf(title, "h_ZDCM_HADChan_%i_Charge", i + 1);
             sprintf(name, "ZDC Minus HAD Section Charge for channel %i", i + 1);
             h_ZDCM_HAD_Charge[i] = m_dbe->book1D(title, name, 1000, 0., 30000.);
-	    h_ZDCM_HAD_Charge[i]->setAxisTitle("Charge {fC}",1);
+	    h_ZDCM_HAD_Charge[i]->setAxisTitle("Charge (fC)",1);
 	    h_ZDCM_HAD_Charge[i]->setAxisTitle("Events",2);
             // charge weighted time slice 
             sprintf(title, "h_ZDCP_HADChan_%i_TSMean", i + 1);
@@ -250,8 +258,9 @@ void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi, const ZDCRecHit
     //--------------------------------------
     double fSum = 0.;
     std::vector<double> fData;
-    double digiThresh = 99.5; //corresponds to 40 ADC counts (99.5fC * 2.6)
-    int digiThreshADC = 40;
+    double digiThresh = 99.5; //corresponds to 40 ADC counts
+    //int digiThreshADC = 40;
+    int digiSaturation = 127;
     //double ZDCQIEConst = 2.6; 
 
     for (ZDCDigiCollection::const_iterator digi_iter = digi.begin(); 
@@ -262,6 +271,7 @@ void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi, const ZDCRecHit
 	int iSide = digi_iter->id().zside();
 	int iSection = digi_iter->id().section();
 	int iChannel = digi_iter->id().channel();
+	
 	unsigned int fTS = digi_iter->size();
 	while (fData.size()<fTS)
 	  fData.push_back(-999);
@@ -269,16 +279,21 @@ void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi, const ZDCRecHit
 	  fData.pop_back(); // delete last elements 
 
 	fSum = 0.;
+    	bool saturated = false;
 	for (unsigned int i = 0; i < fTS; ++i) 
 	  {
-		//fData[i]=digi[i].nominal_fC() * ZDCQIEConst;
-		//std::cout<< "TS " << i << " fData " << fData[i] <<std::endl;
-		fData[i]=digi[i].nominal_fC();
-		if (digi[i].adc() > digiThreshADC) h_saturation->Fill(digi[i].adc(),0.1);
+	     //fData[i]=digi[i].nominal_fC() * ZDCQIEConst;
+	     fData[i]=digi[i].nominal_fC();
+	     if (digi[i].adc()==digiSaturation){
+		 saturated=true;
+	     }
 	  }
       
 	double fTSMean = getTime(fData, 4, 6, fSum); // tsmin = 4, tsmax = 6.
 	//std::cout << "Side= " << iSide << " Section= " << iSection << " Channel= " << iChannel << "\tCharge\t" << fSum <<std::endl; 
+	  if (saturated==true){
+	     h_2D_saturation->Fill(iSide==1?0:1,iSection==1?iChannel-1:iChannel+4,1);
+	  }
       
 	if (iSection == 1) 
 	  {    // EM
@@ -326,6 +341,7 @@ void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi, const ZDCRecHit
 	  } // HAD 
       } // loop on zdc digi collection
 
+
     //--------------------------------------
     // ZDC RecHit part 
     //--------------------------------------
@@ -337,6 +353,7 @@ void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi, const ZDCRecHit
 	int Section   = (rechit_iter->id()).section();
 	int Channel   = (rechit_iter->id()).channel();
 	//std::cout << "RecHitEnergy  " << zhit->energy() << "  RecHitTime  " << zhit->time() << std::endl;
+
 	if(Section==1)
 	  { //EM
 	    if (Side ==1 ){ // Plus
@@ -424,32 +441,29 @@ void HcalZDCMonitor::endLuminosityBlock()
 
     for (int i = 0; i < 5; ++i) {   // EM Channels 
 	// ZDC Plus 
-	//h_ZDCP_EM_Pulse[i]->Scale(10. / h_ZDCP_EM_Pulse[i]->getEntries());
-	h_channel_side_charge_Ave->setBinContent(1, i + 1, h_ZDCP_EM_Charge[i]->getMean());
-	h_channel_side_TSMean_Ave->setBinContent(1, i + 1, h_ZDCP_EM_TSMean[i]->getMean());
-	h_channel_side_energy_Ave->setBinContent(1, i + 1, h_ZDCP_EM_RecHitEnergy[i]->getMean());
-	h_channel_side_RecHitTime_Ave->setBinContent(1, i + 1, h_ZDCP_EM_RecHitTiming[i]->getMean());
+	h_2D_charge->setBinContent(1, i + 1, h_ZDCP_EM_Charge[i]->getMean());
+	h_2D_TSMean->setBinContent(1, i + 1, h_ZDCP_EM_TSMean[i]->getMean());
+	h_2D_RecHitEnergy->setBinContent(1, i + 1, h_ZDCP_EM_RecHitEnergy[i]->getMean());
+	h_2D_RecHitTime->setBinContent(1, i + 1, h_ZDCP_EM_RecHitTiming[i]->getMean());
 	// ZDC Minus
-	//h_ZDCM_EM_Pulse[i]->Scale(10. / h_ZDCM_EM_Pulse[i]->getEntries());
-	h_channel_side_charge_Ave->setBinContent(2, i + 1, h_ZDCM_EM_Charge[i]->getMean());
-	h_channel_side_TSMean_Ave->setBinContent(2, i + 1, h_ZDCM_EM_TSMean[i]->getMean());
-	h_channel_side_energy_Ave->setBinContent(2, i + 1, h_ZDCM_EM_RecHitEnergy[i]->getMean());
-	h_channel_side_RecHitTime_Ave->setBinContent(2, i + 1, h_ZDCM_EM_RecHitTiming[i]->getMean());
+	h_2D_charge->setBinContent(2, i + 1, h_ZDCM_EM_Charge[i]->getMean());
+	h_2D_TSMean->setBinContent(2, i + 1, h_ZDCM_EM_TSMean[i]->getMean());
+	h_2D_RecHitEnergy->setBinContent(2, i + 1, h_ZDCM_EM_RecHitEnergy[i]->getMean());
+	h_2D_RecHitTime->setBinContent(2, i + 1, h_ZDCM_EM_RecHitTiming[i]->getMean());
     }
 
     for (int i = 0; i < 4; ++i) {   // HAD channels 
 	// ZDC Plus 
-	//h_ZDCP_HAD_Pulse[i]->Scale(10. / h_ZDCP_HAD_Pulse[i]->getEntries());
-	h_channel_side_charge_Ave->setBinContent(1, i + 6, h_ZDCP_HAD_Charge[i]->getMean());
-	h_channel_side_TSMean_Ave->setBinContent(1, i + 6, h_ZDCP_HAD_TSMean[i]->getMean());
-	h_channel_side_energy_Ave->setBinContent(1, i + 6, h_ZDCP_HAD_RecHitEnergy[i]->getMean());
-	h_channel_side_RecHitTime_Ave->setBinContent(1, i + 6, h_ZDCP_HAD_RecHitTiming[i]->getMean());
+	h_2D_charge->setBinContent(1, i + 6, h_ZDCP_HAD_Charge[i]->getMean());
+	h_2D_TSMean->setBinContent(1, i + 6, h_ZDCP_HAD_TSMean[i]->getMean());
+	h_2D_RecHitEnergy->setBinContent(1, i + 6, h_ZDCP_HAD_RecHitEnergy[i]->getMean());
+	h_2D_RecHitTime->setBinContent(1, i + 6, h_ZDCP_HAD_RecHitTiming[i]->getMean());
 	// ZDC Minus
 	//h_ZDCM_HAD_Pulse[i]->Scale(10. / h_ZDCM_HAD_Pulse[i]->getEntries());
-	h_channel_side_charge_Ave->setBinContent(2, i + 6, h_ZDCM_HAD_Charge[i]->getMean());
-	h_channel_side_TSMean_Ave->setBinContent(2, i + 6, h_ZDCM_HAD_TSMean[i]->getMean());
-	h_channel_side_energy_Ave->setBinContent(2, i + 6, h_ZDCM_HAD_RecHitEnergy[i]->getMean());
-	h_channel_side_RecHitTime_Ave->setBinContent(2, i + 6, h_ZDCM_HAD_RecHitTiming[i]->getMean());
+	h_2D_charge->setBinContent(2, i + 6, h_ZDCM_HAD_Charge[i]->getMean());
+	h_2D_TSMean->setBinContent(2, i + 6, h_ZDCM_HAD_TSMean[i]->getMean());
+	h_2D_RecHitEnergy->setBinContent(2, i + 6, h_ZDCM_HAD_RecHitEnergy[i]->getMean());
+	h_2D_RecHitTime->setBinContent(2, i + 6, h_ZDCM_HAD_RecHitTiming[i]->getMean());
     }
 } // void HcalZDCMonitor::endLuminosityBlock()
 

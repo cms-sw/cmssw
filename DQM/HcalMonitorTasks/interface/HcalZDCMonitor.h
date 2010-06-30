@@ -13,7 +13,7 @@
  *
  * $DATE: 2010/02/04
  * $Revision:
- * \author F. Ozok, S.Sen
+ * \author S.Sen
  */
 
 class HcalZDCMonitor: public HcalBaseMonitor
@@ -47,12 +47,11 @@ class HcalZDCMonitor: public HcalBaseMonitor
   int ievt_;
   //int zdc_checkNevents_;
   MonitorElement* meEVT_;
-
-  MonitorElement* h_saturation;
-  MonitorElement* h_channel_side_charge_Ave;
-  MonitorElement* h_channel_side_TSMean_Ave;
-  MonitorElement* h_channel_side_energy_Ave;
-  MonitorElement* h_channel_side_RecHitTime_Ave;
+  MonitorElement* h_2D_saturation;
+  MonitorElement* h_2D_charge;
+  MonitorElement* h_2D_TSMean;
+  MonitorElement* h_2D_RecHitEnergy;
+  MonitorElement* h_2D_RecHitTime;
   MonitorElement* h_ZDCP_EM_Pulse[5];
   MonitorElement* h_ZDCM_EM_Pulse[5];
   MonitorElement* h_ZDCP_EM_Charge[5];
