@@ -95,7 +95,6 @@ namespace fwlite {
         TBranch* b = meta->GetBranch(edm::poolNames::indexIntoFileBranchName().c_str());
         b->SetAddress(&indexPtr);
         b->GetEntry(0);
-        indexIntoFile_.fillRunOrLumiIndexes();
       } else if (meta->FindBranch(edm::poolNames::fileIndexBranchName().c_str()) != 0) {
         edm::FileIndex* findexPtr = &fileIndex_;
         TBranch* b = meta->GetBranch(edm::poolNames::fileIndexBranchName().c_str());

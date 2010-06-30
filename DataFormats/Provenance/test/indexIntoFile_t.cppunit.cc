@@ -199,7 +199,6 @@ void TestIndexIntoFile::testEventEntry() {
 void TestIndexIntoFile::testSortedRunOrLumiItr() {
 
   edm::IndexIntoFile indexIntoFile0;
-  indexIntoFile0.fillRunOrLumiIndexes();
   edm::IndexIntoFile::SortedRunOrLumiItr iter(&indexIntoFile0, 0);
   CPPUNIT_ASSERT(iter.indexIntoFile() == &indexIntoFile0);
   CPPUNIT_ASSERT(iter.runOrLumi() == 0);
@@ -221,7 +220,6 @@ void TestIndexIntoFile::testSortedRunOrLumiItr() {
   indexIntoFile.addEntry(fakePHID1, 1, 1, 0, 0); // Lumi
   indexIntoFile.addEntry(fakePHID1, 1, 0, 0, 0); // Run
   indexIntoFile.sortVector_Run_Or_Lumi_Entries();
-  indexIntoFile.fillRunOrLumiIndexes();
 
   unsigned count = 0;
   IndexIntoFile::SortedRunOrLumiItr runOrLumi = indexIntoFile.beginRunOrLumi();

@@ -913,7 +913,6 @@ namespace edm {
 
     // For now always fill these. This needs to be improved
     // to only fill these parts of the index when required
-    indexIntoFile_.fillRunOrLumiIndexes();
     fillEventNumbersInIndex();
     fillEventEntriesInIndex();
   }

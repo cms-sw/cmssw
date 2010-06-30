@@ -53,7 +53,6 @@ namespace edm {
                     EventNumber_t event,
                     EntryNumber_t entry);
 
-      void fillRunOrLumiIndexes();
       void fixIndexes(std::vector<ProcessHistoryID>& processHistoryIDs);
 
       void sortVector_Run_Or_Lumi_Entries();
@@ -619,6 +618,7 @@ namespace edm {
 
     private:
 
+      void fillRunOrLumiIndexes() const;
       bool& allInEntryOrder() const {return transients_.get().allInEntryOrder_;}
       bool& resultCached() const {return transients_.get().resultCached_;}
       int& previousAddedIndex() const {return transients_.get().previousAddedIndex_;}

@@ -97,8 +97,10 @@ namespace edm {
     }
   }
 
-  void IndexIntoFile::fillRunOrLumiIndexes() {
-    runOrLumiIndexes().clear();
+  void IndexIntoFile::fillRunOrLumiIndexes() const {
+    if (runOrLumiEntries_.empty() || !runOrLumiIndexes().empty()) {
+      return;
+    }
     int index = 0;
     for (std::vector<RunOrLumiEntry>::const_iterator iter = runOrLumiEntries_.begin(),
 	                                             iEnd = runOrLumiEntries_.end();
@@ -147,6 +149,7 @@ namespace edm {
       beginEventNumbers += nEvents;
       beginOfLumi = endOfLumi;
     }
+    assert(runOrLumiIndexes().size() == runOrLumiEntries_.size());
   }
 
   void
@@ -192,6 +195,7 @@ namespace edm {
   }
 
   void IndexIntoFile::sortEvents() {
+    fillRunOrLumiIndexes();
     std::vector<RunOrLumiIndexes>::iterator beginOfLumi = runOrLumiIndexes().begin();
     std::vector<RunOrLumiIndexes>::iterator endOfLumi = beginOfLumi;
     std::vector<RunOrLumiIndexes>::iterator iEnd = runOrLumiIndexes().end();
@@ -215,6 +219,7 @@ namespace edm {
   }
 
   void IndexIntoFile::sortEventEntries() {
+    fillRunOrLumiIndexes();
     std::vector<RunOrLumiIndexes>::iterator beginOfLumi = runOrLumiIndexes().begin();
     std::vector<RunOrLumiIndexes>::iterator endOfLumi = beginOfLumi;
     std::vector<RunOrLumiIndexes>::iterator iEnd = runOrLumiIndexes().end();
@@ -289,8 +294,7 @@ namespace edm {
 
   IndexIntoFile::IndexIntoFileItr
   IndexIntoFile::findPosition(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) const {
-
-    assert(runOrLumiEntries().size() == runOrLumiIndexes().size());
+    fillRunOrLumiIndexes();
 
     bool lumiMissing = (lumi == 0 && event != 0);
 
@@ -483,7 +487,7 @@ namespace edm {
   }
 
   IndexIntoFile::SortedRunOrLumiItr IndexIntoFile::endRunOrLumi() const {
-    return SortedRunOrLumiItr(this, runOrLumiIndexes().size());
+    return SortedRunOrLumiItr(this, runOrLumiEntries().size());
   }
 
   void IndexIntoFile::set_intersection(IndexIntoFile const& indexIntoFile,
@@ -657,8 +661,8 @@ namespace edm {
 
   IndexIntoFile::SortedRunOrLumiItr::SortedRunOrLumiItr(IndexIntoFile const* indexIntoFile, unsigned runOrLumi) :
     indexIntoFile_(indexIntoFile), runOrLumi_(runOrLumi) {
-    assert(indexIntoFile_->runOrLumiIndexes().size() == indexIntoFile_->runOrLumiEntries().size());
-    assert(runOrLumi_ <= indexIntoFile_->runOrLumiIndexes().size());
+    assert(runOrLumi_ <= indexIntoFile_->runOrLumiEntries().size());
+    indexIntoFile_->fillRunOrLumiIndexes();
   }
 
   bool IndexIntoFile::SortedRunOrLumiItr::operator==(SortedRunOrLumiItr const& right) const {
@@ -672,7 +676,7 @@ namespace edm {
   }
 
   IndexIntoFile::SortedRunOrLumiItr & IndexIntoFile::SortedRunOrLumiItr::operator++() {
-    if (runOrLumi_ != indexIntoFile_->runOrLumiIndexes().size()) {
+    if (runOrLumi_ != indexIntoFile_->runOrLumiEntries().size()) {
       ++runOrLumi_;
     }
     return *this;
@@ -696,6 +700,7 @@ namespace edm {
 
   IndexIntoFile::RunOrLumiIndexes const&
   IndexIntoFile::SortedRunOrLumiItr::runOrLumiIndexes() const {
+    indexIntoFile_->fillRunOrLumiIndexes();
     return indexIntoFile_->runOrLumiIndexes().at(runOrLumi_);
   }
 
@@ -713,6 +718,7 @@ namespace edm {
     if (size_ == 0) {
       return;
     }
+    indexIntoFile_->fillRunOrLumiIndexes();
     type_ = kRun;
     assert(indexIntoFile_->runOrLumiEntries_[0].isRun());
     initializeRun();
@@ -733,6 +739,7 @@ namespace edm {
     indexToEventRange_(indexToEventRange),
     indexToEvent_(indexToEvent),
     nEvents_(nEvents) {
+    indexIntoFile_->fillRunOrLumiIndexes();
   }
 
   void IndexIntoFile::IndexIntoFileItrImpl::next () {
@@ -1312,8 +1319,12 @@ namespace edm {
                                             endEvents_(invalidEntry),
                                             currentIndex_(invalidIndex),
                                             currentRun_(invalidRun),
-                                            currentLumi_(invalidLumi) {
+                                            currentLumi_(invalidLumi),
+                                            runOrLumiIndexes_(),
+                                            eventNumbers_(),
+                                            eventEntries_() {
   }
+
 
   bool Compare_Index_Run::operator()(IndexIntoFile::RunOrLumiIndexes const& lh, IndexIntoFile::RunOrLumiIndexes const& rh) {
     if (lh.processHistoryIDIndex() == rh.processHistoryIDIndex()) {
