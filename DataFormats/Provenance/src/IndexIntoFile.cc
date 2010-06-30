@@ -101,6 +101,8 @@ namespace edm {
     if (runOrLumiEntries_.empty() || !runOrLumiIndexes().empty()) {
       return;
     }
+    runOrLumiIndexes().reserve(runOrLumiEntries_.size());
+
     int index = 0;
     for (std::vector<RunOrLumiEntry>::const_iterator iter = runOrLumiEntries_.begin(),
 	                                             iEnd = runOrLumiEntries_.end();
@@ -119,7 +121,7 @@ namespace edm {
     std::vector<RunOrLumiIndexes>::iterator endOfLumi = beginOfLumi;
     std::vector<RunOrLumiIndexes>::iterator iEnd = runOrLumiIndexes().end();
     while (true) {
-      while (beginOfLumi != iEnd && beginOfLumi->lumi() == invalidLumi) {
+      while (beginOfLumi != iEnd && beginOfLumi->isRun()) {
         ++beginOfLumi;
       }
       if (beginOfLumi == iEnd) break;
@@ -200,7 +202,7 @@ namespace edm {
     std::vector<RunOrLumiIndexes>::iterator endOfLumi = beginOfLumi;
     std::vector<RunOrLumiIndexes>::iterator iEnd = runOrLumiIndexes().end();
     while (true) {
-      while (beginOfLumi != iEnd && beginOfLumi->lumi() == invalidLumi) {
+      while (beginOfLumi != iEnd && beginOfLumi->isRun()) {
         ++beginOfLumi;
       }
       if (beginOfLumi == iEnd) break;
@@ -212,6 +214,8 @@ namespace edm {
              beginOfLumi->lumi() == endOfLumi->lumi()) {
         ++endOfLumi;
       }
+      assert(beginOfLumi->endEventNumbers() >= 0);
+      assert(beginOfLumi->endEventNumbers() <= static_cast<long long>(eventNumbers().size()));
       std::sort(eventNumbers().begin() + beginOfLumi->beginEventNumbers(),
                 eventNumbers().begin() + beginOfLumi->endEventNumbers());
       beginOfLumi = endOfLumi;
@@ -224,7 +228,7 @@ namespace edm {
     std::vector<RunOrLumiIndexes>::iterator endOfLumi = beginOfLumi;
     std::vector<RunOrLumiIndexes>::iterator iEnd = runOrLumiIndexes().end();
     while (true) {
-      while (beginOfLumi != iEnd && beginOfLumi->lumi() == invalidLumi) {
+      while (beginOfLumi != iEnd && beginOfLumi->isRun()) {
         ++beginOfLumi;
       }
       if (beginOfLumi == iEnd) break;
@@ -236,6 +240,8 @@ namespace edm {
              beginOfLumi->lumi() == endOfLumi->lumi()) {
         ++endOfLumi;
       }
+      assert(beginOfLumi->endEventNumbers() >= 0);
+      assert(beginOfLumi->endEventNumbers() <=  static_cast<long long>(eventEntries().size()));
       std::sort(eventEntries().begin() + beginOfLumi->beginEventNumbers(),
                 eventEntries().begin() + beginOfLumi->endEventNumbers());
       beginOfLumi = endOfLumi;
