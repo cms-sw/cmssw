@@ -2,13 +2,18 @@
 std::map<string,double>  CrossSections;
 
 
-const unsigned int dEdxLabelSize   = 4;
+
+const char*        EstimLeg        = "dE/dx estimator (MeV/cm)";
+const char*        DiscrLeg        = "dE/dx discriminator";
+const unsigned int dEdxLabelSize   = 12;
 const char*        dEdxLabel    [] = {"dedxCNPHarm2", "dedxCNPTru40", "dedxCNPMed", "dedxSTCNPHarm2", "dedxSTCNPTru40", "dedxSTCNPMed", "dedxProd", "dedxSmi", "dedxASmi", "dedxSTProd", "dedxSTSmi", "dedxSTASmi"};
 const double       dEdxK_Data   [] = {2.5857        , 2.4496        , 2.8284      , 2.5857        , 2.4496        , 2.8284};
 const double       dEdxC_Data   [] = {2.5497        , 2.2364        , 2.2459      , 2.5497        , 2.2364        , 2.2459};
 const double       dEdxK_MC     [] = {2.5404        , 2.5272        , 2.5853      , 2.5404        , 2.5272        , 2.5853};
 const double       dEdxC_MC     [] = {2.6433        , 2.2315        , 1.6376      , 2.6433        , 2.2315        , 1.6376};
-const double       dEdxUpLim    [] = {40            , 40            , 40          , 40            , 40            , 40, 1         , 1        ,  1, 1         , 1        ,  1  };
+const double       dEdxUpLim    [] = {40            , 40            , 40          , 40            , 40            , 40      , 1       , 1        , 1       , 1       , 1       , 1       };
+const bool         dEdxIsDiscrim[] = {false         , false         , false       , false         , false         , false   , true    , true     , true    , true    , true    , true    };
+const char*        dEdxLegend   [] = {EstimLeg      , EstimLeg      , EstimLeg    , EstimLeg      , EstimLeg      , EstimLeg, DiscrLeg, DiscrLeg , DiscrLeg, DiscrLeg, DiscrLeg, DiscrLeg};
 
 int                dEdxSeleIndex;
 int                dEdxMassIndex;

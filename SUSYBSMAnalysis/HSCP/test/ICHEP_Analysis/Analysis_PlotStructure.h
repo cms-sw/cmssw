@@ -35,6 +35,15 @@ struct stPlots {
    double WN_I;		   double UN_I;
 
    double WN_HSCPE;        double UN_HSCPE;
+
+   double WN_I_SYSTA;      double UN_I_SYSTA;
+   double WN_HSCPE_SYSTA;  double UN_HSCPE_SYSTA;
+   double WN_I_SYSTB;      double UN_I_SYSTB;
+   double WN_HSCPE_SYSTB;  double UN_HSCPE_SYSTB;
+
+
+   double MeanICut;
+   double MeanPtCut;
 };
 
 
@@ -56,6 +65,15 @@ void stPlots_Init(stPlots& st, string BaseName)
    st.WN_Pt     = 0;     st.UN_Pt     = 0;
    st.WN_I      = 0;     st.UN_I      = 0;
    st.WN_HSCPE  = 0;     st.UN_HSCPE  = 0;
+
+   st.WN_I_SYSTA     = 0; st.UN_I_SYSTA     = 0;
+   st.WN_HSCPE_SYSTA = 0; st.UN_HSCPE_SYSTA = 0;
+   st.WN_I_SYSTB     = 0; st.UN_I_SYSTB     = 0;
+   st.WN_HSCPE_SYSTB = 0; st.UN_HSCPE_SYSTB = 0;
+
+   st.MeanICut  = 0;
+   st.MeanPtCut = 0;
+
 
    string Name;
    Name = BaseName + "_BS_DZ"   ; st.BS_DZ    = new TH1D(Name.c_str(), Name.c_str(),  100, 0,  25);  st.BS_DZ->Sumw2();
@@ -163,45 +181,50 @@ void stPlots_Draw(stPlots& st, string SavePath)
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)st.BS_DZ;                    legend.push_back("Before Cut");
    Histos[1] = (TH1*)st.AS_DZ;                    legend.push_back("After  Cut");
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "dz", "#Tracks", 0,0, 0,0, false);
-   DrawLegend(Histos,legend,"","LP");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "dz (cm)", "#Tracks", 0,0, 0,0, false);
+   DrawLegend(Histos,legend,"","P");
    c1->SetLogy(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"dz", true);
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)st.BS_DXY;                   legend.push_back("Before Cut");
    Histos[1] = (TH1*)st.AS_DXY;                   legend.push_back("After  Cut");
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "dxy", "#Tracks", 0,0, 0,0, false);
-   DrawLegend(Histos,legend,"","LP");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "dxy (cm)", "#Tracks", 0,0, 0,0, false);
+   DrawLegend(Histos,legend,"","P");
    c1->SetLogy(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"dxy", true);
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)st.BS_Chi2;                  legend.push_back("Before Cut");
    Histos[1] = (TH1*)st.AS_Chi2;                  legend.push_back("After  Cut");
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "#chi^{2}/ndof", "#Tracks", 0,0, 0,0, false);
-   DrawLegend(Histos,legend,"","LP");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "#chi^{2}/ndof", "#Tracks", 0,0, 0,0, false);
+   DrawLegend(Histos,legend,"","P");
    c1->SetLogy(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"Chi2", true);
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)st.BS_Qual;                  legend.push_back("Before Cut");
    Histos[1] = (TH1*)st.AS_Qual;                  legend.push_back("After  Cut");
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "Track quality", "#Tracks", 0,0, 0,0, false);
-   DrawLegend(Histos,legend,"","LP");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Track quality", "#Tracks", 0,0, 0,0, false);
+   DrawLegend(Histos,legend,"","P");
    c1->SetLogy(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"Quality", true);
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)st.BS_Hits;                  legend.push_back("Before Cut");
    Histos[1] = (TH1*)st.AS_Hits;                  legend.push_back("After  Cut");
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "Track #Hits", "#Tracks", 0,0, 0,0, false);
-   DrawLegend(Histos,legend,"","LP");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Track #Hits", "#Tracks", 0,0, 0,0, false);
+   DrawLegend(Histos,legend,"","P");
    c1->SetLogy(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"Hits", true);
    delete c1;
 
@@ -209,63 +232,76 @@ void stPlots_Draw(stPlots& st, string SavePath)
    Histos[0] = (TH1*)st.BS_Pterr;                 legend.push_back("Before Cut");
    Histos[1] = (TH1*)st.AS_Pterr;                 legend.push_back("After  Cut");
    st.AS_Pterr->SetMinimum(1);
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "Track Pt Err / Track Pt", "#Tracks", 0,0, 0,0, false);
-   DrawLegend(Histos,legend,"","LP");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Track Pt Err / Track Pt", "#Tracks", 0,0, 0,0, false);
+   DrawLegend(Histos,legend,"","P");
    c1->SetLogy(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"Pterr", true);
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)st.BS_MPt;                   legend.push_back("Before Cut");
    Histos[1] = (TH1*)st.AS_MPt;                   legend.push_back("After  Cut");
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "Track Pt", "#Tracks", 0,0, 0,0, false);
-   DrawLegend(Histos,legend,"","LP"); 
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Track Pt (GeV/c)", "#Tracks", 0,0, 0,0, false);
+   DrawLegend(Histos,legend,"","P"); 
    c1->SetLogy(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"MPt", true);
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)st.BS_MIs;                   legend.push_back("Before Cut");
    Histos[1] = (TH1*)st.AS_MIs;                   legend.push_back("After  Cut");
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "Track Ionization Info", "#Tracks", 0,0, 0,0, false);
-   DrawLegend(Histos,legend,"","LP");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxLegend[dEdxSeleIndex], "#Tracks", 0,0, 0,0, false);
+   DrawLegend(Histos,legend,"","P");
    c1->SetLogy(true); 
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"MIs", true);
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)st.BS_MIm;                   legend.push_back("Before Cut");
    Histos[1] = (TH1*)st.AS_MIm;                   legend.push_back("After  Cut");
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "Track Ionization Info", "#Tracks", 0,0, 0,0, false);
-   DrawLegend(Histos,legend,"","LP");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxLegend[dEdxMassIndex], "#Tracks", 0,0, 0,0, false);
+   DrawLegend(Histos,legend,"","P");
    c1->SetLogy(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"MIm", true);
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)st.BS_Pt;                    legend.push_back("Before Cut");
    Histos[1] = (TH1*)st.AS_Pt;                    legend.push_back("After  Cut");
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "Track Pt", "#Tracks", 0,0, 0,0, false);
-   DrawLegend(Histos,legend,"","LP");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Track Pt (GeV/c)", "#Tracks", 0,0, 0,0, false);
+   DrawLegend(Histos,legend,"","P");
    c1->SetLogy(true);
+   DrawPreliminary(-1);
+   TLine* l1 = new TLine(st.MeanPtCut, st.BS_Pt->GetMinimum(), st.MeanPtCut, st.BS_Pt->GetMaximum());
+   l1->SetLineWidth(2); l1->SetLineStyle(2);
+   l1->Draw();
    SaveCanvas(c1,SavePath,"Pt", true);
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)st.BS_Is;                    legend.push_back("Before Cut");
    Histos[1] = (TH1*)st.AS_Is;                    legend.push_back("After  Cut");
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "Track Ionization Info", "#Tracks", 0,0, 0,0, false);
-   DrawLegend(Histos,legend,"","LP");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxLegend[dEdxSeleIndex], "#Tracks", 0,0, 0,0, false);
+   DrawLegend(Histos,legend,"","P");
    c1->SetLogy(true);
+   DrawPreliminary(-1);
+   TLine* l2 = new TLine(st.MeanICut, st.BS_Is->GetMinimum(), st.MeanICut, st.BS_Is->GetMaximum());
+   l2->SetLineWidth(2); l2->SetLineStyle(2);
+   l2->Draw();
    SaveCanvas(c1,SavePath,"Is", true);
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)st.BS_Im;                    legend.push_back("Before Cut");
    Histos[1] = (TH1*)st.AS_Im;                    legend.push_back("After  Cut");
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "Track Ionization Info", "#Tracks", 0,0, 0,0, false);
-   DrawLegend(Histos,legend,"","LP");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxLegend[dEdxMassIndex], "#Tracks", 0,0, 0,0, false);
+   DrawLegend(Histos,legend,"","P");
    c1->SetLogy(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"Im", true);
    delete c1;
 
@@ -273,6 +309,7 @@ void stPlots_Draw(stPlots& st, string SavePath)
    Histos[0] = (TH1*)st.BS_EtaP;                  legend.push_back("Before Cut");
    DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "#eta", "P (GeV/c)", 0,0, 0,0, false);
    c1->SetLogz(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"EtaP_BS", true);
    delete c1;
 
@@ -280,6 +317,7 @@ void stPlots_Draw(stPlots& st, string SavePath)
    Histos[0] = (TH1*)st.AS_EtaP;                  legend.push_back("After Cut");
    DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "#eta", "P (GeV/c)", 0,0, 0,0, false);
    c1->SetLogz(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"EtaP_AS", true);
    delete c1;
 
@@ -287,6 +325,7 @@ void stPlots_Draw(stPlots& st, string SavePath)
    Histos[0] = (TH1*)st.BS_EtaPt;                 legend.push_back("Before Cut");
    DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "#eta", "Pt (GeV/c)", 0,0, 0,0, false);
    c1->SetLogz(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"EtaPt_BS", true);
    delete c1;
 
@@ -294,34 +333,39 @@ void stPlots_Draw(stPlots& st, string SavePath)
    Histos[0] = (TH1*)st.AS_EtaPt;                 legend.push_back("After Cut");
    DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "#eta", "Pt (GeV/c)", 0,0, 0,0, false);
    c1->SetLogz(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"EtaPt_AS", true);
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)st.BS_PIs;                   legend.push_back("Before Cut");
-   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ", "P (GeV/c)", "Track Ionization Info", 0,0, 0,0, false);
+   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ", "P (GeV/c)", dEdxLegend[dEdxSeleIndex], 0,0, 0,0, false);
    c1->SetLogz(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"PIs_BS", true);
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)st.BS_PIm;                   legend.push_back("Before Cut");
-   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ", "P (GeV/c)", "Track Ionization Info", 0,0, 0,0, false);
+   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ", "P (GeV/c)", dEdxLegend[dEdxMassIndex], 0,0, 0,0, false);
    c1->SetLogz(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"PIm_BS", true);
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)st.AS_PIs;                   legend.push_back("After Cut");
-   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ", "P (GeV/c)", "Track Ionization Info", 0,0, 0,0, false);
+   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ", "P (GeV/c)", dEdxLegend[dEdxSeleIndex], 0,0, 0,0, false);
    c1->SetLogz(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"PIs_AS", true);
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)st.AS_PIm;                   legend.push_back("After Cut");
-   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ", "P (GeV/c)", "Track Ionization Info", 0,0, 0,0, false);
+   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ", "P (GeV/c)", dEdxLegend[dEdxMassIndex], 0,0, 0,0, false);
    c1->SetLogz(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"PIm_AS", true);
    delete c1;
 }
@@ -330,273 +374,297 @@ void stPlots_Draw(stPlots& st, string SavePath)
 
 
 
-void stPlots_DrawComparison(stPlots& st1, stPlots& st2, stPlots& st3, string Signal, string SavePath)
+void stPlots_DrawComparison(stPlots& st1, stPlots& st2, stPlots& st3, string SignalLeg, string SavePath)
 {  
    TH1** Histos = new TH1*[10];
    std::vector<string> legend;
    TCanvas* c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = (TH1*)st1.BS_DZ->Clone();          legend.push_back(Signal);     if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
+   Histos[0] = (TH1*)st1.BS_DZ->Clone();          legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
    Histos[1] = (TH1*)st2.BS_DZ->Clone();          legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.BS_DZ->Clone();          legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "dz (cm)", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","LP");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "dz (cm)", "arbitrary units", 0,0, 0,0);
+   DrawLegend((TObject**)Histos,legend,"","P");
    c1->SetLogy(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"dz_BS", true);
    delete Histos[0]; delete Histos[1]; delete Histos[2];
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = (TH1*)st1.AS_DZ->Clone();          legend.push_back(Signal);     if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
+   Histos[0] = (TH1*)st1.AS_DZ->Clone();          legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
    Histos[1] = (TH1*)st2.AS_DZ->Clone();          legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.AS_DZ->Clone();          legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "dz (cm)", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","LP");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "dz (cm)", "arbitrary units", 0,0, 0,0);
+   DrawLegend((TObject**)Histos,legend,"","P");
    c1->SetLogy(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"dz_AS", true);
    delete Histos[0]; delete Histos[1]; delete Histos[2];
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = (TH1*)st1.BS_DXY->Clone();         legend.push_back(Signal);     if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
+   Histos[0] = (TH1*)st1.BS_DXY->Clone();         legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
    Histos[1] = (TH1*)st2.BS_DXY->Clone();         legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.BS_DXY->Clone();         legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "dxy (cm)", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","LP");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "dxy (cm)", "arbitrary units", 0,0, 0,0);
+   DrawLegend((TObject**)Histos,legend,"","P");
    c1->SetLogy(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"dxy_BS", true);
    delete Histos[0]; delete Histos[1]; delete Histos[2];
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = (TH1*)st1.AS_DXY->Clone();         legend.push_back(Signal);     if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
+   Histos[0] = (TH1*)st1.AS_DXY->Clone();         legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
    Histos[1] = (TH1*)st2.AS_DXY->Clone();         legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.AS_DXY->Clone();         legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "dxy (cm)", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","LP");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "dxy (cm)", "arbitrary units", 0,0, 0,0);
+   DrawLegend((TObject**)Histos,legend,"","P");
    c1->SetLogy(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"dxy_AS", true);
    delete Histos[0]; delete Histos[1]; delete Histos[2];
    delete c1;
 
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = (TH1*)st1.BS_Chi2->Clone();        legend.push_back(Signal);     if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
+   Histos[0] = (TH1*)st1.BS_Chi2->Clone();        legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
    Histos[1] = (TH1*)st2.BS_Chi2->Clone();        legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.BS_Chi2->Clone();        legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "#chi^{2}/ndof", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","LP");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "#chi^{2}/ndof", "arbitrary units", 0,0, 0,0);
+   DrawLegend((TObject**)Histos,legend,"","P");
    c1->SetLogy(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"Chi2_BS", true);
    delete Histos[0]; delete Histos[1]; delete Histos[2];
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = (TH1*)st1.AS_Chi2->Clone();        legend.push_back(Signal);     if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
+   Histos[0] = (TH1*)st1.AS_Chi2->Clone();        legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
    Histos[1] = (TH1*)st2.AS_Chi2->Clone();        legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.AS_Chi2->Clone();        legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "#chi^{2}/ndof", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","LP");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "#chi^{2}/ndof", "arbitrary units", 0,0, 0,0);
+   DrawLegend((TObject**)Histos,legend,"","P");
    c1->SetLogy(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"Chi2_AS", true);
    delete Histos[0]; delete Histos[1]; delete Histos[2];
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = (TH1*)st1.BS_Qual->Clone();        legend.push_back(Signal);     if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
+   Histos[0] = (TH1*)st1.BS_Qual->Clone();        legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
    Histos[1] = (TH1*)st2.BS_Qual->Clone();        legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.BS_Qual->Clone();        legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "quality", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","LP");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "quality", "arbitrary units", 0,0, 0,0);
+   DrawLegend((TObject**)Histos,legend,"","P");
    c1->SetLogy(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"Quality_BS", true);
    delete Histos[0]; delete Histos[1]; delete Histos[2];
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = (TH1*)st1.AS_Qual->Clone();        legend.push_back(Signal);     if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
+   Histos[0] = (TH1*)st1.AS_Qual->Clone();        legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
    Histos[1] = (TH1*)st2.AS_Qual->Clone();        legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.AS_Qual->Clone();        legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "Track quality", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","LP");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Track quality", "arbitrary units", 0,0, 0,0);
+   DrawLegend((TObject**)Histos,legend,"","P");
    c1->SetLogy(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"Quality_AS", true);
    delete Histos[0]; delete Histos[1]; delete Histos[2];
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = (TH1*)st1.BS_Hits->Clone();        legend.push_back(Signal);     if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
+   Histos[0] = (TH1*)st1.BS_Hits->Clone();        legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
    Histos[1] = (TH1*)st2.BS_Hits->Clone();        legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.BS_Hits->Clone();        legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "#Hits", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","LP");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "#Hits", "arbitrary units", 0,0, 0,0);
+   DrawLegend((TObject**)Histos,legend,"","P");
    c1->SetLogy(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"Hits_BS", true);
    delete Histos[0]; delete Histos[1]; delete Histos[2];
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = (TH1*)st1.AS_Hits->Clone();        legend.push_back(Signal);     if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
+   Histos[0] = (TH1*)st1.AS_Hits->Clone();        legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
    Histos[1] = (TH1*)st2.AS_Hits->Clone();        legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.AS_Hits->Clone();        legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "#Hits", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","LP");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "#Hits", "arbitrary units", 0,0, 0,0);
+   DrawLegend((TObject**)Histos,legend,"","P");
    c1->SetLogy(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"Hits_AS", true);
    delete Histos[0]; delete Histos[1]; delete Histos[2];
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = (TH1*)st1.BS_Pterr->Clone();       legend.push_back(Signal);     if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
+   Histos[0] = (TH1*)st1.BS_Pterr->Clone();       legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
    Histos[1] = (TH1*)st2.BS_Pterr->Clone();       legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.BS_Pterr->Clone();       legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "Pt Err / Track Pt", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","LP");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Pt Err / Track Pt", "arbitrary units", 0,0, 0,0);
+   DrawLegend((TObject**)Histos,legend,"","P");
    c1->SetLogy(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"Pterr_BS", true);
    delete Histos[0]; delete Histos[1]; delete Histos[2];
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = (TH1*)st1.AS_Pterr->Clone();       legend.push_back(Signal);     if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
+   Histos[0] = (TH1*)st1.AS_Pterr->Clone();       legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
    Histos[1] = (TH1*)st2.AS_Pterr->Clone();       legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.AS_Pterr->Clone();       legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "Pt Err / Track Pt", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","LP");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Pt Err / Track Pt", "arbitrary units", 0,0, 0,0);
+   DrawLegend((TObject**)Histos,legend,"","P");
    c1->SetLogy(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"Pterr_AS", true);
    delete Histos[0]; delete Histos[1]; delete Histos[2];
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = (TH1*)st1.BS_MPt->Clone();         legend.push_back(Signal);     if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
+   Histos[0] = (TH1*)st1.BS_MPt->Clone();         legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
    Histos[1] = (TH1*)st2.BS_MPt->Clone();         legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.BS_MPt->Clone();         legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "Pt (GeV/c)", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","LP");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Pt (GeV/c)", "arbitrary units", 0,0, 0,0);
+   DrawLegend((TObject**)Histos,legend,"","P");
    c1->SetLogy(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"MPt_BS", true);
    delete Histos[0]; delete Histos[1]; delete Histos[2];
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = (TH1*)st1.AS_MPt->Clone();         legend.push_back(Signal);     if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
+   Histos[0] = (TH1*)st1.AS_MPt->Clone();         legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
    Histos[1] = (TH1*)st2.AS_MPt->Clone();         legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.AS_MPt->Clone();         legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "Pt (GeV/c)", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","LP");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Pt (GeV/c)", "arbitrary units", 0,0, 0,0);
+   DrawLegend((TObject**)Histos,legend,"","P");
    c1->SetLogy(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"MPt_AS", true);
    delete Histos[0]; delete Histos[1]; delete Histos[2];
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = (TH1*)st1.BS_MIs->Clone();         legend.push_back(Signal);     if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
+   Histos[0] = (TH1*)st1.BS_MIs->Clone();         legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
    Histos[1] = (TH1*)st2.BS_MIs->Clone();         legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.BS_MIs->Clone();         legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "Ionization Info", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","LP");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxLegend[dEdxSeleIndex], "arbitrary units", 0,0, 0,0);
+   DrawLegend((TObject**)Histos,legend,"","P");
    c1->SetLogy(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"MI_BSs", true);
    delete Histos[0]; delete Histos[1]; delete Histos[2];
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = (TH1*)st1.BS_MIm->Clone();         legend.push_back(Signal);     if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
+   Histos[0] = (TH1*)st1.BS_MIm->Clone();         legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
    Histos[1] = (TH1*)st2.BS_MIm->Clone();         legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.BS_MIm->Clone();         legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "Ionization Info", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","LP");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxLegend[dEdxMassIndex], "arbitrary units", 0,0, 0,0);
+   DrawLegend((TObject**)Histos,legend,"","P");
    c1->SetLogy(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"MIm_BS", true);
    delete Histos[0]; delete Histos[1]; delete Histos[2];
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = (TH1*)st1.AS_MIs->Clone();         legend.push_back(Signal);     if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
+   Histos[0] = (TH1*)st1.AS_MIs->Clone();         legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
    Histos[1] = (TH1*)st2.AS_MIs->Clone();         legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.AS_MIs->Clone();         legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "Ionization Info", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","LP");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxLegend[dEdxSeleIndex], "arbitrary units", 0,0, 0,0);
+   DrawLegend((TObject**)Histos,legend,"","P");
    c1->SetLogy(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"MIs_AS", true);
    delete Histos[0]; delete Histos[1]; delete Histos[2];
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = (TH1*)st1.AS_MIm->Clone();         legend.push_back(Signal);     if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
+   Histos[0] = (TH1*)st1.AS_MIm->Clone();         legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
    Histos[1] = (TH1*)st2.AS_MIm->Clone();         legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.AS_MIm->Clone();         legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "Ionization Info", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","LP");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxLegend[dEdxMassIndex], "arbitrary units", 0,0, 0,0);
+   DrawLegend((TObject**)Histos,legend,"","P");
    c1->SetLogy(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"MIm_AS", true);
    delete Histos[0]; delete Histos[1]; delete Histos[2];
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = (TH1*)st1.BS_Is->Clone();          legend.push_back(Signal);     if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
+   Histos[0] = (TH1*)st1.BS_Is->Clone();          legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
    Histos[1] = (TH1*)st2.BS_Is->Clone();          legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.BS_Is->Clone();          legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "Ionization Info", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","LP");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxLegend[dEdxSeleIndex], "arbitrary units", 0,0, 0,0);
+   DrawLegend((TObject**)Histos,legend,"","P");
    c1->SetLogy(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"Is_BS");
    delete Histos[0]; delete Histos[1]; delete Histos[2];
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = (TH1*)st1.BS_Im->Clone();          legend.push_back(Signal);     if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
+   Histos[0] = (TH1*)st1.BS_Im->Clone();          legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
    Histos[1] = (TH1*)st2.BS_Im->Clone();          legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.BS_Im->Clone();          legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "Ionization Info", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","LP");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxLegend[dEdxMassIndex], "arbitrary units", 0,0, 0,0);
+   DrawLegend((TObject**)Histos,legend,"","P");
    c1->SetLogy(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"Im_BS");
    delete Histos[0]; delete Histos[1]; delete Histos[2];
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = (TH1*)st1.AS_Is->Clone();          legend.push_back(Signal);	if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
+   Histos[0] = (TH1*)st1.AS_Is->Clone();          legend.push_back(SignalLeg);	if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
    Histos[1] = (TH1*)st2.AS_Is->Clone();          legend.push_back("MC");	if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.AS_Is->Clone();          legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "Ionization Info", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","LP");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxLegend[dEdxSeleIndex], "arbitrary units", 0,0, 0,0);
+   DrawLegend((TObject**)Histos,legend,"","P");
    c1->SetLogy(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"Is_AS");
    delete Histos[0]; delete Histos[1]; delete Histos[2];
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = (TH1*)st1.AS_Im->Clone();          legend.push_back(Signal);     if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
+   Histos[0] = (TH1*)st1.AS_Im->Clone();          legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
    Histos[1] = (TH1*)st2.AS_Im->Clone();          legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.AS_Im->Clone();          legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "Ionization Info", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","LP");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxLegend[dEdxMassIndex], "arbitrary units", 0,0, 0,0);
+   DrawLegend((TObject**)Histos,legend,"","P");
    c1->SetLogy(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"Im_AS");
    delete Histos[0]; delete Histos[1]; delete Histos[2];
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = (TH1*)st1.BS_Pt->Clone();          legend.push_back(Signal);     if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
+   Histos[0] = (TH1*)st1.BS_Pt->Clone();          legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
    Histos[1] = (TH1*)st2.BS_Pt->Clone();          legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.BS_Pt->Clone();          legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "Pt (GeV/c)", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","LP");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Pt (GeV/c)", "arbitrary units", 0,0, 0,0);
+   DrawLegend((TObject**)Histos,legend,"","P");
    c1->SetLogy(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"Pt_BS");
    delete Histos[0]; delete Histos[1]; delete Histos[2];
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = (TH1*)st1.AS_Pt->Clone();          legend.push_back(Signal);     if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
+   Histos[0] = (TH1*)st1.AS_Pt->Clone();          legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
    Histos[1] = (TH1*)st2.AS_Pt->Clone();          legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.AS_Pt->Clone();          legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "Pt (GeV/c)", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","LP");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Pt (GeV/c)", "arbitrary units", 0,0, 0,0);
+   DrawLegend((TObject**)Histos,legend,"","P");
    c1->SetLogy(true);
+   DrawPreliminary(-1);
    SaveCanvas(c1,SavePath,"Pt_AS");
    delete Histos[0]; delete Histos[1]; delete Histos[2];
    delete c1;

@@ -46,6 +46,7 @@ void DrawPreliminary(int Type, double X=0.28, double Y=0.98, double W=0.85, doub
    TPaveText* T = new TPaveText(X,Y,W,H, "NDC");
    T->SetFillColor(0);
    T->SetTextAlign(11);
+   if(Type<0 )T->AddText("CMS Preliminary 2010");
    if(Type==0)T->AddText("CMS Preliminary 2010 :   #sqrt{s} = 7 TeV");
    if(Type==1)T->AddText("CMS Preliminary 2010 : MC with   #sqrt{s} = 7 TeV");
    if(Type==2)T->AddText("CMS Preliminary 2010 : Data with   #sqrt{s} = 7 TeV");
