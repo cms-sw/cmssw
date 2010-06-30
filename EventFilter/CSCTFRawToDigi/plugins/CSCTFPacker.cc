@@ -72,15 +72,14 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 	bzero(&meDataHeader,sizeof(meDataHeader));
 
 	for(CSCCorrelatedLCTDigiCollection::DigiRangeIterator csc=corrlcts.product()->begin(); csc!=corrlcts.product()->end(); csc++){
-		int lctId=0;
-
 		CSCCorrelatedLCTDigiCollection::Range range1 = corrlcts.product()->get((*csc).first);
-		for(CSCCorrelatedLCTDigiCollection::const_iterator lct=range1.first; lct!=range1.second; lct++,lctId++){
+		for(CSCCorrelatedLCTDigiCollection::const_iterator lct=range1.first; lct!=range1.second; lct++){
 			int station = (*csc).first.station()-1;
 			int cscId   = (*csc).first.triggerCscId()-1;
 			int sector  = (*csc).first.triggerSector()-1 + ( (*csc).first.endcap()==1 ? 0 : 6 );
 			int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels((*csc).first);
 			int tbin = lct->getBX() - (central_lct_bx-central_sp_bx); // Shift back to hardware BX window definition
+			int lctId   = lct->getMPCLink() - 1;
 			if( tbin>6 || tbin<0 ){
 				edm::LogError("CSCTFPacker|produce")<<" LCT's BX="<<tbin<<" is out of 0-6 window";
 				continue;
@@ -298,8 +297,8 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 				pos+=8;
 				for(int fpga=0; fpga<5; fpga++){
 					int nLCTs=0;
-					for(int cscId=0; cscId<9; cscId++)
-						for(int lctId=0; lctId<2; lctId++)
+					for(int lctId=0; lctId<2; lctId++)
+						for(int cscId=0; cscId<9; cscId++)
 							// Only 3 LCT per BX from the same fpga are allowed (to be valid):
 							if( meDataRecord[sector][tbin][fpga][cscId][lctId].valid_pattern ){
 								memcpy(pos,&meDataRecord[sector][tbin][fpga][cscId][lctId],8);
