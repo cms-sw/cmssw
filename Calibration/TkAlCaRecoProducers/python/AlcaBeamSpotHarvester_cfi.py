@@ -2,7 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 alcaBeamSpotHarvester = cms.EDAnalyzer("AlcaBeamSpotHarvester",
     AlcaBeamSpotHarvesterParameters = cms.PSet(
-	BeamSpotOutputBase = cms.untracked.string("runbased") #lumibased 
+	BeamSpotOutputBase = cms.untracked.string("runbased"), #lumibased 
+	BeamSpotModuleName = cms.untracked.string("alcaBeamSpotProducer"),
+	BeamSpotLabel      = cms.untracked.string("alcaBeamSpot")
     )
 )
 

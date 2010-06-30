@@ -1,8 +1,8 @@
 /** \class AlcaBeamSpotManager
  *  No description available.
  *
- *  $Date: 2010/06/21 18:02:20 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/06/29 16:27:45 $
+ *  $Revision: 1.2 $
  *  \author L. Uplegger F. Yumiceva - Fermilab
  */
 
@@ -12,6 +12,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include <vector>
 #include <math.h>
+#include <limits.h>
 
 using namespace edm;
 using namespace reco;
@@ -23,11 +24,14 @@ AlcaBeamSpotManager::AlcaBeamSpotManager(void){
 
 //--------------------------------------------------------------------------------------------------
 AlcaBeamSpotManager::AlcaBeamSpotManager(const ParameterSet& iConfig) :
-  beamSpotOutputBase_(iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("BeamSpotOutputBase"))
+  beamSpotOutputBase_(iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("BeamSpotOutputBase")),
+  beamSpotModuleName_(iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("BeamSpotModuleName")),
+  beamSpotLabel_     (iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("BeamSpotLabel"))
 {
   LogInfo("AlcaBeamSpotManager") 
     << "Output base: " << beamSpotOutputBase_ 
     << std::endl;
+  reset();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -35,11 +39,15 @@ AlcaBeamSpotManager::~AlcaBeamSpotManager(void){
 }
 
 //--------------------------------------------------------------------------------------------------
+void AlcaBeamSpotManager::reset(void){
+  beamSpotMap_.clear();
+}
+//--------------------------------------------------------------------------------------------------
 void AlcaBeamSpotManager::readLumi(const LuminosityBlock& iLumi){
 
   Handle<BeamSpot> beamSpotHandle;
-  //iLumi.getByLabel("alcaBeamSpotProducer","alcaBeamSpot", beamSpotHandle);
-  iLumi.getByLabel("beamspot","alcaBeamSpot", beamSpotHandle); 
+  iLumi.getByLabel(beamSpotModuleName_,beamSpotLabel_, beamSpotHandle);
+  //iLumi.getByLabel("beamspot","alcaBeamSpot", beamSpotHandle); 
 
   if(beamSpotHandle.isValid()) { // check the product
     beamSpotMap_[iLumi.luminosityBlock()] = *beamSpotHandle;
@@ -61,11 +69,14 @@ void AlcaBeamSpotManager::readLumi(const LuminosityBlock& iLumi){
 
 //--------------------------------------------------------------------------------------------------
 void AlcaBeamSpotManager::createWeightedPayloads(void){
+  vector<bsMap_iterator> listToErase;
   for(bsMap_iterator it=beamSpotMap_.begin(); it!=beamSpotMap_.end();it++){
-    if(it->second.type() != 2){
-      beamSpotMap_.erase(it);
-      --it;
+    if(it->second.type() != BeamSpot::Tracker){
+      listToErase.push_back(it);
     }
+  }
+  for(vector<bsMap_iterator>::iterator it=listToErase.begin(); it !=listToErase.end(); it++){
+    beamSpotMap_.erase(*it);
   }
   if(beamSpotMap_.size() <= 1){
     return;
@@ -74,26 +85,164 @@ void AlcaBeamSpotManager::createWeightedPayloads(void){
     return;
   }
   if(beamSpotOutputBase_ == "lumibased"){
-    bsMap_iterator referenceBS = beamSpotMap_.begin();
+//    bsMap_iterator referenceBS = beamSpotMap_.begin();
     bsMap_iterator firstBS     = beamSpotMap_.begin();
-    bsMap_iterator lastBS      = beamSpotMap_.begin();
+//    bsMap_iterator lastBS      = beamSpotMap_.begin();
     bsMap_iterator currentBS   = beamSpotMap_.begin();
     bsMap_iterator nextBS      = ++beamSpotMap_.begin();
     bsMap_iterator nextNextBS  = ++(++(beamSpotMap_.begin()));
 
-    int iteration = 0;
+    map<LuminosityBlockNumber_t,BeamSpot> tmpBeamSpotMap_;
+    bool docreate = true;
+    bool endOfRun = false;//Added
+    bool docheck = true;//Added
+    long countlumi = 0;//Added
+    string tmprun = "";//Added
+    long maxNlumis = 60;//Added
+//    if weighted:
+//        maxNlumis = 999999999
+
+
+    unsigned int iteration = 0;
     while(nextNextBS!=beamSpotMap_.end()){
-      LogInfo("AlcaBeamSpotManager")
-    	<< "Iteration: " << iteration++
-    	<< endl << currentBS->first  << " : " << currentBS->second
-//  	  << endl << nextBS->first	     << " : " << nextBS->second  
-//  	  << endl << nextNextBS->first << " : " << nextNextBS->second 
-    	<< endl;  
+//      LogInfo("AlcaBeamSpotManager")
+//        << "Iteration: " << iteration << " size: " << beamSpotMap_.size() << "\n"
+//        << "Lumi: " << currentBS->first  << "\n" 
+//        << currentBS->second
+//        << "\n" << nextBS->first     << "\n" << nextBS->second  
+//        << "\n" << nextNextBS->first << "\n" << nextNextBS->second 
+//        << endl;  
+
+      if(docreate){																																    
+	firstBS = currentBS;																												    
+        docreate = false;//Added																															    
+      }
+      if(iteration >= beamSpotMap_.size()-3){																													    
+        LogInfo("AlcaBeamSpotManager")																														    
+          << "close payload because end of data has been reached.";																										    
+          docreate = true;
+	  endOfRun = true;																															    
+      }    
+      // check we run over the same run 																													    
+//      if (ibeam->first.Run() != inextbeam->first.Run()){																											    
+//        LogInfo("AlcaBeamSpotManager")																													    
+//          << "close payload because end of run.";																												    
+//        docreate = true;																															    
+//      }																																	    
+      // check maximum lumi counts
+      if (countlumi == maxNlumis -1){																														    
+        LogInfo("AlcaBeamSpotManager")																														    
+          << "close payload because maximum lumi sections accumulated within run ";																								    
+        docreate = true;																															    
+        countlumi = 0;																																    
+      }
+//      if weighted:																																    
+//          docheck = False																															    
+      // check offsets																																    
+      if(docheck){																																    
+        LogInfo("AlcaBeamSpotManager")																											  		    
+          << "Checking checking!" << endl;
+	float limit = 0;																														  	    
+        pair<float,float> adelta1;																												  		    
+        pair<float,float> adelta2;																												  		    
+        pair<float,float> adelta;																												  
+
+        //Checking X																														  		    
+        limit = currentBS->second.BeamWidthX()/3.;																										  		    
+        adelta1 = delta(currentBS->second.x0(), currentBS->second.x0Error(), nextBS->second.x0(), nextBS->second.x0Error());																	  		    
+        adelta2 = pair<float,float>(0.,1.e9);																													    
+        if (nextNextBS->second.type() != -1){																											  		    
+            adelta2 = delta(nextBS->second.x0(), nextBS->second.x0Error(), nextNextBS->second.x0(), nextNextBS->second.x0Error());																  		    
+        }																															  		    
+        bool deltaX = (deltaSig(adelta1.first,adelta1.second) > 3.5 && adelta1.first >= limit)?true:false;																			  		    
+        if(iteration < beamSpotMap_.size()-2){  																										  		    
+            if( !deltaX && adelta1.first*adelta2.first > 0. &&  fabs(adelta1.first+adelta2.first) >= limit){																			  		    
+              LogInfo("AlcaBeamSpotManager")																											  		    
+        	<< " positive, " << (adelta1.first+adelta2.first) << " limit=" << limit << endl;																				  		    
+        	deltaX = true;  																												  		    
+            }
+            else if( deltaX && adelta1.first*adelta2.first<=0 && fabs(adelta1.first/adelta2.first) > 0.55 && fabs(adelta1.first/adelta2.first) < 1.45){ 													  		    
+              LogInfo("AlcaBeamSpotManager")																											  		    
+        	<< " negative, " << adelta1.first/adelta2.first << endl;																							  		    
+        	deltaX = false; 																												  		    
+            }
+        }																															  
+
+        //Checking Y																														  		    
+        adelta1 = delta(currentBS->second.y0(), currentBS->second.y0Error(), nextBS->second.y0(), nextBS->second.y0Error());																			    
+        adelta2 = pair<float,float>(0.,1.e9);																													    
+        if( nextNextBS->second.type() != BeamSpot::Unknown){																										  	    
+          adelta2 = delta(nextBS->second.y0(), nextBS->second.y0Error(), nextNextBS->second.y0(), nextNextBS->second.y0Error());																  		    
+        }																															  		    
+        bool deltaY = (deltaSig(adelta1.first,adelta1.second) > 3.5 && adelta1.first >= limit)?true:false;																			  		    
+        if(iteration < beamSpotMap_.size()-2){  																										  		    
+          if( !deltaY && adelta1.first*adelta2.first > 0. &&  fabs(adelta1.first+adelta2.first) >= limit){																					  
+            LogInfo("AlcaBeamSpotManager")																													  
+              << " positive, " << (adelta1.first+adelta2.first) << " limit=" << limit << endl;  																						  
+              deltaY = true;																															  
+          }
+          else if( deltaY && adelta1.first*adelta2.first<=0 && fabs(adelta1.first/adelta2.first) > 0.55 && fabs(adelta1.first/adelta2.first) < 1.45){																  
+            LogInfo("AlcaBeamSpotManager")																													  
+              << " negative, " << adelta1.first/adelta2.first << endl;  																									  
+              deltaY = false;																															  
+          }
+                																																  
+          limit = currentBS->second.sigmaZ()/3.;														    														
+          adelta = delta(currentBS->second.z0(), currentBS->second.z0Error(), nextBS->second.z0(), nextBS->second.z0Error());					    														
+          bool deltaZ = (deltaSig(adelta.first,adelta.second) > 3.5 && adelta1.first >= limit)?true:false;							    														
+
+          adelta = delta(currentBS->second.sigmaZ(), currentBS->second.sigmaZ0Error(), nextBS->second.sigmaZ(), nextBS->second.sigmaZ0Error()); 		    														
+          bool deltasigmaZ = (deltaSig(adelta.first,adelta.second) > 5.0)?true:false;										    														
+
+          adelta = delta(currentBS->second.dxdz(), currentBS->second.dxdzError(), nextBS->second.dxdz(), nextBS->second.dxdzError());				    														      
+          bool deltadxdz   = (deltaSig(adelta.first,adelta.second) > 5.0)?true:false;										    														
+
+          adelta = delta(currentBS->second.dydz(), currentBS->second.dydzError(), nextBS->second.dydz(), nextBS->second.dydzError());				    														      
+          bool deltadydz   = (deltaSig(adelta.first,adelta.second) > 5.0)?true:false;										    														
+
+          adelta = delta(currentBS->second.BeamWidthX(), currentBS->second.BeamWidthXError(), nextBS->second.BeamWidthX(), nextBS->second.BeamWidthXError());	    														
+          bool deltawidthX = (deltaSig(adelta.first,adelta.second) > 5.0)?true:false;										    														
+
+          adelta = delta(currentBS->second.BeamWidthY(), currentBS->second.BeamWidthYError(), nextBS->second.BeamWidthY(), nextBS->second.BeamWidthYError());	    														
+          bool deltawidthY = (deltaSig(adelta.first,adelta.second) > 5.0)?true:false;										    														
+
+          if (deltaX || deltaY || deltaZ || deltasigmaZ || deltadxdz || deltadydz || deltawidthX || deltawidthY){						    														
+            docreate = true;  																    														
+            LogInfo("AlcaBeamSpotManager")															    														
+              << "close payload because of movement in" 													    														
+              <<  " X=" << deltaX 
+              << ", Y=" << deltaY 
+              << ", Z=" << deltaZ 
+              << ", sigmaZ=" << deltasigmaZ 
+              << ", dxdz=" << deltadxdz 
+              << ", dydz=" << deltadydz
+              << ", widthX=" << deltawidthX
+              << ", widthY=" << deltawidthY
+              << endl;  
+          }
+	}																			    														
+      }
+      if(docreate){
+        if(!endOfRun){
+	  tmpBeamSpotMap_[firstBS->first] = weight(firstBS,nextBS);
+	}
+	else{
+	  tmpBeamSpotMap_[firstBS->first] = weight(firstBS,beamSpotMap_.end());
+	}
+	firstBS = nextBS;
+          countlumi = 0;
+	  																															    
+      }
+      //tmprun = currentBS->second.Run																														    
+      ++countlumi;																																    
       
       currentBS = nextBS;
       nextBS	= nextNextBS;
       nextNextBS++;
+      ++iteration;
     }
+    beamSpotMap_.clear();
+    beamSpotMap_ = tmpBeamSpotMap_;
   }
   else if(beamSpotOutputBase_ == "runbased"){
     BeamSpot aBeamSpot = weight(beamSpotMap_.begin(),beamSpotMap_.end());
@@ -165,3 +314,19 @@ void AlcaBeamSpotManager::weight(double& mean,double& meanError,const double& va
     mean = mean/tmpError;
     meanError = sqrt(1/tmpError);
 }
+
+//--------------------------------------------------------------------------------------------------
+pair<float,float> AlcaBeamSpotManager::delta(const float& x, const float& xError, const float& nextX, const float& nextXError){
+  return pair<float,float>(x - nextX, sqrt(pow(xError,2) + pow(nextXError,2)) );
+}
+
+//--------------------------------------------------------------------------------------------------
+float AlcaBeamSpotManager::deltaSig(const float& num, const float& den){
+  if(den != 0){
+    return fabs(num/den);
+  }
+  else{
+    return float(LONG_MAX);
+  }
+}
+

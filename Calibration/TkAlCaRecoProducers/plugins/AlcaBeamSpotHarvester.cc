@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/06/29 15:51:16 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/06/29 16:27:45 $
+ *  $Revision: 1.3 $
  *  \author L. Uplegger F. Yumiceva - Fermilab
  */
 
@@ -53,7 +53,9 @@ void AlcaBeamSpotHarvester::endJob() {}
 void AlcaBeamSpotHarvester::analyze(const edm::Event&, const edm::EventSetup&) {}
 
 //--------------------------------------------------------------------------------------------------
-void AlcaBeamSpotHarvester::beginRun(const edm::Run&, const edm::EventSetup&) {}
+void AlcaBeamSpotHarvester::beginRun(const edm::Run&, const edm::EventSetup&){
+  theAlcaBeamSpotManager_.reset();
+}
 
 //--------------------------------------------------------------------------------------------------
 void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&){
@@ -81,7 +83,7 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
 	}
       }
 
-      cond::Time_t thisIOV;
+      cond::Time_t thisIOV = 1;
 
       // run based      
       if (beamSpotOutputBase_ == "runbased" ) {

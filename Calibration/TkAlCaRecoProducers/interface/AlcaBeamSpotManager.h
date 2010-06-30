@@ -4,7 +4,7 @@
 /** \class AlcaBeamSpotManager
  *  No description available.
  *
- *  $Date: 2010/06/18 14:25:43 $
+ *  $Date: 2010/06/21 18:02:19 $
  *  $Revision: 1.1 $
  *  \author L. Uplegger F. Yumiceva - Fermilab
  */
@@ -15,6 +15,8 @@
 //#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include <string>
 #include <map>
+#include <utility>
+
 
 class AlcaBeamSpotManager{
  public:
@@ -22,18 +24,23 @@ class AlcaBeamSpotManager{
   AlcaBeamSpotManager         (const edm::ParameterSet&);
   virtual ~AlcaBeamSpotManager(void);
 
+  void reset(void);   
   void readLumi(const edm::LuminosityBlock&);   
   void createWeightedPayloads(void);   
   const std::map<edm::LuminosityBlockNumber_t,reco::BeamSpot>& getPayloads(void){return beamSpotMap_;}   
 
   typedef std::map<edm::LuminosityBlockNumber_t,reco::BeamSpot>::iterator bsMap_iterator;
  private:
-  reco::BeamSpot weight(const bsMap_iterator& begin,
-                        const bsMap_iterator& end);
-  void           weight(double& mean,double& meanError,const double& val,const double& valError);
+  reco::BeamSpot         weight  (const bsMap_iterator& begin,
+                                  const bsMap_iterator& end);
+  void                   weight  (double& mean,double& meanError,const double& val,const double& valError);
+  std::pair<float,float> delta   (const float& x, const float& xError, const float& nextX, const float& nextXError);
+  float                  deltaSig(const float& num, const float& den);
   std::map<edm::LuminosityBlockNumber_t,reco::BeamSpot> beamSpotMap_;
 
   std::string beamSpotOutputBase_;
+  std::string beamSpotModuleName_;
+  std::string beamSpotLabel_;
 
 };
 

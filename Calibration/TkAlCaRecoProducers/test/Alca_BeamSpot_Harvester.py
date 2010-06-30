@@ -7,6 +7,15 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('HARVESTING')
 
+# Input source
+process.source = cms.Source("PoolSource",
+    fileNames = cms.untracked.vstring(
+      'file:AlcaBeamSpot.root'
+    ),
+    processingMode = cms.untracked.string('RunsAndLumis')
+)
+
+
 # initialize MessageLogger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.categories = ["AlcaBeamSpotHarvester","AlcaBeamSpotManager"]
@@ -14,15 +23,15 @@ process.MessageLogger.cerr = cms.untracked.PSet(placeholder = cms.untracked.bool
 process.MessageLogger.cout = cms.untracked.PSet(
     threshold = cms.untracked.string('INFO'),
     default = cms.untracked.PSet(
-       limit = cms.untracked.int32(-1)
+       limit = cms.untracked.int32(0)
     ),
     AlcaBeamSpotHarvester = cms.untracked.PSet(
         #reportEvery = cms.untracked.int32(100) # every 1000th only
-	limit = cms.untracked.int32(-1)
+	limit = cms.untracked.int32(0)
     ),
     AlcaBeamSpotManager = cms.untracked.PSet(
         #reportEvery = cms.untracked.int32(100) # every 1000th only
-	limit = cms.untracked.int32(-1)
+	limit = cms.untracked.int32(0)
     )
 )
 #process.MessageLogger.statistics.append('cout')
@@ -42,12 +51,12 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     annotation = cms.untracked.string('step3 nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(-1)
 )
 #process.maxLuminosityBlocks=cms.untracked.PSet(
 #         input=cms.untracked.int32(1)
@@ -55,11 +64,6 @@ process.maxEvents = cms.untracked.PSet(
 process.options = cms.untracked.PSet(
     Rethrow = cms.untracked.vstring('ProductNotFound'),
     fileMode = cms.untracked.string('FULLMERGE')
-)
-# Input source
-process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/tmp/yumiceva/AlcaBeamSpotDB.root'),
-    processingMode = cms.untracked.string('RunsAndLumis')
 )
 
 # Additional output definition
