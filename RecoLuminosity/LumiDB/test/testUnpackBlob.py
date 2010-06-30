@@ -1,5 +1,6 @@
 import coral
 import os,binascii
+import array
 class constants(object):
     def __init__(self):
         self.debug=False
@@ -55,6 +56,9 @@ def detailForRun(dbsession,c,runnum,algos=['OCC1']):
             #convert bxlumivalue to byte string, then unpack??
             print binascii.hexlify(bxlumivalue.readline()) 
             #
+            a=array.array('f')
+            a.fromstring(binascii.hexlify(bxlumivalue.readline()))
+            print a
         del query
         dbsession.transaction().commit()
         
