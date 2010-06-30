@@ -166,6 +166,8 @@ float EcalSeverityLevelAlgo::swissCross( const DetId id, const EcalRecHitCollect
                 if ( recHitApproxEt( id, recHits ) < recHitEtThreshold ) return 0;
                 float s4 = 0;
                 float e1 = recHitE( id, recHits );
+                // protect against nan (if 0 threshold is given above)
+                if ( e1 == 0 ) return 0;
                 s4 += recHitE( id, recHits,  1,  0 );
                 s4 += recHitE( id, recHits, -1,  0 );
                 s4 += recHitE( id, recHits,  0,  1 );
@@ -177,6 +179,8 @@ float EcalSeverityLevelAlgo::swissCross( const DetId id, const EcalRecHitCollect
                 if ( recHitApproxEt( id, recHits ) < recHitEtThreshold ) return 0;
                 float s4 = 0;
                 float e1 = recHitE( id, recHits );
+                // protect against nan (if 0 threshold is given above)
+                if ( e1 == 0 ) return 0;
                 s4 += recHitE( id, recHits,  1,  0 );
                 s4 += recHitE( id, recHits, -1,  0 );
                 s4 += recHitE( id, recHits,  0,  1 );
