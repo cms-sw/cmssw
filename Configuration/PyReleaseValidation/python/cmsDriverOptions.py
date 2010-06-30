@@ -290,7 +290,8 @@ prec_step = {"NONE":"",
              "RAW2DIGI":"DIGI2RAW",
              "DATAMIX":"DIGI",
              "DIGI2RAW":"DATAMIX",
-             "HARVESTING":"RECO"}
+             "HARVESTING":"RECO",
+             "ALCAHARVEST":"RECO"}
 
 trimmedEvtType=options.evt_type.split('/')[-1]
 
@@ -336,7 +337,7 @@ if options.pileup != "NoPileUp":
 
 
 # if no output file name given, set it to default
-if options.fileout=="" and not first_step in ("HARVESTING"):
+if options.fileout=="" and not first_step in ("HARVESTING", "ALCAHARVEST"):
     options.fileout = standardFileName+".root"
 
 # Prepare the name of the config file
@@ -396,7 +397,7 @@ options.step = options.step.replace("SIM_CHAIN","GEN,SIM,DIGI,L1,DIGI2RAW")
 # if not fastsim or harvesting...
 
 addEndJob = True
-if ("FASTSIM" in options.step and not "VALIDATION" in options.step) or "HARVESTING" in options.step or options.step == "": 
+if ("FASTSIM" in options.step and not "VALIDATION" in options.step) or "HARVESTING" in options.step or "ALCAHARVEST" in options.step or options.step == "": 
     addEndJob = False
 if ("SKIM" in options.step and not "RECO" in options.step):
     addEndJob = False

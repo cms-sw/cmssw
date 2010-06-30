@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.189 $"
+__version__ = "$Revision: 1.190 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -103,7 +103,7 @@ class ConfigBuilder(object):
             exec(command.replace("process.","self.process."))
         
     def addCommon(self):
-        if 'HARVESTING' in self._options.step:
+        if 'HARVESTING' in self._options.step or 'ALCAHARVEST' in self._options.step:
             self.process.options = cms.untracked.PSet( Rethrow = cms.untracked.vstring('ProductNotFound'),fileMode = cms.untracked.string('FULLMERGE'))
         else:
 	    self.process.options = cms.untracked.PSet( )
@@ -122,7 +122,7 @@ class ConfigBuilder(object):
            elif self._options.filetype == "MCDB":
                self.process.source=cms.Source("MCDBSource", articleID = cms.uint32(int(self._options.filein)), supportedProtocols = cms.untracked.vstring("rfio"))
 
-           if 'HARVESTING' in self._options.step:
+           if 'HARVESTING' in self._options.step or 'ALCAHARVEST' in self._options.step:
                self.process.source.processingMode = cms.untracked.string("RunsAndLumis")
 
            if self._options.dbsquery!='':
@@ -392,6 +392,7 @@ class ConfigBuilder(object):
 	self.L1HwValDefaultCFF = "Configuration/StandardSequences/L1HwVal_cff"
 	self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOffline_cff"
 	self.HARVESTINGDefaultCFF="Configuration/StandardSequences/Harvesting_cff"
+	self.ALCAHARVESTDefaultCFF="Configuration/StandardSequences/AlCaHarvesting_cff"
 	self.ENDJOBDefaultCFF="Configuration/StandardSequences/EndOfProcess_cff"
 	self.ConditionsDefaultCFF = "Configuration/StandardSequences/FrontierConditions_GlobalTag_cff"
 	self.CFWRITERDefaultCFF = "Configuration/StandardSequences/CrossingFrameWriter_cff"
@@ -415,6 +416,7 @@ class ConfigBuilder(object):
 	self.HLTDefaultSeq=None
 	self.L1DefaultSeq=None
 	self.HARVESTINGDefaultSeq=None
+	self.ALCAHARVESTDefaultSeq=None
         self.CFWRITERDefaultSeq=None
 	self.RAW2DIGIDefaultSeq='RawToDigi'
 	self.L1RecoDefaultSeq='L1Reco'
@@ -522,7 +524,8 @@ class ConfigBuilder(object):
 		for i, filter in enumerate(filterList):
 			filterList[i] = filter+":"+self._options.triggerResultsProcess
 			
-     
+
+        
     #----------------------------------------------------------------------------
     # here the methods to create the steps. Of course we are doing magic here ;)
     # prepare_STEPNAME modifies self.process and what else's needed.
@@ -832,6 +835,23 @@ class ConfigBuilder(object):
         self.schedule.append(self.process.dqmsave_step)     
 
 
+    def prepare_ALCAHARVEST(self, sequence = None):
+        """ Enrich the process with AlCaHarvesting step """
+        harvestingConfig = self.loadAndRemember(self.ALCAHARVESTDefaultCFF)
+        # decide which AlcaHARVESTING paths to use
+        harvestingList = sequence.split("+")
+        for name in harvestingConfig.__dict__:
+            harvestingstream = getattr(harvestingConfig,name)
+            if name in harvestingList and isinstance(harvestingstream,cms.Path):
+               self.schedule.append(harvestingstream)
+               harvestingList.remove(name)
+                    
+        if len(harvestingList) != 0 and 'dummyHarvesting' not in harvestingList :
+            print "The following harvesting could not be found : ", harvestingList
+            raise
+
+
+
     def prepare_ENDJOB(self, sequence = 'endOfProcess'):
         # this one needs replacement
 
@@ -902,7 +922,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.189 $"),
+              (version=cms.untracked.string("$Revision: 1.190 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -920,7 +940,7 @@ class ConfigBuilder(object):
         self.addConditions()
         self.loadAndRemember(self.EVTCONTDefaultCFF)  #load the event contents regardless
 			   
-        if not 'HARVESTING' in self._options.step and not 'SKIM' in self._options.step and self.with_output:
+        if not 'HARVESTING' in self._options.step and not 'SKIM' in self._options.step and not 'ALCAHARVEST' in self._options.step and self.with_output:
             self.addOutput()
 	    
         self.addCommon()
