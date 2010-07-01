@@ -1,3 +1,9 @@
+2010-07-01 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-02-03
+	* Exclude scripts directory from tag as it uses Perl modules
+	  not available in CMSSW.
+
 2010-06-25 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V06-02-02
