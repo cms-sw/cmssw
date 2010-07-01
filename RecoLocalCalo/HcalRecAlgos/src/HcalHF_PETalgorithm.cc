@@ -100,6 +100,7 @@ void HcalHF_PETalgorithm::HFSetFlagFromPET(HFRecHit& hf,
   if (energy<Energythresh || ET < ETthresh)
     {
       hf.setFlagField(0, HcalCaloFlagLabels::HFLongShort); // shouldn't be necessary, but set bit to 0 just to be sure
+      hf.setFlagField(0, HcalCaloFlagLabels::HFPET);
       return;
     }
 
@@ -112,6 +113,7 @@ void HcalHF_PETalgorithm::HFSetFlagFromPET(HFRecHit& hf,
   if (mySeverity->dropChannel(partnerstatus->getValue() ) )
     {
       hf.setFlagField(0, HcalCaloFlagLabels::HFLongShort); // shouldn't be necessary, but set bit to 0 just to be sure
+      hf.setFlagField(0, HcalCaloFlagLabels::HFPET);
       return;
     }
 
@@ -139,11 +141,14 @@ void HcalHF_PETalgorithm::HFSetFlagFromPET(HFRecHit& hf,
   if (Ratio<=RatioThresh)
     {
       hf.setFlagField(0, HcalCaloFlagLabels::HFLongShort); // shouldn't be necessary, but set bit to 0 just to be sure
+      hf.setFlagField(0, HcalCaloFlagLabels::HFPET);
       return;
     }
   // Made it this far -- ratio is > threshold, and cell should be flagged!
+  // 'HFLongShort' is overall topological flag, and 'HFPET' is the flag for this
+  // specific test
   hf.setFlagField(1, HcalCaloFlagLabels::HFLongShort);
-
+  hf.setFlagField(1, HcalCaloFlagLabels::HFPET);
 }//void HcalHF_PETalgorithm::HFSetFlagFromPET
 
 

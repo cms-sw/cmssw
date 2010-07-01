@@ -31,7 +31,8 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   setHSCPFlags_(conf.getParameter<bool>("setHSCPFlags")),
   setSaturationFlags_(conf.getParameter<bool>("setSaturationFlags")),
   setTimingTrustFlags_(conf.getParameter<bool>("setTimingTrustFlags")),
-  dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed"))
+  dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed")),
+  firstauxTS_(conf.getParameter<int>("firstSample")+conf.getParameter<int>("firstAuxOffset"))
 {
   std::string subd=conf.getParameter<std::string>("Subdetector");
   hbheFlagSetter_=0;
@@ -229,9 +230,8 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 
 	// Set auxiliary flag
 	int auxflag=0;
-	// Do we want these time slices to be configurable?
-	for (int xx=3;xx<7 && xx<i->size();++xx)
-	  auxflag+=(i->sample(xx).adc())<<(7*(xx-3)); // store the time slices in the first 28 bits of aux
+	for (int xx=firstauxTS_;xx<firstauxTS_+4 && xx<i->size();++xx)
+	  auxflag+=(i->sample(xx).adc())<<(7*(xx-firstauxTS_)); // store the time slices in the first 28 bits of aux, a set of 4 7-bit adc values
 	(rec->back()).setAux(auxflag);
 
 	(rec->back()).setFlags(0);
@@ -299,10 +299,9 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 
 	// Set auxiliary flag
 	int auxflag=0;
-	// Do we want these time slices to be configurable?
-	for (int xx=3;xx<7 && xx<i->size();++xx)
-	  auxflag+=(i->sample(xx).adc())<<(7*(xx-3)); // store the time slices in the first 28 bits of aux
-	(rec->back()).setAux(auxflag);	
+	for (int xx=firstauxTS_;xx<firstauxTS_+4 && xx<i->size();++xx)
+	  auxflag+=(i->sample(xx).adc())<<(7*(xx-firstauxTS_)); // store the time slices in the first 28 bits of aux, a set of 4 7-bit adc values
+	(rec->back()).setAux(auxflag);
 
 	(rec->back()).setFlags(0);
 	if (setSaturationFlags_)
@@ -350,10 +349,9 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 
 	// Set auxiliary flag
 	int auxflag=0;
-	// Do we want these time slices to be configurable?
-	for (int xx=3;xx<6 && xx<i->size();++xx)
-	  auxflag+=(i->sample(xx).adc())<<(7*(xx-3)); // store the time slices in the first 28 bits of aux
-	(rec->back()).setAux(auxflag);  
+	for (int xx=firstauxTS_;xx<firstauxTS_+4 && xx<i->size();++xx)
+	  auxflag+=(i->sample(xx).adc())<<(7*(xx-firstauxTS_)); // store the time slices in the first 28 bits of aux, a set of 4 7-bit adc values
+	(rec->back()).setAux(auxflag);
 
 	// Clear flags
 	(rec->back()).setFlags(0);
@@ -429,15 +427,17 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	HcalCoderDb coder (*channelCoder, *shape);
 	rec->push_back(reco_.reconstruct(*i,coder,calibrations));
+
 	/*
+	  // Flag setting not available for calibration rechits
 	// Set auxiliary flag
 	int auxflag=0;
-	// Do we want these time slices to be configurable?
-	for (int xx=3;xx<6 && xx<i->size();++xx)
-	  auxflag+=(i->sample(xx).adc())<<(7*(xx-3)); // store the time slices in the first 28 bits of aux
+	for (int xx=firstauxTS_;xx<firstauxTS_+4 && xx<i->size();++xx)
+	  auxflag+=(i->sample(xx).adc())<<(7*(xx-firstauxTS_)); // store the time slices in the first 28 bits of aux, a set of 4 7-bit adc values
 	(rec->back()).setAux(auxflag);
+
+	(rec->back()).setFlags(0); // Not yet implemented for HcalCalibRecHit
 	*/
-	//(rec->back()).setFlags(0); // Not yet implemented for HcalCalibRecHit
       }
       // return result
       e.put(rec);     

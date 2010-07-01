@@ -26,8 +26,8 @@
 
     /** \class HcalHitReconstructor
 	
-    $Date: 2010/03/18 13:07:53 $
-    $Revision: 1.7 $
+    $Date: 2010/07/01 00:00:29 $
+    $Revision: 1.8 $
     \author J. Temple & E. Yazgan
     ** Based on HcalSimpleReconstructor.h by J. Mans
     */
@@ -59,7 +59,8 @@
       bool setSaturationFlags_; // turn on/off flag indicating ADC saturation
       bool setTimingTrustFlags_; // turn on/off HF timing uncertainty flag 
       bool dropZSmarkedPassed_; // turn on/off dropping of zero suppression marked and passed digis
-      int HFNoiseAlgo_;
+
+      int firstauxTS_;
     };
 
 #endif

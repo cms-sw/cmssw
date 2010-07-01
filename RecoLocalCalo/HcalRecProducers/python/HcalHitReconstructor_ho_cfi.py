@@ -11,6 +11,10 @@ horeco = cms.EDProducer(
     correctForTimeslew = cms.bool(True),
     dropZSmarkedPassed = cms.bool(True),
 
+    # Set offset between firstSample value and
+    # first sample to be stored in aux word
+    firstAuxOffset = cms.int32(0),
+
     #Tags for calculating status flags
     correctTiming = cms.bool(True),
     setNoiseFlags = cms.bool(True),

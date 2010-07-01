@@ -11,6 +11,11 @@ zdcreco = cms.EDProducer(
     correctForTimeslew = cms.bool(False),
     dropZSmarkedPassed = cms.bool(True),
     recoMethod = cms.int32(2),
+
+    # Set offset between firstSample value and
+    # first sample to be stored in aux word
+    firstAuxOffset = cms.int32(0),
+        
     #Tags for calculating status flags
     # None of the flag algorithms have been implemented for zdc, so these booleans do nothing
     correctTiming = cms.bool(True),

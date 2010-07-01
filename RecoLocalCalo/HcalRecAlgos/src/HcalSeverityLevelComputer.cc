@@ -48,6 +48,7 @@ void HcalSeverityLevelComputer::getRecHitFlag(HcalSeverityDefinition& mydef,
   else if (mybit == "HFDigiTime")    setBit(HcalCaloFlagLabels::HFDigiTime, mydef.HFFlagMask);
   else if (mybit == "HFInTimeWindow") setBit(HcalCaloFlagLabels::HFInTimeWindow, mydef.HFFlagMask);
   else if (mybit == "HFS8S1Ratio") setBit(HcalCaloFlagLabels::HFS8S1Ratio, mydef.HFFlagMask);
+  else if (mybit == "HFPET")  setBit(HcalCaloFlagLabels::HFPET, mydef.HFFlagMask);
 
   // ZDC ++++++++++++++++++++
   else if (mybit == "ZDCBit")     setBit(HcalCaloFlagLabels::ZDCBit, mydef.ZDCFlagMask);

@@ -14,7 +14,10 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                         # Tags for calculating status flags
                         correctTiming = cms.bool(True),
                         setNoiseFlags = cms.bool(True),
-                        
+
+                        # Set offset between firstSample value and
+                        # first sample to be stored in aux word
+                        firstAuxOffset = cms.int32(0),
                         
                         setHSCPFlags  = cms.bool(True),
                         setSaturationFlags = cms.bool(True),
@@ -76,7 +79,7 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                                            0,0,0,0,
                                            0,0,0,0,0]),
     
-    flagsToSkip              = cms.int32(string.atoi('1010',2)), # HFDigiTime (bit 1) and HFS8S1Ratio (bit 3) should be skipped
+    flagsToSkip              = cms.int32(string.atoi('11010',2)), # HFPET (bit 4), HFDigiTime (bit 1) and HFS8S1Ratio (bit 3) should be skipped
     isS8S1                   = cms.bool(False),
     ),
 
@@ -113,7 +116,7 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                                            0,0,0,0,
                                            0,0,0,0,0]),
     
-    flagsToSkip              = cms.int32(string.atoi('11',2)), # HFLongShort (bit 0) and HFDigiTime (bit 1) should be skipped
+    flagsToSkip              = cms.int32(string.atoi('10010',2)), # HFPET (bit 4) and HFDigiTime (bit 1) should be skipped
     isS8S1                   = cms.bool(True),
     ),
                         
