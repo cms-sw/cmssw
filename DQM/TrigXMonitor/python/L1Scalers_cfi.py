@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: L1Scalers_cfi.py,v 1.9 2010/03/31 22:20:35 wteo Exp $
+# $Id: L1Scalers_cfi.py,v 1.10 2010/05/28 14:24:51 wteo Exp $
 
 l1s = cms.EDAnalyzer("L1Scalers",
                    l1GtData = cms.InputTag("l1GtUnpack","","HLT"),
@@ -11,8 +11,8 @@ l1s = cms.EDAnalyzer("L1Scalers",
                    fedRawData = cms.InputTag("source","", ""),
                    maskedChannels = cms.untracked.vint32(),
                    HFRecHitCollection = cms.InputTag("hfreco", "", ""),
-		   denomIsTech = cms.untracked.bool(False),
-		   denomBit = cms.untracked.uint32(124),
+		   denomIsTech = cms.untracked.bool(True),
+		   denomBit = cms.untracked.uint32(0),
 		   tfIsTech = cms.untracked.bool(True),
 		   tfBit = cms.untracked.uint32(41),
 		   algoMonitorBits = cms.untracked.vuint32(8,9,15,46,54,55,100,124),
