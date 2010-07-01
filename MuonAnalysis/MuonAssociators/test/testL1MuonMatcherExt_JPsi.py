@@ -17,14 +17,14 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource", 
      fileNames = cms.untracked.vstring(
-        'file:/data/gpetrucc/7TeV/jpsi/CS_Onia-Jun14thSkim_v1_RAW-RECO_run136082_443584C2-B27E-DF11-9E13-0017A477001C.root'
+        'root://pcmssd12.cern.ch//data/gpetrucc/7TeV/jpsi/CS_Onia-Jun14thSkim_v1_RAW-RECO_run136082_443584C2-B27E-DF11-9E13-0017A477001C.root'
     )
 )
 
 process.load("MuonAnalysis.MuonAssociators.muonL1MatchExtended_cfi")
 import PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi
 process.patMuons = PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi.patMuons.clone(
-    muonSource = 'arbMuons',
+    muonSource = 'muons',
     embedTrack          = True,
     embedCombinedMuon   = True,
     embedStandAloneMuon = True,
