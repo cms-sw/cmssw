@@ -2,8 +2,8 @@
  * \file BeamMonitorBx.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/06/30 00:52:24 $
- * $Revision: 1.4 $
+ * $Date: 2010/06/30 06:25:30 $
+ * $Revision: 1.5 $
  *
  */
 
@@ -22,6 +22,7 @@
 
 using namespace std;
 using namespace edm;
+using namespace reco;
 
 static char * formatTime( const time_t t )  {
 #define CET (+1)
@@ -67,7 +68,9 @@ BeamMonitorBx::BeamMonitorBx( const ParameterSet& ps ) :
   refBStime[0] = refBStime[1] = 0;
   lastlumi_ = 0;
   nextlumi_ = 0;
+  firstlumi_ = 0;
   processed_ = false;
+  countGoodFit_ = 0;
 }
 
 
@@ -95,7 +98,8 @@ void BeamMonitorBx::beginJob() {
   // create and cd into new folder
   dbe_->setCurrentFolder(monitorName_+"FitBx");
   // Results of good fit:
-  BookTables(1,varMap);
+  BookTables(1,varMap,"");
+  //if (resetFitNLumi_ > 0) BookTables(1,varMap,"all");
 
   // create and cd into new folders
   for (std::map<std::string,std::string>::const_iterator varName = varMap1.begin();
@@ -103,7 +107,7 @@ void BeamMonitorBx::beginJob() {
     string subDir_ = "FitBx";
     subDir_ += "/";
     subDir_ += "All_";
-    subDir_ += (*varName).first;
+    subDir_ += varName->first;
     dbe_->setCurrentFolder(monitorName_+subDir_);
   }
 }
@@ -182,13 +186,17 @@ void BeamMonitorBx::endLuminosityBlock(const LuminosityBlock& lumiSeg,
 
 
 //--------------------------------------------------------
-void BeamMonitorBx::BookTables(int nBx, map<string,string> & vMap) {
+void BeamMonitorBx::BookTables(int nBx, map<string,string> & vMap, string suffix_) {
   // to rebin histograms when number of bx increases
   dbe_->cd(monitorName_+"FitBx");
 
   for (std::map<std::string,std::string>::const_iterator varName = vMap.begin();
        varName != vMap.end(); ++varName) {
     string tmpName = varName->first;
+    if (suffix_ != "") {
+      tmpName += "_";
+      tmpName += suffix_;
+    }
     if (dbe_->get(monitorName_+"FitBx/"+tmpName)) {
       edm::LogInfo("BX|BeamMonitorBx") << "Rebinning " << tmpName << endl;
       dbe_->removeElement(tmpName);
@@ -214,11 +222,11 @@ void BeamMonitorBx::BookTrendHistos(bool plotPV,int nBx,map<string,string> & vMa
   for (int i = 0; i < nType_; i++) {
     for (std::map<std::string,std::string>::const_iterator varName = vMap.begin();
 	 varName != vMap.end(); ++varName) {
-      string tmpDir_ = subDir_ + "/All_" + (*varName).first;
+      string tmpDir_ = subDir_ + "/All_" + varName->first;
       dbe_->cd(monitorName_+tmpDir_);
-      TString histTitle((*varName).first);
+      TString histTitle(varName->first);
       string tmpName;
-      if (prefix_ != "") tmpName = prefix_ + "_" + (*varName).first;
+      if (prefix_ != "") tmpName = prefix_ + "_" + varName->first;
       if (suffix_ != "") tmpName = tmpName + "_" + suffix_;
       std::ostringstream ss;
       std::ostringstream ss1;
@@ -227,7 +235,7 @@ void BeamMonitorBx::BookTrendHistos(bool plotPV,int nBx,map<string,string> & vMa
       tmpName = tmpName + "_" + ss.str();
 
       TString histName(tmpName);
-      string ytitle((*varName).second);
+      string ytitle(varName->second);
       string xtitle("");
       string options("E1");
       bool createHisto = true;
@@ -249,7 +257,7 @@ void BeamMonitorBx::BookTrendHistos(bool plotPV,int nBx,map<string,string> & vMa
 	  xtitle = "Lumisection  [Bx# " + ss1.str() + "]";
 	  ytitle.insert(0,"PV");
 	  ytitle += " #pm #sigma_{PV";
-	  ytitle += (*varName).first;
+	  ytitle += varName->first;
 	  ytitle += "} (cm)";
 	}
 	else createHisto = false;
@@ -263,7 +271,7 @@ void BeamMonitorBx::BookTrendHistos(bool plotPV,int nBx,map<string,string> & vMa
 	  xtitle = "Time [UTC]  [Bx# " + ss1.str() + "]";
 	  ytitle.insert(0,"PV");
 	  ytitle += " #pm #sigma_{PV";
-	  ytitle += (*varName).first;
+	  ytitle += varName->first;
 	  ytitle += "} (cm)";
 	}
 	else createHisto = false;
@@ -332,11 +340,14 @@ void BeamMonitorBx::FitAndFill(const LuminosityBlock& lumiSeg,
   edm::LogInfo("LS|BX|BeamMonitorBx") << " to " << endLumiOfBSFit_ << endl;
 
   if (theBeamFitter->runPVandTrkFitter()) {
-    std::map< int, reco::BeamSpot> bsmap = theBeamFitter->getBeamSpotMap();
+    countGoodFit_++;
+    edm::LogInfo("BX|BeamMonitorBx") << "Number of good fit = " << countGoodFit_ << endl;
+    BeamSpotMapBx bsmap = theBeamFitter->getBeamSpotMap();
     edm::LogInfo("BX|BeamMonitorBx") << "Number of bx = " << bsmap.size() << endl;
     if (countBx_ < bsmap.size()) {
       countBx_ = bsmap.size();
-      BookTables(countBx_,varMap);
+      BookTables(countBx_,varMap,"");
+      if (resetFitNLumi_ > 0 && countGoodFit_ > 1) BookTables(countBx_,varMap,"all");
     }
 
     int * LSRange = theBeamFitter->getFitLSRange();
@@ -348,16 +359,42 @@ void BeamMonitorBx::FitAndFill(const LuminosityBlock& lumiSeg,
       hs[varName->first]->Reset();
     }
 
+    if (countGoodFit_ == 1)
+      firstlumi_ = LSRange[0];
+
+    if (resetFitNLumi_ > 0 && countGoodFit_ > 1) {
+      char tmpTitle1[50];
+      sprintf(tmpTitle1,"%s %i %s %i %s"," [cm] (LS: ",firstlumi_," to ",LSRange[1],")");
+      for (std::map<std::string,std::string>::const_iterator varName = varMap.begin();
+	   varName != varMap.end(); ++varName) {
+	TString tmpName = varName->first + "_all";
+	hs[tmpName]->setTitle(varName->second + " " + tmpTitle1);
+	hs[tmpName]->Reset();
+      }
+    }
+
     int nthBin = countBx_;
-    for (std::map<int,reco::BeamSpot>::const_iterator abspot = bsmap.begin();
+    for (BeamSpotMapBx::const_iterator abspot = bsmap.begin();
 	 abspot!= bsmap.end(); ++abspot,nthBin--) {
       reco::BeamSpot bs = abspot->second;
       int bx = abspot->first;
       // Tables
-      FillTables(bx,nthBin,varMap,bs);
+      FillTables(bx,nthBin,varMap,bs,"");
       // Histograms
       BookTrendHistos(false,bx,varMap1,"FitBx","Trending","bx");
       FillTrendHistos(bx,varMap1,bs,"Trending");
+    }
+    // Calculate weighted beam spots
+    weight(fbspotMap,bsmap);
+    // Fill the results
+    nthBin = countBx_;
+    if (resetFitNLumi_ > 0 && countGoodFit_ > 1) {
+      for (BeamSpotMapBx::const_iterator abspot = fbspotMap.begin();
+	   abspot!= fbspotMap.end(); ++abspot,nthBin--) {
+	reco::BeamSpot bs = abspot->second;
+	int bx = abspot->first;
+	FillTables(bx,nthBin,varMap,bs,"all");
+      }
     }
   }
   //   else
@@ -378,7 +415,7 @@ void BeamMonitorBx::FitAndFill(const LuminosityBlock& lumiSeg,
 //--------------------------------------------------------
 void BeamMonitorBx::FillTables(int nthbx,int nthbin_,
 			       map<string,string>&vMap,
-			       reco::BeamSpot&bs_){
+			       reco::BeamSpot&bs_, string suffix_){
   map<string,pair<double,double> > val_;
   val_["x0_bx"] = pair<double,double>(bs_.x0(),bs_.x0Error());
   val_["y0_bx"] = pair<double,double>(bs_.y0(),bs_.y0Error());
@@ -389,9 +426,11 @@ void BeamMonitorBx::FillTables(int nthbx,int nthbin_,
 
   for (std::map<std::string,std::string>::const_iterator varName = vMap.begin();
        varName != vMap.end(); ++varName) {
-    hs[varName->first]->setBinContent(1,nthbin_,nthbx);
-    hs[varName->first]->setBinContent(2,nthbin_,val_[varName->first].first);
-    hs[varName->first]->setBinContent(3,nthbin_,val_[varName->first].second);
+    TString tmpName = varName->first;
+    if (suffix_ != "") tmpName += TString("_"+suffix_);
+    hs[tmpName]->setBinContent(1,nthbin_,nthbx);
+    hs[tmpName]->setBinContent(2,nthbin_,val_[varName->first].first);
+    hs[tmpName]->setBinContent(3,nthbin_,val_[varName->first].second);
   }
 }
 
@@ -411,22 +450,81 @@ void BeamMonitorBx::FillTrendHistos(int nthBx, map<string,string> & vMap,
   int ntbin_ = tmpTime - startTime;
   for (map<TString,MonitorElement*>::iterator itHst = hst.begin();
        itHst != hst.end(); ++itHst) {
-    if (!((*itHst).first.Contains(ss.str()))) continue;
+    if (!(itHst->first.Contains(ss.str()))) continue;
     for (std::map<std::string,std::string>::const_iterator varName = vMap.begin();
 	 varName != vMap.end(); ++varName) {
-      edm::LogInfo("BX|BeamMonitorBx") << "Filling histogram: " << (*itHst).first << endl;
-      if ((*itHst).first.Contains("time")) {
-	int idx = (*itHst).first.Index("_time",5);
-	(*itHst).second->setBinContent(ntbin_,val_[(*itHst).first(0,idx)].first);
-	(*itHst).second->setBinError(ntbin_,val_[(*itHst).first(0,idx)].second);
+      edm::LogInfo("BX|BeamMonitorBx") << "Filling histogram: " << itHst->first << endl;
+      if (itHst->first.Contains("time")) {
+	int idx = itHst->first.Index("_time",5);
+	itHst->second->setBinContent(ntbin_,val_[itHst->first(0,idx)].first);
+	itHst->second->setBinError(ntbin_,val_[itHst->first(0,idx)].second);
       }
-      if ((*itHst).first.Contains("lumi")) {
-	int idx = (*itHst).first.Index("_lumi",5);
-	(*itHst).second->setBinContent(endLumiOfBSFit_,val_[(*itHst).first(0,idx)].first);
-	(*itHst).second->setBinError(endLumiOfBSFit_,val_[(*itHst).first(0,idx)].second);
+      if (itHst->first.Contains("lumi")) {
+	int idx = itHst->first.Index("_lumi",5);
+	itHst->second->setBinContent(endLumiOfBSFit_,val_[itHst->first(0,idx)].first);
+	itHst->second->setBinError(endLumiOfBSFit_,val_[itHst->first(0,idx)].second);
       }
     }
   }
+}
+
+//--------------------------------------------------------------------------------------------------
+void BeamMonitorBx::weight(BeamSpotMapBx& weightedMap_, const BeamSpotMapBx& newMap_){
+  for (BeamSpotMapBx::const_iterator it = newMap_.begin();
+       it != newMap_.end(); ++it) {
+    if (weightedMap_.find(it->first) == weightedMap_.end() || (it->second.type() != 2)) {
+      weightedMap_[it->first] = it->second;
+      continue;
+    }
+
+    BeamSpot obs = weightedMap_[it->first];
+    double val_[8] = { obs.x0(),obs.y0(),obs.z0(),obs.sigmaZ(),
+		       obs.dxdz(),obs.dydz(),obs.BeamWidthX(),obs.BeamWidthY()};
+    double valErr_[8] = { obs.x0Error(),obs.y0Error(),obs.z0Error(),
+			  obs.sigmaZ0Error(),obs.dxdzError(),obs.dydzError(),
+			  obs.BeamWidthXError(),obs.BeamWidthYError()};
+
+    reco::BeamSpot::BeamType type = reco::BeamSpot::Unknown;
+    weight(val_[0], valErr_[0], it->second.x0()        , it->second.x0Error());
+    weight(val_[1], valErr_[1], it->second.y0()        , it->second.y0Error());
+    weight(val_[2], valErr_[2], it->second.z0()        , it->second.z0Error());
+    weight(val_[3], valErr_[3], it->second.sigmaZ()    , it->second.sigmaZ0Error());
+    weight(val_[4], valErr_[4], it->second.dxdz()      , it->second.dxdzError());
+    weight(val_[5], valErr_[5], it->second.dydz()      , it->second.dydzError());
+    weight(val_[6], valErr_[6], it->second.BeamWidthX(), it->second.BeamWidthXError());
+    weight(val_[7], valErr_[7], it->second.BeamWidthY(), it->second.BeamWidthYError());
+    if(it->second.type() == reco::BeamSpot::Tracker){
+      type = reco::BeamSpot::Tracker;
+    }
+
+    reco::BeamSpot::Point bsPosition(val_[0],val_[1],val_[2]);
+    reco::BeamSpot::CovarianceMatrix error;
+    for (int i=0;i<7;++i) {
+      error(i,i) = valErr_[i]*valErr_[i];
+    }
+    reco::BeamSpot weightedBeamSpot(bsPosition,val_[3],val_[4],val_[5],val_[6],error,type);
+    weightedBeamSpot.setBeamWidthY(val_[7]);
+    LogInfo("BX|BeamMonitorBx")
+      << weightedBeamSpot
+      << endl;
+    weightedMap_.erase(it->first);
+    weightedMap_[it->first] = weightedBeamSpot;
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+void BeamMonitorBx::weight(double& mean,double& meanError,const double& val,const double& valError){
+    double tmpError = 0;
+    if (meanError < 1e-8){
+	tmpError = 1/(valError*valError);
+	mean = val*tmpError;
+    }
+    else{
+	tmpError = 1/(meanError*meanError) + 1/(valError*valError);
+	mean = mean/(meanError*meanError) + val/(valError*valError);
+    }
+    mean = mean/tmpError;
+    meanError = sqrt(1/tmpError);
 }
 
 //--------------------------------------------------------

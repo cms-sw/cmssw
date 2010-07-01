@@ -3,8 +3,8 @@
 
 /** \class BeamMonitorBx
  * *
- *  $Date: 2010/06/30 00:52:24 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/06/30 06:25:30 $
+ *  $Revision: 1.4 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -31,6 +31,9 @@ class BeamMonitorBx : public edm::EDAnalyzer {
   BeamMonitorBx( const edm::ParameterSet& );
   ~BeamMonitorBx();
 
+  typedef int BxNum;
+  typedef std::map<BxNum,reco::BeamSpot> BeamSpotMapBx;
+
  protected:
    
   // BeginJob
@@ -54,12 +57,15 @@ class BeamMonitorBx : public edm::EDAnalyzer {
  private:
 
   void FitAndFill(const edm::LuminosityBlock& lumiSeg, int&, int&, int&);
-  void BookTables(int, std::map<std::string,std::string>&);
+  void BookTables(int, std::map<std::string,std::string>&,std::string);
   void BookTrendHistos(bool, int, std::map<std::string,std::string>&, 
 		       std::string, TString, TString);
-  void FillTables(int, int, std::map<std::string,std::string>&, reco::BeamSpot&);
+  void FillTables(int, int, std::map<std::string,std::string>&,
+		  reco::BeamSpot&, std::string);
   void FillTrendHistos(int, std::map<std::string,std::string>&,
 		       reco::BeamSpot&, TString);
+  void weight(BeamSpotMapBx&, const BeamSpotMapBx&);
+  void weight(double& mean,double& meanError,const double& val,const double& valError);
 
   edm::ParameterSet parameters_;
   std::string monitorName_;
@@ -79,12 +85,14 @@ class BeamMonitorBx : public edm::EDAnalyzer {
   int endLumiOfBSFit_;
   int lastlumi_; // previous LS processed
   int nextlumi_; // next LS of Fit
+  int firstlumi_; // first LS with good fit
+  int countGoodFit_;
   std::time_t refBStime[2];
 
   bool resetHistos_;
   bool processed_;
   // ----------member data ---------------------------
-  std::map<int, reco::BeamSpot> fbspotMap;
+  BeamSpotMapBx fbspotMap;//for weighted beam spots of each bunch
   std::map<std::string, std::string> varMap;
   std::map<std::string, std::string> varMap1;
   // MonitorElements:
