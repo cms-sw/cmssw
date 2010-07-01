@@ -43,6 +43,7 @@ hcalRecAlgos = cms.ESProducer("HcalRecAlgoESProducer",
                   RecHitFlags = cms.vstring('HBHEHpdHitMultiplicity', 'HBHEPulseShape', 'HOBit',
                                             'HFDigiTime',
                                             'HFInTimeWindow',
+                                            'HFS8S1Ratio',
                                             'ZDCBit', 'CalibrationBit',
                                             'TimingErrorBit'),
                   ChannelStatus = cms.vstring('')
