@@ -153,77 +153,79 @@ void tnp::BaseTreeFiller::init(const edm::Event &iEvent) const {
         weight_ = *weight;
     }
 
-    /// *********** store some event variables: MET, SumET ******
-    //////////// Primary vertex //////////////
-    edm::Handle<reco::VertexCollection> recVtxs;
-    iEvent.getByLabel("offlinePrimaryVertices",recVtxs);
-    mNPV_ = 0;
-    mPVx_ =  100.0;
-    mPVy_ =  100.0;
-    mPVz_ =  100.0;
+    if (addEventVariablesInfo_) {
+        /// *********** store some event variables: MET, SumET ******
+        //////////// Primary vertex //////////////
+        edm::Handle<reco::VertexCollection> recVtxs;
+        iEvent.getByLabel("offlinePrimaryVertices",recVtxs);
+        mNPV_ = 0;
+        mPVx_ =  100.0;
+        mPVy_ =  100.0;
+        mPVz_ =  100.0;
 
-    for(unsigned int ind=0;ind<recVtxs->size();ind++) {
-      if (!((*recVtxs)[ind].isFake()) && ((*recVtxs)[ind].ndof()>4) 
-	  && (fabs((*recVtxs)[ind].z())<=15.0) &&  
-	  ((*recVtxs)[ind].position().Rho()<=2.0) ) {
-	mNPV_++;
-	if(mNPV_==1) { // store the first good primary vertex
-	  mPVx_ = (*recVtxs)[ind].x();
-	  mPVy_ = (*recVtxs)[ind].y();
-	  mPVz_ = (*recVtxs)[ind].z();
-	}
-      }
-    }
-
-
-    //////////// Beam spot //////////////
-    edm::Handle<reco::BeamSpot> beamSpot;
-    iEvent.getByLabel("offlineBeamSpot", beamSpot);
-    mBSx_ = beamSpot->position().X();
-    mBSy_ = beamSpot->position().Y();
-    mBSz_ = beamSpot->position().Z();
+        for(unsigned int ind=0;ind<recVtxs->size();ind++) {
+          if (!((*recVtxs)[ind].isFake()) && ((*recVtxs)[ind].ndof()>4) 
+              && (fabs((*recVtxs)[ind].z())<=15.0) &&  
+              ((*recVtxs)[ind].position().Rho()<=2.0) ) {
+            mNPV_++;
+            if(mNPV_==1) { // store the first good primary vertex
+              mPVx_ = (*recVtxs)[ind].x();
+              mPVy_ = (*recVtxs)[ind].y();
+              mPVz_ = (*recVtxs)[ind].z();
+            }
+          }
+        }
 
 
-    ////////////// CaloMET //////
-    edm::Handle<reco::CaloMETCollection> met;
-    iEvent.getByLabel("met",met);
-    if (met->size() == 0) {
-      mMET_   = -1;
-      mSumET_ = -1;
-      mMETSign_ = -1;
-    }
-    else {
-      mMET_   = (*met)[0].et();
-      mSumET_ = (*met)[0].sumEt();
-      mMETSign_ = (*met)[0].significance();
-    }
+        //////////// Beam spot //////////////
+        edm::Handle<reco::BeamSpot> beamSpot;
+        iEvent.getByLabel("offlineBeamSpot", beamSpot);
+        mBSx_ = beamSpot->position().X();
+        mBSy_ = beamSpot->position().Y();
+        mBSz_ = beamSpot->position().Z();
 
-    /////// TcMET information /////
-    edm::Handle<reco::METCollection> tcmet;
-    iEvent.getByLabel("tcMet", tcmet);
-    if (tcmet->size() == 0) {
-      mtcMET_   = -1;
-      mtcSumET_ = -1;
-      mtcMETSign_ = -1;
-    }
-    else {
-      mtcMET_   = (*tcmet)[0].et();
-      mtcSumET_ = (*tcmet)[0].sumEt();
-      mtcMETSign_ = (*tcmet)[0].significance();
-    }
 
-    /////// PfMET information /////
-    edm::Handle<reco::PFMETCollection> pfmet;
-    iEvent.getByLabel("pfMet", pfmet);
-    if (pfmet->size() == 0) {
-      mpfMET_   = -1;
-      mpfSumET_ = -1;
-      mpfMETSign_ = -1;
-    }
-    else {
-      mpfMET_   = (*pfmet)[0].et();
-      mpfSumET_ = (*pfmet)[0].sumEt();
-      mpfMETSign_ = (*pfmet)[0].significance();
+        ////////////// CaloMET //////
+        edm::Handle<reco::CaloMETCollection> met;
+        iEvent.getByLabel("met",met);
+        if (met->size() == 0) {
+          mMET_   = -1;
+          mSumET_ = -1;
+          mMETSign_ = -1;
+        }
+        else {
+          mMET_   = (*met)[0].et();
+          mSumET_ = (*met)[0].sumEt();
+          mMETSign_ = (*met)[0].significance();
+        }
+
+        /////// TcMET information /////
+        edm::Handle<reco::METCollection> tcmet;
+        iEvent.getByLabel("tcMet", tcmet);
+        if (tcmet->size() == 0) {
+          mtcMET_   = -1;
+          mtcSumET_ = -1;
+          mtcMETSign_ = -1;
+        }
+        else {
+          mtcMET_   = (*tcmet)[0].et();
+          mtcSumET_ = (*tcmet)[0].sumEt();
+          mtcMETSign_ = (*tcmet)[0].significance();
+        }
+
+        /////// PfMET information /////
+        edm::Handle<reco::PFMETCollection> pfmet;
+        iEvent.getByLabel("pfMet", pfmet);
+        if (pfmet->size() == 0) {
+          mpfMET_   = -1;
+          mpfSumET_ = -1;
+          mpfMETSign_ = -1;
+        }
+        else {
+          mpfMET_   = (*pfmet)[0].et();
+          mpfSumET_ = (*pfmet)[0].sumEt();
+          mpfMETSign_ = (*pfmet)[0].significance();
+        }
     }
 
 }
