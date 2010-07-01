@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-bVertexFilter = cms.EDProducer("BVertexFilter",
+bVertexFilter = cms.EDFilter("BVertexFilter",
       primaryVertices  = cms.InputTag("offlinePrimaryVertices"),
       secondaryVertices = cms.InputTag("secondaryVertices"),
       vertexFilter = cms.PSet(
