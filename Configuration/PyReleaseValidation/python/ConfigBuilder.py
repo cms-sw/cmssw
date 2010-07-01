@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.190 $"
+__version__ = "$Revision: 1.191 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -844,6 +844,7 @@ class ConfigBuilder(object):
             harvestingstream = getattr(harvestingConfig,name)
             if name in harvestingList and isinstance(harvestingstream,cms.Path):
                self.schedule.append(harvestingstream)
+               self.executeAndRemember("process.PoolDBOutputService.toPut.append(process.ALCAHARVEST" + name + "_dbOutput)")
                harvestingList.remove(name)
                     
         if len(harvestingList) != 0 and 'dummyHarvesting' not in harvestingList :
@@ -922,7 +923,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.190 $"),
+              (version=cms.untracked.string("$Revision: 1.191 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
