@@ -34,6 +34,7 @@
 #include "RooGenericPdf.h"
 #include "RooExtendPdf.h"
 #include "RooTrace.h"
+#include "Math/QuantFuncMathCore.h"
 
 using namespace RooFit;
 
@@ -259,6 +260,9 @@ void TagProbeFitter::doFitEfficiency(RooWorkspace* w, string pdfName, RooRealVar
   setInitialValues(w);  
   RooFitResult* res;
 
+  double totPassing = w->data("data")->sumEntries("_efficiencyCategory_==_efficiencyCategory_::Passed");
+  double totFailing = w->data("data")->sumEntries("_efficiencyCategory_==_efficiencyCategory_::Failed");
+
   //******* The block of code below is to make the fit converge faster.
   // ****** This part is OPTIONAL, i.e., off be default. User can activate this
   // ****** by setting the following parameters: "fixVars" and "floatShapeParameters"
@@ -321,17 +325,6 @@ void TagProbeFitter::doFitEfficiency(RooWorkspace* w, string pdfName, RooRealVar
 
 
 
-//   res = w->pdf("simPdf")->fitTo(*w->data("data"), Save(true), Extended(true), NumCPU(numCPU));
-
-//   RooNLLVar nll("nll", "nll", *w->pdf("simPdf"), *w->data("data"), Extended(), NumCPU(numCPU));
-//   RooMinuit m(nll);
-//   m.setErrorLevel(0.5);
-//   m.setStrategy(2);
-//   m.hesse();
-//   m.migrad();
-//   m.hesse();
-//   m.minos(*w->var("efficiency"));
-//   RooFitResult* res = m.save();
   // save everything
   res->Write("fitresults");
   w->saveSnapshot("finalState",w->components());
@@ -341,9 +334,32 @@ void TagProbeFitter::doFitEfficiency(RooWorkspace* w, string pdfName, RooRealVar
   //What's wrong with this? and why don't they copy the errors!
   //efficiency = *e;
   efficiency.setVal(e->getVal());
-  Double_t errLo = e->getErrorLo()!=0 ? e->getErrorLo() : e->getMin()-e->getVal();
-  Double_t errHi = e->getErrorHi()!=0 ? e->getErrorHi() : e->getMax()-e->getVal();
+  Double_t errLo = e->getErrorLo(), errHi = e->getErrorHi();
+  if (errLo == 0 && e->getVal() < 0.5) errLo = e->getMin()-e->getVal();
+  if (errHi == 0 && e->getVal() > 0.5) errHi = e->getMax()-e->getVal();
   efficiency.setAsymError(errLo, errHi);
+
+  if (totPassing * totFailing == 0) {
+    RooRealVar* nS = (RooRealVar*) res->floatParsFinal().find("numSignalAll");
+    //RooRealVar* nB = (RooRealVar*) res->floatParsFinal().find(totPassing != 0 ? "numBackgroundPass" : "numBackgroundFail");
+    double cerr = ROOT::Math::beta_quantile( 1-(1.0-.68540158589942957)/2, 1, nS->getVal() ); 
+    /*
+    std::cout << "======================================================================================" << std::endl;
+    std::cout << "======= totPassing "  << totPassing << ", totFailing " << totFailing << std::endl;
+    std::cout << "======= FIT: e  "  <<  e->getVal() << ",  e Lo " << e->getErrorLo()  << ",  e Hi " <<  e->getErrorHi() << std::endl;
+    std::cout << "======= FIT:nS  "  << nS->getVal() << ", nS Lo " << nS->getErrorLo() << ", nS Hi " << nS->getErrorHi() << std::endl;
+    std::cout << "======= FIT:nB  "  << nB->getVal() << ", nB Lo " << nB->getErrorLo() << ", nB Hi " << nB->getErrorHi() << std::endl;
+    std::cout << "======= CNT:    "  << cerr << std::endl;
+    std::cout << "======================================================================================" << std::endl;
+    */
+    if (totPassing == 0) {
+      efficiency.setVal(0);
+      efficiency.setAsymError(0,cerr);
+    } else {
+      efficiency.setVal(1);
+      efficiency.setAsymError(-cerr,1);
+    }
+  }
 }
 
 void TagProbeFitter::createPdf(RooWorkspace* w, vector<string>& pdfCommands){
@@ -376,6 +392,27 @@ void TagProbeFitter::setInitialValues(RooWorkspace* w){
   w->var("numSignalAll")->setVal(numSignalAll);
   w->var("numBackgroundPass")->setVal(totPassing - numSignalAll*signalEfficiency);
   w->var("numBackgroundFail")->setVal(totFailinging -  numSignalAll*(1-signalEfficiency));
+
+  if (totPassing == 0) {
+    w->var("efficiency")->setVal(0.0);
+    w->var("efficiency")->setAsymError(0,1);
+    w->var("efficiency")->setConstant(false);
+    w->var("numBackgroundPass")->setVal(0.0);
+    w->var("numBackgroundPass")->setConstant(true);
+    w->var("numBackgroundFail")->setConstant(false);
+  } else if (totFailinging == 0) {
+    w->var("efficiency")->setVal(1.0);
+    w->var("efficiency")->setAsymError(-1,0);
+    w->var("efficiency")->setConstant(false);
+    w->var("numBackgroundPass")->setConstant(false);
+    w->var("numBackgroundFail")->setVal(0.0);
+    w->var("numBackgroundFail")->setConstant(true);
+  } else {
+    w->var("efficiency")->setConstant(false);
+    w->var("numBackgroundPass")->setConstant(false);
+    w->var("numBackgroundFail")->setConstant(false);
+  }
+
   // save initial state for reference
   w->saveSnapshot("initialState",w->components());
 }
@@ -580,9 +617,15 @@ void TagProbeFitter::doSBSEfficiency(RooWorkspace* w, RooRealVar& efficiency){
 void TagProbeFitter::doCntEfficiency(RooWorkspace* w, RooRealVar& efficiency){
   int pass = w->data("data")->sumEntries("_efficiencyCategory_==_efficiencyCategory_::Passed");
   int fail = w->data("data")->sumEntries("_efficiencyCategory_==_efficiencyCategory_::Failed");
-  double e, lo, hi;
-  //from TGraphAsymmErrors
-  Efficiency( pass, pass+fail, 0.683, e, lo, hi );
+  double e = (pass+fail == 0) ? 0 : pass/double(pass+fail);
+  // Use Clopper-Pearson
+  double alpha = (1.0 - .68540158589942957)/2;
+  double lo = (pass == 0) ? 0.0 : ROOT::Math::beta_quantile(   alpha, pass,   fail+1 );
+  double hi = (fail == 0) ? 1.0 : ROOT::Math::beta_quantile( 1-alpha, pass+1, fail   );
+  ////from TGraphAsymmErrors
+  //double lob, hib;
+  //Efficiency( pass, pass+fail, .68540158589942957, e, lob, hib );
+  //std::cerr << "CNT " << pass << "/" << fail << ":  Clopper Pearson [" << lo << ", "  << hi << "], Bayes [" << lob << ", " << hib << "]" << std::endl;
   efficiency.setVal(e);
   efficiency.setAsymError(lo-e, hi-e);
 }
