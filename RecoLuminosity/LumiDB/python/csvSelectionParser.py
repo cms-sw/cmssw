@@ -42,7 +42,7 @@ class csvSelectionParser(object):
     
 if __name__ == '__main__':
     result={}
-    filename='lumi_by_LS_all.csv'
+    filename='../test/lumi_by_LS_all.csv'
     s=csvSelectionParser(filename)
     print 'runs : ',s.runs()
     print 'full result : ',s.runsandls()
