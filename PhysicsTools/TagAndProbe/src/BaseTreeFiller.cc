@@ -90,6 +90,7 @@ tnp::BaseTreeFiller::BaseTreeFiller(const char *name, const edm::ParameterSet iC
 }
 
 tnp::BaseTreeFiller::BaseTreeFiller(BaseTreeFiller &main, const edm::ParameterSet &iConfig, const std::string &branchNamePrefix) :
+    addEventVariablesInfo_(false),
     tree_(0)
 {
     addBranches_(main.tree_, iConfig, branchNamePrefix);
