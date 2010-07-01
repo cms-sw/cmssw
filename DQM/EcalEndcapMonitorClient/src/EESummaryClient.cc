@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2010/05/30 13:13:24 $
- * $Revision: 1.201 $
+ * $Date: 2010/06/30 15:08:11 $
+ * $Revision: 1.202 $
  * \author G. Della Ricca
  *
 */
@@ -207,7 +207,7 @@ EESummaryClient::EESummaryClient(const edm::ParameterSet& ps) {
 
   }
 
-  synchErrorThreshold_ = 0.01;
+  synchErrorThreshold_ = 0.05;
 
 }
 
@@ -2592,8 +2592,7 @@ void EESummaryClient::analyze(void) {
   for ( int jx = 1; jx <= 100; jx++ ) {
     for ( int jy = 1; jy <= 100; jy++ ) {
 
-      if(meIntegrity_[0] && mePedestalOnline_[0] && meTiming_[0] && meStatusFlags_[0] && meTriggerTowerEmulError_[0]
-         && norm01_ && synch01_) {
+      if(meIntegrity_[0] && mePedestalOnline_[0] && meTiming_[0] && meStatusFlags_[0] && meTriggerTowerEmulError_[0]) {
 
         float xval = 6;
         float val_in = meIntegrity_[0]->getBinContent(jx,jy);
@@ -2681,9 +2680,11 @@ void EESummaryClient::analyze(void) {
               validCry = true;
 
               // recycle the validEE for the synch check of the DCC
-              float frac_synch_errors = float(synch01_->GetBinContent(ism))/float(norm01_->GetBinContent(ism));
-              float val_sy = (frac_synch_errors < synchErrorThreshold_);
-              if(val_sy==0) xval=0;
+              if(norm01_ && synch01_) {
+                float frac_synch_errors = float(synch01_->GetBinContent(ism))/float(norm01_->GetBinContent(ism));
+                float val_sy = (frac_synch_errors < synchErrorThreshold_);
+                if(val_sy==0) xval=0;
+              }
 
               for ( unsigned int i=0; i<clients_.size(); i++ ) {
                 EEIntegrityClient* eeic = dynamic_cast<EEIntegrityClient*>(clients_[i]);
@@ -2807,6 +2808,14 @@ void EESummaryClient::analyze(void) {
           if (iter != superModules_.end()) {
             if ( Numbers::validEE(ism, jx, jy) ) {
               validCry = true;
+
+              // recycle the validEE for the synch check of the DCC
+              if(norm01_ && synch01_) {
+                float frac_synch_errors = float(synch01_->GetBinContent(ism))/float(norm01_->GetBinContent(ism));
+                float val_sy = (frac_synch_errors < synchErrorThreshold_);
+                if(val_sy==0) xval=0;
+              }
+
               for ( unsigned int i=0; i<clients_.size(); i++ ) {
                 EEIntegrityClient* eeic = dynamic_cast<EEIntegrityClient*>(clients_[i]);
                 if ( eeic ) {

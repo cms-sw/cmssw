@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2010/05/30 13:13:24 $
- * $Revision: 1.212 $
+ * $Date: 2010/06/30 15:08:11 $
+ * $Revision: 1.213 $
  * \author G. Della Ricca
  *
 */
@@ -158,7 +158,7 @@ EBSummaryClient::EBSummaryClient(const edm::ParameterSet& ps) {
 
   }
 
-  synchErrorThreshold_ = 0.01;
+  synchErrorThreshold_ = 0.05;
 
 }
 
@@ -1867,8 +1867,7 @@ void EBSummaryClient::analyze(void) {
   for ( int iex = 1; iex <= 170; iex++ ) {
     for ( int ipx = 1; ipx <= 360; ipx++ ) {
 
-      if(meIntegrity_ && mePedestalOnline_ && meTiming_ && meStatusFlags_ && meTriggerTowerEmulError_ 
-         && norm01_ && synch01_) {
+      if(meIntegrity_ && mePedestalOnline_ && meTiming_ && meStatusFlags_ && meTriggerTowerEmulError_) {
 
         int ism = (ipx-1)/20 + 1 ;
         if ( iex>85 ) ism+=18;
@@ -1880,9 +1879,6 @@ void EBSummaryClient::analyze(void) {
         float val_sf = meStatusFlags_->getBinContent((ipx-1)/5+1,(iex-1)/5+1);
         // float val_ee = meTriggerTowerEmulError_->getBinContent((ipx-1)/5+1,(iex-1)/5+1); // removed from the global summary temporarily
         float val_ee = 1;
-
-        float frac_synch_errors = float(synch01_->GetBinContent(ism))/float(norm01_->GetBinContent(ism));
-        float val_sy = (frac_synch_errors < synchErrorThreshold_);
 
         // combine all the available wavelenghts in unique laser status
         // for each laser turn dark color and yellow into bright green
@@ -1926,7 +1922,7 @@ void EBSummaryClient::analyze(void) {
         if(val_ee==2 || val_ee==3 || val_ee==4 || val_ee==5) val_ee=1;
 
         if(val_in==6) xval=6;
-        else if(val_in==0 || val_sy==0) xval=0;
+        else if(val_in==0) xval=0;
         else if(val_po==0 || val_ls==0 || val_tm==0 || val_sf==0 || val_ee==0) xval=0;
         else if(val_po==2 || val_ls==2 || val_tm==2 || val_sf==2 || val_ee==2) xval=2;
         else xval=1;
@@ -1934,6 +1930,12 @@ void EBSummaryClient::analyze(void) {
         // if the SM is entirely not read, the masked channels
         // are reverted back to yellow
         float iEntries=0;
+
+        if (norm01_ && synch01_) {
+          float frac_synch_errors = float(synch01_->GetBinContent(ism))/float(norm01_->GetBinContent(ism));
+          float val_sy = (frac_synch_errors < synchErrorThreshold_);
+          if(val_sy==0) xval=0;
+        }
 
         std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
         if (iter != superModules_.end()) {
