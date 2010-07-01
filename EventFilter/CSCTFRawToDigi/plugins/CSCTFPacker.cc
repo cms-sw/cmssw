@@ -302,7 +302,7 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 							for(int lctId=0; lctId<2; lctId++)
 								// Only 3 LCT per BX from the same fpga are allowed (to be valid):
 								if( meDataRecord[sector][tbin][fpga][cscId][lctId].valid_pattern
-									&& meDataRecord[sector][tbin][fpga][cscId][lctId].link_id==link ){
+									&& meDataRecord[sector][tbin][fpga][cscId][lctId].link_id==link+1 ){
 									memcpy(pos,&meDataRecord[sector][tbin][fpga][cscId][lctId],8);
 									pos+=4;
 									nLCTs++;
