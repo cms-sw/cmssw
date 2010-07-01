@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2010/06/30 15:08:11 $
- * $Revision: 1.213 $
+ * $Date: 2010/07/01 09:59:35 $
+ * $Revision: 1.214 $
  * \author G. Della Ricca
  *
 */
@@ -1931,7 +1931,7 @@ void EBSummaryClient::analyze(void) {
         // are reverted back to yellow
         float iEntries=0;
 
-        if (norm01_ && synch01_) {
+        if(norm01_ && synch01_) {
           float frac_synch_errors = float(synch01_->GetBinContent(ism))/float(norm01_->GetBinContent(ism));
           float val_sy = (frac_synch_errors < synchErrorThreshold_);
           if(val_sy==0) xval=0;
