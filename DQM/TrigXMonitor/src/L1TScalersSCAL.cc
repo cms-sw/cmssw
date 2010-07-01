@@ -161,38 +161,42 @@ L1TScalersSCAL::L1TScalersSCAL(const edm::ParameterSet& ps):
 
     dbe_->setCurrentFolder("L1T/L1TScalersSCAL/Level1TriggerRates/Ratios");
 
-    std::stringstream smu,seg,sjet;
+    std::stringstream smu,seg,sjet,sdenom;
+    //denominator string
+    if(denomIsTech_) sdenom << "_TechBit_";
+    else sdenom << "_AlgoBit_";
+    sdenom << denomBit_;
     //Muon ratio
     smu << muonBit_;
-    rateRatio_mu = dbe_->book1D("Rate_Ratio_mu_PhysBit_"+ smu.str(), "Rate_Ratio_mu_PhysBit_" + smu.str(),maxNbins,-0.5,double(maxNbins)-0.5);
+    rateRatio_mu = dbe_->book1D("Rate_Ratio_mu_PhysBit_"+ smu.str()+sdenom.str(), "Rate_Ratio_mu_PhysBit_" + smu.str()+sdenom.str(),maxNbins,-0.5,double(maxNbins)-0.5);
     //rateRatio_mu->setAxisTitle("Lumi Section" , 1);
     //Egamma ratio
     seg << egammaBit_;
-    rateRatio_egamma = dbe_->book1D("Rate_Ratio_egamma_PhysBit_"+ seg.str(), "Rate_Ratio_egamma_PhysBit_" + seg.str(),maxNbins,-0.5,double(maxNbins)-0.5);
+    rateRatio_egamma = dbe_->book1D("Rate_Ratio_egamma_PhysBit_"+ seg.str()+sdenom.str(), "Rate_Ratio_egamma_PhysBit_" + seg.str()+sdenom.str(),maxNbins,-0.5,double(maxNbins)-0.5);
     //rateRatio_egamma->setAxisTitle("Lumi Section" , 1);
     //Jet ratio
     sjet << jetBit_;
-    rateRatio_jet = dbe_->book1D("Rate_Ratio_jet_PhysBit_" + sjet.str(), "Rate_Ratio_jet_PhysBit_" + sjet.str(),maxNbins,-0.5,double(maxNbins)-0.5);
+    rateRatio_jet = dbe_->book1D("Rate_Ratio_jet_PhysBit_" + sjet.str()+sdenom.str(), "Rate_Ratio_jet_PhysBit_" + sjet.str()+sdenom.str(),maxNbins,-0.5,double(maxNbins)-0.5);
     //rateRatio_jet->setAxisTitle("Lumi Section" , 1);
 
     //HF bit ratios
-    techRateRatio_8 = dbe_->book1D("Rate_Ratio_TechBit_8", "Rate_Ratio_TechBit_8",maxNbins,-0.5,double(maxNbins)-0.5);
+    techRateRatio_8 = dbe_->book1D("Rate_Ratio_TechBit_8"+sdenom.str(), "Rate_Ratio_TechBit_8"+sdenom.str(),maxNbins,-0.5,double(maxNbins)-0.5);
     //techRateRatio_8->setAxisTitle("Lumi Section" ,1);
-    techRateRatio_9 = dbe_->book1D("Rate_Ratio_TechBit_9", "Rate_Ratio_TechBit_9",maxNbins,-0.5,double(maxNbins)-0.5);
+    techRateRatio_9 = dbe_->book1D("Rate_Ratio_TechBit_9"+sdenom.str(), "Rate_Ratio_TechBit_9"+sdenom.str(),maxNbins,-0.5,double(maxNbins)-0.5);
     //techRateRatio_9->setAxisTitle("Lumi Section" ,1);
-    techRateRatio_10 = dbe_->book1D("Rate_Ratio_TechBit_10", "Rate_Ratio_TechBit_10",maxNbins,-0.5,double(maxNbins)-0.5);
+    techRateRatio_10 = dbe_->book1D("Rate_Ratio_TechBit_10"+sdenom.str(), "Rate_Ratio_TechBit_10"+sdenom.str(),maxNbins,-0.5,double(maxNbins)-0.5);
     //techRateRatio_10->setAxisTitle("Lumi Section" ,1);
 
     //Other tech bit ratios
     techRateRatio_33_over_32 = dbe_->book1D("Rate_Ratio_TechBits_33_over_32", "Rate_Ratio_TechBits_33_over_32",maxNbins,-0.5,double(maxNbins)-0.5);
-    techRateRatio_36 = dbe_->book1D("Rate_Ratio_TechBit_36", "Rate_Ratio_TechBit_36",maxNbins,-0.5,double(maxNbins)-0.5);
-    techRateRatio_37 = dbe_->book1D("Rate_Ratio_TechBit_37", "Rate_Ratio_TechBit_37",maxNbins,-0.5,double(maxNbins)-0.5);
-    techRateRatio_38 = dbe_->book1D("Rate_Ratio_TechBit_38", "Rate_Ratio_TechBit_38",maxNbins,-0.5,double(maxNbins)-0.5);
-    techRateRatio_39 = dbe_->book1D("Rate_Ratio_TechBit_39", "Rate_Ratio_TechBit_39",maxNbins,-0.5,double(maxNbins)-0.5);
-    techRateRatio_40 = dbe_->book1D("Rate_Ratio_TechBit_40", "Rate_Ratio_TechBit_40",maxNbins,-0.5,double(maxNbins)-0.5);
-    techRateRatio_41 = dbe_->book1D("Rate_Ratio_TechBit_41", "Rate_Ratio_TechBit_41",maxNbins,-0.5,double(maxNbins)-0.5);
-    techRateRatio_42 = dbe_->book1D("Rate_Ratio_TechBit_42", "Rate_Ratio_TechBit_42",maxNbins,-0.5,double(maxNbins)-0.5);
-    techRateRatio_43 = dbe_->book1D("Rate_Ratio_TechBit_43", "Rate_Ratio_TechBit_43",maxNbins,-0.5,double(maxNbins)-0.5);
+    techRateRatio_36 = dbe_->book1D("Rate_Ratio_TechBit_36"+sdenom.str(), "Rate_Ratio_TechBit_36"+sdenom.str(),maxNbins,-0.5,double(maxNbins)-0.5);
+    techRateRatio_37 = dbe_->book1D("Rate_Ratio_TechBit_37"+sdenom.str(), "Rate_Ratio_TechBit_37"+sdenom.str(),maxNbins,-0.5,double(maxNbins)-0.5);
+    techRateRatio_38 = dbe_->book1D("Rate_Ratio_TechBit_38"+sdenom.str(), "Rate_Ratio_TechBit_38"+sdenom.str(),maxNbins,-0.5,double(maxNbins)-0.5);
+    techRateRatio_39 = dbe_->book1D("Rate_Ratio_TechBit_39"+sdenom.str(), "Rate_Ratio_TechBit_39"+sdenom.str(),maxNbins,-0.5,double(maxNbins)-0.5);
+    techRateRatio_40 = dbe_->book1D("Rate_Ratio_TechBit_40"+sdenom.str(), "Rate_Ratio_TechBit_40"+sdenom.str(),maxNbins,-0.5,double(maxNbins)-0.5);
+    techRateRatio_41 = dbe_->book1D("Rate_Ratio_TechBit_41"+sdenom.str(), "Rate_Ratio_TechBit_41"+sdenom.str(),maxNbins,-0.5,double(maxNbins)-0.5);
+    techRateRatio_42 = dbe_->book1D("Rate_Ratio_TechBit_42"+sdenom.str(), "Rate_Ratio_TechBit_42"+sdenom.str(),maxNbins,-0.5,double(maxNbins)-0.5);
+    techRateRatio_43 = dbe_->book1D("Rate_Ratio_TechBit_43"+sdenom.str(), "Rate_Ratio_TechBit_43"+sdenom.str(),maxNbins,-0.5,double(maxNbins)-0.5);
 
     				
     dbe_->setCurrentFolder("L1T/L1TScalersSCAL/LumiScalers");
