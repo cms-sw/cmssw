@@ -60,7 +60,7 @@ void stack_zGolden() {
 
  // evalEff("zGoldenMass", "",  kin_common + massCut, kin_common + massCut + ( ( dau1Loose  && dau2TightWP2 ) || ( dau2Loose  && dau1TightWP2 )) ,200, 0, 200); 
 
-makePlots("zGoldenMass", "", kin_common + ( ( dau1Loose  && dau2TightWP1_hltAlso ) || ( dau2Loose  && dau1TightWP1_hltAlso )) , 5, "zGolden",  0.001, 200, 0 ,200, true);
+makePlots("zGoldenMass", "",  kin_common + ( ( dau1Loose  && dau2TightWP1_hltAlso ) || ( dau2Loose  && dau1TightWP1_hltAlso )) , 5, "zGoldenLin",  0.001, 200, 0 ,200, true);
 
  evalEff("zGoldenMass", "",  kin_common + massCut, kin_common + massCut + ( ( dau1Loose  && dau2TightWP1_hltAlso ) || ( dau2Loose  && dau1TightWP1_hltAlso )) ,200, 0, 200); 
 
