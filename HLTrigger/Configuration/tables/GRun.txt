@@ -18,13 +18,11 @@ HLT_Jet30U
 HLT_Jet50U
 HLT_DiJetAve15U_8E29
 HLT_DiJetAve30U_8E29
+HLT_DiJetAve50U_8E29
 HLT_DoubleJet15U_ForwardBackward
 HLT_L1SingleCenJet
-HLT_L1SingleCenJet_NoBPTX
 HLT_L1SingleForJet
-HLT_L1SingleForJet_NoBPTX
 HLT_L1SingleTauJet
-HLT_L1SingleTauJet_NoBPTX
 HLT_FwdJet20U
 HLT_QuadJet15U
 HLT_L1MET20
@@ -33,7 +31,6 @@ HLT_MET100
 HLT_HT100U
 HLT_L1MuOpen
 HLT_L1MuOpen_DT
-HLT_L1MuOpen_NoBPTX
 HLT_L1MuOpen_AntiBPTX
 HLT_L1Mu
 HLT_L1Mu20
@@ -48,6 +45,7 @@ HLT_Mu5
 HLT_Mu9
 HLT_IsoMu3
 HLT_L1DoubleMuOpen
+HLT_L1DoubleMuOpen_Tight
 HLT_DoubleMu0
 HLT_DoubleMu3
 HLT_Mu0_L1MuOpen
@@ -68,15 +66,15 @@ HLT_Ele10_SW_L1R
 HLT_Ele15_LW_L1R
 HLT_Ele15_SiStrip_L1R
 HLT_Ele15_SC10_LW_L1R
+HLT_Ele15_SW_L1R
 HLT_Ele20_LW_L1R
+HLT_Ele20_SW_L1R
 HLT_L1DoubleEG5
 HLT_DoubleEle5_SW_L1R
 HLT_Photon10_Cleaned_L1R
-HLT_Photon15_L1R
 HLT_Photon15_Cleaned_L1R
-HLT_Photon15_TrackIso_L1R
-HLT_Photon15_LooseEcalIso_L1R
-HLT_Photon20_L1R
+HLT_Photon15_TrackIso_Cleaned_L1R
+HLT_Photon15_LooseEcalIso_Cleaned_L1R
 HLT_Photon20_Cleaned_L1R
 HLT_Photon30_L1R_8E29
 HLT_DoublePhoton4_eeRes_L1R
@@ -87,6 +85,8 @@ HLT_DoublePhoton5_Upsilon_L1R
 HLT_DoublePhoton5_L1R
 HLT_DoublePhoton10_L1R
 HLT_SingleLooseIsoTau20
+HLT_SingleLooseIsoTau20_Trk5
+HLT_SingleLooseIsoTau25
 HLT_DoubleLooseIsoTau15
 HLT_BTagIP_Jet50U
 HLT_BTagMu_Jet10U
@@ -138,7 +138,6 @@ HLT_L1Tech_HCAL_HF
 HLT_L1Tech_BSC_halo
 HLT_L1Tech_BSC_halo_forPhysicsBackground
 HLT_L2Mu0_NoVertex
-HLT_TkMu3_NoVertex
 HLT_LogMonitor
 DQM_FEDIntegrity
 HLTriggerFinalPath
