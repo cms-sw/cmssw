@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Wed Sep 26 08:27:23 EDT 2007
-// $Id: DumpGeom.cc,v 1.1 2010/04/01 21:58:00 chrjones Exp $
+// $Id: DumpGeom.cc,v 1.2 2010/06/17 12:15:30 yana Exp $
 //
 //
 
@@ -1053,12 +1053,30 @@ void DumpGeom::mapRPCGeometry(const DDCompactView& cview,
      DDGeoHistory::const_iterator ancestor = fview.geoHistory().begin();
      DDGeoHistory::const_iterator endancestor;
      ++ancestor; // skip the first ancestor
+
+
+     /*
+
+     NOTE: The following conditions, while (seemingly) yielding the correct
+     positions and shapes for the RPC chambers, does not ultimately give the 
+     correct local to global transformations for the RPC rec hits. 
+
+     The code that follows (the line "endancestor = ...") gives the correct 
+     transformation for the rec hits. 
+     
+     This geometry extraction will be re-worked to give correct shapes and
+     transformations for all. Until then, only draw RPC rec hits.
+
      // in station 3 or 4 AND NOT in endcap, then fix.
      if ( ( rpcid.station() == 3 || rpcid.station() == 4 ) && std::abs(rpcid.region()) != 1 ) {
        endancestor = fview.geoHistory().end();
      } else {
        endancestor = fview.geoHistory().end() - 1;
      }
+     */
+
+     endancestor = fview.geoHistory().end();
+
      //      ++ancestor; // skip the first TWO ancestors
      for ( ; ancestor != endancestor; ++ ancestor )
        s << "/" << ancestor->logicalPart().name() << "_" << ancestor->copyno();
