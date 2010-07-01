@@ -11,7 +11,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: DTTimingExtractor.cc,v 1.7 2010/03/25 14:08:50 jribnik Exp $
+// $Id: DTTimingExtractor.cc,v 1.8 2010/04/16 21:20:33 slava77 Exp $
 //
 //
 
@@ -105,7 +105,7 @@ DTTimingExtractor::~DTTimingExtractor()
 
 // ------------ method called to produce the data  ------------
 void
-DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRef muonTrack, edm::Event& iEvent, const edm::EventSetup& iSetup)
+DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRef muonTrack, const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
 //  using reco::TrackCollection;

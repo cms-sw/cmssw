@@ -9,7 +9,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: DTTimingExtractor.h,v 1.2 2009/12/03 08:40:21 ptraczyk Exp $
+// $Id: DTTimingExtractor.h,v 1.3 2010/03/25 14:08:48 jribnik Exp $
 //
 //
 
@@ -74,7 +74,7 @@ public:
      DetId driftCell;
   };
 
-  void fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRef muonTrack, edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRef muonTrack, const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
 private:
   double fitT0(double &a, double &b, std::vector<double> xl, std::vector<double> yl, std::vector<double> xr, std::vector<double> yr );

@@ -9,7 +9,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: CSCTimingExtractor.h,v 1.1 2009/07/30 09:59:56 ptraczyk Exp $
+// $Id: CSCTimingExtractor.h,v 1.2 2010/03/25 14:08:48 jribnik Exp $
 //
 //
 
@@ -70,7 +70,7 @@ public:
      int station;
   };
 
-  void fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRef muonTrack, edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRef muonTrack, const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
 private:
   edm::InputTag CSCSegmentTags_; 

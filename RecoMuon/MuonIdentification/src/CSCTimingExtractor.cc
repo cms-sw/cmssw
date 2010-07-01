@@ -11,7 +11,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: CSCTimingExtractor.cc,v 1.2 2009/10/16 09:32:57 ptraczyk Exp $
+// $Id: CSCTimingExtractor.cc,v 1.3 2010/03/25 14:08:50 jribnik Exp $
 //
 //
 
@@ -96,7 +96,7 @@ CSCTimingExtractor::~CSCTimingExtractor()
 
 // ------------ method called to produce the data  ------------
 void
-CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRef muonTrack, edm::Event& iEvent, const edm::EventSetup& iSetup)
+CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRef muonTrack, const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
   if (debug) 
