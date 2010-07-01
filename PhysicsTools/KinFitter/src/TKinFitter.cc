@@ -338,22 +338,22 @@ Int_t TKinFitter::fit() {
       _status = 10;
     }
 
-    // Calculate measured matrices
+    // Calculate matrices
     calcB();
     calcVB();
-    calcC31();
-    calcC33();
-    calcC();
-
-    // Calculate unmeasured
     if ( _nParA > 0 ) {
       calcA();
       calcVA();
       calcC32();
-      calcDeltaA();
     }
+    calcC31();
+    calcC33();
+    calcC();
 
     // Calculate corretion for a, y, and lambda
+    if ( _nParA > 0 ){
+      calcDeltaA();
+    }
     calcDeltaY();
     calcLambda();
    
