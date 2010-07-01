@@ -134,14 +134,18 @@ class WorkFlowRunner(Thread):
 
             if self.wf.cmdStep3 and retStep2 == 0:
                 fullcmd = preamble
-                fullcmd += self.wf.cmdStep3 + ' --filein file:reco.root --fileout file:step3.root '
+                # FIXME: dirty hack for beam-spot dedicated relval
+                if not '4.6' in str(self.wf.numId):
+                    fullcmd += self.wf.cmdStep3 + ' --filein file:reco.root --fileout file:step3.root '
                 fullcmd += ' > %s 2>&1; ' % ('step3_'+self.wf.nameId+'.log ',)
                 # print fullcmd
                 retStep3 = self.doCmd(fullcmd)
 #                if random.randint(0,100) < 40 : retStep3 = -42
                 if self.wf.cmdStep4 and retStep3 == 0:
                     fullcmd = preamble
-                    fullcmd += self.wf.cmdStep4 + ' --filein file:step3.root '
+                    # FIXME: dirty hack for beam-spot dedicated relval
+                    if not '4.6' in str(self.wf.numId):
+                        fullcmd += self.wf.cmdStep4 + ' --filein file:step3.root '
                     fullcmd += ' > %s 2>&1; ' % ('step4_'+self.wf.nameId+'.log ',)
                     # print fullcmd
                     retStep4 = self.doCmd(fullcmd)
