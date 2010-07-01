@@ -590,7 +590,8 @@ namespace edm {
     struct LumiItem {
       LumiItem(ProcessHistoryID const& phid, RunNumber_t const& run,
 		 LuminosityBlockNumber_t const& lumi, EntryNumber_t const& entry) :
-	phid_(phid), run_(run), lumi_(lumi), firstEventEntry_(entry), lastEventEntry_(entry + 1) {}
+	phid_(phid), run_(run), lumi_(lumi), firstEventEntry_(entry),
+	lastEventEntry_(entry == -1LL ? -1LL : entry + 1) {}
       ProcessHistoryID phid_;
       RunNumber_t run_;
       LuminosityBlockNumber_t lumi_;
@@ -694,6 +695,9 @@ namespace edm {
 	if (prevPhid == lumiAux->processHistoryID() && prevRun == lumiAux->run() && prevLumi == lumiAux->luminosityBlock()) {
 	  continue; // Skip adjacent duplicates.  This can happen in very old files due to a very old bug.
 	}
+	prevPhid = lumiAux->processHistoryID();
+	prevRun = lumiAux->run();
+	prevLumi = lumiAux->luminosityBlock();
 	LuminosityBlockID lumiID = LuminosityBlockID(lumiAux->run(), lumiAux->luminosityBlock());
 	if (runLumiSet.insert(lumiID).second) { // (check 2, insert 2)
 	  // This lumi was not assciated with any events.
@@ -721,6 +725,8 @@ namespace edm {
 	if (prevPhid == runAux->processHistoryID() && prevRun == runAux->run()) {
 	  continue; // Skip adjacent duplicates.  This can happen in very old files due to a very old bug.
 	}
+	prevPhid = runAux->processHistoryID();
+	prevRun = runAux->run();
 	if (runSet.insert(runAux->run()).second) { // (check 4, insert 4)
 	  // This run was not assciated with any events or lumis.
 	  emptyRuns.push_back(RunItem(runAux->processHistoryID(), runAux->run())); // (insert 12)
@@ -913,6 +919,7 @@ namespace edm {
 
     // For now always fill these. This needs to be improved
     // to only fill these parts of the index when required
+    indexIntoFile_.fillRunOrLumiIndexes();
     fillEventNumbersInIndex();
     fillEventEntriesInIndex();
   }
