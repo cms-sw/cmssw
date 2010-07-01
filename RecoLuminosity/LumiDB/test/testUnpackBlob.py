@@ -12,7 +12,7 @@ class constants(object):
         
 def detailForRun(dbsession,c,runnum,algos=['OCC1']):
     '''select 
-    s.cmslsnum,d.bxlumivalue,d.bxlumierror,d.bxlumiquality,d.algoname from LUMIDETAIL d,LUMISUMMARY s where s.runnum=133885 and d.algoname='OCC1' and s.lumisummary_id=d.lumisummary_id order by s.cmslsnum
+    s.cmslsnum,d.bxlumivalue,d.bxlumierror,d.bxlumiquality,d.algoname from LUMIDETAIL d,LUMISUMMARY s where s.runnum=133885 and d.algoname='OCC1' and s.lumisummary_id=d.lumisummary_id order by s.startorbit,s.cmslsnum
     '''
     try:
         dbsession.transaction().start(True)
@@ -40,25 +40,32 @@ def detailForRun(dbsession,c,runnum,algos=['OCC1']):
         query.addToOutputList('d.BXLUMIQUALITY','bxlumiquality')
         query.addToOutputList('d.ALGONAME','algoname')
         query.setCondition('s.RUNNUM=:runnum and d.ALGONAME=:algoname and s.LUMISUMMARY_ID=d.LUMISUMMARY_ID',detailCondition)
+        query.addToOrderList('s.STARTORBIT')
         query.addToOrderList('s.CMSLSNUM')
         query.defineOutput(detailOutput)
         cursor=query.execute()
+        
         while cursor.next():
             cmslsnum=cursor.currentRow()['cmslsnum'].data()
             algoname=cursor.currentRow()['algoname'].data()
             bxlumivalue=cursor.currentRow()['bxlumivalue'].data()
-            print 'cmslsnum , algoname ',cmslsnum,algoname
+            print 'cmslsnum , algoname'
+            print cmslsnum,algoname
+            print '===='
             #print 'bxlumivalue starting address ',bxlumivalue.startingAddress()
             #bxlumivalue float[3564]
-            print 'bxlumivalue size ',bxlumivalue.size()
+            #print 'bxlumivalue size ',bxlumivalue.size()
             #
             #convert bxlumivalue to byte string, then unpack??
             #binascii.hexlify(bxlumivalue.readline()) 
             #
             a=array.array('f')
             a.fromstring(bxlumivalue.readline())
-            realvalue=a.tolist()
-            print len(realvalue)
+            print '   bxindex, bxlumivalue'
+            for index,lum in enumerate(a):
+                print "  %4d,%.3e"%(index,lum)
+            #realvalue=a.tolist()
+            #print len(realvalue)
             #print realvalue
         del query
         dbsession.transaction().commit()
@@ -78,6 +85,8 @@ def main():
     msg=coral.MessageStream('')
     msg.setMsgVerbosity(coral.message_Level_Error)
     runnum=136066
+    ##here arg 4 is default to ['OCC1'], if you want to see all the algorithms do
+    ##  detailForRun(session,c,runnum,['OCC1','OCC2','ET']) then modify detailForRun adding an outer loop on algos argument. I'm lazy
     detailForRun(session,c,runnum)
     
 if __name__=='__main__':
