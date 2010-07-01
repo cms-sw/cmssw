@@ -15,7 +15,6 @@ def detailForRun(dbsession,c,runnum,algos=['OCC1']):
     s.cmslsnum,d.bxlumivalue,d.bxlumierror,d.bxlumiquality,d.algoname from LUMIDETAIL d,LUMISUMMARY s where s.runnum=133885 and d.algoname='OCC1' and s.lumisummary_id=d.lumisummary_id order by s.cmslsnum
     '''
     try:
-        c=constants()
         dbsession.transaction().start(True)
         schema=dbsession.schema(c.lumischema)
         if not schema:
