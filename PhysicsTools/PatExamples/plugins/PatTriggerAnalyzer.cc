@@ -5,9 +5,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DataFormats/PatCandidates/interface/TriggerEvent.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
-
 #include "TH1D.h"
 #include "TH2D.h"
 
@@ -50,9 +47,11 @@ namespace pat {
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "PhysicsTools/PatUtils/interface/TriggerHelper.h"
 #include "TMath.h"
 
-#include "PhysicsTools/PatUtils/interface/TriggerHelper.h"
+#include "DataFormats/PatCandidates/interface/TriggerEvent.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
 
 
 using namespace pat;
@@ -120,15 +119,13 @@ void PatTriggerAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSet
 //   YOUR ANALYSIS CODE GOES HERE!
 
   // kinematics comparison
-  const TriggerObjectMatch * triggerMatch( triggerEvent->triggerObjectMatchResult( muonMatch_ ) );
   for ( size_t iMuon = 0; iMuon < muons->size(); ++iMuon ) { // loop over muon references (PAT muons have been used in the matcher in task 3)
-    const reco::CandidateBaseRef candBaseRef( MuonRef( muons, iMuon ) );
-    const TriggerObjectRef trigRef( matchHelper.triggerMatchObject( candBaseRef, triggerMatch, iEvent, *triggerEvent ) );
+    const TriggerObjectRef trigRef(matchHelper.triggerMatchObject( muons, iMuon, muonMatch_, iEvent, *triggerEvent ) );
     // fill histograms
     if ( trigRef.isAvailable() ) { // check references (necessary!)
-      histos2D_[ "ptTrigCand" ]->Fill( candBaseRef->pt(), trigRef->pt() );
-      histos2D_[ "etaTrigCand" ]->Fill( candBaseRef->eta(), trigRef->eta() );
-      histos2D_[ "phiTrigCand" ]->Fill( candBaseRef->phi(), trigRef->phi() );
+      histos2D_[ "ptTrigCand" ]->Fill( muons->at( iMuon ).pt(), trigRef->pt() );
+      histos2D_[ "etaTrigCand" ]->Fill( muons->at( iMuon ).eta(), trigRef->eta() );
+      histos2D_[ "phiTrigCand" ]->Fill( muons->at( iMuon ).phi(), trigRef->phi() );
     }
   } // iMuon
 
