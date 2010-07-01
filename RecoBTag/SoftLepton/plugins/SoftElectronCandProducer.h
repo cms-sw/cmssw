@@ -33,15 +33,10 @@ class SoftElectronCandProducer : public edm::EDProducer
     std::vector<double> barreldRGsfTrackElectronCuts_;
     std::vector<double> barrelEemPinRatioCuts_;
     std::vector<double> barrelMVACuts_;
-    std::vector<double> barrelInversedRFirstLastHitCuts_;
-    std::vector<double> barrelRadiusFirstHitCuts_;
-    std::vector<double> barrelZFirstHitCuts_;
 
     std::vector<double> forwardPtCuts_;
     std::vector<double> forwardInverseFBremCuts_;
     std::vector<double> forwarddRGsfTrackElectronCuts_;
-    std::vector<double> forwardRadiusFirstHitCuts_;
-    std::vector<double> forwardZFirstHitCuts_;
     std::vector<double> forwardMVACuts_;
 };
 
