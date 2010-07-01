@@ -1,4 +1,4 @@
-// $Id: Stone_SKEL.cxx 2089 2008-11-23 20:31:03Z matevz $
+// $Id: TRootXTReq.cc,v 1.1 2010/07/01 13:33:16 matevz Exp $
 
 // Copyright (C) 1999-2008, Matevz Tadel. All rights reserved.
 // This file is part of GLED, released under GNU General Public License version 2.
@@ -44,7 +44,7 @@
 
 
 TRootXTReq::lpXTReq_t  TRootXTReq::sQueue;
-Long_t                 TRootXTReq::sRootThread = 0;
+pthread_t              TRootXTReq::sRootThread = 0;
 TMutex                *TRootXTReq::sQueueMutex = 0;
 TSignalHandler        *TRootXTReq::sSigHandler = 0;
 bool                   TRootXTReq::sSheduled   = false;
@@ -153,7 +153,7 @@ public:
 
 //------------------------------------------------------------------------------
 
-void TRootXTReq::Bootstrap(Long_t root_thread)
+void TRootXTReq::Bootstrap(pthread_t root_thread)
 {
    static const TString _eh("TRootXTReq::Bootstrap ");
 

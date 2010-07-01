@@ -1,4 +1,4 @@
-// $Id: Stone_SKEL.h 2089 2008-11-23 20:31:03Z matevz $
+// $Id: TRootXTReq.h,v 1.1 2010/07/01 13:33:16 matevz Exp $
 
 // Copyright (C) 1999-2008, Matevz Tadel. All rights reserved.
 // This file is part of GLED, released under GNU General Public License version 2.
@@ -17,6 +17,7 @@ class TSignalHandler;
 #include <TString.h>
 
 #include <list>
+#include <pthread.h>
 
 class TRootXTReq
 {
@@ -26,7 +27,7 @@ private:
    TCondition               *m_return_condition;
 
    static lpXTReq_t          sQueue;
-   static Long_t             sRootThread;
+   static pthread_t          sRootThread;
    static TMutex            *sQueueMutex;
    static TSignalHandler    *sSigHandler;
    static bool               sSheduled;
@@ -47,7 +48,7 @@ public:
 
    // --- Static interface ---
 
-   static void Bootstrap(Long_t root_thread);
+   static void Bootstrap(pthread_t root_thread);
    static void Shutdown();
 
    static void ProcessQueue();
