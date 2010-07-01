@@ -2,8 +2,8 @@
  * \file BeamMonitorBx.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/06/30 06:25:30 $
- * $Revision: 1.5 $
+ * $Date: 2010/07/01 02:21:27 $
+ * $Revision: 1.6 $
  *
  */
 
@@ -451,19 +451,16 @@ void BeamMonitorBx::FillTrendHistos(int nthBx, map<string,string> & vMap,
   for (map<TString,MonitorElement*>::iterator itHst = hst.begin();
        itHst != hst.end(); ++itHst) {
     if (!(itHst->first.Contains(ss.str()))) continue;
-    for (std::map<std::string,std::string>::const_iterator varName = vMap.begin();
-	 varName != vMap.end(); ++varName) {
-      edm::LogInfo("BX|BeamMonitorBx") << "Filling histogram: " << itHst->first << endl;
-      if (itHst->first.Contains("time")) {
-	int idx = itHst->first.Index("_time",5);
-	itHst->second->setBinContent(ntbin_,val_[itHst->first(0,idx)].first);
-	itHst->second->setBinError(ntbin_,val_[itHst->first(0,idx)].second);
-      }
-      if (itHst->first.Contains("lumi")) {
-	int idx = itHst->first.Index("_lumi",5);
-	itHst->second->setBinContent(endLumiOfBSFit_,val_[itHst->first(0,idx)].first);
-	itHst->second->setBinError(endLumiOfBSFit_,val_[itHst->first(0,idx)].second);
-      }
+    edm::LogInfo("BX|BeamMonitorBx") << "Filling histogram: " << itHst->first << endl;
+    if (itHst->first.Contains("time")) {
+      int idx = itHst->first.Index("_time",5);
+      itHst->second->setBinContent(ntbin_,val_[itHst->first(0,idx)].first);
+      itHst->second->setBinError(ntbin_,val_[itHst->first(0,idx)].second);
+    }
+    if (itHst->first.Contains("lumi")) {
+      int idx = itHst->first.Index("_lumi",5);
+      itHst->second->setBinContent(endLumiOfBSFit_,val_[itHst->first(0,idx)].first);
+      itHst->second->setBinError(endLumiOfBSFit_,val_[itHst->first(0,idx)].second);
     }
   }
 }
