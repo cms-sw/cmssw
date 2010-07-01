@@ -13,5 +13,7 @@
  <use name="Fireworks/Muons"/>
  <use name="rootinteractive"/>
  <use name="rootrflx"/>
+ <lib name="Eve"/>
+ <lib name="RGL"/>
  <flags EDM_PLUGIN="1"/>
 </library>

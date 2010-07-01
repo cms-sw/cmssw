@@ -2,4 +2,5 @@
  <use name="FWCore/MessageLogger"/>
  <use name="Fireworks/Core"/>
  <use name="rootinteractive"/>
+ <lib name="Eve"/>
 </bin>

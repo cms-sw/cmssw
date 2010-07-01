@@ -26,6 +26,7 @@
 <lib name="Geom"/>
 <lib name="GeomPainter"/>
 <lib name="GuiHtml"/>
+<lib name="RGL"/>
 <export>
   <lib name="1"/>
 </export>
