@@ -54,11 +54,13 @@ def detailForRun(dbsession,c,runnum,algos=['OCC1']):
             print 'bxlumivalue size ',bxlumivalue.size()
             #
             #convert bxlumivalue to byte string, then unpack??
-            print binascii.hexlify(bxlumivalue.readline()) 
+            #binascii.hexlify(bxlumivalue.readline()) 
             #
             a=array.array('f')
-            a.fromstring(binascii.hexlify(bxlumivalue.readline()))
-            print a
+            a.fromstring(bxlumivalue.readline())
+            realvalue=a.tolist()
+            print len(realvalue)
+            #print realvalue
         del query
         dbsession.transaction().commit()
         
