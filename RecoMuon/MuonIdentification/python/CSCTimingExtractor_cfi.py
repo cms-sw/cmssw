@@ -13,7 +13,7 @@ CSCTimingExtractorBlock = cms.PSet(
     ),
     CSCsegments = cms.InputTag("csc2DSegments"),
     PruneCut = cms.double(100.),
-    CSCTimeOffset = cms.double(213.),
+    CSCTimeOffset = cms.double(0.),
     debug = cms.bool(False),
   )
 )
