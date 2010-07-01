@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_6_2/HIon/V15 (CMSSW_3_6_2_HLT8)
+# /dev/CMSSW_3_6_2/HIon/V18 (CMSSW_3_6_2_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_2/HIon/V15')
+  tableName = cms.string('/dev/CMSSW_3_6_2/HIon/V18')
 )
 
 streams = cms.PSet( 
@@ -14,26 +14,27 @@ streams = cms.PSet(
   Calibration = cms.vstring( 'TestEnables' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
+  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
+  DQM = cms.vstring(  ),
+  HLTDQM = cms.vstring(  ),
+  HLTMON = cms.vstring( 'OfflineMonitor' ),
   EventDisplay = cms.vstring(  ),
   Express = cms.vstring( 'ExpressPhysics' ),
-  A = cms.vstring( 'ZeroBias',
-    'Commissioning',
-    'EGMonitor',
-    'JetMETTauMonitor',
+  A = cms.vstring( 'MuMonitor',
+    'Cosmics',
+    'EG',
     'JetMETTau',
-    'MuMonitor',
+    'Mu',
+    'MuOnia',
+    'EGMonitor',
+    'ZeroBias',
+    'Commissioning',
+    'JetMETTauMonitor',
     'RandomTriggers',
     'HcalHPDNoise',
     'HcalNZS',
-    'Mu',
-    'EG',
-    'Cosmics',
-    'MinimumBias' ),
-  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
-  DQM = cms.vstring(  ),
-  HLTDQM = cms.vstring(  ),
-  HLTMON = cms.vstring( 'OfflineMonitor' )
+    'MinimumBias' )
 )
 datasets = cms.PSet( 
   LogMonitor = cms.vstring(  ),
@@ -41,23 +42,24 @@ datasets = cms.PSet(
   TestEnables = cms.vstring(  ),
   EcalLaser = cms.vstring(  ),
   AlCaP0 = cms.vstring(  ),
+  AlCaPhiSymEcal = cms.vstring(  ),
   RPCMonitor = cms.vstring(  ),
+  OfflineMonitor = cms.vstring(  ),
   ExpressPhysics = cms.vstring(  ),
+  MuMonitor = cms.vstring(  ),
+  Cosmics = cms.vstring(  ),
+  EG = cms.vstring(  ),
+  JetMETTau = cms.vstring(  ),
+  Mu = cms.vstring(  ),
+  MuOnia = cms.vstring(  ),
+  EGMonitor = cms.vstring(  ),
   ZeroBias = cms.vstring(  ),
   Commissioning = cms.vstring(  ),
-  EGMonitor = cms.vstring(  ),
   JetMETTauMonitor = cms.vstring(  ),
-  JetMETTau = cms.vstring(  ),
-  MuMonitor = cms.vstring(  ),
   RandomTriggers = cms.vstring(  ),
   HcalHPDNoise = cms.vstring(  ),
   HcalNZS = cms.vstring(  ),
-  Mu = cms.vstring(  ),
-  EG = cms.vstring(  ),
-  Cosmics = cms.vstring(  ),
-  MinimumBias = cms.vstring(  ),
-  AlCaPhiSymEcal = cms.vstring(  ),
-  OfflineMonitor = cms.vstring(  )
+  MinimumBias = cms.vstring(  )
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
