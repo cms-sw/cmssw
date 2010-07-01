@@ -16,9 +16,9 @@
 
 PropagateToMuon::PropagateToMuon(const edm::ParameterSet & iConfig) :
     useSimpleGeometry_(iConfig.getParameter<bool>("useSimpleGeometry")),
+    fallbackToME1_(iConfig.existsAs<bool>("fallbackToME1") ? iConfig.getParameter<bool>("fallbackToME1") : false),
     whichTrack_(None), whichState_(AtVertex),
-    cosmicPropagation_(iConfig.existsAs<bool>("cosmicPropagationHypothesis") ? iConfig.getParameter<bool>("cosmicPropagationHypothesis") : false),
-    barrelCylinder_(0), endcapDiskPos_(0), endcapDiskNeg_(0)
+    cosmicPropagation_(iConfig.existsAs<bool>("cosmicPropagationHypothesis") ? iConfig.getParameter<bool>("cosmicPropagationHypothesis") : false)
 {
     std::string whichTrack = iConfig.getParameter<std::string>("useTrack");
     if      (whichTrack == "none")    { whichTrack_ = None; }
@@ -49,16 +49,15 @@ PropagateToMuon::init(const edm::EventSetup & iSetup) {
     iSetup.get<MuonRecoGeometryRecord>().get(muonGeometry_);
 
     const DetLayer * dt2 = muonGeometry_->allDTLayers()[1];
-    const DetLayer * csc2Pos = muonGeometry_->forwardCSCLayers()[2];
-    const DetLayer * csc2Neg = muonGeometry_->backwardCSCLayers()[2];
     barrelCylinder_ = dynamic_cast<const BoundCylinder *>(&dt2->surface());
-    endcapDiskPos_  = dynamic_cast<const BoundDisk *>(& csc2Pos->surface());
-    endcapDiskNeg_  = dynamic_cast<const BoundDisk *>(& csc2Neg->surface());
-    if (barrelCylinder_==0 || endcapDiskPos_==0 || endcapDiskNeg_==0) throw cms::Exception("Geometry") << "Bad muon geometry!?";
     barrelHalfLength_ = barrelCylinder_->bounds().length()/2;;
-    endcapRadii_ = std::make_pair(endcapDiskPos_->innerRadius(), endcapDiskPos_->outerRadius());
-    //std::cout << "L1MuonMatcher: barrel radius = " << barrelCylinder_->radius() << ", half length = " << barrelHalfLength_ <<
-    //             "; endcap Z = " << endcapDiskPos_->position().z() << ", radii = " << endcapRadii_.first << "," << endcapRadii_.second << std::endl;
+    //std::cout << "L1MuonMatcher: barrel radius = " << barrelCylinder_->radius() << ", half length = " << barrelHalfLength_ << std::endl;
+    for (size_t i = 0; i <= 2; ++i) {
+        endcapDiskPos_[i] = dynamic_cast<const BoundDisk *>(& muonGeometry_->forwardCSCLayers()[i]->surface());
+        endcapDiskNeg_[i] = dynamic_cast<const BoundDisk *>(& muonGeometry_->backwardCSCLayers()[i]->surface());
+        endcapRadii_[i] = std::make_pair(endcapDiskPos_[i]->innerRadius(), endcapDiskPos_[i]->outerRadius());
+        //std::cout << "L1MuonMatcher: endcap " << i << " Z = " << endcapDiskPos_[i]->position().z() << ", radii = " << endcapRadii_[i].first << "," << endcapRadii_[i].second << std::endl;
+    }
 }
 
 FreeTrajectoryState 
@@ -136,8 +135,8 @@ PropagateToMuon::extrapolate(const FreeTrajectoryState &start) const {
     const Propagator * propagatorBarrel  = &*propagator_;
     const Propagator * propagatorEndcaps = &*propagator_;
     if (whichState_ != AtVertex) { 
-        if (start.position().perp()    > barrelCylinder_->radius())      propagatorBarrel  = &*propagatorOpposite_;
-        if (fabs(start.position().z()) > endcapDiskPos_->position().z()) propagatorEndcaps = &*propagatorOpposite_;
+        if (start.position().perp()    > barrelCylinder_->radius())         propagatorBarrel  = &*propagatorOpposite_;
+        if (fabs(start.position().z()) > endcapDiskPos_[2]->position().z()) propagatorEndcaps = &*propagatorOpposite_;
     }
     if (cosmicPropagation_) {
         if (start.momentum().dot(GlobalVector(start.position().x(), start.position().y(), start.position().z())) < 0) {
@@ -150,21 +149,27 @@ PropagateToMuon::extrapolate(const FreeTrajectoryState &start) const {
     TrajectoryStateOnSurface tsos = propagatorBarrel->propagate(start, *barrelCylinder_);
     if (tsos.isValid()) {
         if (useSimpleGeometry_) {
+            //std::cout << "  propagated to barrel, z = " << tsos.globalPosition().z() << ", bound = " << barrelHalfLength_ << std::endl;
             if (fabs(tsos.globalPosition().z()) <= barrelHalfLength_) final = tsos;
         } else {
             final = getBestDet(tsos, muonGeometry_->allDTLayers()[1]);
         }
     } 
     if (!final.isValid()) { 
-        tsos = propagatorEndcaps->propagate(start, (eta > 0 ? *endcapDiskPos_ : *endcapDiskNeg_));
+      for (int ie = 2; ie >= 0; --ie) {
+        tsos = propagatorEndcaps->propagate(start, (eta > 0 ? *endcapDiskPos_[ie] : *endcapDiskNeg_[ie]));
         if (tsos.isValid()) {
             if (useSimpleGeometry_) {
                 float rho = tsos.globalPosition().perp();
-                if ((rho >= endcapRadii_.first) && (rho <= endcapRadii_.second)) final = tsos;
+                //std::cout << "  propagated to endcap " << ie << ", rho = " << rho << ", bounds [ " << endcapRadii_[ie].first << ", " << endcapRadii_[ie].second << "]" << std::endl;
+                if ((rho >= endcapRadii_[ie].first) && (rho <= endcapRadii_[ie].second)) final = tsos;
             } else {
-                final = getBestDet(tsos, (eta > 0 ? muonGeometry_->forwardCSCLayers()[2] : muonGeometry_->backwardCSCLayers()[2]));
+                final = getBestDet(tsos, (eta > 0 ? muonGeometry_->forwardCSCLayers()[ie] : muonGeometry_->backwardCSCLayers()[ie]));
             }
-        }
+        } else //std::cout << "  failed to propagated to endcap " << ie  << std::endl;
+        if (final.isValid()) break;
+        if (!fallbackToME1_) break;
+      }
     }
     return final;
 }

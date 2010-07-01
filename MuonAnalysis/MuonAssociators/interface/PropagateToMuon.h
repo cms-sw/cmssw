@@ -1,7 +1,7 @@
 #ifndef MuonAnalysis_MuonAssociators_interface_PropagateToMuon_h
 #define MuonAnalysis_MuonAssociators_interface_PropagateToMuon_h
 //
-// $Id: PropagateToMuon.h,v 1.1 2009/08/03 09:57:58 gpetrucc Exp $
+// $Id: PropagateToMuon.h,v 1.2 2010/04/21 17:19:18 gpetrucc Exp $
 //
 
 /**
@@ -10,7 +10,7 @@
             Support for other muon stations will be added on request.
             
   \author   Giovanni Petrucciani
-  \version  $Id: PropagateToMuon.h,v 1.1 2009/08/03 09:57:58 gpetrucc Exp $
+  \version  $Id: PropagateToMuon.h,v 1.2 2010/04/21 17:19:18 gpetrucc Exp $
 */
 
 
@@ -55,8 +55,13 @@ class PropagateToMuon {
         enum WhichTrack { None, TrackerTk, MuonTk, GlobalTk };
         enum WhichState { AtVertex, Innermost, Outermost };
 
-        /// Labels for input collections
+        /// Use simplified geometry (cylinders and disks, not individual chambers)
         bool useSimpleGeometry_;
+
+        /// Fallback to ME1 if propagation to ME2 fails
+        bool fallbackToME1_;
+
+        /// Labels for input collections
         WhichTrack whichTrack_;
         WhichState whichState_;
 
@@ -69,9 +74,9 @@ class PropagateToMuon {
         edm::ESHandle<MuonDetLayerGeometry> muonGeometry_;
         // simplified geometry for track propagation
         const  BoundCylinder *barrelCylinder_;
-        const  BoundDisk *endcapDiskPos_, *endcapDiskNeg_;
+        const  BoundDisk *endcapDiskPos_[3], *endcapDiskNeg_[3];
         double barrelHalfLength_;
-        std::pair<float,float> endcapRadii_;
+        std::pair<float,float> endcapRadii_[3];
 
         /// Starting state for the propagation
         FreeTrajectoryState startingState(const reco::Candidate &reco) const ;
