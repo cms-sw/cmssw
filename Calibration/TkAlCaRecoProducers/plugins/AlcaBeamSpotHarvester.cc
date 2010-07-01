@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/06/29 16:27:45 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/06/30 20:49:57 $
+ *  $Revision: 1.4 $
  *  \author L. Uplegger F. Yumiceva - Fermilab
  */
 
@@ -38,6 +38,7 @@ AlcaBeamSpotHarvester::AlcaBeamSpotHarvester(const edm::ParameterSet& iConfig) :
   theAlcaBeamSpotManager_(iConfig)
 {  
   beamSpotOutputBase_ = iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("BeamSpotOutputBase");
+  outputrecordName_ = iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("outputRecordName", "BeamSpotObjectsRcd");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,19 +96,19 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
 	thisIOV = (cond::Time_t)(lu.value()); 
       }
 
-      if (poolDbService->isNewTagRequest( "BeamSpotObjectsRcd" ) ) {
+      if (poolDbService->isNewTagRequest(outputrecordName_) ) {
           edm::LogInfo("AlcaBeamSpotSpotHarvester")
               << "new tag requested" << std::endl;
           //poolDbService->createNewIOV<BeamSpotObjects>(aBeamSpot, poolDbService->beginOfTime(),poolDbService->endOfTime(),"BeamSpotObjectsRcd");
 	  
 	  //poolDbService->createNewIOV<BeamSpotObjects>(aBeamSpot, poolDbService->currentTime(), poolDbService->endOfTime(),"BeamSpotObjectsRcd");
-	  poolDbService->writeOne<BeamSpotObjects>(aBeamSpot, thisIOV,"BeamSpotObjectsRcd");
+	  poolDbService->writeOne<BeamSpotObjects>(aBeamSpot, thisIOV, outputrecordName_);
       } 
       else {
         edm::LogInfo("AlcaBeamSpotSpotHarvester")
             << "no new tag requested, appending IOV" << std::endl;
         //poolDbService->appendSinceTime<BeamSpotObjects>(aBeamSpot, poolDbService->currentTime(),"BeamSpotObjectsRcd");
-	poolDbService->writeOne<BeamSpotObjects>(aBeamSpot, thisIOV,"BeamSpotObjectsRcd");
+	poolDbService->writeOne<BeamSpotObjects>(aBeamSpot, thisIOV, outputrecordName_);
       }
 /*
       int         argc = 15;
