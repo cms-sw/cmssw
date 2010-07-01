@@ -96,8 +96,8 @@ EcalRecHit ESRecHitFitAlgo::reconstruct(const ESDataFrame& digi) const {
   int status = (int) results[2];
   delete[] results;
 
-  double mipCalib = (*it_mip)/fabs(cos(*it_ang));
-  energy *= MIPGeV_/mipCalib;
+  double mipCalib = (fabs(cos(*it_ang)) != 0.) ? (*it_mip)/fabs(cos(*it_ang)) : 0.;
+  energy *= (mipCalib != 0.) ? MIPGeV_/mipCalib : 0.;
 
   DetId detId = digi.id();
 

@@ -85,9 +85,9 @@ EcalRecHit ESRecHitSimAlgo::reconstruct(const ESDataFrame& digi) const {
   double otenergy = results[3] * 1000000.; // set out-of-time energy to keV
   delete[] results;
 
-  double mipCalib = (*it_mip)/fabs(cos(*it_ang));
-  energy *= MIPGeV_/mipCalib;
-  otenergy *= MIPGeV_/mipCalib;
+  double mipCalib = (fabs(cos(*it_ang)) != 0.) ? (*it_mip)/fabs(cos(*it_ang)) : 0.;
+  energy *= (mipCalib != 0.) ? MIPGeV_/mipCalib : 0.;
+  otenergy *= (mipCalib != 0.) ? MIPGeV_/mipCalib : 0.;
 
   DetId detId = digi.id();
 
