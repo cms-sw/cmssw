@@ -21,6 +21,7 @@
 <use name="rootinteractive"/>
 <use name="rootrflx"/>
 <use name="sigcpp"/>
+<lib name="Thread"/>
 <lib name="Eve"/>
 <lib name="Geom"/>
 <lib name="GeomPainter"/>
