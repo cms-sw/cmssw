@@ -36,20 +36,24 @@ HcalHF_S9S1algorithm::HcalHF_S9S1algorithm()
   ShortETThreshold.clear();
   for (int i=29;i<=41;++i)
     {
-      LongEnergyThreshold.push_back(CalcEnergyThreshold(1.*i,EnergyDefault));
-      LongETThreshold.push_back(CalcEnergyThreshold(1.*i,blank));
-      ShortEnergyThreshold.push_back(CalcEnergyThreshold(1.*i,EnergyDefault));
-      ShortETThreshold.push_back(CalcEnergyThreshold(1.*i,blank));
+      LongEnergyThreshold.push_back(EnergyDefault[0]);
+      LongETThreshold.push_back(blank[0]);
+      ShortEnergyThreshold.push_back(EnergyDefault[0]);
+      ShortETThreshold.push_back(blank[0]);
     }
+  flagsToSkip_=0;
+  isS8S1_=false; // S8S1 is almost the same as S9S1
 }
 
 
 HcalHF_S9S1algorithm::HcalHF_S9S1algorithm(std::vector<double> short_optimumSlope, 
-					 std::vector<double> short_Energy, 
-					 std::vector<double> short_ET, 
-					 std::vector<double> long_optimumSlope, 
-					 std::vector<double> long_Energy, 
-					 std::vector<double> long_ET)
+					   std::vector<double> short_Energy, 
+					   std::vector<double> short_ET, 
+					   std::vector<double> long_optimumSlope, 
+					   std::vector<double> long_Energy, 
+					   std::vector<double> long_ET,
+					   int flagsToSkip,
+					   bool isS8S1)
 
 {
   // Constructor in the case where all parameters are provided by the user
@@ -64,33 +68,27 @@ HcalHF_S9S1algorithm::HcalHF_S9S1algorithm(std::vector<double> short_optimumSlop
   while (ShortSlopes.size()<13)
     ShortSlopes.push_back(0);
 
-  // Get parameterized energy/ET threshold coefficients
-  long_Energy_=long_Energy;
-  long_ET_=long_ET;
-  short_Energy_=short_Energy;
-  short_ET_=short_ET;
-
-  // Compute energy and ET threshold for long and short fibers at each ieta
+  // Get long, short energy thresholds (different threshold for each |ieta|)
   LongEnergyThreshold.clear();
   LongETThreshold.clear();
   ShortEnergyThreshold.clear();
   ShortETThreshold.clear();
-  for (int i=29;i<=41;++i)
-    {
-      LongEnergyThreshold.push_back(CalcEnergyThreshold(1.*i,long_Energy_));
-      LongETThreshold.push_back(CalcEnergyThreshold(1.*i,long_ET_));
-      ShortEnergyThreshold.push_back(CalcEnergyThreshold(1.*i,short_Energy_));
-      ShortETThreshold.push_back(CalcEnergyThreshold(1.*i,short_ET_));
-    }
+  LongEnergyThreshold=long_Energy;
+  LongETThreshold=long_ET;
+  ShortEnergyThreshold=short_Energy;
+  ShortETThreshold=short_ET;
+
+  flagsToSkip_=flagsToSkip;
+  isS8S1_=isS8S1;
 } // HcalHF_S9S1algorithm constructor with parameters
 
 HcalHF_S9S1algorithm::~HcalHF_S9S1algorithm(){}
 
 
 void HcalHF_S9S1algorithm::HFSetFlagFromS9S1(HFRecHit& hf,
-					   HFRecHitCollection& rec,
-					   HcalChannelQuality* myqual,
-					   const HcalSeverityLevelComputer* mySeverity)
+					     HFRecHitCollection& rec,
+					     HcalChannelQuality* myqual,
+					     const HcalSeverityLevelComputer* mySeverity)
 
 {
   int ieta=hf.id().ieta(); // get coordinates of rechit being checked
@@ -113,11 +111,23 @@ void HcalHF_S9S1algorithm::HFSetFlagFromS9S1(HFRecHit& hf,
       ETthresh     = ShortETThreshold[abs(ieta)-29];
     }
   if (energy<Energythresh || ET < ETthresh)
+    return;
+
+  // Step 1A:
+  // Check that EL<ES when evaluating short fibers  (S8S1 check only)
+  if (depth==2 && abs(ieta)>29 && isS8S1_)
     {
-      hf.setFlagField(0, HcalCaloFlagLabels::HFLongShort); // shouldn't be necessary, but set bit to 0 just to be sure
-      return;
+      double EL=0;
+      // look for long partner
+      HcalDetId neighbor(HcalForward, ieta,iphi,1);
+      HFRecHitCollection::const_iterator neigh=rec.find(neighbor);
+      if (neigh!=rec.end())
+	EL=neigh->energy();
+      
+      if (EL>=energy)
+	return;
     }
-  //cout <<"PASSED:  ieta = "<<ieta<<"  iphi = "<<iphi<<"  depth = "<<depth<<"  energy = "<<energy<<endl;
+
   // Step 2:  Find all neighbors, and calculate S9/S1
   double S9S1=0;
   int testphi=-99;
@@ -133,11 +143,14 @@ void HcalHF_S9S1algorithm::HFSetFlagFromS9S1(HFRecHit& hf,
 	  if (abs(ieta)==39 && abs(i)>39 && testphi%4==1)
 	    testphi-=2;
 	  while (testphi<0) testphi+=72;
-	  if (i==ieta && d==depth) continue;  // don't add the cell itself
+	  if (i==ieta)
+	    if (d==depth || isS8S1_==true) continue;  // don't add the cell itself; don't count neighbor in same ieta-phi if S8S1 test enabled
+
 	  // Look to see if neighbor is in rechit collection
 	  HcalDetId neighbor(HcalForward, i,testphi,d);
 	  HFRecHitCollection::const_iterator neigh=rec.find(neighbor);
-	  if (neigh!=rec.end())
+	  // require that neighbor exists, and that it doesn't have a prior flag already set
+	  if (neigh!=rec.end() && ((flagsToSkip_&neigh->flags())==0))
 	    S9S1+=neigh->energy();
 	}
     }
@@ -158,7 +171,7 @@ void HcalHF_S9S1algorithm::HFSetFlagFromS9S1(HFRecHit& hf,
 	  // Look to see if neighbor is in rechit collection
 	  HcalDetId neighbor(HcalForward, ieta,testphi,d);
 	  HFRecHitCollection::const_iterator neigh=rec.find(neighbor);
-	  if (neigh!=rec.end())
+	  if (neigh!=rec.end() && ((flagsToSkip_&neigh->flags())==0))
 	    S9S1+=neigh->energy();
 	}
     }
@@ -169,7 +182,7 @@ void HcalHF_S9S1algorithm::HFSetFlagFromS9S1(HFRecHit& hf,
 	{
 	  HcalDetId neighbor(HcalForward, 39*abs(ieta)/ieta,(iphi+2)%72,d);  
 	  HFRecHitCollection::const_iterator neigh=rec.find(neighbor);
-	  if (neigh!=rec.end())
+	  if (neigh!=rec.end() && ((flagsToSkip_&neigh->flags())==0))
 	      S9S1+=neigh->energy();
 	}
     }
@@ -190,10 +203,14 @@ void HcalHF_S9S1algorithm::HFSetFlagFromS9S1(HFRecHit& hf,
   // Protection in case intercept or energy are ever less than 0.  Do we have some other default value of S9S1cut we'd like touse in this case?
   if (intercept>0 && energy>0)  
     S9S1cut=-1.*slope*log(intercept) + slope*log(energy);
-  if (S9S1>=S9S1cut)
-    hf.setFlagField(0,HcalCaloFlagLabels::HFLongShort); // doesn't look like noise
-  else
-    hf.setFlagField(1,HcalCaloFlagLabels::HFLongShort);
+  if (S9S1<S9S1cut)
+    {
+      // Only set HFS8S1Ratio if S8/S1 ratio test fails
+      if (isS8S1_==true)
+	hf.setFlagField(1,HcalCaloFlagLabels::HFS8S1Ratio);
+      // *Always* set the HFLongShort bit if either S8S1 or S9S1 fail
+      hf.setFlagField(1,HcalCaloFlagLabels::HFLongShort);
+    }
   return;
 } // void HcalHF_S9S1algorithm::HFSetFlagFromS9S1
 

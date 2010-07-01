@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import string # use for setting flag masks based on boolean bits
 
 hfreco = cms.EDProducer("HcalHitReconstructor",
                         correctionPhaseNS = cms.double(0.0),
@@ -14,13 +15,6 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                         correctTiming = cms.bool(True),
                         setNoiseFlags = cms.bool(True),
                         
-                        # HF Noise algorithm choices:
-                        #  1 = flat energy/ET cut; flag channel if R=|(L-S)/(L+S)| is greater than a fixed threshold;
-                        #  2 = PET algorithm:  still flag if R> threshold, but allow energy/ET cuts to be parameterized functions of ieta;
-                        #  3 = default algorithm:  Apply PET for long fibers and those at |ieta|=29, but use S9S1 for other short fibers
-                        #  4 = S9S1-only algorithm:  Use S9S1 test everywhere, even for short fibers.  (as of March 2010, short fiber parameters for S9S1 have not been tested)
-                        
-                        HFNoiseAlgo   = cms.int32(3), # Default algorithm should be algo 3 (PET+S9S1 combo)
                         
                         setHSCPFlags  = cms.bool(True),
                         setSaturationFlags = cms.bool(True),
@@ -47,48 +41,118 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                                                   hfshortEthresh=cms.double(40.),
                                                   ),
                         
-                        rechitstat = cms.PSet(short_HFlongshortratio = cms.double(0.995), # max allowed ratio of (L-S)/(L+S)
-                                            short_HFETthreshold    = cms.double(0.), # minimum ET (in GeV) required for a cell to be considered hot (started at 0.5, loosened to 2.0 after pion studies)
-                                            short_HFEnergythreshold      = cms.double(50), # minimum energy (in GeV) required for a cell to be considered hot
-                                            
-                                            long_HFlongshortratio = cms.double(0.995), # max allowed ratio of (L-S)/(L+S)
-                                            long_HFETthreshold    = cms.double(0.), # minimum ET (in GeV) required for a cell to be considered hot (started at 0.5, loosened to 2.0 after pion studies)
-                                            long_HFEnergythreshold      = cms.double(50), # minimum energy (in GeV) required for a cell to be considered hot
-                                            ), # rechitstat
-
+                        
                         # Parameters for Using S9S1 Test
                         #     optimumSlopes are slopes for each of the |ieta| values 29, 30, .... ,41  (although |ieta|=29 is not used in current S9S1 formulation)
 
+                        #     energy and ET params are thresholds for each |ieta|
+                        S9S1stat = cms.PSet(
+    # WARNING!  ONLY LONG PARAMETERS ARE USED IN DEFAULT RECO; SHORT S9S1 IS NOT USED!
+    short_optimumSlope       = cms.vdouble([-99999,0.0164905,0.0238698,0.0321383,
+                                            0.041296,0.0513428,0.0622789,0.0741041,
+                                            0.0868186,0.100422,0.135313,0.136289,
+                                            0.0589927]),
+    
+    # Short energy cut is 129.9 - 6.61*|ieta|+0.1153*|ieta|^2
+    shortEnergyParams        = cms.vdouble([35.1773, 35.37, 35.7933, 36.4472,
+                                            37.3317, 38.4468, 39.7925, 41.3688,
+                                            43.1757, 45.2132, 47.4813, 49.98,
+                                            52.7093]),
+    shortETParams            = cms.vdouble([0,0,0,0,
+                                            0,0,0,0,
+                                            0,0,0,0,0]),
+    
+    long_optimumSlope       = cms.vdouble([-99999,0.0164905,0.0238698,0.0321383,
+                                           0.041296,0.0513428,0.0622789,0.0741041,
+                                           0.0868186,0.100422,0.135313,0.136289,
+                                           0.0589927]),
+    
+    # Long energy cut is 162.4-10.9*abs(ieta)+0.21*ieta*ieta
+    longEnergyParams        = cms.vdouble([43.5, 45.7, 48.32, 51.36,
+                                           54.82, 58.7, 63.0, 67.72,
+                                           72.86, 78.42, 84.4, 90.8,
+                                           97.62]),
+    longETParams            = cms.vdouble([0,0,0,0,
+                                           0,0,0,0,
+                                           0,0,0,0,0]),
+    
+    flagsToSkip              = cms.int32(string.atoi('1010',2)), # HFDigiTime (bit 1) and HFS8S1Ratio (bit 3) should be skipped
+    isS8S1                   = cms.bool(False),
+    ),
+
+                        
+                        # Parameters for Using S8S1 Test
+                        # Sets the HFS8S1Ratio Bit (bit 3)
+                        
                         #     energy and ET params are coefficients for energy/ET thresholds, parameterized in ieta
-                        S9S1stat = cms.PSet( long_optimumSlope       = cms.vdouble([-99999,0.0164905,0.0238698,0.0321383,0.041296,
-                                                                                    0.0513428,0.0622789,0.0741041,0.0868186,
-                                                                                    0.100422,0.135313,0.136289,0.0589927]),
-                                             longEnergyParams        = cms.vdouble([162.4,-10.19,0.21]),
-                                             longETParams            = cms.vdouble([0]),
-                                             # WARNING!  SHORT SLOPE PARAMETERS ARE NOT USED IN ANY OF THE AVAILABLE DEFAULT ALGORITHMS!
-                                             # DEFAULT ALGO 3 USES PET RATIO TEST
-                                             short_optimumSlope       = cms.vdouble([-99999,0.0164905,0.0238698,0.0321383,0.041296,
-                                                                                     0.0513428,0.0622789,0.0741041,0.0868186,0.100422,
-                                                                                     0.135313,0.136289,0.0589927]),
-                                             shortEnergyParams        = cms.vdouble([129.9,-6.61,0.1153]),
-                                             shortETParams            = cms.vdouble([0]),
-                                            ),
+                        S8S1stat = cms.PSet(
+    short_optimumSlope       = cms.vdouble([0.30, # ieta=29 is a special case
+                                            0.10, 0.10, 0.10, 0.10,
+                                            0.10, 0.10, 0.10, 0.10,
+                                            0.10, 0.10, 0.10, 0.10]),
+    
+    # Short energy cut is 40 for ieta=29, 100 otherwise
+    shortEnergyParams        = cms.vdouble([40,
+                                            100,100,100,100,
+                                            100,100,100,100,
+                                            100,100,100,100]),
+    shortETParams            = cms.vdouble([0,0,0,0,
+                                            0,0,0,0,
+                                            0,0,0,0,0]),
+    
+    long_optimumSlope       = cms.vdouble([0.30, # ieta=29 is a special case
+                                           0.10, 0.10, 0.10, 0.10,
+                                           0.10, 0.10, 0.10, 0.10,
+                                           0.10, 0.10, 0.10, 0.10]),
+    # Long energy cut is 40 for ieta=29, 100 otherwise
+    longEnergyParams        = cms.vdouble([40,
+                                           100,100,100,100,
+                                           100,100,100,100,
+                                           100,100,100,100]),
+    longETParams            = cms.vdouble([0,0,0,0,
+                                           0,0,0,0,
+                                           0,0,0,0,0]),
+    
+    flagsToSkip              = cms.int32(string.atoi('11',2)), # HFLongShort (bit 0) and HFDigiTime (bit 1) should be skipped
+    isS8S1                   = cms.bool(True),
+    ),
+                        
 
                         # Parameters for Using Parameterized Energy Threshold (PET) test
                         #  short_R, long_R are coefficients of R threshold, parameterized in *ENERGY*:  R_thresh = [0]+[1]*energy+[2]*energy^2+...
-                        #  As of March 2010, the R threshold is a simply fixed value:  R>0.98
-                        #  Energy and ET params are energy and ET threshold coefficients, parameterized in *ieta*
-                        #  As of April 23, a separate cut is used for long and short R.  R>0.8 for short, R>0.98 for long (ieta=29)
+                        #  As of March 2010, the R threshold is a simple fixed value:  R>0.98, with separate params for |ieta|=29
+                        #  Energy and ET params are energy and ET cuts for each |ieta| 29 -> 41
                         
-                        PETstat = cms.PSet(short_R = cms.vdouble([0.8]),  # new default ratio cut:  R>0.8
-                                           shortEnergyParams        = cms.vdouble([129.9,-6.61,0.1153]),
-                                           shortETParams            = cms.vdouble([0]),  # by default, only trivial cut ET>0 applied
-                                           long_R  = cms.vdouble([0.98]),  # default ratio cut:  R>0.98
-                                           longEnergyParams        = cms.vdouble([162.4,-10.19,0.21]),
-                                           longETParams            = cms.vdouble([0])    # by default, only trivial cut ET>0 applied
-                                           ),
+                        PETstat = cms.PSet(
 
+    short_R = cms.vdouble([0.8]),  # new default ratio cut:  R>0.8
+    # Short energy cut is 129.9 - 6.61*|ieta|+0.1153*|ieta|^2
+    shortEnergyParams        = cms.vdouble([35.1773, 35.37, 35.7933, 36.4472,
+                                            37.3317, 38.4468, 39.7925, 41.3688,
+                                            43.1757, 45.2132, 47.4813, 49.98,
+                                            52.7093]),
+    shortETParams            = cms.vdouble([0,0,0,0,
+                                            0,0,0,0,
+                                            0,0,0,0,0]),
+    
+    long_R  = cms.vdouble([0.98]),  # default ratio cut:  R>0.98
+    # Long energy cut is 162.4-10.9*abs(ieta)+0.21*ieta*ieta
+    longEnergyParams        = cms.vdouble([43.5, 45.7, 48.32, 51.36,
+                                           54.82, 58.7, 63.0, 67.72,
+                                           72.86, 78.42, 84.4, 90.8,
+                                           97.62]),
+    longETParams            = cms.vdouble([0,0,0,0,
+                                           0,0,0,0,
+                                           0,0,0,0,0]),
+    
+    
+    flagsToSkip             = cms.int32(string.atoi('10',2)), # HFDigiTime (bit 1) should be skipped
+    short_R_29 = cms.vdouble([0.8]),
+    long_R_29  = cms.vdouble([0.8]), # should move from 0.98 to 0.8?
+    ),
                         
+                        
+                        # saturation and hfTimingTrust Parameters
                         saturationParameters=  cms.PSet(maxADCvalue=cms.int32(127)),
 
                         hfTimingTrustParameters = cms.PSet(hfTimingTrustLevel1=cms.int32(1), # 1ns timing accuracy

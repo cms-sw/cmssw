@@ -26,7 +26,8 @@ namespace HcalCaloFlagLabels
 
   enum HFStatusFlag{HFLongShort=0,
 		    HFDigiTime=1,
-		    HFInTimeWindow=2 // requires hit be within certain time window
+		    HFInTimeWindow=2, // requires hit be within certain time window
+		    HFS8S1Ratio=3
   };
 
 

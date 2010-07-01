@@ -16,6 +16,8 @@ HcalHF_PETalgorithm::HcalHF_PETalgorithm()
   // no params given; revert to old 'algo 1' fixed settings
   short_R.clear();
   short_R.push_back(0.995);
+  short_R_29.clear();
+  short_R_29.push_back(0.995);
   short_Energy_Thresh.clear();
   short_Energy_Thresh.push_back(50);
   short_ET_Thresh.clear();
@@ -23,10 +25,13 @@ HcalHF_PETalgorithm::HcalHF_PETalgorithm()
   
   long_R.clear();
   long_R.push_back(0.995);
+  long_R_29.clear();
+  long_R_29.push_back(0.995);
   long_Energy_Thresh.clear();
   long_Energy_Thresh.push_back(50);
   long_ET_Thresh.clear();
   long_ET_Thresh.push_back(0);
+  flagsToSkip_=0;
 }
 
 HcalHF_PETalgorithm::HcalHF_PETalgorithm(std::vector<double> shortR, 
@@ -34,24 +39,30 @@ HcalHF_PETalgorithm::HcalHF_PETalgorithm(std::vector<double> shortR,
 					 std::vector<double> shortETParams, 
 					 std::vector<double> longR, 
 					 std::vector<double> longEnergyParams, 
-					 std::vector<double> longETParams)
+					 std::vector<double> longETParams,
+					 int flagsToSkip,
+					 std::vector<double> shortR29,
+					 std::vector<double> longR29)
 {
   // R is parameterized depending on the energy of the cells, so just store the parameters here
-  short_R=shortR;
-  long_R=longR;
+  short_R    = shortR;
+  long_R     = longR;
+  short_R_29 = shortR29;
+  long_R_29  = longR29;
 
   // Energy and ET cuts are ieta-dependent, and only need to be calculated once!
   short_Energy_Thresh.clear();
   short_ET_Thresh.clear();
   long_Energy_Thresh.clear();
   long_ET_Thresh.clear();
-  for (int i=29;i<=41;++i)
-    {
-      short_Energy_Thresh.push_back(CalcThreshold(1.*i,shortEnergyParams));
-      short_ET_Thresh.push_back(CalcThreshold(1.*i,shortETParams));
-      long_Energy_Thresh.push_back(CalcThreshold(1.*i,longEnergyParams));
-      long_ET_Thresh.push_back(CalcThreshold(1.*i,longETParams));
-    }
+
+  //separate short, long cuts provided for each ieta 
+  short_Energy_Thresh=shortEnergyParams;
+  short_ET_Thresh=shortETParams;
+  long_Energy_Thresh=longEnergyParams;
+  long_ET_Thresh=longETParams;
+
+  flagsToSkip_=flagsToSkip;
 }
 
 HcalHF_PETalgorithm::~HcalHF_PETalgorithm(){}
@@ -74,6 +85,7 @@ void HcalHF_PETalgorithm::HFSetFlagFromPET(HFRecHit& hf,
 
   // Step 1:  Check energy and ET cuts
   double ETthresh=0, Energythresh=0; // set ET, energy thresholds
+
   if (depth==1)  // set thresholds for long fibers
     {
       Energythresh = long_Energy_Thresh[abs(ieta)-29];
@@ -84,6 +96,7 @@ void HcalHF_PETalgorithm::HFSetFlagFromPET(HFRecHit& hf,
       Energythresh = short_Energy_Thresh[abs(ieta)-29];
       ETthresh     = short_ET_Thresh[abs(ieta)-29];
     }
+  
   if (energy<Energythresh || ET < ETthresh)
     {
       hf.setFlagField(0, HcalCaloFlagLabels::HFLongShort); // shouldn't be necessary, but set bit to 0 just to be sure
@@ -94,22 +107,35 @@ void HcalHF_PETalgorithm::HFSetFlagFromPET(HFRecHit& hf,
   HcalDetId partner(HcalForward, ieta, iphi, 3-depth); //  if depth=1, 3-depth=2, and vice versa
   DetId detpartner=DetId(partner);
   const HcalChannelStatus* partnerstatus=myqual->getValues(detpartner.rawId());
+
+  // Don't set the bit if the partner has been dropped from the rechit collection ('dead' or 'off')
   if (mySeverity->dropChannel(partnerstatus->getValue() ) )
     {
       hf.setFlagField(0, HcalCaloFlagLabels::HFLongShort); // shouldn't be necessary, but set bit to 0 just to be sure
       return;
     }
+
   // Step 3:  Compute ratio
   double Ratio=1;
   HFRecHitCollection::const_iterator part=rec.find(partner);
   if (part!=rec.end())
-    Ratio=(energy-part->energy())/(energy+part->energy());
+    {
+      if ((flagsToSkip_&part->flags())==0)
+	Ratio=(energy-part->energy())/(energy+part->energy());
+    }
 
   double RatioThresh=0;
   // Allow for the ratio cut to be parameterized in terms of energy
-  if (depth==1) RatioThresh=CalcThreshold(energy,long_R);
-  else if (depth==2) RatioThresh=CalcThreshold(energy,short_R);
-
+  if (abs(ieta)==29)
+    {
+      if (depth==1) RatioThresh=CalcThreshold(energy,long_R_29);
+      else if (depth==2) RatioThresh=CalcThreshold(energy,short_R_29);
+    }
+  else
+    {
+      if (depth==1) RatioThresh=CalcThreshold(energy,long_R);
+      else if (depth==2) RatioThresh=CalcThreshold(energy,short_R);
+    }
   if (Ratio<=RatioThresh)
     {
       hf.setFlagField(0, HcalCaloFlagLabels::HFLongShort); // shouldn't be necessary, but set bit to 0 just to be sure

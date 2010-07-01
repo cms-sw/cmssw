@@ -26,8 +26,8 @@
 
     /** \class HcalHitReconstructor
 	
-    $Date: 2009/08/29 18:38:53 $
-    $Revision: 1.6 $
+    $Date: 2010/03/18 13:07:53 $
+    $Revision: 1.7 $
     \author J. Temple & E. Yazgan
     ** Based on HcalSimpleReconstructor.h by J. Mans
     */
@@ -43,9 +43,9 @@
       HBHEStatusBitSetter* hbheFlagSetter_;
       HBHETimeProfileStatusBitSetter* hbheHSCPFlagSetter_;
       HBHETimingShapedFlagSetter* hbheTimingShapedFlagSetter_;
-      HcalHFStatusBitFromRecHits* hfrechitbit_;
       HcalHFStatusBitFromDigis*   hfdigibit_;
       HcalHF_S9S1algorithm*       hfS9S1_;
+      HcalHF_S9S1algorithm*       hfS8S1_;
       HcalHF_PETalgorithm*        hfPET_;
  
       DetId::Detector det_;

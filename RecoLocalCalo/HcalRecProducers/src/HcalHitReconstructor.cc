@@ -38,8 +38,9 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   hbheHSCPFlagSetter_=0;
   hbheTimingShapedFlagSetter_ = 0;
   hfdigibit_=0;
-  hfrechitbit_=0;
+
   hfS9S1_=0;
+  hfS8S1_=0;
   hfPET_=0;
   saturationFlagSetter_=0;
   HFTimingTrustFlagSetter_=0;
@@ -94,7 +95,6 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
     produces<HORecHitCollection>();
   } else if (!strcasecmp(subd.c_str(),"HF")) {
     subdet_=HcalForward;
-    HFNoiseAlgo_=conf.getParameter<int>("HFNoiseAlgo"); // get noise algorithm type
 
     if (setTimingTrustFlags_) {
       
@@ -107,33 +107,42 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
       {
 	const edm::ParameterSet& psdigi    =conf.getParameter<edm::ParameterSet>("digistat");
 	const edm::ParameterSet& psTimeWin =conf.getParameter<edm::ParameterSet>("HFInWindowStat");
-	const edm::ParameterSet& psrechit  =conf.getParameter<edm::ParameterSet>("rechitstat");
 	hfdigibit_=new HcalHFStatusBitFromDigis(conf.getParameter<int>("firstSample"),
 						conf.getParameter<int>("samplesToAdd"),
 						psdigi, psTimeWin);
 
-	hfrechitbit_=new HcalHFStatusBitFromRecHits(psrechit.getParameter<double>("short_HFlongshortratio"),
-						    psrechit.getParameter<double>("short_HFETthreshold"),
-						    psrechit.getParameter<double>("short_HFEnergythreshold"),
-						    psrechit.getParameter<double>("long_HFlongshortratio"),
-						    psrechit.getParameter<double>("long_HFETthreshold"),
-						    psrechit.getParameter<double>("long_HFEnergythreshold")	
-						    );
 	const edm::ParameterSet& psS9S1   = conf.getParameter<edm::ParameterSet>("S9S1stat");
 	hfS9S1_   = new HcalHF_S9S1algorithm(psS9S1.getParameter<std::vector<double> >("short_optimumSlope"),
 					     psS9S1.getParameter<std::vector<double> >("shortEnergyParams"),
 					     psS9S1.getParameter<std::vector<double> >("shortETParams"),
 					     psS9S1.getParameter<std::vector<double> >("long_optimumSlope"),
 					     psS9S1.getParameter<std::vector<double> >("longEnergyParams"),
-					     psS9S1.getParameter<std::vector<double> >("longETParams")
+					     psS9S1.getParameter<std::vector<double> >("longETParams"),
+					     psS9S1.getParameter<int>("flagsToSkip"),
+					     psS9S1.getParameter<bool>("isS8S1")
 					     );
+
+	const edm::ParameterSet& psS8S1   = conf.getParameter<edm::ParameterSet>("S8S1stat");
+	hfS8S1_   = new HcalHF_S9S1algorithm(psS8S1.getParameter<std::vector<double> >("short_optimumSlope"),
+					     psS8S1.getParameter<std::vector<double> >("shortEnergyParams"),
+					     psS8S1.getParameter<std::vector<double> >("shortETParams"),
+					     psS8S1.getParameter<std::vector<double> >("long_optimumSlope"),
+					     psS8S1.getParameter<std::vector<double> >("longEnergyParams"),
+					     psS8S1.getParameter<std::vector<double> >("longETParams"),
+					     psS8S1.getParameter<int>("flagsToSkip"),
+					     psS8S1.getParameter<bool>("isS8S1")
+					     );
+
 	const edm::ParameterSet& psPET    = conf.getParameter<edm::ParameterSet>("PETstat");
 	hfPET_    = new HcalHF_PETalgorithm(psPET.getParameter<std::vector<double> >("short_R"),
 					    psPET.getParameter<std::vector<double> >("shortEnergyParams"),
 					    psPET.getParameter<std::vector<double> >("shortETParams"),
 					    psPET.getParameter<std::vector<double> >("long_R"),
 					    psPET.getParameter<std::vector<double> >("longEnergyParams"),
-					    psPET.getParameter<std::vector<double> >("longETParams")
+					    psPET.getParameter<std::vector<double> >("longETParams"),
+					    psPET.getParameter<int>("flagsToSkip"),
+					    psPET.getParameter<std::vector<double> >("short_R_29"),
+					    psPET.getParameter<std::vector<double> >("long_R_29")
 					    );
       }
     produces<HFRecHitCollection>();
@@ -154,7 +163,6 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 HcalHitReconstructor::~HcalHitReconstructor() {
   if (hbheFlagSetter_)        delete hbheFlagSetter_;
   if (hfdigibit_)             delete hfdigibit_;
-  if (hfrechitbit_)           delete hfrechitbit_;
   if (hbheHSCPFlagSetter_)    delete hbheHSCPFlagSetter_;
   if (hfS9S1_)                delete hfS9S1_;
   if (hfPET_)                 delete hfPET_;
@@ -218,6 +226,14 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	HcalCoderDb coder (*channelCoder, *shape);
 	rec->push_back(reco_.reconstruct(*i,coder,calibrations));
+
+	// Set auxiliary flag
+	int auxflag=0;
+	// Do we want these time slices to be configurable?
+	for (int xx=3;xx<7 && xx<i->size();++xx)
+	  auxflag+=(i->sample(xx).adc())<<(7*(xx-3)); // store the time slices in the first 28 bits of aux
+	(rec->back()).setAux(auxflag);
+
 	(rec->back()).setFlags(0);
 	if (hbheTimingShapedFlagSetter_!=0)
 	  hbheTimingShapedFlagSetter_->SetTimingShapedFlags(rec->back());
@@ -280,6 +296,14 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	HcalCoderDb coder (*channelCoder, *shape);
 	rec->push_back(reco_.reconstruct(*i,coder,calibrations));
+
+	// Set auxiliary flag
+	int auxflag=0;
+	// Do we want these time slices to be configurable?
+	for (int xx=3;xx<7 && xx<i->size();++xx)
+	  auxflag+=(i->sample(xx).adc())<<(7*(xx-3)); // store the time slices in the first 28 bits of aux
+	(rec->back()).setAux(auxflag);	
+
 	(rec->back()).setFlags(0);
 	if (setSaturationFlags_)
 	  saturationFlagSetter_->setSaturationFlag(rec->back(),*i);
@@ -323,6 +347,15 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	HcalCoderDb coder (*channelCoder, *shape);
 	rec->push_back(reco_.reconstruct(*i,coder,calibrations));
+
+	// Set auxiliary flag
+	int auxflag=0;
+	// Do we want these time slices to be configurable?
+	for (int xx=3;xx<6 && xx<i->size();++xx)
+	  auxflag+=(i->sample(xx).adc())<<(7*(xx-3)); // store the time slices in the first 28 bits of aux
+	(rec->back()).setAux(auxflag);  
+
+	// Clear flags
 	(rec->back()).setFlags(0);
 	// This calls the code for setting the HF noise bit determined from digi shape
 	if (setNoiseFlags_) hfdigibit_->hfSetFlagFromDigi(rec->back(),*i,coder,calibrations);
@@ -332,27 +365,46 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	  HFTimingTrustFlagSetter_->setHFTimingTrustFlag(rec->back(),*i);
 	if (correctTiming_)
 	  HcalTimingCorrector::Correct(rec->back(), *i, favorite_capid);
-      }
-      // This sets HF noise bit determined from L/S rechit energy comparison
+      } // for (i=digi->begin(); i!=digi->end(); i++) -- loop on all HF digis
+
+      // The following flags require the full set of rechits
+      // These need to be set consecutively, so an energy check should be the first 
+      // test performed on these hits (to minimize the loop time)
       if (setNoiseFlags_) 
 	{
-	  if (HFNoiseAlgo_==1)  // old-style bit setting ("Algo 1")
-	    hfrechitbit_->hfSetFlagFromRecHits(*rec,myqual,mySeverity); // old code passes full rechit collection to algo; probably not the best way to go about this.  Instead, loop over rechits directly here
-
-	  else if (HFNoiseAlgo_>1)  // HFNoiseAlgo_==3 is the default
+	  // Step 1:  Set PET flag  (short fibers of |ieta|==29)
+	  // Neighbor/partner channels that are flagged by Pulse Shape algorithm (HFDigiTime)
+	  // won't be considered in these calculations
+	  for (HFRecHitCollection::iterator i = rec->begin();i!=rec->end();++i)
 	    {
-	      for (HFRecHitCollection::iterator i = rec->begin();i!=rec->end();++i)
-		{
-		  int depth=i->id().depth();
-		  int ieta=i->id().ieta();
-		  // Short fibers and all channels at |ieta|=29 use PET settings in Algo 3
-		  if ((HFNoiseAlgo_==4) || (HFNoiseAlgo_==3 && depth==1 && abs(ieta)!=29 )) 
-		    hfS9S1_->HFSetFlagFromS9S1(*i,*rec,myqual, mySeverity);
-		  else
-		    hfPET_->HFSetFlagFromPET(*i,*rec,myqual,mySeverity);
-		}
+	      int depth=i->id().depth();
+	      int ieta=i->id().ieta();
+	      // Short fibers and all channels at |ieta|=29 use PET settings in Algo 3
+	      if (depth==2 || abs(ieta)==29 ) 
+		hfPET_->HFSetFlagFromPET(*i,*rec,myqual,mySeverity);
+	    }
+
+	  // Step 2:  Set S8S1 flag (short fibers or |ieta|==29)
+	  for (HFRecHitCollection::iterator i = rec->begin();i!=rec->end();++i)
+	    {
+	      int depth=i->id().depth();
+	      int ieta=i->id().ieta();
+	      // Short fibers and all channels at |ieta|=29 use PET settings in Algo 3
+	      if (depth==2 || abs(ieta)==29 ) 
+		hfS8S1_->HFSetFlagFromS9S1(*i,*rec,myqual,mySeverity);
+	    }
+
+	  // Set 3:  Set S9S1 flag (long fibers)
+	  for (HFRecHitCollection::iterator i = rec->begin();i!=rec->end();++i)
+	    {
+	      int depth=i->id().depth();
+	      int ieta=i->id().ieta();
+	      // Short fibers and all channels at |ieta|=29 use PET settings in Algo 3
+	      if (depth==1 && abs(ieta)!=29 ) 
+		hfS9S1_->HFSetFlagFromS9S1(*i,*rec,myqual, mySeverity);
 	    }
 	}
+
       // return result
       e.put(rec);     
     } else if (subdet_==HcalOther && subdetOther_==HcalCalibration) {
@@ -377,6 +429,14 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	HcalCoderDb coder (*channelCoder, *shape);
 	rec->push_back(reco_.reconstruct(*i,coder,calibrations));
+	/*
+	// Set auxiliary flag
+	int auxflag=0;
+	// Do we want these time slices to be configurable?
+	for (int xx=3;xx<6 && xx<i->size();++xx)
+	  auxflag+=(i->sample(xx).adc())<<(7*(xx-3)); // store the time slices in the first 28 bits of aux
+	(rec->back()).setAux(auxflag);
+	*/
 	//(rec->back()).setFlags(0); // Not yet implemented for HcalCalibRecHit
       }
       // return result

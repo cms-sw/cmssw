@@ -9,30 +9,10 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
-#process.essource = cms.ESSource("EmptyESSource",
-#   recordName = cms.string("HcalSeverityLevelComputerRcd"),
-#   firstValid = cms.vuint32(1),
-#   iovIsRunNotTime = cms.bool(True)
-#)
-#
-#process.HcalRecAlgoESProducer = cms.ESProducer("HcalRecAlgoESProducer",
-#    SeverityLevels = cms.VPSet(
-#        cms.PSet( Level = cms.int32(0),
-#                  RecHitFlags = cms.vstring(''),
-#                  ChannelStatus = cms.vstring('')
-#                ),
-#        cms.PSet( Level = cms.int32(10),
-#                  RecHitFlags = cms.vstring(''),
-#                  ChannelStatus = cms.vstring('HcalCellHot')
-#                ),
-#        cms.PSet( Level = cms.int32(20),
-#                  RecHitFlags = cms.vstring('HBHEHpdHitMultiplicity', 'HBHEPulseShape', 'HOBit',
-#                                            'HFDigiTime', 'HFLongShort', 'ZDCBit', 'CalibrationBit'),
-#                  ChannelStatus = cms.vstring('HcalCellOff', 'HcalCellDead')
-#                )
-#        )
-#)
+
 process.load("RecoLocalCalo.HcalRecAlgos.hcalRecAlgoESProd_cfi")
+
+
 
 process.source = cms.Source("EmptySource",
     numberEventsInRun = cms.untracked.uint32(1),

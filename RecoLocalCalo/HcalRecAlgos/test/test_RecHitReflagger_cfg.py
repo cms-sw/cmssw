@@ -69,6 +69,12 @@ process.output = cms.OutputModule("PoolOutputModule",
 #                                                    RecHitFlags = cms.vstring('HFPET','HFS9S1'),
 #                                                    ChannelStatus = cms.vstring('')))
 
+print "STARTING SL:"
+for i in process.hcalRecAlgos.SeverityLevels:
+        print i
+        
+
+
 severitylevels=[]  # Store all severity levels
 AddedFlag=False
 NewSevLevel=10
@@ -98,6 +104,8 @@ if (AddedFlag==False):
 print "New Severity Levels:"
 for i in process.hcalRecAlgos.SeverityLevels:
     print i
+
+print process.hbhereco.firstSample, "  FIRST"
 
 process.reflagging_step = cms.Path(process.hcalrechitReflagger)
 process.reconstruction_step = cms.Path(process.towerMakerPET*(process.metPET+process.ak5CaloJetsPET))
