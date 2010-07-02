@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Wed Sep 26 08:27:23 EDT 2007
-// $Id: DumpGeom.cc,v 1.2 2010/06/17 12:15:30 yana Exp $
+// $Id: DumpGeom.cc,v 1.3 2010/07/01 14:40:07 mccauley Exp $
 //
 //
 
@@ -1288,7 +1288,7 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    delete canvas;
 
    std::stringstream s2;
-   s2<<"cmsGeom"<<level_<<".root";
+    s2<<"cmsGeom"<<level_<<".root";
    TFile f(s2.str().c_str(),"RECREATE");
    
    TTree* tree = new TTree("idToGeo","Raw detector id association with geomtry");
