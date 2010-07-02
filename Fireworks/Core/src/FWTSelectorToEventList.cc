@@ -1,4 +1,4 @@
-// $Id: FWTSelectorToEventList.cc,v 1.1 2010/07/02 11:46:30 matevz Exp $
+// $Id: FWTSelectorToEventList.cc,v 1.2 2010/07/02 13:06:00 matevz Exp $
 
 #include "Fireworks/Core/interface/FWTSelectorToEventList.h"
 
@@ -70,8 +70,7 @@ FWTSelectorToEventList::Process(Long64_t entry)
 
 //______________________________________________________________________________
 Long64_t
-FWTSelectorToEventList::ProcessTree(TTree* t,
-                                    Long64_t nentries,
+FWTSelectorToEventList::ProcessTree(Long64_t nentries,
                                     Long64_t firstentry)
 {
    return fPlayer->Process(this, "", nentries, firstentry);
