@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_6_2/GRun/V20 (CMSSW_3_6_2_HLT8)
+# /dev/CMSSW_3_6_2/GRun/V21 (CMSSW_3_6_2_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_2/GRun/V20')
+  tableName = cms.string('/dev/CMSSW_3_6_2/GRun/V21')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -26,12 +26,12 @@ process.streams = cms.PSet(
     'JetMETTau',
     'EG',
     'Mu',
-    'MuOnia',
     'EGMonitor',
+    'MuOnia',
+    'RandomTriggers',
     'ZeroBias',
     'Commissioning',
     'JetMETTauMonitor',
-    'RandomTriggers',
     'HcalHPDNoise',
     'HcalNZS',
     'MinimumBias' ),
@@ -119,6 +119,14 @@ process.datasets = cms.PSet(
     'HLT_IsoMu3',
     'HLT_L2Mu9',
     'HLT_L2Mu11' ),
+  EGMonitor = cms.vstring( 'HLT_L1SingleEG2',
+    'HLT_L1DoubleEG5',
+    'HLT_L1SingleEG8',
+    'HLT_L1SingleEG5',
+    'HLT_SelectEcalSpikes_L1R',
+    'HLT_SelectEcalSpikesHighEt_L1R',
+    'HLT_Activity_Ecal_SC7',
+    'HLT_Activity_Ecal_SC15' ),
   MuOnia = cms.vstring( 'HLT_Mu0_L1MuOpen',
     'HLT_Mu0_Track0_Jpsi',
     'HLT_Mu3_L1MuOpen',
@@ -132,14 +140,7 @@ process.datasets = cms.PSet(
     'HLT_L2DoubleMu0',
     'HLT_DoubleMu0',
     'HLT_L1DoubleMuOpen_Tight' ),
-  EGMonitor = cms.vstring( 'HLT_L1SingleEG2',
-    'HLT_L1DoubleEG5',
-    'HLT_L1SingleEG8',
-    'HLT_L1SingleEG5',
-    'HLT_SelectEcalSpikes_L1R',
-    'HLT_SelectEcalSpikesHighEt_L1R',
-    'HLT_Activity_Ecal_SC7',
-    'HLT_Activity_Ecal_SC15' ),
+  RandomTriggers = cms.vstring( 'HLT_Random' ),
   ZeroBias = cms.vstring( 'HLT_L1_BPTX_PlusOnly',
     'HLT_L1_BPTX_MinusOnly',
     'HLT_L1_BPTX',
@@ -158,7 +159,6 @@ process.datasets = cms.PSet(
     'HLT_L1SingleTauJet',
     'HLT_L1MET20',
     'HLT_L1Jet10U' ),
-  RandomTriggers = cms.vstring( 'HLT_Random' ),
   HcalHPDNoise = cms.vstring( 'HLT_TechTrigHCALNoise',
     'HLT_GlobalRunHPDNoise' ),
   HcalNZS = cms.vstring( 'HLT_HcalNZS_8E29',
@@ -5247,7 +5247,7 @@ process.hltDoubleMuLevel1PathL1OpenFiltered = cms.EDFilter( "HLTMuonL1Filter",
     SelectQualities = cms.vint32(  )
 )
 process.hltPreL1DoubleMuOpenTight = cms.EDFilter( "HLTPrescaler",
-    L1GtReadoutRecordTag = cms.InputTag( "gtDigis" )
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
 )
 process.hltCscTfDigis = cms.EDProducer( "CSCTFUnpacker",
     MinBX = cms.int32( 3 ),

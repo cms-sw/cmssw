@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_6_2/8E29/V20 (CMSSW_3_6_2_HLT8)
+# /dev/CMSSW_3_6_2/8E29/V21 (CMSSW_3_6_2_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_2/8E29/V20')
+  tableName = cms.string('/dev/CMSSW_3_6_2/8E29/V21')
 )
 
 streams = cms.PSet( 
@@ -22,12 +22,12 @@ streams = cms.PSet(
     'JetMETTau',
     'EG',
     'Mu',
-    'MuOnia',
     'EGMonitor',
+    'MuOnia',
+    'RandomTriggers',
     'ZeroBias',
     'Commissioning',
     'JetMETTauMonitor',
-    'RandomTriggers',
     'HcalHPDNoise',
     'HcalNZS',
     'MinimumBias' ),
@@ -106,6 +106,9 @@ datasets = cms.PSet(
     'HLT_IsoMu3',
     'HLT_L2Mu9',
     'HLT_L2Mu11' ),
+  EGMonitor = cms.vstring( 'HLT_L1DoubleEG5',
+    'HLT_L1SingleEG8',
+    'HLT_L1SingleEG5' ),
   MuOnia = cms.vstring( 'HLT_Mu0_L1MuOpen',
     'HLT_Mu0_Track0_Jpsi',
     'HLT_Mu3_L1MuOpen',
@@ -118,14 +121,11 @@ datasets = cms.PSet(
     'HLT_Mu5_L2Mu0',
     'HLT_L2DoubleMu0',
     'HLT_DoubleMu0' ),
-  EGMonitor = cms.vstring( 'HLT_L1DoubleEG5',
-    'HLT_L1SingleEG8',
-    'HLT_L1SingleEG5' ),
+  RandomTriggers = cms.vstring(  ),
   ZeroBias = cms.vstring( 'HLT_ZeroBias' ),
   Commissioning = cms.vstring(  ),
   JetMETTauMonitor = cms.vstring( 'HLT_L1Jet6U',
     'HLT_L1MET20' ),
-  RandomTriggers = cms.vstring(  ),
   HcalHPDNoise = cms.vstring(  ),
   HcalNZS = cms.vstring( 'HLT_HcalNZS_8E29',
     'HLT_HcalPhiSym' ),
