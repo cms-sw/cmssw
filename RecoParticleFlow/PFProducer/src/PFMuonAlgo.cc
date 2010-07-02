@@ -355,18 +355,29 @@ PFMuonAlgo::isIsolatedMuon( const reco::MuonRef& muonRef ){
   
   // Isolated Muons which are missed by standard cuts are nearly always global+tracker
   if ( !muonRef->isGlobalMuon() ) return false;
-  if ( !muonRef->isTrackerMuon() ) return false;
-  
+
+  // If it's not a tracker muon, only take it if there are valid muon hits
 
   reco::TrackRef standAloneMu = muonRef->standAloneMuon();
-  reco::TrackRef combinedMu = muonRef->combinedMuon();
-  reco::TrackRef trackerMu = muonRef->track();
 
+  if ( !muonRef->isTrackerMuon() ){
+    if(standAloneMu->hitPattern().numberOfValidMuonDTHits() == 0 &&
+       standAloneMu->hitPattern().numberOfValidMuonCSCHits() ==0) return false;
+  }
+  
   // for isolation, take the smallest pt available to reject fakes
-  double smallestMuPt = combinedMu->pt();
-  if(standAloneMu->pt()<smallestMuPt) smallestMuPt = standAloneMu->pt();
-  if(muonRef->isTrackerMuon() && trackerMu->pt() < smallestMuPt) smallestMuPt= trackerMu->pt();
 
+  reco::TrackRef combinedMu = muonRef->combinedMuon();
+  double smallestMuPt = combinedMu->pt();
+  
+  if(standAloneMu->pt()<smallestMuPt) smallestMuPt = standAloneMu->pt();
+  
+  if(muonRef->isTrackerMuon())
+    {
+      reco::TrackRef trackerMu = muonRef->track();
+      if(trackerMu->pt() < smallestMuPt) smallestMuPt= trackerMu->pt();
+    }
+     
   double sumPtR03 = muonRef->isolationR03().sumPt;
   double emEtR03 = muonRef->isolationR03().emEt;
   double hadEtR03 = muonRef->isolationR03().hadEt;
