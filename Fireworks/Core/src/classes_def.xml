@@ -43,4 +43,5 @@
   <class name="CmsShowModelPopupDetailViewButtonAdapter"/>
   <class name="CmsShowSearchFiles"/>
   <class name="FWTEventList"/>
+  <class name="FWTSelectorToEventList"/>
 </lcgdict>
