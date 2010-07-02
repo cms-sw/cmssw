@@ -2,8 +2,8 @@
  *  Class:DQMGenericClient 
  *
  *
- *  $Date: 2010/06/24 13:38:38 $
- *  $Revision: 1.15 $
+ *  $Date: 2010/07/02 09:19:49 $
+ *  $Revision: 1.16 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -203,7 +203,7 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
       args.push_back(*iToken);
     }
 
-    if ( args.size() < 3 ) {
+    if ( args.empty() or args.size() > 2 ) {
       LogInfo("DQMGenericClient") << "Wrong input to normCmds\n";
       continue;
     }
