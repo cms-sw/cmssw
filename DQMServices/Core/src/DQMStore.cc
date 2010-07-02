@@ -166,7 +166,7 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
   if (! ref.empty())
   {
     std::cout << "DQMStore: using reference file '" << ref << "'\n";
-    readFile(ref, true, "", s_referenceDirName, StripRunDirs, true);
+    readFile(ref, true, "", s_referenceDirName, StripRunDirs, false);
   }  
 
   initQCriterion<Comp2RefChi2>(qalgos_);
@@ -2254,7 +2254,7 @@ DQMStore::readFile(const std::string &filename,
     if (! f.get() || f->IsZombie())
       raiseDQMError("DQMStore", "Failed to open file '%s'", filename.c_str());
   }
-  catch (cms::Exception &)
+  catch (std::exception &)
   {
     if (fileMustExist)
       throw;
