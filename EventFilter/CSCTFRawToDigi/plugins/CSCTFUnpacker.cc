@@ -48,7 +48,7 @@ CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet& pset):edm::EDProducer(),ma
 
 	// Initialize slot<->sector assignment
 	slot2sector = pset.getParameter< std::vector<int> >("slot2sector");
-	LogDebug("CSCTFUnpacker|ctor")<<"Verifying slot<->sector map from 'untracked vint32 slot2sector'";
+	LogDebug("CSCTFUnpacker|ctor")<<"Verifying slot<->sector map from 'vint32 slot2sector'";
 	for(int slot=0; slot<22; slot++)
 		if( slot2sector[slot]<0 || slot2sector[slot]>12 )
 			throw cms::Exception("Invalid configuration")<<"CSCTFUnpacker: sector index is set out of range (slot2sector["<<slot<<"]="<<slot2sector[slot]<<", should be [0-12])";
@@ -76,7 +76,7 @@ CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet& pset):edm::EDProducer(),ma
 					}
 	}
 
-	producer = pset.getUntrackedParameter<edm::InputTag>("producer",edm::InputTag("source"));
+	producer = pset.getParameter<edm::InputTag>("producer");
 
 	produces<CSCCorrelatedLCTDigiCollection>();
 	produces<L1CSCTrackCollection>();
