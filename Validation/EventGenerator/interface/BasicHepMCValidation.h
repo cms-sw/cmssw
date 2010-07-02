@@ -5,8 +5,8 @@
  *  
  *  Class to fill Event Generator dqm monitor elements; works on HepMCProduct
  *
- *  $Date: 2010/04/20 07:03:26 $
- *  $Revision: 1.5 $
+ *  $Date: 2010/05/25 16:50:50 $
+ *  $Revision: 1.1 $
  *
  */
 
@@ -51,6 +51,8 @@ class BasicHepMCValidation : public edm::EDAnalyzer
 	
 	///ME's "container"
 	DQMStore *dbe;
+
+    MonitorElement* nEvt;
   
 	///multiplicity ME's
 	MonitorElement *uNumber, *dNumber, *sNumber, *cNumber, *bNumber, *tNumber;

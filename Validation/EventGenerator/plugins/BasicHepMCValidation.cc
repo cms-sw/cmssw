@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2010/04/29 10:04:12 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/05/25 16:50:50 $
+ *  $Revision: 1.1 $
  */
  
 #include "Validation/EventGenerator/interface/BasicHepMCValidation.h"
@@ -27,6 +27,9 @@ void BasicHepMCValidation::beginJob()
   if(dbe){
 	///Setting the DQM top directories
 	dbe->setCurrentFolder("Generator/Particles");
+    
+    // Number of analyzed events
+    nEvt = dbe->book1D("nEvt", "n analyzed Events", 1, 0., 1.);
 	
 	///Booking the ME's
 	///multiplicity
@@ -211,6 +214,9 @@ void BasicHepMCValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
 
   //Get EVENT
   HepMC::GenEvent *myGenEvent = new HepMC::GenEvent(*(evt->GetEvent()));
+
+  nEvt->Fill(0.5);
+
   genPtclNumber->Fill(log10(myGenEvent->particles_size()));     
   genVrtxNumber->Fill(log10(myGenEvent->vertices_size()));
 

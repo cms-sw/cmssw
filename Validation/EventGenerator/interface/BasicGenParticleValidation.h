@@ -5,8 +5,8 @@
  *  
  *  Class to fill Event Generator dqm monitor elements; works on HepMCProduct
  *
- *  $Date: 2010/05/25 09:47:18 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/05/25 16:50:50 $
+ *  $Revision: 1.1 $
  *
  */
 
@@ -62,6 +62,8 @@ class BasicGenParticleValidation : public edm::EDAnalyzer
 	
 	///ME's "container"
 	DQMStore *dbe;
+
+    MonitorElement *nEvt;
 
     // Basic reco::GenParticle test
   

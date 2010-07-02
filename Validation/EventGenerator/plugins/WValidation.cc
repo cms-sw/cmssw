@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2010/05/21 17:35:50 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/05/25 16:50:50 $
+ *  $Revision: 1.1 $
  */
  
 #include "Validation/EventGenerator/interface/WValidation.h"
@@ -35,6 +35,9 @@ void WValidation::beginJob()
     std::string folderName = "Generator/W";
     folderName+=_name;
     dbe->setCurrentFolder(folderName.c_str());
+    
+    // Number of analyzed events
+    nEvt = dbe->book1D("nEvt", "n analyzed Events", 1, 0., 1.);
     
     //Kinematics
     Wmass = dbe->book1D("Wmass","inv. Mass W", 70 ,0,140);
@@ -81,6 +84,8 @@ void WValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup
 
   //Get EVENT
   HepMC::GenEvent *myGenEvent = new HepMC::GenEvent(*(evt->GetEvent()));
+
+  nEvt->Fill(0.5);
 
   std::vector<const HepMC::GenParticle*> allleptons; 
   std::vector<const HepMC::GenParticle*> allneutrinos; 

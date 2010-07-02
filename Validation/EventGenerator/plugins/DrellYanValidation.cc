@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2010/05/20 14:49:36 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/05/25 16:50:50 $
+ *  $Revision: 1.1 $
  */
  
 #include "Validation/EventGenerator/interface/DrellYanValidation.h"
@@ -35,6 +35,9 @@ void DrellYanValidation::beginJob()
     std::string folderName = "Generator/DrellYan";
     folderName+=_name;
     dbe->setCurrentFolder(folderName.c_str());
+    
+    // Number of analyzed events
+    nEvt = dbe->book1D("nEvt", "n analyzed Events", 1, 0., 1.);
     
     //Kinematics
     Zmass = dbe->book1D("Zmass","inv. Mass Z", 70 ,0,140);
@@ -81,6 +84,8 @@ void DrellYanValidation::analyze(const edm::Event& iEvent,const edm::EventSetup&
 
   //Get EVENT
   HepMC::GenEvent *myGenEvent = new HepMC::GenEvent(*(evt->GetEvent()));
+
+  nEvt->Fill(0.5);
 
   std::vector<const HepMC::GenParticle*> allproducts; 
 

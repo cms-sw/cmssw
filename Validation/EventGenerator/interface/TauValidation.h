@@ -5,8 +5,8 @@
  *  
  *  Class to fill Event Generator dqm monitor elements; works on HepMCProduct
  *
- *  $Date: 2010/04/28 18:48:40 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/05/26 12:58:30 $
+ *  $Revision: 1.2 $
  *
  */
 
@@ -83,7 +83,8 @@ class TauValidation : public edm::EDAnalyzer
   
   	///ME's "container"
   	DQMStore *dbe;
-  
+
+    MonitorElement *nEvt;
   	MonitorElement *TauProngs, *TauDecayChannels, *TauMothers, 
                        *TauRtauW, *TauRtauHpm,
                        *TauSpinEffectsW, *TauSpinEffectsHpm;

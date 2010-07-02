@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2010/05/25 09:47:18 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/05/25 16:50:50 $
+ *  $Revision: 1.1 $
  */
  
 #include "Validation/EventGenerator/interface/BasicGenParticleValidation.h"
@@ -33,6 +33,10 @@ void BasicGenParticleValidation::beginJob()
 	dbe->setCurrentFolder("Generator/GenParticles");
 	
 	///Booking the ME's
+    
+    // Number of analyzed events
+    nEvt = dbe->book1D("nEvt", "n analyzed Events", 1, 0., 1.);
+
 	///multiplicity
 	genPMultiplicity = dbe->book1D("genPMultiplicty", "Log(No. all GenParticles)", 50, -1, 5); //Log
     //difference in HepMC and reco multiplicity
@@ -80,6 +84,8 @@ void BasicGenParticleValidation::analyze(const edm::Event& iEvent,const edm::Eve
 
   //Get HepMC EVENT
   HepMC::GenEvent *myGenEvent = new HepMC::GenEvent(*(evt->GetEvent()));
+
+  nEvt->Fill(0.5);
 
   std::vector<const HepMC::GenParticle*> hepmcGPCollection;
   std::vector<int> barcodeList;

@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2010/04/28 18:48:40 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/05/26 12:58:31 $
+ *  $Revision: 1.2 $
  */
  
 #include "Validation/EventGenerator/interface/TauValidation.h"
@@ -32,6 +32,9 @@ void TauValidation::beginJob()
   if(dbe){
     ///Setting the DQM top directories
     dbe->setCurrentFolder("Generator/Tau");
+    
+    // Number of analyzed events
+    nEvt = dbe->book1D("nEvt", "n analyzed Events", 1, 0., 1.);
 
     //Kinematics
     TauProngs        = dbe->book1D("TauProngs","Tau n prongs", 7 ,0,7);
@@ -85,6 +88,8 @@ void TauValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
 
   //Get EVENT
   HepMC::GenEvent *myGenEvent = new HepMC::GenEvent(*(evt->GetEvent()));
+
+  nEvt->Fill(0.5);
 
   // find taus
   for(HepMC::GenEvent::particle_const_iterator iter = myGenEvent->particles_begin(); iter != myGenEvent->particles_end(); ++iter) {
