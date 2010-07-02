@@ -2,8 +2,8 @@
  * \file DQMProvInfo.cc
  * \author A.Raval / A.Meyer - DESY
  * Last Update:
- * $Date: 2010/05/20 00:30:52 $
- * $Revision: 1.22 $
+ * $Date: 2010/06/26 13:15:30 $
+ * $Revision: 1.23 $
  * $Author: ameyer $
  *
  */
@@ -14,6 +14,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 const static int XBINS=2500;
 const static int YBINS=28;
@@ -26,6 +27,7 @@ DQMProvInfo::DQMProvInfo(const edm::ParameterSet& ps){
 
   provinfofolder_ = parameters_.getUntrackedParameter<std::string>("provInfoFolder", "ProvInfo") ;
   subsystemname_ = parameters_.getUntrackedParameter<std::string>("subSystemFolder", "Info") ;
+  nameProcess_ = parameters_.getUntrackedParameter<std::string>( "processName", "HLT" );
   
   // initialize
   physDecl_=true; // set true and switch off in case a single event in a given LS does not have it set.
@@ -40,6 +42,8 @@ void
 DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
 
   makeProvInfo();
+
+  makeHLTKeyInfo(r,c);
 
   dbe_->cd(); 
   dbe_->setCurrentFolder(subsystemname_ +"/EventInfo/");
@@ -110,6 +114,7 @@ DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
   hBeamMode_->setBinLabel(21,"no beam",2);
   hBeamMode_->setBinContent(0.,22.);
   
+
   hLhcFill_=dbe_->book1D("lhcFill","LHC Fill Number",XBINS,1.,XBINS+1);
   hLhcFill_->setAxisTitle("Luminosity Section",1);
   hLhcFill_->getTH1F()->SetBit(TH1::kCanRebin);
@@ -127,6 +132,11 @@ DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
   hIntensity2_->setAxisTitle("N [E10]",2);
   hIntensity2_->getTH1F()->SetBit(TH1::kCanRebin);
 
+  dbe_->cd();  
+  dbe_->setCurrentFolder(subsystemname_ +"/ProvInfo/");
+  hIsCollisionsRun_ = dbe_->bookInt("isCollisionsRun");
+  hIsCollisionsRun_->Fill(0);
+  
   // initialize
   physDecl_=true;
   for (int i=0;i<25;i++) dcs25[i]=true;
@@ -228,6 +238,7 @@ DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventS
   // fill stable beams bit in y bin 28
   if (beamMode_ == 11) 
   {
+    hIsCollisionsRun_->Fill(1);
     reportSummary_->Fill(1.); 
     reportSummaryMap_->setBinContent(nlumi,27+1,1.);
     if (nlumi < XBINS) 
@@ -359,7 +370,36 @@ DQMProvInfo::makeDcsInfo(const edm::Event& e)
       
   return ;
 }
+void 
+DQMProvInfo::makeHLTKeyInfo(const edm::Run& r, const edm::EventSetup &c ) 
+{
+  
+  std::string hltKey = "";
+  HLTConfigProvider hltConfig;
+  bool changed( true );
+  if ( ! hltConfig.init( r, c, nameProcess_, changed) ) 
+  {
+    // std::cout << "errorHltConfigExtraction" << std::endl;
+    hltKey = "error extraction" ;
+  } 
+  else if ( hltConfig.size() <= 0 ) 
+  {
+   // std::cout << "hltConfig" << std::endl;
+    hltKey = "error key of length 0" ;
+  } 
+  else 
+  {
+    std::cout << "HLT key (run)  : " << hltConfig.tableName() << std::endl;
+    hltKey =  hltConfig.tableName() ;
+  }
 
+  dbe_->cd() ;
+  dbe_->setCurrentFolder( subsystemname_ + "/" +  provinfofolder_) ;
+  hHltKey_= dbe_->bookString("hltKey",hltKey);
+
+  return ;
+  
+}
 void 
 DQMProvInfo::makeGtInfo(const edm::Event& e)
 {

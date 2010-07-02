@@ -2,14 +2,11 @@
  * \file DQMEventInfo.cc
  * \author M. Zanetti - CERN PH
  * Last Update:
- * $Date: 2010/06/01 18:06:24 $
- * $Revision: 1.28 $
- * $Author: dellaric $
+ * $Date: 2010/07/01 22:02:12 $
+ * $Revision: 1.29 $
+ * $Author: ameyer $
  *
  */
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-
 #include "DQMEventInfo.h"
 #include <TSystem.h>
 
@@ -43,8 +40,6 @@ DQMEventInfo::DQMEventInfo(const edm::ParameterSet& ps){
   evtRateWindow_ = parameters_.getUntrackedParameter<double>("eventRateWindow", 0.5);
   if(evtRateWindow_<=0.15) evtRateWindow_=0.15;
 
-  nameProcess_ = parameters_.getUntrackedParameter<std::string>( "processName", "HLT" );
-
   // 
   dbe_ = edm::Service<DQMStore>().operator->();
 
@@ -58,9 +53,6 @@ DQMEventInfo::DQMEventInfo(const edm::ParameterSet& ps){
   eventId_   = dbe_->bookInt("iEvent");
   eventId_->Fill(-1);
   eventTimeStamp_ = dbe_->bookFloat("eventTimeStamp");
-  
-  isCollisionsRun_ = dbe_->bookInt("isCollisionsRun");
-  isCollisionsRun_->Fill(0);
   
   dbe_->setCurrentFolder(eventInfoFolder_) ;
   //Process specific contents
@@ -95,32 +87,11 @@ DQMEventInfo::DQMEventInfo(const edm::ParameterSet& ps){
 DQMEventInfo::~DQMEventInfo(){
 }
 
-void DQMEventInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
+void DQMEventInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) 
+{
     
   runId_->Fill(r.id().run());
   runStartTimeStamp_->Fill(stampToReal(r.beginTime()));
-
-  std::string hltKey = "";
-  HLTConfigProvider hltConfig;
-  bool changed( true );
-  if ( ! hltConfig.init( r, c, nameProcess_, changed) ) 
-  {
-    // std::cout << "errorHltConfigExtraction" << std::endl;
-    hltKey = "error extraction" ;
-  } 
-  else if ( hltConfig.size() <= 0 ) 
-  {
-   // std::cout << "hltConfig" << std::endl;
-    hltKey = "error key of length 0" ;
-  } 
-  else 
-  {
-    std::cout << "HLT key (run)  : " << hltConfig.tableName() << std::endl;
-    hltKey =  hltConfig.tableName() ;
-  }
-
-  dbe_->setCurrentFolder(eventInfoFolder_) ;
-  hltKey_= dbe_->bookString("hltKey",hltKey);
   
 } 
 
@@ -155,34 +126,5 @@ void DQMEventInfo::analyze(const edm::Event& e, const edm::EventSetup& c){
     lastAvgTime_ = currentTime_;    
   }
   
-
-
-  // get beam mode from GT
-  edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtEvm_handle;
-  if (gtEvm_handle.isValid()) 
-    e.getByLabel("gtEvmDigis", gtEvm_handle);
-  else
-    return;
-    
-  L1GlobalTriggerEvmReadoutRecord const* gtevm = gtEvm_handle.product();
-
-  // not needed:   L1GtfeWord gtfeEvmWord;
-  L1GtfeExtWord gtfeEvmExtWord;
-  if (gtevm)
-  {
-     // not needed:   gtfeEvmWord = gtevm->gtfeWord();
-     gtfeEvmExtWord = gtevm->gtfeWord();
-  }
-  else
-  {
-    // std::cout << " gtfeEvmWord inaccessible" ;
-    return;
-  }
-   
-  int beamMode = gtfeEvmExtWord.beamMode();
-  // std::cout << "beamMode: " << beamMode << std::endl;
-  if (beamMode == 11) 
-    isCollisionsRun_->Fill(1);
-
   return;
 }

@@ -4,8 +4,8 @@
 /*
  * \file DQMEventInfo.h
  *
- * $Date: 2010/06/01 18:06:24 $
- * $Revision: 1.14 $
+ * $Date: 2010/07/01 22:02:12 $
+ * $Revision: 1.15 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -76,9 +76,6 @@ private:
   MonitorElement * lumisecId_;
   MonitorElement * eventTimeStamp_;
 
-  MonitorElement * isCollisionsRun_;
-  MonitorElement * hltKey_;
-  
   //////////////////////////////////////////////////////////////////
   ///These MEs are either static or updated upon each analyze() call
   //////////////////////////////////////////////////////////////////
