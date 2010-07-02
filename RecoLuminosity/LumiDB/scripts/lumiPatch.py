@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 VERSION='1.00'
-import os,sys
+import os,sys,datetime
 import coral
 from RecoLuminosity.LumiDB import argparse,selectionParser,csvSelectionParser
 
@@ -17,6 +17,7 @@ class constants(object):
     def __init__(self):
         self.debug=False
         self.isdryrun=None
+        self.runinfoschema='CMS_RUNINFO'
         self.wbmschema='CMS_WBM'
         self.wbmdeadtable='LEVEL1_TRIGGER_CONDITIONS'
         self.gtmonschema='CMS_GT_MON'
@@ -24,7 +25,139 @@ class constants(object):
         self.lumitrgtable='TRG'
         self.lumisummarytable='LUMISUMMARY'
         self.runsummarytable='CMSRUNSUMMARY'
+def missingTimeRuns(dbsession,c):
+    '''return all the runs with starttime or stoptime column NULL in lumi db
+    select runnum from CMSRUNSUMMARY where starttime is NULL or stoptime is NULL
+    '''
+    result=[]
+    try:
+        emptyBindVarList=coral.AttributeList()
+        dbsession.transaction().start(True)
+        schema=dbsession.nominalSchema()
+        if not schema:
+            raise 'cannot connect to schema '
+        if not schema.existsTable(c.runsummarytable):
+            raise 'non-existing table '+c.runsummarytable
+        query=schema.newQuery()
+        query.addToTableList(c.runsummarytable)
+        query.addToOutputList('RUNNUM','runnum')
+        query.setCondition('STARTTIME IS NULL AND STOPTIME IS NULL',emptyBindVarList)
+        query.addToOrderList('runnum')
+        queryOutput=coral.AttributeList()
+        queryOutput.extend('runnum','unsigned int')
+        query.defineOutput(queryOutput)
+        cursor=query.execute()
+        while cursor.next():
+            result.append(cursor.currentRow()['runnum'].data())
+        del query
+        dbsession.transaction().commit()
+    except Exception,e:
+        print str(e)
+        dbsession.transaction().rollback()
+        del dbsession
+    return result
+def getTimeForRun(dbsession,c,runnums):
+    '''
+    get start stop time of run from runinfo database
+    select time from cms_runinfo.runsession_parameter where runnumber=:runnum and name='CMS.LVL0:START_TIME_T';
+    select time from cms_runinfo.runsession_parameter where runnumber=:runnum and name='CMS.LVL0:STOP_TIME_T';
+    '''
+    result={}#{runnum:(starttime,stoptime)}
+    tableName='RUNSESSION_PARAMETER'
+    try:
+        dbsession.transaction().start(True)
+        schema=dbsession.nominalSchema()
+        if not schema:
+            raise 'cannot connect to schema '
+        if not schema.existsTable(tableName):
+            raise 'non-existing table '+tableName
         
+        startTime=''
+        stopTime=''
+        for runnum in runnums:
+            startTQuery=schema.newQuery()
+            startTQuery.addToTableList(tableName)
+            startTQuery.addToOutputList('TIME','starttime')
+            stopTQuery=schema.newQuery()
+            stopTQuery.addToTableList(tableName)
+            stopTQuery.addToOutputList('TIME','stoptime')
+            startTQueryCondition=coral.AttributeList()
+            stopTQueryCondition=coral.AttributeList()
+            startTQueryOutput=coral.AttributeList()
+            stopTQueryOutput=coral.AttributeList()
+            startTQueryCondition.extend('runnum','unsigned int')
+            startTQueryCondition.extend('name','string')
+            startTQueryOutput.extend('starttime','time stamp')
+            stopTQueryCondition.extend('runnum','unsigned int')
+            stopTQueryCondition.extend('name','string')
+            stopTQueryOutput.extend('stoptime','time stamp')
+            startTQueryCondition['runnum'].setData(int(runnum))
+            startTQueryCondition['name'].setData('CMS.LVL0:START_TIME_T')
+            startTQuery.setCondition('RUNNUMBER=:runnum AND NAME=:name',startTQueryCondition)
+            startTQuery.defineOutput(startTQueryOutput)
+            startTCursor=startTQuery.execute()
+            while startTCursor.next():
+                startTime=startTCursor.currentRow()['starttime'].data()           
+            stopTQueryCondition['runnum'].setData(int(runnum))
+            stopTQueryCondition['name'].setData('CMS.LVL0:STOP_TIME_T')
+            stopTQuery.setCondition('RUNNUMBER=:runnum AND NAME=:name',stopTQueryCondition)
+            stopTQuery.defineOutput(stopTQueryOutput)
+            stopTCursor=stopTQuery.execute()
+            while stopTCursor.next():
+                stopTime=stopTCursor.currentRow()['stoptime'].data()
+            if not startTime or not stopTime:
+                print 'Warning: no startTime or stopTime found for run ',runnum
+            else:    
+                result[runnum]=(startTime,stopTime)
+            del startTQuery
+            del stopTQuery
+        dbsession.transaction().commit()
+    except Exception,e:
+        print str(e)
+        dbsession.transaction().rollback()
+        del dbsession
+    return result
+
+def addTimeForRun(dbsession,c,runtimedict):
+    '''
+    Input runtimedict{runnumber:(startTimeT,stopTimeT)}
+    update CMSRUNSUMMARY set STARTTIME=:starttime,STOPTIME=:stoptime where RUNNUM=:runnum
+    #update CMSRUNSUMMARY set STOPTIME=:stoptime where RUNNUM=:runnum
+    '''
+    nchanged=0
+    totalchanged=0
+    try:
+        dbsession.transaction().start(False)
+        schema=dbsession.nominalSchema()
+        if not schema:
+            raise 'cannot connect to schema'
+        if not schema.existsTable(c.runsummarytable):
+            raise 'non-existing table '+c.runsummarytable
+        inputData=coral.AttributeList()
+        inputData.extend('starttime','time stamp')
+        inputData.extend('stoptime','time stamp')
+        inputData.extend('runnum','unsigned int')
+        runs=runtimedict.keys()
+        runs.sort()
+        for runnum in runs:
+            (startTimeT,stopTimeT)=runtimedict[runnum]
+            inputData['starttime'].setData(startTimeT)
+            inputData['stoptime'].setData(stopTimeT)
+            inputData['runnum'].setData(int(runnum))
+            nchanged=schema.tableHandle(c.runsummarytable).dataEditor().updateRows('STARTTIME=:starttime,STOPTIME=:stoptime','RUNNUM=:runnum',inputData)
+            print 'run '+str(runnum)+' update '+str(nchanged)+' row  with starttime ,stoptime'
+            print startTimeT,stopTimeT
+            totalchanged=totalchanged+nchanged
+        if c.isdryrun:
+            dbsession.transaction().rollback()
+        else:
+            dbsession.transaction().commit()   
+    except Exception,e:
+        print str(e)
+        dbsession.transaction().rollback()
+        del dbsession
+    print 'total number of rows changed: ',totalchanged
+    
 def recalibrateLumiForRun(dbsession,c,delta,runnums):
     '''
     update LUMISUMMARY set INSTLUMI=:delta*INSTLUMI where RUNNUM in (1,3,57,90)
@@ -189,7 +322,7 @@ def main():
     parser.add_argument('-r',dest='runnumber',action='store',required=False,help='run number (optional)')
     parser.add_argument('-i',dest='inputfile',action='store',required=False,help='run selection file(optional)')
     parser.add_argument('-delta',dest='delta',action='store',required=False,help='calibration factor wrt old data in lumiDB (required for lumicalib)')
-    parser.add_argument('action',choices=['deadtimeGT','deadtimeWBM','lumicalib','runtimestamp'],help='deadtimeGT: patch deadtime to deadtimebeamactive,\ndeadtimeWBM: patch deadtimeWBM to deadtimebeamactive,\nlumicalib: recalibrate inst lumi by delta where delta>1,\nruntimestamp: fill startrun timestamp if empty')
+    parser.add_argument('action',choices=['deadtimeGT','deadtimeWBM','lumicalib','runtimestamp'],help='deadtimeGT: patch deadtime to deadtimebeamactive,\ndeadtimeWBM: patch deadtimeWBM to deadtimebeamactive,\nlumicalib: recalibrate inst lumi by delta where delta>1\n runtimestamp: add start,stop run timestamp where empty')
     parser.add_argument('--dryrun',dest='dryrun',action='store_true',help='only print datasource query result, do not update destination')
     
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
@@ -297,6 +430,35 @@ def main():
         else:
             raise Exception('Must provide -r or -i argument as input')
         nupdated=recalibrateLumiForRun(destsession,c,args.delta,runnums)
+    elif args.action == 'runtimestamp':
+        if not sourceConnect:
+            raise Exception('runtimestamp action requies -s option for source connection string')
+        if not args.runnumber and not args.inputfile: #if no runnumber nor input file specified, check all
+            runnums=missingTimeRuns(destsession,c)
+            print 'these runs miss start/stop time: ',runnums
+            print 'total : ',len(runnums)
+        elif args.runnumber:
+            runnums=[int(args.runnumber)]
+        elif args.inputfile:
+            basename,extension=os.path.splitext(args.inputfile)
+            if extension=='.csv':#if file ends with .csv,use csv parser,else parse as json file
+                fileparsingResult=csvSelectionParser.csvSelectionParser(args.inputfile)            
+            else:
+                f=open(args.inputfile,'r')
+                inputfilecontent=f.read()
+                fileparsingResult=selectionParser.selectionParser(inputfilecontent)
+            if not fileparsingResult:
+                raise Exception('failed to parse the input file '+ifilename)
+            runnums=fileparsingResult.runs()
+        result=getTimeForRun(sourcesession,c,runnums)
+        #for run,(startTimeT,stopTimeT) in result.items():
+            #print 'run: ',run
+            #if not startTimeT or not stopTimeT:
+                #print 'None'
+            #else:
+                #print 'start: ',startTimeT
+                #print 'stop: ',stopTimeT
+        addTimeForRun(destsession,c,result)
     if sourcesession:  
         del sourcesession
     del destsession
