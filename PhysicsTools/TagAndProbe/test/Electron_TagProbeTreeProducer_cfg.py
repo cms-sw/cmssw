@@ -190,7 +190,7 @@ process.badSuperClustersClean = cms.EDFilter("CandViewCleaner",
 ## Here we show how to use a module to compute an external variable
 #process.load("JetMETCorrections.Configuration.DefaultJEC_cff")
 JET_COLL = "ak5CaloJets"
-JET_CUTS = "pt > 10.0 && abs(eta)<3.0 && (0.02 < emEnergyFraction < 0.9)"
+JET_CUTS = "pt > 10.0 && abs(eta)<3.0 && (0.01 < emEnergyFraction < 0.9) && (n90>5)"
 
 process.superClusterDRToNearestJet = cms.EDProducer("DeltaRNearestObjectComputer",
     probes = cms.InputTag("goodSuperClusters"),
@@ -248,12 +248,22 @@ process.TagMatchedSuperClusterCandsClean = cms.EDProducer("ElectronMatchedCandid
 )
 
 
+process.IsoMatchedSuperClusterCandsClean = process.TagMatchedSuperClusterCandsClean.clone()
+process.IsoMatchedSuperClusterCandsClean.ReferenceElectronCollection = cms.untracked.InputTag("PassingIsolation")
+process.IdMatchedSuperClusterCandsClean = process.TagMatchedSuperClusterCandsClean.clone()
+process.IdMatchedSuperClusterCandsClean.ReferenceElectronCollection = cms.untracked.InputTag("PassingId")
+
+
+
+
 process.ele_sequence = cms.Sequence(
     process.PassingGsf * process.GsfMatchedSuperClusterCands +
     process.PassingIsolation + process.PassingId + 
     process.PassingHLT + process.Tag*
-    process.TagMatchedSuperClusterCandsClean * process.badSuperClustersClean 
+    process.TagMatchedSuperClusterCandsClean * process.badSuperClustersClean *
+    process.IsoMatchedSuperClusterCandsClean * process.IdMatchedSuperClusterCandsClean   
     )
+
 
 ##    _____ ___   ____    ____       _          
 ##   |_   _( _ ) |  _ \  |  _ \ __ _(_)_ __ ___ 
@@ -698,6 +708,9 @@ process.SCToGsf = cms.EDAnalyzer("TagProbeFitTreeProducer",
     arbitration   = cms.string("Random2"),                      
     flags = cms.PSet(
         probe_passing = cms.InputTag("GsfMatchedSuperClusterCands"),
+        probe_passingGsf = cms.InputTag("GsfMatchedSuperClusterCands"),        
+        probe_passingIso = cms.InputTag("IsoMatchedSuperClusterCandsClean"),
+        probe_passingId = cms.InputTag("IdMatchedSuperClusterCandsClean"),        
         probe_passingALL = cms.InputTag("TagMatchedSuperClusterCandsClean")
     ),
     probeMatches  = cms.InputTag("McMatchSC"),
@@ -751,7 +764,10 @@ process.GsfToIso = cms.EDAnalyzer("TagProbeFitTreeProducer",
     tagProbePairs = cms.InputTag("tagGsf"),
     arbitration   = cms.string("Random2"),
     flags = cms.PSet(
-        probe_passing = cms.InputTag("PassingIsolation")
+        probe_passing = cms.InputTag("PassingIsolation"),
+        probe_passingIso = cms.InputTag("PassingIsolation"),
+        probe_passingId = cms.InputTag("PassingId"),
+        probe_passingAll = cms.InputTag("PassingHLT")        
     ),
     probeMatches  = cms.InputTag("McMatchGsf"),
     allProbes     = cms.InputTag("PassingGsf")
@@ -772,7 +788,9 @@ process.IsoToId = cms.EDAnalyzer("TagProbeFitTreeProducer",
     tagProbePairs = cms.InputTag("tagIso"),
     arbitration   = cms.string("Random2"),
     flags = cms.PSet(
-        probe_passing = cms.InputTag("PassingId")
+        probe_passing = cms.InputTag("PassingId"),
+        probe_passingId = cms.InputTag("PassingId"),
+        probe_passingAll = cms.InputTag("PassingHLT")         
     ),
     probeMatches  = cms.InputTag("McMatchIso"),
     allProbes     = cms.InputTag("PassingIsolation")
