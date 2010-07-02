@@ -13,30 +13,14 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PAT")
 
 
-#process.MessageLogger = cms.Service(
-#        "MessageLogger",
-#            categories = cms.untracked.vstring('info', 'debug','cout')
-#            )
+process.MessageLogger = cms.Service(
+        "MessageLogger",
+            categories = cms.untracked.vstring('info', 'debug','cout')
+            )
 
 process.options = cms.untracked.PSet(
     Rethrow = cms.untracked.vstring('ProductNotFound')
 )
-
-
-process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.threshold = cms.untracked.string("INFO")
-process.MessageLogger.cerr.FwkSummary = cms.untracked.PSet(
-       reportEvery = cms.untracked.int32(1000000),
-          limit = cms.untracked.int32(10000000)
-       )
-process.MessageLogger.cerr.FwkReport = cms.untracked.PSet(
-      reportEvery = cms.untracked.int32(100000),
-         limit = cms.untracked.int32(10000000)
-      )
-process.options = cms.untracked.PSet(
-       wantSummary = cms.untracked.bool(True)
-       )
-
 
 
 # source
@@ -102,7 +86,18 @@ process.load("RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequence_cff")
 #process.patElectronIsolation = cms.Sequence(process.egammaIsolationSequence)
 
 process.patElectrons.isoDeposits = cms.PSet()
-process.patElectrons.userIsolation = cms.PSet( )
+process.patElectrons.userIsolation = cms.PSet(
+#       tracker = cms.PSet(
+#            src = cms.InputTag("electronTrackIsolationScone"),
+#        ),
+#        ecal = cms.PSet(
+#            src = cms.InputTag("electronEcalRecHitIsolationScone"),
+#        ),
+#       hcal = cms.PSet(
+#            src = cms.InputTag("electronHcalTowerIsolationScone"),
+#        ),
+#        user = cms.VPSet(),
+    )
 process.patElectrons.addElectronID = cms.bool(True)
 process.patElectrons.electronIDSources = cms.PSet(
     simpleEleId95relIso= cms.InputTag("simpleEleId95relIso"),
@@ -136,11 +131,14 @@ process.patDefaultSequence = cms.Sequence(process.makePatCandidates)
 ##
 ##
 ## WARNING: you may want to modify this item:
-HLT_process_name = "REDIGI"   # REDIGI for the Spring10 production traditional MC / HLT for the powheg samples or data
+HLT_process_name = "REDIGI"   # REDIGI for the Spring10 production traditional MC
 # trigger path selection
 HLT_path_name     = "HLT_Photon10_L1R" #= "HLT_Ele15_LW_L1R" #
 # trigger filter name
 HLT_filter_name  =  "hltL1NonIsoHLTNonIsoSinglePhotonEt10HcalIsolFilter"
+#
+HLT_path_name_extra   = "HLT_Photon15_L1R" #= "HLT_Ele15_LW_L1R" #
+HLT_filter_name_extra = "hltL1NonIsoHLTNonIsoSinglePhotonEt15HcalIsolFilter"
 #  #=  "hltL1NonIsoHLTNonIsoSingleElectronLWEt15PixelMatchFilter" #
 process.wenuFilter = cms.EDFilter('WenuCandidateFilter',
                                   ### the input collections needed:
@@ -168,14 +166,19 @@ process.wenuFilter = cms.EDFilter('WenuCandidateFilter',
                                   # demand geometrically matched to an HLT object with ET>15GeV
                                   useTriggerInfo = cms.untracked.bool(True),
                                   electronMatched2HLT = cms.untracked.bool(True),
-                                  electronMatched2HLT_DR = cms.untracked.double(0.2),
+                                  electronMatched2HLT_DR = cms.untracked.double(0.1),
                                   useHLTObjectETCut = cms.untracked.bool(True),
                                   hltObjectETCut = cms.untracked.double(15.),
+                                  useExtraTrigger = cms.untracked.bool(True),
+                                  hltpathExtra = cms.untracked.string(HLT_path_name_extra),
+                                  hltpathFilterExtra = cms.untracked.InputTag(HLT_filter_name_extra,"",HLT_process_name),
                                   # ET Cut in the SC
-                                  ETCut = cms.untracked.double(25.),                                  
+                                  ETCut = cms.untracked.double(20.),                                  
                                   METCut = cms.untracked.double(0.),
-                                  # reject events with a 2nd electron with ET > 20 that passes the WP95%
-                                  vetoSecondElectronEvents = cms.untracked.bool(True),
+                                  # Do not reject events with 2nd electrons in the filter level, do it later if you need
+                                  # but store the second electron in the event
+                                  vetoSecondElectronEvents = cms.untracked.bool(False),
+                                  storeSecondElectron = cms.untracked.bool(True),
                                   ETCut2ndEle = cms.untracked.double(20.),
                                   vetoSecondElectronIDType = cms.untracked.string("simpleEleId95relIso"),
                                   vetoSecondElectronIDSign = cms.untracked.string("="),
@@ -189,9 +192,6 @@ process.wenuFilter = cms.EDFilter('WenuCandidateFilter',
                                   calculateValidFirstPXBHit = cms.untracked.bool(True),
                                   calculateConversionRejection = cms.untracked.bool(True),
                                   calculateExpectedMissingHits = cms.untracked.bool(True),
-                                  # it is MC, not data
-                                  dataMagneticFieldSetUp = cms.untracked.bool(False),
-                                  dcsTag = cms.untracked.InputTag("scalersRawToDigi"),
                                   )
 ####################################################################################
 ##
@@ -235,7 +235,8 @@ process.plotter = cms.EDAnalyzer('WenuPlots',
                                  wenuCollectionTag = cms.untracked.InputTag("wenuFilter","selectedWenuCandidates","PAT"),
                                  WENU_VBTFselectionFileName = cms.untracked.string("WENU_VBTFselection.root"),
                                  WENU_VBTFpreseleFileName = cms.untracked.string("WENU_VBTFpreselection.root"),
-                                 DatasetTag =  cms.untracked.int32(17),
+                                 DatasetTag =  cms.untracked.int32(0),
+                                 storeSecondElectronInformation = cms.untracked.bool(True),
                                  )
 #
 # if you run on data then you have to do misalignment  corrections first!!!

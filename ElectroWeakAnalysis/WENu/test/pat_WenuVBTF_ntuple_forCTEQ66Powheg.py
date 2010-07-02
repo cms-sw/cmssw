@@ -138,10 +138,12 @@ process.patDefaultSequence = cms.Sequence(process.makePatCandidates)
 ## WARNING: you may want to modify this item:
 HLT_process_name = "HLT"   # REDIGI for the Spring10 production traditional MC / HLT for the powheg samples or data
 # trigger path selection
-HLT_path_name     = "HLT_Photon10_L1R" #= "HLT_Ele15_LW_L1R" #
+HLT_path_name     = "HLT_Photon10_L1R" 
 # trigger filter name
 HLT_filter_name  =  "hltL1NonIsoHLTNonIsoSinglePhotonEt10HcalIsolFilter"
-#  #=  "hltL1NonIsoHLTNonIsoSingleElectronLWEt15PixelMatchFilter" #
+#
+HLT_path_name_extra   = "HLT_Photon15_L1R" #= "HLT_Ele15_LW_L1R" #
+HLT_filter_name_extra = "hltL1NonIsoHLTNonIsoSinglePhotonEt15HcalIsolFilter"
 process.wenuFilter = cms.EDFilter('WenuCandidateFilter',
                                   ### the input collections needed:
                                   electronCollectionTag = cms.untracked.InputTag("patElectrons","","PAT"),
@@ -168,14 +170,18 @@ process.wenuFilter = cms.EDFilter('WenuCandidateFilter',
                                   # demand geometrically matched to an HLT object with ET>15GeV
                                   useTriggerInfo = cms.untracked.bool(True),
                                   electronMatched2HLT = cms.untracked.bool(True),
-                                  electronMatched2HLT_DR = cms.untracked.double(0.2),
+                                  electronMatched2HLT_DR = cms.untracked.double(0.1),
                                   useHLTObjectETCut = cms.untracked.bool(True),
                                   hltObjectETCut = cms.untracked.double(15.),
+                                  useExtraTrigger = cms.untracked.bool(True),
+                                  hltpathExtra = cms.untracked.string(HLT_path_name_extra),
+                                  hltpathFilterExtra = cms.untracked.InputTag(HLT_filter_name_extra,"",HLT_process_name),
                                   # ET Cut in the SC
-                                  ETCut = cms.untracked.double(25.),                                  
+                                  ETCut = cms.untracked.double(20.),                                  
                                   METCut = cms.untracked.double(0.),
                                   # reject events with a 2nd electron with ET > 20 that passes the WP95%
-                                  vetoSecondElectronEvents = cms.untracked.bool(True),
+                                  vetoSecondElectronEvents = cms.untracked.bool(False),
+                                  storeSecondElectron = cms.untracked.bool(True),
                                   ETCut2ndEle = cms.untracked.double(20.),
                                   vetoSecondElectronIDType = cms.untracked.string("simpleEleId95relIso"),
                                   vetoSecondElectronIDSign = cms.untracked.string("="),
@@ -236,6 +242,7 @@ process.plotter = cms.EDAnalyzer('WenuPlots',
                                  WENU_VBTFselectionFileName = cms.untracked.string("WENU_VBTFselection.root"),
                                  WENU_VBTFpreseleFileName = cms.untracked.string("WENU_VBTFpreselection.root"),
                                  DatasetTag =  cms.untracked.int32(0),
+                                 storeSecondElectronInformation = cms.untracked.bool(True),
                                  )
 #
 # if you run on data then you have to do misalignment  corrections first!!!
