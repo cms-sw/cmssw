@@ -309,10 +309,6 @@ namespace edm {
 
         bool operator==(IndexIntoFileItrImpl const& right) const;
 
-      protected:
-
-        void setInvalid();
-
         IndexIntoFile const* indexIntoFile() const { return indexIntoFile_; }
         int size() const { return size_; }
 
@@ -323,6 +319,10 @@ namespace edm {
         int indexToEventRange() const { return indexToEventRange_; }
         long long indexToEvent() const { return indexToEvent_; }
         long long nEvents() const { return nEvents_; }
+
+      protected:
+
+        void setInvalid();
 
         void setIndexToLumi(int value) { indexToLumi_ = value; }
         void setIndexToEventRange(int value) { indexToEventRange_ = value; }
@@ -489,7 +489,19 @@ namespace edm {
           return !(*this == right);
         }
 
+
       private:
+
+        // The rest of these are intended to be used only by code which tests
+        // this class.
+        IndexIntoFile const* indexIntoFile() const { return impl_->indexIntoFile(); }
+        int size() const { return impl_->size(); }
+        EntryType type() const { return impl_->type(); }
+        int indexToRun() const { return impl_->indexToRun(); }
+        int indexToLumi() const { return impl_->indexToLumi(); }
+        int indexToEventRange() const { return impl_->indexToEventRange(); }
+        long long indexToEvent() const { return impl_->indexToEvent(); }
+        long long nEvents() const { return impl_->nEvents(); }
 
         value_ptr<IndexIntoFileItrImpl> impl_;
       };
@@ -592,8 +604,6 @@ namespace edm {
 
       struct Transients {
 	Transients();
-	bool allInEntryOrder_;
-	bool resultCached_;
         int previousAddedIndex_;
         std::map<IndexRunKey, EntryNumber_t> runToFirstEntry_;
         std::map<IndexRunLumiKey, EntryNumber_t> lumiToFirstEntry_;
@@ -619,8 +629,6 @@ namespace edm {
     private:
 
       void fillRunOrLumiIndexes() const;
-      bool& allInEntryOrder() const {return transients_.get().allInEntryOrder_;}
-      bool& resultCached() const {return transients_.get().resultCached_;}
       int& previousAddedIndex() const {return transients_.get().previousAddedIndex_;}
       std::map<IndexRunKey, EntryNumber_t>& runToFirstEntry() const {return transients_.get().runToFirstEntry_;}
       std::map<IndexRunLumiKey, EntryNumber_t>& lumiToFirstEntry() const {return transients_.get().lumiToFirstEntry_;}

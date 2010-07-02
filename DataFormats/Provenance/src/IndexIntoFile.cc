@@ -53,8 +53,6 @@ namespace edm {
     }
     previousAddedIndex() = index;
 
-    resultCached() = false;
-
     assert((currentRun() == run && currentIndex() == index) || currentRun() == invalidRun);
     if (lumi == invalidLumi) {
       assert(currentLumi() == invalidLumi);
@@ -276,22 +274,16 @@ namespace edm {
   }
 
   bool IndexIntoFile::iterationWillBeInEntryOrder(SortOrder sortOrder) const {
-    if(!resultCached()) {
-      resultCached() = true;
-      EntryNumber_t maxEntry = invalidEntry;
-      for(IndexIntoFileItr it = begin(sortOrder), itEnd = end(sortOrder); it != itEnd; ++it) {
-        if(it.getEntryType() == kEvent) {
-	  if(it.entry() < maxEntry) {
-	    allInEntryOrder() = false;
-	    return false;
-          }
-	  maxEntry = it.entry();
+    EntryNumber_t maxEntry = invalidEntry;
+    for(IndexIntoFileItr it = begin(sortOrder), itEnd = end(sortOrder); it != itEnd; ++it) {
+      if(it.getEntryType() == kEvent) {
+        if(it.entry() < maxEntry) {
+	  return false;
         }
+	maxEntry = it.entry();
       }
-      allInEntryOrder() = true;
-      return true;
     }
-    return allInEntryOrder();
+    return true;
   }
 
   bool IndexIntoFile::empty() const {
@@ -1315,9 +1307,7 @@ namespace edm {
     }
   }
 
-  IndexIntoFile::Transients::Transients() : allInEntryOrder_(false),
-                                            resultCached_(false),
-                                            previousAddedIndex_(invalidIndex),
+  IndexIntoFile::Transients::Transients() : previousAddedIndex_(invalidIndex),
                                             runToFirstEntry_(),
                                             lumiToFirstEntry_(),
                                             beginEvents_(invalidEntry),
