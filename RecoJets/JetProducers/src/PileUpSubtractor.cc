@@ -1,7 +1,6 @@
 
 #include "RecoJets/JetProducers/interface/PileUpSubtractor.h"
 
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -16,16 +15,7 @@
 #include <map>
 using namespace std;
 
-int ieta(const reco::CandidatePtr & in);
-int iphi(const reco::CandidatePtr & in);
-
-PileUpSubtractor::PileUpSubtractor(const edm::ParameterSet& iConfig,
-				   std::vector<edm::Ptr<reco::Candidate> >& input,
-				   std::vector<fastjet::PseudoJet>& towers,
-				   std::vector<fastjet::PseudoJet>& output) : 
-  inputs_(&input),
-  fjInputs_(&towers),
-  fjJets_(&output),
+PileUpSubtractor::PileUpSubtractor(const edm::ParameterSet& iConfig) :
   reRunAlgo_ (iConfig.getUntrackedParameter<bool>("reRunAlgo",false)),
   doAreaFastjet_ (iConfig.getParameter<bool>         ("doAreaFastjet")),
   doRhoFastjet_  (iConfig.getParameter<bool>         ("doRhoFastjet")),
@@ -229,10 +219,6 @@ void PileUpSubtractor::calculateOrphanInput(vector<fastjet::PseudoJet> & orphanI
   for (; pseudojetTMP != fjJetsEnd ; ++pseudojetTMP) {
 
     vector<fastjet::PseudoJet> newtowers;
-      
-    // get eta, phi of this jet
-    //double eta2 = pseudojetTMP->eta();
-    //double phi2 = pseudojetTMP->phi();
     // find towers within radiusPU_ of this jet
     for(vector<HcalDetId>::const_iterator im = allgeomid_.begin(); im != allgeomid_.end(); im++)
       {
@@ -284,78 +270,58 @@ void PileUpSubtractor::offsetCorrectJets()
 {
 
   LogDebug("PileUpSubtractor")<<"The subtractor correcting jets...\n";
-
   jetOffset_.clear();
-
   using namespace reco;
-
-  if(reRunAlgo_){
-    (*fjInputs_) = fjOriginalInputs_;
-    subtractPedestal(*fjInputs_);
-    const fastjet::JetDefinition& def = fjClusterSeq_->jet_def();
-    if ( !doAreaFastjet_ && !doRhoFastjet_) {
-      fastjet::ClusterSequence newseq( *fjInputs_, def );
-      (*fjClusterSeq_) = newseq;
-    } else {
-      fastjet::ClusterSequenceArea newseq( *fjInputs_, def , *fjActiveArea_ );
-      (*fjClusterSeq_) = newseq;
-    }
-
-    (*fjJets_) = fastjet::sorted_by_pt(fjClusterSeq_->inclusive_jets(jetPtMin_));
-  }
-
+  
   //    
   // Reestimate energy of jet (energy of jet with initial map)
   //
 
   jetOffset_.reserve(fjJets_->size());
-
-     vector<fastjet::PseudoJet>::iterator pseudojetTMP = fjJets_->begin (),
-	jetsEnd = fjJets_->end();
-     for (; pseudojetTMP != jetsEnd; ++pseudojetTMP) {
-
-	int ijet = pseudojetTMP - fjJets_->begin();
-	jetOffset_[ijet] = 0;
-
-	std::vector<fastjet::PseudoJet> towers =
-	   sorted_by_pt(fjClusterSeq_->constituents(*pseudojetTMP));
-
-	double newjetet = 0.;	
-	for(vector<fastjet::PseudoJet>::const_iterator ito = towers.begin(),
-	    towEnd = towers.end(); 
-	    ito != towEnd; 
-	    ++ito)
-	   {
-	      const reco::CandidatePtr& originalTower = (*inputs_)[ito->user_index()];
-	      int it = ieta( originalTower );
-	      double Original_Et = originalTower->et();
-	      double etnew = Original_Et - (*emean_.find(it)).second - (*esigma_.find(it)).second; 
-	      if(etnew < 0.) etnew = 0;
-	      newjetet = newjetet + etnew;
-	      jetOffset_[ijet] += Original_Et - etnew;
-	   }
-
-	if(!reRunAlgo_){
-	  double mScale = newjetet/pseudojetTMP->Et();
-	  LogDebug("PileUpSubtractor")<<"pseudojetTMP->Et() : "<<pseudojetTMP->Et()<<"\n";
-	  LogDebug("PileUpSubtractor")<<"newjetet : "<<newjetet<<"\n";
-	  LogDebug("PileUpSubtractor")<<"jetOffset_[ijet] : "<<jetOffset_[ijet]<<"\n";
-	  LogDebug("PileUpSubtractor")<<"pseudojetTMP->Et() - jetOffset_[ijet] : "<<pseudojetTMP->Et() - jetOffset_[ijet]<<"\n";
-	  LogDebug("PileUpSubtractor")<<"Scale is : "<<mScale<<"\n";
-
-	   int cshist = pseudojetTMP->cluster_hist_index();
-	   pseudojetTMP->reset(pseudojetTMP->px()*mScale, pseudojetTMP->py()*mScale,
-			       pseudojetTMP->pz()*mScale, pseudojetTMP->e()*mScale);
-	   pseudojetTMP->set_cluster_hist_index(cshist);
-	   
-	}
-     }
-
+  
+  vector<fastjet::PseudoJet>::iterator pseudojetTMP = fjJets_->begin (),
+    jetsEnd = fjJets_->end();
+  for (; pseudojetTMP != jetsEnd; ++pseudojetTMP) {
+    
+    int ijet = pseudojetTMP - fjJets_->begin();
+    jetOffset_[ijet] = 0;
+    
+    std::vector<fastjet::PseudoJet> towers =
+      sorted_by_pt(fjClusterSeq_->constituents(*pseudojetTMP));
+    
+    double newjetet = 0.;	
+    for(vector<fastjet::PseudoJet>::const_iterator ito = towers.begin(),
+	  towEnd = towers.end(); 
+	ito != towEnd; 
+	++ito)
+      {
+	const reco::CandidatePtr& originalTower = (*inputs_)[ito->user_index()];
+	int it = ieta( originalTower );
+	double Original_Et = originalTower->et();
+	double etnew = Original_Et - (*emean_.find(it)).second - (*esigma_.find(it)).second; 
+	if(etnew < 0.) etnew = 0;
+	newjetet = newjetet + etnew;
+	jetOffset_[ijet] += Original_Et - etnew;
+      }
+    
+    double mScale = newjetet/pseudojetTMP->Et();
+    LogDebug("PileUpSubtractor")<<"pseudojetTMP->Et() : "<<pseudojetTMP->Et()<<"\n";
+    LogDebug("PileUpSubtractor")<<"newjetet : "<<newjetet<<"\n";
+    LogDebug("PileUpSubtractor")<<"jetOffset_[ijet] : "<<jetOffset_[ijet]<<"\n";
+    LogDebug("PileUpSubtractor")<<"pseudojetTMP->Et() - jetOffset_[ijet] : "<<pseudojetTMP->Et() - jetOffset_[ijet]<<"\n";
+    LogDebug("PileUpSubtractor")<<"Scale is : "<<mScale<<"\n";
+    
+    int cshist = pseudojetTMP->cluster_hist_index();
+    pseudojetTMP->reset(pseudojetTMP->px()*mScale, pseudojetTMP->py()*mScale,
+			pseudojetTMP->pz()*mScale, pseudojetTMP->e()*mScale);
+    pseudojetTMP->set_cluster_hist_index(cshist);
+    
+  }
 }
 
 double PileUpSubtractor::getMeanAtTower(const reco::CandidatePtr & in) const{
-   int it = ieta(in);
-   return (*emean_.find(it)).second;
+  int it = ieta(in);
+  return (*emean_.find(it)).second;
 }
 
 double PileUpSubtractor::getSigmaAtTower(const reco::CandidatePtr & in) const {
@@ -368,37 +334,33 @@ double PileUpSubtractor::getPileUpAtTower(const reco::CandidatePtr & in) const {
   return (*emean_.find(it)).second + (*esigma_.find(it)).second;
 }
 
-int ieta(const reco::CandidatePtr & in)
-{
+int PileUpSubtractor::ieta(const reco::CandidatePtr & in) const {
   int it = 0;
   const CaloTower* ctc = dynamic_cast<const CaloTower*>(in.get());
-
-  if(ctc)
+  if(ctc){
+    it = ctc->id().ieta();
+  } else
     {
-      it = ctc->id().ieta();
-    } else
-      {
-	throw cms::Exception("Invalid Constituent") << "CaloJet constituent is not of CaloTower type";
-      }
-
+      throw cms::Exception("Invalid Constituent") << "CaloJet constituent is not of CaloTower type";
+    }
   return it;
 }
 
-int iphi(const reco::CandidatePtr & in)
-{
+int PileUpSubtractor::iphi(const reco::CandidatePtr & in) const {
   int it = 0;
   const CaloTower* ctc = dynamic_cast<const CaloTower*>(in.get());
-  if(ctc)
+  if(ctc){
+    it = ctc->id().iphi();
+  } else
     {
-      it = ctc->id().iphi();
-    } else
-      {
-	throw cms::Exception("Invalid Constituent") << "CaloJet constituent is not of CaloTower type";
-      }
-
+      throw cms::Exception("Invalid Constituent") << "CaloJet constituent is not of CaloTower type";
+    }
   return it;
 }
 
+
+#include "FWCore/PluginManager/interface/PluginFactory.h"
+EDM_REGISTER_PLUGINFACTORY(PileUpSubtractorFactory,"PileUpSubtractorFactory");
 
 
 

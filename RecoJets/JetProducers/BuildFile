@@ -1,5 +1,6 @@
 <use name=boost>
 <use name=FWCore/Framework>
+<use name=FWCore/PluginManager>
 <use name=DataFormats/JetReco>
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloTopology>

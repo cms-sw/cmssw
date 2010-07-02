@@ -24,30 +24,26 @@ class PileUpSubtractor{
   typedef boost::shared_ptr<fastjet::ActiveAreaSpec>         ActiveAreaSpecPtr;
   typedef boost::shared_ptr<fastjet::RangeDefinition>        RangeDefPtr;
   
-  PileUpSubtractor(const edm::ParameterSet& iConfig, 
-		   std::vector<edm::Ptr<reco::Candidate> >& input,
-		   std::vector<fastjet::PseudoJet>& towers,
-		   std::vector<fastjet::PseudoJet>& output);
+  PileUpSubtractor(const edm::ParameterSet& iConfig); 
   ~PileUpSubtractor(){;}
 
-  void setAlgorithm(ClusterSequencePtr& algorithm);
-  void reset(std::vector<edm::Ptr<reco::Candidate> >& input,
+virtual void setAlgorithm(ClusterSequencePtr& algorithm);
+virtual void reset(std::vector<edm::Ptr<reco::Candidate> >& input,
 	     std::vector<fastjet::PseudoJet>& towers,
 	     std::vector<fastjet::PseudoJet>& output);
-  
-  //  void setAlgorithm(fastjet::ClusterSequence& algorithm);
-  void setupGeometryMap(edm::Event& iEvent,const edm::EventSetup& iSetup);
-  void calculatePedestal(std::vector<fastjet::PseudoJet> const & coll);
-  void subtractPedestal(std::vector<fastjet::PseudoJet> & coll);
-  void calculateOrphanInput(std::vector<fastjet::PseudoJet> & orphanInput);
-  void offsetCorrectJets();
-  double getMeanAtTower(const reco::CandidatePtr & in) const;
-  double getSigmaAtTower(const reco::CandidatePtr & in) const;
-  double getPileUpAtTower(const reco::CandidatePtr & in) const;
-  double getPileUpEnergy(int ijet) const {return jetOffset_[ijet];}
-  void calculateJetOffset();
+virtual void setupGeometryMap(edm::Event& iEvent,const edm::EventSetup& iSetup);
+virtual void calculatePedestal(std::vector<fastjet::PseudoJet> const & coll);
+virtual void subtractPedestal(std::vector<fastjet::PseudoJet> & coll);
+virtual void calculateOrphanInput(std::vector<fastjet::PseudoJet> & orphanInput);
+virtual void offsetCorrectJets();
+virtual double getMeanAtTower(const reco::CandidatePtr & in) const;
+virtual double getSigmaAtTower(const reco::CandidatePtr & in) const;
+virtual double getPileUpAtTower(const reco::CandidatePtr & in) const;
+virtual double getPileUpEnergy(int ijet) const {return jetOffset_[ijet];}
+ int ieta(const reco::CandidatePtr & in) const;
+ int iphi(const reco::CandidatePtr & in) const;
 
- private:
+ protected:
 
   // From jet producer
   ClusterSequencePtr              fjClusterSeq_;    // fastjet cluster sequence
@@ -78,5 +74,9 @@ class PileUpSubtractor{
   std::vector<double>   jetOffset_;
 
 };
+
+#include "FWCore/PluginManager/interface/PluginFactory.h"
+namespace edm {class ParameterSet; class EventSetup; }
+typedef edmplugin::PluginFactory<PileUpSubtractor *(const edm::ParameterSet & )> PileUpSubtractorFactory;
 
 #endif

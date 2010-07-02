@@ -159,6 +159,7 @@ protected:
   
   // for pileup offset correction
   bool                  doPUOffsetCorr_;            // add the pileup calculation from offset correction? 
+  std::string           puSubtractorName_;
 
   // anomalous cell cuts
   unsigned int          maxBadEcalCells_;           // maximum number of bad ECAL cells

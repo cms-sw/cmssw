@@ -168,7 +168,14 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
      if ( jetTypeE != JetType::CaloJet ) {
 	throw cms::Exception("InvalidInput") << "Can only offset correct jets of type CaloJet";
      }
-     subtractor_ = boost::shared_ptr<PileUpSubtractor>(new PileUpSubtractor(iConfig,inputs_,fjInputs_,fjJets_));
+     //     subtractor_ = boost::shared_ptr<PileUpSubtractor>(new PileUpSubtractor(iConfig));
+     puSubtractorName_  =  iConfig.getParameter<string> ("subtractorName");
+     if(puSubtractorName_.empty()){
+       edm::LogWarning("VirtualJetProducer") << "Pile Up correction on; however, pile up type is not specified. Using default... \n";
+       subtractor_ =  boost::shared_ptr<PileUpSubtractor>(new PileUpSubtractor(iConfig));
+     }else{
+       subtractor_ =  boost::shared_ptr<PileUpSubtractor>(PileUpSubtractorFactory::get()->create( puSubtractorName_, iConfig));
+     }
   }
 
   // do fasjet area / rho calcluation? => accept corresponding parameters
