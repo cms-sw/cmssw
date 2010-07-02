@@ -168,8 +168,10 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
      if ( jetTypeE != JetType::CaloJet ) {
 	throw cms::Exception("InvalidInput") << "Can only offset correct jets of type CaloJet";
      }
-     //     subtractor_ = boost::shared_ptr<PileUpSubtractor>(new PileUpSubtractor(iConfig));
-     puSubtractorName_  =  iConfig.getParameter<string> ("subtractorName");
+     
+     if(iConfig.exists("subtractorName")) puSubtractorName_  =  iConfig.getParameter<string> ("subtractorName");
+     else puSubtractorName_ = std::string();
+     
      if(puSubtractorName_.empty()){
        edm::LogWarning("VirtualJetProducer") << "Pile Up correction on; however, pile up type is not specified. Using default... \n";
        subtractor_ =  boost::shared_ptr<PileUpSubtractor>(new PileUpSubtractor(iConfig));
