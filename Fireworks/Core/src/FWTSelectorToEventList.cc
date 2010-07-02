@@ -1,4 +1,4 @@
-// $Id: Stone_SKEL.cxx 2089 2008-11-23 20:31:03Z matevz $
+// $Id: FWTSelectorToEventList.cc,v 1.1 2010/07/02 11:46:30 matevz Exp $
 
 #include "Fireworks/Core/interface/FWTSelectorToEventList.h"
 
@@ -14,6 +14,10 @@
 // TTree selector for direct extraction into an TEventList -- no need
 // to create it in TDirectory and name it.
 //
+// The event-list passed in constructor is not owned by the selector
+// unless SetOwnEventList(kTRUE) is called -- then it is destroyed in
+// the destructor.
+//
 // Own TTreePlayer is created and used directly in ProcessTree().
 // This avoids usage of various global variables / state that would be
 // used in the process of calling TTree::Draw(">>event_list").
@@ -27,7 +31,8 @@ FWTSelectorToEventList::FWTSelectorToEventList(TTree*      tree,
                                                const char* sel) :
    TSelectorDraw(),
    fEvList(evl),
-   fPlayer(new TTreePlayer)
+   fPlayer(new TTreePlayer),
+   fOwnEvList(kFALSE)
 {
    fInput.Add(new TNamed("varexp", ""));
    fInput.Add(new TNamed("selection", sel));
@@ -40,6 +45,14 @@ FWTSelectorToEventList::FWTSelectorToEventList(TTree*      tree,
 FWTSelectorToEventList::~FWTSelectorToEventList()
 {
    delete fPlayer;
+   if (fOwnEvList)
+      delete fEvList;
+}
+
+//______________________________________________________________________________
+void FWTSelectorToEventList::ClearEventList()
+{
+   fEvList->Clear();
 }
 
 //==============================================================================
