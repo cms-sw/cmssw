@@ -6,7 +6,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: FWRPCRecHitProxyBuilder.cc,v 1.8 2010/06/30 14:37:07 mccauley Exp $
+// $Id: FWRPCRecHitProxyBuilder.cc,v 1.9 2010/07/01 14:25:52 mccauley Exp $
 //
 
 #include "TEveGeoNode.h"
@@ -15,6 +15,7 @@
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/fwLog.h"
 
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 
@@ -56,8 +57,8 @@ FWRPCRecHitProxyBuilder::buildViewType(const RPCRecHit& iData,
   
   if ( ! matrix ) 
   {
-    std::cout << "ERROR: failed get geometry of RPC reference volume with detid: "
-              << rpcId << std::endl;
+    fwLog(fwlog::kError) <<"failed to get geometry of RPC reference volume with detid: "
+                         << rpcId << std::endl;
     return;
   }
  
