@@ -40,6 +40,7 @@
  01Mar10  2nd electron option to be isolated if requested by user
  22Jun10  modification to allow for the ICHEP VBTF preselection and the
           creation of the VBTF ntuple
+ 01Jul10  second electron information added
  Contact:
  Nikolaos.Rompotis@Cern.ch
  Imperial College London
@@ -108,6 +109,11 @@ class WenuCandidateFilter : public edm::EDFilter {
   edm::InputTag triggerEventTag_;
   std::string hltpath_;
   edm::InputTag hltpathFilter_;
+  // quick fix for extra trigger
+  Bool_t  useExtraTrigger_;
+  std::string  hltpathExtra_;
+  edm::InputTag hltpathFilterExtra_;
+  //
   edm::InputTag electronCollectionTag_;
   edm::InputTag metCollectionTag_;
   edm::InputTag pfMetCollectionTag_;
@@ -141,6 +147,9 @@ class WenuCandidateFilter : public edm::EDFilter {
   Double_t spikeCleaningSwissCrossCut_;
   Bool_t useHLTObjectETCut_;
   Double_t hltObjectETCut_;
+  Bool_t storeSecondElectron_;
+  //
+
 };
 #endif
 //
@@ -165,16 +174,18 @@ WenuCandidateFilter::WenuCandidateFilter(const edm::ParameterSet& iConfig)
   METCut_ = iConfig.getUntrackedParameter<double>("METCut");
 
   vetoSecondElectronEvents_ = iConfig.getUntrackedParameter<bool>("vetoSecondElectronEvents",false);
-  if (vetoSecondElectronEvents_) {
+  storeSecondElectron_ =  iConfig.getUntrackedParameter<Bool_t>("storeSecondElectron");
+  if (vetoSecondElectronEvents_ || storeSecondElectron_) {
     ETCut2ndEle_ = iConfig.getUntrackedParameter<double>("ETCut2ndEle");
   }
-  vetoSecondElectronIDType_ = iConfig.getUntrackedParameter<std::string>("vetoSecondElectronIDType", "NULL");
+  vetoSecondElectronIDType_ = iConfig.getUntrackedParameter<std::string>("vetoSecondElectronIDType");
   if (vetoSecondElectronIDType_ != "NULL") {
     useVetoSecondElectronID_ = true;
     vetoSecondElectronIDValue_ = iConfig.getUntrackedParameter<double>("vetoSecondElectronIDValue");
     vetoSecondElectronIDSign_ = iConfig.getUntrackedParameter<std::string>("vetoSecondElectronIDSign","=");
   }
   else useVetoSecondElectronID_ = false;
+
   useEcalDrivenElectrons_ = iConfig.getUntrackedParameter<Bool_t>("useEcalDrivenElectrons", false);
   //
   // preselection criteria: hit pattern
@@ -206,6 +217,12 @@ WenuCandidateFilter::WenuCandidateFilter(const edm::ParameterSet& iConfig)
   useHLTObjectETCut_ = iConfig.getUntrackedParameter<Bool_t>("useHLTObjectETCut", false);
   if (useHLTObjectETCut_) {
     hltObjectETCut_=iConfig.getUntrackedParameter<Double_t>("hltObjectETCut");
+  }
+  // dirty way to add a second trigger with OR, to be done properly in the next tag
+  useExtraTrigger_ = iConfig.getUntrackedParameter<Bool_t>("useExtraTrigger");
+  if (useExtraTrigger_) {
+    hltpathExtra_=iConfig.getUntrackedParameter<std::string>("hltpathExtra");
+    hltpathFilterExtra_=iConfig.getUntrackedParameter<edm::InputTag>("hltpathFilterExtra");
   }
   // trigger matching related:
   useTriggerInfo_ = iConfig.getUntrackedParameter<bool>("useTriggerInfo",true);
@@ -253,6 +270,10 @@ WenuCandidateFilter::WenuCandidateFilter(const edm::ParameterSet& iConfig)
   else {
     std::cout << "WenuCandidateFilter: No veto for 2nd electron applied " 
 	      << std::endl;
+  }
+  if (storeSecondElectron_) {
+    std::cout << "WenuCandidateFilter: Second electron will be stored in the event if it exists."
+	      << " Check for second electron existence with myElec.userInt(\"hasSecondElectron\")==1" << std::endl;
   }
   if (useEcalDrivenElectrons_) {
     std::cout << "WenuCandidateFilter: Electron Candidate is required to"
@@ -353,8 +374,14 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      const edm::TriggerNames & triggerNames = iEvent.triggerNames(*HLTResults);
      UInt_t trigger_size = HLTResults->size();
      UInt_t trigger_position = triggerNames.triggerIndex(hltpath_);
+     UInt_t trigger_position_extra = trigger_size;
+     if (useExtraTrigger_) {
+       trigger_position_extra = triggerNames.triggerIndex(hltpathExtra_);
+     }
      if (trigger_position < trigger_size)
        passTrigger = (int) HLTResults->accept(trigger_position);
+     if (passTrigger ==0 && trigger_position_extra < trigger_size)
+       passTrigger = (int) HLTResults->accept(trigger_position_extra);
    }
    else {
      //std::cout << "TriggerResults missing from this event.." << std::endl;
@@ -372,9 +399,20 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(triggerEventTag_, pHLT);
    const Int_t nF(pHLT->sizeFilters());
    const Int_t filterInd = pHLT->filterIndex(hltpathFilter_);
+   Int_t filterIndExtra = nF;
+   if (useExtraTrigger_) {
+     filterIndExtra = pHLT->filterIndex(hltpathFilterExtra_);
+   }
    if (nF != filterInd) {
      const trigger::Vids& VIDS (pHLT->filterIds(filterInd));
      const trigger::Keys& KEYS(pHLT->filterKeys(filterInd));
+     const Int_t nI(VIDS.size());
+     const Int_t nK(KEYS.size());
+     numberOfHLTFilterObjects = (nI>nK)? nI:nK;
+   }
+   else if (nF != filterIndExtra) {
+     const trigger::Vids& VIDS (pHLT->filterIds(filterIndExtra));
+     const trigger::Keys& KEYS(pHLT->filterKeys(filterIndExtra));
      const Int_t nI(VIDS.size());
      const Int_t nK(KEYS.size());
      numberOfHLTFilterObjects = (nI>nK)? nI:nK;
@@ -459,7 +497,16 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //}
    //
    //
+   // get the most high-ET electron:
+   pat::Electron maxETelec = myElectrons[max_et_index];
+
    // now search for a second Gsf electron with ET > ETCut2ndEle_
+   pat::Electron secondETelec;
+   bool hasSecondElectron = false;
+   bool failsSecondElectronCut =  false;
+   if (event_elec_number==1) {
+     maxETelec.addUserInt("hasSecondElectron",0);
+   }
    if (event_elec_number>=2 && vetoSecondElectronEvents_) {
      for (int ie=1; ie<event_elec_number; ++ie) {
        pat::Electron secElec = myElectrons[ sorted[ie] ];
@@ -469,9 +516,22 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        }
      }
    }
+   if (event_elec_number>=2 && storeSecondElectron_) {
+     for (int ie=1; ie<event_elec_number; ++ie) {
+       pat::Electron secElec = myElectrons[ sorted[ie] ];
+       if (ie==1) {
+	 maxETelec.addUserInt("hasSecondElectron",1);
+	 hasSecondElectron = true;
+	 secondETelec = secElec;
+       }
+       if (ETs[ sorted[ie] ] > ETCut2ndEle_ && passEleIDCuts(&secElec)) {
+	 failsSecondElectronCut =  true;
+	 maxETelec.addUserInt("failsSecondElectronCut",1);
+       }
+     }
+   }
+   if (failsSecondElectronCut == false) maxETelec.addUserInt("failsSecondElectronCut",0);
    //
-   // get the most high-ET electron:
-   pat::Electron maxETelec = myElectrons[max_et_index];
    // demand that it is in fiducial:
    if (not isInFiducial(maxETelec.caloPosition().eta())) {
        delete [] sorted;  delete [] et;
@@ -611,22 +671,39 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //
    if (electronMatched2HLT_ && useTriggerInfo_) {
      Int_t trigger_int_probe = 0;
-     if (nF != filterInd) {
-       const trigger::Keys& KEYS(pHLT->filterKeys(filterInd));
-       const Int_t nK(KEYS.size());
-       //std::cout << "Found trig objects #" << nK << std::endl;
-       for (Int_t iTrig = 0;iTrig <nK; ++iTrig ) {
-	 const trigger::TriggerObject& TO(TOC[KEYS[iTrig]]);
-	 //
-	 if (useHLTObjectETCut_) {
-	   if (TO.et() < hltObjectETCut_) continue;
+     if (nF != filterInd || nF != filterIndExtra) {
+       if (nF != filterInd) {
+	 const trigger::Keys& KEYS(pHLT->filterKeys(filterInd));
+	 const Int_t nK(KEYS.size());
+	 //std::cout << "Found trig objects #" << nK << std::endl;
+	 for (Int_t iTrig = 0;iTrig <nK; ++iTrig ) {
+	   const trigger::TriggerObject& TO(TOC[KEYS[iTrig]]);
+	   //
+	   if (useHLTObjectETCut_) {
+	     if (TO.et() < hltObjectETCut_) continue;
+	   }
+	   Double_t dr_ele_HLT = 
+	     reco::deltaR(maxETelec.eta(),maxETelec.phi(),TO.eta(),TO.phi());
+	   //std::cout << "-->found dr=" << dr_ele_HLT << std::endl;
+	   if (TMath::Abs(dr_ele_HLT) < electronMatched2HLT_DR_) {
+	     ++trigger_int_probe; break;}
+	   //}
 	 }
-	 Double_t dr_ele_HLT = 
-	   reco::deltaR(maxETelec.eta(),maxETelec.phi(),TO.eta(),TO.phi());
-	 //std::cout << "-->found dr=" << dr_ele_HLT << std::endl;
-	 if (TMath::Abs(dr_ele_HLT) < electronMatched2HLT_DR_) {
-	   ++trigger_int_probe; break;}
-	 //}
+       }
+       if (trigger_int_probe == 0 && nF != filterIndExtra) {
+	 const trigger::Keys& KEYS(pHLT->filterKeys(filterIndExtra));
+	 const Int_t nK(KEYS.size());
+	 //std::cout << "Found trig objects #" << nK << std::endl;
+	 for (Int_t iTrig = 0;iTrig <nK; ++iTrig ) {
+	   const trigger::TriggerObject& TO(TOC[KEYS[iTrig]]);
+	   //
+	   Double_t dr_ele_HLT = 
+	     reco::deltaR(maxETelec.eta(),maxETelec.phi(),TO.eta(),TO.phi());
+	   //std::cout << "-->found dr=" << dr_ele_HLT << std::endl;
+	   if (TMath::Abs(dr_ele_HLT) < electronMatched2HLT_DR_) {
+	     ++trigger_int_probe; break;}
+	   //}
+	 }	 
        }
        if (trigger_int_probe == 0) {
 	 delete [] sorted;  delete [] et;
@@ -677,6 +754,10 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    wenu.addDaughter(theMET, "met");
    wenu.addDaughter(thePfMET, "pfmet");
    wenu.addDaughter(theTcMET, "tcmet");
+   // the second electron if needed
+   if (hasSecondElectron && storeSecondElectron_) {
+     wenu.addDaughter(secondETelec, "secondElec");
+   }
 
    auto_ptr<pat::CompositeCandidateCollection> 
      selectedWenuCandidates(new pat::CompositeCandidateCollection);

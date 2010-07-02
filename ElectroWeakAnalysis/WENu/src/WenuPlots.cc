@@ -38,6 +38,7 @@
            the 3 default ones, pat user isolations added in the end
            change to framework independent variable definitions 
 	   double->Double_t etc and math.h functions from TMath
+  01Jul10  second electron information added
   Contact: 
   Nikolaos Rompotis  -  Nikolaos.Rompotis@Cern.ch
   Imperial College London
@@ -109,6 +110,7 @@ WenuPlots::WenuPlots(const edm::ParameterSet& iConfig)
     pfJetCollectionTag_   = iConfig.getUntrackedParameter<edm::InputTag>("pfJetCollectionTag");
     DRJetFromElectron_    = iConfig.getUntrackedParameter<Double_t>("DRJetFromElectron");
   }
+  storeSecondElectronInformation_ = iConfig.getUntrackedParameter<Bool_t>("storeSecondElectronInformation");
   //
   // the selection cuts:
   trackIso_EB_ = iConfig.getUntrackedParameter<Double_t>("trackIso_EB", 1000.);
@@ -385,10 +387,56 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
     }
 
   }
+  // second electron information - in preselected ntuple only
+  ele2nd_sc_gsf_et = -1; // also in sele tree
+  ele2nd_sc_eta    = -1;
+  ele2nd_sc_phi    = -1;
+  ele2nd_cand_eta  = -1;
+  ele2nd_cand_phi  = -1;
+  ele2nd_pin       = -1;
+  ele2nd_pout      = -1;
+  ele2nd_passes_selection = -1; // also in sele tree
+  ele2nd_ecalDriven=  0; 
+  // convention for ele2nd_passes_selection
+  // 0 passes no selection
+  // 1 passes WP95
+  // 2 passes WP90
+  // 3 passes WP85
+  // 4 passes WP80
+  // 5 passes WP70
+  // 6 passes WP60
+  if (myElec->userInt("hasSecondElectron") == 1 && storeSecondElectronInformation_) {
+    const pat::Electron * mySecondElec=
+      dynamic_cast<const pat::Electron*> (wenu.daughter("secondElec"));    
+    ele2nd_sc_gsf_et = (Float_t) mySecondElec->superCluster()->energy()/TMath::CosH(mySecondElec->gsfTrack()->eta());
+    ele2nd_sc_eta    = (Float_t) mySecondElec->superCluster()->eta();
+    ele2nd_sc_phi    = (Float_t) mySecondElec->superCluster()->phi();
+    ele2nd_cand_eta  = (Float_t) mySecondElec->eta();
+    ele2nd_cand_phi  = (Float_t) mySecondElec->phi();
+    ele2nd_pin       = (Float_t) mySecondElec->trackMomentumAtVtx().R();;
+    ele2nd_pout      = (Float_t) mySecondElec->trackMomentumOut().R();
+    ele2nd_ecalDriven= (Int_t)   mySecondElec->ecalDrivenSeed();
+    // check the selections
+    bool isIDCalc = mySecondElec->isElectronIDAvailable("simpleEleId95relIso") &&
+      mySecondElec->isElectronIDAvailable("simpleEleId90relIso") &&
+      mySecondElec->isElectronIDAvailable("simpleEleId85relIso") &&
+      mySecondElec->isElectronIDAvailable("simpleEleId80relIso") &&
+      mySecondElec->isElectronIDAvailable("simpleEleId70relIso") &&
+      mySecondElec->isElectronIDAvailable("simpleEleId60relIso");
+    if (isIDCalc) {
+      ele2nd_passes_selection = 0;
+      if (fabs(mySecondElec->electronID("simpleEleId60relIso")-7) < 0.1) ele2nd_passes_selection = 6;
+      else if (fabs(mySecondElec->electronID("simpleEleId70relIso")-7) < 0.1) ele2nd_passes_selection = 5;
+      else if (fabs(mySecondElec->electronID("simpleEleId80relIso")-7) < 0.1) ele2nd_passes_selection = 4;
+      else if (fabs(mySecondElec->electronID("simpleEleId85relIso")-7) < 0.1) ele2nd_passes_selection = 3;
+      else if (fabs(mySecondElec->electronID("simpleEleId90relIso")-7) < 0.1) ele2nd_passes_selection = 2;
+      else if (fabs(mySecondElec->electronID("simpleEleId95relIso")-7) < 0.1) ele2nd_passes_selection = 1;
+    }
+  }
   // if the electron passes the selection
   // it is meant to be a precalculated selection here, in order to include
   // conversion rejection too
-  if (CheckCuts(myElec)) {
+  if (CheckCuts(myElec) && myElec->userInt("failsSecondElectronCut") == 0) {
     vbtfSele_tree->Fill();
   }
   vbtfPresele_tree->Fill();
@@ -863,6 +911,11 @@ WenuPlots::beginJob()
     vbtfSele_tree->Branch("pfjet_eta",pfjet_eta,"pfjet_eta[5]/F");
     vbtfSele_tree->Branch("pfjet_phi",pfjet_phi,"pfjet_phi[5]/F");
   }
+  if (storeSecondElectronInformation_) {
+    vbtfSele_tree->Branch("ele2nd_sc_gsf_et", &ele2nd_sc_gsf_et,"ele2nd_sc_gsf_et/F");
+    vbtfSele_tree->Branch("ele2nd_passes_selection", &ele2nd_passes_selection,"ele2nd_passes_selection/I");
+    vbtfSele_tree->Branch("ele2nd_ecalDriven",&ele2nd_ecalDriven,"ele2nd_ecalDriven/I");
+  }
   vbtfSele_tree->Branch("event_datasetTag",&event_datasetTag,"event_dataSetTag/I");  
   // 
   //
@@ -925,6 +978,17 @@ WenuPlots::beginJob()
     vbtfPresele_tree->Branch("pfjet_et",pfjet_et,"pfjet_et[5]/F");
     vbtfPresele_tree->Branch("pfjet_eta",pfjet_eta,"pfjet_eta[5]/F");
     vbtfPresele_tree->Branch("pfjet_phi",pfjet_phi,"pfjet_phi[5]/F");
+  }
+  if (storeSecondElectronInformation_) {
+    vbtfPresele_tree->Branch("ele2nd_sc_gsf_et",&ele2nd_sc_gsf_et,"ele2nd_sc_gsf_et/F");
+    vbtfPresele_tree->Branch("ele2nd_sc_eta",&ele2nd_sc_eta,"ele2nd_sc_eta/F");
+    vbtfPresele_tree->Branch("ele2nd_sc_phi",&ele2nd_sc_phi,"ele2nd_sc_phi/F");
+    vbtfPresele_tree->Branch("ele2nd_cand_eta",&ele2nd_cand_eta,"ele2nd_cand_eta/F");
+    vbtfPresele_tree->Branch("ele2nd_cand_phi",&ele2nd_cand_phi,"ele2nd_cand_phi/F");
+    vbtfPresele_tree->Branch("ele2nd_pin",&ele2nd_pin,"ele2nd_pin/F");
+    vbtfPresele_tree->Branch("ele2nd_pout",&ele2nd_pout,"ele2nd_pout/F");
+    vbtfPresele_tree->Branch("ele2nd_ecalDriven",&ele2nd_ecalDriven,"ele2nd_ecalDriven/I");
+    vbtfPresele_tree->Branch("ele2nd_passes_selection",&ele2nd_passes_selection,"ele2nd_passes_selection/I");
   }
   vbtfPresele_tree->Branch("event_datasetTag",&event_datasetTag,"event_dataSetTag/I");  
 
