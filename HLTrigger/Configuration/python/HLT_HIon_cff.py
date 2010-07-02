@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_6_2/HIon/V18 (CMSSW_3_6_2_HLT8)
+# /dev/CMSSW_3_6_2/HIon/V20 (CMSSW_3_6_2_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_2/HIon/V18')
+  tableName = cms.string('/dev/CMSSW_3_6_2/HIon/V20')
 )
 
 streams = cms.PSet( 
@@ -13,18 +13,14 @@ streams = cms.PSet(
     'FEDMonitor' ),
   Calibration = cms.vstring( 'TestEnables' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
-  ALCAP0 = cms.vstring( 'AlCaP0' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
+  ALCAP0 = cms.vstring( 'AlCaP0' ),
   DQM = cms.vstring(  ),
-  HLTDQM = cms.vstring(  ),
-  HLTMON = cms.vstring( 'OfflineMonitor' ),
-  EventDisplay = cms.vstring(  ),
-  Express = cms.vstring( 'ExpressPhysics' ),
   A = cms.vstring( 'MuMonitor',
     'Cosmics',
-    'EG',
     'JetMETTau',
+    'EG',
     'Mu',
     'MuOnia',
     'EGMonitor',
@@ -34,22 +30,24 @@ streams = cms.PSet(
     'RandomTriggers',
     'HcalHPDNoise',
     'HcalNZS',
-    'MinimumBias' )
+    'MinimumBias' ),
+  EventDisplay = cms.vstring(  ),
+  Express = cms.vstring( 'ExpressPhysics' ),
+  HLTDQM = cms.vstring(  ),
+  HLTMON = cms.vstring( 'OfflineMonitor' )
 )
 datasets = cms.PSet( 
   LogMonitor = cms.vstring(  ),
   FEDMonitor = cms.vstring(  ),
   TestEnables = cms.vstring(  ),
   EcalLaser = cms.vstring(  ),
-  AlCaP0 = cms.vstring(  ),
   AlCaPhiSymEcal = cms.vstring(  ),
   RPCMonitor = cms.vstring(  ),
-  OfflineMonitor = cms.vstring(  ),
-  ExpressPhysics = cms.vstring(  ),
+  AlCaP0 = cms.vstring(  ),
   MuMonitor = cms.vstring(  ),
   Cosmics = cms.vstring(  ),
-  EG = cms.vstring(  ),
   JetMETTau = cms.vstring(  ),
+  EG = cms.vstring(  ),
   Mu = cms.vstring(  ),
   MuOnia = cms.vstring(  ),
   EGMonitor = cms.vstring(  ),
@@ -59,7 +57,9 @@ datasets = cms.PSet(
   RandomTriggers = cms.vstring(  ),
   HcalHPDNoise = cms.vstring(  ),
   HcalNZS = cms.vstring(  ),
-  MinimumBias = cms.vstring(  )
+  MinimumBias = cms.vstring(  ),
+  ExpressPhysics = cms.vstring(  ),
+  OfflineMonitor = cms.vstring(  )
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
