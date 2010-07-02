@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2010/05/25 14:35:51 $
- *  $Revision: 1.15 $
+ *  $Date: 2010/05/25 16:50:50 $
+ *  $Revision: 1.1 $
  */
  
 #include "Validation/EventGenerator/interface/MBUEandQCDValidation.h"
@@ -175,16 +175,6 @@ void MBUEandQCDValidation::beginJob()
     //Forward energy flow for QCD dijet selection
     dEdetaHFdj = dbe->bookProfile("dEdetaHFdj", "dEdeta HF QCD dijet", (int)CaloCellManager::nForwardEta, 0, (double)CaloCellManager::nForwardEta, 0., 300., " ");
 
-    // Central gap event rate
-    nCenGap = dbe->book1D("nCenGap", "n central gap events", 1, 0., 1.);
-    // Forward energy flow for central gap events
-    dEdetaHFcg = dbe->bookProfile("dEdetaHFcg", "dEdeta HF central gap", (int)CaloCellManager::nForwardEta, 0, (double)CaloCellManager::nForwardEta, 0., 300., " ");
-
-    // Extended gap event rate
-    nExtGap = dbe->book1D("nExtGap", "n extended gap events", 1, 0., 1.);
-    // Forward energy flow for central gap events
-    dEdetaHFeg = dbe->bookProfile("dEdetaHFeg", "dEdeta HF extended gap", (int)CaloCellManager::nForwardEta, 0, (double)CaloCellManager::nForwardEta, 0., 300., " ");
-
     // FWD-10-001 like diffraction analysis
     nHFSD = dbe->book1D("nHFSD","n single diffraction in HF", 1, 0., 1.);
     // E-pz HF-
@@ -332,17 +322,9 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
   bool sel6 = false;
   if ( sel5 && nChaVtx > 3 ) { sel6 = true; }
 
-  // Central gap selection
-  bool sel7 = false;
-  if ( sel5 && nChaVtx <= 3 ) { sel7 = true; }
-
-  // Extended gap selection
-  bool sel8 = false;
-  if ( nChaVtx <= 3 && (( nBSCm > 0 && nBSCp == 0 && eneHFm >= 3. && eneHFp < 3. ) || ( nBSCm == 0 && nBSCp > 0 && eneHFm < 3. && eneHFp >= 3. )) ) { sel8 = true; }
-
   // FWD-10-001 selection
-  bool sel9 = false;
-  if ( nChaVtx >= 3 && nBSCm > 0 && eneHFp < 8. ) { sel9 = true; }
+  bool sel7 = false;
+  if ( nChaVtx >= 3 && nBSCm > 0 && eneHFp < 8. ) { sel7 = true; }
 
   // Fill selection histograms
   if ( sel1 ) nEvt1->Fill(0.5);
@@ -350,9 +332,7 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
   if ( sel3 ) nNoFwdTrig->Fill(0.5);
   if ( sel4 ) nSaFwdTrig->Fill(0.5);
   if ( sel6 ) nHFflow->Fill(0.5);
-  if ( sel7 ) nCenGap->Fill(0.5);
-  if ( sel8 ) nExtGap->Fill(0.5);
-  if ( sel9 ) nHFSD->Fill(0.5);
+  if ( sel7 ) nHFSD->Fill(0.5);
   
   if ( nb > 0 ) nbquark->Fill(0.5);
   if ( nb > 0 && nc > 0 ) ncandbquark->Fill(0.5);
@@ -370,8 +350,6 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
 
   std::vector<double> hfMB (CaloCellManager::nForwardEta,0);
   std::vector<double> hfDJ (CaloCellManager::nForwardEta,0);
-  std::vector<double> hfCG (CaloCellManager::nForwardEta,0);
-  std::vector<double> hfEG (CaloCellManager::nForwardEta,0);
 
   for (unsigned int i = 0; i < hepmcGPCollection.size(); i++ ){
     double eta = hepmcGPCollection[i]->momentum().eta();
@@ -441,12 +419,6 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
     if ( sel6 && !isNeutrino(i) &&  iBin < CaloCellManager::nForwardEta ) {
       hfMB[iBin] += hepmcGPCollection[i]->momentum().rho();
     }
-    if ( sel7 && !isNeutrino(i) && iBin < CaloCellManager::nForwardEta ) {
-      hfCG[iBin] += hepmcGPCollection[i]->momentum().rho();
-    }
-    if ( sel8 && !isNeutrino(i) && iBin < CaloCellManager::nForwardEta ) {
-      hfEG[iBin] += hepmcGPCollection[i]->momentum().rho();
-    }
   }
   nPPbar->Fill(ppbar);
   nNNbar->Fill(nnbar);
@@ -468,13 +440,11 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
   for (unsigned int i = 0; i < CaloCellManager::nForwardEta; i++ ) {
     binW = theEtaRanges[CaloCellManager::nBarrelEta+CaloCellManager::nEndcapEta+i+1]-theEtaRanges[CaloCellManager::nBarrelEta+CaloCellManager::nEndcapEta+i];
     dEdetaHFmb->Fill(i+0.5,hfMB[i]/binW);
-    dEdetaHFcg->Fill(i+0.5,hfCG[i]/binW);
-    dEdetaHFeg->Fill(i+0.5,hfEG[i]/binW);
   }
 
   // FWD-10-001
 
-  if ( sel9 ) {
+  if ( sel7 ) {
 
     double empz = 0.;
     unsigned int nCellOvTh = 0;
@@ -506,37 +476,39 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
   double sptTra = 0.;
   
   double binPhiW = 360./nphiBin;
-  for (unsigned int i = 0; i < hepmcGPCollection.size(); i++ ){
-    if ( isCharged(i) && std::fabs(hepmcGPCollection[i]->momentum().eta()) < 2. ) {
-      double thePhi = (hepmcGPCollection[i]->momentum().phi()-phiMax)/CLHEP::degree;
-      if ( thePhi < -180. ) { thePhi += 360.; }
-      else if ( thePhi > 180. ) { thePhi -= 360.; }
-      unsigned int thePhiBin = (int)((thePhi+180.)/binPhiW);
-      if ( thePhiBin == nphiBin ) { thePhiBin -= 1; }
-      nchvsphi[thePhiBin]++;
-      sptvsphi[thePhiBin] += hepmcGPCollection[i]->momentum().perp();
-      // analysis in the transverse region
-      if ( std::fabs(thePhi) > 60. && std::fabs(thePhi) < 120. ) {
-        nChaTra++;
-        sptTra += hepmcGPCollection[i]->momentum().perp();
-        binW = dNchdpt2->getTH1()->GetBinWidth(1);
-        dNchdpt2->Fill(hepmcGPCollection[i]->momentum().perp(),1./binW); // weight to account for the pt bin width
-        binW = dNchdeta2->getTH1()->GetBinWidth(1);
-        dNchdeta2->Fill(hepmcGPCollection[i]->momentum().eta(),1./binW);  // weight to account for the eta bin width
+  if ( sel2 ) {
+    for (unsigned int i = 0; i < hepmcGPCollection.size(); i++ ){
+      if ( isCharged(i) && std::fabs(hepmcGPCollection[i]->momentum().eta()) < 2. ) {
+        double thePhi = (hepmcGPCollection[i]->momentum().phi()-phiMax)/CLHEP::degree;
+        if ( thePhi < -180. ) { thePhi += 360.; }
+        else if ( thePhi > 180. ) { thePhi -= 360.; }
+        unsigned int thePhiBin = (int)((thePhi+180.)/binPhiW);
+        if ( thePhiBin == nphiBin ) { thePhiBin -= 1; }
+        nchvsphi[thePhiBin]++;
+        sptvsphi[thePhiBin] += hepmcGPCollection[i]->momentum().perp();
+        // analysis in the transverse region
+        if ( std::fabs(thePhi) > 60. && std::fabs(thePhi) < 120. ) {
+          nChaTra++;
+          sptTra += hepmcGPCollection[i]->momentum().perp();
+          binW = dNchdpt2->getTH1()->GetBinWidth(1);
+          dNchdpt2->Fill(hepmcGPCollection[i]->momentum().perp(),1./binW); // weight to account for the pt bin width
+          binW = dNchdeta2->getTH1()->GetBinWidth(1);
+          dNchdeta2->Fill(hepmcGPCollection[i]->momentum().eta(),1./binW);  // weight to account for the eta bin width
+        }
       }
     }
+    nCha->Fill(nChaTra);
+    binW = dNchdSpt->getTH1()->GetBinWidth(1);
+    dNchdSpt->Fill(sptTra,1.);
+    nChaDenLpt->Fill(hepmcGPCollection[iMax]->momentum().perp(),nChaTra/4./CLHEP::twopi);
+    sptDenLpt->Fill(hepmcGPCollection[iMax]->momentum().perp(),sptTra/4./CLHEP::twopi);
+    for ( unsigned int i = 0; i < nphiBin; i++ ) {
+      double thisPhi = -180.+(i+0.5)*binPhiW;
+      dNchdphi->Fill(thisPhi,nchvsphi[i]/binPhiW/4.); // density in phi and eta
+      dSptdphi->Fill(thisPhi,sptvsphi[i]/binPhiW/4.); // density in phi and eta
+    }
   }
-  nCha->Fill(nChaTra);
-  binW = dNchdSpt->getTH1()->GetBinWidth(1);
-  dNchdSpt->Fill(sptTra,1.);
-  nChaDenLpt->Fill(hepmcGPCollection[iMax]->momentum().perp(),nChaTra/4./CLHEP::twopi);
-  sptDenLpt->Fill(hepmcGPCollection[iMax]->momentum().perp(),sptTra/4./CLHEP::twopi);
-  for ( unsigned int i = 0; i < nphiBin; i++ ) {
-    double thisPhi = -180.+(i+0.5)*binPhiW;
-    dNchdphi->Fill(thisPhi,nchvsphi[i]/binPhiW/4.); // density in phi and eta
-    dSptdphi->Fill(thisPhi,sptvsphi[i]/binPhiW/4.); // density in phi and eta
-   }
-
+  
   // Gather information in the charged GenJet collection
   edm::Handle<reco::GenJetCollection> genChJets;
   iEvent.getByLabel(genchjetCollection_, genChJets );
@@ -623,61 +595,61 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
 
       // find variables for Jet-Multiplicity Analysis
       if(fabs(iter->eta()) < 3. && iter->pt()>25.) {
-	jm25njets++;
-	jm25HT += iter->pt();
-	if(iter->pt()>jm25pt1) {
-	  jm25pt4 = jm25pt3;
-	  jm25pt3 = jm25pt2;
-	  jm25pt2 = jm25pt1;
-	  jm25pt1 = iter->pt();
-	} else if(iter->pt()>jm25pt2) {
-	  jm25pt4 = jm25pt3;
-	  jm25pt3 = jm25pt2;
-	  jm25pt2 = iter->pt();
-	} else if(iter->pt()>jm25pt3) {
-	  jm25pt4 = jm25pt3;
-	  jm25pt3 = iter->pt();
-	} else if(iter->pt()>jm25pt4) {
-	  jm25pt4 = iter->pt();
-	}
-	// even harder jets...
-	if(iter->pt()>80.) {
-	  jm80njets++;
-	  jm80HT += iter->pt();
-	  if(iter->pt()>jm80pt1) {
-	    jm80pt4 = jm80pt3;
-	    jm80pt3 = jm80pt2;
-	    jm80pt2 = jm80pt1;
-	    jm80pt1 = iter->pt();
-	  } else if(iter->pt()>jm80pt2) {
-	    jm80pt4 = jm80pt3;
-	    jm80pt3 = jm80pt2;
-	    jm80pt2 = iter->pt();
-	  } else if(iter->pt()>jm80pt3) {
-	    jm80pt4 = jm80pt3;
-	    jm80pt3 = iter->pt();
-	  } else if(iter->pt()>jm80pt4) {
-	    jm80pt4 = iter->pt();
-	  }
-	}
+        jm25njets++;
+        jm25HT += iter->pt();
+        if(iter->pt()>jm25pt1) {
+          jm25pt4 = jm25pt3;
+          jm25pt3 = jm25pt2;
+          jm25pt2 = jm25pt1;
+          jm25pt1 = iter->pt();
+        } else if(iter->pt()>jm25pt2) {
+          jm25pt4 = jm25pt3;
+          jm25pt3 = jm25pt2;
+          jm25pt2 = iter->pt();
+        } else if(iter->pt()>jm25pt3) {
+          jm25pt4 = jm25pt3;
+          jm25pt3 = iter->pt();
+        } else if(iter->pt()>jm25pt4) {
+          jm25pt4 = iter->pt();
+        }
+        // even harder jets...
+        if(iter->pt()>80.) {
+          jm80njets++;
+          jm80HT += iter->pt();
+          if(iter->pt()>jm80pt1) {
+            jm80pt4 = jm80pt3;
+            jm80pt3 = jm80pt2;
+            jm80pt2 = jm80pt1;
+            jm80pt1 = iter->pt();
+          } else if(iter->pt()>jm80pt2) {
+            jm80pt4 = jm80pt3;
+            jm80pt3 = jm80pt2;
+            jm80pt2 = iter->pt();
+          } else if(iter->pt()>jm80pt3) {
+            jm80pt4 = jm80pt3;
+            jm80pt3 = iter->pt();
+          } else if(iter->pt()>jm80pt4) {
+            jm80pt4 = iter->pt();
+          }
+        }
 	
       }
 
       if(jm25njets>3) {
-	_JM25njets ->Fill(jm25njets);
-	_JM25ht    ->Fill(jm25HT);
-	_JM25pt1   ->Fill(jm25pt1);
-	_JM25pt2   ->Fill(jm25pt2);
-	_JM25pt3   ->Fill(jm25pt3);
-	_JM25pt4   ->Fill(jm25pt4);
+        _JM25njets ->Fill(jm25njets);
+        _JM25ht    ->Fill(jm25HT);
+        _JM25pt1   ->Fill(jm25pt1);
+        _JM25pt2   ->Fill(jm25pt2);
+        _JM25pt3   ->Fill(jm25pt3);
+        _JM25pt4   ->Fill(jm25pt4);
       }
       if(jm80njets>3) {
-	_JM80njets ->Fill(jm80njets);
-	_JM80ht    ->Fill(jm80HT);
-	_JM80pt1   ->Fill(jm80pt1);
-	_JM80pt2   ->Fill(jm80pt2);
-	_JM80pt3   ->Fill(jm80pt3);
-	_JM80pt4   ->Fill(jm80pt4);
+        _JM80njets ->Fill(jm80njets);
+        _JM80ht    ->Fill(jm80HT);
+        _JM80pt1   ->Fill(jm80pt1);
+        _JM80pt2   ->Fill(jm80pt2);
+        _JM80pt3   ->Fill(jm80pt3);
+        _JM80pt4   ->Fill(jm80pt4);
       }
     }
     
@@ -796,9 +768,9 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
       double pz=mom.pz();
       double E=mom.e();
       double thisSumEt = (
-		sqrt(px*px + py*py)*E /
-		sqrt(px*px + py*py + pz*pz)
-		);
+                          sqrt(px*px + py*py)*E /
+                          sqrt(px*px + py*py + pz*pz)
+                          );
       sumEt += thisSumEt;
       if(thisEta<1.0) sumEt1 += thisSumEt;
       else if(thisEta<2.0) sumEt2 += thisSumEt;

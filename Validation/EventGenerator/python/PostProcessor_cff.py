@@ -81,8 +81,6 @@ postProcessorEventGenerator = cms.EDAnalyzer(
                                           "nEvt1 nEvt",
                                           "nEvt2 nEvt",
                                           "nHFflow nEvt",
-                                          "nCenGap nEvt",
-                                          "nExtGap nEvt",
                                           "nHFSD nEvt"),
     cumulativeDists = cms.untracked.vstring(""),
     outputFileName = cms.untracked.string("")
