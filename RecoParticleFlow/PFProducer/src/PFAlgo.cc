@@ -1716,7 +1716,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	      std::cout << "\tElement  " << elements[iTrack] << std::endl 
 	                << "PFAlgo: particle type set to muon (tracker, loose)" <<"muon pT "<<elements[it->second.first].muonRef()->pt()<<std::endl;
 	      PFMuonAlgo::printMuonProperties(elements[it->second.first].muonRef()); 
-	      }
+	    }
 	  }
 	  
 	  // Remove it from the block
@@ -2569,42 +2569,51 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
 
   if ( thisIsAMuon ) { 
     
-    // assume that track pT is taken, may be overwritten below
+    //start with default muon pT and overwrite if usePFMuonMomAssign_ == true
     px = muonRef->px();
     py = muonRef->py();
     pz = muonRef->pz();
     energy = sqrt(muonRef->p()*muonRef->p() + 0.1057*0.1057);
 
-    if(thisIsAnIsolatedMuon && !usePFMuonMomAssign_){    
-      // do nothing in this case
-    }
-    else if((thisIsAGlobalTightMuon||thisIsAnIsolatedMuon) && usePFMuonMomAssign_){    
-
-      // If the global muon above 10 GeV and is a tracker muon take the global pT
-      // If it's not a tracker muon, choose between the global pT and the STA pT
-      // expcept if it's isolated, then never take the STA
-
-      if(muonRef->isTrackerMuon()){
-	if(sqrt(px*px+py*py) > 10){
+    //Only consider overwriting for global or isolated muons, for tracker only muons use default assignment (track pT)
+    if(usePFMuonMomAssign_){
+      // first handle the isolated muons
+      if(thisIsAnIsolatedMuon){
+	// only take the global pT if it's not a tracker muon, never take the standAlone pT
+	if(!muonRef->isTrackerMuon()){
 	  reco::TrackRef combinedMu = muonRef->combinedMuon(); 
 	  px = combinedMu->px();
 	  py = combinedMu->py();
 	  pz = combinedMu->pz();
 	  energy = sqrt(combinedMu->p()*combinedMu->p() + 0.1057*0.1057);   
 	}
-      }
-      else{  
-	reco::TrackRef combinedMu = thisIsAnIsolatedMuon ||
-	  muonRef->combinedMuon()->normalizedChi2() < muonRef->standAloneMuon()->normalizedChi2() ?
-	  muonRef->combinedMuon() : 
-	  muonRef->standAloneMuon() ;
-	px = combinedMu->px();
-	py = combinedMu->py();
-	pz = combinedMu->pz();
-	energy = sqrt(combinedMu->p()*combinedMu->p() + 0.1057*0.1057);   
-      }
-    }
-  } else if (isFromDisp) {
+      }  // now look at the global muons (non-isolated)
+      else if(thisIsAGlobalTightMuon)
+	{
+	  // If the global muon above 10 GeV and is a tracker muon take the global pT	  
+	  if(muonRef->isTrackerMuon()){
+	    if(sqrt(px*px+py*py) > 10){
+	      reco::TrackRef combinedMu = muonRef->combinedMuon(); 
+	      px = combinedMu->px();
+	      py = combinedMu->py();
+	      pz = combinedMu->pz();
+	      energy = sqrt(combinedMu->p()*combinedMu->p() + 0.1057*0.1057);   
+	    }
+	  }   // If it's not a tracker muon, choose between the global pT and the STA pT
+	  else{  
+	    reco::TrackRef combinedMu =
+	      muonRef->combinedMuon()->normalizedChi2() < muonRef->standAloneMuon()->normalizedChi2() ?
+	      muonRef->combinedMuon() : 
+	      muonRef->standAloneMuon() ;
+	    px = combinedMu->px();
+	    py = combinedMu->py();
+	    pz = combinedMu->pz();
+	    energy = sqrt(combinedMu->p()*combinedMu->p() + 0.1057*0.1057);   
+	  }
+	} // close else if(thisIsAGlobalTightMuon
+    } // close (usePFPFMuonMomAssign_)      
+  }// close if(thisIsAMuon)
+  else if (isFromDisp) {
     if (debug_) cout << "Not refitted px = " << px << " py = " << py << " pz = " << pz << " energy = " << energy << endl; 
     //reco::TrackRef trackRef = eltTrack->trackRef();
     reco::PFDisplacedVertexRef vRef = eltTrack->displacedVertexRef(T_FROM_DISP)->displacedVertexRef();
