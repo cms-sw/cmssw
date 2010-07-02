@@ -2,8 +2,8 @@
  *  Class:DQMGenericClient 
  *
  *
- *  $Date: 2009/11/14 09:08:00 $
- *  $Revision: 1.14 $
+ *  $Date: 2010/06/24 13:38:38 $
+ *  $Revision: 1.15 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -221,7 +221,7 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
   {
     NormOption opt;
     opt.name = normSet->getUntrackedParameter<string>("name");
-    opt.normHistName = normSet->getUntrackedParameter<string>("normalizeTo", opt.name);
+    opt.normHistName = normSet->getUntrackedParameter<string>("normalizedTo", opt.name);
 
     normOptions_.push_back(opt);
   }
