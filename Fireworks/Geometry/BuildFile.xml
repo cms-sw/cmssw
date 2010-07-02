@@ -1,5 +1,6 @@
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/Framework"/>
+<use name="DetectorDescription/Core"/>
 <use name="Geometry/Records"/>
 <use name="Fireworks/Core"/>
 <use name="rootcore"/>
