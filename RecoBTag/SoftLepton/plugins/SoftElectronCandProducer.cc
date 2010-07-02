@@ -56,7 +56,7 @@ bool SoftElectronCandProducer::isClean(const reco::GsfElectron& gsfcandidate)
   const reco::HitPattern& hitPattern = gsfcandidate.gsfTrack()->hitPattern();
   //check that the first hit is a pixel hit
   uint32_t hit = hitPattern.getHitPattern(0);
-  if( !hitPattern.validHitFilter(hit) || !hitPattern.pixelHitFilter(hit) )
+  if( !(hitPattern.validHitFilter(hit) && ( (hitPattern.pixelBarrelHitFilter(hit) && hitPattern.getLayer(hit) < 3) || hitPattern.pixelEndcapHitFilter(hit))) )
     return false;
 
   const double EemPinRatio           = (gsfcandidate.eSuperClusterOverP() - 1.0)/(gsfcandidate.eSuperClusterOverP() + 1.0);
