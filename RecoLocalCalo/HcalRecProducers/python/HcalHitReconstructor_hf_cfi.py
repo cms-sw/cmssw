@@ -79,7 +79,7 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                                            0,0,0,0,
                                            0,0,0,0,0]),
     
-    flagsToSkip              = cms.int32(string.atoi('11010',2)), # HFPET (bit 4), HFDigiTime (bit 1) and HFS8S1Ratio (bit 3) should be skipped
+    flagsToSkip              = cms.int32(string.atoi('11000',2)), # HFPET (bit 4), HFDigiTime (bit 1) and HFS8S1Ratio (bit 3) should be skipped, but not HFDigiTime in MC
     isS8S1                   = cms.bool(False),
     ),
 
@@ -116,7 +116,7 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                                            0,0,0,0,
                                            0,0,0,0,0]),
     
-    flagsToSkip              = cms.int32(string.atoi('10010',2)), # HFPET (bit 4) and HFDigiTime (bit 1) should be skipped
+    flagsToSkip              = cms.int32(string.atoi('10000',2)), # HFPET (bit 4) and HFDigiTime (bit 1) should be skipped, but not HFDigiTime in MC
     isS8S1                   = cms.bool(True),
     ),
                         
@@ -149,7 +149,7 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                                            0,0,0,0,0]),
     
     
-    flagsToSkip             = cms.int32(string.atoi('10',2)), # HFDigiTime (bit 1) should be skipped
+    flagsToSkip             = cms.int32(string.atoi('0',2)), # HFDigiTime (bit 1) should be skipped, but not in MC
     short_R_29 = cms.vdouble([0.8]),
     long_R_29  = cms.vdouble([0.8]), # should move from 0.98 to 0.8?
     ),
