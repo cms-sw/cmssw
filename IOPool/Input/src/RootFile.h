@@ -76,7 +76,7 @@ namespace edm {
              std::vector<ProcessHistoryID>& orderedProcessHistoryIDs);
     ~RootFile();
     void reportOpened(std::string const& inputType);
-    void close(bool reallyClose);
+    void close();
     EventPrincipal* readCurrentEvent(EventPrincipal& cache,
 		 boost::shared_ptr<LuminosityBlockPrincipal> lb = boost::shared_ptr<LuminosityBlockPrincipal>());
     EventPrincipal* readEvent(EventPrincipal& cache,

@@ -103,15 +103,7 @@ namespace edm {
 
   void
   RootInputFileSequence::endJob() {
-    if(primary()) {
-      closeFile_();
-    } else {
-      if(rootFile_) {
-        rootFile_->close(true);
-        logFileAction("  Closed file ", rootFile_->file());
-        rootFile_.reset();
-      }
-    }
+    closeFile_();
   }
 
   boost::shared_ptr<FileBlock>
@@ -134,30 +126,31 @@ namespace edm {
   }
 
   void RootInputFileSequence::closeFile_() {
-    // close the currently open file, any, and delete the RootFile object.
+    // close the currently open file, if any, and delete the RootFile object.
     if(rootFile_) {
-      // Account for events skipped in the file.
-      {
+      assert(rootFile_.unique() || !primary());
+      if (rootFile_.unique()) {
         std::auto_ptr<InputSource::FileCloseSentry>
-	  sentry((primaryFiles_) ? new InputSource::FileCloseSentry(input_) : 0);
-        rootFile_->close(primary());
+	sentry((primaryFiles_) ? new InputSource::FileCloseSentry(input_) : 0);
+	rootFile_->close();
+        logFileAction("  Closed file ", rootFile_->file());
+        if(duplicateChecker_) duplicateChecker_->inputFileClosed();
       }
-      logFileAction("  Closed file ", rootFile_->file());
       rootFile_.reset();
-      if(duplicateChecker_) duplicateChecker_->inputFileClosed();
     }
   }
 
   void RootInputFileSequence::initFile(bool skipBadFiles) {
-    if (rootFile_) {
+    if (rootFile_ && rootFile_.unique()) {
+      // We are really going to close the open file.
       // If this is the primary sequence, and we are not duplicate checking across files,
       // we can delete the IndexIntoFile for the file we are closing.
+      // If we can't delete it, we need to save only what we need to save.
       size_t currentIndexIntoFile = fileIter_ - fileIterBegin_;
-      bool deleteIndexIntoFile = primaryFiles_ && primary() && !(duplicateChecker_ && duplicateChecker_->checkingAllFiles());
+      bool deleteIndexIntoFile = primaryFiles_ && !(duplicateChecker_ && duplicateChecker_->checkingAllFiles());
       if (deleteIndexIntoFile) {
 	indexesIntoFiles_[currentIndexIntoFile].reset();
       } else {
-	// If we can't delete it, we need to save only what we need to save.
 	if (indexesIntoFiles_[currentIndexIntoFile]) indexesIntoFiles_[currentIndexIntoFile]->inputFileClosed();
       }
     }

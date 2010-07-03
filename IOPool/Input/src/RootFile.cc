@@ -874,17 +874,15 @@ namespace edm {
   }
 
   void
-  RootFile::close(bool reallyClose) {
-    if(reallyClose) {
-      // Just to play it safe, zero all pointers to objects in the TFile to be closed.
-      eventHistoryTree_ = 0;
-      for(RootTreePtrArray::iterator it = treePointers_.begin(), itEnd = treePointers_.end(); it != itEnd; ++it) {
-	(*it)->close();
-	(*it) = 0;
-      }
-      filePtr_->Close();
-      filePtr_.reset();
+  RootFile::close() {
+    // Just to play it safe, zero all pointers to objects in the TFile to be closed.
+    eventHistoryTree_ = 0;
+    for(RootTreePtrArray::iterator it = treePointers_.begin(), itEnd = treePointers_.end(); it != itEnd; ++it) {
+      (*it)->close();
+      (*it) = 0;
     }
+    filePtr_->Close();
+    filePtr_.reset();
     Service<JobReport> reportSvc;
     reportSvc->inputFileClosed(reportToken_);
   }
