@@ -22,7 +22,8 @@ public:
    ~CastorRawCollections();
     std::vector<CastorDataFrame>* castorCont;
     std::vector<HcalCalibDataFrame>* calibCont;
-    std::vector<HcalTriggerPrimitiveDigi>* tpCont;
+    std::vector<CastorTriggerPrimitiveDigi>* tpCont;
+	std::vector<HcalTTPDigi>* ttp;
 
 };
 
