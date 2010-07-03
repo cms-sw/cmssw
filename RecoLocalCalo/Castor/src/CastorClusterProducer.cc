@@ -12,7 +12,7 @@
 //
 // Original Author:  Hans Van Haevermaet, Benoit Roland
 //         Created:  Wed Jul  9 14:00:40 CEST 2008
-// $Id: CastorClusterProducer.cc,v 1.5 2010/01/27 14:43:35 vlimant Exp $
+// $Id: CastorClusterProducer.cc,v 1.6 2010/06/29 11:30:44 hvanhaev Exp $
 //
 //
 
@@ -32,7 +32,8 @@
 #include "DataFormats/Math/interface/Point3D.h"
 
 // Castor Object include
-#include "DataFormats/CastorReco/interface/CastorCell.h"
+#include "DataFormats/HcalRecHit/interface/CastorRecHit.h"
+#include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
 #include "DataFormats/CastorReco/interface/CastorTower.h"
 #include "DataFormats/CastorReco/interface/CastorCluster.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
@@ -41,8 +42,7 @@
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 
-// Castor Reco include 
-#include "RecoLocalCalo/Castor/interface/KtAlgorithm.h"
+
 
 //
 // class decleration
@@ -63,14 +63,10 @@ class CastorClusterProducer : public edm::EDProducer {
       typedef math::XYZPointD Point;
       typedef ROOT::Math::RhoEtaPhiPoint TowerPoint;
       typedef ROOT::Math::RhoZPhiPoint CellPoint;
-      typedef std::vector<reco::CastorCell> CastorCellCollection;
       typedef std::vector<reco::CastorTower> CastorTowerCollection;
       typedef std::vector<reco::CastorCluster> CastorClusterCollection;
       std::string input_, basicjets_;
-      bool ktalgo_;
       bool clusteralgo_;
-      unsigned int recom_;
-      double rParameter_;
 };
 
 //
@@ -90,16 +86,10 @@ const double MYR2D = 180/M_PI;
 CastorClusterProducer::CastorClusterProducer(const edm::ParameterSet& iConfig) :
   input_(iConfig.getUntrackedParameter<std::string>("inputtowers","")),
   basicjets_(iConfig.getUntrackedParameter<std::string>("basicjets","")),
-  ktalgo_(iConfig.getUntrackedParameter<bool>("KtAlgo",false)),
-  clusteralgo_(iConfig.getUntrackedParameter<bool>("ClusterAlgo",false)),
-  recom_(iConfig.getUntrackedParameter<unsigned int>("KtRecombination",2)),
-  rParameter_(iConfig.getUntrackedParameter<double>("KtrParameter",1.))
+  clusteralgo_(iConfig.getUntrackedParameter<bool>("ClusterAlgo",false))
 {
   // register your products
-  /*if (ktalgo_ == true)*/ produces<CastorClusterCollection>();
-  //if (clusteralgo_ == true) produces<CastorClusterCollection>();
-  //if (basicjets_ == "CastorFastjetRecoKt") produces<CastorClusterCollection>();
-  //if (basicjets_ == "CastorFastjetRecoSISCone") produces<CastorClusterCollection>();
+  produces<CastorClusterCollection>();
   // now do what ever other initialization is needed
 }
 
@@ -132,7 +122,6 @@ void CastorClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   edm::Handle<CastorTowerCollection> InputTowers;
   iEvent.getByLabel(input_, InputTowers);
 
-  std::auto_ptr<CastorClusterCollection> OutputClustersfromKtAlgo (new CastorClusterCollection);
   std::auto_ptr<CastorClusterCollection> OutputClustersfromClusterAlgo (new CastorClusterCollection);
   
   // get and check input size
@@ -147,24 +136,6 @@ void CastorClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     if (tower_p->eta() > 0.) posInputTowers.push_back(tower_p);
     if (tower_p->eta() < 0.) negInputTowers.push_back(tower_p);
   }
-  
-  // build cluster from KtAlgo
-  if (ktalgo_ == true) {
-    KtAlgorithm ktalgo;
-    CastorClusterCollection posClusters, negClusters;
-
-    if (posInputTowers.size() != 0) {
-      posClusters = ktalgo.runKtAlgo(posInputTowers,recom_,rParameter_);
-      for (size_t i=0; i<posClusters.size(); i++) OutputClustersfromKtAlgo->push_back(posClusters[i]);
-    }
-
-    if (negInputTowers.size() != 0) {
-      negClusters = ktalgo.runKtAlgo(negInputTowers,recom_,rParameter_);
-      for (size_t i=0; i<negClusters.size(); i++) OutputClustersfromKtAlgo->push_back(negClusters[i]);
-    }
-
-    iEvent.put(OutputClustersfromKtAlgo);
-  } // end build cluster from KtAlgo
     
   // build cluster from ClusterAlgo
   if (clusteralgo_ == true) {
@@ -230,12 +201,17 @@ void CastorClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
       			fhot += castorcand->fhot()*castorcand->energy();
 			
 			// loop over cells
-      			for (CastorCell_iterator it = castorcand->cellsBegin(); it != castorcand->cellsEnd(); it++) {
-				CastorCellRef cell_p = *it;
-				Point rcell = cell_p->position();
-				double Ecell = cell_p->energy();
-				zmean += Ecell*cell_p->z();
-				z2mean += Ecell*cell_p->z()*cell_p->z();
+      			for (edm::RefVector<edm::SortedCollection<CastorRecHit> >::iterator it = castorcand->rechitsBegin(); it != castorcand->rechitsEnd(); it++) {
+				edm::Ref<edm::SortedCollection<CastorRecHit> > rechit_p = *it;
+				//Point rcell = cell_p->position();
+				double Erechit = rechit_p->energy();
+				HcalCastorDetId id = rechit_p->id();
+    				int module = id.module();
+    				double zrechit = 0;
+    				if (module < 3) zrechit = -14390 - 24.75 - 49.5*(module-1);
+    				if (module > 2) zrechit = -14390 - 99 - 49.5 - 99*(module-3);
+				zmean += Erechit*zrechit;
+				z2mean += Erechit*zrechit*zrechit;
       			} // end loop over cells
 		}
 		//cout << "" << endl;
