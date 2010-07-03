@@ -2569,26 +2569,25 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
 
   if ( thisIsAMuon ) { 
     
-    //start with default muon pT and overwrite if usePFMuonMomAssign_ == true
+    //start with default muon pT and overwrite if usePFMuonMomAssign_ == true or it's an isolated !tracker muon
     px = muonRef->px();
     py = muonRef->py();
     pz = muonRef->pz();
     energy = sqrt(muonRef->p()*muonRef->p() + 0.1057*0.1057);
 
-    //Only consider overwriting for global or isolated muons, for tracker only muons use default assignment (track pT)
-    if(usePFMuonMomAssign_){
-      // first handle the isolated muons
-      if(thisIsAnIsolatedMuon){
-	// only take the global pT if it's not a tracker muon, never take the standAlone pT
-	if(!muonRef->isTrackerMuon()){
-	  reco::TrackRef combinedMu = muonRef->combinedMuon(); 
-	  px = combinedMu->px();
-	  py = combinedMu->py();
-	  pz = combinedMu->pz();
-	  energy = sqrt(combinedMu->p()*combinedMu->p() + 0.1057*0.1057);   
-	}
-      }  // now look at the global muons (non-isolated)
-      else if(thisIsAGlobalTightMuon)
+    if(thisIsAnIsolatedMuon){
+      // only take the global pT if it's not a tracker muon, never take the standAlone pT
+      if(!muonRef->isTrackerMuon()){
+	reco::TrackRef combinedMu = muonRef->combinedMuon(); 
+	px = combinedMu->px();
+	py = combinedMu->py();
+	pz = combinedMu->pz();
+	energy = sqrt(combinedMu->p()*combinedMu->p() + 0.1057*0.1057);   
+      }
+    } 
+    //Consider overwriting for global muons, for tracker only muons use default assignment (track pT)    
+    else if(usePFMuonMomAssign_){
+      if(thisIsAGlobalTightMuon)
 	{
 	  // If the global muon above 10 GeV and is a tracker muon take the global pT	  
 	  if(muonRef->isTrackerMuon()){
@@ -2610,7 +2609,7 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
 	    pz = combinedMu->pz();
 	    energy = sqrt(combinedMu->p()*combinedMu->p() + 0.1057*0.1057);   
 	  }
-	} // close else if(thisIsAGlobalTightMuon
+	} // close else if(thisIsAGlobalTightMuon)
     } // close (usePFPFMuonMomAssign_)      
   }// close if(thisIsAMuon)
   else if (isFromDisp) {
