@@ -7,15 +7,21 @@
 #include "FWCore/Sources/interface/VectorInputSource.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 
+
+class TFile;
+class TH1F;
+
 namespace CLHEP {
   class RandPoissonQ;
 }
+
+
 
 namespace edm {
   class PileUp {
   public:
     typedef VectorInputSource::EventPrincipalVector EventPrincipalVector;
-    explicit PileUp(ParameterSet const& pset, int const minb, int const maxb, double averageNumber, const bool playback);
+    explicit PileUp(ParameterSet const& pset, int const minb, int const maxb, double averageNumber, TH1F* const histo, const bool playback);
     ~PileUp();
 
     void readPileUp(std::vector<EventPrincipalVector> & result,std::vector<std::vector<edm::EventID> > &ids);
@@ -36,12 +42,19 @@ namespace edm {
     int const maxBunch_;
     double const averageNumber_;
     int const intAverage_;
+    TH1F* const histo_;
+    bool const histoDistribution_;
+    bool const probFunctionDistribution_;
     bool const poisson_;
     bool const fixed_;
     bool const none_;
     VectorInputSource * const input_;
     CLHEP::RandPoissonQ *poissonDistribution_;
 
+    TH1F *h1f;
+    TH1F *hprobFunction;
+    TFile *probFileHisto;
+    
     //playback info
     bool playback_;
 

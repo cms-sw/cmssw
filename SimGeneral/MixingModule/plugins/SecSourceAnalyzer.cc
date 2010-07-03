@@ -13,7 +13,7 @@
 //
 // Original Author:  Emilia Lubenova Becheva
 //         Created:  Wed Apr 22 16:54:31 CEST 2009
-// $Id: SecSourceAnalyzer.cc,v 1.2 2009/05/25 17:10:31 ebecheva Exp $
+// $Id: SecSourceAnalyzer.cc,v 1.3 2010/04/30 12:48:18 ebecheva Exp $
 //
 //
 
@@ -41,6 +41,8 @@
 
 #include "SecSourceAnalyzer.h"
 
+#include "TH1F.h"
+
 //
 // constructors and destructor
 //
@@ -54,9 +56,11 @@ SecSourceAnalyzer::SecSourceAnalyzer(const edm::ParameterSet& iConfig)
    int minb = minBunch_;
    int maxb = maxBunch_;
    int averageNumber = 1;
+   std::string histoFileName = " ";
+   TH1F * histoName = new TH1F("h","",10,0,10); 
    bool playback = false;
    
-   input_.reset(new edm::PileUp(iConfig.getParameter<edm::ParameterSet>("input"),minb,maxb,averageNumber,playback));
+   input_.reset(new edm::PileUp(iConfig.getParameter<edm::ParameterSet>("input"),minb,maxb,averageNumber,histoName,playback));
       
    dataStep2_ = iConfig.getParameter<bool>("dataStep2");
    

@@ -10,16 +10,23 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "CLHEP/Random/RandPoissonQ.h"
+#include "CLHEP/Random/RandFlat.h"
+
+#include "TFile.h"
+#include "TH1F.h"
 
 #include <algorithm>
 
 namespace edm {
-  PileUp::PileUp(ParameterSet const& pset, int const minb, int const maxb, double averageNumber, const bool playback) :
+  PileUp::PileUp(ParameterSet const& pset, int const minb, int const maxb, double averageNumber, TH1F * const histo, const bool playback) :
     type_(pset.getParameter<std::string>("type")),
     minBunch_(minb),
     maxBunch_(maxb),
     averageNumber_(averageNumber),
     intAverage_(static_cast<int>(averageNumber)),
+    histo_(histo),
+    histoDistribution_(type_ == "histo"),
+    probFunctionDistribution_(type_ == "probFunction"),
     poisson_(type_ == "poisson"),
     fixed_(type_ == "fixed"),
     none_(type_ == "none"),
@@ -36,16 +43,17 @@ namespace edm {
 	"which is not present in the configuration file.  You must add the service\n"
 	"in the configuration file or remove the modules that require it.";
     }
-
-    CLHEP::HepRandomEngine& engine = rng->getEngine();
-
-    poissonDistribution_ = new CLHEP::RandPoissonQ(engine, averageNumber_);
-
-    if (!(poisson_ || fixed_ || none_)) {
+    
+      CLHEP::HepRandomEngine& engine = rng->getEngine();
+      poissonDistribution_ = new CLHEP::RandPoissonQ(engine, averageNumber_);
+    
+        
+    if (!(histoDistribution_ || probFunctionDistribution_ || poisson_ || fixed_ || none_)) {
       throw cms::Exception("Illegal parameter value","PileUp::PileUp(ParameterSet const& pset)")
         << "'type' parameter (a string) has a value of '" << type_ << "'.\n"
         << "Legal values are 'poisson', 'fixed', or 'none'\n";
     }
+    
   }
 
   PileUp::~PileUp() {
@@ -54,9 +62,10 @@ namespace edm {
 
   void
   PileUp::readPileUp(std::vector<EventPrincipalVector> & result,std::vector<std::vector<edm::EventID> > &ids) {
+            
     for (int i = minBunch_; i <= maxBunch_; ++i) {
       EventPrincipalVector eventVector;
-      int n;
+      int n=0;
       
       if (playback_){
 	n = ids[i-minBunch_].size();
@@ -64,7 +73,18 @@ namespace edm {
 	// For now, the use case for sequential read reads only one event at a time.
 	n = 1;
       } else {
-	n = (none_ ? 0 : (poisson_ ? poissonDistribution_->fire() : intAverage_));
+	
+	if (none_){
+	  n = 0;
+	}else if (poisson_){
+	  n = poissonDistribution_->fire();
+	}else if (fixed_){
+	  n = intAverage_;
+	}else if (histoDistribution_ || probFunctionDistribution_){
+	  double d = histo_->GetRandom();
+	  n = (int) floor(d + 0.5);
+	}
+
       }
       eventVector.reserve(n);
       while (n > 0) {

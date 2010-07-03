@@ -14,6 +14,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 
+#include "TFile.h"
+#include "TH1F.h"
+
 using namespace std;
 
 int edm::BMixingModule::vertexoffset = 0;
@@ -23,7 +26,7 @@ namespace
 {
   boost::shared_ptr<edm::PileUp>
   maybeMakePileUp(edm::ParameterSet const& ps,std::string sourceName, const int minb, const int maxb, const bool playback)
-  {
+  { 
     boost::shared_ptr<edm::PileUp> pileup; // value to be returned
     // Make sure we have a parameter named 'sourceName'
     vector<string> names = ps.getParameterNames();
@@ -33,7 +36,13 @@ namespace
 	// We have the parameter
 	// and if we have either averageNumber or cfg by luminosity... make the PileUp
         double averageNumber;
-        edm::ParameterSet psin=ps.getParameter<edm::ParameterSet>(sourceName);
+        std::string histoFileName=" ";
+	std::string histoName =" ";
+	TH1F * h = new TH1F("h","h",10,0,10);
+	vector<int> dataProbFunctionVar;
+	vector<double> dataProb;
+	
+	edm::ParameterSet psin=ps.getParameter<edm::ParameterSet>(sourceName);
         if (psin.getParameter<std::string>("type")!="none") {
 	  vector<string> namesIn = psin.getParameterNames();
 	  if (find(namesIn.begin(), namesIn.end(), std::string("nbPileupEvents"))
@@ -44,16 +53,106 @@ namespace
 		!= namesAverage.end()) 
 	      {
 		averageNumber=psin_average.getParameter<double>("averageNumber");
-		pileup.reset(new edm::PileUp(ps.getParameter<edm::ParameterSet>(sourceName),minb,maxb,averageNumber,playback));
+		pileup.reset(new edm::PileUp(ps.getParameter<edm::ParameterSet>(sourceName),minb,maxb,averageNumber,h,playback));
 		edm::LogInfo("MixingModule") <<" Created source "<<sourceName<<" with minBunch,maxBunch "<<minb<<" "<<maxb<<" and averageNumber "<<averageNumber;
 	      }
-	
+	    else if (find(namesAverage.begin(), namesAverage.end(), std::string("fileName"))
+		!= namesAverage.end() && find(namesAverage.begin(), namesAverage.end(), std::string("histoName"))
+		!= namesAverage.end()){
+		
+	       
+		std::string histoFileName = psin_average.getUntrackedParameter<std::string>("fileName");
+		std::string histoName = psin_average.getUntrackedParameter<std::string>("histoName");
+						
+		TFile *infile = new TFile(histoFileName.c_str());
+   	 	TH1F *h = (TH1F*)infile->Get(histoName.c_str());
+                
+		// Check if the histogram exists           
+      		if (!h) {
+        	  throw cms::Exception("HistogramNotFound") << " Could not find the histogram " << histoName 
+      		  					    << "in the file " << histoFileName << "." << std::endl;
+      		}else{
+		  edm::LogInfo("MixingModule") << "Open a root file " << histoFileName << " containing the probability distribution histogram " << histoName << std::endl;
+		  edm::LogInfo("MixingModule") << "The PileUp number to be added will be chosen randomly from this histogram" << std::endl;
+		}
+                
+		// Check if the histogram is normalized
+		if (((h->Integral() - 1) > 1.0e-06) && ((h->Integral() - 1) < -1.0e-06)) throw cms::Exception("BadHistoDistribution") << "The histogram should be normalized!" << std::endl;
+						
+		// Get the averageNumber from the histo 
+		averageNumber = h->GetMean();
+		
+		pileup.reset(new edm::PileUp(ps.getParameter<edm::ParameterSet>(sourceName),minb,maxb,averageNumber,h,playback));
+		edm::LogInfo("MixingModule") <<" Created source "<<sourceName<<" with minBunch,maxBunch "<<minb<<" "<<maxb<<" and averageNumber "<<averageNumber;
+	      
+	      }
+	    else if (find(namesAverage.begin(), namesAverage.end(), std::string("probFunctionVariable"))
+		!= namesAverage.end() && find(namesAverage.begin(), namesAverage.end(), std::string("probValue"))
+		!= namesAverage.end() && find(namesAverage.begin(), namesAverage.end(), std::string("histoFileName"))
+		!= namesAverage.end()){
+
+	        dataProbFunctionVar = psin_average.getParameter<vector<int> >("probFunctionVariable");
+  		dataProb = psin_average.getParameter<vector<double> >("probValue");
+	        histoFileName = psin_average.getUntrackedParameter<std::string>("histoFileName"); 
+							
+		int varSize = (int) dataProbFunctionVar.size();
+		int probSize = (int) dataProb.size();
+		
+		// Complete the vector containing the probability  function data
+		// with the values "0"
+		if (probSize < varSize){
+		  edm::LogInfo("MixingModule") << " The probability function data will be completed with " <<(varSize - probSize)  <<" values 0."; 
+		  
+		  for (int i=0; i<(varSize - probSize); i++) dataProb.push_back(0);
+		  
+		  probSize = dataProb.size();
+		  edm::LogInfo("MixingModule") << " The number of the P(x) data set after adding the values 0 is " << probSize;
+		}
+			 		
+		// Create an histogram with the data from the probability function provided by the user		  
+		int xmin = (int) dataProbFunctionVar[0];
+		int xmax = (int) dataProbFunctionVar[varSize-1];
+		int numBins = varSize;
+		
+		edm::LogInfo("MixingModule") << "An histogram will be created with " << numBins << " bins in the range ("<< xmin << "," << xmax << ")." << std::endl;
+				
+		TH1F *hprob = new TH1F("h","Histo from the user's probability function",numBins,xmin,xmax); 
+		
+		LogDebug("MixingModule") << "Filling histogram with the following data:" << std::endl;
+		
+		for (int j=0; j <=xmax ; j++){
+		  LogDebug("MixingModule") << " x = " << dataProbFunctionVar[j ]<< " P(x) = " << dataProb[j];
+		  hprob->Fill(dataProbFunctionVar[j],dataProb[j]); 
+	   	}
+				
+		// Check if the histogram is normalized
+		if ( ((hprob->Integral() - 1) > 1.0e-06) && ((hprob->Integral() - 1) < -1.0e-06)){ 
+		  throw cms::Exception("BadProbFunction") << "The probability function should be normalized!!! " << endl;
+		}
+		
+		averageNumber = hprob->GetMean();
+				
+		// Write the created histogram into a root file
+		edm::LogInfo("MixingModule") << " The histogram created from the x, P(x) values will be written into the root file " << histoFileName; 
+		
+		TFile * outfile = new TFile(histoFileName.c_str(),"RECREATE");
+		hprob->Write();
+		outfile->Write();
+		outfile->Close();
+		outfile->Delete();		
+		
+		pileup.reset(new edm::PileUp(ps.getParameter<edm::ParameterSet>(sourceName),minb,maxb,averageNumber,hprob,playback));
+		edm::LogInfo("MixingModule") <<" Created source "<<sourceName<<" with minBunch,maxBunch "<<minb<<" "<<maxb<<" and averageNumber "<<averageNumber;
+		
+	      } 
 	    //special for pileup input
 	    else if (sourceName=="input" && find(namesAverage.begin(), namesAverage.end(), std::string("Lumi")) 
 		     != namesAverage.end() && find(namesAverage.begin(), namesAverage.end(), std::string("sigmaInel"))
 		     != namesAverage.end()) {
+	       	     
 	      averageNumber=psin_average.getParameter<double>("Lumi")*psin_average.getParameter<double>("sigmaInel")*ps.getParameter<int>("bunchspace")/1000*3564./2808.;  //FIXME
-	      pileup.reset(new edm::PileUp(ps.getParameter<edm::ParameterSet>(sourceName),minb,maxb,averageNumber,playback));
+	      pileup.reset(new
+	      edm::PileUp(ps.getParameter<edm::ParameterSet>(sourceName),minb,maxb,averageNumber,h,playback));
 	      edm::LogInfo("MixingModule") <<" Created source "<<sourceName<<" with minBunch,maxBunch "<<minb<<" "<<maxb;
 	      edm::LogInfo("MixingModule")<<" Luminosity configuration, average number used is "<<averageNumber;
 	    }
@@ -73,7 +172,7 @@ namespace edm {
     maxBunch_((pset.getParameter<int>("maxBunch")*25)/pset.getParameter<int>("bunchspace")),
     mixProdStep1_(pset.getParameter<bool>("mixProdStep1")),
     mixProdStep2_(pset.getParameter<bool>("mixProdStep2"))	
-  {
+  {  
     // FIXME: temporary to keep bwds compatibility for cfg files
     vector<string> names = pset.getParameterNames();
     if (find(names.begin(), names.end(),"playback")
@@ -87,7 +186,7 @@ namespace edm {
       LogInfo("MixingModule") <<" ATTENTION:Mixing will be done in playback mode! \n"
                               <<" ATTENTION:Mixing Configuration must be the same as for the original mixing!";
     }
-
+    
     input_=     maybeMakePileUp(pset,"input",minBunch_,maxBunch_,playback_);
     cosmics_=   maybeMakePileUp(pset,"cosmics",minBunch_,maxBunch_,playback_);
     beamHalo_p_=maybeMakePileUp(pset,"beamhalo_plus",minBunch_,maxBunch_,playback_);
@@ -102,7 +201,7 @@ namespace edm {
 
   // Functions that get called by framework every event
   void BMixingModule::produce(edm::Event& e, const edm::EventSetup& setup) { 
-    
+
     // Check if the signal is present in the root file 
     // for all the objects we want to mix
     checkSignal(e);
@@ -120,8 +219,8 @@ namespace edm {
       doit_[is]=false;
       pileup_[is].clear();
     }
-
-    if ( input_)  {  
+    
+    if (input_)  {
       if (playback_) {
 	getEventStartInfo(e,0);
 	input_->readPileUp(pileup_[0], vectorEventIDs_);
