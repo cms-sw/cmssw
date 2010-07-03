@@ -42,7 +42,7 @@ namespace edm {
 
   class RootInputFileSequence : private boost::noncopyable {
   public:
-    explicit RootInputFileSequence(ParameterSet const& pset, PoolSource const& input, InputFileCatalog const& catalog, PrincipalCache& cache, bool primarySequence);
+    explicit RootInputFileSequence(ParameterSet const& pset, PoolSource const& input, InputFileCatalog const& catalog, PrincipalCache& cache, bool primaryFiles);
     virtual ~RootInputFileSequence();
 
     typedef VectorInputSource::EventPrincipalVector EventPrincipalVector;
@@ -106,7 +106,7 @@ namespace edm {
     int const treeMaxVirtualSize_;
     RunNumber_t setRun_;
     GroupSelectorRules groupSelectorRules_;
-    bool primarySequence_;
+    bool primaryFiles_;
     boost::shared_ptr<DuplicateChecker> duplicateChecker_;
     bool dropDescendants_;
   }; // class RootInputFileSequence

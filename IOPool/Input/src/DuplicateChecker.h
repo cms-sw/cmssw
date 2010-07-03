@@ -57,6 +57,8 @@ namespace edm {
                                    EventNumber_t event,
                                    std::string const& fileName);
 
+    bool checkingAllFiles() const {return checkAllFilesOpened == duplicateCheckMode_;} 
+
     static void fillDescription(ParameterSetDescription & desc);
 
   private:

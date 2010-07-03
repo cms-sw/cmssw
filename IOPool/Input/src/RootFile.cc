@@ -70,6 +70,26 @@ namespace edm {
     }
   }
 
+  // This is a helper class for IndexIntoFile.
+  class RootFileEventFinder : public IndexIntoFile::EventFinder {
+  public:
+    explicit RootFileEventFinder(RootTree& eventTree) : eventTree_(eventTree) {}
+    virtual ~RootFileEventFinder() {}
+    virtual
+    EventNumber_t getEventNumberOfEntry(input::EntryNumber entry) const {
+      eventTree_.setEntryNumber(entry);
+      EventAuxiliary eventAux;
+      EventAuxiliary *pEvAux = &eventAux;
+      eventTree_.fillAux<EventAuxiliary>(pEvAux);
+      eventTree_.setEntryNumber(-1);
+      return eventAux.event();
+    }
+
+  private:
+     RootTree& eventTree_;
+  };
+
+
 //---------------------------------------------------------------------
   RootFile::RootFile(std::string const& fileName,
 		     ProcessConfiguration const& processConfiguration,
@@ -85,7 +105,7 @@ namespace edm {
 		     RunNumber_t const& forcedRunNumber,
                      bool noEventSort,
 		     GroupSelectorRules const& groupSelectorRules,
-                     bool dropMergeable,
+                     bool secondaryFile,
                      boost::shared_ptr<DuplicateChecker> duplicateChecker,
                      bool dropDescendants,
                      std::vector<boost::shared_ptr<IndexIntoFile> > const& indexesIntoFiles,
@@ -284,7 +304,7 @@ namespace edm {
     ProcessHistoryRegistry::instance()->insertCollection(pHistVector);
     ProcessConfigurationRegistry::instance()->insertCollection(procConfigVector);
 
-    validateFile();
+    validateFile(secondaryFile);
 
     // Read the parentage tree.  Old format files are handled internally in readParentageTree().
     readParentageTree();
@@ -334,7 +354,7 @@ namespace edm {
 	  newBranchToOldBranch_.insert(std::make_pair(newBD.branchName(), prod.branchName()));
 	}
       }
-      dropOnInput(*newReg, groupSelectorRules, dropDescendants, dropMergeable);
+      dropOnInput(*newReg, groupSelectorRules, dropDescendants, secondaryFile);
       // freeze the product registry
       newReg->setFrozen();
       productRegistry_.reset(newReg.release());
@@ -687,17 +707,9 @@ namespace edm {
     RunLumiMap runLumiMap; // (declare 6)
 
     if(lumiTree_.isValid()) {
-      ProcessHistoryID prevPhid;
-      RunNumber_t prevRun = 0U;
-      LuminosityBlockNumber_t prevLumi = 0U;
       while(lumiTree_.next()) {
+	// Note: adjacent duplicates will be skipped without an explicit check.
         boost::shared_ptr<LuminosityBlockAuxiliary> lumiAux = fillLumiAuxiliary();
-	if (prevPhid == lumiAux->processHistoryID() && prevRun == lumiAux->run() && prevLumi == lumiAux->luminosityBlock()) {
-	  continue; // Skip adjacent duplicates.  This can happen in very old files due to a very old bug.
-	}
-	prevPhid = lumiAux->processHistoryID();
-	prevRun = lumiAux->run();
-	prevLumi = lumiAux->luminosityBlock();
 	LuminosityBlockID lumiID = LuminosityBlockID(lumiAux->run(), lumiAux->luminosityBlock());
 	if (runLumiSet.insert(lumiID).second) { // (check 2, insert 2)
 	  // This lumi was not assciated with any events.
@@ -718,15 +730,9 @@ namespace edm {
     RunMap runMap; // (declare 11)
 
     if(runTree_.isValid()) {
-      ProcessHistoryID prevPhid;
-      RunNumber_t prevRun = 0U;
       while(runTree_.next()) {
+	// Note: adjacent duplicates will be skipped without an explicit check.
         boost::shared_ptr<RunAuxiliary> runAux = fillRunAuxiliary();
-	if (prevPhid == runAux->processHistoryID() && prevRun == runAux->run()) {
-	  continue; // Skip adjacent duplicates.  This can happen in very old files due to a very old bug.
-	}
-	prevPhid = runAux->processHistoryID();
-	prevRun = runAux->run();
 	if (runSet.insert(runAux->run()).second) { // (check 4, insert 4)
 	  // This run was not assciated with any events or lumis.
 	  emptyRuns.push_back(RunItem(runAux->processHistoryID(), runAux->run())); // (insert 12)
@@ -737,34 +743,32 @@ namespace edm {
       runTree_.setEntryNumber(-1);
     }
 
-    // Insert the empty lumis into the lumi list.
+    // Insert the ordered empty lumis into the lumi list.
     LumiItemSortByRunLumi lumiItemSortByRunLumi;
     stable_sort_all(emptyLumis, lumiItemSortByRunLumi);
 
+    LumiList::iterator itLumis = lumis.begin(), endLumis = lumis.end();
     for (LumiVector::const_iterator i = emptyLumis.begin(), iEnd = emptyLumis.end(); i != iEnd; ++i) {
-      LumiList::iterator insertAt = lumis.end();
-      for (LumiList::iterator it = lumis.begin(), itEnd = lumis.end(); it != itEnd; ++it) {
-	if (lumiItemSortByRunLumi(*i, *it)) {
-	  insertAt = it;
+      for (; itLumis != endLumis; ++itLumis) {
+	if (lumiItemSortByRunLumi(*i, *itLumis)) {
 	  break;
 	}
       }
-      lumis.insert(insertAt, *i);
+      lumis.insert(itLumis, *i);
     }
 
-    // Insert the empty runs into the run list.
+    // Insert the ordered empty runs into the run list.
     RunItemSortByRun runItemSortByRun;
     stable_sort_all(emptyRuns, runItemSortByRun);
 
+    RunList::iterator itRuns = runs.begin(), endRuns = runs.end();
     for (RunVector::const_iterator i = emptyRuns.begin(), iEnd = emptyRuns.end(); i != iEnd; ++i) {
-      RunList::iterator insertAt = runs.end();
-      for (RunList::iterator it = runs.begin(), itEnd = runs.end(); it != itEnd; ++it) {
-	if (runItemSortByRun(*i, *it)) {
-	  insertAt = it;
+      for (; itRuns != endRuns; ++itRuns) {
+	if (runItemSortByRun(*i, *itRuns)) {
 	  break;
 	}
       }
-      runs.insert(insertAt, *i);
+      runs.insert(itRuns, *i);
     }
 
 
@@ -829,80 +833,7 @@ namespace edm {
   }
 
   void
-  RootFile::fillEventNumbersInIndex() {
-
-    indexIntoFile_.eventNumbers().resize(eventTree_.entries(), IndexIntoFile::invalidEvent);
-
-    long long offset = 0;
-    long long previousBeginEventNumbers = -1;
-
-    for (IndexIntoFile::SortedRunOrLumiItr runOrLumi = indexIntoFile_.beginRunOrLumi(),
-                                             endRunOrLumi = indexIntoFile_.endRunOrLumi();
-         runOrLumi != endRunOrLumi; ++runOrLumi) {
-
-      if (runOrLumi.isRun()) continue;
-
-      long long beginEventNumbers;
-      long long endEventNumbers;
-      EntryNumber_t beginEventEntry;
-      EntryNumber_t endEventEntry;
-      runOrLumi.getRange(beginEventNumbers, endEventNumbers, beginEventEntry, endEventEntry);
-
-      if (beginEventNumbers != previousBeginEventNumbers) offset = 0;
-
-      for (EntryNumber_t entry = beginEventEntry; entry != endEventEntry; ++entry) {
-        eventTree_.setEntryNumber(entry);
-        fillThisEventAuxiliary();
-        indexIntoFile_.eventNumbers().at((entry - beginEventEntry) + offset + beginEventNumbers) = eventAux().event();
-      }
-      eventTree_.setEntryNumber(-1);
-
-      previousBeginEventNumbers = beginEventNumbers;
-      offset += endEventEntry - beginEventEntry;
-    }
-    indexIntoFile_.sortEvents();
-  }
-
-  void
-  RootFile::fillEventEntriesInIndex() {
-
-    indexIntoFile_.eventEntries().resize(eventTree_.entries());
-
-    long long offset = 0;
-    long long previousBeginEventNumbers = -1;
-
-    for (IndexIntoFile::SortedRunOrLumiItr runOrLumi = indexIntoFile_.beginRunOrLumi(),
-                                             endRunOrLumi = indexIntoFile_.endRunOrLumi();
-         runOrLumi != endRunOrLumi; ++runOrLumi) {
-
-      if (runOrLumi.isRun()) continue;
-
-      long long beginEventNumbers;
-      long long endEventNumbers;
-      EntryNumber_t beginEventEntry;
-      EntryNumber_t endEventEntry;
-      runOrLumi.getRange(beginEventNumbers, endEventNumbers, beginEventEntry, endEventEntry);
-
-      // This is true each time one hits a new lumi section (except if the previous lumi had
-      // no events, in which case the offset is still 0 anyway)
-      if (beginEventNumbers != previousBeginEventNumbers) offset = 0;
-
-      for (EntryNumber_t entry = beginEventEntry; entry != endEventEntry; ++entry) {
-        eventTree_.setEntryNumber(entry);
-        fillThisEventAuxiliary();
-        indexIntoFile_.eventEntries().at((entry - beginEventEntry) + offset + beginEventNumbers) =
-          IndexIntoFile::EventEntry(eventAux().event(), entry);
-      }
-      eventTree_.setEntryNumber(-1);
-
-      previousBeginEventNumbers = beginEventNumbers;
-      offset += endEventEntry - beginEventEntry;
-    }
-    indexIntoFile_.sortEventEntries();
-  }
-
-  void
-  RootFile::validateFile() {
+  RootFile::validateFile(bool secondaryFile) {
     if(!fid_.isValid()) {
       fid_ = FileID(createGlobalIdentifier());
     }
@@ -916,11 +847,13 @@ namespace edm {
     }
 
     indexIntoFile_.fixIndexes(orderedProcessHistoryIDs_);
-
-    // For now always fill these. This needs to be improved
-    // to only fill these parts of the index when required
-    fillEventNumbersInIndex();
-    fillEventEntriesInIndex();
+    indexIntoFile_.setNumberOfEvents(eventTree_.entries());
+    indexIntoFile_.setEventFinder(boost::shared_ptr<IndexIntoFile::EventFinder>(new RootFileEventFinder(eventTree_)));
+    // We fill the event numbers explicitly if we need to find events in closed files,
+    // such as for secondary files (or secondary sources) or if duplicate checking across files.
+    if (secondaryFile || (duplicateChecker_ && duplicateChecker_->checkingAllFiles())) {
+      indexIntoFile_.fillEventNumbers();
+    }
   }
 
   void
@@ -1398,7 +1331,7 @@ namespace edm {
   }
 
   void
-  RootFile::dropOnInput (ProductRegistry& reg, GroupSelectorRules const& rules, bool dropDescendants, bool dropMergeable) {
+  RootFile::dropOnInput (ProductRegistry& reg, GroupSelectorRules const& rules, bool dropDescendants, bool secondaryFile) {
     // This is the selector for drop on input.
     GroupSelector groupSelector;
     groupSelector.initialize(rules, reg.allBranchDescriptions());
@@ -1439,9 +1372,8 @@ namespace edm {
       }
     }
 
-    // Drop on input mergeable run and lumi products, this needs to be invoked for
-    // secondary file input
-    if(dropMergeable) {
+    // Drop on input mergeable run and lumi products, this needs to be invoked for secondary file input
+    if(secondaryFile) {
       for(ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end(); it != itEnd;) {
         BranchDescription const& prod = it->second;
         if(prod.branchType() != InEvent) {

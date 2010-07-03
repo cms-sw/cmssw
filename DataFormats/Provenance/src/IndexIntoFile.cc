@@ -81,6 +81,7 @@ namespace edm {
         endEvents() = invalidEntry;
       }
       else {
+	setNumberOfEvents(numberOfEvents() + 1);
         if (beginEvents() == invalidEntry) {
           currentLumi() = lumi;
           beginEvents() = entry;
@@ -153,6 +154,88 @@ namespace edm {
   }
 
   void
+  IndexIntoFile::fillEventNumbers() const {
+    if (numberOfEvents() == 0 || !eventNumbers().empty()) {
+      return;
+    }
+    eventNumbers().resize(numberOfEvents(), IndexIntoFile::invalidEvent);
+
+    long long offset = 0;
+    long long previousBeginEventNumbers = -1LL;
+
+    for (SortedRunOrLumiItr runOrLumi = beginRunOrLumi(), runOrLumiEnd = endRunOrLumi();
+         runOrLumi != runOrLumiEnd; ++runOrLumi) {
+
+      if (runOrLumi.isRun()) continue;
+
+      long long beginEventNumbers = 0;
+      long long endEventNumbers = 0;
+      EntryNumber_t beginEventEntry = -1LL;
+      EntryNumber_t endEventEntry = -1LL;
+      runOrLumi.getRange(beginEventNumbers, endEventNumbers, beginEventEntry, endEventEntry);
+
+      if (beginEventNumbers != previousBeginEventNumbers) offset = 0;
+
+      for (EntryNumber_t entry = beginEventEntry; entry != endEventEntry; ++entry) {
+        eventNumbers().at((entry - beginEventEntry) + offset + beginEventNumbers) = getEventNumberOfEntry(entry);
+      }
+
+      previousBeginEventNumbers = beginEventNumbers;
+      offset += endEventEntry - beginEventEntry;
+    }
+    sortEvents();
+    assert(numberOfEvents() == eventNumbers().size());
+  }
+
+  void
+  IndexIntoFile::fillEventEntries() const {
+    if (numberOfEvents() == 0 || !eventEntries().empty()) {
+      return;
+    }
+
+    eventEntries().resize(numberOfEvents());
+
+    long long offset = 0;
+    long long previousBeginEventNumbers = -1LL;
+
+    for (SortedRunOrLumiItr runOrLumi = beginRunOrLumi(), runOrLumiEnd = endRunOrLumi();
+         runOrLumi != runOrLumiEnd; ++runOrLumi) {
+
+      if (runOrLumi.isRun()) continue;
+
+      long long beginEventNumbers = 0;
+      long long endEventNumbers = 0;
+      EntryNumber_t beginEventEntry = -1LL;
+      EntryNumber_t endEventEntry = -1LL;
+      runOrLumi.getRange(beginEventNumbers, endEventNumbers, beginEventEntry, endEventEntry);
+
+      // This is true each time one hits a new lumi section (except if the previous lumi had
+      // no events, in which case the offset is still 0 anyway)
+      if (beginEventNumbers != previousBeginEventNumbers) offset = 0;
+
+      for (EntryNumber_t entry = beginEventEntry; entry != endEventEntry; ++entry) {
+        eventEntries().at((entry - beginEventEntry) + offset + beginEventNumbers) =
+          EventEntry(getEventNumberOfEntry(entry), entry);
+      }
+
+      previousBeginEventNumbers = beginEventNumbers;
+      offset += endEventEntry - beginEventEntry;
+    }
+    sortEventEntries();
+    assert(numberOfEvents() == eventEntries().size());
+  }
+
+  // We are closing the input file, but we need to keep event numbers.
+  // We can delete the other transient collections by using the swap trick.
+
+  void
+  IndexIntoFile::inputFileClosed() const {
+    std::vector<EventEntry>().swap(eventEntries());
+    std::vector<RunOrLumiIndexes>().swap(runOrLumiIndexes());
+    resetEventFinder();
+  }
+
+  void
   IndexIntoFile::fixIndexes(std::vector<ProcessHistoryID> & processHistoryIDs) {
 
     std::map<int, int> oldToNewIndex;
@@ -194,7 +277,7 @@ namespace edm {
     stable_sort_all(runOrLumiEntries_);
   }
 
-  void IndexIntoFile::sortEvents() {
+  void IndexIntoFile::sortEvents() const {
     fillRunOrLumiIndexes();
     std::vector<RunOrLumiIndexes>::iterator beginOfLumi = runOrLumiIndexes().begin();
     std::vector<RunOrLumiIndexes>::iterator endOfLumi = beginOfLumi;
@@ -220,7 +303,7 @@ namespace edm {
     }
   }
 
-  void IndexIntoFile::sortEventEntries() {
+  void IndexIntoFile::sortEventEntries() const {
     fillRunOrLumiIndexes();
     std::vector<RunOrLumiIndexes>::iterator beginOfLumi = runOrLumiIndexes().begin();
     std::vector<RunOrLumiIndexes>::iterator endOfLumi = beginOfLumi;
@@ -350,17 +433,7 @@ namespace edm {
 
 
         long long indexToEvent = 0;
-        if (!eventNumbers().empty()) {
-          std::vector<EventNumber_t>::const_iterator eventIter = std::lower_bound(eventNumbers().begin() + beginEventNumbers,
-                                                                                  eventNumbers().begin() + endEventNumbers,
-                                                                                  event);
-          if (eventIter == (eventNumbers().begin() + endEventNumbers) ||
-              *eventIter != event) continue;
-
-          indexToEvent = eventIter - eventNumbers().begin() - beginEventNumbers;
-        }
-        else {
-          assert(!eventEntries().empty());
+        if (!eventEntries().empty()) {
           std::vector<EventEntry>::const_iterator eventIter = std::lower_bound(eventEntries().begin() + beginEventNumbers,
                                                                                eventEntries().begin() + endEventNumbers,
                                                                                EventEntry(event, invalidEntry));
@@ -368,6 +441,15 @@ namespace edm {
               eventIter->event() != event) continue;
 
           indexToEvent = eventIter - eventEntries().begin() - beginEventNumbers;
+        } else {
+          fillEventNumbers();
+          std::vector<EventNumber_t>::const_iterator eventIter = std::lower_bound(eventNumbers().begin() + beginEventNumbers,
+                                                                                  eventNumbers().begin() + endEventNumbers,
+                                                                                  event);
+          if (eventIter == (eventNumbers().begin() + endEventNumbers) ||
+              *eventIter != event) continue;
+
+          indexToEvent = eventIter - eventNumbers().begin() - beginEventNumbers;
         }
         return IndexIntoFileItr(this,
                                 numericalOrder,
@@ -399,22 +481,21 @@ namespace edm {
           if (beginEventNumbers >= endEventNumbers) continue;
 
           long long indexToEvent = 0;
-          if (!eventNumbers().empty()) {
-            std::vector<EventNumber_t>::const_iterator eventIter = std::lower_bound(eventNumbers().begin() + beginEventNumbers,
-                                                                                    eventNumbers().begin() + endEventNumbers,
-                                                                                    event);
-            if (eventIter == (eventNumbers().begin() + endEventNumbers) ||
-                *eventIter != event) continue;
-            indexToEvent = eventIter - eventNumbers().begin() - beginEventNumbers;
-          }
-          else {
-            assert(!eventEntries().empty());
+          if (!eventEntries().empty()) {
             std::vector<EventEntry>::const_iterator eventIter = std::lower_bound(eventEntries().begin() + beginEventNumbers,
                                                                                  eventEntries().begin() + endEventNumbers,
                                                                                  EventEntry(event, invalidEntry));
             if (eventIter == (eventEntries().begin() + endEventNumbers) ||
                 eventIter->event() != event) continue;
             indexToEvent = eventIter - eventEntries().begin() - beginEventNumbers;
+          } else {
+            fillEventNumbers();
+            std::vector<EventNumber_t>::const_iterator eventIter = std::lower_bound(eventNumbers().begin() + beginEventNumbers,
+                                                                                    eventNumbers().begin() + endEventNumbers,
+                                                                                    event);
+            if (eventIter == (eventNumbers().begin() + endEventNumbers) ||
+                *eventIter != event) continue;
+            indexToEvent = eventIter - eventNumbers().begin() - beginEventNumbers;
           }
           return IndexIntoFileItr(this,
                                   numericalOrder,
@@ -531,27 +612,7 @@ namespace edm {
           if (beginEventNumbers1 >= endEventNumbers1) continue;
           if (beginEventNumbers2 >= endEventNumbers2) continue;
 
-          if (!eventNumbers().empty()) {
-            assert(!indexIntoFile.eventNumbers().empty());
-	    std::vector<EventNumber_t> matchingEvents;
-            std::insert_iterator<std::vector<EventNumber_t> > insertIter(matchingEvents, matchingEvents.begin());
-	    std::set_intersection(eventNumbers().begin() + beginEventNumbers1,
-                                  eventNumbers().begin() + endEventNumbers1,
-                                  indexIntoFile.eventNumbers().begin() + beginEventNumbers2,
-                                  indexIntoFile.eventNumbers().begin() + endEventNumbers2,
-                                  insertIter);
-            for (std::vector<EventNumber_t>::const_iterator iEvent = matchingEvents.begin(),
-		                                              iEnd = matchingEvents.end();
-                 iEvent != iEnd; ++iEvent) {
-              intersection.insert(IndexRunLumiEventKey(indexes1.processHistoryIDIndex(),
-                                                       indexes1.run(),
-                                                       indexes1.lumi(),
-                                                       *iEvent));
-            }
-          }
-          else {
-            assert(!eventEntries().empty());
-            assert(!indexIntoFile.eventEntries().empty());
+          if (!eventEntries().empty() && !indexIntoFile.eventEntries().empty()) {
 	    std::vector<EventEntry> matchingEvents;
             std::insert_iterator<std::vector<EventEntry> > insertIter(matchingEvents, matchingEvents.begin());
 	    std::set_intersection(eventEntries().begin() + beginEventNumbers1,
@@ -567,7 +628,24 @@ namespace edm {
                                                        indexes1.lumi(),
                                                        iEvent->event()));
             }
-
+          } else {
+            fillEventNumbers();
+            indexIntoFile.fillEventNumbers();
+	    std::vector<EventNumber_t> matchingEvents;
+            std::insert_iterator<std::vector<EventNumber_t> > insertIter(matchingEvents, matchingEvents.begin());
+	    std::set_intersection(eventNumbers().begin() + beginEventNumbers1,
+                                  eventNumbers().begin() + endEventNumbers1,
+                                  indexIntoFile.eventNumbers().begin() + beginEventNumbers2,
+                                  indexIntoFile.eventNumbers().begin() + endEventNumbers2,
+                                  insertIter);
+            for (std::vector<EventNumber_t>::const_iterator iEvent = matchingEvents.begin(),
+		                                              iEnd = matchingEvents.end();
+                 iEvent != iEnd; ++iEvent) {
+              intersection.insert(IndexRunLumiEventKey(indexes1.processHistoryIDIndex(),
+                                                       indexes1.run(),
+                                                       indexes1.lumi(),
+                                                       *iEvent));
+            }
           }
           previousIndexes = &indexes1;
         }
@@ -597,17 +675,16 @@ namespace edm {
       // there must be more than 1 event in the lumi for there to be any duplicates
       if (beginEventNumbers + 1 >= endEventNumbers) continue;
 
-      if (!eventNumbers().empty()) {
-        if (std::adjacent_find(eventNumbers().begin() + beginEventNumbers,
-                               eventNumbers().begin() + endEventNumbers) != eventNumbers().end()) {
-           return true;
-        }
-      }
-      else {
-        assert(!eventEntries().empty());
+      if (!eventEntries().empty()) {
         if (std::adjacent_find(eventEntries().begin() + beginEventNumbers,
                                eventEntries().begin() + endEventNumbers) != eventEntries().end()) {
           return true;
+        }
+      } else {
+        fillEventNumbers();
+        if (std::adjacent_find(eventNumbers().begin() + beginEventNumbers,
+                               eventNumbers().begin() + endEventNumbers) != eventNumbers().end()) {
+           return true;
         }
       }
       previousIndexes = &indexes;
@@ -1166,6 +1243,7 @@ namespace edm {
     long long eventNumberIndex = 
       indexIntoFile()->runOrLumiIndexes()[indexToEventRange()].beginEventNumbers() +
       indexToEvent();
+    indexIntoFile()->fillEventEntries();
     return indexIntoFile()->eventEntries().at(eventNumberIndex).entry();
   }
 
@@ -1180,6 +1258,7 @@ namespace edm {
     long long eventNumberIndex = 
       indexIntoFile()->runOrLumiIndexes()[indexToEventRange()].beginEventNumbers() +
       indexToEvent();
+    indexIntoFile()->fillEventEntries();
     return indexIntoFile()->eventEntries().at(eventNumberIndex).entry();
   }
 
@@ -1315,6 +1394,8 @@ namespace edm {
                                             currentIndex_(invalidIndex),
                                             currentRun_(invalidRun),
                                             currentLumi_(invalidLumi),
+                                            numberOfEvents_(0),
+                                            eventFinder_(),
                                             runOrLumiIndexes_(),
                                             eventNumbers_(),
                                             eventEntries_() {

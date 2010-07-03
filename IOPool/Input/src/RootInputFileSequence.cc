@@ -34,7 +34,7 @@ namespace edm {
 		PoolSource const& input,
 		InputFileCatalog const& catalog,
 		PrincipalCache& cache,
-		bool primarySequence) :
+		bool primaryFiles) :
     input_(input),
     catalog_(catalog),
     firstFile_(true),
@@ -47,7 +47,7 @@ namespace edm {
     flatDistribution_(),
     indexesIntoFiles_(fileCatalogItems().size()),
     orderedProcessHistoryIDs_(),
-    eventSkipperByID_(primarySequence ? EventSkipperByID::create(pset).release() : 0),
+    eventSkipperByID_(primaryFiles ? EventSkipperByID::create(pset).release() : 0),
     eventsRemainingInFile_(0),
     // The default value provided as the second argument to the getUntrackedParameter function call
     // is not used when the ParameterSet has been validated and the parameters are not optional
@@ -56,15 +56,15 @@ namespace edm {
     // yet, so the ParameterSet does not get validated yet.  As soon as all the modules with a SecSource
     // have defined descriptions, the defaults in the getUntrackedParameterSet function calls can
     // and should be deleted from the code.
-    numberOfEventsToSkip_(primarySequence ? pset.getUntrackedParameter<unsigned int>("skipEvents", 0U) : 0U),
-    noEventSort_(primarySequence ? pset.getUntrackedParameter<bool>("noEventSort", true) : false),
+    numberOfEventsToSkip_(primaryFiles ? pset.getUntrackedParameter<unsigned int>("skipEvents", 0U) : 0U),
+    noEventSort_(primaryFiles ? pset.getUntrackedParameter<bool>("noEventSort", true) : false),
     skipBadFiles_(pset.getUntrackedParameter<bool>("skipBadFiles", false)),
     treeCacheSize_(pset.getUntrackedParameter<unsigned int>("cacheSize", input::defaultCacheSize)),
     treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize", -1)),
     setRun_(pset.getUntrackedParameter<unsigned int>("setRunNumber", 0U)),
     groupSelectorRules_(pset, "inputCommands", "InputSource"),
-    primarySequence_(primarySequence),
-    duplicateChecker_(primarySequence ? new DuplicateChecker(pset) : 0),
+    primaryFiles_(primaryFiles),
+    duplicateChecker_(primaryFiles ? new DuplicateChecker(pset) : 0),
     dropDescendants_(pset.getUntrackedParameter<bool>("dropDescendantsOfDroppedBranches", primary())) {
 
     //we now allow the site local config to specify what the TTree cache size should be
@@ -134,11 +134,12 @@ namespace edm {
   }
 
   void RootInputFileSequence::closeFile_() {
+    // close the currently open file, any, and delete the RootFile object.
     if(rootFile_) {
-    // Account for events skipped in the file.
+      // Account for events skipped in the file.
       {
         std::auto_ptr<InputSource::FileCloseSentry>
-	  sentry((primarySequence_ && primary()) ? new InputSource::FileCloseSentry(input_) : 0);
+	  sentry((primaryFiles_) ? new InputSource::FileCloseSentry(input_) : 0);
         rootFile_->close(primary());
       }
       logFileAction("  Closed file ", rootFile_->file());
@@ -148,13 +149,24 @@ namespace edm {
   }
 
   void RootInputFileSequence::initFile(bool skipBadFiles) {
-    // close the currently open file, any, and delete the RootFile object.
+    if (rootFile_) {
+      // If this is the primary sequence, and we are not duplicate checking across files,
+      // we can delete the IndexIntoFile for the file we are closing.
+      size_t currentIndexIntoFile = fileIter_ - fileIterBegin_;
+      bool deleteIndexIntoFile = primaryFiles_ && primary() && !(duplicateChecker_ && duplicateChecker_->checkingAllFiles());
+      if (deleteIndexIntoFile) {
+	indexesIntoFiles_[currentIndexIntoFile].reset();
+      } else {
+	// If we can't delete it, we need to save only what we need to save.
+	if (indexesIntoFiles_[currentIndexIntoFile]) indexesIntoFiles_[currentIndexIntoFile]->inputFileClosed();
+      }
+    }
     closeFile_();
     boost::shared_ptr<TFile> filePtr;
     try {
       logFileAction("  Initiating request to open file ", fileIter_->fileName());
       std::auto_ptr<InputSource::FileOpenSentry>
-	sentry((primarySequence_ && primary()) ? new InputSource::FileOpenSentry(input_) : 0);
+	sentry(primaryFiles_ ? new InputSource::FileOpenSentry(input_) : 0);
       filePtr.reset(TFile::Open(gSystem->ExpandPathName(fileIter_->fileName().c_str())));
     }
     catch (cms::Exception e) {
@@ -173,13 +185,13 @@ namespace edm {
 	  input_.processingMode(),
 	  setRun_,
 	  noEventSort_,
-	  groupSelectorRules_, !primarySequence_, duplicateChecker_, dropDescendants_,
+	  groupSelectorRules_, !primaryFiles_, duplicateChecker_, dropDescendants_,
 	  indexesIntoFiles_, currentIndexIntoFile, orderedProcessHistoryIDs_));
 
       indexesIntoFiles_[currentIndexIntoFile] = rootFile_->indexIntoFileSharedPtr();
       rootFile_->reportOpened(primary() ?
-	 (primarySequence_ ? "primaryFiles" : "secondaryFiles") : "mixingFiles");
-      if (primarySequence_) {
+	 (primaryFiles_ ? "primaryFiles" : "secondaryFiles") : "mixingFiles");
+      if (primaryFiles_) {
         BranchIDListHelper::updateFromInput(rootFile_->branchIDLists(), fileIter_->fileName());
       }
     } else {
@@ -199,7 +211,7 @@ namespace edm {
   bool RootInputFileSequence::nextFile(PrincipalCache& cache) {
     if(fileIter_ != fileIterEnd_) ++fileIter_;
     if(fileIter_ == fileIterEnd_) {
-      if(primarySequence_) {
+      if(primaryFiles_) {
 	return false;
       } else {
 	fileIter_ = fileIterBegin_;
@@ -208,7 +220,7 @@ namespace edm {
 
     initFile(skipBadFiles_);
 
-    if(primarySequence_ && rootFile_) {
+    if(primaryFiles_ && rootFile_) {
       size_t size = productRegistry()->size();
       // make sure the new product registry is compatible with the main one
       std::string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
@@ -228,7 +240,7 @@ namespace edm {
 
   bool RootInputFileSequence::previousFile(PrincipalCache& cache) {
     if(fileIter_ == fileIterBegin_) {
-      if(primarySequence_) {
+      if(primaryFiles_) {
 	return false;
       } else {
 	fileIter_ = fileIterEnd_;
@@ -238,7 +250,7 @@ namespace edm {
 
     initFile(false);
 
-    if(primarySequence_ && rootFile_) {
+    if(primaryFiles_ && rootFile_) {
       size_t size = productRegistry()->size();
       // make sure the new product registry is compatible to the main one
       std::string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),

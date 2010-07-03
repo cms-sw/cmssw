@@ -28,6 +28,27 @@
 // forward declarations
 
 namespace fwlite {
+
+  // This is a helper class for IndexIntoFile.
+  class FWLiteEventFinder : public edm::IndexIntoFile::EventFinder {
+  public:
+    explicit FWLiteEventFinder(TBranch* auxBranch) : auxBranch_(auxBranch) {}
+    virtual ~FWLiteEventFinder() {}
+    virtual
+    edm::EventNumber_t getEventNumberOfEntry(long long entry) const {
+      void* saveAddress = auxBranch_->GetAddress();
+      edm::EventAuxiliary eventAux;
+      edm::EventAuxiliary *pEvAux = &eventAux;
+      auxBranch_->SetAddress(&pEvAux);
+      auxBranch_->GetEntry(entry);
+      auxBranch_->SetAddress(saveAddress);
+      return eventAux.event();
+    }
+
+  private:
+     TBranch* auxBranch_;
+  };
+
    EntryFinder::EntryFinder() : indexIntoFile_(), fileIndex_() {}
    EntryFinder::~EntryFinder() {}
 
@@ -95,6 +116,17 @@ namespace fwlite {
         TBranch* b = meta->GetBranch(edm::poolNames::indexIntoFileBranchName().c_str());
         b->SetAddress(&indexPtr);
         b->GetEntry(0);
+        TTree* eventTree = branchMap.getEventTree();
+        TBranch* auxBranch = eventTree->GetBranch(edm::BranchTypeToAuxiliaryBranchName(edm::InEvent).c_str());
+        if(0 == auxBranch) {
+          throw cms::Exception("NoEventAuxilliary") << "The TTree "
+          << edm::poolNames::eventTreeName()
+          << " does not contain a branch named 'EventAuxiliary'";
+        }
+
+        indexIntoFile_.setNumberOfEvents(auxBranch->GetEntries());
+        indexIntoFile_.setEventFinder(boost::shared_ptr<edm::IndexIntoFile::EventFinder>(new FWLiteEventFinder(auxBranch)));
+
       } else if (meta->FindBranch(edm::poolNames::fileIndexBranchName().c_str()) != 0) {
         edm::FileIndex* findexPtr = &fileIndex_;
         TBranch* b = meta->GetBranch(edm::poolNames::fileIndexBranchName().c_str());
@@ -107,49 +139,5 @@ namespace fwlite {
       }
     }
     assert(!empty());
-  }
-
-  void
-  EntryFinder::fillEventEntriesInIndex(TBranch * auxBranch) {
-
-    if (!indexIntoFile_.eventEntries().empty()) {
-      return;
-    }
-    indexIntoFile_.eventEntries().resize(auxBranch->GetEntries());
-
-    void *saveAddress = auxBranch->GetAddress();
-    edm::EventAuxiliary *pEvAux = &this->eventAux_;
-    auxBranch->SetAddress(&pEvAux);
-
-    long long offset = 0;
-    long long previousBeginEventNumbers = -1;
-
-    for (edm::IndexIntoFile::SortedRunOrLumiItr runOrLumi = indexIntoFile_.beginRunOrLumi(),
-                                             endRunOrLumi = indexIntoFile_.endRunOrLumi();
-         runOrLumi != endRunOrLumi; ++runOrLumi) {
-
-      if (runOrLumi.isRun()) continue;
-
-      long long beginEventNumbers;
-      long long endEventNumbers;
-      EntryNumber_t beginEventEntry;
-      EntryNumber_t endEventEntry;
-      runOrLumi.getRange(beginEventNumbers, endEventNumbers, beginEventEntry, endEventEntry);
-
-      // This is true each time one hits a new lumi section (except if the previous lumi had
-      // no events, in which case the offset is still 0 anyway)
-      if (beginEventNumbers != previousBeginEventNumbers) offset = 0;
-
-      for (EntryNumber_t entry = beginEventEntry; entry != endEventEntry; ++entry) {
-	auxBranch->GetEntry(entry);
-        indexIntoFile_.eventEntries().at((entry - beginEventEntry) + offset + beginEventNumbers) =
-          edm::IndexIntoFile::EventEntry(eventAux_.event(), entry);
-      }
-
-      previousBeginEventNumbers = beginEventNumbers;
-      offset += endEventEntry - beginEventEntry;
-    }
-    indexIntoFile_.sortEventEntries();
-    auxBranch->SetAddress(saveAddress);
   }
 }

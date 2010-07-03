@@ -4,19 +4,15 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-// This is very ugly, but I am told OK for white box
-// unit tests and better than friendship or making the
-// methods public.
-#define private public
-#include "DataFormats/Provenance/interface/IndexIntoFile.h"
-#undef private
-
-
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include <memory>
+// This is very ugly, but I am told OK for white box  unit tests 
+#define private public
+#include "DataFormats/Provenance/interface/IndexIntoFile.h"
+#undef private
 
 using namespace edm;
 

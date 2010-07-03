@@ -68,7 +68,7 @@ namespace edm {
 	     RunNumber_t const& forcedRunNumber,
              bool noEventSort,
 	     GroupSelectorRules const& groupSelectorRules,
-             bool dropMergeable,
+             bool secondaryFile,
              boost::shared_ptr<DuplicateChecker> duplicateChecker,
              bool dropDescendantsOfDroppedProducts,
              std::vector<boost::shared_ptr<IndexIntoFile> > const& indexesIntoFiles,
@@ -130,10 +130,8 @@ namespace edm {
     IndexIntoFile::EntryType getEntryTypeWithSkipping();
     IndexIntoFile::IndexIntoFileItr indexIntoFileIter() const;
     void setIfFastClonable(int remainingEvents, int remainingLumis);
-    void validateFile();
+    void validateFile(bool secondaryFile);
     void fillIndexIntoFile();
-    void fillEventNumbersInIndex();
-    void fillEventEntriesInIndex();
     void fillEventAuxiliary();
     void fillThisEventAuxiliary();
     void fillHistory();
@@ -143,7 +141,7 @@ namespace edm {
     void overrideRunNumber(LuminosityBlockID& id);
     void overrideRunNumber(EventID& id, bool isRealData);
     std::string const& newBranchToOldBranch(std::string const& newBranch) const;
-    void dropOnInput(ProductRegistry& reg, GroupSelectorRules const& rules, bool dropDescendants, bool dropMergeable);
+    void dropOnInput(ProductRegistry& reg, GroupSelectorRules const& rules, bool dropDescendants, bool secondaryFile);
     void readParentageTree();
     void readEntryDescriptionTree();
     void readEventHistoryTree();
