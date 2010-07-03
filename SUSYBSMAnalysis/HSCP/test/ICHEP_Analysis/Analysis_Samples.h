@@ -1,5 +1,5 @@
 
-double             IntegratedLuminosity = 0.0084;
+double IntegratedLuminosity = 0.0084;
 
 struct stSignal{
    string Type;
@@ -116,3 +116,4 @@ void GetInputFiles(std::vector<string>& inputFiles, string SampleName){
    }
 
 }
+

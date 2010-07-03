@@ -61,6 +61,7 @@ void     SimRecoCorrelation(string InputPattern);
 int      JobIdToIndex(string JobId);
 
 
+
 void GetSignalMeanHSCPPerEvent(string InputPattern);
 
 double MinRange = 75;
@@ -95,7 +96,8 @@ std::vector<double> signalsMeanHSCPPerEvent;
 std::vector<double> signalsMeanHSCPPerEvent_SYSTA;
 std::vector<double> signalsMeanHSCPPerEvent_SYSTB;
 
-
+double RescaleFactor;
+double RescaleError;
 int Mode=0;
 bool EXPECTED=false;
 void Analysis_Step6(){
@@ -113,14 +115,18 @@ void Analysis_Step6(){
    for(unsigned int i=0;i<2;i++){
    EXPECTED = (i==1);
 
-   MinRange = 75;
-   Mode     = 0;   
+   MinRange      = 75;
+   Mode          = 0;   
+   RescaleFactor = 1.35;
+   RescaleError  = 0.2120*2;
    Analysis_Step6_Core("SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-20/WPI-30/");
 //   Analysis_Step6_Core("SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-10/WPI-10/");
 
 
    MinRange = 75;
    Mode     = 0;
+   RescaleFactor = 1.31;
+   RescaleError  = 0.1432*2;
    Analysis_Step6_Core("SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-35/WPI-35/");
 //   Analysis_Step6_Core("SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-20/WPI-20/");
   }
@@ -329,7 +335,7 @@ void Analysis_Step6_Core(string ResultPattern){
 //   mg->GetYaxis()->SetRangeUser(0.0001,mg->GetYaxis()->GetXmax());
    mg->GetYaxis()->SetRangeUser(0.001,10000);
 
-   DrawPreliminary(-1);
+   DrawPreliminary(IntegratedLuminosity);
 
 //   TLegend* leg = new TLegend(0.15,0.93,0.35,0.73);
 //   TLegend* leg = new TLegend(0.40,0.93,0.60,0.73);
@@ -413,17 +419,21 @@ double Exclusion_Counting(string signal, string pattern){
    printf("%15s: Event Eff = %7.3E (Normal) %7.3E --> %6.2f\%% (Pt*0.95) %7.3E --> %6.2f\%% (I*0.95)\n",signals[CurrentSampleIndex].Name.c_str(), Eff, Eff_SYSTA, (100.0*Eff_SYSTA)/Eff, Eff_SYSTB,(100.0*Eff_SYSTB)/Eff);
 //   printf("%E | %E | %E --> %E %E %E\n", ESign, ESign_SYSTA, ESign_SYSTB, signalsMeanHSCPPerEvent[CurrentSampleIndex], signalsMeanHSCPPerEvent_SYSTA[CurrentSampleIndex], signalsMeanHSCPPerEvent_SYSTB[CurrentSampleIndex]);
 
-   NPred*=1.5;
    if(!EXPECTED){
-      double sigma95Gauss = CL95(IntegratedLuminosity, IntegratedLuminosity*0.11, Eff, Eff*0.15, NPred, NPred*0.50, 0, false, 0);
-      double sigma95LogG  = CL95(IntegratedLuminosity, IntegratedLuminosity*0.11, Eff, Eff*0.15, NPred, NPred*0.50, 0, false, 1);
-      double sigma95Gamma = CL95(IntegratedLuminosity, IntegratedLuminosity*0.11, Eff, Eff*0.15, NPred, NPred*0.50, 0, false, 2);
+//      double sigma95Gauss = CL95(IntegratedLuminosity, IntegratedLuminosity*0.11, Eff, Eff*0.15, NPred, NPred*0.50, 0, false, 0);
+//      double sigma95LogG  = CL95(IntegratedLuminosity, IntegratedLuminosity*0.11, Eff, Eff*0.15, NPred, NPred*0.50, 0, false, 1);
+//      double sigma95Gamma = CL95(IntegratedLuminosity, IntegratedLuminosity*0.11, Eff, Eff*0.15, NPred, NPred*0.50, 0, false, 2);
+
+      double sigma95Gauss = CL95(IntegratedLuminosity, IntegratedLuminosity*0.11, Eff, Eff*0.15, 0.0, 0.0, 0, false, 0);
+      double sigma95LogG  = CL95(IntegratedLuminosity, IntegratedLuminosity*0.11, Eff, Eff*0.15, 0.0, 0.0, 0, false, 1);
+      double sigma95Gamma = CL95(IntegratedLuminosity, IntegratedLuminosity*0.11, Eff, Eff*0.15, 0.0, 0.0, 0, false, 2);
       printf("%15s: %7.3E (Gauss) %7.3E (LogNormal) %7.3E (Gamma) %7.3E (Loic)\n",signals[CurrentSampleIndex].Name.c_str(), sigma95Gauss, sigma95LogG, sigma95Gamma, signals[CurrentSampleIndex].XSec*Rescale);
       return sigma95LogG;
    }else{
-      double sigma95Gauss = CLA(IntegratedLuminosity, IntegratedLuminosity*0.11, Eff, Eff*0.15, NPred, NPred*0.50, 0);
-      double sigma95LogG  = CLA(IntegratedLuminosity, IntegratedLuminosity*0.11, Eff, Eff*0.15, NPred, NPred*0.50, 1);
-      double sigma95Gamma = CLA(IntegratedLuminosity, IntegratedLuminosity*0.11, Eff, Eff*0.15, NPred, NPred*0.50, 2);
+      NPred*=RescaleFactor;
+      double sigma95Gauss = CLA(IntegratedLuminosity, IntegratedLuminosity*0.11, Eff, Eff*0.15, NPred, NPred*RescaleError, 0);
+      double sigma95LogG  = CLA(IntegratedLuminosity, IntegratedLuminosity*0.11, Eff, Eff*0.15, NPred, NPred*RescaleError, 1);
+      double sigma95Gamma = CLA(IntegratedLuminosity, IntegratedLuminosity*0.11, Eff, Eff*0.15, NPred, NPred*RescaleError, 2);
       printf("%15s: %7.3E (Gauss) %7.3E (LogNormal) %7.3E (Gamma)\n",signals[CurrentSampleIndex].Name.c_str(), sigma95Gauss, sigma95LogG, sigma95Gamma);
       return sigma95LogG;
    }
@@ -1268,3 +1278,5 @@ void GetSignalMeanHSCPPerEvent(string InputPattern)
 
    return;
 }
+
+

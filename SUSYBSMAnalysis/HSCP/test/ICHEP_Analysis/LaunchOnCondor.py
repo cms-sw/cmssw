@@ -4,6 +4,7 @@ import urllib
 import string
 import os
 import sys
+import glob
 
 CopyRights  = '####################################\n'
 CopyRights += '#        LaunchOnFarm Script       #\n'
@@ -23,6 +24,8 @@ Jobs_Seed	  = 0
 Jobs_NEvent	  =-1
 Jobs_Skip         = 0
 Jobs_Inputs	  = []
+Jobs_FinalCmds    = []
+Jobs_RunHere      = 0
 
 def CreateTheConfigFile(argv):
         global Jobs_Name
@@ -32,6 +35,7 @@ def CreateTheConfigFile(argv):
 	global Jobs_Skip
 	global Jobs_NEvent
 	global Jobs_Inputs
+        global Jobs_FinalCmds
 	global Path_Cfg
 	global CopyRights
         Path_Cfg   = Farm_Directories[1]+Jobs_Index+Jobs_Name+'_cfg.py'
@@ -64,6 +68,8 @@ def CreateTheShellFile(argv):
 	global Path_Shell
 	global Path_Cfg
 	global CopyRights	
+	global Jobs_RunHere
+	global Jobs_FinalCmds
         Path_Shell = Farm_Directories[1]+Jobs_Index+Jobs_Name+'.sh'
 
 	function_argument='('
@@ -83,10 +89,16 @@ def CreateTheShellFile(argv):
 	shell_file.write('cd ' + os.getcwd() + '\n')
 	shell_file.write('eval `scramv1 runtime -sh`\n')
 	if   argv[0]=='BASH':
+		if Jobs_RunHere==0:
+                	shell_file.write('cd -\n')
                 shell_file.write(argv[1] + " %s\n" % function_argument)
         elif argv[0]=='ROOT':
-                 shell_file.write("root -l -b -q %s" % argv[1] + "+'%s'\n" % function_argument)
-        elif argv[0]=='FWLITE':
+		if Jobs_RunHere==0:
+                	shell_file.write('cd -\n')
+                shell_file.write("root -l -b -q %s" % argv[1] + "+'%s'\n" % function_argument)
+        elif argv[0]=='FWLITE':                 
+		if Jobs_RunHere==0:
+                	shell_file.write('cd -\n')
 	        shell_file.write('root -l -b << EOF\n')
 	        shell_file.write('   TString makeshared(gSystem->GetMakeSharedLib());\n')
 	        shell_file.write('   TString dummy = makeshared.ReplaceAll("-W ", "");\n')
@@ -96,19 +108,22 @@ def CreateTheShellFile(argv):
 	        shell_file.write('   gSystem->Load("libDataFormatsFWLite.so");\n')
 	        shell_file.write('   gSystem->Load("libAnalysisDataFormatsSUSYBSMObjects.so");\n')
 	        shell_file.write('   gSystem->Load("libDataFormatsVertexReco.so");\n')
-                shell_file.write('   gSystem->Load("libDataFormatsCommon.so");\n')
 	        shell_file.write('   gSystem->Load("libDataFormatsHepMCCandidate.so");\n')
 	        shell_file.write('   .x %s+' % argv[1] + function_argument + '\n')
 	        shell_file.write('   .q\n')
 	        shell_file.write('EOF\n\n')
         elif argv[0]=='CMSSW':
 		CreateTheConfigFile(argv);
-		shell_file.write('cd -\n')
+		if Jobs_RunHere==0:
+			shell_file.write('cd -\n')
 		shell_file.write('cmsRun ' + os.getcwd() + '/'+Path_Cfg + '\n')
 	else:
 		print #Program to use is not specified... Guess it is bash command		
                 shell_file.write('#Program to use is not specified... Guess it is bash command\n')
 		shell_file.write(argv[1] + " %s\n" % function_argument)
+
+        for i in range(len(Jobs_FinalCmds)):
+		shell_file.write(Jobs_FinalCmds[i]+'\n')
 	shell_file.write('mv '+ Jobs_Name+'* '+os.getcwd()+'/'+Farm_Directories[3]+'\n')
 	shell_file.close()
 	os.system("chmod 777 "+Path_Shell)
@@ -219,4 +234,49 @@ def SendCMSJobs(FarmDirectory, JobName, ConfigFile, InputFiles, NJobs, Argv):
 	for i in range(NJobs):
         	LaunchOnCondor.SendCluster_Push  (["CMSSW", ConfigFile])
 	LaunchOnCondor.SendCluster_Submit()
+
+
+
+def GetListOfFiles(Prefix, InputPattern, Suffix):
+	List = sorted(glob.glob(InputPattern))
+	for i in range(len(List)):
+		List[i] = Prefix + List[i] + Suffix
+	return List
+
+def SendCMSMergeJob(FarmDirectory, JobName, InputFiles, OutputFile, KeepStatement):
+        SendCluster_Create(FarmDirectory, JobName)
+        Temp_Cfg   = Farm_Directories[1]+Jobs_Index+Jobs_Name+'_TEMP_cfg.py'
+
+	if len(InputFiles)==0:
+		print 'Empty InputFile List for Job named "%s", Job will not be submitted' % JobName
+		return
+
+	InputFilesString = ""
+        for i in range(len(InputFiles)):
+		InputFilesString += "     " + InputFiles[i] + '\n'
+
+	cfg_file=open(Temp_Cfg,'w')
+        cfg_file.write('import FWCore.ParameterSet.Config as cms\n')
+        cfg_file.write('process = cms.Process("Merge")\n')
+        cfg_file.write('\n')
+        cfg_file.write('process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )\n')
+        cfg_file.write('process.load("FWCore.MessageService.MessageLogger_cfi")\n')
+        cfg_file.write('\n')
+        cfg_file.write('process.MessageLogger.cerr.FwkReport.reportEvery = 50000\n')
+        cfg_file.write('process.source = cms.Source("PoolSource",\n')
+        cfg_file.write('   fileNames = cms.untracked.vstring(\n')
+        cfg_file.write('%s' % InputFilesString)
+        cfg_file.write('   )\n')
+        cfg_file.write(')\n')
+        cfg_file.write('\n')
+        cfg_file.write('process.OUT = cms.OutputModule("PoolOutputModule",\n')
+        cfg_file.write('    outputCommands = cms.untracked.vstring(%s),\n' % KeepStatement)
+        cfg_file.write('    fileName = cms.untracked.string(%s)\n' % OutputFile)
+        cfg_file.write(')\n')
+        cfg_file.write('\n')
+        cfg_file.write('process.endPath = cms.EndPath(process.OUT)\n')
+	cfg_file.close()
+        SendCluster_Push  (["CMSSW", Temp_Cfg])
+        SendCluster_Submit()
+        os.system('rm '+ Temp_Cfg)
 

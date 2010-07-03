@@ -42,14 +42,17 @@ void SaveCanvas(TCanvas* c, string path, string name, bool OnlyPPNG=false){
    filepath = tmppath + ".C"  ; c->SaveAs(filepath.c_str());
 }
 
-void DrawPreliminary(int Type, double X=0.28, double Y=0.98, double W=0.85, double H=0.95){
+//void DrawPreliminary(int Type, double X=0.28, double Y=0.98, double W=0.85, double H=0.95){
+void DrawPreliminary(double Lumi, double X=0.13, double Y=0.99, double W=0.82, double H=0.96){
    TPaveText* T = new TPaveText(X,Y,W,H, "NDC");
    T->SetFillColor(0);
-   T->SetTextAlign(11);
-   if(Type<0 )T->AddText("CMS Preliminary 2010");
-   if(Type==0)T->AddText("CMS Preliminary 2010 :   #sqrt{s} = 7 TeV");
-   if(Type==1)T->AddText("CMS Preliminary 2010 : MC with   #sqrt{s} = 7 TeV");
-   if(Type==2)T->AddText("CMS Preliminary 2010 : Data with   #sqrt{s} = 7 TeV");
+   T->SetTextAlign(22);
+   if(Lumi<0 )T->AddText("CMS Preliminary 2010 : #sqrt{s} = 7 TeV");
+   if(Lumi>0 ){
+      char tmp[2048];
+      sprintf(tmp,"CMS Preliminary 2010 : L_{int}=%5.1f nb^{-1}  at  #sqrt{s} = 7 TeV",Lumi*1000.0);
+      T->AddText(tmp);
+   }
    T->Draw("same");
 }
 
