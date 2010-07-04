@@ -16,7 +16,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.h,v 1.23 2010/04/25 07:09:08 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.h,v 1.10 2010/05/11 23:56:07 jengbou Exp $
 //
 //
 
@@ -135,9 +135,6 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       MonitorElement* Vx_ZY;
       MonitorElement* Vx_XY;
       
-      MonitorElement* Vx_ZX_profile;
-      MonitorElement* Vx_ZY_profile;
-
       MonitorElement* goodVxCounter;
 
       MonitorElement* fitResults;
@@ -167,7 +164,6 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       unsigned int endLumiOfFit;
       unsigned int lastLumiOfFit;
       double minVxDoF;
-      double minVxWgt;
       bool internalDebug;
 };
 

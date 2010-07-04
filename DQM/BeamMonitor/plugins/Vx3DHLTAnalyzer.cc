@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.89 2010/05/11 07:46:23 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.90 2010/05/11 23:55:02 jengbou Exp $
 
 
 #include "DQM/BeamMonitor/plugins/Vx3DHLTAnalyzer.h"
@@ -107,8 +107,7 @@ void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 	if ((it3DVx->isValid() == true) &&
 	    (it3DVx->isFake() == false) &&
 	    (it3DVx->ndof() >= minVxDoF) &&
-	    (it3DVx->tracksSize() != 0) &&
-	    ((it3DVx->ndof() + 3.)/(double)it3DVx->tracksSize() >= 2.*minVxWgt))
+	    (it3DVx->tracksSize() != 0))
 	  {
 	    for (i = 0; i < DIM; i++)
 	      {
@@ -144,11 +143,8 @@ void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 	    Vx_ZX->Fill(it3DVx->z(), it3DVx->x());
 	    Vx_ZY->Fill(it3DVx->z(), it3DVx->y());
 	    Vx_XY->Fill(it3DVx->x(), it3DVx->y());
-	   
-	    Vx_ZX_profile->Fill(it3DVx->z(), it3DVx->x());
-	    Vx_ZY_profile->Fill(it3DVx->z(), it3DVx->y());
 	  }
-      }      
+      }  
     }
 }
 
@@ -575,9 +571,6 @@ void Vx3DHLTAnalyzer::reset(string ResetType)
       Vx_ZY->Reset();
       Vx_XY->Reset();
       
-      Vx_ZX_profile->Reset();
-      Vx_ZY_profile->Reset();
-
       Vertices.clear();
       
       lumiCounter      = 0;
@@ -598,9 +591,6 @@ void Vx3DHLTAnalyzer::reset(string ResetType)
       Vx_ZY->Reset();
       Vx_XY->Reset();
       
-      Vx_ZX_profile->Reset();
-      Vx_ZY_profile->Reset();
-
       Vertices.clear();
       
       lumiCounter      = 0;
@@ -1055,7 +1045,6 @@ void Vx3DHLTAnalyzer::beginJob()
       Vx_X = dbe->book1D("vertex x", "Primary Vertex X Coordinate Distribution", rint(xRange/xStep), -xRange/2., xRange/2.);
       Vx_Y = dbe->book1D("vertex y", "Primary Vertex Y Coordinate Distribution", rint(yRange/yStep), -yRange/2., yRange/2.);
       Vx_Z = dbe->book1D("vertex z", "Primary Vertex Z Coordinate Distribution", rint(zRange/zStep), -zRange/2., zRange/2.);
-
       Vx_X->setAxisTitle("Primary Vertices X [cm]",1);
       Vx_X->setAxisTitle("Entries [#]",2);
       Vx_Y->setAxisTitle("Primary Vertices Y [cm]",1);
@@ -1066,7 +1055,6 @@ void Vx3DHLTAnalyzer::beginJob()
       mXlumi = dbe->book1D("muX vs lumi", "\\mu_{x} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
       mYlumi = dbe->book1D("muY vs lumi", "\\mu_{y} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
       mZlumi = dbe->book1D("muZ vs lumi", "\\mu_{z} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
-
       mXlumi->setAxisTitle("Lumisection [#]",1);
       mXlumi->setAxisTitle("\\mu_{x} [cm]",2);
       mXlumi->getTH1()->SetOption("E1");
@@ -1080,7 +1068,6 @@ void Vx3DHLTAnalyzer::beginJob()
       sXlumi = dbe->book1D("sigmaX vs lumi", "\\sigma_{x} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
       sYlumi = dbe->book1D("sigmaY vs lumi", "\\sigma_{y} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
       sZlumi = dbe->book1D("sigmaZ vs lumi", "\\sigma_{z} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
-
       sXlumi->setAxisTitle("Lumisection [#]",1);
       sXlumi->setAxisTitle("\\sigma_{x} [cm]",2);
       sXlumi->getTH1()->SetOption("E1");
@@ -1093,7 +1080,6 @@ void Vx3DHLTAnalyzer::beginJob()
 
       dxdzlumi = dbe->book1D("dxdz vs lumi", "dX/dZ vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
       dydzlumi = dbe->book1D("dydz vs lumi", "dY/dZ vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
-
       dxdzlumi->setAxisTitle("Lumisection [#]",1);
       dxdzlumi->setAxisTitle("dX/dZ [rad]",2);
       dxdzlumi->getTH1()->SetOption("E1");
@@ -1104,7 +1090,6 @@ void Vx3DHLTAnalyzer::beginJob()
       Vx_ZX = dbe->book2D("vertex zx", "Primary Vertex ZX Coordinate Distribution", rint(zRange/zStep/5.), -zRange/2., zRange/2., rint(xRange/xStep/5.), -xRange/2., xRange/2.);
       Vx_ZY = dbe->book2D("vertex zy", "Primary Vertex ZY Coordinate Distribution", rint(zRange/zStep/5.), -zRange/2., zRange/2., rint(yRange/yStep/5.), -yRange/2., yRange/2.);
       Vx_XY = dbe->book2D("vertex xy", "Primary Vertex XY Coordinate Distribution", rint(xRange/xStep/5.), -xRange/2., xRange/2., rint(yRange/yStep/5.), -yRange/2., yRange/2.);
-
       Vx_ZX->setAxisTitle("Primary Vertices Z [cm]",1);
       Vx_ZX->setAxisTitle("Primary Vertices X [cm]",2);
       Vx_ZX->setAxisTitle("Entries [#]",3);
@@ -1115,22 +1100,12 @@ void Vx3DHLTAnalyzer::beginJob()
       Vx_XY->setAxisTitle("Primary Vertices Y [cm]",2);
       Vx_XY->setAxisTitle("Entries [#]",3);
 
-      Vx_ZX_profile = dbe->bookProfile("zx profile","ZX Profile", rint(zRange/zStep/20.), -zRange/2., zRange/2., rint(xRange/xStep/20.), -xRange/2., xRange/2., "");
-      Vx_ZX_profile->setAxisTitle("Primary Vertices Z [cm]",1);
-      Vx_ZX_profile->setAxisTitle("Primary Vertices X [cm]",2);
-
-      Vx_ZY_profile = dbe->bookProfile("zy profile","ZY Profile", rint(zRange/zStep/20.), -zRange/2., zRange/2., rint(yRange/yStep/20.), -yRange/2., yRange/2., "");
-      Vx_ZY_profile->setAxisTitle("Primary Vertices Z [cm]",1);
-      Vx_ZY_profile->setAxisTitle("Primary Vertices Y [cm]",2);
-
       hitCounter = dbe->book1D("pixelHits vs lumi", "# Pixel-Hits vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
-
       hitCounter->setAxisTitle("Lumisection [#]",1);
       hitCounter->setAxisTitle("Pixel-Hits [#]",2);
       hitCounter->getTH1()->SetOption("E1");
 
-      goodVxCounter = dbe->book1D("Good vertices vs lumi", "# Good vertices vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
-
+      goodVxCounter = dbe->book1D("good vertices vs lumi", "# Good vertices vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
       goodVxCounter->setAxisTitle("Lumisection [#]",1);
       goodVxCounter->setAxisTitle("Good vertices [#]",2);
       goodVxCounter->getTH1()->SetOption("E1");
@@ -1165,7 +1140,6 @@ void Vx3DHLTAnalyzer::beginJob()
   reset("scratch");
   maxLumiIntegration   = 15;
   minVxDoF             = 4.;
-  minVxWgt             = 0.5;
   internalDebug        = false;
   considerVxCovariance = true;
 
