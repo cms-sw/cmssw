@@ -3,14 +3,14 @@
 
 namespace reco {
     struct MuonCosmicCompatibility {
-      ///
-      /// bool returns true if standAloneMuon_updatedAtVtx was used in the fit
+
+      /// combined cosmic-likeness: 0 == not cosmic-like
       float cosmicCompatibility;
-      /// value of the kink algorithm applied to the inner track stub
+      /// cosmic-likeness based on time: 0 == prompt-like
       float timeCompatibility;
-      /// value of the kink algorithm applied to the global track
+      /// cosmic-likeness based on presence of a track in opp side: 0 == no matching opp tracks
       float backToBackCompatibility;
-      /// chi2 value for the inner track stub with respect to the global track
+      /// cosmic-likeness based on overlap with traversing cosmic muon (only muon/STA hits are used)
       float overlapCompatibility;
 
       MuonCosmicCompatibility():
