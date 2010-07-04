@@ -18,7 +18,7 @@ muonid::matchTracks(const reco::Track& ref, const reco::Track& probe)
   int match_sign = directionAlongMomentum(ref)==directionAlongMomentum(probe) ? -1 : +1; 
   double sprod = ref.px()*probe.px() + ref.py()*probe.py() + ref.pz()*probe.pz();
   result.first = acos( match_sign*(sprod/ref.p()/probe.p()) );
-  result.second = fabs(probe.pt()-ref.pt())/ref.pt();
+  result.second = fabs(probe.pt()-ref.pt())/sqrt(ref.pt()*probe.pt()); //SK: take a geom-mean pt
   return result;
 }
 
