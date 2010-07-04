@@ -8,7 +8,7 @@
 #include "RooFitResult.h"
 #include "RooDataSet.h"
 
-class TagProbeFitter: public TGraphAsymmErrors{
+class TagProbeFitter {
   public:
   ///construct the fitter with the inputFileName, inputDirectoryName, inputTreeName, outputFileName and specify wether to save the workspace with data for each bin 
   TagProbeFitter(std::vector<std::string> inputFileNames, std::string inputDirectoryName, std::string inputTreeName, std::string outputFileName, int numCPU = 1, bool saveWorkspace_ = false, bool floatShapeParameters = true, std::vector<std::string> fixVars_ = std::vector<std::string>() );
@@ -35,6 +35,8 @@ class TagProbeFitter: public TGraphAsymmErrors{
   /// set number of bins to use when making the plots; 0 = automatic
   void setBinsForMassPlots(int bins) ;
 
+  /// set a variable to be used as weight for a dataset. empty string means no weights.
+  void setWeightVar(const std::string &weight);
   protected:
   ///pointer to the input TTree Chain of data
   TChain* inputTree;
@@ -59,6 +61,9 @@ class TagProbeFitter: public TGraphAsymmErrors{
 
   ///the set of variables describing the data in the input TTree
   RooArgSet variables;
+
+  ///weight variable (or empy string for no weights)
+  std::string weightVar;
 
   ///list of variables fo fix (see below)
   std::vector<std::string> fixVars;

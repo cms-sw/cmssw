@@ -50,6 +50,7 @@ TagProbeFitter::TagProbeFitter(vector<string> inputFileNames, string inputDirect
   massBins = 0; // automatic default
   floatShapeParameters = floatShapeParameters_;
   fixVars = fixVars_;
+  weightVar = "";
   if(!floatShapeParameters && fixVars.empty()) std::cout << "TagProbeFitter: " << "You wnat to fix some variables but do not specify them!";
 
   gROOT->SetStyle("Plain");
@@ -90,6 +91,10 @@ void TagProbeFitter::setBinsForMassPlots(int bins){
   massBins = bins;
 }
 
+void TagProbeFitter::setWeightVar(const std::string &var) {
+  weightVar = var;
+}
+
 string TagProbeFitter::calculateEfficiency(string dirName, string effCat, string effState, vector<string>& unbinnedVariables, map<string, vector<double> >& binnedReals, map<string, std::vector<string> >& binnedCategories, vector<string>& binToPDFmap, bool saveWorkspace){
   //go to home directory
   outputDirectory->cd();
@@ -123,7 +128,9 @@ string TagProbeFitter::calculateEfficiency(string dirName, string effCat, string
   }
   
   //now add the necessary mass and passing variables to make the unbinned RooDataSet
-  RooDataSet data("data", "data", inputTree, RooArgSet( RooArgSet(binnedVariables, categories), RooArgSet(unbinnedVars, variables[effCat.c_str()]) ));
+  RooDataSet data("data", "data", inputTree, 
+                  RooArgSet( RooArgSet(binnedVariables, categories), RooArgSet(unbinnedVars, variables[effCat.c_str()]) ),
+                  /*selExpr=*/"", /*wgtVarName=*/weightVar.c_str());
   //merge the bin categories to a MultiCategory for convenience
   RooMultiCategory allCats("allCats", "allCats", RooArgSet(binCategories, mappedCategories));
   data.addColumn(allCats);

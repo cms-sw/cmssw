@@ -35,6 +35,9 @@ TagProbeFitTreeAnalyzer::TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset):
   if (pset.existsAs<uint32_t>("binsForMassPlots")) {
     fitter.setBinsForMassPlots(pset.getParameter<uint32_t>("binsForMassPlots"));
   }
+  if (pset.existsAs<std::string>("WeightVariable")) {
+    fitter.setWeightVar(pset.getParameter<std::string>("WeightVariable"));
+  }
   const ParameterSet variables = pset.getParameter<ParameterSet>("Variables");
   vector<string> variableNames = variables.getParameterNamesForType<vector<string> >();
   for (vector<string>::const_iterator name = variableNames.begin(); name != variableNames.end(); name++) {
