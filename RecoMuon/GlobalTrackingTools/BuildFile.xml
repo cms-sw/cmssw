@@ -5,7 +5,6 @@
 <use   name="DataFormats/GeometrySurface"/>
 <use   name="DataFormats/GeometryVector"/>
 <use   name="DataFormats/Math"/>
-<use   name="DataFormats/MuonReco"/>
 <use   name="DataFormats/MuonDetId"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/TrajectoryState"/>
