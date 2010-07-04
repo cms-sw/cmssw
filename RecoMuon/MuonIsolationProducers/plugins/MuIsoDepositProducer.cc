@@ -117,6 +117,7 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
       //! expect nMuons set already
       if (nMuons != nCands) edm::LogError(metname)<<"Inconsistent configuration or failure to read Candidate-muon view";
     }
+        nMuons = nCands;
     LogDebug(metname)<< "Got candidate view with size "<<nMuons;
   }
 
@@ -167,12 +168,12 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
       }
 
       if (! theMultipleDepositsFlag){
-	if (theExtractForCandidate) deps2D[0][i] = theExtractor->deposit(event, eventSetup, (*cands)[i]);
+                if (readFromCandidateView || theExtractForCandidate) deps2D[0][i] = theExtractor->deposit(event, eventSetup, (*cands)[i]);
 	else deps2D[0][i] = theExtractor->deposit(event, eventSetup, muRef);
 	
       } else {
 	std::vector<IsoDeposit> deps(nDeps);
-	if (theExtractForCandidate) deps = theExtractor->deposits(event, eventSetup, (*cands)[i]);
+                if (readFromCandidateView || theExtractForCandidate) deps = theExtractor->deposits(event, eventSetup, (*cands)[i]);
 	else deps = theExtractor->deposits(event, eventSetup, muRef);
 	for (uint iDep =0; iDep<nDeps; ++iDep) {
 	  deps2D[iDep][i] = deps[iDep];
