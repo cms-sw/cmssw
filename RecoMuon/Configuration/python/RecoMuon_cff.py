@@ -32,6 +32,7 @@ muoncosmicreco2legs = cms.Sequence(cosmicMuons*globalCosmicMuons*muonsFromCosmic
 # Stand alone muon track producer
 cosmicMuons1Leg = cosmicMuons.clone()
 cosmicMuons1Leg.TrajectoryBuilderParameters.BuildTraversingMuon = True
+cosmicMuons1Leg.TrajectoryBuilderParameters.Strict1Leg = True
 cosmicMuons1Leg.MuonSeedCollectionLabel = 'CosmicMuonSeed'
 
 # Global muon track producer
@@ -47,4 +48,4 @@ muonsFromCosmics1Leg.fillGlobalTrackQuality = False
 
 muoncosmicreco1leg = cms.Sequence(cosmicMuons1Leg*globalCosmicMuons1Leg*muonsFromCosmics1Leg)
 
-muoncosmicreco = cms.Sequence(CosmicMuonSeed*(muoncosmicreco2legs+muoncosmicreco1leg))
+muoncosmicreco = cms.Sequence(CosmicMuonSeed*(muoncosmicreco2legs+muoncosmicreco1leg)*cosmicsMuonIdSequence)
