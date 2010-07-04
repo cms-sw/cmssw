@@ -25,10 +25,14 @@ cosmicsVetoTracks = cosmictrackSelector.clone(
     src = cms.InputTag("cosmicsVetoTracksRaw")
 )
 
+from RecoMuon.MuonIdentification.muonCosmicCompatibility_cfi import *
+
 cosmicsVeto = cms.EDProducer("CosmicsMuonIdProducer"
-                             ,muonCollection = cms.InputTag("muons")
-                             ,trackCollections = cms.VInputTag(cms.InputTag("generalTracks"),cms.InputTag("cosmicsVetoTracks"))
-                             )
+    ,MuonCosmicCompatibilityParameters 
+    ,muonCollection = cms.InputTag("muons")
+    ,trackCollections = cms.VInputTag(cms.InputTag("generalTracks"), cms.InputTag("cosmicsVetoTracks")) 
+
+    )
 
 cosmicsMuonIdSequence = cms.Sequence(cosmicsVetoSeeds*cosmicsVetoTrackCandidates*cosmicsVetoTracksRaw*cosmicsVetoTracks*cosmicsVeto)
 

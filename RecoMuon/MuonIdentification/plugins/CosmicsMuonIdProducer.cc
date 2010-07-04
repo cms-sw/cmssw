@@ -14,13 +14,17 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "RecoMuon/MuonIdentification/interface/MuonCosmicCompatibilityFiller.h"
+
 class CosmicsMuonIdProducer : public edm::EDProducer {
 public:
   CosmicsMuonIdProducer(const edm::ParameterSet& iConfig) :
     inputMuonCollection_(iConfig.getParameter<edm::InputTag>("muonCollection")),
-    inputTrackCollections_(iConfig.getParameter<std::vector<edm::InputTag> >("trackCollections"))
+    inputTrackCollections_(iConfig.getParameter<std::vector<edm::InputTag> >("trackCollections")),
+    compatibilityFiller_(iConfig.getParameter<edm::ParameterSet>("CosmicCompFillerParameters"))
   {
     produces<edm::ValueMap<unsigned int> >().setBranchAlias("cosmicsVeto");
+    produces<edm::ValueMap<reco::MuonCosmicCompatibility> >().setBranchAlias("cosmicCompatibility");
   }
   virtual ~CosmicsMuonIdProducer() {}
 
@@ -28,6 +32,7 @@ private:
   virtual void produce(edm::Event&, const edm::EventSetup&);
   edm::InputTag inputMuonCollection_;
   std::vector<edm::InputTag> inputTrackCollections_;
+  MuonCosmicCompatibilityFiller compatibilityFiller_;
 };
 
 void
@@ -38,6 +43,9 @@ CosmicsMuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   // reserve some space
   std::vector<unsigned int> values;
   values.reserve(muons->size());
+
+  std::vector<reco::MuonCosmicCompatibility> compValues;
+  compValues.reserve(muons->size());
   
   for(reco::MuonCollection::const_iterator muon = muons->begin(); 
       muon != muons->end(); ++muon)
@@ -55,6 +63,8 @@ CosmicsMuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	  }
       }
       values.push_back(foundPartner);
+
+      compValues.push_back(compatibilityFiller_.fillCompatibility(*muon, iEvent, iSetup));
     }
 
   // create and fill value map
@@ -63,7 +73,13 @@ CosmicsMuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   filler.insert(muons, values.begin(), values.end());
   filler.fill();
 
+
+  std::auto_ptr<edm::ValueMap<reco::MuonCosmicCompatibility> > outC(new edm::ValueMap<reco::MuonCosmicCompatibility>());
+  edm::ValueMap<reco::MuonCosmicCompatibility>::Filler fillerC(*outC);
+  fillerC.insert(muons, compValues.begin(), compValues.end());
+  fillerC.fill();
+
   // put value map into event
-  iEvent.put(out);
+  iEvent.put(outC);
 }
 DEFINE_FWK_MODULE(CosmicsMuonIdProducer);
