@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.90 2010/05/11 23:55:02 jengbou Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.91 2010/07/04 10:51:49 dinardo Exp $
 
 
 #include "DQM/BeamMonitor/plugins/Vx3DHLTAnalyzer.h"
@@ -1036,7 +1036,9 @@ void Vx3DHLTAnalyzer::beginJob()
   DQMStore* dbe = 0;
   dbe = Service<DQMStore>().operator->();
  
+  // ### Set internal variables ###
   nBinsHistoricalPlot = 80;
+  // ##############################
 
   if ( dbe ) 
     {
@@ -1137,13 +1139,14 @@ void Vx3DHLTAnalyzer::beginJob()
       // - n%  numberGoodFits / numberFits
     }
 
+  // ### Set internal variables ###
   reset("scratch");
   maxLumiIntegration   = 15;
   minVxDoF             = 4.;
   internalDebug        = false;
   considerVxCovariance = true;
-
   pi = 3.141592653589793238;
+  // ##############################
 }
 
 
