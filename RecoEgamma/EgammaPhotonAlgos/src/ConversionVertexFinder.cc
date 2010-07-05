@@ -11,6 +11,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 //
+
+//
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include <TMath.h>
 
@@ -28,6 +30,60 @@ ConversionVertexFinder::~ConversionVertexFinder() {
 
   LogDebug("ConversionVertexFinder") << "ConversionVertexFinder DTOR " <<  "\n";  
     
+}
+
+bool  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pair, reco::Vertex& the_vertex) {
+  bool found= false;
+
+  if ( pair.size() < 2) return found;
+  
+  float sigma = 0.00000000001;
+  float chi = 0.;
+  float ndf = 0.;
+  float mass = 0.000000511;
+  
+  /*
+    edm::ParameterSet pSet;
+    pSet.addParameter<double>("maxDistance", maxDistance_);//0.001
+    pSet.addParameter<double>("maxOfInitialValue",maxOfInitialValue_) ;//1.4
+    pSet.addParameter<int>("maxNbrOfIterations", maxNbrOfIterations_);//40
+  */
+  
+  KinematicParticleFactoryFromTransientTrack pFactory;
+  
+  vector<RefCountedKinematicParticle> particles;
+  
+  particles.push_back(pFactory.particle (pair[0],mass,chi,ndf,sigma));
+  particles.push_back(pFactory.particle (pair[1],mass,chi,ndf,sigma));
+  
+  MultiTrackKinematicConstraint *  constr = new ColinearityKinematicConstraint(ColinearityKinematicConstraint::PhiTheta);
+  
+  KinematicConstrainedVertexFitter kcvFitter;
+  //kcvFitter.setParameters(pSet);
+  RefCountedKinematicTree myTree = kcvFitter.fit(particles, constr);
+  if( myTree->isValid() ) {
+    myTree->movePointerToTheTop();                                                                                
+    RefCountedKinematicParticle the_photon = myTree->currentParticle();                                           
+    if (the_photon->currentState().isValid()){                                                                    
+      //const ParticleMass photon_mass = the_photon->currentState().mass();                                       
+      RefCountedKinematicVertex gamma_dec_vertex;                                                               
+      gamma_dec_vertex = myTree->currentDecayVertex();                                                          
+      if( gamma_dec_vertex->vertexIsValid() ){                                                                  
+	const float chi2Prob = ChiSquaredProbability(gamma_dec_vertex->chiSquared(), gamma_dec_vertex->degreesOfFreedom());
+	if (chi2Prob>0.){// no longer cut here, only ask positive probability here 
+	  //const math::XYZPoint vtxPos(gamma_dec_vertex->position());                                           
+	  the_vertex = *gamma_dec_vertex;
+	  found = true;
+	}
+      }
+    }
+  }
+  delete constr;                                                                                                    
+  
+  
+
+
+  return found;
 }
 
 
