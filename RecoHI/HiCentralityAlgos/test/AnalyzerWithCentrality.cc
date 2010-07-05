@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Mon Mar  1 17:18:04 EST 2010
-// $Id: AnalyzerWithCentrality.cc,v 1.4 2010/03/20 21:17:51 yilmaz Exp $
+// $Id: AnalyzerWithCentrality.cc,v 1.5 2010/03/23 21:56:40 yilmaz Exp $
 //
 //
 
@@ -116,6 +116,9 @@ AnalyzerWithCentrality::analyze(const edm::Event& iEvent, const edm::EventSetup&
    cout<<"Total energy in EB basic clusters : "<<eb<<endl;
    
    int bin = cbins_->getBin(hf);
+
+   h1->Fill(bin);
+
    int nbins = cbins_->getNbins(); 
    int binsize = 100/nbins;
    char* binName = Form("%d to % d",bin*binsize,(bin+1)*binsize);
