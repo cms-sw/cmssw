@@ -75,7 +75,7 @@ CosmicsMuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
 
   std::auto_ptr<edm::ValueMap<reco::MuonCosmicCompatibility> > outC(new edm::ValueMap<reco::MuonCosmicCompatibility>());
-  edm::ValueODMap<reco::MuonCosmicCompatibility>::Filler fillerC(*outC);
+  edm::ValueMap<reco::MuonCosmicCompatibility>::Filler fillerC(*outC);
   fillerC.insert(muons, compValues.begin(), compValues.end());
   fillerC.fill();
 
