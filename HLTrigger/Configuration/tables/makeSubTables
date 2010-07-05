@@ -2,8 +2,6 @@
 #
 # generate HLT tables from master table in ConfDB
 #
-# usage: ./runMe.sh
-#
 
 MASTER="/dev/CMSSW_3_6_2/HLT"   # no version, take the latest one
 TARGET="/dev/CMSSW_3_6_2"       # directory where to store the sub-tables
