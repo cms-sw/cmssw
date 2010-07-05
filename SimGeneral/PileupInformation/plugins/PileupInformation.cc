@@ -68,7 +68,7 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
 	    sumpT_highpT.push_back(0.);
 	    ntrks_lowpT.push_back(0);
 	    ntrks_highpT.push_back(0);
-	    std::cout << *iVtx << std::endl;
+	    //std::cout << *iVtx << std::endl;
 	    lastEvent=iVtx->eventId().event();
 	  }
 	}
@@ -89,7 +89,7 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
 	      zpos = zpositions[iTrack->eventId().event()-1];
 	      if(iTrack->matchedHit()>0) {
 		if(fabs(iTrack->parentVertex()->position().z()-zpos)<0.1) {
-		  std::cout << *iTrack << std::endl;
+		  //std::cout << *iTrack << std::endl;
 		  float Tpx = iTrack->p4().px();
 		  float Tpy = iTrack->p4().py();
 		  float TpT = sqrt(Tpx*Tpx + Tpy*Tpy);
@@ -108,15 +108,15 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
       }
 
 
-    std::cout << "No. of minbias vertices: " << nprim_vtx << std::endl;
+    // std::cout << "No. of minbias vertices: " << nprim_vtx << std::endl;
 
-    for(int iv = 0; iv<nprim_vtx; ++iv){
-      std::cout << "Z position " << zpositions[iv] << std::endl;
-      std::cout << "ntrks_lowpT " << ntrks_lowpT[iv] << std::endl;
-      std::cout << "sumpT_lowpT " << sumpT_lowpT[iv] << std::endl;
-      std::cout << "ntrks_highpT " << ntrks_highpT[iv] << std::endl;
-      std::cout << "sumpT_highpT " << sumpT_highpT[iv] << std::endl;
-    }
+    //for(int iv = 0; iv<nprim_vtx; ++iv){
+    //  std::cout << "Z position " << zpositions[iv] << std::endl;
+    //  std::cout << "ntrks_lowpT " << ntrks_lowpT[iv] << std::endl;
+    //  std::cout << "sumpT_lowpT " << sumpT_lowpT[iv] << std::endl;
+    //  std::cout << "ntrks_highpT " << ntrks_highpT[iv] << std::endl;
+    //  std::cout << "sumpT_highpT " << sumpT_highpT[iv] << std::endl;
+    //}
 
     PileupSummary_ = std::auto_ptr<PileupSummaryInfo>( new PileupSummaryInfo(  
 								        nprim_vtx,
