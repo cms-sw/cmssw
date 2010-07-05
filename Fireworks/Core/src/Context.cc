@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:57:12 EDT 2008
-// $Id: Context.cc,v 1.21 2010/06/07 18:58:17 matevz Exp $
+// $Id: Context.cc,v 1.22 2010/06/09 18:53:04 amraktad Exp $
 //
 
 // system include files
@@ -73,6 +73,7 @@ Context::initEveElements()
    m_propagator->SetMagFieldObj(m_magField, false);
    m_propagator->SetMaxR(123.0);
    m_propagator->SetMaxZ(300.0);
+   m_propagator->SetDelta(0.01);
    m_propagator->SetProjTrackBreaking(TEveTrackPropagator::kPTB_UseLastPointPos);
    m_propagator->SetRnrPTBMarkers(kTRUE);
    m_propagator->IncDenyDestroy();
