@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 ##### event content for heavy-ion analysis objects
 from Configuration.EventContent.EventContentHeavyIons_cff import *
+from RecoHI.HiMuonAlgos.RecoHiMuon_EventContent_cff import *
 
 #jets
 jetContent = cms.PSet(
