@@ -1,5 +1,6 @@
 <lcgdict>
   <class name="PileupSummaryInfo"/>
   <class name="std::vector<PileupSummaryInfo>"/>  
+  <class name="edm::Wrapper<PileupSummaryInfo>"/>
   <class name="edm::Wrapper<std::vector<PileupSummaryInfo> >"/>
 </lcgdict>
