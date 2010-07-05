@@ -30,7 +30,7 @@ import FWCore.ParameterSet.Config as cms
 #
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent_cff.py,v 1.26 2010/04/19 09:39:23 cerminar Exp $
+#  $Id: EventContent_cff.py,v 1.27 2010/04/30 23:13:22 vlimant Exp $
 #
 #
 #
@@ -259,6 +259,17 @@ HLTDEBUGEventContent = cms.PSet(
         'keep *_logErrorHarvester_*_*'),
     splitLevel = cms.untracked.int32(0)
 )
+
+#
+#
+## DQM event content
+#
+#
+DQMEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *',
+                                           'keep *_MEtoEDMConverter_*_*'),
+    splitLevel = cms.untracked.int32(0)
+    )
 
 #Special Event Content for MixingModule and DataMixer
 DATAMIXEREventContent = cms.PSet(
