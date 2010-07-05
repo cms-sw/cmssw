@@ -16,6 +16,8 @@
 <use name=RecoTracker/TkSeedGenerator>
 <use name=RecoVertex/VertexPrimitives>
 <use name=RecoVertex/KalmanVertexFit>
+<use name=RecoVertex/KinematicFitPrimitives>
+<use name=RecoVertex/KinematicFit>
 <use name=MagneticField/Engine>
 <use name=Utilities/General>
 
@@ -41,6 +43,8 @@
   <use name=RecoTracker/TkSeedGenerator>
   <use name=RecoVertex/VertexPrimitives>
   <use name=RecoVertex/KalmanVertexFit>
+  <use name=RecoVertex/KinematicFitPrimitives>
+  <use name=RecoVertex/KinematicFit>
   <use name=MagneticField/Engine>
   <use name=Utilities/General>
   <use name=clhep>
