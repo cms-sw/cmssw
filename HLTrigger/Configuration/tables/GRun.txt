@@ -80,9 +80,10 @@ HLT_Photon30_L1R_8E29
 HLT_DoublePhoton4_eeRes_L1R
 HLT_DoublePhoton4_Jpsi_L1R
 HLT_DoublePhoton4_Upsilon_L1R
+HLT_DoublePhoton5_L1R
 HLT_DoublePhoton5_Jpsi_L1R
 HLT_DoublePhoton5_Upsilon_L1R
-HLT_DoublePhoton5_L1R
+HLT_DoublePhoton5_CEP_L1R
 HLT_DoublePhoton10_L1R
 HLT_SingleLooseIsoTau20
 HLT_SingleLooseIsoTau20_Trk5
