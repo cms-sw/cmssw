@@ -390,9 +390,17 @@ def dumpPerLSLumi(lumidata,hltpath=''):
     return datatodump
 def printRecordedLumi(lumidata,isVerbose=False,hltpath=''):
     datatoprint=[]
+    totalrow=[]
     labels=[('Run','HLT path','Recorded'+u' (/\u03bcb)'.encode('utf-8'))]
+    lastrowlabels=[('Selected LS','Recorded'+u' (/\u03bcb)'.encode('utf-8'))]
+    if len(hltpath)!=0 and hltpath!='all':
+        lastrowlabels=[('Selected LS','Recorded'+u' (/\u03bcb)'.encode('utf-8'),'Effective '+u'(/\u03bcb) '.encode('utf-8')+hltpath)]
     if isVerbose:
         labels=[('Run','HLT-path','L1-bit','L1-presc','HLT-presc','Recorded'+u' (/\u03bcb)'.encode('utf-8'))]
+    totalSelectedLS=0
+    totalRecorded=0.0
+    totalRecordedInPath=0.0
+    
     for dataperRun in lumidata:
         runnum=dataperRun[0]
         if len(dataperRun[1])==0:
@@ -401,9 +409,11 @@ def printRecordedLumi(lumidata,isVerbose=False,hltpath=''):
             datatoprint.append(rowdata)
             continue
         perlsdata=dataperRun[2]
+        totalSelectedLS=totalSelectedLS+len(perlsdata)
         recordedLumi=0.0
         #norbits=perlsdata.values()[0][3]
         recordedLumi=calculateTotalRecorded(perlsdata)
+        totalRecorded=totalRecorded+recordedLumi
         trgdict=dataperRun[1]
         effective=calculateEffective(trgdict,recordedLumi)
         if trgdict.has_key(hltpath) and effective.has_key(hltpath):
@@ -421,6 +431,7 @@ def printRecordedLumi(lumidata,isVerbose=False,hltpath=''):
                     hltprescale=trgdict[hltpath][1]
                     l1prescale=trgdict[hltpath][2]
                     rowdata+=[str(runnum),hltpath,l1bit,str(l1prescale),str(hltprescale),'%.3f'%(effective[hltpath])]
+                totalRecordedInPath=totalRecordedInPath+effective[hltpath]
             datatoprint.append(rowdata)
             continue
         
@@ -448,6 +459,13 @@ def printRecordedLumi(lumidata,isVerbose=False,hltpath=''):
     #print datatoprint
     print '==='
     print tablePrinter.indent(labels+datatoprint,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',justify='right',delim=' | ',wrapfunc=lambda x: wrap_onspace_strict(x,22))
+
+    if len(hltpath)!=0 and hltpath!='all':
+        totalrow.append([str(totalSelectedLS),'%.3f'%(totalRecorded),'%.3f'%(totalRecordedInPath)])
+    else:
+        totalrow.append([str(totalSelectedLS),'%.3f'%(totalRecorded)])
+    print '=== Total : '
+    print tablePrinter.indent(lastrowlabels+totalrow,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',justify='right',delim=' | ',wrapfunc=lambda x: wrap_onspace(x,20))    
     if isVerbose:
         deadtoprint=[]
         deadtimelabels=[('Run','Lumi section : Dead fraction')]
