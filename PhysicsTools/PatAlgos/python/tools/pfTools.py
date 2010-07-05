@@ -265,7 +265,7 @@ def switchToPFJets(process, input=cms.InputTag('pfNoTau'), algo='IC5', postfix =
         
     # changing the jet collection in PF2PAT:
     from PhysicsTools.PFCandProducer.Tools.jetTools import jetAlgo
-    process.allPfJets = jetAlgo( algo );    
+    setattr(process, "allPfJets"+postfix, jetAlgo( algo ) )
     switchJetCollection(process,
                         input,
                         jetIdLabel = algo,
