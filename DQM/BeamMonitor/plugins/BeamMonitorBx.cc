@@ -2,8 +2,8 @@
  * \file BeamMonitorBx.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/07/01 02:21:27 $
- * $Revision: 1.6 $
+ * $Date: 2010/07/01 04:57:01 $
+ * $Revision: 1.7 $
  *
  */
 
@@ -193,7 +193,7 @@ void BeamMonitorBx::BookTables(int nBx, map<string,string> & vMap, string suffix
   for (std::map<std::string,std::string>::const_iterator varName = vMap.begin();
        varName != vMap.end(); ++varName) {
     string tmpName = varName->first;
-    if (suffix_ != "") {
+    if (!suffix_.empty()) {
       tmpName += "_";
       tmpName += suffix_;
     }
@@ -347,7 +347,7 @@ void BeamMonitorBx::FitAndFill(const LuminosityBlock& lumiSeg,
     if (countBx_ < bsmap.size()) {
       countBx_ = bsmap.size();
       BookTables(countBx_,varMap,"");
-      if (resetFitNLumi_ > 0 && countGoodFit_ > 1) BookTables(countBx_,varMap,"all");
+      BookTables(countBx_,varMap,"all");
     }
 
     int * LSRange = theBeamFitter->getFitLSRange();
@@ -362,9 +362,12 @@ void BeamMonitorBx::FitAndFill(const LuminosityBlock& lumiSeg,
     if (countGoodFit_ == 1)
       firstlumi_ = LSRange[0];
 
-    if (resetFitNLumi_ > 0 && countGoodFit_ > 1) {
+    if (resetFitNLumi_ > 0 ) {
       char tmpTitle1[50];
-      sprintf(tmpTitle1,"%s %i %s %i %s"," [cm] (LS: ",firstlumi_," to ",LSRange[1],")");
+      if ( countGoodFit_ > 1)
+	sprintf(tmpTitle1,"%s %i %s %i %s"," [cm] (LS: ",firstlumi_," to ",LSRange[1],") [weighted average]");
+      else
+	sprintf(tmpTitle1,"%s","Need at least two fits to calculate weighted average");
       for (std::map<std::string,std::string>::const_iterator varName = varMap.begin();
 	   varName != varMap.end(); ++varName) {
 	TString tmpName = varName->first + "_all";
