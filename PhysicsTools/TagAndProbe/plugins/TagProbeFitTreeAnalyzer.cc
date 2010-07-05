@@ -32,6 +32,8 @@ TagProbeFitTreeAnalyzer::TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset):
 	  pset.existsAs<vector<string> >("fixVars")?pset.getParameter<vector<string> >("fixVars"):vector<string>()
 	  )
 {
+  fitter.setQuiet(pset.getUntrackedParameter("Quiet",false));
+
   if (pset.existsAs<uint32_t>("binsForMassPlots")) {
     fitter.setBinsForMassPlots(pset.getParameter<uint32_t>("binsForMassPlots"));
   }
@@ -60,6 +62,36 @@ TagProbeFitTreeAnalyzer::TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset):
     }else{
       LogError("TagProbeFitTreeAnalyzer")<<"Could not create category: "<<*name<<
       ". Example: mcTrue = cms.vstring(\"MC True\", \"dummy[true=1,false=0]\") ";
+    }
+  }
+
+  if (pset.existsAs<ParameterSet>("Expressions")) {
+    const ParameterSet exprs = pset.getParameter<ParameterSet>("Expressions");
+    vector<string> exprNames = exprs.getParameterNamesForType<vector<string> >();
+    for (vector<string>::const_iterator name = exprNames.begin(); name != exprNames.end(); name++) {
+        vector<string> expr = exprs.getParameter<vector<string> >(*name);
+        if(expr.size()>=2){
+            vector<string> args(expr.begin()+2,expr.end());
+            fitter.addExpression(*name, expr[0], expr[1], args);
+        }else{
+            LogError("TagProbeFitTreeAnalyzer")<<"Could not create expr: "<<*name<<
+                ". Example: qop = cms.vstring(\"qOverP\", \"charge/p\", \"charge\", \"p\") ";
+        }
+    }
+  }
+
+
+  if (pset.existsAs<ParameterSet>("Cuts")) {
+    const ParameterSet cuts = pset.getParameter<ParameterSet>("Cuts");
+    vector<string> cutNames = cuts.getParameterNamesForType<vector<string> >();
+    for (vector<string>::const_iterator name = cutNames.begin(); name != cutNames.end(); name++) {
+        vector<string> cat = cuts.getParameter<vector<string> >(*name);
+        if(cat.size()==3){
+            fitter.addThresholdCategory(*name, cat[0], cat[1], atof(cat[2].c_str()));
+        }else{
+            LogError("TagProbeFitTreeAnalyzer")<<"Could not create cut: "<<*name<<
+                ". Example: matched = cms.vstring(\"Matched\", \"deltaR\", \"0.5\") ";
+        }
     }
   }
 

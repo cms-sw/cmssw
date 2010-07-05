@@ -22,6 +22,12 @@ class TagProbeFitter {
   ///adds a new category variable to the set of variables describing the data in the tree; "expression" is parsed by factory()
   bool addCategory(std::string categoryName, std::string title, std::string expression);
 
+  ///adds a new category based on a cut
+  bool addExpression(std::string expressionName, std::string title, std::string expression, std::vector<std::string> arguments);
+
+  ///adds a new category based on a cut
+  bool addThresholdCategory(std::string categoryName, std::string title, std::string varName, double cutValue);
+
   ///add a new PDF to the list of available PDFs; "pdfCommands" are parsed by factory().
   /// the user needs to define efficiency[0.9,0,1] for the initial value, "signal" PDF, "backgroundPass" PDF and "backgroundFail" PDF
   void addPdf(std::string pdfName, std::vector<std::string>& pdfCommands);
@@ -37,6 +43,10 @@ class TagProbeFitter {
 
   /// set a variable to be used as weight for a dataset. empty string means no weights.
   void setWeightVar(const std::string &weight);
+
+  /// suppress most of the output from RooFit and Minuit
+  void setQuiet(bool quiet_=true);
+
   protected:
   ///pointer to the input TTree Chain of data
   TChain* inputTree;
@@ -65,6 +75,14 @@ class TagProbeFitter {
   ///weight variable (or empy string for no weights)
   std::string weightVar;
 
+  ///expressions computed almost on the fly
+  //RooArgSet expressionVars;
+  std::vector<std::pair<std::pair<std::string,std::string>, std::pair<std::string, std::vector<std::string> > > > expressionVars;
+
+  // Threshold categories have to be created at the last minute
+  // so we store just the info about them
+  std::vector<std::pair<std::pair<std::string,std::string>, std::pair<std::string, double> > > thresholdCategories;
+
   ///list of variables fo fix (see below)
   std::vector<std::string> fixVars;
   std::vector<double> fixVarValues;
@@ -76,6 +94,9 @@ class TagProbeFitter {
 
   ///a RooWorkspace object to parse input parameters with ".factory()"
   RooWorkspace parameterParser;
+
+  /// suppress most printout
+  bool quiet;
 
   ///fix or release variables selected by user
   void varFixer(RooWorkspace* w, bool fix);
