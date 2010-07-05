@@ -95,7 +95,9 @@ def deliveredLumiForRange(dbsession,c,fileparsingResult):
     #in this case,only take run numbers from theinput file
     #
     lumidata=[]
-    for run in fileparsingResult.runs():
+    runs= fileparsingResult.runs()
+    runs.sort()
+    for run in runs:
         lumidata.append( deliveredLumiForRun(dbsession,c,run) )
     return lumidata
 
@@ -264,7 +266,12 @@ def recordedLumiForRange(dbsession,c,fileparsingResult):
     #in this case,only take run numbers from theinput file
     #
     lumidata=[]
-    for (run,lslist) in fileparsingResult.runsandls().items():
+    runs=fileparsingResult.runs()
+    runs.sort()
+    runsandls=fileparsingResult.runsandls()
+    for run in runs:
+        lslist=runsandls[run]
+    #for (run,lslist) in fileparsingResult.runsandls().items():
         #print 'processing run ',run
         #print 'valid ls list ',lslist
         lumidata.append( recordedLumiForRun(dbsession,c,run,lslist) )
@@ -524,25 +531,37 @@ def printOverviewData(delivered,recorded,hltpath=''):
         rowdata=[]
         rowdata+=[deliveredrowdata[0],deliveredrowdata[1],deliveredrowdata[2]]
         if deliveredrowdata[1]=='N/A': #run does not exist
-            rowdata+=['N/A','N/A','N/A']
+            if  hltpath!='' and hltpath!='all':
+                rowdata+=['N/A','N/A','N/A']
+            else:
+                rowdata+=['N/A','N/A']
             datatable.append(rowdata)
             continue
         totalDeliveredLS+=int(deliveredrowdata[1])
         totalDelivered+=float(deliveredrowdata[2])
         
         selectedls=recorded[runidx][2].keys()
-        selectedlsStr=splitlistToRangeString(selectedls)
-        recordedLumi=calculateTotalRecorded(recorded[runidx][2])
-        lumiinPaths=calculateEffective(recorded[runidx][1],recordedLumi)
-        if hltpath!='' and hltpath!='all':
-            if lumiinPaths.has_key(hltpath):
-                rowdata+=[selectedlsStr,'%.3f'%(recordedLumi),'%.3f'%(lumiinPaths[hltpath])]
-                totalRecordedInPath+=lumiinPaths[hltpath]
+        #print 'runidx ',runidx,deliveredrowdata
+        #print 'selectedls ',selectedls
+        if len(selectedls)==0:
+            selectedlsStr='[]'
+            if  hltpath!='' and hltpath!='all':
+                rowdata+=[selectedlsStr,'N/A','N/A']
             else:
-                rowdata+=[selectedlsStr,'%.3f'%(recordedLumi),'N/A']
+                rowdata+=[selectedlsStr,'N/A']
         else:
-            #rowdata+=[selectedlsStr,'%.3f'%(recordedLumi),'%.3f'%(recordedLumi)]
-            rowdata+=[selectedlsStr,'%.3f'%(recordedLumi)]
+            selectedlsStr=splitlistToRangeString(selectedls)
+            recordedLumi=calculateTotalRecorded(recorded[runidx][2])
+            lumiinPaths=calculateEffective(recorded[runidx][1],recordedLumi)
+            if hltpath!='' and hltpath!='all':
+                if lumiinPaths.has_key(hltpath):
+                    rowdata+=[selectedlsStr,'%.3f'%(recordedLumi),'%.3f'%(lumiinPaths[hltpath])]
+                    totalRecordedInPath+=lumiinPaths[hltpath]
+                else:
+                    rowdata+=[selectedlsStr,'%.3f'%(recordedLumi),'N/A']
+            else:
+                #rowdata+=[selectedlsStr,'%.3f'%(recordedLumi),'%.3f'%(recordedLumi)]
+                rowdata+=[selectedlsStr,'%.3f'%(recordedLumi)]
         totalSelectedLS+=len(selectedls)
         totalRecorded+=recordedLumi
         datatable.append(rowdata)
