@@ -6,6 +6,7 @@ HLT_Activity_DT
 HLT_Activity_DT_Tuned
 HLT_Activity_Ecal_SC7
 HLT_Activity_Ecal_SC15
+HLT_Activity_Ecal_SC17
 HLT_SelectEcalSpikes_L1R
 HLT_SelectEcalSpikesHighEt_L1R
 HLT_L1Jet6U
