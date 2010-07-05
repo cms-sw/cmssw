@@ -34,25 +34,16 @@ RecoMuonAOD = cms.PSet(
                                            'keep recoMuons_muons_*_*', 
                                            'keep booledmValueMap_muid*_*_*',
                                            'keep recoMuonTimeExtraedmValueMap_muons_*_*',
-                                           'keep recoCaloMuons_calomuons_*_*',
                                            # Cosmics
                                            'keep recoTracks_cosmicMuons_*_*',
-                                           'keep recoTrackExtras_cosmicMuons_*_*', 
-                                           'keep TrackingRecHitsOwned_cosmicMuons_*_*',
                                            'keep recoTracks_globalCosmicMuons_*_*', 
-                                           'keep recoTrackExtras_globalCosmicMuons_*_*', 
-                                           'keep TrackingRecHitsOwned_globalCosmicMuons_*_*',
                                            'keep recoMuons_muonsFromCosmics_*_*',
                                            # Cosmics 1 leg
                                            'keep recoTracks_cosmicMuons1Leg_*_*',
-                                           'keep recoTrackExtras_cosmicMuons1Leg_*_*', 
-                                           'keep TrackingRecHitsOwned_cosmicMuons1Leg_*_*',
                                            'keep recoTracks_globalCosmicMuons1Leg_*_*', 
-                                           'keep recoTrackExtras_globalCosmicMuons1Leg_*_*', 
-                                           'keep TrackingRecHitsOwned_globalCosmicMuons1Leg_*_*',
                                            'keep recoMuons_muonsFromCosmics1Leg_*_*',
                                            # cosmics ID
-                                           'keep recoMuonCosmicCompatibilityedmValueMap_cosmicsVeto_*-*',
+                                           'keep recoMuonCosmicCompatibilityedmValueMap_cosmicsVeto_*_*',
                                            'keep uintedmValueMap_cosmicsVeto_*_*'
                                            )
 )
@@ -63,8 +54,17 @@ RecoMuonRECO = cms.PSet(
                                            'keep *_mergedStandAloneMuonSeeds_*_*',
                                            'keep TrackingRecHitsOwned_globalMuons_*_*', 
                                            'keep TrackingRecHitsOwned_tevMuons_*_*',
+                                           'keep recoCaloMuons_calomuons_*_*',
                                            # Cosmics
                                            'keep *_CosmicMuonSeed_*_*',
+                                           'keep recoTrackExtras_cosmicMuons_*_*', 
+                                           'keep TrackingRecHitsOwned_cosmicMuons_*_*',
+                                           'keep recoTrackExtras_globalCosmicMuons_*_*', 
+                                           'keep TrackingRecHitsOwned_globalCosmicMuons_*_*',
+                                           'keep recoTrackExtras_cosmicMuons1Leg_*_*', 
+                                           'keep TrackingRecHitsOwned_cosmicMuons1Leg_*_*',
+                                           'keep recoTrackExtras_globalCosmicMuons1Leg_*_*', 
+                                           'keep TrackingRecHitsOwned_globalCosmicMuons1Leg_*_*',
                                            # SET muons
                                            'keep *_SETMuonSeed_*_*',
                                            'keep recoTracks_standAloneSETMuons_*_*',
