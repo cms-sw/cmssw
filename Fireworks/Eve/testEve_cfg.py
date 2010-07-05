@@ -2,15 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DISPLAY")
 
-# process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-
-# process.load("Geometry.DTGeometry.dtGeometry_cfi")
-# process.load("Geometry.CSCGeometry.cscGeometry_cfi")
-
-# process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
-# process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-
-# process.load("Geometry.CaloEventSetup.CaloGeometry_cff")
+process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 
 ### Expects test.root in current directory.
 process.source = cms.Source(
@@ -18,9 +10,13 @@ process.source = cms.Source(
     fileNames=cms.untracked.vstring('file:test.root')
 )
 
-process.EveService = cms.Service("EveService")
+process.TGeoFromDddService = cms.Service(
+    "TGeoFromDddService",
+    verbose = cms.untracked.bool(False),
+    level   = cms.untracked.int32(11)
+)
 
-# process.add_( cms.ESProducer("DisplayGeomFromDDD") )
+process.EveService = cms.Service("EveService")
 
 # process.maxEvents = cms.untracked.PSet(
 #         input = cms.untracked.int32(1)

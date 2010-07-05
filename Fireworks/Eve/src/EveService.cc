@@ -8,26 +8,23 @@
 //
 // Original Author:  Matevz Tadel
 //         Created:  Fri Jun 25 18:57:39 CEST 2010
-// $Id$
+// $Id: EveService.cc,v 1.1 2010/06/29 18:05:53 matevz Exp $
 //
 
 // system include files
+#include <iostream>
 
 // user include files
 #include "Fireworks/Eve/interface/EveService.h"
 
-// #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
 #include "TROOT.h"
 #include "TSystem.h"
 #include "TRint.h"
 #include "TEveManager.h"
 #include "TEveEventManager.h"
-
-DEFINE_FWK_SERVICE(EveService);
 
 //
 // constants, enums and typedefs
@@ -62,11 +59,12 @@ EveService::EveService(const edm::ParameterSet&, edm::ActivityRegistry& ar) :
 
    m_EveManager = TEveManager::Create();
 
+   m_EveManager->AddEvent(new TEveEventManager("Event", "Event Data"));
+
    ar.watchPostBeginJob(this, &EveService::postBeginJob);
    ar.watchPostEndJob  (this, &EveService::postEndJob);
 
    ar.watchPostProcessEvent(this, &EveService::postProcessEvent);
-
 }
 
 EveService::~EveService()
@@ -83,6 +81,7 @@ void EveService::postBeginJob()
 {
    printf("EveService::postBeginJob\n");
 
+   // Show the GUI ...
    gSystem->ProcessEvents();
 }
 
@@ -92,6 +91,8 @@ void EveService::postEndJob()
 
    TEveManager::Terminate();
 }
+
+//------------------------------------------------------------------------------
 
 void EveService::postProcessEvent(const edm::Event&, const edm::EventSetup&)
 {
