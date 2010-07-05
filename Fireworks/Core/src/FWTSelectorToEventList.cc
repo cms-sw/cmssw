@@ -1,4 +1,4 @@
-// $Id: FWTSelectorToEventList.cc,v 1.2 2010/07/02 13:06:00 matevz Exp $
+// $Id: FWTSelectorToEventList.cc,v 1.3 2010/07/02 13:07:19 matevz Exp $
 
 #include "Fireworks/Core/interface/FWTSelectorToEventList.h"
 
@@ -29,15 +29,11 @@
 FWTSelectorToEventList::FWTSelectorToEventList(TTree*      tree,
                                                TEventList* evl,
                                                const char* sel) :
-   TSelectorDraw(),
+   TSelectorEntries(sel),
    fEvList(evl),
    fPlayer(new TTreePlayer),
    fOwnEvList(kFALSE)
 {
-   fInput.Add(new TNamed("varexp", ""));
-   fInput.Add(new TNamed("selection", sel));
-   SetInputList(&fInput);
-
    fPlayer->SetTree(tree);
 }
 
@@ -63,8 +59,13 @@ FWTSelectorToEventList::Process(Long64_t entry)
 {
    // Process entry.
 
-   if (GetSelect()->EvalInstance(0) != 0)
+   Long64_t prevRows = fSelectedRows;
+
+   TSelectorEntries::Process(entry);
+
+   if (fSelectedRows > prevRows)
       fEvList->Enter(entry);
+
    return kTRUE;
 }
 

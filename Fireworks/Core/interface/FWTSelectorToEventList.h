@@ -1,27 +1,25 @@
-// $Id: FWTSelectorToEventList.h,v 1.1 2010/07/02 11:46:29 matevz Exp $
+// $Id: FWTSelectorToEventList.h,v 1.2 2010/07/02 13:05:59 matevz Exp $
 
 #ifndef Fireworks_Core_FWTSelectorToEventList_h
 #define Fireworks_Core_FWTSelectorToEventList_h
 
-#include "TSelectorDraw.h"
+#include "TSelectorEntries.h"
 
 class TTree;
 class TEventList;
 class TTreePlayer;
 
-class FWTSelectorToEventList : public TSelectorDraw
+class FWTSelectorToEventList : public TSelectorEntries
 {
 private:
    TEventList  *fEvList;
    TTreePlayer *fPlayer;
    TList        fInput;
-   Bool_t       fOwnEvList;
 
 public:
    FWTSelectorToEventList(TTree* tree, TEventList* evl, const char* sel);
    virtual ~FWTSelectorToEventList();
 
-   virtual Int_t    Version() const { return 1; }
    virtual Bool_t   Process(Long64_t entry);
 
    virtual Long64_t ProcessTree(Long64_t nentries   = 1000000000,
