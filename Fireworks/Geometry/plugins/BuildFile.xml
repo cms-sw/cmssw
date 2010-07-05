@@ -56,3 +56,9 @@
         <lib name="Geom"/>
 	<flags EDM_PLUGIN="1"/>
 </library>
+
+<library file="TGeoFromDddServicePlugin.cc"
+         name="FireworksGeometryTGeoFromDddServicePlugin">
+        <use name="Fireworks/Geometry"/>
+	<flags EDM_PLUGIN="1"/>
+</library>

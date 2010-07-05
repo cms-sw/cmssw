@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jul  2 16:11:42 CEST 2010
-// $Id$
+// $Id: TGeoFromDddService.cc,v 1.1 2010/07/02 18:51:37 matevz Exp $
 //
 
 // system include files
@@ -16,9 +16,9 @@
 // user include files
 
 #include "Fireworks/Geometry/interface/TGeoFromDddService.h"
-#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 
@@ -44,8 +44,6 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 
-DEFINE_FWK_SERVICE(TGeoFromDddService);
-
 //
 // constants, enums and typedefs
 //
@@ -57,12 +55,15 @@ DEFINE_FWK_SERVICE(TGeoFromDddService);
 //
 // constructors and destructor
 //
-TGeoFromDddService::TGeoFromDddService(const edm::ParameterSet& pset, edm::ActivityRegistry&) :
+TGeoFromDddService::TGeoFromDddService(const edm::ParameterSet& pset, edm::ActivityRegistry& ar) :
    m_level      (pset.getUntrackedParameter<int> ("level", 10)),
    m_verbose    (pset.getUntrackedParameter<bool>("verbose",false)),
    m_eventSetup (0),
    m_geoManager (0)
-{}
+{
+   ar.watchPostBeginRun(this, &TGeoFromDddService::postBeginRun);
+   ar.watchPostEndRun  (this, &TGeoFromDddService::postEndRun);
+}
 
 TGeoFromDddService::~TGeoFromDddService()
 {
@@ -79,16 +80,23 @@ TGeoFromDddService::~TGeoFromDddService()
 
 void TGeoFromDddService::postBeginRun(const edm::Run&, const edm::EventSetup& es)
 {
+   printf("TGeoFromDddService::postBeginRun\n");
+
    m_eventSetup = &es;
 }
 
 void TGeoFromDddService::postEndRun(const edm::Run&, const edm::EventSetup&)
 {
+   printf("TGeoFromDddService::postEndRun\n");
+
+   // Construction of geometry fails miserably on second attempt ...
+   /*
    if (m_geoManager)
    {
       delete m_geoManager;
       m_geoManager = 0;
    }
+   */
    m_eventSetup = 0;
 }
 
@@ -147,23 +155,10 @@ TGeoFromDddService::createManager(int level)
    ESTransientHandle<DDCompactView> viewH;
    m_eventSetup->get<IdealGeometryRecord>().get(viewH);
 
-   // edm::ESHandle<MuonDDDConstants> mdc;
-   // iSetup.get<MuonNumberingRecord>().get(mdc);
-
-   // edm::ESHandle<GeometricDet> rDD;
-   // iSetup.get<IdealGeometryRecord>().get( rDD );
-
-   // edm::ESHandle<CaloGeometry> pG;
-   // iSetup.get<CaloGeometryRecord>().get(pG);     
-
-   // edm::ESHandle<DTGeometry> muonDTGeom;
-   // iSetup.get<MuonGeometryRecord>().get(muonDTGeom);     
-
-//    if ( pG.isValid() ) {
-//      std::cout << "pG is valid" << std::endl;
-//    } else {
-//      std::cout << "pG is NOT valid" << std::endl;
-//    }
+   if ( ! viewH.isValid() )
+   {
+      return 0;
+   }
 
    TGeoManager *geo_mgr = new TGeoManager("cmsGeo","CMS Detector");
    // NOTE: the default constructor does not create the identity matrix
@@ -200,11 +195,6 @@ TGeoFromDddService::createManager(int level)
    if( ! walker.firstChild() ) {
       return 0;
    }
-
-   // Matevz, 23.3.2010
-   // This is needed to avoid errors from TGeo to cause process termination.
-   // The root patch will be submitted for integration in 3.6.0-pre4.
-   // ErrorHandlerFunc_t old_eh = SetErrorHandler(DefaultErrorHandler);
 
    do
    {
@@ -276,9 +266,6 @@ TGeoFromDddService::createManager(int level)
 	 }
       }
    } while ( ! parentStack.empty());
-
-   // MT -- goes with the above work-around.
-   // SetErrorHandler(old_eh);
 
    geo_mgr->CloseGeometry();
 
