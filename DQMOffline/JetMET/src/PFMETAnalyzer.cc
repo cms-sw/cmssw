@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/05/14 18:20:04 $
- *  $Revision: 1.23 $
+ *  $Date: 2010/05/14 21:57:34 $
+ *  $Revision: 1.24 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech
  */
@@ -53,6 +53,7 @@ void PFMETAnalyzer::beginJob(DQMStore * dbe) {
 
   _hlt_HighPtJet = parameters.getParameter<std::string>("HLT_HighPtJet");
   _hlt_LowPtJet  = parameters.getParameter<std::string>("HLT_LowPtJet");
+  _hlt_MinBias   = parameters.getParameter<std::string>("HLT_MinBias");
   _hlt_HighMET   = parameters.getParameter<std::string>("HLT_HighMET");
   _hlt_LowMET    = parameters.getParameter<std::string>("HLT_LowMET");
   _hlt_Ele       = parameters.getParameter<std::string>("HLT_Ele");
@@ -189,6 +190,11 @@ void PFMETAnalyzer::bookMESet(std::string DirName)
     meTriggerName_LowPtJet = _dbe->bookString("triggerName_LowPtJet", _hlt_LowPtJet);
   }
 
+  if (_hlt_MinBias.size()){
+    bookMonitorElement(DirName+"/"+"MinBias",false);
+    hTriggerName_MinBias = _dbe->bookString("triggerName_MinBias", _hlt_MinBias);
+  }
+
   if (_hlt_HighMET.size()){
     bookMonitorElement(DirName+"/"+"HighMET",false);
     meTriggerName_HighMET = _dbe->bookString("triggerName_HighMET", _hlt_HighMET);
@@ -313,6 +319,7 @@ void PFMETAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup, 
       makeRatePlot(DirName,totltime);
       if (_hlt_HighPtJet.size()) makeRatePlot(DirName+"/"+_hlt_HighPtJet,totltime);
       if (_hlt_LowPtJet.size())  makeRatePlot(DirName+"/"+_hlt_LowPtJet,totltime);
+      if (_hlt_MinBias.size())   makeRatePlot(DirName+"/"+_hlt_MinBias,totltime);
       if (_hlt_HighMET.size())   makeRatePlot(DirName+"/"+_hlt_HighMET,totltime);
       if (_hlt_LowMET.size())    makeRatePlot(DirName+"/"+_hlt_LowMET,totltime);
       if (_hlt_Ele.size())       makeRatePlot(DirName+"/"+_hlt_Ele,totltime);
@@ -366,6 +373,7 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   _trig_JetMB=0;
   _trig_HighPtJet=0;
   _trig_LowPtJet=0;
+  _trig_MinBias=0;
   _trig_HighMET=0;
   _trig_LowMET=0;
   if(&triggerResults) {   
@@ -401,6 +409,7 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     if (_verbose) std::cout << "triggerNames size" << " " << triggerNames.size() << std::endl;
     if (_verbose) std::cout << _hlt_HighPtJet << " " << triggerNames.triggerIndex(_hlt_HighPtJet) << std::endl;
     if (_verbose) std::cout << _hlt_LowPtJet  << " " << triggerNames.triggerIndex(_hlt_LowPtJet)  << std::endl;
+    if (_verbose) std::cout << _hlt_MinBias   << " " << triggerNames.triggerIndex(_hlt_MinBias)   << std::endl;
     if (_verbose) std::cout << _hlt_HighMET   << " " << triggerNames.triggerIndex(_hlt_HighMET)   << std::endl;
     if (_verbose) std::cout << _hlt_LowMET    << " " << triggerNames.triggerIndex(_hlt_LowMET)    << std::endl;
     if (_verbose) std::cout << _hlt_Ele       << " " << triggerNames.triggerIndex(_hlt_Ele)       << std::endl;
@@ -412,6 +421,9 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
     if (triggerNames.triggerIndex(_hlt_LowPtJet)  != triggerNames.size() &&
 	triggerResults.accept(triggerNames.triggerIndex(_hlt_LowPtJet)))  _trig_LowPtJet=1;
+
+    if (triggerNames.triggerIndex(_hlt_MinBias)  != triggerNames.size() &&
+	triggerResults.accept(triggerNames.triggerIndex(_hlt_MinBias)))  _trig_MinBias=1;
 
     if (triggerNames.triggerIndex(_hlt_HighMET)   != triggerNames.size() &&
         triggerResults.accept(triggerNames.triggerIndex(_hlt_HighMET)))   _trig_HighMET=1;
@@ -795,6 +807,7 @@ void PFMETAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
   if (_trig_JetMB) fillMonitorElement(iEvent,DirName,"",pfmet, bLumiSecPlot);
   if (_hlt_HighPtJet.size() && _trig_HighPtJet) fillMonitorElement(iEvent,DirName,"HighPtJet",pfmet,false);
   if (_hlt_LowPtJet.size() && _trig_LowPtJet) fillMonitorElement(iEvent,DirName,"LowPtJet",pfmet,false);
+  if (_hlt_MinBias.size() && _trig_MinBias) fillMonitorElement(iEvent,DirName,"MinBias",pfmet,false);
   if (_hlt_HighMET.size() && _trig_HighMET) fillMonitorElement(iEvent,DirName,"HighMET",pfmet,false);
   if (_hlt_LowMET.size() && _trig_LowMET) fillMonitorElement(iEvent,DirName,"LowMET",pfmet,false);
   if (_hlt_Ele.size() && _trig_Ele) fillMonitorElement(iEvent,DirName,"Ele",pfmet,false);
