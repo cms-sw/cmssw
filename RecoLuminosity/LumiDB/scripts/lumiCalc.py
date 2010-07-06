@@ -358,10 +358,18 @@ def printPerLSLumi(lumidata,isVerbose=False,hltpath=''):
     deadtable {lsnum:[deadtime,instlumi,bit_0,norbits]}
     '''
     datatoprint=[]
+    totalrow=[]
+    lastrowlabels=[('Selected LS','Delivered'+u' (/\u03bcb)'.encode('utf-8'),'Recorded'+u' (/\u03bcb)'.encode('utf-8'))]
+    totalDeliveredLS=0
+    totalSelectedLS=0
+    totalDelivered=0.0
+    totalRecorded=0.0
+    
     for perrundata in lumidata:
         runnumber=perrundata[0]
         deadtable=perrundata[2]
         lumiresult=lsBylsLumi(deadtable)
+        totalSelectedLS=totalSelectedLS+len(deadtable)
         for lsnum,dataperls in lumiresult.items():
             rowdata=[]
             labels=[('Run','LS','Delivered','Recorded'+u' (/\u03bcb)'.encode('utf-8'))]
@@ -369,11 +377,15 @@ def printPerLSLumi(lumidata,isVerbose=False,hltpath=''):
                 rowdata+=[str(runnumber),str(lsnum),'N/A','N/A']
             else:
                 rowdata+=[str(runnumber),str(lsnum),'%.3f'%(dataperls[0]),'%.3f'%(dataperls[1])]
+                totalDelivered=totalDelivered+dataperls[0]
+                totalRecorded=totalRecorded+dataperls[1]
             datatoprint.append(rowdata)
+    totalrow.append([str(totalSelectedLS),'%.3f'%(totalDelivered),'%.3f'%(totalRecorded)])
     #print datatoprint
     print '==='
     print tablePrinter.indent(labels+datatoprint,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',justify='right',delim=' | ',wrapfunc=lambda x: wrap_onspace_strict(x,22))
-    
+    print '=== Total : '
+    print tablePrinter.indent(lastrowlabels+totalrow,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',justify='right',delim=' | ',wrapfunc=lambda x: wrap_onspace(x,20))    
 def dumpPerLSLumi(lumidata,hltpath=''):
     datatodump=[]
     for perrundata in lumidata:
