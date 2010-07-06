@@ -128,7 +128,7 @@ int main(int ac, char *av[]) {
 	      //eeffhCP[i] = cp.upper() - eff[i];
 	}
 	TGraphAsymmErrors graphCP(bins, x, eff, exl, exh, eefflCP, eeffhCP);
-	graphCP.SetTitle("HLT_Mu9 efficiency (Clopper-Pearson intervals)");
+	graphCP.SetTitle("trigger (HLT_Mu9 path) efficiency");
 	graphCP.SetMarkerColor(kRed);
 	graphCP.SetMarkerStyle(21);
 	graphCP.SetLineWidth(1);
@@ -136,11 +136,14 @@ int main(int ac, char *av[]) {
         string cname = pname;
 	TCanvas * c = new TCanvas(cname.c_str());
 	gStyle->SetOptStat(0);
-	histo.SetTitle("HLT_Mu9 Efficiency with Clopper-Pearson intervals"); 
+	histo.SetTitle("MC trigger (HLT_Mu9 path) efficiency"); 
 	histo.Draw();
 	histo.SetLineColor(kWhite);
-	graphCP.Draw("P");
-	string plot= "HLTMu_9" +  pname + "." +  ext ; 
+        histo.SetMinimum(0.7);
+	histo.GetXaxis()->SetTitle("p_{T} (GeV/c)");
+	histo.GetYaxis()->SetTitle("efficiency");
+        graphCP.Draw("P");
+    	string plot= "HLTMu_9" +  pname + "." +  ext ; 
 	c->SaveAs(plot.c_str());
         string outfile= "Effhisto" +   pname + ".root";
 	TFile * output_file = TFile::Open(outfile.c_str(), "recreate");
