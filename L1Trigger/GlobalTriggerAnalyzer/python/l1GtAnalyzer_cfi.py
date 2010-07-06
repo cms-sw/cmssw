@@ -28,7 +28,10 @@ l1GtAnalyzer = cms.EDAnalyzer("L1GtAnalyzer",
     # an algorithm and a condition in that algorithm to test the object maps, a bit number
     AlgorithmName = cms.string('L1_DoubleJet50_ETM20'),
     ConditionName = cms.string('DoubleTauJet50_2'),
-    BitNumber = cms.uint32(0)
+    BitNumber = cms.uint32(0),
+    
+    # select the L1 configuration use: 0, 100000, 200000
+    L1GtUtilsConfiguration = cms.uint32(0)
 )
 
 

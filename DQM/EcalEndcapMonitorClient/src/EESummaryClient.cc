@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2010/03/27 20:30:37 $
- * $Revision: 1.195 $
+ * $Date: 2010/05/27 09:52:08 $
+ * $Revision: 1.200 $
  * \author G. Della Ricca
  *
 */
@@ -222,50 +222,6 @@ void EESummaryClient::beginJob(void) {
   ievt_ = 0;
   jevt_ = 0;
 
-  // summary for DQM GUI
-
-  char histo[200];
-
-  MonitorElement* me;
-
-  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
-
-  sprintf(histo, "reportSummary");
-  me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo);
-  if ( me ) {
-    dqmStore_->removeElement(me->getName());
-  }
-  me = dqmStore_->bookFloat(histo);
-  me->Fill(-1.0);
-
-  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
-
-  for (int i = 0; i < 18; i++) {
-    sprintf(histo, "EcalEndcap_%s", Numbers::sEE(i+1).c_str());
-    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
-    if ( me ) {
-      dqmStore_->removeElement(me->getName());
-    }
-    me = dqmStore_->bookFloat(histo);
-    me->Fill(-1.0);
-  }
-
-  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
-
-  sprintf(histo, "reportSummaryMap");
-  me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo);
-  if ( me ) {
-    dqmStore_->removeElement(me->getName());
-  }
-  me = dqmStore_->book2D(histo, histo, 200, 0., 200., 100, 0., 100);
-  for ( int jx = 1; jx <= 200; jx++ ) {
-    for ( int jy = 1; jy <= 100; jy++ ) {
-      me->setBinContent( jx, jy, -1.0 );
-    }
-  }
-  me->setAxisTitle("jx", 1);
-  me->setAxisTitle("jy", 2);
-
 }
 
 void EESummaryClient::beginRun(void) {
@@ -306,7 +262,7 @@ void EESummaryClient::setup(void) {
   meIntegrity_[0]->setAxisTitle("jx", 1);
   meIntegrity_[0]->setAxisTitle("jy", 2);
 
-  if ( meIntegrity_[1] ) dqmStore_->removeElement( meIntegrity_[0]->getName() );
+  if ( meIntegrity_[1] ) dqmStore_->removeElement( meIntegrity_[1]->getName() );
   sprintf(histo, "EEIT EE + integrity quality summary");
   meIntegrity_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meIntegrity_[1]->setAxisTitle("jx", 1);
@@ -2028,14 +1984,21 @@ void EESummaryClient::analyze(void) {
 
           if ( eesfc ) {
 
+            me = dqmStore_->get(prefixME_ + "/EcalInfo/EEMM DCC");
+
+            float xval = 6;
+
+            if ( me ) {
+
+              xval = 2;
+              if ( me->getBinContent( ism ) > 0 ) xval = 1;
+
+            }
+
             me = eesfc->meh01_[ism-1];
 
             if ( me ) {
 
-              float xval = 6;
-
-              if ( me->getBinContent( ix, iy ) < 0 ) xval = 2;
-              if ( me->getBinContent( ix, iy ) == 0 ) xval = 1;
               if ( me->getBinContent( ix, iy ) > 0 ) xval = 0;
 
               if ( ism >= 1 && ism <= 9 ) {
@@ -2129,7 +2092,9 @@ void EESummaryClient::analyze(void) {
 
               if ( h2 && h3 ) {
 
-                float emulErrorVal = h2->GetBinContent( ix, iy ) + h3->GetBinContent( ix, iy );
+                // float emulErrorVal = h2->GetBinContent( ix, iy ) + h3->GetBinContent( ix, iy );
+                float emulErrorVal = h2->GetBinContent( ix, iy );
+
                 if( emulErrorVal!=0 && hadNonZeroInterest ) xval = 0;
 
               }
@@ -2624,8 +2589,8 @@ void EESummaryClient::analyze(void) {
         float val_po = mePedestalOnline_[0]->getBinContent(jx,jy);
         float val_tm = meTiming_[0]->getBinContent(jx,jy);
         float val_sf = meStatusFlags_[0]->getBinContent(jx,jy);
-	// float val_ee = meTriggerTowerEmulError_[0]->getBinContent(jx,jy); // removed temporarily from the global summary
-	float val_ee = 1;
+        // float val_ee = meTriggerTowerEmulError_[0]->getBinContent(jx,jy); // removed temporarily from the global summary
+        float val_ee = 1;
 
         // combine all the available wavelenghts in unique laser status
         // for each laser turn dark color and yellow into bright green
@@ -2747,7 +2712,7 @@ void EESummaryClient::analyze(void) {
         float val_tm = meTiming_[1]->getBinContent(jx,jy);
         float val_sf = meStatusFlags_[1]->getBinContent(jx,jy);
         // float val_ee = meTriggerTowerEmulError_[1]->getBinContent(jx,jy); // removed temporarily from the global summary
-	float val_ee = 1;
+        float val_ee = 1;
 
         // combine all the available wavelenghts in unique laser status
         // for each laser turn dark color and yellow into bright green
@@ -2819,15 +2784,19 @@ void EESummaryClient::analyze(void) {
         // if the SM is entirely not read, the masked channels
         // are reverted back in yellow
         float iEntries=0;
+
         for(int ism = 10; ism <= 18; ism++) {
-          if ( Numbers::validEE(ism, jx, jy) ) {
-            validCry = true;
-            for ( unsigned int i=0; i<clients_.size(); i++ ) {
-              EEIntegrityClient* eeic = dynamic_cast<EEIntegrityClient*>(clients_[i]);
-              if ( eeic ) {
-                TH2F *h2 = eeic->h_[ism-1];
-                if ( h2 ) {
-                  iEntries = h2->GetEntries();
+          std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+          if (iter != superModules_.end()) {
+            if ( Numbers::validEE(ism, jx, jy) ) {
+              validCry = true;
+              for ( unsigned int i=0; i<clients_.size(); i++ ) {
+                EEIntegrityClient* eeic = dynamic_cast<EEIntegrityClient*>(clients_[i]);
+                if ( eeic ) {
+                  TH2F* h2 = eeic->h_[ism-1];
+                  if ( h2 ) {
+                    iEntries = h2->GetEntries();
+                  }
                 }
               }
             }

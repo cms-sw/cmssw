@@ -3,8 +3,8 @@
 
 /** \class BeamMonitor
  * *
- *  $Date: 2010/03/29 03:00:08 $
- *  $Revision: 1.19 $
+ *  $Date: 2010/04/13 15:49:43 $
+ *  $Revision: 1.23 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -54,6 +54,7 @@ class BeamMonitor : public edm::EDAnalyzer {
   
  private:
 
+  void FitAndFill(const edm::LuminosityBlock& lumiSeg,int&,int&,int&);
   void scrollTH1(TH1 *, time_t);
   bool testScroll(time_t &, time_t &);
 
@@ -76,15 +77,23 @@ class BeamMonitor : public edm::EDAnalyzer {
   
   int countEvt_;       //counter
   int countLumi_;      //counter
+  int beginLumiOfBSFit_;
+  int endLumiOfBSFit_;
   int beginLumiOfPVFit_;
   int endLumiOfPVFit_;
   int lastlumi_; // previous LS processed
+  int nextlumi_; // next LS of Fit
+  std::time_t refBStime[2];
+  std::time_t refPVtime[2];
   unsigned int nthBSTrk_;
   int nFitElements_;
   int nFits_;
   double deltaSigCut_;
   unsigned int min_Ntrks_;
   double maxZ_;
+  unsigned int minNrVertices_;
+  double minVtxNdf_;
+  double minVtxWgt_;
 
   bool resetHistos_;
   // ----------member data ---------------------------
@@ -96,6 +105,10 @@ class BeamMonitor : public edm::EDAnalyzer {
   // MonitorElements:
   MonitorElement * h_nTrk_lumi;
   MonitorElement * h_d0_phi0;
+  MonitorElement * h_sigmaX0_lumi;
+  MonitorElement * h_sigmaX0_time;
+  MonitorElement * h_sigmaY0_lumi;
+  MonitorElement * h_sigmaY0_time;
   MonitorElement * h_sigmaZ0_lumi;
   MonitorElement * h_sigmaZ0_time;
   MonitorElement * h_trk_z0;
@@ -108,6 +121,8 @@ class BeamMonitor : public edm::EDAnalyzer {
   MonitorElement * h_x0;
   MonitorElement * h_y0;
   MonitorElement * h_z0;
+  MonitorElement * h_sigmaX0;
+  MonitorElement * h_sigmaY0;
   MonitorElement * h_sigmaZ0;
   MonitorElement * h_nVtx;
   MonitorElement * h_PVx[2];

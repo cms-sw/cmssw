@@ -5,9 +5,8 @@
 #include <fstream>
 
 
-SiStripBadModuleByHandBuilder::SiStripBadModuleByHandBuilder(const edm::ParameterSet& iConfig) : ConditionDBWriter<SiStripBadStrip>::ConditionDBWriter<SiStripBadStrip>(iConfig){
+SiStripBadModuleByHandBuilder::SiStripBadModuleByHandBuilder(const edm::ParameterSet& iConfig) : ConditionDBWriter<SiStripBadStrip>(iConfig){
 
-  edm::LogInfo("SiStripBadModuleByHandBuilder") << " ctor ";
   fp_ = iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"));
   BadModuleList_ = iConfig.getUntrackedParameter<std::vector<uint32_t> >("BadModuleList");
   printdebug_ = iConfig.getUntrackedParameter<bool>("printDebug",false);
@@ -17,12 +16,9 @@ SiStripBadModuleByHandBuilder::SiStripBadModuleByHandBuilder(const edm::Paramete
 
 
 SiStripBadModuleByHandBuilder::~SiStripBadModuleByHandBuilder(){
-  edm::LogInfo("SiStripBadModuleByHandBuilder") << " dtor";
 }
 
 SiStripBadStrip* SiStripBadModuleByHandBuilder::getNewObject(){
-  
-  edm::LogInfo("SiStripBadModuleByHandBuilder") <<"SiStripBadModuleByHandBuilder::getNewObject called"<<std::endl;
   
   SiStripBadStrip* obj = new SiStripBadStrip();
 

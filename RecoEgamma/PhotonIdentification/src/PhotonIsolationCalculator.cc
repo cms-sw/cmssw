@@ -36,9 +36,6 @@
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
-
-
 #include <string>
 #include <TMath.h>
 
@@ -159,19 +156,7 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf) {
   hcalIsoEndcapRadiusB_.push_back( conf.getParameter<double>("HcalDepth2TowerOuterRadiusB_Endcap") );
   hcalIsoEndcapRadiusB_.push_back( conf.getParameter<double>("HcalDepth2TowerThreshEB_Endcap") );
 
-  //Pick up the variables for the spike removal
-  severityLevelCut_        = conf.getParameter<int>("severityLevelCut");
-  severityRecHitThreshold_ = conf.getParameter<double>("severityRecHitThreshold");
-  spikeIdThreshold_        = conf.getParameter<double>("spikeIdThreshold");
 
-  //Need to figure out which algo to use
-  if( !conf.getParameter<std::string>("spikeIdString").compare("kE1OverE9") )   {
-    spId_ = EcalSeverityLevelAlgo::kE1OverE9;
-  } else if( !conf.getParameter<std::string>("spikeIdString").compare("kSwissCross") ) {
-    spId_ = EcalSeverityLevelAlgo::kSwissCross;
-  } else {
-    spId_ = EcalSeverityLevelAlgo::kSwissCross;
-  }
 
 }
 
@@ -538,10 +523,6 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
   }
   const EcalRecHitCollection* rechitsCollection_ = ecalhitsCollH.product();
 
-  //Get the channel status from the db
-  edm::ESHandle<EcalChannelStatus> chStatus;
-  iSetup.get<EcalChannelStatusRcd>().get(chStatus);
-
   std::auto_ptr<CaloRecHitMetaCollectionV> RecHits(0); 
   RecHits = std::auto_ptr<CaloRecHitMetaCollectionV>(new EcalRecHitMetaCollection(*rechitsCollection_));
 
@@ -552,7 +533,7 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
 
   EgammaRecHitIsolation phoIso(RCone,
 			       RConeInner,
-                   etaSlice,
+                               etaSlice,
 			       etMin,
 			       eMin,
 			       geoHandle,
@@ -561,9 +542,6 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
 
   phoIso.setVetoClustered(vetoClusteredHits);
   phoIso.setUseNumCrystals(useNumXtals);
-  //if(fabs(peta) < 1.479) 
-    //phoIso.doSpikeRemoval(ecalhitsCollH.product(),chStatus.product(),severityLevelCut_,severityRecHitThreshold_,spId_,spikeIdThreshold_);
-
   ecalIsol = phoIso.getEtSum(photon);
   //  delete phoIso;
 

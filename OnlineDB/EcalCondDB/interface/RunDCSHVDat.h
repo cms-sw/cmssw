@@ -19,7 +19,7 @@ class RunDCSHVDat : public IDataItem {
 
   static const int maxDifference = 30*60*1000000; // 30 minutes
   static const int maxHVDifferenceEB = 300;       // max HV tolerance in mV for EB
-  static const int maxHVDifferenceEE = 5;         // max HV tolerance in mV for EE
+  static const int maxHVDifferenceEE = 5000;         // max HV tolerance in mV for EE
   static const int minHV = 10000;                 // if HV less than this value (in mV) HV is off
   
   static const int HVNOTNOMINAL = 1;
@@ -54,7 +54,9 @@ class RunDCSHVDat : public IDataItem {
   ResultSet* getEndcapDynodeRset(Tm timestart);
   int nowMicroseconds();
   void fillTheMap(ResultSet *, std::map< EcalLogicID, RunDCSHVDat >* );
-  void fillTheMapByTime(ResultSet *, std::list< std::pair< Tm, std::map< EcalLogicID, RunDCSHVDat > > >* ) ;
+  //  void fillTheMapByTime(ResultSet *, std::list< std::pair< Tm, std::map< EcalLogicID, RunDCSHVDat > > >* ) ;
+  void fillTheMapByTime(ResultSet *rset, std::list<  DataReducer<RunDCSHVDat>::MyData<RunDCSHVDat>  >* my_data_list ) ;
+
 
   void prepareWrite() 
     throw(std::runtime_error);

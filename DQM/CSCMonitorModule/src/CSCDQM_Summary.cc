@@ -355,7 +355,7 @@ namespace cscdqm {
   
       unsigned int x, y;
       Address adr;
-  
+
       adr.mask.side = adr.mask.station = adr.mask.ring = adr.mask.chamber = true;
       adr.mask.layer = adr.mask.cfeb = adr.mask.hv = false;
   
@@ -364,7 +364,9 @@ namespace cscdqm {
           for (adr.ring = 1; adr.ring <= detector.NumberOfRings(adr.station); adr.ring++) {
             for (adr.chamber = 1; adr.chamber <= detector.NumberOfChambers(adr.station, adr.ring); adr.chamber++) {
               if (ChamberAddressToCoords(adr, x, y)) {
-                bool hit = (op_any ? HWSTATUSANY(GetValue(adr), mask) : HWSTATUSEQUALS(GetValue(adr), mask));
+                HWStatusBitSet hwValue = GetValue(adr);
+                bool hit = (op_any ? HWSTATUSANY(hwValue, mask) : HWSTATUSEQUALS(hwValue, mask));
+
                 // std::cout << "x = " << x << ", y = " << y << ", value = " << GetValue(adr) << std::endl;
                 // std::cout << "adr = " << detector.AddressName(adr) << ", x = " << x << ", y = " << y << ", value = " << GetValue(adr) << std::endl;
                 if (hit) {
@@ -695,6 +697,39 @@ namespace cscdqm {
     return 0.0;
   
   }
+
+  /**
+   * @brief  Check if chamber is in standby?
+   * @param  side Side
+   * @param  station Station
+   * @param  ring Ring
+   * @param  chamber Chamber
+   * @return true if chamber is in standby, false - otherwise
+   */
+  bool Summary::isChamberStandby(unsigned int side, unsigned int station, unsigned int ring, unsigned int chamber) const {
+
+    Address adr;
+    adr.mask.side = adr.mask.station = adr.mask.ring = adr.mask.chamber = true;
+    adr.mask.layer = adr.mask.cfeb = adr.mask.hv = false;
+    adr.side = side;
+    adr.station = station;
+    adr.ring = ring;
+    adr.chamber = chamber;
+
+    //std::cout << adr << " = " << HWSTATUSANY(GetValue(adr), 0x1000) << "\n";
+
+    return HWSTATUSANY(GetValue(adr), 0x1000);
+  }
+
+  /**
+   * @brief  Check if chamber is in standby?
+   * @param  cid Chamber identifier
+   * @return true if chamber is in standby, false - otherwise
+   */
+  bool Summary::isChamberStandby(CSCDetId cid) const {
+    return isChamberStandby(cid.endcap(), cid.station(), cid.ring(), cid.chamber());
+  }
+
   /**
    * @brief  Get value of some address 
    * @param  adr Address of atomic element to return value from

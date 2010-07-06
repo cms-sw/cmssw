@@ -95,7 +95,7 @@ newMixedLayerPairs.TEC.matchedRecHits = cms.InputTag("newStripRecHits","matchedR
 
 from RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff import *
 newSeedFromPairs = RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff.globalSeedsFromPairsWithVertices.clone()
-newSeedFromPairs.RegionFactoryPSet.RegionPSet.ptMin = 0.9
+newSeedFromPairs.RegionFactoryPSet.RegionPSet.ptMin = 0.6
 newSeedFromPairs.RegionFactoryPSet.RegionPSet.originRadius = 0.05
 newSeedFromPairs.OrderedHitsFactoryPSet.SeedingLayers = cms.string('newMixedLayerPairs')
 
@@ -114,7 +114,7 @@ stepOneTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESPr
     ComponentName = 'stepOneTrajectoryFilter',
     filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
     minimumNumberOfHits = 3,
-    minPt = 0.5
+    minPt = 0.4
     )
     )
 

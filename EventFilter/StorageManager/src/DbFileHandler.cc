@@ -1,7 +1,8 @@
-// $Id: DbFileHandler.cc,v 1.3 2010/03/25 09:55:18 mommsen Exp $
+// $Id: DbFileHandler.cc,v 1.6 2010/04/28 13:06:10 mommsen Exp $
 /// @file: DbFileHandler.cc
 
 #include <EventFilter/StorageManager/interface/DbFileHandler.h>
+#include <EventFilter/StorageManager/interface/Exception.h>
 
 #include <iomanip>
 
@@ -52,17 +53,22 @@ void DbFileHandler::openFile
   const utils::time_point_t& timestamp
 ) const
 {
-  string dbPath(_dwParams._filePath+"/log");
-  utils::checkDirectory(dbPath);
+  utils::checkDirectory(_dwParams._dbFilePath);
 
   ostringstream dbfilename;
-  dbfilename << dbPath << "/"
+  dbfilename << _dwParams._dbFilePath << "/"
              << utils::dateStamp(timestamp)
              << "-" << _dwParams._hostName
              << "-" << _dwParams._smInstanceString
              << ".log";
 
   outputFile.open( dbfilename.str().c_str(), ios_base::ate | ios_base::out | ios_base::app );
+  if (! outputFile.is_open() )
+  {
+    std::ostringstream msg;
+    msg << "Failed to open db log file " << dbfilename.str();
+    XCEPT_RAISE(stor::exception::DiskWriting, msg.str());
+  }
 }
 
 
@@ -73,7 +79,10 @@ void DbFileHandler::addReportHeader
 ) const
 {
   msg << "Timestamp:" << static_cast<int>(timestamp)
-    << "\trun:" << _runNumber << "\t";
+    << "\trun:" << _runNumber
+    << "\thost:" << _dwParams._hostName
+    << "\tinstance:" << _dwParams._smInstanceString
+    << "\t";
 }
 
 

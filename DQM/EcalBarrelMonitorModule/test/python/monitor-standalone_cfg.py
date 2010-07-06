@@ -224,7 +224,7 @@ process.ecalUncalibHit.EEdigiCollection = 'ecalEBunpacker:eeDigis'
 process.ecalRecHit.EBuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEB'
 process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEE'
 
-process.ecalBarrelMonitorClient.maskFile = '../data/maskfile.dat'
+process.ecalBarrelMonitorClient.maskFile = 'DQM/EcalBarrelMonitorModule/test/data/maskfile.dat'
 process.ecalBarrelMonitorClient.location = 'H4'
 process.ecalBarrelMonitorClient.superModules = [19]
 

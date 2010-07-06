@@ -23,14 +23,16 @@
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "CommonTools/RecoUtils/interface/GenericTriggerEventFlag.h"
 
-MonitorTrackResiduals::MonitorTrackResiduals(const edm::ParameterSet& iConfig) : conf_(iConfig), m_cacheID_(0) {
-  dqmStore_ = edm::Service<DQMStore>().operator->();
+MonitorTrackResiduals::MonitorTrackResiduals(const edm::ParameterSet& iConfig) 
+   : dqmStore_( edm::Service<DQMStore>().operator->() )
+   , conf_(iConfig), m_cacheID_(0) 
+   , genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig)) {
 }
 
-
-
 MonitorTrackResiduals::~MonitorTrackResiduals() {
+  if (genTriggerEventFlag_) delete genTriggerEventFlag_; 
 }
 
 
@@ -61,7 +63,9 @@ void MonitorTrackResiduals::beginRun(edm::Run const& run, edm::EventSetup const&
       }
     } // end if-else Module level on
   } // end reset after run
-  
+
+  // Initialize the GenericTriggerEventFlag
+  if ( genTriggerEventFlag_->on() ) genTriggerEventFlag_->initRun( run, iSetup );
 }
 
 void MonitorTrackResiduals::createMEs(const edm::EventSetup& iSetup){
@@ -167,6 +171,9 @@ void MonitorTrackResiduals::endJob(void){
 
 
 void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+
+  // Filter out events if Trigger Filtering is requested                                                                                           
+  if (genTriggerEventFlag_->on()&& ! genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
 
   TrackerValidationVariables avalidator_(iSetup,conf_);
   std::vector<TrackerValidationVariables::AVHitStruct> v_hitstruct;

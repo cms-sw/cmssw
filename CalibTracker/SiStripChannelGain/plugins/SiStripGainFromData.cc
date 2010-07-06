@@ -286,7 +286,7 @@ class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
       hash_map<unsigned int, stAPVGain*,  hash<unsigned int>, isEqual > APVsColl;
 };
 
-SiStripGainFromData::SiStripGainFromData(const edm::ParameterSet& iConfig) : ConditionDBWriter<SiStripApvGain>::ConditionDBWriter<SiStripApvGain>(iConfig)
+SiStripGainFromData::SiStripGainFromData(const edm::ParameterSet& iConfig) : ConditionDBWriter<SiStripApvGain>(iConfig)
 {
    AlgoMode            = iConfig.getParameter<std::string>("AlgoMode");
 

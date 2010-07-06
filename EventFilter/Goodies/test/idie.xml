@@ -13,7 +13,7 @@
       <properties xmlns="urn:xdaq-application:evf::iDie" xsi:type="soapenc:Struct">
       </properties>
     </xc:Application>
-    <xc:Module>/cmsnfshome0/nfshome0/meschi/CMSSW_3_5_0/lib/slc5_ia32_gcc434/libEventFilterGoodies.so</xc:Module>
+    <xc:Module>/cmsnfshome0/nfshome0/meschi/CMSSW_3_5_4/lib/slc5_ia32_gcc434/libEventFilterGoodies.so</xc:Module>
 
   </xc:Context>
 

@@ -207,8 +207,9 @@ bool HFClusterAlgo::makeCluster(const HcalDetId& seedid,
 	double e_short=0.0; 
 
 	if (il!=hf.end()) e_long=il->energy();
+	if (e_long <= m_minTowerEnergy) e_long=0.0;
 	if (is!=hf.end()) e_short=is->energy();
-
+	if (e_short <= m_minTowerEnergy) e_short=0.0;
 	double eRatio=(e_long-e_short)/std::max(1.0,(e_long+e_short));
 	
 	// require S/L > a minimum amount for inclusion

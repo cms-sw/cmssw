@@ -5,8 +5,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2009/08/26 11:59:22 $
- *  $Revision: 1.18 $
+ *  $Date: 2009/10/15 11:31:28 $
+ *  $Revision: 1.19 $
  *  \author  M. Vander Donckt CERN
  *   
  */
@@ -71,6 +71,7 @@ private:
   edm::InputTag l3collectionTag_;
   edm::InputTag l3isolationTag_;
   //  edm::InputTag l3linksTag_;
+  edm::InputTag TrigResultInput;
 
   std::vector<std::string> theTriggerBits;
   std::vector<std::string> theDirectoryName;

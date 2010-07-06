@@ -11,6 +11,7 @@ import FastSimulation.Muons.L3Muons_cfi
 hltL3Muons = FastSimulation.Muons.L3Muons_cfi.L3Muons.clone()
 hltL3Muons.L3TrajBuilderParameters.TrackTransformer.TrackerRecHitBuilder = 'WithoutRefit'
 hltL3Muons.L3TrajBuilderParameters.TrackerRecHitBuilder = 'WithoutRefit'
+hltL3Muons.TrackLoaderParameters.beamSpot = cms.InputTag("offlineBeamSpot")
 
 # L3 regional seeding, candidating, tracking
 #--the two below have to be picked up from confDB: 

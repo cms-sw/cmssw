@@ -13,6 +13,15 @@
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
+
+// CSCTF
+#include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
+#include "L1Trigger/CSCTrackFinder/interface/CSCTrackFinderDataTypes.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
+
 class HLTMuonL1Filter : public HLTFilter {
 
   public:
@@ -56,7 +65,25 @@ class HLTMuonL1Filter : public HLTFilter {
     /// required number of passing candidates to pass the filter
     int minN_;
 
-    /// should we save the input collection ?
+    /// should we exclude single-segment CSC trigger objects from our counting?
+    bool excludeSingleSegmentCSC_;
+
+    /// checks if the passed L1MuExtraParticle is a single segment CSC
+    bool isSingleSegmentCSC(const l1extra::L1MuonParticleRef &);
+
+    /// input tag identifying the product containing CSCTF tracks
+    edm::InputTag csctfTag_;
+    
+    /// handle for CSCTFtracks
+    edm::Handle<L1CSCTrackCollection> csctfTracks_;
+
+    /// trigger scales
+    const L1MuTriggerScales *l1MuTriggerScales_;
+
+    /// trigger scales cache ID
+    unsigned long long m_scalesCacheID_ ;
+
+    /// should we save the input collection?
     bool saveTag_;
 };
 

@@ -15,8 +15,6 @@
 #include <string>
 #include <vector>
 #include <assert.h>
-#include <stdexcept>
-#include <set>
 
 using namespace std;
 using namespace pos::PortCardSettingNames;
@@ -206,13 +204,7 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
   colNames.push_back("PLL_CTR3"    );
   colNames.push_back("PLL_CTR4"    );
   colNames.push_back("PLL_CTR5"    );
-
-  //these are arbitrary integers that control the sort order
-  unsigned int othercount=100;
-  unsigned int delay25count=50;
-  aohcount_=1000;
-  unsigned int pllcount=1;
-
+         
   for(unsigned int c = 0 ; c < tableMat[0].size() ; c++)
     {
       for(unsigned int n=0; n<colNames.size(); n++)
@@ -250,15 +242,13 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
   ccuAddress_	  = atoi(tableMat[1][colM["CCU_ADDR"]].c_str()     ) ;
   channelAddress_ = atoi(tableMat[1][colM["CHANNEL"]].c_str() ) ;
   i2cSpeed_       = atoi(tableMat[1][colM["I2C_SPEED"]].c_str()       ) ;
-/*
-  cout << __LINE__ << "]\t" << mthn << 
-    "ringAddress_\t"    << ringAddress_	    << endl <<
-    "ccuAddress_\t"     << ccuAddress_	    << endl <<
-    "channelAddress_\t" << channelAddress_  << endl <<
-    "i2cSpeed_\t"	<< i2cSpeed_        << endl ;
- */ 
 
-
+//  cout << __LINE__ << "]\t" << mthn << 
+//    "ringAddress_\t"    << ringAddress_	    << endl <<
+//    "ccuAddress_\t"     << ccuAddress_	    << endl <<
+//    "channelAddress_\t" << channelAddress_  << endl <<
+//    "i2cSpeed_\t"	<< i2cSpeed_        << endl ;
+  
   for(unsigned int col = 0 ; col < tableMat[1].size() ; col++)    //Goes to every column of the Matrix
     {
       std::string settingName;
@@ -273,39 +263,18 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
 	       && settingName.find("123") == string::npos && settingName.find("456") == string::npos ) // does not contain "123" or "456"
 	{
 	  setDataBaseAOHGain(settingName, i2c_values);
-	  //	  cout << __LINE__ << "]\t" << mthn << "Setting " << settingName << "\tto value " << std::hex << i2c_values << std::dec << std::endl ;
+	  //cout << __LINE__ << "]\t" << mthn << "Setting " << settingName << "\tto value " << std::hex << i2c_values << std::dec << std::endl ;
 	}
       else if(type_ == "bpix" && settingName.find("AOH") != string::npos && settingName.find("GAIN") != string::npos // contains both "AOH" and "Gain"
 	      && settingName.find("AOH_") == string::npos                                                            // must not contain AOH_ 'cause this is for forward
 	      && settingName.find("123")  == string::npos && settingName.find("456") == string::npos )               // does not contain "123" or "456"
 	{
-	  if(portcardname_.find("PRT2")!=std::string::npos  && 
-	     (settingName.find("AOH3_")!=std::string::npos   ||		     
-	     settingName.find("AOH4_")!=std::string::npos ) ) continue ;
 	  setDataBaseAOHGain(settingName, i2c_values);
-	  //	  cout << __LINE__ << "]\t" << mthn << "Setting " << settingName << "\tto value " << std::hex << i2c_values << std::dec << std::endl ;
+	  //cout << __LINE__ << "]\t" << mthn << "Setting " << settingName << "\tto value " << std::hex << i2c_values << std::dec << std::endl ;
 	}
-      // FIXMR
-       else if ( settingName == k_PLL_CTR5 ) // special handling
-       {
-    	  unsigned int last_CTR2 = 0x0;
-    	  if ( containsSetting(k_PLL_CTR2) ) last_CTR2 = getdeviceValuesForSetting( k_PLL_CTR2 );
-    	
-	  device_.push_back( make_pair(getdeviceAddressForSetting(k_PLL_CTR2), new_PLL_CTR2_value(settingName, last_CTR2)) );
-	  device_.push_back( make_pair(getdeviceAddressForSetting(k_PLL_CTR4or5), i2c_values) );
-
-	  key_.push_back( pllcount++); //these are arbitrary integers that control the sort order
-	  key_.push_back(pllcount++);
-       }
-      // FIXMR
       else // no special handling for this name
 	{
-	  if((settingName.find("DELAY25_") != std::string::npos) || 
-	     (settingName.find("_BIAS") != std::string::npos) || 
-	     (settingName.find("PLL_CTR2") != std::string::npos) ||
-	     (settingName.find("PLL_CTR5") != std::string::npos)  ||
-	     ((settingName.find("DOH_SEU_GAIN") != std::string::npos) && type_=="bpix")) 
-	    //Note that DOH_SEU_GAIN will be *ignored* for fpix
+	  if(type_ != "fpix" || (settingName.find("DELAY25_") != std::string::npos) || (settingName.find("AOH_BIAS") != std::string::npos))
 	    {
 	      map<string,string>::iterator iter = nameDBtoFileConversion_.find(settingName);
 	      if(iter == nameDBtoFileConversion_.end()) continue ;
@@ -313,26 +282,14 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
 	      
 	      if ( foundName_itr != nameToAddress_.end() )
 		{
-		  if(portcardname_.find("PRT2")!=std::string::npos  && 
-		     (settingName.find("AOH3_")!=std::string::npos   ||		     
-		      settingName.find("AOH4_")!=std::string::npos )) continue ;		     
 		  i2c_address = foundName_itr->second;
 		}
 	      else
 		{
 		  i2c_address = strtoul(settingName.c_str(), 0, 16); // convert string to integer using base 16
 		}
-	      if(type_ == "fpix"  && 
-		 (
-		  settingName.find("AOH1_")!=std::string::npos   ||		     
-		  settingName.find("AOH2_")!=std::string::npos   ||
-		  settingName.find("AOH3_")!=std::string::npos   ||  
-		  settingName.find("AOH4_")!=std::string::npos   
-		  )
-		 ) continue ;
-	      
 	      pair<unsigned int, unsigned int> p(i2c_address, i2c_values);
-	      /*
+/*
 	      cout << __LINE__ 
 	           << mthn << "Setting\t" 
 		   << "|"
@@ -345,20 +302,11 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
 		   << i2c_values
 		   << ")"
 		   << endl ;
-	      */
+*/
 	      device_.push_back(p);
-	      if (settingName.find("AOH")!=string::npos)      key_.push_back(aohcount_++);
-	      else if (settingName.find("Delay25")!=string::npos) key_.push_back(delay25count++);
-	      else if (settingName.find("PLL")!=string::npos) key_.push_back(pllcount++);
-	      else key_.push_back(othercount++);
-
 	    }
 	}
     } // End of table columns
-
-
-  sortDeviceList();
-
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -384,7 +332,7 @@ PixelPortCardConfig::PixelPortCardConfig(std::string filename):
   
   if(!in.good()){
     std::cout << __LINE__ << "]\t" << mthn << "Could not open: " << filename << std::endl;
-    throw std::runtime_error("Failed to open file "+filename);
+    assert(0);
   }
   else {
     std::cout << __LINE__ << "]\t" << mthn << "Opened: "         << filename << std::endl;
@@ -466,28 +414,6 @@ PixelPortCardConfig::PixelPortCardConfig(std::string filename):
   in.close();
 
 }
-
-void PixelPortCardConfig::sortDeviceList() {
-
-  std::set < pair < unsigned int,  pair <unsigned int, unsigned int> > > sorted;
-
-  for (unsigned int i=0; i<device_.size(); i++ ) {
-    //cout<<key_.at(i)<<"\t"<<device_.at(i).first<<"  "<<device_.at(i).second<<endl;    
-    sorted.insert( make_pair(key_.at(i) , device_.at(i) ));
-  }
-
-//  cout<<" -=-=-=-= done with sorting -=-=-="<<endl;
-  device_.clear();
-  for ( set < pair < unsigned int, pair <unsigned int, unsigned int> > >::iterator i=sorted.begin() ; i!=sorted.end() ; ++i) {
-    device_.push_back(i->second);
-  }
-
-  //  for (unsigned int i=0; i<device_.size(); i++ ) {
-  //    cout<<"  \t"<<device_.at(i).first<<"  "<<device_.at(i).second<<endl;    
-  //  }
-  
-}
-
 
 unsigned int PixelPortCardConfig::new_PLL_CTR2_value(std::string CTR4or5, unsigned int last_CTR2) const
 {
@@ -628,7 +554,6 @@ void PixelPortCardConfig::setDataBaseAOHGain(std::string settingName, unsigned i
 		
 		pair<unsigned int, unsigned int> p(i2c_address, i2c_value);
 		device_.push_back(p);
-		key_.push_back(aohcount_++);
 		return;
 	}
 }
@@ -843,8 +768,7 @@ void PixelPortCardConfig::fillDBToFileAddress()
       nameDBtoFileConversion_["PLL_CTR1"                 ] = k_PLL_CTR1 ;
       nameDBtoFileConversion_["PLL_CTR2"                 ] = k_PLL_CTR2 ;
       nameDBtoFileConversion_["PLL_CTR3"                 ] = k_PLL_CTR3 ;
-      nameDBtoFileConversion_["PLL_CTR4"                 ] = k_PLL_CTR4 ;
-      nameDBtoFileConversion_["PLL_CTR5"                 ] = k_PLL_CTR5 ;
+      nameDBtoFileConversion_["PLL_CTR4_5"               ] = k_PLL_CTR4 ;
       //   nameDBtoFileConversion_["PLL3_CTR1"             ] = ;
       //   nameDBtoFileConversion_["PLL3_CTR2"             ] = ;
       //   nameDBtoFileConversion_["PLL3_CTR3"             ] = ;
@@ -960,8 +884,7 @@ void PixelPortCardConfig::fillDBToFileAddress()
       nameDBtoFileConversion_["PLL_CTR1"             ] = k_PLL_CTR1 ;
       nameDBtoFileConversion_["PLL_CTR2"             ] = k_PLL_CTR2 ;
       nameDBtoFileConversion_["PLL_CTR3"             ] = k_PLL_CTR3 ;
-      nameDBtoFileConversion_["PLL_CTR4"             ] = k_PLL_CTR4 ;
-      nameDBtoFileConversion_["PLL_CTR5"             ] = k_PLL_CTR5 ;
+      nameDBtoFileConversion_["PLL_CTR4_5"           ] = k_PLL_CTR4 ;
       //   nameDBtoFileConversion_["PLL3_CTR1"             ] = ;
       //   nameDBtoFileConversion_["PLL3_CTR2"             ] = ;
       //   nameDBtoFileConversion_["PLL3_CTR3"             ] = ;
@@ -1370,7 +1293,9 @@ void PixelPortCardConfig::writeXMLHeader(pos::PixelConfigKey key,
   *outstream << "   <RUN_TYPE>Pixel Port Card Settings</RUN_TYPE>" 		                             << std::endl ;
   *outstream << "   <RUN_NUMBER>1</RUN_NUMBER>"					         	             << std::endl ;
   *outstream << "   <RUN_BEGIN_TIMESTAMP>" << pos::PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>" << std::endl ;
-  *outstream << "   <LOCATION>CERN P5</LOCATION>"                                                            << std::endl ; 
+  *outstream << "   <COMMENT_DESCRIPTION>Pixel Port Card Settings</COMMENT_DESCRIPTION>"      	             << std::endl ;
+  *outstream << "   <LOCATION>CERN TAC</LOCATION>"					         	     << std::endl ;
+  *outstream << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"			 	     << std::endl ;
   *outstream << "  </RUN>"								         	     << std::endl ;
   *outstream << " </HEADER>"								         	     << std::endl ;
   *outstream << ""										 	     << std::endl ;
@@ -1379,10 +1304,7 @@ void PixelPortCardConfig::writeXMLHeader(pos::PixelConfigKey key,
   *outstream << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                                 << std::endl ;
   *outstream << "   <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"                                              << std::endl ;
   *outstream << "  </PART>"                                                                                  << std::endl ;
-  *outstream << "  <VERSION>"             << version      << "</VERSION>"				     << std::endl ;
-  *outstream << "  <COMMENT_DESCRIPTION>" << getComment() << "</COMMENT_DESCRIPTION>"			     << std::endl ;
-  *outstream << "  <CREATED_BY_USER>"     << getAuthor()  << "</CREATED_BY_USER>"  			     << std::endl ;
-  *outstream << ""										 	     << std::endl ;
+  *outstream << "  <VERSION>" << version << "</VERSION>"				         	     << std::endl ;
 }
 
 //=============================================================================================

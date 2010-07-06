@@ -10,7 +10,7 @@ pixelVertices = cms.EDProducer("PrimaryVertexProducer",
     verbose = cms.untracked.bool(False),
     algorithm = cms.string('AdaptiveVertexFitter'), ## 100 is for when the beamspot is not well known (ONLY FOR STARTUP)
     useBeamConstraint = cms.bool(True),
-    minNdof  = cms.double(0.0),               # new 
+    minNdof  = cms.double(2.0),               # new 
     TkFilterParameters = cms.PSet(
         maxNormalizedChi2 = cms.double(100.0),
 
@@ -34,7 +34,7 @@ pixelVertices = cms.EDProducer("PrimaryVertexProducer",
     TkClusParameters = cms.PSet(
         algorithm   = cms.string("gap"),
         TkGapClusParameters = cms.PSet(
-            zSeparation = cms.double(1.0)        # 1 cm max separation betw.tracks inside clusters
+            zSeparation = cms.double(0.1)        # 1 cm max separation betw.tracks inside clusters
         )
     ),
                                

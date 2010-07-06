@@ -56,6 +56,7 @@ namespace IPTools
     //Compute absolute value
     VertexDistanceXY dist;
     pair<bool,Measurement1D> result = absoluteImpactParameter(closestOnTransversePlaneState, vertex,  dist);
+    if(!result.first) return result;
 
     //Compute Sign
     GlobalPoint impactPoint    = closestOnTransversePlaneState.globalPosition();
@@ -76,6 +77,7 @@ namespace IPTools
     //Compute absolute value
     VertexDistance3D dist;
     pair<bool,Measurement1D> result = absoluteImpactParameter(closestIn3DSpaceState, vertex,  dist);
+    if(!result.first) return result;
 
     //Compute Sign
     GlobalPoint impactPoint = closestIn3DSpaceState.globalPosition();

@@ -10,8 +10,8 @@
  *  It has been written as an extension of the HLTHighLevel and HLTHighLevelDev 
  *  filters.
  *
- *  $Date: 2010/02/18 14:43:54 $
- *  $Revision: 1.6.2.1 $
+ *  $Date: 2010/02/18 14:45:06 $
+ *  $Revision: 1.8 $
  *
  *  Authors: Martin Grunewald, Andrea Bocci
  *
@@ -21,7 +21,7 @@
 #include <string>
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
-#include "HLTrigger/HLTfilters/interface/TriggerExpressionData.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionData.h"
 
 // forward declaration
 namespace triggerExpression {

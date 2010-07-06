@@ -84,7 +84,7 @@ TrackAssociatorByHits::associateRecoToSim(const edm::RefToBaseVector<reco::Track
   std::vector< SimHitIdpr> matchedIds; 
   RecoToSimCollection  outputCollection;
   
-  TrackerHitAssociator * associate = new TrackerHitAssociator::TrackerHitAssociator(*e, conf_);
+  TrackerHitAssociator * associate = new TrackerHitAssociator(*e, conf_);
   
   TrackingParticleCollection tPC;
   if (TPCollectionH.size()!=0)  tPC = *const_cast<TrackingParticleCollection*>(TPCollectionH.product());
@@ -160,7 +160,7 @@ TrackAssociatorByHits::associateSimToReco(const edm::RefToBaseVector<reco::Track
   std::vector< SimHitIdpr> matchedIds; 
   SimToRecoCollection  outputCollection;
 
-  TrackerHitAssociator * associate = new TrackerHitAssociator::TrackerHitAssociator(*e, conf_);
+  TrackerHitAssociator * associate = new TrackerHitAssociator(*e, conf_);
   
   TrackingParticleCollection tPC;
   if (TPCollectionH.size()!=0)  tPC = *const_cast<TrackingParticleCollection*>(TPCollectionH.product());
@@ -340,7 +340,7 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<edm::View<TrajectorySeed> 
   std::vector< SimHitIdpr> matchedIds; 
   RecoToSimCollectionSeed  outputCollection;
   
-  TrackerHitAssociator * associate = new TrackerHitAssociator::TrackerHitAssociator(*e, conf_);
+  TrackerHitAssociator * associate = new TrackerHitAssociator(*e, conf_);
   
   const TrackingParticleCollection tPC   = *(TPCollectionH.product());
 
@@ -408,7 +408,7 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<edm::View<TrajectorySeed> 
   std::vector< SimHitIdpr> matchedIds; 
   SimToRecoCollectionSeed  outputCollection;
 
-  TrackerHitAssociator * associate = new TrackerHitAssociator::TrackerHitAssociator(*e, conf_);
+  TrackerHitAssociator * associate = new TrackerHitAssociator(*e, conf_);
   
   TrackingParticleCollection tPC =*const_cast<TrackingParticleCollection*>(TPCollectionH.product());
 

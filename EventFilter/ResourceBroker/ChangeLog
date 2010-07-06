@@ -1,3 +1,56 @@
+2010-06-14  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-15-08
+	* fix watchdog check generating false sentinel errors
+
+2010-06-02  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-15-07
+	* latch shmem inconsistent state to avoid multiple sentinel messages
+
+
+2010-06-02  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-15-06
+	* double check consistency of shmem at configure
+	* counter and flag for data errors in flashlist
+
+2010-05-28  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-15-05
+	* added interface to inject CRC error and CRC error message via sentinel
+
+2010-05-17  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-15-04
+	* add STOP evt type (distinguish from EMPTY)
+
+2010-04-28  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-15-03
+	* adjust shift of rack id to fit it in 16 bits
+	
+2010-04-27  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-15-02
+	* remove more printout
+	
+2010-04-27  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-15-01
+	* remove printout causing compilation warnings 
+	
+2010-04-26  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-15-00
+	* addition and filling of EvF pseudo-fed 
+	* small change in rt timeout logic to try and fix timeouts
+
+2010-04-06  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-14-01
+	* some fixes for handling of corrupted FED data
+	
 2010-03-05  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V00-14-00

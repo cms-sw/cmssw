@@ -172,7 +172,9 @@ TIBRing::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
     }
     else {
       result.swap(closestResult);
-    }
+    } 
+  }else{
+    result.swap(closestResult);
   }
   
   // only loop over neighbors (other than closest and next) if window is BIG

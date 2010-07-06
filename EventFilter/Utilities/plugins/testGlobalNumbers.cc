@@ -1,8 +1,8 @@
 /** \file
  * 
  * 
- * $Date: 2009/01/10 01:05:51 $
- * $Revision: 1.3 $
+ * $Date: 2009/04/09 21:17:51 $
+ * $Revision: 1.4 $
  * \author N. Amapane - S. Argiro'
  *
 */
@@ -40,7 +40,7 @@ namespace test{
 	   << " Event: " << e.id().event() 
 	   << " Type: " << e.experimentType() << endl;
       Handle<FEDRawDataCollection> rawdata;
-      e.getByType(rawdata);
+      e.getByLabel("source",rawdata);
       const FEDRawData& data = rawdata->FEDData(GTEVMId);
       size_t size=data.size();
 

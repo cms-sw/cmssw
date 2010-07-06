@@ -49,6 +49,12 @@ PFRecHitProducerECAL::PFRecHitProducerECAL(const edm::ParameterSet& iConfig)
   crossBarrelEndcapBorder_ =
     iConfig.getParameter<bool>("crossBarrelEndcapBorder");
 
+  timingCleaning_ = 
+    iConfig.getParameter<bool>("timing_Cleaning");
+
+  threshCleaning_ = 
+    iConfig.getParameter<double>("thresh_Cleaning");
+
   
   neighbourmapcalculated_ = false;
 }
@@ -138,17 +144,33 @@ PFRecHitProducerECAL::createRecHits(vector<reco::PFRecHit>& rechits,
       const EcalRecHit& erh = (*rhcHandle)[i];
       const DetId& detid = erh.detid();
       double energy = erh.energy();
+      uint32_t flag = erh.recoFlag();
+      double time = erh.time();
+
       EcalSubdetector esd=(EcalSubdetector)detid.subdetId();
       if (esd != 1) continue;
 
       if(energy < thresh_Barrel_ ) continue;
           
+      // Just clean ECAL Barrel rechits out of time by more than 5 sigma.
+      if ( timingCleaning_ && energy > threshCleaning_ && flag == EcalRecHit::kOutOfTime ) { 
+	reco::PFRecHit *pfrhCleaned = createEcalRecHit(detid, energy,  
+						       PFLayer::ECAL_BARREL,
+						       ecalBarrelGeometry);
+	if( !pfrhCleaned ) continue; // problem with this rechit. skip it      
+	pfrhCleaned->setRescale(time);
+	rechitsCleaned.push_back( *pfrhCleaned );
+	delete pfrhCleaned;
+	continue;
+      } 
+
       
       reco::PFRecHit *pfrh = createEcalRecHit(detid, energy,  
 					      PFLayer::ECAL_BARREL,
 					      ecalBarrelGeometry);
       
       if( !pfrh ) continue; // problem with this rechit. skip it
+      pfrh->setRescale(time);
       
       rechits.push_back( *pfrh );
       delete pfrh;
@@ -179,6 +201,8 @@ PFRecHitProducerECAL::createRecHits(vector<reco::PFRecHit>& rechits,
       const EcalRecHit& erh = (*rhcHandle)[i];
       const DetId& detid = erh.detid();
       double energy = erh.energy();
+      //uint32_t flag = erh.recoFlag();
+      double time = erh.time();
       EcalSubdetector esd=(EcalSubdetector)detid.subdetId();
       if (esd != 2) continue;
       if(energy < thresh_Endcap_ ) continue;
@@ -188,6 +212,7 @@ PFRecHitProducerECAL::createRecHits(vector<reco::PFRecHit>& rechits,
 					      PFLayer::ECAL_ENDCAP,
 					      ecalEndcapGeometry);
       if( !pfrh ) continue; // problem with this rechit. skip it
+      pfrh->setRescale(time);
 
       rechits.push_back( *pfrh );
       delete pfrh;

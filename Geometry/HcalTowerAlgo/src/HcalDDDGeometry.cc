@@ -113,7 +113,7 @@ DetId HcalDDDGeometry::getClosestCell(const GlobalPoint& r) const {
 }
 
 
-int HcalDDDGeometry::insertCell(std::vector<HcalCellType::HcalCellType> const & cells){
+int HcalDDDGeometry::insertCell(std::vector<HcalCellType> const & cells){
 
   hcalCells_.insert(hcalCells_.end(), cells.begin(), cells.end());
   int num = static_cast<int>(hcalCells_.size());

@@ -20,7 +20,7 @@ class CaloSegment
   typedef math::XYZVector XYZVector;
   typedef math::XYZVector XYZPoint;
 
-  enum Material{PbWO4=0,CRACK=1,GAP=2,PS=3,HCAL=4,ECALHCALGAP=5};
+  enum Material{PbWO4=0,CRACK=1,GAP=2,PS=3,HCAL=4,ECALHCALGAP=5,PSEEGAP=6};
   
   CaloSegment(const CaloPoint& in,const CaloPoint& out,double si,double siX0,double liX0,Material mat,
 	      const CaloGeometryHelper * );

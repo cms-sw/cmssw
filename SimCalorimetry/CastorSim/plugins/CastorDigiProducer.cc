@@ -146,7 +146,7 @@ edm::ESHandle<CaloGeometry> geometry;
 eventSetup.get<CaloGeometryRecord>().get(geometry);
 theCastorResponse->setGeometry(&*geometry);
 
-const vector<DetId>& castorCells = geometry->getValidDetIds(DetId::Calo, HcalCastorDetId::SubdetectorId);
+vector<DetId> castorCells = geometry->getValidDetIds(DetId::Calo, HcalCastorDetId::SubdetectorId);
 
 std::cout<<"CastorDigiProducer::CheckGeometry number of cells: "<<castorCells.size()<<std::endl;
 theCastorDigitizer->setDetIds(castorCells);

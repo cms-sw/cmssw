@@ -22,6 +22,8 @@
 
 
 namespace evf {
+
+  class EvffedFillerRB;
   
   class FUResourceTable : public toolbox::lang::Class
   {
@@ -33,7 +35,10 @@ namespace evf {
 		    UInt_t nbRawCells, UInt_t nbRecoCells, UInt_t nbDqmCells,
 		    UInt_t rawCellSize,UInt_t recoCellSize,UInt_t dqmCellSize,
 		    BUProxy* bu,SMProxy* sm,
-		    log4cplus::Logger logger, unsigned int) throw (evf::Exception);
+		    log4cplus::Logger logger, 
+		    unsigned int, 
+		    EvffedFillerRB*frb,
+		    xdaq::Application*) throw (evf::Exception);
     virtual ~FUResourceTable();
     
     
@@ -41,6 +46,9 @@ namespace evf {
     // member functions
     //
     
+    // set fed filler
+    //    void setFedFiller(){frb_ = frb;}
+
     // set the run number
     void   setRunNumber(UInt_t runNumber) { runNumber_ = runNumber; }
 
@@ -79,9 +87,12 @@ namespace evf {
 
     // drop next available event
     void   dropEvent();
-    
+
+    // send event belonging to crashed process to error stream (return false
+    // if no event is found)    
+    bool   handleCrashedEP(UInt_t runNumber,pid_t pid);
+
     // dump event to ascii file
-    void   handleCrashedEP(UInt_t runNumber,pid_t pid);
     void   dumpEvent(evf::FUShmRawCell* cell);
     
     // send empty events to notify clients to shutdown
@@ -181,6 +192,8 @@ namespace evf {
     
     bool   isLastMessageOfEvent(MemRef_t* bufRef);
     
+    void   injectCRCError();
+    
     void   lock()      { lock_.take(); }
     void   unlock()    { lock_.give(); }
     //void   lockShm()   { shmBuffer_->lock(); }
@@ -247,7 +260,8 @@ namespace evf {
     UInt_t             runNumber_;
     
     toolbox::BSem      lock_;
-    
+    EvffedFillerRB    *frb_;    
+    xdaq::Application *app_;
   };
   
 } // namespace evf

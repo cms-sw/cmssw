@@ -15,6 +15,7 @@ HLTPMMassFilter::HLTPMMassFilter(const edm::ParameterSet& iConfig)
 {
 
   candTag_            = iConfig.getParameter< edm::InputTag > ("candTag");
+  beamSpot_           = iConfig.getParameter< edm::InputTag > ("beamSpot");
   lowerMassCut_       = iConfig.getParameter<double> ("lowerMassCut");
   upperMassCut_       = iConfig.getParameter<double> ("upperMassCut");
   // lowerPtCut_         = iConfig.getParameter<double> ("lowerPtCut");
@@ -56,7 +57,7 @@ HLTPMMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // beam spot
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  iEvent.getByType(recoBeamSpotHandle);
+  iEvent.getByLabel(beamSpot_,recoBeamSpotHandle);
   // gets its position 
   const GlobalPoint vertexPos(recoBeamSpotHandle->position().x(),
 			      recoBeamSpotHandle->position().y(),

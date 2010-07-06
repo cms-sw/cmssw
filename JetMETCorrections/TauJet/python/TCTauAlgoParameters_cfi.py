@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from TrackingTools.TrackAssociator.default_cfi import TrackAssociatorParameterBlock
 
 tcTauAlgoParameters = cms.PSet(
-        CaloRecoTauProducer = cms.InputTag("JPTCaloRecoTauProducer"),
+        CaloRecoTauProducer = cms.InputTag("caloRecoTauProducer"),
         EtCaloOverTrackMin    = cms.double(-0.9),
         EtCaloOverTrackMax    = cms.double(0.0),
         EtHcalOverTrackMin    = cms.double(-0.3),

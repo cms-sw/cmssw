@@ -16,7 +16,7 @@ FastSimUse="False"
 onlyRecoMuons="False"
 
 #Release to be validated:
-NewRelease='CMSSW_3_6_0_pre3'
+NewRelease='CMSSW_3_6_1'
 
 # startup and ideal sample list
 if (FastSimUse=="True"):
@@ -56,8 +56,8 @@ OneAtATime=False
 IdealTag='MC'
 StartupTag='STARTUP'
 
-IdealTagUse='MC_36Y_V2'
-StartupTagUse='START36_V2'
+IdealTagUse='MC_36Y_V7'
+StartupTagUse='START36_V7'
 VersionTag='v1'
 #UnwantedTag=''
 

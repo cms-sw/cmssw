@@ -11,13 +11,11 @@ MuonSimHits = cms.EDProducer("MuonSimHitProducer",
     MUONS = cms.PSet(
         # The muon simtrack's must be taken from there
         simModuleLabel = cms.string('famosSimHits'),
+        simModuleProcess = cms.string('MuonSimTracks'),
         # The reconstruted tracks must be taken from there
         trackModuleLabel = cms.string('generalTracks'),
-        # What is to be produced // Dummy, for now:
-        ProduceL1Muons = cms.untracked.bool(False),
-        simModuleProcess = cms.string('MuonSimTracks'),
-        ProduceGlobalMuons = cms.untracked.bool(True),
-        ProduceL3Muons = cms.untracked.bool(False)
+        simHitDTIneffParameters  = cms.vdouble(0.342, -4.597),
+        simHitCSCIneffParameters = cms.vdouble(0.200, -3.199)
     ),
     Chi2EstimatorCut = cms.double(1000.0),
     TRACKS = cms.PSet(

@@ -73,8 +73,6 @@ public:
         std::vector<float> binThresholds;
     };
 
-    static const double PiConversion;
-
 public:
 
     /// for a L1 trigger object and a given quantity,

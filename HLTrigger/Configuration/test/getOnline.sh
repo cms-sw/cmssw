@@ -1,20 +1,22 @@
 #! /bin/bash
 
-HLT='/online/collisions/2010/week13/HLT'
-L1T='L1GtTriggerMenu_L1Menu_Commissioning2010_v1_mc'
+HLT='/online/collisions/2010/week26/HLT'
+# L1T='L1Menu_Commissioning2010_v2'
 
 rm -f OnData_HLT_TEST.py
 rm -f OnLine_HLT_TEST.py
 
-./getHLT.py --process TEST --full --offline --mc   $HLT --l1 $L1T TEST
+./getHLT.py --process TEST --full --offline --mc   --unprescale $HLT TEST
 mv OnLine_HLT_TEST.py offline_mc.py
-./getHLT.py --process TEST --full --offline --data $HLT --l1 $L1T TEST
+./getHLT.py --process TEST --full --offline --data --unprescale $HLT TEST
 mv OnData_HLT_TEST.py offline_data.py
-./getHLT.py --process TEST --full --online  --data $HLT --l1 $L1T TEST
+./getHLT.py --process TEST --full --online  --data --unprescale $HLT TEST
 mv OnData_HLT_TEST.py online_data.py
 
 {
-  head -n1 online_data.py
-  echo
-  edmConfigFromDB --configName $HLT | hltDumpStream 
+  TABLE=$(echo $HLT | cut -d: -f2)
+  DB=$(echo $HLT | cut -d: -f1 -s)
+  true ${DB:=hltdev}
+
+  edmConfigFromDB --$DB --configName $TABLE | hltDumpStream 
 } > streams.txt

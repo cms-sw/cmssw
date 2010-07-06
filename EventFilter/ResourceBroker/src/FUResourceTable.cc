@@ -8,6 +8,8 @@
 
 
 #include "EventFilter/ResourceBroker/interface/FUResourceTable.h"
+#include "FWCore/Utilities/interface/CRC16.h"
+#include "EvffedFillerRB.h"
 
 #include "toolbox/task/WorkLoopFactory.h"
 #include "interface/evb/i2oEVBMsgs.h"
@@ -39,7 +41,9 @@ FUResourceTable::FUResourceTable(bool              segmentationMode,
 				 BUProxy          *bu,
 				 SMProxy          *sm,
 				 log4cplus::Logger logger,
-				 unsigned int      timeout)
+				 unsigned int      timeout,
+				 EvffedFillerRB   *frb,
+				 xdaq::Application*app)
   throw (evf::Exception)
   : bu_(bu)
   , sm_(sm)
@@ -64,6 +68,8 @@ FUResourceTable::FUResourceTable(bool              segmentationMode,
   , isHalting_(false)
   , runNumber_(0xffffffff)
   , lock_(toolbox::BSem::FULL)
+  , frb_(frb)
+  , app_(app)
 {
   initialize(segmentationMode,
 	     nbRawCells,nbRecoCells,nbDqmCells,
@@ -109,7 +115,7 @@ void FUResourceTable::initialize(bool   segmentationMode,
   }
   
   for (UInt_t i=0;i<nbRawCells_;i++) {
-    resources_.push_back(new FUResource(i,log_));
+    resources_.push_back(new FUResource(i,log_,frb_,app_));
     freeResourceIds_.push(i);
   }
 
@@ -321,7 +327,7 @@ bool FUResourceTable::discard(toolbox::task::WorkLoop* /* wl */)
   evt::State_t  state=shmBuffer_->evtState(cell->index());
 
   bool   reschedule  =true;
-  bool   shutDown    =(state==evt::EMPTY);
+  bool   shutDown    =(state==evt::STOP);
   bool   isLumi      =(state==evt::LUMISECTION);
   UInt_t fuResourceId=cell->fuResourceId();
   UInt_t buResourceId=cell->buResourceId();
@@ -444,6 +450,13 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef)
   if (!resource->fatalError()&&!resource->isAllocated()) {
     FUShmRawCell* cell=shmBuffer_->rawCellToWrite();
     resource->allocate(cell);
+    timeval now;
+    gettimeofday(&now,0);
+
+    frb_->setRBTimeStamp(((uint64_t)(now.tv_sec) << 32) + (uint64_t)(now.tv_usec));
+
+    frb_->setRBEventCount(nbCompleted_);
+
     if (doCrcCheck_>0&&0==nbAllocated_%doCrcCheck_)  resource->doCrcCheck(true);
     else                                             resource->doCrcCheck(false);
   }
@@ -486,9 +499,7 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef)
       bu_->sendDiscard(buResourceId);
       sendAllocate();
     }
-    else {
-      bufRef->release();
-    }
+    bufRef->release(); // this should now be safe re: appendToSuperFrag as corrupted blocks will be removed... 
   }
   
   return eventComplete;
@@ -581,17 +592,21 @@ void FUResourceTable::dropEvent()
 
 
 //______________________________________________________________________________
-void FUResourceTable::handleCrashedEP(UInt_t runNumber,pid_t pid)
+bool FUResourceTable::handleCrashedEP(UInt_t runNumber,pid_t pid)
 {
+  bool retval = false;
   vector<pid_t> pids=cellPrcIds();
   UInt_t iRawCell=pids.size();
   for (UInt_t i=0;i<pids.size();i++) { if (pid==pids[i]) { iRawCell=i; break; } }
   
-  if (iRawCell<pids.size())
+  if (iRawCell<pids.size()){
     shmBuffer_->writeErrorEventData(runNumber,pid,iRawCell);
+    retval = true;
+  }
   else
     LOG4CPLUS_WARN(log_,"No raw data to send to error stream for process " << pid);
   shmBuffer_->removeClientPrcId(pid);
+  return retval;
 }
 
 
@@ -734,6 +749,7 @@ vector<string> FUResourceTable::cellStates() const
     for (UInt_t i=0;i<n;i++) {
       evt::State_t state=shmBuffer_->evtState(i);
       if      (state==evt::EMPTY)      result.push_back("EMPTY");
+      else if (state==evt::STOP)       result.push_back("STOP");
       else if (state==evt::RAWWRITING) result.push_back("RAWWRITING");
       else if (state==evt::RAWWRITTEN) result.push_back("RAWWRITTEN");
       else if (state==evt::RAWREADING) result.push_back("RAWREADING");
@@ -944,4 +960,12 @@ bool FUResourceTable::isLastMessageOfEvent(MemRef_t* bufRef)
   UInt_t nSuperFrag=block->nbSuperFragmentsInEvent;
 
   return ((iSuperFrag==nSuperFrag-1)&&(iBlock==nBlock-1));
+}
+
+//______________________________________________________________________________
+void FUResourceTable::injectCRCError()
+{
+  for (UInt_t i=0;i<resources_.size();i++) {
+    resources_[i]->scheduleCRCError();
+  }
 }

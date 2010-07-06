@@ -93,7 +93,9 @@ class FEDNumbering {
      MINCSCTFSPFEDID = 890,
      MAXCSCTFSPFEDID = 901,
      MINDAQeFEDFEDID = 902,
-     MAXDAQeFEDFEDID = 931
+     MAXDAQeFEDFEDID = 931,
+     MINDAQmFEDFEDID = 1023,
+     MAXDAQmFEDFEDID = 1023
    };
  private:
   static std::vector<std::string> from_;

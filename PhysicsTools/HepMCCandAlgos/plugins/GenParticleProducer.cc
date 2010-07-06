@@ -5,7 +5,7 @@
  * Convert HepMC GenEvent format into a collection of type
  * CandidateCollection containing objects of type GenParticle
  *
- * \version $Id: GenParticleProducer.cc,v 1.14 2010/02/11 00:12:57 wmtan Exp $
+ * \version $Id: GenParticleProducer.cc,v 1.15 2010/02/23 13:29:06 fabiocos Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -162,7 +162,7 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
       }
    }else if (doSubEvent_){
       for(size_t i = 0; i < npiles; ++i){
-	 cout<<"Tag "<<vectorSrc_[i]<<endl;
+	//	 cout<<"Tag "<<vectorSrc_[i]<<endl;
 	 Handle<HepMCProduct> handle;
 	 heps.push_back(handle);
 	 evt.getByLabel( vectorSrc_[i], heps[i] );

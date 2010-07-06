@@ -1,7 +1,6 @@
 <use name=DQMServices/Components>
 <use name=DQMServices/Core>
 <use name=DataFormats/TrackReco>
-<use name=DQM/BeamMonitor>
 <use name=FWCore/Framework>
 <use name=DataFormats/BeamSpot>
 <use name=CondFormats/DataRecord>

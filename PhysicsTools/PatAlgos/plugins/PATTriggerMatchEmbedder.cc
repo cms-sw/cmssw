@@ -10,10 +10,10 @@
    .
 
   \author   Volker Adler
-  \version  $Id: PATTriggerMatchEmbedder.cc,v 1.2 2009/04/20 18:13:47 vadler Exp $
+  \version  $Id: PATTriggerMatchEmbedder.cc,v 1.5 2010/05/29 19:52:12 vadler Exp $
 */
 //
-// $Id: PATTriggerMatchEmbedder.cc,v 1.2 2009/04/20 18:13:47 vadler Exp $
+// $Id: PATTriggerMatchEmbedder.cc,v 1.5 2010/05/29 19:52:12 vadler Exp $
 //
 
 
@@ -66,6 +66,7 @@ namespace pat {
 
 using namespace pat;
 
+
 template< class PATObjectType >
 PATTriggerMatchEmbedder< PATObjectType >::PATTriggerMatchEmbedder( const edm::ParameterSet & iConfig ) :
   src_( iConfig.getParameter< edm::InputTag >( "src" ) ),
@@ -76,9 +77,9 @@ PATTriggerMatchEmbedder< PATObjectType >::PATTriggerMatchEmbedder( const edm::Pa
 
 template< class PATObjectType >
 void PATTriggerMatchEmbedder< PATObjectType >::produce( edm::Event & iEvent, const edm::EventSetup & iSetup )
-{  
+{
   std::auto_ptr< std::vector< PATObjectType > > output( new std::vector< PATObjectType >() );
-  
+
   edm::Handle< edm::View< PATObjectType > > candidates;
   iEvent.getByLabel( src_, candidates );
   if ( ! candidates.isValid() ) {
@@ -89,6 +90,7 @@ void PATTriggerMatchEmbedder< PATObjectType >::produce( edm::Event & iEvent, con
   for ( typename edm::View< PATObjectType >::const_iterator iCand = candidates->begin(); iCand != candidates->end(); ++iCand ) {
     const unsigned index( iCand - candidates->begin() );
     PATObjectType cand( candidates->at( index ) );
+    std::set< TriggerObjectStandAloneRef > cachedRefs;
     for ( size_t iMatch = 0; iMatch < matches_.size(); ++iMatch ) {
       edm::Handle< TriggerObjectStandAloneMatch > match;
       iEvent.getByLabel( matches_.at( iMatch ), match );
@@ -98,7 +100,9 @@ void PATTriggerMatchEmbedder< PATObjectType >::produce( edm::Event & iEvent, con
       }
       const TriggerObjectStandAloneRef trigRef( ( *match )[ candidates->refAt( index ) ] );
       if ( trigRef.isNonnull() && trigRef.isAvailable() ) {
-        cand.addTriggerObjectMatch( *trigRef );
+        if ( cachedRefs.insert( trigRef ).second ) { // protection from multiple entries of the same trigger objects
+          cand.addTriggerObjectMatch( *trigRef );
+        }
       }
     }
     output->push_back( cand );

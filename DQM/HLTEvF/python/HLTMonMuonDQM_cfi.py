@@ -6,6 +6,7 @@ hltMonMuDQM = cms.EDAnalyzer("HLTMuonDQMSource",
     MonitorDaemon = cms.untracked.bool(True),
     reqNum = cms.uint32(1),
     DaqMonitorBEInterface = cms.untracked.bool(True),
+    TrigResultInput = cms.InputTag('TriggerResults','','HLT'),
     filters = cms.VPSet(
     	# L1 muon
 	cms.PSet(
@@ -15,7 +16,7 @@ hltMonMuDQM = cms.EDAnalyzer("HLTMuonDQMSource",
     	# L2 muon
 	cms.PSet(
 		directoryName = cms.string('L2PassThrough'),
-		triggerBits = cms.vstring('HLT_L2Mu9','HLT_L2Mu11')
+		triggerBits = cms.vstring('HLT_L2Mu0','HLT_L2Mu3','HLT_L2Mu9','HLT_L2Mu11')
 	),
     	# L3 muon
 	cms.PSet(

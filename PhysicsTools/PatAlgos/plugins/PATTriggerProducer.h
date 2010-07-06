@@ -7,16 +7,16 @@
 // Package:    PatAlgos
 // Class:      pat::PATTriggerProducer
 //
-// $Id: PATTriggerProducer.h,v 1.7 2010/02/28 13:47:53 vadler Exp $
+// $Id: PATTriggerProducer.h,v 1.9 2010/04/20 20:03:36 vadler Exp $
 //
 /**
   \class    pat::PATTriggerProducer PATTriggerProducer.h "PhysicsTools/PatAlgos/plugins/PATTriggerProducer.h"
-  \brief    Produces the pat::TriggerPathCollection, pat::TriggerFilterCollection and pat::TriggerObjectCollection in PAT layer 0.
+  \brief    Produces the pat::TriggerPathCollection, pat::TriggerFilterCollection and pat::TriggerObjectCollection.
 
    [...]
 
   \author   Volker Adler
-  \version  $Id: PATTriggerProducer.h,v 1.7 2010/02/28 13:47:53 vadler Exp $
+  \version  $Id: PATTriggerProducer.h,v 1.9 2010/04/20 20:03:36 vadler Exp $
 */
 
 
@@ -28,6 +28,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 
@@ -48,6 +49,7 @@ namespace pat {
 
       bool onlyStandAlone_; // configuration
       // L1
+      L1GtUtils     l1GtUtils_;
       edm::InputTag tagL1ExtraMu_;      // configuration (optional)
       edm::InputTag tagL1ExtraNoIsoEG_; // configuration (optional)
       edm::InputTag tagL1ExtraIsoEG_;   // configuration (optional)
@@ -60,13 +62,13 @@ namespace pat {
       HLTConfigProvider         hltConfig_;
       bool                      hltConfigInit_;
       std::string               nameProcess_;           // configuration
-      edm::InputTag             tagTriggerResults_;     // configuration
-      edm::InputTag             tagTriggerEvent_;       // configuration
+      edm::InputTag             tagTriggerResults_;     // configuration (optional with default)
+      edm::InputTag             tagTriggerEvent_;       // configuration (optional with default)
       std::string               hltPrescaleLabel_;      // configuration (optional)
       std::string               labelHltPrescaleTable_; // configuration (optional)
       trigger::HLTPrescaleTable hltPrescaleTableRun_;
       trigger::HLTPrescaleTable hltPrescaleTableLumi_;
-      bool                      addPathModuleLabels_;   // configuration
+      bool                      addPathModuleLabels_;   // configuration (optional with default)
 
   };
 

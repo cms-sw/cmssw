@@ -12,7 +12,8 @@
 #include "JetMETCorrections/Algorithms/interface/L6SLBCorrector.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
-//#include "DataFormats/JetReco/interface/JPTJet.h"
+#include "DataFormats/JetReco/interface/JPTJet.h"
+#include "DataFormats/JetReco/interface/TrackJet.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 
@@ -26,9 +27,11 @@ DEFINE_FWK_MODULE(CaloJetCorrectionProducer);
 typedef JetCorrectionProducer<PFJet> PFJetCorrectionProducer;
 DEFINE_FWK_MODULE(PFJetCorrectionProducer);
 
-//---- JPT jets -----------
-//typedef JetCorrectionProducer<JPTJet> JPTJetCorrectionProducer;
-//DEFINE_FWK_MODULE(JPTJetCorrectionProducer);
+typedef JetCorrectionProducer<JPTJet> JPTJetCorrectionProducer;
+DEFINE_FWK_MODULE(JPTJetCorrectionProducer);
+
+typedef JetCorrectionProducer<TrackJet> TrackJetCorrectionProducer;
+DEFINE_FWK_MODULE(TrackJetCorrectionProducer);
 
 typedef JetCorrectionProducer<GenJet> GenJetCorrectionProducer;
 DEFINE_FWK_MODULE(GenJetCorrectionProducer);

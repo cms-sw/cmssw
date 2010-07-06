@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_6_0/pre4/HIon/V14 (CMSSW_3_6_X_2010-04-01-0100_HLT1)
+# /dev/CMSSW_3_6_2/HIon/V21 (CMSSW_3_6_2_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_0/pre4/HIon/V14')
+  tableName = cms.string('/dev/CMSSW_3_6_2/HIon/V21')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -13,75 +13,63 @@ process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'Product
   'TooFewProducts' ) )
 process.streams = cms.PSet( 
   Offline = cms.vstring(  ),
-  HLTDQM = cms.vstring(  ),
-  DQM = cms.vstring(  ),
-  Calibration = cms.vstring( 'TestEnables' ),
-  EcalCalibration = cms.vstring( 'EcalLaser' ),
   OnlineErrors = cms.vstring( 'LogMonitor',
     'FEDMonitor' ),
-  ALCAP0 = cms.vstring( 'AlCaP0' ),
-  Express = cms.vstring( 'ExpressPhysics' ),
-  RPCMON = cms.vstring( 'RPCMonitor' ),
+  Calibration = cms.vstring( 'TestEnables' ),
+  EcalCalibration = cms.vstring( 'EcalLaser' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
-  EventDisplay = cms.vstring(  ),
-  A = cms.vstring( 'RandomTriggers',
+  RPCMON = cms.vstring( 'RPCMonitor' ),
+  ALCAP0 = cms.vstring( 'AlCaP0' ),
+  DQM = cms.vstring(  ),
+  A = cms.vstring( 'MuMonitor',
+    'Cosmics',
+    'JetMETTau',
+    'EG',
+    'Mu',
+    'EGMonitor',
+    'MuOnia',
+    'RandomTriggers',
+    'ZeroBias',
+    'Commissioning',
+    'JetMETTauMonitor',
     'HcalHPDNoise',
     'HcalNZS',
-    'ZeroBias',
-    'MinimumBias',
-    'Cosmics' ),
+    'MinimumBias' ),
+  EventDisplay = cms.vstring(  ),
+  Express = cms.vstring( 'ExpressPhysics' ),
+  HLTDQM = cms.vstring(  ),
   HLTMON = cms.vstring( 'OfflineMonitor' )
 )
 process.datasets = cms.PSet( 
-  TestEnables = cms.vstring(  ),
-  EcalLaser = cms.vstring(  ),
   LogMonitor = cms.vstring(  ),
   FEDMonitor = cms.vstring(  ),
-  AlCaP0 = cms.vstring(  ),
-  ExpressPhysics = cms.vstring(  ),
-  RPCMonitor = cms.vstring(  ),
+  TestEnables = cms.vstring(  ),
+  EcalLaser = cms.vstring(  ),
   AlCaPhiSymEcal = cms.vstring(  ),
+  RPCMonitor = cms.vstring(  ),
+  AlCaP0 = cms.vstring(  ),
+  MuMonitor = cms.vstring(  ),
+  Cosmics = cms.vstring(  ),
+  JetMETTau = cms.vstring(  ),
+  EG = cms.vstring(  ),
+  Mu = cms.vstring(  ),
+  EGMonitor = cms.vstring(  ),
+  MuOnia = cms.vstring(  ),
   RandomTriggers = cms.vstring(  ),
+  ZeroBias = cms.vstring(  ),
+  Commissioning = cms.vstring(  ),
+  JetMETTauMonitor = cms.vstring(  ),
   HcalHPDNoise = cms.vstring(  ),
   HcalNZS = cms.vstring(  ),
-  ZeroBias = cms.vstring(  ),
   MinimumBias = cms.vstring(  ),
-  Cosmics = cms.vstring(  ),
+  ExpressPhysics = cms.vstring(  ),
   OfflineMonitor = cms.vstring(  )
 )
 
 process.source = cms.Source( "PoolSource",
-    fileNames = cms.untracked.vstring( '/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/120/F6ADE109-6BE8-DE11-9680-000423D991D4.root' )
+    fileNames = cms.untracked.vstring( '/store/data/Run2010A/MinimumBias/RAW/v1/000/136/440/58C33706-A16A-DF11-B5E2-000423D94AA8.root' )
 )
 
-process.MCJetCorrectorIcone5Unit = cms.ESSource( "LXXXCorrectionService",
-    appendToDataLabel = cms.string( "" ),
-    level = cms.string( "L2RelativeFlat" ),
-    algorithm = cms.string( "" ),
-    section = cms.string( "" ),
-    era = cms.string( "HLT" )
-)
-process.MCJetCorrectorIcone5HF07 = cms.ESSource( "LXXXCorrectionService",
-    appendToDataLabel = cms.string( "" ),
-    level = cms.string( "L2Relative" ),
-    algorithm = cms.string( "" ),
-    section = cms.string( "" ),
-    era = cms.string( "HLT" )
-)
-process.L3AbsoluteCorrectionService = cms.ESSource( "LXXXCorrectionService",
-    appendToDataLabel = cms.string( "" ),
-    level = cms.string( "L3Absolute" ),
-    algorithm = cms.string( "IC5Calo" ),
-    section = cms.string( "" ),
-    era = cms.string( "Summer09_7TeV_ReReco332" )
-)
-process.L2RelativeCorrectionService = cms.ESSource( "LXXXCorrectionService",
-    appendToDataLabel = cms.string( "" ),
-    level = cms.string( "L2Relative" ),
-    algorithm = cms.string( "IC5Calo" ),
-    section = cms.string( "" ),
-    era = cms.string( "Summer09_7TeV_ReReco332" )
-)
 process.BTagRecord = cms.ESSource( "EmptyESSource",
     recordName = cms.string( "JetTagComputerRecord" ),
     iovIsRunNotTime = cms.bool( True ),
@@ -94,7 +82,7 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
     connect = cms.string( "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG" ),
     DumpStat = cms.untracked.bool( False ),
     BlobStreamerName = cms.untracked.string( "TBufferBlobStreamingService" ),
-    globaltag = cms.string( "GR10_H_V4::All" ),
+    globaltag = cms.string( "GR10_H_V6A::All" ),
     DBParameters = cms.PSet( 
       authenticationPath = cms.untracked.string( "." ),
       connectionRetrialPeriod = cms.untracked.int32( 10 ),
@@ -114,279 +102,39 @@ process.HepPDTESSource = cms.ESSource( "HepPDTESSource",
     pdtFileName = cms.FileInPath( "SimGeneral/HepPDTESSource/data/pythiaparticle.tbl" ),
     appendToDataLabel = cms.string( "" )
 )
+process.L2RelativeCorrectionService = cms.ESSource( "LXXXCorrectionService",
+    appendToDataLabel = cms.string( "" ),
+    level = cms.string( "L2Relative" ),
+    algorithm = cms.string( "IC5Calo" ),
+    section = cms.string( "" ),
+    era = cms.string( "Summer09_7TeV_ReReco332" )
+)
+process.L3AbsoluteCorrectionService = cms.ESSource( "LXXXCorrectionService",
+    appendToDataLabel = cms.string( "" ),
+    level = cms.string( "L3Absolute" ),
+    algorithm = cms.string( "IC5Calo" ),
+    section = cms.string( "" ),
+    era = cms.string( "Summer09_7TeV_ReReco332" )
+)
 process.MCJetCorrectorIcone5 = cms.ESSource( "JetCorrectionServiceChain",
     appendToDataLabel = cms.string( "" ),
     correctors = cms.vstring( 'L2RelativeCorrectionService',
       'L3AbsoluteCorrectionService' ),
     label = cms.string( "MCJetCorrectorIcone5" )
 )
-process.XMLIdealGeometryESSource = cms.ESSource( "XMLIdealGeometryESSource",
-    rootNodeName = cms.string( "cms:OCMS" ),
+process.MCJetCorrectorIcone5HF07 = cms.ESSource( "LXXXCorrectionService",
     appendToDataLabel = cms.string( "" ),
-    geomXMLFiles = ( cms.vstring( 'Geometry/CMSCommonData/data/materials.xml',
-      'Geometry/CMSCommonData/data/rotations.xml',
-      'Geometry/CMSCommonData/data/extend/cmsextent.xml',
-      'Geometry/CMSCommonData/data/cms.xml',
-      'Geometry/CMSCommonData/data/cmsMother.xml',
-      'Geometry/CMSCommonData/data/cmsTracker.xml',
-      'Geometry/CMSCommonData/data/caloBase.xml',
-      'Geometry/CMSCommonData/data/cmsCalo.xml',
-      'Geometry/CMSCommonData/data/muonBase.xml',
-      'Geometry/CMSCommonData/data/cmsMuon.xml',
-      'Geometry/CMSCommonData/data/mgnt.xml',
-      'Geometry/CMSCommonData/data/beampipe.xml',
-      'Geometry/CMSCommonData/data/cmsBeam.xml',
-      'Geometry/CMSCommonData/data/muonMB.xml',
-      'Geometry/CMSCommonData/data/muonMagnet.xml',
-      'Geometry/CMSCommonData/data/cavern.xml',
-      'Geometry/TrackerCommonData/data/pixfwdMaterials.xml',
-      'Geometry/TrackerCommonData/data/pixfwdCommon.xml',
-      'Geometry/TrackerCommonData/data/pixfwdPlaq.xml',
-      'Geometry/TrackerCommonData/data/pixfwdPlaq1x2.xml',
-      'Geometry/TrackerCommonData/data/pixfwdPlaq1x5.xml',
-      'Geometry/TrackerCommonData/data/pixfwdPlaq2x3.xml',
-      'Geometry/TrackerCommonData/data/pixfwdPlaq2x4.xml',
-      'Geometry/TrackerCommonData/data/pixfwdPlaq2x5.xml',
-      'Geometry/TrackerCommonData/data/pixfwdPanelBase.xml',
-      'Geometry/TrackerCommonData/data/pixfwdPanel.xml',
-      'Geometry/TrackerCommonData/data/pixfwdBlade.xml',
-      'Geometry/TrackerCommonData/data/pixfwdNipple.xml',
-      'Geometry/TrackerCommonData/data/pixfwdDisk.xml',
-      'Geometry/TrackerCommonData/data/pixfwdCylinder.xml',
-      'Geometry/TrackerCommonData/data/pixfwd.xml',
-      'Geometry/TrackerCommonData/data/pixbarmaterial.xml',
-      'Geometry/TrackerCommonData/data/pixbarladder.xml',
-      'Geometry/TrackerCommonData/data/pixbarladderfull.xml',
-      'Geometry/TrackerCommonData/data/pixbarladderhalf.xml',
-      'Geometry/TrackerCommonData/data/pixbarlayer.xml',
-      'Geometry/TrackerCommonData/data/pixbarlayer0.xml',
-      'Geometry/TrackerCommonData/data/pixbarlayer1.xml',
-      'Geometry/TrackerCommonData/data/pixbarlayer2.xml',
-      'Geometry/TrackerCommonData/data/pixbar.xml',
-      'Geometry/TrackerCommonData/data/tibtidcommonmaterial.xml',
-      'Geometry/TrackerCommonData/data/tibmaterial.xml',
-      'Geometry/TrackerCommonData/data/tibmodpar.xml',
-      'Geometry/TrackerCommonData/data/tibmodule0.xml',
-      'Geometry/TrackerCommonData/data/tibmodule0a.xml',
-      'Geometry/TrackerCommonData/data/tibmodule0b.xml',
-      'Geometry/TrackerCommonData/data/tibmodule2.xml',
-      'Geometry/TrackerCommonData/data/tibstringpar.xml',
-      'Geometry/TrackerCommonData/data/tibstring0ll.xml',
-      'Geometry/TrackerCommonData/data/tibstring0lr.xml',
-      'Geometry/TrackerCommonData/data/tibstring0ul.xml',
-      'Geometry/TrackerCommonData/data/tibstring0ur.xml',
-      'Geometry/TrackerCommonData/data/tibstring0.xml',
-      'Geometry/TrackerCommonData/data/tibstring1ll.xml',
-      'Geometry/TrackerCommonData/data/tibstring1lr.xml',
-      'Geometry/TrackerCommonData/data/tibstring1ul.xml',
-      'Geometry/TrackerCommonData/data/tibstring1ur.xml',
-      'Geometry/TrackerCommonData/data/tibstring1.xml',
-      'Geometry/TrackerCommonData/data/tibstring2ll.xml',
-      'Geometry/TrackerCommonData/data/tibstring2lr.xml',
-      'Geometry/TrackerCommonData/data/tibstring2ul.xml',
-      'Geometry/TrackerCommonData/data/tibstring2ur.xml',
-      'Geometry/TrackerCommonData/data/tibstring2.xml',
-      'Geometry/TrackerCommonData/data/tibstring3ll.xml',
-      'Geometry/TrackerCommonData/data/tibstring3lr.xml',
-      'Geometry/TrackerCommonData/data/tibstring3ul.xml',
-      'Geometry/TrackerCommonData/data/tibstring3ur.xml',
-      'Geometry/TrackerCommonData/data/tibstring3.xml',
-      'Geometry/TrackerCommonData/data/tiblayerpar.xml',
-      'Geometry/TrackerCommonData/data/tiblayer0.xml',
-      'Geometry/TrackerCommonData/data/tiblayer1.xml',
-      'Geometry/TrackerCommonData/data/tiblayer2.xml',
-      'Geometry/TrackerCommonData/data/tiblayer3.xml',
-      'Geometry/TrackerCommonData/data/tib.xml',
-      'Geometry/TrackerCommonData/data/tidmaterial.xml',
-      'Geometry/TrackerCommonData/data/tidmodpar.xml',
-      'Geometry/TrackerCommonData/data/tidmodule0.xml',
-      'Geometry/TrackerCommonData/data/tidmodule0r.xml',
-      'Geometry/TrackerCommonData/data/tidmodule0l.xml',
-      'Geometry/TrackerCommonData/data/tidmodule1.xml',
-      'Geometry/TrackerCommonData/data/tidmodule1r.xml',
-      'Geometry/TrackerCommonData/data/tidmodule1l.xml',
-      'Geometry/TrackerCommonData/data/tidmodule2.xml',
-      'Geometry/TrackerCommonData/data/tidringpar.xml',
-      'Geometry/TrackerCommonData/data/tidring0.xml',
-      'Geometry/TrackerCommonData/data/tidring0f.xml',
-      'Geometry/TrackerCommonData/data/tidring0b.xml',
-      'Geometry/TrackerCommonData/data/tidring1.xml',
-      'Geometry/TrackerCommonData/data/tidring1f.xml',
-      'Geometry/TrackerCommonData/data/tidring1b.xml',
-      'Geometry/TrackerCommonData/data/tidring2.xml',
-      'Geometry/TrackerCommonData/data/tid.xml',
-      'Geometry/TrackerCommonData/data/tidf.xml',
-      'Geometry/TrackerCommonData/data/tidb.xml',
-      'Geometry/TrackerCommonData/data/tibtidservices.xml',
-      'Geometry/TrackerCommonData/data/tibtidservicesf.xml',
-      'Geometry/TrackerCommonData/data/tibtidservicesb.xml',
-      'Geometry/TrackerCommonData/data/tobmaterial.xml',
-      'Geometry/TrackerCommonData/data/tobmodpar.xml',
-      'Geometry/TrackerCommonData/data/tobmodule0.xml',
-      'Geometry/TrackerCommonData/data/tobmodule2.xml',
-      'Geometry/TrackerCommonData/data/tobmodule4.xml',
-      'Geometry/TrackerCommonData/data/tobrodpar.xml',
-      'Geometry/TrackerCommonData/data/tobrod0c.xml',
-      'Geometry/TrackerCommonData/data/tobrod0l.xml',
-      'Geometry/TrackerCommonData/data/tobrod0h.xml',
-      'Geometry/TrackerCommonData/data/tobrod0.xml',
-      'Geometry/TrackerCommonData/data/tobrod1l.xml',
-      'Geometry/TrackerCommonData/data/tobrod1h.xml',
-      'Geometry/TrackerCommonData/data/tobrod1.xml',
-      'Geometry/TrackerCommonData/data/tobrod2c.xml',
-      'Geometry/TrackerCommonData/data/tobrod2l.xml',
-      'Geometry/TrackerCommonData/data/tobrod2h.xml',
-      'Geometry/TrackerCommonData/data/tobrod2.xml',
-      'Geometry/TrackerCommonData/data/tobrod3l.xml',
-      'Geometry/TrackerCommonData/data/tobrod3h.xml',
-      'Geometry/TrackerCommonData/data/tobrod3.xml',
-      'Geometry/TrackerCommonData/data/tobrod4c.xml',
-      'Geometry/TrackerCommonData/data/tobrod4l.xml',
-      'Geometry/TrackerCommonData/data/tobrod4h.xml',
-      'Geometry/TrackerCommonData/data/tobrod4.xml',
-      'Geometry/TrackerCommonData/data/tobrod5l.xml',
-      'Geometry/TrackerCommonData/data/tobrod5h.xml',
-      'Geometry/TrackerCommonData/data/tobrod5.xml',
-      'Geometry/TrackerCommonData/data/tob.xml',
-      'Geometry/TrackerCommonData/data/tecmaterial.xml',
-      'Geometry/TrackerCommonData/data/tecmodpar.xml',
-      'Geometry/TrackerCommonData/data/tecmodule0.xml',
-      'Geometry/TrackerCommonData/data/tecmodule0r.xml',
-      'Geometry/TrackerCommonData/data/tecmodule0s.xml',
-      'Geometry/TrackerCommonData/data/tecmodule1.xml',
-      'Geometry/TrackerCommonData/data/tecmodule1r.xml',
-      'Geometry/TrackerCommonData/data/tecmodule1s.xml',
-      'Geometry/TrackerCommonData/data/tecmodule2.xml',
-      'Geometry/TrackerCommonData/data/tecmodule3.xml',
-      'Geometry/TrackerCommonData/data/tecmodule4.xml',
-      'Geometry/TrackerCommonData/data/tecmodule4r.xml',
-      'Geometry/TrackerCommonData/data/tecmodule4s.xml',
-      'Geometry/TrackerCommonData/data/tecmodule5.xml',
-      'Geometry/TrackerCommonData/data/tecmodule6.xml',
-      'Geometry/TrackerCommonData/data/tecpetpar.xml',
-      'Geometry/TrackerCommonData/data/tecring0.xml',
-      'Geometry/TrackerCommonData/data/tecring1.xml',
-      'Geometry/TrackerCommonData/data/tecring2.xml',
-      'Geometry/TrackerCommonData/data/tecring3.xml',
-      'Geometry/TrackerCommonData/data/tecring4.xml',
-      'Geometry/TrackerCommonData/data/tecring5.xml',
-      'Geometry/TrackerCommonData/data/tecring6.xml',
-      'Geometry/TrackerCommonData/data/tecring0f.xml',
-      'Geometry/TrackerCommonData/data/tecring1f.xml',
-      'Geometry/TrackerCommonData/data/tecring2f.xml',
-      'Geometry/TrackerCommonData/data/tecring3f.xml',
-      'Geometry/TrackerCommonData/data/tecring4f.xml',
-      'Geometry/TrackerCommonData/data/tecring5f.xml',
-      'Geometry/TrackerCommonData/data/tecring6f.xml',
-      'Geometry/TrackerCommonData/data/tecring0b.xml',
-      'Geometry/TrackerCommonData/data/tecring1b.xml',
-      'Geometry/TrackerCommonData/data/tecring2b.xml',
-      'Geometry/TrackerCommonData/data/tecring3b.xml',
-      'Geometry/TrackerCommonData/data/tecring4b.xml',
-      'Geometry/TrackerCommonData/data/tecring5b.xml',
-      'Geometry/TrackerCommonData/data/tecring6b.xml',
-      'Geometry/TrackerCommonData/data/tecpetalf.xml',
-      'Geometry/TrackerCommonData/data/tecpetalb.xml',
-      'Geometry/TrackerCommonData/data/tecpetal0.xml',
-      'Geometry/TrackerCommonData/data/tecpetal0f.xml',
-      'Geometry/TrackerCommonData/data/tecpetal0b.xml',
-      'Geometry/TrackerCommonData/data/tecpetal3.xml',
-      'Geometry/TrackerCommonData/data/tecpetal3f.xml',
-      'Geometry/TrackerCommonData/data/tecpetal3b.xml',
-      'Geometry/TrackerCommonData/data/tecpetal6f.xml',
-      'Geometry/TrackerCommonData/data/tecpetal6b.xml',
-      'Geometry/TrackerCommonData/data/tecpetal8f.xml',
-      'Geometry/TrackerCommonData/data/tecpetal8b.xml',
-      'Geometry/TrackerCommonData/data/tecwheel.xml',
-      'Geometry/TrackerCommonData/data/tecwheela.xml',
-      'Geometry/TrackerCommonData/data/tecwheelb.xml',
-      'Geometry/TrackerCommonData/data/tecwheelc.xml',
-      'Geometry/TrackerCommonData/data/tecwheeld.xml',
-      'Geometry/TrackerCommonData/data/tecwheel6.xml',
-      'Geometry/TrackerCommonData/data/tecservices.xml',
-      'Geometry/TrackerCommonData/data/tecbackplate.xml',
-      'Geometry/TrackerCommonData/data/tec.xml',
-      'Geometry/TrackerCommonData/data/trackermaterial.xml',
-      'Geometry/TrackerCommonData/data/tracker.xml',
-      'Geometry/TrackerCommonData/data/trackerpixbar.xml',
-      'Geometry/TrackerCommonData/data/trackerpixfwd.xml',
-      'Geometry/TrackerCommonData/data/trackertibtidservices.xml',
-      'Geometry/TrackerCommonData/data/trackertib.xml',
-      'Geometry/TrackerCommonData/data/trackertid.xml',
-      'Geometry/TrackerCommonData/data/trackertob.xml',
-      'Geometry/TrackerCommonData/data/trackertec.xml',
-      'Geometry/TrackerCommonData/data/trackerbulkhead.xml',
-      'Geometry/TrackerCommonData/data/trackerother.xml',
-      'Geometry/EcalCommonData/data/eregalgo.xml',
-      'Geometry/EcalCommonData/data/ebalgo.xml',
-      'Geometry/EcalCommonData/data/ebcon.xml',
-      'Geometry/EcalCommonData/data/ebrot.xml',
-      'Geometry/EcalCommonData/data/eecon.xml',
-      'Geometry/EcalCommonData/data/eefixed.xml',
-      'Geometry/EcalCommonData/data/eehier.xml',
-      'Geometry/EcalCommonData/data/eealgo.xml',
-      'Geometry/EcalCommonData/data/escon.xml',
-      'Geometry/EcalCommonData/data/esalgo.xml',
-      'Geometry/EcalCommonData/data/eeF.xml',
-      'Geometry/EcalCommonData/data/eeB.xml',
-      'Geometry/HcalCommonData/data/hcalrotations.xml',
-      'Geometry/HcalCommonData/data/hcalalgo.xml',
-      'Geometry/HcalCommonData/data/hcalbarrelalgo.xml',
-      'Geometry/HcalCommonData/data/hcalendcapalgo.xml',
-      'Geometry/HcalCommonData/data/hcalouteralgo.xml',
-      'Geometry/HcalCommonData/data/hcalforwardalgo.xml',
-      'Geometry/HcalCommonData/data/hcalforwardfibre.xml',
-      'Geometry/HcalCommonData/data/hcalforwardmaterial.xml',
-      'Geometry/MuonCommonData/data/mbCommon.xml',
-      'Geometry/MuonCommonData/data/mb1.xml',
-      'Geometry/MuonCommonData/data/mb2.xml',
-      'Geometry/MuonCommonData/data/mb3.xml',
-      'Geometry/MuonCommonData/data/mb4.xml',
-      'Geometry/MuonCommonData/data/muonYoke.xml',
-      'Geometry/MuonCommonData/data/mf.xml',
-      'Geometry/ForwardCommonData/data/forward.xml',
-      'Geometry/ForwardCommonData/data/forwardshield.xml',
-      'Geometry/ForwardCommonData/data/brmrotations.xml',
-      'Geometry/ForwardCommonData/data/brm.xml',
-      'Geometry/ForwardCommonData/data/totemMaterials.xml',
-      'Geometry/ForwardCommonData/data/totemRotations.xml',
-      'Geometry/ForwardCommonData/data/totemt1.xml',
-      'Geometry/ForwardCommonData/data/totemt2.xml',
-      'Geometry/ForwardCommonData/data/ionpump.xml',
-      'Geometry/ForwardCommonData/data/castor.xml',
-      'Geometry/ForwardCommonData/data/zdcmaterials.xml',
-      'Geometry/ForwardCommonData/data/lumimaterials.xml',
-      'Geometry/ForwardCommonData/data/zdcrotations.xml',
-      'Geometry/ForwardCommonData/data/lumirotations.xml',
-      'Geometry/ForwardCommonData/data/zdc.xml',
-      'Geometry/ForwardCommonData/data/zdclumi.xml',
-      'Geometry/ForwardCommonData/data/cmszdc.xml',
-      'Geometry/MuonCommonData/data/muonNumbering.xml',
-      'Geometry/TrackerCommonData/data/trackerStructureTopology.xml',
-      'Geometry/TrackerSimData/data/trackersens.xml',
-      'Geometry/TrackerRecoData/data/trackerRecoMaterial.xml',
-      'Geometry/EcalSimData/data/ecalsens.xml',
-      'Geometry/HcalCommonData/data/hcalsens.xml',
-      'Geometry/HcalSimData/data/CaloUtil.xml',
-      'Geometry/MuonSimData/data/muonSens.xml',
-      'Geometry/DTGeometryBuilder/data/dtSpecsFilter.xml',
-      'Geometry/CSCGeometryBuilder/data/cscSpecsFilter.xml',
-      'Geometry/CSCGeometryBuilder/data/cscSpecs.xml',
-      'Geometry/RPCGeometryBuilder/data/RPCSpecs.xml',
-      'Geometry/ForwardCommonData/data/brmsens.xml',
-      'Geometry/ForwardSimData/data/totemsensT1.xml',
-      'Geometry/ForwardSimData/data/totemsensT2.xml',
-      'Geometry/ForwardSimData/data/castorsens.xml',
-      'Geometry/ForwardSimData/data/zdcsens.xml')+cms.vstring( 'Geometry/HcalSimData/data/CaloProdCuts.xml',
-      'Geometry/HcalSimData/data/HcalProdCuts.xml',
-      'Geometry/EcalSimData/data/EcalProdCuts.xml',
-      'Geometry/TrackerSimData/data/trackerProdCuts.xml',
-      'Geometry/TrackerSimData/data/trackerProdCutsBEAM.xml',
-      'Geometry/MuonSimData/data/muonProdCuts.xml',
-      'Geometry/ForwardSimData/data/CastorProdCuts.xml',
-      'Geometry/ForwardSimData/data/zdcProdCuts.xml',
-      'Geometry/ForwardSimData/data/ForwardShieldProdCuts.xml',
-      'Geometry/CMSCommonData/data/FieldParameters.xml') )
+    level = cms.string( "L2Relative" ),
+    algorithm = cms.string( "" ),
+    section = cms.string( "" ),
+    era = cms.string( "HLT" )
+)
+process.MCJetCorrectorIcone5Unit = cms.ESSource( "LXXXCorrectionService",
+    appendToDataLabel = cms.string( "" ),
+    level = cms.string( "L2RelativeFlat" ),
+    algorithm = cms.string( "" ),
+    section = cms.string( "" ),
+    era = cms.string( "HLT" )
 )
 process.eegeom = cms.ESSource( "EmptyESSource",
     recordName = cms.string( "EcalMappingRcd" ),
@@ -414,36 +162,6 @@ process.magfield = cms.ESSource( "XMLIdealGeometryESSource",
       'MagneticField/GeomBuilder/data/MagneticFieldParameters_07_2pi.xml' )
 )
 
-process.hltMuTrackJpsiTrajectoryBuilder = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  ComponentName = cms.string( "hltMuTrackJpsiTrajectoryBuilder" ),
-  updator = cms.string( "KFUpdator" ),
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  estimator = cms.string( "Chi2" ),
-  TTRHBuilder = cms.string( "WithTrackAngle" ),
-  MeasurementTrackerName = cms.string( "" ),
-  trajectoryFilterName = cms.string( "hltMuTrackJpsiTrajectoryFilter" ),
-  maxCand = cms.int32( 1 ),
-  lostHitPenalty = cms.double( 30.0 ),
-  intermediateCleaning = cms.bool( True ),
-  alwaysUseInvalidHits = cms.bool( False ),
-  appendToDataLabel = cms.string( "" )
-)
-process.hltMuTrackJpsiTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
-  ComponentName = cms.string( "hltMuTrackJpsiTrajectoryFilter" ),
-  appendToDataLabel = cms.string( "" ),
-  filterPset = cms.PSet( 
-    minimumNumberOfHits = cms.int32( 5 ),
-    minHitsMinPt = cms.int32( 3 ),
-    ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
-    maxLostHits = cms.int32( 1 ),
-    maxNumberOfHits = cms.int32( 8 ),
-    maxConsecLostHits = cms.int32( 1 ),
-    chargeSignificance = cms.double( -1.0 ),
-    nSigmaMinPt = cms.double( 5.0 ),
-    minPt = cms.double( 1.0 )
-  )
-)
 process.AnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   ComponentName = cms.string( "AnalyticalPropagator" ),
   PropagationDirection = cms.string( "alongMomentum" ),
@@ -476,7 +194,7 @@ process.CSCGeometryESModule = cms.ESProducer( "CSCGeometryESModule",
   useOnlyWiresInME1a = cms.bool( False ),
   useGangedStripsInME1a = cms.bool( True ),
   useCentreTIOffsets = cms.bool( False ),
-  useDDD = cms.bool( True ),
+  useDDD = cms.bool( False ),
   applyAlignment = cms.bool( True )
 )
 process.CaloGeometryBuilder = cms.ESProducer( "CaloGeometryBuilder",
@@ -495,8 +213,9 @@ process.CaloTowerConstituentsMapBuilder = cms.ESProducer( "CaloTowerConstituents
   MapFile = cms.untracked.string( "Geometry/CaloTopology/data/CaloTowerEEGeometric.map.gz" ),
   appendToDataLabel = cms.string( "" )
 )
-process.CaloTowerHardcodeGeometryEP = cms.ESProducer( "CaloTowerHardcodeGeometryEP",
-  appendToDataLabel = cms.string( "" )
+process.CaloTowerGeometryFromDBEP = cms.ESProducer( "CaloTowerGeometryFromDBEP",
+  appendToDataLabel = cms.string( "" ),
+  applyAlignment = cms.bool( False )
 )
 process.Chi2EstimatorForRefit = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
   ComponentName = cms.string( "Chi2EstimatorForRefit" ),
@@ -528,7 +247,7 @@ process.CkfTrajectoryBuilder = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
 process.DTGeometryESModule = cms.ESProducer( "DTGeometryESModule",
   alignmentsLabel = cms.string( "" ),
   appendToDataLabel = cms.string( "" ),
-  fromDDD = cms.bool( True ),
+  fromDDD = cms.bool( False ),
   applyAlignment = cms.bool( True )
 )
 process.DummyDetLayerGeometry = cms.ESProducer( "DetLayerGeometryESProducer",
@@ -541,27 +260,28 @@ process.ESUnpackerWorkerESProducer = cms.ESProducer( "ESUnpackerWorkerESProducer
   DCCDataUnpacker = cms.PSet(  LookupTable = cms.FileInPath( "EventFilter/ESDigiToRaw/data/ES_lookup_table.dat" ) ),
   RHAlgo = cms.PSet( 
     Type = cms.string( "ESRecHitWorker" ),
-    ESGain = cms.int32( 1 ),
+    ESGain = cms.int32( 2 ),
     ESMIPkeV = cms.double( 81.08 ),
-    ESMIPADC = cms.double( 9.0 ),
-    ESBaseline = cms.int32( 1000 )
+    ESMIPADC = cms.double( 55.0 ),
+    ESBaseline = cms.int32( 0 ),
+    ESRecoAlgo = cms.int32( 0 )
   )
 )
-process.EcalBarrelGeometryEP = cms.ESProducer( "EcalBarrelGeometryEP",
+process.EcalBarrelGeometryFromDBEP = cms.ESProducer( "EcalBarrelGeometryFromDBEP",
   appendToDataLabel = cms.string( "" ),
   applyAlignment = cms.bool( False )
 )
 process.EcalElectronicsMappingBuilder = cms.ESProducer( "EcalElectronicsMappingBuilder",
   appendToDataLabel = cms.string( "" )
 )
-process.EcalEndcapGeometryEP = cms.ESProducer( "EcalEndcapGeometryEP",
+process.EcalEndcapGeometryFromDBEP = cms.ESProducer( "EcalEndcapGeometryFromDBEP",
   appendToDataLabel = cms.string( "" ),
   applyAlignment = cms.bool( False )
 )
 process.EcalLaserCorrectionService = cms.ESProducer( "EcalLaserCorrectionService",
   appendToDataLabel = cms.string( "" )
 )
-process.EcalPreshowerGeometryEP = cms.ESProducer( "EcalPreshowerGeometryEP",
+process.EcalPreshowerGeometryFromDBEP = cms.ESProducer( "EcalPreshowerGeometryFromDBEP",
   appendToDataLabel = cms.string( "" ),
   applyAlignment = cms.bool( False )
 )
@@ -675,8 +395,9 @@ process.HITTRHBuilderWithoutRefit = cms.ESProducer( "TkTransientTrackingRecHitBu
   ComputeCoarseLocalPositionFromDisk = cms.bool( False ),
   appendToDataLabel = cms.string( "" )
 )
-process.HcalHardcodeGeometryEP = cms.ESProducer( "HcalHardcodeGeometryEP",
-  appendToDataLabel = cms.string( "" )
+process.HcalGeometryFromDBEP = cms.ESProducer( "HcalGeometryFromDBEP",
+  appendToDataLabel = cms.string( "" ),
+  applyAlignment = cms.bool( False )
 )
 process.HcalTopologyIdealEP = cms.ESProducer( "HcalTopologyIdealEP",
   appendToDataLabel = cms.string( "" )
@@ -879,6 +600,7 @@ process.PixelCPEGenericESProducer = cms.ESProducer( "PixelCPEGenericESProducer",
   ClusterProbComputationFlag = cms.int32( 0 )
 )
 process.RPCGeometryESModule = cms.ESProducer( "RPCGeometryESModule",
+  useDDD = cms.untracked.bool( False ),
   appendToDataLabel = cms.string( "" )
 )
 process.RungeKuttaTrackerPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
@@ -899,7 +621,12 @@ process.SiStripGainESProducer = cms.ESProducer( "SiStripGainESProducer",
   printDebug = cms.untracked.bool( False ),
   APVGain = cms.VPSet( 
     cms.PSet(  Record = cms.string( "SiStripApvGainRcd" ),
-      Label = cms.untracked.string( "" )
+      Label = cms.untracked.string( "" ),
+      NormalizationFactor = cms.untracked.double( 1.0 )
+    ),
+    cms.PSet(  Record = cms.string( "SiStripApvGain2Rcd" ),
+      Label = cms.untracked.string( "" ),
+      NormalizationFactor = cms.untracked.double( 1.0 )
     )
   )
 )
@@ -1119,10 +846,10 @@ process.TrackerDigiGeometryESModule = cms.ESProducer( "TrackerDigiGeometryESModu
   alignmentsLabel = cms.string( "" ),
   appendToDataLabel = cms.string( "" ),
   applyAlignment = cms.bool( True ),
-  fromDDD = cms.bool( True )
+  fromDDD = cms.bool( False )
 )
 process.TrackerGeometricDetESModule = cms.ESProducer( "TrackerGeometricDetESModule",
-  fromDDD = cms.bool( True ),
+  fromDDD = cms.bool( False ),
   appendToDataLabel = cms.string( "" )
 )
 process.TrackerRecoGeometryESProducer = cms.ESProducer( "TrackerRecoGeometryESProducer",
@@ -1212,7 +939,13 @@ process.WithTrackAngle = cms.ESProducer( "TkTransientTrackingRecHitBuilderESProd
   ComputeCoarseLocalPositionFromDisk = cms.bool( False ),
   appendToDataLabel = cms.string( "" )
 )
-process.ZdcHardcodeGeometryEP = cms.ESProducer( "ZdcHardcodeGeometryEP",
+process.ZdcGeometryFromDBEP = cms.ESProducer( "ZdcGeometryFromDBEP",
+  appendToDataLabel = cms.string( "" ),
+  applyAlignment = cms.bool( False )
+)
+process.XMLFromDBSource = cms.ESProducer( "XMLIdealGeometryESProducer",
+  rootDDName = cms.string( "cms:OCMS" ),
+  label = cms.string( "Extended" ),
   appendToDataLabel = cms.string( "" )
 )
 process.bJetRegionalTrajectoryBuilder = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
@@ -1267,9 +1000,9 @@ process.hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
       Level = cms.int32( 0 )
     )
   ),
-  RecoveredRecHitBits = cms.vstring(  ),
+  DropChannelStatusBits = cms.vstring(  ),
   appendToDataLabel = cms.string( "" ),
-  DropChannelStatusBits = cms.vstring(  )
+  RecoveredRecHitBits = cms.vstring(  )
 )
 process.hcal_db_producer = cms.ESProducer( "HcalDbProducer",
   appendToDataLabel = cms.string( "" )
@@ -1334,6 +1067,36 @@ process.hltKFSmoother = cms.ESProducer( "KFTrajectorySmootherESProducer",
   errorRescaling = cms.double( 100.0 ),
   minHits = cms.int32( 3 ),
   appendToDataLabel = cms.string( "" )
+)
+process.hltMuTrackJpsiTrajectoryBuilder = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
+  ComponentName = cms.string( "hltMuTrackJpsiTrajectoryBuilder" ),
+  updator = cms.string( "KFUpdator" ),
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  estimator = cms.string( "Chi2" ),
+  TTRHBuilder = cms.string( "WithTrackAngle" ),
+  MeasurementTrackerName = cms.string( "" ),
+  trajectoryFilterName = cms.string( "hltMuTrackJpsiTrajectoryFilter" ),
+  maxCand = cms.int32( 1 ),
+  lostHitPenalty = cms.double( 30.0 ),
+  intermediateCleaning = cms.bool( True ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  appendToDataLabel = cms.string( "" )
+)
+process.hltMuTrackJpsiTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
+  ComponentName = cms.string( "hltMuTrackJpsiTrajectoryFilter" ),
+  appendToDataLabel = cms.string( "" ),
+  filterPset = cms.PSet( 
+    minimumNumberOfHits = cms.int32( 5 ),
+    minHitsMinPt = cms.int32( 3 ),
+    ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+    maxLostHits = cms.int32( 1 ),
+    maxNumberOfHits = cms.int32( 8 ),
+    maxConsecLostHits = cms.int32( 1 ),
+    chargeSignificance = cms.double( -1.0 ),
+    nSigmaMinPt = cms.double( 5.0 ),
+    minPt = cms.double( 1.0 )
+  )
 )
 process.mixedlayerpairs = cms.ESProducer( "SeedingLayersESProducer",
   appendToDataLabel = cms.string( "" ),
@@ -1549,7 +1312,8 @@ process.trajFilterL3 = cms.ESProducer( "TrajectoryFilterESProducer",
 process.trajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
   ComponentName = cms.string( "TrajectoryCleanerBySharedHits" ),
   appendToDataLabel = cms.string( "" ),
-  fractionShared = cms.double( 0.5 )
+  fractionShared = cms.double( 0.5 ),
+  allowSharedFirstHit = cms.bool( False )
 )
 
 process.DQM = cms.Service( "DQM",
@@ -1558,12 +1322,7 @@ process.DQMStore = cms.Service( "DQMStore",
 )
 process.DTDataIntegrityTask = cms.Service( "DTDataIntegrityTask",
     getSCInfo = cms.untracked.bool( True ),
-    hltMode = cms.untracked.bool( True ),
-)
-process.FUShmDQMOutputService = cms.Service( "FUShmDQMOutputService",
-    lumiSectionsPerUpdate = cms.double( 1.0 ),
-    useCompression = cms.bool( True ),
-    compressionLevel = cms.int32( 1 ),
+    processingMode = cms.untracked.string( "HLT" )
 )
 process.MessageLogger = cms.Service( "MessageLogger",
     destinations = cms.untracked.vstring( 'warnings',
@@ -1591,44 +1350,67 @@ process.MessageLogger = cms.Service( "MessageLogger",
         reportEvery = cms.untracked.int32( 1 ),
         limit = cms.untracked.int32( 10000000 )
       ),
-      threshold = cms.untracked.string( "INFO" )
+      threshold = cms.untracked.string( "INFO" ),
     ),
-    cout = cms.untracked.PSet(  threshold = cms.untracked.string( "ERROR" ) ),
+    cout = cms.untracked.PSet( 
+      threshold = cms.untracked.string( "ERROR" ),
+    ),
     errors = cms.untracked.PSet( 
       threshold = cms.untracked.string( "INFO" ),
-      placeholder = cms.untracked.bool( True )
+      placeholder = cms.untracked.bool( True ),
     ),
     warnings = cms.untracked.PSet( 
       threshold = cms.untracked.string( "INFO" ),
-      placeholder = cms.untracked.bool( True )
+      placeholder = cms.untracked.bool( True ),
     ),
     infos = cms.untracked.PSet( 
       threshold = cms.untracked.string( "INFO" ),
       Root_NoDictionary = cms.untracked.PSet(  limit = cms.untracked.int32( 0 ) ),
-      placeholder = cms.untracked.bool( True )
+      placeholder = cms.untracked.bool( True ),
     ),
     debugs = cms.untracked.PSet( 
       threshold = cms.untracked.string( "INFO" ),
-      placeholder = cms.untracked.bool( True )
+      placeholder = cms.untracked.bool( True ),
     ),
     fwkJobReports = cms.untracked.vstring( 'FrameworkJobReport' ),
     FrameworkJobReport = cms.untracked.PSet( 
       default = cms.untracked.PSet(  limit = cms.untracked.int32( 0 ) ),
       FwkJob = cms.untracked.PSet(  limit = cms.untracked.int32( 10000000 ) )
     ),
-    suppressWarning = cms.untracked.vstring( 'hltPixelTracksForMinBias' )
+    suppressWarning = cms.untracked.vstring( 'hltOnlineBeamSpot',
+      'hltPixelTracksForMinBias',
+      'hltPixelTracksForHighMult',
+      'hltHITPixelTracksHE',
+      'hltHITPixelTracksHB',
+      'hltSiPixelClusters',
+      'hltPixelTracks' ),
+    threshold = cms.untracked.string( "INFO" ),
 )
 process.MicroStateService = cms.Service( "MicroStateService",
 )
 process.ModuleWebRegistry = cms.Service( "ModuleWebRegistry",
 )
 process.PrescaleService = cms.Service( "PrescaleService",
-    lvl1DefaultLabel = cms.untracked.string( "0" ),
-    lvl1Labels = cms.vstring( '0' ),
+    lvl1DefaultLabel = cms.untracked.string( "1.6E30" ),
+    lvl1Labels = cms.vstring( '1.6E30',
+      '8E29',
+      '4E29',
+      '2E29',
+      'Cosmics' ),
     prescaleTable = cms.VPSet( 
+      cms.PSet(  pathName = cms.string( "HLT_HIMinBiasCalo" ),
+        prescales = cms.vuint32( 1, 1, 1, 1, 0 )
+      ),
+      cms.PSet(  pathName = cms.string( "HLT_HIJet35U" ),
+        prescales = cms.vuint32( 1, 1, 1, 1, 0 )
+      ),
+      cms.PSet(  pathName = cms.string( "HLT_HIPhoton15" ),
+        prescales = cms.vuint32( 1, 1, 1, 1, 0 )
+      ),
+      cms.PSet(  pathName = cms.string( "HLT_HIDoubleMu" ),
+        prescales = cms.vuint32( 1, 1, 1, 1, 0 )
+      )
     )
-)
-process.TimeProfilerService = cms.Service( "TimeProfilerService",
 )
 process.UpdaterService = cms.Service( "UpdaterService",
 )
@@ -1638,11 +1420,6 @@ process.hltGetRaw = cms.EDAnalyzer( "HLTGetRaw",
 )
 process.hltTriggerType = cms.EDFilter( "HLTTriggerTypeFilter",
     SelectedTriggerType = cms.int32( 1 )
-)
-process.hltL1EventNumber = cms.EDFilter( "HLTL1NumberFilter",
-    rawInput = cms.InputTag( "source" ),
-    period = cms.uint32( 4096 ),
-    invert = cms.bool( True )
 )
 process.hltGtDigis = cms.EDProducer( "L1GlobalTriggerRawToDigi",
     DaqGtInputTag = cms.InputTag( "source" ),
@@ -1696,36 +1473,51 @@ process.hltL1extraParticles = cms.EDProducer( "L1ExtraParticlesProd",
 )
 process.hltBPTXCoincidence = cms.EDFilter( "HLTLevel1Activity",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    daqPartitions = cms.uint32( 1 ),
     ignoreL1Mask = cms.bool( True ),
     invert = cms.bool( False ),
     physicsLoBits = cms.uint64( 0x1 ),
     physicsHiBits = cms.uint64( 0x40000 ),
     technicalBits = cms.uint64( 0x0 ),
-    bunchCrossings = cms.vint32( 0, -1, 1, -2, 2 )
+    bunchCrossings = cms.vint32( 0, -1, 1 )
+)
+process.hltScalersRawToDigi = cms.EDProducer( "ScalersRawToDigi",
+    scalersInputTag = cms.InputTag( "source" )
+)
+process.hltOnlineBeamSpot = cms.EDProducer( "BeamSpotOnlineProducer",
+    label = cms.InputTag( "hltScalersRawToDigi" ),
+    changeToCMSCoordinates = cms.bool( False ),
+    maxRadius = cms.double( 2.0 ),
+    maxZ = cms.double( 40.0 ),
+    setSigmaZ = cms.double( 10.0 )
 )
 process.hltOfflineBeamSpot = cms.EDProducer( "BeamSpotProducer" )
-process.hltPreFirstPath = cms.EDFilter( "HLTPrescaler" )
+process.hltPreFirstPath = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
+)
 process.hltBoolFirstPath = cms.EDFilter( "HLTBool",
     result = cms.bool( False )
 )
 process.hltL1sHIMinBiasCalo = cms.EDFilter( "HLTLevel1GTSeed",
     L1UseL1TriggerObjectMaps = cms.bool( True ),
-    L1NrBxInEvent = cms.int32( 5 ),
+    L1NrBxInEvent = cms.int32( 3 ),
     L1TechTriggerSeeding = cms.bool( False ),
     L1UseAliasesForSeeding = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleHfBitCountsRing1_1 OR L1_SingleHfBitCountsRing2_1 OR L1_DoubleHfBitCountsRing1_P1N1 OR L1_DoubleHfBitCountsRing2_P1N1 OR L1_SingleHfRingEtSumsRing1_4 OR L1_DoubleHfRingEtSumsRing1_P4N4 OR L1_SingleHfRingEtSumsRing2_4 OR L1_DoubleHfRingEtSumsRing2_P4N4 OR L1_SingleEG2" ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleHfBitCountsRing1_P1N1 OR L1_DoubleHfBitCountsRing2_P1N1 OR L1_SingleHfRingEtSumsRing1_4 OR L1_DoubleHfRingEtSumsRing1_P4N4 OR L1_SingleHfRingEtSumsRing2_4 OR L1_DoubleHfRingEtSumsRing2_P4N4 OR L1_SingleEG2" ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" )
 )
-process.hltPreHIMinBiasCalo = cms.EDFilter( "HLTPrescaler" )
+process.hltPreHIMinBiasCalo = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
+)
 process.hltBoolEnd = cms.EDFilter( "HLTBool",
     result = cms.bool( True )
 )
 process.hltHIL1sJet35U = cms.EDFilter( "HLTLevel1GTSeed",
     L1UseL1TriggerObjectMaps = cms.bool( True ),
-    L1NrBxInEvent = cms.int32( 5 ),
+    L1NrBxInEvent = cms.int32( 3 ),
     L1TechTriggerSeeding = cms.bool( False ),
     L1UseAliasesForSeeding = cms.bool( True ),
     L1SeedsLogicalExpression = cms.string( "L1_SingleJet30" ),
@@ -1734,7 +1526,9 @@ process.hltHIL1sJet35U = cms.EDFilter( "HLTLevel1GTSeed",
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" )
 )
-process.hltHIPreJet35U = cms.EDFilter( "HLTPrescaler" )
+process.hltHIPreJet35U = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
+)
 process.hltEcalRawToRecHitFacility = cms.EDProducer( "EcalRawToRecHitFacility",
     sourceTag = cms.InputTag( "source" ),
     workerName = cms.string( "" )
@@ -1799,23 +1593,23 @@ process.hltHoreco = cms.EDProducer( "HcalSimpleReconstructor",
     correctionPhaseNS = cms.double( 13.0 )
 )
 process.hltTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
-    EBThreshold = cms.double( 0.09 ),
-    EEThreshold = cms.double( 0.45 ),
+    EBThreshold = cms.double( 0.07 ),
+    EEThreshold = cms.double( 0.3 ),
     UseEtEBTreshold = cms.bool( False ),
     UseEtEETreshold = cms.bool( False ),
     UseSymEBTreshold = cms.bool( False ),
     UseSymEETreshold = cms.bool( False ),
     HcalThreshold = cms.double( -1000.0 ),
-    HBThreshold = cms.double( 0.9 ),
-    HESThreshold = cms.double( 1.4 ),
-    HEDThreshold = cms.double( 1.4 ),
-    HOThreshold0 = cms.double( 1.1 ),
-    HOThresholdPlus1 = cms.double( 1.1 ),
-    HOThresholdMinus1 = cms.double( 1.1 ),
-    HOThresholdPlus2 = cms.double( 1.1 ),
-    HOThresholdMinus2 = cms.double( 1.1 ),
-    HF1Threshold = cms.double( 1.2 ),
-    HF2Threshold = cms.double( 1.8 ),
+    HBThreshold = cms.double( 0.7 ),
+    HESThreshold = cms.double( 0.8 ),
+    HEDThreshold = cms.double( 0.8 ),
+    HOThreshold0 = cms.double( 3.5 ),
+    HOThresholdPlus1 = cms.double( 3.5 ),
+    HOThresholdMinus1 = cms.double( 3.5 ),
+    HOThresholdPlus2 = cms.double( 3.5 ),
+    HOThresholdMinus2 = cms.double( 3.5 ),
+    HF1Threshold = cms.double( 0.5 ),
+    HF2Threshold = cms.double( 0.85 ),
     EBWeight = cms.double( 1.0 ),
     EEWeight = cms.double( 1.0 ),
     HBWeight = cms.double( 1.0 ),
@@ -1870,7 +1664,7 @@ process.hltIterativeCone5PileupSubtractionCaloJets = cms.EDProducer( "FastjetJet
     srcPVs = cms.InputTag( "offlinePrimaryVertices" ),
     jetType = cms.string( "CaloJet" ),
     jetPtMin = cms.double( 10.0 ),
-    inputEtMin = cms.double( 0.5 ),
+    inputEtMin = cms.double( 0.3 ),
     inputEMin = cms.double( 0.0 ),
     doPVCorrection = cms.bool( False ),
     doPUOffsetCorr = cms.bool( True ),
@@ -1897,7 +1691,7 @@ process.hltHI1jet35U = cms.EDFilter( "HLT1CaloJet",
 )
 process.hltHIL1sPhoton15 = cms.EDFilter( "HLTLevel1GTSeed",
     L1UseL1TriggerObjectMaps = cms.bool( True ),
-    L1NrBxInEvent = cms.int32( 5 ),
+    L1NrBxInEvent = cms.int32( 3 ),
     L1TechTriggerSeeding = cms.bool( False ),
     L1UseAliasesForSeeding = cms.bool( True ),
     L1SeedsLogicalExpression = cms.string( "L1_SingleEG5" ),
@@ -1906,7 +1700,9 @@ process.hltHIL1sPhoton15 = cms.EDFilter( "HLTLevel1GTSeed",
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" )
 )
-process.hltHIPrePhoton15 = cms.EDFilter( "HLTPrescaler" )
+process.hltHIPrePhoton15 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
+)
 process.hltIslandBasicClustersHI = cms.EDProducer( "IslandClusterProducer",
     VerbosityLevel = cms.string( "ERROR" ),
     barrelHitProducer = cms.string( "hltEcalRecHitAll" ),
@@ -1993,10 +1789,12 @@ process.hltHIPhoton15 = cms.EDFilter( "HLT1Photon",
     MaxEta = cms.double( 2.0 ),
     MinN = cms.int32( 1 )
 )
-process.hltHIPreMML1 = cms.EDFilter( "HLTPrescaler" )
+process.hltHIPreMML1 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
+)
 process.hltHIMML1Seed = cms.EDFilter( "HLTLevel1GTSeed",
     L1UseL1TriggerObjectMaps = cms.bool( True ),
-    L1NrBxInEvent = cms.int32( 5 ),
+    L1NrBxInEvent = cms.int32( 3 ),
     L1TechTriggerSeeding = cms.bool( False ),
     L1UseAliasesForSeeding = cms.bool( True ),
     L1SeedsLogicalExpression = cms.string( "L1_DoubleMuOpen" ),
@@ -2124,6 +1922,7 @@ process.hltMuonCSCDigis = cms.EDProducer( "CSCDCCUnpacker",
 process.hltCsc2DRecHits = cms.EDProducer( "CSCRecHitDProducer",
     CSCUseCalibrations = cms.bool( True ),
     CSCUseStaticPedestals = cms.bool( False ),
+    CSCUseTimingCorrections = cms.bool( False ),
     stripDigiTag = cms.InputTag( 'hltMuonCSCDigis','MuonCSCStripDigi' ),
     wireDigiTag = cms.InputTag( 'hltMuonCSCDigis','MuonCSCWireDigi' ),
     CSCstripWireDeltaTime = cms.int32( 8 ),
@@ -2358,7 +2157,8 @@ process.hltL2Muons = cms.EDProducer( "L2MuonProducer",
         Propagator = cms.string( "FastSteppingHelixPropagatorOpposite" ),
         BeamSpotPositionErrors = cms.vdouble( 0.1, 0.1, 5.3 )
       ),
-      VertexConstraint = cms.bool( True )
+      VertexConstraint = cms.bool( True ),
+      beamSpot = cms.InputTag( "hltOfflineBeamSpot" )
     )
 )
 process.hltL2MuonCandidates = cms.EDProducer( "L2MuonCandidateProducer",
@@ -2415,7 +2215,7 @@ process.hltHIPixelTracks = cms.EDProducer( "PixelTrackProducer",
         useMultScattering = cms.bool( True ),
         ComponentName = cms.string( "PixelTripletHLTGenerator" ),
         extraHitRZtolerance = cms.double( 0.06 ),
-        maxTriplets = cms.uint32( 10000 )
+        maxElement = cms.uint32( 10000 )
       )
     ),
     FitterPSet = cms.PSet( 
@@ -2467,7 +2267,9 @@ process.hltHIMML3Filter = cms.EDFilter( "HLTHIMuL1L2L3Filter",
 process.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
     processName = cms.string( "@" )
 )
-process.hltPreTriggerSummaryRAW = cms.EDFilter( "HLTPrescaler" )
+process.hltPreTriggerSummaryRAW = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
+)
 process.hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
     processName = cms.string( "@" )
 )
@@ -2554,7 +2356,9 @@ process.hltOutputOnlineErrors = cms.OutputModule( "PoolOutputModule",
 )
 
 process.HLTL1UnpackerSequence = cms.Sequence( process.hltGtDigis + process.hltGctDigis + process.hltL1GtObjectMap + process.hltL1extraParticles )
-process.HLTBeginSequenceBPTX = cms.Sequence( process.hltTriggerType + process.hltL1EventNumber + process.HLTL1UnpackerSequence + process.hltBPTXCoincidence + process.hltOfflineBeamSpot )
+process.HLTBeamSpot = cms.Sequence( process.hltScalersRawToDigi + process.hltOnlineBeamSpot + process.hltOfflineBeamSpot )
+process.HLTBeginSequenceBPTX = cms.Sequence( process.hltTriggerType + process.HLTL1UnpackerSequence + process.hltBPTXCoincidence + process.HLTBeamSpot )
+process.HLTBeginSequence = cms.Sequence( process.hltTriggerType + process.HLTL1UnpackerSequence + process.HLTBeamSpot )
 process.HLTEndSequence = cms.Sequence( process.hltBoolEnd )
 process.HLTDoLocalHcalSequence = cms.Sequence( process.hltHcalDigis + process.hltHbhereco + process.hltHfreco + process.hltHoreco )
 process.HLTDoCaloSequence = cms.Sequence( process.hltEcalRawToRecHitFacility + process.hltEcalRegionalRestFEDs + process.hltEcalRecHitAll + process.HLTDoLocalHcalSequence + process.hltTowerMakerForAll )
@@ -2568,10 +2372,10 @@ process.HLTHIRecopixelvertexingSequence = cms.Sequence( process.hltHIPixelTracks
 process.HLTDoLocalStripSequence = cms.Sequence( process.hltSiStripRawToClustersFacility + process.hltSiStripClusters )
 
 process.HLTriggerFirstPath = cms.Path( process.hltGetRaw + process.HLTBeginSequenceBPTX + process.hltPreFirstPath + process.hltBoolFirstPath )
-process.HLT_HIMinBiasCalo = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sHIMinBiasCalo + process.hltPreHIMinBiasCalo + process.HLTEndSequence )
-process.HLT_HIJet35U = cms.Path( process.HLTBeginSequenceBPTX + process.hltHIL1sJet35U + process.hltHIPreJet35U + process.HLTDoHIJetRecoSequence + process.hltHI1jet35U + process.HLTEndSequence )
-process.HLT_HIPhoton15 = cms.Path( process.HLTBeginSequenceBPTX + process.hltHIL1sPhoton15 + process.hltHIPrePhoton15 + process.HLTDoCaloSequence + process.HLTDoHIEcalClusSequence + process.hltHIPhoton15 + process.HLTEndSequence )
-process.HLT_HIDoubleMu = cms.Path( process.HLTBeginSequenceBPTX + process.hltHIPreMML1 + process.hltHIMML1Seed + process.HLTL2muonrecoSequence + process.HLTDoLocalPixelSequence + process.HLTHIRecopixelvertexingSequence + process.HLTDoLocalStripSequence + process.hltHIMML3Filter + process.HLTEndSequence )
+process.HLT_HIMinBiasCalo = cms.Path( process.HLTBeginSequence + process.hltL1sHIMinBiasCalo + process.hltPreHIMinBiasCalo + process.HLTEndSequence )
+process.HLT_HIJet35U = cms.Path( process.HLTBeginSequence + process.hltHIL1sJet35U + process.hltHIPreJet35U + process.HLTDoHIJetRecoSequence + process.hltHI1jet35U + process.HLTEndSequence )
+process.HLT_HIPhoton15 = cms.Path( process.HLTBeginSequence + process.hltHIL1sPhoton15 + process.hltHIPrePhoton15 + process.HLTDoCaloSequence + process.HLTDoHIEcalClusSequence + process.hltHIPhoton15 + process.HLTEndSequence )
+process.HLT_HIDoubleMu = cms.Path( process.HLTBeginSequence + process.hltHIPreMML1 + process.hltHIMML1Seed + process.HLTL2muonrecoSequence + process.HLTDoLocalPixelSequence + process.HLTHIRecopixelvertexingSequence + process.HLTDoLocalStripSequence + process.hltHIMML3Filter + process.HLTEndSequence )
 process.HLTriggerFinalPath = cms.Path( process.hltTriggerSummaryAOD + process.hltPreTriggerSummaryRAW + process.hltTriggerSummaryRAW + process.hltBoolFinalPath )
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltL1GtTrigReport + process.hltTrigReport )
 process.HLTOutput = cms.EndPath( process.hltOutputA )
@@ -2586,9 +2390,42 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool( True )
 )
 
+# override L1 menu
+process.Level1MenuOverride = cms.ESSource( "PoolDBESSource",
+    BlobStreamerName = cms.untracked.string( "TBufferBlobStreamingService" ),
+    connect = cms.string( "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_COND_31X_L1T" ),
+    label = cms.untracked.string( "" ),
+    globaltag = cms.string( "" ),
+    tag = cms.untracked.string( "" ),
+    RefreshEachRun = cms.untracked.bool( True ),
+    appendToDataLabel = cms.string( "" ),
+    DBParameters = cms.PSet(
+      authenticationPath = cms.untracked.string( "." ),
+      connectionRetrialPeriod = cms.untracked.int32( 10 ),
+      idleConnectionCleanupPeriod = cms.untracked.int32( 10 ),
+      messageLevel = cms.untracked.int32( 0 ),
+      enablePoolAutomaticCleanUp = cms.untracked.bool( False ),
+      enableConnectionSharing = cms.untracked.bool( True ),
+      enableReadOnlySessionOnUpdateConnection = cms.untracked.bool( False ),
+      connectionTimeOut = cms.untracked.int32( 0 ),
+      connectionRetrialTimeOut = cms.untracked.int32( 60 )
+    ),
+    toGet = cms.VPSet(
+      cms.PSet(  record = cms.string( "L1GtTriggerMenuRcd" ),
+        tag = cms.string( "L1GtTriggerMenu_L1Menu_MC2010_v0_mc" )
+      )
+    ),
+    timetype = cms.string( "runnumber" ),
+    siteLocalConfig = cms.untracked.bool( False ),
+    messagelevel = cms.untracked.uint32( 0 )
+)
+process.es_prefer_Level1MenuOverride = cms.ESPrefer( "PoolDBESSource", "Level1MenuOverride" )
+
 if 'GlobalTag' in process.__dict__:
     process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
     process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
+    from Configuration.PyReleaseValidation.autoCond import autoCond
+    process.GlobalTag.globaltag = autoCond['hltonline']
 
 if 'Level1MenuOverride' in process.__dict__:
     process.Level1MenuOverride.connect   = 'frontier://FrontierProd/CMS_COND_31X_L1T'

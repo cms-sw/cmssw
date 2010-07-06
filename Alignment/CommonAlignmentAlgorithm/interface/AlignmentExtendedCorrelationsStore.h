@@ -11,8 +11,7 @@
 
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentCorrelationsStore.h"
-
-class AlignmentExtendedCorrelationsEntry;
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentExtendedCorrelationsEntry.h"
 
 namespace edm { class ParameterSet; }
 

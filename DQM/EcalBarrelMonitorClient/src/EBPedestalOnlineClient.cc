@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2010/02/15 14:14:14 $
- * $Revision: 1.154 $
+ * $Date: 2010/03/27 20:07:57 $
+ * $Revision: 1.155 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -364,8 +364,10 @@ void EBPedestalOnlineClient::analyze(void) {
         if ( strcmp(ecid.getMapsTo().c_str(), "EB_crystal_number") != 0 ) continue;
 
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
-        int ic = ecid.getID2();
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
 
+        int ic = ecid.getID2();
         int ie = (ic-1)/20 + 1;
         int ip = (ic-1)%20 + 1;
 
@@ -386,8 +388,10 @@ void EBPedestalOnlineClient::analyze(void) {
         if ( strcmp(ecid.getMapsTo().c_str(), "EB_trigger_tower") != 0 ) continue;
 
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
-        int itt = ecid.getID2();
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
 
+        int itt = ecid.getID2();
         int iet = (itt-1)/4 + 1;
         int ipt = (itt-1)%4 + 1;
 

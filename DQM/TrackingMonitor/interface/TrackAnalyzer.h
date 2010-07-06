@@ -8,7 +8,7 @@ Monitoring source for general quantities related to tracks.
 */
 // Original Author:  Suchandra Dutta, Giorgia Mila
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackAnalyzer.h,v 1.5 2009/11/05 17:07:51 boudoul Exp $
+// $Id: TrackAnalyzer.h,v 1.6 2010/01/17 20:00:42 dutta Exp $
 
 #include <memory>
 #include <fstream>
@@ -31,6 +31,10 @@ class TrackAnalyzer
         virtual void beginJob(DQMStore * dqmStore_);
 
         virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Track& track);
+
+        void doSoftReset(DQMStore * dqmStore_);
+        void undoSoftReset(DQMStore * dqmStore_);
+        void setLumiFlag();
 
     private:
 

@@ -139,7 +139,7 @@ void CastorLEDMonitor::reset(){
 //=================== processEvent  ========================//
 //==========================================================//
 
-void CastorLEDMonitor::processEvent( const CastorDigiCollection& CastorDigi, const CastorDbService& cond){
+void CastorLEDMonitor::processEvent( const CastorDigiCollection& castorDigis, const CastorDbService& cond){
 
 
   meEVT_->Fill(ievt_);
@@ -152,8 +152,9 @@ void CastorLEDMonitor::processEvent( const CastorDigiCollection& CastorDigi, con
   float vals[10];
 
   
-  try{
-    for (CastorDigiCollection::const_iterator j=CastorDigi.begin(); j!=CastorDigi.end(); j++){
+   if(castorDigis.size()>0) {
+
+    for (CastorDigiCollection::const_iterator j=castorDigis.begin(); j!=castorDigis.end(); j++){
       const CastorDataFrame digi = (const CastorDataFrame)(*j);	
      
       /////---- No getCastorCalibrations method at the moment
@@ -194,8 +195,8 @@ void CastorLEDMonitor::processEvent( const CastorDigiCollection& CastorDigi, con
       //do per channel histograms once for each 100 events
       if(ievt_%100 == 0 && doPerChannel_) perChanHists(digi.id(),vals,castHists.shape, castHists.time, castHists.energy, baseFolder_);
     }        
-  } catch (...) {
-    if(fVerbosity > 0) cout << "CastorLEDMonitor::processEvent  NO Castor Digis." << endl;
+  } else {
+    if(fVerbosity > 0) cout << "CastorPSMonitor::processEvent NO Castor Digis !!!" << endl;
   }
  
 

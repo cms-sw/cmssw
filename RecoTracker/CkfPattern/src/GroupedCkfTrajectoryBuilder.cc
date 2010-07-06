@@ -842,7 +842,7 @@ GroupedCkfTrajectoryBuilder::backwardFit (TempTrajectory& candidate, unsigned in
   //
   TrajectoryStateOnSurface firstTsos(fwdTraj.firstMeasurement().updatedState());
   //cout << "firstTsos "<< firstTsos << endl;
-  firstTsos.rescaleError(100.);
+  firstTsos.rescaleError(10.);
   //TrajectoryContainer bwdFitted(fitter.fit(fwdTraj.seed(),fwdTraj.recHits(),firstTsos));
   TrajectoryContainer bwdFitted(fitter.fit(
   		TrajectorySeed(PTrajectoryStateOnDet(), TrajectorySeed::recHitContainer(), oppositeDirection(candidate.direction())),

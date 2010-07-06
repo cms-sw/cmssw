@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.51 2010/03/12 13:53:44 gpetrucc Exp $
+// $Id: MuonIdProducer.cc,v 1.52 2010/03/25 14:08:49 jribnik Exp $
 //
 //
 
@@ -225,9 +225,9 @@ reco::CaloMuon MuonIdProducer::makeCaloMuon( const reco::Muon& muon )
    reco::CaloMuon aMuon;
    aMuon.setInnerTrack( muon.innerTrack() );
    
-   aMuon.setCalEnergy( muon.calEnergy() );
+   if (muon.isEnergyValid()) aMuon.setCalEnergy( muon.calEnergy() );
    // get calo compatibility
-   aMuon.setCaloCompatibility( muonCaloCompatibility_.evaluate(muon) );
+   if (fillCaloCompatibility_) aMuon.setCaloCompatibility( muonCaloCompatibility_.evaluate(muon) );
    return aMuon;
 }
 

@@ -154,7 +154,6 @@ else:
         process.DoHLTAlCaPi0Eta1E31,
         # process.DoHLTIsoTrack,
         process.DoHLTMinBiasPixelTracks,
-        process.DoHLT_Onia_1E31,
         process.analyzeThis)
 
 #########################################################################################

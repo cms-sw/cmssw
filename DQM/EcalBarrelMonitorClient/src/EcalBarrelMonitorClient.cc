@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2010/03/27 20:30:37 $
- * $Revision: 1.481 $
+ * $Date: 2010/04/14 14:54:57 $
+ * $Revision: 1.484 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -114,6 +115,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps) {
 
   if ( verbose_ ) {
     if ( maskFile_.size() != 0 ) {
+      maskFile_ = edm::FileInPath(maskFile_).fullPath();
       std::cout << " maskFile is '" << maskFile_ << "'" << std::endl;
     }
   }
@@ -623,6 +625,50 @@ void EcalBarrelMonitorClient::beginJob(void) {
 
   if ( summaryClient_ ) summaryClient_->beginJob();
 
+  // summary for DQM GUI
+
+  char histo[200];
+
+  MonitorElement* me;
+
+  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
+
+  sprintf(histo, "reportSummary");
+  me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo);
+  if ( me ) {
+    dqmStore_->removeElement(me->getName());
+  }
+  me = dqmStore_->bookFloat(histo);
+  me->Fill(-1.0);
+
+  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
+
+  for (int i = 0; i < 36; i++) {
+    sprintf(histo, "EcalBarrel_%s", Numbers::sEB(i+1).c_str());
+    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
+    if ( me ) {
+      dqmStore_->removeElement(me->getName());
+    }
+    me = dqmStore_->bookFloat(histo);
+    me->Fill(-1.0);
+  }
+
+  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
+
+  sprintf(histo, "reportSummaryMap");
+  me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo);
+  if ( me ) {
+    dqmStore_->removeElement(me->getName());
+  }
+  me = dqmStore_->book2D(histo, histo, 72, 0., 72., 34, 0., 34);
+  for ( int iettx = 0; iettx < 34; iettx++ ) {
+    for ( int ipttx = 0; ipttx < 72; ipttx++ ) {
+      me->setBinContent( ipttx+1, iettx+1, -1.0 );
+    }
+  }
+  me->setAxisTitle("jphi", 1);
+  me->setAxisTitle("jeta", 2);
+
 }
 
 void EcalBarrelMonitorClient::beginRun(void) {
@@ -800,6 +846,34 @@ void EcalBarrelMonitorClient::endRun(const edm::Run& r, const edm::EventSetup& c
 
       }
 
+    }
+
+  }
+
+  // summary for DQM GUI
+
+  if ( run_ != -1 && evt_ != -1 && runType_ == -1 )  {
+
+    char histo[200];
+
+    MonitorElement* me;
+
+    sprintf(histo, "reportSummary");
+    me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo);
+    if ( me ) me->Fill(-1.0);
+
+    for (int i = 0; i < 36; i++) {
+      sprintf(histo, "EcalBarrel_%s", Numbers::sEB(i+1).c_str());
+      me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
+      if ( me ) me->Fill(-1.0);
+    }
+
+    sprintf(histo, "reportSummaryMap");
+    me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo);
+    for ( int iettx = 0; iettx < 34; iettx++ ) {
+      for ( int ipttx = 0; ipttx < 72; ipttx++ ) {
+        if ( me ) me->setBinContent( ipttx+1, iettx+1, -1.0 );
+      }
     }
 
   }

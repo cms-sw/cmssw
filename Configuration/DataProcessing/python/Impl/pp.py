@@ -17,7 +17,7 @@ from Configuration.PyReleaseValidation.ConfigBuilder import Options
 from Configuration.PyReleaseValidation.ConfigBuilder import defaultOptions
 from Configuration.PyReleaseValidation.ConfigBuilder import installFilteredStream
 from Configuration.PyReleaseValidation.ConfigBuilder import addOutputModule
-from Configuration.GlobalRuns.reco_TLR import reco_TLR
+from Configuration.DataProcessing.RecoTLR import customisePrompt,customiseExpress
 
 class pp(Scenario):
     """
@@ -29,7 +29,7 @@ class pp(Scenario):
     """
 
 
-    def promptReco(self, globalTag, writeTiers = ['RECO','ALCARECO']):
+    def promptReco(self, globalTag, writeTiers = ['RECO'], **options):
         """
         _promptReco_
 
@@ -43,12 +43,15 @@ class pp(Scenario):
                  'MuAlCalIsolatedMu',
                  'MuAlOverlaps',
                  'HcalCalIsoTrk',
-                 'HcalCalDijets']
+                 'HcalCalDijets',
+                 'SiStripCalMinBias',
+                 'EcalCalElectron',
+                 'DtCalib']
         step = stepALCAPRODUCER(skims)
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
-        options.step = 'RAW2DIGI,L1Reco,RECO:reconstruction_withPixellessTk'+step+',L1HwVal,DQM,ENDJOB'
+        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',L1HwVal,DQM,ENDJOB'
         options.isMC = False
         options.isData = True
         options.beamspot = None
@@ -56,7 +59,6 @@ class pp(Scenario):
         options.magField = 'AutoFromDBCurrent'
         options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
         options.relval = False
-        
         
         process = cms.Process('RECO')
         cb = ConfigBuilder(options, process = process)
@@ -67,80 +69,84 @@ class pp(Scenario):
         )
         cb.prepare()
 
+        for tier in writeTiers: 
+          addOutputModule(process, tier, tier)        
+
+        #add the former top level patches here
+        customisePrompt(process)
+        
+        return process
+
+
+    def expressProcessing(self, globalTag, writeTiers = [], **options):
+        """
+        _expressProcessing_
+
+        Proton collision data taking express processing
+
+        """
+
+        skims = ['SiStripCalZeroBias',
+                 'TkAlMinBias',
+                 'DtCalib',
+                 'MuAlCalIsolatedMu']
+        step = stepALCAPRODUCER(skims)
+        options = Options()
+        options.__dict__.update(defaultOptions.__dict__)
+        options.scenario = "pp"
+        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',L1HwVal,DQM,ENDJOB'
+        options.isMC = False
+        options.isData = True
+        options.beamspot = None
+        options.eventcontent = None
+        options.magField = 'AutoFromDBCurrent'
+        options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
+        options.relval = False
+        
+        process = cms.Process('RECO')
+        cb = ConfigBuilder(options, process = process)
+
+        # Input source
+        process.source = cms.Source("NewEventStreamFileReader",
+            fileNames = cms.untracked.vstring()
+        )
+        cb.prepare()
 
         for tier in writeTiers: 
           addOutputModule(process, tier, tier)        
 
         #add the former top level patches here
-        reco_TLR(process)
+        customiseExpress(process)
         
         return process
 
-    def expressProcessing(self, globalTag,  writeTiers = [],
-                          datasets = [], alcaDataset = None):
-        """
-        _expressProcessing_
 
-        Implement proton collision Express processing
-
-        """
-
-        options = Options()
-        options.__dict__.update(defaultOptions.__dict__)
-        options.scenario = "pp"
-        options.step = \
-          """RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+TkAlMinBias+MuAlCalIsolatedMu+RpcCalHLT,ENDJOB"""
-        options.isMC = False
-        options.isData = True
-        options.eventcontent = None
-        options.relval = None
-        options.beamspot = None
-        options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
-        
-        process = cms.Process('EXPRESS')
-        cb = ConfigBuilder(options, process = process)
-
-        process.source = cms.Source(
-           "NewEventStreamFileReader",
-           fileNames = cms.untracked.vstring()
-        )
-        
-        cb.prepare()
-
-        #  //
-        # // Install the OutputModules for everything but ALCA
-        #//
-        self.addExpressOutputModules(process, writeTiers, datasets)
-        
-        #  //
-        # // TODO: Install Alca output
-        #//
-        
-        #add the former top level patches here
-        reco_TLR(process)
-
-        return process
-    
-
-    def alcaSkim(self, skims):
+    def alcaSkim(self, skims, **options):
         """
         _alcaSkim_
 
         AlcaReco processing & skims for proton collisions
 
         """
+
+        globalTag = None
+        if 'globaltag' in  options:
+            globalTag = options['globaltag']
+
         step = "ALCAOUTPUT:"
         for skim in skims:
           step += (skim+"+")
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
-        options.step = step+'DQM,ENDJOB'
+        options.step = step.rstrip('+')
         options.isMC = False
         options.isData = True
         options.beamspot = None
         options.eventcontent = None
         options.relval = None
+        if globalTag != None :
+            options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
         options.triggerResultsProcess = 'RECO'
         
         process = cms.Process('ALCA')
@@ -155,14 +161,9 @@ class pp(Scenario):
         cb.prepare() 
 
         return process
-                
-
-        
-
-        
 
 
-    def dqmHarvesting(self, datasetName, runNumber,  globalTag, **options):
+    def dqmHarvesting(self, datasetName, runNumber, globalTag, **options):
         """
         _dqmHarvesting_
 
@@ -194,5 +195,6 @@ class pp(Scenario):
         process.source.fileNames = cms.untracked(cms.vstring())
         process.maxEvents.input = -1
         process.dqmSaver.workflow = datasetName
-        
+        process.dqmSaver.saveByLumiSection = 1
+
         return process

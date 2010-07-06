@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/02/18 14:43:54 $
- *  $Revision: 1.10.2.1 $
+ *  $Date: 2010/02/18 14:45:06 $
+ *  $Revision: 1.11 $
  *
  *  Authors: Martin Grunewald, Andrea Bocci
  *
@@ -27,8 +27,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "HLTrigger/HLTfilters/interface/TriggerExpressionEvaluator.h"
-#include "HLTrigger/HLTfilters/interface/TriggerExpressionParser.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionEvaluator.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionParser.h"
 #include "HLTrigger/HLTfilters/interface/TriggerResultsFilter.h"
 
 //

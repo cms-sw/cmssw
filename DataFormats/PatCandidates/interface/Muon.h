@@ -1,5 +1,5 @@
 //
-// $Id: Muon.h,v 1.29 2009/10/13 13:13:14 rwolf Exp $
+// $Id: Muon.h,v 1.29.10.1 2010/04/20 14:43:50 srappocc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Muon_h
@@ -16,7 +16,8 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
-  \version  $Id: Muon.h,v 1.29 2009/10/13 13:13:14 rwolf Exp $
+
+  \version  $Id: Muon.h,v 1.29.10.1 2010/04/20 14:43:50 srappocc Exp $
 */
 
 
@@ -142,8 +143,9 @@ namespace pat {
 
       /// dB gives the impact parameter wrt the beamline.
       double dB() const;
-      void   setDB ( double dB ) 
-      { dB_ = dB; cachedDB_ = true; }
+      double edB() const;
+      void   setDB ( double dB, double edB ) 
+      { dB_ = dB; edB_ = edB; cachedDB_ = true; }
 
       /// numberOfValidHits returns the number of valid hits on the global track.
       unsigned int numberOfValidHits() const;
@@ -192,7 +194,8 @@ namespace pat {
       bool    cachedDB_;               /// has the dB been cached?
       bool    cachedNumberOfValidHits_;/// has the numberOfValidHits been cached?
       double  normChi2_;               /// globalTrack->chi2() / globalTrack->ndof()
-      double  dB_;                     /// globalTrack->dxy( beamPoint )
+      double  dB_;                     /// dB and edB are the impact parameter at the primary vertex,
+      double  edB_;                    /// and its uncertainty as recommended by the tracking group
       unsigned int  numberOfValidHits_;/// globalTrack->numberOfValidHits()
 
   };

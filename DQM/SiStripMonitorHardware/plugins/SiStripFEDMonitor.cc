@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDMonitor.cc,v 1.36 2010/03/30 16:35:50 amagnan Exp $
+// $Id: SiStripFEDMonitor.cc,v 1.37 2010/04/02 15:41:32 amagnan Exp $
 //
 //Modified        :  Anne-Marie Magnan
 //   ---- 2009/04/21 : histogram management put in separate class
