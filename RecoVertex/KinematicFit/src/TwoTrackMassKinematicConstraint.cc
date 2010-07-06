@@ -8,13 +8,9 @@ AlgebraicVector  TwoTrackMassKinematicConstraint::value(const vector<KinematicSt
  if(states.size()<2) throw VertexException("TwoTrackMassKinematicConstraint::<2 states passed");
 
  AlgebraicVector res(1,0);
- TrackCharge ch1 = states[0].particleCharge();
- TrackCharge ch2 = states[1].particleCharge();
  
- double field1 = states[0].magneticField()->inInverseGeV(states[0].globalPosition()).z();
- double a_1 = -0.29979246*ch1*field1;
- double field2 = states[1].magneticField()->inInverseGeV(states[1].globalPosition()).z();
- double a_2 = -0.29979246*ch2*field2;
+ double a_1 = -states[0].particleCharge() * states[0].magneticField()->inInverseGeV(states[0].globalPosition()).z();
+ double a_2 = -states[1].particleCharge() * states[1].magneticField()->inInverseGeV(states[1].globalPosition()).z();
 
  AlgebraicVector7 p1 = states[0].kinematicParameters().vector();
  AlgebraicVector7 p2 = states[1].kinematicParameters().vector();
@@ -48,17 +44,8 @@ AlgebraicMatrix TwoTrackMassKinematicConstraint::parametersDerivative(const vect
 
  AlgebraicMatrix res(1,n_st*7,0);
  
- vector<KinematicState>::const_iterator i_st  = states.begin();
- KinematicState p_1 = *i_st;
- i_st++;
- KinematicState p_2 = *i_st;
- TrackCharge ch1 = states[0].particleCharge();
- TrackCharge ch2 = states[1].particleCharge();
- 
- double field1 = states[0].magneticField()->inInverseGeV(states[0].globalPosition()).z();
- double a_1 = -0.29979246*ch1*field1;
- double field2 = states[1].magneticField()->inInverseGeV(states[1].globalPosition()).z();
- double a_2 = -0.29979246*ch2*field2;
+  double a_1 = -states[0].particleCharge() * states[0].magneticField()->inInverseGeV(states[0].globalPosition()).z();
+  double a_2 = -states[1].particleCharge() * states[1].magneticField()->inInverseGeV(states[1].globalPosition()).z();
  
  AlgebraicVector7 p1 = states[0].kinematicParameters().vector();
  AlgebraicVector7 p2 = states[1].kinematicParameters().vector();
@@ -114,17 +101,8 @@ AlgebraicMatrix TwoTrackMassKinematicConstraint::positionDerivative(const vector
  AlgebraicMatrix res(1,3,0);
  if(states.size()<2) throw VertexException("TwoTrackMassKinematicConstraint::<2 states passed");
 
- vector<KinematicState>::const_iterator i_st  = states.begin();
- KinematicState p_1 = *i_st;
- i_st++;
- KinematicState p_2 = *i_st;
- TrackCharge ch1 = states[0].particleCharge();
- TrackCharge ch2 = states[1].particleCharge();
- 
- double field1 = states[0].magneticField()->inInverseGeV(states[0].globalPosition()).z();
- double a_1 = -0.29979246*ch1*field1;
- double field2 = states[1].magneticField()->inInverseGeV(states[1].globalPosition()).z();
- double a_2 = -0.29979246*ch2*field2;
+  double a_1 = -states[0].particleCharge() * states[0].magneticField()->inInverseGeV(states[0].globalPosition()).z();
+  double a_2 = -states[1].particleCharge() * states[1].magneticField()->inInverseGeV(states[1].globalPosition()).z();
  
  AlgebraicVector7 p1 = states[0].kinematicParameters().vector();
  AlgebraicVector7 p2 = states[1].kinematicParameters().vector();

@@ -63,8 +63,8 @@ RefCountedKinematicTree ConstrainedTreeBuilder::buildTree(const vector<RefCounte
   for( ; i != initialParticles.end(), iStates != finalStates.end(); ++i,++iStates)
   {
     AlgebraicVector7 p = iStates->kinematicParameters().vector();
-    double field = iStates->magneticField()->inInverseGeV(iStates->globalPosition()).z();
-    double a = -0.29979246*iStates->particleCharge()*field;
+    double a = - iStates->particleCharge() *
+	iStates->magneticField()->inInverseGeV(iStates->globalPosition()).z();
 
     aMatrix(4,0) = -a;
     aMatrix(3,1) = a;
@@ -171,9 +171,8 @@ AlgebraicMatrix ConstrainedTreeBuilder::covarianceMatrix(vector<RefCountedKinema
  {
 
 //vertex position related components of the matrix
-  TrackCharge ch = (*i)->currentState().particleCharge();
-  double field = (*i)->magneticField()->inInverseGeV((*i)->currentState().globalPosition()).z();
-  double a_i = -0.29979246*ch*field;
+  double a_i = -0.29979246*(*i)->currentState().particleCharge() *
+	(*i)->magneticField()->inInverseGeV((*i)->currentState().globalPosition()).z();
   AlgebraicMatrix upper(3,7,0);
   AlgebraicMatrix diagonal(7,7,0);
   upper(1,1) = 1;
