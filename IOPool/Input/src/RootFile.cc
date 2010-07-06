@@ -854,6 +854,10 @@ namespace edm {
     // such as for secondary files (or secondary sources) or if duplicate checking across files.
     if (secondaryFile || (duplicateChecker_ && duplicateChecker_->checkingAllFiles())) {
       indexIntoFile_.fillEventNumbers();
+    } else if (!noEventSort_) {
+      // We need event entries for sorting, and we do not need event numbers after the file is closed.
+      // Fill in entries now to avoid a possible on demand filling of event numbers.
+      indexIntoFile_.fillEventEntries();
     }
   }
 
