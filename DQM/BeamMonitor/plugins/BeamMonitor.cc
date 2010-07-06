@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/06/07 15:45:52 $
- * $Revision: 1.50 $
+ * $Date: 2010/06/29 01:21:11 $
+ * $Revision: 1.51 $
  *
  */
 
@@ -30,11 +30,11 @@
 using namespace std;
 using namespace edm;
 
-static char * formatTime( const time_t t )  {
+const char * BeamMonitor::formatFitTime( const time_t t )  {
 #define CET (+1)
 #define CEST (+2)
 
-  static  char ts[] = "yyyy-Mm-dd hh:mm:ss     ";
+  static char ts[] = "yyyy-Mm-dd hh:mm:ss";
   tm * ptm;
   ptm = gmtime ( &t );
   sprintf( ts, "%4d-%02d-%02d %02d:%02d:%02d", ptm->tm_year,ptm->tm_mon+1,ptm->tm_mday,(ptm->tm_hour+CEST)%24, ptm->tm_min, ptm->tm_sec);
@@ -386,7 +386,7 @@ void BeamMonitor::beginRun(const edm::Run& r, const EventSetup& context) {
   ftimestamp = r.beginTime().value();
   tmpTime = ftimestamp >> 32;
   startTime = refTime =  tmpTime;
-  char* eventTime = formatTime(tmpTime);
+  const char* eventTime = formatFitTime(tmpTime);
   TDatime da(eventTime);
   if (debug_) {
     edm::LogInfo("BeamMonitor") << "TimeOffset = ";
@@ -973,7 +973,7 @@ void BeamMonitor::endJob(const LuminosityBlock& lumiSeg,
 
 //--------------------------------------------------------
 void BeamMonitor::scrollTH1(TH1 * h, time_t ref) {
-  char* offsetTime = formatTime(ref);
+  const char* offsetTime = formatFitTime(ref);
   TDatime da(offsetTime);
   if (lastNZbin > 0) {
     double val = h->GetBinContent(lastNZbin);
