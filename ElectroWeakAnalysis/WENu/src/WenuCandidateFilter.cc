@@ -111,8 +111,8 @@ class WenuCandidateFilter : public edm::EDFilter {
   edm::InputTag hltpathFilter_;
   // quick fix for extra trigger
   Bool_t  useExtraTrigger_;
-  std::string  hltpathExtra_;
-  edm::InputTag hltpathFilterExtra_;
+  std::vector<std::string>   vHltpathExtra_;
+  std::vector<edm::InputTag> vHltpathFilterExtra_;
   //
   edm::InputTag electronCollectionTag_;
   edm::InputTag metCollectionTag_;
@@ -221,8 +221,12 @@ WenuCandidateFilter::WenuCandidateFilter(const edm::ParameterSet& iConfig)
   // dirty way to add a second trigger with OR, to be done properly in the next tag
   useExtraTrigger_ = iConfig.getUntrackedParameter<Bool_t>("useExtraTrigger");
   if (useExtraTrigger_) {
-    hltpathExtra_=iConfig.getUntrackedParameter<std::string>("hltpathExtra");
-    hltpathFilterExtra_=iConfig.getUntrackedParameter<edm::InputTag>("hltpathFilterExtra");
+    vHltpathExtra_=iConfig.getUntrackedParameter< std::vector< std::string> >("vHltpathExtra");
+    vHltpathFilterExtra_=iConfig.getUntrackedParameter< std::vector< edm::InputTag > >("vHltpathFilterExtra");
+    if (int(vHltpathExtra_.size()) != int(vHltpathFilterExtra_.size())) {
+      std::cout << "WenuCandidateFilter: ERROR IN Configuration: vHltpathExtra and vHltpathFilterExtra"
+		<< " should have the same dimensions " << std::endl;
+    }
   }
   // trigger matching related:
   useTriggerInfo_ = iConfig.getUntrackedParameter<bool>("useTriggerInfo",true);
@@ -250,6 +254,12 @@ WenuCandidateFilter::WenuCandidateFilter(const edm::ParameterSet& iConfig)
   if (useTriggerInfo_) {
     std::cout << "WenuCandidateFilter: HLT Path   " << hltpath_ << std::endl;
     std::cout << "WenuCandidateFilter: HLT Filter "<<hltpathFilter_<<std::endl;
+    if (useExtraTrigger_) {
+      for (int itrig=0; itrig < (int) vHltpathExtra_.size(); ++itrig) {
+	std::cout << "WenuCandidateFilter: OR " << vHltpathExtra_[itrig] 
+		  << " with filter: " << vHltpathFilterExtra_[itrig] << std::endl;
+      }
+    }
   }
   else {
     std::cout << "WenuCandidateFilter: Trigger info will not be used here" 
@@ -374,14 +384,18 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      const edm::TriggerNames & triggerNames = iEvent.triggerNames(*HLTResults);
      UInt_t trigger_size = HLTResults->size();
      UInt_t trigger_position = triggerNames.triggerIndex(hltpath_);
-     UInt_t trigger_position_extra = trigger_size;
-     if (useExtraTrigger_) {
-       trigger_position_extra = triggerNames.triggerIndex(hltpathExtra_);
-     }
+     UInt_t trigger_position_extra;
      if (trigger_position < trigger_size)
        passTrigger = (int) HLTResults->accept(trigger_position);
-     if (passTrigger ==0 && trigger_position_extra < trigger_size)
-       passTrigger = (int) HLTResults->accept(trigger_position_extra);
+     if (useExtraTrigger_ && passTrigger==0) {
+       for (int itrig=0; itrig < (int) vHltpathExtra_.size(); ++itrig) {
+	 trigger_position_extra = triggerNames.triggerIndex(vHltpathExtra_[itrig]);
+	 if (trigger_position_extra > 0) {
+	   passTrigger = 1;
+	   break;
+	 }
+       }
+     }
    }
    else {
      //std::cout << "TriggerResults missing from this event.." << std::endl;
@@ -393,36 +407,45 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      //     <<std::endl;
      return false; // RETURN if event fails the trigger
    }
-   Int_t numberOfHLTFilterObjects = 0;
+   // Int_t numberOfHLTFilterObjects = 0;
    //
    edm::Handle<trigger::TriggerEvent> pHLT;
    iEvent.getByLabel(triggerEventTag_, pHLT);
    const Int_t nF(pHLT->sizeFilters());
    const Int_t filterInd = pHLT->filterIndex(hltpathFilter_);
-   Int_t filterIndExtra = nF;
+   std::vector<Int_t> filterIndExtra;
    if (useExtraTrigger_) {
-     filterIndExtra = pHLT->filterIndex(hltpathFilterExtra_);
+     for (int itrig =0; itrig < (int) vHltpathFilterExtra_.size(); ++itrig) {
+       //std::cout << "working on #" << itrig << std::endl;
+       //std::cout << "  ---> " << vHltpathFilterExtra_[itrig] << std::endl;
+       filterIndExtra.push_back(pHLT->filterIndex(vHltpathFilterExtra_[itrig]));
+     }
    }
-   if (nF != filterInd) {
-     const trigger::Vids& VIDS (pHLT->filterIds(filterInd));
-     const trigger::Keys& KEYS(pHLT->filterKeys(filterInd));
-     const Int_t nI(VIDS.size());
-     const Int_t nK(KEYS.size());
-     numberOfHLTFilterObjects = (nI>nK)? nI:nK;
-   }
-   else if (nF != filterIndExtra) {
-     const trigger::Vids& VIDS (pHLT->filterIds(filterIndExtra));
-     const trigger::Keys& KEYS(pHLT->filterKeys(filterIndExtra));
-     const Int_t nI(VIDS.size());
-     const Int_t nK(KEYS.size());
-     numberOfHLTFilterObjects = (nI>nK)? nI:nK;
-   }
+   bool finalpathfound = false;
+   if (nF != filterInd) finalpathfound = true;
    else {
+     for (int itrig=0; itrig < (int) filterIndExtra.size(); ++itrig) {
+       //std::cout << "working on #" << itrig << std::endl;
+       //std::cout << "  ---> " << filterIndExtra[itrig] << std::endl;
+       if (nF != filterIndExtra[itrig]) {finalpathfound = true; break;}
+     }
+   }
+   /* this is to find the number of hlt objects if needed
+      if (nF != filterInd) {
+      const trigger::Vids& VIDS (pHLT->filterIds(filterInd));
+      const trigger::Keys& KEYS(pHLT->filterKeys(filterInd));
+      const Int_t nI(VIDS.size());
+      const Int_t nK(KEYS.size());
+      numberOfHLTFilterObjects = (nI>nK)? nI:nK;
+      }
+   */
+   if (not finalpathfound) {
      //std::cout << "HLT Filter " << hltpathFilter_.label() 
      //	       << " was not found in this event..." << std::endl;
      if (useTriggerInfo_)
        return false; // RETURN if event fails the trigger
    }
+
    const trigger::TriggerObjectCollection& TOC(pHLT->getObjects());
    // *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    // ET CUT: at least one electron in the event with ET>ETCut_-*-*-*-*-*
@@ -669,9 +692,11 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    }
    //
+   //std::cout << "HLT matching starts" << std::endl;
    if (electronMatched2HLT_ && useTriggerInfo_) {
+     Double_t matched_dr_distance = -1.;
      Int_t trigger_int_probe = 0;
-     if (nF != filterInd || nF != filterIndExtra) {
+     if (finalpathfound) {
        if (nF != filterInd) {
 	 const trigger::Keys& KEYS(pHLT->filterKeys(filterInd));
 	 const Int_t nK(KEYS.size());
@@ -683,34 +708,41 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	     if (TO.et() < hltObjectETCut_) continue;
 	   }
 	   Double_t dr_ele_HLT = 
-	     reco::deltaR(maxETelec.eta(),maxETelec.phi(),TO.eta(),TO.phi());
+	     reco::deltaR(maxETelec.superCluster()->eta(),maxETelec.superCluster()->phi(),TO.eta(),TO.phi());
 	   //std::cout << "-->found dr=" << dr_ele_HLT << std::endl;
 	   if (TMath::Abs(dr_ele_HLT) < electronMatched2HLT_DR_) {
-	     ++trigger_int_probe; break;}
+	     ++trigger_int_probe; matched_dr_distance=dr_ele_HLT; break;}
 	   //}
 	 }
        }
-       if (trigger_int_probe == 0 && nF != filterIndExtra) {
-	 const trigger::Keys& KEYS(pHLT->filterKeys(filterIndExtra));
-	 const Int_t nK(KEYS.size());
-	 //std::cout << "Found trig objects #" << nK << std::endl;
-	 for (Int_t iTrig = 0;iTrig <nK; ++iTrig ) {
-	   const trigger::TriggerObject& TO(TOC[KEYS[iTrig]]);
-	   //
-	   Double_t dr_ele_HLT = 
-	     reco::deltaR(maxETelec.eta(),maxETelec.phi(),TO.eta(),TO.phi());
-	   //std::cout << "-->found dr=" << dr_ele_HLT << std::endl;
-	   if (TMath::Abs(dr_ele_HLT) < electronMatched2HLT_DR_) {
-	     ++trigger_int_probe; break;}
-	   //}
-	 }	 
-       }
        if (trigger_int_probe == 0) {
-	 delete [] sorted;  delete [] et;
-	 //std::cout << "Electron could not be matched to an HLT object with "
-	 //   << std::endl;
-	 return false; // RETURN: electron is not matched to an HLT object
+	 for (int itrig=0; itrig < (int) filterIndExtra.size(); ++itrig) {
+	   if (filterIndExtra[itrig] == nF) continue;
+	   //std::cout << "working on #" << itrig << std::endl;
+	   //std::cout << "  ---> " << filterIndExtra[itrig] << std::endl;
+	   const trigger::Keys& KEYS(pHLT->filterKeys(filterIndExtra[itrig]));
+	   const Int_t nK(KEYS.size());
+	   //std::cout << "Found trig objects #" << nK << std::endl;
+	   for (Int_t iTrig = 0;iTrig <nK; ++iTrig ) {
+	     const trigger::TriggerObject& TO(TOC[KEYS[iTrig]]);
+	     //
+	     Double_t dr_ele_HLT = 
+	       reco::deltaR(maxETelec.eta(),maxETelec.phi(),TO.eta(),TO.phi());
+	     //std::cout << "-->found dr=" << dr_ele_HLT << std::endl;
+	     if (TMath::Abs(dr_ele_HLT) < electronMatched2HLT_DR_) {
+	       ++trigger_int_probe; matched_dr_distance=dr_ele_HLT;  break;}
+	     //}
+	   }
+	   if (trigger_int_probe>0) break;
+	 }
+	 if (trigger_int_probe == 0) {
+	   delete [] sorted;  delete [] et;
+	   //std::cout << "Electron could not be matched to an HLT object with "
+	   //   << std::endl;
+	   return false; // RETURN: electron is not matched to an HLT object
+	 }
        }
+       maxETelec.addUserFloat("HLTMatchingDR", Float_t(matched_dr_distance));
      }
      else {
        delete [] sorted;  delete [] et;
@@ -719,6 +751,75 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        return false; // RETURN: electron is not matched to an HLT object
      }
    }
+   //   std::cout << "HLT matching has finished" << std::endl;
+   // ___________________________________________________________________
+   //
+   // add information of whether the event passes the following sets of
+   // triggers. Currently Hardwired, to be changed in the future
+   if (HLTResults.isValid()) {
+     
+     const  std::string process = triggerCollectionTag_.process();
+     //
+     std::string  HLTPath[18];
+     HLTPath[0 ] = "HLT_Photon10_L1R"      ;
+     HLTPath[1 ] = "HLT_Photon15_L1R"      ;
+     HLTPath[2 ] = "HLT_Photon20_L1R"      ;
+     HLTPath[3 ] = "HLT_Photon15_TrackIso_L1R";
+     HLTPath[4 ] = "HLT_Photon15_LooseEcalIso_L1R";
+     HLTPath[5 ] = "HLT_Photon30_L1R_8E29" ;
+     HLTPath[6 ] = "HLT_Photon30_L1R_8E29" ;
+     HLTPath[7 ] = "HLT_Ele10_LW_L1R"      ;
+     HLTPath[8 ] = "HLT_Ele15_LW_L1R"      ;
+     HLTPath[9 ] = "HLT_Ele20_LW_L1R"      ;
+     HLTPath[10] = "HLT_Ele10_LW_EleId_L1R";
+     HLTPath[11] = "HLT_Ele15_SiStrip_L1R" ;
+     HLTPath[12] = "HLT_IsoTrackHB_8E29"   ;
+     HLTPath[13] = "HLT_IsoTrackHE_8E29"   ;
+     HLTPath[14] = "HLT_DiJetAve15U_8E29"  ;
+     HLTPath[15] = "HLT_MET45"             ;
+     HLTPath[16] = "HLT_L1MET20"           ;
+     HLTPath[17] = "HLT_MET100"            ;
+     //	      
+     edm::InputTag HLTFilterType[15];
+     HLTFilterType[0 ]= edm::InputTag("hltL1NonIsoHLTNonIsoSinglePhotonEt10HcalIsolFilter","",process);    // HLT_Photon10_L1R
+     HLTFilterType[1 ]= edm::InputTag("hltL1NonIsoHLTNonIsoSinglePhotonEt15HcalIsolFilter" ,"",process);   // HLT_Photon15_L1R
+     HLTFilterType[2 ]= edm::InputTag("hltL1NonIsoHLTNonIsoSinglePhotonEt20HcalIsolFilter" ,"",process);   // HLT_Photon20_L1R
+     HLTFilterType[3 ]= edm::InputTag("hltL1NonIsoSinglePhotonEt15HTITrackIsolFilter","",process);         // HLT_Photon15_TrackIso_L1R
+     HLTFilterType[4 ]= edm::InputTag("hltL1NonIsoSinglePhotonEt15LEIHcalIsolFilter","",process);          // HLT_Photon15_LooseEcalIso_L1R
+     HLTFilterType[5 ]= edm::InputTag("hltL1NonIsoHLTNonIsoSinglePhotonEt15EtFilterESet308E29","",process);// HLT_Photon30_L1R_8E29
+     HLTFilterType[6 ]= edm::InputTag("hltL1NonIsoHLTNonIsoSinglePhotonEt15HcalIsolFilter","",process);    // HLT_Photon30_L1R_8E29
+     HLTFilterType[7 ]= edm::InputTag("hltL1NonIsoHLTNonIsoSingleElectronLWEt10PixelMatchFilter","",process); 
+     HLTFilterType[8 ]= edm::InputTag("hltL1NonIsoHLTNonIsoSingleElectronLWEt15PixelMatchFilter","",process);
+     HLTFilterType[9 ]= edm::InputTag("hltL1NonIsoHLTNonIsoSingleElectronLWEt15EtFilterESet20","",process);
+     HLTFilterType[10]= edm::InputTag("hltL1NonIsoHLTNonIsoSingleElectronLWEt10EleIdDphiFilter","",process);
+     HLTFilterType[11]= edm::InputTag("hltL1NonIsoHLTNonIsoSingleElectronSiStripEt15PixelMatchFilter","",process);
+     HLTFilterType[12]= edm::InputTag("hltIsolPixelTrackL3FilterHB8E29","",process);
+     HLTFilterType[13]= edm::InputTag("hltIsolPixelTrackL2FilterHE8E29","",process);
+     HLTFilterType[14]= edm::InputTag("hltL1sDiJetAve15U8E29","",process);
+     //		      
+     Int_t triggerDecision =0;
+     UInt_t trigger_size = HLTResults->size();
+     for (Int_t i=0; i<18; ++i) {
+       const edm::TriggerNames & triggerNames = iEvent.triggerNames(*HLTResults);
+       UInt_t trigger_position = triggerNames.triggerIndex(HLTPath[i]);
+       Int_t  passTrigger = 0;
+       if (trigger_position < trigger_size) {
+	 passTrigger = (Int_t) HLTResults->accept(trigger_position);
+       }
+       if (passTrigger >0) {
+	 if (i>=15) {triggerDecision += Int_t(TMath::Power(2,i+1));}
+	 else {
+	   const Int_t myfilterInd = pHLT->filterIndex(HLTFilterType[i]);
+	   if (myfilterInd != nF) {
+	     triggerDecision +=  Int_t(TMath::Power(2,i+1));
+	   }
+	 }
+       }
+     }
+     // add the info in the maxETelec
+     maxETelec.addUserInt("triggerDecision",triggerDecision);
+   }
+   // ___________________________________________________________________
    //
    // get the met now:
    const pat::METCollection *pMet = patMET.product();

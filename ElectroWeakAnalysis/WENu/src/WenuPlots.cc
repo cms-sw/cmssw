@@ -110,7 +110,7 @@ WenuPlots::WenuPlots(const edm::ParameterSet& iConfig)
     pfJetCollectionTag_   = iConfig.getUntrackedParameter<edm::InputTag>("pfJetCollectionTag");
     DRJetFromElectron_    = iConfig.getUntrackedParameter<Double_t>("DRJetFromElectron");
   }
-  storeSecondElectronInformation_ = iConfig.getUntrackedParameter<Bool_t>("storeSecondElectronInformation");
+  storeExtraInformation_ = iConfig.getUntrackedParameter<Bool_t>("storeExtraInformation");
   //
   // the selection cuts:
   trackIso_EB_ = iConfig.getUntrackedParameter<Double_t>("trackIso_EB", 1000.);
@@ -405,7 +405,7 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   // 4 passes WP80
   // 5 passes WP70
   // 6 passes WP60
-  if (myElec->userInt("hasSecondElectron") == 1 && storeSecondElectronInformation_) {
+  if (myElec->userInt("hasSecondElectron") == 1 && storeExtraInformation_) {
     const pat::Electron * mySecondElec=
       dynamic_cast<const pat::Electron*> (wenu.daughter("secondElec"));    
     ele2nd_sc_gsf_et = (Float_t) mySecondElec->superCluster()->energy()/TMath::CosH(mySecondElec->gsfTrack()->eta());
@@ -431,6 +431,17 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
       else if (fabs(mySecondElec->electronID("simpleEleId85relIso")-7) < 0.1) ele2nd_passes_selection = 3;
       else if (fabs(mySecondElec->electronID("simpleEleId90relIso")-7) < 0.1) ele2nd_passes_selection = 2;
       else if (fabs(mySecondElec->electronID("simpleEleId95relIso")-7) < 0.1) ele2nd_passes_selection = 1;
+    }
+  }
+  // some extra information
+  event_triggerDecision = -1;
+  ele_hltmatched_dr = -999.;
+  if (storeExtraInformation_) {
+    if (myElec->hasUserFloat("HLTMatchingDR")) {
+      ele_hltmatched_dr = myElec->userFloat("HLTMatchingDR");
+    }
+    if (myElec->hasUserInt("triggerDecision")) {
+      event_triggerDecision = myElec->userInt("triggerDecision");
     }
   }
   // if the electron passes the selection
@@ -911,7 +922,7 @@ WenuPlots::beginJob()
     vbtfSele_tree->Branch("pfjet_eta",pfjet_eta,"pfjet_eta[5]/F");
     vbtfSele_tree->Branch("pfjet_phi",pfjet_phi,"pfjet_phi[5]/F");
   }
-  if (storeSecondElectronInformation_) {
+  if (storeExtraInformation_) {
     vbtfSele_tree->Branch("ele2nd_sc_gsf_et", &ele2nd_sc_gsf_et,"ele2nd_sc_gsf_et/F");
     vbtfSele_tree->Branch("ele2nd_passes_selection", &ele2nd_passes_selection,"ele2nd_passes_selection/I");
     vbtfSele_tree->Branch("ele2nd_ecalDriven",&ele2nd_ecalDriven,"ele2nd_ecalDriven/I");
@@ -979,7 +990,7 @@ WenuPlots::beginJob()
     vbtfPresele_tree->Branch("pfjet_eta",pfjet_eta,"pfjet_eta[5]/F");
     vbtfPresele_tree->Branch("pfjet_phi",pfjet_phi,"pfjet_phi[5]/F");
   }
-  if (storeSecondElectronInformation_) {
+  if (storeExtraInformation_) {
     vbtfPresele_tree->Branch("ele2nd_sc_gsf_et",&ele2nd_sc_gsf_et,"ele2nd_sc_gsf_et/F");
     vbtfPresele_tree->Branch("ele2nd_sc_eta",&ele2nd_sc_eta,"ele2nd_sc_eta/F");
     vbtfPresele_tree->Branch("ele2nd_sc_phi",&ele2nd_sc_phi,"ele2nd_sc_phi/F");
@@ -989,6 +1000,8 @@ WenuPlots::beginJob()
     vbtfPresele_tree->Branch("ele2nd_pout",&ele2nd_pout,"ele2nd_pout/F");
     vbtfPresele_tree->Branch("ele2nd_ecalDriven",&ele2nd_ecalDriven,"ele2nd_ecalDriven/I");
     vbtfPresele_tree->Branch("ele2nd_passes_selection",&ele2nd_passes_selection,"ele2nd_passes_selection/I");
+    vbtfPresele_tree->Branch("ele_hltmatched_dr",&ele_hltmatched_dr,"ele_hltmatched_dr/F");
+    vbtfPresele_tree->Branch("event_triggerDecision",&event_triggerDecision,"event_triggerDecision/I");
   }
   vbtfPresele_tree->Branch("event_datasetTag",&event_datasetTag,"event_dataSetTag/I");  
 
