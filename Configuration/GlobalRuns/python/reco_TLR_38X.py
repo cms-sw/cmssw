@@ -78,9 +78,9 @@ def customisePPData(process):
     process.CSCHaloData.ExpectedBX = cms.int32(3)
 
     ## hcal hit flagging
-    process.hfreco.PETstat  = 2
-    process.hfreco.S8S1stat = 18
-    process.hfreco.S9S1stat = 26
+    process.hfreco.PETstat.flagsToSkip  = 2
+    process.hfreco.S8S1stat.flagsToSkip = 18
+    process.hfreco.S9S1stat.flagsToSkip = 26
     
     return process
 
