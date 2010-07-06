@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_6_2/GRun/V25 (CMSSW_3_6_2_HLT8)
+# /dev/CMSSW_3_6_2/GRun/V26 (CMSSW_3_6_2_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_2/GRun/V25')
+  tableName = cms.string('/dev/CMSSW_3_6_2/GRun/V26')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -11304,7 +11304,7 @@ process.hltPreDQMSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_Photon15_LooseEcalIso_Cleaned_L1R',
       'HLT_Photon15_TrackIso_Cleaned_L1R',
       'HLT_Photon20_Cleaned_L1R',
-      'HLT_Photon30_L1R_8E29',
+      'HLT_Photon30_L1R',
       'HLT_PixelTracks_Multiplicity70',
       'HLT_PixelTracks_Multiplicity85',
       'HLT_QuadJet15U',
@@ -11447,7 +11447,7 @@ process.hltPreHLTDQMSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_Photon15_LooseEcalIso_Cleaned_L1R',
       'HLT_Photon15_TrackIso_Cleaned_L1R',
       'HLT_Photon20_Cleaned_L1R',
-      'HLT_Photon30_L1R_8E29',
+      'HLT_Photon30_L1R',
       'HLT_PixelTracks_Multiplicity70',
       'HLT_PixelTracks_Multiplicity85',
       'HLT_QuadJet15U',
@@ -11586,7 +11586,7 @@ process.hltPreHLTMONSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_Photon15_LooseEcalIso_Cleaned_L1R',
       'HLT_Photon15_TrackIso_Cleaned_L1R',
       'HLT_Photon20_Cleaned_L1R',
-      'HLT_Photon30_L1R_8E29',
+      'HLT_Photon30_L1R',
       'HLT_PixelTracks_Multiplicity70',
       'HLT_PixelTracks_Multiplicity85',
       'HLT_QuadJet15U',
