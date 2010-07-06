@@ -45,6 +45,35 @@ ALCARECOMuAlStandAloneCosmicsHLTDQM = hltMonBitSummary.clone(
 ALCARECOMuAlStandAloneCosmicsDQM = cms.Sequence( ALCARECOMuAlStandAloneCosmicsTrackingDQM + ALCARECOMuAlStandAloneCosmicsMuAlDQM + ALCARECOMuAlStandAloneCosmicsHLTDQM)
 
 ##########################################################
+#MuAlGlobalCosmicsInCollisions
+##########################################################
+ALCARECOMuAlGlobalCosmicsInCollisionsTrackingDQM = _TrackMon.TrackMon.clone(
+    #names & designations    
+    TrackProducer = 'ALCARECOMuAlGlobalCosmicsInCollisions:GlobalMuon',
+    AlgoName = 'ALCARECOMuAlGlobalCosmicsInCollisions',
+    FolderName = 'AlCaReco/MuAlGlobalCosmicsInCollisions',
+    BSFolderName = "AlCaReco/MuAlGlobalCosmicsInCollisions/BeamSpot",
+    MeasurementState = "default",
+    doSeedParameterHistos = False,
+    #sizes  
+    TkSizeBin = 5,
+    TkSizeMin = 0,
+    TkSizeMax = 5,
+    TrackPtBin = 100,
+    TrackPtMin = 0,
+    TrackPtMax = 30
+    )
+
+from Alignment.CommonAlignmentProducer.ALCARECOMuAlGlobalCosmicsInCollisions_cff import ALCARECOMuAlGlobalCosmicsInCollisionsHLT
+ALCARECOMuAlGlobalCosmicsInCollisionsHLTDQM = hltMonBitSummary.clone(
+    directory = "AlCaReco/MuAlGlobalCosmicsInCollisions/HLTSummary",
+    histLabel = "MuAlGlobalCosmicsInCollisions",
+    HLTPaths = ["HLT_.*L1.*"],
+    eventSetupPathsKey =  ALCARECOMuAlGlobalCosmicsInCollisionsHLT.eventSetupPathsKey.value()
+)
+ALCARECOMuAlGlobalCosmicsInCollisionsDQM = cms.Sequence( ALCARECOMuAlGlobalCosmicsInCollisionsTrackingDQM + ALCARECOMuAlGlobalCosmicsInCollisionsHLTDQM)
+
+##########################################################
 #MuAlGlobalCosmics
 ##########################################################
 ALCARECOMuAlGlobalCosmicsTrackingDQM = _TrackMon.TrackMon.clone(

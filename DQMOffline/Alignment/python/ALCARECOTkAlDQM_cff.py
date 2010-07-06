@@ -247,6 +247,40 @@ ALCARECOTkAlLASDigiDQM= DQMOffline.Alignment.LaserAlignmentT0ProducerDQM_cfi.Las
 )
 ALCARECOTkAlLASDQM = cms.Sequence( ALCARECOTkAlLASDigiDQM )
 
+##################################################################
+###### DQM modules for cosmic data taking during collisions ######
+##################################################################
+###############################
+### TkAlCosmicsInCollisions ###
+###############################
+__selectionName = 'TkAlCosmicsInCollisions'
+ALCARECOTkAlCosmicsInCollisionsTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
+#names and desigantions
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName,
+    FolderName = 'AlCaReco/TkAlCosmicsInCollisions',
+    BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
+# margins and settings
+    TrackPtBin = 500,
+    TrackPtMin = 0,
+    TrackPtMax = 500
+)
+ALCARECOTkAlCosmicsInCollisionsTkAlDQM = ALCARECOTkAlMinBiasTkAlDQM.clone(
+#names and desigantions
+    FolderName = 'AlCaReco/TkAlCosmicsInCollisions',
+    TrackProducer = 'ALCARECO'+__selectionName,
+    ReferenceTrackProducer = 'regionalCosmicTracks',
+    AlgoName = 'ALCARECO'+__selectionName
+)
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmicsInCollisions_cff import ALCARECOTkAlCosmicsInCollisionsHLT
+ALCARECOTkAlCosmicsInCollisionsHLTDQM = hltMonBitSummary.clone(
+    directory = "AlCaReco/"+__selectionName+"/HLTSummary",
+    histLabel = __selectionName,
+    HLTPaths = ["HLT_.*L1.*"],
+    eventSetupPathsKey =  ALCARECOTkAlCosmicsInCollisionsHLT.eventSetupPathsKey.value()
+)
+ALCARECOTkAlCosmicsInCollisionsDQM = cms.Sequence( ALCARECOTkAlCosmicsInCollisionsTrackingDQM + ALCARECOTkAlCosmicsInCollisionsTkAlDQM +ALCARECOTkAlCosmicsInCollisionsHLTDQM)
+
 ################################################
 ###### DQM modules for cosmic data taking ######
 ################################################
