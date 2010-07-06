@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_6_2/GRun/V24 (CMSSW_3_6_2_HLT8)
+# /dev/CMSSW_3_6_2/GRun/V25 (CMSSW_3_6_2_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_2/GRun/V24')
+  tableName = cms.string('/dev/CMSSW_3_6_2/GRun/V25')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -11193,7 +11193,7 @@ process.hltPreDQMSmart = cms.EDFilter( "TriggerResultsFilter",
     triggerConditions = cms.vstring( 'HLT_Activity_CSC / 10',
       'HLT_Activity_DT / 10',
       'HLT_Activity_DT_Tuned / 10',
-      'HLT_Activity_Ecal_SC15 / 10',
+      'HLT_Activity_Ecal_SC17 / 10',
       'HLT_Activity_Ecal_SC7 / 10',
       'HLT_Activity_L1A / 10',
       'HLT_Activity_PixelClusters',
@@ -11337,7 +11337,7 @@ process.hltPreHLTDQMSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_Activity_CSC / 10',
       'HLT_Activity_DT / 10',
       'HLT_Activity_DT_Tuned / 10',
-      'HLT_Activity_Ecal_SC15 / 10',
+      'HLT_Activity_Ecal_SC17 / 10',
       'HLT_Activity_Ecal_SC7 / 10',
       'HLT_Activity_L1A / 10',
       'HLT_Activity_PixelClusters',
@@ -11480,7 +11480,7 @@ process.hltPreHLTMONSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_Activity_CSC',
       'HLT_Activity_DT',
       'HLT_Activity_DT_Tuned',
-      'HLT_Activity_Ecal_SC15',
+      'HLT_Activity_Ecal_SC17',
       'HLT_Activity_Ecal_SC7',
       'HLT_Activity_L1A',
       'HLT_Activity_PixelClusters',
