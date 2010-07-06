@@ -38,6 +38,12 @@ namespace edm {
     bool sequential_;
 
     bool specified_;
+
+    bool firstEvent_;
+
+    bool firstLoop_;
+
+    EventNumber_t expectedEventNumber_;
   };
 }//edm
 

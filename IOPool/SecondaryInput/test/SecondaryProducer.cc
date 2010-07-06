@@ -22,7 +22,10 @@ namespace edm {
   SecondaryProducer::SecondaryProducer(ParameterSet const& pset) :
 	secInput_(makeSecInput(pset)),
 	sequential_(pset.getUntrackedParameter<bool>("sequential", false)),
-	specified_(pset.getUntrackedParameter<bool>("specified", false)) {
+	specified_(pset.getUntrackedParameter<bool>("specified", false)),
+	firstEvent_(true),
+	firstLoop_(true),
+	expectedEventNumber_(1) {
     produces<edmtest::ThingCollection>();
     produces<edmtest::OtherThingCollection>("testUserTag");
   }
@@ -56,6 +59,7 @@ namespace edm {
     }
 
     EventPrincipal *p = &**result.begin();
+    EventNumber_t en = p->id().event();
     EDProduct const* ep = p->getByType(TypeID(typeid(TC))).wrapper();
     assert(ep);
     WTC const* wtp = dynamic_cast<WTC const*>(ep);
@@ -65,6 +69,19 @@ namespace edm {
 
     // Put output into event
     e.put(thing);
+
+    if (!sequential_ && !specified_ && firstLoop_ && en == 1) {
+      expectedEventNumber_ = 1;
+      firstLoop_ = false;
+    }
+    if (firstEvent_) {
+      firstEvent_ = false;
+      if (!sequential_ && !specified_) {
+	expectedEventNumber_ = en;
+      }
+    }
+    assert (expectedEventNumber_ == en);
+    ++expectedEventNumber_;
   }
 
   boost::shared_ptr<VectorInputSource> SecondaryProducer::makeSecInput(ParameterSet const& ps) {
