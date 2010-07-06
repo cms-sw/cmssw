@@ -31,7 +31,8 @@ dbsession=svc.connect(connectstring,accessMode=coral.access_Update)
 #except Exception,e:
 #    print 'caught exception ',str(e)
 #    dbsession.transaction().rollback()
-    
+#lumisection duration in microseconds
+lumisectionDelta=3564*2**18*0.025    
 try:
     dbsession.transaction().start(True)
     schema=dbsession.nominalSchema()
@@ -57,9 +58,9 @@ try:
         print 'stopT ',stopT.data()
         a=datetime.strptime(stopT.data(),'%m/%d/%y %H:%M:%S.%f')
         print 'stopT month/day/year hour/minute/second.microsecond',a.month,a.day,a.year,a.hour,a.minute,a.second,a.microsecond
-        delta=timedelta(seconds=23)
+        delta=timedelta(microseconds=lumisectionDelta)
         print '2nd LS would be in ',s+delta
-
+        print '3rd LS would be in ',s+2*delta
     del query
     dbsession.transaction().commit()
 except Exception,e:
