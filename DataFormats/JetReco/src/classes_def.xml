@@ -188,6 +188,15 @@
   <class name="edm::Wrapper<std::vector<reco::JetID> >"/>
   <class name="edm::ValueMap<reco::JetID>" />
   <class name="edm::Wrapper< edm::ValueMap<reco::JetID> >" />
+  
+  <class name="reco::CastorJetID" />
+  <class name="std::vector<reco::CastorJetID>" />
+  <class name="edm::RefVector<std::vector<reco::CastorJetID>,reco::CastorJetID,edm::refhelper::FindUsingAdvance<std::vector<reco::CastorJetID>,reco::CastorJetID> >"/>
+  <class name="edm::Ref<std::vector<reco::CastorJetID>,reco::CastorJetID,edm::refhelper::FindUsingAdvance<std::vector<reco::CastorJetID>,reco::CastorJetID> >"/>
+  <class name="edm::RefProd<std::vector<reco::CastorJetID> >"/>
+  <class name="edm::Wrapper<std::vector<reco::CastorJetID> >"/>
+  <class name="edm::ValueMap<reco::CastorJetID>" />
+  <class name="edm::Wrapper< edm::ValueMap<reco::CastorJetID> >" />
 
   <class name="edm::Ptr<reco::Jet>" />
   <class name="edm::PtrVector<reco::Jet>" />
@@ -213,6 +222,8 @@
 
   <class name="edm::Ptr<reco::JetID>" />
   <class name="edm::PtrVector<reco::JetID>" />
+  <class name="edm::Ptr<reco::CastorJetID>" />
+  <class name="edm::PtrVector<reco::CastorJetID>" />
   
   <class name="edm::Association<reco::GenJetCollection>" />
   <class name="edm::Wrapper<edm::Association<reco::GenJetCollection> >" />

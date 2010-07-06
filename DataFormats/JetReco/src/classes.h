@@ -21,6 +21,7 @@
 #include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 #include "DataFormats/JetReco/interface/JetExtendedAssociation.h"
 #include "DataFormats/JetReco/interface/JetID.h"
+#include "DataFormats/JetReco/interface/CastorJetID.h"
 #include "DataFormats/JetReco/interface/TrackExtrapolation.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
@@ -165,6 +166,15 @@ namespace {
     edm::Wrapper<std::vector<JetID> > wjid;
     edm::Wrapper<edm::RefVector<std::vector<JetID> > > wrvjid;
     edm::Wrapper<edm::ValueMap<JetID> > wvmjid;
+    
+    // castor jet id stuff
+    CastorJetID cjid;
+    edm::Ref<std::vector<CastorJetID> > crjid;
+    edm::RefVector<std::vector<CastorJetID> > crrjid;
+    edm::RefProd<std::vector<CastorJetID> > crrrjid;
+    edm::Wrapper<std::vector<CastorJetID> > cwjid;
+    edm::Wrapper<edm::RefVector<std::vector<CastorJetID> > > cwrvjid;
+    edm::Wrapper<edm::ValueMap<CastorJetID> > cwvmjid;
 
     // Jet stuff
     edm::View<reco::Jet>  jv;
@@ -218,6 +228,8 @@ namespace {
 
     edm::Ptr<reco::JetID> ptrjid;
     edm::PtrVector<reco::JetID> ptrvjid;
+    edm::Ptr<reco::CastorJetID> cptrjid;
+    edm::PtrVector<reco::CastorJetID> cptrvjid;
 
     edm::Association<reco::GenJetCollection> a_gj;
     edm::Wrapper<edm::Association<reco::GenJetCollection> > w_a_gj;
