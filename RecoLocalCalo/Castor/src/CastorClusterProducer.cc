@@ -12,7 +12,7 @@
 //
 // Original Author:  Hans Van Haevermaet, Benoit Roland
 //         Created:  Wed Jul  9 14:00:40 CEST 2008
-// $Id: CastorClusterProducer.cc,v 1.6 2010/06/29 11:30:44 hvanhaev Exp $
+// $Id: CastorClusterProducer.cc,v 1.7 2010/07/03 19:23:43 hvanhaev Exp $
 //
 //
 
@@ -32,8 +32,7 @@
 #include "DataFormats/Math/interface/Point3D.h"
 
 // Castor Object include
-#include "DataFormats/HcalRecHit/interface/CastorRecHit.h"
-#include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
+#include "DataFormats/CastorReco/interface/CastorCell.h"
 #include "DataFormats/CastorReco/interface/CastorTower.h"
 #include "DataFormats/CastorReco/interface/CastorCluster.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
@@ -201,17 +200,12 @@ void CastorClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
       			fhot += castorcand->fhot()*castorcand->energy();
 			
 			// loop over cells
-      			for (edm::RefVector<edm::SortedCollection<CastorRecHit> >::iterator it = castorcand->rechitsBegin(); it != castorcand->rechitsEnd(); it++) {
-				edm::Ref<edm::SortedCollection<CastorRecHit> > rechit_p = *it;
-				//Point rcell = cell_p->position();
-				double Erechit = rechit_p->energy();
-				HcalCastorDetId id = rechit_p->id();
-    				int module = id.module();
-    				double zrechit = 0;
-    				if (module < 3) zrechit = -14390 - 24.75 - 49.5*(module-1);
-    				if (module > 2) zrechit = -14390 - 99 - 49.5 - 99*(module-3);
-				zmean += Erechit*zrechit;
-				z2mean += Erechit*zrechit*zrechit;
+      			for (CastorCell_iterator it = castorcand->cellsBegin(); it != castorcand->cellsEnd(); it++) {
+				CastorCellRef cell_p = *it;
+				Point rcell = cell_p->position();
+				double Ecell = cell_p->energy();
+				zmean += Ecell*cell_p->z();
+				z2mean += Ecell*cell_p->z()*cell_p->z();
       			} // end loop over cells
 		}
 		//cout << "" << endl;

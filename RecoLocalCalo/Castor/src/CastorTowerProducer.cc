@@ -34,8 +34,7 @@
 #include "DataFormats/Math/interface/Point3D.h"
 
 // Castor Object include
-#include "DataFormats/HcalRecHit/interface/CastorRecHit.h"
-#include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
+#include "DataFormats/CastorReco/interface/CastorCell.h"
 #include "DataFormats/CastorReco/interface/CastorTower.h"
 
 //
@@ -51,15 +50,15 @@ class CastorTowerProducer : public edm::EDProducer {
       virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
-      virtual void ComputeTowerVariable(const edm::RefVector<edm::SortedCollection<CastorRecHit> >& usedRecHits, double&  Ehot, double& depth);
+      virtual void ComputeTowerVariable(const reco::CastorCellRefVector& usedCells, double&  Ehot, double& depth);
       
       // member data
       typedef math::XYZPointD Point;
       typedef ROOT::Math::RhoEtaPhiPoint TowerPoint;
       typedef ROOT::Math::RhoZPhiPoint CellPoint;
-      typedef edm::SortedCollection<CastorRecHit> CastorRecHitCollection; 
+      typedef std::vector<reco::CastorCell> CastorCellCollection;
       typedef std::vector<reco::CastorTower> CastorTowerCollection;
-      typedef edm::RefVector<CastorRecHitCollection> CastorRecHitRefVector;
+      typedef edm::RefVector<CastorCellCollection>  CastorCellRefVector;
       std::string input_;
       double towercut_;
 };
@@ -79,7 +78,7 @@ const double MYR2D = 180/M_PI;
 //
 
 CastorTowerProducer::CastorTowerProducer(const edm::ParameterSet& iConfig) :
-  input_(iConfig.getUntrackedParameter<std::string>("inputprocess","castorreco")),
+  input_(iConfig.getUntrackedParameter<std::string>("inputprocess","CastorCellReco")),
   towercut_(iConfig.getUntrackedParameter<double>("towercut",1.))
 {
   //register your products
@@ -108,18 +107,18 @@ void CastorTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   
   // Produce CastorTowers from CastorCells
   
-  edm::Handle<CastorRecHitCollection> InputRecHits;
-  iEvent.getByLabel(input_,InputRecHits);
+  edm::Handle<CastorCellCollection> InputCells;
+  iEvent.getByLabel(input_,InputCells);
 
   std::auto_ptr<CastorTowerCollection> OutputTowers (new CastorTowerCollection);
    
   // get and check input size
-  int nRecHits = InputRecHits->size();
+  int nCells = InputCells->size();
 
   LogDebug("CastorTowerProducer")
     <<"2. entering CastorTowerProducer"<<std::endl;
 
-  if (nRecHits==0)
+  if (nCells==0)
     LogDebug("CastorTowerProducer") <<"Warning: You are trying to run the Tower algorithm with 0 input cells.";
   
   // declare castor array
@@ -128,8 +127,8 @@ void CastorTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   double poscastortowerarray[4][16]; 
   double negcastortowerarray[4][16];
 
-  CastorRecHitRefVector poscastorusedrechits[16];
-  CastorRecHitRefVector negcastorusedrechits[16];
+  CastorCellRefVector poscastorusedcells[16];
+  CastorCellRefVector negcastorusedcells[16];
 
   // set phi values and everything else to zero
   for (int j = 0; j < 16; j++) {
@@ -145,40 +144,33 @@ void CastorTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   }
 
   // loop over cells to build castortowerarray[4][16] and castorusedcells[16] 
-  for (unsigned int i = 0; i < InputRecHits->size(); i++) {
+  for (unsigned int i = 0; i < InputCells->size(); i++) {
     
-    edm::Ref<CastorRecHitCollection> rechit_p = edm::Ref<CastorRecHitCollection>(InputRecHits, i);
+    reco::CastorCellRef cell_p = reco::CastorCellRef(InputCells, i);
     
-    double Erechit = rechit_p->energy();
-    HcalCastorDetId id = rechit_p->id();
-    int module = id.module();
-    int sector = id.sector();
-    double zrechit = 0;
-    if (module < 3) zrechit = -14390 - 24.75 - 49.5*(module-1);
-    if (module > 2) zrechit = -14390 - 99 - 49.5 - 99*(module-3); 
-    double phirechit = -100;
-    if (sector < 9) phirechit = 0.19635 + (sector-1)*0.3927;
-    if (sector > 8) phirechit = -2.94524 + (sector - 9)*0.3927;
+    double Ecell = cell_p->energy();
+    double zcell = cell_p->z();
+    double phicell = cell_p->phi();
 
     // loop over the 16 towers possibilities
     for ( int j=0;j<16;j++) {
       
       // phi matching condition
-      if (TMath::Abs(phirechit - poscastortowerarray[3][j]) < 0.0001) {
+      if (TMath::Abs(phicell - poscastortowerarray[3][j]) < 0.0001) {
 
 	// condition over cell z value
-    	if (zrechit > 0.) {
-	  poscastortowerarray[0][j]+=Erechit;
-	  if (module < 3) poscastortowerarray[1][j]+=Erechit;  
-	  else poscastortowerarray[2][j]+=Erechit;
-	  poscastorusedrechits[j].push_back(rechit_p);
+    	if (zcell > 0.) {
+	  poscastortowerarray[0][j]+=Ecell;
+	  if (TMath::Abs(zcell) < 14488) poscastortowerarray[1][j]+=Ecell;  
+	  else poscastortowerarray[2][j]+=Ecell;
+	  poscastorusedcells[j].push_back(cell_p);
 	}
       
 	else {
-	  negcastortowerarray[0][j]+=Erechit;
-	  if (module < 3) negcastortowerarray[1][j]+=Erechit;  
-	  else negcastortowerarray[2][j]+=Erechit;
-	  negcastorusedrechits[j].push_back(rechit_p);
+	  negcastortowerarray[0][j]+=Ecell;
+	  if (TMath::Abs(zcell) < 14488) negcastortowerarray[1][j]+=Ecell;  
+	  else negcastortowerarray[2][j]+=Ecell;
+	  negcastorusedcells[j].push_back(cell_p);
 	} // end condition over cell z value
 
       } // end phi matching condition
@@ -201,8 +193,8 @@ void CastorTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     if (poscastortowerarray[0][k] > towercut_) {
       
       fem = poscastortowerarray[1][k]/poscastortowerarray[0][k];
-      CastorRecHitRefVector usedRecHits = poscastorusedrechits[k];
-      ComputeTowerVariable(usedRecHits,Ehot,depth);
+      CastorCellRefVector usedCells = poscastorusedcells[k];
+      ComputeTowerVariable(usedCells,Ehot,depth);
 
       LogDebug("CastorTowerProducer")
 	<<"tower "<<k+1<<": fem = "<<fem<<" ,depth = "<<depth<<" ,Ehot = "<<Ehot<<std::endl;
@@ -211,7 +203,7 @@ void CastorTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       Point towerposition(temptowerposition);
 
       CastorTower newtower(poscastortowerarray[0][k],towerposition,poscastortowerarray[1][k],poscastortowerarray[2][k],fem,depth,Ehot,
-			   poscastorusedrechits[k]);
+			   poscastorusedcells[k]);
       OutputTowers->push_back(newtower);
     } // end select the positive towers with E > Ecut
     
@@ -219,17 +211,17 @@ void CastorTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     if (negcastortowerarray[0][k] > towercut_) {
       
       fem = negcastortowerarray[1][k]/negcastortowerarray[0][k];
-      CastorRecHitRefVector usedRecHits = negcastorusedrechits[k];
-      ComputeTowerVariable(usedRecHits,Ehot,depth);
+      CastorCellRefVector usedCells = negcastorusedcells[k];
+      ComputeTowerVariable(usedCells,Ehot,depth);
 
       LogDebug("CastorTowerProducer")
-	 <<"tower "<<k+1 << " energy = " << negcastortowerarray[0][k] << "EM = " << negcastortowerarray[1][k] << "HAD = " << negcastortowerarray[2][k] << "phi = " << negcastortowerarray[3][k] << ": fem = "<<fem<<" ,depth = "<<depth<<" ,Ehot = "<<Ehot<<std::endl;
+	<<"tower "<<k+1<<": fem = "<<fem<<" ,depth = "<<depth<<" ,Ehot = "<<Ehot<<std::endl;
 
       TowerPoint temptowerposition(rhoTower,-5.9,negcastortowerarray[3][k]);
       Point towerposition(temptowerposition);
 
       CastorTower newtower(negcastortowerarray[0][k],towerposition,negcastortowerarray[1][k],negcastortowerarray[2][k],fem,depth,Ehot,
-			   negcastorusedrechits[k]);
+			   negcastorusedcells[k]);
       OutputTowers->push_back(newtower);
     } // end select the negative towers with E > Ecut
     
@@ -251,26 +243,22 @@ void CastorTowerProducer::endJob() {
     <<"Ending CastorTowerProducer";
 }
 
-void CastorTowerProducer::ComputeTowerVariable(const edm::RefVector<edm::SortedCollection<CastorRecHit> >& usedRecHits, double&  Ehot, double& depth) {
+void CastorTowerProducer::ComputeTowerVariable(const reco::CastorCellRefVector& usedCells, double&  Ehot, double& depth) {
 
   using namespace reco;
 
   double Etot = 0;
 
   // loop over the cells used in the tower k
-  for (CastorRecHitRefVector::iterator it = usedRecHits.begin(); it != usedRecHits.end(); it++) {
-    edm::Ref<CastorRecHitCollection> rechit_p = *it;
+  for (CastorCell_iterator it = usedCells.begin(); it != usedCells.end(); it++) {
+    reco::CastorCellRef cell_p = *it;
 
-    double Erechit = rechit_p->energy();
-    HcalCastorDetId id = rechit_p->id();
-    int module = id.module();
-    double zrechit = 0;
-    if (module < 3) zrechit = -14390 - 24.75 - 49.5*(module-1);
-    if (module > 2) zrechit = -14390 - 99 - 49.5 - 99*(module-3); 
+    double Ecell = cell_p->energy();
+    double zcell = cell_p->z();
 
-    if(Erechit > Ehot) Ehot = Erechit;
-    depth+=Erechit*zrechit;
-    Etot+=Erechit;
+    if(Ecell > Ehot) Ehot = Ecell;
+    depth+=Ecell*zcell;
+    Etot+=Ecell;
   }
 
   depth/=Etot;
