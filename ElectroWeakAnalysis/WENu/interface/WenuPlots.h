@@ -214,6 +214,8 @@ class WenuPlots : public edm::EDAnalyzer {
   Float_t ele2nd_pout;
   Int_t   ele2nd_passes_selection;
   Int_t   ele2nd_ecalDriven;
+  Float_t ele_hltmatched_dr;
+  Int_t   event_triggerDecision;
   Int_t event_datasetTag;
 
   TFile *WENU_VBTFpreseleFile_;
@@ -223,7 +225,7 @@ class WenuPlots : public edm::EDAnalyzer {
   std::string WENU_VBTFselectionFileName_;
   std::string WENU_VBTFpreseleFileName_;
   Bool_t includeJetInformationInNtuples_;
-  Bool_t storeSecondElectronInformation_;
+  Bool_t storeExtraInformation_;
   Double_t DRJetFromElectron_;
   Int_t DatasetTag_;
 };
