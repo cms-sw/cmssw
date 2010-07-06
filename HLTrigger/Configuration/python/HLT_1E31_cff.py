@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_6_2/1E31/V22 (CMSSW_3_6_2_HLT8)
+# /dev/CMSSW_3_6_2/1E31/V24 (CMSSW_3_6_2_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_2/1E31/V22')
+  tableName = cms.string('/dev/CMSSW_3_6_2/1E31/V24')
 )
 
 streams = cms.PSet( 
@@ -28,9 +28,9 @@ streams = cms.PSet(
     'HcalHPDNoise',
     'HcalNZS',
     'MinimumBias',
-    'EG',
     'MuOnia',
-    'EGMonitor' ),
+    'EGMonitor',
+    'EG' ),
   EventDisplay = cms.vstring(  ),
   Express = cms.vstring( 'ExpressPhysics' ),
   HLTDQM = cms.vstring(  ),
@@ -70,14 +70,6 @@ datasets = cms.PSet(
   MinimumBias = cms.vstring( 'HLT_L1Tech_BSC_HighMultiplicity',
     'HLT_ZeroBiasPixel_SingleTrack',
     'HLT_PixelTracks_Multiplicity70' ),
-  EG = cms.vstring( 'HLT_DoublePhoton10_L1R',
-    'HLT_Photon10_Cleaned_L1R',
-    'HLT_Ele15_SiStrip_L1R',
-    'HLT_Photon15_Cleaned_L1R',
-    'HLT_Ele10_SW_L1R',
-    'HLT_Ele15_SW_L1R',
-    'HLT_Ele20_SW_L1R',
-    'HLT_DoublePhoton5_CEP_L1R' ),
   MuOnia = cms.vstring( 'HLT_Mu0_L1MuOpen',
     'HLT_Mu0_Track0_Jpsi',
     'HLT_Mu3_L1MuOpen',
@@ -91,6 +83,15 @@ datasets = cms.PSet(
     'HLT_L2DoubleMu0',
     'HLT_DoubleMu0' ),
   EGMonitor = cms.vstring( 'HLT_L1SingleEG5' ),
+  EG = cms.vstring( 'HLT_DoublePhoton10_L1R',
+    'HLT_Photon10_Cleaned_L1R',
+    'HLT_Ele15_SiStrip_L1R',
+    'HLT_Photon15_Cleaned_L1R',
+    'HLT_Ele10_SW_L1R',
+    'HLT_Ele15_SW_L1R',
+    'HLT_Ele20_SW_L1R',
+    'HLT_Photon30_L1R',
+    'HLT_DoublePhoton5_CEP_L1R' ),
   ExpressPhysics = cms.vstring( 'HLT_MET100',
     'HLT_ZeroBias',
     'HLT_L1SingleEG5',
@@ -113,6 +114,7 @@ datasets = cms.PSet(
     'HLT_DoubleMu3',
     'HLT_Ele10_SW_L1R',
     'HLT_Ele15_SW_L1R',
+    'HLT_Photon30_L1R',
     'HLT_Mu0_L1MuOpen',
     'HLT_Mu0_Track0_Jpsi',
     'HLT_Mu3_L1MuOpen',
@@ -9007,7 +9009,7 @@ HLT_Photon15_Cleaned_L1R = cms.Path( HLTBeginSequence + hltL1sL1SingleEG5 + hltP
 HLT_Photon20_LooseEcalIso_TrackIso_L1R = cms.Path( HLTBeginSequence + hltL1sL1SingleEG8 + hltPrePhoton20HLTLEITIL1R + HLTSinglePhoton20L1NonIsolatedHLTLEITISequence + HLTEndSequence )
 HLT_Photon25_L1R = cms.Path( HLTBeginSequence + hltL1sL1SingleEG8 + hltPrePhoton25L1R + HLTSinglePhoton25L1NonIsolatedHLTNonIsoSequence + HLTEndSequence )
 HLT_Photon25_LooseEcalIso_TrackIso_L1R = cms.Path( HLTBeginSequence + hltL1sL1SingleEG8 + hltPrePhoton25HLTLEITIL1R + HLTSinglePhoton25L1NonIsolatedHLTLEITISequence + HLTEndSequence )
-HLT_Photon30_L1R_1E31 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG8 + hltPrePhoton30L1R1E31 + HLTSinglePhoton30L1NonIsolatedHLTNonIsoSequence + HLTEndSequence )
+HLT_Photon30_L1R = cms.Path( HLTBeginSequence + hltL1sL1SingleEG8 + hltPrePhoton30L1R1E31 + HLTSinglePhoton30L1NonIsolatedHLTNonIsoSequence + HLTEndSequence )
 HLT_Photon70_L1R = cms.Path( HLTBeginSequence + hltL1sL1SingleEG8 + hltPrePhoton70L1R + HLTSinglePhoton30L1NonIsolatedHLTNonIsoSequence + hltL1NonIsoHLTNonIsoSinglePhotonEt30EtFilterESet70 + HLTEndSequence )
 HLT_DoublePhoton5_CEP_L1R = cms.Path( HLTBeginSequence + hltL1sL1DoubleEG5 + hltPreDoublePhoton5CEPL1R + HLTDoublePhotonEt5Sequence + hltTowerMakerForHcal + hltHcalTowerFilter + HLTEndSequence )
 HLT_DoublePhoton10_L1R = cms.Path( HLTBeginSequence + hltL1sL1DoubleEG5 + hltPreDoublePhoton10L1R + HLTDoublePhotonEt10L1NonIsoHLTNonIsoSequence + HLTEndSequence )
@@ -9050,7 +9052,7 @@ HLTriggerFinalPath = cms.Path( hltTriggerSummaryAOD + hltPreTriggerSummaryRAW + 
 HLTAnalyzerEndpath = cms.EndPath( hltL1GtTrigReport + hltTrigReport )
 
 
-HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_L1Jet15, HLT_Jet30, HLT_Jet50, HLT_Jet80, HLT_Jet110, HLT_Jet140, HLT_Jet180, HLT_FwdJet40, HLT_DiJetAve15U_1E31, HLT_DiJetAve30U_1E31, HLT_DiJetAve50U_1E31, HLT_DiJetAve70U, HLT_DiJetAve130U, HLT_QuadJet30, HLT_SumET120, HLT_L1MET20, HLT_MET35, HLT_MET60, HLT_MET100, HLT_HT200, HLT_HT240, HLT_HT300_MHT100, HLT_L1MuOpen, HLT_L1Mu, HLT_L1Mu20HQ, HLT_L1Mu30, HLT_L2Mu11, HLT_IsoMu9, HLT_Mu5, HLT_Mu9, HLT_Mu11, HLT_Mu15, HLT_L1DoubleMuOpen, HLT_L2DoubleMu0, HLT_DoubleMu0, HLT_DoubleMu3, HLT_Mu0_L1MuOpen, HLT_Mu3_L1MuOpen, HLT_Mu5_L1MuOpen, HLT_Mu0_L2Mu0, HLT_Mu3_L2Mu0, HLT_Mu5_L2Mu0, HLT_Mu0_Track0_Jpsi, HLT_Mu3_Track0_Jpsi, HLT_Mu5_Track0_Jpsi, HLT_L1SingleEG5, HLT_Ele10_SW_L1R, HLT_Ele15_SW_L1R, HLT_Ele15_SW_EleId_L1R, HLT_Ele15_SW_LooseTrackIso_L1R, HLT_Ele15_SC15_SW_EleId_L1R, HLT_Ele15_SC15_SW_LooseTrackIso_L1R, HLT_Ele15_SiStrip_L1R, HLT_Ele20_SW_L1R, HLT_Ele20_SW_EleId_LooseTrackIso_L1R, HLT_Ele20_SC15_SW_L1R, HLT_Ele20_SiStrip_L1R, HLT_Ele25_SW_L1R, HLT_Ele25_SW_EleId_LooseTrackIso_L1R, HLT_DoubleEle5_SW_Jpsi_L1R, HLT_DoubleEle5_SW_Upsilon_L1R, HLT_DoubleEle10_SW_L1R, HLT_Photon10_Cleaned_L1R, HLT_Photon10_LooseEcalIso_TrackIso_L1R, HLT_Photon15_Cleaned_L1R, HLT_Photon20_LooseEcalIso_TrackIso_L1R, HLT_Photon25_L1R, HLT_Photon25_LooseEcalIso_TrackIso_L1R, HLT_Photon30_L1R_1E31, HLT_Photon70_L1R, HLT_DoublePhoton5_CEP_L1R, HLT_DoublePhoton10_L1R, HLT_DoublePhoton15_L1R, HLT_DoublePhoton15_VeryLooseEcalIso_L1R, HLT_SingleIsoTau30_Trk5, HLT_DoubleLooseIsoTau15_Trk5, HLT_BTagIP_Jet80, HLT_BTagIP_Jet120, HLT_BTagMu_Jet20, HLT_StoppedHSCP_1E31, HLT_L1Mu14_L1SingleEG10, HLT_L1Mu14_L1SingleJet20, HLT_L1Mu14_L1ETM40, HLT_L2Mu7_Photon9_L1R, HLT_L2Mu8_HT50, HLT_L2Mu9_DiJet30, HLT_Ele10_SW_L1R_TripleJet30, HLT_Ele10_LW_L1R_HT200, HLT_ZeroBias, HLT_ZeroBiasPixel_SingleTrack, HLT_CSCBeamHalo, HLT_CSCBeamHaloOverlapRing1, HLT_CSCBeamHaloOverlapRing2, HLT_CSCBeamHaloRing2or3, HLT_L1Tech_BSC_HighMultiplicity, HLT_TrackerCosmics, HLT_RPCBarrelCosmics, HLT_IsoTrackHE_1E31, HLT_IsoTrackHB_1E31, HLT_HcalPhiSym, HLT_HcalNZS_1E31, AlCa_EcalPi0_1E31, AlCa_EcalEta_1E31, AlCa_RPCMuonNoHits, AlCa_RPCMuonNoTriggers, AlCa_RPCMuonNormalisation, HLT_PixelTracks_Multiplicity70, HLTriggerFinalPath, HLTAnalyzerEndpath ))
+HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_L1Jet15, HLT_Jet30, HLT_Jet50, HLT_Jet80, HLT_Jet110, HLT_Jet140, HLT_Jet180, HLT_FwdJet40, HLT_DiJetAve15U_1E31, HLT_DiJetAve30U_1E31, HLT_DiJetAve50U_1E31, HLT_DiJetAve70U, HLT_DiJetAve130U, HLT_QuadJet30, HLT_SumET120, HLT_L1MET20, HLT_MET35, HLT_MET60, HLT_MET100, HLT_HT200, HLT_HT240, HLT_HT300_MHT100, HLT_L1MuOpen, HLT_L1Mu, HLT_L1Mu20HQ, HLT_L1Mu30, HLT_L2Mu11, HLT_IsoMu9, HLT_Mu5, HLT_Mu9, HLT_Mu11, HLT_Mu15, HLT_L1DoubleMuOpen, HLT_L2DoubleMu0, HLT_DoubleMu0, HLT_DoubleMu3, HLT_Mu0_L1MuOpen, HLT_Mu3_L1MuOpen, HLT_Mu5_L1MuOpen, HLT_Mu0_L2Mu0, HLT_Mu3_L2Mu0, HLT_Mu5_L2Mu0, HLT_Mu0_Track0_Jpsi, HLT_Mu3_Track0_Jpsi, HLT_Mu5_Track0_Jpsi, HLT_L1SingleEG5, HLT_Ele10_SW_L1R, HLT_Ele15_SW_L1R, HLT_Ele15_SW_EleId_L1R, HLT_Ele15_SW_LooseTrackIso_L1R, HLT_Ele15_SC15_SW_EleId_L1R, HLT_Ele15_SC15_SW_LooseTrackIso_L1R, HLT_Ele15_SiStrip_L1R, HLT_Ele20_SW_L1R, HLT_Ele20_SW_EleId_LooseTrackIso_L1R, HLT_Ele20_SC15_SW_L1R, HLT_Ele20_SiStrip_L1R, HLT_Ele25_SW_L1R, HLT_Ele25_SW_EleId_LooseTrackIso_L1R, HLT_DoubleEle5_SW_Jpsi_L1R, HLT_DoubleEle5_SW_Upsilon_L1R, HLT_DoubleEle10_SW_L1R, HLT_Photon10_Cleaned_L1R, HLT_Photon10_LooseEcalIso_TrackIso_L1R, HLT_Photon15_Cleaned_L1R, HLT_Photon20_LooseEcalIso_TrackIso_L1R, HLT_Photon25_L1R, HLT_Photon25_LooseEcalIso_TrackIso_L1R, HLT_Photon30_L1R, HLT_Photon70_L1R, HLT_DoublePhoton5_CEP_L1R, HLT_DoublePhoton10_L1R, HLT_DoublePhoton15_L1R, HLT_DoublePhoton15_VeryLooseEcalIso_L1R, HLT_SingleIsoTau30_Trk5, HLT_DoubleLooseIsoTau15_Trk5, HLT_BTagIP_Jet80, HLT_BTagIP_Jet120, HLT_BTagMu_Jet20, HLT_StoppedHSCP_1E31, HLT_L1Mu14_L1SingleEG10, HLT_L1Mu14_L1SingleJet20, HLT_L1Mu14_L1ETM40, HLT_L2Mu7_Photon9_L1R, HLT_L2Mu8_HT50, HLT_L2Mu9_DiJet30, HLT_Ele10_SW_L1R_TripleJet30, HLT_Ele10_LW_L1R_HT200, HLT_ZeroBias, HLT_ZeroBiasPixel_SingleTrack, HLT_CSCBeamHalo, HLT_CSCBeamHaloOverlapRing1, HLT_CSCBeamHaloOverlapRing2, HLT_CSCBeamHaloRing2or3, HLT_L1Tech_BSC_HighMultiplicity, HLT_TrackerCosmics, HLT_RPCBarrelCosmics, HLT_IsoTrackHE_1E31, HLT_IsoTrackHB_1E31, HLT_HcalPhiSym, HLT_HcalNZS_1E31, AlCa_EcalPi0_1E31, AlCa_EcalEta_1E31, AlCa_RPCMuonNoHits, AlCa_RPCMuonNoTriggers, AlCa_RPCMuonNormalisation, HLT_PixelTracks_Multiplicity70, HLTriggerFinalPath, HLTAnalyzerEndpath ))
 # override the preshower baseline setting for MC
 if 'ESUnpackerWorkerESProducer' in locals():
     ESUnpackerWorkerESProducer.RHAlgo.ESBaseline = 1000

@@ -1,8 +1,9 @@
 HLTriggerFirstPath
+HLT_Activity_PixelClusters
+HLT_L1DoubleMuOpen
 HLT_HIMinBiasCalo
 HLT_HIJet35U
 HLT_HIPhoton15
-HLT_HIDoubleMu
 HLTriggerFinalPath
 HLTAnalyzerEndpath
 HLTOutput
