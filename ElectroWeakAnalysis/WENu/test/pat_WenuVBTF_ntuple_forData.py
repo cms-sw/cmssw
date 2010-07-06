@@ -47,7 +47,22 @@ process.source = cms.Source("PoolSource",
     # SOME DATA FILE TO BE PUT HERE
     #'rfio:/castor/cern.ch/user/r/rompotis/DATA_STUDIES/Spring10/sample_WminusToENu-CTEQ66-powheg_Spring10-START3X_V26_AODSIM-v2.root',
     #'file:rfio:/castor/cern.ch/user/r/rompotis/DATA_STUDIES/Spring10/sample_WenuSpring10START3X_V26_S09-v1_AODSIM.root',
-
+#    '/store/data/Commissioning10/MinimumBias/RECO/SD_EG-Jun14thSkim_v1/0149/FEDC34AB-7F84-DF11-A007-00261894385A.root'
+#    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/FE96AFA9-C678-DF11-9E4C-003048F0E7FC.root',
+#    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/F266F2FA-BE78-DF11-BEB4-003048F0E81E.root',
+#    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/EA166B12-C378-DF11-9BEC-003048CF6334.root',
+#    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/E8CCAFFA-BE78-DF11-8D0B-003048F0E81E.root',
+#    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/E2B13F9F-C978-DF11-B42A-003048F0E81E.root',
+#    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/DC224012-C378-DF11-B414-003048CF6334.root',
+#    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/D449BF0F-C378-DF11-AB42-003048F0E81E.root',
+    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/D084A5EF-CA78-DF11-B000-003048F0E186.root',
+    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/C892F555-C378-DF11-919F-003048F0E81E.root',
+    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/C842530C-C378-DF11-BD97-003048CF632E.root',
+    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/C828CC0C-C378-DF11-B72D-003048CF632E.root',
+    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/BE8B579A-C978-DF11-BB94-003048CF6334.root',
+    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/B0A78AFA-BE78-DF11-88A2-003048CF6334.root',
+    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/AC3549F8-BE78-DF11-B07B-003048F0E186.root',
+#    'rfio:/castor/cern.ch/cms/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/FE96AFA9-C678-DF11-9E4C-003048F0E7FC.root'
     )
 )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
@@ -56,7 +71,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 ## global tags:
-process.GlobalTag.globaltag = cms.string('GR_R_36X_V11A::All') # GLOBAL TAG FOR DATA
+process.GlobalTag.globaltag = cms.string('GR_R_36X_V12A::All') # GLOBAL TAG FOR DATA
+
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 
@@ -159,9 +175,10 @@ HLT_path_name     = "HLT_Photon10_L1R" #= "HLT_Ele15_LW_L1R" #
 # trigger filter name
 HLT_filter_name  =  "hltL1NonIsoHLTNonIsoSinglePhotonEt10HcalIsolFilter"
 #
-HLT_path_name_extra   = "HLT_Photon15_L1R" #= "HLT_Ele15_LW_L1R" #
-HLT_filter_name_extra = "hltL1NonIsoHLTNonIsoSinglePhotonEt15HcalIsolFilter"
-
+HLT_path_name_extra0   = "HLT_Photon15_L1R"
+HLT_filter_name_extra0 = cms.untracked.InputTag("hltL1NonIsoHLTNonIsoSinglePhotonEt15HcalIsolFilter","",HLT_process_name)
+HLT_path_name_extra1   = "HLT_Photon15_Cleaned_L1R"
+HLT_filter_name_extra1 = cms.untracked.InputTag("hltL1NonIsoHLTNonIsoSinglePhotonEt15CleanedHcalIsolFilter","",HLT_process_name)
 
 process.wenuFilter = cms.EDFilter('WenuCandidateFilter',
                                   ### the input collections needed:
@@ -193,8 +210,8 @@ process.wenuFilter = cms.EDFilter('WenuCandidateFilter',
                                   useHLTObjectETCut = cms.untracked.bool(True),
                                   hltObjectETCut = cms.untracked.double(15.),
                                   useExtraTrigger = cms.untracked.bool(True),
-                                  hltpathExtra = cms.untracked.string(HLT_path_name_extra),
-                                  hltpathFilterExtra = cms.untracked.InputTag(HLT_filter_name_extra,"",HLT_process_name),
+                                  vHltpathExtra = cms.untracked.vstring(HLT_path_name_extra0,HLT_path_name_extra1),
+                                  vHltpathFilterExtra = cms.untracked.VInputTag(HLT_filter_name_extra0, HLT_filter_name_extra1),
                                   # ET Cut in the SC
                                   ETCut = cms.untracked.double(20.),                                  
                                   METCut = cms.untracked.double(0.),
@@ -261,7 +278,7 @@ process.plotter = cms.EDAnalyzer('WenuPlots',
                                  WENU_VBTFselectionFileName = cms.untracked.string("WENU_VBTFselection.root"),
                                  WENU_VBTFpreseleFileName = cms.untracked.string("WENU_VBTFpreselection.root"),
                                  DatasetTag =  cms.untracked.int32(100),
-                                 storeSecondElectronInformation = cms.untracked.bool(True),
+                                 storeExtraInformation = cms.untracked.bool(True),
                                  )
 #
 # if you run on data then you have to do misalignment  corrections first!!!
