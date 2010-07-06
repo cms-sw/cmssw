@@ -8,7 +8,8 @@ int EcalSeverityLevelAlgo::severityLevel( const DetId id,
                 float recHitEtThreshold,
                 SpikeId spId,
 		float spIdThreshold,
-		float recHitEnergyThreshold
+		float recHitEnergyThresholdForTiming,
+		float recHitEnergyThresholdForEE
                 )
 {
 
@@ -34,8 +35,9 @@ int EcalSeverityLevelAlgo::severityLevel( const DetId id,
                 // check the topology
                 if ( id.subdetId() == EcalBarrel && (spikeFromNeighbours(id, recHits, recHitEtThreshold, spId) > spIdThreshold)  ) return kWeird;
                 // check the timing (currently only a trivial check)
-		if ( id.subdetId() == EcalBarrel && spikeFromTiming(*it, recHitEnergyThreshold) ) return kTime;
-                // for now no filtering on VPT discharges in the endcap		
+		if ( id.subdetId() == EcalBarrel && spikeFromTiming(*it, recHitEnergyThresholdForTiming) ) return kTime;
+                // filtering on VPT discharges in the endcap
+                if ( id.subdetId() == EcalEndcap && spId == kSwissCross && ( 1-swissCross(id, recHits, recHitEnergyThresholdForEE, spId) < 0.02*log(recHitE(id, recHits)/4.) )  ) return kWeird;
 
                 // .. not a spike, return the normal severity level
                 return severityLevel( *it, chStatus );
@@ -99,19 +101,19 @@ uint16_t EcalSeverityLevelAlgo::retrieveDBStatus( const DetId id, const EcalChan
 
 float EcalSeverityLevelAlgo::spikeFromNeighbours( const DetId id,
                                                   const EcalRecHitCollection & recHits,
-                                                  float recHitEtThreshold,
+                                                  float recHitThreshold,
                                                   SpikeId spId
                                                   )
 {
   switch( spId ) {
   case kE1OverE9:
-    return E1OverE9( id, recHits, recHitEtThreshold );
+    return E1OverE9( id, recHits, recHitThreshold );
     break;
   case kSwissCross:
-    return swissCross( id, recHits, recHitEtThreshold , true);
+    return swissCross( id, recHits, recHitThreshold , true);
     break;
   case kSwissCrossBordersIncluded:
-    return swissCross( id, recHits, recHitEtThreshold , false);
+    return swissCross( id, recHits, recHitThreshold , false);
     break;
   default:
     edm::LogInfo("EcalSeverityLevelAlgo") << "Algorithm number " << spId
@@ -152,7 +154,7 @@ float EcalSeverityLevelAlgo::E1OverE9( const DetId id, const EcalRecHitCollectio
         return 0;
 }
 
-float EcalSeverityLevelAlgo::swissCross( const DetId id, const EcalRecHitCollection & recHits, float recHitEtThreshold , bool avoidIeta85)
+float EcalSeverityLevelAlgo::swissCross( const DetId id, const EcalRecHitCollection & recHits, float recHitThreshold , bool avoidIeta85)
 {
         // compute swissCross
         if ( id.subdetId() == EcalBarrel ) {
@@ -162,8 +164,8 @@ float EcalSeverityLevelAlgo::swissCross( const DetId id, const EcalRecHitCollect
                 // evidence for the time being that there the performance is
                 // different)
                 if ( abs(ebId.ieta())==85 && avoidIeta85) return 0;
-                // select recHits with Et above recHitEtThreshold
-                if ( recHitApproxEt( id, recHits ) < recHitEtThreshold ) return 0;
+                // select recHits with Et above recHitThreshold
+                if ( recHitApproxEt( id, recHits ) < recHitThreshold ) return 0;
                 float s4 = 0;
                 float e1 = recHitE( id, recHits );
                 // protect against nan (if 0 threshold is given above)
@@ -175,10 +177,10 @@ float EcalSeverityLevelAlgo::swissCross( const DetId id, const EcalRecHitCollect
                 return 1 - s4 / e1;
         } else if ( id.subdetId() == EcalEndcap ) {
                 EEDetId eeId( id );
-                // select recHits with Et above recHitEtThreshold
-                if ( recHitApproxEt( id, recHits ) < recHitEtThreshold ) return 0;
-                float s4 = 0;
+                // select recHits with E above recHitThreshold
                 float e1 = recHitE( id, recHits );
+                if ( e1 < recHitThreshold ) return 0;
+                float s4 = 0;
                 // protect against nan (if 0 threshold is given above)
                 if ( e1 == 0 ) return 0;
                 s4 += recHitE( id, recHits,  1,  0 );
