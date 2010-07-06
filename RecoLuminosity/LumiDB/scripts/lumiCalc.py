@@ -629,7 +629,7 @@ def main():
     c=constants()
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description="Lumi Calculations")
     # add required arguments
-    parser.add_argument('-c',dest='connect',action='store',required=True,help='connect string to lumiDB (required)')
+    parser.add_argument('-c',dest='connect',action='store',required=False,help='connect string to lumiDB (optional, default to frontier://LumiProd/CMS_LUMI_PROD)')
     # add optional arguments
     parser.add_argument('-P',dest='authpath',action='store',help='path to authentication file')
     parser.add_argument('-n',dest='normfactor',action='store',help='normalization factor (optional, default to 1.0)')
@@ -645,7 +645,9 @@ def main():
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
     # parse arguments
     args=parser.parse_args()
-    connectstring=args.connect
+    connectstring='frontier://LumiProd/CMS_LUMI_PROD'
+    if args.connect: 
+        connectstring=args.connect
     connectparser=connectstrParser.connectstrParser(connectstring)
     connectparser.parse()
     usedefaultfrontierconfig=False
