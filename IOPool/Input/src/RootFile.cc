@@ -77,11 +77,12 @@ namespace edm {
     virtual ~RootFileEventFinder() {}
     virtual
     EventNumber_t getEventNumberOfEntry(input::EntryNumber entry) const {
+      input::EntryNumber saveEntry = eventTree_.entryNumber();
       eventTree_.setEntryNumber(entry);
       EventAuxiliary eventAux;
       EventAuxiliary *pEvAux = &eventAux;
       eventTree_.fillAux<EventAuxiliary>(pEvAux);
-      eventTree_.setEntryNumber(-1);
+      eventTree_.setEntryNumber(saveEntry);
       return eventAux.event();
     }
 
