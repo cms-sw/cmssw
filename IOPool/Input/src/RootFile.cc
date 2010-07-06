@@ -1089,7 +1089,6 @@ namespace edm {
   // Reads event at the current entry in the file index.
   EventPrincipal*
   RootFile::readCurrentEvent(EventPrincipal& cache, boost::shared_ptr<LuminosityBlockPrincipal> lb) {
-    eventTree_.setEntryNumber(indexIntoFileIter_.entry());
     if(!eventTree_.current()) {
       return 0;
     }
