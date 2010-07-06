@@ -243,11 +243,11 @@ muonrecoforcosmicsEndCapsOnly = cms.Sequence(muontrackingforcosmicsEndCapsOnly*a
 
 # Beam halo in Encaps only. GLB reco only is needed
 globalBeamHaloMuonEndCapslOnly = globalCosmicMuonsEndCapsOnly.clone()
-globalBeamHaloMuonEndCapslOnly.TrajectoryBuilderParameters.TkTrackCollectionLabel = 'ctfWithMaterialTracksBeamHaloMuon'
+globalBeamHaloMuonEndCapslOnly.TrajectoryBuilderParameters.TkTrackCollectionLabel = 'beamhaloTracks'
 
 # Muon Id producer
 muonsBeamHaloEndCapsOnly = muons.clone()           
-muonsBeamHaloEndCapsOnly.inputCollectionLabels = ['ctfWithMaterialTracksBeamHaloMuon', 'globalBeamHaloMuonEndCapslOnly', 'cosmicMuonsEndCapsOnly']
+muonsBeamHaloEndCapsOnly.inputCollectionLabels = ['beamhaloTracks', 'globalBeamHaloMuonEndCapslOnly', 'cosmicMuonsEndCapsOnly']
 muonsBeamHaloEndCapsOnly.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks']
 muonsBeamHaloEndCapsOnly.fillIsolation = True
 muonsBeamHaloEndCapsOnly.fillGlobalTrackQuality = False
