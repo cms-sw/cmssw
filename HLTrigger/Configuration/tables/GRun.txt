@@ -5,7 +5,6 @@ HLT_Activity_CSC
 HLT_Activity_DT
 HLT_Activity_DT_Tuned
 HLT_Activity_Ecal_SC7
-HLT_Activity_Ecal_SC15
 HLT_Activity_Ecal_SC17
 HLT_SelectEcalSpikes_L1R
 HLT_SelectEcalSpikesHighEt_L1R
@@ -58,6 +57,12 @@ HLT_Mu5_L2Mu0
 HLT_Mu0_Track0_Jpsi
 HLT_Mu3_Track0_Jpsi
 HLT_Mu5_Track0_Jpsi
+HLT_Mu0_TkMu0_Jpsi
+HLT_Mu3_TkMu0_Jpsi
+HLT_Mu5_TkMu0_Jpsi
+HLT_Mu0_TkMu0_Jpsi_NoCharge
+HLT_Mu3_TkMu0_Jpsi_NoCharge
+HLT_Mu5_TkMu0_Jpsi_NoCharge
 HLT_L1SingleEG2
 HLT_L1SingleEG5
 HLT_L1SingleEG8
