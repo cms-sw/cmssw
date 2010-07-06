@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2010/03/17 17:23:23 $ by $Author: mussgill $
+# last update: $Date: 2010/06/25 12:28:41 $ by $Author: cerminar $
 
 # AlCaReco sequence definitions:
 
@@ -10,6 +10,7 @@ import FWCore.ParameterSet.Config as cms
 # AlCaReco for track based alignment using ZMuMu events
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlZMuMu_cff import *
 # AlCaReco for track based alignment using Cosmic muon events
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmicsInCollisions_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmicsHLT_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics0T_cff import *
@@ -59,6 +60,7 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalNoise_cff import *
 ###############################################################
 # Muon Alignment with cosmics
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlStandAloneCosmics_cff import *
+from Alignment.CommonAlignmentProducer.ALCARECOMuAlGlobalCosmicsInCollisions_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlGlobalCosmics_cff import *
 # Muon Alignment/Calibration with isolated muons
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlCalIsolatedMu_cff import *
@@ -124,6 +126,7 @@ pathALCARECOTkAlBeamHalo = cms.Path(seqALCARECOTkAlBeamHalo*ALCARECOTkAlBeamHalo
 pathALCARECOMuAlBeamHaloOverlaps = cms.Path(seqALCARECOMuAlBeamHaloOverlaps*ALCARECOMuAlBeamHaloOverlapsDQM)
 pathALCARECOMuAlBeamHalo = cms.Path(seqALCARECOMuAlBeamHalo*ALCARECOMuAlBeamHaloDQM)
 pathALCARECOTkAlLAS = cms.Path(seqALCARECOTkAlLAS*ALCARECOTkAlLASDQM)
+pathALCARECOTkAlCosmicsInCollisions = cms.Path(seqALCARECOTkAlCosmicsInCollisions*ALCARECOTkAlCosmicsInCollisionsDQM)
 pathALCARECOTkAlCosmicsCTF = cms.Path(seqALCARECOTkAlCosmicsCTF*ALCARECOTkAlCosmicsCTFDQM)
 pathALCARECOTkAlCosmicsCosmicTF = cms.Path(seqALCARECOTkAlCosmicsCosmicTF*ALCARECOTkAlCosmicsCosmicTFDQM)
 pathALCARECOTkAlCosmicsCTF0T = cms.Path(seqALCARECOTkAlCosmicsCTF0T*ALCARECOTkAlCosmicsCTF0TDQM)
@@ -133,6 +136,7 @@ pathALCARECOTkAlCosmicsCosmicTFHLT = cms.Path(seqALCARECOTkAlCosmicsCosmicTFHLT*
 pathALCARECOTkAlCosmicsCTF0THLT = cms.Path(seqALCARECOTkAlCosmicsCTF0THLT*ALCARECOTkAlCosmicsCTF0TDQM)
 pathALCARECOTkAlCosmicsCosmicTF0THLT = cms.Path(seqALCARECOTkAlCosmicsCosmicTF0THLT*ALCARECOTkAlCosmicsCosmicTF0TDQM)
 pathALCARECOMuAlStandAloneCosmics = cms.Path(seqALCARECOMuAlStandAloneCosmics*ALCARECOMuAlStandAloneCosmicsDQM)
+pathALCARECOMuAlGlobalCosmicsInCollisions = cms.Path(seqALCARECOMuAlGlobalCosmicsInCollisions*ALCARECOMuAlGlobalCosmicsInCollisionsDQM)
 pathALCARECOMuAlGlobalCosmics = cms.Path(seqALCARECOMuAlGlobalCosmics*ALCARECOMuAlGlobalCosmicsDQM)
 pathALCARECOPromptCalibProd = cms.Path(seqALCARECOPromptCalibProd)
 
@@ -323,6 +327,15 @@ ALCARECOStreamDtCalib = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
+ALCARECOStreamTkAlCosmicsInCollisions = cms.FilteredStream(
+	responsible = 'Andreas Mussgiller',
+	name = 'TkAlCosmicsInCollisions',
+	paths  = (pathALCARECOTkAlCosmicsInCollisions),
+	content = OutALCARECOTkAlCosmicsInCollisions.outputCommands,
+	selectEvents = OutALCARECOTkAlCosmicsInCollisions.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
 ALCARECOStreamTkAlCosmics = cms.FilteredStream(
 	responsible = 'Gero Flucke',
 	name = 'TkAlCosmics',
@@ -374,6 +387,15 @@ ALCARECOStreamMuAlGlobalCosmics = cms.FilteredStream(
 	paths  = (pathALCARECOMuAlGlobalCosmics),
 	content = OutALCARECOMuAlGlobalCosmics.outputCommands,
 	selectEvents = OutALCARECOMuAlGlobalCosmics.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
+ALCARECOStreamMuAlGlobalCosmicsInCollisions = cms.FilteredStream(
+	responsible = 'Jim Pivarski',
+	name = 'MuAlGlobalCosmicsInCollisions',
+	paths  = (pathALCARECOMuAlGlobalCosmicsInCollisions),
+	content = OutALCARECOMuAlGlobalCosmicsInCollisions.outputCommands,
+	selectEvents = OutALCARECOMuAlGlobalCosmicsInCollisions.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
