@@ -67,7 +67,7 @@ HLT_Photon15_Cleaned_L1R
 HLT_Photon20_LooseEcalIso_TrackIso_L1R
 HLT_Photon25_L1R
 HLT_Photon25_LooseEcalIso_TrackIso_L1R
-HLT_Photon30_L1R_1E31
+HLT_Photon30_L1R
 HLT_DoublePhoton5_CEP_L1R
 HLT_DoublePhoton10_L1R
 HLT_DoublePhoton15_L1R
