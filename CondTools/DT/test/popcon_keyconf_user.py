@@ -64,6 +64,8 @@ process.conf_o2o = cms.EDAnalyzer("DTUserKeyedConfigPopConAnalyzer",
         onlineDB = cms.string('sqlite_file:dummy_online.db'),
         tag = cms.string('conf_test'),
         run = cms.int32(1),
+        writeKeys = cms.bool(True),
+        writeData = cms.bool(True),
         container = cms.string('keyedConfBricks'),
         DTConfigKeys = cms.VPSet(
             cms.PSet(
