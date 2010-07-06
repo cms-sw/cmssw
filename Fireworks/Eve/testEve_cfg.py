@@ -10,11 +10,11 @@ process.source = cms.Source(
     fileNames=cms.untracked.vstring('file:test.root')
 )
 
-process.TGeoFromDddService = cms.Service(
-    "TGeoFromDddService",
-    verbose = cms.untracked.bool(False),
-    level   = cms.untracked.int32(11)
-)
+process.add_( cms.ESProducer(
+        "TGeoMgrFromDdd",
+        verbose = cms.untracked.bool(False),
+        level   = cms.untracked.int32(4)
+))
 
 process.EveService = cms.Service("EveService")
 
