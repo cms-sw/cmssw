@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.1 $
  *
  */
 #include "CommonTools/Utils/src/Function.h"
@@ -27,6 +27,18 @@ namespace reco {
     private:
       Function fun_;
       FunctionStack & stack_;
+    };
+
+    struct FunctionSetterCommit { 
+        FunctionSetterCommit(FunctionStack& stackFrom, FunctionStack& stackTo):
+            from_(stackFrom), to_(stackTo) {}
+        void operator()(const char &) const { 
+            to_.push_back(from_.back());
+            from_.clear();
+        }
+        private:
+            FunctionStack & from_;
+            FunctionStack & to_;
     };
   }
 }

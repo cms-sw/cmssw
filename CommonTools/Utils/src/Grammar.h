@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         extended by Luca Lista, INFN
  *
- * \version $Revision: 1.6 $
+ * \version $Revision: 1.7 $
  *
  */
 #include "boost/spirit/include/classic_core.hpp"
@@ -51,7 +51,7 @@ namespace reco {
       mutable ExpressionStack exprStack;
       mutable ComparisonStack cmpStack;
       mutable SelectorStack selStack;
-      mutable FunctionStack funStack;
+      mutable FunctionStack funStack, finalFunStack;
       mutable MethodStack         methStack;
       mutable LazyMethodStack     lazyMethStack;
       mutable MethodArgumentStack methArgStack;
@@ -113,6 +113,7 @@ namespace reco {
 	    sin_s(kSin, self.funStack), sqrt_s(kSqrt, self.funStack), tanh_s(kTanh, self.funStack), 
 	    tan_s(kTan, self.funStack),
             deltaPhi_s(kDeltaPhi, self.funStack), deltaR_s(kDeltaR, self.funStack);
+          FunctionSetterCommit funOk_s(self.funStack, self.finalFunStack);
 	  TrinarySelectorSetter trinary_s(self.selStack, self.cmpStack, self.exprStack);
 	  BinarySelectorSetter binary_s(self.selStack, self.cmpStack, self.exprStack);
 	  ExpressionSelectorSetter expr_sel_s(self.selStack, self.exprStack);
@@ -127,7 +128,7 @@ namespace reco {
 	  ExpressionBinaryOperatorSetter<divides<double> > divides_s(self.exprStack);
 	  ExpressionBinaryOperatorSetter<power_of<double> > power_of_s(self.exprStack);
 	  ExpressionUnaryOperatorSetter<negate<double> > negate_s(self.exprStack);
-	  ExpressionFunctionSetter fun_s(self.exprStack, self.funStack);
+	  ExpressionFunctionSetter fun_s(self.exprStack, self.finalFunStack);
 	  //	  Abort abort_s;
 	  BOOST_SPIRIT_DEBUG_RULE(var);
 	  BOOST_SPIRIT_DEBUG_RULE(method);
@@ -193,10 +194,10 @@ namespace reco {
 	    factor >> * (('^' >> expect(factor)) [ power_of_s ]);
 	  factor = 
 	    number | 
-	    (function1 >> ch_p('(') >> expect(expression) >> expectParenthesis(ch_p(')'))) [ fun_s ] |
-	    (function2 >> ch_p('(') >> expect(expression) >> 
+	    (function1 >> ch_p('(') [funOk_s ] >> expect(expression) >> expectParenthesis(ch_p(')'))) [ fun_s ] |
+	    (function2 >> ch_p('(') [funOk_s ] >> expect(expression) >> 
 	     expect(ch_p(',')) >> expect(expression) >> expectParenthesis(ch_p(')'))) [ fun_s ] |
-            (function4 >> ch_p('(') >> expect(expression) >> expect(ch_p(',')) >> expect(expression) >> expect(ch_p(',')) >> expect(expression) >> 
+            (function4 >> ch_p('(') [funOk_s ] >> expect(expression) >> expect(ch_p(',')) >> expect(expression) >> expect(ch_p(',')) >> expect(expression) >> 
              expect(ch_p(',')) >> expect(expression) >> expectParenthesis(ch_p(')'))) [ fun_s ] |
             //NOTE: no expect around the first ch_p('(') otherwise it can't parse a method that starts like a function name (i.e. maxSomething)
 	    method | 
