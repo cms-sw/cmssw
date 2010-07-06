@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_6_2/GRun/V21
+# /dev/CMSSW_3_6_2/GRun/V22
 
 import FWCore.ParameterSet.Config as cms
 
@@ -53,34 +53,6 @@ streamA_datasetJetMETTau_selector.triggerConditions = cms.vstring('HLT_BTagIP_Je
     'HLT_SingleLooseIsoTau25', 
     'HLT_DiJetAve50U_8E29')
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetEG_selector
-streamA_datasetEG_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetEG_selector.l1tResults = cms.InputTag('')
-streamA_datasetEG_selector.throw      = cms.bool(False)
-streamA_datasetEG_selector.triggerConditions = cms.vstring('HLT_DoublePhoton10_L1R', 
-    'HLT_Photon30_L1R_8E29', 
-    'HLT_Photon15_LooseEcalIso_Cleaned_L1R', 
-    'HLT_Photon15_TrackIso_Cleaned_L1R', 
-    'HLT_Photon10_Cleaned_L1R', 
-    'HLT_DoublePhoton5_Upsilon_L1R', 
-    'HLT_DoublePhoton5_Jpsi_L1R', 
-    'HLT_DoubleEle5_SW_L1R', 
-    'HLT_Ele20_LW_L1R', 
-    'HLT_Ele15_SiStrip_L1R', 
-    'HLT_Ele15_SC10_LW_L1R', 
-    'HLT_Ele15_LW_L1R', 
-    'HLT_Ele10_LW_EleId_L1R', 
-    'HLT_Ele10_LW_L1R', 
-    'HLT_DoublePhoton4_Jpsi_L1R', 
-    'HLT_DoublePhoton4_Upsilon_L1R', 
-    'HLT_DoublePhoton4_eeRes_L1R', 
-    'HLT_DoublePhoton5_L1R', 
-    'HLT_Photon15_Cleaned_L1R', 
-    'HLT_Photon20_Cleaned_L1R', 
-    'HLT_Ele10_SW_L1R', 
-    'HLT_Ele15_SW_L1R', 
-    'HLT_Ele20_SW_L1R')
-
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMu_selector
 streamA_datasetMu_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMu_selector.l1tResults = cms.InputTag('')
@@ -96,37 +68,6 @@ streamA_datasetMu_selector.triggerConditions = cms.vstring('HLT_L1Mu14_L1ETM30',
     'HLT_IsoMu3', 
     'HLT_L2Mu9', 
     'HLT_L2Mu11')
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetEGMonitor_selector
-streamA_datasetEGMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetEGMonitor_selector.l1tResults = cms.InputTag('')
-streamA_datasetEGMonitor_selector.throw      = cms.bool(False)
-streamA_datasetEGMonitor_selector.triggerConditions = cms.vstring('HLT_L1SingleEG2', 
-    'HLT_L1DoubleEG5', 
-    'HLT_L1SingleEG8', 
-    'HLT_L1SingleEG5', 
-    'HLT_SelectEcalSpikes_L1R', 
-    'HLT_SelectEcalSpikesHighEt_L1R', 
-    'HLT_Activity_Ecal_SC7', 
-    'HLT_Activity_Ecal_SC15')
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMuOnia_selector
-streamA_datasetMuOnia_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetMuOnia_selector.l1tResults = cms.InputTag('')
-streamA_datasetMuOnia_selector.throw      = cms.bool(False)
-streamA_datasetMuOnia_selector.triggerConditions = cms.vstring('HLT_Mu0_L1MuOpen', 
-    'HLT_Mu0_Track0_Jpsi', 
-    'HLT_Mu3_L1MuOpen', 
-    'HLT_Mu3_Track0_Jpsi', 
-    'HLT_Mu5_L1MuOpen', 
-    'HLT_Mu5_Track0_Jpsi', 
-    'HLT_L1DoubleMuOpen', 
-    'HLT_Mu0_L2Mu0', 
-    'HLT_Mu3_L2Mu0', 
-    'HLT_Mu5_L2Mu0', 
-    'HLT_L2DoubleMu0', 
-    'HLT_DoubleMu0', 
-    'HLT_L1DoubleMuOpen_Tight')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetRandomTriggers_selector
 streamA_datasetRandomTriggers_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -202,4 +143,70 @@ streamA_datasetMinimumBias_selector.triggerConditions = cms.vstring('HLT_L1Tech_
     'HLT_MultiVertex6', 
     'HLT_MultiVertex8_L1ETT60', 
     'HLT_PixelTracks_Multiplicity70')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetEG_selector
+streamA_datasetEG_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetEG_selector.l1tResults = cms.InputTag('')
+streamA_datasetEG_selector.throw      = cms.bool(False)
+streamA_datasetEG_selector.triggerConditions = cms.vstring('HLT_DoublePhoton10_L1R', 
+    'HLT_Photon30_L1R_8E29', 
+    'HLT_Photon15_LooseEcalIso_Cleaned_L1R', 
+    'HLT_Photon15_TrackIso_Cleaned_L1R', 
+    'HLT_Photon10_Cleaned_L1R', 
+    'HLT_DoublePhoton5_Upsilon_L1R', 
+    'HLT_DoublePhoton5_Jpsi_L1R', 
+    'HLT_DoubleEle5_SW_L1R', 
+    'HLT_Ele20_LW_L1R', 
+    'HLT_Ele15_SiStrip_L1R', 
+    'HLT_Ele15_SC10_LW_L1R', 
+    'HLT_Ele15_LW_L1R', 
+    'HLT_Ele10_LW_EleId_L1R', 
+    'HLT_Ele10_LW_L1R', 
+    'HLT_DoublePhoton4_Jpsi_L1R', 
+    'HLT_DoublePhoton4_Upsilon_L1R', 
+    'HLT_DoublePhoton4_eeRes_L1R', 
+    'HLT_DoublePhoton5_L1R', 
+    'HLT_Photon15_Cleaned_L1R', 
+    'HLT_Photon20_Cleaned_L1R', 
+    'HLT_Ele10_SW_L1R', 
+    'HLT_Ele15_SW_L1R', 
+    'HLT_Ele20_SW_L1R', 
+    'HLT_DoublePhoton5_CEP_L1R')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMuOnia_selector
+streamA_datasetMuOnia_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetMuOnia_selector.l1tResults = cms.InputTag('')
+streamA_datasetMuOnia_selector.throw      = cms.bool(False)
+streamA_datasetMuOnia_selector.triggerConditions = cms.vstring('HLT_Mu0_L1MuOpen', 
+    'HLT_Mu0_Track0_Jpsi', 
+    'HLT_Mu3_L1MuOpen', 
+    'HLT_Mu3_Track0_Jpsi', 
+    'HLT_Mu5_L1MuOpen', 
+    'HLT_Mu5_Track0_Jpsi', 
+    'HLT_L1DoubleMuOpen', 
+    'HLT_Mu0_L2Mu0', 
+    'HLT_Mu3_L2Mu0', 
+    'HLT_Mu5_L2Mu0', 
+    'HLT_L2DoubleMu0', 
+    'HLT_DoubleMu0', 
+    'HLT_L1DoubleMuOpen_Tight', 
+    'HLT_Mu0_TkMu0_Jpsi', 
+    'HLT_Mu0_TkMu0_Jpsi_NoCharge', 
+    'HLT_Mu3_TkMu0_Jpsi', 
+    'HLT_Mu3_TkMu0_Jpsi_NoCharge', 
+    'HLT_Mu5_TkMu0_Jpsi', 
+    'HLT_Mu5_TkMu0_Jpsi_NoCharge')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetEGMonitor_selector
+streamA_datasetEGMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetEGMonitor_selector.l1tResults = cms.InputTag('')
+streamA_datasetEGMonitor_selector.throw      = cms.bool(False)
+streamA_datasetEGMonitor_selector.triggerConditions = cms.vstring('HLT_L1SingleEG2', 
+    'HLT_L1DoubleEG5', 
+    'HLT_L1SingleEG8', 
+    'HLT_L1SingleEG5', 
+    'HLT_SelectEcalSpikes_L1R', 
+    'HLT_SelectEcalSpikesHighEt_L1R', 
+    'HLT_Activity_Ecal_SC7', 
+    'HLT_Activity_Ecal_SC17')
 

@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_6_2/HIon/V21 (CMSSW_3_6_2_HLT8)
+# /dev/CMSSW_3_6_2/HIon/V22 (CMSSW_3_6_2_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_2/HIon/V21')
+  tableName = cms.string('/dev/CMSSW_3_6_2/HIon/V22')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -24,17 +24,17 @@ process.streams = cms.PSet(
   A = cms.vstring( 'MuMonitor',
     'Cosmics',
     'JetMETTau',
-    'EG',
     'Mu',
-    'EGMonitor',
-    'MuOnia',
     'RandomTriggers',
     'ZeroBias',
     'Commissioning',
     'JetMETTauMonitor',
     'HcalHPDNoise',
     'HcalNZS',
-    'MinimumBias' ),
+    'MinimumBias',
+    'EG',
+    'MuOnia',
+    'EGMonitor' ),
   EventDisplay = cms.vstring(  ),
   Express = cms.vstring( 'ExpressPhysics' ),
   HLTDQM = cms.vstring(  ),
@@ -51,10 +51,7 @@ process.datasets = cms.PSet(
   MuMonitor = cms.vstring(  ),
   Cosmics = cms.vstring(  ),
   JetMETTau = cms.vstring(  ),
-  EG = cms.vstring(  ),
   Mu = cms.vstring(  ),
-  EGMonitor = cms.vstring(  ),
-  MuOnia = cms.vstring(  ),
   RandomTriggers = cms.vstring(  ),
   ZeroBias = cms.vstring(  ),
   Commissioning = cms.vstring(  ),
@@ -62,6 +59,9 @@ process.datasets = cms.PSet(
   HcalHPDNoise = cms.vstring(  ),
   HcalNZS = cms.vstring(  ),
   MinimumBias = cms.vstring(  ),
+  EG = cms.vstring(  ),
+  MuOnia = cms.vstring(  ),
+  EGMonitor = cms.vstring(  ),
   ExpressPhysics = cms.vstring(  ),
   OfflineMonitor = cms.vstring(  )
 )
@@ -162,6 +162,54 @@ process.magfield = cms.ESSource( "XMLIdealGeometryESSource",
       'MagneticField/GeomBuilder/data/MagneticFieldParameters_07_2pi.xml' )
 )
 
+process.preshowerDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
+  ComponentName = cms.string( "PreshowerDetIdAssociator" ),
+  appendToDataLabel = cms.string( "" ),
+  etaBinSize = cms.double( 0.1 ),
+  nEta = cms.int32( 60 ),
+  nPhi = cms.int32( 30 ),
+  includeBadChambers = cms.bool( False )
+)
+process.muonDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
+  ComponentName = cms.string( "MuonDetIdAssociator" ),
+  appendToDataLabel = cms.string( "" ),
+  etaBinSize = cms.double( 0.125 ),
+  nEta = cms.int32( 48 ),
+  nPhi = cms.int32( 48 ),
+  includeBadChambers = cms.bool( False )
+)
+process.caloDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
+  ComponentName = cms.string( "CaloDetIdAssociator" ),
+  appendToDataLabel = cms.string( "" ),
+  etaBinSize = cms.double( 0.087 ),
+  nEta = cms.int32( 70 ),
+  nPhi = cms.int32( 72 ),
+  includeBadChambers = cms.bool( False )
+)
+process.hoDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
+  ComponentName = cms.string( "HODetIdAssociator" ),
+  appendToDataLabel = cms.string( "" ),
+  etaBinSize = cms.double( 0.087 ),
+  nEta = cms.int32( 30 ),
+  nPhi = cms.int32( 72 ),
+  includeBadChambers = cms.bool( False )
+)
+process.hcalDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
+  ComponentName = cms.string( "HcalDetIdAssociator" ),
+  appendToDataLabel = cms.string( "" ),
+  etaBinSize = cms.double( 0.087 ),
+  nEta = cms.int32( 70 ),
+  nPhi = cms.int32( 72 ),
+  includeBadChambers = cms.bool( False )
+)
+process.ecalDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
+  ComponentName = cms.string( "EcalDetIdAssociator" ),
+  appendToDataLabel = cms.string( "" ),
+  etaBinSize = cms.double( 0.02 ),
+  nEta = cms.int32( 300 ),
+  nPhi = cms.int32( 360 ),
+  includeBadChambers = cms.bool( False )
+)
 process.AnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   ComponentName = cms.string( "AnalyticalPropagator" ),
   PropagationDirection = cms.string( "alongMomentum" ),
