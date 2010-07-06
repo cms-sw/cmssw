@@ -49,7 +49,7 @@ globalreco = cms.Sequence(offlineBeamSpot+recopixelvertexing*ckftracks+ecalClust
 globalreco_plusRS = cms.Sequence(globalreco*rstracks)
 globalreco_plusPL= cms.Sequence(globalreco*ctfTracksPixelLess)
 
-highlevelreco = cms.Sequence(particleFlowReco*reducedRecHitsSequence*egammarecoFull*jetHighLevelReco*tautagging*metrecoPlusHCALNoise*btagging*recoPFMET*PFTau)
+highlevelreco = cms.Sequence(particleFlowReco*reducedRecHitsSequence*egammarecoFull*jetHighLevelReco*tautagging*metrecoPlusHCALNoise*btagging*recoPFMET*PFTau*regionalCosmicTracksSeq)
 
 #highlevelreco = cms.Sequence(recoJetAssociations*tautagging*particleFlowReco*egammarecoFull*metrecoPlusHCALNoise*reducedRecHitsSequence*btagging*recoPFJets*recoPFMET*PFTau)
 #emergency sequence wo conversions
