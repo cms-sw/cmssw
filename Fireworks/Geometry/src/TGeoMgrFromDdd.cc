@@ -1,21 +1,20 @@
 // -*- C++ -*-
 //
 // Package:     Geometry
-// Class  :     TGeoFromDddService
+// Class  :     TGeoMgrFromDdd
 // 
 // Implementation:
 //     [Notes on implementation]
 //
 // Original Author:  
 //         Created:  Fri Jul  2 16:11:42 CEST 2010
-// $Id: TGeoFromDddService.cc,v 1.1 2010/07/02 18:51:37 matevz Exp $
+// $Id: TGeoMgrFromDdd.cc,v 1.2 2010/07/05 18:06:49 matevz Exp $
 //
 
 // system include files
 
 // user include files
-
-#include "Fireworks/Geometry/interface/TGeoFromDddService.h"
+#include "Fireworks/Geometry/interface/TGeoMgrFromDdd.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -27,6 +26,8 @@
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+
+#include "Fireworks/Geometry/interface/DisplayGeomRecord.h"
 
 #include "TGeoManager.h"
 #include "TGeoMatrix.h"
@@ -55,67 +56,17 @@
 //
 // constructors and destructor
 //
-TGeoFromDddService::TGeoFromDddService(const edm::ParameterSet& pset, edm::ActivityRegistry& ar) :
+TGeoMgrFromDdd::TGeoMgrFromDdd(const edm::ParameterSet& pset) :
    m_level      (pset.getUntrackedParameter<int> ("level", 10)),
-   m_verbose    (pset.getUntrackedParameter<bool>("verbose",false)),
-   m_eventSetup (0),
-   m_geoManager (0)
+   m_verbose    (pset.getUntrackedParameter<bool>("verbose",false))
 {
-   ar.watchPostBeginRun(this, &TGeoFromDddService::postBeginRun);
-   ar.watchPostEndRun  (this, &TGeoFromDddService::postEndRun);
+   // The following line is needed to tell the framework what data is
+   // being produced.
+   setWhatProduced(this);
 }
 
-TGeoFromDddService::~TGeoFromDddService()
-{
-   if (m_geoManager)
-   {
-      delete m_geoManager;
-   }
-}
-
-
-//==============================================================================
-// public member functions
-//==============================================================================
-
-void TGeoFromDddService::postBeginRun(const edm::Run&, const edm::EventSetup& es)
-{
-   printf("TGeoFromDddService::postBeginRun\n");
-
-   m_eventSetup = &es;
-}
-
-void TGeoFromDddService::postEndRun(const edm::Run&, const edm::EventSetup&)
-{
-   printf("TGeoFromDddService::postEndRun\n");
-
-   // Construction of geometry fails miserably on second attempt ...
-   /*
-   if (m_geoManager)
-   {
-      delete m_geoManager;
-      m_geoManager = 0;
-   }
-   */
-   m_eventSetup = 0;
-}
-
-TGeoManager* TGeoFromDddService::getGeoManager()
-{
-   if (m_geoManager == 0)
-   {
-      if (m_eventSetup == 0)
-         edm::LogError("TGeoFromDddService") << "getGeoManager() -- EventSetup not present.\n";
-      else
-      {
-         m_geoManager = createManager(m_level);
-         if (m_geoManager == 0)
-            edm::LogError("TGeoFromDddService") << "getGeoManager() -- creation failed.\n";
-      }
-   }
-   gGeoManager = m_geoManager;
-   return m_geoManager;
-}
+TGeoMgrFromDdd::~TGeoMgrFromDdd()
+{}
 
 
 //==============================================================================
@@ -143,21 +94,19 @@ namespace
 
 
 //==============================================================================
-// private member functions
+// public member functions
 //==============================================================================
 
-
-TGeoManager*
-TGeoFromDddService::createManager(int level)
+TGeoMgrFromDdd::ReturnType
+TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRecord)
 {
    using namespace edm;
 
    ESTransientHandle<DDCompactView> viewH;
-   m_eventSetup->get<IdealGeometryRecord>().get(viewH);
+   iRecord.getRecord<IdealGeometryRecord>().get(viewH);
 
-   if ( ! viewH.isValid() )
-   {
-      return 0;
+   if ( ! viewH.isValid()) {
+      return boost::shared_ptr<TGeoManager>();
    }
 
    TGeoManager *geo_mgr = new TGeoManager("cmsGeo","CMS Detector");
@@ -174,14 +123,15 @@ TGeoFromDddService::createManager(int level)
    // The top most item is actually the volume holding both the
    // geometry AND the magnetic field volumes!
    walker.firstChild();
+   if( ! walker.firstChild()) {
+      return boost::shared_ptr<TGeoManager>();
+   }
 
    TGeoVolume *top = createVolume(info.first.name().fullname(),
 				  info.first.solid(),
                                   info.first.material());
-   if (top == 0)
-   {
-      
-      return 0;
+   if (top == 0) {
+      return boost::shared_ptr<TGeoManager>();
    }
 
    geo_mgr->SetTopVolume(top);
@@ -191,10 +141,6 @@ TGeoFromDddService::createManager(int level)
 
    std::vector<TGeoVolume*> parentStack;
    parentStack.push_back(top);
-
-   if( ! walker.firstChild() ) {
-      return 0;
-   }
 
    do
    {
@@ -227,7 +173,7 @@ TGeoFromDddService::createManager(int level)
 	  break;
  	}
       }
-      if (0 == child || childAlreadyExists || level == int(parentStack.size()))
+      if (0 == child || childAlreadyExists || m_level == int(parentStack.size()))
       {
 	 if (0!=child)
          {
@@ -276,11 +222,16 @@ TGeoFromDddService::createManager(int level)
    nameToMaterial_.clear();
    nameToMedium_.clear();
 
-   return geo_mgr;
+   return boost::shared_ptr<TGeoManager>(geo_mgr);
 }
 
+
+//==============================================================================
+// private member functions
+//==============================================================================
+
 TGeoShape* 
-TGeoFromDddService::createShape(const std::string& iName,
+TGeoMgrFromDdd::createShape(const std::string& iName,
 		      const DDSolid&     iSolid)
 {
    TGeoShape* rSolid= nameToShape_[iName];
@@ -512,7 +463,7 @@ TGeoFromDddService::createShape(const std::string& iName,
 }
 
 TGeoVolume* 
-TGeoFromDddService::createVolume(const std::string& iName,
+TGeoMgrFromDdd::createVolume(const std::string& iName,
 		       const DDSolid& iSolid,
 		       const DDMaterial& iMaterial)
 {
@@ -541,7 +492,7 @@ TGeoFromDddService::createVolume(const std::string& iName,
 }
 
 TGeoMaterial*
-TGeoFromDddService::createMaterial(const DDMaterial& iMaterial)
+TGeoMgrFromDdd::createMaterial(const DDMaterial& iMaterial)
 {
    std::string   mat_name = iMaterial.name().fullname();
    TGeoMaterial *mat      = nameToMaterial_[mat_name];

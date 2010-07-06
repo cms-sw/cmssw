@@ -1,11 +1,11 @@
-#ifndef Fireworks_Geometry_TGeoFromDddService_h
-#define Fireworks_Geometry_TGeoFromDddService_h
+#ifndef Fireworks_Geometry_TGeoMgrFromDdd_h
+#define Fireworks_Geometry_TGeoMgrFromDdd_h
 // -*- C++ -*-
 //
 // Package:     Geometry
-// Class  :     TGeoFromDddService
+// Class  :     TGeoMgrFromDdd
 // 
-/**\class TGeoFromDddService TGeoFromDddService.h Fireworks/Geometry/interface/TGeoFromDddService.h
+/**\class TGeoMgrFromDdd TGeoMgrFromDdd.h Fireworks/Geometry/interface/TGeoMgrFromDdd.h
 
  Description: [one line class summary]
 
@@ -16,29 +16,28 @@
 //
 // Original Author:  
 //         Created:  Fri Jul  2 16:11:33 CEST 2010
-// $Id$
+// $Id: TGeoMgrFromDdd.h,v 1.1 2010/07/02 18:51:37 matevz Exp $
 //
 
 // system include files
-
 #include <string>
 #include <map>
 
+#include "boost/shared_ptr.hpp"
 
 // user include files
+#include "FWCore/Framework/interface/ESProducer.h"
 
 // forward declarations
 
 namespace edm
 {
    class ParameterSet;
-   class ActivityRegistry;
-   class Run;
-   class EventSetup;
 }
 
 class DDSolid;
 class DDMaterial;
+class DisplayGeomRecord;
 
 class TGeoManager;
 class TGeoShape;
@@ -46,11 +45,13 @@ class TGeoVolume;
 class TGeoMaterial;
 class TGeoMedium;
 
-class TGeoFromDddService
+class TGeoMgrFromDdd : public edm::ESProducer
 {
 public:
-   TGeoFromDddService(const edm::ParameterSet&, edm::ActivityRegistry&);
-   virtual ~TGeoFromDddService();
+   TGeoMgrFromDdd(const edm::ParameterSet&);
+   virtual ~TGeoMgrFromDdd();
+
+   typedef boost::shared_ptr<TGeoManager> ReturnType;
 
    // ---------- const member functions ---------------------
 
@@ -58,14 +59,11 @@ public:
 
    // ---------- member functions ---------------------------
 
-   void postBeginRun(const edm::Run&, const edm::EventSetup&);
-   void postEndRun  (const edm::Run&, const edm::EventSetup&);
-
-   TGeoManager* getGeoManager();
+   ReturnType produce(const DisplayGeomRecord&);
 
 private:
-   TGeoFromDddService(const TGeoFromDddService&);                  // stop default
-   const TGeoFromDddService& operator=(const TGeoFromDddService&); // stop default
+   TGeoMgrFromDdd(const TGeoMgrFromDdd&);                  // stop default
+   const TGeoMgrFromDdd& operator=(const TGeoMgrFromDdd&); // stop default
 
 
    TGeoManager*  createManager(int level);
@@ -81,8 +79,6 @@ private:
 
    int                      m_level;
    bool                     m_verbose;
-   const edm::EventSetup   *m_eventSetup;
-   TGeoManager             *m_geoManager;
 
    std::map<std::string, TGeoShape*>    nameToShape_;
    std::map<std::string, TGeoVolume*>   nameToVolume_;
