@@ -132,7 +132,7 @@ def getListOfRunsAndLumiFromDBS(dataSet,lastRun=-1):
     return runsAndLumis
 
 ########################################################################
-def getListOfRunsAndLumiFromRR(dataSet,lastRun=-1):
+def getListOfRunsAndLumiFromRR(lastRun=-1):
     RunReg  ="http://pccmsdqm04.cern.ch/runregistry"
     #RunReg  = "http://localhost:40010/runregistry"
     #Dataset=%Online%
@@ -299,9 +299,10 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
                 else:
                     timeoutType = timeoutManager("DBS_VERY_BIG_MISMATCH_Run"+str(run),missingLumisTimeout)
                     if timeoutType == 1:
-                        error = "ERROR: I previously set a timeout that expired...I can't continue with the script because there are too many (" + str(nFiles - len(runsAndFiles[run])) + " files missing) and for too long " + str(missingLumisTimeout/3600) + " hours!"
+                        error = "ERROR: I previously set a timeout that expired...I can't continue with the script because there are too many (" + str(nFiles - len(runsAndFiles[run])) + " files missing) and for too long " + str(missingLumisTimeout/3600) + " hours! I will process anyway the runs before this one (" + str(run) + ")"
                         sendEmail(mailList,error)
-                        exit(error)
+                        return filesToProcess
+                        #exit(error)
                     else:
                         if timeoutType == -1:
                             print "WARNING: Setting the DBS_VERY_BIG_MISMATCH_Run" + str(run) + " timeout because I haven't processed all files!"
@@ -330,7 +331,7 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
             #exit("ciao")
             if len(badDBS) != 0:
                 print "This is weird because I processed more lumis than the ones that are in DBS!"
-            if len(badDBSProcessed) != 0 and run in listOfRunsAndLumiFromRR:
+            if len(badDBSProcessed) != 0 and run in rrKeys:
                 lastError = len(errors)
                 #print RRList            
                 #It is important for runsAndLumisProcessed[run] to be the first because the comparision is not ==
@@ -358,10 +359,11 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
                         #print errors
                         badProcessed = []
                     else:    
-                        error = "ERROR: I didn't process " + str(100.*lenA/lenB) + "% of the lumis and I am not within the " + str(dbsTolerancePercent) + "% set in the configuration. The number of lumis that I didn't process (" + str(lenA) + " out of " + str(lenB) + ") is greater also than the " + str(dbsTolerance) + " lumis that I can tolerate. I can't continue!" 
+                        error = "ERROR: For run " + str(run) + " I didn't process " + str(100.*lenA/lenB) + "% of the lumis and I am not within the " + str(dbsTolerancePercent) + "% set in the configuration. The number of lumis that I didn't process (" + str(lenA) + " out of " + str(lenB) + ") is greater also than the " + str(dbsTolerance) + " lumis that I can tolerate. I can't process runs >= " + str(run) + " but I'll process the runs before!"
                         sendEmail(mailList,error)
                         print error
-                        exit(errors)
+                        return filesToProcess
+                        #exit(errors)
                     #return filesToProcess
                 elif len(errors) != 0:
                     print "The number of lumi sections processed didn't match the one in DBS but they cover all the ones in the Run Registry, so it is ok!"
@@ -385,9 +387,10 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
                     print error
                     #sendEmail(mailList,error)
                 else:
-                    error = "ERROR: I previously set the MISSING_RUNREGRUN_Run" + str(run) + " timeout that expired...I am missing run " + str(run) + " which has " + str(len(RRList)) + " > " + str(rrTolerance) + " lumis. I can't continue... "
+                    error = "ERROR: I previously set the MISSING_RUNREGRUN_Run" + str(run) + " timeout that expired...I am missing run " + str(run) + " which has " + str(len(RRList)) + " > " + str(rrTolerance) + " lumis. I can't continue but I'll process the runs before this one"
                     sendEmail(mailList,error)
-                    exit(error)
+                    return filesToProcess
+                    #exit(error)
             else:
                 if timeoutType == -1:
                     print "WARNING: Setting the MISSING_RUNREGRUN_Run" + str(run) + " timeout because I haven't processed a run!"
@@ -594,7 +597,7 @@ def main():
     if len(listOfRunsAndLumiFromDBS) == 0:
        exit("There are no files in DBS to process") 
     print "Getting list of files from RR"
-    listOfRunsAndLumiFromRR  = getListOfRunsAndLumiFromRR(dataSet,lastUploadedIOV) 
+    listOfRunsAndLumiFromRR  = getListOfRunsAndLumiFromRR(lastUploadedIOV) 
     ######### Get list of files to process for DB
     #selectedFilesToProcess = selectFilesToProcess(listOfFilesToProcess,copiedFiles)
     #completeProcessedRuns = removeUncompleteRuns(copiedFiles,dataSet)

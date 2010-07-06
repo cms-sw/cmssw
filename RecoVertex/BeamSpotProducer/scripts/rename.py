@@ -2,12 +2,12 @@
 import sys,os,commands,re
 from CommonMethods import *
 def main():
-#    sourcePath = "/castor/cern.ch/cms/store/caf/user/uplegger/Workflows/3_6_1_patch4/"
+    sourcePath = "/castor/cern.ch/cms/store/caf/user/uplegger/Workflows/andersJetTau/"
 #    sourcePath = "/uscms/home/uplegger/resilient/BeamSpot/"
-    sourcePath = "Files/"
-    sourceDirList = [sourcePath+ "toProcess"]
-    destDirList   = ["toProcess2"]
-    path = "Files/"
+#    sourcePath = "Files/"
+    sourceDirList = [sourcePath]
+    destDirList   = ["Original"]
+    path = "Anders/"
     finalDir = path + "Results/"
 
     if not os.path.isdir(path):
@@ -27,7 +27,7 @@ def main():
         if not dirExists(sourceDir):
 	    print sourceDir + " doesn't exist!"
             continue
-        fileList = ls(sourceDir,".txt")
+        fileList = ls(sourceDir,".root")
         if not os.path.isdir(destDir):
             error = "WARNING: destination directory doesn't exist! Creating it..."
             print error
@@ -37,7 +37,7 @@ def main():
         #if len(copiedFiles) != len(fileList):
         #    error = "ERROR: I couldn't copy all files"
         #    exit(error)
-
+        exit("ok")
         for fileName in copiedFiles:
             #regExp = re.search('(\D+)(\d+)_(\d+)_(\d+).txt',fileName)
             regExp = re.search('(\D+)(\d+)_(\d+)_[a-zA-Z0-9]+.txt',fileName)
