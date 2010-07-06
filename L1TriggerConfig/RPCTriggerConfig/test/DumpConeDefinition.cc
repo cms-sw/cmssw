@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Wed Apr  9 14:03:40 CEST 2008
-// $Id: DumpConeDefinition.cc,v 1.2 2009/06/01 10:00:47 fruboes Exp $
+// $Id: DumpConeDefinition.cc,v 1.3 2009/12/21 11:50:40 fruboes Exp $
 //
 //
 
@@ -95,49 +95,51 @@ DumpConeDefinition::~DumpConeDefinition()
 //
 
 // ------------ method called to for each event  ------------
-void
-DumpConeDefinition::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
-   
-   edm::ESHandle<L1RPCConeDefinition> l1RPCConeDefinition;
-   iSetup.get<L1RPCConeDefinitionRcd>().get(l1RPCConeDefinition);
-   
-   
-   {
-     L1RPCConeDefinition::TLPSizeVec::const_iterator it 
-         = l1RPCConeDefinition->getLPSizeVec().begin();
-     L1RPCConeDefinition::TLPSizeVec::const_iterator itEnd 
-         = l1RPCConeDefinition->getLPSizeVec().end();
-         
-     LogDebug("DumpConeDefinition") << "log plane sizes dump: " << std::endl;
-     for (;it!=itEnd;++it){
-       LogDebug("DumpConeDefinition") << "Tw " << (int)it->m_tower
-         << " lp " << (int)it->m_LP
-         << " size "<< (int)it->m_size 
-         << std::endl;
-       
-     }
-   }
-   
-   {
-     LogDebug("DumpConeDefinition") << "Ring to tower connections dump: " << std::endl;
-     L1RPCConeDefinition::TRingToTowerVec::const_iterator it
-     = l1RPCConeDefinition->getRingToTowerVec().begin();
-     
-     const L1RPCConeDefinition::TRingToTowerVec::const_iterator itEnd 
-     = l1RPCConeDefinition->getRingToTowerVec().end();
-     
-     for (;it != itEnd; ++it){ 
-       LogDebug("DumpConeDefinition") << "EP " << (int)it->m_etaPart
-         << " hwPL " << (int)it->m_hwPlane
-         << " tw " << (int)it->m_tower
-         << " index " << (int)it->m_index
-         << std::endl;
-     }
-   } 
-   
-   
+void DumpConeDefinition::analyze(const edm::Event& iEvent,
+        const edm::EventSetup& iSetup) {
+    using namespace edm;
+
+    edm::ESHandle<L1RPCConeDefinition> l1RPCConeDefinition;
+    iSetup.get<L1RPCConeDefinitionRcd> ().get(l1RPCConeDefinition);
+
+    L1RPCConeDefinition::TLPSizeVec::const_iterator it =
+            l1RPCConeDefinition->getLPSizeVec().begin();
+    L1RPCConeDefinition::TLPSizeVec::const_iterator itEnd =
+            l1RPCConeDefinition->getLPSizeVec().end();
+
+    LogTrace("DumpConeDefinition") << std::endl;
+
+    LogDebug("DumpConeDefinition")
+            << "\n Printing L1RPCConeDefinitionRcd record\n" << std::endl;
+    LogTrace("DumpConeDefinition") << "\nlog plane sizes dump: \n" << std::endl;
+
+    for (; it != itEnd; ++it) {
+        LogTrace("DumpConeDefinition")
+                << "Tw " << (int) it->m_tower
+                << " lp " << (int) it->m_LP
+                << " size " << (int) it->m_size
+                << std::endl;
+
+    }
+
+
+    LogTrace("DumpConeDefinition") << "\nRing to tower connections dump: \n"
+            << std::endl;
+    L1RPCConeDefinition::TRingToTowerVec::const_iterator itR =
+            l1RPCConeDefinition->getRingToTowerVec().begin();
+
+    const L1RPCConeDefinition::TRingToTowerVec::const_iterator itREnd =
+            l1RPCConeDefinition->getRingToTowerVec().end();
+
+    for (; itR != itREnd; ++itR) {
+        LogTrace("DumpConeDefinition")
+                << "EP " << (int) itR->m_etaPart
+                << " hwPL " << (int) itR->m_hwPlane
+                << " tw " << (int) itR->m_tower
+                << " index " << (int) itR->m_index
+                << std::endl;
+    }
+
 }
 
 

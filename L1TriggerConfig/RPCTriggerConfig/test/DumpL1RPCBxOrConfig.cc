@@ -87,17 +87,22 @@ DumpL1RPCBxOrConfig::~DumpL1RPCBxOrConfig()
 //
 
 // ------------ method called to for each event  ------------
-void
-DumpL1RPCBxOrConfig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
-   
-   edm::ESHandle<L1RPCBxOrConfig> bxOrConfig;
-   iSetup.get<L1RPCBxOrConfigRcd>().get(bxOrConfig);
-   
-   LogDebug("DumpL1RPCBxOrConfig")<< "Checking BX Or settings" << std::endl;
+void DumpL1RPCBxOrConfig::analyze(const edm::Event& iEvent,
+        const edm::EventSetup& iSetup) {
+    using namespace edm;
 
-   std::cout<< "First BX : "<<bxOrConfig->getFirstBX()<<", Last BX : "<<bxOrConfig->getLastBX()<<std::endl;  
+    edm::ESHandle<L1RPCBxOrConfig> bxOrConfig;
+    iSetup.get<L1RPCBxOrConfigRcd> ().get(bxOrConfig);
+
+    LogTrace("DumpL1RPCBxOrConfig") << std::endl;
+    LogDebug("DumpL1RPCBxOrConfig")
+            << "\n\n Printing L1RPCBxOrConfigRcd record\n" << std::endl;
+    LogTrace("DumpL1RPCBxOrConfig") << "\nChecking BX Or settings: \n"
+            << std::endl;
+
+    LogTrace("DumpL1RPCBxOrConfig") << "First BX : "
+            << bxOrConfig->getFirstBX() << ", Last BX : "
+            << bxOrConfig->getLastBX() << std::endl;
 
 }
 

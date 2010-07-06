@@ -87,27 +87,32 @@ DumpL1RPCHsbConfig::~DumpL1RPCHsbConfig()
 //
 
 // ------------ method called to for each event  ------------
-void
-DumpL1RPCHsbConfig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
-   
-   edm::ESHandle<L1RPCHsbConfig> hsbConfig;
-   iSetup.get<L1RPCHsbConfigRcd>().get(hsbConfig);
-   
-   LogDebug("DumpL1RPCHsbConfig")<< "Checking HSB inputs" << std::endl;
-  
+void DumpL1RPCHsbConfig::analyze(const edm::Event& iEvent,
+        const edm::EventSetup& iSetup) {
+    using namespace edm;
 
-   LogDebug("DumpL1RPCHsbConfig") << " HSB0: ";
-   for (int i = 0; i < hsbConfig->getMaskSize() ; ++i){
-     LogDebug("DumpL1RPCHsbConfig") << " Input " << i << " " << hsbConfig->getHsbMask(0, i)<<" ";
-   }
-   std::cout<<std::endl;
-   LogDebug("DumpL1RPCHsbConfig") << " HSB1: ";
-   for (int i = 0; i < hsbConfig->getMaskSize() ; ++i){
-     LogDebug("DumpL1RPCHsbConfig") << " Input " << i << " " << hsbConfig->getHsbMask(1, i) <<" ";
-   }
-   
+    edm::ESHandle<L1RPCHsbConfig> hsbConfig;
+    iSetup.get<L1RPCHsbConfigRcd> ().get(hsbConfig);
+
+    LogTrace("DumpL1RPCHsbConfig") << std::endl;
+    LogDebug("DumpL1RPCHsbConfig") << "\n\n Printing L1RPCHsbConfigRcd record\n"
+            << std::endl;
+    LogTrace("DumpL1RPCHsbConfig") << "\nChecking HSB inputs: \n" << std::endl;
+
+    LogTrace("DumpL1RPCHsbConfig") << " HSB0: ";
+    for (int i = 0; i < hsbConfig->getMaskSize(); ++i) {
+        LogTrace("DumpL1RPCHsbConfig") << " Input " << i << " "
+                << hsbConfig->getHsbMask(0, i) << " ";
+    }
+
+    std::cout << std::endl;
+
+    LogTrace("DumpL1RPCHsbConfig") << " HSB1: ";
+    for (int i = 0; i < hsbConfig->getMaskSize(); ++i) {
+        LogTrace("DumpL1RPCHsbConfig") << " Input " << i << " "
+                << hsbConfig->getHsbMask(1, i) << " ";
+    }
+
 }
 
 
