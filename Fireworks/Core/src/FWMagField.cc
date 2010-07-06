@@ -3,13 +3,18 @@
 #include "TH1F.h"
 #include "Fireworks/Core/interface/FWMagField.h"
 #include "Fireworks/Core/interface/fwLog.h"
+#include "DataFormats/FWLite/interface/Handle.h"
+#include "DataFormats/Common/interface/ConditionsInEdm.h"
+#include "DataFormats/Scalers/interface/DcsStatus.h"
+
 
 
 FWMagField::FWMagField() :
    TEveMagField(),
 
-   m_autodetect(true),
-   m_userField(3.8),
+   m_source(kNone),
+   m_userField(-1),
+   m_eventField(-1),
 
    m_reverse(true),
    m_simpleModel(false),
@@ -79,39 +84,52 @@ FWMagField::GetField(Float_t x, Float_t y, Float_t z) const
 Float_t
 FWMagField::GetMaxFieldMag() const
 {
-   if ( m_autodetect )
+   float res;
+   switch ( m_source )
    {
-      if ( m_updateFieldEstimate )
+      case kEvent:
       {
-         if ( m_guessValHist->GetEntries() > 2  && m_guessValHist->GetRMS()  < 0.5 )
+         res = m_eventField;  
+         break;
+      }
+      case kUser:
+      {
+         res = m_userField;   
+         break;
+      }
+      default:
+      {
+         if ( m_updateFieldEstimate )
          {
-            m_guessedField = m_guessValHist->GetMean();
+            if ( m_guessValHist->GetEntries() > 2  && m_guessValHist->GetRMS()  < 0.5 )
+            {
+               m_guessedField = m_guessValHist->GetMean();
             
 
-            // std::cout << "FWMagField::GetMaxFieldMag(), get average "
-            //  << m_guessValHist->GetMean() << " guessed value: RMS= "<< m_guessValHist->GetRMS()
-            //  <<" samples "<< m_guessValHist->GetEntries() << std::endl;
+               // std::cout << "FWMagField::GetMaxFieldMag(), get average "
+               //  << m_guessValHist->GetMean() << " guessed value: RMS= "<< m_guessValHist->GetRMS()
+               //  <<" samples "<< m_guessValHist->GetEntries() << std::endl;
             
+            }
+            else if ( m_numberOfFieldIsOnEstimates > m_numberOfFieldEstimates/2 || m_numberOfFieldEstimates == 0 )
+            {
+               m_guessedField = 3.8;
+               // fwLog(fwlog::kDebug) << "FWMagField::GetMaxFieldMag() get default field, number estimates "
+               //  << m_numberOfFieldEstimates << " number fields is on  m_numberOfFieldIsOnEstimates" <<std::endl;
+            }
+            else
+            {
+               m_guessedField = 0;
+               //  fwLog(fwlog::kDebug) << "Update field estimate, guess field is OFF." <<std::endl;
+            }
+            m_updateFieldEstimate  = false;
          }
-         else if ( m_numberOfFieldIsOnEstimates > m_numberOfFieldEstimates/2 || m_numberOfFieldEstimates == 0 )
-         {
-            m_guessedField = m_userField;
-            // fwLog(fwlog::kDebug) << "FWMagField::GetMaxFieldMag() get default field, number estimates "
-            //  << m_numberOfFieldEstimates << " number fields is on  m_numberOfFieldIsOnEstimates" <<std::endl;
-         }
-         else
-         {
-            m_guessedField = 0;
-            //  fwLog(fwlog::kDebug) << "Update field estimate, guess field is OFF." <<std::endl;
-         }
-         m_updateFieldEstimate  = false;
+
+         res = m_guessedField;
       }
-      return m_guessedField;
    }
-   else
-   {
-      return m_userField;   
-   }
+
+   return res;
 }
 
 //______________________________________________________________________________
@@ -137,5 +155,49 @@ void FWMagField::resetFieldEstimate() const
    m_numberOfFieldIsOnEstimates = 0;
    m_numberOfFieldEstimates = 0;
    m_updateFieldEstimate = true;   
+}
+
+//______________________________________________________________________________
+void FWMagField::checkFiledInfo(const fwlite::Event* event)
+{
+   const static float  currentToFiled = 3.8/18160;
+   bool available = false;
+   try
+   {
+      fwlite::Handle<edm::ConditionsInRunBlock> runCond;
+      runCond.getByLabel( event->getRun(), "conditionsInEdm","", "" );
+      if( runCond.isValid())
+      {
+         available = true;
+         m_eventField = currentToFiled * runCond->BAvgCurrent;
+         fwLog( fwlog::kDebug ) << "Magnetic field info found in ConditionsInEdm branch : "<< m_eventField << std::endl;
+      }
+      else
+      {
+         fwlite::Handle< std::vector<DcsStatus> > dcsStatus;
+         dcsStatus.getByLabel( *event, "scalersRawToDigi", "", "" );
+         if (dcsStatus.isValid() && dcsStatus->size())
+         {
+            float sum = 0;
+            for (std::vector<DcsStatus>::const_iterator i = dcsStatus->begin(); i <  dcsStatus->end(); ++i)
+               sum += (*i).magnetCurrent();
+
+            available = true;
+            m_eventField = currentToFiled * sum/dcsStatus->size();
+            fwLog( fwlog::kDebug) << "Magnetic field info found in DcsStatus branch: " << m_eventField << std::endl;
+         }
+
+      }
+   }
+   catch ( cms::Exception&)
+   {
+      fwLog( fwlog::kDebug ) << "Cought exception in FWMagField::checkFiledInfo\n";
+   }
+
+   if (!available)
+   {
+      m_source = kNone;
+      fwLog( fwlog::kDebug ) << "No magnetic field info available in Event\n";
+   }
 }
 

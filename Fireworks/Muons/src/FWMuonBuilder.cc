@@ -2,7 +2,7 @@
 //
 // Package:     Muons
 // Class  :     FWMuonBuilder
-// $Id: FWMuonBuilder.cc,v 1.27 2010/06/17 14:50:50 matevz Exp $
+// $Id: FWMuonBuilder.cc,v 1.28 2010/06/18 12:44:06 yana Exp $
 //
 
 #include "TEveVSDStructs.h"
@@ -262,7 +262,7 @@ FWMuonBuilder::calculateField(const reco::Muon& iData, FWMagField* field)
 
    // if auto field estimation mode, do extra loop over muons.
    // use both inner and outer track if available
-   if ( field->getAutodetect() ) {
+   if ( field->getSource() == FWMagField::kNone ) {
       if ( fabs( iData.eta() ) > 2.0 || iData.pt() < 3 ) return;
       if ( iData.innerTrack().isAvailable() ){
          double estimate = fw::estimate_field( *( iData.innerTrack() ), true );
