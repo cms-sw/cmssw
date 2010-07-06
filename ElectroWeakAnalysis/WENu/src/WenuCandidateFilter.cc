@@ -694,7 +694,7 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //
    //std::cout << "HLT matching starts" << std::endl;
    if (electronMatched2HLT_ && useTriggerInfo_) {
-     Double_t matched_dr_distance = -1.;
+     Double_t matched_dr_distance = 999999.;
      Int_t trigger_int_probe = 0;
      if (finalpathfound) {
        if (nF != filterInd) {
@@ -710,12 +710,12 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   Double_t dr_ele_HLT = 
 	     reco::deltaR(maxETelec.superCluster()->eta(),maxETelec.superCluster()->phi(),TO.eta(),TO.phi());
 	   //std::cout << "-->found dr=" << dr_ele_HLT << std::endl;
-	   if (TMath::Abs(dr_ele_HLT) < electronMatched2HLT_DR_) {
-	     ++trigger_int_probe; matched_dr_distance=dr_ele_HLT; break;}
-	   //}
+	   if (TMath::Abs(dr_ele_HLT) < matched_dr_distance) {
+	     matched_dr_distance = dr_ele_HLT;
+	   }
 	 }
        }
-       if (trigger_int_probe == 0) {
+       if (useExtraTrigger_) {
 	 for (int itrig=0; itrig < (int) filterIndExtra.size(); ++itrig) {
 	   if (filterIndExtra[itrig] == nF) continue;
 	   //std::cout << "working on #" << itrig << std::endl;
@@ -729,18 +729,18 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	     Double_t dr_ele_HLT = 
 	       reco::deltaR(maxETelec.eta(),maxETelec.phi(),TO.eta(),TO.phi());
 	     //std::cout << "-->found dr=" << dr_ele_HLT << std::endl;
-	     if (TMath::Abs(dr_ele_HLT) < electronMatched2HLT_DR_) {
-	       ++trigger_int_probe; matched_dr_distance=dr_ele_HLT;  break;}
-	     //}
+	     if (TMath::Abs(dr_ele_HLT) < matched_dr_distance) {
+	       matched_dr_distance = dr_ele_HLT;
+	     }
 	   }
-	   if (trigger_int_probe>0) break;
 	 }
-	 if (trigger_int_probe == 0) {
-	   delete [] sorted;  delete [] et;
-	   //std::cout << "Electron could not be matched to an HLT object with "
-	   //   << std::endl;
-	   return false; // RETURN: electron is not matched to an HLT object
-	 }
+       }
+       if (matched_dr_distance < electronMatched2HLT_DR_) {++trigger_int_probe; }
+       if (trigger_int_probe == 0) {
+	 delete [] sorted;  delete [] et;
+	 //std::cout << "Electron could not be matched to an HLT object with "
+	 //   << std::endl;
+	 return false; // RETURN: electron is not matched to an HLT object
        }
        maxETelec.addUserFloat("HLTMatchingDR", Float_t(matched_dr_distance));
      }
@@ -807,11 +807,11 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 passTrigger = (Int_t) HLTResults->accept(trigger_position);
        }
        if (passTrigger >0) {
-	 if (i>=15) {triggerDecision += Int_t(TMath::Power(2,i+1));}
+	 if (i>=15) {triggerDecision += Int_t(TMath::Power(2,i));}
 	 else {
 	   const Int_t myfilterInd = pHLT->filterIndex(HLTFilterType[i]);
 	   if (myfilterInd != nF) {
-	     triggerDecision +=  Int_t(TMath::Power(2,i+1));
+	     triggerDecision +=  Int_t(TMath::Power(2,i));
 	   }
 	 }
        }
