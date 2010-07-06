@@ -638,6 +638,7 @@ namespace edm {
       std::vector<ProcessHistoryID>& setProcessHistoryIDs() {return processHistoryIDs_;}
       void setEventFinder(boost::shared_ptr<EventFinder> ptr) const {transients_.get().eventFinder_ = ptr;}
       void fillEventNumbers() const;
+      void fillEventEntries() const;
 
     private:
 
@@ -645,7 +646,6 @@ namespace edm {
       std::vector<EventEntry>& eventEntries() const {return transients_.get().eventEntries_;}
       std::vector<EventNumber_t>& eventNumbers() const {return transients_.get().eventNumbers_;}
       void fillRunOrLumiIndexes() const;
-      void fillEventEntries() const;
       void sortEvents() const;
       void sortEventEntries() const;
       int& previousAddedIndex() const {return transients_.get().previousAddedIndex_;}
