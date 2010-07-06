@@ -39,7 +39,7 @@ class L1CaloTriggerSetup
   int isolationZone_;//Number of towers that define the isolation zone;
   int jetCenter_ ; //jet Center Deviation
   int jetET_ ; //jet Center Deviation
-
+  int fineGrainPass_; //ignore fine grain bit (set as 0)
 
  public:
 
@@ -128,6 +128,11 @@ class L1CaloTriggerSetup
       return jetET_;
     }
 
+  int fineGrainPass() const
+  {
+    return fineGrainPass_;
+  }
+
   std::vector<int> isoThr()
     {
       std::vector<int> a;
@@ -200,7 +205,11 @@ class L1CaloTriggerSetup
     }
 
  
+<<<<<<< L1CaloTriggerSetup.h
+  void setThresholds(int ecal_a_c,int hcal_a_c,int egammaA,int egammaB,int egammaC,int tauSeed,int clusterCut,int isoRatioEA,int isoRatioEB,int isoRatioTA,int isoRatioTB,int isoZone,int isoThresEG,int isoThresTau,int jetet, int fgp)
+=======
   void setThresholds(int ecal_a_c,int hcal_a_c,int egammaA,int egammaB,int egammaC,int tauSeed,int clusterCut,int isoRatioEA,int isoRatioEB,int isoRatioTA,int isoRatioTB,int isoZone,int isoThresEG,int isoThresTau,int jetc,int jetet)
+>>>>>>> 1.3
     {
 
       ecalActivityCut_ = ecal_a_c;
@@ -219,6 +228,7 @@ class L1CaloTriggerSetup
       isolationThrTau_ = isoThresTau;
       jetCenter_ = jetc;
       jetET_ = jetet;
+      fineGrainPass_ = fgp;
     }
 
 

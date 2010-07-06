@@ -71,8 +71,12 @@ ClusteringModule::clusterize(L1CaloClusterCollection& clusters,const edm::Handle
 	  int bin_in = s.getBin(bin_eta,bin_phi);
 	  if(isValid(bin_in))
 	    {
-	      fineGrain = fineGrain||objectAt(bin_in)->fineGrain();
-	      E+=objectAt(bin_in)->E()+objectAt(bin_in)->H();
+	      //Skip over fine grain bit calculation if desired
+	      if (s.fineGrainPass()==1) {
+		fineGrain=false;
+	      } else {
+		fineGrain = fineGrain||objectAt(bin_in)->fineGrain();
+	      }E+=objectAt(bin_in)->E()+objectAt(bin_in)->H();
 	      ECALE+=objectAt(bin_in)->E();
 	      cl.addConstituent(objectAt(bin_in));
 	      if(objectAt(bin_in)->E()+objectAt(bin_in)->H()>=LEADTOWER)

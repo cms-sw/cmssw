@@ -104,7 +104,7 @@ class L1CaloTriggerSetupProducer : public edm::ESProducer {
 
   //      XMLCh* ATT_SETTINGS_JetCenter;
       XMLCh* ATT_SETTINGS_JetET;
-
+      XMLCh* ATT_SETTINGS_FineGrainPass;
       //Wires
       XMLCh* TAG_WIRE;
       XMLCh* ATT_WIRE_bin;
@@ -204,6 +204,7 @@ L1CaloTriggerSetupProducer::produce(const L1CaloTriggerSetupRcd& iRecord)
     ATT_SETTINGS_IsolationPedestalTau=XMLString::transcode("IsolationThresholdTau");
     //    ATT_SETTINGS_JetCenter=XMLString::transcode("JetCenter");
     ATT_SETTINGS_JetET=XMLString::transcode("JetEt");
+    ATT_SETTINGS_FineGrainPass=XMLString::transcode("FineGrainPass");
 
     //Wire Information
     TAG_WIRE=XMLString::transcode("WIRE");
@@ -249,6 +250,7 @@ L1CaloTriggerSetupProducer::produce(const L1CaloTriggerSetupRcd& iRecord)
    XMLString::release(&ATT_SETTINGS_IsolationZone);
    //   XMLString::release(&ATT_SETTINGS_JetCenter);
    XMLString::release(&ATT_SETTINGS_JetET);
+   XMLString::release(&ATT_SETTINGS_FineGrainPass);
    XMLString::release(&TAG_WIRE);
    XMLString::release(&ATT_WIRE_bin);
    XMLString::release(&ATT_WIRE_eta);
@@ -372,6 +374,7 @@ L1CaloTriggerSetupProducer::config(L1CaloTriggerSetup& rcd)
 
 	   //           int att_jetC          =atoi(XMLString::transcode(cc_el->getAttribute(ATT_SETTINGS_JetCenter)));
            int att_jetET         =atoi(XMLString::transcode(cc_el->getAttribute(ATT_SETTINGS_JetET)));
+	   int att_fineGrainPass = atoi(XMLString::transcode(cc_el->getAttribute(ATT_SETTINGS_FineGrainPass)));
 
            //Store Activity Cuts on the Card
            rcd.setThresholds(att_ECALTower,
@@ -389,7 +392,8 @@ L1CaloTriggerSetupProducer::config(L1CaloTriggerSetup& rcd)
                  att_isoPedEG,
                  att_isoPedTau,
 			     //                 att_jetC,
-                 att_jetET);
+		 att_jetET,
+		 att_fineGrainPass     );
            edm::LogInfo ("INFO") << "Thresholds Set"<<endl;
 
          }
