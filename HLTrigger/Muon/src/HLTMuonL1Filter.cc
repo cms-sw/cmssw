@@ -14,10 +14,11 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "TMath.h"
 
 //
 // constructors and destructor
@@ -28,6 +29,10 @@ HLTMuonL1Filter::HLTMuonL1Filter(const edm::ParameterSet& iConfig) :
   maxEta_( iConfig.getParameter<double>("MaxEta") ),
   minPt_( iConfig.getParameter<double>("MinPt") ),
   minN_( iConfig.getParameter<int>("MinN") ),
+  excludeSingleSegmentCSC_( iConfig.getParameter<bool>("ExcludeSingleSegmentCSC") ),
+  csctfTag_( iConfig.getParameter<edm::InputTag>("CSCTFtag") ),
+  l1MuTriggerScales_(0),
+  m_scalesCacheID_(0),
   saveTag_( iConfig.getUntrackedParameter<bool>("SaveTag",false) ) 
 {
   using namespace std;
@@ -56,6 +61,8 @@ HLTMuonL1Filter::HLTMuonL1Filter(const edm::ParameterSet& iConfig) :
     }
     ss<<endl;
     ss<<"    MinN = "<<minN_<<endl;
+    ss<<"    ExcludeSingleSegmentCSC = "<<excludeSingleSegmentCSC_<<endl;
+    ss<<"    CSCTFtag = "<<csctfTag_.encode()<<endl;
     ss<<"    SaveTag = "<<saveTag_;
     LogDebug("HLTMuonL1Filter")<<ss.str();
   }
@@ -73,9 +80,7 @@ HLTMuonL1Filter::~HLTMuonL1Filter()
 //
 
 // ------------ method called to produce the data  ------------
-bool
-HLTMuonL1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+bool HLTMuonL1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup){
   using namespace std;
   using namespace edm;
   using namespace trigger;
@@ -91,6 +96,19 @@ HLTMuonL1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // get hold of all muons
   Handle<L1MuonParticleCollection> allMuons;
   iEvent.getByLabel(candTag_, allMuons);
+
+  // get hold of CSCTF raw tracks
+  if( excludeSingleSegmentCSC_ ) {
+    iEvent.getByLabel(csctfTag_, csctfTracks_);
+    // update scales if necessary
+    if( iSetup.get<L1MuTriggerScalesRcd>().cacheIdentifier() != m_scalesCacheID_ ){
+      LogDebug("HLTMuonL1Filter")<<"Changing trigger scales";
+      ESHandle<L1MuTriggerScales> scales;
+      iSetup.get<L1MuTriggerScalesRcd>().get(scales);
+      l1MuTriggerScales_ = scales.product();
+      m_scalesCacheID_  = iSetup.get<L1MuTriggerScalesRcd>().cacheIdentifier();
+    }
+  }  
 
   // get hold of muons that fired the previous level
   Handle<TriggerFilterObjectWithRefs> previousLevelCands;
@@ -118,6 +136,9 @@ HLTMuonL1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if((quality & qualityBitMask_) == 0) continue;
     }
 
+    // reject single-segment CSC objects if necessary
+    if (excludeSingleSegmentCSC_ && isSingleSegmentCSC(muon)) continue;
+
     //we have a good candidate
     n++;
     filterproduct->addObject(TriggerL1Mu,muon);
@@ -132,8 +153,8 @@ HLTMuonL1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if(edm::isDebugEnabled()){
     ostringstream ss;
     ss.precision(2);
-    ss<<"L1mu#"<<'\t'<<"q*pt"<<'\t'<<'\t'<<"eta"<<'\t'<<"phi"<<'\t'<<"quality"<<'\t'<<"isPrev"<<'\t'<<"isFired"<<endl;
-    ss<<"---------------------------------------------------------------"<<endl;
+    ss<<"L1mu#"<<'\t'<<"q*pt"<<'\t'<<'\t'<<"eta"<<'\t'<<"phi"<<'\t'<<"quality"<<'\t'<<"isPrev"<<'\t'<<"isFired"<<'\t'<<"isSingleCSC"<<endl;
+    ss<<"--------------------------------------------------------------------------"<<endl;
 
     vector<L1MuonParticleRef> firedMuons;
     filterproduct->getObjects(TriggerL1Mu, firedMuons);
@@ -142,9 +163,10 @@ HLTMuonL1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       int quality = mu->gmtMuonCand().empty() ? 0 : mu->gmtMuonCand().quality();
       bool isPrev = find(prevMuons.begin(), prevMuons.end(), mu) != prevMuons.end();
       bool isFired = find(firedMuons.begin(), firedMuons.end(), mu) != firedMuons.end();
-      ss<<i<<'\t'<<scientific<<mu->charge()*mu->pt()<<'\t'<<fixed<<mu->eta()<<'\t'<<mu->phi()<<'\t'<<quality<<'\t'<<isPrev<<'\t'<<isFired<<endl;
+      bool isSingleCSC = excludeSingleSegmentCSC_ && isSingleSegmentCSC(mu);
+      ss<<i<<'\t'<<scientific<<mu->charge()*mu->pt()<<'\t'<<fixed<<mu->eta()<<'\t'<<mu->phi()<<'\t'<<quality<<'\t'<<isPrev<<'\t'<<isFired<<'\t'<<isSingleCSC<<endl;
     }
-    ss<<"---------------------------------------------------------------"<<endl;
+    ss<<"--------------------------------------------------------------------------"<<endl;
     LogDebug("HLTMuonL1Filter")<<ss.str()<<"Decision of filter is "<<accept<<", number of muons passing = "<<filterproduct->l1muonSize();
   }
 
@@ -154,3 +176,69 @@ HLTMuonL1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   return accept;
 }
 
+bool HLTMuonL1Filter::isSingleSegmentCSC(const l1extra::L1MuonParticleRef & muon){
+  // is the muon matching a csctf track?
+  bool matched   = false;
+  // which csctf track mode?
+  // -999: no matching
+  //  1: bad phi road. Not good extrapolation, but still triggering
+  // 11: singles
+  // 15: halo
+  // 2->10 and 12->14: coincidence trigger with good extrapolation
+  int csctfMode = -999;
+
+  // loop over the CSCTF tracks
+  for(L1CSCTrackCollection::const_iterator trk=csctfTracks_->begin(); trk<csctfTracks_->end(); trk++){
+    
+    int trEndcap = (trk->first.endcap()==2 ? trk->first.endcap()-3 : trk->first.endcap());
+    int trSector = 6*(trk->first.endcap()-1)+trk->first.sector();
+
+    //... in radians
+    // Type 2 is CSC
+    float trEtaScale = l1MuTriggerScales_->getRegionalEtaScale(2)->getCenter(trk->first.eta_packed());
+    float trPhiScale = l1MuTriggerScales_->getPhiScale()->getLowEdge(trk->first.localPhi());
+
+    double trEta = trEtaScale * trEndcap;
+    // there is no L1ExtraParticle below -2.375
+    if(trEta<-2.4) trEta=-2.375;
+
+    // CSCTF has 6 sectors 
+    // sector 1 starts at 15 degrees
+    // trPhiScale is defined inside a sector 
+    float trPhi02PI = fmod(trPhiScale + 
+                           ((trSector-1)*TMath::Pi()/3) + 
+                           (TMath::Pi()/12) , 2*TMath::Pi());
+
+    // L1 information are given from [-Pi,Pi] 
+    double trPhi = ( trPhi02PI<TMath::Pi()? trPhi02PI : trPhi02PI - 2*TMath::Pi() );
+    /*    
+    std::cout << "\ntrEndcap="               << trEndcap                << std::endl;
+    std::cout << "trSector="                 << trSector                << std::endl;
+    std::cout << "trk->first.eta_packed()="  << trk->first.eta_packed() << std::endl;
+    std::cout << "trk->first.localPhi()="    << trk->first.localPhi()   << std::endl;
+    std::cout << "trEtaScale=" << trEtaScale << std::endl;
+    std::cout << "trPhiScale=" << trPhiScale << std::endl;
+    std::cout << "trEta="      << trEta      << std::endl;
+    std::cout << "trPhi="      << trPhi      << std::endl;
+    */
+    if ( fabs (trEta-muon->eta()) < 0.03 && 
+         fabs (trPhi-muon->phi()) < 0.001  ) {
+      
+      matched = true;
+      ptadd thePtAddress(trk->first.ptLUTAddress());    
+      csctfMode = thePtAddress.track_mode;
+
+      //std::cout << "is matched -> trMode=" << csctfMode << std::endl;
+    }
+  }
+
+  /*
+  std::cout << " ===================================== " << std::endl;
+  std::cout << " is matched? " << matched                << std::endl;
+  std::cout << " is singles? " << (csctfMode==11 ? 1 :0) << std::endl;
+  std::cout << " ===================================== " << std::endl;
+  */
+
+  // singles are mode 11 "CSCTF tracks"
+  return csctfMode==11;  
+}

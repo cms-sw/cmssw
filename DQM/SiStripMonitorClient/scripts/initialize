@@ -269,9 +269,6 @@ system qq[cp], qq[-r], qq[$dqm_common/jquery],    qq[$dqm_wdir/jquery];
 #system qq[perl], qq[-pi -e], qq[s#lid=27#lid=$localid#], qq[$dqm_wdir/js_files/IMGC.js]; 
 
 my $dqm_python = $ENV{"CMSSW_BASE"}."/src/DQM/Integration/python/test";
-my $input_url = qq[sourceURL = cms.string('http://vmepcs2b18-25:40867/urn:xdaq-application:lid=50')];
-
-system qq[perl], qq[-pi -e], qq[s!sourceURL.*!$input_url!], qq[$dqm_int/$cfg_file]; 
 system qq[perl], qq[-pi -e], qq[s!process.DQM.filter!# process.DQM.filter!], qq[$dqm_int/$cfg_file]; 
 
 system qq[perl], qq[-pi -e], qq[s!srv-c2d05-18!vmepcs2b18-25!], qq[$dqm_python/environment_cfi.py]; 

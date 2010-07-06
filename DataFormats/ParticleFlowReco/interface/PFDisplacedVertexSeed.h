@@ -29,10 +29,6 @@ namespace reco {
 
   public:
 
-    /// -------- Useful Types -------- ///
-
-    typedef std::set< reco::TrackBaseRef >::iterator IEset;
-
     /// A function necessary to use a set format to store the tracks Refs.
     /// The set is the most appropriate in that case to avoid the double counting 
     /// of the tracks durring the build up procedure.
@@ -72,8 +68,7 @@ namespace reco {
     /// \return the total weight
     const double totalWeight() const {return totalWeight_;}
 
-    /// cout function
-    void Dump(std::ostream& out = std::cout) const;
+
 
 
   private:

@@ -18,8 +18,7 @@
 #include "CalibTracker/SiStripQuality/interface/SiStripBadAPVAlgorithmFromClusterOccupancy.h"
 
 
-SiStripQualityHotStripIdentifierRoot::SiStripQualityHotStripIdentifierRoot(const edm::ParameterSet& iConfig) : 
-  ConditionDBWriter<SiStripBadStrip>::ConditionDBWriter<SiStripBadStrip>(iConfig),
+SiStripQualityHotStripIdentifierRoot::SiStripQualityHotStripIdentifierRoot(const edm::ParameterSet& iConfig) : ConditionDBWriter<SiStripBadStrip>(iConfig),
   m_cacheID_(0), 
   dataLabel_(iConfig.getUntrackedParameter<std::string>("dataLabel","")),
   UseInputDB_(iConfig.getUntrackedParameter<bool>("UseInputDB",false)),
@@ -28,7 +27,6 @@ SiStripQualityHotStripIdentifierRoot::SiStripQualityHotStripIdentifierRoot(const
   filename(iConfig.getUntrackedParameter<std::string>("rootFilename","CondDB_TKCC_20X_v3_hlt_50822.root")),
   dirpath(iConfig.getUntrackedParameter<std::string>("rootDirPath",""))
 {
-  edm::LogInfo("SiStripQualityHotStripIdentifierRoot") << " ctor ";  
   reader = new SiStripDetInfoFileReader(fp_.fullPath());  
   
   dqmStore_ = edm::Service<DQMStore>().operator->(); 
@@ -43,7 +41,6 @@ SiStripQualityHotStripIdentifierRoot::SiStripQualityHotStripIdentifierRoot(const
 
 
 SiStripQualityHotStripIdentifierRoot::~SiStripQualityHotStripIdentifierRoot(){
-  edm::LogInfo("SiStripQualityHotStripIdentifierRoot") << " dtor";
 }
 
 SiStripBadStrip* SiStripQualityHotStripIdentifierRoot::getNewObject(){

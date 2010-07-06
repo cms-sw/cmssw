@@ -36,7 +36,7 @@
 class DQMStore;
 class MonitorElement;
 class SiStripDetVOff;
-class SiStripDetCabling;
+class SiStripDetCabling; 
 
 class SiStripDcsInfo: public edm::EDAnalyzer {
 
@@ -56,6 +56,9 @@ class SiStripDcsInfo: public edm::EDAnalyzer {
   /// Begin Run
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
+  /// Begin Luminosity Block
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) ;
+
   /// End Of Luminosity
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup);
 
@@ -69,26 +72,32 @@ class SiStripDcsInfo: public edm::EDAnalyzer {
 
 private:
   void bookStatus();
-  void fillDummyStatus();
-  void readStatus();
+  void readStatus(edm::EventSetup const&);
+  void readCabling(edm::EventSetup const&);
+  void addBadModules();
   void fillStatus();
-  void addBadModules(uint32_t det_id);
+  void fillDummyStatus();
 
   DQMStore* dqmStore_;
   MonitorElement * DcsFraction_;
 
   struct SubDetMEs{
+    std::string folder_name;
     MonitorElement* DcsFractionME;
     int TotalDetectors;
-    int FaultyDetectors;
+    std::vector<uint32_t> FaultyDetectors;
   };
 
   std::map <std::string, SubDetMEs> SubDetMEsMap;
-  unsigned long long m_cacheID_;
+  unsigned long long m_cacheIDCabling_;
+  unsigned long long m_cacheIDDcs_;
   bool bookedStatus_;
 
   edm::ESHandle<SiStripDetVOff> siStripDetVOff_;
+  int  nFEDConnected_;
+
+  int nLumiAnalysed_;
+
   edm::ESHandle< SiStripDetCabling > detCabling_;
-  int  nFEDConnected;
 };
 #endif

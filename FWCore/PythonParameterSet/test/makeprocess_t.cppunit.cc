@@ -4,7 +4,6 @@
  *
  *  Created by Chris Jones on 5/18/05.
  *  Changed by Viji Sundararajan on 8-Jul-05.
- *  Copyright 2005 __MyCompanyName__. All rights reserved.
  * 
  */
 

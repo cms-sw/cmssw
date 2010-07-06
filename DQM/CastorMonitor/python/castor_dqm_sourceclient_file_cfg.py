@@ -125,7 +125,8 @@ process.castorMonitor = cms.EDFilter("CastorMonitorModule",
                            nThreshold = cms.untracked.double(70),
                            dThreshold = cms.untracked.double(0.1),
                            OfflineMode = cms.untracked.bool(True),
-
+                           averageEnergyMethod = cms.untracked.bool(True),
+                                     
                            PSMonitor= cms.untracked.bool(True),
       
                            diagnosticPrescaleTime = cms.untracked.int32(-1),

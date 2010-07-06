@@ -1,7 +1,6 @@
-
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: CastorDbASCIIIO.cc,v 1.3 2009/05/08 23:22:37 elmer Exp $
+// $Id: CastorDbASCIIIO.cc,v 1.4 2009/11/27 19:14:12 mundim Exp $
 //
 #include <vector>
 #include <string>
@@ -15,7 +14,7 @@
 #include "CalibCalorimetry/CastorCalib/interface/CastorDbASCIIIO.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-namespace {
+namespace CastorDbASCIIIO {
   class DetIdLess {
   public:
     bool operator () (DetId fFirst, DetId fSecond) const {
@@ -46,7 +45,6 @@ namespace {
 	first.fiberChanId () < second.fiberChanId ();
     }
   };
-}
 
 std::vector <std::string> splitString (const std::string& fLine) {
   std::vector <std::string> result;
@@ -221,15 +219,15 @@ bool dumpCastorSingleIntObject (std::ostream& fOutput, const T& fObject) {
 }
 
 
-bool CastorDbASCIIIO::getObject (std::istream& fInput, CastorGains* fObject) {return getCastorObject (fInput, fObject, new CastorGain);}
-bool CastorDbASCIIIO::dumpObject (std::ostream& fOutput, const CastorGains& fObject) {return dumpCastorObject (fOutput, fObject);}
-bool CastorDbASCIIIO::getObject (std::istream& fInput, CastorGainWidths* fObject) {return getCastorObject (fInput, fObject, new CastorGainWidth);}
-bool CastorDbASCIIIO::dumpObject (std::ostream& fOutput, const CastorGainWidths& fObject) {return dumpCastorObject (fOutput, fObject);}
+bool getObject (std::istream& fInput, CastorGains* fObject) {return getCastorObject (fInput, fObject, new CastorGain);}
+bool dumpObject (std::ostream& fOutput, const CastorGains& fObject) {return dumpCastorObject (fOutput, fObject);}
+bool getObject (std::istream& fInput, CastorGainWidths* fObject) {return getCastorObject (fInput, fObject, new CastorGainWidth);}
+bool dumpObject (std::ostream& fOutput, const CastorGainWidths& fObject) {return dumpCastorObject (fOutput, fObject);}
 
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-bool CastorDbASCIIIO::getObject (std::istream& fInput, CastorPedestals* fObject) {
+bool getObject (std::istream& fInput, CastorPedestals* fObject) {
   if (!fObject) fObject = new CastorPedestals(false);
   char buffer [1024];
 
@@ -296,7 +294,7 @@ bool CastorDbASCIIIO::getObject (std::istream& fInput, CastorPedestals* fObject)
 }
 
 
-bool CastorDbASCIIIO::dumpObject (std::ostream& fOutput, const CastorPedestals& fObject) {
+bool dumpObject (std::ostream& fOutput, const CastorPedestals& fObject) {
   char buffer [1024];
   if (fObject.isADC() ) sprintf (buffer, "#U ADC  << this is the unit \n");
   else  sprintf (buffer, "#U fC  << this is the unit \n");
@@ -323,7 +321,7 @@ bool CastorDbASCIIIO::dumpObject (std::ostream& fOutput, const CastorPedestals& 
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-bool CastorDbASCIIIO::getObject (std::istream& fInput, CastorChannelQuality* fObject) 
+bool getObject (std::istream& fInput, CastorChannelQuality* fObject) 
 {
   if (!fObject) fObject = new CastorChannelQuality;
   char buffer [1024];
@@ -364,7 +362,7 @@ bool CastorDbASCIIIO::getObject (std::istream& fInput, CastorChannelQuality* fOb
 }
 
 
-bool CastorDbASCIIIO::dumpObject (std::ostream& fOutput, const CastorChannelQuality& fObject) {
+bool dumpObject (std::ostream& fOutput, const CastorChannelQuality& fObject) {
   char buffer [1024];
   sprintf (buffer, "# %15s %15s %15s %15s %15s %10s\n", "eta", "phi", "dep", "det", "value", "DetId");
   fOutput << buffer;
@@ -384,7 +382,7 @@ bool CastorDbASCIIIO::dumpObject (std::ostream& fOutput, const CastorChannelQual
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-bool CastorDbASCIIIO::getObject (std::istream& fInput, CastorPedestalWidths* fObject) {
+bool getObject (std::istream& fInput, CastorPedestalWidths* fObject) {
   if (!fObject) fObject = new CastorPedestalWidths(false);
   char buffer [1024];
   int linecounter = 0;
@@ -479,7 +477,7 @@ bool CastorDbASCIIIO::getObject (std::istream& fInput, CastorPedestalWidths* fOb
   return true;
 }
 
-bool CastorDbASCIIIO::dumpObject (std::ostream& fOutput, const CastorPedestalWidths& fObject) {
+bool dumpObject (std::ostream& fOutput, const CastorPedestalWidths& fObject) {
   char buffer [1024];
   if (fObject.isADC() ) sprintf (buffer, "#U ADC  << this is the unit \n");
   else  sprintf (buffer, "#U fC  << this is the unit \n");
@@ -511,7 +509,7 @@ bool CastorDbASCIIIO::dumpObject (std::ostream& fOutput, const CastorPedestalWid
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-bool CastorDbASCIIIO::getObject (std::istream& fInput, CastorQIEData* fObject) {
+bool getObject (std::istream& fInput, CastorQIEData* fObject) {
   char buffer [1024];
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
@@ -559,7 +557,7 @@ bool CastorDbASCIIIO::getObject (std::istream& fInput, CastorQIEData* fObject) {
   return true;
 }
 
-bool CastorDbASCIIIO::dumpObject (std::ostream& fOutput, const CastorQIEData& fObject) {
+bool dumpObject (std::ostream& fOutput, const CastorQIEData& fObject) {
   char buffer [1024];
   fOutput << "# QIE basic shape: SHAPE 32 x low edge values for first 32 channels" << std::endl;
   sprintf (buffer, "SHAPE ");
@@ -601,7 +599,7 @@ bool CastorDbASCIIIO::dumpObject (std::ostream& fOutput, const CastorQIEData& fO
 }
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-bool CastorDbASCIIIO::getObject (std::istream& fInput, CastorCalibrationQIEData* fObject) {
+bool getObject (std::istream& fInput, CastorCalibrationQIEData* fObject) {
   char buffer [1024];
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
@@ -631,7 +629,7 @@ bool CastorDbASCIIIO::getObject (std::istream& fInput, CastorCalibrationQIEData*
   return true;
 }
 
-bool CastorDbASCIIIO::dumpObject (std::ostream& fOutput, const CastorCalibrationQIEData& fObject) {
+bool dumpObject (std::ostream& fOutput, const CastorCalibrationQIEData& fObject) {
   char buffer [1024];
   fOutput << "# QIE data in calibration mode" << std::endl;
   sprintf (buffer, "# %15s %15s %15s %15s %288s\n", 
@@ -658,7 +656,7 @@ bool CastorDbASCIIIO::dumpObject (std::ostream& fOutput, const CastorCalibration
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-bool CastorDbASCIIIO::getObject (std::istream& fInput, CastorElectronicsMap* fObject) {
+bool getObject (std::istream& fInput, CastorElectronicsMap* fObject) {
   char buffer [1024];
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
@@ -724,7 +722,7 @@ bool CastorDbASCIIIO::getObject (std::istream& fInput, CastorElectronicsMap* fOb
   return true;
 }
 
-bool CastorDbASCIIIO::dumpObject (std::ostream& fOutput, const CastorElectronicsMap& fObject) {
+bool dumpObject (std::ostream& fOutput, const CastorElectronicsMap& fObject) {
   std::vector<CastorElectronicsId> eids = fObject.allElectronicsId ();
   char buf [1024];
   // changes by Jared, 6.03.09/(included 25.03.09)
@@ -768,4 +766,5 @@ bool CastorDbASCIIIO::dumpObject (std::ostream& fOutput, const CastorElectronics
     }
   }
   return true;
+}
 }

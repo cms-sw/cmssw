@@ -16,13 +16,13 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.source = cms.Source("EmptyIOVSource",
                                 firstValue = cms.uint64(1000000),
                                 lastValue = cms.uint64(1000000),
-                                timetype = cms.string('timestamp'),
+                                timetype = cms.string('runnumber'),
                                 interval = cms.uint64(1)
                             )
 
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     process.CondDBCommon,
-    timetype = cms.untracked.string('timestamp'),
+    timetype = cms.untracked.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('EcalDCSTowerStatusRcd'),
         tag = cms.string('EcalDCSTowerStatus_mc')
@@ -32,7 +32,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDBCommon,
     logconnect = cms.untracked.string('sqlite_file:DBLog.db'),
-    timetype = cms.untracked.string('timestamp'),
+    timetype = cms.untracked.string('runnumber'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('EcalDCSTowerStatusRcd'),
         tag = cms.string('EcalDCSTowerStatus_mc')
@@ -51,11 +51,12 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalDCSAnalyzer",
         firstRun = cms.string('42058'),
         lastRun = cms.string('100000000'),
         OnlineDBUser = cms.string('******'),
-        debug = cms.bool(True),
-        OnlineDBPassword = cms.string('*****'),
-        OnlineDBSID = cms.string('cms_omds_lb')
+                debug = cms.bool(True),
+                OnlineDBPassword = cms.string('*******'),
+                OnlineDBSID = cms.string('*******')
+            )
     )
-)
+
 
 process.p = cms.Path(process.Test1)
 

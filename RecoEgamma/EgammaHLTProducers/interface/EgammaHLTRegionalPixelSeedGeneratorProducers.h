@@ -33,6 +33,10 @@ class EgammaHLTRegionalPixelSeedGeneratorProducers : public edm::EDProducer
 
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
+  virtual void beginRun(edm::Run &run, const edm::EventSetup& es);
+  virtual void endRun(edm::Run &run, const edm::EventSetup& es);
+
+
  private:
   edm::ParameterSet conf_;
   SeedGeneratorFromRegionHits *combinatorialSeedGenerator;

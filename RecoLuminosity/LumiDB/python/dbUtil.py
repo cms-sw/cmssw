@@ -9,6 +9,15 @@ class dbUtil(object):
         """
         self.__schema = schema
         
+    def listIndex(self,tablename):
+        mytable=self.__schema.tableHandle(tablename)
+        print 'numberofindices ', mytable.description().numberOfIndices()
+        for i in range(0,mytable.description().numberOfIndices()):
+            index=mytable.description().index(i)
+            print ' ', index.name(),' -> '
+            for iColumn in index.columnNames():
+                print iColumn
+            print ' (tablespace : ',index.tableSpaceName(),')'
     def describeSchema(self):
         """
         Print out the overview of the schema
@@ -25,7 +34,8 @@ class dbUtil(object):
                 if table.description().hasPrimaryKey():
                   print 'Primary Key : '
                   print '\t',table.description().primaryKey().columnNames()
-
+                print 'Indices : '
+                self.listIndex(t)
             viewlist=self.__schema.listViews()
             for v in viewlist:
                 myview = self.__schema.viewHandle('V0')

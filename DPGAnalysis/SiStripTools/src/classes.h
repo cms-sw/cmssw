@@ -4,6 +4,8 @@
 #include "DPGAnalysis/SiStripTools/interface/TinyEvent.h"
 #include "DPGAnalysis/SiStripTools/interface/EventWithHistory.h"
 #include "DPGAnalysis/SiStripTools/interface/APVCyclePhaseCollection.h"
+// For APVLatency object
+#include "DPGAnalysis/SiStripTools/interface/APVLatency.h"
 
 //#include "DataFormats/Common/interface/Wrapper.h"
 

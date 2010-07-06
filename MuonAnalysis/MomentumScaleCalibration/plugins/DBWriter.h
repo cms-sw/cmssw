@@ -20,5 +20,5 @@ private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() {};
 
-  std::auto_ptr<BaseFunction> corrector_;
+  auto_ptr<BaseFunction> corrector_;
 };

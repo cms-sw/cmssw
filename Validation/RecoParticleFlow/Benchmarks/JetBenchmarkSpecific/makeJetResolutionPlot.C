@@ -131,10 +131,10 @@ void Resolution(unsigned barrel, const char* input, const char* output, const ch
   vector<float> arithmavs;
 
   int n=0;
-  if ( algo == 0 ) 
+  if ( algo == 1 ) 
     f->cd("DQMData/PFTask/Benchmarks/iterativeCone5PFJets/Gen");
-  else if ( algo == 1 ) 
-    f->cd("DQMData/PFTask/Benchmarks/kt4PFJets/Gen");
+  else if ( algo == 0 ) 
+    f->cd("DQMData/PFTask/Benchmarks/ak5PFJets/Gen");
     
   for( unsigned i=0; i<hists.size(); ++i) {
 

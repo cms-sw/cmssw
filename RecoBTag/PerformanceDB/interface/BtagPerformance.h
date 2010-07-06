@@ -17,6 +17,8 @@ public:
   virtual float getResult(PerformanceResult::ResultType, BinningPointByMap) const ;
 
   virtual bool isResultOk(PerformanceResult::ResultType, BinningPointByMap) const ;
+
+  virtual const PerformancePayload & payload() const { return pl; }
   
   virtual const PerformanceWorkingPoint& workingPoint() const {return wp;}
 

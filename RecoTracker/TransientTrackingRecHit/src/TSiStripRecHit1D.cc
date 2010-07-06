@@ -14,7 +14,7 @@ TSiStripRecHit1D::clone (const TrajectoryStateOnSurface& ts) const
      if(!specificHit()->cluster().isNull()){
        const SiStripCluster&  clust = *specificHit()->cluster();  
        StripClusterParameterEstimator::LocalValues lv = 
-	 theCPE->localParameters( clust, *detUnit(), ts);
+	 theCPE->localParameters( clust, *detUnit(), ts.localParameters());
        LocalError le(lv.second.xx(),0.,DBL_MAX); //Correct??
 
        return TSiStripRecHit1D::build( lv.first, le, det(), 
@@ -22,7 +22,7 @@ TSiStripRecHit1D::clone (const TrajectoryStateOnSurface& ts) const
      }else{
        const SiStripCluster&  clust = *specificHit()->cluster_regional();  
        StripClusterParameterEstimator::LocalValues lv = 
-	 theCPE->localParameters( clust, *detUnit(), ts);
+	 theCPE->localParameters( clust, *detUnit(), ts.localParameters());
        LocalError le(lv.second.xx(),0.,DBL_MAX); //Correct??
        return TSiStripRecHit1D::build( lv.first, le, det(), 
 				       specificHit()->cluster_regional(), theCPE, weight(), getAnnealingFactor());       

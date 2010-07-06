@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.35 2010/01/11 16:17:03 merkelp Exp $
+// $Id: SiPixelDigiSource.cc,v 1.38 2010/05/10 15:13:08 merkelp Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -126,10 +126,10 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
   
   //float iOrbitSec = iEvent.orbitNumber()/11223.;
-  //int bx = iEvent.bunchCrossing();
+  int bx = iEvent.bunchCrossing();
   //long long tbx = (long long)iEvent.orbitNumber() * 3564 + bx;
   int lumiSection = (int)iEvent.luminosityBlock();
-  int nEventDigis = 0;
+  int nEventDigis = 0; int nActiveModules = 0;
   
   std::map<uint32_t,SiPixelDigiModule*>::iterator struct_iter;
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
@@ -137,23 +137,28 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 				ladOn, layOn, phiOn, 
 				bladeOn, diskOn, ringOn, 
 				twoDimOn, reducedSet, twoDimModOn, twoDimOnlyLayDisk);
-    nEventDigis = nEventDigis + numberOfDigis;    
+    nEventDigis = nEventDigis + numberOfDigis;  
+    if(numberOfDigis>0) nActiveModules++;  
   }
   
 //  if(lumiSection>lumSec){ lumSec = lumiSection; nLumiSecs++; }
 //  if(nEventDigis>bigEventSize) nBigEvents++;
 //  if(nLumiSecs%5==0){
-
+  MonitorElement* me; MonitorElement* me1;
   if(nEventDigis>bigEventSize){
-    MonitorElement* me = theDMBE->get("Pixel/bigEventRate");
-    if(me){ 
-      me->Fill(lumiSection,1./23.);    
-//      me->setBinContent(lumiSection+1,(float)nBigEvents/(5.*93.));
-//      me->setBinError(lumiSection+1,sqrt(nBigEvents)/(5.*93.));
-//      nBigEvents=0;
-    }
+    me = theDMBE->get("Pixel/bigEventRate");
+    if(me) me->Fill(lumiSection,1./23.);    
   }
   //std::cout<<"nEventDigis: "<<nEventDigis<<" , nLumiSecs: "<<nLumiSecs<<" , nBigEvents: "<<nBigEvents<<std::endl;
+  
+  if(nActiveModules>=4){
+    me = theDMBE->get("Pixel/pixEvtsPerBX");
+    if(me) me->Fill(float(bx));
+    me1 = theDMBE->get("Pixel/pixEventRate");
+    if(me1) me1->Fill(lumiSection, 1./23.);
+  }
+
+
   
   
   // slow down...
@@ -196,11 +201,11 @@ void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup){
 	uint32_t id = detId();
 	SiPixelDigiModule* theModule = new SiPixelDigiModule(id, ncols, nrows);
        
-        PixelEndcapName::HalfCylinder side = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).halfCylinder();
-        int disk   = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).diskName();
-        int blade  = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).bladeName();
-        int panel  = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).pannelName();
-        int module = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).plaquetteName();
+        PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(id)).halfCylinder();
+        int disk   = PixelEndcapName(DetId(id)).diskName();
+        int blade  = PixelEndcapName(DetId(id)).bladeName();
+        int panel  = PixelEndcapName(DetId(id)).pannelName();
+        int module = PixelEndcapName(DetId(id)).plaquetteName();
 
         char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
         char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);
@@ -232,9 +237,12 @@ void SiPixelDigiSource::bookMEs(){
   // Get DQM interface
   DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
   theDMBE->setCurrentFolder("Pixel");
-  char title[80]; sprintf(title, "Rate of events with >%i digis;LumiSection;Rate of large events per LS [Hz]",bigEventSize);
-  bigEventRate = theDMBE->book1D("bigEventRate",title,2000,0.,2000.);
-  //bigEventRate->getTH1F()->SetBit(TH1::kCanRebin);
+  char title[80]; sprintf(title, "Rate of events with >%i digis;LumiSection;Rate [Hz]",bigEventSize);
+  bigEventRate = theDMBE->book1D("bigEventRate",title,5000,0.,5000.);
+  char title1[80]; sprintf(title1, "Pixel events vs. BX;BX;# events");
+  pixEvtsPerBX = theDMBE->book1D("pixEvtsPerBX",title1,3565,0.,3565.);
+  char title2[80]; sprintf(title2, "Rate of Pixel events;LumiSection;Rate [Hz]");
+  pixEventRate = theDMBE->book1D("pixEventRate",title2,5000,0.,5000.);
   
   std::map<uint32_t,SiPixelDigiModule*>::iterator struct_iter;
  

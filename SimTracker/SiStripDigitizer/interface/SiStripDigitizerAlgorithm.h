@@ -20,7 +20,6 @@
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "CondFormats/SiStripObjects/interface/SiStripThreshold.h"
-#include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
 #include "SimTracker/SiStripDigitizer/interface/SiTrivialDigitalConverter.h"
 #include "SimTracker/SiStripDigitizer/interface/SiGaussianTailNoiseAdder.h"
@@ -56,46 +55,32 @@ class SiStripDigitizerAlgorithm {
             const std::vector<std::pair<const PSimHit*, int > >  &, 
             StripGeomDetUnit *, GlobalVector, float, 
             edm::ESHandle<SiStripGain> &, edm::ESHandle<SiStripThreshold> &, 
-            edm::ESHandle<SiStripNoises> &, edm::ESHandle<SiStripPedestals> &, edm::ESHandle<SiStripBadStrip> &);
+            edm::ESHandle<SiStripNoises> &, edm::ESHandle<SiStripPedestals> &);
 
   // digisimlink
   std::vector<StripDigiSimLink> make_link() { return link_coll; }
 
   // ParticleDataTable
-  void setParticleDataTable(const ParticleDataTable * pardt) {
-  	theSiHitDigitizer->setParticleDataTable(pardt); 
-  	pdt= pardt; 
-  }
+  void setParticleDataTable(const ParticleDataTable * pdt) { theSiHitDigitizer->setParticleDataTable(pdt); }
   
  private:
   edm::ParameterSet conf_;
-  double theElectronPerADC;
-  double theThreshold;
-  double cmnRMStib;
-  double cmnRMStob;
-  double cmnRMStid;
-  double cmnRMStec;
-  double APVSaturationProb;          
+  float theElectronPerADC;
+  float theThreshold;          
   bool peakMode;
   bool noise;
-  bool RealPedestals;              
-  bool SingleStripNoise;          
-  bool CommonModeNoise;           
-  bool BaselineShift;             
-  bool APVSaturationFromHIP;
-  
   int theFedAlgo;
   bool zeroSuppression;
-  double theTOFCutForPeak;
-  double theTOFCutForDeconvolution;
-  double tofCut;
+  float theTOFCutForPeak;
+  float theTOFCutForDeconvolution;
+  float tofCut;
   int numStrips; 
   int strip;     
-  //double noiseRMS;
-  //double pedValue;
-  double cosmicShift;
-  double inefficiency;
-  double pedOffset;
+  float noiseRMS;
+  float pedValue;
+  float cosmicShift;
+  float inefficiency;
+  float pedOffset;
 
   size_t firstChannelWithSignal;
   size_t lastChannelWithSignal;
@@ -107,9 +92,8 @@ class SiStripDigitizerAlgorithm {
   // total amplitude of detector channels
   std::vector<double> detAmpl;
 
-  const ParticleDataTable * pdt;
-  const ParticleData * particle;
-  
+
+
   SiHitDigitizer* theSiHitDigitizer;
   SiPileUpSignals* theSiPileUpSignals;
   SiGaussianTailNoiseAdder* theSiNoiseAdder;

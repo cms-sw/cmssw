@@ -26,7 +26,6 @@ SiStripMonitorTrackSim = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStrip
 SiStripMonitorTrackSim.TrackProducer = 'TrackRefitter'
 SiStripMonitorTrackSim.TrackLabel    = ''
 SiStripMonitorTrackSim.Cluster_src   = 'siStripClusters'
-SiStripMonitorTrackSim.FolderName    = 'Tracking/TrackParameters'
 SiStripMonitorTrackSim.Mod_On        = True
 
 # Clone for Real Data
@@ -35,7 +34,6 @@ SiStripMonitorTrackReal = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStri
 SiStripMonitorTrackReal.TrackProducer = 'ctfWithMaterialTracksP5'
 SiStripMonitorTrackReal.TrackLabel    = ''
 SiStripMonitorTrackReal.Cluster_src   = 'siStripClusters'
-SiStripMonitorTrackReal.FolderName    = 'Tracking/TrackParameters'
 SiStripMonitorTrackReal.Mod_On        = True
 
 # Clone for Real Data (Collision)
@@ -44,7 +42,6 @@ SiStripMonitorTrackColl = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStri
 SiStripMonitorTrackColl.TrackProducer = 'generalTracks'
 SiStripMonitorTrackColl.TrackLabel    = ''
 SiStripMonitorTrackColl.Cluster_src   = 'siStripClusters'
-SiStripMonitorTrackColl.FolderName    = 'Tracking/TrackParameters'
 SiStripMonitorTrackColl.Mod_On        = True
 
 

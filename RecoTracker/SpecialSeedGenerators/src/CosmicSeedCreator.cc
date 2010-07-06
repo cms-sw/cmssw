@@ -82,7 +82,7 @@ const TrajectorySeed * CosmicSeedCreator::trajectorySeed(TrajectorySeedCollectio
   //location in the barrel (up or bottom)
   //+++++++++++++++++++++++++++++++++++++
   //simple check, probably nees to be more precise FIXME
-  // bool bottomSeed = (usedHit->globalPosition().y()<0); // unused
+  bool bottomSeed = (usedHit->globalPosition().y()<0);
 	  
 
   //apply corrections
@@ -107,7 +107,7 @@ const TrajectorySeed * CosmicSeedCreator::trajectorySeed(TrajectorySeedCollectio
 
   PropagationDirection seedDirection = alongMomentum; //by default
 
-  /*
+  
   if (reverseAll) initialMomentum *=-1;	
 
   if (bottomSeed){
@@ -117,7 +117,7 @@ const TrajectorySeed * CosmicSeedCreator::trajectorySeed(TrajectorySeedCollectio
     //and change the direction of the seed
     seedDirection = oppositeToMomentum;
   }
-  */
+  
 
   for (int charge=-1;charge<=1;charge+=2){
     //fixme, what hit do you want to use ?

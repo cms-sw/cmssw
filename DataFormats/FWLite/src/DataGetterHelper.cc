@@ -8,7 +8,7 @@
 //
 // Original Author: Eric Vaandering
 //         Created:  Fri Jan 29 11:58:01 CST 2010
-// $Id: DataGetterHelper.cc,v 1.2 2010/02/16 16:28:21 ewv Exp $
+// $Id: DataGetterHelper.cc,v 1.4 2010/05/10 20:13:23 chrjones Exp $
 //
 
 // system include files
@@ -35,12 +35,6 @@
 
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 
-#include "DataFormats/Provenance/interface/ParameterSetBlob.h"
-#include "DataFormats/Provenance/interface/ParameterSetID.h"
-#include "FWCore/Utilities/interface/ThreadSafeRegistry.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
-#include "FWCore/ParameterSet/interface/ParameterSetConverter.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #define TTCACHE_SIZE 20*1024*1024
@@ -50,6 +44,10 @@ namespace fwlite {
     // constants, enums and typedefs
     //
 
+    //
+    // DataGetterHelper takes ownership of the TTreeCache, so make use of it by
+    // the file exception safe
+    //
     class withTCache {
     public:
         withTCache(TFile* file, TTreeCache* tc) : f_(file) { f_->SetCacheRead(tc); }
@@ -86,7 +84,7 @@ namespace fwlite {
         if (useCache) {
             tree_->SetCacheSize(TTCACHE_SIZE);
             TFile* iFile(branchMap_->getFile());
-            tcache_ = dynamic_cast<TTreeCache*>(iFile->GetCacheRead());
+            tcache_.reset(dynamic_cast<TTreeCache*>(iFile->GetCacheRead()));
             iFile->SetCacheRead(0);
             //std::cout << "In const " << iFile << " " << tcache_ << " " << iFile->GetCacheRead() << std::endl;
         }
@@ -97,7 +95,7 @@ namespace fwlite {
     //    // do actual copying here;
     // }
 
-    DataGetterHelper::~DataGetterHelper() { }
+    DataGetterHelper::~DataGetterHelper() {    }
 
     //
     // assignment operators
@@ -158,7 +156,7 @@ namespace fwlite {
         obj.Destruct();
         //END OF WORK AROUND
 
-        if (0 == tcache_) {
+        if (0 == tcache_.get()) {
             iData.branch_->GetEntry(index);
         } else {
             if (!tcTrained_) {
@@ -166,7 +164,7 @@ namespace fwlite {
                 tcache_->SetEntryRange(0, tree_->GetEntries());
                 tcTrained_ = true;
             }
-            withTCache tcguard(branchMap_->getFile(), tcache_);
+            withTCache tcguard(branchMap_->getFile(), tcache_.get());
             tree_->LoadTree(index);
             iData.branch_->GetEntry(index);
        }

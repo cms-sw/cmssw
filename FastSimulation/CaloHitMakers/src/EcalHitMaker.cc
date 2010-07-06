@@ -48,11 +48,13 @@ EcalHitMaker::EcalHitMaker(CaloGeometryHelper * theCalo,
   X0depthoffset_ = 0. ;
   X0PS1_ = 0.;
   X0PS2_ = 0.; 
+  X0PS2EE_ = 0.;
   X0ECAL_ = 0.;
   X0EHGAP_ = 0.;
   X0HCAL_ = 0.;
   L0PS1_ = 0.;
   L0PS2_ = 0.;
+  L0PS2EE_ = 0.;
   L0ECAL_ = 0.;
   L0EHGAP_ = 0.;
   L0HCAL_ = 0.;
@@ -733,6 +735,19 @@ EcalHitMaker::buildSegments(const std::vector<CaloPoint>& cp)
 	      sL0+=preshsegment.L0length();
 	      X0PS2_+=preshsegment.X0length();
 	      L0PS2_+=preshsegment.L0length();
+
+	      // material between preshower and EE
+	      if(is<(nsegments-1) && cp[2*is+2].whichDetector()==DetId::Ecal && cp[2*is+2].whichSubDetector()==EcalEndcap)
+				{
+		  CaloSegment gapsef(cp[2*is+1],cp[2*is+2],s,sX0,sL0,CaloSegment::PSEEGAP,myCalorimeter);
+		  segments_.push_back(gapsef);
+		  s+=gapsef.length();     
+		  sX0+=gapsef.X0length();                                                                                          
+		  sL0+=gapsef.L0length();                                                                                          
+		  X0PS2EE_+=gapsef.X0length();                        
+  		  L0PS2EE_+=gapsef.L0length();      
+		  //		  std::cout << " Created  a segment " << gapsef.length()<< " " << gapsef.X0length()<< std::endl;
+		}	      
 	    }
 	  else
 	    {
@@ -742,7 +757,6 @@ EcalHitMaker::buildSegments(const std::vector<CaloPoint>& cp)
 	  ++is;
 	  continue;
 	}
-
       // Now deal with the ECAL
       // One segment in each crystal. Segment corresponding to cracks/gaps are added
       //      myHistos->debug("Just avant ECAL"); 
@@ -774,7 +788,7 @@ EcalHitMaker::buildSegments(const std::vector<CaloPoint>& cp)
 		  ++is;
 		}
 	      // Now check if a gap or crack should be added
-	      if(is<nsegments)
+	      if(is>0 && is<nsegments)
 		{		  
 		  DetId cell3=cp[2*is].getDetId();
 		  if(cp[2*is].whichDetector()!=DetId::Hcal) 
@@ -833,8 +847,8 @@ EcalHitMaker::buildSegments(const std::vector<CaloPoint>& cp)
 //  std::cout << " ECAL " << X0ECAL_ << " " << L0ECAL_ << std::endl;
 //  std::cout << " HCAL " << X0HCAL_ << " " << L0HCAL_ << std::endl;
   
-  totalX0_ = X0PS1_+X0PS2_+X0ECAL_+X0EHGAP_+X0HCAL_;
-  totalL0_ = L0PS1_+L0PS2_+L0ECAL_+L0EHGAP_+L0HCAL_;
+  totalX0_ = X0PS1_+X0PS2_+X0PS2EE_+X0ECAL_+X0EHGAP_+X0HCAL_;
+  totalL0_ = L0PS1_+L0PS2_+L0PS2EE_+L0ECAL_+L0EHGAP_+L0HCAL_;
   //  myHistos->debug("Just avant le fill"); 
 
   #ifdef DEBUGCELLLINE
@@ -952,6 +966,12 @@ EcalHitMaker::getPads(double depth,bool inCm)
       std::cout << " FamosGrid: Could not go at such depth " << depth << std::endl;
       std::cout << " EMSHOWER " << EMSHOWER << std::endl;
       std::cout << " Track " << *myTrack_ << std::endl;
+      std::cout << " Segments " << segments_.size() << std::endl;
+      for(unsigned ii=0; ii<segments_.size() ; ++ii)
+	{
+	  std::cout << segments_[ii] << std::endl;
+	}
+      
       return false;
     }
   //  std::cout << *segiterator << std::endl;

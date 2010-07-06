@@ -1,72 +1,58 @@
 #!/usr/bin/env python
-VERSION='1.02'
+VERSION='2.00'
 import os,sys
 import coral
-from RecoLuminosity.LumiDB import argparse,nameDealer,selectionParser,hltTrgSeedMapper
-
+from RecoLuminosity.LumiDB import argparse,nameDealer,selectionParser,hltTrgSeedMapper,connectstrParser,cacheconfigParser,tablePrinter,csvReporter,csvSelectionParser
+from RecoLuminosity.LumiDB.wordWrappers import wrap_always,wrap_onspace,wrap_onspace_strict
 class constants(object):
     def __init__(self):
-        self.LUMIUNIT='e27 [cm^-2]'
-        self.NORM=16700
+        self.NORM=1.0
         self.LUMIVERSION='0001'
+        self.NBX=3564
         self.BEAMMODE='stable' #possible choices stable,quiet,either
         self.VERBOSE=False
-        self.LSLENGTH=0
-        
-class resultPrinter(object):
-    def __init__(self):
-        self.total_width=80
-        self.number_width=12
-        self.column_width=self.total_width-self.number_width-12
-        self.header_format='%-*s%*s'
-        self.format='%-*s%*.3fe27 [cm^-2]'
-    def printOuterSeparator(self):
-        print '='* self.total_width
-    def printInnerSeparator(self):    
-        print '-'*self.total_width
-    def printHeader(self,column1,column2):
-        print self.header_format % (self.column_width,column1,self.number_width,column2)
-    def printLine(self,columnname,columnvalue):
-        print self.format % (self.column_width,columnname,self.number_width,columnvalue)
-    def headerFormat(self):
-        return self.header_format
-    def bodyFormat(self):
-        return self.format
-    def printDeadfrac(self,deadtimetable):
-        print '  Lumi Section : Dead Fraction \n  ',
-        c=0
-        for lsnum,deadfrac  in deadtimetable.items():
-            if c<8: # print every 8 pairs in a line
-                print '%d:%.2f%%,'%(lsnum,deadfrac),
-            else:
-                print '%d:%.2f%%,'%(lsnum,deadfrac)
-                print '  ',
-                c=0
-            c=c+1
-        print
-    def printTriggerLine(self,l1name,l1prescale,hltprescale):
-        print '   |  %-*s | %-*s | %-*s |'%(30,'L1 Name',13,'L1 Prescale',13,'HLT Prescale')
-        print '   |  %-*s | %-*d | %-*d |'%(30,l1name,13,l1prescale,13,hltprescale)
-        
+    def defaultfrontierConfigString(self):
+        return """<frontier-connect><proxy url="http://cmst0frontier.cern.ch:3128"/><proxy url="http://cmst0frontier.cern.ch:3128"/><proxy url="http://cmst0frontier1.cern.ch:3128"/><proxy url="http://cmst0frontier2.cern.ch:3128"/><server url="http://cmsfrontier.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier1.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier2.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier3.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier4.cern.ch:8000/FrontierInt"/></frontier-connect>"""
+    
 def lslengthsec(numorbit,numbx):
     #print numorbit, numbx
     l=numorbit*numbx*25e-09
     return l
 
+def lsBylsLumi(deadtable):
+    """
+    input: {lsnum:[deadtime,instlumi,bit_0,norbits]}
+    output: {lsnum:[instlumi,recordedlumi]}
+    """
+    result={}
+    for myls,d in deadtable.items():
+        lstime=lslengthsec(d[3],3564)
+        instlumi=d[1]*lstime
+        if float(d[2])==0.0:
+            deadfrac=1.0
+        else:
+            deadfrac=float(d[0])/float(d[2])
+        recordedLumi=instlumi*(1.0-deadfrac)
+        result[myls]=[instlumi,recordedLumi]
+    return result
 def deliveredLumiForRun(dbsession,c,runnum):
     #
-    #select sum(INSTLUMI) from lumisummary where runnum=124025 and lumiversion='0001';
+    #select sum(INSTLUMI),count(INSTLUMI) from lumisummary where runnum=124025 and lumiversion='0001';
     #apply norm factor and ls length in sec on the query result 
     #unit E27cm^-2 
     #
-    if c.VERBOSE:
-        print 'deliveredLumiForRun : norm : ',c.NORM,' : run : ',runnum
+    #if c.VERBOSE:
+    #    print 'deliveredLumiForRun : norm : ',c.NORM,' : run : ',runnum
+    #output ['run','totalls','delivered','beammode']
     delivered=0.0
+    totalls=0
     try:
         dbsession.transaction().start(True)
         schema=dbsession.nominalSchema()
         query=schema.tableHandle(nameDealer.lumisummaryTableName()).newQuery()
         query.addToOutputList("sum(INSTLUMI)","totallumi")
+        query.addToOutputList("count(INSTLUMI)","totalls")
+        query.addToOutputList("NUMORBIT","norbits")
         queryBind=coral.AttributeList()
         queryBind.extend("runnum","unsigned int")
         queryBind.extend("lumiversion","string")
@@ -74,147 +60,64 @@ def deliveredLumiForRun(dbsession,c,runnum):
         queryBind["lumiversion"].setData(c.LUMIVERSION)
         result=coral.AttributeList()
         result.extend("totallumi","float")
+        result.extend("totalls","unsigned int")
+        result.extend("norbits","unsigned int")
         query.defineOutput(result)
         query.setCondition("RUNNUM =:runnum AND LUMIVERSION =:lumiversion",queryBind)
+        query.limitReturnedRows(1)
+        query.groupBy('NUMORBIT')
         cursor=query.execute()
         while cursor.next():
             delivereddata=cursor.currentRow()['totallumi'].data()
+            totallsdata=cursor.currentRow()['totalls'].data()
+            norbitsdata=cursor.currentRow()['norbits'].data()
             if delivereddata:
-                delivered=delivereddata*c.NORM*c.LSLENGTH
+                totalls=totallsdata
+                norbits=norbitsdata
+                lstime=lslengthsec(norbits,c.NBX)
+                delivered=delivereddata*c.NORM*lstime
         del query
         dbsession.transaction().commit()
-        rprint=resultPrinter()
-        rprint.printOuterSeparator()
+        lumidata=[]
+
         if delivered==0.0:
-           print 'Requested run '+str(runnum)+' does not exist in LumiDB, do nothing...'
+            lumidata=[str(runnum),'N/A','N/A','N/A']
         else:
-            rprint.printLine("Delivered Luminosity for Run "+str(runnum)+" (beam "+c.BEAMMODE+"):",delivered)
-        rprint.printOuterSeparator()
+            lumidata=[str(runnum),str(totalls),'%.3f'%delivered,c.BEAMMODE]
+        return lumidata
     except Exception,e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession
 
-    
 def deliveredLumiForRange(dbsession,c,fileparsingResult):
     #
     #in this case,only take run numbers from theinput file
     #
-    if c.VERBOSE:
-        print 'deliveredLumiForRange : norm : ',c.NORM,
-    for run in fileparsingResult.runs():
-        deliveredLumiForRun(dbsession,c,run)
-    
-#def recordedLumiForRun(dbsession,c,runnum):
-#    if c.VERBOSE:
-#        print 'recordedLumiForRun : run : ',runnum,' : norm : ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
-#    #
-#    #LS_length=25e-9*numorbit*3564(sec)
-#    #LS deadfraction=deadtimecount/(numorbit*3564) 
-#    #select distinct lumisummary.instlumi*trg.deadtime/(lumisummary.numorbit*3564) as deadfraction from trg,lumisummary where trg.runnum=124025 and lumisummary.runnum=124025 and lumisummary.lumiversion='0001' and lumisummary.cmslsnum=1 and trg.cmslsnum=1;
-#    #
-#    #let oracle do everything!
-#    #
-#    #select sum( lumisummary.instlumi*(1-trg.deadtime/(lumisummary.numorbit*3564))) as recorded from trg,lumisummary where trg.runnum=124025 and lumisummary.runnum=124025 and lumisummary.lumiversion='0001' and lumisummary.cmslsnum=trg.cmslsnum and lumisummary.cmsalive=1 and trg.bitnum=0;
-#    #multiply query result by norm factor, attach unit
-#    #7.368e-5*16400.0=1.2083520000000001
-#    recorded=0.0
-#    lslength=0
-#    try:
-#        dbsession.transaction().start(True)
-#        schema=dbsession.nominalSchema()
-#        query=schema.newQuery()
-#        query.addToTableList(nameDealer.lumisummaryTableName(),'lumisummary')
-#        query.addToTableList(nameDealer.trgTableName(),'trg')
-#        queryCondition=coral.AttributeList()
-#        queryCondition.extend("runnumber","unsigned int")
-#        queryCondition.extend("lumiversion","string")
-#        queryCondition.extend("alive","bool")
-#        queryCondition.extend("bitnum","unsigned int")
-#        queryCondition["runnumber"].setData(int(runnum))
-#        queryCondition["lumiversion"].setData(c.LUMIVERSION)
-#        queryCondition["alive"].setData(True)
-#        queryCondition["bitnum"].setData(0)
-#        query.setCondition("trg.RUNNUM =:runnumber AND lumisummary.RUNNUM=:runnumber and lumisummary.LUMIVERSION =:lumiversion AND lumisummary.CMSLSNUM=trg.CMSLSNUM AND lumisummary.cmsalive =:alive AND trg.BITNUM=:bitnum",queryCondition)
-#        query.addToOutputList("sum(lumisummary.INSTLUMI*(1-trg.DEADTIME/(lumisummary.numorbit*3564)))","recorded")
-#        result=coral.AttributeList()
-#        result.extend("recorded","float")
-#        query.defineOutput(result)
-#        cursor=query.execute()
-#        while cursor.next():
-#            recorded=cursor.currentRow()["recorded"].data()*c.NORM*c.LSLENGTH
-#        del query
-#        dbsession.transaction().commit()
-#        print "Recorded Luminosity for Run "+str(runnum)+" : "+'%.3f'%(recorded)+c.LUMIUNIT
-#    except Exception,e:
-#        print str(e)
-#        dbsession.transaction().rollback()
-#        del dbsession
-    
-#def recordedLumiForRange(dbsession,c,fileparsingResult):
-#    if c.VERBOSE:
-#        print 'norm: ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
-#    runsandLSStr=fileparsingResult.runsandlsStr()
-#    runsandLS=fileparsingResult.runsandls()
-#    recorded={}
-#    if c.VERBOSE:
-#        print 'recordedLumi : selected runs and LS ',runsandLS
-#    try:
-#        dbsession.transaction().start(True)
-#        schema=dbsession.nominalSchema()
-#        query=schema.newQuery()
-#        query.addToTableList(nameDealer.lumisummaryTableName(),'lumisummary')
-#        query.addToTableList(nameDealer.trgTableName(),'trg')
-#        for runnumstr,LSlistStr in runsandLSStr.items():
-#            query.addToOutputList("sum(lumisummary.INSTLUMI*(1-trg.DEADTIME/(lumisummary.numorbit*3564)))","recorded")
-#            result=coral.AttributeList()
-#            result.extend("recorded","float")
-#            query.defineOutput(result)
-#            queryCondition=coral.AttributeList()
-#            queryCondition.extend("runnumber","unsigned int")
-#            queryCondition.extend("lumiversion","string")
-#            queryCondition.extend("alive","bool")
-#            queryCondition.extend("bitnum","unsigned int")
-#            realLSlist=runsandLS[int(runnumstr)]
+    lumidata=[]
+    runs= fileparsingResult.runs()
+    runs.sort()
+    for run in runs:
+        lumidata.append( deliveredLumiForRun(dbsession,c,run) )
+    return lumidata
 
-#            queryCondition["runnumber"].setData(int(runnumstr))
-#            queryCondition["lumiversion"].setData(c.LUMIVERSION)
-#            queryCondition["alive"].setData(True)
-#            queryCondition["bitnum"].setData(0)
-#            for l in realLSlist:
-#                queryCondition.extend(str(l),"unsigned int")
-#                queryCondition[str(l)].setData(int(l))
-#            o=[':'+x for x in LSlistStr]
-#            inClause='('+','.join(o)+')'
-#            query.setCondition("trg.RUNNUM =:runnumber AND lumisummary.RUNNUM=:runnumber and lumisummary.LUMIVERSION =:lumiversion AND lumisummary.CMSLSNUM=trg.CMSLSNUM AND lumisummary.cmsalive =:alive AND trg.BITNUM=:bitnum AND lumisummary.CMSLSNUM in "+inClause,queryCondition)
-#            cursor=query.execute()
-#            while cursor.next():
-#                recorded[int(runnumstr)]=cursor.currentRow()['recorded'].data()
-#        del query
-#        dbsession.transaction().commit()
-#        for run,recd in  recorded.items():
-#            print "Recorded Luminosity for Run "+str(run)+" : "+'%.3f'%(recd*c.NORM*c.LSLENGTH)+c.LUMIUNIT
-#    except Exception,e:
-#        print str(e)
-#        dbsession.transaction().rollback()
-#        del dbsession
-           
-def recordedLumiForRun(dbsession,c,runnum,hltpath=''):
-    if len(hltpath)==0:
-        hltpath='all'
-    #if c.VERBOSE:
-    #    print 'recordedLumiForRun : runnum : ',runnum,' : hltpath : ',hltpath,' : norm : ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
-    deadtable={}
+def recordedLumiForRun(dbsession,c,runnum,lslist=[]):
+    """output: ['runnumber','trgtable{}','deadtable{}']
+    """
+    recorded=0.0
+    lumidata=[] #[runnumber,trgtable,deadtable]
+    trgtable={} #{hltpath:[l1seed,hltprescale,l1prescale]}
+    deadtable={} #{lsnum:[deadtime,instlumi,bit_0,norbits]}
+    lumidata.append(runnum)
+    lumidata.append(trgtable)
+    lumidata.append(deadtable)
+    collectedseeds=[] #[(hltpath,l1seed)]
     try:
-        collectedseeds=[]
-        filteredbits=[]
-        finalhltData={} #{hltpath:(l1bitname,hltprescale)}
-        hltTotrgMap={} #{hltpath:(l1bitname,hltprescale,l1prescale,[(lsnum,l1deadfrac)])}
         dbsession.transaction().start(True)
         schema=dbsession.nominalSchema()
         query=schema.newQuery()
         query.addToTableList(nameDealer.cmsrunsummaryTableName(),'cmsrunsummary')
-        query.addToTableList(nameDealer.trghltMapTableName(),'trghltmap')
+        query.addToTableList(nameDealer.trghltMapTableName(),'trghltmap')#small table first
         queryCondition=coral.AttributeList()
         queryCondition.extend("runnumber","unsigned int")
         queryCondition["runnumber"].setData(int(runnum))
@@ -230,348 +133,510 @@ def recordedLumiForRun(dbsession,c,runnum,hltpath=''):
             hltpathname=cursor.currentRow()["hltpathname"].data()
             l1seed=cursor.currentRow()["l1seed"].data()
             collectedseeds.append((hltpathname,l1seed))
+        #print 'collectedseeds ',collectedseeds
         del query
         dbsession.transaction().commit()
-        
-        for ip in collectedseeds:
-            l1bitname=hltTrgSeedMapper.findUniqueSeed(ip[0],ip[1])
+        #loop over hltpath
+        for (hname,sname) in collectedseeds:
+            l1bitname=hltTrgSeedMapper.findUniqueSeed(hname,sname)
+            #print 'found unque seed ',hname,l1bitname
             if l1bitname:
-                filteredbits.append((ip[0],l1bitname.replace('\"','')))#strip quotes if any
-        #print "found ",len(filteredbits)," calculable hltpaths"
-        #print "filtered result : ",filteredbits
-
+                lumidata[1][hname]=[]
+                lumidata[1][hname].append(l1bitname.replace('\"',''))
         dbsession.transaction().start(True)
         schema=dbsession.nominalSchema()
-        for h in filteredbits:
-            hltprescQuery=schema.tableHandle(nameDealer.hltTableName()).newQuery()
-            hltprescQuery.addToOutputList("PRESCALE","hltprescale")
-            hltprescCondition=coral.AttributeList()
-            hltprescCondition.extend('runnumber','unsigned int')
-            hltprescCondition.extend('pathname','string')
-            hltprescCondition.extend('cmslsnum','unsigned int')
-            hltprescCondition.extend('inf','unsigned int')
-            hltprescResult=coral.AttributeList()
-            hltprescResult.extend('hltprescale','unsigned int')
-            hltprescQuery.defineOutput(hltprescResult)
-            hltprescCondition['runnumber'].setData(int(runnum))
-            hltprescCondition['pathname'].setData(h[0])
-            hltprescCondition['cmslsnum'].setData(1)
-            hltprescCondition['inf'].setData(0)
-            hltprescQuery.setCondition("RUNNUM =:runnumber AND PATHNAME =:pathname and CMSLSNUM =:cmslsnum and PRESCALE !=:inf",hltprescCondition)
-            cursor=hltprescQuery.execute()
-            while cursor.next():
-                hltprescale=cursor.currentRow()['hltprescale'].data()
-                #print 'hlt prescale for '+h[0]+' : ',str(prescale)
-                finalhltData[h[0]]=(h[1],hltprescale)
-            cursor.close()
-            del hltprescQuery
+        hltprescQuery=schema.tableHandle(nameDealer.hltTableName()).newQuery()
+        hltprescQuery.addToOutputList("PATHNAME","hltpath")
+        hltprescQuery.addToOutputList("PRESCALE","hltprescale")
+        hltprescCondition=coral.AttributeList()
+        hltprescCondition.extend('runnumber','unsigned int')
+        hltprescCondition.extend('cmslsnum','unsigned int')
+        hltprescCondition.extend('inf','unsigned int')
+        hltprescResult=coral.AttributeList()
+        hltprescResult.extend('hltpath','string')
+        hltprescResult.extend('hltprescale','unsigned int')
+        hltprescQuery.defineOutput(hltprescResult)
+        hltprescCondition['runnumber'].setData(int(runnum))
+        hltprescCondition['cmslsnum'].setData(1)
+        hltprescCondition['inf'].setData(0)
+        hltprescQuery.setCondition("RUNNUM =:runnumber and CMSLSNUM =:cmslsnum and PRESCALE !=:inf",hltprescCondition)
+        cursor=hltprescQuery.execute()
+        while cursor.next():
+            hltpath=cursor.currentRow()['hltpath'].data()
+            hltprescale=cursor.currentRow()['hltprescale'].data()
+            if lumidata[1].has_key(hltpath):
+                lumidata[1][hltpath].append(hltprescale)
+                
+        cursor.close()
+        del hltprescQuery
         dbsession.transaction().commit()
-
-        dbsession.transaction().start(True)
-        schema=dbsession.nominalSchema()
-        for myhltpath,(myl1bitname,myhltprescale) in finalhltData.items():
-            #print 'querying here ',myhltpath,myl1bitname,myhltprescale
-            trgQuery=schema.tableHandle(nameDealer.trgTableName()).newQuery()
-            trgQuery.addToOutputList("CMSLSNUM","cmslsnum")
-            trgQuery.addToOutputList("PRESCALE","trgprescale")
-            trgQuery.addToOutputList("DEADTIME","trgdeadtime")
-            trgQueryCondition=coral.AttributeList()
-            trgQueryCondition.extend('runnumber','unsigned int')
-            trgQueryCondition.extend('bitname','string')
-            trgQueryCondition['runnumber'].setData(int(runnum))
-            trgQueryCondition['bitname'].setData(myl1bitname)
-            trgResult=coral.AttributeList()
-            trgResult.extend("cmslsnum","unsigned int")
-            trgResult.extend("trgprescale","unsigned int")
-            trgResult.extend("trgdeadtime","unsigned long long")
-            trgQuery.defineOutput(trgResult)
-            trgQuery.setCondition("RUNNUM =:runnumber AND BITNAME =:bitname order by CMSLSNUM",trgQueryCondition)
-            cursor=trgQuery.execute()
-            counter=0
-            while cursor.next():
-                trglsnum=cursor.currentRow()['cmslsnum'].data()
-                trgprescale=cursor.currentRow()['trgprescale'].data()
-                trgdeadtime=cursor.currentRow()['trgdeadtime'].data()
-                #print myhltpath,myl1bitname,myhltprescale,trgprescale
-                if counter==0:
-                    hltTotrgMap[myhltpath]=(myl1bitname,myhltprescale,trgprescale,[])
-                if not deadtable.has_key(trglsnum):
-                    deadtable[trglsnum]=25.0e-09*trgdeadtime/c.LSLENGTH*100.0
-                counter=counter+1
-            cursor.close()
-            del trgQuery
-
-        dbsession.transaction().commit()
-        #print 'hltTotrgMap : ',hltTotrgMap
-       
+        
         dbsession.transaction().start(True)
         schema=dbsession.nominalSchema()
         query=schema.newQuery()
-        query.addToTableList(nameDealer.lumisummaryTableName(),'lumisummary')
         query.addToTableList(nameDealer.trgTableName(),'trg')
+        query.addToTableList(nameDealer.lumisummaryTableName(),'lumisummary')#small table first--right-most
         queryCondition=coral.AttributeList()
         queryCondition.extend("runnumber","unsigned int")
         queryCondition.extend("lumiversion","string")
         #queryCondition.extend("alive","bool")
-        queryCondition.extend("bitnum","unsigned int")
         queryCondition["runnumber"].setData(int(runnum))
         queryCondition["lumiversion"].setData(c.LUMIVERSION)
         #queryCondition["alive"].setData(True)
-        queryCondition["bitnum"].setData(0)
+        query.setCondition("lumisummary.RUNNUM=:runnumber and lumisummary.LUMIVERSION =:lumiversion AND lumisummary.CMSLSNUM=trg.CMSLSNUM and lumisummary.RUNNUM=trg.RUNNUM",queryCondition)
         #query.setCondition("trg.RUNNUM =:runnumber AND lumisummary.RUNNUM=:runnumber and lumisummary.LUMIVERSION =:lumiversion AND lumisummary.CMSLSNUM=trg.CMSLSNUM AND lumisummary.cmsalive=:alive AND trg.BITNUM=:bitnum",queryCondition)
-        query.setCondition("trg.RUNNUM =:runnumber AND lumisummary.RUNNUM=:runnumber and lumisummary.LUMIVERSION =:lumiversion AND lumisummary.CMSLSNUM=trg.CMSLSNUM AND trg.BITNUM=:bitnum",queryCondition)
-        query.addToOutputList("sum(lumisummary.INSTLUMI*(1-trg.DEADTIME/(lumisummary.numorbit*3564)))","recorded")
+        #query.addToOutputList("sum(lumisummary.INSTLUMI*(1-trg.DEADTIME/(lumisummary.numorbit*3564)))","recorded")
+        query.addToOutputList("lumisummary.CMSLSNUM","cmsls")
+        query.addToOutputList("lumisummary.INSTLUMI","instlumi")
+        query.addToOutputList("lumisummary.NUMORBIT","norbits")
+        query.addToOutputList("trg.TRGCOUNT","trgcount")
+        query.addToOutputList("trg.BITNAME","bitname")
+        query.addToOutputList("trg.DEADTIME","trgdeadtime")
+        query.addToOutputList("trg.PRESCALE","trgprescale")
+        query.addToOutputList("trg.BITNUM","trgbitnum")
+        query.addToOrderList("trg.BITNAME")
+        query.addToOrderList("trg.CMSLSNUM")
+
         result=coral.AttributeList()
-        result.extend("recorded","float")
+        result.extend("cmsls","unsigned int")
+        result.extend("instlumi","float")
+        result.extend("norbits","unsigned int")
+        result.extend("trgcount","unsigned int")
+        result.extend("bitname","string")
+        result.extend("trgdeadtime","unsigned long long")
+        result.extend("trgprescale","unsigned int")
+        result.extend("trgbitnum","unsigned int")
+        trgprescalemap={}
         query.defineOutput(result)
         cursor=query.execute()
         while cursor.next():
-            recordeddata=cursor.currentRow()["recorded"].data()
-            if recordeddata:
-                recorded=recordeddata*c.NORM*c.LSLENGTH
+            cmsls=cursor.currentRow()["cmsls"].data()
+            instlumi=cursor.currentRow()["instlumi"].data()*c.NORM
+            norbits=cursor.currentRow()["norbits"].data()
+            trgcount=cursor.currentRow()["trgcount"].data()
+            trgbitname=cursor.currentRow()["bitname"].data()
+            trgdeadtime=cursor.currentRow()["trgdeadtime"].data()
+            trgprescale=cursor.currentRow()["trgprescale"].data()
+            trgbitnum=cursor.currentRow()["trgbitnum"].data()
+            if cmsls==1:
+                if not trgprescalemap.has_key(trgbitname):
+                    trgprescalemap[trgbitname]=trgprescale
+            if trgbitnum==0:
+                if not deadtable.has_key(cmsls):
+                    deadtable[cmsls]=[]
+                    deadtable[cmsls].append(trgdeadtime)
+                    deadtable[cmsls].append(instlumi)
+                    deadtable[cmsls].append(trgcount)
+                    deadtable[cmsls].append(norbits)
+        cursor.close()
         del query
         dbsession.transaction().commit()
-        rprint=resultPrinter()
-        if recorded==0.0:
-            print 'Requested run '+str(runnum)+' does not exist in LumiDB, do nothing...'
-            return
-        else:
-            rprint.printOuterSeparator()        
-            rprint.printLine('Recorded Luminosity for Run '+str(runnum)+':',recorded)
-        if c.VERBOSE:
-            rprint.printInnerSeparator()
-            rprint.printDeadfrac(deadtable)
-            rprint.printInnerSeparator()
-        rprint.printInnerSeparator()
-        rprint.printHeader('  HLTPath','Recorded')
-        rprint.printInnerSeparator()
-        if hltpath=='all':
-            for hltname in hltTotrgMap.keys():
-                effresult=recorded/(hltTotrgMap[hltname][1]*hltTotrgMap[hltname][2])
-                rprint.printLine('  '+hltname,effresult)
-                if c.VERBOSE:
-                    rprint.printTriggerLine(hltTotrgMap[hltname][0],hltTotrgMap[hltname][2],hltTotrgMap[hltname][1])
-        else:
-            if hltTotrgMap.has_key(hltpath) is False:
-                print 'Unable to calculate recorded luminosity for HLTPath ',hltpath
-                return
-            effresult=recorded/(hltTotrgMap[hltpath][1]*hltTotrgMap[hltpath][2])
-            rprint.printLine('  '+hltpath,effresult)
-            if c.VERBOSE:
-                rprint.printTriggerLine(hltTotrgMap[hltpath][0],hltTotrgMap[hltpath][1],hltTotrgMap[hltpath][2])
-        rprint.printOuterSeparator()
+        
+        #
+        #consolidate results
+        #
+        #trgtable
+        #print 'trgprescalemap',trgprescalemap
+        #print lumidata[1]
+        for hpath,trgdataseq in lumidata[1].items():   
+            bitn=trgdataseq[0]
+            if trgprescalemap.has_key(bitn) and len(trgdataseq)==2:
+                lumidata[1][hpath].append(trgprescalemap[bitn])                
+        #filter selected cmsls
+        lumidata[2]=filterDeadtable(deadtable,lslist)
+        #print 'lumidata[2] ',lumidata[2]
     except Exception,e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession
-        
-def recordedLumiForRange(dbsession,c,fileparsingResult,hltpath=''):
-    if len(hltpath)==0:
-        hltpath='all'
-    #if c.VERBOSE:
-    #    print 'recordedLumiForRange : hltpath : ',hltpath,' : norm : ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
-    runsandLSStr=fileparsingResult.runsandlsStr()
-    runsandLS=fileparsingResult.runsandls()
-    recorded={}
-    hltTotrgMapAllRuns={}
-    deadtableAllRuns={}
-    try:
-        for runnumstr,LSlistStr in runsandLSStr.items():
-            deadtable={}
-            dbsession.transaction().start(True)
-            schema=dbsession.nominalSchema()
-            query=schema.newQuery()
-            query.addToTableList(nameDealer.lumisummaryTableName(),'lumisummary')
-            query.addToTableList(nameDealer.trgTableName(),'trg')
-            query.addToOutputList("sum(lumisummary.INSTLUMI*(1-trg.DEADTIME/(lumisummary.numorbit*3564)))","recorded")
-            result=coral.AttributeList()
-            result.extend("recorded","float")
-            query.defineOutput(result)
-            queryCondition=coral.AttributeList()
-            queryCondition.extend("runnumber","unsigned int")
-            queryCondition.extend("lumiversion","string")
-            #queryCondition.extend("alive","bool")
-            queryCondition.extend("bitnum","unsigned int")
-            realLSlist=runsandLS[int(runnumstr)]
-            queryCondition["runnumber"].setData(int(runnumstr))
-            queryCondition["lumiversion"].setData(c.LUMIVERSION)
-            #queryCondition["alive"].setData(True)
-            queryCondition["bitnum"].setData(0)
-            for l in realLSlist:
-                queryCondition.extend(str(l),"unsigned int")
-                queryCondition[str(l)].setData(int(l))
-            o=[':'+x for x in LSlistStr]
-            inClause='('+','.join(o)+')'
-            #query.setCondition("trg.RUNNUM =:runnumber AND lumisummary.RUNNUM=:runnumber and lumisummary.LUMIVERSION =:lumiversion AND lumisummary.CMSLSNUM=trg.CMSLSNUM AND lumisummary.cmsalive =:alive AND trg.BITNUM=:bitnum AND lumisummary.CMSLSNUM in "+inClause,queryCondition)
-            query.setCondition("trg.RUNNUM =:runnumber AND lumisummary.RUNNUM=:runnumber and lumisummary.LUMIVERSION =:lumiversion AND lumisummary.CMSLSNUM=trg.CMSLSNUM AND trg.BITNUM=:bitnum AND lumisummary.CMSLSNUM in "+inClause,queryCondition)
-            cursor=query.execute()
-            while cursor.next():
-                recordeddata=cursor.currentRow()['recorded'].data()
-                if recordeddata:
-                    recorded[int(runnumstr)]=recordeddata*c.NORM*c.LSLENGTH
-                else:
-                    recorded[int(runnumstr)]=recordeddata
-            del query
-            dbsession.transaction().commit()
+    #print 'before return lumidata ',lumidata
+    return lumidata
 
-            #start hlt and trg queries
-            collectedseeds=[]
-            filteredbits=[]
-            finalhltData={} #{hltpath:(l1bitname,hltprescale)}
-            hltTotrgMap={} #{hltpath:(l1bitname,hltprescale,l1prescale,[(lsnum,l1deadfrac)])}
-            dbsession.transaction().start(True)
-            schema=dbsession.nominalSchema()
-            query=schema.newQuery()
-            query.addToTableList(nameDealer.cmsrunsummaryTableName(),'cmsrunsummary')
-            query.addToTableList(nameDealer.trghltMapTableName(),'trghltmap')
-            queryCondition=coral.AttributeList()
-            queryCondition.extend("runnumber","unsigned int")
-            queryCondition["runnumber"].setData(int(runnumstr))
-            query.setCondition("trghltmap.HLTKEY=cmsrunsummary.HLTKEY AND cmsrunsummary.RUNNUM=:runnumber",queryCondition)
-            query.addToOutputList("trghltmap.HLTPATHNAME","hltpathname")
-            query.addToOutputList("trghltmap.L1SEED","l1seed")
-            result=coral.AttributeList()
-            result.extend("hltpathname","string")
-            result.extend("l1seed","string")
-            query.defineOutput(result)
-            cursor=query.execute()
-            while cursor.next():
-                hltpathname=cursor.currentRow()["hltpathname"].data()
-                l1seed=cursor.currentRow()["l1seed"].data()
-                collectedseeds.append((hltpathname,l1seed))
-            del query
-            dbsession.transaction().commit()
-        
-            for ip in collectedseeds:
-                l1bitname=hltTrgSeedMapper.findUniqueSeed(ip[0],ip[1])
-                if l1bitname:
-                    filteredbits.append((ip[0],l1bitname.replace('\"','')))
+def filterDeadtable(inTable,lslist):
+    if len(lslist)==0:
+        return inTable
+    result={}
+    for existingLS in inTable.keys():
+        if existingLS in lslist:
+            result[existingLS]=inTable[existingLS]
+    return result
 
-            dbsession.transaction().start(True)
-            schema=dbsession.nominalSchema()
-            for h in filteredbits:
-                hltprescQuery=schema.tableHandle(nameDealer.hltTableName()).newQuery()
-                hltprescQuery.addToOutputList("PRESCALE","hltprescale")
-                hltprescCondition=coral.AttributeList()
-                hltprescCondition.extend('runnumber','unsigned int')
-                hltprescCondition.extend('pathname','string')
-                hltprescCondition.extend('cmslsnum','unsigned int')
-                hltprescCondition.extend('inf','unsigned int')
-                hltprescResult=coral.AttributeList()
-                hltprescResult.extend('hltprescale','unsigned int')
-                hltprescQuery.defineOutput(hltprescResult)
-                hltprescCondition['runnumber'].setData(int(runnumstr))
-                hltprescCondition['pathname'].setData(h[0])
-                hltprescCondition['cmslsnum'].setData(1)
-                hltprescCondition['inf'].setData(0)
-                hltprescQuery.setCondition("RUNNUM =:runnumber AND PATHNAME =:pathname and CMSLSNUM =:cmslsnum and PRESCALE !=:inf",hltprescCondition)
-                cursor=hltprescQuery.execute()
-                while cursor.next():
-                    hltprescale=cursor.currentRow()['hltprescale'].data()
-                    finalhltData[h[0]]=(h[1],hltprescale)
-                cursor.close()
-                del hltprescQuery
-            dbsession.transaction().commit()
+def recordedLumiForRange(dbsession,c,fileparsingResult):
+    #
+    #in this case,only take run numbers from theinput file
+    #
+    lumidata=[]
+    runs=fileparsingResult.runs()
+    runs.sort()
+    runsandls=fileparsingResult.runsandls()
+    for run in runs:
+        lslist=runsandls[run]
+    #for (run,lslist) in fileparsingResult.runsandls().items():
+        #print 'processing run ',run
+        #print 'valid ls list ',lslist
+        lumidata.append( recordedLumiForRun(dbsession,c,run,lslist) )
+    return lumidata
 
-            dbsession.transaction().start(True)
-            schema=dbsession.nominalSchema()
-            for myhltpath,(myl1bitname,myhltprescale) in finalhltData.items():
-                trgQuery=schema.tableHandle(nameDealer.trgTableName()).newQuery()
-                trgQuery.addToOutputList("CMSLSNUM","cmslsnum")
-                trgQuery.addToOutputList("PRESCALE","trgprescale")
-                trgQuery.addToOutputList("DEADTIME","trgdeadtime")
-                trgQueryCondition=coral.AttributeList()
-                trgQueryCondition.extend('runnumber','unsigned int')
-                trgQueryCondition.extend('bitname','string')
-                trgQueryCondition['runnumber'].setData(int(runnumstr))
-                trgQueryCondition['bitname'].setData(myl1bitname)
-                trgResult=coral.AttributeList()
-                trgResult.extend("cmslsnum","unsigned int")
-                trgResult.extend("trgprescale","unsigned int")
-                trgResult.extend("trgdeadtime","unsigned long long")
-                trgQuery.defineOutput(trgResult)
-                trgQuery.setCondition("RUNNUM =:runnumber AND BITNAME =:bitname order by CMSLSNUM",trgQueryCondition)
-                cursor=trgQuery.execute()
-                counter=0
-                while cursor.next():
-                    trglsnum=cursor.currentRow()['cmslsnum'].data()
-                    trgprescale=cursor.currentRow()['trgprescale'].data()
-                    trgdeadtime=cursor.currentRow()['trgdeadtime'].data()
-                    if counter==0:
-                        hltTotrgMap[myhltpath]=(myl1bitname,myhltprescale,trgprescale,[])
-                    if not deadtable.has_key(trglsnum):
-                        deadtable[trglsnum]=25.0e-09*trgdeadtime/c.LSLENGTH*100.0
-                    counter=counter+1
-                cursor.close()
-                del trgQuery                
-            dbsession.transaction().commit()
-            hltTotrgMapAllRuns[int(runnumstr)]=hltTotrgMap
-            deadtableAllRuns[int(runnumstr)]=deadtable
-       # print 'recorded '
-       # print recorded
-       # print 'hltTotrgMap all runs '
-       # print hltTotrgMapAllRuns
-        if len(recorded)!=len(hltTotrgMapAllRuns):
-            raise "inconsistent number of runs in recorded and hltTotrgMap result"
-        rprint=resultPrinter()
-        for run in recorded.keys():
-            if recorded[run] is None:
-                print 'Requested run '+str(run)+' does not exist in LumiDB, do nothing...'
-                continue
-            rprint.printOuterSeparator()
-            rprint.printLine('Recorded Luminosity for Run '+str(run)+':',recorded[run])
-            if c.VERBOSE:
-                rprint.printInnerSeparator()
-                rprint.printDeadfrac(deadtableAllRuns[run])
-                rprint.printInnerSeparator()
-            rprint.printInnerSeparator()
-            rprint.printHeader('  HLTPath','Recorded')
-            rprint.printInnerSeparator()
-            if hltpath=='all':                
-                for hltname in hltTotrgMapAllRuns[run].keys():
-                    if recorded[run] is None:
-                        print 'Requested run '+str(run)+' does not exist in LumiDB, do nothing...'
-                    else:
-                        effresult=recorded[run]/(hltTotrgMapAllRuns[run][hltname][1]*hltTotrgMapAllRuns[run][hltname][2])
-                        rprint.printLine('  '+hltname,effresult)
-                    if c.VERBOSE:
-                        rprint.printTriggerLine(hltTotrgMapAllRuns[run][hltname][0],hltTotrgMapAllRuns[run][hltname][1],hltTotrgMapAllRuns[run][hltname][2])
+def printDeliveredLumi(lumidata,mode):
+    labels=[('Run','Delivered LS','Delivered'+u' (/\u03bcb)'.encode('utf-8'),'Beam Mode')]
+    print tablePrinter.indent(labels+lumidata,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',justify='right',delim=' | ',wrapfunc=lambda x: wrap_onspace(x,20) )
+
+def dumpData(lumidata,filename):
+    """
+    input params: lumidata [{'fieldname':value}]
+                  filename csvname
+    """
+    
+    r=csvReporter.csvReporter(filename)
+    r.writeRows(lumidata)
+
+def calculateTotalRecorded(deadtable):
+    """
+    input: {lsnum:[deadtime,instlumi,bit_0,norbits]}
+    output: recordedLumi
+    """
+    recordedLumi=0.0
+    for myls,d in deadtable.items():
+        instLumi=d[1]
+        #deadfrac=float(d[0])/float(d[2]*3564)
+        #print myls,float(d[2])
+        if float(d[2])==0.0:
+            deadfrac=1.0
+        else:
+            deadfrac=float(d[0])/float(d[2])
+        lstime=lslengthsec(d[3],3564)
+        recordedLumi+=instLumi*(1.0-deadfrac)*lstime
+    return recordedLumi
+
+def splitlistToRangeString(inPut):
+    result=[]
+    first=inPut[0]
+    last=inPut[0]
+    result.append([inPut[0]])
+    counter=0
+    for i in inPut[1:]:
+        if i==last+1:
+            result[counter].append(i)
+        else:
+            counter+=1
+            result.append([i])
+        last=i
+    return ' '.join(['['+str(min(x))+'-'+str(max(x))+']' for x in result])
+
+def calculateEffective(trgtable,totalrecorded):
+    """
+    input: trgtable{hltpath:[l1seed,hltprescale,l1prescale]},totalrecorded(float)
+    output:{hltpath,recorded}
+    """
+    #print 'inputtrgtable',trgtable
+    result={}
+    for hltpath,data in trgtable.items():
+        if len(data) == 3:
+            result[hltpath]=totalrecorded/(data[1]*data[2])
+        else:
+            result[hltpath]=0.0
+    return result
+
+def getDeadfractions(deadtable):
+    """
+    inputtable: {lsnum:[deadtime,instlumi,bit_0,norbits]}
+    output: {lsnum:deadfraction}
+    """
+    result={}
+    for myls,d in deadtable.items():
+        #deadfrac=float(d[0])/(float(d[2])*float(3564))
+        if float(d[2])==0.0: ##no beam
+            deadfrac=-1.0
+        else:
+            deadfrac=float(d[0])/(float(d[2]))
+        result[myls]=deadfrac
+    return result
+
+def printPerLSLumi(lumidata,isVerbose=False,hltpath=''):
+    '''
+    input lumidata  [['runnumber','trgtable{}','deadtable{}']]
+    deadtable {lsnum:[deadtime,instlumi,bit_0,norbits]}
+    '''
+    datatoprint=[]
+    for perrundata in lumidata:
+        runnumber=perrundata[0]
+        deadtable=perrundata[2]
+        lumiresult=lsBylsLumi(deadtable)
+        for lsnum,dataperls in lumiresult.items():
+            rowdata=[]
+            labels=[('Run','LS','Delivered','Recorded'+u' (/\u03bcb)'.encode('utf-8'))]
+            if len(dataperls)==0:
+                rowdata+=[str(runnumber),str(lsnum),'N/A','N/A']
             else:
-                if hltTotrgMapAllRuns[run].has_key(hltpath) is False:
-                    print 'Unable to calculate recorded luminosity for HLTPath ',hltpath
-                    return
-                if not recorded[run]:
-                    print 'Requested run '+str(run)+' does not exist in LumiDB, do nothing...'
+                rowdata+=[str(runnumber),str(lsnum),'%.3f'%(dataperls[0]),'%.3f'%(dataperls[1])]
+            datatoprint.append(rowdata)
+    #print datatoprint
+    print '==='
+    print tablePrinter.indent(labels+datatoprint,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',justify='right',delim=' | ',wrapfunc=lambda x: wrap_onspace_strict(x,22))
+    
+def dumpPerLSLumi(lumidata,hltpath=''):
+    datatodump=[]
+    for perrundata in lumidata:
+        runnumber=perrundata[0]
+        deadtable=perrundata[2]
+        lumiresult=lsBylsLumi(deadtable)
+        for lsnum,dataperls in lumiresult.items():
+            rowdata=[]
+            if len(dataperls)==0:
+                rowdata+=[str(runnumber),str(lsnum),'N/A','N/A']
+            else:
+                rowdata+=[str(runnumber),str(lsnum),dataperls[0],dataperls[1]]
+            datatodump.append(rowdata)
+    return datatodump
+def printRecordedLumi(lumidata,isVerbose=False,hltpath=''):
+    datatoprint=[]
+    labels=[('Run','HLT path','Recorded'+u' (/\u03bcb)'.encode('utf-8'))]
+    if isVerbose:
+        labels=[('Run','HLT-path','L1-bit','L1-presc','HLT-presc','Recorded'+u' (/\u03bcb)'.encode('utf-8'))]
+    for dataperRun in lumidata:
+        runnum=dataperRun[0]
+        if len(dataperRun[1])==0:
+            rowdata=[]
+            rowdata+=[str(runnum)]+2*['N/A']
+            datatoprint.append(rowdata)
+            continue
+        perlsdata=dataperRun[2]
+        recordedLumi=0.0
+        #norbits=perlsdata.values()[0][3]
+        recordedLumi=calculateTotalRecorded(perlsdata)
+        trgdict=dataperRun[1]
+        effective=calculateEffective(trgdict,recordedLumi)
+        if trgdict.has_key(hltpath) and effective.has_key(hltpath):
+            rowdata=[]
+            l1bit=trgdict[hltpath][0]
+            if len(trgdict[hltpath]) != 3:
+                if not isVerbose:
+                    rowdata+=[str(runnum),hltpath,'N/A']
                 else:
-                    effresult=recorded[run]/(hltTotrgMapAllRuns[run][hltpath][1]*hltTotrgMapAllRuns[run][hltpath][2])                    
-                    rprint.printLine('  '+hltpath,effresult)
-                if c.VERBOSE:
-                    rprint.printTriggerLine(hltTotrgMapAllRuns[run][hltpath][0],hltTotrgMapAllRuns[run][hltpath][1],hltTotrgMapAllRuns[run][hltpath][2])
-            rprint.printOuterSeparator()
-    except Exception,e:
-        print str(e)
-        dbsession.transaction().rollback()
-        del dbsession
+                    rowdata+=[str(runnum),hltpath,l1bit,'N/A','N/A','N/A']
+            else:
+                if not isVerbose:
+                    rowdata+=[str(runnum),hltpath,'%.3f'%(effective[hltpath])]
+                else:
+                    hltprescale=trgdict[hltpath][1]
+                    l1prescale=trgdict[hltpath][2]
+                    rowdata+=[str(runnum),hltpath,l1bit,str(l1prescale),str(hltprescale),'%.3f'%(effective[hltpath])]
+            datatoprint.append(rowdata)
+            continue
         
+        for trg,trgdata in trgdict.items():
+            #print trg,trgdata
+            rowdata=[]                    
+            if trg==trgdict.keys()[0]:
+                rowdata+=[str(runnum)]
+            else:
+                rowdata+=['']
+            l1bit=trgdata[0]
+            if len(trgdata)==3:
+                if not isVerbose:
+                    rowdata+=[trg,'%.3f'%(effective[trg])]
+                else:
+                    hltprescale=trgdata[1]
+                    l1prescale=trgdata[2]
+                    rowdata+=[trg,l1bit,str(l1prescale),str(hltprescale),'%.3f'%(effective[trg])]
+            else:
+                if not isVerbose:
+                    rowdata+=[trg,'N/A']
+                else:
+                    rowdata+=[trg,l1bit,'N/A','N/A','%.3f'%(effective[trg])]
+            datatoprint.append(rowdata)
+    #print datatoprint
+    print '==='
+    print tablePrinter.indent(labels+datatoprint,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',justify='right',delim=' | ',wrapfunc=lambda x: wrap_onspace_strict(x,22))
+    if isVerbose:
+        deadtoprint=[]
+        deadtimelabels=[('Run','Lumi section : Dead fraction')]
+
+        for dataperRun in lumidata:
+            runnum=dataperRun[0]
+            if len(dataperRun[1])==0:
+                deadtoprint.append([str(runnum),'N/A'])
+                continue
+            perlsdata=dataperRun[2]
+            #print 'perlsdata 2 : ',perlsdata
+            deadT=getDeadfractions(perlsdata)
+            t=''
+            for myls,de in deadT.items():
+                if de<0:
+                    t+=str(myls)+':nobeam '
+                else:
+                    t+=str(myls)+':'+'%.5f'%(de)+' '
+            deadtoprint.append([str(runnum),t])
+        print '==='
+        print tablePrinter.indent(deadtimelabels+deadtoprint,hasHeader=True,separateRows=True,prefix='| ',postfix=' |',justify='right',delim=' | ',wrapfunc=lambda x: wrap_onspace(x,80))
+        
+
+
+
+def dumpRecordedLumi(lumidata,hltpath=''):
+    #labels=['Run','HLT path','Recorded']
+    datatodump=[]
+    for dataperRun in lumidata:
+        runnum=dataperRun[0]
+        if len(dataperRun[1])==0:
+            rowdata=[]
+            rowdata+=[str(runnum)]+2*['N/A']
+            datatodump.append(rowdata)
+            continue
+        perlsdata=dataperRun[2]
+        recordedLumi=0.0
+        #norbits=perlsdata.values()[0][3]
+        recordedLumi=calculateTotalRecorded(perlsdata)
+        trgdict=dataperRun[1]
+        effective=calculateEffective(trgdict,recordedLumi)
+        if trgdict.has_key(hltpath) and effective.has_key(hltpath):
+            rowdata=[]
+            l1bit=trgdict[hltpath][0]
+            if len(trgdict[hltpath]) != 3:
+                rowdata+=[str(runnum),hltpath,'N/A']
+            else:
+                hltprescale=trgdict[hltpath][1]
+                l1prescale=trgdict[hltpath][2]
+                rowdata+=[str(runnum),hltpath,effective[hltpath]]
+            datatodump.append(rowdata)
+            continue
+        
+        for trg,trgdata in trgdict.items():
+            #print trg,trgdata
+            rowdata=[]                    
+            rowdata+=[str(runnum)]
+            l1bit=trgdata[0]
+            if len(trgdata)==3:
+                rowdata+=[trg,effective[trg]]
+            else:
+                rowdata+=[trg,'N/A']
+            datatodump.append(rowdata)
+    return datatodump
+def printOverviewData(delivered,recorded,hltpath=''):
+    if len(hltpath)==0 or hltpath=='all':
+        toprowlabels=[('Run','Delivered LS','Delivered'+u'(/\u03bcb)'.encode('utf-8'),'Selected LS','Recorded'+u'(/\u03bcb)'.encode('utf-8') )]
+        lastrowlabels=[('Delivered LS','Delivered'+u' (/\u03bcb)'.encode('utf-8'),'Selected LS','Recorded'+u'(/\u03bcb)'.encode('utf-8') ) ]
+    else:
+        toprowlabels=[('Run','Delivered LS','Delivered'+u'(/\u03bcb)'.encode('utf-8'),'Selected LS','Recorded'+u'(/\u03bcb)'.encode('utf-8'),'Effective'+u'(/\u03bcb) '.encode('utf-8')+hltpath )]
+        lastrowlabels=[('Delivered LS','Delivered'+u'(/\u03bcb)'.encode('utf-8'),'Selected LS','Recorded'+u'(/\u03bcb)'.encode('utf-8'),'Effective '+u'(/\u03bcb) '.encode('utf-8')+hltpath)]
+    datatable=[]
+    totaldata=[]
+    totalDeliveredLS=0
+    totalSelectedLS=0
+    totalDelivered=0.0
+    totalRecorded=0.0
+    totalRecordedInPath=0.0
+    totaltable=[]
+    for runidx,deliveredrowdata in enumerate(delivered):
+        rowdata=[]
+        rowdata+=[deliveredrowdata[0],deliveredrowdata[1],deliveredrowdata[2]]
+        if deliveredrowdata[1]=='N/A': #run does not exist
+            if  hltpath!='' and hltpath!='all':
+                rowdata+=['N/A','N/A','N/A']
+            else:
+                rowdata+=['N/A','N/A']
+            datatable.append(rowdata)
+            continue
+        totalDeliveredLS+=int(deliveredrowdata[1])
+        totalDelivered+=float(deliveredrowdata[2])
+        
+        selectedls=recorded[runidx][2].keys()
+        #print 'runidx ',runidx,deliveredrowdata
+        #print 'selectedls ',selectedls
+        if len(selectedls)==0:
+            selectedlsStr='[]'
+            if  hltpath!='' and hltpath!='all':
+                rowdata+=[selectedlsStr,'N/A','N/A']
+            else:
+                rowdata+=[selectedlsStr,'N/A']
+        else:
+            selectedlsStr=splitlistToRangeString(selectedls)
+            recordedLumi=calculateTotalRecorded(recorded[runidx][2])
+            lumiinPaths=calculateEffective(recorded[runidx][1],recordedLumi)
+            if hltpath!='' and hltpath!='all':
+                if lumiinPaths.has_key(hltpath):
+                    rowdata+=[selectedlsStr,'%.3f'%(recordedLumi),'%.3f'%(lumiinPaths[hltpath])]
+                    totalRecordedInPath+=lumiinPaths[hltpath]
+                else:
+                    rowdata+=[selectedlsStr,'%.3f'%(recordedLumi),'N/A']
+            else:
+                #rowdata+=[selectedlsStr,'%.3f'%(recordedLumi),'%.3f'%(recordedLumi)]
+                rowdata+=[selectedlsStr,'%.3f'%(recordedLumi)]
+        totalSelectedLS+=len(selectedls)
+        totalRecorded+=recordedLumi
+        datatable.append(rowdata)
+    if hltpath!='' and hltpath!='all':
+        totaltable=[[str(totalDeliveredLS),'%.3f'%(totalDelivered),str(totalSelectedLS),'%.3f'%(totalRecorded),'%.3f'%(totalRecordedInPath)]]
+    else:
+        totaltable=[[str(totalDeliveredLS),'%.3f'%(totalDelivered),str(totalSelectedLS),'%.3f'%(totalRecorded)]]
+    print tablePrinter.indent(toprowlabels+datatable,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',justify='right',delim=' | ',wrapfunc=lambda x: wrap_onspace(x,20))
+    print '=== Total : '
+    print tablePrinter.indent(lastrowlabels+totaltable,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',justify='right',delim=' | ',wrapfunc=lambda x: wrap_onspace(x,20))
+
+
+def dumpOverview(delivered,recorded,hltpath=''):
+    #toprowlabels=['run','delivered','recorded','hltpath']
+    datatable=[]
+    for runidx,deliveredrowdata in enumerate(delivered):
+        rowdata=[]
+        rowdata+=[deliveredrowdata[0],deliveredrowdata[2]]
+        if deliveredrowdata[1]=='N/A': #run does not exist
+            rowdata+=['N/A','N/A']
+            datatable.append(rowdata)
+            continue
+        recordedLumi=calculateTotalRecorded(recorded[runidx][2])
+        lumiinPaths=calculateEffective(recorded[runidx][1],recordedLumi)
+        if hltpath!='' and hltpath!='all':
+            if lumiinPaths.has_key(hltpath):
+                rowdata+=[recordedLumi,lumiinPaths[hltpath]]
+            else:
+                rowdata+=[recordedLumi,'N/A']
+        else:
+            rowdata+=[recordedLumi,recordedLumi]
+        datatable.append(rowdata)
+    return datatable
 def main():
     c=constants()
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description="Lumi Calculations")
     # add required arguments
-    parser.add_argument('-c',dest='connect',action='store',required=True,help='connect string to lumiDB')
+    parser.add_argument('-c',dest='connect',action='store',required=True,help='connect string to lumiDB (required)')
     # add optional arguments
     parser.add_argument('-P',dest='authpath',action='store',help='path to authentication file')
-    parser.add_argument('-n',dest='normfactor',action='store',help='normalization factor')
+    parser.add_argument('-n',dest='normfactor',action='store',help='normalization factor (optional, default to 1.0)')
     parser.add_argument('-r',dest='runnumber',action='store',help='run number')
     parser.add_argument('-i',dest='inputfile',action='store',help='lumi range selection file (optional)')
+    parser.add_argument('-o',dest='outputfile',action='store',help='output to csv file (optional)')
     parser.add_argument('-b',dest='beammode',action='store',help='beam mode, optional for delivered action, default "stable", choices "stable","quiet","either"')
     parser.add_argument('-lumiversion',dest='lumiversion',action='store',help='lumi data version, optional for all, default 0001')
     parser.add_argument('-hltpath',dest='hltpath',action='store',help='specific hltpath to calculate the recorded luminosity, default to all')
-    parser.add_argument('action',choices=['delivered','recorded'],help='lumi calculation types')
-    parser.add_argument('--verbose',dest='verbose',action='store_true',help='verbose')
+    parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',help='specific path to site-local-config.xml file, default to $CMS_PATH/SITECONF/local/JobConfig, if path undefined, fallback to cern proxy&server')
+    parser.add_argument('action',choices=['overview','delivered','recorded','lumibyls'],help='command actions')
+    parser.add_argument('--verbose',dest='verbose',action='store_true',help='verbose mode for printing' )
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
     # parse arguments
     args=parser.parse_args()
     connectstring=args.connect
+    connectparser=connectstrParser.connectstrParser(connectstring)
+    connectparser.parse()
+    usedefaultfrontierconfig=False
+    cacheconfigpath=''
+    if connectparser.needsitelocalinfo():
+        if not args.siteconfpath:
+            cacheconfigpath=os.environ['CMS_PATH']
+            if cacheconfigpath:
+                cacheconfigpath=os.path.join(cacheconfigpath,'SITECONF','local','JobConfig','site-local-config.xml')
+            else:
+                usedefaultfrontierconfig=True
+        else:
+            cacheconfigpath=args.siteconfpath
+            cacheconfigpath=os.path.join(cacheconfigpath,'site-local-config.xml')
+        p=cacheconfigParser.cacheconfigParser()
+        if usedefaultfrontierconfig:
+            p.parseString(c.defaultfrontierConfigString)
+        else:
+            p.parse(cacheconfigpath)
+        connectstring=connectparser.fullfrontierStr(connectparser.schemaname(),p.parameterdict())
+    #print 'connectstring',connectstring
     runnumber=0
     svc = coral.ConnectionService()
     isverbose=False
@@ -581,13 +646,14 @@ def main():
         c.VERBOSE=True
     hpath=''
     ifilename=''
+    ofilename=''
     beammode='stable'
     if args.verbose :
         c.VERBOSE=True
     if args.authpath and len(args.authpath)!=0:
         os.environ['CORAL_AUTH_PATH']=args.authpath
     if args.normfactor:
-        c.NORM=args.normfactor
+        c.NORM=float(args.normfactor)
     if args.lumiversion:
         c.LUMIVERSION=args.lumiversion
     if args.beammode:
@@ -596,6 +662,8 @@ def main():
         ifilename=args.inputfile
     if args.runnumber :
         runnumber=args.runnumber
+    if args.outputfile and len(args.outputfile)!=0:
+        ofilename=args.outputfile
     if len(ifilename)==0 and runnumber==0:
         raise "must specify either a run (-r) or an input run selection file (-i)"
     session=svc.connect(connectstring,accessMode=coral.access_Update)
@@ -604,56 +672,75 @@ def main():
     inputfilecontent=''
     fileparsingResult=''
     if runnumber==0 and len(ifilename)!=0 :
-        f=open(ifilename,'r')
-        inputfilecontent=f.read()
-        fileparsingResult=selectionParser.selectionParser(inputfilecontent)
-    #
-    #one common query on the number of orbits and check if the run is available in db
-    #
-    try:
-        session.transaction().start(True)
-        schema=session.nominalSchema()
-        query=schema.tableHandle(nameDealer.lumisummaryTableName()).newQuery()
-        query.addToOutputList("NUMORBIT","numorbit")
-        queryBind=coral.AttributeList()
-        queryBind.extend("runnum","unsigned int")
-        queryBind.extend("lumiversion","string")
-        if not fileparsingResult:
-            queryBind["runnum"].setData(int(runnumber))
+        basename,extension=os.path.splitext(ifilename)
+        if extension=='.csv':#if file ends with .csv,use csv parser,else parse as json file
+            fileparsingResult=csvSelectionParser.csvSelectionParser(ifilename)
         else:
-            queryBind["runnum"].setData(int(fileparsingResult.runs()[0]))
-        queryBind["lumiversion"].setData(c.LUMIVERSION)
-        result=coral.AttributeList()
-        result.extend("numorbit","unsigned int")
-        query.defineOutput(result)
-        query.setCondition("RUNNUM =:runnum AND LUMIVERSION =:lumiversion",queryBind)
-        query.limitReturnedRows(1)
-        cursor=query.execute()
-        icount=0
-        while cursor.next():
-            c.LSLENGTH=lslengthsec(cursor.currentRow()['numorbit'].data(),3564)
-            icount=icount+1
-        del query
-        session.transaction().commit()
-        if icount==0:
-            print 'Requested run does not exist in LumiDB, do nothing...'
-            return
-    except Exception,e:
-        print str(e)
-        session.transaction().rollback()
-        del session
+            f=open(ifilename,'r')
+            inputfilecontent=f.read()
+            fileparsingResult=selectionParser.selectionParser(inputfilecontent)
+        if not fileparsingResult:
+            print 'failed to parse the input file',ifilename
+            raise 
+    lumidata=[]
     if args.action == 'delivered':
         if runnumber!=0:
-            deliveredLumiForRun(session,c,runnumber)
+            lumidata.append(deliveredLumiForRun(session,c,runnumber))
         else:
-            deliveredLumiForRange(session,c,fileparsingResult);
+            lumidata=deliveredLumiForRange(session,c,fileparsingResult)    
+        if not ofilename:
+            printDeliveredLumi(lumidata,'')
+        else:
+            lumidata.insert(0,['run','nls','delivered','beammode'])
+            dumpData(lumidata,ofilename)
     if args.action == 'recorded':
         if args.hltpath and len(args.hltpath)!=0:
             hpath=args.hltpath
         if runnumber!=0:
-            recordedLumiForRun(session,c,runnumber,hpath)
+            lumidata.append(recordedLumiForRun(session,c,runnumber))
         else:
-            recordedLumiForRange(session,c,fileparsingResult,hpath)
+            lumidata=recordedLumiForRange(session,c,fileparsingResult)
+        if not ofilename:
+            printRecordedLumi(lumidata,c.VERBOSE,hpath)
+        else:
+            todump=dumpRecordedLumi(lumidata,hpath)
+            todump.insert(0,['run','hltpath','recorded'])
+            dumpData(todump,ofilename)
+    if args.action == 'overview':
+        delivereddata=[]
+        recordeddata=[]
+        if args.hltpath and len(args.hltpath)!=0:
+            hpath=args.hltpath
+        if runnumber!=0:
+            delivereddata.append(deliveredLumiForRun(session,c,runnumber))
+            recordeddata.append(recordedLumiForRun(session,c,runnumber))
+        else:
+            delivereddata=deliveredLumiForRange(session,c,fileparsingResult)
+            recordeddata=recordedLumiForRange(session,c,fileparsingResult)
+        if not ofilename:
+            printOverviewData(delivereddata,recordeddata,hpath)
+        else:
+            todump=dumpOverview(delivereddata,recordeddata,hpath)
+            if len(hpath)==0:
+                hpath='all'
+            todump.insert(0,['run','delivered','recorded','hltpath:'+hpath])
+            dumpData(todump,ofilename)
+    if args.action == 'lumibyls':
+        recordeddata=[]
+        if runnumber!=0:
+            recordeddata.append(recordedLumiForRun(session,c,runnumber))
+        else:
+            recordeddata=recordedLumiForRange(session,c,fileparsingResult)
+        if not ofilename:
+            printPerLSLumi(recordeddata,c.VERBOSE,hpath)
+        else:
+            todump=dumpPerLSLumi(recordeddata,hpath)
+            if len(hpath)==0:
+                hpath='all'
+            todump.insert(0,['run','ls','delivered','recorded'])
+            dumpData(todump,ofilename)
+    #print lumidata
+    
     del session
     del svc
 if __name__=='__main__':

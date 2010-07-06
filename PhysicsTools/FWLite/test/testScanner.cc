@@ -29,7 +29,7 @@ int main (int argc, char* argv[])
 
     TCanvas *c1 = new TCanvas("c1", "c1");
     sc.scan("pt:eta","quality('highPurity')",2);
-  
+
     sc.setMaxEvents(200); 
     double c = sc.count("quality('highPurity')");
     std::cout << "Found " << c << " highPurity tracks." << std::endl;
@@ -96,6 +96,11 @@ int main (int argc, char* argv[])
     heta = sc.draw("eta","","SAME");
     heta->Sumw2(); heta->Scale(1.0/sc.countEvents());
     c1->Print("eta_twotracks.compiled.png");
+
+    sc.setMaxEvents(20); 
+    RooDataSet *ds = sc.fillDataSet("pt:eta:@hits=hitPattern.numberOfValidHits", "@highPurity=quality('highPurity'):@highPt=pt>2", "pt > 0.5");
+    ds->Print("v");
+    delete ds;
 
     return 0;
 }

@@ -12,7 +12,7 @@ ewkMuDQM = cms.EDAnalyzer("EwkMuDQM",
 
 
       # Main cuts ->
-      MuonTrig = cms.untracked.vstring("HLT_L2Mu9"),
+      MuonTrig = cms.untracked.string("HLT_L2Mu9"),
       UseTrackerPt = cms.untracked.bool(True),
       PtCut = cms.untracked.double(25.0),
       EtaCut = cms.untracked.double(2.1),

@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorClient.h
  * 
- * $Date: 2010/03/16 17:23:46 $
- * $Revision: 1.45.2.7 $
+ * $Date: 2010/03/25 11:17:14 $
+ * $Revision: 1.47 $
  * \author J. Temple
  * 
  */
@@ -106,6 +106,8 @@ private:
   int htmlFirstUpdate_; // first update for html
   
   int htmlcounter_;
+
+  bool saveByLumiSection_;  //produces separate LS certification values when enabled
 
   // time parameters
   time_t current_time_;

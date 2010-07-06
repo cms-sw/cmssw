@@ -12,6 +12,8 @@ Description: Producer for EcalRecHits to be used for pi0 ECAL calibration. ECAL 
 
 // system include files
 #include <memory>
+#include <vector>
+#include <set>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -23,13 +25,13 @@ Description: Producer for EcalRecHits to be used for pi0 ECAL calibration. ECAL 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-
-//#include "TrackingTools/TrackAssociator/interface/TimerStack.h"
-#include "Utilities/Timing/interface/TimerStack.h"
+#include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
+
 // Geometry
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
@@ -40,20 +42,10 @@ Description: Producer for EcalRecHits to be used for pi0 ECAL calibration. ECAL 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
-
-
-#include <vector>
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 
-
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-#include "DataFormats/Math/interface/Point3D.h"
-
-// ES stuff
-#include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
 #include "RecoEcal/EgammaClusterAlgos/interface/PreshowerClusterAlgo.h"
-
-#include <set>
 
 //
 // class declaration

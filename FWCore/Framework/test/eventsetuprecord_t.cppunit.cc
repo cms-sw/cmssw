@@ -454,4 +454,20 @@ void testEventsetupRecord::transientTest()
    wdProv->resetProxiesIfTransient(dummyRecord.key());//workingProxy->resetIfTransient();
    CPPUNIT_ASSERT(workingProxy->invalidateCalled()==false);
 
+   //system should wait until the second event of a run before invalidating the transients
+   // need to do 'resetProxies' in order to force the Record to reset since we do not have a Finder
+   // associated with the record provider
+   prov->resetProxies();
+   workingProxy->set(&myDummy);
+   dummyRecord.get(hTDummy);
+   CPPUNIT_ASSERT(&myDummy == &(*hTDummy));
+   prov->setValidityIntervalFor(edm::IOVSyncValue(edm::EventID(1,0,0)));
+   CPPUNIT_ASSERT(workingProxy->invalidateCalled()==false);
+   prov->setValidityIntervalFor(edm::IOVSyncValue(edm::EventID(1,1,0)));
+   CPPUNIT_ASSERT(workingProxy->invalidateCalled()==false);
+   prov->setValidityIntervalFor(edm::IOVSyncValue(edm::EventID(1,1,1)));
+   CPPUNIT_ASSERT(workingProxy->invalidateCalled()==false);
+   prov->setValidityIntervalFor(edm::IOVSyncValue(edm::EventID(1,1,2)));
+   CPPUNIT_ASSERT(workingProxy->invalidateCalled()==true);
+   
 }

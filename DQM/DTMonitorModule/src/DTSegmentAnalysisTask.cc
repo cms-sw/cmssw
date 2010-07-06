@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/19 15:56:19 $
- *  $Revision: 1.26 $
+ *  $Date: 2010/01/05 10:14:40 $
+ *  $Revision: 1.27 $
  *  \author G. Cerminara - INFN Torino
  *  revised by G. Mila - INFN Torino
  */
@@ -40,7 +40,7 @@
 using namespace edm;
 using namespace std;
 
-DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset) : nEventsInLS(0) {
+DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset) : nEventsInLS(0), hNevtPerLS(0) {
 
   edm::LogVerbatim ("DTDQM|DTMonitorModule|DTSegmentAnalysisTask") << "[DTSegmentAnalysisTask] Constructor called!";
 

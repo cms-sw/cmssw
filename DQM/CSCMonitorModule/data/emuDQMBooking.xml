@@ -389,6 +389,10 @@
 		<Name>CSC_Format_Warnings</Name>
 	</Histogram>
 	<Histogram ref="chamberMap">
+		<Title>CSCs in standby mode</Title>
+		<Name>CSC_standby</Name>
+	</Histogram>
+	<Histogram ref="chamberMap">
 		<Descr>Histogram shows occurrences when SCA cells were filled due to too-high rate of LCTs and/or LCT×L1A coincidences. 
     %BR% 
     %ICON{"warning"}% In conditions of cosmic ray runs, appearance of entries is indicative of hardware problems, or more specifically hot CFEBs. 

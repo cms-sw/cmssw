@@ -1,7 +1,0 @@
-<use name="FWCore/Framework"/>
-<use name="CoralBase"/>
-<use name="RelationalAccess"/>
-<use name="FWCore/ServiceRegistry"/>
-<export>
-   <lib name="1"/>
-</export>

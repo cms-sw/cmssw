@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.h,v 1.15 2010/01/07 17:00:02 merkelp Exp $
+// $Id: SiPixelDigiSource.h,v 1.16 2010/01/11 16:17:02 merkelp Exp $
 //
 
 #include <memory>
@@ -85,6 +85,8 @@
 
        int nBigEvents;
        MonitorElement* bigEventRate;
+       MonitorElement* pixEvtsPerBX;
+       MonitorElement* pixEventRate;
        int bigEventSize;
        
        bool firstRun;

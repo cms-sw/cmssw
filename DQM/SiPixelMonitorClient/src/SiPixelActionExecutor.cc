@@ -204,6 +204,8 @@ void SiPixelActionExecutor::createSummary(DQMStore* bei) {
   //bei->cd();
   fillSummary(bei, endcap_structure_name, endcap_me_names, false); // Endcap
   bei->setCurrentFolder("Pixel/");
+  //if(!Tier0Flag_) fillDeviations(bei);
+  bei->setCurrentFolder("Pixel/");
   //bei->cd();
   if(source_type_==0||source_type_==5 || source_type_ == 20){//do this only if RawData source is present
     string federror_structure_name;
@@ -224,6 +226,146 @@ void SiPixelActionExecutor::createSummary(DQMStore* bei) {
   if (configWriter_) delete configWriter_;
   configWriter_ = 0;
 //  cout<<"leaving SiPixelActionExecutor::createSummary..."<<endl;
+}
+
+//=============================================================================================================
+void SiPixelActionExecutor::bookDeviations(DQMStore* bei) {
+  bei->cd();
+  bei->setCurrentFolder("Pixel/Barrel");
+  DEV_adc_Barrel = bei->book1D("DEV_adc_Barrel","Deviation from reference;Module;<adc_ref>-<adc>",768,0.,768.);
+  DEV_ndigis_Barrel = bei->book1D("DEV_ndigis_Barrel","Deviation from reference;Module;<ndigis_ref>-<ndigis>",768,0.,768.);
+  DEV_charge_Barrel = bei->book1D("DEV_charge_Barrel","Deviation from reference;Module;<charge_ref>-<charge>",768,0.,768.);
+  DEV_nclusters_Barrel = bei->book1D("DEV_nclusters_Barrel","Deviation from reference;Module;<nclusters_ref>-<nclusters>",768,0.,768.);
+  DEV_size_Barrel = bei->book1D("DEV_size_Barrel","Deviation from reference;Module;<size_ref>-<size>",768,0.,768.);
+  bei->cd();
+  bei->setCurrentFolder("Pixel/Endcap");
+  DEV_adc_Endcap = bei->book1D("DEV_adc_Endcap","Deviation from reference;Module;<adc_ref>-<adc>",672,0.,672.);
+  DEV_ndigis_Endcap = bei->book1D("DEV_ndigis_Endcap","Deviation from reference;Module;<ndigis_ref>-<ndigis>",672,0.,672.);
+  DEV_charge_Endcap = bei->book1D("DEV_charge_Endcap","Deviation from reference;Module;<charge_ref>-<charge>",672,0.,672.);
+  DEV_nclusters_Endcap = bei->book1D("DEV_nclusters_Endcap","Deviation from reference;Module;<nclusters_ref>-<nclusters>",672,0.,672.);
+  DEV_size_Endcap = bei->book1D("DEV_size_Endcap","Deviation from reference;Module;<size_ref>-<size>",672,0.,672.);  
+  bei->cd();
+}
+
+
+void SiPixelActionExecutor::fillDeviations(DQMStore* bei) {
+  int n = 768;
+  MonitorElement* me1; MonitorElement* me2; 
+  MonitorElement* me3; MonitorElement* me4; 
+  MonitorElement* me5; 
+  TH1* ref1; TH1* ref2; 
+  TH1* ref3; TH1* ref4; 
+  TH1* ref5; 
+  MonitorElement* dev1; MonitorElement* dev2; 
+  MonitorElement* dev3; MonitorElement* dev4; 
+  MonitorElement* dev5; 
+  me1 = bei->get("Pixel/Barrel/SUMDIG_adc_Barrel");
+  ref1 = me1->getRefTH1();
+  dev1 = bei->get("Pixel/Barrel/DEV_adc_Barrel");
+  me2 = bei->get("Pixel/Barrel/SUMDIG_ndigis_Barrel");
+  ref2 = me2->getRefTH1();
+  dev2 = bei->get("Pixel/Barrel/DEV_ndigis_Barrel");
+  me3 = bei->get("Pixel/Barrel/SUMCLU_charge_Barrel");
+  ref3 = me3->getRefTH1();
+  dev3 = bei->get("Pixel/Barrel/DEV_charge_Barrel");
+  me4 = bei->get("Pixel/Barrel/SUMCLU_nclusters_Barrel");
+  ref4 = me4->getRefTH1();
+  dev4 = bei->get("Pixel/Barrel/DEV_nclusters_Barrel");
+  me5 = bei->get("Pixel/Barrel/SUMCLU_size_Barrel");
+  ref5 = me5->getRefTH1();
+  dev5 = bei->get("Pixel/Barrel/DEV_size_Barrel");
+  for(int i=1; i!=n+1; i++){
+    float ref_value; float new_value;
+    // Barrel adc: 
+    if(me1)if(ref1)if(dev1){
+      new_value = me1->getBinContent(i);
+      ref_value = ref1->GetBinContent(i); 
+      dev1->setBinContent(i,ref_value-new_value);
+    }
+    //Barrel ndigis:
+    if(me2)if(ref2)if(dev2){
+      new_value = me2->getBinContent(i);
+      ref_value = ref2->GetBinContent(i); 
+      dev2->setBinContent(i,ref_value-new_value);
+    }
+    // Barrel cluster charge:
+    if(me3)if(ref3)if(dev3){
+      new_value = me3->getBinContent(i);
+      ref_value = ref3->GetBinContent(i); 
+      dev3->setBinContent(i,ref_value-new_value);
+    }
+    // Barrel nclusters:
+    if(me4)if(ref4)if(dev4){
+      new_value = me4->getBinContent(i);
+      ref_value = ref4->GetBinContent(i); 
+      dev4->setBinContent(i,ref_value-new_value);
+    }
+    // Barrel cluster size:
+    if(me5)if(ref5)if(dev5){
+      new_value = me5->getBinContent(i);
+      ref_value = ref5->GetBinContent(i); 
+      dev5->setBinContent(i,ref_value-new_value);
+    }
+  }
+
+  int nn = 672;
+  MonitorElement* me11; MonitorElement* me12; 
+  MonitorElement* me13; MonitorElement* me14; 
+  MonitorElement* me15; 
+  TH1* ref11; TH1* ref12; 
+  TH1* ref13; TH1* ref14; 
+  TH1* ref15; 
+  MonitorElement* dev11; MonitorElement* dev12; 
+  MonitorElement* dev13; MonitorElement* dev14; 
+  MonitorElement* dev15; 
+  me11 = bei->get("Pixel/Endcap/SUMDIG_adc_Endcap");
+  ref11 = me11->getRefTH1();
+  dev11 = bei->get("Pixel/Endcap/DEV_adc_Endcap");
+  me12 = bei->get("Pixel/Endcap/SUMDIG_ndigis_Endcap");
+  ref12 = me12->getRefTH1();
+  dev12 = bei->get("Pixel/Endcap/DEV_ndigis_Endcap");
+  me13 = bei->get("Pixel/Endcap/SUMCLU_charge_Endcap");
+  ref13 = me13->getRefTH1();
+  dev13 = bei->get("Pixel/Endcap/DEV_charge_Endcap");
+  me14 = bei->get("Pixel/Endcap/SUMCLU_nclusters_Endcap");
+  ref14 = me14->getRefTH1();
+  dev14 = bei->get("Pixel/Endcap/DEV_nclusters_Endcap");
+  me15 = bei->get("Pixel/Endcap/SUMCLU_size_Endcap");
+  ref15 = me15->getRefTH1();
+  dev15 = bei->get("Pixel/Endcap/DEV_size_Endcap");
+  for(int i=1; i!=nn+1; i++){
+    float ref_value; float new_value;
+    // Endcap adc: 
+    if(me11)if(ref11)if(dev11){
+      new_value = me11->getBinContent(i);
+      ref_value = ref11->GetBinContent(i); 
+      dev11->setBinContent(i,ref_value-new_value);
+    }
+    //Endcap ndigis:
+    if(me12)if(ref12)if(dev12){
+      new_value = me12->getBinContent(i);
+      ref_value = ref12->GetBinContent(i); 
+      dev12->setBinContent(i,ref_value-new_value);
+    }
+    // Endcap cluster charge:
+    if(me13)if(ref13)if(dev13){
+      new_value = me13->getBinContent(i);
+      ref_value = ref13->GetBinContent(i); 
+      dev13->setBinContent(i,ref_value-new_value);
+    }
+    // Endcap nclusters:
+    if(me14)if(ref14)if(dev14){
+      new_value = me14->getBinContent(i);
+      ref_value = ref14->GetBinContent(i); 
+      dev14->setBinContent(i,ref_value-new_value);
+    }
+    // Endcap cluster size:
+    if(me15)if(ref15)if(dev15){
+      new_value = me15->getBinContent(i);
+      ref_value = ref15->GetBinContent(i); 
+      dev15->setBinContent(i,ref_value-new_value);
+    }
+  }
 }
 
 //=============================================================================================================
@@ -455,7 +597,7 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
 	        string path1 = fullpathname;
 		path1 = path1.replace(path1.find("NErrors"),7,"errorType");
 		MonitorElement * me1 = bei->get(path1);
-		bool othererror=false;
+		bool notReset=true;
 	        if(me1){
 	          for(int jj=1; jj<16; jj++){
 	            if(me1->getBinContent(jj)>0.){
@@ -463,15 +605,12 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
 	                string path2 = path1;
 			path2 = path2.replace(path2.find("errorType"),9,"TBMMessage");
 	                MonitorElement * me2 = bei->get(path2);
-	                if(me2) for(int kk=1; kk<9; kk++) if(me2->getBinContent(kk)>0.) if(kk!=6 && kk!=7) 
-			  othererror=true;
-		      }else{ //not reset, but other error
-		        othererror=true;
+	                if(me2) if(me2->getBinContent(6)>0. || me2->getBinContent(7)>0.) notReset=false;
 		      }
 		    }
 		  }
 		}
-		if(othererror) (*isum)->Fill(ndet, me->getMean());
+		if(notReset) (*isum)->Fill(ndet, me1->getEntries());
 	      }else if ((sname.find("_charge_")!=string::npos && sname.find("Track_")==string::npos && 
 	                me->getName().find("Track_")==string::npos) ||
 			(sname.find("_charge_")!=string::npos && sname.find("_OnTrack_")!=string::npos && 
@@ -520,6 +659,10 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
 		title = "NDigis";
 	      }else if (sname.find("ALLMODS_chargeCOMB_")!=string::npos){
 		title = "NClusters";
+	      }else if (sname.find("_NErrors_")!=string::npos){
+	        if(prefix=="SUMOFF" && isbarrel) title = "Total number of errors per Ladder";
+		else if(prefix=="SUMOFF" && !isbarrel) title = "Total number of errors per Blade";
+		else title = "Total number of errors per Module";
 	      }else{
 		if(prefix=="SUMOFF") title = "Mean " + sname.substr(7,(sname.find("_",7)-7)) + (isbarrel?" per Ladder":" per Blade"); 
 		else title = "Mean " + sname.substr(7,(sname.find("_",7)-7)) + " per Module"; 
@@ -625,7 +768,30 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
 	MonitorElement* temp;
 	if((*iv)=="FedChLErrArray") temp = bei->book2D("FedChLErrArray","Type of last error",40,-0.5,39.5,37,0.,37.);
 	if((*iv)=="FedChNErrArray") temp = bei->book2D("FedChNErrArray","Total number of errors",40,-0.5,39.5,37,0.,37.);
-	if((*iv)=="FedETypeNErrArray") temp = bei->book2D("FedETypeNErrArray","Number of each error type",40,-0.5,39.5,15,24.5,39.5);
+	if((*iv)=="FedETypeNErrArray"){
+	  temp = bei->book2D("FedETypeNErrArray","Number of each error type",40,-0.5,39.5,21,0.,21.);
+	  temp->setBinLabel(1,"ROC of 25",2);
+	  temp->setBinLabel(2,"Gap word",2);
+	  temp->setBinLabel(3,"Dummy word",2);
+	  temp->setBinLabel(4,"FIFO full",2);
+	  temp->setBinLabel(5,"Timeout",2);
+	  temp->setBinLabel(6,"Stack full",2);
+	  temp->setBinLabel(7,"Pre-cal issued",2);
+	  temp->setBinLabel(8,"Trigger clear or sync",2);
+	  temp->setBinLabel(9,"No token bit",2);
+	  temp->setBinLabel(10,"Overflow",2);
+	  temp->setBinLabel(11,"FSM error",2);
+	  temp->setBinLabel(12,"Invalid #ROCs",2);
+	  temp->setBinLabel(13,"Event number",2);
+	  temp->setBinLabel(14,"Slink header",2);
+	  temp->setBinLabel(15,"Slink trailer",2);
+	  temp->setBinLabel(16,"Event size",2);
+	  temp->setBinLabel(17,"Invalid channel#",2);
+	  temp->setBinLabel(18,"ROC value",2);
+	  temp->setBinLabel(19,"Dcol or pixel value",2);
+	  temp->setBinLabel(20,"Readout order",2);
+	  temp->setBinLabel(21,"CRC error",2);
+        }	  
 	sum_mes.push_back(temp);
       }
     }
@@ -663,7 +829,7 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
 		int channel=-1;
 		jsst>>channel;
 	        if(channel==i){
-		  if((*im).find("FedETypeNErrArray_")!=std::string::npos) (*isum)->Fill(ndet-1,i+25,me->getIntValue());
+		  if((*im).find("FedETypeNErrArray_")!=std::string::npos && i<21) (*isum)->Fill(ndet-1,i,me->getIntValue());
 		  else (*isum)->Fill(ndet-1,i,me->getIntValue());
 		}
 	      }
@@ -682,7 +848,7 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
 	          string path1 = fullpathname;
 		  path1 = path1.replace(path1.find("NErrors"),7,"errorType");
 		  MonitorElement * me1 = bei->get(path1);
-		  bool othererror=false;
+		  bool notReset=true;
 	          if(me1){
 	            for(int jj=1; jj<16; jj++){
 	              if(me1->getBinContent(jj)>0.){
@@ -690,17 +856,12 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
 	                  string path2 = path1;
 			  path2 = path2.replace(path2.find("errorType"),9,"TBMMessage");
 	                  MonitorElement * me2 = bei->get(path2);
-	                  if(me2) for(int kk=1; kk<9; kk++) if(me2->getBinContent(kk)>0.) if(kk!=6 && kk!=7) 
-			    othererror=true;
-		        }else{ //not reset, but other error
-		          othererror=true;
+	                  if(me2) if(me2->getBinContent(6)>0. || me2->getBinContent(7)>0.) notReset=false; 
 		        }
 		      }
 		    }
 		  }
-//		  if(othererror) (*isum)->Fill(ndet-1, me->getMean());
-//	        }else (*isum)->Fill(ndet-1, me->getMean());
-		  if(othererror) (*isum)->setBinContent(ndet, (*isum)->getBinContent(ndet) + me->getEntries());
+		  if(notReset) (*isum)->setBinContent(ndet, (*isum)->getBinContent(ndet) + me1->getEntries());
 	        }else (*isum)->setBinContent(ndet, (*isum)->getBinContent(ndet) + me->getEntries());
 	      }
 	      (*isum)->setAxisTitle("FED #",1);
@@ -873,7 +1034,9 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
 	      // Setting title
 
 		  string title="";
-	      if(prefix=="SUMOFF") title = "mean " + (*iv) + " per Ladder"; 
+	      if((*igm)->getName().find("NErrors_") != string::npos && prefix=="SUMOFF") title = "Total number of errors per Ladder";
+	      else if((*igm)->getName().find("NErrors_") != string::npos && prefix=="SUMRAW") title = "Total number of errors per Module";
+	      else if(prefix=="SUMOFF") title = "mean " + (*iv) + " per Ladder"; 
 	      else if((*igm)->getName().find("FREQ_") != string::npos) title = "NEvents with digis per Module"; 
 	      else if((*igm)->getName().find("adcCOMB_") != string::npos) title = "NDigis";
 	      else if((*igm)->getName().find("chargeCOMB_") != string::npos) title = "NClusters";
@@ -1085,7 +1248,9 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 	      else if((*igm)->getName().find("chargeCOMB_")!=string::npos) (*igm)->setAxisTitle("Cluster charge [kilo electrons]",1);
 	      else (*igm)->setAxisTitle("Modules",1);
 	      string title="";
-	      if(prefix=="SUMOFF") title = "mean " + (*iv) + " per Blade"; 
+	      if((*igm)->getName().find("NErrors_") != string::npos && prefix=="SUMOFF") title = "Total number of errors per Blade";
+	      else if((*igm)->getName().find("NErrors_") != string::npos && prefix=="SUMRAW") title = "Total number of errors per Module";
+	      else if(prefix=="SUMOFF") title = "mean " + (*iv) + " per Blade"; 
 	      else if((*igm)->getName().find("FREQ_") != string::npos) title = "NEvents with digis per Module"; 
 	      else if((*igm)->getName().find("adcCOMB_")!=string::npos) title = "NDigis";
 	      else if((*igm)->getName().find("chargeCOMB_")!=string::npos) title = "NClusters";
@@ -2005,6 +2170,79 @@ void SiPixelActionExecutor::dumpEndcapModIds(DQMStore * bei, edm::EventSetup con
 }
 
 //=============================================================================================================
+///// Dump Module paths and IDs on screen:
+void SiPixelActionExecutor::dumpRefValues(DQMStore * bei, edm::EventSetup const& eSetup){
+  //printing cout<<"Going to dump module IDs now!"<<endl;
+  bei->cd();
+  dumpBarrelRefValues(bei,eSetup);
+  bei->cd();
+  dumpEndcapRefValues(bei,eSetup);
+  bei->cd();
+  //printing cout<<"Done dumping module IDs!"<<endl;
+}
+
+
+//=============================================================================================================
+void SiPixelActionExecutor::dumpBarrelRefValues(DQMStore * bei, edm::EventSetup const& eSetup){
+  MonitorElement* me;
+  me = bei->get("Pixel/Barrel/SUMDIG_adc_Barrel");
+  if(me){
+    std::cout<<"SUMDIG_adc_Barrel: "<<std::endl;
+    for(int i=1; i!=769; i++) std::cout<<i<<" "<<me->getBinContent(i)<<std::endl;
+  }
+  me = bei->get("Pixel/Barrel/SUMDIG_ndigis_Barrel");
+  if(me){
+    std::cout<<"SUMDIG_ndigis_Barrel: "<<std::endl;
+    for(int i=1; i!=769; i++) std::cout<<i<<" "<<me->getBinContent(i)<<std::endl;
+  }
+  me = bei->get("Pixel/Barrel/SUMCLU_charge_Barrel");
+  if(me){
+    std::cout<<"SUMCLU_charge_Barrel: "<<std::endl;
+    for(int i=1; i!=769; i++) std::cout<<i<<" "<<me->getBinContent(i)<<std::endl;
+  }
+  me = bei->get("Pixel/Barrel/SUMCLU_nclusters_Barrel");
+  if(me){
+    std::cout<<"SUMCLU_nclusters_Barrel: "<<std::endl;
+    for(int i=1; i!=769; i++) std::cout<<i<<" "<<me->getBinContent(i)<<std::endl;
+  }
+  me = bei->get("Pixel/Barrel/SUMCLU_size_Barrel");
+  if(me){
+    std::cout<<"SUMCLU_size_Barrel: "<<std::endl;
+    for(int i=1; i!=769; i++) std::cout<<i<<" "<<me->getBinContent(i)<<std::endl;
+  }
+}
+
+//=============================================================================================================
+void SiPixelActionExecutor::dumpEndcapRefValues(DQMStore * bei, edm::EventSetup const& eSetup){
+  MonitorElement* me;
+  me = bei->get("Pixel/Endcap/SUMDIG_adc_Endcap");
+  if(me){
+    std::cout<<"SUMDIG_adc_Endcap: "<<std::endl;
+    for(int i=1; i!=673; i++) std::cout<<i<<" "<<me->getBinContent(i)<<std::endl;
+  }
+  me = bei->get("Pixel/Endcap/SUMDIG_ndigis_Endcap");
+  if(me){
+    std::cout<<"SUMDIG_ndigis_Endcap: "<<std::endl;
+    for(int i=1; i!=673; i++) std::cout<<i<<" "<<me->getBinContent(i)<<std::endl;
+  }
+  me = bei->get("Pixel/Endcap/SUMCLU_charge_Endcap");
+  if(me){
+    std::cout<<"SUMCLU_charge_Endcap: "<<std::endl;
+    for(int i=1; i!=673; i++) std::cout<<i<<" "<<me->getBinContent(i)<<std::endl;
+  }
+  me = bei->get("Pixel/Endcap/SUMCLU_nclusters_Endcap");
+  if(me){
+    std::cout<<"SUMCLU_nclusters_Endcap: "<<std::endl;
+    for(int i=1; i!=673; i++) std::cout<<i<<" "<<me->getBinContent(i)<<std::endl;
+  }
+  me = bei->get("Pixel/Endcap/SUMCLU_size_Endcap");
+  if(me){
+    std::cout<<"SUMCLU_size_Endcap: "<<std::endl;
+    for(int i=1; i!=673; i++) std::cout<<i<<" "<<me->getBinContent(i)<<std::endl;
+  }
+}
+
+//=============================================================================================================
 
 void SiPixelActionExecutor::bookEfficiency(DQMStore * bei){
   // Barrel
@@ -2125,7 +2363,21 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore* bei, bool isbarrel){
 	  else if(currDir.find("07")!=string::npos){ binx = 7;}else if(currDir.find("08")!=string::npos){ binx = 8;}
 	  else if(currDir.find("09")!=string::npos){ binx = 9;}else if(currDir.find("10")!=string::npos){ binx = 10;}
 	  else if(currDir.find("11")!=string::npos){ binx = 11;}else if(currDir.find("12")!=string::npos){ binx = 12;}
-	  if(currDir.find("HalfCylinder_mO")!=string::npos || currDir.find("HalfCylinder_pO")!=string::npos){ binx = binx + 12;}
+	  if(currDir.find("HalfCylinder_mI")!=string::npos || currDir.find("HalfCylinder_pI")!=string::npos){ binx = binx + 12;}
+	  else{ 
+	    if(binx==1) binx = 12;
+	    else if(binx==2) binx = 11;
+	    else if(binx==3) binx = 10;
+	    else if(binx==4) binx = 9;
+	    else if(binx==5) binx = 8;
+	    else if(binx==6) binx = 7;
+	    else if(binx==7) binx = 6;
+	    else if(binx==8) binx = 5;
+	    else if(binx==9) binx = 4;
+	    else if(binx==10) binx = 3;
+	    else if(binx==11) binx = 2;
+	    else if(binx==12) binx = 1;
+	  }
 	  if(currDir.find("Disk_1")!=string::npos && currDir.find("HalfCylinder_m")!=string::npos){
 	    HitEfficiency_Dm1 = bei->get("Pixel/Endcap/HitEfficiency_Dm1");
 	    if(HitEfficiency_Dm1) HitEfficiency_Dm1->setBinContent(binx, biny, (float)hitEfficiency);
@@ -2139,6 +2391,7 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore* bei, bool isbarrel){
 	    HitEfficiency_Dp2 = bei->get("Pixel/Endcap/HitEfficiency_Dp2");
 	    if(HitEfficiency_Dp2) HitEfficiency_Dp2->setBinContent(binx, biny, (float)hitEfficiency);
           }
+	  //std::cout<<"EFFI: "<<currDir<<" , x: "<<binx<<" , y: "<<biny<<std::endl;
 	}
       } 
     }else{  

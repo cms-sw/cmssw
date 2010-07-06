@@ -1,85 +1,74 @@
 #!/usr/bin/env python
 
-# ConfdbToOpenHLT.py
+# GetL1BitsForSkim.py
 #
-# Generate OpenHLT code/configs from a menu in ConfDB
+# Simple script for getting all L1 seeds used by a particular HLT menu
 
+import os, string, sys, posix, tokenize, array, getopt
+from pkgutil import extend_path
+import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.Modules as mod
 
-import os, string, sys, posix, tokenize, array, getopt, operator
-
-#sys.path.append(os.environ.get("CMS_PATH") + "/slc4_ia32_gcc345/external/py2-cx-oracle/4.2/lib/python2.4/site-packages/") 
-sys.path.append("/afs/cern.ch/user/j/jjhollar/public/")
- 
-import cx_Oracle 
 
 def main(argv):
 
-    input_verbose = 0
-    input_dbuser = "CMS_HLTDEV_WRITER"
-    input_dbpwd = ""
-    input_host = "CMS_ORCOFF_PROD" 
     input_notech = 0
     input_fakel1 = 0
+    input_orcoffmenu = 0
+    input_userefprescales = 0
+    input_config = "/cdaq/physics/firstCollisions10/v5.0/HLT/V2"
+    input_refconfig = "/cdaq/physics/firstCollisions10/v5.1/HLT_900GeV/V3"
 
-    input_config = "/online/beamhalo/week47/HLT/V4"
-
-    opts, args = getopt.getopt(sys.argv[1:], "c:v:d:u:s:o:n:fh", ["config=","verbose=","dbname=","user=","password=","dbtype=","hostname=","notechnicaltriggers=","fakel1seeds="])
+    opts, args = getopt.getopt(sys.argv[1:], "c:onfpr:h", ["config=","orcoff","notechnicaltriggers","fakel1seeds","addreferenceprescales","referenceconfig=","help"])
 
     for o, a in opts:
         if o in ("-c","config="):
             input_config = str(a)
-            print "Using config name " + input_config
-        if o in ("-d","dbname="):
-            input_dbname = str(a)
-            print "Using DB named " + input_dbname
-        if o in ("-u","user="):
-            input_dbuser = str(a)
-            print "Connecting as user " + input_dbuser
-        if o in ("-s","password="):
-            input_dbpwd = str(a)
-            print "Use DB password " + input_dbpwd
-        if o in ("-o","hostname="):
-            input_host = str(a)
-            print "Use hostname " + input_host
-        if o in ("-v","verbose="):
-            input_verbose = int(a)
-            print "Verbosity = " + str(input_verbose)
         if o in ("-n","notechnicaltriggers="):
             print "Paths seeded by technical triggers excluded"
             input_notech = 1
         if o in ("-f","fakel1seeds="):
             print "Will use Open L1 seeding"
             input_fakel1 = 1
+        if o in ("-p","addreferenceprescales"):
+            input_userefprescales = 1
+        if o in ("-r","referenceconfig="):
+            input_refconfig = str(a)
+        if o in ("-o","orcoff"):
+            input_orcoffmenu = 1
+        if o in ("-h","help"):
+            print "-c <HLT key> (HLT configuration to generate the menu from)"
+            print "-o (Take the configuration from ORCOFF instead of HLTDEV)"
+            print "-n (Don't include paths seeded by technical triggers)"
+            print "-f (Use the fake OpenL1_ZeroBias seed instead of rechecking L1's)"
+            print "-p (Include prescales that were previously applied online)"
+            print "-r <HLT key> (HLT configuration to take the previously applied prescales from)" 
+            print "-h (Print the help menu)"
+            return
 
-    confdbjob = ConfdbToOpenHLT(input_config,input_verbose,input_dbuser,input_dbpwd,input_host,input_notech,input_fakel1)
+    confdbjob = ConfdbToOpenHLT(input_config,input_orcoffmenu,input_notech,input_fakel1,input_userefprescales,input_refconfig)
     confdbjob.BeginJob()
-
     os.system("mv OHltTree_FromConfDB.h OHltTree.h")
-
+    
+            
 class ConfdbToOpenHLT:
-    def __init__(self,cliconfig,cliverbose,clidbuser,clidbpwd,clihost,clinotech,clifakel1):
-        
-        self.dbname = ''
-        self.dbuser = clidbuser
-        self.verbose = int(cliverbose)
-        self.dbpwd = clidbpwd
-        self.dbhost = clihost
-        self.verbose = cliverbose
+    def __init__(self,cliconfig,cliorcoff,clinotech,clifakel1,clirefprescales,clirefconfig):
+
         self.configname = cliconfig
+        self.orcoffmenu = cliorcoff 
         self.notech = clinotech
         self.fakel1 = clifakel1
-        
-        # Track CVS tags
-        self.tagtuple = []
-        self.alreadyadded = []
-        
-        # Get a Conf DB connection here. Only need to do this once at the
-        # beginning of a job.
-        print "Connecting as " + self.dbuser+"@"+self.dbhost+"/"+self.dbpwd
-        self.connection = cx_Oracle.connect(self.dbuser+"/"+self.dbpwd+"@"+self.dbhost) 
-        self.dbcursor = self.connection.cursor()  
+        self.refconfigname = clirefconfig
+        self.userefprescales = clirefprescales
+        self.hltl1seedmap = {}
+        self.l1aliasmap = {}
+        self.hltprescalemap = {}
+        self.l1modulenameseedmap = {}
+        self.hltl1modulemap = {}
 
     def BeginJob(self):
+
+        thepaths = []
         theconfdbpaths = []
         thefullhltpaths = []
         theopenhltpaths = []
@@ -91,59 +80,166 @@ class ConfdbToOpenHLT:
         branchestoadd = []
         addressestoadd = []
         mapstoadd = []
+        usedl1bits = [] 
         
         rateeffhltcfgfile = open("hltmenu_extractedhltmenu.cfg",'w')
         rateeffopenhltcfgfile = open("openhltmenu_extractedhltmenu.cfg",'w')
         rateefflibfile = open("OHltTree_FromConfDB.h",'w')
         rateefforiglibfile = open("OHltTree.h")
 
-        self.dbcursor.execute("SELECT Configurations.configId FROM Configurations WHERE (configDescriptor = '" + self.configname + "')")
-        tmpconfid = self.dbcursor.fetchone()
-        if(tmpconfid):
-            tmpconfid = tmpconfid[0]
+        # Use edmConfigFromDB to get a temporary HLT configuration
+        configcommand = ""
+        if(self.orcoffmenu == 1):
+            configcommand = "edmConfigFromDB --orcoff --configName " + self.configname + " --cff >& temphltmenu.py"
         else:
-            print 'Could not find the configuration ' + str(self.configname) + ' - exiting'
-            return
-            
-        self.dbcursor.execute("SELECT Paths.name FROM Paths JOIN ConfigurationPathAssoc ON ConfigurationPathAssoc.pathId = Paths.pathId JOIN Configurations ON ConfigurationPathAssoc.configId = Configurations.configId WHERE (Configurations.configId = " + str(tmpconfid) + ")") 
-        
-        thepaths = self.dbcursor.fetchall()
+            configcommand = "edmConfigFromDB --configName " + self.configname + " --cff >& temphltmenu.py"
+        os.system(configcommand)
 
-        crazygenerall1select = "SELECT STRINGPARAMVALUES.VALUE FROM STRINGPARAMVALUES JOIN PARAMETERS ON PARAMETERS.PARAMID = STRINGPARAMVALUES.PARAMID JOIN SUPERIDPARAMETERASSOC ON SUPERIDPARAMETERASSOC.PARAMID = PARAMETERS.PARAMID JOIN MODULES ON MODULES.SUPERID = SUPERIDPARAMETERASSOC.SUPERID JOIN MODULETEMPLATES ON MODULETEMPLATES.SUPERID = MODULES.TEMPLATEID JOIN PATHMODULEASSOC ON PATHMODULEASSOC.MODULEID = MODULES.SUPERID JOIN PATHS ON PATHS.PATHID = PATHMODULEASSOC.PATHID JOIN CONFIGURATIONPATHASSOC ON CONFIGURATIONPATHASSOC.PATHID = PATHS.PATHID JOIN CONFIGURATIONS ON CONFIGURATIONS.CONFIGID = CONFIGURATIONPATHASSOC.CONFIGID WHERE MODULETEMPLATES.NAME = 'HLTLevel1GTSeed' AND PARAMETERS.NAME = 'L1SeedsLogicalExpression' AND CONFIGURATIONS.CONFIGDESCRIPTOR = "
+        # Use edmConfigFromDB to get a temporary HLT configuration that determines the prescales applied online 
+        # We assume this is always from ORCOFF...
+        referencemenuconfigcommand = "edmConfigFromDB --orcoff --configName " + self.refconfigname + " --cff >& refhltmenu.py"
+        os.system(referencemenuconfigcommand)
+    
+        # Setup a fake process and load the HLT configuration for the reference menu
+        refimportcommand = "import refhltmenu"
+        refprocess = cms.Process("MyReferenceProcess")
+        exec refimportcommand
+        reftheextend = "refprocess.extend(refhltmenu)"
+        exec reftheextend
 
+        # Get HLT prescales
+        myservices = refprocess.services_()
+        for servicename, servicevalue in myservices.iteritems():
+            if(servicename == "PrescaleService"):
+                serviceparams = servicevalue.parameters_()
+                for serviceparamname, serviceparamval in serviceparams.iteritems():
+                    if(serviceparamname == "prescaleTable"):
+                        for vpsetentry in serviceparamval:
+                            hltname = ""
+                            hltprescale = "1"
+                            prescalepsetparams = vpsetentry.parameters_()
+                            for paramname, paramval in prescalepsetparams.iteritems():
+                                if(paramname == "prescales"):
+                                    hltprescale = str(paramval.value()).strip('[').strip(']')
+                                if(paramname == "pathName"):
+                                    hltname = str(paramval.value())
+                            self.hltprescalemap[hltname] = hltprescale
 
+        # Setup a fake process and load the HLT configuration for the new menu
+        importcommand = "import temphltmenu"
+        process = cms.Process("MyProcess")
+        exec importcommand
+        theextend = "process.extend(temphltmenu)"
+        exec theextend
+
+        # Get L1 Seeds
+        myfilters = process.filters_()
+        for name, value in myfilters.iteritems():
+            myfilter = value.type_()
+            myfilterinstance = name
+            if(myfilter == "HLTLevel1GTSeed"):
+                # Get parameters of the L1 seeding module and look for the L1
+                params = value.parameters_()
+                for paramname, paramval in params.iteritems():
+                    if(paramname == "L1SeedsLogicalExpression"):
+                        seeds = paramval.value()
+                        self.l1modulenameseedmap[myfilterinstance] = seeds
+
+                        # Record all L1 seeds for the L1 menu
+                        tmpindividualseeds = seeds.split(' OR ') 
+ 
+                        for tmpindividualseed in tmpindividualseeds: 
+                            if(tmpindividualseed.find(' AND ') == -1): 
+                                theseed = str(tmpindividualseed).strip('NOT ').strip('(').strip(')') 
+                                if (not theseed in usedl1bits): 
+                                    usedl1bits.append(theseed) 
+                            else: 
+                                individualseeds = tmpindividualseed.split(' AND ') 
+                                for individualseed in individualseeds: 
+                                    theseed = str(individualseed).strip('NOT ').strip('(').strip(')') 
+                                    if (not theseed in usedl1bits): 
+                                        usedl1bits.append(theseed) 
+
+        # Lookup L1 alias names 
+        l1file = open("tmpl1menu.table")
+        l1lines = l1file.readlines()
+        for l1line in l1lines:
+            aliasname = (l1line.split("|")[1]).strip("!").lstrip().rstrip()
+            bitnumber = l1line.split("|")[2].lstrip().rstrip()
+            self.l1aliasmap[bitnumber] = aliasname
+
+        # Get ordering from the schedule
+        myschedule = process.HLTSchedule
+        for path in myschedule:
+            pathinschedname = path.label_()
+            mypaths = process.paths_()
+            for name, value in mypaths.iteritems():
+                if name == pathinschedname:
+                    # Get L1-seeding modules of HLT paths
+                    aliasedseeds = []
+                    thepaths.append(name)
+                    thingsinpath = str(value).split('+')
+                    for thinginpath in thingsinpath:
+                        if(thinginpath.startswith('hltL1s')):
+                            self.hltl1modulemap[name] = thinginpath
+                            seedexpression = self.l1modulenameseedmap[thinginpath]
+                            splitseedexpression = seedexpression.split()
+
+                            for splitseed in splitseedexpression:
+                                if(splitseed in self.l1aliasmap):
+                                    splitseed = self.l1aliasmap[splitseed]
+                                aliasedseeds.append(splitseed)
+
+                        reconstructedseedexpression = "" 
+                        for aliasedseed in aliasedseeds:
+                            reconstructedseedexpression = reconstructedseedexpression + " " + aliasedseed
+
+                        self.hltl1seedmap[name] = reconstructedseedexpression.lstrip().rstrip()
+                        if(name in self.hltprescalemap):
+                            theprescale = self.hltprescalemap[name]
+
+        # Now we have all the information, construct any configuration/branch changes
         for thepathname in thepaths:
-            if((thepathname[0]).startswith("HLT_") or (thepathname[0]).startswith("AlCa_")):
-                l1select = crazygenerall1select + "'" + str(self.configname) + "' AND Paths.name = '" + str(thepathname[0]) + "'"
+            if((thepathname.startswith("HLT_")) or (thepathname.startswith("AlCa_"))):     
                 if(self.fakel1 == 0):
-                    self.dbcursor.execute(l1select)
-                    l1bits = self.dbcursor.fetchone()
-                    if(l1bits):
-                        if((l1bits[0]).find("L1_") != -1 or self.notech == 0):
-                            theconfdbpaths.append((thepathname[0],l1bits[0]))
+                    if(thepathname in self.hltl1seedmap):
+                        l1expression = self.hltl1seedmap[thepathname]
+                    else:
+                        l1expression = ''
+                    theconfdbpaths.append((thepathname,l1expression))
                 else:
-                    theconfdbpaths.append((thepathname[0],'"OpenL1_ZeroBias"'))
+                    theconfdbpaths.append((thepathname,'"OpenL1_ZeroBias"'))
 
-                theintbits.append('  Int_t           ' + thepathname[0] + ';')
-                thebranches.append('  TBranch        *b_' + thepathname[0] + ';   //!')
-                theaddresses.append('  fChain->SetBranchAddress("' + thepathname[0] + '", &' + thepathname[0] + ', &b_' + thepathname[0] + ');')
-                themaps.append('  fChain->SetBranchAddress("' + thepathname[0] + '", &map_BitOfStandardHLTPath["' + thepathname[0] + '"], &b_' + thepathname[0] + ');')
-                
+                theintbits.append('  Int_t           ' + thepathname + ';')
+                thebranches.append('  TBranch        *b_' + thepathname + ';   //!')
+                theaddresses.append('  fChain->SetBranchAddress("' + thepathname + '", &' + thepathname + ', &b_' + thepathname + ');')
+                themaps.append('  fChain->SetBranchAddress("' + thepathname + '", &map_BitOfStandardHLTPath["' + thepathname + '"], &b_' + thepathname + ');')
 
         npaths = len(theconfdbpaths)
         pathcount = 1
         
         for hltpath, seed in theconfdbpaths:
+            refprescaleval = ''
+
+            # Check if we need to use the L1 alias
+            if(seed in self.l1aliasmap):
+                seed = self.l1aliasmap[seed]
+
+            if(self.userefprescales == 1):
+                if(hltpath in self.hltprescalemap):
+                    refprescaleval = ', ' + self.hltprescalemap[hltpath]
+                else:
+                    refprescaleval = ', 1'
             if(hltpath.startswith("HLT_")):
-               fullpath = '   ("' + str(hltpath) + '", ' + seed + ', 1, 0.15)'
-               openpath = '   ("Open' + str(hltpath) + '", ' + seed + ', 1, 0.15)'
+               fullpath = '   ("' + str(hltpath) + '", "' + seed + '", 1, 0.15' + refprescaleval + ')'
+               openpath = '   ("Open' + str(hltpath) + '", "' + seed + '", 1, 0.15' + refprescaleval + ')'
                if(pathcount < npaths):
                    fullpath = fullpath + ','
                    openpath = openpath + ','
                
             if(hltpath.startswith("AlCa_")):
-               fullpath = '   ("' + str(hltpath) + '", ' + seed + ', 1, 0.)'
-               openpath = '   ("Open' + str(hltpath) + '", ' + seed + ', 1, 0.)'
+               fullpath = '   ("' + str(hltpath) + '", "' + seed + '", 1, 0.' + refprescaleval + ')'
+               openpath = '   ("Open' + str(hltpath) + '", "' + seed + '", 1, 0.' + refprescaleval + ')'
                if(pathcount < npaths):
                    fullpath = fullpath + ','
                    openpath = openpath + ','
@@ -151,11 +247,36 @@ class ConfdbToOpenHLT:
             thefullhltpaths.append(fullpath)
             theopenhltpaths.append(openpath)
             pathcount = pathcount + 1
-            
+
+        rateeffhltcfgfile.write("  # (TriggerName, Prescale, EventSize)" + "\n" + " triggers = (" + "\n" + "#" + "\n") 
+        rateeffopenhltcfgfile.write("  # (TriggerName, Prescale, EventSize)" + "\n" + " triggers = (" + "\n" + "#" + "\n")
         for rateeffpath in thefullhltpaths:
             rateeffhltcfgfile.write(rateeffpath + "\n")
         for rateeffpath in theopenhltpaths:
             rateeffopenhltcfgfile.write(rateeffpath + "\n")
+
+        rateeffhltcfgfile.write("# " + "\n" + " );" + "\n\n")
+        rateeffopenhltcfgfile.write("# " + "\n" + " );" + "\n\n")
+        rateeffhltcfgfile.write(" # For L1 prescale preloop to be used in HLT mode only" + "\n" + " L1triggers = ( " + "\n" + "#" + "\n")
+        rateeffopenhltcfgfile.write(" # For L1 prescale preloop to be used in HLT mode only" + "\n" + " L1triggers = ( " + "\n" + "#" + "\n")
+
+        nbits = len(usedl1bits)
+        bitcount = 1
+
+        for usedl1bit in usedl1bits:
+            if(usedl1bit in self.l1aliasmap):
+                usedl1bit = self.l1aliasmap[usedl1bit]
+
+            if(bitcount < nbits):
+                rateeffhltcfgfile.write('  ("' + usedl1bit + '", 1),' + '\n')
+                rateeffopenhltcfgfile.write('  ("' + usedl1bit + '", 1),' + '\n')
+            else:
+                rateeffhltcfgfile.write('  ("' + usedl1bit + '", 1)' + '\n')
+                rateeffopenhltcfgfile.write('  ("' + usedl1bit + '", 1)' + '\n')
+            bitcount = bitcount+1
+
+        rateeffhltcfgfile.write("# " + "\n" + " );")
+        rateeffopenhltcfgfile.write("# " + "\n" + " );")
 
         linestomerge = rateefforiglibfile.readlines()    
         foundintbit = False
@@ -212,8 +333,7 @@ class ConfdbToOpenHLT:
         rateeffopenhltcfgfile.close()
         rateefflibfile.close()
         rateefforiglibfile.close()
-        
-        self.connection.close() 
-            
-if __name__ == "__main__": 
-    main(sys.argv[1:]) 
+                
+if __name__ == "__main__":
+    main(sys.argv[1:])
+    

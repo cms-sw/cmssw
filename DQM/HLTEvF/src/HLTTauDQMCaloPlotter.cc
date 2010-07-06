@@ -174,13 +174,7 @@ HLTTauDQMCaloPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
    for(unsigned int j=0;j<l2preJets_.size();++j) {
 
-     bool gotPreJets =true;
-     try {
-       gotPreJets*=iEvent.getByLabel(l2preJets_[j],l2Regional);
-      }
-     catch (cms::Exception& exception) {
-       gotPreJets =false;
-     }
+     bool  gotPreJets= iEvent.getByLabel(l2preJets_[j],l2Regional) &&l2Regional.isValid();
 
      if(gotPreJets)
        if((!l2Regional.failedToGet())) {
@@ -242,13 +236,10 @@ HLTTauDQMCaloPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       
 
 
-     bool gotL2 =true;
-     try {
-       gotL2*=iEvent.getByLabel(l2TauInfoAssoc_,l2TauInfoAssoc);
-     }
-     catch (cms::Exception& exception) {
-       gotL2 =false;
-     }
+
+
+   bool gotL2=iEvent.getByLabel(l2TauInfoAssoc_,l2TauInfoAssoc) && l2TauInfoAssoc.isValid();
+
 
 
      if(gotL2)     {
@@ -305,13 +296,9 @@ HLTTauDQMCaloPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 		   isoEtaEffDenom->Fill(refLV.eta());
 		   isoPhiEffDenom->Fill(refLV.phi());
 
-		   bool gotIsoL2 =true;
-		   try {
-		     gotIsoL2*=iEvent.getByLabel(l2Isolated_,l2Isolated);
-		   }
-		   catch (cms::Exception& exception) {
-		     gotIsoL2 =false;
-		   }
+
+		   bool  gotIsoL2=iEvent.getByLabel(l2Isolated_,l2Isolated) &&l2Isolated.isValid();
+
 
   	
 

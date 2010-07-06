@@ -9,3 +9,8 @@
   <use   name="boost"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
+
+<bin name="TestCalibFormatsSiStripObjects" file="UnitTests/TestSiStripGain.cc, UnitTests/MasterTest.cpp">
+  <use name="CalibFormats/SiStripObjects"/>
+  <use name="cppunit"/>
+</bin>

@@ -11,7 +11,7 @@
  *         David Dagenhart
  *
  * \version   1st Version June 7 2007
- * $Id: LumiSummary.h,v 1.14 2010/03/23 11:05:04 xiezhen Exp $
+ * $Id: LumiSummary.h,v 1.9 2009/10/06 19:48:50 xiezhen Exp $
  *
  ************************************************************/
  
@@ -22,68 +22,57 @@ class LumiSummary {
  public:
   class L1{
   public:
-    L1():triggername(""),ratecount(0),prescale(0){}
-    std::string triggername;
-    unsigned int ratecount;
-    unsigned int prescale;
+    L1():triggersource(""),ratecount(-99),scalingfactor(-99){}
+    std::string triggersource;
+    int ratecount;
+    int deadtimecount;
+    int scalingfactor;
   };
   class HLT{
   public:
-    HLT():pathname(""),ratecount(0),inputcount(0),prescale(0){}
+    HLT():pathname(""),ratecount(-99),inputcount(-99),scalingfactor(-99){}
     std::string pathname;
-    unsigned int ratecount;
-    unsigned int inputcount;
-    unsigned int prescale;
+    int ratecount;
+    int inputcount;
+    int scalingfactor;
   };
 
  public:
     /// default constructor
     LumiSummary():
-      lumiversion_("-1"),
-      avginsdellumi_(0.0),
-      avginsdellumierr_(0.0),
-      lumisecqual_(0),
-      deadcount_(0),
-      lsnumber_(0),
-      startorbit_(0),
-      numorbit_(0)
+      avginsdellumi_(-99.),
+      avginsdellumierr_(-99.),
+      lumisecqual_(-1),
+      deadfrac_(-99.),
+      lsnumber_(-1)
     { 
       hltdata_.reserve(100);
       l1data_.reserve(128);
     }
     
     /// set default constructor
-    LumiSummary(float avginsdellumi, 
-		float avginsdellumierr,
+    LumiSummary(float avginsdellumi, float avginsdellumierr,
 	        short lumisecqual,
-                unsigned long long deadcount, 
-		unsigned int lsnumber,
+                float deadfrac, int lsnumber,
                 const std::vector<L1>& l1in,
 		const std::vector<HLT>& hltin,
-		unsigned int startorbit,
-                unsigned int numorbit,
-		const std::string& lumiversion):
-      lumiversion_(lumiversion),
-      avginsdellumi_(avginsdellumi), 
-      avginsdellumierr_(avginsdellumierr), 
+		unsigned long long startorbit):
+      avginsdellumi_(avginsdellumi), avginsdellumierr_(avginsdellumierr), 
       lumisecqual_(lumisecqual),
-      deadcount_(deadcount), lsnumber_(lsnumber),
-      hltdata_(hltin), l1data_(l1in),
-      startorbit_(startorbit),numorbit_(numorbit)
-      { }
+      deadfrac_(deadfrac), lsnumber_(lsnumber),
+      hltdata_(hltin), l1data_(l1in),startorbit_(startorbit)
+    { }
 
     /// destructor
     ~LumiSummary(){}
 	 
     float avgInsDelLumi() const;
     float avgInsDelLumiErr() const;
-    short lumiSecQual() const ;
-    unsigned long long deadcount() const;
+    short   lumiSecQual() const ;
     float deadFrac() const ;
     float liveFrac() const;
-    unsigned int lsNumber() const;
-    unsigned int startOrbit() const;
-    unsigned int numOrbit() const;
+    int lsNumber() const;
+    unsigned long long startOrbit() const;
     bool isValid() const;
 
     // other inline have to be made to return 
@@ -99,38 +88,22 @@ class LumiSummary {
     float avgInsRecLumi() const;
     float avgInsRecLumiErr() const;
     bool isProductEqual(LumiSummary const& next) const;
-    std::string lumiVersion()const;
-
-    //
-    //setters
-    //
-    void setLumiVersion(const std::string& lumiversion);
-    void setLumiData(float instlumi,float instlumierr,short lumiquality);
-    void setDeadtime(unsigned long long deadcount);
-    void setlsnumber(unsigned int lsnumber);
-    void setOrbitData(unsigned int startorbit,unsigned int numorbit);
-    void swapL1Data(std::vector<L1>& l1data);
-    void swapHLTData(std::vector<HLT>& hltdata);
-    void copyL1Data(const std::vector<L1>& l1data);
-    void copyHLTData(const std::vector<HLT>& hltdata);
 
   private :
-    std::string lumiversion_;
     //instant lumi , selected from best algorithm
     float avginsdellumi_;
     //instant lumierror
     float avginsdellumierr_;
-    //detector quality flag use HF,HLX    
-    short lumisecqual_;
-    unsigned long long deadcount_;
-    unsigned int lsnumber_;
+    //detector quality flag use 7 bits PIXEL,STRIP,MUON,HCAL,ECAL,HF,HLX    
+    short   lumisecqual_;
+    float deadfrac_;
+    int   lsnumber_;
     //contains about 100 - 200 hlt paths
     std::vector<HLT> hltdata_;
     //contains 128 + 64 triggers
     std::vector<L1> l1data_;
     //first orbit number of this LS
-    unsigned int startorbit_;
-    unsigned int numorbit_;
+    unsigned long long startorbit_;
 }; 
 
 std::ostream& operator<<(std::ostream& s, const LumiSummary& lumiSummary);

@@ -34,6 +34,8 @@ class HcalDeadCellClient : public HcalBaseDQClient {
 
  private:
   int nevts_;
+
+  int HBpresent_, HEpresent_, HOpresent_, HFpresent_;
 };
 
 #endif

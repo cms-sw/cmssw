@@ -8,6 +8,8 @@ PreshowerLayer2Properties::PreshowerLayer2Properties(const edm::ParameterSet& fa
        // Preshower : mumber of Mips / GeV 
   mips = fastDet.getParameter<double>("PreshowerLayer2_mipsPerGeV");
   thick = fastDet.getParameter<double>("PreshowerLayer2_thickness");
+  pseeradLenIncm_ = fastDet.getUntrackedParameter<double>("PreshowerEEGapRadLenInCm",63.);
+  pseeInteractionLength_ = fastDet.getUntrackedParameter<double>("PreshowerEEGapIntLenInCm",111.);
 }
 
 double PreshowerLayer2Properties::thickness(const double eta) const { 

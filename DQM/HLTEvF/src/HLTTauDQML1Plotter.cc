@@ -245,39 +245,11 @@ HLTTauDQML1Plotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 
 
-  bool gotL1Taus =true;
-  try {
-    gotL1Taus*=iEvent.getByLabel(l1ExtraTaus_,taus);
-  }
-  catch (cms::Exception& exception) {
-    gotL1Taus =false;
-  }
 
-  bool gotL1Jets =true;
-  try {
-    gotL1Jets*=iEvent.getByLabel(l1ExtraJets_,jets);
-  }
-  catch (cms::Exception& exception) {
-    gotL1Jets =false;
-  }
-
-  bool gotL1Electrons =true;
-  try {
-    gotL1Electrons*=iEvent.getByLabel(l1ExtraElectrons_,electrons);
-  }
-  catch (cms::Exception& exception) {
-    gotL1Electrons =false;
-  }
-
-  bool gotL1Muons =true;
-  try {
-    gotL1Muons*=iEvent.getByLabel(l1ExtraMuons_,muons);
-  }
-  catch (cms::Exception& exception) {
-    gotL1Muons =false;
-  }
-
-
+  bool  gotL1Taus=iEvent.getByLabel(l1ExtraTaus_,taus) &&taus.isValid();
+  bool  gotL1Jets=iEvent.getByLabel(l1ExtraJets_,jets) && jets.isValid();
+  bool  gotL1Electrons=iEvent.getByLabel(l1ExtraElectrons_,electrons) &&electrons.isValid();
+  bool  gotL1Muons=iEvent.getByLabel(l1ExtraMuons_,muons) && muons.isValid();
 
 
 

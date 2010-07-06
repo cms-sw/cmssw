@@ -4,6 +4,8 @@ siStripBuildTrackerMap = cms.EDAnalyzer(
     "BuildTrackerMapPlugin",
     #input root file containing histograms
     InputFileName = cms.untracked.string('DQMStore.root'),
+    DoDifference = cms.untracked.bool(False),
+    InputFileNameForDiff = cms.untracked.string('DQMStore.root'),
     #name of tkHistoMap to dump
     TkHistoMapNameVec = cms.untracked.vstring('TkHMap_MeanCMAPV0','TkHMap_MeanCMAPV1','TkHMap_MeanCMAPV0minusAPV1','TkHMap_RmsCMAPV0','TkHMap_RmsCMAPV1','TkHMap_RmsCMAPV0minusAPV1'),
     MinValueVec = cms.untracked.vdouble(120,120,-20,0,0,0),

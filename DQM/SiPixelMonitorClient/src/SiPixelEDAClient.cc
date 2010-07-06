@@ -163,6 +163,8 @@ void SiPixelEDAClient::beginRun(Run const& run, edm::EventSetup const& eSetup) {
   sipixelActionExecutor_->setupQTests(bei_);
   // Creating Summary Histos:
   sipixelActionExecutor_->createSummary(bei_);
+  // Booking Deviation Histos:
+  if(!Tier0Flag_) sipixelActionExecutor_->bookDeviations(bei_);
   // Booking Efficiency Histos:
   if(doHitEfficiency_) sipixelActionExecutor_->bookEfficiency(bei_);
   // Creating occupancy plots:
@@ -192,6 +194,11 @@ void SiPixelEDAClient::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
   
   edm::LogInfo ("SiPixelEDAClient") <<"[SiPixelEDAClient]: Begin of LS transition";
 
+  MonitorElement * me = bei_->get("Pixel/AdditionalPixelErrors/byLumiErrors");
+  if(me){
+    nEvents_lastLS_ = me->getBinContent(0);
+    me->Reset();
+  }
 //  cout<<"...leaving SiPixelEDAClient::beginLuminosityBlock. "<<endl;
 }
 //
@@ -206,6 +213,10 @@ void SiPixelEDAClient::analyze(const edm::Event& e, const edm::EventSetup& eSetu
       // check if any Pixel FED is in readout:
       edm::Handle<FEDRawDataCollection> rawDataHandle;
       e.getByLabel("source", rawDataHandle);
+      if(!rawDataHandle.isValid()){
+        edm::LogInfo("SiPixelEDAClient") << "source" << " is empty";
+	return;
+      } 
       const FEDRawDataCollection& rawDataCollection = *rawDataHandle;
       nFEDs_ = 0;
       for(int i = 0; i != 40; i++){
@@ -246,8 +257,10 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
     //cout  << " Checking Pixel quality flags " << endl;;
     bei_->cd();
     bool init=true;
-    sipixelDataQuality_->computeGlobalQualityFlag(bei_,init,nFEDs_,Tier0Flag_);
+    //sipixelDataQuality_->computeGlobalQualityFlag(bei_,init,nFEDs_,Tier0Flag_);
+    sipixelDataQuality_->computeGlobalQualityFlagByLumi(bei_,init,nFEDs_,Tier0Flag_,nEvents_lastLS_);
     init=true;
+    bei_->cd();
     sipixelDataQuality_->fillGlobalQualityPlot(bei_,init,eSetup,nFEDs_,Tier0Flag_);
     //cout << " Checking for new noisy pixels " << endl;
     init=true;
@@ -287,6 +300,7 @@ void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup
     bool init=true;
     sipixelDataQuality_->computeGlobalQualityFlag(bei_,init,nFEDs_,Tier0Flag_);
     init=true;
+    bei_->cd();
     sipixelDataQuality_->fillGlobalQualityPlot(bei_,init,eSetup,nFEDs_,Tier0Flag_);
     //cout << " Checking for new noisy pixels " << endl;
     init=true;
@@ -300,6 +314,8 @@ void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup
 
     // On demand, dump module ID's and stuff on the screen:
     //sipixelActionExecutor_->dumpModIds(bei_,eSetup);
+    // On demand, dump summary histo values for reference on the screen:
+    //sipixelActionExecutor_->dumpRefValues(bei_,eSetup);
   
   }
   

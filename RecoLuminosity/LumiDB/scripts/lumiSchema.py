@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-VERSION='1.01'
+VERSION='2.00'
 import os,sys
 import coral
 from RecoLuminosity.LumiDB import argparse,dbUtil,nameDealer
@@ -16,11 +16,14 @@ def createLumi(dbsession):
     cmsrunsummary.insertColumn('HLTKEY','string')
     cmsrunsummary.insertColumn('FILLNUM','unsigned int')
     cmsrunsummary.insertColumn('SEQUENCE','string')
-    ##cmsrunsummary.insertColumn('PHYSICSBITON','string')
+    cmsrunsummary.insertColumn('STARTTIME','time stamp',6)
+    cmsrunsummary.insertColumn('STOPTIME','time stamp',6)
     cmsrunsummary.setPrimaryKey('RUNNUM')
     cmsrunsummary.setNotNullConstraint('HLTKEY',True)
     cmsrunsummary.setNotNullConstraint('FILLNUM',True)
     cmsrunsummary.setNotNullConstraint('SEQUENCE',True)
+    cmsrunsummary.createIndex('cmsrunsummary_fillnum',('FILLNUM'))
+    cmsrunsummary.createIndex('cmsrunsummary_startime',('STARTTIME'))
     db.createTable(cmsrunsummary,False)
 
     #lumi summary table
@@ -36,10 +39,13 @@ def createLumi(dbsession):
     summary.insertColumn('INSTLUMI','float')
     summary.insertColumn('INSTLUMIERROR','float')
     summary.insertColumn('INSTLUMIQUALITY','short')
-    summary.insertColumn('CMSALIVE','bool')
+    summary.insertColumn('CMSALIVE','short')
     summary.insertColumn('STARTORBIT','unsigned int')
     summary.insertColumn('NUMORBIT','unsigned int')
     summary.insertColumn('LUMISECTIONQUALITY','short')
+    summary.insertColumn('BEAMENERGY','float')
+    summary.insertColumn('BEAMSTATUS','string')
+    
     summary.setPrimaryKey('LUMISUMMARY_ID')
     summary.setNotNullConstraint('RUNNUM',True)
     summary.setNotNullConstraint('CMSLSNUM',True)
@@ -54,6 +60,12 @@ def createLumi(dbsession):
     summary.setNotNullConstraint('STARTORBIT',True)
     summary.setNotNullConstraint('NUMORBIT',True)
     summary.setNotNullConstraint('LUMISECTIONQUALITY',True)
+    summary.setNotNullConstraint('BEAMENERGY',True)
+    summary.setNotNullConstraint('BEAMSTATUS',True)
+
+    summary.setUniqueConstraint(('RUNNUM','LUMIVERSION','LUMILSNUM'))
+    summary.createIndex('lumisummary_runnum',('RUNNUM'))
+    
     db.createTable(summary,True)
     #lumi detail table
     detail=coral.TableDescription()
@@ -70,6 +82,9 @@ def createLumi(dbsession):
     detail.setNotNullConstraint('BXLUMIERROR',True)
     detail.setNotNullConstraint('BXLUMIQUALITY',True)
     detail.setNotNullConstraint('ALGONAME',True)
+
+    detail.setUniqueConstraint(('LUMISUMMARY_ID','ALGONAME'))
+
     db.createTable(detail,True)
     #trg table
     trg=coral.TableDescription()
@@ -79,20 +94,20 @@ def createLumi(dbsession):
     trg.insertColumn('CMSLSNUM','unsigned int')
     trg.insertColumn('BITNUM','unsigned int')
     trg.insertColumn('BITNAME','string')
-    trg.insertColumn('COUNT','unsigned int')
+    trg.insertColumn('TRGCOUNT','unsigned int')
     trg.insertColumn('DEADTIME','unsigned long long')
     trg.insertColumn('PRESCALE','unsigned int')
-    trg.insertColumn('HLTPATH','string')
-    ##trg.insertColumn('PHYSICSBITON','string')
+
     trg.setNotNullConstraint('RUNNUM',True)
     trg.setNotNullConstraint('CMSLSNUM',True)
     trg.setNotNullConstraint('BITNUM',True)
     trg.setNotNullConstraint('BITNAME',True)
-    trg.setNotNullConstraint('COUNT',True)
+    trg.setNotNullConstraint('TRGCOUNT',True)
     trg.setNotNullConstraint('DEADTIME',True)
     trg.setNotNullConstraint('PRESCALE',True)
-    ##trg.setNotNullConstraint('HLTPATH',True)
     trg.setPrimaryKey('TRG_ID')
+    trg.createIndex('trg_runnum',('RUNNUM'))
+    
     db.createTable(trg,True)
     #hlt table
     hlt=coral.TableDescription()
@@ -111,6 +126,7 @@ def createLumi(dbsession):
     hlt.setNotNullConstraint('INPUTCOUNT',True)
     hlt.setNotNullConstraint('ACCEPTCOUNT',True)
     hlt.setNotNullConstraint('PRESCALE',True)
+    hlt.createIndex('hlt_runnum',('RUNNUM'))
     db.createTable(hlt,True)
     #trghlt map table
     trghlt=coral.TableDescription()
@@ -163,18 +179,39 @@ def describeLumi(dbsession):
     db=dbUtil.dbUtil(schema)
     db.describeSchema()
     dbsession.transaction().commit()
+
+def createIndex(dbsession):
+    dbsession.transaction().start(False)
+    schema=dbsession.nominalSchema()
+    schema.tableHandle( nameDealer.lumisummaryTableName() ).schemaEditor().createIndex('lumisummary_runnum',('RUNNUM'))
+    schema.tableHandle( nameDealer.trgTableName() ).schemaEditor().createIndex('trg_runnum',('RUNNUM'))
+    schema.tableHandle( nameDealer.hltTableName() ).schemaEditor().createIndex('hlt_runnum',('RUNNUM'))
+    dbsession.transaction().commit()
+    
+def dropIndex(dbsession):
+    dbsession.transaction().start(False)
+    schema=dbsession.nominalSchema()
+    schema.tableHandle( nameDealer.lumisummaryTableName() ).schemaEditor().dropIndex('lumisummary_runnum')
+    schema.tableHandle( nameDealer.trgTableName() ).schemaEditor().dropIndex('trg_runnum')
+    schema.tableHandle( nameDealer.hltTableName() ).schemaEditor().dropIndex('hlt_runnum')
+    dbsession.transaction().commit()
+    
 def main():
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description="Lumi DB schema operations.")
     # add the arguments
     parser.add_argument('-c',dest='connect',action='store',required=True,help='connect string to lumiDB')
     parser.add_argument('-P',dest='authpath',action='store',help='path to authentication file')    
-    parser.add_argument('action',choices=['create','drop','describe'],help='action on the schema')
+    parser.add_argument('action',choices=['create','drop','describe','addindex','dropindex'],help='action on the schema')
     parser.add_argument('--verbose',dest='verbose',action='store_true',help='verbose')
+    parser.add_argument('--debug',dest='debug',action='store_true',help='debug mode')
     # parse arguments
     args=parser.parse_args()
     connectstring=args.connect
+    if args.debug:
+        msg=coral.MessageStream('')
+        msg.setMsgVerbosity(coral.message_Level_Debug)
     svc = coral.ConnectionService()
-    if len(args.authpath)!=0:
+    if args.authpath and len(args.authpath)!=0:
         os.environ['CORAL_AUTH_PATH']=args.authpath
     session=svc.connect(connectstring,accessMode=coral.access_Update)
     if args.action == 'create':
@@ -182,7 +219,11 @@ def main():
     if args.action == 'drop':
        dropLumi(session)
     if args.action == 'describe':
-       describeLumi(session) 
+       describeLumi(session)
+    if args.action == 'addindex':
+       createIndex(session)
+    if args.action == 'dropindex':
+       dropIndex(session)
     if args.verbose :
         print 'verbose mode'
 if __name__=='__main__':

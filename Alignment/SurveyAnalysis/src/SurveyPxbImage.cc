@@ -9,35 +9,26 @@
 void SurveyPxbImage::fill(std::istringstream &iss)
 {
   id_t id1, id2;
-  value_t x0, y0;
-  value_t x1, y1;
-  value_t x2, y2;
-  value_t x3, y3;
-  value_t sx, sy;
-  bool rotflag;
-  if(! (iss >> id1 >> x0 >> y0 >> x1 >> y1
-            >> id2 >> x2 >> y2 >> x3 >> y3
-            >> sy >> sx >> rotflag).fail())
+  value_t u11, v11, u21, v21;
+  value_t u12, v12, u22, v22;
+  value_t sv, su;
+  if(! (iss >> id1 >> v11 >> u11 >> v21 >> u21
+        >> id2 >> v12 >> u12 >> v22 >> u22
+        >> sv >> su).fail())
     {
       idPair_.first = id1;
       idPair_.second = id2;
-      if (!rotflag)
-      {
-	  measurementVec_.push_back(coord_t(x0,-y0));
-	  measurementVec_.push_back(coord_t(x1,-y1));
-	  measurementVec_.push_back(coord_t(x2,-y2));
-	  measurementVec_.push_back(coord_t(x3,-y3));
-      }
-      else
-      {
-	  measurementVec_.push_back(coord_t(-x0,y0));
-	  measurementVec_.push_back(coord_t(-x1,y1));
-	  measurementVec_.push_back(coord_t(-x2,y2));
-	  measurementVec_.push_back(coord_t(-x3,y3));
-      }
-      sigma_x_ = sx;
-      sigma_y_ = sy;
-      isRotated_ = rotflag;
+      // Flip sign of u to change into CMS coord system
+      const coord_t c4(u22,-v22);
+      measurementVec_.push_back(c4);
+      const coord_t c3(u12,-v12);
+      measurementVec_.push_back(c3);
+      const coord_t c2(u11,-v11);
+      measurementVec_.push_back(c2);
+      const coord_t c1(u21,-v21);
+      measurementVec_.push_back(c1);
+      sigma_v_ = sv;
+      sigma_u_ = su;
       isValidFlag_ = true;
     }
   else

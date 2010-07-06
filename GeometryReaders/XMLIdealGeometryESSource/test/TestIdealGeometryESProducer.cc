@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Case
 //         Created:  Tue Jan 16 2009
-// $Id: TestIdealGeometryESProducer.cc,v 1.1 2009/03/04 14:47:33 fambrogl Exp $
+// $Id: TestIdealGeometryESProducer.cc,v 1.13 2007/12/12 09:30:59 muzaffar Exp $
 //
 //
 
@@ -29,7 +29,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -101,7 +101,7 @@ TestIdealGeometryESProducer::analyze( const edm::Event& iEvent, const edm::Event
    using namespace edm;
 
    std::cout << "Here I am " << std::endl;
-   edm::ESTransientHandle<DDCompactView> pDD;
+   edm::ESHandle<DDCompactView> pDD;
    iSetup.get<IdealGeometryRecord>().get(pDD);
 
    GeometryInfoDump gidump;

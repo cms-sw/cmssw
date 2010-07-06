@@ -11,7 +11,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: DTTimingExtractor.cc,v 1.6 2009/12/07 16:20:00 ptraczyk Exp $
+// $Id: DTTimingExtractor.cc,v 1.7 2010/03/25 14:08:50 jribnik Exp $
 //
 //
 
@@ -183,8 +183,8 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
 	thisHit.posInLayer = geomDet->toLocal(dtcell->toGlobal(hiti->localPosition())).x();
 	thisHit.distIP = dist;
 	thisHit.station = station;
-	if (useSegmentT0_) thisHit.timeCorr=segm->t0();
-	  else thisHit.timeCorr=0.;
+	if (useSegmentT0_ && segm->ist0Valid()) thisHit.timeCorr=segm->t0();
+	else thisHit.timeCorr=0.;
 	  
 	// signal propagation along the wire correction for unmached theta or phi segment hits
 	if (doWireCorr_ && !bothProjections && tsos.first.isValid()) {

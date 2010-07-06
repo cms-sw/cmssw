@@ -63,6 +63,9 @@ class EcalHitMaker: public CaloHitMaker
   
   /// total number of X0 in the PS (Layer2). 
   inline double ps2TotalX0() const {return X0PS2_;}
+
+  // number of X0 between PS2 and EE
+  inline double ps2eeTotalX0() const {return X0PS2EE_;}
   
   /// in the ECAL 
   inline double ecalTotalX0() const {return X0ECAL_;}
@@ -76,8 +79,11 @@ class EcalHitMaker: public CaloHitMaker
   /// total number of L0 in the PS (Layer1). 
   inline double ps1TotalL0() const {return L0PS1_;}
   
-  /// total number of L0 in the PS (Layer1). 
+  /// total number of L0 in the PS (Layer2). 
   inline double ps2TotalL0() const {return L0PS2_;}
+
+  // number of X0 between PS2 and EE
+  inline double ps2eeTotalL0() const {return L0PS2EE_;}
   
   /// in the ECAL 
   inline double ecalTotalL0() const {return L0ECAL_;}
@@ -199,11 +205,13 @@ class EcalHitMaker: public CaloHitMaker
   double X0depthoffset_;
   double X0PS1_;
   double X0PS2_;
+  double X0PS2EE_;
   double X0ECAL_;
   double X0EHGAP_;
   double X0HCAL_;
   double L0PS1_;
   double L0PS2_;
+  double L0PS2EE_;
   double L0ECAL_;
   double L0HCAL_;
   double L0EHGAP_;

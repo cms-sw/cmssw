@@ -64,7 +64,7 @@ RunSummaryRead::run()
 
 
 
-RunSummary::RunSummary 
+RunSummary 
 RunSummaryRead::readData(const std::string & table, const std::string &column, const int r_number)
 {
   m_tableToRead = table; // to be  cms_runinfo.runsession_parameter
@@ -94,8 +94,8 @@ select MAX(lsnumber)   FROM cms_runinfo.hlt_supervisor_lumisections where cms_ru
 select  string_value from cms_runinfo.runsession_parameter   where cms_runinfo.runsession_parameter.runnumber=51770 AND cms_runinfo.runsession_parameter.name LIKE 'CMS.LVL0%' RPC, ECAL,....
   */  
   
-  RunSummary::RunSummary  sum;
-  RunSummary::RunSummary temp_sum;
+  RunSummary  sum;
+  RunSummary temp_sum;
   RunSummary Sum; 
 
 

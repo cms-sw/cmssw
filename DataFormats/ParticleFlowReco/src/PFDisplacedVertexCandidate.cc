@@ -255,10 +255,9 @@ void PFDisplacedVertexCandidate::Dump( ostream& out ) const {
     float innermost_rho = sqrt(Pi.x()*Pi.x() + Pi.y()*Pi.y());
     float outermost_rho = sqrt(Po.x()*Po.x() + Po.y()*Po.y());
     
-    double pt = elements[ie]->pt();
 
 
-    out<<"ie = " << elements[ie].key() << " pt = " << pt
+    out<<"ie = " << elements[ie].key() 
        <<" innermost hit radius = " << innermost_radius << " rho = " << innermost_rho
        <<" outermost hit radius = " << outermost_radius << " rho = " << outermost_rho
        <<endl;
