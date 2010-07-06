@@ -1,8 +1,8 @@
 #ifndef HLTrigger_HLTfilters_TriggerExpressionPrescaler_h
 #define HLTrigger_HLTfilters_TriggerExpressionPrescaler_h
 
-#include "HLTrigger/HLTfilters/interface/TriggerExpressionOperators.h"
-#include "HLTrigger/HLTfilters/interface/TriggerExpressionData.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionOperators.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionData.h"
 
 namespace triggerExpression {
 

@@ -1,4 +1,4 @@
-#include "HLTrigger/HLTfilters/interface/TriggerExpressionPrescaler.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionPrescaler.h"
 
 namespace triggerExpression {
 

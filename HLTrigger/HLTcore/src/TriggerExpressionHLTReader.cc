@@ -5,8 +5,8 @@
 #include "FWCore/Utilities/interface/RegexMatch.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "HLTrigger/HLTfilters/interface/TriggerExpressionHLTReader.h"
-#include "HLTrigger/HLTfilters/interface/TriggerExpressionData.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionHLTReader.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionData.h"
 
 namespace triggerExpression {
 

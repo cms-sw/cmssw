@@ -1,7 +1,7 @@
 #ifndef HLTrigger_HLTfilters_TriggerExpressionConstant_h
 #define HLTrigger_HLTfilters_TriggerExpressionConstant_h
 
-#include "HLTrigger/HLTfilters/interface/TriggerExpressionEvaluator.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionEvaluator.h"
 
 namespace triggerExpression {
 

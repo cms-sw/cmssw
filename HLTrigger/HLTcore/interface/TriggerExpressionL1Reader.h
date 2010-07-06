@@ -1,16 +1,16 @@
-#ifndef HLTrigger_HLTfilters_TriggerExpressionL1TechReader_h
-#define HLTrigger_HLTfilters_TriggerExpressionL1TechReader_h
+#ifndef HLTrigger_HLTfilters_TriggerExpressionL1Reader_h
+#define HLTrigger_HLTfilters_TriggerExpressionL1Reader_h
 
 #include <vector>
 #include <string>
 
-#include "HLTrigger/HLTfilters/interface/TriggerExpressionEvaluator.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionEvaluator.h"
 
 namespace triggerExpression {
 
-class L1TechReader : public Evaluator {
+class L1Reader : public Evaluator {
 public:
-  L1TechReader(const std::string & pattern) :
+  L1Reader(const std::string & pattern) :
     m_pattern(pattern),
     m_triggers()
   { }
@@ -28,4 +28,4 @@ private:
 
 } // namespace triggerExpression
 
-#endif // HLTrigger_HLTfilters_TriggerExpressionL1TechReader_h
+#endif // HLTrigger_HLTfilters_TriggerExpressionL1Reader_h

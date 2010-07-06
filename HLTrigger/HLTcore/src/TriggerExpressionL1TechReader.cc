@@ -8,8 +8,8 @@
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "HLTrigger/HLTfilters/interface/TriggerExpressionData.h"
-#include "HLTrigger/HLTfilters/interface/TriggerExpressionL1TechReader.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionData.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionL1TechReader.h"
 
 namespace triggerExpression {
 

@@ -2,7 +2,7 @@
 #define HLTrigger_HLTfilters_TriggerExpressionOperators_h
 
 #include <boost/scoped_ptr.hpp>
-#include "HLTrigger/HLTfilters/interface/TriggerExpressionEvaluator.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionEvaluator.h"
 
 namespace triggerExpression {
 

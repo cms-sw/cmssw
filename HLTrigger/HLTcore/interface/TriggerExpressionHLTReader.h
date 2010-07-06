@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-#include "HLTrigger/HLTfilters/interface/TriggerExpressionEvaluator.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionEvaluator.h"
 
 namespace triggerExpression {
 

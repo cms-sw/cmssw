@@ -9,12 +9,12 @@
 #include <boost/spirit/include/phoenix.hpp>
 #include <boost/spirit/include/qi.hpp>
 
-#include "HLTrigger/HLTfilters/interface/TriggerExpressionHLTReader.h"
-#include "HLTrigger/HLTfilters/interface/TriggerExpressionL1Reader.h"
-#include "HLTrigger/HLTfilters/interface/TriggerExpressionL1TechReader.h"
-#include "HLTrigger/HLTfilters/interface/TriggerExpressionOperators.h"
-#include "HLTrigger/HLTfilters/interface/TriggerExpressionPrescaler.h"
-#include "HLTrigger/HLTfilters/interface/TriggerExpressionConstant.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionHLTReader.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionL1Reader.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionL1TechReader.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionOperators.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionPrescaler.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionConstant.h"
 
 namespace triggerExpression {
 
