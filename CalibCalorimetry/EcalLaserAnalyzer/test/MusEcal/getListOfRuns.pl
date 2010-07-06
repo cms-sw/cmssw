@@ -48,7 +48,7 @@ if( -e "$runlistredinit"){
 if( -e "$runlistblueinit"){
     system "cp  $runlistblueinit $runlistbluetmp";
 }
-if( -e "$runlistblueinit"){
+if( -e "$runlisttpinit"){
     system "cp  $runlisttpinit $runlisttptmp";
 }
 
@@ -160,7 +160,7 @@ foreach my $rundir (@runsdir)
         }
     }
     $diffTS = $timestampbeg - $firstTS ;
-    if($redevents >0 ){
+    if($redevents >0 && $timestampbeg > 30000000000000){
         print LREDLIST "Run${run}_LB${lumiblock}\t$run\t$lumiblock\t$redevents\t$timestampbeg\t$timestampend\t$mgpagain\t$memgain\t$redpower\t$redfilter\t$reddelay\n";
     }
     if($blueevents > 0 ){
@@ -231,7 +231,7 @@ foreach my $rundir (@runsdir)
             $firstTS = $timestamp_beg;
         }
     }
-    if($events > 0 ){
+    if($events > 0 && $timestampbeg> 30000000000000 ){
         print TPLIST "Run${run}_LB${lumiblock}\t$run\t$lumiblock\t$events\t$timestampbeg\t$timestampend\t$mgpagain\t$memgain -1 -1 -1\n";
     }
 }
