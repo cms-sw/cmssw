@@ -22,7 +22,7 @@ ALCARECOTkAlBeamHaloDCSFilter = DPGAnalysis.Skims.skim_detstatus_cfi.dcsstatus.c
 import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 ALCARECOTkAlBeamHalo = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone()
 
-ALCARECOTkAlBeamHalo.src = 'ctfWithMaterialTracksBeamHaloMuon'
+ALCARECOTkAlBeamHalo.src = 'beamhaloTracks'
 ALCARECOTkAlBeamHalo.filter = True ##do not store empty events
 
 ALCARECOTkAlBeamHalo.applyBasicCuts = True
