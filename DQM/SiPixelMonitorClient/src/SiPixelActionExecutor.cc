@@ -1038,7 +1038,8 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
 	      if((*igm)->getName().find("NErrors_") != string::npos && prefix=="SUMOFF") title = "Total number of errors per Ladder";
 	      else if((*igm)->getName().find("NErrors_") != string::npos && prefix=="SUMRAW") title = "Total number of errors per Module";
 	      else if(prefix=="SUMOFF") title = "mean " + (*iv) + " per Ladder"; 
-	      else if((*igm)->getName().find("FREQ_") != string::npos) title = "NEvents with digis per Module"; 
+	      else if((*igm)->getName().find("FREQ_") != string::npos && prefix!="SUMOFF") title = "NEvents with digis per Module"; 
+	      else if((*igm)->getName().find("FREQ_") != string::npos && prefix=="SUMOFF") title = "NEvents with digis per Ladder/Blade"; 
 	      else if((*igm)->getName().find("adcCOMB_") != string::npos) title = "NDigis";
 	      else if((*igm)->getName().find("chargeCOMB_") != string::npos) title = "NClusters";
 	      else title = "mean " + (*iv) + " per Module"; 

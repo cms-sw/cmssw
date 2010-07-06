@@ -8,8 +8,8 @@
      <PARAM name="useEmptyBins">0</PARAM>
      <PARAM name="error">0.50</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">70,</PARAM> 
-     <PARAM name="ymax">115.</PARAM> 
+     <PARAM name="ymin">75,</PARAM> 
+     <PARAM name="ymax">105.</PARAM> 
 </QTEST>
 <!-- ndigis in PixelBarrel: -->
 <QTEST name="Yrange:Barrel:ndigis" activate="true"> 
@@ -17,7 +17,7 @@
      <PARAM name="useEmptyBins">0</PARAM>
      <PARAM name="error">0.50</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">2.</PARAM> 
+     <PARAM name="ymin">3.</PARAM> 
      <PARAM name="ymax">12.</PARAM> 
 </QTEST>
 <!-- ncluster in PixelBarrel: -->
@@ -26,8 +26,8 @@
      <PARAM name="useEmptyBins">0</PARAM>
      <PARAM name="error">0.50</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">0.8</PARAM> 
-     <PARAM name="ymax">2.</PARAM> 
+     <PARAM name="ymin">1.</PARAM> 
+     <PARAM name="ymax">2.3</PARAM> 
 </QTEST>
 <!-- size in PixelBarrel: -->
 <QTEST name="Yrange:Barrel:size" activate="true"> 
@@ -35,7 +35,7 @@
      <PARAM name="useEmptyBins">0</PARAM>
      <PARAM name="error">0.50</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">2.</PARAM> 
+     <PARAM name="ymin">2.5</PARAM> 
      <PARAM name="ymax">9.</PARAM> 
 </QTEST>
 <!-- charge in PixelBarrel: -->
@@ -44,8 +44,8 @@
      <PARAM name="useEmptyBins">0</PARAM>
      <PARAM name="error">0.50</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">20.</PARAM> 
-     <PARAM name="ymax">100.</PARAM> 
+     <PARAM name="ymin">35.</PARAM> 
+     <PARAM name="ymax">95.</PARAM> 
 </QTEST>
 <!-- MeanWithInExpected in LADDER: -->
 <!-- adc in Ladder: -->
@@ -116,8 +116,8 @@
      <PARAM name="useEmptyBins">0</PARAM>
      <PARAM name="error">0.50</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">90.</PARAM> 
-     <PARAM name="ymax">135.</PARAM> 
+     <PARAM name="ymin">95.</PARAM> 
+     <PARAM name="ymax">130.</PARAM> 
 </QTEST>
 <!-- ndigis in PixelEndcap: -->
 <QTEST name="Yrange:Endcap:ndigis" activate="true"> 
@@ -125,8 +125,8 @@
      <PARAM name="useEmptyBins">0</PARAM>
      <PARAM name="error">0.50</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">1.5</PARAM> 
-     <PARAM name="ymax">4.</PARAM> 
+     <PARAM name="ymin">2.</PARAM> 
+     <PARAM name="ymax">3.6</PARAM> 
 </QTEST>
 <!-- nclusters in PixelEndcap: -->
 <QTEST name="Yrange:Endcap:nclusters" activate="true"> 
@@ -134,8 +134,8 @@
      <PARAM name="useEmptyBins">0</PARAM>
      <PARAM name="error">0.50</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">0.8</PARAM> 
-     <PARAM name="ymax">1.6</PARAM> 
+     <PARAM name="ymin">1.</PARAM> 
+     <PARAM name="ymax">1.4</PARAM> 
 </QTEST>
 <!-- size in PixelEndcap: -->
 <QTEST name="Yrange:Endcap:size" activate="true"> 
@@ -143,8 +143,8 @@
      <PARAM name="useEmptyBins">0</PARAM>
      <PARAM name="error">0.50</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">1.5</PARAM> 
-     <PARAM name="ymax">3.5</PARAM> 
+     <PARAM name="ymin">1.8</PARAM> 
+     <PARAM name="ymax">3.2</PARAM> 
 </QTEST>
 <!-- charge in PixelEndcap: -->
 <QTEST name="Yrange:Endcap:charge" activate="true"> 
@@ -152,8 +152,8 @@
      <PARAM name="useEmptyBins">0</PARAM>
      <PARAM name="error">0.50</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">20.</PARAM> 
-     <PARAM name="ymax">45.</PARAM> 
+     <PARAM name="ymin">25.</PARAM> 
+     <PARAM name="ymax">42.</PARAM> 
 </QTEST>
 <!-- YRange in DISK: -->
 <!-- size in Disk: -->

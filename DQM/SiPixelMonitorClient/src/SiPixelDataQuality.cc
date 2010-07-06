@@ -306,7 +306,7 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
 	  //cout<<"changing histo name to: "<<full_path<<endl;
 	  me = bei->get(full_path);
 	  if(!me) continue;
-	  bool type30=false; bool othererror=false; bool notReset=false;
+	  bool type30=false; bool othererror=false; bool notReset=true;
 	  for(int jj=1; jj<16; jj++){
 	    if(me->getBinContent(jj)>0.){
 	      if(jj!=6) othererror=true;
@@ -631,23 +631,7 @@ void SiPixelDataQuality::computeGlobalQualityFlagByLumi(DQMStore * bei,
 //        << ACPlain
 //        << " Enter" 
 //        << endl ;
-  if(init){
-//cout<<"Entering SiPixelDataQuality::computeGlobalQualityFlag for the first time"<<endl;
-    allMods_=0; errorMods_=0; qflag_=0.; 
-    barrelMods_=0; endcapMods_=0;
-    objectCount_=0;
-    DONE_ = false;
-    
-    //Error counters and flags:
-    n_errors_barrel_=0; barrel_error_flag_=0.;
-    n_errors_endcap_=0; endcap_error_flag_=0.;
-    n_errors_feds_=0; feds_error_flag_=0.;
-    digiStatsBarrel = false, clusterStatsBarrel = false, trackStatsBarrel = false;
-    digiCounterBarrel = 0, clusterCounterBarrel = 0, trackCounterBarrel = 0;
-    digiStatsEndcap = false, clusterStatsEndcap = false, trackStatsEndcap = false;
-    digiCounterEndcap = 0, clusterCounterEndcap = 0, trackCounterEndcap = 0;
-    init=false;
-  }
+
   if(nFEDs==0) return;  
   
   float BarrelRate_LS = 0.;
@@ -663,301 +647,10 @@ void SiPixelDataQuality::computeGlobalQualityFlagByLumi(DQMStore * bei,
     PixelRate_LS = (nBarrelErrors_LS + nEndcapErrors_LS) / nEvents_LS / 40.;
     //std::cout<<"nEvents_LS: "<<nEvents_LS<<" , nBarrelErrors_LS: "<<nBarrelErrors_LS<<" , nEndcapErrors_LS: "<<nEndcapErrors_LS<<" , BarrelRate_LS: "<<BarrelRate_LS<<" , EndcapRate_LS: "<<EndcapRate_LS<<" , PixelRate_LS: "<<PixelRate_LS<<std::endl;
   }
-
-  string currDir = bei->pwd();
-  string dname = currDir.substr(currDir.find_last_of("/")+1);
-//cout<<"currDir="<<currDir<<endl;
-
-  if((!Tier0Flag && dname.find("Module_")!=string::npos) || 
-     (Tier0Flag && (dname.find("Ladder_")!=string::npos || dname.find("Blade_")!=string::npos))){
-
-    objectCount_++;
-    if(currDir.find("Pixel")!=string::npos) allMods_++;
-    if(currDir.find("Barrel")!=string::npos) barrelMods_++;
-    if(currDir.find("Endcap")!=string::npos) endcapMods_++;
-    vector<string> meVec = bei->getMEs();
-    for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
-      string full_path = currDir + "/" + (*it);
-      //cout<<"full_path:"<<full_path<<endl;
-      if(full_path.find("ndigis_")!=string::npos){
-      //cout<<"found an ndigi histo now"<<endl;
-        MonitorElement * me = bei->get(full_path);
-        if(!me) continue;
-	//cout<<"got the histo now"<<endl;
-        if(me->getEntries()>25){
-	//cout<<"histo has more than 50 entries"<<endl;
-	  if(full_path.find("Barrel")!=string::npos) digiCounterBarrel++;
-	  if(full_path.find("Endcap")!=string::npos) digiCounterEndcap++;
-	  //cout<<"counter are now: "<<digiCounterBarrel<<","<<digiCounterBarrelL1<<endl;
-        }
-      }else if(Tier0Flag && full_path.find("nclusters_OnTrack_")!=string::npos){
-        MonitorElement * me = bei->get(full_path);
-        if(!me) continue;
-        if(me->getEntries()>25){
-	  if(full_path.find("Barrel")!=string::npos) clusterCounterBarrel++;
-	  if(full_path.find("Endcap")!=string::npos) clusterCounterEndcap++;
-        }
-      }else if(!Tier0Flag && full_path.find("nclusters_")!=string::npos){
-        MonitorElement * me = bei->get(full_path);
-        if(!me) continue;
-        if(me->getEntries()>25){
-	  if(full_path.find("Barrel")!=string::npos) clusterCounterBarrel++;
-	  if(full_path.find("Endcap")!=string::npos) clusterCounterEndcap++;
-        }
-      }
-    }
-  }
-  vector<string> subDirVec = bei->getSubdirs();  
-  for (vector<string>::const_iterator ic = subDirVec.begin();
-       ic != subDirVec.end(); ic++) {
-    bei->cd(*ic);
-    init=false;
-    computeGlobalQualityFlagByLumi(bei,init,nFEDs,Tier0Flag,nEvents_lastLS_);
-    bei->goUp();
-  }
   
-  // Make sure I have finished looping over all Modules/Ladders/Blades:
-  if(!Tier0Flag){ // online case
-    if(objectCount_ == 1440) DONE_ = true;
-  }else{ // offline case
-    if(objectCount_ == 288) DONE_ = true;
-  } 
-  if(DONE_ ){
-  bei->cd("Pixel/EventInfo/reportSummaryContents");
-  // Fill the FED Error flags:
-  barrel_error_flag_ = 1. - BarrelRate_LS;
-  endcap_error_flag_ = 1. - EndcapRate_LS;
-  NErrorsBarrel = bei->get("Pixel/Barrel/BarrelNErrorsCut");
-  if(NErrorsBarrel) NErrorsBarrel->Fill(barrel_error_flag_);
-  NErrorsEndcap = bei->get("Pixel/Endcap/EndcapNErrorsCut");
-  if(NErrorsEndcap)   NErrorsEndcap->Fill(endcap_error_flag_);
-  NErrorsFEDs = bei->get("Pixel/AdditionalPixelErrors/FEDsNErrorsCut");
-  if(NErrorsFEDs) NErrorsFEDs->Fill(1.); // hardwired for the moment, need to fix!
-
-  
-  string meName0;
-  //MonitorElement * me;
-  
-  // Fill the Digi flags:
-  if(!Tier0Flag){
-    meName0 = "Pixel/Barrel/SUMDIG_ndigis_Barrel";
-    if(digiCounterBarrel/768 > 0.5) digiStatsBarrel = true;
-    if(digiCounterEndcap/672 > 0.5) digiStatsEndcap = true;
-    //cout<<"digiStatsBarrel="<<digiStatsBarrel<<" , digiStatsEndcap="<<digiStatsEndcap<<endl;
-  }else{
-    meName0 = "Pixel/Barrel/SUMOFF_ndigis_Barrel"; 
-    if(digiCounterBarrel/192 > 0.5) digiStatsBarrel = true;
-    if(digiCounterEndcap/96 > 0.5) digiStatsEndcap = true;
-  }
-  me = bei->get(meName0);
-  if(me){
-    NDigisBarrel = bei->get("Pixel/Barrel/BarrelNDigisCut");
-   // cout<<"NDigis: "<<NDigisBarrel<<" , "<<digiStatsBarrel<<" , "<<me->hasError()<<endl;
-    if(NDigisBarrel && digiStatsBarrel){
-      if(me->hasError()) NDigisBarrel->Fill(0);
-      else NDigisBarrel->Fill(1); 
-    }
-  }
-  if(!Tier0Flag) meName0 = "Pixel/Endcap/SUMDIG_ndigis_Endcap";
-  else meName0 = "Pixel/Endcap/SUMOFF_ndigis_Endcap"; 
-  me = bei->get(meName0);
-  if(me){
-    NDigisEndcap = bei->get("Pixel/Endcap/EndcapNDigisCut");
-    if(NDigisEndcap && digiStatsEndcap){
-      if(me->hasError()) NDigisEndcap->Fill(0);
-      else NDigisEndcap->Fill(1);
-    }
-  }
-  if(!Tier0Flag) meName0 = "Pixel/Barrel/SUMDIG_adc_Barrel";
-  else meName0 = "Pixel/Barrel/SUMOFF_adc_Barrel"; 
-  me = bei->get(meName0);
-  if(me){
-    DigiChargeBarrel = bei->get("Pixel/Barrel/BarrelDigiChargeCut");
-    if(DigiChargeBarrel && digiStatsBarrel){
-      if(me->hasError()) DigiChargeBarrel->Fill(0);
-      else DigiChargeBarrel->Fill(1);
-    }
-  }
-  if(!Tier0Flag) meName0 = "Pixel/Endcap/SUMDIG_adc_Endcap";
-  else meName0 = "Pixel/Endcap/SUMOFF_adc_Endcap"; 
-  me = bei->get(meName0);
-  if(me){
-    DigiChargeEndcap = bei->get("Pixel/Endcap/EndcapDigiChargeCut");
-    if(DigiChargeEndcap && digiStatsEndcap){
-      if(me->hasError()) DigiChargeEndcap->Fill(0);
-      else DigiChargeEndcap->Fill(1);
-    }
-  }
-     
-     
-    // Fill the Cluster flags:
-  if(!Tier0Flag){
-    meName0 = "Pixel/Barrel/SUMCLU_size_Barrel";
-    if(clusterCounterBarrel/768 > 0.5) clusterStatsBarrel = true;
-    if(clusterCounterEndcap/672 > 0.5) clusterStatsEndcap = true;
-  }else{
-    meName0 = "Pixel/Barrel/SUMOFF_size_OnTrack_Barrel"; 
-    if(clusterCounterBarrel/192 > 0.5) clusterStatsBarrel = true;
-    if(clusterCounterEndcap/96 > 0.5) clusterStatsEndcap = true;
-  }
-  me = bei->get(meName0);
-  if(me){
-    ClusterSizeBarrel = bei->get("Pixel/Barrel/BarrelClusterSizeCut");
-    if(ClusterSizeBarrel && clusterStatsBarrel){
-      if(me->hasError()) ClusterSizeBarrel->Fill(0);
-      else ClusterSizeBarrel->Fill(1);
-    }
-  }
-  if(!Tier0Flag) meName0 = "Pixel/Endcap/SUMCLU_size_Endcap";
-  else meName0 = "Pixel/Endcap/SUMOFF_size_OnTrack_Endcap"; 
-  me = bei->get(meName0);
-  if(me){
-    ClusterSizeEndcap = bei->get("Pixel/Endcap/EndcapClusterSizeCut");
-    if(ClusterSizeEndcap && clusterStatsEndcap){
-      if(me->hasError()) ClusterSizeEndcap->Fill(0);
-      else ClusterSizeEndcap->Fill(1);
-    }
-  }
-  if(!Tier0Flag) meName0 = "Pixel/Barrel/SUMCLU_charge_Barrel";
-  else meName0 = "Pixel/Barrel/SUMOFF_charge_OnTrack_Barrel"; 
-  me = bei->get(meName0);
-  if(me){
-    ClusterChargeBarrel = bei->get("Pixel/Barrel/BarrelClusterChargeCut");
-    if(ClusterChargeBarrel && clusterStatsBarrel){
-      if(me->hasError()) ClusterChargeBarrel->Fill(0);
-      else ClusterChargeBarrel->Fill(1);
-    }
-  }
-  if(!Tier0Flag) meName0 = "Pixel/Endcap/SUMCLU_charge_Endcap";
-  else meName0 = "Pixel/Endcap/SUMOFF_charge_OnTrack_Endcap"; 
-  me = bei->get(meName0);
-  if(me){
-    ClusterChargeEndcap = bei->get("Pixel/Endcap/EndcapClusterChargeCut");
-    if(ClusterChargeEndcap && clusterStatsEndcap){
-      if(me->hasError()) ClusterChargeEndcap->Fill(0);
-      else ClusterChargeEndcap->Fill(1);
-    }
-  }
-  if(!Tier0Flag) meName0 = "Pixel/Barrel/SUMCLU_nclusters_Barrel";
-  else meName0 = "Pixel/Barrel/SUMOFF_nclusters_OnTrack_Barrel"; 
-  me = bei->get(meName0);
-  if(me){
-    NClustersBarrel = bei->get("Pixel/Barrel/BarrelNClustersCut");
-    if(NClustersBarrel && clusterStatsBarrel){
-      if(me->hasError()) NClustersBarrel->Fill(0);
-      else NClustersBarrel->Fill(1);
-    }
-  }
-  if(!Tier0Flag) meName0 = "Pixel/Endcap/SUMCLU_nclusters_Endcap";
-  else meName0 = "Pixel/Endcap/SUMOFF_nclusters_OnTrack_Endcap"; 
-  me = bei->get(meName0);
-  if(me){
-    NClustersEndcap = bei->get("Pixel/Endcap/EndcapNClustersCut");
-    if(NClustersEndcap && clusterStatsEndcap){
-      if(me->hasError()) NClustersEndcap->Fill(0);
-      else NClustersEndcap->Fill(1);
-    }
-  }
-  // Pixel Track multiplicity / Pixel hit efficiency
-  meName0 = "Pixel/Tracks/ntracks_generalTracks";
-  me = bei->get(meName0);
-  if(me){
-    NPixelTracks = bei->get("Pixel/Tracks/PixelTracksCut");
-    if(NPixelTracks && me->getBinContent(1)>1000){
-      if((float)me->getBinContent(2)/(float)me->getBinContent(1)<0.01){
-        NPixelTracks->Fill(0);
-      }else{ 
-        NPixelTracks->Fill(1);
-      }
-    }
-  }
-  
-//********************************************************************************************************  
-  
-  // Final combination of all Data Quality results:
-  float pixelFlag = -1., barrelFlag = -1., endcapFlag = -1.;
-  float barrel_errors_temp[1]={-1.}; int barrel_cuts_temp[5]={5*-1}; 
-  float endcap_errors_temp[1]={-1.}; int endcap_cuts_temp[5]={5*-1}; 
-  int pixel_cuts_temp[1]={-1};
-  float combinedCuts = 1.; int numerator = 0, denominator = 0;
-
-  // Barrel results:
-  me = bei->get("Pixel/Barrel/BarrelNErrorsCut");
-  if(me) barrel_errors_temp[0] = me->getFloatValue();
-  me = bei->get("Pixel/Barrel/BarrelNDigisCut");
-  if(me) barrel_cuts_temp[0] = me->getIntValue();
-  me = bei->get("Pixel/Barrel/BarrelDigiChargeCut");
-  if(me) barrel_cuts_temp[1] = me->getIntValue();
-  me = bei->get("Pixel/Barrel/BarrelClusterSizeCut");
-  if(me) barrel_cuts_temp[2] = me->getIntValue();
-  me = bei->get("Pixel/Barrel/BarrelNClustersCut");
-  if(me) barrel_cuts_temp[3] = me->getIntValue();
-  me = bei->get("Pixel/Barrel/BarrelClusterChargeCut");
-  if(me) barrel_cuts_temp[4] = me->getIntValue();
-  for(int k=0; k!=5; k++){
-    if(barrel_cuts_temp[k]>=0){
-      numerator = numerator + barrel_cuts_temp[k];
-      denominator++;
-      //cout<<"cut flag, Barrel: "<<k<<","<<barrel_cuts_temp[k]<<","<<numerator<<","<<denominator<<endl;
-    }
-  } 
-  if(denominator!=0) combinedCuts = float(numerator)/float(denominator);  
-  barrelFlag = barrel_errors_temp[0] * combinedCuts;
-  
-  
-  //cout<<" the resulting barrel flag is: "<<barrel_errors_temp[0]<<"*"<<combinedCuts<<"="<<barrelFlag<<endl;
-  
-  // Endcap results:
-  combinedCuts = 1.; numerator = 0; denominator = 0;
-  me = bei->get("Pixel/Endcap/EndcapNErrorsCut");
-  if(me) endcap_errors_temp[0] = me->getFloatValue();
-  me = bei->get("Pixel/Endcap/EndcapNDigisCut");
-  if(me) endcap_cuts_temp[0] = me->getIntValue();
-  me = bei->get("Pixel/Endcap/EndcapDigiChargeCut");
-  if(me) endcap_cuts_temp[1] = me->getIntValue();
-  me = bei->get("Pixel/Endcap/EndcapClusterSizeCut");
-  if(me) endcap_cuts_temp[2] = me->getIntValue();
-  me = bei->get("Pixel/Endcap/EndcapNClustersCut");
-  if(me) endcap_cuts_temp[3] = me->getIntValue();
-  me = bei->get("Pixel/Endcap/EndcapClusterChargeCut");
-  if(me) endcap_cuts_temp[4] = me->getIntValue();
-  for(int k=0; k!=5; k++){
-    if(endcap_cuts_temp[k]>=0){
-      numerator = numerator + endcap_cuts_temp[k];
-      denominator++;
-      //cout<<"cut flag, Endcap: "<<k<<","<<endcap_cuts_temp[k]<<","<<numerator<<","<<denominator<<endl;
-    }
-  } 
-  if(denominator!=0) combinedCuts = float(numerator)/float(denominator);  
-  endcapFlag = endcap_errors_temp[0] * combinedCuts;
-  //cout<<" the resulting endcap flag is: "<<endcap_errors_temp[0]<<"*"<<combinedCuts<<"="<<endcapFlag<<endl;
-  
-  // Track results:
-  combinedCuts = 1.; numerator = 0; denominator = 0;
-  me = bei->get("Pixel/Tracks/PixelTracksCut");
-  if(me) pixel_cuts_temp[0] = me->getIntValue();
-
-  //Combination of all:
-  combinedCuts = 1.; numerator = 0; denominator = 0;
-  for(int k=0; k!=5; k++){
-    if(barrel_cuts_temp[k]>=0){
-      numerator = numerator + barrel_cuts_temp[k];
-      denominator++;
-    }
-    //cout<<"after barrel: num="<<numerator<<" , den="<<denominator<<endl;
-    if(endcap_cuts_temp[k]>=0){
-      numerator = numerator + endcap_cuts_temp[k];
-      denominator++;
-    }
-    if(k<1 && pixel_cuts_temp[k]>=0){
-      numerator = numerator + pixel_cuts_temp[k];
-      denominator++;
-    }
-    //cout<<"after both: num="<<numerator<<" , den="<<denominator<<endl;
-  } 
-  if(denominator!=0) combinedCuts = float(numerator)/float(denominator); 
-  pixelFlag = (1.-PixelRate_LS) * float(combinedCuts);
-  
+  float pixelFlag = 1.-PixelRate_LS;
+  float barrelFlag = 1.-BarrelRate_LS;
+  float endcapFlag = 1.-EndcapRate_LS;
   
   //cout<<"barrel, endcap, pixel flags: "<<barrelFlag<<","<<endcapFlag<<","<<pixelFlag<<endl;
   SummaryPixel = bei->get("Pixel/EventInfo/reportSummary");
@@ -966,7 +659,7 @@ void SiPixelDataQuality::computeGlobalQualityFlagByLumi(DQMStore * bei,
   if(SummaryBarrel) SummaryBarrel->Fill(barrelFlag);
   SummaryEndcap = bei->get("Pixel/EventInfo/reportSummaryContents/PixelEndcapFraction");
   if(SummaryEndcap)   SummaryEndcap->Fill(endcapFlag);
-  }
+  
 }
 
 //**********************************************************************************************
