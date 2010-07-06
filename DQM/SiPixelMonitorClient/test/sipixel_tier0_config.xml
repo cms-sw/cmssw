@@ -89,7 +89,6 @@
      <MonElement name="size_OnTrack"></MonElement>
 </SubStructureGrandEndcapLevel> 
 <SubStructureNonDetId name="AdditionalPixelErrors" update_frequency="300"> 
-     <MonElement name="NErrors"></MonElement> 
      <MonElement name="FedChNErrArray"></MonElement>
      <MonElement name="FedChLErrArray"></MonElement>
      <MonElement name="FedETypeNErrArray"></MonElement>

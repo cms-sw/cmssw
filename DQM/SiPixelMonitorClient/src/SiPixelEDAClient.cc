@@ -301,6 +301,7 @@ void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup
     sipixelDataQuality_->computeGlobalQualityFlag(bei_,init,nFEDs_,Tier0Flag_);
     init=true;
     bei_->cd();
+    //cout  << " Making run end reportSummaryMap: " <<nFEDs_<< endl;;
     sipixelDataQuality_->fillGlobalQualityPlot(bei_,init,eSetup,nFEDs_,Tier0Flag_);
     //cout << " Checking for new noisy pixels " << endl;
     init=true;
