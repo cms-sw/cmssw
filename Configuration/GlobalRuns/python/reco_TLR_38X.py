@@ -76,6 +76,11 @@ def customisePPData(process):
 
     ##beam-halo-id for data only
     process.CSCHaloData.ExpectedBX = cms.int32(3)
+
+    ## hcal hit flagging
+    process.hfreco.PETstat  = 2
+    process.hfreco.S8S1stat = 18
+    process.hfreco.S9S1stat = 26
     
     return process
 
