@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Wed Sep 26 08:27:23 EDT 2007
-// $Id: DumpGeom.cc,v 1.3 2010/07/01 14:40:07 mccauley Exp $
+// $Id: DumpGeom.cc,v 1.4 2010/07/02 14:53:41 mccauley Exp $
 //
 //
 
@@ -41,6 +41,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
+
+#include "Fireworks/Geometry/interface/DisplayGeomRecord.h"
 
 #include "TGeoManager.h"
 #include "TCanvas.h"
@@ -122,14 +124,6 @@ class DumpGeom : public edm::EDAnalyzer
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
-      TGeoShape* createShape(const std::string& iName,
-			     const DDSolid& iSolid);
-      TGeoVolume* createVolume(const std::string& iName,
-			       const DDSolid& iSolid,
-			       const DDMaterial& iMaterial);
-
-   TGeoMaterial* createMaterial(const DDMaterial& iMaterial);
-
       void mapDTGeometry(const DDCompactView& cview,
 			 const MuonDDDConstants& muonConstants,
 			 const DTGeometry& dtGeom);
@@ -143,8 +137,6 @@ class DumpGeom : public edm::EDAnalyzer
                           const MuonDDDConstants& muonConstants);
 
       // ----------member data ---------------------------
-      int level_;
-      bool verbose_;
       struct Info{
 	std::string name;
 	Float_t points[24]; // x1,y1,z1...x8,y8,z8
@@ -171,10 +163,6 @@ class DumpGeom : public edm::EDAnalyzer
 	}
       };
 
-      std::map<std::string, TGeoShape*>    nameToShape_;
-      std::map<std::string, TGeoVolume*>   nameToVolume_;
-      std::map<std::string, TGeoMaterial*> nameToMaterial_;
-      std::map<std::string, TGeoMedium*>   nameToMedium_;
       std::map<unsigned int, Info>         idToName_;
 };
 
@@ -189,336 +177,18 @@ class DumpGeom : public edm::EDAnalyzer
 //
 // constructors and destructor
 //
-DumpGeom::DumpGeom(const edm::ParameterSet& iConfig):
-   level_(iConfig.getUntrackedParameter<int>("level",4)),
-   verbose_(iConfig.getUntrackedParameter<bool>("verbose",false))
+DumpGeom::DumpGeom(const edm::ParameterSet&)
 {
-   //now do what ever initialization is needed
-
+   // now do what ever initialization is needed
 }
 
 
 DumpGeom::~DumpGeom()
 {
- 
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-
 }
 
-
-//
-// member functions
-//
-static
-TGeoCombiTrans* createPlacement(const DDRotationMatrix& iRot,
-				const DDTranslation& iTrans)
-{
-  //  std::cout << "in createPlacement" << std::endl;
-   double elements[9];
-   iRot.GetComponents(elements);
-   TGeoRotation r;
-   r.SetMatrix(elements);
-
-   TGeoTranslation t(iTrans.x()/cm,
-		     iTrans.y()/cm,
-		     iTrans.z()/cm);
-
-   return new TGeoCombiTrans(t,r);
-}
-
-
-TGeoShape* 
-DumpGeom::createShape(const std::string& iName,
-		      const DDSolid& iSolid)
-{
-   TGeoShape* rSolid= nameToShape_[iName];
-   if(0==rSolid) {
-   
-      const std::vector<double>& params = iSolid.parameters();
-      //      std::cout <<"  shape "<<iSolid<<std::endl;
-      switch(iSolid.shape()) {
-	 case ddbox:
-	    rSolid = new TGeoBBox(
-	       iName.c_str(),
-	       params[0]/cm,
-	       params[1]/cm,
-	       params[2]/cm);
-	    break;
-	 case ddcons:
-	    rSolid = new TGeoConeSeg(
-	       iName.c_str(),
-	       params[0]/cm,
-	       params[1]/cm,
-	       params[2]/cm,
-	       params[3]/cm,
-	       params[4]/cm,
-	       params[5]/deg,
-	       params[6]/deg+params[5]/deg
-	       );
-	    break;
-	 case ddtubs:
-	    //Order in params is  zhalf,rIn,rOut,startPhi,deltaPhi
-	    rSolid= new TGeoTubeSeg(
-	       iName.c_str(),
-	       params[1]/cm,
-	       params[2]/cm,
-	       params[0]/cm,
-	       params[3]/deg,
-	       params[4]/deg);
-	    break;
-	 case ddtrap:
-	    rSolid =new TGeoTrap(
-	       iName.c_str(),
-	       params[0]/cm,  //dz
-	       params[1]/deg, //theta
-	       params[2]/deg, //phi
-	       params[3]/cm,  //dy1
-	       params[4]/cm,  //dx1
-	       params[5]/cm,  //dx2
-	       params[6]/deg, //alpha1
-	       params[7]/cm,  //dy2
-	       params[8]/cm,  //dx3
-	       params[9]/cm,  //dx4
-	       params[10]/deg);//alpha2
-	    break;
-	 case ddpolycone_rrz:	 
-	    rSolid = new TGeoPcon(
-	       iName.c_str(),
-	       params[0]/deg,
-	       params[1]/deg,
-	       (params.size()-2)/3) ;
-	    {
-	       std::vector<double> temp(params.size()+1);
-	       temp.reserve(params.size()+1);
-	       temp[0]=params[0]/deg;
-	       temp[1]=params[1]/deg;
-	       temp[2]=(params.size()-2)/3;
-	       std::copy(params.begin()+2,params.end(),temp.begin()+3);
-	       for(std::vector<double>::iterator it=temp.begin()+3;
-		   it != temp.end();
-		   ++it) {
-		  *it /=cm;
-	       }	       
-	       rSolid->SetDimensions(&(*(temp.begin())));
-	    }
-	    break;
-	 case ddpolyhedra_rrz:
-	    rSolid = new TGeoPgon(
-	       iName.c_str(),
-	       params[1]/deg,
-	       params[2]/deg,
-	       static_cast<int>(params[0]),
-	       (params.size()-3)/3);
-	    {
-	       std::vector<double> temp(params.size()+1);
-	       temp[0]=params[1]/deg;
-	       temp[1]=params[2]/deg;
-	       temp[2]=params[0];
-	       temp[3]=(params.size()-3)/3;
-	       std::copy(params.begin()+3,params.end(),temp.begin()+4);
-	       for(std::vector<double>::iterator it=temp.begin()+4;
-		   it != temp.end();
-		   ++it) {
-		  *it /=cm;
-	       }
-	       rSolid->SetDimensions(&(*(temp.begin())));
-	    }
-	    break;
-	 case ddpseudotrap:
-	 {
-	    //implementation taken from SimG4Core/Geometry/src/DDG4SolidConverter.cc
-	    static DDRotationMatrix s_rot(ROOT::Math::RotationX(90.*deg));
-	    DDPseudoTrap pt(iSolid);
-	    assert(pt.radius() < 0);
-	    double x=0;
-	    double r = fabs(pt.radius());
-	    if( pt.atMinusZ()) {
-	       x=pt.x1();
-	    } else {
-	       x=pt.x2();
-	    }
-	    double openingAngle = 2.0*asin(x/r);
-	    double h=pt.y1()<pt.y2()? pt.y2() :pt.y1();
-	    h+=h/20.;
-	    double displacement=0;
-	    double startPhi = 0;
-	    double delta = sqrt((r+x)*(r-x));
-	    if(pt.atMinusZ()) {
-	       displacement=-pt.halfZ() - delta;
-	       startPhi = 270.-openingAngle/deg/2.0;
-	    }else {
-	       displacement = pt.halfZ() + delta;
-	       startPhi = 90. - openingAngle/deg/2.;
-	    }
-	    std::auto_ptr<TGeoShape> trap( new TGeoTrd2(pt.name().name().c_str(),
-							pt.x1()/cm,
-							pt.x2()/cm,
-							pt.y1()/cm,
-							pt.y2()/cm,
-							pt.halfZ()/cm) );
-	    std::auto_ptr<TGeoShape> tubs( new TGeoTubeSeg(pt.name().name().c_str(),
-							   0.,
-							   r/cm,
-							   h/cm,
-							   startPhi,
-							   openingAngle) );
-	    TGeoSubtraction* sub = new TGeoSubtraction(trap.release(),
-						       tubs.release(),
-						       createPlacement(s_rot,
-								       DDTranslation(0.,
-										     0.,
-										     displacement)));
-	    rSolid = new TGeoCompositeShape(iName.c_str(),
-					    sub);
-	    
-	    
-	    break;
-	 }
-	 case ddsubtraction:
-	 {
-	    DDBooleanSolid boolSolid(iSolid);
-	    if(!boolSolid) {
-	       throw cms::Exception("GeomConvert") <<"conversion to DDBooleanSolid failed";
-	    }
-	    
-	    std::auto_ptr<TGeoShape> left( createShape(boolSolid.solidA().name().fullname(),
-						       boolSolid.solidA()) );
-	    std::auto_ptr<TGeoShape> right( createShape(boolSolid.solidB().name().fullname(),
-							boolSolid.solidB()));
-	    if( 0 != left.get() &&
-		0 != right.get() ) {
-	       TGeoSubtraction* sub = new TGeoSubtraction(left.release(),right.release(),
-							  gGeoIdentity,
-							  createPlacement(
-							     *(boolSolid.rotation().matrix()),
-							     boolSolid.translation()));
-	       rSolid = new TGeoCompositeShape(iName.c_str(),
-					       sub);
-	    }
-	    break;
-	 }
-	 case ddunion:
-	 {
-	    DDBooleanSolid boolSolid(iSolid);
-	    if(!boolSolid) {
-	       throw cms::Exception("GeomConvert") <<"conversion to DDBooleanSolid failed";
-	    }
-	    
-	    std::auto_ptr<TGeoShape> left( createShape(boolSolid.solidA().name().fullname(),
-						       boolSolid.solidA()) );
-	    std::auto_ptr<TGeoShape> right( createShape(boolSolid.solidB().name().fullname(),
-							boolSolid.solidB()));
-	    //DEBUGGING
-	    //break;
-	    if( 0 != left.get() &&
-		0 != right.get() ) {
-	       TGeoUnion* boolS = new TGeoUnion(left.release(),right.release(),
-						gGeoIdentity,
-						createPlacement(
-						   *(boolSolid.rotation().matrix()),
-						   boolSolid.translation()));
-	       rSolid = new TGeoCompositeShape(iName.c_str(),
-					       boolS);
-	    }
-	    break;
-	 }
-	 case ddintersection:
-	 {
-	    DDBooleanSolid boolSolid(iSolid);
-	    if(!boolSolid) {
-	       throw cms::Exception("GeomConvert") <<"conversion to DDBooleanSolid failed";
-	    }
-	    
-	    std::auto_ptr<TGeoShape> left( createShape(boolSolid.solidA().name().fullname(),
-						       boolSolid.solidA()) );
-	    std::auto_ptr<TGeoShape> right( createShape(boolSolid.solidB().name().fullname(),
-							boolSolid.solidB()));
-	    if( 0 != left.get() &&
-		0 != right.get() ) {
-	       TGeoIntersection* boolS = new TGeoIntersection(left.release(),
-							      right.release(),
-							      gGeoIdentity,
-							      createPlacement(
-								 *(boolSolid.rotation().matrix()),
-								 boolSolid.translation()));
-	       rSolid = new TGeoCompositeShape(iName.c_str(),
-					       boolS);
-	    }
-	    break;
-	 }
-	 default:
-	    break;
-      }
-      nameToShape_[iName]=rSolid;
-   }
-   if(0==rSolid) {
-      std::cerr <<"COULD NOT MAKE "<<iName<<std::endl;
-   }
-   return rSolid;
-}
-
-
-TGeoVolume* 
-DumpGeom::createVolume(const std::string& iName,
-		       const DDSolid& iSolid,
-		       const DDMaterial& iMaterial)
-{
-   TGeoVolume* v=nameToVolume_[iName];
-   if( 0==v) {
-   
-      TGeoShape* solid = createShape(iSolid.name().fullname(),
-				     iSolid);
-      std::string mat_name = iMaterial.name().fullname();
-      TGeoMedium *geo_med  = nameToMedium_[mat_name];
-      if (geo_med == 0)
-      {
-         TGeoMaterial *geo_mat = createMaterial(iMaterial);
-         geo_med = new TGeoMedium(mat_name.c_str(), 0, geo_mat);
-         nameToMedium_[mat_name] = geo_med;
-      }
-      if (solid)
-      {
-	 v = new TGeoVolume(iName.c_str(),
-			    solid,
-			    geo_med);
-      }
-      nameToVolume_[iName]=v;
-   }
-   return v;
-}
-
-TGeoMaterial*
-DumpGeom::createMaterial(const DDMaterial& iMaterial)
-{
-   std::string   mat_name = iMaterial.name().fullname();
-   TGeoMaterial *mat      = nameToMaterial_[mat_name];
-
-   if (mat == 0)
-   {
-      if (iMaterial.noOfConstituents() > 0)
-      {
-         TGeoMixture *mix = new TGeoMixture(mat_name.c_str(),
-                                            iMaterial.noOfConstituents(),
-                                            iMaterial.density()*cm3/g);
-         for (int i = 0; i < iMaterial.noOfConstituents(); ++i)
-         {
-            mix->AddElement(createMaterial(iMaterial.constituent(i).first),
-                            iMaterial.constituent(i).second);
-         }
-         mat = mix;
-      }
-      else
-      {
-         mat = new TGeoMaterial(mat_name.c_str(),
-                                iMaterial.a()*mole/g, iMaterial.z(),
-                                iMaterial.density()*cm3/g);
-      }
-      nameToMaterial_[mat_name] = mat;
-   }
-
-   return mat;
-}
 
 void DumpGeom::mapDTGeometry(const DDCompactView& cview,
 			     const MuonDDDConstants& muonConstants,
@@ -1142,9 +812,19 @@ void DumpGeom::mapRPCGeometry(const DDCompactView& cview,
 void
 DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  std::cout << "In the DumpGeom::analyze method..." << std::endl;
+   std::cout << "In the DumpGeom::analyze method..." << std::endl;
    using namespace edm;
 
+   ESTransientHandle<TGeoManager> geoh;
+   iSetup.get<DisplayGeomRecord>().get(geoh);
+   TGeoManager *geom = const_cast<TGeoManager*>(geoh.product());
+
+   int level = 1 + geom->GetTopVolume()->CountNodes(100, 3);
+
+   std::cout << "In the DumpGeom::analyze method...obtained main geometry, level="
+             << level << std::endl;
+
+   
    ESTransientHandle<DDCompactView> viewH;
    iSetup.get<IdealGeometryRecord>().get(viewH);
 
@@ -1165,104 +845,7 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 //    } else {
 //      std::cout << "pG is NOT valid" << std::endl;
 //    }
-   std::auto_ptr<TGeoManager> geom(new TGeoManager("cmsGeo","CMS Detector"));
-   //NOTE: the default constructor does not create the identity matrix
-   if(0==gGeoIdentity) {
-      gGeoIdentity = new TGeoIdentity("Identity");
-   }
 
-   std::cout << "about to initialize the DDCompactView walker" << std::endl;
-   DDCompactView::walker_type walker(viewH->graph());
-   DDCompactView::walker_type::value_type info = 
-      walker.current();
-   //The top most item is actually the volume holding both the
-   // geometry AND the magnetic field volumes!
-   walker.firstChild();
-
-   TGeoVolume* top = createVolume(info.first.name().fullname(),
-				  info.first.solid(),
-                                  info.first.material());
-
-   if(0==top) {
-      return;
-   }
-   geom->SetTopVolume(top);
-   //ROOT chokes unless colors are assigned
-   top->SetVisibility(kFALSE);
-   top->SetLineColor(kBlue);
-
-   std::vector<TGeoVolume*> parentStack;
-   parentStack.push_back(top);
-
-   if( not walker.firstChild() ) {
-      return;
-   }
-
-   // Matevz, 23.3.2010
-   // This is needed to avoid errors from TGeo to cause process termination.
-   // The root patch will be submitted for integration in 3.6.0-pre4.
-   ErrorHandlerFunc_t old_eh = SetErrorHandler(DefaultErrorHandler);
-
-   do {
-      DDCompactView::walker_type::value_type info = 
-	 walker.current();
-      if(verbose_) {
-	 for(unsigned int i=0; i<parentStack.size();++i) {
-	    std::cout <<" ";
-	 }
-	 std::cout << info.first.name()<<" "<<info.second->copyno_<<" "
-		   << DDSolidShapesName::name(info.first.solid().shape())<<std::endl;
-      }
-
-      bool childAlreadyExists = (0 != nameToVolume_[info.first.name().fullname()]);
-      TGeoVolume* child = createVolume(info.first.name().fullname(),
-				       info.first.solid(),
-				       info.first.material());
-      if(0!=child && info.second != 0) {
-	 parentStack.back()->AddNode(child,
-				 info.second->copyno_,
-				 createPlacement(info.second->rotation(),
-						 info.second->translation()));
-	 child->SetLineColor(kBlue);
-      }  else {
-	if ( info.second == 0 ) {
-	  break;
- 	}
-      }
-      if(0 == child || childAlreadyExists || level_ == int(parentStack.size()) ) {
-	 if(0!=child) {
-	    child->SetLineColor(kRed);
-	 }
-	 //stop descending
-	 if( not walker.nextSibling()) {
-	    while(walker.parent()) {
-	       parentStack.pop_back();
-	       if(walker.nextSibling()) {
-		  break;
-	       }
-	    }
-	 }
-      } else {
-	 if( walker.firstChild() ) {
-	    parentStack.push_back(child);
-	 }else {	    
-	    if( not walker.nextSibling() ) {
-	       while(walker.parent()) {
-		  parentStack.pop_back();
-		  if(walker.nextSibling()) {
-		     break;
-		  }
-	       }
-	    }
-	 }
-      }
-   } while(not parentStack.empty());
-
-   // MT -- goes with the above work-around.
-   SetErrorHandler(old_eh);
-
-   geom->CloseGeometry();
-   std::cout << "In the DumpGeom::analyze method...done with main geometry" << std::endl;
    mapDTGeometry(*viewH, *mdc, *muonDTGeom);
    std::cout << "In the DumpGeom::analyze method...done with DT" << std::endl;
    mapCSCGeometry(*viewH, *mdc);
@@ -1279,16 +862,23 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    mapRPCGeometry(*viewH, *mdc);
    std::cout << "In the DumpGeom::analyze method...done with RPC" << std::endl;
    
-   TCanvas * canvas = new TCanvas( );
-   top->Draw("ogle");
+   // TCanvas * canvas = new TCanvas( );
+   // top->Draw("ogle");
+   // std::stringstream s;
+   // s<<"dump"<<level<<".eps";
+   // canvas->SaveAs(s.str().c_str());
+   // delete canvas;
 
-   std::stringstream s;
-   s<<"dump"<<level_<<".eps";
-   canvas->SaveAs(s.str().c_str());
-   delete canvas;
+   // Matevz, 7.7.2010
+   // This is needed to avoid errors from TGeoManager::cd() that cause process termination.
+   // They occur in the loop below (ecal) when extraction level is too low.
+   // The list is long ... Muons, Ecal, maybe something else.
+   // Run like this to see:
+   //   cmsRun dump_cfg.py 2>&1 | less
+   ErrorHandlerFunc_t old_eh = SetErrorHandler(DefaultErrorHandler);
 
    std::stringstream s2;
-    s2<<"cmsGeom"<<level_<<".root";
+    s2<<"cmsGeom"<<level<<".root";
    TFile f(s2.str().c_str(),"RECREATE");
    
    TTree* tree = new TTree("idToGeo","Raw detector id association with geomtry");
@@ -1321,10 +911,12 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	// v_shape = geom->GetCurrentVolume()->GetShape();
 	tree->Fill();
      }
-   f.WriteTObject(&*geom);
+   f.WriteTObject(geom);
    f.WriteTObject(tree);
    f.Close();
-   // geom->Export(s2.str().c_str());
+
+   // MT -- goes with the above work-around.
+   SetErrorHandler(old_eh);
 }
 
 // ------------ method called once each job just before starting event loop  ------------
