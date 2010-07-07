@@ -21,6 +21,7 @@ dqmBeamMonitorBx = cms.EDAnalyzer("BeamMonitorBx",
 				WriteDIPAscii = cms.untracked.bool(False),
 				DIPFileName = cms.untracked.string('BeamFitDIPBx.txt'),
 				SaveNtuple = cms.untracked.bool(False),
+				SavePVVertices = cms.untracked.bool(False),
 				SaveFitResults = cms.untracked.bool(False),
 				OutputFileName = cms.untracked.string('BeamFitBx.root'), ## ntuple filename
                                 MinimumPt = cms.untracked.double(1.0),
