@@ -23,6 +23,7 @@ import os
 cmssw_base=os.environ["CMSSW_BASE"]
 cmssw_release_base=os.environ["CMSSW_RELEASE_BASE"]
 pyrelvallocal=cmssw_base+"/src/Configuration/PyReleaseValidation"
+valperf=cmssw_base+"/src/Validation/Performance"
 #Set the path depending on the presence of a locally checked out version of PyReleaseValidation
 if os.path.exists(pyrelvallocal):
     RELEASE='CMSSW_BASE'
@@ -396,10 +397,11 @@ class Profile:
         #'--show-reachable=yes '+\
         #'--track-fds=yes '
         #Adding xml logging
+        xmlFileName = self.profile_name.replace(",","-")[:-4] + ".xml"
         valgrind_options='time valgrind --tool=memcheck `cmsvgsupp` '+\
                                '--num-callers=20 '+\
                                '--xml=yes '+\
-                               '--xml-file=%s.xml '%self.profile_name.replace(",","-")[:-4]
+                               '--xml-file=%s '%xmlFileName
         
         # If we are using cmsDriver we should use the prefix switch        
         if EXECUTABLE=='cmsRun' and self.command.find('cmsDriver.py')!=-1:
@@ -410,7 +412,15 @@ class Profile:
         else:                          
             profiler_line='%s %s >& %s' %(valgrind_options,self.command,self.profile_name)
                         #'--trace-children=yes '+\
-        return execute(profiler_line)
+        exec_status = execute(profiler_line)
+
+        # compact the xml by removing the Leak_* errors
+        if not exec_status:
+            newFileName = xmlFileName.replace('valgrind.xml', 'vlgd.xml')
+            compactCmd = 'xsltproc --output %s %s/test/filterOutValgrindLeakErrors.xsl %s' %(newFileName, valperf, xmlFileName)
+            execute(compactCmd)
+        
+        return exec_status
     #-------------------------------------------------------------------
     
     def _profile_Timereport_Parser(self):
