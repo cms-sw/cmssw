@@ -42,6 +42,7 @@ HLT_L2Mu11
 HLT_L2DoubleMu0
 HLT_Mu3
 HLT_Mu5
+HLT_Mu7
 HLT_Mu9
 HLT_IsoMu3
 HLT_L1DoubleMuOpen
