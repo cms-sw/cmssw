@@ -20,6 +20,7 @@
 <use name="rootcintex"/>
 <use name="rootinteractive"/>
 <use name="rootrflx"/>
+<use name="rootgraphics"/>
 <use name="sigcpp"/>
 <lib name="Thread"/>
 <lib name="Eve"/>
