@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_6_2/GRun/V27
+# /dev/CMSSW_3_6_2/GRun/V28
 
 import FWCore.ParameterSet.Config as cms
 
@@ -160,13 +160,7 @@ streamA_datasetMuOnia_selector.triggerConditions = cms.vstring('HLT_Mu0_L1MuOpen
     'HLT_Mu5_L2Mu0', 
     'HLT_L2DoubleMu0', 
     'HLT_DoubleMu0', 
-    'HLT_L1DoubleMuOpen_Tight', 
-    'HLT_Mu0_TkMu0_Jpsi', 
-    'HLT_Mu0_TkMu0_Jpsi_NoCharge', 
-    'HLT_Mu3_TkMu0_Jpsi', 
-    'HLT_Mu3_TkMu0_Jpsi_NoCharge', 
-    'HLT_Mu5_TkMu0_Jpsi', 
-    'HLT_Mu5_TkMu0_Jpsi_NoCharge')
+    'HLT_L1DoubleMuOpen_Tight')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetEGMonitor_selector
 streamA_datasetEGMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
