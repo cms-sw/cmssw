@@ -633,8 +633,32 @@ zMuTrk =(
     cms.PSet(
     tag = cms.untracked.string("Dau1TrackerMuonBit"),
     quantity = cms.untracked.string("daughter(0).masterClone.isTrackerMuon")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau1Iso03SumPt"),
+    quantity = cms.untracked.string("daughter(0).masterClone.trackIso")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau2Iso03SumPt"),
+    quantity = cms.untracked.string("daughter(1).masterClone.trackIso")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau1Iso03EmEt"),
+    quantity = cms.untracked.string("daughter(0).masterClone.ecalIso")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau2Iso03EmEt"),
+    quantity = cms.untracked.string("daughter(1).masterClone.ecalIso")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau1Iso03HadEt"),
+    quantity = cms.untracked.string("daughter(0).masterClone.hcalIso")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau2Iso03HadEt"),
+    quantity = cms.untracked.string("daughter(1).masterClone.hcalIso")
     )
-           
+    
     )
 
 
