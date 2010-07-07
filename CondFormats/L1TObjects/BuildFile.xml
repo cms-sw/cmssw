@@ -1,5 +1,4 @@
 <flags   GENREFLEX_ARGS="--"/>
-<use   name="CondFormats/Common"/>
 <use   name="boost"/>
 <use   name="DataFormats/MuonDetId"/>
 <use   name="FWCore/ParameterSet"/>
