@@ -572,11 +572,30 @@ namespace edm {
   void IndexIntoFile::set_intersection(IndexIntoFile const& indexIntoFile,
                                        std::set<IndexRunLumiEventKey> & intersection) const {
 
+    if (empty() || indexIntoFile.empty()) return;
+    fillRunOrLumiIndexes();
+    indexIntoFile.fillRunOrLumiIndexes();
+    RunOrLumiIndexes const& back1 = runOrLumiIndexes().back();
+    RunOrLumiIndexes const& back2 = indexIntoFile.runOrLumiIndexes().back();
+
+    // Very quick decision if the run ranges in the two files do not overlap
+    if (back2 < runOrLumiIndexes().front()) return;
+    if (back1 < indexIntoFile.runOrLumiIndexes().front()) return;
+
     SortedRunOrLumiItr iter1 = beginRunOrLumi();
     SortedRunOrLumiItr iEnd1 = endRunOrLumi();
 
     SortedRunOrLumiItr iter2 = indexIntoFile.beginRunOrLumi();
     SortedRunOrLumiItr iEnd2 = indexIntoFile.endRunOrLumi();
+
+    // Quick decision if the lumi ranges in the two files do not overlap
+    while (iter1 != iEnd1 && iter1.isRun()) ++iter1;
+    if (iter1 == iEnd1) return;
+    if (back2 < iter1.runOrLumiIndexes()) return;
+
+    while (iter2 != iEnd2 && iter2.isRun()) ++iter2;
+    if (iter2 == iEnd2) return;
+    if (back1 < iter2.runOrLumiIndexes()) return;
 
     RunOrLumiIndexes const* previousIndexes = 0;
  

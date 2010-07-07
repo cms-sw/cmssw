@@ -29,6 +29,7 @@ class TestIndexIntoFile: public CppUnit::TestFixture
   CPPUNIT_TEST(testEmptyIndex);
   CPPUNIT_TEST(testIterators);
   CPPUNIT_TEST(testFind);
+  CPPUNIT_TEST(testDuplicateCheckerFunctions);
   CPPUNIT_TEST_SUITE_END();
   
 public:
@@ -73,6 +74,7 @@ public:
   void testEmptyIndex();
   void testIterators();
   void testFind();
+  void testDuplicateCheckerFunctions();
 
   ProcessHistoryID nullPHID;
   ProcessHistoryID fakePHID1;
@@ -1151,5 +1153,161 @@ void TestIndexIntoFile::testFind() {
     CPPUNIT_ASSERT(indexIntoFile.containsItem(2, 12, 0));
     CPPUNIT_ASSERT(!indexIntoFile.containsItem(2, 100, 0));
     CPPUNIT_ASSERT(iter == indexIntoFile.end(IndexIntoFile::numericalOrder));
+  }
+}
+
+void TestIndexIntoFile::testDuplicateCheckerFunctions() {
+
+  std::set<IndexIntoFile::IndexRunLumiEventKey> relevantPreviousEvents;
+
+  edm::IndexIntoFile indexIntoFile1;
+  indexIntoFile1.addEntry(fakePHID1, 6, 1, 0, 0); // Lumi
+  indexIntoFile1.addEntry(fakePHID1, 6, 0, 0, 0); // Run
+  indexIntoFile1.sortVector_Run_Or_Lumi_Entries();
+
+  //Empty Index
+  edm::IndexIntoFile indexIntoFile2;
+  relevantPreviousEvents.clear();
+  indexIntoFile1.set_intersection(indexIntoFile2, relevantPreviousEvents);
+  CPPUNIT_ASSERT(relevantPreviousEvents.empty());
+
+  relevantPreviousEvents.clear();
+  indexIntoFile2.set_intersection(indexIntoFile1, relevantPreviousEvents);
+  CPPUNIT_ASSERT(relevantPreviousEvents.empty());
+
+  // Run ranges do not overlap
+  edm::IndexIntoFile indexIntoFile3;
+  indexIntoFile3.addEntry(fakePHID1, 7, 0, 0, 0); // Run
+  indexIntoFile3.sortVector_Run_Or_Lumi_Entries();
+
+  relevantPreviousEvents.clear();
+  indexIntoFile1.set_intersection(indexIntoFile3, relevantPreviousEvents);
+  CPPUNIT_ASSERT(relevantPreviousEvents.empty());
+
+  relevantPreviousEvents.clear();
+  indexIntoFile3.set_intersection(indexIntoFile1, relevantPreviousEvents);
+  CPPUNIT_ASSERT(relevantPreviousEvents.empty());
+
+  // No lumis
+  edm::IndexIntoFile indexIntoFile4;
+  indexIntoFile4.addEntry(fakePHID1, 6, 0, 0, 0); // Run
+  indexIntoFile4.addEntry(fakePHID1, 7, 0, 0, 0); // Run
+  indexIntoFile4.sortVector_Run_Or_Lumi_Entries();
+
+  relevantPreviousEvents.clear();
+  indexIntoFile1.set_intersection(indexIntoFile4, relevantPreviousEvents);
+  CPPUNIT_ASSERT(relevantPreviousEvents.empty());
+
+  relevantPreviousEvents.clear();
+  indexIntoFile4.set_intersection(indexIntoFile1, relevantPreviousEvents);
+  CPPUNIT_ASSERT(relevantPreviousEvents.empty());
+
+  // Lumi ranges do not overlap
+  edm::IndexIntoFile indexIntoFile5;
+  indexIntoFile5.addEntry(fakePHID1, 6, 2, 0, 0); // Lumi
+  indexIntoFile5.addEntry(fakePHID1, 6, 0, 0, 0); // Run
+  indexIntoFile5.addEntry(fakePHID1, 6, 0, 0, 0); // Run
+  indexIntoFile5.sortVector_Run_Or_Lumi_Entries();
+
+  relevantPreviousEvents.clear();
+  indexIntoFile1.set_intersection(indexIntoFile5, relevantPreviousEvents);
+  CPPUNIT_ASSERT(relevantPreviousEvents.empty());
+
+  relevantPreviousEvents.clear();
+  indexIntoFile5.set_intersection(indexIntoFile1, relevantPreviousEvents);
+  CPPUNIT_ASSERT(relevantPreviousEvents.empty());
+
+
+  for (int j = 0; j < 2; ++j) {
+    edm::IndexIntoFile indexIntoFile11;
+    indexIntoFile11.addEntry(fakePHID1, 6, 2, 0, 0); // Lumi
+    indexIntoFile11.addEntry(fakePHID1, 6, 3, 0, 1); // Lumi
+    indexIntoFile11.addEntry(fakePHID1, 6, 3, 0, 2); // Lumi
+    indexIntoFile11.addEntry(fakePHID1, 6, 0, 0, 0); // Run
+    indexIntoFile11.addEntry(fakePHID1, 6, 0, 0, 1); // Run
+    indexIntoFile11.addEntry(fakePHID1, 7, 1, 1, 0); // Event
+    indexIntoFile11.addEntry(fakePHID1, 7, 1, 2, 1); // Event
+    indexIntoFile11.addEntry(fakePHID1, 7, 1, 3, 2); // Event
+    indexIntoFile11.addEntry(fakePHID1, 7, 1, 4, 3); // Event
+    indexIntoFile11.addEntry(fakePHID1, 7, 1, 0, 3); // Lumi
+    indexIntoFile11.addEntry(fakePHID1, 7, 0, 0, 2); // Run
+    indexIntoFile11.sortVector_Run_Or_Lumi_Entries();
+   
+    edm::IndexIntoFile indexIntoFile12;
+    indexIntoFile12.addEntry(fakePHID1, 6, 1, 0, 0); // Lumi
+    indexIntoFile12.addEntry(fakePHID1, 6, 3, 0, 1); // Lumi
+    indexIntoFile12.addEntry(fakePHID1, 6, 3, 0, 2); // Lumi
+    indexIntoFile12.addEntry(fakePHID1, 6, 0, 0, 0); // Run
+    indexIntoFile12.addEntry(fakePHID1, 6, 0, 0, 1); // Run
+    indexIntoFile12.addEntry(fakePHID1, 7, 1, 1, 0); // Event
+    indexIntoFile12.addEntry(fakePHID1, 7, 1, 7, 1); // Event
+    indexIntoFile12.addEntry(fakePHID1, 7, 1, 3, 2); // Event
+    indexIntoFile12.addEntry(fakePHID1, 7, 1, 8, 3); // Event
+    indexIntoFile12.addEntry(fakePHID1, 7, 1, 0, 3); // Lumi
+    indexIntoFile12.addEntry(fakePHID1, 7, 1, 11, 4); // Event
+    indexIntoFile12.addEntry(fakePHID1, 7, 1, 7, 5); // Event
+    indexIntoFile12.addEntry(fakePHID1, 7, 1, 3, 6); // Event
+    indexIntoFile12.addEntry(fakePHID1, 7, 1, 4, 7); // Event
+    indexIntoFile12.addEntry(fakePHID1, 7, 1, 0, 4); // Lumi
+    indexIntoFile12.addEntry(fakePHID1, 7, 0, 0, 2); // Run
+    indexIntoFile12.sortVector_Run_Or_Lumi_Entries();
+
+    TestEventFinder* ptr11(new TestEventFinder);
+    ptr11->push_back(1);
+    ptr11->push_back(2);
+    ptr11->push_back(3);
+    ptr11->push_back(4);
+
+    boost::shared_ptr<IndexIntoFile::EventFinder> shptr11(ptr11);
+    indexIntoFile11.setEventFinder(shptr11);
+
+    TestEventFinder* ptr12(new TestEventFinder);
+    ptr12->push_back(1);
+    ptr12->push_back(7);
+    ptr12->push_back(3);
+    ptr12->push_back(8);
+    ptr12->push_back(11);
+    ptr12->push_back(7);
+    ptr12->push_back(3);
+    ptr12->push_back(4);
+
+    boost::shared_ptr<IndexIntoFile::EventFinder> shptr12(ptr12);
+    indexIntoFile12.setEventFinder(shptr12);
+
+    if (j == 0) {
+      indexIntoFile11.fillEventNumbers();
+      indexIntoFile12.fillEventNumbers();
+    }
+    else {
+      indexIntoFile11.fillEventEntries();
+      indexIntoFile12.fillEventEntries();
+    }
+
+    relevantPreviousEvents.clear();
+    indexIntoFile11.set_intersection(indexIntoFile12, relevantPreviousEvents);
+    CPPUNIT_ASSERT(relevantPreviousEvents.size() == 3);
+    std::set<IndexIntoFile::IndexRunLumiEventKey>::const_iterator iter = relevantPreviousEvents.begin();
+    CPPUNIT_ASSERT(iter->event() == 1);
+    CPPUNIT_ASSERT(iter->processHistoryIDIndex() == 0);
+    CPPUNIT_ASSERT(iter->run() == 7);
+    CPPUNIT_ASSERT(iter->lumi() == 1);
+    ++iter;
+    CPPUNIT_ASSERT(iter->event() == 3);
+    ++iter;
+    CPPUNIT_ASSERT(iter->event() == 4);
+    
+    relevantPreviousEvents.clear();
+    indexIntoFile12.set_intersection(indexIntoFile11, relevantPreviousEvents);
+    CPPUNIT_ASSERT(relevantPreviousEvents.size() == 3);
+    iter = relevantPreviousEvents.begin();
+    CPPUNIT_ASSERT(iter->event() == 1);
+    CPPUNIT_ASSERT(iter->processHistoryIDIndex() == 0);
+    CPPUNIT_ASSERT(iter->run() == 7);
+    CPPUNIT_ASSERT(iter->lumi() == 1);
+    ++iter;
+    CPPUNIT_ASSERT(iter->event() == 3);
+    ++iter;
+    CPPUNIT_ASSERT(iter->event() == 4);
+    
   }
 }
