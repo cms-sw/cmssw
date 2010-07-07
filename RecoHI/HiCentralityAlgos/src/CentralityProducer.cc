@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.16 2010/03/20 12:23:00 yilmaz Exp $
+// $Id: CentralityProducer.cc,v 1.17 2010/06/01 22:58:57 yutingb Exp $
 //
 //
 
@@ -69,6 +69,10 @@ class CentralityProducer : public edm::EDFilter {
    bool produceEcalhits_;
    bool produceBasicClusters_;
    bool produceZDChits_;
+   bool produceETmidRap_;
+   bool reuseAny_;
+
+   double midRapidityRange_;
 
    edm::InputTag  srcHFhits_;	
    edm::InputTag  srcTowers_;
@@ -77,6 +81,9 @@ class CentralityProducer : public edm::EDFilter {
    edm::InputTag srcBasicClustersEE_;
    edm::InputTag srcBasicClustersEB_;
    edm::InputTag srcZDChits_;
+
+   edm::InputTag reuseTag_;
+
 };
 
 //
@@ -101,9 +108,11 @@ CentralityProducer::CentralityProducer(const edm::ParameterSet& iConfig)
    produceBasicClusters_ = iConfig.getParameter<bool>("produceBasicClusters");
    produceEcalhits_ = iConfig.getParameter<bool>("produceEcalhits");
    produceZDChits_ = iConfig.getParameter<bool>("produceZDChits");
+   produceETmidRap_ = iConfig.getParameter<bool>("produceETmidRapidity");
+   midRapidityRange_ = iConfig.getParameter<double>("midRapidityRange");
 
    if(produceHFhits_)  srcHFhits_ = iConfig.getParameter<edm::InputTag>("srcHFhits");
-   if(produceHFtowers_) srcTowers_ = iConfig.getParameter<edm::InputTag>("srcTowers");
+   if(produceHFtowers_ || produceETmidRap_) srcTowers_ = iConfig.getParameter<edm::InputTag>("srcTowers");
 
    if(produceEcalhits_){
       srcEBhits_ = iConfig.getParameter<edm::InputTag>("srcEBhits");
@@ -114,8 +123,12 @@ CentralityProducer::CentralityProducer(const edm::ParameterSet& iConfig)
       srcBasicClustersEB_ = iConfig.getParameter<edm::InputTag>("srcBasicClustersEB");
    }
    if(produceZDChits_) srcZDChits_ = iConfig.getParameter<edm::InputTag>("srcZDChits");
-   if(produceHFhits_ || produceHFtowers_ || produceBasicClusters_ || produceEcalhits_ || produceZDChits_) produces<reco::Centrality>();
+   
+   reuseAny_ = !produceHFhits_ || !produceHFtowers_ || !produceBasicClusters_ || !produceEcalhits_ || !produceZDChits_;
+   if(reuseAny_) reuseTag_ = iConfig.getParameter<edm::InputTag>("srcReUse");
 
+   produces<reco::Centrality>();
+   
 }
 
 
@@ -140,7 +153,10 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace reco;
 
   std::auto_ptr<Centrality> creco(new Centrality());
+  Handle<Centrality> inputCentrality;
 
+  if(reuseAny_) iEvent.getByLabel(reuseTag_,inputCentrality);
+  
   if(produceHFhits_){
      creco->etHFhitSumPlus_ = 0;
      creco->etHFhitSumMinus_ = 0;
@@ -154,24 +170,39 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
         if(rechit.id().ieta() < 0)
 	   creco->etHFhitSumMinus_ += rechit.energy();
      }       
-   }
+  }else{
+     creco->etHFhitSumMinus_ = inputCentrality->EtHFhitSumMinus();
+     creco->etHFhitSumPlus_ = inputCentrality->EtHFhitSumPlus();
+  }
   
-  if(produceHFtowers_){
+  if(produceHFtowers_ || produceETmidRap_){
      creco->etHFtowerSumPlus_ = 0;
      creco->etHFtowerSumMinus_ = 0;
      
      Handle<CaloTowerCollection> towers;
      iEvent.getByLabel(srcTowers_,towers);
-     for( size_t i = 0; i<towers->size(); ++ i){
-	const CaloTower & tower = (*towers)[ i ];
-	double eta = tower.eta();
-	if(eta > 3)
-	   creco->etHFtowerSumPlus_ += tower.pt();
-	if(eta < -3)
-	   creco->etHFtowerSumMinus_ += tower.pt();
-     }
+	for( size_t i = 0; i<towers->size(); ++ i){
+	   const CaloTower & tower = (*towers)[ i ];
+	   double eta = tower.eta();
+	   if(produceHFtowers_){
+	      if(eta > 3)
+		 creco->etHFtowerSumPlus_ += tower.pt();
+	      if(eta < -3)
+		 creco->etHFtowerSumMinus_ += tower.pt();
+	   }else{
+	      creco->etHFtowerSumMinus_ = inputCentrality->EtHFtowerSumMinus();
+	      creco->etHFtowerSumPlus_ = inputCentrality->EtHFtowerSumPlus();
+	   }
+	   if(produceETmidRap_){
+	      if(fabs(eta) < midRapidityRange_) creco->etMidRapiditySum_ += tower.pt()/(midRapidityRange_*2);
+	   }else creco->etMidRapiditySum_ = inputCentrality->EtMidRapiditySum();
+	}
+  }else{
+     creco->etHFtowerSumMinus_ = inputCentrality->EtHFtowerSumMinus();
+     creco->etHFtowerSumPlus_ = inputCentrality->EtHFtowerSumPlus();
+     creco->etMidRapiditySum_ = inputCentrality->EtMidRapiditySum();
   }
-
+  
   if(produceBasicClusters_){
      creco->etEESumPlus_ = 0;
      creco->etEESumMinus_ = 0;
@@ -197,6 +228,10 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
         double et = cluster.energy()*tg;
 	creco->etEBSum_ += et;
      }
+  }else{
+     creco->etEESumMinus_ = inputCentrality->EtEESumMinus();
+     creco->etEESumPlus_ = inputCentrality->EtEESumPlus();
+     creco->etEBSum_ = inputCentrality->EtEBSum();
   }
   
   iEvent.put(creco);
