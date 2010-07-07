@@ -8,7 +8,7 @@
 //
 // Original Author:  Matevz Tadel
 //         Created:  Fri Jun 25 18:57:39 CEST 2010
-// $Id: EveService.cc,v 1.1 2010/06/29 18:05:53 matevz Exp $
+// $Id: EveService.cc,v 1.2 2010/07/05 18:26:34 matevz Exp $
 //
 
 // system include files
@@ -43,8 +43,9 @@ EveService::EveService(const edm::ParameterSet&, edm::ActivityRegistry& ar) :
 {
    printf("EveService::EveService CTOR\n");
 
-   std::cout <<" is batch "<<gROOT->IsBatch()<<std::endl;
-   std::cout <<" display "<<gSystem->Getenv("DISPLAY")<<std::endl;
+   std::cout <<" gApplication "<< gApplication <<std::endl;
+   std::cout <<" is batch "    << gROOT->IsBatch() <<std::endl;
+   std::cout <<" display "     << gSystem->Getenv("DISPLAY") <<std::endl;
 
    const char* dummyArgvArray[] = {"cmsRun"};
    char**      dummyArgv = const_cast<char**>(dummyArgvArray);
