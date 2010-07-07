@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.17 2010/06/01 22:58:57 yutingb Exp $
+// $Id: CentralityProducer.cc,v 1.18 2010/07/07 09:36:36 yilmaz Exp $
 //
 //
 
@@ -41,7 +41,7 @@
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Ref.h"
-
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 using namespace std;
 
 //
@@ -70,6 +70,7 @@ class CentralityProducer : public edm::EDFilter {
    bool produceBasicClusters_;
    bool produceZDChits_;
    bool produceETmidRap_;
+   bool producePixelhits_;
    bool reuseAny_;
 
    double midRapidityRange_;
@@ -81,6 +82,7 @@ class CentralityProducer : public edm::EDFilter {
    edm::InputTag srcBasicClustersEE_;
    edm::InputTag srcBasicClustersEB_;
    edm::InputTag srcZDChits_;
+   edm::InputTag srcPixelhits_;
 
    edm::InputTag reuseTag_;
 
@@ -109,6 +111,7 @@ CentralityProducer::CentralityProducer(const edm::ParameterSet& iConfig)
    produceEcalhits_ = iConfig.getParameter<bool>("produceEcalhits");
    produceZDChits_ = iConfig.getParameter<bool>("produceZDChits");
    produceETmidRap_ = iConfig.getParameter<bool>("produceETmidRapidity");
+   producePixelhits_ = iConfig.getParameter<bool>("producePixelhits");
    midRapidityRange_ = iConfig.getParameter<double>("midRapidityRange");
 
    if(produceHFhits_)  srcHFhits_ = iConfig.getParameter<edm::InputTag>("srcHFhits");
@@ -123,6 +126,7 @@ CentralityProducer::CentralityProducer(const edm::ParameterSet& iConfig)
       srcBasicClustersEB_ = iConfig.getParameter<edm::InputTag>("srcBasicClustersEB");
    }
    if(produceZDChits_) srcZDChits_ = iConfig.getParameter<edm::InputTag>("srcZDChits");
+   if(producePixelhits_) srcPixelhits_ = iConfig.getParameter<edm::InputTag>("srcPixelhits");
    
    reuseAny_ = !produceHFhits_ || !produceHFtowers_ || !produceBasicClusters_ || !produceEcalhits_ || !produceZDChits_;
    if(reuseAny_) reuseTag_ = iConfig.getParameter<edm::InputTag>("srcReUse");
@@ -194,7 +198,6 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      creco->etHFtowerSumPlus_ = inputCentrality->EtHFtowerSumPlus();
 	   }
 	   if(produceETmidRap_){
-	      if(fabs(eta) < midRapidityRange_) creco->etMidRapiditySum_ += tower.pt()/(midRapidityRange_*2);
 	   }else creco->etMidRapiditySum_ = inputCentrality->EtMidRapiditySum();
 	}
   }else{
@@ -234,6 +237,23 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      creco->etEBSum_ = inputCentrality->EtEBSum();
   }
   
+  if(producePixelhits_){
+     creco->pixelMultiplicity_ = 0;
+     const SiPixelRecHitCollection* rechits;
+     Handle<SiPixelRecHitCollection> rchts;
+     iEvent.getByLabel(srcPixelhits_,rchts);
+     rechits = rchts.product();
+     int nPixel =0 ;
+     for (SiPixelRecHitCollection::const_iterator it = rechits->begin(); it!=rechits->end();it++)
+     {
+        // add selection if needed, now all hits.
+        nPixel++;
+     }
+     creco->pixelMultiplicity_ = nPixel;
+
+  }else{
+     creco->pixelMultiplicity_ = inputCentrality->multiplicityPixel();
+  }
   iEvent.put(creco);
   return true;
 }
