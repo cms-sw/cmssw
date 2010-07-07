@@ -13,7 +13,7 @@ Usage: purely descriptive
 //
 // Original Author:  Mike Hildreth, Notre Dame
 //         Created:  July 1, 2010
-// $Id: PileupSummaryInfo.h,v 1.0 2006/10/17 20:45:52 wdd Exp $
+// $Id: PileupSummaryInfo.h,v 1.1 2010/07/05 03:55:58 mikeh Exp $
 //
 
 #include "DataFormats/Provenance/interface/EventID.h"
@@ -42,6 +42,7 @@ class PileupSummaryInfo {
 
   ~PileupSummaryInfo();
 
+  const int getPU_NumInteractions() const { return num_PU_vertices_; }
   const std::vector<float>& getPU_zpositions() const { return zpositions_; }
   const std::vector<float>& getPU_sumpT_lowpT() const { return sumpT_lowpT_; }
   const std::vector<float>& getPU_sumpT_highpT() const { return sumpT_highpT_; }
