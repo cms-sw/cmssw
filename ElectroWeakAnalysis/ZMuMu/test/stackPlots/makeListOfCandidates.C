@@ -48,6 +48,7 @@ dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/
 dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_138737-138751_promptreco_FF.root");
 dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_138_919_939.root");
 dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139020.root");
+dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_096_103.root");
 
  std::cout << "
 

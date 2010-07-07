@@ -49,11 +49,15 @@ dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/
 dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_138_919_939.root");
 dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139020.root");
 
+ dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_096_103.root");
+ dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_195_239.root");
+
 
  Events->Scan("zGoldenRunNumber:zGoldenLumiblock:zGoldenEventNumber:zGoldenMass:zGoldenDau1Pt:zGoldenDau1Eta:zGoldenDau1Iso03SumPt:zGoldenDau1Chi2:zGoldenDau1NofPixelHits:zGoldenDau1NofStripHits:zGoldenDau1NofMuonHits:zGoldenDau1HLTBit:zGoldenDau1TrackerMuonBit:zGoldenDau1NofMuMatches:zGoldenDau1TrkChi2:zGoldenDau1SaChi2",  "zGoldenMass>60 && zGoldenMass<120" + kin_common + "zGoldenDau1Chi2>10 || zGoldenDau2Chi2>10");
 
- Events->Scan("zGoldenRunNumber:zGoldenLumiblock:zGoldenEventNumber:zGoldenMass:zGoldenDau1Pt:zGoldenDau1Eta:zGoldenDau1Iso03SumPt:zGoldenDau1Chi2:zGoldenDau1NofPixelHits:zGoldenDau1NofStripHits:zGoldenDau1NofMuonHits:zGoldenDau1HLTBit:zGoldenDau1TrackerMuonBit:zGoldenDau1NofMuMatches:zGoldenDau1dxyFromBS:zGoldenDau2dxyFromBS",  "zGoldenMass>60 && zGoldenMass<120" + kin_common + "zGoldenDau1NofPixelHits==0 || zGoldenDau2NofPixelHits==0");
+ // Events->Scan("zGoldenRunNumber:zGoldenLumiblock:zGoldenEventNumber:zGoldenMass:zGoldenDau1Pt:zGoldenDau1Eta:zGoldenDau1Iso03SumPt:zGoldenDau1Chi2:zGoldenDau1NofPixelHits:zGoldenDau1NofStripHits:zGoldenDau1NofMuonHits:zGoldenDau1HLTBit:zGoldenDau1TrackerMuonBit:zGoldenDau1NofMuMatches:zGoldenDau1dxyFromBS:zGoldenDau2dxyFromBS",  "zGoldenMass>60 && zGoldenMass<120" + kin_common + "zGoldenDau1NofPixelHits==0 || zGoldenDau2NofPixelHits==0");
 
+ Events->Scan("zMuStaRunNumber:zMuStaLumiblock:zMuStaEventNumber:zMuStaMass:zMuStaDau1Pt:zMuStaDau1Eta:zMuStaDau2Pt:zMuStaDau2Eta:zMuStaDau1HLTBit:zMuStaDau1NofMuMatches:zMuStaDau2HLTBit:zMuStaDau2NofMuMatches:",  "zMuStaMass>60 && zMuStaMass<120"+ kin_common_musta );
 
 
 

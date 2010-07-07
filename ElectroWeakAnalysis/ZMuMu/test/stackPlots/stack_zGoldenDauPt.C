@@ -13,11 +13,11 @@ void stack_zGoldenDauPt() {
 
 
 
-  makePlots("zGoldenDau1Pt", "zGoldenDau2Pt", massCut + kin_common_woPt + ( ( dau1Loose  && dau2TightWP1_hltAlso ) || ( dau2Loose  && dau1TightWP1_hltAlso )),  5, "zGoldenDauPt",  0.01, 200, 0 ,200, true);
+  makePlots("zGoldenDau1Pt", "zGoldenDau2Pt", massCut + kin_common_woPt + ( ( dau1Loose  && dau2TightWP1_hltAlso ) || ( dau2Loose  && dau1TightWP1_hltAlso )),  2, "zGoldenDauPt",  0.01, 100, 0 ,100, true);
   hs->GetXaxis()->SetTitle("p_{T #mu} (GeV/c)");
   string yTag = "events/(5 GeV/c)"; // use the correct rebin
   hs->GetYaxis()->SetTitle(yTag.c_str());
   c1->SaveAs("zGoldenDauPt.eps");
-  c1->SaveAs("zGoldenDauPt.gif");
+  c1->SaveAs("zGoldenDauPtLin_r2.gif");
   c1->SaveAs("zGoldenDauPt.pdf");
 }
