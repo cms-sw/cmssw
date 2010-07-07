@@ -1,0 +1,50 @@
+import os,sys
+from datetime import datetime,timedelta
+
+class lumiTime(object):
+    def __init__(self):
+        self.coraltimefm='MM/DD/YY HH24:MI:SS.FF6'
+        self.pydatetimefm='%m/%d/%y %H:%M:%S.%f'
+        self.nbx=3564
+        self.bunchspace_us=0.025 #in microseconds
+        
+    def LSDuration(self,norbits):
+        return timedelta(microseconds=(self.nbx*norbits*self.bunchspace_us))
+    
+    def OrbitDuration(self):
+        return timedelta(microseconds=(self.nbx*self.bunchspace_us))
+    
+    def OrbitToTime(self,begStrTime,orbitnumber,begorbit=0):
+        '''
+        given a orbit number, return its corresponding time. Assuming begin time has orbit=0
+        '''
+        return self.DatetimeToStr(self.StrToDatetime(begStrTime)+(orbitnumber-begorbit)*self.OrbitDuration())
+    def OrbitToTimeStr(self,begStrTime,orbitnumber,begorbit=0):
+        '''
+        given a orbit number, return its corresponding time. Assuming begin time has orbit=0
+        '''
+        return self.self.StrToDatetime(begStrTime)+(myorbit-begorbit)*self.OrbitDuration()    
+    def StrToDatetime(self, strTime):
+        '''convert string timestamp to python datetime
+        '''
+        result=''
+        try:
+            result=datetime.strptime(strTime,self.pydatetimefm)
+        except er:
+            print str(er)
+        return result
+    def DatetimeToStr(self,timeValue):
+        '''convert python datetime to string timestamp
+        '''
+        result=''
+        try:
+            result=timeValue.strftime(self.pydatetimefm)
+        except er:
+            print str(er)
+        return result
+if __name__=='__main__':
+    begTimeStr='03/30/10 10:10:01.339198'
+    c=lumiTime()
+    print 'orbit 0 : ',c.OrbitToTime(begTimeStr,0,0)
+    print 'orbit 1 : ',c.OrbitToTime(begTimeStr,1,0)
+    print 'orbit 262144 : ',c.OrbitToTime(begTimeStr,262144,0)
