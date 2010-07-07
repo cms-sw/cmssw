@@ -457,10 +457,12 @@ ProbeVariablesToStore = cms.PSet(
     probe_gsfEle_hasValidHitInFirstPixelBarrel = cms.string("gsfTrack.hitPattern.hasValidHitInFirstPixelBarrel"),
     ## super cluster quantities
     probe_sc_energy = cms.string("superCluster.energy"),
+    probe_sc_et    = cms.string("superCluster.energy*sin(superClusterPosition.theta)"),    
     probe_sc_x      = cms.string("superCluster.x"),
     probe_sc_y      = cms.string("superCluster.y"),
     probe_sc_z      = cms.string("superCluster.z"),
     probe_sc_eta    = cms.string("superCluster.eta"),
+    probe_sc_theta  = cms.string("superClusterPosition.theta"),   
     probe_sc_phi    = cms.string("superCluster.phi"),
     probe_sc_size   = cms.string("superCluster.size"), # number of hits
     probe_sc_rawEnergy = cms.string("superCluster.rawEnergy"), 
@@ -533,10 +535,12 @@ TagVariablesToStore = cms.PSet(
     gsfEle_hasValidHitInFirstPixelBarrel = cms.string("gsfTrack.hitPattern.hasValidHitInFirstPixelBarrel"),
     ## super cluster quantities
     sc_energy = cms.string("superCluster.energy"),
+    sc_et     = cms.string("superCluster.energy*sin(superClusterPosition.theta)"),    
     sc_x      = cms.string("superCluster.x"),
     sc_y      = cms.string("superCluster.y"),
     sc_z      = cms.string("superCluster.z"),
     sc_eta    = cms.string("superCluster.eta"),
+    sc_theta  = cms.string("superClusterPosition.theta"),      
     sc_phi    = cms.string("superCluster.phi"),
     sc_size   = cms.string("superCluster.size"), # number of hits
     sc_rawEnergy = cms.string("superCluster.rawEnergy"), 
@@ -767,7 +771,7 @@ process.GsfToIso = cms.EDAnalyzer("TagProbeFitTreeProducer",
         probe_passing = cms.InputTag("PassingIsolation"),
         probe_passingIso = cms.InputTag("PassingIsolation"),
         probe_passingId = cms.InputTag("PassingId"),
-        probe_passingAll = cms.InputTag("PassingHLT")        
+        probe_passingALL = cms.InputTag("PassingHLT")        
     ),
     probeMatches  = cms.InputTag("McMatchGsf"),
     allProbes     = cms.InputTag("PassingGsf")
@@ -790,7 +794,7 @@ process.IsoToId = cms.EDAnalyzer("TagProbeFitTreeProducer",
     flags = cms.PSet(
         probe_passing = cms.InputTag("PassingId"),
         probe_passingId = cms.InputTag("PassingId"),
-        probe_passingAll = cms.InputTag("PassingHLT")         
+        probe_passingALL = cms.InputTag("PassingHLT")         
     ),
     probeMatches  = cms.InputTag("McMatchIso"),
     allProbes     = cms.InputTag("PassingIsolation")
