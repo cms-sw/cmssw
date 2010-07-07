@@ -3,8 +3,8 @@
 
 /** \class BeamMonitorBx
  * *
- *  $Date: 2010/06/30 06:25:30 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/07/01 02:21:27 $
+ *  $Revision: 1.5 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -66,6 +66,7 @@ class BeamMonitorBx : public edm::EDAnalyzer {
 		       reco::BeamSpot&, TString);
   void weight(BeamSpotMapBx&, const BeamSpotMapBx&);
   void weight(double& mean,double& meanError,const double& val,const double& valError);
+  const char * formatFitTime( const std::time_t);
 
   edm::ParameterSet parameters_;
   std::string monitorName_;

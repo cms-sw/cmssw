@@ -2,8 +2,8 @@
  * \file BeamMonitorBx.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/07/01 04:57:01 $
- * $Revision: 1.7 $
+ * $Date: 2010/07/05 17:51:18 $
+ * $Revision: 1.8 $
  *
  */
 
@@ -24,11 +24,11 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
-static char * formatTime( const time_t t )  {
+const char * BeamMonitorBx::formatFitTime( const time_t t )  {
 #define CET (+1)
 #define CEST (+2)
 
-  static  char ts[] = "yyyy-Mm-dd hh:mm:ss     ";
+  static char ts[] = "yyyy-Mm-dd hh:mm:ss";
   tm * ptm;
   ptm = gmtime ( &t );
   sprintf( ts, "%4d-%02d-%02d %02d:%02d:%02d", ptm->tm_year,ptm->tm_mon+1,ptm->tm_mday,(ptm->tm_hour+CEST)%24, ptm->tm_min, ptm->tm_sec);
@@ -299,7 +299,7 @@ void BeamMonitorBx::BookTrendHistos(bool plotPV,int nBx,map<string,string> & vMa
 	  hst[histName]->getTH1()->SetBins(3600,0.5,3600+0.5);
 	  hst[histName]->setAxisTimeDisplay(1);
 	  hst[histName]->setAxisTimeFormat("%H:%M:%S",1);
-	  char* eventTime = formatTime(startTime);
+	  const char* eventTime = formatFitTime(startTime);
 	  TDatime da(eventTime);
 	  if (debug_) {
 	    edm::LogInfo("BX|BeamMonitorBx") << "TimeOffset = ";
@@ -344,6 +344,7 @@ void BeamMonitorBx::FitAndFill(const LuminosityBlock& lumiSeg,
     edm::LogInfo("BX|BeamMonitorBx") << "Number of good fit = " << countGoodFit_ << endl;
     BeamSpotMapBx bsmap = theBeamFitter->getBeamSpotMap();
     edm::LogInfo("BX|BeamMonitorBx") << "Number of bx = " << bsmap.size() << endl;
+    if (bsmap.size() == 0) return;
     if (countBx_ < bsmap.size()) {
       countBx_ = bsmap.size();
       BookTables(countBx_,varMap,"");
