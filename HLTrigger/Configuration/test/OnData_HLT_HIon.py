@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_6_2/HIon/V28 (CMSSW_3_6_2_HLT8)
+# /dev/CMSSW_3_6_2/HIon/V29 (CMSSW_3_6_2_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_2/HIon/V28')
+  tableName = cms.string('/dev/CMSSW_3_6_2/HIon/V29')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -73,7 +73,7 @@ process.datasets = cms.PSet(
 )
 
 process.source = cms.Source( "PoolSource",
-    fileNames = cms.untracked.vstring( '/store/data/Run2010A/MinimumBias/RAW/v1/000/136/440/58C33706-A16A-DF11-B5E2-000423D94AA8.root' )
+    fileNames = cms.untracked.vstring( '/store/data/Run2010A/MinimumBias/RAW/v1/000/139/458/1AD6DF4F-9988-DF11-939F-001617DBD472.root' )
 )
 
 process.BTagRecord = cms.ESSource( "EmptyESSource",
