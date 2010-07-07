@@ -8,7 +8,7 @@
 //
 // Original Author:  Matevz Tadel
 //         Created:  Mon Jun 28 18:17:47 CEST 2010
-// $Id: DummyEvelyser.cc,v 1.2 2010/07/05 18:26:33 matevz Exp $
+// $Id: DummyEvelyser.cc,v 1.3 2010/07/06 18:42:51 matevz Exp $
 //
 
 // system include files
@@ -23,6 +23,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Fireworks/Eve/interface/EveService.h"
@@ -66,6 +67,9 @@ private:
    edm::InputTag  trackTags_;
    TEveElement   *m_geomList;
    TEveTrackList *m_trackList;
+
+   edm::ESWatcher<DisplayGeomRecord> m_geomWatcher;
+   void remakeGeometry(const DisplayGeomRecord& dgRec);
 };
 
 DEFINE_FWK_MODULE(DummyEvelyser);
@@ -86,13 +90,12 @@ DEFINE_FWK_MODULE(DummyEvelyser);
 DummyEvelyser::DummyEvelyser(const edm::ParameterSet& iConfig) :
    trackTags_(iConfig.getUntrackedParameter<edm::InputTag>("tracks")),
    m_geomList(0),
-   m_trackList(0)
-{
-}
+   m_trackList(0),
+   m_geomWatcher(this, &DummyEvelyser::remakeGeometry)
+{}
 
 DummyEvelyser::~DummyEvelyser()
-{
-}
+{}
 
 
 //==============================================================================
@@ -130,6 +133,8 @@ void DummyEvelyser::beginJob()
    edm::Service<EveService> eve;
    eve->getManager(); // Returns TEveManager, it is also set in global gEve.
 
+   // Make a track-list container we'll hold on until the end of the job.
+   // This allows us to preserve settings done by user via GUI.
    m_trackList = new TEveTrackList("Tracks"); 
    m_trackList->SetMainColor(6);
    m_trackList->SetMarkerColor(kYellow);
@@ -161,13 +166,25 @@ void DummyEvelyser::beginRun(const edm::Run&, const edm::EventSetup& iSetup)
 {
    printf("DummyEvelyser::beginRun\n");
 
-   edm::ESHandle<TGeoManager> geom;
-   iSetup.get<DisplayGeomRecord>().get(geom);
-   TEveGeoManagerHolder _tgeo(const_cast<TGeoManager*>(geom.product()));
-
    m_geomList = new TEveElementList("DummyEvelyzer Geom");
    gEve->AddGlobalElement(m_geomList);
    gEve->GetGlobalScene()->GetGLScene()->SetStyle(TGLRnrCtx::kWireFrame);
+}
+
+void DummyEvelyser::endRun(const edm::Run&, const edm::EventSetup&)
+{
+   printf("DummyEvelyser::endRun\n");
+}
+
+//------------------------------------------------------------------------------
+
+void DummyEvelyser::remakeGeometry(const DisplayGeomRecord& dgRec)
+{
+   m_geomList->DestroyElements();
+
+   edm::ESHandle<TGeoManager> geom;
+   dgRec.get(geom);
+   TEveGeoManagerHolder _tgeo(const_cast<TGeoManager*>(geom.product()));
 
    // To have a full one, all detectors in one top-node:
    // make_node("/cms:World_1/cms:CMSE_1", 4, kTRUE);
@@ -175,39 +192,23 @@ void DummyEvelyser::beginRun(const edm::Run&, const edm::EventSetup& iSetup)
    make_node("/cms:World_1/cms:CMSE_1/tracker:Tracker_1", 1, kTRUE);
    make_node("/cms:World_1/cms:CMSE_1/caloBase:CALO_1",   1, kTRUE);
    make_node("/cms:World_1/cms:CMSE_1/muonBase:MUON_1",   1, kTRUE);
-
 }
 
-void DummyEvelyser::endRun(const edm::Run&, const edm::EventSetup&)
-{
-   printf("DummyEvelyser::endRun\n");
-
-   if (m_geomList)
-   {
-      edm::Service<EveService> eve;
-      eve->getManager(); // Returns TEveManager, it is also set in global gEve.
-
-      m_geomList->Destroy();
-      m_geomList = 0;
-   }
-}
-
-//------------------------------------------------------------------------------
-
-void DummyEvelyser::analyze(const edm::Event& iEvent, const edm::EventSetup&)
+void DummyEvelyser::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    printf("DummyEvelyser::analyze\n");
 
-   edm::Service<EveService> eve;
-   eve->getManager(); // Returns TEveManager, it is also set in global gEve.
+
+   // Remake geometry if it has changed.
+
+   m_geomWatcher.check(iSetup);
 
 
-   // Stripped down demo from Tracking twiki
+   // Stripped down demo from Tracking twiki.
 
    using namespace edm;
-   // using reco::TrackCollection;
 
-   edm::Handle<View<reco::Track> >  tracks;
+   Handle<View<reco::Track> >  tracks;
    iEvent.getByLabel(trackTags_,tracks);
 
    m_trackList->DestroyElements();
