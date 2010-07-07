@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.18 2010/07/07 09:36:36 yilmaz Exp $
+// $Id: CentralityProducer.cc,v 1.19 2010/07/07 15:54:39 yjlee Exp $
 //
 //
 
@@ -42,6 +42,9 @@
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+
 using namespace std;
 
 //
@@ -246,11 +249,20 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      int nPixel =0 ;
      for (SiPixelRecHitCollection::const_iterator it = rechits->begin(); it!=rechits->end();it++)
      {
-        // add selection if needed, now all hits.
-        nPixel++;
+        SiPixelRecHitCollection::DetSet hits = *it;
+        DetId detId = DetId(hits.detId());
+        SiPixelRecHitCollection::const_iterator recHitMatch = rechits->find(detId);
+        const SiPixelRecHitCollection::DetSet recHitRange = *recHitMatch;
+      
+        for ( SiPixelRecHitCollection::DetSet::const_iterator recHitIterator = recHitRange.begin(); 
+            recHitIterator != recHitRange.end(); ++recHitIterator) {
+           // add selection if needed, now all hits.
+           nPixel++;
+        } 
      }
      creco->pixelMultiplicity_ = nPixel;
-
+//     cout <<nPixel<<endl;
+     
   }else{
      creco->pixelMultiplicity_ = inputCentrality->multiplicityPixel();
   }
