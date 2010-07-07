@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.65 2010/06/09 19:19:24 yumiceva Exp $
+   version $Id: BeamFitter.cc,v 1.66 2010/06/24 22:01:55 uplegger Exp $
 
 ________________________________________________________________**/
 
@@ -201,9 +201,9 @@ BeamFitter::~BeamFitter() {
 
   if (saveNtuple_ || saveBeamFit_ || savePVVertices_){
     file_->Close();
+    delete file_;
   }
   delete MyPVFitter;
-  delete file_;
 }
 
 
