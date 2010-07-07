@@ -151,6 +151,7 @@ csc2DRecHits.stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi")
 csc2DRecHits.wireDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi")
 rpcRecHits.rpcDigiLabel = 'simMuonRPCDigis'
 dt1DRecHits.dtDigiLabel = 'simMuonDTDigis'
+dt1DCosmicRecHits.dtDigiLabel = 'simMuonDTDigis'
 
 # Muon reconstruction sequence
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
