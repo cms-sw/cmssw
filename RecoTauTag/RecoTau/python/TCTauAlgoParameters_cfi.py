@@ -3,6 +3,23 @@ import FWCore.ParameterSet.Config as cms
 from TrackingTools.TrackAssociator.default_cfi import TrackAssociatorParameterBlock
 
 tcTauAlgoParameters = cms.PSet(
+<<<<<<< TCTauAlgoParameters_cfi.py
+        CaloRecoTauProducer = cms.InputTag("JPTCaloRecoTauProducer"),
+        EtCaloOverTrackMin    = cms.double(-0.9),
+        EtCaloOverTrackMax    = cms.double(0.0),
+        EtHcalOverTrackMin    = cms.double(-0.3),
+        EtHcalOverTrackMax    = cms.double(1.0),
+        SignalConeSize        = cms.double(0.2),
+        EcalConeSize          = cms.double(0.5),
+        EBRecHitCollection    = cms.InputTag("ecalRecHit:EcalRecHitsEB"),
+        EERecHitCollection    = cms.InputTag("ecalRecHit:EcalRecHitsEE"),
+        HBHERecHitCollection  = cms.InputTag("hbhereco"),
+        HORecHitCollection    = cms.InputTag("horeco"),
+        HFRecHitCollection    = cms.InputTag("hfreco"),
+        TrackAssociatorParameters = TrackAssociatorParameterBlock.TrackAssociatorParameters,
+        DropCaloJets          = cms.untracked.bool(False), 
+        DropRejectedJets      = cms.untracked.bool(False)
+=======
     CaloRecoTauProducer = cms.InputTag("JPTCaloRecoTauProducer"),
     EtCaloOverTrackMin    = cms.double(-0.9),
     EtCaloOverTrackMax    = cms.double(0.0),
@@ -26,4 +43,5 @@ tcTauAlgoParameters = cms.PSet(
     TrackAssociatorParameters = TrackAssociatorParameterBlock.TrackAssociatorParameters,
     DropCaloJets          = cms.untracked.bool(False), 
     DropRejectedJets      = cms.untracked.bool(False)
+>>>>>>> 1.2
 )
