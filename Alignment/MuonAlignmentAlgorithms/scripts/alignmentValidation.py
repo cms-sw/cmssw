@@ -265,6 +265,11 @@ CANVASES_LIST_TEMPLATE = [
 def isFileUnderDir(dir_name, file_name):
   '''Recursively looks for file named file_name under dir_name directory
   '''
+  if not DO_DT and dir_name.find("MB")>-1:
+    return False
+  if not DO_CSC and dir_name.find("ME")>-1:
+    return False
+  
   for f in os.listdir(dir_name):
     dirfile = os.path.join(dir_name, f)
     if os.path.isfile(dirfile) and f==file_name:
@@ -752,15 +757,18 @@ def createCanvasToIDList(fname="canvas2id_list.js"):
     if len(scope)>2:
       for canvas_entry in scope[2:]:
         ids = idsForFile("./",canvas_entry[1])
-        print canvas_entry, ":", len(ids), "ids"
         #  scope_entry.append(canvas_entry)
-        if (len(ids)>0):
-          CANVAS2ID_LIST.append( (canvas_entry[1],ids) )
+        # uniquify:
+        set_ids = set(ids)
+        uids = list(set_ids)
+        print canvas_entry, ":", len(uids), "ids"
+        if (len(uids)>0):
+          CANVAS2ID_LIST.append( (canvas_entry[1],uids) )
   #print CANVAS2ID_LIST
   CANVAS2ID_LIST_DICT = dict(CANVAS2ID_LIST)
   #print CANVAS2ID_LIST_DICT
   ff = open(fname,mode="w")
-  #print >>ff, "var CANVAS2ID_LIST = "
+  print >>ff, "var CANVAS2ID_LIST = "
   json.dump(CANVAS2ID_LIST_DICT,ff)
   ff.close()
 
