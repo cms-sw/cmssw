@@ -29,5 +29,6 @@
   <class name="edm::Wrapper<reco::FlavorHistoryEvent >" />
   <class name="edm::ValueMap<reco::FlavorHistoryEvent >" />
   <class name="edm::Wrapper<edm::ValueMap<reco::FlavorHistoryEvent > >" />
+  <class name="edm::RefVectorIterator<std::vector<reco::GenParticle>,reco::GenParticle,edm::refhelper::FindUsingAdvance<std::vector<reco::GenParticle>,reco::GenParticle> >"/>
 </lcgdict>
  
