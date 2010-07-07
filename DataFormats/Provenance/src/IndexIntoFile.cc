@@ -600,6 +600,8 @@ namespace edm {
           ++iter2;
         }
         else {
+          previousIndexes = &indexes1;
+
           // Found a matching lumi, now look for matching events
 
           long long beginEventNumbers1 = indexes1.beginEventNumbers();
@@ -609,8 +611,12 @@ namespace edm {
           long long endEventNumbers2 = indexes2.endEventNumbers();
 
           // there must be at least 1 event in each lumi for there to be any matches
-          if (beginEventNumbers1 >= endEventNumbers1) continue;
-          if (beginEventNumbers2 >= endEventNumbers2) continue;
+          if ((beginEventNumbers1 >= endEventNumbers1) ||
+              (beginEventNumbers2 >= endEventNumbers2)) {
+            ++iter1;
+            ++iter2;
+            continue;
+          }
 
           if (!eventEntries().empty() && !indexIntoFile.eventEntries().empty()) {
 	    std::vector<EventEntry> matchingEvents;
@@ -647,7 +653,6 @@ namespace edm {
                                                        *iEvent));
             }
           }
-          previousIndexes = &indexes1;
         }
       }
     }
