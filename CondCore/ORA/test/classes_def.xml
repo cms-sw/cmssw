@@ -1,30 +1,23 @@
 <lcgdict>
-  <class name="std::string"/>
-  <class name="std::vector<int>"/>
-  <class name="std::vector<std::vector<int> >"/>
   <class name="std::vector<SimpleMember>"/>
   <class name="std::vector<OtherMember>"/>
   <class name="std::vector<std::vector<OtherMember> >"/>
-  <class name="std::map<std::string,std::string>"/>
-  <class name="std::map<std::string,std::string>::value_type"/>
   <class name="BObj"/>
   <class name="BaseClass"/>
   <class name="SimpleMember"/>
   <class name="OtherMember"/>
   <class name="SimpleClass"/>
   <class name="ArrayClass"/>
-  <class name="std::vector<std::string>"/>
-  <class name="std::map<std::string,std::vector<std::string> >"/>
-  <class name="std::map<std::string,std::vector<std::string> >::value_type"/>
   <class name="MultiArrayClass"/>
   <class name="MultiArrayClass2"/>
   <class name="SM"/>
   <class name="SA"/>
   <class name="SimpleStruct"/>
   <class name="MultiArrayClass2::Inner"/>
-  <class name="std::map<std::string,std::string>"/>
   <class name="std::map<unsigned long long,unsigned long long>"/>
   <class name="std::map<unsigned long long,unsigned long long>::value_type" />
+  <class name="std::map<std::string,unsigned int>"/>
+  <class name="std::map<std::string,unsigned int>::value_type"/>
   <class name="Metadata"/>
   <class name="Entry">
      <field name="m_histogram" mapping="blob"/>
@@ -39,7 +32,6 @@
   </class>
   <class name="SiStripNoises::DetRegistry"/>
   <class name="std::vector<SiStripNoises::DetRegistry>"/>
-  <class name="std::vector<short>"/>
   <class name="SiStripNoises">
      <field name="v_noises" mapping="blob"/>
   </class>
@@ -63,8 +55,6 @@
   <class name="SF"/>
   <class name="IBase"/>
   <class name="D0"/>
-  <class name="std::map<std::string,unsigned int>"/>
-  <class name="std::map<std::string,unsigned int>::value_type"/>
   <class name="D1"/>
   <class name="ora::UniqueRef<IBase>"/>
   <class name="SG"/>

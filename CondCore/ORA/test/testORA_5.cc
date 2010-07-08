@@ -3,6 +3,7 @@
 #include "CondCore/ORA/interface/ScopedTransaction.h"
 #include "CondCore/ORA/interface/Transaction.h"
 #include "CondCore/ORA/interface/Exception.h"
+#include <cstdlib>
 #include <iostream>
 #include "classes.h"
 
@@ -10,10 +11,13 @@ int main(){
   try {
 
     // writing...
+    std::string authpath("/afs/cern.ch/cms/DB/conddb");
+    std::string pathenv(std::string("CORAL_AUTH_PATH=")+authpath);
+    ::putenv(const_cast<char*>(pathenv.c_str()));
     ora::Database db;
     db.configuration().setMessageVerbosity( coral::Debug );
     //std::string connStr( "sqlite_file:test.db" );
-    std::string connStr( "oracle://devdb10/giacomo" );
+    std::string connStr( "oracle://cms_orcoff_prep/CMS_COND_WEB" );
     db.connect( connStr );
     ora::ScopedTransaction trans0( db.transaction() );
     trans0.start( false );
@@ -133,6 +137,9 @@ int main(){
     } else {
       std::cout << "Container Cont0 size is 1 after delete as expected."<<std::endl;
     }
+    trans0.commit();
+    trans0.start( false );
+    db.drop();
     trans0.commit();
     db.disconnect();
   } catch ( const ora::Exception& exc ){

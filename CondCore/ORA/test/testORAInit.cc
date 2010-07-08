@@ -2,12 +2,16 @@
 #include "CondCore/ORA/interface/Container.h"
 #include "CondCore/ORA/interface/Transaction.h"
 #include "CondCore/ORA/interface/Exception.h"
+#include <cstdlib>
 #include <iostream>
 #include <stdexcept>
 
 int main(){
+  std::string authpath("/afs/cern.ch/cms/DB/conddb");
+  std::string pathenv(std::string("CORAL_AUTH_PATH=")+authpath);
+  ::putenv(const_cast<char*>(pathenv.c_str()));
   
-  std::string connStr( "oracle://devdb10/giacomo" );
+  std::string connStr( "oracle://cms_orcoff_prep/CMS_COND_WEB" );
   try {
     ora::Database db;
     //std::string connStr( "sqlite_file:test.db" );
@@ -117,7 +121,20 @@ int main(){
   }catch ( const std::exception& e){
     std::cout << "# Test Error: "<<e.what()<<std::endl;
   }
-
+  ::sleep(1);
+  try{
+    ora::Database db;
+    db.configuration().setMessageVerbosity( coral::Debug );
+    db.connect( connStr );
+    db.transaction().start( false );
+    if(db.exists()) db.drop();
+    db.transaction().commit();
+    db.disconnect();
+  } catch ( const ora::Exception& e ){
+    std::cout << "# Test Error: "<<e.what()<<std::endl;
+  }catch ( const std::exception& e){
+    std::cout << "# Test Error: "<<e.what()<<std::endl;
+  }
   
 }
 

@@ -2,6 +2,7 @@
 #include "CondCore/ORA/interface/Container.h"
 #include "CondCore/ORA/interface/Transaction.h"
 #include "CondCore/ORA/interface/Exception.h"
+#include <cstdlib>
 #include <iostream>
 #include <stdexcept>
 namespace {
@@ -165,11 +166,14 @@ namespace {
 
 int main(){
 
-    // writing...  
+  // writing...  
+  std::string authpath("/afs/cern.ch/cms/DB/conddb");
+  std::string pathenv(std::string("CORAL_AUTH_PATH=")+authpath);
+  ::putenv(const_cast<char*>(pathenv.c_str()));
   ora::Database db;
   try {
     //std::string connStr( "sqlite_file:test.db" );
-    std::string connStr( "oracle://devdb10/giacomo" );
+    std::string connStr( "oracle://cms_orcoff_prep/CMS_COND_WEB" );
     // NOT CONNECTED
     bool connected = db.isConnected();
     std::string okConn("");
@@ -201,6 +205,8 @@ int main(){
     db.transaction().start();
     //testDbWRFunc( db );
     //testDbUPFunc( db );
+    std::cout << "# committing" << std::endl;
+    db.transaction().commit();
     try {
       std::cout << "# disconnecting..."<<std::endl;
       db.disconnect();
@@ -209,11 +215,30 @@ int main(){
     } catch ( const std::exception& e ){
       std::cout << "# Error: "<<e.what()<<std::endl;
     }
+    
+    ::sleep(1);
+    try{
+      //db.configuration().setMessageVerbosity( coral::Debug );
+      db.connect( connStr );
+      std::cout << "# Starting write transaction" << std::endl;
+      db.transaction().start( false );
+      std::cout << "# Transaction started\n# Dropping database" << std::endl;
+      if(db.exists()) db.drop();
+      std::cout << "# Database dropped\n# Committing transaction" << std::endl;
+      db.transaction().commit();
+      std::cout << "# Transaction committed\n# Closing session" << std::endl;
+      db.disconnect();
+      std::cout << "# Session closed" << std::endl;
+    } catch ( const ora::Exception& e ){
+      std::cout << "# Error: "<<e.what()<<std::endl;
+    }catch ( const std::exception& e){
+      std::cout << "# Error: "<<e.what()<<std::endl;
+    }
   }catch ( const ora::Exception& e ){
     std::cout << "# Test Error: "<<e.what()<<std::endl;
   }catch ( const std::exception& e){
     std::cout << "# Test Error: "<<e.what()<<std::endl;
-    }
-  
+  }
+
 }
 

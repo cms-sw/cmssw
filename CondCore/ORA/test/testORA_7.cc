@@ -6,6 +6,7 @@
 #include "CondCore/ORA/interface/IBlobStreamingService.h"
 #include "classes.h"
 //
+#include <cstdlib>
 #include <iostream>
 #include <stdexcept>
 #include <cstring>
@@ -160,11 +161,14 @@ int main(){
   try {
 
     // writing...
+    std::string authpath("/afs/cern.ch/cms/DB/conddb");
+    std::string pathenv(std::string("CORAL_AUTH_PATH=")+authpath);
+    ::putenv(const_cast<char*>(pathenv.c_str()));
     ora::Database db;
     db.configuration().setMessageVerbosity( coral::Debug );
     PrimitiveContainerStreamingService* blobServ = new PrimitiveContainerStreamingService;
     db.configuration().setBlobStreamingService( blobServ );
-    std::string connStr( "oracle://devdb10/giacomo" );
+    std::string connStr( "oracle://cms_orcoff_prep/CMS_COND_WEB" );
     db.connect( connStr );
     ora::ScopedTransaction trans( db.transaction() );
     trans.start( false );
@@ -228,6 +232,9 @@ int main(){
         std::cout << "** Read out data for class SiStripNoises with seed="<<seed<<" is ok."<<std::endl;
       }
     }
+    trans.commit();
+    trans.start( false );
+    db.drop();
     trans.commit();
     db.disconnect();
   } catch ( const ora::Exception& exc ){

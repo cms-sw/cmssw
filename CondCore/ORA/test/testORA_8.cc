@@ -4,6 +4,7 @@
 #include "CondCore/ORA/interface/Transaction.h"
 #include "CondCore/ORA/interface/Exception.h"
 #include "CondCore/ORA/interface/IReferenceHandler.h"
+#include <cstdlib>
 #include <iostream>
 
 #include "classes.h"
@@ -35,11 +36,14 @@ int main(){
   try {
 
     // writing...  
+    std::string authpath("/afs/cern.ch/cms/DB/conddb");
+    std::string pathenv(std::string("CORAL_AUTH_PATH=")+authpath);
+    ::putenv(const_cast<char*>(pathenv.c_str()));
     ora::Database db;
     ReferenceHandler* refHandler = new ReferenceHandler( db );
     db.configuration().setReferenceHandler( refHandler );
     db.configuration().setMessageVerbosity( coral::Debug );
-    std::string connStr( "oracle://devdb10/giacomo" );
+    std::string connStr( "oracle://cms_orcoff_prep/CMS_COND_WEB" );
     db.connect( connStr );
     ora::ScopedTransaction trans( db.transaction() );
     trans.start( false );
@@ -110,6 +114,9 @@ int main(){
       }
     }
     trans.commit();
+    trans.commit();
+    trans.start( false );
+    db.drop();
     trans.commit();
     db.disconnect();
     db.disconnect();

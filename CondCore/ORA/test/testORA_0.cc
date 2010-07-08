@@ -3,16 +3,20 @@
 #include "CondCore/ORA/interface/Transaction.h"
 #include "CondCore/ORA/interface/ScopedTransaction.h"
 #include "CondCore/ORA/interface/Exception.h"
+#include <cstdlib>
 #include <iostream>
 //#include <typeinfo>
 
 int main(){
-    // writing...  
+  // writing...
+  std::string authpath("/afs/cern.ch/cms/DB/conddb");
+  std::string pathenv(std::string("CORAL_AUTH_PATH=")+authpath);
+  ::putenv(const_cast<char*>(pathenv.c_str()));
   ora::Database db;
   db.configuration().setMessageVerbosity( coral::Debug );
   try {
 
-    std::string connStr( "oracle://devdb10/giacomo" );
+    std::string connStr( "oracle://cms_orcoff_prep/CMS_COND_WEB" );
     //std::string connStr( "sqlite_file:test.db" );
     db.connect( connStr );
     ora::ScopedTransaction trans0( db.transaction() );
@@ -201,7 +205,7 @@ int main(){
     std::cout << "#### reading after delete..."<<std::endl;
     db.connect( connStr );  
     ora::ScopedTransaction trans5( db.transaction() );
-    trans5.start( true );
+    trans5.start( false );
     contH0 = db.containerHandle( "Cont0" );
     rInt0 = contH0.fetch<int>( oid00);
     if( rInt0 ){
@@ -238,6 +242,7 @@ int main(){
       boost::shared_ptr<std::string> s = iter1.get<std::string>();
       std::cout << " **** Cont="<<contH1.name()<<" val="<<*s<<std::endl;
     }
+    db.drop();
     trans5.commit();
     db.disconnect();
   } catch ( const ora::Exception& exc ){

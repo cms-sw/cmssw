@@ -4,21 +4,24 @@
 #include "CondCore/ORA/interface/Transaction.h"
 #include "CondCore/ORA/interface/Exception.h"
 #include <iostream>
+#include <cstdlib>
 #include "classes.h"
 
 int main(){
   ora::Database db;
   try {
-
+    std::string authpath("/afs/cern.ch/cms/DB/conddb");
+    std::string pathenv(std::string("CORAL_AUTH_PATH=")+authpath);
+    ::putenv(const_cast<char*>(pathenv.c_str()));
     // writing...
-    std::string connStr0( "oracle://devdb10/giacomo" );
+    std::string connStr0( "oracle://cms_orcoff_prep/CMS_COND_WEB" );
     std::string connStr1( "sqlite_file:test1.db" );
     std::string connStr2( "sqlite_file:test2.db" );
     db.configuration().setMessageVerbosity( coral::Debug );
     db.connect( connStr0 );
     ora::ScopedTransaction trans( db.transaction() );
     trans.start( false );
-    if(db.exists()){
+    if(!db.exists()){
       db.create();
     }
     std::set< std::string > conts = db.containers();
@@ -35,7 +38,7 @@ int main(){
     ::sleep(1);
     db.connect( connStr1 );
     trans.start( false );
-    if(db.exists()){
+    if(!db.exists()){
       db.create();
     }
     conts = db.containers();
@@ -87,7 +90,7 @@ int main(){
     db.configuration().properties().setFlag( ora::Configuration::automaticDatabaseCreation() );
     db.connect( connStr2 );
     db.transaction().start( false );
-    if(db.exists()){
+    if(!db.exists()){
       db.create();
     }
     conts = db.containers();
@@ -113,6 +116,12 @@ int main(){
         std::cout << "** Read out data for seed="<<seed<<" in db conn2 is ok."<<std::endl;        
       }
     }
+    trans.commit();
+    db.disconnect();
+    ::sleep(1);
+    db.connect( connStr0 );
+    trans.start( false );
+    db.drop();
     trans.commit();
     db.disconnect();
   } catch ( const ora::Exception& exc ){

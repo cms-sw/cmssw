@@ -47,7 +47,6 @@ void ora::ObjectStreamerBase::buildBaseDataMembers( DataElement& dataElement,
       std::string scope = declaringType.Name(Reflex::SCOPED|Reflex::FINAL);
       // Get the data member name
       std::string dataMemberName = MappingRules::scopedVariableName( dataMember.Name(), scope );
-
       // Retrieve the relevant mapping element
       MappingElement::iterator iDataMemberMapping = m_mapping.find( dataMemberName );
       if ( iDataMemberMapping == m_mapping.end() ) {
