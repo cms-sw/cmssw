@@ -1,5 +1,5 @@
 #from tools import replaceTemplate
-from tools import loadCmsProcess,loadCrabCfg,loadCrabDefault,writeCfg
+from tools import loadCmsProcess,loadCrabCfg,loadCrabDefault,writeCfg,prependPaths
 from CrabTask import *
 import os
 
@@ -36,6 +36,12 @@ class DTTTrigProd:
         self.process = loadCmsProcess(self.pset_template)
         self.process.GlobalTag.globaltag = self.config.globaltag
         self.process.ttrigcalib.digiLabel = self.config.digilabel
+        if hasattr(self.config,'preselection') and self.config.preselection:
+            pathsequence = self.config.preselection.split(':')[0]
+            seqname = self.config.preselection.split(':')[1]
+            self.process.load(pathsequence)
+            prependPaths(self.process,seqname)
+
         #writeCfg(self.process,self.dir,self.pset_name)
         #self.pset = self.process.dumpPython()
 

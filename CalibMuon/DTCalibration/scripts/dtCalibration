@@ -45,7 +45,7 @@ def runTtrigProd(run,runselection,trial,config,runStep=True):
             haddLocal(output_dir,result_file) 
         elif config.stageOutCAF:
             castor_dir = config.castorpath + "/" + config.userdircaf
-            haddInCastor(castor_dir,result_file)
+            haddInCastor(castor_dir,result_file,'DTTimeBoxes','rfio://castorcms/')
 
         return project_prod
 
@@ -89,7 +89,7 @@ def runTtrigValid(run,runselection,trial,input_file,config,runStep=True):
             haddLocal(output_dir,result_file,'residuals')
         elif config.stageOutCAF:
             castor_dir = config.castorpath + "/" + config.userdircaf
-            haddInCastor(castor_dir,result_file,'residuals')
+            haddInCastor(castor_dir,result_file,'residuals','rfio://castorcms/')
 
         return project_valid_first
 
@@ -133,7 +133,7 @@ def runTtrigValidResidCorr(run,runselection,trial,input_file,config,runStep=True
             haddLocal(output_dir,result_file,'residuals')
         elif config.stageOutCAF: 
             castor_dir = config.castorpath + "/" + config.userdircaf
-            haddInCastor(castor_dir,result_file,'residuals')
+            haddInCastor(castor_dir,result_file,'residuals','rfio://castorcms/')
 
         return project_valid_ResidCorr
 
@@ -187,16 +187,20 @@ if __name__ == '__main__':
     """
     
     parser = optparse.OptionParser(usage="usage: %prog [options]")
-    parser.add_option("-r","--run",dest="run", help="set reference run number (typically first run in list)")
-    parser.add_option("--runselection",dest="runselection", help="run list or range")
-    parser.add_option("--trial",dest="trial", help="trial number used to in the naming of output directories")
-    parser.add_option("--castorpath",dest="castorpath", help="path to user area at CAF")
-    parser.add_option("--datasetpath",dest="datasetpath", help="dataset name to process")
-    parser.add_option("--globaltag",dest="globaltag", help="global tag identifier (without the '::All' string)")
-    parser.add_option("--email",dest="email", help="user email")
-    parser.add_option("--templatepath",dest="templatepath", help="path to dir with template cfg files")
+    parser.add_option("-r","--run", dest="run", help="set reference run number (typically first run in list)")
+    parser.add_option("--runselection", dest="runselection", help="run list or range")
+    parser.add_option("--trial", dest="trial", help="trial number used to in the naming of output directories")
+    parser.add_option("--castorpath", dest="castorpath", help="path to user area at CAF")
+    parser.add_option("--datasetpath", dest="datasetpath", help="dataset name to process")
+    parser.add_option("--globaltag", dest="globaltag", help="global tag identifier (without the '::All' string)")
+    parser.add_option("--preselection", dest="preselection", help="configuration fragment and sequence name, separated by a ':', defining a pre-selection filter")
+    parser.add_option("--email", dest="email", help="user email")
+    parser.add_option("--templatepath", dest="templatepath", help="path to dir with template cfg files")
     parser.add_option("--runOnGrid", action="store_true", dest="runOnGrid", default=False, help="workflow will be run on the Grid (instead of the CAF)")
     parser.add_option("--stageOutLocal", action="store_true", dest="stageOutLocal", default=False, help="output will be copied locally (if running on the Grid this will be the default)")
+    parser.add_option("--totalnumberlumis", dest="totalnumberlumis", type="int", default=-1, help="total number of lumis to be analyzed")
+    parser.add_option("--lumisperjob", dest="lumisperjob", type="int", default=150, help="number of lumis per job")
+    parser.add_option("--lumimask", dest="lumimask", help="lumi mask JSON file")
     parser.add_option("--useCRABServer", action="store_true", dest="useserver", default=False, help="will use CRAB server to submit jobs (default = False)")
     parser.add_option("--no_exec", action="store_true", dest="no_exec", default=False, help="script will not execute")
  
@@ -217,6 +221,9 @@ if __name__ == '__main__':
     if hasattr(input,'trial') and input.trial: trial = input.trial
     else: trial = 1 
 
+    if hasattr(input,'lumimask') and input.lumimask:
+        if not os.path.exists(input.lumimask): parser.error('File "%s" does not exist' % input.lumimask)
+  
     class config: pass
 
     if not input.runOnGrid:
@@ -236,9 +243,13 @@ if __name__ == '__main__':
     config.useserver = input.useserver
     config.datasetpath = input.datasetpath
     config.runselection = runselection
+    config.preselection = input.preselection
     #config.totalnumberevents = 1000000
     #config.eventsperjob = 50000
-    if hasattr(input,'email'): config.email = input.email    
+    config.totalnumberlumis = input.totalnumberlumis
+    config.lumisperjob = input.lumisperjob
+    if hasattr(input,'lumimask') and input.lumimask: config.lumimask = os.path.abspath(input.lumimask)
+    if hasattr(input,'email') and input.email: config.email = input.email    
 
     config.globaltag = input.globaltag + '::All'
 

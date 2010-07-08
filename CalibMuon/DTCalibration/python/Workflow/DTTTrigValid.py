@@ -1,5 +1,5 @@
 #from tools import replaceTemplate
-from tools import loadCmsProcess,loadCrabCfg,loadCrabDefault,writeCfg
+from tools import loadCmsProcess,loadCrabCfg,loadCrabDefault,writeCfg,prependPaths
 from CrabTask import *
 import os
 
@@ -37,6 +37,11 @@ class DTTTrigValid:
         self.process = loadCmsProcess(self.pset_template)
         self.process.GlobalTag.globaltag = self.config.globaltag
         self.process.calibDB.connect = 'sqlite_file:%s' % os.path.basename(self.inputfile)
+        if hasattr(self.config,'preselection') and self.config.preselection:
+            pathsequence = self.config.preselection.split(':')[0]
+            seqname = self.config.preselection.split(':')[1]
+            self.process.load(pathsequence)
+            prependPaths(self.process,seqname)
 
     def initCrab(self):
         crab_cfg_parser = loadCrabCfg(self.crab_template)

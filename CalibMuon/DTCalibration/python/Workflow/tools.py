@@ -11,13 +11,13 @@ def replaceTemplate(template,**opts):
 
     return result
  
-def listFilesInCastor(castor_dir,type = 'root'):
+def listFilesInCastor(castor_dir,type = 'root',prefix = 'rfio'):
     if not castor_dir: raise ValueError,'Please specify valid castor dir'
 
     from subprocess import Popen,PIPE
     p1 = Popen(['nsls',castor_dir],stdout=PIPE)
     p2 = Popen(['grep',type],stdin=p1.stdout,stdout=PIPE)
-    files = ['rfio:' + castor_dir + "/" + item[:-1] for item in p2.stdout]
+    files = [prefix + castor_dir + "/" + item[:-1] for item in p2.stdout]
     p2.stdout.close()
     return files
 
@@ -31,7 +31,7 @@ def listFilesLocal(dir,type = 'root'):
     p2.stdout.close()
     return files
 
-def haddInCastor(castor_dir,result_file,type = 'root'):
+def haddInCastor(castor_dir,result_file,type = 'root',prefix = 'rfio:',suffix = None):
     if not castor_dir: raise ValueError,'Please specify valid castor dir'
     if not result_file: raise ValueError,'Please specify valid output file name'
 
@@ -39,7 +39,9 @@ def haddInCastor(castor_dir,result_file,type = 'root'):
     #print "Running",cmd
     #os.system(cmd)
     from subprocess import call
-    files = listFilesInCastor(castor_dir,type)
+    files = listFilesInCastor(castor_dir,type,prefix)
+    if suffix: files = [item + suffix for item in files]
+ 
     cmd = ['hadd',result_file]
     cmd.extend(files)
     #print cmd
@@ -92,6 +94,10 @@ def loadCmsProcess(pset_name):
     pset = imp.load_source("psetmodule",pset_name)
     return pset.process
 
+def prependPaths(process,seqname):
+    for path in process.paths: 
+        getattr(process,path)._seq = getattr(process,seqname)*getattr(process,path)._seq
+
 def writeCfg(process,dir,pset_name):
     if not os.path.exists(dir): os.makedirs(dir)
     open(dir + '/' + pset_name,'w').write(process.dumpPython())
@@ -113,8 +119,23 @@ def loadCrabDefault(crab_cfg,config):
     crab_cfg.set('CMSSW','pset','pset.py')
     # Splitting config
     crab_cfg.set('CMSSW','runselection',config.runselection) 
-    if hasattr(config,'totalnumberevents'): crab_cfg.set('CMSSW','total_number_of_events',config.totalnumberevents)
-    if hasattr(config,'eventsperjob'): crab_cfg.set('CMSSW','events_per_job',config.eventsperjob)
+    #if hasattr(config,'totalnumberevents'): crab_cfg.set('CMSSW','total_number_of_events',config.totalnumberevents)
+    #if hasattr(config,'eventsperjob'): crab_cfg.set('CMSSW','events_per_job',config.eventsperjob)
+    crab_cfg.remove_option('CMSSW','total_number_of_events')
+    crab_cfg.remove_option('CMSSW','events_per_job')
+    
+    if hasattr(config,'totalnumberlumis') and config.totalnumberlumis:
+        crab_cfg.set('CMSSW','total_number_of_lumis',config.totalnumberlumis)
+    else:
+        crab_cfg.set('CMSSW','total_number_of_lumis',-1)
+
+    if hasattr(config,'lumisperjob') and config.lumisperjob:
+        crab_cfg.set('CMSSW','lumis_per_job',config.lumisperjob)
+    else:
+        crab_cfg.set('CMSSW','lumis_per_job',150)
+  
+    if hasattr(config,'lumimask') and config.lumimask: crab_cfg.set('CMSSW','lumi_mask',config.lumimask)
+
     # USER section
     if not crab_cfg.has_section('USER'): crab_cfg.add_section('USER')  
     # Stageout config
