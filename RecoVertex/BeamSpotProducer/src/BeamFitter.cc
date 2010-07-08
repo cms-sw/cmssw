@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.66 2010/06/24 22:01:55 uplegger Exp $
+   version $Id: BeamFitter.cc,v 1.67 2010/07/07 01:37:10 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -31,7 +31,7 @@ ________________________________________________________________**/
 // ----------------------------------------------------------------------
 // Useful function:
 // ----------------------------------------------------------------------
-static char * formatTime(const std::time_t & t)  {
+const char * BeamFitter::formatBTime(const std::time_t t)  {
   struct std::tm * ptm;
   ptm = gmtime(&t);
   static char ts[32];
@@ -399,9 +399,9 @@ bool BeamFitter::runPVandTrkFitter() {
         
     // First run PV fitter
     if ( MyPVFitter->IsFitPerBunchCrossing() ){
-      const char* fbeginTime = formatTime(freftime[0]);
+      const char* fbeginTime = formatBTime(freftime[0]);
       sprintf(fbeginTimeOfFit,"%s",fbeginTime);
-      const char* fendTime = formatTime(freftime[1]);
+      const char* fendTime = formatBTime(freftime[1]);
       sprintf(fendTimeOfFit,"%s",fendTime);
       if ( MyPVFitter->runBXFitter() ) {
 	fbspotPVMap = MyPVFitter->getBeamSpotMap();
@@ -486,9 +486,9 @@ bool BeamFitter::runPVandTrkFitter() {
 
 bool BeamFitter::runFitterNoTxt() {
 
-  const char* fbeginTime = formatTime(freftime[0]);
+  const char* fbeginTime = formatBTime(freftime[0]);
   sprintf(fbeginTimeOfFit,"%s",fbeginTime);
-  const char* fendTime = formatTime(freftime[1]);
+  const char* fendTime = formatBTime(freftime[1]);
   sprintf(fendTimeOfFit,"%s",fendTime);
   if (fbeginLumiOfFit == -1 || fendLumiOfFit == -1) {
       edm::LogWarning("BeamFitter") << "No event read! No Fitting!" << std::endl;
