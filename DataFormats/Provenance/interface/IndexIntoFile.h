@@ -270,9 +270,6 @@ namespace edm {
       class IndexIntoFileItrImpl {
 
       public:
-
-        IndexIntoFileItrImpl(IndexIntoFile const* indexIntoFile);
-
         IndexIntoFileItrImpl(IndexIntoFile const* indexIntoFile,
                              EntryType entryType,
                              int indexToRun,
@@ -358,9 +355,6 @@ namespace edm {
 
       class IndexIntoFileItrNoSort : public IndexIntoFileItrImpl {
       public:
-
-        IndexIntoFileItrNoSort(IndexIntoFile const* indexIntoFile);
-
         IndexIntoFileItrNoSort(IndexIntoFile const* indexIntoFile,
                                EntryType entryType,
                                int indexToRun,
@@ -394,9 +388,6 @@ namespace edm {
 
       class IndexIntoFileItrSorted : public IndexIntoFileItrImpl {
       public:
-
-        IndexIntoFileItrSorted(IndexIntoFile const* indexIntoFile);
-
         IndexIntoFileItrSorted(IndexIntoFile const* indexIntoFile,
                                EntryType entryType,
                                int indexToRun,
@@ -429,8 +420,6 @@ namespace edm {
 
       class IndexIntoFileItr {
       public:
-        IndexIntoFileItr(IndexIntoFile const* indexIntoFile, SortOrder sortOrder);
-
         IndexIntoFileItr(IndexIntoFile const* indexIntoFile,
                          SortOrder sortOrder,
                          EntryType entryType,

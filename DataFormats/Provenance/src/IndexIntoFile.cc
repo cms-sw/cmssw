@@ -802,25 +802,6 @@ namespace edm {
     return indexIntoFile_->runOrLumiIndexes().at(runOrLumi_);
   }
 
-
-  IndexIntoFile::IndexIntoFileItrImpl::IndexIntoFileItrImpl(IndexIntoFile const* indexIntoFile) :
-    indexIntoFile_(indexIntoFile),
-    size_(static_cast<int>(indexIntoFile_->runOrLumiEntries_.size())),
-    type_(kEnd),
-    indexToRun_(invalidIndex),
-    indexToLumi_(invalidIndex),
-    indexToEventRange_(invalidIndex),
-    indexToEvent_(0),
-    nEvents_(0) {
-
-    if (size_ == 0) {
-      return;
-    }
-    type_ = kRun;
-    assert(indexIntoFile_->runOrLumiEntries_[0].isRun());
-    initializeRun();
-  }
-
   IndexIntoFile::IndexIntoFileItrImpl::IndexIntoFileItrImpl(IndexIntoFile const* indexIntoFile,
                        EntryType entryType,
                        int indexToRun,
@@ -838,7 +819,7 @@ namespace edm {
     nEvents_(nEvents) {
   }
 
-  void IndexIntoFile::IndexIntoFileItrImpl::next () {
+  void IndexIntoFile::IndexIntoFileItrImpl::next() {
 
     if (type_ == kEvent) {
       if ((indexToEvent_ + 1)  < nEvents_) {
@@ -898,7 +879,7 @@ namespace edm {
           initializeLumi();
         }
       }
-	  }
+    }
     else if (type_ == kRun) {
       EntryType nextType = getRunOrLumiEntryType(indexToRun_ + 1);
       bool sameRun = isSameRun(indexToRun_, indexToRun_ + 1);
@@ -909,8 +890,12 @@ namespace edm {
         ++indexToRun_;
         initializeRun();
       }
-      else {
+      else if (nextType == kLumi) {
         type_ = kLumi;
+      }
+      else {
+        type_ = kEnd;
+        setInvalid();
       }
     }
   }
@@ -1050,11 +1035,6 @@ namespace edm {
     indexToEventRange_ = invalidIndex;
     indexToEvent_ = 0;
     nEvents_ = 0;
-  }
-
-  IndexIntoFile::IndexIntoFileItrNoSort::IndexIntoFileItrNoSort(IndexIntoFile const* indexIntoFile) :
-    IndexIntoFileItrImpl(indexIntoFile)
-  {
   }
 
   IndexIntoFile::IndexIntoFileItrNoSort::IndexIntoFileItrNoSort(IndexIntoFile const* indexIntoFile,
@@ -1213,11 +1193,6 @@ namespace edm {
            indexIntoFile()->runOrLumiEntries()[index2].processHistoryIDIndex();
   }
 
-  IndexIntoFile::IndexIntoFileItrSorted::IndexIntoFileItrSorted(IndexIntoFile const* indexIntoFile) :
-    IndexIntoFileItrImpl(indexIntoFile) {
-    indexIntoFile->fillRunOrLumiIndexes();
-  }
-
   IndexIntoFile::IndexIntoFileItrSorted::IndexIntoFileItrSorted(IndexIntoFile const* indexIntoFile,
                          EntryType entryType,
                          int indexToRun,
@@ -1348,18 +1323,6 @@ namespace edm {
            indexIntoFile()->runOrLumiIndexes()[index2].run() &&
            indexIntoFile()->runOrLumiIndexes()[index1].processHistoryIDIndex() ==
            indexIntoFile()->runOrLumiIndexes()[index2].processHistoryIDIndex();
-  }
-
-  IndexIntoFile::IndexIntoFileItr::IndexIntoFileItr(IndexIntoFile const* indexIntoFile, SortOrder sortOrder) :
-    impl_() {
-    if (sortOrder == numericalOrder) {
-      value_ptr<IndexIntoFileItrImpl> temp(new IndexIntoFileItrSorted(indexIntoFile));
-      swap(temp, impl_);
-    }
-    else {
-      value_ptr<IndexIntoFileItrImpl> temp(new IndexIntoFileItrNoSort(indexIntoFile));
-      swap(temp, impl_);
-    }
   }
 
   IndexIntoFile::IndexIntoFileItr::IndexIntoFileItr(IndexIntoFile const* indexIntoFile,

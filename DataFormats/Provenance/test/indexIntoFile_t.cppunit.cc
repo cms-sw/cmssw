@@ -704,6 +704,46 @@ void TestIndexIntoFile::testIterators() {
   indexIntoFile.addEntry(fakePHID1, 11,  0, 0, 0); // Run
   indexIntoFile.sortVector_Run_Or_Lumi_Entries();
 
+  edm::IndexIntoFile::IndexIntoFileItr iter3(&indexIntoFile,
+                                             IndexIntoFile::firstAppearanceOrder,
+                                             IndexIntoFile::kEvent,
+                                             0,
+                                             2,
+                                             1,
+                                             3,
+                                             4);
+  edm::IndexIntoFile::IndexIntoFileItr iter1(iter3);
+  CPPUNIT_ASSERT(indexIntoFile.runOrLumiIndexes().empty());
+
+  CPPUNIT_ASSERT(iter1.indexIntoFile() == &indexIntoFile);
+  CPPUNIT_ASSERT(iter1.size() == 3);
+  CPPUNIT_ASSERT(iter1.type() == IndexIntoFile::kEvent);
+  CPPUNIT_ASSERT(iter1.indexToRun() == 0);
+  CPPUNIT_ASSERT(iter1.indexToLumi() == 2);
+  CPPUNIT_ASSERT(iter1.indexToEventRange() == 1);
+  CPPUNIT_ASSERT(iter1.indexToEvent() == 3);
+  CPPUNIT_ASSERT(iter1.nEvents() == 4);
+
+  edm::IndexIntoFile::IndexIntoFileItr iter4(&indexIntoFile,
+                                             IndexIntoFile::numericalOrder,
+                                             IndexIntoFile::kEvent,
+                                             0,
+                                             2,
+                                             1,
+                                             3,
+                                             4);
+  edm::IndexIntoFile::IndexIntoFileItr iter2(iter4);
+  CPPUNIT_ASSERT(!indexIntoFile.runOrLumiIndexes().empty());
+
+  CPPUNIT_ASSERT(iter2.indexIntoFile() == &indexIntoFile);
+  CPPUNIT_ASSERT(iter2.size() == 3);
+  CPPUNIT_ASSERT(iter2.type() == IndexIntoFile::kEvent);
+  CPPUNIT_ASSERT(iter2.indexToRun() == 0);
+  CPPUNIT_ASSERT(iter2.indexToLumi() == 2);
+  CPPUNIT_ASSERT(iter2.indexToEventRange() == 1);
+  CPPUNIT_ASSERT(iter2.indexToEvent() == 3);
+  CPPUNIT_ASSERT(iter2.nEvents() == 4);
+
   std::vector<IndexIntoFile::EventEntry>&  eventEntries  = indexIntoFile.eventEntries();
   eventEntries.push_back(IndexIntoFile::EventEntry(7, 0));
   eventEntries.push_back(IndexIntoFile::EventEntry(6, 1));
@@ -716,10 +756,13 @@ void TestIndexIntoFile::testIterators() {
 
   edm::IndexIntoFile::IndexIntoFileItr iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
   edm::IndexIntoFile::IndexIntoFileItr iterNumCopy = iterNum;
+  edm::IndexIntoFile::IndexIntoFileItr iterNumCopy2 = iterNum;
   edm::IndexIntoFile::IndexIntoFileItr iterNumEnd = indexIntoFile.end(IndexIntoFile::numericalOrder);
   int i = 0;
   for (i = 0; iterNum != iterNumEnd; ++iterNum, ++iterNumCopy, ++i) {
+    iterNumCopy2 = iterNumCopy;
     CPPUNIT_ASSERT(iterNum == iterNumCopy);
+    CPPUNIT_ASSERT(iterNum == iterNumCopy2);
     if (i == 0) {
       CPPUNIT_ASSERT(iterNum.indexIntoFile() == &indexIntoFile);
       CPPUNIT_ASSERT(iterNum.size() == 3);
@@ -795,9 +838,12 @@ void TestIndexIntoFile::testIterators() {
 
   edm::IndexIntoFile::IndexIntoFileItr iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
   edm::IndexIntoFile::IndexIntoFileItr iterFirstCopy = iterFirst;
+  edm::IndexIntoFile::IndexIntoFileItr iterFirstCopy2 = iterFirst;
   edm::IndexIntoFile::IndexIntoFileItr iterFirstEnd = indexIntoFile.end(IndexIntoFile::firstAppearanceOrder);
   for (i = 0; iterFirst != iterFirstEnd; ++iterFirst, ++iterFirstCopy, ++i) {
     CPPUNIT_ASSERT(iterFirst== iterFirstCopy);
+    iterFirstCopy2 = iterFirstCopy;
+    CPPUNIT_ASSERT(iterFirst== iterFirstCopy2);
     if (i == 0) {
       CPPUNIT_ASSERT(iterFirst.indexIntoFile() == &indexIntoFile);
       CPPUNIT_ASSERT(iterFirst.size() == 3);
