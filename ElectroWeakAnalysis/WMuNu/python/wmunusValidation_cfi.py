@@ -13,7 +13,7 @@ wmnVal_corMet = cms.EDFilter("WMuNuValidator",
       
       # Main cuts ->
       MuonTrig = cms.untracked.string("HLT_Mu9"),
-      PtCut = cms.untracked.double(25.0),
+      PtCut = cms.untracked.double(20.0),
       EtaMinCut = cms.untracked.double(-2.1),
       EtaMaxCut = cms.untracked.double(2.1),
       IsRelativeIso = cms.untracked.bool(True),
@@ -23,7 +23,7 @@ wmnVal_corMet = cms.EDFilter("WMuNuValidator",
       MtMax = cms.untracked.double(9999999.),
       MetMin = cms.untracked.double(-999999.),
       MetMax = cms.untracked.double(999999.),
-      AcopCut = cms.untracked.double(2.),     # Remember to take this out if you are looking for High-Pt Bosons! (V+Jets)
+      AcopCut = cms.untracked.double(999),     # Remember to take this out if you are looking for High-Pt Bosons! (V+Jets)
 
       # Muon quality cuts ->
       DxyCut = cms.untracked.double(0.2), # dxy < 0.2 cm (cosmics)

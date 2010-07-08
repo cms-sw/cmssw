@@ -56,5 +56,5 @@ selWMuNu_MuonIDAndIsoAndTrigger.MuonTrig = cms.untracked.string("HLT_Mu9") #Put 
 selWMuNu_MuonSelected = selWMuNu_MuonIDAndIsoAndTrigger.clone() 
 selWMuNu_MuonSelected.PtThrForZ1= cms.untracked.double(20.0)
 selWMuNu_MuonSelected.PtThrForZ2= cms.untracked.double(10.0)
-selWMuNu_MuonSelected.PtCut = cms.untracked.double(25.0)
+selWMuNu_MuonSelected.PtCut = cms.untracked.double(20.0)
 

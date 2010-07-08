@@ -112,7 +112,7 @@ WMuNuValidator::WMuNuValidator( const ParameterSet & cfg ) :
 
       // Main cuts 
       muonTrig_(cfg.getUntrackedParameter<std::string> ("MuonTrig", "HLT_Mu9")),
-      ptCut_(cfg.getUntrackedParameter<double>("PtCut", 25.)),
+      ptCut_(cfg.getUntrackedParameter<double>("PtCut", 20.)),
       etaMinCut_(cfg.getUntrackedParameter<double>("EtaMinCut", -2.1)),
       etaMaxCut_(cfg.getUntrackedParameter<double>("EtaMaxCut", 2.1)),
       isRelativeIso_(cfg.getUntrackedParameter<bool>("IsRelativeIso", true)),
@@ -122,7 +122,7 @@ WMuNuValidator::WMuNuValidator( const ParameterSet & cfg ) :
       mtMax_(cfg.getUntrackedParameter<double>("MtMax", 200.)),
       metMin_(cfg.getUntrackedParameter<double>("MetMin", -999999.)),
       metMax_(cfg.getUntrackedParameter<double>("MetMax", 999999.)),
-      acopCut_(cfg.getUntrackedParameter<double>("AcopCut", 2.)),
+      acopCut_(cfg.getUntrackedParameter<double>("AcopCut", 999.)),
 
       // Muon quality cuts
       dxyCut_(cfg.getUntrackedParameter<double>("DxyCut", 0.2)),  // dxy < 0.2

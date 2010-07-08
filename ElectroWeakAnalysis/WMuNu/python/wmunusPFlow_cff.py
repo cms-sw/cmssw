@@ -39,7 +39,7 @@ selPFWMuNus = cms.EDFilter("WMuNuSelector",
       NJetMax = cms.untracked.int32(999999),
 
       # Main cuts ->
-      PtCut = cms.untracked.double(25.0),
+      PtCut = cms.untracked.double(20.0),
       EtaCut = cms.untracked.double(2.1),
       IsRelativeIso = cms.untracked.bool(True),
       IsCombinedIso = cms.untracked.bool(True), #--> Changed default to Combined Iso. A cut in 0.15 is equivalent (for signal)
@@ -48,7 +48,7 @@ selPFWMuNus = cms.EDFilter("WMuNuSelector",
       MtMax = cms.untracked.double(999999.),
       MetMin = cms.untracked.double(-999999.),
       MetMax = cms.untracked.double(999999.),
-      AcopCut = cms.untracked.double(2.),  # Remember to take this out if you are looking for High-Pt Bosons! (V+Jets)
+      AcopCut = cms.untracked.double(999.),  # Remember to take this out if you are looking for High-Pt Bosons! (V+Jets)
 
       # Muon quality cuts ->
       DxyCut = cms.untracked.double(0.2),

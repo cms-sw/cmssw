@@ -114,7 +114,7 @@ WMuNuSelector::WMuNuSelector( const ParameterSet & cfg ) :
       // Input collections
       trigTag_(cfg.getUntrackedParameter<edm::InputTag> ("TrigTag", edm::InputTag("TriggerResults::HLT"))),
       muonTag_(cfg.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons"))),
-      jetTag_(cfg.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag("sisCone5CaloJets"))),
+      jetTag_(cfg.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag(""))),
       WMuNuCollectionTag_(cfg.getUntrackedParameter<edm::InputTag> ("WMuNuCollectionTag", edm::InputTag("WMuNus"))),
 
 
@@ -127,7 +127,7 @@ WMuNuSelector::WMuNuSelector( const ParameterSet & cfg ) :
 
 
       // Main cuts 
-      ptCut_(cfg.getUntrackedParameter<double>("PtCut", 25.)),
+      ptCut_(cfg.getUntrackedParameter<double>("PtCut", 20.)),
       etaCut_(cfg.getUntrackedParameter<double>("EtaCut", 2.1)),
       isRelativeIso_(cfg.getUntrackedParameter<bool>("IsRelativeIso", true)),
       isCombinedIso_(cfg.getUntrackedParameter<bool>("IsCombinedIso", true)),
@@ -136,7 +136,7 @@ WMuNuSelector::WMuNuSelector( const ParameterSet & cfg ) :
       mtMax_(cfg.getUntrackedParameter<double>("MtMax", 9999999.)),
       metMin_(cfg.getUntrackedParameter<double>("MetMin", -999999.)),
       metMax_(cfg.getUntrackedParameter<double>("MetMax", 999999.)),
-      acopCut_(cfg.getUntrackedParameter<double>("AcopCut", 2.)),   
+      acopCut_(cfg.getUntrackedParameter<double>("AcopCut", 999.)),   
 
       // Muon quality cuts
       dxyCut_(cfg.getUntrackedParameter<double>("DxyCut", 0.2)),   // dxy < 0.2 cm 
@@ -433,27 +433,28 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             int nMatches = mu.numberOfMatches(); 
        
 
-            bool quality = (dxy>dxyCut_)*(normalizedChi2>normalizedChi2Cut_)*(trackerHits<trackerHitsCut_)*(pixelHits<pixelHitsCut_)*(muonHits<muonHitsCut_)*(!mu.isTrackerMuon())*(nMatches<nMatchesCut_);
-
-                 if(plotHistograms_){ h1_["hMuonIDCuts"]->Fill(quality);}
+            bool quality = 1; 
 
             LogTrace("") << "\t... dxy, normalizedChi2, muonhits, trackerHits, pixelHits, isTrackerMuon?, nMatches: " << dxy << " [cm], " << normalizedChi2 << ", " <<muonHits<<" , "<< trackerHits <<" , "<< pixelHits <<  ", " << mu.isTrackerMuon()<<", "<<nMatches;
             LogTrace("") << "\t... muon passes the quality cuts? "<<quality<<endl;
 
                   if(plotHistograms_){ h1_["hd0"]->Fill(dxy);}
-            if (dxy>dxyCut_) return 0;
+            if (fabs(dxy)>dxyCut_) {return 0; quality=0;}
             //               if(plotHistograms_){ h1_["hNormChi2"]->Fill(normalizedChi2);}
-            if (normalizedChi2>normalizedChi2Cut_) return 0;
+            if (normalizedChi2>normalizedChi2Cut_) {return 0;quality=0;}
             //               if(plotHistograms_){ h1_["hNHits"]->Fill(trackerHits);}
-            if (trackerHits<trackerHitsCut_) return 0;
+            if (trackerHits<trackerHitsCut_) {return 0;quality=0;}
             //               if(plotHistograms_){ h1_["hNMuonHits"]->Fill(muonHits);}
-            if (pixelHits<pixelHitsCut_) return 0;
+            if (pixelHits<pixelHitsCut_) {return 0;quality=0;}
             //               if(plotHistograms_){ h1_["hNPixelHits"]->Fill(pixelHits);}
-            if (muonHits<muonHitsCut_) return 0;
+            if (muonHits<muonHitsCut_) {return 0;quality=0;}
             //               if(plotHistograms_){ h1_["hTracker"]->Fill(mu.isTrackerMuon());}
-            if (!mu.isTrackerMuon()) return 0;
+            if (!mu.isTrackerMuon()) {return 0;quality=0;}
             //               if(plotHistograms_){ h1_["hNMatches"]->Fill(nMatches);}
-            if (nMatches<nMatchesCut_) return 0;
+            if (nMatches<nMatchesCut_) {return 0;quality=0;}
+
+                 if(plotHistograms_){ h1_["hMuonIDCuts"]->Fill(quality);}
+
 
             nid++;
 
