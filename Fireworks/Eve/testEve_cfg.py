@@ -31,7 +31,7 @@ process.EveService = cms.Service("EveService")
 process.add_( cms.ESProducer(
         "TGeoMgrFromDdd",
         verbose = cms.untracked.bool(False),
-        level   = cms.untracked.int32(4)
+        level   = cms.untracked.int32(8)
 ))
 
 process.dump = cms.EDAnalyzer(
