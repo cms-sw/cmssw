@@ -692,6 +692,7 @@ namespace edm {
           (previousIndexes && !(*previousIndexes < indexes))) {
         continue;
       }
+      previousIndexes = &indexes;
 
       long long beginEventNumbers = indexes.beginEventNumbers();
       long long endEventNumbers = indexes.endEventNumbers();
@@ -700,18 +701,17 @@ namespace edm {
       if (beginEventNumbers + 1 >= endEventNumbers) continue;
 
       if (!eventEntries().empty()) {
-        if (std::adjacent_find(eventEntries().begin() + beginEventNumbers,
-                               eventEntries().begin() + endEventNumbers) != eventEntries().end()) {
+        std::vector<EventEntry>::iterator last = eventEntries().begin() + endEventNumbers;
+        if (std::adjacent_find(eventEntries().begin() + beginEventNumbers, last) != last) {
           return true;
         }
       } else {
         fillEventNumbers();
-        if (std::adjacent_find(eventNumbers().begin() + beginEventNumbers,
-                               eventNumbers().begin() + endEventNumbers) != eventNumbers().end()) {
+        std::vector<EventNumber_t>::iterator last = eventNumbers().begin() + endEventNumbers;
+        if (std::adjacent_find(eventNumbers().begin() + beginEventNumbers, last) != last) {
            return true;
         }
       }
-      previousIndexes = &indexes;
     }
     return false;
   }

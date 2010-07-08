@@ -1231,6 +1231,12 @@ void TestIndexIntoFile::testDuplicateCheckerFunctions() {
     indexIntoFile11.addEntry(fakePHID1, 7, 1, 4, 3); // Event
     indexIntoFile11.addEntry(fakePHID1, 7, 1, 0, 3); // Lumi
     indexIntoFile11.addEntry(fakePHID1, 7, 0, 0, 2); // Run
+    indexIntoFile11.addEntry(fakePHID1, 8, 1, 1, 4); // Event
+    indexIntoFile11.addEntry(fakePHID1, 8, 1, 0, 4); // Lumi
+    indexIntoFile11.addEntry(fakePHID1, 8, 0, 0, 3); // Run
+    indexIntoFile11.addEntry(fakePHID1, 8, 1, 2, 5); // Event
+    indexIntoFile11.addEntry(fakePHID1, 8, 1, 0, 5); // Lumi
+    indexIntoFile11.addEntry(fakePHID1, 8, 0, 0, 4); // Run
     indexIntoFile11.sortVector_Run_Or_Lumi_Entries();
    
     edm::IndexIntoFile indexIntoFile12;
@@ -1245,18 +1251,39 @@ void TestIndexIntoFile::testDuplicateCheckerFunctions() {
     indexIntoFile12.addEntry(fakePHID1, 7, 1, 8, 3); // Event
     indexIntoFile12.addEntry(fakePHID1, 7, 1, 0, 3); // Lumi
     indexIntoFile12.addEntry(fakePHID1, 7, 1, 11, 4); // Event
-    indexIntoFile12.addEntry(fakePHID1, 7, 1, 7, 5); // Event
-    indexIntoFile12.addEntry(fakePHID1, 7, 1, 3, 6); // Event
+    indexIntoFile12.addEntry(fakePHID1, 7, 1, 6, 5); // Event
+    indexIntoFile12.addEntry(fakePHID1, 7, 1, 1, 6); // Event
     indexIntoFile12.addEntry(fakePHID1, 7, 1, 4, 7); // Event
     indexIntoFile12.addEntry(fakePHID1, 7, 1, 0, 4); // Lumi
     indexIntoFile12.addEntry(fakePHID1, 7, 0, 0, 2); // Run
     indexIntoFile12.sortVector_Run_Or_Lumi_Entries();
+
+    edm::IndexIntoFile indexIntoFile22;
+    indexIntoFile22.addEntry(fakePHID1, 6, 1, 0, 0); // Lumi
+    indexIntoFile22.addEntry(fakePHID1, 6, 3, 0, 1); // Lumi
+    indexIntoFile22.addEntry(fakePHID1, 6, 3, 0, 2); // Lumi
+    indexIntoFile22.addEntry(fakePHID1, 6, 0, 0, 0); // Run
+    indexIntoFile22.addEntry(fakePHID1, 6, 0, 0, 1); // Run
+    indexIntoFile22.addEntry(fakePHID1, 7, 1, 11, 0); // Event
+    indexIntoFile22.addEntry(fakePHID1, 7, 1, 7, 1); // Event
+    indexIntoFile22.addEntry(fakePHID1, 7, 1, 3, 2); // Event
+    indexIntoFile22.addEntry(fakePHID1, 7, 1, 8, 3); // Event
+    indexIntoFile22.addEntry(fakePHID1, 7, 1, 0, 3); // Lumi
+    indexIntoFile22.addEntry(fakePHID1, 7, 1, 11, 4); // Event
+    indexIntoFile22.addEntry(fakePHID1, 7, 1, 6, 5); // Event
+    indexIntoFile22.addEntry(fakePHID1, 7, 1, 1, 6); // Event
+    indexIntoFile22.addEntry(fakePHID1, 7, 1, 4, 7); // Event
+    indexIntoFile22.addEntry(fakePHID1, 7, 1, 0, 4); // Lumi
+    indexIntoFile22.addEntry(fakePHID1, 7, 0, 0, 2); // Run
+    indexIntoFile22.sortVector_Run_Or_Lumi_Entries();
 
     TestEventFinder* ptr11(new TestEventFinder);
     ptr11->push_back(1);
     ptr11->push_back(2);
     ptr11->push_back(3);
     ptr11->push_back(4);
+    ptr11->push_back(1);
+    ptr11->push_back(2);
 
     boost::shared_ptr<IndexIntoFile::EventFinder> shptr11(ptr11);
     indexIntoFile11.setEventFinder(shptr11);
@@ -1267,21 +1294,40 @@ void TestIndexIntoFile::testDuplicateCheckerFunctions() {
     ptr12->push_back(3);
     ptr12->push_back(8);
     ptr12->push_back(11);
-    ptr12->push_back(7);
-    ptr12->push_back(3);
+    ptr12->push_back(6);
+    ptr12->push_back(1);
     ptr12->push_back(4);
 
     boost::shared_ptr<IndexIntoFile::EventFinder> shptr12(ptr12);
     indexIntoFile12.setEventFinder(shptr12);
 
+    TestEventFinder* ptr22(new TestEventFinder);
+    ptr22->push_back(11);
+    ptr22->push_back(7);
+    ptr22->push_back(3);
+    ptr22->push_back(8);
+    ptr22->push_back(11);
+    ptr22->push_back(6);
+    ptr22->push_back(1);
+    ptr22->push_back(4);
+
+    boost::shared_ptr<IndexIntoFile::EventFinder> shptr22(ptr22);
+    indexIntoFile22.setEventFinder(shptr22);
+
     if (j == 0) {
       indexIntoFile11.fillEventNumbers();
       indexIntoFile12.fillEventNumbers();
+      indexIntoFile22.fillEventNumbers();
     }
     else {
       indexIntoFile11.fillEventEntries();
       indexIntoFile12.fillEventEntries();
+      indexIntoFile22.fillEventEntries();
     }
+
+    CPPUNIT_ASSERT(!indexIntoFile11.containsDuplicateEvents());
+    CPPUNIT_ASSERT(indexIntoFile12.containsDuplicateEvents());
+    CPPUNIT_ASSERT(indexIntoFile22.containsDuplicateEvents());
 
     relevantPreviousEvents.clear();
     indexIntoFile11.set_intersection(indexIntoFile12, relevantPreviousEvents);
