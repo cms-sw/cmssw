@@ -102,7 +102,8 @@ std::pair<std::vector<reco::TransientTrack>,GlobalPoint> InclusiveVertexFinder::
       float sumWeights=0;
       std::pair<bool,Measurement1D> ipSeed = IPTools::absoluteImpactParameter3D(seed,primaryVertex);
       float pvDistance = ipSeed.second.value();
-      float densityFactor = 2./sqrt(20.*tracks.size()); // assuming all tracks being in 2 narrow jets of cone 0.3
+//      float densityFactor = 2./sqrt(20.*tracks.size()); // assuming all tracks being in 2 narrow jets of cone 0.3
+      float densityFactor = 2./sqrt(20.*80); // assuming 80 tracks being in 2 narrow jets of cone 0.3
       for(std::vector<reco::TransientTrack>::const_iterator tt = tracks.begin();tt!=tracks.end(); ++tt )   {
 
        if(*tt==seed) continue;
