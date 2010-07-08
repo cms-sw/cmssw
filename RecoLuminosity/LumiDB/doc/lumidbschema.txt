@@ -1,7 +1,14 @@
 Indices:
 create index hlt_runnum on hlt(runnum);
+create index hlt_cmslsnum on hlt(cmslsnum asc);
 create index trg_runnum on trg(runnum);
+create index trg_cmslsnum on trg(cmslsnum asc);
 create index lumisummary_runnum on lumisummary(runnum);
+create index lumisummary_cmslsnum on lumisummary(cmslsnum asc);
+create index lumisummary_lumiversion on lumisummary(lumiversion);
+create index cmsrunsummary_fillnum on cmsrunsummary(fillnum asc);
+create index cmsrunsummary_hltkey on cmsrunsummary(hltkey);
+
 alter table CMSRUNSUMMARY add ("STARTTIME" timestamp(6) );
 alter table CMSRUNSUMMARY add ("STOPTIME" timestamp(6) );
 
