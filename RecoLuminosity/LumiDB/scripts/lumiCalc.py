@@ -101,9 +101,11 @@ def deliveredLumiForRange(dbsession,c,fileparsingResult):
         lumidata.append( deliveredLumiForRun(dbsession,c,run) )
     return lumidata
 
-def recordedLumiForRun(dbsession,c,runnum,lslist=[]):
-    """output: ['runnumber','trgtable{}','deadtable{}']
-    """
+def recordedLumiForRun(dbsession,c,runnum,lslist=[-1]):
+    '''
+    lslist=[-1] means to take all in the db
+    output: ['runnumber','trgtable{}','deadtable{}']
+    '''
     recorded=0.0
     lumidata=[] #[runnumber,trgtable,deadtable]
     trgtable={} #{hltpath:[l1seed,hltprescale,l1prescale]}
@@ -255,8 +257,9 @@ def recordedLumiForRun(dbsession,c,runnum,lslist=[]):
 def filterDeadtable(inTable,lslist):
     result={}
     if len(lslist)==0: #if request no ls, then return nothing
-        #return inTable
         return result
+    if len(lslist)==1 and lslist[0]<0:
+        return inTable
     for existingLS in inTable.keys():
         if existingLS in lslist:
             result[existingLS]=inTable[existingLS]
@@ -359,7 +362,6 @@ def printPerLSLumi(lumidata,isVerbose=False,hltpath=''):
     input lumidata  [['runnumber','trgtable{}','deadtable{}']]
     deadtable {lsnum:[deadtime,instlumi,bit_0,norbits]}
     '''
-    print 'input ',lumidata
     datatoprint=[]
     totalrow=[]
     labels=[('Run','LS','Delivered','Recorded'+u' (/\u03bcb)'.encode('utf-8'))]
@@ -384,7 +386,6 @@ def printPerLSLumi(lumidata,isVerbose=False,hltpath=''):
                 totalRecorded=totalRecorded+dataperls[1]
             datatoprint.append(rowdata)
     totalrow.append([str(totalSelectedLS),'%.3f'%(totalDelivered),'%.3f'%(totalRecorded)])
-    print datatoprint
     print '==='
     print tablePrinter.indent(labels+datatoprint,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',justify='right',delim=' | ',wrapfunc=lambda x: wrap_onspace_strict(x,22))
     print '=== Total : '
@@ -578,6 +579,7 @@ def printOverviewData(delivered,recorded,hltpath=''):
         #print 'selectedls ',selectedls
         if len(selectedls)==0:
             selectedlsStr='[]'
+            recordedLumi=0
             if  hltpath!='' and hltpath!='all':
                 rowdata+=[selectedlsStr,'N/A','N/A']
             else:
