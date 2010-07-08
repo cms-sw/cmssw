@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_6_2/GRun/V30
+# /dev/CMSSW_3_6_2/GRun/V31
 
 import FWCore.ParameterSet.Config as cms
 
@@ -68,12 +68,6 @@ streamA_datasetMu_selector.triggerConditions = cms.vstring('HLT_L1Mu14_L1ETM30',
     'HLT_IsoMu3', 
     'HLT_L2Mu9', 
     'HLT_L2Mu11')
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetRandomTriggers_selector
-streamA_datasetRandomTriggers_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetRandomTriggers_selector.l1tResults = cms.InputTag('')
-streamA_datasetRandomTriggers_selector.throw      = cms.bool(False)
-streamA_datasetRandomTriggers_selector.triggerConditions = cms.vstring('HLT_Random')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetZeroBias_selector
 streamA_datasetZeroBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -174,6 +168,12 @@ streamA_datasetEGMonitor_selector.triggerConditions = cms.vstring('HLT_L1SingleE
     'HLT_SelectEcalSpikesHighEt_L1R', 
     'HLT_Activity_Ecal_SC7', 
     'HLT_Activity_Ecal_SC17')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetRandomTriggers_selector
+streamA_datasetRandomTriggers_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetRandomTriggers_selector.l1tResults = cms.InputTag('')
+streamA_datasetRandomTriggers_selector.throw      = cms.bool(False)
+streamA_datasetRandomTriggers_selector.triggerConditions = cms.vstring('HLT_Random')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetEG_selector
 streamA_datasetEG_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
