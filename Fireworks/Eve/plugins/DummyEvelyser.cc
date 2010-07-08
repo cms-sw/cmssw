@@ -8,7 +8,7 @@
 //
 // Original Author:  Matevz Tadel
 //         Created:  Mon Jun 28 18:17:47 CEST 2010
-// $Id: DummyEvelyser.cc,v 1.3 2010/07/06 18:42:51 matevz Exp $
+// $Id: DummyEvelyser.cc,v 1.4 2010/07/07 18:11:13 matevz Exp $
 //
 
 // system include files
@@ -144,12 +144,9 @@ void DummyEvelyser::beginJob()
    m_trackList->IncDenyDestroy();
 
    TEveTrackPropagator *prop = m_trackList->GetPropagator();
-   // Use standard mag field ... should set it in beginRun ...
-   prop->SetMagField(-3.8);
-   prop->SetFitReferences(kFALSE);
-   prop->SetFitDaughters(kFALSE);
-   prop->SetFitDecay(kFALSE);
    prop->SetStepper(TEveTrackPropagator::kRungeKutta);
+   // Use simplified magnetic field.
+   eve->setupFieldForPropagator(prop);
 }
 
 void DummyEvelyser::endJob()

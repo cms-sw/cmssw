@@ -16,7 +16,7 @@
 //
 // Original Author:  Matevz Tadel
 //         Created:  Fri Jun 25 18:56:52 CEST 2010
-// $Id$
+// $Id: EveService.h,v 1.1 2010/06/29 18:05:52 matevz Exp $
 //
 
 #include <string>
@@ -25,12 +25,16 @@ namespace edm
 {
    class ParameterSet;
    class ActivityRegistry;
+   class Run;
    class Event;
    class EventSetup;
 }
 
 class TEveManager;
+class TEveMagField;
+class TEveTrackPropagator;
 class TRint;
+
 
 class EveService
 {
@@ -47,9 +51,13 @@ public:
    void postBeginJob();
    void postEndJob();
 
+   void postBeginRun(const edm::Run&, const edm::EventSetup&);
+
    void postProcessEvent(const edm::Event&, const edm::EventSetup&);
 
-   TEveManager* getManager();
+   TEveManager*  getManager();
+   TEveMagField* getMagField();
+   void          setupFieldForPropagator(TEveTrackPropagator* prop);
 
 private:
    EveService(const EveService&);                  // stop default
@@ -59,6 +67,8 @@ private:
 
    TEveManager  *m_EveManager;
    TRint        *m_Rint;
+
+   TEveMagField *m_MagField;
 };
 
 #endif

@@ -10,17 +10,29 @@ process.source = cms.Source(
     fileNames=cms.untracked.vstring('file:test.root')
 )
 
+# process.maxEvents = cms.untracked.PSet(
+#         input = cms.untracked.int32(1)
+#         )
+
+### For running on pre 3.6 files the current needed to determine the
+### magnetic field is taken from Conditions DB.
+# process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+### specify tag:
+# process.GlobalTag.globaltag = 'START36_V10::All'
+### or use auto-cond:
+# from Configuration.PyReleaseValidation.autoCond import autoCond
+# process.GlobalTag.globaltag = autoCond['mc']
+
+### Request EveService
+process.EveService = cms.Service("EveService")
+
+### Extractor of geometry needed to display it in Eve.
+### Required for "DummyEvelyser".
 process.add_( cms.ESProducer(
         "TGeoMgrFromDdd",
         verbose = cms.untracked.bool(False),
         level   = cms.untracked.int32(4)
 ))
-
-process.EveService = cms.Service("EveService")
-
-# process.maxEvents = cms.untracked.PSet(
-#         input = cms.untracked.int32(1)
-#         )
 
 process.dump = cms.EDAnalyzer(
     "DummyEvelyser",
