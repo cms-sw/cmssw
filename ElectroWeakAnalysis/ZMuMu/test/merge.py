@@ -3,7 +3,8 @@ import copy
 
 process = cms.Process("Merge")
 
-process.include("FWCore/MessageLogger/data/MessageLogger.cfi")
+
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
@@ -16,7 +17,11 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-    "file:zMuSa-UML-Z.root", "file:zMuSa-UML-W.root"
+    "file:NtupleLooseTestNew_oneshot_all_Test_10_1.root",
+    "file:NtupleLooseTestNew_oneshot_all_Test_11_1.root",
+    "file:NtupleLooseTestNew_oneshot_all_Test_12_1.root",
+    "file:NtupleLooseTestNew_oneshot_all_Test_13_1.root", 
+    "file:NtupleLooseTestNew_oneshot_all_Test_14_1.root", 
     )
 )
 
@@ -26,7 +31,7 @@ process.eventInfo = cms.OutputModule (
 
 process.out = cms.OutputModule(
     "PoolOutputModule",
-    fileName = cms.untracked.string('file:./zMuSa-UML.root'),
+    fileName = cms.untracked.string('file:Ntuple_ZmmPowheg_36X.root'),
 )
 
 process.dummy = cms.EDAnalyzer(
