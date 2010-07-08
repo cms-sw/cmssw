@@ -48,10 +48,16 @@ RecoHcalNoiseRECO = cms.PSet(
 # AOD content
 RecoMETAOD = cms.PSet(
     outputCommands = cms.untracked.vstring('keep recoCaloMETs_*_*_*',
+                                           'drop recoCaloMETs_metOptHO_*_*',
+                                           'drop recoCaloMETs_metOpt_*_*',
+                                           'drop recoCaloMETs_metOptNoHFHO_*_*',
+                                           'drop recoCaloMETs_metNoHFHO_*_*',
+                                           'drop recoCaloMETs_metOptNoHF_*_*',
                                            'keep recoMETs_*_*_*',
                                            'keep recoPFMETs_*_*_*',
                                            'keep recoMuonMETCorrectionDataedmValueMap_*_*_*',
                                            'drop recoHcalNoiseRBXs_*_*_*',
+
                                            'keep HcalNoiseSummary_*_*_*',
                                            'keep *GlobalHaloData_*_*_*',
                                            'keep *BeamHaloSummary_*_*_*'
