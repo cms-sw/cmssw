@@ -133,7 +133,16 @@ class pp(Scenario):
         if 'globaltag' in  options:
             globalTag = options['globaltag']
 
-        step = "ALCAOUTPUT:"
+        step = ""
+        if 'PromptCalibProd' in skims:
+            step = "ALCA:PromptCalibProd" 
+            skims.remove('PromptCalibProd')
+        print skims
+        if len( skims ) > 0:
+            if step != "":
+                step += ","
+            step += "ALCAOUTPUT:"
+                
         for skim in skims:
           step += (skim+"+")
         options = Options()
@@ -159,6 +168,11 @@ class pp(Scenario):
         )
 
         cb.prepare() 
+
+        # FIXME: dirty hack..any way around this?
+        # Tier0 needs the dataset used for ALCAHARVEST step to be a different data-tier
+        if 'PromptCalibProd' in step:
+            process.ALCARECOStreamPromptCalibProd.dataset.dataTier = cms.untracked.string('ALCAPROMPT')
 
         return process
 
@@ -198,3 +212,39 @@ class pp(Scenario):
         process.dqmSaver.saveByLumiSection = 1
 
         return process
+
+
+    def alcaHarvesting(self, globalTag, **options):
+        """
+        _alcaHarvesting_
+
+        Proton collisions data taking AlCa Harvesting
+
+        """
+        options = defaultOptions
+        options.scenario = "pp"
+        options.step = "ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi"
+        options.isMC = False
+        options.isData = True
+        options.beamspot = None
+        options.eventcontent = None
+        options.name = "ALCAHARVEST"
+        options.conditions = globalTag
+        options.arguments = ""
+        options.evt_type = ""
+        options.filein = []
+ 
+        process = cms.Process("ALCAHARVEST")
+        process.source = cms.Source("PoolSource")
+        configBuilder = ConfigBuilder(options, process = process)
+        configBuilder.prepare()
+
+        #
+        # customise process for particular job
+        #
+        process.source.processingMode = cms.untracked.string('RunsAndLumis')
+        process.source.fileNames = cms.untracked(cms.vstring())
+        process.maxEvents.input = -1
+
+        return process
+

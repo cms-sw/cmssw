@@ -109,6 +109,23 @@ class Scenario(object):
         raise NotImplementedError, msg
 
 
+    def alcaHarvesting(self, globalTag, **options):
+        """
+        _alcaHarvesting_
+
+        build an AlCa Harvesting configuration
+
+        Arguments:
+        
+        globalTag - The global tag being used
+        inputFiles - The list of LFNs being harvested
+
+        """
+        msg = "Scenario Implementation %s\n" % self.__class__.__name__
+        msg += "Does not contain an implementation for alcaHarvesting"
+        raise NotImplementedError, msg
+
+
     def skimming(self, skims, **options):
         """
         _skimming_
