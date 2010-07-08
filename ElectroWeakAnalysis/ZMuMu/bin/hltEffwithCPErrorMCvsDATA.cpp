@@ -46,7 +46,7 @@ int main(int ac, char *av[]) {
 
     string ext;
     string pname;
-
+    unsigned int rebin =1;
     po::options_description desc("Allowed options");
     desc.add_options()
       ("help,h", "produce help message")
@@ -56,6 +56,7 @@ int main(int ac, char *av[]) {
       ("numMC,m", po::value<string > (&numMC), "MCnumHisto")
       ("denMC,e", po::value<string > (&denMC), "MCdenHisto")
       ("plotname,o", po::value<string > (&pname), "plot name")
+      ("rebin,r", po::value<unsigned int > (&rebin)->default_value(1), "rebin")
       ("plot-format,p", po::value<string>(&ext)->default_value("gif"), 
        "output plot format");
     
@@ -89,12 +90,17 @@ int main(int ac, char *av[]) {
 	
 	TH1D * denhDATA = (TH1D*) root_file->Get( dirDenDATA.c_str()  );
 	TH1D * numhDATA = (TH1D*) root_file->Get( dirNumDATA.c_str() );
- 
+	denhDATA->Rebin(rebin);
+	numhDATA->Rebin(rebin);
 	TH1D * denhMC = (TH1D*) root_file->Get( dirDenMC.c_str()  );
 	TH1D * numhMC = (TH1D*) root_file->Get( dirNumMC.c_str() );
+       	denhMC->Rebin(rebin);
+	numhMC->Rebin(rebin);
+
 	
-	
-	const int bins = denhDATA->GetXaxis()->GetNbins();
+        const int bins = denhDATA->GetXaxis()->GetNbins();
+	//  bins =  bins /  rebin;  
+
 	const double xMax = denhDATA->GetXaxis()->GetXmax();
 	const double xMin = denhDATA->GetXaxis()->GetXmin();
 	double * x = new double[bins];
@@ -114,26 +120,27 @@ int main(int ac, char *av[]) {
 	
         //data
 	TH1D histo("histo", "Efficiency", bins, xMin, xMax);
-	for(int i = 0; i < bins; ++i) {
-	  x[i] = (double(i - 0.5 )) * (xMax - xMin) / (bins ) + xMin; 
+	for(int i = 1; i <= bins; ++i) {
+          int j = i-1;
+	  x[j] = (double(i - 0.5 )) * (xMax - xMin) / (bins ) + xMin; 
 	    int n0 = denhDATA->GetBinContent(i);
 	  //	  std::cout << " n0 " << n0 << endl;
 	   int n1 = numhDATA->GetBinContent(i);
 	  // std::cout << " n1 " << n1 << endl;
 	  if ( n0!=0) {
-	    eff[i] = double(n1)/double(n0); 
-	    histo.SetBinContent(i,eff[i]); 
-	    exl[i] = exh[i] = 0;
+	    eff[j] = double(n1)/double(n0); 
+	    histo.SetBinContent(i,eff[j]); 
+	    exl[j] = exh[j] = 0;
 	    cp.calculate(n1, n0);
-	    eefflCP[i] = eff[i] - cp.lower();
-	    eeffhCP[i] = cp.upper() - eff[i];
+	    eefflCP[j] = eff[j] - cp.lower();
+	    eeffhCP[j] = cp.upper() - eff[j];
 	  } else { 
-	    eff[i]=0;
-	    histo.SetBinContent(i,eff[i]); 
-	    exl[i] = exh[i] = 0;
+	    eff[j]=0;
+	    histo.SetBinContent(i,eff[j]); 
+	    exl[j] = exh[j] = 0;
 	    //cp.calculate(n1, n0);
-	    eefflCP[i] = 0;
-	    eeffhCP[i] = 0;
+	    eefflCP[j] = 0;
+	    eeffhCP[j] = 0;
 	    
 	  }
 	  //histo.SetBinContent(i+1,eff[i]); 
@@ -143,7 +150,7 @@ int main(int ac, char *av[]) {
 	      //eeffhCP[i] = cp.upper() - eff[i];
 	}
 	TGraphAsymmErrors graphCP(bins, x, eff, exl, exh, eefflCP, eeffhCP);
-	graphCP.SetTitle("HLT_Mu9 efficiency (Clopper-Pearson intervals)");
+	graphCP.SetTitle("trigger (HLT_Mu9 path) efficiency");
 	graphCP.SetMarkerColor(kRed);
 	graphCP.SetMarkerStyle(21);
 	graphCP.SetLineWidth(2);
@@ -151,8 +158,12 @@ int main(int ac, char *av[]) {
 	string cname = pname;
 	TCanvas * c = new TCanvas(cname.c_str());
 	gStyle->SetOptStat(0);
-	histo.SetTitle("HLT_Mu9 Efficiency with Clopper-Pearson intervals"); 
+	histo.SetTitle("trigger (HLT_Mu9 path) efficiency"); 
+	//	histo.GetXaxis()->SetTitle("p_{T} (GeV/c)");
+	histo.GetXaxis()->SetTitle("#eta");
+	histo.GetYaxis()->SetTitle("efficiency");
 	histo.Draw();
+	histo.SetMinimum(0.0);
 	histo.SetLineColor(kWhite);
 	graphCP.Draw("P");
 
@@ -166,26 +177,27 @@ int main(int ac, char *av[]) {
 
 
 	TH1D histoMC("histoMC", "EfficiencyMC", bins, xMin, xMax);
-	for(int i = 0; i < bins; ++i) {
-	  xMC[i] = (double(i - 0.5 )) * (xMax - xMin) / (bins ) + xMin; 
+	for(int i = 1; i <= bins; ++i) {
+	  int j= i -1;
+	  xMC[j] = (double(i - 0.5 )) * (xMax - xMin) / (bins ) + xMin; 
 	    int n0 = denhMC->GetBinContent(i);
 	  //	  std::cout << " n0 " << n0 << endl;
 	   int n1 = numhMC->GetBinContent(i);
 	  // std::cout << " n1 " << n1 << endl;
 	  if ( n0!=0) {
-	    effMC[i] = double(n1)/double(n0); 
-	    histoMC.SetBinContent(i,effMC[i]); 
-	    exlMC[i] = exhMC[i] = 0;
+	    effMC[j] = double(n1)/double(n0); 
+	    histoMC.SetBinContent(i,effMC[j]); 
+	    exlMC[j] = exhMC[j] = 0;
 	    cp.calculate(n1, n0);
-	    eefflCPMC[i] = effMC[i] - cp.lower();
-	    eeffhCPMC[i] = cp.upper() - effMC[i];
+	    eefflCPMC[j] = effMC[j] - cp.lower();
+	    eeffhCPMC[j] = cp.upper() - effMC[j];
 	  } else { 
-	    effMC[i]=0;
-	    histoMC.SetBinContent(i,effMC[i]); 
-	    exlMC[i] = exhMC[i] = 0;
+	    effMC[j]=0;
+	    histoMC.SetBinContent(i,effMC[j]); 
+	    exlMC[j] = exhMC[j] = 0;
 	    //cp.calculate(n1, n0);
-	    eefflCPMC[i] = 0;
-	    eeffhCPMC[i] = 0;
+	    eefflCPMC[j] = 0;
+	    eeffhCPMC[j] = 0;
 	    
 	  }
 	  //histo.SetBinContent(i+1,eff[i]); 
@@ -207,7 +219,7 @@ int main(int ac, char *av[]) {
 	histoMC.SetLineWidth(2);
 	//graphCPMC.Draw("P");
 
-	TLegend * leg = new TLegend(0.65,0.60,0.85,0.75);
+	TLegend * leg = new TLegend(0.4,0.40,0.6,0.6);
 	leg->SetFillColor(kWhite);
          
 	leg->AddEntry(&graphCP,"data", "l");
