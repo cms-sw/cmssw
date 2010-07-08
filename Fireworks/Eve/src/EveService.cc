@@ -8,7 +8,7 @@
 //
 // Original Author:  Matevz Tadel
 //         Created:  Fri Jun 25 18:57:39 CEST 2010
-// $Id: EveService.cc,v 1.3 2010/07/07 18:08:33 matevz Exp $
+// $Id: EveService.cc,v 1.4 2010/07/08 16:58:23 matevz Exp $
 //
 
 // system include files
@@ -37,6 +37,11 @@
 #include "TEveManager.h"
 #include "TEveEventManager.h"
 #include "TEveTrackPropagator.h"
+
+// GUI widgets
+#include "TEveBrowser.h"
+#include "TGFrame.h"
+#include "TGButton.h"
 
 namespace
 {
@@ -141,6 +146,8 @@ EveService::EveService(const edm::ParameterSet&, edm::ActivityRegistry& ar) :
 
    m_MagField = new CmsEveMagField();
 
+   createEventNavigationGUI();
+
    // ----------------------------------------------------------------
 
    ar.watchPostBeginJob(this, &EveService::postBeginJob);
@@ -241,10 +248,61 @@ void EveService::setupFieldForPropagator(TEveTrackPropagator* prop)
 }
 
 
-//
-// const member functions
-//
+//==============================================================================
+// GUI Builders and callback slots
+//==============================================================================
 
-//
-// static member functions
-//
+namespace
+{
+   TGTextButton*
+   MkTxtButton(TGCompositeFrame* p, const char* txt, Int_t width=0,
+               Int_t lo=0, Int_t ro=0, Int_t to=0, Int_t bo=0)
+   {
+      // Create a standard button.
+      // If width is not zero, the fixed-width flag is set.
+
+      TGTextButton* b = new TGTextButton(p, txt);
+      if (width > 0) {
+         b->SetWidth(width);
+         b->ChangeOptions(b->GetOptions() | kFixedWidth);
+      }
+      p->AddFrame(b, new TGLayoutHints(kLHintsNormal, lo,ro,to,bo));
+      return b;
+   }
+}
+
+void EveService::createEventNavigationGUI()
+{
+   const TString cls("EveService");
+
+   TEveBrowser *browser = gEve->GetBrowser();
+   browser->StartEmbedding(TRootBrowser::kBottom);
+
+   TGMainFrame *mf = new TGMainFrame(gClient->GetRoot(), 400, 100, kVerticalFrame);
+
+   TGHorizontalFrame* f = new TGHorizontalFrame(mf);
+   mf->AddFrame(f, new TGLayoutHints(kLHintsExpandX, 0,0,2,2));
+
+   MkTxtButton(f, "Next Event", 100, 2, 2)->
+      Connect("Clicked()", cls, this, "slotNextEvent()");
+   
+   MkTxtButton(f, "Exit", 100, 2, 2)->
+      Connect("Clicked()", cls, this, "slotExit()");
+
+   mf->SetCleanup(kDeepCleanup);
+   mf->Layout();
+   mf->MapSubwindows();
+   mf->MapWindow();
+
+   browser->StopEmbedding("EventCtrl");
+}
+
+void EveService::slotNextEvent()
+{
+   gSystem->ExitLoop();
+}
+
+void EveService::slotExit()
+{
+   throw cms::Exception("UserTerminationRequest");
+}

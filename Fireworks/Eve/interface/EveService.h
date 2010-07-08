@@ -16,10 +16,11 @@
 //
 // Original Author:  Matevz Tadel
 //         Created:  Fri Jun 25 18:56:52 CEST 2010
-// $Id: EveService.h,v 1.1 2010/06/29 18:05:52 matevz Exp $
+// $Id: EveService.h,v 1.2 2010/07/08 16:58:15 matevz Exp $
 //
 
 #include <string>
+#include <Rtypes.h>
 
 namespace edm
 {
@@ -59,6 +60,14 @@ public:
    TEveMagField* getMagField();
    void          setupFieldForPropagator(TEveTrackPropagator* prop);
 
+   // GUI slots -- must be public so that ROOT can call them via CINT.
+
+   void slotNextEvent();
+   void slotExit();
+
+protected:
+   void createEventNavigationGUI();
+
 private:
    EveService(const EveService&);                  // stop default
    const EveService& operator=(const EveService&); // stop default
@@ -69,6 +78,8 @@ private:
    TRint        *m_Rint;
 
    TEveMagField *m_MagField;
+
+   ClassDef(EveService, 0);
 };
 
 #endif
