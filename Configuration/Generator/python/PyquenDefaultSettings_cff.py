@@ -68,6 +68,7 @@ pyquenPythiaDefaultBlock = cms.PSet(
                                 'MSTJ(22)=2'                                
                                 ),
     ppJets = cms.vstring('MSEL=1   ! QCD hight pT processes'),
+    customProcesses = cms.vstring('MSEL=0   ! User processes'),
     pythiaJets = cms.vstring('MSUB(11)=1', # q+q->q+q
                              'MSUB(12)=1', # q+qbar->q+qbar
                              'MSUB(13)=1', # q+qbar->g+g

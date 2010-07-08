@@ -9,7 +9,7 @@ hiSignal = cms.EDFilter("PyquenGeneratorFilter",
                          doQuench = cms.bool(True),
                          bFixed = cms.double(0.0), ## fixed impact param (fm); valid only if cflag_=0
                          PythiaParameters = cms.PSet(pyquenPythiaDefaultBlock,
-                                                     parameterSets = cms.vstring('pythiaUESettings','pythiaPromptPhotons','kinematics'),
+                                                     parameterSets = cms.vstring('pythiaUESettings','customProcesses','pythiaPromptPhotons','kinematics'),
                                                      kinematics = cms.vstring ("CKIN(3)=20",  #min pthat
                                                                                "CKIN(4)=9999", #max pthat
                                                                                "CKIN(7)=-2.",  #min rapidity
