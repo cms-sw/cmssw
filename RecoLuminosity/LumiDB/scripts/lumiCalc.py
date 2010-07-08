@@ -194,8 +194,8 @@ def recordedLumiForRun(dbsession,c,runnum,lslist=[]):
         query.addToOutputList("trg.DEADTIME","trgdeadtime")
         query.addToOutputList("trg.PRESCALE","trgprescale")
         query.addToOutputList("trg.BITNUM","trgbitnum")
-        query.addToOrderList("trg.BITNAME")
-        query.addToOrderList("trg.CMSLSNUM")
+        #query.addToOrderList("trg.BITNAME")
+        #query.addToOrderList("trg.CMSLSNUM")
 
         result=coral.AttributeList()
         result.extend("cmsls","unsigned int")
@@ -253,9 +253,10 @@ def recordedLumiForRun(dbsession,c,runnum,lslist=[]):
     return lumidata
 
 def filterDeadtable(inTable,lslist):
-    if len(lslist)==0:
-        return inTable
     result={}
+    if len(lslist)==0: #if request no ls, then return nothing
+        #return inTable
+        return result
     for existingLS in inTable.keys():
         if existingLS in lslist:
             result[existingLS]=inTable[existingLS]
@@ -269,6 +270,7 @@ def recordedLumiForRange(dbsession,c,fileparsingResult):
     runs=fileparsingResult.runs()
     runs.sort()
     runsandls=fileparsingResult.runsandls()
+    ###print 'runsandls ',runsandls
     for run in runs:
         lslist=runsandls[run]
     #for (run,lslist) in fileparsingResult.runsandls().items():
@@ -357,8 +359,10 @@ def printPerLSLumi(lumidata,isVerbose=False,hltpath=''):
     input lumidata  [['runnumber','trgtable{}','deadtable{}']]
     deadtable {lsnum:[deadtime,instlumi,bit_0,norbits]}
     '''
+    print 'input ',lumidata
     datatoprint=[]
     totalrow=[]
+    labels=[('Run','LS','Delivered','Recorded'+u' (/\u03bcb)'.encode('utf-8'))]
     lastrowlabels=[('Selected LS','Delivered'+u' (/\u03bcb)'.encode('utf-8'),'Recorded'+u' (/\u03bcb)'.encode('utf-8'))]
     totalDeliveredLS=0
     totalSelectedLS=0
@@ -372,7 +376,6 @@ def printPerLSLumi(lumidata,isVerbose=False,hltpath=''):
         totalSelectedLS=totalSelectedLS+len(deadtable)
         for lsnum,dataperls in lumiresult.items():
             rowdata=[]
-            labels=[('Run','LS','Delivered','Recorded'+u' (/\u03bcb)'.encode('utf-8'))]
             if len(dataperls)==0:
                 rowdata+=[str(runnumber),str(lsnum),'N/A','N/A']
             else:
@@ -381,7 +384,7 @@ def printPerLSLumi(lumidata,isVerbose=False,hltpath=''):
                 totalRecorded=totalRecorded+dataperls[1]
             datatoprint.append(rowdata)
     totalrow.append([str(totalSelectedLS),'%.3f'%(totalDelivered),'%.3f'%(totalRecorded)])
-    #print datatoprint
+    print datatoprint
     print '==='
     print tablePrinter.indent(labels+datatoprint,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',justify='right',delim=' | ',wrapfunc=lambda x: wrap_onspace_strict(x,22))
     print '=== Total : '
@@ -763,6 +766,7 @@ def main():
             recordeddata.append(recordedLumiForRun(session,c,runnumber))
         else:
             recordeddata=recordedLumiForRange(session,c,fileparsingResult)
+        #print 'recordedata ',recordeddata
         if not ofilename:
             printPerLSLumi(recordeddata,c.VERBOSE,hpath)
         else:
