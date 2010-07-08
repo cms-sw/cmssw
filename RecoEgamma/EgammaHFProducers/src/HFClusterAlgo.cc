@@ -31,11 +31,12 @@ public:
   }
 };
 
-void HFClusterAlgo::setup(double minTowerEnergy, double seedThreshold,double maximumSL,double maximumRenergy,bool useflag){
+void HFClusterAlgo::setup(double minTowerEnergy, double seedThreshold,double maximumSL,double maximumRenergy,bool usePMTflag,bool usePulseflag){
   m_seedThreshold=seedThreshold;
   m_minTowerEnergy=minTowerEnergy;
   m_maximumSL=maximumSL;
-  m_useFlag=useflag;
+  m_usePMTFlag=usePMTflag;
+  m_usePulseFlag=usePulseflag;
   m_maximumRenergy=maximumRenergy;
   for(int ii=0;ii<13;ii++){
     m_cutByEta.push_back(-1);
@@ -219,7 +220,13 @@ bool HFClusterAlgo::makeCluster(const HcalDetId& seedid,
 	}
 	
 	// cut on "PMT HIT" flag
-	if ((il->flagField(0,1))&&(m_useFlag)) {
+	if ((il->flagField(0,1))&&(m_usePMTFlag)) {
+	  if (dp==0 && de==0) clusterOk=false; // somehow, the seed is hosed
+	  continue;
+	}
+
+	// cut on "Pulse shape HIT" flag
+	if ((il->flagField(1,1))&&(m_usePulseFlag)) {
 	  if (dp==0 && de==0) clusterOk=false; // somehow, the seed is hosed
 	  continue;
 	}
