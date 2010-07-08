@@ -137,7 +137,7 @@ class pp(Scenario):
         if 'PromptCalibProd' in skims:
             step = "ALCA:PromptCalibProd" 
             skims.remove('PromptCalibProd')
-        print skims
+        
         if len( skims ) > 0:
             if step != "":
                 step += ","
