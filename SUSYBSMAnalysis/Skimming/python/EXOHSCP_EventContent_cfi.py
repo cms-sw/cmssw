@@ -21,6 +21,7 @@ exoticaHSCPOutputModule.outputCommands.extend(RECOSIMEventContent.outputCommands
 SpecifiedEvenetContent=cms.PSet(
     outputCommands = cms.untracked.vstring(
       "drop *",
+      "keep GenEventInfoProduct_generator_*_*",
       "keep L1GlobalTriggerReadoutRecord_*_*_*",
       "keep recoVertexs_offlinePrimaryVertices_*_*",
       "keep recoMuons_muonsSkim_*_*",
