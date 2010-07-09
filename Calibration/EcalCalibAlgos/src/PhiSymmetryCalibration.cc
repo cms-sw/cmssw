@@ -13,7 +13,7 @@
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
 #include "CondTools/Ecal/interface/EcalIntercalibConstantsXMLTranslator.h"
-
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 // Geometry
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -25,6 +25,13 @@
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatusCode.h"
+
+#include "FWCore/Framework/interface/Run.h"
+
+
+
+
+
 
 #include "boost/filesystem/operations.hpp"
 
@@ -74,7 +81,8 @@ PhiSymmetryCalibration::PhiSymmetryCalibration(const edm::ParameterSet& iConfig)
   spectra=true;
 
   nevents_=0;
-
+  eventsinrun_=0;
+  eventsinlb_=0;
 }
 
 
@@ -303,6 +311,7 @@ void PhiSymmetryCalibration::analyze( const edm::Event& event, const edm::EventS
     float et = itb->energy()/cosh(eta);
     float e  = itb->energy();
     
+    
 
     // if iterating, correct by the previous calib constants found,
     // which are supplied in the form of correction 
@@ -418,10 +427,27 @@ void PhiSymmetryCalibration::analyze( const edm::Event& event, const edm::EventS
     }//if eventSet_==1
   }//for endc
 
-  if (pass) nevents_++;
-
+  if (pass) {
+    nevents_++;
+    eventsinrun_++;
+    eventsinlb_++;
+  }
 }
 
+void PhiSymmetryCalibration::endRun(edm::Run& run, const edm::EventSetup&){
+ 
+  
+  std::cout  << "PHIREPRT : run "<< run.run() 
+             << " start " << (run.beginTime().value()>>32)
+             << " end "   << (run.endTime().value()>>32) 
+             << " dur "   << (run.endTime().value()>>32)- (run.beginTime().value()>>32)
+	  
+             << " npass "      << eventsinrun_  << std::endl;
+  eventsinrun_=0;        
+ 
+  return ;
+
+}
 
 //_____________________________________________________________________________
 
@@ -551,4 +577,23 @@ void PhiSymmetryCalibration::setUp(const edm::EventSetup& setup){
 
   }
   
+}
+
+
+void PhiSymmetryCalibration::endLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const&){
+
+  
+  if ((lb.endTime().value()>>32)- (lb.beginTime().value()>>32) <60 ) 
+    return;
+
+  std::cout  << "PHILB : run "<< lb.run()
+             << " id " << lb.id() 
+             << " start " << (lb.beginTime().value()>>32)
+             << " end "   << (lb.endTime().value()>>32) 
+             << " dur "   << (lb.endTime().value()>>32)- (lb.beginTime().value()>>32)
+    
+             << " npass "      << eventsinlb_  << std::endl;
+  
+  eventsinlb_=0;
+
 }
