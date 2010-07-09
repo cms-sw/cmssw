@@ -9,18 +9,14 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 from Configuration.PyReleaseValidation.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['mc']
 
+#process.GlobalTag.globaltag = 'MC_3XY_MEC::All'
+
 process.source = cms.Source("EmptySource")
-process.XMLFromDBSource.label=''
+process.XMLFromDBSource.label='Ideal'
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
-
-process.GlobalTag.toGet = cms.VPSet(cms.PSet(record = cms.string('GeometryFileRcd'),
-                                             tag = cms.string('XMLFILE_Geometry_Extended_TagXX'),
-                                             connect = cms.untracked.string("sqlite_file:./myfile.db")
-                                             )
-                                    )
 
 process.myprint = cms.OutputModule("AsciiOutputModule")
 
