@@ -23,12 +23,12 @@ process.TrackerTrackHitFilter.useTrajectories= True
 process.TrackerTrackHitFilter.rejectLowAngleHits= True
 process.TrackerTrackHitFilter.TrackAngleCut= 0.35 #~20 degrees
 process.TrackerTrackHitFilter.usePixelQualityFlag= True
-process.TrackerTrackHitFilter.PxlCorrClusterChargeCut=10000.0 
+#process.TrackerTrackHitFilter.PxlCorrClusterChargeCut=10000.0 
 ##process.AlignmentHitFilter.
 
 # track producer to be run after the alignment hit filter
 import RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff
-process.ctfProducerCustomised = RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff.ctfWithMaterialTracksP5.clone()
+process.ctfProducerCustomised = RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff.ctfWithMaterialTracksCosmics.clone()
 process.ctfProducerCustomised.src = 'TrackerTrackHitFilter'
 ##process.ctfProducerCustomised.beamspot='offlineBeamSpot'
 process.ctfProducerCustomised.TTRHBuilder = 'WithAngleAndTemplate'
@@ -47,9 +47,9 @@ process.TrackRefitter2.TrajectoryInEvent = True
 process.TrackRefitter2.TTRHBuilder = "WithAngleAndTemplate"
 
 # track selection for sample in filename...
-process.AlignmentTrackSelector.ptMin = 1.5
+process.AlignmentTrackSelector.ptMin = 0.0
 process.AlignmentTrackSelector.ptMax = 9999.0
-process.AlignmentTrackSelector.pMin = 1.5
+process.AlignmentTrackSelector.pMin = 4.0
 process.AlignmentTrackSelector.pMax = 9999.0
 process.AlignmentTrackSelector.etaMin = -2.4
 process.AlignmentTrackSelector.etaMax = 2.4
@@ -60,9 +60,10 @@ process.AlignmentTrackSelector.chi2nMax  = 6.0
 
 # Reject outliers
 ## include  "TrackingTools/TrackFitters/data/RungeKuttaKFFittingSmootherESProducer.cfi"
-process.KFFittingSmootherWithOutliersRejectionAndRK.EstimateCut=18.0
-process.KFFittingSmootherWithOutliersRejectionAndRK.MinNumberOfHits=5
-
+#process.KFFittingSmootherWithOutliersRejectionAndRK.EstimateCut=18.0
+#process.KFFittingSmootherWithOutliersRejectionAndRK.MinNumberOfHits=5
+process.FittingSmootherRKP5.EstimateCut=18.0
+process.FittingSmootherRKP5.MinNumberOfHits=5
 
 # others which aren't used
 #process.AlignmentTrackSelector.minHitsPerSubDet.inTIB = 1

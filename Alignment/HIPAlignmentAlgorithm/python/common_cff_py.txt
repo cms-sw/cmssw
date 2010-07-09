@@ -15,9 +15,9 @@ process.load("Alignment.CommonAlignmentProducer.AlignmentProducer_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 if 'COSMICS'=='<FLAG>':
-   process.GlobalTag.globaltag='GR09_P_V4::All' 
+   process.GlobalTag.globaltag='GR10_P_V2COS::All' 
 else :
-   process.GlobalTag.globaltag = 'GR09_R_34X_V2::All'
+   process.GlobalTag.globaltag = 'GR10_P_V4::All'
 
 process.GlobalTag.connect="frontier://FrontierProd/CMS_COND_31X_GLOBALTAG"
 
@@ -28,7 +28,7 @@ MessageLogger = cms.Service("MessageLogger",
 													  ),
 							destinations = cms.untracked.vstring('cout')
 )
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
 # configure magnetic field
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
@@ -36,54 +36,9 @@ process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 # configure the database file - use survey one for default
 from CondCore.DBCommon.CondDBSetup_cfi import *
 
-#process.stripLorentzAngle = cms.ESSource("PoolDBESSource",CondDBSetup,
-#                         connect = cms.string('frontier://FrontierProd/CMS_COND_31X_STRIP'),  
-#                         toGet = cms.VPSet(cms.PSet(record = cms.string('SiStripLorentzAngleRcd'),tag = cms.string('SiStripLorentzAngle_GR09_31X_v2_offline') ))
-#                           )
-# process.poolDBESSource = cms.ESSource("PoolDBESSource",
-#   BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
-#   DBParameters = cms.PSet(
-#        messageLevel = cms.untracked.int32(2),
-#        authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
-#    ),
-#    timetype = cms.untracked.string('runnumber'),
-#    connect = cms.string('sqlite_file:/afs/cern.ch/user/g/giordano/public/LAforAlign/dbfile.db'),
-#    toGet = cms.VPSet(cms.PSet(
-#        record = cms.string('SiStripLorentzAngleRcd'),
-#        tag = cms.string('SiStripLorentzAngle_AlignTest_31X')
-#    ))
-# )
-# process.es_prefer_stripLorentzAngle = cms.ESPrefer("PoolDBESSource", "poolDBESSource")
 
-
-#### for ideal geometry
-## process.trackerAlignment = cms.ESSource("PoolDBESSource",
-##                                         CondDBSetup,
-##                                         timetype = cms.string('runnumber'),
-##                                         toGet = cms.VPSet(cms.PSet(
-##                                                 record = cms.string('TrackerAlignmentRcd'),
-##                                                 tag = cms.string('TrackerIdealGeometry210_mc')
-##                                                 )),
-##                                         connect = cms.string('frontier://FrontierProd/CMS_COND_31X_FROM21X')
-##                                         )
-
-### end for ideal geom
-
-
-
-### for best CRAFT08 geometry (SuperHIPMPmerged)
-#process.trackerAlignment = cms.ESSource("PoolDBESSource",
-#                                        CondDBSetup,
-#                                        timetype = cms.string('runnumber'),
-#                                        toGet = cms.VPSet(cms.PSet(
-#                                                record = cms.string('TrackerAlignmentRcd'),
-#                                                tag = cms.string('TrackerGeometry_v5_offline')
-#                                                )),
-#                                        connect = cms.string('frontier://FrontierProd/CMS_COND_31X_FROM21X')
-#                                        )
-
-
-#### for Nov09peak geometry
+#### for CRAFT10 geometry
+#### examples of other default geometries can be found in previous revisions on CVS
 process.trackerAlignment = cms.ESSource("PoolDBESSource",
                                         CondDBSetup,
                                         timetype = cms.string('runnumber'),
@@ -91,36 +46,12 @@ process.trackerAlignment = cms.ESSource("PoolDBESSource",
                                                 record = cms.string('TrackerAlignmentRcd'),
                                                 tag = cms.string('Alignments')
                                                 )),
-                                        connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/PayLoads/CRAFT09/TrackerAlignment_2009_v1_prompt/123098-infty/TrackerAlignment_2009_v1_prompt.db')
-#				
+
+					connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/data/commonValidation/results/SYSTEMATICS_ICHEP/200um/dr_vs_r_RADIAL/ICHEP2010_radial_MPcosmics_realigned.db')
+
                                         )
 
 
-#### for Aug09peak geometry
-#process.trackerAlignment = cms.ESSource("PoolDBESSource",
-#                                        CondDBSetup,
-#                                        timetype = cms.string('runnumber'),
-#                                        toGet = cms.VPSet(cms.PSet(
-#                                                record = cms.string('TrackerAlignmentRcd'),
-#                                                tag = cms.string('Alignments')
-#                                                )),
-#                                        connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/PayLoads/CRAFT09/TrackerAlignment_2009_v1_prompt/120348-infty/TrackerAlignment_2009_v1_prompt.db')
-#				
-#                                        )
-
-
-
-
-### custoom starting geometry
-# from CondCore.DBCommon.CondDBSetup_cfi import *
-# process.trackerAlignment = cms.ESSource("PoolDBESSource",CondDBSetup,
-#                                         connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/HIP/alignmentRcds/StripButTIBTIDGlobal_FPix_BPixOpp_Survey_31X.db'),
-#                                         timetype = cms.string("runnumber"),
-#                                         toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentRcd'),
-#                                                                    tag = cms.string('Alignments')
-#                                                                    ))
-#                                        )
-###
 
 process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource", "trackerAlignment")
 
@@ -128,22 +59,10 @@ process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource", "trackerAlig
 
 
 ########### Load APE separately
-####### Zero APE
-# from CondCore.DBCommon.CondDBSetup_cfi import *
-# process.ZeroAPE = cms.ESSource("PoolDBESSource",CondDBSetup,
-#                                         connect = cms.string('frontier://FrontierProd/CMS_COND_31X_FROM21X'),
-#                                         timetype = cms.string("runnumber"),
-#                                         toGet = cms.VPSet(
-#                                                           cms.PSet(record = cms.string('TrackerAlignmentErrorRcd'),
-#                                                                    tag = cms.string('TrackerIdealGeometryErrors210_mc')
-#                                                                    ))
-#                                         )
-# process.es_prefer_ZeroAPE = cms.ESPrefer("PoolDBESSource", "ZeroAPE")
-
-
-####### Nov09 APE
+####### CRAFT10 APE
 process.trackerAPE = cms.ESSource("PoolDBESSource",CondDBSetup,
-		                  connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/PayLoads/CRAFT09/TrackerAlignmentErr_2009_v2_prompt/123098-infty/TrackerAlignmentErr_2009_v2_prompt.db'),
+		                  connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/PayLoads/CRAFT09/TrackerAlignmentErr_2009_v2_prompt/131425-infty/TrackerAlignmentErr_2009_v2_prompt.db'),
+
                                   timetype = cms.string("runnumber"),
                                   toGet = cms.VPSet(
                                         cms.PSet(record = cms.string('TrackerAlignmentErrorRcd'),
@@ -157,9 +76,5 @@ process.AlignmentProducer.applyDbAlignment = True
 
 
 ### Set parameters to align
-### pixels
-process.AlignmentProducer.ParameterBuilder.Selector.alignParams = ['PixelHalfBarrels,111001','PXEndCaps,101001']
-#process.AlignmentProducer.ParameterBuilder.Selector.alignParams = ['PixelHalfBarrelLayers,111001','PXECLayers,101001']
-#process.AlignmentProducer.ParameterBuilder.Selector.alignParams = ['PixelHalfBarrelDets,111111','TIBDets,111111','TOBDets,111111','TIDDets,111111','TECDets,111111']
-#process.AlignmentProducer.ParameterBuilder.Selector.alignParams = ['AllDets,000000']
-#process.AlignmentProducer.ParameterBuilder.Selector.alignParams = ['AllDets,111111']
+process.AlignmentProducer.ParameterBuilder.Selector.alignParams = ['AllDets,111111']
+

@@ -784,12 +784,14 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 	  AlignmentClusterFlag myflag; 	 
 	  
 	  int subDet = hit->geographicalId().subdetId();
+	  //take the actual RecHit out of the Transient one
+	  const TrackingRecHit *rechit=hit->hit();
 	  if (subDet>2) { // AM: if possible use enum instead of hard-coded value	 
-	    const std::type_info &type = typeid(*hit); 	 
+	    const std::type_info &type = typeid(*rechit); 	 
 	    
 	    if (type == typeid(SiStripRecHit1D)) { 	 
 	      
-	      const SiStripRecHit1D* stripHit1D = dynamic_cast<const SiStripRecHit1D*>(hit); 	 
+	      const SiStripRecHit1D* stripHit1D = dynamic_cast<const SiStripRecHit1D*>(rechit); 	 
 	      if (stripHit1D) { 	 
 		SiStripRecHit1D::ClusterRef stripclust(stripHit1D->cluster()); 	 
 		// myflag=PrescMap[stripclust]; 	 
@@ -803,7 +805,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 	    }//end if type = SiStripRecHit1D 	 
 	    else if(type == typeid(SiStripRecHit2D)){ 	 
 	      
-	      const SiStripRecHit2D* stripHit2D = dynamic_cast<const SiStripRecHit2D*>(hit); 	 
+	      const SiStripRecHit2D* stripHit2D = dynamic_cast<const SiStripRecHit2D*>(rechit); 	 
 	      if (stripHit2D) { 	 
 		SiStripRecHit2D::ClusterRef stripclust(stripHit2D->cluster()); 	 
 		// myflag=PrescMap[stripclust]; 	 
@@ -817,7 +819,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 	    } //end if type == SiStripRecHit2D 	 
 	  } //end if hit from strips 	 
 	  else { 	 
-	    const SiPixelRecHit* pixelhit= dynamic_cast<const SiPixelRecHit*>(hit); 	 
+	    const SiPixelRecHit* pixelhit= dynamic_cast<const SiPixelRecHit*>(rechit); 	 
 	    if (pixelhit) { 	 
 	      SiPixelClusterRefNew  pixelclust(pixelhit->cluster()); 	 
 	      // myflag=PrescMap[pixelclust]; 	 
@@ -833,6 +835,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 	    // bool hitTaken=myflag.isTaken(); 	 
 	  if (!myflag.isTaken()) { 	 
 	    skiphit=true;
+	    //cout<<"Hit from subdet "<<rechit->geographicalId().subdetId()<<" prescaled out."<<endl;
 	    continue;
 	  }
 	}//end if Prescaled Hits 	 
