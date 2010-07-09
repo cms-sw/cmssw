@@ -4,8 +4,8 @@
 /*
  * \file L1TGT.h
  *
- * $Date: 2008/04/25 14:57:19 $
- * $Revision: 1.6 $
+ * $Date: 2009/11/20 23:50:35 $
+ * $Revision: 1.8 $
  * \author J. Berryhill, I. Mikulec
  *
 */
@@ -109,6 +109,9 @@ private:
   MonitorElement* gpsfreqwide;
   MonitorElement* gpsfreqlum;
   
+  MonitorElement* m_monL1PrescaleFactorSet;
+
+
   
 
   int nev_; // Number of events processed
