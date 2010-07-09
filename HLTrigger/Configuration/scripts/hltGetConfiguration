@@ -141,7 +141,6 @@ def parse_options(args):
   else:
     (menuConfigDB, menuConfigName) = ('hltdev', configName)
 
-
 # parse command line arguments and options
 parse_options(sys.argv[1:])
 
@@ -231,6 +230,9 @@ if doCff:
       os.system("sed -e 's/cms.InputTag( \"source\" )/cms.InputTag( \"rawDataCollector\" )/' -i " + menuOutName)
       os.system("sed -e 's/cms.string( \"source\" )/cms.string( \"rawDataCollector\" )/' -i " + menuOutName)
 
+      # FIXME - this should be changed to a "tracked" parameter ASAP
+      os.system("sed -e 's/cms.EDProducer( \"CSCTFUnpacker\",\\s*/&\\n    producer = cms.untracked.InputTag( \"rawDataCollector\" ),/' -i " + menuOutName)
+
     if ((fileId=="1E31") or (fileId=="HIon")):
       # FIXME - should have a proper L1 MC/DESIGN/1E31 menue
       os.system("sed -e 's/L1_DoubleEG2/L1_DoubleEG1/' -i " + menuOutName)
@@ -250,6 +252,8 @@ if 'ESUnpackerWorkerESProducer' in locals():
     if menuUnprescale:
       out.write("""# remove the HLT prescales
 if 'PrescaleService' in locals():
+    PrescaleService.lvl1DefaultLabel = cms.untracked.string( '0' )
+    PrescaleService.lvl1Labels = cms.vstring( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' )
     PrescaleService.prescaleTable = cms.VPSet( )
 
 """)
@@ -296,7 +300,7 @@ else:
       if runOnline:
         edsources =  " --input file:/tmp/InputCollection.root"
       else:
-        edsources =  " --input /store/data/Run2010A/MinimumBias/RAW/v1/000/136/440/58C33706-A16A-DF11-B5E2-000423D94AA8.root"
+        edsources =  " --input /store/data/Run2010A/MinimumBias/RAW/v1/000/139/458/1AD6DF4F-9988-DF11-939F-001617DBD472.root"
     else:
       edsources =  " --input file:RelVal_DigiL1Raw_"+fileId+".root"
 
@@ -320,6 +324,9 @@ else:
       os.system("sed -e 's/cms.InputTag( \"source\" )/cms.InputTag( \"rawDataCollector\" )/' -i " + menuOutName)
       os.system("sed -e 's/cms.string( \"source\" )/cms.string( \"rawDataCollector\" )/' -i " + menuOutName)
 
+      # FIXME - this should be changed to a "tracked" parameter ASAP
+      os.system("sed -e 's/cms.EDProducer( \"CSCTFUnpacker\",\\s*/&\\n    producer = cms.untracked.InputTag( \"rawDataCollector\" ),/' -i " + menuOutName)
+
     if ((fileId=="1E31") or (fileId=="HIon")):
       # FIXME - should have a proper L1 MC/DESIGN/1E31 menue
       os.system("sed -e 's/L1_DoubleEG2/L1_DoubleEG1/' -i " + menuOutName)
@@ -342,6 +349,8 @@ if 'ESUnpackerWorkerESProducer' in process.__dict__:
     if menuUnprescale:
       out.write("""# remove HLT prescales
 if 'PrescaleService' in process.__dict__:
+    process.PrescaleService.lvl1DefaultLabel = cms.untracked.string( '0' )
+    process.PrescaleService.lvl1Labels = cms.vstring( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' )
     process.PrescaleService.prescaleTable = cms.VPSet( )
 
 """)
