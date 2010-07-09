@@ -45,7 +45,7 @@ def runTtrigProd(run,runselection,trial,config,runStep=True):
             haddLocal(output_dir,result_file) 
         elif config.stageOutCAF:
             castor_dir = config.castorpath + "/" + config.userdircaf
-            haddInCastor(castor_dir,result_file,'DTTimeBoxes','rfio://castorcms/')
+            haddInCastor(castor_dir,result_file,'DTTimeBoxes','rfio://castorcms/','?svcClass=cmscafuser')
 
         return project_prod
 
@@ -89,7 +89,7 @@ def runTtrigValid(run,runselection,trial,input_file,config,runStep=True):
             haddLocal(output_dir,result_file,'residuals')
         elif config.stageOutCAF:
             castor_dir = config.castorpath + "/" + config.userdircaf
-            haddInCastor(castor_dir,result_file,'residuals','rfio://castorcms/')
+            haddInCastor(castor_dir,result_file,'residuals','rfio://castorcms/','?svcClass=cmscafuser')
 
         return project_valid_first
 
@@ -133,7 +133,7 @@ def runTtrigValidResidCorr(run,runselection,trial,input_file,config,runStep=True
             haddLocal(output_dir,result_file,'residuals')
         elif config.stageOutCAF: 
             castor_dir = config.castorpath + "/" + config.userdircaf
-            haddInCastor(castor_dir,result_file,'residuals','rfio://castorcms/')
+            haddInCastor(castor_dir,result_file,'residuals','rfio://castorcms/','?svcClass=cmscafuser')
 
         return project_valid_ResidCorr
 

@@ -19,7 +19,7 @@ class CrabWatch(Thread):
         exit = False
         while not exit:
             #if checkStatus(self.project,80.0): break
-            threshold = 85.0
+            threshold = 95.0
             status = crabStatus(self.project)
             statusNew = convertStatus(status)
             print "Relative percentage finished: %.0f%%" % statusNew['Finished']
