@@ -21,7 +21,9 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 const int kBPIX = PixelSubdetector::PixelBarrel;
 const int kFPIX = PixelSubdetector::PixelEndcap;
 
@@ -63,9 +65,15 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
   minHitsinTIB_(cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inTIB" ) ),
   minHitsinTOB_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inTOB" ) ),
   minHitsinTID_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inTID" ) ),
+  minHitsinTIDplus_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inTIDplus" ) ),
+  minHitsinTIDminus_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inTIDminus" ) ),
   minHitsinTEC_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inTEC" ) ),
+  minHitsinTECplus_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inTECplus" ) ),
+  minHitsinTECminus_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inTECminus" ) ),
   minHitsinBPIX_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inBPIX" ) ),
   minHitsinFPIX_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inFPIX" ) ),
+  minHitsinFPIXplus_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inFPIXplus" ) ),
+  minHitsinFPIXminus_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inFPIXminus" ) ),
   minHitsinPIX_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inPIXEL" ) ),
   clusterValueMapTag_(cfg.getParameter<edm::InputTag>("hitPrescaleMapTag")),
   minPrescaledHits_( cfg.getParameter<int>("minPrescaledHits")),
@@ -121,7 +129,14 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
       edm::LogInfo("AlignmentTrackSelector") 
 	<< "Minimum number of hits in TIB/TID/TOB/TEC/BPIX/FPIX/PIXEL = " 
 	<< minHitsinTIB_ << "/" << minHitsinTID_ << "/" << minHitsinTOB_
-	<< "/" << minHitsinTEC_ << "/" << minHitsinBPIX_ << "/" << minHitsinFPIX_<<"/"<<minHitsinPIX_;
+        << "/" << minHitsinTEC_ << "/" << minHitsinBPIX_ << "/" << minHitsinFPIX_ << "/" << minHitsinPIX_;
+
+      edm::LogInfo("AlignmentTrackSelector")
+        << "Minimum number of hits in TID+/TID-/TEC+/TEC-/FPIX+/FPIX- = "
+        << minHitsinTIDplus_ << "/" << minHitsinTIDminus_
+        << "/" << minHitsinTECplus_ << "/" << minHitsinTECminus_
+        << "/" << minHitsinFPIXplus_ << "/" << minHitsinFPIXminus_;
+
 
       if (trkQualityStrings.size()) {
 	edm::LogInfo("AlignmentTrackSelector")
@@ -245,12 +260,18 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
   // checking hit requirements beyond simple number of valid hits
 
   if (minHitsinTIB_ || minHitsinTOB_ || minHitsinTID_ || minHitsinTEC_
+      || minHitsinTIDplus_ || minHitsinTIDminus_
+      || minHitsinFPIXplus_ || minHitsinFPIXminus_
+      || minHitsinTECplus_ || minHitsinTECminus_
       || minHitsinFPIX_ || minHitsinBPIX_ || minHitsinPIX_ ||nHitMin2D_ || chargeCheck_
       || applyIsolation_ || (seedOnlyFromAbove_ == 1 || seedOnlyFromAbove_ == 2)) {
     // any detailed hit cut is active, so have to check
     
     int nhitinTIB = 0, nhitinTOB = 0, nhitinTID = 0;
     int nhitinTEC = 0, nhitinBPIX = 0, nhitinFPIX = 0, nhitinPIXEL=0;
+    int nhitinTIDplus = 0, nhitinTIDminus = 0;
+    int nhitinFPIXplus = 0, nhitinFPIXminus = 0;
+    int nhitinTECplus = 0, nhitinTECminus = 0;
     unsigned int nHit2D = 0;
     unsigned int thishit = 0;
 
@@ -283,16 +304,35 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
       if (applyIsolation_ && (!this->isIsolated(therechit, evt))) return false;
       if      (SiStripDetId::TIB == subdetId) ++nhitinTIB;
       else if (SiStripDetId::TOB == subdetId) ++nhitinTOB;
-      else if (SiStripDetId::TID == subdetId) ++nhitinTID;
-      else if (SiStripDetId::TEC == subdetId) ++nhitinTEC;
+      else if (SiStripDetId::TID == subdetId) {
+        ++nhitinTID;
+        TIDDetId tidId(detId);
+        if (tidId.isZMinusSide()) ++nhitinTIDminus;
+        else if (tidId.isZPlusSide()) ++nhitinTIDplus;
+      }
+      else if (SiStripDetId::TEC == subdetId) {
+        ++nhitinTEC;
+        TECDetId tecId(detId);
+        if (tecId.isZMinusSide()) ++nhitinTECminus;
+        else if (tecId.isZPlusSide()) ++nhitinTECplus;
+      }
       else if (            kBPIX == subdetId) {++nhitinBPIX;++nhitinPIXEL;}
-      else if (            kFPIX == subdetId) {++nhitinFPIX;++nhitinPIXEL;}
+      else if (            kFPIX == subdetId) {
+        ++nhitinFPIX;
+        ++nhitinPIXEL;
+	PXFDetId fpixId(detId);
+        if (fpixId.side()==1) ++nhitinFPIXminus;
+        else if (fpixId.side()==2) ++nhitinFPIXplus;
+      }
       // Do not call isHit2D(..) if already enough 2D hits for performance reason:
       if (nHit2D < nHitMin2D_ && this->isHit2D(**iHit)) ++nHit2D;
     } // end loop on hits
-    
+  
     return (nhitinTIB >= minHitsinTIB_ && nhitinTOB >= minHitsinTOB_ 
             && nhitinTID >= minHitsinTID_ && nhitinTEC >= minHitsinTEC_ 
+            && nhitinTIDplus >= minHitsinTIDplus_ && nhitinTIDminus >= minHitsinTIDminus_
+            && nhitinFPIXplus >= minHitsinFPIXplus_ && nhitinFPIXminus >= minHitsinFPIXminus_
+            && nhitinTECplus >= minHitsinTECplus_ && nhitinTECminus >= minHitsinTECminus_
             && nhitinBPIX >= minHitsinBPIX_ 
 	    && nhitinFPIX >= minHitsinFPIX_ && nhitinPIXEL>=minHitsinPIX_ 
             && nHit2D >= nHitMin2D_);
