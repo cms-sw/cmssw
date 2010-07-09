@@ -3,13 +3,13 @@
 CONDITIONS=FrontierConditions_GlobalTag,START3X_V26::All
 
 
-#cmsDriver.py TauAnalysis/MCEmbeddingTools/python/PFEmbeddingSource_cff \
-#       -s GEN:ProductionFilterSequence,SIM,DIGI,L1,DIGI2RAW,HLT \
-#       --no_exec \
-#       --conditions=${CONDITIONS} \
-#       --fileout=embedded_HLT.root  \
-#       --python_filename=embed_HLT.py \
-#       --customise=TauAnalysis/MCEmbeddingTools/pf_01_customize_HLT.py
+cmsDriver.py TauAnalysis/MCEmbeddingTools/python/PFEmbeddingSource_cff \
+       -s GEN:ProductionFilterSequence,SIM,DIGI,L1,DIGI2RAW,HLT \
+       --no_exec \
+       --conditions=${CONDITIONS} \
+       --fileout=embedded_HLT.root  \
+       --python_filename=embed_HLT.py \
+       --customise=TauAnalysis/MCEmbeddingTools/pf_01_customize_HLT.py
 
 
 cmsDriver.py \
