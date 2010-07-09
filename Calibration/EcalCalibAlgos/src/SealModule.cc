@@ -1,12 +1,19 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "Calibration/EcalCalibAlgos/interface/EcalEleCalibLooper.h"
+#include "Calibration/EcalCalibAlgos/interface/InvRingCalib.h"
+#include "Calibration/EcalCalibAlgos/interface/miscalibExample.h"
+#include "Calibration/EcalCalibAlgos/interface/ZeeCalibration.h"
+#include "Calibration/EcalCalibAlgos/interface/ElectronRecalibSuperClusterAssociator.h"
 #include "Calibration/EcalCalibAlgos/interface/PhiSymmetryCalibration.h"
+#include "Calibration/EcalCalibAlgos/interface/Pi0FixedMassWindowCalibration.h"
 
-#include "Calibration/EcalCalibAlgos/src/PhiSymmetryCalibration_step2.h"
-#include "Calibration/EcalCalibAlgos/src/PhiSymmetryCalibration_step2_SM.h"
 
-DEFINE_SEAL_MODULE();
 
-DEFINE_ANOTHER_FWK_MODULE(PhiSymmetryCalibration);
-DEFINE_ANOTHER_FWK_MODULE(PhiSymmetryCalibration_step2);
-DEFINE_ANOTHER_FWK_MODULE(PhiSymmetryCalibration_step2_SM);
+DEFINE_FWK_MODULE(miscalibExample);
+DEFINE_FWK_MODULE(ElectronRecalibSuperClusterAssociator);
+DEFINE_FWK_MODULE(PhiSymmetryCalibration);
+DEFINE_FWK_LOOPER(Pi0FixedMassWindowCalibration);
+DEFINE_FWK_LOOPER(ZeeCalibration);
+DEFINE_FWK_LOOPER(EcalEleCalibLooper);
+DEFINE_FWK_LOOPER(InvRingCalib);
+
