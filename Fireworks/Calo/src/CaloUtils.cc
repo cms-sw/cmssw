@@ -6,7 +6,7 @@
 
 #include <algorithm>
 
-namespace
+namespace fireworks
 {
    void invertBox( std::vector<TEveVector> &corners )
    {
@@ -15,10 +15,6 @@ namespace
       std::swap( corners[4], corners[7] );
       std::swap( corners[5], corners[6] );
    }
-}
-
-namespace fireworks
-{
 
    void addBox( const std::vector<TEveVector> &corners, TEveElement* comp, FWProxyBuilderBase* pb )
    {
