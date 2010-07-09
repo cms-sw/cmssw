@@ -70,7 +70,6 @@ public:
  */					    
  RefCountedLinearizedTrackState particleLinearizedTrackState(const GlobalPoint& point)const; 
 
-  virtual reco::TransientTrack refittedTransientTrack() const;
 
 private: 
 
