@@ -27,13 +27,13 @@ ora::OId& ora::OId::operator=( const OId& rhs ){
   return *this;
 }
 
-bool ora::OId::operator==( const OId& rhs ){
+bool ora::OId::operator==( const OId& rhs ) const {
   if(m_containerId != rhs.m_containerId ) return false;
   if(m_itemId != rhs.m_itemId ) return false;
   return true;
 }
 
-bool ora::OId::operator!=( const OId& rhs ){
+bool ora::OId::operator!=( const OId& rhs ) const {
   return !operator==(rhs);
 }
 

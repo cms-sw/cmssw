@@ -11,8 +11,8 @@ namespace ora {
     OId( int contId, int itemId );
     OId( const OId& rhs );
     OId& operator=( const OId& rhs );
-    bool operator==( const OId& rhs );
-    bool operator!=( const OId& rhs );
+    bool operator==( const OId& rhs ) const;
+    bool operator!=( const OId& rhs ) const;
     int containerId() const;
     int itemId() const;
     std::string toString();

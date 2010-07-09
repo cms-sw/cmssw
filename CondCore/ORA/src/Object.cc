@@ -19,6 +19,9 @@ ora::Object::Object( const Object& rhs):
   m_type( rhs.m_type ){
 }
 
+ora::Object::~Object(){
+}
+
 ora::Object& ora::Object::operator=( const Object& rhs){
   m_ptr = rhs.m_ptr;
   m_type = rhs.m_type;

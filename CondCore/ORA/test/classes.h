@@ -197,12 +197,21 @@ class SimpleClass : public BaseClass {
   MySimpleClassCode m_code;
 };
 
+class IOV {
+  public:
+
+  IOV():oids(){
+  }
+    
+    ora::PVector<ora::OId> oids;
+};
+
 class ArrayClass {
 
  public:
 
   ArrayClass():m_arrayData(),m_map(){}
-    ArrayClass(unsigned int id):m_arrayData(),m_map(){
+  ArrayClass(unsigned int id):m_arrayData(),m_map(){
     for(int i=0;i<(int)id;i++){
       m_arrayData.push_back(i);
     }
@@ -211,6 +220,18 @@ class ArrayClass {
       os0 << "SC_"<<i; 
       std::ostringstream os1;
       os1 << "SimpleClass_"<<i; 
+      m_map.insert(std::make_pair(os0.str(),os1.str()));
+    }
+  }
+    ArrayClass(unsigned int g, unsigned int id):m_arrayData(),m_map(){
+    for(int i=0;i<(int)id;i++){
+      m_arrayData.push_back(i+g);
+    }
+    for(int i=0;i<(int)id;i++){
+      std::ostringstream os0;
+      os0 << "SC_"<<i+g; 
+      std::ostringstream os1;
+      os1 << "SimpleClass_"<<i+g; 
       m_map.insert(std::make_pair(os0.str(),os1.str()));
     }
   }

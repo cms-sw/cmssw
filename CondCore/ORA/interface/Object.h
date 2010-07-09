@@ -13,6 +13,7 @@ namespace ora {
     Object();
     Object( const void* ptr, const Reflex::Type& type );
     Object( const Object& rhs);
+    virtual ~Object();
     Object& operator=( const Object& rhs);
     bool operator==( const Object& rhs) const;
     bool operator!=( const Object& rhs) const;
