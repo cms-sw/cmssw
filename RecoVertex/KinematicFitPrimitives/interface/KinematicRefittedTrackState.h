@@ -25,7 +25,7 @@ public:
 
  typedef ReferenceCountingPointer<RefittedTrackState<6> > RefCountedRefittedTrackState;
 
- KinematicRefittedTrackState(const KinematicState& st);
+ KinematicRefittedTrackState(const KinematicState& st, const AlgebraicVector4& mv);
 
 /**
  * Access to Kinematic perigee parameters
@@ -82,6 +82,7 @@ public:
 private:
 
  KinematicState state; 
+ AlgebraicVector4 momentumAtVertex;
 
 };
 #endif
