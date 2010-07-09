@@ -11,7 +11,7 @@ def replaceTemplate(template,**opts):
 
     return result
  
-def listFilesInCastor(castor_dir,type = 'root',prefix = 'rfio'):
+def listFilesInCastor(castor_dir,type = 'root',prefix = 'rfio:'):
     if not castor_dir: raise ValueError,'Please specify valid castor dir'
 
     from subprocess import Popen,PIPE

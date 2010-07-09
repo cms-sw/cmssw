@@ -164,7 +164,8 @@ def runDQMMerge(run,output_dir,config,runStep=True):
             dtDqmFinal.writeCfg()
             dtDqmFinal.run()
         elif config.stageOutCAF:
-            dqm_files = listFilesInCastor(output_dir,'DQM')
+            dqm_files = listFilesInCastor(output_dir,'DQM','')
+            dqm_files = [file.replace('/castor/cern.ch/cms','') for file in dqm_files] 
             dtDqmFinal = DTDqm(run,config.run_dir,dqm_files,config.result_dir,config)
             dtDqmFinal.writeCfg()
             dtDqmFinal.run()
