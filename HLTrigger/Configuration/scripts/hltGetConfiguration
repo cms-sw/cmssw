@@ -4,7 +4,6 @@ import sys
 import os
 import commands
 import getopt
-import fileinput
 
 globalTag = {
   '8E29': 'auto:startup',
