@@ -10,6 +10,7 @@ from RecoTauTag.RecoTau.CaloRecoTauDiscriminationByTrackIsolation_cfi import *
 from RecoTauTag.RecoTau.CaloRecoTauDiscriminationByECALIsolation_cfi import *
 from RecoTauTag.RecoTau.CaloRecoTauDiscriminationByIsolation_cfi import *
 from RecoTauTag.RecoTau.CaloRecoTauDiscriminationAgainstElectron_cfi import *
+from RecoTauTag.RecoTau.CaloRecoTauDiscriminationAgainstMuon_cfi import *
 #from RecoTauTag.RecoTau.TCRecoTauDiscriminationAgainstHadronicJets_cfi import *
 
 caloRecoTauProducer = copy.deepcopy(tcRecoTauProducer)
@@ -22,7 +23,8 @@ tautagging = cms.Sequence(
     caloRecoTauDiscriminationByTrackIsolation *
     caloRecoTauDiscriminationByECALIsolation *
     caloRecoTauDiscriminationByIsolation *
-    caloRecoTauDiscriminationAgainstElectron 
+    caloRecoTauDiscriminationAgainstElectron *
+    caloRecoTauDiscriminationAgainstMuon
     #tcRecoTauDiscriminationAgainstHadronicJets
 )
 
