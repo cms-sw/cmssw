@@ -2,7 +2,7 @@
  * Make some convenient Ecal function available in python
  * 
  * \author Stefano Argiro
- * \version $Id: EcalPyUtils.cc,v 1.1 2009/07/09 22:58:25 argiro Exp $
+ * \version $Id: EcalPyUtils.cc,v 1.2 2009/07/15 14:27:11 argiro Exp $
  */
 
 
@@ -38,6 +38,16 @@ namespace ecalpyutils{
     return ret;
   }
 
+  
+  int hashedIndex(int ieta, int iphi){
+    EBDetId d(ieta,iphi);
+    return d.hashedIndex();
+  }
+
+  int ism(int ieta, int iphi){
+    EBDetId d(ieta,iphi);
+    return d.ism();
+  }
 
 }
 
@@ -56,6 +66,8 @@ BOOST_PYTHON_MODULE(pluginEcalPyUtils) {
 
   def("hashedIndexToEtaPhi",&ecalpyutils::hashedIndexToEtaPhi);
   def("hashedIndexToXY",&ecalpyutils::hashedIndexToXY);
+  def("hashedIndex",&ecalpyutils::hashedIndex);
+    def("ism",&ecalpyutils::ism);
   def("barrelfromXML",&EcalFloatCondObjectContainerXMLTranslator::barrelfromXML);
   def("endcapfromXML",&EcalFloatCondObjectContainerXMLTranslator::endcapfromXML);
 }
