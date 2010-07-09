@@ -45,6 +45,8 @@ class PhiSymmetryCalibration :  public edm::EDAnalyzer
 
   /// Called at beginning of job
   virtual void beginJob();
+  virtual void endRun(edm::Run&, const edm::EventSetup&);
+  void endLuminosityBlock(edm::LuminosityBlock const& ,edm::EventSetup const&);
 
 
   /// Called at end of job
@@ -156,7 +158,9 @@ class PhiSymmetryCalibration :  public edm::EDAnalyzer
   std::vector<TH1F*> e_spectrum_e_histos;
 
   bool spectra;
-  int  nevents_;
+  int  nevents_; 
+  int  eventsinrun_;
+  int  eventsinlb_;
 };
 
 #endif
