@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Mon Mar  1 17:18:04 EST 2010
-// $Id: AnalyzerWithCentrality.cc,v 1.6 2010/07/05 08:45:29 edwenger Exp $
+// $Id: AnalyzerWithCentrality.cc,v 1.7 2010/07/09 08:38:37 yilmaz Exp $
 //
 //
 
@@ -78,7 +78,7 @@ cbins_(0)
 {
    //now do what ever initialization is needed
    h1 = fs->make<TH1D>("h1","histogram",100,0,100);
-   nt = fs->make<TNtuple>("hi","hi","hf:hft:hftp:hftm:eb:ee:eep:eem:npix:et:zdc:zdcp:zdcm:bin");
+   nt = fs->make<TNtuple>("hi","hi","hf:hft:hftp:hftm:eb:ee:eep:eem:npix:et:zdc:zdcp:zdcm:bin:trig");
 }
 
 
@@ -127,7 +127,7 @@ AnalyzerWithCentrality::analyze(const edm::Event& iEvent, const edm::EventSetup&
    
    int bin = cbins_->getBin(hf);
 
-   nt->Fill(hf,hft,hftp,hftm,eb,ee,eep,eem,npix,et,zdc,zdcp,zdcm,bin);
+   nt->Fill(hf,hft,hftp,hftm,eb,ee,eep,eem,npix,et,zdc,zdcp,zdcm,bin,1);
 
    h1->Fill(bin);
 
