@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterModule.h,v 1.13 2010/01/07 16:46:17 merkelp Exp $
+// $Id: SiPixelClusterModule.h,v 1.14 2010/03/10 15:28:33 merkelp Exp $
 //
 //
 //  Updated by: Lukas Wehrli
@@ -89,6 +89,13 @@ class SiPixelClusterModule {
   MonitorElement* mePixClusters_py_;
   //  MonitorElement* meEdgeHitX_;
   //  MonitorElement* meEdgeHitY_;
+  MonitorElement* meClPosLayer1;
+  MonitorElement* meClPosLayer2;
+  MonitorElement* meClPosLayer3;
+  MonitorElement* meClPosDisk1pz;
+  MonitorElement* meClPosDisk2pz;
+  MonitorElement* meClPosDisk1mz;
+  MonitorElement* meClPosDisk2mz;
   
   //barrel
   MonitorElement* meNClustersLad_;

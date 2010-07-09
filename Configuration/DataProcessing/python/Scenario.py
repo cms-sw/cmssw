@@ -24,22 +24,8 @@ class Scenario(object):
     def __init__(self):
         pass
 
-    def merge(self, *inputFiles, **options):
-        return mergeProcess(*inputFiles, **options)
 
-    def dropOutputModule(self, processRef, moduleName):
-        """
-        _dropOutputModule_
-
-        Util to prune an unwanted output module
-
-        """
-        del process._Process__outputmodules[moduleName]
-        return
-
-
-
-    def promptReco(self, globalTag, writeTiers = ['RECO,ALCARECO']):
+    def promptReco(self, globalTag, writeTiers = ['RECO'], **options):
         """
         _installPromptReco_
 
@@ -54,7 +40,32 @@ class Scenario(object):
         raise NotImplementedError, msg
 
 
-    def alcaSkim(self, skimList):
+    def expressProcessing(self, globalTag, writeTiers = [], **options):
+        """
+        _expressProcessing_
+
+        Build an express processing configuration for this scenario.
+
+        Express processing runs conversion, reco and alca reco on each
+        streamer file in the express stream and writes out RAW, RECO and
+        a combined ALCA file that gets mergepacked in a later step
+
+        writeTiers is list of tiers to write out, not including ALCA
+        
+        datasets is the list of datasets to split into for each tier
+        written out. Should always be one dataset
+
+        alcaDataset - if set, this means the combined Alca file is written
+        out with no dataset splitting, it gets assigned straight to the datase
+        provided
+
+        """
+        msg = "Scenario Implementation %s\n" % self.__class__.__name__
+        msg += "Does not contain an implementation for expressProcessing"
+        raise NotImplementedError, msg
+
+
+    def alcaSkim(self, skims, **options):
         """
         _alcaSkim_
 
@@ -62,12 +73,23 @@ class Scenario(object):
 
         """
         msg = "Scenario Implementation %s\n" % self.__class__.__name__
+        msg += "Does not contain an implementation for alcaSkim"
+        raise NotImplementedError, msg
+
+
+    def alcaReco(self, *skims, **options):
+        """
+        _alcaSkim_
+
+        Given a skeleton process install the skim production for given skims
+
+        """
+        msg = "Scenario Implementation %s\n" % self.__class__.__name__
         msg += "Does not contain an implementation for alcaReco"
         raise NotImplementedError, msg
 
 
-    def dqmHarvesting(self, datasetName, runNumber,  globalTag,
-                      **options):
+    def dqmHarvesting(self, datasetName, runNumber, globalTag, **options):
         """
         _dqmHarvesting_
 
@@ -85,6 +107,46 @@ class Scenario(object):
         msg = "Scenario Implementation %s\n" % self.__class__.__name__
         msg += "Does not contain an implementation for dqmHarvesting"
         raise NotImplementedError, msg
+
+
+    def skimming(self, skims, **options):
+        """
+        _skimming_
+
+        Given a process install the sequences for Tier 1 skimming
+        and the appropriate output modules
+
+        """
+        msg = "Scenario Implementation %s\n" % self.__class__.__name__
+        msg += "Does not contain an implementation for skimming"
+        raise NotImplementedError, msg        
+
+
+    def merge(self, *inputFiles, **options):
+        """
+        _merge_
+
+        builds a merge configuration
+
+        """
+        msg = "Scenario Implementation %s\n" % self.__class__.__name__
+        return mergeProcess(*inputFiles, **options)
+
+
+    #
+    # helper methods
+    #
+
+    def dropOutputModule(self, processRef, moduleName):
+        """
+        _dropOutputModule_
+
+        Util to prune an unwanted output module
+
+        """
+        del process._Process__outputmodules[moduleName]
+        return
+
 
     def addExpressOutputModules(self, process, tiers, datasets):
         """
@@ -114,53 +176,4 @@ class Scenario(object):
                         )
         return
 
-    def expressProcessing(self, globalTag, writeTiers = [],
-                          datasets = [], alcaDataset = None ):
-        """
-        _expressProcessing_
-
-        Build an express processing configuration for this scenario.
-
-        Express processing runs conversion, reco and alca reco on each
-        streamer file in the express stream and writes out RAW, RECO and
-        a combined ALCA file that gets mergepacked in a later step
-
-        writeTiers is list of tiers to write out, not including ALCA
-        
-        datasets is the list of datasets to split into for each tier
-        written out. Should always be one dataset
-
-        alcaDataset - if set, this means the combined Alca file is written
-        out with no dataset splitting, it gets assigned straight to the datase
-        provided
-
-        """
-        msg = "Scenario Implementation %s\n" % self.__class__.__name__
-        msg += "Does not contain an implementation for expressProcessing"
-        raise NotImplementedError, msg        
-
-
-    def expressMergepacking(self, *outputModules):
-        """
-        _expressMergepacking_
-
-        Build/customise a mergepacking configuration
-
-        """
-        msg = "Scenario Implementation %s\n" % self.__class__.__name__
-        msg += "Does not contain an implementation for expressMergepacking"
-        raise NotImplementedError, msg        
-
-    
-    def skimming(self, *skims):
-        """
-        _skimming_
-
-        Given a process install the sequences for Tier 1 skimming
-        and the appropriate output modules
-
-        """
-        msg = "Scenario Implementation %s\n" % self.__class__.__name__
-        msg += "Does not contain an implementation for skimming"
-        raise NotImplementedError, msg        
 

@@ -40,7 +40,7 @@ int main ( int argc, char ** argv )
 
   // Get the python configuration
   PythonProcessDesc builder(argv[1]);
-  edm::ParameterSet const& shyftParameters = builder.processDesc()->getProcessPSet()->getParameter<edm::ParameterSet>("shyftAnalysis");
+  edm::ParameterSet const& shyftParameters = builder.processDesc()->getProcessPSet()->getParameter<edm::ParameterSet>("wplusjetsAnalysis");
   edm::ParameterSet const& inputs = builder.processDesc()->getProcessPSet()->getParameter<edm::ParameterSet>("inputs");
   edm::ParameterSet const& outputs = builder.processDesc()->getProcessPSet()->getParameter<edm::ParameterSet>("outputs");
 
@@ -54,7 +54,7 @@ int main ( int argc, char ** argv )
 
   //cout << "Making event selector" << endl;
   WPlusJetsEventSelector wPlusJets( shyftParameters );
-  std::strbitset ret = wPlusJets.getBitTemplate();
+  pat::strbitset ret = wPlusJets.getBitTemplate();
   
   //loop through each event
   for( ev.toBegin();
@@ -62,20 +62,36 @@ int main ( int argc, char ** argv )
        ++ev) {
     ret.set(false);
     
-    // Unused variables commented out to avoid compiler warnings
-    // The right hand expressions were left in place in case of side effects.
-    /* bool passed = */ wPlusJets(ev, ret);
-    /* std::vector<reco::ShallowClonePtrCandidate> const & electrons = */ wPlusJets.selectedElectrons();
-    /* std::vector<reco::ShallowClonePtrCandidate> const & muons     = */ wPlusJets.selectedMuons();
-    /* std::vector<reco::ShallowClonePtrCandidate> const & jets      = */ wPlusJets.cleanedJets();
-    /* std::vector<reco::ShallowClonePtrCandidate> const & jetsBeforeClean = */ wPlusJets.selectedJets();
+    // bool passed = wPlusJets(ev, ret);
+    std::vector<reco::ShallowClonePtrCandidate> const & electrons =  wPlusJets.selectedElectrons();
+    std::vector<reco::ShallowClonePtrCandidate> const & muons     =  wPlusJets.selectedMuons();
+    std::vector<reco::ShallowClonePtrCandidate> const & jets      =  wPlusJets.cleanedJets();
+    std::vector<reco::ShallowClonePtrCandidate> const & jetsBeforeClean = wPlusJets.selectedJets();
 
     string bit_;
     
     bit_ = "Trigger" ;
-    /* bool passTrigger = */ ret[ bit_ ];
+    bool passTrigger = ret[ bit_ ];
     bit_ = "== 1 Lepton";
-    /* bool passOneLepton = */ ret[ bit_ ];
+    bool passOneLepton = ret[ bit_ ];
+    bit_ = "= 0 Jets";
+    // bool jet0 = ret[bit_];
+    bit_ = ">=1 Jets";
+    bool jet1 = ret[bit_];
+    bit_ = ">=2 Jets";
+    bool jet2 = ret[bit_];
+    bit_ = ">=3 Jets";
+    bool jet3 = ret[bit_];
+    bit_ = ">=4 Jets";
+    bool jet4 = ret[bit_];
+    bit_ = ">=5 Jets";
+    bool jet5 = ret[bit_];
+    
+    bool anyJets = jet1 || jet2 || jet3 || jet4 || jet5;    
+
+    if ( anyJets && passOneLepton && passTrigger ) {
+      cout << "Nele = " << electrons.size() << ", Nmuo = " << muons.size() << ", Njets_all = " << jets.size() << ", Njets_clean = " << jetsBeforeClean.size() << endl;
+    }
    
   } //end event loop
   

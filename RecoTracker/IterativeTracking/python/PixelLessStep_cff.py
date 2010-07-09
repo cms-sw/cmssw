@@ -77,7 +77,7 @@ fourthPLSeeds = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeed
 import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
 fourthPLSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'FourthLayerPairs'
 fourthPLSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.5
-fourthPLSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 10.0
+fourthPLSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 12.0
 fourthPLSeeds.RegionFactoryPSet.RegionPSet.originRadius = 2.0
 
 # TRACKER DATA CONTROL
@@ -132,7 +132,7 @@ pixellessStepLoose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose
     keepAllTracks = False,
     copyExtras = False,
     copyTrajectories = True,
-    chi2n_par = 0.4,
+    chi2n_par = 0.5,
     res_par = ( 0.003, 0.001 ),
     minNumberLayers = 5,
     maxNumberLostLayers = 1,
@@ -148,7 +148,7 @@ pixellessStepTight = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight
     keepAllTracks = True,
     copyExtras = False,
     copyTrajectories = True,
-    chi2n_par = 0.3,
+    chi2n_par = 0.35,
     res_par = ( 0.003, 0.001 ),
     minNumberLayers = 5,
     maxNumberLostLayers = 0,
@@ -164,7 +164,7 @@ pixellessStep = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighP
     keepAllTracks = True,
     copyExtras = False,
     copyTrajectories = True,
-    chi2n_par = 0.2,
+    chi2n_par = 0.25,
     res_par = ( 0.003, 0.001 ),
     minNumberLayers = 5,
     maxNumberLostLayers = 0,

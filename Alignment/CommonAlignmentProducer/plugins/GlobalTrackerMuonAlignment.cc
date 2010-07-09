@@ -5,18 +5,16 @@
 // 
 /**\class GlobalTrackerMuonAlignment GlobalTrackerMuonAlignment.cc Alignment/GlobalTrackerMuonAlignment/src/GlobalTrackerMuonAlignment.cc
 
- Description: Producer of relative tracker and muon system alignment
+ Description: <one line class summary>
 
  Implementation:
- A sample of global muons is used for the aligning tracker and muon system 
- relatively as "rigid bodies", i.e. determining offset and rotation (6 numbers) 
-    
+     <Notes on implementation>
 */
 //
 // Original Author:  Alexandre Spiridonov
 //         Created:  Fri Oct 16 15:59:05 CEST 2009
 //
-// $Id: GlobalTrackerMuonAlignment.cc,v 1.1 2010/03/16 19:31:52 mussgill Exp $
+// $Id$
 //
 
 // system include files
@@ -130,8 +128,6 @@ class GlobalTrackerMuonAlignment : public edm::EDAnalyzer {
   string propagator_;           // name of the propagator
   bool cosmicMuonMode_;   
   bool isolatedMuonMode_;
-  bool collectionCosmic;        // if true, read muon collection expected for CosmicMu
-  bool collectionIsolated;      //                                            IsolateMu
   string rootOutFile_;
   string txtOutFile_;
   bool writeDB_;                // write results to DB
@@ -145,22 +141,19 @@ class GlobalTrackerMuonAlignment : public edm::EDAnalyzer {
 
   edm::ESWatcher<TrackingComponentsRecord> watchTrackingComponentsRecord_;
 
-  //                            // LSF for global d(3):    Inf * d = Gfr 
+  //                            // LSF for global d(3)    Inf * d = Gfr 
   AlgebraicVector3 Gfr;         // free terms 
   AlgebraicSymMatrix33 Inf;     // information matrix 
-  //                            // LSF for global d(6):    Hess * d = Grad 
-  CLHEP::HepVector Grad;        // the gradient of the objective function
-  CLHEP::HepMatrix Hess;        // the Hessian     -- // ---     
 
-  int N_event;                  // processed events
-  int N_track;                  // selected tracks
+  int N_event;
   static const int NFit_d = 6;  // number of fitted parameters d(NFit_d)
   CLHEP::HepVector MuGlShift;   // expected global muon shifts  
   CLHEP::HepVector MuGlAngle;   // expected global muon angles  
-
+  CLHEP::HepVector Grad;        // the gradient of the objective function
+  CLHEP::HepMatrix Hess;        // the Hessian     -- // ---     
   char MuSelect[100];           // what part of muon system is selected for 1st hit 
 
-  ofstream OutGlobalTxt;        // output the vector of global alignment as text     
+  ofstream OutGlobalTxt;       // output the vector of global alignment as text     
 
   TFile * file;
   TH1F * histo;
@@ -222,14 +215,13 @@ GlobalTrackerMuonAlignment::GlobalTrackerMuonAlignment(const edm::ParameterSet& 
    writeDB_(iConfig.getUntrackedParameter<bool>("writeDB")),
    debug_(iConfig.getUntrackedParameter<bool>("debug"))
 {
-#ifdef NO_FALSE_FALSE_MODE 
   if (cosmicMuonMode_==false && isolatedMuonMode_==false) {
-    throw cms::Exception("BadConfig") << "Muon collection not set! "
-				      << "Use from GlobalTrackerMuonAlignment_test_cfg.py.";
+    throw cms::Exception("BadConfig") << "Operation mode not set! "
+				      << "Please set either cosmics or isolated to true.";
   }
-#endif  
+  
   if (cosmicMuonMode_==true && isolatedMuonMode_==true) {
-    throw cms::Exception("BadConfig") << "Muon collection can be either cosmic or isolated! "
+    throw cms::Exception("BadConfig") << "Both cosmics and isolated mode are true! "
 				      << "Please set only one to true.";
   }
 }
@@ -252,49 +244,40 @@ GlobalTrackerMuonAlignment::analyze(const edm::Event& iEvent, const edm::EventSe
 {
   using namespace edm;
   using namespace reco;  
-  //debug_ = true;
+  //using reco::TrackCollection;
+  //using reco::MuonCollection;
 
-  bool info = false;
   bool alarm = false;
   //bool alarm = true;
   double PI = 3.1415927;
  
   cosmicMuonMode_ = true; // true: both Cosmic and IsolatedMuon are treated with 1,2 tracks
+  //cosmicMuonMode_ = false;
   isolatedMuonMode_ = !cosmicMuonMode_; //true: only IsolatedMuon are treated with 1 track
  
   N_event++;
-  if (info || debug_) {
-    std::cout << "----- event " << N_event << " -- tracks "<<N_track<<" ---";
+  if (debug_) {
+    std::cout << "-------- event " << N_event << " ----";
     if (cosmicMuonMode_) std::cout << " treated as CosmicMu ";
     if (isolatedMuonMode_) std::cout <<" treated as IsolatedMu ";
     std::cout << std::endl;
   }
-
+  
   Handle<reco::TrackCollection> tracks;
   Handle<reco::TrackCollection> muons;
   Handle<reco::TrackCollection> gmuons;
   Handle<reco::MuonCollection> smuons;
-
-  if (collectionIsolated){
-    iEvent.getByLabel("ALCARECOMuAlCalIsolatedMu", "TrackerOnly",  tracks);
-    iEvent.getByLabel("ALCARECOMuAlCalIsolatedMu", "StandAlone",  muons);
-    iEvent.getByLabel("ALCARECOMuAlCalIsolatedMu", "GlobalMuon",  gmuons);
-    iEvent.getByLabel("ALCARECOMuAlCalIsolatedMu", "SelectedMuons",  smuons);
-  }
-  else if (collectionCosmic){
-    iEvent.getByLabel("ALCARECOMuAlGlobalCosmics", "TrackerOnly",  tracks);
-    iEvent.getByLabel("ALCARECOMuAlGlobalCosmics", "StandAlone",  muons);
-    iEvent.getByLabel("ALCARECOMuAlGlobalCosmics", "GlobalMuon",  gmuons);
-    iEvent.getByLabel("ALCARECOMuAlGlobalCosmics", "SelectedMuons",  smuons);
-  }
-  else{
-    iEvent.getByLabel(trackTags_,tracks);
-    iEvent.getByLabel(muonTags_,muons);
-    iEvent.getByLabel(gmuonTags_,gmuons);
-    iEvent.getByLabel(smuonTags_,smuons);
-  }  
-
-
+  
+  //iEvent.getByLabel("ALCARECOMuAlCalIsolatedMu", "TrackerOnly",  tracks);
+  //iEvent.getByLabel("ALCARECOMuAlCalIsolatedMu", "StandAlone",  muons);
+  //iEvent.getByLabel("ALCARECOMuAlCalIsolatedMu", "GlobalMuon",  gmuons);
+  //iEvent.getByLabel("ALCARECOMuAlCalIsolatedMu", "SelectedMuons",  smuons);
+  
+  iEvent.getByLabel(trackTags_,tracks);
+  iEvent.getByLabel(muonTags_,muons);
+  iEvent.getByLabel(gmuonTags_,gmuons);
+  iEvent.getByLabel(smuonTags_,smuons);
+  
   if (debug_) {
     std::cout << " ievBunch " << iEvent.bunchCrossing()
 	      << " runN " << (int)iEvent.run() <<std::endl;
@@ -305,6 +288,10 @@ GlobalTrackerMuonAlignment::analyze(const edm::Event& iEvent, const edm::EventSe
 	 ++itMuon) {
       std::cout << " is isolatValid Matches " << itMuon->isIsolationValid()
 		<< " " <<itMuon->isMatchesValid() << std::endl;
+      //std::cout<<" is GMu Mu SAMu TrMu "<<itMuon->isGlobalMuon()<<" "
+      //       <<itMuon->isMuon()<<" "<<itMuon->isStandAloneMuon()
+      //       <<" "<<itMuon->isTrackerMuon()<<" "
+      //       <<std::endl;
     }
   }
 
@@ -402,7 +389,7 @@ GlobalTrackerMuonAlignment::analyze(const edm::Event& iEvent, const edm::EventSe
     float distanceOutIn  = (pointTrackOut - pointMuonIn).mag();
     float distanceOutOut = (pointTrackOut - pointMuonOut).mag();
 
-    if(debug_){
+    if(false & debug_){
       std::cout<<" pointTrackIn "<<pointTrackIn<<std::endl;
       std::cout<<"          Out "<<pointTrackOut<<" lenght "<<lenghtTrack<<std::endl;
       std::cout<<" point MuonIn "<<pointMuonIn<<std::endl;
@@ -415,8 +402,6 @@ GlobalTrackerMuonAlignment::analyze(const edm::Event& iEvent, const edm::EventSe
     if(lenghtTrack < 90.) continue;
     if(lenghtMuon < 300.) continue;
     if(momentumTrackIn.mag() < 15. || momentumTrackOut.mag() < 15.) continue;
-    if(trackTT.charge() != muTT.charge()) continue;
-
     if(debug_)
       std::cout<<" passed lenght momentum cuts"<<std::endl;
 
@@ -681,51 +666,51 @@ GlobalTrackerMuonAlignment::analyze(const edm::Event& iEvent, const edm::EventSe
     for(int i=0; i<=5; i++) chi_d += Vm(i)*Vm(i)/Cm(i,i);
 
     if(Pt.mag() < 15.) continue;
-    if(Pm.mag() <  5.) continue;
- 
-    //if(Pt.mag() < 30.) continue;          // strong momenum cut
-    //if(trackTT.charge() < 0) continue;    // select positive charge
-
-    //if(fabs(RelMomResidual) > 0.5) continue;
+    if(Pm.mag() < 10.) continue;
+    if(fabs(RelMomResidual) > 0.5) continue;
     if(fabs(resR.x()) > 20.) continue;
     if(fabs(resR.y()) > 20.) continue;
     if(fabs(resR.z()) > 20.) continue;
     if(fabs(resR.mag()) > 30.) continue;
-    if(fabs(resP.x()) > 0.06) continue;
-    if(fabs(resP.y()) > 0.06) continue;
-    if(fabs(resP.z()) > 0.06) continue;
+    if(fabs(resP.x()) > 0.05) continue;
+    if(fabs(resP.y()) > 0.05) continue;
+    if(fabs(resP.z()) > 0.05) continue;
     if(chi_d > 40.) continue;
-          
+
+    //if(sqrt(C0(0,0) > 0.005 )) continue;
+    //if(sqrt(C1(0,0)) < 0.0001 || sqrt(C1(0,0)) > 0.03 ) continue;
+    //if(!(fabs(Nl.x()) > 0.4 & fabs(Nl.x()) < 0.6)) continue; 
+    
     //                                            select Barrel 
     //if(Rmuon < 400. || Rmuon > 450.) continue; 
     //if(Zmuon < -600. || Zmuon > 600.) continue;
     //if(fabs(Nl.z()) > 0.95) continue;  
-    //std::sprintf(MuSelect, " Barrel");
+    //std::sprintf(MuSelect, "    Barrel");
     //                                                  EndCap1
     //if(Rmuon < 120. || Rmuon > 450.) continue;
     //if(Zmuon < -720.) continue;
     //if(Zmuon > -580.) continue;
     //if(fabs(Nl.z()) < 0.95) continue;  
-    //std::sprintf(MuSelect, " EndCap1");
+    //std::sprintf(MuSelect, "    EndCap1");
     //                                                  EndCap2
     //if(Rmuon < 120. || Rmuon > 450.) continue;
     //if(Zmuon >  720.) continue;
     //if(Zmuon <  580.) continue;
     //if(fabs(Nl.z()) < 0.95) continue;  
-    //std::sprintf(MuSelect, " EndCap2");
+    //std::sprintf(MuSelect, "    EndCap2");
     //                                                 select All
     if(Rmuon < 120. || Rmuon > 450.) continue;  
     if(Zmuon < -720. || Zmuon > 720.) continue;
-    std::sprintf(MuSelect, " Barrel+EndCaps");
+    std::sprintf(MuSelect, "      Barrel+EndCaps");
 
     if(debug_)
       std::cout<<" .............. passed all cuts"<<std::endl;
         
-    N_track++;
     //                     gradient and Hessian for each track
     
     GlobalTrackerMuonAlignment::gradientGlobalAlg(Rt, Pt, Rm, Nl, Cm);
     GlobalTrackerMuonAlignment::gradientGlobal(Rt, Pt, Rm, Pm, Nl, Cm);
+    
     
     // -----------------------------------------------------  fill histogram 
     histo->Fill(itMuon->track()->pt()); 
@@ -753,12 +738,9 @@ GlobalTrackerMuonAlignment::analyze(const edm::Event& iEvent, const edm::EventSe
     histo16->Fill(resP.y()); 
     histo17->Fill(resP.z()); 
     
-    if((fabs(Nl.x()) < 0.98) && (fabs(Nl.y()) < 0.98) &&(fabs(Nl.z()) < 0.98))
-      { 
-	histo18->Fill(sqrt(C0(0,0))); 
-	histo19->Fill(sqrt(C1(0,0))); 
-	histo20->Fill(sqrt(C1(0,0)+Ce(0,0))); 		   
-      }
+    histo18->Fill(sqrt(C0(0,0))); 
+    histo19->Fill(sqrt(C1(0,0))); 
+    histo20->Fill(sqrt(C1(0,0)+Ce(0,0))); 		   
     if(fabs(Nl.x()) < 0.98) histo21->Fill(Vm(0)/sqrt(Cm(0,0))); 
     if(fabs(Nl.y()) < 0.98) histo22->Fill(Vm(1)/sqrt(Cm(1,1))); 
     if(fabs(Nl.z()) < 0.98) histo23->Fill(Vm(2)/sqrt(Cm(2,2))); 
@@ -770,7 +752,7 @@ GlobalTrackerMuonAlignment::analyze(const edm::Event& iEvent, const edm::EventSe
     histo29->Fill(lenghtTrack); 
     histo30->Fill(lenghtMuon); 
     
-    if (debug_) {   //--------------------------------- debug print ----------
+    if (false & debug_) {   //--------------------------------- debug print ----------
       
       std::cout<<" diag 0[ "<<C0(0,0)<<" "<<C0(1,1)<<" "<<C0(2,2)<<" "<<C0(3,3)<<" "
 	       <<C0(4,4)<<" "<<C0(5,5)<<" ]"<<std::endl;
@@ -833,15 +815,7 @@ void
 GlobalTrackerMuonAlignment::beginJob()
 {
   N_event = 0;
-  N_track = 0;
   double PI = 3.1415927;
-  
-  if (cosmicMuonMode_==true && isolatedMuonMode_==false) {
-    collectionCosmic = true; collectionIsolated = false;}
-  else if (cosmicMuonMode_==false && isolatedMuonMode_==true) {
-    collectionCosmic = false; collectionIsolated = true;}
-  else {
-    collectionCosmic = false; collectionIsolated = false;}
 
   for(int i=0; i<=2; i++){
     Gfr(i) = 0.;
@@ -875,19 +849,19 @@ GlobalTrackerMuonAlignment::beginJob()
   histo7->GetXaxis()->SetTitle("(Pmuon-Ptrack)/Ptrack");
   histo8 = new TH1F("chi muon-track","#chi^{2}(muon-track)", 1000,0.,1000.);       
   histo8->GetXaxis()->SetTitle("#chi^{2} of muon w.r.t. propagated track");
-  histo11 = new TH1F("distance muon-track","distance muon w.r.t track [cm]",100,0.,30.);
+  histo11 = new TH1F("distance muon-track","distance muon w.r.t track [cm]",100,0.,20.);
   histo11->GetXaxis()->SetTitle("distance of muon w.r.t. track [cm]");
-  histo12 = new TH1F("Xmuon-Xtrack","Xmuon-Xtrack [cm]",200,-20.,20.);
+  histo12 = new TH1F("Xmuon-Xtrack","Xmuon-Xtrack [cm]",100,-20.,20.);
   histo12->GetXaxis()->SetTitle("Xmuon - Xtrack [cm]"); 
-  histo13 = new TH1F("Ymuon-Ytrack","Ymuon-Ytrack [cm]",200,-20.,20.);
+  histo13 = new TH1F("Ymuon-Ytrack","Ymuon-Ytrack [cm]",100,-20.,20.);
   histo13->GetXaxis()->SetTitle("Ymuon - Ytrack [cm]");
-  histo14 = new TH1F("Zmuon-Ztrack","Zmuon-Ztrack [cm]",200,-20.,20.);       
+  histo14 = new TH1F("Zmuon-Ztrack","Zmuon-Ztrack [cm]",100,-20.,20.);       
   histo14->GetXaxis()->SetTitle("Zmuon-Ztrack [cm]");
-  histo15 = new TH1F("NXmuon-NXtrack","NXmuon-NXtrack [rad]",200,-.1,.1);       
+  histo15 = new TH1F("NXmuon-NXtrack","NXmuon-NXtrack [rad]",100,-.1,.1);       
   histo15->GetXaxis()->SetTitle("N_{X}(muon)-N_{X}(track) [rad]");
-  histo16 = new TH1F("NYmuon-NYtrack","NYmuon-NYtrack [rad]",200,-.1,.1);       
+  histo16 = new TH1F("NYmuon-NYtrack","NYmuon-NYtrack [rad]",100,-.1,.1);       
   histo16->GetXaxis()->SetTitle("N_{Y}(muon)-N_{Y}(track) [rad]");
-  histo17 = new TH1F("NZmuon-NZtrack","NZmuon-NZtrack [rad]",200,-.1,.1);       
+  histo17 = new TH1F("NZmuon-NZtrack","NZmuon-NZtrack [rad]",100,-.1,.1);       
   histo17->GetXaxis()->SetTitle("N_{Z}(muon)-N_{Z}(track) [rad]");
   histo18 = new TH1F("expected error of Xinner","outer hit of inner tracker",100,0,.01);
   histo18->GetXaxis()->SetTitle("expected error of Xinner [cm]");
@@ -963,6 +937,7 @@ GlobalTrackerMuonAlignment::endJob() {
   for(int i=0; i<=2; i++) 
     for(int k=0; k<=2; k++) d(i) -= InfI(i,k)*Gfr(k);
   //                                   -------------- end of Global Algebraic
+
   
   if(debug_){
     std::cout<<"  inversed Inf "<<std::endl;
@@ -972,11 +947,8 @@ GlobalTrackerMuonAlignment::endJob() {
     std::cout<<Inf<<std::endl;
   }
     
-  std::cout<<" ---- "<<N_event<<" event "<<N_track<<" tracks "
-	   <<MuSelect<<" ---- "<<std::endl;
-  if (collectionIsolated) std::cout<<" ALCARECOMuAlCalIsolatedMu "<<std::endl;
-  else if (collectionCosmic) std::cout<<"  ALCARECOMuAlGlobalCosmics "<<std::endl; 
-  else std::cout<<smuonTags_<<std::endl;
+  std::cout<<" ---- "<<N_event<<" event  "<<MuSelect<<" ---- "<<std::endl;
+  std::cout<<smuonTags_<<std::endl;
   std::cout<<" Similated shifts[cm] "
 	   <<MuGlShift(1)<<" "<<MuGlShift(2)<<" "<<MuGlShift(3)<<" "
 	   <<" angles[rad] "<<MuGlAngle(1)<<" "<<MuGlAngle(2)<<" "<<MuGlAngle(3)<<" "
@@ -1009,9 +981,9 @@ GlobalTrackerMuonAlignment::endJob() {
 	     <<std::endl;
   }
 
-  // write histograms to root file
-  file->Write(); 
-  file->Close(); 
+  // write GlobalPositionRcd
+  if (writeDB_) 
+    GlobalTrackerMuonAlignment::writeGlPosRcd(d3);
 
   // write global parameters to text file 
   OutGlobalTxt.open(txtOutFile_.c_str(), ios::out);
@@ -1023,20 +995,13 @@ GlobalTrackerMuonAlignment::endJob() {
 		<<" "<<sqrt(Errd3(4,4))<<" "<<sqrt(Errd3(5,5))<<" "<<sqrt(Errd3(6,6))
 		<<" errors.\n";
     OutGlobalTxt<<N_event<<" events are processed.\n";
-
-    if (collectionIsolated) OutGlobalTxt<<"ALCARECOMuAlCalIsolatedMu.\n";
-    else if (collectionCosmic) OutGlobalTxt<<"  ALCARECOMuAlGlobalCosmics.\n"; 
-    else OutGlobalTxt<<smuonTags_<<".\n";
+    OutGlobalTxt<<smuonTags_<<".\n";
     OutGlobalTxt.close();
     std::cout<<" Write to the file outglobal.txt done  "<<std::endl;
   }
 
-  // write GlobalPositionRcd to DB
-  if(debug_)
-    std::cout<<" writeBD_ "<<writeDB_<<std::endl;
-  if (writeDB_) 
-    GlobalTrackerMuonAlignment::writeGlPosRcd(d3);
-
+  file->Write(); 
+  file->Close(); 
 }
 
 // ----  calculate gradient and Hessian matrix (algebraic) to search global shifts ------
@@ -1057,9 +1022,7 @@ GlobalTrackerMuonAlignment::gradientGlobalAlg(GlobalVector& Rt, GlobalVector& Pt
   Norm(0) = Nl.x();  Norm(1) = Nl.y();  Norm(2) = Nl.z(); 
   
   for(int i=0; i<=2; i++){
-    if(Cm(i,i) > 1.e-20)
-      Wi(i) = 1./Cm(i,i);
-    else Wi(i) = 1.e-10;
+    Wi(i) = 1./Cm(i,i);
     dR(i) = R_m(i) - R_t(i);
   }
   
@@ -1130,7 +1093,6 @@ GlobalTrackerMuonAlignment::gradientGlobal(GlobalVector& GRt, GlobalVector& GPt,
 
   //bool alarm = true;
   bool alarm = false;
-  bool info = false;
   if( NFit_d != 6 ) {
     if(debug_)
       std::cout<<" !!!!!!!!!   Wrong NFit_d = "<<NFit_d<<std::endl;
@@ -1146,10 +1108,8 @@ GlobalTrackerMuonAlignment::gradientGlobal(GlobalVector& GRt, GlobalVector& GPt,
       if(j <= i ) w(i,j) = GCov(i-1, j-1);
       //if(i >= 3) w(i,j) /= PtMom;
       //if(j >= 3) w(i,j) /= PtMom;
-      if((NFit_d == 6) && (i == j) && (i<=3) && (GCov(i-1, j-1) < 1.e-20))  w(i,j) = 1.e20; // w=0  
       if(i != j) w(i,j) = 0.;                // use diaginal elements    
     }
-
   //GPt /= GPt.mag();
   //GPm /= GPm.mag();   // end of transform
 
@@ -1183,6 +1143,7 @@ GlobalTrackerMuonAlignment::gradientGlobal(GlobalVector& GRt, GlobalVector& GPt,
   Jac(5,6) =  Pm(1);   // dpy/daz
   Jac(6,6) =     0.;   // dpz/daz
 
+
   CLHEP::HepVector dsda(3);
   dsda(1) = (Norm(2)*Rm(3) - Norm(3)*Rm(2)) / PmN;
   dsda(2) = (Norm(3)*Rm(1) - Norm(1)*Rm(3)) / PmN;
@@ -1200,6 +1161,7 @@ GlobalTrackerMuonAlignment::gradientGlobal(GlobalVector& GRt, GlobalVector& GPt,
   Jac(1,6) = -Rm(2) + Pm(1)*dsda(3);  // drx/daz
   Jac(2,6) =  Rm(1) + Pm(2)*dsda(3);  // dry/daz
   Jac(3,6) =          Pm(3)*dsda(3);  // drz/daz
+
 
   CLHEP::HepSymMatrix W(Nd,0);
   int ierr;
@@ -1229,7 +1191,7 @@ GlobalTrackerMuonAlignment::gradientGlobal(GlobalVector& GRt, GlobalVector& GPt,
       std::cout<<" grad3 Error inverse  Hess matrix !!!!!!!!!!!"<<std::endl;
   }
 
-  if(info || debug_){
+  if(debug_){
     std::cout<<" d3   "<<d3I(1)<<" "<<d3I(2)<<" "<<d3I(3)<<" "<<d3I(4)<<" "
 	     <<d3I(5)<<" "<<d3I(6)<<std::endl;;
     std::cout<<" +-   "<<sqrt(Errd3I(1,1))<<" "<<sqrt(Errd3I(2,2))<<" "<<sqrt(Errd3I(3,3))
@@ -1431,25 +1393,7 @@ GlobalTrackerMuonAlignment::misalignMuon(GlobalVector& GRm, GlobalVector& GPm, G
 // ----  write GlobalPositionRcd   ------
 void GlobalTrackerMuonAlignment::writeGlPosRcd(CLHEP::HepVector& paramVec) 
 {
-
-  //paramVec(4) = 0.0001; paramVec(5) = 0.0002; paramVec(6) = 0.0003;
-
   std::cout<<" paramVector "<<paramVec.T()<<std::endl;
-  
-  CLHEP::Hep3Vector colX, colY, colZ;
-
-#ifdef NOT_EXACT_ROTATION_MATRIX     
-  colX = CLHEP::Hep3Vector(          1.,  -paramVec(6),  paramVec(5));
-  colY = CLHEP::Hep3Vector( paramVec(6),            1., -paramVec(4));
-  colZ = CLHEP::Hep3Vector(-paramVec(5),   paramVec(4),           1.);
-#else 
-  double s1 = std::sin(paramVec(4)), c1 = std::cos(paramVec(4));
-  double s2 = std::sin(paramVec(5)), c2 = std::cos(paramVec(5));
-  double s3 = std::sin(paramVec(6)), c3 = std::cos(paramVec(6));
-  colX = CLHEP::Hep3Vector(               c2 * c3,               -c2 * s3,       s2);
-  colY = CLHEP::Hep3Vector(c1 * s3 + s1 * s2 * c3, c1 * c3 - s1 * s2 * s3, -s1 * c2);
-  colZ = CLHEP::Hep3Vector(s1 * s3 - c1 * s2 * c3, s1 * c3 + c1 * s2 * s3,  c1 * c2);
-#endif
 
   CLHEP::HepVector  param0(6,0);
 
@@ -1465,12 +1409,9 @@ void GlobalTrackerMuonAlignment::writeGlPosRcd(CLHEP::HepVector& paramVec)
   AlignTransform muon(AlignTransform::Translation(paramVec(1),
 						  paramVec(2),
 						  paramVec(3)),
-		      //AlignTransform::EulerAngles(paramVec(4),
-		      //			  paramVec(5),
-		      //              		  paramVec(6)),
-		      AlignTransform::Rotation   (colX,
-		        		          colY,
-		      	        	          colZ),
+		      AlignTransform::EulerAngles(paramVec(4),
+						  paramVec(5),
+						  paramVec(6)),
 		      DetId(DetId::Muon).rawId());
   AlignTransform ecal(AlignTransform::Translation(param0(1),
 						  param0(2),
@@ -1499,10 +1440,7 @@ void GlobalTrackerMuonAlignment::writeGlPosRcd(CLHEP::HepVector& paramVec)
   std::cout << tracker.rotation() << std::endl;
   
   std::cout << "Muon (" << muon.rawId() << ") at " << muon.translation() 
-    	    << " " << muon.rotation().eulerAngles() << std::endl;
-  std::cout << "          rotations angles around x,y,z "
-	    << " ( " << -muon.rotation().zy() << " " << muon.rotation().zx() 
-	    << " " << -muon.rotation().yx() << " )" << std::endl;
+	    << " " << muon.rotation().eulerAngles() << std::endl;
    std::cout << muon.rotation() << std::endl;
    
    std::cout << "Ecal (" << ecal.rawId() << ") at " << ecal.translation() 

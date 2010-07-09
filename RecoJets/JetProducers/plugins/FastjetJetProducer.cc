@@ -166,15 +166,15 @@ void FastjetJetProducer::produceTrackJets( edm::Event & iEvent, const edm::Event
           // check if the track is close enough to the vertex
           float dz = (*itIn)->track()->dz(itVtx->position());
           float dxy = (*itIn)->track()->dxy(itVtx->position());
-          if (dz > dzTrVtxMax_) continue;
-          if (dxy > dxyTrVtxMax_) continue;
+          if (fabs(dz) > dzTrVtxMax_) continue;
+          if (fabs(dxy) > dxyTrVtxMax_) continue;
           bool closervtx = false;
           // now loop over the vertices a second time
           for (reco::VertexCollection::const_iterator itVtx2 = pvCollection->begin(); itVtx2 != pvCollection->end(); ++itVtx2) {
             // and check this track is closer to any other vertex (if more than 1 vertex considered)
             if (!useOnlyOnePV_ &&
                 itVtx != itVtx2 &&
-                (*itIn)->track()->dz(itVtx2->position()) < dz) {
+                fabs((*itIn)->track()->dz(itVtx2->position())) < fabs(dz)) {
               closervtx = true;
               break; // 1 closer vertex makes the track already not matched, so break
             }

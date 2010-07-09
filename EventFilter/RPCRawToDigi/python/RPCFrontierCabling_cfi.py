@@ -8,7 +8,7 @@ RPCCabling = cms.ESSource("PoolDBESSource",
         record = cms.string('RPCEMapRcd'),
         tag = cms.string('RPCEMap_v2')
     )),
-    connect = cms.string('frontier://FrontierProd/CMS_COND_31X_RPC')
+    connect = cms.string('frontier://FrontierProd/CMS_COND_36X_RPC')
 )
 
 

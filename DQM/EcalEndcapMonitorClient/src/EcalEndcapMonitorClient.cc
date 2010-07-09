@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2010/03/27 20:30:37 $
- * $Revision: 1.243 $
+ * $Date: 2010/03/28 14:04:37 $
+ * $Revision: 1.244 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -115,6 +116,7 @@ EcalEndcapMonitorClient::EcalEndcapMonitorClient(const edm::ParameterSet& ps) {
 
   if ( verbose_ ) {
     if ( maskFile_.size() != 0 ) {
+      maskFile_ = edm::FileInPath(maskFile_).fullPath();
       std::cout << " maskFile is '" << maskFile_ << "'" << std::endl;
     }
   }

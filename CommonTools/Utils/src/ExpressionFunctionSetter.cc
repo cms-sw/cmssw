@@ -1,8 +1,11 @@
 #include "CommonTools/Utils/src/ExpressionFunctionSetter.h"
 #include "CommonTools/Utils/src/ExpressionUnaryOperator.h"
 #include "CommonTools/Utils/src/ExpressionBinaryOperator.h"
+#include "CommonTools/Utils/src/ExpressionQuaterOperator.h"
 #include <cmath>
 #include <Math/ProbFuncMathCore.h>
+#include <DataFormats/Math/interface/deltaPhi.h>
+#include <DataFormats/Math/interface/deltaR.h>
 
 namespace reco {
   namespace parser {
@@ -14,7 +17,10 @@ namespace reco {
     struct chi2prob_f { double operator()( double x, double y ) const { return ROOT::Math::chisquared_cdf_c( x, y ); } };
     struct cos_f { double operator()( double x ) const { return cos( x ); } };
     struct cosh_f { double operator()( double x ) const { return cosh( x ); } };
+    struct deltaR_f { double operator()( double e1, double p1, double e2, double p2 ) const { return reco::deltaR(e1,p1,e2,p2); } };
+    struct deltaPhi_f { double operator()( double p1, double p2 ) const { return reco::deltaPhi(p1,p2); } };
     struct exp_f { double operator()( double x ) const { return exp( x ); } };
+    struct hypot_f { double operator()( double x, double y ) const { return hypot( x, y ); } };
     struct log_f { double operator()( double x ) const { return log( x ); } };
     struct log10_f { double operator()( double x ) const { return log10( x ); } };
     struct max_f { double operator()( double x, double y ) const { return std::max( x, y ); } };
@@ -42,7 +48,10 @@ void ExpressionFunctionSetter::operator()( const char *, const char * ) const {
   case( kChi2Prob ) : funExp.reset( new ExpressionBinaryOperator<chi2prob_f>( expStack_ ) ); break;
   case( kCos      ) : funExp.reset( new ExpressionUnaryOperator <cos_f  >   ( expStack_ ) ); break;
   case( kCosh     ) : funExp.reset( new ExpressionUnaryOperator <cosh_f >   ( expStack_ ) ); break;
+  case( kDeltaR   ) : funExp.reset( new ExpressionQuaterOperator<deltaR_f>  ( expStack_ ) ); break;
+  case( kDeltaPhi ) : funExp.reset( new ExpressionBinaryOperator<deltaPhi_f>( expStack_ ) ); break;
   case( kExp      ) : funExp.reset( new ExpressionUnaryOperator <exp_f  >   ( expStack_ ) ); break;
+  case( kHypot    ) : funExp.reset( new ExpressionBinaryOperator<hypot_f>   ( expStack_ ) ); break;
   case( kLog      ) : funExp.reset( new ExpressionUnaryOperator <log_f  >   ( expStack_ ) ); break;
   case( kLog10    ) : funExp.reset( new ExpressionUnaryOperator <log10_f>   ( expStack_ ) ); break;
   case( kMax      ) : funExp.reset( new ExpressionBinaryOperator<max_f>     ( expStack_ ) ); break;

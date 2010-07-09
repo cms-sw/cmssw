@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsTask.cc
  *
- * $Date: 2010/04/02 08:18:13 $
- * $Revision: 1.31 $
+ * $Date: 2010/04/02 08:20:45 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  *
 */
@@ -149,22 +149,11 @@ void EEStatusFlagsTask::setup(void){
       meFEchErrors_[i][0]->setAxisTitle("jy", 2);
       dqmStore_->tag(meFEchErrors_[i][0], i+1);
 
-      for ( int ix = 1; ix <= 50; ix++ ) {
-        for ( int iy = 1; iy <= 50; iy++ ) {
-          meFEchErrors_[i][0]->setBinContent( ix, iy, -1. );
-        }
-      }
-      meFEchErrors_[i][0]->setEntries( 0 );
-
       sprintf(histo, "EESFT MEM front-end status %s", Numbers::sEE(i+1).c_str());
       meFEchErrors_[i][1] = dqmStore_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
       meFEchErrors_[i][1]->setAxisTitle("pseudo-strip", 1);
       meFEchErrors_[i][1]->setAxisTitle("channel", 2);
       dqmStore_->tag(meFEchErrors_[i][1], i+1);
-
-      meFEchErrors_[i][1]->setBinContent( 1, 1, -1. );
-      meFEchErrors_[i][1]->setBinContent( 2, 1, -1. );
-      meFEchErrors_[i][1]->setEntries( 0 );
 
       sprintf(histo, "EESFT front-end status bits %s", Numbers::sEE(i+1).c_str());
       meFEchErrors_[i][2] = dqmStore_->book1D(histo, histo, 16, 0., 16.);
@@ -289,12 +278,6 @@ void EEStatusFlagsTask::analyze(const edm::Event& e, const edm::EventSetup& c){
           float xix = ix - 0.5;
           float xiy = iy - 0.5;
 
-          if ( meFEchErrors_[ism-1][0] ) {
-            if ( meFEchErrors_[ism-1][0]->getBinContent(ix-Numbers::ix0EE(ism), iy-Numbers::iy0EE(ism)) == -1 ) {
-              meFEchErrors_[ism-1][0]->setBinContent(ix-Numbers::ix0EE(ism), iy-Numbers::iy0EE(ism), 0);
-            }
-          }
-
           if ( ! ( status[itt-1] == 0 || status[itt-1] == 1 || status[itt-1] == 7 || status[itt-1] == 8 || status[itt-1] == 15 ) ) {
             if ( meFEchErrors_[ism-1][0] ) meFEchErrors_[ism-1][0]->Fill(xix, xiy);
             if ( meFEchErrorsByLumi_ ) meFEchErrorsByLumi_->Fill(xism, 1./34.);
@@ -303,12 +286,6 @@ void EEStatusFlagsTask::analyze(const edm::Event& e, const edm::EventSetup& c){
           }
 
         } else if ( itt == 69 || itt == 70 ) {
-
-          if ( meFEchErrors_[ism-1][1] ) {
-            if ( meFEchErrors_[ism-1][1]->getBinContent(itt-68, 1) == -1 ) {
-              meFEchErrors_[ism-1][1]->setBinContent(itt-68, 1, 0);
-            }
-          }
 
           if ( ! ( status[itt-1] == 0 || status[itt-1] == 1 || status[itt-1] == 7 || status[itt-1] == 8 || status[itt-1] == 15 ) ) {
             if ( meFEchErrors_[ism-1][1] ) meFEchErrors_[ism-1][1]->Fill(itt-68-0.5, 0);

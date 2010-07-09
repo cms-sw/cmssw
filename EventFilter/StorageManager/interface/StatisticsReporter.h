@@ -1,4 +1,4 @@
-// $Id: StatisticsReporter.h,v 1.11 2009/10/06 09:05:44 mommsen Exp $
+// $Id: StatisticsReporter.h,v 1.12 2010/03/16 17:55:43 mommsen Exp $
 /// @file: StatisticsReporter.h 
 
 #ifndef StorageManager_StatisticsReporter_h
@@ -19,6 +19,7 @@
 #include "EventFilter/StorageManager/interface/FragmentMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/ResourceMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/RunMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/SharedResources.h"
 #include "EventFilter/StorageManager/interface/StateMachineMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/StreamsMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/ThroughputMonitorCollection.h"
@@ -44,8 +45,8 @@ namespace stor {
    * statistics for all MonitorCollections.
    *
    * $Author: mommsen $
-   * $Revision: 1.11 $
-   * $Date: 2009/10/06 09:05:44 $
+   * $Revision: 1.12 $
+   * $Date: 2010/03/16 17:55:43 $
    */
   
   class StatisticsReporter : public toolbox::lang::Class, public xdata::ActionListener
@@ -177,6 +178,7 @@ namespace stor {
 
     xdaq::Application* _app;
     AlarmHandlerPtr _alarmHandler;
+    SharedResourcesPtr _sharedResources;
     utils::duration_t _monitoringSleepSec;
     utils::time_point_t _lastMonitorAction;
 

@@ -110,6 +110,8 @@ void HcalDigiMonitor::cleanup()
       dbe_->setCurrentFolder(subdir_+"digi_info/HE");  dbe_->removeContents();
       dbe_->setCurrentFolder(subdir_+"digi_info/HO");  dbe_->removeContents();
       dbe_->setCurrentFolder(subdir_+"digi_info/HF");  dbe_->removeContents();
+      dbe_->setCurrentFolder(subdir_+"LSvalues");
+      dbe_->removeContents();
     } // if(dbe_)
 
 } // void HcalDigiMonitor::cleanup();
@@ -172,7 +174,7 @@ void HcalDigiMonitor::setup()
   ProblemsVsLB_HF=dbe_->bookProfile("HF Bad Quality Digis vs LB","HF Bad Quality Digis vs Luminosity Block",
 				     NLumiBlocks_,0.5,NLumiBlocks_+0.5,
 				     100,0,10000);
-  
+
   if (makeDiagnostics_) 
     {
       // by default, unpacked digis won't have these errors
@@ -511,6 +513,10 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   hfHists.count_bad=0;
   hfHists.count_good=0;
 
+  int HO0bad=0;
+  int HO12bad=0;
+  int HFlumibad=0;
+
   // Check unpacker report for bad digis
 
   typedef std::vector<DetId> DetIdVector;
@@ -529,8 +535,18 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       rEta = CalcEtaBin(id.subdet(), rEta, rDepth);
       if (id.subdet()==HcalBarrel) ++hbHists.count_bad;
       else if (id.subdet()==HcalEndcap) ++heHists.count_bad;
-      else if (id.subdet()==HcalForward) ++hfHists.count_bad;
-      else if (id.subdet()==HcalOuter) ++hoHists.count_bad;
+      else if (id.subdet()==HcalForward) 
+	{
+	  ++hfHists.count_bad;
+	  if (rDepth==1 && (abs(rEta)==33 || abs(rEta)==34)) ++HFlumibad;
+	  else if (rDepth==2 && (abs(rEta)==35 || abs(rEta)==36)) ++HFlumibad;
+	}
+      else if (id.subdet()==HcalOuter) 
+	{
+	  ++hoHists.count_bad;
+	  if (abs(rEta)<5) ++HO0bad;
+	  else ++HO12bad;
+	}
       else 
 	continue; // skip anything that isn't HB, HE, HO, HF
       // extra protection against nonsensical values -- prevents occasional crashes
@@ -690,6 +706,16 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   ProblemsVsLB_HE->Fill(currentLS,heHists.count_bad);
   ProblemsVsLB_HO->Fill(currentLS,hoHists.count_bad);
   ProblemsVsLB_HF->Fill(currentLS,hfHists.count_bad);
+
+  // Fill the number of problem digis in each channel
+  ProblemsCurrentLB->Fill(-1,-1,1);  // event counter
+  ProblemsCurrentLB->Fill(0,0,hbHists.count_bad);
+  ProblemsCurrentLB->Fill(1,0,heHists.count_bad);
+  ProblemsCurrentLB->Fill(2,0,hoHists.count_bad);
+  ProblemsCurrentLB->Fill(3,0,hfHists.count_bad);
+  ProblemsCurrentLB->Fill(4,0,HO0bad);
+  ProblemsCurrentLB->Fill(5,0,HO12bad);
+  ProblemsCurrentLB->Fill(6,0,HFlumibad);
 
   // Call fill method every checkNevents
   //fill_Nevents();
@@ -929,6 +955,7 @@ void HcalDigiMonitor::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 					     const edm::EventSetup& c) 
 {
   HcalBaseDQMonitor::beginLuminosityBlock(lumiSeg,c);
+  ProblemsCurrentLB->Reset();
 }
 
 void HcalDigiMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,

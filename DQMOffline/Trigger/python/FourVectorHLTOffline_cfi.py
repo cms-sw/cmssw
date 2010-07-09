@@ -1,10 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: FourVectorHLTOffline_cfi.py,v 1.31 2010/03/25 13:25:09 rekovic Exp $
+# $Id: FourVectorHLTOffline_cfi.py,v 1.35 2010/06/01 11:37:12 rekovic Exp $
 hltResults = cms.EDAnalyzer("FourVectorHLTOffline",
     dirname = cms.untracked.string("HLT/FourVector/paths"),
     muonRecoCollectionName = cms.untracked.string("muons"),
     plotAll = cms.untracked.bool(False),
+    dRMax = cms.untracked.double(4.0),
     ptMax = cms.untracked.double(100.0),
     ptMin = cms.untracked.double(0.0),
 		Nbins = cms.untracked.uint32(50),
@@ -16,12 +17,22 @@ hltResults = cms.EDAnalyzer("FourVectorHLTOffline",
 		muonEtaMax = cms.untracked.double(2.1),
     muonDRMatch = cms.untracked.double(0.3),
 
+    jetDRMatch = cms.untracked.double(0.3),
+    jetL1DRMatch = cms.untracked.double(0.5),
+    jetEtMin = cms.untracked.double(5.0),
+
     electronDRMatch = cms.untracked.double(0.5),
+    electronL1DRMatch = cms.untracked.double(0.5),
+    electronEtMin = cms.untracked.double(5.0),
+
     photonDRMatch = cms.untracked.double(0.5),
+    photonL1DRMatch = cms.untracked.double(0.5),
+    photonEtMin = cms.untracked.double(5.0),
+
     #tauDRMatch = cms.untracked.double(0.1),
-    #jetDRMatch = cms.untracked.double(0.1),
+
     #bjetDRMatch = cms.untracked.double(0.1),
-    #photonDRMatch = cms.untracked.double(0.1),
+
     #trackDRMatch = cms.untracked.double(0.1),
      SpecialPaths = cms.vstring(
             'HLT_MET45',
@@ -40,129 +51,66 @@ hltResults = cms.EDAnalyzer("FourVectorHLTOffline",
     paths = cms.VPSet(
              cms.PSet(
               pathname = cms.string("HLT_"),
-              denompathname = cms.string("HLT_MinBiasBSC")  
+              denompathname = cms.string("MinBias")  
+             ),
+             cms.PSet(
+              pathname = cms.string("EG"),
+              denompathname = cms.string("Mu")  
+             ),
+             cms.PSet(
+              pathname = cms.string("EG"),
+              denompathname = cms.string("HLT_Mu3")  
+             ),
+             cms.PSet(
+              pathname = cms.string("Jet"),
+              denompathname = cms.string("Mu")  
+             ),
+             cms.PSet(
+              pathname = cms.string("Jet"),
+              denompathname = cms.string("HLT_Mu3")  
+             ),
+             cms.PSet(
+              pathname = cms.string("Ele"),
+              denompathname = cms.string("Mu")  
+             ),
+             cms.PSet(
+              pathname = cms.string("Ele"),
+              denompathname = cms.string("HLT_Mu3")  
+             ),
+             cms.PSet(
+              pathname = cms.string("Pho"),
+              denompathname = cms.string("Mu")  
+             ),
+             cms.PSet(
+              pathname = cms.string("Pho"),
+              denompathname = cms.string("HLT_Mu3")  
+             ),
+             cms.PSet(
+              pathname = cms.string("Tau"),
+              denompathname = cms.string("Mu")  
+             ),
+             cms.PSet(
+              pathname = cms.string("MET"),
+              denompathname = cms.string("Mu")  
+             ),
+             cms.PSet(
+              pathname = cms.string("Mu"),
+              denompathname = cms.string("Jet")  
+             ),
+             cms.PSet(
+              pathname = cms.string("Mu"),
+              denompathname = cms.string("Jet15U")  
              )
-            # cms.PSet(
-            #  pathname = cms.string("HLT_Mu11"),
-            #  denompathname = cms.string(""),  
-            # ),
-               #cms.PSet(
-               # pathname = cms.string("HLT_Ele10_SW_L1R"),
-               # denompathname = cms.string(""),  
-               #)
-#             cms.PSet(
-#              pathname = cms.string("HLT_Photon15_L1R"),
-#              denompathname = cms.string(""),  
-#             ),
-#             cms.PSet(
-#              pathname = cms.string("HLT_MET25"),
-#              denompathname = cms.string(""),  
-#             ),
-#             cms.PSet(
-#              pathname = cms.string("HLT_HT250"),
-#              denompathname = cms.string(""),  
-#             ),
-#             cms.PSet(
-#              pathname = cms.string("HLT_BTagMu_Jet20"),
-#              denompathname = cms.string(""),  
-#             ),
-#             cms.PSet(
-#              pathname = cms.string("HLT_Jet30"),
-#              denompathname = cms.string(""),  
-#             ),
-#             cms.PSet(
-#              pathname = cms.string("HLT_Mu11"),
-#              denompathname = cms.string("HLT_L1Jet15"),  
-#             ),
-#             cms.PSet(
-#              pathname = cms.string("HLT_Jet30"),
-#              denompathname = cms.string("HLT_Mu3"),  
-#             )
-#             cms.PSet(
-#              pathname = cms.string("HLT_IsoEle15_L1I"),
-#              denompathname = cms.string("HLT_IsoEle15_LW_L1I"),  
-#             ),
-#             cms.PSet(
-#              pathname = cms.string("HLT_Ele15_SW_L1R"),
-#              denompathname = cms.string("HLT_Ele15_SW_L1R"),  
-#             ),
-#             cms.PSet(
-#              pathname = cms.string("HLT_Ele15_LW_L1R"),
-#              denompathname = cms.string("HLT_Ele10_SW_L1R"),  
-#             ),
-#             cms.PSet(
-#              pathname = cms.string("HLT_Ele15_LW_L1R"),
-#              denompathname = cms.string("HLT_Ele15_LW_L1R"),  
-#             ),
-#             cms.PSet(
-#              pathname = cms.string("HLT_Mu3"),
-#              denompathname = cms.string("HLT_L1Jet15"),  
-#             ),
-#             cms.PSet(
-#              pathname = cms.string("HLT_Mu3"),
-#              denompathname = cms.string("HLT_Jet30"),  
-#             ),
-#             cms.PSet(
-#              pathname = cms.string("HLT_Mu3"),
-#              denompathname = cms.string("HLT_L1Mu"),  
-#             ),
-#             cms.PSet(
-#              pathname = cms.string("HLT_Mu3"),
-#              denompathname = cms.string("HLT_Mu3"),  
-#             ),
-#             cms.PSet(
-#              pathname = cms.string("HLT_Mu11"),
-#              denompathname = cms.string("HLT_L1Mu"),  
-#             ),
-#             cms.PSet(
-#              pathname = cms.string("HLT_Mu11"),
-#              denompathname = cms.string("HLT_Mu11"),  
-#             ),
-#             cms.PSet(
-#              pathname = cms.string("HLT_Mu11"),
-#              denompathname = cms.string("HLT_L1Jet15"),  
-#             ),
-#             cms.PSet(
-#              pathname = cms.string("HLT_Jet30"),
-#              denompathname = cms.string("HLT_L1Mu"),  
-#             ),
-#             cms.PSet(
-#              pathname = cms.string("HLT_Jet30"),
-#              denompathname = cms.string("HLT_L1Jet15"),  
-#             ),
-#             cms.PSet(
-#              pathname = cms.string("HLT_Jet30"),
-#              denompathname = cms.string("HLT_L1Jet30"),  
-#             ),
-#             cms.PSet(
-#              pathname = cms.string("HLT_Jet50"),
-#              denompathname = cms.string("HLT_Jet30"),  
-#             ),
-#             cms.PSet(
-#              pathname = cms.string("HLT_Jet50"),
-#              denompathname = cms.string("HLT_Jet50"),  
-#             ),
-#             cms.PSet(
-#              pathname = cms.string("HLT_Jet80"),
-#              denompathname = cms.string("HLT_Jet30"),  
-#             ),
-#             cms.PSet(
-#              pathname = cms.string("HLT_Jet80"),
-#              denompathname = cms.string("HLT_Jet80"),  
-#             ),
-#             cms.PSet(
-#              pathname = cms.string("HLT_Jet110"),
-#              denompathname = cms.string("HLT_Jet50"),  
-#             ),
-#             cms.PSet(
-#              pathname = cms.string("HLT_Jet80"),
-#              denompathname = cms.string("HLT_L1Mu"),  
-#             ),
-#             cms.PSet(
-#              pathname = cms.string("HLT_Jet110"),
-#              denompathname = cms.string("HLT_Jet110"),  
-#             )
     ),
+    JetIDParams  = cms.PSet(
+        useRecHits      = cms.bool(True),
+        hbheRecHitsColl = cms.InputTag("hbhereco"),
+        hoRecHitsColl   = cms.InputTag("horeco"),
+        hfRecHitsColl   = cms.InputTag("hfreco"),
+        ebRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEB"),
+        eeRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEE")
+    ),
+
                           
      # this is I think MC and CRUZET4
     triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","","HLT"),

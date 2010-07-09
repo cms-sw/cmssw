@@ -18,22 +18,22 @@ class HLTHcalMETNoiseFilter : public HLTFilter {
   virtual bool filter(edm::Event&, const edm::EventSetup&);
   
  private:
-  HcalNoiseAlgo noisealgo_;
-  
   // parameters
   edm::InputTag HcalNoiseRBXCollectionTag_;
   int severity_;
   int maxNumRBXs_;
   int numRBXsToConsider_;
-  bool needHighLevelCoincidence_;
-  bool useLooseRatioFilter_;
-  bool useLooseHitsFilter_;
-  bool useLooseZerosFilter_;
-  bool useLooseTimingFilter_;
-  bool useTightRatioFilter_;
-  bool useTightHitsFilter_;
-  bool useTightZerosFilter_;
-  bool useTightTimingFilter_;
+  bool needEMFCoincidence_;
+  double minRBXEnergy_;
+  double minRatio_;
+  double maxRatio_;
+  int minHPDHits_;
+  int minRBXHits_;
+  int minHPDNoOtherHits_;
+  int minZeros_;
+  double minHighEHitTime_;
+  double maxHighEHitTime_;
+  double maxRBXEMF_;
   
   // imported from the RecoMET/METProducers/python/hcalnoiseinfoproducer_cfi
   double minRecHitE_, minLowHitE_, minHighHitE_;

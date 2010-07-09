@@ -18,7 +18,7 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 
@@ -31,7 +31,6 @@ namespace cms
     conf_(conf)
   {
     geometry=conf_.getUntrackedParameter<std::string>("GeometricStructure","STANDARD");
-    useHitsSplitting_=conf.getParameter<bool>("useHitsSplitting");
     produces<TrackCandidateCollection>();
   }
 
@@ -138,7 +137,7 @@ namespace cms
 
 	Trajectory::RecHitContainer thits;
 	//it->recHitsV(thits);
-        theTraj.recHitsV(thits,useHitsSplitting_);
+        theTraj.recHitsV(thits,true);
 	edm::OwnVector<TrackingRecHit> recHits;
 	recHits.reserve(thits.size());
 

@@ -16,13 +16,13 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.source = cms.Source("EmptyIOVSource",
     firstValue = cms.uint64(1),
     lastValue = cms.uint64(1),
-    timetype = cms.string('timestamp'),
+    timetype = cms.string('runnumber'),
     interval = cms.uint64(1)
 )
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDBCommon,
-    timetype = cms.untracked.string('timestamp'),
+    timetype = cms.untracked.string('runnumber'),
                                           toPut = cms.VPSet(
         cms.PSet(
             record = cms.string('EcalDCSTowerStatusRcd'),
@@ -32,7 +32,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 )
 
 process.dbCopy = cms.EDAnalyzer("EcalDBCopy",
-    timetype = cms.string('timestamp'),
+    timetype = cms.string('runnumber'),
        toCopy = cms.VPSet( 
         cms.PSet(
             record = cms.string('EcalDCSTowerStatusRcd'),

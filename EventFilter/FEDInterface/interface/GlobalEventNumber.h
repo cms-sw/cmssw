@@ -4,10 +4,11 @@
 
 #include <stddef.h>
 #include "interface/shared/fed_header.h" // from xdaq
+
+#include "EventFilter/FEDInterface/interface/FEDConstants.h"
+
 namespace evf{
   namespace evtn{
-      const unsigned int SLINK_WORD_SIZE = 8;
-      const unsigned int SLINK_HALFWORD_SIZE = 4;
 
       const unsigned int DAQ_TOTTRG_OFFSET = 2; //offset in 32-bit words
       const unsigned int DAQ_BOARDID_OFFSET = 1;

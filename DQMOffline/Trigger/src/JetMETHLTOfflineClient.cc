@@ -112,23 +112,37 @@ void JetMETHLTOfflineClient::runClient_()
 	  std::string name = hltMEs[k]->getName();
 	  name.erase(0,12); // Removed "ME_Numerator"
           if (debug_) std::cout <<"==name=="<< name << std::endl;
-	  if( name.find("EtaPhi") !=string::npos ) continue; // do not consider EtaPhi 2D plots
+//	  if( name.find("EtaPhi") !=string::npos ) continue; // do not consider EtaPhi 2D plots
 
 //	  MonitorElement* eff ;
 
 	  for(unsigned int l=0;l<hltMEs.size();l++) {
 	    if (hltMEs[l]->getName() == "ME_Denominator"+name){
 	      // found denominator too
+              if(name.find("EtaPhi") !=string::npos) 
+              {
               MonitorElement* eff ;   
-	      TH1F* tNumerator   = hltMEs[k]->getTH1F();
-	      TH1F* tDenominator = hltMEs[l]->getTH1F();
+	      TH2F* tNumerator   = hltMEs[k]->getTH2F();
+	      TH2F* tDenominator = hltMEs[l]->getTH2F();
 
 	      std::string title = "Eff_"+hltMEs[k]->getTitle();
                 
-	      TH1F *teff = (TH1F*) tNumerator->Clone(title.c_str());
-	      teff->Divide(tNumerator,tDenominator,1,1,"B");
-              eff= dbe_->book1D("ME_Eff_"+name,teff);
+	      TH2F *teff = (TH2F*) tNumerator->Clone(title.c_str());
+	      teff->Divide(tNumerator,tDenominator,1,1);
+              eff= dbe_->book2D("ME_Eff_"+name,teff);
               delete teff;			
+              }else{
+              MonitorElement* eff ;
+              TH1F* tNumerator   = hltMEs[k]->getTH1F();
+              TH1F* tDenominator = hltMEs[l]->getTH1F();
+
+              std::string title = "Eff_"+hltMEs[k]->getTitle();
+
+              TH1F *teff = (TH1F*) tNumerator->Clone(title.c_str());
+              teff->Divide(tNumerator,tDenominator,1,1);
+              eff= dbe_->book1D("ME_Eff_"+name,teff);
+              delete teff;
+             }
 	    } // Denominator
 	  }   // Loop-l
 	}     // Numerator

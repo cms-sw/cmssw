@@ -13,7 +13,6 @@ namespace gen {
 
 class TauolaInterface;
 class EvtGenInterface;
-// class PhotosInterface;
 
    class ExternalDecayDriver 
    {
@@ -36,7 +35,6 @@ class EvtGenInterface;
 	 bool             fIsInitialized;
 	 TauolaInterface* fTauolaInterface;
 	 EvtGenInterface* fEvtGenInterface;
-	 // PhotosInterface* fPhotosInterface;
 	 std::vector<int> fPDGs;
          
    };

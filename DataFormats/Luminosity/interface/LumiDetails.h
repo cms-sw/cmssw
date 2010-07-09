@@ -11,66 +11,73 @@
  *         David Dagenhart
  *
  * \version   1st Version June 7 2007>
- * $Id: LumiDetails.h,v 1.9 2010/03/23 15:56:03 xiezhen Exp $
+ * $Id: LumiDetails.h,v 1.5 2008/10/23 21:38:25 wdd Exp $
  *
  ************************************************************/
  
 #include <vector>
-#include <map>
-#include <string>
 #include <ostream>
 
-class LumiDetails {
-  // BX definition: There are 3564 bunch crossing (BX) in each LHC orbit 
-  // each event will occur at one of these BX. BX is defined to be the number of the bunch crossing where this event occurred.
- public:
 
-  /// default constructor
-  LumiDetails();
-  explicit LumiDetails(const std::string& lumiversion);
-  ///
-  void setLumiVersion(const std::string& lumiversion);
-  /// 
-  void swapValueData(std::map<std::string,std::vector<float> >& data);
-  ///
-  void swapErrorData(std::map<std::string,std::vector<float> >& data);
-  ///
-  void swapQualData(std::map<std::string,std::vector<short> >& data);
-  ///
-  void copyValueData(const std::map<std::string,std::vector<float> >& data);
-  ///
-  void copyErrorData(const std::map<std::string,std::vector<float> >& data);
-  ///
-  void copyQualData(const std::map<std::string,std::vector<short> >& data);
-  /// destructor
-  ~LumiDetails();
-  
-  std::string lumiVersion()const;
-  bool isValid() const;
-  float lumiValue(const std::string& algoname,unsigned int bx) const;
-  float lumiError(const std::string& algoname,unsigned int bx) const;
-  short lumiQuality(const std::string& algoname,unsigned int bx) const; 
-  
-  const std::vector<float>& lumiValuesForAlgo(const std::string& algoname) const;
-  const std::vector<float>& lumiErrorsForAlgo(const std::string& algoname) const;    
-  const std::vector<short>& lumiQualsForAlgo(const std::string& algoname) const;    
-  const std::map< std::string,std::vector<float> >& allLumiValues()const;
-  
-  const std::map< std::string,std::vector<float> >& allLumiErrors()const;
-  
-  const std::map< std::string,std::vector<short> >& allLumiQuals()const;
-  
-  std::vector<std::string> algoNames()const;
-  
-  unsigned int totalLumiAlgos()const;
-  
-  //bool isProductEqual(LumiDetails const& next) const;??
-  
- private :
-  std::string m_lumiversion;
-  std::map< std::string,std::vector<float> > m_lumivalueMap; //algoname,vector of values in bx
-  std::map< std::string,std::vector<float> > m_lumierrorMap; //algoname,vector of errors in bx
-  std::map< std::string,std::vector<short> > m_lumiqualityMap; //algoname,vector of quality in bx
+class LumiDetails {
+
+  public:
+
+    /// default constructor
+    LumiDetails() {}
+
+    /// set default constructor
+    LumiDetails(const std::vector<float>& lumietsum, const std::vector<float>& lumietsumerr, 
+		const std::vector<int>& lumietsumqual, const std::vector<float>& lumiocc,
+		const std::vector<float>& lumioccerr, const std::vector<int>& lumioccqual):
+      lumietsum_(lumietsum), lumietsumerr_(lumietsumerr), lumietsumqual_(lumietsumqual),
+      lumiocc_(lumiocc), lumioccerr_(lumioccerr), lumioccqual_(lumioccqual)
+    { }
+
+    /// destructor
+    ~LumiDetails() {}
+
+    // BX definition: There are 3564 bunch crossing (BX) in each LHC orbit 
+    // each event will occur at one of these BX. BX is defined to be the number of the
+    // bunch crossing where this event occurred.
+
+    float lumiEtSum(int bx) const { return lumietsum_.at(bx); }
+    float lumiEtSumErr(int bx) const { return lumietsumerr_.at(bx); }
+    int lumiEtSumQual(int bx) const { return lumietsumqual_.at(bx); }
+
+    float lumiOcc(int bx) const { return lumiocc_.at(bx); }
+    float lumiOccErr(int bx) const { return lumioccerr_.at(bx); }
+    int lumiOccQual(int bx) const { return lumioccqual_.at(bx); }
+
+    //get array of lumi values per BX based on EtSum method
+    const std::vector<float>&  lumiEtSum() const {return lumietsum_;}
+       
+    //get array of lumi values errors per BX based on EtSum method
+    const std::vector<float>&  lumiEtSumErr() const {return lumietsumerr_;}
+       
+    //get array of lumi values quality per BX based on EtSum method
+    const std::vector<int>&  lumiEtSumQual() const {return lumietsumqual_;}
+       
+    //get array of lumi values per BX based on Occupancy method
+    const std::vector<float>&  lumiOcc() const {return lumiocc_;}
+       
+    //get array of lumi values errors per BX based on Occupancy method
+    const std::vector<float>&  lumiOccErr() const {return lumioccerr_;}
+       
+    //get array of lumi values errors per BX based on Occupancy method
+    const std::vector<int>&  lumiOccQual() const {return lumioccqual_;}
+
+    bool isProductEqual(LumiDetails const& next) const;
+
+  private :
+
+    std::vector<float> lumietsum_;
+    std::vector<float> lumietsumerr_;
+    std::vector<int> lumietsumqual_;
+
+    std::vector<float> lumiocc_;
+    std::vector<float> lumioccerr_;
+    std::vector<int> lumioccqual_;
 }; 
 
 std::ostream& operator<<(std::ostream& s, const LumiDetails& lumiDetails);

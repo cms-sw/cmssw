@@ -3,7 +3,6 @@
  *  EDMProto
  *  Created by Chris Jones on 4/17/05.
  *  Changed by Viji Sundararajan on 03-Jul-05.
- *  Copyright 2005 __MyCompanyName__. All rights reserved.
  *
  */
 

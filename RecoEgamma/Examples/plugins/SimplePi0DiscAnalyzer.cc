@@ -5,15 +5,15 @@
 //
 /**\class SimplePi0DiscAnalyzer RecoEgamma/Examples/src/SimplePi0DiscAnalyzer.cc
 
- Description: Pi0DiscAnalyzer analyzer using reco data
+ Description: GsfElectrons analyzer using reco data
 
  Implementation:
      <Notes on implementation>
 */
 //
-// Original Author:  Aristotelis Kyriakis
-//         Created:  May 26 13:22:06 CEST 2009
-// $Id: SimplePi0DiscAnalyzer.cc,v 1.7 2009/05/26 10:45:45 akyriaki Exp $
+// Original Author:  Ursula Berthon
+//         Created:  Mon Mar 27 13:22:06 CEST 2006
+// $Id: SimplePi0DiscAnalyzer.cc,v 1.12 2009/03/06 12:42:16 chamont Exp $
 //
 //
 

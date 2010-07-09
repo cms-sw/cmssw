@@ -4,42 +4,47 @@
 
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("CSCIndexerTest")
-
+process = cms.Process("GeometryTest")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("Geometry.MuonCommonData.muonEndcapIdealGeometryXML_cfi")
-
 # flags for modelling of CSC layer & strip geometry
 process.load("Geometry.CSCGeometry.cscGeometry_cfi")
 
-# fake alignment nonsense. I wish I didn't need this junk when all I want is ideal geometry!
-process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")
-process.fake2 = process.FakeAlignmentSource
-del process.FakeAlignmentSource
-process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource", "fake2")
+process.EnableFloatingPointExceptions = cms.Service("EnableFloatingPointExceptions",
+    enableOverFlowEx = cms.untracked.bool(True),
+    enableDivByZeroEx = cms.untracked.bool(True),
+    enableInvalidEx = cms.untracked.bool(True),
+    enableUnderFlowEx = cms.untracked.bool(False)
+)
 
 process.source = cms.Source("EmptySource")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
-
-# Not sure the following does anything useful :(
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.debugModules.append('process.analyzer')
-process.MessageLogger.categories.append('CSC')
-process.MessageLogger.cout = cms.untracked.PSet(
-  threshold = cms.untracked.string('DEBUG'),
-  default = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
-  FwkReport = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
-  CSC       = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
+process.MessageLogger = cms.Service("MessageLogger",
+    # For LogDebug/LogTrace output...
+    #    untracked vstring debugModules   = { "*" }
+    # No constraint on log.out content...equivalent to threshold INFO
+    # 0 means none, -1 means all (?)
+    cout = cms.untracked.PSet(
+        threshold = cms.untracked.string('DEBUG'),
+        INFO = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        default = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        CSC = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        noLineBreaks = cms.untracked.bool(True)
+    ),
+    categories = cms.untracked.vstring('CSC'),
+    destinations = cms.untracked.vstring('cout')
 )
 
-process.analyzer = cms.EDAnalyzer(
-    "CSCDetIdAnalyzer",
-    ## For unganged ME1a (as for SLHC) set next param to True
-    UngangedME1a=cms.untracked.bool(False)
-)
+process.producer = cms.EDAnalyzer("CSCDetIdAnalyzer")
 
-process.p1 = cms.Path(process.analyzer)
+process.p1 = cms.Path(process.producer)
 

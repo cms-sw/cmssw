@@ -239,7 +239,6 @@ namespace edm {
 
   Provenance*
   Group::provenance() const {
-    assert(groupData().prov_);
     return groupData().prov_.get();
   }
 

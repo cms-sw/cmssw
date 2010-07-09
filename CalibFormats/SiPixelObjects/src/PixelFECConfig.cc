@@ -10,7 +10,6 @@
 #include <sstream>
 #include <map>
 #include <assert.h>
-#include <stdexcept>
 
 using namespace pos;
 using namespace std;
@@ -56,7 +55,6 @@ PixelFECConfig::PixelFECConfig(std::vector<std::vector<std::string> >& tableMat 
 	 }
        }
    }//end for
- /*
  for(unsigned int n=0; n<colNames.size(); n++)
    {
      if(colM.find(colNames[n]) == colM.end()){
@@ -64,7 +62,6 @@ PixelFECConfig::PixelFECConfig(std::vector<std::vector<std::string> >& tableMat 
        assert(0);
      }
    }
- */
 
  fecconfig_.clear();
  for(unsigned int r = 1 ; r < tableMat.size() ; r++)    //Goes to every row of the Matrix
@@ -102,7 +99,7 @@ PixelFECConfig::PixelFECConfig(std::string filename):
 
     if (!in.good()){
 	std::cout << __LINE__ << "]\t" << mthn << "Could not open: " << filename << std::endl;
-	throw std::runtime_error("Failed to open file "+filename);
+	assert(0);
     }
     else {
 	std::cout << __LINE__ << "]\t" << mthn <<" Opened: "         << filename << std::endl;
@@ -256,7 +253,9 @@ void PixelFECConfig::writeXMLHeader(pos::PixelConfigKey key,
   *outstream << "   <RUN_TYPE>Pixel FEC Parameters</RUN_TYPE>" 		                                     << endl ;
   *outstream << "   <RUN_NUMBER>1</RUN_NUMBER>"					         	             << endl ;
   *outstream << "   <RUN_BEGIN_TIMESTAMP>" << pos::PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>" << endl ;
-  *outstream << "   <LOCATION>CERN P5</LOCATION>"                                                            << endl ; 
+  *outstream << "   <COMMENT_DESCRIPTION>Pixel FEC Parameters</COMMENT_DESCRIPTION>"      	             << endl ;
+  *outstream << "   <LOCATION>CERN TAC</LOCATION>"					         	     << endl ;
+  *outstream << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"			 	     << endl ;
   *outstream << "  </RUN>"								         	     << endl ;
   *outstream << " </HEADER>"								         	     << endl ;
   *outstream << ""										 	     << endl ;
@@ -265,9 +264,7 @@ void PixelFECConfig::writeXMLHeader(pos::PixelConfigKey key,
   *outstream << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                                 << endl ;
   *outstream << "   <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"                                              << endl ;
   *outstream << "  </PART>"                                                                                  << endl ;
-  *outstream << "  <VERSION>"             << version      << "</VERSION>"				     << endl ;
-  *outstream << "  <COMMENT_DESCRIPTION>" << getComment() << "</COMMENT_DESCRIPTION>"			     << endl ;
-  *outstream << "  <CREATED_BY_USER>"     << getAuthor()  << "</CREATED_BY_USER>"  			     << endl ;
+  *outstream << "  <VERSION>" << version << "</VERSION>"				         	     << endl ;
 }
 
 //=============================================================================================

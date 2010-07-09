@@ -7,9 +7,8 @@
 #include <cstdio>
 
 namespace evf{
+
   //______________________________________________________________________________
-
-
   static size_t write_data(void *ptr, size_t size, size_t nmemb, void *pointer)
   {
     using std::string;

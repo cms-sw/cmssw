@@ -48,18 +48,24 @@ public:
 private:
 
  int ievt_;
- int module ; int sector; double energy ;
+ int castorModule ; int castorSector; double castorEnergy ;
  int status; int numOK;
- int counter1; int counter2;
- double counter1_; double counter2_;
 
  std::string histo;
 
  double nThreshold_;
  double dThreshold_;
  int aboveNoisyThreshold [14][16];
- int     aboveDThreshold [14][16];
-
+ int     belowDThreshold [14][16];
+ double  energyArray     [14][16];
+ int     aboveThr        [14][16];
+ int counter1;
+ int counter2;
+ double wcounter1;
+ double wcounter2;
+ double averageEnergy;
+ 
+ bool averageEnergyMethod_;
  bool offline_;
  bool iRecHit;
  MonitorElement* reportSummary;
@@ -67,7 +73,7 @@ private:
  MonitorElement* overallStatus;
  double fraction;
 
-
+ 
 
 };
 

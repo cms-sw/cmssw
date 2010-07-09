@@ -11,8 +11,8 @@
 
 /** \class HcalDeadCellMonitor
   *
-  * $Date: 2010/03/25 11:00:57 $
-  * $Revision: 1.43 $
+  * $Date: 2010/03/25 16:58:27 $
+  * $Revision: 1.44 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -81,15 +81,13 @@ class HcalDeadCellMonitor: public HcalBaseDQMonitor {
   MonitorElement *Nevents;
 
   MonitorElement *HBDeadVsEvent, *HEDeadVsEvent, *HODeadVsEvent, *HFDeadVsEvent;
-
   bool present_digi[85][72][4]; // tests that a good digi was present at least once
   bool present_rechit[85][72][4]; // tests that rechit with energy > threshold at least once
   unsigned int recentoccupancy_digi[85][72][4]; // tests that cells haven't gone missing for long periods
   unsigned int recentoccupancy_rechit[85][72][4]; // tests that cells haven't dropped below threshold for long periods
   
   int deadevt_; // running count of events processed since last dead cell check
-  int NumBadHB, NumBadHE, NumBadHO, NumBadHF;
-
+  int NumBadHB, NumBadHE, NumBadHO, NumBadHF, NumBadHFLUMI, NumBadHO0, NumBadHO12;
   edm::InputTag digiLabel_;
   edm::InputTag hbheRechitLabel_, hoRechitLabel_, hfRechitLabel_;
 

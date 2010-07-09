@@ -30,7 +30,7 @@ public:
    * State of the track at the PCA to the beamline
    */
 
-  FTS const & trackStateAtPCA() const {
+  FTS trackStateAtPCA() const {
     if (!isValid()) throw TrajectoryStateException(
       "TrajectoryStateClosestToBeamLine is invalid.");
     return theFTS;
@@ -39,7 +39,7 @@ public:
   /**
    * Point on the beamline which is the closest to the track
    */
-  GlobalPoint const & beamLinePCA() const {
+  GlobalPoint beamLinePCA() const {
     if (!isValid()) throw TrajectoryStateException(
       "TrajectoryStateClosestToBeamLine is invalid.");
     return thePointOnBeamLine;
@@ -54,7 +54,7 @@ public:
   /**
    * The beamline
    */
-  reco::BeamSpot const & beamSpot() {
+  reco::BeamSpot beamSpot() {
     if (!isValid()) throw TrajectoryStateException(
       "TrajectoryStateClosestToBeamLine is invalid.");
     return theBeamSpot;

@@ -1,8 +1,5 @@
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexSeed.h"
 
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/Math/interface/Point3D.h"
-
 using namespace std;
 using namespace reco;
 
@@ -68,36 +65,10 @@ void PFDisplacedVertexSeed::mergeWith(const PFDisplacedVertexSeed& displacedVert
 }
 
 
-void PFDisplacedVertexSeed::Dump( ostream& out ) const {
-  if(! out ) return;
 
-  out<<"\t--- DisplacedVertexSeed ---  "<<endl;
-  out<<"\tnumber of elements: "<<elements_.size()<<endl;
-  
-  // Build element label (string) : elid from type, layer and occurence number
-  // use stringstream instead of sprintf to concatenate string and integer into string
-  for(IEset ie = elements_.begin(); ie !=  elements_.end(); ie++){
+ostream& operator<<(  ostream& out, 
+		      const reco::PFDisplacedVertexSeed& a ) {
 
-    math::XYZPoint Pi((*ie).get()->innerPosition());
-    math::XYZPoint Po((*ie).get()->outerPosition());
-
-    float innermost_radius = sqrt(Pi.x()*Pi.x() + Pi.y()*Pi.y() + Pi.z()*Pi.z());
-    float outermost_radius = sqrt(Po.x()*Po.x() + Po.y()*Po.y() + Po.z()*Po.z());
-    float innermost_rho = sqrt(Pi.x()*Pi.x() + Pi.y()*Pi.y());
-    float outermost_rho = sqrt(Po.x()*Po.x() + Po.y()*Po.y());
-    
-    double pt = (*ie)->pt();
-
-
-    out<<"ie = " << (*ie).key() << " pt = " << pt
-       <<" innermost hit radius = " << innermost_radius << " rho = " << innermost_rho
-       <<" outermost hit radius = " << outermost_radius << " rho = " << outermost_rho
-       <<endl;
-  }
-   
-  out<<endl;
-
+  return out;
 
 }
-  
-

@@ -40,8 +40,8 @@ public:
 			      int iphi, bool corr=true) const;
   std::vector<double> getEtaTable() const;
   unsigned int   numberOfCells(HcalSubdetector) const;
-  std::vector<HcalCellType::HcalCellType> HcalCellTypes() const;
-  std::vector<HcalCellType::HcalCellType> HcalCellTypes(HcalSubdetector) const;
+  std::vector<HcalCellType> HcalCellTypes() const;
+  std::vector<HcalCellType> HcalCellTypes(HcalSubdetector) const;
   void           printTile();
 
 private:

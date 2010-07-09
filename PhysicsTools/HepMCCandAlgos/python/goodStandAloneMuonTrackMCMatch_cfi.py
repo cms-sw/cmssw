@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-goodStandAloneMuonTrackMCMatch = cms.EDFilter("MCMatcher",
+goodStandAloneMuonTrackMCMatch = cms.EDProducer("MCMatcher",
     src = cms.InputTag("goodStandAloneMuonTracks"),
     maxDPtRel = cms.double(1.0),
     mcPdgId = cms.vint32(13), ## muons

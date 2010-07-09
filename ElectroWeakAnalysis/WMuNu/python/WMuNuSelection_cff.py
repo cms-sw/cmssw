@@ -1,4 +1,4 @@
-#import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.Config as cms
 
 from ElectroWeakAnalysis.WMuNu.wmunusProducer_cfi import *
 
@@ -13,9 +13,9 @@ selcorMet = cms.EDFilter("WMuNuSelector",
 
       # Input collections ->
       MuonTag = cms.untracked.InputTag("muons"),
-      #TrigTag = cms.untracked.InputTag("TriggerResults::HLT8E29"),
-      TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
-      JetTag = cms.untracked.InputTag("ak5CaloJets"),
+      TrigTag = cms.untracked.InputTag("TriggerResults::HLT8E29"),
+      #TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
+      JetTag = cms.untracked.InputTag("antikt5CaloJets"),
       WMuNuCollectionTag = cms.untracked.InputTag("corMetWMuNus"),
 
       # Preselection! 
@@ -41,7 +41,6 @@ selcorMet = cms.EDFilter("WMuNuSelector",
       DxyCut = cms.untracked.double(0.2),
       NormalizedChi2Cut = cms.untracked.double(10.),
       TrackerHitsCut = cms.untracked.int32(11),
-      MuonHitsCut = cms.untracked.int32(1),
       IsAlsoTrackerMuon = cms.untracked.bool(True),
 
       # Select only W-, W+ ( default is all Ws)  
@@ -55,9 +54,9 @@ selpfMet = cms.EDFilter("WMuNuSelector",
 
       # Input collections ->
       MuonTag = cms.untracked.InputTag("muons"),
-      #TrigTag = cms.untracked.InputTag("TriggerResults::HLT8E29"),
-      TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
-      JetTag = cms.untracked.InputTag("ak5CaloJets"),
+      TrigTag = cms.untracked.InputTag("TriggerResults::HLT8E29"),
+      #TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
+      JetTag = cms.untracked.InputTag("antikt5CaloJets"),
       WMuNuCollectionTag = cms.untracked.InputTag("pfMetWMuNus"),
 
       # Preselection! 
@@ -84,7 +83,6 @@ selpfMet = cms.EDFilter("WMuNuSelector",
       DxyCut = cms.untracked.double(0.2),
       NormalizedChi2Cut = cms.untracked.double(10.),
       TrackerHitsCut = cms.untracked.int32(11),
-      MuonHitsCut = cms.untracked.int32(1),
       IsAlsoTrackerMuon = cms.untracked.bool(True),
 
       # Select only W-, W+ ( default is all Ws)
@@ -98,9 +96,9 @@ seltcMet = cms.EDFilter("WMuNuSelector",
 
       # Input collections ->
       MuonTag = cms.untracked.InputTag("muons"),
-      #TrigTag = cms.untracked.InputTag("TriggerResults::HLT8E29"),
-      TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
-      JetTag = cms.untracked.InputTag("ak5CaloJets"),
+      TrigTag = cms.untracked.InputTag("TriggerResults::HLT8E29"),
+      #TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
+      JetTag = cms.untracked.InputTag("antikt5CaloJets"),
       WMuNuCollectionTag = cms.untracked.InputTag("tcMetWMuNus"),
 
       # Preselection! 
@@ -127,7 +125,6 @@ seltcMet = cms.EDFilter("WMuNuSelector",
       DxyCut = cms.untracked.double(0.2),
       NormalizedChi2Cut = cms.untracked.double(10.),
       TrackerHitsCut = cms.untracked.int32(11),
-      MuonHitsCut = cms.untracked.int32(1),
       IsAlsoTrackerMuon = cms.untracked.bool(True),
 
       # Select only W-, W+ ( default is all Ws)

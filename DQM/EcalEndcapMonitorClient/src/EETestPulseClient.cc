@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2010/03/27 20:08:00 $
- * $Revision: 1.112 $
+ * $Date: 2010/04/14 16:13:40 $
+ * $Revision: 1.114 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1086,6 +1086,8 @@ void EETestPulseClient::analyze(void) {
 
         for ( unsigned int i=0; i<superModules_.size(); i++ ) {
           int ism = superModules_[i];
+          std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+          if (iter == superModules_.end()) continue;
           if ( iz == -1 && ( ism >=  1 && ism <=  9 ) ) {
             int jx = 101 - ix - Numbers::ix0EE(ism);
             int jy = iy - Numbers::iy0EE(ism);
@@ -1111,6 +1113,8 @@ void EETestPulseClient::analyze(void) {
 
         for ( unsigned int i=0; i<superModules_.size(); i++ ) {
           int ism = superModules_[i];
+          std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+          if (iter == superModules_.end()) continue;
           if ( iz == -1 && ( ism >=  1 && ism <=  9 ) ) {
             int jx = 101 - ix - Numbers::ix0EE(ism);
             int jy = iy - Numbers::iy0EE(ism);
@@ -1136,6 +1140,8 @@ void EETestPulseClient::analyze(void) {
 
         for ( unsigned int i=0; i<superModules_.size(); i++ ) {
           int ism = superModules_[i];
+          std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+          if (iter == superModules_.end()) continue;
           if ( iz == -1 && ( ism >=  1 && ism <=  9 ) ) {
             int jx = 101 - ix - Numbers::ix0EE(ism);
             int jy = iy - Numbers::iy0EE(ism);
@@ -1163,11 +1169,14 @@ void EETestPulseClient::analyze(void) {
         if ( strcmp(ecid.getMapsTo().c_str(), "EE_readout_tower") != 0 ) continue;
 
         int idcc = ecid.getID1() - 600;
-        int itt = ecid.getID2();
 
         int ism = -1;
         if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
         if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
+
+        int itt = ecid.getID2();
 
         if ( itt > 70 ) continue;
 
@@ -1196,11 +1205,14 @@ void EETestPulseClient::analyze(void) {
         if ( strcmp(ecid.getMapsTo().c_str(), "EE_readout_tower") != 0 ) continue;
 
         int idcc = ecid.getID1() - 600;
-        int itt = ecid.getID2();
 
         int ism = -1;
         if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
         if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
+
+        int itt = ecid.getID2();
 
         if ( itt > 70 ) continue;
 
@@ -1229,11 +1241,14 @@ void EETestPulseClient::analyze(void) {
         if ( strcmp(ecid.getMapsTo().c_str(), "EE_readout_tower") != 0 ) continue;
 
         int idcc = ecid.getID1() - 600;
-        int itt = ecid.getID2();
 
         int ism = -1;
         if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
         if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
+
+        int itt = ecid.getID2();
 
         if ( itt > 70 ) continue;
 
@@ -1269,11 +1284,14 @@ void EETestPulseClient::analyze(void) {
         if ( strcmp(ecid.getMapsTo().c_str(), "EE_LM_PN") != 0 ) continue;
 
         int idcc = ecid.getID1() - 600;
-        int i = ecid.getID2() - 1;
 
         int ism = -1;
         if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
         if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
+
+        int i = ecid.getID2() - 1;
 
         UtilsClient::maskBinContent( meg04_[ism-1], i, 1 );
 
@@ -1285,11 +1303,14 @@ void EETestPulseClient::analyze(void) {
         if ( strcmp(ecid.getMapsTo().c_str(), "EE_LM_PN") != 0 ) continue;
 
         int idcc = ecid.getID1() - 600;
-        int i = ecid.getID2() - 1;
 
         int ism = -1;
         if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
         if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        if (iter == superModules_.end()) continue;
+
+        int i = ecid.getID2() - 1;
 
         UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
 

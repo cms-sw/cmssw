@@ -67,14 +67,9 @@ HLTTauDQMTrkPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
    Handle<IsolatedTauTagInfoCollection> tauTagInfos;
    Handle<CaloJetCollection> isolJets;			   
 
-     bool gotL3 =true;
-     try {
-       gotL3*= iEvent.getByLabel(jetTagSrc_, tauTagInfos);
-     }
-     catch (cms::Exception& exception) {
-       gotL3 =false;
-     }
-  
+
+   bool   gotL3= iEvent.getByLabel(jetTagSrc_, tauTagInfos) &&tauTagInfos.isValid();
+
      if(gotL3)
      {
 	     for(unsigned int i=0;i<tauTagInfos->size();++i)
@@ -112,13 +107,9 @@ HLTTauDQMTrkPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 			 EtaEffDenom->Fill(refV.eta());
 			 PhiEffDenom->Fill(refV.phi());
 
-			 bool gotIsoL3 =true;
-			 try {
-			   gotIsoL3*= iEvent.getByLabel(isolJets_, isolJets);
-			 }
-			 catch (cms::Exception& exception) {
-			   gotIsoL3 =false;
-			 }
+
+			 bool  gotIsoL3= iEvent.getByLabel(isolJets_, isolJets) && isolJets.isValid();
+
 
 
 			 if(gotIsoL3)

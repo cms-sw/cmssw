@@ -20,7 +20,7 @@ import FWCore.ParameterSet.Config as cms
 
 simpleTrackListMerger = cms.EDProducer("SimpleTrackListMerger",
     # minimum shared fraction to be called duplicate
-    ShareFrac = cms.double(0.66),
+    ShareFrac = cms.double(0.19),
     # minimum pT in GeV/c
     MinPT = cms.double(0.05),
     # minimum difference in rechit position in cm

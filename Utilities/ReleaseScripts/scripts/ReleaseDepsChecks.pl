@@ -167,8 +167,9 @@ sub checkDependency()
     }
     if ($stat == 0)
     {
-      if (exists $cache->{DEPS}{$prod}{DIRECT}{$dep}){print "  ****ERROR: Dependency violation (direct): $dep\n";}
-      else{print "  ****ERROR: Dependency violation (Indirect): $dep\n";}
+      my $type="indirect";
+      if (exists $cache->{DEPS}{$prod}{DIRECT}{$dep}){$type="direct"}
+      print "  ****ERROR: Dependency violation ($type): $fprod $dep\n";
       if ($detail){&searchDeps($prod,$dep,$cache,"  ");}
     }
     elsif ($isTool){push @allowed,$dep;}

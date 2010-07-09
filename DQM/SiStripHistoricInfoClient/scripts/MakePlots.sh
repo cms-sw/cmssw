@@ -1,19 +1,18 @@
 #!/bin/sh
 
-DBName=$1
-TagName=$2
-Password=$3
-RunStart=$4
-RunEnd=$5
+TagName=$1
+Password=$2
+RunStart=$3
+RunEnd=$4
 
 PlotDir="CurrentPlots"
 
 rm -rf $PlotDir
 
-if [ $5 ]; then
-SiStripHDQMInspector $DBName $TagName $Password $RunStart $RunEnd
+if [ $4 ]; then
+SiStripHDQMInspector $TagName $Password $RunStart $RunEnd
 else
-SiStripHDQMInspector $DBName $TagName $Password $RunStart
+SiStripHDQMInspector $TagName $Password $RunStart
 fi
 mkdir -pv $PlotDir
 mv *.gif $PlotDir

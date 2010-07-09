@@ -7,7 +7,7 @@ patJetCorrFactors = cms.EDProducer("JetCorrFactorsProducer",
      ## input collection of jets
      jetSource  = cms.InputTag("ak5CaloJets"),
      ## set of correction factors
-     corrSample = cms.string("Summer09_7TeV_ReReco332"),
+     corrSample = cms.string("Spring10"),
      ## correction levels
      corrLevels = cms.PSet(
        ## tags for the individual jet corrections; when

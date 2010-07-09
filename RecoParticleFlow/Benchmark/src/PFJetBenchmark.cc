@@ -170,8 +170,10 @@ void PFJetBenchmark::setup(
   DBOOK1D(RPt1250_2000,#DeltaP_{T}/P_{T},160,-1,1);
   DBOOK1D(RPt2000_5000,#DeltaP_{T}/P_{T},160,-1,1);
 
-  DBOOK2D(DEtavsPt,#Delta#eta vs P_{T},1000,0,2000,200,-0.2,0.2);
-  DBOOK2D(DPhivsPt,#Delta#phi vs P_{T},1000,0,2000,200,-0.2,0.2);
+  DBOOK2D(DEtavsPt,#Delta#eta vs P_{T},1000,0,2000,500,-0.5,0.5);
+  DBOOK2D(DPhivsPt,#Delta#phi vs P_{T},1000,0,2000,500,-0.5,0.5);
+  BOOK2D(DEtavsEta,"#Delta#eta vs P_{T}",1000,-5.,+5.,500,-0.5,0.5);
+  BOOK2D(DPhivsEta,"#Delta#phi vs P_{T}",1000,-5.,+5.,500,-0.5,0.5);
 	
  // Set Axis Titles
  
@@ -186,6 +188,8 @@ void PFJetBenchmark::setup(
   SETAXES(RHONLvsEta, "#eta", "#DeltaE/E (HCAL Only)");
   SETAXES(RCHEvsEta, "#eta", "#DeltaE/E (Charged)");
   SETAXES(RPtvsEta, "#eta", "#DeltaP_{T}/P_{T}");
+  SETAXES(DEtavsEta, "#eta", "#Delta#eta");
+  SETAXES(DPhivsEta,"#eta", "#Delta#phi");
   // delta Pt or E quantities for Barrel and Endcap
   DSETAXES(RPt, "#DeltaP_{T}/P_{T}", "Events");
   DSETAXES(RPt20_40, "#DeltaP_{T}/P_{T}", "Events");
@@ -262,7 +266,7 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
     bool Forward = false;
     if (abs(rec_eta) < 1.4 ) Barrel = true;
     if (abs (rec_eta) > 1.6 && abs (rec_eta) < 2.4 ) Endcap = true;
-    if (abs (rec_eta) > 3.5 && abs (rec_eta) < 4.5 ) Forward = true;
+    if (abs (rec_eta) > 3.3 && abs (rec_eta) < 4.7 ) Forward = true;
 
     // do only barrel for now
     //  if(!Barrel) continue;
@@ -397,6 +401,9 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
       // Print outliers for further debugging
       if ( ( resPt > 0.2 && true_pt > 100. ) || 
 	   ( resPt < -0.5 && true_pt > 100. ) ) {
+	//if ( ( true_pt > 50. && 
+	//     ( ( truth->eta()>3.0 && rec_eta-truth->eta() < -0.1 ) || 
+	//       ( truth->eta()<-3.0 && rec_eta-truth->eta() > 0.1 ) ))) {
 	std::cout << "Entry " << entry_ 
 		  << " resPt = " << resPt
 		  <<" resCharged  " << resChargedHadEnergy
@@ -469,7 +476,13 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
       }
 			
 
-      if(plot1) { 
+      if(plot1) {
+	if ( rec_eta > 0. ) 
+	  hDEtavsEta->Fill(true_eta,rec_eta-true_eta);
+	else
+	  hDEtavsEta->Fill(true_eta,-rec_eta+true_eta);
+	hDPhivsEta->Fill(true_eta,rec_phi-true_phi);
+
 	hRPtvsEta->Fill(true_eta, resPt);
 	hNCHvsEta->Fill(true_eta, rec_ChargedMultiplicity);
 	hNCH0vsEta->Fill(true_eta,chMult[0]);
