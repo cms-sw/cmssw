@@ -29,7 +29,6 @@ const AlgebraicVector6 & ParticleKinematicLinearizedTrackState::parametersFromEx
 AlgebraicVector6 ParticleKinematicLinearizedTrackState::predictedStateParameters() const
 {
  if(!jacobiansAvailable) computeJacobians();
-// cout<<"Kinematic predicted state parameters: "<<thePredState.perigeeParameters().vector()<<endl;
  return thePredState.perigeeParameters().vector();
 }
   
@@ -83,6 +82,9 @@ void  ParticleKinematicLinearizedTrackState::computeJacobians() const
 {
  GlobalPoint paramPt(theLinPoint);
  thePredState = builder(part->currentState(), paramPt); 
+//  bool valid = thePredState.isValid();
+//  if (!valid) std::cout <<"Help!!!!!!!!! State is invalid\n";
+//  if (!valid) return;
  if (abs(theCharge)<1e-5) {
 
 //neutral track
@@ -94,6 +96,7 @@ void  ParticleKinematicLinearizedTrackState::computeJacobians() const
  } 
  jacobiansAvailable = true;
 }
+
 ReferenceCountingPointer<LinearizedTrackState<6> >
 ParticleKinematicLinearizedTrackState::stateWithNewLinearizationPoint
   	                                           (const GlobalPoint & newLP) const
@@ -110,7 +113,7 @@ ParticleKinematicLinearizedTrackState::createRefittedTrackState(
  KinematicPerigeeConversions conversions;  
  KinematicState lst = conversions.kinematicState(vectorParameters, vertexPosition,
 		charge(), covarianceMatrix, part->currentState().magneticField()); 
- RefCountedRefittedTrackState rst =  RefCountedRefittedTrackState(new KinematicRefittedTrackState(lst));  
+ RefCountedRefittedTrackState rst =  RefCountedRefittedTrackState(new KinematicRefittedTrackState(lst,vectorParameters));  
  return rst;
 }						   
 	
@@ -158,13 +161,20 @@ ParticleKinematicLinearizedTrackState::components()const
 AlgebraicVector6 ParticleKinematicLinearizedTrackState::refittedParamFromEquation(
 	const RefCountedRefittedTrackState & theRefittedState) const
 {
+  AlgebraicVectorM momentum = theRefittedState->momentumVector();
+  if ((momentum(2)*predictedStateMomentumParameters()(2) <  0)&&(fabs(momentum(2))>M_PI/2) ) {
+    if (predictedStateMomentumParameters()(2) < 0.) momentum(2)-= 2*M_PI;
+    if (predictedStateMomentumParameters()(2) > 0.) momentum(2)+= 2*M_PI;
+  }
+
   AlgebraicVector3 vertexPosition;
   vertexPosition(0) = theRefittedState->position().x();
   vertexPosition(1) = theRefittedState->position().y();
   vertexPosition(2) = theRefittedState->position().z();
   AlgebraicVector6 param = constantTerm() + 
 		       positionJacobian() * vertexPosition +
-		       momentumJacobian() * theRefittedState->momentumVector();
+		       momentumJacobian() * momentum;
+
   if (param(2) >  M_PI) param(2)-= 2*M_PI;
   if (param(2) < -M_PI) param(2)+= 2*M_PI;
 
@@ -182,7 +192,6 @@ void ParticleKinematicLinearizedTrackState::checkParameters(AlgebraicVector6 & p
 void ParticleKinematicLinearizedTrackState::computeChargedJacobians() const
 {
  GlobalPoint paramPt(theLinPoint);
-// thePredState = builder(part->currentState(), paramPt);
  
  double field  = part->currentState().magneticField()->inInverseGeV(thePredState.theState().globalPosition()).z();
  double signTC = -part->currentState().particleCharge();
@@ -344,7 +353,7 @@ void ParticleKinematicLinearizedTrackState::computeNeutralJacobians() const
  momentumAtExpansionPoint[1] = thetaAtEP;
  momentumAtExpansionPoint[2] = phiAtEP; 
  momentumAtExpansionPoint[3] = theExpandedParams[5];
- 
+
  theConstantTerm = AlgebraicVector6( theExpandedParams -
       		   thePositionJacobian * expansionPoint -
   		   theMomentumJacobian * momentumAtExpansionPoint );		   
