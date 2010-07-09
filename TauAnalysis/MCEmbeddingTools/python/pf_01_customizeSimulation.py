@@ -52,8 +52,6 @@ def customise(process):
   process._Process__name="SELECTandSIM"
 
 
-  keepMC = cms.untracked.vstring("keep *_*_zMusExtracted_*")
-  process.output.outputCommands.extend(keepMC)
   process.TFileService = cms.Service("TFileService",  fileName = cms.string("histo.root")          )
 
   process.tmfTracks = cms.EDProducer("RecoTracksMixer",
@@ -64,23 +62,37 @@ def customise(process):
   process.offlinePrimaryVerticesWithBS.TrackLabel = cms.InputTag("tmfTracks")
   process.offlinePrimaryVertices.TrackLabel = cms.InputTag("tmfTracks")
 
-  print "Changing eventcontent to AODSIM + *_generator_*_*"
+  print "Changing eventcontent to AODSIM + misc "
   process.output.outputCommands = process.AODSIMEventContent.outputCommands
-  process.extraEventContent = cms.PSet(
-     outputCommands = cms.untracked.vstring(   'keep *_generator_*_*' )
-  ) 
-  process.output.outputCommands.extend(process.extraEventContent.outputCommands)
-                                            
+  keepMC = cms.untracked.vstring("keep *_*_zMusExtracted_*",
+                                 "keep *_dimuonsGlobal_*_*",
+                                 'keep *_generator_*_*'
+  )
+  process.output.outputCommands.extend(keepMC)
 
-  process.iterativeTracking.__iadd__(process.tmfTracks)
+  if  hasattr(process,"iterativeTracking" ) :
+    process.iterativeTracking.__iadd__(process.tmfTracks)
+  elif hasattr(process,"trackCollectionMerging" ) :
+    process.trackCollectionMerging.__iadd__(process.tmfTracks)
+  else :
+    raise "Cannot find tracking sequence"
 
   process.particleFlowORG = process.particleFlow.clone()
-  process.famosParticleFlowSequence.remove(process.pfElectronTranslatorSequence)
-  process.famosParticleFlowSequence.remove(process.particleFlow)
-  process.famosParticleFlowSequence.__iadd__(process.particleFlowORG)
-  process.famosParticleFlowSequence.__iadd__(process.particleFlow)
-  process.famosParticleFlowSequence.__iadd__(process.pfElectronTranslatorSequence)
-    
+  if hasattr(process,"famosParticleFlowSequence"):
+    process.famosParticleFlowSequence.remove(process.pfElectronTranslatorSequence)
+    process.famosParticleFlowSequence.remove(process.particleFlow)
+    process.famosParticleFlowSequence.__iadd__(process.particleFlowORG)
+    process.famosParticleFlowSequence.__iadd__(process.particleFlow)
+    process.famosParticleFlowSequence.__iadd__(process.pfElectronTranslatorSequence)
+  elif hasattr(process,"particleFlowReco"):
+    process.particleFlowReco.remove(process.pfElectronTranslatorSequence)
+    process.particleFlowReco.remove(process.particleFlow)
+    process.particleFlowReco.__iadd__(process.particleFlowORG)
+    process.particleFlowReco.__iadd__(process.particleFlow)
+    process.particleFlowReco.__iadd__(process.pfElectronTranslatorSequence)
+  else :
+    raise "Cannot find tracking sequence"
+
   process.particleFlow =  cms.EDProducer('PFCandidateMixer',
           col1 = cms.untracked.InputTag("dimuonsGlobal","forMixing"),
           col2 = cms.untracked.InputTag("particleFlowORG", "")
