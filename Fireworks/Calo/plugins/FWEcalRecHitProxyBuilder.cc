@@ -17,39 +17,37 @@
 class FWEcalRecHitProxyBuilder : public FWSimpleProxyBuilderTemplate<EcalRecHit>
 {
 public:
-	FWEcalRecHitProxyBuilder( void ) 
-    {}
+   FWEcalRecHitProxyBuilder( void ) {}
 	
-	virtual ~FWEcalRecHitProxyBuilder( void ) 
-    {}
+   virtual ~FWEcalRecHitProxyBuilder( void ) {}
 	
-	REGISTER_PROXYBUILDER_METHODS();
+   REGISTER_PROXYBUILDER_METHODS();
 	
 private:
-	// Disable default copy constructor
-	FWEcalRecHitProxyBuilder( const FWEcalRecHitProxyBuilder& );
-	// Disable default assignment operator
-	const FWEcalRecHitProxyBuilder& operator=( const FWEcalRecHitProxyBuilder& );
+   // Disable default copy constructor
+   FWEcalRecHitProxyBuilder( const FWEcalRecHitProxyBuilder& );
+   // Disable default assignment operator
+   const FWEcalRecHitProxyBuilder& operator=( const FWEcalRecHitProxyBuilder& );
 	
-	void build( const EcalRecHit& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* );
+   void build( const EcalRecHit& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* );
 };
 
 void
 FWEcalRecHitProxyBuilder::build( const EcalRecHit& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) 
 {
-	std::vector<TEveVector> corners = item()->getGeom()->getPoints( iData.detid() );
-	if( corners.empty() ) {
-		return;
-	}
-	Float_t scale = 10.0;
-	bool reflect = false;
-	if( EcalSubdetector( iData.detid().subdetId() ) == EcalPreshower )
-	{
-		scale = 1000.0; 	// FIXME: The scale should be taken form somewhere else
-		( corners[0].fZ < 0.0 ) ? reflect = true : reflect = false;
-	}
-	
-	fireworks::drawEnergyTower3D( corners, iData.energy() * scale, &oItemHolder, this, reflect );
+   std::vector<TEveVector> corners = item()->getGeom()->getPoints( iData.detid() );
+   if( corners.empty() ) {
+      return;
+   }
+   Float_t scale = 10.0;
+   bool reflect = false;
+   if( EcalSubdetector( iData.detid().subdetId() ) == EcalPreshower )
+   {
+      scale = 1000.0; 	// FIXME: The scale should be taken form somewhere else
+      ( corners[0].fZ < 0.0 ) ? reflect = true : reflect = false;
+   }
+   
+   fireworks::drawEnergyTower3D( corners, iData.energy() * scale, &oItemHolder, this, reflect );
 }
 
 REGISTER_FWPROXYBUILDER( FWEcalRecHitProxyBuilder, EcalRecHit, "Ecal RecHit", FWViewType::kISpyBit );
