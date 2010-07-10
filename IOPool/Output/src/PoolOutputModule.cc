@@ -294,6 +294,8 @@ namespace edm {
     desc.addUntracked<bool>("overrideInputFileSplitLevels", false);
     desc.addUntracked<std::string>("dropMetaData", defaultString);
     ParameterSetDescription dataSet;
+    dataSet.addUntracked<std::string>("dataTier", defaultString);
+    dataSet.addUntracked<std::string>("filterName", defaultString);
     desc.addUntracked<ParameterSetDescription>("dataset", dataSet);
 
     OutputModule::fillDescription(desc);
