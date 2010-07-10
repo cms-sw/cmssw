@@ -5,6 +5,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -141,6 +143,18 @@ public:
     if (!native("gsidcap"))   addType(mgr, "^gsidcap:");
     if (!native("storm"))     addType(mgr, "^storm:");
     if (!native("storm-lcg")) addType(mgr, "^storm-lcg:");
+  }
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.addOptionalUntracked<bool>("enable");
+    desc.addOptionalUntracked<bool>("stats");
+    desc.addOptionalUntracked<std::string>("cacheHint");
+    desc.addOptionalUntracked<std::string>("readHint");
+    desc.addOptionalUntracked<std::string>("tempDir");
+    desc.addOptionalUntracked<double>("tempMinFree");
+    desc.addOptionalUntracked<std::vector<std::string> >("native");
+    descriptions.add("AdaptorConfig", desc);
   }
 
   // Write current Storage statistics on a ostream
