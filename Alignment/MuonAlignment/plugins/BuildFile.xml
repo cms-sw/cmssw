@@ -1,6 +1,5 @@
-<use name="Alignment/MuonAlignment" />
-
 <library name="MisalignedMuonESProducer" file="MisalignedMuonESProducer.cc">
+  <use name="Alignment/MuonAlignment" />
   <flags EDM_PLUGIN="1" />
 </library>
 
@@ -9,6 +8,7 @@
   <use name="FWCore/ParameterSet" />
   <use name="FWCore/MessageLogger" />
   <use name="Alignment/CommonAlignment" />
+  <use name="Alignment/MuonAlignment" />
   <flags EDM_PLUGIN="1" />
 </library>
 
@@ -27,6 +27,7 @@
 
 <library name="MuonGeometryArrange" file="MuonGeometryArrange.cc">
   <use name="Alignment/CommonAlignment" />
+  <use name="Alignment/MuonAlignment" />
   <use name="CLHEP" />
   <use name="rootcore" />
   <use name="rootgraphics" />
