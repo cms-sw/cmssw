@@ -407,7 +407,8 @@ namespace edm {
     return moduleDescription_;
   }
 
-  bool OutputModule::selected(BranchDescription const& desc) const {
+  bool
+  OutputModule::selected(BranchDescription const& desc) const {
     return groupSelector_.selected(desc);
   }
 
@@ -416,6 +417,12 @@ namespace edm {
     ParameterSetDescription desc;
     desc.setUnknown();
     descriptions.addDefault(desc);
+  }
+
+  void
+  OutputModule::fillDescription(ParameterSetDescription& desc) {
+    GroupSelectorRules::fillDescription(desc, "outputCommands");
+    EventSelector::fillDescription(desc);
   }
 
   static const std::string kBaseType("OutputModule");

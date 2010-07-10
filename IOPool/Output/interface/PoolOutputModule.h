@@ -22,6 +22,7 @@ class TTree;
 namespace edm {
   class ParameterSet;
   class RootOutputFile;
+  class ConfigurationDescriptions;
 
   class PoolOutputModule : public OutputModule {
   public:
@@ -44,6 +45,8 @@ namespace edm {
     int const& whyNotFastClonable() const {return whyNotFastClonable_;}
 
     std::string const& currentFileName() const;
+
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
     using OutputModule::selectorConfig;
 

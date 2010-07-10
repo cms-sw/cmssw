@@ -1,5 +1,3 @@
-// $Id: GroupSelectorRules.cc,v 1.1 2008/06/05 23:17:05 wmtan Exp $
-
 #include <algorithm>
 #include <iterator>
 #include <ostream>
@@ -10,6 +8,7 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "FWCore/Framework/interface/GroupSelectorRules.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 
@@ -225,6 +224,12 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
       partial_match(processName_, branch->processName());
   }
 
+  void
+  GroupSelectorRules::fillDescription(ParameterSetDescription& desc, char const* parameterName) {
+    std::vector<std::string> defaultStrings(1U, std::string("keep *"));
+    desc.addUntracked<std::vector<std::string> >(parameterName, defaultStrings);
+  }
+
   GroupSelectorRules::GroupSelectorRules(ParameterSet const& pset,
 			       std::string const& parameterName,
 			       std::string const& parameterOwnerName) :
@@ -247,4 +252,6 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
     }
     keepAll_ = commands.size() == 1 && commands[0] == defaultCommands[0];
   }
+
+
 }

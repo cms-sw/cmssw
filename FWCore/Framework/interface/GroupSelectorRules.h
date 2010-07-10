@@ -3,8 +3,6 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: GroupSelectorRules.h,v 1.1 2008/06/05 23:17:05 wmtan Exp $
-//
 // Class GroupSelectorRules. Class for rules to select specific groups in event.
 //
 // Author: Bill Tanenbaum, Marc Paterno
@@ -21,6 +19,7 @@ namespace edm {
   class BranchDescription;
   class GroupSelector;
   class ParameterSet;
+  class ParameterSetDescription;
 
   class GroupSelectorRules {
   public:
@@ -43,6 +42,8 @@ namespace edm {
     void applyToAll(std::vector<BranchSelectState>& branchstates) const;
 
     bool keepAll() const {return keepAll_;}
+
+    static void fillDescription(ParameterSetDescription& desc, char const* parameterName);
 
   private:
     class Rule {

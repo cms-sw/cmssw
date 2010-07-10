@@ -8,6 +8,8 @@
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
@@ -27,15 +29,15 @@ namespace edm {
     auxItems_(), 
     selectedOutputItemList_(), 
     fileName_(pset.getUntrackedParameter<std::string>("fileName")),
-    logicalFileName_(pset.getUntrackedParameter<std::string>("logicalFileName", std::string())),
-    catalog_(pset.getUntrackedParameter<std::string>("catalog", std::string())),
-    maxFileSize_(pset.getUntrackedParameter<int>("maxSize", 0x7f000000)),
-    compressionLevel_(pset.getUntrackedParameter<int>("compressionLevel", 7)),
-    basketSize_(pset.getUntrackedParameter<int>("basketSize", 16384)),
-    splitLevel_(std::min<int>(pset.getUntrackedParameter<int>("splitLevel", 99) + 1, 99)),
-    basketOrder_(pset.getUntrackedParameter<std::string>("sortBaskets", std::string("sortbasketsbyoffset"))),
-    treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize", -1)),
-    whyNotFastClonable_(pset.getUntrackedParameter<bool>("fastCloning", true) ? FileBlock::CanFastClone : FileBlock::DisabledInConfigFile),
+    logicalFileName_(pset.getUntrackedParameter<std::string>("logicalFileName")),
+    catalog_(pset.getUntrackedParameter<std::string>("catalog")),
+    maxFileSize_(pset.getUntrackedParameter<int>("maxSize")),
+    compressionLevel_(pset.getUntrackedParameter<int>("compressionLevel")),
+    basketSize_(pset.getUntrackedParameter<int>("basketSize")),
+    splitLevel_(std::min<int>(pset.getUntrackedParameter<int>("splitLevel") + 1, 99)),
+    basketOrder_(pset.getUntrackedParameter<std::string>("sortBaskets")),
+    treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize")),
+    whyNotFastClonable_(pset.getUntrackedParameter<bool>("fastCloning") ? FileBlock::CanFastClone : FileBlock::DisabledInConfigFile),
     dropMetaData_(DropNone),
     moduleLabel_(pset.getParameter<std::string>("@module_label")),
     initializedFromInput_(false),
@@ -43,9 +45,9 @@ namespace edm {
     inputFileCount_(0),
     childIndex_(0U),
     numberOfDigitsInIndex_(0U),
-    overrideInputFileSplitLevels_(pset.getUntrackedParameter<bool>("overrideInputFileSplitLevels", false)),
+    overrideInputFileSplitLevels_(pset.getUntrackedParameter<bool>("overrideInputFileSplitLevels")),
     rootOutputFile_() {
-      std::string dropMetaData(pset.getUntrackedParameter<std::string>("dropMetaData", std::string()));
+      std::string dropMetaData(pset.getUntrackedParameter<std::string>("dropMetaData"));
       if(dropMetaData.empty()) dropMetaData_ = DropNone;
       else if(dropMetaData == std::string("NONE")) dropMetaData_ = DropNone;
       else if(dropMetaData == std::string("DROPPED")) dropMetaData_ = DropDroppedPrior;
@@ -64,7 +66,7 @@ namespace edm {
     // We don't use this next parameter, but we read it anyway because it is part
     // of the configuration of this module.  An external parser creates the
     // configuration by reading this source code.
-    pset.getUntrackedParameter<ParameterSet>("dataset", ParameterSet());
+    pset.getUntrackedParameter<ParameterSet>("dataset");
   }
   
 
@@ -273,5 +275,29 @@ namespace edm {
       ofilename << suffix;
       rootOutputFile_.reset(new RootOutputFile(this, ofilename.str(), lfilename.str()));
       ++outputFileCount_;
+  }
+
+  void
+  PoolOutputModule::fillDescriptions(ConfigurationDescriptions & descriptions) {
+    std::string defaultString;
+    ParameterSetDescription desc;
+    desc.addUntracked<std::string>("fileName");
+    desc.addUntracked<std::string>("logicalFileName", defaultString);
+    desc.addUntracked<std::string>("catalog", defaultString);
+    desc.addUntracked<int>("maxSize", 0x7f000000);
+    desc.addUntracked<int>("compressionLevel", 7);
+    desc.addUntracked<int>("basketSize", 16384);
+    desc.addUntracked<int>("splitLevel", 99);
+    desc.addUntracked<std::string>("sortBaskets", std::string("sortbasketsbyoffset"));
+    desc.addUntracked<int>("treeMaxVirtualSize", -1);
+    desc.addUntracked<bool>("fastCloning", true);
+    desc.addUntracked<bool>("overrideInputFileSplitLevels", false);
+    desc.addUntracked<std::string>("dropMetaData", defaultString);
+    ParameterSetDescription dataSet;
+    desc.addUntracked<ParameterSetDescription>("dataset", dataSet);
+
+    OutputModule::fillDescription(desc);
+
+    descriptions.add("PoolOutputModule", desc);
   }
 }

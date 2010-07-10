@@ -59,6 +59,7 @@ namespace edm {
     std::string const& processName() const {return process_name_;}
     SelectionsArray const& keptProducts() const {return keptProducts_;}
 
+    static void fillDescription(ParameterSetDescription & desc);
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
     static const std::string& baseType();
 

@@ -38,6 +38,7 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/RegexMatch.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "boost/algorithm/string.hpp"
 #include "boost/regex.hpp"
@@ -1125,5 +1126,12 @@ namespace edm
       // exploiting word-size OR operations.
     return x;
   } // combine			   			      
+
+  void
+  EventSelector::fillDescription(ParameterSetDescription& desc) {
+    ParameterSetDescription selector;
+    selector.addOptional<std::vector<std::string> >("SelectEvents");
+    desc.addUntracked<ParameterSetDescription>("SelectEvents", selector);
+  }
 
 }
