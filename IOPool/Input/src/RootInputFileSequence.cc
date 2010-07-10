@@ -608,9 +608,7 @@ namespace edm {
     desc.addUntracked<std::string>("parametersMustMatch", defaultString);
     desc.addUntracked<std::string>("branchesMustMatch", defaultString);
 
-    std::vector<std::string> defaultStrings(1U, std::string("keep *"));
-    desc.addUntracked<std::vector<std::string> >("inputCommands", defaultStrings);
-
+    GroupSelectorRules::fillDescription(desc, "inputCommands");
     EventSkipperByID::fillDescription(desc);
     DuplicateChecker::fillDescription(desc);
   }
