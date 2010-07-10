@@ -18,7 +18,8 @@
   <use name="DataFormats/GeometryVector" />
   <use name="DataFormats/DetId" />
   <use name="DataFormats/MuonDetId" />
-  <use name="Geometry/CommonDetUnit" />
+  <use name="Geometry/DTGeometry" />
+  <use name="Geometry/CSCGeometry" />
   <use name="Geometry/Records" />
   <use name="clhep" />
   <flags EDM_PLUGIN="1" />

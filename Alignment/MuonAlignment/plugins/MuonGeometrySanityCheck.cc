@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Sat Jul  3 13:33:13 CDT 2010
-// $Id: MuonGeometrySanityCheck.cc,v 1.14 2010/01/04 17:04:08 mussgill Exp $
+// $Id: MuonGeometrySanityCheck.cc,v 1.1 2010/07/10 00:24:50 pivarski Exp $
 //
 //
 
@@ -28,8 +28,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
-#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -556,8 +557,11 @@ std::string MuonGeometrySanityCheckPoint::detName() const {
 // ------------ method called to for each event  ------------
 void
 MuonGeometrySanityCheck::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-   edm::ESHandle<GlobalTrackingGeometry> globalGeometry;
-   iSetup.get<GlobalTrackingGeometryRecord>().get(globalGeometry);
+   edm::ESHandle<DTGeometry> dtGeometry;
+   iSetup.get<MuonGeometryRecord>().get(dtGeometry);
+
+   edm::ESHandle<CSCGeometry> cscGeometry;
+   iSetup.get<MuonGeometryRecord>().get(cscGeometry);
 
    int num_transformed = 0;
    int num_tested = 0;
@@ -565,26 +569,34 @@ MuonGeometrySanityCheck::analyze(const edm::Event &iEvent, const edm::EventSetup
    for (std::vector<MuonGeometrySanityCheckPoint>::const_iterator point = m_points.begin();  point != m_points.end();  ++point) {
       num_transformed++;
 
+      bool dt = (point->detector.subdetId() == MuonSubdetId::DT);
+
       // convert the displacement vector into the chosen coordinate system and add it to the chamber's position
-      GlobalPoint chamberPos = globalGeometry->idToDet(point->detector)->surface().toGlobal(LocalPoint(0., 0., 0.));
+      GlobalPoint chamberPos;
+      if (dt) chamberPos = dtGeometry->idToDet(point->detector)->surface().toGlobal(LocalPoint(0., 0., 0.));
+      else chamberPos = cscGeometry->idToDet(point->detector)->surface().toGlobal(LocalPoint(0., 0., 0.));
+
       GlobalPoint result;
       if (point->frame == MuonGeometrySanityCheckPoint::kGlobal) {
 	 result = GlobalPoint(chamberPos.x() + point->displacement.x(), chamberPos.y() + point->displacement.y(), chamberPos.z() + point->displacement.z());
       }
 
       else if (point->frame == MuonGeometrySanityCheckPoint::kLocal) {
-	 result = globalGeometry->idToDet(point->detector)->surface().toGlobal(LocalPoint(point->displacement.x(), point->displacement.y(), point->displacement.z()));
+	 if (dt) result = dtGeometry->idToDet(point->detector)->surface().toGlobal(LocalPoint(point->displacement.x(), point->displacement.y(), point->displacement.z()));
+	 else result = cscGeometry->idToDet(point->detector)->surface().toGlobal(LocalPoint(point->displacement.x(), point->displacement.y(), point->displacement.z()));
       }
 
       else if (point->frame == MuonGeometrySanityCheckPoint::kChamber) {
 	 if (point->detector.subdetId() == MuonSubdetId::DT) {
 	    DTChamberId id(point->detector);
-	    result = globalGeometry->idToDet(id)->surface().toGlobal(LocalPoint(point->displacement.x(), point->displacement.y(), point->displacement.z()));
+	    if (dt) result = dtGeometry->idToDet(id)->surface().toGlobal(LocalPoint(point->displacement.x(), point->displacement.y(), point->displacement.z()));
+	    else result = cscGeometry->idToDet(id)->surface().toGlobal(LocalPoint(point->displacement.x(), point->displacement.y(), point->displacement.z()));
 	 }
 	 else if (point->detector.subdetId() == MuonSubdetId::CSC) {
 	    CSCDetId cscid(point->detector);
 	    CSCDetId id(cscid.endcap(), cscid.station(), cscid.ring(), cscid.chamber());
-	    result = globalGeometry->idToDet(id)->surface().toGlobal(LocalPoint(point->displacement.x(), point->displacement.y(), point->displacement.z()));
+	    if (dt) result = dtGeometry->idToDet(id)->surface().toGlobal(LocalPoint(point->displacement.x(), point->displacement.y(), point->displacement.z()));
+	    else result = cscGeometry->idToDet(id)->surface().toGlobal(LocalPoint(point->displacement.x(), point->displacement.y(), point->displacement.z()));
 	 }
 	 else { assert(false); }
       }
@@ -600,20 +612,26 @@ MuonGeometrySanityCheck::analyze(const edm::Event &iEvent, const edm::EventSetup
       if (point->outputFrame == MuonGeometrySanityCheckPoint::kGlobal) { }
 
       else if (point->outputFrame == MuonGeometrySanityCheckPoint::kLocal) {
-	 LocalPoint transformed = globalGeometry->idToDet(point->detector)->surface().toLocal(result);
+	 LocalPoint transformed;
+	 if (dt) transformed = dtGeometry->idToDet(point->detector)->surface().toLocal(result);
+	 else transformed = cscGeometry->idToDet(point->detector)->surface().toLocal(result);
 	 result = GlobalPoint(transformed.x(), transformed.y(), transformed.z());
       }
 
       else if (point->outputFrame == MuonGeometrySanityCheckPoint::kChamber) {
 	 if (point->detector.subdetId() == MuonSubdetId::DT) {
 	    DTChamberId id(point->detector);
-	    LocalPoint transformed = globalGeometry->idToDet(id)->surface().toLocal(result);
+	    LocalPoint transformed;
+	    if (dt) transformed = dtGeometry->idToDet(id)->surface().toLocal(result);
+	    else transformed = cscGeometry->idToDet(id)->surface().toLocal(result);
 	    result = GlobalPoint(transformed.x(), transformed.y(), transformed.z());
 	 }
 	 else if (point->detector.subdetId() == MuonSubdetId::CSC) {
 	    CSCDetId cscid(point->detector);
 	    CSCDetId id(cscid.endcap(), cscid.station(), cscid.ring(), cscid.chamber());
-	    LocalPoint transformed = globalGeometry->idToDet(id)->surface().toLocal(result);
+	    LocalPoint transformed;
+	    if (dt) transformed = dtGeometry->idToDet(id)->surface().toLocal(result);
+	    else transformed = cscGeometry->idToDet(id)->surface().toLocal(result);
 	    result = GlobalPoint(transformed.x(), transformed.y(), transformed.z());
 	 }
 	 else { assert(false); }
