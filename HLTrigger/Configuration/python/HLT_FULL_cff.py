@@ -6039,7 +6039,6 @@ hltPreL1DoubleMuOpenTight = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
 )
 hltCscTfDigis = cms.EDProducer( "CSCTFUnpacker",
-    producer = cms.untracked.InputTag( "rawDataCollector" ),
     MinBX = cms.int32( 3 ),
     MaxBX = cms.int32( 9 ),
     swapME1strips = cms.bool( False ),
