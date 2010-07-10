@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_6_2/HIon/V31 (CMSSW_3_6_2_HLT8)
+# /dev/CMSSW_3_6_2/HIon/V33 (CMSSW_3_6_2_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_2/HIon/V31')
+  tableName = cms.string('/dev/CMSSW_3_6_2/HIon/V33')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -16,18 +16,15 @@ process.streams = cms.PSet(
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
-  HLTMON = cms.vstring( 'OfflineMonitor' ),
   OnlineErrors = cms.vstring( 'LogMonitor',
     'FEDMonitor' ),
   Calibration = cms.vstring( 'TestEnables' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
+  HLTMON = cms.vstring( 'OfflineMonitor' ),
   DQM = cms.vstring(  ),
-  EventDisplay = cms.vstring(  ),
-  Express = cms.vstring( 'ExpressPhysics' ),
   A = cms.vstring( 'MuMonitor',
     'Cosmics',
     'JetMETTau',
-    'Mu',
     'ZeroBias',
     'Commissioning',
     'JetMETTauMonitor',
@@ -37,27 +34,28 @@ process.streams = cms.PSet(
     'MuOnia',
     'EGMonitor',
     'RandomTriggers',
-    'EG' ),
+    'EG',
+    'Mu' ),
+  EventDisplay = cms.vstring(  ),
+  Express = cms.vstring( 'ExpressPhysics' ),
   HLTDQM = cms.vstring(  )
 )
 process.datasets = cms.PSet( 
   AlCaPhiSymEcal = cms.vstring(  ),
   RPCMonitor = cms.vstring(  ),
   AlCaP0 = cms.vstring(  ),
+  LogMonitor = cms.vstring(  ),
+  FEDMonitor = cms.vstring(  ),
+  TestEnables = cms.vstring(  ),
+  EcalLaser = cms.vstring(  ),
   OfflineMonitor = cms.vstring( 'HLT_L1DoubleMuOpen',
     'HLT_Activity_PixelClusters',
     'HLT_L1Tech_HCAL_HF',
     'HLT_ZeroBiasPixel_SingleTrack',
     'HLT_L1Tech_BSC_minBias' ),
-  LogMonitor = cms.vstring(  ),
-  FEDMonitor = cms.vstring(  ),
-  TestEnables = cms.vstring(  ),
-  EcalLaser = cms.vstring(  ),
-  ExpressPhysics = cms.vstring(  ),
   MuMonitor = cms.vstring(  ),
   Cosmics = cms.vstring(  ),
   JetMETTau = cms.vstring(  ),
-  Mu = cms.vstring(  ),
   ZeroBias = cms.vstring(  ),
   Commissioning = cms.vstring( 'HLT_Activity_PixelClusters' ),
   JetMETTauMonitor = cms.vstring(  ),
@@ -69,7 +67,9 @@ process.datasets = cms.PSet(
   MuOnia = cms.vstring( 'HLT_L1DoubleMuOpen' ),
   EGMonitor = cms.vstring(  ),
   RandomTriggers = cms.vstring(  ),
-  EG = cms.vstring(  )
+  EG = cms.vstring(  ),
+  Mu = cms.vstring(  ),
+  ExpressPhysics = cms.vstring(  )
 )
 
 process.source = cms.Source( "PoolSource",
@@ -1867,6 +1867,8 @@ process.hltIterativeCone5PileupSubtractionCaloJets = cms.EDProducer( "FastjetJet
     UseOnlyOnePV = cms.bool( False ),
     DzTrVtxMax = cms.double( 0.0 ),
     DxyTrVtxMax = cms.double( 0.0 ),
+    MinVtxNdof = cms.int32( 5 ),
+    MaxVtxZ = cms.double( 15.0 ),
     jetAlgorithm = cms.string( "IterativeCone" ),
     rParam = cms.double( 0.5 ),
     src = cms.InputTag( "hltTowerMakerForAll" ),
@@ -1889,7 +1891,8 @@ process.hltIterativeCone5PileupSubtractionCaloJets = cms.EDProducer( "FastjetJet
     maxRecoveredHcalCells = cms.uint32( 9999999 ),
     maxProblematicHcalCells = cms.uint32( 9999999 ),
     doAreaFastjet = cms.bool( False ),
-    doRhoFastjet = cms.bool( False )
+    doRhoFastjet = cms.bool( False ),
+    subtractorName = cms.string( "" )
 )
 process.hltHI1jet35U = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltIterativeCone5PileupSubtractionCaloJets" ),

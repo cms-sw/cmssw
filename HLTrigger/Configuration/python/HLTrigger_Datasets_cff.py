@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_6_2/GRun/V31
+# /dev/CMSSW_3_6_2/GRun/V33
 
 import FWCore.ParameterSet.Config as cms
 
@@ -52,22 +52,6 @@ streamA_datasetJetMETTau_selector.triggerConditions = cms.vstring('HLT_BTagIP_Je
     'HLT_SingleLooseIsoTau20_Trk5', 
     'HLT_SingleLooseIsoTau25', 
     'HLT_DiJetAve50U_8E29')
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMu_selector
-streamA_datasetMu_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetMu_selector.l1tResults = cms.InputTag('')
-streamA_datasetMu_selector.throw      = cms.bool(False)
-streamA_datasetMu_selector.triggerConditions = cms.vstring('HLT_L1Mu14_L1ETM30', 
-    'HLT_L1Mu14_L1SingleJet6U', 
-    'HLT_L1Mu14_L1SingleEG10', 
-    'HLT_L1Mu20', 
-    'HLT_DoubleMu3', 
-    'HLT_Mu3', 
-    'HLT_Mu5', 
-    'HLT_Mu9', 
-    'HLT_IsoMu3', 
-    'HLT_L2Mu9', 
-    'HLT_L2Mu11')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetZeroBias_selector
 streamA_datasetZeroBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -154,7 +138,13 @@ streamA_datasetMuOnia_selector.triggerConditions = cms.vstring('HLT_Mu0_L1MuOpen
     'HLT_Mu5_L2Mu0', 
     'HLT_L2DoubleMu0', 
     'HLT_DoubleMu0', 
-    'HLT_L1DoubleMuOpen_Tight')
+    'HLT_L1DoubleMuOpen_Tight', 
+    'HLT_Mu0_TkMu0_Jpsi', 
+    'HLT_Mu0_TkMu0_Jpsi_NoCharge', 
+    'HLT_Mu3_TkMu0_Jpsi', 
+    'HLT_Mu3_TkMu0_Jpsi_NoCharge', 
+    'HLT_Mu5_TkMu0_Jpsi', 
+    'HLT_Mu5_TkMu0_Jpsi_NoCharge')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetEGMonitor_selector
 streamA_datasetEGMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -203,4 +193,21 @@ streamA_datasetEG_selector.triggerConditions = cms.vstring('HLT_DoublePhoton10_L
     'HLT_Ele20_SW_L1R', 
     'HLT_Photon30_L1R', 
     'HLT_DoublePhoton5_CEP_L1R')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMu_selector
+streamA_datasetMu_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetMu_selector.l1tResults = cms.InputTag('')
+streamA_datasetMu_selector.throw      = cms.bool(False)
+streamA_datasetMu_selector.triggerConditions = cms.vstring('HLT_L1Mu14_L1ETM30', 
+    'HLT_L1Mu14_L1SingleJet6U', 
+    'HLT_L1Mu14_L1SingleEG10', 
+    'HLT_L1Mu20', 
+    'HLT_DoubleMu3', 
+    'HLT_Mu3', 
+    'HLT_Mu5', 
+    'HLT_Mu9', 
+    'HLT_IsoMu3', 
+    'HLT_L2Mu9', 
+    'HLT_L2Mu11', 
+    'HLT_Mu7')
 
