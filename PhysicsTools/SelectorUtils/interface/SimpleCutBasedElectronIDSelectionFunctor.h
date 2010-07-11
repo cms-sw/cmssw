@@ -504,13 +504,13 @@ class SimpleCutBasedElectronIDSelectionFunctor : public Selector<pat::Electron> 
     // getDcot and Dist Criteria
     // this implementation for conversion rejection works with RecoEgamma/EgammaTools
     // until 3_6_X. For 3_7_X onwards has to change
-    ConversionFinder cf;
-    Bool_t isConv = cf.isElFromConversion(electron, ctfTracks_, bfield_, 0.02, 0.02);
+    //ConversionFinder cf;
+    //Bool_t isConv = cf.isElFromConversion(electron, ctfTracks_, bfield_, 0.02, 0.02);
     
     // this is how the code should look like in 3_7
-    //ConversionFinder cf;
-    //cf.getConversionInfo(electron, ctfTracks_, bfield_);
-    //Bool_t isConv = cf.isFromConversion(0.02, 0.02);
+    ConversionFinder cf;
+    cf.getConversionInfo(electron, ctfTracks_, bfield_);
+    Bool_t isConv = cf.isFromConversion(0.02, 0.02);
     
     // now apply the cuts
     if (electron.isEB()) { // BARREL case
