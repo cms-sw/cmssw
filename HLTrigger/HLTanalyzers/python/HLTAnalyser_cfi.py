@@ -26,6 +26,7 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     l1extramc                       = cms.string('hltL1extraParticles'),
     l1extramu                       = cms.string('hltL1extraParticles'),
     hltresults                      = cms.InputTag("TriggerResults::HLT"),
+    HLTProcessName                  = cms.string("HLT"),
     
     ### reconstructed objects
     genjets                         = cms.InputTag("iterativeCone5GenJets"),

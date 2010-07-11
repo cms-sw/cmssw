@@ -44,6 +44,7 @@ class HLTAnalyzer : public edm::EDAnalyzer {
 public:
   explicit HLTAnalyzer(edm::ParameterSet const& conf);
   virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
+  virtual void beginRun(const edm::Run& , const edm::EventSetup& );
   virtual void endJob();
 
   //  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions); 

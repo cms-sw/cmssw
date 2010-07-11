@@ -5,10 +5,13 @@ import FWCore.ParameterSet.Config as cms
 # useful options
 isData=1 # =1 running on real data, =0 running on MC
 
+
 OUTPUT_HIST='openhlt.root'
 NEVTS=100
 MENU="LUMI8e29" # LUMI8e29 or LUMI1e31
 isRelval=1 # =1 for running on MC RelVals, =0 for standard production MC, no effect for data 
+
+WhichHLTProcess="HLT"
 
 ####   MC cross section weights in pb, use 1 for real data  ##########
 
@@ -38,7 +41,7 @@ if (isData):
 
 if (isData):
     # GLOBAL_TAG='GR09_H_V6OFF::All' # collisions 2009
-    GLOBAL_TAG='GR10_H_V4::All' # collisions2010
+    GLOBAL_TAG='GR10_H_V6A::All' # collisions2010
 else:
     GLOBAL_TAG='MC_31X_V2::All'
     if (MENU == "LUMI8e29"): GLOBAL_TAG= 'STARTUP3X_V15::All'
@@ -57,7 +60,7 @@ process.options = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/express/BeamCommissioning09/OfflineMonitor/FEVTHLTALL/v2/000/122/314/F8F49C1B-60D8-DE11-AB34-001D09F28F0C.root' # file from run 122314
+    '/store/data/Run2010A/JetMETTau/RAW/v1/000/138/564/B2D1DA16-0180-DF11-AE0D-001D09F295FB.root' # file from run 138564
     #'/store/mc/Summer09/MinBias900GeV/GEN-SIM-RAW/MC_31X_V3-v1/0029/EA9124F5-A28C-DE11-B015-0016367B47AF.root' # 900 GeV MinBias MC
     #'/store/mc/Summer09/MinBias/GEN-SIM-RAW/MC_31X_V3_7TeV-v1/0077/9E4D6E88-87A1-DE11-9D46-00E081329956.root'
     )
@@ -99,7 +102,8 @@ process.hltanalysis.RunParameters.HistogramFile=OUTPUT_HIST
 process.hltanalysis.xSection=XSECTION
 process.hltanalysis.filterEff=FILTEREFF
 process.hltanalysis.l1GtReadoutRecord = cms.InputTag( 'hltGtDigis','',process.name_() ) # get gtDigis extract from the RAW
-process.hltanalysis.hltresults = cms.InputTag( 'TriggerResults','','HLT' )
+process.hltanalysis.hltresults = cms.InputTag( 'TriggerResults','',WhichHLTProcess)
+process.hltanalysis.HLTProcessName = WhichHLTProcess
 process.hltanalysis.ht = "hltJet30Ht"
 process.hltanalysis.genmet = "genMetTrue"
 

@@ -176,6 +176,11 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   evt_header_.setup(HltTree);
 }
 
+void HLTAnalyzer::beginRun(const edm::Run& run, const edm::EventSetup& c){ 
+
+  hlt_analysis_.beginRun(run, c);
+}
+
 // Boiler-plate "analyze" method declaration for an analyzer module.
 void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
 
