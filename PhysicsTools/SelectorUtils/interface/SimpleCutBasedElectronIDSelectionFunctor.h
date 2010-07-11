@@ -61,6 +61,8 @@ ________________________________________________________________________________
                many thanks to Sal Rappoccio
     Imperial College London
     7 June 2010, first commit for CMSSW_3_6_1_patchX
+    11July 2010, implementing the ICHEP Egamma recommendation for 
+                 removing the Delta Eta cut in the endcaps
 ___________________________________________________________________________________
 
 */
@@ -163,7 +165,7 @@ class SimpleCutBasedElectronIDSelectionFunctor : public Selector<pat::Electron> 
       set("hcalIso_EE",  5.0e-02);
       set("sihih_EE",    3.0e-02);
       set("dphi_EE",     7.0e-01);
-      set("deta_EE",     1.0e-02);
+      set("deta_EE",     10000. ); //   1.0e-02);
       set("hoe_EE",      7.0e-02);
       set("cIso_EE",     10000. );
       
@@ -186,7 +188,7 @@ class SimpleCutBasedElectronIDSelectionFunctor : public Selector<pat::Electron> 
       set("hcalIso_EE",  100000.);
       set("sihih_EE",    3.0e-02);
       set("dphi_EE",     7.0e-01);
-      set("deta_EE",     1.0e-02);
+      set("deta_EE",     10000. ); //   1.0e-02);
       set("hoe_EE",      7.0e-02);
       set("cIso_EE",     1.0e-01);
       
@@ -209,7 +211,7 @@ class SimpleCutBasedElectronIDSelectionFunctor : public Selector<pat::Electron> 
       set("hcalIso_EE",  3.0e-02);
       set("sihih_EE",    3.0e-02);
       set("dphi_EE",     7.0e-01);
-      set("deta_EE",     9.0e-03);
+      set("deta_EE",     10000. ); //   9.0e-03);
       set("hoe_EE",      5.0e-02);
       set("cIso_EE",     10000. );
       
@@ -231,7 +233,7 @@ class SimpleCutBasedElectronIDSelectionFunctor : public Selector<pat::Electron> 
       set("hcalIso_EE",  100000.);
       set("sihih_EE",    3.0e-02);
       set("dphi_EE",     7.0e-01);
-      set("deta_EE",     9.0e-03);
+      set("deta_EE",     10000. ); //   9.0e-03);
       set("hoe_EE",      5.0e-02);
       set("cIso_EE",     7.0e-02);
       
@@ -253,7 +255,7 @@ class SimpleCutBasedElectronIDSelectionFunctor : public Selector<pat::Electron> 
       set("hcalIso_EE",  2.5e-02);
       set("sihih_EE",    3.0e-02);
       set("dphi_EE",     4.0e-02);
-      set("deta_EE",     7.0e-03);
+      set("deta_EE",     10000. ); //   7.0e-03);
       set("hoe_EE",      2.5e-02);
       set("cIso_EE",     10000. );
       
@@ -275,7 +277,7 @@ class SimpleCutBasedElectronIDSelectionFunctor : public Selector<pat::Electron> 
       set("hcalIso_EE",  100000.);
       set("sihih_EE",    3.0e-02);
       set("dphi_EE",     4.0e-02);
-      set("deta_EE",     7.0e-03);
+      set("deta_EE",     10000. ); //   7.0e-03);
       set("hoe_EE",      2.5e-02);
       set("cIso_EE",     6.0e-02);
       
@@ -297,7 +299,7 @@ class SimpleCutBasedElectronIDSelectionFunctor : public Selector<pat::Electron> 
       set("hcalIso_EE",  2.5e-02);
       set("sihih_EE",    3.0e-02);
       set("dphi_EE",     3.0e-02);
-      set("deta_EE",     7.0e-03);
+      set("deta_EE",     10000. ); //   7.0e-03);
       set("hoe_EE",      2.5e-02);
       set("cIso_EE",     100000.);
       
@@ -319,7 +321,7 @@ class SimpleCutBasedElectronIDSelectionFunctor : public Selector<pat::Electron> 
       set("hcalIso_EE",  100000.);
       set("sihih_EE",    3.0e-02);
       set("dphi_EE",     3.0e-02);
-      set("deta_EE",     7.0e-03);
+      set("deta_EE",     10000. ); //   7.0e-03);
       set("hoe_EE",      2.5e-02);
       set("cIso_EE",     6.0e-02);
       
@@ -341,7 +343,7 @@ class SimpleCutBasedElectronIDSelectionFunctor : public Selector<pat::Electron> 
       set("hcalIso_EE",  2.0e-02);
       set("sihih_EE",    3.0e-02);
       set("dphi_EE",     2.0e-02);
-      set("deta_EE",     5.0e-03);
+      set("deta_EE",     10000. ); //   5.0e-03);
       set("hoe_EE",      2.5e-02);
       set("cIso_EE",     100000.);
       
@@ -363,7 +365,7 @@ class SimpleCutBasedElectronIDSelectionFunctor : public Selector<pat::Electron> 
       set("hcalIso_EE",  100000.);
       set("sihih_EE",    3.0e-02);
       set("dphi_EE",     2.0e-02);
-      set("deta_EE",     5.0e-03);
+      set("deta_EE",     10000. ); //   5.0e-03);
       set("hoe_EE",      2.5e-02);
       set("cIso_EE",     3.0e-02);
       
@@ -385,7 +387,7 @@ class SimpleCutBasedElectronIDSelectionFunctor : public Selector<pat::Electron> 
       set("hcalIso_EE",  2.0e-02);
       set("sihih_EE",    3.0e-02);
       set("dphi_EE",     2.0e-02);
-      set("deta_EE",     5.0e-03);
+      set("deta_EE",     10000. ); //   5.0e-03);
       set("hoe_EE",      2.5e-02);
       set("cIso_EE",     100000.);
       
@@ -407,7 +409,7 @@ class SimpleCutBasedElectronIDSelectionFunctor : public Selector<pat::Electron> 
       set("hcalIso_EE",  100000.);
       set("sihih_EE",    3.0e-02);
       set("dphi_EE",     2.0e-02);
-      set("deta_EE",     5.0e-03);
+      set("deta_EE",     10000. ); //   5.0e-03);
       set("hoe_EE",      2.5e-02);
       set("cIso_EE",     2.0e-02);
       
@@ -502,13 +504,13 @@ class SimpleCutBasedElectronIDSelectionFunctor : public Selector<pat::Electron> 
     // getDcot and Dist Criteria
     // this implementation for conversion rejection works with RecoEgamma/EgammaTools
     // until 3_6_X. For 3_7_X onwards has to change
-    //ConversionFinder cf;
-    //Bool_t isConv = cf.isElFromConversion(electron, ctfTracks_, bfield_, 0.02, 0.02);
+    ConversionFinder cf;
+    Bool_t isConv = cf.isElFromConversion(electron, ctfTracks_, bfield_, 0.02, 0.02);
     
     // this is how the code should look like in 3_7
-    ConversionFinder cf;
-    cf.getConversionInfo(electron, ctfTracks_, bfield_);
-    Bool_t isConv = cf.isFromConversion(0.02, 0.02);
+    //ConversionFinder cf;
+    //cf.getConversionInfo(electron, ctfTracks_, bfield_);
+    //Bool_t isConv = cf.isFromConversion(0.02, 0.02);
     
     // now apply the cuts
     if (electron.isEB()) { // BARREL case
