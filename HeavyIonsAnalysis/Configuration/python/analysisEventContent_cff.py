@@ -69,7 +69,8 @@ hiCommon = cms.PSet(
       'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
       'keep recoVertexs_hiSelectedVertex_*_*',                              
       'keep *_heavyIon_*_*',
-      'keep *_hiCentrality_*_*'
+      'keep *_hiCentrality_*_*',
+      'keep *_hiEvtPlane_*_*'
     )
 )
 
