@@ -1,25 +1,13 @@
 
-datadir=$CMSSW_BASE/src/RecoHI/HiCentralityAlgos/data
+datadir=../data
+
+cp $CMSSW_BASE/src/CmsHi/JulyExercise/data/CentralityTables.root $datadir/
 
 ####eff=90.2
-
-root -b -q makeDataCentralityTable.C+'(40,"hf", "HFhits40_DataHydjet2760GeV_Effp88_Hydjet4TeV_MC_3XY_V24_v0","HFhits40_MC_Hydjet4TeV_MC_3XY_V24_v0",0.88)'
-root -b -q makeDataCentralityTable.C+'(40,"ee", "EEbcs40_DataHydjet2760GeV_Effp88_Hydjet4TeV_MC_3XY_V24_v0","EEbcs40_MC_Hydjet4TeV_MC_3XY_V24_v0",0.88)'
-root -b -q makeDataCentralityTable.C+'(20,"hf", "HFhits20_DataHydjet2760GeV_Effp88_Hydjet4TeV_MC_3XY_V24_v0","HFhits20_MC_Hydjet4TeV_MC_3XY_V24_v0",0.88)'
-root -b -q makeDataCentralityTable.C+'(20,"ee", "EEbcs20_DataHydjet2760GeV_Effp88_Hydjet4TeV_MC_3XY_V24_v0","EEbcs20_MC_Hydjet4TeV_MC_3XY_V24_v0",0.88)'
-root -b -q makeDataCentralityTable.C+'(10,"hf", "HFhits10_DataHydjet2760GeV_Effp88_Hydjet4TeV_MC_3XY_V24_v0","HFhits10_MC_Hydjet4TeV_MC_3XY_V24_v0",0.88)'
-root -b -q makeDataCentralityTable.C+'(10,"ee", "EEbcs10_DataHydjet2760GeV_Effp88_Hydjet4TeV_MC_3XY_V24_v0","EEbcs10_MC_Hydjet4TeV_MC_3XY_V24_v0",0.88)'
-root -b -q makeDataCentralityTable.C+'(5,"hf", "HFhits5_DataHydjet2760GeV_Effp88_Hydjet4TeV_MC_3XY_V24_v0","HFhits5_MC_Hydjet4TeV_MC_3XY_V24_v0",0.88)'
-root -b -q makeDataCentralityTable.C+'(5,"ee", "EEbcs5_DataHydjet2760GeV_Effp88_Hydjet4TeV_MC_3XY_V24_v0","EEbcs5_MC_Hydjet4TeV_MC_3XY_V24_v0",0.88)'
-
-#root -b -q makeDataCentralityTable.C+'(40,"hf", "HFhits40_DataHydjet4TeV_Eff89p5_Hydjet2760GeV_MC_3XY_V24_v0","HFhits40_MC_Hydjet2760GeV_MC_3XY_V24_v0",89.5)'
-#root -b -q makeDataCentralityTable.C+'(40,"ee", "EEbcs40_DataHydjet4TeV_Eff89p5_Hydjet2760GeV_MC_3XY_V24_v0","EEbcs40_MC_Hydjet2760GeV_MC_3XY_V24_v0",89.5)'
-#root -b -q makeDataCentralityTable.C+'(20,"hf", "HFhits40_DataHydjet4TeV_Eff89p5_Hydjet2760GeV_MC_3XY_V24_v0","HFhits20_MC_Hydjet2760GeV_MC_3XY_V24_v0",89.5)'
-#root -b -q makeDataCentralityTable.C+'(20,"ee", "EEbcs40_DataHydjet4TeV_Eff89p5_Hydjet2760GeV_MC_3XY_V24_v0","EEbcs20_MC_Hydjet2760GeV_MC_3XY_V24_v0",89.5)'
-#root -b -q makeDataCentralityTable.C+'(10,"hf", "HFhits40_DataHydjet4TeV_Eff89p5_Hydjet2760GeV_MC_3XY_V24_v0","HFhits10_MC_Hydjet2760GeV_MC_3XY_V24_v0",89.5)'
-#root -b -q makeDataCentralityTable.C+'(10,"ee", "EEbcs40_DataHydjet4TeV_Eff89p5_Hydjet2760GeV_MC_3XY_V24_v0","EEbcs10_MC_Hydjet2760GeV_MC_3XY_V24_v0",89.5)'
-#root -b -q makeDataCentralityTable.C+'(5,"hf", "HFhits40_DataHydjet4TeV_Eff89p5_Hydjet2760GeV_MC_3XY_V24_v0","HFhits5_MC_Hydjet2760GeV_MC_3XY_V24_v0",89.5)'
-#root -b -q makeDataCentralityTable.C+'(5,"ee", "EEbcs40_DataHydjet4TeV_Eff89p5_Hydjet2760GeV_MC_3XY_V24_v0","EEbcs5_MC_Hydjet2760GeV_MC_3XY_V24_v0",89.5)'
+for binning in 40 20 10 5
+do
+  root -b -q makeDataCentralityTable.C+\(${binning},\"hf\",\"HFhits${binning}_DataJulyExercise_Hydjet2760GeV_MC_37Y_V5_NZS_v0\",\"HFhits${binning}_MC_Hydjet2760GeV_MC_3XY_V24_v0\",1\)
+done
 
 
 

@@ -15,6 +15,8 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FWLite/interface/Event.h"
+#include "DataFormats/FWLite/interface/ChainEvent.h"
+
 #include "DataFormats/HeavyIonEvent/interface/CentralityBins.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -28,35 +30,52 @@
 
 void fitSlices(TH2*, TF1*);
 
+static bool useEfficiencyHistogram = false;
 static bool onlySaveTable = false;
 static const int nbinsMax = 40;
-static bool doTrigger = true;
+static bool doTrigger = false;
 static int trigNum = 1; // 6 for Hydjet 2.8 TeV sample
 
 using namespace std;
-bool descend(float i,float j) { return (i<j); }
+bool descend(float i,float j) { return (i>j); }
 
-void makeDataCentralityTable(int nbins = 40, const string label = "hf", const char * datatag = "HFhitBins",const char * mctag = "HFhitBinsMC", double EFF = 0.88){
+void makeDataCentralityTable(int nbins = 40, const string label = "hf", const char * datatag = "HFhitBins",const char * mctag = "HFhitBinsMC", double EFF = 1){
 
    // This macro assumes all inefficiency is in the most peripheral bin.
    double MXS = 1. - EFF;
-  int nFiles = 1;
-  vector<string> fileNames;
-  TFile* infile = new TFile("/net/hisrv0001/home/yetkin/pstore02/ana/Hydjet_MinBias_4TeV_d20100305/Hydjet_MinBias_4TeV_runs1to500.root");
-  fwlite::Event event(infile);
+   int nFiles = 1;
+   vector<string> infiles;
+   //   TFile* infile = new TFile("../data/Centrality0705_merged_runs1to10.root"); 
+
+  //  fwlite::Event event(infile);                                                                
+  infiles.push_back("~/hibat0007/aod/JulyExercise/MinBias0707/MinBias0707_runs1to10.root");
+  //  infiles.push_back("~/hibat0007/aod/JulyExercise/MinBias0707/MinBias0707_runs11to20.root");  
+  infiles.push_back("~/hibat0007/aod/JulyExercise/MinBias0707/MinBias0707_runs21to30.root");
+  infiles.push_back("~/hibat0007/aod/JulyExercise/MinBias0707/MinBias0707_runs31to40.root");
+  infiles.push_back("~/hibat0007/aod/JulyExercise/MinBias0707/MinBias0707_runs41to50.root");
+  infiles.push_back("~/hibat0007/aod/JulyExercise/MinBias0707/MinBias0707_runs51to60.root");
+  //  infiles.push_back("~/hibat0007/aod/JulyExercise/MinBias0707/MinBias0707_runs61to70.root");  
+  //  infiles.push_back("~/hibat0007/aod/JulyExercise/MinBias0707/MinBias0707_runs71to80.root");  
+  //  infiles.push_back("~/hibat0007/aod/JulyExercise/MinBias0707/MinBias0707_runs81to90.root")   
+  //  infiles.push_back("~/hibat0007/aod/JulyExercise/MinBias0707/MinBias0707_runs91to100.root");
+
+  fwlite::ChainEvent event(infiles);
   vector<int> runnums;
 
   // Retrieving data
   // Creating output table
   TFile * centFile = new TFile("../data/CentralityTables.root","update");
-  TH1* hEff = (TH1*)centFile->Get(Form("%s/hEff",mctag));
+  TH1* hEff;
+  if(useEfficiencyHistogram) hEff = (TH1*)centFile->Get(Form("%s/hEff",mctag));
   TDirectory* dir = centFile->mkdir(datatag);
   dir->cd();
 
   TH1D::SetDefaultSumw2();
   int runMC = 1;
-  CentralityBins::RunMap HFhitBinMap = getCentralityFromFile(centFile,mctag,runMC - 1,runMC + 1);
+
+  CentralityBins::RunMap HFhitBinMap = getCentralityFromFile(centFile,mctag,0,20);
   nbins = HFhitBinMap[runMC]->getNbins();
+
   CentralityBins* bins = new CentralityBins("noname","Test tag", nbins);
   bins->table_.reserve(nbins);
 
@@ -72,19 +91,15 @@ void makeDataCentralityTable(int nbins = 40, const string label = "hf", const ch
   for(event.toBegin(); !event.atEnd(); ++event, ++events){
      edm::EventBase const & ev = event;
     if( events % 100 == 0 ) cout<<"Processing event : "<<events<<endl;
-    edm::Handle<edm::GenHIEvent> mc;
-    ev.getByLabel(edm::InputTag("heavyIon"),mc);
     edm::Handle<reco::Centrality> cent;
     ev.getByLabel(edm::InputTag("hiCentrality"),cent);
     edm::Handle<edm::TriggerResults> trig;
-    ev.getByLabel(edm::InputTag("TriggerResults","","HLT"),trig);
+    if(doTrigger){
+       ev.getByLabel(edm::InputTag("TriggerResults","","HLT"),trig);
+       bool t = trig->at(trigNum).accept();
+       if(!t) continue;
+    }
 
-    bool t = trig->at(trigNum).accept();
-    if(doTrigger && !t) continue;
-    double b = mc->b();
-    double npart = mc->Npart();
-    double ncoll = mc->Ncoll();
-    double nhard = mc->Nhard();
     double hf = cent->EtHFhitSum();
     double hftp = cent->EtHFtowerSumPlus();
     double hftm = cent->EtHFtowerSumMinus();
@@ -92,10 +107,6 @@ void makeDataCentralityTable(int nbins = 40, const string label = "hf", const ch
     double eep = cent->EtEESumPlus();
     double eem = cent->EtEESumMinus();
     double parameter = 0;
-    if(label.compare("npart") == 0) parameter = npart;
-    if(label.compare("ncoll") == 0) parameter = ncoll;
-    if(label.compare("nhard") == 0) parameter = nhard;
-    if(label.compare("b") == 0) parameter = b;
     if(label.compare("hf") == 0) parameter = hf;
     if(label.compare("hft") == 0) parameter = hftp + hftm;
     if(label.compare("eb") == 0) parameter = eb;
@@ -103,14 +114,18 @@ void makeDataCentralityTable(int nbins = 40, const string label = "hf", const ch
     values.push_back(parameter);
 
     // Calculate corrected cross section
-    xsec += parameter / hEff->GetBinContent(hEff->FindBin(val));
+    if(useEfficiencyHistogram){
+       xsec += 1. / hEff->GetBinContent(hEff->FindBin(parameter));
+    }else{
+       xsec += 1.;
+    }
 
     int run = event.id().run();
     if(runnums.size() == 0 || runnums[runnums.size()-1] != run) runnums.push_back(run);
   }
   
-  if(label.compare("b") == 0) sort(values.begin(),values.end(),descend);
-  else sort(values.begin(),values.end());
+  if(label.compare("b") == 0) sort(values.begin(),values.end());
+  else sort(values.begin(),values.end(),descend);
 
   double max = values[events-1];
   binboundaries[nbins] = max;
@@ -123,8 +138,12 @@ void makeDataCentralityTable(int nbins = 40, const string label = "hf", const ch
   int currentbin = 0;
   for(int iv = 0; iv < events && currentbin < nbins; ++iv){
      double val = values[iv];  
-     integral += val / hEff->GetBinContent(hEff->FindBin(val));
-     if(integral > (int)(currentbin*(xsec/nbins))){
+     if(useEfficiencyHistogram){
+	integral += 1 / hEff->GetBinContent(hEff->FindBin(val));
+     }else{
+	integral += 1;
+     }
+     if(integral > (int)((currentbin+1)*(xsec/nbins))){
 	binboundaries[currentbin] = val;
 	cout<<" "<<val;
 	if(currentbin < nbins - 1) cout<<",";
@@ -142,15 +161,15 @@ void makeDataCentralityTable(int nbins = 40, const string label = "hf", const ch
 
   // Enter values in table
   for(int i = 0; i < nbins; ++i){
-     bins->table_[nbins-i-1].n_part_mean = HFhitBinMap[runMC]->NpartMeanOfBin(i);
-     bins->table_[nbins-i-1].n_part_var = HFhitBinMap[runMC]->NpartSigmaOfBin(i); 
-     bins->table_[nbins-i-1].n_coll_mean = HFhitBinMap[runMC]->NcollMeanOfBin(i);
-     bins->table_[nbins-i-1].n_coll_var = HFhitBinMap[runMC]->NcollSigmaOfBin(i);
-     bins->table_[nbins-i-1].b_mean = HFhitBinMap[runMC]->bMeanOfBin(i);
-     bins->table_[nbins-i-1].b_var = HFhitBinMap[runMC]->bSigmaOfBin(i);
-     bins->table_[nbins-i-1].n_hard_mean = HFhitBinMap[runMC]->NhardMeanOfBin(i);
-     bins->table_[nbins-i-1].n_hard_var = HFhitBinMap[runMC]->NhardSigmaOfBin(i);
-     bins->table_[nbins-i-1].bin_edge = binboundaries[i];
+     bins->table_[i].n_part_mean = HFhitBinMap[runMC]->NpartMeanOfBin(i);
+     bins->table_[i].n_part_var = HFhitBinMap[runMC]->NpartSigmaOfBin(i); 
+     bins->table_[i].n_coll_mean = HFhitBinMap[runMC]->NcollMeanOfBin(i);
+     bins->table_[i].n_coll_var = HFhitBinMap[runMC]->NcollSigmaOfBin(i);
+     bins->table_[i].b_mean = HFhitBinMap[runMC]->bMeanOfBin(i);
+     bins->table_[i].b_var = HFhitBinMap[runMC]->bSigmaOfBin(i);
+     bins->table_[i].n_hard_mean = HFhitBinMap[runMC]->NhardMeanOfBin(i);
+     bins->table_[i].n_hard_var = HFhitBinMap[runMC]->NhardSigmaOfBin(i);
+     bins->table_[i].bin_edge = binboundaries[i];
 
      cout<<i<<" "
 	 <<HFhitBinMap[runMC]->NpartMeanOfBin(i)<<" "
@@ -165,6 +184,8 @@ void makeDataCentralityTable(int nbins = 40, const string label = "hf", const ch
   cout<<"-------------------------------------"<<endl;
 
   // Save the table in output file
+  centFile->cd();
+  dir->cd();
   for(int i = 0; i < runnums.size(); ++i){
      CentralityBins* binsForRun = (CentralityBins*) bins->Clone();
      binsForRun->SetName(Form("run%d",runnums[i]));

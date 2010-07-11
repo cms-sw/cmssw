@@ -15,6 +15,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FWLite/interface/Event.h"
+#include "DataFormats/FWLite/interface/ChainEvent.h"
 #include "DataFormats/HeavyIonEvent/interface/CentralityBins.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -26,8 +27,9 @@
 
 void fitSlices(TH2*, TF1*);
 
+static bool ZS = false;
 static bool useFits = false;
-static bool onlySaveTable = true;
+static bool onlySaveTable = false;
 static const int nbinsMax = 40;
 
 using namespace std;
@@ -37,10 +39,29 @@ void makeMCCentralityTable(int nbins = 40, const string label = "hf", const char
 
    // Retrieving data
   int nFiles = 1;
-  vector<string> fileNames;
-    TFile* infile = new TFile("/net/hisrv0001/home/yetkin/pstore02/ana/Hydjet_MinBias_2760GeV_d20100305/Hydjet_MinBias_2760GeV_runs1to1000.root");
+  int maxEvents = -100;
+  vector<string> infiles;
+
+  if(ZS){
+     infiles.push_back("/net/hisrv0001/home/yetkin/hibat0007/aod/JulyExercise/AMPT_ZS_01/AMPT_MB_ZS_0711_runs1to50.root");
+     infiles.push_back("/net/hisrv0001/home/yetkin/hibat0007/aod/JulyExercise/AMPT_ZS_01/AMPT_MB_ZS_0711_runs51to100.root");
+     infiles.push_back("/net/hisrv0001/home/yetkin/hibat0007/aod/JulyExercise/AMPT_ZS_01/AMPT_MB_ZS_0711_runs101to150.root");
+  }else{
+     infiles.push_back("/net/hisrv0001/home/yetkin/hibat0007/aod/JulyExercise/AMPT_NZS_02/AMPT_MB_ZS_0711_runs1to20.root");
+     infiles.push_back("/net/hisrv0001/home/yetkin/hibat0007/aod/JulyExercise/AMPT_NZS_02/AMPT_MB_ZS_0711_runs21to40.root");
+     infiles.push_back("/net/hisrv0001/home/yetkin/hibat0007/aod/JulyExercise/AMPT_NZS_02/AMPT_MB_ZS_0711_runs41to60.root");
+     infiles.push_back("/net/hisrv0001/home/yetkin/hibat0007/aod/JulyExercise/AMPT_NZS_02/AMPT_MB_ZS_0711_runs61to80.root");
+     infiles.push_back("/net/hisrv0001/home/yetkin/hibat0007/aod/JulyExercise/AMPT_NZS_02/AMPT_MB_ZS_0711_runs81to100.root");
+     infiles.push_back("/net/hisrv0001/home/yetkin/hibat0007/aod/JulyExercise/AMPT_NZS_02/AMPT_MB_ZS_0711_runs101to120.root");
+     infiles.push_back("/net/hisrv0001/home/yetkin/hibat0007/aod/JulyExercise/AMPT_NZS_02/AMPT_MB_ZS_0711_runs121to140.root");
+     infiles.push_back("/net/hisrv0001/home/yetkin/hibat0007/aod/JulyExercise/AMPT_NZS_02/AMPT_MB_ZS_0711_runs141to160.root");
+  }
+
+  fwlite::ChainEvent event(infiles);
+
+    //    TFile* infile = new TFile("/net/hisrv0001/home/yetkin/pstore02/ana/Hydjet_MinBias_2760GeV_d20100305/Hydjet_MinBias_2760GeV_runs1to1000.root");
   //  TFile* infile = new TFile("/net/hisrv0001/home/yetkin/pstore02/ana/Hydjet_MinBias_4TeV_d20100305/Hydjet_MinBias_4TeV_runs1to500.root");
-  fwlite::Event event(infile);
+    //  fwlite::Event event(infile);
   vector<int> runnums;
 
   // Creating output table
@@ -59,7 +80,7 @@ void makeMCCentralityTable(int nbins = 40, const string label = "hf", const char
   // Determining bins of cross section
   // loop over events
   unsigned int events=0;
-  for(event.toBegin(); !event.atEnd(); ++event, ++events){
+  for(event.toBegin(); !event.atEnd() && (maxEvents < 0 || events< maxEvents); ++event, ++events){
      edm::EventBase const & ev = event;
     if( events % 100 == 0 ) cout<<"Processing event : "<<events<<endl;
     edm::Handle<edm::GenHIEvent> mc;
@@ -78,6 +99,8 @@ void makeMCCentralityTable(int nbins = 40, const string label = "hf", const char
     double eb = cent->EtEBSum();
     double eep = cent->EtEESumPlus();
     double eem = cent->EtEESumMinus();
+    double etmr = cent->EtMidRapiditySum();
+    double npix = cent->multiplicityPixel();
 
     double parameter = 0;
     if(label.compare("npart") == 0) parameter = npart;
@@ -88,6 +111,8 @@ void makeMCCentralityTable(int nbins = 40, const string label = "hf", const char
     if(label.compare("hft") == 0) parameter = hftp + hftm;
     if(label.compare("eb") == 0) parameter = eb;
     if(label.compare("ee") == 0) parameter = eep+eem;
+    if(label.compare("etmr") == 0) parameter = etmr;
+    if(label.compare("npix") == 0) parameter = npix;
 
     values.push_back(parameter);
     
@@ -115,9 +140,11 @@ void makeMCCentralityTable(int nbins = 40, const string label = "hf", const char
      if(i < nbins - 1) cout<<",";
      else cout<<")"<<endl;
   }
+
   cout<<"-------------------------------------"<<endl;
 
   // Determining Glauber results in various bins
+  dir->cd();
   TH2D* hNpart = new TH2D("hNpart","",nbins,binboundaries,500,0,500);
   TH2D* hNcoll = new TH2D("hNcoll","",nbins,binboundaries,2000,0,2000);
   TH2D* hNhard = new TH2D("hNhard","",nbins,binboundaries,250,0,250);
@@ -141,6 +168,8 @@ void makeMCCentralityTable(int nbins = 40, const string label = "hf", const char
      double eb = cent->EtEBSum();
      double eep = cent->EtEESumPlus();
      double eem = cent->EtEESumMinus();
+     double etmr = cent->EtMidRapiditySum();
+     double npix = cent->multiplicityPixel();
 
      double parameter = 0;
 
@@ -152,6 +181,8 @@ void makeMCCentralityTable(int nbins = 40, const string label = "hf", const char
      if(label.compare("hft") == 0) parameter = hftp + hftm;
      if(label.compare("eb") == 0) parameter = eb;
      if(label.compare("ee") == 0) parameter = eep+eem;
+     if(label.compare("etmr") == 0) parameter = etmr;
+     if(label.compare("npix") == 0) parameter = npix;
     
      hNpart->Fill(parameter,npart);
      hNcoll->Fill(parameter,ncoll);
@@ -161,7 +192,7 @@ void makeMCCentralityTable(int nbins = 40, const string label = "hf", const char
 
   // Fitting Glauber distributions in bins to get mean and sigma values
 
-
+  dir->cd();
   TF1* fGaus = new TF1("fb","gaus(0)",0,2); 
   fGaus->SetParameter(0,1);
   fGaus->SetParameter(1,0.04);
@@ -187,30 +218,30 @@ void makeMCCentralityTable(int nbins = 40, const string label = "hf", const char
 
   // Enter values in table
   for(int i = 0; i < nbins; ++i){
-     bins->table_[nbins-i-1].n_part_mean = hNpartMean->GetBinContent(i);
-     bins->table_[nbins-i-1].n_part_var = hNpartSigma->GetBinContent(i);
-     bins->table_[nbins-i-1].n_coll_mean = hNcollMean->GetBinContent(i);
-     bins->table_[nbins-i-1].n_coll_var = hNcollSigma->GetBinContent(i);
-     bins->table_[nbins-i-1].b_mean = hbMean->GetBinContent(i);
-     bins->table_[nbins-i-1].b_var = hbSigma->GetBinContent(i);
-     bins->table_[nbins-i-1].n_hard_mean = hNhardMean->GetBinContent(i);
-     bins->table_[nbins-i-1].n_hard_var = hNhardSigma->GetBinContent(i);
-     bins->table_[nbins-i-1].bin_edge = binboundaries[i];
+     int ii = nbins-i-1;
+     bins->table_[i].n_part_mean = hNpartMean->GetBinContent(ii);
+     bins->table_[i].n_part_var = hNpartSigma->GetBinContent(ii);
+     bins->table_[i].n_coll_mean = hNcollMean->GetBinContent(ii);
+     bins->table_[i].n_coll_var = hNcollSigma->GetBinContent(ii);
+     bins->table_[i].b_mean = hbMean->GetBinContent(ii);
+     bins->table_[i].b_var = hbSigma->GetBinContent(ii);
+     bins->table_[i].n_hard_mean = hNhardMean->GetBinContent(ii);
+     bins->table_[i].n_hard_var = hNhardSigma->GetBinContent(ii);
+     bins->table_[i].bin_edge = binboundaries[ii];
 
      cout<<i<<" "
-	 <<hNpartMean->GetBinContent(i)<<" "
-	 <<hNpartSigma->GetBinContent(i)<<" "
-	 <<hNcollMean->GetBinContent(i)<<" "
-	 <<hNcollSigma->GetBinContent(i)<<" "
-	 <<hbMean->GetBinContent(i)<<" "
-	 <<hbSigma->GetBinContent(i)<<" "
-	 <<binboundaries[i]<<" "
+	 <<hNpartMean->GetBinContent(ii)<<" "
+	 <<hNpartSigma->GetBinContent(ii)<<" "
+	 <<hNcollMean->GetBinContent(ii)<<" "
+	 <<hNcollSigma->GetBinContent(ii)<<" "
+	 <<hbMean->GetBinContent(ii)<<" "
+	 <<hbSigma->GetBinContent(ii)<<" "
+	 <<binboundaries[ii]<<" "
 	 <<endl;
   }
   cout<<"-------------------------------------"<<endl;
 
   // Save the table in output file
-
   if(onlySaveTable){
 
      hNpart->Delete();

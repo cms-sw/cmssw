@@ -17,6 +17,7 @@
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/HeavyIonEvent/interface/CentralityBins.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/FWLite/interface/ChainEvent.h"
 
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/HeavyIonEvent/interface/Centrality.h"
@@ -39,9 +40,22 @@ void makeCentralityTable(int nbins = 40, const string label = "hf", const char *
 
    // Retrieving data
   int nFiles = 1;
-  vector<string> fileNames;
-  TFile* infile = new TFile("/net/hisrv0001/home/yetkin/pstore02/ana/Hydjet_MinBias_d20100222/Hydjet_MinBias_4TeV_runs1to300.root");
-  fwlite::Event event(infile);
+  vector<string> infiles;
+  //  TFile* infile = new TFile("/net/hisrv0001/home/yetkin/pstore02/ana/Hydjet_MinBias_d20100222/Hydjet_MinBias_4TeV_runs1to300.root");
+  //  fwlite::Event event(infile);
+  infiles.push_back("~/hibat0007/aod/JulyExercise/MinBias0707/MinBias0707_runs1to10.root");
+  //  infiles.push_back("~/hibat0007/aod/JulyExercise/MinBias0707/MinBias0707_runs11to20.root");
+  infiles.push_back("~/hibat0007/aod/JulyExercise/MinBias0707/MinBias0707_runs21to30.root");
+  infiles.push_back("~/hibat0007/aod/JulyExercise/MinBias0707/MinBias0707_runs31to40.root");
+  infiles.push_back("~/hibat0007/aod/JulyExercise/MinBias0707/MinBias0707_runs41to50.root");
+  infiles.push_back("~/hibat0007/aod/JulyExercise/MinBias0707/MinBias0707_runs51to60.root");
+  //  infiles.push_back("~/hibat0007/aod/JulyExercise/MinBias0707/MinBias0707_runs61to70.root");
+  //  infiles.push_back("~/hibat0007/aod/JulyExercise/MinBias0707/MinBias0707_runs71to80.root");
+  //  infiles.push_back("~/hibat0007/aod/JulyExercise/MinBias0707/MinBias0707_runs81to90.root")
+  //  infiles.push_back("~/hibat0007/aod/JulyExercise/MinBias0707/MinBias0707_runs91to100.root");
+
+  fwlite::ChainEvent event(infiles);
+
   vector<int> runnums;
 
   // Creating output table
