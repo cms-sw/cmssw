@@ -17,10 +17,11 @@ def main(argv):
     input_orcoffmenu = 0
     input_userefprescales = 0
     input_referencecolumn = 0
+    input_pdsort = 0
     input_config = "/cdaq/physics/firstCollisions10/v5.0/HLT/V2"
     input_refconfig = "/cdaq/physics/firstCollisions10/v5.1/HLT_900GeV/V3"
 
-    opts, args = getopt.getopt(sys.argv[1:], "c:onfp:r:h", ["config=","orcoff","notechnicaltriggers","fakel1seeds","addreferenceprescales=","referenceconfig=","help"])
+    opts, args = getopt.getopt(sys.argv[1:], "c:onfdp:r:h", ["config=","orcoff","notechnicaltriggers","fakel1seeds","datasetsorting","addreferenceprescales=","referenceconfig=","help"])
 
     for o, a in opts:
         if o in ("-c","config="):
@@ -31,6 +32,9 @@ def main(argv):
         if o in ("-f","fakel1seeds="):
             print "Will use Open L1 seeding"
             input_fakel1 = 1
+        if o in ("-d","datasetsorting="):
+            print "Will sort by PD's"
+            input_pdsort = 1
         if o in ("-p","addreferenceprescales"):
             input_userefprescales = 1
             input_referencecolumn = a
@@ -44,18 +48,19 @@ def main(argv):
             print "-o (Take the configuration from ORCOFF instead of HLTDEV)"
             print "-n (Don't include paths seeded by technical triggers)"
             print "-f (Use the fake OpenL1_ZeroBias seed instead of rechecking L1's)"
-            print "-p (Include prescales that were previously applied online)"
+            print "-p <column> (Include prescales that were previously applied online. Default is the first column (0))"
             print "-r <HLT key> (HLT configuration to take the previously applied prescales from)" 
+            print "-d (Sort triggers in the cfg by Primary Dataset rather than the order they appear in the menu" 
             print "-h (Print the help menu)"
             return
 
-    confdbjob = ConfdbToOpenHLT(input_config,input_orcoffmenu,input_notech,input_fakel1,input_userefprescales,input_refconfig,input_referencecolumn)
+    confdbjob = ConfdbToOpenHLT(input_config,input_orcoffmenu,input_notech,input_fakel1,input_userefprescales,input_refconfig,input_referencecolumn,input_pdsort)
     confdbjob.BeginJob()
     os.system("mv OHltTree_FromConfDB.h OHltTree.h")
     
             
 class ConfdbToOpenHLT:
-    def __init__(self,cliconfig,cliorcoff,clinotech,clifakel1,clirefprescales,clirefconfig,clireferencecolumn):
+    def __init__(self,cliconfig,cliorcoff,clinotech,clifakel1,clirefprescales,clirefconfig,clireferencecolumn,clipdsort):
 
         self.configname = cliconfig
         self.orcoffmenu = cliorcoff 
@@ -69,6 +74,7 @@ class ConfdbToOpenHLT:
         self.l1modulenameseedmap = {}
         self.hltl1modulemap = {}
         self.referencecolumn = int(clireferencecolumn)
+        self.pdsort = clipdsort
 
     def BeginJob(self):
 
@@ -85,6 +91,8 @@ class ConfdbToOpenHLT:
         addressestoadd = []
         mapstoadd = []
         usedl1bits = [] 
+        hltpdmap = []
+        thepds = []
         
         rateeffhltcfgfile = open("hltmenu_extractedhltmenu.cfg",'w')
         rateeffopenhltcfgfile = open("openhltmenu_extractedhltmenu.cfg",'w')
@@ -111,7 +119,7 @@ class ConfdbToOpenHLT:
         reftheextend = "refprocess.extend(refhltmenu)"
         exec reftheextend
 
-        # Get HLT prescales
+        # Get HLT reference prescales
         myservices = refprocess.services_()
         for servicename, servicevalue in myservices.iteritems():
             if(servicename == "PrescaleService"):
@@ -176,6 +184,14 @@ class ConfdbToOpenHLT:
             bitnumber = l1line.split("|")[2].lstrip().rstrip()
             self.l1aliasmap[bitnumber] = aliasname
 
+        # Get PrimaryDatasets
+        mydatasets = process.datasets
+        mydataset = mydatasets.parameters_()
+        for datasetname, datasetval in mydataset.iteritems():
+            thepds.append(datasetname)
+            for datasetmember in datasetval:
+                hltpdmap.append((datasetmember, datasetname)) 
+
         # Get ordering from the schedule
         myschedule = process.HLTSchedule
         for path in myschedule:
@@ -215,6 +231,7 @@ class ConfdbToOpenHLT:
                         if(name in self.hltprescalemap):
                             theprescale = self.hltprescalemap[name]
 
+                            
         # Now we have all the information, construct any configuration/branch changes
         for thepathname in thepaths:
             if((thepathname.startswith("HLT_")) or (thepathname.startswith("AlCa_"))):     
@@ -267,10 +284,36 @@ class ConfdbToOpenHLT:
 
         rateeffhltcfgfile.write("  # (TriggerName, Prescale, EventSize)" + "\n" + " triggers = (" + "\n" + "#" + "\n") 
         rateeffopenhltcfgfile.write("  # (TriggerName, Prescale, EventSize)" + "\n" + " triggers = (" + "\n" + "#" + "\n")
-        for rateeffpath in thefullhltpaths:
-            rateeffhltcfgfile.write(rateeffpath + "\n")
-        for rateeffpath in theopenhltpaths:
-            rateeffopenhltcfgfile.write(rateeffpath + "\n")
+
+
+        # Sort triggers by Primary Dataset
+        if(self.pdsort == 1):
+            for thepd in thepds:
+                rateeffhltcfgfile.write('############# dataset ' + str(thepd) + ' ###############\n')
+                rateeffopenhltcfgfile.write('############# dataset ' + str(thepd) + ' ###############\n')
+                for rateeffpath in thefullhltpaths:
+                    therateeffpath = (rateeffpath.split(',')[0]).split('"')[1]
+                    for pdtrigname, pd, in hltpdmap:
+                        if (pdtrigname == therateeffpath):
+                            if(pd == thepd):
+                                rateeffhltcfgfile.write(rateeffpath + "\n")
+                for rateeffpath in theopenhltpaths:
+                    therateeffpath = (rateeffpath.split(',')[0]).split('"')[1]
+                    if(therateeffpath.find("OpenHLT") != -1):
+                        therateeffpath = therateeffpath.replace("OpenHLT","HLT")
+                    if(therateeffpath.find("OpenAlCa") != -1):
+                        therateeffpath = therateeffpath.replace("OpenAlCa","AlCa")
+                    for pdtrigname, pd, in hltpdmap:
+                        if (pdtrigname == therateeffpath):
+                            if(pd == thepd):
+                                rateeffopenhltcfgfile.write(rateeffpath + "\n")
+
+        # Sort triggers by the order they appear in the menu 
+        else:
+            for rateeffpath in thefullhltpaths:
+                rateeffhltcfgfile.write(rateeffpath + "\n")
+            for rateeffpath in theopenhltpaths:
+                rateeffopenhltcfgfile.write(rateeffpath + "\n")
 
         rateeffhltcfgfile.write("# " + "\n" + " );" + "\n\n")
         rateeffopenhltcfgfile.write("# " + "\n" + " );" + "\n\n")
@@ -301,6 +344,7 @@ class ConfdbToOpenHLT:
         foundaddress = False
         foundmapping = False
 
+        # Now update the library with any newly-added trigger bit names 
         for intbit in theintbits:
             foundintbit = False
             for linetomerge in linestomerge:
