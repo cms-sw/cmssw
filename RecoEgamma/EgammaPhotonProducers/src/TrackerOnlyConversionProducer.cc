@@ -13,7 +13,7 @@
 //
 // Original Author:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: TrackerOnlyConversionProducer.cc,v 1.20 2010/03/23 14:31:33 nancy Exp $
+// $Id: TrackerOnlyConversionProducer.cc,v 1.21 2010/06/03 14:34:47 nancy Exp $
 //
 //
 
@@ -449,7 +449,7 @@ bool TrackerOnlyConversionProducer::checkVertex(const reco::TrackRef& tk_l, cons
     MultiTrackKinematicConstraint *  constr = new ColinearityKinematicConstraint(ColinearityKinematicConstraint::PhiTheta);
 
     KinematicConstrainedVertexFitter kcvFitter;
-    kcvFitter.setParameters(pSet);
+    //    kcvFitter.setParameters(pSet);
     RefCountedKinematicTree myTree = kcvFitter.fit(particles, constr);
     if( myTree->isValid() ) {
 	myTree->movePointerToTheTop();                                                                                
