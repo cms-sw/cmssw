@@ -26,7 +26,7 @@ void stack_zMuSta() {
 
 
 
-  makePlots("zMuStaMass", "", kin_common + (( dau1TightWP2_hltAlso &&  dau2Loose ) || (dau2TightWP2_hltAlso +  dau1Loose)), 5, "zMuSta",  0.0001, 200, 0 ,200, true);
+  makePlots("zMuStaMass", "", kin_common + (( dau1TightWP2_hltAlso &&  dau2Loose ) || (dau2TightWP2_hltAlso +  dau1Loose)), 5, "zMuSta",  0.0001, 200, 0 ,200, true, true);
 
   //  makePlots("zMuStaMass", "", kin_common + dau1TightWP1_hltAlso , 5, "zMuSta",  0.001, 200, 0 ,200, true);
 

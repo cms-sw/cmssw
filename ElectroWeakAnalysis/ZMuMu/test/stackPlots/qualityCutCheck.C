@@ -43,21 +43,41 @@ TCut massCut("zGoldenMass>60 && zGoldenMass<120 ");
 TChain * dataEvents= new TChain("Events");
 
 
-dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_132440_135802.root");
-dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_135821-137731.root");
-dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_138737-138751_promptreco_FF.root");
-dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_138_919_939.root");
-dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139020.root");
 
+
+ dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_132440_135802.root");
+ dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_135821-137731.root");
+ dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_138737-138751_promptr
+eco_FF.root");
+ dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_138_919_939.root");
+ dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139020.root");
  dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_096_103.root");
  dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_195_239.root");
+ dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139347.root");
+ dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_356_360.root");
+ dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_362_365.root");
+ dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_368_370.root");
+ dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_372_375.root");
+ dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_399_411.root");
+ dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_457_459.root");
 
+
+
+
+ std::cout << "muon with high chi2 " << std::endl;
 
  Events->Scan("zGoldenRunNumber:zGoldenLumiblock:zGoldenEventNumber:zGoldenMass:zGoldenDau1Pt:zGoldenDau1Eta:zGoldenDau1Iso03SumPt:zGoldenDau1Chi2:zGoldenDau1NofPixelHits:zGoldenDau1NofStripHits:zGoldenDau1NofMuonHits:zGoldenDau1HLTBit:zGoldenDau1TrackerMuonBit:zGoldenDau1NofMuMatches:zGoldenDau1TrkChi2:zGoldenDau1SaChi2",  "zGoldenMass>60 && zGoldenMass<120" + kin_common + "zGoldenDau1Chi2>10 || zGoldenDau2Chi2>10");
 
- // Events->Scan("zGoldenRunNumber:zGoldenLumiblock:zGoldenEventNumber:zGoldenMass:zGoldenDau1Pt:zGoldenDau1Eta:zGoldenDau1Iso03SumPt:zGoldenDau1Chi2:zGoldenDau1NofPixelHits:zGoldenDau1NofStripHits:zGoldenDau1NofMuonHits:zGoldenDau1HLTBit:zGoldenDau1TrackerMuonBit:zGoldenDau1NofMuMatches:zGoldenDau1dxyFromBS:zGoldenDau2dxyFromBS",  "zGoldenMass>60 && zGoldenMass<120" + kin_common + "zGoldenDau1NofPixelHits==0 || zGoldenDau2NofPixelHits==0");
+ std::cout << "muon with hit  pixel 0 " << std::endl;
 
- Events->Scan("zMuStaRunNumber:zMuStaLumiblock:zMuStaEventNumber:zMuStaMass:zMuStaDau1Pt:zMuStaDau1Eta:zMuStaDau2Pt:zMuStaDau2Eta:zMuStaDau1HLTBit:zMuStaDau1NofMuMatches:zMuStaDau2HLTBit:zMuStaDau2NofMuMatches:",  "zMuStaMass>60 && zMuStaMass<120"+ kin_common_musta );
+
+  Events->Scan("zGoldenRunNumber:zGoldenLumiblock:zGoldenEventNumber:zGoldenMass:zGoldenDau1Pt:zGoldenDau1Eta:zGoldenDau1Iso03SumPt:zGoldenDau1Chi2:zGoldenDau1NofPixelHits:zGoldenDau1NofStripHits:zGoldenDau1NofMuonHits:zGoldenDau1HLTBit:zGoldenDau1TrackerMuonBit:zGoldenDau1NofMuMatches:zGoldenDau1dxyFromBS:zGoldenDau2dxyFromBS",  "zGoldenMass>60 && zGoldenMass<120" + kin_common + "zGoldenDau1NofPixelHits==0 || zGoldenDau2NofPixelHits==0");
+
+ std::cout << "muon chamber 0  " << std::endl;
+
+Events->Scan("zGoldenRunNumber:zGoldenLumiblock:zGoldenEventNumber:zGoldenMass:zGoldenDau1Pt:zGoldenDau1Eta:zGoldenDau1Iso03SumPt:zGoldenDau1Chi2:zGoldenDau1NofPixelHits:zGoldenDau1NofStripHits:zGoldenDau1NofMuonHits:zGoldenDau1HLTBit:zGoldenDau1TrackerMuonBit:zGoldenDau1NofMuMatches:zGoldenDau1dxyFromBS:zGoldenDau2dxyFromBS",  "zGoldenMass>60 && zGoldenMass<120" + kin_common + "zGoldenDau1NofMuMatches==0 || zGoldenDau2NofMuMatches==0");
+
+  //Events->Scan("zMuStaRunNumber:zMuStaLumiblock:zMuStaEventNumber:zMuStaMass:zMuStaDau1Pt:zMuStaDau1Eta:zMuStaDau2Pt:zMuStaDau2Eta:zMuStaDau1HLTBit:zMuStaDau1NofMuMatches:zMuStaDau2HLTBit:zMuStaDau2NofMuMatches:",  "zMuStaMass>60 && zMuStaMass<120"+ kin_common_musta );
 
 
 

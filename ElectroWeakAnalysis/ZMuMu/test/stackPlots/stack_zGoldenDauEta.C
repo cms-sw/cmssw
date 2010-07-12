@@ -3,7 +3,7 @@
 
 #include <sstream>
 #include <string>
-#include "stack_common.h"
+#include "stack_common_leftLeg.h"
 
 void stack_zGoldenDauEta() {
 
@@ -13,7 +13,7 @@ void stack_zGoldenDauEta() {
 
 
 
-  makePlots("zGoldenDau1Eta", "zGoldenDau2Eta", massCut + kin_common + ( ( dau1Loose  && dau2TightWP1_hltAlso ) || ( dau2Loose  && dau1TightWP1_hltAlso )),  1, "zGoldenDauEta",  0.001, 18, -2.7 ,2.7, true);
+  makePlots("zGoldenDau1Eta", "zGoldenDau2Eta", massCut + kin_common + ( ( dau1Loose  && dau2TightWP1_hltAlso ) || ( dau2Loose  && dau1TightWP1_hltAlso )),  1, "zGoldenDauEta",  0.001, 18, -2.7 ,2.7, true, false);
   hs->GetXaxis()->SetTitle("#eta_{#mu}");
   string yTag = "events/(0.1)"; // use the correct rebin
   hs->GetYaxis()->SetTitle(yTag.c_str());

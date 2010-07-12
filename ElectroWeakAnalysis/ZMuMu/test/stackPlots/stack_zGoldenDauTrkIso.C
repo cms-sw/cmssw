@@ -12,9 +12,9 @@ TCut kin_common_woIso("zGoldenDau1Pt>20 && zGoldenDau2Pt>20 && abs(zGoldenDau1Et
 
 
 
-  makePlots("zGoldenDau1Iso03SumPt", "zGoldenDau2Iso03SumPt",  massCut + kin_common_woIso + ( ( dau1Loose  && dau2TightWP1_hltAlso) || ( dau2Loose  && dau1TightWP1_hltAlso )) , 1, "zGoldenDauTrkIso",  0.01, 50, 0 ,10, true);
-  hs->GetXaxis()->SetTitle("#sum pt (GeV/c) (tracker)");
-  string yTag = "events/(.2 GeV/c)"; // use the correct rebin
+ makePlots("zGoldenDau1Iso03SumPt", "zGoldenDau2Iso03SumPt",  massCut + kin_common_woIso + ( ( dau1Loose  && dau2TightWP1_hltAlso) || ( dau2Loose  && dau1TightWP1_hltAlso )) , 1, "zGoldenDauTrkIso",  0.01, 25, 0 ,5, true, false);
+  hs->GetXaxis()->SetTitle("#sum pt [GeV] (tracker)");
+  string yTag = "events/ .2 GeV "; // use the correct rebin
   hs->GetYaxis()->SetTitle(yTag.c_str());
   hs->GetYaxis()->SetTitleOffset(1.2);
   c1->SaveAs("zGoldenDauTrkIso.eps");

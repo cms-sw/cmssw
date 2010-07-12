@@ -163,7 +163,7 @@ void setHisto(TH1 * h, Color_t fill, Color_t line, double scale, int rebin) {
 }
 
 void stat(TH1 * h1, TH1 * h2, TH1 * h3, TH1 * h4, TH1 *h5, TH1 * hdata, int rebin) {
-  double a = mMin/rebin, b = mMax/rebin;
+  double a = mMin/rebin +1, b = mMax/rebin;
   double i1 = h1->Integral(a, b);
   double err1 = sqrt(i1);
   double i2 = h2->Integral(a, b);
