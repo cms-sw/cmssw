@@ -245,5 +245,6 @@ void testExpressionParser::checkAll() {
     checkMuon("userIso(0)" , muon.userIso(0));
     checkMuon("userIso(1)" , muon.userIso(1));
     checkMuon("trackIsoDeposit.candEnergy", muon.trackIsoDeposit()->candEnergy());
+    checkMuon("isoDeposit('TrackIso').candEnergy", muon.isoDeposit(pat::TrackIso)->candEnergy());
   }
 }
