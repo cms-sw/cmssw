@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz,32 4-A08,+41227673039,
 //         Created:  Tue Jun 29 12:19:49 CEST 2010
-// $Id: CentralityFilter.cc,v 1.2 2010/06/29 11:48:35 yilmaz Exp $
+// $Id: CentralityFilter.cc,v 1.3 2010/06/29 12:22:20 yilmaz Exp $
 //
 //
 
@@ -103,9 +103,9 @@ CentralityFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(src_,cent);
 
    double hf = cent->EtHFhitSum();
-   double hftp = cent->EtHFtowerSumPlus();
-   double hftm = cent->EtHFtowerSumMinus();
-   double eb = cent->EtEBSum();
+   //double hftp = cent->EtHFtowerSumPlus();
+   //double hftm = cent->EtHFtowerSumMinus();
+   //double eb = cent->EtEBSum();
    double ee = cent->EtEESum();
 
    int bin = -1;
