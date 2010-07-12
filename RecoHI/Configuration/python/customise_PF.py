@@ -24,7 +24,8 @@ def customise(process):
     process.particleFlowBlock.useIterTracking = cms.bool(False)
     process.particleFlow.vertexCollection = cms.InputTag("hiSelectedVertex")
     process.particleFlow.usePFElectrons = cms.bool(False)
-    process.particleFlowReco.remove(process.particleFlowTrack)
+    #process.particleFlowReco.remove(process.particleFlowTrack)
+    process.particleFlowReco.remove(process.particleFlowTrackWithDisplacedVertex)
     process.particleFlowReco.remove(process.pfElectronTranslatorSequence)
 
     # define new high-level RECO sequence and add to top-level sequence
@@ -34,8 +35,4 @@ def customise(process):
                                              * process.recoPFJets)
     process.reconstructionHeavyIons *= process.highLevelRecoPbPb
 
-    # remove very slow jet algos
-    process.globalRecoPbPb.remove(process.akPu5CaloJets)
-    process.globalRecoPbPb.remove(process.akPu7CaloJets)
-    
     return process
