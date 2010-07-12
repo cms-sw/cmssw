@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: PVFitter.h,v 1.7 2010/06/18 19:35:59 yumiceva Exp $
+ version $Id: PVFitter.h,v 1.8 2010/06/24 22:01:55 uplegger Exp $
 
  ________________________________________________________________**/
 
@@ -85,12 +85,17 @@ class PVFitter {
   /// vertex quality measure
   double pvQuality (const BeamSpotFitPVData& pv) const;
   int getNPVs() { return pvStore_.size(); }
-  void getNPVsperBX() {
+  std::map<int, int> getNPVsperBX() {
+    std::map<int, int> npvsmap;
+
     for ( std::map<int,std::vector<BeamSpotFitPVData> >::const_iterator pvStore = bxMap_.begin(); 
 	  pvStore!=bxMap_.end(); ++pvStore) {
 
-      std::cout << "bx " << pvStore->first << " NPVs = " << (pvStore->second).size() << std::endl;
+      //std::cout << "bx " << pvStore->first << " NPVs = " << (pvStore->second).size() << std::endl;
+      npvsmap[ pvStore->first ] = (pvStore->second).size();
+
     }
+    return npvsmap;
   }
 
  private:

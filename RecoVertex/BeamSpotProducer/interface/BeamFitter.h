@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.36 2010/06/24 22:01:55 uplegger Exp $
+ version $Id: BeamFitter.h,v 1.37 2010/07/08 03:16:55 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -83,8 +83,8 @@ class BeamFitter {
   int getNPVs() {
     return MyPVFitter->getNPVs();
   }
-  void getNPVsperBX() {
-    MyPVFitter->getNPVsperBX();
+  std::map<int, int> getNPVsperBX() {
+    return MyPVFitter->getNPVsperBX();
   }
  private:
 
