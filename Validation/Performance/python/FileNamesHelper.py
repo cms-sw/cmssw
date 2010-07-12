@@ -69,6 +69,7 @@ def read_ConfigurationFromSimulationCandles(path, step, is_pileup):
 		#print simCandlesRules[2][1].match(line) and simCandlesRules[2][1].match(line).groups() or ""
 
 		info, missing_fields = parsingRulesHelper.rulesParser(simCandlesRules, [line], compileRules = False)
+		#print info
 		#Massaging the info dictionary conditions entry to allow for new cmsDriver.py --conditions option:
 		if 'auto:' in info['conditions']:
 			from Configuration.PyReleaseValidation.autoCond import autoCond
@@ -238,7 +239,8 @@ def getJobID_fromIgProfLogName(logfile_name):
 	everything is given, just have to split it...
 	like:
 	TTbar___GEN,FASTSIM___LowLumiPileUp___MC_37Y_V5___RAWSIM___MEM_LIVE___1.sql3
-
+	and correct the conditions!
+	
 	"""
 
 	(path, filename) = os.path.split(logfile_name)
@@ -249,18 +251,24 @@ def getJobID_fromIgProfLogName(logfile_name):
 	pileup_type = params[2]
 	if pileup_type == "NOPILEUP":
 		pileup_type = ""
-
+	conditions = params[3] + "::All"
+	event_content = params[4]
+	
 	#get (at least) the conditions from the SimulationCandles!!
-	try:
-		conf = read_ConfigurationFromSimulationCandles(path = path, step = step, is_pileup= pileup_type)
-		if conf:
-			is_pileup = conf["pileup_type"]
-			conditions = conf["conditions"]
-			event_content = conf["event_content"]
-	except OSError, e:
-		pass
+	#doesn't work in all cases!!! (GEN,SIM,DIGI for example...)
+	#try:
+	#	print pileup_type
+	#	print step
+	#	print path
+	#	conf = read_ConfigurationFromSimulationCandles(path = path, step = step, is_pileup= pileup_type)
+	#	if conf:
+	#		is_pileup = conf["pileup_type"]
+	#		conditions = conf["conditions"]
+	#		event_content = conf["event_content"]
+	#except OSError, e:
+	#	pass
 			
-	return (candle, step, is_pileup, conditions, event_content)
+	return (candle, step, pileup_type, conditions, event_content)
 
 """ Get the root file size for the candle, step in current dir """
 def getRootFileSize(path, candle, step):
