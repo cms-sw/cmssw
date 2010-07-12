@@ -84,6 +84,9 @@ namespace reco {
             std::pair<AnyMethodArgument,int> operator()(const std::string &t) const { 
                 if (type_ == typeid(std::string)) { return std::pair<AnyMethodArgument,int>(t,0); }
                 if (rflxType_.IsEnum()) {
+                    if (rflxType_.MemberSize() == 0) {
+                        throw parser::Exception(t.c_str()) << "Enumerator '" << rflxType_.Name() << "' has no keys.\nPerhaps the reflex dictionary is missing?\n";
+                    }
                     Reflex::Member value = rflxType_.MemberByName(t);
                     //std::cerr << "Trying to convert '" << t << "'  to a value for enumerator '" << rflxType_.Name() << "'" << std::endl;
                     if (!value) // check for existing value
