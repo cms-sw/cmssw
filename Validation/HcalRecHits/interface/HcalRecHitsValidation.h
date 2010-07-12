@@ -359,6 +359,12 @@ class HcalRecHitsValidation : public edm::EDAnalyzer {
   MonitorElement* RecHit_StatusWord_HF67;
   MonitorElement* RecHit_StatusWord_HO;
 
+  //Aux Status word histos
+  MonitorElement* RecHit_Aux_StatusWord_HB;
+  MonitorElement* RecHit_Aux_StatusWord_HE;
+  MonitorElement* RecHit_Aux_StatusWord_HF;
+  MonitorElement* RecHit_Aux_StatusWord_HO;
+
  // Filling vectors with essential RecHits data
   std::vector<int>      csub;
   std::vector<int>      cieta;
@@ -370,6 +376,7 @@ class HcalRecHitsValidation : public edm::EDAnalyzer {
   std::vector<double>   ctime;
   std::vector<double>   cz;
   std::vector<uint32_t> cstwd;
+  std::vector<uint32_t> cauxstwd;
 
   // array or min. e-values  ieta x iphi x depth x subdet
   double emap_min[82][72][4][4];

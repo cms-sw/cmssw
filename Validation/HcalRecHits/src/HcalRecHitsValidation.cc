@@ -319,6 +319,19 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       sprintf (histo, "HcalRecHitTask_RecHit_StatusWord_HO" ) ;
       RecHit_StatusWord_HO = dbe_->book1D(histo, histo, 32 , -0.5, 31.5); 
 
+      //Aux status word histos
+      sprintf (histo, "HcalRecHitTask_RecHit_Aux_StatusWord_HB" ) ;
+      RecHit_Aux_StatusWord_HB = dbe_->book1D(histo, histo, 32 , -0.5, 31.5); 
+      
+      sprintf (histo, "HcalRecHitTask_RecHit_Aux_StatusWord_HE" ) ;
+      RecHit_Aux_StatusWord_HE = dbe_->book1D(histo, histo, 32 , -0.5, 31.5); 
+
+      sprintf (histo, "HcalRecHitTask_RecHit_Aux_StatusWord_HF" ) ;
+      RecHit_Aux_StatusWord_HF = dbe_->book1D(histo, histo, 32 , -0.5, 31.5); 
+
+      sprintf (histo, "HcalRecHitTask_RecHit_Aux_StatusWord_HO" ) ;
+      RecHit_Aux_StatusWord_HO = dbe_->book1D(histo, histo, 32 , -0.5, 31.5); 
+
       //These are not drawn
       if(imc !=0 && useAllHistos_) { 
 	sprintf  (histo, "map_econe_depth1" );
@@ -1227,6 +1240,7 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     double eta    = ceta[i]; 
     double phi    = cphi[i]; 
     uint32_t stwd = cstwd[i];
+    uint32_t auxstwd = cauxstwd[i];
     //    double z   = cz[i];
 
     int index = ieta * 72 + iphi; //  for sequential histos
@@ -1370,6 +1384,17 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
       }
     }
     if (isw67 != 0 && useAllHistos_) RecHit_StatusWord_HF67->Fill(isw67); //This one is not drawn
+
+    for (unsigned int isw =0; isw < 32; isw++){
+      statadd = 0x1<<(isw);
+      if( auxstwd & statadd ){
+        if      (sub == 1) RecHit_Aux_StatusWord_HB->Fill(isw);
+        else if (sub == 2) RecHit_Aux_StatusWord_HE->Fill(isw);
+        else if (sub == 3) RecHit_Aux_StatusWord_HO->Fill(isw);
+        else if (sub == 4) RecHit_Aux_StatusWord_HF->Fill(isw);
+      }
+
+    }
 
   } 
  
@@ -1866,6 +1891,7 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
   cdepth.clear();
   cz.clear();
   cstwd.clear();
+  cauxstwd.clear();
   hcalHBSevLvlVec.clear();
   hcalHESevLvlVec.clear();
   hcalHFSevLvlVec.clear();
@@ -1892,6 +1918,7 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
       double en   = j->energy();
       double t    = j->time();
       int stwd    = j->flags();
+      int auxstwd = j->aux();
       
       int serivityLevel = hcalSevLvl( (CaloRecHit*) &*j );
       if( cell.subdet()==HcalBarrel ){
@@ -1912,6 +1939,7 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
 	cdepth.push_back(depth);
 	cz.push_back(zc);
 	cstwd.push_back(stwd);
+        cauxstwd.push_back(auxstwd);
       }
     }
     
@@ -1938,6 +1966,7 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
       double en    = j->energy();
       double t     = j->time();
       int stwd     = j->flags();
+      int auxstwd  = j->aux();
 
       int serivityLevel = hcalSevLvl( (CaloRecHit*) &*j );
       if( cell.subdet()==HcalForward ){
@@ -1956,6 +1985,7 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
 	cdepth.push_back(depth);
 	cz.push_back(zc);
 	cstwd.push_back(stwd);
+        cauxstwd.push_back(auxstwd);
       }
     }
   }
@@ -1981,6 +2011,7 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
       double t     = j->time();
       double en    = j->energy();
       int stwd     = j->flags();
+      int auxstwd  = j->aux();
 
       int serivityLevel = hcalSevLvl( (CaloRecHit*) &*j );
       if( cell.subdet()==HcalOuter ){
@@ -1998,6 +2029,7 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
 	cdepth.push_back(depth);
 	cz.push_back(zc);
 	cstwd.push_back(stwd);
+        cauxstwd.push_back(auxstwd);
       }
     }
   }

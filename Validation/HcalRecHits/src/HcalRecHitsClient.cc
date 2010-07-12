@@ -156,6 +156,7 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
    MonitorElement* occupancy_vs_ieta_HO =0;
 
    MonitorElement* RecHit_StatusWord_HB =0, *RecHit_StatusWord_HE=0, *RecHit_StatusWord_HO =0, *RecHit_StatusWord_HF =0, *RecHit_StatusWord_HF67 =0;
+   MonitorElement* RecHit_Aux_StatusWord_HB =0, *RecHit_Aux_StatusWord_HE=0, *RecHit_Aux_StatusWord_HO =0, *RecHit_Aux_StatusWord_HF =0;
 
    for(unsigned int ih=0; ih<hcalMEs.size(); ih++){
       if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_map_depth1") ==0  ){
@@ -256,6 +257,10 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
       if( strcmp(hcalMEs[ih]->getName().c_str(), "HcalRecHitTask_RecHit_StatusWord_HO") ==0  ){ RecHit_StatusWord_HO= hcalMEs[ih]; }
       if( strcmp(hcalMEs[ih]->getName().c_str(), "HcalRecHitTask_RecHit_StatusWord_HF") ==0  ){ RecHit_StatusWord_HF= hcalMEs[ih]; }
       if( strcmp(hcalMEs[ih]->getName().c_str(), "HcalRecHitTask_RecHit_StatusWord_HF67") ==0  ){ RecHit_StatusWord_HF67= hcalMEs[ih]; }
+      if( strcmp(hcalMEs[ih]->getName().c_str(), "HcalRecHitTask_RecHit_Aux_StatusWord_HB") ==0  ){ RecHit_Aux_StatusWord_HB= hcalMEs[ih]; }
+      if( strcmp(hcalMEs[ih]->getName().c_str(), "HcalRecHitTask_RecHit_Aux_StatusWord_HE") ==0  ){ RecHit_Aux_StatusWord_HE= hcalMEs[ih]; }
+      if( strcmp(hcalMEs[ih]->getName().c_str(), "HcalRecHitTask_RecHit_Aux_StatusWord_HO") ==0  ){ RecHit_Aux_StatusWord_HO= hcalMEs[ih]; }
+      if( strcmp(hcalMEs[ih]->getName().c_str(), "HcalRecHitTask_RecHit_Aux_StatusWord_HF") ==0  ){ RecHit_Aux_StatusWord_HF= hcalMEs[ih]; }
    } 
    if( useAllHistos !=0 && useAllHistos !=1 ) return 0;
 
@@ -555,6 +560,18 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
       
          cnorm = RecHit_StatusWord_HF->getBinContent(ibin) / (fev * 1728.);
          RecHit_StatusWord_HF->setBinContent(ibin,cnorm);
+
+         cnorm = RecHit_Aux_StatusWord_HB->getBinContent(ibin) / (fev * 2592.);
+         RecHit_Aux_StatusWord_HB->setBinContent(ibin,cnorm);
+      
+         cnorm = RecHit_Aux_StatusWord_HE->getBinContent(ibin) / (fev * 2592.);
+         RecHit_Aux_StatusWord_HE->setBinContent(ibin,cnorm);
+      
+         cnorm = RecHit_Aux_StatusWord_HO->getBinContent(ibin) / (fev * 2160.);
+         RecHit_Aux_StatusWord_HO->setBinContent(ibin,cnorm);
+      
+         cnorm = RecHit_Aux_StatusWord_HF->getBinContent(ibin) / (fev * 1728.);
+         RecHit_Aux_StatusWord_HF->setBinContent(ibin,cnorm);
       }
       //HF 2-bit status word (not drawn)
       if(useAllHistos){
