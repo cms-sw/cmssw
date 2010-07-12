@@ -13,7 +13,7 @@
 //
 // Original Author:  Cristina Botta (Torino), Giovanni Petrucciani (UCSD)
 //         Created:  Fri 30 Apr 2010
-// $Id: TriggerMatcherToHLTDebug.cc,v 1.1 2010/05/03 12:26:00 gpetrucc Exp $
+// $Id: TriggerMatcherToHLTDebug.cc,v 1.2 2010/05/25 20:55:54 gpetrucc Exp $
 //
 
 
@@ -47,7 +47,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/MessageService/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"

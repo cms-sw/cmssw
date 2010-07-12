@@ -1,5 +1,5 @@
 //
-// $Id: HLTL1MuonMatcher.cc,v 1.1 2010/02/22 11:53:37 gpetrucc Exp $
+// $Id: HLTL1MuonMatcher.cc,v 1.2 2010/04/20 10:51:30 gpetrucc Exp $
 //
 
 /**
@@ -7,13 +7,13 @@
   \brief    Matcher of reconstructed objects to L1 Muons 
             
   \author   Giovanni Petrucciani
-  \version  $Id: HLTL1MuonMatcher.cc,v 1.1 2010/02/22 11:53:37 gpetrucc Exp $
+  \version  $Id: HLTL1MuonMatcher.cc,v 1.2 2010/04/20 10:51:30 gpetrucc Exp $
 */
 
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Math/interface/deltaPhi.h"

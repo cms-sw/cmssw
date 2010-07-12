@@ -1,7 +1,7 @@
 #ifndef MuonAnalysis_MuonAssociators_MatcherUsingTracksAlgorithm_h
 #define MuonAnalysis_MuonAssociators_MatcherUsingTracksAlgorithm_h
 //
-// $Id: MatcherUsingTracksAlgorithm.h,v 1.5 2009/09/23 07:41:00 gpetrucc Exp $
+// $Id: MatcherUsingTracksAlgorithm.h,v 1.6 2010/06/02 09:52:04 gpetrucc Exp $
 //
 
 /**
@@ -9,7 +9,7 @@
   \brief    Matcher of reconstructed objects to other reconstructed objects using the tracks inside them 
             
   \author   Giovanni Petrucciani
-  \version  $Id: MatcherUsingTracksAlgorithm.h,v 1.5 2009/09/23 07:41:00 gpetrucc Exp $
+  \version  $Id: MatcherUsingTracksAlgorithm.h,v 1.6 2010/06/02 09:52:04 gpetrucc Exp $
 */
 
 
@@ -18,7 +18,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"

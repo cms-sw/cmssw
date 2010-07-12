@@ -1,5 +1,5 @@
 //
-// $Id: MatcherUsingTracks.cc,v 1.3 2009/09/03 13:49:06 gpetrucc Exp $
+// $Id: MatcherUsingTracks.cc,v 1.4 2009/09/23 07:41:00 gpetrucc Exp $
 //
 
 /**
@@ -7,13 +7,13 @@
   \brief    Matcher of reconstructed objects to other reconstructed objects using the tracks inside them 
             
   \author   Giovanni Petrucciani
-  \version  $Id: MatcherUsingTracks.cc,v 1.3 2009/09/03 13:49:06 gpetrucc Exp $
+  \version  $Id: MatcherUsingTracks.cc,v 1.4 2009/09/23 07:41:00 gpetrucc Exp $
 */
 
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/Common/interface/ValueMap.h"
