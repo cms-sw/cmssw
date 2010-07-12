@@ -24,6 +24,9 @@ process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi")
 process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi")
 process.load("RecoTBCalo.HcalTBObjectUnpacker.HcalTBObjectUnpacker_Normal_cfi")
 
+horeco.firstSample=2
+horeco.samplesToAdd=6
+
 process.plotanal=cms.EDAnalyzer("HcalQLPlotAnal",
                                 hbheRHtag = cms.untracked.InputTag("hbhereco"),
                                 hoRHtag   = cms.untracked.InputTag("horeco"),
