@@ -25,14 +25,18 @@ This module gets called later.
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
 
 class RandomEngineStateProducer : public edm::EDProducer {
   public:
-    explicit RandomEngineStateProducer(const edm::ParameterSet&);
+    explicit RandomEngineStateProducer(edm::ParameterSet const&);
     ~RandomEngineStateProducer();
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
-    virtual void beginJob() ;
-    virtual void produce(edm::Event&, const edm::EventSetup&);
-    virtual void endJob() ;
+    virtual void beginJob();
+    virtual void produce(edm::Event&, edm::EventSetup const&);
+    virtual void endJob();
 };
