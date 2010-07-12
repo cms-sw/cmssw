@@ -15,6 +15,9 @@ patMuonsWithoutTrigger = PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi.
     embedTrack          = True,
     embedCombinedMuon   = True,
     embedStandAloneMuon = True,
+    embedPFCandidate    = False,
+    embedCaloMETMuonCorrs = cms.bool(False),
+    embedTcMETMuonCorrs   = cms.bool(False),
     # then switch off some features we don't need
     #addTeVRefits = False, ## <<--- this doesn't work. PAT bug ??
     embedPickyMuon = False,
@@ -73,7 +76,7 @@ patTrigger.onlyStandAlone = True
 
 ### ==== Then perform a match for all HLT triggers of interest
 from PhysicsTools.PatAlgos.triggerLayer1.triggerMatcher_cfi import muonTriggerMatchHLTMu3
-muonTriggerMatchHLT = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
+muonTriggerMatchHLT = cms.EDProducer( "PATTriggerMatcherDRDPtLessByR",
     src     = cms.InputTag( "patMuonsWithoutTrigger" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
