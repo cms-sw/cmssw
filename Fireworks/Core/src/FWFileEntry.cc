@@ -43,7 +43,11 @@ void FWFileEntry::openFile(){
    m_file = newFile;
    m_event = new fwlite::Event(m_file);
    m_eventTree = dynamic_cast<TTree*>(m_file->Get("Events"));
-   assert(m_eventTree!=0 && "Cannot find TTree 'Events' in the data file");
+
+   if (m_eventTree == 0)
+   { 
+      throw  std::runtime_error("Cannot find TTree 'Events' in the data file");
+   }
 }
 
 void FWFileEntry::closeFile()

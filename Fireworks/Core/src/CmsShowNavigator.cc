@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.90 2010/06/18 10:17:14 yana Exp $
+// $Id: CmsShowNavigator.cc,v 1.92 2010/06/28 19:13:17 wmtan Exp $
 //
 #define private public
 // FIXME: need access to private data members 
@@ -69,7 +69,21 @@ CmsShowNavigator::~CmsShowNavigator()
 bool
 CmsShowNavigator::openFile(const std::string& fileName)
 {
+   fwLog(fwlog::kDebug) << "CmsShowNavigator::openFile [" << fileName << "]" << std::endl;
+   FWFileEntry* newFile = 0;
    try
+   {
+      newFile = new FWFileEntry(fileName);
+   }
+   catch (std::exception& iException)
+   {
+      fwLog(fwlog::kError) <<"Navigator::openFile ecaught exception FWFileEntry constructor " << iException.what()<<std::endl;
+
+      delete newFile;
+      return false;
+   }
+
+   try 
    {
       // delete all previous files
       while ( m_files.size() > 0 )
@@ -80,7 +94,6 @@ CmsShowNavigator::openFile(const std::string& fileName)
          delete file;
       }
 
-      FWFileEntry* newFile = new FWFileEntry(fileName);
       m_files.push_back(newFile);
       setCurrentFile(m_files.begin());
 
@@ -93,8 +106,9 @@ CmsShowNavigator::openFile(const std::string& fileName)
 
       return true;
    }
-   catch (std::exception& iException) {
-      std::cerr <<"Navigator::openFile caught exception "<<iException.what()<<std::endl;
+   catch (std::exception& iException) 
+   {
+      fwLog(fwlog::kError) <<"Navigator::openFile caught exception "<<iException.what()<<std::endl;
       return false;
    }
 }
@@ -102,17 +116,21 @@ CmsShowNavigator::openFile(const std::string& fileName)
 bool
 CmsShowNavigator::appendFile(const std::string& fileName, bool checkFileQueueSize, bool live)
 {
+   fwLog(fwlog::kDebug) << "CmsShowNavigator::appendFile [" << fileName << "]" << std::endl;
+   FWFileEntry* newFile  = 0;
    try
    {
-      fwLog(fwlog::kDebug) << "CmsShowNavigator::appendFile [" << fileName << "]" << std::endl;
+      newFile = new FWFileEntry(fileName);
+   }
+   catch(std::exception& iException)
+   {
+      fwLog(fwlog::kError) <<"Navigator::appendFile caught exception FWFileEntry constructor "<<iException.what()<<std::endl;
+      delete newFile;
+      return false;
+   }
 
-      FWFileEntry* newFile = new FWFileEntry(fileName);
-      if ( newFile->file() == 0 )
-      {
-         delete newFile;
-         return false; //bad file
-      }
-      
+   try
+   {  
       if (checkFileQueueSize)
       {
          int toErase = m_files.size() - (m_maxNumberOfFilesToChain + 1);
