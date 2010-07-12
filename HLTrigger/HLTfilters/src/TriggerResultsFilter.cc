@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/07/06 13:40:42 $
- *  $Revision: 1.12 $
+ *  $Date: 2010/07/12 10:04:34 $
+ *  $Revision: 1.13 $
  *
  *  Authors: Martin Grunewald, Andrea Bocci
  *
@@ -33,8 +33,17 @@ TriggerResultsFilter::TriggerResultsFilter(const edm::ParameterSet & config) :
   m_expression(0),
   m_eventCache(config)
 {
-  // parse the logical expressions into functionals
   const std::vector<std::string> & expressions = config.getParameter<std::vector<std::string> >("triggerConditions");
+  parse( expressions );
+}
+
+TriggerResultsFilter::~TriggerResultsFilter()
+{
+  delete m_expression;
+}
+
+void TriggerResultsFilter::parse(const std::vector<std::string> & expressions) {
+  // parse the logical expressions into functionals
   if (expressions.size() == 0) {
     edm::LogWarning("Configuration") << "Empty trigger results expression";
   } else if (expressions.size() == 1) {
@@ -46,12 +55,6 @@ TriggerResultsFilter::TriggerResultsFilter(const edm::ParameterSet & config) :
       expression << " OR (" << expressions[i] << ")";
     parse( expression.str() );
   }
-
-}
-
-TriggerResultsFilter::~TriggerResultsFilter()
-{
-  delete m_expression;
 }
 
 void TriggerResultsFilter::parse(const std::string & expression) {
