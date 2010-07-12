@@ -5,21 +5,22 @@
 using namespace std;
 #include "TChain.h"
 
+#include "TGraphAsymmErrors.h"
 
 const int canvasSizeX = 500;
 const int canvasSizeY = 500;
-const Color_t zLineColor = kBlack;
+const Color_t zLineColor = kOrange+3;
 const Color_t zFillColor = kOrange-2;
 // ewk: W+ztt
-const Color_t ewkLineColor = kBlack;
+const Color_t ewkLineColor = kOrange+3;
 const Color_t ewkFillColor = kOrange+7;
 
-const Color_t qcdLineColor = kBlack;
+const Color_t qcdLineColor = kViolet+3;
 const Color_t qcdFillColor = kViolet-5;
 
 
-const Color_t ttLineColor =  kBlack;
-const Color_t ttFillColor = kMagenta+3;
+const Color_t ttLineColor =  kRed+4;
+const Color_t ttFillColor = kRed+2;
 
 //const Color_t ztFillColor =  kYellow-9;
 //const Color_t ztLineColor = kYellow-1;
@@ -27,10 +28,12 @@ const Color_t ttFillColor = kMagenta+3;
 
 
 
-const double lumi =0.061 ;
+
+double intLumi = 86;
+const double lumi = intLumi * .001 ;
 //const double lumi =0100.0 ;
 const double lumiZ = 100. ;
-const double lumiW = 100.;
+const double lumiW = 50.;
 //adjust to new filter efficiency
 const double lumiQ = 35. * 1.4444;
 //scaling ttbar from 94.3 to 162.
@@ -46,7 +49,7 @@ const double mMax = 120;
 
 
 /// cuts common....
-TCut kin_common("zGoldenDau1Pt> 20 && zGoldenDau2Pt>20 && zGoldenDau1Iso03SumPt< 3.0 && zGoldenDau2Iso03SumPt < 3.0 && abs(zGoldenDau1Eta)<2.4 &&  abs(zGoldenDau2Eta)<2.4  && (zGoldenDau1HLTBit==1 || zGoldenDau2HLTBit==1)  && abs(zGoldenDau1dxyFromBS)<0.2 && abs(zGoldenDau2dxyFromBS)<0.2 && ( abs(zGoldenDau1dxyFromBS)<0.1 || abs(zGoldenDau2dxyFromBS)<0.1 ) ");
+TCut kin_common(" (zGoldenDau1Q * zGoldenDau2Q) ==-1 &&  zGoldenDau1Pt> 20 && zGoldenDau2Pt>20 && zGoldenDau1Iso03SumPt< 3.0 && zGoldenDau2Iso03SumPt < 3.0 && ( (zGoldenDau1HLTBit==1 && abs(zGoldenDau1Eta)<2.1) || ( zGoldenDau2HLTBit==1 && abs(zGoldenDau2Eta)<2.1))  && abs(zGoldenDau1dxyFromBS)<0.2 && abs(zGoldenDau2dxyFromBS)<0.2 "); // && ( abs(zGoldenDau1dxyFromBS)<0.1 || abs(zGoldenDau2dxyFromBS)<0.1 ) ");
 
 
 
@@ -60,8 +63,9 @@ TCut dau2TightWP1("zGoldenDau2Chi2<10  && (zGoldenDau2NofStripHits + zGoldenDau2
 TCut dau1TightWP2("zGoldenDau1Chi2<10  && (zGoldenDau1NofStripHits + zGoldenDau1NofPixelHits)>10  && zGoldenDau1NofMuonHits>0   && zGoldenDau1TrackerMuonBit==1");
 TCut dau2TightWP2("zGoldenDau2Chi2<10  && (zGoldenDau2NofStripHits + zGoldenDau2NofPixelHits)>10  && zGoldenDau2NofMuonHits>0   && zGoldenDau2TrackerMuonBit==1");
 
-TCut dau1TightWP1_hltAlso("zGoldenDau1Chi2<10  && (zGoldenDau1NofStripHits + zGoldenDau1NofPixelHits)>10  && zGoldenDau1NofMuonHits>0   && zGoldenDau1TrackerMuonBit==1 && zGoldenDau1HLTBit==1");
-TCut dau2TightWP1_hltAlso("zGoldenDau2Chi2<10  && (zGoldenDau2NofStripHits + zGoldenDau2NofPixelHits)>10  && zGoldenDau2NofMuonHits>0   && zGoldenDau2TrackerMuonBit==1 && zGoldenDau2HLTBit==1");
+TCut dau1TightWP1_hltAlso("zGoldenDau1Chi2<10  && (zGoldenDau1NofStripHits + zGoldenDau1NofPixelHits)>10 && zGoldenDau1NofPixelHits>0 && zGoldenDau1NofMuonHits>0 &&  zGoldenDau1NofMuMatches>1 && abs(zGoldenDau1Eta)<2.1");// 2.1 can bacome 2.4 later....
+TCut dau2TightWP1_hltAlso("zGoldenDau2Chi2<10  && (zGoldenDau2NofStripHits + zGoldenDau2NofPixelHits)>10 && zGoldenDau2NofPixelHits>0 && zGoldenDau2NofMuonHits>0 &&  zGoldenDau2NofMuMatches>1  &&  abs(zGoldenDau2Eta)<2.1");
+
 
  
 TCut massCut("zGoldenMass>60 && zGoldenMass<120 ");
@@ -69,14 +73,84 @@ TCut massCut("zGoldenMass>60 && zGoldenMass<120 ");
 
 
 
-
-//TCanvas *c1 = new TCanvas("c1","Stack plot",10,10,canvasSizeX, canvasSizeY);
-TCanvas *c1 = new TCanvas("c1","Stack plot");
+TCanvas *c1 = new TCanvas("c1","Stack plot", 300,300,479,510);
 
 
 
+c1->SetLeftMargin(  87./479 );
+  c1->SetRightMargin( 42./479 );
+  c1->SetTopMargin(  30./510 );
+  c1->SetBottomMargin( 80./510 ); 
+  c1->SetFillColor(0);
+  c1->SetTickx(1);
+  c1->SetTicky(1);
+  c1->SetFrameFillStyle(0);
+  c1->SetFrameLineWidth(2);
+  c1->SetFrameBorderMode(0);
 
 
+
+ 
+ int lineWidth(2);
+
+if( logScale )
+  {
+    lineWidth = 1;
+  }
+
+ // histogram limits, in linear and logarithmic
+  int nbin_(100);
+  float xmin_(0.), xmax_(100.); 
+  float ymin_(0.), ymax_(40.); 
+  float yminl_(0.1), ymaxl_(200.); 
+
+  // titles and axis, marker size
+  TString xtitle;
+  TString ytitle;
+  int ndivx(510);
+  int ndivy(510);
+  float markerSize(1.);
+
+  // canvas name
+  TString cname("c");
+  TString ctitle;
+
+  // legend position and scale;
+  float xl_  = 0.;
+  float yl_  = 0.;
+  float scalel_ = 0.05;
+      ndivx = 506;
+
+if( logScale )
+	{
+	  ndivy = 510;
+	}
+      else
+	{
+	  ndivy = 506;
+	}
+
+      if( logScale )
+	{
+	  markerSize = 0.8;
+	}
+      else
+	{	
+	  markerSize = 0.9;
+	}
+
+
+      if( logScale )
+	{
+	  xl_ = 0.60;
+	  yl_ = 0.50;
+	}
+      else
+	{
+	  xl_ = 0.60;
+	  yl_ = 0.60;
+	  scalel_ = 0.06;
+	}
 
 
 
@@ -133,7 +207,7 @@ void stat(TH1 * h1, TH1 * h2, TH1 * h3, TH1 * h4, TH1 *h5, TH1 * hdata, int rebi
 }
 
 void makeStack(TH1 * h1, TH1 * h2, TH1 * h3, TH1 * h4, TH1 * h5, TH1 * hdata,
-	       double min, int rebin) {
+	       double min, int rebin , bool logScale) {
   setHisto(h1, zFillColor, zLineColor, lumi/lumiZ, rebin);
   setHisto(h3, ttFillColor, ttLineColor, lumi/lumiT, rebin);
   setHisto(h4, qcdFillColor, qcdLineColor, lumi/lumiQ, rebin);
@@ -144,74 +218,147 @@ void makeStack(TH1 * h1, TH1 * h2, TH1 * h3, TH1 * h4, TH1 * h5, TH1 * hdata,
 
   THStack * hs = new THStack("hs","");
 
-  hs->Add(h4);
-  hs->Add(h3);
-  hs->Add(h2);
+
+
+
+  if (logScale) {
+
+    
+
+    hs->Add(h4);
+    hs->Add(h3);
+    hs->Add(h2);
+  }
   //hs->Add(h5);
   hs->Add(h1);
 
    hs->Draw("HIST");
   if(hdata != 0) {
-    hdata->SetMarkerStyle(20);
-    hdata->SetMarkerSize(1.0);
-    hdata->SetMarkerColor(kBlack);
-    hdata->SetLineWidth(2);
-    hdata->SetLineColor(kBlack);
     hdata->Rebin(rebin); 
+
+    /* TGraphAsymmErrors* dataGraph = (TGraphAsymmErrors*)hdata;
+    dataGraph->SetMarkerStyle(kFullCircle);
+    dataGraph->SetMarkerColor(kBlack);
+    dataGraph->SetMarkerSize(markerSize);
+    // Remove the horizontal bars (at Michael's request)
+    double x_(0), y_(0);
+    for( int ii=0; ii<dataGraph->GetN(); ii++ )
+      {
+	dataGraph->SetPointEXlow(ii,0);
+	dataGraph->SetPointEXhigh(ii,0);
+	dataGraph->GetPoint(ii,x_,y_ );
+	if( y_==0 )
+	  {
+	    dataGraph->RemovePoint( ii );
+	    ii--;
+	  }  
+      }
+dataGraph->Draw("pesame");
+    */
+      
+    hdata->SetMarkerStyle(kFullCircle);
+    hdata->SetMarkerSize(markerSize);
+    hdata->SetMarkerColor(kBlack);
+    hdata->SetLineWidth(lineWidth);
+    hdata->SetLineColor(kBlack);
+
     hdata->Draw("epsame");
     hdata->GetXaxis()->SetLabelSize(0);
     hdata->GetYaxis()->SetLabelSize(0);
     // log plots, so the maximum should be one order of magnitude more...
-    //    hs->SetMaximum( pow(10 , 1.5 + int(log( hdata->GetMaximum() )  )  ));
-  // lin plot 
-	        	 hs->SetMaximum(  4 +  hdata->GetMaximum()  )  ;
+    
+    
+   
+ hs->SetMaximum(  3 +  hdata->GetMaximum()  )  ;
+    if (logScale) {
+      hs->SetMaximum( pow(10 , 0.3 + int(log( hdata->GetMaximum() )  )  ));
+    } 
+    // lin plot 
+     	
     //    gStyle->SetErrorX(.5);
-}
+  }
   hs->SetMinimum(min);
-  hs->GetXaxis()->SetTitle("m_{#mu^{+} #mu^{-}} (GeV/c^{2})");
-
-
+  
+  hs->GetXaxis()->SetTitle("M(#mu^{+} #mu^{-}) [GeV]");
+  
+  
   std::string yTag = "";
   switch(rebin) {
-  case 1: yTag = "events/(GeV/c^{2})"; break;
-  case 2: yTag = "events/(GeV/c^{2})"; break;
-  case 3: yTag = "events/(3 GeV/c^{2})"; break;
-  case 4: yTag = "events/(4 GeV/c^{2})"; break;
-  case 5: yTag = "events/(5 GeV/c^{2})"; break;
-  case 10: yTag = "events/(10 GeV/c^{2})"; break;
+  case 1: yTag = "number of events/ 1 GeV"; break;
+  case 2: yTag = "number of events/ 2 GeV"; break;
+  case 2.5: yTag = "number of events/ 2.5 GeV"; break;
+  case 3: yTag = "number of events/ 3 GeV"; break;
+  case 4: yTag = "number of events/ 4 GeV"; break;
+  case 5: yTag = "number of events/ 5 GeV"; break;
+  case 10: yTag = "number of events/ 10 GeV"; break;
   default:
     std::cerr << ">>> ERROR: set y tag for rebin = " << rebin << std::endl;
   };
 
   hs->GetYaxis()->SetTitle(yTag.c_str());
-  hs->GetXaxis()->SetTitleSize(0.05);
-  hs->GetYaxis()->SetTitleSize(0.05);
-  hs->GetXaxis()->SetTitleOffset(1.2);
-  hs->GetYaxis()->SetTitleOffset(1.2);
-  //hs->GetYaxis()->SetLabelOffset(1.0);
-  hs->GetXaxis()->SetLabelSize(.05);
-  hs->GetYaxis()->SetLabelSize(.05);
-   leg = new TLegend(0.75,0.55,0.90,0.7);
-   //leg = new TLegend(0.20,0.7,0.35,0.85);
+  
+
+  /*
+   hs->GetXaxis()->SetTitleSize(0.05);
+   hs->GetYaxis()->SetTitleSize(0.05);
+
+  */
+  if (logScale) {
+   hs->GetXaxis()->SetTitleOffset(1.0);
+   hs->GetYaxis()->SetTitleOffset(1.1);
+   
+   hs->GetYaxis()->SetLabelOffset(0.0);
+   hs->GetXaxis()->SetLabelSize(.05);
+   hs->GetYaxis()->SetLabelSize(.05);
+  }
+
+
+//leg = new TLegend(0.75,0.55,0.90,0.7);
+ 
+  int nChan =2;
+  if (logScale) nChan = 4;
+float dxl_ = scalel_*5;
+  if (logScale) dxl_ = scalel_*4;
+  float dyl_ = scalel_*(nChan);
+  if (logScale) dyl_ = scalel_*(nChan-1);
+  TLegend* legend=new TLegend(xl_,yl_,xl_+dxl_,yl_+dyl_);
+  // TLegend* legend=new TLegend(0.65,0.54,0.95,0.796);
+  legend->SetLineColor(0);
+  legend->SetFillColor(0);
+
+
+
+
+
+  //leg = new TLegend(0.20,0.7,0.35,0.85);
   if(hdata != 0)
-    leg->AddEntry(hdata,"data");
-  leg->AddEntry(h1,"Z#rightarrow#mu #mu","f");
-  leg->AddEntry(h2,"EWK","f");
-  leg->AddEntry(h4,"QCD","f");
-  leg->AddEntry(h3,"t#bar{t}","f"); 
+    legend->AddEntry(hdata,"data", "pl");
+  legend->AddEntry(h1,"Z#rightarrow#mu #mu","f");
+  if (logScale) {
+
+  legend->AddEntry(h2,"EWK","f");
+  legend->AddEntry(h4,"QCD","f");
+  legend->AddEntry(h3,"t#bar{t}","f"); 
   //leg->AddEntry(h5,"Z#rightarrow#tau #tau","f"); 
-  leg->SetFillColor(kWhite);
-  leg->SetFillColor(kWhite);
-  leg->SetShadowColor(kBlack);
-  leg->Draw();
-  // c1->SetLogy();
+  }
+
+  //  legend->SetFillColor(kWhite);
+  //legend->SetFillColor(kWhite);
+ 
+ legend->SetShadowColor(kWhite);
+  legend->Draw();
+ 
+
+
+
+  /*
   //  TPaveText *pave = new TPaveText( 0.5 * (hdata->GetXaxis()->GetXmax() - (hdata->GetXaxis()->GetXmin()))  , (hdata->GetMaximum()) +1 , hdata->GetXaxis()->GetXmax() , 10 * hdata->GetMaximum()  );
   TPaveText *pave = new TPaveText( 0.6  , 0.75 , 0.9 , 0.8  , "NDC");
   pave->SetFillColor(kWhite);
   pave->SetBorderSize(0);
   //  TText * t1 = pave->AddText("CMS Preliminary 2010");
   //  TText * t2 = pave->AddText("L_{int} = 61 nb^{ -1} #sqrt{s} = 7 TeV"); // change by hand, can be improved...........  
- TText * t = pave->AddText("#int L dt = 61 nb^{ -1}");
+ TText * t = pave->AddText("#int L dt = 76 nb^{ -1}");
  t->SetTextColor(kBlack);
   // t2->SetTextColor(kBlack);
   pave->Draw(); 
@@ -236,11 +383,28 @@ void makeStack(TH1 * h1, TH1 * h2, TH1 * h3, TH1 * h4, TH1 * h5, TH1 * hdata,
   pppave->Draw(); 
 
 
+  */
+
+
+TLatex latex;
+  latex.SetNDC();
+  latex.SetTextSize(0.04);
+
+  latex.SetTextAlign(31); // align right
+  latex.DrawLatex(0.90,0.96,"#sqrt{s} = 7 TeV");
+  if (intLumi > 0.) {
+    latex.SetTextAlign(31); // align right
+    latex.DrawLatex(0.85,0.84,Form("#int #font[12]{L} dt = %.0f nb^{-1}",intLumi));
+  }
+  latex.SetTextAlign(11); // align left
+  latex.DrawLatex(0.18,0.96,"CMS preliminary 2010");
+
 
   stat(h1, h2, h3, h4, h5,hdata, rebin);
- c1->Update();
-c1->SetTickx(0);
-c1->SetTicky(0); 
+
+  // c1->Update();
+  //c1->SetTickx(0);
+  //c1->SetTicky(0); 
 }
 
 
@@ -249,14 +413,15 @@ c1->SetTicky(0);
 
 // allowing two variables, for plotting the muon variables...
 void makePlots(const char * var1, const char * var2,   TCut cut, int rebin, const char * plot,
-	       double min = 0.001, unsigned int nbins, double xMin, double xMax,  bool doData = false) {
+	       double min = 0.001, unsigned int nbins, double xMin, double xMax,  bool doData = false, bool logScale=false) {
 
 
 
 TChain * zEvents = new TChain("Events"); 
 
 
- zEvents->Add("/scratch2/users/degruttola/Spring10Ntuples_withIso03/NtupleLoose_zmmSpring10cteq66_100pb.root");
+// zEvents->Add("/scratch2/users/degruttola/Spring10Ntuples_withIso03/NtupleLoose_zmmSpring10cteq66_100pb.root");
+ zEvents->Add("../Ntuple_ZmmPowheg_36X.root");
 TChain * wEvents = new TChain("Events"); 
  wEvents->Add("/scratch2/users/degruttola/Spring10Ntuples_withIso03/NtupleLoose_wplusmnSpring10cteq66_50pb.root");
  wEvents->Add("/scratch2/users/degruttola/Spring10Ntuples_withIso03/NtupleLoose_wminusmnSpring10cteq66_50pb.root");
@@ -287,9 +452,9 @@ dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/
 dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_362_365.root");
 dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_368_370.root");
 dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_372_375.root");
-//dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_399_411.root");
-//dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_457_459.root");
-
+dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_399_411.root");
+dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_457_459.root");
+dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_779_790.root");
 // .040 pb
 
   TH1F *h1 = new TH1F ("h1", "h1", nbins, xMin, xMax);
@@ -340,11 +505,17 @@ dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/
   dataEvents->Project("hhdata", var2, cut) ;
   hdata->Add(hhdata);
   }
-  makeStack(h1, h2, h3, h4, h5, hdata, min, rebin);
+  makeStack(h1, h2, h3, h4, h5, hdata, min, rebin, logScale);
+
+  if (logScale) c1->SetLogy();
+
   c1->SaveAs((std::string(plot)+".eps").c_str());
   c1->SaveAs((std::string(plot)+".gif").c_str());
   c1->SaveAs((std::string(plot)+".pdf").c_str());
 
+  TFile * out = new TFile("plot.root", "RECREATE");
+
+  c1->Write();
 }
 
 
@@ -353,7 +524,8 @@ void evalEff(const char * var1, const char * var2,  TCut cut, TCut cut_Nminus1, 
  
 TChain * zEvents = new TChain("Events"); 
 
- zEvents->Add("/scratch2/users/degruttola/Spring10Ntuples_withIso03/NtupleLoose_zmmSpring10cteq66_100pb.root");
+// zEvents->Add("/scratch2/users/degruttola/Spring10Ntuples_withIso03/NtupleLoose_zmmSpring10cteq66_100pb.root");
+zEvents->Add("../Ntuple_ZmmPowheg_36X.root");
  TH1F * htot1 = new TH1F("htot1", "htot1", nbins, xMin, xMax);
  TH1F * htot2 = new TH1F("htot2", "htot2", nbins, xMin, xMax);
  TH1F * hcut1 = new TH1F("hcut1", "hcut1", nbins, xMin, xMax);
