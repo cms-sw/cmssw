@@ -16,14 +16,19 @@ globalTag = {
 
 def usage():
     print 'Usage:'
-    print '  getHLT.py [--process <Name>] [--globaltag <GlobalTag::All>] [--l1 <L1_MENU_vX>]'
-    print '            [--full|--cff] [--data|--mc] [--online|--offline] [--unprescale]'
-    print '            <Version from ConfDB> <ID>'
+    print '  hltGetConfiguration [--process <Name>] [--type <Type>]'
+    print '                      [--globaltag <GlobalTag::All>] [--unprescale] [--l1 <L1_MENU_vX>]'
+    print '                      [--full|--cff] [--data|--mc] [--online|--offline]'
+    print '                      <HLT menu from ConfDB>'
     print
     print 'Options:'
-    print '  --process          Override the process name [default is "HLT" followed by the "ID"'
-    print '  --globaltag        Use a specific GlobalTag (the default comes from the ID)'
-    print '  --l1               Enable L1 menu override, using the payload "L1GtTriggerMenu_<L1_MENU_vX>_mc" from the database'
+    print '  --process          Override the process name [default is "HLT"]'
+    print '  --type             Set global options acording to a specific HLT luminosity and type (GRun, 8E29, 1E31, HIon)'
+    print '                     The default is to use the "GRun" settings, for rerunning an online-like menu on data and MC'
+    print
+    print '  --globaltag        Use a specific GlobalTag (the default comes from the Type and the current PyRelVal configuration)'
+    print '  --unprescale       Remove any HLT prescales'
+    print '  --l1               Override the L1 menu, using the payload "L1GtTriggerMenu_<L1_MENU_vX>_mc" from the database'
     print
     print '  --full             Generate a full configuration file, with minimal modifications [this is the default]'
     print '  --cff              Generate a stripped down configuration file fragment, for inclusion by e.g. cmsDriver.py'
@@ -31,15 +36,14 @@ def usage():
     print '  --mc               Prepare a menu for running on MC (RAW in "rawDataCollector")'
     print '  --online           Take the online compliant connection string and GlobalTag from the menu'
     print '  --offline          Override with the connection string and GlobalTag with te offline values [this is the default]'
-    print '  --unprescale       Remove any HLT prescales'
     print
     print 'Notes:'
     print '     using "--online" and "--mc" together is not supported (there is no online compliant GlobalTag for MC)'
     print '     using "--online/--offline" has no effect if "--cff" is used'
 
 
-processName     = ''
-fileId          = ''
+processName     = 'HLT'
+processType     = ''
 doCff           = False
 runOnData       = True
 runOnline       = False
@@ -53,7 +57,7 @@ menuUnprescale  = False
 def parse_options(args):
   # global variables
   global processName
-  global fileId
+  global processType
   global doCff
   global runOnData
   global runOnline
@@ -113,23 +117,14 @@ def parse_options(args):
   # look for the required arguments
   try:
       configName  = args[0]
-      fileId      = args[1]
-      if not processName:
-        if runOnData:
-          processName = 'HLT' + fileId
-        else:
-          processName = 'HLT' # fileId
   except:
       usage()
       sys.exit(1)
 
   if doCff:
-    menuOutName = "HLT_" + fileId + "_cff.py"
+    menuOutName = "hlt_cff.py"
   else:
-    if runOnData:
-      menuOutName = "OnData_HLT_" + fileId + ".py"
-    else:
-      menuOutName = "OnLine_HLT_" + fileId + ".py"
+    menuOutName = "hlt.py"
 
   # extract the database and configuration name
   if ':' in configName:
@@ -232,7 +227,7 @@ if doCff:
       # FIXME - this should be changed to a "tracked" parameter ASAP
       os.system("sed -e 's/cms.EDProducer( \"CSCTFUnpacker\",\\s*/&\\n    producer = cms.untracked.InputTag( \"rawDataCollector\" ),/' -i " + menuOutName)
 
-    if ((fileId=="1E31") or (fileId=="HIon")):
+    if processType in ('1E31', 'HIon'):
       # FIXME - should have a proper L1 MC/DESIGN/1E31 menue
       os.system("sed -e 's/L1_DoubleEG2/L1_DoubleEG1/' -i " + menuOutName)
 
@@ -301,7 +296,7 @@ else:
       else:
         edsources =  " --input /store/data/Run2010A/MinimumBias/RAW/v1/000/139/458/1AD6DF4F-9988-DF11-939F-001617DBD472.root"
     else:
-      edsources =  " --input file:RelVal_DigiL1Raw_"+fileId+".root"
+      edsources =  " --input file:RelVal_DigiL1Raw_"+processType+".root"
 
     if not runOnData or menuL1Override:
       # remove any eventual L1 override from the table
@@ -326,7 +321,7 @@ else:
       # FIXME - this should be changed to a "tracked" parameter ASAP
       os.system("sed -e 's/cms.EDProducer( \"CSCTFUnpacker\",\\s*/&\\n    producer = cms.untracked.InputTag( \"rawDataCollector\" ),/' -i " + menuOutName)
 
-    if ((fileId=="1E31") or (fileId=="HIon")):
+    if processType in ('1E31', 'HIon'):
       # FIXME - should have a proper L1 MC/DESIGN/1E31 menue
       os.system("sed -e 's/L1_DoubleEG2/L1_DoubleEG1/' -i " + menuOutName)
 
@@ -405,7 +400,7 @@ process.es_prefer_Level1MenuOverride = cms.ESPrefer( "PoolDBESSource", "Level1Me
     # the logic is:
     #   - for running online, do nothing
     #   - for running offline on data, only add the pfnPrefix
-    #   - for running offline on mc, take the GT from the command line of the fileId
+    #   - for running offline on mc, take the GT from the command line of the processType
     #      - if the GT is "auto:...", insert the code to read it from Configuration.PyReleaseValidation.autoCond
 
     if not runOnline:
@@ -419,10 +414,10 @@ process.es_prefer_Level1MenuOverride = cms.ESPrefer( "PoolDBESSource", "Level1Me
         if not menuGlobalTag:
           menuGlobalTag = globalTag['data']
       else:
-        # check if a specific GlobalTag was specified on the command line, or choose one from the fileId
+        # check if a specific GlobalTag was specified on the command line, or choose one from the processType
         if not menuGlobalTag:
-          if fileId in globalTag:
-            menuGlobalTag = globalTag[fileId]
+          if processType in globalTag:
+            menuGlobalTag = globalTag[processType]
           else:
             menuGlobalTag = globalTag[None]
 
