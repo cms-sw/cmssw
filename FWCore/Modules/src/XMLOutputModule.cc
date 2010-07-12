@@ -26,6 +26,8 @@
 #include "DataFormats/Provenance/interface/Selections.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -44,6 +46,7 @@ namespace edm {
    public:
       XMLOutputModule(ParameterSet const&);
       virtual ~XMLOutputModule();
+      static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
       // ---------- const member functions ---------------------
 
@@ -550,6 +553,15 @@ namespace edm {
       stream_ << "</product>\n";
     }
     stream_ << "</event>" << std::endl;
+  }
+
+  
+  void
+  XMLOutputModule::fillDescriptions(ConfigurationDescriptions& descriptions) {
+    ParameterSetDescription desc;
+    desc.addUntracked<std::string>("fileName");
+    OutputModule::fillDescription(desc);
+    descriptions.add("XMLOutputModule", desc);
   }
 }
 using edm::XMLOutputModule;

@@ -26,6 +26,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
 #include "FWCore/MessageLogger/interface/LoggedErrorsSummary.h"
@@ -39,6 +41,7 @@ namespace edm {
     public:
       explicit LogErrorHarvester(ParameterSet const&);
       ~LogErrorHarvester();
+      static void fillDescriptions(ConfigurationDescriptions& descriptions);
   
     private:
       virtual void beginJob();
@@ -73,6 +76,14 @@ namespace edm {
   void 
   LogErrorHarvester::endJob() {
       DisableLoggedErrorsSummary();
+  }
+
+
+  // ------------ method called once each job for validation  ------------
+  void
+  LogErrorHarvester::fillDescriptions(ConfigurationDescriptions& descriptions) {
+    ParameterSetDescription desc;
+    descriptions.add("LogErrorHarvester", desc);
   }
 }
   

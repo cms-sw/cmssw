@@ -4,6 +4,7 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/ConfigurableInputSource.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -273,6 +274,19 @@ namespace edm {
     }
     advanceToNext();
     if (eventCreationDelay_ > 0) {usleep(eventCreationDelay_);}
+  }
+
+  void
+  ConfigurableInputSource::fillDescription(ParameterSetDescription& desc) {
+    desc.addOptionalUntracked<unsigned int>("numberEventsInRun");
+    desc.addOptionalUntracked<unsigned int>("numberEventsInLuminosityBlock");
+    desc.addUntracked<unsigned int>("firstTime", 1);
+    desc.addUntracked<unsigned int>("timeBetweenEvents", kNanoSecPerSec/kAveEventPerSec);
+    desc.addUntracked<unsigned int>("eventCreationDelay", 0);
+    desc.addUntracked<unsigned int>("firstEvent", 1);
+    desc.addUntracked<unsigned int>("firstLuminosityBlock", 1);
+    desc.addUntracked<unsigned int>("firstRun", 1);
+    InputSource::fillDescription(desc);
   }
 
 }

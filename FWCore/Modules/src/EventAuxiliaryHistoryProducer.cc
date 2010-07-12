@@ -1,4 +1,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -11,6 +13,7 @@ namespace edm {
     explicit EventAuxiliaryHistoryProducer(ParameterSet const&);
     virtual ~EventAuxiliaryHistoryProducer();
 
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
     virtual void produce(Event& e, EventSetup const& c);
     void endJob();
 
@@ -48,6 +51,14 @@ namespace edm {
   }
 
   void EventAuxiliaryHistoryProducer::endJob() {
+  }
+
+
+  void
+  EventAuxiliaryHistoryProducer::fillDescriptions(ConfigurationDescriptions& descriptions) {
+    ParameterSetDescription desc;
+    desc.add<unsigned int>("historyDepth");
+    descriptions.add("EventAuxiliaryHistoryProducer", desc);
   }
 }
 

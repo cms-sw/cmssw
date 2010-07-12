@@ -18,6 +18,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 // user include files
 
@@ -28,6 +30,7 @@ namespace edm {
       // We do not take ownership of passed stream.
       explicit ProvenanceCheckerOutputModule(ParameterSet const& pset);
       virtual ~ProvenanceCheckerOutputModule();
+      static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
    private:
       virtual void write(EventPrincipal const& e);
@@ -206,6 +209,12 @@ namespace edm {
 //
 // static member functions
 //
+  void
+  ProvenanceCheckerOutputModule::fillDescriptions(ConfigurationDescriptions& descriptions) {
+    ParameterSetDescription desc;
+    OutputModule::fillDescription(desc);
+    descriptions.add("ProvenanceCheckerOutputModule", desc);
+  }
 }
 using edm::ProvenanceCheckerOutputModule;
 DEFINE_FWK_MODULE(ProvenanceCheckerOutputModule);

@@ -28,6 +28,8 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -49,7 +51,7 @@ public:
      virtual void beginRun(Run const&, EventSetup const&);
      virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&);
 
-     //static void fillDescriptions(ConfigurationDescriptions& descriptions);
+     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
 private:
      void doGet(EventSetup const&);
@@ -58,7 +60,7 @@ private:
       
      typedef std::map<eventsetup::EventSetupRecordKey, std::vector<eventsetup::DataKey> > RecordToDataKeys;
      RecordToDataKeys recordToDataKeys_;
-     std::map<eventsetup::EventSetupRecordKey, unsigned long long > recordToCacheIdentifier_;
+     std::map<eventsetup::EventSetupRecordKey, unsigned long long> recordToCacheIdentifier_;
      bool verbose_;
 
   };
@@ -66,11 +68,11 @@ private:
 //
 // constructors and destructor
 //
-   EventSetupRecordDataGetter::EventSetupRecordDataGetter(ParameterSet const& iConfig):
+   EventSetupRecordDataGetter::EventSetupRecordDataGetter(ParameterSet const& iConfig) :
     pSet_(iConfig),
     recordToDataKeys_(),
     recordToCacheIdentifier_(),
-    verbose_(iConfig.getUntrackedParameter("verbose", false)) {}
+    verbose_(iConfig.getUntrackedParameter<bool>("verbose")) {}
 
    EventSetupRecordDataGetter::~EventSetupRecordDataGetter() {
 
@@ -85,61 +87,51 @@ private:
 //
 
 // ------------ method called to produce the data  ------------
-   /* VPSets are not yet supported
    void EventSetupRecordDataGetter::fillDescriptions(ConfigurationDescriptions& descriptions) {
-      descriptions.setComment("Retrieves specified data from the EventSetup sytem when ever that data changes.");
+      descriptions.setComment("Retrieves specified data from the EventSetup sytem whenever that data changes.");
       
       ParameterSetDescription desc;
-      desc.addOptionalUntracked<bool>("verbose",false)->setComment("Print a message to the logger each time a data item is gotten.");
+      desc.addOptionalUntracked<bool>("verbose", false)->setComment("Print a message to the logger each time a data item is gotten.");
 
-      std::vector<edm::ParameterSetDescription> vpset;
-      desc.add<std::vector<edm::ParameterSetDescription> >("toGet",vpset)->setComment("The contained PSets must have the following structure.\n"
-                                                                          "A 'string' named 'record' that holds the name of an EventSetup record holding the data you want to obtain.\n"
-                                                                          "a 'vstring' named 'data' which holds identifiers for the data you wish to retrieve. "
-                                                                          "The identifier is in two parts separated by a backslash '/'. "
-                                                                          "The first part is the C++ class name of the data and the "
-                                                                          "second part is the label used when getting the data (blank is acceptable). "
-                                                                          "If there is no label, the backslash may be omitted."
-      );*/
-      /*
-      ParameterSetDescription toGetTemplate;
-      toGetTemplate.add<std::string>("record")->setComment("The name of an EventSetup record holding the data you want obtained.");
-      toGetTemplate.add<std::vector<std::string> >("data")->setComment("The identifier for the data you wish to retrieve. " 
-                                                                       "The identifier is in two parts separated by a backslash '/'. "
-                                                                       "The first part is the C++ class name of the data and the "
-                                                                       "second part is the label used when getting the data (blank is acceptable). "
-                                                                       "If there is no label, the backslash may be omitted."
+      ParameterSetDescription toGet;
+      toGet.add<std::string>("record")->setComment("The name of an EventSetup record holding the data you want obtained.");
+      toGet.add<std::vector<std::string> >("data")->setComment("The identifier for the data you wish to retrieve. " 
+                                                               "The identifier is in two parts separated by a backslash '/'. "
+                                                               "The first part is the C++ class name of the data and the "
+                                                               "second part is the label used when getting the data (blank is acceptable). "
+                                                               "If there is no label, the backslash may be omitted."
       );
       
-      desc.
-       */ /*
-      descriptions.add("eventSetupGetter",desc);
+      desc.addVPSet("toGet", toGet)->setComment("The contained PSets must have the following structure.\n"
+                                                "A 'string' named 'record' that holds the name of an EventSetup record holding the data you want to obtain.\n"
+                                                "a 'vstring' named 'data' that holds identifiers for the data you wish to retrieve. "
+                                                "The identifier is in two parts separated by a backslash '/'. "
+                                                "The first part is the C++ class name of the data and the "
+                                                "second part is the label used when getting the data (blank is acceptable). "
+                                                "If there is no label, the backslash may be omitted."
+      );
+      descriptions.add("eventSetupGetter", desc);
    }
-*/
 
    void 
-   EventSetupRecordDataGetter::beginRun(Run const&, EventSetup const& iSetup) 
-   {
+   EventSetupRecordDataGetter::beginRun(Run const&, EventSetup const& iSetup) {
       doGet(iSetup);
    }
 
    void 
-   EventSetupRecordDataGetter::beginLuminosityBlock(LuminosityBlock const&, EventSetup const& iSetup)
-   {
+   EventSetupRecordDataGetter::beginLuminosityBlock(LuminosityBlock const&, EventSetup const& iSetup) {
       doGet(iSetup);
    }
    
    void
-   EventSetupRecordDataGetter::analyze(edm::Event const& /*iEvent*/, edm::EventSetup const& iSetup)
-   {
+   EventSetupRecordDataGetter::analyze(edm::Event const& /*iEvent*/, edm::EventSetup const& iSetup) {
       doGet(iSetup);
    }
    
    void
-   EventSetupRecordDataGetter::doGet(EventSetup const& iSetup)
-   {  
+   EventSetupRecordDataGetter::doGet(EventSetup const& iSetup) {  
       if(0 == recordToDataKeys_.size()) {
-         typedef std::vector< ParameterSet > Parameters;
+         typedef std::vector<ParameterSet> Parameters;
          Parameters toGet = pSet_.getParameter<Parameters>("toGet");
          
          for(Parameters::iterator itToGet = toGet.begin(), itToGetEnd = toGet.end(); itToGet != itToGetEnd; ++itToGet) {
@@ -152,9 +144,9 @@ private:
                
                continue;
             }
-            typedef std::vector< std::string > Strings;
-            Strings dataNames = itToGet->getParameter< Strings >("data");
-            std::vector< eventsetup::DataKey > dataKeys;
+            typedef std::vector<std::string> Strings;
+            Strings dataNames = itToGet->getParameter<Strings>("data");
+            std::vector<eventsetup::DataKey> dataKeys;
             for(Strings::iterator itDatum = dataNames.begin(), itDatumEnd = dataNames.end();
                   itDatum != itDatumEnd; ++itDatum) {
                std::string datumName(*itDatum, 0, itDatum->find_first_of("/"));
@@ -180,12 +172,12 @@ private:
             //This means we should get everything in the EventSetup
             std::vector<eventsetup::EventSetupRecordKey> recordKeys;
             iSetup.fillAvailableRecordKeys(recordKeys);
-            std::vector< eventsetup::DataKey > dataKeys;
+            std::vector<eventsetup::DataKey> dataKeys;
 
             for(std::vector<eventsetup::EventSetupRecordKey>::iterator itRKey = recordKeys.begin(), itRKeyEnd = recordKeys.end();
                 itRKey != itRKeyEnd;
                 ++itRKey) {               
-               const eventsetup::EventSetupRecord* record = iSetup.find(*itRKey);
+               eventsetup::EventSetupRecord const* record = iSetup.find(*itRKey);
                dataKeys.clear();
                record->fillRegisteredDataKeys(dataKeys);
                recordToDataKeys_.insert(std::make_pair(*itRKey, dataKeys));
@@ -207,7 +199,7 @@ private:
          }
          if(0 != pRecord && pRecord->cacheIdentifier() != recordToCacheIdentifier_[itRecord->first]) {
             recordToCacheIdentifier_[itRecord->first] = pRecord->cacheIdentifier();
-            typedef std::vector< DataKey > Keys;
+            typedef std::vector<DataKey> Keys;
             Keys const& keys = itRecord->second;
             for(Keys::const_iterator itKey = keys.begin(), itKeyEnd = keys.end();
                  itKey != itKeyEnd;

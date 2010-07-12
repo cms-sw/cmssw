@@ -12,6 +12,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace edm {
@@ -20,6 +22,7 @@ namespace edm {
     // We do not take ownership of passed stream.
     explicit AsciiOutputModule(ParameterSet const& pset);
     virtual ~AsciiOutputModule();
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
     virtual void write(EventPrincipal const& e);
@@ -32,27 +35,24 @@ namespace edm {
 
   AsciiOutputModule::AsciiOutputModule(ParameterSet const& pset) :
     OutputModule(pset),
-    prescale_(pset.getUntrackedParameter("prescale", 1U)),
-    verbosity_(pset.getUntrackedParameter("verbosity", 1U)),
-    counter_(0)
-    {
+    prescale_(pset.getUntrackedParameter<unsigned int>("prescale")),
+    verbosity_(pset.getUntrackedParameter<unsigned int>("verbosity")),
+    counter_(0) {
        if (prescale_ == 0) prescale_ = 1;
      }
     
 
   AsciiOutputModule::~AsciiOutputModule() {
-    LogAbsolute("AsciiOut")<< ">>> processed " << counter_ << " events" << std::endl;
+    LogAbsolute("AsciiOut") << ">>> processed " << counter_ << " events" << std::endl;
   }
 
   void
   AsciiOutputModule::write(EventPrincipal const& e) {
 
-
     if ((++counter_ % prescale_) != 0 || verbosity_ <= 0) return;
 
     // Run const& run = evt.getRun(); // this is still unused
-    LogAbsolute("AsciiOut")<< ">>> processing event # " << e.id() <<" time " <<e.time().value()
-				<< std::endl;
+    LogAbsolute("AsciiOut")<< ">>> processing event # " << e.id() << " time " << e.time().value() << std::endl;
 
     if (verbosity_ <= 1) return;
 
@@ -61,11 +61,11 @@ namespace edm {
     // ... list of process-names
     for (ProcessHistory::const_iterator it = e.processHistory().begin(), itEnd = e.processHistory().end();
         it != itEnd; ++it) {
-      LogAbsolute("AsciiOut")<< it->processName() << " ";
+      LogAbsolute("AsciiOut") << it->processName() << " ";
     }
 
     // ... collision id
-    LogAbsolute("AsciiOut")<< '\n' << e.id() << '\n';
+    LogAbsolute("AsciiOut") << '\n' << e.id() << '\n';
    
     
     // Loop over products, and write some output for each...
@@ -81,6 +81,15 @@ namespace edm {
 	LogAbsolute("AsciiOut")<< **i << '\n';
       }
     }
+  }
+
+  void
+  AsciiOutputModule::fillDescriptions(ConfigurationDescriptions& descriptions) {
+    ParameterSetDescription desc;
+    desc.addUntracked("prescale", 1U);
+    desc.addUntracked("verbosity", 1U);
+    OutputModule::fillDescription(desc);
+    descriptions.add("AsciiOutputModule", desc);
   }
 }
 

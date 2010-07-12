@@ -29,6 +29,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/Provenance/interface/MinimalEventID.h"
 
 //
@@ -39,6 +41,7 @@ class EventIDChecker : public edm::EDAnalyzer {
 public:
    explicit EventIDChecker(edm::ParameterSet const&);
    ~EventIDChecker();
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
    
    
 private:
@@ -70,7 +73,7 @@ private:
 EventIDChecker::EventIDChecker(edm::ParameterSet const& iConfig) :
   ids_(iConfig.getUntrackedParameter<std::vector<edm::MinimalEventID> >("eventSequence")),
   index_(0),
-  multiProcessSequentialEvents_(iConfig.getUntrackedParameter<unsigned int>("multiProcessSequentialEvents", 0)),
+  multiProcessSequentialEvents_(iConfig.getUntrackedParameter<unsigned int>("multiProcessSequentialEvents")),
   numberOfEventsToSkip_(0),
   numberOfEventsLeftBeforeSkip_(0) {
    //now do what ever initialization is needed
@@ -119,6 +122,15 @@ EventIDChecker::beginJob() {
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 EventIDChecker::endJob() {
+}
+
+// ------------ method called once each job for validation
+void
+EventIDChecker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<std::vector<edm::MinimalEventID> >("eventSequence");
+  desc.addUntracked<unsigned int>("multiProcessSequentialEvents", 0U);
+  descriptions.add("PoolOutputModule", desc);
 }
 
 void 

@@ -28,6 +28,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -40,6 +42,7 @@ class LogErrorFilter : public edm::EDFilter {
 public:
   explicit LogErrorFilter(edm::ParameterSet const&);
   ~LogErrorFilter();
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   virtual bool filter(edm::Event&, edm::EventSetup const&);
@@ -145,6 +148,16 @@ LogErrorFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetup) {
   return (false);
 }
 
+
+void
+LogErrorFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("harvesterTag");
+  desc.add<bool>("atLeastOneError");
+  desc.add<bool>("atLeastOneWarning");
+  desc.add<std::vector<std::string> >("avoidCategories");
+  descriptions.add("LogErrorFilter", desc);
+}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(LogErrorFilter);

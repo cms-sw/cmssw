@@ -1,6 +1,8 @@
 
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 namespace edm {
@@ -9,6 +11,7 @@ namespace edm {
     explicit Prescaler(ParameterSet const&);
     virtual ~Prescaler();
 
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
     virtual bool filter(Event& e, EventSetup const& c);
     void endJob();
 
@@ -33,6 +36,15 @@ namespace edm {
   }
 
   void Prescaler::endJob() {
+  }
+
+
+  void
+  Prescaler::fillDescriptions(ConfigurationDescriptions& descriptions) {
+    ParameterSetDescription desc;
+    desc.add<int>("prescaleFactor");
+    desc.add<int>("prescaleOffset");
+    descriptions.add("Prescaler", desc);
   }
 }
 

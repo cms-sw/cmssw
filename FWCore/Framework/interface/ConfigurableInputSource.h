@@ -16,6 +16,7 @@
 
 namespace edm {
   class ParameterSet;
+  class ParameterSetDescription;
   class ConfigurableInputSource : public InputSource {
   public:
     explicit ConfigurableInputSource(ParameterSet const& pset, InputSourceDescription const& desc, bool realData = true);
@@ -31,6 +32,7 @@ namespace edm {
     RunNumber_t run() const {return eventID_.run();}
     EventNumber_t event() const {return eventID_.event();}
     LuminosityBlockNumber_t luminosityBlock() const {return eventID_.luminosityBlock();}
+    static void fillDescription(ParameterSetDescription& desc);
 
   protected:
 

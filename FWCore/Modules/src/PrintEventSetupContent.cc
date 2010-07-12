@@ -34,6 +34,8 @@
 #include "FWCore/Framework/interface/ValidityInterval.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "DataFormats/Provenance/interface/EventID.h" 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 //
 // class decleration
 //
@@ -45,6 +47,7 @@ namespace edm {
       explicit PrintEventSetupContent(ParameterSet const&);
       ~PrintEventSetupContent();
      
+      static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
 
     private:
@@ -160,6 +163,13 @@ namespace edm {
   // ------------ method called once each job just after ending the event loop  ------------
   void 
   PrintEventSetupContent::endJob() {
+  }
+
+  // ------------ method called once each job for validation  ------------
+  void
+  PrintEventSetupContent::fillDescriptions(ConfigurationDescriptions& descriptions) {
+    ParameterSetDescription desc;
+    descriptions.add("PrintEventSetupContent", desc);
   }
 }
   
