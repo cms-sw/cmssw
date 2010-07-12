@@ -78,6 +78,10 @@
                     HcalRecHitTask_RecHit_StatusWord_HE   1	                  HE_StatusWord.gif	1	0	-1	1E-8	-1	1D	NoStat	noChi2	Log	41	42	       HE status word
                     HcalRecHitTask_RecHit_StatusWord_HF   1	                  HF_StatusWord.gif	1	0	-1	1E-8	-1	1D	NoStat	noChi2	Log	41	42	       HF status word
                     HcalRecHitTask_RecHit_StatusWord_HO   1	                  HO_StatusWord.gif	1	0	-1	0	-1	1D	NoStat	noChi2	noLog	41	42	       HO status word
+                HcalRecHitTask_RecHit_Aux_StatusWord_HB   1                   HB_Aux_StatusWord.gif     1       0       -1      1E-8    -1      1D      NoStat  noChi2  Log     41      42             HB Aux status word
+                HcalRecHitTask_RecHit_Aux_StatusWord_HE   1                   HE_Aux_StatusWord.gif     1       0       -1      1E-8    -1      1D      NoStat  noChi2  Log     41      42             HE Aux status word
+                HcalRecHitTask_RecHit_Aux_StatusWord_HF   1                   HF_Aux_StatusWord.gif     1       0       -1      1E-8    -1      1D      NoStat  noChi2  Log     41      42             HF Aux status word
+                HcalRecHitTask_RecHit_Aux_StatusWord_HO   1                   HO_Aux_StatusWord.gif     1       0       -1      0       -1      1D      NoStat  noChi2  noLog   41      42             HO Aux status word
                     HcalRecHitTask_energy_of_rechits_HB   1	              RecHits_energy_HB.gif	10	0	600	0	-1	1D	Statrv	Chi2	Log	2	1		HB RecHits energy (GeV)
                     HcalRecHitTask_energy_of_rechits_HE   1	              RecHits_energy_HE.gif	10	0	-1	0	-1	1D	Statrv	Chi2	Log	2	1		HE RecHits energy (GeV)
                     HcalRecHitTask_energy_of_rechits_HF   1	              RecHits_energy_HF.gif	10	0	-1	0	-1	1D	Statrv	Chi2	Log	2	1		HF RecHits energy (GeV)

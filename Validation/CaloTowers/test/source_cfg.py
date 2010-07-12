@@ -30,7 +30,7 @@ process.source = cms.Source("PoolSource",
     inputCommands = cms.untracked.vstring('keep *', 'drop *_MEtoEDMConverter_*_*')
 )
 
-process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('132601:378-132601:381');
+#process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('132601:378-132601:381');
 
 process.FEVT = cms.OutputModule("PoolOutputModule",
      outputCommands = cms.untracked.vstring('drop *', 'keep *_MEtoEDMConverter_*_*'),

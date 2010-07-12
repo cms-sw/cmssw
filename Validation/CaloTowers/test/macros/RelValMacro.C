@@ -22,8 +22,8 @@ void RelValMacro(TString ref_vers="218", TString val_vers="218", TString rfname,
   if (harvest == 1) CT_HistDir = "DQMData/Run 1/CaloTowersV/Run summary/CaloTowersTask";
   
   //RecHits
-  const int RH_nHistTot = 95+4; 
-  const int RH_nHist1   = 24+4;
+  const int RH_nHistTot = 95+4+4; 
+  const int RH_nHist1   = 24+4+4;
   const int RH_nHist2   = 4;
   const int RH_nProfInd = 12;
 
