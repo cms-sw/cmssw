@@ -1,4 +1,4 @@
-# Phase 1 R34V25_smpx minbias pileup files
+# Phase 1 R39v26 minbias pileup files
 # E34 cm-2s-1
 import FWCore.ParameterSet.Config as cms
 
@@ -23,8 +23,11 @@ mix = cms.EDProducer("MixingModule",
         ),
         type = cms.string('poisson'),
     sequential = cms.untracked.bool(False),
-        fileNames = cms.untracked.vstring('/store/user/cheung/phase1/r34v25_smpx/minbias4pu/MergedMinBias_GEN_SIM_01.root',
-        '/store/user/cheung/phase1/r34v25_smpx/minbias4pu/MergedMinBias_GEN_SIM_02.root'
+        fileNames = cms.untracked.vstring('/store/user/cheung/phase1/r39v26/minbias4pu/MergedMinBias_GEN_SIM_01.root',
+        '/store/user/cheung/phase1/r39v26/minbias4pu/MergedMinBias_GEN_SIM_02.root',
+        '/store/user/cheung/phase1/r39v26/minbias4pu/MergedMinBias_GEN_SIM_03.root',
+        '/store/user/cheung/phase1/r39v26/minbias4pu/MergedMinBias_GEN_SIM_04.root',
+        '/store/user/cheung/phase1/r39v26/minbias4pu/MergedMinBias_GEN_SIM_05.root'
     )
     ),
     mixObjects = cms.PSet(
