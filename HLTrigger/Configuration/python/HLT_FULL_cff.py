@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_6_2/HLT/V140 (CMSSW_3_6_2_HLT9)
+# /dev/CMSSW_3_6_2/HLT/V141 (CMSSW_3_6_2_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_2/HLT/V140')
+  tableName = cms.string('/dev/CMSSW_3_6_2/HLT/V141')
 )
 
 streams = cms.PSet( 
@@ -3821,7 +3821,7 @@ hltTowerMakerForEcalBarrelOnly = cms.EDProducer( "CaloTowersCreator",
     ecalInputs = cms.VInputTag( 'hltEcalRecHitAll:EcalRecHitsEB' )
 )
 hltEcalOnlyMet = cms.EDProducer( "METProducer",
-    src = cms.InputTag( "hltTowerMakerForEcalBarrrelOnly" ),
+    src = cms.InputTag( "hltTowerMakerForEcalBarrelOnly" ),
     InputType = cms.string( "CandidateCollection" ),
     METType = cms.string( "CaloMET" ),
     alias = cms.string( "RawCaloMET" ),

@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_6_2/1E31/V33 (CMSSW_3_6_2_HLT9)
+# /dev/CMSSW_3_6_2/1E31/V34 (CMSSW_3_6_2_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_2/1E31/V33')
+  tableName = cms.string('/dev/CMSSW_3_6_2/1E31/V34')
 )
 
 streams = cms.PSet( 
@@ -90,22 +90,23 @@ datasets = cms.PSet(
     'HLT_DoublePhoton5_CEP_L1R' ),
   MuMonitor = cms.vstring( 'HLT_L1Mu',
     'HLT_L1MuOpen' ),
-  Cosmics = cms.vstring( 'HLT_TrackerCosmics',
-    'HLT_RPCBarrelCosmics',
-    'HLT_CSCBeamHaloRing2or3',
-    'HLT_CSCBeamHaloOverlapRing2',
+  Cosmics = cms.vstring( 'HLT_CSCBeamHaloOverlapRing2',
     'HLT_CSCBeamHaloOverlapRing1',
-    'HLT_CSCBeamHalo' ),
+    'HLT_CSCBeamHalo',
+    'HLT_TrackerCosmics',
+    'HLT_RPCBarrelCosmics',
+    'HLT_CSCBeamHaloRing2or3' ),
   JetMETTau = cms.vstring( 'HLT_MET100' ),
   ZeroBias = cms.vstring( 'HLT_ZeroBias' ),
   Commissioning = cms.vstring(  ),
   JetMETTauMonitor = cms.vstring( 'HLT_L1MET20' ),
   HcalHPDNoise = cms.vstring(  ),
   HcalNZS = cms.vstring( 'HLT_HcalPhiSym' ),
-  MinimumBias = cms.vstring( 'HLT_PixelTracks_Multiplicity70',
-    'HLT_L1Tech_BSC_HighMultiplicity',
-    'HLT_ZeroBiasPixel_SingleTrack' ),
-  MuOnia = cms.vstring( 'HLT_Mu0_Track0_Jpsi',
+  MinimumBias = cms.vstring( 'HLT_L1Tech_BSC_HighMultiplicity',
+    'HLT_ZeroBiasPixel_SingleTrack',
+    'HLT_PixelTracks_Multiplicity70' ),
+  MuOnia = cms.vstring( 'HLT_Mu0_L1MuOpen',
+    'HLT_Mu0_Track0_Jpsi',
     'HLT_Mu3_L1MuOpen',
     'HLT_Mu3_Track0_Jpsi',
     'HLT_Mu5_L1MuOpen',
@@ -115,8 +116,7 @@ datasets = cms.PSet(
     'HLT_Mu3_L2Mu0',
     'HLT_Mu5_L2Mu0',
     'HLT_L2DoubleMu0',
-    'HLT_DoubleMu0',
-    'HLT_Mu0_L1MuOpen' ),
+    'HLT_DoubleMu0' ),
   EGMonitor = cms.vstring( 'HLT_L1SingleEG5' ),
   RandomTriggers = cms.vstring(  ),
   EG = cms.vstring( 'HLT_DoublePhoton10_L1R',
@@ -128,11 +128,11 @@ datasets = cms.PSet(
     'HLT_Ele20_SW_L1R',
     'HLT_Photon30_L1R',
     'HLT_DoublePhoton5_CEP_L1R' ),
-  Mu = cms.vstring( 'HLT_DoubleMu3',
+  Mu = cms.vstring( 'HLT_L1Mu14_L1SingleEG10',
+    'HLT_DoubleMu3',
     'HLT_Mu5',
     'HLT_Mu9',
-    'HLT_L2Mu11',
-    'HLT_L1Mu14_L1SingleEG10' ),
+    'HLT_L2Mu11' ),
   ExpressPhysics = cms.vstring( 'HLT_MET100',
     'HLT_ZeroBias',
     'HLT_L1SingleEG5',
