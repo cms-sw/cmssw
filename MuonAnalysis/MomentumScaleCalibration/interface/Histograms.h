@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2010/04/29 14:35:44 $
- *  $Revision: 1.22 $
+ *  $Date: 2010/05/25 10:26:05 $
+ *  $Revision: 1.23 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -336,7 +336,7 @@ class HDelta : public Histograms
     hPhi_( new TH1F (name+"_DeltaPhi", "#Delta#phi", 100,0,3.2) ),
     hTheta_( new TH1F (name+"_DeltaTheta", "#Delta#theta", 100,-3.2,3.2) ),
     hCotgTheta_( new TH1F (name+"_DeltaCotgTheta", "#Delta Cotg(#theta )", 100,-3.2,3.2) ),
-    hDeltaR_( new TH1F (name+"_DeltaR","#Delta R", 400, 0, 1 ) )
+    hDeltaR_( new TH1F (name+"_DeltaR","#Delta R", 400, 0, 4 ) )
   {}
 
   HDelta (TFile* outputFile, const TString & name) :
@@ -348,7 +348,7 @@ class HDelta : public Histograms
     hPhi_( new TH1F (name+"_DeltaPhi", "#Delta#phi", 100,0,3.2) ),
     hTheta_( new TH1F (name+"_DeltaTheta", "#Delta#theta", 100,-3.2,3.2) ),
     hCotgTheta_( new TH1F (name+"_DeltaCotgTheta", "#Delta Cotg(#theta )", 100,-3.2,3.2) ),
-    hDeltaR_( new TH1F (name+"_DeltaR","#DeltaR", 400, 0, 1 ) )
+    hDeltaR_( new TH1F (name+"_DeltaR","#DeltaR", 400, 0, 4 ) )
   {}
 
   HDelta (const TString & name, TFile* file) {

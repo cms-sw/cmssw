@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2010/06/21 15:52:20 $
-//  $Revision: 1.89 $
+//  $Date: 2010/06/24 09:28:58 $
+//  $Revision: 1.90 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -341,6 +341,8 @@ MuScleFit::MuScleFit( const edm::ParameterSet& pset ) : MuScleFitBase( pset ), t
   MuScleFitUtils::startWithSimplex_ = pset.getParameter<bool>("StartWithSimplex");
   MuScleFitUtils::computeMinosErrors_ = pset.getParameter<bool>("ComputeMinosErrors");
   MuScleFitUtils::minimumShapePlots_ = pset.getParameter<bool>("MinimumShapePlots");
+
+  beginOfJobInConstructor();
 }
 
 // Destructor
@@ -369,9 +371,10 @@ MuScleFit::~MuScleFit () {
 
 // Begin job
 // ---------
-//void MuScleFit::beginOfJob (const edm::EventSetup& eventSetup) {
- void MuScleFit::beginOfJob () {
-
+void MuScleFit::beginOfJobInConstructor()
+// void MuScleFit::beginOfJob ()
+// void MuScleFit::beginOfJob( const edm::EventSetup& eventSetup )
+{
   if (debug_>0) std::cout << "[MuScleFit]: beginOfJob" << std::endl;
   //if(maxLoopNumber>1)
   readProbabilityDistributionsFromFile();
@@ -383,11 +386,12 @@ MuScleFit::~MuScleFit () {
   for (unsigned int i=0; i<(maxLoopNumber); i++) {
     std::stringstream ss;
     ss << i;
-    std::string rootFileName = ss.str() + theRootFileName_;
+    std::string rootFileName = ss.str() + "_" + theRootFileName_;
     theFiles_.push_back (new TFile(rootFileName.c_str(), "RECREATE"));
   }
   if (debug_>0) std::cout << "[MuScleFit]: Root file created" << std::endl;
 
+  std::cout << "creating plotter" << std::endl;
   plotter = new MuScleFitPlotter(theGenInfoRootFileName_);
   plotter->debug = debug_;
 }
@@ -449,9 +453,9 @@ edm::EDLooper::Status MuScleFit::endOfLoop( const edm::EventSetup& eventSetup, u
       std::cout << "Starting fast loop number " << iFastLoop << std::endl;
 
       // In the first loop is called by the framework
-      if( iFastLoop > 0 ) {
-        startingNewLoop(iFastLoop);
-      }
+      // if( iFastLoop > 0 ) {
+      startingNewLoop(iFastLoop);
+      // }
 
       // std::vector<std::pair<lorentzVector,lorentzVector> >::const_iterator it = MuScleFitUtils::SavedPair.begin();
       // for( ; it != SavedPair.end(); ++it ) {
@@ -677,6 +681,10 @@ void MuScleFit::selectMuons(const edm::Event & event)
   else if( (theMuonType_<4 && theMuonType_>0) || theMuonType_==10 ) { // Muons (glb,sta,trk)
     std::vector<reco::Track> tracks;
     if( PATmuons_ == true ) {
+      if( theMuonType_ == 0 ) {
+	std::cout << "Error, invalid selection: PATmuons with muonType == " << theMuonType_ << std::endl;
+	exit(1);
+      }
       edm::Handle<pat::MuonCollection> allMuons;
       event.getByLabel( theMuonLabel_, allMuons );
       for( std::vector<pat::Muon>::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon ) {
@@ -688,10 +696,16 @@ void MuScleFit::selectMuons(const edm::Event & event)
     else {
       edm::Handle<reco::MuonCollection> allMuons;
       event.getByLabel (theMuonLabel_, allMuons);
-      for( std::vector<reco::Muon>::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon ) {
-        takeSelectedMuonType(muon, tracks);
+      if( theMuonType_ == 0 ) {
+	// Take directly the muon
+	muons = fillMuonCollection(*allMuons);
       }
-      muons = fillMuonCollection(tracks);
+      else {
+	for( std::vector<reco::Muon>::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon ) {
+	  takeSelectedMuonType(muon, tracks);
+	}
+	muons = fillMuonCollection(tracks);
+      }
     }
   }
   else if(theMuonType_==4){  //CaloMuons
@@ -868,13 +882,13 @@ void MuScleFit::selectMuons(const int maxEvents, const TString & treeFileName)
     // Note that cuts here are only applied to already selected muons. They should not be used unless
     // you are sure that the difference is negligible (e.g. the number of events with > 2 muons is negligible).
     double pt1 = it->first.pt();
-    std::cout << "pt1 = " << pt1 << std::endl;
+    // std::cout << "pt1 = " << pt1 << std::endl;
     double pt2 = it->second.pt();
-    std::cout << "pt2 = " << pt2 << std::endl;
+    // std::cout << "pt2 = " << pt2 << std::endl;
     double eta1 = it->first.eta();
-    std::cout << "eta1 = " << eta1 << std::endl;
+    // std::cout << "eta1 = " << eta1 << std::endl;
     double eta2 = it->second.eta();
-    std::cout << "eta2 = " << eta2 << std::endl;
+    // std::cout << "eta2 = " << eta2 << std::endl;
     // If they don't pass the cuts set to null vectors
     if( !(pt1 > MuScleFitUtils::minMuonPt_ && pt1 < MuScleFitUtils::maxMuonPt_ &&
 	  pt2 > MuScleFitUtils::minMuonPt_ && pt2 < MuScleFitUtils::maxMuonPt_ &&

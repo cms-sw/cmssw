@@ -202,6 +202,7 @@ process.looper = cms.Looper(
     # -3 = onia guys selection - only GT
     # -4 = onia guys selection - only TT
     # Note that the above samples are independent and represent the composition of the inclusive sample
+    # 0 = muon (use the values in the muon collection)
     # 1 = global muon
     # 2 = standalone muon
     # 3 = tracker muon

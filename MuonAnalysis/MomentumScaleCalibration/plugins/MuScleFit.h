@@ -4,8 +4,8 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2010/05/11 22:32:59 $
- *  $Revision: 1.35 $
+ *  $Date: 2010/06/21 15:20:23 $
+ *  $Revision: 1.36 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -46,8 +46,8 @@ class MuonServiceProxy;
 class TTree;
 class MuScleFitPlotter;
 
-class MuScleFit: public edm::EDLooper, MuScleFitBase {
-
+class MuScleFit: public edm::EDLooper, MuScleFitBase
+{
  public:
   // Constructor
   // -----------
@@ -59,8 +59,9 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase {
 
   // Operations
   // ----------
-  //void beginOfJob (const edm::EventSetup& eventSetup);
-  virtual void beginOfJob();
+  void beginOfJobInConstructor();
+  // void beginOfJob( const edm::EventSetup& eventSetup );
+  // virtual void beginOfJob();
   virtual void endOfJob();
 
   virtual void startingNewLoop( unsigned int iLoop );

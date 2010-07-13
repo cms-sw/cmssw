@@ -814,6 +814,380 @@ public:
 };
 
 
+// Function built to correct STARTUP MC
+template <class T>
+class scaleFunctionType22 : public scaleFunctionBase<T>
+{
+public:
+  scaleFunctionType22() { this->parNum_ = 5; }
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const
+  {
+    // Set to 0: use the same parameters for negative and positive muons
+    int negChg = 0;
+    if( chg > 0 ) {
+      if( phi > 0 ) {
+	return (parScale[0] + parScale[1]*TMath::Abs(phi)*sin(2*phi + parScale[2]))*pt;
+      }
+      else {
+	return (parScale[0] + parScale[3]*TMath::Abs(phi)*sin(2*phi + parScale[4]))*pt;
+      }
+    }
+    else if( chg < 0 ) {
+      if( phi > 0 ) {
+	return (parScale[0] - parScale[1+negChg]*TMath::Abs(phi)*sin(2*phi + parScale[2+negChg]))*pt;
+      }
+      else {
+	return (parScale[0] - parScale[3+negChg]*TMath::Abs(phi)*sin(2*phi + parScale[4+negChg]))*pt;
+      }
+    }
+    std::cout << "Error: we should not be here." << std::endl;
+    exit(1);
+    return 1;
+  }
+  // Fill the scaleVec with neutral parameters
+  virtual void resetParameters(std::vector<double> * scaleVec) const
+  {
+    scaleVec->push_back(1);
+    for( int i=1; i<this->parNum_; ++i ) {
+      scaleVec->push_back(0);
+    }
+  }
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const std::vector<int> & parScaleOrder, const int muonType)
+  {
+    double thisStep[] = {0.0001, 0.0001, 0.01, 0.0001, 0.01};
+                         // , 0.0001, 0.01, 0.0001, 0.01};
+    TString thisParName[] = {"Phi offset",
+			     "amplitude pos phi", "phase pos phi",
+			     "amplitude neg phi", "phase neg phi"};
+			     // "amplitude pos charge pos phi", "phase pos charge pos phi",
+			     // "amplitude pos charge neg phi", "phase pos charge neg phi",
+			     // "amplitude neg charge pos phi", "phase neg charge pos phi",
+			     // "amplitude neg charge neg phi", "phase neg charge neg phi" };
+    if( muonType == 1 ) {
+      double thisMini[] = {0.9, -0.3, -0.3, -0.3, -0.3};
+			   // , -0.3, -0.3, -0.3, -0.3};
+      double thisMaxi[] = {1.1,  0.3,  0.3,  0.3,  0.3};
+			   // , 0.3,  0.3,  0.3,  0.3};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
+    } else {
+      double thisMini[] = {0.9, -0.1, -3, -0.1, -3};
+                           // , -0.1, -3, -0.1, -3};
+      double thisMaxi[] = {1.1,   0.1,  3,  0.1,  3};
+                           // , 0.1,  3,  0.1,  3};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
+    }
+  }
+};
+
+
+// Function built to correct STARTUP MC
+// Independent parameters for mu+ and mu-
+template <class T>
+class scaleFunctionType23 : public scaleFunctionBase<T>
+{
+public:
+  scaleFunctionType23() { this->parNum_ = 10; }
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const
+  {
+    // Set to 0: use the same parameters for negative and positive muons
+    int negChg = 4;
+    if( chg > 0 ) {
+      if( phi > 0 ) {
+	return (parScale[0] + parScale[9]*etaCorrection(eta) + parScale[1]*TMath::Abs(phi)*sin(2*phi + parScale[2]))*pt;
+      }
+      else {
+	return (parScale[0] + parScale[9]*etaCorrection(eta) + parScale[3]*TMath::Abs(phi)*sin(2*phi + parScale[4]))*pt;
+      }
+    }
+    else if( chg < 0 ) {
+      if( phi > 0 ) {
+	return (parScale[0] + parScale[9]*etaCorrection(eta) - parScale[1+negChg]*TMath::Abs(phi)*sin(2*phi + parScale[2+negChg]))*pt;
+      }
+      else {
+	return (parScale[0] + parScale[9]*etaCorrection(eta) - parScale[3+negChg]*TMath::Abs(phi)*sin(2*phi + parScale[4+negChg]))*pt;
+      }
+    }
+    std::cout << "Error: we should not be here." << std::endl;
+    exit(1);
+    return 1;
+  }
+  double etaCorrection(const double & eta) const
+  {
+    double fabsEta = fabs(eta);
+    if( fabsEta < 0.2) return -0.00063509;
+    else if( fabsEta < 0.4 ) return -0.000585369;
+    else if( fabsEta < 0.6 ) return -0.00077363;
+    else if( fabsEta < 0.8 ) return -0.000547868;
+    else if( fabsEta < 1.0 ) return -0.000954819;
+    else if( fabsEta < 1.2 ) return -0.000162139;
+    else if( fabsEta < 1.4 ) return 0.0026909;
+    else if( fabsEta < 1.6 ) return 0.000684376;
+    else if( fabsEta < 1.8 ) return -0.00174534;
+    else if( fabsEta < 2.0 ) return -0.00177076;
+    else if( fabsEta < 2.2 ) return 0.00117463;
+    else if( fabsEta < 2.4 ) return 0.000985705;
+    else if( fabsEta < 2.6 ) return 0.00163941;
+    return 0.;
+  }
+
+  // Fill the scaleVec with neutral parameters
+  virtual void resetParameters(std::vector<double> * scaleVec) const
+  {
+    scaleVec->push_back(1);
+    for( int i=1; i<this->parNum_; ++i ) {
+      scaleVec->push_back(0);
+    }
+  }
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const std::vector<int> & parScaleOrder, const int muonType)
+  {
+    double thisStep[] = {0.0001,
+			 0.0001, 0.01, 0.0001, 0.01,
+			 0.0001, 0.01, 0.0001, 0.01,
+			 0.001};
+    TString thisParName[] = {"Phi offset",
+			     // "amplitude pos phi", "phase pos phi",
+			     // "amplitude neg phi", "phase neg phi"};
+			     "amplitude pos charge pos phi", "phase pos charge pos phi",
+			     "amplitude pos charge neg phi", "phase pos charge neg phi",
+			     "amplitude neg charge pos phi", "phase neg charge pos phi",
+			     "amplitude neg charge neg phi", "phase neg charge neg phi",
+			     "amplitude of eta correction"};
+    if( muonType == 1 ) {
+      double thisMini[] = {0.9,
+			   -0.3, -0.3, -0.3, -0.3,
+			   -0.3, -0.3, -0.3, -0.3,
+			   -10.};
+      double thisMaxi[] = {1.1,
+			   0.3,  0.3,  0.3,  0.3,
+			   0.3,  0.3,  0.3,  0.3,
+			   10.};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
+    } else {
+      double thisMini[] = {0.9,
+			   -0.1, -3, -0.1, -3,
+                           -0.1, -3, -0.1, -3,
+			   -10.};
+      double thisMaxi[] = {1.1,
+			   0.1,  3,  0.1,  3,
+                           0.1,  3,  0.1,  3,
+			   10.};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
+    }
+  }
+};
+
+// Function built to correct STARTUP MC
+// Independent parameters for mu+ and mu-
+template <class T>
+class scaleFunctionType24 : public scaleFunctionBase<T>
+{
+public:
+  scaleFunctionType24() { this->parNum_ = 10; }
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const
+  {
+    // Set to 0: use the same parameters for negative and positive muons
+    int negChg = 4;
+    if( chg > 0 ) {
+      if( phi > 0 ) {
+	return (parScale[0] + parScale[9]*etaCorrection(eta) + parScale[1]*TMath::Abs(phi)*sin(2*phi + parScale[2]))*pt;
+      }
+      else {
+	return (parScale[0] + parScale[9]*etaCorrection(eta) + parScale[3]*TMath::Abs(phi)*sin(2*phi + parScale[4]))*pt;
+      }
+    }
+    else if( chg < 0 ) {
+      if( phi > 0 ) {
+	return (parScale[0] + parScale[9]*etaCorrection(eta) - parScale[1+negChg]*TMath::Abs(phi)*sin(2*phi + parScale[2+negChg]))*pt;
+      }
+      else {
+	return (parScale[0] + parScale[9]*etaCorrection(eta) - parScale[3+negChg]*TMath::Abs(phi)*sin(2*phi + parScale[4+negChg]))*pt;
+      }
+    }
+    std::cout << "Error: we should not be here." << std::endl;
+    exit(1);
+    return 1;
+  }
+  double etaCorrection(const double & eta) const
+  {
+    if( eta < -2.6 ) return 0.;
+    else if( eta < -2.4) return 0.00205594;
+    else if( eta < -2.2) return 0.000880532;
+    else if( eta < -2.0) return 0.0013714;
+    else if( eta < -1.8) return -0.00153122;
+    else if( eta < -1.6) return -0.000894437;
+    else if( eta < -1.4) return 0.000883338;
+    else if( eta < -1.2) return 0.0027599;
+    else if( eta < -1.0) return 8.57009e-05;
+    else if( eta < -0.8) return -0.00092294;
+    else if( eta < -0.6) return -0.000492001;
+    else if( eta < -0.4) return -0.000948406;
+    else if( eta < -0.2) return -0.000478767;
+    else if( eta <  0.0) return -0.0006909;
+    else if( eta <  0.2) return -0.000579281;
+    else if( eta <  0.4) return -0.000691971;
+    else if( eta <  0.6) return -0.000598853;
+    else if( eta <  0.8) return -0.000603736;
+    else if( eta <  1.0) return -0.000986699;
+    else if( eta <  1.2) return -0.00040998;
+    else if( eta <  1.4) return 0.00262189;
+    else if( eta <  1.6) return 0.000485414;
+    else if( eta <  1.8) return -0.00259624;
+    else if( eta <  2.0) return -0.00201031;
+    else if( eta <  2.2) return 0.000977849;
+    else if( eta <  2.5) return 0.00109088;
+    else if( eta <  2.6) return 0.00122289;
+    return 0.;
+  }
+
+  // Fill the scaleVec with neutral parameters
+  virtual void resetParameters(std::vector<double> * scaleVec) const
+  {
+    scaleVec->push_back(1);
+    for( int i=1; i<this->parNum_; ++i ) {
+      scaleVec->push_back(0);
+    }
+  }
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const std::vector<int> & parScaleOrder, const int muonType)
+  {
+    double thisStep[] = {0.0001,
+			 0.0001, 0.01, 0.0001, 0.01,
+			 0.0001, 0.01, 0.0001, 0.01,
+			 0.001};
+    TString thisParName[] = {"Phi offset",
+			     // "amplitude pos phi", "phase pos phi",
+			     // "amplitude neg phi", "phase neg phi"};
+			     "amplitude pos charge pos phi", "phase pos charge pos phi",
+			     "amplitude pos charge neg phi", "phase pos charge neg phi",
+			     "amplitude neg charge pos phi", "phase neg charge pos phi",
+			     "amplitude neg charge neg phi", "phase neg charge neg phi",
+			     "amplitude of eta correction"};
+    if( muonType == 1 ) {
+      double thisMini[] = {0.9,
+			   -0.3, -0.3, -0.3, -0.3,
+			   -0.3, -0.3, -0.3, -0.3,
+			   -10.};
+      double thisMaxi[] = {1.1,
+			   0.3,  0.3,  0.3,  0.3,
+			   0.3,  0.3,  0.3,  0.3,
+			   10.};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
+    } else {
+      double thisMini[] = {0.9,
+			   -0.1, -3, -0.1, -3,
+                           -0.1, -3, -0.1, -3,
+			   -10.};
+      double thisMaxi[] = {1.1,
+			   0.1,  3,  0.1,  3,
+                           0.1,  3,  0.1,  3,
+			   10.};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
+    }
+  }
+};
+
+
+// Function built to correct STARTUP MC
+// Analytical description in eta
+template <class T>
+class scaleFunctionType25 : public scaleFunctionBase<T>
+{
+public:
+  scaleFunctionType25() { this->parNum_ = 19; }
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const
+  {
+    // Set to 0: use the same parameters for negative and positive muons
+    int negChg = 4;
+    if( chg > 0 ) {
+      if( phi > 0 ) {
+	return (parScale[0] + etaCorrection(eta, parScale) + parScale[1]*TMath::Abs(phi)*sin(2*phi + parScale[2]))*pt;
+      }
+      else {
+	return (parScale[0] + etaCorrection(eta, parScale) + parScale[3]*TMath::Abs(phi)*sin(2*phi + parScale[4]))*pt;
+      }
+    }
+    else if( chg < 0 ) {
+      if( phi > 0 ) {
+	return (parScale[0] + etaCorrection(eta, parScale) - parScale[1+negChg]*TMath::Abs(phi)*sin(2*phi + parScale[2+negChg]))*pt;
+      }
+      else {
+	return (parScale[0] + etaCorrection(eta, parScale) - parScale[3+negChg]*TMath::Abs(phi)*sin(2*phi + parScale[4+negChg]))*pt;
+      }
+    }
+    std::cout << "Error: we should not be here." << std::endl;
+    exit(1);
+    return 1;
+  }
+  double etaCorrection(const double & eta, const T & parScale) const
+  {
+    if( eta < -2.06 ) return cubicEta(-2.06, parScale, 9);
+    else if( eta < -1.06 ) return cubicEta(eta, parScale, 9);
+    else if( eta < 1.1 ) return( parScale[13] + parScale[14]*eta );
+    else if( eta < 2. ) return cubicEta(eta, parScale, 15);
+    return cubicEta(2., parScale, 15);
+  }
+  double cubicEta(const double & eta, const T & parScale, const int shift ) const
+  {
+    return( parScale[shift] + parScale[shift+1]*eta + parScale[shift+2]*eta*eta + parScale[shift+3]*eta*eta*eta );
+  }
+
+  // Fill the scaleVec with neutral parameters
+  virtual void resetParameters(std::vector<double> * scaleVec) const
+  {
+    scaleVec->push_back(1);
+    for( int i=1; i<this->parNum_; ++i ) {
+      scaleVec->push_back(0);
+    }
+  }
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const std::vector<int> & parScaleOrder, const int muonType)
+  {
+    double thisStep[] = {0.0001,
+			 0.0001, 0.01, 0.0001, 0.01,
+			 0.0001, 0.01, 0.0001, 0.01,
+			 0.0001, 0.0001, 0.0001, 0.0001,
+			 0.0001, 0.0001,
+			 0.0001, 0.0001, 0.0001, 0.0001};
+    TString thisParName[] = {"Phi offset",
+			     // "amplitude pos phi", "phase pos phi",
+			     // "amplitude neg phi", "phase neg phi"};
+			     "amplitude pos charge pos phi", "phase pos charge pos phi",
+			     "amplitude pos charge neg phi", "phase pos charge neg phi",
+			     "amplitude neg charge pos phi", "phase neg charge pos phi",
+			     "amplitude neg charge neg phi", "phase neg charge neg phi",
+			     "etaNeg0", "etaNeg1", "etaNeg2", "etaNeg3",
+			     "etaCent0", "etaCent1",
+    			     "etaPos0", "etaPos1", "etaPos2", "etaPos3"};
+    if( muonType == 1 ) {
+      double thisMini[] = {0.9,
+			   -0.3, -0.3, -0.3, -0.3,
+			   -0.3, -0.3, -0.3, -0.3,
+			   -0.1, -1., -1., -1.,
+			   -0.1, -1.,
+			   -0.1, -1., -1., -1.};
+      double thisMaxi[] = {1.1,
+			   0.3,  0.3,  0.3,  0.3,
+			   0.3,  0.3,  0.3,  0.3,
+			   0.1, 1., 1., 1.,
+			   0.1, 1.,
+			   0.1, 1., 1., 1.};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
+    } else {
+      double thisMini[] = {0.9,
+			   -0.1, -3, -0.1, -3,
+                           -0.1, -3, -0.1, -3,
+			   -0.1, -0.6, -0.5, -0.08,
+			   -0.1, -0.001,
+			   -0.1, -0.1, -0.4, -0.01};
+      double thisMaxi[] = {1.1,
+			   0.1,  3,  0.1,  3,
+                           0.1,  3,  0.1,  3,
+			   0.1, 0.1, 0.1, 0.01,
+			   0.1, 0.002,
+			   0.1, 0.8, 0.1, 0.2};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
+    }
+  }
+};
+
 /// Service to build the scale functor corresponding to the passed identifier
 scaleFunctionBase<double * > * scaleFunctionService( const int identifier );
 
