@@ -64,6 +64,25 @@ def pipe(cmdline, input = None):
   return out
 
 
+def build_source(src):
+  if src is None:
+    return '--noedsources'
+  else:
+    return '--input ' + src
+
+def build_options(opts):
+  return ' '.join(['--%s %s' % (key, ','.join(vals)) for key, vals in opts.iteritems() if vals])
+
+def build_cmdline(db, menu, src, opts, full = True):
+  if full:
+    return 'edmConfigFromDB --%s --configName %s %s %s' % (db, menu, build_source(src), build_options(opts))
+  else:
+    return 'edmConfigFromDB --cff --%s --configName %s %s %s' % (db, menu, build_source(src), build_options(opts))
+
+
+
+
+
 def parse_options(args):
   # global variables
   global processName
@@ -145,85 +164,99 @@ def parse_options(args):
 parse_options(sys.argv[1:])
 
 # Initialize everything
-edsources = ""
-essources = ""
-esmodules = ""
-modules   = ""
-services  = ""
-paths     = ""
-psets     = ""
+menuConfigOptions = {
+    'essources' : [],
+    'esmodules' : [],
+    'modules'   : [],
+    'services'  : [],
+    'paths'     : [],
+    'psets'     : [],
+}
+
+menuConfigSource = None
 
 if doCff:
-    edsources =  " --noedsources"
+    menuConfigOptions['essources'].append( "-GlobalTag" )
+    menuConfigOptions['essources'].append( "-Level1MenuOverride" )
+    menuConfigOptions['essources'].append( "-HepPDTESSource" )
+    menuConfigOptions['essources'].append( "-XMLIdealGeometryESSource" )
+    menuConfigOptions['essources'].append( "-eegeom" )
+    menuConfigOptions['essources'].append( "-es_hardcode" )
+    menuConfigOptions['essources'].append( "-magfield" )
 
-    essources  = " --essources "
-    essources += "-GlobalTag,"
-    essources += "-Level1MenuOverride,"
-    essources += "-HepPDTESSource,"
-    essources += "-XMLIdealGeometryESSource,"
-    essources += "-eegeom,"
-    essources += "-es_hardcode,"
-    essources += "-magfield"
+    menuConfigOptions['esmodules'].append( "-AutoMagneticFieldESProducer" )
+    menuConfigOptions['esmodules'].append( "-SlaveField0" )
+    menuConfigOptions['esmodules'].append( "-SlaveField20" )
+    menuConfigOptions['esmodules'].append( "-SlaveField30" )
+    menuConfigOptions['esmodules'].append( "-SlaveField35" )
+    menuConfigOptions['esmodules'].append( "-SlaveField38" )
+    menuConfigOptions['esmodules'].append( "-SlaveField40" )
+    menuConfigOptions['esmodules'].append( "-VBF0" )
+    menuConfigOptions['esmodules'].append( "-VBF20" )
+    menuConfigOptions['esmodules'].append( "-VBF30" )
+    menuConfigOptions['esmodules'].append( "-VBF35" )
+    menuConfigOptions['esmodules'].append( "-VBF38" )
+    menuConfigOptions['esmodules'].append( "-VBF40" )
+    menuConfigOptions['esmodules'].append( "-CSCGeometryESModule" )
+    menuConfigOptions['esmodules'].append( "-CaloGeometryBuilder" )
+    menuConfigOptions['esmodules'].append( "-CaloTowerGeometryFromDBEP" )
+    menuConfigOptions['esmodules'].append( "-CaloTowerHardcodeGeometryEP" )
+    menuConfigOptions['esmodules'].append( "-CastorGeometryFromDBEP" )
+    menuConfigOptions['esmodules'].append( "-CastorHardcodeGeometryEP" )
+    menuConfigOptions['esmodules'].append( "-DTGeometryESModule" )
+    menuConfigOptions['esmodules'].append( "-EcalBarrelGeometryEP" )
+    menuConfigOptions['esmodules'].append( "-EcalBarrelGeometryFromDBEP" )
+    menuConfigOptions['esmodules'].append( "-EcalElectronicsMappingBuilder" )
+    menuConfigOptions['esmodules'].append( "-EcalEndcapGeometryEP" )
+    menuConfigOptions['esmodules'].append( "-EcalEndcapGeometryFromDBEP" )
+    menuConfigOptions['esmodules'].append( "-EcalLaserCorrectionService" )
+    menuConfigOptions['esmodules'].append( "-EcalPreshowerGeometryEP" )
+    menuConfigOptions['esmodules'].append( "-EcalPreshowerGeometryFromDBEP" )
+    menuConfigOptions['esmodules'].append( "-HcalGeometryFromDBEP" )
+    menuConfigOptions['esmodules'].append( "-HcalHardcodeGeometryEP" )
+    menuConfigOptions['esmodules'].append( "-HcalTopologyIdealEP" )
+    menuConfigOptions['esmodules'].append( "-MuonNumberingInitialization" )
+    menuConfigOptions['esmodules'].append( "-ParametrizedMagneticFieldProducer" )
+    menuConfigOptions['esmodules'].append( "-RPCGeometryESModule" )
+    menuConfigOptions['esmodules'].append( "-SiStripGainESProducer" )
+    menuConfigOptions['esmodules'].append( "-SiStripRecHitMatcherESProducer" )
+    menuConfigOptions['esmodules'].append( "-SiStripQualityESProducer" )
+    menuConfigOptions['esmodules'].append( "-StripCPEfromTrackAngleESProducer" )
+    menuConfigOptions['esmodules'].append( "-TrackerDigiGeometryESModule" )
+    menuConfigOptions['esmodules'].append( "-TrackerGeometricDetESModule" )
+    menuConfigOptions['esmodules'].append( "-VolumeBasedMagneticFieldESProducer" )
+    menuConfigOptions['esmodules'].append( "-XMLFromDBSource" )
+    menuConfigOptions['esmodules'].append( "-ZdcGeometryFromDBEP" )
+    menuConfigOptions['esmodules'].append( "-ZdcHardcodeGeometryEP" )
+    menuConfigOptions['esmodules'].append( "-hcal_db_producer" )
+    menuConfigOptions['esmodules'].append( "-l1GtTriggerMenuXml" )
+    menuConfigOptions['esmodules'].append( "-L1GtTriggerMaskAlgoTrigTrivialProducer" )
+    menuConfigOptions['esmodules'].append( "-L1GtTriggerMaskTechTrigTrivialProducer" )
+    menuConfigOptions['esmodules'].append( "-sistripconn" )
 
-    esmodules  = " --esmodules "
-    esmodules += "-AutoMagneticFieldESProducer,"
-    esmodules += "-SlaveField0,"
-    esmodules += "-SlaveField20,"
-    esmodules += "-SlaveField30,"
-    esmodules += "-SlaveField35,"
-    esmodules += "-SlaveField38,"
-    esmodules += "-SlaveField40,"
-    esmodules += "-VBF0,"
-    esmodules += "-VBF20,"
-    esmodules += "-VBF30,"
-    esmodules += "-VBF35,"
-    esmodules += "-VBF38,"
-    esmodules += "-VBF40,"
-    esmodules += "-CSCGeometryESModule,"
-    esmodules += "-CaloGeometryBuilder,"
-    esmodules += "-CaloTowerGeometryFromDBEP,"
-    esmodules += "-CaloTowerHardcodeGeometryEP,"
-    esmodules += "-CastorGeometryFromDBEP,"
-    esmodules += "-CastorHardcodeGeometryEP,"
-    esmodules += "-DTGeometryESModule,"
-    esmodules += "-EcalBarrelGeometryEP,"
-    esmodules += "-EcalBarrelGeometryFromDBEP,"
-    esmodules += "-EcalElectronicsMappingBuilder,"
-    esmodules += "-EcalEndcapGeometryEP,"
-    esmodules += "-EcalEndcapGeometryFromDBEP,"
-    esmodules += "-EcalLaserCorrectionService,"
-    esmodules += "-EcalPreshowerGeometryEP,"
-    esmodules += "-EcalPreshowerGeometryFromDBEP,"
-    esmodules += "-HcalGeometryFromDBEP,"
-    esmodules += "-HcalHardcodeGeometryEP,"
-    esmodules += "-HcalTopologyIdealEP,"
-    esmodules += "-MuonNumberingInitialization,"
-    esmodules += "-ParametrizedMagneticFieldProducer,"
-    esmodules += "-RPCGeometryESModule,"
-    esmodules += "-SiStripGainESProducer,"
-    esmodules += "-SiStripRecHitMatcherESProducer,"
-    esmodules += "-SiStripQualityESProducer,"
-    esmodules += "-StripCPEfromTrackAngleESProducer,"
-    esmodules += "-TrackerDigiGeometryESModule,"
-    esmodules += "-TrackerGeometricDetESModule,"
-    esmodules += "-VolumeBasedMagneticFieldESProducer,"
-    esmodules += "-XMLFromDBSource,"
-    esmodules += "-ZdcGeometryFromDBEP,"
-    esmodules += "-ZdcHardcodeGeometryEP,"
-    esmodules += "-hcal_db_producer,"
-    esmodules += "-l1GtTriggerMenuXml,"
-    esmodules += "-L1GtTriggerMaskAlgoTrigTrivialProducer,"
-    esmodules += "-L1GtTriggerMaskTechTrigTrivialProducer,"
-    esmodules += "-sistripconn"
+    menuConfigOptions['services'].append( "-PrescaleService" )
+    menuConfigOptions['services'].append( "-MessageLogger" )
+    menuConfigOptions['services'].append( "-DQM" )
+    menuConfigOptions['services'].append( "-DQMStore" )
+    menuConfigOptions['services'].append( "-FUShmDQMOutputService" )
+    menuConfigOptions['services'].append( "-MicroStateService" )
+    menuConfigOptions['services'].append( "-ModuleWebRegistry" )
+    menuConfigOptions['services'].append( "-TimeProfilerService" )
 
-    services   = " --services -PrescaleService,-MessageLogger,-DQM,-DQMStore,-FUShmDQMOutputService,-MicroStateService,-ModuleWebRegistry,-TimeProfilerService"
+    menuConfigOptions['paths'].append( "-HLTOutput" )
+    menuConfigOptions['paths'].append( "-ExpressOutput" )
+    menuConfigOptions['paths'].append( "-EventDisplayOutput" )
+    menuConfigOptions['paths'].append( "-AlCaOutput" )
+    menuConfigOptions['paths'].append( "-DQMOutput" )
+    menuConfigOptions['paths'].append( "-HLTDQMOutput" )
+    menuConfigOptions['paths'].append( "-HLTMONOutput" )
+    menuConfigOptions['paths'].append( "-OfflineOutput" )
 
-    paths      = " --paths -HLTOutput,-ExpressOutput,-EventDisplayOutput,-AlCaOutput,-DQMOutput,-HLTDQMOutput,-HLTMONOutput,-OfflineOutput"
+    menuConfigOptions['psets'].append( "-maxEvents" )
+    menuConfigOptions['psets'].append( "-options" )
 
-    psets      = " --psets -maxEvents,-options"
-
-    myGet = "edmConfigFromDB --cff --" + menuConfigDB + " --configName " + menuConfigName + edsources + essources + esmodules + modules + services + paths + psets
-    data = pipe(myGet)
+    cmdline = build_cmdline(menuConfigDB, menuConfigName, menuConfigSource, menuConfigOptions, False)
+    data = pipe(cmdline)
 
     if not runOnData:
       # FIXME - this should be done looking into the python objects, not working on the text representation
@@ -290,32 +323,24 @@ Level1MenuOverride.connect   = 'frontier://FrontierProd/CMS_COND_31X_L1T'
 Level1MenuOverride.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
 """ % menuL1Override
 
-    # dump
-    print data
-
 else:
-    if runOnData:
-      if runOnline:
-        edsources =  " --input file:/tmp/InputCollection.root"
-      else:
-        edsources =  " --input /store/data/Run2010A/MinimumBias/RAW/v1/000/139/458/1AD6DF4F-9988-DF11-939F-001617DBD472.root"
+    if runOnline:
+        menuConfigSource =  "file:/tmp/InputCollection.root"
+    elif runOnData:
+        menuConfigSource =  "/store/data/Run2010A/MinimumBias/RAW/v1/000/139/458/1AD6DF4F-9988-DF11-939F-001617DBD472.root"
     else:
-      edsources =  " --input file:RelVal_DigiL1Raw_"+processType+".root"
+        menuConfigSource =  "file:RelVal_DigiL1Raw_%s.root" % processType
 
     if not runOnData or menuL1Override:
-      # remove any eventual L1 override from the table
-      essources  = " --essources "
-      essources += "-Level1MenuOverride,"
+        # remove any eventual L1 override from the table
+        menuConfigOptions['essources'].append( "-Level1MenuOverride" )
+        menuConfigOptions['esmodules'].append( "-l1GtTriggerMenuXml" )
 
-      esmodules  = " --esmodules "
-      esmodules += "-l1GtTriggerMenuXml,"
+    menuConfigOptions['services'].append( "-FUShmDQMOutputService" )
+    menuConfigOptions['paths'].append( "-OfflineOutput" )
 
-    services   = " --services -FUShmDQMOutputService"
-
-    paths      = " --paths -OfflineOutput"
-
-    myGet = "edmConfigFromDB --" + menuConfigDB + " --configName " + menuConfigName + edsources + essources + esmodules + modules + services + paths + psets
-    data = pipe(myGet)
+    cmdline = build_cmdline(menuConfigDB, menuConfigName, menuConfigSource, menuConfigOptions)
+    data = pipe(cmdline)
 
     if not runOnData:
       # FIXME - this should be done looking into the python objects, not working on the text representation
@@ -464,6 +489,7 @@ process.MessageLogger.categories.append('L1GtTrigReport')
 process.MessageLogger.categories.append('HLTrigReport')
 """
 
-    # dump
-    print data
+
+# dump the final configuration
+print data
 
