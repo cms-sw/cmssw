@@ -4,6 +4,7 @@ import sys
 import os
 import commands
 import getopt
+import shlex, subprocess
 
 globalTag = {
   '8E29': 'auto:startup',
@@ -47,12 +48,21 @@ processType     = ''
 doCff           = False
 runOnData       = True
 runOnline       = False
-menuOutName     = ''
 menuL1Override  = ''
 menuGlobalTag   = ''
 menuConfigDB    = ''
 menuConfigName  = ''
 menuUnprescale  = False
+
+def pipe(cmdline, input = None):
+  args = shlex.split(cmdline)
+  if input is not None:
+    command = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=None)
+  else:
+    command = subprocess.Popen(args, stdin=None, stdout=subprocess.PIPE, stderr=None)
+  (out, err) = command.communicate(input)
+  return out
+
 
 def parse_options(args):
   # global variables
@@ -61,7 +71,6 @@ def parse_options(args):
   global doCff
   global runOnData
   global runOnline
-  global menuOutName
   global menuL1Override
   global menuGlobalTag
   global menuConfigDB
@@ -69,7 +78,7 @@ def parse_options(args):
   global menuUnprescale
 
   # valid options
-  options = ( 'process=', 'l1=', 'globaltag=', 'data', 'mc', 'online', 'offline', 'full', 'cff', 'unprescale' )
+  options = ( 'process=', 'l1=', 'globaltag=', 'type=', 'data', 'mc', 'online', 'offline', 'full', 'cff', 'unprescale' )
 
   try:
     (opts, args) = getopt.gnu_getopt(args, 'f', options)
@@ -83,6 +92,8 @@ def parse_options(args):
     # set the process name
     if opt == '--process':
       processName = value
+    elif opt == '--type':
+      processType = value
     # generate a cff fragment
     elif opt == '--cff':
       doCff = True
@@ -120,11 +131,6 @@ def parse_options(args):
   except:
       usage()
       sys.exit(1)
-
-  if doCff:
-    menuOutName = "hlt_cff.py"
-  else:
-    menuOutName = "hlt.py"
 
   # extract the database and configuration name
   if ':' in configName:
@@ -216,45 +222,43 @@ if doCff:
 
     psets      = " --psets -maxEvents,-options"
 
-    myGet = "edmConfigFromDB --cff --" + menuConfigDB + " --configName " + menuConfigName + edsources + essources + esmodules + modules + services + paths + psets + " > " + menuOutName
-    os.system(myGet)
+    myGet = "edmConfigFromDB --cff --" + menuConfigDB + " --configName " + menuConfigName + edsources + essources + esmodules + modules + services + paths + psets
+    data = pipe(myGet)
 
     if not runOnData:
       # FIXME - this should be done looking into the python objects, not working on the text representation
-      os.system("sed -e 's/cms.InputTag( \"source\" )/cms.InputTag( \"rawDataCollector\" )/' -i " + menuOutName)
-      os.system("sed -e 's/cms.string( \"source\" )/cms.string( \"rawDataCollector\" )/' -i " + menuOutName)
+      data = pipe("sed -e 's/cms.InputTag( \"source\" )/cms.InputTag( \"rawDataCollector\" )/'", data)
+      data = pipe("sed -e 's/cms.string( \"source\" )/cms.string( \"rawDataCollector\" )/'", data)
 
       # FIXME - this should be changed to a "tracked" parameter ASAP
-      os.system("sed -e 's/cms.EDProducer( \"CSCTFUnpacker\",\\s*/&\\n    producer = cms.untracked.InputTag( \"rawDataCollector\" ),/' -i " + menuOutName)
+      data = pipe("sed -e 's/cms.EDProducer( \"CSCTFUnpacker\",\\s*/&\\n    producer = cms.untracked.InputTag( \"rawDataCollector\" ),/'", data)
 
     if processType in ('1E31', 'HIon'):
       # FIXME - should have a proper L1 MC/DESIGN/1E31 menue
-      os.system("sed -e 's/L1_DoubleEG2/L1_DoubleEG1/' -i " + menuOutName)
-
-    # open the output file for further tuning
-    out = open(menuOutName, 'a')
+      data = pipe("sed -e 's/L1_DoubleEG2/L1_DoubleEG1/'", data)
 
     # override the preshower baseline setting for MC - needed for 3.5.x (x >= 7) and 3.6.x
     if not runOnData:
-      out.write("""# override the preshower baseline setting for MC
+      data = data + """
+# override the preshower baseline setting for MC
 if 'ESUnpackerWorkerESProducer' in locals():
     ESUnpackerWorkerESProducer.RHAlgo.ESBaseline = 1000
-
-""")
+"""
 
     # if required, remove the HLT prescales
     if menuUnprescale:
-      out.write("""# remove the HLT prescales
+      data = data + """
+# remove the HLT prescales
 if 'PrescaleService' in locals():
     PrescaleService.lvl1DefaultLabel = cms.untracked.string( '0' )
     PrescaleService.lvl1Labels = cms.vstring( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' )
     PrescaleService.prescaleTable = cms.VPSet( )
-
-""")
+"""
 
     # if requested, override the L1 menu from the GlobalTag
     if menuL1Override:
-      out.write("""# override L1 menu
+      data = data + """
+# override L1 menu
 Level1MenuOverride = cms.ESSource( "PoolDBESSource",
     appendToDataLabel = cms.string( "" ),
     timetype = cms.string( "runnumber" ),
@@ -281,13 +285,13 @@ Level1MenuOverride = cms.ESSource( "PoolDBESSource",
       )
     )
 )
-es_prefer_Level1MenuOverride = cms.ESPrefer( "PoolDBESSource", "Level1MenuOverride" )\n""" % menuL1Override)
-      out.write("Level1MenuOverride.connect   = 'frontier://FrontierProd/CMS_COND_31X_L1T'\n")
-      out.write("Level1MenuOverride.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')\n")
-      out.write("\n")
+es_prefer_Level1MenuOverride = cms.ESPrefer( "PoolDBESSource", "Level1MenuOverride" )
+Level1MenuOverride.connect   = 'frontier://FrontierProd/CMS_COND_31X_L1T'
+Level1MenuOverride.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
+""" % menuL1Override
 
-    # close the output file
-    out.close()
+    # dump
+    print data
 
 else:
     if runOnData:
@@ -310,61 +314,60 @@ else:
 
     paths      = " --paths -OfflineOutput"
 
-    myGet = "edmConfigFromDB --" + menuConfigDB + " --configName " + menuConfigName + edsources + essources + esmodules + modules + services + paths + psets + " > " + menuOutName
-    os.system(myGet)
+    myGet = "edmConfigFromDB --" + menuConfigDB + " --configName " + menuConfigName + edsources + essources + esmodules + modules + services + paths + psets
+    data = pipe(myGet)
 
     if not runOnData:
       # FIXME - this should be done looking into the python objects, not working on the text representation
-      os.system("sed -e 's/cms.InputTag( \"source\" )/cms.InputTag( \"rawDataCollector\" )/' -i " + menuOutName)
-      os.system("sed -e 's/cms.string( \"source\" )/cms.string( \"rawDataCollector\" )/' -i " + menuOutName)
+      data = pipe("sed -e 's/cms.InputTag( \"source\" )/cms.InputTag( \"rawDataCollector\" )/'", data)
+      data = pipe("sed -e 's/cms.string( \"source\" )/cms.string( \"rawDataCollector\" )/'", data)
 
       # FIXME - this should be changed to a "tracked" parameter ASAP
-      os.system("sed -e 's/cms.EDProducer( \"CSCTFUnpacker\",\\s*/&\\n    producer = cms.untracked.InputTag( \"rawDataCollector\" ),/' -i " + menuOutName)
+      data = pipe("sed -e 's/cms.EDProducer( \"CSCTFUnpacker\",\\s*/&\\n    producer = cms.untracked.InputTag( \"rawDataCollector\" ),/'", data)
 
     if processType in ('1E31', 'HIon'):
       # FIXME - should have a proper L1 MC/DESIGN/1E31 menue
-      os.system("sed -e 's/L1_DoubleEG2/L1_DoubleEG1/' -i " + menuOutName)
+      data = pipe("sed -e 's/L1_DoubleEG2/L1_DoubleEG1/'", data)
 
     # FIXME - find a better way to override the output modules
-    os.system("sed -e's/process\.hltOutput\(\w\+\) *= *cms\.OutputModule( *\"ShmStreamConsumer\" *,/process.hltOutput\\1 = cms.OutputModule( \"PoolOutputModule\",\\n    fileName = cms.untracked.string( \"output\\1.root\" ),/'  -i " + menuOutName)
-
-    # open the output file for further tuning
-    out = open(menuOutName, 'a')
+    data = pipe("sed -e's/process\.hltOutput\(\w\+\) *= *cms\.OutputModule( *\"ShmStreamConsumer\" *,/process.hltOutput\\1 = cms.OutputModule( \"PoolOutputModule\",\\n    fileName = cms.untracked.string( \"output\\1.root\" ),/' ", data)
 
     # override the preshower baseline setting for MC - needed for 3.5.x (x >= 7) and 3.6.x
     if not runOnData:
-      out.write("""# override the preshower baseline setting for MC
+      data = data + """# override the preshower baseline setting for MC
 if 'ESUnpackerWorkerESProducer' in process.__dict__:
     process.ESUnpackerWorkerESProducer.RHAlgo.ESBaseline = 1000
 
-""")
+"""
 
     # if required, remove the HLT prescales
     if menuUnprescale:
-      out.write("""# remove HLT prescales
+      data = data + """
+# remove HLT prescales
 if 'PrescaleService' in process.__dict__:
     process.PrescaleService.lvl1DefaultLabel = cms.untracked.string( '0' )
     process.PrescaleService.lvl1Labels = cms.vstring( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' )
     process.PrescaleService.prescaleTable = cms.VPSet( )
 
-""")
+"""
 
-    # overwrite ProcessName
-    out.write("process.setName_('%s')\n" % processName)
-    out.write("\n")
+    data = data + """
+# overwrite process name
+process.setName_('%s')
 
-    # add global options
-    out.write("process.maxEvents = cms.untracked.PSet(\n")
-    out.write("    input = cms.untracked.int32( 100 )\n")
-    out.write(")\n")
-    out.write("process.options = cms.untracked.PSet(\n")
-    out.write("    wantSummary = cms.untracked.bool( True )\n")
-    out.write(")\n")
-    out.write("\n")
+# add global options
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32( 100 )
+)
+process.options = cms.untracked.PSet(
+    wantSummary = cms.untracked.bool( True )
+)
+""" % processName
 
     # override the L1 menu
     if menuL1Override:
-      out.write("""# override L1 menu
+      data = data + """
+# override L1 menu
 process.Level1MenuOverride = cms.ESSource( "PoolDBESSource",
     BlobStreamerName = cms.untracked.string( "TBufferBlobStreamingService" ),
     connect = cms.string( "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_COND_31X_L1T" ),
@@ -394,7 +397,7 @@ process.Level1MenuOverride = cms.ESSource( "PoolDBESSource",
     messagelevel = cms.untracked.uint32( 0 )
 )
 process.es_prefer_Level1MenuOverride = cms.ESPrefer( "PoolDBESSource", "Level1MenuOverride" )
-\n""" % menuL1Override)
+""" % menuL1Override
 
     # overwrite GlobalTag
     # the logic is:
@@ -404,12 +407,12 @@ process.es_prefer_Level1MenuOverride = cms.ESPrefer( "PoolDBESSource", "Level1Me
     #      - if the GT is "auto:...", insert the code to read it from Configuration.PyReleaseValidation.autoCond
 
     if not runOnline:
-      out.write("if 'GlobalTag' in process.__dict__:\n")
-      out.write("    process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'\n")
+      data = data + "if 'GlobalTag' in process.__dict__:\n"
+      data = data + "    process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'\n"
 
       if runOnData:
         # don't override the GlobalTag, add only the pfnPrefix
-        out.write("    process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')\n")
+        data = data + "    process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')\n"
         # check if a specific GlobalTag was specified on the command line, or choose one for 'data'
         if not menuGlobalTag:
           menuGlobalTag = globalTag['data']
@@ -423,42 +426,44 @@ process.es_prefer_Level1MenuOverride = cms.ESPrefer( "PoolDBESSource", "Level1Me
 
       # check if the GlobalTag is an autoCond or explicit (now also for real data)
       if menuGlobalTag[0:5] == 'auto:':
-        out.write("    from Configuration.PyReleaseValidation.autoCond import autoCond\n")
-        out.write("    process.GlobalTag.globaltag = autoCond['%s']\n" % menuGlobalTag[5:])
+        data = data + "    from Configuration.PyReleaseValidation.autoCond import autoCond\n"
+        data = data + "    process.GlobalTag.globaltag = autoCond['%s']\n" % menuGlobalTag[5:]
       else:
-        out.write("    process.GlobalTag.globaltag = %s\n" % menuGlobalTag)
+        data = data + "    process.GlobalTag.globaltag = %s\n" % menuGlobalTag
 
-      out.write("\n")
-      out.write("if 'Level1MenuOverride' in process.__dict__:\n")
-      out.write("    process.Level1MenuOverride.connect   = 'frontier://FrontierProd/CMS_COND_31X_L1T'\n")
+      data = data + "\n"
+      data = data + "if 'Level1MenuOverride' in process.__dict__:\n"
+      data = data + "    process.Level1MenuOverride.connect   = 'frontier://FrontierProd/CMS_COND_31X_L1T'\n"
       if runOnData:
-        out.write("    process.Level1MenuOverride.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')\n")
-      out.write("\n")
+        data = data + "    process.Level1MenuOverride.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')\n"
+      data = data + "\n"
 
     # the following is stolen from HLTrigger.Configuration.customL1THLT_Options
-    out.write("if 'hltTrigReport' in process.__dict__:\n")
-    out.write("    process.hltTrigReport.HLTriggerResults       = cms.InputTag( 'TriggerResults','',process.name_() )\n")
-    out.write("\n")
-    out.write("if 'hltDQMHLTScalers' in process.__dict__:\n")
-    out.write("    process.hltDQMHLTScalers.triggerResults      = cms.InputTag( 'TriggerResults','',process.name_() )\n")
-    out.write("\n")
-    out.write("if 'hltPreExpressSmart' in process.__dict__:\n")
-    out.write("    process.hltPreExpressSmart.TriggerResultsTag = cms.InputTag( 'TriggerResults','',process.name_() )\n")
-    out.write("\n")
-    out.write("if 'hltPreHLTMONSmart' in process.__dict__:\n")
-    out.write("    process.hltPreHLTMONSmart.TriggerResultsTag  = cms.InputTag( 'TriggerResults','',process.name_() )\n")
-    out.write("\n")
-    out.write("if 'hltPreDQMSmart' in process.__dict__:\n")
-    out.write("    process.hltPreDQMSmart.TriggerResultsTag     = cms.InputTag( 'TriggerResults','',process.name_() )\n")
-    out.write("\n")
-    out.write("if 'hltDQML1SeedLogicScalers' in process.__dict__:\n")
-    out.write("    process.hltDQML1SeedLogicScalers.processname = process.name_()\n")
-    out.write("\n")
-    out.write("process.options.wantSummary = cms.untracked.bool(True)\n")
-    out.write("process.MessageLogger.categories.append('TriggerSummaryProducerAOD')\n")
-    out.write("process.MessageLogger.categories.append('L1GtTrigReport')\n")
-    out.write("process.MessageLogger.categories.append('HLTrigReport')\n")
+      data = data + """
+if 'hltTrigReport' in process.__dict__:
+    process.hltTrigReport.HLTriggerResults       = cms.InputTag( 'TriggerResults','',process.name_() )
 
-    # close the output file
-    out.close()
+if 'hltDQMHLTScalers' in process.__dict__:
+    process.hltDQMHLTScalers.triggerResults      = cms.InputTag( 'TriggerResults','',process.name_() )
+
+if 'hltPreExpressSmart' in process.__dict__:
+    process.hltPreExpressSmart.TriggerResultsTag = cms.InputTag( 'TriggerResults','',process.name_() )
+
+if 'hltPreHLTMONSmart' in process.__dict__:
+    process.hltPreHLTMONSmart.TriggerResultsTag  = cms.InputTag( 'TriggerResults','',process.name_() )
+
+if 'hltPreDQMSmart' in process.__dict__:
+    process.hltPreDQMSmart.TriggerResultsTag     = cms.InputTag( 'TriggerResults','',process.name_() )
+
+if 'hltDQML1SeedLogicScalers' in process.__dict__:
+    process.hltDQML1SeedLogicScalers.processname = process.name_()
+
+process.options.wantSummary = cms.untracked.bool(True)
+process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
+process.MessageLogger.categories.append('L1GtTrigReport')
+process.MessageLogger.categories.append('HLTrigReport')
+"""
+
+    # dump
+    print data
 
