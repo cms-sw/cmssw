@@ -2,8 +2,8 @@
  * \file BeamMonitorBx.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/07/05 17:51:18 $
- * $Revision: 1.8 $
+ * $Date: 2010/07/07 01:41:18 $
+ * $Revision: 1.9 $
  *
  */
 
@@ -334,10 +334,17 @@ void BeamMonitorBx::FitAndFill(const LuminosityBlock& lumiSeg,
     if (currentlumi%fitNLumi_!=0) return;
 
   int * fitLS = theBeamFitter->getFitLSRange();
-  edm::LogInfo("LS|BX|BeamMonitorBx") << " [Fitter] Do BeamSpot Fit for LS = " << fitLS[0];
-  edm::LogInfo("LS|BX|BeamMonitorBx") << " to " << fitLS[1] << endl;
-  edm::LogInfo("LS|BX|BeamMonitorBx") << " [BX] Do BeamSpot Fit for LS = " << beginLumiOfBSFit_;
-  edm::LogInfo("LS|BX|BeamMonitorBx") << " to " << endLumiOfBSFit_ << endl;
+  edm::LogInfo("LS|BX|BeamMonitorBx") << " [Fitter] Do BeamSpot Fit for LS = " << fitLS[0]
+				      << " to " << fitLS[1] << endl;
+  edm::LogInfo("LS|BX|BeamMonitorBx") << " [BX] Do BeamSpot Fit for LS = " << beginLumiOfBSFit_
+				      << " to " << endLumiOfBSFit_ << endl;
+
+  // TEST: temporary for debugging timestamp problem
+  std::cout << " [BxDebugTime] refBStime[0] = " << refBStime[0]
+	    << "; assress =  " << &refBStime[0] << std::endl;
+  std::cout << " [BxDebugTime] refBStime[1] = " << refBStime[1]
+	    << "; assress =  " << &refBStime[1] << std::endl;
+  // End TEST
 
   if (theBeamFitter->runPVandTrkFitter()) {
     countGoodFit_++;
