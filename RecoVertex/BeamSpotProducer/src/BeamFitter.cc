@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.67 2010/07/07 01:37:10 jengbou Exp $
+   version $Id: BeamFitter.cc,v 1.68 2010/07/08 03:16:55 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -34,7 +34,7 @@ ________________________________________________________________**/
 const char * BeamFitter::formatBTime(const std::time_t t)  {
   struct std::tm * ptm;
   ptm = gmtime(&t);
-  static char ts[32];
+  static char ts[] = "yyyy.mn.dd hh:mm:ss zzz ";
   strftime(ts,sizeof(ts),"%Y.%m.%d %H:%M:%S %Z",ptm);
   return ts;
 }
@@ -396,13 +396,22 @@ bool BeamFitter::runPVandTrkFitter() {
     bool pv_fit_ok = false; 
     reco::BeamSpot bspotPV;
     reco::BeamSpot bspotTrk;
-        
+
     // First run PV fitter
     if ( MyPVFitter->IsFitPerBunchCrossing() ){
       const char* fbeginTime = formatBTime(freftime[0]);
       sprintf(fbeginTimeOfFit,"%s",fbeginTime);
       const char* fendTime = formatBTime(freftime[1]);
       sprintf(fendTimeOfFit,"%s",fendTime);
+      // TEST: temporary for debugging timestamp problem
+      std::cout << " [BeamFitterBxDebugTime] freftime[0] = " << freftime[0]
+		<< "; assress =  " << &freftime[0] 
+		<< " = " << fbeginTimeOfFit << std::endl;
+      std::cout << " [BeamFitterBxDebugTime] freftime[1] = " << freftime[1]
+		<< "; assress =  " << &freftime[1]
+		<< " = " << fendTimeOfFit << std::endl;
+      // End TEST
+
       if ( MyPVFitter->runBXFitter() ) {
 	fbspotPVMap = MyPVFitter->getBeamSpotMap();
 	pv_fit_ok = true;
@@ -485,11 +494,20 @@ bool BeamFitter::runPVandTrkFitter() {
 }
 
 bool BeamFitter::runFitterNoTxt() {
-
   const char* fbeginTime = formatBTime(freftime[0]);
   sprintf(fbeginTimeOfFit,"%s",fbeginTime);
   const char* fendTime = formatBTime(freftime[1]);
   sprintf(fendTimeOfFit,"%s",fendTime);
+
+  // TEST: temporary for debugging timestamp problem
+  std::cout << " [BeamFitterDebugTime] freftime[0] = " << freftime[0]
+	    << "; assress =  " << &freftime[0]
+	    << " = " << fbeginTimeOfFit << std::endl;
+  std::cout << " [BeamFitterDebugTime] freftime[1] = " << freftime[1]
+	    << "; assress =  " << &freftime[1]
+	    << " = " << fendTimeOfFit << std::endl;
+  // End TEST
+
   if (fbeginLumiOfFit == -1 || fendLumiOfFit == -1) {
       edm::LogWarning("BeamFitter") << "No event read! No Fitting!" << std::endl;
     return false;
