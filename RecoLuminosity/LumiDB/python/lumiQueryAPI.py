@@ -11,6 +11,7 @@ def runsummaryByrun(queryHandle,runnum):
     select fillnum,sequence,hltkey,starttime,stoptime from cmsrunsummary where runnum=:runnum
     output: [fillnum,sequence,hltkey,starttime,stoptime]
     '''
+    queryHandle.add
     pass
 
 def lumisummaryByrun(queryHandle,runnum,lumiversion):
@@ -32,6 +33,13 @@ def trgbitzeroByrun(queryHandle,runnum):
     '''
     select cmslsnum,trgcount,deadtime,bitname,prescale from trg where runnum=:runnum and bitnum=0;
     output: {cmslsnum:[trgcount,deadtime,bitname,prescale]}
+    '''
+    pass
+
+def lumisummarytrgbitzeroByrun(queryHandle,runnum,lumiversion):
+    '''
+    Everything you need to know about bitzero. Since we do not know if joint query is better of sperate. So support both.
+    output: {cmslsnum:[instlumi,numorbit,startorbit,beamstatus,beamenergy,bitzerocount,deadtime,bitname,prescale]}
     '''
     pass
 
