@@ -16,7 +16,7 @@
 //
 // Original Author:  Matevz Tadel
 //         Created:  Fri Jun 25 18:56:52 CEST 2010
-// $Id: EveService.h,v 1.2 2010/07/08 16:58:15 matevz Exp $
+// $Id: EveService.h,v 1.3 2010/07/08 19:43:44 matevz Exp $
 //
 
 #include <string>
@@ -36,6 +36,7 @@ class TEveMagField;
 class TEveTrackPropagator;
 class TRint;
 
+class TGTextButton;
 
 class EveService
 {
@@ -55,6 +56,8 @@ public:
    void postBeginRun(const edm::Run&, const edm::EventSetup&);
 
    void postProcessEvent(const edm::Event&, const edm::EventSetup&);
+
+   void display();
 
    TEveManager*  getManager();
    TEveMagField* getMagField();
@@ -78,6 +81,8 @@ private:
    TRint        *m_Rint;
 
    TEveMagField *m_MagField;
+
+   TGTextButton *m_NextButton;
 
    ClassDef(EveService, 0);
 };

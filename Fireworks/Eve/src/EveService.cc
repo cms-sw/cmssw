@@ -8,7 +8,7 @@
 //
 // Original Author:  Matevz Tadel
 //         Created:  Fri Jun 25 18:57:39 CEST 2010
-// $Id: EveService.cc,v 1.4 2010/07/08 16:58:23 matevz Exp $
+// $Id: EveService.cc,v 1.5 2010/07/08 19:43:44 matevz Exp $
 //
 
 // system include files
@@ -95,11 +95,8 @@ namespace
                 (absZ > 850.0f && absZ < 910.0f) ||
                 (absZ > 975.0f && absZ < 1003.0f))
             {
-               const Float_t fac = endcapFac * fField / R;
-               if (z > 0)
-                  return TEveVector( x*fac,  y*fac, 0);
-               else
-                  return TEveVector(-x*fac, -y*fac, 0);
+               const Float_t fac = (z >= 0 ? fField : -fField) * endcapFac / R;
+               return TEveVector(x*fac, y*fac, 0);
             }
          }
          return TEveVector(0, 0, 0);
@@ -121,7 +118,8 @@ namespace
 
 EveService::EveService(const edm::ParameterSet&, edm::ActivityRegistry& ar) :
    m_EveManager(0), m_Rint(0),
-   m_MagField(0)
+   m_MagField(0),
+   m_NextButton(0)
 {
    printf("EveService::EveService CTOR\n");
 
@@ -218,7 +216,8 @@ void EveService::postBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
 void EveService::postProcessEvent(const edm::Event&, const edm::EventSetup&)
 {
    printf("EveService::postProcessEvent: Starting GUI loop.\n");
-   printf("Type .q to go to next event, .qqqqq to quit.\n");
+
+   m_NextButton->SetText("Next Event");
 
    gEve->Redraw3D();
 
@@ -227,6 +226,19 @@ void EveService::postProcessEvent(const edm::Event&, const edm::EventSetup&)
    gEve->GetCurrentEvent()->DestroyElements();
 }
 
+//------------------------------------------------------------------------------
+
+void EveService::display()
+{
+   // Display whatever was registered so far, wait until user presses
+   // the "Step" button.
+
+   m_NextButton->SetText("Step");
+
+   gEve->Redraw3D();
+
+   m_Rint->Run(kTRUE);
+}
 
 //==============================================================================
 // Getters for cleints
@@ -283,8 +295,8 @@ void EveService::createEventNavigationGUI()
    TGHorizontalFrame* f = new TGHorizontalFrame(mf);
    mf->AddFrame(f, new TGLayoutHints(kLHintsExpandX, 0,0,2,2));
 
-   MkTxtButton(f, "Next Event", 100, 2, 2)->
-      Connect("Clicked()", cls, this, "slotNextEvent()");
+   m_NextButton = MkTxtButton(f, "Next Event", 100, 2, 2);
+   m_NextButton->Connect("Clicked()", cls, this, "slotNextEvent()");
    
    MkTxtButton(f, "Exit", 100, 2, 2)->
       Connect("Clicked()", cls, this, "slotExit()");

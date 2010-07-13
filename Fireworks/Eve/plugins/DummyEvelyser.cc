@@ -8,7 +8,7 @@
 //
 // Original Author:  Matevz Tadel
 //         Created:  Mon Jun 28 18:17:47 CEST 2010
-// $Id: DummyEvelyser.cc,v 1.4 2010/07/07 18:11:13 matevz Exp $
+// $Id: DummyEvelyser.cc,v 1.5 2010/07/08 16:58:21 matevz Exp $
 //
 
 // system include files
@@ -195,6 +195,7 @@ void DummyEvelyser::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 {
    printf("DummyEvelyser::analyze\n");
 
+   edm::Service<EveService> eve;
 
    // Remake geometry if it has changed.
 
@@ -210,6 +211,10 @@ void DummyEvelyser::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
    m_trackList->DestroyElements();
 
+   // All top-level elements are removed from default event-store at
+   // the end of each event.
+   gEve->AddElement(m_trackList);
+
    int cnt = 0;
    for (View<reco::Track>::const_iterator itTrack = tracks->begin();
         itTrack != tracks->end(); ++itTrack, ++cnt)
@@ -220,11 +225,13 @@ void DummyEvelyser::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       trk->MakeTrack();
       trk->SetAttLineAttMarker(m_trackList);
       m_trackList->AddElement(trk);
+
+      // The display() function runs the GUI event-loop and shows
+      // whatever has been registered so far to eve.
+      // It returns when user presses the "Step" button.
+      // eve->display();
+      // It is not a very good idea to call it here ...
    }
-
-   m_trackList->MakeTracks();
-
-   gEve->AddElement(m_trackList);
 }
 
 //
