@@ -29,7 +29,7 @@ const Color_t ttFillColor = kRed+2;
 
 
 
-double intLumi = 86;
+double intLumi = 78;
 const double lumi = intLumi * .001 ;
 //const double lumi =0100.0 ;
 const double lumiZ = 100. ;
@@ -63,8 +63,9 @@ TCut dau2TightWP1("zGoldenDau2Chi2<10  && (zGoldenDau2NofStripHits + zGoldenDau2
 TCut dau1TightWP2("zGoldenDau1Chi2<10  && (zGoldenDau1NofStripHits + zGoldenDau1NofPixelHits)>10  && zGoldenDau1NofMuonHits>0   && zGoldenDau1TrackerMuonBit==1");
 TCut dau2TightWP2("zGoldenDau2Chi2<10  && (zGoldenDau2NofStripHits + zGoldenDau2NofPixelHits)>10  && zGoldenDau2NofMuonHits>0   && zGoldenDau2TrackerMuonBit==1");
 
-TCut dau1TightWP1_hltAlso("zGoldenDau1Chi2<10  && (zGoldenDau1NofStripHits + zGoldenDau1NofPixelHits)>10 && zGoldenDau1NofPixelHits>0 && zGoldenDau1NofMuonHits>0 &&  zGoldenDau1NofMuMatches>1 && abs(zGoldenDau1Eta)<2.1");// 2.1 can bacome 2.4 later....
-TCut dau2TightWP1_hltAlso("zGoldenDau2Chi2<10  && (zGoldenDau2NofStripHits + zGoldenDau2NofPixelHits)>10 && zGoldenDau2NofPixelHits>0 && zGoldenDau2NofMuonHits>0 &&  zGoldenDau2NofMuMatches>1  &&  abs(zGoldenDau2Eta)<2.1");
+TCut dau1TightWP1_hltAlso("zGoldenDau1Chi2<10  && (zGoldenDau1NofStripHits + zGoldenDau1NofPixelHits)>10 && zGoldenDau1NofPixelHits>0 && zGoldenDau1NofMuonHits>0 &&  zGoldenDau1NofMuMatches>1 && abs(zGoldenDau1Eta)<2.1 && zGoldenDau1HL\
+TBit==1");// 2.1 can bacome 2.4 later....
+TCut dau2TightWP1_hltAlso("zGoldenDau2Chi2<10  && (zGoldenDau2NofStripHits + zGoldenDau2NofPixelHits)>10 && zGoldenDau2NofPixelHits>0 && zGoldenDau2NofMuonHits>0 &&  zGoldenDau2NofMuMatches>1  &&  abs(zGoldenDau2Eta)<2.1 && zGoldenDau2HLTBit==1");
 
 
  
@@ -117,7 +118,7 @@ if( logScale )
 
   // legend position and scale;
   float xl_  = 0.;
-  float yl_  = 0.;
+  float yl_  = 0.6;
   float scalel_ = 0.05;
       ndivx = 506;
 
@@ -143,7 +144,7 @@ if( logScale )
       if( logScale )
 	{
 	  xl_ = 0.60;
-	  yl_ = 0.50;
+	  yl_ = 0.60;
 	}
       else
 	{
@@ -269,7 +270,7 @@ dataGraph->Draw("pesame");
     
     
    
- hs->SetMaximum(  3 +  hdata->GetMaximum()  )  ;
+ hs->SetMaximum(  5 +  hdata->GetMaximum()  )  ;
     if (logScale) {
       hs->SetMaximum( pow(10 , 0.3 + int(log( hdata->GetMaximum() )  )  ));
     } 
@@ -314,15 +315,18 @@ dataGraph->Draw("pesame");
 
 
 //leg = new TLegend(0.75,0.55,0.90,0.7);
- 
+
+
   int nChan =2;
   if (logScale) nChan = 4;
 float dxl_ = scalel_*5;
   if (logScale) dxl_ = scalel_*4;
   float dyl_ = scalel_*(nChan);
   if (logScale) dyl_ = scalel_*(nChan-1);
-  TLegend* legend=new TLegend(xl_,yl_,xl_+dxl_,yl_+dyl_);
+  //  TLegend* legend=new TLegend(xl_,yl_,xl_+dxl_,yl_+dyl_);
   // TLegend* legend=new TLegend(0.65,0.54,0.95,0.796);
+  // legend on the left 
+ TLegend* legend=new TLegend(0.2,0.78,0.4,0.93);
   legend->SetLineColor(0);
   legend->SetFillColor(0);
 
@@ -421,40 +425,34 @@ TChain * zEvents = new TChain("Events");
 
 
 // zEvents->Add("/scratch2/users/degruttola/Spring10Ntuples_withIso03/NtupleLoose_zmmSpring10cteq66_100pb.root");
- zEvents->Add("../Ntuple_ZmmPowheg_36X.root");
+
+ls 
+
+
+
+
+
+ zEvents->Add("/scratch2/users/degruttola/Summer10Ntuples/Ntuple_ZmmPowheg_36X_100pb.root");
 TChain * wEvents = new TChain("Events"); 
- wEvents->Add("/scratch2/users/degruttola/Spring10Ntuples_withIso03/NtupleLoose_wplusmnSpring10cteq66_50pb.root");
- wEvents->Add("/scratch2/users/degruttola/Spring10Ntuples_withIso03/NtupleLoose_wminusmnSpring10cteq66_50pb.root");
+ wEvents->Add("/scratch2/users/degruttola/Summer10Ntuples/Ntuple_wplusPowheg36X_100pb.root");
+ wEvents->Add("/scratch2/users/degruttola/Summer10Ntuples/Ntuple_wminusPowheg36X_100pb.root");
 
 // 100 pb
 TChain * tEvents = new TChain("Events"); 
-tEvents->Add("/scratch2/users/degruttola/Spring10Ntuples_withIso03/NtupleLoose_ttbarSpring10cteq66_100pb.root");
+tEvents->Add("/scratch2/users/degruttola/Summer10Ntuples/Ntuple_ttbar_36X_100pb.root");
 // 100 pb
 TChain * qEvents = new TChain("Events"); 
-qEvents->Add("/scratch2/users/degruttola/Spring10Ntuples_withIso03/NtupleLoose_incl15Spring10cteq66_35pb.root");
+qEvents->Add("/scratch2/users/degruttola/Summer10Ntuples/Ntuple_incl15_36X_60pb.root");
 TChain * ztEvents = new TChain("Events"); 
- ztEvents->Add("/scratch2/users/degruttola/Spring10Ntuples_withIso03/NtupleLoose_ztautauSpring10cteq66_100pb.root");
+ ztEvents->Add("/scratch2/users/degruttola/Summer10Ntuples/Ntuple_ztautauPowheg36X_100pb.root");
 // 35 pb
 
 
 TChain * dataEvents= new TChain("Events");
 
 
-dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_132440_135802.root");
-dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_135821-137731.root");
-dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_138737-138751_promptreco_FF.root");
-dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_138_919_939.root");
-dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139020.root");
-dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_096_103.root");
-dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_195_239.root");
-dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139347.root");
-dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_356_360.root");
-dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_362_365.root");
-dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_368_370.root");
-dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_372_375.root");
-dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_399_411.root");
-dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_457_459.root");
-dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_779_790.root");
+dataEvents->Add("../NtupleLoose_132440_139790.root");
+
 // .040 pb
 
   TH1F *h1 = new TH1F ("h1", "h1", nbins, xMin, xMax);
@@ -525,7 +523,7 @@ void evalEff(const char * var1, const char * var2,  TCut cut, TCut cut_Nminus1, 
 TChain * zEvents = new TChain("Events"); 
 
 // zEvents->Add("/scratch2/users/degruttola/Spring10Ntuples_withIso03/NtupleLoose_zmmSpring10cteq66_100pb.root");
-zEvents->Add("../Ntuple_ZmmPowheg_36X.root");
+zEvents->Add("/scratch2/users/degruttola/Summer10Ntuples/Ntuple_ZmmPowheg_36X_100pb.root");
  TH1F * htot1 = new TH1F("htot1", "htot1", nbins, xMin, xMax);
  TH1F * htot2 = new TH1F("htot2", "htot2", nbins, xMin, xMax);
  TH1F * hcut1 = new TH1F("hcut1", "hcut1", nbins, xMin, xMax);
