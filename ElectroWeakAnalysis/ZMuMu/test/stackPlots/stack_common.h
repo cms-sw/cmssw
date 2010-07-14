@@ -112,7 +112,7 @@ if( logScale )
   TString ytitle;
   int ndivx(504);
   int ndivy(504);
-  float markerSize(1.);
+  float markerSize(2.);
 
   // canvas name
   TString cname("c");
@@ -135,11 +135,11 @@ if( logScale )
 
       if( logScale )
 	{
-	  markerSize = 0.8;
+	  markerSize = 1.2;
 	}
       else
 	{	
-	  markerSize = 0.9;
+	  markerSize = 1.2;
 	}
 
 
@@ -264,8 +264,10 @@ dataGraph->Draw("pesame");
     hdata->SetMarkerColor(kBlack);
     hdata->SetLineWidth(lineWidth);
     hdata->SetLineColor(kBlack);
+    //gStyle->SetErrorX(.5);
+    gStyle->SetEndErrorSize(2);
 
-    hdata->Draw("epsame");
+    hdata->Draw("PE1SAME");
     hdata->GetXaxis()->SetLabelSize(0);
     hdata->GetYaxis()->SetLabelSize(0);
     hdata->GetXaxis()->SetNdivisions(ndivx);
@@ -280,7 +282,7 @@ dataGraph->Draw("pesame");
     } 
     // lin plot 
      	
-    //    gStyle->SetErrorX(.5);
+    //    
   }
   hs->SetMinimum(min);
   
