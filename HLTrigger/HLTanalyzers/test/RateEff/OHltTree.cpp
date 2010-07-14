@@ -83,6 +83,8 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
 //   TFile*   theHistFile = new TFile("Histograms_Quarkonia.root", "RECREATE");
 //   cout<< "Histogram root file created: Histograms_Quarkonia.root"  << endl;
   
+  nEventsProcessed = 0;
+
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
@@ -324,7 +326,6 @@ bool OHltTree::prescaleResponseL1(OHltMenu *menu,OHltConfig *cfg,OHltRateCounter
 };
 
 bool OHltTree::isInRunLumiblockList(int run, int lumiBlock,vector < vector <int> > list) {
-
   unsigned int nrunLumiList = list.size();
   if (nrunLumiList>0) {
     for (unsigned int i=0;i<nrunLumiList;i++) {

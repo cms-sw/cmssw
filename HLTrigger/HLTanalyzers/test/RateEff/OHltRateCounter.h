@@ -14,7 +14,7 @@
 class OHltRateCounter {
  public:
 
-  OHltRateCounter(unsigned int size);
+  OHltRateCounter(unsigned int size, unsigned int l1size);
   virtual ~OHltRateCounter(){};
 
   bool isNewRunLS(int Run,int LumiBlock);

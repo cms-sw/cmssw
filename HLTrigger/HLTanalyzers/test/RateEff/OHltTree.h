@@ -2038,8 +2038,8 @@ OHltTree::OHltTree(TTree *tree, OHltMenu *menu)
 
 OHltTree::~OHltTree()
 {
-  if (!fChain) return;
-  delete fChain->GetCurrentFile();
+  //  if (!fChain) return;
+  //  delete fChain->GetCurrentFile();
 }
 
 Int_t OHltTree::GetEntry(Long64_t entry)

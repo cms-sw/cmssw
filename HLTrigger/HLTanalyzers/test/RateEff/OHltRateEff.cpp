@@ -67,7 +67,7 @@ int main(int argc, char *argv[]){
   // Count rates
   vector<OHltRateCounter*> rcs; rcs.clear();
   for (unsigned int i=0;i<procs.size();i++) {
-    rcs.push_back(new OHltRateCounter(omenu->GetTriggerSize()));
+    rcs.push_back(new OHltRateCounter(omenu->GetTriggerSize(), omenu->GetL1TriggerSize()));
   }
   OHltRatePrinter* rprint = new OHltRatePrinter();
   calcRates(ocfg,omenu,procs,rcs,rprint,hltDatasets);
@@ -99,7 +99,7 @@ int main(int argc, char *argv[]){
   // Calculate Efficiencies
   vector<OHltRateCounter*> ecs; ecs.clear();
   for (unsigned int i=0;i<procs.size();i++) {
-    ecs.push_back(new OHltRateCounter(omenu->GetTriggerSize()));
+    ecs.push_back(new OHltRateCounter(omenu->GetTriggerSize(), omenu->GetL1TriggerSize()));
   }
 	//RR debugging couts
 // 	printf("About to call calcEff\n");

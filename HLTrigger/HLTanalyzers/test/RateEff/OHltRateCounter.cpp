@@ -3,21 +3,22 @@
 using namespace std;
 using namespace libconfig;
 
-OHltRateCounter::OHltRateCounter(unsigned int size) {
+OHltRateCounter::OHltRateCounter(unsigned int size, unsigned int l1size) {
   vector<int> itmp;
   for (unsigned int i=0;i<size;i++) {
     iCount.push_back(0);
     sPureCount.push_back(0);
     pureCount.push_back(0);
     prescaleCount.push_back(0);
-    prescaleCountL1.push_back(0);    
 
     itmp.push_back(0);
   }
   for (unsigned int j=0;j<size;j++) {
     overlapCount.push_back(itmp);
   }
-
+  for (unsigned int k=0;k<l1size;k++) {
+    prescaleCountL1.push_back(0);     
+  }
 }
 
 bool OHltRateCounter::isNewRunLS(int Run,int LumiBlock) {
