@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTest.cc
  * 
- * $Date: 2010/04/14 18:22:05 $
- * $Revision: 1.34 $
+ * $Date: 2010/06/21 14:55:01 $
+ * $Revision: 1.35 $
  * \author S. Bolognesi - CERN
  *
  */
@@ -160,7 +160,7 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
 	  int result = -2;
 	  float nErrors  = histoFEDSummary->Integral(1,14,rosNumber,rosNumber);
 	  nErrors += histoROSStatus->Integral(2,8,rosNumber,rosNumber);
-	  nErrors += histoROSStatus->Integral(10,12,rosNumber,rosNumber);
+	  //nErrors += histoROSStatus->Integral(10,12,rosNumber,rosNumber); Ev Id Mismatch triggers to many minor errors
 	  if(nErrors == 0) { // no errors
 	    result = 0;
 	  } else { // there are errors
