@@ -28,14 +28,16 @@ const Color_t ttFillColor = kRed+2;
 
 
 
+// 78 
+double intLumi = 78 ;
+//double intLumi = 100000;
 
-double intLumi = 78;
 const double lumi = intLumi * .001 ;
 //const double lumi =0100.0 ;
 const double lumiZ = 100. ;
-const double lumiW = 50.;
+const double lumiW = 100.;
 //adjust to new filter efficiency
-const double lumiQ = 35. * 1.4444;
+const double lumiQ = 60.;
 //scaling ttbar from 94.3 to 162.
 const double lumiT =100. * (94.3/162.);
 const double lumiZT =100.;
@@ -426,15 +428,11 @@ TChain * zEvents = new TChain("Events");
 
 // zEvents->Add("/scratch2/users/degruttola/Spring10Ntuples_withIso03/NtupleLoose_zmmSpring10cteq66_100pb.root");
 
-ls 
-
-
-
 
 
  zEvents->Add("/scratch2/users/degruttola/Summer10Ntuples/Ntuple_ZmmPowheg_36X_100pb.root");
 TChain * wEvents = new TChain("Events"); 
- wEvents->Add("/scratch2/users/degruttola/Summer10Ntuples/Ntuple_wplusPowheg36X_100pb.root");
+ wEvents->Add("/scratch2/users/degruttola/Summer10Ntuples/Ntuple_wplusPowheg_36X_100pb_v2.root");
  wEvents->Add("/scratch2/users/degruttola/Summer10Ntuples/Ntuple_wminusPowheg36X_100pb.root");
 
 // 100 pb
@@ -451,7 +449,9 @@ TChain * ztEvents = new TChain("Events");
 TChain * dataEvents= new TChain("Events");
 
 
-dataEvents->Add("../NtupleLoose_132440_139790.root");
+dataEvents->Add("/scratch2/users/degruttola/data/OfficialJSON/NtupleLoose_132440_139790.root");
+//dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_965_971.root");
+//dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_972_980.root");
 
 // .040 pb
 
