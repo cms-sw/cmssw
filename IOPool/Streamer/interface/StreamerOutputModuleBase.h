@@ -11,10 +11,12 @@
 class InitMsgBuilder;
 class EventMsgBuilder;
 namespace edm {
+  class ParameterSetDescription;
   class StreamerOutputModuleBase : public OutputModule {
   public:
     explicit StreamerOutputModuleBase(ParameterSet const& ps);  
     virtual ~StreamerOutputModuleBase();
+    static void fillDescription(ParameterSetDescription & desc);
 
   private:
     virtual void beginRun(RunPrincipal const&);

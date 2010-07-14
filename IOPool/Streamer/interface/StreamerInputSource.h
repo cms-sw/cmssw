@@ -25,11 +25,13 @@ class InitMsgView;
 class EventMsgView;
 
 namespace edm {
+  class ParameterSetDescription;
   class StreamerInputSource : public InputSource {
   public:  
     explicit StreamerInputSource(ParameterSet const& pset,
                  InputSourceDescription const& desc);
     virtual ~StreamerInputSource();
+    static void fillDescription(ParameterSetDescription& description);
 
     static
     std::auto_ptr<SendJobHeader> deserializeRegistry(InitMsgView const& initView);

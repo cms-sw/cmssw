@@ -7,6 +7,8 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EventSelector.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 //#include "FWCore/Utilities/interface/Digest.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
@@ -54,10 +56,10 @@ namespace edm {
   StreamerOutputModuleBase::StreamerOutputModuleBase(ParameterSet const& ps) :
     OutputModule(ps),
     selections_(&keptProducts()[InEvent]),
-    maxEventSize_(ps.getUntrackedParameter<int>("max_event_size", 7000000)),
-    useCompression_(ps.getUntrackedParameter<bool>("use_compression", true)),
-    compressionLevel_(ps.getUntrackedParameter<int>("compression_level", 1)),
-    lumiSectionInterval_(ps.getUntrackedParameter<int>("lumiSection_interval", 0)), 
+    maxEventSize_(ps.getUntrackedParameter<int>("max_event_size")),
+    useCompression_(ps.getUntrackedParameter<bool>("use_compression")),
+    compressionLevel_(ps.getUntrackedParameter<int>("compression_level")),
+    lumiSectionInterval_(ps.getUntrackedParameter<int>("lumiSection_interval")), 
     serializer_(selections_),
     hltsize_(0),
     lumi_(0), 
@@ -288,6 +290,15 @@ namespace edm {
 
     l1bit_.clear();  //Clear up for the next event to come.
     return msg;
+  }
+
+  void
+  StreamerOutputModuleBase::fillDescription(ParameterSetDescription& desc) {
+    desc.addUntracked<int>("max_event_size", 7000000);
+    desc.addUntracked<bool>("use_compression", true);
+    desc.addUntracked<int>("compression_level", 1);
+    desc.addUntracked<int>("lumiSection_interval", 0);
+    OutputModule::fillDescription(desc);
   }
 
 } // end of namespace-edm

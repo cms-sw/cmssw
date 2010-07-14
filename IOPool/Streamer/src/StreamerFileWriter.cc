@@ -1,14 +1,13 @@
-// $Id: StreamerFileWriter.cc,v 1.17.14.2 2009/04/01 20:09:41 biery Exp $
-
 #include "IOPool/Streamer/src/StreamerFileWriter.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace edm
 {
 StreamerFileWriter::StreamerFileWriter(edm::ParameterSet const& ps):
   stream_writer_(new StreamerOutputFile(
-                    ps.getUntrackedParameter<std::string>("fileName","teststreamfile.dat"))),
+                    ps.getUntrackedParameter<std::string>("fileName"))),
   index_writer_(new StreamerOutputIndexFile(
-                    ps.getUntrackedParameter<std::string>("indexFileName","testindexfile.ind"))),
+                    ps.getUntrackedParameter<std::string>("indexFileName"))),
   hltCount_(0),
   index_eof_size_(0),
   stream_eof_size_(0)
@@ -162,6 +161,14 @@ void StreamerFileWriter::updateHLTStats(std::vector<uint8> const& packedHlt)
        //else  std::cout <<"Bit "<<i<<" is not set"<< std::endl;
     }
    }
+
+
+void StreamerFileWriter::fillDescription(ParameterSetDescription& desc)
+   {
+      desc.addUntracked<std::string>("fileName", "teststreamfile.dat");
+      desc.addUntracked<std::string>("indexFileName", "testindexfile.ind");
+   }
+
 } //namespace edm
 
 

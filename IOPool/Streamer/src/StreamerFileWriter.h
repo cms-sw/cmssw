@@ -1,8 +1,6 @@
 #ifndef IOPool_Streamer_StreamerFileWriter_h
 #define IOPool_Streamer_StreamerFileWriter_h 
 
-// $Id: StreamerFileWriter.h,v 1.11.6.1 2009/03/24 21:21:46 biery Exp $
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "IOPool/Streamer/interface/StreamerOutputFile.h"
@@ -45,6 +43,7 @@ namespace edm
     uint32 dataSize;
   };
 
+  class ParameterSetDescription;
   class StreamerFileWriter 
   {
   public:
@@ -52,6 +51,8 @@ namespace edm
     explicit StreamerFileWriter(edm::ParameterSet const& ps);
     explicit StreamerFileWriter(std::string const& fileName, std::string const& indexFileName);
     ~StreamerFileWriter();
+
+    static void fillDescription(ParameterSetDescription& desc);
 
     void doOutputHeader(InitMsgBuilder const& init_message);    
     void doOutputHeader(InitMsgView const& init_message);    

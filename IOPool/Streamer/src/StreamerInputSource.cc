@@ -24,6 +24,7 @@
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/ThreadSafeRegistry.h"
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
@@ -53,7 +54,7 @@ namespace edm {
                     ParameterSet const& pset,
                     InputSourceDescription const& desc):
     InputSource(pset, desc),
-    // The value for the following parameter gets overwritten in at least one derived class
+    // The default value for the following parameter get defined in at least one derived class
     // where it has a different default value.
     inputFileTransitionsEachEvent_(
       pset.getUntrackedParameter<bool>("inputFileTransitionsEachEvent", false)),
@@ -475,5 +476,12 @@ namespace edm {
   void
   StreamerInputSource::ProductGetter::setEventPrincipal(EventPrincipal *ep) {
     eventPrincipal_ = ep;
+  }
+
+  void
+  StreamerInputSource::fillDescription(ParameterSetDescription& desc) {
+    // The default value for "inputFileTransitionsEachEvent" gets defined in the derived class
+    // as it depends on the derived class. So, we cannot redefine it here.
+    InputSource::fillDescription(desc);
   }
 }

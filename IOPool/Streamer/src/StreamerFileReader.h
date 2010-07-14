@@ -17,6 +17,7 @@ namespace edm {
   class EventPrincipal;
   class EventSkipperByID;
   class StreamerInputFile;
+  class ConfigurationDescriptions;
   class StreamerFileReader : public StreamerInputSource {
   public:
     StreamerFileReader(ParameterSet const& pset, InputSourceDescription const& desc);
@@ -26,6 +27,7 @@ namespace edm {
     InitMsgView const* getHeader(); 
     EventMsgView const* getNextEvent();
     bool const newHeader(); 
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:  
     std::vector<std::string> streamerNames_; // names of Streamer files

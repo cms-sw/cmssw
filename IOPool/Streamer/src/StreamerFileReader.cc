@@ -5,6 +5,8 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Sources/interface/EventSkipperByID.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 
@@ -14,8 +16,8 @@ namespace edm {
       streamerNames_(pset.getUntrackedParameter<std::vector<std::string> >("fileNames")),
       streamReader_(),
       eventSkipperByID_(EventSkipperByID::create(pset).release()),
-      numberOfEventsToSkip_(pset.getUntrackedParameter<unsigned int>("skipEvents", 0U)) {
-    InputFileCatalog catalog(pset.getUntrackedParameter<std::vector<std::string> >("fileNames"), pset.getUntrackedParameter<std::string>("overrideCatalog", std::string()));
+      numberOfEventsToSkip_(pset.getUntrackedParameter<unsigned int>("skipEvents")) {
+    InputFileCatalog catalog(pset.getUntrackedParameter<std::vector<std::string> >("fileNames"), pset.getUntrackedParameter<std::string>("overrideCatalog"));
     streamerNames_ = catalog.fileNames();
 
     if (streamerNames_.size() > 1) {
@@ -79,5 +81,16 @@ namespace edm {
     return streamReader_->currentRecord();
   }
 
+  void
+  StreamerFileReader::fillDescriptions(ConfigurationDescriptions& descriptions) {
+    ParameterSetDescription desc;
+    desc.addUntracked<std::vector<std::string> >("fileNames");
+    desc.addUntracked<unsigned int>("skipEvents", 0U);
+    desc.addUntracked<std::string>("overrideCatalog", std::string());
+    //This next parameter is read in the base class, but its default value depends on the derived class, so it is set here.
+    desc.addUntracked<bool>("inputFileTransitionsEachEvent", false);
+    StreamerInputSource::fillDescription(desc);
+    descriptions.add("source", desc);
+  }
 } //end-of-namespace
 
