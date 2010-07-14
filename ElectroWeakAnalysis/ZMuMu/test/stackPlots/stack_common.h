@@ -110,8 +110,8 @@ if( logScale )
   // titles and axis, marker size
   TString xtitle;
   TString ytitle;
-  int ndivx(510);
-  int ndivy(510);
+  int ndivx(504);
+  int ndivy(504);
   float markerSize(1.);
 
   // canvas name
@@ -126,7 +126,7 @@ if( logScale )
 
 if( logScale )
 	{
-	  ndivy = 510;
+	  ndivy = 504;
 	}
       else
 	{
@@ -268,6 +268,8 @@ dataGraph->Draw("pesame");
     hdata->Draw("epsame");
     hdata->GetXaxis()->SetLabelSize(0);
     hdata->GetYaxis()->SetLabelSize(0);
+    hdata->GetXaxis()->SetNdivisions(ndivx);
+    hdata->GetYaxis()->SetNdivisions(ndivy);
     // log plots, so the maximum should be one order of magnitude more...
     
     
@@ -283,7 +285,8 @@ dataGraph->Draw("pesame");
   hs->SetMinimum(min);
   
   hs->GetXaxis()->SetTitle("M(#mu^{+} #mu^{-}) [GeV]");
-  
+
+
   
   std::string yTag = "";
   switch(rebin) {
@@ -339,7 +342,7 @@ float dxl_ = scalel_*5;
   //leg = new TLegend(0.20,0.7,0.35,0.85);
   if(hdata != 0)
     legend->AddEntry(hdata,"data", "pl");
-  legend->AddEntry(h1,"Z#rightarrow#mu #mu","f");
+  legend->AddEntry(h1,"Z #rightarrow#mu #mu","f");
   if (logScale) {
 
   legend->AddEntry(h2,"EWK","f");
@@ -354,42 +357,6 @@ float dxl_ = scalel_*5;
  legend->SetShadowColor(kWhite);
   legend->Draw();
  
-
-
-
-  /*
-  //  TPaveText *pave = new TPaveText( 0.5 * (hdata->GetXaxis()->GetXmax() - (hdata->GetXaxis()->GetXmin()))  , (hdata->GetMaximum()) +1 , hdata->GetXaxis()->GetXmax() , 10 * hdata->GetMaximum()  );
-  TPaveText *pave = new TPaveText( 0.6  , 0.75 , 0.9 , 0.8  , "NDC");
-  pave->SetFillColor(kWhite);
-  pave->SetBorderSize(0);
-  //  TText * t1 = pave->AddText("CMS Preliminary 2010");
-  //  TText * t2 = pave->AddText("L_{int} = 61 nb^{ -1} #sqrt{s} = 7 TeV"); // change by hand, can be improved...........  
- TText * t = pave->AddText("#int L dt = 76 nb^{ -1}");
- t->SetTextColor(kBlack);
-  // t2->SetTextColor(kBlack);
-  pave->Draw(); 
-
-  TPaveText *ppave = new TPaveText( 0.15 , 0.95 , 0.65 , 1.0  , "NDC");
-   ppave->SetFillColor(kWhite);
- ppave->SetBorderSize(0);
-  //  TText * t1 = pave->AddText("CMS Preliminary 2010");
-  //  TText * t2 = pave->AddText("L_{int} = 61 nb^{ -1} #sqrt{s} = 7 TeV"); // change by hand, can be improved...........  
- TText * tt = ppave->AddText("CMS preliminary 2010");
- //  hs->SetTitle("             #sqrt{s} = 7 TeV");
- tt->SetTextColor(kBlack);
-  // t2->SetTextColor(kBlack);
-  ppave->Draw(); 
-
-  TPaveText *pppave = new TPaveText( 0.6  , 0.95 , 1.0 , 1.0  , "NDC");
-  pppave->SetFillColor(kWhite);
-  pppave->SetBorderSize(0);
-   TText * ttt = pppave->AddText("#sqrt{s} = 7 TeV");
- ttt->SetTextColor(kBlack);
-  // t2->SetTextColor(kBlack);
-  pppave->Draw(); 
-
-
-  */
 
 
 TLatex latex;
