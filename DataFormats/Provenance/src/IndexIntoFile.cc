@@ -847,10 +847,8 @@ namespace edm {
     }
     else if (type_ == kLumi) {
 
-      bool hasEvents = lumiHasEvents();
-
       if (indexToLumi_ + 1 == size_) {
-        if (hasEvents) {
+        if (indexToEvent_ < nEvents_) {
           type_ = kEvent;
         }
         else {
@@ -860,12 +858,11 @@ namespace edm {
       else {
 
         EntryType nextType = getRunOrLumiEntryType(indexToLumi_ + 1);
-        bool sameLumi = isSameLumi(indexToLumi_, indexToLumi_ + 1);
 
-        if (sameLumi && nextType != kRun) {
+        if (nextType == kLumi && isSameLumi(indexToLumi_, indexToLumi_ + 1)) {
           ++indexToLumi_;
         }
-        else if (hasEvents) {
+        else if (indexToEvent_ < nEvents_) {
           type_ = kEvent;
         }
         else if (nextType == kRun) {
@@ -984,21 +981,28 @@ namespace edm {
       }
     }
 
+    if (type_ == kRun && indexToLumi_ != invalidIndex) {
+      type_ = kLumi;
+      return;
+    }
+
     startSearch = indexToLumi_;
     if (startSearch == invalidIndex) startSearch = indexToRun_;
     for (int i = 1; startSearch + i < size_; ++i) {
-      if (getRunOrLumiEntryType(startSearch + i) == kRun &&
-          !isSameRun(indexToRun_, startSearch + i)) {
-        type_ = kRun;
-        indexToRun_ = startSearch + i;
-        initializeRun();
-        return;
+      if (getRunOrLumiEntryType(startSearch + i) == kRun) {
+        if (!isSameRun(indexToRun_, startSearch + i)) {
+          type_ = kRun;
+          indexToRun_ = startSearch + i;
+          initializeRun();
+          return;
+        }
       }
       else if (indexToLumi_ != invalidIndex) {
         if (!isSameLumi(indexToLumi_, startSearch + i)) {
           type_ = kLumi;
           indexToLumi_ = startSearch + i;
           initializeLumi();
+          return;
         }
       }
     }
@@ -1192,11 +1196,6 @@ namespace edm {
     return kLumi;
   }
 
-  bool IndexIntoFile::IndexIntoFileItrNoSort::lumiHasEvents() const {
-    if (indexToLumi() == invalidIndex) return false;
-    return indexIntoFile()->runOrLumiEntries()[indexToLumi()].beginEvents() != invalidEntry;
-  }
-
   bool IndexIntoFile::IndexIntoFileItrNoSort::isSameLumi(int index1, int index2) const {
     if (index1 < 0 || index1 >= size() || index2 < 0 || index2 >= size()) {
       return false;
@@ -1327,12 +1326,6 @@ namespace edm {
     return kLumi;
   }
 
-  bool IndexIntoFile::IndexIntoFileItrSorted::lumiHasEvents() const {
-    if (indexToLumi() == invalidIndex) return false;
-    return indexIntoFile()->runOrLumiIndexes()[indexToLumi()].beginEventNumbers() !=
-           indexIntoFile()->runOrLumiIndexes()[indexToLumi()].endEventNumbers();
-  }
-
   bool IndexIntoFile::IndexIntoFileItrSorted::isSameLumi(int index1, int index2) const {
     if (index1 < 0 || index1 >= size() || index2 < 0 || index2 >= size()) {
       return false;
@@ -1424,55 +1417,5 @@ namespace edm {
 
   bool Compare_Index::operator()(IndexIntoFile::RunOrLumiIndexes const& lh, IndexIntoFile::RunOrLumiIndexes const& rh) {
     return lh.processHistoryIDIndex() < rh.processHistoryIDIndex();
-  }
-
-  std::ostream&
-  operator<<(std::ostream& os, IndexIntoFile const& fileIndex) {
-    // Need to fix this, used by edmFileUtil
-    /*
-    os << "\nPrinting IndexIntoFile contents.  This includes a list of all Runs, LuminosityBlocks\n"
-       << "and Events stored in the root file.\n\n";
-    os << std::setw(15) << "Process History"
-       << std::setw(15) << "Run"
-       << std::setw(15) << "Lumi"
-       << std::setw(15) << "Event"
-       << std::setw(19) << "TTree Entry"
-       << "\n";
-    for(std::vector<IndexIntoFile::Element>::const_iterator it = fileIndex.begin(), itEnd = fileIndex.end(); it != itEnd; ++it) {
-      if(it->getEntryType() == IndexIntoFile::kEvent) {
-        os << std::setw(15) << it->processHistoryIDIndex()
-           << std::setw(15) << it->run()
-           << std::setw(15) << it ->lumi()
-           << std::setw(15) << it->event()
-           << std::setw(19) << it->entry()
-           << "\n";
-      }
-      else if(it->getEntryType() == IndexIntoFile::kLumi) {
-        os << std::setw(15) << it->processHistoryIDIndex()
-           << std::setw(15) << it->run()
-           << std::setw(15) << it ->lumi()
-           << std::setw(15) << " "
-           << std::setw(19) << it->entry() << "  (LuminosityBlock)"
-           << "\n";
-      }
-      else if(it->getEntryType() == IndexIntoFile::kRun) {
-        os << std::setw(15) << it->processHistoryIDIndex()
-           << std::setw(15) << it->run()
-           << std::setw(15) << " "
-           << std::setw(15) << " "
-           << std::setw(19) << it->entry() << "  (Run)"
-           << "\n";
-      }
-    }
-    os << "\nProcess History IDs (the first value on each line above is an index into this list of IDs)\n";
-    int i = 0;
-    for (std::vector<ProcessHistoryID>::const_iterator iter = fileIndex.processHistoryIDs().begin(),
-                                                       iEnd = fileIndex.processHistoryIDs().end();
-         iter != iEnd;
-         ++iter, ++i) {
-      os << "  " << i << "  " << *iter << "\n";
-    }
-    */
-    return os;
   }
 }

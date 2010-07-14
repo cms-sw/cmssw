@@ -335,7 +335,6 @@ namespace edm {
         virtual bool nextEventRange() = 0;
         virtual bool skipLumiInRun() = 0;
         virtual EntryType getRunOrLumiEntryType(int index) const = 0;
-        virtual bool lumiHasEvents() const = 0;
         virtual bool isSameLumi(int index1, int index2) const = 0;
         virtual bool isSameRun(int index1, int index2) const = 0;
 
@@ -378,7 +377,6 @@ namespace edm {
         virtual bool nextEventRange();
         virtual bool skipLumiInRun();
         virtual EntryType getRunOrLumiEntryType(int index) const;
-        virtual bool lumiHasEvents() const;
         virtual bool isSameLumi(int index1, int index2) const;
         virtual bool isSameRun(int index1, int index2) const;
       };
@@ -410,7 +408,6 @@ namespace edm {
         virtual bool nextEventRange();
         virtual bool skipLumiInRun();
         virtual EntryType getRunOrLumiEntryType(int index) const;
-        virtual bool lumiHasEvents() const;
         virtual bool isSameLumi(int index1, int index2) const;
         virtual bool isSameRun(int index1, int index2) const;
       };
@@ -672,9 +669,6 @@ namespace edm {
   public:
     bool operator()(IndexIntoFile::RunOrLumiIndexes const& lh, IndexIntoFile::RunOrLumiIndexes const& rh);
   };
-
-  std::ostream&
-  operator<<(std::ostream& os, IndexIntoFile const& fileIndex);
 }
 
 #endif
