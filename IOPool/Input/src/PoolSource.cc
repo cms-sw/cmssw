@@ -283,7 +283,7 @@ namespace edm {
 
     edm::ParameterSetDescription desc;
 
-    EDInputSource::fillDescription(desc);
+    VectorInputSource::fillDescription(desc);
     RootInputFileSequence::fillDescription(desc);
 
     descriptions.add("source", desc);
