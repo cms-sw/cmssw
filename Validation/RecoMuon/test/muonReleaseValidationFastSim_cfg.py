@@ -79,7 +79,9 @@ process.options = cms.untracked.PSet(
 
 if (FastSim):
     process.recoMuonValidationSequence = cms.Sequence(process.muonTrackValidator
+                                                      *process.recoMuonAssociationFastSim 
                                                       *process.recoMuonValidationFastSim
+                                                      *process.recoMuonAssociationHLTFastSim_seq
                                                       *process.recoMuonValidationHLTFastSim_seq)
 elif ('SAMPLE'=='RelValCosmics'):
     process.recoMuonValidationSequence = cms.Sequence(process.recoCosmicMuonValidation)
