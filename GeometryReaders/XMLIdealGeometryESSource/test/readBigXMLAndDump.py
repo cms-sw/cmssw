@@ -21,7 +21,7 @@ process.fred = cms.ESSource("XMLIdealGeometryESSource"
                     )
 
 process.pABF = cms.EDAnalyzer("PerfectGeometryAnalyzer"
-                              ,ddRootNodeName = cms.string("cms:OCMS")
+                              ,ddRootNodeName = cms.untracked.string("cms:OCMS")
                               ,dumpPosInfo = cms.untracked.bool(True)
                               ,label = cms.untracked.string("fred")
                               ,isMagField = cms.untracked.bool(False)
