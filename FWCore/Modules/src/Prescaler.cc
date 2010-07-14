@@ -44,7 +44,7 @@ namespace edm {
     ParameterSetDescription desc;
     desc.add<int>("prescaleFactor");
     desc.add<int>("prescaleOffset");
-    descriptions.add("Prescaler", desc);
+    descriptions.add("preScaler", desc);
   }
 }
 

@@ -60,5 +60,5 @@ RandomEngineStateProducer::endJob() {
 void
 RandomEngineStateProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  descriptions.add("RandomEngineStateProducer", desc);
+  descriptions.add("randomEngineStateProducer", desc);
 }

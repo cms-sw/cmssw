@@ -58,7 +58,7 @@ namespace edm {
   EventAuxiliaryHistoryProducer::fillDescriptions(ConfigurationDescriptions& descriptions) {
     ParameterSetDescription desc;
     desc.add<unsigned int>("historyDepth");
-    descriptions.add("EventAuxiliaryHistoryProducer", desc);
+    descriptions.add("eventAuxiliaryHistory", desc);
   }
 }
 

@@ -83,7 +83,7 @@ namespace edm {
   void
   LogErrorHarvester::fillDescriptions(ConfigurationDescriptions& descriptions) {
     ParameterSetDescription desc;
-    descriptions.add("LogErrorHarvester", desc);
+    descriptions.add("logErrorHarvester", desc);
   }
 }
   

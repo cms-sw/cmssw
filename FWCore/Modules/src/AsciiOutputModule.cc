@@ -89,7 +89,7 @@ namespace edm {
     desc.addUntracked("prescale", 1U);
     desc.addUntracked("verbosity", 1U);
     OutputModule::fillDescription(desc);
-    descriptions.add("AsciiOutputModule", desc);
+    descriptions.add("asciiOutput", desc);
   }
 }
 

@@ -561,7 +561,7 @@ namespace edm {
     ParameterSetDescription desc;
     desc.addUntracked<std::string>("fileName");
     OutputModule::fillDescription(desc);
-    descriptions.add("XMLOutputModule", desc);
+    descriptions.add("XMLoutput", desc);
   }
 }
 using edm::XMLOutputModule;

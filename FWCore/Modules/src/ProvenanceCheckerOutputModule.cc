@@ -213,7 +213,7 @@ namespace edm {
   ProvenanceCheckerOutputModule::fillDescriptions(ConfigurationDescriptions& descriptions) {
     ParameterSetDescription desc;
     OutputModule::fillDescription(desc);
-    descriptions.add("ProvenanceCheckerOutputModule", desc);
+    descriptions.add("provenanceChecker", desc);
   }
 }
 using edm::ProvenanceCheckerOutputModule;

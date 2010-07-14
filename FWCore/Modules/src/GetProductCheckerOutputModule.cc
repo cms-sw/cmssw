@@ -140,7 +140,7 @@ namespace edm {
   GetProductCheckerOutputModule::fillDescriptions(ConfigurationDescriptions& descriptions) {
     ParameterSetDescription desc;
     OutputModule::fillDescription(desc);
-    descriptions.add("GetProductCheckerOutputModule", desc);
+    descriptions.add("productChecker", desc);
   }
 }
 

@@ -169,7 +169,7 @@ namespace edm {
   void
   PrintEventSetupContent::fillDescriptions(ConfigurationDescriptions& descriptions) {
     ParameterSetDescription desc;
-    descriptions.add("PrintEventSetupContent", desc);
+    descriptions.add("printEventSetupContent", desc);
   }
 }
   

@@ -130,7 +130,7 @@ EventIDChecker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.addUntracked<std::vector<edm::MinimalEventID> >("eventSequence");
   desc.addUntracked<unsigned int>("multiProcessSequentialEvents", 0U);
-  descriptions.add("PoolOutputModule", desc);
+  descriptions.add("eventIDChecker", desc);
 }
 
 void 

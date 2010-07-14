@@ -110,7 +110,7 @@ private:
                                                 "second part is the label used when getting the data (blank is acceptable). "
                                                 "If there is no label, the backslash may be omitted."
       );
-      descriptions.add("eventSetupGetter", desc);
+      descriptions.add("getEventSetupData", desc);
    }
 
    void 

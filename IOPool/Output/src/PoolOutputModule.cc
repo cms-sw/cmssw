@@ -300,6 +300,6 @@ namespace edm {
 
     OutputModule::fillDescription(desc);
 
-    descriptions.add("PoolOutputModule", desc);
+    descriptions.add("edmOutput", desc);
   }
 }

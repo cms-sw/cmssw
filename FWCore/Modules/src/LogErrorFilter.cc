@@ -156,7 +156,7 @@ LogErrorFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.add<bool>("atLeastOneError");
   desc.add<bool>("atLeastOneWarning");
   desc.add<std::vector<std::string> >("avoidCategories");
-  descriptions.add("LogErrorFilter", desc);
+  descriptions.add("logErrorFilter", desc);
 }
 
 //define this as a plug-in
