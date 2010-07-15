@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.37 2010/07/08 03:16:55 yumiceva Exp $
+ version $Id: BeamFitter.h,v 1.38 2010/07/12 20:35:08 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -88,7 +88,7 @@ class BeamFitter {
   }
  private:
 
-  const char * formatBTime( const std::time_t);
+  const char * formatBTime( const std::time_t &);
   std::vector<BSTrkParameters> fBSvector;
   reco::BeamSpot fbeamspot;
   reco::BeamSpot fbeamWidthFit;
