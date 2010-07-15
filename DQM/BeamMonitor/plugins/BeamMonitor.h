@@ -3,8 +3,8 @@
 
 /** \class BeamMonitor
  * *
- *  $Date: 2010/06/29 01:21:11 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/07/06 23:37:27 $
+ *  $Revision: 1.4 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -57,7 +57,7 @@ class BeamMonitor : public edm::EDAnalyzer {
   void FitAndFill(const edm::LuminosityBlock& lumiSeg,int&,int&,int&);
   void scrollTH1(TH1 *, std::time_t);
   bool testScroll(std::time_t &, std::time_t &);
-  const char * formatFitTime( const std::time_t);
+  const char * formatFitTime( const std::time_t &);
   edm::ParameterSet parameters_;
   std::string monitorName_;
   edm::InputTag bsSrc_; // beam spot

@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/07/06 23:37:27 $
- * $Revision: 1.52 $
+ * $Date: 2010/07/13 02:02:17 $
+ * $Revision: 1.53 $
  *
  */
 
@@ -30,7 +30,7 @@
 using namespace std;
 using namespace edm;
 
-const char * BeamMonitor::formatFitTime( const time_t t )  {
+const char * BeamMonitor::formatFitTime( const time_t & t )  {
 #define CET (+1)
 #define CEST (+2)
 
@@ -758,12 +758,10 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
       if (countLumi_%fitNLumi_!=0) return;
   }
 
-  // TEST: temporary for debugging timestamp problem
-  std::cout << " [DebugTime] refBStime[0] = " << refBStime[0]
-	    << "; assress =  " << &refBStime[0] << std::endl;
-  std::cout << " [DebugTime] refBStime[1] = " << refBStime[1]
-	    << "; assress =  " << &refBStime[1] << std::endl;
-  // End TEST
+  edm::LogInfo("BeamMonitor") << " [DebugTime] refBStime[0] = " << refBStime[0]
+			      << "; address =  " << &refBStime[0] << std::endl;
+  edm::LogInfo("BeamMonitor") << " [DebugTime] refBStime[1] = " << refBStime[1]
+			      << "; address =  " << &refBStime[1] << std::endl;
 
   if (countFitting) {
     nFits_++;
