@@ -1,14 +1,15 @@
 import os
-import coral
+import coral,datetime
 from RecoLuminosity.LumiDB import nameDealer,lumiTime
 '''
 This module defines lowlevel SQL query API for lumiDB 
-We do not like range queries so far because of performance of range scan. 
+We do not like range queries so far because of performance of range scan.Use only necessary.
 The principle is to query by runnumber and per each coral queryhandle
 Try reuse db session/transaction and just renew query handle each time to reduce metadata queries.
 Avoid unnecessary explicit order by, mostly solved by asc index in the schema.
 Do not handle transaction in here.
-Do not do explicit del in here.
+Do not do explicit del queryhandle in here.
+Note: all the returned dict format are not sorted by itself.Sort it outside if needed.
 '''
 def runsummaryByrun(queryHandle,runnum):
     '''
@@ -467,6 +468,72 @@ def hlttrgMappingByrun(queryHandle,runnum):
             result[hltpathname]=l1seed
     return result
 
+def runsByfillrange(queryHandle,minFill,maxFill):
+    '''
+    find all runs in the fill range inclusive
+    select runnum,fillnum from cmsrunsummary where fillnum>=:minFill and fillnum<=:maxFill
+    output: fillDict={fillnum:[runlist]}
+    '''
+    result={}
+    queryHandle.addToTableList(nameDealer.cmsrunsummaryTableName())
+    queryCondition=coral.AttributeList()
+    queryCondition.extend('minFill','unsigned int')
+    queryCondition.extend('maxFill','unsigned int')
+    queryCondition['minFill'].setData(int(minFill))
+    queryCondition['maxFill'].setData(int(maxFill))
+    queryHandle.addToOutputList('RUNNUM','runnum')
+    queryHandle.addToOutputList('FILLNUM','fillnum')
+    queryHandle.setCondition('FILLNUM>=:minFill and FILLNUM<=:maxFill',queryCondition)
+    queryResult=coral.AttributeList()
+    queryResult.extend('runnum','unsigned int')
+    queryResult.extend('fillnum','unsigned int')
+    queryHandle.defineOutput(queryResult)
+    cursor=queryHandle.execute()
+    while cursor.next():
+        runnum=cursor.currentRow()['runnum'].data()
+        fillnum=cursor.currentRow()['fillnum'].data()
+        if not result.has_key(fillnum):
+            result[fillnum]=[runnum]
+        else:
+            result[fillnum].append(runnum)
+    return result
+
+def runsByTimerange(queryHandle,minTime,maxTime):
+    '''
+    find all runs in the time range inclusive
+    the selected run must have started after minTime and finished by maxTime
+    select runnum,to_char(startTime),to_char(stopTime) from cmsrunsummary where startTime>=timestamp(minTime) and stopTime<=timestamp(maxTime);
+    input: minTime,maxTime in python obj datetime.datetime
+    output: {runnum:[starttime,stoptime]} return in python obj datetime.datetime
+    '''
+    t=lumiTime.lumiTime()
+    result={}
+    coralminTime=coral.TimeStamp(minTime.year,minTime.month,minTime.day,minTime.hour,minTime.minute,minTime.second,0)
+    coralmaxTime=coral.TimeStamp(maxTime.year,maxTime.month,maxTime.day,maxTime.hour,maxTime.minute,maxTime.second,0)
+    queryHandle.addToTableList(nameDealer.cmsrunsummaryTableName())
+    queryCondition=coral.AttributeList()
+    queryCondition.extend('minTime','time stamp')
+    queryCondition.extend('maxTime','time stamp')
+    queryCondition['minTime'].setData(coralminTime)
+    queryCondition['maxTime'].setData(coralmaxTime)
+    queryHandle.addToOutputList('RUNNUM','runnum')
+    queryHandle.addToOutputList('TO_CHAR(STARTTIME,\''+t.coraltimefm+'\')','starttime')
+    queryHandle.addToOutputList('TO_CHAR(STOPTIME,\''+t.coraltimefm+'\')','stoptime')
+    queryHandle.setCondition('STARTTIME>=:minTime and STOPTIME<=:maxTime',queryCondition)
+    queryResult=coral.AttributeList()
+    queryResult.extend('runnum','unsigned int')
+    queryResult.extend('starttime','string')
+    queryResult.extend('stoptime','string')
+    queryHandle.defineOutput(queryResult)
+    cursor=queryHandle.execute()
+    while cursor.next():
+        runnum=cursor.currentRow()['runnum'].data()
+        starttimeStr=cursor.currentRow()['starttime'].data()
+        stoptimeStr=cursor.currentRow()['stoptime'].data()
+        if not result.has_key(runnum):
+            result[runnum]=[t.StrToDatetime(starttimeStr),t.StrToDatetime(stoptimeStr)]
+    return result
+    
 if __name__=='__main__':
     msg=coral.MessageStream('')
     #msg.setMsgVerbosity(coral.message_Level_Debug)
@@ -515,6 +582,16 @@ if __name__=='__main__':
     q=schema.newQuery()
     alldetail=lumidetailAllalgosByrun(q,139400)
     del q
+    q=schema.newQuery()
+    runsbyfill=runsByfillrange(q,1150,1170)
+    del q
+    now=datetime.datetime.now()
+    aweek=datetime.timedelta(weeks=1)
+    lastweek=now-aweek
+    print lastweek
+    q=schema.newQuery()
+    runsinaweek=runsByTimerange(q,lastweek,now)
+    del q
     session.transaction().commit()  
     del session
     del svc
@@ -540,4 +617,8 @@ if __name__=='__main__':
     print
     print 'lumidetail occ1 ',len(occ1detail)
     print
-    print 'all lumidetails ',alldetail.keys()
+    print 'runsbyfill ',runsbyfill
+    print
+    print 'runsinaweek ',runsinaweek.keys()
+    
+    
