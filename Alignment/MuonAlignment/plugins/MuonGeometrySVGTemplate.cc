@@ -27,6 +27,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Alignment/MuonAlignment/interface/MuonAlignment.h"
@@ -84,8 +85,10 @@ MuonGeometrySVGTemplate::analyze(const edm::Event &iEvent, const edm::EventSetup
    MuonAlignment muonAlignment(iSetup, inputMethod);
    AlignableNavigator *alignableNavigator = muonAlignment.getAlignableNavigator();
 
-   std::ifstream in_BEGINNING("Alignment/MuonAlignment/data/wheel_template.svg_BEGINNING");
-   std::ifstream in_END("Alignment/MuonAlignment/data/wheel_template.svg_END");
+   edm::FileInPath fip_BEGINNING("Alignment/MuonAlignment/data/wheel_template.svg_BEGINNING");
+   std::ifstream in_BEGINNING(fip_BEGINNING.fullPath().c_str());
+   edm::FileInPath fip_END("Alignment/MuonAlignment/data/wheel_template.svg_END");
+   std::ifstream in_END(fip_END.fullPath().c_str());
 
    const double height = 45.;  // assume all chambers are 45 cm tall (local z)
    std::ofstream out(m_wheelTemplateName.c_str());
