@@ -17,6 +17,18 @@ public:
     return new XrdFile (fullpath, mode);
   }
 
+  virtual void stagein (const std::string &proto, const std::string &path)
+  {
+    std::string fullpath(proto + ":" + path);
+    XrdClientAdmin admin(fullpath.c_str());
+    if (admin.Connect())
+    {
+      XrdOucString str(fullpath.c_str());
+      XrdClientUrlSet url(str);
+      admin.Prepare(url.GetFile().c_str(), kXR_stage | kXR_noerrs, 0);
+    }
+  }
+
   virtual bool check (const std::string &proto,
 		      const std::string &path,
 		      IOOffset *size = 0)
