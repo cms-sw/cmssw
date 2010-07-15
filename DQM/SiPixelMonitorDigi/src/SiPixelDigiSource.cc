@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.40 2010/06/09 04:02:45 merkelp Exp $
+// $Id: SiPixelDigiSource.cc,v 1.41 2010/07/15 08:31:26 merkelp Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -224,11 +224,11 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
       float averageOcc = 0.;
       if(i<32){
         float averageBPIXFed = float(nBPIXDigis)/32.;
-	averageOcc = nDigisPerFed[i]/averageBPIXFed;
+	if(averageBPIXFed>0.) averageOcc = nDigisPerFed[i]/averageBPIXFed;
 	//cout<<"\t BPIX i: "<<i<<" , "<<nBPIXDigis<<" , "<<averageBPIXFed<<" , "<<nDigisPerFed[i]<<" , "<<averageOcc<<endl;
       }else{
         float averageFPIXFed = float(nFPIXDigis)/8.;
-	averageOcc = nDigisPerFed[i]/averageFPIXFed;
+	if(averageFPIXFed>0.) averageOcc = nDigisPerFed[i]/averageFPIXFed;
 	//cout<<"\t FPIX i: "<<i<<" , "<<nFPIXDigis<<" , "<<averageFPIXFed<<" , "<<nDigisPerFed[i]<<" , "<<averageOcc<<endl;
       }
       me->setBinContent(i+1,averageOcc);
