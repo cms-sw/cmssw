@@ -61,7 +61,8 @@ std::vector<CSCWireHit> CSCHitFromWireOnly::runWire( const CSCDetId& id, const C
 	      if(deadWG_left || deadWG_right){
 	        isDeadWGAround = true;
 	      } 
-	      CSCWireHit whit(id, whit_pos, wire_in_cluster, theTime, isDeadWGAround );
+	      ///CSCWireHit whit(id, whit_pos, wire_in_cluster, theTime, isDeadWGAround );
+              CSCWireHit whit(id, whit_pos, wire_in_clusterAndBX, theTime, isDeadWGAround );
 	      hitsInLayer.push_back( whit );	
 	      makeWireCluster( wdigi );
 	      n_wgroup = 1;
@@ -78,11 +79,20 @@ std::vector<CSCWireHit> CSCHitFromWireOnly::runWire( const CSCDetId& id, const C
       if(deadWG_left || deadWG_right){
       	isDeadWGAround = true;
       } 
-      CSCWireHit whit(id, whit_pos, wire_in_cluster, theTime, isDeadWGAround );
+      /// BX
+      //CSCWireHit whit(id, whit_pos, wire_in_cluster, theTime, isDeadWGAround );
+      CSCWireHit whit(id, whit_pos, wire_in_clusterAndBX, theTime, isDeadWGAround );
       hitsInLayer.push_back( whit );
       n_wgroup++;
     }
   }
+
+/// Print statement (!!!to control WireHit content!!!) BX
+  /*
+      for(std::vector<CSCWireHit>::const_iterator itWHit=hitsInLayer.begin(); itWHit!=hitsInLayer.end(); ++itWHit){
+         (*itWHit).print(); 
+         }  
+  */
 
   return hitsInLayer;
 }
@@ -91,6 +101,7 @@ std::vector<CSCWireHit> CSCHitFromWireOnly::runWire( const CSCDetId& id, const C
 void CSCHitFromWireOnly::makeWireCluster(const CSCWireDigi & digi) {
   wire_cluster.clear();
   wire_in_cluster.clear();
+  wire_in_clusterAndBX.clear(); /// BX to wire
   theLastChannel  = digi.getWireGroup();
   theTime         = digi.getTimeBin();
   wire_cluster.push_back( digi );
@@ -132,6 +143,9 @@ float CSCHitFromWireOnly::findWireHitPosition() {
     CSCWireDigi wdigi = wire_cluster[i];
     int wgroup = wdigi.getWireGroup();
     wire_in_cluster.push_back( wgroup );
+    int wgroupAndBX = wdigi.getBXandWireGroup(); /// BX to WireHit
+    //std::cout << " wgroupAndBX: " << std::hex << wgroupAndBX << std::dec << std::endl;
+    wire_in_clusterAndBX.push_back( wgroupAndBX ); /// BX to WireHit
     y += float( wgroup );
   }       
 

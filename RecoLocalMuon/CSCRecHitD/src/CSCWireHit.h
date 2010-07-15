@@ -37,7 +37,14 @@ public:
   float wHitPos() const { return theWireHitPosition; }
 
   /// The wire groups used for forming the cluster
-  ChannelContainer wgroups() const { return theWgroups; }
+  //ChannelContainer wgroups() const { return theWgroups; }
+  ChannelContainer wgroups() const { return theWgroupsLowBits; }
+
+  /// The BX number
+  ChannelContainer wgroupsBX() const { return theWgroupsHighBits; }
+
+  /// The BX + wire group number
+  ChannelContainer wgroupsBXandWire() const { return theWgroups; }
 
   /// The timing for the wire hit
   int tmax() const { return theWireHitTmax; }
@@ -45,10 +52,15 @@ public:
   /// is a neighbouring WG a dead WG?
   bool isNearDeadWG() const {return isDeadWGAround; };
 
+  /// Print content of the wirehit
+  void print() const;
+
 private:
   CSCDetId theDetId;
   float theWireHitPosition;
-  ChannelContainer theWgroups;
+  ChannelContainer theWgroups; /// BX and wire group number combined
+  ChannelContainer theWgroupsHighBits; /// to extract BX
+  ChannelContainer theWgroupsLowBits; /// to extract the wire group number
   int theWireHitTmax;
   bool isDeadWGAround;
 };

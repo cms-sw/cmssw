@@ -65,6 +65,7 @@ class CSCHitFromWireOnly
   std::vector<float> wire_spacing;
   int theTime;
   int theLastChannel;
+  std::vector<int> wire_in_clusterAndBX; /// To fill BX + wiregroup in CSCWireHit
   
   int deltaT;
   //int clusterSize;
