@@ -18,7 +18,7 @@ else
     dir=`\ls -d1rt StatErrors_* | tail -1`
 fi
 
-echo $dir
+#echo $dir
 
 echo Taking parameter at line $1
 
