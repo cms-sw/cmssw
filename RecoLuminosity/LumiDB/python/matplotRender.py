@@ -1,5 +1,5 @@
 import sys
-import numpy
+import numpy,datetime
 import matplotlib
 batchonly=False
 
@@ -88,14 +88,6 @@ class matplotRender():
         self.__fig.subplots_adjust(bottom=0.18,left=0.18)
         
     def plotSumX_Fill(self,rawxdata,rawydata,rawfillDict,sampleinterval=2,nticks=6):
-        #rawxdata,rawydata must be equal size
-        #calculate tick values
-        #print 'rawxdata : ',rawxdata
-        #print 'total : ',len(rawxdata)
-        #print 'rawydata : ',rawydata
-        #print 'total delivered : ',len(rawydata.values()[0])
-        #print 'total recorded : ',len(rawydata.values()[1])
-        #print 'rawfillDict : ',rawfillDict
         fillboundaries=[]
         xpoints=[]
         ypoints={}
@@ -103,24 +95,7 @@ class matplotRender():
         for ylabel in rawydata.keys():
             ypoints[ylabel]=[]
         xidx=[]
-        for x in myinclusiveRange(min(rawfillDict.keys()),max(rawfillDict.keys()),sampleinterval):
-            if rawfillDict.has_key(x):
-                xpoints.append(x)
-        #print 'xpoints',xpoints
         
-        for fillboundary in xpoints:
-            keylist=rawfillDict.keys()
-            keylist.sort()
-            for fill in keylist:
-                if fill==fillboundary:
-                    runlist=rawfillDict[fill]
-                    runlist.sort()
-                    xidx=rawxdata.index(max(runlist))
-                    #break
-            #print 'max runnum for fillboundary ',fillboundary, rawxdata[xidx]
-            
-            for ylabel in ypoints.keys():
-                ypoints[ylabel].append(sum(rawydata[ylabel][0:xidx])/1000.0)
         #print 'ypoints : ',ypoints
         for ylabel,yvalue in rawydata.items():
             ytotal[ylabel]=sum(rawydata[ylabel])/1000.0
@@ -146,6 +121,55 @@ class matplotRender():
             legendlist.append(ylabel+' '+'%.2f'%(ytotal[ylabel])+' '+'nb$^{-1}$')
         #font=FontProperties(size='medium',weight='demibold')
         ax.legend(tuple(legendlist),loc='best')
+        self.__fig.subplots_adjust(bottom=0.18,left=0.3)
+        
+    def plotSumX_Time(self,rawxdata,rawydata,timedeltadays=1,nticks=6):
+        xpoints=[]
+        ypoints={}
+        ytotal={}
+        xidx=[]
+        minTime=min(rawxdata.keys())
+        maxTime=max(rawxdata.keys())
+        delta=datetime.timedelta(days=timedeltadays)
+        timesamplers=matplotlib.dates.drange(minTime,maxTime,delta)
+        runs=rawxdata.keys()
+        runs.sort()
+        for timesample in timesamplers:
+            runsinslot=[]
+            for run in runs:
+                starttime=rawxdata[run][0]
+                stoptime=rawxdata[run][1]
+                if starttime>=timesample and stoptime<=starttime+delta and stoptime<=maxTime:
+                    runsinslot.append(run)
+            xidx=max(runsinslot) #max run in the timeslot
+        for ylabel,yvalue in rawydata.items():
+            ypoints[ylabel]=[]
+            for i in xidx:
+                ypoints[ylabel].append(sum(yvalues[0:i])/1000.0)
+            ytotal[ylabel]=sum(yvalues)/1000.0
+        ax=self.__fig.add_subplot(111)
+        dateFmt=matplotlib.dates.DateFormatter('%Y-%m-%d')
+        ax.set_xlabel(r'Date',position=(0.84,0))
+        ax.set_ylabel(r'L nb$^{-1}$',position=(0,0.9))
+        xticklabels=ax.get_xticklabels()
+        ax.xaxis.set_major_locator(dateFmt)
+        daysLoc=matplotlib.dates.DayLocator()
+        hoursLoc=matplotlib.dates.HourLocator(interval=6)
+        ax.xaxis.set_major_formatter(dateFmt)
+        ax.xaxis.set_minor_locator(hoursLoc)
+        ax.grid(True)
+        keylist=ypoints.keys()
+        keylist.sort()
+        legendlist=[]
+        for ylabel in keylist:
+            cl='k'
+            if self.colormap.has_key(ylabel):
+                cl=self.colormap[ylabel]
+            ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl)
+            legendlist.append(ylabel+' '+'%.2f'%(ytotal[ylabel])+' '+'nb$^{-1}$')
+        #font=FontProperties(size='medium',weight='demibold')
+        ax.legend(tuple(legendlist),loc='best')
+        self.__fig.autofmt_xdate(bottom=0.18)
         self.__fig.subplots_adjust(bottom=0.18,left=0.3)
         
     def drawHTTPstring(self):

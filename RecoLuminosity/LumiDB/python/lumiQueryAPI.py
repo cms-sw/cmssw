@@ -363,7 +363,7 @@ def hltAllpathByrun(queryHandle,runnum):
 def lumidetailByrunByAlgo(queryHandle,runnum,algoname='OCC1'):
     '''
     select s.cmslsnum,d.bxlumivalue,d.bxlumierror,d.bxlumiquality,s.startorbit from LUMIDETAIL d,LUMISUMMARY s where s.runnum=:runnum and d.algoname=:algoname and s.lumisummary_id=d.lumisummary_id order by s.startorbit
-    output: [cmslsnum,bxlumivalue,bxlumierror,bxlumiquality,startorbit]
+    output: [[cmslsnum,bxlumivalue,bxlumierror,bxlumiquality,startorbit]]
     since the output is ordered by time, it has to be in seq list format
     '''
     result=[]

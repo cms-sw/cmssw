@@ -25,21 +25,27 @@ class lumiTime(object):
         given a orbit number, return its corresponding time. Assuming begin time has orbit=0
         '''
         return self.self.StrToDatetime(begStrTime)+(myorbit-begorbit)*self.OrbitDuration()    
-    def StrToDatetime(self, strTime):
+    def StrToDatetime(self,strTime,customfm=''):
         '''convert string timestamp to python datetime
         '''
         result=''
         try:
-            result=datetime.strptime(strTime,self.pydatetimefm)
+            if not customfm:
+                result=datetime.strptime(strTime,self.pydatetimefm)
+            else:
+                result=datetime.strptime(strTime,customfm)
         except er:
             print str(er)
         return result
-    def DatetimeToStr(self,timeValue):
+    def DatetimeToStr(self,timeValue,customfm=''):
         '''convert python datetime to string timestamp
         '''
         result=''
         try:
-            result=timeValue.strftime(self.pydatetimefm)
+            if not customfm:
+                result=timeValue.strftime(self.pydatetimefm)
+            else:
+                result=timeValue.strftime(customfm)
         except er:
             print str(er)
         return result
@@ -49,3 +55,4 @@ if __name__=='__main__':
     print 'orbit 0 : ',c.OrbitToTime(begTimeStr,0,0)
     print 'orbit 1 : ',c.OrbitToTime(begTimeStr,1,0)
     print 'orbit 262144 : ',c.OrbitToTime(begTimeStr,262144,0)
+    

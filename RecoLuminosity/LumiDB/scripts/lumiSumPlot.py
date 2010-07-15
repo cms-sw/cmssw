@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 VERSION='1.00'
-import os,sys
+import os,sys,datetime
 import coral
 from RecoLuminosity.LumiDB import lumiTime,argparse,nameDealer,selectionParser,hltTrgSeedMapper,connectstrParser,cacheconfigParser,matplotRender,lumiQueryAPI
 from matplotlib.figure import Figure
@@ -21,11 +21,11 @@ class constants(object):
     def defaultfrontierConfigString(self):
         return """<frontier-connect><proxy url="http://cmst0frontier.cern.ch:3128"/><proxy url="http://cmst0frontier.cern.ch:3128"/><proxy url="http://cmst0frontier1.cern.ch:3128"/><proxy url="http://cmst0frontier2.cern.ch:3128"/><server url="http://cmsfrontier.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier1.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier2.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier3.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier4.cern.ch:8000/FrontierInt"/></frontier-connect>"""
 
-    
+
 def getLumiInfoForRuns(dbsession,c,runDict,hltpath=''):
     '''
     input: runDict{runnum:[ls]}
-    output:{ runnumber:[delivered,recorded,recorded_hltpath] }
+    output:{runnumber:[delivered,recorded,recorded_hltpath] }
     '''
     t=lumiTime.lumiTime()
     result={}#runnumber:[lumisumoverlumils,lumisumovercmsls-deadtimecorrected,lumisumovercmsls-deadtimecorrected*hltcorrection_hltpath]
@@ -102,8 +102,9 @@ def main():
     parser.add_argument('-b',dest='beammode',action='store',help='beam mode, optional for delivered action, default "stable", choices "stable","quiet","either"')
     parser.add_argument('-lumiversion',dest='lumiversion',action='store',help='lumi data version, optional for all, default 0001')
     parser.add_argument('-begin',dest='begin',action='store',help='begin value of x-axi (required)')
-    parser.add_argument('-end',dest='end',action='store',help='end value of x-axi (required)')
+    parser.add_argument('-end',dest='end',action='store',help='end value of x-axi (optional). Default to the maximum exists DB')
     parser.add_argument('-hltpath',dest='hltpath',action='store',help='specific hltpath to calculate the recorded luminosity. If specified aoverlays the recorded luminosity for the hltpath on the plot')
+    parser.add_argument('-timeformat',dest='timeformat',action='store',help='specific python timeformat string (optional) for the time action. Default format "%m/%d/%y %H:%M:%S",e.g.08/01/10 23:20:00')
     parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',help='specific path to site-local-config.xml file, default to $CMS_PATH/SITECONF/local/JobConfig, if path undefined, fallback to cern proxy&server')
     parser.add_argument('action',choices=['run','fill','time'],help='x-axis data type of choice')
     #graphical mode options
@@ -149,7 +150,7 @@ def main():
     ifilename=''
     ofilename='integratedlumi.png'
     beammode='stable'
-
+    timeformat=''
     if args.authpath and len(args.authpath)!=0:
         os.environ['CORAL_AUTH_PATH']=args.authpath
     if args.normfactor:
@@ -164,7 +165,8 @@ def main():
         ifilename=args.inputfile        
     if args.outputfile and len(args.outputfile)!=0:
         ofilename=args.outputfile
-
+    if args.timeformat:
+        timeformat=args.timeformat
     session=svc.connect(connectstring,accessMode=coral.access_Update)
     session.typeConverter().setCppTypeForSqlType("unsigned int","NUMBER(10)")
     session.typeConverter().setCppTypeForSqlType("unsigned long long","NUMBER(20)")
@@ -186,6 +188,23 @@ def main():
             if fillDict.has_key(fill): #fill exists
                 for run in fillDict[fill]:
                     runDict[run]=[]
+    elif args.action == 'time':
+        session.transaction().start(True)
+        t=lumiTime.lumiTime()
+        minTime=t.StrToDatetime(args.begin,timeformat)
+        if not args.end:
+            maxTime=datetime.datetime.now()#to be changed to max in db
+        else:
+            maxTime=t.StrToDatetime(args.end,timeformat)
+        print minTime,maxTime
+        qHandle=session.nominalSchema().newQuery()
+        runDict=lumiQueryAPI.runsByTimerange(qHandle,minTime,maxTime)#xrawdata
+        del qHandle
+        session.transaction().commit()
+        print runDict
+    else:
+        print 'unsupported action ',args.action
+        exit
     if len(ifilename)!=0 :
             f=open(ifilename,'r')
             inputfilecontent=f.read()
@@ -230,6 +249,21 @@ def main():
             ydata['Delivered'].append(lumiDict[run][0])
             ydata['Recorded'].append(lumiDict[run][1])
         m.plotSumX_Fill(xdata,ydata,fillDict)
+    elif args.action == 'time':
+        lumiDict={}
+        lumiDict=getLumiInfoForRuns(session,c,runDict,hltpath)
+        xdata=runDict        
+        ydata={}
+        ydata['Delivered']=[]
+        ydata['Recorded']=[]
+        keylist=lumiDict.keys()
+        keylist.sort()
+        for run in keylist:
+            ydata['Delivered'].append(lumiDict[run][0])
+            ydata['Recorded'].append(lumiDict[run][1])
+        print 'xdata ',xdata
+        print 'ydata ',ydata
+        m.plotSumX_Time(xdata,ydata)
     else:
         raise Exception,'must specify the type of x-axi'
 
