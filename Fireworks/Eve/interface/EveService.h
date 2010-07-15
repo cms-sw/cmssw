@@ -16,7 +16,7 @@
 //
 // Original Author:  Matevz Tadel
 //         Created:  Fri Jun 25 18:56:52 CEST 2010
-// $Id: EveService.h,v 1.3 2010/07/08 19:43:44 matevz Exp $
+// $Id: EveService.h,v 1.4 2010/07/13 19:59:04 matevz Exp $
 //
 
 #include <string>
@@ -32,11 +32,13 @@ namespace edm
 }
 
 class TEveManager;
+class TEveElement;
 class TEveMagField;
 class TEveTrackPropagator;
 class TRint;
 
 class TGTextButton;
+class TGLabel;
 
 class EveService
 {
@@ -57,16 +59,22 @@ public:
 
    void postProcessEvent(const edm::Event&, const edm::EventSetup&);
 
-   void display();
+   void display(const std::string& info="");
 
    TEveManager*  getManager();
    TEveMagField* getMagField();
    void          setupFieldForPropagator(TEveTrackPropagator* prop);
 
+   // Shortcuts for adding top level event and geometry elements.
+   void AddElement(TEveElement* el);
+   void AddGlobalElement(TEveElement* el);
+
    // GUI slots -- must be public so that ROOT can call them via CINT.
 
-   void slotNextEvent();
    void slotExit();
+   void slotNextEvent();
+   void slotStep();
+   void slotContinue();
 
 protected:
    void createEventNavigationGUI();
@@ -82,7 +90,12 @@ private:
 
    TEveMagField *m_MagField;
 
-   TGTextButton *m_NextButton;
+   bool          m_AllowStep;
+   bool          m_ShowEvent;
+
+   TGTextButton *m_ContinueButton;
+   TGTextButton *m_StepButton;
+   TGLabel      *m_StepLabel;
 
    ClassDef(EveService, 0);
 };

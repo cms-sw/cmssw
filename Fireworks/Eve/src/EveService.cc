@@ -8,7 +8,7 @@
 //
 // Original Author:  Matevz Tadel
 //         Created:  Fri Jun 25 18:57:39 CEST 2010
-// $Id: EveService.cc,v 1.5 2010/07/08 19:43:44 matevz Exp $
+// $Id: EveService.cc,v 1.6 2010/07/13 19:59:05 matevz Exp $
 //
 
 // system include files
@@ -42,6 +42,7 @@
 #include "TEveBrowser.h"
 #include "TGFrame.h"
 #include "TGButton.h"
+#include "TGLabel.h"
 
 namespace
 {
@@ -119,7 +120,8 @@ namespace
 EveService::EveService(const edm::ParameterSet&, edm::ActivityRegistry& ar) :
    m_EveManager(0), m_Rint(0),
    m_MagField(0),
-   m_NextButton(0)
+   m_AllowStep(true), m_ShowEvent(true),
+   m_ContinueButton(0), m_StepButton(0), m_StepLabel(0)
 {
    printf("EveService::EveService CTOR\n");
 
@@ -217,27 +219,36 @@ void EveService::postProcessEvent(const edm::Event&, const edm::EventSetup&)
 {
    printf("EveService::postProcessEvent: Starting GUI loop.\n");
 
-   m_NextButton->SetText("Next Event");
+   m_StepButton->SetEnabled(kFALSE);
+   m_ContinueButton->SetEnabled(kFALSE);
+   m_StepLabel->SetText("");
 
-   gEve->Redraw3D();
-
-   m_Rint->Run(kTRUE);
+   if (m_ShowEvent)
+   {
+     gEve->Redraw3D();
+     m_Rint->Run(kTRUE);
+   }
+   m_ShowEvent = true;
+   m_AllowStep = true;
 
    gEve->GetCurrentEvent()->DestroyElements();
 }
 
 //------------------------------------------------------------------------------
 
-void EveService::display()
+void EveService::display(const std::string& info)
 {
    // Display whatever was registered so far, wait until user presses
    // the "Step" button.
 
-   m_NextButton->SetText("Step");
-
-   gEve->Redraw3D();
-
-   m_Rint->Run(kTRUE);
+   if (m_AllowStep)
+   {
+      m_ContinueButton->SetEnabled(kTRUE);
+      m_StepButton->SetEnabled(kTRUE);
+      m_StepLabel->SetText(info.c_str());
+      gEve->Redraw3D();
+      m_Rint->Run(kTRUE);
+   }
 }
 
 //==============================================================================
@@ -259,6 +270,19 @@ void EveService::setupFieldForPropagator(TEveTrackPropagator* prop)
    prop->SetMagFieldObj(m_MagField, kFALSE);
 }
 
+//==============================================================================
+// Redirectors to gEve
+//==============================================================================
+
+void EveService::AddElement(TEveElement* el)
+{
+  m_EveManager->AddElement(el);
+}
+
+void EveService::AddGlobalElement(TEveElement* el)
+{
+  m_EveManager->AddGlobalElement(el);
+}
 
 //==============================================================================
 // GUI Builders and callback slots
@@ -295,11 +319,21 @@ void EveService::createEventNavigationGUI()
    TGHorizontalFrame* f = new TGHorizontalFrame(mf);
    mf->AddFrame(f, new TGLayoutHints(kLHintsExpandX, 0,0,2,2));
 
-   m_NextButton = MkTxtButton(f, "Next Event", 100, 2, 2);
-   m_NextButton->Connect("Clicked()", cls, this, "slotNextEvent()");
-   
    MkTxtButton(f, "Exit", 100, 2, 2)->
       Connect("Clicked()", cls, this, "slotExit()");
+
+   MkTxtButton(f, "Next Event", 100, 2, 2)->
+      Connect("Clicked()", cls, this, "slotNextEvent()");
+
+   m_ContinueButton = MkTxtButton(f, "Continue", 100, 2, 2);
+   m_ContinueButton->Connect("Clicked()", cls, this, "slotContinue()");
+
+   m_StepButton = MkTxtButton(f, "Step", 100, 2, 2);
+   m_StepButton->Connect("Clicked()", cls, this, "slotStep()");
+   
+   m_StepLabel = new TGLabel(mf, "");
+   m_StepLabel->SetTextJustify(kTextTop | kTextLeft);
+   mf->AddFrame(m_StepLabel, new TGLayoutHints(kLHintsNormal | kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2));
 
    mf->SetCleanup(kDeepCleanup);
    mf->Layout();
@@ -309,12 +343,34 @@ void EveService::createEventNavigationGUI()
    browser->StopEmbedding("EventCtrl");
 }
 
+void EveService::slotExit()
+{
+   gSystem->ExitLoop();
+   printf("EveService exiting on user request.\n");
+
+   // Throwing exception here is bad because:
+   //   a) it does not work when in a "debug step";
+   //   b) does not restore terminal state.
+   // So we do exit instead for now.
+   // throw cms::Exception("UserTerminationRequest");
+
+   gSystem->Exit(0);
+}
+
 void EveService::slotNextEvent()
 {
    gSystem->ExitLoop();
+   m_ShowEvent = false;
+   m_AllowStep = false;
 }
 
-void EveService::slotExit()
+void EveService::slotContinue()
 {
-   throw cms::Exception("UserTerminationRequest");
+   gSystem->ExitLoop();
+   m_AllowStep = false;
+}
+
+void EveService::slotStep()
+{
+   gSystem->ExitLoop();
 }

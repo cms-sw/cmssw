@@ -8,7 +8,7 @@
 //
 // Original Author:  Matevz Tadel
 //         Created:  Mon Jun 28 18:17:47 CEST 2010
-// $Id: DummyEvelyser.cc,v 1.5 2010/07/08 16:58:21 matevz Exp $
+// $Id: DummyEvelyser.cc,v 1.6 2010/07/13 19:59:05 matevz Exp $
 //
 
 // system include files
@@ -55,6 +55,8 @@ public:
 protected:
    TEveGeoTopNode* make_node(const TString& path, Int_t vis_level, Bool_t global_cs);
 
+   
+
 private:
    virtual void beginJob();
    virtual void endJob();
@@ -64,7 +66,9 @@ private:
 
    virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-   edm::InputTag  trackTags_;
+   edm::Service<EveService>  m_eve;
+
+   edm::InputTag  m_trackTags;
    TEveElement   *m_geomList;
    TEveTrackList *m_trackList;
 
@@ -88,7 +92,8 @@ DEFINE_FWK_MODULE(DummyEvelyser);
 //==============================================================================
 
 DummyEvelyser::DummyEvelyser(const edm::ParameterSet& iConfig) :
-   trackTags_(iConfig.getUntrackedParameter<edm::InputTag>("tracks")),
+   m_eve(),
+   m_trackTags(iConfig.getUntrackedParameter<edm::InputTag>("tracks")),
    m_geomList(0),
    m_trackList(0),
    m_geomWatcher(this, &DummyEvelyser::remakeGeometry)
@@ -130,31 +135,34 @@ void DummyEvelyser::beginJob()
 {
    printf("DummyEvelyser::beginJob\n");
 
-   edm::Service<EveService> eve;
-   eve->getManager(); // Returns TEveManager, it is also set in global gEve.
+   if (m_eve)
+   {
+      // Make a track-list container we'll hold on until the end of the job.
+      // This allows us to preserve settings done by user via GUI.
+      m_trackList = new TEveTrackList("Tracks"); 
+      m_trackList->SetMainColor(6);
+      m_trackList->SetMarkerColor(kYellow);
+      m_trackList->SetMarkerStyle(4);
+      m_trackList->SetMarkerSize(0.5);
 
-   // Make a track-list container we'll hold on until the end of the job.
-   // This allows us to preserve settings done by user via GUI.
-   m_trackList = new TEveTrackList("Tracks"); 
-   m_trackList->SetMainColor(6);
-   m_trackList->SetMarkerColor(kYellow);
-   m_trackList->SetMarkerStyle(4);
-   m_trackList->SetMarkerSize(0.5);
+      m_trackList->IncDenyDestroy();
 
-   m_trackList->IncDenyDestroy();
-
-   TEveTrackPropagator *prop = m_trackList->GetPropagator();
-   prop->SetStepper(TEveTrackPropagator::kRungeKutta);
-   // Use simplified magnetic field.
-   eve->setupFieldForPropagator(prop);
+      TEveTrackPropagator *prop = m_trackList->GetPropagator();
+      prop->SetStepper(TEveTrackPropagator::kRungeKutta);
+      // Use simplified magnetic field provided by EveService.
+      m_eve->setupFieldForPropagator(prop);
+   }
 }
 
 void DummyEvelyser::endJob()
 {
    printf("DummyEvelyser::endJob\n");
 
-   m_trackList->DecDenyDestroy();
-   m_trackList = 0;
+   if (m_trackList)
+   {
+      m_trackList->DecDenyDestroy();
+      m_trackList = 0;
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -163,9 +171,12 @@ void DummyEvelyser::beginRun(const edm::Run&, const edm::EventSetup& iSetup)
 {
    printf("DummyEvelyser::beginRun\n");
 
-   m_geomList = new TEveElementList("DummyEvelyzer Geom");
-   gEve->AddGlobalElement(m_geomList);
-   gEve->GetGlobalScene()->GetGLScene()->SetStyle(TGLRnrCtx::kWireFrame);
+   if (m_eve)
+   {
+      m_geomList = new TEveElementList("DummyEvelyzer Geom");
+      m_eve->AddGlobalElement(m_geomList);
+      m_eve->getManager()->GetGlobalScene()->GetGLScene()->SetStyle(TGLRnrCtx::kWireFrame);
+   }
 }
 
 void DummyEvelyser::endRun(const edm::Run&, const edm::EventSetup&)
@@ -195,49 +206,41 @@ void DummyEvelyser::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 {
    printf("DummyEvelyser::analyze\n");
 
-   edm::Service<EveService> eve;
-
-   // Remake geometry if it has changed.
-
-   m_geomWatcher.check(iSetup);
-
-
-   // Stripped down demo from Tracking twiki.
-
-   using namespace edm;
-
-   Handle<View<reco::Track> >  tracks;
-   iEvent.getByLabel(trackTags_,tracks);
-
-   m_trackList->DestroyElements();
-
-   // All top-level elements are removed from default event-store at
-   // the end of each event.
-   gEve->AddElement(m_trackList);
-
-   int cnt = 0;
-   for (View<reco::Track>::const_iterator itTrack = tracks->begin();
-        itTrack != tracks->end(); ++itTrack, ++cnt)
+   if (m_eve)
    {
-      TEveTrack* trk = fireworks::prepareTrack(*itTrack, m_trackList->GetPropagator());
-      trk->SetElementName (TString::Format("Track %d", cnt));
-      trk->SetElementTitle(TString::Format("Track %d, pt=%.3f", cnt, itTrack->pt()));
-      trk->MakeTrack();
-      trk->SetAttLineAttMarker(m_trackList);
-      m_trackList->AddElement(trk);
+      // Remake geometry if it has changed.
+      m_geomWatcher.check(iSetup);
 
-      // The display() function runs the GUI event-loop and shows
-      // whatever has been registered so far to eve.
-      // It returns when user presses the "Step" button.
-      // eve->display();
-      // It is not a very good idea to call it here ...
+
+      // Stripped down demo from Tracking twiki.
+
+      using namespace edm;
+
+      Handle<View<reco::Track> >  tracks;
+      iEvent.getByLabel(m_trackTags, tracks);
+
+      m_trackList->DestroyElements();
+
+      // All top-level elements are removed from default event-store at
+      // the end of each event.
+      m_eve->AddElement(m_trackList);
+
+      int cnt = 0;
+      for (View<reco::Track>::const_iterator itTrack = tracks->begin();
+           itTrack != tracks->end(); ++itTrack, ++cnt)
+      {
+         TEveTrack* trk = fireworks::prepareTrack(*itTrack, m_trackList->GetPropagator());
+         trk->SetElementName (TString::Format("Track %d", cnt));
+         trk->SetElementTitle(TString::Format("Track %d, pt=%.3f", cnt, itTrack->pt()));
+         trk->MakeTrack();
+         trk->SetAttLineAttMarker(m_trackList);
+         m_trackList->AddElement(trk);
+
+         // The display() function runs the GUI event-loop and shows
+         // whatever has been registered so far to eve.
+         // It returns when user presses the "Step" button (or "Continue" or
+         // "Next Event").
+         m_eve->display(std::string("DummyEvelyser::analyze done for:\n") + trk->GetName());
+      }
    }
 }
-
-//
-// const member functions
-//
-
-//
-// static member functions
-//
