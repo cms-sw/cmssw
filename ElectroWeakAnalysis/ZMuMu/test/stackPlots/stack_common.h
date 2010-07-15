@@ -29,7 +29,7 @@ const Color_t ttFillColor = kRed+2;
 
 
 // 78 
-double intLumi = 78 ;
+double intLumi = 177 ;
 //double intLumi = 100000;
 
 const double lumi = intLumi * .001 ;
@@ -78,14 +78,12 @@ TCut massCut("zGoldenMass>60 && zGoldenMass<120 ");
 
 TCanvas *c1 = new TCanvas("c1","Stack plot", 300,300,479,510);
 
-
-
-c1->SetLeftMargin(  87./479 );
+ c1->SetLeftMargin(  87./479 );
   c1->SetRightMargin( 42./479 );
   c1->SetTopMargin(  30./510 );
   c1->SetBottomMargin( 80./510 ); 
   c1->SetFillColor(0);
-  c1->SetTickx(1);
+ c1->SetTickx(1);
   c1->SetTicky(1);
   c1->SetFrameFillStyle(0);
   c1->SetFrameLineWidth(2);
@@ -94,7 +92,7 @@ c1->SetLeftMargin(  87./479 );
 
 
  
- int lineWidth(2);
+ int lineWidth(3);
 
 if( logScale )
   {
@@ -110,8 +108,8 @@ if( logScale )
   // titles and axis, marker size
   TString xtitle;
   TString ytitle;
-  int ndivx(504);
-  int ndivy(504);
+int ndivx(506);
+  int ndivy(506);
   float markerSize(2.);
 
   // canvas name
@@ -122,15 +120,17 @@ if( logScale )
   float xl_  = 0.;
   float yl_  = 0.6;
   float scalel_ = 0.05;
-      ndivx = 506;
+      ndivx = 120;
 
 if( logScale )
 	{
-	  ndivy = 504;
+	  ndivx=506; 
+	  ndivy = 506;
 	}
       else
 	{
 	  ndivy = 506;
+          ndivx=506;
 	}
 
       if( logScale )
@@ -163,6 +163,7 @@ void setHisto(TH1 * h, Color_t fill, Color_t line, double scale, int rebin) {
   h->SetLineColor(line);
   h->Scale(scale);
   h->Rebin(rebin);  
+
 }
 
 void stat(TH1 * h1, TH1 * h2, TH1 * h3, TH1 * h4, TH1 *h5, TH1 * hdata, int rebin) {
@@ -272,13 +273,15 @@ dataGraph->Draw("pesame");
     hdata->GetYaxis()->SetLabelSize(0);
     hdata->GetXaxis()->SetNdivisions(ndivx);
     hdata->GetYaxis()->SetNdivisions(ndivy);
+    hs->GetXaxis()->SetNdivisions(ndivx);
+    hs->GetYaxis()->SetNdivisions(ndivy);
     // log plots, so the maximum should be one order of magnitude more...
     
     
    
- hs->SetMaximum(  5 +  hdata->GetMaximum()  )  ;
+ hs->SetMaximum( 8 +  hdata->GetMaximum()  )  ;
     if (logScale) {
-      hs->SetMaximum( pow(10 , 0.3 + int(log( hdata->GetMaximum() )  )  ));
+      hs->SetMaximum( pow(10 , 2. + int(log( hdata->GetMaximum() )  )  ));
     } 
     // lin plot 
      	
@@ -372,14 +375,14 @@ TLatex latex;
     latex.DrawLatex(0.85,0.84,Form("#int #font[12]{L} dt = %.0f nb^{-1}",intLumi));
   }
   latex.SetTextAlign(11); // align left
-  latex.DrawLatex(0.18,0.96,"CMS preliminary 2010");
+  latex.DrawLatex(0.12,0.96,"CMS preliminary 2010");
 
 
   stat(h1, h2, h3, h4, h5,hdata, rebin);
 
   // c1->Update();
-  //c1->SetTickx(0);
-  //c1->SetTicky(0); 
+  // c1->SetTickx(0);
+  // c1->SetTicky(0); 
 }
 
 
@@ -418,9 +421,11 @@ TChain * ztEvents = new TChain("Events");
 TChain * dataEvents= new TChain("Events");
 
 
-dataEvents->Add("/scratch2/users/degruttola/data/OfficialJSON/NtupleLoose_132440_139790.root");
-//dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_965_971.root");
-//dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_972_980.root");
+ dataEvents->Add("/scratch2/users/degruttola/data/OfficialJSON/NtupleLoose_132440_139790.root");
+ dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_965_971.root");
+dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_972_980.root");
+dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_140_058_076.root");
+dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_140_116_126.root");
 
 // .040 pb
 
@@ -473,7 +478,9 @@ dataEvents->Add("/scratch2/users/degruttola/data/OfficialJSON/NtupleLoose_132440
   hdata->Add(hhdata);
   }
   makeStack(h1, h2, h3, h4, h5, hdata, min, rebin, logScale);
+ 
 
+ 
   if (logScale) c1->SetLogy();
 
   c1->SaveAs((std::string(plot)+".eps").c_str());

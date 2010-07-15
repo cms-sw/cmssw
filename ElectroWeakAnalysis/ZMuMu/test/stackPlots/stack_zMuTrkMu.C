@@ -26,7 +26,7 @@ void stack_zMuTrkMu() {
 
 
 
-  makePlots("zMuTrkMuMass", "", kin_common + (( dau1TightWP2_hltAlso &&  dau2Loose ) || (dau2TightWP2_hltAlso +  dau1Loose)), 1, "zMuTrkMu",  0.0001, 200, 0 ,200, true, true);
+  makePlots("zMuTrkMuMass", "", kin_common + (( dau1TightWP2_hltAlso &&  dau2Loose ) || (dau2TightWP2_hltAlso +  dau1Loose)), 5, "zMuTrkMu",  0.0001, 200, 0 ,200, true, true);
 
   //  makePlots("zMuTrkMuMass", "", kin_common + dau1TightWP1_hltAlso , 5, "zMuTrkMu",  0.001, 200, 0 ,200, true);
 

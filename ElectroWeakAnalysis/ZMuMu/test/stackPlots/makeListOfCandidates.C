@@ -43,6 +43,11 @@ TChain * dataEvents= new TChain("Events");
 
 
  dataEvents->Add("../NtupleLoose_132440_139790.root");
+ dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_965_971.root");
+ dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_139_972_980.root");
+ dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_140_058_076.root");
+ dataEvents->Add("/scratch2/users/degruttola/data/jun14rereco_and361p4PromptReco/NtupleLoose_140_116_126.root");
+
 
 
 
