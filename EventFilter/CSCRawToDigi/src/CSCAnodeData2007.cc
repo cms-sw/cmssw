@@ -2,13 +2,26 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCALCTHeader.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <string.h> // for bzero
+#include<iostream>
 
 CSCAnodeData2007::CSCAnodeData2007(const CSCALCTHeader & header)
   : nAFEBs_(header.nLCTChipRead()), nTimeBins_(header.NTBins())
 {
+  //std::cout << "Constructor 1" << std::endl;
   init(header);
   // comes after, because need to fetch sizeInWords()
   bzero(theDataFrames, sizeInWords()*2);
+  /// To get BX from ALCT digis
+  theALCTDigis=header.ALCTDigis();
+  alctBX_.clear();
+  for(uint k=0; k<theALCTDigis.size(); k++){
+           alctBX_.push_back(theALCTDigis[k].getFullBX());
+     }
+/*
+  for(uint k=0; k<alctBX_.size(); k++)
+     std::cout << alctBX_[k] << " | ";
+  std::cout << std::endl;
+*/
 }
 
 
@@ -16,8 +29,20 @@ CSCAnodeData2007::CSCAnodeData2007(const CSCALCTHeader & header ,
                                    const unsigned short *buf) 
   : nAFEBs_(header.nLCTChipRead()), nTimeBins_(header.NTBins())
 {
+    //std::cout << "Constructor 2" << std::endl;
     init(header);
     memcpy(theDataFrames, buf, sizeInWords()*2);///dont memcpy if not 2006 or 2007
+    /// To get BX from ALCT digis
+  theALCTDigis=header.ALCTDigis();
+  alctBX_.clear();
+  for(uint k=0; k<theALCTDigis.size(); k++){
+           alctBX_.push_back(theALCTDigis[k].getFullBX());
+     }
+/*
+  for(uint k=0; k<alctBX_.size(); k++)
+     std::cout << std::dec << alctBX_[k] << " | ";
+  std::cout << std::endl;
+*/
 }
 
 
@@ -27,7 +52,7 @@ void CSCAnodeData2007::init(const CSCALCTHeader & header) {
   ///                         alct board types:     1  2  3     5  6
   static unsigned short int layerParts[7]    = { 3, 3, 4, 6, 6, 8,10};
   static unsigned short int wireGroups[7]    = {32,32,48,64,64,96,112};
-
+  //header.ALCTDigis();
   sizeInWords2007_=(1-header.alctHeader2007().rawOverflow)*6*
   header.alctHeader2007().rawBins*layerParts[header.alctHeader2007().boardType];
   layerParts_ = layerParts[header.alctHeader2007().boardType];
@@ -36,9 +61,12 @@ void CSCAnodeData2007::init(const CSCALCTHeader & header) {
 
 
 std::vector<CSCWireDigi> CSCAnodeData2007::wireDigis(int layer) const {
+  //std::cout << " wireDigi Fill AnodeData2007 " << std::endl;
   std::vector<CSCWireDigi> digis;
   uint32_t tbinbits=0;
-  uint16_t wireGroup=0;
+  uint32_t wireGroup=0;
+  /// BX from ACT (first component)
+  uint32_t wireGroupBX=alctBX_[0];
     for(int layerPart = 0; layerPart <layerParts_; ++layerPart) {
       ///we know how many layer parts are there from ALCT header 
       for (int j=0; (j<12)&&((layerPart*12+j)<maxWireGroups_) ;++j) {
@@ -54,6 +82,8 @@ std::vector<CSCWireDigi> CSCAnodeData2007::wireDigis(int layer) const {
 	}//end of tbin loop
 	if (tbinbits !=0 ) {
 	  wireGroup = (layerPart*12+j)+1;
+           /// BX from ACT incoded in wireGroup
+          wireGroup = wireGroup | (wireGroupBX << 16);
 	  CSCWireDigi digi(wireGroup, tbinbits);
 	    LogTrace ("CSCAnodeData|CSCRawToDigi") << "Layer " << layer << " " << digi;
 	  digis.push_back(digi);
@@ -61,7 +91,7 @@ std::vector<CSCWireDigi> CSCAnodeData2007::wireDigis(int layer) const {
 	}
       }///end of the loop over bits in the data frame
     }///end of the loop over layer parts
-    
+
   return digis;
 }
 

@@ -31,6 +31,12 @@ CSCAnodeData2006::CSCAnodeData2006(const CSCALCTHeader & header) ///for digi->ra
       }
     }
   }
+    /// To get BX from ALCT digis
+  theALCTDigis=header.ALCTDigis();
+  alctBX_.clear();
+  for(uint k=0; k<theALCTDigis.size(); k++){
+           alctBX_.push_back(theALCTDigis[k].getFullBX());
+     }
 }
 
 // initialize
