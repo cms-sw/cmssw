@@ -22,6 +22,11 @@ public:
 
   /// return wiregroup number
   int getWireGroup() const {return wire_;}
+  /// return BX assigned for the wire group (16 upper bits from the wire group number)
+  int getWireGroupBX() const {return wireBX_;}
+  /// return BX-wiregroup number combined 
+  /// (16 upper bits - BX + 16 lower bits - wire group number)
+  int getBXandWireGroup() const {return wireBXandWires_;}
   /// return the word with time bins bits
   unsigned int getTimeBinWord() const {return tbinb_;}
   /// return tbin number, (obsolete, use getTimeBin() instead)
@@ -40,8 +45,11 @@ public:
 
 private:
 
-  uint16_t wire_;
+  int wire_;
   uint32_t tbinb_;
+  /// BX in the wire digis (16 upper bits from the wire group number)
+  int wireBXandWires_;
+  int wireBX_;
 
 };
 

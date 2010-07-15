@@ -2,8 +2,8 @@
  *
  * Digi for CSC anode wires.
  *
- * $Date: 2009/05/09 20:23:34 $
- * $Revision: 1.10 $
+ * $Date: 2009/06/16 11:24:02 $
+ * $Revision: 1.11 $
  */
 
 #include "DataFormats/CSCDigi/interface/CSCWireDigi.h"
@@ -14,14 +14,21 @@
   /// Constructors
 
 CSCWireDigi::CSCWireDigi (int wire, unsigned int tbinb){
-  wire_  = wire;
+  /// Wire group number in the digi (16 lower bits from the wire group number)
+  wire_  = wire & 0x0000FFFF;
   tbinb_ = tbinb;
+  /// BX in the wire digis (16 upper bits from the wire group number)
+  wireBX_= (wire >> 16) & 0x0000FFFF;
+  /// BX wire group combination 
+  wireBXandWires_=wire;
 }
 
    /// Default
 CSCWireDigi::CSCWireDigi (){
   wire_ = 0;
   tbinb_ = 0;
+  wireBX_=0;
+  wireBXandWires_=0;
 }
 
   /// return tbin number (obsolete, use getTimeBin() instead)
@@ -55,8 +62,10 @@ std::vector<int> CSCWireDigi::getTimeBinsOn() const {
   /// Debug
 
 void CSCWireDigi::print() const {
-  std::cout << " CSC Wire " << getWireGroup() 
-            << " CSC Wire First Time Bin On " << getTimeBin() 
+  std::cout << " CSC Wire " << getWireGroup() << " | "
+            << " CSC Wire BX # " << getWireGroupBX() << " | " 
+            << " CSC BX + Wire " << std::hex << getBXandWireGroup() << " | " << std::dec
+            << " CSC Wire First Time Bin On " << getTimeBin()  
             << std::endl;
   std::cout << " CSC Time Bins On ";
   std::vector<int> tbins=getTimeBinsOn();
