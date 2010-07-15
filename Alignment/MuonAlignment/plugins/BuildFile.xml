@@ -25,6 +25,17 @@
   <flags EDM_PLUGIN="1" />
 </library>
 
+<library name="MuonGeometrySVGTemplate" file="MuonGeometrySVGTemplate.cc">
+  <use name="FWCore/Framework" />
+  <use name="FWCore/ParameterSet" />
+  <use name="DataFormats/GeometryVector" />
+  <use name="DataFormats/DetId" />
+  <use name="DataFormats/MuonDetId" />
+  <use name="Alignment/CommonAlignment" />
+  <use name="Alignment/MuonAlignment" />
+  <flags EDM_PLUGIN="1" />
+</library>
+
 <library name="MuonGeometryArrange" file="MuonGeometryArrange.cc">
   <use name="Alignment/CommonAlignment" />
   <use name="Alignment/MuonAlignment" />
