@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerEventProducer.cc,v 1.9 2010/04/21 10:04:14 vadler Exp $
+// $Id: PATTriggerEventProducer.cc,v 1.10 2010/06/16 15:40:53 vadler Exp $
 //
 
 
@@ -27,12 +27,14 @@ PATTriggerEventProducer::PATTriggerEventProducer( const ParameterSet & iConfig )
   nameProcess_( iConfig.getParameter< std::string >( "processName" ) ),
   tagTriggerResults_( "TriggerResults" ),
   tagTriggerProducer_( "patTrigger" ),
+  tagCondGt_( "conditionsInEdm" ),
   tagL1Gt_( "gtDigis" ),
   tagsTriggerMatcher_()
 {
 
   if ( iConfig.exists( "triggerResults" ) )     tagTriggerResults_  = iConfig.getParameter< InputTag >( "triggerResults" );
   if ( iConfig.exists( "patTriggerProducer" ) ) tagTriggerProducer_ = iConfig.getParameter< InputTag >( "patTriggerProducer" );
+  if ( iConfig.exists( "condGtTag" ) )          tagCondGt_          = iConfig.getParameter< InputTag >( "condGtTag" );
   if ( iConfig.exists( "l1GtTag" ) )            tagL1Gt_            = iConfig.getParameter< InputTag >( "l1GtTag" );
   if ( iConfig.exists( "patTriggerMatches" ) )  tagsTriggerMatcher_ = iConfig.getParameter< std::vector< InputTag > >( "patTriggerMatches" );
   if ( tagTriggerResults_.process().empty() ) tagTriggerResults_ = InputTag( tagTriggerResults_.label(), tagTriggerResults_.instance(), nameProcess_ );
@@ -48,16 +50,40 @@ PATTriggerEventProducer::PATTriggerEventProducer( const ParameterSet & iConfig )
 void PATTriggerEventProducer::beginRun( Run & iRun, const EventSetup & iSetup )
 {
 
-  // Initialize
-  hltConfigInit_ = false;
+  gtCondRunInit_ = false;
+  Handle< ConditionsInRunBlock > condRunBlock;
+  iRun.getByLabel( tagCondGt_, condRunBlock );
+  if ( condRunBlock.isValid() ) {
+    condRun_       = *condRunBlock;
+    gtCondRunInit_ = true;
+  } else {
+    LogError( "noConditionsInEdm" ) << "ConditionsInRunBlock product with InputTag " << tagCondGt_.encode() << " not in run";
+  }
 
   // Initialize HLTConfigProvider
+  hltConfigInit_ = false;
   bool changed( true );
   if ( ! hltConfig_.init( iRun, iSetup, nameProcess_, changed ) ) {
     LogError( "errorHltConfigExtraction" ) << "HLT config extraction error with process name " << nameProcess_;
   } else if ( hltConfig_.size() <= 0 ) {
     LogError( "hltConfigSize" ) << "HLT config size error";
   } else hltConfigInit_ = true;
+
+}
+
+
+void PATTriggerEventProducer::beginLuminosityBlock( LuminosityBlock & iLumi, const EventSetup & iSetup )
+{
+
+  gtCondLumiInit_ = false;
+  Handle< ConditionsInLumiBlock > condLumiBlock;
+  iLumi.getByLabel( tagCondGt_, condLumiBlock );
+  if ( condLumiBlock.isValid() ) {
+    condLumi_       = *condLumiBlock;
+    gtCondLumiInit_ = true;
+  } else {
+    LogError( "noConditionsInEdm" ) << "ConditionsInLumiBlock product with InputTag " << tagCondGt_.encode() << " not in lumi";
+  }
 
 }
 
@@ -103,6 +129,7 @@ void PATTriggerEventProducer::produce( Event& iEvent, const EventSetup& iSetup )
     physDecl = true;
   }
 
+
   // produce trigger event
 
   std::auto_ptr< TriggerEvent > triggerEvent( new TriggerEvent( handleL1GtTriggerMenu->gtTriggerMenuName(), std::string( hltConfig_.tableName() ), handleTriggerResults->wasrun(), handleTriggerResults->accept(), handleTriggerResults->error(), physDecl ) );
@@ -126,6 +153,26 @@ void PATTriggerEventProducer::produce( Event& iEvent, const EventSetup& iSetup )
     triggerEvent->setObjects( handleTriggerObjects );
   } else {
     LogError( "triggerObjectsValid" ) << "pat::TriggerObjectCollection product with InputTag " << tagTriggerProducer_.encode() << " not in event";
+  }
+  if ( gtCondRunInit_ ) {
+    triggerEvent->setLhcFill( condRun_.lhcFillNumber );
+    triggerEvent->setBeamMode( condRun_.beamMode );
+    triggerEvent->setBeamMomentum( condRun_.beamMomentum );
+    triggerEvent->setBCurrentStart( condRun_.BStartCurrent );
+    triggerEvent->setBCurrentStop( condRun_.BStopCurrent );
+    triggerEvent->setBCurrentAvg( condRun_.BAvgCurrent );
+  }
+  if ( gtCondLumiInit_ ) {
+    triggerEvent->setIntensityBeam1( condLumi_.totalIntensityBeam1 );
+    triggerEvent->setIntensityBeam2( condLumi_.totalIntensityBeam2 );
+  }
+  Handle< ConditionsInEventBlock > condEventBlock;
+  iEvent.getByLabel( tagCondGt_, condEventBlock );
+  if ( condEventBlock.isValid() ) {
+    triggerEvent->setBstMasterStatus( condEventBlock->bstMasterStatus );
+    triggerEvent->setTurnCount( condEventBlock->turnCountNumber );
+  } else {
+    LogError( "noConditionsInEdm" ) << "ConditionsInEventBlock product with InputTag " << tagCondGt_.encode() << " not in event";
   }
 
   // produce trigger match association and set references
