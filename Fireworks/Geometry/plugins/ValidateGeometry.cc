@@ -1,9 +1,9 @@
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 // -*- C++ -*-
 //
-// $Id: ValidateGeometry.cc,v 1.1 2010/07/02 11:37:40 mccauley Exp $
+// $Id: ValidateGeometry.cc,v 1.1 2010/07/02 14:53:41 mccauley Exp $
 //
 
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -18,15 +18,26 @@
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 
 #include <string>
 #include <iostream>
@@ -60,6 +71,13 @@ private:
   void validateEEGeometry()
     {};
 
+  void validateTIBGeometry();
+  void validateTOBGeometry();
+  void validateTECGeometry();
+  void validateTIDGeometry();
+  void validatePXBGeometry();
+  void validatePXFGeometry();
+
   void compareTransform(const GlobalPoint& point, const TGeoHMatrix* matrix);
   void compareShape(const double* corners, TGeoShape* shape);
 
@@ -69,10 +87,11 @@ private:
   double tolerance_;    // cm
   bool ok_;
 
-  edm::ESHandle<RPCGeometry>  rpcGeometry_;
-  edm::ESHandle<DTGeometry>   dtGeometry_;
-  edm::ESHandle<CSCGeometry>  cscGeometry_;
-  edm::ESHandle<CaloGeometry> caloGeometry_;
+  edm::ESHandle<RPCGeometry>     rpcGeometry_;
+  edm::ESHandle<DTGeometry>      dtGeometry_;
+  edm::ESHandle<CSCGeometry>     cscGeometry_;
+  edm::ESHandle<CaloGeometry>    caloGeometry_;
+  edm::ESHandle<TrackerGeometry> trackerGeometry_;
 
   DetIdToMatrix detIdToMatrix_;
 };
@@ -123,6 +142,34 @@ ValidateGeometry::analyze(const edm::Event& event, const edm::EventSetup& eventS
   }
   else
     fwLog(fwlog::kWarning)<<"Invalid CSC geometry"<<std::endl; 
+
+  
+  eventSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometry_);
+
+  if ( trackerGeometry_.isValid() )
+  {
+    std::cout<<"Validating TIB geometry"<<std::endl;
+    validateTIBGeometry();
+
+    std::cout<<"Validating TOB geometry"<<std::endl;
+    validateTOBGeometry();
+
+    std::cout<<"Validating TEC geometry"<<std::endl;
+    validateTECGeometry();
+
+    std::cout<<"Validating TID geometry"<<std::endl;
+    validateTIDGeometry();
+
+    std::cout<<"Validating PXB geometry"<<std::endl;
+    validatePXBGeometry();
+    
+    std::cout<<"Validating PXF geometry"<<std::endl;
+    validatePXFGeometry();
+  }
+  else
+    fwLog(fwlog::kWarning)<<"Invalid Tracker geometry"<<std::endl;
+
+
 
   /*
   eventSetup.get<CaloGeometryRecord>().get(caloGeometry_);
@@ -270,6 +317,80 @@ ValidateGeometry::validateHFGeometry()
   const CaloSubdetectorGeometry* geometry = (*caloGeometry_).getSubdetectorGeometry(DetId::Hcal, HcalForward);
   std::vector<DetId> ids = geometry->getValidDetIds(DetId::Hcal, HcalForward);
 }
+
+
+void 
+ValidateGeometry::validateTIBGeometry()
+{       
+  for ( TrackerGeometry::DetContainer::const_iterator it = trackerGeometry_->detsTIB().begin(), 
+                                                   itEnd = trackerGeometry_->detsTIB().end(); 
+        it != itEnd; ++it )
+  {
+    GlobalPoint gp = (trackerGeometry_->idToDet((*it)->geographicalId()))->surface().toGlobal(LocalPoint(0.0,0.0,0.0));
+  }
+
+}
+
+void 
+ValidateGeometry::validateTOBGeometry()
+{
+  for ( TrackerGeometry::DetContainer::const_iterator it = trackerGeometry_->detsTOB().begin(), 
+                                                   itEnd = trackerGeometry_->detsTOB().end(); 
+        it != itEnd; ++it )
+  {
+    GlobalPoint gp = (trackerGeometry_->idToDet((*it)->geographicalId()))->surface().toGlobal(LocalPoint(0.0,0.0,0.0));
+  }
+}
+
+void 
+ValidateGeometry::validateTECGeometry()
+{
+  for ( TrackerGeometry::DetContainer::const_iterator it = trackerGeometry_->detsTEC().begin(), 
+                                                   itEnd = trackerGeometry_->detsTEC().end(); 
+        it != itEnd; ++it )
+  {
+    GlobalPoint gp = (trackerGeometry_->idToDet((*it)->geographicalId()))->surface().toGlobal(LocalPoint(0.0,0.0,0.0));
+  }
+}
+
+void 
+ValidateGeometry::validateTIDGeometry()
+{
+  for ( TrackerGeometry::DetContainer::const_iterator it = trackerGeometry_->detsTID().begin(), 
+                                                   itEnd = trackerGeometry_->detsTID().end(); 
+        it != itEnd; ++it )
+  {
+    GlobalPoint gp = (trackerGeometry_->idToDet((*it)->geographicalId()))->surface().toGlobal(LocalPoint(0.0,0.0,0.0));
+  }
+}
+
+void 
+ValidateGeometry::validatePXBGeometry()
+{
+  for ( TrackerGeometry::DetContainer::const_iterator it = trackerGeometry_->detsPXB().begin(), 
+                                                   itEnd = trackerGeometry_->detsPXB().end(); 
+        it != itEnd; ++it )
+  {
+    GlobalPoint gp = (trackerGeometry_->idToDet((*it)->geographicalId()))->surface().toGlobal(LocalPoint(0.0,0.0,0.0));
+  }
+  
+  
+}
+
+void 
+ValidateGeometry::validatePXFGeometry()
+{
+  for ( TrackerGeometry::DetContainer::const_iterator it = trackerGeometry_->detsPXF().begin(), 
+                                                   itEnd = trackerGeometry_->detsPXF().end(); 
+        it != itEnd; ++it )
+  {
+    GlobalPoint gp = (trackerGeometry_->idToDet((*it)->geographicalId()))->surface().toGlobal(LocalPoint(0.0,0.0,0.0));
+  }
+  
+
+}
+
+
 
 void 
 ValidateGeometry::compareTransform(const GlobalPoint& gp,
