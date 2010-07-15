@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: ValidateGeometry.cc,v 1.1 2010/07/02 14:53:41 mccauley Exp $
+// $Id: ValidateGeometry.cc,v 1.2 2010/07/15 20:29:09 mccauley Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -218,7 +218,7 @@ ValidateGeometry::validateRPCGeometry()
       {
         fwLog(fwlog::kError)<<"Failed to get geometry of RPC with detid: "
                             << rpcDetId.rawId() <<std::endl;
-        return;
+        continue;
       }
 
       compareTransform(gp, matrix);
@@ -248,7 +248,7 @@ ValidateGeometry::validateDTGeometry()
       {     
         fwLog(fwlog::kError) << " failed to get geometry of DT with detid: " 
                              << chId.rawId() <<std::endl;
-        return;
+        continue;
       }
 
       compareTransform(gp, matrix);
@@ -279,7 +279,7 @@ ValidateGeometry::validateCSCGeometry()
       {     
         fwLog(fwlog::kError) << " failed to get geometry of CSC with detid: " 
                              << detId.rawId() <<std::endl;
-        return;
+        continue;
       }
 
       compareTransform(gp, matrix);
@@ -327,8 +327,19 @@ ValidateGeometry::validateTIBGeometry()
         it != itEnd; ++it )
   {
     GlobalPoint gp = (trackerGeometry_->idToDet((*it)->geographicalId()))->surface().toGlobal(LocalPoint(0.0,0.0,0.0));
-  }
+    DetId detId((*it)->geographicalId());
 
+    const TGeoHMatrix* matrix = detIdToMatrix_.getMatrix(detId);
+
+    if ( ! matrix )
+    {
+      fwLog(fwlog::kError) << " failed to get geometry of TIB element with detid: "
+                           << detId.rawId() <<std::endl;
+      continue;
+    }
+    
+    compareTransform(gp, matrix);
+  }
 }
 
 void 
@@ -339,6 +350,18 @@ ValidateGeometry::validateTOBGeometry()
         it != itEnd; ++it )
   {
     GlobalPoint gp = (trackerGeometry_->idToDet((*it)->geographicalId()))->surface().toGlobal(LocalPoint(0.0,0.0,0.0));
+    DetId detId((*it)->geographicalId());
+
+    const TGeoHMatrix* matrix = detIdToMatrix_.getMatrix(detId);
+
+    if ( ! matrix )
+    {
+      fwLog(fwlog::kError) << " failed to get geometry of TOB element with detid: "
+                           << detId.rawId() <<std::endl;
+      continue;
+    }
+    
+    compareTransform(gp, matrix);
   }
 }
 
@@ -350,6 +373,18 @@ ValidateGeometry::validateTECGeometry()
         it != itEnd; ++it )
   {
     GlobalPoint gp = (trackerGeometry_->idToDet((*it)->geographicalId()))->surface().toGlobal(LocalPoint(0.0,0.0,0.0));
+    DetId detId((*it)->geographicalId());
+
+    const TGeoHMatrix* matrix = detIdToMatrix_.getMatrix(detId);
+
+    if ( ! matrix )
+    {
+      fwLog(fwlog::kError) << " failed to get geometry of TEC element with detid: "
+                           << detId.rawId() <<std::endl;
+      continue;
+    }
+    
+    compareTransform(gp, matrix);
   }
 }
 
@@ -361,6 +396,18 @@ ValidateGeometry::validateTIDGeometry()
         it != itEnd; ++it )
   {
     GlobalPoint gp = (trackerGeometry_->idToDet((*it)->geographicalId()))->surface().toGlobal(LocalPoint(0.0,0.0,0.0));
+    DetId detId((*it)->geographicalId());
+
+    const TGeoHMatrix* matrix = detIdToMatrix_.getMatrix(detId);
+
+    if ( ! matrix )
+    {
+      fwLog(fwlog::kError) << " failed to get geometry of TID element with detid: "
+                           << detId.rawId() <<std::endl;
+      continue;
+    }
+   
+    compareTransform(gp, matrix);
   }
 }
 
@@ -372,9 +419,19 @@ ValidateGeometry::validatePXBGeometry()
         it != itEnd; ++it )
   {
     GlobalPoint gp = (trackerGeometry_->idToDet((*it)->geographicalId()))->surface().toGlobal(LocalPoint(0.0,0.0,0.0));
+    DetId detId((*it)->geographicalId());
+
+    const TGeoHMatrix* matrix = detIdToMatrix_.getMatrix(detId);
+
+    if ( ! matrix )
+    {
+      fwLog(fwlog::kError) << " failed to get geometry of PXB element with detid: "
+                           << detId.rawId() <<std::endl;
+      continue;
+    }
+
+    compareTransform(gp, matrix);
   }
-  
-  
 }
 
 void 
@@ -385,12 +442,20 @@ ValidateGeometry::validatePXFGeometry()
         it != itEnd; ++it )
   {
     GlobalPoint gp = (trackerGeometry_->idToDet((*it)->geographicalId()))->surface().toGlobal(LocalPoint(0.0,0.0,0.0));
+    DetId detId((*it)->geographicalId());
+
+    const TGeoHMatrix* matrix = detIdToMatrix_.getMatrix(detId);
+
+    if ( ! matrix )
+    {
+      fwLog(fwlog::kError) << " failed to get geometry of PXF element with detid: "
+                           << detId.rawId() <<std::endl;
+      continue;
+    }
+   
+    compareTransform(gp, matrix);
   }
-  
-
 }
-
-
 
 void 
 ValidateGeometry::compareTransform(const GlobalPoint& gp,
