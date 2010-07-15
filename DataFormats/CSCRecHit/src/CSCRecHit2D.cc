@@ -24,6 +24,14 @@ for(int i=0; i<(int)theStrips.size(); i++){
         theStripsHighBits.push_back(theStrips[i] & 0x0000FF00);
 	}
 
+/// To account BX in wgroups
+theWgroupsHighBits.clear();
+for(int i=0; i<(int)theWireGroups.size(); i++)
+   theWgroupsHighBits.push_back((theWireGroups[i] >> 16) & 0x0000FFFF);
+theWgroupsLowBits.clear();
+for(int i=0; i<(int)theWireGroups.size(); i++)
+   theWgroupsLowBits.push_back(theWireGroups[i] & 0x0000FFFF);
+
 }
 
 CSCRecHit2D::CSCRecHit2D( const CSCDetId& id, 
@@ -58,6 +66,14 @@ theStripsHighBits.clear();
 for(int i=0; i<(int)theStrips.size(); i++){
         theStripsHighBits.push_back(theStrips[i] & 0x0000FF00);
 	}
+
+/// To account BX in wgroups
+theWgroupsHighBits.clear();
+for(int i=0; i<(int)theWireGroups.size(); i++)
+   theWgroupsHighBits.push_back((theWireGroups[i] >> 16) & 0x0000FFFF);
+theWgroupsLowBits.clear();
+for(int i=0; i<(int)theWireGroups.size(); i++)
+   theWgroupsLowBits.push_back(theWireGroups[i] & 0x0000FFFF);
 
 }
 
@@ -153,6 +169,9 @@ bool CSCRecHit2D::sharesInput(const  CSCRecHit2D *otherRecHit, CSCRecHit2D::Shar
   return true;
 }
 
+/// Prefered to have this version of print() for debugging;
+/// will be removed soon
+/*
 void CSCRecHit2D::print() const {
 std::cout << "CSCRecHit in CSC Detector: " << cscDetId() << std::endl;
 std::cout << "  local x = " << localPosition().x() << " +/- " << sqrt( localPositionError().xx() ) <<  " y = " << localPosition().y() << " +/- " << sqrt( localPositionError().yy() ) << std::endl;
@@ -186,6 +205,52 @@ for (int i=0; i<(int)wgroups().size(); i++) {std::cout << std::dec << wgroups()[
        << " ";}
   std::cout << std::endl;
 }
+*/
+
+
+void CSCRecHit2D::print() const {
+std::cout << "CSCRecHit in CSC Detector: " << cscDetId() << std::endl;
+std::cout << "  local x = " << localPosition().x() << " +/- " << sqrt( localPositionError().xx() ) <<  " y = " << localPosition().y() << " +/- " << sqrt( localPositionError().yy() ) << std::endl;
+
+/// L1A
+std::cout << "  L1A+Channels: ";
+for (int i=0; i<(int)channelsTotal().size(); i++) {std::cout 
+       << std::hex << channelsTotal()[i] << " ";}
+std::cout << std::endl;
+
+std::cout << "  Channels: ";
+for (int i=0; i<(int)channels().size(); i++) {std::cout << std::dec << channels()[i] << " "
+     << " (" << "HEX: " << std::hex << channels()[i] << ")" << " ";
+      }
+  std::cout << std::endl;
+
+
+/// L1A
+std::cout << "  L1APhase: ";
+  for (int i=0; i<(int)channelsl1a().size(); i++) {
+       std::cout << "|";
+       for (int k=0; k<8 ; k++){ 
+       std::cout << ((channelsl1a()[i] >> (15-k)) & 0x1) << " ";}
+       std::cout << "| ";       
+       }           
+  std::cout << std::endl;
+
+std::cout << "  BX + WireGroups combined: ";
+   for (int i=0; i<(int)wgroupsBXandWire().size(); i++) {std::cout //std::dec << wgroups()[i] 
+        << "HEX: " << std::hex << wgroupsBXandWire()[i] << std::hex << " | ";
+   }
+ 
+std::cout << "  WireGroups: ";
+for (int i=0; i<(int)wgroups().size(); i++) {std::cout << std::dec << wgroups()[i]  
+       << " | ";}
+std::cout << " BX#: ";
+   for (int i=0; i<(int)wgroupsBX().size(); i++) {std::cout << std::dec << wgroupsBX()[i] 
+       << " (" << "HEX: " << std::hex << wgroupsBX()[i] << ")" << " | ";
+   }
+
+  std::cout << std::endl;
+}
+
 
 /*
 void CSCRecHit2D::print() const {

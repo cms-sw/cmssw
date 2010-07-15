@@ -59,7 +59,14 @@ public:
   const ADCContainer& adcs() const { return theADCs; }
 
   /// Container of wire groups comprising the rechit
-  const ChannelContainer& wgroups() const { return theWireGroups; }
+  //const ChannelContainer& wgroups() const { return theWireGroups; }
+  ChannelContainer wgroups() const { return theWgroupsLowBits; }
+
+  /// The BX number
+  ChannelContainer wgroupsBX() const { return theWgroupsHighBits; }
+
+  /// The BX + wire group number
+  ChannelContainer wgroupsBXandWire() const { return theWireGroups; }
 
   /// Fitted peaking time
   float tpeak() const { return theTpeak; }
@@ -88,6 +95,7 @@ public:
    
    /// Print the content of the RecHit2D including L1A (for debugging)
    void print() const;	
+
 private:
 	
   LocalPoint theLocalPosition;
@@ -103,6 +111,8 @@ private:
   short int theBadWireGroup;
   ChannelContainer theStripsLowBits; /// L1A
   ChannelContainer theStripsHighBits; /// L1A
+  ChannelContainer theWgroupsHighBits; /// BX
+  ChannelContainer theWgroupsLowBits; ///  BX
  
 };
 
