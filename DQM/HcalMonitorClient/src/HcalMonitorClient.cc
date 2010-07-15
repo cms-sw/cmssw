@@ -1,8 +1,8 @@
 /*
  * \file HcalMonitorClient.cc
  * 
- * $Date: 2010/05/07 18:05:00 $
- * $Revision: 1.97 $
+ * $Date: 2010/05/10 19:45:47 $
+ * $Revision: 1.98 $
  * \author J. Temple
  * 
  */
@@ -22,6 +22,7 @@
 #include "DQM/HcalMonitorClient/interface/HcalDetDiagLEDClient.h"
 #include "DQM/HcalMonitorClient/interface/HcalDetDiagNoiseMonitorClient.h"
 #include "DQM/HcalMonitorClient/interface/HcalDetDiagTimingClient.h"
+#include "DQM/HcalMonitorClient/interface/HcalCoarsePedestalClient.h"
 
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -121,6 +122,8 @@ HcalMonitorClient::HcalMonitorClient(const edm::ParameterSet& ps)
     clients_.push_back(new HcalDetDiagNoiseMonitorClient((std::string)"DetDiagNoiseMonitor",ps));
   if (find(enabledClients_.begin(), enabledClients_.end(),"DetDiagTimingMonitor")!=enabledClients_.end())
     clients_.push_back(new HcalDetDiagTimingClient((std::string)"DetDiagTimingMonitor",ps));
+ if (find(enabledClients_.begin(), enabledClients_.end(),"CoarsePedestalMonitor")!=enabledClients_.end())
+    clients_.push_back(new HcalCoarsePedestalClient((std::string)"CoarsePedestalMonitor",ps));
 
   if (find(enabledClients_.begin(), enabledClients_.end(),"Summary")!=enabledClients_.end())
     summaryClient_ = new HcalSummaryClient((std::string)"ReportSummaryClient",ps);
