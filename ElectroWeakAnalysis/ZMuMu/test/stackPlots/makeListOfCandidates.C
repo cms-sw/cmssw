@@ -70,7 +70,7 @@ Events->Scan("zGoldenRunNumber",  "zGoldenMass>60 && zGoldenMass<120" + kin_comm
  std::cout << "
 
 Z-->mu mu candidate outside the mass range [60-120] " << std::endl;
-Events->Scan("zGoldenRunNumber:zGoldenLumiblock:zGoldenEventNumber:zGoldenMass:zGoldenPt:zGoldenDau1Eta:zGoldenDau2Eta:zGoldenDau1Pt:zGoldenDau2Pt",  "zGoldenMass<60 || zGoldenMass>120" + kin_common + ( ( dau1Loose  && dau2TightWP1_hltAlso ) || ( dau2Loose  && dau1TightWP1_hltAlso )) );
+Events->Scan("zGoldenRunNumber:zGoldenLumiblock:zGoldenEventNumber:zGoldenMass:zGoldenPt:zGoldenDau1Eta:zGoldenDau2Eta:zGoldenDau1Pt:zGoldenDau2Pt:zGoldenDau1Iso03SumPt:zGoldenDau2Iso03SumPt:zGoldenDau1Iso03EmEt:zGoldenDau2Iso03EmEt:zGoldenDau1Iso03HadEt:zGoldenDau2Iso03HadEt:zGoldenDau1NofMuonHits:zGoldenDau2NofMuonHits:zGoldenDau1NofPixelHits:zGoldenDau2NofPixelHits",  "zGoldenMass<60 || zGoldenMass>120" + kin_common + ( ( dau1Loose  && dau2TightWP1_hltAlso ) || ( dau2Loose  && dau1TightWP1_hltAlso )) );
 
  std::cout << "
 
