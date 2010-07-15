@@ -90,12 +90,12 @@ class matplotRender():
     def plotSumX_Fill(self,rawxdata,rawydata,rawfillDict,sampleinterval=2,nticks=6):
         #rawxdata,rawydata must be equal size
         #calculate tick values
-        print 'rawxdata : ',rawxdata
-        print 'total : ',len(rawxdata)
-        print 'rawydata : ',rawydata
-        print 'total delivered : ',len(rawydata.values()[0])
-        print 'total recorded : ',len(rawydata.values()[1])
-        print 'rawfillDict : ',rawfillDict
+        #print 'rawxdata : ',rawxdata
+        #print 'total : ',len(rawxdata)
+        #print 'rawydata : ',rawydata
+        #print 'total delivered : ',len(rawydata.values()[0])
+        #print 'total recorded : ',len(rawydata.values()[1])
+        #print 'rawfillDict : ',rawfillDict
         fillboundaries=[]
         xpoints=[]
         ypoints={}
@@ -106,7 +106,7 @@ class matplotRender():
         for x in myinclusiveRange(min(rawfillDict.keys()),max(rawfillDict.keys()),sampleinterval):
             if rawfillDict.has_key(x):
                 xpoints.append(x)
-        print 'xpoints',xpoints
+        #print 'xpoints',xpoints
         
         for fillboundary in xpoints:
             keylist=rawfillDict.keys()
@@ -117,11 +117,11 @@ class matplotRender():
                     runlist.sort()
                     xidx=rawxdata.index(max(runlist))
                     #break
-            print 'max runnum for fillboundary ',fillboundary, rawxdata[xidx]
+            #print 'max runnum for fillboundary ',fillboundary, rawxdata[xidx]
             
             for ylabel in ypoints.keys():
                 ypoints[ylabel].append(sum(rawydata[ylabel][0:xidx])/1000.0)
-        print 'ypoints : ',ypoints
+        #print 'ypoints : ',ypoints
         for ylabel,yvalue in rawydata.items():
             ytotal[ylabel]=sum(rawydata[ylabel])/1000.0
         ax=self.__fig.add_subplot(111)

@@ -105,7 +105,7 @@ def main():
     parser.add_argument('-end',dest='end',action='store',help='end value of x-axi (required)')
     parser.add_argument('-hltpath',dest='hltpath',action='store',help='specific hltpath to calculate the recorded luminosity. If specified aoverlays the recorded luminosity for the hltpath on the plot')
     parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',help='specific path to site-local-config.xml file, default to $CMS_PATH/SITECONF/local/JobConfig, if path undefined, fallback to cern proxy&server')
-    parser.add_argument('action',choices=['run','fill','date'],help='x-axis data type of choice')
+    parser.add_argument('action',choices=['run','fill','time'],help='x-axis data type of choice')
     #graphical mode options
     parser.add_argument('--interactive',dest='interactive',action='store_true',help='graphical mode to draw plot in a TK pannel')
     parser.add_argument('--batch',dest='batch',action='store_true',help='graphical mode to produce PNG file only(default mode). Use -o option to specify the file name')
@@ -229,7 +229,7 @@ def main():
             xdata.append(run)
             ydata['Delivered'].append(lumiDict[run][0])
             ydata['Recorded'].append(lumiDict[run][1])
-        #m.plotSumX_Fill(xdata,ydata,fillDict)
+        m.plotSumX_Fill(xdata,ydata,fillDict)
     else:
         raise Exception,'must specify the type of x-axi'
 
