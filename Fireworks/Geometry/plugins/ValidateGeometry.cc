@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: ValidateGeometry.cc,v 1.2 2010/07/15 20:29:09 mccauley Exp $
+// $Id: ValidateGeometry.cc,v 1.3 2010/07/15 21:29:08 mccauley Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -322,6 +322,8 @@ ValidateGeometry::validateHFGeometry()
 void 
 ValidateGeometry::validateTIBGeometry()
 {       
+  int notFound = 0;
+
   for ( TrackerGeometry::DetContainer::const_iterator it = trackerGeometry_->detsTIB().begin(), 
                                                    itEnd = trackerGeometry_->detsTIB().end(); 
         it != itEnd; ++it )
@@ -334,17 +336,22 @@ ValidateGeometry::validateTIBGeometry()
     if ( ! matrix )
     {
       fwLog(fwlog::kError) << " failed to get geometry of TIB element with detid: "
-                           << detId.rawId() <<std::endl;
+                           << TIBDetId(detId.rawId()) <<std::endl;
+      notFound++;
       continue;
     }
     
     compareTransform(gp, matrix);
   }
+  
+  std::cout<< notFound <<" TIB elements not found out of "<< trackerGeometry_->detsTIB().size() <<" total elements"<<std::endl;
 }
 
 void 
 ValidateGeometry::validateTOBGeometry()
 {
+  int notFound = 0;
+
   for ( TrackerGeometry::DetContainer::const_iterator it = trackerGeometry_->detsTOB().begin(), 
                                                    itEnd = trackerGeometry_->detsTOB().end(); 
         it != itEnd; ++it )
@@ -357,17 +364,22 @@ ValidateGeometry::validateTOBGeometry()
     if ( ! matrix )
     {
       fwLog(fwlog::kError) << " failed to get geometry of TOB element with detid: "
-                           << detId.rawId() <<std::endl;
+                           << TOBDetId(detId.rawId()) <<std::endl;
+      notFound++;
       continue;
     }
     
+    
     compareTransform(gp, matrix);
   }
+  std::cout<< notFound <<" TOB elements not found out of "<< trackerGeometry_->detsTOB().size() <<" total elements"<<std::endl;
 }
 
 void 
 ValidateGeometry::validateTECGeometry()
 {
+  int notFound = 0;
+
   for ( TrackerGeometry::DetContainer::const_iterator it = trackerGeometry_->detsTEC().begin(), 
                                                    itEnd = trackerGeometry_->detsTEC().end(); 
         it != itEnd; ++it )
@@ -380,17 +392,21 @@ ValidateGeometry::validateTECGeometry()
     if ( ! matrix )
     {
       fwLog(fwlog::kError) << " failed to get geometry of TEC element with detid: "
-                           << detId.rawId() <<std::endl;
+                           << TECDetId(detId.rawId()) <<std::endl;
+      notFound++;
       continue;
     }
-    
+   
     compareTransform(gp, matrix);
   }
+  std::cout<< notFound <<" TEC elements not found out of "<< trackerGeometry_->detsTEC().size() <<" total elements"<<std::endl;
 }
 
 void 
 ValidateGeometry::validateTIDGeometry()
 {
+  int notFound = 0;
+
   for ( TrackerGeometry::DetContainer::const_iterator it = trackerGeometry_->detsTID().begin(), 
                                                    itEnd = trackerGeometry_->detsTID().end(); 
         it != itEnd; ++it )
@@ -403,17 +419,22 @@ ValidateGeometry::validateTIDGeometry()
     if ( ! matrix )
     {
       fwLog(fwlog::kError) << " failed to get geometry of TID element with detid: "
-                           << detId.rawId() <<std::endl;
+                           << TIDDetId(detId.rawId()) <<std::endl;
+      notFound++;
       continue;
     }
    
+    
     compareTransform(gp, matrix);
   }
+  std::cout<< notFound <<" TID elements not found out of "<< trackerGeometry_->detsTID().size() <<" total elements"<<std::endl;
 }
 
 void 
 ValidateGeometry::validatePXBGeometry()
 {
+  int notFound = 0;
+
   for ( TrackerGeometry::DetContainer::const_iterator it = trackerGeometry_->detsPXB().begin(), 
                                                    itEnd = trackerGeometry_->detsPXB().end(); 
         it != itEnd; ++it )
@@ -426,17 +447,22 @@ ValidateGeometry::validatePXBGeometry()
     if ( ! matrix )
     {
       fwLog(fwlog::kError) << " failed to get geometry of PXB element with detid: "
-                           << detId.rawId() <<std::endl;
+                           << PXBDetId(detId.rawId()) <<std::endl;
+      notFound++;
       continue;
     }
 
+    
     compareTransform(gp, matrix);
   }
+  std::cout<< notFound <<" PXB elements not found out of "<< trackerGeometry_->detsPXB().size() <<" total elements"<<std::endl; 
 }
 
 void 
 ValidateGeometry::validatePXFGeometry()
 {
+  int notFound = 0;
+
   for ( TrackerGeometry::DetContainer::const_iterator it = trackerGeometry_->detsPXF().begin(), 
                                                    itEnd = trackerGeometry_->detsPXF().end(); 
         it != itEnd; ++it )
@@ -449,12 +475,15 @@ ValidateGeometry::validatePXFGeometry()
     if ( ! matrix )
     {
       fwLog(fwlog::kError) << " failed to get geometry of PXF element with detid: "
-                           << detId.rawId() <<std::endl;
+                           << PXFDetId(detId.rawId()) <<std::endl;
+      notFound++;
       continue;
     }
-   
+    
+    
     compareTransform(gp, matrix);
   }
+   std::cout<< notFound <<" PXF elements not found out of "<< trackerGeometry_->detsPXF().size() <<" total elements"<<std::endl; 
 }
 
 void 
