@@ -17,6 +17,9 @@ TCut kin_common("zGoldenDau1Pt> 20 && zGoldenDau2Pt>20 && zGoldenDau1Iso03SumPt<
 
 TCut kin_common_musta("zMuStaDau1Pt> 20 && zMuStaDau2Pt>20 && zMuStaDau1Iso03SumPt< 3.0 && zMuStaDau2Iso03SumPt < 3.0 && abs(zMuStaDau1Eta)<2.4 &&  abs(zMuStaDau2Eta)<2.4  && (zMuStaDau1HLTBit==1 || zMuStaDau2HLTBit==1)  && abs(zMuStaDau1dxyFromBS)<0.2 && abs(zMuStaDau2dxyFromBS)<0.2 ");
 
+TCut kin_common_mutrkMu("zMuTrkMuDau1Pt> 20 && zMuTrkMuDau2Pt>20 && zMuTrkMuDau1Iso03SumPt< 3.0 && zMuTrkMuDau2Iso03SumPt < 3.0 && abs(zMuTrkMuDau1Eta)<2.4 &&  abs(zMuTrkMuDau2Eta)<2.4  && (zMuTrkMuDau1HLTBit==1 || zMuTrkMuDau2HLTBit==1)  && abs(zMuTrkMuDau1dxyFromBS)<0.2 && abs(zMuTrkMuDau2dxyFromBS)<0.2 ");
+
+
 TCut kin_common_notIso("zGoldenDau1Pt> 20 && zGoldenDau2Pt>20 && (zGoldenDau1Iso03SumPt> 3.0 || zGoldenDau2Iso03SumPt>3.0) && abs(zGoldenDau1Eta)<2.4 &&  abs(zGoldenDau2Eta)<2.4  && (zGoldenDau1HLTBit==1 || zGoldenDau2HLTBit==1)  && abs(zGoldenDau1dxyFromBS)<0.2 && abs(zGoldenDau2dxyFromBS)<0.2 ");
 
 
@@ -74,11 +77,16 @@ Events->Scan("zGoldenRunNumber:zGoldenLumiblock:zGoldenEventNumber:zGoldenMass:z
 Z-->mu mu candidate not isolated in the mass range [60-120] " << std::endl;
 Events->Scan("zGoldenRunNumber:zGoldenLumiblock:zGoldenEventNumber:zGoldenMass:zGoldenPt:zGoldenDau1Iso03SumPt:zGoldenDau2Iso03SumPt:zGoldenDau1Eta:zGoldenDau2Eta:zGoldenDau1Pt:zGoldenDau2Pt",  "zGoldenMass>60 && zGoldenMass<120" + kin_common_notIso + ( ( dau1Loose  && dau2TightWP1_hltAlso ) || ( dau2Loose  && dau1TightWP1_hltAlso )) );
 
- std::cout << "
+  std::cout << "
 
 Z-->mu sta  candidate in the mass range [60-120] " << std::endl;
 Events->Scan("zMuStaRunNumber:zMuStaLumiblock:zMuStaEventNumber:zMuStaMass:zMuStaPt:zMuStaDau1Eta:zMuStaDau2Eta:zMuStaDau1Pt:zMuStaDau2Pt",  "zMuStaMass>60 && zMuStaMass<120" + kin_common_musta  );
 
+
+std::cout << "
+
+Z-->mu trk  candidate in the mass range [60-120] " << std::endl;
+Events->Scan("zMuTrkRunNumber:zMuTrkLumiblock:zMuTrkEventNumber:zMuTrkMass:zMuTrkPt:zMuTrkDau1Eta:zMuTrkDau2Eta:zMuTrkDau1Pt:zMuTrkDau2Pt",  "zMuTrkMass>60 && zMuTrkMass<120" + kin_common_mutrkMu  );
 
 
 }
