@@ -16,7 +16,7 @@ process.source = cms.Source("EmptyIOVSource",
 process.myprint = cms.OutputModule("AsciiOutputModule")
 
 process.fred = cms.ESSource("XMLIdealGeometryESSource"
-                    ,geomXMLFiles = cms.vstring('GeometryReaders/XMLIdealGeometryESSource/test/fred.xml'),
+                    ,geomXMLFiles = cms.vstring('GeometryReaders/XMLIdealGeometryESSource/test/fred.xml')
                     ,rootNodeName = cms.string('cms:OCMS')
                     )
 
