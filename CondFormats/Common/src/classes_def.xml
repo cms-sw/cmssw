@@ -1,13 +1,13 @@
 <lcgdict>
  <class name="cond::IOVElement"/>
  <class name="cond::UpdateStamp"/>
- <class name="pool::PVector<cond::IOVElement>"/>
+ <class name="ora::PVector<cond::IOVElement>"/>
  <class name="std::vector<cond::IOVElement>"/>
  <class name="cond::IOVSequence" id="3F16F0A9-79D5-4881-CE0B-C301DD84A7F1" class_version="0">
   <field name="m_sorted" transient="true" />
  </class>
 
- 
+
  <class name="cond::IOVProvenance"/>
  <class name="cond::IOVDescription"/>
  <class name="cond::IOVUserMetaData"/>
@@ -33,7 +33,7 @@
  <class name="cond::Summary"/>
  <class name="cond::GenericSummary"/>
 
- 
+
  <class name="cond::BaseKeyed"/>
 
 

@@ -34,7 +34,7 @@ try{
 
   // this is the correct container name following cms rules (container name = C++ type name) 
   //  std::string className = cond::classNameForTypeId(typeid(THECLASS));
- 
+
   // for this test we use the class name THECLASS as typed by the user including space, typedefs etc
   // this makes further mapping query easier at script level....
   std::string className("THECLASS");
@@ -44,7 +44,7 @@ try{
 
   unsigned int nobjects=10;
   std::vector<std::string> payTok;
- 
+
 
   //write....
   {
@@ -58,9 +58,9 @@ try{
     
     unsigned int iw;
     for (iw = 0; iw < nobjects; ++iw )   {
-      pool::Ref<Payload> ref = session.storeObject(new Payload,className);
-      payTok.push_back(ref.toString());
- 
+      boost::shared_ptr<Payload> payload(new Payload);
+      std::string pToken = session.storeObject(payload.get(),className);
+      payTok.push_back(pToken);
     }
     
     tr.commit();
@@ -81,13 +81,13 @@ try{
     
     unsigned int ir;
     for (ir = 0; ir < payTok.size(); ++ir )   {
-      pool::Ref<Payload> ref = session.getTypedObject<Payload>(payTok[ir]);
-      Payload const & p = *ref;
+      boost::shared_ptr<Payload> payload = session.getTypedObject<Payload>(payTok[ir]);
+      Payload const & p = *payload;
     }
 
     if (ir!=nobjects)
       throw std::string("not all object read!");
-    
+ 
     tr.commit();
     
   }

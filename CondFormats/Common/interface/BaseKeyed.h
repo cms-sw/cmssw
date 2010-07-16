@@ -3,16 +3,14 @@
 
 #include <string>
 
-
-
 /*  A Simple base class to avoid useless templates and infinite declaration of
  *  wrappers in dictionaries
  */
 
 namespace cond {
-
-  class BaseKeyed {
-  public:
+  
+   class BaseKeyed {
+   public:
     BaseKeyed(){}
     explicit BaseKeyed(std::string const & ikey) : m_key(ikey){}
     virtual ~BaseKeyed(){}

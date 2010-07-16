@@ -16,6 +16,7 @@ namespace cond {
     // constrcutor creates and invalid stamp
     UpdateStamp();
     
+    UpdateStamp(UpdateStamp const & rhs);
     
     virtual ~UpdateStamp();
     

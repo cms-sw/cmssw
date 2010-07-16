@@ -25,6 +25,7 @@ namespace cond {
   }
   
   IOVSequence::IOVSequence(IOVSequence const & rh) : 
+    UpdateStamp(rh),
     m_iovs(rh.m_iovs),  
     m_timetype(rh.m_timetype),
     m_lastTill(rh.m_lastTill),
@@ -80,8 +81,6 @@ namespace cond {
     piovs().pop_back();
     return piovs().size()-1;
   }
-  
-
 
   IOVSequence::const_iterator IOVSequence::find(cond::Time_t time) const {
     if (time>lastTill()) return iovs().end();

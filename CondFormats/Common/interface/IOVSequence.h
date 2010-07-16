@@ -5,8 +5,7 @@
 #include "CondFormats/Common/interface/Time.h"
 #include <vector>
 #include <string>
-#include "POOLCore/PVector.h"
-#include "POOLCore/Ptr.h"
+#include "CondCore/ORA/interface/PVector.h"
 
 #include "CondFormats/Common/interface/IOVProvenance.h"
 #include "CondFormats/Common/interface/IOVDescription.h"
@@ -23,7 +22,7 @@ namespace cond {
   class IOVSequence : public  UpdateStamp{
   public:
     typedef cond::IOVElement Item;
-    typedef pool::PVector<Item> Container;
+    typedef ora::PVector<Item> Container;
     typedef Container::iterator iterator;
     typedef Container::const_iterator const_iterator;
 
@@ -46,8 +45,7 @@ namespace cond {
 
     // remove last entry, return position of last entry still valid
     size_t truncate();
-
-
+    
     // find IOV for which time is valid (this is not STANDARD std::find!)
     const_iterator find(cond::Time_t time) const;
 
