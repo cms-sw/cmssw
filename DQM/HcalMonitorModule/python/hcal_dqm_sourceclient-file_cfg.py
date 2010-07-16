@@ -12,7 +12,7 @@ process = cms.Process("HCALDQM")
 #-----------------------------------------------------                      
 
 maxevents      = 1000  # maximum number of events to process
-debuglevel     = 0     # larger value means more debug messages (0=no debug)
+debuglevel     = 5     # larger value means more debug messages (0=no debug)
 databasedir  = ''       # Set to an existing directory to dump out database info
 host = os.getenv("HOST")
 if (host.find(".")>-1):
@@ -179,6 +179,8 @@ process.hcalBeamMonitor.skipOutOfOrderLS=False
 process.hcalDeadCellMonitor.skipOutOfOrderLS=False
 process.hcalDeadCellMonitor.makeDiagnostics=True
 process.hcalHotCellMonitor.skipOutOfOrderLS=False
+process.hcalHotCellMonitor.test_energy=True
+process.hcalHotCellMonitor.test_et=False
 process.hcalDigiMonitor.skipOutOfOrderLS=False
 process.hcalNZSMonitor.skipOutOfOrderLS=False
 process.hcalRecHitMonitor.skipOutOfOrderLS=False

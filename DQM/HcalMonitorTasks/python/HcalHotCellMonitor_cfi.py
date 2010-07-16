@@ -11,7 +11,7 @@ hcalHotCellMonitor=cms.EDAnalyzer("HcalHotCellMonitor",
                                   TaskFolder             = cms.untracked.string("HotCellMonitor_Hcal/"),
                                   skipOutOfOrderLS       = cms.untracked.bool(True),
                                   NLumiBlocks            = cms.untracked.int32(4000),
-                                  makeDiagnostics        = cms.untracked.bool(False),
+                                  makeDiagnostics        = cms.untracked.bool(True),
                                   
                                   # Hot Cell Monitor-specific Info
                                   
@@ -21,7 +21,8 @@ hcalHotCellMonitor=cms.EDAnalyzer("HcalHotCellMonitor",
                                   hfRechitLabel                = cms.untracked.InputTag("hfreco"),
 
                                   # Booleans for various tests
-                                  test_energy     = cms.untracked.bool(True),
+                                  test_energy     = cms.untracked.bool(False),
+                                  test_et         = cms.untracked.bool(True),
                                   test_persistent = cms.untracked.bool(True),
                                   test_neighbor   = cms.untracked.bool(False),
 
@@ -30,6 +31,8 @@ hcalHotCellMonitor=cms.EDAnalyzer("HcalHotCellMonitor",
                                   minErrorFlag    = cms.untracked.double(0.25), # fraction of a lumi section for which a channel must be above threshold to be considered a problem in LS plots
                                   energyThreshold = cms.untracked.double(10.),
                                   energyThreshold_HF = cms.untracked.double(20.),
+                                  ETThreshold        = cms.untracked.double(5.0),
+                                  ETThreshold_HF     = cms.untracked.double(5.0),
                                   # other subdetector thresholds are also untracked
 
                                   persistentThreshold = cms.untracked.double(6.),
