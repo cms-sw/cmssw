@@ -24,6 +24,9 @@ public:
   typedef std::pair<reco::TransientTrack, float> TrackFloatPair;
   typedef boost::tuple<bool, reco::TransientTrack, float> BTFtuple;
 
+  SingleTrackVertexConstraint(bool doTrackerBoundCheck = true) : 
+	doTrackerBoundCheck_(doTrackerBoundCheck){}
+
   /**
    *  Constaint of a TransientTrack with a position and error.
    *  The track must NOT have been used in the vertex fit.
@@ -67,6 +70,7 @@ private:
   LinearizedTrackStateFactory theLTrackFactory;
   VertexTrackFactory<5> theVTrackFactory;
   TransientTrackFromFTSFactory ttFactory;
+  bool doTrackerBoundCheck_;
 
 };
 
