@@ -89,7 +89,7 @@ class matplotRender():
             cl='k'
             if self.colormap.has_key(ylabel):
                 cl=self.colormap[ylabel]
-            ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl)
+            ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
             legendlist.append(ylabel+' '+'%.2f'%(ytotal[ylabel])+' '+'nb$^{-1}$')
         #font=FontProperties(size='medium',weight='demibold')
 
@@ -126,7 +126,7 @@ class matplotRender():
             cl='k'
             if self.colormap.has_key(ylabel):
                 cl=self.colormap[ylabel]
-            ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl)
+            ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
             legendlist.append(ylabel+' '+'%.2f'%(ytotal[ylabel])+' '+'nb$^{-1}$')
         #font=FontProperties(size='medium',weight='demibold')
         ax.legend(tuple(legendlist),loc='best')
@@ -189,7 +189,7 @@ class matplotRender():
             cl='k'
             if self.colormap.has_key(ylabel):
                 cl=self.colormap[ylabel]
-            ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl)
+            ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
             legendlist.append(ylabel+' '+'%.2f'%(ytotal[ylabel])+' '+'nb$^{-1}$')
         #font=FontProperties(size='medium',weight='demibold')
         ax.legend(tuple(legendlist),loc='best')
