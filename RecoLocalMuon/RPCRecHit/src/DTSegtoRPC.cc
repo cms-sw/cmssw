@@ -280,6 +280,7 @@ DTSegtoRPC::DTSegtoRPC(edm::Handle<DTRecSegment4DCollection> all4DSegments, cons
     if(incldtMB4){
       if(all4DSegments->size()>0){     
 	if(debug) std::cout<<"MB4 \t \t Loop Over all4DSegments "<<all4DSegments->size()<<std::endl;
+	extrapolatedRolls.clear();
 	for (segment = all4DSegments->begin(); segment != all4DSegments->end(); ++segment){ 
     
 	  DTChamberId DTId = segment->chamberId();
@@ -480,8 +481,15 @@ DTSegtoRPC::DTSegtoRPC(edm::Handle<DTRecSegment4DCollection> all4DSegments, cons
 			  if(debug) std::cout<<"MB4 \t \t \t \t Putting for "<<rpcId<<std::endl;
 			  if(debug) std::cout<<"MB4 \t \t \t \t Filling container with "<<nameRoll
 					     <<" Point.x="<<PointExtrapolatedRPCFrame.x()<<" Point.y="<<PointExtrapolatedRPCFrame.y()<<" size="<<RPCPointVector.size()<<std::endl;
-			  DTSegmentCounter[dtid3]++; //To prevent using again the same segment in station 3 for another segment in station 4
-			  _ThePoints->put(rpcId,RPCPointVector.begin(),RPCPointVector.end());
+			  if(debug) std::cout<<"MB4 \t \t \t \t Number of rolls already extrapolated in RB4 = "<<extrapolatedRolls.size()<<std::endl;
+			  if(find (extrapolatedRolls.begin(),extrapolatedRolls.end(),rpcId.rawId()) == extrapolatedRolls.end()){
+			    extrapolatedRolls.push_back(rpcId.rawId());
+			    _ThePoints->put(rpcId,RPCPointVector.begin(),RPCPointVector.end());
+			  }else{
+			    if(debug) std::cout<<"MB4 \t \t \t \t roll already extrapolated "<<rpcId<<std::endl;
+			  }
+			  if(debug) std::cout<<"MB4 \t \t \t \t Extrapolations done after this point = "<<extrapolatedRolls.size()<<std::endl;
+			  if(debug) for(uint32_t m=0;m<extrapolatedRolls.size();m++) std::cout<<"MB4 \t \t \t \t"<< extrapolatedRolls.at(m)<<std::endl;
 			}else{
 			  if(debug) std::cout<<"MB4 \t \t \t \t No the prediction is outside of this roll"<<std::endl;
 			}
