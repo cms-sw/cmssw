@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Andres Carrillo Montoya
 //         Created:  Wed Sep 16 14:56:18 CEST 2009
-// $Id: RPCPointProducer.cc,v 1.3 2010/02/23 08:08:32 carrillo Exp $
+// $Id: RPCPointProducer.cc,v 1.4 2010/04/12 09:59:46 carrillo Exp $
 //
 //
 
@@ -35,16 +35,21 @@ RPCPointProducer::RPCPointProducer(const edm::ParameterSet& iConfig)
   debug=iConfig.getUntrackedParameter<bool>("debug",false);
   incldt=iConfig.getUntrackedParameter<bool>("incldt",true);
   inclcsc=iConfig.getUntrackedParameter<bool>("inclcsc",true);
-  incltrack=iConfig.getUntrackedParameter<bool>("incltrack",true);
+  incltrack=iConfig.getUntrackedParameter<bool>("incltrack",false);
+  inclsimhit=iConfig.getUntrackedParameter<bool>("inclsimhit",false);
   MinCosAng=iConfig.getUntrackedParameter<double>("MinCosAng",0.95);
   MaxD=iConfig.getUntrackedParameter<double>("MaxD",80.);
   MaxDrb4=iConfig.getUntrackedParameter<double>("MaxDrb4",150.);
+  trackTransformerParam = iConfig.getParameter<ParameterSet>("TrackTransformer");  
+
+
   ExtrapolatedRegion=iConfig.getUntrackedParameter<double>("ExtrapolatedRegion",0.5);
 
   produces<RPCRecHitCollection>("RPCDTExtrapolatedPoints");
   produces<RPCRecHitCollection>("RPCCSCExtrapolatedPoints");
   produces<RPCRecHitCollection>("RPCTrackExtrapolatedPoints");
-  trackTransformerParam = iConfig.getParameter<ParameterSet>("TrackTransformer");  
+  produces<RPCRecHitCollection>("RPCSIMHITPoints");
+
 }
 
 
@@ -85,6 +90,7 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       if(debug) std::cout<<"RPCHLT Invalid CSCSegments collection"<<std::endl;
     }
   }
+
   if(incltrack){
     edm::Handle<reco::TrackCollection> alltracks;
     iEvent.getByLabel(tracks,alltracks);
@@ -96,6 +102,22 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       std::cout<<"RPCHLT Invalid Tracks collection"<<std::endl;
     }
   }
+
+  if(inclsimhit){
+    std::cout << " Getting the SimHits " <<std::endl;
+    std::vector<edm::Handle<edm::PSimHitContainer> > theSimHitContainers;
+    iEvent.getManyByType(theSimHitContainers);
+    std::cout << " The Number of sim Hits is  " << theSimHitContainers.size() <<std::endl;
+    if(!(theSimHitContainers.empty())){
+      int partid = 13;
+      SIMHITtoRPC SIMHITClass(theSimHitContainers,iSetup,iEvent,debug,partid);
+      std::auto_ptr<RPCRecHitCollection> TheSIMHITPoints(SIMHITClass.thePoints());  
+      iEvent.put(TheSIMHITPoints,"RPCSIMHITPoints"); 
+    }else{
+      if(debug) std::cout<<"RPCHLT Empty SIMHIT collection"<<std::endl;
+    }
+  }
+
  
 }
 
