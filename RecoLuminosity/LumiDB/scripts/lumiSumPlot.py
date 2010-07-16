@@ -104,7 +104,7 @@ def main():
     parser.add_argument('-begin',dest='begin',action='store',help='begin value of x-axi (required)')
     parser.add_argument('-end',dest='end',action='store',help='end value of x-axi (optional). Default to the maximum exists DB')
     parser.add_argument('-hltpath',dest='hltpath',action='store',help='specific hltpath to calculate the recorded luminosity. If specified aoverlays the recorded luminosity for the hltpath on the plot')
-    parser.add_argument('-timeformat',dest='timeformat',action='store',help='specific python timeformat string (optional) for the time action. Default format "%m/%d/%y %H:%M:%S",e.g.08/01/10 23:20:00')
+    parser.add_argument('-timeformat',dest='timeformat',action='store',help='specific python timeformat string (optional).  Default mm/dd/yy hh:min:ss.00')
     parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',help='specific path to site-local-config.xml file, default to $CMS_PATH/SITECONF/local/JobConfig, if path undefined, fallback to cern proxy&server')
     parser.add_argument('action',choices=['run','fill','time'],help='x-axis data type of choice')
     #graphical mode options
@@ -113,6 +113,7 @@ def main():
     parser.add_argument('--verbose',dest='verbose',action='store_true',help='verbose mode, print result also to screen')
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
     # parse arguments
+    batchmode=True
     args=parser.parse_args()
     connectstring=args.connect
     begvalue=args.begin
@@ -174,6 +175,8 @@ def main():
     fileparsingResult=''
     runDict={}
     fillDict={}
+    minTime=''
+    maxTime=''
     if args.action == 'run':
         for r in range(int(args.begin),int(args.end)+1):
             runDict[r]=[]
@@ -196,12 +199,12 @@ def main():
             maxTime=datetime.datetime.now()#to be changed to max in db
         else:
             maxTime=t.StrToDatetime(args.end,timeformat)
-        print minTime,maxTime
+        #print minTime,maxTime
         qHandle=session.nominalSchema().newQuery()
         runDict=lumiQueryAPI.runsByTimerange(qHandle,minTime,maxTime)#xrawdata
         del qHandle
         session.transaction().commit()
-        print runDict
+        #print runDict
     else:
         print 'unsupported action ',args.action
         exit
@@ -261,13 +264,15 @@ def main():
         for run in keylist:
             ydata['Delivered'].append(lumiDict[run][0])
             ydata['Recorded'].append(lumiDict[run][1])
-        print 'xdata ',xdata
-        print 'ydata ',ydata
-        m.plotSumX_Time(xdata,ydata)
+        #print 'xdata ',xdata
+        #print 'ydata ',ydata
+        m.plotSumX_Time(xdata,ydata,minTime,maxTime)
     else:
         raise Exception,'must specify the type of x-axi'
 
     if args.interactive:
+        batchmode=False
+    if not batchmode:
         m.drawInteractive()
     else:
         m.drawPNG(ofilename)

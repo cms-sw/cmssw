@@ -8,7 +8,7 @@ def pairwise(lst):
     credit to:
     http://code.activestate.com/recipes/409825-look-ahead-one-item-during-iteration
     """
-    if not lst: return
+    if not len(lst): return
     #yield None, lst[0]
     for i in range(len(lst)-1):
         yield lst[i], lst[i+1]
