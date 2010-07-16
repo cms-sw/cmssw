@@ -14,6 +14,7 @@
 #include "RecoLocalMuon/RPCRecHit/interface/DTSegtoRPC.h"
 #include "RecoLocalMuon/RPCRecHit/interface/CSCSegtoRPC.h"
 #include "RecoLocalMuon/RPCRecHit/interface/TracktoRPC.h" 
+#include "RecoLocalMuon/RPCRecHit/interface/SIMHITtoRPC.h" 
 //
 // class decleration
 //
@@ -31,6 +32,7 @@ class RPCPointProducer : public edm::EDProducer {
       virtual void endJob() ;
       bool incldt;
       bool inclcsc;
+      bool inclsimhit; 
       bool incltrack; 
       bool debug;
       double MinCosAng;

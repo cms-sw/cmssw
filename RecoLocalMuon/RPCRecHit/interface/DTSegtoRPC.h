@@ -22,6 +22,7 @@ private:
   double MaxD;
   double MaxDrb4;
   double MaxDistanceBetweenSegments;
+  std::vector<uint32_t> extrapolatedRolls;
 };
 
 class DTStationIndex{
