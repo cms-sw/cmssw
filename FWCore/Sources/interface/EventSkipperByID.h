@@ -22,6 +22,7 @@ namespace edm {
     bool operator()(EventRange const& eventRange) const;
     bool skipIt(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) const;
     bool somethingToSkip() const;
+    bool skippingLumis() const;
     static
     std::auto_ptr<EventSkipperByID>create(ParameterSet const& pset);
     static void fillDescription(ParameterSetDescription & desc);
