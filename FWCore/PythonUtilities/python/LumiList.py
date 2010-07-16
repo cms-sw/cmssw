@@ -9,8 +9,8 @@ or could be subclassed renaming a function or two.
 This code began life in COMP/CRAB/python/LumiList.py
 """
 
-__revision__ = "$Id: LumiList.py,v 1.1 2010/06/29 17:38:12 ewv Exp $"
-__version__ = "$Revision: 1.1 $"
+__revision__ = "$Id: LumiList.py,v 1.2 2010/07/08 21:35:56 ewv Exp $"
+__version__ = "$Revision: 1.2 $"
 
 import json
 
@@ -223,6 +223,15 @@ class LumiList(object):
         output = ','.join(parts)
         return output
 
+    def writeJSON(self, fileName):
+        """
+        Write out a JSON file representation of the object
+        """
+
+        jsonFile = open(fileName,'w')
+        json.dump(self.compactList, jsonFile)
+        jsonFile.write("\n")
+        jsonFile.close()
 
 '''
 # Unit test code
@@ -430,6 +439,14 @@ class LumiListTest(unittest.TestCase):
         self.assertTrue((a&b).getCMSSWString() == (b&a).getCMSSWString())
         self.assertTrue((a|b).getCMSSWString() != r.getCMSSWString())
 
+    def testWrite(self):
+        alumis = {'1' : range(2,20) + range(31,39) + range(45,49),
+                  '2' : range(6,20) + range (30,40),
+                  '3' : range(10,20) + range (30,40) + range(50,60),
+                  '4' : range(1,100),
+                 }
+        a = LumiList(runsAndLumis = alumis)
+        a.writeJSON('newFile.json')
 
 if __name__ == '__main__':
 
