@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.169 2010/07/06 18:32:08 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.170 2010/07/16 13:12:01 eulisse Exp $
 //
 
 // system include files
@@ -27,7 +27,7 @@
 #include "TServerSocket.h"
 #include "TEveLine.h"
 #include "TEveManager.h"
-
+#include "TFile.h"
 
 #include "Fireworks/Core/src/CmsShowMain.h"
 
@@ -51,6 +51,7 @@
 #include "Fireworks/Core/interface/CmsShowNavigator.h"
 #include "Fireworks/Core/interface/CSGAction.h"
 #include "Fireworks/Core/interface/CSGContinuousAction.h"
+#include "Fireworks/Core/interface/FWLiteJobMetadataUpdateRequest.h"
 
 #include "Fireworks/Core/interface/ActionsList.h"
 
@@ -422,6 +423,21 @@ const fwlite::Event* CmsShowMain::getCurrentEvent() const
    if (m_navigator.get())
       return m_navigator->getCurrentEvent();
    return 0;
+}
+
+void
+CmsShowMain::fileChangedSlot(const TFile *file)
+{
+   m_openFile = file;
+   if (file)
+      m_guiManager->titleChanged(m_openFile->GetName());
+   m_metadataManager->update(new FWLiteJobMetadataUpdateRequest(getCurrentEvent(), m_openFile));
+}
+
+void
+CmsShowMain::eventChangedSlot()
+{
+   m_metadataManager->update(new FWLiteJobMetadataUpdateRequest(getCurrentEvent(), m_openFile));
 }
 
 void CmsShowMain::resetInitialization() {
@@ -829,8 +845,9 @@ CmsShowMain::setupDataHandling()
 {
    m_guiManager->updateStatus("Setting up data handling...");
 
-   m_navigator->newEvent_.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::loadEvent));
-   m_navigator->fileChanged_.connect(sigc::mem_fun(*m_guiManager,&FWGUIManager::fileChanged));
+   m_navigator->newEvent_.connect(boost::bind(&FWGUIManager::loadEvent, m_guiManager.get()));
+   m_navigator->newEvent_.connect(boost::bind(&CmsShowMain::eventChangedSlot, this));
+   m_navigator->fileChanged_.connect(boost::bind(&CmsShowMain::fileChangedSlot, this, _1));
 
    // navigator filtering  ->
    m_navigator->editFiltersExternally_.connect(boost::bind(&FWGUIManager::updateEventFilterEnable, m_guiManager.get(),_1));

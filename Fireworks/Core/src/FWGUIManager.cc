@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.209 2010/06/23 12:50:28 eulisse Exp $
+// $Id: FWGUIManager.cc,v 1.210 2010/07/16 13:12:01 eulisse Exp $
 
 //
 
@@ -50,7 +50,6 @@
 #include "Fireworks/Core/interface/FWViewType.h"
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
 #include "Fireworks/Core/interface/FWJobMetadataManager.h"
-#include "Fireworks/Core/interface/FWLiteJobMetadataUpdateRequest.h"
 
 #include "Fireworks/Core/interface/FWConfiguration.h"
 
@@ -315,11 +314,10 @@ FWGUIManager::enableActions(bool enable)
 }
 
 void
-FWGUIManager::fileChanged(const TFile* iFile)
+FWGUIManager::titleChanged(const char *subtitle)
 {
-   m_openFile = iFile;
    char title[128];
-   snprintf(title,128,"cmsShow: %s", iFile->GetName());
+   snprintf(title,127,"cmsShow: %s", subtitle);
    m_cmsShowMainFrame->SetWindowName(title);
 }
 
@@ -339,7 +337,6 @@ FWGUIManager::loadEvent() {
    
    m_cmsShowMainFrame->loadEvent(*getCurrentEvent());
    m_detailViewManager->newEventCallback();
-   m_metadataManager->update(new FWLiteJobMetadataUpdateRequest(getCurrentEvent(), m_openFile));
 }
 
 CSGAction*
@@ -429,7 +426,6 @@ FWGUIManager::addData()
                                             m_cmsShowMainFrame,
                                             m_metadataManager);
    }
-   m_metadataManager->update(new FWLiteJobMetadataUpdateRequest(getCurrentEvent(), m_openFile));
    m_dataAdder->show();
 }
 

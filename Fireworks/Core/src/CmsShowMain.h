@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.47 2010/06/23 12:50:27 eulisse Exp $
+// $Id: CmsShowMain.h,v 1.48 2010/07/16 13:12:01 eulisse Exp $
 //
 
 // system include files
@@ -89,6 +89,9 @@ public:
    void notified(TSocket*);
    const fwlite::Event* getCurrentEvent() const;
    const fireworks::Context* context() const { return m_context.get(); };
+
+   void eventChangedSlot();
+   void fileChangedSlot(const TFile *file);
 private:
    CmsShowMain(const CmsShowMain&); // stop default
    const CmsShowMain& operator=(const CmsShowMain&); // stop default
@@ -152,7 +155,7 @@ private:
    bool                     m_loadedAnyInputFile;
    std::string              m_configFileName;
    std::string              m_geomFileName;
-
+   const TFile             *m_openFile;
 
    std::auto_ptr<CmsShowTaskExecutor> m_startupTasks;
    std::auto_ptr<CmsShowSearchFiles>  m_searchFiles;

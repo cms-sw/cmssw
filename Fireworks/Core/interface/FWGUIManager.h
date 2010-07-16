@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.104 2010/06/23 12:50:27 eulisse Exp $
+// $Id: FWGUIManager.h,v 1.105 2010/07/16 13:12:02 eulisse Exp $
 //
 
 // system include files
@@ -69,8 +69,6 @@ class FWModelChangeManager;
 
 class CSGAction;
 class CSGContinuousAction;
-
-class TFile;
 
 class FWGUIEventDataAdder;
 
@@ -174,11 +172,11 @@ public:
    void updateStatus(const char* status);
    void clearStatus();
    void loadEvent();
-   void fileChanged(const TFile*);
    
    CSGAction* getAction(const std::string name);
    
    void addData();
+   void titleChanged(const char *title);
    
    void processGUIEvents();
    void openEveBrowserForDebugging() const;
@@ -257,7 +255,6 @@ private:
    FWNavigatorBase            *m_navigator;
    CmsShowMainFrame*     m_cmsShowMainFrame;
    
-   const TFile* m_openFile;
    TGPopupMenu* m_fileMenu;
    FWGUIEventDataAdder* m_dataAdder;
    
