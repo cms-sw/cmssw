@@ -11,6 +11,11 @@
    <use   name="FWCore/Utilities" />
  </bin>
 
+ <bin file="TestIntegration.cpp" name="DetectorDescriptionRegressionTestDOMCount">
+   <flags TEST_RUNNER_ARGS=" /bin/bash DetectorDescription/RegressionTest/test run_domcount.sh" />
+   <use   name="FWCore/Utilities" />
+ </bin>
+
 <bin file="DDErrorReport.cpp">
  <use name="FWCore/Utilities"/>
  <use name="FWCore/PluginManager"/>
