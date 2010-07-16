@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.92 2010/06/28 19:13:17 wmtan Exp $
+// $Id: CmsShowNavigator.cc,v 1.93 2010/07/12 11:06:21 amraktad Exp $
 //
 #define private public
 // FIXME: need access to private data members 
@@ -42,6 +42,7 @@
 // constructors and destructor
 //
 CmsShowNavigator::CmsShowNavigator(const CmsShowMain &main):
+   FWNavigatorBase(main),
    m_currentEvent(0),
 
    m_filterState(kOff),
@@ -871,3 +872,6 @@ CmsShowNavigator::addTo(FWConfiguration& iTo) const
    iTo.addKeyValue("EventFilter_enabled",FWConfiguration(Form("%d", m_filterState == kOn ? 1 : 0)));
 }
 
+const fwlite::Event* 
+CmsShowNavigator::getCurrentEvent() const
+{ return m_currentFile.isSet() ? (*m_currentFile)->event() : 0; }

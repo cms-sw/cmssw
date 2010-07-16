@@ -4,7 +4,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.h,v 1.49 2010/03/26 20:20:20 matevz Exp $
+// $Id: CmsShowNavigator.h,v 1.50 2010/06/17 20:17:20 amraktad Exp $
 //
 
 // system include files
@@ -12,6 +12,7 @@
 #include <sigc++/sigc++.h>
 
 // user include files
+#include "Fireworks/Core/interface/FWNavigatorBase.h"
 #include "DataFormats/FWLite/interface/Event.h"
 #include "Fireworks/Core/interface/FWEventSelector.h"
 #include "Fireworks/Core/interface/FWConfigurable.h"
@@ -30,7 +31,7 @@ namespace edm {
    class EventID;
 }
 
-class CmsShowNavigator : public FWConfigurable
+class CmsShowNavigator : public FWNavigatorBase
 {
 public:
    enum EFilterState { kOff, kOn, kWithdrawn };
@@ -78,21 +79,21 @@ public:
    virtual ~CmsShowNavigator();
 
    //configuration management interface
-   void addTo(FWConfiguration&) const;
-   void setFrom(const FWConfiguration&);
+   virtual void addTo(FWConfiguration&) const;
+   virtual void setFrom(const FWConfiguration&);
 
    Int_t realEntry(Int_t rawEntry);
    bool  openFile(const std::string& fileName);
    bool  appendFile(const std::string& fileName, bool checkFileQueueSize, bool live);
 
-   void nextEvent();
-   void previousEvent();
-   bool nextSelectedEvent();
-   bool previousSelectedEvent();
-   void firstEvent();
-   void lastEvent();
+   virtual void nextEvent();
+   virtual void previousEvent();
+   virtual bool nextSelectedEvent();
+   virtual bool previousSelectedEvent();
+   virtual void firstEvent();
+   virtual void lastEvent();
+   virtual void goToRunEvent(Int_t,Int_t);
    void goTo(FileQueue_i fi, int event);
-   void goToRunEvent(Int_t,Int_t);
 
    void eventFilterEnableCallback(Bool_t);
    void filterEvents();
@@ -101,8 +102,9 @@ public:
    void setMaxNumberOfFilesToChain( unsigned int i ) {
       m_maxNumberOfFilesToChain = i;
    }
-   bool isLastEvent();
-   bool isFirstEvent();
+   
+   virtual bool isLastEvent();
+   virtual bool isFirstEvent();
 
    void showEventFilterGUI(const TGWindow* p);
    void applyFiltersFromGUI();
@@ -110,7 +112,7 @@ public:
    void withdrawFilter();
    void resumeFilter();
    
-   const fwlite::Event* getCurrentEvent() const { return m_currentFile.isSet() ? (*m_currentFile)->event() : 0; }
+   virtual const fwlite::Event* getCurrentEvent() const;
    const char* filterStatusMessage();
    int  getNSelectedEvents();
    int  getNTotalEvents();
@@ -121,13 +123,11 @@ public:
    void activateNewFileOnNextEvent() { m_newFileOnNextEvent = true; }
    void resetNewFileOnNextEvent()    { m_newFileOnNextEvent = false; }
 
-   sigc::signal<void> newEvent_;
    sigc::signal<void, const TFile*> fileChanged_;
    sigc::signal<void> preFiltering_;
    sigc::signal<void> postFiltering_;
    sigc::signal<void, bool> editFiltersExternally_;
    sigc::signal<void, int> filterStateChanged_;
-  
 
 private:
    CmsShowNavigator(const CmsShowNavigator&);    // stop default
