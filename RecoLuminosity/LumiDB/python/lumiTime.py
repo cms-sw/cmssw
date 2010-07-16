@@ -34,7 +34,7 @@ class lumiTime(object):
                 result=datetime.strptime(strTime,self.pydatetimefm)
             else:
                 result=datetime.strptime(strTime,customfm)
-        except er:
+        except Exception,er:
             print str(er)
         return result
     def DatetimeToStr(self,timeValue,customfm=''):
@@ -46,7 +46,7 @@ class lumiTime(object):
                 result=timeValue.strftime(self.pydatetimefm)
             else:
                 result=timeValue.strftime(customfm)
-        except er:
+        except Exception,er:
             print str(er)
         return result
 if __name__=='__main__':

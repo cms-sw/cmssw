@@ -170,17 +170,21 @@ class matplotRender():
         #print 'xpoints ',xpoints
         #print 'ypoints ',ypoints
         ax=self.__fig.add_subplot(111)
-        dateFmt=matplotlib.dates.DateFormatter('%d-%m')
+        dateFmt=matplotlib.dates.DateFormatter('%d/%m')
+        majourhourLoc=matplotlib.dates.HourLocator(interval=72)
+        minorhourLoc=matplotlib.dates.HourLocator(interval=12)
+        #dateFmt=matplotlib.dates.AutoDateFormatter(daysLoc)
         ax.xaxis.set_major_formatter(dateFmt)
         ax.set_xlabel(r'Date',position=(0.84,0))
         ax.set_ylabel(r'L nb$^{-1}$',position=(0,0.9))
-        daysLoc=matplotlib.dates.DayLocator(interval=3)
-        hoursLoc=matplotlib.dates.HourLocator(interval=12)
-        ax.xaxis.set_major_locator(daysLoc)
-        ax.xaxis.set_minor_locator(hoursLoc)
+        #daysLoc=matplotlib.dates.DayLocator(interval=3)
+
+        #hoursLoc=matplotlib.dates.HourLocator(interval=3)
+        ax.xaxis.set_major_locator(majourhourLoc)
+        ax.xaxis.set_minor_locator(minorhourLoc)
         xticklabels=ax.get_xticklabels()
-        #for tx in xticklabels:
-        #    tx.set_rotation(30)
+        for tx in xticklabels:
+            tx.set_horizontalalignment('center')
         ax.grid(True)
         keylist=ypoints.keys()
         keylist.sort()
@@ -193,7 +197,8 @@ class matplotRender():
             legendlist.append(ylabel+' '+'%.2f'%(ytotal[ylabel])+' '+'nb$^{-1}$')
         #font=FontProperties(size='medium',weight='demibold')
         ax.legend(tuple(legendlist),loc='best')
-        self.__fig.autofmt_xdate(bottom=0.18)
+        ax.set_xlim(left=minTime.toordinal(),right=maxTime.toordinal())
+        self.__fig.autofmt_xdate(bottom=0.18,rotation=0)
         self.__fig.subplots_adjust(bottom=0.18,left=0.3)
         
     def drawHTTPstring(self):
