@@ -113,14 +113,14 @@ MuonGeometrySVGTemplate::analyze(const edm::Event &iEvent, const edm::EventSetup
 	 double y = -height/2.;
 
 	 // phi position of chamber
-	 double phi = chamber->surface().position().phi();
-	 double angle = phi - M_PI/2.;  // because a chamber at phi=0 is rotated clockwise 90 degrees
+	 GlobalVector direction = chamber->surface().toGlobal(LocalVector(1., 0., 0.));
+	 double phi = atan2(direction.y(), direction.x());
 	 
 	 // we'll apply a translation to put the chamber in its place
 	 double tx = chamber->surface().position().x();
 	 double ty = chamber->surface().position().y();
 
-	 out << "    <rect id=\"MB_" << station << "_" << sector << "\" x=\"" << x << "\" y=\"" << y << "\" width=\"" << width << "\" height=\"" << height << "\" transform=\"translate(" << tx << ", " << ty << ") rotate(" << angle*180./M_PI << ")\" style=\"fill:#e1e1e1;fill-opacity:1;stroke:#000000;stroke-width:5.0;stroke-dasharray:1, 1;stroke-dashoffset:0\" />" << std::endl;
+	 out << "    <rect id=\"MB_" << station << "_" << sector << "\" x=\"" << x << "\" y=\"" << y << "\" width=\"" << width << "\" height=\"" << height << "\" transform=\"translate(" << tx << ", " << ty << ") rotate(" << phi*180./M_PI << ")\" style=\"fill:#e1e1e1;fill-opacity:1;stroke:#000000;stroke-width:5.0;stroke-dasharray:1, 1;stroke-dashoffset:0\" />" << std::endl;
       }
    }
 
