@@ -3,12 +3,12 @@
 
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/EventRange.h"
-#include "DataFormats/Provenance/interface/IndexIntoFile.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockRange.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "boost/shared_ptr.hpp"
-#include "memory"
+#include <memory>
+#include <vector>
 
 namespace edm {
   class ParameterSet;
