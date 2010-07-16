@@ -20,30 +20,28 @@ process = cms.Process("TEST")
 
 process.add_(cms.Service("PrintEventSetupDataRetrieval", printProviders=cms.untracked.bool(True)))
 
-CondDBSetup = cms.PSet(
-    DBParameters = cms.PSet(
-        authenticationPath = cms.untracked.string('.'),
-        connectionRetrialPeriod = cms.untracked.int32(10),
-        idleConnectionCleanupPeriod = cms.untracked.int32(10),
-        messageLevel = cms.untracked.int32(0),
-        enablePoolAutomaticCleanUp = cms.untracked.bool(False),
-        enableConnectionSharing = cms.untracked.bool(True),
-        connectionRetrialTimeOut = cms.untracked.int32(60),
-        connectionTimeOut = cms.untracked.int32(0),
-        enableReadOnlySessionOnUpdateConnection = cms.untracked.bool(False)
-    )
-)
+CondDBSetup = cms.PSet( DBParameters = cms.PSet(authenticationPath = cms.untracked.string('.'),
+                                                connectionRetrialPeriod = cms.untracked.int32(10),
+                                                idleConnectionCleanupPeriod = cms.untracked.int32(10),
+                                                messageLevel = cms.untracked.int32(0),
+                                                enablePoolAutomaticCleanUp = cms.untracked.bool(False),
+                                                enableConnectionSharing = cms.untracked.bool(True),
+                                                connectionRetrialTimeOut = cms.untracked.int32(60),
+                                                connectionTimeOut = cms.untracked.int32(0),
+                                                enableReadOnlySessionOnUpdateConnection = cms.untracked.bool(False)
+                                                )
+                        )
 
 process.GlobalTag = cms.ESSource("PoolDBESSource",
-    CondDBSetup,
-    connect = cms.string('frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'),
-#    connect = cms.string('sqlite_fip:CondCore/TagCollection/data/GlobalTag.db'), #For use during release integration
-    globaltag = cms.string('UNSPECIFIED::All'),
-    RefreshEachRun=cms.untracked.bool(False),
-    DumpStat=cms.untracked.bool(False),
-    pfnPrefix=cms.untracked.string(''),   
-    pfnPostfix=cms.untracked.string('')
-)
+                                 CondDBSetup,
+                                 connect = cms.string('frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'),
+                                 #    connect = cms.string('sqlite_fip:CondCore/TagCollection/data/GlobalTag.db'), #For use during release integration
+                                 globaltag = cms.string('UNSPECIFIED::All'),
+                                 RefreshEachRun=cms.untracked.bool(False),
+                                 DumpStat=cms.untracked.bool(False),
+                                 pfnPrefix=cms.untracked.string(''),   
+                                 pfnPostfix=cms.untracked.string('')
+                                 )
 
 
 process.GlobalTag.globaltag = options.globalTag+'::All'
@@ -65,19 +63,16 @@ process.GlobalTag.DumpStat =  True
 
 
 process.source = cms.Source("EmptyIOVSource",
-    lastValue = cms.uint64(options.runNumber+1),
-    timetype = cms.string('runnumber'),
-    firstValue = cms.uint64(options.runNumber-1),
-    interval = cms.uint64(1)
-)
+                            lastValue = cms.uint64(options.runNumber+1),
+                            timetype = cms.string('runnumber'),
+                            firstValue = cms.uint64(options.runNumber-1),
+                            interval = cms.uint64(1)
+                            )
 
 
 process.get = cms.EDAnalyzer("EventSetupRecordDataGetter",
-                           toGet =  cms.VPSet(),
-                           verbose = cms.untracked.bool(True)
-                           )
+                             toGet =  cms.VPSet(),
+                             verbose = cms.untracked.bool(True)
+                             )
 
 process.p = cms.Path(process.get)
-
-
-

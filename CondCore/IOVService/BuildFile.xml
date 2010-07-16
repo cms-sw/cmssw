@@ -2,7 +2,6 @@
 <use   name="rootrflx"/>
 <use   name="CondFormats/Common"/>
 <use   name="CondCore/DBCommon"/>
-<use   name="Collection"/>
 <export>
   <lib   name="1"/>
 </export>

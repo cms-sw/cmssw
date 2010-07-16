@@ -1,9 +1,10 @@
 #ifndef COND_DBCommon_DbSession_h
 #define COND_DBCommon_DbSession_h
 
+#include "CondCore/ORA/interface/Database.h"
+#include "CondCore/DBCommon/interface/PoolToken.h"
 #include <string>
 #include <boost/shared_ptr.hpp>
-#include "DataSvc/Ref.h"
 
 
 //
@@ -28,6 +29,7 @@ namespace cond{
 
   class DbTransaction;
   class DbConnection;
+  class SessionImpl;
   
   /*
   **/
@@ -65,50 +67,67 @@ namespace cond{
 
     coral::ISchema& nominalSchema();
 
-    coral::ISessionProxy& coralSession();
+    //bool initializeMapping(const std::string& mappingVersion, const std::string& xmlStream);
 
-    pool::IDataSvc& poolCache();
+    bool deleteMapping( const std::string& mappingVersion );
 
-    bool initializeMapping(const std::string& mappingVersion, const std::string& xmlStream);
+    bool importMapping( const std::string& sourceConnectionString,
+                        const std::string& contName );
 
-    bool deleteMapping( const std::string& mappingVersion, bool removeTables );
+    ora::Object getObject( const std::string& objectId );
 
-    bool importMapping( cond::DbSession& fromDatabase,
-                        const std::string& contName,
-                        const std::string& classVersion="",
-                        bool allVersions=false );
+    template <typename T> boost::shared_ptr<T> getTypedObject( const std::string& objectId );
 
-    pool::RefBase getObject( const std::string& objectId );
+    template <typename T> std::string storeObject( const T* object, const std::string& containerName );
 
-    template <typename T> pool::Ref<T> getTypedObject( const std::string& objectId );
-
-    template <typename T> pool::Ref<T> storeObject( T* object, const std::string& containerName );
+    template <typename T> bool updateObject( const T* object, const std::string& objectId );
 
     bool deleteObject( const std::string& objectId );
 
     std::string importObject( cond::DbSession& fromDatabase, const std::string& objectId );
 
+    void flush();
+    
+    ora::Database& storage();
+    
     private:
-    class SessionImpl;
-
-    private:
-
-    bool storeObject( pool::RefBase& objectRef, const std::string& containerName  );
-
+    std::string storeObject( const ora::Object& objectRef, const std::string& containerName  );
     private:
 
     boost::shared_ptr<SessionImpl> m_implementation;
   };
 
-template <typename T> inline pool::Ref<T> DbSession::getTypedObject( const std::string& objectId ){
-  return pool::Ref<T>(&poolCache(),objectId );
-}
+  template <typename T> inline boost::shared_ptr<T> DbSession::getTypedObject( const std::string& objectId ){
+    std::pair<std::string,int> oidData = parseToken( objectId );
+    ora::Container cont = storage().containerHandle(  oidData.first );
+    return cont.fetch<T>( oidData.second );
+  }
 
-template <typename T> inline pool::Ref<T> DbSession::storeObject( T* object, const std::string& containerName ){
-  pool::Ref<T> objectRef(&poolCache(), object );
-  storeObject( objectRef, containerName );
-  return objectRef;
-}
+  template <typename T> inline std::string DbSession::storeObject( const T* object,
+                                                                   const std::string& containerName ){
+    std::string ret("");
+    if( object ){
+      ora::OId oid = storage().insert( containerName, *object );
+      storage().flush();
+      ora::Container cont = storage().containerHandle( containerName );
+      int oid0 = cont.id(); // contID does not start from 0...
+      ret =  writeToken( containerName, oid0, oid.itemId(), cont.className() );
+    }
+    return ret;
+  }
+
+  template <typename T> inline bool DbSession::updateObject( const T* object,
+                                                             const std::string& objectId ){
+    bool ret = false;
+    if( object ){
+      std::pair<std::string,int> oidData = parseToken( objectId );
+      ora::Container cont = storage().containerHandle( oidData.first );
+      cont.update( oidData.second, *object );
+      cont.flush();
+      ret =  true;
+    }
+    return ret;
+  }
  
 }
 

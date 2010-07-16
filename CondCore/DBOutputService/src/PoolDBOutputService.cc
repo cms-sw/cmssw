@@ -267,13 +267,13 @@ cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken,
     if(withlogging){
       std::string destconnect=m_session.connectionString();
       cond::UserLogInfo a=this->lookUpUserLogInfo(recordName);
-      m_logdb->logOperationNow(a,destconnect,objToken,myrecord.m_tag,myrecord.timetypestr(),payloadIdx);
+      m_logdb->logOperationNow(a,destconnect,objToken,myrecord.m_tag,myrecord.timetypestr(),payloadIdx,firstSinceTime);
     }
   }catch(const std::exception& er){ 
     if(withlogging){
       std::string destconnect=m_session.connectionString();
       cond::UserLogInfo a=this->lookUpUserLogInfo(recordName);
-      m_logdb->logFailedOperationNow(a,destconnect,objToken,myrecord.m_tag,myrecord.timetypestr(),payloadIdx,std::string(er.what()));
+      m_logdb->logFailedOperationNow(a,destconnect,objToken,myrecord.m_tag,myrecord.timetypestr(),payloadIdx,firstSinceTime,std::string(er.what()));
       m_logdb->releaseWriteLock();
     }
     throw cond::Exception("PoolDBOutputService::createNewIOV "+std::string(er.what()));
@@ -308,13 +308,13 @@ cond::service::PoolDBOutputService::add( GetToken const & payloadToken,
     if(withlogging){
       std::string destconnect=m_session.connectionString();
       cond::UserLogInfo a=this->lookUpUserLogInfo(recordName);
-      m_logdb->logOperationNow(a,destconnect,objToken,myrecord.m_tag,myrecord.timetypestr(),payloadIdx);
+      m_logdb->logOperationNow(a,destconnect,objToken,myrecord.m_tag,myrecord.timetypestr(),payloadIdx,time);
     }
   }catch(const std::exception& er){
     if(withlogging){
       std::string destconnect=m_session.connectionString();
       cond::UserLogInfo a=this->lookUpUserLogInfo(recordName);
-      m_logdb->logFailedOperationNow(a,destconnect,objToken,myrecord.m_tag,myrecord.timetypestr(),payloadIdx,std::string(er.what()));
+      m_logdb->logFailedOperationNow(a,destconnect,objToken,myrecord.m_tag,myrecord.timetypestr(),payloadIdx,time,std::string(er.what()));
       m_logdb->releaseWriteLock();
     }
     throw cond::Exception("PoolDBOutputService::add "+std::string(er.what()));

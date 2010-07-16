@@ -18,8 +18,8 @@
 #include <limits>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <stdexcept>
-#include<sstream>
 
 namespace cond {
   class ExportIOVUtilities : public Utilities {
@@ -82,62 +82,56 @@ int cond::ExportIOVUtilities::execute(){
   cond::DbSession destdb = openDbSession("destConnect");
     
   // find tag in source
-  {
-    sourcedb.transaction().start(true);
-    cond::MetaData  sourceMetadata(sourcedb);
-    if( !sourceMetadata.hasTag(inputTag) ){
-      throw std::runtime_error(std::string("tag ")+inputTag+std::string(" not found") );
-    }
-    //sourceiovtoken=sourceMetadata->getToken(inputTag);
-    cond::MetaDataEntry entry;
-    sourceMetadata.getEntryByTag(inputTag,entry);
-    sourceiovtoken=entry.iovtoken;
-    sourceiovtype=entry.timetype;
-
-    sourcedb.transaction().commit();
-    if(debug){
-      std::cout<<"source iov token "<<sourceiovtoken<<std::endl;
-      std::cout<<"source iov type "<<sourceiovtype<<std::endl;
-    }
+  sourcedb.transaction().start(true);
+  cond::MetaData  sourceMetadata(sourcedb);
+  if( !sourceMetadata.hasTag(inputTag) ){
+    throw std::runtime_error(std::string("tag ")+inputTag+std::string(" not found") );
   }
+  //sourceiovtoken=sourceMetadata->getToken(inputTag);
+  cond::MetaDataEntry entry;
+  sourceMetadata.getEntryByTag(inputTag,entry);
+  sourceiovtoken=entry.iovtoken;
+  sourceiovtype=entry.timetype;
+  
+  //sourcedb.transaction().commit();
+  if(debug){
+    std::cout<<"source iov token "<<sourceiovtoken<<std::endl;
+    std::cout<<"source iov type "<<sourceiovtype<<std::endl;
+  }
+  
   // find tag in destination
-  {
-    cond::DbScopedTransaction transaction(destdb);
-    transaction.start(false);
-    destdb.initializeMapping( cond::IOVNames::iovMappingVersion(),
-                              cond::IOVNames::iovMappingXML());
-    
-    cond::MetaData  metadata( destdb );
-    if( metadata.hasTag(destTag) ){
+  cond::DbScopedTransaction transaction(destdb);
+  int destClient = transaction.start(false);
+  std::cout << "Transaction on dest DB open by " << destClient << std::endl;
+  //destdb.initializeMapping( cond::IOVNames::iovMappingVersion(),
+  //                          cond::IOVNames::iovMappingXML());
+  
+  cond::MetaData  metadata( destdb );
+  if( metadata.hasTag(destTag) ){
       cond::MetaDataEntry entry;
       metadata.getEntryByTag(destTag,entry);
       destiovtoken=entry.iovtoken;
       if (sourceiovtype!=entry.timetype) {
         throw std::runtime_error("iov type in source and dest differs");
       }
-    }
-    transaction.commit();
-    if(debug){
-      std::cout<<"destintion iov token "<< destiovtoken<<std::endl;
-    }
   }
-
+  //transaction.commit();
+  if(debug){
+    std::cout<<"destination iov token "<< destiovtoken <<std::endl;
+  }
   bool newIOV = destiovtoken.empty();
   cond::IOVService iovmanager(sourcedb);
-
-  sourcedb.transaction().start(true);
+  //sourcedb.transaction().start(true);
   std::string payloadContainer=iovmanager.payloadContainerName(sourceiovtoken);
-  iovmanager.loadDicts(sourceiovtoken);
-  sourcedb.transaction().commit();
-
-
+  //iovmanager.loadDicts(sourceiovtoken);
+  //sourcedb.transaction().commit();
+  
   since = std::max(since, cond::timeTypeSpecs[sourceiovtype].beginValue);
   till  = std::min(till,  cond::timeTypeSpecs[sourceiovtype].endValue);
-
   int oldSize=0;
   if (!newIOV) {
     // grab info
-    IOVProxy iov(destdb, destiovtoken, true, false);
+    IOVProxy iov(destdb, destiovtoken, true, true);
     oldSize=iov.size();
   }
 
@@ -150,49 +144,45 @@ int cond::ExportIOVUtilities::execute(){
     logdb->createLogDBIfNonExist();
     // logdb->releaseWriteLock();
   }
-
   cond::UserLogInfo a;
   a.provenance=sourceConnect+"/"+inputTag;
   a.usertext="exportIOV V2.1;";
   if (newIOV) a.usertext+= "new tag;";
+  //sourcedb.transaction().start(true);
   
-  sourcedb.transaction().start(true);
-  {
-    cond::DbScopedTransaction transaction(destdb);
-    transaction.start(false);
-    if (newIOV) {
-      // store payload mapping
-      if (exportMapping) {
-	bool stored = destdb.importMapping( sourcedb, payloadContainer );
-	if(debug)
-	  std::cout<< "payload mapping " << (stored ? "" : "not ") << "stored"<<std::endl;
-	if (stored) a.usertext+="mapping stored;";
-      }
+  //cond::DbScopedTransaction transaction(destdb);
+  //transaction.start(false);
+  if (newIOV) {
+    // store payload mapping
+    if (exportMapping) {
+      bool stored = destdb.importMapping( "sourceConnect", payloadContainer );
+      if(debug)
+	std::cout<< "payload mapping " << (stored ? "" : "not ") << "stored"<<std::endl;
+      if (stored) a.usertext+="mapping stored;";
     }
-    
-    {
-      std::ostringstream ss;
-      ss << "since="<< since <<", till="<< till << ", " << usertext << ";";
-      a.usertext +=ss.str();
-    }
-
-    destiovtoken=iovmanager.exportIOVRangeWithPayload( destdb,
-                                                       sourceiovtoken,
-                                                       destiovtoken,
-                                                       since, till,
-                                                       outOfOrder );
-    if (newIOV) {
-      cond::MetaData destMetadata(destdb);
-      destMetadata.addMapping(destTag,destiovtoken,sourceiovtype);
-      if(debug){
-	std::cout<<"dest iov token "<<destiovtoken<<std::endl;
-	std::cout<<"dest iov type "<<sourceiovtype<<std::endl;
-      }
-    }
-    transaction.commit();
   }
-  sourcedb.transaction().commit();
 
+  {
+    std::ostringstream ss;
+    ss << "since="<< since <<", till="<< till << ", " << usertext << ";";
+    a.usertext +=ss.str();
+  }
+  destiovtoken=iovmanager.exportIOVRangeWithPayload( destdb,
+						     sourceiovtoken,
+						     destiovtoken,
+						     since, till,
+						     outOfOrder );
+  if (newIOV) {
+    cond::MetaData destMetadata(destdb);
+    destMetadata.addMapping(destTag,destiovtoken,sourceiovtype);
+    if(debug){
+      std::cout<<"dest iov token "<<destiovtoken<<std::endl;
+      std::cout<<"dest iov type "<<sourceiovtype<<std::endl;
+    }
+  }
+  transaction.commit();
+  sourcedb.transaction().commit();
+  
   ::sleep(1);
 
   // grab info
@@ -218,7 +208,7 @@ int cond::ExportIOVUtilities::execute(){
   
   if (doLog){
     logdb->getWriteLock();
-    logdb->logOperationNow(a,destConnect,result.lastPayloadToken,destTag,timetypestr,result.size-1);
+    logdb->logOperationNow(a,destConnect,result.lastPayloadToken,destTag,timetypestr,result.size-1,since);
     logdb->releaseWriteLock();
   }
 

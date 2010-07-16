@@ -3,43 +3,35 @@
 #include "CondCore/DBCommon/interface/DbSession.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 // coral includes
-#include "CoralKernel/Context.h"
-#include "CoralKernel/IHandle.h"
-#include "RelationalAccess/ConnectionService.h"
-#include "RelationalAccess/ISessionProxy.h"
-#include "RelationalAccess/IConnectionServiceConfiguration.h"
+//#include "CoralKernel/Context.h"
+//#include "CoralKernel/IHandle.h"
+//#include "RelationalAccess/ConnectionService.h"
+//#include "RelationalAccess/ISessionProxy.h"
+//#include "RelationalAccess/IConnectionServiceConfiguration.h"
+// ora includes
+#include "CondCore/ORA/interface/ConnectionPool.h"
 
 namespace cond {
   class DbConnection::ConnectionImpl {
     public:
-      ConnectionImpl();
+      ConnectionImpl():
+        m_initialized(false),
+        m_connectionPool( new ora::ConnectionPool ),
+        m_configuration(){
+      }
 
-      virtual ~ConnectionImpl();
+      virtual ~ConnectionImpl(){
+        close();
+      }
 
-      void close();
-
+      void close(){
+        m_connectionPool.reset();
+      }
+      
       bool m_initialized;
-      coral::ConnectionService* m_connectionService;
+      boost::shared_ptr<ora::ConnectionPool> m_connectionPool;
       DbConnectionConfiguration m_configuration;
   };  
-}
-
-cond::DbConnection::ConnectionImpl::ConnectionImpl():
-  m_initialized(false),m_connectionService(0),m_configuration(){ 
-  m_connectionService = new coral::ConnectionService;
-}
-
-cond::DbConnection::ConnectionImpl::~ConnectionImpl(){
-  close();
-}
-
-
-void cond::DbConnection::ConnectionImpl::close()
-{
-  if(m_connectionService) {
-    delete m_connectionService;
-    m_connectionService = 0;
-  }
 }
 
 cond::DbConnection::DbConnection():
@@ -62,7 +54,7 @@ cond::DbConnection& cond::DbConnection::operator=(const cond::DbConnection& conn
 
 void cond::DbConnection::configure()
 {
-  m_implementation->m_configuration.configure( m_implementation->m_connectionService->configuration() );
+  m_implementation->m_configuration.configure( m_implementation->m_connectionPool->configuration() );
   m_implementation->m_initialized = true;
 }
 
@@ -91,7 +83,7 @@ void cond::DbConnection::close()
 
 bool cond::DbConnection::isOpen() const
 {
-  return m_implementation->m_connectionService;
+  return m_implementation->m_connectionPool.get();
 }
   
 cond::DbConnectionConfiguration & cond::DbConnection::configuration()
@@ -104,21 +96,25 @@ cond::DbConnectionConfiguration const & cond::DbConnection::configuration() cons
   return m_implementation->m_configuration;
 }
 
+boost::shared_ptr<ora::ConnectionPool> cond::DbConnection::connectionPool() const {
+  return m_implementation->m_connectionPool;
+}
+
 coral::IConnectionService& cond::DbConnection::connectionService() const {
   if(!isOpen())
     throw cond::Exception("DbConnection::connectionService: cannot get connection service. Connection has not been open.");
-  return *m_implementation->m_connectionService;
+  return m_implementation->m_connectionPool->connectionService();
 }
 
 const coral::IMonitoringReporter& cond::DbConnection::monitoringReporter() const {
   if(!isOpen())
     throw cond::Exception("DbConnection::monitoringReporter: cannot get connection service. Connection has not been open.");
-  return m_implementation->m_connectionService->monitoringReporter();
+  return m_implementation->m_connectionPool->connectionService().monitoringReporter();
 }
 
 coral::IWebCacheControl& cond::DbConnection::webCacheControl() const{
   if(!isOpen())
     throw cond::Exception("DbConnection::webCacheControl: cannot get connection service. Connection has not been open.");
-  return m_implementation->m_connectionService->webCacheControl();
+  return m_implementation->m_connectionPool->connectionService().webCacheControl();
 }
 

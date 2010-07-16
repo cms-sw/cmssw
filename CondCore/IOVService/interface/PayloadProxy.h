@@ -5,11 +5,6 @@
 #include "CondCore/DBCommon/interface/PayloadRef.h"
 #include "CondFormats/Common/interface/PayloadWrapper.h"
 
-namespace pool{
-  class IDataSvc;
-}
-
-
 namespace cond {
 
   /* get iov by name (key, tag, ...)
@@ -84,7 +79,7 @@ namespace cond {
 
 
   private:
-    virtual bool load(pool::IDataSvc * svc, std::string const & token) =0;   
+    virtual bool load(cond::DbSession& session, std::string const & token) =0;   
 
 
   protected:
@@ -126,8 +121,8 @@ namespace cond {
 
 
   protected:
-    virtual bool load(pool::IDataSvc * svc, std::string const & itoken) {
-      return m_data.load(svc,itoken);
+    virtual bool load(cond::DbSession& session, std::string const & itoken) {
+      return m_data.load(session,itoken);
     }
 
   private:

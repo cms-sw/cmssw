@@ -4,7 +4,7 @@
 #include <vector>
 #include "CondCore/DBCommon/interface/Time.h"
 #include "CondCore/DBCommon/interface/DbSession.h"
-#include "DataSvc/Ref.h"
+//#include "DataSvc/Ref.h"
 #include<iosfwd>
 
 
@@ -26,10 +26,10 @@ namespace cond{
   public:
 
     // default constructor
-    explicit IOVEditor(cond::DbSession& poolDb);
+    explicit IOVEditor(cond::DbSession& dbSess);
 
     // constructor from existing iov
-    IOVEditor( cond::DbSession& poolDb,
+    IOVEditor( cond::DbSession& dbSess,
 		   const std::string& token);
  
     /// Destructor
@@ -99,11 +99,10 @@ namespace cond{
 
   private:
 
-    cond::DbSession m_poolDb;
+    cond::DbSession m_dbSess;
     std::string m_token;
     bool m_isActive;
-    pool::Ref<cond::IOVSequence> m_iov;  
-
-};
+    boost::shared_ptr<cond::IOVSequence> m_iov;  
+  };
 }//ns cond
 #endif

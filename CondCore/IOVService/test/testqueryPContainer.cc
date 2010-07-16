@@ -13,8 +13,8 @@ int main(){
     myobj->data.push_back(1);
     myobj->data.push_back(10);
     pooldb.transaction().start(false);
-    pool::Ref<testPayloadObj> myref = pooldb.storeObject(myobj,"mypayloadcontainer");
-    std::string token=myref.toString();
+    boost::shared_ptr<testPayloadObj> myPtr( myobj );
+    std::string token = pooldb.storeObject(myPtr.get(),"mypayloadcontainer");
     std::cout<<"payload token "<<token<<std::endl;
     cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor();

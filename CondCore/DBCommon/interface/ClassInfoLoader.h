@@ -1,27 +1,18 @@
+/*
 #ifndef COND_DBCommon_ClassInfoLoader_H
 #define COND_DBCommon_ClassInfoLoader_H
 
-/**
- * loads plugin corresponding to token....
- */
+//loads plugin corresponding to token....
+
 
 #include<boost/shared_ptr.hpp>
 #include<string>
-#include "RVersion.h"
 
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,19,0)
-namespace ROOT{
-  namespace Reflex {
-    class Type;
-  }
-}
-typedef ROOT::Reflex::Type TypeH;
-#else
 namespace Reflex {
   class Type;
 }
 typedef Reflex::Type TypeH;
-#endif
+
 namespace cond {
 
   class ClassInfo;
@@ -52,3 +43,4 @@ namespace cond {
 
 
 #endif // COND_DBCommon_ClassInfoLoader_H
+*/

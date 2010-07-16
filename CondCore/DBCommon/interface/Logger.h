@@ -39,7 +39,8 @@ namespace cond{
 			 const std::string& payloadToken,
 			 const std::string& iovtag,
 			 const std::string& iovtimetype,
-			 unsigned int payloadIdx
+			 unsigned int payloadIdx,
+			 unsigned long long lastSince
 			 );
     //
     //the current local time will be registered as execution time
@@ -52,6 +53,7 @@ namespace cond{
 			       const std::string& iovtag,
 			       const std::string& iovtimetype,
 			       unsigned int payloadIdx,
+			       unsigned long long lastSince,
 			       const std::string& exceptionMessage
 			       );
     //
@@ -85,13 +87,14 @@ namespace cond{
 
   private:
     void insertLogRecord(unsigned long long logId,
-			 const std::string& localtime,
+			 const std::string& utctime,
 			 const std::string& destDB,
 			 const std::string& payloadToken,
 			 const cond::UserLogInfo& userLogInfo,
 			 const std::string& iovtag,
 			 const std::string& iovtimetype,
 			 unsigned int payloadIdx,
+			 unsigned long long lastSince,
 			 const std::string& exceptionMessage);
     
     mutable DbSession m_sessionHandle;

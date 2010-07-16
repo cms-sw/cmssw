@@ -42,7 +42,7 @@ int cond::DbScopedTransaction::isActive() const {
 
 bool cond::DbScopedTransaction::isReadOnly() const 
 {
-  if(m_locallyActive) return m_session.transaction().isReadOnly();
-  return true;
+  /*if(m_locallyActive) */return m_session.transaction().isReadOnly();
+  //return true;
 }
 

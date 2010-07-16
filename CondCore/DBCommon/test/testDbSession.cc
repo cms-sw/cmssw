@@ -6,7 +6,6 @@
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/TableDescription.h"
 #include "CoralBase/AttributeSpecification.h"
-#include "DataSvc/Ref.h"
 #include <iostream>
 int main(){
   edmplugin::PluginManager::Config config;
@@ -15,6 +14,7 @@ int main(){
   conn->configure( cond::CmsDefaults );
   std::string connStr("sqlite_file:mytest.db");
   {
+    std::cout << "######### test 0"<<std::endl;
     cond::DbSession session = conn->createSession();
     session.close();
     try {
@@ -23,23 +23,27 @@ int main(){
     } catch ( const cond::Exception& exc ){
       std::cout << "Expected error: "<<exc.what()<<std::endl;
     }
+    std::cout << "######### test 1"<<std::endl;
     try {
       session.transaction().start();
       std::cout << "ERROR: expected exception not thrown (1)"<<std::endl;
     } catch ( const cond::Exception& exc ){
       std::cout << "Expected error: "<<exc.what()<<std::endl;
     }  
+    std::cout << "######### test 2"<<std::endl;
     session.open( connStr );
     std::cout << "Session successfully open on: "<<connStr<<std::endl;
     session.close();
     session.open( connStr );
   }
+    std::cout << "######### test 3"<<std::endl;
   cond::DbSession s;
   if(s.isOpen()){
     std::cout << "ERROR: s should not be open yet..."<<std::endl;
   }
   
   {
+    std::cout << "######### test 4"<<std::endl;
     cond::DbSession session = conn->createSession();
     session.open( connStr );
     s = session;
@@ -48,15 +52,18 @@ int main(){
     }
   }
   try {
+    std::cout << "######### test 5"<<std::endl;
     s.nominalSchema();
     std::cout << "Session is correctly open."<<std::endl;
   } catch ( const cond::Exception& exc ){
     std::cout << "ERROR: "<<exc.what()<<std::endl;
   }
+    std::cout << "######### test 6"<<std::endl;
   s.close();
   cond::DbSession s2 = s;
   s2.open( connStr );
   try {
+    std::cout << "######### test 7"<<std::endl;
     s2.nominalSchema();
     std::cout << "Session is correctly open."<<std::endl;
     s2 = s;
@@ -66,29 +73,34 @@ int main(){
   } catch ( const cond::Exception& exc ){
     std::cout << "ERROR: "<<exc.what()<<std::endl;
   }
+    std::cout << "######### test 8"<<std::endl;
   // closing connection...
   cond::DbConnection conn2 = *conn;
   delete conn;
   conn2.close();
   try {
+    std::cout << "######### test 9"<<std::endl;
     s2.transaction().start();
     std::cout << "ERROR: expected exception not thrown (1)"<<std::endl;
   } catch ( const cond::Exception& exc ){
     std::cout << "Expected error 1: "<<exc.what()<<std::endl;
   }
   try {
+    std::cout << "######### test 10"<<std::endl;
     s2.nominalSchema();
     std::cout << "ERROR: expected exception not thrown (2)"<<std::endl;
   } catch ( const cond::Exception& exc ){
     std::cout << "Expected error 2: "<<exc.what()<<std::endl;
   }
   try {
-    s2.poolCache();
+    std::cout << "######### test 11"<<std::endl;
+    s2.storage();
     std::cout << "ERROR: expected exception not thrown (3)"<<std::endl;
   } catch ( const cond::Exception& exc ){
     std::cout << "Expected error 3: "<<exc.what()<<std::endl;
   }
   try {
+    std::cout << "######### test 12"<<std::endl;
     s2.getObject(std::string(""));
     std::cout << "ERROR: expected exception not thrown (4)"<<std::endl;
   } catch ( const cond::Exception& exc ){

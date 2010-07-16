@@ -82,6 +82,6 @@ bool CondBasicIter::forward(){
 }
 
 bool CondBasicIter::make(){
-  return load(&(*iter).db().poolCache(),(*iter).token());
+  return load((*iter).db(),(*iter).token());
 }
 

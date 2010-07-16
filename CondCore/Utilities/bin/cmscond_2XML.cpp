@@ -1,5 +1,6 @@
 #include "CondCore/Utilities/interface/Utilities.h"
 
+#include "CondCore/ORA/interface/Object.h"
 #include "CondCore/DBCommon/interface/DbScopedTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
@@ -17,15 +18,15 @@
 #include "Cintex/Cintex.h"
 
 namespace cond {
-  class ListIOVUtilities : public Utilities {
+  class XMLUtilities : public Utilities {
     public:
-      ListIOVUtilities();
-      ~ListIOVUtilities();
+      XMLUtilities();
+      ~XMLUtilities();
       int execute();
   };
 }
 
-cond::ListIOVUtilities::ListIOVUtilities():Utilities("cmscond_list_iov"){
+cond::XMLUtilities::XMLUtilities():Utilities("cmscond_2XML"){
   addConnectOption();
   addAuthenticationOptions();
   addOption<bool>("verbose","v","verbose");
@@ -37,10 +38,10 @@ cond::ListIOVUtilities::ListIOVUtilities():Utilities("cmscond_list_iov"){
   ROOT::Cintex::Cintex::Enable();
 }
 
-cond::ListIOVUtilities::~ListIOVUtilities(){
+cond::XMLUtilities::~XMLUtilities(){
 }
 
-int cond::ListIOVUtilities::execute(){
+int cond::XMLUtilities::execute(){
   initializePluginManager();
   
   cond::DbSession session = openDbSession( "connect", true );
@@ -91,12 +92,13 @@ if (verbose)
       std::cout<<ioviterator->since() << " \t "<<ioviterator->till() <<" \t "
 	       <<ioviterator->wrapperToken()<<std::endl;
     
-    pool::RefBase ref = session.getObject(ioviterator->wrapperToken());
+    ora::Object obj = session.getObject(ioviterator->wrapperToken());
     std::ostringstream ss; ss << tag << '_' << ioviterator->since(); 
     if (multi) xml = TFile::Open(std::string(ss.str()+".xml").c_str(),"recreate");
-    xml->WriteObjectAny(ref.object().get(),ref.objectType().Name(ROOT::Reflex::SCOPED).c_str(), ss.str().c_str());
+    xml->WriteObjectAny(obj.address(),obj.typeName().c_str(), ss.str().c_str());
     ++counter;
     if (multi)  xml->Close();
+    obj.destruct();
   }
   if (!multi) xml->Close();
   if (verbose)  std::cout<<"Total # of payload objects: "<<counter<<std::endl;
@@ -107,7 +109,7 @@ if (verbose)
   
 int main( int argc, char** argv ){
 
-  cond::ListIOVUtilities utilities;
+  cond::XMLUtilities utilities;
   return utilities.run(argc,argv);
 }
 

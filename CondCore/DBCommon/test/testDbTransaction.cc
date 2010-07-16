@@ -6,7 +6,6 @@
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/TableDescription.h"
 #include "CoralBase/AttributeSpecification.h"
-#include "DataSvc/Ref.h"
 #include <iostream>
 int main(){
   edmplugin::PluginManager::Config config;
@@ -40,8 +39,8 @@ int main(){
       int nt1 = s1.transaction().start();
       std::cout << "Transaction open at 1.0="<<nt1<<std::endl;
       std::cout << "Transaction active at 1.0="<<s0.transaction().isActive()<<std::endl;
-      pool::Ref<int> myRef0 = s1.storeObject(new int(100),"cont0");
-      tok0 = myRef0.toString();
+      boost::shared_ptr<int> data( new int(100) );
+      tok0 = s1.storeObject( data.get(),"cont0");
       std::cout << "Stored object with id = "<<tok0<<std::endl;
       nt1 = s1.transaction().commit();
       std::cout << "Transaction still open at 1.1="<<nt1<<std::endl;

@@ -6,25 +6,23 @@ process.CondDBCommon.connect = 'sqlite_file:Ints.db'
 # process.CondDBCommon.DBParameters.messageLevel = cms.untracked.int32(3)
 
 process.source = cms.Source("EmptyIOVSource",
-    lastValue = cms.uint64(1),
-    timetype = cms.string('runnumber'),
-    firstValue = cms.uint64(1),
-    interval = cms.uint64(1)
-)
+                            lastValue = cms.uint64(1),
+                            timetype = cms.string('runnumber'),
+                            firstValue = cms.uint64(1),
+                            interval = cms.uint64(1)
+                            )
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-    process.CondDBCommon,
-    timetype = cms.untracked.string('runnumber'),
-    outOfOrder = cms.untracked.bool(True),
-    toPut = cms.VPSet(
-    cms.PSet(
-    record = cms.string('oneInt'),
-    tag = cms.string('OneInt'),
-    timetype = cms.untracked.string('runnumber'),
-    outOfOrder = cms.untracked.bool(False)
-    )
-    )
-)
+                                          process.CondDBCommon,
+                                          timetype = cms.untracked.string('runnumber'),
+                                          outOfOrder = cms.untracked.bool(True),
+                                          toPut = cms.VPSet( cms.PSet(record = cms.string('oneInt'),
+                                                                      tag = cms.string('OneInt'),
+                                                                      timetype = cms.untracked.string('runnumber'),
+                                                                      outOfOrder = cms.untracked.bool(False)
+                                                                      )
+                                                             )
+                                          )
 
 process.mytest = cms.EDAnalyzer("writeInt",
                                 Number=cms.int32(_CurrentRun_)

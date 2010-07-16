@@ -2,7 +2,7 @@
 #include "CondCore/DBCommon/interface/LogDBEntry.h"
 #include "CondCore/DBCommon/interface/UserLogInfo.h"
 #include "CondCore/DBCommon/interface/SequenceManager.h"
-#include "CondCore/DBCommon/interface/TokenInterpreter.h"
+#include "CondCore/DBCommon/interface/PoolToken.h"
 #include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "RelationalAccess/ISchema.h"
@@ -106,6 +106,10 @@ cond::Logger::createLogDBIfNonExist(){
 	  coral::AttributeSpecification::typeNameForType<unsigned int>() );
   description.setNotNullConstraint(std::string("PAYLOADINDEX"));
 
+  description.insertColumn(std::string("LASTSINCE"),
+	  coral::AttributeSpecification::typeNameForType<unsigned long long>() );
+  description.setNotNullConstraint(std::string("LASTSINCE"));
+
   description.insertColumn(std::string("DESTINATIONDB"),
 	  coral::AttributeSpecification::typeNameForType<std::string>() );
   description.setNotNullConstraint(std::string("DESTINATIONDB"));
@@ -127,11 +131,12 @@ cond::Logger::logOperationNow(
 			      const std::string& payloadToken,
 			      const std::string& iovtag,
 			      const std::string& iovtimetype,
-			      unsigned int payloadIdx
+			      unsigned int payloadIdx,
+			      unsigned long long lastSince
 			      ){
-  //aquirelocaltime
+  //aquireutctime
   //using namespace boost::posix_time;
-  boost::posix_time::ptime p=boost::posix_time::microsec_clock::local_time();
+  boost::posix_time::ptime p=boost::posix_time::microsec_clock::universal_time();
   std::string now=cond::to_string(p.date().year())+"-"+cond::to_string(p.date().month())+"-"+cond::to_string(p.date().day())+"-"+cond::to_string(p.time_of_day().hours())+":"+cond::to_string(p.time_of_day().minutes())+":"+cond::to_string(p.time_of_day().seconds());
   //aquireentryid
   if(!m_sequenceManager){
@@ -139,7 +144,7 @@ cond::Logger::logOperationNow(
   }
   unsigned long long targetLogId=m_sequenceManager->incrementId(LogDBNames::LogTableName());
   //insert log record with the new id
-  this->insertLogRecord(targetLogId,now,destDB,payloadToken,userlogInfo,iovtag,iovtimetype,payloadIdx,"OK");
+  this->insertLogRecord(targetLogId,now,destDB,payloadToken,userlogInfo,iovtag,iovtimetype,payloadIdx,lastSince,"OK");
 }
 void 
 cond::Logger::logFailedOperationNow(
@@ -149,6 +154,7 @@ cond::Logger::logFailedOperationNow(
 			       const std::string& iovtag,
 			       const std::string& iovtimetype,
 			       unsigned int payloadIdx,
+			       unsigned long long lastSince,
 			       const std::string& exceptionMessage
 				    ){
   //aquirelocaltime
@@ -160,7 +166,7 @@ cond::Logger::logFailedOperationNow(
   }
   unsigned long long targetLogId=m_sequenceManager->incrementId(LogDBNames::LogTableName());
   //insert log record with the new id
-  this->insertLogRecord(targetLogId,now,destDB,payloadToken,userlogInfo,iovtag,iovtimetype,payloadIdx,exceptionMessage);
+  this->insertLogRecord(targetLogId,now,destDB,payloadToken,userlogInfo,iovtag,iovtimetype,payloadIdx,lastSince,exceptionMessage);
 }
 
 void 
@@ -182,51 +188,55 @@ cond::Logger::LookupLastEntryByProvenance(const std::string& provenance,
   BindVariableList["provenance"].data<std::string>()=provenance;
   BindVariableList["execmessage"].data<std::string>()="OK";
   m_sessionHandle.transaction().start(true);
-  coral::IQuery* query = m_sessionHandle.nominalSchema().newQuery();
-  // construct select
-  query->addToOutputList( cond::LogDBNames::LogTableName()+".LOGID" );
-  query->defineOutputType( cond::LogDBNames::LogTableName()+".LOGID", "unsigned long long" );
-  query->addToOutputList( cond::LogDBNames::LogTableName()+".DESTINATIONDB" );
-  query->addToOutputList( cond::LogDBNames::LogTableName()+".PROVENANCE" );
-  query->addToOutputList( cond::LogDBNames::LogTableName()+".USERTEXT" );
-  query->addToOutputList( cond::LogDBNames::LogTableName()+".IOVTAG" );
-  query->addToOutputList( cond::LogDBNames::LogTableName()+".IOVTIMETYPE" );
-  query->addToOutputList( cond::LogDBNames::LogTableName()+".PAYLOADINDEX" );
-  query->defineOutputType( cond::LogDBNames::LogTableName()+".PAYLOADINDEX", "unsigned int" );
-  query->addToOutputList( cond::LogDBNames::LogTableName()+".PAYLOADNAME" );
-  query->addToOutputList( cond::LogDBNames::LogTableName()+".PAYLOADTOKEN" );
-  query->addToOutputList( cond::LogDBNames::LogTableName()+".PAYLOADCONTAINER" );
-  query->addToOutputList( cond::LogDBNames::LogTableName()+".EXECTIME" );
-  query->addToOutputList( cond::LogDBNames::LogTableName()+".EXECMESSAGE" );
-  
-  coral::IQueryDefinition& subquery=query->defineSubQuery("subQ");
-  query->addToTableList("subQ");
-  query->addToTableList(cond::LogDBNames::LogTableName());
-  subquery.addToTableList( cond::LogDBNames::LogTableName() );
-  subquery.addToOutputList( "max(LOGID)", "max_logid");
-  subquery.setCondition( whereClause, BindVariableList );
-  query->setCondition(cond::LogDBNames::LogTableName()+std::string(".LOGID=subQ.max_logid"),coral::AttributeList() );
-  query->defineOutputType( "subQ.max_logid", "unsigned long long" );
-
-  coral::ICursor& cursor = query->execute();
-  if( cursor.next() ) {
-    const coral::AttributeList& row = cursor.currentRow();
-    logentry.logId=row[cond::LogDBNames::LogTableName()+".LOGID"].data<unsigned long long>();
-    logentry.destinationDB=row[cond::LogDBNames::LogTableName()+".DESTINATIONDB"].data<std::string>();
-    logentry.provenance=row[cond::LogDBNames::LogTableName()+".PROVENANCE"].data<std::string>();
-    logentry.usertext=row[cond::LogDBNames::LogTableName()+".USERTEXT"].data<std::string>();
-    logentry.iovtag=row[cond::LogDBNames::LogTableName()+".IOVTAG"].data<std::string>();
-    logentry.iovtimetype=row[cond::LogDBNames::LogTableName()+".IOVTIMETYPE"].data<std::string>();
-    logentry.payloadIdx=row[cond::LogDBNames::LogTableName()+".PAYLOADINDEX"].data<unsigned int>();
-    logentry.payloadName=row[cond::LogDBNames::LogTableName()+".PAYLOADNAME"].data<std::string>();
-    logentry.payloadToken=row[cond::LogDBNames::LogTableName()+".PAYLOADTOKEN"].data<std::string>();
-    logentry.payloadContainer=row[cond::LogDBNames::LogTableName()+".PAYLOADCONTAINER"].data<std::string>();
-    logentry.exectime=row[cond::LogDBNames::LogTableName()+".EXECTIME"].data<std::string>();
-    logentry.execmessage=row[cond::LogDBNames::LogTableName()+".EXECMESSAGE"].data<std::string>();
-
-    //row.toOutputStream( std::cout ) << std::endl;
+  {
+    std::auto_ptr<coral::IQuery> query(m_sessionHandle.nominalSchema().newQuery());
+    // construct select
+    query->addToOutputList( cond::LogDBNames::LogTableName()+".LOGID" );
+    query->defineOutputType( cond::LogDBNames::LogTableName()+".LOGID", "unsigned long long" );
+    query->addToOutputList( cond::LogDBNames::LogTableName()+".DESTINATIONDB" );
+    query->addToOutputList( cond::LogDBNames::LogTableName()+".PROVENANCE" );
+    query->addToOutputList( cond::LogDBNames::LogTableName()+".USERTEXT" );
+    query->addToOutputList( cond::LogDBNames::LogTableName()+".IOVTAG" );
+    query->addToOutputList( cond::LogDBNames::LogTableName()+".IOVTIMETYPE" );
+    query->addToOutputList( cond::LogDBNames::LogTableName()+".PAYLOADINDEX" );
+    query->defineOutputType( cond::LogDBNames::LogTableName()+".PAYLOADINDEX", "unsigned int" );
+    query->addToOutputList( cond::LogDBNames::LogTableName()+".LASTSINCE" );
+    query->defineOutputType( cond::LogDBNames::LogTableName()+".LASTSINCE", "unsigned long long" );
+    query->addToOutputList( cond::LogDBNames::LogTableName()+".PAYLOADNAME" );
+    query->addToOutputList( cond::LogDBNames::LogTableName()+".PAYLOADTOKEN" );
+    query->addToOutputList( cond::LogDBNames::LogTableName()+".PAYLOADCONTAINER" );
+    query->addToOutputList( cond::LogDBNames::LogTableName()+".EXECTIME" );
+    query->addToOutputList( cond::LogDBNames::LogTableName()+".EXECMESSAGE" );
+    
+    coral::IQueryDefinition& subquery=query->defineSubQuery("subQ");
+    query->addToTableList("subQ");
+    query->addToTableList(cond::LogDBNames::LogTableName());
+    subquery.addToTableList( cond::LogDBNames::LogTableName() );
+    subquery.addToOutputList( "max(LOGID)", "max_logid");
+    subquery.setCondition( whereClause, BindVariableList );
+    query->setCondition(cond::LogDBNames::LogTableName()+std::string(".LOGID=subQ.max_logid"),coral::AttributeList() );
+    query->defineOutputType( "subQ.max_logid", "unsigned long long" );
+    
+    coral::ICursor& cursor = query->execute();
+    if( cursor.next() ) {
+      const coral::AttributeList& row = cursor.currentRow();
+      logentry.logId=row[cond::LogDBNames::LogTableName()+".LOGID"].data<unsigned long long>();
+      logentry.destinationDB=row[cond::LogDBNames::LogTableName()+".DESTINATIONDB"].data<std::string>();
+      logentry.provenance=row[cond::LogDBNames::LogTableName()+".PROVENANCE"].data<std::string>();
+      logentry.usertext=row[cond::LogDBNames::LogTableName()+".USERTEXT"].data<std::string>();
+      logentry.iovtag=row[cond::LogDBNames::LogTableName()+".IOVTAG"].data<std::string>();
+      logentry.iovtimetype=row[cond::LogDBNames::LogTableName()+".IOVTIMETYPE"].data<std::string>();
+      logentry.payloadIdx=row[cond::LogDBNames::LogTableName()+".PAYLOADINDEX"].data<unsigned int>();
+      logentry.lastSince=row[cond::LogDBNames::LogTableName()+".LASTSINCE"].data<unsigned long long>();
+      logentry.payloadName=row[cond::LogDBNames::LogTableName()+".PAYLOADNAME"].data<std::string>();
+      logentry.payloadToken=row[cond::LogDBNames::LogTableName()+".PAYLOADTOKEN"].data<std::string>();
+      logentry.payloadContainer=row[cond::LogDBNames::LogTableName()+".PAYLOADCONTAINER"].data<std::string>();
+      logentry.exectime=row[cond::LogDBNames::LogTableName()+".EXECTIME"].data<std::string>();
+      logentry.execmessage=row[cond::LogDBNames::LogTableName()+".EXECMESSAGE"].data<std::string>();
+      
+      //row.toOutputStream( std::cout ) << std::endl;
+    }
   }
-  delete query;
   m_sessionHandle.transaction().commit();
 }
 void 
@@ -260,51 +270,55 @@ cond::Logger::LookupLastEntryByTag( const std::string& iovtag,
   
   m_sessionHandle.transaction().start(true);
   //coral::IQuery* query = m_coraldb.nominalSchema().tableHandle(cond::LogDBNames::LogTableName()).newQuery();
-  coral::IQuery* query = m_sessionHandle.nominalSchema().newQuery();
-  // construct select
-  query->addToOutputList( cond::LogDBNames::LogTableName()+".LOGID" );
-  query->defineOutputType( cond::LogDBNames::LogTableName()+".LOGID", "unsigned long long" );
-  query->addToOutputList( cond::LogDBNames::LogTableName()+".DESTINATIONDB" );
-  query->addToOutputList( cond::LogDBNames::LogTableName()+".PROVENANCE" );
-  query->addToOutputList( cond::LogDBNames::LogTableName()+".USERTEXT" );
-  query->addToOutputList( cond::LogDBNames::LogTableName()+".IOVTAG" );
-  query->addToOutputList( cond::LogDBNames::LogTableName()+".IOVTIMETYPE" );
-  query->addToOutputList( cond::LogDBNames::LogTableName()+".PAYLOADINDEX" );
-  query->defineOutputType( cond::LogDBNames::LogTableName()+".PAYLOADINDEX", "unsigned int" );
-  query->addToOutputList( cond::LogDBNames::LogTableName()+".PAYLOADNAME" );
-  query->addToOutputList( cond::LogDBNames::LogTableName()+".PAYLOADTOKEN" );
-  query->addToOutputList( cond::LogDBNames::LogTableName()+".PAYLOADCONTAINER" );
-  query->addToOutputList( cond::LogDBNames::LogTableName()+".EXECTIME" );
-  query->addToOutputList( cond::LogDBNames::LogTableName()+".EXECMESSAGE" );
-  
-  coral::IQueryDefinition& subquery=query->defineSubQuery("subQ");
-  query->addToTableList("subQ");
-  query->addToTableList(cond::LogDBNames::LogTableName());
-  subquery.addToTableList( cond::LogDBNames::LogTableName() );
-  subquery.addToOutputList( "max(LOGID)", "max_logid");
-  subquery.setCondition( whereClause, BindVariableList );
-  query->setCondition(cond::LogDBNames::LogTableName()+std::string(".LOGID=subQ.max_logid"),coral::AttributeList() );
-  query->defineOutputType( "subQ.max_logid", "unsigned long long" );
-
-  coral::ICursor& cursor = query->execute();
-  if( cursor.next() ) {
-    const coral::AttributeList& row = cursor.currentRow();
-    logentry.logId=row[cond::LogDBNames::LogTableName()+".LOGID"].data<unsigned long long>();
-    logentry.destinationDB=row[cond::LogDBNames::LogTableName()+".DESTINATIONDB"].data<std::string>();
-    logentry.provenance=row[cond::LogDBNames::LogTableName()+".PROVENANCE"].data<std::string>();
-    logentry.usertext=row[cond::LogDBNames::LogTableName()+".USERTEXT"].data<std::string>();
-    logentry.iovtag=row[cond::LogDBNames::LogTableName()+".IOVTAG"].data<std::string>();
-    logentry.iovtimetype=row[cond::LogDBNames::LogTableName()+".IOVTIMETYPE"].data<std::string>();
-    logentry.payloadIdx=row[cond::LogDBNames::LogTableName()+".PAYLOADINDEX"].data<unsigned int>();
-    logentry.payloadName=row[cond::LogDBNames::LogTableName()+".PAYLOADNAME"].data<std::string>();
-    logentry.payloadToken=row[cond::LogDBNames::LogTableName()+".PAYLOADTOKEN"].data<std::string>();
-    logentry.payloadContainer=row[cond::LogDBNames::LogTableName()+".PAYLOADCONTAINER"].data<std::string>();
-    logentry.exectime=row[cond::LogDBNames::LogTableName()+".EXECTIME"].data<std::string>();
-    logentry.execmessage=row[cond::LogDBNames::LogTableName()+".EXECMESSAGE"].data<std::string>();
+  {
+    std::auto_ptr<coral::IQuery> query(m_sessionHandle.nominalSchema().newQuery());
+    // construct select
+    query->addToOutputList( cond::LogDBNames::LogTableName()+".LOGID" );
+    query->defineOutputType( cond::LogDBNames::LogTableName()+".LOGID", "unsigned long long" );
+    query->addToOutputList( cond::LogDBNames::LogTableName()+".DESTINATIONDB" );
+    query->addToOutputList( cond::LogDBNames::LogTableName()+".PROVENANCE" );
+    query->addToOutputList( cond::LogDBNames::LogTableName()+".USERTEXT" );
+    query->addToOutputList( cond::LogDBNames::LogTableName()+".IOVTAG" );
+    query->addToOutputList( cond::LogDBNames::LogTableName()+".IOVTIMETYPE" );
+    query->addToOutputList( cond::LogDBNames::LogTableName()+".PAYLOADINDEX" );
+    query->defineOutputType( cond::LogDBNames::LogTableName()+".PAYLOADINDEX", "unsigned int" );
+    query->addToOutputList( cond::LogDBNames::LogTableName()+".LASTSINCE" );
+    query->defineOutputType( cond::LogDBNames::LogTableName()+".LASTSINCE", "unsigned long long" );
+    query->addToOutputList( cond::LogDBNames::LogTableName()+".PAYLOADNAME" );
+    query->addToOutputList( cond::LogDBNames::LogTableName()+".PAYLOADTOKEN" );
+    query->addToOutputList( cond::LogDBNames::LogTableName()+".PAYLOADCONTAINER" );
+    query->addToOutputList( cond::LogDBNames::LogTableName()+".EXECTIME" );
+    query->addToOutputList( cond::LogDBNames::LogTableName()+".EXECMESSAGE" );
     
-    //row.toOutputStream( std::cout ) << std::endl;
-  }
-  delete query;  
+    coral::IQueryDefinition& subquery=query->defineSubQuery("subQ");
+    query->addToTableList("subQ");
+    query->addToTableList(cond::LogDBNames::LogTableName());
+    subquery.addToTableList( cond::LogDBNames::LogTableName() );
+    subquery.addToOutputList( "max(LOGID)", "max_logid");
+    subquery.setCondition( whereClause, BindVariableList );
+    query->setCondition(cond::LogDBNames::LogTableName()+std::string(".LOGID=subQ.max_logid"),coral::AttributeList() );
+    query->defineOutputType( "subQ.max_logid", "unsigned long long" );
+    
+    coral::ICursor& cursor = query->execute();
+    if( cursor.next() ) {
+      const coral::AttributeList& row = cursor.currentRow();
+      logentry.logId=row[cond::LogDBNames::LogTableName()+".LOGID"].data<unsigned long long>();
+      logentry.destinationDB=row[cond::LogDBNames::LogTableName()+".DESTINATIONDB"].data<std::string>();
+      logentry.provenance=row[cond::LogDBNames::LogTableName()+".PROVENANCE"].data<std::string>();
+      logentry.usertext=row[cond::LogDBNames::LogTableName()+".USERTEXT"].data<std::string>();
+      logentry.iovtag=row[cond::LogDBNames::LogTableName()+".IOVTAG"].data<std::string>();
+      logentry.iovtimetype=row[cond::LogDBNames::LogTableName()+".IOVTIMETYPE"].data<std::string>();
+      logentry.payloadIdx=row[cond::LogDBNames::LogTableName()+".PAYLOADINDEX"].data<unsigned int>();
+      logentry.lastSince=row[cond::LogDBNames::LogTableName()+".LASTSINCE"].data<unsigned long long>();
+      logentry.payloadName=row[cond::LogDBNames::LogTableName()+".PAYLOADNAME"].data<std::string>();
+      logentry.payloadToken=row[cond::LogDBNames::LogTableName()+".PAYLOADTOKEN"].data<std::string>();
+      logentry.payloadContainer=row[cond::LogDBNames::LogTableName()+".PAYLOADCONTAINER"].data<std::string>();
+      logentry.exectime=row[cond::LogDBNames::LogTableName()+".EXECTIME"].data<std::string>();
+      logentry.execmessage=row[cond::LogDBNames::LogTableName()+".EXECMESSAGE"].data<std::string>();
+      
+      //row.toOutputStream( std::cout ) << std::endl;
+    }
+  }  
   m_sessionHandle.transaction().commit();
 }
 void 
@@ -315,18 +329,18 @@ cond::Logger::LookupLastEntryByTag( const std::string& iovtag,
 }
 void
 cond::Logger::insertLogRecord(unsigned long long logId,
-			      const std::string& localtime,
+			      const std::string& utctime,
 			      const std::string& destDB,
 			      const std::string& payloadToken,
 			      const cond::UserLogInfo& userLogInfo,
 			      const std::string& iovtag,
 			      const std::string& iovtimetype,
 			      unsigned int payloadIdx,
+			      unsigned long long  lastSince,
 			      const std::string& exceptionMessage){
   try{
-    cond::TokenInterpreter tokenteller(payloadToken);
-    std::string containerName=tokenteller.containerName();
-    std::string payloadName=tokenteller.className();
+    std::string containerName=parseToken(payloadToken).first;
+    std::string payloadName=containerName; //now container and real class are assumed equal
     coral::AttributeList rowData;
     rowData.extend<unsigned long long>("LOGID");
     rowData.extend<std::string>("EXECTIME");
@@ -339,9 +353,10 @@ cond::Logger::insertLogRecord(unsigned long long logId,
     rowData.extend<std::string>("IOVTAG");
     rowData.extend<std::string>("IOVTIMETYPE");
     rowData.extend<unsigned int>("PAYLOADINDEX");
+    rowData.extend<unsigned long long>("LASTSINCE");
     rowData.extend<std::string>("EXECMESSAGE");
     rowData["LOGID"].data< unsigned long long >() = logId;
-    rowData["EXECTIME"].data< std::string >() = localtime;
+    rowData["EXECTIME"].data< std::string >() = utctime;
     rowData["PAYLOADCONTAINER"].data< std::string >() = containerName;
     rowData["DESTINATIONDB"].data< std::string >() = destDB;
     rowData["PAYLOADNAME"].data< std::string >() = payloadName;
@@ -351,6 +366,7 @@ cond::Logger::insertLogRecord(unsigned long long logId,
     rowData["IOVTAG"].data< std::string >() = iovtag;
     rowData["IOVTIMETYPE"].data< std::string >() = iovtimetype;
     rowData["PAYLOADINDEX"].data< unsigned int >() = payloadIdx;
+    rowData["LASTSINCE"].data< unsigned long long >() = lastSince;
     rowData["EXECMESSAGE"].data< std::string >() = exceptionMessage;
     m_sessionHandle.nominalSchema().tableHandle(cond::LogDBNames::LogTableName()).dataEditor().insertRow(rowData);
   }catch(const std::exception& er){

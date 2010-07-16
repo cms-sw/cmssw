@@ -30,8 +30,9 @@ int main(){
       for(int j=0; j<10; ++j){
         myobj->data.push_back(i+j);
       }
-      pool::Ref<testPayloadObj> myobjRef = pooldb.storeObject(myobj,"testPayloadObj");
-      editor->append(i+10, myobjRef.toString());
+      boost::shared_ptr<testPayloadObj> myobjPtr( myobj );
+      std::string tok = pooldb.storeObject(myobjPtr.get(),"testPayloadObj");
+      editor->append(i+10, tok);
     }
     std::string iovtoken=editor->token();
     std::cout<<"iov token "<<iovtoken<<std::endl;
@@ -50,9 +51,10 @@ int main(){
       for(int j=0; j<15; ++j){
         cid->data.push_back(i+j);
       }
-      pool::Ref<testPayloadObj> cidRef = pooldb.storeObject(cid,"testPayloadObj");
-      std::cout<<"token"<<cidRef.toString()<<std::endl;
-      editorNew->append(i+10, cidRef.toString());
+      boost::shared_ptr<testPayloadObj> cidPtr( cid );
+      std::string tok = pooldb.storeObject(cidPtr.get(),"testPayloadObj");
+      std::cout<<"token"<<tok<<std::endl;
+      editorNew->append(i+10, tok);
     }
     std::cout<<"end of loop1"<<std::endl;
 
@@ -70,8 +72,9 @@ int main(){
       for(int j=0; j<7; ++j){
         abc->data.push_back(i+j);
       }
-      pool::Ref<testPayloadObj> abcRef = pooldb.storeObject(abc,"testPayloadObj");
-      editorNewNew->append(i+10, abcRef.toString());
+      boost::shared_ptr<testPayloadObj> abcPtr( abc );
+      std::string tok = pooldb.storeObject(abcPtr.get(),"testPayloadObj");
+      editorNewNew->append(i+10, tok);
     }
     iovtoken=editorNewNew->token();
     std::cout<<"iov token "<<iovtoken<<std::endl;

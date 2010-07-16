@@ -1,15 +1,11 @@
 #include "CondCore/DBCommon/interface/ClassID.h"
-#include "StorageSvc/DbReflex.h"
 #include <typeinfo>
+#include "Guid.h"
 #include "cxxabi.h"
-#include "RVersion.h"
-
-
-
-namespace pool {  void genMD5(const std::string& s, void* code);  }
 
 namespace cond {
-
+  void genMD5(const std::string& s, void* code);
+  
   char const * className(const std::type_info& t) {
     int status=0;
     return __cxxabiv1::__cxa_demangle(t.name(), 0, 0, &status); 
@@ -27,8 +23,8 @@ namespace cond {
 	}
 	else  {
 	  char buff[20];
-	  pool::genMD5(type.Name(Reflex::SCOPED),buff);
-	  s = reinterpret_cast<pool::Guid*>(buff)->toString();
+	  genMD5(type.Name(Reflex::SCOPED),buff);
+	  s = reinterpret_cast<Guid*>(buff)->toString();
 	}
 //       std::cout << "CondCore::ClassID: CLID for Reflex type " << type.Name(Reflex::SCOPED) 
 //                 << " is " << s << std::endl;
@@ -38,8 +34,8 @@ namespace cond {
 	std::string name = className(t);
 //	std::cout << "CondCore::ClassID: Warning no Reflex type for " << name << std::endl;
 	char buff[20];
-	pool::genMD5(name,buff);
-	s = reinterpret_cast<pool::Guid*>(buff)->toString();
+	genMD5(name,buff);
+	s = reinterpret_cast<Guid*>(buff)->toString();
       }
       return s;
     }

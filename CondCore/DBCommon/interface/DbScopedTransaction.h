@@ -34,6 +34,7 @@ namespace cond{
   private:
     cond::DbSession& m_session;
     bool m_locallyActive;
+    
   };
 }
 #endif

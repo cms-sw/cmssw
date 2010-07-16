@@ -1,12 +1,6 @@
 #ifndef CondCore_DBCommon_PayloadRef_h
 #define CondCore_DBCommon_PayloadRef_h
 
-#include "DataSvc/Ref.h"
-
-namespace pool{
-  class IDataSvc;
-}
-
 namespace cond {
 
   /* manages various types of wrappers...
@@ -14,8 +8,8 @@ namespace cond {
   template<typename DataT>
   class PayloadRef {
   public:
- 
-    PayloadRef(){}
+
+    PayloadRef() {}
     ~PayloadRef(){}
     
     // dereference (does not re-load)
@@ -24,17 +18,17 @@ namespace cond {
     }
     
     void clear() {
-      m_Data.clear();
+      m_Data.reset();
     }
     
     
-    bool load(pool::IDataSvc * svc, std::string const & itoken) {
+    bool load( DbSession& dbSess, std::string const & itoken) {
       clear();
       bool ok = false;
-     
-      pool::Ref<DataT> refo(svc,itoken);
-      if (refo) {
-	m_Data.copyShallow(refo);
+      
+      boost::shared_ptr<DataT> tmp = dbSess.getTypedObject<DataT>( itoken );
+      if (tmp.get()) {
+	m_Data = tmp;
 	ok =  true;
       }
       return ok;
@@ -42,7 +36,7 @@ namespace cond {
     
     
   private:
-    pool::Ref<DataT> m_Data;
+    boost::shared_ptr<DataT> m_Data;
   };
   
 }

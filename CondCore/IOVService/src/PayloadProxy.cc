@@ -1,9 +1,8 @@
 #include "CondCore/IOVService/interface/PayloadProxy.h"
 
+#include "CondCore/ORA/interface/Exception.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/DbTransaction.h"
-#include "DataSvc/RefException.h"
-
 
 namespace {
 
@@ -57,9 +56,9 @@ namespace cond {
       cond::DbTransaction& trans = m_element.db().transaction();
       trans.start(true);
       try {
-        ok = load(&m_element.db().poolCache(),m_element.token());
+        ok = load( m_element.db(),m_element.token());
 	if (ok) m_token = m_element.token();
-      }	catch( const pool::Exception& e) {
+      }	catch( const ora::Exception& e) {
         if (m_doThrow) throw cond::Exception(std::string("Condition Payload loader: ")+ e.what());
         ok = false;
       }

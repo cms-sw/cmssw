@@ -6,9 +6,9 @@
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondFormats/Calibration/interface/Pedestals.h"
-
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
+
 int main(){
   try{
     // for runnumber
@@ -30,27 +30,25 @@ int main(){
     std::cout<<"globalTill value "<<globalTill<<std::endl;
     ioveditor->create(timetype,globalTill);
     for(unsigned int i=0; i<3; ++i){ //inserting 3 payloads
-      Pedestals* myped=new Pedestals;
+      boost::shared_ptr<Pedestals> myped( new Pedestals );
       for(int ichannel=1; ichannel<=5; ++ichannel){
         Pedestals::Item item;
         item.m_mean=1.11*ichannel+i;
         item.m_variance=1.12*ichannel+i*2;
         myped->m_pedestals.push_back(item);
       }
-      pool::Ref<Pedestals> myref = session.storeObject(myped,"PedestalsRcd");
-      std::string payloadToken=myref.toString();
+      std::string payloadToken = session.storeObject(myped.get(),"PedestalsRcd");
       ioveditor->append(cond::Time_t(2+2*i),payloadToken);
     }
     //last one
-    Pedestals* myped=new Pedestals;
+    boost::shared_ptr<Pedestals> myped( new Pedestals );
     for(int ichannel=1; ichannel<=5; ++ichannel){
       Pedestals::Item item;
       item.m_mean=3.11*ichannel;
       item.m_variance=5.12*ichannel;
       myped->m_pedestals.push_back(item);
     }
-    pool::Ref<Pedestals> myref = session.storeObject(myped,"PedestalsRcd");
-    std::string payloadToken=myref.toString();
+    std::string payloadToken = session.storeObject(myped.get(),"PedestalsRcd");
     ioveditor->append(9001,payloadToken);
     std::string iovtoken=ioveditor->token();
     std::cout<<"iov token "<<iovtoken<<std::endl;
@@ -60,15 +58,14 @@ int main(){
     session.transaction().start(false);
     ioveditor=iovmanager.newIOVEditor();
     ioveditor->create(timetype, globalTill);
-    Pedestals* p=new Pedestals;
+    boost::shared_ptr<Pedestals> p( new Pedestals );
     for(int ichannel=1; ichannel<=2; ++ichannel){
       Pedestals::Item item;
       item.m_mean=4.11*ichannel;
       item.m_variance=5.82*ichannel;
       p->m_pedestals.push_back(item);
     }
-    pool::Ref<Pedestals> m = session.storeObject(p,"PedestalsRcd");
-    std::string payloadToken2=m.toString();
+    std::string payloadToken2 = session.storeObject(p.get(),"PedestalsRcd");
     ioveditor->append(90001,payloadToken2);
     std::string pediovtoken=ioveditor->token();
     std::cout<<"iov token "<<pediovtoken<<std::endl;
@@ -81,15 +78,14 @@ int main(){
     session.transaction().start(false);
     anotherioveditor->create(timetype,globalTill);
     for(unsigned int i=0; i<2; ++i){ //inserting 2 payloads to another Rcd
-      Pedestals* myped=new Pedestals;
+      boost::shared_ptr<Pedestals> myped( new Pedestals );
       for(int ichannel=1; ichannel<=3; ++ichannel){
         Pedestals::Item item;
         item.m_mean=1.11*ichannel+i;
         item.m_variance=1.12*ichannel+i*2;
         myped->m_pedestals.push_back(item);
       }
-      pool::Ref<Pedestals> myref = session.storeObject(myped,"anotherPedestalsRcd");
-      std::string payloadToken=myref.toString();
+      std::string payloadToken = session.storeObject(myped.get(),"anotherPedestalsRcd");
       anotherioveditor->append(cond::Time_t(2+2*i),payloadToken);
     }
     std::string anotheriovtoken=anotherioveditor->token();

@@ -1,7 +1,6 @@
 #ifndef IOVService_IOV_h
 #define IOVService_IOV_h
 #include "CondCore/DBCommon/interface/Time.h"
-#include "POOLCore/PVector.h"
 #include <vector>
 #include <string>
 #include <algorithm>

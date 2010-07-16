@@ -43,11 +43,11 @@ process.GlobalTag.pfnPostfix=cms.untracked.string('')
 
 
 process.source = cms.Source("EmptyIOVSource",
-    lastValue = cms.uint64(options.runNumber+1),
-    timetype = cms.string('runnumber'),
-    firstValue = cms.uint64(options.runNumber-1),
-    interval = cms.uint64(1)
-)
+                            lastValue = cms.uint64(options.runNumber+1),
+                            timetype = cms.string('runnumber'),
+                            firstValue = cms.uint64(options.runNumber-1),
+                            interval = cms.uint64(1)
+                            )
 
 
 process.get = cms.EDAnalyzer("EventSetupRecordDataGetter",
@@ -56,6 +56,3 @@ process.get = cms.EDAnalyzer("EventSetupRecordDataGetter",
                              )
 
 process.p = cms.Path(process.get)
-
-
-

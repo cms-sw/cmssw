@@ -9,20 +9,16 @@
 */
 //
 //
-namespace coral 
-{
-  class ISessionProxy;
-}
 
-namespace pool 
-{
-  class ISession;
+namespace ora {
+  class Transaction;
 }
 
 namespace cond{
   class DbTransaction {
-  public:
-    DbTransaction(coral::ISessionProxy& coralSession, pool::ISession& poolSession);   
+
+    public:
+    DbTransaction( ora::Transaction& dbTrans );   
     
     ~DbTransaction();
     /// start transaction
@@ -37,9 +33,8 @@ namespace cond{
     int isActive() const;
     /// current transaction is readonly
     bool isReadOnly() const;
-  private:
-    coral::ISessionProxy& m_coralSession;
-    pool::ISession& m_poolSession;
+    private:
+    ora::Transaction& m_dbTrans;
     bool m_readOnly;
     int m_clients;
 

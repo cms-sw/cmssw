@@ -6,11 +6,8 @@
 #include "CondFormats/Common/interface/TimeConversions.h"
 
 
-#include "CondCore/DBCommon/interface/ClassInfoLoader.h"
 #include "CondCore/DBCommon/interface/ClassID.h"
 #include "CondCore/DBCommon/interface/Exception.h"
-
-#include "StorageSvc/DbReflex.h"
 
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
@@ -24,12 +21,20 @@ using namespace boost::python;
 #include<iostream>
 
 namespace {
+  
+  // decode token
+  std::string classID(std::string const & token) {
+    static std::string const clid("CLID=");
+    std::string::size_type s = token.find(clid) + clid.size();
+    std::string::size_type e = token.find(']',s);
+    return token.substr(s,e-s);
 
+  }
   // find and return
   boost::shared_ptr<cond::ClassInfo> pyInfo(std::string const & token) {
     //    topinit();    
     static std::string const prefix = cond::idCategories::pythonIDCategory + "/";
-    std::string pluginName = prefix + cond::classID(token);
+    std::string pluginName = prefix + classID(token);
     return boost::shared_ptr<cond::ClassInfo>(cond::ClassInfoFactory::get()->create(pluginName));
   }
   

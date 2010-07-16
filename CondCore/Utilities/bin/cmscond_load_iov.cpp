@@ -83,8 +83,8 @@ int cond::LoadIOVUtilities::execute(){
   cond::DbScopedTransaction transaction(session);
   transaction.start(false);
 
-  session.initializeMapping( cond::IOVNames::iovMappingVersion(),
-                             cond::IOVNames::iovMappingXML() );
+  //session.initializeMapping( cond::IOVNames::iovMappingVersion(),
+  //                           cond::IOVNames::iovMappingXML() );
    
   cond::IOVEditor editor(session);
   editor.create(parser.timetype,parser.lastTill);

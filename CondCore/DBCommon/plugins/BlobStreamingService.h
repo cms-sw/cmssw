@@ -1,8 +1,7 @@
 #ifndef CondCore_DBCommon_BlobStreamingService_h
 #define CondCore_DBCommon_BlobStreamingService_h
 
-#include "POOLCore/IBlobStreamingService.h"
-#include "ObjectRelationalAccess/ObjectRelationalClassUtils.h"
+#include "CondCore/ORA/interface/IBlobStreamingService.h"
 #include "CoralKernel/Service.h"
 
 namespace cond {

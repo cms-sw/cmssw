@@ -91,7 +91,7 @@ namespace cond {
 
     std::string dump() const { return ""; }
 
-    // specialize... 
+    // specialize...
     std::string summary() const {
       std::ostringstream os;
       os << std::endl;
@@ -106,22 +106,20 @@ namespace cond {
     void extract(Extractor & extractor) const {extractor.computeW(object()); }
 
     Class const & object() const { 
-      return  *m_Data; 
+      return *m_Data; 
     }
     
   private:
     bool load( cond::DbSession & db, std::string const & token) {
       bool ok = false;
-      pool::Ref<DataT> refo =  db.getTypedObject<DataT>(token);
-      if (refo) {
-	m_Data.copyShallow(refo);
-	ok =  true;
-      }
+      m_Data =  db.getTypedObject<DataT>(token);
+      if (m_Data.get()) ok =  true;
+    
       return ok;
-    }
+  }
     
   private:
-    pool::Ref<DataT> m_Data;
+    boost::shared_ptr<DataT> m_Data;
   };
 
 }

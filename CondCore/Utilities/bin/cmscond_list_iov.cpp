@@ -1,5 +1,6 @@
 #include "CondCore/Utilities/interface/Utilities.h"
 
+#include "CondCore/ORA/interface/Object.h"
 #include "CondCore/DBCommon/interface/DbScopedTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
@@ -9,7 +10,6 @@
 
 #include "CondCore/IOVService/interface/IOVProxy.h"
 
-#include <boost/program_options.hpp>
 #include <iterator>
 #include <iostream>
 #include <sstream>
@@ -34,7 +34,7 @@ cond::ListIOVUtilities::ListIOVUtilities():Utilities("cmscond_list_iov"){
   addOption<std::string>("tag","t","list info of the specified tag");
 
   ROOT::Cintex::Cintex::Enable();
- 
+  
 }
 
 cond::ListIOVUtilities::~ListIOVUtilities(){
@@ -84,9 +84,10 @@ int cond::ListIOVUtilities::execute(){
       for (cond::IOVProxy::const_iterator ioviterator=iov.begin(); ioviterator!=iov.end(); ioviterator++) {
         std::cout<<ioviterator->since() << " \t "<<ioviterator->till() <<" \t "<<ioviterator->wrapperToken();
         if (details) {
-	  pool::RefBase ref = session.getObject(ioviterator->wrapperToken());
+	  ora::Object obj = session.getObject(ioviterator->wrapperToken());
 	  std::ostringstream ss; ss << tag << '_' << ioviterator->since(); 
-	  xml->WriteObjectAny(ref.object().get(),ref.objectType().Name(ROOT::Reflex::SCOPED).c_str(), ss.str().c_str());
+	  xml->WriteObjectAny(obj.address(),obj.typeName().c_str(), ss.str().c_str());
+	  obj.destruct();
         }
         std::cout<<std::endl;
         ++counter;

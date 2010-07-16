@@ -71,8 +71,9 @@ struct Add {
   cond::IOVEditor & editor;
 
     void operator()(int i, std::string mess) {
-      pool::Ref<cond::IOVElement> ref = pooldb.storeObject(new cond::IOVElement(i,mess),"SomeWhere");
-      editor.append(i,ref.toString());
+      boost::shared_ptr<cond::IOVElement> data(new cond::IOVElement(i,mess));
+      std::string tok = pooldb.storeObject(data.get(),"SomeWhere");
+      editor.append(i,tok);
     }
 
 };

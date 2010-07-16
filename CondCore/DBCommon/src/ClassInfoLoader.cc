@@ -1,3 +1,4 @@
+/*
 #include "CondCore/DBCommon/interface/ClassInfoLoader.h"
 #include "CondCore/DBCommon/interface/ClassID.h"
 #include "CondCore/DBCommon/interface/Exception.h"
@@ -82,3 +83,4 @@ namespace cond {
   }
 
 }
+*/

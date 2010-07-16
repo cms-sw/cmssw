@@ -3,11 +3,11 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "CondCore/DBCommon/interface/DbConnection.h"
 #include "CondCore/DBCommon/interface/Time.h"
-#include "CondCore/DBCommon/interface/ClassInfoLoader.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/DBCommon/interface/Logger.h"
 #include "CondCore/DBCommon/interface/UserLogInfo.h"
 #include "CondCore/DBCommon/interface/TagInfo.h"
+#include "Reflex/Type.h"
 #include <string>
 #include <map>
 
@@ -35,10 +35,15 @@ namespace edm{
   class ParameterSet;
 }
 namespace cond{
-
-  // FIXME
+  
+  inline std::string classNameForTypeId( const std::type_info& typeInfo ){
+    Reflex::Type reflexType = Reflex::Type::ByTypeInfo( typeInfo );
+    //FIXME: should become Reflex::SCOPED?
+    return reflexType.Name();
+  }
+  //FIXME
   class Summary;
-
+  
   namespace service {
 
     /** transaction and data consistency
@@ -73,13 +78,16 @@ namespace cond{
       GetTokenFromPointer(T * p, Summary * s=0) :
 	m_p(p), m_s(s){}
       
-      virtual std::string operator()(cond::DbSession& pooldb, bool /* withWrapper */) const {
-	std::string className = cond::classNameForPointer( m_p );
-	pool::Ref<T> myPayload = pooldb.storeObject(m_p,className);
-	return myPayload.toString();
+      static std::string classNameForPointer( T* pointer ){
+	if(!pointer) return classNameForTypeId( typeid(T) );
+	return classNameForTypeId( typeid(*pointer) );
       }
-      
-      T * m_p;
+      virtual std::string operator()(cond::DbSession& pooldb, bool /* withWrapper */) const {
+	std::string className = classNameForPointer( m_p );
+	boost::shared_ptr<T> sptr( m_p );
+	return pooldb.storeObject(m_p,className);
+      }
+        T* m_p;
       cond::Summary * m_s;
       //const std::string& m_recordName;
     };

@@ -1,6 +1,5 @@
 #include "CondFormats/Common/interface/Time.h"
 #include "CondFormats/Common/interface/BaseKeyed.h"
-#include "CondFormats/Common/interface/GenericSummary.h"
 #include "CondFormats/Common/interface/hash64.h"
 #include <sstream>
 
@@ -13,7 +12,8 @@ namespace cond{
   public:
     // constructor from int key
    KeyedElement(BaseKeyed * obj, cond::Time_t key) : 
-     m_obj(obj),  
+     m_obj(obj), 
+     m_skey(""),
      m_key(key) {
      std::ostringstream ss; ss << key;
      m_skey  = ss.str();
@@ -23,7 +23,7 @@ namespace cond{
     // constructor from ascii key
    KeyedElement(BaseKeyed * obj, std::string key) : 
       m_obj(obj), 
-      m_skey(key), 
+      m_skey(key),
       m_key(convert(key)) {
      (*obj).setKey(m_skey);
    }
@@ -33,7 +33,7 @@ namespace cond{
     }
 
     BaseKeyed * m_obj;
-    std::string m_skey;
+    std::string  m_skey;
     cond::Time_t m_key;
   };
   

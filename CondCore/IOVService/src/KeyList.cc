@@ -11,12 +11,11 @@ namespace cond {
     m_sequence.db().transaction().start(true);
     m_data.resize(keys.size());
     for (size_t i=0; i<keys.size(); ++i) {
-      m_data[i].clear();
+      m_data[i].reset();
       if (keys[i]!=0) {
         IOVSequence::const_iterator p = m_sequence.iov().findSince(keys[i]);
 	if (p!=m_sequence.iov().iovs().end()) { 
-	  pool::Ref<Base> ref = m_sequence.db().getTypedObject<Base>( (*p).wrapperToken() );
-	  m_data[i].copyShallow(ref);
+	  m_data[i] = m_sequence.db().getTypedObject<Base>( (*p).wrapperToken() );
 	}
       }
     }
@@ -26,7 +25,7 @@ namespace cond {
 
   BaseKeyed const * KeyList::elem(int n) const {
     if (!m_data[n]) return 0;
-    return &(*m_data[n]);
+    return m_data[n].get();
   }
   
 

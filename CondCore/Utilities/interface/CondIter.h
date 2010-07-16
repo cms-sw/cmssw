@@ -13,13 +13,13 @@ template <class DataT>
 class CondIter : public  CondBasicIter{
   
 protected:
-  virtual bool load(pool::IDataSvc * svc, std::string const & itoken) {
+  virtual bool load(cond::DbSession& sess, std::string const & itoken) {
     if (useCache)
       if (n>=cache.size()) {
 	cache.resize(n+1); 
-	return cache.back().load(svc,itoken);
+	return cache.back().load(sess,itoken);
       } else return true;
-    else return data.load(svc,itoken);
+    else return data.load(sess,itoken);
   }
   
 private:

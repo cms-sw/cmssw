@@ -37,8 +37,10 @@ int main(){
       for(int j=0; j<10; ++j){
         myobj->data.push_back(i+j);
       }
-      pool::Ref<testPayloadObj> myobjRef = sourcedb.storeObject(myobj,"testPayloadObjRcd");
-      editor->append(i+10, myobjRef.toString());
+      
+      boost::shared_ptr<testPayloadObj> myobjPtr (myobj );
+      std::string tok = sourcedb.storeObject(myobjPtr.get(),"testPayloadObjRcd");
+      editor->append(i+10, tok);
     }
     std::string iovtoken=editor->token();
     std::cout<<"iov token "<<iovtoken<<std::endl;

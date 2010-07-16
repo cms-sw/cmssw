@@ -6,7 +6,6 @@
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondFormats/Calibration/interface/Pedestals.h"
-
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 
@@ -17,8 +16,7 @@ int main(){
     cond::Time_t globalTill = cond::timeTypeSpecs[timetype].endValue;
     edmplugin::PluginManager::Config config;
     edmplugin::PluginManager::configure(edmplugin::standard::config());
-
-
+    
     cond::DbConnection connection;
     connection.configuration().setMessageLevel( coral::Error );
     connection.configure();
@@ -30,15 +28,14 @@ int main(){
     ioveditor->create(timetype,globalTill);
     std::string mytestiovtoken;
     for(unsigned int i=0; i<3; ++i){ //inserting 3 payloads
-      Pedestals* myped=new Pedestals;
+      boost::shared_ptr<Pedestals> myped( new Pedestals );
       for(int ichannel=1; ichannel<=5; ++ichannel){
         Pedestals::Item item;
         item.m_mean=1.11*ichannel+i;
         item.m_variance=1.12*ichannel+i*2;
         myped->m_pedestals.push_back(item);
       }
-      pool::Ref<Pedestals> myref = session.storeObject(myped,"anotherPedestalsRcd");
-      std::string payloadToken=myref.toString();
+      std::string payloadToken = session.storeObject(myped.get(),"anotherPedestalsRcd");
       std::cout<<"payloadToken "<<payloadToken<<std::endl;
       ioveditor->append(cond::Time_t(2+2*i),payloadToken);
     }

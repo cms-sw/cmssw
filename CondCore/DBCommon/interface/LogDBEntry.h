@@ -11,6 +11,7 @@ namespace cond{
     std::string iovtag;
     std::string iovtimetype;
     unsigned int payloadIdx;
+    unsigned long long lastSince;
     std::string payloadName;
     std::string payloadToken;
     std::string payloadContainer;

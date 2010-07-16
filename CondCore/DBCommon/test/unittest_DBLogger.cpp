@@ -3,14 +3,12 @@
 #include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/DBCommon/interface/LogDBEntry.h"
 #include "CondCore/DBCommon/interface/Logger.h"
+#include "CondCore/DBCommon/interface/PoolToken.h"
 #include "CondCore/DBCommon/interface/SharedLibraryName.h"
 #include "CondCore/DBCommon/interface/UserLogInfo.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/SharedLibrary.h"
 #include "FWCore/PluginManager/interface/standard.h"
-#include "POOLCore/Token.h"
-#include "StorageSvc/DbType.h"
-#include "StorageSvc/DbReflex.h"
 #include <string>
 #include <iostream>
 //#include <stdio.h>
@@ -20,53 +18,42 @@
 namespace cond{
   class TokenBuilder{
   public:
-    TokenBuilder(): m_token(new pool::Token) {
-      m_token->setTechnology(pool::POOL_RDBMS_HOMOGENEOUS_StorageType.type());
+    TokenBuilder(): m_token("") {
     }
+
     ~TokenBuilder() {
-      delete m_token;
     }
-    void set( const std::string& fid,
-	      const std::string& dictLib,
+
+    void set( const std::string& dictLib,
 	      const std::string& className,
 	      const std::string& containerName,
 	      int pkcolumnValue=0) {
       
       cond::SharedLibraryName libName;
       edmplugin::SharedLibrary shared( libName(dictLib) );
-      Reflex::Type myclass=Reflex::Type::ByName(className);
-      m_token->setDb(fid);
-      m_token->setClassID(pool::DbReflex::guid(myclass));
-      m_token->setCont(containerName);
-      m_token->oid().first=0;
-      m_token->oid().second=pkcolumnValue;
+      m_token = writeToken(containerName, 0, pkcolumnValue, className);
     }
-    void resetOID( int pkcolumnValue ) {
-      m_token->oid().first=0;
-      m_token->oid().second=pkcolumnValue;
-    }
-    std::string tokenAsString() const {
-      return m_token->toString();
+
+    std::string const & tokenAsString() const {
+      return m_token;
     }
   private:
-    pool::Token* m_token;
+    std::string m_token;
   };
 }//ns cond
 
 int main(){
   cond::TokenBuilder tk;
-  tk.set("3E60FA40-D105-DA11-981C-000E0C4DE431",
-	 "CondFormatsCalibration",
+  tk.set("CondFormatsCalibration",
 	 "Pedestals",
-	 "PedestalsRcd",
+	 "Pedestals",
 	 0);
-  std::string tok1=tk.tokenAsString();
-  tk.set("3E60FA40-D105-DA11-981C-000E0C4DE431",
-	 "CondFormatsCalibration",
+  std::string const tok1 = tk.tokenAsString();
+  tk.set("CondFormatsCalibration",
 	 "Pedestals",
-	 "PedestalsRcd",
+	 "Pedestals",
 	 1);
-  std::string tok2=tk.tokenAsString();
+  std::string const tok2 = tk.tokenAsString();
   std::string constr("sqlite_file:mylog.db");
   //std::string constr("oracle://devdb10/cms_xiezhen_dev");
   edmplugin::PluginManager::Config config;
@@ -85,7 +72,7 @@ int main(){
   }else{
     std::cout<<"1. table lock failed"<<std::endl;
   }
-  mylogger.logOperationNow(a,constr,tok1,"mytag1","runnumber",0);
+  mylogger.logOperationNow(a,constr,tok1,"mytag1","runnumber",0,1);
   std::cout<<"1. waiting"<<std::endl;
   sleep(5);
   std::cout<<"1. stop waiting"<<std::endl;
@@ -102,7 +89,7 @@ int main(){
   std::cout<<"1. waiting"<<std::endl;
   sleep(5);
   std::cout<<"1. stop waiting"<<std::endl;
-  mylogger.logFailedOperationNow(a,constr,tok1,"mytag1","runnumber",1,"EOOROR");
+  mylogger.logFailedOperationNow(a,constr,tok1,"mytag1","runnumber",1,1,"EOOROR");
   std::cout<<"1. waiting"<<std::endl;
   sleep(5);
   std::cout<<"1. stop waiting"<<std::endl;
@@ -121,7 +108,7 @@ int main(){
   std::cout<<"1. waiting"<<std::endl;
   sleep(5);
   std::cout<<"1. stop waiting"<<std::endl;
-  mylogger.logOperationNow(a,constr,tok2,"mytag","runnumber",1);
+  mylogger.logOperationNow(a,constr,tok2,"mytag","runnumber",1,2);
   std::cout<<"1. waiting"<<std::endl;
   sleep(5);
   std::cout<<"1. stop waiting"<<std::endl;

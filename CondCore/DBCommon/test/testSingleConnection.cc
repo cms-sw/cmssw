@@ -26,13 +26,13 @@ int main(){
   connection.configure();
   cond::DbSession session = connection.createSession();
   session.open( "sqlite_file:mydata.db" );
-  testCondObj* myobj=new testCondObj;
+  boost::shared_ptr<testCondObj> myobj( new testCondObj );
   myobj->data.insert(std::make_pair<unsigned int,std::string>(10,"ten"));
   myobj->data.insert(std::make_pair<unsigned int,std::string>(2,"two"));
   session.transaction().start(false);
   std::cout<<"waiting for 20 sec in pool transaction..."<<std::endl;
   wait(20);
-  pool::Ref<testCondObj> myref  = session.storeObject(myobj,"testCondObjContainer" );
+  session.storeObject( myobj.get(), "testCondObjContainer" );
   session.transaction().commit();
   std::cout<<"waiting for 20 sec in coral transaction..."<<std::endl;
   wait(20);

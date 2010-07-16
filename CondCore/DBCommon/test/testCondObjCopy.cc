@@ -15,19 +15,18 @@ int main(){
   try{
     cond::DbSession sourceSession = connection.createSession();
     sourceSession.open("sqlite_file:source.db");
-    testCondObj* myobj=new testCondObj;
+    boost::shared_ptr<testCondObj> myobj( new testCondObj );
     myobj->data.insert(std::make_pair(1,"strangestring1"));
     myobj->data.insert(std::make_pair(100,"strangestring2"));
     sourceSession.transaction().start(false);
-    pool::Ref<testCondObj> myref = sourceSession.storeObject(myobj, "mycontainer");
-    std::string token=myref.toString();
+    std::string token = sourceSession.storeObject(myobj.get(), "mycontainer");
     std::cout<<"token "<<token<<std::endl;
     sourceSession.transaction().commit();
     std::cout<<"committed"<<std::endl;
     sourceSession.transaction().start(true);
     std::cout<<"started"<<std::endl;
-    pool::Ref<testCondObj> myinstance = sourceSession.getTypedObject<testCondObj>( token );
-    std::cout<<"mem pointer "<<myinstance.ptr()<<std::endl;
+    boost::shared_ptr<testCondObj> myinstance = sourceSession.getTypedObject<testCondObj>( token );
+    std::cout<<"mem pointer "<<myinstance.get()<<std::endl;
     std::cout<<"read back 1   "<<myinstance->data[1]<<std::endl;
     std::cout<<"read back 100 "<<myinstance->data[100]<<std::endl;
     sourceSession.transaction().commit();
@@ -43,8 +42,7 @@ int main(){
     sourceSession.transaction().commit();
     std::cout<<"reading back with generic ref token "<<t<<'\n';
     destSession.transaction().start(true);
-    pool::Ref<testCondObj> newRef = destSession.getTypedObject<testCondObj>( t );  
-    std::cout<<"class name "<<newRef.objectType().Name()<<'\n';
+    boost::shared_ptr<testCondObj> newRef = destSession.getTypedObject<testCondObj>( t );  
     destSession.transaction().commit();
   }catch(cond::Exception& er){
     std::cout<<er.what()<<std::endl;

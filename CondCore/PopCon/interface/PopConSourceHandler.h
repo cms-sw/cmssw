@@ -76,7 +76,7 @@ namespace popcon {
       }
       
       T const * ptr() const {
-        return m_d.ptr();
+        return m_d.get();
       }
       
       T const * operator->() const {
@@ -91,7 +91,7 @@ namespace popcon {
     private:
       
       cond::DbSession m_dbsession;
-      pool::Ref<T> m_d;
+      boost::shared_ptr<T> m_d;
     };
     
     

@@ -2,9 +2,8 @@
 <use name=CoralCommon>
 <use name=CoralKernel>
 <use name=RelationalAccess>
-<use name=DataSvc>
-<use name=ObjectRelationalAccess>
 <use name=FWCore/Framework>
+<use name=CondCore/ORA>
 
 <export>
   <use name=boost>
@@ -12,7 +11,5 @@
   <use name=CoralCommon>
   <use name=CoralKernel>
   <use name=RelationalAccess>
-  <use name=ObjectRelationalAccess>
-  <use name=DataSvc>
   <lib name=CondCoreDBCommon>
 </export>

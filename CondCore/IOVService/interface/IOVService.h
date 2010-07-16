@@ -10,7 +10,7 @@ namespace cond{
   class IOVService{
   public:
 
-    IOVService(cond::DbSession& pooldb);
+    IOVService(cond::DbSession& dbSess);
     
     virtual ~IOVService();
 
@@ -25,7 +25,7 @@ namespace cond{
     
     std::string payloadContainerName( const std::string& iovtoken );
     
-    void loadDicts( const std::string& iovToken);
+    //void loadDicts( const std::string& iovToken);
     
     void deleteAll( bool withPayload=false );
 
@@ -53,14 +53,15 @@ namespace cond{
                                            const std::string& destToken,
                                            cond::Time_t since,
                                            cond::Time_t till,
-                                           bool outOfOrder);
+                                           bool outOfOrder
+					   );
   private:
 
     cond::IOVSequence const & iovSeq(const std::string& iovToken);
 
-    cond::DbSession m_pooldb;
+    cond::DbSession m_dbSess;
     std::string m_token;
-    pool::Ref<cond::IOVSequence> m_iov;
+    boost::shared_ptr<cond::IOVSequence> m_iov;
   };
 
 }//ns cond

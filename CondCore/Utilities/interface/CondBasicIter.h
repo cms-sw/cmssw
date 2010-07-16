@@ -3,6 +3,9 @@
 #include "CondCore/Utilities/interface/CondPyInterface.h"
 #include <string>
 
+namespace cond {
+  class DbSession;
+}
 
 class CondBasicIter{
 
@@ -96,7 +99,7 @@ protected:
   bool init();
   bool forward();
   bool make();
-  virtual bool load(pool::IDataSvc * svc, std::string const & token) =0;
+  virtual bool load(cond::DbSession& sess, std::string const & token) =0;
   virtual void clear() =0;
 };
 

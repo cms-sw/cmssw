@@ -19,11 +19,11 @@ int main(){
   session.open( "sqlite_file:mydata.db" );
   session.transaction().start(false);
   session.transaction().commit();
-  testCondObj* myobj=new testCondObj;
+  boost::shared_ptr<testCondObj> myobj( new testCondObj );
   myobj->data.insert(std::make_pair<unsigned int,std::string>(10,"ten"));
   myobj->data.insert(std::make_pair<unsigned int,std::string>(2,"two"));
   session.transaction().start(false);
-  pool::Ref<testCondObj> myref = session.storeObject(myobj, "testCondObjContainer");
+  session.storeObject(myobj.get(), "testCondObjContainer");
   session.transaction().commit();
   cond::DbSession session2 = connection.createSession();
   session2.open( "sqlite_file:miodati.db" );

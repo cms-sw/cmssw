@@ -24,6 +24,10 @@ namespace edm{
   class ParameterSet;
 }
 
+namespace ora {
+  class ConnectionPool;
+}
+
 namespace cond{
 
   /*
@@ -52,6 +56,8 @@ namespace cond{
 
     DbConnectionConfiguration & configuration();
     DbConnectionConfiguration const & configuration() const;
+
+    boost::shared_ptr<ora::ConnectionPool> connectionPool() const;
 
     coral::IConnectionService& connectionService() const;
 

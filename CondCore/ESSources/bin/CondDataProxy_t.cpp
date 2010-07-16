@@ -17,8 +17,6 @@
 
 
 #include "CondCore/DBCommon/interface/Time.h"
-#include "CondCore/Utilities/interface/CommonOptions.h"
-
 
 #include "CondCore/IOVService/interface/IOVProxy.h"
 #include "CondFormats/Common/interface/PayloadWrapper.h"
