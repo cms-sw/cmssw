@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.168 2010/06/23 12:50:27 eulisse Exp $
+// $Id: CmsShowMain.cc,v 1.169 2010/07/06 18:32:08 amraktad Exp $
 //
 
 // system include files
@@ -263,7 +263,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
                                                                   m_colorManager.get(),
                                                                   m_viewManager.get(),
                                                                   m_metadataManager.get(),
-                                                                  this,
+                                                                  m_navigator.get(),
                                                                   false));
 
       if ( vm.count(kAdvancedRenderOpt) ) {
@@ -278,7 +278,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
                                                 m_viewManager.get(), _1));
       m_configurationManager->add("EventItems",m_eiManager.get());
       m_configurationManager->add("GUI",m_guiManager.get());
-      m_configurationManager->add("EventNavigator",m_navigator);
+      m_configurationManager->add("EventNavigator", m_navigator.get());
       m_guiManager->writeToConfigurationFile_.connect(boost::bind(&FWConfigurationManager::writeToFile,
                                                                   m_configurationManager.get(),_1));
       m_guiManager->loadFromConfigurationFile_.connect(boost::bind(&CmsShowMain::reloadConfiguration,
@@ -323,7 +323,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          m_startupTasks->addTask(f);
       }
       if(vm.count(kChainCommandOpt)) {
-         f=boost::bind(&CmsShowNavigator::setMaxNumberOfFilesToChain, m_navigator, vm[kChainCommandOpt].as<unsigned int>());
+         f=boost::bind(&CmsShowNavigator::setMaxNumberOfFilesToChain, m_navigator.get(), vm[kChainCommandOpt].as<unsigned int>());
          m_startupTasks->addTask(f);
       }
       if (vm.count(kPlayOpt)) {
@@ -359,7 +359,6 @@ CmsShowMain::~CmsShowMain()
    //avoids a seg fault from eve which happens if eve is terminated after the GUI is gone
    m_selectionManager->clearSelection();
 
-   delete m_navigator;
    delete m_autoLoadTimer;
 }
 
@@ -420,10 +419,8 @@ void CmsShowMain::doExit()
 
 const fwlite::Event* CmsShowMain::getCurrentEvent() const
 {
-   if (m_navigator)
-   {
+   if (m_navigator.get())
       return m_navigator->getCurrentEvent();
-   }
    return 0;
 }
 
@@ -841,7 +838,7 @@ CmsShowMain::setupDataHandling()
    m_navigator->postFiltering_.connect(boost::bind(&CmsShowMain::postFiltering,this));
 
    // navigator fitlering <-
-   m_guiManager->showEventFilterGUI_.connect(boost::bind(&CmsShowNavigator::showEventFilterGUI, m_navigator,_1));
+   m_guiManager->showEventFilterGUI_.connect(boost::bind(&CmsShowNavigator::showEventFilterGUI, m_navigator.get(),_1));
    m_guiManager->filterButtonClicked_.connect(boost::bind(&CmsShowMain::filterButtonClicked,this));
 
    if (m_guiManager->getAction(cmsshow::sOpenData)    != 0) m_guiManager->getAction(cmsshow::sOpenData)   ->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openData));

@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.208 2010/06/18 10:17:15 yana Exp $
+// $Id: FWGUIManager.cc,v 1.209 2010/06/23 12:50:28 eulisse Exp $
 
 //
 
@@ -55,7 +55,7 @@
 #include "Fireworks/Core/interface/FWConfiguration.h"
 
 #include "Fireworks/Core/interface/CmsShowMainFrame.h"
-#include "Fireworks/Core/src/CmsShowMain.h"
+#include "Fireworks/Core/interface/FWNavigatorBase.h"
 
 #include "Fireworks/Core/src/FWGUIEventDataAdder.h"
 
@@ -102,7 +102,7 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
                            FWColorManager* iColorMgr,
                            const FWViewManagerManager* iVMMgr,
                            FWJobMetadataManager *metadataManager,
-                           const CmsShowMain* iCmsShowMain,
+                           FWNavigatorBase* navigator,
                            bool iDebugInterface
                            ) :
    m_selectionManager(iSelMgr),
@@ -113,7 +113,7 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
    m_viewManagerManager(iVMMgr),
    m_metadataManager(metadataManager),
    m_contextMenuHandler(0),
-   m_cmsShowMain(iCmsShowMain),
+   m_navigator(navigator),
    m_dataAdder(0),
    m_ediFrame(0),
    m_modelPopup(0),
@@ -765,7 +765,7 @@ FWGUIManager::getGUIManager()
 const fwlite::Event*
 FWGUIManager::getCurrentEvent() const
 {
-   return m_cmsShowMain->getCurrentEvent();  
+   return m_navigator->getCurrentEvent();  
 }
 
 /** Helper method for a load / save configuration dialog.

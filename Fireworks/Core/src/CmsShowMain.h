@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.46 2010/04/29 16:58:05 amraktad Exp $
+// $Id: CmsShowMain.h,v 1.47 2010/06/23 12:50:27 eulisse Exp $
 //
 
 // system include files
@@ -145,8 +145,7 @@ private:
    std::auto_ptr<FWJobMetadataManager>   m_metadataManager;
    std::auto_ptr<FWGUIManager>           m_guiManager;
    std::auto_ptr<fireworks::Context>     m_context;
-
-   CmsShowNavigator* m_navigator;
+   std::auto_ptr<CmsShowNavigator>       m_navigator;
 
    DetIdToMatrix            m_detIdToGeo;
    std::vector<std::string> m_inputFiles;

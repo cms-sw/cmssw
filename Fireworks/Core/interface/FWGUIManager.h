@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.103 2010/06/14 18:12:03 matevz Exp $
+// $Id: FWGUIManager.h,v 1.104 2010/06/23 12:50:27 eulisse Exp $
 //
 
 // system include files
@@ -76,7 +76,7 @@ class FWGUIEventDataAdder;
 
 class CmsShowTaskExecutor;
 
-class CmsShowMain;
+class FWNavigatorBase;
 
 class FWModelContextMenuHandler;
 class FWViewContextMenuHandlerBase;
@@ -113,7 +113,7 @@ public:
                 FWColorManager*,
                 const FWViewManagerManager*,
                 FWJobMetadataManager*,
-		          const CmsShowMain*,
+		          FWNavigatorBase *,
                 bool iDebugInterface = false);
    virtual ~FWGUIManager();
    void     evePreTerminate();
@@ -254,8 +254,7 @@ private:
    const FWViewManagerManager* m_viewManagerManager;
    FWJobMetadataManager *      m_metadataManager;
    FWModelContextMenuHandler*  m_contextMenuHandler;
-   
-   const CmsShowMain*    m_cmsShowMain;
+   FWNavigatorBase            *m_navigator;
    CmsShowMainFrame*     m_cmsShowMainFrame;
    
    const TFile* m_openFile;
