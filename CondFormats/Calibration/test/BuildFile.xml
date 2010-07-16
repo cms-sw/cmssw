@@ -1,6 +1,2 @@
 <use   name="CondFormats/Calibration"/>
 <use   name="CondCore/DBCommon"/>
-<bin   file="testBoostType.cpp">
-</bin>
-<bin   file="testbig.cpp">
-</bin>
