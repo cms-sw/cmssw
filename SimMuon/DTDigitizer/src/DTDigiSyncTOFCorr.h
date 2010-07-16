@@ -15,9 +15,12 @@
  *  2: ditto, but for a particle travelling to the 3D center of the wire. 
  *     (This mode is avaliable for comparison with older data which were  
  *     produced in this way)
+ *  3: aTOF = the TOF of an infinite-momentum particle travelling from the
+ *     nominal IP to the 3D center of the SL. Use this, unless you 
+ *     really know what you are doing.
  *
- *  $Date: 2006/01/20 15:49:00 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/01/25 11:07:39 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane, R. Bellan - INFN Torino
  */
 

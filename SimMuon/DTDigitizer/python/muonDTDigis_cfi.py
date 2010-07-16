@@ -24,7 +24,7 @@ simMuonDTDigis = cms.EDProducer("DTDigitizer",
     debug = cms.untracked.bool(False),
     # Its parameters
     pset = cms.PSet(
-        TOFCorrection = cms.int32(2),
+        TOFCorrection = cms.int32(3),
         offset = cms.double(500.0)
     ),
     # ideal model. Used for debug.
