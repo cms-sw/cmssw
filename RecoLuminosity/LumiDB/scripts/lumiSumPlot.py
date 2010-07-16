@@ -22,21 +22,22 @@ class constants(object):
         return """<frontier-connect><proxy url="http://cmst0frontier.cern.ch:3128"/><proxy url="http://cmst0frontier.cern.ch:3128"/><proxy url="http://cmst0frontier1.cern.ch:3128"/><proxy url="http://cmst0frontier2.cern.ch:3128"/><server url="http://cmsfrontier.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier1.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier2.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier3.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier4.cern.ch:8000/FrontierInt"/></frontier-connect>"""
 
 
-def getLumiInfoForRuns(dbsession,c,runDict,hltpath=''):
+def getLumiInfoForRuns(dbsession,c,runList,selectionDict,hltpath=''):
     '''
-    input: runDict{runnum:[ls]}
+    input: runList[runnum], selectionDict{runnum:[ls]}
     output:{runnumber:[delivered,recorded,recorded_hltpath] }
     '''
     t=lumiTime.lumiTime()
     result={}#runnumber:[lumisumoverlumils,lumisumovercmsls-deadtimecorrected,lumisumovercmsls-deadtimecorrected*hltcorrection_hltpath]
-    keylist=runDict.keys()
-    keylist.sort()
     dbsession.transaction().start(True)
-    for runnum in keylist:
+    for runnum in runList:
         totallumi=0.0
         delivered=0.0
         recorded=0.0 
         recordedinpath=0.0
+        if len(selectionDict)!=0 and not selectionDict.has_key(runnum):
+            result[runnum]=[0.0,0.0,0.0]
+            continue
         #print 'looking for run ',runnum
         q=dbsession.nominalSchema().newQuery()
         totallumi=lumiQueryAPI.lumisumByrun(q,runnum,c.LUMIVERSION) #q1
@@ -74,6 +75,9 @@ def getLumiInfoForRuns(dbsession,c,runDict,hltpath=''):
                 del q
         #done all possible queries. process result
         for cmslsnum,valuelist in lumitrginfo.items():
+            if len(selectionDict)!=0 and not (cmslsnum in selectionDict[runnum]):
+                #if there's a selection list but cmslsnum is not selected,skip
+                continue
             if valuelist[5]==0:#bitzero==0 means no beam,do nothing
                 continue
             deadfrac=valuelist[6]/valuelist[5]
@@ -173,13 +177,27 @@ def main():
     session.typeConverter().setCppTypeForSqlType("unsigned long long","NUMBER(20)")
     inputfilecontent=''
     fileparsingResult=''
-    runDict={}
+    runList={}
     fillDict={}
+    selectionDict={}
     minTime=''
     maxTime=''
+
+    if len(ifilename)!=0 :
+        f=open(ifilename,'r')
+        inputfilecontent=f.read()
+        sparser=selectionParser.selectionParser(inputfilecontent)
+        runsandls=sparser.runsandls()
+        keylist=runsandls.keys()
+        keylist.sort()
+        for run in keylist:
+            if selectionDict.has_key(run):
+                lslist=runsandls[run]
+                lslist.sort()
+                selectionDict[run]=lslist                
     if args.action == 'run':
         for r in range(int(args.begin),int(args.end)+1):
-            runDict[r]=[]
+            runList.append(r)
     elif args.action == 'fill':
         session.transaction().start(True)
         qHandle=session.nominalSchema().newQuery()
@@ -190,7 +208,7 @@ def main():
         for fill in range(int(args.begin),int(args.end)+1):
             if fillDict.has_key(fill): #fill exists
                 for run in fillDict[fill]:
-                    runDict[run]=[]
+                    runList.append(run)
     elif args.action == 'time':
         session.transaction().start(True)
         t=lumiTime.lumiTime()
@@ -202,31 +220,22 @@ def main():
         #print minTime,maxTime
         qHandle=session.nominalSchema().newQuery()
         runDict=lumiQueryAPI.runsByTimerange(qHandle,minTime,maxTime)#xrawdata
-        del qHandle
         session.transaction().commit()
+        runList=runDict.keys()
+        runList.sort()
+        del qHandle
         #print runDict
     else:
         print 'unsupported action ',args.action
         exit
-    if len(ifilename)!=0 :
-            f=open(ifilename,'r')
-            inputfilecontent=f.read()
-            sparser=selectionParser.selectionParser(inputfilecontent)
-            runsandls=sparser.runsandls()
-            keylist=runsandls.keys()
-            keylist.sort()
-            for run in keylist:
-                if runDict.has_key(run):
-                    lslist=runsandls[run]
-                    lslist.sort()
-                    runDict[run]=lslist
+        
     #print 'runDict ', runDict               
     fig=Figure(figsize=(7,4),dpi=100)
     m=matplotRender.matplotRender(fig)
     
     if args.action == 'run':
         result={}        
-        result=getLumiInfoForRuns(session,c,runDict,hltpath)
+        result=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath)
         xdata=[]
         ydata={}
         ydata['Delivered']=[]
@@ -240,7 +249,7 @@ def main():
         m.plotSumX_Run(xdata,ydata)
     elif args.action == 'fill':        
         lumiDict={}
-        lumiDict=getLumiInfoForRuns(session,c,runDict,hltpath)
+        lumiDict=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath)
         xdata=[]
         ydata={}
         ydata['Delivered']=[]
@@ -254,7 +263,7 @@ def main():
         m.plotSumX_Fill(xdata,ydata,fillDict)
     elif args.action == 'time':
         lumiDict={}
-        lumiDict=getLumiInfoForRuns(session,c,runDict,hltpath)
+        lumiDict=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath)
         xdata=runDict        
         ydata={}
         ydata['Delivered']=[]

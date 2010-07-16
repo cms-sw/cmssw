@@ -132,14 +132,14 @@ class matplotRender():
         ax.legend(tuple(legendlist),loc='best')
         self.__fig.subplots_adjust(bottom=0.18,left=0.3)
         
-    def plotSumX_Time(self,rawxdata,rawydata,minTime,maxTime,timedeltadays=1,nticks=6):
+    def plotSumX_Time(self,rawxdata,rawydata,minTime,maxTime,timedeltahours=3):
         xpoints=[]
         ypoints={}
         ytotal={}
         xidx=[]
         runs=rawxdata.keys()
         runs.sort()
-        delta=datetime.timedelta(days=timedeltadays)
+        delta=datetime.timedelta(hours=timedeltahours)
         timesamplers=matplotlib.dates.drange(minTime,maxTime,delta)
         #print 'minTime ordinal ',minTime.toordinal()
         #print 'maxTime ordinal ',maxTime.toordinal()
@@ -170,17 +170,17 @@ class matplotRender():
         #print 'xpoints ',xpoints
         #print 'ypoints ',ypoints
         ax=self.__fig.add_subplot(111)
-        dateFmt=matplotlib.dates.DateFormatter('%Y-%m-%d')
+        dateFmt=matplotlib.dates.DateFormatter('%d-%m')
         ax.xaxis.set_major_formatter(dateFmt)
         ax.set_xlabel(r'Date',position=(0.84,0))
         ax.set_ylabel(r'L nb$^{-1}$',position=(0,0.9))
-        daysLoc=matplotlib.dates.DayLocator()
-        hoursLoc=matplotlib.dates.HourLocator(interval=6)
+        daysLoc=matplotlib.dates.DayLocator(interval=3)
+        hoursLoc=matplotlib.dates.HourLocator(interval=12)
         ax.xaxis.set_major_locator(daysLoc)
         ax.xaxis.set_minor_locator(hoursLoc)
         xticklabels=ax.get_xticklabels()
-        for tx in xticklabels:
-            tx.set_rotation(30)
+        #for tx in xticklabels:
+        #    tx.set_rotation(30)
         ax.grid(True)
         keylist=ypoints.keys()
         keylist.sort()
