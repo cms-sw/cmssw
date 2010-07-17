@@ -9,8 +9,8 @@
 
 /** \class HcalCoarsePedestalMonitor
   *  
-  * $Date: 2010/07/15 14:22:49 $
-  * $Revision: 1.00 $
+  * $Date: 2010/07/15 22:38:41 $
+  * $Revision: 1.1 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -51,9 +51,12 @@ private:  ///Methods, variables accessible only within class code
   void zeroCounters();
 
   // Store sum of pedestal values over all events
-  EtaPhiHists CoarsePedestalsByDepth;
+  EtaPhiHists CoarsePedestalsSumByDepth;
+  EtaPhiHists CoarsePedestalsOccByDepth;
 
   int pedestalsum_[85][72][4]; // sum of pedestal values over all events
+  int pedestalocc_[85][72][4];
+
   double ADCDiffThresh_; // store difference value that causes channel to be considered in error
 
   edm::InputTag digiLabel_;

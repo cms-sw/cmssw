@@ -37,6 +37,8 @@ class HcalCoarsePedestalClient : public HcalBaseDQClient {
 
   double ADCDiffThresh_;
   TH2F* DatabasePedestalsADCByDepth[4];
+  EtaPhiHists* CoarsePedestalsByDepth;
+  MonitorElement* CoarsePedDiff;
 };
 
 #endif

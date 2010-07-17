@@ -82,8 +82,14 @@ void HcalCoarsePedestalMonitor::setup()
     std::cout <<"<HcalCoarsePedestalMonitor::beginRun>  Setting up histograms"<<std::endl;
 
   std::ostringstream name;
-  dbe_->setCurrentFolder(subdir_); // put in separate subdirectory?   +"CoarsePedestalSum");
-  SetupEtaPhiHists(CoarsePedestalsByDepth,"Coarse Pedestal Summed Map","");
+  dbe_->setCurrentFolder(subdir_ +"CoarsePedestalSumPlots");
+  SetupEtaPhiHists(CoarsePedestalsSumByDepth,"Coarse Pedestal Summed Map","");
+  SetupEtaPhiHists(CoarsePedestalsOccByDepth,"Coarse Pedestal Occupancy Map","");
+  for (unsigned int i=0;i<CoarsePedestalsSumByDepth.depth.size();++i)
+    (CoarsePedestalsSumByDepth.depth[i]->getTH2F())->SetOption("colz");
+  for (unsigned int i=0;i<CoarsePedestalsOccByDepth.depth.size();++i)
+    (CoarsePedestalsOccByDepth.depth[i]->getTH2F())->SetOption("colz");
+
 
   dbe_->setCurrentFolder(subdir_+"CoarsePedestal_parameters");
   MonitorElement* ADCDiffThresh = dbe_->bookFloat("ADCdiff_Problem_Threshold");
@@ -185,16 +191,9 @@ void HcalCoarsePedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
 
   double value=0;
 
-  // Underflow bin will store number of events processed
-  for (unsigned int i=0;i<CoarsePedestalsByDepth.depth.size();++i)
-    CoarsePedestalsByDepth.depth[i]->setBinContent(0,0,ievt_);
-
   for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); ++j)
     {
 	const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
-
-	
-
 	if (digi.id().subdet()==HcalBarrel)
 	  {if (!HBpresent_) continue;}
 	else if (digi.id().subdet()==HcalEndcap)
@@ -219,6 +218,7 @@ void HcalCoarsePedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	for (unsigned int i=0;i<8;++i)
 	  value+=digi.sample(i).adc()/8.;
 	pedestalsum_[binEta][iphi-1][depth-1]+=value;
+	++pedestalocc_[binEta][iphi-1][depth-1];
     }
 
 
@@ -248,6 +248,7 @@ void HcalCoarsePedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  for (unsigned int i=0;i<8;++i)
 	    value+=digi.sample(i).adc()/8.;
 	  pedestalsum_[binEta][iphi-1][depth-1]+=value;
+	  ++pedestalocc_[binEta][iphi-1][depth-1];
 	} // for (HODigiCollection)
     }
   
@@ -268,7 +269,6 @@ void HcalCoarsePedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  iphi=digi.id().iphi();
 	  ieta=digi.id().ieta();
 	  binEta=CalcEtaBin(HcalForward, ieta, depth);
-
 	  // 'value' is the average pedestal over the 8 time slices.
 	  // In the CoarsePedestal client, we will divide the summed value by Nevents (in underflow bin)
 	  // in order to calculate average pedestals.
@@ -276,7 +276,7 @@ void HcalCoarsePedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  for (unsigned int i=0;i<8;++i)
 	    value+=digi.sample(i).adc()/8.;
 	  pedestalsum_[binEta][iphi-1][depth-1]+=value;
-
+	  ++pedestalocc_[binEta][iphi-1][depth-1];
 	} // for (HFDigiCollection)
     } // if (HFpresent_)
 
@@ -308,9 +308,11 @@ void HcalCoarsePedestalMonitor::fill_Nevents()
 
   // Set underflow bin to the number of pedestal events processed
   // (Assume that number of ped events is the same for all channels/subdetectors)
-  for (unsigned int i=0;i<CoarsePedestalsByDepth.depth.size();++i)
-    CoarsePedestalsByDepth.depth[i]->setBinContent(0,0,ievt_);
-  
+  for (unsigned int i=0;i<CoarsePedestalsSumByDepth.depth.size();++i)
+    CoarsePedestalsSumByDepth.depth[i]->setBinContent(0,0,ievt_);
+  for (unsigned int i=0;i<CoarsePedestalsOccByDepth.depth.size();++i)
+    CoarsePedestalsOccByDepth.depth[i]->setBinContent(0,0,ievt_);
+
 
   int iphi=-1, ieta=-99, idepth=0, calcEta=-99;
   // Loop over all depths, eta, phi
@@ -326,29 +328,35 @@ void HcalCoarsePedestalMonitor::fill_Nevents()
 	      if (validDetId(HcalBarrel, ieta, iphi, idepth))
 		{
 		  calcEta = CalcEtaBin(HcalBarrel,ieta,idepth);
-		  CoarsePedestalsByDepth.depth[d]->Fill(ieta,iphi,pedestalsum_[calcEta][phi][d]);
+		  CoarsePedestalsSumByDepth.depth[d]->Fill(ieta,iphi,pedestalsum_[calcEta][phi][d]);
+		  CoarsePedestalsOccByDepth.depth[d]->Fill(ieta,iphi,pedestalocc_[calcEta][phi][d]);
 		}
 	      if (validDetId(HcalEndcap, ieta, iphi, idepth))
 		{
 		  calcEta = CalcEtaBin(HcalEndcap,ieta,idepth);
-		  CoarsePedestalsByDepth.depth[d]->Fill(ieta,iphi,pedestalsum_[calcEta][phi][d]);
+		  CoarsePedestalsSumByDepth.depth[d]->Fill(ieta,iphi,pedestalsum_[calcEta][phi][d]);
+		  CoarsePedestalsOccByDepth.depth[d]->Fill(ieta,iphi,pedestalocc_[calcEta][phi][d]);
 		}
 	      if (validDetId(HcalOuter, ieta, iphi, idepth))
 		{
 		  calcEta = CalcEtaBin(HcalOuter,ieta,idepth);
-		  CoarsePedestalsByDepth.depth[d]->Fill(ieta,iphi,pedestalsum_[calcEta][phi][d]);
+		  CoarsePedestalsSumByDepth.depth[d]->Fill(ieta,iphi,pedestalsum_[calcEta][phi][d]);
+		  CoarsePedestalsOccByDepth.depth[d]->Fill(ieta,iphi,pedestalocc_[calcEta][phi][d]);
 		}
 	      if (validDetId(HcalForward, ieta, iphi, idepth))
 		{
 		  calcEta = CalcEtaBin(HcalBarrel,ieta,idepth);
 		  int zside=ieta/abs(ieta);
-		  CoarsePedestalsByDepth.depth[d]->Fill(ieta+zside,iphi,pedestalsum_[calcEta][phi][d]);
+		  CoarsePedestalsSumByDepth.depth[d]->Fill(ieta+zside,iphi,pedestalsum_[calcEta][phi][d]);
+		  CoarsePedestalsOccByDepth.depth[d]->Fill(ieta+zside,iphi,pedestalocc_[calcEta][phi][d]);
 		}
 	    }
 	}
     }
   // Fill unphysical bins
-  FillUnphysicalHEHFBins(CoarsePedestalsByDepth);
+  FillUnphysicalHEHFBins(CoarsePedestalsSumByDepth);
+  FillUnphysicalHEHFBins(CoarsePedestalsOccByDepth);
+
   return;
 } // void HcalCoarsePedestalMonitor::fill_Nevents()
 
@@ -357,7 +365,8 @@ void HcalCoarsePedestalMonitor::reset()
 {
   // then reset the MonitorElements
   zeroCounters();
-  CoarsePedestalsByDepth.Reset();
+  CoarsePedestalsSumByDepth.Reset();
+  CoarsePedestalsOccByDepth.Reset();
   return;
 }
 
@@ -366,8 +375,10 @@ void HcalCoarsePedestalMonitor::zeroCounters()
   for (int i=0;i<85;++i)
     for (int j=0;j<72;++j)
       for (int k=0;k<4;++k)
-	pedestalsum_[i][j][k]=0;
+	{
+	  pedestalsum_[i][j][k]=0;
+	  pedestalocc_[i][j][k]=0;
+	}
 }
-
 DEFINE_FWK_MODULE(HcalCoarsePedestalMonitor);
                

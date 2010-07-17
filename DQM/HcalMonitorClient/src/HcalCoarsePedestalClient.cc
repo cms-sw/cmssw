@@ -11,8 +11,8 @@
 /*
  * \file HcalCoarsePedestalClient.cc
  * 
- * $Date: 2010/05/07 09:09:12 $
- * $Revision: 1.64 $
+ * $Date: 2010/07/15 22:39:02 $
+ * $Revision: 1.1 $
  * \author J. Temple
  * \brief CoarsePedestalClient class
  */
@@ -63,9 +63,11 @@ void HcalCoarsePedestalClient::calculateProblems()
 {
  if (debug_>2) std::cout <<"\t\tHcalCoarsePedestalClient::calculateProblems()"<<std::endl;
   if(!dqmStore_) return;
-  int totalevents=0;
+  //int totalevents=0; // events checked on a channel-by-channel basis
   int etabins=0, phibins=0, zside=0;
   double problemvalue=0;
+
+  if (CoarsePedDiff!=0) CoarsePedDiff->Reset();
 
   // Clear away old problems
   if (ProblemCells!=0)
@@ -73,7 +75,7 @@ void HcalCoarsePedestalClient::calculateProblems()
       ProblemCells->Reset();
       (ProblemCells->getTH2F())->SetMaximum(1.05);
       (ProblemCells->getTH2F())->SetMinimum(0.);
-      (ProblemCells->getTH2F())->SetDrawOption("colz");
+      (ProblemCells->getTH2F())->SetOption("colz");
     }
   for  (unsigned int d=0;ProblemCellsByDepth!=0 && d<ProblemCellsByDepth->depth.size();++d)
     {
@@ -87,7 +89,8 @@ void HcalCoarsePedestalClient::calculateProblems()
     }
 
   // Get histograms that are used in testing
-  TH2F* CoarsePedestalsByDepth[4];
+  TH2F* CoarsePedestalsSumByDepth[4];
+  TH2F* CoarsePedestalsOccByDepth[4];
 
   std::vector<std::string> name = HcalEtaPhiHistNames();
   bool gothistos=true;
@@ -95,15 +98,25 @@ void HcalCoarsePedestalClient::calculateProblems()
   MonitorElement* me;
   for (int i=0;i<4;++i)
     {
-      std::string s=subdir_+name[i]+"Coarse Pedestal Summed Map";
+      std::string s=subdir_+"CoarsePedestalSumPlots/"+name[i]+"Coarse Pedestal Summed Map";
       me=dqmStore_->get(s.c_str());
       if (me==0) 
 	{
 	  gothistos=false;
 	  if (debug_>0) std::cout <<"<HcalCoarsePedestalClient::calculateProblems> Could not get histogram with name "<<s<<std::endl;
 	}
-      CoarsePedestalsByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, CoarsePedestalsByDepth[i], debug_);
-    }
+      CoarsePedestalsSumByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, CoarsePedestalsSumByDepth[i], debug_);
+
+      s=subdir_+"CoarsePedestalSumPlots/"+name[i]+"Coarse Pedestal Occupancy Map";
+      me=dqmStore_->get(s.c_str());
+      if (me==0) 
+	{
+	  gothistos=false;
+	  if (debug_>0) std::cout <<"<HcalCoarsePedestalClient::calculateProblems> Could not get histogram with name "<<s<<std::endl;
+	}
+      CoarsePedestalsOccByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, CoarsePedestalsOccByDepth[i], debug_);
+
+    } // for (int i=0;i<4;++i)
 
   if (gothistos==false)
     {
@@ -113,12 +126,16 @@ void HcalCoarsePedestalClient::calculateProblems()
 
   enoughevents_=true;  // Always set this to true, so that pedestal monitoring doesn't hold up 
 
+  int numevents=0;
   for (unsigned int d=0;ProblemCellsByDepth!=0 && d<ProblemCellsByDepth->depth.size();++d)
     {
       if (ProblemCellsByDepth->depth[d]==0) continue;
-      if (CoarsePedestalsByDepth[d]==0 || DatabasePedestalsADCByDepth[d]==0) continue;
-      totalevents=CoarsePedestalsByDepth[d]->GetBinContent(0,0);
-      if (totalevents<minevents_ ) continue;
+      if (CoarsePedestalsSumByDepth[d]==0 || 
+	  CoarsePedestalsOccByDepth[d]==0 ||
+	  DatabasePedestalsADCByDepth[d]==0) continue;
+
+      if (CoarsePedestalsByDepth->depth[d]!=0)
+	CoarsePedestalsByDepth->depth[d]->Reset();
 
       etabins=(ProblemCellsByDepth->depth[d]->getTH2F())->GetNbinsX();
       phibins=(ProblemCellsByDepth->depth[d]->getTH2F())->GetNbinsY();
@@ -128,18 +145,31 @@ void HcalCoarsePedestalClient::calculateProblems()
 	  if (ieta==-9999) continue;
 	  for (int phi=0;phi<phibins;++phi)
 	    {
-	      problemvalue=CoarsePedestalsByDepth[d]->GetBinContent(eta+1,phi+1);
-	      if (problemvalue==0)
-		continue;  // no pedestal information available; continue on?
-	      problemvalue=abs(problemvalue*1./totalevents-DatabasePedestalsADCByDepth[d]->GetBinContent(eta+1,phi+1));
+	      if (abs(ieta)>20 && (phi+1)%2==0)
+		continue;
+	      if (abs(ieta)>39 && (phi+1)%4!=3)
+		continue;
+	      numevents=CoarsePedestalsOccByDepth[d]->GetBinContent(eta+1,phi+1);
+	      if (numevents==0 || numevents<minevents_)
+		{
+		  if (debug_>1)
+		    std::cout <<"NOT ENOUGH EVENTS for channel ("<<ieta<<", "<<phi+1<<", "<<d+1<<")  numevents = "<<numevents<<"  minevents = "<<minevents_<<std::endl;
+		  continue;  // insufficient pedestal information available for this channel; continue on?
+		}
 
+	      problemvalue=1.*CoarsePedestalsSumByDepth[d]->GetBinContent(eta+1,phi+1)/numevents;
+	      CoarsePedestalsByDepth->depth[d]->setBinContent(eta+1,phi+1,problemvalue);
+	      problemvalue=(problemvalue-DatabasePedestalsADCByDepth[d]->GetBinContent(eta+1,phi+1));
+	      CoarsePedDiff->Fill(problemvalue);
+	      problemvalue=fabs(problemvalue);
 	      // Pedestal status is cumulative (DetDiag pedestals perform resets after each calibration cycle, and save each output)
 	      // Either a channels pedestal is 'bad' (outside of allowed range) or 'good' (in range)
 	      problemvalue>ADCDiffThresh_ ? problemvalue=1 : problemvalue=0;
+	      if (debug_>0 && problemvalue==1)
+		std::cout <<"<HcalCoarsePedestalClient> Problem found for channel ("<<ieta<<", "<<phi+1<<", "<<d+1<<")"<<std::endl;
 	      zside=0;
 	      if (isHF(eta,d+1)) // shift ieta by 1 for HF
 		ieta<0 ? zside = -1 : zside = 1;
-
 	      // For problem cells that exceed our allowed rate,
 	      // set the values to -1 if the cells are already marked in the status database
 	      if (problemvalue>minerrorrate_)
@@ -176,6 +206,7 @@ void HcalCoarsePedestalClient::calculateProblems()
 	    ProblemCells->setBinContent(eta+1,phi+1,1.);
 	}
     }
+  
   FillUnphysicalHEHFBins(*ProblemCellsByDepth);
   FillUnphysicalHEHFBins(ProblemCells);
   return;
@@ -203,6 +234,11 @@ void HcalCoarsePedestalClient::beginRun(void)
       return;
     }
   dqmStore_->setCurrentFolder(subdir_);
+  CoarsePedestalsByDepth = new EtaPhiHists();
+  CoarsePedestalsByDepth->setup(dqmStore_," Coarse Pedestal Map");
+
+  CoarsePedDiff=dqmStore_->book1D("PedRefDiff","(Pedestal-Reference)",200,-10,10);
+
   problemnames_.clear();
   ProblemCells=dqmStore_->book2D(" ProblemCoarsePedestals",
 				 " Problem Coarse Pedestal Rate for all HCAL;ieta;iphi",
