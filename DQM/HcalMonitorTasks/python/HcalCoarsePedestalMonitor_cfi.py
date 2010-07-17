@@ -16,6 +16,7 @@ hcalCoarsePedestalMonitor=cms.EDAnalyzer("HcalCoarsePedestalMonitor",
                                          # Coarse Pedestal Monitor Info
                                          digiLabel              = cms.untracked.InputTag("hcalDigis"),
                                          ADCDiffThresh          = cms.untracked.double(1.),  # minimum threshold for assigning error
+                                         minEvents              = cms.untracked.int32(25),
                                          # Turn off calculation of Ring2 pedestals
                                          excludeHORing2         = cms.untracked.bool(True),
                                          )
