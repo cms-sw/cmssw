@@ -58,6 +58,13 @@ HcalHotCellMonitor::HcalHotCellMonitor(const edm::ParameterSet& ps)
   HOpersistentThreshold_         = ps.getUntrackedParameter<double>("persistentThreshold_HO",persistentThreshold_);
   HFpersistentThreshold_         = ps.getUntrackedParameter<double>("persistentThreshold_HF",persistentThreshold_);
 
+  persistentETThreshold_           = ps.getUntrackedParameter<double>("persistentETThreshold");
+
+  HBpersistentETThreshold_         = ps.getUntrackedParameter<double>("persistentETThreshold_HB",persistentETThreshold_);
+  HEpersistentETThreshold_         = ps.getUntrackedParameter<double>("persistentETThreshold_HE",persistentETThreshold_);
+  HOpersistentETThreshold_         = ps.getUntrackedParameter<double>("persistentETThreshold_HO",persistentETThreshold_);
+  HFpersistentETThreshold_         = ps.getUntrackedParameter<double>("persistentETThreshold_HF",persistentETThreshold_);
+
   HFfarfwdScale_                 = ps.getUntrackedParameter<double>("HFfwdScale",2.);
   SiPMscale_                     = ps.getUntrackedParameter<double>("HO_SiPMscalefactor",1.); // default scale factor of 4?
   
@@ -194,24 +201,48 @@ void HcalHotCellMonitor::setup()
       me->Fill(1);
       me=dbe_->bookInt("minEventsPerLS");
       me->Fill(minEvents_);
-      SetupEtaPhiHists(AbovePersistentThresholdCellsByDepth,
-		       "Hot Cells Persistently Above Energy Threshold","");
-      //setMinMaxHists2D(AbovePersistentThresholdCellsByDepth,0.,1.);
-      
-      // set more descriptive titles for plots
-      units.str("");
-      units<<"Hot Cells: Depth 1 -- HB > "<<HBpersistentThreshold_<<" GeV, HE > "<<HEpersistentThreshold_<<", HF > "<<HFpersistentThreshold_<<" GeV for 1 full Lumi Block";
-      AbovePersistentThresholdCellsByDepth.depth[0]->setTitle(units.str().c_str());
-      units.str("");
-      units<<"Hot Cells: Depth 2 -- HB > "<<HBpersistentThreshold_<<" GeV, HE > "<<HEpersistentThreshold_<<", HF > "<<HFpersistentThreshold_<<" GeV for 1 full Lumi Block";
-      AbovePersistentThresholdCellsByDepth.depth[1]->setTitle(units.str().c_str());
-      units.str("");
-      units<<"Hot Cells: Depth 3 -- HE > "<<HEpersistentThreshold_<<" GeV for 1 full Lumi Block";
-      AbovePersistentThresholdCellsByDepth.depth[2]->setTitle(units.str().c_str());
-      units.str("");
-      units<<"Hot Cells:  HO > "<<HOpersistentThreshold_<<" GeV for 1 full Lumi Block";
-      AbovePersistentThresholdCellsByDepth.depth[3]->setTitle(units.str().c_str());
-      units.str("");
+
+      if (test_energy_) {
+	SetupEtaPhiHists(AbovePersistentThresholdCellsByDepth,
+			 "Hot Cells Persistently Above Energy Threshold","");
+	//setMinMaxHists2D(AbovePersistentThresholdCellsByDepth,0.,1.);
+	
+	// set more descriptive titles for plots
+	units.str("");
+	units<<"Hot Cells: Depth 1 -- HB > "<<HBpersistentThreshold_<<" GeV, HE > "<<HEpersistentThreshold_<<", HF > "<<HFpersistentThreshold_<<" GeV for 1 full Lumi Block";
+	AbovePersistentThresholdCellsByDepth.depth[0]->setTitle(units.str().c_str());
+	units.str("");
+	units<<"Hot Cells: Depth 2 -- HB > "<<HBpersistentThreshold_<<" GeV, HE > "<<HEpersistentThreshold_<<", HF > "<<HFpersistentThreshold_<<" GeV for 1 full Lumi Block";
+	AbovePersistentThresholdCellsByDepth.depth[1]->setTitle(units.str().c_str());
+	units.str("");
+	units<<"Hot Cells: Depth 3 -- HE > "<<HEpersistentThreshold_<<" GeV for 1 full Lumi Block";
+	AbovePersistentThresholdCellsByDepth.depth[2]->setTitle(units.str().c_str());
+	units.str("");
+	units<<"Hot Cells:  HO > "<<HOpersistentThreshold_<<" GeV for 1 full Lumi Block";
+	AbovePersistentThresholdCellsByDepth.depth[3]->setTitle(units.str().c_str());
+	units.str("");
+      }
+  
+      if (test_et_) {
+	SetupEtaPhiHists(AbovePersistentThresholdCellsByDepth,
+			 "Hot Cells Persistently Above ET Threshold","");
+	//setMinMaxHists2D(AbovePersistentThresholdCellsByDepth,0.,1.);
+	
+	// set more descriptive titles for plots
+	units.str("");
+	units<<"Hot Cells: Depth 1 -- HB > "<<HBpersistentETThreshold_<<" GeV (ET), HE > "<<HEpersistentETThreshold_<<" GeV (ET), HF > "<<HFpersistentETThreshold_<<" GeV (ET) for 1 full Lumi Block";
+	AbovePersistentThresholdCellsByDepth.depth[0]->setTitle(units.str().c_str());
+	units.str("");
+	units<<"Hot Cells: Depth 2 -- HB > "<<HBpersistentETThreshold_<<" GeV (ET), HE > "<<HEpersistentETThreshold_<<" GeV (ET), HF > "<<HFpersistentETThreshold_<<" GeV (ET) for 1 full Lumi Block";
+	AbovePersistentThresholdCellsByDepth.depth[1]->setTitle(units.str().c_str());
+	units.str("");
+	units<<"Hot Cells: Depth 3 -- HE > "<<HEpersistentETThreshold_<<" GeV (ET) for 1 full Lumi Block";
+	AbovePersistentThresholdCellsByDepth.depth[2]->setTitle(units.str().c_str());
+	units.str("");
+	units<<"Hot Cells:  HO > "<<HOpersistentETThreshold_<<" GeV (ET) for 1 full Lumi Block";
+	AbovePersistentThresholdCellsByDepth.depth[3]->setTitle(units.str().c_str());
+	units.str("");
+      }
     }
   
   dbe_->setCurrentFolder(subdir_+"hot_neighbortest");
@@ -422,8 +453,12 @@ void HcalHotCellMonitor::processEvent_rechitenergy( const HBHERecHitCollection& 
 	      ++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
 	  if (et>=HBETThreshold_)
 	      ++aboveet[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
-	  if (en>=HBpersistentThreshold_)
-	    ++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+	  if (test_energy_) 
+	    if (en>=HBpersistentThreshold_)
+	      ++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+	  if (test_et_) 
+	    if (et>=HBpersistentETThreshold_)
+	      ++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
 	}
       else if (id.subdet()==HcalEndcap)
 	{
@@ -431,8 +466,12 @@ void HcalHotCellMonitor::processEvent_rechitenergy( const HBHERecHitCollection& 
 	    ++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
 	  if (et>=HEETThreshold_)
 	    ++aboveet[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
-	  if (en>=HEpersistentThreshold_)
-	    ++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+	  if (test_energy_) 
+	    if (en>=HEpersistentThreshold_)
+	      ++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+	  if (test_et_) 
+	    if (et>=HEpersistentETThreshold_)
+	      ++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
 	}
     } //for (HBHERecHitCollection::const_iterator HBHEiter=...)
 
@@ -457,8 +496,12 @@ void HcalHotCellMonitor::processEvent_rechitenergy( const HBHERecHitCollection& 
 	    ++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1]; 
 	  if (et>=HOETThreshold_*SiPMscale_)
 	    ++aboveet[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1]; 
-	  if (en>=HOpersistentThreshold_*SiPMscale_)
-	    ++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+	  if (test_energy_) 
+	    if (en>=HOpersistentThreshold_*SiPMscale_)
+	      ++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+	  if (test_et_) 
+	    if (et>=HOpersistentETThreshold_*SiPMscale_)
+	      ++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
 	}
       else
 	{
@@ -466,8 +509,12 @@ void HcalHotCellMonitor::processEvent_rechitenergy( const HBHERecHitCollection& 
 	    ++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1]; 
 	  if (et>=HOETThreshold_)
 	    ++aboveet[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1]; 
-	  if (en>=HOpersistentThreshold_)
-	    ++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+	  if (test_energy_) 
+	    if (en>=HOpersistentThreshold_)
+	      ++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+	  if (test_et_) 
+	    if (en>=HOpersistentETThreshold_)
+	      ++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
 	}
     }
     
@@ -498,8 +545,14 @@ void HcalHotCellMonitor::processEvent_rechitenergy( const HBHERecHitCollection& 
 	++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
       if (et>=etthreshold)
 	++aboveet[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
-      if (en>=threshold_pers)
-	++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+      if (test_energy_) {
+	if (en>=threshold_pers)
+	  ++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+      }
+      if (test_et_) {
+	if (et>=HFpersistentETThreshold_)
+	  ++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+      }
     }
 
   // call update every event -- still necessary?

@@ -38,4 +38,7 @@ hcalHotCellMonitor=cms.EDAnalyzer("HcalHotCellMonitor",
                                   persistentThreshold = cms.untracked.double(6.),
                                   persistentThreshold_HF = cms.untracked.double(10.),
 
+                                  persistentETThreshold    = cms.untracked.double(5.),
+                                  persistentETThreshold_HF = cms.untracked.double(5.),
+
                                   )
