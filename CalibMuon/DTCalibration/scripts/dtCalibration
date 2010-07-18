@@ -199,6 +199,8 @@ if __name__ == '__main__':
     parser.add_option("--templatepath", dest="templatepath", help="path to dir with template cfg files")
     parser.add_option("--runOnGrid", action="store_true", dest="runOnGrid", default=False, help="workflow will be run on the Grid (instead of the CAF)")
     parser.add_option("--stageOutLocal", action="store_true", dest="stageOutLocal", default=False, help="output will be copied locally (if running on the Grid this will be the default)")
+    # Split by lumi options
+    parser.add_option("--splitByLumi", action="store_true", dest="splitByLumi", default=False, help="will split CRAB jobs by lumi section")
     parser.add_option("--totalnumberlumis", dest="totalnumberlumis", type="int", default=-1, help="total number of lumis to be analyzed")
     parser.add_option("--lumisperjob", dest="lumisperjob", type="int", default=150, help="number of lumis per job")
     parser.add_option("--lumimask", dest="lumimask", help="lumi mask JSON file")
@@ -247,9 +249,14 @@ if __name__ == '__main__':
     config.preselection = input.preselection
     #config.totalnumberevents = 1000000
     #config.eventsperjob = 50000
-    config.totalnumberlumis = input.totalnumberlumis
-    config.lumisperjob = input.lumisperjob
-    if hasattr(input,'lumimask') and input.lumimask: config.lumimask = os.path.abspath(input.lumimask)
+    if hasattr(input,'splitByLumi') and input.splitByLumi:
+        config.splitByLumi = True
+        config.totalnumberlumis = input.totalnumberlumis
+        config.lumisperjob = input.lumisperjob
+        if hasattr(input,'lumimask') and input.lumimask: config.lumimask = os.path.abspath(input.lumimask)
+    else:
+        config.splitByLumi = False 
+
     if hasattr(input,'email') and input.email: config.email = input.email    
 
     config.globaltag = input.globaltag + '::All'

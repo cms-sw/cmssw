@@ -223,7 +223,7 @@ def checkStatus(project, threshold = 95.0):
     #if fracFailed > 50.0: raise RuntimeError,'Too many jobs have failed (%.0f%%).' % fracFailed
 
     # Condition for considering it finished
-    if statusNew['Finished'] > threshold: finished = True 
+    if statusNew['Finished'] >= threshold: finished = True 
 
     return finished
 

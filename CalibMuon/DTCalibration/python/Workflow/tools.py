@@ -113,31 +113,34 @@ def loadCrabDefault(crab_cfg,config):
     crab_cfg.set('CRAB','jobtype','cmssw')
     crab_cfg.set('CRAB','scheduler',config.scheduler) 
     if config.useserver: crab_cfg.set('CRAB','use_server',1)
+
     # CMSSW section
     if not crab_cfg.has_section('CMSSW'): crab_cfg.add_section('CMSSW')
     crab_cfg.set('CMSSW','datasetpath',config.datasetpath)
     crab_cfg.set('CMSSW','pset','pset.py')
+
     # Splitting config
-    crab_cfg.set('CMSSW','runselection',config.runselection) 
-    #if hasattr(config,'totalnumberevents'): crab_cfg.set('CMSSW','total_number_of_events',config.totalnumberevents)
-    #if hasattr(config,'eventsperjob'): crab_cfg.set('CMSSW','events_per_job',config.eventsperjob)
     crab_cfg.remove_option('CMSSW','total_number_of_events')
     crab_cfg.remove_option('CMSSW','events_per_job')
-    
-    if hasattr(config,'totalnumberlumis') and config.totalnumberlumis:
+    crab_cfg.remove_option('CMSSW','number_of_jobs')
+    crab_cfg.remove_option('CMSSW','total_number_of_lumis')
+    crab_cfg.remove_option('CMSSW','lumis_per_job')
+    crab_cfg.remove_option('CMSSW','lumi_mask')
+    crab_cfg.remove_option('CMSSW','split_by_run')
+ 
+    crab_cfg.set('CMSSW','runselection',config.runselection)
+    #if hasattr(config,'totalnumberevents'): crab_cfg.set('CMSSW','total_number_of_events',config.totalnumberevents)
+    #if hasattr(config,'eventsperjob'): crab_cfg.set('CMSSW','events_per_job',config.eventsperjob) 
+    if hasattr(config,'splitByLumi') and config.splitByLumi:
         crab_cfg.set('CMSSW','total_number_of_lumis',config.totalnumberlumis)
-    else:
-        crab_cfg.set('CMSSW','total_number_of_lumis',-1)
-
-    if hasattr(config,'lumisperjob') and config.lumisperjob:
         crab_cfg.set('CMSSW','lumis_per_job',config.lumisperjob)
+        if hasattr(config,'lumimask') and config.lumimask: crab_cfg.set('CMSSW','lumi_mask',config.lumimask)
     else:
-        crab_cfg.set('CMSSW','lumis_per_job',150)
-  
-    if hasattr(config,'lumimask') and config.lumimask: crab_cfg.set('CMSSW','lumi_mask',config.lumimask)
-
+        crab_cfg.set('CMSSW','split_by_run',1)
+ 
     # USER section
     if not crab_cfg.has_section('USER'): crab_cfg.add_section('USER')  
+
     # Stageout config
     if hasattr(config,'stageOutCAF') and config.stageOutCAF:
         crab_cfg.set('USER','return_data',0)                
