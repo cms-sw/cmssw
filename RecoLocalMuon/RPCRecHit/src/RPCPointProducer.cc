@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Andres Carrillo Montoya
 //         Created:  Wed Sep 16 14:56:18 CEST 2009
-// $Id: RPCPointProducer.cc,v 1.4 2010/04/12 09:59:46 carrillo Exp $
+// $Id: RPCPointProducer.cc,v 1.5 2010/07/16 14:06:52 carrillo Exp $
 //
 //
 
@@ -104,10 +104,8 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   }
 
   if(inclsimhit){
-    std::cout << " Getting the SimHits " <<std::endl;
     std::vector<edm::Handle<edm::PSimHitContainer> > theSimHitContainers;
     iEvent.getManyByType(theSimHitContainers);
-    std::cout << " The Number of sim Hits is  " << theSimHitContainers.size() <<std::endl;
     if(!(theSimHitContainers.empty())){
       int partid = 13;
       SIMHITtoRPC SIMHITClass(theSimHitContainers,iSetup,iEvent,debug,partid);
