@@ -67,7 +67,7 @@ m) MISSING_FILES_TOLERANCE = 2
 
 n) MISSING_LUMIS_TIMEOUT = 14400
    There are few timeouts in the script (for example if there are still many files missing), and after a certain number of seconds = MISSING_LUMIS_TIMEOUT
-   hte script keep running.
+   hte script keep running. MISSING_LUMIS_TIMEOUT = 0 doesn't produce a timeout and continue the script!
 
 o) EMAIL       = uplegger@cern.ch,yumiceva@fnal.gov
    Comma separated list of people who will receive an e-mail in case of big troubles. There are some conditions that must be validated by
@@ -121,4 +121,203 @@ o) EMAIL       = uplegger@cern.ch,yumiceva@fnal.gov
 //--------------------------------------------------------------------------------------------------
    Right now I am running the megascript cron job from 3 different machines every 20 minutes.
    I am also running twice a day another script that moves the log files away to keep the one on the web small.
+
+
+5) The way I run everything.
+   a) Every few days I run the workflow at T0. This is my crab cfg
+//--------------------------------------------------------------------------------------------------
+   [CRAB]
+   jobtype		= cmssw
+   scheduler		= caf
+   server_name  	= caf_test
+
+   [CAF]
+   queue		= cmscaf1nd
+
+
+   [CMSSW]
+
+   #datasetpath 	 = /MinimumBias/BeamCommissioning09-StreamTkAlMinBias-Dec19thReReco_341_v1/ALCARECO
+   #datasetpath 	 = /MinimumBias/BeamCommissioning09-StreamTkAlMinBias-Dec19thReReco_341_v1/ALCARECO-TEST-1102
+   #datasetpath = /MinimumBias/BeamCommissioning09-StreamTkAlMinBias-Dec19thReReco_341_v1/ALCARECO-TEST-Run[0-9]*-1503
+   #datasetpath = /MinimumBias/BeamCommissioning09-StreamTkAlMinBias-Mar3rdReReco_v2/ALCARECO
+   #datasetpath = /StreamExpress/Commissioning10-StreamTkAlMinBias-v9/ALCARECO
+   #datasetpath = /StreamExpress/Run2010A-StreamTkAlMinBias-v1/ALCARECO
+   datasetpath = /StreamExpress/Run2010A-TkAlMinBias-v4/ALCARECO
+
+   pset 		= BeamFit_LumiBased_NewAlignWorkflow.py
+
+   get_edm_output	= 1
+   output_file  	= BeamFit_LumiBased_NewAlignWorkflow.txt,BeamFit_LumiBased_NewAlignWorkflow.root
+
+   [USER]
+   ui_working_dir	= crab_LumiBased_express_T0_v11
+   # return data to local disk, change to 1
+   return_data  	= 0
+   #user_remote_dir	 = ShortWorkflow
+   # return data to SE, change to 1
+   copy_data		= 1
+   storage_element	= T2_CH_CAF 
+   # area /castor/cern.ch/cms/store/caf/user/uplegger/Workflows/RunBased
+   user_remote_dir	= Workflows/361_patch4/express_T0_v11_1
+
+   [WMBS]
+
+   automation		= 1
+   feeder		= T0AST
+   #feeder		 = DBS
+   startrun		= 140251
+   splitting_algorithm  = RunBased
+   split_per_job	= files_per_job
+   split_value  	= 1
+   processing		= express 
+   #processing  	 = bulk 
+//--------------------------------------------------------------------------------------------------
+   b) I start the cron jobs:
+     acrontab -e
+     I uncomment the lines that I care and save with ctrl-O
+     
+//--------------------------------------------------------------------------------------------------
+     using the following cfg file (BeamSpotWorkflow_T0.cfg)
+     [Common]
+     SOURCE_DIR  = /castor/cern.ch/cms/store/caf/user/uplegger/Workflows/361_patch4/express_T0_v11_1/
+     ARCHIVE_DIR = /afs/cern.ch/cms/CAF/CMSCOMM/COMM_BSPOT/automated_workflow/good_archive/
+     WORKING_DIR = /afs/cern.ch/cms/CAF/CMSCOMM/COMM_BSPOT/automated_workflow/good_tmp
+     DBTAG	 = BeamSpotObjects_2009_v13_offline
+     DATASET	 = /StreamExpress/Run2010A-TkAlMinBias-v4/ALCARECO
+     FILE_IOV_BASE = lumibase
+     #DB_IOV_BASE   = lumiid
+     DB_IOV_BASE   = runnumber
+     DBS_TOLERANCE_PERCENT = 10
+     DBS_TOLERANCE = 20
+     RR_TOLERANCE = 10
+     MISSING_FILES_TOLERANCE = 6
+     MISSING_LUMIS_TIMEOUT = 14400
+     EMAIL	 = uplegger@cern.ch
+//--------------------------------------------------------------------------------------------------
+
    
+   c) Or I receive some unwanted e-mails :( or in the morning I check what happened to the v13 tag using this script whci is in cvs
+     checkPayloads.py 13
+     with 13 as argument.
+     This script compare the iovs uploaded in the tag with the run registry. If there is a run registry entry and not a corresponding IOV 
+     it prints out:
+     Run: 133509 is missing for DB tag BeamSpotObjects_2009_v14_offline
+     Run: 139363 is missing for DB tag BeamSpotObjects_2009_v14_offline
+     
+     This are the only 2 runs that should have an entry in the DB but for some reason we didn't update.
+     Inside the script I keep a list of the runs that are missing in the db and if the megascript skip some of them I manually go to see in the run 
+     registry why the run is missing. If the strips were bad for example I write that run down and add it to the knownMissingRunList so they won't be printed out
+
+     #132573 Beam lost immediately
+     #132958 Bad strips
+     #133081 Bad pixels bad strips
+     #133242 Bad strips
+     #133472 Bad strips
+     #133473 Only 20 lumisection, run duration 00:00:03:00 
+     #133509 Should be good!!!!!!!!!!
+     #136290 Bad Pixels bad strips
+     #138560 Bad pixels bad strips
+     #138562 Bad HLT bad L1T, need to rescale the Jet Triggers
+     #139363 NOT in the bad list but only 15 lumis and stopped for DAQ problems
+     #139455 Bad Pixels and Strips and stopped because of HCAL trigger rate too high
+     #140133 Beams dumped
+     #140182 No pixel and Strips with few entries
+     knownMissingRunList = [132573,132958,133081,133242,133472,133473,136290,138560,138562,139455,140133,140182]
+
+   d) I check the v14 tag with the same script
+     checkPayloads.py
+     If the 2 matche there were no new runs otherwise if I think the v13 was correctly updated with all runs, it means
+     that I have to update the v14.
+     So I just cut and paste the commands that are in this txt file 
+     
+     more uploadTags.txt
+     ./BeamSpotWorkflow.py -c BeamSpotWorkflow_run.cfg -z -u 
+     ./BeamSpotWorkflow.py -c BeamSpotWorkflow_run_sigmaz.cfg -u 
+     ./BeamSpotWorkflow.py -c BeamSpotWorkflow_lumi.cfg -z -u  
+     ./BeamSpotWorkflow.py -c BeamSpotWorkflow_lumi_sigmaz.cfg -u
+
+     #For prompt and express tags 
+     ./createPayload.py -d PayloadFile.txt -t BeamSpotObjects_2009_v1_prompt -z -u 
+     ./createPayload.py -d PayloadFile.txt -t BeamSpotObjects_2009_v1_express -z -u
+     
+     I have 4 cfg files
+//-------------------BeamSpotWorkflow_run.cfg
+[Common]
+SOURCE_DIR  = /castor/cern.ch/cms/store/caf/user/uplegger/Workflows/361_patch4/express_T0_v11_1/
+ARCHIVE_DIR = /afs/cern.ch/cms/CAF/CMSCOMM/COMM_BSPOT/automated_workflow/good_archive/
+WORKING_DIR = /afs/cern.ch/cms/CAF/CMSCOMM/COMM_BSPOT/automated_workflow/good_run
+DBTAG       = BeamSpotObjects_2009_v14_offline
+DATASET     = /StreamExpress/Run2010A-TkAlMinBias-v4/ALCARECO
+FILE_IOV_BASE = lumibase
+#DB_IOV_BASE   = lumiid
+DB_IOV_BASE   = runnumber
+DBS_TOLERANCE_PERCENT = 10
+DBS_TOLERANCE = 25
+RR_TOLERANCE = 10
+MISSING_FILES_TOLERANCE = 2
+MISSING_LUMIS_TIMEOUT = 0
+EMAIL       = uplegger@cern.ch
+//--------------------------------------------------------------------------------------------------
+
+//-------------------
+[Common]
+SOURCE_DIR  = /castor/cern.ch/cms/store/caf/user/uplegger/Workflows/361_patch4/express_T0_v11_1/
+ARCHIVE_DIR = /afs/cern.ch/cms/CAF/CMSCOMM/COMM_BSPOT/automated_workflow/good_archive/
+WORKING_DIR = /afs/cern.ch/cms/CAF/CMSCOMM/COMM_BSPOT/automated_workflow/good_run_sigmaz
+DBTAG       = BeamSpotObjects_2009_SigmaZ_v14_offline
+DATASET     = /StreamExpress/Run2010A-TkAlMinBias-v4/ALCARECO
+FILE_IOV_BASE = lumibase
+#DB_IOV_BASE   = lumiid
+DB_IOV_BASE   = runnumber
+DBS_TOLERANCE_PERCENT = 10
+DBS_TOLERANCE = 25
+RR_TOLERANCE = 10
+MISSING_FILES_TOLERANCE = 2
+MISSING_LUMIS_TIMEOUT = 0
+EMAIL       = uplegger@cern.ch
+//--------------------------------------------------------------------------------------------------
+
+//------------------BeamSpotWorkflow_lumi.cfg
+[Common]
+SOURCE_DIR  = /castor/cern.ch/cms/store/caf/user/uplegger/Workflows/361_patch4/express_T0_v11_1/
+ARCHIVE_DIR = /afs/cern.ch/cms/CAF/CMSCOMM/COMM_BSPOT/automated_workflow/good_archive/
+WORKING_DIR = /afs/cern.ch/cms/CAF/CMSCOMM/COMM_BSPOT/automated_workflow/good_lumi
+DBTAG       = BeamSpotObjects_2009_LumiBased_v14_offline
+DATASET     = /StreamExpress/Run2010A-TkAlMinBias-v4/ALCARECO
+FILE_IOV_BASE = lumibase
+DB_IOV_BASE   = lumiid
+#DB_IOV_BASE   = runnumber
+DBS_TOLERANCE_PERCENT = 10
+DBS_TOLERANCE = 25
+RR_TOLERANCE = 10
+MISSING_FILES_TOLERANCE = 2
+MISSING_LUMIS_TIMEOUT = 0
+EMAIL       = uplegger@cern.ch
+//--------------------------------------------------------------------------------------------------
+
+//----------------BeamSpotWorkflow_lumi_sigmaz.cfg
+[Common]
+SOURCE_DIR  = /castor/cern.ch/cms/store/caf/user/uplegger/Workflows/361_patch4/express_T0_v11_1/
+ARCHIVE_DIR = /afs/cern.ch/cms/CAF/CMSCOMM/COMM_BSPOT/automated_workflow/good_archive/
+WORKING_DIR = /afs/cern.ch/cms/CAF/CMSCOMM/COMM_BSPOT/automated_workflow/good_lumi_sigmaz
+DBTAG       = BeamSpotObjects_2009_LumiBased_SigmaZ_v14_offline
+DATASET     = /StreamExpress/Run2010A-TkAlMinBias-v4/ALCARECO
+FILE_IOV_BASE = lumibase
+DB_IOV_BASE   = lumiid
+#DB_IOV_BASE   = runnumber
+DBS_TOLERANCE_PERCENT = 10
+DBS_TOLERANCE = 25
+RR_TOLERANCE = 10
+MISSING_FILES_TOLERANCE = 2
+MISSING_LUMIS_TIMEOUT = 0
+EMAIL       = uplegger@cern.ch
+//--------------------------------------------------------------------------------------------------
+     
+     As you can see the ARCHIVE_DIR are all the same and what changes are just the DBTAG, DB_IOV_BASE and the WORKING_DIR.
+     The MISSING_LUMIS_TIMEOUT is set to 0 because I already know that everything went well with the v13 so I don't want to timeout!
+     
+     
+     
+     
+     
