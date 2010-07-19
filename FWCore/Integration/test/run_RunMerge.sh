@@ -68,6 +68,10 @@ pushd ${LOCAL_TMP_DIR}
   echo ${test}PickEvents------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${test}PickEvents_cfg.py || die "cmsRun ${test}PickEvents_cfg.py" $?
 
+  echo ${test}FastCloning------------------------------------------------------------
+  cmsRun -p ${LOCAL_TEST_DIR}/${test}FastCloning_cfg.py 2> testFastCloning.txt
+  grep "Tree branches have different numbers of entries" testFastCloning.txt || die "cmsRun testRunMergeFastCloning_cfg.py" $?
+
 popd
 
 exit 0
