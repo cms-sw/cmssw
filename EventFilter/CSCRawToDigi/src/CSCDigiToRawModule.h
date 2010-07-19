@@ -3,12 +3,13 @@
 
 /** \class CSCDigiToRawModule
  *
- *  $Date: 2008/06/26 18:43:21 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/04/23 23:03:04 $
+ *  $Revision: 1.8 $
  *  \author A. Tumanov - Rice
  */
 
 #include <FWCore/Framework/interface/EDProducer.h>
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class CSCDigiToRaw;
 

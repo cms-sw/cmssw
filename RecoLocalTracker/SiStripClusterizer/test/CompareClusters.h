@@ -10,6 +10,7 @@ class SiStripCluster;
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include <sstream>
 
 class CompareClusters : public edm::EDAnalyzer {

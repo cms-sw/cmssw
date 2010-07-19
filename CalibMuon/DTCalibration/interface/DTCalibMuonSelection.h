@@ -6,6 +6,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 
 #include <vector>

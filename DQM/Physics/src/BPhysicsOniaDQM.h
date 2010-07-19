@@ -6,14 +6,15 @@
  *
  *  DQM offline for quarkonia
  *
- *  $Date: 2009/09/17 10:31:14 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/01/04 11:50:29 $
+ *  $Revision: 1.4 $
  *  \author S. Bolognesi, Eric - CERN
  */
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class DQMStore;
 class MonitorElement;

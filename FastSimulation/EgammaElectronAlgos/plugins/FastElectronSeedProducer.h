@@ -25,6 +25,7 @@ namespace edm {
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"

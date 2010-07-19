@@ -6,14 +6,15 @@
  *
  *  DQM muon analysis monitoring
  *
- *  $Date: 2009/12/22 17:41:46 $
- *  $Revision: 1.13 $
+ *  $Date: 2010/01/22 18:42:49 $
+ *  $Revision: 1.14 $
  *  \author G. Mila - INFN Torino
  */
 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class MuonEnergyDepositAnalyzer;
 class MuonSeedsAnalyzer;

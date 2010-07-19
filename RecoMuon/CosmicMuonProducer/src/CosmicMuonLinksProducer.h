@@ -3,12 +3,13 @@
 
 /** \file CosmicMuonLinksProducer
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2008/12/31 02:36:28 $
+ *  $Revision: 1.1 $
  *  \author Chang Liu - Purdue University <chang.liu@cern.ch>
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
 

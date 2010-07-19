@@ -2,6 +2,7 @@
 #define PRODUCER_H
 
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "EventFilter/EcalRawToDigi/interface/MatacqRawEvent.h"
 #include "EventFilter/EcalRawToDigi/src/MatacqDataFormatter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
