@@ -13,6 +13,23 @@ def pairwise(lst):
     for i in range(len(lst)-1):
         yield lst[i], lst[i+1]
     yield lst[-1], None
+
+def is_intstr(s):
+    """test if a string can be converted to a int
+    """
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
+def is_floatstr(s):
+    """test if a string can be converted to a float
+    """
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
     
 if __name__=='__main__':
     a=[1,2,3,4,5]
