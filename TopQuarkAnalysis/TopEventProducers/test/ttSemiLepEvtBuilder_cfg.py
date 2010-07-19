@@ -33,7 +33,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 
 ## configure conditions
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('START36_V4::All')
+process.GlobalTag.globaltag = cms.string('START38_V7::All')
 
 ## load magnetic field
 process.load("Configuration.StandardSequences.MagneticField_cff")
