@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Andres Carrillo Montoya
 //         Created:  Wed Sep 16 14:56:18 CEST 2009
-// $Id: RPCPointProducer.cc,v 1.5 2010/07/16 14:06:52 carrillo Exp $
+// $Id: RPCPointProducer.cc,v 1.6 2010/07/18 23:19:45 carrillo Exp $
 //
 //
 
@@ -30,7 +30,7 @@ RPCPointProducer::RPCPointProducer(const edm::ParameterSet& iConfig)
 {
   cscSegments=iConfig.getParameter<edm::InputTag>("cscSegments");
   dt4DSegments=iConfig.getParameter<edm::InputTag>("dt4DSegments");
-  tracks=iConfig.getParameter<edm::InputTag>("tracks");
+  //tracks=iConfig.getParameter<edm::InputTag>("tracks");
 
   debug=iConfig.getUntrackedParameter<bool>("debug",false);
   incldt=iConfig.getUntrackedParameter<bool>("incldt",true);
@@ -40,15 +40,14 @@ RPCPointProducer::RPCPointProducer(const edm::ParameterSet& iConfig)
   MinCosAng=iConfig.getUntrackedParameter<double>("MinCosAng",0.95);
   MaxD=iConfig.getUntrackedParameter<double>("MaxD",80.);
   MaxDrb4=iConfig.getUntrackedParameter<double>("MaxDrb4",150.);
-  trackTransformerParam = iConfig.getParameter<ParameterSet>("TrackTransformer");  
-
+  //trackTransformerParam = iConfig.getParameter<ParameterSet>("TrackTransformer");  
 
   ExtrapolatedRegion=iConfig.getUntrackedParameter<double>("ExtrapolatedRegion",0.5);
 
   produces<RPCRecHitCollection>("RPCDTExtrapolatedPoints");
   produces<RPCRecHitCollection>("RPCCSCExtrapolatedPoints");
-  produces<RPCRecHitCollection>("RPCTrackExtrapolatedPoints");
-  produces<RPCRecHitCollection>("RPCSIMHITPoints");
+  // produces<RPCRecHitCollection>("RPCTrackExtrapolatedPoints");
+  // produces<RPCRecHitCollection>("RPCSIMHITPoints");
 
 }
 
@@ -91,6 +90,7 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     }
   }
 
+  /*
   if(incltrack){
     edm::Handle<reco::TrackCollection> alltracks;
     iEvent.getByLabel(tracks,alltracks);
@@ -115,7 +115,7 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       if(debug) std::cout<<"RPCHLT Empty SIMHIT collection"<<std::endl;
     }
   }
-
+  */
  
 }
 
