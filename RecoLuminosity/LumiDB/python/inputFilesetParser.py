@@ -129,18 +129,25 @@ class inputFilesetParser(object):
     
 if __name__ == '__main__':
     result={}
-    #filename='../test/overview.csv+../test/overview-140381.csv+../test/Cert_132440-139103_7TeV_StreamExpress_Collisions10_JSON.txt'
-    filename='../test/overview.csv+../test/overview-140381.csv'
-    
+    filename='../test/overview.csv+../test/overview-140381.csv+../test/Cert_132440-139103_7TeV_StreamExpress_Collisions10_JSON.txt'
+    #filename='../test/overview.csv+../test/overview-140381.csv+'
     p=inputFilesetParser(filename)
     print p.selectionfilename()
     print p.resultfiles()
-    print p.runs()
-    print p.mergeResultOnly()
+    #print p.runs()
+    #print p.runsandls()
+    print 'do I only need to merge the results? ',p.mergeResultOnly()
     resultheader=p.resultHeader()
-    result=p.resultInput()     
-    print 'runs already have results ', p.fieldvalues('run','int')
+    result=p.resultInput()
+    alreadyprocessedRuns=p.fieldvalues('run','int')
+    print 'runs already have results ', alreadyprocessedRuns
     print 'total delivered ',p.fieldtotal('delivered','float')
     print 'total recorded ',p.fieldtotal('recorded','float')
-
+    newrunsandls={}
+    for run,cmslslist in p.runsandls().items():
+        if run in alreadyprocessedRuns:
+            continue
+        else:
+            newrunsandls[run]=cmslslist
+    print 'runs and ls still need to be processed', newrunsandls
     
