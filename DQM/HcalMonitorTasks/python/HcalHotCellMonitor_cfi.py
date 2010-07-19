@@ -20,8 +20,11 @@ hcalHotCellMonitor=cms.EDAnalyzer("HcalHotCellMonitor",
                                   hoRechitLabel                = cms.untracked.InputTag("horeco"),
                                   hfRechitLabel                = cms.untracked.InputTag("hfreco"),
 
+                                  # disable testing of HO ring 2
+                                  excludeHORing2  = cms.untracked.bool(True),
+                                  
                                   # Booleans for various tests
-                                  test_energy     = cms.untracked.bool(False),
+                                  test_energy     = cms.untracked.bool(True),
                                   test_et         = cms.untracked.bool(True),
                                   test_persistent = cms.untracked.bool(True),
                                   test_neighbor   = cms.untracked.bool(False),
@@ -38,7 +41,7 @@ hcalHotCellMonitor=cms.EDAnalyzer("HcalHotCellMonitor",
                                   persistentThreshold = cms.untracked.double(6.),
                                   persistentThreshold_HF = cms.untracked.double(10.),
 
-                                  persistentETThreshold    = cms.untracked.double(5.),
-                                  persistentETThreshold_HF = cms.untracked.double(5.),
+                                  persistentETThreshold    = cms.untracked.double(3.),
+                                  persistentETThreshold_HF = cms.untracked.double(3.),
 
                                   )

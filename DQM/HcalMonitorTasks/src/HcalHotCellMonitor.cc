@@ -29,6 +29,10 @@ HcalHotCellMonitor::HcalHotCellMonitor(const edm::ParameterSet& ps)
   minEvents_      = ps.getUntrackedParameter<int>("minEvents");
   minErrorFlag_   = ps.getUntrackedParameter<double>("minErrorFlag",1);
 
+  // exclude HO ring 2
+  excludeHORing2_       = ps.getUntrackedParameter<bool>("excludeHORing2",false);
+
+
   // Set which hot cell checks will be performed
   test_persistent_         = ps.getUntrackedParameter<bool>("test_persistent"); // true by default
   test_neighbor_           = ps.getUntrackedParameter<bool>("test_neighbor"); // false by default; test disabled
@@ -75,12 +79,12 @@ HcalHotCellMonitor::HcalHotCellMonitor(const edm::ParameterSet& ps)
   HBHENeighborParams_.minCellEnergy        = ps.getUntrackedParameter<double>("HBHE_neighbor_minCellEnergy",3.);
   HBHENeighborParams_.minNeighborEnergy    = ps.getUntrackedParameter<double>("HBHE_neighbor_minNeighborEnergy",0.);
   HBHENeighborParams_.maxEnergy            = ps.getUntrackedParameter<double>("HBHE_neighbor_maxEnergy",100);
-  HBHENeighborParams_.HotEnergyFrac        = ps.getUntrackedParameter<double>("HBHE_neighbor_HotEnergyFrac",0.01);
+  HBHENeighborParams_.HotEnergyFrac        = ps.getUntrackedParameter<double>("HBHE_neighbor_HotEnergyFrac",0.05);
 
   HONeighborParams_.DeltaIphi            = ps.getUntrackedParameter<int>("HO_neighbor_deltaIphi", 1);
   HONeighborParams_.DeltaIeta            = ps.getUntrackedParameter<int>("HO_neighbor_deltaIeta", 1);
   HONeighborParams_.DeltaDepth           = ps.getUntrackedParameter<int>("HO_neighbor_deltaDepth", 0);
-  HONeighborParams_.minCellEnergy        = ps.getUntrackedParameter<double>("HO_neighbor_minCellEnergy",3.);
+  HONeighborParams_.minCellEnergy        = ps.getUntrackedParameter<double>("HO_neighbor_minCellEnergy",10.);
   HONeighborParams_.minNeighborEnergy    = ps.getUntrackedParameter<double>("HO_neighbor_minNeighborEnergy",0.);
   HONeighborParams_.maxEnergy            = ps.getUntrackedParameter<double>("HO_neighbor_maxEnergy",100);
   HONeighborParams_.HotEnergyFrac        = ps.getUntrackedParameter<double>("HO_neighbor_HotEnergyFrac",0.01);
@@ -88,7 +92,7 @@ HcalHotCellMonitor::HcalHotCellMonitor(const edm::ParameterSet& ps)
   HFNeighborParams_.DeltaIphi            = ps.getUntrackedParameter<int>("HF_neighbor_deltaIphi", 1);
   HFNeighborParams_.DeltaIeta            = ps.getUntrackedParameter<int>("HF_neighbor_deltaIeta", 1);
   HFNeighborParams_.DeltaDepth           = ps.getUntrackedParameter<int>("HF_neighbor_deltaDepth", 1);
-  HFNeighborParams_.minCellEnergy        = ps.getUntrackedParameter<double>("HF_neighbor_minCellEnergy",3.);
+  HFNeighborParams_.minCellEnergy        = ps.getUntrackedParameter<double>("HF_neighbor_minCellEnergy",10.);
   HFNeighborParams_.minNeighborEnergy    = ps.getUntrackedParameter<double>("HF_neighbor_minNeighborEnergy",0.);
   HFNeighborParams_.maxEnergy            = ps.getUntrackedParameter<double>("HF_neighbor_maxEnergy",100);
   HFNeighborParams_.HotEnergyFrac        = ps.getUntrackedParameter<double>("HF_neighbor_HotEnergyFrac",0.01);
@@ -224,23 +228,23 @@ void HcalHotCellMonitor::setup()
       }
   
       if (test_et_) {
-	SetupEtaPhiHists(AbovePersistentThresholdCellsByDepth,
+	SetupEtaPhiHists(AbovePersistentETThresholdCellsByDepth,
 			 "Hot Cells Persistently Above ET Threshold","");
 	//setMinMaxHists2D(AbovePersistentThresholdCellsByDepth,0.,1.);
 	
 	// set more descriptive titles for plots
 	units.str("");
 	units<<"Hot Cells: Depth 1 -- HB > "<<HBpersistentETThreshold_<<" GeV (ET), HE > "<<HEpersistentETThreshold_<<" GeV (ET), HF > "<<HFpersistentETThreshold_<<" GeV (ET) for 1 full Lumi Block";
-	AbovePersistentThresholdCellsByDepth.depth[0]->setTitle(units.str().c_str());
+	AbovePersistentETThresholdCellsByDepth.depth[0]->setTitle(units.str().c_str());
 	units.str("");
 	units<<"Hot Cells: Depth 2 -- HB > "<<HBpersistentETThreshold_<<" GeV (ET), HE > "<<HEpersistentETThreshold_<<" GeV (ET), HF > "<<HFpersistentETThreshold_<<" GeV (ET) for 1 full Lumi Block";
-	AbovePersistentThresholdCellsByDepth.depth[1]->setTitle(units.str().c_str());
+	AbovePersistentETThresholdCellsByDepth.depth[1]->setTitle(units.str().c_str());
 	units.str("");
 	units<<"Hot Cells: Depth 3 -- HE > "<<HEpersistentETThreshold_<<" GeV (ET) for 1 full Lumi Block";
-	AbovePersistentThresholdCellsByDepth.depth[2]->setTitle(units.str().c_str());
+	AbovePersistentETThresholdCellsByDepth.depth[2]->setTitle(units.str().c_str());
 	units.str("");
 	units<<"Hot Cells:  HO > "<<HOpersistentETThreshold_<<" GeV (ET) for 1 full Lumi Block";
-	AbovePersistentThresholdCellsByDepth.depth[3]->setTitle(units.str().c_str());
+	AbovePersistentETThresholdCellsByDepth.depth[3]->setTitle(units.str().c_str());
 	units.str("");
       }
     }
@@ -298,8 +302,10 @@ void HcalHotCellMonitor::reset()
     AboveEtThresholdCellsByDepth.Reset();
 
   if (test_persistent_)
-    AbovePersistentThresholdCellsByDepth.Reset();
-
+    {
+      if (test_energy_) AbovePersistentThresholdCellsByDepth.Reset();
+      if (test_et_)     AbovePersistentETThresholdCellsByDepth.Reset();
+    }
   if (makeDiagnostics_)
     {
       d_HBenergyVsNeighbor->Reset();
@@ -443,8 +449,6 @@ void HcalHotCellMonitor::processEvent_rechitenergy( const HBHERecHitCollection& 
 
       if (test_neighbor_ || makeDiagnostics_)
 	{
-	  if (debug_>1 && HBHEiter==hbheHits.begin()) 
-	    std::cout <<"\tHcalHotCellMonitor::processEvent_rechitenergy>  Calling processHit_rechitNeighbors..."<<std::endl;
 	  processHit_rechitNeighbors(HBHEiter, hbheHits, HBHENeighborParams_);
 	}
       if (id.subdet()==HcalBarrel)
@@ -453,12 +457,10 @@ void HcalHotCellMonitor::processEvent_rechitenergy( const HBHERecHitCollection& 
 	      ++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
 	  if (et>=HBETThreshold_)
 	      ++aboveet[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
-	  if (test_energy_) 
-	    if (en>=HBpersistentThreshold_)
-	      ++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
-	  if (test_et_) 
-	    if (et>=HBpersistentETThreshold_)
-	      ++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+	  if (test_energy_ && en>=HBpersistentThreshold_)
+		++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+	  if (test_et_ && et>=HBpersistentETThreshold_)
+		++abovepersistentET[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
 	}
       else if (id.subdet()==HcalEndcap)
 	{
@@ -471,7 +473,7 @@ void HcalHotCellMonitor::processEvent_rechitenergy( const HBHERecHitCollection& 
 	      ++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
 	  if (test_et_) 
 	    if (et>=HEpersistentETThreshold_)
-	      ++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+	      ++abovepersistentET[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
 	}
     } //for (HBHERecHitCollection::const_iterator HBHEiter=...)
 
@@ -501,10 +503,14 @@ void HcalHotCellMonitor::processEvent_rechitenergy( const HBHERecHitCollection& 
 	      ++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
 	  if (test_et_) 
 	    if (et>=HOpersistentETThreshold_*SiPMscale_)
-	      ++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+	      ++abovepersistentET[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
 	}
       else
 	{
+	  // Skip HO ring 2 when required
+	  if (abs(ieta)>10 && excludeHORing2_==true)
+	    continue;
+
 	  if (en>=HOenergyThreshold_)
 	    ++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1]; 
 	  if (et>=HOETThreshold_)
@@ -514,7 +520,7 @@ void HcalHotCellMonitor::processEvent_rechitenergy( const HBHERecHitCollection& 
 	      ++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
 	  if (test_et_) 
 	    if (en>=HOpersistentETThreshold_)
-	      ++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+	      ++abovepersistentET[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
 	}
     }
     
@@ -551,7 +557,7 @@ void HcalHotCellMonitor::processEvent_rechitenergy( const HBHERecHitCollection& 
       }
       if (test_et_) {
 	if (et>=HFpersistentETThreshold_)
-	  ++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+	  ++abovepersistentET[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
       }
     }
 
@@ -595,8 +601,19 @@ void HcalHotCellMonitor::processHit_rechitNeighbors( RECHIT& rechit,
   iphi = id.iphi();
   depth = id.depth();
  
-  // Case 1:  above threshold energy; always fill
-  if (en>params.maxEnergy)
+  double fEta=0;
+  if (id.subdet()!=HcalForward)
+    fEta=fabs(0.5*(theHBHEEtaBounds[abs(ieta)-1]+theHBHEEtaBounds[abs(ieta)]));
+  else
+    fEta=fabs(0.5*(theHFEtaBounds[abs(ieta)-29]+theHFEtaBounds[abs(ieta)-28]));
+
+  float et = en/cosh(fEta);
+
+  // Case 0:  ET too low to trigger hot cell check
+  if (et<=params.minCellEnergy) return;
+  
+  // Case 1:  above threshold energy; always count as hot
+  if (et>params.maxEnergy)
     {
       aboveneighbors[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
       if (makeDiagnostics_)
@@ -610,9 +627,8 @@ void HcalHotCellMonitor::processHit_rechitNeighbors( RECHIT& rechit,
       return;
     }
      
-  // Search keys for neighboring cells
-  if (en<params.minCellEnergy) // cells below minCellEnergy not considered hot
-    return;
+  // Case 2:  Search keys for neighboring cells
+
   neighborsfound=0;
   enNeighbor=0;
 
@@ -642,11 +658,11 @@ void HcalHotCellMonitor::processHit_rechitNeighbors( RECHIT& rechit,
 	} // loop over nP (neighbor phi)
     } // loop over nD depths
  
-  // Case 1:  Not enough good neighbors found
-  if (neighborsfound==0)
-    return;
+  // Case 2a:  Not enough good neighbors found -- do we want to implement this?
+  //if (neighborsfound==0)
+  //  return;
 
-  // Case 2:  energy/(avg. neighbor energy) too large for cell to be considered hot
+  // Case 2b: (avg. neighbor energy)/energy too large for cell to be considered hot
   if (makeDiagnostics_)
     {
       int myval=enNeighbor/en*50;
@@ -660,7 +676,8 @@ void HcalHotCellMonitor::processHit_rechitNeighbors( RECHIT& rechit,
     }
   if ((1.*enNeighbor/en)>params.HotEnergyFrac && en>0 && enNeighbor>0)
     return;
-  // Case 3:  Tests passed; cell marked as hot
+  
+  // Case 2c:  Tests passed; cell marked as hot
   aboveneighbors[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1]++;
 
   return;
@@ -679,7 +696,8 @@ void HcalHotCellMonitor::fillNevents_persistentenergy(void)
   if (debug_>0)
     std::cout <<"<HcalHotCellMonitor::fillNevents_persistentenergy> FILLING PERSISTENT ENERGY PLOTS"<<std::endl;
   
-
+  if (test_energy_)
+    {
   for (unsigned int h=0;h<AbovePersistentThresholdCellsByDepth.depth.size();++h)
     AbovePersistentThresholdCellsByDepth.depth[h]->setBinContent(0,0,ievt_);
 
@@ -722,7 +740,55 @@ void HcalHotCellMonitor::fillNevents_persistentenergy(void)
 	} // for (int eta=0;...)
     } // for (unsigned int depth=0;...)
   FillUnphysicalHEHFBins(AbovePersistentThresholdCellsByDepth);
+    } // if (test_energy_)
 
+  if (test_et_)
+    {
+      for (unsigned int h=0;h<AbovePersistentETThresholdCellsByDepth.depth.size();++h)
+	AbovePersistentETThresholdCellsByDepth.depth[h]->setBinContent(0,0,ievt_);
+      
+      int ieta=0;
+      int iphi=0;
+      int etabins=0;
+      int phibins=0;
+      
+      for (unsigned int depth=0;depth<AbovePersistentETThresholdCellsByDepth.depth.size();++depth)
+	{ 
+	  etabins=AbovePersistentETThresholdCellsByDepth.depth[depth]->getNbinsX();
+	  phibins=AbovePersistentETThresholdCellsByDepth.depth[depth]->getNbinsY();
+	  
+	  for (int eta=0;eta<etabins;++eta)
+	    {
+	      for (int phi=0;phi<phibins;++phi)
+		{
+		  iphi=phi+1;
+		  for (int subdet=1;subdet<=4;++subdet)
+		    {
+		      ieta=CalcIeta((HcalSubdetector)subdet,eta,depth+1); //converts bin to ieta
+		      if (ieta==-9999) continue;
+		      if (!validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1))
+			continue;
+		      if (subdet==HcalForward) // shift HcalForward ieta by 1 for filling purposes
+			ieta<0 ? ieta-- : ieta++;
+		      
+		      // MUST BE ABOVE ET THRESHOLD FOR ALL N EVENTS in a luminosity block
+		      if (abovepersistentET[eta][phi][depth]<levt_)
+			{
+			  abovepersistentET[eta][phi][depth]=0;
+			  continue;  		
+			}
+		      if (debug_>0) std::cout <<"HOT CELL; PERSISTENT ENERGY at subdet = "<<subdet<<", eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<depth<<std::endl;
+		      AbovePersistentETThresholdCellsByDepth.depth[depth]->Fill(ieta,iphi,abovepersistentET[eta][phi][depth]);
+		      AbovePersistentETThresholdCellsByDepth.depth[depth]->setBinContent(0,0,ievt_);
+		      abovepersistentET[eta][phi][depth]=0; // reset counter
+		    } // for (int subdet=1; subdet<=4;++subdet)
+		} // for (int phi=0;...)
+	    } // for (int eta=0;...)
+	} // for (unsigned int depth=0;...)
+      FillUnphysicalHEHFBins(AbovePersistentETThresholdCellsByDepth);
+    
+    } // if (test_et_)
+  // Add test_ET
   return;
 } // void HcalHotCellMonitor::fillNevents_persistentenergy(void)
 
@@ -1006,6 +1072,7 @@ void HcalHotCellMonitor::zeroCounters(void)
           for (int k=0;k<4;++k)
             {
               abovepersistent[i][j][k]=0;
+	      abovepersistentET[i][j][k]=0;
               aboveneighbors[i][j][k]=0;
               aboveenergy[i][j][k]=0;
               aboveet[i][j][k]=0;

@@ -12,8 +12,8 @@
 
 /** \class HcalHotCellMonitor
   *
-  * $Date: 2010/07/16 23:47:12 $
-  * $Revision: 1.39 $
+  * $Date: 2010/07/17 00:37:42 $
+  * $Revision: 1.40 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -100,19 +100,25 @@ class HcalHotCellMonitor: public HcalBaseDQMonitor {
   EtaPhiHists   AboveEnergyThresholdCellsByDepth;
   EtaPhiHists   AboveEtThresholdCellsByDepth;
   EtaPhiHists   AbovePersistentThresholdCellsByDepth; 
+  EtaPhiHists   AbovePersistentETThresholdCellsByDepth;
 
   double SiPMscale_;
   int aboveneighbors[85][72][4];
   int aboveenergy[85][72][4]; // when rechit is above threshold energy
   int aboveet[85][72][4]; // when rechit is above threshold et
   int abovepersistent[85][72][4]; // when rechit is consistently above some threshold
+  int abovepersistentET[85][72][4];
   int rechit_occupancy_sum[85][72][4];
+
+  bool excludeHORing2_;
+
 
   // Diagnostic plots
   MonitorElement* d_HBenergyVsNeighbor;
   MonitorElement* d_HEenergyVsNeighbor;
   MonitorElement* d_HOenergyVsNeighbor;
   MonitorElement* d_HFenergyVsNeighbor;
+
   int hbVsNeighbor[500];
   int heVsNeighbor[500];
   int hoVsNeighbor[500];
