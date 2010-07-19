@@ -574,7 +574,7 @@ def sortAndCleanBeamList(listbeam=[],IOVbase="lumibase"):
 
     for itmp in tmpremovelist:
         listbeam.remove(itmp)
-        
+
 ###########################################################################################
 # CREATE FILE FOR PAYLOADS
 def createWeightedPayloads(fileName,listbeam=[],weighted=True):

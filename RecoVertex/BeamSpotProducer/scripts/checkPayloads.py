@@ -110,7 +110,10 @@ def main():
     #138560 Bad pixels bad strips
     #138562 Bad HLT bad L1T, need to rescale the Jet Triggers
     #139363 NOT in the bad list but only 15 lumis and stopped for DAQ problems
-    knownMissingRunList = [132573,132958,133081,133242,133472,133473,136290,138560,138562]
+    #139455 Bad Pixels and Strips and stopped because of HCAL trigger rate too high
+    #140133 Beams dumped
+    #140182 No pixel and Strips with few entries
+    knownMissingRunList = [132573,132958,133081,133242,133472,133473,136290,138560,138562,139455,140133,140182]
     tagName = "BeamSpotObjects_2009_v" + tagNumber + "_offline"
     print "Checking payloads for tag " + tagName
     runErrors = {}
