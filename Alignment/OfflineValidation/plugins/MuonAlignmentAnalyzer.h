@@ -7,8 +7,8 @@
  *  and residuals (base EDAnalyzer for Muon Alignment Offline DQM)
  *  for Alignment Scenarios/DB comparison
  *
- *  $Date: 2010/01/06 15:44:11 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/03/29 13:18:44 $
+ *  $Revision: 1.8 $
  *  \author J. Fernandez - Univ. Oviedo <Javier.Fernandez@cern.ch>
  */
 
@@ -17,6 +17,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
@@ -28,7 +29,6 @@
 namespace edm {
     class ParameterSet;
     class EventSetup;
-    class InputTag;
 }
 
 class TH1F;

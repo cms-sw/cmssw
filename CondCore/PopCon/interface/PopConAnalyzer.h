@@ -12,6 +12,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace popcon{
   template <typename S>

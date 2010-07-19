@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESInputTag.h"
 
 class ShallowSimTracksProducer : public edm::EDProducer {
 

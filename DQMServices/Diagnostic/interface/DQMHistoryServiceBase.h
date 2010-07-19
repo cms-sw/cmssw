@@ -2,6 +2,7 @@
 #define DQMServices_Diagnostic_DQMHistoryServiceBase_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondFormats/DQMObjects/interface/HDQMSummary.h"
 #include "DQMServices/Core/interface/DQMStore.h"

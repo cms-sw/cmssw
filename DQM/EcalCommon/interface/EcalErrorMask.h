@@ -1,17 +1,18 @@
-// $Id: EcalErrorMask.h,v 1.13 2008/06/23 16:38:29 dellaric Exp $
+// $Id: EcalErrorMask.h,v 1.14 2010/02/14 20:56:23 dellaric Exp $
 
 /*!
   \file EcalErrorMask.h
   \brief Error mask from text file or database
   \author B. Gobbo 
-  \version $Revision: 1.13 $
-  \date $Date: 2008/06/23 16:38:29 $
+  \version $Revision: 1.14 $
+  \date $Date: 2010/02/14 20:56:23 $
 */
 
 #ifndef EcalErrorMask_H
 #define EcalErrorMask_H
 
 #include <cstdlib>
+#include <stdexcept>
 #include <string>
 #include <map>
 

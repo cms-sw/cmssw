@@ -4,17 +4,17 @@
 /** \class DTTTrigOffsetCalibration
  *  No description available.
  *
- *  $Date: 2008/12/11 16:34:34 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/02/16 10:03:23 $
+ *  $Revision: 1.2 $
  *  \author A. Vilela Pereira
  */
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <map>
 
 namespace edm {
-  class InputTag;
   class ParameterSet;
   class Event;
   class EventSetup;

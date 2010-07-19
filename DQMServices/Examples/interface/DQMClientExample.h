@@ -5,8 +5,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2009/01/19 13:01:20 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/12/14 22:22:21 $
+ *  $Revision: 1.7 $
  *  \author  M. Zanetti CERN
  *   
  */
@@ -17,7 +17,8 @@
  * Author: D.Volyanskyy
  */
 
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 

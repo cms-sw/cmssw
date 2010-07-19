@@ -11,6 +11,7 @@
 // Framework
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // PSimHit
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"

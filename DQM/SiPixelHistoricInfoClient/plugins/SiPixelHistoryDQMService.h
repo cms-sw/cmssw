@@ -4,6 +4,7 @@
 #include "DQMServices/Diagnostic/interface/DQMHistoryServiceBase.h"
 #include "DQM/SiPixelHistoricInfoClient/interface/SiPixelSummary.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 /**
   @author Dean Andrew Hidas <dhidas@cern.ch>
