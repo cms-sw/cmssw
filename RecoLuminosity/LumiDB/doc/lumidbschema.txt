@@ -22,7 +22,7 @@ Glossary: FK=Foreign Key, PK=Primary Key
 ========
 table 1:  CMSRUNSUMMARY 
 columns:  runnum(uint32,PK), NOT NULL
-          fillnum(uint32),   NOT NULL
+          fillnum(uint32) 
           sequence(string),  NOT NULL
           hltkey(string),    NOT NULL
           startime(timestamp(6)) 
