@@ -1,11 +1,11 @@
 import os,csv
-from RecoLuminosity.LumiDB import csvSelectionParser,selectionParser
+from RecoLuminosity.LumiDB import csvSelectionParser,selectionParser,CommonUtil
 class inputFilesetParser(object):
     def __init__(self,inputfilename):
         filelist=inputfilename.split('+')
         self.__inputresultfiles=filelist[0:-1]
         self.__inputselectionfile=filelist[-1]
-        self.__inputResultHeader=''
+        self.__inputResultHeader=[]
         self.__inputResult=[]
         self.__inputSelectionFileparsingResult=None
         if len(self.__inputselectionfile)!=0:
@@ -27,7 +27,7 @@ class inputFilesetParser(object):
                 for row in csvReader:
                     if hasHeader and irow==0:
                         print 'header row ',row
-                        self.__inputResultHeader=str(row).strip()
+                        self.__inputResultHeader=row
                     else:
                         self.__inputResult.append(row)
                     irow=irow+1
@@ -43,9 +43,77 @@ class inputFilesetParser(object):
     def resultfiles(self):
         return self.__inputresultfiles
     def resultHeader(self):
+        '''
+        output [headerfields]
+        '''
         return self.__inputResultHeader
     def resultInput(self):
-        return self.__inputResult   
+        '''
+        output [valuefields]
+        '''
+        return self.__inputResult
+    def fieldvalues(self,fieldname,fieldtype):
+        '''
+        given the input result field name and typem return the list of values
+        '''
+        fieldidx=None
+        result=[]
+        try:
+            fieldidx=self.__inputResultHeader.index(fieldname)
+        except:
+            print 'field ',fieldname,' not found'
+            raise
+        for r in self.__inputResult:
+            stringvalue=r[fieldidx]
+            if fieldtype in ['int','unsigned int']:
+                if not CommonUtil.is_intstr(stringvalue):
+                    print 'field ',fieldname,' is not integer type'
+                    raise
+                else:
+                    result.append(int(stringvalue))
+                    continue
+            elif fieldtype in ['float']:
+                if not CommonUtil.is_floatstr(stringvalue):
+                    print 'field ',fieldname,' is not float type'
+                    raise
+                else:
+                    result.append(float(stringvalue))
+                    contine
+            elif  fieldtype in ['string','str']:
+                result.append(stringvalue)
+            else:
+                raise 'unsupported type ',fieldtype
+        return result
+    def fieldtotal(self,fieldname,fieldtype):
+        '''
+        given the input result field name and type, return the total
+        '''
+        fieldidx=None
+        result=0
+        try:
+            fieldidx=self.__inputResultHeader.index(fieldname)
+        except:
+            print 'field ',fieldname,' not found'
+            raise
+        for r in self.__inputResult:
+            stringvalue=r[fieldidx]
+            if fieldtype in ['int','unsigned int']:
+                if not CommonUtil.is_intstr(stringvalue):
+                    print 'field ',fieldname,' is not integer type'
+                    raise
+                else:
+                    result=int(result)+int(stringvalue)
+                    continue
+            elif fieldtype in ['float'] :
+                if not CommonUtil.is_floatstr(stringvalue):
+                    print 'field ',fieldname,' is not float type'
+                    raise
+                else:
+                    result=float(result)+float(stringvalue)
+                    continue
+            else:
+                raise 'cannot sum types other than int ,float'
+        return result
     def runs(self):
         if not self.__inputSelectionFileparsingResult:
             return None
@@ -67,9 +135,12 @@ if __name__ == '__main__':
     p=inputFilesetParser(filename)
     print p.selectionfilename()
     print p.resultfiles()
-    print p.resultHeader()
-    print p.resultInput()
     print p.runs()
     print p.mergeResultOnly()
-    #print p.runsandls()
-    #print p.runsandlsStr()
+    resultheader=p.resultHeader()
+    result=p.resultInput()     
+    print 'runs already have results ', p.fieldvalues('run','int')
+    print 'total delivered ',p.fieldtotal('delivered','float')
+    print 'total recorded ',p.fieldtotal('recorded','float')
+
+    
