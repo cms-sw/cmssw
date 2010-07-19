@@ -130,7 +130,7 @@ class inputFilesetParser(object):
 if __name__ == '__main__':
     result={}
     #filename='../test/overview.csv+../test/overview-140381.csv+../test/Cert_132440-139103_7TeV_StreamExpress_Collisions10_JSON.txt'
-    filename='../test/overview.csv+../test/overview-140381.csv+'
+    filename='../test/overview.csv+../test/overview-140381.csv'
     
     p=inputFilesetParser(filename)
     print p.selectionfilename()
