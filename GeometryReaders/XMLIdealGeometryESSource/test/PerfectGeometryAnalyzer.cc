@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: PerfectGeometryAnalyzer.cc,v 1.17 2009/11/09 15:44:33 case Exp $
+// $Id: PerfectGeometryAnalyzer.cc,v 1.18 2010/03/25 22:08:45 case Exp $
 //
 //
 
@@ -37,7 +37,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/OfflineDBLoader/interface/GeometryInfoDump.h"
 
-#include "CondFormats/GeometryObjects/interface/GeometryFile.h"
+#include "CondFormats/Common/interface/FileBlob.h"
 #include "Geometry/Records/interface/GeometryFileRcd.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Core/interface/DDRoot.h"

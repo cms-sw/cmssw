@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: ExtractXMLFile.cc,v 1.1.2.1 2009/12/08 19:02:55 case Exp $
+// $Id: ExtractXMLFile.cc,v 1.2 2009/12/08 19:12:29 case Exp $
 //
 //
 
@@ -37,7 +37,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/OfflineDBLoader/interface/GeometryInfoDump.h"
 
-#include "CondFormats/GeometryObjects/interface/GeometryFile.h"
+#include "CondFormats/Common/interface/FileBlob.h"
 #include "Geometry/Records/interface/GeometryFileRcd.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Core/interface/DDRoot.h"
@@ -99,7 +99,7 @@ ExtractXMLFile::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
    using namespace edm;
 
    std::cout << "Here I am " << std::endl;
-   edm::ESHandle<GeometryFile> gdd;
+   edm::ESHandle<FileBlob> gdd;
    iSetup.get<GeometryFileRcd>().get(label_, gdd);
    //std::vector<unsigned char>* tb = (*gdd).getUncompressedBlob();
    std::ofstream f(fname_.c_str());

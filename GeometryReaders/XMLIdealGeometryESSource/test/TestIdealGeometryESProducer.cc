@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Case
 //         Created:  Tue Jan 16 2009
-// $Id: TestIdealGeometryESProducer.cc,v 1.1 2009/03/04 14:47:33 fambrogl Exp $
+// $Id: TestIdealGeometryESProducer.cc,v 1.2 2010/03/25 22:08:45 case Exp $
 //
 //
 
@@ -41,7 +41,7 @@
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-#include "CondFormats/GeometryObjects/interface/GeometryFile.h"
+#include "CondFormats/Common/interface/FileBlob.h"
 #include "Geometry/Records/interface/GeometryFileRcd.h"
 
 

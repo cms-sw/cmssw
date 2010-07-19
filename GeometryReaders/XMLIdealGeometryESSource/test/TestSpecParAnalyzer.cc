@@ -39,7 +39,7 @@
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-#include "CondFormats/GeometryObjects/interface/GeometryFile.h"
+#include "CondFormats/Common/interface/FileBlob.h"
 #include "Geometry/Records/interface/GeometryFileRcd.h"
 
 //

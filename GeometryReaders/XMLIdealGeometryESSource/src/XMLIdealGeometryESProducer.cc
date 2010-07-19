@@ -32,8 +32,7 @@
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/GeometryFileRcd.h"
-#include "CondFormats/GeometryObjects/interface/GeometryFile.h"
-#include "Geometry/Records/interface/GeometryFileRcd.h"
+#include "CondFormats/Common/interface/FileBlob.h"
 
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
@@ -111,7 +110,7 @@ XMLIdealGeometryESProducer::produce(const IdealGeometryRecord& iRecord)
 {
    using namespace edm::es;
 
-   edm::ESTransientHandle<GeometryFile> gdd;
+   edm::ESTransientHandle<FileBlob> gdd;
    iRecord.getRecord<GeometryFileRcd>().get( label_, gdd );
 //    if ( gdd.isValid() ) {
 //      std::cout << "gdd.isValid()" << std::endl; 

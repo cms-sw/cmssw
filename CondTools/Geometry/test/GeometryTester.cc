@@ -11,7 +11,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 
-#include "CondFormats/GeometryObjects/interface/GeometryFile.h"
+#include "CondFormats/Common/interface/FileBlob.h"
 #include "CondFormats/GeometryObjects/interface/PGeometricDet.h"
 #include "CondFormats/GeometryObjects/interface/PGeometricDetExtra.h"
 #include "CondFormats/GeometryObjects/interface/PCaloGeometry.h"
@@ -60,7 +60,7 @@ GeometryTester::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
 {
 
   if(xmltest){
-    edm::ESHandle<GeometryFile> xmlgeo;
+    edm::ESHandle<FileBlob> xmlgeo;
     iSetup.get<GeometryFileRcd>().get(geomLabel_, xmlgeo);
     std::cout<<"XML FILE"<<std::endl;
     std::vector<unsigned char>* tb = (*xmlgeo).getUncompressedBlob();

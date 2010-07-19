@@ -8,7 +8,7 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "CondFormats/GeometryObjects/interface/GeometryFile.h"
+#include "CondFormats/Common/interface/FileBlob.h"
 #include "Geometry/Records/interface/GeometryFileRcd.h"
 
 
@@ -38,12 +38,12 @@ XMLGeometryBuilder::beginJob()
     return;
   }
 
-  GeometryFile* pgf= new GeometryFile(fname,zip);
+  FileBlob* pgf= new FileBlob(fname,zip);
 
   if ( mydbservice->isNewTagRequest("GeometryFileRcd") ) {
-    mydbservice->createNewIOV<GeometryFile>( pgf,mydbservice->beginOfTime(),mydbservice->endOfTime(),"GeometryFileRcd");
+    mydbservice->createNewIOV<FileBlob>( pgf,mydbservice->beginOfTime(),mydbservice->endOfTime(),"GeometryFileRcd");
   } else {
-    edm::LogError("XMLGeometryBuilder")<<"GeometryFileRcs Tag already exist";
+    edm::LogError("XMLGeometryBuilder")<<"GeometryFileRcd Tag already exist";
   }
 }
   

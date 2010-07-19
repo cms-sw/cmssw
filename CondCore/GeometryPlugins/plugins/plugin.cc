@@ -1,6 +1,6 @@
 #include "CondCore/ESSources/interface/registration_macros.h"
 
-#include "CondFormats/GeometryObjects/interface/GeometryFile.h"
+#include "CondFormats/Common/interface/FileBlob.h"
 #include "Geometry/Records/interface/GeometryFileRcd.h"
 
 #include "CondFormats/GeometryObjects/interface/PGeometricDet.h"
@@ -26,7 +26,7 @@
 #include "CondFormats/GeometryObjects/interface/PGeometricDetExtra.h"
 #include "Geometry/Records/interface/PGeometricDetExtraRcd.h"
 
-REGISTER_PLUGIN(GeometryFileRcd,GeometryFile);
+REGISTER_PLUGIN(GeometryFileRcd,FileBlob);
 REGISTER_PLUGIN(IdealGeometryRecord,PGeometricDet);
 REGISTER_PLUGIN(PGeometricDetExtraRcd,PGeometricDetExtra);
 REGISTER_PLUGIN(PEcalBarrelRcd,PCaloGeometry);
