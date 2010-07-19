@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2010/06/25 12:28:41 $ by $Author: cerminar $
+# last update: $Date: 2010/07/06 12:44:36 $ by $Author: mussgill $
 
 # AlCaReco sequence definitions:
 
@@ -59,7 +59,6 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalNoise_cff import *
 # Muon alignment
 ###############################################################
 # Muon Alignment with cosmics
-from Alignment.CommonAlignmentProducer.ALCARECOMuAlStandAloneCosmics_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlGlobalCosmicsInCollisions_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlGlobalCosmics_cff import *
 # Muon Alignment/Calibration with isolated muons
@@ -135,7 +134,6 @@ pathALCARECOTkAlCosmicsCTFHLT = cms.Path(seqALCARECOTkAlCosmicsCTFHLT*ALCARECOTk
 pathALCARECOTkAlCosmicsCosmicTFHLT = cms.Path(seqALCARECOTkAlCosmicsCosmicTFHLT*ALCARECOTkAlCosmicsCosmicTFDQM)
 pathALCARECOTkAlCosmicsCTF0THLT = cms.Path(seqALCARECOTkAlCosmicsCTF0THLT*ALCARECOTkAlCosmicsCTF0TDQM)
 pathALCARECOTkAlCosmicsCosmicTF0THLT = cms.Path(seqALCARECOTkAlCosmicsCosmicTF0THLT*ALCARECOTkAlCosmicsCosmicTF0TDQM)
-pathALCARECOMuAlStandAloneCosmics = cms.Path(seqALCARECOMuAlStandAloneCosmics*ALCARECOMuAlStandAloneCosmicsDQM)
 pathALCARECOMuAlGlobalCosmicsInCollisions = cms.Path(seqALCARECOMuAlGlobalCosmicsInCollisions*ALCARECOMuAlGlobalCosmicsInCollisionsDQM)
 pathALCARECOMuAlGlobalCosmics = cms.Path(seqALCARECOMuAlGlobalCosmics*ALCARECOMuAlGlobalCosmicsDQM)
 pathALCARECOPromptCalibProd = cms.Path(seqALCARECOPromptCalibProd)
@@ -369,15 +367,6 @@ ALCARECOStreamTkAlCosmics0THLT = cms.FilteredStream(
 	paths  = (pathALCARECOTkAlCosmicsCTF0THLT,pathALCARECOTkAlCosmicsCosmicTF0THLT),
 	content = OutALCARECOTkAlCosmics0THLT.outputCommands,
 	selectEvents = OutALCARECOTkAlCosmics0THLT.SelectEvents,
-	dataTier = cms.untracked.string('ALCARECO')
-	)
-
-ALCARECOStreamMuAlStandAloneCosmics = cms.FilteredStream(
-	responsible = 'Jim Pivarski',
-	name = 'MuAlStandAloneCosmics',
-	paths  = (pathALCARECOMuAlStandAloneCosmics),
-	content = OutALCARECOMuAlStandAloneCosmics.outputCommands,
-	selectEvents = OutALCARECOMuAlStandAloneCosmics.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
