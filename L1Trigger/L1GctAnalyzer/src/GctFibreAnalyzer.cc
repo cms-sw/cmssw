@@ -11,7 +11,7 @@ Description: Analyzer individual fibre channels from the source card.
 //
 // Original Author:  Alex Tapper
 //         Created:  Thu Jul 12 14:21:06 CEST 2007
-// $Id: GctFibreAnalyzer.cc,v 1.13 2008/05/22 15:07:30 tapper Exp $
+// $Id: GctFibreAnalyzer.cc,v 1.14 2008/06/24 22:53:45 jad Exp $
 //
 //
 
@@ -149,17 +149,17 @@ void GctFibreAnalyzer::CheckLogicalID(const L1GctFibreWord fibre)
 {
   //added by Jad Marrouche, May 08
 
-  int ref_jf_link[] = {1,2,3,4,1,2,3,4};
+  unsigned ref_jf_link[] = {1,2,3,4,1,2,3,4};
   //this array lists the link number ordering we expect from the 3 JFs in positive eta
   //below, we modify indices 2 and 3 from 3,4 to 1,2 to represent negative eta
 
-  int ref_eta0_link[] = {3,4,3,4,3,4};
+  unsigned ref_eta0_link[] = {3,4,3,4,3,4};
   //this array lists the link number ordering we expect from the ETA0
 
-  int ref_jf_type[] = {2,2,3,3,1,1,1,1};
+  unsigned ref_jf_type[] = {2,2,3,3,1,1,1,1};
   //this array lists the SC_type ordering we expect for the JFs
 
-  int ref_eta0_type[] = {2,2,2,2,2,2};
+  unsigned ref_eta0_type[] = {2,2,2,2,2,2};
   //this array lists the SC_type ordering we expect for the ETA0 (for consistency)
 
   int eta_region, rct_phi_region, leaf_phi_region, jf_type, elec_type, local_source_card_id, source_card_id_read, source_card_id_expected;
@@ -203,7 +203,7 @@ void GctFibreAnalyzer::CheckLogicalID(const L1GctFibreWord fibre)
                                                << " " << fibre; //screwed up
         }
 
-      if( (fibre.data() & 0xFF) != (2 + fibre.index()%3))
+      if( (fibre.data() & 0xFF) != (uint)(2 + fibre.index()%3))
         {
           edm::LogInfo("GCT fibre data error") << "Electron Fibres do not match "  
                                                << "Expected Fibre = " << (2 + fibre.index()%3)
