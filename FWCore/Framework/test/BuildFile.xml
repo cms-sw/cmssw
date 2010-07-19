@@ -41,6 +41,11 @@
   <use   name="FWCore/ServiceRegistry"/>
   <use   name="FWCore/Utilities"/>
 </library>
+<library   file="stubs/RunLumiEventAnalyzer.cc" name="RunLumiEventAnalyzer">
+  <flags   EDM_PLUGIN="1"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+</library>
 <library   file="stubs/TestMod.cc" name="TestMod">
   <flags   EDM_PLUGIN="1"/>
   <use   name="FWCore/Framework"/>

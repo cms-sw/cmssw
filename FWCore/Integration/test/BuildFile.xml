@@ -168,11 +168,6 @@
     <use   name="FWCore/Framework"/>
     <use   name="FWCore/MessageLogger"/>
   </library>
-  <library   file="RunLumiEventAnalyzer.cc" name="RunLumiEventAnalyzer">
-    <flags   EDM_PLUGIN="1"/>
-    <use   name="FWCore/Framework"/>
-    <use   name="FWCore/ParameterSet"/>
-  </library>
   <library   file="ProdigalAnalyzer.cc" name="TestProdigalAnalyzer">
     <flags   EDM_PLUGIN="1"/>
     <use   name="DataFormats/Common"/>

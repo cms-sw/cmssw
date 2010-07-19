@@ -15,7 +15,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 process.output = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('file:FastMerge_out.root')
+    fileName = cms.untracked.string('file:FastMergex_out.root')
 )
 
 process.source = cms.Source("PoolSource",
