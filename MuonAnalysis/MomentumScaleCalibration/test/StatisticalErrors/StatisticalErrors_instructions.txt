@@ -98,12 +98,13 @@ PARAMETERS USING MULTIPLE PSEUDO-EXPERIMENTS
   rejected entries is reported in OutputFit_param_X.txt.
   - If you don't want to reject the outliers (e.g. if you want to try 
     some alternative way), you can edit MakePlot.C and uncomment the 
-    lines 27-28.
+    lines 37-38.
   - if you want to fit the parameter distributions by hand, you can do
     as follows:
      - ./TakeParameterFromBatch.sh N (DIRNAME)
         - N is the number of the line where the parameter to extract is
         - DIRNAME just like in ExtractSigmas.sh
+     - edit MakePlot.C and comment out lines 99-100
      - root -l MakePlot.C
         - this will produce the plot and the tentative fit for the
 	  parameter and keep it open, so you can try to re-fit it as
