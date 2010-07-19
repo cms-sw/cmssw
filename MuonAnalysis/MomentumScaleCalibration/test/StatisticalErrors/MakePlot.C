@@ -4,6 +4,7 @@
 #include "TH1F.h"
 #include "TCanvas.h"
 #include <vector>
+#include <string>
 
 using namespace std;
 
@@ -11,17 +12,26 @@ void MakePlot() {
   ifstream file("Values.txt");
   string valueString;
   vector<double> values;
+  bool first=true;
+  string numPar;
+
   while( getline(file, valueString) ) {
-    stringstream ss(valueString);
-    double value;
-    ss >> value;
-    values.push_back(value);
+    if(first) {
+      numPar=valueString.substr(10,valueString.length());
+      first=false;
+    }
+    else {
+      stringstream ss(valueString);
+      double value;
+      ss >> value;
+      values.push_back(value);
+    }
   }
   if(file.is_open()) file.close();
 
   double meanPlot=0, rmsPlot=0, sigmaPlot=0;
 
-  makePlot(values, meanPlot, rmsPlot, sigmaPlot);
+  makePlot(values, meanPlot, rmsPlot, sigmaPlot, numPar);
 
   // Uncomment if you don't want "adjustments"...
   //   std::cout << "sigma_final " << sigmaPlot << std::endl;
@@ -49,7 +59,7 @@ void MakePlot() {
 
   while( (sigmaPlot/rmsPlot<5. || rmsPlot/sigmaPlot<5.) && lostHits!=0 ) {
     std::cout << " After iteration " << iterN << ", " << lostHits << " values rejected (" << lostHitsTot << " lost)." << std::endl;
-    makePlot(values, meanPlot, rmsPlot, sigmaPlot);
+    makePlot(values, meanPlot, rmsPlot, sigmaPlot, numPar);
     skimValues(values, meanPlot, rmsPlot);
     lostHits=prevDim-values.size();
     lostHitsTot+=lostHits;
@@ -61,7 +71,7 @@ void MakePlot() {
   return;
 }
 
-void makePlot(vector<double> vec, double& meanP, double& rmsP, double& sigmaP) {
+void makePlot(vector<double> vec, double& meanP, double& rmsP, double& sigmaP, string parNum) {
   int cnt=vec.size();
   double minV=99999., maxV=-99999.;
 
@@ -71,16 +81,12 @@ void makePlot(vector<double> vec, double& meanP, double& rmsP, double& sigmaP) {
     if(vec[kk]>maxV)
       maxV=vec[kk];
   }
-//   for(vector<double>::const_iterator it=vec.begin(); it!=vec.end(); ++it) {
-//     if((*it)<minV)
-//       minV=(*it);
-//     if((*it)>maxV)
-//       maxV=(*it);
-//   }
 
   double minH = minV - 0.1*(maxV-minV);
   double maxH = maxV + 0.1*(maxV-minV);
-  TH1F *histo = new TH1F("value", "value", 100, minH, maxH);
+  TH1F *histo = new TH1F("value", ("Parameter "+parNum).c_str(), 100, minH, maxH);
+  histo->GetXaxis()->SetTitle(("Value of parameter "+parNum).c_str());
+  histo->GetYaxis()->SetTitle("Entries");
 
   for(int i=0; i<cnt; ++i) {
     histo->Fill(vec[i]);
@@ -88,7 +94,7 @@ void makePlot(vector<double> vec, double& meanP, double& rmsP, double& sigmaP) {
   histo->Fit("gaus");
   TCanvas *cc = new TCanvas("cc","cc");
   histo->Draw();
-  cc->SaveAs("plot_param_x.gif");
+  cc->SaveAs(("plot_param_"+parNum+".gif").c_str());
   meanP = histo->GetMean();
   rmsP = histo->GetRMS();
   sigmaP = ((TF1*)histo->GetListOfFunctions()->First())->GetParameter(2);

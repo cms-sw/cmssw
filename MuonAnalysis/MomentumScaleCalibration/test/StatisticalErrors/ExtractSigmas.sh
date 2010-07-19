@@ -36,7 +36,7 @@ else
 fi
 
 ii=$1
-numpar=0
+#numpar=0
 
 if [ -f Values.txt ]
     then
@@ -50,23 +50,25 @@ fi
 
 touch Sigmas.txt
 
+first=1
+
 while [ $ii -le $2 ]
   do
   ./TakeParameterFromBatch.sh $ii $dir
   if [ ! -f Values.txt ] 
       then
-      echo "Error: file Values.txt not found for line "$ii"."
-      exit
+      echo "Warning: no parameters at line "$ii"."
+  else
+      numpar=$(sed -n "1p" Values.txt | awk '{print $2}')
+      root -l -b -q MakePlot.C > OutputFit_param_${numpar}.txt
+      grep sigma_final OutputFit_param_${numpar}.txt | awk '{print $2}' >> Sigmas.txt
+#      if [ -f plot_param_x.gif ]
+#	  then
+#	  mv plot_param_x.gif plot_param_${numpar}.gif
+#      fi
+      rm Values.txt
   fi
-  root -l -b -q MakePlot.C > OutputFit_param_${numpar}.txt
-  grep sigma_final OutputFit_param_${numpar}.txt | awk '{print $2}' >> Sigmas.txt
-  if [ -f plot_param_x.gif ]
-      then
-      mv plot_param_x.gif plot_param_${numpar}.gif
-  fi
-  rm Values.txt
   (( ii++ ))
-  (( numpar++ ))
 done
 
 exit
