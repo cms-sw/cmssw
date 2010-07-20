@@ -1,6 +1,6 @@
 import os
 import coral,datetime
-from RecoLuminosity.LumiDB import nameDealer,lumiTime
+from RecoLuminosity.LumiDB import nameDealer,lumiTime,CommonUtil
 '''
 This module defines lowlevel SQL query API for lumiDB 
 We do not like range queries so far because of performance of range scan.Use only necessary.
@@ -11,6 +11,77 @@ Do not handle transaction in here.
 Do not do explicit del queryhandle in here.
 Note: all the returned dict format are not sorted by itself.Sort it outside if needed.
 '''
+def allruns(schemaHandle,requireRunsummary=True,requireLumisummary=False,requireTrg=False,requireHlt=False):
+    '''
+    find all runs in the DB. By default requires cmsrunsummary table contain the run. The condition can be loosed in situation where db loading failed on certain data portions.
+    '''
+    if not requireRunsummary and not requireLumiummary and not requireTrg and not requireHlt:
+        print 'must require at least one table'
+        raise
+    runresult=[]
+    runlist=[]
+    numdups=0
+    if requireRunsummary:
+        numdups=numdups+1
+        queryHandle=schemaHandle.newQuery()
+        queryHandle.addToTableList(nameDealer.cmsrunsummaryTableName())
+        queryHandle.addToOutputList("RUNNUM","run")
+        queryBind=coral.AttributeList()
+        result=coral.AttributeList()
+        result.extend("run","unsigned int")
+        queryHandle.defineOutput(result)
+        cursor=queryHandle.execute()
+        while cursor.next():
+            r=cursor.currentRow()['run'].data()
+            runlist.append(r)
+        del queryHandle
+    if requireLumisummary:
+        numdups=numdups+1
+        queryHandle=schemaHandle.newQuery()
+        queryHandle.addToTableList(nameDealer.lumisummaryTableName())
+        queryHandle.addToOutputList("distinct RUNNUM","run")
+        queryBind=coral.AttributeList()
+        result=coral.AttributeList()
+        result.extend("run","unsigned int")
+        queryHandle.defineOutput(result)
+        cursor=queryHandle.execute()
+        while cursor.next():
+            r=cursor.currentRow()['run'].data()
+            runlist.append(r)
+        del queryHandle
+    if requireTrg:
+        numdups=numdups+1
+        queryHandle=schemaHandle.newQuery()
+        queryHandle.addToTableList(nameDealer.trgTableName())
+        query.addToOutputList("distinct RUNNUM","run")
+        queryBind=coral.AttributeList()
+        result=coral.AttributeList()
+        result.extend("run","unsigned int")
+        query.defineOutput(result)
+        cursor=query.execute()
+        while cursor.next():
+            r=cursor.currentRow()['run'].data()
+            runlist.append(r)
+        del queryHandle
+    if requireHlt:
+        numdups=numdups+1
+        queryHandle=schemaHandle.newQuery()
+        queryHandle.addToTableList(nameDealer.hltTableName())
+        query.addToOutputList("distinct RUNNUM","run")
+        queryBind=coral.AttributeList()
+        result=coral.AttributeList()
+        result.extend("run","unsigned int")
+        query.defineOutput(result)
+        cursor=query.execute()
+        while cursor.next():
+            r=cursor.currentRow()['run'].data()
+            runlist.append(r)
+        del queryHandle
+    dupresult=CommonUtil.count_dups(runlist)
+    for dup in dupresult:
+        if dup[1]==numdups:
+            runresult.append(dup[0])
+    return runresult
 def runsummaryByrun(queryHandle,runnum):
     '''
     select fillnum,sequence,hltkey,to_char(starttime),to_char(stoptime) from cmsrunsummary where runnum=:runnum
@@ -276,7 +347,7 @@ def trgBybitnameByrun(queryHandle,runnum,bitname):
     cursor=queryHandle.execute()
     while cursor.next():
         cmslsnum=cursor.currentRow()['cmslsnum'].data()
-        trgcount=cursor.currentRow()['trgcount'].data()
+        trgcount=cursor.currerequireLumisummaryntRow()['trgcount'].data()
         deadtime=cursor.currentRow()['deadtime'].data()
         bitnum=cursor.currentRow()['bitnum'].data()
         prescale=cursor.currentRow()['prescale'].data()
@@ -588,6 +659,8 @@ if __name__=='__main__':
     session.typeConverter().setCppTypeForSqlType("unsigned long long","NUMBER(20)")
     session.transaction().start(True)
     schema=session.nominalSchema()
+    allruns=allruns(schema,requireLumisummary=True)
+    print 'allruns in runsummary and lumisummary ',len(allruns)
     #q=schema.newQuery()
     #runsummaryOut=runsummaryByrun(q,139400)
     #del q
@@ -606,12 +679,12 @@ if __name__=='__main__':
     #q=schema.newQuery()
     #trgbitzero=trgbitzeroByrun(q,139400)
     #del q
-    q=schema.newQuery()
-    lumijointrg=lumisummarytrgbitzeroByrun(q,135525,'0001')
-    del q
-    q=schema.newQuery()
-    lumijointrgStablebeam7TeV=lumisummarytrgbitzeroByrun(q,135525,'0001',beamstatus='STABLE BEAMS',beamenergy=3.5E003,beamenergyfluctuation=0.09)
-    del q
+    #q=schema.newQuery()
+    #lumijointrg=lumisummarytrgbitzeroByrun(q,135525,'0001')
+    #del q
+    #q=schema.newQuery()
+    #lumijointrgStablebeam7TeV=lumisummarytrgbitzeroByrun(q,135525,'0001',beamstatus='STABLE BEAMS',beamenergy=3.5E003,beamenergyfluctuation=0.09)
+    #del q
     #q=schema.newQuery()
     #trgforbit=trgBybitnameByrun(q,139400,'L1_ZeroBias')
     #del q
@@ -659,10 +732,10 @@ if __name__=='__main__':
     #print
     #print 'trgbitzero : ',trgbitzero
     #print 
-    print 'lumijointrg : ', lumijointrg
-    print 'total LS : ',len(lumijointrg)
-    print 'lumijointrg stable beams 7TeV :', lumijointrgStablebeam7TeV
-    print 'total LS : ',len(lumijointrgStablebeam7TeV)
+    #print 'lumijointrg : ', lumijointrg
+    #print 'total LS : ',len(lumijointrg)
+    #print 'lumijointrg stable beams 7TeV :', lumijointrgStablebeam7TeV
+    #print 'total LS : ',len(lumijointrgStablebeam7TeV)
     #print 'trgforbit L1_ZeroBias ',trgforbit
     #print
     #print 'trgallbits ',trgallbits[1] #big query. be aware of speed
