@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep  8 14:17:58 EDT 2005
-// $Id: Tracer.cc,v 1.16 2008/12/20 17:39:56 wmtan Exp $
+// $Id: Tracer.cc,v 1.17 2010/01/19 22:37:06 wdd Exp $
 //
 
 // system include files
@@ -132,8 +132,9 @@ void
 Tracer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
 
     edm::ParameterSetDescription desc;
-    desc.addUntracked<std::string>("indention", "++");
+    desc.addUntracked<std::string>("indention", "++")->setComment("Prefix characters for output. The characters are repeated to form the indentation.");
     descriptions.add("Tracer", desc);
+   descriptions.setComment("This service prints each phase the framework is processing, e.g. constructing a module,running a module, etc.");
 }
 
 //

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec 13 15:00:49 EST 2007
-// $Id: PrintLoadingPlugins.cc,v 1.2 2008/01/18 20:10:31 wmtan Exp $
+// $Id: PrintLoadingPlugins.cc,v 1.3 2010/03/09 16:24:57 wdd Exp $
 //
 
 // system include files
@@ -67,6 +67,7 @@ PrintLoadingPlugins::~PrintLoadingPlugins()
 void PrintLoadingPlugins::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
   edm::ParameterSetDescription desc;
   descriptions.add("PrintLoadingPlugins", desc);
+  descriptions.setComment("This service logs each request to load a plugin.");
 }
 
 //

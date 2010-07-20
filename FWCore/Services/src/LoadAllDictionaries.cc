@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep 15 09:47:48 EDT 2005
-// $Id: LoadAllDictionaries.cc,v 1.8 2007/04/13 11:05:43 wmtan Exp $
+// $Id: LoadAllDictionaries.cc,v 1.9 2010/03/09 16:24:55 wdd Exp $
 //
 
 // system include files
@@ -71,7 +71,8 @@ edm::service::LoadAllDictionaries::LoadAllDictionaries(const edm::ParameterSet& 
 
 void edm::service::LoadAllDictionaries::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
   edm::ParameterSetDescription desc;
-  desc.addUntracked<bool>("doLoad", true);
+  desc.addUntracked<bool>("doLoad", true)->setComment("Only if 'true' do we load all dictionaries");
   descriptions.add("LoadAllDictionaries", desc);
+  descriptions.setComment("This service allows you to force all known Reflex dictionaries to be loaded at the beginning of the job");
 }
 

@@ -372,17 +372,30 @@ void EnableFloatingPointExceptions::
 fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
   edm::ParameterSetDescription desc;
 
-  desc.addUntracked<bool>("reportSettings", false);
-  desc.addUntracked<bool>("setPrecisionDouble", true);
+  desc.addUntracked<bool>("reportSettings", false)->setComment(
+   "Log FPE settings at different phases of the job."
+                                                               );
+  desc.addUntracked<bool>("setPrecisionDouble", true)->setComment(
+   "Set the FPU to use double precision");
 
   edm::ParameterSetDescription validator;
-  validator.addUntracked<bool>("enableDivByZeroEx", false);
-  validator.addUntracked<bool>("enableInvalidEx",   false);
-  validator.addUntracked<bool>("enableOverFlowEx",  false);
-  validator.addUntracked<bool>("enableUnderFlowEx", false);
+  validator.setComment("FPU exceptions to enable/disable for the requested module");
+  validator.addUntracked<bool>("enableDivByZeroEx", false)->setComment(
+   "Enable/disable exception for 'divide by zero'");
+  validator.addUntracked<bool>("enableInvalidEx",   false)->setComment(
+   "Enable/disable exception for 'invalid' math operations (e.g. sqrt(-1))"
+   );
+  validator.addUntracked<bool>("enableOverFlowEx",  false)->setComment(
+   "Enable/disable exception for numeric 'overflow' (value to big for type)"
+   );
+  validator.addUntracked<bool>("enableUnderFlowEx", false)->setComment(
+   "Enable/disable exception for numeric 'underflow' (value to small to be represented accurately)"
+   );
 
   edm::AllowedLabelsDescription<edm::ParameterSetDescription> node("moduleNames", validator, false);
+   node.setComment("Contains the names for PSets where the PSet name matches the label of a module for which you want to modify the FPE");
   desc.addNode(node);
 
   descriptions.add("EnableFloatingPointExceptions", desc);
+  descriptions.setComment("This service allows you to control the FPU and its exceptions on a per module basis.");
 }

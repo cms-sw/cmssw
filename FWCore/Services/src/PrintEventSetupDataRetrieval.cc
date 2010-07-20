@@ -60,11 +60,16 @@ namespace edm {
 
    void PrintEventSetupDataRetrieval::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
       edm::ParameterSetDescription desc;
-      desc.addUntracked<bool>("printProviders",false);
-      desc.addUntracked<bool>("checkAfterBeginRun",false);
-      desc.addUntracked<bool>("checkAfterBeginLumi",false);
-      desc.addUntracked<bool>("checkAfterEvent",true);
+      desc.addUntracked<bool>("printProviders",false)->setComment(
+      "If 'true' also print which ES module provides the data");
+      desc.addUntracked<bool>("checkAfterBeginRun",false)->setComment(
+       "If 'true' check for retrieved data after each begin run is processed");
+      desc.addUntracked<bool>("checkAfterBeginLumi",false)->setComment(
+       "If 'true' check for retrieved data after each begin lumi is processed");
+      desc.addUntracked<bool>("checkAfterEvent",true)->setComment(
+       "If 'true' check for retrieved data after an event is processed");
       descriptions.add("PrintEventSetupDataRetrieval", desc);
+      descriptions.setComment("This service reports when EventSetup data is retrieved by a module in the job.");
    }
 
 //

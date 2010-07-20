@@ -109,9 +109,13 @@ namespace edm {
 
     void Timing::fillDescriptions(ConfigurationDescriptions& descriptions) {
       ParameterSetDescription desc;
-      desc.addUntracked<bool>("summaryOnly", false);
-      desc.addUntracked<bool>("useJobReport", true);
+      desc.addUntracked<bool>("summaryOnly", false)->setComment(
+      "If 'true' do not report timing for each event");
+      desc.addUntracked<bool>("useJobReport", true)->setComment(
+       "If 'true' write summary information to JobReport");
       descriptions.add("Timing", desc);
+      descriptions.setComment(
+       "This service reports the time it takes to run each module in a job.");
     }
 
     void Timing::postBeginJob() {
