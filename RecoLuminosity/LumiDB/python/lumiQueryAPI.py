@@ -26,7 +26,7 @@ def allruns(schemaHandle,requireRunsummary=True,requireLumisummary=False,require
         queryHandle=schemaHandle.newQuery()
         queryHandle.addToTableList(nameDealer.cmsrunsummaryTableName())
         queryHandle.addToOutputList("RUNNUM","run")
-        queryBind=coral.AttributeList()
+        #queryBind=coral.AttributeList()
         result=coral.AttributeList()
         result.extend("run","unsigned int")
         queryHandle.defineOutput(result)
@@ -40,7 +40,7 @@ def allruns(schemaHandle,requireRunsummary=True,requireLumisummary=False,require
         queryHandle=schemaHandle.newQuery()
         queryHandle.addToTableList(nameDealer.lumisummaryTableName())
         queryHandle.addToOutputList("distinct RUNNUM","run")
-        queryBind=coral.AttributeList()
+        #queryBind=coral.AttributeList()
         result=coral.AttributeList()
         result.extend("run","unsigned int")
         queryHandle.defineOutput(result)
@@ -54,7 +54,7 @@ def allruns(schemaHandle,requireRunsummary=True,requireLumisummary=False,require
         queryHandle=schemaHandle.newQuery()
         queryHandle.addToTableList(nameDealer.trgTableName())
         queryHandle.addToOutputList("distinct RUNNUM","run")
-        queryBind=coral.AttributeList()
+        #queryBind=coral.AttributeList()
         result=coral.AttributeList()
         result.extend("run","unsigned int")
         queryHandle.defineOutput(result)
@@ -68,7 +68,7 @@ def allruns(schemaHandle,requireRunsummary=True,requireLumisummary=False,require
         queryHandle=schemaHandle.newQuery()
         queryHandle.addToTableList(nameDealer.hltTableName())
         queryHandle.addToOutputList("distinct RUNNUM","run")
-        queryBind=coral.AttributeList()
+        #queryBind=coral.AttributeList()
         result=coral.AttributeList()
         result.extend("run","unsigned int")
         queryHandle.defineOutput(result)
@@ -81,7 +81,33 @@ def allruns(schemaHandle,requireRunsummary=True,requireLumisummary=False,require
     for dup in dupresult:
         if dup[1]==numdups:
             runresult.append(dup[0])
+    runresult.sort()
     return runresult
+
+def allfills(queryHandle,filtercrazy=True):
+    '''select distinct fillnum from cmsrunsummary
+    there are crazy fill numbers. we assume they are not valid runs
+    '''
+    result=[]
+    queryHandle.addToTableList(nameDealer.cmsrunsummaryTableName())
+    queryHandle.addToOutputList('distinct FILLNUM','fillnum')
+    
+    if filtercrazy:
+        queryCondition='FILLNUM>:zero and FILLNUM<:crazybig'
+        queryBind=coral.AttributeList()
+        queryBind.extend('zero','unsigned int')
+        queryBind.extend('crazybig','unsigned int')
+        queryBind['zero'].setData(int(0))
+        queryBind['crazybig'].setData(int(29701))
+        queryHandle.setCondition(queryCondition,queryBind)
+    queryResult=coral.AttributeList()
+    queryResult.extend('fillnum','unsigned int')
+    queryHandle.defineOutput(queryResult)
+    cursor=queryHandle.execute()
+    while cursor.next():
+        result.append(cursor.currentRow()['fillnum'].data())
+    result.sort()
+    return result
 def runsummaryByrun(queryHandle,runnum):
     '''
     select fillnum,sequence,hltkey,to_char(starttime),to_char(stoptime) from cmsrunsummary where runnum=:runnum
@@ -716,6 +742,9 @@ if __name__=='__main__':
     #q=schema.newQuery()
     #runsinaweek=runsByTimerange(q,lastweek,now)
     #del q
+    q=schema.newQuery()
+    allfills=allfills(q)
+    del q
     session.transaction().commit()  
     del session
     del svc
@@ -751,5 +780,4 @@ if __name__=='__main__':
     #print 'runsbyfill ',runsbyfill
     #print
     #print 'runsinaweek ',runsinaweek.keys()
-    
-    
+    print 'all fills ',allfills
