@@ -21,8 +21,8 @@ setenv CMSSWver1 3_8_0
 setenv CMSSWver2 3_8_0
 setenv OLDRELEASE 380
 setenv NEWRELEASE 380
-setenv OLDPRERELEASE pre5 
-setenv NEWPRERELEASE pre7
+setenv OLDPRERELEASE pre7 
+setenv NEWPRERELEASE pre8
 
 setenv OLDRELEASE ${OLDRELEASE}${OLDPRERELEASE}
 setenv NEWRELEASE ${NEWRELEASE}${NEWPRERELEASE}
@@ -52,8 +52,8 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 #setenv SAMPLE PhotonJetPt80
 #setenv SAMPLE PhotonJetPt470
 
-#setenv SAMPLE SingleGammaPt10IDEAL
-setenv SAMPLE SingleGammaPt35IDEAL
+setenv SAMPLE SingleGammaPt10IDEAL
+#setenv SAMPLE SingleGammaPt35IDEAL
 #setenv SAMPLE SingleGammaFlatPt10_100
 #setenv SAMPLE H130GGgluonfusionSTARTUP
 #setenv SAMPLE PhotonJets_Pt_10
@@ -79,11 +79,8 @@ setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt10.r
 
 else if ($SAMPLE == SingleGammaPt35IDEAL) then 
 
-#setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt35.root
-setenv OLDFILE ${WorkDir2}/SingleGammaPt35_validation.root
-setenv NEWFILE ${WorkDir2}/SingleGammaPt35_validation.root
-
-
+setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt35.root
+setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt35.root
 
 else if ($SAMPLE == H130GGgluonfusionSTARTUP) then 
 
