@@ -1,6 +1,6 @@
 /*
- *  $Date: 2010/02/15 23:02:20 $
- *  $Revision: 1.17 $
+ *  $Date: 2010/05/21 21:33:52 $
+ *  $Revision: 1.18 $
  *  \author Julia Yarba
  */
 
@@ -9,6 +9,7 @@
 #include "Pythia6Gun.h"
 
 //#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "FWCore/Framework/interface/EDProducer.h"
