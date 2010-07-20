@@ -9,8 +9,8 @@ or could be subclassed renaming a function or two.
 This code began life in COMP/CRAB/python/LumiList.py
 """
 
-__revision__ = "$Id: LumiList.py,v 1.3 2010/07/16 16:36:08 ewv Exp $"
-__version__ = "$Revision: 1.3 $"
+__revision__ = "$Id: LumiList.py,v 1.4 2010/07/20 15:28:44 cplager Exp $"
+__version__ = "$Revision: 1.4 $"
 
 import json
 import re
@@ -78,10 +78,10 @@ class LumiList(object):
         if runs:
             for run in runs:
                 runString = str(run)
-                self.compactList[runString] = [[1,0xFFFFFFF]]
+                self.compactList[runString] = [[1, 0xFFFFFFF]]
 
         if compactList:
-             for run in compactList.keys():
+            for run in compactList.keys():
                 runString = str(run)
                 self.compactList[runString] = compactList[run]
 
@@ -90,22 +90,21 @@ class LumiList(object):
         result = {}
         for run in sorted(self.compactList.keys()):
             alumis = sorted(self.compactList[run])
-            blumis = sorted(other.compactList[run])
-            #runList = []
+            blumis = sorted(other.compactList.get(run, []))
             alist = []                    # verified part
             for alumi in alumis:
-                tmplist = [alumi[0],alumi[1]] # may be part
+                tmplist = [alumi[0], alumi[1]] # may be part
                 for blumi in blumis:
                     if blumi[0] <= tmplist[0] and blumi[1] >= tmplist[1]: # blumi has all of alumi
                         tmplist = []
                         break # blumi is has all of alumi
                     if blumi[0] > tmplist[0] and blumi[1] < tmplist[1]: # blumi is part of alumi
-                        alist.append([tmplist[0],blumi[0]-1])
-                        tmplist = [blumi[1]+1,tmplist[1]]
+                        alist.append([tmplist[0], blumi[0]-1])
+                        tmplist = [blumi[1]+1, tmplist[1]]
                     elif blumi[0] <= tmplist[0] and blumi[1] < tmplist[1] and blumi[1]>=tmplist[0]: # overlaps start
-                        tmplist = [blumi[1]+1,tmplist[1]]
+                        tmplist = [blumi[1]+1, tmplist[1]]
                     elif blumi[0] > tmplist[0] and blumi[1] >= tmplist[1] and blumi[0]<=tmplist[1]: # overlaps end
-                        alist.append([tmplist[0],blumi[0]-1])
+                        alist.append([tmplist[0], blumi[0]-1])
                         tmplist = []
                         break
                 if tmplist:
@@ -129,9 +128,9 @@ class LumiList(object):
                     if blumi[0] > alumi[0] and blumi[1] < alumi[1]: # blumi is part of alumi
                         lumiList.append(blumi)
                     elif blumi[0] <= alumi[0] and blumi[1] < alumi[1] and blumi[1] >= alumi[0]: # overlaps start
-                        lumiList.append([alumi[0],blumi[1]])
+                        lumiList.append([alumi[0], blumi[1]])
                     elif blumi[0] > alumi[0] and blumi[1] >= alumi[1] and blumi[0] <= alumi[1]: # overlaps end
-                        lumiList.append([blumi[0],alumi[1]])
+                        lumiList.append([blumi[0], alumi[1]])
 
 
             if lumiList:
@@ -153,7 +152,7 @@ class LumiList(object):
         bruns = other.compactList.keys()
         runs = set(aruns + bruns)
         for run in runs:
-            overlap = sorted(self.compactList.get(run,[]) + other.compactList.get(run,[]))
+            overlap = sorted(self.compactList.get(run, []) + other.compactList.get(run, []))
             unique = [overlap[0]]
             for pair in overlap[1:]:
                 if pair[0] >= unique[-1][0] and pair[0] <= unique[-1][1]+1 and pair[1] > unique[-1][1]:
@@ -177,7 +176,7 @@ class LumiList(object):
         """
         filteredList = []
         for (run, lumi) in lumiList:
-            runsInLumi = self.compactList.get(str(run), [[0,-1]])
+            runsInLumi = self.compactList.get(str(run), [[0, -1]])
             for (first, last) in runsInLumi:
                 if lumi >= first and lumi <= last:
                     filteredList.append((run, lumi))
@@ -241,8 +240,7 @@ class LumiList(object):
         Write out a JSON file representation of the object
         """
         jsonFile = open(fileName,'w')
-        jsonFile.write ("%s" % self);
-        jsonFile.write ("\n")
+        jsonFile.write("%s\n" % self)
         jsonFile.close()
 
 '''
@@ -388,16 +386,28 @@ class LumiListTest(unittest.TestCase):
                   '2' : range(10,35),
                   '3' : range(10,15) + range(35,40) + range(45,51) + range(59,70),
                  }
+        clumis = {'1' : range(1,6) + range(12,13) + range(16,30) + range(40,50) + range(33,36),
+                  '2' : range(10,35),
+                 }
         result = {'1' : range(6,12) + range(13,16) + range(31,33) + range(36,39),
                   '2' : range(6,10) + range(35,40),
                   '3' : range(15,20) + range(30,35) + range(51,59),
                  }
+        result2 = {'1' : range(6,12) + range(13,16) + range(31,33) + range(36,39),
+                   '2' : range(6,10) + range(35,40),
+                   '3' : range(10,20) + range (30,40) + range(50,60),
+                 }
         a = LumiList(runsAndLumis = alumis)
         b = LumiList(runsAndLumis = blumis)
+        c = LumiList(runsAndLumis = clumis)
         r = LumiList(runsAndLumis = result)
+        r2 = LumiList(runsAndLumis = result2)
 
         self.assertTrue((a-b).getCMSSWString() == r.getCMSSWString())
         self.assertTrue((a-b).getCMSSWString() != (b-a).getCMSSWString())
+        # Test where c is missing runs from a
+        self.assertTrue((a-c).getCMSSWString() == r2.getCMSSWString())
+        self.assertTrue((a-c).getCMSSWString() != (c-a).getCMSSWString())
 
 
     def testOr(self):
@@ -413,12 +423,16 @@ class LumiListTest(unittest.TestCase):
                   '2' : range(10,35),
                   '3' : range(10,15) + range(35,40) + range(45,51) + range(59,70),
                  }
+        clumis = {'1' : range(1,6) + range(12,13) + range(16,30) + range(40,50) + range(39,80),
+                  '2' : range(10,35),
+                 }
         result = {'1' : range(2,20) + range(31,39) + range(45,49) + range(1,6) + range(12,13) + range(16,30) + range(40,50) + range(39,80),
                   '2' : range(6,20) + range (30,40) + range(10,35),
                   '3' : range(10,20) + range (30,40) + range(50,60) + range(10,15) + range(35,40) + range(45,51) + range(59,70),
                  }
         a = LumiList(runsAndLumis = alumis)
         b = LumiList(runsAndLumis = blumis)
+        c = LumiList(runsAndLumis = blumis)
         r = LumiList(runsAndLumis = result)
         self.assertTrue((a|b).getCMSSWString() == r.getCMSSWString())
         self.assertTrue((a|b).getCMSSWString() == (b|a).getCMSSWString())
