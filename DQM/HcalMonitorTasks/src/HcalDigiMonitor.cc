@@ -3,6 +3,7 @@
 #include <cmath>
 
 #include "FWCore/Common/interface/TriggerNames.h" 
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
@@ -532,7 +533,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       int rDepth = id.depth();
       int rPhi   = id.iphi();
       int rEta   = id.ieta();
-      int binEta = CalcEtaBin(id.subdet(), rEta, rDepth); // why is this here?
+      rEta = CalcEtaBin(id.subdet(), rEta, rDepth);
       if (id.subdet()==HcalBarrel) ++hbHists.count_bad;
       else if (id.subdet()==HcalEndcap) ++heHists.count_bad;
       else if (id.subdet()==HcalForward) 
@@ -550,12 +551,12 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       else 
 	continue; // skip anything that isn't HB, HE, HO, HF
       // extra protection against nonsensical values -- prevents occasional crashes
-      if (binEta < 85 && binEta >= 0 
+      if (rEta < 85 && rEta >= 0 
 	  && (rPhi-1) >= 0 && (rPhi-1)<72 
 	  && (rDepth-1) >= 0 && (rDepth-1)<4)
 	{
-	  ++badunpackerreport[binEta][rPhi-1][rDepth-1];
-	  ++baddigis[binEta][rPhi-1][rDepth-1];  
+	  ++badunpackerreport[rEta][rPhi-1][rDepth-1];
+	  ++baddigis[rEta][rPhi-1][rDepth-1];  
 	}
 
     }
