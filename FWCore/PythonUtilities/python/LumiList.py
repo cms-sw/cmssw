@@ -9,8 +9,8 @@ or could be subclassed renaming a function or two.
 This code began life in COMP/CRAB/python/LumiList.py
 """
 
-__revision__ = "$Id: LumiList.py,v 1.4 2010/07/20 15:28:44 cplager Exp $"
-__version__ = "$Revision: 1.4 $"
+__revision__ = "$Id: LumiList.py,v 1.5 2010/07/20 16:00:40 ewv Exp $"
+__version__ = "$Revision: 1.5 $"
 
 import json
 import re
@@ -64,17 +64,18 @@ class LumiList(object):
             for run in runsAndLumis.keys():
                 runString = str(run)
                 lastLumi = -1000
-                self.compactList[runString] = []
                 lumiList = runsAndLumis[run]
-                for lumi in sorted(lumiList):
-                    if lumi == lastLumi:
-                        pass # Skip duplicates
-                    elif lumi != lastLumi + 1: # Break in lumi sequence
-                        self.compactList[runString].append([lumi, lumi])
-                    else:
-                        nRange =  len(self.compactList[runString])
-                        self.compactList[runString][nRange-1][1] = lumi
-                    lastLumi = lumi
+                if lumiList:
+                    self.compactList[runString] = []
+                    for lumi in sorted(lumiList):
+                        if lumi == lastLumi:
+                            pass # Skip duplicates
+                        elif lumi != lastLumi + 1: # Break in lumi sequence
+                            self.compactList[runString].append([lumi, lumi])
+                        else:
+                            nRange =  len(self.compactList[runString])
+                            self.compactList[runString][nRange-1][1] = lumi
+                        lastLumi = lumi
         if runs:
             for run in runs:
                 runString = str(run)
@@ -83,7 +84,8 @@ class LumiList(object):
         if compactList:
             for run in compactList.keys():
                 runString = str(run)
-                self.compactList[runString] = compactList[run]
+                if compactList[run]:
+                    self.compactList[runString] = compactList[run]
 
 
     def __sub__(self, other): # Things from self not in other
@@ -142,7 +144,6 @@ class LumiList(object):
                     unique.append(pair)
 
             result[run] = unique
-
         return LumiList(compactList = result)
 
 
@@ -167,6 +168,8 @@ class LumiList(object):
         # + is the same as |
         return self|other
 
+    def __len__(self):
+        return len(self.compactList)
 
     def filterLumis(self, lumiList):
         """
@@ -301,6 +304,10 @@ class LumiListTest(unittest.TestCase):
             '1': range(1, 34) + [35] + range(37, 48),
             '2': range(49, 76) + range(77, 131) + range(133, 137)
         }
+        blank = {
+            '1': [],
+            '2': []
+        }
 
         jsonLister = LumiList(filename = 'lumiTest.json')
         jsonString = jsonLister.getCMSSWString()
@@ -313,10 +320,13 @@ class LumiListTest(unittest.TestCase):
         runLister2 = LumiList(runsAndLumis = runsAndLumis2)
         runList2 = runLister2.getCompactList()
 
+        runLister3 = LumiList(runsAndLumis = blank)
+
+
         self.assertTrue(jsonString == runString)
         self.assertTrue(jsonList   == runList)
         self.assertTrue(runList2   == runList)
-
+        self.assertTrue(len(runLister3) == 0)
 
     def testFilter(self):
         """
@@ -408,7 +418,9 @@ class LumiListTest(unittest.TestCase):
         # Test where c is missing runs from a
         self.assertTrue((a-c).getCMSSWString() == r2.getCMSSWString())
         self.assertTrue((a-c).getCMSSWString() != (c-a).getCMSSWString())
-
+        # Test empty lists
+        self.assertTrue(str(a-a) == '{}')
+        self.assertTrue(len(a-a) == 0)
 
     def testOr(self):
         """
