@@ -190,6 +190,12 @@ void ora::InlineCArrayReader::read( void* data ){
   }
 }
 
+void ora::InlineCArrayReader::clear(){
+  for( std::vector< IRelationalReader* >::iterator iDepReader = m_readers.begin();
+       iDepReader !=  m_readers.end(); ++iDepReader ){
+    (*iDepReader)->clear();
+  }
+}
     
 ora::InlineCArrayStreamer::InlineCArrayStreamer( const Reflex::Type& objectType,
                                                  MappingElement& mapping,

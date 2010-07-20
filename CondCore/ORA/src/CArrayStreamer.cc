@@ -306,6 +306,10 @@ void ora::CArrayReader::read( void* destinationData ) {
 
 }
 
+void ora::CArrayReader::clear(){
+  if(m_dataReader.get()) m_dataReader->clear();
+}
+
 ora::CArrayStreamer::CArrayStreamer( const Reflex::Type& objectType,
                                    MappingElement& mapping,
                                    ContainerSchema& contSchema ):

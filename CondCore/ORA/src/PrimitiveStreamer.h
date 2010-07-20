@@ -75,6 +75,8 @@ namespace ora {
 
     void read( void* data );
 
+    void clear();
+
   };
 
   class PrimitiveStreamer : public IRelationalStreamer 

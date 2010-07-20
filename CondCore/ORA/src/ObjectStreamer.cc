@@ -243,6 +243,13 @@ void ora::ObjectReader::read( void* data ){
   }
 }
 
+void ora::ObjectReader::clear(){
+  for( std::vector< IRelationalReader* >::iterator iDepReader = m_readers.begin();
+       iDepReader !=  m_readers.end(); ++iDepReader ){
+    (*iDepReader)->clear();
+  }
+}
+
 void ora::ObjectReader::processDataMember( DataElement& dataMemberElement,
                                            IRelationalData& relationalData,
                                            Reflex::Type& dataMemberType,

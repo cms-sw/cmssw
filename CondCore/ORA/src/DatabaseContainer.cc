@@ -188,6 +188,7 @@ namespace ora {
           destination = ClassUtils::constructObject( m_type );
           m_reader->read( destination );
         }
+        m_reader->clear();
         m_topLevelQuery.clear();
         return destination;
       }

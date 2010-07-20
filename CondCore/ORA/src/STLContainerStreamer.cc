@@ -415,6 +415,12 @@ void ora::STLContainerReader::read( void* destinationData ) {
 
 }
 
+void ora::STLContainerReader::clear(){
+  if(m_query.get()) m_query->clear();
+  if(m_keyReader.get()) m_keyReader->clear();
+  if(m_dataReader.get()) m_dataReader->clear();
+}
+
 ora::STLContainerStreamer::STLContainerStreamer( const Reflex::Type& objectType,
                                                  MappingElement& mapping,
                                                  ContainerSchema& contSchema ):

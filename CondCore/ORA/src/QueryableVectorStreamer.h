@@ -78,6 +78,7 @@ namespace ora {
     void select( int oid );
     void setRecordId( const std::vector<int>& identity );
     void read( void* address );
+    void clear();
 
     private:
     Reflex::Type m_objectType;

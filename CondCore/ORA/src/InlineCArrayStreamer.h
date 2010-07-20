@@ -86,6 +86,8 @@ namespace ora {
     void setRecordId( const std::vector<int>& identity );
 
     void read( void* data );
+
+    void clear();
     
     private:
     std::vector<IRelationalReader*> m_readers;

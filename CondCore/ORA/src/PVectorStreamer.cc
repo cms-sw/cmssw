@@ -96,6 +96,10 @@ void ora::PVectorReader::read( void* destinationData ) {
   m_reader.read( destinationData );
 }
 
+void ora::PVectorReader::clear(){
+  m_reader.clear();
+}
+
 ora::PVectorStreamer::PVectorStreamer( const Reflex::Type& objectType,
                                        MappingElement& mapping,
                                        ContainerSchema& contSchema ):

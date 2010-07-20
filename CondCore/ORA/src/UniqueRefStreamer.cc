@@ -338,6 +338,9 @@ void ora::UniqueRefReader::read( void* data ){
   *loaderPtr = tmp;
 }
 
+void ora::UniqueRefReader::clear(){
+}
+
 ora::UniqueRefStreamer::UniqueRefStreamer( const Reflex::Type& objectType,
                                            MappingElement& mapping,
                                            ContainerSchema& contSchema ):

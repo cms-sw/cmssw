@@ -36,7 +36,8 @@ namespace ora {
     SelectOperation m_query;
     std::vector<std::string> m_idCols;
     MultiIndexDataTrie m_cache;
-    coral::AttributeList* m_row;
+    //coral::AttributeList* m_row;
+    boost::shared_ptr<coral::AttributeList> m_row;
     
   };
   

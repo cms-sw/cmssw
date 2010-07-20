@@ -60,6 +60,8 @@ namespace ora {
     /// Reads a data element
     virtual void read( void* address ) = 0;
 
+    virtual void clear() = 0;
+
   };
 
   class IRelationalStreamer {

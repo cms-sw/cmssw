@@ -580,6 +580,10 @@ void ora::QueryableVectorReader::read( void* destinationData ) {
   client->install( loader );  
 }
 
+void ora::QueryableVectorReader::clear(){
+}
+
+
 ora::QueryableVectorStreamer::QueryableVectorStreamer( const Reflex::Type& objectType,
                                                        MappingElement& mapping,
                                                        ContainerSchema& contSchema ):

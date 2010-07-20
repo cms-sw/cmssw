@@ -8,7 +8,8 @@ ora::MultiRecordSelectOperation::MultiRecordSelectOperation( const std::string& 
   m_query( tableName, schema ),
   m_idCols(),
   m_cache(),
-  m_row( 0 ){
+  m_row(){
+  //m_row( 0 ){
 }
 
 ora::MultiRecordSelectOperation::~MultiRecordSelectOperation(){
@@ -20,7 +21,8 @@ void ora::MultiRecordSelectOperation::addOrderId(const std::string& columnName){
 }
 
 void ora::MultiRecordSelectOperation::selectRow( const std::vector<int>& selection ){
-  m_row = &m_cache.lookup( selection );
+  //m_row = &m_cache.lookup( selection );
+  m_row = m_cache.lookupAndClear( selection );
 }
 
 size_t ora::MultiRecordSelectOperation::selectionSize( const std::vector<int>& selection,
@@ -30,9 +32,10 @@ size_t ora::MultiRecordSelectOperation::selectionSize( const std::vector<int>& s
 }
 
 void ora::MultiRecordSelectOperation::clear(){
-  m_row = 0;
+  m_row.reset();
+  //m_row = 0;
   m_cache.clear();
-  m_idCols.clear();
+  //m_idCols.clear();
   m_query.clear();
 }
 
@@ -55,7 +58,8 @@ void ora::MultiRecordSelectOperation::addWhereId(const std::string& columnName){
 }
 
 coral::AttributeList& ora::MultiRecordSelectOperation::data(){
-  if(!m_row){
+  //if(!m_row){
+  if(!m_row.get()){
     throwException( "No record available.",
                     "MultiRecordSelectOperation::data" );
   }
@@ -71,7 +75,8 @@ std::string& ora::MultiRecordSelectOperation::whereClause(){
 }
 
 void ora::MultiRecordSelectOperation::execute(){
-  m_row = 0;
+  //m_row = 0;
+  m_row.reset();
   m_cache.clear();
   m_query.execute();
   while( m_query.nextCursorRow() ){

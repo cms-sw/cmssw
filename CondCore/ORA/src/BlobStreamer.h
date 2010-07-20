@@ -81,6 +81,8 @@ namespace ora {
 
     void read( void* data );
 
+    void clear();
+
     private:
       Reflex::Type m_objectType;
       std::string m_columnName;

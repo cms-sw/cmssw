@@ -317,6 +317,10 @@ void ora::OraPtrReader::read( void* data ){
   *loaderPtr = newLoader;
 }
 
+void ora::OraPtrReader::clear(){
+}
+
+
 ora::OraPtrStreamer::OraPtrStreamer( const Reflex::Type& objectType,
                                      MappingElement& mapping,
                                      ContainerSchema& contSchema ):

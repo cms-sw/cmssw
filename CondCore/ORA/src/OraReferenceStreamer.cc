@@ -189,6 +189,9 @@ void ora::OraReferenceReader::read( void* data ){
   bindDataForRead( data );
 }
 
+void ora::OraReferenceReader::clear(){
+}
+
     
 ora::OraReferenceStreamer::OraReferenceStreamer( const Reflex::Type& objectType,
                                                  MappingElement& mapping,

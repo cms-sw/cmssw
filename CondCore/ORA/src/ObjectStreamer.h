@@ -92,6 +92,8 @@ namespace ora {
       /// Reads a data element
       void read( void* destination );
 
+      void clear();
+
     public:
 
       void processDataMember( DataElement& dataElement, IRelationalData& relationalData, Reflex::Type& dataMemberType, MappingElement& dataMemberMapping, RelationalBuffer* operationBuffer );

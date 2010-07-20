@@ -162,6 +162,9 @@ void ora::BlobReader::read( void* data ){
   m_blobReader->read(relDataElement.data<coral::Blob>(), dataElementAddress, m_objectType );
 }
 
+void ora::BlobReader::clear(){
+}
+
 ora::BlobStreamer::BlobStreamer( const Reflex::Type& objectType,
                                  MappingElement& mapping,
                                  ContainerSchema& contSchema ):

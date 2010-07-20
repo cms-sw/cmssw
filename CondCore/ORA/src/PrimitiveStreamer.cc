@@ -133,6 +133,10 @@ void ora::PrimitiveReader::read( void* data ){
   bindDataForRead( data );
 }
 
+void ora::PrimitiveReader::clear(){
+}
+
+
 ora::PrimitiveStreamer::PrimitiveStreamer( const Reflex::Type& objectType,
                                            MappingElement& mapping ):
   m_objectType( objectType ),

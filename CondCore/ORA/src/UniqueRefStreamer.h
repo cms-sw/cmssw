@@ -84,6 +84,8 @@ namespace ora {
       /// Reads a data element
       void read( void* destination );
 
+      void clear();
+
     private:
 
       Reflex::Type m_objectType;
