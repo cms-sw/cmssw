@@ -6,6 +6,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -78,7 +79,7 @@ L1ScalersClient::L1ScalersClient(const edm::ParameterSet& ps):
 // book individual bit rates vs lumi for algo bits.
   totalAlgoRate_ = dbe_->book1D("totAlgoRate", "Total Algo Rate" , MAX_LUMI_SEG, 
 				     -0.5, MAX_LUMI_SEG-0.5);
-  totalTtRate_ = dbe_->book1D("totTtRate", "Total Tech Rate" , MAX_LUMI_SEG, 
+  totalTtRate_ = dbe_->book1D("totTtRate", "Total Tech. Trig Rate" , MAX_LUMI_SEG, 
 				     -0.5, MAX_LUMI_SEG-0.5);
 
   totAlgoPrevCount=0UL;
@@ -282,7 +283,7 @@ void L1ScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
       LogDebug("Parameter") << "rate path " << i << " is " << rate;
     }
     l1AlgoCurrentRate_->setBinContent(i, rate);
-    l1AlgoCurrentRatePerAlgo_[i/kPerHisto]->setBinContent(i%kPerHisto, rate);
+    l1AlgoCurrentRatePerAlgo_[i/kPerHisto]->setBinContent(i%kPerHisto+1, rate);
     //currentRate_->setBinError(i, error);
     l1AlgoScalerCounters_[i-1] = ulong(current_count);
     l1AlgoRateHistories_[i-1]->setBinContent(nL, rate);
@@ -312,7 +313,7 @@ void L1ScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
       LogDebug("Parameter") << "rate path " << i << " is " << rate;
     }
     l1TechTrigCurrentRate_->setBinContent(i, rate);
-    l1TechTrigCurrentRatePerAlgo_[i/kPerHisto]->setBinContent(i%kPerHisto, rate);
+    l1TechTrigCurrentRatePerAlgo_[i/kPerHisto]->setBinContent(i%kPerHisto+1, rate);
     //currentRate_->setBinError(i, error);
     l1TechTrigScalerCounters_[i-1] = ulong(current_count);
     l1TechTrigRateHistories_[i-1]->setBinContent(nL, rate);
