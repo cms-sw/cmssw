@@ -664,9 +664,14 @@ namespace edm {
 
   void
   RootFile::fillIndexIntoFile() {
-    // This function is for backward compatibility only.
-    // If reading a current format file, indexIntoFile_ is read from the input file.
-    //
+    // This function is for backward compatibility.
+    // If reading a current format file, indexIntoFile_ is read from the input
+    // file and should always be there. Note that the algorithm below will work
+    // sometimes but often fail with the new format introduced in release 3_8_0.
+    // If it ever becomes necessary to rebuild IndexIntoFile from the new format,
+    // probably a separate function should be written to deal with the task.
+    // This is possible just not implemented yet.
+    assert(!fileFormatVersion().hasIndexIntoFile());
 
     typedef std::list<LumiItem> LumiList;
     LumiList lumis; // (declare 1)
@@ -870,7 +875,13 @@ namespace edm {
 	 "'Events' tree is corrupted or not present\n" << "in the input file.\n";
     }
 
-    if (indexIntoFile_.empty()) {
+    if (fileFormatVersion().hasIndexIntoFile()) {
+      if (runTree().entries() > 0) {
+        assert(!indexIntoFile_.empty());
+      }
+    }
+    else {
+      assert(indexIntoFile_.empty());
       fillIndexIntoFile();
     }
 

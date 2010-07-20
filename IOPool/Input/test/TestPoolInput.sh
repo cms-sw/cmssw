@@ -2,6 +2,8 @@
 # Pass in name and status
 function die { echo $1: status $2 ;  exit $2; }
 
+pushd ${LOCAL_TMP_DIR}
+
 cmsRun --parameter-set ${LOCAL_TEST_DIR}/PrePoolInputTest_cfg.py || die 'Failure using PrePoolInputTest_cfg.py' $?
 
 cp PoolInputTest.root PoolInputOther.root
@@ -41,3 +43,10 @@ for file in ${CMSSW_BASE}/src/IOPool/Input/testdata/empty*.root
 do
   cmsRun ${LOCAL_TEST_DIR}/test_empty_old_formats_cfg.py "$file" || die 'Failed to read old empty file $file' $?
 done
+
+for file in ${CMSSW_BASE}/src/IOPool/Input/testdata/complex*.root
+do
+  cmsRun ${LOCAL_TEST_DIR}/test_complex_old_formats_cfg.py "$file" || die 'Failed to read old file $file' $?
+done
+
+popd
