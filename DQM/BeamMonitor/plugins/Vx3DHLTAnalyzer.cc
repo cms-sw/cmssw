@@ -13,12 +13,10 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.84 2010/04/26 19:13:33 dinardo Exp $
-//
-//
+// $Id: Vx3DHLTAnalyzer.cc,v 1.92 2010/07/04 11:25:25 dinardo Exp $
 
 
-#include "DQM/BeamMonitor/interface/Vx3DHLTAnalyzer.h"
+#include "DQM/BeamMonitor/plugins/Vx3DHLTAnalyzer.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -110,8 +108,7 @@ void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 	if ((it3DVx->isValid() == true) &&
 	    (it3DVx->isFake() == false) &&
 	    (it3DVx->ndof() >= minVxDoF) &&
-	    (it3DVx->tracksSize() != 0) &&
-	    ((it3DVx->ndof() + 3.)/(double)it3DVx->tracksSize() >= 2.*minVxWgt))
+	    (it3DVx->tracksSize() != 0))
 	  {
 	    for (i = 0; i < DIM; i++)
 	      {
@@ -147,11 +144,8 @@ void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 	    Vx_ZX->Fill(it3DVx->z(), it3DVx->x());
 	    Vx_ZY->Fill(it3DVx->z(), it3DVx->y());
 	    Vx_XY->Fill(it3DVx->x(), it3DVx->y());
-	   
-	    Vx_ZX_profile->Fill(it3DVx->z(), it3DVx->x());
-	    Vx_ZY_profile->Fill(it3DVx->z(), it3DVx->y());
 	  }
-      }      
+      }  
     }
 }
 
@@ -578,9 +572,6 @@ void Vx3DHLTAnalyzer::reset(string ResetType)
       Vx_ZY->Reset();
       Vx_XY->Reset();
       
-      Vx_ZX_profile->Reset();
-      Vx_ZY_profile->Reset();
-
       Vertices.clear();
       
       lumiCounter      = 0;
@@ -601,9 +592,6 @@ void Vx3DHLTAnalyzer::reset(string ResetType)
       Vx_ZY->Reset();
       Vx_XY->Reset();
       
-      Vx_ZX_profile->Reset();
-      Vx_ZY_profile->Reset();
-
       Vertices.clear();
       
       lumiCounter      = 0;
@@ -975,7 +963,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       fitResults->setBinContent(2, 4, sqrt(vals[13]));
       fitResults->setBinContent(2, 3, sqrt(vals[14]));
       fitResults->setBinContent(2, 2, sqrt(vals[15]));
-      fitResults->setBinContent(2, 1, 0.0);
+      fitResults->setBinContent(2, 1, sqrt(counterVx));
 
       // Linear fit to the historical plots
       TF1* myLinFit = new TF1("myLinFit", "[0] + [1]*x", mXlumi->getTH1()->GetXaxis()->GetXmin(), mXlumi->getTH1()->GetXaxis()->GetXmax());
@@ -1049,16 +1037,17 @@ void Vx3DHLTAnalyzer::beginJob()
   DQMStore* dbe = 0;
   dbe = Service<DQMStore>().operator->();
  
+  // ### Set internal variables ###
   nBinsHistoricalPlot = 80;
+  // ##############################
 
   if ( dbe ) 
     {
       dbe->setCurrentFolder("BeamPixel");
 
-      Vx_X = dbe->book1D("vertex x", "Primary Vertex X Coordinate Distribution", (int)(xRange/xStep), -xRange/2., xRange/2.);
-      Vx_Y = dbe->book1D("vertex y", "Primary Vertex Y Coordinate Distribution", (int)(yRange/yStep), -yRange/2., yRange/2.);
-      Vx_Z = dbe->book1D("vertex z", "Primary Vertex Z Coordinate Distribution", (int)(zRange/zStep), -zRange/2., zRange/2.);
-
+      Vx_X = dbe->book1D("vertex x", "Primary Vertex X Coordinate Distribution", rint(xRange/xStep), -xRange/2., xRange/2.);
+      Vx_Y = dbe->book1D("vertex y", "Primary Vertex Y Coordinate Distribution", rint(yRange/yStep), -yRange/2., yRange/2.);
+      Vx_Z = dbe->book1D("vertex z", "Primary Vertex Z Coordinate Distribution", rint(zRange/zStep), -zRange/2., zRange/2.);
       Vx_X->setAxisTitle("Primary Vertices X [cm]",1);
       Vx_X->setAxisTitle("Entries [#]",2);
       Vx_Y->setAxisTitle("Primary Vertices Y [cm]",1);
@@ -1069,7 +1058,6 @@ void Vx3DHLTAnalyzer::beginJob()
       mXlumi = dbe->book1D("muX vs lumi", "\\mu_{x} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
       mYlumi = dbe->book1D("muY vs lumi", "\\mu_{y} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
       mZlumi = dbe->book1D("muZ vs lumi", "\\mu_{z} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
-
       mXlumi->setAxisTitle("Lumisection [#]",1);
       mXlumi->setAxisTitle("\\mu_{x} [cm]",2);
       mXlumi->getTH1()->SetOption("E1");
@@ -1083,7 +1071,6 @@ void Vx3DHLTAnalyzer::beginJob()
       sXlumi = dbe->book1D("sigmaX vs lumi", "\\sigma_{x} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
       sYlumi = dbe->book1D("sigmaY vs lumi", "\\sigma_{y} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
       sZlumi = dbe->book1D("sigmaZ vs lumi", "\\sigma_{z} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
-
       sXlumi->setAxisTitle("Lumisection [#]",1);
       sXlumi->setAxisTitle("\\sigma_{x} [cm]",2);
       sXlumi->getTH1()->SetOption("E1");
@@ -1096,7 +1083,6 @@ void Vx3DHLTAnalyzer::beginJob()
 
       dxdzlumi = dbe->book1D("dxdz vs lumi", "dX/dZ vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
       dydzlumi = dbe->book1D("dydz vs lumi", "dY/dZ vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
-
       dxdzlumi->setAxisTitle("Lumisection [#]",1);
       dxdzlumi->setAxisTitle("dX/dZ [rad]",2);
       dxdzlumi->getTH1()->SetOption("E1");
@@ -1104,10 +1090,9 @@ void Vx3DHLTAnalyzer::beginJob()
       dydzlumi->setAxisTitle("dY/dZ [rad]",2);
       dydzlumi->getTH1()->SetOption("E1");
 
-      Vx_ZX = dbe->book2D("vertex zx", "Primary Vertex ZX Coordinate Distribution", (int)(zRange/zStep/5.), -zRange/2., zRange/2., (int)(xRange/xStep/5.), -xRange/2., xRange/2.);
-      Vx_ZY = dbe->book2D("vertex zy", "Primary Vertex ZY Coordinate Distribution", (int)(zRange/zStep/5.), -zRange/2., zRange/2., (int)(yRange/yStep/5.), -yRange/2., yRange/2.);
-      Vx_XY = dbe->book2D("vertex xy", "Primary Vertex XY Coordinate Distribution", (int)(xRange/xStep/5.), -xRange/2., xRange/2., (int)(yRange/yStep/5.), -yRange/2., yRange/2.);
-
+      Vx_ZX = dbe->book2D("vertex zx", "Primary Vertex ZX Coordinate Distribution", rint(zRange/zStep/5.), -zRange/2., zRange/2., rint(xRange/xStep/5.), -xRange/2., xRange/2.);
+      Vx_ZY = dbe->book2D("vertex zy", "Primary Vertex ZY Coordinate Distribution", rint(zRange/zStep/5.), -zRange/2., zRange/2., rint(yRange/yStep/5.), -yRange/2., yRange/2.);
+      Vx_XY = dbe->book2D("vertex xy", "Primary Vertex XY Coordinate Distribution", rint(xRange/xStep/5.), -xRange/2., xRange/2., rint(yRange/yStep/5.), -yRange/2., yRange/2.);
       Vx_ZX->setAxisTitle("Primary Vertices Z [cm]",1);
       Vx_ZX->setAxisTitle("Primary Vertices X [cm]",2);
       Vx_ZX->setAxisTitle("Entries [#]",3);
@@ -1118,36 +1103,26 @@ void Vx3DHLTAnalyzer::beginJob()
       Vx_XY->setAxisTitle("Primary Vertices Y [cm]",2);
       Vx_XY->setAxisTitle("Entries [#]",3);
 
-      Vx_ZX_profile = dbe->bookProfile("zx profile","ZX Profile", (int)(zRange/zStep/10.), -zRange/2., zRange/2., (int)(xRange/xStep/10.), -xRange/2., xRange/2., "");
-      Vx_ZX_profile->setAxisTitle("Primary Vertices Z [cm]",1);
-      Vx_ZX_profile->setAxisTitle("Primary Vertices X [cm]",2);
-
-      Vx_ZY_profile = dbe->bookProfile("zy profile","ZY Profile", (int)(zRange/zStep/10.), -zRange/2., zRange/2., (int)(yRange/yStep/10.), -yRange/2., yRange/2., "");
-      Vx_ZY_profile->setAxisTitle("Primary Vertices Z [cm]",1);
-      Vx_ZY_profile->setAxisTitle("Primary Vertices Y [cm]",2);
-
       hitCounter = dbe->book1D("pixelHits vs lumi", "# Pixel-Hits vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
-
       hitCounter->setAxisTitle("Lumisection [#]",1);
       hitCounter->setAxisTitle("Pixel-Hits [#]",2);
       hitCounter->getTH1()->SetOption("E1");
 
-      goodVxCounter = dbe->book1D("Good vertices vs lumi", "# Good vertices vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
-
+      goodVxCounter = dbe->book1D("good vertices vs lumi", "# Good vertices vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
       goodVxCounter->setAxisTitle("Lumisection [#]",1);
       goodVxCounter->setAxisTitle("Good vertices [#]",2);
       goodVxCounter->getTH1()->SetOption("E1");
 
       fitResults = dbe->book2D("fit results","Results of Beam Spot Fit", 2, 0., 2., 9, 0., 9.);
       fitResults->setAxisTitle("Fitted Beam Spot [cm]", 1);
-      fitResults->setBinLabel(9, "X0", 2);
-      fitResults->setBinLabel(8, "Y0", 2);
-      fitResults->setBinLabel(7, "Z0", 2);
-      fitResults->setBinLabel(6, "sigmaZ0", 2);
-      fitResults->setBinLabel(5, "dX/dZ", 2);
-      fitResults->setBinLabel(4, "dY/dZ", 2);
-      fitResults->setBinLabel(3, "sigmaX0", 2);
-      fitResults->setBinLabel(2, "sigmaY0", 2);
+      fitResults->setBinLabel(9, "X", 2);
+      fitResults->setBinLabel(8, "Y", 2);
+      fitResults->setBinLabel(7, "Z", 2);
+      fitResults->setBinLabel(6, "\\sigma_{Z}", 2);
+      fitResults->setBinLabel(5, "#frac{dX}{dZ}[rad]", 2);
+      fitResults->setBinLabel(4, "#frac{dY}{dZ}[rad]", 2);
+      fitResults->setBinLabel(3, "\\sigma_{X}", 2);
+      fitResults->setBinLabel(2, "\\sigma_{Y}", 2);
       fitResults->setBinLabel(1, "Vertices", 2);
       fitResults->setBinLabel(1, "Value", 1);
       fitResults->setBinLabel(2, "Stat. Error", 1);
@@ -1165,14 +1140,14 @@ void Vx3DHLTAnalyzer::beginJob()
       // - n%  numberGoodFits / numberFits
     }
 
+  // ### Set internal variables ###
   reset("scratch");
   maxLumiIntegration   = 15;
   minVxDoF             = 4.;
-  minVxWgt             = 0.5;
   internalDebug        = false;
   considerVxCovariance = true;
-
   pi = 3.141592653589793238;
+  // ##############################
 }
 
 

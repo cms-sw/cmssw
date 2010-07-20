@@ -2,12 +2,12 @@
  * \file BeamConditionsMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/02/09 08:37:00 $
- * $Revision: 1.6 $
+ * $Date: 2010/05/11 23:55:02 $
+ * $Revision: 1.7 $
  *
  */
 
-#include "DQM/BeamMonitor/interface/BeamConditionsMonitor.h"
+#include "DQM/BeamMonitor/plugins/BeamConditionsMonitor.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"

@@ -2,12 +2,12 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/04/15 15:29:22 $
- * $Revision: 1.44 $
+ * $Date: 2010/07/15 04:19:31 $
+ * $Revision: 1.54 $
  *
  */
 
-#include "DQM/BeamMonitor/interface/BeamMonitor.h"
+#include "DQM/BeamMonitor/plugins/BeamMonitor.h"
 #include "DQMServices/Core/interface/QReport.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -22,6 +22,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <numeric>
 #include <math.h>
 #include <TMath.h>
@@ -31,11 +32,11 @@
 using namespace std;
 using namespace edm;
 
-static char * formatTime( const time_t t )  {
+const char * BeamMonitor::formatFitTime( const time_t & t )  {
 #define CET (+1)
 #define CEST (+2)
 
-  static  char ts[] = "yyyy-Mm-dd hh:mm:ss     ";
+  static char ts[] = "yyyy-Mm-dd hh:mm:ss";
   tm * ptm;
   ptm = gmtime ( &t );
   sprintf( ts, "%4d-%02d-%02d %02d:%02d:%02d", ptm->tm_year,ptm->tm_mon+1,ptm->tm_mday,(ptm->tm_hour+CEST)%24, ptm->tm_min, ptm->tm_sec);
@@ -91,7 +92,7 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
   maxZ_ = fabs(maxZ_);
   lastlumi_ = 0;
   nextlumi_ = 0;
-
+  processed_ = false;
 }
 
 
@@ -140,103 +141,96 @@ void BeamMonitor::beginJob() {
   TDatime *da = new TDatime();
   gStyle->SetTimeOffset(da->Convert(kTRUE));
 
-  char coord[] = {"xyz"};
+  const int nvar_ = 6;
+  string coord[nvar_] = {"x","y","z","sigmaX","sigmaY","sigmaZ"};
+  string label[nvar_] = {"x_{0} (cm)","y_{0} (cm)","z_{0} (cm)",
+			 "#sigma_{X_{0}} (cm)","#sigma_{Y_{0}} (cm)","#sigma_{Z_{0}} (cm)"};  
   for (int i = 0; i < 4; i++) {
     dbe_->setCurrentFolder(monitorName_+"Fit");
-    for (int ic=0; ic<3; ++ic) {
-      string histName(1,coord[ic]);
-      string histTitle(1,coord[ic]);
-      string ytitle(1,coord[ic]);
+    for (int ic=0; ic<nvar_; ++ic) {
+      TString histName(coord[ic]);
+      TString histTitle(coord[ic]);
+      string ytitle(label[ic]);
       string xtitle("");
       string options("E1");
+      bool createHisto = true;
       switch(i) {
       case 1: // BS vs time
 	histName += "0_time";
-	histTitle += " coordinate of beam spot vs time (Fit)";
-	xtitle += "Time [UTC]";
-	ytitle += "_{0} (cm)";
+	xtitle = "Time [UTC]";
+	if (ic < 3)
+	  histTitle += " coordinate of beam spot vs time (Fit)";
+	else
+	  histTitle = histTitle.Insert(5," ") + " of beam spot vs time (Fit)";
 	break;
       case 2: // PV vs lumi
-	dbe_->setCurrentFolder(monitorName_+"PrimaryVertex");
-	histName.insert(0,"PV");
-	histName += "_lumi";
-	histTitle.insert(0,"Avg. ");
-	histTitle += " position of primary vtx vs lumi";
-	xtitle += "Lumisection";
-	ytitle.insert(0,"PV");
-	ytitle += " #pm #sigma_{PV";
-	ytitle += coord[ic];
-	ytitle += "} (cm)";
+	if (ic < 3) {
+	  dbe_->setCurrentFolder(monitorName_+"PrimaryVertex");
+	  histName.Insert(0,"PV");
+	  histName += "_lumi";
+	  histTitle.Insert(0,"Avg. ");
+	  histTitle += " position of primary vtx vs lumi";
+	  xtitle = "Lumisection";
+	  ytitle.insert(0,"PV");
+	  ytitle += " #pm #sigma_{PV";
+	  ytitle += coord[ic];
+	  ytitle += "} (cm)";
+	}
+	else createHisto = false;
 	break;
       case 3: // PV vs time
-	dbe_->setCurrentFolder(monitorName_+"PrimaryVertex");
-	histName.insert(0,"PV");
-	histName += "_time";
-	histTitle.insert(0,"Avg. ");
-	histTitle += " position of primary vtx vs time";
-	xtitle += "Time [UTC]";
-	ytitle.insert(0,"PV");
-	ytitle += " #pm #sigma_{PV";
-	ytitle += coord[ic];
-	ytitle += "} (cm)";
+	if (ic < 3) {
+	  dbe_->setCurrentFolder(monitorName_+"PrimaryVertex");
+	  histName.Insert(0,"PV");
+	  histName += "_time";
+	  histTitle.Insert(0,"Avg. ");
+	  histTitle += " position of primary vtx vs time";
+	  xtitle = "Time [UTC]";
+	  ytitle.insert(0,"PV");
+	  ytitle += " #pm #sigma_{PV";
+	  ytitle += coord[ic];
+	  ytitle += "} (cm)";
+	}
+	else createHisto = false;
 	break;
       default: // BS vs lumi
 	histName += "0_lumi";
-	histTitle += " coordinate of beam spot vs lumi (Fit)";
-	xtitle += "Lumisection";
-	ytitle += "_{0} (cm)";
+	xtitle = "Lumisection";
+	if (ic < 3)
+	  histTitle += " coordinate of beam spot vs lumi (Fit)";
+	else
+	  histTitle = histTitle.Insert(5," ") + " of beam spot vs lumi (Fit)";
 	break;
       }
-      if (debug_) std::cout << "hitsName = " << histName << "; histTitle = " << histTitle << std::endl;
-      hs[histName] = dbe_->book1D(histName,histTitle,40,0.5,40.5);
-      hs[histName]->setAxisTitle(xtitle,1);
-      hs[histName]->setAxisTitle(ytitle,2);
-      hs[histName]->getTH1()->SetOption("E1");
-      if (histName.find("time") != string::npos) {
-	//int nbins = (intervalInSec_/23 > 0 ? intervalInSec_/23 : 40);
- 	hs[histName]->getTH1()->SetBins(intervalInSec_,0.5,intervalInSec_+0.5);
-	hs[histName]->setAxisTimeDisplay(1);
-	hs[histName]->setAxisTimeFormat("%H:%M:%S",1);
+      if (createHisto) {
+	edm::LogInfo("BeamMonitor") << "hitsName = " << histName << "; histTitle = " << histTitle << std::endl;
+	hs[histName] = dbe_->book1D(histName,histTitle,40,0.5,40.5);
+	hs[histName]->setAxisTitle(xtitle,1);
+	hs[histName]->setAxisTitle(ytitle,2);
+	hs[histName]->getTH1()->SetOption("E1");
+	if (histName.Contains("time")) {
+	  //int nbins = (intervalInSec_/23 > 0 ? intervalInSec_/23 : 40);
+	  hs[histName]->getTH1()->SetBins(intervalInSec_,0.5,intervalInSec_+0.5);
+	  hs[histName]->setAxisTimeDisplay(1);
+	  hs[histName]->setAxisTimeFormat("%H:%M:%S",1);
+	}
+	histName += "_all";
+	histTitle += " all";
+	hs[histName] = dbe_->book1D(histName,histTitle,40,0.5,40.5);
+	hs[histName]->getTH1()->SetBit(TH1::kCanRebin);
+	hs[histName]->setAxisTitle(xtitle,1);
+	hs[histName]->setAxisTitle(ytitle,2);
+	hs[histName]->getTH1()->SetOption("E1");
+	if (histName.Contains("time")) {
+	  //int nbins = (intervalInSec_/23 > 0 ? intervalInSec_/23 : 40);
+	  hs[histName]->getTH1()->SetBins(intervalInSec_,0.5,intervalInSec_+0.5);
+	  hs[histName]->setAxisTimeDisplay(1);
+	  hs[histName]->setAxisTimeFormat("%H:%M:%S",1);
+	}
       }
     }
   }
   dbe_->setCurrentFolder(monitorName_+"Fit");
-
-  h_sigmaX0_lumi = dbe_->book1D("sigmaX0_lumi","sigma x_{0} of beam spot vs lumi (Fit)",40,0.5,40.5);
-  h_sigmaX0_lumi->setAxisTitle("Lumisection",1);
-  h_sigmaX0_lumi->setAxisTitle("#sigma_{X_{0}} (cm)",2);
-  h_sigmaX0_lumi->getTH1()->SetOption("E1");
-
-  h_sigmaX0_time = dbe_->book1D("sigmaX0_time","sigma x_{0} of beam spot vs time (Fit)",intervalInSec_,0.5,intervalInSec_+0.5);
-  h_sigmaX0_time->setAxisTitle("Time [UTC]",1);
-  h_sigmaX0_time->setAxisTitle("#sigma_{X_{0}} (cm)",2);
-  h_sigmaX0_time->getTH1()->SetOption("E1");
-  h_sigmaX0_time->setAxisTimeDisplay(1);
-  h_sigmaX0_time->setAxisTimeFormat("%H:%M:%S",1);
-
-  h_sigmaY0_lumi = dbe_->book1D("sigmaY0_lumi","sigma y_{0} of beam spot vs lumi (Fit)",40,0.5,40.5);
-  h_sigmaY0_lumi->setAxisTitle("Lumisection",1);
-  h_sigmaY0_lumi->setAxisTitle("#sigma_{Y_{0}} (cm)",2);
-  h_sigmaY0_lumi->getTH1()->SetOption("E1");
-
-  h_sigmaY0_time = dbe_->book1D("sigmaY0_time","sigma y_{0} of beam spot vs time (Fit)",intervalInSec_,0.5,intervalInSec_+0.5);
-  h_sigmaY0_time->setAxisTitle("Time [UTC]",1);
-  h_sigmaY0_time->setAxisTitle("#sigma_{Y_{0}} (cm)",2);
-  h_sigmaY0_time->getTH1()->SetOption("E1");
-  h_sigmaY0_time->setAxisTimeDisplay(1);
-  h_sigmaY0_time->setAxisTimeFormat("%H:%M:%S",1);
-
-  h_sigmaZ0_lumi = dbe_->book1D("sigmaZ0_lumi","sigma z_{0} of beam spot vs lumi (Fit)",40,0.5,40.5);
-  h_sigmaZ0_lumi->setAxisTitle("Lumisection",1);
-  h_sigmaZ0_lumi->setAxisTitle("#sigma_{Z_{0}} (cm)",2);
-  h_sigmaZ0_lumi->getTH1()->SetOption("E1");
-
-  h_sigmaZ0_time = dbe_->book1D("sigmaZ0_time","sigma z_{0} of beam spot vs time (Fit)",intervalInSec_,0.5,intervalInSec_+0.5);
-  h_sigmaZ0_time->setAxisTitle("Time [UTC]",1);
-  h_sigmaZ0_time->setAxisTitle("#sigma_{Z_{0}} (cm)",2);
-  h_sigmaZ0_time->getTH1()->SetOption("E1");
-  h_sigmaZ0_time->setAxisTimeDisplay(1);
-  h_sigmaZ0_time->setAxisTimeFormat("%H:%M:%S",1);
 
   h_trk_z0 = dbe_->book1D("trk_z0","z_{0} of selected tracks",dzBin,dzMin,dzMax);
   h_trk_z0->setAxisTitle("z_{0} of selected tracks (cm)",1);
@@ -393,23 +387,18 @@ void BeamMonitor::beginRun(const edm::Run& r, const EventSetup& context) {
 
   ftimestamp = r.beginTime().value();
   tmpTime = ftimestamp >> 32;
-  refTime =  tmpTime;
-  char* eventTime = formatTime(tmpTime);
+  startTime = refTime =  tmpTime;
+  const char* eventTime = formatFitTime(tmpTime);
   TDatime da(eventTime);
   if (debug_) {
-    std::cout << "TimeOffset = ";
+    edm::LogInfo("BeamMonitor") << "TimeOffset = ";
     da.Print();
   }
-  hs["x0_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
-  hs["y0_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
-  hs["z0_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
-  h_sigmaX0_time->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
-  h_sigmaY0_time->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
-  h_sigmaZ0_time->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
-  hs["PVx_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
-  hs["PVy_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
-  hs["PVz_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
-
+  for (std::map<TString,MonitorElement*>::iterator it = hs.begin();
+       it != hs.end(); ++it) {
+    if ((*it).first.Contains("time"))
+      (*it).second->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
+  }
 }
 
 //--------------------------------------------------------
@@ -430,21 +419,23 @@ void BeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
 
   if (onlineMode_) {
     if (nthlumi > nextlumi_) {
-      if (countLumi_ != 0) FitAndFill(lumiSeg,lastlumi_,nextlumi_,nthlumi);
+      if (countLumi_ != 0 && processed_) FitAndFill(lumiSeg,lastlumi_,nextlumi_,nthlumi);
       nextlumi_ = nthlumi;
-      cout << "Next Lumi to Fit: " << nextlumi_ << endl;
+      edm::LogInfo("BeamMonitor") << "Next Lumi to Fit: " << nextlumi_ << endl;
       if (refBStime[0] == 0) refBStime[0] = ftmptime;
       if (refPVtime[0] == 0) refPVtime[0] = ftmptime;
     }
   }
   else{
-    FitAndFill(lumiSeg,lastlumi_,nextlumi_,nthlumi);
+    if (processed_) FitAndFill(lumiSeg,lastlumi_,nextlumi_,nthlumi);
+    nextlumi_ = nthlumi;
+    edm::LogInfo("BeamMonitor") << "Next Lumi to Fit: " << nextlumi_ << endl;
     if (refBStime[0] == 0) refBStime[0] = ftmptime;
     if (refPVtime[0] == 0) refPVtime[0] = ftmptime;
   }
   countLumi_++;
-  //if (debug_)
-  cout << "Begin of Lumi: " << nthlumi << endl;
+  if (processed_) processed_ = false;
+  edm::LogInfo("BeamMonitor") << "Begin of Lumi: " << nthlumi << endl;
 }
 
 // ----------------------------------------------------------
@@ -454,11 +445,11 @@ void BeamMonitor::analyze(const Event& iEvent,
   const int nthlumi = iEvent.luminosityBlock();
   if (onlineMode_ && (nthlumi < nextlumi_)) {
     readEvent_ = false;
-    if (debug_) std::cout << "Spilt event from previous lumi section!" << std::endl;
+    edm::LogInfo("BeamMonitor") << "Spilt event from previous lumi section!" << std::endl;
   }
   if (onlineMode_ && (nthlumi > nextlumi_)) {
     readEvent_ = false;
-    if (debug_) std::cout << "Spilt event from next lumi section!!!" << std::endl;
+    edm::LogInfo("BeamMonitor") << "Spilt event from next lumi section!!!" << std::endl;
   }
 
   if (readEvent_) {
@@ -507,6 +498,7 @@ void BeamMonitor::analyze(const Event& iEvent,
       }
       if (nPVcount>0) h_nVtx->Fill(nPVcount*1.);
     }
+    processed_ = true;
   }//end of read event
 
 }
@@ -516,8 +508,7 @@ void BeamMonitor::analyze(const Event& iEvent,
 void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
 				     const EventSetup& iSetup) {
   int nthlumi = lumiSeg.id().luminosityBlock();
-  //if (debug_)
-  cout << "Lumi of the last event before endLuminosityBlock: " << nthlumi << endl;
+  edm::LogInfo("BeamMonitor") << "Lumi of the last event before endLuminosityBlock: " << nthlumi << endl;
 
   if (onlineMode_ && nthlumi < nextlumi_) return;
   const edm::TimeValue_t fendtimestamp = lumiSeg.endTime().value();
@@ -530,7 +521,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
   if (onlineMode_ && (nthlumi <= nextlumi)) return;
 
   int currentlumi = nextlumi;
-  cout << "Lumi of the current fit: " << currentlumi << endl;
+  edm::LogInfo("BeamMonitor") << "Lumi of the current fit: " << currentlumi << endl;
   lastlumi = currentlumi;
   endLumiOfBSFit_ = currentlumi;
   endLumiOfPVFit_ = currentlumi;
@@ -539,22 +530,22 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
     // FIXME: need to add protection for the case if the gap is at the resetting LS!
     const int countLS_bs = hs["x0_lumi"]->getTH1()->GetEntries();
     const int countLS_pv = hs["PVx_lumi"]->getTH1()->GetEntries();
-    if (debug_) std::cout << "countLS_bs = " << countLS_bs << " ; countLS_pv = " << countLS_pv << std::endl;
+    edm::LogInfo("BeamMonitor") << "countLS_bs = " << countLS_bs << " ; countLS_pv = " << countLS_pv << std::endl;
     int LSgap_bs = currentlumi/fitNLumi_ - countLS_bs;
     int LSgap_pv = currentlumi/fitPVNLumi_ - countLS_pv;
     if (currentlumi%fitNLumi_ == 0)
       LSgap_bs--;
     if (currentlumi%fitPVNLumi_ == 0)
       LSgap_pv--;
-    if (debug_) std::cout << "LSgap_bs = " << LSgap_bs << " ; LSgap_pv = " << LSgap_pv << std::endl;
+    edm::LogInfo("BeamMonitor") << "LSgap_bs = " << LSgap_bs << " ; LSgap_pv = " << LSgap_pv << std::endl;
     // filling previous fits if LS gap ever exists
     for (int ig = 0; ig < LSgap_bs; ig++) {
       hs["x0_lumi"]->ShiftFillLast( 0., 0., fitNLumi_ );
       hs["y0_lumi"]->ShiftFillLast( 0., 0., fitNLumi_ );
       hs["z0_lumi"]->ShiftFillLast( 0., 0., fitNLumi_ );
-      h_sigmaX0_lumi->ShiftFillLast( 0., 0., fitNLumi_ );
-      h_sigmaY0_lumi->ShiftFillLast( 0., 0., fitNLumi_ );
-      h_sigmaZ0_lumi->ShiftFillLast( 0., 0., fitNLumi_ );
+      hs["sigmaX0_lumi"]->ShiftFillLast( 0., 0., fitNLumi_ );
+      hs["sigmaY0_lumi"]->ShiftFillLast( 0., 0., fitNLumi_ );
+      hs["sigmaZ0_lumi"]->ShiftFillLast( 0., 0., fitNLumi_ );
     }
     for (int ig = 0; ig < LSgap_pv; ig++) {
       hs["PVx_lumi"]->ShiftFillLast( 0., 0., fitPVNLumi_ );
@@ -565,19 +556,16 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
     for (int i=1;i < (currentlumi - previousLS);i++)
       h_nTrk_lumi->ShiftFillLast(nthBSTrk_);
   }
-  else { // not online mode
-    h_nTrk_lumi->ShiftFillLast(nthBSTrk_);
-  }
 
-  if (debug_) std::cout << "Time lapsed since last LS = " << tmpTime - refTime << std:: endl;
+  edm::LogInfo("BeamMonitor") << "Time lapsed since last scroll = " << tmpTime - refTime << std:: endl;
 
   if (testScroll(tmpTime,refTime)) {
     scrollTH1(hs["x0_time"]->getTH1(),refTime);
     scrollTH1(hs["y0_time"]->getTH1(),refTime);
     scrollTH1(hs["z0_time"]->getTH1(),refTime);
-    scrollTH1(h_sigmaX0_time->getTH1(),refTime);
-    scrollTH1(h_sigmaY0_time->getTH1(),refTime);
-    scrollTH1(h_sigmaZ0_time->getTH1(),refTime);
+    scrollTH1(hs["sigmaX0_time"]->getTH1(),refTime);
+    scrollTH1(hs["sigmaY0_time"]->getTH1(),refTime);
+    scrollTH1(hs["sigmaZ0_time"]->getTH1(),refTime);
     scrollTH1(hs["PVx_time"]->getTH1(),refTime);
     scrollTH1(hs["PVy_time"]->getTH1(),refTime);
     scrollTH1(hs["PVz_time"]->getTH1(),refTime);
@@ -599,7 +587,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
 
   if (doPVFit) {
 
-    if (debug_) std::cout << "Do PV Fitting for LS = " << beginLumiOfPVFit_ << " to " << endLumiOfPVFit_ << std::endl;
+    edm::LogInfo("BeamMonitor") << "Do PV Fitting for LS = " << beginLumiOfPVFit_ << " to " << endLumiOfPVFit_ << std::endl;
     // Primary Vertex Fit:
     if (h_PVx[0]->getTH1()->GetEntries() > minNrVertices_) {
       pvResults->Reset();
@@ -616,12 +604,19 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
       meanErr = fgaus->GetParError(1);
       widthErr = fgaus->GetParError(2);
       hs["PVx_lumi"]->ShiftFillLast(mean,width,fitPVNLumi_);
+      hs["PVx_lumi_all"]->setBinContent(currentlumi,mean);
+      hs["PVx_lumi_all"]->setBinError(currentlumi,width);
       int nthBin = tmpTime - refTime;
-      if (nthBin < 0 && debug_)
-	std::cout << "Event time outside current range of time histograms!" << std::endl;
+      if (nthBin < 0)
+	edm::LogInfo("BeamMonitor") << "Event time outside current range of time histograms!" << std::endl;
       if (nthBin > 0) {
 	hs["PVx_time"]->setBinContent(nthBin,mean);
 	hs["PVx_time"]->setBinError(nthBin,width);
+      }
+      int jthBin = tmpTime - startTime;
+      if (jthBin > 0) {
+	hs["PVx_time_all"]->setBinContent(jthBin,mean);
+	hs["PVx_time_all"]->setBinError(jthBin,width);
       }
       pvResults->setBinContent(1,6,mean);
       pvResults->setBinContent(1,3,width);
@@ -645,9 +640,15 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
       meanErr = fgaus->GetParError(1);
       widthErr = fgaus->GetParError(2);
       hs["PVy_lumi"]->ShiftFillLast(mean,width,fitPVNLumi_);
+      hs["PVy_lumi_all"]->setBinContent(currentlumi,mean);
+      hs["PVy_lumi_all"]->setBinError(currentlumi,width);
       if (nthBin > 0) {
 	hs["PVy_time"]->setBinContent(nthBin,mean);
 	hs["PVy_time"]->setBinError(nthBin,width);
+      }
+      if (jthBin > 0) {
+	hs["PVy_time_all"]->setBinContent(jthBin,mean);
+	hs["PVy_time_all"]->setBinError(jthBin,width);
       }
       pvResults->setBinContent(1,5,mean);
       pvResults->setBinContent(1,2,width);
@@ -668,9 +669,15 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
       meanErr = fgaus->GetParError(1);
       widthErr = fgaus->GetParError(2);
       hs["PVz_lumi"]->ShiftFillLast(mean,width,fitPVNLumi_);
+      hs["PVz_lumi_all"]->setBinContent(currentlumi,mean);
+      hs["PVz_lumi_all"]->setBinError(currentlumi,width);
       if (nthBin > 0) {
 	hs["PVz_time"]->setBinContent(nthBin,mean);
 	hs["PVz_time"]->setBinError(nthBin,width);
+      }
+      if (jthBin > 0) {
+	hs["PVz_time_all"]->setBinContent(jthBin,mean);
+	hs["PVz_time_all"]->setBinError(jthBin,width);
       }
       pvResults->setBinContent(1,4,mean);
       pvResults->setBinContent(1,1,width);
@@ -701,13 +708,13 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
   vector<BSTrkParameters> theBSvector = theBeamFitter->getBSvector();
   h_nTrk_lumi->ShiftFillLast( theBSvector.size() );
   
-  bool doFitting = false;
+  bool countFitting = false;
   if (theBSvector.size() > nthBSTrk_ && theBSvector.size() >= min_Ntrks_) {
-    doFitting = true;
+    countFitting = true;
   }
 
   if (resetHistos_) {
-    if (debug_) cout << "Resetting Histograms" << endl;
+    edm::LogInfo("BeamMonitor") << "Resetting Histograms" << endl;
     h_d0_phi0->Reset();
     h_vx_vy->Reset();
     h_vx_dz->Reset();
@@ -717,7 +724,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
     resetHistos_ = false;
   }
   
-  if (debug_) cout << "Fill histos, start from " << nthBSTrk_ + 1 << "th record of selected tracks" << endl;
+  edm::LogInfo("BeamMonitor") << "Fill histos, start from " << nthBSTrk_ + 1 << "th record of selected tracks" << endl;
   unsigned int itrk = 0;
   for (vector<BSTrkParameters>::const_iterator BSTrk = theBSvector.begin();
        BSTrk != theBSvector.end();
@@ -734,160 +741,201 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
     }
   }
   nthBSTrk_ = theBSvector.size(); // keep track of num of tracks filled so far
-  if (debug_ && doFitting) cout << "Num of tracks collected = " << nthBSTrk_ << endl;
+  if (countFitting) edm::LogInfo("BeamMonitor") << "Num of tracks collected = " << nthBSTrk_ << endl;
 
   if (fitNLumi_ > 0) {
     if (onlineMode_){
-      if (currentlumi%fitNLumi_!=0) return;
+      if (currentlumi%fitNLumi_!=0) {
+// 	for (std::map<TString,MonitorElement*>::iterator itAll = hs.begin();
+// 	     itAll != hs.end(); ++itAll) {
+// 	  if ((*itAll).first.Contains("all")) {
+// 	    (*itAll).second->setBinContent(currentlumi,0.);
+// 	    (*itAll).second->setBinError(currentlumi,0.);
+// 	  }
+// 	}
+	return;
+      }
     }
-    else      
+    else
       if (countLumi_%fitNLumi_!=0) return;
   }
 
-  if (doFitting) {
+  edm::LogInfo("BeamMonitor") << " [DebugTime] refBStime[0] = " << refBStime[0]
+			      << "; address =  " << &refBStime[0] << std::endl;
+  edm::LogInfo("BeamMonitor") << " [DebugTime] refBStime[1] = " << refBStime[1]
+			      << "; address =  " << &refBStime[1] << std::endl;
+
+  if (countFitting) {
     nFits_++;
     int * fitLS = theBeamFitter->getFitLSRange();
-    if (debug_) std::cout << "[BeamFitter] Do BeamSpot Fit for LS = " << fitLS[0] << " to " << fitLS[1] << std::endl;
-    if (debug_) std::cout << "[BeamMonitor] Do BeamSpot Fit for LS = " << beginLumiOfBSFit_ << " to " << endLumiOfBSFit_ << std::endl;
-    //theBeamFitter->setFitLSRange(beginLumiOfBSFit_,endLumiOfBSFit_); // Testing, overwrite Fit LS
-    //theBeamFitter->setRefTime(refBStime[0],refBStime[1]); // Testing, overwrite Fit time
-  }
+    edm::LogInfo("BeamMonitor") << "[BeamFitter] Do BeamSpot Fit for LS = " << fitLS[0] << " to " << fitLS[1] << std::endl;
+    edm::LogInfo("BeamMonitor") << "[BeamMonitor] Do BeamSpot Fit for LS = " << beginLumiOfBSFit_ << " to " << endLumiOfBSFit_ << std::endl;
+    if (theBeamFitter->runPVandTrkFitter()) {
+      reco::BeamSpot bs = theBeamFitter->getBeamSpot();
+      if (bs.type() > 0) // with good beamwidth fit
+	preBS = bs; // cache good fit results
+      edm::LogInfo("BeamMonitor") << "\n RESULTS OF DEFAULT FIT:" << endl;
+      edm::LogInfo("BeamMonitor") << bs << endl;
+      edm::LogInfo("BeamMonitor") << "[BeamFitter] fitting done \n" << endl;
 
-  if (doFitting && theBeamFitter->runFitter()){
-    reco::BeamSpot bs = theBeamFitter->getBeamSpot();
-    if (bs.type() > 0) // with good beamwidth fit
-      preBS = bs; // cache good fit results
-    if (debug_) {
-      cout << "\n RESULTS OF DEFAULT FIT:" << endl;
-      cout << bs << endl;
-      cout << "[BeamFitter] fitting done \n" << endl;
-    }
-    hs["x0_lumi"]->ShiftFillLast( bs.x0(), bs.x0Error(), fitNLumi_ );
-    hs["y0_lumi"]->ShiftFillLast( bs.y0(), bs.y0Error(), fitNLumi_ );
-    hs["z0_lumi"]->ShiftFillLast( bs.z0(), bs.z0Error(), fitNLumi_ );
-    h_sigmaX0_lumi->ShiftFillLast( bs.BeamWidthX(), bs.BeamWidthXError(), fitNLumi_ );
-    h_sigmaY0_lumi->ShiftFillLast( bs.BeamWidthY(), bs.BeamWidthYError(), fitNLumi_ );
-    h_sigmaZ0_lumi->ShiftFillLast( bs.sigmaZ(), bs.sigmaZ0Error(), fitNLumi_ );
+      hs["x0_lumi"]->ShiftFillLast( bs.x0(), bs.x0Error(), fitNLumi_ );
+      hs["y0_lumi"]->ShiftFillLast( bs.y0(), bs.y0Error(), fitNLumi_ );
+      hs["z0_lumi"]->ShiftFillLast( bs.z0(), bs.z0Error(), fitNLumi_ );
+      hs["sigmaX0_lumi"]->ShiftFillLast( bs.BeamWidthX(), bs.BeamWidthXError(), fitNLumi_ );
+      hs["sigmaY0_lumi"]->ShiftFillLast( bs.BeamWidthY(), bs.BeamWidthYError(), fitNLumi_ );
+      hs["sigmaZ0_lumi"]->ShiftFillLast( bs.sigmaZ(), bs.sigmaZ0Error(), fitNLumi_ );
+      hs["x0_lumi_all"]->setBinContent(currentlumi,bs.x0());
+      hs["x0_lumi_all"]->setBinError(currentlumi,bs.x0Error());
+      hs["y0_lumi_all"]->setBinContent(currentlumi,bs.y0());
+      hs["y0_lumi_all"]->setBinError(currentlumi,bs.y0Error());
+      hs["z0_lumi_all"]->setBinContent(currentlumi,bs.z0());
+      hs["z0_lumi_all"]->setBinError(currentlumi,bs.z0Error());
+      hs["sigmaX0_lumi_all"]->setBinContent(currentlumi, bs.BeamWidthX());
+      hs["sigmaX0_lumi_all"]->setBinError(currentlumi, bs.BeamWidthXError());
+      hs["sigmaY0_lumi_all"]->setBinContent(currentlumi, bs.BeamWidthY());
+      hs["sigmaY0_lumi_all"]->setBinError(currentlumi, bs.BeamWidthYError());
+      hs["sigmaZ0_lumi_all"]->setBinContent(currentlumi, bs.sigmaZ());
+      hs["sigmaZ0_lumi_all"]->setBinError(currentlumi, bs.sigmaZ0Error());
 
-    int nthBin = tmpTime - refTime;
-    if (nthBin > 0) {
-      hs["x0_time"]->setBinContent(nthBin, bs.x0());
-      hs["y0_time"]->setBinContent(nthBin, bs.y0());
-      hs["z0_time"]->setBinContent(nthBin, bs.z0());
-      h_sigmaX0_time->setBinContent(nthBin, bs.BeamWidthX());
-      h_sigmaY0_time->setBinContent(nthBin, bs.BeamWidthY());
-      h_sigmaZ0_time->setBinContent(nthBin, bs.sigmaZ());
-      hs["x0_time"]->setBinError(nthBin, bs.x0Error());
-      hs["y0_time"]->setBinError(nthBin, bs.y0Error());
-      hs["z0_time"]->setBinError(nthBin, bs.z0Error());
-      h_sigmaX0_time->setBinError(nthBin, bs.BeamWidthXError());
-      h_sigmaY0_time->setBinError(nthBin, bs.BeamWidthYError());
-      h_sigmaZ0_time->setBinError(nthBin, bs.sigmaZ0Error());
-    }
-    h_x0->Fill( bs.x0());
-    h_y0->Fill( bs.y0());
-    h_z0->Fill( bs.z0());
-    if (bs.type() > 0) { // with good beamwidth fit
-      h_sigmaX0->Fill( bs.BeamWidthX());
-      h_sigmaY0->Fill( bs.BeamWidthY());
-    }
-    h_sigmaZ0->Fill( bs.sigmaZ());
+      int nthBin = tmpTime - refTime;
+      if (nthBin > 0) {
+	hs["x0_time"]->setBinContent(nthBin, bs.x0());
+	hs["y0_time"]->setBinContent(nthBin, bs.y0());
+	hs["z0_time"]->setBinContent(nthBin, bs.z0());
+	hs["sigmaX0_time"]->setBinContent(nthBin, bs.BeamWidthX());
+	hs["sigmaY0_time"]->setBinContent(nthBin, bs.BeamWidthY());
+	hs["sigmaZ0_time"]->setBinContent(nthBin, bs.sigmaZ());
+	hs["x0_time"]->setBinError(nthBin, bs.x0Error());
+	hs["y0_time"]->setBinError(nthBin, bs.y0Error());
+	hs["z0_time"]->setBinError(nthBin, bs.z0Error());
+	hs["sigmaX0_time"]->setBinError(nthBin, bs.BeamWidthXError());
+	hs["sigmaY0_time"]->setBinError(nthBin, bs.BeamWidthYError());
+	hs["sigmaZ0_time"]->setBinError(nthBin, bs.sigmaZ0Error());
+      }
 
-    if (nthBSTrk_ >= 2*min_Ntrks_) {
-      double amp = sqrt(bs.x0()*bs.x0()+bs.y0()*bs.y0());
-      double alpha = atan2(bs.y0(),bs.x0());
-      TF1 *f1 = new TF1("f1","[0]*sin(x-[1])",-3.14,3.14);
-      f1->SetParameters(amp,alpha);
-      f1->SetParLimits(1,amp-0.1,amp+0.1);
-      f1->SetParLimits(2,alpha-0.577,alpha+0.577);
-      f1->SetLineColor(4);
-      h_d0_phi0->getTProfile()->Fit("f1","QR");
+      int jthBin = tmpTime - startTime;
+      if (jthBin > 0) {
+	hs["x0_time_all"]->setBinContent(jthBin, bs.x0());
+	hs["y0_time_all"]->setBinContent(jthBin, bs.y0());
+	hs["z0_time_all"]->setBinContent(jthBin, bs.z0());
+	hs["sigmaX0_time_all"]->setBinContent(jthBin, bs.BeamWidthX());
+	hs["sigmaY0_time_all"]->setBinContent(jthBin, bs.BeamWidthY());
+	hs["sigmaZ0_time_all"]->setBinContent(jthBin, bs.sigmaZ());
+	hs["x0_time_all"]->setBinError(jthBin, bs.x0Error());
+	hs["y0_time_all"]->setBinError(jthBin, bs.y0Error());
+	hs["z0_time_all"]->setBinError(jthBin, bs.z0Error());
+	hs["sigmaX0_time_all"]->setBinError(jthBin, bs.BeamWidthXError());
+	hs["sigmaY0_time_all"]->setBinError(jthBin, bs.BeamWidthYError());
+	hs["sigmaZ0_time_all"]->setBinError(jthBin, bs.sigmaZ0Error());
+      }
 
-      double mean = bs.z0();
-      double width = bs.sigmaZ();
-      TF1 *fgaus = new TF1("fgaus","gaus");
-      fgaus->SetParameters(mean,width);
-      fgaus->SetLineColor(4);
-      h_trk_z0->getTH1()->Fit("fgaus","QLRM","",mean-3*width,mean+3*width);
-    }
+      h_x0->Fill( bs.x0());
+      h_y0->Fill( bs.y0());
+      h_z0->Fill( bs.z0());
+      if (bs.type() > 0) { // with good beamwidth fit
+	h_sigmaX0->Fill( bs.BeamWidthX());
+	h_sigmaY0->Fill( bs.BeamWidthY());
+      }
+      h_sigmaZ0->Fill( bs.sigmaZ());
 
-    fitResults->Reset();
-    int * LSRange = theBeamFitter->getFitLSRange();
-    char tmpTitle[50];
-    sprintf(tmpTitle,"%s %i %s %i","Fitted Beam Spot (cm) of LS: ",LSRange[0]," to ",LSRange[1]);
-    fitResults->setAxisTitle(tmpTitle,1);
-    fitResults->setBinContent(1,8,bs.x0());
-    fitResults->setBinContent(1,7,bs.y0());
-    fitResults->setBinContent(1,6,bs.z0());
-    fitResults->setBinContent(1,5,bs.sigmaZ());
-    fitResults->setBinContent(1,4,bs.dxdz());
-    fitResults->setBinContent(1,3,bs.dydz());
-    if (bs.type() > 0) { // with good beamwidth fit
-      fitResults->setBinContent(1,2,bs.BeamWidthX());
-      fitResults->setBinContent(1,1,bs.BeamWidthY());
-    }
-    else { // fill cached widths
-      fitResults->setBinContent(1,2,preBS.BeamWidthX());
-      fitResults->setBinContent(1,1,preBS.BeamWidthY());
-    }
+      if (nthBSTrk_ >= 2*min_Ntrks_) {
+	double amp = sqrt(bs.x0()*bs.x0()+bs.y0()*bs.y0());
+	double alpha = atan2(bs.y0(),bs.x0());
+	TF1 *f1 = new TF1("f1","[0]*sin(x-[1])",-3.14,3.14);
+	f1->SetParameters(amp,alpha);
+	f1->SetParLimits(1,amp-0.1,amp+0.1);
+	f1->SetParLimits(2,alpha-0.577,alpha+0.577);
+	f1->SetLineColor(4);
+	h_d0_phi0->getTProfile()->Fit("f1","QR");
 
-    fitResults->setBinContent(2,8,bs.x0Error());
-    fitResults->setBinContent(2,7,bs.y0Error());
-    fitResults->setBinContent(2,6,bs.z0Error());
-    fitResults->setBinContent(2,5,bs.sigmaZ0Error());
-    fitResults->setBinContent(2,4,bs.dxdzError());
-    fitResults->setBinContent(2,3,bs.dydzError());
-    if (bs.type() > 0) { // with good beamwidth fit
-      fitResults->setBinContent(2,2,bs.BeamWidthXError());
-      fitResults->setBinContent(2,1,bs.BeamWidthYError());
-    }
-    else { // fill cached width errors
-      fitResults->setBinContent(2,2,preBS.BeamWidthXError());
-      fitResults->setBinContent(2,1,preBS.BeamWidthYError());
-    }
+	double mean = bs.z0();
+	double width = bs.sigmaZ();
+	TF1 *fgaus = new TF1("fgaus","gaus");
+	fgaus->SetParameters(mean,width);
+	fgaus->SetLineColor(4);
+	h_trk_z0->getTH1()->Fit("fgaus","QLRM","",mean-3*width,mean+3*width);
+      }
 
-//     if (fabs(refBS.x0()-bs.x0())/bs.x0Error() < deltaSigCut_) { // disabled temporarily
+      fitResults->Reset();
+      int * LSRange = theBeamFitter->getFitLSRange();
+      char tmpTitle[50];
+      sprintf(tmpTitle,"%s %i %s %i","Fitted Beam Spot (cm) of LS: ",LSRange[0]," to ",LSRange[1]);
+      fitResults->setAxisTitle(tmpTitle,1);
+      fitResults->setBinContent(1,8,bs.x0());
+      fitResults->setBinContent(1,7,bs.y0());
+      fitResults->setBinContent(1,6,bs.z0());
+      fitResults->setBinContent(1,5,bs.sigmaZ());
+      fitResults->setBinContent(1,4,bs.dxdz());
+      fitResults->setBinContent(1,3,bs.dydz());
+      if (bs.type() > 0) { // with good beamwidth fit
+	fitResults->setBinContent(1,2,bs.BeamWidthX());
+	fitResults->setBinContent(1,1,bs.BeamWidthY());
+      }
+      else { // fill cached widths
+	fitResults->setBinContent(1,2,preBS.BeamWidthX());
+	fitResults->setBinContent(1,1,preBS.BeamWidthY());
+      }
+
+      fitResults->setBinContent(2,8,bs.x0Error());
+      fitResults->setBinContent(2,7,bs.y0Error());
+      fitResults->setBinContent(2,6,bs.z0Error());
+      fitResults->setBinContent(2,5,bs.sigmaZ0Error());
+      fitResults->setBinContent(2,4,bs.dxdzError());
+      fitResults->setBinContent(2,3,bs.dydzError());
+      if (bs.type() > 0) { // with good beamwidth fit
+	fitResults->setBinContent(2,2,bs.BeamWidthXError());
+	fitResults->setBinContent(2,1,bs.BeamWidthYError());
+      }
+      else { // fill cached width errors
+	fitResults->setBinContent(2,2,preBS.BeamWidthXError());
+	fitResults->setBinContent(2,1,preBS.BeamWidthYError());
+      }
+
+      // count good fit
+      //     if (fabs(refBS.x0()-bs.x0())/bs.x0Error() < deltaSigCut_) { // disabled temporarily
       summaryContent_[0] += 1.;
-//     }
-//     if (fabs(refBS.y0()-bs.y0())/bs.y0Error() < deltaSigCut_) { // disabled temporarily
+      //     }
+      //     if (fabs(refBS.y0()-bs.y0())/bs.y0Error() < deltaSigCut_) { // disabled temporarily
       summaryContent_[1] += 1.;
-//     }
-//     if (fabs(refBS.z0()-bs.z0())/bs.z0Error() < deltaSigCut_) { // disabled temporarily
+      //     }
+      //     if (fabs(refBS.z0()-bs.z0())/bs.z0Error() < deltaSigCut_) { // disabled temporarily
       summaryContent_[2] += 1.;
-//     }
-  }
-  else {
-    if (!doFitting) {
-      // Overwrite Fit LS and fit time when no event processed or no track selected
-      theBeamFitter->setFitLSRange(beginLumiOfBSFit_,endLumiOfBSFit_);
-      theBeamFitter->setRefTime(refBStime[0],refBStime[1]);
-    }
-    if (theBeamFitter->runFitter()) {} // Dump fake beam spot for DIP
+      //     }
+    } // beam fit is good
+    else { // beam fit fails
+      reco::BeamSpot bs = theBeamFitter->getBeamSpot();
+      edm::LogInfo("BeamMonitor") << "[BeamMonitor] Beam fit fails!!! \n" << endl;
+      edm::LogInfo("BeamMonitor") << "[BeamMonitor] Output beam spot for DIP \n" << endl;
+      edm::LogInfo("BeamMonitor") << bs << endl;
+
+      hs["sigmaX0_lumi"]->ShiftFillLast( bs.BeamWidthX(), bs.BeamWidthXError(), fitNLumi_ );
+      hs["sigmaY0_lumi"]->ShiftFillLast( bs.BeamWidthY(), bs.BeamWidthYError(), fitNLumi_ );
+      hs["sigmaZ0_lumi"]->ShiftFillLast( bs.sigmaZ(), bs.sigmaZ0Error(), fitNLumi_ );
+      hs["x0_lumi"]->ShiftFillLast( bs.x0(), bs.x0Error(), fitNLumi_ );
+      hs["y0_lumi"]->ShiftFillLast( bs.y0(), bs.y0Error(), fitNLumi_ );
+      hs["z0_lumi"]->ShiftFillLast( bs.z0(), bs.z0Error(), fitNLumi_ );
+    } // end of beam fit fails
+  } // end of countFitting
+  else { // no fit
+    // Overwrite Fit LS and fit time when no event processed or no track selected
+    theBeamFitter->setFitLSRange(beginLumiOfBSFit_,endLumiOfBSFit_);
+    theBeamFitter->setRefTime(refBStime[0],refBStime[1]);
+    if (theBeamFitter->runPVandTrkFitter()) {} // Dump fake beam spot for DIP
     reco::BeamSpot bs = theBeamFitter->getBeamSpot();
-    if (debug_) {
-      cout << "[BeamMonitor] No fitting \n" << endl;
-      cout << "[BeamMonitor] Output fake beam spot for DIP \n" << endl;
-      cout << bs << endl;
-//       cout << "[BeamMonitor] Fill histograms with previous fitted results:" << endl;
-//       if (nFits_ == 0) preBS.setType(reco::BeamSpot::Fake);
-//       cout << preBS << endl;
-    }
-    h_sigmaX0_lumi->ShiftFillLast( bs.BeamWidthX(), bs.BeamWidthXError(), fitNLumi_ );
-    h_sigmaY0_lumi->ShiftFillLast( bs.BeamWidthY(), bs.BeamWidthYError(), fitNLumi_ );
-    h_sigmaZ0_lumi->ShiftFillLast( bs.sigmaZ(), bs.sigmaZ0Error(), fitNLumi_ );
+    edm::LogInfo("BeamMonitor") << "[BeamMonitor] No fitting \n" << endl;
+    edm::LogInfo("BeamMonitor") << "[BeamMonitor] Output fake beam spot for DIP \n" << endl;
+    edm::LogInfo("BeamMonitor") << bs << endl;
+
+    hs["sigmaX0_lumi"]->ShiftFillLast( bs.BeamWidthX(), bs.BeamWidthXError(), fitNLumi_ );
+    hs["sigmaY0_lumi"]->ShiftFillLast( bs.BeamWidthY(), bs.BeamWidthYError(), fitNLumi_ );
+    hs["sigmaZ0_lumi"]->ShiftFillLast( bs.sigmaZ(), bs.sigmaZ0Error(), fitNLumi_ );
     hs["x0_lumi"]->ShiftFillLast( bs.x0(), bs.x0Error(), fitNLumi_ );
     hs["y0_lumi"]->ShiftFillLast( bs.y0(), bs.y0Error(), fitNLumi_ );
     hs["z0_lumi"]->ShiftFillLast( bs.z0(), bs.z0Error(), fitNLumi_ );
-//     h_sigmaX0_lumi->ShiftFillLast( preBS.BeamWidthX(), preBS.BeamWidthXError(), fitNLumi_ );
-//     h_sigmaY0_lumi->ShiftFillLast( preBS.BeamWidthY(), preBS.BeamWidthYError(), fitNLumi_ );
-//     h_sigmaZ0_lumi->ShiftFillLast( preBS.sigmaZ(), preBS.sigmaZ0Error(), fitNLumi_ );
-//     hs["x0_lumi"]->ShiftFillLast( preBS.x0(), preBS.x0Error(), fitNLumi_ );
-//     hs["y0_lumi"]->ShiftFillLast( preBS.y0(), preBS.y0Error(), fitNLumi_ );
-//     hs["z0_lumi"]->ShiftFillLast( preBS.z0(), preBS.z0Error(), fitNLumi_ );
   }
-  
+
   // Fill summary report
-  if (doFitting) {
+  if (countFitting) {
     for (int n = 0; n < nFitElements_; n++) {
       reportSummaryContents[n]->Fill( summaryContent_[n] / (float)nFits_ );
     }
@@ -907,7 +955,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
   if (resetFitNLumi_ > 0 && 
       ((onlineMode_ && currentlumi%resetFitNLumi_ == 0) ||
        (!onlineMode_ && countLumi_%resetFitNLumi_ == 0))) {
-    if (debug_) cout << "Reset track collection for beam fit!!!" <<endl;
+    edm::LogInfo("BeamMonitor") << "Reset track collection for beam fit!!!" <<endl;
     resetHistos_ = true;
     nthBSTrk_ = 0;
     theBeamFitter->resetTrkVector();
@@ -932,7 +980,7 @@ void BeamMonitor::endJob(const LuminosityBlock& lumiSeg,
 
 //--------------------------------------------------------
 void BeamMonitor::scrollTH1(TH1 * h, time_t ref) {
-  char* offsetTime = formatTime(ref);
+  const char* offsetTime = formatFitTime(ref);
   TDatime da(offsetTime);
   if (lastNZbin > 0) {
     double val = h->GetBinContent(lastNZbin);
@@ -955,7 +1003,7 @@ bool BeamMonitor::testScroll(time_t & tmpTime_, time_t & refTime_){
   bool scroll_ = false;
   if (tmpTime_ - refTime_ >= intervalInSec_) {
     scroll_ = true;
-    if (debug_) std::cout << "Reset Time Offset" << std::endl;
+    edm::LogInfo("BeamMonitor") << "Reset Time Offset" << std::endl;
     lastNZbin = intervalInSec_;
     for (int bin = intervalInSec_; bin >= 1; bin--) {
       if (hs["x0_time"]->getBinContent(bin) > 0) {
@@ -963,14 +1011,14 @@ bool BeamMonitor::testScroll(time_t & tmpTime_, time_t & refTime_){
 	break;
       }
     }
-    if (debug_) std::cout << "Last non zero bin = " << lastNZbin << std::endl;
+    edm::LogInfo("BeamMonitor") << "Last non zero bin = " << lastNZbin << std::endl;
     if (tmpTime_ - refTime_ >= intervalInSec_ + lastNZbin) {
-      if (debug_) std::cout << "Time difference too large since last readout" << std::endl;
+      edm::LogInfo("BeamMonitor") << "Time difference too large since last readout" << std::endl;
       lastNZbin = 0;
       refTime_ = tmpTime_ - buffTime;
     }
     else{
-      if (debug_) std::cout << "Offset to last record" << std::endl;
+      edm::LogInfo("BeamMonitor") << "Offset to last record" << std::endl;
       int offset = ((lastNZbin > buffTime) ? (lastNZbin - buffTime) : (lastNZbin - 1));
       refTime_ += offset;
     }
