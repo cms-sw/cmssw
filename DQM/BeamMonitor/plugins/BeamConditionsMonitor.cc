@@ -7,12 +7,13 @@
  *
  */
 
-#include "DQM/BeamMonitor/plugins/BeamConditionsMonitor.h"
+#include "DQM/BeamMonitor/interface/BeamConditionsMonitor.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include <numeric>
 #include <math.h>
 #include <TMath.h>
