@@ -259,7 +259,7 @@ class ConfdbToOpenHLT:
                 theintprescls.append('  Int_t           ' + thepathname + '_prescl;')
                 thepresclbranches.append('  TBranch        *b_' + thepathname + '_prescl;   //!')
                 theprescladdresses.append('  fChain->SetBranchAddress("' + thepathname + '_prescl", &' + thepathname + '_prescl, &b_' + thepathname + '_prescl);')
-                thepresclmaps.append('  fChain->SetBranchAddress("' + thepathname + '_prescl", &map_PrescaleBitOfStandardHLTPath["' + thepathname + '"], &b_' + thepathname + '_prescl);')
+                thepresclmaps.append('  fChain->SetBranchAddress("' + thepathname + '_prescl", &map_RefPrescaleOfStandardHLTPath["' + thepathname + '"], &b_' + thepathname + '_prescl);')
                 
         npaths = len(theconfdbpaths)
         pathcount = 1

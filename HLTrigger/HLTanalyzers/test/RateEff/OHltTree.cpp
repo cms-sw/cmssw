@@ -305,6 +305,15 @@ void OHltTree::SetLogicParser(std::string l1SeedsLogicalExpression) {
 };
 
 
+int OHltTree::readPrescaleFromFile(TString st)
+{
+  return map_RefPrescaleOfStandardHLTPath.find(st)->second;
+}
+
+int OHltTree::readL1PrescaleFromFile(TString st)
+{
+  return 0;
+}
 
 
 bool OHltTree::prescaleResponse(OHltMenu *menu,OHltConfig *cfg,OHltRateCounter *rc,int i) {
