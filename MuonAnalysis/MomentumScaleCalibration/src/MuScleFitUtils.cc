@@ -1,7 +1,7 @@
 /** See header file for a class description
  *
- *  $Date: 2010/06/21 11:26:17 $
- *  $Revision: 1.38 $
+ *  $Date: 2010/06/21 15:20:29 $
+ *  $Revision: 1.39 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -570,7 +570,6 @@ lorentzVector MuScleFitUtils::applyScale (const lorentzVector& muon,
 
   return( fromPtEtaPhiToPxPyPz(ptEtaPhiE) );
 }
-
 
 // Useful function to convert 4-vector coordinates
 // -----------------------------------------------
@@ -1782,6 +1781,8 @@ extern "C" void likelihood( int& npar, double* grad, double& fval, double* xval,
       // Compute corrected mass (from previous biases) only if we are currently fitting the scale
       // ----------------------------------------------------------------------------------------
       if( MuScleFitUtils::doScaleFit[MuScleFitUtils::loopCounter] ) {
+// 	std::cout << "Original pt1 = " << corrMu1.Pt() << std::endl;
+// 	std::cout << "Original pt2 = " << corrMu2.Pt() << std::endl;
         corrMu1 = MuScleFitUtils::applyScale(*recMu1, xval, -1);
         corrMu2 = MuScleFitUtils::applyScale(*recMu2, xval,  1);
         
@@ -1789,6 +1790,8 @@ extern "C" void likelihood( int& npar, double* grad, double& fval, double* xval,
 //           std::cout << "Rescaled pt1 = " << corrMu1.Pt() << std::endl;
 //           std::cout << "Rescaled pt2 = " << corrMu2.Pt() << std::endl;
 //         }
+// 	std::cout << "Rescaled pt1 = " << corrMu1.Pt() << std::endl;
+// 	std::cout << "Rescaled pt2 = " << corrMu2.Pt() << std::endl;
       }
       else {
         corrMu1 = *recMu1;
