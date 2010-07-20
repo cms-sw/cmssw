@@ -90,8 +90,10 @@ def lumisummaryByrun(queryHandle,runnum,lumiversion):
         result.append([cmslsnum,instlumi,numorbit,startorbit,beamstatus,beamenergy,cmsalive])
     return result
 
-def lumisumByrun(queryHandle,runnum,lumiversion):
+def lumisumByrun(queryHandle,runnum,lumiversion,beamstatus=None,beamenergy=None,beamenergyfluctuation=0.09):
     '''
+    beamenergy unit : GeV
+    beamenergyfluctuation : fraction allowed to fluctuate around beamenergy value
     select sum(instlumi) from lumisummary where runnum=:runnum and lumiversion=:lumiversion
     output: float totallumi
     Note: the output is the raw result, need to apply LS length in time(sec)
@@ -105,7 +107,20 @@ def lumisumByrun(queryHandle,runnum,lumiversion):
     queryCondition['runnum'].setData(int(runnum))
     queryCondition['lumiversion'].setData(lumiversion)
     queryHandle.addToOutputList('sum(INSTLUMI)','lumitotal')
-    queryHandle.setCondition('RUNNUM=:runnum and LUMIVERSION=:lumiversion',queryCondition)
+    conditionstring='RUNNUM=:runnum and LUMIVERSION=:lumiversion'
+    if beamstatus:
+        conditionstring=conditionstring+' and BEAMSTATUS=:beamstatus'
+        queryCondition.extend('beamstatus','string')
+        queryCondition['beamstatus'].setData(beamstatus)
+    if beamenergy:
+        minBeamenergy=float(beamenergy*(1-beamenergyfluctuation))
+        maxBeamenergy=float(beamenergy*(1+beamenergyfluctuation))
+        conditionstring=conditionstring+' and BEAMENERGY>:minBeamenergy and BEAMENERGY<:maxBeamenergy'
+        queryCondition.extend('minBeamenergy','float')
+        queryCondition.extend('maxBeamenergy','float')
+        queryCondition['minBeamenergy'].setData(float(minBeamenergy))
+        queryCondition['maxBeamenergy'].setData(float(maxBeamenergy))
+    queryHandle.setCondition(conditionstring,queryCondition)
     queryResult=coral.AttributeList()
     queryResult.extend('lumitotal','float')
     queryHandle.defineOutput(queryResult)
@@ -556,6 +571,9 @@ if __name__=='__main__':
     lumitotal=lumisumByrun(q,139400,'0001')
     del q
     q=schema.newQuery()
+    lumitotalStablebeam7TeV=lumisumByrun(q,139400,'0001',beamstatus='STABLE BEAMS',beamenergy=3.5E003,beamenergyfluctuation=0.09)
+    del q
+    q=schema.newQuery()
     trgbitzero=trgbitzeroByrun(q,139400)
     del q
     q=schema.newQuery()
@@ -600,6 +618,9 @@ if __name__=='__main__':
     print 'lumisummaryByrun : ',lumisummaryOut
     print
     print 'totallumi : ',lumitotal
+    print
+    print
+    print 'totallumi stable beam and 7TeV: ',lumitotalStablebeam7TeV
     print
     #print 'trgbitzero : ',trgbitzero
     print 
