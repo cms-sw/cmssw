@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
- version $Id: BeamSpotAnalyzer.cc,v 1.28 2010/06/25 16:52:38 yumiceva Exp $
+ version $Id: BeamSpotAnalyzer.cc,v 1.27 2010/06/18 19:36:25 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -20,6 +20,7 @@ ________________________________________________________________**/
 #include "RecoVertex/BeamSpotProducer/interface/BSFitter.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "TMath.h"
@@ -104,8 +105,8 @@ BeamSpotAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
     "for lumis "<< beginLumiOfBSFit_ << " - " << endLumiOfBSFit_ << std::endl <<
     "number of selected tracks = " << theBeamFitter->getNTracks() << std::endl;
   std::cout << "number of selected PVs = " << theBeamFitter->getNPVs() << std::endl;
-  //std::cout << "number of selected PVs per bx: " << std::endl;
-  //theBeamFitter->getNPVsperBX();
+  std::cout << "number of selected PVs per bx: " << std::endl;
+  theBeamFitter->getNPVsperBX();
   
     const edm::TimeValue_t fendtimestamp = lumiSeg.endTime().value();
     const std::time_t fendtime = fendtimestamp >> 32;
@@ -143,9 +144,9 @@ BeamSpotAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
       std::cout << bs << std::endl;
       std::cout << "[BeamFitter] fit failed \n" << std::endl;
       //accumulate more events 
-      // dissable this for the moment
-      //resetFitNLumi_ += 1;
-      //std::cout << "reset fitNLumi " << resetFitNLumi_ << std::endl;
+
+      resetFitNLumi_ += 1;
+      std::cout << "reset fitNLumi " << resetFitNLumi_ << std::endl;
     }
 	
     if (resetFitNLumi_ > 0 && countLumi_%resetFitNLumi_ == 0) {
