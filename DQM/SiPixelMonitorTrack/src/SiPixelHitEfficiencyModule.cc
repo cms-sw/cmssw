@@ -16,6 +16,7 @@
 #include <iostream>
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DQM/SiPixelCommon/interface/SiPixelHistogramId.h"
