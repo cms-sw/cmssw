@@ -1,13 +1,14 @@
 #include <iostream>
 
 #include "DQMOffline/EGamma/interface/PhotonDataCertification.h"
+#include "FWCore/Framework/interface/Run.h"
 
 /**\class PhotonDataCertification 
 */
 //
 // Original Author:  Louis James Antonelli
 //         Created:  Thu Jan 22 13:42:28CET 2009
-// $Id: PhotonDataCertification.cc,v 1.6 2009/10/08 12:02:06 lantonel Exp $
+// $Id: PhotonDataCertification.cc,v 1.7 2010/01/11 09:40:59 lantonel Exp $
 //
 
 

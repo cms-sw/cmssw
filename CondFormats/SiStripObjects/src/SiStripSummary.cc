@@ -1,7 +1,8 @@
 #include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-		
+#include <algorithm>
+
 SiStripSummary::SiStripSummary(std::vector<std::string>& userDBContent)
 {
   userDBContent_ = userDBContent;

@@ -1,5 +1,6 @@
 #include "CalibTracker/SiStripCommon/interface/SiStripFedIdListReader.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <algorithm>
 #include <sstream>
 
 // -----------------------------------------------------------------------------

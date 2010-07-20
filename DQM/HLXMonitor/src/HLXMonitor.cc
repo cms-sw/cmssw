@@ -3,6 +3,7 @@
     email:   ahunt@princeton.edu
 */
 #include "DQM/HLXMonitor/interface/HLXMonitor.h"
+#include "FWCore/Version/interface/GetReleaseVersion.h"
 
 // STL Headers
 

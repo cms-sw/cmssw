@@ -1,4 +1,5 @@
 #include "DQM/RPCMonitorClient/interface/RPCDcsInfoClient.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 
 RPCDcsInfoClient::RPCDcsInfoClient( const edm::ParameterSet& ps ) {

@@ -4,6 +4,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <algorithm>
+
 L1GctElectronFinalSort::L1GctElectronFinalSort(bool iso, L1GctEmLeafCard* posEtaCard,
                                                          L1GctEmLeafCard* negEtaCard):
   L1GctProcessor(),

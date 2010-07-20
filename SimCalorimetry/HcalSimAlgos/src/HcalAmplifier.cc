@@ -15,6 +15,7 @@
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 
 #include<iostream>
+#include <cmath>
 #include <math.h>
 
 HcalAmplifier::HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNoise) :

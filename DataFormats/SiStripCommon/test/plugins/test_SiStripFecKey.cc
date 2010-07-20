@@ -1,4 +1,4 @@
-// Last commit: $Id: test_SiStripFecKey.cc,v 1.8 2008/05/20 13:56:29 bainbrid Exp $
+// Last commit: $Id: test_SiStripFecKey.cc,v 1.9 2010/01/07 11:20:55 lowette Exp $
 
 #include "DataFormats/SiStripCommon/test/plugins/test_SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -6,6 +6,7 @@
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "FWCore/Framework/interface/Event.h" 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <sstream>
 
 using namespace sistrip;

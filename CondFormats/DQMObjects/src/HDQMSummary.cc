@@ -1,6 +1,7 @@
 #include "CondFormats/DQMObjects/interface/HDQMSummary.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <algorithm>
 		
 HDQMSummary::HDQMSummary(std::vector<std::string>& userDBContent)
 {

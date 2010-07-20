@@ -2,8 +2,8 @@
  *  Class:DQMGenericClient 
  *
  *
- *  $Date: 2010/07/02 09:19:49 $
- *  $Revision: 1.16 $
+ *  $Date: 2010/07/02 10:39:37 $
+ *  $Revision: 1.17 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -13,6 +13,7 @@
 #include "DQMServices/ClientConfig/interface/FitSlicesYTool.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

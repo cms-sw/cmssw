@@ -4,6 +4,7 @@
 #include "CondFormats/Common/interface/Time.h"
 #include "CondFormats/Common/interface/TimeConversions.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 

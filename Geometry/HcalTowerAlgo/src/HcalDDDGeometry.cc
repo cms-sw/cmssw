@@ -3,6 +3,8 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalDDDGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <algorithm>
+
 //#define DebugLog
 
 HcalDDDGeometry::HcalDDDGeometry() : lastReqDet_(DetId::Detector(0)), 

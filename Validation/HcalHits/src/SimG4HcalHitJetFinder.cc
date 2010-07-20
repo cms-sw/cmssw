@@ -6,6 +6,7 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <algorithm>
 #include <iostream>
 #include <cmath>
 

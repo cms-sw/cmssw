@@ -1,5 +1,6 @@
 #include "CalibTracker/SiStripLorentzAngle/plugins/EnsembleCalibrationLA.h"
 #include "CalibTracker/SiStripCommon/interface/Book.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <TChain.h>
 #include <TFile.h>
 #include <boost/foreach.hpp>

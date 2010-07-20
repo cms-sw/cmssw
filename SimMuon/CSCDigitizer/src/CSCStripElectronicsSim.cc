@@ -11,6 +11,7 @@
 #include "SimMuon/CSCDigitizer/src/CSCDetectorHit.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"  
+#include "boost/bind.hpp"  
 #include <list>
 #include <cassert>
 

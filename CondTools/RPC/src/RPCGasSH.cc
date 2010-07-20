@@ -7,7 +7,7 @@
 #include "CondTools/RPC/interface/RPCGasSH.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <sys/time.h>
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include<iostream>

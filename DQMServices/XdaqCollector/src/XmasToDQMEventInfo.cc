@@ -2,9 +2,9 @@
  * \file DQMEventInfo.cc
  * \author M. Zanetti - CERN PH
  * Last Update:
- * $Date: 2008/10/23 14:37:27 $
- * $Revision: 1.2 $
- * $Author: vpatras $
+ * $Date: 2009/09/06 11:34:28 $
+ * $Revision: 1.3 $
+ * $Author: ameyer $
  *
  */
 
@@ -13,6 +13,7 @@
 
 // Framework
 
+#include "FWCore/Version/interface/GetReleaseVersion.h"
 
 #include <stdio.h>
 #include <sstream>

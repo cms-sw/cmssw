@@ -9,7 +9,7 @@
 //
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
-// $Id: SiPixelTrackResidualModule.cc,v 1.6 2010/04/12 23:31:49 elmer Exp $
+// $Id: SiPixelTrackResidualModule.cc,v 1.7 2010/06/09 01:16:04 merkelp Exp $
 
 
 #include <string>
@@ -17,6 +17,7 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DQM/SiPixelCommon/interface/SiPixelHistogramId.h"
 #include "DQM/SiPixelMonitorTrack/interface/SiPixelTrackResidualModule.h"
 

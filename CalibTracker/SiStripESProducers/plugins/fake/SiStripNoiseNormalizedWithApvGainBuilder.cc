@@ -6,6 +6,7 @@
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include <iostream>
 #include <fstream>
 #include <vector>

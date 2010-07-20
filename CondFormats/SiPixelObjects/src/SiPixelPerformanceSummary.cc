@@ -2,6 +2,7 @@
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelPerformanceSummary.h"
 
+#include <algorithm>
 
 using namespace edm; 
 using namespace std; 

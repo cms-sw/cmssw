@@ -3,6 +3,7 @@
 
 #include "Calibration/IsolatedParticles/interface/MatrixECALDetIds.h"
 
+#include <algorithm>
 #include <iostream>
 
 namespace spr{

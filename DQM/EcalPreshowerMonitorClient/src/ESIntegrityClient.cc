@@ -8,7 +8,6 @@
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalPreshowerMonitorClient/interface/ESIntegrityClient.h"
 
-using namespace cms;
 using namespace edm;
 using namespace std;
 

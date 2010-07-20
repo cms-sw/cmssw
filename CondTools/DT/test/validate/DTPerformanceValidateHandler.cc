@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/11 09:44:54 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/01/20 17:29:26 $
+ *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -20,6 +20,7 @@
 //---------------
 // C++ Headers --
 //---------------
+#include <cmath>
 #include <iostream>
 #include <fstream>
 #include <sstream>

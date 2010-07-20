@@ -1,6 +1,7 @@
 #include "CondCore/PopCon/interface/PopConAnalyzer.h"
 #include "CondTools/DT/interface/DTUserKeyedConfigHandler.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "CondCore/IOVService/interface/KeyList.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondFormats/DTObjects/interface/DTKeyedConfig.h"

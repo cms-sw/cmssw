@@ -11,7 +11,6 @@
 
 #include <TH1F.h>
 
-using namespace cms;
 using namespace edm;
 using namespace std;
 

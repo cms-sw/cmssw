@@ -2,6 +2,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <cassert>
+#include <algorithm>
 #include <math.h>
 
 bool SiStripThreshold::put(const uint32_t& DetId, InputVector vect) {

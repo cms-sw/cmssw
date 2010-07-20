@@ -20,6 +20,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <algorithm>
+
 CaloGeometryHelper::CaloGeometryHelper():Calorimeter()
 {
   neighbourmapcalculated_= false;

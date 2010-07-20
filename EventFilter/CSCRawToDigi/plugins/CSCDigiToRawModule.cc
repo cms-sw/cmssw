@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/07/12 01:04:08 $
- *  $Revision: 1.10 $
+ *  $Date: 2010/04/23 23:03:03 $
+ *  $Revision: 1.11 $
  *  \author A. Tumanov - Rice
  */
 
@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/DataRecord/interface/CSCChamberMapRcd.h"
 
 

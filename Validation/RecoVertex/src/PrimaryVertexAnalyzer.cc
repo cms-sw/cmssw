@@ -2,6 +2,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Version/interface/GetReleaseVersion.h"
 
 // reco track and vertex 
 #include "DataFormats/TrackReco/interface/Track.h"

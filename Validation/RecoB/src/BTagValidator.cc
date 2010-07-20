@@ -6,7 +6,7 @@
  author: Victor Bazterra, UIC
          Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BTagValidator.cc,v 1.14 2007/10/09 11:37:37 speer Exp $
+ version $Id: BTagValidator.cc,v 1.15 2008/02/29 20:49:02 ksmith Exp $
 
 ________________________________________________________________**/
 
@@ -21,6 +21,7 @@ ________________________________________________________________**/
 #include "TString.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Version/interface/GetReleaseVersion.h"
 
 #include "Validation/RecoB/interface/HistoCompare.h"
 #include "DQMServices/Core/interface/DQMStore.h"

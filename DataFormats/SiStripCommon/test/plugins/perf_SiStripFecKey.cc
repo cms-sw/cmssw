@@ -1,7 +1,8 @@
-// Last commit: $Id: perf_SiStripFecKey.cc,v 1.2 2009/02/23 14:51:37 lowette Exp $
+// Last commit: $Id: perf_SiStripFecKey.cc,v 1.3 2010/01/07 11:20:46 lowette Exp $
 
 #include "DataFormats/SiStripCommon/test/plugins/perf_SiStripFecKey.h"
 #include "FWCore/Framework/interface/Event.h" 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/SiStripCommon/interface/Constants.h" 
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

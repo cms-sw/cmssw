@@ -1,6 +1,7 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPE.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/CommonTopologies/interface/RadialStripTopology.h"
+#include "boost/bind.hpp"
 #include "boost/lambda/lambda.hpp"
 #include <algorithm>
 #include<cmath>

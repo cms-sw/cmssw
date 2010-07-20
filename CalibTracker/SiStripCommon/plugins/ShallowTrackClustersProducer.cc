@@ -19,6 +19,7 @@
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "boost/foreach.hpp"
 
 

@@ -13,6 +13,7 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtfeWord.h"
+#include "FWCore/Framework/interface/Run.h"
 
 #include "TFile.h"
 #include "TH1.h"

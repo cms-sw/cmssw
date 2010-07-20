@@ -2,6 +2,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
 
+#include <algorithm>
+
 bool SiStripBadStrip::put(const uint32_t& DetId, Range input) {
   // put in SiStripBadStrip::v_badstrips of DetId
   Registry::iterator p = std::lower_bound(indexes.begin(),indexes.end(),DetId,SiStripBadStrip::StrictWeakOrdering());

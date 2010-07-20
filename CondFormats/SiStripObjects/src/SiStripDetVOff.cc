@@ -2,6 +2,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
 
+#include <algorithm>
+
 void SiStripDetVOff::setBits( uint32_t & enDetId, const int HVoff, const int LVoff )
 {
   if( LVoff != -1 ) {

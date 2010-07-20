@@ -3,6 +3,7 @@
 #include "CondFormats/Luminosity/interface/LumiSectionData.h"
 #include "CondTools/Luminosity/interface/LumiRetrieverFactory.h"
 #include "DummySource.h"
+#include <cmath>
 //#include <iostream>
 
 lumi::DummySource::DummySource(const edm::ParameterSet& pset):LumiRetrieverBase(pset){

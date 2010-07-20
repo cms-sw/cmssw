@@ -11,12 +11,13 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: CandReducer.cc,v 1.2 2009/03/04 10:33:02 llista Exp $
+ * $Id: CandReducer.cc,v 1.3 2009/09/27 22:26:55 hegner Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class CandReducer : public edm::EDProducer {
 public:

@@ -14,10 +14,11 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jun 17 15:47:35 CDT 2010
-// $Id$
+// $Id: FWLiteESSource.cc,v 1.1 2010/06/22 21:51:16 chrjones Exp $
 //
 
 // system include files
+#include <iostream>
 #include <memory>
 #include "TFile.h"
 #include <boost/shared_ptr.hpp>

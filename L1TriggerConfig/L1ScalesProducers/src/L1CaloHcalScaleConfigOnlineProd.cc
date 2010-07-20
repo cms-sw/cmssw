@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Tue Sep 16 22:43:22 CEST 2008
-// $Id: L1CaloHcalScaleConfigOnlineProd.cc,v 1.2 2010/05/21 13:29:27 efron Exp $
+// $Id: L1CaloHcalScaleConfigOnlineProd.cc,v 1.3 2010/05/25 19:09:18 wsun Exp $
 //
 //
 
@@ -28,6 +28,7 @@
 #include "CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.h"
 #include "CondTools/L1Trigger/interface/OMDSReader.h"
 
+#include <cmap>
 #include <iostream>
 #include <iomanip>
 
