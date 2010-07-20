@@ -9,10 +9,11 @@ or could be subclassed renaming a function or two.
 This code began life in COMP/CRAB/python/LumiList.py
 """
 
-__revision__ = "$Id: LumiList.py,v 1.2 2010/07/08 21:35:56 ewv Exp $"
-__version__ = "$Revision: 1.2 $"
+__revision__ = "$Id: LumiList.py,v 1.3 2010/07/16 16:36:08 ewv Exp $"
+__version__ = "$Revision: 1.3 $"
 
 import json
+import re
 
 class LumiList(object):
     """
@@ -84,6 +85,7 @@ class LumiList(object):
                 runString = str(run)
                 self.compactList[runString] = compactList[run]
 
+
     def __sub__(self, other): # Things from self not in other
         result = {}
         for run in sorted(self.compactList.keys()):
@@ -111,6 +113,7 @@ class LumiList(object):
             result[run] = alist
 
         return LumiList(compactList = result)
+
 
     def __and__(self, other): # Things in both
         result = {}
@@ -143,6 +146,7 @@ class LumiList(object):
 
         return LumiList(compactList = result)
 
+
     def __or__(self, other):
         result = {}
         aruns = self.compactList.keys()
@@ -159,9 +163,11 @@ class LumiList(object):
             result[run] = unique
         return LumiList(compactList = result)
 
+
     def __add__(self, other):
         # + is the same as |
         return self|other
+
 
     def filterLumis(self, lumiList):
         """
@@ -177,6 +183,13 @@ class LumiList(object):
                     filteredList.append((run, lumi))
                     break
         return filteredList
+
+
+    def __str__ (self):
+        doubleBracketRE = re.compile (r']],')
+        return doubleBracketRE.sub (']],\n',
+                                    json.dumps (self.compactList,
+                                                sort_keys=True))
 
 
     def getCompactList(self):
@@ -227,10 +240,9 @@ class LumiList(object):
         """
         Write out a JSON file representation of the object
         """
-
         jsonFile = open(fileName,'w')
-        json.dump(self.compactList, jsonFile)
-        jsonFile.write("\n")
+        jsonFile.write ("%s" % self);
+        jsonFile.write ("\n")
         jsonFile.close()
 
 '''
