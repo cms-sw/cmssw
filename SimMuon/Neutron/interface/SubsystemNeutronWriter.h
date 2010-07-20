@@ -16,6 +16,7 @@
 #include <map>
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "CLHEP/Random/RandFlat.h"
 
 
@@ -55,7 +56,7 @@ protected:
   void writeCluster(int chamberType, const edm::PSimHitContainer & cluster);
 
   /// helper to add time offsets and local det ID
-  void adjust(PSimHit & h, float timeOffset, float smearing);
+  void adjust(PSimHit & h, float timeOffset);
 
   /// updates the counter
   void updateCount(int chamberType);
