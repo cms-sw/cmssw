@@ -14,6 +14,17 @@ def pairwise(lst):
         yield lst[i], lst[i+1]
     yield lst[-1], None
 
+def findInList(mylist,element):
+    """
+    check if an element is in the list
+    """
+    pos=-1
+    try:
+        pos=mylist.index(element)
+    except ValueError:
+        pos=-1
+    return pos!=-1
+
 def is_intstr(s):
     """test if a string can be converted to a int
     """
