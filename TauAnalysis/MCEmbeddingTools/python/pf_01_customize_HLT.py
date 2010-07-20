@@ -4,7 +4,8 @@ from FWCore.ParameterSet.Modules import _Module
 
 
 def customise(process):
-  
+ 
+   
   
   process._Process__name="HLT2"
   process.TFileService = cms.Service("TFileService",  fileName = cms.string("histo.root")          )
@@ -28,6 +29,19 @@ def customise(process):
       del process.output.outputCommands[index]
       index -= 1
     index += 1  
+
+
+
+  process.VtxSmeared = cms.EDProducer("FlatEvtVtxGenerator", 
+    MaxZ = cms.double(0.0),
+    MaxX = cms.double(0.0),
+    MaxY = cms.double(0.0),
+    MinX = cms.double(0.0),
+    MinY = cms.double(0.0),
+    MinZ = cms.double(0.0),
+    TimeOffset = cms.double(0.0),
+    src = cms.InputTag("generator")
+  )
 
 
   return(process)
