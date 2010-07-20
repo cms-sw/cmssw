@@ -14,9 +14,9 @@
  *
  * 
  *  Kirill Prokofiev, March 2004
- *  MultiTrack version: Lars Perchalla, Philip Sauerland, Dec 2009
+ *  MultiTrack version including propagation to linearization point: Lars Perchalla, Philip Sauerland, Dec 2009
  */
-//mother constructed from daughters. no propagation in field in this version!
+//mother constructed from daughters. including propagation in field.
 
 class MultiTrackPointingKinematicConstraint : public MultiTrackKinematicConstraint
 {
