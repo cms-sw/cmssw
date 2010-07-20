@@ -41,10 +41,19 @@ def is_floatstr(s):
         return True
     except ValueError:
         return False
-    
+def count_dups(l):
+    '''report the number of duplicates in a python list
+    '''
+    from collections import defaultdict
+    tally=defaultdict(int)
+    for x in l:
+        tally[x]+=1
+    return tally.items()
 if __name__=='__main__':
     a=[1,2,3,4,5]
     for i,j in pairwise(a):
         if j :
             print i,j
+    lst = ['I1','I2','I1','I3','I4','I4','I7','I7','I7','I7','I7']
+    print count_dups(lst)
 

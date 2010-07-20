@@ -150,4 +150,6 @@ if __name__ == '__main__':
         else:
             newrunsandls[run]=cmslslist
     print 'runs and ls still need to be processed', newrunsandls
-    
+    filename='../test/lumi_900_output.json'
+    p2=inputFilesetParser(filename)
+    print 'result 2: ',p2.runs()
