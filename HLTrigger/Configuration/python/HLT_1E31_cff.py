@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_6_2/1E31/V34 (CMSSW_3_6_2_HLT9)
+# /dev/CMSSW_3_6_2/1E31/V35 (CMSSW_3_6_2_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_2/1E31/V34')
+  tableName = cms.string('/dev/CMSSW_3_6_2/1E31/V35')
 )
 
 streams = cms.PSet( 
@@ -26,12 +26,12 @@ streams = cms.PSet(
     'JetMETTauMonitor',
     'HcalHPDNoise',
     'HcalNZS',
-    'MinimumBias',
     'MuOnia',
     'EGMonitor',
     'RandomTriggers',
     'EG',
-    'Mu' ),
+    'Mu',
+    'MinimumBias' ),
   EventDisplay = cms.vstring(  ),
   Express = cms.vstring( 'ExpressPhysics' ),
   HLTDQM = cms.vstring(  )
@@ -102,9 +102,6 @@ datasets = cms.PSet(
   JetMETTauMonitor = cms.vstring( 'HLT_L1MET20' ),
   HcalHPDNoise = cms.vstring(  ),
   HcalNZS = cms.vstring( 'HLT_HcalPhiSym' ),
-  MinimumBias = cms.vstring( 'HLT_L1Tech_BSC_HighMultiplicity',
-    'HLT_ZeroBiasPixel_SingleTrack',
-    'HLT_PixelTracks_Multiplicity70' ),
   MuOnia = cms.vstring( 'HLT_Mu0_L1MuOpen',
     'HLT_Mu0_Track0_Jpsi',
     'HLT_Mu3_L1MuOpen',
@@ -133,6 +130,9 @@ datasets = cms.PSet(
     'HLT_Mu5',
     'HLT_Mu9',
     'HLT_L2Mu11' ),
+  MinimumBias = cms.vstring( 'HLT_L1Tech_BSC_HighMultiplicity',
+    'HLT_ZeroBiasPixel_SingleTrack',
+    'HLT_PixelTracks_Multiplicity70' ),
   ExpressPhysics = cms.vstring( 'HLT_MET100',
     'HLT_ZeroBias',
     'HLT_L1SingleEG5',
