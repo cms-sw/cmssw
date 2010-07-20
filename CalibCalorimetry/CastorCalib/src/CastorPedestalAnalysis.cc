@@ -7,7 +7,6 @@
 #include "CondFormats/CastorObjects/interface/CastorPedestalWidths.h"
 
 #include "CalibCalorimetry/CastorCalib/interface/CastorPedestalAnalysis.h"
-#include "CalibCalorimetry/CastorCalib/interface/CastorAlgoUtils.h"
 #include <TFile.h>
 #include <math.h>
 
