@@ -9,8 +9,8 @@ or could be subclassed renaming a function or two.
 This code began life in COMP/CRAB/python/LumiList.py
 """
 
-__revision__ = "$Id: LumiList.py,v 1.5 2010/07/20 16:00:40 ewv Exp $"
-__version__ = "$Revision: 1.5 $"
+__revision__ = "$Id: LumiList.py,v 1.6 2010/07/20 16:28:35 ewv Exp $"
+__version__ = "$Revision: 1.6 $"
 
 import json
 import re
@@ -169,6 +169,7 @@ class LumiList(object):
         return self|other
 
     def __len__(self):
+        '''Returns number of runs in list'''
         return len(self.compactList)
 
     def filterLumis(self, lumiList):
@@ -192,7 +193,6 @@ class LumiList(object):
         return doubleBracketRE.sub (']],\n',
                                     json.dumps (self.compactList,
                                                 sort_keys=True))
-
 
     def getCompactList(self):
         """
