@@ -8,6 +8,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Scalers/interface/Level1TriggerScalers.h"
 #include "DataFormats/Scalers/interface/Level1TriggerRates.h"
@@ -51,7 +52,7 @@ L1TScalersSCAL::L1TScalersSCAL(const edm::ParameterSet& ps):
   integral_tech_42_OR_43_ = 0;
   bufferLumi_ = 0;
 
-  int maxNbins = 2001;
+  int maxNbins = 1001;
 
   dbe_ = Service<DQMStore>().operator->();
   if(dbe_) {
@@ -59,58 +60,51 @@ L1TScalersSCAL::L1TScalersSCAL(const edm::ParameterSet& ps):
         
     dbe_->setCurrentFolder("L1T/L1TScalersSCAL/Level1TriggerScalers");
         
-    //orbitNum = dbe_->book1D("Orbit_Number","Orbit_Number", 1000,0,10E8);
-    orbitNum = dbe_->book1D("Orbit_Number","Orbit_Number", maxNbins,-0.5,double(maxNbins)-0.5);
-
-    trigNum = dbe_->book1D("Number_of_Triggers","Number_of_Triggers",1000,0,4E4);
+    orbitNum = dbe_->book1D("Orbit Number","Orbit Number", 1000,0,10E8);
+    trigNum = dbe_->book1D("Number of Triggers","Number of Triggers",1000,0,3E4);
     trigNum->setAxisTitle("Time [sec]", 1);
 
-    //eventNum = dbe_->book1D("Number_of_Events","Number_of_Events", 1000,0,1E7);
-    eventNum = dbe_->book1D("Number_of_Events","Number_of_Events", maxNbins,-0.5,double(maxNbins)-0.5);
+    eventNum = dbe_->book1D("Number of Events","Number of Events", 1000,0,1E7);
 
-    physTrig = dbe_->book1D("Physics_Triggers","Physics_Triggers", maxNbins,-0.5,double(maxNbins)-0.5);
+    physTrig = dbe_->book1D("Physics Triggers","Physics Triggers", maxNbins,-0.5,double(maxNbins)-0.5);
     physTrig->setAxisTitle("Lumi Section", 1);
 
-    randTrig = dbe_->book1D("Random_Triggers","Random_Triggers", maxNbins,-0.5,double(maxNbins)-0.5);
+    randTrig = dbe_->book1D("Random Triggers","Random Triggers", maxNbins,-0.5,double(maxNbins)-0.5);
     randTrig->setAxisTitle("Lumi Section", 1);
 
-    //numberResets = dbe_->book1D("Number_Resets","Number_Resets", 1000,0,1000);
-    numberResets = dbe_->book1D("Number_Resets","Number_Resets", maxNbins,-0.5,double(maxNbins)-0.5);
-   
-    //deadTime = dbe_->book1D("DeadTime","DeadTime", 1000,0,1E9);
-    deadTime = dbe_->book1D("DeadTime","DeadTime", maxNbins,-0.5,double(maxNbins)-0.5);
-    
-    //lostFinalTriggers = dbe_->book1D("Lost_Final_Trigger","Lost_Final_Trigger", 1000,0,1E6);
-    lostFinalTriggers = dbe_->book1D("Lost_Final_Trigger","Lost_Final_Trigger", maxNbins,-0.5,double(maxNbins)-0.5);
+    numberResets = dbe_->book1D("Number Resets","Number Resets", 1000,0,1000);
+    deadTime = dbe_->book1D("DeadTime","DeadTime", 1000,0,1E9);
+    lostFinalTriggers = dbe_->book1D("Lost Final Trigger","Lost Final Trigger",
+    				     1000,0,1E6);
    
     dbe_->setCurrentFolder("L1T/L1TScalersSCAL/Level1TriggerRates");
 
-    physRate = dbe_->book1D("Physics_Trigger_Rate","Physics_Trigger_Rate", 
+    physRate = dbe_->book1D("Physics Trigger Rate","Physics Trigger Rate", 
 			    maxNbins,-0.5,double(maxNbins)-0.5);
-    //physRate->setAxisTitle("Lumi Section", 1);
+    physRate->setAxisTitle("Lumi Section", 1);
 
-    randRate = dbe_->book1D("Random_Trigger_Rate","Random_Trigger_Rate", 
+    randRate = dbe_->book1D("Random Trigger Rate","Random Trigger Rate", 
 			    maxNbins,-0.5,double(maxNbins)-0.5);
-    //randRate->setAxisTitle("Lumi Section", 1);
+    randRate->setAxisTitle("Lumi Section", 1);
 
-    deadTimePercent = dbe_->book1D("Deadtime_Percent","Deadtime_Percent", 
+    deadTimePercent = dbe_->book1D("Deadtime Percent","Deadtime Percent", 
     				   maxNbins,-0.5,double(maxNbins)-0.5);
-    //deadTimePercent->setAxisTitle("Lumi Section", 1);
+    deadTimePercent->setAxisTitle("Lumi Section", 1);
 
-    lostPhysRate = dbe_->book1D("Lost_Physics_Trigger_Rate","Lost_Physics_Trigger_Rate", 
+    lostPhysRate = dbe_->book1D("Lost Physics Trigger Rate","Lost Physics Trigger Rate", 
 				maxNbins,-0.5,double(maxNbins)-0.5);
-    //lostPhysRate->setAxisTitle("Lumi Section", 1);
+    lostPhysRate->setAxisTitle("Lumi Section", 1);
 
-    lostPhysRateBeamActive = dbe_->book1D("Lost_Physics_Trigger_Rate_Beam_Active",
-					  "Lost_Physics_Trigger_Rate_Beam_Active", 
+    lostPhysRateBeamActive = dbe_->book1D("Lost Physics Trigger Rate - Beam Active",
+					  "Lost Physics Trigger Rate - Beam Active", 
 					  maxNbins,-0.5,double(maxNbins)-0.5);
-    //lostPhysRateBeamActive->setAxisTitle("Lumi Section", 1);
+    lostPhysRateBeamActive->setAxisTitle("Lumi Section", 1);
 
     
-    instTrigRate = dbe_->book1D("instTrigRate","instTrigRate",1000,0,4E4);
+    instTrigRate = dbe_->book1D("instTrigRate","Instantaneous Trigger Rate",1000,0,3E4);
     instTrigRate->setAxisTitle("Time [sec]", 1);
 
-    instEventRate = dbe_->book1D("instEventRate","instEventRate",1000,0,4E4);
+    instEventRate = dbe_->book1D("instEventRate","Instantaneous Event Rate",1000,0,3E4);
     instEventRate->setAxisTitle("Time [sec]", 1);
 
     char hname[40];//histo name
@@ -161,42 +155,38 @@ L1TScalersSCAL::L1TScalersSCAL(const edm::ParameterSet& ps):
 
     dbe_->setCurrentFolder("L1T/L1TScalersSCAL/Level1TriggerRates/Ratios");
 
-    std::stringstream smu,seg,sjet,sdenom;
-    //denominator string
-    if(denomIsTech_) sdenom << "_TechBit_";
-    else sdenom << "_AlgoBit_";
-    sdenom << denomBit_;
+    std::stringstream smu,seg,sjet;
     //Muon ratio
     smu << muonBit_;
-    rateRatio_mu = dbe_->book1D("Rate_Ratio_mu_PhysBit_"+ smu.str()+sdenom.str(), "Rate_Ratio_mu_PhysBit_" + smu.str()+sdenom.str(),maxNbins,-0.5,double(maxNbins)-0.5);
-    //rateRatio_mu->setAxisTitle("Lumi Section" , 1);
+    rateRatio_mu = dbe_->book1D("Rate_Ratio_mu_PhysBit_"+ smu.str(), "Rate_Ratio_mu_PhysBit_" + smu.str(),maxNbins,-0.5,double(maxNbins)-0.5);
+    rateRatio_mu->setAxisTitle("Lumi Section" , 1);
     //Egamma ratio
     seg << egammaBit_;
-    rateRatio_egamma = dbe_->book1D("Rate_Ratio_egamma_PhysBit_"+ seg.str()+sdenom.str(), "Rate_Ratio_egamma_PhysBit_" + seg.str()+sdenom.str(),maxNbins,-0.5,double(maxNbins)-0.5);
-    //rateRatio_egamma->setAxisTitle("Lumi Section" , 1);
+    rateRatio_egamma = dbe_->book1D("Rate_Ratio_egamma_PhysBit_"+ seg.str(), "Rate_Ratio_egamma_PhysBit_" + seg.str(),maxNbins,-0.5,double(maxNbins)-0.5);
+    rateRatio_egamma->setAxisTitle("Lumi Section" , 1);
     //Jet ratio
     sjet << jetBit_;
-    rateRatio_jet = dbe_->book1D("Rate_Ratio_jet_PhysBit_" + sjet.str()+sdenom.str(), "Rate_Ratio_jet_PhysBit_" + sjet.str()+sdenom.str(),maxNbins,-0.5,double(maxNbins)-0.5);
-    //rateRatio_jet->setAxisTitle("Lumi Section" , 1);
+    rateRatio_jet = dbe_->book1D("Rate_Ratio_jet_PhysBit_" + sjet.str(), "Rate_Ratio_jet_PhysBit_" + sjet.str(),maxNbins,-0.5,double(maxNbins)-0.5);
+    rateRatio_jet->setAxisTitle("Lumi Section" , 1);
 
     //HF bit ratios
-    techRateRatio_8 = dbe_->book1D("Rate_Ratio_TechBit_8"+sdenom.str(), "Rate_Ratio_TechBit_8"+sdenom.str(),maxNbins,-0.5,double(maxNbins)-0.5);
-    //techRateRatio_8->setAxisTitle("Lumi Section" ,1);
-    techRateRatio_9 = dbe_->book1D("Rate_Ratio_TechBit_9"+sdenom.str(), "Rate_Ratio_TechBit_9"+sdenom.str(),maxNbins,-0.5,double(maxNbins)-0.5);
-    //techRateRatio_9->setAxisTitle("Lumi Section" ,1);
-    techRateRatio_10 = dbe_->book1D("Rate_Ratio_TechBit_10"+sdenom.str(), "Rate_Ratio_TechBit_10"+sdenom.str(),maxNbins,-0.5,double(maxNbins)-0.5);
-    //techRateRatio_10->setAxisTitle("Lumi Section" ,1);
+    techRateRatio_8 = dbe_->book1D("Rate_Ratio_TechBit_8", "Rate_Ratio_TechBit_8",maxNbins,-0.5,double(maxNbins)-0.5);
+    techRateRatio_8->setAxisTitle("Lumi Section" ,1);
+    techRateRatio_9 = dbe_->book1D("Rate_Ratio_TechBit_9", "Rate_Ratio_TechBit_9",maxNbins,-0.5,double(maxNbins)-0.5);
+    techRateRatio_9->setAxisTitle("Lumi Section" ,1);
+    techRateRatio_10 = dbe_->book1D("Rate_Ratio_TechBit_10", "Rate_Ratio_TechBit_10",maxNbins,-0.5,double(maxNbins)-0.5);
+    techRateRatio_10->setAxisTitle("Lumi Section" ,1);
 
     //Other tech bit ratios
     techRateRatio_33_over_32 = dbe_->book1D("Rate_Ratio_TechBits_33_over_32", "Rate_Ratio_TechBits_33_over_32",maxNbins,-0.5,double(maxNbins)-0.5);
-    techRateRatio_36 = dbe_->book1D("Rate_Ratio_TechBit_36"+sdenom.str(), "Rate_Ratio_TechBit_36"+sdenom.str(),maxNbins,-0.5,double(maxNbins)-0.5);
-    techRateRatio_37 = dbe_->book1D("Rate_Ratio_TechBit_37"+sdenom.str(), "Rate_Ratio_TechBit_37"+sdenom.str(),maxNbins,-0.5,double(maxNbins)-0.5);
-    techRateRatio_38 = dbe_->book1D("Rate_Ratio_TechBit_38"+sdenom.str(), "Rate_Ratio_TechBit_38"+sdenom.str(),maxNbins,-0.5,double(maxNbins)-0.5);
-    techRateRatio_39 = dbe_->book1D("Rate_Ratio_TechBit_39"+sdenom.str(), "Rate_Ratio_TechBit_39"+sdenom.str(),maxNbins,-0.5,double(maxNbins)-0.5);
-    techRateRatio_40 = dbe_->book1D("Rate_Ratio_TechBit_40"+sdenom.str(), "Rate_Ratio_TechBit_40"+sdenom.str(),maxNbins,-0.5,double(maxNbins)-0.5);
-    techRateRatio_41 = dbe_->book1D("Rate_Ratio_TechBit_41"+sdenom.str(), "Rate_Ratio_TechBit_41"+sdenom.str(),maxNbins,-0.5,double(maxNbins)-0.5);
-    techRateRatio_42 = dbe_->book1D("Rate_Ratio_TechBit_42"+sdenom.str(), "Rate_Ratio_TechBit_42"+sdenom.str(),maxNbins,-0.5,double(maxNbins)-0.5);
-    techRateRatio_43 = dbe_->book1D("Rate_Ratio_TechBit_43"+sdenom.str(), "Rate_Ratio_TechBit_43"+sdenom.str(),maxNbins,-0.5,double(maxNbins)-0.5);
+    techRateRatio_36 = dbe_->book1D("Rate_Ratio_TechBit_36", "Rate_Ratio_TechBit_36",maxNbins,-0.5,double(maxNbins)-0.5);
+    techRateRatio_37 = dbe_->book1D("Rate_Ratio_TechBit_37", "Rate_Ratio_TechBit_37",maxNbins,-0.5,double(maxNbins)-0.5);
+    techRateRatio_38 = dbe_->book1D("Rate_Ratio_TechBit_38", "Rate_Ratio_TechBit_38",maxNbins,-0.5,double(maxNbins)-0.5);
+    techRateRatio_39 = dbe_->book1D("Rate_Ratio_TechBit_39", "Rate_Ratio_TechBit_39",maxNbins,-0.5,double(maxNbins)-0.5);
+    techRateRatio_40 = dbe_->book1D("Rate_Ratio_TechBit_40", "Rate_Ratio_TechBit_40",maxNbins,-0.5,double(maxNbins)-0.5);
+    techRateRatio_41 = dbe_->book1D("Rate_Ratio_TechBit_41", "Rate_Ratio_TechBit_41",maxNbins,-0.5,double(maxNbins)-0.5);
+    techRateRatio_42 = dbe_->book1D("Rate_Ratio_TechBit_42", "Rate_Ratio_TechBit_42",maxNbins,-0.5,double(maxNbins)-0.5);
+    techRateRatio_43 = dbe_->book1D("Rate_Ratio_TechBit_43", "Rate_Ratio_TechBit_43",maxNbins,-0.5,double(maxNbins)-0.5);
 
     				
     dbe_->setCurrentFolder("L1T/L1TScalersSCAL/LumiScalers");
@@ -219,8 +209,8 @@ L1TScalersSCAL::L1TScalersSCAL(const edm::ParameterSet& ps):
        
     for(int i=0; i<4; i++){
 
-      sprintf(hname, "OrbitNumber_L1A_%d", i+1);
-      sprintf(mename, "OrbitNumber_L1A_%d", i+1);
+      sprintf(hname, "Orbit_Number_L1A_%d", i+1);
+      sprintf(mename, "Orbit_Number_L1A_%d", i+1);
       orbitNumL1A[i] = dbe_->book1D(hname,mename,200,0,10E8);          
 
       sprintf(hname, "Bunch_Crossing_L1A_%d", i+1);
@@ -326,30 +316,17 @@ L1TScalersSCAL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if(nev_ == 1) reftime_ = thetime.tv_sec; 
       //cout << "reftime = " << reftime_ << endl;
       if(lumisection){
-
-	//orbitNum->Fill(it->orbitNr());
-	orbitNum->setBinContent(lumisection+1,it->orbitNr());
-
+	orbitNum ->Fill(it->orbitNr());
 	//trigNum ->Fill(it->gtTriggers());
 	//trigNum->setBinContent(lumisection+1, it->gtTriggers()); 
-
-	//eventNum->Fill(it->gtEvents());
-	eventNum->setBinContent(lumisection+1,it->gtEvents());
-
+	eventNum ->Fill(it->gtEvents());
 	//physTrig ->Fill(it->l1AsPhysics());
 	physTrig->setBinContent(lumisection+1, it->l1AsPhysics()); 
-
 	//randTrig ->Fill(it->l1AsRandom());
 	randTrig->setBinContent(lumisection+1, it->l1AsRandom()); 
-
-	//numberResets ->Fill(it->gtResets());	 
-	numberResets->setBinContent(lumisection+1, it->gtResets());	 
-
-	//deadTime ->Fill(it->deadtime());
-	deadTime->setBinContent(lumisection+1, it->deadtime());
-
-	//lostFinalTriggers ->Fill(it->triggersPhysicsLost());                       
-	lostFinalTriggers->setBinContent(lumisection+1, it->triggersPhysicsLost());
+	numberResets ->Fill(it->gtResets());	 
+	deadTime ->Fill(it->deadtime());
+	lostFinalTriggers ->Fill(it->triggersPhysicsLost());                                    
 	 
 	//cout << "lumisection = " << lumisection << " , orbitNum = " 
 	//     << it->orbitNr() << ", lumiSegmentOrbits = " << it->lumiSegmentOrbits() 
