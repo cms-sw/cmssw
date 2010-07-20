@@ -53,12 +53,12 @@ def allruns(schemaHandle,requireRunsummary=True,requireLumisummary=False,require
         numdups=numdups+1
         queryHandle=schemaHandle.newQuery()
         queryHandle.addToTableList(nameDealer.trgTableName())
-        query.addToOutputList("distinct RUNNUM","run")
+        queryHandle.addToOutputList("distinct RUNNUM","run")
         queryBind=coral.AttributeList()
         result=coral.AttributeList()
         result.extend("run","unsigned int")
-        query.defineOutput(result)
-        cursor=query.execute()
+        queryHandle.defineOutput(result)
+        cursor=queryHandle.execute()
         while cursor.next():
             r=cursor.currentRow()['run'].data()
             runlist.append(r)
@@ -67,12 +67,12 @@ def allruns(schemaHandle,requireRunsummary=True,requireLumisummary=False,require
         numdups=numdups+1
         queryHandle=schemaHandle.newQuery()
         queryHandle.addToTableList(nameDealer.hltTableName())
-        query.addToOutputList("distinct RUNNUM","run")
+        queryHandle.addToOutputList("distinct RUNNUM","run")
         queryBind=coral.AttributeList()
         result=coral.AttributeList()
         result.extend("run","unsigned int")
-        query.defineOutput(result)
-        cursor=query.execute()
+        queryHandle.defineOutput(result)
+        cursor=queryHandle.execute()
         while cursor.next():
             r=cursor.currentRow()['run'].data()
             runlist.append(r)
@@ -659,8 +659,8 @@ if __name__=='__main__':
     session.typeConverter().setCppTypeForSqlType("unsigned long long","NUMBER(20)")
     session.transaction().start(True)
     schema=session.nominalSchema()
-    allruns=allruns(schema,requireLumisummary=True)
-    print 'allruns in runsummary and lumisummary ',len(allruns)
+    allruns=allruns(schema,requireLumisummary=True,requireTrg=True,requireHlt=True)
+    print 'allruns in runsummary and lumisummary and trg and hlt ',len(allruns)
     #q=schema.newQuery()
     #runsummaryOut=runsummaryByrun(q,139400)
     #del q
