@@ -41,14 +41,17 @@ if [ `uname` = "Darwin" ]; then
    rm  ${tard}/external/lib/libcrypto.*
 fi
 
+# remove 160MB large Qt libraries, not needed for event display
+rm  ${tard}/external/lib/libQt*
+
 #----------------------------------------------------------------
 # cmssw
    
 mkdir -p ${tard}/lib
 
 # cms libraries
-cp $CMSSW_RELEASE_BASE/lib/*/* ${tard}/lib/
-cp -f $CMSSW_BASE/lib/*/* ${tard}/lib/
+cp -a $CMSSW_RELEASE_BASE/lib/*/* ${tard}/lib/
+cp -a $CMSSW_BASE/lib/*/* ${tard}/lib/
 
 # plugins cache file
 touch ${tard}/lib/.edmplugincache
