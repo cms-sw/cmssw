@@ -19,6 +19,9 @@ if __name__ == '__main__':
     cmdGroup.add_option ('--sub', dest='command', action='store_const',
                          const='sub',
                          help = '"subtraction" (i.e., lumi sections in alpha not in beta) of two files')
+    cmdGroup.add_option ('--diff', dest='command', action='store_const',
+                         const='diff',
+                         help = '"All differences (i.e., alpha - beta AND beta - alpha) of two files. Output will only be to screen (not proper JSON format).')
     parser.add_option_group (cmdGroup)
     (options, args) = parser.parse_args()
     if len (args) < 2 or len (args) > 3:
@@ -26,12 +29,35 @@ if __name__ == '__main__':
     if not options.command:
         raise RunetimeError, "Exactly one command option must be specified"
 
-    alphaList = LumiList (filename = args[0])  # Read in first JSON file
-    betaList  = LumiList (filename = args[1])  # Read in first JSON file
-    
-    # print J1List
-    OutList={}
+    alphaList = LumiList (filename = args[0])  # Read in first  JSON file
+    betaList  = LumiList (filename = args[1])  # Read in second JSON file
 
+    ##################
+    ## Diff Command ##
+    ##################
+    if options.command == 'diff':
+        if len (args) >= 3:
+            raise RuntimeError, "Can not output to file with '--diff' option.  The output is not standard JSON."
+        firstOnly  = alphaList - betaList
+        secondOnly = betaList  - alphaList
+        if not firstOnly and not secondOnly:
+            print "Files '%s' and '%s' are the same." % (args[0], args[1])
+            sys.exit()
+        print "'%s'-only lumis:" % args[0]
+        if firstOnly:
+            print firstOnly
+        else:
+            print "None"
+        print "\n'%s'-only lumis:" % args[1]
+        if secondOnly:
+            print secondOnly
+        else:
+            print "None"
+        sys.exit()
+    
+    ########################
+    ## All other commands ##
+    ########################
     if options.command == 'and':
         outputList = alphaList & betaList
 
