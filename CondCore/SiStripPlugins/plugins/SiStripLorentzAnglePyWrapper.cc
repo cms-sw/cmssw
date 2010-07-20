@@ -40,6 +40,7 @@ namespace cond {
   template<>
   std::string PayLoadInspector<SiStripLorentzAngle>::summary() const {
     std::stringstream ss;
+    object().printSummary(ss);
     return ss.str();
   }
   
