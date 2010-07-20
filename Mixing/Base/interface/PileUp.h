@@ -60,6 +60,9 @@ namespace edm {
 
     // sequential reading
     bool sequential_;
+    
+    // read the seed for the histo and probability function cases
+    int seed_;
   };
 }
 

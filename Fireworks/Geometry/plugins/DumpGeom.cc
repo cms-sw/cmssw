@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Wed Sep 26 08:27:23 EDT 2007
-// $Id: DumpGeom.cc,v 1.3 2010/07/01 14:40:07 mccauley Exp $
+// $Id: DumpGeom.cc,v 1.26 2010/03/25 21:26:09 case Exp $
 //
 //
 
@@ -74,7 +74,6 @@
 #include <Geometry/MuonNumbering/interface/MuonBaseNumber.h>
 #include <Geometry/MuonNumbering/interface/DTNumberingScheme.h>
 #include <Geometry/MuonNumbering/interface/CSCNumberingScheme.h>
-#include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include <Geometry/Records/interface/MuonNumberingRecord.h>
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 #include <Geometry/MuonNumbering/interface/RPCNumberingScheme.h>
@@ -131,8 +130,7 @@ class DumpGeom : public edm::EDAnalyzer
    TGeoMaterial* createMaterial(const DDMaterial& iMaterial);
 
       void mapDTGeometry(const DDCompactView& cview,
-			 const MuonDDDConstants& muonConstants,
-			 const DTGeometry& dtGeom);
+			 const MuonDDDConstants& muonConstants);
       void mapCSCGeometry(const DDCompactView& cview,
 			  const MuonDDDConstants& muonConstants);
       void mapTrackerGeometry(const DDCompactView& cview,
@@ -521,8 +519,7 @@ DumpGeom::createMaterial(const DDMaterial& iMaterial)
 }
 
 void DumpGeom::mapDTGeometry(const DDCompactView& cview,
-			     const MuonDDDConstants& muonConstants,
-			     const DTGeometry& dtGeom)
+			     const MuonDDDConstants& muonConstants)
 {
    // filter out everythin but DT muon geometry
    std::string attribute = "MuStructure"; 
@@ -569,48 +566,12 @@ void DumpGeom::mapDTGeometry(const DDCompactView& cview,
 
       // this works fine if you have access
       // unsigned int rawid = dtnum.getDetId( mdddnum.geoHistoryToBaseNumber( fview.geoHistory() ) );
+      
       //      std::cout << "DT chamber id: " << rawid << " \tname: " << name << std::endl;
       
       idToName_[rawid] = Info(name);
       
       doChamber = fview.nextSibling(); // go to next chamber
-   }
-
-   // Fill in DT super layer parameters
-   for(std::vector<DTSuperLayer*>::const_iterator det = dtGeom.superLayers().begin(); 
-       det != dtGeom.superLayers().end(); ++det)
-   {
-     unsigned int rawId = (*det)->id().rawId();
-     const BoundPlane& surf = (*det)->surface();
-     // bounds W/H/L:
-     idToName_[rawId].points[0] = surf.bounds().width();
-     idToName_[rawId].points[1] = surf.bounds().thickness();
-     idToName_[rawId].points[2] = surf.bounds().length();
-   }
-
-   // Fill in DT layer parameters
-   for(std::vector<DTLayer*>::const_iterator det = dtGeom.layers().begin(); 
-       det != dtGeom.layers().end(); ++det)
-   {
-     unsigned int rawId = (*det)->id().rawId();
-     const DTTopology& topo = (*det)->specificTopology();
-     const BoundPlane& surf = (*det)->surface();
-     // Topology W/H/L:
-     idToName_[rawId].points[0] = topo.cellWidth();
-     idToName_[rawId].points[1] = topo.cellHeight();
-     idToName_[rawId].points[2] = topo.cellLenght();
-     idToName_[rawId].points[3] = topo.firstChannel();
-     idToName_[rawId].points[4] = topo.lastChannel();
-     idToName_[rawId].points[5] = topo.channels();
-
-     // bounds W/H/L:
-     idToName_[rawId].points[6] = surf.bounds().width();
-     idToName_[rawId].points[7] = surf.bounds().thickness();
-     idToName_[rawId].points[8] = surf.bounds().length();
-
-     for( int i = 0; i < 8; ++i)
-       std::cout << idToName_[rawId].points[i] << ", ";
-     std::cout << std::endl;
    }
 }
 
@@ -1053,30 +1014,12 @@ void DumpGeom::mapRPCGeometry(const DDCompactView& cview,
      DDGeoHistory::const_iterator ancestor = fview.geoHistory().begin();
      DDGeoHistory::const_iterator endancestor;
      ++ancestor; // skip the first ancestor
-
-
-     /*
-
-     NOTE: The following conditions, while (seemingly) yielding the correct
-     positions and shapes for the RPC chambers, does not ultimately give the 
-     correct local to global transformations for the RPC rec hits. 
-
-     The code that follows (the line "endancestor = ...") gives the correct 
-     transformation for the rec hits. 
-     
-     This geometry extraction will be re-worked to give correct shapes and
-     transformations for all. Until then, only draw RPC rec hits.
-
      // in station 3 or 4 AND NOT in endcap, then fix.
      if ( ( rpcid.station() == 3 || rpcid.station() == 4 ) && std::abs(rpcid.region()) != 1 ) {
        endancestor = fview.geoHistory().end();
      } else {
        endancestor = fview.geoHistory().end() - 1;
      }
-     */
-
-     endancestor = fview.geoHistory().end();
-
      //      ++ancestor; // skip the first TWO ancestors
      for ( ; ancestor != endancestor; ++ ancestor )
        s << "/" << ancestor->logicalPart().name() << "_" << ancestor->copyno();
@@ -1156,9 +1099,6 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    edm::ESHandle<CaloGeometry> pG;
    iSetup.get<CaloGeometryRecord>().get(pG);     
-
-   edm::ESHandle<DTGeometry> muonDTGeom;
-   iSetup.get<MuonGeometryRecord>().get(muonDTGeom);     
 
 //    if ( pG.isValid() ) {
 //      std::cout << "pG is valid" << std::endl;
@@ -1263,7 +1203,7 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    geom->CloseGeometry();
    std::cout << "In the DumpGeom::analyze method...done with main geometry" << std::endl;
-   mapDTGeometry(*viewH, *mdc, *muonDTGeom);
+   mapDTGeometry(*viewH, *mdc);
    std::cout << "In the DumpGeom::analyze method...done with DT" << std::endl;
    mapCSCGeometry(*viewH, *mdc);
    std::cout << "In the DumpGeom::analyze method...done with CSC" << std::endl;
@@ -1288,7 +1228,7 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    delete canvas;
 
    std::stringstream s2;
-    s2<<"cmsGeom"<<level_<<".root";
+   s2<<"cmsGeom"<<level_<<".root";
    TFile f(s2.str().c_str(),"RECREATE");
    
    TTree* tree = new TTree("idToGeo","Raw detector id association with geomtry");

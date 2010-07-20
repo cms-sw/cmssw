@@ -18,8 +18,7 @@
  *  Users are expected to read the publicly available data members themselves
  *  though insert is provided for convenience when adding to this container.
  * 
- *  2009-11-19:  Removed full vector copies and instead force the use of *Start and *End methods
- *               which return a const_iterator for the range of elements for each "vector"
+ *  Ideally we would provide an iterator.  
  *
  */
 
@@ -76,12 +75,23 @@ class RecoIdealGeometry {
     return pDetIds;
   }
 
+
+  std::vector<double> translation( size_t ind ) const {
+    assert (ind < pDetIds.size());
+    return std::vector<double>( tranStart(ind), tranEnd(ind) );
+  }
+
   std::vector<double>::const_iterator tranStart( size_t ind ) const { 
      return pPars.begin() + pParsIndex[ind]; 
   }
 
   std::vector<double>::const_iterator tranEnd ( size_t ind ) const { 
      return pPars.begin() + pParsIndex[ind] + 3; 
+  }
+
+  std::vector<double> rotation( size_t ind ) const {
+    assert (ind < pDetIds.size());
+    return std::vector<double>( rotStart(ind), rotEnd(ind) );
   }
 
   std::vector<double>::const_iterator rotStart ( size_t ind ) const {
@@ -92,12 +102,22 @@ class RecoIdealGeometry {
     return pPars.begin() + pParsIndex[ind] + 3 + 9;
   }
 
+  std::vector<double> shapePars( size_t ind ) const {
+    assert (ind < pDetIds.size());
+    return std::vector<double>( shapeStart(ind), shapeEnd(ind) );
+  }
+
   std::vector<double>::const_iterator shapeStart ( size_t ind ) const {
     return pPars.begin() + pParsIndex[ind] + 3 + 9;
   }
 
   std::vector<double>::const_iterator shapeEnd ( size_t ind ) const {
     return pPars.begin() + pParsIndex[ind] + 3 + 9 + pNumShapeParms[ind];
+  }
+
+  const std::vector<std::string> strParams ( size_t ind ) const {
+    assert(ind<pDetIds.size());
+    return std::vector<std::string>( strStart(ind),strEnd(ind) );
   }
 
   std::vector<std::string>::const_iterator strStart ( size_t ind ) const {

@@ -80,8 +80,6 @@ class WPlusJetsEventSelector : public EventSelector {
   int minJets_;
 
   double dR_;
-  double muJetDR_;
-
   bool muPlusJets_;
   bool ePlusJets_;
 

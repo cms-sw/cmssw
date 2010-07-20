@@ -1,16 +1,49 @@
 // -*- C++ -*-
-//$Id$
+//
+// Package:    EcalShowerContainmentCorrectionsESProducer
+// Class:      EcalShowerContainmentCorrectionsESProducer
+// 
+/**\class EcalShowerContainmentCorrectionsESProducer EcalShowerContainmentCorrectionsESProducer.h User/EcalShowerContainmentCorrectionsESProducer/interface/EcalShowerContainmentCorrectionsESProducer.h
+
+ Description: Trivial ESProducer to provide EventSetup with (hard coded)
+              shower containment corrections
+
+     
+ \author  Stefano Argiro
+         Created:  Mon Mar  5 08:39:12 CET 2007
+ \id $Id: EcalShowerContainmentCorrectionsESProducer.cc,v 1.1 2007/05/15 20:46:31 argiro Exp $
+*/
 
 // system include files
 #include <memory>
 #include "boost/shared_ptr.hpp"
 
 // user include files
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "CalibCalorimetry/EcalCorrectionModules/interface/EcalShowerContainmentCorrectionsLogE2E1ESProducer.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Framework/interface/ESProducer.h"
 
-#include "CalibCalorimetry/EcalCorrectionModules/interface/EcalShowerContainmentCorrectionsESProducer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "CondFormats/EcalCorrections/interface/EcalShowerContainmentCorrections.h"
+#include "CondFormats/DataRecord/interface/EcalShowerContainmentCorrectionsRcd.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+
+
+
+class EcalShowerContainmentCorrectionsESProducer : public edm::ESProducer {
+
+   public:
+      EcalShowerContainmentCorrectionsESProducer(const edm::ParameterSet&);
+     ~EcalShowerContainmentCorrectionsESProducer();
+
+      typedef std::auto_ptr<EcalShowerContainmentCorrections> ReturnType;
+
+      ReturnType produce(const EcalShowerContainmentCorrectionsRcd&);
+   private:
+  
+
+};
+
 
 EcalShowerContainmentCorrectionsESProducer::EcalShowerContainmentCorrectionsESProducer(const edm::ParameterSet& iConfig)
 {   
@@ -92,3 +125,6 @@ EcalShowerContainmentCorrectionsESProducer::produce(const EcalShowerContainmentC
 
    return pEcalShowerContainmentCorrections ;
 }
+
+//define this as a plug-in
+DEFINE_FWK_EVENTSETUP_MODULE(EcalShowerContainmentCorrectionsESProducer);

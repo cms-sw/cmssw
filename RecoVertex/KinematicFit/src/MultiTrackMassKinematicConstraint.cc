@@ -9,9 +9,9 @@ AlgebraicVector  MultiTrackMassKinematicConstraint::value(const vector<Kinematic
 
  double sumEnergy = 0, sumPx=0, sumPy=0., sumPz=0.;
 
- double a;
  for (unsigned int i=0;i<nPart;++i) {
-    a = -states[i].particleCharge() * states[i].magneticField()->inInverseGeV(states[i].globalPosition()).z();
+    double field = states[i].magneticField()->inInverseGeV(states[i].globalPosition()).z();
+    double a = -0.29979246*states[i].particleCharge()*field;
 
     sumEnergy += states[i].kinematicParameters().energy();
     sumPx += states[i].kinematicParameters()(3) - a*(point.y() - states[i].kinematicParameters()(1));
@@ -35,9 +35,9 @@ AlgebraicMatrix MultiTrackMassKinematicConstraint::parametersDerivative(const ve
 
   double sumEnergy = 0, sumPx=0, sumPy=0., sumPz=0.;
 
- double a;
   for (unsigned int i=0;i<nPart;++i) {
-    a = -states[i].particleCharge() * states[i].magneticField()->inInverseGeV(states[i].globalPosition()).z();
+    double field = states[i].magneticField()->inInverseGeV(states[i].globalPosition()).z();
+    double a = -0.29979246*states[i].particleCharge()*field;
 
     sumEnergy += states[i].kinematicParameters().energy();
     sumPx += states[i].kinematicParameters()(3) - a*(point.y() - states[i].kinematicParameters()(1));
@@ -46,7 +46,8 @@ AlgebraicMatrix MultiTrackMassKinematicConstraint::parametersDerivative(const ve
   }
 
   for (unsigned int i=0;i<nPart;++i) {
-    a = -states[i].particleCharge() * states[i].magneticField()->inInverseGeV(states[i].globalPosition()).z();
+    double field = states[i].magneticField()->inInverseGeV(states[i].globalPosition()).z();
+    double a = -0.29979246*states[i].particleCharge()*field;
 
  //x derivatives:
     res(1,1+i*7) = 2*a*sumPy;
@@ -80,9 +81,9 @@ AlgebraicMatrix MultiTrackMassKinematicConstraint::positionDerivative(const vect
 
   double sumA = 0, sumPx=0, sumPy=0.;
 
-  double a;
   for (unsigned int i=0;i<nPart;++i) {
-    a = -states[i].particleCharge() * states[i].magneticField()->inInverseGeV(states[i].globalPosition()).z();
+    double field = states[i].magneticField()->inInverseGeV(states[i].globalPosition()).z();
+    double a = -0.29979246*states[i].particleCharge()*field;
     sumA += a;
 
     sumPx += states[i].kinematicParameters()(3) - a*(point.y() - states[i].kinematicParameters()(1));

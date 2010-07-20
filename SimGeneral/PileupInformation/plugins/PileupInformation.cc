@@ -84,7 +84,7 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
 
 
 
-        if(iTrack->eventId().bunchCrossing() == 0)
+        if(iTrack->eventId().bunchCrossing() == 0 && iTrack->eventId().event() > 0 )
 	  {
 	      zpos = zpositions[iTrack->eventId().event()-1];
 	      if(iTrack->matchedHit()>0) {
@@ -128,6 +128,13 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
 						  );
 
     event.put(PileupSummary_);
+
+    zpositions.clear();
+    sumpT_lowpT.clear();
+    sumpT_highpT.clear();
+    ntrks_lowpT.clear();
+    ntrks_highpT.clear();
+
 
 }
 

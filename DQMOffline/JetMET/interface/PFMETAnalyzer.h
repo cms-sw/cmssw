@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for PFMET
  *
- *  $Date: 2010/06/16 18:49:03 $
- *  $Revision: 1.16 $
+ *  $Date: 2010/05/14 21:57:33 $
+ *  $Revision: 1.15 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech 
  */
@@ -117,7 +117,6 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
 
   std::string _hlt_HighPtJet;
   std::string _hlt_LowPtJet;
-  std::string _hlt_MinBias;
   std::string _hlt_HighMET;
   std::string _hlt_LowMET;
   std::string _hlt_Ele;
@@ -146,7 +145,6 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
   int _trig_JetMB;
   int _trig_HighPtJet;
   int _trig_LowPtJet;
-  int _trig_MinBias;
   int _trig_HighMET;
   int _trig_LowMET;
   int _trig_Ele;
@@ -187,7 +185,6 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
 
   MonitorElement* meTriggerName_HighPtJet;
   MonitorElement* meTriggerName_LowPtJet;
-  MonitorElement* hTriggerName_MinBias;
   MonitorElement* meTriggerName_HighMET;
   MonitorElement* meTriggerName_LowMET;
   MonitorElement* meTriggerName_Ele;

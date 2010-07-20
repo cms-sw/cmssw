@@ -1,10 +1,3 @@
-//local includes
-#include "CondCore/DBCommon/interface/CoralServiceManager.h"
-
-//CMSSW includes
-#include "FWCore/PluginManager/interface/PluginManager.h"
-#include "FWCore/PluginManager/interface/standard.h"
-
 //coral includes
 #include "RelationalAccess/ConnectionService.h"
 #include "RelationalAccess/IConnectionServiceConfiguration.h"
@@ -22,27 +15,17 @@
 #include "CoralKernel/IPropertyManager.h"
 #include "CoralBase/MessageStream.h"
 #include <iostream>
-#include <cstdlib>
-#include <string>
 
 int main() {
-  std::string monitoringServiceName = "COND/Services/SQLMonitoringService";
-  std::string authServiceName = "COND/Services/XMLAuthenticationService";
-  edmplugin::PluginManager::configure(edmplugin::standard::config());
-  cond::CoralServiceManager m_pluginManager;
-  std::string authpath("/afs/cern.ch/cms/DB/conddb");
-  std::string pathenv(std::string("CORAL_AUTH_PATH=")+authpath);
-  ::putenv(const_cast<char*>(pathenv.c_str()));
+
   coral::MessageStream::setMsgVerbosity( coral::Debug );
   coral::Context::instance().loadComponent("CORAL/Services/ConnectionService");
-  coral::Context::instance().loadComponent(monitoringServiceName, &m_pluginManager);
-  coral::Context::instance().loadComponent(authServiceName, &m_pluginManager);
+  coral::Context::instance().loadComponent("COND/Services/SQLMonitoringService");
+  coral::Context::instance().loadComponent("COND/Services/XMLAuthenticationService");
   //coral::Context::instance().PropertyManager().property("AuthenticationFile")->set(std::string("/build/gg/key.dat"));
   coral::IHandle<coral::IConnectionService> connectionService=coral::Context::instance().query<coral::IConnectionService>();
-  connectionService->configuration().setAuthenticationService( authServiceName );
-  connectionService->configuration().setMonitoringService( monitoringServiceName );
   connectionService->configuration().setMonitoringLevel(coral::monitor::Trace);	  //std::string connectionString("sqlite_file:mytest.db");
-  std::string connectionString("oracle://cms_orcoff_prep/CMS_COND_UNIT_TESTS");
+  std::string connectionString("oracle://cms_orcoff_prep/CMS_COND_PRESH");
   
   coral::ISessionProxy* session = connectionService->connect( connectionString );
   session->transaction().start();
@@ -57,12 +40,12 @@ int main() {
   session->nominalSchema().dropIfExistsTable( T1 );
   session->transaction().commit();
   delete session;
-  connectionService->monitoringReporter().report();
-  std::cout << "Available reporter : " << std::endl;
-  std::set< std::string > rep = connectionService->monitoringReporter().monitoredDataSources();
-  std::set< std::string >::iterator iter;  
-  for ( iter = rep.begin( ); iter != rep.end( ); iter++ )
-      std::cout << "reporter : " << *iter << std::endl;
+  //connectionService->monitoringReporter().report();
+  //std::cout << "Available reporter : " << std::endl;
+  //std::set< std::string > rep = connectionService->monitoringReporter().monitoredDataSources();
+  //std::set< std::string >::iterator iter;  
+  //for ( iter = rep.begin( ); iter != rep.end( ); iter++ )
+  //    std::cout << "reporter : " << *iter << std::endl;
   std::cout << "SQL Monitoring report for session" << std::endl;
   connectionService->monitoringReporter().reportToOutputStream( connectionString, std::cout );
 

@@ -8,13 +8,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug 22 20:42:51 EDT 2008
-// $Id: FWExpressionValidator.cc,v 1.6 2009/05/05 08:39:25 elmer Exp $
+// $Id: FWExpressionValidator.cc,v 1.5 2009/04/27 16:53:29 dmytro Exp $
 //
 
 // system include files
 #include <ctype.h>
 #include <algorithm>
-
+#include "Reflex/Type.h"
 #include "Reflex/Member.h"
 #include "Reflex/Base.h"
 #include <cstring>

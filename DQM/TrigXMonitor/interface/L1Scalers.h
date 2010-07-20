@@ -1,7 +1,7 @@
 // -*-c++-*-
 #ifndef L1Scalers_H
 #define L1Scalers_H
-// $Id: L1Scalers.h,v 1.14 2010/05/28 14:16:55 wteo Exp $
+// $Id: L1Scalers.h,v 1.12 2010/02/18 18:18:36 wittich Exp $
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -10,9 +10,6 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
-#define MAX_LUMI_SEG 2000
-#define MAX_LUMI_BIN 400
 
 class L1Scalers: public edm::EDAnalyzer
 {
@@ -54,8 +51,6 @@ private:
   
   bool denomIsTech_;
   unsigned int denomBit_;
-  bool tfIsTech_;
-  unsigned int tfBit_;
   std::vector<unsigned int> algoSelected_;
   std::vector<unsigned int> techSelected_;
 
@@ -82,14 +77,6 @@ private:
   std::vector<MonitorElement* > techBxDiff_;
   std::vector<MonitorElement* > algoBxDiffLumi_;
   std::vector<MonitorElement* > techBxDiffLumi_;
-  MonitorElement *dtBxDiff_;
-  MonitorElement *dtBxDiffLumi_;
-  MonitorElement *cscBxDiff_;
-  MonitorElement *cscBxDiffLumi_;
-  MonitorElement *rpcbBxDiff_;
-  MonitorElement *rpcbBxDiffLumi_;
-  MonitorElement *rpcfBxDiff_;
-  MonitorElement *rpcfBxDiffLumi_;
 
   // Hacks for early running
 //   MonitorElement *pixFedSize_;

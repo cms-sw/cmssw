@@ -1,11 +1,12 @@
 import FWCore.ParameterSet.Config as cms
-# last update: $Date: 2010/03/10 10:17:04 $ by $Author: argiro $
+# last update: $Date: 2010/06/25 12:29:31 $ by $Author: cerminar $
 ###############################################################
 # Tracker Alignment
 ###############################################################
 # AlCaReco for track based alignment using ZMuMu events
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlZMuMu_Output_cff import *
 # AlCaReco for track based alignment using Cosmic muon events
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmicsInCollisions_Output_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics_Output_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmicsHLT_Output_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics0T_Output_cff import *
@@ -68,6 +69,7 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalNoise_Output_cff import *
 ###############################################################
 # Muon Alignment with cosmics
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlStandAloneCosmics_Output_cff import *
+from Alignment.CommonAlignmentProducer.ALCARECOMuAlGlobalCosmicsInCollisions_Output_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlGlobalCosmics_Output_cff import *
 # Muon Alignment with isolated muons
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlCalIsolatedMu_Output_cff import *

@@ -36,5 +36,6 @@ namespace {
     edm::ValueMap<reco::FlavorHistoryEvent> vmfhe1;
     edm::Wrapper<edm::ValueMap<reco::FlavorHistoryEvent> > wvmfhe1;
     std::vector<reco::GenParticleRef>	v_gpr;
+    edm::RefVectorIterator<std::vector<reco::GenParticle>,reco::GenParticle,edm::refhelper::FindUsingAdvance<std::vector<reco::GenParticle>,reco::GenParticle> > rvigp;
   };
 }

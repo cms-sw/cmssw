@@ -26,20 +26,20 @@ void do_invalid(double num, double denom)
   assert(ratio != ratio);
 }
 
-void do_underflow(double base, double expo)
+void do_underflow(long double base, long double expo)
 {
   // We pass in arguments to avoid optimizations.
   // num should be small, and denom should be large.
-  double result = std::pow(base, expo);
+  long double result = std::pow(base, expo);
   assert(result == 0.0);
 }
 
-void do_overflow(double base, double expo)
+void do_overflow(long double base, long double expo)
 {
   // We pass in arguments to avoid optimizations.
   // both base and expo should be large.
-  double result = std::pow(base, expo);
-  assert(result == std::numeric_limits<double>::infinity());
+  long double result = std::pow(base, expo);
+  assert(result == std::numeric_limits<long double>::infinity());
 }
 
 namespace edmtest
@@ -70,9 +70,9 @@ namespace edmtest
     else if (testname_ == "invalid")
       do_invalid(0.0, 0.0);
     else if (testname_ == "underflow")
-      do_underflow(std::numeric_limits<double>::min(), std::numeric_limits<double>::max());
+      do_underflow(std::numeric_limits<long double>::min(), std::numeric_limits<long double>::max());
     else if (testname_ == "overflow")
-      do_overflow(std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
+      do_overflow(std::numeric_limits<long double>::max(), std::numeric_limits<long double>::max());
   }  
 }
 

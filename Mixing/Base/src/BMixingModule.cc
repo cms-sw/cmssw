@@ -35,7 +35,7 @@ namespace
       {
 	// We have the parameter
 	// and if we have either averageNumber or cfg by luminosity... make the PileUp
-        double averageNumber;
+	double averageNumber;
         std::string histoFileName=" ";
 	std::string histoName =" ";
 	TH1F * h = new TH1F("h","h",10,0,10);
@@ -77,7 +77,7 @@ namespace
 		}
                 
 		// Check if the histogram is normalized
-		if (((h->Integral() - 1) > 1.0e-06) && ((h->Integral() - 1) < -1.0e-06)) throw cms::Exception("BadHistoDistribution") << "The histogram should be normalized!" << std::endl;
+		if (((h->Integral() - 1) > 1.0e-02) && ((h->Integral() - 1) < -1.0e-02)) throw cms::Exception("BadHistoDistribution") << "The histogram should be normalized!" << std::endl;
 						
 		// Get the averageNumber from the histo 
 		averageNumber = h->GetMean();
@@ -126,7 +126,7 @@ namespace
 	   	}
 				
 		// Check if the histogram is normalized
-		if ( ((hprob->Integral() - 1) > 1.0e-06) && ((hprob->Integral() - 1) < -1.0e-06)){ 
+		if ( ((hprob->Integral() - 1) > 1.0e-02) && ((hprob->Integral() - 1) < -1.0e-02)){ 
 		  throw cms::Exception("BadProbFunction") << "The probability function should be normalized!!! " << endl;
 		}
 		

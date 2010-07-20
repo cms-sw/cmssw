@@ -6,8 +6,8 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 #include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
-#include "PhysicsTools/PFCandProducer/interface/PdgIdPFCandidateSelectorDefinition.h"
+#include "PhysicsTools/PFCandProducer/plugins/PdgIdPFCandidateSelectorDefinition.h"
 
-typedef ObjectSelector<pf2pat::PdgIdPFCandidateSelectorDefinition> PdgIdPFCandidateSelector;
+typedef ObjectSelector<PdgIdPFCandidateSelectorDefinition> PdgIdPFCandidateSelector;
 
 DEFINE_FWK_MODULE(PdgIdPFCandidateSelector);

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 15:04:58 EST 2008
-// $Id: FWPhysicsObjectDesc.h,v 1.7 2009/04/07 15:58:39 chrjones Exp $
+// $Id: FWPhysicsObjectDesc.h,v 1.6 2009/01/23 21:35:41 amraktad Exp $
 //
 
 // system include files
@@ -36,7 +36,7 @@ public:
                        const TClass* iClass,
                        const std::string& iPurpose,
                        const FWDisplayProperties& iProperties =
-                          FWDisplayProperties::defaultProperties,
+                          FWDisplayProperties(),
                        const std::string& iModuleLabel = std::string(),
                        const std::string& iProductInstanceLabel = std::string(),
                        const std::string& iProcessName = std::string(),

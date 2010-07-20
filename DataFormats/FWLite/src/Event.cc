@@ -174,6 +174,14 @@ Event::operator++()
    return *this;
 }
 
+Long64_t
+Event::indexFromEventId(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event)
+{
+   entryFinder_.fillIndex(branchMap_);
+   EntryFinder::EntryNumber_t entry = entryFinder_.findEvent(run, lumi, event);
+   return (entry == EntryFinder::invalidEntry) ? -1 : entry;
+}
+
 bool
 Event::to(Long64_t iEntry)
 {

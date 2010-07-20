@@ -2,8 +2,8 @@
  *
  * Digi for Correlated LCT trigger primitives.
  *
- * $Date: 2008/10/29 18:34:41 $
- * $Revision: 1.12 $
+ * $Date: 2009/03/25 13:16:57 $
+ * $Revision: 1.13 $
  *
  * \author L.Gray, UF
  */
@@ -51,6 +51,9 @@ void CSCCorrelatedLCTDigi::clear() {
   bend    = 0;
   bx      = 0;
   mpclink = 0;
+  bx0     = 0; 
+  syncErr = 0;
+  cscID   = 0;
 }
 
 /// Comparison

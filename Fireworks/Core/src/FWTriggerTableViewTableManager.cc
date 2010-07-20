@@ -1,11 +1,12 @@
-// $Id: FWTriggerTableViewTableManager.cc,v 1.2 2009/10/27 12:23:11 dmytro Exp $
+// $Id: FWTriggerTableViewTableManager.cc,v 1.1 2009/10/06 18:56:06 dmytro Exp $
 
 #include <math.h>
-
+#include "TClass.h"
 #include "TGClient.h"
-
 #include "Fireworks/Core/interface/FWTriggerTableViewTableManager.h"
+#include "Fireworks/Core/interface/FWTriggerTableViewManager.h"
 #include "Fireworks/Core/interface/FWTriggerTableView.h"
+#include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/TableWidget/interface/FWTableWidget.h"
 

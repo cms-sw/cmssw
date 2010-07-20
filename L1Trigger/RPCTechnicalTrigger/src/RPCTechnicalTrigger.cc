@@ -234,7 +234,7 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   
   for( ttuItr = m_serializedInfoLine1.begin(); ttuItr != m_serializedInfoLine1.end(); ++ttuItr ) {
     if ( m_verbosity && abs( (*ttuItr)->m_bx ) <= 1 ) 
-      std::cout << "RPCTechnicalTrigger> serializedInfoLine1: " 
+      std::cout << "RPCTechnicalTrigger> " 
                 << (*ttuItr)->m_ttuidx << '\t'
                 << (*ttuItr)->m_bx << '\t'
                 << (*ttuItr)->m_trigWheel1 << '\t'
@@ -277,20 +277,17 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   infoSize = m_serializedInfoLine2.size();
   
   std::sort( m_serializedInfoLine2.begin(), m_serializedInfoLine2.end(), sortByBx() );
-
-  //some debuging information:
+  
   for( ttuItr = m_serializedInfoLine2.begin(); ttuItr != m_serializedInfoLine2.end(); ++ttuItr ) {
     if ( m_verbosity && abs ( (*ttuItr)->m_bx ) <= 1 )
-      std::cout << "RPCTechnicalTrigger> serializedInfoLine2: " 
-                << "ttuid: " << (*ttuItr)->m_ttuidx << '\t'
-                << "bx:    " << (*ttuItr)->m_bx << '\t'
-                << "w1dec: " << (*ttuItr)->m_trigWheel1 << '\t'
-                << "w2dec: " << (*ttuItr)->m_trigWheel2 << '\t'
-                << "wedge: " << (*ttuItr)->m_wedge << '\n';
+      std::cout << "RPCTechnicalTrigger> " 
+                << (*ttuItr)->m_ttuidx << '\t'
+                << (*ttuItr)->m_bx << '\t'
+                << (*ttuItr)->m_trigWheel1 << '\t'
+                << (*ttuItr)->m_trigWheel2 << '\t'
+                << (*ttuItr)->m_wedge << '\n';
   }
   
-  // convert the information into a map before studying the coincidence
-
   infoSize = convertToMap( m_serializedInfoLine2 );
   
   std::bitset<8> triggerCoincidence;
@@ -330,10 +327,8 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   
   bool five_wheels_OR = triggerCoincidence.any();
 
-  if ( m_verbosity ) std::cout << "RPCTechnicalTrigger> pointing trigger: " << five_wheels_OR 
-                               << " in event: " << iEvent.id().event() << '\n';
+  if ( m_verbosity ) std::cout << "RPCTechnicalTrigger> pointing trigger: " << five_wheels_OR << '\n';
   
-  bx = 0;
   ttVec.at(1)=L1GtTechnicalTrigger(m_ttNames.at(1), m_ttBits.at(1), bx, five_wheels_OR ) ; // bit 25 = Or 5 wheels in RBC mode
   
   triggerCoincidence.reset();
@@ -460,18 +455,14 @@ int RPCTechnicalTrigger::convertToMap( const std::vector<TTUResults*> & ttuResul
   std::vector<TTUResults*>::const_iterator itr = ttuResults.begin();
   
   while ( itr != ttuResults.end() ) {
- 
-    if ( (*itr)->m_bx < 0 || (*itr)->m_bx > 1 ) {
+    
+    if ( (*itr)->m_bx != 0 ) {
       ++itr;
       continue;
     }
     
     int key(0);
-
-    key = 1000000*abs((*itr)->m_bx) 
-      + 1000 * ( (*itr)->m_ttuidx + 1 )
-      + 1*(*itr)->m_wedge;
-
+    key = 1000 * ( (*itr)->m_ttuidx + 1 ) + 1*(*itr)->m_wedge;
     m_ttuResultsByQuadrant[ key ] = (*itr);
     ++itr;
     
@@ -486,140 +477,78 @@ bool RPCTechnicalTrigger::searchCoincidence( int wheel1, int wheel2 )
 {
   
   std::map<int, TTUResults*>::iterator itr;
-
-  bool topTrigger(false);
-  bool bottomTrigger(false);
+  bool topRight(false);
+  bool botLeft(false);
   
   int indxW1 = m_WheelTtu[wheel1];
   int indxW2 = m_WheelTtu[wheel2];
   
-  int      k = 1;
-  int    key = 0;
-  int top_bx = -1;
-  int bot_bx =  0;
-
-  int maxTopQuadrants = 5; // =2-3-4-5-6
-  
-  bool finalTrigger   = false;
+  int k(0);
+  int key(0);
+  bool finalTrigger(false);
+  int maxTopQuadrants = 4;
   
   //work out Pointing Logic to Tracker
-
-  if ( m_verbosity ) std::cout << "-------------------------------------------------" << std::endl;
   
   for( m_firstSector = m_quadrants.begin(); m_firstSector != m_quadrants.end(); ++m_firstSector) {
     
-    key = 1000000*top_bx + 1000 * ( indxW1 ) + (*m_firstSector);
+    key = 1000 * ( indxW1 ) + (*m_firstSector);
     
     itr = m_ttuResultsByQuadrant.find( key );
+    if ( itr != m_ttuResultsByQuadrant.end() )
+      topRight  =  (*itr).second->getTriggerForWheel(wheel1);
 
-    if ( itr != m_ttuResultsByQuadrant.end() ) {
-      
-      topTrigger  =  (*itr).second->getTriggerForWheel(wheel1);
+    //std::cout << "W1: " << wheel1 << " " << "sec: " << (*m_firstSector) << " dec: " << topRight << '\n';
     
-      if ( m_verbosity ) std::cout << "quadrant: " << k 
-                                   << key << " W1: " 
-                                   << wheel1 << " " << "sec: " 
-                                   << (*m_firstSector) << " dec: " 
-                                   << topTrigger << '\t' << "bx="
-                                   << (*itr).second->m_bx << '\t';
-    } //...top
-    
-    key = 1000000*bot_bx + 1000 * ( indxW2 ) + (*m_firstSector) + 5;
+    key = 1000 * ( indxW2 ) + (*m_firstSector) + 5;
     
     itr = m_ttuResultsByQuadrant.find( key );
     
-    if ( itr != m_ttuResultsByQuadrant.end() ) {
-      
-      bottomTrigger   = (*itr).second->getTriggerForWheel(wheel2);
-      
-      if ( (*itr).second->m_bx == 0 ) bottomTrigger = false;
-      
-      if ( m_verbosity ) std::cout << "quadrant: " << k 
-                                   << key << " W2: " 
-                                   << wheel2 << " " << "sec: " 
-                                   << (*m_firstSector) + 5 << " dec: " 
-                                   << topTrigger << '\t' << "bx="
-                                   << (*itr).second->m_bx << '\n';
-      
-    } //...bottom
+    if ( itr != m_ttuResultsByQuadrant.end() )
+      botLeft   = (*itr).second->getTriggerForWheel(wheel2);
     
-    finalTrigger |= ( topTrigger && bottomTrigger );
+    //std::cout << "W2: " << wheel2 << " " << "sec: " << (*m_firstSector) + 5 << " dec: " << botLeft << '\n';
+    
+    finalTrigger |= ( topRight && botLeft );
     
     ++k;
     
-    topTrigger = false;
-    bottomTrigger = false;
-    
     if ( k > maxTopQuadrants)
       break;
-    
+        
   }
   
-  //Try the opposite now unless it is wheel with itself
-  
-  topTrigger = false;
-  bottomTrigger = false;
-  
-  if ( wheel1 == wheel2 ) {
-    if ( m_verbosity )  std::cout << "final decision: " << finalTrigger << std::endl;
-    return finalTrigger;
-  }
-  
-  k=1;
+  //Try the opposite now
 
-  if ( m_verbosity ) std::cout << "----reverse------" << std::endl;
+  k=0;
   
   for( m_firstSector = m_quadrants.begin(); m_firstSector != m_quadrants.end(); ++m_firstSector) {
     
-    key = 1000000*top_bx + 1000 * ( indxW2 ) + (*m_firstSector);
+    key = 1000 * ( indxW2 ) + (*m_firstSector);
     
     itr = m_ttuResultsByQuadrant.find( key );
+    if ( itr != m_ttuResultsByQuadrant.end() )
+      topRight  =  (*itr).second->getTriggerForWheel(wheel1);
 
-    if ( itr != m_ttuResultsByQuadrant.end() ) {
-      
-      topTrigger  =  (*itr).second->getTriggerForWheel(wheel1);
-      
-      if ( m_verbosity )  std::cout << "quadrant: " << k 
-                                    << key << " W2: " 
-                                    << wheel2 << " " << "sec: " 
-                                    << (*m_firstSector) << " dec: " 
-                                    << topTrigger << '\t' << "bx="
-                                    << (*itr).second->m_bx << '\t';
-    } //...top
+    //std::cout << "W1: " << wheel1 << " " << "sec: " << (*m_firstSector) << " dec: " << topRight << '\n';
     
-    key = 1000000*bot_bx +1000 * ( indxW1 ) + (*m_firstSector) + 5;
+    key = 1000 * ( indxW1 ) + (*m_firstSector) + 5;
     
     itr = m_ttuResultsByQuadrant.find( key );
     
-    if ( itr != m_ttuResultsByQuadrant.end() ) {
-      
-      bottomTrigger   = (*itr).second->getTriggerForWheel(wheel2);
-
-      if ( (*itr).second->m_bx == 0 ) bottomTrigger = false;
+    if ( itr != m_ttuResultsByQuadrant.end() )
+      botLeft   = (*itr).second->getTriggerForWheel(wheel2);
     
-      if ( m_verbosity )  std::cout << "quadrant: " << k
-                                    << key << " W1: " 
-                                    << wheel1 << " " << "sec: " 
-                                    << (*m_firstSector) + 5 << " dec: " 
-                                    << bottomTrigger << '\t' << "bx="
-                                    << (*itr).second->m_bx << '\n'; 
-    } //...bottom
+    //std::cout << "W2: " << wheel2 << " " << "sec: " << (*m_firstSector) + 5 << " dec: " << botLeft << '\n';
     
-    finalTrigger |= ( topTrigger && bottomTrigger );
+    finalTrigger |= ( topRight && botLeft );
     
     ++k;
     
-    topTrigger = false;
-    bottomTrigger = false;
-    
     if ( k > maxTopQuadrants)
       break;
-    
+        
   }
-
-  if ( m_verbosity ) std::cout << "final decision: " << finalTrigger << std::endl;
-  
-  if ( m_verbosity ) std::cout << "-------------------------------------------------" << std::endl;
   
   return finalTrigger;
   

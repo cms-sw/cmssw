@@ -4,8 +4,8 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2010/03/28 09:21:48 $
- * $Revision: 1.48 $
+ * $Date: 2010/01/25 21:12:25 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  *
 */
@@ -75,8 +75,6 @@ private:
 
 int ievt_;
 int jevt_;
-
-float synchErrorThreshold_;
 
 bool cloneME_;
 
@@ -184,7 +182,6 @@ TProfile2D* hot01_[18];
 TProfile2D* hpot01_[18];
 TProfile2D* httt01_[18];
 TProfile2D* htmt01_[18];
-TH1F* norm01_, *synch01_;
 
 };
 

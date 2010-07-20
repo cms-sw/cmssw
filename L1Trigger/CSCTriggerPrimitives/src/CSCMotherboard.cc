@@ -27,13 +27,8 @@
 //                Based on code by Nick Wisniewski (nw@its.caltech.edu)
 //                and a framework by Darin Acosta (acosta@phys.ufl.edu).
 //
-
-//   $Date: 2009/05/15 16:37:50 $
-//   $Revision: 1.27 $
-
-//   $Date: 2010/04/20 13:40:41 $
-//   $Revision: 1.29 $
-
+//   $Date: 2010/02/12 15:03:43 $
+//   $Revision: 1.28 $
 //
 //   Modifications: Numerous later improvements by Jason Mumford and
 //                  Slava Valuev (see cvs in ORCA).
@@ -248,7 +243,10 @@ void CSCMotherboard::run(
     if (clct->bestCLCT[bx_clct].isValid()) {
       bool is_matched = false;
       int bx_alct_start = bx_clct - match_trig_window_size/2;
-      int bx_alct_stop  = bx_clct + match_trig_window_size/2;
+      // int bx_alct_stop  = bx_clct + match_trig_window_size/2;
+      // Empirical correction to match 2009 collision data (firmware change?)
+      int bx_alct_stop  = bx_clct + match_trig_window_size/2 +
+	match_trig_window_size%2;
       for (int bx_alct = bx_alct_start; bx_alct <= bx_alct_stop; bx_alct++) {
 	if (bx_alct < 0 || bx_alct >= CSCAnodeLCTProcessor::MAX_ALCT_BINS)
 	  continue;
@@ -310,6 +308,8 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
 	// available.
 	bool is_matched = false;
 	int bx_alct_start = bx_clct - match_trig_window_size/2;
+	// int bx_alct_stop  = bx_clct + match_trig_window_size/2;
+	// Empirical correction to match 2009 collision data (firmware change?)
 	int bx_alct_stop  = bx_clct + match_trig_window_size/2 +
 	  match_trig_window_size%2;
 	for (int bx_alct = bx_alct_start; bx_alct <= bx_alct_stop; bx_alct++) {
@@ -388,9 +388,10 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::readoutLCTs() {
   // The number of LCT bins in the read-out is given by the
   // tmb_l1a_window_size parameter, but made even by setting the LSB
   // of tmb_l1a_window_size to 0.
-  static int lct_bins   = 
+  // static int lct_bins = 
   //   (tmb_l1a_window_size%2 == 0) ? tmb_l1a_window_size : tmb_l1a_window_size-1;
-    tmb_l1a_window_size;
+  // Empirical correction to match 2009 collision data (firmware change?)
+  static int lct_bins   = tmb_l1a_window_size;
   static int late_tbins = early_tbins + lct_bins;
 
   static int ifois = 0;

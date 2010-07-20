@@ -13,15 +13,15 @@ process.maxEvents = cms.untracked.PSet(
 process.AlignmentProducer.algoConfig.collectorActive = True
 process.AlignmentProducer.algoConfig.collectorNJobs  = <JOBS>
 process.AlignmentProducer.algoConfig.collectorPath   = '<PATH>'
+#process.AlignmentProducer.algoConfig.minimumNumberOfHits = 30
 process.AlignmentProducer.algoConfig.minimumNumberOfHits = 0
 process.AlignmentProducer.algoConfig.maxRelParameterError = '1e99'
 process.AlignmentProducer.algoConfig.outpath = '<PATH>/main/'
 ##
 process.AlignmentProducer.algoConfig.eventPrescale= 1
-process.AlignmentProducer.algoConfig.fillTrackMonitoring=False
-#process.AlignmentProducer.algoConfig.outfile =  '<PATH>/main/HIPAlignmentEvents.root'
-#process.AlignmentProducer.algoConfig.outfile2 = '<PATH>/main/HIPAlignmentAlignables.root'
-
+process.AlignmentProducer.algoConfig.fillTrackMonitoring=True
+process.AlignmentProducer.algoConfig.outfile =  '/HIPAlignmentEvents.root'
+process.AlignmentProducer.algoConfig.outfile2 = '/HIPAlignmentAlignables.root'
 
 # this part only needed for survey constraint
 """
@@ -44,4 +44,3 @@ process.AlignmentProducer.algoConfig.surveyResiduals = ['Det','TIBString','TOBRo
 process.AlignmentProducer.useSurvey = True
 """
 # end of survey constraint part
-

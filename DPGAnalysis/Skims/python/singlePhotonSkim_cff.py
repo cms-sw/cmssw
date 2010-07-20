@@ -37,7 +37,7 @@ singlePhotonPt5Filter = cms.EDFilter("PhotonSelector",
                                      )
 
 
-egSuperClusterMerger =  cms.EDProducer("EgammaSuperClusterMerger",
+egSuperClusterMerger =  cms.EDFilter("EgammaSuperClusterMerger",
                                    src = cms.VInputTag(cms.InputTag('correctedHybridSuperClusters'),
                                                        cms.InputTag('correctedMulti5x5SuperClustersWithPreshower'))
                                    )
@@ -60,7 +60,7 @@ oneEmCluster = cms.Sequence(
         egSuperClusterMerger+egSuperClusterCands+eggoodSuperClusters+egSuperClusterPt5Filter
             )
 
-gammaJet = cms.EDFilter("EtaPtMinCandViewSelector",
+gammaJet = cms.EDProducer("EtaPtMinCandViewSelector",
                           src = cms.InputTag("iterativeCone5CaloJets"),
                           ptMin   = cms.double(5),
                           etaMin = cms.double(-2),

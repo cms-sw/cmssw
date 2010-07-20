@@ -1,11 +1,17 @@
 #include <sstream>
+#include <KeySymbols.h>
 
 #include "TGLIncludes.h"
+#include "TROOT.h"
+#include "TColor.h"
+#include "TGLUtil.h"
 #include "TGLCamera.h"
 #include "TGLRnrCtx.h"
 #include "TGLSelectRecord.h"
 #include "TGLViewerBase.h"
+#include "TObjString.h"
 #include "TGLViewer.h"
+#include "TMath.h"
 #include "TImage.h"
 
 #include "Fireworks/Core/interface/CmsAnnotation.h"

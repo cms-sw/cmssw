@@ -1,10 +1,7 @@
 #include "EventFilter/EcalRawToDigi/interface/DCCDataUnpacker.h"
 #include "EventFilter/EcalRawToDigi/interface/DCCEBEventBlock.h"
 #include "EventFilter/EcalRawToDigi/interface/DCCEEEventBlock.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
-#include "EventFilter/EcalRawToDigi/interface/EcalElectronicsMapper.h"
-#include <set>
+
 
 bool DCCDataUnpacker::silentMode_ = false;
 
@@ -49,68 +46,4 @@ void DCCDataUnpacker::unpack(uint64_t * buffer, uint bufferSize, uint smId, uint
 DCCDataUnpacker::~DCCDataUnpacker(){
   delete ebEventBlock_;
   delete eeEventBlock_;
-}
-
-uint16_t DCCDataUnpacker::getChannelStatus(const DetId& id) const
-{
-  // return code for situation of missing channel record
-  // equal to "non responding isolated channel (dead of type other)":
-  //   https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideEcalRecoLocalReco#Treatment_of_problematic_channel
-  // TODO: think on a better way how to cover this case
-  const uint16_t NO_DATA = 11;
-  
-  if (chdb_ == 0) {
-    edm::LogError("IncorrectMapping")
-      << "ECAL channel status database do not initialized";
-    return NO_DATA;
-  }
-  
-  EcalChannelStatus::const_iterator pCh = chdb_->find(id);
-  
-  if (pCh != chdb_->end()) {
-    return pCh->getStatusCode();
-  }
-  else {
-    edm::LogError("IncorrectMapping")
-      << "No channel status record found for detit = " << id.rawId();
-    return NO_DATA;
-  }
-}
-
-uint16_t DCCDataUnpacker::getChannelValue(const DetId& id) const
-{
-  return getChannelStatus(id) & 0x1F;
-}
-
-uint16_t DCCDataUnpacker::getChannelValue(const int fed, const int ccu, const int strip, const int xtal) const
-{
-  // conversion FED ID [601 - 654] -> DCC ID [1 - 54]
-  const int dcc = electronicsMapper_->getSMId(fed);
-  
-  // convert (dcc, ccu, strip, xtal) -> DetId
-  const EcalElectronicsId eid(dcc, ccu, strip, xtal);
-  const DetId id = electronicsMapper_->mapping()->getDetId(eid);
-  
-  return getChannelStatus(id) & 0x1F;
-}
-
-uint16_t DCCDataUnpacker::getCCUValue(const int fed, const int ccu) const
-{
-  // get list of crystals (DetId) which correspond to given CCU
-  const int dcc = electronicsMapper_->getSMId(fed);
-  const std::vector<DetId> xtals = electronicsMapper_->mapping()->dccTowerConstituents(dcc, ccu);
-  
-  // collect set of status codes of given CCU
-  std::set<uint16_t> set;
-  for (size_t i = 0; i < xtals.size(); ++i) {
-    const uint16_t val = getChannelValue(xtals[i]);
-    set.insert(val);
-  }
-  
-  // if all crystals in CCU have the same status
-  // then this status is treated as CCU status
-  if (set.size() == 1) return *set.begin();
-  
-  // if there are several statuses:
-  return 0;
 }

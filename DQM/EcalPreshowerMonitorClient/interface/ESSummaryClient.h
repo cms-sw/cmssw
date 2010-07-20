@@ -10,9 +10,6 @@
 
 class MonitorElement;
 class DQMStore;
-class ESCondDBInterface;
-class RunIOV;
-class ESMonRunIOV;
 
 class ESSummaryClient : public ESClient {
 
@@ -28,8 +25,8 @@ class ESSummaryClient : public ESClient {
       void analyze(void);
 
       /// BeginJob
-      //  void beginJob(DQMStore* dqmStore);
-      void beginJob(void);
+      void beginJob(DQMStore* dqmStore);
+
       /// EndJob
       void endJob(void);
 
@@ -47,9 +44,6 @@ class ESSummaryClient : public ESClient {
 
       /// SoftReset
       void softReset(bool flag);
-
-    ///  writeDb
-      void writeDb(ESCondDBInterface* econn, RunIOV* runiov, ESMonRunIOV* moniov, int side);
 
       /// Get Functions
       inline int getEvtPerJob() { return ievt_; }

@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 13:27:29 EST 2008
-// $Id: FWEventItemsManager.h,v 1.15 2010/01/30 18:53:40 chrjones Exp $
+// $Id: FWEventItemsManager.h,v 1.14 2009/01/23 21:35:41 amraktad Exp $
 //
 
 // system include files
@@ -69,6 +69,7 @@ public:
    void clearItems();
 
    void newEvent(const fwlite::Event* iEvent);
+   void setGeom(const DetIdToMatrix* geom);
 
    void setContext(fireworks::Context*);
 
@@ -87,6 +88,7 @@ private:
    fireworks::Context* m_context;
 
    const fwlite::Event* m_event;
+   const DetIdToMatrix *m_geom;
    boost::shared_ptr<FWItemAccessorFactory> m_accessorFactory;
 };
 
