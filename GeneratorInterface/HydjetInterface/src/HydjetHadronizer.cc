@@ -1,5 +1,5 @@
 /*
- * $Id: HydjetHadronizer.cc,v 1.7 2009/09/18 13:30:23 yilmaz Exp $
+ * $Id: HydjetHadronizer.cc,v 1.8 2009/09/21 09:36:56 loizides Exp $
  *
  * Interface to the HYDJET generator, produces HepMC events
  *
@@ -60,6 +60,7 @@ HydjetHadronizer::HydjetHadronizer(const ParameterSet &pset) :
     bmax_(pset.getParameter<double>("bMax")),
     bmin_(pset.getParameter<double>("bMin")),
     cflag_(pset.getParameter<int>("cFlag")),
+    embedding_(pset.getParameter<bool>("embeddingMode")),
     comenergy(pset.getParameter<double>("comEnergy")),
     doradiativeenloss_(pset.getParameter<bool>("doRadiativeEnLoss")),
     docollisionalenloss_(pset.getParameter<bool>("doCollisionalEnLoss")),
@@ -95,6 +96,9 @@ HydjetHadronizer::HydjetHadronizer(const ParameterSet &pset) :
   //Max number of events printed on verbosity level 
   maxEventsToPrint_ = pset.getUntrackedParameter<int>("maxEventsToPrint",0);
   LogDebug("Events2Print") << "Number of events to be printed = " << maxEventsToPrint_;
+
+  if(embedding_) src_ = pset.getParameter<edm::InputTag>("backgroundLabel");
+  
 }
 
 
@@ -181,9 +185,24 @@ HepMC::GenVertex* HydjetHadronizer::build_hyjet_vertex(int i,int id)
 bool HydjetHadronizer::generatePartonsAndHadronize()
 {
    Pythia6Service::InstanceWrapper guard(pythia6Service_);
-
+   
    // generate single event
-   if(rotate_) rotateEvtPlane();
+   if(embedding_){
+     cflag_ = 0;
+     const edm::Event& e = getEDMEvent();
+     Handle<HepMCProduct> input;
+     e.getByLabel(src_,input);
+     const HepMC::GenEvent * inev = input->GetEvent();
+     const HepMC::HeavyIon* hi = inev->heavy_ion();
+    if(hi){
+       bfixed_ = hi->impact_parameter();
+       phi0_ = hi->event_plane_angle();
+       sinphi0_ = sin(phi0_);
+       cosphi0_ = cos(phi0_);
+     }else{
+       LogWarning("EventEmbedding")<<"Background event does not have heavy ion record!";
+     }
+   }else if(rotate_) rotateEvtPlane();
 
    nsoft_    = 0;
    nhard_    = 0;

@@ -9,7 +9,7 @@ hydjetDefaultParameters = cms.PSet(
                         nMultiplicity = cms.int32(26000),
 
                         hydjetMode = cms.string('kHydroQJets'),
-
+                        embeddingMode = cms.bool(False),
                         # Valid entries:
                         # kHydroOnly  //jet production off (pure HYDRO event): nhsel=0
                         # kHydroJets  //jet production on, jet quenching off (HYDRO+njet*PYTHIA events):nhsel=1

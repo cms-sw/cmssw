@@ -1,7 +1,7 @@
 #ifndef HydjetHadronizer_h
 #define HydjetHadronizer_h
 
-// $Id: HydjetHadronizer.h,v 1.5 2009/09/18 13:30:23 yilmaz Exp $
+// $Id: HydjetHadronizer.h,v 1.6 2009/09/21 09:36:56 loizides Exp $
 
 /** \class HydjetHadronizer
 *
@@ -70,6 +70,7 @@ namespace gen
     int                cflag_;                 // centrality flag 
                                                // =  0 fixed impact param, 
                                                // <> 0 between bmin and bmax
+    bool             embedding_;               // Switch for embedding mode
     double             comenergy;              // collision energy   
     bool               doradiativeenloss_;     //! DEFAULT = true
     bool               docollisionalenloss_;   //! DEFAULT = true   
@@ -113,6 +114,7 @@ namespace gen
                                                // DEFAULT= 58 mb
 
     Pythia6Service* pythia6Service_;
+    edm::InputTag   src_;
   };
 
   double HydjetHadronizer::nuclear_radius() const
