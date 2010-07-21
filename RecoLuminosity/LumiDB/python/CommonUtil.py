@@ -92,6 +92,15 @@ def unpackLumiid(i):
     """
     j=unpack(i)
     return {'run':j[0],'lumisection':j[1]}
+def inclusiveRange(start,stop,step):
+    """return range including the stop value
+    """
+    v=start
+    while v<stop:
+        yield v
+        v+=step
+    if v>=stop:
+        yield stop
 
 if __name__=='__main__':
     a=[1,2,3,4,5]
@@ -103,4 +112,4 @@ if __name__=='__main__':
     seqbag=[[1,2,3],[1,3,3],[1,4,6],[4,5,6,7],[8,9]]
     print 'before ',seqbag
     print 'after ',transposed(seqbag,None)
-    
+    print [i for i in inclusiveRange(1,3,1)]
