@@ -210,7 +210,8 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
   makeProduces( alias, jetCollInstanceName_ );
 
   if ( doRhoFastjet_ ) {
-    doFastJetNonUniform_ = iConfig.getParameter<bool>   ("doFastJetNonUniform");
+    doFastJetNonUniform_ = false;
+    if(iConfig.exists("doFastJetNonUniform")) doFastJetNonUniform_ = iConfig.getParameter<bool>   ("doFastJetNonUniform");
     if(doFastJetNonUniform_){
       puCenters_ = iConfig.getParameter<std::vector<double> >("puCenters");
       puWidth_ = iConfig.getParameter<double>("puWidth");
@@ -482,6 +483,7 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
       sigmas->reserve(nEta);
       fastjet::ClusterSequenceArea const * clusterSequenceWithArea =
 	dynamic_cast<fastjet::ClusterSequenceArea const *> ( &*fjClusterSeq_ );
+
       for(int ie = 0; ie < nEta; ++ie){
 	double eta = puCenters_[ie];
 	double rho = 0;
@@ -492,9 +494,9 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
 	clusterSequenceWithArea->get_median_rho_and_sigma(range_rho, true, rho, sigma);
 	rhos->push_back(rho);
 	sigmas->push_back(sigma);
-	iEvent.put(rhos,"rhos");
-	iEvent.put(sigmas,"sigmas");
       }
+      iEvent.put(rhos,"rhos");
+      iEvent.put(sigmas,"sigmas");
     }else{
       std::auto_ptr<double> rho(new double(0.0));
       std::auto_ptr<double> sigma(new double(0.0));
