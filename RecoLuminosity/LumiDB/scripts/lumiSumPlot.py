@@ -4,13 +4,6 @@ import os,sys,datetime
 import coral
 from RecoLuminosity.LumiDB import lumiTime,argparse,nameDealer,selectionParser,hltTrgSeedMapper,connectstrParser,cacheconfigParser,matplotRender,lumiQueryAPI,inputFilesetParser
 from matplotlib.figure import Figure
-#def findInList(mylist,element):
-#    pos=-1
-#    try:
-#        pos=mylist.index(element)
-#    except ValueError:
-#        pos=-1
-#    return pos!=-1
 class constants(object):
     def __init__(self):
         self.NORM=1.0
@@ -112,7 +105,7 @@ def main():
     parser.add_argument('--interactive',dest='interactive',action='store_true',help='graphical mode to draw plot in a TK pannel.')
     parser.add_argument('-timeformat',dest='timeformat',action='store',help='specific python timeformat string (optional).  Default mm/dd/yy hh:min:ss.00')
     parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',help='specific path to site-local-config.xml file, default to $CMS_PATH/SITECONF/local/JobConfig, if path undefined, fallback to cern proxy&server')
-    parser.add_argument('action',choices=['run','fill','time'],help='x-axis data type of choice')
+    parser.add_argument('action',choices=['run','fill','time','perday'],help='x-axis data type of choice')
     #graphical mode options
     parser.add_argument('--verbose',dest='verbose',action='store_true',help='verbose mode, print result also to screen')
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
@@ -235,7 +228,7 @@ def main():
             if fillDict.has_key(fill): #fill exists
                 for run in fillDict[fill]:
                     runList.append(run)
-    elif args.action == 'time':
+    elif args.action == 'time' or args.action == 'perday':
         session.transaction().start(True)
         t=lumiTime.lumiTime()
         minTime=t.StrToDatetime(args.begin,timeformat)
@@ -287,7 +280,7 @@ def main():
             ydata['Delivered'].append(lumiDict[run][0])
             ydata['Recorded'].append(lumiDict[run][1])
         m.plotSumX_Fill(xdata,ydata,fillDict)
-    elif args.action == 'time':
+    elif args.action == 'time' or args.action == 'perday':
         lumiDict={}
         lumiDict=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath,beamstatus='STABLE BEAMS',beamenergy=3.5e3,beamenergyfluctuation=0.09)
         xdata=runDict        
@@ -299,9 +292,10 @@ def main():
         for run in keylist:
             ydata['Delivered'].append(lumiDict[run][0])
             ydata['Recorded'].append(lumiDict[run][1])
-        #print 'xdata ',xdata
-        #print 'ydata ',ydata
-        m.plotSumX_Time(xdata,ydata,minTime,maxTime)
+        if args.action == 'time':
+            m.plotSumX_Time(xdata,ydata,minTime,maxTime)
+        if args.action == 'perday':
+            m.plotPerdayX_Time(xdata,ydata,minTime,maxTime)
     else:
         raise Exception,'must specify the type of x-axi'
 
