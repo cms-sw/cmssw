@@ -814,16 +814,12 @@ namespace edm {
       // indent a bit
       os << "  " << i->first << ": " << i->second << std::endl;
     }
-    os << "}";
-    os << "{" << std::endl;
     for(psettable::const_iterator i = psetTable_.begin(), e = psetTable_.end(); i != e; ++i) {
       // indent a bit
       std::string n = i->first;
       ParameterSetEntry const& pe = i->second;
       os << "  " << n << ": " << pe <<  std::endl;
     }
-    os << "}";
-    os << "{" << std::endl;
     for(vpsettable::const_iterator i = vpsetTable_.begin(), e = vpsetTable_.end(); i != e; ++i) {
       // indent a bit
       std::string n = i->first;

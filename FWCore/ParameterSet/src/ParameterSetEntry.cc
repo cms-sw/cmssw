@@ -86,9 +86,8 @@ namespace edm {
   }
 
   std::ostream & operator<<(std::ostream & os, ParameterSetEntry const& psetEntry) {
-    os << "cms.";
-    if(!psetEntry.isTracked()) os << "untracked.";
-    os << "PSet(" << psetEntry.pset() << ")";
+     const char* trackiness = (psetEntry.isTracked()?"tracked":"untracked");
+    os << "PSet "<<trackiness<<" = ("<< psetEntry.pset() << ")";
     return os;
   }
 }

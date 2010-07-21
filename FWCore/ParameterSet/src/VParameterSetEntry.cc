@@ -90,7 +90,7 @@ namespace edm {
 
   std::ostream & operator<<(std::ostream & os, VParameterSetEntry const& vpsetEntry) {
     std::vector<ParameterSet> const& vps = vpsetEntry.vpset();
-    os << "{" << std::endl;
+    os << "VPSet "<<(vpsetEntry.isTracked()?"tracked":"untracked")<<" = ({" << std::endl;
     std::string start;
     std::string const between(",\n");
     for(std::vector<ParameterSet>::const_iterator i = vps.begin(), e = vps.end(); i != e; ++i) {
@@ -100,7 +100,7 @@ namespace edm {
     if (!vps.empty()) {
       os << std::endl;
     }
-    os << "}";
+    os << "})";
     return os;
   }
 }
