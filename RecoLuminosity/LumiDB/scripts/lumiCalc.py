@@ -11,6 +11,7 @@ class constants(object):
         self.NBX=3564
         self.BEAMMODE='stable' #possible choices stable,quiet,either
         self.VERBOSE=False
+        self.NOWARNING=False
     def defaultfrontierConfigString(self):
         return """<frontier-connect><proxy url="http://cmst0frontier.cern.ch:3128"/><proxy url="http://cmst0frontier.cern.ch:3128"/><proxy url="http://cmst0frontier1.cern.ch:3128"/><proxy url="http://cmst0frontier2.cern.ch:3128"/><server url="http://cmsfrontier.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier1.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier2.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier3.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier4.cern.ch:8000/FrontierInt"/></frontier-connect>"""
     
@@ -246,6 +247,12 @@ def recordedLumiForRun(dbsession,c,runnum,lslist=[-1]):
                 lumidata[1][hpath].append(trgprescalemap[bitn])                
         #filter selected cmsls
         lumidata[2]=filterDeadtable(deadtable,lslist)
+        if not c.NOWARNING:
+            for l,deaddata in lumidata[2].items():
+                if deaddata[1]==0.0:
+                    print '[Warning] : run:ls has 0 instlumi ',str(runnum)+':'+str(l)
+                if deaddata[2]==0 or deaddata[0]==0:
+                    print '[Warning] : run:ls has 0 deadtime and/or 0 zerobias bit counts ',str(runnum)+':'+str(l)
         #print 'lumidata[2] ',lumidata[2]
     except Exception,e:
         print str(e)
@@ -647,6 +654,7 @@ def main():
     parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',help='specific path to site-local-config.xml file, default to $CMS_PATH/SITECONF/local/JobConfig, if path undefined, fallback to cern proxy&server')
     parser.add_argument('action',choices=['overview','delivered','recorded','lumibyls'],help='command actions')
     parser.add_argument('--verbose',dest='verbose',action='store_true',help='verbose mode for printing' )
+    parser.add_argument('--nowarning',dest='nowarning',action='store_true',help='supress bad for lumi warnings' )
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
     # parse arguments
     args=parser.parse_args()
@@ -687,6 +695,8 @@ def main():
     beammode='stable'
     if args.verbose :
         c.VERBOSE=True
+    if args.nowarning :
+        c.NOWARNING=True
     if args.authpath and len(args.authpath)!=0:
         os.environ['CORAL_AUTH_PATH']=args.authpath
     if args.normfactor:
