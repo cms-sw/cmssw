@@ -1,5 +1,11 @@
 #!/bin/tcsh
 
+#Check for correct number of arguments
+if ($#argv<2) then
+    echo "Script needs 2 arguments for comparison"
+    exit
+endif
+
 #Check to see if the CMS environment is set up
 if ($?CMSSW_BASE != 1) then
     echo "CMS environment not set up"
@@ -10,12 +16,6 @@ set val_rel=$1
 set ref_rel=$2
 set cur_dir=`pwd`
 set finaldir=$CMSSW_VERSION
-
-mv TTbar_MC/DQM_V0001_R000000001__POG__BTAG__BJET.root      BTagRelVal_TTbar_MC_${val_rel}.root
-mv TTbar_Startup/DQM_V0001_R000000001__POG__BTAG__BJET.root BTagRelVal_TTbar_Startup_${val_rel}.root
-mv TTbar_FastSim/DQM_V0001_R000000001__POG__BTAG__BJET.root BTagRelVal_TTbar_FastSim_${val_rel}.root
-mv QCD_MC/DQM_V0001_R000000001__POG__BTAG__BJET.root        BTagRelVal_QCD_MC_${val_rel}.root
-mv QCD_Startup/DQM_V0001_R000000001__POG__BTAG__BJET.root   BTagRelVal_QCD_Startup_${val_rel}.root
 
 mkdir TTbar_${val_rel}_vs_${ref_rel}_MC
 mkdir TTbar_${val_rel}_vs_${ref_rel}_Startup
