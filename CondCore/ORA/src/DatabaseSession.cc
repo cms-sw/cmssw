@@ -11,6 +11,7 @@
 #include "MappingRules.h"
 #include "DatabaseUtilitySession.h"
 // externals
+#include "RelationalAccess/IConnectionServiceConfiguration.h"
 #include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/ITransaction.h"
 
@@ -48,6 +49,8 @@ ora::DatabaseSession::DatabaseSession():
   m_transactionCache(),
   m_containerUpdateTable(),
   m_configuration(){
+  // for the private connection pool does not make sense to have a real pool... 
+  m_connectionPool->configuration().setConnectionTimeOut(0);
 }
 
 ora::DatabaseSession::DatabaseSession(boost::shared_ptr<ConnectionPool>& connectionPool ):

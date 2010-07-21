@@ -27,7 +27,8 @@ namespace ora {
         m_localElement(),
         m_query(),
         m_arrayHandler(),
-        m_dataReader(){
+        m_dataReader(),
+        m_oid(-1){
       }
 
       ~QVReader(){
@@ -142,7 +143,8 @@ namespace ora {
           throwException("The reader has not been built.",
                          "QVReader::select");
         }
-        
+
+        m_oid = fullId[0];
         m_recordId.clear();
         for(size_t i=1;i<fullId.size();i++) {
           m_recordId.push_back( fullId[i] );
@@ -153,7 +155,6 @@ namespace ora {
         coral::AttributeList& whereData = m_query->whereData();
         whereData[ m_mappingElement.pkColumn() ].data<int>() = fullId[0];
         m_query->execute();
-        m_dataReader->select( fullId[0] );
       }
       
       void select( const std::vector<int>& fullId, const Selection& selection ){
@@ -162,6 +163,7 @@ namespace ora {
                          "QVReader::select");
         }
         
+        m_oid = fullId[0];
         m_recordId.clear();
         for(size_t i=1;i<fullId.size();i++) {
           m_recordId.push_back( fullId[i] );
@@ -175,7 +177,6 @@ namespace ora {
         setQueryCondition( *m_query, selection, m_mappingElement );
         
         m_query->execute();
-        m_dataReader->select( fullId[0] );
       }
 
       size_t selectionCount( const std::vector<int>& fullId, const Selection& selection ){
@@ -243,6 +244,7 @@ namespace ora {
           *(size_t*)positionData = (size_t)(row[m_mappingElement.posColumn()].data<int>());
     
           m_dataReader->setRecordId( m_recordId );
+          m_dataReader->select( m_oid );
           m_dataReader->read( containerData );
 
           size_t prevSize = m_arrayHandler->size( address );
@@ -270,6 +272,7 @@ namespace ora {
       std::auto_ptr<SelectOperation> m_query;
       std::auto_ptr<IArrayHandler> m_arrayHandler;
       std::auto_ptr<IRelationalReader> m_dataReader;
+      int m_oid;
   };  
 
   class RelationalVectorLoader: public IVectorLoader {

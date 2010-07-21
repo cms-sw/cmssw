@@ -47,7 +47,7 @@ int main(){
     if( *ar0 != a0 ){
       ora::throwException( "Data read on oid0 different from expected.","testORA_3");
     } else {
-      std::cout << "Data read on oid="<<oid0<<" is correct."<<std::endl;
+      std::cout << "**** Data read on oid="<<oid0<<" is correct."<<std::endl;
     }
     r0.destruct();
     ora::OId foid1( contH0.id(), oid1 );
@@ -56,7 +56,7 @@ int main(){
     if( *ar1 != a1 ){
       ora::throwException( "Data read on oid1 different from expected.","testORA_3");
     } else {
-      std::cout << "Data read on oid="<<oid1<<" is correct."<<std::endl;
+      std::cout << "**** Data read on oid="<<oid1<<" is correct."<<std::endl;
     }
     r1.destruct();
     trans0.commit();
