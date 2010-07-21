@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GEOM")
-process.load("Geometry.HcalTestBeamData.TB2007GeometryXML_cfi")
+process.load("Geometry.HcalTestBeamData.TB2010GeometryXML_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('*'),

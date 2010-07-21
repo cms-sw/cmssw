@@ -44,6 +44,10 @@
 </RotationSection>
 
 <LogicalPartSection label="TBHcal.xml">
+ <LogicalPart name="OTBHCal" category="unspecified">
+  <rSolid name="TBHCal"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
  <LogicalPart name="TBHCal" category="unspecified">
   <rSolid name="TBHCal"/>
   <rMaterial name="materials:Air"/>
@@ -59,6 +63,10 @@
 </LogicalPartSection>
 
 <PosPartSection label="TBHcal.xml">
+ <PosPart copyNumber="1">
+   <rParent name="TBHcal:OTBHCal"/>
+   <rChild name="TBHcal:TBHCal"/>
+ </PosPart>
  <PosPart copyNumber="1">
    <rParent name="TBHcal:TBHCal"/>
    <rChild name="TBHcal:Calo"/>
