@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.44 2010/06/23 08:37:36 babar Exp $
+# $Id: InjectWorker.pl,v 1.45 2010/07/16 14:14:15 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -655,7 +655,7 @@ sub sig_child {
 sub got_log_line {
     my ( $kernel, $session, $heap, $line, $wheelID ) =
       @_[ KERNEL, SESSION, HEAP, ARG0, ARG1 ];
-    my $file = $heap->{watchlist}{$wheelID};
+    my $file = $heap->{watchlist}->{$wheelID};
     $kernel->post( 'logger', debug => "In $file, got line: $line" );
     if ( $line =~ /(?:(insert|close)File)/i ) {
         $kernel->yield( parse_line => $1 => $line );
@@ -735,7 +735,7 @@ sub got_end_of_lumi {
 
 sub got_log_rollover {
     my ( $kernel, $heap, $wheelID ) = @_[ KERNEL, HEAP, ARG0 ];
-    my $file = $heap->{watchlist}{$wheelID};
+    my $file = $heap->{watchlist}->{$wheelID};
     $kernel->post( 'logger', info => "$file rolled over" );
 }
 
@@ -743,8 +743,8 @@ sub got_log_rollover {
 sub read_changes {
     my ( $kernel, $heap, $file ) = @_[ KERNEL, HEAP, ARG0 ];
 
-    return if $heap->{watchlist}{$file};    # File is already monitored
-    my $seek = $heap->{offsets}{$file} || 0;
+    return if $heap->{watchlist}->{$file};    # File is already monitored
+    my $seek = $heap->{offsets}->{$file} || 0;
     my $size = ( stat $file )[7];
     if ( $seek > $size ) {
         $kernel->post( 'logger',
@@ -760,8 +760,8 @@ sub read_changes {
         ResetEvent => "got_log_rollover",
         Seek       => $seek,
     );
-    $heap->{watchlist}{ $wheel->ID } = $file;
-    $heap->{watchlist}{$file} = $wheel;
+    $heap->{watchlist}->{ $wheel->ID } = $file;
+    $heap->{watchlist}->{$file} = $wheel;
 }
 
 # Clean shutdown
@@ -831,16 +831,17 @@ sub save_offsets {
     $kernel->post( 'logger', debug => "Saving offsets" );
     $kernel->alarm( save_offsets => time() + $savedelay );
     for my $tailor ( grep { /^[0-9]+$/ } keys %{ $heap->{watchlist} } ) {
-        my $file   = $heap->{watchlist}{$tailor};
-        my $wheel  = $heap->{watchlist}{$file};
+        my $file   = $heap->{watchlist}->{$tailor};
+        my $wheel  = $heap->{watchlist}->{$file};
         my $offset = $wheel->tell;
-        $heap->{offsets}{$file} = $offset;
+        $heap->{offsets}->{$file} = $offset;
     }
     my $savefile = $logpath . '/offset.txt';
 
     # XXX Use a ReadWrite wheel
     open my $save, '>', $savefile or die "Can't open $savefile: $!";
-    while ( my ( $file, $offset ) = each %{ $heap->{offsets} } ) {
+    for ( my $file = sort keys %{ $heap->{offsets} } ) {
+        my $offset = $heap->{offsets}->{$file};
         $kernel->post( 'logger',
             debug => "Saving session information for $file: $offset" );
         print $save "$file $offset\n";
@@ -869,7 +870,7 @@ sub read_offsets {
                       "File $file has a different size: $offset != $fsize" );
                 $kernel->yield( read_changes => $file );
             }
-            $heap->{offsets}{$file} = $offset;
+            $heap->{offsets}->{$file} = $offset;
             $kernel->post( 'logger',
                 debug => "Setting session information for $file: $offset" );
         }
