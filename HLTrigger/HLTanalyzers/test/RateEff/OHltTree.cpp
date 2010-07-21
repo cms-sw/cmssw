@@ -212,6 +212,7 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
       if (st.BeginsWith("HLT_") || st.BeginsWith("L1_")  || st.BeginsWith("L1Tech_") || st.BeginsWith("AlCa_") || st.BeginsWith("OpenL1_") ) {
 	// Prefixes reserved for Standard HLT&L1	
 	if (map_L1BitOfStandardHLTPath.find(st)->second>0) {
+	  readPrescaleFromFile(st);
 	  if (prescaleResponse(menu,cfg,rc,i)) {
 	    if ( (map_BitOfStandardHLTPath.find(st)->second==1) ) { 
 	      triggerBit[i] = true; 
@@ -312,7 +313,7 @@ int OHltTree::readPrescaleFromFile(TString st)
 
 int OHltTree::readL1PrescaleFromFile(TString st)
 {
-  return 0;
+  return map_RefL1PrescaleOfStandardHLTPath.find(st)->second;
 }
 
 

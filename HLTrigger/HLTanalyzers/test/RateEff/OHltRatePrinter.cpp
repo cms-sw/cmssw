@@ -344,7 +344,9 @@ TString OHltRatePrinter::GetFileName(OHltConfig *cfg, OHltMenu *menu) {
   else menuTag = "hltmenu_";
     
   TString tableFileName = menuTag  + sEnergy + TString("TeV_") + sLumi
-    + TString("_") + cfg->alcaCondition + TString("_") + cfg->versionTag; 
+    + TString("_") 
+    //    + cfg->alcaCondition + TString("_") 
+    + cfg->versionTag; 
   tableFileName.ReplaceAll("+","");
 
   return tableFileName;

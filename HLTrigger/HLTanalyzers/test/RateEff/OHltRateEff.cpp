@@ -90,7 +90,7 @@ int main(int argc, char *argv[]){
     TString hltTableFileName= TString("hlt_DS_Table_") +
 							  sEnergy + "TeV_" +
 							  sLumi + TString("_") +
-							  ocfg->alcaCondition + TString("_") +
+      //							  ocfg->alcaCondition + TString("_") +
 							  ocfg->versionTag;
 // 		printf("About to call printHLTDatasets\n"); //RR
     rprint->printHLTDatasets(ocfg,omenu,hltDatasets,hltTableFileName,3);
@@ -190,10 +190,6 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
 	cout << "N(Lumi Sections) = " << (procs[i]->GetNLumiSections()) << endl;
 	hltDatasets[i].computeRate(scaleddeno);          //SAK -- convert event counts into rates. FOR DATA ONLY
       }
-    else if(cfg->isRealData == 1 && cfg->nL1AcceptsRun > 0) 
-      { 
-        scaleddeno = ((float)deno/(float)cfg->nL1AcceptsRun) * (float)cfg->liveTimeRun;
-      } 
     
     float mu =
       cfg->bunchCrossingTime*cfg->psigmas[i]*cfg->iLumi*(float)cfg->maxFilledBunches

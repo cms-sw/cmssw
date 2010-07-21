@@ -256,10 +256,10 @@ class ConfdbToOpenHLT:
                 thebranches.append('  TBranch        *b_' + thepathname + ';   //!')
                 theaddresses.append('  fChain->SetBranchAddress("' + thepathname + '", &' + thepathname + ', &b_' + thepathname + ');')
                 themaps.append('  fChain->SetBranchAddress("' + thepathname + '", &map_BitOfStandardHLTPath["' + thepathname + '"], &b_' + thepathname + ');')
-                theintprescls.append('  Int_t           ' + thepathname + '_prescl;')
-                thepresclbranches.append('  TBranch        *b_' + thepathname + '_prescl;   //!')
-                theprescladdresses.append('  fChain->SetBranchAddress("' + thepathname + '_prescl", &' + thepathname + '_prescl, &b_' + thepathname + '_prescl);')
-                thepresclmaps.append('  fChain->SetBranchAddress("' + thepathname + '_prescl", &map_RefPrescaleOfStandardHLTPath["' + thepathname + '"], &b_' + thepathname + '_prescl);')
+                theintprescls.append('  Int_t           ' + thepathname + '_Prescl;')
+                thepresclbranches.append('  TBranch        *b_' + thepathname + '_Prescl;   //!')
+                theprescladdresses.append('  fChain->SetBranchAddress("' + thepathname + '_Prescl", &' + thepathname + '_Prescl, &b_' + thepathname + '_Prescl);')
+                thepresclmaps.append('  fChain->SetBranchAddress("' + thepathname + '_Prescl", &map_RefPrescaleOfStandardHLTPath["' + thepathname + '"], &b_' + thepathname + '_Prescl);')
                 
         npaths = len(theconfdbpaths)
         pathcount = 1

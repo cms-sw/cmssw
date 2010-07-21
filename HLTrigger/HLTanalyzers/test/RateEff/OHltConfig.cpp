@@ -14,7 +14,7 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
   nPrintStatusEvery = 10000;
   isRealData= false;
   menuTag = "";
-  alcaCondition = "";
+  //  alcaCondition = "";
   preFilterLogicString = "";
   versionTag = "";
   doPrintAll = true;
@@ -25,8 +25,6 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
   maxFilledBunches = 3564;
   nFilledBunches = 156;
   cmsEnergy = 10.;
-  liveTimeRun = 100.;
-  nL1AcceptsRun = 100;
   // lumiSectionLength = 93.;
   lumiSectionLength = 23.3;
   lumiScaleFactor = 1.0;
@@ -58,7 +56,7 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
     omenu->SetIsRealData(isRealData);     
     cfg.lookupValue("run.menuTag",stmp); menuTag = TString(stmp);
     cfg.lookupValue("run.versionTag",stmp); versionTag = TString(stmp);
-    cfg.lookupValue("run.alcaCondition",stmp); alcaCondition = TString(stmp);
+    //    cfg.lookupValue("run.alcaCondition",stmp); alcaCondition = TString(stmp);
     cfg.lookupValue("run.doPrintAll",doPrintAll);
     cfg.lookupValue("run.dsList",stmp); dsList= TString(stmp);
     cfg.lookupValue("run.doDeterministicPrescale",doDeterministicPrescale);
@@ -75,8 +73,6 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
     /**********************************/
 
     /**** Real data conditions ****/   
-    cfg.lookupValue("data.liveTimeRun",liveTimeRun);
-    cfg.lookupValue("data.nL1AcceptsRun",nL1AcceptsRun); 
     cfg.lookupValue("data.lumiSectionLength",lumiSectionLength);
     cfg.lookupValue("data.lumiScaleFactor",lumiScaleFactor);
     cfg.lookupValue("data.prescaleNormalization",prescaleNormalization);
@@ -307,14 +303,12 @@ void OHltConfig::print()
   cout << "isRealData: " << isRealData << endl;
   if(isRealData == true)
     {
-      cout << "nL1AcceptsRun: " << nL1AcceptsRun << endl;
-      cout << "liveTimeRun: " << liveTimeRun << endl;
       cout << "Time of one LumiSection: " << lumiSectionLength << endl;
       if (fabs(lumiScaleFactor-1.) > 0.001)
 	cout << "Luminosity scaled by: " << lumiScaleFactor << endl;
       cout << "PD prescale factor: " << prescaleNormalization << endl;
     }
-  cout << "alcaCondition: " << alcaCondition << endl;
+  //  cout << "alcaCondition: " << alcaCondition << endl;
   cout << "doPrintAll: " << doPrintAll << endl;
   cout << "doDeterministicPrescale: " << doDeterministicPrescale << endl;
   cout << "preFilterLogicString: " << preFilterLogicString << endl;
