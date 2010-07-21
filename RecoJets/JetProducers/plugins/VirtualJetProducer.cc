@@ -184,7 +184,7 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
   if ( doAreaFastjet_ || doRhoFastjet_ ) {
     // Eta range of jets to be considered for Rho calculation
     // Should be at most (jet acceptance - jet radius)
-    double jetEtaMax=iConfig.getParameter<double>("Jet_EtaMax");
+    double rhoEtaMax=iConfig.getParameter<double>("Rho_EtaMax");
     // default Ghost_EtaMax should be 5
     double ghostEtaMax = iConfig.getParameter<double>("Ghost_EtaMax");
     // default Active_Area_Repeats 1
@@ -194,7 +194,7 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
     fjActiveArea_ =  ActiveAreaSpecPtr(new fastjet::ActiveAreaSpec(ghostEtaMax,
 								   activeAreaRepeats,
 								   ghostArea));
-    fjRangeDef_ = RangeDefPtr( new fastjet::RangeDefinition(jetEtaMax) );
+    fjRangeDef_ = RangeDefPtr( new fastjet::RangeDefinition(rhoEtaMax) );
   } 
 
   // restrict inputs to first "maxInputs" towers?
@@ -209,19 +209,17 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
   // make the "produces" statements
   makeProduces( alias, jetCollInstanceName_ );
 
-  if ( doRhoFastjet_ ) {
-    doFastJetNonUniform_ = false;
-    if(iConfig.exists("doFastJetNonUniform")) doFastJetNonUniform_ = iConfig.getParameter<bool>   ("doFastJetNonUniform");
-    if(doFastJetNonUniform_){
-      puCenters_ = iConfig.getParameter<std::vector<double> >("puCenters");
-      puWidth_ = iConfig.getParameter<double>("puWidth");
-      produces<std::vector<double> >("rhos");
-      produces<std::vector<double> >("sigmas");
-    }else{
-      produces<double>("rho");
-      produces<double>("sigma");
-    }
+  doFastJetNonUniform_ = false;
+  if(iConfig.exists("doFastJetNonUniform")) doFastJetNonUniform_ = iConfig.getParameter<bool>   ("doFastJetNonUniform");
+  if(doFastJetNonUniform_){
+    puCenters_ = iConfig.getParameter<std::vector<double> >("puCenters");
+    puWidth_ = iConfig.getParameter<double>("puWidth");
   }
+  produces<std::vector<double> >("rhos");
+  produces<std::vector<double> >("sigmas");
+  produces<double>("rho");
+  produces<double>("sigma");
+  
 }
 
 //______________________________________________________________________________
