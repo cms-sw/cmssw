@@ -55,14 +55,14 @@ process.source = cms.Source("PoolSource",
 #    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/E2B13F9F-C978-DF11-B42A-003048F0E81E.root',
 #    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/DC224012-C378-DF11-B414-003048CF6334.root',
 #    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/D449BF0F-C378-DF11-AB42-003048F0E81E.root',
-    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/D084A5EF-CA78-DF11-B000-003048F0E186.root',
-    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/C892F555-C378-DF11-919F-003048F0E81E.root',
-    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/C842530C-C378-DF11-BD97-003048CF632E.root',
-    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/C828CC0C-C378-DF11-B72D-003048CF632E.root',
-    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/BE8B579A-C978-DF11-BB94-003048CF6334.root',
-    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/B0A78AFA-BE78-DF11-88A2-003048CF6334.root',
-    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/AC3549F8-BE78-DF11-B07B-003048F0E186.root',
-#    'rfio:/castor/cern.ch/cms/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/FE96AFA9-C678-DF11-9E4C-003048F0E7FC.root'
+#    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/D084A5EF-CA78-DF11-B000-003048F0E186.root',
+#    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/C892F555-C378-DF11-919F-003048F0E81E.root',
+#    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/C842530C-C378-DF11-BD97-003048CF632E.root',
+#    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/C828CC0C-C378-DF11-B72D-003048CF632E.root',
+#    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/BE8B579A-C978-DF11-BB94-003048CF6334.root',
+#    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/B0A78AFA-BE78-DF11-88A2-003048CF6334.root',
+#    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/AC3549F8-BE78-DF11-B07B-003048F0E186.root',
+    'rfio:/castor/cern.ch/cms/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/FE96AFA9-C678-DF11-9E4C-003048F0E7FC.root'
     )
 )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
@@ -279,6 +279,7 @@ process.plotter = cms.EDAnalyzer('WenuPlots',
                                  WENU_VBTFpreseleFileName = cms.untracked.string("WENU_VBTFpreselection.root"),
                                  DatasetTag =  cms.untracked.int32(100),
                                  storeExtraInformation = cms.untracked.bool(True),
+                                 storeAllSecondElectronVariables = cms.untracked.bool(True),
                                  )
 #
 # if you run on data then you have to do misalignment  corrections first!!!
