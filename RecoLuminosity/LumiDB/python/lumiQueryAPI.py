@@ -223,8 +223,8 @@ def lumisumByrun(queryHandle,runnum,lumiversion,beamstatus=None,beamenergy=None,
         queryCondition.extend('beamstatus','string')
         queryCondition['beamstatus'].setData(beamstatus)
     if beamenergy:
-        minBeamenergy=float(beamenergy*(1-beamenergyfluctuation))
-        maxBeamenergy=float(beamenergy*(1+beamenergyfluctuation))
+        minBeamenergy=float(beamenergy*(1.0-beamenergyfluctuation))
+        maxBeamenergy=float(beamenergy*(1.0+beamenergyfluctuation))
         conditionstring=conditionstring+' and BEAMENERGY>:minBeamenergy and BEAMENERGY<:maxBeamenergy'
         queryCondition.extend('minBeamenergy','float')
         queryCondition.extend('maxBeamenergy','float')
