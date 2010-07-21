@@ -654,7 +654,7 @@ def main():
     parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',help='specific path to site-local-config.xml file, default to $CMS_PATH/SITECONF/local/JobConfig, if path undefined, fallback to cern proxy&server')
     parser.add_argument('action',choices=['overview','delivered','recorded','lumibyls'],help='command actions')
     parser.add_argument('--verbose',dest='verbose',action='store_true',help='verbose mode for printing' )
-    parser.add_argument('--nowarning',dest='nowarning',action='store_true',help='supress bad for lumi warnings' )
+    parser.add_argument('--nowarning',dest='nowarning',action='store_true',help='suppress bad for lumi warnings' )
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
     # parse arguments
     args=parser.parse_args()
