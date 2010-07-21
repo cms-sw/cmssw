@@ -1,5 +1,5 @@
 #!/bin/sh
-#$Id: t0notify.sh,v 1.1 2010/06/01 14:33:59 babar Exp $
+#$Id: t0notify.sh,v 1.2 2010/06/21 08:48:22 babar Exp $
 
 . /etc/init.d/functions
 
@@ -71,18 +71,16 @@ start(){
 }
 
 stop(){
-    for pid in `ps ax | grep ${SMT0_NW} | grep -v grep | cut -b1-6 | tr -d " "`; do
-	echo "Attempting to stop worker with pid $pid"
-	kill -s 15 $pid
-    done
+    pkill -15 -f -P 1 -u smpro $SMT0_NW
     rm -f ${SMT0_LOCAL_RUN_DIR}/workdir/`hostname`.*
-    ls /tmp/.2*-`hostname`-*.log.lock 2>/dev/null
+    if [ -f /tmp/.NotifyWorker.lock ]; then
+        echo 'Lockfile is still there!'
+        exit 1
+    fi
 }
 
 status(){
-    for pid in `ps ax | grep ${SMT0_NW} | grep -v grep | cut -b1-6 | tr -d " "`; do
-	echo `/bin/ps $pid | grep $pid`
-    done
+    pgrep -f -P 1 -u smpro $SMT0_NW
 }
 
 cleanup(){
