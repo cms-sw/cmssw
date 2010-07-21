@@ -24,7 +24,11 @@ namespace DDI {
 
 /**
   Navigation through the compact view of the detector ...
+
+Updated: Michael Case [ MEC ] 2010-02-11
+
 */
+//MEC: these comments are kept from original... Will we ever do this? don't think so.
 //FIXME: DDCompactView: check for proper acyclic directed graph structure!!
 //FIXME:
 //FIXME:         X          [A-X] ... LogicalPart
@@ -63,6 +67,16 @@ namespace DDI {
     (expansion of an acyclic directed multigraph into a tree). In the figure there are
     5 different paths from CMS to Module2 (e.g. CMS-Pos1->Ecal-Pos4->EEndcap-Pos21->Module2)
     thus there will be 5 nodes of Module2 in the expanded view.
+
+MEC:
+    There has been a re-purposing of the DDCompactView to not only hold the 
+    representation described above (in detail this is the DDCompactViewImpl)
+    but also own the memory of the stores refered to by the graph.
+
+    DDCompactView now owns the DDMaterial, DDSpecific, DDLogicalPart,
+    DDRotation, DDSolid and etc.  Removal of the global one-and-only 
+    stores, methods and details such as DDRoot will mean that all of
+    these will be accessed via the DDCompactView.
 */
 class DDCompactView
 {
@@ -142,6 +156,8 @@ public:
   graph_type & writeableGraph();
 
   void swap( DDCompactView& );
+
+DDMaterial
 
   void lockdown();
   
