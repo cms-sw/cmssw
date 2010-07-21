@@ -1,5 +1,5 @@
 #!/bin/sh
-#$Id: t0inject.sh,v 1.20 2010/06/21 08:48:22 babar Exp $
+#$Id: t0inject.sh,v 1.21 2010/07/21 09:06:11 babar Exp $
 
 . /etc/init.d/functions
 
@@ -66,13 +66,14 @@ start(){
     mkdir -p ${SMT0_LOCAL_RUN_DIR}/done
     mkdir -p ${SMT0_LOCAL_RUN_DIR}/workdir
 
-    cd ${SMT0_LOCAL_RUN_DIR}/workdir
-
-    export SMIW_RUNNUM=0
-    echo "Starting $SMT0_IW"
-    nohup ${SMT0_IW} ${SMT0_MONDIR} ${SMT0_LOCAL_RUN_DIR}/logs \
-        ${SMT0_CONFIG} > `hostname`.$$ 2>&1 &
-        sleep 1
+    ( # Double-fork
+        cd ${SMT0_LOCAL_RUN_DIR}/workdir
+        export SMIW_RUNNUM=0
+        exec > `hostname`.$$
+        exec 2>&1
+        exec </dev/null
+        ${SMT0_IW} ${SMT0_MONDIR} ${SMT0_LOCAL_RUN_DIR}/logs ${SMT0_CONFIG} &
+    )
 }
 
 stop(){
@@ -98,20 +99,21 @@ cleanup(){
 # See how we were called.
 case "$1" in
     start)
-	start
+        start
         status
-        ;;
+    ;;
     stop)
         stop
-        status
-        ;;
+        test ! status
+    ;;
     status)
         status
-        ;;
+    ;;
     cleanup)
         cleanup
-        ;;
+    ;;
     *)
         echo $"Usage: $0 {start|stop|status|cleanup}"
         RETVAL=1
+    ;;
 esac

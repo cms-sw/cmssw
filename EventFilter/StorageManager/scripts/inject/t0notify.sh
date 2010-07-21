@@ -1,5 +1,5 @@
 #!/bin/sh
-#$Id: t0notify.sh,v 1.2 2010/06/21 08:48:22 babar Exp $
+#$Id: t0notify.sh,v 1.3 2010/07/21 09:06:11 babar Exp $
 
 . /etc/init.d/functions
 
@@ -62,12 +62,13 @@ start(){
     mkdir -p ${SMT0_LOCAL_RUN_DIR}/done
     mkdir -p ${SMT0_LOCAL_RUN_DIR}/workdir
 
-    cd ${SMT0_LOCAL_RUN_DIR}/workdir
-
-    echo "Starting $SMT0_NW"
-    nohup ${SMT0_NW} ${SMT0_MONDIR} ${SMT0_LOCAL_RUN_DIR}/logs \
-        ${SMT0_CONFIG} > `hostname`.$$ 2>&1 &
-    sleep 1
+    ( # Double-fork
+        cd ${SMT0_LOCAL_RUN_DIR}/workdir
+        exec > `hostname`.$$
+        exec 2>&1
+        exec </dev/null
+        ${SMT0_NW} ${SMT0_MONDIR} ${SMT0_LOCAL_RUN_DIR}/logs ${SMT0_CONFIG} &
+    )
 }
 
 stop(){
@@ -93,20 +94,21 @@ cleanup(){
 # See how we were called.
 case "$1" in
     start)
-	start
+        start
         status
-        ;;
+    ;;
     stop)
         stop
-        status
-        ;;
+        test ! status
+    ;;
     status)
         status
-        ;;
+    ;;
     cleanup)
         cleanup
-        ;;
+    ;;
     *)
         echo $"Usage: $0 {start|stop|status|cleanup}"
         RETVAL=1
+    ;;
 esac
