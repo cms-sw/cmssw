@@ -110,6 +110,7 @@ POE::Session->create(
         get_hlt_key      => \&get_hlt_key,
         get_from_runcond => \&get_from_runcond,
         start_hook       => \&start_hook,
+        next_hook        => \&next_hook,
         hook_result      => \&hook_result,
         hook_error       => \&hook_error,
         hook_done        => \&hook_done,
@@ -128,8 +129,11 @@ POE::Session->create(
         heartbeat        => \&heartbeat,
         setup_lock       => \&setup_lock,
         sig_child        => \&sig_child,
+        _stop            => \&shutdown,
         _default         => \&handle_default,
     },
+
+    #    options  => { trace => 1 },
 );
 
 POE::Kernel->run();
@@ -478,9 +482,10 @@ sub update_db {
     # https://twiki.cern.ch/twiki/bin/view/CMS/SMT0StreamTransferOptions
     my $stream = $args->{STREAM};
     return
-      if ( $stream eq 'EcalCalibration'
-        || $stream =~ '_EcalNFS$' )    #skip EcalCalibration
-      || $stream =~ '_NoTransfer$';    #skip if NoTransfer option is set
+      if !defined $stream
+          || (   $stream eq 'EcalCalibration'
+              || $stream =~ '_EcalNFS$' )    #skip EcalCalibration
+          || $stream =~ '_NoTransfer$';      #skip if NoTransfer option is set
 
     my $errflag = 0;
     my $rows = $heap->{sths}->{$handler}->execute(@bind_params) or $errflag = 1;
@@ -599,7 +604,7 @@ sub close_file {
 
 }
 
-# Creates a new wheel to start the hook
+# Queue the hook
 sub start_hook {
     my ( $kernel, $session, $heap, $args ) = @_[ KERNEL, SESSION, HEAP, ARG0 ];
     my $cmd = $ENV{'SM_HOOKSCRIPT'};
@@ -611,17 +616,32 @@ sub start_hook {
       STREAM TYPE NEVENTS FILESIZE CHECKSUM INSTANCE
       HLTKEY INDEX STARTTIME STOPTIME FILECOUNTER );
     unshift @args, $cmd;
-    $kernel->post( 'logger', debug => "Running hook: " . join( " ", @args ) );
-    my $task = POE::Wheel::Run->new(
-        Program      => sub { system(@args); },
-        StdoutFilter => POE::Filter::Line->new(),
-        StderrFilter => POE::Filter::Line->new(),
-        StdoutEvent  => 'hook_result',
-        StderrEvent  => 'hook_error',
-        CloseEvent   => 'hook_done',
-    );
-    $heap->{task}->{ $task->ID } = $task;
-    $kernel->sig_child( $task->PID, "sig_child" );
+    push @{ $heap->{task_list} }, \@args;
+    $kernel->yield('next_hook');
+}
+
+# Creates a new wheel to start the hook
+sub next_hook {
+    my ( $kernel, $session, $heap, $args ) = @_[ KERNEL, SESSION, HEAP, ARG0 ];
+    while ( keys( %{ $heap->{task} } ) < $maxhooks ) {
+        my $args = shift @{ $heap->{task_list} };
+        last unless defined $args;
+        $kernel->post( 'logger',
+            debug => 'Running hook: ' .
+              keys( %{ $heap->{task} } )
+              . "/$maxhooks): "
+              . join( ' ', @$args ) );
+        my $task = POE::Wheel::Run->new(
+            Program      => sub { system(@args); },
+            StdoutFilter => POE::Filter::Line->new(),
+            StderrFilter => POE::Filter::Line->new(),
+            StdoutEvent  => 'hook_result',
+            StderrEvent  => 'hook_error',
+            CloseEvent   => 'hook_done',
+        );
+        $heap->{task}->{ $task->ID } = $task;
+        $kernel->sig_child( $task->PID, "sig_child" );
+    }
 }
 
 # Catch and display information from the hook's STDOUT.
@@ -641,8 +661,7 @@ sub hook_error {
 sub hook_done {
     my ( $kernel, $heap, $task_id ) = @_[ KERNEL, HEAP, ARG0 ];
     delete $heap->{task}->{$task_id};
-
-    #    $kernel->yield("next_hook"); # For when it will be more clever
+    $kernel->yield("next_hook");    # See if there is something more to be done
 }
 
 # Detect the CHLD signal as each of our children exits.
