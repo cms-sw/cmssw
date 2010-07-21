@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: NotifyWorker.pl,v 1.2 2010/06/21 08:48:22 babar Exp $
+# $Id: NotifyWorker.pl,v 1.3 2010/06/23 08:37:36 babar Exp $
 # --
 # NotifyWoker.pl
 # Monitors a directory, and sends notifications to Tier0
@@ -14,7 +14,6 @@ use Linux::Inotify2;
 use POE qw( Wheel::FollowTail Component::Log4perl );
 use POSIX qw( strftime );
 use File::Basename;
-use DBI;
 use Getopt::Long;
 
 # check arguments
@@ -38,6 +37,7 @@ if ( !-e $config ) {
 }
 
 #########################################################################################
+# Configuration
 chomp( my $host = `hostname -s` );
 my $offsetfile = $logpath . '/notify-offset.txt';
 my $heartbeat = 300;    # Print a heartbeat every 5 minutes
@@ -76,8 +76,12 @@ POE::Session->create(
         shutdown         => \&shutdown,
         heartbeat        => \&heartbeat,
         setup_lock       => \&setup_lock,
+        sig_child        => \&sig_child,
+        _stop            => \&shutdown,
         _default         => \&handle_default,
     },
+
+    #    options  => { trace => 1 },
 );
 
 POE::Kernel->run();
@@ -102,16 +106,20 @@ sub start {
     $kernel->alias_set('notify');
     $heap->{inotify} = new Linux::Inotify2
       or die "Unable to create new inotify object: $!";
-
     $heap->{inotify}
       ->watch( $inpath, IN_MODIFY, $session->postback("watch_hdlr") )
       or die "Unable to watch dir $inpath: $!";
-
     open my $inotify_FH, '<&=', $heap->{inotify}->fileno
       or die "Can't fdopen: $!\n";
     $kernel->select_read( $inotify_FH, "inotify_poll" );
-    $kernel->alarm( save_offsets => time() + 5 );
-    $kernel->call( 'logger', info => "Entering main while loop now" );
+
+    # Save offset files regularly
+    $kernel->alarm( save_offsets => time() + $savedelay );
+
+    # Print a heartbeat regularly
+    $kernel->alarm( heartbeat => time() + $heartbeat );
+
+    $kernel->post( 'logger', info => "Entering main while loop now" );
 }
 
 # lockfile
@@ -132,7 +140,7 @@ sub setup_lock {
 "Error: Lock \"$lockfile\" exists, pid $pid (running: $process). Stale lock file?";
         }
         else {
-            $kernel->call( 'logger',
+            $kernel->post( 'logger',
                 warn => "Warning: Lock \"$lockfile\""
                   . "exists, pid $pid (NOT running). Removing stale lock file?"
             );
@@ -141,7 +149,7 @@ sub setup_lock {
     open my $fh, '>', $lockfile or die "Cannot create $lockfile: $!";
     print $fh "$$\n";    # Fill it with pid
     close $fh;
-    $kernel->call( 'logger', info => "Set lock to $lockfile for $$" );
+    $kernel->post( 'logger', info => "Set lock to $lockfile for $$" );
 
     # Cleanup at the end
     END {
@@ -153,85 +161,77 @@ sub setup_lock {
     };
 }
 
+sub notify_tier0 {
+    my ( $kernel, $heap, $args ) = @_[ KERNEL, HEAP, ARG0 ];
+    my $t0script = $ENV{'SM_NOTIFYSCRIPT'};
+    unless ( defined $t0script ) {
+        $t0script =
+          "/nfshome0/cmsprod/TransferTest/injection/sendNotification.sh";
+    }
+    my $notify = $t0script . ' ' . $args;
+    $kernel->post( 'logger', info => "Notifying Tier0: $notify" );
+
+    # XXX: Use a wheel, or even better, integrate the perl code here
+    system($notify );
+}
+
 # Parse lines like
 #[Some data] INFO closeFile.pl  --FILENAME Data.00133697.0135.Express.storageManager.00.0000.dat --FILECOUNTER 0 --NEVENTS 21 --FILESIZE 1508412 --STARTTIME 1271857503 --STOPTIME 1271857518 --STATUS closed --RUNNUMBER 133697 --LUMISECTION 135 --PATHNAME /store/global//02/closed/ --HOSTNAME srv-C2C06-12 --SETUPLABEL Data --STREAM Express --INSTANCE 0 --SAFETY 0 --APPVERSION CMSSW_3_5_4_onlpatch3_ONLINE --APPNAME CMSSW --TYPE streamer --DEBUGCLOSE 1 --CHECKSUM c8b5a624 --CHECKSUMIND 8912d364
-
 sub parse_line {
-    my ( $kernel, $heap, $line ) = @_[ KERNEL, HEAP, ARG0 ];
+    my ( $kernel, $heap, $line, $postback ) = @_[ KERNEL, HEAP, ARG0, ARG1 ];
     return
       unless $line =~ s/^\[[^\]]*] INFO (?:closeFile|notifyTier0)\.pl //
-    ;                    # Remove [date] INFO notifyTier0.pl
+    ;    # Remove [date] INFO notifyTier0.pl
     $line =~ s/(START|STOP)TIME/${1}_TIME/g;
     $line =~ s/APP(VERSION|NAME)/APP_$1/g;
-    $heap->{args} = $line;
+    $kernel->yield( $postback => $line );
 }
 
 sub got_log_line {
     my ( $kernel, $session, $heap, $line, $wheelID ) =
       @_[ KERNEL, SESSION, HEAP, ARG0, ARG1 ];
-    my $file = $heap->{watchlist}{$wheelID};
-    $kernel->call( 'logger', debug => "In $file, got line: $line" );
+    my $file = $heap->{watchlist}->{$wheelID};
+    $kernel->post( 'logger', debug => "In $file, got line: $line" );
     if ( $line =~ /(?:closeFile|notifyTier0)/i ) {
-        $kernel->call( $session, parse_line => $line );
-        $kernel->call( $session, "notify_tier0" );
+        $kernel->yield( parse_line => $line, "notify_tier0" );
     }
 }
 
 sub got_log_rollover {
     my ( $kernel, $heap, $wheelID ) = @_[ KERNEL, HEAP, ARG0 ];
-    my $file = $heap->{watchlist}{$wheelID};
-    $kernel->call( 'logger', info => "$file rolled over" );
+    my $file = $heap->{watchlist}->{$wheelID};
+    $kernel->post( 'logger', info => "$file rolled over" );
 }
 
 # Create a watcher for a file, if none exist already
 sub read_changes {
     my ( $kernel, $heap, $file ) = @_[ KERNEL, HEAP, ARG0 ];
 
-    return if $heap->{watchlist}{$file};    # File is already monitored
-    my $seek = $heap->{offsets}{$file} || 0;
+    return if $heap->{watchlist}->{$file};    # File is already monitored
+    my $seek = $heap->{offsets}->{$file} || 0;
     my $size = ( stat $file )[7];
     if ( $seek > $size ) {
-        $kernel->call( 'logger',
+        $kernel->post( 'logger',
             warning =>
 "Saved seek ($seek) is greater than current filesize ($size) for $file"
         );
         $seek = 0;
     }
-    $kernel->call( 'logger', info => "Watching $file, starting at $seek" );
+    $kernel->post( 'logger', info => "Watching $file, starting at $seek" );
     my $wheel = POE::Wheel::FollowTail->new(
         Filename   => $file,
         InputEvent => "got_log_line",
         ResetEvent => "got_log_rollover",
         Seek       => $seek,
     );
-    $heap->{watchlist}{ $wheel->ID } = $file;
-    $heap->{watchlist}{$file} = $wheel;
-}
-
-sub notify_tier0 {
-    my ( $kernel, $heap, $session ) = @_[ KERNEL, HEAP, SESSION ];
-    my $t0script = $ENV{'SM_NOTIFYSCRIPT'};
-    if ( !defined $t0script ) {
-        $t0script =
-          "/nfshome0/cmsprod/TransferTest/injection/sendNotification.sh";
-    }
-    my $notify = $t0script . ' ' . $heap->{args};
-    $kernel->call( 'logger', info => "Notifying Tier0: $notify" );
-    system($notify );
+    $heap->{watchlist}->{ $wheel->ID } = $file;
+    $heap->{watchlist}->{$file} = $wheel;
 }
 
 # Clean shutdown
 sub shutdown {
     my ( $kernel, $heap, $session ) = @_[ KERNEL, HEAP, SESSION ];
-    for (qw( insertFile closeFile hltHandle )) {
-        $heap->{$_}->finish;
-    }
-    for ( dbh dbhlt ) {
-        $kernel->call( 'logger', info => "Disconnecting $_" );
-        $heap->{$_}->disconnect
-          or $kernel->call( 'logger',
-            warning => "Disconnection from Oracle $_ failed: $DBI::errstr" );
-    }
+    $kernel->call( $session => 'save_offsets' );
     die "Shutting down!";
 }
 
@@ -244,13 +244,13 @@ sub watch_hdlr {
     # Filter only notify-YYYYMMDD-srv-C2C0x-yy.log files
     return unless $event->name =~ /^notify-\d{8}-$host\.log$/;
     if ( $event->IN_MODIFY ) {
-        $kernel->call( 'logger', debug => "$name was modified\n" );
+        $kernel->post( 'logger', debug => "$name was modified\n" );
         $kernel->yield( read_changes => $name );
     }
     else {
-        $kernel->call( 'logger', warning => "$name is no longer mounted" )
+        $kernel->post( 'logger', warning => "$name is no longer mounted" )
           if $event->IN_UNMOUNT;
-        $kernel->call( 'logger', error => "events for $name have been lost" )
+        $kernel->post( 'logger', error => "events for $name have been lost" )
           if $event->IN_Q_OVERFLOW;
     }
 }
@@ -258,17 +258,21 @@ sub watch_hdlr {
 # Save the offset for each file so processing can be resumed at any time
 sub save_offsets {
     my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
-    $kernel->call( 'logger', debug => "Saving offsets" );
+    $kernel->post( 'logger', debug => "Saving offsets" );
     $kernel->alarm( save_offsets => time() + $savedelay );
     for my $tailor ( grep { /^[0-9]+$/ } keys %{ $heap->{watchlist} } ) {
-        my $file   = $heap->{watchlist}{$tailor};
-        my $wheel  = $heap->{watchlist}{$file};
+        my $file   = $heap->{watchlist}->{$tailor};
+        my $wheel  = $heap->{watchlist}->{$file};
         my $offset = $wheel->tell;
-        $heap->{offsets}{$file} = $offset;
+        $heap->{offsets}->{$file} = $offset;
     }
+
+    # XXX Use a ReadWrite wheel
+    return unless keys %{ $heap->{offsets} };
     open my $save, '>', $offsetfile or die "Can't open $offsetfile: $!";
-    while ( my ( $file, $offset ) = each %{ $heap->{offsets} } ) {
-        $kernel->call( 'logger',
+    for my $file ( sort keys %{ $heap->{offsets} } ) {
+        my $offset = $heap->{offsets}->{$file};
+        $kernel->post( 'logger',
             debug => "Saving session information for $file: $offset" );
         print $save "$file $offset\n";
     }
@@ -279,28 +283,31 @@ sub save_offsets {
 # processing
 sub read_offsets {
     my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
-    return unless -r $offsetfile;
-    $kernel->call( 'logger', debug => "Reading offset file $offsetfile..." );
+    return unless -s $offsetfile;
+    $kernel->post( 'logger', debug => "Reading offset file $offsetfile..." );
+
+# XXX Use a ReadWrite wheel like on
+# http://github.com/bingos/poe/raw/22d59d963996d83a93fcb292c269ffbedd0d0965/docs/small-programs/reading-filehandle.pl
     open my $save, '<', $offsetfile or die "Can't open $offsetfile: $!";
     while (<$save>) {
-        my ( $file, $offset ) = /^(\S+) ([0-9]+)$/;
+        next unless /^(\S+) ([0-9]+)$/;
+        my ( $file, $offset ) = ( $1, $2 );
         if ( -f $file ) {
             my $fsize = ( stat(_) )[7];
             if ( $offset != $fsize ) {
-                $kernel->call( 'logger',
+                $kernel->post( 'logger',
                     debug =>
                       "File $file has a different size: $offset != $fsize" );
                 $kernel->yield( read_changes => $file );
             }
-            $heap->{offsets}{$file} = $offset;
-            $kernel->call( 'logger',
+            $heap->{offsets}->{$file} = $offset;
+            $kernel->post( 'logger',
                 debug => "Setting session information for $file: $offset" );
         }
         else {
-            $kernel->call( 'logger',
-                debug =>
-"Discarding session information for non-existing $file: $offset"
-            );
+            $kernel->post( 'logger',
+                debug => "Discarding session information"
+                  . " for non-existing $file: $offset" );
         }
     }
     close $save;
@@ -309,7 +316,7 @@ sub read_offsets {
 # Print some heartbeat at fixed interval
 sub heartbeat {
     my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
-    $kernel->call( 'logger', info => "Still alive in main loop" );
+    $kernel->post( 'logger', info => "Still alive in main loop" );
     $kernel->alarm( heartbeat => time() + $heartbeat );
 }
 
@@ -319,7 +326,7 @@ sub handle_default {
     print STDERR "WARNING: Session "
       . $_[SESSION]->ID
       . "caught unhandled event $event with (@$args).";
-    $kernel->call( 'logger',
+    $kernel->post( 'logger',
             warning => "Session "
           . $_[SESSION]->ID
           . " caught unhandled event $event with (@$args)." );
