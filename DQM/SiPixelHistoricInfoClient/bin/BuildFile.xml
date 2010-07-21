@@ -1,0 +1,5 @@
+<bin   name="SiPixelHDQMInspector" file="SiPixelHDQMInspector.cc">
+  <use   name="DQM/SiPixelHistoricInfoClient"/>
+  <use   name="DQMServices/Diagnostic"/>
+  <use   name="FWCore/MessageLogger"/>
+</bin>

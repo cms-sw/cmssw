@@ -1,0 +1,13 @@
+<use   name="DataFormats/DetId"/>
+<use   name="DataFormats/EcalDetId"/>
+<use   name="DataFormats/EcalRawData"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="Geometry/EcalMapping"/>
+<use   name="Geometry/CaloTopology"/>
+<use   name="DQMServices/Core"/>
+<use   name="rootcore"/>
+<export>
+  <lib   name="1"/>
+</export>

@@ -1,0 +1,6 @@
+<use   name="SimMuon/Neutron"/>
+<use   name="SimDataFormats/TrackingHit"/>
+<bin   name="RootNeutronTest" file="RootNeutronTest.cpp">
+</bin>
+<bin   name="NeutronReaderTest" file="NeutronReaderTest.cpp">
+</bin>
