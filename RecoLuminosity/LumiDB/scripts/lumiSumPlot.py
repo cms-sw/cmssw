@@ -2,15 +2,15 @@
 VERSION='1.00'
 import os,sys,datetime
 import coral
-from RecoLuminosity.LumiDB import lumiTime,argparse,nameDealer,selectionParser,hltTrgSeedMapper,connectstrParser,cacheconfigParser,matplotRender,lumiQueryAPI
+from RecoLuminosity.LumiDB import lumiTime,argparse,nameDealer,selectionParser,hltTrgSeedMapper,connectstrParser,cacheconfigParser,matplotRender,lumiQueryAPI,inputFilesetParser
 from matplotlib.figure import Figure
-def findInList(mylist,element):
-    pos=-1
-    try:
-        pos=mylist.index(element)
-    except ValueError:
-        pos=-1
-    return pos!=-1
+#def findInList(mylist,element):
+#    pos=-1
+#    try:
+#        pos=mylist.index(element)
+#    except ValueError:
+#        pos=-1
+#    return pos!=-1
 class constants(object):
     def __init__(self):
         self.NORM=1.0
@@ -22,7 +22,7 @@ class constants(object):
         return """<frontier-connect><proxy url="http://cmst0frontier.cern.ch:3128"/><proxy url="http://cmst0frontier.cern.ch:3128"/><proxy url="http://cmst0frontier1.cern.ch:3128"/><proxy url="http://cmst0frontier2.cern.ch:3128"/><server url="http://cmsfrontier.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier1.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier2.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier3.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier4.cern.ch:8000/FrontierInt"/></frontier-connect>"""
 
 
-def getLumiInfoForRuns(dbsession,c,runList,selectionDict,hltpath=''):
+def getLumiInfoForRuns(dbsession,c,runList,selectionDict,hltpath='',beamstatus=None,beamenergy=None,beamenergyfluctuation=0.09):
     '''
     input: runList[runnum], selectionDict{runnum:[ls]}
     output:{runnumber:[delivered,recorded,recorded_hltpath] }
@@ -40,23 +40,23 @@ def getLumiInfoForRuns(dbsession,c,runList,selectionDict,hltpath=''):
             continue
         #print 'looking for run ',runnum
         q=dbsession.nominalSchema().newQuery()
-        totallumi=lumiQueryAPI.lumisumByrun(q,runnum,c.LUMIVERSION) #q1
+        totallumi=lumiQueryAPI.lumisumByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamenergyfluctuation) #q1
         del q
         if not totallumi:
             result[runnum]=[0.0,0.0,0.0]
-            if c.VERBOSE: print 'run ',runnum,' does not exist, skip'
+            if c.VERBOSE: print 'run ',runnum,' does not exist or has no lumi, skip'
             continue
         lumitrginfo={}
         hltinfo={}
         hlttrgmap={}
         q=dbsession.nominalSchema().newQuery()
-        lumitrginfo=lumiQueryAPI.lumisummarytrgbitzeroByrun(q,runnum,c.LUMIVERSION) #q2
+        lumitrginfo=lumiQueryAPI.lumisummarytrgbitzeroByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamenergyfluctuation) #q2
         del q
         if len(lumitrginfo)==0:
             result[runnum]=[0.0,0.0,0.0]
             if c.VERBOSE: print 'request run ',runnum,' has no trigger, skip'
             continue
-        norbits=lumitrginfo[1][1]
+        norbits=lumitrginfo.values()[0][1]
         lslength=t.bunchspace_s*t.nbx*norbits
         delivered=totallumi*lslength
         hlttrgmap={}
@@ -102,18 +102,18 @@ def main():
     parser.add_argument('-P',dest='authpath',action='store',help='path to authentication file')
     parser.add_argument('-n',dest='normfactor',action='store',help='normalization factor (optional, default to 1.0)')
     parser.add_argument('-i',dest='inputfile',action='store',help='lumi range selection file (optional)')
-    parser.add_argument('-o',dest='outputfile',action='store',help='output PNG file (works with batch graphical mode, if not specified, default filename is instlumi.png)')
-    parser.add_argument('-b',dest='beammode',action='store',help='beam mode, optional for delivered action, default "stable", choices "stable","quiet","either"')
+    parser.add_argument('-o',dest='outputfile',action='store',help='csv outputfile name (optional)')
+    parser.add_argument('-b',dest='beammode',action='store',help='beam mode, optional, no default')
     parser.add_argument('-lumiversion',dest='lumiversion',action='store',help='lumi data version, optional for all, default 0001')
     parser.add_argument('-begin',dest='begin',action='store',help='begin value of x-axi (required)')
     parser.add_argument('-end',dest='end',action='store',help='end value of x-axi (optional). Default to the maximum exists DB')
     parser.add_argument('-hltpath',dest='hltpath',action='store',help='specific hltpath to calculate the recorded luminosity. If specified aoverlays the recorded luminosity for the hltpath on the plot')
+    parser.add_argument('-batch',dest='batch',action='store',help='graphical mode to produce PNG file. Specify graphical file here. Default to lumiSum.png')
+    parser.add_argument('--interactive',dest='interactive',action='store_true',help='graphical mode to draw plot in a TK pannel.')
     parser.add_argument('-timeformat',dest='timeformat',action='store',help='specific python timeformat string (optional).  Default mm/dd/yy hh:min:ss.00')
     parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',help='specific path to site-local-config.xml file, default to $CMS_PATH/SITECONF/local/JobConfig, if path undefined, fallback to cern proxy&server')
     parser.add_argument('action',choices=['run','fill','time'],help='x-axis data type of choice')
     #graphical mode options
-    parser.add_argument('--interactive',dest='interactive',action='store_true',help='graphical mode to draw plot in a TK pannel')
-    parser.add_argument('--batch',dest='batch',action='store_true',help='graphical mode to produce PNG file only(default mode). Use -o option to specify the file name')
     parser.add_argument('--verbose',dest='verbose',action='store_true',help='verbose mode, print result also to screen')
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
     # parse arguments
@@ -166,9 +166,11 @@ def main():
         c.BEAMMODE=args.beammode
     if args.verbose:
         c.VERBOSE=True
-    if args.inputfile and len(args.inputfile)!=0:
-        ifilename=args.inputfile        
-    if args.outputfile and len(args.outputfile)!=0:
+    if args.inputfile:
+        ifilename=args.inputfile
+    if args.batch:
+        opicname=args.batch
+    if args.outputfile:
         ofilename=args.outputfile
     if args.timeformat:
         timeformat=args.timeformat
@@ -183,25 +185,49 @@ def main():
     minTime=''
     maxTime=''
 
-    if len(ifilename)!=0 :
-        f=open(ifilename,'r')
-        inputfilecontent=f.read()
-        sparser=selectionParser.selectionParser(inputfilecontent)
-        runsandls=sparser.runsandls()
+    #if len(ifilename)!=0 :
+    #    f=open(ifilename,'r')
+    #    inputfilecontent=f.read()
+    #    sparser=selectionParser.selectionParser(inputfilecontent)
+    #    runsandls=sparser.runsandls()
+    #    keylist=runsandls.keys()
+    #    keylist.sort()
+    #    for run in keylist:
+    #        if selectionDict.has_key(run):
+    #            lslist=runsandls[run]
+    #            lslist.sort()
+    #            selectionDict[run]=lslist
+    if ifilename:
+        ifparser=inputFilesetParser(ifilename)
+        runsandls=ifparser.runsandls()
         keylist=runsandls.keys()
         keylist.sort()
         for run in keylist:
             if selectionDict.has_key(run):
                 lslist=runsandls[run]
                 lslist.sort()
-                selectionDict[run]=lslist                
+                selectionDict[run]=lslist
     if args.action == 'run':
-        for r in range(int(args.begin),int(args.end)+1):
+        if not args.end:
+            session.transaction().start(True)
+            schema=session.nominalSchema()
+            lastrun=max(lumiQueryAPI.allruns(schema,requireRunsummary=True,requireLumisummary=True,requireTrg=True,requireHlt=True))
+            session.transaction().commit()
+        else:
+            lastrun=int(args.end)
+        for r in range(int(args.begin),lastrun+1):
             runList.append(r)
     elif args.action == 'fill':
         session.transaction().start(True)
+        maxfill=None
+        if not args.end:
+            qHandle=session.nominalSchema().newQuery()
+            maxfill=max(allfills(qHandle,filtercrazy=True))
+            del qHandle
+        else:
+            maxfill=int(args.end)
         qHandle=session.nominalSchema().newQuery()
-        fillDict=lumiQueryAPI.runsByfillrange(qHandle,int(args.begin),int(args.end))
+        fillDict=lumiQueryAPI.runsByfillrange(qHandle,int(args.begin),maxfill)
         del qHandle
         session.transaction().commit()
         #print 'fillDict ',fillDict
@@ -214,7 +240,7 @@ def main():
         t=lumiTime.lumiTime()
         minTime=t.StrToDatetime(args.begin,timeformat)
         if not args.end:
-            maxTime=datetime.datetime.now()#to be changed to max in db
+            maxTime=datetime.datetime.now() #to now
         else:
             maxTime=t.StrToDatetime(args.end,timeformat)
         #print minTime,maxTime
@@ -222,20 +248,20 @@ def main():
         runDict=lumiQueryAPI.runsByTimerange(qHandle,minTime,maxTime)#xrawdata
         session.transaction().commit()
         runList=runDict.keys()
-        runList.sort()
         del qHandle
         #print runDict
     else:
         print 'unsupported action ',args.action
         exit
-        
+    runList.sort()
+    #print 'runList ',runList
     #print 'runDict ', runDict               
     fig=Figure(figsize=(7,4),dpi=100)
     m=matplotRender.matplotRender(fig)
     
     if args.action == 'run':
         result={}        
-        result=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath)
+        result=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath,beamstatus='STABLE BEAMS',beamenergy=3.5e3,beamenergyfluctuation=0.09)
         xdata=[]
         ydata={}
         ydata['Delivered']=[]
@@ -249,7 +275,7 @@ def main():
         m.plotSumX_Run(xdata,ydata)
     elif args.action == 'fill':        
         lumiDict={}
-        lumiDict=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath)
+        lumiDict=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath,beamstatus='STABLE BEAMS',beamenergy=3.5e3,beamenergyfluctuation=0.09)
         xdata=[]
         ydata={}
         ydata['Delivered']=[]
@@ -263,7 +289,7 @@ def main():
         m.plotSumX_Fill(xdata,ydata,fillDict)
     elif args.action == 'time':
         lumiDict={}
-        lumiDict=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath)
+        lumiDict=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath,beamstatus='STABLE BEAMS',beamenergy=3.5e3,beamenergyfluctuation=0.09)
         xdata=runDict        
         ydata={}
         ydata['Delivered']=[]
@@ -279,14 +305,12 @@ def main():
     else:
         raise Exception,'must specify the type of x-axi'
 
-    if args.interactive:
-        batchmode=False
-    if not batchmode:
-        m.drawInteractive()
-    else:
-        m.drawPNG(ofilename)
-    
     del session
     del svc
+    if args.batch:
+        m.drawPNG(args.batch)
+    if args.interactive:
+        m.drawInteractive()
+    
 if __name__=='__main__':
     main()

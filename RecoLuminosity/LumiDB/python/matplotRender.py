@@ -31,7 +31,7 @@ matplotlib.rcParams['lines.linewidth']=1.3
 matplotlib.rcParams['grid.linewidth']=0.2
 matplotlib.rcParams['xtick.labelsize']='medium'
 matplotlib.rcParams['ytick.labelsize']='medium'
-matplotlib.rcParams['font.weight']='demibold'
+#matplotlib.rcParams['font.weight']='demibold'
 def myinclusiveRange(start,stop,step):
     v=start
     while v<stop:
@@ -132,34 +132,44 @@ class matplotRender():
         ax.legend(tuple(legendlist),loc='best')
         self.__fig.subplots_adjust(bottom=0.18,left=0.3)
         
-    def plotSumX_Time(self,rawxdata,rawydata,minTime,maxTime,timedeltahours=3):
+    def plotSumX_Time(self,rawxdata,rawydata,minTime,maxTime,nticks=6):
         xpoints=[]
         ypoints={}
         ytotal={}
         xidx=[]
         runs=rawxdata.keys()
         runs.sort()
-        delta=datetime.timedelta(hours=timedeltahours)
-        timesamplers=matplotlib.dates.drange(minTime,maxTime,delta)
+        #delta=datetime.timedelta(hours=timedeltahours)
+        #timesamplers=matplotlib.dates.drange(minTime,maxTime,delta)
         #print 'minTime ordinal ',minTime.toordinal()
         #print 'maxTime ordinal ',maxTime.toordinal()
         #binning in time
-        for lowtime,hightime in CommonUtil.pairwise(timesamplers):
-            if not hightime: break
-            #print 'timesample ',lowtime,hightime
-            runsinslot=[]
-            for run in runs:
-                starttime=rawxdata[run][0]
-                stoptime=rawxdata[run][1]
-                if starttime.toordinal()>=lowtime and stoptime.toordinal()<hightime and stoptime.toordinal()<=maxTime.toordinal():
-                    runsinslot.append(run)
-            if len(runsinslot)==0:
-                continue
-            else:
-                binrepsrun=max(runsinslot)
+        for run in runs:
+            #xpoints.append(rawxdata[run][0].toordinal())
+            xpoints.append(matplotlib.dates.date2num(rawxdata[run][0]))
+            xidx.append(runs.index(run))
+        #print 'runs see by plot',runs
+        #for lowtime,hightime in CommonUtil.pairwise(timesamplers):            
+            #if not hightime: break
+            #print 'timebin ',lowtime,hightime
+            #runsinslot=[]
+            #for run in runs:
+             #   print 'run ',run
+             #   starttime=rawxdata[run][0]
+             #   print 'starttime ',starttime, starttime.toordinal()
+             #   stoptime=rawxdata[run][1]
+             #   print 'stoptime ',stoptime
+             #   if starttime.toordinal()>=lowtime and starttime.toordinal()<hightime and stoptime.toordinal()<=maxTime.toordinal():
+             #       print 'selected run in slot ',run
+             #       runsinslot.append(run)
+            #if len(runsinslot)==0:
+             #   continue
+            #else:
+             #   binrepsrun=max(runsinslot)
                 #print 'max run in bin ',binrepsrun
-                xpoints.append(rawxdata[binrepsrun][0].toordinal())
-                xidx.append(runs.index(binrepsrun))
+              #  xpoints.append(rawxdata[binrepsrun][0].toordinal())
+              #  xidx.append(runs.index(binrepsrun))
+        #print 'xpoints ',xpoints
         for ylabel,yvalue in rawydata.items():
             ypoints[ylabel]=[]
             for i in xidx:
@@ -171,20 +181,23 @@ class matplotRender():
         #print 'ypoints ',ypoints
         ax=self.__fig.add_subplot(111)
         dateFmt=matplotlib.dates.DateFormatter('%d/%m')
-        majourhourLoc=matplotlib.dates.HourLocator(interval=72)
-        minorhourLoc=matplotlib.dates.HourLocator(interval=12)
+        #majourhourLoc=matplotlib.dates.HourLocator(interval=72)
+        #minorhourLoc=matplotlib.dates.HourLocator(interval=12)
+        #majorAutoLoc=matplotlib.dates.AutoDateLocator()
+        majorLoc=matplotlib.ticker.LinearLocator(numticks=nticks)
+        minorLoc=matplotlib.ticker.LinearLocator(numticks=nticks*4)
+        #minorhourLoc=matplotlib.dates.HourLocator(interval=12)
         #dateFmt=matplotlib.dates.AutoDateFormatter(daysLoc)
         ax.xaxis.set_major_formatter(dateFmt)
         ax.set_xlabel(r'Date',position=(0.84,0))
         ax.set_ylabel(r'L nb$^{-1}$',position=(0,0.9))
         #daysLoc=matplotlib.dates.DayLocator(interval=3)
-
         #hoursLoc=matplotlib.dates.HourLocator(interval=3)
-        ax.xaxis.set_major_locator(majourhourLoc)
-        ax.xaxis.set_minor_locator(minorhourLoc)
+        ax.xaxis.set_major_locator(majorLoc)
+        ax.xaxis.set_minor_locator(minorLoc)
         xticklabels=ax.get_xticklabels()
         for tx in xticklabels:
-            tx.set_horizontalalignment('center')
+            tx.set_horizontalalignment('left')
         ax.grid(True)
         keylist=ypoints.keys()
         keylist.sort()
@@ -197,7 +210,7 @@ class matplotRender():
             legendlist.append(ylabel+' '+'%.2f'%(ytotal[ylabel])+' '+'nb$^{-1}$')
         #font=FontProperties(size='medium',weight='demibold')
         ax.legend(tuple(legendlist),loc='best')
-        ax.set_xlim(left=minTime.toordinal(),right=maxTime.toordinal())
+        ax.set_xlim(left=matplotlib.dates.date2num(minTime),right=matplotlib.dates.date2num(maxTime))
         self.__fig.autofmt_xdate(bottom=0.18,rotation=0)
         self.__fig.subplots_adjust(bottom=0.18,left=0.3)
         
