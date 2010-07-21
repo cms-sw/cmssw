@@ -15,7 +15,7 @@
 //
 // Original Author:  Fabian Stoeckli
 //         Created:  Mon Sept 11 10:57:54 CET 2006
-// $Id: MCParticlePairFilter.h,v 1.1 2007/03/28 14:04:44 fabstoec Exp $
+// $Id: MCParticlePairFilter.h,v 1.2 2009/10/13 20:49:14 zgecse Exp $
 //
 //
 
@@ -33,9 +33,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
-using namespace edm;
-using namespace std;
-
 //
 // class decleration
 //
@@ -46,7 +43,7 @@ class MCParticlePairFilter : public edm::EDFilter {
       ~MCParticlePairFilter();
 
 
-      virtual bool filter(Event&, const EventSetup&);
+      virtual bool filter(edm::Event&, const edm::EventSetup&);
    private:
       // ----------memeber function----------------------
        int charge(const int& Id);

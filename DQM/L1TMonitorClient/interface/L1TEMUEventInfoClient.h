@@ -17,8 +17,6 @@
 #include <TH2F.h>
 #include <TProfile2D.h>
 
-using namespace std;
-
 class DQMStore;
 
 class L1TEMUEventInfoClient: public edm::EDAnalyzer {
@@ -58,12 +56,12 @@ protected:
 private:
 
   void initialize();
-  TH1F * get1DHisto(string meName, DQMStore * dbi);
-  TH2F * get2DHisto(string meName, DQMStore * dbi);
-  TProfile2D * get2DProfile(string meName, DQMStore * dbi);
-  TProfile * get1DProfile(string meName, DQMStore * dbi);
+  TH1F * get1DHisto(std::string meName, DQMStore * dbi);
+  TH2F * get2DHisto(std::string meName, DQMStore * dbi);
+  TProfile2D * get2DProfile(std::string meName, DQMStore * dbi);
+  TProfile * get1DProfile(std::string meName, DQMStore * dbi);
   edm::ParameterSet parameters_;
-  string StringToUpper(string strToConvert);
+  std::string StringToUpper(std::string strToConvert);
 
   DQMStore* dbe_;  
   std::string monitorDir_;
@@ -93,8 +91,8 @@ private:
   Float_t reportSummary;
   Float_t summarySum;
   Float_t summaryContent[nsys_];
-  std::vector<string> dataMask;
-  std::vector<string> emulMask;
+  std::vector<std::string> dataMask;
+  std::vector<std::string> emulMask;
   std::string syslabel_   [nsysmon_];
   std::string syslabelext_[nsysmon_];
   bool sysmask_[nsysmon_];

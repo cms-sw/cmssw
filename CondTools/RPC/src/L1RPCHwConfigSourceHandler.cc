@@ -68,25 +68,25 @@ void popcon::L1RPCHwConfigSourceHandler::getNewObjects()
 // look for recent changes
         int difference=1;
         if (m_validate==1) difference=Compare2Configs(payload,disabledDevs);
-        if (!difference) cout<<"No changes - will not write anything!!!"<<endl;
+        if (!difference) std::cout<<"No changes - will not write anything!!!"<<std::endl;
         if (difference==1) {
-          cout<<"Will write new object to offline DB!!!"<<endl;
+          std::cout<<"Will write new object to offline DB!!!"<<std::endl;
           m_to_transfer.push_back(std::make_pair((L1RPCHwConfig*)disabledDevs,snc+1));
         }
 
         std::cout << "L1RPCHwConfigSourceHandler: L1RPCHwConfigSourceHandler::getNewObjects ends\n";
 }
 
-void popcon::L1RPCHwConfigSourceHandler::ConnectOnlineDB(string connect, string authPath)
+void popcon::L1RPCHwConfigSourceHandler::ConnectOnlineDB(std::string connect, std::string authPath)
 {
-  cout << "L1RPCHwConfigSourceHandler: connecting to " << connect << "..." << flush;
+  std::cout << "L1RPCHwConfigSourceHandler: connecting to " << connect << "..." << std::flush;
   connection = new cond::DbConnection() ;
 //  session->configuration().setAuthenticationMethod(cond::XML);
   connection->configuration().setAuthenticationPath( authPath ) ;
   connection->configure();
   session = new cond::DbSession(connection->createSession());
   session->open(connect,true) ;
-  cout << "Done." << endl;
+  std::cout << "Done." << std::endl;
 }
 
 void popcon::L1RPCHwConfigSourceHandler::DisconnectOnlineDB()
@@ -103,7 +103,7 @@ void popcon::L1RPCHwConfigSourceHandler::readHwConfig1()
   coral::ISchema& schema = session->nominalSchema();
   std::string condition="";
   coral::AttributeList conditionData;
-  cout << endl <<"L1RPCHwConfigSourceHandler: start to build L1RPC Hw Config..." << flush << endl << endl;
+  std::cout << std::endl <<"L1RPCHwConfigSourceHandler: start to build L1RPC Hw Config..." << std::flush << std::endl << std::endl;
 
 // get disabled crates and translate into towers/sectors/segments
   coral::IQuery* query1 = schema.newQuery();
@@ -228,9 +228,9 @@ void popcon::L1RPCHwConfigSourceHandler::readHwConfig1()
 
 int popcon::L1RPCHwConfigSourceHandler::Compare2Configs(Ref set1, L1RPCHwConfig* set2)
 {
-  std::cout<<"Size of new object is : "<<flush;
+  std::cout<<"Size of new object is : "<<std::flush;
   std::cout<<set2->size()<<std::endl;
-  std::cout<<"Size of ref object is : "<<flush;
+  std::cout<<"Size of ref object is : "<<std::flush;
   std::cout<<set1->size()<<std::endl;
 
   if (set1->size() != set2->size()) {

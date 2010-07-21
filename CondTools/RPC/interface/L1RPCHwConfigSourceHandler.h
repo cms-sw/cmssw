@@ -32,9 +32,6 @@
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeSpecification.h"
 
-using namespace std;
-using namespace oracle::occi;
-
 namespace popcon
 {
         class L1RPCHwConfigSourceHandler : public popcon::PopConSourceHandler<L1RPCHwConfig>
@@ -45,15 +42,15 @@ namespace popcon
     ~L1RPCHwConfigSourceHandler();
     void getNewObjects();
     std::string id() const {return m_name;}
-    void ConnectOnlineDB(string connect, string authPath);
+    void ConnectOnlineDB(std::string connect, std::string authPath);
     void DisconnectOnlineDB();
     void readHwConfig1();
     int Compare2Configs(Ref set1, L1RPCHwConfig* set2);
 
                 private:
     L1RPCHwConfig * disabledDevs;
-    Environment* env;
-    Connection* conn;
+    oracle::occi::Environment* env;
+    oracle::occi::Connection* conn;
     cond::DbSession * session;
     cond::DbConnection * connection ;
     std::string m_name;

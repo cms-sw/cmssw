@@ -39,7 +39,7 @@ void popcon::RPCEMapSourceHandler::getNewObjects()
   tm * ptm = gmtime(&rawtime);//GMT time
   char buffer[20];
   strftime(buffer,20,"%d/%m/%Y_%H:%M:%S",ptm);
-  string eMap_version=(string)buffer;
+  std::string eMap_version=(std::string)buffer;
 
   eMap =  new RPCEMap(eMap_version);
       if (m_dummy==0) {
@@ -53,25 +53,25 @@ void popcon::RPCEMapSourceHandler::getNewObjects()
 // look for recent changes
         int difference=1;
         if (m_validate==1) difference=Compare2EMaps(payload,eMap);
-        if (!difference) cout<<"No changes - will not write anything!!!"<<endl;
+        if (!difference) std::cout<<"No changes - will not write anything!!!"<<std::endl;
         if (difference==1) {
-          cout<<"Will write new object to offline DB!!!"<<endl;
+          std::cout<<"Will write new object to offline DB!!!"<<std::endl;
           m_to_transfer.push_back(std::make_pair((RPCEMap*)eMap,snc));
         }
 
 //	std::cout << "RPCEMapSourceHandler: RPCEMapSourceHandler::getNewObjects ends\n";
 }
 
-void popcon::RPCEMapSourceHandler::ConnectOnlineDB(string connect, string authPath)
+void popcon::RPCEMapSourceHandler::ConnectOnlineDB(std::string connect, std::string authPath)
 {
-  cout << "RPCEMapConfigSourceHandler: connecting to " << connect << "..." << flush;
+  std::cout << "RPCEMapConfigSourceHandler: connecting to " << connect << "..." << std::flush;
   connection = new cond::DbConnection() ;
 //  session->configuration().setAuthenticationMethod(cond::XML);
   connection->configuration().setAuthenticationPath( authPath ) ;
   connection->configure();
   session = new cond::DbSession(connection->createSession());
   session->open(connect,true) ;
-  cout << "Done." << endl;
+  std::cout << "Done." << std::endl;
 }
 
 void popcon::RPCEMapSourceHandler::DisconnectOnlineDB()
@@ -89,7 +89,7 @@ void popcon::RPCEMapSourceHandler::readEMap1()
   std::string condition="";
   coral::AttributeList conditionData;
 
-  cout << endl <<"RPCEMapSourceHandler: start to build RPC e-Map..." << flush << endl << endl;
+  std::cout << std::endl <<"RPCEMapSourceHandler: start to build RPC e-Map..." << std::flush << std::endl << std::endl;
 
   // Get FEDs
   RPCEMap::dccItem thisDcc;
@@ -100,9 +100,9 @@ void popcon::RPCEMapSourceHandler::readEMap1()
   query1->addToOrderList("FEDNUMBER");
   condition = "DCCBOARD.DCCBOARDID>0";
   query1->setCondition( condition, conditionData );
-//  cout<<"Getting DCCBOARD...";
+//  std::cout<<"Getting DCCBOARD...";
   coral::ICursor& cursor1 = query1->execute();
-  cout<<"OK"<<endl;
+  std::cout<<"OK"<<std::endl;
   std::pair<int,int> tmp_tbl;
   std::vector< std::pair<int,int> > theDAQ;
   while ( cursor1.next() ) {
@@ -162,8 +162,8 @@ void popcon::RPCEMapSourceHandler::readEMap1()
       for(unsigned int iLink=0;iLink<theLink.size();iLink++) {
         int boardId=theLink[iLink].first;
         thisLink.theTriggerBoardInputNumber=theLink[iLink].second;
-        std::vector<std::pair<int,string> > theLB;
-        std::pair<int,string> tmpLB;
+        std::vector<std::pair<int,std::string> > theLB;
+        std::pair<int,std::string> tmpLB;
         // Get master LBs first...
         RPCEMap::lbItem thisLB;
         coral::IQuery* query4 = schema.newQuery();
@@ -357,7 +357,7 @@ void popcon::RPCEMapSourceHandler::readEMap1()
             else if (firstPin == 2 && lastPin == nstrips+2)
               { algo = 0;}
             else
-              { cout<<" Unknown algo : "<<firstPin<<" "<<lastPin<<std::endl; }
+              { std::cout<<" Unknown algo : "<<firstPin<<" "<<lastPin<<std::endl; }
             if ((lastPin-firstPin)*(lastChamberStrip-firstChamberStrip) < 0) algo=algo+4;
             thisFeb.theAlgo=algo+100*firstChamberStrip+10000*nstrips;
             eMap->theFebs.push_back(thisFeb);
@@ -375,26 +375,26 @@ void popcon::RPCEMapSourceHandler::readEMap1()
     std::cout<<"DCC added"<<std::endl;
     eMap->theDccs.push_back(thisDcc);
   }
-  cout << endl <<"Building RPC e-Map done!" << flush << endl << endl;
+  std::cout << std::endl <<"Building RPC e-Map done!" << std::flush << std::endl << std::endl;
 }
 
 int popcon::RPCEMapSourceHandler::Compare2EMaps(Ref map1, RPCEMap* map2) {
   RPCReadOutMapping* oldmap1 = map1->convert();
   RPCReadOutMapping* oldmap2 = map2->convert();
-  vector<const DccSpec *> dccs1 = oldmap1->dccList();
-  vector<const DccSpec *> dccs2 = oldmap2->dccList();
+  std::vector<const DccSpec *> dccs1 = oldmap1->dccList();
+  std::vector<const DccSpec *> dccs2 = oldmap2->dccList();
   if(dccs1.size()!=dccs2.size()) {
     return 1;
   }
-  pair<int,int> dccRange1 = oldmap1->dccNumberRange();
-  pair<int,int> dccRange2 = oldmap2->dccNumberRange();
+  std::pair<int,int> dccRange1 = oldmap1->dccNumberRange();
+  std::pair<int,int> dccRange2 = oldmap2->dccNumberRange();
   if(dccRange1.first!=dccRange2.first) {
     return 1;
   }
   if(dccRange1.second!=dccRange2.second) {
     return 1;
   }
-  typedef vector<const DccSpec *>::const_iterator IDCC;
+  typedef std::vector<const DccSpec *>::const_iterator IDCC;
   IDCC idcc2 = dccs2.begin();
   for (IDCC idcc1 = dccs1.begin(); idcc1 != dccs1.end(); idcc1++) {
     int dccNo = (**idcc1).id();

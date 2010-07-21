@@ -9,7 +9,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotOnlineProducer.h,v 1.4 2010/04/30 22:23:25 vlimant Exp $
+ version $Id: BeamSpotOnlineProducer.h,v 1.5 2010/05/03 09:26:33 vlimant Exp $
 
 ________________________________________________________________**/
 
@@ -18,8 +18,6 @@ ________________________________________________________________**/
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
-using namespace edm;
 
 class BeamSpotOnlineProducer: public edm::EDProducer {
 
@@ -36,7 +34,7 @@ class BeamSpotOnlineProducer: public edm::EDProducer {
 
   private:
 	
-	InputTag scalertag_;
+	edm::InputTag scalertag_;
 	bool changeFrame_;
 	double theMaxZ,theMaxR2,theSetSigmaZ;
 };

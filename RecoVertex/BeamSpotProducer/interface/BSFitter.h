@@ -9,7 +9,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BSFitter.h,v 1.9 2009/12/04 19:59:43 yumiceva Exp $
+ version $Id: BSFitter.h,v 1.10 2010/03/17 20:31:21 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -28,8 +28,6 @@ ________________________________________________________________**/
 // C++ standard
 #include <vector>
 #include <string>
-
-using namespace ROOT::Minuit2;
 
 class BSFitter {
   public:
@@ -109,7 +107,7 @@ class BSFitter {
 	
   private:
 
-	ModularFunctionMinimizer* theFitter;
+	ROOT::Minuit2::ModularFunctionMinimizer* theFitter;
 	//BSzFcn* theGausszFcn;
 	BSpdfsFcn* thePDF;
 	

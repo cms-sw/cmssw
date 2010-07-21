@@ -18,8 +18,6 @@
 #include <TH2F.h>
 #include <TProfile2D.h>
 
-using namespace std;
-
 class L1TRPCTFClient: public edm::EDAnalyzer {
 
 public:

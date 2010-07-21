@@ -19,6 +19,7 @@
 //
 // system include files
 #include <memory>
+#include <string>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -33,9 +34,6 @@
 #include <TH1F.h>
 #include <TH2F.h>
 
-using namespace std;
-
-
 #include "DQMServices/Core/interface/MonitorElement.h"
 //
 // class decleration
@@ -46,8 +44,8 @@ class L1THcalClient : public edm::EDAnalyzer{
    public:
       explicit L1THcalClient(const edm::ParameterSet&);
       ~L1THcalClient();
-      TH1F * get1DHisto(string meName, DQMStore * dbi);
-      TH2F * get2DHisto(string meName, DQMStore * dbi);
+      TH1F * get1DHisto(std::string meName, DQMStore * dbi);
+      TH2F * get2DHisto(std::string meName, DQMStore * dbi);
 
 
    private:

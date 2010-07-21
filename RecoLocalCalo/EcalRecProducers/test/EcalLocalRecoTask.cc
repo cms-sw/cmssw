@@ -1,7 +1,7 @@
 /*
  * \file EcalLocalReco.cc
  *
- * $Id: EcalLocalRecoTask.cc,v 1.9 2008/03/02 13:54:08 franzoni Exp $
+ * $Id: EcalLocalRecoTask.cc,v 1.10 2009/12/18 20:45:02 wmtan Exp $
  *
 */
 
@@ -30,11 +30,11 @@
 
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
-EcalLocalRecoTask::EcalLocalRecoTask(const ParameterSet& ps)
+EcalLocalRecoTask::EcalLocalRecoTask(const edm::ParameterSet& ps)
 {
   
   // DQM ROOT output
-  outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
+  outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "");
 
   recHitProducer_   = ps.getParameter<std::string>("recHitProducer");
   ESrecHitProducer_   = ps.getParameter<std::string>("ESrecHitProducer");
@@ -53,24 +53,24 @@ EcalLocalRecoTask::EcalLocalRecoTask(const ParameterSet& ps)
 
   
   if ( outputFile_.size() != 0 ) {
-    LogInfo("EcalLocalRecoTaskInfo") << "histograms will be saved to '" << outputFile_.c_str() << "'";
+    edm::LogInfo("EcalLocalRecoTaskInfo") << "histograms will be saved to '" << outputFile_.c_str() << "'";
   } else {
-    LogInfo("EcalLocalRecoTaskInfo") << "histograms will NOT be saved";
+    edm::LogInfo("EcalLocalRecoTaskInfo") << "histograms will NOT be saved";
   }
   
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
  
   if ( verbose_ ) {
-    LogInfo("EcalLocalRecoTaskInfo") << "verbose switch is ON"; 
+    edm::LogInfo("EcalLocalRecoTaskInfo") << "verbose switch is ON"; 
   } else {
-    LogInfo("EcalLocalRecoTaskInfo") << "verbose switch is OFF";
+    edm::LogInfo("EcalLocalRecoTaskInfo") << "verbose switch is OFF";
   }
                                                                                                                                           
   dbe_ = 0;
                                                                                                                                           
   // get hold of back-end interface
-  dbe_ = Service<DQMStore>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->();
                                                                                                                                           
   if ( dbe_ ) {
     if ( verbose_ ) {
@@ -125,14 +125,14 @@ void EcalLocalRecoTask::endJob(){
 
 }
 
-void EcalLocalRecoTask::analyze(const Event& e, const EventSetup& c)
+void EcalLocalRecoTask::analyze(const edm::Event& e, const edm::EventSetup& c)
 {
 
-  LogInfo("EcalLocalRecoTaskInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
+  edm::LogInfo("EcalLocalRecoTaskInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
   
-   Handle< EBDigiCollection > pEBDigis;
-   Handle< EEDigiCollection > pEEDigis;
-   Handle< ESDigiCollection > pESDigis;
+   edm::Handle< EBDigiCollection > pEBDigis;
+   edm::Handle< EEDigiCollection > pEEDigis;
+   edm::Handle< ESDigiCollection > pESDigis;
 
    try {
      //     e.getByLabel( digiProducer_, EBdigiCollection_, pEBDigis);
@@ -156,8 +156,8 @@ void EcalLocalRecoTask::analyze(const Event& e, const EventSetup& c)
    }
 
 
-   Handle< EBUncalibratedRecHitCollection > pEBUncalibRecHit;
-   Handle< EEUncalibratedRecHitCollection > pEEUncalibRecHit;
+   edm::Handle< EBUncalibratedRecHitCollection > pEBUncalibRecHit;
+   edm::Handle< EEUncalibratedRecHitCollection > pEEUncalibRecHit;
 
    try {
      e.getByLabel( uncalibrecHitProducer_, EBuncalibrechitCollection_, pEBUncalibRecHit);
@@ -171,9 +171,9 @@ void EcalLocalRecoTask::analyze(const Event& e, const EventSetup& c)
    }
 
 
-  Handle<EBRecHitCollection> pEBRecHit;
-  Handle<EERecHitCollection> pEERecHit;
-  Handle<ESRecHitCollection> pESRecHit;
+  edm::Handle<EBRecHitCollection> pEBRecHit;
+  edm::Handle<EERecHitCollection> pEERecHit;
+  edm::Handle<ESRecHitCollection> pESRecHit;
 
    try {
      e.getByLabel( recHitProducer_, EBrechitCollection_, pEBRecHit);
@@ -192,7 +192,7 @@ void EcalLocalRecoTask::analyze(const Event& e, const EventSetup& c)
    }
 
 
-  Handle< CrossingFrame<PCaloHit> > crossingFrame;
+  edm::Handle< CrossingFrame<PCaloHit> > crossingFrame;
   const std::string barrelHitsName ("EcalHitsEB") ;
   try 
     {
@@ -292,7 +292,7 @@ void EcalLocalRecoTask::analyze(const Event& e, const EventSetup& c)
 	  if (eMax> (*it).mean_x1 + 5 * (*it).rms_x1 ) //only real signal RecHit
 	    {
 	      if (meEBUncalibRecHitMaxSampleRatio_) meEBUncalibRecHitMaxSampleRatio_->Fill( (uncalibRecHit->amplitude()+uncalibRecHit->pedestal()) /eMax);
-	      LogInfo("EcalLocalRecoTaskInfo") << " eMax = " << eMax << " Amplitude = " << uncalibRecHit->amplitude()+uncalibRecHit->pedestal();  
+	      edm::LogInfo("EcalLocalRecoTaskInfo") << " eMax = " << eMax << " Amplitude = " << uncalibRecHit->amplitude()+uncalibRecHit->pedestal();  
 	    }
 	  else
 	    continue;

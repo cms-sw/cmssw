@@ -18,8 +18,6 @@
 #include <TH2F.h>
 #include <TProfile2D.h>
 
-using namespace std;
-
 class L1TDTTPGClient: public edm::EDAnalyzer {
 
 public:
@@ -57,13 +55,13 @@ protected:
 private:
 
   void initialize();
-  void makeRatioHisto(MonitorElement *ratioME, string &nName, string &dName); 
+  void makeRatioHisto(MonitorElement *ratioME, std::string &nName, std::string &dName); 
   void setMapPhLabel(MonitorElement *me);
   void setMapThLabel(MonitorElement *me);
-  TH1F * get1DHisto(string meName, DQMStore * dbi);
-  TH2F * get2DHisto(string meName, DQMStore * dbi);
-  TProfile2D * get2DProfile(string meName, DQMStore * dbi);
-  TProfile * get1DProfile(string meName, DQMStore * dbi);
+  TH1F * get1DHisto(std::string meName, DQMStore * dbi);
+  TH2F * get2DHisto(std::string meName, DQMStore * dbi);
+  TProfile2D * get2DProfile(std::string meName, DQMStore * dbi);
+  TProfile * get1DProfile(std::string meName, DQMStore * dbi);
   
   edm::ParameterSet parameters_;
   DQMStore* dbe_;  

@@ -25,12 +25,12 @@ DijetRatio<Jet>::DijetRatio(const edm::ParameterSet& iConfig)
 {
    
    //get name of output file with histograms
-  fOutputFileName = iConfig.getUntrackedParameter<string>("HistoFileName", 
+  fOutputFileName = iConfig.getUntrackedParameter<std::string>("HistoFileName", 
 							  "DijetRatio.root"); 
   
   // get names of modules, producing object collections
-  m_Mid5CorRecJetsSrc   = iConfig.getParameter<string>("CorrectedJets");
-  m_Mid5CaloJetsSrc   = iConfig.getParameter<string>("UnCorrectedJets");
+  m_Mid5CorRecJetsSrc   = iConfig.getParameter<std::string>("CorrectedJets");
+  m_Mid5CaloJetsSrc   = iConfig.getParameter<std::string>("UnCorrectedJets");
   
   // eta limit for numerator and denominator
   m_eta3   = iConfig.getUntrackedParameter<double>("etaInner", 0.7);
@@ -104,11 +104,11 @@ return ;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 /////////// Calo Jet Instance ////////
-typedef DijetRatio<CaloJet> DijetRatioCaloJets;
+typedef DijetRatio<reco::CaloJet> DijetRatioCaloJets;
 DEFINE_FWK_MODULE(DijetRatioCaloJets);
 /////////// Gen Jet Instance ////////
-typedef DijetRatio<GenJet> DijetRatioGenJets;
+typedef DijetRatio<reco::GenJet> DijetRatioGenJets;
 DEFINE_FWK_MODULE(DijetRatioGenJets);
 /////////// PF Jet Instance ////////
-typedef DijetRatio<PFJet> DijetRatioPFJets;
+typedef DijetRatio<reco::PFJet> DijetRatioPFJets;
 DEFINE_FWK_MODULE(DijetRatioPFJets);

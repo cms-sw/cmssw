@@ -31,7 +31,6 @@
 #include "RecoJets/JetProducers/interface/JetIDHelper.h"
 
 #include <string>
-using namespace edm;
 
 class JetPtAnalyzer : public JetAnalyzerBase {
  public:

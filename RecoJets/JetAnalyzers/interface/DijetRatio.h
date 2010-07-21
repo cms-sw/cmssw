@@ -52,11 +52,6 @@
 #include "TH1.h"
 #include "TH2.h"
 
-using namespace std;
-using namespace edm;
-using namespace reco;
-using namespace TMath;
-
 const int histoSize = 5;
 
 //Histo Initializations
@@ -71,19 +66,19 @@ inline void hInit(TH1F* hJet[], const char* name){
 
 
   // (jetEta1 > 0 && jetEta1 < 0.7),  (jetEta2 > 0 && jetEta2 < 0.7 )
-  std::string tit = string(name) + "_Eta_innerEtaCut_outerEtaCut";
+  std::string tit = std::string(name) + "_Eta_innerEtaCut_outerEtaCut";
   hJet[0] =  new TH1F(tit.c_str(), "DiJet Mass", binSize, massBin); 	
 
 
   // (jetEta1 > 0.7 && jetEta1 < 1.3),  (jetEta2 > 0.7 && jetEta2 < 1.3 )
-  tit = string(name) + "_Eta_0_innerEtaCut";
+  tit = std::string(name) + "_Eta_0_innerEtaCut";
   hJet[1] =  new TH1F(tit.c_str(), "DiJet Mass", binSize, massBin);		
 
-  tit = string(name) + "_LeadJetEta";
+  tit = std::string(name) + "_LeadJetEta";
   hJet[2] =  new TH1F(tit.c_str(), "1^{st} Leading Jet #eta", 120, -6., 6.);
-  tit = string(name) + "_SecondJetEta";
+  tit = std::string(name) + "_SecondJetEta";
   hJet[3] =  new TH1F(tit.c_str(), "2^{nd} Leading Jet #eta", 120, -6., 6.);
-  tit = string(name) + "_numEvents";
+  tit = std::string(name) + "_numEvents";
   hJet[4] =  new TH1F(tit.c_str(), "No. of events", 10, 0.,10.);
    
   return ;
@@ -92,7 +87,7 @@ inline void hInit(TH1F* hJet[], const char* name){
 
 
 template <class R>
-void histoFill(TH1F* jetHisto[], Handle<R> jetsRec, double eta1, double eta2)
+void histoFill(TH1F* jetHisto[], edm::Handle<R> jetsRec, double eta1, double eta2)
 {
   //For no. of events
   jetHisto[4]->Fill(1.);
@@ -147,11 +142,11 @@ public:
 
 
   // ----------member data ---------------------------
-  string fOutputFileName ;
+  std::string fOutputFileName ;
      
   // names of modules, producing object collections
-  string m_Mid5CorRecJetsSrc;
-  string m_Mid5CaloJetsSrc;
+  std::string m_Mid5CorRecJetsSrc;
+  std::string m_Mid5CaloJetsSrc;
 
   // eta limit 
   double  m_eta3;  // eta limit for numerator

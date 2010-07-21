@@ -42,9 +42,6 @@
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeSpecification.h"
 
-using namespace std;
-using namespace oracle::occi;
-
 namespace popcon
 {
 	class RPCEMapSourceHandler : public popcon::PopConSourceHandler<RPCEMap>
@@ -55,14 +52,14 @@ namespace popcon
     ~RPCEMapSourceHandler();
     void getNewObjects();
     std::string id() const {return m_name;}
-    void ConnectOnlineDB(string connect, string authPath);
+    void ConnectOnlineDB(std::string connect, std::string authPath);
     void DisconnectOnlineDB();
     void readEMap1();
     int Compare2EMaps(Ref map1, RPCEMap* map2);
 
 		private:
     RPCEMap * eMap;
-    Connection* conn;
+    oracle::occi::Connection* conn;
     cond::DbSession * session;
     cond::DbConnection * connection ;
     std::string m_name;
@@ -72,14 +69,14 @@ namespace popcon
     std::string m_authpath;
 
   // utilities
-    string IntToString(int num)
+    std::string IntToString(int num)
     {
-      stringstream snum;
-      snum << num << flush;
+      std::stringstream snum;
+      snum << num << std::flush;
       return(snum.str());
     }
 
-    typedef struct{int febId,chamberId,connectorId,lbInputNum,posInLocalEtaPart,posInCmsEtaPart;string localEtaPart,cmsEtaPart;} FEBStruct;
+    typedef struct{int febId,chamberId,connectorId,lbInputNum,posInLocalEtaPart,posInCmsEtaPart;std::string localEtaPart,cmsEtaPart;} FEBStruct;
 	};
 }
 #endif

@@ -46,9 +46,6 @@
 
 #include <string>
 
-//using namespace std;
-//using namespace edm;
-
 class SiPixelRecHitsInputDistributionsMakerNew : public edm::EDAnalyzer {
 
    public:

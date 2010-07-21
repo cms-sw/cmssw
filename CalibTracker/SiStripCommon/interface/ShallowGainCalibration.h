@@ -60,12 +60,6 @@
 #include <ext/hash_map>
 
 
-using namespace edm;
-using namespace reco;
-using namespace std;
-using namespace __gnu_cxx;
-
-
 class ShallowGainCalibration : public edm::EDProducer {
 public:
   explicit ShallowGainCalibration(const edm::ParameterSet&);

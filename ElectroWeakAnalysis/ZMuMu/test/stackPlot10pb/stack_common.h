@@ -2,7 +2,6 @@
 #define STACK_COMMON_H
 
 #include <iostream>
-using namespace std;
 #include "TChain.h"
 
 

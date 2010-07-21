@@ -4,7 +4,7 @@
 /*
  * \file EcalLocalRecoTask.h
  *
- * $Id: EcalLocalRecoTask.h,v 1.2 2008/03/02 13:54:43 franzoni Exp $
+ * $Id: EcalLocalRecoTask.h,v 1.3 2009/12/18 20:45:02 wmtan Exp $
  *
 */
 
@@ -35,19 +35,16 @@
 #include <fstream>
 #include <vector>
 #include <map>
+#include <string>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-class EcalLocalRecoTask: public EDAnalyzer
+class EcalLocalRecoTask: public edm::EDAnalyzer
 {
 
 
  public:
   
   /// Constructor
-  EcalLocalRecoTask(const ParameterSet& ps);
+  EcalLocalRecoTask(const edm::ParameterSet& ps);
   
   /// Destructor
   ~EcalLocalRecoTask();
@@ -55,7 +52,7 @@ class EcalLocalRecoTask: public EDAnalyzer
  protected:
   
   /// Analyze
-  void analyze(const Event& e, const EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c);
   
   // BeginJob
   void beginJob();
@@ -64,29 +61,29 @@ class EcalLocalRecoTask: public EDAnalyzer
   void endJob(void);
   
  private:
-  typedef map<uint32_t,float,less<uint32_t> >  MapType;  
+  typedef std::map<uint32_t,float,std::less<uint32_t> >  MapType;  
 
   bool verbose_;
   
   DQMStore* dbe_;
   
-  string outputFile_;
+  std::string outputFile_;
 
-  string recHitProducer_;
-  string ESrecHitProducer_;
+  std::string recHitProducer_;
+  std::string ESrecHitProducer_;
   
-  string EBrechitCollection_;
-  string EErechitCollection_;
-  string ESrechitCollection_;
+  std::string EBrechitCollection_;
+  std::string EErechitCollection_;
+  std::string ESrechitCollection_;
 
-  string uncalibrecHitProducer_;
-  string EBuncalibrechitCollection_;
-  string EEuncalibrechitCollection_;
+  std::string uncalibrecHitProducer_;
+  std::string EBuncalibrechitCollection_;
+  std::string EEuncalibrechitCollection_;
 
-  string digiProducer_;
-  string EBdigiCollection_;
-  string EEdigiCollection_;
-  string ESdigiCollection_;
+  std::string digiProducer_;
+  std::string EBdigiCollection_;
+  std::string EEdigiCollection_;
+  std::string ESdigiCollection_;
 
   MonitorElement* meEBUncalibRecHitMaxSampleRatio_;
   MonitorElement* meEBUncalibRecHitPedestal_;

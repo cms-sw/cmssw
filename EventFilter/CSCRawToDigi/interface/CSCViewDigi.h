@@ -15,7 +15,7 @@ Description: <one line class summary>
 //
 // Original Author:  Alexandre Sakharov
 //         Created:  Sun May 10 15:43:28 CEST 2009
-// $Id: CSCViewDigi.h,v 1.2 2009/11/11 19:55:02 rpw Exp $
+// $Id: CSCViewDigi.h,v 1.4 2010/06/11 15:50:27 asakharo Exp $
 //
 //
 
@@ -44,10 +44,6 @@ Description: <one line class summary>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 //#include <EventFilter/CSCRawToDigi/interface/CSCDCCUnpacker.h>
 //#include <iostream> CSCCorrelatedLCTDigi
-
-using std::endl;
-using std::cout;
-using std::string;
 
 //
 // class decleration

@@ -14,7 +14,7 @@ Implementation:
 // Original Author:  Adam Hunt - Princeton University
 //           email:  ahunt@princeton.edu
 //         Created:  Thu Jul 19 02:29:59 EDT 2007
-// $Id: HLXMonitor.h,v 1.19 2009/12/14 22:22:08 wmtan Exp $
+// $Id: HLXMonitor.h,v 1.20 2010/03/16 10:20:13 neadam Exp $
 //
 //
 
@@ -46,8 +46,6 @@ Implementation:
 #include "RecoLuminosity/TCPReceiver/interface/TCPReceiver.h"
 #include "RecoLuminosity/TCPReceiver/interface/LumiStructures.hh"
 
-using namespace HCAL_HLX;
-
 //
 // class decleration
 //
@@ -57,6 +55,8 @@ class HLXMonitor : public edm::EDAnalyzer
 {
 
    public:
+      typedef HCAL_HLX::LUMI_SECTION LUMI_SECTION;
+      typedef HCAL_HLX::TCPReceiver TCPReceiver;
       explicit HLXMonitor(const edm::ParameterSet&);
       ~HLXMonitor();
       

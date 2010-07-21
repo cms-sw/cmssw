@@ -36,6 +36,7 @@
 #include "GeneratorInterface/GenFilters/interface/LQGenFilter.h"
 
 
+  using cms::BHFilter;
   DEFINE_FWK_MODULE(LQGenFilter);
   DEFINE_FWK_MODULE(PythiaFilter);
   DEFINE_FWK_MODULE(PythiaDauFilter);
