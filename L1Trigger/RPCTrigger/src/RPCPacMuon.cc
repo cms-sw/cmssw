@@ -37,7 +37,8 @@ bool RPCPacMuon::operator <(const RPCPacMuon& pacMuon) const {
     else if( this->m_PtCode > pacMuon.m_PtCode)
       return false;
     else { //==
-      if( this->m_Sign < pacMuon.m_Sign)
+      //if( this->m_Sign < pacMuon.m_Sign)
+      if( this->m_Sign > pacMuon.m_Sign)
         return true;
       else
         return false;
@@ -56,7 +57,7 @@ bool RPCPacMuon::operator >(const RPCPacMuon& pacMuon) const {
     else if( this->m_PtCode < pacMuon.m_PtCode)
       return false;
     else { //==
-      if( this->m_Sign > pacMuon.m_Sign)
+      if( this->m_Sign < pacMuon.m_Sign)
         return true;
       else
         return false;

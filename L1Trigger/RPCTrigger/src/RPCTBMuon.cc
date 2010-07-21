@@ -85,7 +85,14 @@ std::string RPCTBMuon::printDebugInfo(int debugFormat) const {
 // Simple setters and getters
 
 ///Combined quality and ptCode, 8 bits [7...6 m_Quality, 5...1 m_PtCode, 0 sign], used in GhoustBusters
-int RPCTBMuon::getCode() const {  return (m_Quality<<6 | m_PtCode << 1 | m_Sign ); }
+int RPCTBMuon::getCode() const {  
+
+  // 1 bit, 0 - negative, 1 - positive.
+  unsigned int signLocal = 0;
+  if (m_Sign==0) signLocal=1; // invert
+  return (m_Quality<<6 | m_PtCode << 1 | signLocal);
+
+}
 
 ///Sets combined code: 8 bits [7...5 m_Quality, 4...0 m_PtCode].
 void RPCTBMuon::setCode(int code) {

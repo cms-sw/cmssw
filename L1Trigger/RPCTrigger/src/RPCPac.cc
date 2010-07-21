@@ -205,8 +205,8 @@ RPCPac::runEnergeticPatternsGroups(const RPCLogCone & cone) const
       if(bufMuon > bestMuon){
         bestMuon = bufMuon;
       }
-      if(bestMuon.getQuality() == m_pacData->m_MaxQuality)
-        return bestMuon;
+      //if(bestMuon.getQuality() == m_pacData->m_MaxQuality)
+      //  return bestMuon;
     }                           //end of EGroup loop
   return bestMuon;
 }
