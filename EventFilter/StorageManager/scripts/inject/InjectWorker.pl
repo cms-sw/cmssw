@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.45 2010/07/16 14:14:15 babar Exp $
+# $Id: InjectWorker.pl,v 1.47 2010/07/21 08:46:16 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -17,21 +17,12 @@ use File::Basename;
 use DBI;
 use Getopt::Long;
 
-# Configuration
-my $savedelay = 300;    # Frequency to save offset file, in seconds
-my $log4perlConfig = '/opt/injectworker/log4perl.conf';
-
 ################################################################################
 my $nodbint     = 0; # SM_DONTACCESSDB: no access any DB at all
 my $nodbwrite   = 0; # SM_DONTWRITEDB : no write to DB but retrieve HLT key
 my $nofilecheck = 0; # SM_NOFILECHECK : no check if files are locally accessible
 my $maxhooks    = 3; # Number of parallel hooks
 ################################################################################
-
-# global vars
-chomp( my $host = `hostname -s` );
-
-my $heartbeat = 300;    # Print a heartbeat every 5 minutes
 
 # get options from environment
 # XXX Do we really need to test for existence???
@@ -69,6 +60,12 @@ if ( !-e $config ) {
 }
 
 #########################################################################################
+# Configuration
+chomp( my $host = `hostname -s` );
+my $offsetfile = $logpath . '/offset.txt';
+my $heartbeat  = 300;                        # Print a heartbeat every 5 minutes
+my $savedelay = 300;    # Frequency to save offset file, in seconds
+my $log4perlConfig = '/opt/injectworker/log4perl.conf';
 
 # To rotate logfiles daily
 sub get_logfile {
@@ -167,7 +164,7 @@ sub start {
     $kernel->select_read( $inotify_FH, "inotify_poll" );
 
     # Save offset files regularly
-    $kernel->alarm( save_offsets => time() + 5 );
+    $kernel->alarm( save_offsets => time() + $savedelay );
 
     # Print a heartbeat regularly
     $kernel->alarm( heartbeat => time() + $heartbeat );
@@ -632,7 +629,7 @@ sub next_hook {
               . "/$maxhooks): "
               . join( ' ', @$args ) );
         my $task = POE::Wheel::Run->new(
-            Program      => sub { system(@args); },
+            Program      => sub { system(@$args); },
             StdoutFilter => POE::Filter::Line->new(),
             StderrFilter => POE::Filter::Line->new(),
             StdoutEvent  => 'hook_result',
@@ -855,11 +852,11 @@ sub save_offsets {
         my $offset = $wheel->tell;
         $heap->{offsets}->{$file} = $offset;
     }
-    my $savefile = $logpath . '/offset.txt';
 
     # XXX Use a ReadWrite wheel
-    open my $save, '>', $savefile or die "Can't open $savefile: $!";
-    for ( my $file = sort keys %{ $heap->{offsets} } ) {
+    return unless keys %{ $heap->{offsets} };
+    open my $save, '>', $offsetfile or die "Can't open $offsetfile: $!";
+    for my $file ( sort keys %{ $heap->{offsets} } ) {
         my $offset = $heap->{offsets}->{$file};
         $kernel->post( 'logger',
             debug => "Saving session information for $file: $offset" );
@@ -872,15 +869,15 @@ sub save_offsets {
 # processing
 sub read_offsets {
     my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
-    my $savefile = $logpath . '/offset.txt';
-    return unless -r $savefile;
-    $kernel->post( 'logger', debug => "Reading offset file $savefile..." );
+    return unless -s $offsetfile;
+    $kernel->post( 'logger', debug => "Reading offset file $offsetfile..." );
 
 # XXX Use a ReadWrite wheel like on
 # http://github.com/bingos/poe/raw/22d59d963996d83a93fcb292c269ffbedd0d0965/docs/small-programs/reading-filehandle.pl
-    open my $save, '<', $savefile or die "Can't open $savefile: $!";
+    open my $save, '<', $offsetfile or die "Can't open $offsetfile: $!";
     while (<$save>) {
-        my ( $file, $offset ) = /^(\S+) ([0-9]+)$/;
+        next unless /^(\S+) ([0-9]+)$/;
+        my ( $file, $offset ) = ( $1, $2 );
         if ( -f $file ) {
             my $fsize = ( stat(_) )[7];
             if ( $offset != $fsize ) {
