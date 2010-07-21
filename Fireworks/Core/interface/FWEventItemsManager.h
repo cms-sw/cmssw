@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 13:27:29 EST 2008
-// $Id: FWEventItemsManager.h,v 1.15 2010/01/30 18:53:40 chrjones Exp $
+// $Id: FWEventItemsManager.h,v 1.16 2010/04/08 19:45:25 amraktad Exp $
 //
 
 // system include files
@@ -28,8 +28,8 @@
 #include "Fireworks/Core/interface/FWConfigurable.h"
 
 // forward declarations
-namespace fwlite {
-   class Event;
+namespace edm {
+   class EventBase;
 }
 namespace fireworks {
    class Context;
@@ -68,7 +68,7 @@ public:
    const FWEventItem* add(const FWPhysicsObjectDesc& iItem);
    void clearItems();
 
-   void newEvent(const fwlite::Event* iEvent);
+   void newEvent(const edm::EventBase* iEvent);
 
    void setContext(fireworks::Context*);
 
@@ -86,7 +86,7 @@ private:
    FWModelChangeManager* m_changeManager;
    fireworks::Context* m_context;
 
-   const fwlite::Event* m_event;
+   const edm::EventBase* m_event;
    boost::shared_ptr<FWItemAccessorFactory> m_accessorFactory;
 };
 

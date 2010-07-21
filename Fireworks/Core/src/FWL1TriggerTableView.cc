@@ -121,7 +121,8 @@ void FWL1TriggerTableView::dataChanged( void )
    m_columns.at(3).values.clear();
    if(! m_manager->items().empty() && m_manager->items().front() != 0 )
    {
-		if( fwlite::Event* event = const_cast<fwlite::Event*>( m_manager->items().front()->getEvent()))
+      edm::EventBase *base = const_cast<edm::EventBase*>(m_manager->items().front()->getEvent());
+      if (fwlite::Event* event = dynamic_cast<fwlite::Event*>(base))
       {
 			fwlite::Handle<L1GtTriggerMenuLite> triggerMenuLite;
 			fwlite::Handle<L1GlobalTriggerReadoutRecord> triggerRecord;

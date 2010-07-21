@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.47 2010/06/18 10:17:15 yana Exp $
+// $Id: FWEventItem.cc,v 1.48 2010/07/21 09:43:20 eulisse Exp $
 //
 
 // system include files
@@ -20,6 +20,8 @@
 // user include files
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "DataFormats/FWLite/interface/Event.h"
+// Needed to test edm::Event access
+// #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
@@ -129,7 +131,7 @@ FWEventItem::FWEventItem(fireworks::Context* iContext,
 // member functions
 //
 void
-FWEventItem::setEvent(const fwlite::Event* iEvent)
+FWEventItem::setEvent(const edm::EventBase* iEvent)
 {
    m_printedErrorThisEvent = false;
    m_event = iEvent;
@@ -402,12 +404,30 @@ FWEventItem::data(const std::type_info& iInfo) const
       void* wrapper=0;
       void* temp = &wrapper;
       if(m_event) {
-         try {
-            m_event->getByLabel(m_wrapperType.TypeInfo(),
-                                m_moduleLabel.c_str(),
-                                m_productInstanceLabel.c_str(),
-                                m_processName.size() ? m_processName.c_str() : 0,
-                                temp);
+         const fwlite::Event *fwEvent = dynamic_cast<const fwlite::Event*>(m_event);
+         // Needed to test edm::Event access
+         // const edm::Event    *ffEvent = dynamic_cast<const edm::Event*>(m_event);
+
+         try
+         {
+            if (fwEvent)
+            {
+               fwEvent->getByLabel(m_wrapperType.TypeInfo(),
+                                   m_moduleLabel.c_str(),
+                                   m_productInstanceLabel.c_str(),
+                                   m_processName.size() ? m_processName.c_str() : 0,
+                                   temp);
+            }
+            // Needed to test edm::Event access
+            // else if (ffEvent)
+            // {
+            //    edm::BasicHandle temp2;
+            //    ffEvent->getByLabel(m_wrapperType.TypeInfo(),
+            //                        m_moduleLabel.c_str(),
+            //                        m_productInstanceLabel.c_str(),
+            //                        temp2);
+            //    wrapper = const_cast<edm::EDProduct*>(temp2.wrapper());
+            // }
          } catch (std::exception& iException) {
             if ( !m_printedErrorThisEvent ) {
                std::ostringstream s;
@@ -417,7 +437,7 @@ FWEventItem::data(const std::type_info& iInfo) const
             }
             return 0;
          }
-         if(0==wrapper) {
+         if (0==wrapper) {
             if ( !m_printedErrorThisEvent ) {
                std::ostringstream s;
                s << "Failed to get "<<name()<<" because branch does not exist in this file";
@@ -434,9 +454,9 @@ FWEventItem::data(const std::type_info& iInfo) const
          Object edproductObj(wrapperObj.CastObject(s_edproductType));
          const edm::EDProduct* prod = reinterpret_cast<const edm::EDProduct*>(edproductObj.Address());
 
-         if(not prod->isPresent()) {
+         if (not prod->isPresent()) {
             //not actually in this event
-            if(!m_printedErrorThisEvent) {
+            if (!m_printedErrorThisEvent) {
                std::ostringstream s;
                s <<name()<<" is registered in the file but is unavailable for this event"<<std::endl;
                m_errorMessage=s.str();

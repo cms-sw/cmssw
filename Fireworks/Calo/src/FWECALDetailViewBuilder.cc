@@ -28,25 +28,32 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
 {
    // get the hits from the event
 
-   fwlite::Handle<EcalRecHitCollection> handle_hits;
+   edm::Handle<EcalRecHitCollection> handle_hits;
    const EcalRecHitCollection *hits = 0;
 
-   if (fabs(m_eta) < 1.5) {
-      try {
-         handle_hits.getByLabel(*m_event, "ecalRecHit", "EcalRecHitsEB");
-	 if( handle_hits.isValid() )
-	    hits = handle_hits.ptr();
+   if (fabs(m_eta) < 1.5)
+   {
+      try
+      {
+         edm::InputTag tag("ecalRecHit", "EcalRecHitsEB");
+         m_event->getByLabel(tag, handle_hits);
+	 if (handle_hits.isValid())
+	    hits = &*handle_hits;
       }
       catch (...)
       {
          fwLog(fwlog::kWarning) <<"no barrel ECAL rechits are available, "
             "showing crystal location but not energy" << std::endl;
       }
-   } else {
-      try {
-         handle_hits.getByLabel(*m_event, "ecalRecHit", "EcalRecHitsEE");
-	 if( handle_hits.isValid() )
-	    hits = handle_hits.ptr();
+   }
+   else
+   {
+      try
+      {
+         edm::InputTag tag("ecalRecHit", "EcalRecHitsEE");
+         m_event->getByLabel(tag, handle_hits);
+	 if (handle_hits.isValid())
+	    hits = &*handle_hits;
       }
       catch (...)
       {
@@ -165,11 +172,11 @@ void
 FWECALDetailViewBuilder::showSuperClusters( Color_t color1, Color_t color2 )
 {
    // get the superclusters from the event
-   fwlite::Handle<reco::SuperClusterCollection> collection;
+   edm::Handle<reco::SuperClusterCollection> collection;
 
    if( fabs( m_eta ) < 1.5 ) {
       try {
-         collection.getByLabel( *m_event, "correctedHybridSuperClusters" );
+         m_event->getByLabel(edm::InputTag("correctedHybridSuperClusters"), collection);
       }
       catch (...)
       {
@@ -177,7 +184,7 @@ FWECALDetailViewBuilder::showSuperClusters( Color_t color1, Color_t color2 )
       }
    } else {
       try {
-         collection.getByLabel( *m_event, "correctedMulti5x5SuperClustersWithPreshower" );
+         m_event->getByLabel(edm::InputTag("correctedMulti5x5SuperClustersWithPreshower"), collection);
       }
       catch (...)
       {

@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     FWTriggerTableView
-// $Id: FWTriggerTableView.cc,v 1.9 2010/06/16 17:08:39 amraktad Exp $
+// $Id: FWTriggerTableView.cc,v 1.10 2010/06/17 16:31:24 amraktad Exp $
 //
 
 // system include files
@@ -142,7 +142,9 @@ void FWTriggerTableView::dataChanged ()
    m_columns.at(2).values.clear();
    boost::regex filter(m_regex.value());
    if ( !m_manager->items().empty() && m_manager->items().front() != 0) {
-      if ( fwlite::Event* event = const_cast<fwlite::Event*>(m_manager->items().front()->getEvent()) ) {
+      edm::EventBase *base = const_cast<edm::EventBase*>(m_manager->items().front()->getEvent());
+      if (fwlite::Event* event = dynamic_cast<fwlite::Event*>(base))
+      {
          if ( event != m_event ) {
             m_event = event;
             fillAverageAcceptFractions();

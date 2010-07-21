@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.35 2010/06/16 14:04:40 matevz Exp $
+// $Id: FWEventItemsManager.cc,v 1.36 2010/06/18 10:17:15 yana Exp $
 //
 
 // system include files
@@ -101,7 +101,7 @@ FWEventItemsManager::add(const FWPhysicsObjectDesc& iItem)
     all the items to watch it.
   */
 void
-FWEventItemsManager::newEvent(const fwlite::Event* iEvent)
+FWEventItemsManager::newEvent(const edm::EventBase* iEvent)
 {
    FWChangeSentry sentry(*m_changeManager);
    m_event = iEvent;

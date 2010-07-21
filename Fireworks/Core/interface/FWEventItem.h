@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.41 2010/05/03 16:25:53 matevz Exp $
+// $Id: FWEventItem.h,v 1.42 2010/07/21 09:43:21 eulisse Exp $
 //
 
 // system include files
@@ -45,8 +45,8 @@ class DetIdToMatrix;
 class TVirtualCollectionProxy;
 class FWItemAccessorBase;
 
-namespace fwlite {
-   class Event;
+namespace edm {
+   class EventBase;
 }
 namespace fireworks {
    class Context;
@@ -143,7 +143,7 @@ public:
    }
 
    // hackery methods
-   const fwlite::Event *getEvent () const {
+   const edm::EventBase *getEvent () const {
       return m_event;
    }
 
@@ -159,7 +159,7 @@ public:
    static int maxLayerValue();
 
    // ---------- member functions ---------------------------
-   void setEvent(const fwlite::Event* iEvent);
+   void setEvent(const edm::EventBase* iEvent);
 
    const DetIdToMatrix* getGeom() const;
 
@@ -233,7 +233,7 @@ private:
    std::string m_moduleLabel;
    std::string m_productInstanceLabel;
    std::string m_processName;
-   const fwlite::Event* m_event;
+   const edm::EventBase* m_event;
    ROOT::Reflex::Type m_wrapperType;
    FWItemValueGetter m_interestingValueGetter;
 

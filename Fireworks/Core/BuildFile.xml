@@ -10,6 +10,8 @@
 <use name="DataFormats/Provenance"/>
 <use name="FWCore/Common"/>
 <use name="FWCore/FWLite"/>
+# Would be needed for edm::Event
+# <use name="FWCore/Framework"/>
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/Utilities"/>
 <use name="Fireworks/TableWidget"/>
