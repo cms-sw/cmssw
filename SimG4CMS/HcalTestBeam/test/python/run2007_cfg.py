@@ -44,7 +44,7 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         ),
         EcalGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+            limit = cms.untracked.int32(0)
         ),
         HCalGeom = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
@@ -53,7 +53,7 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         ),
         EcalSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+            limit = cms.untracked.int32(0)
         ),
         HcalSim = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
@@ -119,7 +119,7 @@ process.VtxSmeared = cms.EDProducer("BeamProfileVtxGenerator",
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(5)
+    input = cms.untracked.int32(100)
 )
 
 process.o1 = cms.OutputModule("PoolOutputModule",
@@ -189,10 +189,11 @@ process.g4SimHits.CaloSD = cms.PSet(
     process.common_heavy_suppression1,
     EminTrack      = cms.double(1.0),
     TmaxHit        = cms.double(1000.0),
-    EminHits       = cms.vdouble(0.0),
-    TmaxHits       = cms.vdouble(1000.0),
-    HCNames        = cms.vstring('HcalHits'),
-    UseResponseTables = cms.vint32(0),
+    EminHits       = cms.vdouble(0.0,0.0,0.0,0.0),
+    EminHitsDepth  = cms.vdouble(0.0,0.0,0.0,0.0),
+    TmaxHits       = cms.vdouble(1000.0,1000.0,1000.0,1000.0),
+    HCNames        = cms.vstring('EcalHitsEB','EcalHitsEE','EcalHitsES','HcalHits'),
+    UseResponseTables = cms.vint32(0,0,0,0),
     SuppressHeavy  = cms.bool(False),
     CheckHits      = cms.untracked.int32(25),
     UseMap         = cms.untracked.bool(True),

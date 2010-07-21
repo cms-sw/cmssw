@@ -13,13 +13,13 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/HcalTestBeamData/data/ebcon.xml', 
         'Geometry/HcalTestBeamData/data/eregalgo.xml', 
         'Geometry/EcalCommonData/data/ebrot.xml', 
-        'Geometry/EcalCommonData/data/ebalgo.xml', 
+        'Geometry/EcalCommonData/data/ebNoAPD/ebalgo.xml', 
         'Geometry/HcalTestBeamData/data/TBHcal06Sens.xml', 
         'Geometry/HcalTestBeamData/data/TBHcal06ebsens.xml', 
         'Geometry/HcalTestBeamData/data/TBHcal06ProdCuts.xml', 
         'Geometry/EcalSimData/data/EBProdCuts.xml', 
         'Geometry/HcalTestBeamData/data/TBHcal06Util.xml'),
-    rootNodeName = cms.string('TBHcal:TBHCal')
+    rootNodeName = cms.string('TBHcal:OTBHCal')
 )
 
 
