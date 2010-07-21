@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/05/14 11:43:09 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/06/04 09:14:23 $
+ *  $Revision: 1.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -18,11 +18,8 @@
 #include "CondFormats/DTObjects/interface/DTLVStatus.h"
 
 
-#include "CondCore/DBCommon/interface/DbConnection.h"
-#include "CondCore/DBCommon/interface/DbSession.h"
 #include "CondCore/DBCommon/interface/DbTransaction.h"
 
-#include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ITable.h"
 #include "RelationalAccess/ICursor.h"
@@ -49,7 +46,10 @@ DTLVStatusHandler::DTLVStatusHandler( const edm::ParameterSet& ps ):
  onlineConnect(         ps.getParameter<std::string> ( "onlineDB" ) ),
  onlineAuthentication(  ps.getParameter<std::string> ( 
                         "onlineAuthentication" ) ),
- bufferConnect(         ps.getParameter<std::string> ( "bufferDB" ) ) {
+ bufferConnect(         ps.getParameter<std::string> ( "bufferDB" ) ),
+ connection(),
+ omds_session(),
+ buff_session() {
   std::cout << " PopCon application for DT DCS data (CCB status) export "
             << std::endl;
 }
@@ -65,41 +65,28 @@ DTLVStatusHandler::~DTLVStatusHandler() {
 //--------------
 void DTLVStatusHandler::getNewObjects() {
 
-// online DB connection
-  std::cout << "create omds DbConnection" << std::endl;
-  cond::DbConnection* omds_conn = new cond::DbConnection;
+  // online DB connection
   std::cout << "configure omds DbConnection" << std::endl;
-//  conn->configure( cond::CmsDefaults );
-  omds_conn->configuration().setAuthenticationPath( onlineAuthentication );
-  omds_conn->configure();
+  //  conn->configure( cond::CmsDefaults );
+  connection.configuration().setAuthenticationPath( onlineAuthentication );
+  connection.configure();
   std::cout << "create omds DbSession" << std::endl;
-  cond::DbSession omds_session = omds_conn->createSession();
+  cond::DbSession omds_session = connection.createSession();
   std::cout << "open omds session" << std::endl;
   omds_session.open( onlineConnect );
   std::cout << "start omds transaction" << std::endl;
   omds_session.transaction().start();
-  std::cout << "create omds coralSession" << std::endl;
-  omds_s_proxy = &( omds_session.coralSession() );
   std::cout << "" << std::endl;
 
-// buffer DB connection
-  std::cout << "create buffer DbConnection" << std::endl;
-  cond::DbConnection* buff_conn = new cond::DbConnection;
-  std::cout << "configure buffer DbConnection" << std::endl;
-//  conn->configure( cond::CmsDefaults );
-  buff_conn->configuration().setAuthenticationPath( onlineAuthentication );
-  buff_conn->configure();
+  // buffer DB connection
   std::cout << "create buffer DbSession" << std::endl;
-  cond::DbSession buff_session = buff_conn->createSession();
+  cond::DbSession buff_session = connection.createSession();
   std::cout << "open buffer session" << std::endl;
   buff_session.open( bufferConnect );
   std::cout << "start buffer transaction" << std::endl;
   buff_session.transaction().start();
-  std::cout << "create buffer coralSession" << std::endl;
-  buff_s_proxy = &( buff_session.coralSession() );
-  std::cout << "buffer session proxy got" << std::endl;
 
-// offline info
+  // offline info
 
   //to access the information on the tag inside the offline database:
   cond::TagInfo const & ti = tagInfo();

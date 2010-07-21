@@ -5,7 +5,7 @@
  *  Description: Class to copy CCB DCS-status via PopCon
  *
  *
- *  $Date: 2008/11/25 11:00:00 $
+ *  $Date: 2009/03/26 14:11:03 $
  *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
@@ -20,12 +20,10 @@
 // Collaborating Class Declarations --
 //------------------------------------
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CondCore/DBCommon/interface/DbConnection.h"
 #include "CondFormats/DTObjects/interface/DTLVStatus.h"
 #include <string>
 
-namespace coral {
-  class ISessionProxy;
-}
 
 //---------------
 // C++ Headers --
@@ -62,8 +60,9 @@ class DTLVStatusHandler: public popcon::PopConSourceHandler<DTLVStatus> {
   std::string bufferConnect;
   DTLVStatus* ccbStatus;
 
-  coral::ISessionProxy* omds_s_proxy;
-  coral::ISessionProxy* buff_s_proxy;
+  cond::DbConnection connection;
+  cond::DbSession omds_session;
+  cond::DbSession buff_session;
 
 };
 

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/05/14 11:43:08 $
- *  $Revision: 1.8 $
+ *  $Date: 2010/06/04 09:14:23 $
+ *  $Revision: 1.9 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -19,7 +19,6 @@
 #include "CondFormats/DTObjects/interface/DTHVStatus.h"
 
 
-#include "CondCore/DBCommon/interface/DbConnection.h"
 #include "CondCore/DBCommon/interface/DbSession.h"
 #include "CondCore/DBCommon/interface/DbTransaction.h"
 
@@ -27,7 +26,6 @@
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ITable.h"
 #include "RelationalAccess/ICursor.h"
@@ -74,6 +72,9 @@ DTHVStatusHandler::DTHVStatusHandler( const edm::ParameterSet& ps ) :
  bwdTime(               ps.getParameter<long long int> ( "bwdTime" ) ),
  fwdTime(               ps.getParameter<long long int> ( "fwdTime" ) ),
  minTime(               ps.getParameter<long long int> ( "minTime" ) ),
+ connection(),
+ omds_session(),
+ buff_session(),
  mapVersion(            ps.getParameter<std::string> ( "mapVersion"   ) ),
  splitVersion(          ps.getParameter<std::string> ( "splitVersion" ) ) {
   std::cout << " PopCon application for DT HV data export "
@@ -96,41 +97,28 @@ void DTHVStatusHandler::getNewObjects() {
 
   std::cout << "get new objects..." << std::endl;
 
-// online DB connection
-  std::cout << "create omds DbConnection" << std::endl;
-  cond::DbConnection* omds_conn = new cond::DbConnection;
+  // online DB connection
   std::cout << "configure omds DbConnection" << std::endl;
-//  conn->configure( cond::CmsDefaults );
-  omds_conn->configuration().setAuthenticationPath( onlineAuthentication );
-  omds_conn->configure();
+  //  conn->configure( cond::CmsDefaults );
+  connection.configuration().setAuthenticationPath( onlineAuthentication );
+  connection.configure();
   std::cout << "create omds DbSession" << std::endl;
-  cond::DbSession omds_session = omds_conn->createSession();
+  cond::DbSession omds_session = connection.createSession();
   std::cout << "open omds session" << std::endl;
   omds_session.open( onlineConnect );
   std::cout << "start omds transaction" << std::endl;
   omds_session.transaction().start();
-  std::cout << "create omds coralSession" << std::endl;
-  omds_s_proxy = &( omds_session.coralSession() );
   std::cout << "" << std::endl;
 
-// buffer DB connection
-  std::cout << "create buffer DbConnection" << std::endl;
-  cond::DbConnection* buff_conn = new cond::DbConnection;
-  std::cout << "configure buffer DbConnection" << std::endl;
-//  conn->configure( cond::CmsDefaults );
-  buff_conn->configuration().setAuthenticationPath( onlineAuthentication );
-  buff_conn->configure();
+  // buffer DB connection
   std::cout << "create buffer DbSession" << std::endl;
-  cond::DbSession buff_session = buff_conn->createSession();
+  cond::DbSession buff_session = connection.createSession();
   std::cout << "open buffer session" << std::endl;
   buff_session.open( bufferConnect );
   std::cout << "start buffer transaction" << std::endl;
   buff_session.transaction().start();
-  std::cout << "create buffer coralSession" << std::endl;
-  buff_s_proxy = &( buff_session.coralSession() );
-  std::cout << "buffer session proxy got" << std::endl;
 
-// offline info
+  // offline info
 
   //to access the information on the tag inside the offline database:
   cond::TagInfo const & ti = tagInfo();
@@ -237,7 +225,7 @@ void DTHVStatusHandler::checkNewData() {
             << coralTime( procUntil ).minute() << " "
             << coralTime( procUntil ).second() << std::endl;
 
-  std::set<std::string> lt( omds_s_proxy->nominalSchema().listTables() );
+  std::set<std::string> lt( omds_session.nominalSchema().listTables() );
   std::set<std::string>::const_iterator iter = lt.begin();
   std::set<std::string>::const_iterator iend = lt.end();
   while ( iter != iend ) {
@@ -251,7 +239,7 @@ void DTHVStatusHandler::checkNewData() {
 
   std::cout << "open buffer db..." << std::endl;
 
-  if ( !( buff_s_proxy->nominalSchema().existsTable( "HVSNAPSHOT" ) ) )
+  if ( !( buff_session.nominalSchema().existsTable( "HVSNAPSHOT" ) ) )
       createSnapshot();
   updateHVStatus();
 
@@ -266,13 +254,13 @@ std::string DTHVStatusHandler::id() const {
 
 void DTHVStatusHandler::getChannelMap() {
 
-  if ( !( buff_s_proxy->nominalSchema().existsTable( "HVALIASES" ) ) ) {
+  if ( !( buff_session.nominalSchema().existsTable( "HVALIASES" ) ) ) {
     dumpHVAliases();
   }
   else {
     std::cout << "retrieve aliases table..." << std::endl;
     coral::ITable& hvalTable =
-      buff_s_proxy->nominalSchema().tableHandle( "HVALIASES" );
+      buff_session.nominalSchema().tableHandle( "HVALIASES" );
     std::auto_ptr<coral::IQuery> hvalQuery( hvalTable.newQuery() );
     hvalQuery->addToOutputList( "DETID" );
     hvalQuery->addToOutputList(  "DPID" );
@@ -303,7 +291,7 @@ void DTHVStatusHandler::getLayerSplit() {
   int f_c;
   int l_c;
   coral::ITable& lsplTable =
-    omds_s_proxy->nominalSchema().tableHandle( "DT_HV_LAYER_SPLIT" );
+    omds_session.nominalSchema().tableHandle( "DT_HV_LAYER_SPLIT" );
   std::auto_ptr<coral::IQuery> lsplQuery( lsplTable.newQuery() );
   coral::AttributeList versionBindVariableList;
   versionBindVariableList.extend( "version", typeid(std::string) );
@@ -350,7 +338,7 @@ void DTHVStatusHandler::getChannelSplit() {
   int slay;
   int sl_p;
   coral::ITable& csplTable =
-    omds_s_proxy->nominalSchema().tableHandle( "DT_HV_CHANNEL_SPLIT" );
+    omds_session.nominalSchema().tableHandle( "DT_HV_CHANNEL_SPLIT" );
   std::auto_ptr<coral::IQuery> csplQuery( csplTable.newQuery() );
   coral::AttributeList versionBindVariableList;
   versionBindVariableList.extend( "version", typeid(std::string) );
@@ -422,12 +410,12 @@ void DTHVStatusHandler::dumpHVAliases() {
                          typeid(int) ) );
   std::cout << "create aliases table..." << std::endl;
   coral::ITable& hvalTable = 
-  buff_s_proxy->nominalSchema().createTable( hvalDesc );
+  buff_session.nominalSchema().createTable( hvalDesc );
 
   std::cout << "open DPNAME table..." << std::endl;
   std::map<int,std::string> idMap;
   coral::ITable& dpidTable =
-    omds_s_proxy->nominalSchema().tableHandle( "DP_NAME2ID" );
+    omds_session.nominalSchema().tableHandle( "DP_NAME2ID" );
   std::auto_ptr<coral::IQuery> dpidQuery( dpidTable.newQuery() );
   dpidQuery->addToOutputList( "ID" );
   dpidQuery->addToOutputList( "DPNAME" );
@@ -444,7 +432,7 @@ void DTHVStatusHandler::dumpHVAliases() {
   std::cout << "open ALIASES table..." << std::endl;
   std::map<std::string,std::string> cnMap;
   coral::ITable& nameTable =
-    omds_s_proxy->nominalSchema().tableHandle( "ALIASES" );
+    omds_session.nominalSchema().tableHandle( "ALIASES" );
   std::auto_ptr<coral::IQuery> nameQuery( nameTable.newQuery() );
   nameQuery->addToOutputList( "DPE_NAME" );
   nameQuery->addToOutputList( "ALIAS" );
@@ -569,9 +557,9 @@ void DTHVStatusHandler::createSnapshot() {
                          coral::AttributeSpecification::typeNameForId( 
                          typeid(float) ) );
   std::cout << "create snapshot table..." << std::endl;
-  buff_s_proxy->nominalSchema().createTable( hvssDesc );
+  buff_session.nominalSchema().createTable( hvssDesc );
   coral::ITable& bufferTable = 
-    buff_s_proxy->nominalSchema().tableHandle( "HVSNAPSHOT" );
+    buff_session.nominalSchema().tableHandle( "HVSNAPSHOT" );
   coral::AttributeList newMeas;
   newMeas.extend( "TIME",       typeid(coral::TimeStamp) );
   newMeas.extend( "WHEEL",      typeid(int) );
@@ -608,8 +596,8 @@ void DTHVStatusHandler::createSnapshot() {
   }
 
   std::cout << "create logging info..." << std::endl;
-  if ( buff_s_proxy->nominalSchema().existsTable( "LOG" ) )
-       buff_s_proxy->nominalSchema().  dropTable( "LOG" );
+  if ( buff_session.nominalSchema().existsTable( "LOG" ) )
+       buff_session.nominalSchema().  dropTable( "LOG" );
   coral::TableDescription infoDesc;
   infoDesc.setName( "LOG" );
   infoDesc.insertColumn( "EXECTIME",
@@ -618,7 +606,7 @@ void DTHVStatusHandler::createSnapshot() {
   infoDesc.insertColumn( "SNAPSHOT",
                          coral::AttributeSpecification::typeNameForId( 
                          typeid(coral::TimeStamp) ) );
-  buff_s_proxy->nominalSchema().createTable( infoDesc );
+  buff_session.nominalSchema().createTable( infoDesc );
   coral::AttributeList newInfo;
   newInfo.extend( "EXECTIME", typeid(coral::TimeStamp) );
   newInfo.extend( "SNAPSHOT", typeid(coral::TimeStamp) );
@@ -627,7 +615,7 @@ void DTHVStatusHandler::createSnapshot() {
   newInfo["SNAPSHOT"].data<coral::TimeStamp>() =
                            coral::TimeStamp( zeroTime );
   coral::ITable& infoTable = 
-    buff_s_proxy->nominalSchema().tableHandle( "LOG" );
+    buff_session.nominalSchema().tableHandle( "LOG" );
   infoTable.dataEditor().insertRow( newInfo );
 
   return;
@@ -692,7 +680,7 @@ int DTHVStatusHandler::recoverSnapshot() {
   std::map<int,int>::const_iterator layIend = layerMap.end();
   std::cout << "retrieve snapshot table..." << std::endl;
   coral::ITable& hvssTable =
-         buff_s_proxy->nominalSchema().tableHandle( "HVSNAPSHOT" );
+         buff_session.nominalSchema().tableHandle( "HVSNAPSHOT" );
   std::auto_ptr<coral::IQuery> hvssQuery( hvssTable.newQuery() );
   hvssQuery->addToOutputList( "TIME" );
   hvssQuery->addToOutputList( "WHEEL" );
@@ -733,7 +721,7 @@ int DTHVStatusHandler::recoverSnapshot() {
 
 cond::Time_t DTHVStatusHandler::recoverLastTime() {
   coral::ITable& infoTable =
-         buff_s_proxy->nominalSchema().tableHandle( "LOG" );
+         buff_session.nominalSchema().tableHandle( "LOG" );
   std::auto_ptr<coral::IQuery> infoQuery( infoTable.newQuery() );
   infoQuery->addToOutputList( "SNAPSHOT" );
   coral::ICursor& infoCursor = infoQuery->execute();
@@ -753,7 +741,7 @@ void DTHVStatusHandler::dumpSnapshot( const coral::TimeStamp& time ) {
   std::map<int,int>::const_iterator mapIter = aliasMap.begin();
   std::map<int,int>::const_iterator mapIend = aliasMap.end();
   coral::ITable& hvssTable =
-         buff_s_proxy->nominalSchema().tableHandle( "HVSNAPSHOT" );
+         buff_session.nominalSchema().tableHandle( "HVSNAPSHOT" );
   coral::ITableDataEditor& hvssEditor( hvssTable.dataEditor() );
   long nRows = hvssEditor.deleteRows( emptyCondition, emptyBindVariableList );
   std::cout << nRows << " rows deleted" << std::endl;
@@ -800,8 +788,8 @@ void DTHVStatusHandler::dumpSnapshot( const coral::TimeStamp& time ) {
   std::cout << nRows << " rows updated" << std::endl;
 
   std::cout << "create logging info..." << std::endl;
-  if ( buff_s_proxy->nominalSchema().existsTable( "LOG" ) )
-       buff_s_proxy->nominalSchema().  dropTable( "LOG" );
+  if ( buff_session.nominalSchema().existsTable( "LOG" ) )
+       buff_session.nominalSchema().  dropTable( "LOG" );
   coral::TableDescription infoDesc;
   infoDesc.setName( "LOG" );
   infoDesc.insertColumn( "EXECTIME",
@@ -810,14 +798,14 @@ void DTHVStatusHandler::dumpSnapshot( const coral::TimeStamp& time ) {
   infoDesc.insertColumn( "SNAPSHOT",
                          coral::AttributeSpecification::typeNameForId( 
                          typeid(coral::TimeStamp) ) );
-  buff_s_proxy->nominalSchema().createTable( infoDesc );
+  buff_session.nominalSchema().createTable( infoDesc );
   coral::AttributeList newInfo;
   newInfo.extend( "EXECTIME", typeid(coral::TimeStamp) );
   newInfo.extend( "SNAPSHOT", typeid(coral::TimeStamp) );
   newInfo["EXECTIME"].data<coral::TimeStamp>() = coral::TimeStamp::now();
   newInfo["SNAPSHOT"].data<coral::TimeStamp>() = time;
   coral::ITable& infoTable = 
-    buff_s_proxy->nominalSchema().tableHandle( "LOG" );
+    buff_session.nominalSchema().tableHandle( "LOG" );
   infoTable.dataEditor().insertRow( newInfo );
 
   return;
@@ -836,7 +824,7 @@ int DTHVStatusHandler::checkForPeriod( cond::Time_t condSince,
   std::map<long long int,channelValue> periodBuffer;
 
   coral::ITable& fwccTable =
-    omds_s_proxy->nominalSchema().tableHandle( "FWCAENCHANNEL" );
+    omds_session.nominalSchema().tableHandle( "FWCAENCHANNEL" );
   std::auto_ptr<coral::IQuery> fwccQuery( fwccTable.newQuery() );
   fwccQuery->addToOutputList( "DPID"          );
   fwccQuery->addToOutputList( "CHANGE_DATE"   );

@@ -5,8 +5,8 @@
  *  Description: Class to copy HV status via PopCon
  *
  *
- *  $Date: 2010/01/18 18:36:10 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/04/02 10:30:59 $
+ *  $Revision: 1.5 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -20,11 +20,11 @@
 // Collaborating Class Declarations --
 //------------------------------------
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CondCore/DBCommon/interface/DbConnection.h"
 #include "CondFormats/DTObjects/interface/DTHVStatus.h"
 #include <string>
 
 namespace coral {
-  class ISessionProxy;
   class TimeStamp;
 }
 #include "CondTools/DT/interface/DTHVAbstractCheck.h"
@@ -124,9 +124,10 @@ class DTHVStatusHandler: public popcon::PopConSourceHandler<DTHVStatus> {
   cond::Time_t timeLimit;
   long long int lastStamp;
   int maxPayload;
-
-  coral::ISessionProxy* omds_s_proxy;
-  coral::ISessionProxy* buff_s_proxy;
+  
+  cond::DbConnection connection;
+  cond::DbSession omds_session;
+  cond::DbSession buff_session;
 
   std::string mapVersion;
   std::string splitVersion;

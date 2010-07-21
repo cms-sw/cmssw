@@ -5,8 +5,8 @@
  *  Description: 
  *
  *
- *  $Date: 2010/05/14 11:43:08 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/07/21 17:13:43 $
+ *  $Revision: 1.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -20,12 +20,9 @@
 // Collaborating Class Declarations --
 //------------------------------------
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CondCore/DBCommon/interface/DbConnection.h"
 #include "CondFormats/DTObjects/interface/DTCCBConfig.h"
 #include <string>
-
-namespace coral {
-  class ISessionProxy;
-}
 
 namespace cond {
   class KeyList;
@@ -71,8 +68,9 @@ class DTUserKeyedConfigHandler: public popcon::PopConSourceHandler<DTCCBConfig> 
   bool writeKeys;
   bool writeData;
   DTCCBConfig* ccbConfig;
-
-  coral::ISessionProxy* isession;
+  
+  cond::DbConnection connection;
+  cond::DbSession isession;
   void chkConfigList( const std::map<int,bool>& userBricks );
   bool userDiscardedKey( int key );
   static bool sameConfigList( const std::vector<DTConfigKey>& cfgl,
