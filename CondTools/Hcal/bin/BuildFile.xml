@@ -1,8 +1,5 @@
 <use   name="clhep"/>
 <use   name="boost"/>
-<use   name="DataSvc"/>
-<use   name="Collection"/>
-<use   name="ImplicitCollection"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="CalibCalorimetry/HcalAlgos"/>
 <use   name="CondFormats/Calibration"/>
