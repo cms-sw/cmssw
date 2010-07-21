@@ -27,8 +27,6 @@
 
 #include <ctime>
 
-#include "BeginJobCleanup.h"
-
 namespace edm {
 
   namespace {
@@ -221,10 +219,8 @@ namespace edm {
   }
 
   void
-  InputSource::doBeginJob(EventSetup const& es) {
-    allModuleNames().insert(moduleDescription_.moduleName());
+  InputSource::doBeginJob() {
     this->beginJob();
-    this->beginJob(es);
   }
 
   void
@@ -540,11 +536,6 @@ namespace edm {
 
   void
   InputSource::endRun(Run&) {}
-
-  void
-  InputSource::beginJob(EventSetup const&) {
-    allModuleNames().erase(moduleDescription_.moduleName());
-  }
 
   void
   InputSource::beginJob() {}

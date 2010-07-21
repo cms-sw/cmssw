@@ -67,8 +67,6 @@
 
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 
-#include "BeginJobCleanup.h"
-
 using edm::serviceregistry::ServiceLegacy; 
 using edm::serviceregistry::kOverlapIsError;
 
@@ -863,13 +861,7 @@ namespace edm {
     //   looper_->beginOfJob(es);
     //}
     try {
-      //using presently empty ESSource
-      // this will go away when all 'doBeginJob' taking
-      // the EventSetup as argument are removed
-      EventSetup const& es =
-      esp_->eventSetup();
-      
-      input_->doBeginJob(es);
+      input_->doBeginJob();
     } catch(cms::Exception& e) {
       LogError("BeginJob") << "A cms::Exception happened while processing the beginJob of the 'source'\n";
       e << "A cms::Exception happened while processing the beginJob of the 'source'\n";
@@ -881,22 +873,8 @@ namespace edm {
       LogError("BeginJob") << "An unknown exception happened while processing the beginJob of the 'source'\n";
       throw;
     }
-    //using presently empty ESSource
-    // this will go away when all 'doBeginJob' taking
-    // the EventSetup as argument are removed
-    EventSetup const& es =
-    esp_->eventSetup();
     
-    schedule_->beginJob(es);
-    if (!allModuleNames().empty()) {
-      cms::Exception exception("The following modules still define beginJob(EventSetup):\n");
-      for (std::set<std::string>::const_iterator it = allModuleNames().begin(), itEnd = allModuleNames().end(); it != itEnd; ++it) {
-	exception << *it << "\n";
-      }
-      exception << "beginJob(EventSetup) is obsolete. It should be replaced by beginJob() (no arguments).\n";
-      exception << "If the module needs EventSetup, EventSetup must be provided by a different function (e.g. beginRun()).\n";
-      throw exception;
-    }
+    schedule_->beginJob();
     actReg_->postBeginJobSignal_();
     // toerror.succeeded(); // should we add this?
   }

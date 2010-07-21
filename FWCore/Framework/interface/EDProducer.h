@@ -37,7 +37,7 @@ namespace edm {
   private:
     bool doEvent(EventPrincipal& ep, EventSetup const& c,
 		   CurrentProcessingContext const* cpcp);
-    void doBeginJob(EventSetup const&);
+    void doBeginJob();
     void doEndJob();
     bool doBeginRun(RunPrincipal& rp, EventSetup const& c,
 		   CurrentProcessingContext const* cpc);
@@ -60,8 +60,6 @@ namespace edm {
     std::string workerType() const {return "WorkerT<EDProducer>";}
 
     virtual void produce(Event&, EventSetup const&) = 0;
-    //This interface is deprecated
-    virtual void beginJob(EventSetup const&);
     virtual void beginJob() {}
     virtual void endJob(){}
     virtual void beginRun(Run&, EventSetup const&){}

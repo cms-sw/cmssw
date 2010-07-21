@@ -33,7 +33,7 @@ namespace edm {
   private:
     bool doEvent(EventPrincipal const& ep, EventSetup const& c,
 		   CurrentProcessingContext const* cpc);
-    void doBeginJob(EventSetup const&);
+    void doBeginJob();
     void doEndJob();
     bool doBeginRun(RunPrincipal const& rp, EventSetup const& c,
 		   CurrentProcessingContext const* cpc);
@@ -52,8 +52,6 @@ namespace edm {
     void registerAnyProducts(EDAnalyzer const*, ProductRegistry const*) {}
 
     virtual void analyze(Event const&, EventSetup const&) = 0;
-    //This interface is deprecated
-    virtual void beginJob(EventSetup const&);
     virtual void beginJob(){}
     virtual void endJob(){}
     virtual void beginRun(Run const&, EventSetup const&){}

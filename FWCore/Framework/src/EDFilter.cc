@@ -12,8 +12,6 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include "BeginJobCleanup.h"
-
 namespace edm {
   EDFilter::~EDFilter() {
   }
@@ -30,17 +28,10 @@ namespace edm {
   }
 
   void 
-  EDFilter::doBeginJob(EventSetup const& es) { 
-    allModuleNames().insert(moduleDescription_.moduleName());
+  EDFilter::doBeginJob() { 
     this->beginJob();
-    this->beginJob(es);
   }
    
-  void 
-  EDFilter::beginJob(EventSetup const& es) { 
-    allModuleNames().erase(moduleDescription_.moduleName());
-  }
-
   void EDFilter::doEndJob() { 
     this->endJob();
   }
