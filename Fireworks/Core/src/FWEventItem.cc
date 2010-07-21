@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.46 2010/06/03 13:38:32 eulisse Exp $
+// $Id: FWEventItem.cc,v 1.47 2010/06/18 10:17:15 yana Exp $
 //
 
 // system include files
@@ -426,12 +426,6 @@ FWEventItem::data(const std::type_info& iInfo) const
             }
             return 0;
          }
-         m_fullBranchName = m_event->getBranchNameFor(iInfo,
-						      m_moduleLabel.c_str(),
-						      m_productInstanceLabel.c_str(),
-						      m_processName.c_str());
-//       printf("full branch name for event item %s is %s\n", name().c_str(), m_fullBranchName.c_str());
-
          //Get Reflex to do the work
          Object wrapperObj(m_wrapperType,wrapper);
 

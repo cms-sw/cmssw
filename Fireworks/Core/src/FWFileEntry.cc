@@ -201,16 +201,24 @@ void FWFileEntry::runFilter(Filter* filter, FWEventItemsManager* eiMng)
    for (FWEventItemsManager::const_iterator i = eiMng->begin(),
            end = eiMng->end(); i != end; ++i)
    {
-      if (*i == 0) continue;
+      FWEventItem *item = *i;
+      if (item == 0) 
+         continue;
       //FIXME: hack to get full branch name filled
-      if ( (*i)->m_event == 0 ) {
-         (*i)->m_event = m_event;
-         (*i)->getPrimaryData();
-         (*i)->m_event = 0;
+      if (item->m_event == 0 ) 
+      {
+          item->m_event = m_event;
+          item->getPrimaryData();
+          item->m_event = 0;
       }
       boost::regex re(std::string("\\$") + (*i)->name());
+      std::string fullBranchName = m_event->getBranchNameFor(*(item->type()->GetTypeInfo()), 
+                                                             item->moduleLabel().c_str(), 
+                                                             item->productInstanceLabel().c_str(),
+                                                             item->processName().c_str());
+      
       interpretedSelection = boost::regex_replace(interpretedSelection, re,
-                                                  (*i)->m_fullBranchName + ".obj");
+                                                  fullBranchName + ".obj");
       // printf("selection after applying s/%s/%s/: %s\n",
       //     (std::string("\\$") + (*i)->name()).c_str(),
       //     ((*i)->m_fullBranchName + ".obj").c_str(),

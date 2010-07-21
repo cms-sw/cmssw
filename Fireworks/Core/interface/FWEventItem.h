@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.40 2010/04/09 11:17:46 amraktad Exp $
+// $Id: FWEventItem.h,v 1.41 2010/05/03 16:25:53 matevz Exp $
 //
 
 // system include files
@@ -239,8 +239,6 @@ private:
 
    FWModelFilter m_filter;
    mutable bool m_printedErrorThisEvent;
-   mutable std::string m_fullBranchName;
-   
    mutable std::string m_errorMessage;
    
    bool m_isSelected;
