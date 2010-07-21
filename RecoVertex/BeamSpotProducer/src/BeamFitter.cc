@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.69 2010/07/13 02:05:37 jengbou Exp $
+   version $Id: BeamFitter.cc,v 1.70 2010/07/15 04:21:45 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -644,8 +644,8 @@ void BeamFitter::dumpTxtFile(std::string & fileName, bool append){
       int bx = abspot->first;
 
       outFile << "Runnumber " << frun << " bx " << bx << std::endl;
-      outFile << "BeginTimeOfFit " << fbeginTimeOfFit << std::endl;
-      outFile << "EndTimeOfFit " << fendTimeOfFit << std::endl;
+      outFile << "BeginTimeOfFit " << fbeginTimeOfFit << " " << freftime[0] << std::endl;
+      outFile << "EndTimeOfFit " << fendTimeOfFit << " " << freftime[1] << std::endl;
       outFile << "LumiRange " << fbeginLumiOfFit << " - " << fendLumiOfFit << std::endl;
       outFile << "Type " << beamspottmp.type() << std::endl;
       outFile << "X0 " << beamspottmp.x0() << std::endl;
@@ -673,8 +673,8 @@ void BeamFitter::dumpTxtFile(std::string & fileName, bool append){
   }
   else {
     outFile << "Runnumber " << frun << std::endl;
-    outFile << "BeginTimeOfFit " << fbeginTimeOfFit << std::endl;
-    outFile << "EndTimeOfFit " << fendTimeOfFit << std::endl;
+    outFile << "BeginTimeOfFit " << fbeginTimeOfFit << " " << freftime[0] << std::endl;
+    outFile << "EndTimeOfFit " << fendTimeOfFit << " " << freftime[1] << std::endl;
     outFile << "LumiRange " << fbeginLumiOfFit << " - " << fendLumiOfFit << std::endl;
     outFile << "Type " << fbeamspot.type() << std::endl;
     outFile << "X0 " << fbeamspot.x0() << std::endl;
