@@ -513,7 +513,7 @@ cmsRun testCompareDumpFiles.py > tcdfSTDvsGTDB.log
 
 diff compDDdumperrors.log compDDdumperrors.expected > diffcompSTDvsGTDB.log
 if (-s tcdfSTDvsGTDB.log || -s diffcompSTDvsGTDB.log ) then
-    echo "WARNING THE GEOMETRYFILE IS DIFFERENT BETWEEN STD AND GLOBALTAG DATABASE BLOB." | tee -a GeometryValidation.log
+    echo "WARNING THE GEOMETRYFILE IS DIFFERENT BETWEEN STD XML AND GLOBALTAG DATABASE BLOB." | tee -a GeometryValidation.log
 endif
 
 cp $CMSSW_RELEASE_BASE/src/GeometryReaders/XMLIdealGeometryESSource/test/testCompareDumpFiles.py .
