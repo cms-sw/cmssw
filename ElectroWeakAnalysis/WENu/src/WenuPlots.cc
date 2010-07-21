@@ -111,6 +111,7 @@ WenuPlots::WenuPlots(const edm::ParameterSet& iConfig)
     DRJetFromElectron_    = iConfig.getUntrackedParameter<Double_t>("DRJetFromElectron");
   }
   storeExtraInformation_ = iConfig.getUntrackedParameter<Bool_t>("storeExtraInformation");
+  storeAllSecondElectronVariables_ = iConfig.getUntrackedParameter<Bool_t>("storeAllSecondElectronVariables", false);
   //
   // the selection cuts:
   trackIso_EB_ = iConfig.getUntrackedParameter<Double_t>("trackIso_EB", 1000.);
@@ -393,10 +394,40 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   ele2nd_sc_phi    = -1;
   ele2nd_cand_eta  = -1;
   ele2nd_cand_phi  = -1;
+  ele2nd_cand_et   = -1;
   ele2nd_pin       = -1;
   ele2nd_pout      = -1;
   ele2nd_passes_selection = -1; // also in sele tree
   ele2nd_ecalDriven=  0; 
+  //
+  // second electron selection variables: only if requested by the user
+  //
+  ele2nd_iso_track = 0;
+  ele2nd_iso_ecal  = 0;
+  ele2nd_iso_hcal  = 0;
+  //
+  ele2nd_id_sihih  = 0;
+  ele2nd_id_deta   = 0;
+  ele2nd_id_dphi   = 0;
+  ele2nd_id_hoe    = 0;
+  //
+  ele2nd_cr_mhitsinner = 0;
+  ele2nd_cr_dcot       = 0;
+  ele2nd_cr_dist       = 0;
+  //
+  ele2nd_vx     = 0;
+  ele2nd_vy     = 0;
+  ele2nd_vz     = 0;
+  //
+  ele2nd_gsfCharge   = 0;
+  // must keep the ctf track collection, i.e. general track collection
+  ele2nd_ctfCharge   = 0;
+  ele2nd_scPixCharge = 0;
+  ele2nd_eop         = 0;
+  ele2nd_tip_bs      = 0;
+  ele2nd_tip_pv      = 0;
+  ele2nd_hltmatched_dr = 0;
+  //  
   // convention for ele2nd_passes_selection
   // 0 passes no selection
   // 1 passes WP95
@@ -409,10 +440,12 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
     const pat::Electron * mySecondElec=
       dynamic_cast<const pat::Electron*> (wenu.daughter("secondElec"));    
     ele2nd_sc_gsf_et = (Float_t) mySecondElec->superCluster()->energy()/TMath::CosH(mySecondElec->gsfTrack()->eta());
+
     ele2nd_sc_eta    = (Float_t) mySecondElec->superCluster()->eta();
     ele2nd_sc_phi    = (Float_t) mySecondElec->superCluster()->phi();
     ele2nd_cand_eta  = (Float_t) mySecondElec->eta();
     ele2nd_cand_phi  = (Float_t) mySecondElec->phi();
+    ele2nd_cand_et   = (Float_t) mySecondElec->et();
     ele2nd_pin       = (Float_t) mySecondElec->trackMomentumAtVtx().R();;
     ele2nd_pout      = (Float_t) mySecondElec->trackMomentumOut().R();
     ele2nd_ecalDriven= (Int_t)   mySecondElec->ecalDrivenSeed();
@@ -431,6 +464,32 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
       else if (fabs(mySecondElec->electronID("simpleEleId85relIso")-7) < 0.1) ele2nd_passes_selection = 3;
       else if (fabs(mySecondElec->electronID("simpleEleId90relIso")-7) < 0.1) ele2nd_passes_selection = 2;
       else if (fabs(mySecondElec->electronID("simpleEleId95relIso")-7) < 0.1) ele2nd_passes_selection = 1;
+    }
+    if (storeAllSecondElectronVariables_) {
+      ele2nd_iso_track = (Float_t)  mySecondElec->dr03IsolationVariables().tkSumPt / ele2nd_cand_et;
+      ele2nd_iso_ecal  = (Float_t)  mySecondElec->dr03IsolationVariables().ecalRecHitSumEt/ele2nd_cand_et;
+      ele2nd_iso_hcal  = (Float_t)  ( mySecondElec->dr03IsolationVariables().hcalDepth1TowerSumEt + 
+				      mySecondElec->dr03IsolationVariables().hcalDepth2TowerSumEt) / ele2nd_cand_et;
+      ele2nd_id_sihih  = (Float_t)  mySecondElec->sigmaIetaIeta();
+      ele2nd_id_deta   = (Float_t)  mySecondElec->deltaEtaSuperClusterTrackAtVtx();
+      ele2nd_id_dphi   = (Float_t)  mySecondElec->deltaPhiSuperClusterTrackAtVtx();
+      ele2nd_id_hoe    = (Float_t)  mySecondElec->hadronicOverEm();
+
+      ele2nd_cr_mhitsinner = mySecondElec->gsfTrack()->trackerExpectedHitsInner().numberOfHits();
+      ele2nd_cr_dcot       = mySecondElec->userFloat("Dcot");
+      ele2nd_cr_dist       = mySecondElec->userFloat("Dist");
+      
+      ele2nd_vx        = (Float_t) mySecondElec->vx();
+      ele2nd_vy        = (Float_t) mySecondElec->vy();
+      ele2nd_vz        = (Float_t) mySecondElec->vz();
+      ele2nd_gsfCharge   = (Int_t) mySecondElec->gsfTrack()->charge();
+      // must keep the ctf track collection, i.e. general track collection
+      ele2nd_ctfCharge   = (Int_t) mySecondElec->closestCtfTrackRef().isNonnull() ? mySecondElec->closestCtfTrackRef()->charge():-9999;
+      ele2nd_scPixCharge = (Int_t) mySecondElec->chargeInfo().scPixCharge;
+      ele2nd_eop         = (Float_t) mySecondElec->eSuperClusterOverP();
+      ele2nd_tip_bs      = (Float_t) -mySecondElec->dB();
+      ele2nd_tip_pv      =   mySecondElec->userFloat("ele_tip_pv");
+      ele2nd_hltmatched_dr = mySecondElec->userFloat("HLTMatchingDR");
     }
   }
   // some extra information
@@ -1002,6 +1061,30 @@ WenuPlots::beginJob()
     vbtfPresele_tree->Branch("ele2nd_passes_selection",&ele2nd_passes_selection,"ele2nd_passes_selection/I");
     vbtfPresele_tree->Branch("ele_hltmatched_dr",&ele_hltmatched_dr,"ele_hltmatched_dr/F");
     vbtfPresele_tree->Branch("event_triggerDecision",&event_triggerDecision,"event_triggerDecision/I");
+  }
+  if (storeAllSecondElectronVariables_) {
+    vbtfPresele_tree->Branch("ele2nd_cand_et",&ele2nd_cand_et,"ele2nd_cand_et/F");
+    vbtfPresele_tree->Branch("ele2nd_iso_track",&ele2nd_iso_track ,"ele2nd_iso_track /F");
+    vbtfPresele_tree->Branch("ele2nd_iso_ecal",&ele2nd_iso_ecal,"ele2nd_iso_ecal/F");
+    vbtfPresele_tree->Branch("ele2nd_iso_hcal",&ele2nd_iso_hcal,"ele2nd_iso_hcal/F");
+    vbtfPresele_tree->Branch("ele2nd_id_sihih",&ele2nd_id_sihih,"ele2nd_id_sihih/F");
+    vbtfPresele_tree->Branch("ele2nd_id_deta",&ele2nd_id_deta,"ele2nd_id_deta/F");
+    vbtfPresele_tree->Branch("ele2nd_id_dphi",&ele2nd_id_dphi,"ele2nd_id_dphi/F");
+    vbtfPresele_tree->Branch("ele2nd_id_hoe",&ele2nd_id_hoe,"ele2nd_id_hoe/F");
+    vbtfPresele_tree->Branch("ele2nd_cr_mhitsinner",&ele2nd_cr_mhitsinner,"ele2nd_cr_mhitsinner/I");
+    vbtfPresele_tree->Branch("ele2nd_cr_dcot",&ele2nd_cr_dcot,"ele2nd_cr_dcot/F");
+    vbtfPresele_tree->Branch("ele2nd_cr_dist",&ele2nd_cr_dist ,"ele2nd_cr_dist/F");
+    vbtfPresele_tree->Branch("ele2nd_vx",&ele2nd_vx,"ele2nd_vx/F");
+    vbtfPresele_tree->Branch("ele2nd_vy",&ele2nd_vy,"ele2nd_vy/F");
+    vbtfPresele_tree->Branch("ele2nd_vz",&ele2nd_vz,"ele2nd_vz/F");
+
+    vbtfPresele_tree->Branch("ele2nd_gsfCharge",&ele2nd_gsfCharge,"ele2nd_gsfCharge/I");
+    vbtfPresele_tree->Branch("ele2nd_ctfCharge",&ele2nd_ctfCharge,"ele2nd_ctfCharge/I");
+    vbtfPresele_tree->Branch("ele2nd_scPixCharge",&ele2nd_scPixCharge,"ele2nd_scPixCharge/I");
+    vbtfPresele_tree->Branch("ele2nd_eop",&ele2nd_eop,"ele2nd_eop/F");
+    vbtfPresele_tree->Branch("ele2nd_tip_bs",&ele2nd_tip_bs,"ele2nd_tip_bs/F");
+    vbtfPresele_tree->Branch("ele2nd_tip_pv",&ele2nd_tip_pv,"ele2nd_tip_pv/F");
+    vbtfPresele_tree->Branch("ele2nd_hltmatched_dr",&ele2nd_hltmatched_dr,"ele2nd_hltmatched_dr/F");
   }
   vbtfPresele_tree->Branch("event_datasetTag",&event_datasetTag,"event_dataSetTag/I");  
 

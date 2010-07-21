@@ -591,17 +591,24 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    double pv_y = -999999.;
    double pv_z = -999999.;
    double ele_tip_pv = -999999.;
+   double ele2nd_tip_pv = -999999.;
    if (Vtx.size() >=1) {
      pv_x = Vtx[0].position().x();
      pv_y = Vtx[0].position().y();
      pv_z = Vtx[0].position().z();
      ele_tip_pv = -maxETelec.gsfTrack()->dxy(Vtx[0].position());
+     if (hasSecondElectron) {
+       ele2nd_tip_pv = -secondETelec.gsfTrack()->dxy(Vtx[0].position());
+     }
    }
    //
    maxETelec.addUserFloat("pv_x", Float_t(pv_x));
    maxETelec.addUserFloat("pv_x", Float_t(pv_y));
    maxETelec.addUserFloat("pv_z", Float_t(pv_z));
    maxETelec.addUserFloat("ele_tip_pv", Float_t(ele_tip_pv));
+   if (hasSecondElectron) {
+     secondETelec.addUserFloat("ele_tip_pv", Float_t(ele2nd_tip_pv));
+   }
    //std::cout << "** selected ele phi: " << maxETelec.phi()
    //	     << ", eta=" << maxETelec.eta() << ", sihih="
    //	     << maxETelec.scSigmaIEtaIEta() << ", hoe=" 
@@ -672,6 +679,15 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        Double_t dcot = convInfo.dcot();
        Bool_t isConv = ( fabs(dist) < dist_ ) && ( fabs(dcot) < dcot_ );
        //std::cout << "Filter: for this elec the conversion says " << isConv << std::endl;
+       // for the 2nd electron if it exists
+       Double_t dist_2ndele = 0;
+       Double_t dcot_2ndele = 0;
+       if (hasSecondElectron) {
+	 ConversionInfo convInfo2nd = 
+	   convFinder.getConversionInfo(secondETelec, ctfTracks, bfield);
+	 dist_2ndele = convInfo2nd.dist();
+	 dcot_2ndele = convInfo2nd.dcot();
+       }
        if (isConv && useConversionRejection_) {
        	 delete [] sorted;  delete [] et;
        	 return false;	 
@@ -679,6 +695,10 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        if (calculateConversionRejection_) {
 	 maxETelec.addUserFloat("Dist", Float_t(dist));
 	 maxETelec.addUserFloat("Dcot", Float_t(dcot));
+	 if (hasSecondElectron) {
+	   secondETelec.addUserFloat("Dist", Float_t(dist_2ndele));
+	   secondETelec.addUserFloat("Dcot", Float_t(dcot_2ndele));
+	 }
 	 if (isConv) 
 	   maxETelec.addUserInt("PassConversionRejection",0);
 	 else
@@ -695,6 +715,7 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //std::cout << "HLT matching starts" << std::endl;
    if (electronMatched2HLT_ && useTriggerInfo_) {
      Double_t matched_dr_distance = 999999.;
+     Double_t matched_dr_distance_2nd = 999999.;
      Int_t trigger_int_probe = 0;
      if (finalpathfound) {
        if (nF != filterInd) {
@@ -713,6 +734,14 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   if (TMath::Abs(dr_ele_HLT) < matched_dr_distance) {
 	     matched_dr_distance = dr_ele_HLT;
 	   }
+	   if (hasSecondElectron) {
+	     Double_t dr_ele_HLT_2nd = 
+	       reco::deltaR(secondETelec.superCluster()->eta(),secondETelec.superCluster()->phi(),TO.eta(),TO.phi());
+	     //std::cout << "-->found dr=" << dr_ele_HLT << std::endl;
+	     if (TMath::Abs(dr_ele_HLT_2nd) < matched_dr_distance_2nd) {
+	       matched_dr_distance_2nd = dr_ele_HLT_2nd;
+	     }
+	   }
 	 }
        }
        if (useExtraTrigger_) {
@@ -727,10 +756,18 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	     const trigger::TriggerObject& TO(TOC[KEYS[iTrig]]);
 	     //
 	     Double_t dr_ele_HLT = 
-	       reco::deltaR(maxETelec.eta(),maxETelec.phi(),TO.eta(),TO.phi());
+	       reco::deltaR(maxETelec.superCluster()->eta(),maxETelec.superCluster()->phi(),TO.eta(),TO.phi());
 	     //std::cout << "-->found dr=" << dr_ele_HLT << std::endl;
 	     if (TMath::Abs(dr_ele_HLT) < matched_dr_distance) {
 	       matched_dr_distance = dr_ele_HLT;
+	     }
+	     if (hasSecondElectron) {
+	       Double_t dr_ele_HLT_2nd = 
+		 reco::deltaR(secondETelec.superCluster()->eta(),secondETelec.superCluster()->phi(),TO.eta(),TO.phi());
+	       //std::cout << "-->found dr=" << dr_ele_HLT << std::endl;
+	       if (TMath::Abs(dr_ele_HLT_2nd) < matched_dr_distance_2nd) {
+		 matched_dr_distance_2nd = dr_ele_HLT_2nd;
+	       }
 	     }
 	   }
 	 }
@@ -743,6 +780,9 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 return false; // RETURN: electron is not matched to an HLT object
        }
        maxETelec.addUserFloat("HLTMatchingDR", Float_t(matched_dr_distance));
+       if (hasSecondElectron) {
+	 secondETelec.addUserFloat("HLTMatchingDR", Float_t(matched_dr_distance_2nd));
+       }
      }
      else {
        delete [] sorted;  delete [] et;
