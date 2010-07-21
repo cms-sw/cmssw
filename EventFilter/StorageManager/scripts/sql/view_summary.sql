@@ -47,7 +47,13 @@ CREATE OR REPLACE FUNCTION INJECTED_CHECK ( s_safe0 in NUMBER, s_closed in NUMBE
    RETURN NUMBER AS 
    status NUMBER;
 BEGIN
+
         status := 0;
+    --if there is any difference, display with blue color, override later if more severe conditions
+    IF ( s_closed != s_safe0 ) THEN
+         status := 3;
+    END IF;
+
 	--if last write was less than 5 min ago (running)
 	IF (ABS(time_diff(sysdate, lastWrite)) < 300) THEN
 		--magenta if more than 350 files waiting to be injected (sort of ~1 min lag)
@@ -80,6 +86,13 @@ CREATE OR REPLACE FUNCTION TRANSFERRED_CHECK ( lastWrite in DATE, lastTrans in D
    status NUMBER;
 BEGIN
         status := 0;
+
+    --if there is any difference, display with blue color, override later if more severe conditions
+    IF ( s_new != s_copied ) THEN
+         status := 3;
+    END IF;
+
+
 	--if last write was less than 3 min ago
 	IF (ABS(time_diff(sysdate, lastWrite)) < 180) THEN --Currently happening
 		--turn red if it's been more than 6 min since last transfer
@@ -103,12 +116,17 @@ CREATE OR REPLACE FUNCTION CHECKED_CHECK ( lastWrite in DATE, lastTrans in DATE,
    status NUMBER;
 BEGIN
         status := 0;
+
+    --if there is any difference, display with blue color, override later if more severe conditions
+    IF ( s_copied != s_checked ) THEN
+         status := 3;
+    END IF;
+
 	--if last write less than 3 min ago currently no check
-	IF (ABS(time_diff(sysdate, lastWrite)) < 180) THEN --Run is On
-		status:= 0;
+	IF (ABS(time_diff(sysdate, lastWrite)) > 180) THEN --Run is Off
+--		status:= 0;
 
 	--if last check more than 10 min ago and not all transferred files checked turn magenta
-	ELSE
 		IF ( (ABS(time_diff(sysdate, lastTrans)) > 600) AND (s_copied - s_checked > 0) ) THEN
                         status := 1;
 		END IF;
@@ -153,82 +171,79 @@ BEGIN
 END TRANS_RATE_CHECK;
 /
 
-CREATE or REPLACE FUNCTION DELETED_CHECK ( Start_time in DATE, s_deleted in number, s_checked in number, s_closed in number, LastTrans in DATE) 
+CREATE or REPLACE FUNCTION DELETED_CHECK (n_hosts in number, Start_time in DATE, s_deleted in number, s_checked in number, s_closed in number, LastTrans in DATE) 
    RETURN NUMBER AS
-   result_1    number;
+   result_1      number;
+   --delete      frequency
+   dfreq         number;
+   toffset       number;
 BEGIN
+   dfreq  := 20*60;
+  
+
+
     result_1 := 0;
-    --no check if no files should be deleted
-    IF s_checked = 0 THEN
+    --no test: if no files "checked" that can be deleted
+    IF (  s_checked = s_deleted ) THEN
 	return result_1; 
     END IF;
 
-    --SM delete script specifies deletes start after:   2hr15min= 7500 [Dec 09]
-    --With 1hr cron freq, allow files to be +1hrs15min: 3hr30min old,...SO:
-    --if         last-trasnf < 1hr20 ( 4800s) --> allow 3hr35 (12900s) worth of files
-    --if 1hr20 < last-trasnf < 2hr20 ( 8400s) --> allow 2hr35 ( 9300s) worth of files
-    --if 2hr20 < last-trasnf < 3hr35 (12900s) --> allow 1hr35 ( 5700s) worth of files
-    --if 3hr35 < last-trasnf                  --> allow 0hr0  (    0s) NO files
-    -- otherwise magenta....if 25% more files then red; and red if non-zero after 4hr05 (14700s)
 
-    --if it's less than 1hr20min since last transfer, determine if the number of undeleted files is larger than a predicted upper limit of files for 3hr35
-    IF ( (time_diff(sysdate, LastTrans)) < 4800) THEN
-        IF ( (s_checked  - s_deleted )  > (12900 * ( s_checked / time_diff( LastTrans, Start_time )))) THEN
-          result_1 := 1;
-        END IF;
-        IF ( (s_checked  - s_deleted )  > (16100 * ( s_checked / time_diff( LastTrans, Start_time )))) THEN
-          result_1 := 2;
-        END IF;
-    ELSE
-        --if it's between 1hr20min and 2hr20 (8400s) since last transfer, is undeleted files is larger than predicted for 2hr35=9300
-        IF ( (time_diff(sysdate, LastTrans)) < 8400) THEN
-	    IF ( (s_checked  - s_deleted )  > ( 9300 * ( s_checked / time_diff( LastTrans, Start_time )))) THEN
-	      result_1 := 1;
-	    END IF;
-	    IF ( (s_checked  - s_deleted )  > (11600 * ( s_checked / time_diff( LastTrans, Start_time )))) THEN
-	      result_1 := 2;
-	    END IF;
-        ELSE	     
-             --if it's between 2hr20min and 3hr35 (12900s) since last transfer, is undeleted files is larger than predicted for 1hr35=5700
-	    IF ( (time_diff(sysdate, LastTrans)) < 12900) THEN
-	       IF ( (s_checked  - s_deleted )  > (5700 * ( s_checked / time_diff( LastTrans, Start_time )))) THEN
-		  result_1 := 1;
-	       END IF;
-	       IF ( (s_checked  - s_deleted )  > (7100 * ( s_checked / time_diff( LastTrans, Start_time )))) THEN
-		  result_1 := 2;
-	       END IF;
-	    ELSE	     
-               --if it's been more than 3hr35  since last transfer, all files should be deleted
-               IF ( s_checked - s_deleted > 0 ) THEN
-	         result_1 := 1;
-	         --it's been even a longer last transfer, so go red 
-		 IF ( (time_diff(sysdate, LastTrans)) > 14700) THEN
-	          result_1 := 2;
-                 END IF;
-               ELSE
-               ---Here, it has been a long time and  s_checked <= s_deleted 
-               --There is the funny case of having DontNotifyT0 files, ie CLOSED > INJECTED = TRANSFERRED 
-                 IF ( s_closed - s_deleted > 0 ) THEN
-                   --Here  s_closed <= s_deleted, but s_closed > s_deleted ==> files remain to be deleted ==> RED
-                   --ie there ARE files STILL that need to get DELETED! BUT, since CHECKED is smaller systm not allowed -> magenta
-	           result_1 := 2;
-                 ELSE
-                   --Here, should be:  s_closed = s_deleted 
-                   IF ( ABS(s_checked - s_closed) > 0 ) THEN
-                     --Here s_closed <= s_deleted, but s_closed <= s_deleted ==> all files HAVE been deleted, but
-                     --still would like to flag the fact that s_closed != s_deleted!
-	             result_1 := 1;
-                   END IF;
-                 END IF;
-               END IF;
-            END IF;
-        END IF;
+    --if there is any difference, display with blue color, override later if more severe conditions
+    IF ( s_checked != s_deleted ) THEN
+       result_1 := 3;
     END IF;
+
+
+    --if n_hosts=1 ASSUME we are talking MiniDaq!? DELETES done only ONCE per day (15:07 hrs)
+    IF( n_hosts = 1) THEN
+       --key: 60 sec/min * ( 60 min/hr * (15:00 minidaq delete time + 2 hr delete delay) + 20 min grace)
+       IF (   time_diff(TRUNC(sysdate,'DD'), LastTrans) - 60*(60*(15+2) + 20) > 0        ) THEN
+         result_1 := 1;
+         IF ( time_diff(TRUNC(sysdate,'DD'), LastTrans) - 60*(60*(15+2) + 20) > 60*60*25 ) THEN
+           result_1 := 2;
+         END IF; 
+       END IF; 
+       return result_1; 
+    ELSE
+
+--     toffset :=  time_diff( LastTrans, Start_time ) + dfreq +  2*dfreq*8*(1 - mod(n_hosts,8)/8);
+--     toffset :=  time_diff( LastTrans, Start_time ) + dfreq +  2*dfreq*8;
+--     nominal delete cycle:
+       toffset :=  2*dfreq*(9+1);
+
+
+
+       --if run is ~ongoing (transfs in last 5 min):
+       IF ( time_diff(sysdate, LastTrans) < 5*60) THEN
+
+
+         IF (   s_deleted/s_checked < 1.0 - (toffset -  3*dfreq)/time_diff( LastTrans, Start_time ) ) THEN
+           result_1 := 1;
+           IF ( s_deleted/s_checked < 1.0 - (toffset +  1*dfreq)/time_diff( LastTrans, Start_time ) ) THEN
+              result_1 := 2;
+           END IF;
+         END IF;
+         return result_1; 
+      END IF;
+
+
+     --after run is over (no transf for 5 min):
+     IF (   s_deleted/s_checked < 1.0 - GREATEST(toffset +  5*dfreq - time_diff(sysdate, LastTrans ), 0.0)/time_diff( LastTrans, Start_time ) ) THEN
+       result_1 := 1;
+       IF ( s_deleted/s_checked < 1.0 - GREATEST(toffset +  7*dfreq - time_diff(sysdate, LastTrans ), 0.0)/time_diff( LastTrans, Start_time ) ) THEN
+          result_1 := 2;
+       END IF;
+     END IF;
+
+
+  END IF;
 
 
 return result_1;
 END DELETED_CHECK;
 /
+
 
 --Provides per run summary information (one row per run)
 create or replace view V_SM_SUMMARY
@@ -336,7 +351,7 @@ FROM (  SELECT  TO_CHAR( RUNNUMBER )          AS RUN_NUMBER,
 	      TO_CHAR ( INJECTED_CHECK(SUM(NVL(s_NEW,0)), SUM(NVL(s_injected,0)),  SUM(NVL(s_Deleted, 0)), MAX(STOP_WRITE_TIME) ) ) AS INJECTED_STATUS,
 	      TO_CHAR ( TRANSFERRED_CHECK(MAX(STOP_WRITE_TIME), MAX(STOP_TRANS_TIME), SUM(NVL(s_NEW,0)), SUM(NVL(s_Copied,0)) ) )   AS TRANSFERRED_STATUS,
 	      TO_CHAR ( CHECKED_CHECK(MAX(STOP_WRITE_TIME), MAX(STOP_TRANS_TIME), SUM(NVL(s_CHECKED,0)), SUM(NVL(s_COPIED,0)) ) )   AS CHECKED_STATUS,
-	      TO_CHAR ( DELETED_CHECK(MIN(START_WRITE_TIME), SUM(NVL(s_Deleted, 0)), SUM(NVL(s_Checked, 0)), SUM(NVL(s_injected,0)), MAX(STOP_TRANS_TIME)) ) AS DELETED_STATUS
+	      TO_CHAR ( DELETED_CHECK( COUNT(DISTINCT N_INSTANCE), MIN(START_WRITE_TIME), SUM(NVL(s_Deleted, 0)), SUM(NVL(s_Checked, 0)), SUM(NVL(s_injected,0)), MAX(STOP_TRANS_TIME)) ) AS DELETED_STATUS
          FROM (  SELECT  RUNNUMBER, STREAM, SETUPLABEL, APP_VERSION, S_LUMISECTION, 
                  S_FILESIZE, S_FILESIZE2D, S_FILESIZE2T0, S_NEVENTS, S_CREATED, S_INJECTED, 
                  S_NEW,S_COPIED,S_CHECKED,S_INSERTED,S_REPACKED,S_DELETED, N_INSTANCE,M_INSTANCE,

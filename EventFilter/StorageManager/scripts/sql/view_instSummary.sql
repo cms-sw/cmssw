@@ -247,9 +247,18 @@ BEGIN
     flag := ' ';
     numFlagged := 0;
     --If a file has been closed within the last 3hrs20 then don't do the check
-    IF (time_diff(sysdate, maxLastClosedTime) < 12000) THEN
+    --no..change from 3hrs20...kludge for longer 6 hr delete cycle! 
+    IF (time_diff(sysdate, maxLastClosedTime) < 22000) THEN
         RETURN flag;
     END IF;
+
+
+    --until i can fix things better with real time dependince, increase check time to 7 hrs 
+    IF (time_diff(sysdate, maxLastClosedTime) < 8*60*60) THEN
+        RETURN flag;
+    END IF;
+
+
 
     --Loop through all the instances
     FOR entry IN (SELECT * FROM SM_INSTANCES WHERE RUNNUMBER = run ORDER BY INSTANCE ASC)
@@ -272,7 +281,7 @@ END GENERATE_FLAG_DELETED;
 create or replace view view_sm_instance_summary
 AS SELECT "RUN_NUMBER",
           "N_INSTANCES",
-          "MAXMIN_NOTFILES",
+          "MINMAX_NOTFILES",
           "MINMAX_CLOSED",
 	  "MINMAX_INJECTED",
           "MINMAX_TRANSFERRED",
@@ -284,7 +293,7 @@ AS SELECT "RUN_NUMBER",
           "RANK"
 FROM (SELECT TO_CHAR( RUNNUMBER ) AS RUN_NUMBER,
              TO_CHAR( TO_CHAR(COUNT(N_CREATED)) || '/' || TO_CHAR(MAX(INSTANCE) + 1)  ) AS N_INSTANCES,
-             TO_CHAR( TO_CHAR(MAX(NVL(N_UNACCOUNT , 0))) || '/' || TO_CHAR(MIN(NVL(N_UNACCOUNT , 0))) ) AS MAXMIN_NOTFILES,
+             TO_CHAR( TO_CHAR(MIN(NVL(N_UNACCOUNT , 0))) || '/' || TO_CHAR(MAX(NVL(N_UNACCOUNT , 0))) ) AS MINMAX_NOTFILES,
              TO_CHAR( TO_CHAR(MIN(NVL(N_INJECTED, 0))) || '/' || TO_CHAR(MAX(NVL(N_INJECTED, 0))) ) AS MINMAX_CLOSED,
              TO_CHAR( TO_CHAR(MIN(NVL(N_NEW, 0))) || '/' || TO_CHAR(MAX(NVL(N_NEW, 0))) ) AS MINMAX_INJECTED,
              TO_CHAR( TO_CHAR(MIN(NVL(N_COPIED, 0))) || '/' || TO_CHAR(MAX(NVL(N_COPIED, 0))) ) AS MINMAX_TRANSFERRED,

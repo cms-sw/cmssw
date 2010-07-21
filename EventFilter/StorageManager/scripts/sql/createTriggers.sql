@@ -8,17 +8,39 @@ DECLARE
 BEGIN
      IF :NEW.PRODUCER = 'StorageManager' THEN
 	  BEGIN
-	     LOCK TABLE SM_SUMMARY  IN EXCLUSIVE MODE;  --to avoid race condition on INSERT!
-             --DBMS_OUTPUT.PUT_LINE ('SQL: FILENAME:' ||:NEW.FILENAME  || '.... ');
- 	     UPDATE SM_SUMMARY
- 		SET S_LUMISECTION = S_LUMISECTION + NVL(:NEW.LUMISECTION,0),
- 	          S_CREATED = S_CREATED + 1,
- 	          M_INSTANCE = GREATEST(:NEW.INSTANCE, NVL(M_INSTANCE, 0)),
- 		  START_WRITE_TIME =  LEAST(:NEW.CTIME, NVL(START_WRITE_TIME,:NEW.CTIME)),
- 		  LAST_UPDATE_TIME = sysdate
- 		  WHERE RUNNUMBER = :NEW.RUNNUMBER AND STREAM= :NEW.STREAM;
- 	     IF SQL%ROWCOUNT = 0 THEN
-	   	INSERT INTO SM_SUMMARY (
+                 v_etime := to_char(sysdate, 'Dy Mon DD HH24:MI:SS YYYY');
+                 DBMS_OUTPUT.PUT_LINE ( v_etime || '1-FILES_CREATED_AI: preUpdate  SM_SUMMARY   FILE: '|| :NEW.FILENAME || '   <<');
+              --try to make straightforward update of  SM_SUMMARY 
+              UPDATE SM_SUMMARY
+               SET S_LUMISECTION = NVL(S_LUMISECTION,0) + NVL(:NEW.LUMISECTION,0),
+                   S_CREATED = NVL(S_CREATED,0) + 1,
+                   M_INSTANCE = GREATEST(:NEW.INSTANCE, NVL(M_INSTANCE, 0)),
+                   START_WRITE_TIME =  LEAST(:NEW.CTIME, NVL(START_WRITE_TIME,:NEW.CTIME)),
+                   LAST_UPDATE_TIME = sysdate
+            WHERE RUNNUMBER = :NEW.RUNNUMBER AND STREAM= :NEW.STREAM;
+
+                 v_etime := to_char(sysdate, 'Dy Mon DD HH24:MI:SS YYYY');
+                 DBMS_OUTPUT.PUT_LINE ( v_etime || '2-FILES_CREATED_AI: postUpdate  SM_SUMMARY  SQL%ROWCOUNT: ' || SQL%ROWCOUNT || '  <<');
+
+       --if update failed cuz line does not exist, do robust insertion and insulated against race-condition:
+       IF SQL%ROWCOUNT = 0 THEN
+	    BEGIN
+                 v_etime := to_char(sysdate, 'Dy Mon DD HH24:MI:SS YYYY');
+                 DBMS_OUTPUT.PUT_LINE ( v_etime || '3-FILES_CREATED_AI: UpdateFailed, try merge, initiate LOCK on  SM_SUMMARY  <<');
+             LOCK TABLE SM_SUMMARY  IN EXCLUSIVE MODE;  
+                 v_etime := to_char(sysdate, 'Dy Mon DD HH24:MI:SS YYYY');
+                 DBMS_OUTPUT.PUT_LINE ( v_etime || '4-FILES_CREATED_AI: UpdateFailed, LOCK  SM_SUMMARY  <<');
+             --try again with lock now in place:
+ 	     MERGE INTO SM_SUMMARY
+             using dual on (RUNNUMBER = :NEW.RUNNUMBER   AND STREAM= :NEW.STREAM)
+             when matched then update 
+ 		SET S_LUMISECTION = NVL(S_LUMISECTION,0) + NVL(:NEW.LUMISECTION,0),
+                    S_CREATED = NVL(S_CREATED,0) + 1,
+ 	            M_INSTANCE = GREATEST(:NEW.INSTANCE, NVL(M_INSTANCE, 0)),
+ 		    START_WRITE_TIME =  LEAST(:NEW.CTIME, NVL(START_WRITE_TIME,:NEW.CTIME)),
+ 		    LAST_UPDATE_TIME = sysdate
+             when not matched then 
+	   	INSERT (
 		    RUNNUMBER,
 	            STREAM,
 	            SETUPLABEL,
@@ -40,7 +62,13 @@ BEGIN
           	    :NEW.INSTANCE,
                     :NEW.CTIME,
                     sysdate);
- 	     END IF;
+          END;
+       END IF;
+        
+                   v_etime := to_char(sysdate, 'Dy Mon DD HH24:MI:SS YYYY');
+                    DBMS_OUTPUT.PUT_LINE ( v_etime || '5-FILES_CREATED_AI: done  SM_SUMMARY  FILE: '|| :NEW.FILENAME || '   <<');
+
+
              EXCEPTION  --what if error?? do NOT want ERROR to propagate to FILES_INJECTED so handle it with message:
                 WHEN DUP_VAL_ON_INDEX THEN
                    DBMS_OUTPUT.PUT_LINE ('FILES_CREATED_AI  DUP_VAL_ON_INDEX for SM_SUMMARY; FILE: ' || :NEW.FILENAME || ' << ');
@@ -51,16 +79,40 @@ BEGIN
                    DBMS_OUTPUT.PUT_LINE ('##   ' || v_etime ||' ERROR: FILES_CREATED_AI  for SM_SUMMARY: ' ||  v_errm || ' << ');
                    DBMS_OUTPUT.PUT_LINE ('##   ' || v_etime ||' ERROR: FILES_CREATED_AI  for SM_SUMMARY; FILE: ' || :NEW.FILENAME || '  <<');
           END;
---          DBMS_OUTPUT.PUT_LINE (' SM_SUMMARY : Ok...Me Done!');
---
+
+-----DO SM_INSTANCES:
+
           BEGIN
-             LOCK TABLE SM_INSTANCES IN EXCLUSIVE MODE;
-             UPDATE SM_INSTANCES
-                 SET N_CREATED = N_CREATED + 1,
-                     INSTANCE  =:NEW.INSTANCE
-              WHERE RUNNUMBER = :NEW.RUNNUMBER AND HOSTNAME = :NEW.HOSTNAME;
-             IF SQL%ROWCOUNT = 0 THEN
-                 INSERT INTO SM_INSTANCES (
+                   v_etime := to_char(sysdate, 'Dy Mon DD HH24:MI:SS YYYY');
+                    DBMS_OUTPUT.PUT_LINE ( v_etime || '6-FILES_CREATED_AI: preupdate  SM_INSTANCES    FILE: '|| :NEW.FILENAME || '   <<');
+
+
+         UPDATE SM_INSTANCES
+            SET N_CREATED = NVL(N_CREATED,0) + 1
+         WHERE RUNNUMBER = :NEW.RUNNUMBER AND INSTANCE = :NEW.INSTANCE;
+ 
+                 v_etime := to_char(sysdate, 'Dy Mon DD HH24:MI:SS YYYY');
+                 DBMS_OUTPUT.PUT_LINE ( v_etime || '7-FILES_CREATED_AI: postUpdate  SM_INSTANCES  SQL%ROWCOUNT: ' || SQL%ROWCOUNT || '  <<');
+
+         IF SQL%ROWCOUNT = 0 THEN
+
+          BEGIN
+
+                 v_etime := to_char(sysdate, 'Dy Mon DD HH24:MI:SS YYYY');
+                 DBMS_OUTPUT.PUT_LINE ( v_etime || '8-FILES_CREATED_AI: UpdateFailed, try merge, initiate LOCK on  SM_INSTANCES  <<');
+
+             LOCK TABLE SM_INSTANCES  IN EXCLUSIVE MODE;  
+
+                 v_etime := to_char(sysdate, 'Dy Mon DD HH24:MI:SS YYYY');
+                 DBMS_OUTPUT.PUT_LINE ( v_etime || '9-FILES_CREATED_AI: UpdateFailed, LOCK  SM_INSTANCES  <<');
+             --try again with lock now in place:
+
+  	     MERGE INTO  SM_INSTANCES
+             using dual on (RUNNUMBER = :NEW.RUNNUMBER  AND INSTANCE = :NEW.INSTANCE )
+             when matched then update 
+                 SET N_CREATED = NVL(N_CREATED,0) + 1
+             when not matched then 
+	   	INSERT (                
                      RUNNUMBER,
                      INSTANCE,
                      HOSTNAME, 
@@ -72,7 +124,16 @@ BEGIN
                      :NEW.HOSTNAME,
                      1,
                      :NEW.SETUPLABEL);
-	     END IF;
+          END;
+
+
+         END IF; 
+
+
+                   v_etime := to_char(sysdate, 'Dy Mon DD HH24:MI:SS YYYY');
+                    DBMS_OUTPUT.PUT_LINE ( v_etime || '10-FILES_CREATED_AI: done SM_INSTANCES FILE: '|| :NEW.FILENAME || ' -----------  <<');
+
+
              EXCEPTION  --what if error?? do NOT want ERROR to propagate to FILES_INJECTED so handle it with message
                 WHEN DUP_VAL_ON_INDEX THEN
                    DBMS_OUTPUT.PUT_LINE ('**ERROR: FILES_CREATED_AI  DUP_VAL_ON_INDEX for SM_INSTANCES; FILE::' ||:NEW.FILENAME || '  << ');
@@ -82,8 +143,9 @@ BEGIN
                    v_etime := to_char(sysdate, 'Dy Mon DD HH24:MI:SS YYYY');
                    DBMS_OUTPUT.PUT_LINE ('##   ' || v_etime ||' ERROR: FILES_CREATED_AI  for SM_INSTANCES: ' ||  v_errm || ' <<');
                    DBMS_OUTPUT.PUT_LINE ('##   ' || v_etime ||' ERROR: FILES_CREATED_AI  for SM_INSTANCES; FILE: ' || :NEW.FILENAME || '  << ');
+--                ROLLBACK TO SAVEPOINT save_pretrigg;
           END;
-          ---DBMS_OUTPUT.PUT_LINE (' SM_INSTANCE : Ok...Me Done! );
+            DBMS_OUTPUT.PUT_LINE ('-------FILES_CREATED Done :' ||:NEW.FILENAME || '-------------------' );
     END IF;
 END;
 /
@@ -141,6 +203,10 @@ v_etime VARCHAR2(64);
 BEGIN
      SELECT PRODUCER, STREAM, INSTANCE, RUNNUMBER into v_producer, v_stream, v_instance, v_runnumber FROM FILES_CREATED WHERE FILENAME = :NEW.FILENAME;
      IF v_producer = 'StorageManager' THEN
+       BEGIN
+                   v_etime := to_char(sysdate, 'Dy Mon DD HH24:MI:SS YYYY');
+                    DBMS_OUTPUT.PUT_LINE ( v_etime || '1-FILES_INJECTED: pre UPDATE  SM_SUMMARY    <<');
+
      	UPDATE SM_SUMMARY
         	SET S_NEVENTS = NVL(S_NEVENTS,0) + NVL(:NEW.NEVENTS,0),
             	S_FILESIZE = NVL(S_FILESIZE,0) + NVL(:NEW.FILESIZE,0),
@@ -154,6 +220,19 @@ BEGIN
      	IF SQL%ROWCOUNT = 0 THEN
          	NULL;
      	END IF;
+     EXCEPTION  --what if error?? do NOT want ERROR to propagate to FILES_INJECTED so handle it with message
+        WHEN OTHERS THEN
+                v_code := SQLCODE;
+                v_errm := SUBSTR(SQLERRM, 1 , 64);
+                v_etime := to_char(sysdate, 'Dy Mon DD HH24:MI:SS YYYY');
+                DBMS_OUTPUT.PUT_LINE ('##   ' || v_etime ||' ERROR: FILES_INJECTED_AI SM_SUMMARY: ' ||  v_errm || ' <<');
+                DBMS_OUTPUT.PUT_LINE ('##   ' || v_etime ||' ERROR: FILES_INJECTED_AI SM_SUMMARY: for FILE: ' || :NEW.FILENAME || '  << '); 
+       END;
+
+      BEGIN
+                   v_etime := to_char(sysdate, 'Dy Mon DD HH24:MI:SS YYYY');
+                    DBMS_OUTPUT.PUT_LINE (v_etime || '3-FILES_INJECTED: end SM_SUMMARY / pre-UPDATE INSTANCES   <<');
+
         UPDATE SM_INSTANCES
                 SET N_INJECTED = NVL(N_INJECTED,0) + 1,
                 LAST_WRITE_TIME = GREATEST(:NEW.ITIME, NVL(LAST_WRITE_TIME, :NEW.ITIME))
@@ -161,7 +240,9 @@ BEGIN
         IF SQL%ROWCOUNT = 0 THEN
                 NULL;
         END IF;
-     END IF;
+
+                   v_etime := to_char(sysdate, 'Dy Mon DD HH24:MI:SS YYYY');
+                    DBMS_OUTPUT.PUT_LINE (v_etime || '5-FILES_INJECTED: ALL done!  FILE: '|| :NEW.FILENAME || ' -------   <<');
      EXCEPTION  --what if error?? do NOT want ERROR to propagate to FILES_INJECTED so handle it with message
         WHEN OTHERS THEN
                 v_code := SQLCODE;
@@ -169,6 +250,9 @@ BEGIN
                 v_etime := to_char(sysdate, 'Dy Mon DD HH24:MI:SS YYYY');
                 DBMS_OUTPUT.PUT_LINE ('##   ' || v_etime ||' ERROR: FILES_INJECTED_AI: ' ||  v_errm || ' <<');
                 DBMS_OUTPUT.PUT_LINE ('##   ' || v_etime ||' ERROR: FILES_INJECTED_AI for FILE: ' || :NEW.FILENAME || '  << ');
+      END;
+--      COMMIT;
+     END IF;
 END;
 /
 
