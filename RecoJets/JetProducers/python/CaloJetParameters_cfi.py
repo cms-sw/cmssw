@@ -24,4 +24,5 @@ CaloJetParameters = cms.PSet(
        Active_Area_Repeats = cms.int32(1),
        GhostArea = cms.double(0.01),
        Ghost_EtaMax = cms.double(5.0),
+       Jet_EtaMax = cms.double(4.5)
     )

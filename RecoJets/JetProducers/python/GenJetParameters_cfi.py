@@ -19,6 +19,7 @@ GenJetParameters = cms.PSet(
       # if doPU is false, these are not read:
       Active_Area_Repeats = cms.int32(5),
       GhostArea = cms.double(0.01),
-      Ghost_EtaMax = cms.double(6.0)
+      Ghost_EtaMax = cms.double(6.0),
+    Jet_EtaMax = cms.double(4.5)
     )
 

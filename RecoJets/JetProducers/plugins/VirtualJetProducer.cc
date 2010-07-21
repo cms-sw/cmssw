@@ -182,6 +182,9 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
 
   // do fasjet area / rho calcluation? => accept corresponding parameters
   if ( doAreaFastjet_ || doRhoFastjet_ ) {
+    // Eta range of jets to be considered for Rho calculation
+    // Should be at most (jet acceptance - jet radius)
+    double jetEtaMax=iConfig.getParameter<double>("Jet_EtaMax");
     // default Ghost_EtaMax should be 5
     double ghostEtaMax = iConfig.getParameter<double>("Ghost_EtaMax");
     // default Active_Area_Repeats 1
@@ -191,7 +194,7 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
     fjActiveArea_ =  ActiveAreaSpecPtr(new fastjet::ActiveAreaSpec(ghostEtaMax,
 								   activeAreaRepeats,
 								   ghostArea));
-    fjRangeDef_ = RangeDefPtr( new fastjet::RangeDefinition(ghostEtaMax) );
+    fjRangeDef_ = RangeDefPtr( new fastjet::RangeDefinition(jetEtaMax) );
   } 
 
   // restrict inputs to first "maxInputs" towers?
@@ -206,9 +209,19 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
   // make the "produces" statements
   makeProduces( alias, jetCollInstanceName_ );
 
-  produces<double>(jetCollInstanceName_);
+  if ( doRhoFastjet_ ) {
+    doFastJetNonUniform_ = iConfig.getParameter<bool>   ("doFastJetNonUniform");
+    if(doFastJetNonUniform_){
+      puCenters_ = iConfig.getParameter<std::vector<double> >("puCenters");
+      puWidth_ = iConfig.getParameter<double>("puWidth");
+      produces<std::vector<double> >("rhos");
+      produces<std::vector<double> >("sigmas");
+    }else{
+      produces<double>("rho");
+      produces<double>("sigma");
+    }
+  }
 }
-
 
 //______________________________________________________________________________
 VirtualJetProducer::~VirtualJetProducer()
@@ -290,7 +303,7 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
     subtractor_->calculatePedestal(orphanInput);
     subtractor_->offsetCorrectJets();
   }
-  
+
   // Write the output jets.
   // This will (by default) call the member function template
   // "writeJets", but can be overridden. 
@@ -459,14 +472,43 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
   
   // put the jets in the collection
   iEvent.put(jets);
-
-  // calculate rho (median pT per unit area, for PU&UE subtraction down the line
-  std::auto_ptr<double> rho(new double(0.0));
+  
   if (doRhoFastjet_) {
-    fastjet::ClusterSequenceArea const * clusterSequenceWithArea =
-      dynamic_cast<fastjet::ClusterSequenceArea const *> ( &*fjClusterSeq_ );
-    *rho = clusterSequenceWithArea->median_pt_per_unit_area(*fjRangeDef_);
+    if(doFastJetNonUniform_){
+      std::auto_ptr<std::vector<double> > rhos(new std::vector<double>);
+      std::auto_ptr<std::vector<double> > sigmas(new std::vector<double>);
+      int nEta = puCenters_.size();
+      rhos->reserve(nEta);
+      sigmas->reserve(nEta);
+      fastjet::ClusterSequenceArea const * clusterSequenceWithArea =
+	dynamic_cast<fastjet::ClusterSequenceArea const *> ( &*fjClusterSeq_ );
+      for(int ie = 0; ie < nEta; ++ie){
+	double eta = puCenters_[ie];
+	double rho = 0;
+	double sigma = 0;
+	double etamin=eta-puWidth_;
+	double etamax=eta+puWidth_;
+	fastjet::RangeDefinition range_rho(etamin,etamax);
+	clusterSequenceWithArea->get_median_rho_and_sigma(range_rho, true, rho, sigma);
+	rhos->push_back(rho);
+	sigmas->push_back(sigma);
+	iEvent.put(rhos,"rhos");
+	iEvent.put(sigmas,"sigmas");
+      }
+    }else{
+      std::auto_ptr<double> rho(new double(0.0));
+      std::auto_ptr<double> sigma(new double(0.0));
+      double mean_area = 0;
+      
+      fastjet::ClusterSequenceArea const * clusterSequenceWithArea =
+	dynamic_cast<fastjet::ClusterSequenceArea const *> ( &*fjClusterSeq_ );
+      clusterSequenceWithArea->get_median_rho_and_sigma(*fjRangeDef_,false,*rho,*sigma,mean_area);
+      iEvent.put(rho,"rho");
+      iEvent.put(sigma,"sigma");
+    }
+    
   }
-  iEvent.put(rho);
 }
+
+
 
