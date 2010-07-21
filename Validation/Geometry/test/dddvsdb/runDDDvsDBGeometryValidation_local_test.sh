@@ -479,19 +479,31 @@ diff readXMLfromLocDB.log readXML.expected > diffreadXMLLocDB.log
 diff readBigXMLAndDump.log readXML.expected > diffreadXMLBDB.log
 
 if ( -s diffreadXMLSTD.log ) then
-    echo "WARNING THE MULTI-XML FILE GEOMETRY WAS NOT DUMPED PROPERLY." | tee -a GeometryValidation.log
+    echo "ERROR THE MULTI-XML FILE GEOMETRY WAS NOT DUMPED PROPERLY." | tee -a GeometryValidation.log
+    exit
+else
+    echo "GeometryFile dump from multiple XML files done."
 endif
 
 if ( -s diffreadXMLGTDB.log ) then
-    echo "WARNING THE GLOBAL TAG DATABASE GEOMETRY WAS NOT DUMPED PROPERLY." | tee -a GeometryValidation.log
+    echo "ERROR THE GLOBAL TAG DATABASE GEOMETRY WAS NOT DUMPED PROPERLY." | tee -a GeometryValidation.log
+    exit
+else
+    echo "GeometryFile dump from global tag database done."
 endif
 
 if ( -s diffreadXMLLocDB.log ) then
-    echo "WARNING THE LOCAL DATABASE GEOMETRY WAS NOT DUMPED PROPERLY." | tee -a GeometryValidation.log
+    echo "ERROR THE LOCAL DATABASE GEOMETRY WAS NOT DUMPED PROPERLY." | tee -a GeometryValidation.log
+    exit
+else
+    echo "GeometryFile dump from local database done."
 endif
 
 if ( -s diffreadXMLBDB.log ) then
-    echo "WARNING THE BIG SINGLE XML FILE WAS NOT DUMPED PROPERLY." | tee -a GeometryValidation.log
+    echo "ERROR THE BIG SINGLE XML FILE WAS NOT DUMPED PROPERLY." | tee -a GeometryValidation.log
+    exit
+else
+    echo "GeometryFile dump from big single XML file done."
 endif
 
 #    ,dumpFile1 = cms.string("workarea/xml/dumpSTD")
@@ -510,9 +522,9 @@ sed -i "{/,dumpFile2 /d}" testCompareDumpFiles.py
 sed -i "/TestCompareDDDumpFiles/ a\,dumpFile1=cms.string\('./dumpSTD'\)\,dumpFile2=cms.string\('./dumpBDB'\)" testCompareDumpFiles.py
 cmsRun testCompareDumpFiles.py > tcdfSTDvsBDB.log
 
-diff compDDdumperrors.log compDDdumperrors.expected > diffcompSTDvsBDB.log
+
 if (-s tcdfSTDvsBDB.log || -s diffcompSTDvsBDB.log ) then
-    echo "WARNING COMPARISON OF STD VS BIG XML FILE FAILED." | tee -a GeometryValidation.log
+    echo "WARNING THE GEOMETRYFILE IS DIFFERENT BETWEEN STD XML AND BIG SINGLE XML." | tee -a GeometryValidation.log
 endif
 
 cp $CMSSW_BASE/src/GeometryReaders/XMLIdealGeometryESSource/test/testCompareDumpFiles.py .
@@ -523,7 +535,7 @@ cmsRun testCompareDumpFiles.py > tcdfSTDvsLocDB.log
 
 diff compDDdumperrors.log compDDdumperrors.expected > diffcompSTDvsLocDB.log
 if (-s tcdfSTDvsLocDB.log || -s diffcompSTDvsLocDB.log ) then
-    echo "WARNING COMPARISON OF STD VS LOCAL DATABASE BLOB FAILED." | tee -a GeometryValidation.log
+    echo "WARNING THE GEOMETRYFILE IS DIFFERENT BETWEEN STD XML AND LOCAL DATABASE BLOB." | tee -a GeometryValidation.log
 endif
 
 cp $CMSSW_BASE/src/GeometryReaders/XMLIdealGeometryESSource/test/testCompareDumpFiles.py .
@@ -534,7 +546,7 @@ cmsRun testCompareDumpFiles.py > tcdfSTDvsGTDB.log
 
 diff compDDdumperrors.log compDDdumperrors.expected > diffcompSTDvsGTDB.log
 if (-s tcdfSTDvsGTDB.log || -s diffcompSTDvsGTDB.log ) then
-    echo "WARNING COMPARISON OF STD VS GLOBALTAG DATABASE BLOB FAILED." | tee -a GeometryValidation.log
+    echo "WARNING THE GEOMETRYFILE IS DIFFERENT BETWEEN STD AND GLOBALTAG DATABASE BLOB." | tee -a GeometryValidation.log
 endif
 
 cp $CMSSW_BASE/src/GeometryReaders/XMLIdealGeometryESSource/test/testCompareDumpFiles.py .
@@ -545,7 +557,7 @@ cmsRun testCompareDumpFiles.py > tcdfBDBvsLocDB.log
 
 diff compDDdumperrors.log compDDdumperrors.expected > diffcompBDBvsLocDB.log
 if (-s tcdfBDBvsLocDB.log || -s diffcompBDBvsLocDB.log ) then
-    echo "WARNING COMPARISON OF BIG XML FILE VS GLOBALTAG DATABASE BLOB FAILED." | tee -a GeometryValidation.log
+    echo "WARNING THE GEOMETRYFILE IS DIFFERENT BETWEEN SINGLE BIG XML FILE AND LOCAL DATABASE BLOB." | tee -a GeometryValidation.log
 endif
 
 cp $CMSSW_BASE/src/GeometryReaders/XMLIdealGeometryESSource/test/testCompareDumpFiles.py .
@@ -556,7 +568,7 @@ cmsRun testCompareDumpFiles.py > tcdfBDBvsGTDB.log
 
 diff compDDdumperrors.log compDDdumperrors.expected > diffcompBDBvsGTDB.log
 if (-s tcdfBDBvsGTDB.log || -s diffcompBDBvsGTDB.log ) then
-    echo "WARNING COMPARISON OF BIG XML FILE VS GLOBALTAG DATABASE BLOB FAILED."  | tee -a GeometryValidation.log
+    echo "WARNING THE GEOMETRYFILE IS DIFFERENT BETWEEN SINGLE BIG XML FILE AND GLOBALTAG DATABASE BLOB."  | tee -a GeometryValidation.log
 endif
 
 cp $CMSSW_BASE/src/GeometryReaders/XMLIdealGeometryESSource/test/testCompareDumpFiles.py .
@@ -567,7 +579,7 @@ cmsRun testCompareDumpFiles.py > tcdfLocDBvsGTDB.log
 
 diff compDDdumperrors.log compDDdumperrors.expected > diffcompLocDBvsGTDB.log
 if (-s tcdfBDBvsLocDB.log || -s diffcompLocDBvsGTDB.log ) then
-    echo "WARNING COMPARISON OF BIG XML FILE VS GLOBALTAG DATABASE BLOB FAILED."  | tee -a GeometryValidation.log
+    echo "WARNING THE GEOMETRYFILE IS DIFFERENT BETWEEN LOCAL AND GLOBALTAG DATABASE BLOBS."  | tee -a GeometryValidation.log
 endif
 
 echo "End Simulation geometry validation" | tee -a GeometryValidation.log
