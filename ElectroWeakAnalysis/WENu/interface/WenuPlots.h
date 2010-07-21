@@ -228,6 +228,16 @@ class WenuPlots : public edm::EDAnalyzer {
   Bool_t storeExtraInformation_;
   Double_t DRJetFromElectron_;
   Int_t DatasetTag_;
+  // for the 2nd electron storage
+  Bool_t storeAllSecondElectronVariables_;
+  Float_t ele2nd_cand_et;
+  Float_t ele2nd_iso_track, ele2nd_iso_ecal, ele2nd_iso_hcal;
+  Float_t ele2nd_id_sihih, ele2nd_id_deta, ele2nd_id_dphi, ele2nd_id_hoe;
+  Float_t ele2nd_cr_dcot, ele2nd_cr_dist;
+  Float_t ele2nd_vx, ele2nd_vy, ele2nd_vz;
+  Int_t   ele2nd_cr_mhitsinner, ele2nd_gsfCharge, ele2nd_ctfCharge, ele2nd_scPixCharge;
+  Float_t ele2nd_eop, ele2nd_tip_bs, ele2nd_tip_pv;
+  Float_t ele2nd_hltmatched_dr;
 };
 
 #endif
