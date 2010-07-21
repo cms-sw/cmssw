@@ -10,7 +10,6 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondCore/DBCommon/interface/DbSession.h"
 #include "CondCore/DBCommon/interface/DbScopedTransaction.h"
-#include "CondCore/DBCommon/interface/ClassInfoLoader.h"
 
 #include "CondTools/L1Trigger/interface/Exception.h"
 
@@ -79,13 +78,11 @@ class WriterProxyT : public WriterProxy
 	    // if throw transaction will unroll
 	    tr.start(false);
 
-	    pool::Ref<Type> ref = 
-	      session.storeObject( new Type (*(handle.product ())),
-				   cond::classNameForTypeId(typeid(Type))
-				   );
-
-	    std::string payloadToken = ref.toString ();
-	    tr.commit ();
+	    boost::shared_ptr<Type> pointer(new Type (*(handle.product ())));
+	    std::string payloadToken =  session.storeObject( pointer.get(),
+							     cond::classNameForTypeId(typeid(Type))
+							     );
+	    tr.commit();
 	    return payloadToken ;
         }
 };

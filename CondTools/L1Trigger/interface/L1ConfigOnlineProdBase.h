@@ -18,7 +18,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Tue Sep  2 22:48:15 CEST 2008
-// $Id: L1ConfigOnlineProdBase.h,v 1.8 2010/02/01 22:00:03 wsun Exp $
+// $Id: L1ConfigOnlineProdBase.h,v 1.9 2010/02/16 21:55:43 wsun Exp $
 //
 
 // system include files
@@ -168,9 +168,7 @@ L1ConfigOnlineProdBase<TRcd, TData>::produce( const TRcd& iRecord )
 	   {
 	     cond::DbScopedTransaction tr( m_dbSession ) ;
 	     tr.start( true ) ; 
-	     pool::Ref<TData> ref =
-	       m_dbSession.getTypedObject<TData>( payloadToken ) ;
-	     pData = boost::shared_ptr< TData >( new TData( *ref ) ) ;
+	     pData = m_dbSession.getTypedObject<TData>( payloadToken ) ;
 	     tr.commit ();
 	   }
        }

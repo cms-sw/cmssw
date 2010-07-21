@@ -71,15 +71,12 @@ DataWriter::writeKeyList( L1TriggerKeyList* keyList,
   cond::DbScopedTransaction tr(session);
   tr.start(false);
 
-  // Write L1TriggerKeyList payload
-  pool::Ref<L1TriggerKeyList> ref = 
-    session.storeObject(keyList,
-			cond::classNameForTypeId(typeid(L1TriggerKeyList))
-			);
+  // Write L1TriggerKeyList payload and save payload token before committing
+  boost::shared_ptr<L1TriggerKeyList> pointer(keyList);
+  std::string payloadToken = session.storeObject(pointer.get(),
+						 cond::classNameForTypeId(typeid(L1TriggerKeyList))
+						 );
 			
-  // Save payload token before committing.
-  std::string payloadToken = ref.toString();
-  
   // Commit before calling updateIOV(), otherwise PoolDBOutputService gets
   // confused.
   tr.commit ();

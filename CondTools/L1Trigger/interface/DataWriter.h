@@ -94,7 +94,7 @@ void DataWriter::readObject( const std::string& payloadToken,
   tr.start(true);
  
   // Get object from POOL
-  pool::Ref<T> ref = session.getTypedObject<T>(payloadToken) ;
+  boost::shared_ptr<T> ref = session.getTypedObject<T>(payloadToken) ;
   outputObject = *ref ;
   tr.commit ();
 }
