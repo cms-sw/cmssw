@@ -35,7 +35,8 @@ WPlusJetsEventSelector::WPlusJetsEventSelector( edm::ParameterSet const & params
   jetPtMin_        (params.getParameter<double>("jetPtMin")), 
   jetEtaMax_       (params.getParameter<double>("jetEtaMax")), 
   jetScale_        (params.getParameter<double>("jetScale")),
-  metMin_          (params.getParameter<double>("metMin"))
+  metMin_          (params.getParameter<double>("metMin")),
+  muJetDR_         (params.getParameter<double>("muJetDR"))
 {
   // make the bitset
   push_back( "Inclusive"      );
@@ -75,7 +76,6 @@ WPlusJetsEventSelector::WPlusJetsEventSelector( edm::ParameterSet const & params
   set( ">=5 Jets", minJets_ >= 5); 
 
   dR_ = 0.3;
-  muJetDR_ = 0.3;
 
   if ( params.exists("cutsToIgnore") )
     setIgnoredCuts( params.getParameter<std::vector<std::string> >("cutsToIgnore") );
