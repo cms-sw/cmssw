@@ -33,13 +33,13 @@ matplotlib.rcParams['xtick.labelsize']=8
 matplotlib.rcParams['ytick.labelsize']=8
 matplotlib.rcParams['legend.fontsize']=10
 matplotlib.rcParams['axes.labelsize']=10
-def myinclusiveRange(start,stop,step):
-    v=start
-    while v<stop:
-        yield v
-        v+=step
-    if v>=stop:
-        yield stop
+#def myinclusiveRange(start,stop,step):
+#    v=start
+#    while v<stop:
+#        yield v
+#        v+=step
+#    if v>=stop:
+#        yield stop
 
 def destroy(e) :
     sys.exit()
@@ -60,7 +60,7 @@ class matplotRender():
         xidx=[]
         #print 'max rawxdata ',max(rawxdata)
         #print 'min rawxdata ',min(rawxdata)
-        for x in myinclusiveRange(min(rawxdata),max(rawxdata),sampleinterval):
+        for x in CommonUtil.inclusiveRange(min(rawxdata),max(rawxdata),sampleinterval):
             #print 'x : ',x
             xpoints.append(x)
             xidx.append(rawxdata.index(x)) #get the index of the sample points
