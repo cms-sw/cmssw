@@ -157,8 +157,6 @@ public:
 
   void swap( DDCompactView& );
 
-DDMaterial
-
   void lockdown();
   
  protected:
