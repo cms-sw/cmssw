@@ -184,7 +184,7 @@ class Application(QApplication):
                 done = True
                 break
             done = self._checkFile(logfile)
-
+        
         # clean up old logs
         nextlogfile = os.path.join(logDirectory, "log" + str(instance + 1) + ".txt")
         if os.path.exists(nextlogfile):
@@ -211,8 +211,8 @@ class Application(QApplication):
         self._infologger = logging.getLogger("info")
         self._infologger.setLevel(logging.INFO)
         self._infologger.handlers = []
-        if os.path.exists(logDirectory):
-            self._infologger.info("Start logging to " + logfile)
+        if self._logFile:
+            self._infologger.info("Start logging to " + self._logFile)
         
     def run(self):
         """ Show the MainWindow and run the application.
@@ -220,7 +220,8 @@ class Application(QApplication):
         #logging.debug('Application: run()')
 
         self.exec_()
-        self._infologger.info("Stop logging")
+        if self._logFile:
+            self._infologger.info("Stop logging to " + self._logFile)
 
     def _connectSignals(self):
         """ Connect signal to observe the TabWidget in the MainWindow.
