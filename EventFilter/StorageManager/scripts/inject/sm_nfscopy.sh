@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: sm_nfscopy.sh,v 1.5 2008/11/04 16:18:14 loizides Exp $
+# $Id: sm_nfscopy.sh,v 1.6 2008/11/05 14:50:06 loizides Exp $
 
 nfsserver=$1
 filename=$2
@@ -33,6 +33,7 @@ if test -z "$3"; then
 fi
 
 if test -n "$parallel"; then
+    # XXX Replace this by a decent pgrep on PPID
     rns=`/bin/ps ax | grep "$grepstr" | grep "$grepstr2" | grep -v grep | wc -l`
     if test $rns -ge $parallel; then
         echo "Warning $0: maximum number of parallel copies ($rns), skipping for parameters $@." 
@@ -41,19 +42,17 @@ if test -n "$parallel"; then
 fi
 
 if test -n "$debug" -o "$nfsserver" = "local" -o -n "`mount | grep $nfsserver`"; then
-    $execmd >/dev/null 2>&1
-    if ! test $? -eq 0; then
-        echo "Warning $0: error executing $execmd for parameters $@." 
+    if $execmd; then
+        echo "Warning $0: error executing $execmd for parameters $@." >&2
         exit 125;
     fi
-    $execm2 >/dev/null 2>&1
-    if ! test $? -eq 0; then
-        echo "Warning $0: error executing $execm2 for parameters $@." 
+    if $execmd2; then
+        echo "Warning $0: error executing $execm2 for parameters $@." >&2
         exit 126;
     fi
-    $execm3 >/dev/null 2>&1
+    $execm3
 else
-    echo "Warning $0: error $nfsserver not mounted for parameters $@." 
+    echo "Warning $0: error $nfsserver not mounted for parameters $@." >&2
     exit 127;
 fi 
 
