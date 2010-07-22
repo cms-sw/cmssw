@@ -117,46 +117,12 @@ const TGeoHMatrix* DetIdToMatrix::getMatrix( unsigned int id ) const
    const char* path = getPath( id );
    if ( !path ) return 0;
    if ( !manager_->cd(path) ) {
-      fwLog(fwlog::kError) << "incorrect path " << path << "\nfor DetId: " << id << std::endl;
+     DetId detId(id);
+     fwLog(fwlog::kError) << "incorrect path " << path << "\nfor DetId: " << detId.det() << " : " << id << std::endl;
       return 0;
    }
 
-   // CSC chamber frame has local coordinates rotated with respect
-   // to the reference framed used in the offline reconstruction
-   // -z is endcap is also reflected
-   static const TGeoRotation inverseCscRotation("iCscRot",0,90,0);
-
-   DetId detId(id);
-   if (detId.det() == DetId::Muon) {
-      if ( detId.subdetId() == MuonSubdetId::CSC ) {
-         TGeoHMatrix m = (*(manager_->GetCurrentMatrix()))*inverseCscRotation;
-         if ( m.GetTranslation()[2]<0 ) m.ReflectX(kFALSE);
-         idToMatrix_[id] = m;
-         return &idToMatrix_[id];
-      } else if ( detId.subdetId() == MuonSubdetId::RPC ) {
-         RPCDetId rpcid(detId);
-         // std::cout << "id: " << detId.rawId() << std::endl;
-         if ( rpcid.region() == -1 || rpcid.region() == 1 ) {
-            // std::cout << "before: " << std::endl;
-            // (*(manager_->GetCurrentMatrix())).Print();
-            TGeoHMatrix m = (*(manager_->GetCurrentMatrix()))*inverseCscRotation;
-            if ( rpcid.region() == 1 ) m.ReflectY(kFALSE);
-            idToMatrix_[id] = m;
-            // std::cout << "after: " << std::endl;
-            // m.Print();
-            return &idToMatrix_[id];
-         }
-         /* else {
-            std::cout << "BARREL station: " << rpcid.station() << std::endl;
-            (*(manager_->GetCurrentMatrix())).Print();
-            }
-          */
-      }
-   }
    TGeoHMatrix m = *(manager_->GetCurrentMatrix());
-
-   // some ECAL crystall are reflected
-   if ( detId.det() == DetId::Ecal && m.IsReflection() ) m.ReflectX(kFALSE);
 
    idToMatrix_[id] = m;
    return &idToMatrix_[id];
