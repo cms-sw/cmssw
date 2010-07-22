@@ -12,13 +12,11 @@
 #include "CommonTools/UtilAlgos/interface/AndSelector.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/Common/interface/View.h"
 
 namespace pat {
 
   typedef ObjectCountFilter<edm::View<reco::Candidate>, AnySelector, AndSelector<MinNumberSelector, MaxNumberSelector> >::type PATCandViewCountFilter;
-  typedef ObjectCountFilter<edm::View<pat::Jet>, AnySelector, AndSelector<MinNumberSelector, MaxNumberSelector> >::type PATJetCountFilter;
 
 }
 

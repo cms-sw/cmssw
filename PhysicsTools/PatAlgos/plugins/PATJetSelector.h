@@ -1,5 +1,5 @@
 //
-// $Id: PATJetSelector.h,v 1.5 2009/12/29 00:07:13 hegner Exp $
+// $Id: PATJetSelector.h,v 1.1 2010/06/16 18:39:13 srappocc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATJetSelector_h
@@ -33,10 +33,10 @@ namespace pat {
       selector_( cut_ )
       {
 	produces< std::vector<pat::Jet> >();
-	produces<reco::GenJetCollection> ();
-	produces<CaloTowerCollection > ();
-	produces<reco::PFCandidateCollection > ();
-	produces<edm::OwnVector<reco::BaseTagInfo> > ();
+	produces<reco::GenJetCollection> ("genJets");
+	produces<CaloTowerCollection > ("caloTowers");
+	produces<reco::PFCandidateCollection > ("pfCandidates");
+	produces<edm::OwnVector<reco::BaseTagInfo> > ("tagInfos");
       }
 
     virtual ~PATJetSelector() {}
@@ -54,10 +54,10 @@ namespace pat {
       std::auto_ptr<edm::OwnVector<reco::BaseTagInfo> > tagInfosOut ( new edm::OwnVector<reco::BaseTagInfo>() );  
 
 
-      edm::RefProd<reco::GenJetCollection > h_genJetsOut = iEvent.getRefBeforePut<reco::GenJetCollection >( );
-      edm::RefProd<CaloTowerCollection >  h_caloTowersOut = iEvent.getRefBeforePut<CaloTowerCollection > ();
-      edm::RefProd<reco::PFCandidateCollection > h_pfCandidatesOut = iEvent.getRefBeforePut<reco::PFCandidateCollection > ();
-      edm::RefProd<edm::OwnVector<reco::BaseTagInfo> > h_tagInfosOut = iEvent.getRefBeforePut<edm::OwnVector<reco::BaseTagInfo> > ();
+      edm::RefProd<reco::GenJetCollection > h_genJetsOut = iEvent.getRefBeforePut<reco::GenJetCollection >( "genJets" );
+      edm::RefProd<CaloTowerCollection >  h_caloTowersOut = iEvent.getRefBeforePut<CaloTowerCollection > ( "caloTowers" );
+      edm::RefProd<reco::PFCandidateCollection > h_pfCandidatesOut = iEvent.getRefBeforePut<reco::PFCandidateCollection > ( "pfCandidates" );
+      edm::RefProd<edm::OwnVector<reco::BaseTagInfo> > h_tagInfosOut = iEvent.getRefBeforePut<edm::OwnVector<reco::BaseTagInfo> > ( "tagInfos" );
 
       edm::Handle< edm::View<pat::Jet> > h_jets;
       iEvent.getByLabel( src_, h_jets );
@@ -141,10 +141,10 @@ namespace pat {
       bool pass = patJets->size() > 0;
       iEvent.put(patJets);
 
-      iEvent.put( genJetsOut );
-      iEvent.put( caloTowersOut );
-      iEvent.put( pfCandidatesOut );
-      iEvent.put( tagInfosOut );
+      iEvent.put( genJetsOut, "genJets" );
+      iEvent.put( caloTowersOut, "caloTowers" );
+      iEvent.put( pfCandidatesOut, "pfCandidates" );
+      iEvent.put( tagInfosOut, "tagInfos" );
 
       return pass;
     }

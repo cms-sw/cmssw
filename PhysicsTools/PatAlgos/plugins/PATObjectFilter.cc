@@ -4,4 +4,3 @@
 using namespace pat;
 
 DEFINE_FWK_MODULE(PATCandViewCountFilter);
-DEFINE_FWK_MODULE(PATJetCountFilter);
