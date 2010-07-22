@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Dec  5 15:32:33 EST 2008
-// $Id: makeSuperCluster.cc,v 1.5 2010/04/29 12:16:52 mccauley Exp $
+// $Id: makeSuperCluster.cc,v 1.6 2010/06/18 12:42:18 yana Exp $
 //
 
 // system include files
@@ -35,9 +35,14 @@ bool makeRhoPhiSuperCluster(FWProxyBuilderBase* pb,
 
    std::vector< std::pair<DetId, float> > detids = iCluster->hitsAndFractions();
    std::vector<double> phis;
-   for (std::vector<std::pair<DetId, float> >::const_iterator id = detids.begin(); id != detids.end(); ++id) {
-      const TGeoHMatrix* matrix = pb->context().getGeom()->getMatrix( id->first.rawId() );
-      if ( matrix ) phis.push_back( atan2(matrix->GetTranslation()[1], matrix->GetTranslation()[0]) );
+   for (std::vector<std::pair<DetId, float> >::const_iterator id = detids.begin(); id != detids.end(); ++id )
+   {
+     std::vector<TEveVector> corners = pb->context().getGeom()->getPoints( id->first.rawId());
+     if( ! corners.empty() )
+     {
+       TEveVector centre = corners[0] + corners[1] + corners[2] + corners[3] + corners[4] + corners[5] + corners[6] + corners[7];
+       phis.push_back( centre.Phi());
+     }
    }
    std::pair<double,double> phiRange = fw::getPhiRange( phis, iPhi);
    const double r = 122;
@@ -61,15 +66,16 @@ bool makeRhoZSuperCluster(FWProxyBuilderBase* pb,
    double theta_max = 0;
    double theta_min = 10;
    std::vector<std::pair<DetId, float> > detids = iCluster->hitsAndFractions();
-   for (std::vector<std::pair<DetId, float> >::const_iterator id = detids.begin(); id != detids.end(); ++id) {
-      const TGeoHMatrix* matrix = pb->context().getGeom()->getMatrix( id->first.rawId() );
-      if ( matrix ) {
-         double r = sqrt( matrix->GetTranslation()[0] *matrix->GetTranslation()[0] +
-                          matrix->GetTranslation()[1] *matrix->GetTranslation()[1] );
-         double theta = atan2(r,matrix->GetTranslation()[2]);
-         if ( theta > theta_max ) theta_max = theta;
-         if ( theta < theta_min ) theta_min = theta;
-      }
+   for (std::vector<std::pair<DetId, float> >::const_iterator id = detids.begin(); id != detids.end(); ++id)
+   {
+     std::vector<TEveVector> corners = pb->context().getGeom()->getPoints( id->first.rawId() );
+     if( ! corners.empty() )
+     {
+       TEveVector centre = corners[0] + corners[1] + corners[2] + corners[3] + corners[4] + corners[5] + corners[6] + corners[7];
+       double theta = centre.Theta();
+       if ( theta > theta_max ) theta_max = theta;
+       if ( theta < theta_min ) theta_min = theta;
+     }
    }
    // expand theta range by the size of a crystal to avoid segments of zero length
    double z_ecal = 302; // ECAL endcap inner surface
