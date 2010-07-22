@@ -410,15 +410,17 @@ void AlignmentMonitorMuonVsCurvature::event(const edm::Event &iEvent, const edm:
 			   TrajectoryStateOnSurface extrapolation_rebuilt = propagator->propagate(ts_rebuilt, globalGeometry->idToDet(dt13->localid(m_layer))->surface());
 			   TrajectoryStateOnSurface extrapolation_plus1GeV = propagator->propagate(ts_plus1GeV, globalGeometry->idToDet(dt13->localid(m_layer))->surface());
 
-			   double rebuiltx = extrapolation_rebuilt.localPosition().x();
-			   double plus1x = extrapolation_plus1GeV.localPosition().x();
+			   if (extrapolation_rebuilt.isValid() && extrapolation_plus1GeV.isValid()) {
+			   	double rebuiltx = extrapolation_rebuilt.localPosition().x();
+			   	double plus1x = extrapolation_plus1GeV.localPosition().x();
 
-			   if (fabs(resid_x) < 10.) {
-			      th2f_wheelsector[wheel][sector][kPtErr]->Fill(1./qoverpt, resid_x/(rebuiltx-plus1x)/sqrt(1. + pz*pz/(px*px + py*py))*fabs(qoverpt)*100.);
-			      tprofile_wheelsector[wheel][sector][kPtErr]->Fill(1./qoverpt, resid_x/(rebuiltx-plus1x)/sqrt(1. + pz*pz/(px*px + py*py))*fabs(qoverpt)*100.);
+			   	if (fabs(resid_x) < 10.) {
+			      		th2f_wheelsector[wheel][sector][kPtErr]->Fill(1./qoverpt, resid_x/(rebuiltx-plus1x)/sqrt(1. + pz*pz/(px*px + py*py))*fabs(qoverpt)*100.);
+			      		tprofile_wheelsector[wheel][sector][kPtErr]->Fill(1./qoverpt, resid_x/(rebuiltx-plus1x)/sqrt(1. + pz*pz/(px*px + py*py))*fabs(qoverpt)*100.);
 
-			      th2f_wheelsector[wheel][sector][kCurvErr]->Fill(qoverpt, resid_x/(rebuiltx-plus1x)*qoverpt/sqrt(px*px + py*py + pz*pz));
-			      tprofile_wheelsector[wheel][sector][kCurvErr]->Fill(qoverpt, resid_x/(rebuiltx-plus1x)*qoverpt/sqrt(px*px + py*py + pz*pz));
+			      		th2f_wheelsector[wheel][sector][kCurvErr]->Fill(qoverpt, resid_x/(rebuiltx-plus1x)*qoverpt/sqrt(px*px + py*py + pz*pz));
+			      		tprofile_wheelsector[wheel][sector][kCurvErr]->Fill(qoverpt, resid_x/(rebuiltx-plus1x)*qoverpt/sqrt(px*px + py*py + pz*pz));
+			   	}
 			   }
 			}
 
