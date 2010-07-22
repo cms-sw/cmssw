@@ -37,10 +37,9 @@ def getLumiPerLS(dbsession,c,runList,selectionDict,beamstatus=None,beamenergy=No
         q=dbsession.nominalSchema().newQuery()
         lumiperrun=lumiQueryAPI.lumisummaryByrun(q,run,c.LUMIVERSION,beamstatus,beamenergy,beamenergyfluctuation)
         del q
-        q=dbsession.nominalSchema().newQuery()
-        trgperrun=lumiQueryAPI.trgbitzeroByrun(q,run) # {cmslsnum:[trgcount,deadtime,bitname,prescale]}
-        del q
-        dbsession.transaction().commit()
+        #q=dbsession.nominalSchema().newQuery()
+        #trgperrun=lumiQueryAPI.trgbitzeroByrun(q,run) # {cmslsnum:[trgcount,deadtime,bitname,prescale]}
+        #del q
         for lumiperls in lumiperrun:
             cmslsnum=lumiperls[0]
             instlumi=lumiperls[1]
@@ -49,14 +48,15 @@ def getLumiPerLS(dbsession,c,runList,selectionDict,beamstatus=None,beamenergy=No
             startorbit=lumiperls[3]
             deadcount=0
             bitzero=0
-            if trgperrun.has_key(cmslsnum):
-                bitzero=trgperrun[cmslsnum][0]
-                deadcount=trgperrun[cmslsnum][1]
-                try:
-                    recordedlumi=instlumi*(1.0-float(deadcount)/float(bitzero))
-                except ZeroDivisionError:
-                    pass
+            #if trgperrun.has_key(cmslsnum):
+                #bitzero=trgperrun[cmslsnum][0]
+                #deadcount=trgperrun[cmslsnum][1]
+                #try:
+                #    recordedlumi=instlumi*(1.0-float(deadcount)/float(bitzero))
+                #except ZeroDivisionError:
+                #    pass
             result.append([run,cmslsnum,instlumi,recordedlumi,numorbit,startorbit,runstarttime])
+    dbsession.transaction().commit()
     if c.VERBOSE:
         print result
     return result          
@@ -115,6 +115,7 @@ def main():
     ofilename='instlumi.csv'
     beammode='stable'
     timeformat=''
+    selectionDict={}
     if args.authpath and len(args.authpath)!=0:
         os.environ['CORAL_AUTH_PATH']=args.authpath
     if args.normfactor:
@@ -146,7 +147,9 @@ def main():
                 lslist=runsandls[run]
                 lslist.sort()
                 selectionDict[run]=lslist
-    if args.action == 'peakperday' or args.action == 'time':
+    if args.action == 'run':
+        pass
+    if args.action == 'peakperday':
         session.transaction().start(True)
         t=lumiTime.lumiTime()
         minTime=t.StrToDatetime(args.begin,timeformat)
@@ -168,24 +171,26 @@ def main():
     #print 'runDict ', runDict               
     fig=Figure(figsize=(7,4),dpi=100)
     m=matplotRender.matplotRender(fig)
-
-    if args.action == 'time' or args.action == 'peakperday':        
-        lumiperls=getLumiPerLS(dbsession,c,runList,selectionDict,beamstatus='STABLE BEAMS',beamenergy=3.5e3,beamenergyfluctuation=0.09)
-        
-        xdata=runDict        
-        ydata={}
-        ydata['Delivered']=[]
-        ydata['Recorded']=[]
-        keylist=lumiDict.keys()
-        keylist.sort()
-        for run in keylist:
-            ydata['Delivered'].append(lumiDict[run][0])
-            ydata['Recorded'].append(lumiDict[run][1])
-        if args.action == 'time':
-            m.plotSumX_Time(xdata,ydata,minTime,maxTime)
-        if args.action == 'perday':
-            m.plotPerdayX_Time(xdata,ydata,minTime,maxTime)
-        
+    
+    if args.action == 'peakperday':
+        l=lumiTime.lumiTime()
+        #lumiperls=getLumiPerLS(session,c,runList,selectionDict,beamstatus='STABLE BEAMS',beamenergy=3.5e3,beamenergyfluctuation=0.09)
+        lumiperls=getLumiPerLS(session,c,runList,selectionDict)
+        #print 'lumiperls ',lumiperls 
+        xdata=[]#[lsstarttime]
+        ydata={}#{label:[instlumi]}
+        ydata['Max Inst']=[]
+        #ydata['Recorded']=[]
+        for lsdata in lumiperls:
+            runstarttimeStr=lsdata[-1]#note: it is a string!!
+            startorbit=lsdata[-2]
+            deliveredInst=lsdata[2]
+            #recordedInst=lsdata[3]
+            lsstarttime=l.OrbitToTime(runstarttimeStr,startorbit)
+            xdata.append(lsstarttime)
+            ydata['Max Inst'].append(deliveredInst)
+            #ydata['Recorded'].append(recordedInst)
+        m.plotPeakPerday_Time(xdata,ydata,minTime,maxTime)      
     del session
     del svc
     if args.batch:

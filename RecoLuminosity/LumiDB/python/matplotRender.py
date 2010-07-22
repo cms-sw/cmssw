@@ -33,13 +33,6 @@ matplotlib.rcParams['xtick.labelsize']=8
 matplotlib.rcParams['ytick.labelsize']=8
 matplotlib.rcParams['legend.fontsize']=10
 matplotlib.rcParams['axes.labelsize']=10
-#def myinclusiveRange(start,stop,step):
-#    v=start
-#    while v<stop:
-#        yield v
-#        v+=step
-#    if v>=stop:
-#        yield stop
 
 def destroy(e) :
     sys.exit()
@@ -52,6 +45,7 @@ class matplotRender():
         self.colormap['Delivered']='r'
         self.colormap['Recorded']='b'
         self.colormap['Effective']='g'
+        self.colormap['Max Inst']='r'
 
     def plotSumX_Run(self,rawxdata,rawydata,sampleinterval=2,nticks=6):
         xpoints=[]
@@ -140,13 +134,7 @@ class matplotRender():
         xidx=[]
         runs=rawxdata.keys()
         runs.sort()
-        #delta=datetime.timedelta(hours=timedeltahours)
-        #timesamplers=matplotlib.dates.drange(minTime,maxTime,delta)
-        #print 'minTime ordinal ',minTime.toordinal()
-        #print 'maxTime ordinal ',maxTime.toordinal()
-        #binning in time
         for run in runs:
-            #xpoints.append(rawxdata[run][0].toordinal())
             xpoints.append(matplotlib.dates.date2num(rawxdata[run][0]))
             xidx.append(runs.index(run))
         for ylabel,yvalue in rawydata.items():
@@ -154,24 +142,13 @@ class matplotRender():
             for i in xidx:
                 ypoints[ylabel].append(sum(yvalue[0:i])/1000.0)
             ytotal[ylabel]=sum(yvalue)/1000.0
-        #print 'minTime ',minTime.toordinal()
-        #print 'maxTime ',maxTime.toordinal()
-        #print 'xpoints ',xpoints
-        #print 'ypoints ',ypoints
         ax=self.__fig.add_subplot(111)
         dateFmt=matplotlib.dates.DateFormatter('%d/%m')
-        #majourhourLoc=matplotlib.dates.HourLocator(interval=72)
-        #minorhourLoc=matplotlib.dates.HourLocator(interval=12)
-        #majorAutoLoc=matplotlib.dates.AutoDateLocator()
         majorLoc=matplotlib.ticker.LinearLocator(numticks=nticks)
         minorLoc=matplotlib.ticker.LinearLocator(numticks=nticks*4)
-        #minorhourLoc=matplotlib.dates.HourLocator(interval=12)
-        #dateFmt=matplotlib.dates.AutoDateFormatter(daysLoc)
         ax.xaxis.set_major_formatter(dateFmt)
         ax.set_xlabel(r'Date',position=(0.84,0))
         ax.set_ylabel(r'L nb$^{-1}$',position=(0,0.9))
-        #daysLoc=matplotlib.dates.DayLocator(interval=3)
-        #hoursLoc=matplotlib.dates.HourLocator(interval=3)
         ax.xaxis.set_major_locator(majorLoc)
         ax.xaxis.set_minor_locator(minorLoc)
         xticklabels=ax.get_xticklabels()
@@ -195,22 +172,20 @@ class matplotRender():
     def plotPerdayX_Time(self,rawxdata,rawydata,minTime,maxTime,nticks=6):
         xpoints=[]
         ypoints={}
-        ytotal={}
+        ymax={}
         xidx=[]
         runs=rawxdata.keys()
         runs.sort()
         minDay=minTime.toordinal()
         maxDay=maxTime.toordinal()
         daydict={}
-
-        for day in range(minDay,maxDay+1,1):
+        for day in CommonUtil.inclusiveRange(minDay,maxDay,1):
             daydict[day]=[]#run index list
         for run in runs:
             runstartday=rawxdata[run][0].toordinal()
-            if CommonUtil.findInList(daydict.keys() ,runstartday):
+            if CommonUtil.findInList(daydict.keys() ,runstartday)!=-1:
                 daydict[runstartday].append(runs.index(run))
         xpoints=daydict.keys()
-        ymax={}
         for ylabel,yvalue in rawydata.items():
             ypoints[ylabel]=[]
             ymax[ylabel]=[]
@@ -246,7 +221,62 @@ class matplotRender():
         ax.legend(tuple(legendlist),loc='upper left')
         ax.set_xlim(left=minDay,right=maxDay)
         self.__fig.autofmt_xdate(bottom=0.18,rotation=0)
-        self.__fig.subplots_adjust(bottom=0.18,left=0.3)    
+        self.__fig.subplots_adjust(bottom=0.18,left=0.3)
+
+    def plotPeakPerday_Time(self,rawxdata,rawydata,minTime,maxTime,nticks=6):
+        '''
+        Input: rawxdata [lsstarttime], rawydata {label:[instlumi]}
+        '''
+        xpoints=[]
+        ypoints={}
+        ymax={}
+        minDay=minTime.toordinal()
+        maxDay=maxTime.toordinal()
+        daydict={}#{day:[dataidx]}
+        for day in CommonUtil.inclusiveRange(minDay,maxDay,1):
+            daydict[day]=[]
+            for idx,lstime in enumerate(rawxdata):
+                if day==lstime.toordinal():
+                    daydict[day].append(idx)
+        xpoints=daydict.keys()
+        for ylabel,yvalue in rawydata.items():
+            ypoints[ylabel]=[]
+            ymax[ylabel]=0.0
+            for day,dataidx in daydict.items():
+                todaysmax=0.0
+                if len(dataidx)!=0: 
+                    todaysmax=max(yvalue[min(dataidx):max(dataidx)+1])
+                ypoints[ylabel].append(todaysmax)
+            ymax[ylabel]=max(yvalue)
+        #print 'xpoints ',xpoints
+        #print 'ypoints ',ypoints
+        ax=self.__fig.add_subplot(111)
+        dateFmt=matplotlib.dates.DateFormatter('%d/%m')
+        majorLoc=matplotlib.ticker.LinearLocator(numticks=nticks)
+        minorLoc=matplotlib.ticker.LinearLocator(numticks=nticks*4)
+        ax.xaxis.set_major_formatter(dateFmt)
+        ax.set_xlabel(r'Date',position=(0.84,0))
+        ax.set_ylabel(r'L $\mu$b$^{-1}$s$^{-1}$',position=(0,0.9))
+        ax.xaxis.set_major_locator(majorLoc)
+        ax.xaxis.set_minor_locator(minorLoc)
+        xticklabels=ax.get_xticklabels()
+        for tx in xticklabels:
+            tx.set_horizontalalignment('right')
+        ax.grid(True)
+        keylist=ypoints.keys()
+        keylist.sort()
+        legendlist=[]
+        for ylabel in keylist:
+            cl='k'
+            if self.colormap.has_key(ylabel):
+                cl=self.colormap[ylabel]
+            ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
+            legendlist.append(ylabel+' '+'%.2f'%(ymax[ylabel])+' '+'$\mu$b$^{-1}$s$^{-1}$')
+        ax.legend(tuple(legendlist),loc='upper left')
+        ax.set_xlim(left=minDay,right=maxDay)
+        self.__fig.autofmt_xdate(bottom=0.18,rotation=0)
+        self.__fig.subplots_adjust(bottom=0.18,left=0.3)
+        
     def drawHTTPstring(self):
         self.__canvas=CanvasBackend(self.__fig)    
         cherrypy.response.headers['Content-Type']='image/png'
