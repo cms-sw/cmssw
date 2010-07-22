@@ -11,6 +11,9 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+//Used for CPU affinity
+#include <sched.h>
+
 #include "boost/bind.hpp"
 #include "boost/thread/xtime.hpp"
 
@@ -467,7 +470,8 @@ namespace edm {
     looperBeginJobRun_(false),
     forceESCacheClearOnNewRun_(false),
     numberOfForkedChildren_(0),
-    numberOfSequentialEventsPerChild_(1) {
+    numberOfSequentialEventsPerChild_(1),
+    setCpuAffinity_(false) {
     boost::shared_ptr<ProcessDesc> processDesc = PythonProcessDesc(config).processDesc();
     processDesc->addServices(defaultServices, forcedServices);
     init(processDesc, iToken, iLegacy);
@@ -508,7 +512,8 @@ namespace edm {
     looperBeginJobRun_(false),
     forceESCacheClearOnNewRun_(false),
     numberOfForkedChildren_(0),
-    numberOfSequentialEventsPerChild_(1) {
+    numberOfSequentialEventsPerChild_(1),
+    setCpuAffinity_(false) {
     boost::shared_ptr<ProcessDesc> processDesc = PythonProcessDesc(config).processDesc();
     processDesc->addServices(defaultServices, forcedServices);
     init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
@@ -615,6 +620,7 @@ namespace edm {
     ParameterSet forking = optionsPset.getUntrackedParameter<ParameterSet>("multiProcesses", ParameterSet());
     numberOfForkedChildren_ = forking.getUntrackedParameter<int>("maxChildProcesses", 0);
     numberOfSequentialEventsPerChild_ = forking.getUntrackedParameter<unsigned int>("maxSequentialEventsPerChild", 1);
+    setCpuAffinity_ = forking.getUntrackedParameter<bool>("setCpuAffinity", false);
     std::vector<ParameterSet> excluded = forking.getUntrackedParameter<std::vector<ParameterSet> >("eventSetupDataToExcludeFromPrefetching",std::vector<ParameterSet>());
     for(std::vector<ParameterSet>::const_iterator itPS=excluded.begin(),itPSEnd=excluded.end();
         itPS != itPSEnd;
@@ -1071,6 +1077,16 @@ namespace edm {
         }
         
         std::cout << "I am child " << childIndex << " with pgid " << getpgrp() << std::endl;
+        if(setCpuAffinity_) {
+          std::cout << "Setting CPU affinity, setting this child to cpu " << childIndex << std::endl;
+          cpu_set_t mask;
+          CPU_ZERO(&mask);
+          CPU_SET(childIndex, &mask);
+          if(sched_setaffinity(0, sizeof(mask), &mask) != 0) {
+            std::cerr << "Failed to set the cpu affinity, errno " << errno << std::endl;
+            exit(-1);
+          }
+        }
         break;
       }
       if(value < 0) {

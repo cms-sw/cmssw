@@ -422,6 +422,7 @@ namespace edm {
 
     int                                           numberOfForkedChildren_;
     unsigned int                                  numberOfSequentialEventsPerChild_;
+    bool                                          setCpuAffinity_;
     typedef std::set<std::pair<std::string,std::string> > ExcludedData;
     typedef std::map<std::string, ExcludedData> ExcludedDataMap;
     ExcludedDataMap                               eventSetupDataToExcludeFromPrefetching_;
