@@ -121,6 +121,8 @@ public:
    
   const MagneticField* magneticField() const {return theField;}
 
+  reco::TransientTrack refittedTransientTrack() const;
+
 protected: 
 
  virtual void setTreePointer(KinematicTree * tr) const;

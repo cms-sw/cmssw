@@ -14,6 +14,8 @@
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
 #undef private
 
+#include <iostream>
+
 using namespace edm;
 
 class TestIndexIntoFile: public CppUnit::TestFixture
@@ -27,12 +29,37 @@ class TestIndexIntoFile: public CppUnit::TestFixture
   CPPUNIT_TEST(testConstructor);
   CPPUNIT_TEST(testAddEntryAndFixAndSort);
   CPPUNIT_TEST(testEmptyIndex);
-  CPPUNIT_TEST(testIterators);
+  CPPUNIT_TEST(testIterEndWithEvent);
+  CPPUNIT_TEST(testIterEndWithLumi);
+  CPPUNIT_TEST(testIterEndWithRun);
+  CPPUNIT_TEST(testIterLastLumiRangeNoEvents);
+  CPPUNIT_TEST(testSkip);
+  CPPUNIT_TEST(testSkip2);
   CPPUNIT_TEST(testFind);
+  CPPUNIT_TEST(testDuplicateCheckerFunctions);
   CPPUNIT_TEST_SUITE_END();
   
 public:
 
+  static const IndexIntoFile::EntryType kRun = IndexIntoFile::kRun;
+  static const IndexIntoFile::EntryType kLumi = IndexIntoFile::kLumi;
+  static const IndexIntoFile::EntryType kEvent = IndexIntoFile::kEvent;
+  static const IndexIntoFile::EntryType kEnd = IndexIntoFile::kEnd;
+
+  class Skipped {
+  public:
+    Skipped(): phIndexOfSkippedEvent_(0),
+               runOfSkippedEvent_(0),
+               lumiOfSkippedEvent_(0),
+               skippedEventEntry_(0) { }
+    int phIndexOfSkippedEvent_;
+    RunNumber_t runOfSkippedEvent_;
+    LuminosityBlockNumber_t lumiOfSkippedEvent_;
+    IndexIntoFile::EntryNumber_t skippedEventEntry_;
+  };
+
+  Skipped skipped_;
+  
   void setUp() {
 
     // Make some fake processHistoryID's to work with
@@ -71,17 +98,130 @@ public:
   void testConstructor();
   void testAddEntryAndFixAndSort();
   void testEmptyIndex();
-  void testIterators();
+  void testIterEndWithEvent();
+  void testIterEndWithLumi();
+  void testIterEndWithRun();
+  void testIterLastLumiRangeNoEvents();
+  void testSkip();
+  void testSkip2();
   void testFind();
+  void testDuplicateCheckerFunctions();
 
   ProcessHistoryID nullPHID;
   ProcessHistoryID fakePHID1;
   ProcessHistoryID fakePHID2;
   ProcessHistoryID fakePHID3;
+
+  void check(edm::IndexIntoFile::IndexIntoFileItr const& iter,
+             IndexIntoFile::EntryType type,
+             int indexToRun,
+             int indexToLumi,
+             int indexToEventRange,
+             long long indexToEvent,
+             long long nEvents);
+
+  void skipEventForward(edm::IndexIntoFile::IndexIntoFileItr & iter);
+  void checkSkipped(int phIndexOfSkippedEvent,
+                    RunNumber_t runOfSkippedEvent,
+                    LuminosityBlockNumber_t lumiOfSkippedEvent,
+                    IndexIntoFile::EntryNumber_t skippedEventEntry);
+
+  void checkIDRunLumiEntry(edm::IndexIntoFile::IndexIntoFileItr const& iter,
+                           int phIndex,
+                           RunNumber_t run,
+                           LuminosityBlockNumber_t lumi,
+                           IndexIntoFile::EntryNumber_t entry);
+
+  // This is a helper class for IndexIntoFile.
+  class TestEventFinder : public IndexIntoFile::EventFinder {
+  public:
+    explicit TestEventFinder() {}
+    virtual ~TestEventFinder() {}
+    virtual EventNumber_t getEventNumberOfEntry(IndexIntoFile::EntryNumber_t entry) const {
+      return testData_.at(entry);
+    }
+    void push_back(EventNumber_t e) {testData_.push_back(e); }
+
+  private:
+    std::vector<EventNumber_t> testData_;
+  };
 };
 
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(TestIndexIntoFile);
+
+void TestIndexIntoFile::check(edm::IndexIntoFile::IndexIntoFileItr const& iter,
+                              IndexIntoFile::EntryType type,
+                              int indexToRun,
+                              int indexToLumi,
+                              int indexToEventRange,
+                              long long indexToEvent,
+                              long long nEvents) {
+  bool theyMatch = iter.getEntryType() == type &&
+                   iter.type() == type &&
+                   iter.indexToRun() == indexToRun &&
+                   iter.indexToLumi() == indexToLumi &&
+                   iter.indexToEventRange() == indexToEventRange &&
+                   iter.indexToEvent() == indexToEvent &&
+                   iter.nEvents() == nEvents;
+  if (!theyMatch) {
+    std::cout << "\nExpected        " << type << "  " << indexToRun << "  "
+              << indexToLumi << "  " << indexToEventRange << "  " << indexToEvent
+              << "  " << nEvents << "\n";
+    std::cout << "Iterator values " << iter.type() << "  " << iter.indexToRun() << "  "
+              << iter.indexToLumi() << "  " << iter.indexToEventRange() << "  " << iter.indexToEvent()
+              << "  " << iter.nEvents() << "\n";
+  }
+  CPPUNIT_ASSERT(theyMatch);
+}
+
+void TestIndexIntoFile::checkSkipped(int phIndexOfSkippedEvent,
+                                     RunNumber_t runOfSkippedEvent,
+                                     LuminosityBlockNumber_t lumiOfSkippedEvent,
+                                     IndexIntoFile::EntryNumber_t skippedEventEntry) {
+  bool theyMatch = skipped_.phIndexOfSkippedEvent_ == phIndexOfSkippedEvent &&
+                   skipped_.runOfSkippedEvent_ == runOfSkippedEvent &&
+                   skipped_.lumiOfSkippedEvent_ == lumiOfSkippedEvent &&
+                   skipped_.skippedEventEntry_ == skippedEventEntry;
+
+
+
+  if (!theyMatch) {
+    std::cout << "\nExpected        " << phIndexOfSkippedEvent << "  " << runOfSkippedEvent << "  "
+              << lumiOfSkippedEvent << "  " << skippedEventEntry << "\n";
+    std::cout << "Actual          " << skipped_.phIndexOfSkippedEvent_ << "  " << skipped_.runOfSkippedEvent_ << "  "
+              << skipped_.lumiOfSkippedEvent_ << "  " << skipped_.skippedEventEntry_ << "\n";
+  }
+  CPPUNIT_ASSERT(theyMatch);
+}
+
+void TestIndexIntoFile::checkIDRunLumiEntry(edm::IndexIntoFile::IndexIntoFileItr const& iter,
+                                            int phIndex,
+                                            RunNumber_t run,
+                                            LuminosityBlockNumber_t lumi,
+                                            IndexIntoFile::EntryNumber_t entry) {
+  bool theyMatch = iter.processHistoryIDIndex() == phIndex &&
+                   iter.run() == run &&
+                   iter.lumi() == lumi &&
+                   iter.entry() == entry;
+
+  if (!theyMatch) {
+    std::cout << "\nExpected        " << phIndex << "  " << run << "  "
+              << lumi << "  " << entry << "\n";
+    std::cout << "Actual          " << iter.processHistoryIDIndex() << "  " << iter.run() << "  "
+              << iter.lumi() << "  " << iter.entry() << "\n";
+  }
+  CPPUNIT_ASSERT(theyMatch);
+}
+
+void TestIndexIntoFile::skipEventForward(edm::IndexIntoFile::IndexIntoFileItr & iter) {
+  iter.skipEventForward(skipped_.phIndexOfSkippedEvent_,
+                        skipped_.runOfSkippedEvent_,
+                        skipped_.lumiOfSkippedEvent_,
+                        skipped_.skippedEventEntry_);
+}
+
+
 
 void TestIndexIntoFile::testRunOrLumiEntry() {
 
@@ -596,6 +736,9 @@ void TestIndexIntoFile::testAddEntryAndFixAndSort() {
   eventEntries.push_back(IndexIntoFile::EventEntry(4, 5));
   indexIntoFile.sortEventEntries();
 
+  eventNumbers.clear();
+  eventEntries.clear();
+
   CPPUNIT_ASSERT(eventEntries[0].event() == 9);
   CPPUNIT_ASSERT(eventEntries[1].event() == 10);
   CPPUNIT_ASSERT(eventEntries[2].event() == 8);
@@ -603,6 +746,45 @@ void TestIndexIntoFile::testAddEntryAndFixAndSort() {
   CPPUNIT_ASSERT(eventEntries[4].event() == 5);
   CPPUNIT_ASSERT(eventEntries[5].event() == 6);
   CPPUNIT_ASSERT(eventEntries[6].event() == 7);
+
+  CPPUNIT_ASSERT(indexIntoFile.numberOfEvents() == 7);
+
+  TestEventFinder* ptr(new TestEventFinder);
+  ptr->push_back(7);
+  ptr->push_back(6);
+  ptr->push_back(10);
+  ptr->push_back(9);
+  ptr->push_back(5);
+  ptr->push_back(4);
+  ptr->push_back(8);
+
+  boost::shared_ptr<IndexIntoFile::EventFinder> shptr(ptr);
+  indexIntoFile.setEventFinder(shptr);
+
+  indexIntoFile.fillEventNumbers();
+  CPPUNIT_ASSERT(eventNumbers[0] == 9);
+  CPPUNIT_ASSERT(eventNumbers[1] == 10);
+  CPPUNIT_ASSERT(eventNumbers[2] == 8);
+  CPPUNIT_ASSERT(eventNumbers[3] == 4);
+  CPPUNIT_ASSERT(eventNumbers[4] == 5);
+  CPPUNIT_ASSERT(eventNumbers[5] == 6);
+  CPPUNIT_ASSERT(eventNumbers[6] == 7);
+
+  indexIntoFile.fillEventEntries();
+  CPPUNIT_ASSERT(eventEntries[0].event() == 9);
+  CPPUNIT_ASSERT(eventEntries[1].event() == 10);
+  CPPUNIT_ASSERT(eventEntries[2].event() == 8);
+  CPPUNIT_ASSERT(eventEntries[3].event() == 4);
+  CPPUNIT_ASSERT(eventEntries[4].event() == 5);
+  CPPUNIT_ASSERT(eventEntries[5].event() == 6);
+  CPPUNIT_ASSERT(eventEntries[6].event() == 7);
+
+  indexIntoFile.inputFileClosed();
+  CPPUNIT_ASSERT(eventEntries.capacity() == 0);
+  CPPUNIT_ASSERT(eventEntries.empty());
+  CPPUNIT_ASSERT(indexIntoFile.runOrLumiIndexes().capacity() == 0);
+  CPPUNIT_ASSERT(indexIntoFile.runOrLumiIndexes().empty());
+  CPPUNIT_ASSERT(indexIntoFile.transients_.get().eventFinder_.get() == 0);
 }
 
 void TestIndexIntoFile::testEmptyIndex() {
@@ -635,185 +817,778 @@ void TestIndexIntoFile::testEmptyIndex() {
   CPPUNIT_ASSERT(iterFirst == iterFirstEnd);
 }
 
-void TestIndexIntoFile::testIterators() {
+void TestIndexIntoFile::testIterEndWithEvent() {
   edm::IndexIntoFile indexIntoFile;
-  indexIntoFile.addEntry(fakePHID1, 11, 12, 7, 0); // Event
-  indexIntoFile.addEntry(fakePHID1, 11, 12, 6, 1); // Event
-  indexIntoFile.addEntry(fakePHID1, 11, 12, 0, 0); // Lumi
-  indexIntoFile.addEntry(fakePHID1, 11, 12, 5, 2); // Event
-  indexIntoFile.addEntry(fakePHID1, 11, 12, 4, 3); // Event
-  indexIntoFile.addEntry(fakePHID1, 11, 12, 0, 1); // Lumi
-  indexIntoFile.addEntry(fakePHID1, 11,  0, 0, 0); // Run
+  indexIntoFile.addEntry(fakePHID1, 11, 101, 7, 0); // Event
+  indexIntoFile.addEntry(fakePHID1, 11, 101, 6, 1); // Event
+  indexIntoFile.addEntry(fakePHID1, 11, 101, 0, 0); // Lumi
+  indexIntoFile.addEntry(fakePHID1, 11, 101, 0, 1); // Lumi
+  indexIntoFile.addEntry(fakePHID1, 11, 101, 5, 2); // Event
+  indexIntoFile.addEntry(fakePHID1, 11, 101, 4, 3); // Event
+  indexIntoFile.addEntry(fakePHID1, 11, 101, 0, 2); // Lumi
+  indexIntoFile.addEntry(fakePHID1, 11, 102, 5, 4); // Event
+  indexIntoFile.addEntry(fakePHID1, 11, 102, 4, 5); // Event
+  indexIntoFile.addEntry(fakePHID1, 11, 102, 0, 3); // Lumi
+  indexIntoFile.addEntry(fakePHID1, 11,   0, 0, 0); // Run
+  indexIntoFile.addEntry(fakePHID2, 11,   0, 0, 1); // Run
+  indexIntoFile.addEntry(fakePHID2, 11, 101, 0, 4); // Lumi
+  indexIntoFile.addEntry(fakePHID2, 11, 102, 0, 5); // Lumi
+  indexIntoFile.addEntry(fakePHID2, 11, 102, 4, 6); // Event
+  indexIntoFile.addEntry(fakePHID2, 11, 102, 0, 6); // Lumi
+  indexIntoFile.addEntry(fakePHID2, 11,   0, 0, 2); // Run
   indexIntoFile.sortVector_Run_Or_Lumi_Entries();
+
+  edm::IndexIntoFile::IndexIntoFileItr iter3(&indexIntoFile,
+                                             IndexIntoFile::firstAppearanceOrder,
+                                             IndexIntoFile::kEvent,
+                                             0,
+                                             3,
+                                             2,
+                                             1,
+                                             2);
+  edm::IndexIntoFile::IndexIntoFileItr iter1(iter3);
+
+  CPPUNIT_ASSERT(iter1 == iter3);
+  CPPUNIT_ASSERT(iter1.indexIntoFile() == &indexIntoFile);
+  CPPUNIT_ASSERT(iter1.size() == 10);
+  CPPUNIT_ASSERT(iter1.type() == IndexIntoFile::kEvent);
+  CPPUNIT_ASSERT(iter1.indexToRun() == 0);
+  CPPUNIT_ASSERT(iter1.indexToLumi() == 3);
+  CPPUNIT_ASSERT(iter1.indexToEventRange() == 2);
+  CPPUNIT_ASSERT(iter1.indexToEvent() == 1);
+  CPPUNIT_ASSERT(iter1.nEvents() == 2);
+
+  iter1 = ++iter3;
+  CPPUNIT_ASSERT(iter1 == iter3);
+ 
+
+  CPPUNIT_ASSERT(indexIntoFile.iterationWillBeInEntryOrder(IndexIntoFile::firstAppearanceOrder) == true);
+
+  edm::IndexIntoFile::IndexIntoFileItr iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
+  edm::IndexIntoFile::IndexIntoFileItr iterFirstCopy = iterFirst;
+  edm::IndexIntoFile::IndexIntoFileItr iterFirstCopy2 = iterFirst;
+  edm::IndexIntoFile::IndexIntoFileItr iterFirstEnd = indexIntoFile.end(IndexIntoFile::firstAppearanceOrder);
+  int i = 0;
+  for (i = 0; iterFirst != iterFirstEnd; ++iterFirst, ++iterFirstCopy, ++i) {
+    CPPUNIT_ASSERT(iterFirst== iterFirstCopy);
+    iterFirstCopy2 = iterFirstCopy;
+    CPPUNIT_ASSERT(iterFirst== iterFirstCopy2);
+    if (i == 0) {
+      check(iterFirst, kRun, 0, 1, 1, 0, 2);
+      CPPUNIT_ASSERT(iterFirst.indexIntoFile() == &indexIntoFile);
+      CPPUNIT_ASSERT(iterFirst.size() == 10);
+    }
+    else if (i == 1)  check(iterFirst, kLumi,  0, 1,  1, 0, 2);
+    else if (i == 2)  check(iterFirst, kLumi,  0, 2,  1, 0, 2);
+    else if (i == 3)  check(iterFirst, kLumi,  0, 3,  1, 0, 2);
+    else if (i == 4)  check(iterFirst, kEvent, 0, 3,  1, 0, 2);
+    else if (i == 5)  check(iterFirst, kEvent, 0, 3,  1, 1, 2);
+    else if (i == 6)  check(iterFirst, kEvent, 0, 3,  3, 0, 2);
+    else if (i == 7)  check(iterFirst, kEvent, 0, 3,  3, 1, 2);
+    else if (i == 8)  check(iterFirst, kLumi,  0, 4,  4, 0, 2);
+    else if (i == 9)  check(iterFirst, kEvent, 0, 4,  4, 0, 2);
+    else if (i == 10) check(iterFirst, kEvent, 0, 4,  4, 1, 2);
+    else if (i == 11) check(iterFirst, kRun,   5, 7, -1, 0, 0);
+    else if (i == 12) check(iterFirst, kRun,   6, 7, -1, 0, 0);
+    else if (i == 13) check(iterFirst, kLumi,  6, 7, -1, 0, 0);
+    else if (i == 14) check(iterFirst, kLumi,  6, 8,  9, 0, 1);
+    else if (i == 15) check(iterFirst, kLumi,  6, 9,  9, 0, 1);
+    else if (i == 16) check(iterFirst, kEvent, 6, 9,  9, 0, 1);
+    else CPPUNIT_ASSERT(false);
+  }
+  CPPUNIT_ASSERT(i == 17);
+
+  for (i = 0, iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
+       iterFirst != iterFirstEnd;
+       ++iterFirst, ++i) {
+    if (i == 0) checkIDRunLumiEntry(iterFirst, 0, 11, 0, 0);    // Run
+    if (i == 1) checkIDRunLumiEntry(iterFirst, 0, 11, 101, 0);  // Lumi
+    if (i == 2) checkIDRunLumiEntry(iterFirst, 0, 11, 101, 1);  // Lumi
+    if (i == 3) checkIDRunLumiEntry(iterFirst, 0, 11, 101, 2);  // Lumi
+    if (i == 4) checkIDRunLumiEntry(iterFirst, 0, 11, 101, 0);  // Event
+    if (i == 5) checkIDRunLumiEntry(iterFirst, 0, 11, 101, 1);  // Event
+    if (i == 6) checkIDRunLumiEntry(iterFirst, 0, 11, 101, 2);  // Event
+    if (i == 7) checkIDRunLumiEntry(iterFirst, 0, 11, 101, 3);  // Event
+    if (i == 8) checkIDRunLumiEntry(iterFirst, 0, 11, 102, 3);  // Lumi
+    if (i == 9) checkIDRunLumiEntry(iterFirst, 0, 11, 102, 4);  // Event
+    if (i == 10) checkIDRunLumiEntry(iterFirst, 0, 11, 102, 5); // Event
+    if (i == 11) checkIDRunLumiEntry(iterFirst, 1, 11, 0, 1);   // Run
+    if (i == 12) checkIDRunLumiEntry(iterFirst, 1, 11, 0, 2);   // Run
+    if (i == 13) checkIDRunLumiEntry(iterFirst, 1, 11, 101, 4); // Lumi
+    if (i == 14) checkIDRunLumiEntry(iterFirst, 1, 11, 102, 5); // Lumi
+    if (i == 15) checkIDRunLumiEntry(iterFirst, 1, 11, 102, 6); // Lumi
+    if (i == 16) checkIDRunLumiEntry(iterFirst, 1, 11, 102, 6); // Event
+  }
+  checkIDRunLumiEntry(iterFirst, -1, 0, 0, -1); // Event
+
+  CPPUNIT_ASSERT(indexIntoFile.runOrLumiIndexes().empty());
+
+  // Now repeat the above tests for the sorted iteration
+
+  edm::IndexIntoFile::IndexIntoFileItr iter4(&indexIntoFile,
+                                             IndexIntoFile::numericalOrder,
+                                             IndexIntoFile::kEvent,
+                                             0,
+                                             3,
+                                             1,
+                                             3,
+                                             4);
+  edm::IndexIntoFile::IndexIntoFileItr iter2(iter4);
+
+  CPPUNIT_ASSERT(iter2 == iter4);
+  CPPUNIT_ASSERT(iter2.indexIntoFile() == &indexIntoFile);
+  CPPUNIT_ASSERT(iter2.size() == 10);
+  CPPUNIT_ASSERT(iter2.type() == IndexIntoFile::kEvent);
+  CPPUNIT_ASSERT(iter2.indexToRun() == 0);
+  CPPUNIT_ASSERT(iter2.indexToLumi() == 3);
+  CPPUNIT_ASSERT(iter2.indexToEventRange() == 1);
+  CPPUNIT_ASSERT(iter2.indexToEvent() == 3);
+  CPPUNIT_ASSERT(iter2.nEvents() == 4);
+
+  CPPUNIT_ASSERT(!indexIntoFile.runOrLumiIndexes().empty());
 
   std::vector<IndexIntoFile::EventEntry>&  eventEntries  = indexIntoFile.eventEntries();
   eventEntries.push_back(IndexIntoFile::EventEntry(7, 0));
   eventEntries.push_back(IndexIntoFile::EventEntry(6, 1));
   eventEntries.push_back(IndexIntoFile::EventEntry(5, 2));
   eventEntries.push_back(IndexIntoFile::EventEntry(4, 3));
+  eventEntries.push_back(IndexIntoFile::EventEntry(5, 4));
+  eventEntries.push_back(IndexIntoFile::EventEntry(4, 5));
+  eventEntries.push_back(IndexIntoFile::EventEntry(4, 6));
   indexIntoFile.sortEventEntries();
 
   CPPUNIT_ASSERT(indexIntoFile.iterationWillBeInEntryOrder(IndexIntoFile::numericalOrder) == false);
-  CPPUNIT_ASSERT(indexIntoFile.iterationWillBeInEntryOrder(IndexIntoFile::firstAppearanceOrder) == true);
 
   edm::IndexIntoFile::IndexIntoFileItr iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
   edm::IndexIntoFile::IndexIntoFileItr iterNumCopy = iterNum;
+  edm::IndexIntoFile::IndexIntoFileItr iterNumCopy2 = iterNum;
   edm::IndexIntoFile::IndexIntoFileItr iterNumEnd = indexIntoFile.end(IndexIntoFile::numericalOrder);
-  int i = 0;
+  i = 0;
   for (i = 0; iterNum != iterNumEnd; ++iterNum, ++iterNumCopy, ++i) {
+    iterNumCopy2 = iterNumCopy;
     CPPUNIT_ASSERT(iterNum == iterNumCopy);
+    CPPUNIT_ASSERT(iterNum == iterNumCopy2);
     if (i == 0) {
+      check(iterNum, kRun, 0, 1, 1, 0, 4);
       CPPUNIT_ASSERT(iterNum.indexIntoFile() == &indexIntoFile);
-      CPPUNIT_ASSERT(iterNum.size() == 3);
-      CPPUNIT_ASSERT(iterNum.type() == IndexIntoFile::kRun);
-      CPPUNIT_ASSERT(iterNum.indexToRun() == 0);
-      CPPUNIT_ASSERT(iterNum.indexToLumi() == 1);
-      CPPUNIT_ASSERT(iterNum.indexToEventRange() == 1);
-      CPPUNIT_ASSERT(iterNum.indexToEvent() == 0);
-      CPPUNIT_ASSERT(iterNum.nEvents() == 4);
+      CPPUNIT_ASSERT(iterNum.size() == 10);
     }
-    if (i == 1) {
-      CPPUNIT_ASSERT(iterNum.indexIntoFile() == &indexIntoFile);
-      CPPUNIT_ASSERT(iterNum.size() == 3);
-      CPPUNIT_ASSERT(iterNum.type() == IndexIntoFile::kLumi);
-      CPPUNIT_ASSERT(iterNum.indexToRun() == 0);
-      CPPUNIT_ASSERT(iterNum.indexToLumi() == 1);
-      CPPUNIT_ASSERT(iterNum.indexToEventRange() == 1);
-      CPPUNIT_ASSERT(iterNum.indexToEvent() == 0);
-      CPPUNIT_ASSERT(iterNum.nEvents() == 4);
-    }
-    if (i == 2) {
-      CPPUNIT_ASSERT(iterNum.indexIntoFile() == &indexIntoFile);
-      CPPUNIT_ASSERT(iterNum.size() == 3);
-      CPPUNIT_ASSERT(iterNum.type() == IndexIntoFile::kLumi);
-      CPPUNIT_ASSERT(iterNum.indexToRun() == 0);
-      CPPUNIT_ASSERT(iterNum.indexToLumi() == 2);
-      CPPUNIT_ASSERT(iterNum.indexToEventRange() == 1);
-      CPPUNIT_ASSERT(iterNum.indexToEvent() == 0);
-      CPPUNIT_ASSERT(iterNum.nEvents() == 4);
-    }
-    if (i == 3) {
-      CPPUNIT_ASSERT(iterNum.indexIntoFile() == &indexIntoFile);
-      CPPUNIT_ASSERT(iterNum.size() == 3);
-      CPPUNIT_ASSERT(iterNum.type() == IndexIntoFile::kEvent);
-      CPPUNIT_ASSERT(iterNum.indexToRun() == 0);
-      CPPUNIT_ASSERT(iterNum.indexToLumi() == 2);
-      CPPUNIT_ASSERT(iterNum.indexToEventRange() == 1);
-      CPPUNIT_ASSERT(iterNum.indexToEvent() == 0);
-      CPPUNIT_ASSERT(iterNum.nEvents() == 4);
-    }
-    if (i == 4) {
-      CPPUNIT_ASSERT(iterNum.indexIntoFile() == &indexIntoFile);
-      CPPUNIT_ASSERT(iterNum.size() == 3);
-      CPPUNIT_ASSERT(iterNum.type() == IndexIntoFile::kEvent);
-      CPPUNIT_ASSERT(iterNum.indexToRun() == 0);
-      CPPUNIT_ASSERT(iterNum.indexToLumi() == 2);
-      CPPUNIT_ASSERT(iterNum.indexToEventRange() == 1);
-      CPPUNIT_ASSERT(iterNum.indexToEvent() == 1);
-      CPPUNIT_ASSERT(iterNum.nEvents() == 4);
-    }
-    if (i == 5) {
-      CPPUNIT_ASSERT(iterNum.indexIntoFile() == &indexIntoFile);
-      CPPUNIT_ASSERT(iterNum.size() == 3);
-      CPPUNIT_ASSERT(iterNum.type() == IndexIntoFile::kEvent);
-      CPPUNIT_ASSERT(iterNum.indexToRun() == 0);
-      CPPUNIT_ASSERT(iterNum.indexToLumi() == 2);
-      CPPUNIT_ASSERT(iterNum.indexToEventRange() == 1);
-      CPPUNIT_ASSERT(iterNum.indexToEvent() == 2);
-      CPPUNIT_ASSERT(iterNum.nEvents() == 4);
-    }
-    if (i == 6) {
-      CPPUNIT_ASSERT(iterNum.indexIntoFile() == &indexIntoFile);
-      CPPUNIT_ASSERT(iterNum.size() == 3);
-      CPPUNIT_ASSERT(iterNum.type() == IndexIntoFile::kEvent);
-      CPPUNIT_ASSERT(iterNum.indexToRun() == 0);
-      CPPUNIT_ASSERT(iterNum.indexToLumi() == 2);
-      CPPUNIT_ASSERT(iterNum.indexToEventRange() == 1);
-      CPPUNIT_ASSERT(iterNum.indexToEvent() == 3);
-      CPPUNIT_ASSERT(iterNum.nEvents() == 4);
-    }
+    else if (i == 1)  check(iterNum, kLumi,  0, 1,  1, 0, 4);
+    else if (i == 2)  check(iterNum, kLumi,  0, 2,  1, 0, 4);
+    else if (i == 3)  check(iterNum, kLumi,  0, 3,  1, 0, 4);
+    else if (i == 4)  check(iterNum, kEvent, 0, 3,  1, 0, 4);
+    else if (i == 5)  check(iterNum, kEvent, 0, 3,  1, 1, 4);
+    else if (i == 6)  check(iterNum, kEvent, 0, 3,  1, 2, 4);
+    else if (i == 7)  check(iterNum, kEvent, 0, 3,  1, 3, 4);
+    else if (i == 8)  check(iterNum, kLumi,  0, 4,  4, 0, 2);
+    else if (i == 9)  check(iterNum, kEvent, 0, 4,  4, 0, 2);
+    else if (i == 10) check(iterNum, kEvent, 0, 4,  4, 1, 2);
+    else if (i == 11) check(iterNum, kRun,   5, 7, -1, 0, 0);
+    else if (i == 12) check(iterNum, kRun,   6, 7, -1, 0, 0);
+    else if (i == 13) check(iterNum, kLumi,  6, 7, -1, 0, 0);
+    else if (i == 14) check(iterNum, kLumi,  6, 8,  8, 0, 1);
+    else if (i == 15) check(iterNum, kLumi,  6, 9,  8, 0, 1);
+    else if (i == 16) check(iterNum, kEvent, 6, 9,  8, 0, 1);
+    else CPPUNIT_ASSERT(false);
   }
-  CPPUNIT_ASSERT(i == 7);
+  CPPUNIT_ASSERT(i == 17);
+
+  for (i = 0, iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
+       iterNum != iterNumEnd;
+       ++iterNum, ++i) {
+    if (i == 0) checkIDRunLumiEntry(iterNum, 0, 11, 0, 0);    // Run
+    if (i == 1) checkIDRunLumiEntry(iterNum, 0, 11, 101, 0);  // Lumi
+    if (i == 2) checkIDRunLumiEntry(iterNum, 0, 11, 101, 1);  // Lumi
+    if (i == 3) checkIDRunLumiEntry(iterNum, 0, 11, 101, 2);  // Lumi
+    if (i == 4) checkIDRunLumiEntry(iterNum, 0, 11, 101, 3);  // Event
+    if (i == 5) checkIDRunLumiEntry(iterNum, 0, 11, 101, 2);  // Event
+    if (i == 6) checkIDRunLumiEntry(iterNum, 0, 11, 101, 1);  // Event
+    if (i == 7) checkIDRunLumiEntry(iterNum, 0, 11, 101, 0);  // Event
+    if (i == 8) checkIDRunLumiEntry(iterNum, 0, 11, 102, 3);  // Lumi
+    if (i == 9) checkIDRunLumiEntry(iterNum, 0, 11, 102, 5);  // Event
+    if (i == 10) checkIDRunLumiEntry(iterNum, 0, 11, 102, 4); // Event
+    if (i == 11) checkIDRunLumiEntry(iterNum, 1, 11, 0, 1);   // Run
+    if (i == 12) checkIDRunLumiEntry(iterNum, 1, 11, 0, 2);   // Run
+    if (i == 13) checkIDRunLumiEntry(iterNum, 1, 11, 101, 4); // Lumi
+    if (i == 14) checkIDRunLumiEntry(iterNum, 1, 11, 102, 5); // Lumi
+    if (i == 15) checkIDRunLumiEntry(iterNum, 1, 11, 102, 6); // Lumi
+    if (i == 16) checkIDRunLumiEntry(iterNum, 1, 11, 102, 6); // Event
+  }
+  checkIDRunLumiEntry(iterFirst, -1, 0, 0, -1); // Event
+
+
+  iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
+  check(iterFirst, kRun, 0, 1, 1, 0, 2);
+
+  skipEventForward(iterFirst);
+  checkSkipped(0, 11, 101, 0);
+  check(iterFirst, kRun, 0, 1, 1, 1, 2);
+
+  skipEventForward(iterFirst);
+  checkSkipped(0, 11, 101, 1);
+  check(iterFirst, kRun, 0, 1, 3, 0, 2);
+
+  skipEventForward(iterFirst);
+  checkSkipped(0, 11, 101, 2);
+  check(iterFirst, kRun, 0, 1, 3, 1, 2);
+
+  skipEventForward(iterFirst);
+  checkSkipped(0, 11, 101, 3);
+  check(iterFirst, kRun, 0, 4, 4, 0, 2);
+
+  skipEventForward(iterFirst);
+  checkSkipped(0, 11, 102, 4);
+  check(iterFirst, kRun, 0, 4, 4, 1, 2);
+
+  skipEventForward(iterFirst);
+  checkSkipped(0, 11, 102, 5);
+  check(iterFirst, kRun, 5, 7, -1, 0, 0);
+
+  skipEventForward(iterFirst);
+  checkSkipped(1, 11, 102, 6);
+  check(iterFirst, kEnd, -1, -1, -1, 0, 0);
+
+  skipEventForward(iterFirst);
+  checkSkipped(-1, 0, 0, -1);
+  check(iterFirst, kEnd, -1, -1, -1, 0, 0);
+
+  iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
+  ++iterFirst;
+
+  skipEventForward(iterFirst);
+  checkSkipped(0, 11, 101, 0);
+  check(iterFirst, kLumi, 0, 1, 1, 1, 2);
+
+  skipEventForward(iterFirst);
+  checkSkipped(0, 11, 101, 1);
+  check(iterFirst, kLumi, 0, 1, 3, 0, 2);
+
+  skipEventForward(iterFirst);
+  checkSkipped(0, 11, 101, 2);
+  check(iterFirst, kLumi, 0, 1, 3, 1, 2);
+
+  skipEventForward(iterFirst);
+  checkSkipped(0, 11, 101, 3);
+  check(iterFirst, kLumi, 0, 4, 4, 0, 2);
+
+  skipEventForward(iterFirst);
+  checkSkipped(0, 11, 102, 4);
+  check(iterFirst, kLumi, 0, 4, 4, 1, 2);
+
+  skipEventForward(iterFirst);
+  checkSkipped(0, 11, 102, 5);
+  check(iterFirst, kRun, 5, 7, -1, 0, 0);
+
+  ++iterFirst;
+  ++iterFirst;
+  ++iterFirst;
+  skipEventForward(iterFirst);
+  checkSkipped(1, 11, 102, 6);
+  check(iterFirst, kEnd, -1, -1, -1, 0, 0);
+
+
+  iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
+  ++iterFirst;
+  ++iterFirst;
+  ++iterFirst;
+  ++iterFirst;
+
+  skipEventForward(iterFirst);
+  checkSkipped(0, 11, 101, 0);
+  check(iterFirst, kEvent, 0, 3, 1, 1, 2);
+
+  skipEventForward(iterFirst);
+  checkSkipped(0, 11, 101, 1);
+  check(iterFirst, kEvent, 0, 3, 3, 0, 2);
+
+  skipEventForward(iterFirst);
+  checkSkipped(0, 11, 101, 2);
+  check(iterFirst, kEvent, 0, 3, 3, 1, 2);
+
+  skipEventForward(iterFirst);
+  checkSkipped(0, 11, 101, 3);
+  check(iterFirst, kLumi, 0, 4, 4, 0, 2);
+
+  ++iterFirst;
+  skipEventForward(iterFirst);
+  checkSkipped(0, 11, 102, 4);
+  check(iterFirst, kEvent, 0, 4, 4, 1, 2);
+
+  skipEventForward(iterFirst);
+  checkSkipped(0, 11, 102, 5);
+  check(iterFirst, kRun, 5, 7, -1, 0, 0);
+
+  iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
+  iterFirst.advanceToNextLumiOrRun();
+  check(iterFirst, kLumi, 0, 1, 1, 0 , 2);
+  iterFirst.advanceToNextLumiOrRun();
+  check(iterFirst, kLumi, 0, 4, 4, 0 , 2);
+  iterFirst.advanceToNextLumiOrRun();
+  check(iterFirst, kRun, 5, 7, -1, 0 , 0);
+  iterFirst.advanceToNextLumiOrRun();
+  check(iterFirst, kLumi, 6, 7, -1, 0 , 0);
+  iterFirst.advanceToNextLumiOrRun();
+  check(iterFirst, kLumi, 6, 8, 9, 0 , 1);
+  iterFirst.advanceToNextLumiOrRun();
+  check(iterFirst, kEnd, -1, -1, -1, 0, 0);
+
+  iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
+  ++iterFirst;
+  ++iterFirst;
+  ++iterFirst;
+  ++iterFirst;
+  check(iterFirst, kEvent, 0, 3, 1, 0, 2);
+  iterFirst.advanceToNextLumiOrRun();
+  check(iterFirst, kLumi, 0, 4, 4, 0, 2);
+  ++iterFirst;
+  iterFirst.advanceToNextLumiOrRun();
+  check(iterFirst, kRun, 5, 7, -1, 0, 0);
+
+  iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
+  ++iterFirst;
+  ++iterFirst;
+  ++iterFirst;
+  ++iterFirst;
+  check(iterFirst, kEvent, 0, 3, 1, 0, 2);
+  iterFirst.advanceToNextRun();
+  check(iterFirst, kRun, 5, 7, -1, 0, 0);
+
+  // Repeat skip tests with the other sort order
+
+  iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
+  check(iterNum, kRun, 0, 1, 1, 0, 4);
+
+  skipEventForward(iterNum);
+  checkSkipped(0, 11, 101, 3);
+  check(iterNum, kRun, 0, 1, 1, 1, 4);
+
+  skipEventForward(iterNum);
+  checkSkipped(0, 11, 101, 2);
+  check(iterNum, kRun, 0, 1, 1, 2, 4);
+
+  skipEventForward(iterNum);
+  checkSkipped(0, 11, 101, 1);
+  check(iterNum, kRun, 0, 1, 1, 3, 4);
+
+  skipEventForward(iterNum);
+  checkSkipped(0, 11, 101, 0);
+  check(iterNum, kRun, 0, 4, 4, 0, 2);
+
+  skipEventForward(iterNum);
+  checkSkipped(0, 11, 102, 5);
+  check(iterNum, kRun, 0, 4, 4, 1, 2);
+
+  skipEventForward(iterNum);
+  checkSkipped(0, 11, 102, 4);
+  check(iterNum, kRun, 5, 7, -1, 0, 0);
+
+  skipEventForward(iterNum);
+  checkSkipped(1, 11, 102, 6);
+  check(iterNum, kEnd, -1, -1, -1, 0, 0);
+
+  skipEventForward(iterNum);
+  checkSkipped(-1, 0, 0, -1);
+  check(iterNum, kEnd, -1, -1, -1, 0, 0);
+
+  iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
+  ++iterNum;
+
+  skipEventForward(iterNum);
+  checkSkipped(0, 11, 101, 3);
+  check(iterNum, kLumi, 0, 1, 1, 1, 4);
+
+  skipEventForward(iterNum);
+  checkSkipped(0, 11, 101, 2);
+  check(iterNum, kLumi, 0, 1, 1, 2, 4);
+
+  skipEventForward(iterNum);
+  checkSkipped(0, 11, 101, 1);
+  check(iterNum, kLumi, 0, 1, 1, 3, 4);
+
+  skipEventForward(iterNum);
+  checkSkipped(0, 11, 101, 0);
+  check(iterNum, kLumi, 0, 4, 4, 0, 2);
+
+  skipEventForward(iterNum);
+  checkSkipped(0, 11, 102, 5);
+  check(iterNum, kLumi, 0, 4, 4, 1, 2);
+
+  skipEventForward(iterNum);
+  checkSkipped(0, 11, 102, 4);
+  check(iterNum, kRun, 5, 7, -1, 0, 0);
+
+  ++iterNum;
+  ++iterNum;
+  ++iterNum;
+  check(iterNum, kLumi, 6, 8, 8, 0, 1);
+  skipEventForward(iterNum);
+  checkSkipped(1, 11, 102, 6);
+  check(iterNum, kEnd, -1, -1, -1, 0, 0);
+
+  iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
+  ++iterNum;
+  ++iterNum;
+  ++iterNum;
+  ++iterNum;
+
+  skipEventForward(iterNum);
+  checkSkipped(0, 11, 101, 3);
+  check(iterNum, kEvent, 0, 3, 1, 1, 4);
+
+  skipEventForward(iterNum);
+  checkSkipped(0, 11, 101, 2);
+  check(iterNum, kEvent, 0, 3, 1, 2, 4);
+
+  skipEventForward(iterNum);
+  checkSkipped(0, 11, 101, 1);
+  check(iterNum, kEvent, 0, 3, 1, 3, 4);
+
+  skipEventForward(iterNum);
+  checkSkipped(0, 11, 101, 0);
+  check(iterNum, kLumi, 0, 4, 4, 0, 2);
+
+  ++iterNum;
+  skipEventForward(iterNum);
+  checkSkipped(0, 11, 102, 5);
+  check(iterNum, kEvent, 0, 4, 4, 1, 2);
+
+  skipEventForward(iterNum);
+  checkSkipped(0, 11, 102, 4);
+  check(iterNum, kRun, 5, 7, -1, 0, 0);
+
+  iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
+  iterNum.advanceToNextLumiOrRun();
+  check(iterNum, kLumi, 0, 1, 1, 0 , 4);
+  iterNum.advanceToNextLumiOrRun();
+  check(iterNum, kLumi, 0, 4, 4, 0 , 2);
+  iterNum.advanceToNextLumiOrRun();
+  check(iterNum, kRun, 5, 7, -1, 0 , 0);
+  iterNum.advanceToNextLumiOrRun();
+  check(iterNum, kLumi, 6, 7, -1, 0 , 0);
+  iterNum.advanceToNextLumiOrRun();
+  check(iterNum, kLumi, 6, 8, 8, 0 , 1);
+  iterNum.advanceToNextLumiOrRun();
+  check(iterNum, kEnd, -1, -1, -1, 0, 0);
+
+  iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
+  ++iterNum;
+  ++iterNum;
+  ++iterNum;
+  ++iterNum;
+  check(iterNum, kEvent, 0, 3, 1, 0 , 4);
+  iterNum.advanceToNextLumiOrRun();
+  check(iterNum, kLumi, 0, 4, 4, 0, 2);
+  ++iterNum;
+  iterNum.advanceToNextLumiOrRun();
+  check(iterNum, kRun, 5, 7, -1, 0, 0);
+
+  iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
+  ++iterNum;
+  ++iterNum;
+  ++iterNum;
+  ++iterNum;
+  check(iterNum, kEvent, 0, 3, 1, 0, 4);
+  iterNum.advanceToNextRun();
+  check(iterNum, kRun, 5, 7, -1, 0, 0);
+}
+
+
+void TestIndexIntoFile::testIterEndWithLumi() {
+  edm::IndexIntoFile indexIntoFile;
+  indexIntoFile.addEntry(fakePHID1, 11, 101, 0, 0); // Lumi
+  indexIntoFile.addEntry(fakePHID1, 11,   0, 0, 0); // Run
+  indexIntoFile.addEntry(fakePHID1, 12, 101, 0, 1); // Lumi
+  indexIntoFile.addEntry(fakePHID1, 12, 101, 0, 2); // Lumi
+  indexIntoFile.addEntry(fakePHID1, 12,   0, 0, 1); // Run
+  indexIntoFile.sortVector_Run_Or_Lumi_Entries();
 
   edm::IndexIntoFile::IndexIntoFileItr iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
-  edm::IndexIntoFile::IndexIntoFileItr iterFirstCopy = iterFirst;
   edm::IndexIntoFile::IndexIntoFileItr iterFirstEnd = indexIntoFile.end(IndexIntoFile::firstAppearanceOrder);
-  for (i = 0; iterFirst != iterFirstEnd; ++iterFirst, ++iterFirstCopy, ++i) {
-    CPPUNIT_ASSERT(iterFirst== iterFirstCopy);
-    if (i == 0) {
-      CPPUNIT_ASSERT(iterFirst.indexIntoFile() == &indexIntoFile);
-      CPPUNIT_ASSERT(iterFirst.size() == 3);
-      CPPUNIT_ASSERT(iterFirst.getEntryType() == IndexIntoFile::kRun);
-      CPPUNIT_ASSERT(iterFirst.type() == IndexIntoFile::kRun);
-      CPPUNIT_ASSERT(iterFirst.indexToRun() == 0);
-      CPPUNIT_ASSERT(iterFirst.indexToLumi() == 1);
-      CPPUNIT_ASSERT(iterFirst.indexToEventRange() == 1);
-      CPPUNIT_ASSERT(iterFirst.indexToEvent() == 0);
-      CPPUNIT_ASSERT(iterFirst.nEvents() == 2);
-    }
-    if (i == 1) {
-      CPPUNIT_ASSERT(iterFirst.indexIntoFile() == &indexIntoFile);
-      CPPUNIT_ASSERT(iterFirst.size() == 3);
-      CPPUNIT_ASSERT(iterFirst.getEntryType() == IndexIntoFile::kLumi);
-      CPPUNIT_ASSERT(iterFirst.type() == IndexIntoFile::kLumi);
-      CPPUNIT_ASSERT(iterFirst.indexToRun() == 0);
-      CPPUNIT_ASSERT(iterFirst.indexToLumi() == 1);
-      CPPUNIT_ASSERT(iterFirst.indexToEventRange() == 1);
-      CPPUNIT_ASSERT(iterFirst.indexToEvent() == 0);
-      CPPUNIT_ASSERT(iterFirst.nEvents() == 2);
-    }
-    if (i == 2) {
-      CPPUNIT_ASSERT(iterFirst.indexIntoFile() == &indexIntoFile);
-      CPPUNIT_ASSERT(iterFirst.size() == 3);
-      CPPUNIT_ASSERT(iterFirst.type() == IndexIntoFile::kLumi);
-      CPPUNIT_ASSERT(iterFirst.indexToRun() == 0);
-      CPPUNIT_ASSERT(iterFirst.indexToLumi() == 2);
-      CPPUNIT_ASSERT(iterFirst.indexToEventRange() == 1);
-      CPPUNIT_ASSERT(iterFirst.indexToEvent() == 0);
-      CPPUNIT_ASSERT(iterFirst.nEvents() == 2);
-    }
-    if (i == 3) {
-      CPPUNIT_ASSERT(iterFirst.indexIntoFile() == &indexIntoFile);
-      CPPUNIT_ASSERT(iterFirst.size() == 3);
-      CPPUNIT_ASSERT(iterFirst.type() == IndexIntoFile::kEvent);
-      CPPUNIT_ASSERT(iterFirst.indexToRun() == 0);
-      CPPUNIT_ASSERT(iterFirst.indexToLumi() == 2);
-      CPPUNIT_ASSERT(iterFirst.indexToEventRange() == 1);
-      CPPUNIT_ASSERT(iterFirst.indexToEvent() == 0);
-      CPPUNIT_ASSERT(iterFirst.nEvents() == 2);
-    }
-    if (i == 4) {
-      CPPUNIT_ASSERT(iterFirst.indexIntoFile() == &indexIntoFile);
-      CPPUNIT_ASSERT(iterFirst.size() == 3);
-      CPPUNIT_ASSERT(iterFirst.type() == IndexIntoFile::kEvent);
-      CPPUNIT_ASSERT(iterFirst.indexToRun() == 0);
-      CPPUNIT_ASSERT(iterFirst.indexToLumi() == 2);
-      CPPUNIT_ASSERT(iterFirst.indexToEventRange() == 1);
-      CPPUNIT_ASSERT(iterFirst.indexToEvent() == 1);
-      CPPUNIT_ASSERT(iterFirst.nEvents() == 2);
-    }
-    if (i == 5) {
-      CPPUNIT_ASSERT(iterFirst.indexIntoFile() == &indexIntoFile);
-      CPPUNIT_ASSERT(iterFirst.size() == 3);
-      CPPUNIT_ASSERT(iterFirst.type() == IndexIntoFile::kEvent);
-      CPPUNIT_ASSERT(iterFirst.indexToRun() == 0);
-      CPPUNIT_ASSERT(iterFirst.indexToLumi() == 2);
-      CPPUNIT_ASSERT(iterFirst.indexToEventRange() == 2);
-      CPPUNIT_ASSERT(iterFirst.indexToEvent() == 0);
-      CPPUNIT_ASSERT(iterFirst.nEvents() == 2);
-    }
-    if (i == 6) {
-      CPPUNIT_ASSERT(iterFirst.indexIntoFile() == &indexIntoFile);
-      CPPUNIT_ASSERT(iterFirst.size() == 3);
-      CPPUNIT_ASSERT(iterFirst.type() == IndexIntoFile::kEvent);
-      CPPUNIT_ASSERT(iterFirst.indexToRun() == 0);
-      CPPUNIT_ASSERT(iterFirst.indexToLumi() == 2);
-      CPPUNIT_ASSERT(iterFirst.indexToEventRange() == 2);
-      CPPUNIT_ASSERT(iterFirst.indexToEvent() == 1);
-      CPPUNIT_ASSERT(iterFirst.nEvents() == 2);
-    }
+  int i = 0;
+  for (i = 0; iterFirst != iterFirstEnd; ++iterFirst, ++i) {
+    if (i == 0)       check(iterFirst, kRun,   0, 1, -1, 0, 0);
+    else if (i == 1)  check(iterFirst, kLumi,  0, 1, -1, 0, 0);
+    else if (i == 2)  check(iterFirst, kRun,   2, 3, -1, 0, 0);
+    else if (i == 3)  check(iterFirst, kLumi,  2, 3, -1, 0, 0);
+    else if (i == 4)  check(iterFirst, kLumi,  2, 4, -1, 0, 0);
+    else CPPUNIT_ASSERT(false);
   }
-  CPPUNIT_ASSERT(i == 7);
+  CPPUNIT_ASSERT(i == 5);
+
+  // Now repeat the above tests for the sorted iteration
+
+  edm::IndexIntoFile::IndexIntoFileItr iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
+  edm::IndexIntoFile::IndexIntoFileItr iterNumEnd = indexIntoFile.end(IndexIntoFile::numericalOrder);
+  i = 0;
+  for (i = 0; iterNum != iterNumEnd; ++iterNum, ++i) {
+    if (i == 0)       check(iterNum, kRun,   0, 1, -1, 0, 0);
+    else if (i == 1)  check(iterNum, kLumi,  0, 1, -1, 0, 0);
+    else if (i == 2)  check(iterNum, kRun,   2, 3, -1, 0, 0);
+    else if (i == 3)  check(iterNum, kLumi,  2, 3, -1, 0, 0);
+    else if (i == 4)  check(iterNum, kLumi,  2, 4, -1, 0, 0);
+    else CPPUNIT_ASSERT(false);
+  }
+  CPPUNIT_ASSERT(i == 5);
+
+  iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
+
+  skipEventForward(iterFirst);
+  checkSkipped(-1, 0, 0, -1);
+  check(iterFirst, kEnd, -1, -1, -1, 0 , 0);
+
+  iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
+
+  skipEventForward(iterNum);
+  checkSkipped(-1, 0, 0, -1);
+  check(iterNum, kEnd, -1, -1, -1, 0 , 0);
+}
+
+void TestIndexIntoFile::testIterEndWithRun() {
+  edm::IndexIntoFile indexIntoFile;
+  indexIntoFile.addEntry(fakePHID1, 1,   0, 0, 0); // Run
+  indexIntoFile.addEntry(fakePHID1, 1,   0, 0, 1); // Run
+  indexIntoFile.addEntry(fakePHID1, 2,   0, 0, 2); // Run
+  indexIntoFile.addEntry(fakePHID1, 3,   0, 0, 3); // Run
+  indexIntoFile.sortVector_Run_Or_Lumi_Entries();
+
+  edm::IndexIntoFile::IndexIntoFileItr iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
+  edm::IndexIntoFile::IndexIntoFileItr iterFirstEnd = indexIntoFile.end(IndexIntoFile::firstAppearanceOrder);
+  int i = 0;
+  for (i = 0; iterFirst != iterFirstEnd; ++iterFirst, ++i) {
+    if (i == 0)       check(iterFirst, kRun,  0, -1, -1, 0, 0);
+    else if (i == 1)  check(iterFirst, kRun,  1, -1, -1, 0, 0);
+    else if (i == 2)  check(iterFirst, kRun,  2, -1, -1, 0, 0);
+    else if (i == 3)  check(iterFirst, kRun,  3, -1, -1, 0, 0);
+    else CPPUNIT_ASSERT(false);
+  }
+  CPPUNIT_ASSERT(i == 4);
+
+  // Now repeat the above tests for the sorted iteration
+
+  edm::IndexIntoFile::IndexIntoFileItr iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
+  edm::IndexIntoFile::IndexIntoFileItr iterNumEnd = indexIntoFile.end(IndexIntoFile::numericalOrder);
+  i = 0;
+  for (i = 0; iterNum != iterNumEnd; ++iterNum, ++i) {
+    if (i == 0)       check(iterNum, kRun,   0, -1, -1, 0, 0);
+    else if (i == 1)  check(iterNum, kRun,   1, -1, -1, 0, 0);
+    else if (i == 2)  check(iterNum, kRun,   2, -1, -1, 0, 0);
+    else if (i == 3)  check(iterNum, kRun,   3, -1, -1, 0, 0);
+    else CPPUNIT_ASSERT(false);
+  }
+  CPPUNIT_ASSERT(i == 4);
+
+  iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
+
+  skipEventForward(iterFirst);
+  checkSkipped(-1, 0, 0, -1);
+  check(iterFirst, kEnd, -1, -1, -1, 0 , 0);
+
+  iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
+  iterFirst.advanceToNextLumiOrRun();
+  check(iterFirst, kRun, 2, -1, -1, 0 , 0);
+  ++iterFirst;
+  check(iterFirst, kRun, 3, -1, -1, 0 , 0);
+  iterFirst.advanceToNextLumiOrRun();
+  check(iterFirst, kEnd, -1, -1, -1, 0 , 0);
+
+  iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
+
+  skipEventForward(iterNum);
+  checkSkipped(-1, 0, 0, -1);
+  check(iterNum, kEnd, -1, -1, -1, 0 , 0);
+
+  iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
+  iterNum.advanceToNextLumiOrRun();
+  check(iterNum, kRun, 2, -1, -1, 0 , 0);
+  ++iterNum;
+  check(iterNum, kRun, 3, -1, -1, 0 , 0);
+  iterNum.advanceToNextLumiOrRun();
+  check(iterNum, kEnd, -1, -1, -1, 0 , 0);
+}
+
+void TestIndexIntoFile::testIterLastLumiRangeNoEvents() {
+  edm::IndexIntoFile indexIntoFile;
+  indexIntoFile.addEntry(fakePHID1, 1, 101, 5, 0); // Event
+  indexIntoFile.addEntry(fakePHID1, 1, 101, 0, 0); // Lumi
+  indexIntoFile.addEntry(fakePHID1, 1, 101, 0, 1); // Lumi
+  indexIntoFile.addEntry(fakePHID1, 1, 102, 6, 1); // Event
+  indexIntoFile.addEntry(fakePHID1, 1, 102, 0, 2); // Lumi
+  indexIntoFile.addEntry(fakePHID1, 1, 102, 0, 3); // Lumi
+  indexIntoFile.addEntry(fakePHID1, 1,   0, 0, 0); // Run
+  indexIntoFile.addEntry(fakePHID1, 2, 101, 7, 2); // Event
+  indexIntoFile.addEntry(fakePHID1, 2, 101, 0, 4); // Lumi
+  indexIntoFile.addEntry(fakePHID1, 2, 101, 0, 5); // Lumi
+  indexIntoFile.addEntry(fakePHID1, 2,   0, 0, 1); // Run
+  indexIntoFile.sortVector_Run_Or_Lumi_Entries();
+
+  edm::IndexIntoFile::IndexIntoFileItr iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
+  edm::IndexIntoFile::IndexIntoFileItr iterFirstEnd = indexIntoFile.end(IndexIntoFile::firstAppearanceOrder);
+  int i = 0;
+  for (i = 0; iterFirst != iterFirstEnd; ++iterFirst, ++i) {
+    if (i == 0)       check(iterFirst, kRun,   0, 1, 1, 0, 1);
+    else if (i == 1)  check(iterFirst, kLumi,  0, 1, 1, 0, 1);
+    else if (i == 2)  check(iterFirst, kLumi,  0, 2, 1, 0, 1);
+    else if (i == 3)  check(iterFirst, kEvent, 0, 2, 1, 0, 1);
+    else if (i == 4)  check(iterFirst, kLumi,  0, 3, 3, 0, 1);
+    else if (i == 5)  check(iterFirst, kLumi,  0, 4, 3, 0, 1);
+    else if (i == 6)  check(iterFirst, kEvent, 0, 4, 3, 0, 1);
+    else if (i == 7)  check(iterFirst, kRun,   5, 6, 6, 0, 1);
+    else if (i == 8)  check(iterFirst, kLumi,  5, 6, 6, 0, 1);
+    else if (i == 9)  check(iterFirst, kLumi,  5, 7, 6, 0, 1);
+    else if (i == 10) check(iterFirst, kEvent, 5, 7, 6, 0, 1);
+    else CPPUNIT_ASSERT(false);
+  }
+  CPPUNIT_ASSERT(i == 11);
+
+  std::vector<IndexIntoFile::EventEntry>&  eventEntries  = indexIntoFile.eventEntries();
+  eventEntries.push_back(IndexIntoFile::EventEntry(5, 0));
+  eventEntries.push_back(IndexIntoFile::EventEntry(6, 1));
+  eventEntries.push_back(IndexIntoFile::EventEntry(7, 2));
+  indexIntoFile.sortEventEntries();
+
+  edm::IndexIntoFile::IndexIntoFileItr iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
+  edm::IndexIntoFile::IndexIntoFileItr iterNumEnd = indexIntoFile.end(IndexIntoFile::numericalOrder);
+  i = 0;
+  for (i = 0; iterNum != iterNumEnd; ++iterNum, ++i) {
+    if (i == 0)       check(iterNum, kRun,   0, 1, 1, 0, 1);
+    else if (i == 1)  check(iterNum, kLumi,  0, 1, 1, 0, 1);
+    else if (i == 2)  check(iterNum, kLumi,  0, 2, 1, 0, 1);
+    else if (i == 3)  check(iterNum, kEvent, 0, 2, 1, 0, 1);
+    else if (i == 4)  check(iterNum, kLumi,  0, 3, 3, 0, 1);
+    else if (i == 5)  check(iterNum, kLumi,  0, 4, 3, 0, 1);
+    else if (i == 6)  check(iterNum, kEvent, 0, 4, 3, 0, 1);
+    else if (i == 7)  check(iterNum, kRun,   5, 6, 6, 0, 1);
+    else if (i == 8)  check(iterNum, kLumi,  5, 6, 6, 0, 1);
+    else if (i == 9)  check(iterNum, kLumi,  5, 7, 6, 0, 1);
+    else if (i == 10) check(iterNum, kEvent, 5, 7, 6, 0, 1);
+    else CPPUNIT_ASSERT(false);
+  }
+  CPPUNIT_ASSERT(i == 11);
+}
+
+void TestIndexIntoFile::testSkip() {
+  edm::IndexIntoFile indexIntoFile;
+  indexIntoFile.addEntry(fakePHID1, 1,   101, 1001, 0); // Event
+  indexIntoFile.addEntry(fakePHID1, 1,   101,    0, 0); // Lumi
+  indexIntoFile.addEntry(fakePHID1, 1,   101,    0, 1); // Lumi
+  indexIntoFile.addEntry(fakePHID1, 1,   102,    0, 2); // Lumi
+  indexIntoFile.addEntry(fakePHID1, 1,     0,    0, 0); // Run
+  indexIntoFile.sortVector_Run_Or_Lumi_Entries();
+
+  edm::IndexIntoFile::IndexIntoFileItr iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
+
+  skipEventForward(iterFirst);
+  checkSkipped(0, 1, 101, 0);
+  check(iterFirst, kRun, 0, 3, -1, 0, 0);
+
+  skipEventForward(iterFirst);
+  checkSkipped(-1, 0, 0, -1);
+  check(iterFirst, kEnd, -1, -1, -1, 0 , 0);
+
+
+  iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
+  ++iterFirst;
+  skipEventForward(iterFirst);
+  checkSkipped(0, 1, 101, 0);
+  check(iterFirst, kLumi, 0, 3, -1, 0, 0);
+
+  skipEventForward(iterFirst);
+  checkSkipped(-1, 0, 0, -1);
+  check(iterFirst, kEnd, -1, -1, -1, 0 , 0);
+
+  std::vector<IndexIntoFile::EventEntry>&  eventEntries  = indexIntoFile.eventEntries();
+  eventEntries.push_back(IndexIntoFile::EventEntry(1001, 0));
+  indexIntoFile.sortEventEntries();
+
+  edm::IndexIntoFile::IndexIntoFileItr iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
+
+  skipEventForward(iterNum);
+  checkSkipped(0, 1, 101, 0);
+  check(iterNum, kRun, 0, 3, -1, 0, 0);
+
+  skipEventForward(iterNum);
+  checkSkipped(-1, 0, 0, -1);
+  check(iterNum, kEnd, -1, -1, -1, 0 , 0);
+
+  iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
+  ++iterNum;
+  skipEventForward(iterNum);
+  checkSkipped(0, 1, 101, 0);
+  check(iterNum, kLumi, 0, 3, -1, 0, 0);
+
+  skipEventForward(iterNum);
+  checkSkipped(-1, 0, 0, -1);
+  check(iterNum, kEnd, -1, -1, -1, 0 , 0);
+}
+
+void TestIndexIntoFile::testSkip2() {
+  edm::IndexIntoFile indexIntoFile;
+  indexIntoFile.addEntry(fakePHID1, 1,   101, 1001, 0); // Event
+  indexIntoFile.addEntry(fakePHID1, 1,   101,    0, 0); // Lumi
+  indexIntoFile.addEntry(fakePHID1, 1,   101,    0, 1); // Lumi
+  indexIntoFile.addEntry(fakePHID1, 1,   102,    0, 2); // Lumi
+  indexIntoFile.addEntry(fakePHID1, 1,     0,    0, 0); // Run
+  indexIntoFile.addEntry(fakePHID1, 2,   101, 1001, 1); // Event
+  indexIntoFile.addEntry(fakePHID1, 2,   101,    0, 3); // Lumi
+  indexIntoFile.addEntry(fakePHID1, 2,   101,    0, 4); // Lumi
+  indexIntoFile.addEntry(fakePHID1, 2,   102,    0, 5); // Lumi
+  indexIntoFile.addEntry(fakePHID1, 2,     0,    0, 1); // Run
+  indexIntoFile.sortVector_Run_Or_Lumi_Entries();
+
+  edm::IndexIntoFile::IndexIntoFileItr iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
+
+  skipEventForward(iterFirst);
+  checkSkipped(0, 1, 101, 0);
+  check(iterFirst, kRun, 0, 3, -1, 0, 0);
+
+  skipEventForward(iterFirst);
+  checkSkipped(0, 2, 101, 1);
+  check(iterFirst, kRun, 4, 7, -1, 0 , 0);
+
+  skipEventForward(iterFirst);
+  checkSkipped(-1, 0, 0, -1);
+  check(iterFirst, kEnd, -1, -1, -1, 0 , 0);
+
+
+  iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
+  ++iterFirst;
+  skipEventForward(iterFirst);
+  checkSkipped(0, 1, 101, 0);
+  check(iterFirst, kLumi, 0, 3, -1, 0, 0);
+
+  skipEventForward(iterFirst);
+  checkSkipped(0, 2, 101, 1);
+  check(iterFirst, kRun, 4, 7, -1, 0 , 0);
+
+  std::vector<IndexIntoFile::EventEntry>&  eventEntries  = indexIntoFile.eventEntries();
+  eventEntries.push_back(IndexIntoFile::EventEntry(1001, 0));
+  eventEntries.push_back(IndexIntoFile::EventEntry(1001, 1));
+  indexIntoFile.sortEventEntries();
+
+  edm::IndexIntoFile::IndexIntoFileItr iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
+
+  skipEventForward(iterNum);
+  checkSkipped(0, 1, 101, 0);
+  check(iterNum, kRun, 0, 3, -1, 0, 0);
+
+  skipEventForward(iterNum);
+  checkSkipped(0, 2, 101, 1);
+  check(iterNum, kRun, 4, 7, -1, 0 , 0);
+
+  skipEventForward(iterNum);
+  checkSkipped(-1, 0, 0, -1);
+  check(iterNum, kEnd, -1, -1, -1, 0 , 0);
+
+
+  iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
+  ++iterNum;
+  skipEventForward(iterNum);
+  checkSkipped(0, 1, 101, 0);
+  check(iterNum, kLumi, 0, 3, -1, 0, 0);
+
+  skipEventForward(iterNum);
+  checkSkipped(0, 2, 101, 1);
+  check(iterNum, kRun, 4, 7, -1, 0 , 0);
 }
 
 void TestIndexIntoFile::testFind() {
@@ -892,6 +1667,12 @@ void TestIndexIntoFile::testFind() {
     iter = indexIntoFile.findPosition(2, 12, 8);
     CPPUNIT_ASSERT(iter == indexIntoFile.end(IndexIntoFile::numericalOrder));  
 
+    iter = indexIntoFile.findPosition(1, 0, 1);
+    CPPUNIT_ASSERT(iter == indexIntoFile.end(IndexIntoFile::numericalOrder));  
+
+    iter = indexIntoFile.findPosition(6, 0, 100);
+    CPPUNIT_ASSERT(iter == indexIntoFile.end(IndexIntoFile::numericalOrder));  
+
     iter = indexIntoFile.findPosition(6, 100, 0);
     CPPUNIT_ASSERT(iter.type() == IndexIntoFile::kRun);
     CPPUNIT_ASSERT(iter.indexToRun() == 9);
@@ -918,9 +1699,13 @@ void TestIndexIntoFile::testFind() {
     iter1 = indexIntoFile.findPosition(2, 12, 0);
     iter2 = indexIntoFile.findPosition(2, 12, 4);
     edm::IndexIntoFile::IndexIntoFileItr iter3 = indexIntoFile.findPosition(2, 0, 4);
+    edm::IndexIntoFile::IndexIntoFileItr iter4 = indexIntoFile.findRunPosition(2);
+    CPPUNIT_ASSERT(indexIntoFile.containsItem(2, 0, 0));
+    CPPUNIT_ASSERT(!indexIntoFile.containsItem(2000, 0, 0));
     CPPUNIT_ASSERT(iter == iter1);
     CPPUNIT_ASSERT(iter == iter2);
     CPPUNIT_ASSERT(iter == iter3);
+    CPPUNIT_ASSERT(iter == iter4);
     CPPUNIT_ASSERT(iter.type() == IndexIntoFile::kRun);
     CPPUNIT_ASSERT(iter.indexToRun() == 1);
     CPPUNIT_ASSERT(iter.indexToLumi() == 2);
@@ -975,5 +1760,317 @@ void TestIndexIntoFile::testFind() {
     CPPUNIT_ASSERT(iter.indexToEventRange() == 10);
     CPPUNIT_ASSERT(iter.indexToEvent() == 0);
     CPPUNIT_ASSERT(iter.nEvents() == 2);
+
+    iter = indexIntoFile.findPosition(2, 12, 5);
+    iter1 = indexIntoFile.findPosition(2, 0, 5);
+    CPPUNIT_ASSERT(iter == iter1);
+    CPPUNIT_ASSERT(iter.type() == IndexIntoFile::kRun);
+    CPPUNIT_ASSERT(iter.indexToRun() == 1);
+    CPPUNIT_ASSERT(iter.indexToLumi() == 2);
+    CPPUNIT_ASSERT(iter.indexToEventRange() == 2);
+    CPPUNIT_ASSERT(iter.indexToEvent() == 1);
+    CPPUNIT_ASSERT(iter.nEvents() == 4);
+
+    iter = indexIntoFile.findPosition(2, 12, 6);
+    iter1 = indexIntoFile.findPosition(2, 0, 6);
+    CPPUNIT_ASSERT(iter == iter1);
+    CPPUNIT_ASSERT(iter.type() == IndexIntoFile::kRun);
+    CPPUNIT_ASSERT(iter.indexToRun() == 1);
+    CPPUNIT_ASSERT(iter.indexToLumi() == 2);
+    CPPUNIT_ASSERT(iter.indexToEventRange() == 2);
+    CPPUNIT_ASSERT(iter.indexToEvent() == 2);
+    CPPUNIT_ASSERT(iter.nEvents() == 4);
+
+    iter = indexIntoFile.findPosition(2, 12, 7);
+    iter1 = indexIntoFile.findPosition(2, 0, 7);
+    CPPUNIT_ASSERT(iter == iter1);
+    CPPUNIT_ASSERT(iter.type() == IndexIntoFile::kRun);
+    CPPUNIT_ASSERT(iter.indexToRun() == 1);
+    CPPUNIT_ASSERT(iter.indexToLumi() == 2);
+    CPPUNIT_ASSERT(iter.indexToEventRange() == 2);
+    CPPUNIT_ASSERT(iter.indexToEvent() == 3);
+    CPPUNIT_ASSERT(iter.nEvents() == 4);
+
+    iter = indexIntoFile.findPosition(4, 12, 5);
+    iter1 = indexIntoFile.findPosition(4, 0, 5);
+    CPPUNIT_ASSERT(iter == iter1);
+    CPPUNIT_ASSERT(iter.type() == IndexIntoFile::kRun);
+    CPPUNIT_ASSERT(iter.indexToRun() == 5);
+    CPPUNIT_ASSERT(iter.indexToLumi() == 6);
+    CPPUNIT_ASSERT(iter.indexToEventRange() == 6);
+    CPPUNIT_ASSERT(iter.indexToEvent() == 1);
+    CPPUNIT_ASSERT(iter.nEvents() == 4);
+
+    iter = indexIntoFile.findPosition(4, 12, 6);
+    iter1 = indexIntoFile.findPosition(4, 0, 6);
+    CPPUNIT_ASSERT(iter == iter1);
+    CPPUNIT_ASSERT(iter.type() == IndexIntoFile::kRun);
+    CPPUNIT_ASSERT(iter.indexToRun() == 5);
+    CPPUNIT_ASSERT(iter.indexToLumi() == 6);
+    CPPUNIT_ASSERT(iter.indexToEventRange() == 6);
+    CPPUNIT_ASSERT(iter.indexToEvent() == 2);
+    CPPUNIT_ASSERT(iter.nEvents() == 4);
+
+    iter = indexIntoFile.findPosition(4, 12, 7);
+    iter1 = indexIntoFile.findPosition(4, 0, 7);
+    CPPUNIT_ASSERT(iter == iter1);
+    CPPUNIT_ASSERT(iter.type() == IndexIntoFile::kRun);
+    CPPUNIT_ASSERT(iter.indexToRun() == 5);
+    CPPUNIT_ASSERT(iter.indexToLumi() == 6);
+    CPPUNIT_ASSERT(iter.indexToEventRange() == 6);
+    CPPUNIT_ASSERT(iter.indexToEvent() == 3);
+    CPPUNIT_ASSERT(iter.nEvents() == 4);
+
+    iter = indexIntoFile.findPosition(6, 12, 7);
+    iter1 = indexIntoFile.findPosition(6, 0, 7);
+    CPPUNIT_ASSERT(iter == iter1);
+    CPPUNIT_ASSERT(iter.type() == IndexIntoFile::kRun);
+    CPPUNIT_ASSERT(iter.indexToRun() == 9);
+    CPPUNIT_ASSERT(iter.indexToLumi() == 10);
+    CPPUNIT_ASSERT(iter.indexToEventRange() == 10);
+    CPPUNIT_ASSERT(iter.indexToEvent() == 1);
+    CPPUNIT_ASSERT(iter.nEvents() == 2);
+
+    iter = indexIntoFile.findEventPosition(2, 12, 4);
+    iter1 = indexIntoFile.findEventPosition(2, 0, 4);
+    CPPUNIT_ASSERT(iter == iter1);
+    CPPUNIT_ASSERT(iter.type() == IndexIntoFile::kEvent);
+    CPPUNIT_ASSERT(iter.indexToRun() == 1);
+    CPPUNIT_ASSERT(iter.indexToLumi() == 3);
+    CPPUNIT_ASSERT(iter.indexToEventRange() == 2);
+    CPPUNIT_ASSERT(iter.indexToEvent() == 0);
+    CPPUNIT_ASSERT(iter.nEvents() == 4);
+
+    iter = indexIntoFile.findEventPosition(2, 12, 7);
+    iter1 = indexIntoFile.findEventPosition(2, 0, 7);
+    CPPUNIT_ASSERT(indexIntoFile.containsItem(2, 12, 7));
+    CPPUNIT_ASSERT(!indexIntoFile.containsItem(2, 12, 100));
+    CPPUNIT_ASSERT(iter == iter1);
+    CPPUNIT_ASSERT(iter.type() == IndexIntoFile::kEvent);
+    CPPUNIT_ASSERT(iter.indexToRun() == 1);
+    CPPUNIT_ASSERT(iter.indexToLumi() == 3);
+    CPPUNIT_ASSERT(iter.indexToEventRange() == 2);
+    CPPUNIT_ASSERT(iter.indexToEvent() == 3);
+    CPPUNIT_ASSERT(iter.nEvents() == 4);
+
+    iter = indexIntoFile.findEventPosition(2, 12, 100);
+    iter1 = indexIntoFile.findEventPosition(2, 0, 100);
+    CPPUNIT_ASSERT(iter == iter1);
+    CPPUNIT_ASSERT(iter == indexIntoFile.end(IndexIntoFile::numericalOrder));
+
+    iter = indexIntoFile.findLumiPosition(2, 12);
+    CPPUNIT_ASSERT(iter.type() == IndexIntoFile::kLumi);
+    CPPUNIT_ASSERT(iter.indexToRun() == 1);
+    CPPUNIT_ASSERT(iter.indexToLumi() == 2);
+    CPPUNIT_ASSERT(iter.indexToEventRange() == 2);
+    CPPUNIT_ASSERT(iter.indexToEvent() == 0);
+    CPPUNIT_ASSERT(iter.nEvents() == 4);
+
+    iter = indexIntoFile.findLumiPosition(2, 100);
+    CPPUNIT_ASSERT(indexIntoFile.containsItem(2, 12, 0));
+    CPPUNIT_ASSERT(!indexIntoFile.containsItem(2, 100, 0));
+    CPPUNIT_ASSERT(iter == indexIntoFile.end(IndexIntoFile::numericalOrder));
+  }
+}
+
+void TestIndexIntoFile::testDuplicateCheckerFunctions() {
+
+  std::set<IndexIntoFile::IndexRunLumiEventKey> relevantPreviousEvents;
+
+  edm::IndexIntoFile indexIntoFile1;
+  indexIntoFile1.addEntry(fakePHID1, 6, 1, 0, 0); // Lumi
+  indexIntoFile1.addEntry(fakePHID1, 6, 0, 0, 0); // Run
+  indexIntoFile1.sortVector_Run_Or_Lumi_Entries();
+
+  //Empty Index
+  edm::IndexIntoFile indexIntoFile2;
+  relevantPreviousEvents.clear();
+  indexIntoFile1.set_intersection(indexIntoFile2, relevantPreviousEvents);
+  CPPUNIT_ASSERT(relevantPreviousEvents.empty());
+
+  relevantPreviousEvents.clear();
+  indexIntoFile2.set_intersection(indexIntoFile1, relevantPreviousEvents);
+  CPPUNIT_ASSERT(relevantPreviousEvents.empty());
+
+  // Run ranges do not overlap
+  edm::IndexIntoFile indexIntoFile3;
+  indexIntoFile3.addEntry(fakePHID1, 7, 0, 0, 0); // Run
+  indexIntoFile3.sortVector_Run_Or_Lumi_Entries();
+
+  relevantPreviousEvents.clear();
+  indexIntoFile1.set_intersection(indexIntoFile3, relevantPreviousEvents);
+  CPPUNIT_ASSERT(relevantPreviousEvents.empty());
+
+  relevantPreviousEvents.clear();
+  indexIntoFile3.set_intersection(indexIntoFile1, relevantPreviousEvents);
+  CPPUNIT_ASSERT(relevantPreviousEvents.empty());
+
+  // No lumis
+  edm::IndexIntoFile indexIntoFile4;
+  indexIntoFile4.addEntry(fakePHID1, 6, 0, 0, 0); // Run
+  indexIntoFile4.addEntry(fakePHID1, 7, 0, 0, 0); // Run
+  indexIntoFile4.sortVector_Run_Or_Lumi_Entries();
+
+  relevantPreviousEvents.clear();
+  indexIntoFile1.set_intersection(indexIntoFile4, relevantPreviousEvents);
+  CPPUNIT_ASSERT(relevantPreviousEvents.empty());
+
+  relevantPreviousEvents.clear();
+  indexIntoFile4.set_intersection(indexIntoFile1, relevantPreviousEvents);
+  CPPUNIT_ASSERT(relevantPreviousEvents.empty());
+
+  // Lumi ranges do not overlap
+  edm::IndexIntoFile indexIntoFile5;
+  indexIntoFile5.addEntry(fakePHID1, 6, 2, 0, 0); // Lumi
+  indexIntoFile5.addEntry(fakePHID1, 6, 0, 0, 0); // Run
+  indexIntoFile5.addEntry(fakePHID1, 6, 0, 0, 0); // Run
+  indexIntoFile5.sortVector_Run_Or_Lumi_Entries();
+
+  relevantPreviousEvents.clear();
+  indexIntoFile1.set_intersection(indexIntoFile5, relevantPreviousEvents);
+  CPPUNIT_ASSERT(relevantPreviousEvents.empty());
+
+  relevantPreviousEvents.clear();
+  indexIntoFile5.set_intersection(indexIntoFile1, relevantPreviousEvents);
+  CPPUNIT_ASSERT(relevantPreviousEvents.empty());
+
+
+  for (int j = 0; j < 2; ++j) {
+    edm::IndexIntoFile indexIntoFile11;
+    indexIntoFile11.addEntry(fakePHID1, 6, 2, 0, 0); // Lumi
+    indexIntoFile11.addEntry(fakePHID1, 6, 3, 0, 1); // Lumi
+    indexIntoFile11.addEntry(fakePHID1, 6, 3, 0, 2); // Lumi
+    indexIntoFile11.addEntry(fakePHID1, 6, 0, 0, 0); // Run
+    indexIntoFile11.addEntry(fakePHID1, 6, 0, 0, 1); // Run
+    indexIntoFile11.addEntry(fakePHID1, 7, 1, 1, 0); // Event
+    indexIntoFile11.addEntry(fakePHID1, 7, 1, 2, 1); // Event
+    indexIntoFile11.addEntry(fakePHID1, 7, 1, 3, 2); // Event
+    indexIntoFile11.addEntry(fakePHID1, 7, 1, 4, 3); // Event
+    indexIntoFile11.addEntry(fakePHID1, 7, 1, 0, 3); // Lumi
+    indexIntoFile11.addEntry(fakePHID1, 7, 0, 0, 2); // Run
+    indexIntoFile11.addEntry(fakePHID1, 8, 1, 1, 4); // Event
+    indexIntoFile11.addEntry(fakePHID1, 8, 1, 0, 4); // Lumi
+    indexIntoFile11.addEntry(fakePHID1, 8, 0, 0, 3); // Run
+    indexIntoFile11.addEntry(fakePHID1, 8, 1, 2, 5); // Event
+    indexIntoFile11.addEntry(fakePHID1, 8, 1, 0, 5); // Lumi
+    indexIntoFile11.addEntry(fakePHID1, 8, 0, 0, 4); // Run
+    indexIntoFile11.sortVector_Run_Or_Lumi_Entries();
+   
+    edm::IndexIntoFile indexIntoFile12;
+    indexIntoFile12.addEntry(fakePHID1, 6, 1, 0, 0); // Lumi
+    indexIntoFile12.addEntry(fakePHID1, 6, 3, 0, 1); // Lumi
+    indexIntoFile12.addEntry(fakePHID1, 6, 3, 0, 2); // Lumi
+    indexIntoFile12.addEntry(fakePHID1, 6, 0, 0, 0); // Run
+    indexIntoFile12.addEntry(fakePHID1, 6, 0, 0, 1); // Run
+    indexIntoFile12.addEntry(fakePHID1, 7, 1, 1, 0); // Event
+    indexIntoFile12.addEntry(fakePHID1, 7, 1, 7, 1); // Event
+    indexIntoFile12.addEntry(fakePHID1, 7, 1, 3, 2); // Event
+    indexIntoFile12.addEntry(fakePHID1, 7, 1, 8, 3); // Event
+    indexIntoFile12.addEntry(fakePHID1, 7, 1, 0, 3); // Lumi
+    indexIntoFile12.addEntry(fakePHID1, 7, 1, 11, 4); // Event
+    indexIntoFile12.addEntry(fakePHID1, 7, 1, 6, 5); // Event
+    indexIntoFile12.addEntry(fakePHID1, 7, 1, 1, 6); // Event
+    indexIntoFile12.addEntry(fakePHID1, 7, 1, 4, 7); // Event
+    indexIntoFile12.addEntry(fakePHID1, 7, 1, 0, 4); // Lumi
+    indexIntoFile12.addEntry(fakePHID1, 7, 0, 0, 2); // Run
+    indexIntoFile12.sortVector_Run_Or_Lumi_Entries();
+
+    edm::IndexIntoFile indexIntoFile22;
+    indexIntoFile22.addEntry(fakePHID1, 6, 1, 0, 0); // Lumi
+    indexIntoFile22.addEntry(fakePHID1, 6, 3, 0, 1); // Lumi
+    indexIntoFile22.addEntry(fakePHID1, 6, 3, 0, 2); // Lumi
+    indexIntoFile22.addEntry(fakePHID1, 6, 0, 0, 0); // Run
+    indexIntoFile22.addEntry(fakePHID1, 6, 0, 0, 1); // Run
+    indexIntoFile22.addEntry(fakePHID1, 7, 1, 11, 0); // Event
+    indexIntoFile22.addEntry(fakePHID1, 7, 1, 7, 1); // Event
+    indexIntoFile22.addEntry(fakePHID1, 7, 1, 3, 2); // Event
+    indexIntoFile22.addEntry(fakePHID1, 7, 1, 8, 3); // Event
+    indexIntoFile22.addEntry(fakePHID1, 7, 1, 0, 3); // Lumi
+    indexIntoFile22.addEntry(fakePHID1, 7, 1, 11, 4); // Event
+    indexIntoFile22.addEntry(fakePHID1, 7, 1, 6, 5); // Event
+    indexIntoFile22.addEntry(fakePHID1, 7, 1, 1, 6); // Event
+    indexIntoFile22.addEntry(fakePHID1, 7, 1, 4, 7); // Event
+    indexIntoFile22.addEntry(fakePHID1, 7, 1, 0, 4); // Lumi
+    indexIntoFile22.addEntry(fakePHID1, 7, 0, 0, 2); // Run
+    indexIntoFile22.sortVector_Run_Or_Lumi_Entries();
+
+    TestEventFinder* ptr11(new TestEventFinder);
+    ptr11->push_back(1);
+    ptr11->push_back(2);
+    ptr11->push_back(3);
+    ptr11->push_back(4);
+    ptr11->push_back(1);
+    ptr11->push_back(2);
+
+    boost::shared_ptr<IndexIntoFile::EventFinder> shptr11(ptr11);
+    indexIntoFile11.setEventFinder(shptr11);
+
+    TestEventFinder* ptr12(new TestEventFinder);
+    ptr12->push_back(1);
+    ptr12->push_back(7);
+    ptr12->push_back(3);
+    ptr12->push_back(8);
+    ptr12->push_back(11);
+    ptr12->push_back(6);
+    ptr12->push_back(1);
+    ptr12->push_back(4);
+
+    boost::shared_ptr<IndexIntoFile::EventFinder> shptr12(ptr12);
+    indexIntoFile12.setEventFinder(shptr12);
+
+    TestEventFinder* ptr22(new TestEventFinder);
+    ptr22->push_back(11);
+    ptr22->push_back(7);
+    ptr22->push_back(3);
+    ptr22->push_back(8);
+    ptr22->push_back(11);
+    ptr22->push_back(6);
+    ptr22->push_back(1);
+    ptr22->push_back(4);
+
+    boost::shared_ptr<IndexIntoFile::EventFinder> shptr22(ptr22);
+    indexIntoFile22.setEventFinder(shptr22);
+
+    if (j == 0) {
+      indexIntoFile11.fillEventNumbers();
+      indexIntoFile12.fillEventNumbers();
+      indexIntoFile22.fillEventNumbers();
+    }
+    else {
+      indexIntoFile11.fillEventEntries();
+      indexIntoFile12.fillEventEntries();
+      indexIntoFile22.fillEventEntries();
+    }
+
+    CPPUNIT_ASSERT(!indexIntoFile11.containsDuplicateEvents());
+    CPPUNIT_ASSERT(indexIntoFile12.containsDuplicateEvents());
+    CPPUNIT_ASSERT(indexIntoFile22.containsDuplicateEvents());
+
+    relevantPreviousEvents.clear();
+    indexIntoFile11.set_intersection(indexIntoFile12, relevantPreviousEvents);
+    CPPUNIT_ASSERT(relevantPreviousEvents.size() == 3);
+    std::set<IndexIntoFile::IndexRunLumiEventKey>::const_iterator iter = relevantPreviousEvents.begin();
+    CPPUNIT_ASSERT(iter->event() == 1);
+    CPPUNIT_ASSERT(iter->processHistoryIDIndex() == 0);
+    CPPUNIT_ASSERT(iter->run() == 7);
+    CPPUNIT_ASSERT(iter->lumi() == 1);
+    ++iter;
+    CPPUNIT_ASSERT(iter->event() == 3);
+    ++iter;
+    CPPUNIT_ASSERT(iter->event() == 4);
+    
+    relevantPreviousEvents.clear();
+    indexIntoFile12.set_intersection(indexIntoFile11, relevantPreviousEvents);
+    CPPUNIT_ASSERT(relevantPreviousEvents.size() == 3);
+    iter = relevantPreviousEvents.begin();
+    CPPUNIT_ASSERT(iter->event() == 1);
+    CPPUNIT_ASSERT(iter->processHistoryIDIndex() == 0);
+    CPPUNIT_ASSERT(iter->run() == 7);
+    CPPUNIT_ASSERT(iter->lumi() == 1);
+    ++iter;
+    CPPUNIT_ASSERT(iter->event() == 3);
+    ++iter;
+    CPPUNIT_ASSERT(iter->event() == 4);
+    
   }
 }

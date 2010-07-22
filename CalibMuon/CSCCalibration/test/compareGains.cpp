@@ -37,9 +37,11 @@ int main(){
   }
   
   while (!olddata.eof() ) { 
-    olddata >> old_index >> old_slope ; 
+    olddata >> old_index >> old_slope >> old_int >> old_chi2 ; 
     old_index_id.push_back(old_index);
     old_gains.push_back(old_slope);
+    old_intercept.push_back(old_int);
+    old_chi.push_back(old_chi2);
     old_nrlines++;
   }
   olddata.close();

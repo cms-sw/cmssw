@@ -1,71 +1,71 @@
-# /dev/CMSSW_3_6_2/HIon/V28 (CMSSW_3_6_2_HLT8)
+# /dev/CMSSW_3_6_2/HIon/V35 (CMSSW_3_6_2_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_2/HIon/V28')
+  tableName = cms.string('/dev/CMSSW_3_6_2/HIon/V35')
 )
 
 streams = cms.PSet( 
   Offline = cms.vstring(  ),
+  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
+  RPCMON = cms.vstring( 'RPCMonitor' ),
+  ALCAP0 = cms.vstring( 'AlCaP0' ),
   OnlineErrors = cms.vstring( 'LogMonitor',
     'FEDMonitor' ),
   Calibration = cms.vstring( 'TestEnables' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
-  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
-  RPCMON = cms.vstring( 'RPCMonitor' ),
-  ALCAP0 = cms.vstring( 'AlCaP0' ),
+  HLTMON = cms.vstring( 'OfflineMonitor' ),
   DQM = cms.vstring(  ),
   A = cms.vstring( 'MuMonitor',
     'Cosmics',
     'JetMETTau',
-    'Mu',
-    'RandomTriggers',
     'ZeroBias',
     'Commissioning',
     'JetMETTauMonitor',
     'HcalHPDNoise',
     'HcalNZS',
-    'MinimumBias',
     'MuOnia',
     'EGMonitor',
-    'EG' ),
+    'RandomTriggers',
+    'EG',
+    'Mu',
+    'MinimumBias' ),
   EventDisplay = cms.vstring(  ),
   Express = cms.vstring( 'ExpressPhysics' ),
-  HLTDQM = cms.vstring(  ),
-  HLTMON = cms.vstring( 'OfflineMonitor' )
+  HLTDQM = cms.vstring(  )
 )
 datasets = cms.PSet( 
+  AlCaPhiSymEcal = cms.vstring(  ),
+  RPCMonitor = cms.vstring(  ),
+  AlCaP0 = cms.vstring(  ),
   LogMonitor = cms.vstring(  ),
   FEDMonitor = cms.vstring(  ),
   TestEnables = cms.vstring(  ),
   EcalLaser = cms.vstring(  ),
-  AlCaPhiSymEcal = cms.vstring(  ),
-  RPCMonitor = cms.vstring(  ),
-  AlCaP0 = cms.vstring(  ),
+  OfflineMonitor = cms.vstring( 'HLT_L1DoubleMuOpen',
+    'HLT_Activity_PixelClusters',
+    'HLT_L1Tech_HCAL_HF',
+    'HLT_ZeroBiasPixel_SingleTrack',
+    'HLT_L1Tech_BSC_minBias' ),
   MuMonitor = cms.vstring(  ),
   Cosmics = cms.vstring(  ),
   JetMETTau = cms.vstring(  ),
-  Mu = cms.vstring(  ),
-  RandomTriggers = cms.vstring(  ),
   ZeroBias = cms.vstring(  ),
   Commissioning = cms.vstring( 'HLT_Activity_PixelClusters' ),
   JetMETTauMonitor = cms.vstring(  ),
   HcalHPDNoise = cms.vstring(  ),
   HcalNZS = cms.vstring(  ),
+  MuOnia = cms.vstring( 'HLT_L1DoubleMuOpen' ),
+  EGMonitor = cms.vstring(  ),
+  RandomTriggers = cms.vstring(  ),
+  EG = cms.vstring(  ),
+  Mu = cms.vstring(  ),
   MinimumBias = cms.vstring( 'HLT_L1Tech_HCAL_HF',
     'HLT_ZeroBiasPixel_SingleTrack',
     'HLT_L1Tech_BSC_minBias' ),
-  MuOnia = cms.vstring( 'HLT_L1DoubleMuOpen' ),
-  EGMonitor = cms.vstring(  ),
-  EG = cms.vstring(  ),
-  ExpressPhysics = cms.vstring(  ),
-  OfflineMonitor = cms.vstring( 'HLT_L1DoubleMuOpen',
-    'HLT_Activity_PixelClusters',
-    'HLT_L1Tech_HCAL_HF',
-    'HLT_ZeroBiasPixel_SingleTrack',
-    'HLT_L1Tech_BSC_minBias' )
+  ExpressPhysics = cms.vstring(  )
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -1432,6 +1432,8 @@ hltIterativeCone5PileupSubtractionCaloJets = cms.EDProducer( "FastjetJetProducer
     UseOnlyOnePV = cms.bool( False ),
     DzTrVtxMax = cms.double( 0.0 ),
     DxyTrVtxMax = cms.double( 0.0 ),
+    MinVtxNdof = cms.int32( 5 ),
+    MaxVtxZ = cms.double( 15.0 ),
     jetAlgorithm = cms.string( "IterativeCone" ),
     rParam = cms.double( 0.5 ),
     src = cms.InputTag( "hltTowerMakerForAll" ),
@@ -1454,7 +1456,8 @@ hltIterativeCone5PileupSubtractionCaloJets = cms.EDProducer( "FastjetJetProducer
     maxRecoveredHcalCells = cms.uint32( 9999999 ),
     maxProblematicHcalCells = cms.uint32( 9999999 ),
     doAreaFastjet = cms.bool( False ),
-    doRhoFastjet = cms.bool( False )
+    doRhoFastjet = cms.bool( False ),
+    subtractorName = cms.string( "" )
 )
 hltHI1jet35U = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltIterativeCone5PileupSubtractionCaloJets" ),
@@ -1604,7 +1607,7 @@ HLT_L1Tech_HCAL_HF = cms.Path( HLTBeginSequenceBPTX + hltL1sL1HFtech + hltPreL1H
 HLT_HIMinBiasCalo = cms.Path( HLTBeginSequence + hltL1sHIMinBiasCalo + hltPreHIMinBiasCalo + HLTEndSequence )
 HLT_HIJet35U = cms.Path( HLTBeginSequence + hltHIL1sJet35U + hltHIPreJet35U + HLTDoHIJetRecoSequence + hltHI1jet35U + HLTEndSequence )
 HLT_HIPhoton15 = cms.Path( HLTBeginSequence + hltHIL1sPhoton15 + hltHIPrePhoton15 + HLTDoCaloSequence + HLTDoHIEcalClusSequence + hltHIPhoton15 + HLTEndSequence )
-HLTriggerFinalPath = cms.Path( hltTriggerSummaryAOD + hltPreTriggerSummaryRAW + hltTriggerSummaryRAW + hltBoolFinalPath )
+HLTriggerFinalPath = cms.Path( hltTriggerSummaryAOD + hltGtDigis + hltPreTriggerSummaryRAW + hltTriggerSummaryRAW + hltBoolFinalPath )
 HLTAnalyzerEndpath = cms.EndPath( hltL1GtTrigReport + hltTrigReport )
 
 

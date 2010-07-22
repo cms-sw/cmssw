@@ -4,8 +4,12 @@
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicPerigeeConversions.h"
 
 
-KinematicRefittedTrackState::KinematicRefittedTrackState(const KinematicState& st)		
-{state = st;}
+KinematicRefittedTrackState::KinematicRefittedTrackState(const KinematicState& st,
+		const AlgebraicVector4& mv)		
+{
+  state = st;
+  momentumAtVertex = mv;
+}
 
 AlgebraicVector6 KinematicRefittedTrackState::parameters() const
 {
@@ -47,18 +51,7 @@ AlgebraicVector4 KinematicRefittedTrackState::kinematicMomentumVector() const
 
 AlgebraicVector4 KinematicRefittedTrackState::momentumVector() const
 {
-
- KinematicPerigeeConversions conv;
- 
- ExtendedPerigeeTrajectoryParameters pState = 
-                conv.extendedPerigeeFromKinematicParameters(state,state.globalPosition());
-
- AlgebraicVector4 mr;
- mr[3] = pState.vector()[5];
- mr[0] = pState.vector()[0];
- mr[1] = pState.vector()[1];
- mr[2] = pState.vector()[2];
- return mr;
+ return momentumAtVertex;
 }
 
 

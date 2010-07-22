@@ -33,7 +33,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('START36_V9::All')
+process.GlobalTag.globaltag = cms.string('START36_V8::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 ### subskim
@@ -65,17 +65,11 @@ process.TFileService = cms.Service(
 process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesVtxed_cff")
 process.vtxedNtuplesOut.fileName = cms.untracked.string('file:VtxedNtupleLoose_test.root')
 
-### 3_5_X reprocessed MC: to process REDIGI HLT tables uncomment the following
-#process.patTrigger.processName = "REDIGI"
-#process.patTriggerEvent.processName = "REDIGI"
-#process.patTrigger.triggerResults = cms.InputTag( "TriggerResults::REDIGI" )
-#process.patTrigger.triggerEvent = cms.InputTag( "hltTriggerSummaryAOD::REDIGI" )
-
-### 3_6_X reprocessed MC: to process REDIGI HLT tables uncomment the following
-process.patTrigger.processName = "REDIGI36X"
-process.patTriggerEvent.processName = "REDIGI36X"
-process.patTrigger.triggerResults = cms.InputTag( "TriggerResults::REDIGI36X" )
-process.patTrigger.triggerEvent = cms.InputTag( "hltTriggerSummaryAOD::REDIGI36X" )
+### to process REDIGI HLT tables uncomment the following
+process.patTrigger.processName = "REDIGI"
+process.patTriggerEvent.processName = "REDIGI"
+process.patTrigger.triggerResults = cms.InputTag( "TriggerResults::REDIGI" )
+process.patTrigger.triggerEvent = cms.InputTag( "hltTriggerSummaryAOD::REDIGI" )
 
 ### plots
 process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesPlots_cff")

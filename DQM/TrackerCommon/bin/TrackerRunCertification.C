@@ -2,7 +2,7 @@
 //
 // Package: DQM/TrackerCommon
 //
-// $Id: TrackerRunCertification.C,v 1.1 2009/11/25 14:58:40 vadler Exp $
+// $Id$
 //
 /**
   \brief    Performs DQM offline data certification for SiStrip, Pixel and Tracking
@@ -65,7 +65,7 @@
        no default
      -p
        path to DQM files
-       default: /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/OfflineData/Run2010/StreamExpress
+       default: /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/Express
      -P
        pattern of DQM file names in the DQM file path
        default: *[DATASET from '-d' option with '/' --> '__'].root
@@ -84,23 +84,20 @@
      -u
        upper bound of run numbers to consider
        default: 1073741824 (2^30)
-     -R
-       web address of the RunRegistry
-       default: http://pccmsdqm04.cern.ch/runregistry
      The default is used for any option not explicitely given in the command line.
 
    Valid options are:
      -rr
        switch on creation of new RR file
      -rronly
-       only create new RR file, do not run certification
+       only create new RR file, don not run certification
      -v
        switch on verbose logging to stdout
      -h
        display this help and exit
 
   \author   Volker Adler
-  \version  $Id: TrackerRunCertification.C,v 1.1 2009/11/25 14:58:40 vadler Exp $
+  \version  $Id$
 */
 
 #include <algorithm>
@@ -149,9 +146,7 @@ Int_t   minRun_;
 Int_t   maxRun_;
 
 // Global constants
-const TString nameFileRR_( "RunRegistry.xml" );
-const TString nameFileRunsRR_( TString( "runs" ).Append( nameFileRR_ ) );
-const TString nameFileLumisRR_( TString( "lumis" ).Append( nameFileRR_ ) );
+const TString nameFileRR_( "runRegistry.xml" );
 const TString nameFileCertSiStrip_( "certSiStrip.txt" );
 const TString nameFileHDQMSiStrip_( "hDQMSiStrip.txt" );
 const TString nameFileTkMapSiStrip_( "tkMapSiStrip.txt" );
@@ -242,14 +237,13 @@ int main( int argc, char * argv[] )
 
   // Initialize defaults
   sArguments[ "-d" ] = "";                                                   // dataset
-  sArguments[ "-p" ] = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/OfflineData/Run2010/StreamExpress"; // path to DQM files
+  sArguments[ "-p" ] = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/Express"; // path to DQM files
   sArguments[ "-P" ] = "";                                                   // pattern of DQM file names in the DQM file path
   sArguments[ "-l" ] = "0";                                                  // lower bound of run numbers to consider
   sArguments[ "-u" ] = "1073741824"; // 2^30                                 // upper bound of run numbers to consider
   sArguments[ "-i" ] = TString( gSystem->Getenv( "CMSSW_BASE" ) ) + "/src/DQM/TrackerCommon/data"; // path to additional input files
   sArguments[ "-o" ] = "";                                                   // path to main output file
   sArguments[ "-L" ] = "";                                                   // path to file with DQM input file list
-  sArguments[ "-R" ] = "http://pccmsdqm04.cern.ch/runregistry";              // web address of the RunRegistry
   minRun_ = sArguments[ "-u" ].Atoi();
   maxRun_ = sArguments[ "-l" ].Atoi();
   sOptions[ "-rr" ]     = kFALSE;
@@ -275,6 +269,10 @@ int main( int argc, char * argv[] )
     displayHelp();
     return 0;
   }
+  if ( sOptions[ "-rronly" ] ) {
+    if ( ! createRRFile() ) return 13;
+    return 0;
+  }
   if ( sArguments[ "-d" ] == "" ) {
     cerr << "    ERROR: no dataset given with '-d' option" << endl;
     return 1;
@@ -296,10 +294,6 @@ int main( int argc, char * argv[] )
   // Run
   if ( ! readFiles() )              return 11;
   if ( ! createInputFileList() )    return 12;
-  if ( sOptions[ "-rronly" ] ) {
-    if ( ! createRRFile() ) return 13;
-    return 0;
-  }
   if ( sOptions[ "-rr" ] && ! createRRFile() ) return 13;
   certifyRunRange();
 
@@ -462,7 +456,7 @@ Bool_t createInputFileList()
 
   // Create input file list on the fly
   gSystem->Exec( TString( "rm -f " + sArguments[ "-L" ] ).Data() );
-  gSystem->Exec( TString( "ls -1 " + sArguments[ "-p" ] + "/*/" + sArguments[ "-P" ] + " > " + sArguments[ "-L" ] ).Data() );
+  gSystem->Exec( TString( "ls -1 " + sArguments[ "-p" ] + "/*/*/" + sArguments[ "-P" ] + " > " + sArguments[ "-L" ] ).Data() );
   ofstream fileListWrite;
   fileListWrite.open( sArguments[ "-L" ].Data(), ios_base::app );
   fileListWrite << "EOF";
@@ -508,50 +502,27 @@ Bool_t createInputFileList()
 Bool_t createRRFile()
 {
 
-  ostringstream minRun;
-  minRun << minRun_;
-  ostringstream maxRun;
-  maxRun << maxRun_;
-  cerr << "  Extracting RunRegistry output for runs " << minRun.str() << " - " << maxRun.str() << " ... ";
-  gSystem->Exec( TString( TString( gSystem->Getenv( "CMSSW_BASE" ) ).Append( "/src/DQM/TrackerCommon/bin/getRunRegistry.py" ).Append( " -s " ).Append( sArguments[ "-R" ] ).Append( "/xmlrpc" ).Append( " -f " ).Append( nameFileRunsRR_ ).Append( " ").Append( " -l " ).Append( minRun.str() ).Append( " -u " ).Append( maxRun.str() ).Append( " -T RUN -t xml_all" ) ) );
-  gSystem->Exec( TString( TString( gSystem->Getenv( "CMSSW_BASE" ) ).Append( "/src/DQM/TrackerCommon/bin/getRunRegistry.py" ).Append( " -s " ).Append( sArguments[ "-R" ] ).Append( "/xmlrpc" ).Append( " -f " ).Append( nameFileLumisRR_ ).Append( " ").Append( " -l " ).Append( minRun.str() ).Append( " -u " ).Append( maxRun.str() ).Append( " -T RUNLUMISECTION -t xml" ) ) );
+  cerr << "  Extracting RunRegistry output ... ";
+  gSystem->Exec( TString( TString( gSystem->Getenv( "CMSSW_BASE" ) ) + "/src/DQM/TrackerCommon/bin/getRunRegistry.py -s http://pccmsdqm04.cern.ch/runregistry/xmlrpc -w GLOBAL -m xml_all -f " ).Append( nameFileRR_ ) ); // all options added hier, just to be on the safe side
   cerr << "done" << endl << endl;
 
+  ifstream fileRR;
+  fileRR.open( nameFileRR_.Data() );
+  if ( ! fileRR ) {
+    cerr << "  ERROR: RR file does not exist" << endl;
+    cerr << "  Please, check access to RR" << endl;
+    return kFALSE;
+  }
   const UInt_t maxLength( 131071 ); // FIXME hard-coding for what?
   char xmlLine[ maxLength ];
   UInt_t lines( 0 );
-  ifstream fileRunsRR;
-  fileRunsRR.open( nameFileRunsRR_.Data() );
-  if ( ! fileRunsRR ) {
-    cerr << "  ERROR: RR file " << nameFileRunsRR_.Data() << " does not exist" << endl;
+  while ( lines <= 1 && fileRR.getline( xmlLine, maxLength ) ) ++lines;
+  if ( lines <= 1 ) {
+    cerr << "  ERROR: empty RR file" << endl;
     cerr << "  Please, check access to RR" << endl;
     return kFALSE;
   }
-  while ( lines <= 1 && fileRunsRR.getline( xmlLine, maxLength ) ) ++lines;
-  if ( lines <= 1 ) {
-    cerr << "  ERROR: empty RR file " << nameFileRunsRR_.Data() << endl;
-    cerr << "  Please, check access to RR:" << endl;
-    cerr << "  - DQM/TrackerCommon/bin/getRunRegistry.py" << endl;
-    cerr << "  - https://twiki.cern.ch/twiki/bin/view/CMS/DqmRrApi" << endl;
-    return kFALSE;
-  }
-  fileRunsRR.close();
-  ifstream fileLumisRR;
-  fileLumisRR.open( nameFileLumisRR_.Data() );
-  if ( ! fileLumisRR ) {
-    cerr << "  ERROR: RR file " << nameFileLumisRR_.Data() << " does not exist" << endl;
-    cerr << "  Please, check access to RR" << endl;
-    return kFALSE;
-  }
-  while ( lines <= 1 && fileLumisRR.getline( xmlLine, maxLength ) ) ++lines;
-  if ( lines <= 1 ) {
-    cerr << "  ERROR: empty RR file " << nameFileLumisRR_.Data() << endl;
-    cerr << "  Please, check access to RR:" << endl;
-    cerr << "  - DQM/TrackerCommon/bin/getRunRegistry.py" << endl;
-    cerr << "  - https://twiki.cern.ch/twiki/bin/view/CMS/DqmRrApi" << endl;
-    return kFALSE;
-  }
-  fileLumisRR.close();
+  fileRR.close();
 
   return kTRUE;
 
@@ -608,7 +579,7 @@ Bool_t readRR( const TString & pathFile )
 
   // Read RR file corresponding to output format type 'xml_all'
   TXMLEngine * xmlRR( new TXMLEngine );
-  XMLDocPointer_t  xmlRRDoc( xmlRR->ParseFile( nameFileRunsRR_.Data() ) );
+  XMLDocPointer_t  xmlRRDoc( xmlRR->ParseFile( nameFileRR_.Data() ) );
   XMLNodePointer_t nodeMain( xmlRR->DocGetRootElement( xmlRRDoc ) );
   vector< TString > nameCmpNode;
   nameCmpNode.push_back( "STRIP" );
@@ -616,7 +587,7 @@ Bool_t readRR( const TString & pathFile )
   nameCmpNode.push_back( "TRACK" );
   Bool_t foundRun( kFALSE );
   Bool_t foundDataset( kFALSE );
-  XMLNodePointer_t nodeRun( xmlRR->GetChild( nodeMain ) );
+  XMLNodePointer_t nodeRun( xmlRR->GetChild( nodeMain ) );  
   while ( nodeRun ) {
     XMLNodePointer_t nodeRunChild( xmlRR->GetChild( nodeRun ) );
     while ( nodeRunChild && TString( xmlRR->GetNodeName( nodeRunChild ) ) != "NUMBER" ) nodeRunChild = xmlRR->GetNext( nodeRunChild );
@@ -829,10 +800,83 @@ void certifyRun()
   // SiStrip
   sRRSiStrip_[ sRunNumber_ ] = FlagConvert( iFlagsRR_[ sSubSys_[ SiStrip ] ] );
   if ( bAvailable_[ sSubSys_[ SiStrip ] ] ) {
-    Bool_t flagDet( fCertificates_[ "SiStripReportSummary" ] > minGood_ );
-    Bool_t flagDAQ( fCertificates_[ "SiStripDAQSummary" ] == ( Double_t )EXCL || fCertificates_[ "SiStripDAQSummary" ] > minGood_ );
-    Bool_t flagDCS( fCertificates_[ "SiStripDCSSummary" ] == ( Double_t )EXCL || fCertificates_[ "SiStripDCSSummary" ] == ( Double_t )GOOD );
-    Bool_t flagDQM( flagDet * flagDAQ * flagDCS );
+    Bool_t flagDet;
+    Bool_t flagSubDet;
+    Bool_t flagSToN;
+    Bool_t flagDAQ;
+    Bool_t flagDCS;
+    if ( sVersion_.Contains( "CMSSW_3_2_4" ) ) {
+      if ( iRunStartDecon_ <= sRunNumber_.Atoi() ) { // S/N settings were wrong in the release compared with reality due to switch from Peak to Deconvolution mode
+        flagDet = kTRUE;
+        flagSubDet = (
+          ( fCertificates_[ "ReportSiStrip_DetFraction_TECB" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_DetFraction_TECB" ] > minGood_ ) &&
+          ( fCertificates_[ "ReportSiStrip_DetFraction_TECF" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_DetFraction_TECF" ] > minGood_ ) &&
+          ( fCertificates_[ "ReportSiStrip_DetFraction_TIB" ]  == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_DetFraction_TIB" ]  > minGood_ ) &&
+          ( fCertificates_[ "ReportSiStrip_DetFraction_TIDB" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_DetFraction_TIDB" ] > minGood_ ) &&
+          ( fCertificates_[ "ReportSiStrip_DetFraction_TIDF" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_DetFraction_TIDF" ] > minGood_ ) &&
+          ( fCertificates_[ "ReportSiStrip_DetFraction_TOB" ]  == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_DetFraction_TOB" ]  > minGood_ )
+        );
+        flagSToN =kTRUE;
+      } else {
+        flagDet = ( fCertificates_[ "SiStripReportSummary" ] > minGood_ );
+        flagSubDet = (
+          ( fCertificates_[ "ReportSiStrip_TECB" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_TECB" ] > minGood_ ) &&
+          ( fCertificates_[ "ReportSiStrip_TECF" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_TECF" ] > minGood_ ) &&
+          ( fCertificates_[ "ReportSiStrip_TIB" ]  == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_TIB" ]  > minGood_ ) &&
+          ( fCertificates_[ "ReportSiStrip_TIDB" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_TIDB" ] > minGood_ ) &&
+          ( fCertificates_[ "ReportSiStrip_TIDF" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_TIDF" ] > minGood_ ) &&
+          ( fCertificates_[ "ReportSiStrip_TOB" ]  == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_TOB" ]  > minGood_ )
+        );
+        flagSToN = (
+          ( fCertificates_[ "ReportSiStrip_SToNFlag_TECB" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_SToNFlag_TECB" ] == ( Double_t )GOOD ) &&
+          ( fCertificates_[ "ReportSiStrip_SToNFlag_TECF" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_SToNFlag_TECF" ] == ( Double_t )GOOD ) &&
+          ( fCertificates_[ "ReportSiStrip_SToNFlag_TIB" ]  == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_SToNFlag_TIB" ]  == ( Double_t )GOOD ) &&
+          ( fCertificates_[ "ReportSiStrip_SToNFlag_TIDB" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_SToNFlag_TIDB" ] == ( Double_t )GOOD ) &&
+          ( fCertificates_[ "ReportSiStrip_SToNFlag_TIDF" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_SToNFlag_TIDF" ] == ( Double_t )GOOD ) &&
+          ( fCertificates_[ "ReportSiStrip_SToNFlag_TOB" ]  == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_SToNFlag_TOB" ]  == ( Double_t )GOOD )
+        );
+      }
+      flagDAQ = ( fCertificates_[ "DAQSiStripDaqFraction" ] == ( Double_t )EXCL || fCertificates_[ "DAQSiStripDaqFraction" ] > minGood_ );
+      flagDCS = ( fCertificates_[ "DCSSiStripDcsFraction" ] == ( Double_t )EXCL || fCertificates_[ "DCSSiStripDcsFraction" ] == ( Double_t )GOOD );
+    } else {
+      flagDet = ( fCertificates_[ "SiStripReportSummary" ] > minGood_ );
+      if ( sVersion_.Contains( "CMSSW_3_2_8" ) ||
+           sVersion_.Contains( "CMSSW_3_3_0" ) ||
+           sVersion_.Contains( "CMSSW_3_3_2" ) ||
+           sVersion_.Contains( "CMSSW_3_3_3_patch1" ) ||
+           sVersion_.Contains( "CMSSW_3_3_4" ) ) { // bug misses one out of four TIB layers
+        if ( fCertificates_[ "ReportSiStrip_SToNFlag_TIB" ] != ( Double_t )EXCL ) {
+          cout << "    WARNING: ReportSiStrip_SToNFlag_TIB changed from " << fCertificates_[ "ReportSiStrip_SToNFlag_TIB" ] << " to ";
+          fCertificates_[ "ReportSiStrip_SToNFlag_TIB" ] /= 0.75; // re-scaling
+          cout << fCertificates_[ "ReportSiStrip_SToNFlag_TIB" ] << endl;
+        }
+        if ( fCertificates_[ "ReportSiStrip_TIB" ] != ( Double_t )EXCL ) {
+          cout << "    WARNING: ReportSiStrip_TIB re-evaluated from " << fCertificates_[ "ReportSiStrip_TIB" ] << " to ";
+          fCertificates_[ "ReportSiStrip_TIB" ] = min( fCertificates_[ "ReportSiStrip_SToNFlag_TIB" ], fCertificates_[ "ReportSiStrip_DetFraction_TIB" ] ); // re-evaluation
+          cout << fCertificates_[ "ReportSiStrip_TIB" ] << endl;
+        }
+      }
+      flagSubDet = (
+        ( fCertificates_[ "ReportSiStrip_TECB" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_TECB" ] > minGood_ ) &&
+        ( fCertificates_[ "ReportSiStrip_TECF" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_TECF" ] > minGood_ ) &&
+        ( fCertificates_[ "ReportSiStrip_TIB" ]  == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_TIB" ]  > minGood_ ) &&
+        ( fCertificates_[ "ReportSiStrip_TIDB" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_TIDB" ] > minGood_ ) &&
+        ( fCertificates_[ "ReportSiStrip_TIDF" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_TIDF" ] > minGood_ ) &&
+        ( fCertificates_[ "ReportSiStrip_TOB" ]  == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_TOB" ]  > minGood_ )
+      );
+      flagSToN = (
+        ( fCertificates_[ "ReportSiStrip_SToNFlag_TECB" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_SToNFlag_TECB" ] == ( Double_t )GOOD ) &&
+        ( fCertificates_[ "ReportSiStrip_SToNFlag_TECF" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_SToNFlag_TECF" ] == ( Double_t )GOOD ) &&
+        ( fCertificates_[ "ReportSiStrip_SToNFlag_TIB" ]  == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_SToNFlag_TIB" ]  == ( Double_t )GOOD ) &&
+        ( fCertificates_[ "ReportSiStrip_SToNFlag_TIDB" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_SToNFlag_TIDB" ] == ( Double_t )GOOD ) &&
+        ( fCertificates_[ "ReportSiStrip_SToNFlag_TIDF" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_SToNFlag_TIDF" ] == ( Double_t )GOOD ) &&
+        ( fCertificates_[ "ReportSiStrip_SToNFlag_TOB" ]  == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_SToNFlag_TOB" ]  == ( Double_t )GOOD )
+      );
+      flagDAQ = ( fCertificates_[ "SiStripDAQSummary" ] == ( Double_t )EXCL || fCertificates_[ "SiStripDAQSummary" ] > minGood_ );
+      flagDCS = ( fCertificates_[ "SiStripDCSSummary" ] == ( Double_t )EXCL || fCertificates_[ "SiStripDCSSummary" ] == ( Double_t )GOOD );
+    }
+//     Bool_t flagDQM( flagDet * flagSubDet * flagSToN * flagDAQ * flagDSC );
+    Bool_t flagDQM( flagDet * flagSubDet * flagSToN ); // FIXME DAQ and DCS info currently ignored
     Bool_t flagCert( sCertSiStrip_.find( sRunNumber_ )   == sCertSiStrip_.end() );
     Bool_t flagHDQM( sHDQMSiStrip_.find( sRunNumber_ )   == sHDQMSiStrip_.end() );
     Bool_t flagTkMap( sTkMapSiStrip_.find( sRunNumber_ ) == sTkMapSiStrip_.end() );
@@ -842,8 +886,10 @@ void certifyRun()
     sSiStrip_[ sRunNumber_ ]    = FlagConvert( iFlags[ sSubSys_[ SiStrip ] ] );
     vector< TString > comments;
     if ( ! flagDet )     comments.push_back( "too low overall fraction of good modules" );
-    if ( ! flagDAQ )     comments.push_back( "DAQSummary BAD" );
-    if ( ! flagDCS )     comments.push_back( "DCSSummary BAD" );
+    if ( ! flagSubDet )  comments.push_back( "too low fraction of good modules in a sub-system" );
+    if ( ! flagSToN )    comments.push_back( "too low S/N in a sub-system" );
+//     if ( ! flagDAQ )     comments.push_back( "DAQSummary BAD" ); // FIXME DAQ and DCS info currently ignored
+//     if ( ! flagDCS )     comments.push_back( "DCSSummary BAD" ); // FIXME DAQ and DCS info currently ignored
     if ( ! flagCert )    comments.push_back( "general: " + sCertSiStrip_[ sRunNumber_ ] );
     if ( ! flagHDQM )    comments.push_back( "hDQM   : " + sHDQMSiStrip_[ sRunNumber_ ] );
     if ( ! flagTkMap )   comments.push_back( "TkMap  : " + sTkMapSiStrip_[ sRunNumber_ ] );
@@ -859,10 +905,19 @@ void certifyRun()
   // Pixel
   sRRPixel_[ sRunNumber_ ] = FlagConvert( iFlagsRR_[ sSubSys_[ Pixel ] ] );
   if ( bAvailable_[ sSubSys_[ Pixel ] ] ) {
-    Bool_t flagReportSummary( fCertificates_[ "PixelReportSummary" ] > maxBad_ );
-//     Bool_t flagDAQ( fCertificates_[ "PixelDAQSummary" ] == ( Double_t )EXCL || fCertificates_[ "PixelDAQSummary" ] > maxBad_ ); // unidentified bug in Pixel DAQ fraction determination
-    Bool_t flagDAQ( ( fCertificates_[ "DAQPixelBarrelFraction" ] == ( Double_t )EXCL || fCertificates_[ "DAQPixelBarrelFraction" ] > 0. ) &&  ( fCertificates_[ "DAQPixelEndcapFraction" ] == ( Double_t )EXCL || fCertificates_[ "DAQPixelEndcapFraction" ] > 0. ) ); // unidentified bug in Pixel DAQ fraction determination
-    Bool_t flagDCS( fCertificates_[ "PixelDCSSummary" ] == ( Double_t )EXCL || fCertificates_[ "PixelDCSSummary" ] > maxBad_ );
+    Bool_t flagReportSummary(
+      fCertificates_[ "PixelReportSummary" ] > maxBad_
+    );
+    Bool_t flagDAQ;
+    Bool_t flagDCS;
+    if ( sVersion_.Contains( "CMSSW_3_2_4" ) ) { // old version with different naming
+      flagDAQ = ( fCertificates_[ "DAQPixelDaqFraction" ] == ( Double_t )EXCL || fCertificates_[ "DAQPixelDaqFraction" ] > maxBad_ );
+      flagDCS = ( fCertificates_[ "DCSPixelDcsFraction" ] == ( Double_t )EXCL || fCertificates_[ "DCSPixelDcsFraction" ] > maxBad_ );
+    } else {
+//       flagDAQ = ( fCertificates_[ "PixelDAQSummary" ] == ( Double_t )EXCL || fCertificates_[ "PixelDAQSummary" ] > maxBad_ ); // unidentified bug in Pixel DAQ fraction determination
+      flagDAQ = ( ( fCertificates_[ "DAQPixelBarrelFraction" ] == ( Double_t )EXCL || fCertificates_[ "DAQPixelBarrelFraction" ] > 0. ) &&  ( fCertificates_[ "DAQPixelEndcapFraction" ] == ( Double_t )EXCL || fCertificates_[ "DAQPixelEndcapFraction" ] > 0. ) ); // unidentified bug in Pixel DAQ fraction determination
+      flagDCS = ( fCertificates_[ "PixelDCSSummary" ] == ( Double_t )EXCL || fCertificates_[ "PixelDCSSummary" ] > maxBad_ );
+    }
     Bool_t flagDQM( flagReportSummary * flagDAQ * flagDCS );
     Bool_t flagCert( sCertPixel_.find( sRunNumber_ ) == sCertPixel_.end() );
     Bool_t flagHDQM( sHDQMPixel_.find( sRunNumber_ ) == sHDQMPixel_.end() );
@@ -1102,7 +1157,7 @@ void displayHelp()
   cerr << "      no default" << endl;
   cerr << "    -p" << endl;
   cerr << "      path to DQM files" << endl;
-  cerr << "      default: /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/OfflineData/Run2010/StreamExpress" << endl;
+  cerr << "      default: /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/Express" << endl;
   cerr << "    -P" << endl;
   cerr << "      pattern of DQM file names in the DQM file path" << endl;
   cerr << "      default: *[DATASET from '-d' option with '/' --> '__'].root" << endl;
@@ -1118,15 +1173,10 @@ void displayHelp()
   cerr << "    -u" << endl;
   cerr << "      upper bound of run numbers to consider" << endl;
   cerr << "      default: 1073741824 (2^30)" << endl;
-  cerr << "    -R" << endl;
-  cerr << "      web address of the RunRegistry" << endl;
-  cerr << "      default: http://pccmsdqm04.cern.ch/runregistry" << endl;
   cerr << "    The default is used for any option not explicitely given in the command line." << endl << endl;
   cerr << "  Valid options are:" << endl;
   cerr << "    -rr" << endl;
   cerr << "      switch on creation of new RR file" << endl;
-  cerr << "    -rronly" << endl;
-  cerr << "      only create new RR file, do not run certification" << endl;
   cerr << "    -v" << endl;
   cerr << "      switch on verbose logging to stdout" << endl;
   cerr << "    -h" << endl;
@@ -1139,8 +1189,8 @@ void displayHelp()
 TString RunNumber( const TString & pathFile )
 {
 
-  const TString sPrefix( "DQM_V" );
-  const TString sNumber( pathFile( pathFile.Index( sPrefix ) + sPrefix.Length() + 6, 9 ) );
+  const TString sPrefix( "DQM_V0001_R" );
+  const TString sNumber( pathFile( pathFile.Index( sPrefix ) + sPrefix.Length(), 9 ) );
   UInt_t index( ( string( sNumber.Data() ) ).find_first_not_of( '0' ) );
   return sNumber( index, sNumber.Length() - index );
 

@@ -2,14 +2,8 @@ import copy
 
 import FWCore.ParameterSet.Config as cms
 
-from SimTracker.TrackHistory.MuonClassifier_cff import *
 from SimTracker.TrackHistory.TrackClassifier_cff import *
 from SimTracker.TrackHistory.VertexClassifier_cff import *
-
-def MuonCategorySelector(src, cut):
-    trackClassifier.trackProducer = copy.deepcopy(src)
-    trackClassifier.trackProducer.setIsTracked(False)
-    return cms.EDFilter('TrackCategorySelector', MuonClassifier, src = src, cut = cut)
 
 def TrackCategorySelector(src, cut):
     trackClassifier.trackProducer = copy.deepcopy(src)

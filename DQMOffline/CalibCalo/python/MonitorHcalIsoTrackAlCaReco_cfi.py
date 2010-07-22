@@ -5,8 +5,8 @@ folderName=cms.string("AlCaReco/HcalIsoTrack"),
 saveToFile=cms.bool(False),
 outputRootFileName=cms.string("HcalIsoTrackAlCaRecoMon.root"),
 hltTriggerEventLabel=cms.InputTag('hltTriggerSummaryAOD'),
-l1FilterLabel=cms.string('hltL1sIsoTrack'),
 hltL3FilterLabels=cms.vstring('hltIsolPixelTrackL3FilterHB','hltIsolPixelTrackL3FilterHE'),
+filterNameLength=cms.int32(27),
 alcarecoIsoTracksLabel=cms.InputTag('IsoProd:HcalIsolatedTrackCollection'),
 recoTracksLabel=cms.InputTag('IsoProd:IsoTrackTracksCollection')
 )

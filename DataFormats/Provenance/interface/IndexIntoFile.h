@@ -270,9 +270,6 @@ namespace edm {
       class IndexIntoFileItrImpl {
 
       public:
-
-        IndexIntoFileItrImpl(IndexIntoFile const* indexIntoFile);
-
         IndexIntoFileItrImpl(IndexIntoFile const* indexIntoFile,
                              EntryType entryType,
                              int indexToRun,
@@ -303,6 +300,7 @@ namespace edm {
         virtual EntryNumber_t entry() const = 0;
         virtual LuminosityBlockNumber_t peekAheadAtLumi() const = 0;
         virtual EntryNumber_t peekAheadAtEventEntry() const = 0;
+        virtual bool skipLumiInRun() = 0;
 
         void advanceToNextRun();
         void advanceToNextLumiOrRun();
@@ -336,9 +334,7 @@ namespace edm {
 
         virtual void initializeLumi_() = 0;
         virtual bool nextEventRange() = 0;
-        virtual bool skipLumiInRun() = 0;
         virtual EntryType getRunOrLumiEntryType(int index) const = 0;
-        virtual bool lumiHasEvents() const = 0;
         virtual bool isSameLumi(int index1, int index2) const = 0;
         virtual bool isSameRun(int index1, int index2) const = 0;
 
@@ -358,9 +354,6 @@ namespace edm {
 
       class IndexIntoFileItrNoSort : public IndexIntoFileItrImpl {
       public:
-
-        IndexIntoFileItrNoSort(IndexIntoFile const* indexIntoFile);
-
         IndexIntoFileItrNoSort(IndexIntoFile const* indexIntoFile,
                                EntryType entryType,
                                int indexToRun,
@@ -377,14 +370,13 @@ namespace edm {
         virtual EntryNumber_t entry() const;
         virtual LuminosityBlockNumber_t peekAheadAtLumi() const;
         virtual EntryNumber_t peekAheadAtEventEntry() const;
+        virtual bool skipLumiInRun();
 
       private:
 
         virtual void initializeLumi_();
         virtual bool nextEventRange();
-        virtual bool skipLumiInRun();
         virtual EntryType getRunOrLumiEntryType(int index) const;
-        virtual bool lumiHasEvents() const;
         virtual bool isSameLumi(int index1, int index2) const;
         virtual bool isSameRun(int index1, int index2) const;
       };
@@ -394,9 +386,6 @@ namespace edm {
 
       class IndexIntoFileItrSorted : public IndexIntoFileItrImpl {
       public:
-
-        IndexIntoFileItrSorted(IndexIntoFile const* indexIntoFile);
-
         IndexIntoFileItrSorted(IndexIntoFile const* indexIntoFile,
                                EntryType entryType,
                                int indexToRun,
@@ -412,14 +401,13 @@ namespace edm {
         virtual EntryNumber_t entry() const;
         virtual LuminosityBlockNumber_t peekAheadAtLumi() const;
         virtual EntryNumber_t peekAheadAtEventEntry() const;
+        virtual bool skipLumiInRun();
 
       private:
 
         virtual void initializeLumi_();
         virtual bool nextEventRange();
-        virtual bool skipLumiInRun();
         virtual EntryType getRunOrLumiEntryType(int index) const;
-        virtual bool lumiHasEvents() const;
         virtual bool isSameLumi(int index1, int index2) const;
         virtual bool isSameRun(int index1, int index2) const;
       };
@@ -429,8 +417,6 @@ namespace edm {
 
       class IndexIntoFileItr {
       public:
-        IndexIntoFileItr(IndexIntoFile const* indexIntoFile, SortOrder sortOrder);
-
         IndexIntoFileItr(IndexIntoFile const* indexIntoFile,
                          SortOrder sortOrder,
                          EntryType entryType,
@@ -446,6 +432,7 @@ namespace edm {
         RunNumber_t run() const {return impl_->run();}
         LuminosityBlockNumber_t lumi() const {return impl_->lumi();}
         EntryNumber_t entry() const {return impl_->entry();}
+        LuminosityBlockNumber_t peekAheadAtLumi() const { return impl_->peekAheadAtLumi(); }
 
         // This is intentionally not implemented.
         // It would be difficult to implement for the no sort mode,
@@ -474,6 +461,8 @@ namespace edm {
         // NEED TO IMPLEMENT THIS
         // void skipEventBackward() {
         // }
+
+        bool skipLumiInRun() { return impl_->skipLumiInRun(); }
 
         void initializeRun() {impl_->initializeRun();}
         void initializeLumi() {impl_->initializeLumi();}
@@ -683,9 +672,6 @@ namespace edm {
   public:
     bool operator()(IndexIntoFile::RunOrLumiIndexes const& lh, IndexIntoFile::RunOrLumiIndexes const& rh);
   };
-
-  std::ostream&
-  operator<<(std::ostream& os, IndexIntoFile const& fileIndex);
 }
 
 #endif

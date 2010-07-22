@@ -527,17 +527,39 @@ namespace edm {
         return false;
     }
     if (eventSkipperByID_ && eventSkipperByID_->somethingToSkip()) {
-      // See first if the entire lumi is skipped, so we won't have to read the event Auxiliary in that case.
-      bool skipTheLumi = eventSkipperByID_->skipIt(indexIntoFileIter_.run(), indexIntoFileIter_.lumi(), 0U);
-      if (skipTheLumi) {
+ 
+      // See first if the entire lumi or run is skipped, so we won't have to read the event Auxiliary in that case.
+      if (eventSkipperByID_->skipIt(indexIntoFileIter_.run(), indexIntoFileIter_.lumi(), 0U)) {
         return true;
       }
+
       // The Lumi is not skipped.  If this is an event, see if the event is skipped.
       if (indexIntoFileIter_.getEntryType() == IndexIntoFile::kEvent) {
         fillEventAuxiliary();
-        return(eventSkipperByID_->skipIt(indexIntoFileIter_.run(),
-					 indexIntoFileIter_.lumi(),
-					 eventAux_.id().event()));
+        if (eventSkipperByID_->skipIt(indexIntoFileIter_.run(),
+				      indexIntoFileIter_.lumi(),
+				      eventAux_.id().event())) {
+          return true;
+        }
+      }
+
+      // Skip runs with no lumis if either lumisToSkip or lumisToProcess have been set to select lumis 
+      if (indexIntoFileIter_.getEntryType() == IndexIntoFile::kRun &&
+          eventSkipperByID_->skippingLumis()) {
+        IndexIntoFile::IndexIntoFileItr iterLumi = indexIntoFileIter_;
+
+        // There are no lumis in this run, not even ones we will skip
+        if (iterLumi.peekAheadAtLumi() == IndexIntoFile::invalidLumi) {
+          return true;
+        }
+        // If we get here there are lumis in the run, check to see if we are skipping all of them
+        do {
+          if (!eventSkipperByID_->skipIt(iterLumi.run(), iterLumi.peekAheadAtLumi(), 0U)) {
+            return false;
+          }
+        }
+        while(iterLumi.skipLumiInRun());
+        return true;
       }
     }
     return false;
@@ -546,10 +568,15 @@ namespace edm {
   IndexIntoFile::EntryType
   RootFile::getEntryTypeWithSkipping() {
     while(skipThisEntry()) {
-      ++indexIntoFileIter_;
-    }
-    if(indexIntoFileIter_ == indexIntoFileEnd_) {
-      return IndexIntoFile::kEnd;
+      if (indexIntoFileIter_.getEntryType() == IndexIntoFile::kRun) {
+        indexIntoFileIter_.advanceToNextRun();
+      }
+      else if (indexIntoFileIter_.getEntryType() == IndexIntoFile::kLumi) {
+        indexIntoFileIter_.advanceToNextLumiOrRun();
+      }
+      else {
+        ++indexIntoFileIter_;
+      }
     }
     return indexIntoFileIter_.getEntryType();
   }

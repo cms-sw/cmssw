@@ -15,9 +15,8 @@
 #include "TROOT.h"
 #include "TStyle.h"
 
-#include <sstream>
 #include <iostream>
-#include <iomanip>
+#include <sstream>
 
 // #include "boost/lexical_cast.hpp"
 
@@ -51,7 +50,7 @@ TH1F * makeHistogram( const TProfile * profile, const TString & name )
 }
 
 /// Helper function to write the histograms to file.
-void saveHistograms( TH1 * histo1, TH1 * histo2 )
+void saveHistograms( TH1F * histo1, TH1F * histo2 )
 {
   histo1->Draw();
   histo2->SetLineColor(kRed);
@@ -79,7 +78,7 @@ class PaveText
   void Draw(const TString & option)
   {
     paveText_->SetFillColor(0); // text is black on white
-    paveText_->SetTextSize(0.03);
+    paveText_->SetTextSize(0.02);
     paveText_->SetBorderSize(0);
     paveText_->SetTextAlign(12);
     paveText_->Draw(option);
@@ -92,51 +91,22 @@ class PaveText
   TPaveText * paveText_;
 };
 
-/**
- * Compute the precision to give to the stream operator so that the passed number
- * will be printed with two significant figures.
- */
-int precision( const double & value )
-{
-  // Counter gives the precision
-  int precision = 1;
-  int k=1;
-  while( int(value*k) == 0 ) {
-    k*=10;
-    ++precision;
-  }
-  return precision;
-}
-
 /// Helper function to extract and format the text for the fitted parameters
-void getParameters( const TF1 * func, TString & fit1, TString & fit2, TString & fit3 )
+void getParameters( const TF1 * func, TString & fit1, TString & fit2 )
 {
-
-
   stringstream a;
-
-  double error = func->GetParError(0);
-  a << setprecision(precision(error)) << fixed << func->GetParameter(0);
+  a << func->GetParameter(0);
   // fit1 += boost::lexical_cast<string>(1);
   fit1 += a.str() + "+-";
   a.str("");
-  a << error;
+  a << func->GetParError(0);
   fit1 += a.str();
   a.str("");
-
-  error = func->GetParError(1);
-
-  a << setprecision(precision(error)) << fixed << func->GetParameter(1);
+  a << func->GetParameter(1);
   fit2 += a.str() + "+-";
   a.str("");
   a << func->GetParError(1);
   fit2 += a.str();
-  a.str("");
-  a << setprecision(1) << fixed << func->GetChisquare();
-  fit3 += a.str() + "/";
-  a.str("");
-  a << setprecision(0) << fixed << func->GetNDF();
-  fit3 += a.str();
 }
 
 void CompareRecoGenPt( const TString & fileNum1 = "0",
@@ -145,8 +115,6 @@ void CompareRecoGenPt( const TString & fileNum1 = "0",
   TFile * outputFile = new TFile("CompareRecoGenPt.root", "RECREATE");
 
   TProfile * profile1 = getHistogram( fileNum1+"_MuScleFit.root" );
-  profile1->SetXTitle("gen muon Pt (GeV)");
-  profile1->SetYTitle("reco muon Pt (GeV)");
   TProfile * profile2 = getHistogram( fileNum2+"_MuScleFit.root" );
 
   int xBins = profile1->GetNbinsX();
@@ -165,31 +133,19 @@ void CompareRecoGenPt( const TString & fileNum1 = "0",
   TH1F * rmsHisto1 = makeHistogram(profile1, "rms");
   TH1F * rmsHisto2 = makeHistogram(profile2, "rms");
   for( int iBin = 1; iBin <= xBins; ++iBin ) {
-//     if( profile1->GetBinError(iBin) != 0 ) {
-      meanHisto1->SetBinContent( iBin, profile1->GetBinContent(iBin) );
-      meanHisto1->SetBinError( iBin, profile1->GetBinError(iBin) );
-//     }
-//     if( profile2->GetBinError(iBin) ) {
-      meanHisto2->SetBinContent( iBin, profile2->GetBinContent(iBin) );
-      meanHisto2->SetBinError( iBin, profile2->GetBinError(iBin) );
-//     }
+    meanHisto1->SetBinContent( iBin, profile1->GetBinContent(iBin) );
+    meanHisto1->SetBinError( iBin, profile1->GetBinError(iBin) );
+    meanHisto2->SetBinContent( iBin, profile2->GetBinContent(iBin) );
+    meanHisto2->SetBinError( iBin, profile2->GetBinError(iBin) );
     rmsHisto1->SetBinContent( iBin, profile1->GetBinError(iBin) );
     rmsHisto2->SetBinContent( iBin, profile2->GetBinError(iBin) );
   }
 
-  // Setting all weigths to 1 ("W" option) because of Profile errors for low statistics bins biasing the fit
-
-  // meanHisto1->Fit("pol1", "W", "", 2, 1000);
-  profile1->Fit("pol1", "W", "", 0, 1000);
-  TF1 * func1 = profile1->GetFunction("pol1");
-  // TF1 * func1 = meanHisto1->GetFunction("pol1");
+  meanHisto1->Fit("pol1", "", "", 5, 50);
+  TF1 * func1 = meanHisto1->GetFunction("pol1");
   func1->SetLineWidth(1);
-  func1->SetLineColor(kBlack);
-
-  profile2->Fit("pol1", "W", "", 0, 1000);
-  // meanHisto2->Fit("pol1", "W", "", 2, 1000);
-  TF1 * func2 = profile2->GetFunction("pol1");
-  // TF1 * func2 = meanHisto2->GetFunction("pol1");
+  meanHisto2->Fit("pol1", "", "", 5, 50);
+  TF1 * func2 = meanHisto2->GetFunction("pol1");
   func2->SetLineWidth(1);
   func2->SetLineColor(kRed);
 
@@ -199,32 +155,27 @@ void CompareRecoGenPt( const TString & fileNum1 = "0",
   // canvas->cd(1);
   // canvas->cd(2);
   // saveHistograms(rmsHisto1, rmsHisto2);
-  // saveHistograms(meanHisto1, meanHisto2);
-  saveHistograms(profile1, profile2);
+  saveHistograms(meanHisto1, meanHisto2);
   func1->Draw("same");
   func2->Draw("same");
 
   TString fit11("a = ");
   TString fit12("b = ");
-  TString fit13("#chi^2/ndf = ");
-  getParameters(func1, fit11, fit12, fit13);
+  getParameters(func1, fit11, fit12);
   PaveText pt1(0.45, 0.15);
   pt1.AddText("before:");
   pt1.AddText(fit11);
   pt1.AddText(fit12);
-  pt1.AddText(fit13);
   pt1.Draw("same");
 
   TString fit21("a = ");
   TString fit22("b = ");
-  TString fit23("#chi^2/ndf = ");
-  getParameters(func2, fit21, fit22, fit23);
+  getParameters(func2, fit21, fit22);
   PaveText pt2(0.65, 0.15);
   pt2.SetTextColor(2);
   pt2.AddText("after:");
   pt2.AddText(fit21);
   pt2.AddText(fit22);
-  pt2.AddText(fit23);
   pt2.Draw("same");
   gStyle->SetOptStat(0);
 

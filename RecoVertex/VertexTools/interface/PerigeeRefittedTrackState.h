@@ -21,9 +21,10 @@ public:
 
   typedef ReferenceCountingPointer<RefittedTrackState<5> > RefCountedRefittedTrackState;
 
-  PerigeeRefittedTrackState(const TrajectoryStateClosestToPoint & tscp, 
-  			    double aWeight = 1.) :
-    theState(tscp), momentumVectorAvailable(false), theWeight(aWeight) {}
+  PerigeeRefittedTrackState(const TrajectoryStateClosestToPoint & tscp,
+  			    const AlgebraicVector3 & aMomentumAtVertex,
+  			    const double aWeight = 1.) :
+    theState(tscp), momentumAtVertex(aMomentumAtVertex), theWeight(aWeight) {}
 
  virtual ~PerigeeRefittedTrackState(){}
 
@@ -96,8 +97,7 @@ public:
 private:
 
   TrajectoryStateClosestToPoint theState;
-  mutable bool momentumVectorAvailable;
-  mutable AlgebraicVector3 momentumAtVertex;
+  AlgebraicVector3 momentumAtVertex;
   double theWeight;
 };
 #endif

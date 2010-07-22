@@ -185,7 +185,7 @@ PerigeeLinearizedTrackState::createRefittedTrackState(
   TrajectoryStateClosestToPoint refittedTSCP = 
         perigeeConversions.trajectoryStateClosestToPoint(
 	  vectorParameters, vertexPosition, charge(), covarianceMatrix, theTrack.field());
-  return RefCountedRefittedTrackState(new PerigeeRefittedTrackState(refittedTSCP));
+  return RefCountedRefittedTrackState(new PerigeeRefittedTrackState(refittedTSCP, vectorParameters));
 }
 
 std::vector< PerigeeLinearizedTrackState::RefCountedLinearizedTrackState > 
@@ -205,9 +205,14 @@ AlgebraicVector5 PerigeeLinearizedTrackState::refittedParamFromEquation(
   vertexPosition(0) = theRefittedState->position().x();
   vertexPosition(1) = theRefittedState->position().y();
   vertexPosition(2) = theRefittedState->position().z();
+  AlgebraicVector3 momentum = theRefittedState->momentumVector();
+  if ((momentum(2)*predictedStateMomentumParameters()(2) <  0)&&(fabs(momentum(2))>M_PI/2) ) {
+    if (predictedStateMomentumParameters()(2) < 0.) momentum(2)-= 2*M_PI;
+    if (predictedStateMomentumParameters()(2) > 0.) momentum(2)+= 2*M_PI;
+  }
   AlgebraicVectorN param = constantTerm() + 
 		       positionJacobian() * vertexPosition +
-		       momentumJacobian() * theRefittedState->momentumVector();
+		       momentumJacobian() * momentum;
   if (param(2) >  M_PI) param(2)-= 2*M_PI;
   if (param(2) < -M_PI) param(2)+= 2*M_PI;
 
@@ -226,7 +231,6 @@ void PerigeeLinearizedTrackState::computeChargedJacobians() const
   GlobalPoint paramPt(theLinPoint);
   //tarjectory parameters
   double field =  theTrack.field()->inInverseGeV(thePredState.theState().position()).z();
-//   MagneticField::inInverseGeV(thePredState.theState().position()).z();
   double signTC = -theCharge;
     
   double thetaAtEP = thePredState.theState().momentum().theta();
@@ -319,7 +323,6 @@ void PerigeeLinearizedTrackState::computeChargedJacobians() const
   		  thePositionJacobian * expansionPoint -
   		  theMomentumJacobian * momentumAtExpansionPoint );
 
-
 }
 
 
@@ -390,7 +393,6 @@ void PerigeeLinearizedTrackState::computeNeutralJacobians() const
   theConstantTerm = AlgebraicVector5( theExpandedParams -
   		  thePositionJacobian * expansionPoint -
   		  theMomentumJacobian * momentumAtExpansionPoint );
-
 
 }
 

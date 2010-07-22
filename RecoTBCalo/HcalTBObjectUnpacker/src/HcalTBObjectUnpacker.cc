@@ -61,7 +61,6 @@ using namespace std;
     if (tdcFed_ >= 0 || qadcFed_ >=0 ) {
       calibLines_.clear();
       if(calibFile_.size()>0){
-	
 	parseCalib();
 	//  printf("I got %d lines!\n",calibLines_.size());
 	if(calibLines_.size()==0)
@@ -163,11 +162,8 @@ void HcalTBObjectUnpacker::parseCalib(){
     printf("HcalTBObjectUnpacker cowardly refuses to parse a NULL file...\n"); 
     return;
   }
-
-  edm::FileInPath fip(calibFile_);
-  
  
-  ifstream infile(fip.fullPath().c_str());
+  ifstream infile(calibFile_.c_str());
 
   char buffer [1024];
   string tmpStr;

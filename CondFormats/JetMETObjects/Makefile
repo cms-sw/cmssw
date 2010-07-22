@@ -33,6 +33,7 @@ LIBDIR       = $(STANDALONE_DIR)/lib
 BINDIR       = $(STANDALONE_DIR)/bin
 
 
+
 CXX          = g++
 
 
@@ -44,15 +45,12 @@ ROOTLIBS     = $(shell $(ROOTSYS)/bin/root-config --libs)
 OBJS         = $(TMPDIR)/JetCorrectorParameters.o \
 	       $(TMPDIR)/SimpleJetCorrector.o \
                $(TMPDIR)/FactorizedJetCorrector.o \
-               $(TMPDIR)/JetResolution.o \
                $(TMPDIR)/JetMETObjects_dict.o
 
 LIB          = libJetMETObjects.so
 
 
 all: setup lib
-
-test: test_JetCorrectorParameters test_JetResolution
 
 setup:
 	rm -f CondFormats; ln -sf ../ CondFormats
@@ -63,19 +61,9 @@ setup:
 lib: $(OBJS)
 	$(CXX) $(CXXFLAGS) -shared $(OBJS) $(ROOTLIBS) -o $(LIBDIR)/$(LIB)
 
-test_JetCorrectorParameters: lib
-	$(CXX) $(CXXFLAGS) -L$(LIBDIR) -lJetMETObjects $(ROOTLIBS) \
-	bin/JetCorrectorParameters_t.cc -o $(BINDIR)/JetCorrectorParameters_t
-
-test_JetResolution: lib
-	$(CXX) $(CXXFLAGS) -L$(LIBDIR) -lJetMETObjects $(ROOTLIBS) \
-	bin/JetResolution_t.cc -o $(BINDIR)/JetResolution_t
-
-
 clean:
 	rm -rf $(OBJS) $(LIBDIR)/$(LIB) CondFormats \
-	       $(TMPDIR)/JetMETObjects_dict.h $(TMPDIR)/JetMETObjects_dict.cc \
-               $(BINDIR)/JetResolution_t $(BINDIR)/JetCorrectorParameters_t
+	       $(TMPDIR)/JetMETObjects_dict.h $(TMPDIR)/JetMETObjects_dict.cc
 
 
 ################################################################################
@@ -97,13 +85,6 @@ $(TMPDIR)/FactorizedJetCorrector.o: interface/FactorizedJetCorrector.h \
 	$(CXX) $(CXXFLAGS) -c src/FactorizedJetCorrector.cc \
 	-o $(TMPDIR)/FactorizedJetCorrector.o 
 
-$(TMPDIR)/JetResolution.o: interface/JetResolution.h \
-		           src/JetResolution.cc
-	$(CXX) $(CXXFLAGS) -c src/JetResolution.cc \
-	-o $(TMPDIR)/JetResolution.o 
-
-
-
 
 $(TMPDIR)/JetMETObjects_dict.o: $(TMPDIR)/JetMETObjects_dict.cc
 	$(CXX) $(CXXFLAGS) -I$(TMPDIR) -c $(TMPDIR)/JetMETObjects_dict.cc \
@@ -111,7 +92,6 @@ $(TMPDIR)/JetMETObjects_dict.o: $(TMPDIR)/JetMETObjects_dict.cc
 
 $(TMPDIR)/JetMETObjects_dict.cc: interface/JetCorrectorParameters.h \
 				 interface/SimpleJetCorrector.h \
-				 interface/JetResolution.h \
 				 interface/FactorizedJetCorrector.h \
 				 interface/Linkdef.h
 	rm -rf $(TMPDIR)/JetMETObjects_dict.h
@@ -119,7 +99,6 @@ $(TMPDIR)/JetMETObjects_dict.cc: interface/JetCorrectorParameters.h \
 	$(ROOTSYS)/bin/rootcint -f $(TMPDIR)/JetMETObjects_dict.cc \
 	-c -I$(TMPDIR) \
 	interface/JetCorrectorParameters.h \
-	interface/JetResolution.h \
 	interface/SimpleJetCorrector.h \
 	interface/FactorizedJetCorrector.h \
 	interface/Linkdef.h

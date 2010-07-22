@@ -12,6 +12,7 @@
 #include "CLHEP/Random/RandPoissonQ.h"
 #include "CLHEP/Random/RandFlat.h"
 
+#include "TRandom.h"
 #include "TFile.h"
 #include "TH1F.h"
 
@@ -33,9 +34,11 @@ namespace edm {
     input_(VectorInputSourceFactory::get()->makeVectorInputSource(pset, InputSourceDescription()).release()),
     poissonDistribution_(0),
     playback_(playback),
-    sequential_(pset.getUntrackedParameter<bool>("sequential", false))
-  {
+    sequential_(pset.getUntrackedParameter<bool>("sequential", false)),
+    seed_(pset.getParameter<edm::ParameterSet>("nbPileupEvents").getUntrackedParameter<int>("seed",1234))
+   {
 
+    
     edm::Service<edm::RandomNumberGenerator> rng;
     if (!rng.isAvailable()) {
       throw cms::Exception("Configuration")
@@ -44,9 +47,15 @@ namespace edm {
 	"in the configuration file or remove the modules that require it.";
     }
     
-      CLHEP::HepRandomEngine& engine = rng->getEngine();
-      poissonDistribution_ = new CLHEP::RandPoissonQ(engine, averageNumber_);
+    CLHEP::HepRandomEngine& engine = rng->getEngine();
+    poissonDistribution_ = new CLHEP::RandPoissonQ(engine, averageNumber_);
     
+    // Get seed for the case when using user histogram or probability function
+    if (histoDistribution_ || probFunctionDistribution_){ 
+      gRandom->SetSeed(seed_);
+      LogInfo("MixingModule") << " Change seed for " << type_ << " mode. The seed is set to " << seed_;
+    } 
+     
         
     if (!(histoDistribution_ || probFunctionDistribution_ || poisson_ || fixed_ || none_)) {
       throw cms::Exception("Illegal parameter value","PileUp::PileUp(ParameterSet const& pset)")

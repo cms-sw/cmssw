@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for MET (Mu corrected/TcMET)
  *
- *  $Date: 2010/06/16 18:49:03 $
- *  $Revision: 1.19 $
+ *  $Date: 2010/05/14 21:57:33 $
+ *  $Revision: 1.18 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -128,7 +128,6 @@ class METAnalyzer : public METAnalyzerBase {
 
   std::string _hlt_HighPtJet;
   std::string _hlt_LowPtJet;
-  std::string _hlt_MinBias;
   std::string _hlt_HighMET;
   std::string _hlt_LowMET;
   std::string _hlt_Ele;
@@ -157,7 +156,6 @@ class METAnalyzer : public METAnalyzerBase {
   int _trig_JetMB;
   int _trig_HighPtJet;
   int _trig_LowPtJet;
-  int _trig_MinBias;
   int _trig_HighMET;
   int _trig_LowMET;
   int _trig_Ele;
@@ -206,7 +204,6 @@ class METAnalyzer : public METAnalyzerBase {
   //trigger histos
   MonitorElement* hTriggerName_HighPtJet;
   MonitorElement* hTriggerName_LowPtJet;
-  MonitorElement* hTriggerName_MinBias;
   MonitorElement* hTriggerName_HighMET;
   MonitorElement* hTriggerName_LowMET;
   MonitorElement* hTriggerName_Ele;

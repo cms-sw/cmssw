@@ -17,6 +17,8 @@ PileupInformation::PileupInformation(const edm::ParameterSet & config)
 {
     // Initialize global parameters
 
+    pTcut_1_                = 0.1;
+    pTcut_2_                = 0.5; // defaults                                                       
     distanceCut_            = config.getParameter<double>("vertexDistanceCut");
     volumeRadius_           = config.getParameter<double>("volumeRadius");
     volumeZ_                = config.getParameter<double>("volumeZ");
@@ -75,7 +77,7 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
       }
 
 
-    float zpos;
+    float zpos = 0.;
     lastEvent = 0;
 
     for (TrackingParticleCollection::const_iterator iTrack = mergedPH->begin(); iTrack != mergedPH->end(); ++iTrack)
@@ -84,7 +86,7 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
 
 
 
-        if(iTrack->eventId().bunchCrossing() == 0)
+        if(iTrack->eventId().bunchCrossing() == 0 && iTrack->eventId().event() > 0 )
 	  {
 	      zpos = zpositions[iTrack->eventId().event()-1];
 	      if(iTrack->matchedHit()>0) {
@@ -128,6 +130,13 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
 						  );
 
     event.put(PileupSummary_);
+
+    zpositions.clear();
+    sumpT_lowpT.clear();
+    sumpT_highpT.clear();
+    ntrks_lowpT.clear();
+    ntrks_highpT.clear();
+
 
 }
 

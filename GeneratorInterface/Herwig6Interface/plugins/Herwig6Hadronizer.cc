@@ -741,10 +741,8 @@ void Herwig6Hadronizer::pythiaStatusCodes()
 			(*iter)->set_status(2);
 }
 
-#include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
-
-typedef edm::GeneratorFilter<Herwig6Hadronizer, gen::ExternalDecayDriver> Herwig6GeneratorFilter;
+typedef edm::GeneratorFilter<Herwig6Hadronizer> Herwig6GeneratorFilter;
 DEFINE_FWK_MODULE(Herwig6GeneratorFilter);
 
-typedef edm::HadronizerFilter<Herwig6Hadronizer, gen::ExternalDecayDriver> Herwig6HadronizerFilter;
+typedef edm::HadronizerFilter<Herwig6Hadronizer> Herwig6HadronizerFilter;
 DEFINE_FWK_MODULE(Herwig6HadronizerFilter);

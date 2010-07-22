@@ -18,13 +18,15 @@ namespace csc {
     me3_id = 0;
     me4_id = 0;
     mb1_id = 0;
-		m_me1Tbin = 0;
-		m_me2Tbin = 0;
-		m_me3Tbin = 0;
-		m_me4Tbin = 0;
-		m_mbTbin  = 0;
+    m_me1Tbin = 0;
+    m_me2Tbin = 0;
+    m_me3Tbin = 0;
+    m_me4Tbin = 0;
+    m_mbTbin  = 0;
     m_output_link = 0;
     m_winner = false;
+    m_fr=0;
+    m_se=true; m_bx0=true; m_bc0=true;
   }
 
   L1Track::L1Track(const csc::L1Track& rhs) : L1MuRegionalCand(rhs.type_idx(),rhs.phi_packed(),rhs.eta_packed(),
@@ -55,13 +57,17 @@ namespace csc {
     me3_id = rhs.me3_id;
     me4_id = rhs.me4_id;
     mb1_id = rhs.mb1_id;
-	m_me1Tbin = rhs.m_me1Tbin;
-	m_me2Tbin = rhs.m_me2Tbin;
-	m_me3Tbin = rhs.m_me3Tbin;
-	m_me4Tbin = rhs.m_me4Tbin;
-	m_mbTbin  = rhs.m_mbTbin;
+    m_me1Tbin = rhs.m_me1Tbin;
+    m_me2Tbin = rhs.m_me2Tbin;
+    m_me3Tbin = rhs.m_me3Tbin;
+    m_me4Tbin = rhs.m_me4Tbin;
+    m_mbTbin  = rhs.m_mbTbin;
     m_output_link = rhs.m_output_link;
     m_winner = rhs.m_winner;
+    m_fr=rhs.m_fr;
+    m_se=rhs.m_se;
+    m_bx0=rhs.m_bx0;
+    m_bc0=rhs.m_bc0;
   }
 
   L1Track::~L1Track()
@@ -72,6 +78,10 @@ namespace csc {
   {
     if(this != &rhs)
       {
+        m_fr=rhs.m_fr;
+        m_se=rhs.m_se;
+        m_bx0=rhs.m_bx0;
+        m_bc0=rhs.m_bc0;
 	m_empty = rhs.m_empty;
 	this->setBx(rhs.bx());
 	this->setDataWord(rhs.getDataWord());
@@ -100,7 +110,7 @@ namespace csc {
 	m_me4Tbin = rhs.m_me4Tbin;
 	m_mbTbin  = rhs.m_mbTbin;
 	m_output_link = rhs.m_output_link;
-    m_winner = rhs.m_winner;
+        m_winner = rhs.m_winner;
 	  }
     return *this;
   }

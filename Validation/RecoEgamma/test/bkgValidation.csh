@@ -17,33 +17,19 @@
 
 #=============BEGIN CONFIGURATION=================
 setenv TYPE Photons
-setenv CMSSWver1 3_7_0
-setenv CMSSWver2 3_8_0
-setenv OLDRELEASE 370
-setenv NEWRELEASE 380
-setenv OLDPRERELEASE 
-setenv NEWPRERELEASE pre1
-
+setenv CMSSWver1 3_5_0
+setenv CMSSWver2 3_5_0
+setenv OLDRELEASE 350
+setenv NEWRELEASE 350
+setenv OLDPRERELEASE pre2
+setenv NEWPRERELEASE pre3
 
 setenv OLDRELEASE ${OLDRELEASE}${OLDPRERELEASE}
 setenv NEWRELEASE ${NEWRELEASE}${NEWPRERELEASE}
 
 
-setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
-setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
-
-
-#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
-#setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
-
-
-#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
-#setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
-
-#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
-#setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
-
-
+setenv WorkDir1  /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
+setenv WorkDir2  /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
 
 
 #Name of sample (affects output directory name and htmldescription only) 
@@ -78,18 +64,10 @@ if (! -d $NEWRELEASE) then
 endif
 setenv OUTPATH $OUTPATH/$NEWRELEASE
 cd $OUTPATH
-
-if (! -d ${TYPE}) then
-  mkdir ${TYPE}
+if (! -d ${TYPE}_vs${OLDRELEASE}) then
+  mkdir ${TYPE}_vs${OLDRELEASE}
 endif
-setenv OUTPATH $OUTPATH/${TYPE}
-cd  $OUTPATH
-
-if (! -d vs${OLDRELEASE}) then
-  mkdir vs${OLDRELEASE}
-endif
-setenv OUTPATH $OUTPATH/vs${OLDRELEASE}
-
+setenv OUTPATH $OUTPATH/${TYPE}_vs${OLDRELEASE}
 
 setenv OUTDIR $OUTPATH/${SAMPLE}
 if (! -d $OUTDIR) then

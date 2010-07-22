@@ -23,7 +23,7 @@ namespace csctf
   class TrackStub : public CSCCorrelatedLCTDigi
     {
     public:
-      TrackStub() {}
+      TrackStub() : theDetId_(0), thePhi_(0),theEta_(0),link_(0) {}
       TrackStub(const CSCCorrelatedLCTDigi&, const DetId&);
       TrackStub(const CSCCorrelatedLCTDigi&, const DetId&, const unsigned& phi, const unsigned& eta);
       TrackStub(const TrackStub&);

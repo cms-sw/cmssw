@@ -18,8 +18,8 @@
  * 2D means that this segment has information about position and direction in
  * one projection (r-phi or r-theta/zeta).
  *
- * $Date: 2009/09/21 10:13:37 $
- * $Revision: 1.15 $
+ * $Date: 2010/04/16 07:37:24 $
+ * $Revision: 1.16 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -50,7 +50,7 @@ class DTRecSegment2D : public RecSegment{
 
   /// Constructor
   /// empty c'tor needed by POOL (I guess)
-  DTRecSegment2D() {}
+  DTRecSegment2D(): theChi2(0.0), theT0(0.), theVdrift(0.) {}
   
   /// c'tor from hits
   DTRecSegment2D(DetId id, const std::vector<DTRecHit1D>& hits) ;

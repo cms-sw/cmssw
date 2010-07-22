@@ -7,12 +7,6 @@
 
 AlgebraicVector3 PerigeeRefittedTrackState::momentumVector() const
 {
- if (!momentumVectorAvailable) {
-    momentumAtVertex[0] = theState.perigeeParameters().vector()[0];
-    momentumAtVertex[1] = theState.perigeeParameters().theta();
-    momentumAtVertex[2] = theState.perigeeParameters().phi();
-    momentumVectorAvailable = true;
-  }
   return momentumAtVertex;
 }
 
@@ -29,7 +23,7 @@ PerigeeRefittedTrackState::RefCountedRefittedTrackState
 PerigeeRefittedTrackState::stateWithNewWeight (const double newWeight) const
 {
   return RefCountedRefittedTrackState(
-  		new PerigeeRefittedTrackState(theState, newWeight) );
+  		new PerigeeRefittedTrackState(theState, momentumAtVertex, newWeight) );
 }
 
 TrajectoryStateOnSurface

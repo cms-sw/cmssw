@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/06/04 09:14:23 $
- *  $Revision: 1.5 $
+ *  $Date: 2010/06/01 10:34:12 $
+ *  $Revision: 1.4 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -56,9 +56,7 @@ DTUserKeyedConfigHandler::DTUserKeyedConfigHandler( const edm::ParameterSet& ps 
  onlineConnect(         ps.getParameter<std::string> ( "onlineDB" ) ),
  onlineAuthentication(  ps.getParameter<std::string> ( 
                         "onlineAuthentication" ) ),
- brickContainer(        ps.getParameter<std::string> ( "container" ) ),
- writeKeys(             ps.getParameter<bool>        ( "writeKeys" ) ),
- writeData(             ps.getParameter<bool>        ( "writeData" ) ) {
+ brickContainer(        ps.getParameter<std::string> ( "container" ) ) {
   std::cout << " PopCon application for DT configuration export "
             <<  onlineAuthentication << std::endl;
 
@@ -105,8 +103,7 @@ void DTUserKeyedConfigHandler::getNewObjects() {
     dummyConf->setStamp( 0 );
     dummyConf->setFullKey( lastKey );
     cond::Time_t snc = 1;
-    if ( writeKeys && ( dataRun > 1 ) )
-         m_to_transfer.push_back( std::make_pair( dummyConf, snc ) );
+    m_to_transfer.push_back( std::make_pair( dummyConf, snc ) );
   }
   else {
     std::cout << "get last payload" << std::endl;
@@ -322,11 +319,11 @@ void DTUserKeyedConfigHandler::getNewObjects() {
     }
   }
   cond::Time_t snc = dataRun;
-  if ( writeKeys ) m_to_transfer.push_back( std::make_pair( fullConf, snc ) );
+  m_to_transfer.push_back( std::make_pair( fullConf, snc ) );
   std::cout << "writing payload : " << sizeof( *fullConf ) 
             << " ( " << ( fullConf->end() - fullConf->begin() )
             << " ) " << std::endl;
-  if ( writeData ) chkConfigList( userBricks );
+  chkConfigList( userBricks );
 
 /*
   delete m_connection;

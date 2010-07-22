@@ -11,7 +11,7 @@ TtFullHadronicEvent::print(const int verbosity)
 
   edm::LogInfo log("TtFullHadronicEvent");
 
-  log << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ \n";
+  log << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ \n";
 
   // get some information from the genEvent
   if( !genEvt_ ) log << " TtGenEvent not available! \n";
@@ -27,15 +27,15 @@ TtFullHadronicEvent::print(const int verbosity)
   log << " Number of available event hypothesis classes: " << this->numberOfAvailableHypoClasses() << " \n";
   
   // create a legend for the jetLepComb
-  log << " - JetCombi    : ";
+  log << " - JetLepComb: ";
   for(unsigned idx = 0; idx < 6; idx++) {
     switch(idx) {
     case TtFullHadEvtPartons::LightQ    : log << "  LightQ  "; break;
-    case TtFullHadEvtPartons::LightQBar : log << " LightQBar"; break;
-    case TtFullHadEvtPartons::B         : log << "     B    "; break;
-    case TtFullHadEvtPartons::LightP    : log << "   LightP "; break;
-    case TtFullHadEvtPartons::LightPBar : log << " LightPBar"; break;
-    case TtFullHadEvtPartons::BBar      : log << "    BBar  "; break;
+    case TtFullHadEvtPartons::LightQBar : log << "LightQBar "; break;
+    case TtFullHadEvtPartons::B         : log << "    B     "; break;
+    case TtFullHadEvtPartons::LightP    : log << "  LightP  "; break;
+    case TtFullHadEvtPartons::LightPBar : log << "LightPBar "; break;
+    case TtFullHadEvtPartons::BBar      : log << "   BBar   "; break;
     }
   }
   log << "\n";
@@ -46,7 +46,7 @@ TtFullHadronicEvent::print(const int verbosity)
   for(EventHypo hyp = evtHyp_.begin(); hyp != evtHyp_.end(); ++hyp) {
     HypoClassKey hypKey = (*hyp).first;
     // header for each hypothesis
-    log << "---------------------------------------------------------------------------- \n";
+    log << "------------------------------------------------------------------------ \n";
     switch(hypKey) {
     case kGeom          : log << " Geom"         ; break;
     case kWMassMaxSumPt : log << " WMassMaxSumPt"; break;
@@ -72,42 +72,42 @@ TtFullHadronicEvent::print(const int verbosity)
       // get meta information for valid hypothesis
       else {
 	// jetLepComb
-	log << " * JetCombi    :";
+	log << " * JetLepComb:";
 	std::vector<int> jets = this->jetLeptonCombination( hypKey , cmb );
 	for(unsigned int iJet = 0; iJet < jets.size(); iJet++) {
-	  log << "      " << jets[iJet] << "   ";
+	  log << "     " << jets[iJet] << "    ";
 	}
 	log << "\n";
 	// specialties for some hypotheses
 	switch(hypKey) {
 	case kGenMatch : log << " * Sum(DeltaR) : " << this->genMatchSumDR(cmb) << " \n"
 			     << " * Sum(DeltaPt): " << this->genMatchSumPt(cmb) << " \n"; break;      
-	case kMVADisc  : log << " * Method      : " << this->mvaMethod()        << " \n"
-			     << " * Discrim.    : " << this->mvaDisc(cmb)       << " \n"; break;
-	case kKinFit   : log << " * Chi^2       : " << this->fitChi2(cmb)       << " \n"
-			     << " * Prob(Chi^2) : " << this->fitProb(cmb)       << " \n"; break;
+	case kMVADisc  : log << " * Method  : "     << this->mvaMethod()        << " \n"
+			     << " * Discrim.: "     << this->mvaDisc(cmb)       << " \n"; break;
+	case kKinFit   : log << " * Chi^2      : "  << this->fitChi2(cmb)       << " \n"
+			     << " * Prob(Chi^2): "  << this->fitProb(cmb)       << " \n"; break;
 	default        : break;
 	}
 	// kinematic quantities of particles (if last digit of verbosity level > 1)
 	if(verbosity%10 >= 2) {
-	  log << " * Candidates (pt; eta; phi; mass) :\n";
-	  printParticle(log, "top       ", this->top  (hypKey, cmb));
-	  printParticle(log, "W plus    ", this->wPlus(hypKey, cmb));
+	  log << " * Candidates (pt; eta; phi; mass):\n";
+	  printParticle(log, "top      ", this->top  (hypKey, cmb));
+	  printParticle(log, "W plus   ", this->wPlus(hypKey, cmb));
 	  if(verbosity%10 >= 3) {
-	    printParticle(log, "b         ", this->b        (hypKey, cmb));
-	    printParticle(log, "lightQ    ", this->lightQ   (hypKey, cmb));
-	    printParticle(log, "lightQBar ", this->lightQBar(hypKey, cmb));
+	    printParticle(log, "b        ", this->b        (hypKey, cmb));
+	    printParticle(log, "lightQ   ", this->lightQ   (hypKey, cmb));
+	    printParticle(log, "lightQBar", this->lightQBar(hypKey, cmb));
 	  }
-	  printParticle(log, "topBar    ", this->topBar(hypKey, cmb));
-	  printParticle(log, "W minus   ", this->wMinus(hypKey, cmb));
+	  printParticle(log, "topBar   ", this->topBar(hypKey, cmb));
+	  printParticle(log, "W minus  ", this->wMinus(hypKey, cmb));
 	  if(verbosity%10 >= 3) {
-	    printParticle(log, "bBar      ", this->bBar     (hypKey, cmb));
-	    printParticle(log, "lightP    ", this->lightP   (hypKey, cmb));
-	    printParticle(log, "lightPBar ", this->lightPBar(hypKey, cmb));
+	    printParticle(log, "bBar     ", this->bBar     (hypKey, cmb));
+	    printParticle(log, "lightP   ", this->lightP   (hypKey, cmb));
+	    printParticle(log, "lightPBar", this->lightPBar(hypKey, cmb));
 	  }
 	}
       }
     }
   }
-  log << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++";
+  log << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++";
 }

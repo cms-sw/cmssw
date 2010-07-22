@@ -136,7 +136,7 @@ class WorkFlowRunner(Thread):
                 fullcmd = preamble
                 fullcmd += self.wf.cmdStep3
                 # FIXME: dirty hack for beam-spot dedicated relval
-                if not '4.6' in str(self.wf.numId):
+                if not '134' in str(self.wf.numId):
                     fullcmd += ' --filein file:reco.root --fileout file:step3.root '
                 fullcmd += ' > %s 2>&1; ' % ('step3_'+self.wf.nameId+'.log ',)
                 # print fullcmd
@@ -146,7 +146,7 @@ class WorkFlowRunner(Thread):
                     fullcmd = preamble
                     fullcmd += self.wf.cmdStep4
                     # FIXME: dirty hack for beam-spot dedicated relval
-                    if not '4.6' in str(self.wf.numId):
+                    if not '134' in str(self.wf.numId):
                         fullcmd += ' --filein file:step3.root '
                     fullcmd += ' > %s 2>&1; ' % ('step4_'+self.wf.nameId+'.log ',)
                     # print fullcmd

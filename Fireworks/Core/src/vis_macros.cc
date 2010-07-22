@@ -1,4 +1,6 @@
+#include <vector>
 #include <list>
+#include <string>
 #include <cmath>
 
 #include <TEveElement.h>
