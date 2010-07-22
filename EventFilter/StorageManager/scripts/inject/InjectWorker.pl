@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.47 2010/07/21 08:46:16 babar Exp $
+# $Id: InjectWorker.pl,v 1.48 2010/07/21 09:38:45 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -479,10 +479,10 @@ sub update_db {
     # https://twiki.cern.ch/twiki/bin/view/CMS/SMT0StreamTransferOptions
     my $stream = $args->{STREAM};
     return
-      if !defined $stream
-          || (   $stream eq 'EcalCalibration'
-              || $stream =~ '_EcalNFS$' )    #skip EcalCalibration
-          || $stream =~ '_NoTransfer$';      #skip if NoTransfer option is set
+      if not defined $stream    # For EoL stuff
+          or $stream eq 'EcalCalibration'    # skip EcalCalibration
+          or $stream =~ '_EcalNFS$'          # skip old? EcalCalibration
+          or $stream =~ '_NoTransfer$';      # skip if NoTransfer option is set
 
     my $errflag = 0;
     my $rows = $heap->{sths}->{$handler}->execute(@bind_params) or $errflag = 1;
