@@ -13,6 +13,8 @@
 #include "FWCore/Framework/src/WorkerT.h"
 #include "FWCore/Framework/src/WorkerInPath.h"
 #include "FWCore/Framework/src/WorkerRegistry.h"
+#include "FWCore/Framework/src/WorkerMaker.h"
+#include "FWCore/Framework/src/Factory.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/PassID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
@@ -24,6 +26,7 @@
 
 #include "boost/bind.hpp"
 #include "boost/ref.hpp"
+#include <functional>
 
 #include <algorithm>
 #include <cstdlib>
@@ -856,6 +859,28 @@ namespace edm {
     for_all(all_workers_, boost::bind(&Worker::postForkReacquireResources, _1, iChildIndex, iNumberOfChildren));
   }
 
+  
+  bool Schedule::changeModule(const std::string& iLabel,
+                              const ParameterSet& iPSet) {
+    edm::Worker* found = 0;
+    for(AllWorkers::const_iterator it=all_workers_.begin(), itEnd=all_workers_.end();
+        it != itEnd; ++it) {
+      if ((*it)->description().moduleLabel() == iLabel) {
+        found = *it;
+        break;
+      }
+    }
+    if(0==found) {
+      return false;
+    }
+    
+    std::auto_ptr<edm::Maker> wm(edm::MakerPluginFactory::get()->create(found->description().moduleName()));    
+    wm->swapModule(found,iPSet);
+    found->beginJob();
+    return true;
+    
+  }
+
    
   std::vector<ModuleDescription const*>
   Schedule::getAllModuleDescriptions() const {
@@ -872,6 +897,33 @@ namespace edm {
     return result;
   }
 
+  void 
+  Schedule::availablePaths( std::vector<std::string>& oLabelsToFill) const {
+    oLabelsToFill.reserve(trig_paths_.size());
+    std::transform(trig_paths_.begin(),
+                   trig_paths_.end(),
+                   std::back_inserter(oLabelsToFill),
+                   boost::bind(&Path::name,_1));
+  }
+  
+  void 
+  Schedule::modulesInPath(const std::string& iPathLabel,
+                          std::vector<std::string>& oLabelsToFill) const {
+    TrigPaths::const_iterator itFound = 
+    std::find_if(trig_paths_.begin(),
+                 trig_paths_.end(),
+                 boost::bind(std::equal_to<std::string>(),
+                             iPathLabel,
+                             boost::bind(&Path::name,_1)));
+    if(itFound!=trig_paths_.end()) {
+      oLabelsToFill.reserve(itFound->size());
+      for(size_t i=0; i<itFound->size();++i) {
+        oLabelsToFill.push_back(itFound->getWorker(i)->description().moduleLabel());
+      }
+    }
+  }
+  
+  
   void
   Schedule::enableEndPaths(bool active) {
     endpathsAreActive_ = active;

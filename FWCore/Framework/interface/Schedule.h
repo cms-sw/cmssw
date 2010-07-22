@@ -180,6 +180,14 @@ namespace edm {
     /// *** passed to the caller. Do not call delete on these
     /// *** pointers!
     std::vector<ModuleDescription const*> getAllModuleDescriptions() const;
+    
+    ///adds to oLabelsToFill the labels for all paths in the process
+    void availablePaths( std::vector<std::string>& oLabelsToFill) const;
+    
+    ///adds to oLabelsToFill in execution order the labels of all modules in path iPathLabel
+    void modulesInPath(const std::string& iPathLabel,
+                       std::vector<std::string>& oLabelsToFill) const;
+    
 
     /// Return the number of events this Schedule has tried to process
     /// (inclues both successes and failures, including failures due
@@ -217,6 +225,12 @@ namespace edm {
 
     ///  Clear all the counters in the trigger report.
     void clearCounters();
+    
+    /// clone the type of module with label iLabel but configure with iPSet.
+    /// Returns true if successful.
+    bool changeModule(const std::string& iLabel,
+                      const ParameterSet& iPSet);
+
 
   private:
     std::string const& processName() const;
