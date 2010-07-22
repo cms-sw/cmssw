@@ -14,8 +14,6 @@
 <use   name="CondCore/DBOutputService"/>
 <use   name="DataFormats/SiStripDetId"/>
 <use   name="CondCore/DBCommon"/>
-<use   name="ObjectRelationalAccess"/>
-<use   name="RelationalStorageService"/>
 <use   name="CoralCommon"/>
 <use   name="CondCore/PopCon"/>
 <use   name="OnlineDB/SiStripConfigDb"/>
