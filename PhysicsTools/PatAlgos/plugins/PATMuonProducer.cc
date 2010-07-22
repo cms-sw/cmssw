@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.36 2010/04/20 16:09:29 srappocc Exp $
+// $Id: PATMuonProducer.cc,v 1.37 2010/05/12 12:34:43 rwolf Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonProducer.h"
@@ -208,6 +208,10 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
       
       MuonBaseRef muonBaseRef(muonRef);
       Muon aMuon(muonBaseRef);
+
+      if ( useUserData_ ) {
+	userDataHelper_.add( aMuon, iEvent, iSetup );
+      }
 
       reco::PFCandidateRef pfRef(pfMuons,index);
       //reco::PFCandidatePtr ptrToMother(pfMuons,index);

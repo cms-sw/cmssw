@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.37.16.2 2010/04/20 14:46:48 srappocc Exp $
+// $Id: PATElectronProducer.cc,v 1.39 2010/04/20 16:09:29 srappocc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -278,6 +278,10 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	  anElectron.setPFCandidateRef( pfRef  );
 
 	  if( embedPFCandidate_ ) anElectron.embedPFCandidate();
+
+	  if ( useUserData_ ) {
+	    userDataHelper_.add( anElectron, iEvent, iSetup );
+	  }
 
 	  //Electron Id
 
