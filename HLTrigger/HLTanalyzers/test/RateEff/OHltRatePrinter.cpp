@@ -4,6 +4,7 @@
 #include <TMath.h>
 #include <TH1.h>
 #include <TH2.h>
+#include <TH3.h>
 #include <TFile.h>
 #include <TString.h>
 #include "OHltRatePrinter.h"
@@ -15,7 +16,8 @@ void OHltRatePrinter::SetupAll(vector<float> tRate,vector<float> tRateErr,vector
 			       vector<float> tspureRateErr,vector<float> tpureRate,
 			       vector<float> tpureRateErr,vector< vector<float> >tcoMa,
 			       vector < vector <float> > tRatePerLS,vector<int> tRunID,
-			       vector<int> tLumiSection, vector<float> tTotalRatePerLS) {
+			       vector<int> tLumiSection, vector<float> tTotalRatePerLS, 
+			       vector< vector<int> > tRefPrescalePerLS, vector< vector<int> > tRefL1PrescalePerLS) {
   Rate = tRate;
   RateErr = tRateErr;
   spureRate = tspureRate;
@@ -27,6 +29,8 @@ void OHltRatePrinter::SetupAll(vector<float> tRate,vector<float> tRateErr,vector
   runID = tRunID;
   lumiSection = tLumiSection;
   totalRatePerLS = tTotalRatePerLS;
+  prescaleRefPerLS = tRefPrescalePerLS;
+  prescaleL1RefPerLS = tRefL1PrescalePerLS;
 
   ReorderRunLS(); // reorder messed up runids/LS
 
@@ -246,6 +250,7 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu) {
   fr->cd();
   
   int nTrig = (int)menu->GetTriggerSize();
+  int nL1Trig = (int)menu->GetL1TriggerSize();
   TH1F *individual = new TH1F("individual","individual",nTrig,1,nTrig+1);
   TH1F *cumulative = new TH1F("cumulative","cumulative",nTrig,1,nTrig+1);
   TH1F *throughput = new TH1F("throughput","throughput",nTrig,1,nTrig+1);
@@ -267,8 +272,11 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu) {
   TH2F *individualPerLS = new TH2F("individualPerLS","individualPerLS",nTrig,1,nTrig+1,
 				   RunLSn,RunLSmin,RunLSmax);
   TH1F *totalPerLS = new TH1F("totalPerLS","totalPerLS",RunLSn,RunLSmin,RunLSmax);
-
-
+  TH2F *prescalePerLS = new TH2F("prescalePerLS","prescalePerLS",nTrig,1,nTrig+1,
+                                 RunLSn,RunLSmin,RunLSmax);  
+  TH2F *l1prescalePerLS = new TH2F("l1prescalePerLS","l1prescalePerLS", nL1Trig,1,nL1Trig+1,
+				   RunLSn,RunLSmin,RunLSmax); 
+  
   float cumulRate = 0.;
   float cumulRateErr = 0.;
   float cuThru = 0.;
@@ -300,6 +308,18 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu) {
     TString tstr = ""; tstr += runID[j]; tstr = tstr + " - "; tstr += lumiSection[j];
     totalPerLS->SetBinContent(j+1,totalRatePerLS[j]);
     totalPerLS->GetXaxis()->SetBinLabel(j+1,tstr);
+
+    for (unsigned int i=0;i<menu->GetTriggerSize();i++) { 
+      prescalePerLS->SetBinContent(i+1,j+1,prescaleRefPerLS[j][i]);  
+      prescalePerLS->GetYaxis()->SetBinLabel(j+1,tstr);   
+      prescalePerLS->GetXaxis()->SetBinLabel(i+1,menu->GetTriggerName(i));   
+    }
+
+    for (unsigned int k=0;k<menu->GetL1TriggerSize();k++) { 
+      l1prescalePerLS->SetBinContent(k+1,j+1,prescaleL1RefPerLS[j][k]); 
+      l1prescalePerLS->GetYaxis()->SetBinLabel(j+1,tstr);  
+      l1prescalePerLS->GetXaxis()->SetBinLabel(k+1,menu->GetL1TriggerName(k)); 
+    } 
   }    
 
   for (unsigned int i=0;i<menu->GetTriggerSize();i++) { 
@@ -326,6 +346,12 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu) {
   totalPerLS->SetStats(0); totalPerLS->SetZTitle("Rate (Hz)");
   totalPerLS->SetTitle("Total trigger rate vs Run/LumiSection");
   totalPerLS->Write();
+  prescalePerLS->SetStats(0); prescalePerLS->SetZTitle("Prescale"); 
+  prescalePerLS->SetTitle("Prescale vs Run/LumiSection"); 
+  prescalePerLS->Write(); 
+  l1prescalePerLS->SetStats(0); prescalePerLS->SetZTitle("Prescale");  
+  l1prescalePerLS->SetTitle("Prescale vs Run/LumiSection");  
+  l1prescalePerLS->Write();  
   fr->Close();
 }
 
@@ -345,7 +371,6 @@ TString OHltRatePrinter::GetFileName(OHltConfig *cfg, OHltMenu *menu) {
     
   TString tableFileName = menuTag  + sEnergy + TString("TeV_") + sLumi
     + TString("_") 
-    //    + cfg->alcaCondition + TString("_") 
     + cfg->versionTag; 
   tableFileName.ReplaceAll("+","");
 

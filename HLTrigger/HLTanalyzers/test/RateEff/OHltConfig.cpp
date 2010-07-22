@@ -14,18 +14,17 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
   nPrintStatusEvery = 10000;
   isRealData= false;
   menuTag = "";
-  //  alcaCondition = "";
   preFilterLogicString = "";
   versionTag = "";
   doPrintAll = true;
   doDeterministicPrescale = false;
+  readRefPrescalesFromNtuple = false;
   dsList = "";
   iLumi = 1.E31;
   bunchCrossingTime = 25.0E-09;
   maxFilledBunches = 3564;
   nFilledBunches = 156;
   cmsEnergy = 10.;
-  // lumiSectionLength = 93.;
   lumiSectionLength = 23.3;
   lumiScaleFactor = 1.0;
   prescaleNormalization = 1;
@@ -56,10 +55,10 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
     omenu->SetIsRealData(isRealData);     
     cfg.lookupValue("run.menuTag",stmp); menuTag = TString(stmp);
     cfg.lookupValue("run.versionTag",stmp); versionTag = TString(stmp);
-    //    cfg.lookupValue("run.alcaCondition",stmp); alcaCondition = TString(stmp);
     cfg.lookupValue("run.doPrintAll",doPrintAll);
     cfg.lookupValue("run.dsList",stmp); dsList= TString(stmp);
     cfg.lookupValue("run.doDeterministicPrescale",doDeterministicPrescale);
+    cfg.lookupValue("run.readRefPrescalesFromNtuple",readRefPrescalesFromNtuple);
     cout << "General Menu & Run conditions...ok"<< endl;
     /**********************************/
   
@@ -308,9 +307,9 @@ void OHltConfig::print()
 	cout << "Luminosity scaled by: " << lumiScaleFactor << endl;
       cout << "PD prescale factor: " << prescaleNormalization << endl;
     }
-  //  cout << "alcaCondition: " << alcaCondition << endl;
   cout << "doPrintAll: " << doPrintAll << endl;
   cout << "doDeterministicPrescale: " << doDeterministicPrescale << endl;
+  cout << "readRefPrescalesFromNtuple: " << readRefPrescalesFromNtuple << endl;
   cout << "preFilterLogicString: " << preFilterLogicString << endl;
   cout << "---------------------------------------------" <<  endl;
   cout << "iLumi: " << iLumi << endl;

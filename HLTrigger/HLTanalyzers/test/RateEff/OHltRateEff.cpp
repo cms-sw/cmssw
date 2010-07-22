@@ -90,7 +90,6 @@ int main(int argc, char *argv[]){
     TString hltTableFileName= TString("hlt_DS_Table_") +
 							  sEnergy + "TeV_" +
 							  sLumi + TString("_") +
-      //							  ocfg->alcaCondition + TString("_") +
 							  ocfg->versionTag;
 // 		printf("About to call printHLTDatasets\n"); //RR
     rprint->printHLTDatasets(ocfg,omenu,hltDatasets,hltTableFileName,3);
@@ -126,7 +125,7 @@ void fillProcesses(OHltConfig *cfg,vector<OHltTree*> &procs,vector<TChain*> &cha
     //chains[i]->Print();
     procs.push_back(new OHltTree((TTree*)chains[i],menu));
     hltDatasets.addSample(cfg->pnames[i], 
-													(cfg->pisPhysicsSample[i]==0 ? RATE_SAMPLE : PHYSICS_SAMPLE));   //SAK
+			  (cfg->pisPhysicsSample[i]==0 ? RATE_SAMPLE : PHYSICS_SAMPLE));   //SAK
   }
 }
 
@@ -137,12 +136,16 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
 	       vector<OHltRateCounter*> &rcs,OHltRatePrinter* rprint, HLTDatasets &hltDatasets) {
 
   const int ntrig = (int)menu->GetTriggerSize();
+  const int nL1trig = (int)menu->GetL1TriggerSize();
   vector< vector< float > > RatePerLS;
+  vector< vector< int > > RefPrescalePerLS;
+  vector< vector< int > > RefL1PrescalePerLS; 
   vector<float> totalRatePerLS;
   vector<float> Rate,pureRate,spureRate;
   vector<float> RateErr,pureRateErr,spureRateErr;
   vector< vector<float> >coMa;
   vector<float> coDen;
+  vector<int> RefPrescale,RefL1Prescale;
   float DenEff=0.;
   Int_t nbinpt = 50; Float_t ptmin = 0.0; Float_t ptmax = 10.0;
   Int_t nbineta = 30; Float_t etamin = -3.0; Float_t etamax = 3.0;
@@ -151,14 +154,17 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
   TH1F *h3 = new TH1F("h3","etanum",nbineta,etamin,etamax);
   TH1F *h4 = new TH1F("h4","etaden",nbineta,etamin,etamax);
 
-	float fTwo=2.;
+  float fTwo=2.;
   
   vector<float> ftmp;
   for (int i=0;i<ntrig;i++) { // Init
     // per lumisection
     Rate.push_back(0.);pureRate.push_back(0.);spureRate.push_back(0.);ftmp.push_back(0.);
-    RateErr.push_back(0.);pureRateErr.push_back(0.);spureRateErr.push_back(0.);
+    RateErr.push_back(0.);pureRateErr.push_back(0.);spureRateErr.push_back(0.);RefPrescale.push_back(1);
     coDen.push_back(0.);
+  }
+  for(int i=0;i<nL1trig;i++) { // Init
+    RefL1Prescale.push_back(1);
   }
   for (int j=0;j<ntrig;j++) { coMa.push_back(ftmp); }
 
@@ -168,6 +174,8 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
     for (unsigned int iLS=0;iLS<rcs[0]->perLumiSectionCount.size();iLS++) {
       RatePerLS.push_back(Rate);
       totalRatePerLS.push_back(0.);
+      RefPrescalePerLS.push_back(RefPrescale);
+      RefL1PrescalePerLS.push_back(RefL1Prescale);
     }
     
     float deno = (float)cfg->nEntries;
@@ -205,25 +213,29 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
       totalRatePerLS[iLS] += OHltRateCounter::eff((float)rcs[i]->perLumiSectionTotCount[iLS],scaleddenoPerLS);
     }
     
+    for (int j=0;j<nL1trig;j++) {
+      // per lumisection
+      for (unsigned int iLS=0;iLS<rcs[i]->perLumiSectionCount.size();iLS++) {
+        RefL1PrescalePerLS[iLS][j] = (float)rcs[i]->perLumiSectionRefL1Prescale[iLS][j];
+      }
+    }
+    
     for (int j=0;j<ntrig;j++) {
 
       // per lumisection
       for (unsigned int iLS=0;iLS<rcs[i]->perLumiSectionCount.size();iLS++) {
 	RatePerLS[iLS][j] += OHltRateCounter::eff((float)rcs[i]->perLumiSectionCount[iLS][j],scaleddenoPerLS);
+	RefPrescalePerLS[iLS][j] = (float)rcs[i]->perLumiSectionRefPrescale[iLS][j];
       }
       
       if(cfg->isRealData == 1) {
 	Rate[j]    += OHltRateCounter::eff((float)rcs[i]->iCount[j],scaleddeno);   
-	//RateErr[j] += OHltRateCounter::effErr((float)rcs[i]->iCount[j],scaleddeno); 
 	RateErr[j] += OHltRateCounter::errRate2((float)rcs[i]->iCount[j],scaleddeno); 
 	spureRate[j]    += OHltRateCounter::eff((float)rcs[i]->sPureCount[j],scaleddeno);   
-	//spureRateErr[j] += OHltRateCounter::effErr((float)rcs[i]->sPureCount[j],scaleddeno); 
 	spureRateErr[j] += OHltRateCounter::errRate2((float)rcs[i]->sPureCount[j],scaleddeno); 
 	pureRate[j]    += OHltRateCounter::eff((float)rcs[i]->pureCount[j],scaleddeno);   
-	//pureRateErr[j] += OHltRateCounter::effErr((float)rcs[i]->pureCount[j],scaleddeno); 
 	pureRateErr[j] += OHltRateCounter::errRate2((float)rcs[i]->pureCount[j],scaleddeno); 
 	cout << "N(passing " << menu->GetTriggerName(j) << ") = " << (float)rcs[i]->iCount[j] << endl;
-	//cout << "\t RATE: " << Rate[j] << " +- " <<  RateErr[j] << "  scaleddeno: " << scaleddeno << endl;
 
         for (int k=0;k<ntrig;k++){ 
           coMa[j][k] += ((float)rcs[i]->overlapCount[j][k]);
@@ -234,7 +246,6 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
       else{
 	Rate[j]    += collisionRate*(1. - exp(- mu * OHltRateCounter::eff((float)rcs[i]->iCount[j],deno)));  
 	RateErr[j] += pow(collisionRate*mu * OHltRateCounter::effErr((float)rcs[i]->iCount[j],deno),fTwo);
-	//cout<<j<<" Counts: "<<rcs[i]->iCount[j]<<endl;
 	spureRate[j]    += collisionRate*(1. - exp(- mu * OHltRateCounter::eff((float)rcs[i]->sPureCount[j],deno)));  
 	spureRateErr[j] += pow(collisionRate*mu * OHltRateCounter::effErr((float)rcs[i]->sPureCount[j],deno),fTwo);
 	pureRate[j]    += collisionRate*(1. - exp(- mu * OHltRateCounter::eff((float)rcs[i]->pureCount[j],deno)));  
@@ -261,7 +272,7 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
   }
   
   rprint->SetupAll(Rate,RateErr,spureRate,spureRateErr,pureRate,pureRateErr,coMa,
-		   RatePerLS,rcs[0]->runID,rcs[0]->lumiSection,totalRatePerLS);
+		   RatePerLS,rcs[0]->runID,rcs[0]->lumiSection,totalRatePerLS,RefPrescalePerLS,RefL1PrescalePerLS);
   
 }
 void calcEff(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,

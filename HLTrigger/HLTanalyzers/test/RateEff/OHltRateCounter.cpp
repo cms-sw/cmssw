@@ -18,6 +18,7 @@ OHltRateCounter::OHltRateCounter(unsigned int size, unsigned int l1size) {
   }
   for (unsigned int k=0;k<l1size;k++) {
     prescaleCountL1.push_back(0);     
+    iL1Count.push_back(0);
   }
 }
 
@@ -33,11 +34,18 @@ void OHltRateCounter::addRunLS(int Run,int LumiBlock) {
   runID.push_back(Run);
   lumiSection.push_back(LumiBlock);
   vector< int > vtmp;
+  vector< int > vtmpl1;
   for (unsigned int i=0;i<iCount.size();i++) {
     vtmp.push_back(0);    
   }
   perLumiSectionCount.push_back(vtmp);
   perLumiSectionTotCount.push_back(0);
+  perLumiSectionRefPrescale.push_back(vtmp); 
+
+  for (unsigned int i=0;i<iL1Count.size();i++) { 
+    vtmpl1.push_back(0);     
+  } 
+  perLumiSectionRefL1Prescale.push_back(vtmpl1);  
 }
 
 
@@ -63,3 +71,16 @@ void OHltRateCounter::incrRunLSTotCount(int Run,int LumiBlock, int incr) {
   }
 }
 
+void OHltRateCounter::updateRunLSRefPrescale(int Run, int LumiBlock, int iTrig, int refprescale) {
+  int id = getIDofRunLSCounter(Run,LumiBlock); 
+  if (id>-1) { 
+    perLumiSectionRefPrescale[id][iTrig] = refprescale; 
+  } 
+}
+
+void OHltRateCounter::updateRunLSRefL1Prescale(int Run, int LumiBlock, int iL1Trig, int refl1prescale) { 
+  int id = getIDofRunLSCounter(Run,LumiBlock);  
+  if (id>-1) {  
+    perLumiSectionRefL1Prescale[id][iL1Trig] = refl1prescale;  
+  }  
+} 

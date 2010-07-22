@@ -94,8 +94,8 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
       cout<<"Processing entry "<<jentry<<"/"<<nentries<<"\r"<<flush<<endl;
 
     // When running on real data, keep track of how many LumiSections have been 
-    // used. Note: this assumes LumiSections are contiguous, and that the user 
-    // uses complete LumiSections
+    // used. Note: this does not require LumiSections be contiguous, but does assume
+    // that the user uses complete LumiSections
     if(menu->IsRealData())
       {
 
@@ -110,6 +110,14 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
 	  if (rc->isNewRunLS(Run,LumiBlock)) { // check against double counting
 	    rc->addRunLS(Run,LumiBlock);
 	    nLumiSections++;
+
+	    // JH - Track per-LS changes in prescales
+	    for (int it = 0; it < nTrig; it++){ 
+	      rc->updateRunLSRefPrescale(Run,LumiBlock,it,readRefPrescaleFromFile(menu->GetTriggerName(it)));
+	    }
+	    for (int it = 0; it < nL1Trig; it++){
+	      rc->updateRunLSRefL1Prescale(Run,LumiBlock,it,readRefPrescaleFromFile(menu->GetL1TriggerName(it))); 
+	    }
 	  }
 	}
 
@@ -212,7 +220,6 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
       if (st.BeginsWith("HLT_") || st.BeginsWith("L1_")  || st.BeginsWith("L1Tech_") || st.BeginsWith("AlCa_") || st.BeginsWith("OpenL1_") ) {
 	// Prefixes reserved for Standard HLT&L1	
 	if (map_L1BitOfStandardHLTPath.find(st)->second>0) {
-	  readPrescaleFromFile(st);
 	  if (prescaleResponse(menu,cfg,rc,i)) {
 	    if ( (map_BitOfStandardHLTPath.find(st)->second==1) ) { 
 	      triggerBit[i] = true; 
@@ -306,16 +313,10 @@ void OHltTree::SetLogicParser(std::string l1SeedsLogicalExpression) {
 };
 
 
-int OHltTree::readPrescaleFromFile(TString st)
+int OHltTree::readRefPrescaleFromFile(TString st)
 {
   return map_RefPrescaleOfStandardHLTPath.find(st)->second;
 }
-
-int OHltTree::readL1PrescaleFromFile(TString st)
-{
-  return map_RefL1PrescaleOfStandardHLTPath.find(st)->second;
-}
-
 
 bool OHltTree::prescaleResponse(OHltMenu *menu,OHltConfig *cfg,OHltRateCounter *rc,int i) {
   if (cfg->doDeterministicPrescale) {

@@ -35,10 +35,10 @@ class OHltConfig {
   int nPrintStatusEvery;
   bool isRealData;
   TString menuTag;
-  //  TString alcaCondition;
   TString versionTag;
   bool doPrintAll;
   bool doDeterministicPrescale; // default is random prescale
+  bool readRefPrescalesFromNtuple; // default is read prescales from config
   TString dsList;
   /*************************/
 
