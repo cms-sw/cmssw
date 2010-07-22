@@ -34,8 +34,10 @@ def runTtrigProd(run,runselection,trial,config,runStep=True):
         project_prod = dtTtrigProd.run()
 
         print "Sent production jobs with project",project_prod
-
+        print "%.0f%% of jobs are required to finish" % config.jobsFinishedThreshold
+      
         crabProd = CrabWatch(project_prod)
+        crabProd.setThreshold(config.jobsFinishedThreshold)
         crabProd.start()
         crabProd.join()
 
@@ -78,8 +80,10 @@ def runTtrigValid(run,runselection,trial,input_file,config,runStep=True):
         project_valid_first = dtTtrigValid.run()
 
         print "Sent validation jobs with project",project_valid_first
+        print "%.0f%% of jobs are required to finish" % config.jobsFinishedThreshold
 
         crabValidFirst = CrabWatch(project_valid_first)
+        crabValidFirst.setThreshold(config.jobsFinishedThreshold)
         crabValidFirst.start()
         crabValidFirst.join()
 
@@ -122,8 +126,10 @@ def runTtrigValidResidCorr(run,runselection,trial,input_file,config,runStep=True
         project_valid_ResidCorr = dtTtrigValid_ResidCorr.run()
 
         print "Sent validation jobs with project",project_valid_ResidCorr
+        print "%.0f%% of jobs are required to finish" % config.jobsFinishedThreshold
 
         crabValidResidCorr = CrabWatch(project_valid_ResidCorr)
+        crabValidResidCorr.setThreshold(config.jobsFinishedThreshold)
         crabValidResidCorr.start()
         crabValidResidCorr.join()
 
@@ -205,6 +211,7 @@ if __name__ == '__main__':
     parser.add_option("--lumisperjob", dest="lumisperjob", type="int", default=150, help="number of lumis per job")
     parser.add_option("--lumimask", dest="lumimask", help="lumi mask JSON file")
     parser.add_option("--useCRABServer", action="store_true", dest="useserver", default=False, help="will use CRAB server to submit jobs (default = False)")
+    parser.add_option("--jobsFinishedThreshold", dest="jobsFinishedThreshold", type="float", default=100, help="percentage above or equal to which CRAB tasks will be considered completed")
     parser.add_option("--no_exec", action="store_true", dest="no_exec", default=False, help="script will not execute")
  
     (input, args) = parser.parse_args()
@@ -267,6 +274,7 @@ if __name__ == '__main__':
 
     config.template_path = input.templatepath
     config.templatepath =  input.templatepath
+    config.jobsFinishedThreshold = input.jobsFinishedThreshold
 
     run_dir = 'Run%s/Ttrig/Exec' % run
     if not os.path.exists(run_dir): os.makedirs(run_dir)
