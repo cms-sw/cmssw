@@ -5,7 +5,7 @@
 // 
 // Author:      Valentin Kuznetsov
 // Created:     Wed Jul  5 11:44:26 EDT 2006
-// $Id: EDLooper.cc,v 1.13 2009/02/23 20:12:24 chrjones Exp $
+// $Id: EDLooper.cc,v 1.14 2009/06/04 18:21:45 chrjones Exp $
 
 #include "FWCore/Framework/interface/EDLooper.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -17,6 +17,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Actions.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Framework/interface/ScheduleInfo.h"
 
 #include "boost/bind.hpp"
 
@@ -107,4 +108,21 @@ namespace edm {
   {
     return std::set<eventsetup::EventSetupRecordKey> ();
   }
+   
+  void 
+  EDLooper::copyInfo(const ScheduleInfo& iInfo){
+    scheduleInfo_ = std::auto_ptr<ScheduleInfo>(new ScheduleInfo(iInfo));
+  }
+  void 
+  EDLooper::setModuleChanger(const ModuleChanger* iChanger) {
+    moduleChanger_ = iChanger;
+  }
+
+  const ModuleChanger* EDLooper::moduleChanger() const {
+    return moduleChanger_;
+  }
+  const ScheduleInfo* EDLooper::scheduleInfo() const {
+    return scheduleInfo_.get();
+  }
+  
 }

@@ -15,12 +15,13 @@
 //
 // Author:      Valentin Kuznetsov
 // Created:     Wed Jul  5 11:42:17 EDT 2006
-// $Id: EDLooper.h,v 1.11 2009/06/04 18:21:45 chrjones Exp $
+// $Id: EDLooper.h,v 1.12 2009/12/21 16:18:27 chrjones Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include <set>
+#include <memory>
 
 namespace edm {
   namespace eventsetup {
@@ -28,6 +29,8 @@ namespace edm {
     class EventSetupProvider;
   }
   class ActionTable;
+  class ScheduleInfo;
+  class ModuleChanger;
 
   class EDLooper
   {
@@ -84,7 +87,15 @@ namespace edm {
       void setActionTable(ActionTable* actionTable) { act_table_ = actionTable; }
 
       virtual std::set<eventsetup::EventSetupRecordKey> modifyingRecords() const;
+     
+      void copyInfo(const ScheduleInfo&);
+      void setModuleChanger(const ModuleChanger*);
 
+    protected:
+      ///This only returns a non-zero value during the call to endOfLoop
+      const ModuleChanger* moduleChanger() const;
+      ///This returns a non-zero value after the constructor has been called
+      const ScheduleInfo* scheduleInfo() const;
     private:
 
       EDLooper( const EDLooper& ); // stop default
@@ -92,6 +103,9 @@ namespace edm {
 
       unsigned int iCounter_;
       ActionTable* act_table_;
+     
+      std::auto_ptr<ScheduleInfo> scheduleInfo_;
+      const ModuleChanger* moduleChanger_;     
   };
 }
 

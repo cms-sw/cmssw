@@ -62,6 +62,9 @@
 
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/interface/EDLooper.h"
+#include "FWCore/Framework/interface/ScheduleInfo.h"
+#include "FWCore/Framework/interface/ModuleChanger.h"
+
 
 #include "FWCore/Framework/src/EPStates.h"
 
@@ -1765,7 +1768,10 @@ namespace edm {
 
   bool EventProcessor::endOfLoop() {
     if (looper_) {
+      ModuleChanger changer(schedule_.get());
+      looper_->setModuleChanger(&changer);
       EDLooper::Status status = looper_->doEndOfLoop(esp_->eventSetup());
+      looper_->setModuleChanger(0);
       if (status != EDLooper::kContinue || forceLooperToEnd_) return true;
       else return false;
     }
@@ -1828,6 +1834,7 @@ namespace edm {
     }
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     if(looper_ && looperBeginJobRun_==false) {
+      looper_->copyInfo(ScheduleInfo(schedule_.get()));
       looper_->beginOfJob(es);
       looperBeginJobRun_=true;
       looper_->doStartingNewLoop();
