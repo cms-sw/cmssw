@@ -88,10 +88,11 @@
   <lib   name="FWCoreFrameworkTestDummyForEventSetup"/>
   <use   name="FWCore/Framework"/>
 </library>
-<library   file="stubs/DummyLooper.cc" name="FWCoreFrameworkTestDummyLooper">
+<library   file="stubs/DummyLooper.cc,stubs/TestModuleChangeLooper.cc" name="FWCoreFrameworkTestDummyLooper">
   <flags   EDM_PLUGIN="1"/>
   <lib   name="FWCoreFrameworkTestDummyForEventSetup"/>
   <use   name="FWCore/Framework"/>
+  <use   name="DataFormats/TestObjects"/>
 </library>
 <library   file="stubs/TestESDummyDataAnalyzer.cc" name="FWCoreFrameworkTestESDummyDataAnalyzer">
   <flags   EDM_PLUGIN="1"/>
