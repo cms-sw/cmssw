@@ -1,5 +1,5 @@
 #!/bin/sh
-#$Id: t0notify.sh,v 1.3 2010/07/21 09:06:11 babar Exp $
+#$Id: t0notify.sh,v 1.4 2010/07/21 09:58:29 babar Exp $
 
 . /etc/init.d/functions
 
@@ -81,7 +81,7 @@ stop(){
 }
 
 status(){
-    pgrep -f -P 1 -u smpro $SMT0_NW
+    pgrep -l -f -P 1 -u smpro $SMT0_NW
 }
 
 cleanup(){

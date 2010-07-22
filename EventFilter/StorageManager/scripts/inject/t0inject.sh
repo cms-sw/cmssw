@@ -1,5 +1,5 @@
 #!/bin/sh
-#$Id: t0inject.sh,v 1.21 2010/07/21 09:06:11 babar Exp $
+#$Id: t0inject.sh,v 1.22 2010/07/21 09:58:29 babar Exp $
 
 . /etc/init.d/functions
 
@@ -86,7 +86,7 @@ stop(){
 }
 
 status(){
-    pgrep -f -P 1 -u smpro $SMT0_IW
+    pgrep -l -f -P 1 -u smpro $SMT0_NW
 }
 
 cleanup(){
