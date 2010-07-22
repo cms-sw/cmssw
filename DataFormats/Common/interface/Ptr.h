@@ -54,6 +54,12 @@ namespace edm {
     Ptr(OrphanHandle<C> const& handle, key_type itemKey, bool setNow=true):
     core_(handle.id(), getItem_(handle.product(), itemKey), 0, false), key_(itemKey) {}
 
+    // General purpose "constructor" from a Ref.
+    // Use the conversion function template:
+    // ptr = refToPtr(ref)
+    // defined in DataFormats/Common/interface/RefToPtr.h
+    // to construct a Ptr<T> from a Ref<C>, where T is C::value_type.
+
     // Constructor for ref to object that is not in an event.
     // An exception will be thrown if an attempt is made to persistify
     // any object containing this Ptr.  Also, in the future work will
