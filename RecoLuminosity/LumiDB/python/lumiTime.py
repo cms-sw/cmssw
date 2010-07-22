@@ -15,16 +15,16 @@ class lumiTime(object):
     def OrbitDuration(self):
         return timedelta(microseconds=(self.nbx*self.bunchspace_us))
     
-    def OrbitToTime(self,begStrTime,orbitnumber,begorbit=0):
-        '''
-        given a orbit number, return its corresponding time. Assuming begin time has orbit=0
-        '''
-        return self.DatetimeToStr(self.StrToDatetime(begStrTime)+(orbitnumber-begorbit)*self.OrbitDuration())
     def OrbitToTimeStr(self,begStrTime,orbitnumber,begorbit=0):
         '''
         given a orbit number, return its corresponding time. Assuming begin time has orbit=0
         '''
-        return self.self.StrToDatetime(begStrTime)+(myorbit-begorbit)*self.OrbitDuration()    
+        return self.DatetimeToStr(self.StrToDatetime(begStrTime)+(orbitnumber-begorbit)*self.OrbitDuration())
+    def OrbitToTime(self,begStrTime,orbitnumber,begorbit=0):
+        '''
+        given a orbit number, return its corresponding time. Default run begin time counting from orbit=0
+        '''
+        return self.StrToDatetime(begStrTime)+(orbitnumber-begorbit)*self.OrbitDuration()    
     def StrToDatetime(self,strTime,customfm=''):
         '''convert string timestamp to python datetime
         '''
