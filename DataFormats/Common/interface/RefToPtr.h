@@ -20,7 +20,7 @@ namespace edm {
     typedef typename C::value_type T;
     if (ref.isTransient()) {
       return Ptr<T>(ref.product(), ref.key());
-    } else if (ref.get() == 0 && ref.productGetter() != 0) {
+    } else if (ref.hasCache() == 0) {
       return Ptr<T>(ref.id(), ref.key(), ref.productGetter());
     }
     return Ptr<T>(ref.id(), ref.get(), ref.key());
