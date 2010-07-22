@@ -40,3 +40,4 @@ class AbstractTab(object):
         Especially for dialog boxes.
         """
         return self._mainWindow
+    

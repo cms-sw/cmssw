@@ -29,6 +29,7 @@ class Application(QApplication):
 
     MAX_RECENT_FILES = 30
     MAX_VISIBLE_RECENT_FILES = 10
+    MAX_VISIBLE_UNDO_EVENTS = 10
     FAILED_LOADING_PLUGINS_ERROR = "Errors while loading plugins. For details see error output or log file.\n\nThe following plugins won't work correctly:\n\n"
     TAB_PREMATURELY_CLOSED_WARNING = "Tab was closed before user request could be handled."
     NO_PROCESS_EVENTS = False
@@ -46,7 +47,10 @@ class Application(QApplication):
         self._ini = None
         self._iniFileName = iniFileName
         self._zoomToolBar = None
+        self._undoToolBar = None
         self._messageId=0
+        self._loadablePlugins = {}
+        self._logFile = None
         
         self._initLogging()
 
@@ -67,11 +71,12 @@ class Application(QApplication):
         self._fillEditMenu()
         self._fillHelpMenu()
         
-        self.updateMenu()
+        self.createUndoToolBar()
         self.createZoomToolBar()
         self.hidePluginMenus()
         self.hidePluginToolBars()
         self.createStatusBar()
+        self.updateMenu()
     
         self._readCommandLineAttributes()
         self._connectSignals()
@@ -191,6 +196,7 @@ class Application(QApplication):
             handler1 = logging.handlers.RotatingFileHandler(logfile, maxBytes=100000, backupCount=1)
             formatter1 = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
             handler1.setFormatter(formatter1)
+            self._logFile = logfile
 
         handler2 = logging.StreamHandler(sys.stderr)
         formatter2 = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
@@ -234,24 +240,43 @@ class Application(QApplication):
         for di in dirs:
             try:
                 module = __import__(di, globals(), locals(), "Vispa.Plugins")
-                pluginObject = module.plugin(self)
-                self._plugins.append(pluginObject)
-                logging.debug('Application: added plugin ' + di)
-            except AttributeError,e:
-                logging.info('Application: plugin ' + di + ' is deactivated (define plugin in __init__.py to activate): ' + str(e))
-            except PluginIgnoredException,e:
-                logging.info('Application: plugin ' + di + ' cannot be loaded and is ignored: ' + str(e))
-            except ValueError:
-                logging.warning('Application: ' + di + ' is not a plugin: ' + exception_traceback())
-                failedToLoad.append(di)
+                self._loadablePlugins[module.plugin.__name__] = module.plugin
             except ImportError:
                 logging.warning('Application: cannot load plugin ' + di + ': ' + exception_traceback())
                 failedToLoad.append(di)
+            except PluginIgnoredException,e:
+                logging.info('Application: plugin ' + di + ' cannot be loaded and is ignored: ' + str(e))
+            except AttributeError,e:
+                logging.info('Application: plugin ' + di + ' is deactivated (define plugin in __init__.py to activate): ' + str(e))
+                
+        for pluginName in self._loadablePlugins.keys():
+            # loop over all loadable plugins
+            # this mechanism enables plugins to call initializePlugin() for plugins they depend on
+            if not self.initializePlugin(pluginName):
+                failedToLoad.append(pluginName)
         
         if len(failedToLoad) > 0:
             self.errorMessage(self.FAILED_LOADING_PLUGINS_ERROR + "\n".join(failedToLoad))
                 
         self._collectFileExtensions()
+        
+    def initializePlugin(self, name):
+        if name in [plugin.__class__.__name__ for plugin in self._plugins]:
+            logging.info("%s: initalizePlugin(): Plugin '%s' already loaded. Aborting..." % (self.__class__.__name__, name))
+            return True
+        if not name in self._loadablePlugins.keys():
+            logging.error("%s: initalizePlugin(): Unknown plugin '%s'. Aborting..." % (self.__class__.__name__, name))
+            return False
+        
+        try:
+            pluginObject = self._loadablePlugins[name](self)
+            self._plugins.append(pluginObject)
+            logging.debug('Application: added plugin ' + name)
+            return True
+        except ValueError:
+            logging.warning('Application: ' + name + ' is not a plugin: ' + exception_traceback())
+        return False
+        
                     
     def plugins(self):
         return self._plugins
@@ -298,7 +323,26 @@ class Application(QApplication):
     #    self.preferencesEditor = PreferencesEditor()
     #    self.preferencesEditor.show()
 
-
+    def createAction(self, name, slot=None, shortcut=None, image=None, enabled=True):
+        """ create an action with name and icon and connect it to a slot.
+        """
+        #logging.debug('Application: createAction() - ' + name)
+        if image:
+            image0 = QPixmap()
+            image0.load(":/resources/" + image + ".svg")
+            action = QAction(QIcon(image0), name, self._window)
+        else:
+            action = QAction(name, self._window)
+        action.setEnabled(enabled)
+        if slot:
+            self.connect(action, SIGNAL("triggered()"), slot)
+        if shortcut:
+            if isinstance(shortcut, list):
+                action.setShortcuts(shortcut)
+            else:
+                action.setShortcut(shortcut)
+        return action
+        
     def _fillFileMenu(self):
         """Called for the first time this function creates the file menu and fill it.
 
@@ -394,6 +438,35 @@ class Application(QApplication):
         self._editMenuItems = {}
         if not self._window.editMenu().isEmpty():
             self._window.editMenu().clear()
+            
+        # Undo / Redo
+        self._editMenuItems["undoAction"] = self.createAction("Undo", self.undoEvent, "Ctrl+Z", "edit-undo")
+        self._editMenuItems["redoAction"] = self.createAction("Redo", self.redoEvent, "Ctrl+Y", "edit-redo")
+        self._editMenuItems["undoAction"].setData(QVariant(1))
+        self._editMenuItems["redoAction"].setData(QVariant(1))
+        self._editMenuItems["undoAction"].setEnabled(False)
+        self._editMenuItems["redoAction"].setEnabled(False)
+        self._window.editMenu().addAction(self._editMenuItems["undoAction"])
+        self._window.editMenu().addAction(self._editMenuItems["redoAction"])
+        #self._editMenuItems["undoAction"].menu().addAction(self.createAction("test"))
+        #self._editMenuItems["undoAction"].menu().setEnabled(False)
+        #self._editMenuItems["undoAction"].menu().setVisible(False)
+        
+        self._undoActionsMenu = QMenu(self._window)
+        self._undoMenuActions = []
+        for i in range(0, self.MAX_VISIBLE_UNDO_EVENTS):
+            action = self.createAction("undo " + str(i), self.undoEvent)
+            action.setVisible(False)
+            self._undoActionsMenu.addAction(action)                
+            self._undoMenuActions.append(action)
+
+        self._redoActionsMenu  = QMenu(self._window)
+        self._redoMenuActions = []
+        for i in range(0, self.MAX_VISIBLE_UNDO_EVENTS):
+            action = self.createAction("redo " + str(i), self.redoEvent)
+            action.setVisible(False)
+            self._redoActionsMenu.addAction(action)                
+            self._redoMenuActions.append(action)
                     
         # Cut
         self._editMenuItems['cutAction'] = self.createAction('&Cut', self.cutEvent, 'Ctrl+X', 'editcut')      
@@ -430,6 +503,11 @@ class Application(QApplication):
         self._helpMenuItems['aboutAction'] = self.createAction('&About', self.aboutBoxSlot, 'F1')      
         self._window.helpMenu().addAction(self._helpMenuItems['aboutAction'])
         
+        # open log file
+        if self._logFile:
+            self._helpMenuItems['openLogFile'] = self.createAction("Open log file", self.openLogFileSlot)      
+            self._window.helpMenu().addAction(self._helpMenuItems['openLogFile'])
+        
         # Offline Documentation
         if os.path.exists(os.path.join(docDirectory,"index.html")):
             self._window.helpMenu().addAction(self.createAction('Offline Documentation', self._openDocumentation, "CTRL+F1"))
@@ -437,6 +515,113 @@ class Application(QApplication):
         # Vispa Website
         self._window.helpMenu().addAction(self.createAction('Website', self._openWebsite, "Shift+F1"))
         
+    def updateMenu(self):
+        """ Update recent files and enable disable menu entries in file and edit menu.
+        """
+        #logging.debug('Application: updateMenu()')
+        if self.mainWindow().startupScreen():
+            self.updateStartupScreen()
+        # Recent files
+        num_recent_files = min(len(self._recentFiles), self.MAX_VISIBLE_RECENT_FILES)
+        for i in range(0, num_recent_files):
+            filename = self._recentFiles[i]
+            self._recentFilesMenuActions[i].setText(os.path.basename(filename))
+            self._recentFilesMenuActions[i].setToolTip(filename)
+            self._recentFilesMenuActions[i].setStatusTip(filename)
+            self._recentFilesMenuActions[i].setData(QVariant(filename))
+            self._recentFilesMenuActions[i].setVisible(True)
+            
+        for i in range(num_recent_files, self.MAX_VISIBLE_RECENT_FILES):
+            self._recentFilesMenuActions[i].setVisible(False)
+            
+        if num_recent_files == 0:
+            self._fileMenuItems['clearRecentFilesAction'].setEnabled(False)
+            self._fileMenuItems['clearMissingRecentFilesAction'].setEnabled(False)
+        else:
+            self._fileMenuItems['clearRecentFilesAction'].setEnabled(True)
+            self._fileMenuItems['clearMissingRecentFilesAction'].setEnabled(True)
+            
+        # Enabled / disable menu entries depending on number of open files
+        at_least_one_flag = False
+        at_least_two_flag = False
+        if len(self.tabControllers()) > 1:
+            at_least_one_flag = True
+            at_least_two_flag = True
+        elif len(self.tabControllers()) > 0:
+            at_least_one_flag = True
+        
+        self._fileMenuItems['saveFileAction'].setEnabled(at_least_one_flag)
+        self._fileMenuItems['saveFileAsAction'].setEnabled(at_least_one_flag)
+        self._fileMenuItems['reloadFileAction'].setEnabled(at_least_one_flag)
+        self._fileMenuItems['closeFileAction'].setEnabled(at_least_one_flag)
+        
+        self._fileMenuItems['saveAllFilesAction'].setEnabled(at_least_two_flag)
+        self._fileMenuItems['closeAllAction'].setEnabled(at_least_two_flag)
+        
+        try:
+            if at_least_one_flag:
+                if not self.currentTabController().isEditable():
+                    self._fileMenuItems['saveFileAction'].setEnabled(False)
+                    self._fileMenuItems['saveFileAsAction'].setEnabled(False)
+                if not self.currentTabController().isModified():
+                    self._fileMenuItems['saveFileAction'].setEnabled(False)
+                
+            # Copy / Cut / Paste
+            copy_paste_enabled_flag = at_least_one_flag and self.currentTabController().isCopyPasteEnabled()
+            self._editMenuItems['cutAction'].setEnabled(copy_paste_enabled_flag)
+            self._editMenuItems['copyAction'].setEnabled(copy_paste_enabled_flag)
+            self._editMenuItems['pasteAction'].setEnabled(copy_paste_enabled_flag)
+            
+            self._editMenuItems['selectAllAction'].setVisible(self.currentTabController().allowSelectAll())
+            
+            self._editMenuItems['findAction'].setEnabled(at_least_one_flag and self.currentTabController().isFindEnabled())
+            
+            # Undo / Redo
+            undo_supported_flag = at_least_one_flag and self.currentTabController().supportsUndo()
+            self._editMenuItems["undoAction"].setEnabled(undo_supported_flag)
+            self._editMenuItems["undoAction"].setVisible(undo_supported_flag)
+            self._editMenuItems["redoAction"].setEnabled(undo_supported_flag)
+            self._editMenuItems["redoAction"].setVisible(undo_supported_flag)
+            self.showPluginToolBar(self._undoToolBar, undo_supported_flag)
+            
+            if undo_supported_flag:
+                undo_events = self.currentTabController().undoEvents()
+                num_undo_events = min(len(undo_events), self.MAX_VISIBLE_UNDO_EVENTS)
+                self._editMenuItems["undoAction"].setEnabled(num_undo_events > 0)
+                if num_undo_events > 1:
+                    self._editMenuItems["undoAction"].setMenu(self._undoActionsMenu)
+                else:
+                    self._editMenuItems["undoAction"].setMenu(None)
+                for i in range(0, num_undo_events):
+                    undo_event = undo_events[num_undo_events - i - 1]   # iterate backwards
+                    self._undoMenuActions[i].setText(undo_event.LABEL)
+                    self._undoMenuActions[i].setToolTip(undo_event.description())
+                    self._undoMenuActions[i].setStatusTip(undo_event.description())
+                    self._undoMenuActions[i].setData(QVariant(i+1))
+                    self._undoMenuActions[i].setVisible(True)
+                for i in range(num_undo_events, self.MAX_VISIBLE_UNDO_EVENTS):
+                    self._undoMenuActions[i].setVisible(False)
+                
+                redo_events = self.currentTabController().redoEvents()
+                num_redo_events = min(len(redo_events), self.MAX_VISIBLE_UNDO_EVENTS)
+                self._editMenuItems["redoAction"].setEnabled(num_redo_events > 0)
+                if num_redo_events > 1:
+                    self._editMenuItems["redoAction"].setMenu(self._redoActionsMenu)
+                else:
+                    self._editMenuItems["redoAction"].setMenu(None)
+                for i in range(0, num_redo_events):
+                    redo_event = redo_events[num_redo_events - i - 1]   # iterate backwards
+                    self._redoMenuActions[i].setText(redo_event.LABEL)
+                    self._redoMenuActions[i].setToolTip(redo_event.description())
+                    self._redoMenuActions[i].setStatusTip(redo_event.description())
+                    self._redoMenuActions[i].setData(QVariant(i+1))
+                    self._redoMenuActions[i].setVisible(True)
+                for i in range(num_redo_events, self.MAX_VISIBLE_UNDO_EVENTS):
+                    self._redoMenuActions[i].setVisible(False)
+            
+        except NoCurrentTabControllerException:
+            pass
+            
     def _openDocumentation(self):
         """ Opens Vispa Offline Documentation
         """
@@ -513,7 +698,7 @@ class Application(QApplication):
             toolBar.hide()
             
     def createZoomToolBar(self):
-        """ Creates tool bar with 3 buttons "user", "100 %" and "all".
+        """ Creates tool bar with three buttons "user", "100 %" and "all".
         
         See TabController's documentation of zoomUser(), zoomHundred() and zoomAll() to find out more on the different zoom levels.
         """
@@ -533,6 +718,25 @@ class Application(QApplication):
         """ Makes zoom tool bar invisible.
         """
         self._zoomToolBar.hide()
+        
+    def createUndoToolBar(self):
+        """ Creates tool bar with buttons to invoke undo and redo events.
+        
+        Needs to be called after _fillEditMenu() as actions are defined there.
+        """
+        self._undoToolBar = self.createPluginToolBar("Undo ToolBar")
+        self._undoToolBar.addAction(self._editMenuItems["undoAction"])
+        self._undoToolBar.addAction(self._editMenuItems["redoAction"])
+        
+    def showUndoToolBar(self):
+        """ Makes undo tool bar visible.
+        """
+        self.showPluginToolBar(self._undoToolBar)
+        
+    def hideUndoToolBar(self):
+        """ Hides undo tool bar.
+        """
+        self._undoToolBar.hide()
     
     def clearRecentFiles(self):
         """ Empties list of recent files and updates main menu.
@@ -616,90 +820,14 @@ class Application(QApplication):
             for file in files:
                 screen.pxlEditorRecentFilesList().addItem(os.path.basename(file))
         
-    def updateMenu(self):
-        """ Update recent files and enable disable menu entries in file and edit menu.
-        """
-        #logging.debug('Application: updateMenu()')
-        if self.mainWindow().startupScreen():
-            self.updateStartupScreen()
-        # Recent files
-        numRecentFiles = min(len(self._recentFiles), self.MAX_VISIBLE_RECENT_FILES)
-        for i in range(0, numRecentFiles):
-            filename = self._recentFiles[i]
-            self._recentFilesMenuActions[i].setText(os.path.basename(filename))
-            self._recentFilesMenuActions[i].setToolTip(filename)
-            self._recentFilesMenuActions[i].setStatusTip(filename)
-            self._recentFilesMenuActions[i].setData(QVariant(filename))
-            self._recentFilesMenuActions[i].setVisible(True)
-            
-        for i in range(numRecentFiles, self.MAX_VISIBLE_RECENT_FILES):
-            self._recentFilesMenuActions[i].setVisible(False)
-            
-        if numRecentFiles == 0:
-            self._fileMenuItems['clearRecentFilesAction'].setEnabled(False)
-            self._fileMenuItems['clearMissingRecentFilesAction'].setEnabled(False)
-        else:
-            self._fileMenuItems['clearRecentFilesAction'].setEnabled(True)
-            self._fileMenuItems['clearMissingRecentFilesAction'].setEnabled(True)
-            
-        # Enabled / disable menu entries depending on number of open files
-        atLeastOneFlag = False
-        atLeastTwoFlag = False
-        if len(self.tabControllers()) > 1:
-            atLeastOneFlag = True
-            atLeastTwoFlag = True
-        elif len(self.tabControllers()) > 0:
-            atLeastOneFlag = True        
-        
-        self._fileMenuItems['saveFileAction'].setEnabled(atLeastOneFlag)
-        self._fileMenuItems['saveFileAsAction'].setEnabled(atLeastOneFlag)
-        self._fileMenuItems['reloadFileAction'].setEnabled(atLeastOneFlag)
-        self._fileMenuItems['closeFileAction'].setEnabled(atLeastOneFlag)
-        
-        self._fileMenuItems['saveAllFilesAction'].setEnabled(atLeastTwoFlag)
-        self._fileMenuItems['closeAllAction'].setEnabled(atLeastTwoFlag)
-        
-        try:
-            if atLeastOneFlag:
-                if not self.currentTabController().isEditable():
-                    self._fileMenuItems['saveFileAction'].setEnabled(False)
-                    self._fileMenuItems['saveFileAsAction'].setEnabled(False)
-                if not self.currentTabController().isModified():
-                    self._fileMenuItems['saveFileAction'].setEnabled(False)
-                
-            copyPasteEnabled = atLeastOneFlag and self.currentTabController().isCopyPasteEnabled()
-            self._editMenuItems['cutAction'].setEnabled(copyPasteEnabled)
-            self._editMenuItems['copyAction'].setEnabled(copyPasteEnabled)
-            self._editMenuItems['pasteAction'].setEnabled(copyPasteEnabled)
-            
-            self._editMenuItems['selectAllAction'].setVisible(self.currentTabController().allowSelectAll())
-            
-            self._editMenuItems['findAction'].setEnabled(atLeastOneFlag and self.currentTabController().isFindEnabled())
-        except NoCurrentTabControllerException:
-            pass
-            
-    def createAction(self, name, slot=None, shortcut=None, image=None, enabled=True):
-        """ create an action with name and icon and connect it to a slot.
-        """
-        logging.debug('Application: createAction() - ' + name)
-        if image:
-            image0 = QPixmap()
-            image0.load(":/resources/" + image + ".svg")
-            action = QAction(QIcon(image0), name, self._window)
-        else:
-            action = QAction(name, self._window)
-        action.setEnabled(enabled)
-        if slot:
-            self.connect(action, SIGNAL("triggered()"), slot)
-        if shortcut:
-            if isinstance(shortcut, list):
-                action.setShortcuts(shortcut)
-            else:
-                action.setShortcut(shortcut)
-        return action
-        
     def exit(self):
         self._window.close()
+
+    def shutdownPlugins(self):
+        logging.debug('Application: shutting down plugins' )
+        for plugin in self._plugins:
+          plugin.shutdown()
+
 
     def _collectFileExtensions(self):
         """ Loop over all plugins and remember their file extensions.
@@ -933,7 +1061,7 @@ class Application(QApplication):
             logging.warning(self.__class__.__name__ + ": " + self.TAB_PREMATURELY_CLOSED_WARNING)
         
     def zoomHundredEvent(self):
-        """ Handles button pressed event  from zoom tool bar and forwards it to current tab controller.
+        """ Handles button pressed event from zoom tool bar and forwards it to current tab controller.
         """
         try:
             self.currentTabController().zoomHundred()
@@ -941,12 +1069,42 @@ class Application(QApplication):
             logging.warning(self.__class__.__name__ + ": " + self.TAB_PREMATURELY_CLOSED_WARNING)
     
     def zoomAllEvent(self):
-        """ Handles button pressed event  from zoom tool bar and forwards it to current tab controller.
+        """ Handles button pressed event from zoom tool bar and forwards it to current tab controller.
         """
         try:
             self.currentTabController().zoomAll()
         except NoCurrentTabControllerException:
             logging.warning(self.__class__.__name__ + ": " + self.TAB_PREMATURELY_CLOSED_WARNING)
+         
+    def undoEvent(self):
+        """ Handles undo action for buttons in undo tool bar and edit menu.
+        """
+        try:
+            num = 1
+            sender = self.sender()
+            if sender:
+                num = sender.data().toInt()
+                if len(num) > 1:
+                    # strange: toInt returns tuple like (1, True), QT 4.6.0, Mac OS X 10.6.4, 2010-06-28
+                    num = num[0]
+            self.currentTabController().undo(num)
+        except NoCurrentTabControllerException:
+            logging.warning(self.__class__.__name__ + ": "+ self.TAB_PREMATURELY_CLOSED_WARNING) 
+         
+    def redoEvent(self):
+        """ Handles redo action for buttons in undo tool bar and edit menu.
+        """
+        try:
+            num = 1
+            sender = self.sender()
+            if sender:
+                num = sender.data().toInt()
+                if len(num) > 1:
+                    # strange: toInt returns tuple like (1, True), QT 4.6.0, Mac OS X 10.6.4, 2010-06-28
+                    num = num[0]
+            self.currentTabController().redo(num)
+        except NoCurrentTabControllerException:
+            logging.warning(self.__class__.__name__ + ": "+ self.TAB_PREMATURELY_CLOSED_WARNING) 
          
     def aboutBoxSlot(self):
         """ Displays about box. 
@@ -954,6 +1112,12 @@ class Application(QApplication):
         logging.debug('Application: aboutBoxSlot()')
         about = AboutDialog(self)
         about.onScreen()
+        
+    def openLogFileSlot(self):
+        if self._logFile:
+            self.doubleClickOnFile(self._logFile)
+        else:
+            logging.warning("%s: openLogFileSlot(): _logFile not set. Aborting..." % self.__class__.__name__)
 
     def openRecentFileSlot(self):
         """ Slot for opening recent file.
@@ -965,7 +1129,7 @@ class Application(QApplication):
         self.openFile(filename)
 
     def tabChanged(self, tab=None):
-        """ when a different tab is selected update menu
+        """ when a different tab is activated update menu
         """
         logging.debug('Application: tabChanged()')
         # only update once when closing all files at once
@@ -975,7 +1139,7 @@ class Application(QApplication):
             self.updateWindowTitle()
             self.updateMenu()
             try:
-                self.currentTabController().selected()
+                self.currentTabController().activated()
                 self.currentTabController().checkModificationTimestamp()
             except NoCurrentTabControllerException:
                 pass

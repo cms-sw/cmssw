@@ -142,7 +142,7 @@ class ToolDataAccessor(BasicDataAccessor):
             properties+=[self._property(value.name,value.value,value.description,value.type,object.getAllowedValues(value.name)) for key,value in object.getParameters().items()]
         return properties
     
-    def setProperty(self, object, name, value):
+    def setProperty(self, object, name, value, categoryName):
         """ Change the property 'name' of an object to a new value.
         """
         if self.configDataAccessor().process() and name=="code":
