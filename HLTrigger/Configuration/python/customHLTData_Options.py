@@ -14,32 +14,40 @@ def customise(process):
     process.MessageLogger.categories.append('L1GtTrigReport')
     process.MessageLogger.categories.append('HLTrigReport')
 
+    # drop on input the previous HLT results
+    process.source.inputCommands = cms.untracked.vstring (
+        'keep *',
+        'drop *_hltL1GtObjectMap_*_*',
+        'drop *_TriggerResults_*_*',
+        'drop *_hltTriggerSummaryAOD_*_*',
+    )
+
     # override RAW data name to rn on data
-    hltGetRaw.RawDataCollection                  = "source"
-    hltGtDigis.DaqGtInputTag                     = "source"
-    hltGctDigis.inputLabel                       = "source"
-    hltScalersRawToDigi.scalersInputTag          = "source"
-    hltSiPixelDigis.InputLabel                   = "source"
-    hltMuonCSCDigis.InputObjects                 = "source"
-    hltMuonDTDigis.inputLabel                    = "source"
-    hltDTTFUnpacker.DTTF_FED_Source              = "source"
-    hltEcalRawToRecHitFacility.sourceTag         = "source"
-    hltESRawToRecHitFacility.sourceTag           = "source"
-    hltHcalDigis.InputLabel                      = "source"
-    hltMuonRPCDigis.InputLabel                   = "source"
-    hltSiStripRawToClustersFacility.ProductLabel = "source"
-    hltCscTfDigis.producer                       = "source"
-    hltL1EventNumberNZS.rawInput                 = "source"
-    hltDTROMonitorFilter.inputLabel              = "source"
-    hltEcalCalibrationRaw.rawInputLabel          = "source"
-    hltHcalCalibTypeFilter.InputTag              = "source"
-    hltDTDQMEvF.inputLabel                       = "source"
-    hltEcalDigis.InputLabel                      = "source"
-    hltEBHltTask.FEDRawDataCollection            = "source"
-    hltEEHltTask.FEDRawDataCollection            = "source"
-    hltL1tfed.rawTag                             = "source"
-    hltSiPixelDigisWithErrors.InputLabel         = "source"
-    hltSiPixelHLTSource.RawInput                 = "source"
-    hltSiStripFEDCheck.RawDataTag                = "source"
+    process.hltGetRaw.RawDataCollection                  = "source"
+    process.hltGtDigis.DaqGtInputTag                     = "source"
+    process.hltGctDigis.inputLabel                       = "source"
+    process.hltScalersRawToDigi.scalersInputTag          = "source"
+    process.hltSiPixelDigis.InputLabel                   = "source"
+    process.hltMuonCSCDigis.InputObjects                 = "source"
+    process.hltMuonDTDigis.inputLabel                    = "source"
+    process.hltDTTFUnpacker.DTTF_FED_Source              = "source"
+    process.hltEcalRawToRecHitFacility.sourceTag         = "source"
+    process.hltESRawToRecHitFacility.sourceTag           = "source"
+    process.hltHcalDigis.InputLabel                      = "source"
+    process.hltMuonRPCDigis.InputLabel                   = "source"
+    process.hltSiStripRawToClustersFacility.ProductLabel = "source"
+    process.hltCscTfDigis.producer                       = "source"
+    process.hltL1EventNumberNZS.rawInput                 = "source"
+    process.hltDTROMonitorFilter.inputLabel              = "source"
+    process.hltEcalCalibrationRaw.rawInputLabel          = "source"
+    process.hltHcalCalibTypeFilter.InputTag              = "source"
+    process.hltDTDQMEvF.inputLabel                       = "source"
+    process.hltEcalDigis.InputLabel                      = "source"
+    process.hltEBHltTask.FEDRawDataCollection            = "source"
+    process.hltEEHltTask.FEDRawDataCollection            = "source"
+    process.hltL1tfed.rawTag                             = "source"
+    process.hltSiPixelDigisWithErrors.InputLabel         = "source"
+    process.hltSiPixelHLTSource.RawInput                 = "source"
+    process.hltSiStripFEDCheck.RawDataTag                = "source"
 
     return(process)
