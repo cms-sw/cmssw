@@ -1,4 +1,4 @@
-// $Id: TrigResRateMon.cc,v 1.1 2010/07/21 12:35:27 rekovic Exp $
+// $Id: TrigResRateMon.cc,v 1.2 2010/07/23 12:22:31 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQM/HLTEvF/interface/TrigResRateMon.h"
@@ -308,7 +308,11 @@ TrigResRateMon::beginJob()
   
   if (dbe) {
     dbe->setCurrentFolder(dirname_);
-    }  
+  }  
+
+  dbe->bookFloat("reportSummaryMap");
+
+
 }
 
 // - method called once each job just after ending the event loop  ------------
