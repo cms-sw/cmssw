@@ -133,7 +133,8 @@
 
 <Algorithm name="hcal:DDHCalLinearXY">
    <rParent name="hcalforwardshower:HFWorld"/>
-   <String  name="ChildName"    value="hcalforwardshower:HFWedge"/>
+   <Vector name="Child" type="string" nEntries="1">
+     hcalforwardshower:HFWedge</Vector>
    <Numeric name="DeltaX"       value="2*[wedgeDx]"/>
    <Numeric name="DeltaY"       value="2*[wedgeDy]"/>
    <Numeric name="NumberX"      value="[wedgeX]"/>
@@ -145,7 +146,8 @@
 
 <Algorithm name="hcal:DDHCalLinearXY">
    <rParent name="hcalforwardshower:HFWedge"/>
-   <String  name="ChildName"    value="hcalforwardshower:HFBox"/>
+   <Vector name="Child" type="string" nEntries="1">
+     hcalforwardshower:HFBox</Vector>
    <Numeric name="DeltaX"       value="2*[cellDx]"/>
    <Numeric name="DeltaY"       value="2*[cellDy]"/>
    <Numeric name="NumberX"      value="[cellX]"/>
