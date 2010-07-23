@@ -26,10 +26,10 @@ namespace ora {
 
     // for generic type T better be the pointer to it...
     template<typename T> 
-    inline T & data() { return &reinterpret_cast<T*>(address());}   
+    inline T & data() { return *reinterpret_cast<T*>(address());}   
 
     template<typename T> 
-    inline T data() const { return &reinterpret_cast<T const*>(address());}   
+    inline T data() const { return *reinterpret_cast<T const*>(address());}   
     
   };
 
