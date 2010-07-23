@@ -80,6 +80,7 @@ HLT_Ele15_SW_EleId_L1R
 HLT_Ele15_SiStrip_L1R
 HLT_Ele20_SW_L1R
 HLT_Ele20_SiStrip_L1R
+HLT_Ele25_SW_L1R
 HLT_L1DoubleEG5
 HLT_DoubleEle4_SW_eeRes_L1R
 HLT_DoubleEle10_SW_L1R
