@@ -96,6 +96,7 @@ HLT_DoublePhoton5_Upsilon_L1R
 HLT_DoublePhoton5_CEP_L1R
 HLT_DoublePhoton10_L1R
 HLT_DoublePhoton15_L1R
+HLT_DoublePhoton20_L1R
 HLT_SingleIsoTau20_Trk5
 HLT_SingleLooseIsoTau20
 HLT_SingleLooseIsoTau25_Trk5
