@@ -14,6 +14,8 @@
 #include "CondCore/ORA/interface/UniqueRef.h"
 #include <boost/shared_ptr.hpp>
 
+typedef unsigned int uint32_t;
+
 class BObj {
   public:
   BObj(): id(0){
@@ -622,7 +624,7 @@ class SA {
   unsigned int m_intData;
   unsigned int m_0_i1_i2_i3_m_id;
   std::string m_stringData012345678012345678012345678012345678012345678;
-  int m_carra[3];
+  int m_carra[5];
   int m_carra0[5][4];
   int m_carra1[150];
   int m_carra2[110][2];
