@@ -13,6 +13,8 @@ namespace ora {
  struct RecordSpecImpl {
 
     struct Item {
+      Item(std::string const & iname,
+           TypeHandler const * ih) : name(iname), handler(ih){}
       std::string name;
       TypeHandler const * handler;
     };
@@ -35,9 +37,8 @@ namespace ora {
     // check if already exists
     TypeHandler const * th =  allKnowTypeHandlers(type);
     // check if 0...
-    RecordSpecImpl::Item item  = {name,th};
-    specs->items.push_back(item);
-    specs->indexes.insert(make_pair(name,(int)(specs->items.size())-1));
+    specs->items.push_back(RecordSpecImpl::Item(name,th));
+    specs->indexes.insert(std::make_pair(specs->items.back().name,(int)(specs->items.size())-1));
     return specs->items.size()-1;
   }
 
