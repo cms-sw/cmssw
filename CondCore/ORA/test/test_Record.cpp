@@ -9,22 +9,22 @@
 
 namespace {
   void printMem(char const * title) {
-	std::cout << "\n--- " << title <<" ---"<< std::endl;
-	struct mallinfo mi;
-	mi  = mallinfo();
-	int * mm = (int*)(&mi);
-	for(int i=0;i<10;i++) std::cout << mm[i] << ", ";
-	std::cout << std::endl;
-        std::cout << "mmap/arena-used/arena-free " << mi.hblkhd << " " << mi.uordblks << " " << mi.fordblks << std::endl;
-        std::cout << "mmap/arena-used/arena-free " << mm[4] << " " << mm[7] << " " << mm[8] << std::endl;
-        std::cout << std::endl;
-        malloc_stats();
+    std::cout << "\n--- " << title <<" ---"<< std::endl;
+    struct mallinfo mi;
+    mi  = mallinfo();
+    int * mm = (int*)(&mi);
+    for(int i=0;i<10;i++) std::cout << mm[i] << ", ";
+    std::cout << std::endl;
+    std::cout << "mmap/arena-used/arena-free " << mi.hblkhd << " " << mi.uordblks << " " << mi.fordblks << std::endl;
+    std::cout << "mmap/arena-used/arena-free " << mm[4] << " " << mm[7] << " " << mm[8] << std::endl;
+    std::cout << std::endl;
+    malloc_stats();
   }
-
-
+  
+  
   void checkmem(char const * title){
-       std::cout << "\n--- " << title <<" ---"<< std::endl;
-       malloc_stats();
+    std::cout << "\n--- " << title <<" ---"<< std::endl;
+    malloc_stats();
   }
 
 }
@@ -109,19 +109,48 @@ void testRecord(std::vector<float> const & v, std::vector<float> & v2) {
  
 }
 
+#include "CoralBase/AttributeList.h"
+void testAttributeList(std::vector<float> const & v, std::vector<float> & v2) {
+  checkmem("before AttributeList");
+
+  coral::AttributeList record;
+  std::ostringstream oss;
+  std::string f("f_");
+  for (int i=0;i<100; ++i) {
+    oss.str("");
+    oss << i;
+    record.extend(f+oss.str(), typeid(float));
+  }
+
+  checkmem("after  AttributeList");
+
+  for (int i=0;i<100; ++i)
+    record[i].data<float> = v[i];
+
+  checkmem("after assign");
+
+  for (int i=0;i<100; ++i)
+    v2[i]= record[i].data<float>;
+
+   checkmem("after recover");
+ 
+}
 
 int main() {
 
   checkmem("start");
   std::vector<float> v(100,0.);
   std::vector<float> v2(100,0.);
+  std::vector<float> v3(100,0.);
   for (int i=0;i<100; ++i)
     v[i] = float(i)+0.01*float(i);
   checkmem("after vector");
   testRecord(v,v2);
   if (v!=v2) std::cout << "error in Record" << std::endl;
   checkmem("after Record done");
-
+  testAttributeList(v,v3);
+ if (v!=v3) std::cout << "error in AttributeList" << std::endl;
+  checkmem("after AttributeList done");
 
 
   testRecordFeatures();
