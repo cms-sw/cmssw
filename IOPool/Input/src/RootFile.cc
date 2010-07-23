@@ -888,15 +888,17 @@ namespace edm {
     indexIntoFile_.fixIndexes(orderedProcessHistoryIDs_);
     indexIntoFile_.setNumberOfEvents(eventTree_.entries());
     indexIntoFile_.setEventFinder(boost::shared_ptr<IndexIntoFile::EventFinder>(new RootFileEventFinder(eventTree_)));
+    if (!noEventSort_) {
+      // We need event entries for sorting.
+      indexIntoFile_.fillEventEntries();
+    }
     // We fill the event numbers explicitly if we need to find events in closed files,
     // such as for secondary files (or secondary sources) or if duplicate checking across files.
     if (secondaryFile || (duplicateChecker_ && duplicateChecker_->checkingAllFiles())) {
       indexIntoFile_.fillEventNumbers();
-    } else if (!noEventSort_) {
-      // We need event entries for sorting, and we do not need event numbers after the file is closed.
-      // Fill in entries now to avoid a possible on demand filling of event numbers.
-      indexIntoFile_.fillEventEntries();
     }
+    // We are done with our initial reading of EventAuxiliary.
+    eventTree_.resetTraining();
   }
 
   void
