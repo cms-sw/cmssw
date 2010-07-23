@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: TrigResRateMon.cc,v 1.1 2010/07/21 12:35:27 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQM/HLTEvF/interface/TrigResRateMon.h"
@@ -27,7 +27,7 @@ TrigResRateMon::TrigResRateMon(const edm::ParameterSet& iConfig): currentRun_(-9
     dbe_->setVerbose(0);
   }
   
-  dirname_ = iConfig.getUntrackedParameter("dirname", std::string("HLT/FourVector/"));
+  dirname_ = iConfig.getUntrackedParameter("dirname", std::string("HLT/TrigResults/"));
   //dirname_ +=  iConfig.getParameter<std::string>("@module_label");
   
   if (dbe_ != 0 ) {
@@ -146,13 +146,13 @@ TrigResRateMon::TrigResRateMon(const edm::ParameterSet& iConfig): currentRun_(-9
 
   specialPaths_ = iConfig.getParameter<std::vector<std::string > >("SpecialPaths");
 
-  pathsSummaryFolder_ = iConfig.getUntrackedParameter ("pathsSummaryFolder",std::string("HLT/FourVector/PathsSummary/"));
-  pathsSummaryHLTCorrelationsFolder_ = iConfig.getUntrackedParameter ("hltCorrelationsFolder",std::string("HLT/FourVector/PathsSummary/HLT Correlations/"));
-  pathsSummaryFilterCountsFolder_ = iConfig.getUntrackedParameter ("filterCountsFolder",std::string("HLT/FourVector/PathsSummary/Filters Counts/"));
+  pathsSummaryFolder_ = iConfig.getUntrackedParameter ("pathsSummaryFolder",std::string("HLT/TrigResults/PathsSummary/"));
+  pathsSummaryHLTCorrelationsFolder_ = iConfig.getUntrackedParameter ("hltCorrelationsFolder",std::string("HLT/TrigResults/PathsSummary/HLT Correlations/"));
+  pathsSummaryFilterCountsFolder_ = iConfig.getUntrackedParameter ("filterCountsFolder",std::string("HLT/TrigResults/PathsSummary/Filters Counts/"));
 
-  pathsSummaryHLTPathsPerLSFolder_ = iConfig.getUntrackedParameter ("individualPathsPerLSFolder",std::string("HLT/FourVector/PathsSummary/HLT LS/"));
-  pathsIndividualHLTPathsPerLSFolder_ = iConfig.getUntrackedParameter ("individualPathsPerLSFolder",std::string("HLT/FourVector/PathsSummary/HLT LS/Paths/"));
-  pathsSummaryHLTPathsPerBXFolder_ = iConfig.getUntrackedParameter ("individualPathsPerBXFolder",std::string("HLT/FourVector/PathsSummary/HLT BX/"));
+  pathsSummaryHLTPathsPerLSFolder_ = iConfig.getUntrackedParameter ("individualPathsPerLSFolder",std::string("HLT/TrigResults/PathsSummary/HLT LS/"));
+  pathsIndividualHLTPathsPerLSFolder_ = iConfig.getUntrackedParameter ("individualPathsPerLSFolder",std::string("HLT/TrigResults/PathsSummary/HLT LS/Paths/"));
+  pathsSummaryHLTPathsPerBXFolder_ = iConfig.getUntrackedParameter ("individualPathsPerBXFolder",std::string("HLT/TrigResults/PathsSummary/HLT BX/"));
 
   fLumiFlag = true;
   ME_HLTAll_LS = NULL;
@@ -1015,9 +1015,9 @@ void TrigResRateMon::fillHltMatrix(const edm::TriggerNames & triggerNames) {
   for (unsigned int mi=0;mi<fGroupNamePathsPair.size();mi++) {
 
 
-  fullPathToME = "HLT/FourVector/PathsSummary/HLT_"+fGroupNamePathsPair[mi].first+"_PassPass";
+  fullPathToME = "HLT/TrigResults/PathsSummary/HLT_"+fGroupNamePathsPair[mi].first+"_PassPass";
   MonitorElement* ME_2d = dbe_->get(fullPathToME);
-  fullPathToME = "HLT/FourVector/PathsSummary/HLT_"+fGroupNamePathsPair[mi].first+"_Pass_Any";
+  fullPathToME = "HLT/TrigResults/PathsSummary/HLT_"+fGroupNamePathsPair[mi].first+"_Pass_Any";
   MonitorElement* ME_1d = dbe_->get(fullPathToME);
   if(!ME_2d || !ME_1d) {  
 
@@ -1106,7 +1106,7 @@ void TrigResRateMon::fillHltMatrix(const edm::TriggerNames & triggerNames) {
 void TrigResRateMon::setupHltBxPlots()
 {
 
-  //pathsSummaryFolder_ = TString("HLT/FourVector/PathsSummary/");
+  //pathsSummaryFolder_ = TString("HLT/TrigResults/PathsSummary/");
   //dbe_->setCurrentFolder(pathsSummaryFolder_.c_str());
   dbe_->setCurrentFolder(pathsSummaryFolder_);
 
@@ -1139,7 +1139,7 @@ void TrigResRateMon::setupHltLsPlots()
  
   unsigned int npaths = hltPathsDiagonal_.size();
 
-  //pathsSummaryHLTPathsPerLSFolder_ = TString("HLT/FourVector/PathsSummary/HLT LS/");
+  //pathsSummaryHLTPathsPerLSFolder_ = TString("HLT/TrigResults/PathsSummary/HLT LS/");
   //dbe_->setCurrentFolder(pathsSummaryHLTPathsPerLSFolder_.c_str());
   dbe_->setCurrentFolder(pathsSummaryHLTPathsPerLSFolder_);
 
@@ -1373,7 +1373,7 @@ void TrigResRateMon::countHLTGroupL1HitsEndLumiBlock(const int& lumi)
  for(unsigned int i=0; i<fGroupNamePathsPair.size(); i++){
 
    // get the count of path up to now
-   string fullPathToME = "HLT/FourVector/PathsSummary/HLT_" + fGroupNamePathsPair[i].first+ "_Pass_Any";
+   string fullPathToME = "HLT/TrigResults/PathsSummary/HLT_" + fGroupNamePathsPair[i].first+ "_Pass_Any";
    MonitorElement* ME_1d = dbe_->get(fullPathToME);
 
    if(! ME_1d) {
@@ -1452,7 +1452,7 @@ void TrigResRateMon::countHLTGroupHitsEndLumiBlock(const int& lumi)
  for(unsigned int i=0; i<fGroupNamePathsPair.size(); i++){
 
    // get the count of path up to now
-   string fullPathToME = "HLT/FourVector/PathsSummary/HLT_" + fGroupNamePathsPair[i].first + "_Pass_Any";
+   string fullPathToME = "HLT/TrigResults/PathsSummary/HLT_" + fGroupNamePathsPair[i].first + "_Pass_Any";
    MonitorElement* ME_1d = dbe_->get(fullPathToME);
 
    if(! ME_1d) {
@@ -1529,7 +1529,7 @@ void TrigResRateMon::countHLTPathHitsEndLumiBlock(const int& lumi)
 
    LogTrace("TrigResRateMon") << " countHLTPathHitsEndLumiBlock() lumiSection number " << lumi << endl;
     // get the count of path up to now
-   string fullPathToME = "HLT/FourVector/PathsSummary/HLT_All_PassPass";
+   string fullPathToME = "HLT/TrigResults/PathsSummary/HLT_All_PassPass";
    MonitorElement* ME_2d = dbe_->get(fullPathToME);
 
    if(! ME_2d) {
