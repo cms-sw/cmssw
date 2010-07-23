@@ -1,5 +1,5 @@
 //
-// $Id: PATJetSelector.h,v 1.2 2010/07/22 14:18:11 srappocc Exp $
+// $Id: PATJetSelector.h,v 1.3 2010/07/22 16:09:31 srappocc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATJetSelector_h
@@ -182,11 +182,10 @@ namespace pat {
 
 
       // put genEvt  in Event
-      bool pass = patJets->size() > 0;
       iEvent.put(patJets);
 
 
-      return pass;
+      return true;
     }
 
   protected:
