@@ -11,6 +11,9 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessConfigurationID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/Parentage.h"
+#include "DataFormats/Provenance/interface/ProductProvenance.h"
+#include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ParameterSet/interface/FillProductRegistryTransients.h"
@@ -20,14 +23,24 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+
+
 #include <assert.h>
 #include <iostream>
 #include <memory>
 #include <sstream>
 #include <map>
+#include <vector>
+#include <set>
 
 #include "boost/utility.hpp"
 #include "boost/scoped_ptr.hpp"
+
+#include "boost/program_options.hpp"
+
+
+static std::ostream& prettyPrint(ostream& oStream, const edm::ParameterSet& iPSet, const std::string& iIndent, const std::string& iIndentDelta);
+
 
 namespace {
 typedef std::map<edm::ParameterSetID, edm::ParameterSetBlob> ParameterSetMap;
@@ -147,7 +160,8 @@ std::string eventSetupComponent(char const* iType, std::string const& iCompName,
   }
 
   result << iType << ": " << name << " " << iProcessName << "\n"
-         << " parameters: " << pset;
+         << " parameters: ";
+  prettyPrint(result,pset," "," ");
   return result.str();
 }
 
@@ -210,12 +224,66 @@ namespace {
 }
 
 
+static std::ostream & prettyPrint(std::ostream & os, edm::ParameterSetEntry const& psetEntry, const std::string& iIndent, const std::string& iIndentDelta) {
+  const char* trackiness = (psetEntry.isTracked()?"tracked":"untracked");
+  os << "PSet "<<trackiness<<" = (";
+  prettyPrint(os,psetEntry.pset(),iIndent+iIndentDelta,iIndentDelta);
+  os<<")";
+  return os;
+}
+
+static std::ostream & prettyPrint(std::ostream & os, edm::VParameterSetEntry const& vpsetEntry, const std::string& iIndent, const std::string& iIndentDelta) {
+  std::vector<edm::ParameterSet> const& vps = vpsetEntry.vpset();
+  os << "VPSet "<<(vpsetEntry.isTracked()?"tracked":"untracked")<<" = ({" << std::endl;
+  std::string newIndent = iIndent+iIndentDelta;
+  std::string start;
+  std::string const between(",\n");
+  for(std::vector<edm::ParameterSet>::const_iterator i = vps.begin(), e = vps.end(); i != e; ++i) {
+    os <<start<<newIndent;
+    prettyPrint(os, *i, newIndent, iIndentDelta);
+    start = between;
+  }
+  if (!vps.empty()) {
+    os << std::endl;
+  }
+  os <<iIndent<< "})";
+  return os;
+}
+
+
+static std::ostream& prettyPrint(ostream& oStream, const edm::ParameterSet& iPSet, const std::string& iIndent, const std::string& iIndentDelta) {
+  std::string newIndent = iIndent+iIndentDelta;
+  
+  oStream<<"{"<<std::endl;
+  for(edm::ParameterSet::table::const_iterator i = iPSet.tbl().begin(), e = iPSet.tbl().end(); i != e; ++i) {
+    // indent a bit
+    oStream << newIndent<< i->first << ": " << i->second << std::endl;
+  }
+  for(edm::ParameterSet::psettable::const_iterator i = iPSet.psetTable().begin(), e = iPSet.psetTable().end(); i != e; ++i) {
+    // indent a bit
+    edm::ParameterSetEntry const& pe = i->second;
+    oStream << newIndent << i->first << ": "; 
+    prettyPrint(oStream,pe, iIndent,iIndentDelta);
+    oStream<<  std::endl;
+  }
+  for(edm::ParameterSet::vpsettable::const_iterator i = iPSet.vpsetTable().begin(), e = iPSet.vpsetTable().end(); i != e; ++i) {
+    // indent a bit
+    edm::VParameterSetEntry const& pe = i->second;
+    oStream << newIndent << i->first << ": ";
+    prettyPrint(oStream,pe,newIndent,iIndentDelta);
+    oStream<<  std::endl;
+  }
+  oStream << iIndent<< "}";
+  
+  return oStream;
+}
+
 
 class ProvenanceDumper : private boost::noncopyable {
 public:
   // It is illegal to call this constructor with a null pointer; a
   // legal C-style string is required.
-  explicit ProvenanceDumper(char const* filename);
+  ProvenanceDumper(char const* filename,bool showDependencies, bool excludeESModules);
 
   // Write the provenenace information to the given stream.
   void dump(std::ostream& os);
@@ -233,6 +301,8 @@ private:
   edm::ProcessHistoryVector phv_;
   ParameterSetMap          psm_;
   HistoryNode              historyGraph_;
+  bool                     showDependencies_;
+  bool                     excludeESModules_;
 
   void work_();
   void dumpProcessHistory_();
@@ -240,12 +310,15 @@ private:
   void dumpParameterSetForID_(edm::ParameterSetID const& id);
 };
 
-ProvenanceDumper::ProvenanceDumper(char const* filename) :
+ProvenanceDumper::ProvenanceDumper(char const* filename, bool showDependencies, bool excludeESModules) :
   filename_(filename),
   inputFile_(makeTFile(filename)),
   exitCode_(0),
   errorLog_(),
-  errorCount_(0) {
+  errorCount_(0),
+  showDependencies_(showDependencies),
+  excludeESModules_(excludeESModules)
+{
 }
 
 void
@@ -304,7 +377,8 @@ ProvenanceDumper::dumpParameterSetForID_(edm::ParameterSetID const& id) {
       }
     } else {
       edm::ParameterSet ps(i->second.pset());
-      std::cout << ps << '\n';
+      prettyPrint(std::cout, ps," "," ");
+      std::cout<< '\n';
     }
   } else {
     std::cout << "This ID is not valid\n";
@@ -438,6 +512,49 @@ ProvenanceDumper::work_() {
   }
 
   fillProductRegistryTransients(phc_, reg_, true);
+  
+  //Prepare the parentage information if requested
+  std::map<edm::BranchID, std::set<edm::ParentageID> > perProductParentage;
+  
+  if(showDependencies_){
+    TTree* parentageTree = dynamic_cast<TTree*>(f->Get(edm::poolNames::parentageTreeName().c_str()));
+    if(0==parentageTree) {
+      std::cerr <<"no Parentage tree available so can not show dependencies/n";
+      showDependencies_ = false;
+    } else {
+      edm::Parentage parentageBuffer;
+      edm::Parentage *pParentageBuffer = &parentageBuffer;
+      parentageTree->SetBranchAddress(edm::poolNames::parentageBranchName().c_str(), &pParentageBuffer);
+      
+      edm::ParentageRegistry& registry = *edm::ParentageRegistry::instance();
+      
+      for(Long64_t i = 0, numEntries = parentageTree->GetEntries(); i < numEntries; ++i) {
+        parentageTree->GetEntry(i);
+        registry.insertMapped(parentageBuffer);
+      }
+      parentageTree->SetBranchAddress(edm::poolNames::parentageBranchName().c_str(), 0);
+      
+      TTree* eventMetaTree = dynamic_cast<TTree*>(f->Get(edm::BranchTypeToMetaDataTreeName(edm::InEvent).c_str()));
+      if(0==eventMetaTree) {
+        std::cerr <<"no '"<<edm::BranchTypeToMetaDataTreeName(edm::InEvent)<<"' Tree in file so can not show dependencies\n";
+        showDependencies_ = false;
+      } else {
+        TBranch* productProvBranch = eventMetaTree->GetBranch(edm::BranchTypeToBranchEntryInfoBranchName(edm::InEvent).c_str());
+        
+        std::vector<edm::ProductProvenance> info;
+        std::vector<edm::ProductProvenance>* pInfo = &info;
+        productProvBranch->SetAddress(&pInfo);
+        for(Long64_t i = 0, numEntries = eventMetaTree->GetEntries(); i < numEntries; ++i) {
+          productProvBranch->GetEntry(i);
+          for(std::vector<edm::ProductProvenance>::const_iterator it = info.begin(), itEnd = info.end();
+              it != itEnd; ++it) {
+            perProductParentage[it->branchID()].insert(it->parentageID());
+          }
+        }
+      }
+    }
+  }
+  
 
   if (history != 0) {
     dumpEventFilteringParameterSets_(*history);
@@ -446,25 +563,16 @@ ProvenanceDumper::work_() {
   dumpProcessHistory_();
 
   std::cout << "---------Event---------" << std::endl;
-  /*
-    for (std::vector<edm::ProcessHistory>::const_iterator it = uniqueLongHistories.begin(),
-    itEnd = uniqueLongHistories.end();
-    it != itEnd;
-    ++it) {
-    //ParameterSetMap::const_iterator itpsm = psm.find(psid);
-    for (edm::ProcessHistory::const_iterator itH = it->begin(), e = it->end();
-    itH != e;
-    ++itH) {
-    std::cout << edm::ParameterSet(psm[ itH->parameterSetID() ].pset()) << std::endl;
-    }
-    }
-  */
+  
   //using edm::ParameterSetID as the key does not work
   //   typedef std::map<edm::ParameterSetID, std::vector<edm::BranchDescription> > IdToBranches
   typedef std::map<std::string, std::vector<edm::BranchDescription> > IdToBranches;
   typedef std::map<std::pair<std::string, std::string>, IdToBranches> ModuleToIdBranches;
   ModuleToIdBranches moduleToIdBranches;
   //IdToBranches idToBranches;
+  
+  std::map<edm::BranchID, std::string> branchIDToBranchName;
+  
   for (edm::ProductRegistry::ProductList::const_iterator it =
 	 reg_.productList().begin(), itEnd = reg_.productList().end();
        it != itEnd;
@@ -472,6 +580,9 @@ ProvenanceDumper::work_() {
     //force it to rebuild the branch name
     it->second.init();
 
+    if(showDependencies_) {
+      branchIDToBranchName[it->second.branchID()]=it->second.branchName();
+    }
     /*
       std::cout << it->second.branchName()
       << " id " << it->second.productID() << std::endl;
@@ -500,13 +611,15 @@ ProvenanceDumper::work_() {
 	 ++itIdBranch) {
       std::cout << " PSet id:" << itIdBranch->first << std::endl;
       std::cout << " products: {" << std::endl;
+      std::set<edm::BranchID> branchIDs;
       for (std::vector<edm::BranchDescription>::const_iterator itBranch = itIdBranch->second.begin(),
 	     itBranchEnd = itIdBranch->second.end();
 	   itBranch != itBranchEnd;
 	   ++itBranch) {
 	std::cout << "  " << itBranch->branchName() << std::endl;
+        branchIDs.insert(itBranch->branchID());
       }
-      std::cout << "}" << std::endl;
+      std::cout << " }" << std::endl;
       edm::ParameterSetID psid(itIdBranch->first);
       ParameterSetMap::const_iterator itpsm = psm_.find(psid);
       if (psm_.end() == itpsm) {
@@ -514,33 +627,132 @@ ProvenanceDumper::work_() {
 	errorLog_ << "No ParameterSetID for " << psid << std::endl;
 	exitCode_ = 1;
       } else {
-	std::cout << " parameters: " <<
-	  edm::ParameterSet((*itpsm).second.pset()) << std::endl;
+	std::cout << " parameters: ";
+        prettyPrint(std::cout, edm::ParameterSet((*itpsm).second.pset()), " ", " ");
+        std::cout << std::endl;
+      }
+      if(showDependencies_) {
+        edm::ParentageRegistry& registry = *edm::ParentageRegistry::instance();
+
+        std::cout << " dependencies: {"<<std::endl;
+        std::set<edm::ParentageID> parentageIDs;
+        for(std::set<edm::BranchID>::const_iterator itBranch = branchIDs.begin(), itBranchEnd=branchIDs.end();
+            itBranch != itBranchEnd;
+            ++itBranch) {
+          const std::set<edm::ParentageID>& temp = perProductParentage[*itBranch];
+          parentageIDs.insert(temp.begin(),temp.end());
+        }
+        for(std::set<edm::ParentageID>::const_iterator itParentID = parentageIDs.begin(), itEndParentID=parentageIDs.end();
+            itParentID != itEndParentID;
+            ++itParentID) {
+          const edm::Parentage* parentage = registry.getMapped(*itParentID);
+          if(0!=parentage) {
+            for(std::vector<edm::BranchID>::const_iterator itBranch=parentage->parents().begin(), itEndBranch=parentage->parents().end();
+                itBranch != itEndBranch;
+                ++itBranch) {
+              std::cout <<"  "<<branchIDToBranchName[*itBranch]<<std::endl;
+            }
+          } else {
+            std::cout <<"  ERROR:parentage info not in registry ParentageID="<<*itParentID<<std::endl;
+          }
+        }
+        if(parentageIDs.empty()) {
+          std::cout <<"  no dependencies recorded (event may not contain data from this module)"<<std::endl;
+        }
+        std::cout << " }"<<std::endl;
       }
       std::cout << std::endl;
     }
   }
-  std::cout << "---------EventSetup---------" << std::endl;
-  historyGraph_.printEventSetupHistory(psm_, errorLog_);
+  if(!excludeESModules_) {
+    std::cout << "---------EventSetup---------" << std::endl;
+    historyGraph_.printEventSetupHistory(psm_, errorLog_);
+  }
   if (errorCount_ != 0) {
     exitCode_ = 1;
   }
 }
 
 
+static const char* const kSortOpt = "sort";
+static const char* const kSortCommandOpt = "sort,s";
+static const char* const kDependenciesOpt = "dependencies";
+static const char* const kDependenciesCommandOpt = "dependencies,d";
+static const char* const kExcludeESModulesOpt = "excludeESModules";
+static const char* const kExcludeESModulesCommandOpt = "excludeESModules,e";
+static const char* const kHelpOpt = "help";
+static const char* const kHelpCommandOpt = "help,h";
+static const char* const kFileNameOpt ="input-file";
+static const char* const kFileNameCommandOpt ="input-file";
+
+
 int main(int argc, char* argv[]) {
-  // will need boost::program_options someday
-  std::string fileName;
-  if(argc == 3 && std::string(argv[1]) == "--sort") {
+  using namespace boost::program_options;
+  
+  
+  std::string descString(argv[0]);
+  descString += " [options] <filename>";
+  descString += "\nAllowed options";
+  options_description desc(descString);
+  desc.add_options()
+  (kHelpCommandOpt, "show help message")
+  (kSortCommandOpt
+   , "alphabetially sort EventSetup components")
+  (kDependenciesCommandOpt
+   , "print what data each EDProducer is dependent upon")
+  (kExcludeESModulesCommandOpt
+   , "do not print ES module information")
+  ;
+  //we don't want users to see these in the help messages since this
+  // name only exists since the parser needs it
+  options_description hidden;
+  hidden.add_options()(kFileNameOpt,value<std::string>(),"file name");
+  
+  //full list of options for the parser
+  options_description cmdline_options;
+  cmdline_options.add(desc).add(hidden);
+
+  positional_options_description p;
+  p.add(kFileNameOpt,-1);
+  
+  
+  variables_map vm;
+  try {
+    store(command_line_parser(argc,argv).options(cmdline_options).positional(p).run(),vm);
+    notify(vm);
+  } catch(const error& iException) {
+    std::cerr <<iException.what();
+    return 1;
+  }
+  
+  if(vm.count(kHelpOpt)) {
+    std::cout << desc <<std::endl;
+    return 0;
+  }
+  
+  if(vm.count(kSortOpt) ) {
     HistoryNode::sort_ = true;
-    fileName = argv[2];
-  } else if (argc == 2) {
-     fileName = argv[1];
+  }
+  
+  bool showDependencies = false;
+  if(vm.count(kDependenciesOpt)) {
+    showDependencies=true;
+  }
+  
+  bool excludeESModules = false;
+  if(vm.count(kExcludeESModulesOpt)) {
+    excludeESModules=true;
+  }
+  std::string fileName;
+  if(vm.count(kFileNameOpt)) {
+    fileName = vm[kFileNameOpt].as<std::string>();
   } else {
-    std::cerr << "Usage: " << argv[0] << " [--sort] <filename> \n";
+    std::cout <<"Data file not specified."<<std::endl;
+    std::cout << desc <<std::endl;
     return 2;
   }
-
+  
+  
   try {
     edmplugin::PluginManager::configure(edmplugin::standard::config());
   } catch(cms::Exception& e) {
@@ -572,7 +784,7 @@ int main(int argc, char* argv[]) {
     return 1;
   }
   
-  ProvenanceDumper dumper(fileName.c_str());
+  ProvenanceDumper dumper(fileName.c_str(),showDependencies,excludeESModules);
   int exitCode(0);
   try {
     dumper.dump(std::cout);
