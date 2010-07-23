@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 08:14:21 EDT 2008
-// $Id: FWItemAccessorBase.h,v 1.3 2009/01/23 21:35:41 amraktad Exp $
+// $Id: FWItemAccessorBase.h,v 1.4 2009/03/04 16:52:13 chrjones Exp $
 //
 
 // system include files
@@ -52,7 +52,7 @@ public:
    ///override if id of an object should be different than the index
    //virtual std::string idForIndex(int iIndex) const;
    // ---------- member functions ---------------------------
-   virtual void setWrapper(const Reflex::Object& )=0;
+   virtual void setData(const Reflex::Object& )=0;
    virtual void reset() = 0;
 
 private:

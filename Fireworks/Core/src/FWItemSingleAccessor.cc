@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 11:36:44 EDT 2008
-// $Id: FWItemSingleAccessor.cc,v 1.3 2008/11/06 22:05:25 amraktad Exp $
+// $Id: FWItemSingleAccessor.cc,v 1.4 2009/01/23 21:35:43 amraktad Exp $
 //
 
 // system include files
@@ -60,20 +60,21 @@ FWItemSingleAccessor::~FWItemSingleAccessor()
 // member functions
 //
 void
-FWItemSingleAccessor::setWrapper(const ROOT::Reflex::Object& iWrapper)
+FWItemSingleAccessor::setData(const ROOT::Reflex::Object& product)
 {
-   if(0!=iWrapper.Address()) {
-      using ROOT::Reflex::Object;
-      //get the Event data from the wrapper
-      Object product(iWrapper.Get("obj"));
-      if(product.TypeOf().IsTypedef()) {
-         product = Object(product.TypeOf().ToType(),product.Address());
-      }
-      m_data = product.Address();
-      assert(0!=m_data);
-   } else {
+   if (product.Address() == 0)
+   {
       reset();
+      return;
    }
+   
+   using ROOT::Reflex::Object;
+   
+   if(product.TypeOf().IsTypedef())
+      m_data = Object(product.TypeOf().ToType(), product.Address()).Address();
+   else
+      m_data = product.Address();
+   assert(0!=m_data);
 }
 
 void

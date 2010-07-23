@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 10:19:07 EST 2008
-// $Id: unittest_modelexpressionselector.cc,v 1.2 2009/12/18 00:37:34 chrjones Exp $
+// $Id: unittest_modelexpressionselector.cc,v 1.3 2010/06/18 10:17:16 yana Exp $
 //
 
 // system include files
@@ -51,7 +51,7 @@ namespace  {
       ///override if id of an object should be different than the index
       //virtual std::string idForIndex(int iIndex) const;
       // ---------- member functions ---------------------------
-      virtual void setWrapper(const Reflex::Object& ) {}
+      virtual void setData(const Reflex::Object& ) {}
       virtual void reset(){}
       
    private:

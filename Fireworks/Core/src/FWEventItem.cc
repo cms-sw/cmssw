@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.48 2010/07/21 09:43:20 eulisse Exp $
+// $Id: FWEventItem.cc,v 1.49 2010/07/21 17:03:26 matevz Exp $
 //
 
 // system include files
@@ -28,11 +28,8 @@
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWItemAccessorBase.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
+#include "Fireworks/Core/src/FWGenericHandle.h"
 #include "Fireworks/Core/interface/fwLog.h"
-
-//
-// constants, enums and typedefs
-//
 
 //
 // static data member definitions
@@ -86,25 +83,24 @@ FWEventItem::FWEventItem(fireworks::Context* iContext,
    m_printedErrorThisEvent(false),
    m_isSelected(false)
 {
-   assert(m_type->GetTypeInfo());
-   ROOT::Reflex::Type dataType( ROOT::Reflex::Type::ByTypeInfo(*(m_type->GetTypeInfo())));
-   assert(dataType != ROOT::Reflex::Type() );
-
-   std::string dataTypeName = dataType.Name(ROOT::Reflex::SCOPED);
-   if (dataTypeName[dataTypeName.size() -1] == '>')
-      dataTypeName += " ";
-   std::string wrapperName = "edm::Wrapper<" + dataTypeName + ">";
-
-   fwLog(fwlog::kDebug) << "Looking for the wrapper name" 
-                       << wrapperName << std::endl;
-   m_wrapperType = ROOT::Reflex::Type::ByName(wrapperName);
-
-   assert(m_wrapperType != ROOT::Reflex::Type());
+   //assert(m_type->GetTypeInfo());
+   //ROOT::Reflex::Type dataType( ROOT::Reflex::Type::ByTypeInfo(*(m_type->GetTypeInfo())));
+   //assert(dataType != ROOT::Reflex::Type() );
+   //
+   //std::string dataTypeName = dataType.Name(ROOT::Reflex::SCOPED);
+   //if (dataTypeName[dataTypeName.size() -1] == '>')
+   //   dataTypeName += " ";
+   //std::string wrapperName = "edm::Wrapper<" + dataTypeName + ">";
+   //
+   //fwLog(fwlog::kDebug) << "Looking for the wrapper name" 
+   //                    << wrapperName << std::endl;
+   //m_wrapperType = ROOT::Reflex::Type::ByName(wrapperName);
+   //
+   //assert(m_wrapperType != ROOT::Reflex::Type());
    if(!m_accessor->isCollection()) {
       m_itemInfos.reserve(1);
    }
    m_filter.setClassName(modelType()->GetName());
-
 }
 // FWEventItem::FWEventItem(const FWEventItem& rhs)
 // {
@@ -388,6 +384,7 @@ FWEventItem::handleChange()
    getPrimaryData();
    runFilter();
 }
+
 //
 // const member functions
 //
@@ -396,86 +393,44 @@ FWEventItem::data(const std::type_info& iInfo) const
 {
    using namespace Reflex;
    //At the moment this is a programming error
-   assert(iInfo == *(m_type->GetTypeInfo()) );
+   assert(iInfo == *(m_type->GetTypeInfo()));
 
    //lookup data if we don't already have it
-   if(0==m_accessor->data()) {
-      m_errorMessage.clear();
-      void* wrapper=0;
-      void* temp = &wrapper;
-      if(m_event) {
-         const fwlite::Event *fwEvent = dynamic_cast<const fwlite::Event*>(m_event);
-         // Needed to test edm::Event access
-         // const edm::Event    *ffEvent = dynamic_cast<const edm::Event*>(m_event);
+   if (m_accessor->data())
+      return m_accessor->data();
 
-         try
-         {
-            if (fwEvent)
-            {
-               fwEvent->getByLabel(m_wrapperType.TypeInfo(),
-                                   m_moduleLabel.c_str(),
-                                   m_productInstanceLabel.c_str(),
-                                   m_processName.size() ? m_processName.c_str() : 0,
-                                   temp);
-            }
-            // Needed to test edm::Event access
-            // else if (ffEvent)
-            // {
-            //    edm::BasicHandle temp2;
-            //    ffEvent->getByLabel(m_wrapperType.TypeInfo(),
-            //                        m_moduleLabel.c_str(),
-            //                        m_productInstanceLabel.c_str(),
-            //                        temp2);
-            //    wrapper = const_cast<edm::EDProduct*>(temp2.wrapper());
-            // }
-         } catch (std::exception& iException) {
-            if ( !m_printedErrorThisEvent ) {
-               std::ostringstream s;
-               s<< "Failed to get "<<name()<<" because \n" <<iException.what();
-               m_errorMessage=s.str();
-               m_printedErrorThisEvent = true;
-            }
-            return 0;
-         }
-         if (0==wrapper) {
-            if ( !m_printedErrorThisEvent ) {
-               std::ostringstream s;
-               s << "Failed to get "<<name()<<" because branch does not exist in this file";
-               m_errorMessage=s.str();
-               m_printedErrorThisEvent = true;
-            }
-            return 0;
-         }
-         //Get Reflex to do the work
-         Object wrapperObj(m_wrapperType,wrapper);
-
-         //Convert our wrapper to its EDProduct base class
-         static Type s_edproductType(Type::ByTypeInfo(typeid(edm::EDProduct)));
-         Object edproductObj(wrapperObj.CastObject(s_edproductType));
-         const edm::EDProduct* prod = reinterpret_cast<const edm::EDProduct*>(edproductObj.Address());
-
-         if (not prod->isPresent()) {
-            //not actually in this event
-            if (!m_printedErrorThisEvent) {
-               std::ostringstream s;
-               s <<name()<<" is registered in the file but is unavailable for this event"<<std::endl;
-               m_errorMessage=s.str();
-               m_printedErrorThisEvent = true;
-            }
-            return 0;
-         }
-
-         setData(wrapperObj);
+   m_errorMessage.clear();
+   if (!m_event)
+      return m_accessor->data();
+   
+   // Retrieve the data from the event.
+   edm::InputTag tag(m_moduleLabel, m_productInstanceLabel, m_processName);
+   edm::FWGenericHandle handle(Reflex::Type::ByTypeInfo(iInfo));
+   try
+   {
+      m_event->getByLabel(tag, handle);
+   } 
+   catch (std::exception& iException)
+   {
+      if (!m_printedErrorThisEvent) 
+      {
+         std::ostringstream s;
+         s << "Failed to get " << name() << " because \n" <<iException.what();
+         m_errorMessage=s.str();
+         m_printedErrorThisEvent = true;
       }
+      return 0;
    }
+   
+   setData(*handle);
+   
    return m_accessor->data();
 }
-
 
 void
 FWEventItem::setData(const Reflex::Object& iData) const
 {
-   m_accessor->setWrapper(iData);
+   m_accessor->setData(iData);
    //std::cout <<"size "<<m_accessor->size()<<std::endl;
    if(m_accessor->isCollection()) {
       m_itemInfos.reserve(m_accessor->size());

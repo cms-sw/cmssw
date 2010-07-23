@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 08:43:47 EDT 2008
-// $Id: FWItemTVirtualCollectionProxyAccessor.cc,v 1.4 2010/06/03 19:26:59 chrjones Exp $
+// $Id: FWItemTVirtualCollectionProxyAccessor.cc,v 1.5 2010/06/18 10:17:15 yana Exp $
 //
 
 // system include files
@@ -66,21 +66,22 @@ FWItemTVirtualCollectionProxyAccessor::~FWItemTVirtualCollectionProxyAccessor()
 // member functions
 //
 void
-FWItemTVirtualCollectionProxyAccessor::setWrapper(const ROOT::Reflex::Object& iWrapper)
+FWItemTVirtualCollectionProxyAccessor::setData(const ROOT::Reflex::Object& product)
 {
-   if(0!=iWrapper.Address()) {
-      using ROOT::Reflex::Object;
-      //get the Event data from the wrapper
-      Object product(iWrapper.Get("obj"));
-      if(product.TypeOf().IsTypedef()) {
-         product = Object(product.TypeOf().ToType(),product.Address());
-      }
-      m_data = product.Address();
-      assert(0!=m_data);
-      m_colProxy->PushProxy(static_cast<char*>(const_cast<void*>(m_data))+m_offset);
-   } else {
+   if (product.Address() == 0)
+   {
       reset();
+      return;
    }
+
+   using ROOT::Reflex::Object;
+   if(product.TypeOf().IsTypedef())
+      m_data = Object(product.TypeOf().ToType(),product.Address()).Address();
+   else
+      m_data = product.Address();
+
+   assert(0!=m_data);
+   m_colProxy->PushProxy(static_cast<char*>(const_cast<void*>(m_data))+m_offset);
 }
 
 void

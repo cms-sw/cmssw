@@ -10,7 +10,7 @@
 //
 // Original Author:  Giulio Eulisse
 //         Created:  Thu Feb 18 15:19:44 EDT 2008
-// $Id: FWItemRandomAccessor.cc,v 1.1 2010/03/01 09:43:02 eulisse Exp $
+// $Id: FWItemRandomAccessor.cc,v 1.2 2010/06/18 10:17:15 yana Exp $
 //
 
 // system include files
@@ -54,22 +54,20 @@ FWItemRandomAccessorBase::~FWItemRandomAccessorBase()
 // member functions
 //
 void
-FWItemRandomAccessorBase::setWrapper(const ROOT::Reflex::Object& iWrapper)
+FWItemRandomAccessorBase::setData(const ROOT::Reflex::Object& product)
 {
-   if(0!=iWrapper.Address()) 
+   if (product.Address() == 0)
    {
-      using ROOT::Reflex::Object;
-      //get the Event data from the wrapper
-      Object product(iWrapper.Get("obj"));
-
-      if(product.TypeOf().IsTypedef())
-         product = Object(product.TypeOf().ToType(),product.Address());
-
-      m_data = product.Address();
-      assert(0!=m_data);
-   } 
-   else 
       reset();
+      return;
+   }
+   
+   using ROOT::Reflex::Object;
+   if(product.TypeOf().IsTypedef())
+      m_data = Object(product.TypeOf().ToType(),product.Address()).Address();
+   else
+      m_data = product.Address();
+   assert(0!=m_data);
 }
 
 void

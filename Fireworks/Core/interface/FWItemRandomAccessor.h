@@ -7,7 +7,7 @@
 //
 // Original Author:  Giulio Eulisse
 //         Created:  Thu Feb 18 15:19:44 EDT 2008
-// $Id: FWItemRandomAccessor.h,v 1.6 2010/06/03 11:46:05 mccauley Exp $
+// $Id: FWItemRandomAccessor.h,v 1.7 2010/06/09 13:21:00 mccauley Exp $
 //
 
 // system include files
@@ -37,7 +37,7 @@ public:
 
    bool           isCollection() const;
 
-   void           setWrapper(const ROOT::Reflex::Object&);
+   void           setData(const ROOT::Reflex::Object&);
    virtual void   reset();
 
 protected:
