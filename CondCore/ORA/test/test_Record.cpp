@@ -85,12 +85,14 @@ void testRecord(std::vector<float> const & v, std::vector<float> & v2) {
   checkmem("before specs");
 
   RecordSpec specs;
-  std::ostringstream oss;
-  std::string f("f_");
-  for (int i=0;i<100; ++i) {
-    oss.str("");
-    oss << i;
-    specs.add(f+oss.str(), typeid(float));
+  {
+    std::ostringstream oss;
+    std::string f("f_");
+    for (int i=0;i<100; ++i) {
+      oss.str("");
+      oss << i;
+      specs.add(f+oss.str(), typeid(float));
+    }
   }
 
   checkmem("after specs");
@@ -117,12 +119,15 @@ void testAttributeList(std::vector<float> const & v, std::vector<float> & v2) {
   checkmem("before AttributeListSpecs");
 
   coral::AttributeListSpecification * specs = new coral::AttributeListSpecification();
-  std::ostringstream oss;
-  std::string f("f_");
-  for (int i=0;i<100; ++i) {
-    oss.str("");
-    oss << i;
-    specs->extend(f+oss.str(), typeid(float));
+
+  {
+    std::ostringstream oss;
+    std::string f("f_");
+    for (int i=0;i<100; ++i) {
+      oss.str("");
+      oss << i;
+      specs->extend(f+oss.str(), typeid(float));
+    }
   }
 
   checkmem("after  AttributeSpecs");
