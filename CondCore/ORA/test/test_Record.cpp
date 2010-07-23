@@ -110,6 +110,8 @@ void testRecord(std::vector<float> const & v, std::vector<float> & v2) {
 }
 
 #include "CoralBase/AttributeList.h"
+#include "CoralBase/Attribute.h"
+
 void testAttributeList(std::vector<float> const & v, std::vector<float> & v2) {
   checkmem("before AttributeList");
 
@@ -125,12 +127,12 @@ void testAttributeList(std::vector<float> const & v, std::vector<float> & v2) {
   checkmem("after  AttributeList");
 
   for (int i=0;i<100; ++i)
-    record[i].data<float> = v[i];
+    record[i].data<float>() = v[i];
 
   checkmem("after assign");
 
   for (int i=0;i<100; ++i)
-    v2[i]= record[i].data<float>;
+    v2[i]= record[i].data<float>();
 
    checkmem("after recover");
  
