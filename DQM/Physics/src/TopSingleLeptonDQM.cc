@@ -165,7 +165,7 @@ namespace TopSingleLepton {
     // W mass estimate
     hists_["massW_"      ] = store_->book1D("MassW"      , "M(W)"             ,     60,     0.,    300.);   
     // Top mass estimate
-    hists_["massTop_"    ] = store_->book1D("MassTop"    , "M(Top)"           ,     50,     0.,    500.);   
+    hists_["massTop_"    ] = store_->book1D("MassTop"    , "M(Top)"           ,     51,    -1.,    500.);   
 
     // set bin labels for trigger monitoring
     triggerBinLabels(std::string("trigger"), triggerPaths_);
