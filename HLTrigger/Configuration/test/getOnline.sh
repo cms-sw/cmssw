@@ -1,16 +1,16 @@
 #! /bin/bash
 
-HLT='/online/collisions/2010/week28/HLT'
-# L1T='L1Menu_Commissioning2010_v3'
+HLT='/online/collisions/2010/week30/HLT'
+L1T='L1Menu_Commissioning2010_v3'
 
 rm -f OnData_HLT_TEST.py
 rm -f OnLine_HLT_TEST.py
 
-./getHLT.py --process TEST --full --offline --mc   --unprescale $HLT TEST
+./getHLT.py --process TEST --full --offline --mc   --unprescale --l1 $L1T $HLT TEST
 mv OnLine_HLT_TEST.py offline_mc.py
-./getHLT.py --process TEST --full --offline --data --unprescale $HLT TEST
+./getHLT.py --process TEST --full --offline --data --unprescale --l1 $L1T $HLT TEST
 mv OnData_HLT_TEST.py offline_data.py
-./getHLT.py --process TEST --full --online  --data --unprescale $HLT TEST
+./getHLT.py --process TEST --full --online  --data --unprescale --l1 $L1T $HLT TEST
 mv OnData_HLT_TEST.py online_data.py
 
 {
