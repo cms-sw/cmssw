@@ -22,11 +22,11 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 #### DQM Live Environment
 #----------------------------
 process.load("DQM.Integration.test.environment_cfi")
-process.DQM.collectorHost = 'srv-c2d05-13.cms'
-process.DQM.collectorPort = 9190
+process.DQM.collectorHost = 'localhost'
+process.DQM.collectorPort = 9991
 process.dqmEnv.subSystemFolder = 'DT'
 process.dqmSaver.convention = 'Online'
-process.dqmSaver.dirName = '/localdatadisk/DTDQM/dqmdata'
+process.dqmSaver.dirName = '/dtdata/dqmdata/minidaq'
 process.dqmSaver.producer = 'DQM'
 
 process.dqmSaver.saveByTime = -1
