@@ -61,26 +61,26 @@ namespace ora {
 
     virtual void set(AnyData & ad, void * p) const {
       if (inplace()) 
-	reinterpret_cast<T&>(ad.ul) =  *reinterpret_cast<T*>(p);
+	reinterpret_cast<T&>(ad.p) =  *reinterpret_cast<T*>(p);
       else 
 	*reinterpret_cast<T*>(ad.p) =  *reinterpret_cast<T*>(p);
     }
 
     virtual void const * get(const AnyData & ad) const { 
       if (inplace()) 
-        return &reinterpret_cast<T const &>(ad.ul);
+        return &reinterpret_cast<T const &>(ad.p);
       else
 	return ad.p;
     }
     virtual void create(AnyData & ad) const{
       if (inplace())
-	new(&ad.ul) T();
+	new(&ad.p) T();
       else 
 	ad.p = new T();
     }
     virtual void destroy(AnyData & ad) const{ 
       if (inplace())
-	(&reinterpret_cast<T&>(ad.ul))->~T();
+	(&reinterpret_cast<T&>(ad.p))->~T();
       else 
 	delete reinterpret_cast<T*>(ad.p);
     }

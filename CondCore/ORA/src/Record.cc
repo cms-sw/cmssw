@@ -1,4 +1,4 @@
-#include "Record.h"
+#include "CondCore/ORA/Record.h"
 #include "AnyData.h"
 #include "RecordDetails.h"
 
