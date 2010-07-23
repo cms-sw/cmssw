@@ -1,4 +1,4 @@
-// $Id: TrigResRateMon.cc,v 1.5 2010/07/23 17:30:55 rekovic Exp $
+// $Id: TrigResRateMon.cc,v 1.6 2010/07/23 19:00:19 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQM/HLTEvF/interface/TrigResRateMon.h"
@@ -761,7 +761,7 @@ void TrigResRateMon::beginRun(const edm::Run& run, const edm::EventSetup& c)
         histEtaMax = trackEtaMax_; 
       }
 
-      TString pathfolder = dirname_ + TString("/") + v->getPath();
+      TString pathfolder = dirname_ + TString("FV/") + v->getPath();
       dbe_->setCurrentFolder(pathfolder.Data());
 
       NOn =  dbe->book1D(histoname.c_str(), title.c_str(),10, 0.5, 10.5);
