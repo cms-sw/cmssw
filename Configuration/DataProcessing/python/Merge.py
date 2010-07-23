@@ -33,6 +33,7 @@ def mergeProcess(*inputFiles, **options):
     processName = options.get("process_name", "Merge")
     outputFilename = options.get("output_file", "Merged.root")
     outputLFN = options.get("output_lfn", None)
+    dropDQM = options.get("drop_dqm", False)
 
     #  //
     # // build process
@@ -41,11 +42,13 @@ def mergeProcess(*inputFiles, **options):
 
     #  //
     # // input source
-    #// 
+    #//
     process.source = Source("PoolSource")
     process.source.fileNames = CfgTypes.untracked(CfgTypes.vstring())
     for entry in inputFiles:
         process.source.fileNames.append(str(entry))
+    if dropDQM:
+        process.source.inputCommands = CfgTypes.untracked.vstring('keep *','drop *_EDMtoMEConverter_*_*')
 
     #  //
     # // output module
@@ -57,7 +60,7 @@ def mergeProcess(*inputFiles, **options):
     if outputLFN != None:
         process.Merged.logicalFileName = CfgTypes.untracked(CfgTypes.string(
             outputLFN))
-        
-    
+
+
     process.outputPath = EndPath(process.Merged)
     return process
