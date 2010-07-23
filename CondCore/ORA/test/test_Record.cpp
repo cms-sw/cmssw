@@ -4,10 +4,34 @@
 #include <vector>
 #include <sstream>
 
+#include<malloc.h>
+#include<cstdlib>
+
+namespace {
+  void printMem(char const * title) {
+	std::cout << "\n--- " << title <<" ---"<< std::endl;
+	struct mallinfo mi;
+	mi  = mallinfo();
+	int * mm = (int*)(&mi);
+	for(int i=0;i<10;i++) std::cout << mm[i] << ", ";
+	std::cout << std::endl;
+        std::cout << "mmap/arena-used/arena-free " << mi.hblkhd << " " << mi.uordblks << " " << mi.fordblks << std::endl;
+        std::cout << "mmap/arena-used/arena-free " << mm[4] << " " << mm[7] << " " << mm[8] << std::endl;
+        std::cout << std::endl;
+        malloc_stats();
+  }
+
+
+  void checkmem(char const * title){
+       std::cout << "\n--- " << title <<" ---"<< std::endl;
+       malloc_stats();
+  }
+
+}
+
 using namespace ora;
 
 
-void checkmem(char const *){}
 
 void testRecordFeatures() {
   RecordSpec specs; 
