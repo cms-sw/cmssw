@@ -21,6 +21,8 @@ namespace ora {
     void * p;
     char * ss;
     // std::string ss;
+    void * address() { return v;}
+    void const * address() const { return v;}
 
     // for generic type T better be the pointer to it...
     template<typename T> 

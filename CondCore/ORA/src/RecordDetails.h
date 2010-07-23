@@ -25,7 +25,7 @@ namespace ora {
   struct NullTypeHandler : public TypeHandler{
     NullTypeHandler(std::type_info const& t) { type=&t;}
     virtual bool isPointer() const { return false;} 
-    virtual void const * address(const AnyData & ad) const{}
+    virtual void const * address(const AnyData & ad) const{return 0}
     virtual void set(AnyData &, void*) const{};
     virtual void const * get(const AnyData &) const{return 0;};
     virtual void create(AnyData &) const{};
@@ -61,26 +61,26 @@ namespace ora {
 
     virtual void set(AnyData & ad, void * p) const {
       if (inplace()) 
-	reinterpret_cast<T&>(ad.p) =  *reinterpret_cast<T*>(p);
+	*reinterpret_cast<T*>(ad.address()) =  *reinterpret_cast<T*>(p);
       else 
 	*reinterpret_cast<T*>(ad.p) =  *reinterpret_cast<T*>(p);
     }
 
     virtual void const * get(const AnyData & ad) const { 
       if (inplace()) 
-        return &reinterpret_cast<T const &>(ad.p);
+        return ad.address();
       else
 	return ad.p;
     }
     virtual void create(AnyData & ad) const{
       if (inplace())
-	new(&ad.p) T();
+	new(ad.address()) T();
       else 
 	ad.p = new T();
     }
     virtual void destroy(AnyData & ad) const{ 
       if (inplace())
-	(&reinterpret_cast<T&>(ad.p))->~T();
+	reinterpret_cast<T*>(ad.address())->~T();
       else 
 	delete reinterpret_cast<T*>(ad.p);
     }
