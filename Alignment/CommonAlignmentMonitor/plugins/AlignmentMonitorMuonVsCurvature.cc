@@ -514,39 +514,40 @@ void AlignmentMonitorMuonVsCurvature::event(const edm::Event &iEvent, const edm:
 			   TrajectoryStateOnSurface extrapolation_rebuilt = propagator->propagate(ts_rebuilt, globalGeometry->idToDet(csc->localid(m_layer))->surface());
 			   TrajectoryStateOnSurface extrapolation_plus1GeV = propagator->propagate(ts_plus1GeV, globalGeometry->idToDet(csc->localid(m_layer))->surface());
 
-			   double rebuiltx = extrapolation_rebuilt.localPosition().x();
-			   double plus1x = extrapolation_plus1GeV.localPosition().x();
+			   if (extrapolation_rebuilt.isValid() && extrapolation_plus1GeV.isValid()) {
 
-			   if (fabs(resid_x) < 10.) {
-			      double pterroverpt = resid_x/(rebuiltx-plus1x)/sqrt(1. + pz*pz/(px*px + py*py))*fabs(qoverpt)*100.;
-			      double curverror = resid_x/(rebuiltx-plus1x)*qoverpt/sqrt(px*px + py*py + pz*pz);
+			   	double rebuiltx = extrapolation_rebuilt.localPosition().x();
+			   	double plus1x = extrapolation_plus1GeV.localPosition().x();
 
-			      th2f_wheelsector[wheel][sector][kPtErr]->Fill(1./qoverpt, pterroverpt);
-			      tprofile_wheelsector[wheel][sector][kPtErr]->Fill(1./qoverpt, pterroverpt);
-			      th2f_wheelsector[wheel][sector][kCurvErr]->Fill(qoverpt, curverror);
-			      tprofile_wheelsector[wheel][sector][kCurvErr]->Fill(qoverpt, curverror);
+			   	if (fabs(resid_x) < 10.) {
+			      		double pterroverpt = resid_x/(rebuiltx-plus1x)/sqrt(1. + pz*pz/(px*px + py*py))*fabs(qoverpt)*100.;
+			      		double curverror = resid_x/(rebuiltx-plus1x)*qoverpt/sqrt(px*px + py*py + pz*pz);
 
-			      th2f_endcap[endcap][chamber][kPtErr]->Fill(1./qoverpt, pterroverpt);
-			      tprofile_endcap[endcap][chamber][kPtErr]->Fill(1./qoverpt, pterroverpt);
-			      th2f_endcap[endcap][chamber][kCurvErr]->Fill(qoverpt, curverror);
-			      tprofile_endcap[endcap][chamber][kCurvErr]->Fill(qoverpt, curverror);
+			      		th2f_wheelsector[wheel][sector][kPtErr]->Fill(1./qoverpt, pterroverpt);
+			      		tprofile_wheelsector[wheel][sector][kPtErr]->Fill(1./qoverpt, pterroverpt);
+			      		th2f_wheelsector[wheel][sector][kCurvErr]->Fill(qoverpt, curverror);
+			      		tprofile_wheelsector[wheel][sector][kCurvErr]->Fill(qoverpt, curverror);
 
-			      if (cscid.chamber() % 2 == 0) {
-				 th2f_evens[endcap][kPtErr]->Fill(1./qoverpt, pterroverpt);
-				 tprofile_evens[endcap][kPtErr]->Fill(1./qoverpt, pterroverpt);
-				 th2f_evens[endcap][kCurvErr]->Fill(qoverpt, curverror);
-				 tprofile_evens[endcap][kCurvErr]->Fill(qoverpt, curverror);
-			      }
-			      else {
-				 th2f_odds[endcap][kPtErr]->Fill(1./qoverpt, pterroverpt);
-				 tprofile_odds[endcap][kPtErr]->Fill(1./qoverpt, pterroverpt);
-				 th2f_odds[endcap][kCurvErr]->Fill(qoverpt, curverror);
-				 tprofile_odds[endcap][kCurvErr]->Fill(qoverpt, curverror);
-			      }
+			      		th2f_endcap[endcap][chamber][kPtErr]->Fill(1./qoverpt, pterroverpt);
+			      		tprofile_endcap[endcap][chamber][kPtErr]->Fill(1./qoverpt, pterroverpt);
+			      		th2f_endcap[endcap][chamber][kCurvErr]->Fill(qoverpt, curverror);
+			      		tprofile_endcap[endcap][chamber][kCurvErr]->Fill(qoverpt, curverror);
 
+			      		if (cscid.chamber() % 2 == 0) {
+				 		th2f_evens[endcap][kPtErr]->Fill(1./qoverpt, pterroverpt);
+				 		tprofile_evens[endcap][kPtErr]->Fill(1./qoverpt, pterroverpt);
+				 		th2f_evens[endcap][kCurvErr]->Fill(qoverpt, curverror);
+				 		tprofile_evens[endcap][kCurvErr]->Fill(qoverpt, curverror);
+			      		}
+			      		else {
+				 		th2f_odds[endcap][kPtErr]->Fill(1./qoverpt, pterroverpt);
+				 		tprofile_odds[endcap][kPtErr]->Fill(1./qoverpt, pterroverpt);
+				 		th2f_odds[endcap][kCurvErr]->Fill(qoverpt, curverror);
+				 		tprofile_odds[endcap][kCurvErr]->Fill(qoverpt, curverror);
+			      		}
+			   	}
 			   }
 			}
-
 		     } // if it's a good segment
 		  } // if on our chamber
 	       } // if CSC
