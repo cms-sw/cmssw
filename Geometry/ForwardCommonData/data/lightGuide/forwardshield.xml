@@ -958,7 +958,8 @@
 
 <Algorithm name="hcal:DDHCalLinearXY">
    <rParent name="forwardshield:VcalElecRBX"/>
-   <String  name="ChildName"    value="forwardshield:VcalElecPMT"/>
+   <Vector name="Child" type="string" nEntries="1">
+     forwardshield:VcalElecPMT</Vector>
    <Numeric name="DeltaX"       value="[VcalPMTSep]"/>
    <Numeric name="DeltaY"       value="[VcalPMTSep]"/>
    <Numeric name="NumberX"      value="4"/>
@@ -984,7 +985,8 @@
 
 <Algorithm name="hcal:DDHCalLinearXY">
    <rParent name="forwardshield:FixedShieldBox5"/>
-   <String  name="ChildName"    value="forwardshield:FixedShieldTube5"/>
+   <Vector name="Child" type="string" nEntries="1">
+     forwardshield:FixedShieldTube5</Vector>
    <Numeric name="DeltaX"       value="[VcalPMTSep]"/>
    <Numeric name="DeltaY"       value="[VcalPMTSep]"/>
    <Numeric name="NumberX"      value="4"/>
@@ -1010,7 +1012,8 @@
 
 <Algorithm name="hcal:DDHCalLinearXY">
    <rParent name="forwardshield:FixedShieldBox6"/>
-   <String  name="ChildName"    value="forwardshield:FixedShieldTube6"/>
+   <Vector name="Child" type="string" nEntries="1">
+     forwardshield:FixedShieldTube6</Vector>
    <Numeric name="DeltaX"       value="[VcalPMTSep]"/>
    <Numeric name="DeltaY"       value="[VcalPMTSep]"/>
    <Numeric name="NumberX"      value="4"/>
@@ -1036,7 +1039,8 @@
 
 <Algorithm name="hcal:DDHCalLinearXY">
    <rParent name="forwardshield:FixedShieldBox7"/>
-   <String  name="ChildName"    value="forwardshield:FixedShieldTube7"/>
+   <Vector name="Child" type="string" nEntries="1">
+     forwardshield:FixedShieldTube7</Vector>
    <Numeric name="DeltaX"       value="[VcalPMTSep]"/>
    <Numeric name="DeltaY"       value="[VcalPMTSep]"/>
    <Numeric name="NumberX"      value="4"/>
@@ -1062,7 +1066,8 @@
 
 <Algorithm name="hcal:DDHCalLinearXY">
    <rParent name="forwardshield:FixedShieldBox8"/>
-   <String  name="ChildName"    value="forwardshield:FixedShieldTube8"/>
+   <Vector name="Child" type="string" nEntries="1">
+     forwardshield:FixedShieldTube8</Vector>
    <Numeric name="DeltaX"       value="[VcalPMTSep]"/>
    <Numeric name="DeltaY"       value="[VcalPMTSep]"/>
    <Numeric name="NumberX"      value="4"/>
@@ -1088,7 +1093,8 @@
 
 <Algorithm name="hcal:DDHCalLinearXY">
    <rParent name="forwardshield:FixedShieldBox9"/>
-   <String  name="ChildName"    value="forwardshield:FixedShieldTube9"/>
+   <Vector name="Child" type="string" nEntries="1">
+     forwardshield:FixedShieldTube9</Vector>
    <Numeric name="DeltaX"       value="[VcalPMTSep]"/>
    <Numeric name="DeltaY"       value="[VcalPMTSep]"/>
    <Numeric name="NumberX"      value="4"/>

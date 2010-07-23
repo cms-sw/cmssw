@@ -787,7 +787,8 @@
 
 <Algorithm name="hcal:DDHCalLinearXY">
    <rParent name="forwardshield:VcalElecRBX"/>
-   <String  name="ChildName"    value="forwardshield:VcalElecPMT"/>
+   <Vector name="Child" type="string" nEntries="1">
+     forwardshield:VcalElecPMT</Vector>
    <Numeric name="DeltaX"       value="[VcalPMTSep]"/>
    <Numeric name="DeltaY"       value="[VcalPMTSep]"/>
    <Numeric name="NumberX"      value="4"/>
