@@ -1,4 +1,4 @@
-// $Id: TrigResRateMon.cc,v 1.2 2010/07/23 12:22:31 rekovic Exp $
+// $Id: TrigResRateMon.cc,v 1.3 2010/07/23 16:37:40 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQM/HLTEvF/interface/TrigResRateMon.h"
@@ -209,10 +209,10 @@ TrigResRateMon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   triggerResults_ = triggerResults;
   const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
-  int npath = triggerResults->size();
+  //int npath = triggerResults->size();
 
 
-  int bx = iEvent.bunchCrossing();
+  // int bx = iEvent.bunchCrossing();
   /*
   // Fill HLTPassed_Correlation Matrix bin (i,j) = (Any,Any)
   // --------------------------------------------------------
@@ -310,7 +310,8 @@ TrigResRateMon::beginJob()
     dbe->setCurrentFolder(dirname_);
   }  
 
-  dbe->bookFloat("reportSummaryMap");
+  MonitorElement* reportSummaryFloat = dbe->bookFloat("reportSummaryMap");
+  if(reportSummaryFloat) reportSummaryFloat->Fill(1);
 
 
 }
@@ -359,6 +360,8 @@ void TrigResRateMon::beginRun(const edm::Run& run, const edm::EventSetup& c)
       if(! doCombineRuns_ && dbe_->dirExists(dirname_) ) dbe->rmdir(dirname_);
       dbe->setCurrentFolder(dirname_);
     }
+
+    
 
     const unsigned int n(hltConfig_.size());
 
@@ -710,6 +713,7 @@ void TrigResRateMon::beginRun(const edm::Run& run, const edm::EventSetup& c)
     // now set up all of the histos for each path-denom
     for(PathInfoCollection::iterator v = hltPaths_.begin(); v!= hltPaths_.end(); ++v ) {
 
+      /*
       MonitorElement *NOn, *onEtOn, *onOneOverEtOn, *onEtavsonPhiOn=0;
       MonitorElement *NOff, *offEtOff, *offEtavsoffPhiOff=0;
       MonitorElement *NL1, *l1EtL1, *l1Etavsl1PhiL1=0;
@@ -720,6 +724,7 @@ void TrigResRateMon::beginRun(const edm::Run& run, const edm::EventSetup& c)
       MonitorElement *NL1OffUM, *offEtL1OffUM, *offEtavsoffPhiL1OffUM=0;
       MonitorElement *NOnOffUM, *offEtOnOffUM, *offEtavsoffPhiOnOffUM=0;
       MonitorElement *offDRL1Off, *offDROnOff, *l1DRL1On=0;
+      */
       
 
       std::string labelname("dummy");
@@ -762,7 +767,8 @@ void TrigResRateMon::beginRun(const edm::Run& run, const edm::EventSetup& c)
         histEtaMax = trackEtaMax_; 
       }
 
-      TString pathfolder = dirname_ + TString("/") + v->getPath();
+      TString pathfolder = dirname_ + TString("/FourVector/") + v->getPath();
+      /*
       dbe_->setCurrentFolder(pathfolder.Data());
 
       NOn =  dbe->book1D(histoname.c_str(), title.c_str(),10, 0.5, 10.5);
@@ -894,10 +900,10 @@ void TrigResRateMon::beginRun(const edm::Run& run, const edm::EventSetup& c)
        histoname = labelname+"_offDROnOff";
        title = labelname+" offDR online+offline";
        offDROnOff =  dbe->book1D(histoname.c_str(), title.c_str(),nBinsDR_, 0, dRMax_); 
+       */
 
 
-       v->setHistos( NOn, onEtOn, onOneOverEtOn, onEtavsonPhiOn, NOff, offEtOff, offEtavsoffPhiOff, NL1, l1EtL1, l1Etavsl1PhiL1, NL1On, l1EtL1On, l1Etavsl1PhiL1On, NL1Off, offEtL1Off, offEtavsoffPhiL1Off, NOnOff, offEtOnOff, offEtavsoffPhiOnOff, NL1OnUM, l1EtL1OnUM, l1Etavsl1PhiL1OnUM, NL1OffUM, offEtL1OffUM, offEtavsoffPhiL1OffUM, NOnOffUM, offEtOnOffUM, offEtavsoffPhiOnOffUM, offDRL1Off, offDROnOff, l1DRL1On 
-);
+       //v->setHistos( NOn, onEtOn, onOneOverEtOn, onEtavsonPhiOn, NOff, offEtOff, offEtavsoffPhiOff, NL1, l1EtL1, l1Etavsl1PhiL1, NL1On, l1EtL1On, l1Etavsl1PhiL1On, NL1Off, offEtL1Off, offEtavsoffPhiL1Off, NOnOff, offEtOnOff, offEtavsoffPhiOnOff, NL1OnUM, l1EtL1OnUM, l1Etavsl1PhiL1OnUM, NL1OffUM, offEtL1OffUM, offEtavsoffPhiL1OffUM, NOnOffUM, offEtOnOffUM, offEtavsoffPhiOnOffUM, offDRL1Off, offDROnOff, l1DRL1On );
 
 
     }  // end for hltPath
