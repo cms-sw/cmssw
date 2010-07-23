@@ -16,8 +16,12 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.48 2010/07/16 13:12:01 eulisse Exp $
+// $Id: CmsShowMain.h,v 1.49 2010/07/16 14:34:18 eulisse Exp $
 //
+
+#include "Fireworks/Core/interface/CmsShowMainBase.h"
+// user include files
+#include "Fireworks/Core/interface/DetIdToMatrix.h"
 
 // system include files
 #include <vector>
@@ -26,8 +30,6 @@
 #include <boost/shared_ptr.hpp>
 #include "Rtypes.h"
 
-// user include files
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
 
 // forward declarations
 class TGPictureButton;
@@ -43,7 +45,7 @@ class FWGUIManager;
 class FWEventItem;
 class FWPhysicsObjectDesc;
 class FWConfigurationManager;
-class FWJobMetadataManager;
+class FWLiteJobMetadataManager;
 class TTimer;
 class TMonitor;
 class TSocket;
@@ -52,25 +54,20 @@ class CmsShowTaskExecutor;
 class CSGAction;
 class CmsShowSearchFiles;
 
-namespace fireworks {
-   class Context;
-}
-
 namespace fwlite {
    class Event;
 }
 
-class CmsShowMain
+class CmsShowMain : public CmsShowMainBase
 {
 public:
    CmsShowMain(int argc, char *argv[]);
    virtual ~CmsShowMain();
    void resetInitialization();
-   void draw();
    void openData();
    void appendData();
    void openDataViaURL();
-   void quit();
+   virtual void quit();
    void doExit();
 
    // ---------- const member functions ---------------------
@@ -84,8 +81,6 @@ public:
    // ---------- member functions ---------------------------
    //  int draw(const fwlite::Event& );
 
-   void registerPhysicsObject(const FWPhysicsObjectDesc&);
-
    void notified(TSocket*);
    const fwlite::Event* getCurrentEvent() const;
    const fireworks::Context* context() const { return m_context.get(); };
@@ -97,85 +92,41 @@ private:
    const CmsShowMain& operator=(const CmsShowMain&); // stop default
 
    void loadGeometry();
-   void reloadConfiguration(const std::string &config);
    void setupViewManagers();
-   void setupConfiguration();
    void setupDataHandling();
-   void setupDebugSupport();
    void setupSocket(unsigned int);
 
-   void autoLoadNewEvent();
+   virtual void autoLoadNewEvent();
+   virtual void checkPosition();
+   virtual void stopPlaying();
 
-   void doFirstEvent();
-   void doPreviousEvent();
-   void doNextEvent();
-   void doLastEvent();
-   void goToRunEvent(int, int);
-   void checkPosition();
-
-   void playForward();
-   void playBackward();
-   void stopPlaying();
    void reachedEnd();
    void reachedBeginning();
-   void setPlayLoop();
-   void unsetPlayLoop();
 
-   void setPlayLoopImp();
-   void unsetPlayLoopImp();
-
+   // Filtering bits.
    void navigatorChangedFilterState(int);
    void filterButtonClicked();
    void preFiltering();
    void postFiltering();
 
-   void setPlayDelay(Float_t);
-   void checkLiveMode();
-
-   void setLiveMode();
-
-   void startAutoLoadTimer();
-   void stopAutoLoadTimer();
-   void setupAutoLoad(float);
-
    // ---------- member data --------------------------------
-   std::auto_ptr<FWConfigurationManager> m_configurationManager;
-   std::auto_ptr<FWModelChangeManager>   m_changeManager;
-   std::auto_ptr<FWColorManager>         m_colorManager;
-   std::auto_ptr<FWSelectionManager>     m_selectionManager;
-   std::auto_ptr<FWEventItemsManager>    m_eiManager;
-   std::auto_ptr<FWViewManagerManager>   m_viewManager;
-   std::auto_ptr<FWJobMetadataManager>   m_metadataManager;
-   std::auto_ptr<FWGUIManager>           m_guiManager;
-   std::auto_ptr<fireworks::Context>     m_context;
-   std::auto_ptr<CmsShowNavigator>       m_navigator;
+   std::auto_ptr<CmsShowNavigator>           m_navigator;
+   std::auto_ptr<FWLiteJobMetadataManager>   m_metadataManager;
+   std::auto_ptr<fireworks::Context>         m_context;
 
    DetIdToMatrix            m_detIdToGeo;
    std::vector<std::string> m_inputFiles;
    bool                     m_loadedAnyInputFile;
-   std::string              m_configFileName;
    std::string              m_geomFileName;
    const TFile             *m_openFile;
 
-   std::auto_ptr<CmsShowTaskExecutor> m_startupTasks;
    std::auto_ptr<CmsShowSearchFiles>  m_searchFiles;
-
-   TTimer* m_autoLoadTimer;
    Bool_t  m_autoLoadTimerRunning;
 
-   TTimer* m_liveTimer;
-   bool m_live;
-   bool m_isPlaying;
-   bool m_forward;
-   bool m_loop;
-   Float_t m_playDelay;  // delay between events in seconds
-   Int_t m_lastPointerPositionX;
-   Int_t m_lastPointerPositionY;
    Int_t m_liveTimeout;
    std::string m_autoSaveAllViewsFormat;
 
    std::auto_ptr<TMonitor> m_monitor;
 };
-
 
 #endif

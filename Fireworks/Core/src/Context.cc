@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:57:12 EDT 2008
-// $Id: Context.cc,v 1.22 2010/06/09 18:53:04 amraktad Exp $
+// $Id: Context.cc,v 1.23 2010/07/05 19:25:09 amraktad Exp $
 //
 
 // system include files
@@ -42,12 +42,14 @@ const float Context::s_transitionAngle = atan( s_ecalR/s_ecalZ );
 Context::Context(FWModelChangeManager* iCM,
                  FWSelectionManager* iSM,
                  FWEventItemsManager* iEM,
-                 FWColorManager* iColorM
+                 FWColorManager* iColorM,
+                 FWJobMetadataManager* iJMDM
                  ) :
    m_changeManager(iCM),
    m_selectionManager(iSM),
    m_eventItemsManager(iEM),
    m_colorManager(iColorM),
+   m_metadataManager(iJMDM),
    m_geom(0),
    m_propagator(0),
    m_trackerPropagator(0),

@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.170 2010/07/16 13:12:01 eulisse Exp $
+// $Id: CmsShowMain.cc,v 1.171 2010/07/16 14:34:18 eulisse Exp $
 //
 
 // system include files
@@ -59,8 +59,6 @@
 #include "Fireworks/Core/interface/CmsShowMainFrame.h"
 #include "Fireworks/Core/interface/CmsShowSearchFiles.h"
 
-#include "Fireworks/Core/src/SimpleSAXParser.h"
-
 #include "Fireworks/Core/interface/fwLog.h"
 
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
@@ -105,45 +103,18 @@ static const char* const kAutoSaveAllViews = "auto-save-all-views";
 //
 // constructors and destructor
 //
-CmsShowMain::CmsShowMain(int argc, char *argv[]) :
-   m_configurationManager(new FWConfigurationManager),
-   m_changeManager(new FWModelChangeManager),
-   m_colorManager( new FWColorManager(m_changeManager.get())),
-   m_selectionManager(new FWSelectionManager(m_changeManager.get())),
-   m_eiManager(new FWEventItemsManager(m_changeManager.get())),
-   m_viewManager( new FWViewManagerManager(m_changeManager.get(), m_colorManager.get())),
-   m_metadataManager(new FWLiteJobMetadataManager()),
-   m_context(new fireworks::Context(m_changeManager.get(),
-                                    m_selectionManager.get(),
-                                    m_eiManager.get(),
-                                    m_colorManager.get())),
-   m_navigator(new CmsShowNavigator(*this)),
-
-   m_loadedAnyInputFile(false),
-
-   m_autoLoadTimer(0),
-   m_autoLoadTimerRunning(kFALSE),
-   m_liveTimer(0),
-   m_live(0),
-   m_isPlaying(false),
-   m_forward(true),
-   m_loop(false),
-   m_playDelay(3.f),
-   m_lastPointerPositionX(-999),
-   m_lastPointerPositionY(-999),
-   m_liveTimeout(600000)
+CmsShowMain::CmsShowMain(int argc, char *argv[]) 
+   : CmsShowMainBase(),
+     m_navigator(new CmsShowNavigator(*this)),
+     m_metadataManager(new FWLiteJobMetadataManager()),
+     m_context(new fireworks::Context(changeManager(),
+                                      selectionManager(),
+                                      eiManager(),
+                                      colorManager(),
+                                      m_metadataManager.get()))
 {
-   try {
-      TGLWidget* w = TGLWidget::Create(gClient->GetDefaultRoot(), kTRUE, kTRUE, 0, 10, 10);
-      delete w;
-   }
-   catch (std::exception& iException) {
-      std::cerr <<"Insufficient GL support. " << iException.what() << std::endl;
-      throw;
-   } 
+   eiManager()->setContext(m_context.get());
 
-   m_eiManager->setContext(m_context.get());
-   
    try {
       std::string descString(argv[0]);
       descString += " [options] <data file>\nAllowed options";
@@ -216,8 +187,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
 
       // configuration file
       if (vm.count(kConfigFileOpt)) {
-         m_configFileName = vm[kConfigFileOpt].as<std::string>();
-         if (access(m_configFileName.c_str(), R_OK) == -1)
+         setConfigFilename(vm[kConfigFileOpt].as<std::string>());
+         if (access(configFilename(), R_OK) == -1)
          {
             fwLog(fwlog::kError) << "Specified configuration file does not exist. Quitting.\n";
             exit(1);
@@ -225,12 +196,11 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       } else {
          if (vm.count(kNoConfigFileOpt)) {
             fwLog(fwlog::kInfo) << "No configuration is loaded, show everything.\n";
-            m_configFileName = "";
-         } else {
-            m_configFileName = "default.fwc";
-         }
+            setConfigFilename("");
+         } else
+            setConfigFilename("default.fwc");
       }
-      fwLog(fwlog::kInfo) << "Config "  <<  m_configFileName.c_str() << std::endl;
+      fwLog(fwlog::kInfo) << "Config "  <<  configFilename() << std::endl;
 
       // geometry
       if (vm.count(kGeomFileOpt)) {
@@ -246,98 +216,64 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          FWColorPopup::EnableFreePalette();
          fwLog(fwlog::kInfo) << "Palette restriction removed on user request!\n";
       }
-      m_colorManager->initialize();
-
       bool eveMode = vm.count(kEveOpt);
 
-      
       //Delay creating guiManager and enabling autoloading until here so that if we have a 'help' request we don't
       // open any graphics or build dictionaries
       AutoLibraryLoader::enable();
-       
+
       TEveManager::Create(kFALSE, "FIV");
 
-      m_context->initEveElements();
-      m_guiManager = std::auto_ptr<FWGUIManager>(new FWGUIManager(m_selectionManager.get(),
-                                                                  m_eiManager.get(),
-                                                                  m_changeManager.get(),
-                                                                  m_colorManager.get(),
-                                                                  m_viewManager.get(),
-                                                                  m_metadataManager.get(),
-                                                                  m_navigator.get(),
-                                                                  false));
+      setup(m_navigator.get(), m_context.get(), m_metadataManager.get());
 
-      if ( vm.count(kAdvancedRenderOpt) ) {
+      if ( vm.count(kAdvancedRenderOpt) ) 
+      {
          TEveLine::SetDefaultSmooth(kTRUE);
       }
 
-      //connect up the managers
-      m_eiManager->newItem_.connect(boost::bind(&FWModelChangeManager::newItemSlot,
-                                                m_changeManager.get(), _1) );
-
-      m_eiManager->newItem_.connect(boost::bind(&FWViewManagerManager::registerEventItem,
-                                                m_viewManager.get(), _1));
-      m_configurationManager->add("EventItems",m_eiManager.get());
-      m_configurationManager->add("GUI",m_guiManager.get());
-      m_configurationManager->add("EventNavigator", m_navigator.get());
-      m_guiManager->writeToConfigurationFile_.connect(boost::bind(&FWConfigurationManager::writeToFile,
-                                                                  m_configurationManager.get(),_1));
-      m_guiManager->loadFromConfigurationFile_.connect(boost::bind(&CmsShowMain::reloadConfiguration,
-                                                                   this, _1));
       //figure out where to find macros
       //tell ROOT where to find our macros
-      std::string macPath(cmspath);
-      macPath += "/src/Fireworks/Core/macros";
-      const char* base = gSystem->Getenv("CMSSW_RELEASE_BASE");
-      if(0!=base) {
-         macPath+=":";
-         macPath +=base;
-         macPath +="/src/Fireworks/Core/macros";
-      }
-      gROOT->SetMacroPath((std::string("./:")+macPath).c_str());
-
-      m_startupTasks = std::auto_ptr<CmsShowTaskExecutor>(new CmsShowTaskExecutor);
-      m_startupTasks->tasksCompleted_.connect(boost::bind(&FWGUIManager::clearStatus,
-                                                          m_guiManager.get()) );
       CmsShowTaskExecutor::TaskFunctor f;
       // first check if port is not occupied
       if (vm.count(kPortCommandOpt)) { 	 
          f=boost::bind(&CmsShowMain::setupSocket, this, vm[kPortCommandOpt].as<unsigned int>()); 	 
-         m_startupTasks->addTask(f); 	 
+         startupTasks()->addTask(f); 	 
       }
     
       f=boost::bind(&CmsShowMain::loadGeometry,this);
-      m_startupTasks->addTask(f);
-
+      startupTasks()->addTask(f);
       f=boost::bind(&CmsShowMain::setupViewManagers,this);
-      m_startupTasks->addTask(f);
-      f=boost::bind(&CmsShowMain::setupConfiguration,this);
-      m_startupTasks->addTask(f);
+      startupTasks()->addTask(f);
+      f=boost::bind(&CmsShowMainBase::setupConfiguration,this);
+      startupTasks()->addTask(f);
       f=boost::bind(&CmsShowMain::setupDataHandling,this);
-      m_startupTasks->addTask(f);
+      startupTasks()->addTask(f);
+
       if (vm.count(kLoopOpt))
          setPlayLoop();
 
       gSystem->IgnoreSignal(kSigSegmentationViolation, true);
-      if(eveMode) {
-         f=boost::bind(&CmsShowMain::setupDebugSupport,this);
-         m_startupTasks->addTask(f);
+      if (eveMode) {
+         f = boost::bind(&CmsShowMainBase::setupDebugSupport,this);
+         startupTasks()->addTask(f);
       }
       if(vm.count(kChainCommandOpt)) {
-         f=boost::bind(&CmsShowNavigator::setMaxNumberOfFilesToChain, m_navigator.get(), vm[kChainCommandOpt].as<unsigned int>());
-         m_startupTasks->addTask(f);
+         f = boost::bind(&CmsShowNavigator::setMaxNumberOfFilesToChain, m_navigator.get(), vm[kChainCommandOpt].as<unsigned int>());
+         startupTasks()->addTask(f);
       }
       if (vm.count(kPlayOpt)) {
-         f=boost::bind(&CmsShowMain::setupAutoLoad, this, vm[kPlayOpt].as<float>());
-         m_startupTasks->addTask(f);
+         f = boost::bind(&CmsShowMainBase::setupAutoLoad, this, vm[kPlayOpt].as<float>());
+         startupTasks()->addTask(f);
       }
 
       if(vm.count(kLiveCommandOpt))
       {
-         f=boost::bind(&CmsShowMain::setLiveMode, this);
-         m_startupTasks->addTask(f);
+         f = boost::bind(&CmsShowMainBase::setLiveMode, this);
+         startupTasks()->addTask(f);
       }
-      if(vm.count(kFieldCommandOpt)) {
+      
+      if(vm.count(kFieldCommandOpt)) 
+      {
          m_context->getField()->setSource(FWMagField::kUser);
          m_context->getField()->setUserField(vm[kFieldCommandOpt].as<double>());
       }
@@ -345,7 +281,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          m_autoSaveAllViewsFormat  = vm[kAutoSaveAllViews].as<std::string>();
          m_autoSaveAllViewsFormat += "%d_%d_%d_%s.png";
       }
-      m_startupTasks->startDoingTasks();
+      startupTasks()->startDoingTasks();
    } catch(std::exception& iException) {
       std::cerr <<"CmsShowMain caught exception "<<iException.what()<<std::endl;
       throw;
@@ -355,14 +291,9 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
 //
 // Destruction
 //
+
 CmsShowMain::~CmsShowMain()
-{
-   //avoids a seg fault from eve which happens if eve is terminated after the GUI is gone
-   m_selectionManager->clearSelection();
-
-   delete m_autoLoadTimer;
-}
-
+{}
 
 class DieTimer : public TTimer
 {
@@ -392,7 +323,7 @@ void CmsShowMain::doExit()
 {
    // pre terminate eve
    m_context->deleteEveElements();
-   m_guiManager->evePreTerminate();
+   guiManager()->evePreTerminate();
 
    // sleep at least 150 ms
    // windows in ROOT GUI are destroyed in 150 ms timeout after
@@ -418,7 +349,8 @@ void CmsShowMain::doExit()
 // member functions
 //
 
-const fwlite::Event* CmsShowMain::getCurrentEvent() const
+const fwlite::Event* 
+CmsShowMain::getCurrentEvent() const
 {
    if (m_navigator.get())
       return m_navigator->getCurrentEvent();
@@ -430,7 +362,7 @@ CmsShowMain::fileChangedSlot(const TFile *file)
 {
    m_openFile = file;
    if (file)
-      m_guiManager->titleChanged(m_openFile->GetName());
+      guiManager()->titleChanged(m_openFile->GetName());
    m_metadataManager->update(new FWLiteJobMetadataUpdateRequest(getCurrentEvent(), m_openFile));
 }
 
@@ -444,26 +376,6 @@ void CmsShowMain::resetInitialization() {
    //printf("Need to reset\n");
 }
 
-void CmsShowMain::draw()
-{
-   m_guiManager->updateStatus("loading event ...");
-
-   if (context()->getField()->getSource() != FWMagField::kUser)
-      context()->getField()->checkFiledInfo(getCurrentEvent());
-
-   m_viewManager->eventBegin();
-   m_eiManager->newEvent(m_navigator->getCurrentEvent());
-   m_viewManager->eventEnd();
-
-   if ( ! m_autoSaveAllViewsFormat.empty())
-   {
-      m_guiManager->updateStatus("auto saving images ...");
-      m_guiManager->exportAllViews(m_autoSaveAllViewsFormat);
-   }
-
-   m_guiManager->clearStatus();
-}
-
 void CmsShowMain::openData()
 {
    const char* kRootType[] = {"ROOT files","*.root", 0, 0};
@@ -475,8 +387,8 @@ void CmsShowMain::openData()
     */
    fi.fIniDir = new char[10];
    strcpy(fi.fIniDir, ".");
-   new TGFileDialog(gClient->GetDefaultRoot(), m_guiManager->getMainFrame(), kFDOpen, &fi);
-   m_guiManager->updateStatus("loading file ...");
+   new TGFileDialog(gClient->GetDefaultRoot(), guiManager()->getMainFrame(), kFDOpen, &fi);
+   guiManager()->updateStatus("loading file ...");
    if (fi.fFilename) {
       m_navigator->openFile(fi.fFilename);
       m_loadedAnyInputFile = true;
@@ -484,7 +396,7 @@ void CmsShowMain::openData()
       checkPosition();
       draw();
    }
-   m_guiManager->clearStatus();
+   guiManager()->clearStatus();
 }
 
 void CmsShowMain::appendData()
@@ -498,45 +410,39 @@ void CmsShowMain::appendData()
     */
    fi.fIniDir = new char[10];
    strcpy(fi.fIniDir, ".");
-   new TGFileDialog(gClient->GetDefaultRoot(), m_guiManager->getMainFrame(), kFDOpen, &fi);
-   m_guiManager->updateStatus("loading file ...");
+   new TGFileDialog(gClient->GetDefaultRoot(), guiManager()->getMainFrame(), kFDOpen, &fi);
+   guiManager()->updateStatus("loading file ...");
    if (fi.fFilename) {
       m_navigator->appendFile(fi.fFilename, false, false);
       m_loadedAnyInputFile = true;
       checkPosition();
       draw();
    }
-   m_guiManager->clearStatus();
+   guiManager()->clearStatus();
 }
 
 void
 CmsShowMain::openDataViaURL()
 {
    if (m_searchFiles.get() == 0) {
-      m_searchFiles = std::auto_ptr<CmsShowSearchFiles>( new CmsShowSearchFiles("",
-                                                                                "Open Remote Data Files",
-                                                                                m_guiManager->getMainFrame(),
-                                                                                500, 400));
+      m_searchFiles = std::auto_ptr<CmsShowSearchFiles>(new CmsShowSearchFiles("",
+                                                                               "Open Remote Data Files",
+                                                                               guiManager()->getMainFrame(),
+                                                                               500, 400));
       m_searchFiles->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
    }
    std::string chosenFile = m_searchFiles->chooseFileFromURL();
    if(!chosenFile.empty()) {
-      m_guiManager->updateStatus("loading file ...");
+      guiManager()->updateStatus("loading file ...");
       if(m_navigator->openFile(chosenFile.c_str())) {
          m_navigator->firstEvent();
          checkPosition();
          draw();
-         m_guiManager->clearStatus();
+         guiManager()->clearStatus();
       } else {
-         m_guiManager->updateStatus("failed to load data file");
+         guiManager()->updateStatus("failed to load data file");
       }
    }
-}
-
-
-void CmsShowMain::registerPhysicsObject(const FWPhysicsObjectDesc&iItem)
-{
-   m_eiManager->add(iItem);
 }
 
 //
@@ -550,7 +456,7 @@ CmsShowMain::loadGeometry()
 {   // prepare geometry service
    // ATTN: this should be made configurable
    try {
-      m_guiManager->updateStatus("Loading geometry...");
+      guiManager()->updateStatus("Loading geometry...");
       m_detIdToGeo.loadGeometry( m_geomFileName.c_str() );
       m_detIdToGeo.loadMap( m_geomFileName.c_str() );
       m_context->setGeom(&m_detIdToGeo);
@@ -566,24 +472,24 @@ CmsShowMain::loadGeometry()
 void
 CmsShowMain::setupViewManagers()
 {
-   m_guiManager->updateStatus("Setting up view manager...");
+   guiManager()->updateStatus("Setting up view manager...");
 
-   boost::shared_ptr<FWViewManagerBase> eveViewManager( new FWEveViewManager(m_guiManager.get()) );
+   boost::shared_ptr<FWViewManagerBase> eveViewManager(new FWEveViewManager(guiManager()));
    eveViewManager->setContext(m_context.get());
-   m_viewManager->add(eveViewManager);
+   viewManager()->add(eveViewManager);
 
-   boost::shared_ptr<FWTableViewManager> tableViewManager( new FWTableViewManager(m_guiManager.get()) );
-   m_configurationManager->add(std::string("Tables"), tableViewManager.get());
-   m_viewManager->add(tableViewManager);
-   m_eiManager->goingToClearItems_.connect(boost::bind(&FWTableViewManager::removeAllItems, tableViewManager.get()));
+   boost::shared_ptr<FWTableViewManager> tableViewManager(new FWTableViewManager(guiManager()));
+   configurationManager()->add(std::string("Tables"), tableViewManager.get());
+   viewManager()->add(tableViewManager);
+   eiManager()->goingToClearItems_.connect(boost::bind(&FWTableViewManager::removeAllItems, tableViewManager.get()));
 
-   boost::shared_ptr<FWTriggerTableViewManager> triggerTableViewManager( new FWTriggerTableViewManager(m_guiManager.get()) );
-   m_configurationManager->add(std::string("TriggerTables"), triggerTableViewManager.get());
-   m_viewManager->add( triggerTableViewManager );
+   boost::shared_ptr<FWTriggerTableViewManager> triggerTableViewManager(new FWTriggerTableViewManager(guiManager()));
+   configurationManager()->add(std::string("TriggerTables"), triggerTableViewManager.get());
+   viewManager()->add( triggerTableViewManager );
 
-   boost::shared_ptr<FWL1TriggerTableViewManager> l1TriggerTableViewManager( new FWL1TriggerTableViewManager(m_guiManager.get()) );
-   m_configurationManager->add(std::string("L1TriggerTables"), l1TriggerTableViewManager.get());
-   m_viewManager->add( l1TriggerTableViewManager );
+   boost::shared_ptr<FWL1TriggerTableViewManager> l1TriggerTableViewManager(new FWL1TriggerTableViewManager(guiManager()));
+   configurationManager()->add(std::string("L1TriggerTables"), l1TriggerTableViewManager.get());
+   viewManager()->add( l1TriggerTableViewManager );
    
    // Unfortunately, due to the plugin mechanism, we need to delay
    // until here the creation of the FWJobMetadataManager, because
@@ -591,151 +497,12 @@ CmsShowMain::setupViewManagers()
    // FIXME: should we have a signal for whenever the above mentioned map
    //        changes? Can that actually happer (maybe if we add support
    //        for loading plugins on the fly??).
-   m_metadataManager->initReps(m_viewManager->supportedTypesAndRepresentations());
-}
-
-void
-CmsShowMain::reloadConfiguration(const std::string &config)
-{
-   if (config.empty())
-      return;
-
-   std::string msg = "Reloading configuration "
-                               + config + "...";
-   fwLog(fwlog::kDebug) << msg << std::endl;
-   m_guiManager->updateStatus(msg.c_str());
-   m_guiManager->subviewDestroyAll();
-   m_eiManager->clearItems();
-   m_configFileName = config;
-   try
-   {
-      m_configurationManager->readFromFile(config);
-   }
-   catch (std::runtime_error &e)
-   {
-      Int_t chosen;
-      new TGMsgBox(gClient->GetDefaultRoot(),
-                   gClient->GetDefaultRoot(),
-                   "Bad configuration",
-                   ("Configuration " + config + " cannot be parsed.").c_str(),
-                   kMBIconExclamation,
-                   kMBCancel,
-                   &chosen);
-   }
-   catch (SimpleSAXParser::ParserError &e)
-   {
-      Int_t chosen;
-      new TGMsgBox(gClient->GetDefaultRoot(),
-                   gClient->GetDefaultRoot(),
-                   "Bad configuration",
-                   ("Configuration " + config + " cannot be parsed.").c_str(),
-                   kMBIconExclamation,
-                   kMBCancel,
-                   &chosen);
-   }
-   m_guiManager->updateStatus("");
-}
-
-void
-CmsShowMain::setupConfiguration()
-{
-   m_guiManager->updateStatus("Setting up configuration...");
-   if(m_configFileName.empty() ) {
-      fwLog(fwlog::kInfo) << "no configuration is loaded." << std::endl;
-      m_guiManager->getMainFrame()->MapSubwindows();
-      m_guiManager->getMainFrame()->Layout();
-      m_guiManager->getMainFrame()->MapRaised();
-      m_configFileName = "newconfig.fwc";
-      m_guiManager->createView("Rho Phi"); 
-      m_guiManager->createView("Rho Z"); 
-   }
-   else {
-      char* whereConfig = gSystem->Which(TROOT::GetMacroPath(), m_configFileName.c_str(), kReadPermission);
-      if(0==whereConfig) {
-         fwLog(fwlog::kInfo) <<"unable to load configuration file '"<<m_configFileName<<"' will load default instead."<<std::endl;
-         whereConfig = gSystem->Which(TROOT::GetMacroPath(), "default.fwc", kReadPermission);
-         assert(whereConfig && "Default configuration cannot be found. Malformed Fireworks installation?");
-      }
-      m_configFileName = whereConfig;
-
-      delete [] whereConfig;
-      try
-      {
-         m_configurationManager->readFromFile(m_configFileName);
-      }
-      catch (std::runtime_error &e)
-      {
-         fwLog(fwlog::kError) <<"Unable to load configuration file '" 
-                              << m_configFileName 
-                              << "' which was specified on command line. Quitting." 
-                              << std::endl;
-         exit(1);
-      }
-      catch (SimpleSAXParser::ParserError &e)
-      {
-         fwLog(fwlog::kError) <<"Unable to load configuration file '" 
-                              << m_configFileName 
-                              << "' which was specified on command line. Quitting." 
-                              << std::endl;
-         exit(1);
-      }
-   }
-
-   if(not m_configFileName.empty() ) {
-      /* //when the program quits we will want to save the configuration automatically
-         m_guiManager->goingToQuit_.connect(
-         boost::bind(&FWConfigurationManager::writeToFile,
-         m_configurationManager.get(),
-         m_configFileName));
-      */
-      m_guiManager->writeToPresentConfigurationFile_.connect(
-                                                             boost::bind(&FWConfigurationManager::writeToFile,
-                                                                         m_configurationManager.get(),
-                                                                         m_configFileName));
-   }
-}
-
-//______________________________________________________________________________
-
-namespace {
-class SignalTimer : public TTimer {
-public:
-   virtual Bool_t Notify() {
-      timeout_();
-      return true;
-   }
-   sigc::signal<void> timeout_;
-};
-}
-
-//______________________________________________________________________________
-void
-CmsShowMain::setupAutoLoad(float x)
-{
-   m_playDelay = x;
-   m_guiManager->setDelayBetweenEvents(m_playDelay);
-   if (!m_guiManager->playEventsAction()->isEnabled())
-      m_guiManager->playEventsAction()->enable();
-
-   m_guiManager->playEventsAction()->switchMode();
-}
-
-void CmsShowMain::startAutoLoadTimer()
-{
-   m_autoLoadTimer->SetTime((Long_t)(m_playDelay*1000));
-   m_autoLoadTimer->Reset();
-   m_autoLoadTimer->TurnOn();
-   m_autoLoadTimerRunning = kTRUE;
-}
-
-void CmsShowMain::stopAutoLoadTimer()
-{
-   m_autoLoadTimer->TurnOff();
-   m_autoLoadTimerRunning = kFALSE;
+   m_metadataManager->initReps(viewManager()->supportedTypesAndRepresentations());
 }
 
 //_______________________________________________________________________________
-void CmsShowMain::autoLoadNewEvent()
+void 
+CmsShowMain::autoLoadNewEvent()
 {
    stopAutoLoadTimer();
    
@@ -747,165 +514,105 @@ void CmsShowMain::autoLoadNewEvent()
       return;
    }
 
-   bool reachedEnd = (m_forward && m_navigator->isLastEvent()) || (!m_forward && m_navigator->isFirstEvent());
+   bool reachedEnd = (forward() && m_navigator->isLastEvent()) || (!forward() && m_navigator->isFirstEvent());
 
-   if (m_loop && reachedEnd)
+   if (loop() && reachedEnd)
    {
-      m_forward ? m_navigator->firstEvent() : m_navigator->lastEvent();
+      forward() ? m_navigator->firstEvent() : m_navigator->lastEvent();
       draw();
    }
    else if (!reachedEnd)
    {
-      m_forward ? m_navigator->nextEvent() : m_navigator->previousEvent();
+      forward() ? m_navigator->nextEvent() : m_navigator->previousEvent();
       draw();
    }
 
    // stop loop in case no loop or monitor mode
-   if ( reachedEnd && (m_loop || m_monitor.get()) == kFALSE)
+   if (reachedEnd && (loop() || m_monitor.get()) == kFALSE)
    {
-      if (m_forward && m_navigator->isLastEvent())
+      if (forward() && m_navigator->isLastEvent())
       {
-         m_guiManager->enableActions();
+         guiManager()->enableActions();
          checkPosition();
       }
 
-      if ((!m_forward) && m_navigator->isFirstEvent())
+      if ((!forward()) && m_navigator->isFirstEvent())
       {
-         m_guiManager->enableActions();
+         guiManager()->enableActions();
          checkPosition();
       }
    }
    else
-   {
       startAutoLoadTimer();
-   }
 }
 
 //______________________________________________________________________________
 
-void CmsShowMain::checkPosition()
+void 
+CmsShowMain::checkPosition()
 {
-   if ((m_monitor.get() || m_loop ) && m_isPlaying)
+   if ((m_monitor.get() || loop() ) && isPlaying())
       return;
    
-   m_guiManager->getMainFrame()->enableNavigatorControls();
+   guiManager()->getMainFrame()->enableNavigatorControls();
 
    if (m_navigator->isFirstEvent())
-   {
-      m_guiManager->disablePrevious();
-   }
+      guiManager()->disablePrevious();
 
    if (m_navigator->isLastEvent())
    {
-      m_guiManager->disableNext();
+      guiManager()->disableNext();
       // force enable play events action in --port mode
-      if (m_monitor.get() && !m_guiManager->playEventsAction()->isEnabled())
-         m_guiManager->playEventsAction()->enable();
+      if (m_monitor.get() && !guiManager()->playEventsAction()->isEnabled())
+         guiManager()->playEventsAction()->enable();
    }
 }
 
-void CmsShowMain::doFirstEvent()
-{
-   m_navigator->firstEvent();
-   checkPosition();
-   draw();
-}
-
-void CmsShowMain::doNextEvent()
-{
-   m_navigator->nextEvent();
-   checkPosition();
-   draw();
-}
-
-void CmsShowMain::doPreviousEvent()
-{
-   m_navigator->previousEvent();
-   checkPosition();
-   draw();
-}
-void CmsShowMain::doLastEvent()
-{
-   m_navigator->lastEvent();
-   checkPosition();
-   draw();
-}
-
-void CmsShowMain::goToRunEvent(int run, int event)
-{
-   m_navigator->goToRunEvent(run, event);
-   checkPosition();
-   draw();
-}
-
 //==============================================================================
-
 void
 CmsShowMain::setupDataHandling()
 {
-   m_guiManager->updateStatus("Setting up data handling...");
+   guiManager()->updateStatus("Setting up data handling...");
 
-   m_navigator->newEvent_.connect(boost::bind(&FWGUIManager::loadEvent, m_guiManager.get()));
+   // Event / file change actions which require different response for different
+   // implementations. 
    m_navigator->newEvent_.connect(boost::bind(&CmsShowMain::eventChangedSlot, this));
    m_navigator->fileChanged_.connect(boost::bind(&CmsShowMain::fileChangedSlot, this, _1));
 
    // navigator filtering  ->
-   m_navigator->editFiltersExternally_.connect(boost::bind(&FWGUIManager::updateEventFilterEnable, m_guiManager.get(),_1));
-   m_navigator->filterStateChanged_.connect(boost::bind(&CmsShowMain::navigatorChangedFilterState,this, _1));
-   m_navigator->postFiltering_.connect(boost::bind(&CmsShowMain::postFiltering,this));
+   m_navigator->editFiltersExternally_.connect(boost::bind(&FWGUIManager::updateEventFilterEnable, guiManager(), _1));
+   m_navigator->filterStateChanged_.connect(boost::bind(&CmsShowMain::navigatorChangedFilterState, this, _1));
+   m_navigator->postFiltering_.connect(boost::bind(&CmsShowMain::postFiltering, this));
 
    // navigator fitlering <-
-   m_guiManager->showEventFilterGUI_.connect(boost::bind(&CmsShowNavigator::showEventFilterGUI, m_navigator.get(),_1));
-   m_guiManager->filterButtonClicked_.connect(boost::bind(&CmsShowMain::filterButtonClicked,this));
+   guiManager()->showEventFilterGUI_.connect(boost::bind(&CmsShowNavigator::showEventFilterGUI, m_navigator.get(),_1));
+   guiManager()->filterButtonClicked_.connect(boost::bind(&CmsShowMain::filterButtonClicked,this));
 
-   if (m_guiManager->getAction(cmsshow::sOpenData)    != 0) m_guiManager->getAction(cmsshow::sOpenData)   ->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openData));
-   if (m_guiManager->getAction(cmsshow::sAppendData)  != 0) m_guiManager->getAction(cmsshow::sAppendData) ->activated.connect(sigc::mem_fun(*this, &CmsShowMain::appendData));
-   if (m_guiManager->getAction(cmsshow::sSearchFiles) != 0) m_guiManager->getAction(cmsshow::sSearchFiles)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openDataViaURL));
-   if (m_guiManager->getAction(cmsshow::sNextEvent) != 0)
-      m_guiManager->getAction(cmsshow::sNextEvent)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::doNextEvent));
-   if (m_guiManager->getAction(cmsshow::sPreviousEvent) != 0)
-      m_guiManager->getAction(cmsshow::sPreviousEvent)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::doPreviousEvent));
-   if (m_guiManager->getAction(cmsshow::sGotoFirstEvent) != 0)
-      m_guiManager->getAction(cmsshow::sGotoFirstEvent)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::doFirstEvent));
-   if (m_guiManager->getAction(cmsshow::sGotoLastEvent) != 0)
-      m_guiManager->getAction(cmsshow::sGotoLastEvent)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::doLastEvent));
- 
-   m_guiManager->changedEventId_.connect(boost::bind(&CmsShowMain::goToRunEvent,this,_1,_2));
+   // Data handling. File related and therefore not in the base class.
+   if (guiManager()->getAction(cmsshow::sOpenData)    != 0) 
+      guiManager()->getAction(cmsshow::sOpenData)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openData));
+   if (guiManager()->getAction(cmsshow::sAppendData)  != 0) 
+      guiManager()->getAction(cmsshow::sAppendData)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::appendData));
+   if (guiManager()->getAction(cmsshow::sSearchFiles) != 0)
+      guiManager()->getAction(cmsshow::sSearchFiles)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openDataViaURL));
 
-
-   if (m_guiManager->getAction(cmsshow::sQuit) != 0) m_guiManager->getAction(cmsshow::sQuit)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::quit));
-   m_guiManager->playEventsAction()->started_.connect(sigc::mem_fun(*this,&CmsShowMain::playForward));
-   m_guiManager->playEventsAction()->stopped_.connect(sigc::mem_fun(*this,&CmsShowMain::stopPlaying));
-   m_guiManager->playEventsBackwardsAction()->started_.connect(sigc::mem_fun(*this,&CmsShowMain::playBackward));
-   m_guiManager->playEventsBackwardsAction()->stopped_.connect(sigc::mem_fun(*this,&CmsShowMain::stopPlaying));
-   m_guiManager->loopAction()->started_.connect(sigc::mem_fun(*this,&CmsShowMain::setPlayLoopImp));
-   m_guiManager->loopAction()->stopped_.connect(sigc::mem_fun(*this,&CmsShowMain::unsetPlayLoopImp));
-
-   m_guiManager->setDelayBetweenEvents(m_playDelay);
-   m_guiManager->changedDelayBetweenEvents_.connect(boost::bind(&CmsShowMain::setPlayDelay,this,_1));
-
-  
+   setupActions();
    // init data from  CmsShowNavigator configuration, can do this with signals since there were not connected yet
-   m_guiManager->setFilterButtonIcon(m_navigator->getFilterState());
-   m_autoLoadTimer = new SignalTimer();
-   ((SignalTimer*) m_autoLoadTimer)->timeout_.connect(boost::bind(&CmsShowMain::autoLoadNewEvent,this));
+   guiManager()->setFilterButtonIcon(m_navigator->getFilterState());
 
    for (unsigned int ii = 0; ii < m_inputFiles.size(); ++ii)
    {
       const std::string& fname = m_inputFiles[ii];
-      if (fname.size())
+      if (fname.empty())
+         continue;
+      guiManager()->updateStatus("loading data file ...");
+      if (!m_navigator->appendFile(fname, false, false))
       {
-         m_guiManager->updateStatus("loading data file ...");
-         if (!m_navigator->appendFile(fname, false, false))
-         {
-            m_guiManager->updateStatus("failed to load data file");
-            openData();
-         }
-         else
-         {
-            m_loadedAnyInputFile = true;
-         }
+         guiManager()->updateStatus("failed to load data file");
+         openData();
       }
+      else
+         m_loadedAnyInputFile = true;
    }
 
    if (m_loadedAnyInputFile)
@@ -915,45 +622,7 @@ CmsShowMain::setupDataHandling()
       draw();
    }
    else if (m_monitor.get() == 0)
-   {
       openData();
-   }
-}
-
-void
-CmsShowMain::setLiveMode()
-{
-   m_live = true;
-   m_liveTimer = new SignalTimer();
-   ((SignalTimer*)m_liveTimer)->timeout_.connect(boost::bind(&CmsShowMain::checkLiveMode,this));
-
-
-   Window_t rootw, childw;
-   Int_t root_x, root_y, win_x, win_y;
-   UInt_t mask;
-   gVirtualX->QueryPointer(gClient->GetDefaultRoot()->GetId(),
-                           rootw, childw,
-                           root_x, root_y,
-                           win_x, win_y,
-                           mask);
-
-
-   m_liveTimer->SetTime(m_liveTimeout);
-   m_liveTimer->Reset();
-   m_liveTimer->TurnOn();
-}
-
-void
-CmsShowMain::setPlayDelay(Float_t val)
-{
-   m_playDelay = val;
-}
-
-void
-CmsShowMain::setupDebugSupport()
-{
-   m_guiManager->updateStatus("Setting up Eve debug window...");
-   m_guiManager->openEveBrowserForDebugging();
 }
 
 void
@@ -982,7 +651,7 @@ CmsShowMain::notified(TSocket* iSocket)
          m_monitor->Add(connection);
          std::stringstream s;
          s << "received connection from "<<iSocket->GetInetAddress().GetHostName();
-         m_guiManager->updateStatus(s.str().c_str());
+         guiManager()->updateStatus(s.str().c_str());
       }
    }
    else
@@ -1007,111 +676,57 @@ CmsShowMain::notified(TSocket* iSocket)
 
       std::stringstream s;
       s <<"New file notified '"<<fileName<<"'";
-      m_guiManager->updateStatus(s.str().c_str());
+      guiManager()->updateStatus(s.str().c_str());
 
-      bool appended = m_navigator->appendFile(fileName, true, m_live);
+      bool appended = m_navigator->appendFile(fileName, true, live());
 
       if (appended)
       {
-         if (m_live && m_isPlaying && m_forward)
-         {
+         if (live() && isPlaying() && forward())
             m_navigator->activateNewFileOnNextEvent();
-         }
-         else if (!m_isPlaying)
-         {
+         else if (!isPlaying())
             checkPosition();
-         }
 
          // bootstrap case: --port  and no input file
          if (!m_loadedAnyInputFile)
          {
             m_loadedAnyInputFile = true;
             m_navigator->firstEvent();
-            if (!m_isPlaying)
-            {
+            if (!isPlaying())
                draw();
-            }
          }
 
          std::stringstream sr;
          sr <<"New file registered '"<<fileName<<"'";
-         m_guiManager->updateStatus(sr.str().c_str());
+         guiManager()->updateStatus(sr.str().c_str());
       }
       else
       {
          std::stringstream sr;
          sr <<"New file NOT registered '"<<fileName<<"'";
-         m_guiManager->updateStatus(sr.str().c_str());
+         guiManager()->updateStatus(sr.str().c_str());
       }
    }
-}
-
-void
-CmsShowMain::playForward()
-{
-   m_forward   = true;
-   m_isPlaying = true;
-   m_guiManager->enableActions(kFALSE);
-   startAutoLoadTimer();
-}
-
-void
-CmsShowMain::playBackward()
-{
-   m_forward=false;
-   m_isPlaying = true;
-   m_guiManager->enableActions(kFALSE);
-   startAutoLoadTimer();
 }
 
 void
 CmsShowMain::stopPlaying()
 {
    stopAutoLoadTimer();
-   if (m_live)
+   if (live())
       m_navigator->resetNewFileOnNextEvent();
-   m_isPlaying = false;
-   m_guiManager->enableActions();
+   setIsPlaying(false);
+   guiManager()->enableActions();
    checkPosition();
-}
-
-void
-CmsShowMain::setPlayLoop()
-{
-   if(!m_loop) {
-      setPlayLoopImp();
-      m_guiManager->loopAction()->activated();
-   }
-}
-
-void
-CmsShowMain::unsetPlayLoop()
-{
-   if(m_loop) {
-      unsetPlayLoopImp();
-      m_guiManager->loopAction()->stop();
-   }
-}
-
-void
-CmsShowMain::setPlayLoopImp()
-{
-   m_loop = true;
-}
-
-void
-CmsShowMain::unsetPlayLoopImp()
-{
-   m_loop = false;
 }
 
 void
 CmsShowMain::navigatorChangedFilterState(int state)
 {
-   m_guiManager->setFilterButtonIcon(state);
+   guiManager()->setFilterButtonIcon(state);
    if (m_navigator->filesNeedUpdate() == false)
    {
-      m_guiManager->setFilterButtonText(m_navigator->filterStatusMessage());
+      guiManager()->setFilterButtonText(m_navigator->filterStatusMessage());
       checkPosition();
    }
 }
@@ -1120,7 +735,7 @@ void
 CmsShowMain::filterButtonClicked()
 {
    if (m_navigator->getFilterState() == CmsShowNavigator::kWithdrawn )
-      m_guiManager->showEventFilterGUI();
+      guiManager()->showEventFilterGUI();
    else
       m_navigator->toggleFilterEnable();
 }
@@ -1129,47 +744,16 @@ void
 CmsShowMain::preFiltering()
 {
    // called only if filter has changed
-   m_guiManager->updateStatus("Filtering events");
+   guiManager()->updateStatus("Filtering events");
 }
 
 void
 CmsShowMain::postFiltering()
 {
    // called only filter is changed
-   m_guiManager->clearStatus();
+   guiManager()->clearStatus();
    draw();
    checkPosition();
-   m_guiManager->setFilterButtonText(m_navigator->filterStatusMessage());
-}
-
-void
-CmsShowMain::checkLiveMode()
-{
-   m_liveTimer->TurnOff();
-
-   Window_t rootw, childw;
-   Int_t root_x, root_y, win_x, win_y;
-   UInt_t mask;
-   gVirtualX->QueryPointer(gClient->GetDefaultRoot()->GetId(),
-                           rootw, childw,
-                           root_x, root_y,
-                           win_x, win_y,
-                           mask);
-
-
-   if ( !m_isPlaying &&
-        m_lastPointerPositionX == root_x && 
-        m_lastPointerPositionY == root_y )
-   {
-      m_guiManager->playEventsAction()->switchMode();
-   }
-
-   m_lastPointerPositionX = root_x;
-   m_lastPointerPositionY = root_y;
-
-
-   m_liveTimer->SetTime((Long_t)(m_liveTimeout));
-   m_liveTimer->Reset();
-   m_liveTimer->TurnOn();
+   guiManager()->setFilterButtonText(m_navigator->filterStatusMessage());
 }
 

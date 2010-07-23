@@ -158,14 +158,21 @@ void FWMagField::resetFieldEstimate() const
 }
 
 //______________________________________________________________________________
-void FWMagField::checkFiledInfo(const fwlite::Event* event)
+void FWMagField::checkFiledInfo(const edm::EventBase* event)
 {
    const static float  currentToFiled = 3.8/18160;
    bool available = false;
    try
    {
-      fwlite::Handle<edm::ConditionsInRunBlock> runCond;
-      runCond.getByLabel( event->getRun(), "conditionsInEdm","", "" );
+      edm::InputTag conditionsTag("conditionsInEdm");
+      edm::Handle<edm::ConditionsInRunBlock> runCond;
+      // FIXME: ugly hack to avoid exposing an fwlite::Event. Need to ask
+      //        Chris / Ianna how to get mag field from an EventBase.
+      const fwlite::Event *fwEvent = dynamic_cast<const fwlite::Event*>(event);
+      if (!fwEvent)
+         return;
+      fwEvent->getRun().getByLabel(conditionsTag, runCond);
+      
       if( runCond.isValid())
       {
          available = true;
@@ -174,8 +181,10 @@ void FWMagField::checkFiledInfo(const fwlite::Event* event)
       }
       else
       {
-         fwlite::Handle< std::vector<DcsStatus> > dcsStatus;
-         dcsStatus.getByLabel( *event, "scalersRawToDigi", "", "" );
+         edm::InputTag dcsTag("scalersRawToDigi");
+         edm::Handle< std::vector<DcsStatus> > dcsStatus;
+         event->getByLabel(dcsTag, dcsStatus);
+         
          if (dcsStatus.isValid() && dcsStatus->size())
          {
             float sum = 0;
@@ -189,7 +198,7 @@ void FWMagField::checkFiledInfo(const fwlite::Event* event)
 
       }
    }
-   catch ( cms::Exception&)
+   catch (cms::Exception&)
    {
       fwLog( fwlog::kDebug ) << "Cought exception in FWMagField::checkFiledInfo\n";
    }

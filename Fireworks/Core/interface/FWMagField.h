@@ -8,9 +8,9 @@
 #include "TEveTrackPropagator.h"
 class TH1F;
 
-namespace fwlite
+namespace edm
 {
-   class Event;
+   class EventBase;
 }
 
 class FWMagField: public TEveMagField
@@ -42,7 +42,7 @@ public:
    void   guessField( float estimate ) const;
    void   resetFieldEstimate() const;
 
-   void   checkFiledInfo(const fwlite::Event*);
+   void   checkFiledInfo(const edm::EventBase*);
 
 private:
    FWMagField(const FWMagField&); // stop default

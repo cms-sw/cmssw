@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:21:45 EDT 2008
-// $Id: Context.h,v 1.13 2010/05/31 13:01:24 amraktad Exp $
+// $Id: Context.h,v 1.14 2010/06/07 17:54:01 amraktad Exp $
 //
 
 // system include files
@@ -32,6 +32,7 @@ class FWModelChangeManager;
 class FWSelectionManager;
 class FWEventItemsManager;
 class FWColorManager;
+class FWJobMetadataManager;
 class FWMagField;
 class DetIdToMatrix;
 
@@ -40,9 +41,10 @@ class Context {
 
 public:
    Context(FWModelChangeManager* iCM,
-           FWSelectionManager* iSM,
-           FWEventItemsManager* iEM,
-           FWColorManager* iColorM);
+           FWSelectionManager*   iSM,
+           FWEventItemsManager*  iEM,
+           FWColorManager*       iColorM,
+           FWJobMetadataManager* iJMDM);
    virtual ~Context();
 
    void  setGeom(const DetIdToMatrix* x) { m_geom = x; }
@@ -61,6 +63,10 @@ public:
       
    FWColorManager* colorManager() const {
       return m_colorManager;
+   }
+
+   FWJobMetadataManager* metadataManager() const {
+      return m_metadataManager;
    }
 
    TEveTrackPropagator* getTrackPropagator()        const { return m_propagator;        }
@@ -94,6 +100,7 @@ private:
    FWSelectionManager   *m_selectionManager;
    FWEventItemsManager  *m_eventItemsManager;
    FWColorManager       *m_colorManager;
+   FWJobMetadataManager *m_metadataManager;
 
    const DetIdToMatrix  *m_geom;
 
