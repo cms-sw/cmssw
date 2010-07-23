@@ -45,7 +45,11 @@ SequentialPileUpProducer::SequentialPileUpProducer(edm::ParameterSet const & p)
   const edm::ParameterSet& pu = p.getParameter<edm::ParameterSet>("PileUpSimulator");
   averageNumber_ = pu.getParameter<double>("averageNumber");
   theFileNames = pu.getUntrackedParameter<std::vector<std::string> >("fileNames");
+  skipSearchPath = pu.getUntrackedParameter<bool>("skipSearchPath");
   theNumberOfFiles = theFileNames.size();
+  // If the number of minbias events in a file is known we can open
+  // the correct file right away
+  theNumberOfMinBiasEventsPerFile = pu.getUntrackedParameter<unsigned>("NumberOfMinBiasEventsPerFile");
   // If the event generation is divided in many jobs, we want to make sure
   // that the consecutive jobs pickup a distinct set of sequential events
   // so we allow the user to set the starting event
@@ -88,7 +92,19 @@ void SequentialPileUpProducer::beginRun(edm::Run & run, edm::EventSetup const& e
   
   // Open the root file
   unsigned nEventsSkipped = 0;
-  openFile(0);
+  if(theNumberOfMinBiasEventsPerFile == 0)
+    {
+      openFile(0);
+    }
+  else
+    {
+      theCurrentFile = theStartingEvent / theNumberOfMinBiasEventsPerFile;
+      if(theCurrentFile == theNumberOfFiles)
+	throw cms::Exception("Configuration")
+	  << "SequentialPileUpProducer has fewer events than asked to skip";
+      openFile(theCurrentFile);
+      nEventsSkipped = theCurrentFile * theNumberOfMinBiasEventsPerFile;
+    }
   while(nEventsSkipped < theStartingEvent)
     {
       if(theNumberOfMinBiasEvts > (theStartingEvent - nEventsSkipped))
@@ -126,8 +142,14 @@ void SequentialPileUpProducer::openFile(unsigned file)
 {
   gROOT->cd();
   theCurrentFile = file;
-  edm::FileInPath myDataFile("FastSimulation/PileUpProducer/data/"+theFileNames[file]);
-  std::string fullPath = myDataFile.fullPath();
+  std::string fullPath;
+  if(skipSearchPath) {
+    fullPath = theFileNames[file];
+  }
+  else {
+    edm::FileInPath myDataFile("FastSimulation/PileUpProducer/data/"+theFileNames[file]);
+    fullPath = myDataFile.fullPath();
+  }
   theFile = TFile::Open(fullPath.c_str());
   if ( !theFile ) throw cms::Exception("FastSimulation/PileUpProducer") 
     << "File " << theFileNames[file] << " " << fullPath <<  " not found ";

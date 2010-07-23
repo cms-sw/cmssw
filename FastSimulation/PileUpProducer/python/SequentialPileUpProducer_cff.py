@@ -22,6 +22,8 @@ famosPileUp = cms.EDProducer("SequentialPileUpProducer",
             'MinBias_009.root', 
             'MinBias_010.root'
         ),
+        skipSearchPath = cms.untracked.bool(False),
+        NumberOfMinBiasEventsPerFile = cms.untracked.uint32(0),
         averageNumber = cms.double(0.0),
         startingEvent = cms.untracked.uint32(0),
         jobNumber = cms.untracked.uint32(0),

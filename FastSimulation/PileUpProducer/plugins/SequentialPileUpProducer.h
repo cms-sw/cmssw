@@ -43,6 +43,10 @@ class SequentialPileUpProducer : public edm::EDProducer
   std::vector<std::string> theFileNames;
   unsigned theNumberOfFiles;
 
+  unsigned theNumberOfMinBiasEventsPerFile;
+
+  bool skipSearchPath;
+
   TFile* theFile;
   TTree* theTree;
   TBranch* theBranch;
