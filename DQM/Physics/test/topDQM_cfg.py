@@ -17,20 +17,27 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source(
     "PoolSource"
     ,fileNames = cms.untracked.vstring(
-      '/store/mc/Spring10/TTbar/GEN-SIM-RECO/MC_3XY_V25_S09_preproduction-v2/0106/1A19B479-BA3A-DF11-8E43-0017A4770410.root'
-     ,'/store/mc/Spring10/TTbar/GEN-SIM-RECO/MC_3XY_V25_S09_preproduction-v2/0106/1A2CED78-BA3A-DF11-98CD-0017A4771010.root'
-     ,'/store/mc/Spring10/TTbar/GEN-SIM-RECO/MC_3XY_V25_S09_preproduction-v2/0106/3AE61B7A-BA3A-DF11-BA4C-0017A477040C.root'
-     ,'/store/mc/Spring10/TTbar/GEN-SIM-RECO/MC_3XY_V25_S09_preproduction-v2/0106/3CBA7F7C-BA3A-DF11-9ECE-0017A4770C14.root'
-     ,'/store/mc/Spring10/TTbar/GEN-SIM-RECO/MC_3XY_V25_S09_preproduction-v2/0106/443CAD79-BA3A-DF11-9F90-0017A4770818.root'
-     ,'/store/mc/Spring10/TTbar/GEN-SIM-RECO/MC_3XY_V25_S09_preproduction-v2/0106/4C91A47A-BA3A-DF11-B3D2-0017A4771004.root'
-     ,'/store/mc/Spring10/TTbar/GEN-SIM-RECO/MC_3XY_V25_S09_preproduction-v2/0106/5225C429-BB3A-DF11-AD90-0017A4770020.root'
-     ,'/store/mc/Spring10/TTbar/GEN-SIM-RECO/MC_3XY_V25_S09_preproduction-v2/0106/62BC7102-BB3A-DF11-8D7C-0017A4771028.root'
-     ,'/store/mc/Spring10/TTbar/GEN-SIM-RECO/MC_3XY_V25_S09_preproduction-v2/0106/64FCA77B-BA3A-DF11-8514-0017A477042C.root'
-     ,'/store/mc/Spring10/TTbar/GEN-SIM-RECO/MC_3XY_V25_S09_preproduction-v2/0106/7AE57478-BA3A-DF11-BA3C-0017A4771034.root'
+      'file:/afs/desy.de/user/r/rwolf/cms13/samples/847D00B0-608E-DF11-A37D-003048678FA0.root'
+  #   '/store/mc/Spring10/TTbar/GEN-SIM-RECO/MC_3XY_V25_S09_preproduction-v2/0106/1A19B479-BA3A-DF11-8E43-0017A4770410.root'      
+  #  ,'/store/mc/Spring10/TTbar/GEN-SIM-RECO/MC_3XY_V25_S09_preproduction-v2/0106/1A2CED78-BA3A-DF11-98CD-0017A4771010.root'
+  #  ,'/store/mc/Spring10/TTbar/GEN-SIM-RECO/MC_3XY_V25_S09_preproduction-v2/0106/3AE61B7A-BA3A-DF11-BA4C-0017A477040C.root'
+  #  ,'/store/mc/Spring10/TTbar/GEN-SIM-RECO/MC_3XY_V25_S09_preproduction-v2/0106/3CBA7F7C-BA3A-DF11-9ECE-0017A4770C14.root'
+  #  ,'/store/mc/Spring10/TTbar/GEN-SIM-RECO/MC_3XY_V25_S09_preproduction-v2/0106/443CAD79-BA3A-DF11-9F90-0017A4770818.root'
+  #  ,'/store/mc/Spring10/TTbar/GEN-SIM-RECO/MC_3XY_V25_S09_preproduction-v2/0106/4C91A47A-BA3A-DF11-B3D2-0017A4771004.root'
+  #  ,'/store/mc/Spring10/TTbar/GEN-SIM-RECO/MC_3XY_V25_S09_preproduction-v2/0106/5225C429-BB3A-DF11-AD90-0017A4770020.root'
+  #  ,'/store/mc/Spring10/TTbar/GEN-SIM-RECO/MC_3XY_V25_S09_preproduction-v2/0106/62BC7102-BB3A-DF11-8D7C-0017A4771028.root'
+  #  ,'/store/mc/Spring10/TTbar/GEN-SIM-RECO/MC_3XY_V25_S09_preproduction-v2/0106/64FCA77B-BA3A-DF11-8514-0017A477042C.root'
+  #  ,'/store/mc/Spring10/TTbar/GEN-SIM-RECO/MC_3XY_V25_S09_preproduction-v2/0106/7AE57478-BA3A-DF11-BA3C-0017A4771034.root'
     )
 )
 
 ## load jet corrections
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+
+## global tag (needed for JEC)
+#process.GlobalTag.globaltag = 'GR10_P_V5::All' ## for data with CMSSW_3_6_1_patch4
+process.GlobalTag.globaltag = 'START38_V7::All' ## for CMSSW_3_8_0
+
 process.load("JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff")
 process.prefer("ak5CaloL2L3")
 
