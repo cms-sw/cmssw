@@ -111,19 +111,23 @@ void testRecord(std::vector<float> const & v, std::vector<float> & v2) {
 
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
+#include "CoralBase/AttributeSpecification.h"
 
 void testAttributeList(std::vector<float> const & v, std::vector<float> & v2) {
-  checkmem("before AttributeList");
+  checkmem("before AttributeListSpecs");
 
-  coral::AttributeList record;
+  coral::AttributeSpecification specs;
   std::ostringstream oss;
   std::string f("f_");
   for (int i=0;i<100; ++i) {
     oss.str("");
     oss << i;
-    record.extend(f+oss.str(), typeid(float));
+    specs.extend(f+oss.str(), typeid(float));
   }
 
+  checkmem("after  AttributeSpecs");
+  
+  coral::AttributeList record(specs);
   checkmem("after  AttributeList");
 
   for (int i=0;i<100; ++i)
