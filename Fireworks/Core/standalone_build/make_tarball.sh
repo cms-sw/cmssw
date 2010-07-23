@@ -55,7 +55,7 @@ cp -a $CMSSW_BASE/lib/*/* ${tard}/lib/
 
 # plugins cache file
 touch ${tard}/lib/.edmplugincache
-cat  $CMSSW_RELEASE_BASE/lib/*/.edmplugincache >> ${tard}/lib/.edmplugincache
+cat  $CMSSW_RELEASE_BASE/lib/*/.edmplugincache > ${tard}/lib/.edmplugincache
 cat  $CMSSW_BASE/lib/*/.edmplugincache >> ${tard}/lib/.edmplugincache
 
 # binary 
