@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.30 2010/06/18 19:51:24 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.31 2010/06/22 19:11:26 amraktad Exp $
 //
 
 // system include files
@@ -145,10 +145,10 @@ FWEveViewManager::~FWEveViewManager()
 
 //______________________________________________________________________________
 
-/** Helper function to add products from a given builder to a given view.
-    DOCREQ-GE: for some reason only FWRPZView is considered to be a projected
-               view and must be handled differently. Could someone document the
-               rationale behind it?
+/**
+   Helper function to add products from a given builder to a given view.
+   FWRPZView is a base class for all projected views 
+    (name derives from  FWViewType::RPhi and FWViewType::RhoZ projection).
   */
 void
 addElements(const FWEventItem *item, FWEveView *view, 
@@ -166,19 +166,18 @@ addElements(const FWEventItem *item, FWEveView *view,
    }
 }
 
-/** This is invoked (DOCREQ-GE: I **THINK**) when a new item is created
-    by the FWEventItemsManager (DOCREQ-GE: I **THINK**). The workflow is the 
-    following:
+/** This  is  invoked  when  a  new  item  is  created
+    by  the  FWEventItemsManager.  The  workflow  is  the  following
 
-    1. First we check if we have a builder info for the given purpose of the
-       item. We return simply if we don't.
-    2. We iterate over all the proxy builder registered for the given
-       purpose and create a new one for this given item.
-    3. Interaction listst are set up in case the proxy builder does not handle
-       interaction by itself.
-    4. We then iterate on the various supported views and add elements to them,
-       making sure that we handle the case in which those elements are not
-       unique among all the views.
+   1.  First  we  check  if  we  have  a  builder  info  for  the  given  purpose  of  the
+       item.  We  return  simply  if  we  don't.
+   2.  We  iterate  over  all  the  proxy  builder  registered  for  the  given
+       purpose  and  create  a  new  one  for  this  given  item.
+   3.  Interaction  lists  are  set  up  in  case  the  proxy  builder  does  not  handle
+       interaction  by  itself.
+   4.  We  then  iterate  on  the  various  supported  views  and  add  elements  to  them,
+       making  sure  that  we  handle  the  case  in  which  those  elements  are  not
+       unique  among  all  the  views.
   */
 void
 FWEveViewManager::newItem(const FWEventItem* iItem)
@@ -211,15 +210,14 @@ FWEveViewManager::newItem(const FWEventItem* iItem)
       iItem->itemChanged_.connect(boost::bind(&FWEveViewManager::itemChanged,this,_1));
 
       // 3.
-      // DOCREQ-GE: Shouldn't this really be opaque to the user? I would pass
-      //            a reference to the m_interactionLists to
-      //            FWProxyBuilderBase::setInteractionList and handle different
-      //            case differently.
+      // This calud be opaque to the user. I would pass a reference to the m_interactionLists to
+      // FWProxyBuilderBase::setInteractionList and handle different case differently.
       if (builder->willHandleInteraction() == false)
       {
          typedef std::map<const FWEventItem*, FWInteractionList*>::iterator Iterator;
          std::pair<Iterator, bool> t = m_interactionLists.insert(std::make_pair(iItem,
-                                                                 (FWInteractionList*)0));
+                                                                                (FWInteractionList*)0));
+
          if (t.second == true)
             t.first->second = new FWInteractionList(iItem);
          //  printf(">>> builder %s add list %p \n", iItem->name().c_str(), il); fflush(stdout);
@@ -458,7 +456,7 @@ FWEveViewManager::modelChangesDone()
    gEve->EnableRedraw();
 }
 
-/** Invoked when there are changes in the model by who???*/
+/** Callback of event item changed_ signal.*/
 void
 FWEveViewManager::modelChanges(const FWModelIds& iIds)
 {
@@ -494,15 +492,11 @@ FWEveViewManager::modelChanges(const FWModelIds& iIds)
    }
 }
 
-/** Called whenever an @a item is changed (DOCREQ-GE: by who???)
-    
+/** Callback of itemChanged_ signal.
     Iterate over all the builders for all the views and call itemChanged
     for any of the builders.
-    
-    If any of the builder also has a window, also update the interaction list.
-    
-    DOCREQ-GE: what does it means to have a window?
-  */
+    If any of the builder also has at least one view, also update the interaction list.
+*/
 void
 FWEveViewManager::itemChanged(const FWEventItem* item)
 {

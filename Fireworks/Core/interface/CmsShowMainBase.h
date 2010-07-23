@@ -5,6 +5,7 @@
 
 #include <memory>
 #include <string>
+#include <cassert>
 #include "sigc++/signal.h"
 
 #include "TTimer.h"
