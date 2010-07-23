@@ -2,8 +2,8 @@
  *  Class:DQMGenericClient 
  *
  *
- *  $Date: 2010/07/02 10:39:37 $
- *  $Revision: 1.17 $
+ *  $Date: 2010/07/20 02:58:28 $
+ *  $Revision: 1.18 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -514,8 +514,8 @@ void DQMGenericClient::computeEfficiency(const string& startDir, const string& e
   const float nSimAll = hSim->GetEntries();
   const float nRecoAll = hReco->GetEntries();
   float efficAll=0; 
-  if ( type == 1 ) efficAll = nSimAll ? 1-nRecoAll/nSimAll : 0;
-  else if ( type == 2 ) efficAll = nSimAll ? nRecoAll/nSimAll : 0;
+  if ( type == 1 ) efficAll = nSimAll ? nRecoAll/nSimAll : 0;
+  else if ( type == 2 ) efficAll = nSimAll ? 1-nRecoAll/nSimAll : 0;
   const float errorAll = nSimAll && efficAll < 1 ? sqrt(efficAll*(1-efficAll)/nSimAll) : 0;
 
   const int iBin = hGlobalEffic->Fill(newEfficMEName.c_str(), 0);
