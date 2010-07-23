@@ -1,4 +1,5 @@
 <bin   name="edmProvDump" file="EdmProvDump.cc,">
+  <use   name="boost_program_options"/>
   <use   name="rootcore"/>
   <use   name="DataFormats/Provenance"/>
   <use   name="FWCore/ParameterSet"/>
