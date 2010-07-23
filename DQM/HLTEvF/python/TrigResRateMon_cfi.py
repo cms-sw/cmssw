@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: $
+# $Id: TrigResRateMon_cfi.py,v 1.1 2010/07/21 12:36:30 rekovic Exp $
 trRateMon = cms.EDAnalyzer("TrigResRateMon",
-    dirname = cms.untracked.string("HLT/FourVector/paths"),
+    dirname = cms.untracked.string("HLT/TrigResults/"),
     muonRecoCollectionName = cms.untracked.string("muons"),
     plotAll = cms.untracked.bool(False),
     dRMax = cms.untracked.double(10.0),
