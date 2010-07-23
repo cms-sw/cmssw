@@ -165,7 +165,7 @@ namespace TopSingleLepton {
     // W mass estimate
     hists_["massW_"      ] = store_->book1D("MassW"      , "M(W)"             ,     60,     0.,    300.);   
     // Top mass estimate
-    hists_["massTop_"    ] = store_->book1D("MassTop"    , "M(Top)"           ,     51,    -1.,    500.);   
+    hists_["massTop_"    ] = store_->book1D("MassTop"    , "M(Top)"           ,     50,     0.,    500.);   
 
     // set bin labels for trigger monitoring
     triggerBinLabels(std::string("trigger"), triggerPaths_);
@@ -457,7 +457,7 @@ namespace TopSingleLepton {
     Calculate eventKinematics(MAXJETS, WMASS);
     double wMass   = eventKinematics.massWBoson  (correctedJets);
     double topMass = eventKinematics.massTopQuark(correctedJets);
-    fill("massW_" , wMass  ); fill("massTop_" , topMass);
+    if(wMass>=0 && topMass>=0) {fill("massW_" , wMass  ); fill("massTop_" , topMass);}
     // fill plots for trigger monitoring
     if((lowerEdge_==-1. && upperEdge_==-1.) || (lowerEdge_<wMass && wMass<upperEdge_) ){
       if(!triggerTable_.label().empty()) fill(event, *triggerTable, "trigger", triggerPaths_);
