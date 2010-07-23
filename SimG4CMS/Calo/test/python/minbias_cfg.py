@@ -119,10 +119,5 @@ process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*pro
 process.outpath = cms.EndPath(process.o1)
 process.generator.pythiaHepMCVerbosity = False
 process.generator.pythiaPylistVerbosity = 0
-process.g4SimHits.CaloSD.EminHits[0] = 0
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EML'
-process.g4SimHits.StackingAction.TrackNeutrino = False
-process.g4SimHits.Generator.MinPhiCut = -5.5
-process.g4SimHits.Generator.MaxPhiCut = 5.5
-process.g4SimHits.G4Commands = ['/physics_engine/neutron/energyLimit 1 MeV', '/physics_engine/neutron/timeLimit 0.001 ms']
 

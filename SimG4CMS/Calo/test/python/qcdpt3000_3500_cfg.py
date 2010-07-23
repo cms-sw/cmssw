@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Sim")
-process.load("SimG4CMS.Calo.PythiaTT_cfi")
+process.load("Configuration.Generator.QCD_Pt_3000_3500_cfi")
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
@@ -20,7 +20,7 @@ process.load("SimG4CMS.Calo.CaloSimHitStudy_cfi")
 process.source = cms.Source("EmptySource")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(50)
+    input = cms.untracked.int32(20)
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -104,7 +104,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 process.rndmStore = cms.EDProducer("RandomEngineStateProducer")
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('ttbar_QGSP_BERT_EML.root')
+    fileName = cms.string('qcdpt_3000_3500_QGSP_BERT_EML.root')
 )
 
 # Event output
@@ -112,7 +112,7 @@ process.load("Configuration.EventContent.EventContent_cff")
 
 process.o1 = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
-    fileName = cms.untracked.string('simevent_ttbar_QGSP_BERT_EML.root')
+    fileName = cms.untracked.string('simevent_qcdpt_3000_3500_QGSP_BERT_EML.root')
 )
 
 process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*process.caloSimHitStudy*process.rndmStore)
