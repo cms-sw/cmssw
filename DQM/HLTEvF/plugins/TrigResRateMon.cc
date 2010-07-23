@@ -310,8 +310,6 @@ TrigResRateMon::beginJob()
     dbe->setCurrentFolder(dirname_);
   }  
 
-  MonitorElement* reportSummaryFloat = dbe->bookFloat("reportSummaryMap");
-  if(reportSummaryFloat) reportSummaryFloat->Fill(1);
 
 
 }
@@ -362,6 +360,8 @@ void TrigResRateMon::beginRun(const edm::Run& run, const edm::EventSetup& c)
     }
 
     
+    MonitorElement* reportSummaryFloat = dbe->bookFloat("reportSummaryMap");
+    if(reportSummaryFloat) reportSummaryFloat->Fill(1);
 
     const unsigned int n(hltConfig_.size());
 
