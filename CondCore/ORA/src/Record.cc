@@ -1,4 +1,4 @@
-#include "CondCore/ORA/Record.h"
+#include "CondCore/ORA/interface/Record.h"
 #include "AnyData.h"
 #include "RecordDetails.h"
 
@@ -99,7 +99,7 @@ namespace ora {
 
 
   std::string const & Record::name(int i) const {
-    specs->items[i].name;
+    return specs->items[i].name;
   }
  
 

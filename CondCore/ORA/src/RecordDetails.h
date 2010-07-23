@@ -25,7 +25,7 @@ namespace ora {
   struct NullTypeHandler : public TypeHandler{
     NullTypeHandler(std::type_info const& t) { type=&t;}
     virtual bool isPointer() const { return false;} 
-    virtual void const * address(const AnyData & ad) const{return 0}
+    virtual void const * address(const AnyData & ad) const{return 0;}
     virtual void set(AnyData &, void*) const{};
     virtual void const * get(const AnyData &) const{return 0;};
     virtual void create(AnyData &) const{};
