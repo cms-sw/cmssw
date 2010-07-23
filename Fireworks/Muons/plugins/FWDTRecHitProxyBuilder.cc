@@ -3,7 +3,7 @@
 // Package:     Muons
 // Class  :     FWDTRecHitProxyBuilder
 //
-// $Id: FWDTRecHitProxyBuilder.cc,v 1.6 2010/06/04 14:13:54 yana Exp $
+// $Id: FWDTRecHitProxyBuilder.cc,v 1.7 2010/06/10 14:01:37 yana Exp $
 //
 
 #include "TEvePointSet.h"
@@ -19,22 +19,22 @@
 
 namespace 
 {
-	void 
-	addLineWithMarkers( TEveStraightLineSet* recHitSet, TEvePointSet* pointSet, 
-							 const TGeoHMatrix* matrix, double lLocalPos[3], double rLocalPos[3] ) 
-	{
-		double leftGlobalPoint[3];
-		double rightGlobalPoint[3];
+  void 
+  addLineWithMarkers( TEveStraightLineSet* recHitSet, TEvePointSet* pointSet, 
+		      const TGeoHMatrix* matrix, double lLocalPos[3], double rLocalPos[3] ) 
+  {
+    double leftGlobalPoint[3];
+    double rightGlobalPoint[3];
 		
-		matrix->LocalToMaster( lLocalPos, leftGlobalPoint );
-		matrix->LocalToMaster( rLocalPos, rightGlobalPoint );
+    matrix->LocalToMaster( lLocalPos, leftGlobalPoint );
+    matrix->LocalToMaster( rLocalPos, rightGlobalPoint );
 		
-		pointSet->SetNextPoint( leftGlobalPoint[0],  leftGlobalPoint[1],  leftGlobalPoint[2] ); 
-		pointSet->SetNextPoint( rightGlobalPoint[0], rightGlobalPoint[1], rightGlobalPoint[2] );
+    pointSet->SetNextPoint( leftGlobalPoint[0],  leftGlobalPoint[1],  leftGlobalPoint[2] ); 
+    pointSet->SetNextPoint( rightGlobalPoint[0], rightGlobalPoint[1], rightGlobalPoint[2] );
 		
-		recHitSet->AddLine( leftGlobalPoint[0],  leftGlobalPoint[1],  leftGlobalPoint[2], 
-								  rightGlobalPoint[0], rightGlobalPoint[1], rightGlobalPoint[2] );		
-	}
+    recHitSet->AddLine( leftGlobalPoint[0],  leftGlobalPoint[1],  leftGlobalPoint[2], 
+			rightGlobalPoint[0], rightGlobalPoint[1], rightGlobalPoint[2] );		
+  }
 }
 
 using namespace DTEnums;
@@ -42,86 +42,57 @@ using namespace DTEnums;
 class FWDTRecHitProxyBuilder : public FWSimpleProxyBuilderTemplate<DTRecHit1DPair>
 {
 public:
-   FWDTRecHitProxyBuilder( void ) {}
-   virtual ~FWDTRecHitProxyBuilder( void ) {}
+  FWDTRecHitProxyBuilder( void ) {}
+  virtual ~FWDTRecHitProxyBuilder( void ) {}
 	
-	virtual bool haveSingleProduct() const { return false; }
+  virtual bool haveSingleProduct() const { return false; }
    
-	REGISTER_PROXYBUILDER_METHODS();
+  REGISTER_PROXYBUILDER_METHODS();
 
 private:
-	// Disable default copy constructor
-   FWDTRecHitProxyBuilder( const FWDTRecHitProxyBuilder& );
-	// Disable default assignment operator
-   const FWDTRecHitProxyBuilder& operator=( const FWDTRecHitProxyBuilder& );
+  // Disable default copy constructor
+  FWDTRecHitProxyBuilder( const FWDTRecHitProxyBuilder& );
+  // Disable default assignment operator
+  const FWDTRecHitProxyBuilder& operator=( const FWDTRecHitProxyBuilder& );
 
-	virtual void buildViewType( const DTRecHit1DPair& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext* );
+  virtual void buildViewType( const DTRecHit1DPair& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext* );
 };
 
 void
 FWDTRecHitProxyBuilder::buildViewType( const DTRecHit1DPair& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type, const FWViewContext* )
 {
-	int superLayer = iData.wireId().layerId().superlayerId().superLayer();
-	int layer = iData.wireId().layerId().layer();
-	
-	// FIXME: These magic numbers should be gone 
-	// as soon as we have 
-	// access to proper geometry.
-	// Note: radial thickness - almost constant about 5 cm
-	
-	float superLayerShift = 15.0;
-	
-	if( superLayer == 2 )
-	{
-		superLayerShift = 0.0;
-	} 
-	else if( superLayer == 3 ) 
-	{
-		superLayerShift = -5.35;
-	}
-	
-	DTChamberId chamberId( iData.geographicalId() );
-		
-	const TGeoHMatrix* matrix = item()->getGeom()->getMatrix( chamberId );
+  const DTLayerId& layerId = iData.wireId().layerId();
+  int superLayer = layerId.superlayerId().superLayer();
+
+  const TGeoHMatrix* matrix = item()->getGeom()->getMatrix( layerId );
     
-   if( ! matrix ) 
-   {
-		fwLog( fwlog::kError ) << " failed get geometry of DT chamber with detid: " 
-			<< chamberId << std::endl;
-		return;
-   }
+  if( ! matrix ) 
+  {
+    fwLog( fwlog::kError ) << " failed get geometry of DT layer with detid: " 
+			   << layerId << std::endl;
+    return;
+  }
 
-   TEveStraightLineSet* recHitSet = new TEveStraightLineSet;
-   setupAddElement( recHitSet, &oItemHolder );
+  TEveStraightLineSet* recHitSet = new TEveStraightLineSet;
+  setupAddElement( recHitSet, &oItemHolder );
 
-	TEvePointSet* pointSet = new TEvePointSet();
-	pointSet->SetMarkerSize( 2 );
-	pointSet->SetMarkerStyle( 3 );
-	setupAddElement( pointSet, &oItemHolder );
+  TEvePointSet* pointSet = new TEvePointSet();
+  setupAddElement( pointSet, &oItemHolder );
 	 
-   const DTRecHit1D* leftRecHit = iData.componentRecHit( Left );
-   const DTRecHit1D* rightRecHit = iData.componentRecHit( Right );
-	double lLocalPos[3] = { 0.0, 0.0, superLayerShift - layer * 1.3 };
-	double rLocalPos[3] = { 0.0, 0.0, superLayerShift - layer * 1.3 };
+  const DTRecHit1D* leftRecHit = iData.componentRecHit( Left );
+  const DTRecHit1D* rightRecHit = iData.componentRecHit( Right );
+  double lLocalPos[3] = { leftRecHit->localPosition().x(), 0.0, 0.0 };
+  double rLocalPos[3] = { rightRecHit->localPosition().x(), 0.0, 0.0 };
 
-	if( type == FWViewType::kRhoPhi && superLayer != 2 )
-	{
-		// FIXME: This position is valid only for RhoPhi View
-		// and not for superLayer 2.
-		lLocalPos[0] = leftRecHit->localPosition().x();
-		rLocalPos[0] = rightRecHit->localPosition().x();
-		addLineWithMarkers( recHitSet, pointSet, matrix, lLocalPos, rLocalPos );
-	}
-	else if( type == FWViewType::kRhoZ && superLayer == 2 )
-	{
-		// FIXME: This position is valid only for RhoZ View
-		// and only for superLayer 2.
-		lLocalPos[1] = -leftRecHit->localPosition().x();
-		rLocalPos[1] = -rightRecHit->localPosition().x();
-		addLineWithMarkers( recHitSet, pointSet, matrix, lLocalPos, rLocalPos );
-	}
+  if(( type == FWViewType::kRhoPhi && superLayer != 2 ) ||
+    ( type == FWViewType::kRhoZ && superLayer == 2 ) ||
+     type == FWViewType::k3D ||
+     type == FWViewType::kISpy )
+  {
+    addLineWithMarkers( recHitSet, pointSet, matrix, lLocalPos, rLocalPos );
+  }
 }
 
-REGISTER_FWPROXYBUILDER( FWDTRecHitProxyBuilder, DTRecHit1DPair, "DT RecHits", FWViewType::kAllRPZBits );
+REGISTER_FWPROXYBUILDER( FWDTRecHitProxyBuilder, DTRecHit1DPair, "DT RecHits",  FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
 
 
