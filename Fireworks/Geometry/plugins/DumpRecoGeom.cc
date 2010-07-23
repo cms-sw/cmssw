@@ -156,7 +156,7 @@ DumpRecoGeom::analyze( const edm::Event& event, const edm::EventSetup& eventSetu
   s << "cmsRecoGeom" << m_level << ".root";
   TFile file( s.str().c_str(), "RECREATE" );
    
-  TTree *tree = new TTree( "idToGeo", "Raw detector id association with geomtry" );
+  TTree *tree = new TTree( "idToGeo", "Raw detector id association with geometry" );
   UInt_t v_id;
   TString *v_path( new TString );
   char v_name[1000];

@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: ValidateGeometry.cc,v 1.4 2010/07/15 22:21:50 mccauley Exp $
+// $Id: ValidateGeometry.cc,v 1.5 2010/07/22 17:38:42 mccauley Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -16,28 +16,21 @@
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
@@ -66,15 +59,13 @@ private:
   void validateDTGeometry();
   void validateCSCGeometry();
 
-  void validateHBGeometry();
-  void validateHEGeometry();
-  void validateHOGeometry();
-  void validateHFGeometry();
+  void validateCaloGeometry(const std::vector<DetId>& ids, const char* detname);
 
-  void validateEBGeometry();
-  void validateEEGeometry();
+  void validateTrackerGeometry(const TrackerGeometry::DetContainer& dets, 
+                               const char* detname);
 
-  void validateTrackerGeometry();
+  void validateTrackerGeometry(const TrackerGeometry::DetUnitContainer& dets, 
+                               const char* detname);
 
   void compareTransform(const GlobalPoint& point, const TGeoHMatrix* matrix);
 
@@ -87,13 +78,10 @@ private:
   void fillCorners(std::vector<GlobalPoint>& corners, const DetId& detId);
 
   void makeHistograms(const char* detector);
-  void makeHistogram(std::string& name, std::vector<double>& data);
+  void makeHistogram(const std::string& name, std::vector<double>& data);
   
   std::string infileName_;
   std::string outfileName_;
-
-  double tolerance_;    // cm
-  bool ok_;
 
   edm::ESHandle<RPCGeometry>     rpcGeometry_;
   edm::ESHandle<DTGeometry>      dtGeometry_;
@@ -115,9 +103,7 @@ private:
 
 ValidateGeometry::ValidateGeometry(const edm::ParameterSet& iConfig)
   : infileName_(iConfig.getUntrackedParameter<std::string>("infileName")),
-    outfileName_(iConfig.getUntrackedParameter<std::string>("outfileName")),
-    tolerance_(iConfig.getUntrackedParameter<double>("tolerance")),
-    ok_(true)
+    outfileName_(iConfig.getUntrackedParameter<std::string>("outfileName"))
 {
   detIdToMatrix_.loadGeometry(infileName_.c_str());
   detIdToMatrix_.loadMap(infileName_.c_str());
@@ -170,8 +156,26 @@ ValidateGeometry::analyze(const edm::Event& event, const edm::EventSetup& eventS
 
   if ( trackerGeometry_.isValid() )
   {
-    std::cout<<"Validating tracker geometry"<<std::endl;
-    validateTrackerGeometry();
+    std::cout<<"Validating Tracker geometry"<<std::endl;
+    validateTrackerGeometry(trackerGeometry_->detUnits(), "Tracker");
+
+    std::cout<<"Validating TIB geometry"<<std::endl;
+    validateTrackerGeometry(trackerGeometry_->detsTIB(), "TIB");
+
+    std::cout<<"Validating TOB geometry"<<std::endl;
+    validateTrackerGeometry(trackerGeometry_->detsTIB(), "TOB");
+
+    std::cout<<"Validating TEC geometry"<<std::endl;
+    validateTrackerGeometry(trackerGeometry_->detsTEC(), "TEC");
+    
+    std::cout<<"Validating TID geometry"<<std::endl;
+    validateTrackerGeometry(trackerGeometry_->detsTID(), "TID");
+
+    std::cout<<"Validating PXB geometry"<<std::endl;
+    validateTrackerGeometry(trackerGeometry_->detsPXB(), "PXB");
+
+    std::cout<<"Validating PXF geometry"<<std::endl;
+    validateTrackerGeometry(trackerGeometry_->detsPXF(), "PXF");
   }
   else
     fwLog(fwlog::kWarning)<<"Invalid Tracker geometry"<<std::endl;
@@ -179,32 +183,30 @@ ValidateGeometry::analyze(const edm::Event& event, const edm::EventSetup& eventS
 
   eventSetup.get<CaloGeometryRecord>().get(caloGeometry_);
 
+  /*
   if ( caloGeometry_.isValid() )
   {
     std::cout<<"Validating EB geometry"<<std::endl;
-    validateEBGeometry();
+    validateCaloGeometry(caloGeometry_->getSubdetectorGeometry(DetId::Ecal, EcalBarrel)->getValidDetIds(DetId::Ecal, EcalBarrel), "EB");
 
     std::cout<<"Validating EE geometry"<<std::endl;
-    validateEEGeometry();
+    validateCaloGeometry(caloGeometry_->getSubdetectorGeometry(DetId::Ecal, EcalEndcap)->getValidDetIds(DetId::Ecal, EcalEndcap), "EE");
 
     std::cout<<"Validating HB geometry"<<std::endl;
-    validateHBGeometry();
+    validateCaloGeometry(caloGeometry_->getSubdetectorGeometry(DetId::Hcal, HcalBarrel)->getValidDetIds(DetId::Hcal, HcalBarrel), "HB");
   
     std::cout<<"Validating HE geometry"<<std::endl;
-    validateHEGeometry();
+    validateCaloGeometry(caloGeometry_->getSubdetectorGeometry(DetId::Hcal, HcalEndcap)->getValidDetIds(DetId::Hcal, HcalEndcap), "HE");
 
     std::cout<<"Validating HO geometry"<<std::endl;
-    validateHOGeometry();
+    validateCaloGeometry(caloGeometry_->getSubdetectorGeometry(DetId::Hcal, HcalOuter)->getValidDetIds(DetId::Hcal, HcalOuter), "HO");
     
     std::cout<<"Validating HF geometry"<<std::endl;
-    validateHFGeometry();
+    validateCaloGeometry(caloGeometry_->getSubdetectorGeometry(DetId::Hcal, HcalForward)->getValidDetIds(DetId::Hcal, HcalForward), "HF");
   }
   else
     fwLog(fwlog::kWarning)<<"Invalid Calo geometry"<<std::endl; 
-  
-
-  if ( ok_ )
-    std::cout<<"OK"<<std::endl;
+  */
 }
 
 
@@ -226,24 +228,24 @@ ValidateGeometry::validateRPCGeometry()
       const GeomDetUnit* det = rpcGeometry_->idToDetUnit(rpcDetId);
       GlobalPoint gp = det->surface().toGlobal(LocalPoint(0.0, 0.0, 0.0)); 
       
-      const TGeoHMatrix* matrix = detIdToMatrix_.getMatrix(rpcDetId);
+      const TGeoHMatrix* matrix = detIdToMatrix_.getMatrix(rpcDetId.rawId());
 
       if ( ! matrix )
       {
-        fwLog(fwlog::kError)<<"Failed to get geometry of RPC with detid: "
-                            << rpcDetId.rawId() <<std::endl;
+        std::cout<<"Failed to get geometry of RPC with detid: "
+                 << rpcDetId.rawId() <<std::endl;
         continue;
       }
 
       compareTransform(gp, matrix);
 
 
-      TEveGeoShape* shape = detIdToMatrix_.getShape(rpcDetId);
-
+      TEveGeoShape* shape = detIdToMatrix_.getShape(rpcDetId.rawId());
+   
       if ( ! shape )
       {
-        fwLog(fwlog::kError)<<"Failed to get shape of RPC with detid: "
-                            << rpcDetId.rawId() <<std::endl;
+        std::cout<<"Failed to get shape of RPC with detid: "
+                 << rpcDetId.rawId() <<std::endl;
         continue;
       }
       
@@ -271,23 +273,23 @@ ValidateGeometry::validateDTGeometry()
       DTChamberId chId = chamber->id();
       GlobalPoint gp = chamber->surface().toGlobal(LocalPoint(0.0, 0.0, 0.0)); 
      
-      const TGeoHMatrix* matrix = detIdToMatrix_.getMatrix(chId);
+      const TGeoHMatrix* matrix = detIdToMatrix_.getMatrix(chId.rawId());
  
       if ( ! matrix )   
       {     
-        fwLog(fwlog::kError) << "Failed to get geometry of DT with detid: " 
-                             << chId.rawId() <<std::endl;
+        std::cout<<"Failed to get geometry of DT with detid: " 
+                 << chId.rawId() <<std::endl;
         continue;
       }
 
       compareTransform(gp, matrix);
 
-      TEveGeoShape* shape = detIdToMatrix_.getShape(chId);
-
+      TEveGeoShape* shape = detIdToMatrix_.getShape(chId.rawId());
+     
       if ( ! shape )
       {
-        fwLog(fwlog::kError)<<"Failed to get shape of DT with detid: "
-                            << chId.rawId() <<std::endl;
+        std::cout<<"Failed to get shape of DT with detid: "
+                 << chId.rawId() <<std::endl;
         continue;
       }
       
@@ -315,24 +317,24 @@ ValidateGeometry::validateCSCGeometry()
       DetId detId = chamber->geographicalId();
       GlobalPoint gp = chamber->surface().toGlobal(LocalPoint(0.0,0.0,0.0));
 
-      const TGeoHMatrix* matrix = detIdToMatrix_.getMatrix(detId);
+      const TGeoHMatrix* matrix = detIdToMatrix_.getMatrix(detId.rawId());
   
       if ( ! matrix ) 
       {     
-        fwLog(fwlog::kError) << "Failed to get geometry of CSC with detid: " 
-                             << detId.rawId() <<std::endl;
+        std::cout<<"Failed to get geometry of CSC with detid: " 
+                 << detId.rawId() <<std::endl;
         continue;
       }
 
       compareTransform(gp, matrix);
 
 
-      TEveGeoShape* shape = detIdToMatrix_.getShape(detId);
+      TEveGeoShape* shape = detIdToMatrix_.getShape(detId.rawId());
 
       if ( ! shape )
       {
-        fwLog(fwlog::kError)<<"Failed to get shape of CSC with detid: "
-                            << detId.rawId() <<std::endl;
+        std::cout<<"Failed to get shape of CSC with detid: "
+                 << detId.rawId() <<std::endl;
         continue;
       }
       
@@ -343,90 +345,11 @@ ValidateGeometry::validateCSCGeometry()
   makeHistograms("CSC");
 }
 
-// Q: why does one have to specify subdetector id after already specifying it?
-// Check this. If so, then it's a crap interface.
-
-void 
-ValidateGeometry::validateEBGeometry()
-{
-  const CaloSubdetectorGeometry* geometry = (*caloGeometry_).getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-  std::vector<DetId> ids = geometry->getValidDetIds(DetId::Ecal, EcalBarrel);
-
-  for (std::vector<DetId>::const_iterator it = ids.begin(), 
-                                        iEnd = ids.end(); 
-       it != iEnd; ++it) 
-  {
-    
-  }
-}
 
 
 void 
-ValidateGeometry::validateEEGeometry()
+ValidateGeometry::validateCaloGeometry(const std::vector<DetId>& ids, const char* detname)
 {
-  const CaloSubdetectorGeometry* geometry = (*caloGeometry_).getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-  std::vector<DetId> ids = geometry->getValidDetIds(DetId::Ecal, EcalEndcap);
-
-  for (std::vector<DetId>::const_iterator it = ids.begin(), 
-                                        iEnd = ids.end(); 
-       it != iEnd; ++it) 
-  {
-    
-  }
-}
-
-
-void 
-ValidateGeometry::validateHBGeometry()
-{
-  const CaloSubdetectorGeometry* geometry = (*caloGeometry_).getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
-  std::vector<DetId> ids = geometry->getValidDetIds(DetId::Hcal, HcalBarrel);
-
-  for (std::vector<DetId>::const_iterator it = ids.begin(), 
-                                        iEnd = ids.end(); 
-       it != iEnd; ++it) 
-  {
-    
-  }
-}
-
-
-void 
-ValidateGeometry::validateHEGeometry()
-{
-  const CaloSubdetectorGeometry* geometry = (*caloGeometry_).getSubdetectorGeometry(DetId::Hcal, HcalEndcap);
-  std::vector<DetId> ids = geometry->getValidDetIds(DetId::Hcal, HcalEndcap);
-
-  for (std::vector<DetId>::const_iterator it = ids.begin(), 
-                                        iEnd = ids.end(); 
-       it != iEnd; ++it) 
-  {
-    
-  }
-}
-
-
-void 
-ValidateGeometry::validateHOGeometry()
-{
-  const CaloSubdetectorGeometry* geometry = (*caloGeometry_).getSubdetectorGeometry(DetId::Hcal, HcalOuter);
-  std::vector<DetId> ids = geometry->getValidDetIds(DetId::Hcal, HcalOuter);
-
-  for (std::vector<DetId>::const_iterator it = ids.begin(), 
-                                        iEnd = ids.end(); 
-       it != iEnd; ++it) 
-  {
-    
-  }
-}
-
-
-void 
-ValidateGeometry::validateHFGeometry()
-{
-  const CaloSubdetectorGeometry* geometry = (*caloGeometry_).getSubdetectorGeometry(DetId::Hcal, HcalForward);
-  std::vector<DetId> ids = geometry->getValidDetIds(DetId::Hcal, HcalForward);
-
   for (std::vector<DetId>::const_iterator it = ids.begin(), 
                                         iEnd = ids.end(); 
        it != iEnd; ++it) 
@@ -437,40 +360,79 @@ ValidateGeometry::validateHFGeometry()
 
 
 void
-ValidateGeometry::validateTrackerGeometry()
+ValidateGeometry::validateTrackerGeometry(const TrackerGeometry::DetContainer& dets,
+                                          const char* detname)
 {
-  for ( TrackerGeometry::DetUnitContainer::const_iterator it = trackerGeometry_->detUnits().begin(),
-                                                   itEnd = trackerGeometry_->detUnits().end();
+  for ( TrackerGeometry::DetContainer::const_iterator it = dets.begin(), 
+                                                   itEnd = dets.end(); 
         it != itEnd; ++it )
   {
-    
     GlobalPoint gp = (trackerGeometry_->idToDet((*it)->geographicalId()))->surface().toGlobal(LocalPoint(0.0,0.0,0.0));
-    DetId detId((*it)->geographicalId());
+    unsigned int rawId = (*it)->geographicalId().rawId();
 
-    const TGeoHMatrix* matrix = detIdToMatrix_.getMatrix(detId);
+    const TGeoHMatrix* matrix = detIdToMatrix_.getMatrix(rawId);
 
     if ( ! matrix )
-    { 
-      fwLog(fwlog::kError) << "Failed to get geometry of tracker element with detid: "
-                           << detId.rawId() <<std::endl;
+    {
+      std::cout <<"Failed to get geometry of "<< detname 
+                <<" element with detid: "<< rawId <<std::endl;
       continue;
     }
-    
-    compareTransform(gp, matrix);                                                                
-    
-    TEveGeoShape* shape = detIdToMatrix_.getShape(detId);
+
+    compareTransform(gp, matrix);
+
+
+    TEveGeoShape* shape = detIdToMatrix_.getShape(rawId);
 
     if ( ! shape )
     {
-      fwLog(fwlog::kError)<<"Failed to get shape of tracker element with detid: "
-                          << detId.rawId() <<std::endl;
+      std::cout<<"Failed to get shape of "<< detname 
+               <<" element with detid: "<< rawId <<std::endl;
       continue;
     }
 
     compareShape(*it, shape);
   }
+  
+  makeHistograms(detname);
+}
 
-  makeHistograms("Tracker");
+void
+ValidateGeometry::validateTrackerGeometry(const TrackerGeometry::DetUnitContainer& dets,
+                                          const char* detname)
+{
+  for ( TrackerGeometry::DetUnitContainer::const_iterator it = dets.begin(), 
+                                                       itEnd = dets.end(); 
+        it != itEnd; ++it )
+  {
+    GlobalPoint gp = (trackerGeometry_->idToDet((*it)->geographicalId()))->surface().toGlobal(LocalPoint(0.0,0.0,0.0));
+    unsigned int rawId = (*it)->geographicalId().rawId();
+
+    const TGeoHMatrix* matrix = detIdToMatrix_.getMatrix(rawId);
+
+    if ( ! matrix )
+    {
+      std::cout<< "Failed to get geometry of "<< detname 
+               <<" element with detid: "<< rawId <<std::endl;
+      continue;
+    }
+
+    compareTransform(gp, matrix);
+
+
+    TEveGeoShape* shape = detIdToMatrix_.getShape(rawId);
+ 
+    if ( ! shape )
+    {
+      std::cout<<"Failed to get shape of "<< detname 
+               <<" element with detid: "<< rawId <<std::endl;
+      continue;
+    }
+
+    compareShape(*it, shape);
+  }
+  
+  makeHistograms(detname);
 }
 
 
@@ -489,11 +451,6 @@ ValidateGeometry::compareTransform(const GlobalPoint& gp,
 
   double distance = getDistance(GlobalPoint(global[0], global[1], global[2]), gp);
   distances_.push_back(distance);
-
-  if ( distance > tolerance_ )
-  {
-    ok_ = false;
-  }
 }
 
 
@@ -525,18 +482,25 @@ ValidateGeometry::compareShape(const GeomDet* det, TEveGeoShape* shape)
   double shape_length;
   double shape_thickness;
 
-  if ( (box = dynamic_cast<TGeoBBox*>(geoShape)) && 
-       (trap = dynamic_cast<TGeoTrap*>(box)) )
+  if ( (box = dynamic_cast<TGeoBBox*>(geoShape)) )
   {
-    shape_topWidth = trap->GetTl2()*2.0;
-    shape_bottomWidth = trap->GetBl2()*2.0;
-    shape_length = trap->GetH2()*2.0;
+    shape_topWidth = box->GetDX()*2.0;
+    shape_bottomWidth = shape_topWidth;
+    shape_length = box->GetDY()*2.0;
+    shape_thickness = box->GetDZ()*2.0;
+  }
+  
+  else if ( (trap = dynamic_cast<TGeoTrap*>(geoShape)) )
+  {
+    shape_topWidth = trap->GetTl1()*2.0;
+    shape_bottomWidth = trap->GetBl1()*2.0;
+    shape_length = trap->GetH1()*2.0;
     shape_thickness = trap->GetDz()*2.0;
   }
 
   else
   {
-    fwLog(fwlog::kError) << "Failed to get box or trapezoid from shape"<<std::endl;
+    std::cout<<"Failed to get box or trapezoid from shape"<<std::endl;
     return;
   }
 
@@ -557,9 +521,7 @@ ValidateGeometry::compareShape(const GeomDet* det, TEveGeoShape* shape)
     thickness = ps[2]*2.0;
     length = ps[3]*2.0;
   }
-  
-  // can use parameters above as well
-  
+
   else if ( (dynamic_cast<const RectangularPlaneBounds*>(bounds)) )
   {
     length = det->surface().bounds().length();
@@ -570,10 +532,17 @@ ValidateGeometry::compareShape(const GeomDet* det, TEveGeoShape* shape)
   
   else
   {
-    fwLog(fwlog::kError) << "Failed to get bounds"<<std::endl;
+    std::cout<<"Failed to get bounds"<<std::endl;
     return;
   }
   
+  /*
+  std::cout<<"topWidth: "<< shape_topWidth <<" "<< topWidth <<std::endl;
+  std::cout<<"bottomWidth: "<< shape_bottomWidth <<" "<< bottomWidth <<std::endl;
+  std::cout<<"length: "<< shape_length <<" "<< length <<std::endl;
+  std::cout<<"thickness: "<< shape_thickness <<" "<< thickness <<std::endl;
+  */
+
   topWidths_.push_back(fabs(shape_topWidth - topWidth));
   bottomWidths_.push_back(fabs(shape_bottomWidth - bottomWidth));
   lengths_.push_back(fabs(shape_length - length));
@@ -586,6 +555,12 @@ ValidateGeometry::compareShape(const GeomDet* det, TEveGeoShape* shape)
 double 
 ValidateGeometry::getDistance(const GlobalPoint& p1, const GlobalPoint& p2)
 {
+  /*
+  std::cout<<"X: "<< p1.x() <<" "<< p2.x() <<std::endl;
+  std::cout<<"Y: "<< p1.y() <<" "<< p2.y() <<std::endl;
+  std::cout<<"Z: "<< p1.z() <<" "<< p2.z() <<std::endl;
+  */
+
   return sqrt((p1.x()-p2.x())*(p1.x()-p2.x())+
               (p1.y()-p2.y())*(p1.y()-p2.y())+
               (p1.z()-p2.z())*(p1.z()-p2.z()));
@@ -697,7 +672,7 @@ ValidateGeometry::makeHistograms(const char* detector)
 
 
 void
-ValidateGeometry::makeHistogram(std::string& name, std::vector<double>& data)
+ValidateGeometry::makeHistogram(const std::string& name, std::vector<double>& data)
 {
   if ( data.empty() )
     return;
@@ -725,6 +700,8 @@ ValidateGeometry::beginJob()
 void 
 ValidateGeometry::endJob() 
 {
+  std::cout<<"Done. "<<std::endl;
+  std::cout<<"Results written to "<< outfileName_ <<std::endl;
   outFile_->Close();
 }
 
