@@ -14,7 +14,7 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
                                                                              ),
         
                                                             PTLUT = cms.PSet(LowQualityFlag = cms.untracked.uint32(4),
-                                                                             ReadPtLUT = cms.bool(False),
+                                                                             ReadPtLUT = cms.untracked.bool(False),
                                                                              PtMethod = cms.untracked.uint32(4)
                                                                              ),
 		
@@ -32,6 +32,8 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
                                                             trigger_on_ME3 = cms.bool(False),
                                                             trigger_on_ME4 = cms.bool(False),
                                                             singlesTrackOutput = cms.uint32(1),
+
+                                                            gangedME1a = cms.untracked.bool(True),
 
                                                             CoreLatency = cms.uint32(7),
                                                             PreTrigger = cms.uint32(2),

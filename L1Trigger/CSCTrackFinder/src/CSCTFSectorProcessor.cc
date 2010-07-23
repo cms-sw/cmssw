@@ -23,6 +23,9 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
   m_endcap = endcap;
   m_sector = sector;
   TMB07    = tmb07;
+  
+  // allows a configurable option to handle unganged ME1a
+  m_gangedME1a = pset.getUntrackedParameter<bool>("gangedME1a", true);
 
   // Parameter below should always present in ParameterSet:
   m_latency = pset.getParameter<unsigned>("CoreLatency");
@@ -467,7 +470,9 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
         }
         gblphidat gblPhi;
         try {
-        	gblPhi = srLUTs_[FPGAs[fpga]]->globalPhiME(lclPhi.phi_local, itr->getKeyWG(), itr->cscid());
+        	unsigned csc_id = itr->cscid();
+		if (!m_gangedME1a) csc_id = itr->cscidSeparateME1a();
+        	gblPhi = srLUTs_[FPGAs[fpga]]->globalPhiME(lclPhi.phi_local, itr->getKeyWG(), csc_id);
 		  	} catch( cms::Exception &e ) {
         	bzero(&gblPhi,sizeof(gblPhi));
           edm::LogWarning("CSCTFSectorProcessor:run()") << "Exception from GlobalPhi LUT in " << FPGAs[fpga]
@@ -630,11 +635,11 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
                          bestStub  = st_iter;
                      }
                  }
-                 // correct future implementation
-                 // unsigned rescaled_phi = unsigned(24*(bestStub->phiPacked()>>5)/128.);
+                 // switched back
+                  unsigned rescaled_phi = unsigned(24*(bestStub->phiPacked()>>5)/128.);
                  // buggy implementation in the current firmware... at the end
                  //data/emulator have to agree: e.g. wrong in the same way
-                 unsigned rescaled_phi = unsigned(24*(bestStub->phiPacked()&0x7f)/128.);
+                 //unsigned rescaled_phi = unsigned(24*(bestStub->phiPacked()&0x7f)/128.);
                  unsigned unscaled_phi =              bestStub->phiPacked()>>7       ;
                  track.setLocalPhi(rescaleSinglesPhi?rescaled_phi:unscaled_phi);
                  track.setEtaPacked((bestStub->etaPacked()>>2)&0x1f);

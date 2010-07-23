@@ -194,27 +194,27 @@ void CSCTFSPCoreLogic::loadData(const CSCTriggerContainer<csctf::TrackStub>& the
 		    };
 		  break;
 		case 5:
-		  // We need to put the DT stubs 1 BX ahead of the CSC ones for the TF firmware
+			// We need to put the DT stubs 1 BX ahead of the CSC ones for the TF firmware
 			//std::cout << "DT Stub at bx: " << relative_bx << std::endl;
-		  switch(stubi->getMPCLink())
-		    {
-		    case 1:
-					if(stubi->getQuality()%2==1)
-					{
-		      	//io_[relative_bx].mb1aVp   = stubi->isValid();
-		      	io_[relative_bx].mb1aVp		= stubi->getStrip();
-						io_[relative_bx].mb1aQp   = stubi->getQuality();
-		      	io_[relative_bx].mb1aPhip = stubi->phiPacked();
-		      }
-					break;
-		    case 2:
-					if(stubi->getQuality()%2==1)
-					{
-		      	//io_[relative_bx].mb1bVp   = stubi->isValid();
-          	io_[relative_bx].mb1bVp		= stubi->getStrip();
-						io_[relative_bx].mb1bQp   = stubi->getQuality();
-          	io_[relative_bx].mb1bPhip = stubi->phiPacked();
-          }
+		  	switch(stubi->getMPCLink())
+		  	{
+		  	case 1:
+				//if(stubi->getQuality()%2==1)
+				//{
+		      			//io_[relative_bx].mb1aVp   = stubi->isValid();
+		      			io_[relative_bx].mb1aVp		= stubi->getStrip();
+					io_[relative_bx].mb1aQp   = stubi->getQuality();
+		      			io_[relative_bx].mb1aPhip = stubi->phiPacked();
+		      		//}
+			break;
+		    	case 2:
+				//if(stubi->getQuality()%2==1)
+				//{
+					//io_[relative_bx].mb1bVp   = stubi->isValid();
+          				io_[relative_bx].mb1bVp		= stubi->getStrip();
+					io_[relative_bx].mb1bQp   = stubi->getQuality();
+          				io_[relative_bx].mb1bPhip = stubi->phiPacked();
+          			//}
 					break;
 		    /*case 3:
 		      io_[relative_bx].mb1cVp   = stubi->isValid();

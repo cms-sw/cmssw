@@ -56,6 +56,8 @@ public:
   CSCTFSectorProcessor& operator=(const CSCTFSectorProcessor& rhs) { return *this; };
   CSCTFSectorProcessor(const CSCTFSectorProcessor& par) {}
 
+  bool m_gangedME1a;
+  
   bool initializeFromPSet;
   unsigned m_endcap, m_sector, TMB07;
   unsigned m_latency;

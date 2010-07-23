@@ -156,15 +156,20 @@ global_phi_data CSCSectorReceiverMiniLUT::calcGlobalPhiMEMini(unsigned short end
     lclPhi = (strip-127+31)*(4*binPhiL/3);
   }
   // end GP et DA
-
   
   if(station == 1 && ((cscid <= 3) || (cscid >= 7))) { 
-    if (strip >= 127 && strip < 160)
-      maxPhiL = maxPhiL*(48./80); // GP et DA: currently a hack that is in place to handle the different number of strips in ME1/1a and ME1/3
-    else
+    //if ( (strip >= 127 && strip < 160) || (cscid >= 10) ) // VK: the || (cscid >= 10) for unganged ME1a
+    //  maxPhiL = maxPhiL*(48./80); // GP et DA: currently a hack that is in place to handle the different number of strips in ME1/1a and ME1/3
+    //else
       maxPhiL = maxPhiL*(64./80); // currently a hack that is in place to handle the different number of strips in ME1/1 and ME1/3
   }
   
+  // VK: The the unganged ME1a hack
+  if (station == 1 && (cscid >= 10)) {
+    lclPhi = strip*(4*binPhiL/3);
+    cscid = cscid - 9; // back to normal 1-9 range
+  }
+  // end VK
 
   if((cscid > 0) && (cscid <= 9))
     {
