@@ -276,7 +276,47 @@ class matplotRender():
         ax.set_xlim(left=minDay,right=maxDay)
         self.__fig.autofmt_xdate(bottom=0.18,rotation=0)
         self.__fig.subplots_adjust(bottom=0.18,left=0.3)
-        
+
+    def plotInst_RunLS(self,rawxdata,rawydata,nticks=6):
+        '''
+        Input: rawxdata [run,starttime,stoptime,totalls,ncmsls]
+               rawydata {label:{run:[instlumi]}}
+        '''
+        totalls=rawxdata[3]
+        xpoints=range(1,totalls+1)        
+        print len(xpoints)
+        ypoints={}
+        ymax={}
+        for ylabel,yvalue in rawydata.items():
+            ypoints[ylabel]=yvalue
+            ymax[ylabel]=max(yvalue)
+
+        ax=self.__fig.add_subplot(111)
+        majorLoc=matplotlib.ticker.LinearLocator(numticks=nticks)
+        minorLoc=matplotlib.ticker.LinearLocator(numticks=nticks*4)
+        spantitle='Run '+str(rawxdata[0])
+        self.__fig.text(0.2,0.91,spantitle,color='grey',fontsize=15)
+        ax.set_xlabel(r'LS',position=(0.84,0))
+        ax.set_ylabel(r'L $\mu$b$^{-1}$s$^{-1}$',position=(0,0.9))
+        ax.xaxis.set_major_locator(majorLoc)
+        ax.xaxis.set_minor_locator(minorLoc)
+        xticklabels=ax.get_xticklabels()
+        for tx in xticklabels:
+            tx.set_horizontalalignment('right')
+        ax.grid(True)
+        keylist=ypoints.keys()
+        keylist.sort()
+        legendlist=[]
+        for ylabel in keylist:
+            cl='k'
+            if self.colormap.has_key(ylabel):
+                cl=self.colormap[ylabel]
+            ax.plot(xpoints,ypoints[ylabel],'.',label=ylabel,color=cl)
+            legendlist.append(ylabel+' max '+'%.2f'%(ymax[ylabel])+' '+'$\mu$b$^{-1}$s$^{-1}$')
+        ax.legend(tuple(legendlist),loc='best')
+        ax.axvspan(xpoints[0],xpoints[rawxdata[-1]-1],fill=False)
+#        ax.axvline(xpoints[rawxdata[-1]-1],color='grey')
+       # ax.fill_between(xpoints[0:rawxdata[-1]],0,1,label='pippo',color='grey')
     def drawHTTPstring(self):
         self.__canvas=CanvasBackend(self.__fig)    
         cherrypy.response.headers['Content-Type']='image/png'

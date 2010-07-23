@@ -2,7 +2,7 @@
 VERSION='1.00'
 import os,sys,datetime
 import coral
-from RecoLuminosity.LumiDB import lumiTime,argparse,nameDealer,selectionParser,hltTrgSeedMapper,connectstrParser,cacheconfigParser,matplotRender,lumiQueryAPI,inputFilesetParser
+from RecoLuminosity.LumiDB import lumiTime,argparse,nameDealer,selectionParser,hltTrgSeedMapper,connectstrParser,cacheconfigParser,matplotRender,lumiQueryAPI,inputFilesetParser,CommonUtil
 from matplotlib.figure import Figure
 class constants(object):
     def __init__(self):
@@ -13,7 +13,7 @@ class constants(object):
     def defaultfrontierConfigString(self):
         return """<frontier-connect><proxy url="http://cmst0frontier.cern.ch:3128"/><proxy url="http://cmst0frontier.cern.ch:3128"/><proxy url="http://cmst0frontier1.cern.ch:3128"/><proxy url="http://cmst0frontier2.cern.ch:3128"/><server url="http://cmsfrontier.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier1.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier2.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier3.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier4.cern.ch:8000/FrontierInt"/></frontier-connect>"""
 
-def getLumiPerLS(dbsession,c,runList,selectionDict,beamstatus=None,beamenergy=None,beamenergyfluctuation=0.09):
+def getInstLumiPerLS(dbsession,c,runList,selectionDict,beamstatus=None,beamenergy=None,beamenergyfluctuation=0.09):
     '''
     input: runList[runnum], selectionDict{runnum:[ls]}
     output:[[runnumber,lsnumber,deliveredInst,recordedInst,norbit,startorbit,runstarttime]]
@@ -34,12 +34,10 @@ def getLumiPerLS(dbsession,c,runList,selectionDict,beamstatus=None,beamenergy=No
         runsummary=lumiQueryAPI.runsummaryByrun(q,run)
         del q
         runstarttime=runsummary[3]
+        runstoptime=runsummary[4]
         q=dbsession.nominalSchema().newQuery()
         lumiperrun=lumiQueryAPI.lumisummaryByrun(q,run,c.LUMIVERSION,beamstatus,beamenergy,beamenergyfluctuation)
         del q
-        #q=dbsession.nominalSchema().newQuery()
-        #trgperrun=lumiQueryAPI.trgbitzeroByrun(q,run) # {cmslsnum:[trgcount,deadtime,bitname,prescale]}
-        #del q
         for lumiperls in lumiperrun:
             cmslsnum=lumiperls[0]
             instlumi=lumiperls[1]
@@ -48,14 +46,47 @@ def getLumiPerLS(dbsession,c,runList,selectionDict,beamstatus=None,beamenergy=No
             startorbit=lumiperls[3]
             deadcount=0
             bitzero=0
-            #if trgperrun.has_key(cmslsnum):
-                #bitzero=trgperrun[cmslsnum][0]
-                #deadcount=trgperrun[cmslsnum][1]
-                #try:
-                #    recordedlumi=instlumi*(1.0-float(deadcount)/float(bitzero))
-                #except ZeroDivisionError:
-                #    pass
-            result.append([run,cmslsnum,instlumi,recordedlumi,numorbit,startorbit,runstarttime])
+            result.append([run,cmslsnum,instlumi,recordedlumi,numorbit,startorbit,runstarttime,runstoptime])
+    dbsession.transaction().commit()
+    if c.VERBOSE:
+        print result
+    return result              
+
+def getLumiPerRun(dbsession,c,run,beamstatus=None,beamenergy=None,beamenergyfluctuation=0.09):
+    '''
+    input: run
+    output:{runnumber:[[lsnumber,deliveredInst,recordedInst,norbit,startorbit,runstarttime,runstoptime]]}
+    '''
+    result=[]
+    dbsession.transaction().start(True)
+    q=dbsession.nominalSchema().newQuery()
+    runsummary=lumiQueryAPI.runsummaryByrun(q,run)
+    del q
+    runstarttime=runsummary[3]
+    runstoptime=runsummary[4]
+    q=dbsession.nominalSchema().newQuery()
+    lumiperrun=lumiQueryAPI.lumisummaryByrun(q,run,c.LUMIVERSION,beamstatus,beamenergy,beamenergyfluctuation)
+    del q
+    q=dbsession.nominalSchema().newQuery()
+    trgperrun=lumiQueryAPI.trgbitzeroByrun(q,run) # {cmslsnum:[trgcount,deadtime,bitname,prescale]}
+    del q
+        
+    for lumiperls in lumiperrun:
+        cmslsnum=lumiperls[0]
+        instlumi=lumiperls[1]
+        recordedlumi=0.0
+        numorbit=lumiperls[2]
+        startorbit=lumiperls[3]
+        deadcount=0
+        bitzero=0
+        if trgperrun.has_key(cmslsnum):
+            bitzero=trgperrun[cmslsnum][0]
+            deadcount=trgperrun[cmslsnum][1]
+            try:
+                recordedlumi=instlumi*(1.0-float(deadcount)/float(bitzero))
+            except ZeroDivisionError:
+                pass
+        result.append([cmslsnum,instlumi,recordedlumi,numorbit,startorbit,runstarttime,runstoptime])
     dbsession.transaction().commit()
     if c.VERBOSE:
         print result
@@ -73,13 +104,13 @@ def main():
     parser.add_argument('-o',dest='outputfile',action='store',help='csv outputfile name (optional)')
     parser.add_argument('-b',dest='beammode',action='store',help='beam mode, optional, no default')
     parser.add_argument('-lumiversion',dest='lumiversion',action='store',help='lumi data version, optional for all, default 0001')
-    parser.add_argument('-begin',dest='begin',action='store',help='begin time (required)')
-    parser.add_argument('-end',dest='end',action='store',help='end time(optional). Default to the maximum exists DB')
+    parser.add_argument('-begin',dest='begin',action='store',help='begin xvalue (required)')
+    parser.add_argument('-end',dest='end',action='store',help='end xvalue(optional). Default to the maximum exists DB')
     parser.add_argument('-batch',dest='batch',action='store',help='graphical mode to produce PNG file. Specify graphical file here. Default to lumiSum.png')
     parser.add_argument('--interactive',dest='interactive',action='store_true',help='graphical mode to draw plot in a TK pannel.')
     parser.add_argument('-timeformat',dest='timeformat',action='store',help='specific python timeformat string (optional).  Default mm/dd/yy hh:min:ss.00')
     parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',help='specific path to site-local-config.xml file, default to $CMS_PATH/SITECONF/local/JobConfig, if path undefined, fallback to cern proxy&server')
-    parser.add_argument('action',choices=['peakperday','time'],help='plot type of choice')
+    parser.add_argument('action',choices=['peakperday','run'],help='plot type of choice')
     #graphical mode options
     parser.add_argument('--verbose',dest='verbose',action='store_true',help='verbose mode, print result also to screen')
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
@@ -148,8 +179,13 @@ def main():
                 lslist.sort()
                 selectionDict[run]=lslist
     if args.action == 'run':
-        pass
-    if args.action == 'peakperday':
+        minRun=int(args.begin)
+        if not args.end:
+            maxRun=minRun 
+        else:
+            maxRun=int(args.end)            
+        runList=range(minRun,maxRun+1)
+    elif args.action == 'peakperday':
         session.transaction().start(True)
         t=lumiTime.lumiTime()
         minTime=t.StrToDatetime(args.begin,timeformat)
@@ -163,19 +199,18 @@ def main():
         session.transaction().commit()
         runList=runDict.keys()
         del qHandle
+        runList.sort()
     else:
         print 'unsupported action ',args.action
         exit
-    runList.sort()
     #print 'runList ',runList
     #print 'runDict ', runDict               
     fig=Figure(figsize=(7,4),dpi=100)
-    m=matplotRender.matplotRender(fig)
-    
+    m=matplotRender.matplotRender(fig)    
     if args.action == 'peakperday':
         l=lumiTime.lumiTime()
         #lumiperls=getLumiPerLS(session,c,runList,selectionDict,beamstatus='STABLE BEAMS',beamenergy=3.5e3,beamenergyfluctuation=0.09)
-        lumiperls=getLumiPerLS(session,c,runList,selectionDict)
+        lumiperls=getInstLumiPerLS(session,c,runList,selectionDict)
         #print 'lumiperls ',lumiperls 
         xdata=[]#[lsstarttime]
         ydata={}#{label:[instlumi]}
@@ -190,7 +225,30 @@ def main():
             xdata.append(lsstarttime)
             ydata['Max Inst'].append(deliveredInst)
             #ydata['Recorded'].append(recordedInst)
-        m.plotPeakPerday_Time(xdata,ydata,minTime,maxTime)      
+        m.plotPeakPerday_Time(xdata,ydata,minTime,maxTime)
+    if args.action == 'run':
+        runnumber=runList[0]
+        lumiperrun=getLumiPerRun(session,c,runnumber)#[[lsnumber,deliveredInst,recordedInst,norbit,startorbit,runstarttime,runstoptime]]
+        #print 'lumiperrun ',lumiperrun
+        xdata=[]#[stattime,stoptime,totalls,ncmsls]
+        ydata={}#{label:[instlumi]}
+        ydata['Delivered']=[]
+        ydata['Recorded']=[]
+        starttime=lumiperrun[0][-2]
+        stoptime=lumiperrun[0][-1]
+        ncmsls=0
+        totalls=len(lumiperrun)
+        for lsdata in lumiperrun:
+            lsnumber=lsdata[0]
+            if lsnumber!=0:
+                ncmsls+=1
+            deliveredInst=lsdata[1]
+            recordedInst=lsdata[2]
+            ydata['Delivered'].append(deliveredInst)
+            ydata['Recorded'].append(recordedInst)
+        xdata=[runnumber,starttime,stoptime,totalls,ncmsls]
+        print 'ydata ',ydata
+        m.plotInst_RunLS(xdata,ydata)
     del session
     del svc
     if args.batch:
