@@ -13284,7 +13284,7 @@ process.Level1MenuOverride = cms.ESSource( "PoolDBESSource",
     ),
     toGet = cms.VPSet(
       cms.PSet(  record = cms.string( "L1GtTriggerMenuRcd" ),
-        tag = cms.string( "L1GtTriggerMenu_L1Menu_Commissioning2010_v2_mc" )
+        tag = cms.string( "L1GtTriggerMenu_L1Menu_Commissioning2010_v3_mc" )
       )
     ),
     timetype = cms.string( "runnumber" ),
