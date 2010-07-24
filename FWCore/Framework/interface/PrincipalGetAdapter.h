@@ -83,33 +83,20 @@ edm::Ref<AppleCollection> ref(refApples, index);
 
 ----------------------------------------------------------------------*/
 #include <cassert>
-#include <memory>
 #include <typeinfo>
 #include <string>
 #include <vector>
-
-#include "boost/shared_ptr.hpp"
-#include "boost/type_traits.hpp"
 
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
-#include "DataFormats/Common/interface/EDProduct.h"
-#include "DataFormats/Common/interface/RefProd.h"
-#include "DataFormats/Common/interface/Wrapper.h"
-
-#include "DataFormats/Provenance/interface/BranchType.h"
-#include "DataFormats/Provenance/interface/ConstBranchDescription.h"
-#include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Common/interface/traits.h"
 
-#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/BasicHandle.h"
-#include "DataFormats/Common/interface/ConvertHandle.h"
-#include "DataFormats/Common/interface/OrphanHandle.h"
 
-#include "FWCore/Utilities/interface/TypeID.h"
+#include "DataFormats/Common/interface/ConvertHandle.h"
+
 #include "FWCore/Utilities/interface/InputTag.h"
 
 namespace edm {

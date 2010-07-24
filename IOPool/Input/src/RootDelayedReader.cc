@@ -3,7 +3,6 @@
 
 #include "RootDelayedReader.h"
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "TROOT.h"
 #include "TClass.h"
 #include "TBranch.h"

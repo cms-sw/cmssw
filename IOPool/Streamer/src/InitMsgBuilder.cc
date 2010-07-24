@@ -1,7 +1,6 @@
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
-#include "FWCore/Utilities/interface/Algorithms.h"
 #include <cassert>
 #include <cstring>
 #include <stdint.h>

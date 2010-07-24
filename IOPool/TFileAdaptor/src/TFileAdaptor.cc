@@ -1,4 +1,3 @@
-#include "IOPool/TFileAdaptor/interface/TStorageFactoryFile.h"
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
@@ -7,7 +6,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <TROOT.h>
@@ -212,8 +210,6 @@ public:
 
 
 #include <iostream>
-#include <boost/shared_ptr.hpp>
-
 
 /* 
  * wrapper to bind TFileAdaptor to root, python etc

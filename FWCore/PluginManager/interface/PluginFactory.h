@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Apr  5 12:10:23 EDT 2007
-// $Id: PluginFactory.h,v 1.8 2009/10/26 14:06:44 eulisse Exp $
 //
 
 // system include files
@@ -25,7 +24,6 @@
 
 // user include files
 #include "FWCore/PluginManager/interface/PluginFactoryBase.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 // forward declarations
 

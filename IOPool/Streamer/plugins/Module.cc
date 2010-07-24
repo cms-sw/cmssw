@@ -1,6 +1,5 @@
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "IOPool/Streamer/src/TestConsumer.h"
 #include "IOPool/Streamer/interface/HLTInfo.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 

@@ -3,21 +3,8 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <boost/shared_ptr.hpp>
 
-#include "FWCore/PluginManager/interface/PluginManager.h"
-#include "FWCore/PluginManager/interface/standard.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/Presence.h"
-#include "FWCore/MessageLogger/interface/ExceptionMessages.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/MessageLogger/interface/MessageDrop.h"
-#include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
-#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 
 
 

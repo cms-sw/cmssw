@@ -23,7 +23,6 @@
 //
 
 // system include files
-#include <string>
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecord.h"

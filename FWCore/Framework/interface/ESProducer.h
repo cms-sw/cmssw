@@ -70,6 +70,7 @@ Example: two algorithms each creating only one objects
 
 // system include files
 #include <memory>
+#include <string>
 
 // user include files
 #include "FWCore/Framework/interface/ESProxyFactoryProducer.h"
@@ -78,7 +79,6 @@ Example: two algorithms each creating only one objects
 #include "FWCore/Framework/interface/CallbackProxy.h"
 #include "FWCore/Framework/interface/Callback.h"
 #include "FWCore/Framework/interface/produce_helpers.h"
-#include "FWCore/Framework/interface/ESProducts.h"
 #include "FWCore/Framework/interface/eventsetup_dependsOn.h"
 #include "FWCore/Framework/interface/es_Label.h"
 

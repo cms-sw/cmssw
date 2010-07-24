@@ -4,14 +4,11 @@
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
-#include "boost/shared_ptr.hpp"
-
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
-#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 
 namespace edm {

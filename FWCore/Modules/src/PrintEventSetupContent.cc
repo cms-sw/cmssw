@@ -33,7 +33,6 @@
 
 #include "FWCore/Framework/interface/ValidityInterval.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
-#include "DataFormats/Provenance/interface/EventID.h" 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 //

@@ -11,8 +11,6 @@
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #undef private
 
-#include "boost/shared_ptr.hpp"
-
 #include <cstdlib>
 #include <vector>
 #include <memory>

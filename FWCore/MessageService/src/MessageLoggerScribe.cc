@@ -180,10 +180,10 @@
 #include "FWCore/MessageService/interface/ELstatistics.h"
 #include "FWCore/MessageService/interface/ELfwkJobReport.h"
 #include "FWCore/MessageService/interface/ErrorLog.h"
+#include "FWCore/MessageService/interface/NamedDestination.h"
 #include "FWCore/MessageService/interface/ThreadQueue.h"
 
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
-#include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/ConfigurationHandshake.h"
 
@@ -193,7 +193,6 @@
 #include <algorithm>
 #include <cassert>
 #include <fstream>
-#include <iostream>
 #include <string>
 #include <signal.h>
 

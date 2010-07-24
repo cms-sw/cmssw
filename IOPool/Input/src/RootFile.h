@@ -12,7 +12,6 @@ RootFile.h // used by ROOT input sources
 #include <string>
 #include <vector>
 
-#include "boost/shared_ptr.hpp"
 #include "boost/utility.hpp"
 #include "boost/array.hpp"
 
@@ -21,21 +20,10 @@ RootFile.h // used by ROOT input sources
 #include "FWCore/Framework/interface/InputSource.h"
 #include "DataFormats/Provenance/interface/BranchChildren.h"
 #include "DataFormats/Provenance/interface/BranchIDListRegistry.h"
-#include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
-#include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
-#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
-#include "DataFormats/Provenance/interface/ProductStatus.h"
-#include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
 #include "DataFormats/Provenance/interface/FileID.h"
 #include "DataFormats/Provenance/interface/History.h"
-#include "DataFormats/Provenance/interface/ProductProvenance.h"
-#include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "DataFormats/Provenance/interface/ProductProvenance.h"
-#include "DataFormats/Provenance/interface/ProvenanceFwd.h"
-#include "DataFormats/Provenance/interface/Parentage.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "DataFormats/Provenance/interface/EventProcessHistoryID.h" // backward compatibility

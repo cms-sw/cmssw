@@ -16,18 +16,15 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May 23 11:03:27 EDT 2006
-// $Id: BareRootProductGetter.h,v 1.7 2007/08/17 20:36:30 chrjones Exp $
+// $Id: BareRootProductGetter.h,v 1.8 2008/06/03 17:35:03 dsr Exp $
 //
 
 // system include files
 #include <map>
-#include "boost/shared_ptr.hpp"
 #include "Rtypes.h"
-#include "TUUID.h"
 
 // user include files
 #include "DataFormats/Common/interface/EDProductGetter.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/FWLite/interface/BranchMapReader.h"
 

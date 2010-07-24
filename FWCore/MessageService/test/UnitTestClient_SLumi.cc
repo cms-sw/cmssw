@@ -1,6 +1,6 @@
+#include "FWCore/MessageLogger/interface/LoggedErrorsSummary.h"
 #include "FWCore/MessageService/test/UnitTestClient_SLumi.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
 #include <string>

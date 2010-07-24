@@ -14,9 +14,7 @@ output stream.
 #include "boost/utility.hpp"
 
 #include "DataFormats/Provenance/interface/BranchChildren.h"
-#include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/ParentageID.h"
-#include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/Selections.h"
 
@@ -24,7 +22,6 @@ output stream.
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/GroupSelectorRules.h"
 #include "FWCore/Framework/interface/GroupSelector.h"
-#include "FWCore/Framework/interface/OutputModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 #include <string>

@@ -13,7 +13,6 @@
 // prerequisite source files and headers
 
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
-#include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "FWCore/ParameterSet/interface/Entry.h"
 #include "FWCore/ParameterSet/interface/ParameterSetEntry.h"
 #include "FWCore/ParameterSet/interface/VParameterSetEntry.h"

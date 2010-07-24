@@ -23,7 +23,6 @@
  */
 
 #include "IOPool/Streamer/interface/MsgTools.h"
-#include "IOPool/Streamer/interface/MsgHeader.h"
 
 struct FRDEventHeader_V2
 {

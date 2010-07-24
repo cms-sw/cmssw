@@ -23,24 +23,15 @@ pointer to a Group, when queried.
 #include <string>
 #include <vector>
 
-#include "boost/shared_ptr.hpp"
 #include "boost/iterator/filter_iterator.hpp"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
-#include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/ProductTransientIndex.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
-#include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Common/interface/BasicHandle.h"
-#include "DataFormats/Common/interface/OutputHandle.h"
-#include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
-#include "DataFormats/Provenance/interface/ProductStatus.h"
 #include "FWCore/Framework/interface/Group.h"
-#include "FWCore/Framework/interface/NoDelayedReader.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Utilities/interface/TypeID.h"
 #include "DataFormats/Provenance/interface/TransientProductLookupMap.h"
 
 namespace edm {

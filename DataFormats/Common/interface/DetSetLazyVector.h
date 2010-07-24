@@ -30,7 +30,6 @@ to be returned, *not* the ordinal number of the T to be returned.
 
 #include "boost/concept_check.hpp"
 #include "boost/iterator/transform_iterator.hpp"
-#include "boost/shared_ptr.hpp"
 
 #include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Common/interface/DetSet.h"

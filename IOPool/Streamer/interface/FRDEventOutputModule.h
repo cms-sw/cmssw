@@ -8,10 +8,11 @@
 
 #include "boost/shared_array.hpp"
 
+class FRDEventMsgView;
 template <class Consumer>
 class FRDEventOutputModule : public edm::OutputModule
 {
-
+  typedef unsigned int uint32;
   /**
    * Consumers are suppose to provide:
    *   void doOutputEvent(const FRDEventMsgView& msg)

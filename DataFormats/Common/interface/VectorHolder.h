@@ -2,6 +2,7 @@
 #define DataFormats_Common_VectorHolder_h
 #include "DataFormats/Common/interface/BaseVectorHolder.h"
 #include "DataFormats/Common/interface/Holder.h"
+#include <memory>
 
 namespace edm {
   namespace reftobase {

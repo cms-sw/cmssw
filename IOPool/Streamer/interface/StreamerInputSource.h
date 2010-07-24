@@ -11,13 +11,10 @@
 
 #include "TBufferFile.h"
 
-#include "boost/shared_ptr.hpp"
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/InputSource.h"
 
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
-#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include <vector>
 

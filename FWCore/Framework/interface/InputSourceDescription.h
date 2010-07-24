@@ -6,11 +6,11 @@
 InputSourceDescription : the stuff that is needed to configure an
 input source that does not come in through the ParameterSet  
 ----------------------------------------------------------------------*/
-#include <string>
 #include "boost/shared_ptr.hpp"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 
 namespace edm {
+  class PrincipalCache;
   class ProductRegistry;
   class ActivityRegistry;
 

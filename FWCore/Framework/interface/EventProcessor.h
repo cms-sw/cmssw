@@ -12,13 +12,10 @@ configured in the user's main() function, and is set running.
 #include <vector>
 #include <memory>
 
-#include "boost/shared_ptr.hpp"
-#include "boost/thread/thread.hpp"
 #include "boost/thread/condition.hpp"
 #include "boost/utility.hpp"
 
 #include "FWCore/Framework/interface/IEventProcessor.h"
-#include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/ServiceRegistry/interface/ServiceLegacy.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/Framework/src/WorkerRegistry.h"

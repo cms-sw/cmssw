@@ -1,6 +1,5 @@
 #include "TFile.h"
 #include "TTree.h"
-#include "Cintex/Cintex.h"
 
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
@@ -33,7 +32,6 @@
 #include <vector>
 #include <set>
 
-#include "boost/utility.hpp"
 #include "boost/scoped_ptr.hpp"
 
 #include "boost/program_options.hpp"

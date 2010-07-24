@@ -3,7 +3,6 @@
 
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include <boost/ref.hpp>
-#include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <algorithm>
 

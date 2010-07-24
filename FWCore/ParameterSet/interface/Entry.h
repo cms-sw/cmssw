@@ -23,7 +23,6 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockRange.h"
 #include "DataFormats/Provenance/interface/MinimalEventID.h"
-#include <boost/cstdint.hpp>
 
 // ----------------------------------------------------------------------
 // contents

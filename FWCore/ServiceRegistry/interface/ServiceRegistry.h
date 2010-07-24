@@ -24,7 +24,6 @@
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/ServiceRegistry/interface/ServiceLegacy.h"
 #include "FWCore/ServiceRegistry/interface/ServicesManager.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // forward declarations
 namespace edm {

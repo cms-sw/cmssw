@@ -1,12 +1,9 @@
 #ifndef IOMC_RandomEngine_TRandomAdaptor_h
 #define IOMC_RandomEngine_TRandomAdaptor_h
 
-#include "CLHEP/Random/defs.h"
 #include "CLHEP/Random/RandomEngine.h"
 
 #include "TRandom3.h"
-#include "TFile.h"
-#include "TTree.h"
 
 #include <cmath>
 #include "FWCore/Utilities/interface/value_ptr.h"

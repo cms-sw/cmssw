@@ -4,7 +4,6 @@
 #include <map>
 
 #include "Rtypes.h"
-#include "Reflex/Type.h"
 class TBranch;
 class TFile;
 class TTree;

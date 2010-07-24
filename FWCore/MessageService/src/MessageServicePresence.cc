@@ -17,6 +17,7 @@
 //			
 // 
 
+#include "FWCore/MessageService/interface/MainThreadMLscribe.h"
 #include "FWCore/MessageService/interface/MessageServicePresence.h"
 #include "FWCore/MessageService/interface/MessageLoggerScribe.h"
 #include "FWCore/MessageService/interface/ThreadQueue.h"

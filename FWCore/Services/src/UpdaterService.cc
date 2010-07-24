@@ -5,7 +5,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <iostream>
-#include "DataFormats/Common/interface/Trie.h"
 
 UpdaterService::UpdaterService(const edm::ParameterSet & cfg, edm::ActivityRegistry & r ) :
   theEventId(0) {

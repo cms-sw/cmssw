@@ -21,7 +21,6 @@ This description also applies to every product instance on the branch.
 #include "DataFormats/Provenance/interface/Transient.h"
 
 #include "Reflex/Type.h"
-#include "FWCore/Utilities/interface/UseReflex.h"
 /*
   BranchDescription
 

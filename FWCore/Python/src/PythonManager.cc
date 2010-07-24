@@ -1,4 +1,5 @@
 #include "PythonManager.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
     void
     pythonToCppException(const std::string& iType)

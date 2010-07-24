@@ -3,7 +3,6 @@
 
 #include "IOPool/Streamer/interface/StreamerInputSource.h"
 
-#include "boost/shared_ptr.hpp"
 #include <memory>
 #include <string>
 #include <vector>

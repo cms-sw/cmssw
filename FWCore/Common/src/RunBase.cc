@@ -16,7 +16,6 @@
 
 // user include files
 #include "FWCore/Common/interface/RunBase.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 namespace edm
 {

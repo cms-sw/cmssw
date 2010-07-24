@@ -8,13 +8,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug 28 13:27:25 CDT 2009
-// $Id$
 //
 
 // system include files
 
 // user include files
 #include "FWCore/Framework/interface/NoRecordException.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 
 void

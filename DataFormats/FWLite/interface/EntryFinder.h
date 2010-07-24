@@ -22,7 +22,6 @@
 // user include files
 #include "DataFormats/Provenance/interface/FileIndex.h"
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
-#include "DataFormats/Provenance/interface/EventAuxiliary.h"
 
 // forward declarations
 

@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:26 EDT 2007
-// $Id: Handle.h,v 1.14 2010/01/28 15:36:40 ewv Exp $
 //
 
 // system include files
@@ -24,13 +23,7 @@
 // user include files
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 //CINT can't handle parsing these files
-#include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/FWLite/interface/EventBase.h"
-#include "DataFormats/FWLite/interface/Event.h"
-#include "DataFormats/FWLite/interface/LuminosityBlockBase.h"
-#include "DataFormats/FWLite/interface/LuminosityBlock.h"
-#include "DataFormats/FWLite/interface/ChainEvent.h"
-#include "DataFormats/FWLite/interface/MultiChainEvent.h"
 #include "DataFormats/FWLite/interface/ErrorThrower.h"
 #endif
 

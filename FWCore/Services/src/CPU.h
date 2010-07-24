@@ -11,7 +11,6 @@
 //
 
 #include "sigc++/signal.h"
-#include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 
 namespace edm {

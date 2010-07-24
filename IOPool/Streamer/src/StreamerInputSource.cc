@@ -1,5 +1,4 @@
 #include "IOPool/Streamer/interface/StreamerInputSource.h"
-#include "DataFormats/Provenance/interface/ProcessConfiguration.h" 
 
 #include "IOPool/Streamer/interface/EventMessage.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
@@ -10,9 +9,7 @@
 #include "FWCore/Framework/src/PrincipalCache.h"
 #include "FWCore/ParameterSet/interface/FillProductRegistryTransients.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "DataFormats/Provenance/interface/Parentage.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
-#include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
@@ -21,11 +18,10 @@
 
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/ThreadSafeRegistry.h"
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
 
@@ -34,8 +30,6 @@
 #include "DataFormats/Provenance/interface/ProcessConfigurationRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <string>
 #include <iostream>

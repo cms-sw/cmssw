@@ -16,12 +16,11 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  3 16:52:43 CST 2009
-// $Id$
-//
 
 // system include files
 
 // user include files
+#include <string>
 
 // forward declarations
 

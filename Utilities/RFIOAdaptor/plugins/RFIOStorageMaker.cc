@@ -1,8 +1,6 @@
 #include "Utilities/StorageFactory/interface/StorageMaker.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 #include "Utilities/StorageFactory/interface/StorageMakerFactory.h"
-#include "Utilities/StorageFactory/interface/StorageAccountProxy.h"
-#include "Utilities/StorageFactory/interface/LocalCacheFile.h"
 #include "Utilities/RFIOAdaptor/interface/RFIOFile.h"
 #include "Utilities/RFIOAdaptor/interface/RFIO.h"
 #include "Utilities/RFIOAdaptor/interface/RFIOPluginFactory.h"

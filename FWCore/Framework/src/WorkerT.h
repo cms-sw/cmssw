@@ -12,6 +12,7 @@ WorkerT: Code common to all workers.
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/WorkerParams.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/UnscheduledHandler.h"
 
 namespace edm {

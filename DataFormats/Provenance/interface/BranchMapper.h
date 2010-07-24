@@ -9,12 +9,10 @@ BranchMapper: Manages the per event/lumi/run per product provenance.
 #include <iosfwd>
 #include <set>
 #include <map>
-#include "boost/shared_ptr.hpp"
 
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
-#include "FWCore/Utilities/interface/Algorithms.h"
 
 /*
   BranchMapper

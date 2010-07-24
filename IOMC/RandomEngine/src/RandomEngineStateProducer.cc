@@ -3,11 +3,9 @@
 
 #include <vector>
 #include <string>
-#include "boost/cstdint.hpp"
 
 #include "FWCore/Framework/interface/Event.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 

@@ -17,6 +17,7 @@ These products should be informational products about the filter decision.
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 
 #include <string>
+#include <vector>
 
 namespace edm {
 

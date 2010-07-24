@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Jan 20 14:26:49 CST 2010
-// $Id: typelookup.cc,v 1.1 2010/01/23 02:00:15 chrjones Exp $
 //
 
 // system include files
@@ -17,7 +16,6 @@
 
 // user include files
 #include "FWCore/Utilities/interface/typelookup.h"
-#include "FWCore/Utilities/interface/TypeIDBase.h"
 
 
 //

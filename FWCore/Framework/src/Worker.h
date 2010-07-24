@@ -25,13 +25,10 @@ the worker is reset().
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/src/WorkerParams.h"
 #include "FWCore/Framework/interface/Actions.h"
-#include "FWCore/Framework/interface/BranchActionType.h"
 #include "FWCore/Framework/interface/CurrentProcessingContext.h"
-#include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "boost/shared_ptr.hpp"
 #include "boost/utility.hpp"
 
 #include "FWCore/Framework/src/RunStopwatch.h"

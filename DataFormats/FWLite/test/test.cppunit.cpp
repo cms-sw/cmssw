@@ -11,6 +11,7 @@ Test program for edm::Ref use in ROOT.
 #include "TFile.h"
 #include "TSystem.h"
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
+#include "DataFormats/TestObjects/interface/ThingCollection.h"
 #include "FWCore/Utilities/interface/TestHelper.h"
 
 #include "DataFormats/FWLite/interface/Event.h"

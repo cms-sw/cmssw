@@ -16,8 +16,6 @@ the CMS event model.
 #include "Reflex/Type.h"
 #include "Reflex/Object.h"
 
-#include "FWCore/Utilities/interface/UseReflex.h"
-
 namespace edm
 {
 

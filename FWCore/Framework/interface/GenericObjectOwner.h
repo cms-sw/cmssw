@@ -19,14 +19,11 @@
 //
 
 // system include files
+#include <string>
 #include "Reflex/Object.h"
-#include "Reflex/Builder/TypeBuilder.h"
 
 // user include files
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/WrappedClassName.h"
-#include "FWCore/Utilities/interface/UseReflex.h"
 
 // forward declarations
 namespace edm {

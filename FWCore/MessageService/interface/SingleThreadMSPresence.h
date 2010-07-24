@@ -1,10 +1,7 @@
 #ifndef FWCore_MessageService_SingleThreadMSPresence_h
 #define FWCore_MessageService_SingleThreadMSPresence_h
 
-#include "boost/thread/thread.hpp"
 #include "FWCore/Utilities/interface/Presence.h"
-#include "FWCore/MessageService/interface/MessageLoggerScribe.h"
-#include "FWCore/MessageLogger/interface/AbstractMLscribe.h"
 
 namespace edm  {
 namespace service {       

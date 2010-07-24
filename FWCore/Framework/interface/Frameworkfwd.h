@@ -55,7 +55,4 @@ namespace edm {
   template <typename T> class WorkerT;
 }
 
-// The following are trivial enough so that the real headers can be included.
-#include "FWCore/Framework/interface/BranchActionType.h"
-
 #endif

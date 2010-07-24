@@ -2,7 +2,6 @@
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/util/PlatformUtils.hpp>
 
@@ -12,7 +11,6 @@
 #include <iostream>
 #include "classlib/utils/StringList.h"
 #include "classlib/utils/StringOps.h"
-#include "classlib/utils/Regexp.h"
 
 
 using namespace xercesc;

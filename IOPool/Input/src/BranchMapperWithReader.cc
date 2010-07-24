@@ -6,6 +6,8 @@ BranchMapperWithReader:
 #include "BranchMapperWithReader.h"
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
 
+#include "TBranch.h"
+
 namespace edm {
   BranchMapperWithReader::BranchMapperWithReader() :
 	 BranchMapper(true),

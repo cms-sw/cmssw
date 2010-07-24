@@ -1,5 +1,4 @@
 #include "DataFormats/Provenance/interface/RunLumiEntryInfo.h"
-#include "DataFormats/Provenance/interface/EntryDescriptionID.h"
 #include <ostream>
 
 /*----------------------------------------------------------------------

@@ -10,7 +10,6 @@
 #include "Api.h" // for G__ClassInfo
 
 #include "FWCore/Utilities/interface/ReflexTools.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 
 using Reflex::Base;

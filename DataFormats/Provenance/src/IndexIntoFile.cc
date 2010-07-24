@@ -4,7 +4,6 @@
 #include <algorithm>
 #include <ostream>
 #include <iomanip>
-#include <map>
 
 namespace edm {
 

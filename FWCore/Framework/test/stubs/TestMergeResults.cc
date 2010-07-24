@@ -20,9 +20,6 @@
 #include "DataFormats/TestObjects/interface/ThingWithIsEqual.h"
 #include "DataFormats/TestObjects/interface/ThingWithMerge.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
-#include "DataFormats/Provenance/interface/BranchKey.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

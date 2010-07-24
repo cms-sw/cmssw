@@ -2,9 +2,9 @@
 #define FWCore_MessageService_MessageServicePresence_h
 
 #include "FWCore/Utilities/interface/Presence.h"
-#include "FWCore/MessageService/interface/MainThreadMLscribe.h"
 
 #include "boost/thread/thread.hpp"
+
 #include "boost/shared_ptr.hpp"
 
 

@@ -16,7 +16,6 @@
 //
 // Original Author:  Eric Vaandering
 //         Created:  Wed Jan  13 15:01:20 EDT 2007
-// $Id:
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -24,9 +23,6 @@
 #include <typeinfo>
 //
 // // user include files
-#include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
-#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
-#include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/Common/interface/LuminosityBlockBase.h"
 
 #include "Rtypes.h"

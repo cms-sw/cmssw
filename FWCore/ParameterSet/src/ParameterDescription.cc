@@ -16,6 +16,7 @@
 
 #include "boost/bind.hpp"
 
+#include <cassert>
 #include <ostream>
 #include <iomanip>
 #include <sstream>

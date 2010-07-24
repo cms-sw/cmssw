@@ -5,13 +5,9 @@
 #include <functional>
 #include <vector>
 
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/ClonePolicy.h"
 #include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/RefToBase.h"
-
-#include "DataFormats/Provenance/interface/ProductID.h"
 
 #include "FWCore/Utilities/interface/EDMException.h"
 
@@ -24,6 +20,7 @@
 #include "DataFormats/Common/interface/PostReadFixupTrait.h"
 
 namespace edm {
+  class ProductID;
   template <typename T, typename P = ClonePolicy<T> >
   class OwnVector  {
   private:

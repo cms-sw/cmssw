@@ -10,7 +10,6 @@
 
 #include "Cintex/Cintex.h"
 #include "TFile.h"
-#include "TTree.h"
 
 #include <cppunit/extensions/HelperMacros.h>
 #include "PhysicsTools/CondLiteIO/interface/RecordWriter.h"

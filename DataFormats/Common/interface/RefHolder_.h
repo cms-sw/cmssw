@@ -5,6 +5,7 @@
 #include "Reflex/Object.h"
 #include "Reflex/Type.h"
 #include "FWCore/Utilities/interface/UseReflex.h"
+#include <memory>
 
 namespace edm {
   namespace reftobase {

@@ -12,8 +12,6 @@
 #include "DataFormats/Provenance/interface/MinimalEventID.h"
 #include "FWCore/PythonParameterSet/interface/BoostPython.h"
 
-#include <boost/cstdint.hpp>
-
 #include <string>
 
 BOOST_PYTHON_MODULE(libFWCoreParameterSet)

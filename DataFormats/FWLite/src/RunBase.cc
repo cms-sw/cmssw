@@ -14,12 +14,10 @@
 //
 // Original Author:  Eric Vaandering
 //         Created:  Wed Jan  13 15:01:20 EDT 2007
-// $Id:
 //
 
 // system include files
 #include <iostream>
-#include "Reflex/Type.h"
 
 // user include files
 #include "DataFormats/FWLite/interface/RunBase.h"

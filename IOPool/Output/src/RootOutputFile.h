@@ -14,13 +14,9 @@
 #include <vector>
 
 #include "boost/array.hpp"
-#include "boost/shared_ptr.hpp"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "DataFormats/Provenance/interface/BranchID.h"
-#include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/FileID.h"
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
@@ -33,7 +29,6 @@
 
 class TTree;
 class TFile;
-#include "TROOT.h"
 
 namespace edm {
   class PoolOutputModule;

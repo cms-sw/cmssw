@@ -10,11 +10,8 @@ FileIndex.h
 #include <vector>
 #include <cassert>
 #include "DataFormats/Provenance/interface/RunID.h"
-#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Transient.h"
-
-#include "boost/shared_ptr.hpp"
 
 #include <iosfwd>
 

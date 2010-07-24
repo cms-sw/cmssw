@@ -30,7 +30,6 @@ Test program for edm::Event.
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/TestObjects/interface/Thing.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
-#include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
@@ -48,7 +47,6 @@ Test program for edm::Event.
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 
-#include "boost/shared_ptr.hpp"
 using namespace edm;
 
 // This is a gross hack, to allow us to test the event

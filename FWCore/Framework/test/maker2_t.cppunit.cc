@@ -14,8 +14,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "boost/shared_ptr.hpp"
-
 #include <cppunit/extensions/HelperMacros.h>
 
 using namespace edm;

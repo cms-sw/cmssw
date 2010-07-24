@@ -6,15 +6,10 @@
 BranchMapperWithReader:
 
 ----------------------------------------------------------------------*/
-#include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchMapper.h"
-#include "DataFormats/Provenance/interface/EventEntryInfo.h"
-#include "DataFormats/Provenance/interface/FileFormatVersion.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
 #include "Inputfwd.h"
 
 #include <vector>
-#include "TBranch.h"
 
 class TBranch;
 namespace edm {

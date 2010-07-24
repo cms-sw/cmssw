@@ -1,16 +1,11 @@
-// $Id: GroupSelector.cc,v 1.26 2007/11/07 08:04:54 wmtan Exp $
-
 #include <algorithm>
 #include <iterator>
 #include <ostream>
 #include <cctype>
 
-#include "boost/algorithm/string.hpp"
-
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "FWCore/Framework/interface/GroupSelector.h"
 #include "FWCore/Framework/interface/GroupSelectorRules.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 

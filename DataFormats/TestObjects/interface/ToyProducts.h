@@ -11,8 +11,6 @@ Toy EDProducts for testing purposes only.
 #include <string>
 #include <vector>
 
-#include "boost/cstdint.hpp"
-
 #include "DataFormats/Common/interface/SortedCollection.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/Common/interface/AssociationVector.h"

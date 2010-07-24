@@ -11,8 +11,6 @@ EDProducts into an Event.
 #include "FWCore/Framework/interface/ProductRegistryHelper.h"
 #include "boost/bind.hpp"
 #include "boost/function.hpp"
-#include "boost/shared_ptr.hpp"
-#include <string>
 namespace edm {
   class BranchDescription;
   class ModuleDescription;

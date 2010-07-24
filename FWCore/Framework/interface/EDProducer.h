@@ -15,6 +15,7 @@ EDProducts into an Event.
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 #include <string>
+#include <vector>
 
 namespace edm {
   class EDProducer : public ProducerBase {

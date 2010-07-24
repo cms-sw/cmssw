@@ -6,7 +6,6 @@
 
 #include <memory>
 #include "FWCore/Framework/interface/DelayedReader.h"
-#include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 
 namespace edm {
   class NoDelayedReader : public DelayedReader {

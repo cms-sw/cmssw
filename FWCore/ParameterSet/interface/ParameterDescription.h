@@ -22,8 +22,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/value_ptr.h"
 
-#include "boost/cstdint.hpp"
-
 #include <string>
 #include <vector>
 #include <iosfwd>

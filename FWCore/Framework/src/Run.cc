@@ -1,11 +1,7 @@
-#include <vector>
-
 #include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/NoDelayedReader.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
-//#include "DataFormats/Provenance/interface/ParameterSetID.h"
-//#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
-//#include "FWCore/ParameterSet/interface/ParameterSet.h"
-//#include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 
 namespace edm {
 

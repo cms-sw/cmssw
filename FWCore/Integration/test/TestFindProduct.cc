@@ -23,8 +23,6 @@
 #include <iostream>
 #include <vector>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-
 namespace edmtest 
 {
   class TestFindProduct : public edm::EDAnalyzer

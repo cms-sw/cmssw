@@ -1,5 +1,4 @@
 #include "Utilities/StorageFactory/interface/LocalCacheFile.h"
-#include "Utilities/StorageFactory/interface/File.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <utility>
 #include <iostream>

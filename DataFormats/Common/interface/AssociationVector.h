@@ -25,7 +25,6 @@
 #include "DataFormats/Provenance/interface/ProductID.h"
 
 #include "boost/static_assert.hpp"
-#include "boost/type_traits/is_same.hpp"
 
 namespace edm {
   namespace helper {

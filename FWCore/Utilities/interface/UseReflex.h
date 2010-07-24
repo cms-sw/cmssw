@@ -10,7 +10,6 @@
 
 #include "Reflex/Type.h"
 #include "Reflex/TypeTemplate.h"
-#include "RVersion.h"
 
 namespace Reflex {
   class Base;

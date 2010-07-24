@@ -1,5 +1,4 @@
 #include "IOPool/Output/interface/TimeoutPoolOutputModule.h"
-#include "IOPool/Output/src/RootOutputFile.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace edm {

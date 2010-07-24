@@ -1,20 +1,13 @@
 #ifndef DataFormats_Common_Vector_h
 #define DataFormats_Common_Vector_h
-// $Id: Vector.h,v 1.2 2007/12/21 22:46:51 wmtan Exp $
+// $Id: Vector.h,v 1.3 2008/03/31 21:12:11 wmtan Exp $
 
 #include <algorithm>
 #include <functional>
 #include <vector>
 
-#include "DataFormats/Common/interface/EDProduct.h"
-#include "DataFormats/Common/interface/ClonePolicy.h"
 #include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/RefToBase.h"
-
-#include "DataFormats/Provenance/interface/ProductID.h"
-
-#include "FWCore/Utilities/interface/EDMException.h"
 
 #if defined CMS_USE_DEBUGGING_ALLOCATOR
 #include "DataFormats/Common/interface/debugging_allocator.h"
@@ -23,6 +16,7 @@
 #include "DataFormats/Common/interface/PostReadFixupTrait.h"
 
 namespace edm {
+  class ProductID;
   template <typename T>
   class Vector  {
   private:

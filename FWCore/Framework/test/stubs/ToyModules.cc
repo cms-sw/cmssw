@@ -11,7 +11,6 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include <vector>
 
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/View.h"

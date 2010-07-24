@@ -19,7 +19,6 @@
 //
 
 #include "FWCore/PythonParameterSet/interface/BoostPython.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 // subpackage specific includes

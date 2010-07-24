@@ -3,20 +3,7 @@
 
 #include "IOPool/Streamer/interface/StreamerInputSource.h"
 
-#include "DataFormats/Common/interface/Wrapper.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "IOPool/Streamer/interface/ClassFiller.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
-
-#include "DataFormats/Streamer/interface/StreamedProducts.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
-#include "IOPool/Streamer/interface/StreamerFileIO.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "IOPool/Streamer/interface/InitMessage.h"
-#include "IOPool/Streamer/interface/EventMessage.h"
-#include "IOPool/Streamer/interface/Utilities.h"
 
 #include <memory>
 #include <string>

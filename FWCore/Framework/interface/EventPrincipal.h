@@ -13,13 +13,15 @@ is the DataBlock.
 ----------------------------------------------------------------------*/
 
 #include "boost/scoped_ptr.hpp"
-#include "boost/shared_ptr.hpp"
+#include <map>
+#include <memory>
+#include <string>
 #include <vector>
 
 #include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/History.h"
-#include "DataFormats/Common/interface/EDProductGetter.h"
+#include "FWCore/Framework/interface/NoDelayedReader.h"
 #include "FWCore/Framework/interface/Principal.h"
 
 

@@ -5,9 +5,6 @@
 #include "DataFormats/Common/interface/RangeMap.h"
 // #include "DataFormats/Common/interface/DetSetAlgorithm.h"
 
-#include <boost/ref.hpp>
-// #include <boost/bind.hpp>
-// #include <boost/function.hpp>
 #include <algorithm>
 
 //FIXME remove New when ready

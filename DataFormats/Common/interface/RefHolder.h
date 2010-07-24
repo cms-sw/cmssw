@@ -6,6 +6,7 @@
 #include "DataFormats/Common/interface/RefVectorHolder.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/HolderToVectorTrait.h"
+#include <memory>
 
 namespace edm {
   namespace reftobase {

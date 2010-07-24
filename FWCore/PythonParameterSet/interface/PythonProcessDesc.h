@@ -4,8 +4,6 @@
 #include "FWCore/PythonParameterSet/interface/BoostPython.h"
 #include "FWCore/PythonParameterSet/interface/PythonParameterSet.h"
 
-#include "boost/shared_ptr.hpp"
-
 #include <string>
 #include <vector>
 

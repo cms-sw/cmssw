@@ -7,6 +7,9 @@
 
 #include "boost/bind.hpp"
 
+#include <iomanip>
+#include <ostream>
+
 namespace edm {
 
   AllowedLabelsDescriptionBase::~AllowedLabelsDescriptionBase() { }

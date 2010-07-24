@@ -19,7 +19,6 @@
 // system include files
 #include <functional>
 #include <iosfwd>
-#include "boost/cstdint.hpp"
 #include "DataFormats/Provenance/interface/MinimalEventID.h"
 
 // user include files

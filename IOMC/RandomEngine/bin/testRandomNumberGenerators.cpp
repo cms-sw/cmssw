@@ -1,7 +1,6 @@
 #include<iostream>
 #include<iomanip>
 
-#include "TROOT.h"
 #include "TFile.h"
 #include "TH1D.h"
 

@@ -22,6 +22,7 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <memory>
 #include "boost/shared_ptr.hpp"
 
 // user include files

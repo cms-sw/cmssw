@@ -46,17 +46,13 @@
 #include <typeinfo>
 #include <map>
 #include <vector>
-#include <boost/shared_ptr.hpp>
 #include <memory>
 #include <cstring>
 #include <string>
 
-#include "TBranch.h"
 #include "Rtypes.h"
-#include "Reflex/Object.h"
 
 // user include files
-#include "FWCore/Utilities/interface/TypeID.h"
 #include "DataFormats/FWLite/interface/EventBase.h"
 #include "DataFormats/FWLite/interface/EntryFinder.h"
 #include "DataFormats/FWLite/interface/LuminosityBlock.h"
@@ -66,7 +62,6 @@
 #include "DataFormats/Provenance/interface/EventProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventID.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
 
 // forward declarations
 namespace edm {

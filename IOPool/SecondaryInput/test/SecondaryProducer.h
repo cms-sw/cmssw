@@ -8,6 +8,7 @@
  *
  ************************************************************/
 
+#include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Sources/interface/VectorInputSource.h"
 

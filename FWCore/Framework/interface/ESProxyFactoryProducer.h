@@ -52,6 +52,8 @@ BarProd::BarProd(const edm::ParameterSet& iPS) {
 
 // system include files
 #include <map>
+#include <memory>
+#include <string>
 #include "boost/shared_ptr.hpp"
 
 // user include files

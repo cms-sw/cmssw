@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Jun 28 11:21:52 CDT 2006
-// $Id$
 //
 
 // system include files
@@ -17,7 +16,6 @@
 #include "FWCore/Python/src/EventWrapper.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/GenericHandle.h"
 
 //
 // constants, enums and typedefs

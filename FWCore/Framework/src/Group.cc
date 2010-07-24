@@ -1,6 +1,5 @@
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
-#include <string>
 #include "DataFormats/Provenance/interface/ProductStatus.h"
 #include "FWCore/Framework/interface/Group.h"
 #include "FWCore/Utilities/interface/ReflexTools.h"

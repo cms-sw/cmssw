@@ -14,10 +14,7 @@
 
 // user include files
 #include "DataFormats/FWLite/interface/MultiChainEvent.h"
-#include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
-#include "TFile.h"
-#include "TTree.h"
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Common/interface/TriggerResultsByName.h"

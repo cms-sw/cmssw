@@ -1,4 +1,3 @@
-#include "DataFormats/Streamer/interface/StreamedProducts.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Algorithms.h"

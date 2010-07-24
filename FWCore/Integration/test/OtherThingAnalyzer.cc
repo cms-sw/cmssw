@@ -3,8 +3,6 @@
 #include "DataFormats/TestObjects/interface/OtherThing.h"
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/Framework/interface/Run.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/Exception.h"

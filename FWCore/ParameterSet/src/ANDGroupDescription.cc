@@ -1,10 +1,7 @@
 
 #include "FWCore/ParameterSet/interface/ANDGroupDescription.h"
-#include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/DocFormatHelper.h"
-
-#include "boost/bind.hpp"
 
 #include <algorithm>
 #include <sstream>

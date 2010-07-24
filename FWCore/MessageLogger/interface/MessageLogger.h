@@ -72,6 +72,8 @@
 //
 // 17 wmtan 10/29/09 Out of line LogDebug_ and LogTrace_ constructors.
 //
+// 18 wmtan 07/08/10 Remove unnecessary includes
+//
 // =================================================
 
 // system include files
@@ -85,8 +87,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageSender.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
-#include "FWCore/MessageLogger/interface/MessageLoggerQ.h"	// Change log 5
-#include "FWCore/MessageLogger/interface/ErrorObj.h"
 #include "FWCore/Utilities/interface/EDMException.h"		// Change log 8
 
 
@@ -433,7 +433,7 @@ public:
 
 
 // If ML_DEBUG is defined, LogDebug is active.  
-// Otherwise, LogDebug is supressed if either ML_NDEBUG or NDEBUG is defined.
+// Otherwise, LogDebug is suppressed if either ML_NDEBUG or NDEBUG is defined.
 #undef EDM_MESSAGELOGGER_SUPPRESS_LOGDEBUG
 #ifdef NDEBUG
 #define EDM_MESSAGELOGGER_SUPPRESS_LOGDEBUG

@@ -20,8 +20,9 @@
 //
 
 // system include files
-#include <string>
 #include <map>
+#include <string>
+#include <vector>
 
 // user include files
 #include "DataFormats/FWLite/interface/IOVSyncValue.h"
@@ -45,7 +46,7 @@ namespace fwlite
    class Record {
       class TypeID : public edm::TypeIDBase {
       public:
-         TypeID(const type_info& iInfo): edm::TypeIDBase(iInfo) {}
+         TypeID(const std::type_info& iInfo): edm::TypeIDBase(iInfo) {}
          using TypeIDBase::typeInfo;
       };
 

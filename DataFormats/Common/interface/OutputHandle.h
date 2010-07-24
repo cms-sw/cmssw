@@ -25,13 +25,14 @@ If failedToGet() returns false but isValid() is also false then no attempt
 
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include <boost/shared_ptr.hpp>
+
+namespace cms {
+  class Exception;
+}
 
 namespace edm {
+  class ConstBranchDescription;
   class EDProduct;
   class OutputHandle {
   public:

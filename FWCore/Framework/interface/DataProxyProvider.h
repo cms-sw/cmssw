@@ -19,9 +19,10 @@
 //
 
 // system include files
-#include <vector>
-#include <set>
 #include <map>
+#include <set>
+#include <string>
+#include <vector>
 #include "boost/shared_ptr.hpp"
 
 // user include files

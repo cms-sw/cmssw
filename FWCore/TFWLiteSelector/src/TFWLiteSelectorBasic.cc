@@ -18,15 +18,12 @@
 #include "TBranch.h"
 #include "TClass.h"
 #include "Reflex/Type.h"
-#include "boost/shared_ptr.hpp"
-//#include <exception>
 // user include files
 #include "FWCore/TFWLiteSelector/interface/TFWLiteSelectorBasic.h"
 
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventEntryDescription.h" // kludge to allow compilation
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
@@ -39,12 +36,8 @@
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
-#include "DataFormats/Provenance/interface/ProductStatus.h"
-#include "DataFormats/Provenance/interface/EventEntryInfo.h"
 #include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
-#include "DataFormats/FWLite/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"

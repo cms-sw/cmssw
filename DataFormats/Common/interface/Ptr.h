@@ -32,8 +32,6 @@
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/Common/interface/TestHandle.h"
 
-#include "FWCore/Utilities/interface/EDMException.h"
-
 // forward declarations
 namespace edm {
   template <typename T>

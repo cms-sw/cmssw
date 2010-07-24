@@ -19,8 +19,6 @@
 
 #include "FWCore/MessageLogger/interface/ELmap.h"
 
-#include "boost/shared_array.hpp"
-
 // Possible traces
 //#include <iostream>
 //#define ELcountTRACE

@@ -9,7 +9,6 @@
 #include "FWCore/Utilities/interface/TypeDemangler.h"
 #include "Reflex/Type.h"
 #include "boost/thread/tss.hpp"
-#include "FWCore/Utilities/interface/UseReflex.h"
 
 namespace edm {
   void

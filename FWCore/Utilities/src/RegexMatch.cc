@@ -1,8 +1,5 @@
 // functions used to assist with  regular expression matching of strings
 
-#include <vector>
-#include <string>
-
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
 

@@ -21,7 +21,6 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -32,7 +31,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //
 // class declaration

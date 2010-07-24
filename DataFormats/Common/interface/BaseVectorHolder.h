@@ -2,6 +2,7 @@
 #define DataFormats_Common_BaseVectorHolder_h
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/Common/interface/BaseHolder.h"
+#include <memory>
 
 namespace edm {
   class ProductID;

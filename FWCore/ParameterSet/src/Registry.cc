@@ -2,7 +2,6 @@
 // ----------------------------------------------------------------------
 
 #include "FWCore/ParameterSet/interface/Registry.h"
-#include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 

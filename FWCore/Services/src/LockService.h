@@ -22,7 +22,6 @@
 #include <string>
 #include <vector>
 #include "boost/thread/mutex.hpp"
-#include "boost/shared_ptr.hpp"
 namespace edm {
   class ConfigurationDescriptions;
 

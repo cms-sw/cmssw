@@ -1,6 +1,5 @@
 
 #include "FWCore/Framework/interface/SelectorBase.h"
-#include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 
 namespace edm {
 

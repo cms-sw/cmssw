@@ -13,11 +13,7 @@ This class is not persistable.
 #include <map>
 #include <set>
 
-#include "boost/shared_ptr.hpp"
-
 #include "DataFormats/Provenance/interface/BranchDescription.h"
-
-#include "Reflex/Type.h"
 
 /*
   ConstBranchDescription

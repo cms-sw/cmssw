@@ -3,7 +3,6 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/DocFormatHelper.h"
 
-#include <utility>
 #include <ostream>
 #include <iomanip>
 #include <sstream>

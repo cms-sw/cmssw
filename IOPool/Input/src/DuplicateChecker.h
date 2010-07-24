@@ -15,7 +15,6 @@ files or does not check for duplicates at all.
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/EventID.h"
-#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
 

@@ -19,7 +19,6 @@
 //
 
 // system include files
-#include <string>
 
 // user include files
 #include "FWCore/Framework/interface/NoDataException.h"

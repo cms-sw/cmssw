@@ -12,7 +12,6 @@
 
 // system include files
 #include <iostream>
-#include "Reflex/Type.h"
 
 // user include files
 #include "DataFormats/FWLite/interface/Event.h"
@@ -20,17 +19,13 @@
 #include "TTree.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
 
-#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
 #include "DataFormats/Provenance/interface/History.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 
 #include "FWCore/FWLite/interface/setRefStreamer.h"
-
-#include "FWCore/Utilities/interface/WrappedClassName.h"
 
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"

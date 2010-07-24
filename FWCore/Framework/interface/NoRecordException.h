@@ -29,11 +29,9 @@
 //
 
 // system include files
-#include <string>
 // user include files
 #include "FWCore/Framework/interface/HCTypeTag.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/EventSetupRecordKey.h"
 
 // forward declarations
 namespace edm {

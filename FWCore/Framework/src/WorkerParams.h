@@ -7,10 +7,6 @@ This struct is used to communication parameters into the worker factory.
 
 ---------------------- **/
 
-#include "DataFormats/Provenance/interface/PassID.h"
-#include "DataFormats/Provenance/interface/ReleaseVersion.h"
-#include "FWCore/Utilities/interface/GetPassID.h"
-#include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <string>
@@ -18,6 +14,7 @@ This struct is used to communication parameters into the worker factory.
 
 namespace edm
 {
+  class ProcessConfiguration;
   class ProductRegistry;
   class ActionTable;
 

@@ -8,7 +8,6 @@
 #include "FWCore/ParameterSet/interface/IfExistsDescription.h"
 #include "FWCore/ParameterSet/interface/AllowedLabelsDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Provenance/interface/EventRange.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/MinimalEventID.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -19,7 +18,6 @@
 #include <string>
 #include <cassert>
 #include <iostream>
-#include <boost/cstdint.hpp>
 
 namespace testParameterSetDescription {
 

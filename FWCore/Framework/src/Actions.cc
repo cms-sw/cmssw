@@ -1,7 +1,6 @@
 
 #include "FWCore/Framework/interface/Actions.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "boost/lambda/lambda.hpp"
 

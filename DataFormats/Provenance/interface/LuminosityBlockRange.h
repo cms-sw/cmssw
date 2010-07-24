@@ -19,7 +19,6 @@
 // system include files
 #include <functional>
 #include <iosfwd>
-#include "boost/cstdint.hpp"
 
 // user include files
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"

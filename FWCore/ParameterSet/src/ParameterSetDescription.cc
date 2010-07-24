@@ -12,7 +12,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include "FWCore/ParameterSet/interface/ParameterDescriptionBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/IfExistsDescription.h"
 #include "FWCore/ParameterSet/interface/DocFormatHelper.h"

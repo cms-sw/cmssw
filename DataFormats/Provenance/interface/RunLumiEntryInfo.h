@@ -10,13 +10,8 @@ and how it came into existence, plus the product identifier and the status.
 #include <iosfwd>
 #include <vector>
 
-#include "boost/shared_ptr.hpp"
-
 #include "DataFormats/Provenance/interface/BranchID.h"
-#include "DataFormats/Provenance/interface/EntryDescriptionID.h"
 #include "DataFormats/Provenance/interface/ProductStatus.h"
-#include "DataFormats/Provenance/interface/ProductProvenance.h"
-#include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 
 /*
   RunLumiEntryInfo

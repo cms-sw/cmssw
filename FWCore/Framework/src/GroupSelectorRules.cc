@@ -10,8 +10,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/Algorithms.h"
-
 
 namespace edm {
 // The following typedef is used only in this implementation file, in

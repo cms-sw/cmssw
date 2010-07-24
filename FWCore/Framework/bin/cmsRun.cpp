@@ -13,7 +13,6 @@ it.
 #include <string>
 #include <vector>
 #include <memory>
-#include <boost/shared_ptr.hpp>
 #include <boost/program_options.hpp>
 #include <cstring>
 

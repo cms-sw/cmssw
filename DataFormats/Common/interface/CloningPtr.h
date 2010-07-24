@@ -16,11 +16,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Apr  3 16:43:29 EDT 2006
-// $Id: CloningPtr.h,v 1.3 2007/01/23 00:25:52 wmtan Exp $
+// $Id: CloningPtr.h,v 1.4 2007/12/21 22:42:30 wmtan Exp $
 //
 
 // system include files
 #include <algorithm>
+#include <memory>
 
 // user include files
 #include "DataFormats/Common/interface/ClonePolicy.h"

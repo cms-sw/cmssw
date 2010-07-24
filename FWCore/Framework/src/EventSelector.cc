@@ -35,13 +35,11 @@
 #include "FWCore/Framework/interface/EventSelector.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
-#include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/RegexMatch.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "boost/algorithm/string.hpp"
-#include "boost/regex.hpp"
 
 #include <algorithm>
 #include <cassert>

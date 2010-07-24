@@ -9,7 +9,6 @@ IndexIntoFile.h
 
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/RunID.h"
-#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Transient.h"
 #include "FWCore/Utilities/interface/value_ptr.h"

@@ -24,15 +24,12 @@
 #include <typeinfo>
 #include <map>
 #include <vector>
-#include <boost/shared_ptr.hpp>
 #include <memory>
 #include <cstring>
 
 // user include files
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "DataFormats/FWLite/interface/InternalDataKey.h"
-#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/FWLite/interface/BranchMapReader.h"
 #include "DataFormats/FWLite/interface/HistoryGetterBase.h"
 

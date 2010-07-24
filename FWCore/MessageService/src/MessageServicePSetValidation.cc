@@ -8,7 +8,7 @@
 //
 // Original Author:  M. Fischler
 //         Created:  Wed May 20 2009
-// $Id: MessageServicePSetValidation.cc,v 1.2 2009/06/22 20:35:18 fischler Exp $
+// $Id: MessageServicePSetValidation.cc,v 1.3 2009/07/08 20:26:38 fischler Exp $
 //
 // Change log
 //
@@ -16,7 +16,6 @@
 
 // system include files
 
-#include <sstream>
 #include <algorithm>
 
 // user include files

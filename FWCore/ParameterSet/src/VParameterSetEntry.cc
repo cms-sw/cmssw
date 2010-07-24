@@ -1,6 +1,10 @@
 #include "FWCore/ParameterSet/interface/VParameterSetEntry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/split.h"
+
+#include <cassert>
+#include <ostream>
+
 namespace edm {
 
   VParameterSetEntry::VParameterSetEntry()

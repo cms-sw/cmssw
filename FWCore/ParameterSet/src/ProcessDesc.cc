@@ -10,9 +10,6 @@
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/DebugMacros.h"
-#include "FWCore/Utilities/interface/Algorithms.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
 #include <iostream>
 
 namespace edm

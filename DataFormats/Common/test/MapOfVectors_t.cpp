@@ -5,8 +5,6 @@
 #include "DataFormats/Common/interface/MapOfVectors.h"
 #undef private
 
-#include "FWCore/Utilities/interface/EDMException.h"
-
 #include<vector>
 #include<algorithm>
 

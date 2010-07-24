@@ -8,11 +8,9 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov  1 15:06:41 EST 2005
-// $Id: EDProductGetter.cc,v 1.5 2008/12/18 04:53:08 wmtan Exp $
 //
 
 // system include files
-#include "boost/thread/tss.hpp"
 
 // user include files
 #include "DataFormats/Common/interface/EDProductGetter.h"

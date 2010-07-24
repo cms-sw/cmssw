@@ -6,11 +6,9 @@
 #include <utility>
 #include "boost/concept_check.hpp"
 #include "boost/iterator/indirect_iterator.hpp"
-#include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/LazyGetter.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 
 namespace edm {
 

@@ -20,13 +20,12 @@
 #include <memory>
 
 // user include files
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 // subpackage specific includes
 #include "FWCore/Python/src/EventWrapper.h"
-#include "FWCore/Python/src/PythonManager.h"
 #include "FWCore/Python/src/PythonFilter.h"
 
 

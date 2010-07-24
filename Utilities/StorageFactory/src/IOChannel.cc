@@ -1,5 +1,4 @@
 #include "Utilities/StorageFactory/interface/IOChannel.h"
-#include "Utilities/StorageFactory/src/SysIOChannel.h"
 #include "Utilities/StorageFactory/src/Throw.h"
 #include <algorithm>
 #include <cassert>

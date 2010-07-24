@@ -12,12 +12,13 @@ is the DataBlock.
 
 ----------------------------------------------------------------------*/
 
-#include "boost/scoped_ptr.hpp"
-#include "boost/shared_ptr.hpp"
+#include <memory>
+#include <string>
 #include <vector>
 
 #include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
+#include "FWCore/Framework/interface/NoDelayedReader.h"
 #include "FWCore/Framework/interface/Principal.h"
 
 namespace edm {

@@ -3,6 +3,7 @@
 
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include <string>
+#include <memory>
 
 namespace edm {
   class ProductID;

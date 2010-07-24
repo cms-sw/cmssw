@@ -4,7 +4,7 @@
 #include "IOPool/Streamer/interface/EventMessage.h"
 #include "IOPool/Streamer/interface/HLTInfo.h"
 #include "IOPool/Streamer/interface/StreamerInputSource.h"
-#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "IOPool/Streamer/interface/Utilities.h"
 
 #include "boost/bind.hpp"

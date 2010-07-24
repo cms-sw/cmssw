@@ -14,13 +14,10 @@ existence.
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ProcessConfigurationID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
-#include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/Parentage.h"
-#include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ReleaseVersion.h"
-#include "boost/shared_ptr.hpp"
 
 /*
   Provenance
@@ -34,6 +31,7 @@ existence.
 */
 
 namespace edm {
+  class ProductProvenance;
   class Provenance {
   public:
     Provenance(ConstBranchDescription const& p, ProductID const& pid);

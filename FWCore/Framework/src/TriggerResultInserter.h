@@ -15,8 +15,6 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 
-#include "boost/shared_ptr.hpp"
-
 namespace edm
 {
   class ParameterSet;

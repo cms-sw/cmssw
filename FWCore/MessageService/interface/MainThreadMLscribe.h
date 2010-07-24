@@ -3,19 +3,8 @@
 
 #include "FWCore/MessageLogger/interface/AbstractMLscribe.h"
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
-#include "FWCore/Utilities/interface/SingleConsumerQ.h"
 
 // I believe the below are not needed:
-
-#include "FWCore/Utilities/interface/value_ptr.h"
-#include "FWCore/Utilities/interface/EDMException.h"
-
-#include "FWCore/MessageService/interface/ELdestControl.h"
-#include "FWCore/MessageService/interface/MsgContext.h"
-#include "FWCore/MessageService/interface/NamedDestination.h"
-#include "FWCore/MessageService/interface/MessageLoggerDefaults.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "boost/shared_ptr.hpp"
 
@@ -44,6 +33,7 @@ namespace service {
 //
 // -----------------------------------------------------------------------
 
+class ErrorLog;
 class ThreadQueue;
 
 class MainThreadMLscribe : public AbstractMLscribe

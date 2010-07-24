@@ -73,8 +73,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <sstream>
-#include <string>
-#include <map>
 
 using namespace edm;
 using namespace edm::service;

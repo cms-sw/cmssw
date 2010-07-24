@@ -1,7 +1,6 @@
 #include "Utilities/StorageFactory/interface/StorageMaker.h"
 #include "Utilities/StorageFactory/interface/Storage.h"
 #include "Utilities/StorageFactory/interface/IOFlags.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include <cstdlib>
 
 StorageMaker::~StorageMaker (void)

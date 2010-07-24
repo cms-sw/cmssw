@@ -18,7 +18,6 @@
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
-#include "FWCore/Utilities/interface/ESInputTag.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 

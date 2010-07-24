@@ -14,8 +14,8 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Common/interface/OutputHandle.h"
 #include "DataFormats/Provenance/interface/BranchChildren.h"
-#include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/Parentage.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
@@ -26,8 +26,6 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "DataFormats/Provenance/interface/ProductStatus.h"
-#include "DataFormats/Common/interface/BasicHandle.h"
 #include "DataFormats/Provenance/interface/BranchIDListRegistry.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -35,7 +33,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "TROOT.h"
-
 #include "TTree.h"
 #include "TFile.h"
 #include "TClass.h"

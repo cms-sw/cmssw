@@ -11,9 +11,7 @@ FileBlock: Properties of an input file.
 #include "DataFormats/Provenance/interface/BranchChildren.h"
 class TTree;
 #include "boost/shared_ptr.hpp"
-#include <map>
 #include <string>
-#include <vector>
 
 namespace edm {
   class BranchDescription;

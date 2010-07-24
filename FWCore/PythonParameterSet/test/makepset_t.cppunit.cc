@@ -18,11 +18,9 @@
 #include <stdlib.h> // for setenv; <cstdlib> is likely to fail
 
 #include "cppunit/extensions/HelperMacros.h"
-#include "boost/lambda/lambda.hpp"
 #include "boost/shared_ptr.hpp"
 
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
 

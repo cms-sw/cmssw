@@ -14,8 +14,6 @@ Original Author: W. David Dagenhart
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
-#include "boost/shared_ptr.hpp"
-
 #include <map>
 
 namespace edm {

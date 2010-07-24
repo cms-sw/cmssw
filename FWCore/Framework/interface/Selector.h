@@ -34,7 +34,6 @@ for every event.
 
 #include <string>
 
-#include "boost/type_traits.hpp"
 #include "boost/utility/enable_if.hpp"
 
 #include "FWCore/Framework/interface/SelectorBase.h"

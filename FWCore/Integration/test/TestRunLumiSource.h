@@ -2,8 +2,6 @@
 #define Framework_TestRunLumiSource_h
 
 /*----------------------------------------------------------------------
-$Id: TestRunLumiSource.h,v 1.6 2008/07/31 23:10:46 wmtan Exp $
-
 This source is intended only for test purposes.  With it one can
 create data files with arbitrary sequences of run number, lumi
 number, and event number in the auxiliary objects in the run tree,
@@ -45,7 +43,6 @@ written to the output file anyway.
 
 #include "FWCore/Framework/interface/InputSource.h"
 
-#include "boost/shared_ptr.hpp"
 #include <memory>
 #include <vector>
 

@@ -5,8 +5,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Entry.h"
 
-#include <boost/cstdint.hpp>
-
 #include <string>
 #include <map>
 #include <vector>

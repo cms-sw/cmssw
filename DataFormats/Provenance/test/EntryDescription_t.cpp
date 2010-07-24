@@ -1,10 +1,8 @@
 #include "DataFormats/Provenance/interface/Parentage.h"
-#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include <assert.h>
 
-int main()
-{
+int main() {
   edm::Parentage ed1;
   assert(ed1 == ed1);
   edm::Parentage ed2;

@@ -10,8 +10,6 @@ and how it came into existence, plus the status.
 #include <iosfwd>
 #include <vector>
 
-#include "boost/shared_ptr.hpp"
-
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/ParentageID.h"
 #include "DataFormats/Provenance/interface/ProductStatus.h"

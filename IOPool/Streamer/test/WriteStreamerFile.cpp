@@ -23,8 +23,6 @@ Disclaimer: Most of the code here is randomly written during
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
 #include "IOPool/Streamer/interface/StreamerOutputFile.h"
 #include "IOPool/Streamer/interface/StreamerOutputIndexFile.h"
-#include "IOPool/Streamer/interface/EventMessage.h"
-
 
 #include "zlib.h"
 

@@ -9,7 +9,6 @@
 
 #include <iostream>
 #include <cppunit/extensions/HelperMacros.h>
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
@@ -28,8 +27,6 @@
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Utilities/interface/TypeID.h"
-
-#include "boost/shared_ptr.hpp"
 
 class testEDProducerProductRegistryCallback: public CppUnit::TestFixture {
    CPPUNIT_TEST_SUITE(testEDProducerProductRegistryCallback);

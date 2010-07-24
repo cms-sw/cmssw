@@ -66,13 +66,7 @@
 
 */
 
-#include "FWCore/Utilities/interface/Algorithms.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Provenance/interface/ProvenanceFwd.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Common/interface/HLTGlobalStatus.h"
-#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
@@ -84,9 +78,6 @@
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/UnscheduledHandler.h"
 #include "FWCore/Framework/src/Worker.h"
-#include "FWCore/Utilities/interface/BranchType.h"
-
-#include "boost/shared_ptr.hpp"
 
 #include <map>
 #include <memory>

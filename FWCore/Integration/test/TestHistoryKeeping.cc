@@ -3,13 +3,9 @@
 #include <iostream>
 #include <vector>
 
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace edmtest 

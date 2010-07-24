@@ -5,7 +5,7 @@
 
 	Author: Jim Kowalkowski 28-01-06
 
-	$Id: WorkerInPath.h,v 1.11 2007/11/12 23:57:57 wmtan Exp $
+	$Id: WorkerInPath.h,v 1.12 2008/10/16 23:06:28 wmtan Exp $
 
 	A wrapper around a Worker, so that statistics can be managed
 	per path.  A Path holds Workers as these things.
@@ -14,7 +14,6 @@
 
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/RunStopwatch.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 
 namespace edm {
 

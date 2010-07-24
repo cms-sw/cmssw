@@ -1,4 +1,6 @@
-#include <FWCore/Framework/interface/ComponentMaker.h>
+#include "FWCore/Framework/interface/ComponentMaker.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 namespace edm {
   namespace eventsetup {
 

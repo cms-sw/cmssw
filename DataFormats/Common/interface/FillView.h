@@ -39,8 +39,6 @@ namespace edm {
 }
 
 #include "DataFormats/Common/interface/EDProductfwd.h"
-#include "DataFormats/Common/interface/RefHolder_.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/RefVectorHolderBase.h"
 
 namespace edm {
@@ -117,13 +115,5 @@ namespace edm {
   }
 
 }
-
-#include "DataFormats/Common/interface/RefHolder.h"
-
-/*
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/RefVector.h"
-#include "DataFormats/Common/interface/RefToBase.h"
-*/
 
 #endif

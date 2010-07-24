@@ -16,8 +16,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-#include <boost/cstdint.hpp>
-
 #include <vector>
 #include <limits>
 #include <string>

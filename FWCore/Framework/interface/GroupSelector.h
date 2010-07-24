@@ -3,8 +3,6 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: GroupSelector.h,v 1.11 2007/01/10 22:41:46 wdd Exp $
-//
 // Class GroupSelector. Class for user to select specific groups in event.
 //
 // Author: Bill Tanenbaum, Marc Paterno
@@ -14,8 +12,6 @@
 #include <iosfwd>
 #include <string>
 #include <vector>
-
-#include <boost/regex.hpp>
 
 namespace edm {
   class BranchDescription;

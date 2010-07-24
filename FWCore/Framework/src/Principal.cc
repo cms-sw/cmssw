@@ -8,14 +8,11 @@
 #include <cstring>
 
 #include "FWCore/Framework/interface/Principal.h"
-#include "DataFormats/Provenance/interface/BranchMapper.h"
-#include "DataFormats/Provenance/interface/ProcessHistory.h"
+#include "DataFormats/Common/interface/OutputHandle.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "DataFormats/Provenance/interface/ProductStatus.h"
-#include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/Algorithms.h"
+#include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/Selector.h"
 //using boost::lambda::_1;
 

@@ -4,7 +4,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/SaveConfiguration.h"
-#include "FWCore/Utilities/interface/Exception.h" 
 
 
 #include <string>
@@ -19,6 +18,7 @@ namespace edm {
   class EventSetup;
   class Timestamp;
   class ConfigurationDescriptions;
+  class ModuleDescription;
 
   namespace service {
 

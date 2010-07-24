@@ -1,6 +1,7 @@
 #include "Utilities/DCacheAdaptor/interface/DCacheFile.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <cassert>
 #include <vector>
 #include <unistd.h>
 #include <fcntl.h>

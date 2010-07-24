@@ -14,7 +14,6 @@
 #include <vector>
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h" 
 
 namespace edm {

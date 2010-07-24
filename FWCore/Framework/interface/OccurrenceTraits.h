@@ -7,18 +7,17 @@ OccurrenceTraits:
 
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/BranchActionType.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
-#include "DataFormats/Common/interface/HLTPathStatus.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+
+#include<string>
 
 namespace edm {
   template <typename T, BranchActionType B> class OccurrenceTraits;

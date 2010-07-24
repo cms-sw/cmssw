@@ -20,6 +20,7 @@
 
 // system include files
 #include <map>
+#include <string>
 #include <vector>
 #include <cassert>
 #include "boost/type_traits/is_base_and_derived.hpp"

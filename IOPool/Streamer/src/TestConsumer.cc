@@ -3,8 +3,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include "boost/shared_ptr.hpp"
-
 #include <string>
 #include <cstring>
 #include <fstream>

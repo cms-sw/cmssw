@@ -2,7 +2,6 @@
 #define UpdaterService_H
 
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include <DataFormats/Provenance/interface/ModuleDescription.h>
 
 namespace edm {
   class ParameterSet;

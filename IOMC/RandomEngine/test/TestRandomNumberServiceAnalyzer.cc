@@ -13,7 +13,6 @@ service.  Prints them to an output file named testRandomNumberService.txt.
 //
 // Original Author:  Chris Jones, David Dagenhart
 //         Created:  Tue Mar  7 11:57:09 EST 2006
-// $Id: TestRandomNumberServiceAnalyzer.cc,v 1.6 2009/05/25 13:04:19 fabiocos Exp $
 //
 //
 
@@ -24,13 +23,9 @@ service.  Prints them to an output file named testRandomNumberService.txt.
 #include <iostream>
 #include <fstream>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"

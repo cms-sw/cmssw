@@ -11,17 +11,12 @@ RootTree.h // used by ROOT input sources
 #include <string>
 #include <vector>
 
-#include "boost/shared_ptr.hpp"
 #include "boost/utility.hpp"
 
 #include "Inputfwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
-#include "DataFormats/Provenance/interface/ProductProvenance.h"
-#include "DataFormats/Provenance/interface/BranchKey.h"
-#include "IOPool/Input/src/BranchMapperWithReader.h"
 #include "TBranch.h"
-#include "TTree.h"
 class TFile;
 
 namespace edm {

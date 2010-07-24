@@ -11,7 +11,6 @@ RootDelayedReader.h // used by ROOT input sources
 #include <map>
 #include <string>
 #include "boost/utility.hpp"
-#include "boost/shared_ptr.hpp"
 
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"

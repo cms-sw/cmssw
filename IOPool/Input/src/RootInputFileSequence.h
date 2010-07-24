@@ -18,13 +18,9 @@ RootInputFileSequence: This is an InputSource
 #include "FWCore/Sources/interface/EventSkipperByID.h"
 #include "FWCore/Sources/interface/VectorInputSource.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "DataFormats/Provenance/interface/EventID.h"
-#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
-#include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
 
-#include "boost/shared_ptr.hpp"
 #include "boost/utility.hpp"
 
 namespace CLHEP {

@@ -1,9 +1,8 @@
 #include "Utilities/StorageFactory/interface/StorageMaker.h"
 #include "Utilities/StorageFactory/interface/StorageMakerFactory.h"
-#include "Utilities/StorageFactory/interface/StorageAccountProxy.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
-#include "Utilities/StorageFactory/interface/LocalCacheFile.h"
 #include "Utilities/DCacheAdaptor/interface/DCacheFile.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include <unistd.h>
 #include <dcap.h>
 

@@ -1,7 +1,5 @@
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 
-#include "FWCore/Utilities/interface/Digest.h"
-
 #include <ostream>
 #include <sstream>
 

@@ -20,12 +20,6 @@
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
 
-#include "boost/shared_ptr.hpp"
-
-// namespace edm {
-//   class EDProduct;
-// }
-
 class testProductRegistry: public CppUnit::TestFixture
 {
 CPPUNIT_TEST_SUITE(testProductRegistry);

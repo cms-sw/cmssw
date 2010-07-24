@@ -1,6 +1,4 @@
 #include "DataFormats/Provenance/interface/BranchEntryDescription.h"
-#include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
-#include "FWCore/Utilities/interface/Algorithms.h"
 #include <ostream>
 
 /*----------------------------------------------------------------------

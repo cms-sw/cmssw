@@ -8,7 +8,6 @@
 
 #include "FWCore/MessageService/interface/MainThreadMLscribe.h"
 #include "FWCore/MessageService/interface/ThreadQueue.h"
-#include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/MessageLogger/interface/ConfigurationHandshake.h"
 
 namespace edm {

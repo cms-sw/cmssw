@@ -7,7 +7,6 @@
 #include "FWCore/ParameterSet/interface/DocFormatHelper.h"
 
 #include <vector>
-#include <boost/cstdint.hpp>
 #include <cassert>
 
 #define TYPE_TO_ENUM(type,e_val) template<> ParameterTypes ParameterTypeToEnum::toEnum<type >(){ return e_val; }

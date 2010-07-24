@@ -5,7 +5,6 @@
 #include <map>
 
 #include <boost/range/iterator_range.hpp>
-#include <boost/range/functions.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 
 namespace edm {

@@ -2,18 +2,14 @@
 #define FWCore_MessageService_MessageLoggerScribe_h
 
 #include "FWCore/Utilities/interface/value_ptr.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 
 #include "FWCore/MessageService/interface/ELdestControl.h"
 #include "FWCore/MessageService/interface/MsgContext.h"
-#include "FWCore/MessageService/interface/NamedDestination.h"
 #include "FWCore/MessageService/interface/MessageLoggerDefaults.h"
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/MessageLogger/interface/AbstractMLscribe.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "boost/shared_ptr.hpp"
 
 #include <iosfwd>
 #include <vector>
@@ -83,6 +79,7 @@ namespace service {
 
 class ThreadQueue;
 class ErrorLog;
+class ELadministrator;
 
 class MessageLoggerScribe : public AbstractMLscribe
 {

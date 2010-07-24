@@ -40,10 +40,8 @@ Some examples of InputSource subclasses may be:
 
 ----------------------------------------------------------------------*/
 
-#include <memory>
 #include <string>
 
-#include "boost/shared_ptr.hpp"
 #include "boost/utility.hpp"
 #include "sigc++/signal.h"
 
@@ -61,7 +59,6 @@ namespace edm {
   class ConfigurationDescriptions;
   class ParameterSetDescription;
   class ActivityRegistry;
-  class EventPrincipal;
 
   class InputSource : private ProductRegistryHelper, private boost::noncopyable {
   public:

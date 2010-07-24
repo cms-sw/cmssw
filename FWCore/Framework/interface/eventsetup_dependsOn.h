@@ -45,15 +45,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jun 23 14:06:56 EDT 2005
-// $Id: eventsetup_dependsOn.h,v 1.7 2006/10/21 02:48:59 wmtan Exp $
+// $Id: eventsetup_dependsOn.h,v 1.8 2008/03/20 18:52:10 chrjones Exp $
 //
 
 // system include files
 
 // user include files
 #include "FWCore/Framework/interface/ESPreFunctorDecorator.h"
-#include "FWCore/Framework/interface/IOVSyncValue.h"
-#include "FWCore/Framework/interface/EventSetupRecord.h"
 
 // forward declarations
 

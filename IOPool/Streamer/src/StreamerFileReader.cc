@@ -8,7 +8,6 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Sources/interface/EventSkipperByID.h"
-#include "FWCore/Framework/interface/InputSourceDescription.h"
 
 namespace edm {
   StreamerFileReader::StreamerFileReader(ParameterSet const& pset, InputSourceDescription const& desc) :

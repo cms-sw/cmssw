@@ -1,7 +1,6 @@
 #ifndef FWCore_Services_PrintLoadingPlugins_h
 #define FWCore_Services_PrintLoadingPlugins_h
 
-#include "FWCore/Services/interface/PrintLoadingPlugins.h"
 #include <boost/filesystem/path.hpp>
 
 // -*- C++ -*-
@@ -20,7 +19,6 @@
 //
 // Original Author:  
 //         Created:  Thu Dec 13 11:17:02 EST 2007
-// $Id: PrintLoadingPlugins.h,v 1.2 2008/01/18 20:10:30 wmtan Exp $
 //
 
 // system include files

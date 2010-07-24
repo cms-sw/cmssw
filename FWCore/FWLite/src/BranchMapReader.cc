@@ -8,7 +8,6 @@
 //
 // Original Author:  Dan Riley
 //         Created:  Tue May 20 10:31:32 EDT 2008
-// $Id: BranchMapReader.cc,v 1.11 2010/01/28 22:15:51 ewv Exp $
 //
 
 // system include files
@@ -16,9 +15,6 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TBranch.h"
-#include "TClass.h"
-#include "Reflex/Type.h"
-#include "TROOT.h"
 
 // user include files
 #include "FWCore/FWLite/interface/BranchMapReader.h"
@@ -27,8 +23,6 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
-#include "DataFormats/Provenance/interface/ProductStatus.h"
-#include "FWCore/Utilities/interface/WrappedClassName.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/ProductIDToBranchID.h"

@@ -22,26 +22,19 @@
 #include <typeinfo>
 #include <map>
 #include <vector>
-#include <boost/shared_ptr.hpp>
 #include <memory>
 #include <cstring>
 
-#include "TBranch.h"
 #include "Rtypes.h"
-#include "Reflex/Object.h"
 
 // user include files
-#include "FWCore/Utilities/interface/TypeID.h"
 #include "DataFormats/FWLite/interface/RunBase.h"
 #include "DataFormats/FWLite/interface/InternalDataKey.h"
 #include "DataFormats/FWLite/interface/EntryFinder.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
-#include "DataFormats/Provenance/interface/EventProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunID.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/FWLite/interface/BranchMapReader.h"
-#include "DataFormats/FWLite/interface/HistoryGetterBase.h"
 #include "DataFormats/FWLite/interface/DataGetterHelper.h"
 
 // forward declarations

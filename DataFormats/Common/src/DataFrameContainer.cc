@@ -1,7 +1,6 @@
 #include "DataFormats/Common/interface/DataFrameContainer.h"
 
 #include <boost/iterator/permutation_iterator.hpp>
-#include <boost/bind.hpp>
 
 #include <algorithm>
 #include <numeric>

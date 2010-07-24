@@ -406,7 +406,6 @@ namespace edm {
   };
 }
 
-#include "FWCore/ParameterSet/interface/ParameterDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterWildcard.h"
 #include "FWCore/ParameterSet/interface/ParameterSwitch.h"
 #include "FWCore/ParameterSet/interface/AllowedLabelsDescription.h"

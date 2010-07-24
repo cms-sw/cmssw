@@ -3,6 +3,7 @@
 #define DataFormats_Common_Holder_h
 #include "DataFormats/Common/interface/BaseHolder.h"
 #include "DataFormats/Common/interface/RefHolder.h"
+#include <memory>
 
 namespace edm {
   namespace reftobase {

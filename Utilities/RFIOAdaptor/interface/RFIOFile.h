@@ -1,8 +1,7 @@
 #ifndef RFIO_ADAPTOR_RFIO_FILE_H
-# define RFIO_ADAPTOR_RFIO_FILE_H
+#define RFIO_ADAPTOR_RFIO_FILE_H
 
 # include "Utilities/StorageFactory/interface/Storage.h"
-# include "Utilities/StorageFactory/interface/IOChannel.h"
 # include "Utilities/StorageFactory/interface/IOFlags.h"
 # include <string>
 

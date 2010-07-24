@@ -16,14 +16,15 @@
 // Original Author:  Bill Tanenbaum
 //
 
+// user include files
+#include "DataFormats/FWLite/interface/EntryFinder.h"
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "FWCore/FWLite/interface/BranchMapReader.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include "TBranch.h"
 #include "TFile.h"
 #include "TTree.h"
-
-// user include files
-#include "DataFormats/FWLite/interface/EntryFinder.h"
-#include "FWCore/FWLite/interface/BranchMapReader.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 // forward declarations
 

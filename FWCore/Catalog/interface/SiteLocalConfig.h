@@ -3,6 +3,7 @@
 
 // INCLUDES
 # include <string>
+# include <vector>
 
 // PUBLIC DEFINES
 // PUBLIC CONSTANTS

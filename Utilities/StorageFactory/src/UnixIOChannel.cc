@@ -1,6 +1,4 @@
 #include "Utilities/StorageFactory/interface/IOChannel.h"
-#include "Utilities/StorageFactory/interface/File.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 #include "Utilities/StorageFactory/src/SysIOChannel.h"
 #include "Utilities/StorageFactory/src/Throw.h"
 #include <algorithm>

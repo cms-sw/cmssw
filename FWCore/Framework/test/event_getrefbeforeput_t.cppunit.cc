@@ -9,7 +9,6 @@ Test of the EventPrincipal class.
 #include <stdexcept>
 #include <string>
 #include <typeinfo>
-#include "boost/shared_ptr.hpp"
 
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"

@@ -3,6 +3,7 @@
 #include "DataFormats/Common/interface/BaseVectorHolder.h"
 #include "DataFormats/Common/interface/RefVectorHolderBase.h"
 #include "DataFormats/Common/interface/IndirectHolder.h"
+#include <memory>
 
 namespace edm {
   namespace reftobase {

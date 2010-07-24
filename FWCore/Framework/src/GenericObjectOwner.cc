@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb  7 17:21:22 EST 2008
-// $Id: GenericObjectOwner.cc,v 1.4 2009/08/25 22:07:10 chrjones Exp $
 //
 
 // system include files
@@ -16,6 +15,7 @@
 // user include files
 #include "FWCore/Framework/interface/GenericObjectOwner.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Utilities/interface/WrappedClassName.h"
 
 namespace edm {
 //

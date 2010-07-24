@@ -16,7 +16,6 @@
 //
 // Original Author:  Charles Plager
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id:
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -24,9 +23,6 @@
 #include <typeinfo>
 //
 // // user include files
-#include "DataFormats/Provenance/interface/EventAuxiliary.h"
-#include "DataFormats/Provenance/interface/EventID.h"
-#include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/Common/interface/EventBase.h"
 
 #include "Rtypes.h"

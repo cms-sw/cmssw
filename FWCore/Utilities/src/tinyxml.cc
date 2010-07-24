@@ -25,7 +25,6 @@ distribution.
  * THIS FILE WAS ALTERED BY Eric Vaandering, 25 August 2009.
  */
 #define TIXML_USE_STL
-#include <ctype.h>
 
 #ifdef TIXML_USE_STL
 #include <sstream>

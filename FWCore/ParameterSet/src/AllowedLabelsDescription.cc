@@ -1,11 +1,7 @@
 
 #include "FWCore/ParameterSet/interface/AllowedLabelsDescription.h"
 #include "FWCore/ParameterSet/interface/VParameterSetEntry.h"
-#include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
-#include "boost/bind.hpp"
 
 #include <cassert>
 

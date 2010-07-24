@@ -41,16 +41,11 @@ behavior (usually a core dump).
 
 #include "boost/concept_check.hpp"
 #include "boost/lambda/bind.hpp"
-#include "boost/lambda/lambda.hpp"
 #include "boost/mpl/if.hpp"
-#include "boost/type_traits.hpp"
-
-#include "DataFormats/Provenance/interface/ProductID.h"
 
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/FillView.h"
 #include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/RefItem.h"
 #include "DataFormats/Common/interface/traits.h"
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -58,6 +53,7 @@ behavior (usually a core dump).
 #include "DataFormats/Common/interface/BoolCache.h"
 
 namespace edm {
+  class ProductID;
 
   //------------------------------------------------------------
   // Forward declarations

@@ -10,7 +10,6 @@
 #define FWCore_Python_PythonManager_h
 
 #include "FWCore/PythonParameterSet/interface/BoostPython.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 extern "C" {
    //this is the entry point into the libFWCorePython python module

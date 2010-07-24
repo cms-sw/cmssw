@@ -6,16 +6,9 @@
  *
  */
 #include <boost/python/module.hpp>
-#include <boost/python/def.hpp>
-#include <boost/python/args.hpp>
-#include <boost/python/tuple.hpp>
 #include <boost/python/class.hpp>
-#include <boost/python/overloads.hpp>
-#include <boost/python/raw_function.hpp>
-#include <boost/python/return_internal_reference.hpp>
 #include <boost/python/exception_translator.hpp>
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/GenericHandle.h"
 
 #include "FWCore/Python/src/EventWrapper.h"
