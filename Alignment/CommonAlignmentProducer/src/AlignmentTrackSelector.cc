@@ -65,20 +65,22 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
   minHitsinTIB_(cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inTIB" ) ),
   minHitsinTOB_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inTOB" ) ),
   minHitsinTID_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inTID" ) ),
-  minHitsinTIDplus_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inTIDplus" ) ),
-  minHitsinTIDminus_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inTIDminus" ) ),
   minHitsinTEC_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inTEC" ) ),
-  minHitsinTECplus_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inTECplus" ) ),
-  minHitsinTECminus_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inTECminus" ) ),
   minHitsinBPIX_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inBPIX" ) ),
   minHitsinFPIX_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inFPIX" ) ),
+  minHitsinPIX_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inPIXEL" ) ),
+  minHitsinTIDplus_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inTIDplus" ) ),
+  minHitsinTIDminus_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inTIDminus" ) ),
+  minHitsinTECplus_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inTECplus" ) ),
+  minHitsinTECminus_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inTECminus" ) ),
   minHitsinFPIXplus_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inFPIXplus" ) ),
   minHitsinFPIXminus_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inFPIXminus" ) ),
-  minHitsinPIX_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inPIXEL" ) ),
+  minHitsinENDCAP_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inENDCAP" ) ),
+  minHitsinENDCAPplus_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inENDCAPplus" ) ),
+  minHitsinENDCAPminus_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inENDCAPminus" ) ),
   clusterValueMapTag_(cfg.getParameter<edm::InputTag>("hitPrescaleMapTag")),
   minPrescaledHits_( cfg.getParameter<int>("minPrescaledHits")),
   applyPrescaledHitsFilter_(clusterValueMapTag_.encode().size() && minPrescaledHits_ > 0)
-
 {
 
   //convert track quality from string to enum
@@ -137,6 +139,9 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
         << "/" << minHitsinTECplus_ << "/" << minHitsinTECminus_
         << "/" << minHitsinFPIXplus_ << "/" << minHitsinFPIXminus_;
 
+      edm::LogInfo("AlignmentTrackSelector")
+        << "Minimum number of hits in EndCap (TID+TEC)/EndCap+/EndCap- = "
+        << minHitsinENDCAP_ << "/" << minHitsinENDCAPplus_ << "/" << minHitsinENDCAPminus_;
 
       if (trkQualityStrings.size()) {
 	edm::LogInfo("AlignmentTrackSelector")
@@ -260,6 +265,7 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
   // checking hit requirements beyond simple number of valid hits
 
   if (minHitsinTIB_ || minHitsinTOB_ || minHitsinTID_ || minHitsinTEC_
+      || minHitsinENDCAP_ || minHitsinENDCAPplus_ || minHitsinENDCAPminus_
       || minHitsinTIDplus_ || minHitsinTIDminus_
       || minHitsinFPIXplus_ || minHitsinFPIXminus_
       || minHitsinTECplus_ || minHitsinTECminus_
@@ -269,6 +275,7 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
     
     int nhitinTIB = 0, nhitinTOB = 0, nhitinTID = 0;
     int nhitinTEC = 0, nhitinBPIX = 0, nhitinFPIX = 0, nhitinPIXEL=0;
+    int nhitinENDCAP = 0, nhitinENDCAPplus = 0, nhitinENDCAPminus = 0;
     int nhitinTIDplus = 0, nhitinTIDminus = 0;
     int nhitinFPIXplus = 0, nhitinFPIXminus = 0;
     int nhitinTECplus = 0, nhitinTECminus = 0;
@@ -306,15 +313,29 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
       else if (SiStripDetId::TOB == subdetId) ++nhitinTOB;
       else if (SiStripDetId::TID == subdetId) {
         ++nhitinTID;
+        ++nhitinENDCAP;
         TIDDetId tidId(detId);
-        if (tidId.isZMinusSide()) ++nhitinTIDminus;
-        else if (tidId.isZPlusSide()) ++nhitinTIDplus;
+        if (tidId.isZMinusSide()) {
+          ++nhitinTIDminus;
+          ++nhitinENDCAPminus;
+	}
+        else if (tidId.isZPlusSide()) {
+          ++nhitinTIDplus;
+          ++nhitinENDCAPplus;
+	}
       }
       else if (SiStripDetId::TEC == subdetId) {
         ++nhitinTEC;
+        ++nhitinENDCAP;
         TECDetId tecId(detId);
-        if (tecId.isZMinusSide()) ++nhitinTECminus;
-        else if (tecId.isZPlusSide()) ++nhitinTECplus;
+        if (tecId.isZMinusSide()) {
+          ++nhitinTECminus;
+          ++nhitinENDCAPminus;
+	}
+        else if (tecId.isZPlusSide()) {
+          ++nhitinTECplus;
+          ++nhitinENDCAPplus;
+	}
       }
       else if (            kBPIX == subdetId) {++nhitinBPIX;++nhitinPIXEL;}
       else if (            kFPIX == subdetId) {
@@ -330,6 +351,7 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
   
     return (nhitinTIB >= minHitsinTIB_ && nhitinTOB >= minHitsinTOB_ 
             && nhitinTID >= minHitsinTID_ && nhitinTEC >= minHitsinTEC_ 
+            && nhitinENDCAP >= minHitsinENDCAP_ && nhitinENDCAPplus >= minHitsinENDCAPplus_ && nhitinENDCAPminus >= minHitsinENDCAPminus_
             && nhitinTIDplus >= minHitsinTIDplus_ && nhitinTIDminus >= minHitsinTIDminus_
             && nhitinFPIXplus >= minHitsinFPIXplus_ && nhitinFPIXminus >= minHitsinFPIXminus_
             && nhitinTECplus >= minHitsinTECplus_ && nhitinTECminus >= minHitsinTECminus_
