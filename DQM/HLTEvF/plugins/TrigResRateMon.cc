@@ -1,4 +1,4 @@
-// $Id: TrigResRateMon.cc,v 1.7 2010/07/23 19:04:56 rekovic Exp $
+// $Id: TrigResRateMon.cc,v 1.8 2010/07/23 20:24:23 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQM/HLTEvF/interface/TrigResRateMon.h"
@@ -209,6 +209,7 @@ TrigResRateMon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   triggerResults_ = triggerResults;
   const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
+
   //int npath = triggerResults->size();
 
 
@@ -226,6 +227,8 @@ TrigResRateMon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   */
 
   fillHltMatrix(triggerNames);
+
+  return;
 
 
   // Loop over paths
@@ -1047,6 +1050,7 @@ void TrigResRateMon::fillHltMatrix(const edm::TriggerNames & triggerNames) {
 
   }
 
+
   bool groupPassed = false;
   bool groupL1Passed = false;
 
@@ -1054,6 +1058,7 @@ void TrigResRateMon::fillHltMatrix(const edm::TriggerNames & triggerNames) {
   // --------------------
 
   for (int i=1; i< hist_2d->GetNbinsX();i++) { 
+
 
   string hltpathname =  hist_2d->GetXaxis()->GetBinLabel(i);
 
@@ -1063,7 +1068,9 @@ void TrigResRateMon::fillHltMatrix(const edm::TriggerNames & triggerNames) {
     if(pathByIndex >= triggerResults_->size() ) continue;
 
     // check if its L1 passed
-    if(hasL1Passed(hltpathname,triggerNames)) groupL1Passed = true;
+    // comment out below but set groupL1Passed to true always
+    //if(hasL1Passed(hltpathname,triggerNames)) groupL1Passed = true;
+    //groupL1Passed = true;
 
     // Fill HLTPassed Matrix and HLTPassFail Matrix
     // --------------------------------------------------------
@@ -1071,18 +1078,18 @@ void TrigResRateMon::fillHltMatrix(const edm::TriggerNames & triggerNames) {
     if(triggerResults_->accept(pathByIndex)){
 
       groupPassed = true;
-      //groupL1Passed = true;
+      groupL1Passed = true;
 
-      if(groupPassed && !groupL1Passed) 
-  
       hist_2d->Fill(i-1,anyBinNumber-1);//binNumber1 = 0 = first filter
       hist_2d->Fill(anyBinNumber-1,i-1);//binNumber1 = 0 = first filter
-
+     
       hist_1d->Fill(i-1);//binNumber1 = 0 = first filter
+
 
       for (int j=1; j< hist_2d->GetNbinsY();j++) {
   
         unsigned int crosspathByIndex = triggerNames.triggerIndex(hist_2d->GetXaxis()->GetBinLabel(j));
+
         if(crosspathByIndex >= triggerResults_->size() ) continue;
   
         if(triggerResults_->accept(crosspathByIndex)){
