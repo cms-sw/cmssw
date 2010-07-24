@@ -1,0 +1,12 @@
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/Provenance"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/RootAutoLibraryLoader"/>
+<use   name="FWCore/Utilities"/>
+<use   name="boost"/>
+<use   name="rootcintex"/>
+<use   name="rootcore"/>
+<use   name="rootrflx"/>
+<export>
+  <lib   name="1"/>
+</export>

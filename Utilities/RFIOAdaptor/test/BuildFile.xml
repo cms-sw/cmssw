@@ -1,0 +1,4 @@
+<use   name="Utilities/RFIOAdaptor"/>
+<bin   name="test_RFIOAdaptor_put" file="put.cpp">
+  <use   name="castor"/>
+</bin>

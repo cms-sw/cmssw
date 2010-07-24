@@ -1,0 +1,190 @@
+<use   name="boost"/>
+<use   name="FWCore/Utilities"/>
+<environment>
+  <library   file="UnitTestClient_A.cc" name="UnitTestClient_A">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/MessageLogger"/>
+    <use   name="FWCore/Framework"/>
+  </library>
+  <library   file="UnitTestClient_B.cc" name="UnitTestClient_B">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/MessageLogger"/>
+    <use   name="FWCore/Framework"/>
+  </library>
+  <library   file="UnitTestClient_C.cc" name="UnitTestClient_C">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/MessageLogger"/>
+    <use   name="FWCore/Framework"/>
+  </library>
+  <library   file="UnitTestClient_D.cc" name="UnitTestClient_D">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/MessageLogger"/>
+    <use   name="FWCore/Framework"/>
+  </library>
+  <library   file="UnitTestClient_E.cc" name="UnitTestClient_E">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/MessageLogger"/>
+    <use   name="FWCore/Framework"/>
+  </library>
+  <library   file="UnitTestClient_F.cc" name="UnitTestClient_F">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/MessageLogger"/>
+    <use   name="FWCore/Framework"/>
+  </library>
+  <library   file="UnitTestClient_G.cc" name="UnitTestClient_G">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/MessageLogger"/>
+    <use   name="FWCore/Framework"/>
+  </library>
+  <library   file="UnitTestClient_H.cc" name="UnitTestClient_H">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/MessageLogger"/>
+    <use   name="FWCore/Framework"/>
+  </library>
+  <library   file="UnitTestClient_I.cc" name="UnitTestClient_I">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/MessageLogger"/>
+    <use   name="FWCore/Framework"/>
+  </library>
+  <library   file="UnitTestClient_J.cc" name="UnitTestClient_J">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/MessageLogger"/>
+    <use   name="FWCore/Framework"/>
+  </library>
+  <library   file="UnitTestClient_K.cc" name="UnitTestClient_K">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/MessageLogger"/>
+    <use   name="FWCore/Framework"/>
+  </library>
+  <library   file="UnitTestClient_M.cc" name="UnitTestClient_M">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/MessageLogger"/>
+    <use   name="FWCore/Framework"/>
+  </library>
+  <library   file="UnitTestClient_N.cc" name="UnitTestClient_N">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/MessageLogger"/>
+    <use   name="FWCore/Framework"/>
+  </library>
+  <library   file="UnitTestClient_O.cc" name="UnitTestClient_O">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/MessageLogger"/>
+    <use   name="FWCore/Framework"/>
+  </library>
+  <library   file="UnitTestClient_P.cc" name="UnitTestClient_P">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/MessageLogger"/>
+    <use   name="FWCore/Framework"/>
+  </library>
+  <library   file="UnitTestClient_Q.cc" name="UnitTestClient_Q">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/MessageLogger"/>
+    <use   name="FWCore/Framework"/>
+  </library>
+  <library   file="UnitTestClient_R.cc" name="UnitTestClient_R">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/MessageLogger"/>
+    <use   name="FWCore/Framework"/>
+  </library>
+  <library   file="UnitTestClient_S.cc" name="UnitTestClient_S">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/MessageLogger"/>
+    <use   name="FWCore/Framework"/>
+  </library>
+  <library   file="UnitTestClient_T.cc" name="UnitTestClient_T">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/MessageLogger"/>
+    <use   name="FWCore/Framework"/>
+  </library>
+  <library   file="UnitTestClient_V.cc" name="UnitTestClient_V">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/MessageLogger"/>
+    <use   name="FWCore/Framework"/>
+  </library>
+  <library   file="ProblemTestClient_t1.cc" name="ProblemTestClient_t1">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/MessageLogger"/>
+    <use   name="FWCore/Framework"/>
+  </library>
+  <library   file="MessageLoggerClient.cc" name="MessageLoggerClient">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/MessageLogger"/>
+    <use   name="FWCore/Framework"/>
+  </library>
+  <library   file="makeSignals.cc" name="makeSignals">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/MessageLogger"/>
+    <use   name="FWCore/Framework"/>
+    <use   name="rootcore"/>
+  </library>
+  <library   file="MemoryTestClient_A.cc" name="MemoryTestClient_A">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/MessageLogger"/>
+    <use   name="FWCore/Framework"/>
+  </library>
+  <library   file="UnitTestClient_SLumi.cc" name="UnitTestClient_SLumi">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/MessageLogger"/>
+    <use   name="FWCore/Framework"/>
+  </library>
+  <library   file="PSetTestClient_A.cc" name="PSetTestClient_A">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/MessageLogger"/>
+    <use   name="FWCore/Framework"/>
+  </library>
+  <library   file="MLexampleModule_1.cc" name="MLexampleModule_1">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/MessageLogger"/>
+    <use   name="FWCore/Framework"/>
+  </library>
+</environment>
+<bin   file="standAloneTest.cpp" name="standAloneWithMessageLogger">
+  <use   name="FWCore/MessageLogger"/>
+  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/MessageService/test standAlone_1.sh"/>
+</bin>
+<bin   file="trivial_main.cpp">
+  <use   name="FWCore/MessageLogger"/>
+</bin>
+<bin   file="testLoggerInCmsRun.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/MessageService/test testLoggerInCmsRun.sh"/>
+</bin>
+<bin   file="unitTestsGroup_1.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/MessageService/test u1.sh u2.sh u6.sh u21.sh"/>
+</bin>
+<bin   file="unitTestsStatistics.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/MessageService/test u3.sh u4.sh u5.sh u28.sh"/>
+</bin>
+<bin   file="unitTestsLimits.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/MessageService/test u7.sh u8.sh u11.sh"/>
+</bin>
+<bin   file="unitTestsGroup_2.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/MessageService/test u9.sh u12.sh u13.sh u14.sh u15.sh"/>
+</bin>
+<bin   file="unitTestsGroup_3.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/MessageService/test u10.sh u16.sh u17.sh"/>
+</bin>
+<bin   file="unitTestsGroup_4.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/MessageService/test u18.sh u19.sh u20.sh"/>
+</bin>
+<bin   file="unitTestsGroup_5.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/MessageService/test u22.sh u24.sh u25.sh"/>
+</bin>
+<bin   file="unitTestsGroup_6.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/MessageService/test u23.sh u27.sh u30.sh u31.sh u33.sh"/>
+</bin>
+<bin   file="unitTestsMultithread_1.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/MessageService/test u1t.sh u2t.sh u5t.sh u6t.sh u8t.sh u9t.sh"/>
+</bin>
+<bin   file="unitTestsMultithread_2.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/MessageService/test u11t.sh u14t.sh u16t.sh u20t.sh"/>
+</bin>
+<bin   file="unitTestsMultithread_3.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/MessageService/test u22t.sh u23t.sh u27t.sh u30t.sh u31t.sh u33t.sh"/>
+</bin>
+<bin   name="makeJobReport" file="makeJobReport.cpp">
+  <use   name="boost_program_options"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/PluginManager"/>
+  <use   name="FWCore/ServiceRegistry"/>
+</bin>
