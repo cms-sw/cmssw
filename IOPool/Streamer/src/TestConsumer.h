@@ -4,6 +4,8 @@
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "boost/shared_ptr.hpp"
+
 namespace edmtest
 {
   class Worker;

@@ -20,6 +20,8 @@ type and name is "untracked double acceptRate".
 
 #include "FWCore/Framework/interface/EDFilter.h"
 
+#include "boost/shared_ptr.hpp"
+
 namespace CLHEP {
   class RandFlat;
 }

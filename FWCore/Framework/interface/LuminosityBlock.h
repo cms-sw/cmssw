@@ -22,6 +22,8 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Common/interface/LuminosityBlockBase.h"
 
+#include "boost/shared_ptr.hpp"
+
 #include <memory>
 #include <set>
 #include <string>

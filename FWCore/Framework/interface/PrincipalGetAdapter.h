@@ -97,6 +97,8 @@ edm::Ref<AppleCollection> ref(refApples, index);
 
 #include "DataFormats/Common/interface/ConvertHandle.h"
 
+#include "DataFormats/Common/interface/Handle.h"
+
 #include "FWCore/Utilities/interface/InputTag.h"
 
 namespace edm {

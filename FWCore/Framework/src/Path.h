@@ -19,6 +19,8 @@
 #include "DataFormats/Common/interface/HLTenums.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 
+#include "boost/shared_ptr.hpp"
+
 #include <string>
 #include <vector>
 

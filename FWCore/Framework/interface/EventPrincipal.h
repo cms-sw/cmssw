@@ -13,6 +13,7 @@ is the DataBlock.
 ----------------------------------------------------------------------*/
 
 #include "boost/scoped_ptr.hpp"
+#include "boost/shared_ptr.hpp"
 #include <map>
 #include <memory>
 #include <string>

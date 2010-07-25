@@ -27,6 +27,8 @@ If failedToGet() returns false but isValid() is also false then no attempt
 
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 
+#include "boost/shared_ptr.hpp"
+
 namespace cms {
   class Exception;
 }

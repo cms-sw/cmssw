@@ -3,6 +3,7 @@
 
 #include "FWCore/Utilities/interface/EDMException.h"
 
+#include "boost/shared_ptr.hpp"
 #include "boost/thread/mutex.hpp"
 #include "boost/thread/condition.hpp"
 

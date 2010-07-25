@@ -12,6 +12,7 @@ configured in the user's main() function, and is set running.
 #include <vector>
 #include <memory>
 
+#include "boost/shared_ptr.hpp"
 #include "boost/thread/condition.hpp"
 #include "boost/utility.hpp"
 

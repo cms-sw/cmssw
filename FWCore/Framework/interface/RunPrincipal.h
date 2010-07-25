@@ -16,6 +16,8 @@ is the DataBlock.
 #include <string>
 #include <vector>
 
+#include "boost/shared_ptr.hpp"
+
 #include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "FWCore/Framework/interface/NoDelayedReader.h"

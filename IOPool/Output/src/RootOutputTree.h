@@ -10,6 +10,7 @@ RootOutputTree.h // used by ROOT output modules
 #include <string>
 #include <vector>
 
+#include "boost/shared_ptr.hpp"
 #include "boost/utility.hpp"
 
 #include "FWCore/Framework/interface/RunPrincipal.h"

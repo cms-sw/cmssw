@@ -29,6 +29,7 @@ the worker is reset().
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "boost/shared_ptr.hpp"
 #include "boost/utility.hpp"
 
 #include "FWCore/Framework/src/RunStopwatch.h"

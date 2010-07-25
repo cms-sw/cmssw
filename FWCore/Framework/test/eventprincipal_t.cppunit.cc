@@ -9,6 +9,8 @@ Test of the EventPrincipal class.
 #include <string>
 #include <typeinfo>
 
+#include "boost/shared_ptr.hpp"
+
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"

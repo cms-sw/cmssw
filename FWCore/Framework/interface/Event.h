@@ -22,6 +22,8 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include <set>
 #include <vector>
 
+#include "boost/shared_ptr.hpp"
+
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/History.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
@@ -30,6 +32,9 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Common/interface/EventBase.h"
 
 #include "DataFormats/Common/interface/BasicHandle.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 
 #include "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"

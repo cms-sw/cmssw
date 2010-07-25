@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <cppunit/extensions/HelperMacros.h>
+#include "boost/shared_ptr.hpp"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 

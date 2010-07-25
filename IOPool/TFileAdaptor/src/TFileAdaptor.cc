@@ -8,6 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include <boost/shared_ptr.hpp>
 #include <TROOT.h>
 #include <TPluginManager.h>
 #include <TFile.h>

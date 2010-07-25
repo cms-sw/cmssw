@@ -17,6 +17,8 @@ Test program for edm::Event.
 #include <typeinfo>
 #include <vector>
 
+#include "boost/shared_ptr.hpp"
+
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"

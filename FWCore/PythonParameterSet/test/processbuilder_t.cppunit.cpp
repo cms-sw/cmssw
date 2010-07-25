@@ -4,7 +4,6 @@
 
 @brief test suit for process building and schedule validation
 
-@version: $Id: processbuilder_t.cppunit.cpp,v 1.1 2009/08/26 21:14:04 wdd Exp $
 @author : Stefano Argiro
 @date : 2005 06 17
 
@@ -18,6 +17,8 @@
 #include <FWCore/ParameterSet/interface/ProcessDesc.h>
 #include <FWCore/PythonParameterSet/interface/PythonProcessDesc.h>
 #include "FWCore/Utilities/interface/EDMException.h"
+
+#include "boost/shared_ptr.hpp"
 
 #include <vector>
 #include <string>

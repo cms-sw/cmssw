@@ -11,6 +11,7 @@ is the storage unit of such information.
 #include <memory>
 #include <string>
 
+#include "boost/shared_ptr.hpp"
 #include "boost/utility.hpp"
 
 #include "Reflex/Type.h"

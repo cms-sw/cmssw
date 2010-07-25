@@ -8,6 +8,7 @@
 
 
 #include <iostream>
+#include "boost/shared_ptr.hpp"
 #include <cppunit/extensions/HelperMacros.h>
 #include "FWCore/Framework/interface/EventProcessor.h"
 #include "FWCore/Utilities/interface/Exception.h"

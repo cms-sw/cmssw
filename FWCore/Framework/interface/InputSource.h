@@ -42,6 +42,7 @@ Some examples of InputSource subclasses may be:
 
 #include <string>
 
+#include "boost/shared_ptr.hpp"
 #include "boost/utility.hpp"
 #include "sigc++/signal.h"
 

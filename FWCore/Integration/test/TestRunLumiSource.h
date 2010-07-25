@@ -1,5 +1,5 @@
-#ifndef Framework_TestRunLumiSource_h
-#define Framework_TestRunLumiSource_h
+#ifndef FWCore_Framework_TestRunLumiSource_h
+#define FWCore_Framework_TestRunLumiSource_h
 
 /*----------------------------------------------------------------------
 This source is intended only for test purposes.  With it one can
@@ -42,6 +42,8 @@ written to the output file anyway.
 
 
 #include "FWCore/Framework/interface/InputSource.h"
+
+#include "boost/shared_ptr.hpp"
 
 #include <memory>
 #include <vector>

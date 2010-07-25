@@ -8,6 +8,7 @@ ProvenanceAdaptor.h
 ----------------------------------------------------------------------*/
 #include <map>
 #include <vector>
+#include "boost/shared_ptr.hpp"
 #include "boost/utility.hpp"
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"

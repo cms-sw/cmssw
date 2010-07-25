@@ -14,6 +14,7 @@ it.
 #include <vector>
 #include <memory>
 #include <boost/program_options.hpp>
+#include "boost/shared_ptr.hpp"
 #include <cstring>
 
 #include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"

@@ -21,6 +21,8 @@
 
 #include "DataFormats/FWLite/interface/Run.h"
 
+#include "boost/shared_ptr.hpp"
+
 namespace fwlite {
     class RunFactory {
         public:

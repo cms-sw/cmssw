@@ -25,6 +25,7 @@
 //CINT can't handle parsing these files
 #include "DataFormats/FWLite/interface/EventBase.h"
 #include "DataFormats/FWLite/interface/ErrorThrower.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 #endif
 
 // forward declarations

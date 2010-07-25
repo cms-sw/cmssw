@@ -20,6 +20,7 @@
 
 // system include files
 #include <string>
+#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ComponentDescription.h"

@@ -1,6 +1,8 @@
 
 #include <iostream>
 
+#include "boost/shared_ptr.hpp"
+
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"

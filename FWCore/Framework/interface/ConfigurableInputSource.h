@@ -11,6 +11,8 @@
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 
+#include "boost/shared_ptr.hpp"
+
 namespace edm {
   class ParameterSet;
   class ParameterSetDescription;

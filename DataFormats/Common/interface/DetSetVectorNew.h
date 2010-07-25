@@ -9,6 +9,7 @@
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/iterator/counting_iterator.hpp>
 #include <boost/any.hpp>
+#include "boost/shared_ptr.hpp"
 
 
 #include<vector>

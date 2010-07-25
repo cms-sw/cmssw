@@ -21,6 +21,7 @@ RootInputFileSequence: This is an InputSource
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
 
+#include "boost/shared_ptr.hpp"
 #include "boost/utility.hpp"
 
 namespace CLHEP {

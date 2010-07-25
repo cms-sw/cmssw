@@ -4,6 +4,8 @@
 #include <map>
 #include <memory>
 
+#include "boost/shared_ptr.hpp"
+
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 

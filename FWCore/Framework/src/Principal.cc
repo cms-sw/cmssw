@@ -8,7 +8,6 @@
 #include <cstring>
 
 #include "FWCore/Framework/interface/Principal.h"
-#include "DataFormats/Common/interface/OutputHandle.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Utilities/interface/EDMException.h"

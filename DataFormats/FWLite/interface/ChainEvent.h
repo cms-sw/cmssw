@@ -21,6 +21,7 @@
 // system include files
 #include <vector>
 #include <string>
+#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "DataFormats/FWLite/interface/Event.h"

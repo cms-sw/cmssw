@@ -16,11 +16,11 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May 23 11:03:27 EDT 2006
-// $Id: BareRootProductGetter.h,v 1.8 2008/06/03 17:35:03 dsr Exp $
 //
 
 // system include files
 #include <map>
+#include "boost/shared_ptr.hpp"
 #include "Rtypes.h"
 
 // user include files

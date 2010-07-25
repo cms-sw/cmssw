@@ -10,6 +10,8 @@ Test of the EventPrincipal class.
 #include <string>
 #include <typeinfo>
 
+#include "boost/shared_ptr.hpp"
+
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
@@ -25,7 +27,6 @@ Test of the EventPrincipal class.
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
-//#include "FWCore/Framework/interface/Selector.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 
 #include "FWCore/Framework/interface/EventPrincipal.h"

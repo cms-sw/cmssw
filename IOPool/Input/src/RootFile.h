@@ -12,6 +12,7 @@ RootFile.h // used by ROOT input sources
 #include <string>
 #include <vector>
 
+#include "boost/shared_ptr.hpp"
 #include "boost/utility.hpp"
 #include "boost/array.hpp"
 

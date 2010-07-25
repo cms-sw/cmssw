@@ -24,6 +24,7 @@
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 
 #include "boost/array.hpp"
+#include "boost/shared_ptr.hpp"
 
 #include <vector>
 #include <string>

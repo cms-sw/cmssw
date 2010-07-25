@@ -21,6 +21,7 @@
 // system include files
 #include <string>
 #include <map>
+#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/PluginManager/interface/PluginFactory.h"

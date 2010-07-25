@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 14:28:48 EDT 2007
-// $Id: PluginManager.h,v 1.5 2007/07/03 19:16:33 chrjones Exp $
 //
 
 // system include files
@@ -24,6 +23,7 @@
 #include <map>
 #include <string>
 #include <boost/filesystem/path.hpp>
+#include "boost/shared_ptr.hpp"
 #include "sigc++/signal.h"
 
 // user include files

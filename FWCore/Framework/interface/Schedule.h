@@ -79,6 +79,8 @@
 #include "FWCore/Framework/interface/UnscheduledHandler.h"
 #include "FWCore/Framework/src/Worker.h"
 
+#include "boost/shared_ptr.hpp"
+
 #include <map>
 #include <memory>
 #include <string>

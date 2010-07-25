@@ -49,6 +49,7 @@
 #include <memory>
 #include <cstring>
 #include <string>
+#include "boost/shared_ptr.hpp"
 
 #include "Rtypes.h"
 

@@ -11,6 +11,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "boost/shared_ptr.hpp"
+
 #include <iosfwd>
 #include <vector>
 #include <map>

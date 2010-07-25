@@ -9,6 +9,8 @@ existence.
 ----------------------------------------------------------------------*/
 #include <iosfwd>
 
+#include "boost/shared_ptr.hpp"
+
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"

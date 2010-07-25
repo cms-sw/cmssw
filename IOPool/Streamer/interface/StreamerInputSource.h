@@ -16,6 +16,9 @@
 
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
+
+#include "boost/shared_ptr.hpp"
+
 #include <vector>
 
 class InitMsgView;

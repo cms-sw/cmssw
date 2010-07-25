@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "boost/array.hpp"
+#include "boost/shared_ptr.hpp"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
