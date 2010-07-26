@@ -14,7 +14,7 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
-DDPixFwdDiskAlgo::DDPixFwdDiskAlgo(DDCompactView& cpv) {
+DDPixFwdDiskAlgo::DDPixFwdDiskAlgo() {
   LogDebug("TrackerGeom") <<"DDPixFwdDiskAlgo info: Creating an instance";
 }
 
@@ -54,7 +54,7 @@ void DDPixFwdDiskAlgo::initialize(const DDNumericArguments & nArgs,
   }
 }
 
-void DDPixFwdDiskAlgo::execute() {
+void DDPixFwdDiskAlgo::execute(DDCompactView& cpv) {
 
   int    copy   = startCopyNo;
   DDName mother = parent().name();
