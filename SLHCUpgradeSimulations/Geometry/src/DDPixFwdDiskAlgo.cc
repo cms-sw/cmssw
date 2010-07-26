@@ -8,14 +8,13 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
-#include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "SLHCUpgradeSimulations/Geometry/interface/DDPixFwdDiskAlgo.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
-DDPixFwdDiskAlgo::DDPixFwdDiskAlgo() {
+DDPixFwdDiskAlgo::DDPixFwdDiskAlgo(DDCompactView& cpv) {
   LogDebug("TrackerGeom") <<"DDPixFwdDiskAlgo info: Creating an instance";
 }
 
@@ -102,7 +101,7 @@ void DDPixFwdDiskAlgo::execute() {
       double zpos = anchorR*(std::cos(bladeAngle)*std::sin(bladeTilt))+zPlane+
 	bladeZShift[iBlade];
       DDTranslation tran(xpos, ypos, zpos);
-      DDpos (child, mother, copy, tran, rot);
+      cpv.position (child, mother, copy, tran, rot);
       LogDebug("TrackerGeom") << "DDPixFwdDiskAlgo test: " << child 
 			      << " number " << copy << " positioned in "
 			      << mother << " at " << tran << " with " << rot;
