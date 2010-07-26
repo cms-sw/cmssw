@@ -10,7 +10,7 @@
 using namespace std;
 
 void NtupleChecker(){
-  TString path = "/uscms_data/d2/uplegger/data/Anders/";
+  TString path = "/uscms_data/d2/uplegger/CMSSW/CMSSW_3_8_0_pre7/src/RecoVertex/BeamSpotProducer/test/scripts/Ntuples/";
   TSystemDirectory sourceDir("fileDir",path); 
   TList* fileList = sourceDir.GetListOfFiles(); 
   TIter next(fileList);
@@ -26,8 +26,8 @@ void NtupleChecker(){
     TFile file(path+fileName->GetName(),"READ");//STARTUP
     cout << "Opening file: " << path+fileName->GetName() << endl;
     file.cd();
-    aTree = (TTree*)file.Get("PrimaryVertices");
-//    aTree = (TTree*)file.Get("BeamSpotTree");
+//    aTree = (TTree*)file.Get("PrimaryVertices");
+    aTree = (TTree*)file.Get("BeamSpotTree");
     cout << (100*fileNumber)/(fileList->GetSize()-2) << "% of files done." << endl;
     ++fileNumber;
     if(aTree == 0){

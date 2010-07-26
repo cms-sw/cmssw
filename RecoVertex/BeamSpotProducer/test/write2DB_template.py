@@ -26,7 +26,7 @@ process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
             input = cms.untracked.int32(1)
             )
-process.beamspot = cms.EDFilter("BeamSpotWrite2DB",
+process.beamspot = cms.EDAnalyzer("BeamSpotWrite2DB",
                                 OutputFileName = cms.untracked.string('BEAMSPOTFILE')
                                 )
 

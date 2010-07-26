@@ -14,7 +14,7 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpotFakeParameters_cfi")
 # if you want to use results from a text file
 #process.BeamSpotFakeConditions.getDataFromFile = cms.bool(True)
 
-process.beamspot = cms.EDFilter("BeamSpotFromDB")
+process.beamspot = cms.EDAnalyzer("BeamSpotFromDB")
 
 
 process.test = cms.Path( process.beamspot )

@@ -25,7 +25,7 @@ process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
             input = cms.untracked.int32(1)
                     )
-process.beamspot = cms.EDFilter("BeamSpotFromDB")
+process.beamspot = cms.EDAnalyzer("BeamSpotFromDB")
 
 
 process.p = cms.Path(process.beamspot)

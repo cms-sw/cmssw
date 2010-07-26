@@ -181,7 +181,10 @@ if __name__ == '__main__':
     if getDBdata:
 
         print " read DB to get list of IOVs for the given tag"
-        acommand = 'cmscond_list_iov -c frontier://PromptProd/CMS_COND_31X_BEAMSPOT -P /afs/cern.ch/cms/DB/conddb -t '+ tag
+	mydestdb = 'frontier://PromptProd/CMS_COND_31X_BEAMSPOT'
+	if option.destDB:
+		mydestdb = option.destDB
+        acommand = 'cmscond_list_iov -c '+mydestdb+' -P /afs/cern.ch/cms/DB/conddb -t '+ tag
         tmpstatus = commands.getstatusoutput( acommand )
         tmplistiov = tmpstatus[1].split('\n')
         #print tmplistiov
@@ -232,7 +235,7 @@ if __name__ == '__main__':
                 #tmplumifirst = int(firstRun.split(":")[1])
                 #tmplumilast  = int(lastRun.split(":")[1])
                 tmprunfirst = pack( int(firstRun.split(":")[0]) , int(firstRun.split(":")[1]) )
-                tmprunlast  = pack( int(lastRun.split(":")[0]) , int(lasstRun.split(":")[1]) )
+                tmprunlast  = pack( int(lastRun.split(":")[0]) , int(lastRun.split(":")[1]) )
 	    #print "since = " + str(iIOV.since) + " till = "+ str(iIOV.till)
             if iIOV.since >= int(tmprunfirst) and int(tmprunlast) < 0 and iIOV.since <= int(tmprunfirst):
                 print " IOV: " + str(iIOV.since)
@@ -248,7 +251,8 @@ if __name__ == '__main__':
                 if IOVbase=="lumibase":
                     tmprun = unpack(iIOV.since)[0]
                     tmplumi = unpack(iIOV.since)[1]
-                    acommand = 'getBeamSpotDB.py -t '+ tag + " -r " + str(tmprun) +" -l "+tmplumi +otherArgs
+                    acommand = 'getBeamSpotDB.py -t '+ tag + " -r " + str(tmprun) +" -l "+str(tmplumi) +otherArgs
+		    print acommand
                 status = commands.getstatusoutput( acommand )
                 tmpfile.write(status[1])
     

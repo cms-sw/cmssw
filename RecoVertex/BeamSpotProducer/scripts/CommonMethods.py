@@ -440,7 +440,6 @@ def readBeamSpotFile(fileName,listbeam=[],IOVbase="runbase", firstRun='1',lastRu
 		    tmpbeam.IOVlast = time.mktime( time.strptime(line.split()[1] +  " " + line.split()[2] + " " + line.split()[3],"%Y.%m.%d %H:%M:%S %Z") )
 		tmpbeamsize += 1
 	    if tmpbeamsize == 20:
-                
 		if IOVbase=="lumibase":
 		    tmprunfirst = int(firstRun.split(":")[0])
 		    tmprunlast  = int(lastRun.split(":")[0])
@@ -525,16 +524,57 @@ def readBeamSpotFile(fileName,listbeam=[],IOVbase="runbase", firstRun='1',lastRu
 	#if line.find('Run ') != -1:
 	    if line.find('for runs')  != -1:
 	    #tmpbeam.IOVfirst = line.split()[6].strip(',')
-		tmpbeam.IOVfirst = line.split()[2]
-		tmpbeam.IOVlast = line.split()[4]
+	        tmpbeam.Run      = line.split()[2]
+		if IOVbase == "runbase":
+		  tmpbeam.IOVfirst = line.split()[2]
+		  tmpbeam.IOVlast = line.split()[4]
 		tmpbeamsize += 1
-	    if tmpbeamsize == 9:
-            #print " from object " + str(tmpbeam.X)
-		if int(tmpbeam.IOVfirst) >= int(firstRun) and int(tmpbeam.IOVlast) <= int(lastRun):
-		    listbeam.append(tmpbeam)
+	    if line.find('LumiSection')  != -1:
+                if IOVbase=="lumibase":
+                    tmpbeam.IOVfirst = line.split()[10]
+                    tmpbeam.IOVlast = line.split()[10]
+		tmpbeamsize += 1
+	    if tmpbeamsize == 10:
+
+		if IOVbase=="lumibase":
+		    tmprunfirst = int(firstRun.split(":")[0])
+		    tmprunlast  = int(lastRun.split(":")[0])
+		    tmplumifirst = int(firstRun.split(":")[1])
+		    tmplumilast  = int(lastRun.split(":")[1])
+		    acceptiov1 = acceptiov2 = False
+		    # check lumis in the same run
+		    if tmprunfirst == tmprunlast and int(tmpbeam.Run)==tmprunfirst:
+			if int(tmpbeam.IOVfirst) >= tmplumifirst and int(tmpbeam.IOVlast)<=tmplumilast:
+			    acceptiov1 = acceptiov2 = True
+		    # if different runs make sure you select the correct range of lumis
+		    elif int(tmpbeam.Run) == tmprunfirst:
+			if int(tmpbeam.IOVfirst) >= tmplumifirst: acceptiov1 = True
+		    elif int(tmpbeam.Run) == tmprunlast:
+			if int(tmpbeam.IOVlast) <= tmplumilast: acceptiov2 = True
+		    elif tmprunfirst <= int(tmpbeam.Run) and tmprunlast >= int(tmpbeam.Run): 
+			acceptiov1 = acceptiov2 = True
+			
+		    if acceptiov1 and acceptiov2:
+			if isnan(tmpbeam.Z) or isnan(tmpbeam.Zerr) or isnan(tmpbeam.sigmaZerr) or isnan(tmpbeam.beamWidthXerr) or isnan(tmpbeam.beamWidthYerr):
+                            print "invalid fit, NaN values!! skip Run "+str(tmpbeam.Run)+" IOV: "+str(tmpbeam.IOVfirst) + " to "+ str(tmpbeam.IOVlast)                       
+			elif hasBX:
+                            if maplist.has_key(tmpBX) == False:
+                                maplist[tmpBX] = [tmpbeam]
+                            else:
+                                maplist[tmpBX].append(tmpbeam)
+                        else:
+			    listbeam.append(tmpbeam)
+
+		elif int(tmpbeam.IOVfirst) >= int(firstRun) and int(tmpbeam.IOVlast) <= int(lastRun):
+		    if isnan(tmpbeam.Z) or isnan(tmpbeam.Zerr) or isnan(tmpbeam.sigmaZerr) or isnan(tmpbeam.beamWidthXerr) or isnan(tmpbeam.beamWidthYerr):
+                        print "invalid fit, NaN values!! skip Run "+str(tmpbeam.Run)+" IOV: "+str(tmpbeam.IOVfirst) + " to "+ str(tmpbeam.IOVlast)
+		    else:
+			listbeam.append(tmpbeam)
+                        
 		tmpbeamsize = 0
 		tmpbeam = BeamSpot()
-	    
+                tmpBX = 0
+
     tmpfile.close()
     print " got total number of IOVs = " + str(len(listbeam)) + " from file " + fileName
     #print " run " + str(listbeam[3].IOVfirst ) + " " + str( listbeam[3].X )
