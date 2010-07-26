@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 10:19:07 EST 2008
-// $Id: unittest_changemanager.cc,v 1.2 2009/12/18 00:37:34 chrjones Exp $
+// $Id: unittest_changemanager.cc,v 1.3 2010/07/23 16:02:54 eulisse Exp $
 //
 
 // system include files
@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE( changemanager )
    TClass* cls=TClass::GetClass("std::vector<reco::Track>");
    assert(0!=cls);
    
-   fireworks::Context context(&cm,0,0,0);
+   fireworks::Context context(&cm,0,0,0,0);
    
    boost::shared_ptr<FWItemAccessorBase> accessor( new TestAccessor(&fVector));
    FWPhysicsObjectDesc pObj("Tracks",cls,"Tracks");

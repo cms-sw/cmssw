@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 10:19:07 EST 2008
-// $Id: unittest_modelexpressionselector.cc,v 1.3 2010/06/18 10:17:16 yana Exp $
+// $Id: unittest_modelexpressionselector.cc,v 1.4 2010/07/23 16:02:54 eulisse Exp $
 //
 
 // system include files
@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE( modelexpressionselector )
    TClass* cls=TClass::GetClass("std::vector<reco::Track>");
    assert(0!=cls);
 
-   fireworks::Context context(&cm,&sm,0,0);
+   fireworks::Context context(&cm,&sm,0,0,0);
    
    boost::shared_ptr<FWItemAccessorBase> accessor( new TestAccessor(&fVector));
    FWPhysicsObjectDesc pObj("Tracks",cls,"Tracks");

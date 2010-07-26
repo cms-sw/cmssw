@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 10:19:07 EST 2008
-// $Id: unittest_eventitemsmanager.cc,v 1.5 2010/06/02 19:05:09 matevz Exp $
+// $Id: unittest_eventitemsmanager.cc,v 1.6 2010/06/18 10:17:16 yana Exp $
 //
 
 // system include files
@@ -61,7 +61,8 @@ BOOST_AUTO_TEST_CASE( eventitemmanager )
    FWEventItemsManager eim(&cm);
    FWColorManager colm(&cm);
 
-   fireworks::Context context(&cm,&sm,&eim,&colm);
+   // !!!! Passing 0 for FWJobMetadataManager
+   fireworks::Context context(&cm,&sm,&eim,&colm,0);
    eim.setContext(&context);
    
    Listener listener;
