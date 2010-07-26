@@ -15,7 +15,8 @@ process.GlobalTag.globaltag = 'START38_V7::All' ## for CMSSW_3_8_0
 ## input file(s) for testing
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-      'file:/afs/desy.de/user/r/rwolf/cms13/samples/847D00B0-608E-DF11-A37D-003048678FA0.root'
+     #'file:/afs/desy.de/user/r/rwolf/cms13/samples/847D00B0-608E-DF11-A37D-003048678FA0.root' ## for testing at DESY only!!
+      '/store/mc/Spring10/TTbar/GEN-SIM-RECO/MC_3XY_V25_S09_preproduction-v2/0106/1A19B479-BA3A-DF11-8E43-0017A4770410.root'                                  
     )
 )
 
@@ -34,7 +35,6 @@ process.output = cms.OutputModule("PoolOutputModule",
     filterName = cms.untracked.string('')
   )
 )
-
 
 ## load jet corrections
 process.load("JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff")
@@ -58,11 +58,9 @@ process.p      = cms.Path(
     process.topDiLeptonOfflineDQM +
     process.topSingleLeptonDQM
 )
-
 process.endjob = cms.Path(
     process.endOfProcess
 )
-
 process.fanout = cms.EndPath(
     process.output
 )
