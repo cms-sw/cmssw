@@ -9,6 +9,8 @@
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/src/CmsShowTaskExecutor.h"
+#include "Fireworks/Core/interface/FWL1TriggerTableViewManager.h"
+#include "Fireworks/Core/interface/FWTriggerTableViewManager.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -147,8 +149,13 @@ FWFFService::FWFFService(edm::ParameterSet const&, edm::ActivityRegistry& ar)
 
    setup(m_navigator.get(), m_context.get(), m_metadataManager.get());
 
+   eiManager()->setContext(m_context.get());
+
    // FIXME: ugly hack... we need to commit geometry...
    setGeometryFilename("cmsGeom10.root");
+   std::string releaseBase = getenv("CMSSW_RELEASE_BASE");
+   setConfigFilename("src/Fireworks/FWInterface/macros/ffw.fwc");
+
    CmsShowTaskExecutor::TaskFunctor f;
    f=boost::bind(&CmsShowMainBase::loadGeometry,this);
    startupTasks()->addTask(f);
@@ -179,6 +186,14 @@ FWFFService::FWFFService(edm::ParameterSet const&, edm::ActivityRegistry& ar)
    configurationManager()->add(std::string("Tables"), tableViewManager.get());
    viewManager()->add(tableViewManager);
    eiManager()->goingToClearItems_.connect(boost::bind(&FWTableViewManager::removeAllItems, tableViewManager.get()));
+
+   boost::shared_ptr<FWTriggerTableViewManager> triggerTableViewManager(new FWTriggerTableViewManager(guiManager()));
+   configurationManager()->add(std::string("TriggerTables"), triggerTableViewManager.get());
+   viewManager()->add( triggerTableViewManager );
+
+   boost::shared_ptr<FWL1TriggerTableViewManager> l1TriggerTableViewManager(new FWL1TriggerTableViewManager(guiManager()));
+   configurationManager()->add(std::string("L1TriggerTables"), l1TriggerTableViewManager.get());
+   viewManager()->add( l1TriggerTableViewManager );
 
    startupTasks()->startDoingTasks();
 }
