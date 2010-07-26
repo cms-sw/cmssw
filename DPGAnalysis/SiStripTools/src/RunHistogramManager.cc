@@ -6,6 +6,7 @@
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TProfile.h"
+#include "TProfile2D.h"
 
 BaseHistoParams::BaseHistoParams() { }
 
@@ -68,6 +69,18 @@ TH2F** RunHistogramManager::makeTH2F(const char* name, const char* title, const 
   _histograms.push_back(hp);
 
   LogDebug("TH2Fmade") << "Histogram " << name << " " << title << " pre-booked :" << _histograms.size();
+
+  return pointer;
+}
+
+TProfile2D** RunHistogramManager::makeTProfile2D(const char* name, const char* title, const unsigned int nbinx, const double xmin, const double xmax, const unsigned int nbiny, const double ymin, const double ymax ) {
+
+  TProfile2D** pointer  = new TProfile2D*(0);
+
+  BaseHistoParams* hp = new HistoParams<TProfile2D>(pointer,"TProfile2D",name,title,nbinx,xmin,xmax,nbiny,ymin,ymax);
+  _histograms.push_back(hp);
+
+  LogDebug("TProfile2Dmade") << "Histogram " << name << " " << title << " pre-booked :" << _histograms.size();
 
   return pointer;
 }
