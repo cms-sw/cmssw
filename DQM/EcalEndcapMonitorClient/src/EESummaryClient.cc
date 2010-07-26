@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2010/06/30 15:08:11 $
- * $Revision: 1.202 $
+ * $Date: 2010/07/01 09:59:35 $
+ * $Revision: 1.203 $
  * \author G. Della Ricca
  *
 */
@@ -2681,7 +2681,9 @@ void EESummaryClient::analyze(void) {
 
               // recycle the validEE for the synch check of the DCC
               if(norm01_ && synch01_) {
-                float frac_synch_errors = float(synch01_->GetBinContent(ism))/float(norm01_->GetBinContent(ism));
+                float frac_synch_errors = 0.;
+                float norm = norm01_->GetBinContent(ism);
+                if(norm > 0) frac_synch_errors = float(synch01_->GetBinContent(ism))/float(norm);
                 float val_sy = (frac_synch_errors < synchErrorThreshold_);
                 if(val_sy==0) xval=0;
               }
@@ -2811,7 +2813,9 @@ void EESummaryClient::analyze(void) {
 
               // recycle the validEE for the synch check of the DCC
               if(norm01_ && synch01_) {
-                float frac_synch_errors = float(synch01_->GetBinContent(ism))/float(norm01_->GetBinContent(ism));
+                float frac_synch_errors = 0.;
+                float norm = norm01_->GetBinContent(ism);
+                if(norm > 0) frac_synch_errors = float(synch01_->GetBinContent(ism))/float(norm);
                 float val_sy = (frac_synch_errors < synchErrorThreshold_);
                 if(val_sy==0) xval=0;
               }
