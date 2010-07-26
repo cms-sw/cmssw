@@ -363,7 +363,7 @@ void OptOCOPS::fastTraversesLightRay( LightRay& lightray )
 ALIdouble* OptOCOPS::convertPointToLocalCoordinates( const CLHEP::Hep3Vector& point)
 {
   if(ALIUtils::debug >= 1) std::cout << "***** OptOCOPS::convertPointToLocalCoordinates" <<std::endl;
-  ALIdouble* interslc = new ALIdouble(2);
+  ALIdouble* interslc = new ALIdouble[2];
 
   //----- X value
   CLHEP::HepRotation rmt = rmGlob();

@@ -49,7 +49,7 @@ void OptOSensor2D::makeMeasurement( LightRay& lightray, Measurement& meas )
     }*/
 
   //---------- Get simulated value 
-  //---------- Get intersection 
+  //---------- Get intersection
   CLHEP::Hep3Vector ZAxis(0.,0,1.);
   CLHEP::HepRotation rmt = rmGlob();
   ZAxis = rmt * ZAxis;
@@ -395,7 +395,7 @@ void OptOSensor2D::fillExtraEntry( std::vector<ALIstring>& wordlist )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 ALIdouble* OptOSensor2D::convertPointToLocalCoordinates( const CLHEP::Hep3Vector& point)
 {
-  ALIdouble* interslc = new ALIdouble(2);
+  ALIdouble* interslc = new ALIdouble[2];
   
   //----- X value
   CLHEP::HepRotation rmt = rmGlob();
