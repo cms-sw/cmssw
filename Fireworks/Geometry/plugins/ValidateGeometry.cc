@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: ValidateGeometry.cc,v 1.6 2010/07/23 15:26:57 mccauley Exp $
+// $Id: ValidateGeometry.cc,v 1.7 2010/07/26 10:00:04 mccauley Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -39,6 +39,7 @@
 #include <iostream>
 
 #include <TEveGeoNode.h>
+#include <TGeoVolume.h>
 #include <TGeoBBox.h>
 #include <TGeoArb8.h>
 #include <TFile.h>
@@ -70,7 +71,7 @@ private:
 
   void compareTransform(const GlobalPoint& point, const TGeoHMatrix* matrix);
 
-  void compareShape(const GeomDet* det, TEveGeoShape* shape);
+  void compareShape(const GeomDet* det, TGeoShape* shape);
 
   double getDistance(const GlobalPoint& point1, const GlobalPoint& point2);
 
@@ -237,8 +238,9 @@ ValidateGeometry::validateRPCGeometry()
       compareTransform(gp, matrix);
 
 
-      TEveGeoShape* shape = detIdToMatrix_.getShape(rpcDetId.rawId());
-   
+      //TEveGeoShape* shape = detIdToMatrix_.getShape(rpcDetId.rawId());
+      const TGeoVolume* shape = detIdToMatrix_.getVolume(rpcDetId.rawId());
+
       if ( ! shape )
       {
         std::cout<<"Failed to get shape of RPC with detid: "
@@ -246,7 +248,7 @@ ValidateGeometry::validateRPCGeometry()
         continue;
       }
       
-      compareShape(det, shape);
+      compareShape(det, shape->GetShape());
     }
   }
 
@@ -281,8 +283,9 @@ ValidateGeometry::validateDTGeometry()
 
       compareTransform(gp, matrix);
 
-      TEveGeoShape* shape = detIdToMatrix_.getShape(chId.rawId());
-     
+      //TEveGeoShape* shape = detIdToMatrix_.getShape(chId.rawId());
+      const TGeoVolume* shape = detIdToMatrix_.getVolume(chId.rawId());
+
       if ( ! shape )
       {
         std::cout<<"Failed to get shape of DT with detid: "
@@ -290,7 +293,7 @@ ValidateGeometry::validateDTGeometry()
         continue;
       }
       
-      compareShape(chamber, shape);
+      compareShape(chamber, shape->GetShape());
     }
   }
 
@@ -326,7 +329,8 @@ ValidateGeometry::validateCSCGeometry()
       compareTransform(gp, matrix);
 
 
-      TEveGeoShape* shape = detIdToMatrix_.getShape(detId.rawId());
+      //TEveGeoShape* shape = detIdToMatrix_.getShape(detId.rawId());
+      const TGeoVolume* shape = detIdToMatrix_.getVolume(detId.rawId());
 
       if ( ! shape )
       {
@@ -335,7 +339,7 @@ ValidateGeometry::validateCSCGeometry()
         continue;
       }
       
-      compareShape(chamber, shape);
+      compareShape(chamber, shape->GetShape());
     }
   }
 
@@ -418,7 +422,8 @@ ValidateGeometry::validateTrackerGeometry(const TrackerGeometry::DetContainer& d
     compareTransform(gp, matrix);
 
 
-    TEveGeoShape* shape = detIdToMatrix_.getShape(rawId);
+    //TEveGeoShape* shape = detIdToMatrix_.getShape(rawId);
+    const TGeoVolume* shape = detIdToMatrix_.getVolume(rawId);
 
     if ( ! shape )
     {
@@ -427,7 +432,7 @@ ValidateGeometry::validateTrackerGeometry(const TrackerGeometry::DetContainer& d
       continue;
     }
 
-    compareShape(*it, shape);
+    compareShape(*it, shape->GetShape());
   }
   
   makeHistograms(detname);
@@ -457,8 +462,9 @@ ValidateGeometry::validateTrackerGeometry(const TrackerGeometry::DetUnitContaine
     compareTransform(gp, matrix);
 
 
-    TEveGeoShape* shape = detIdToMatrix_.getShape(rawId);
- 
+    //TEveGeoShape* shape = detIdToMatrix_.getShape(rawId);
+    const TGeoVolume* shape = detIdToMatrix_.getVolume(rawId);
+
     if ( ! shape )
     {
       std::cout<<"Failed to get shape of "<< detname 
@@ -466,7 +472,7 @@ ValidateGeometry::validateTrackerGeometry(const TrackerGeometry::DetUnitContaine
       continue;
     }
 
-    compareShape(*it, shape);
+    compareShape(*it, shape->GetShape());
   }
   
   makeHistograms(detname);
@@ -492,13 +498,8 @@ ValidateGeometry::compareTransform(const GlobalPoint& gp,
 
 
 void 
-ValidateGeometry::compareShape(const GeomDet* det, TEveGeoShape* shape)
+ValidateGeometry::compareShape(const GeomDet* det, TGeoShape* shape)
 {
-  TGeoShape* geoShape = shape->GetShape();
-
-  TGeoBBox* box;
-  TGeoTrap* trap;
-
   /*
     X -> width
     Y -> length
@@ -510,7 +511,7 @@ ValidateGeometry::compareShape(const GeomDet* det, TEveGeoShape* shape)
   double shape_length;
   double shape_thickness;
 
-  if ( (box = dynamic_cast<TGeoBBox*>(geoShape)) )
+  if ( TGeoBBox* box = dynamic_cast<TGeoBBox*>(shape) )
   {
     shape_topWidth = box->GetDX()*2.0;
     shape_bottomWidth = shape_topWidth;
@@ -518,7 +519,7 @@ ValidateGeometry::compareShape(const GeomDet* det, TEveGeoShape* shape)
     shape_thickness = box->GetDZ()*2.0;
   }
   
-  else if ( (trap = dynamic_cast<TGeoTrap*>(geoShape)) )
+  else if ( TGeoTrap* trap = dynamic_cast<TGeoTrap*>(shape) )
   {
     shape_topWidth = trap->GetTl1()*2.0;
     shape_bottomWidth = trap->GetBl1()*2.0;
@@ -536,9 +537,8 @@ ValidateGeometry::compareShape(const GeomDet* det, TEveGeoShape* shape)
   double length, thickness;
 
   const Bounds* bounds = &(det->surface().bounds());
-  const TrapezoidalPlaneBounds* tpbs;
-
-  if ( (tpbs = dynamic_cast<const TrapezoidalPlaneBounds*>(bounds)) )
+ 
+  if ( const TrapezoidalPlaneBounds* tpbs = dynamic_cast<const TrapezoidalPlaneBounds*>(bounds) )
   {
     std::vector<float> ps = tpbs->parameters();
 
@@ -602,19 +602,19 @@ ValidateGeometry::makeHistograms(const char* detector)
 
   std::string d(detector);
   
-  std::string dn = d+" distances";
+  std::string dn = d+": distance between origins in global coordinates";
   makeHistogram(dn, distances_);
   
-  std::string twn = d + " top widths";
+  std::string twn = d + ": absolute difference between top widths (along X)";
   makeHistogram(twn, topWidths_);
   
-  std::string bwn = d + " bottom widths";
+  std::string bwn = d + ": absolute difference between bottom widths (along X)";
   makeHistogram(bwn, bottomWidths_);
   
-  std::string ln = d + " lengths";
+  std::string ln = d + ": absolute difference between lengths (along Y)";
   makeHistogram(ln, lengths_);
 
-  std::string tn = d + " thicknesses";
+  std::string tn = d + ": absolute difference between thicknesses (along Z)";
   makeHistogram(tn, thicknesses_);
 
   return;
@@ -634,8 +634,10 @@ ValidateGeometry::makeHistogram(const std::string& name, std::vector<double>& da
   
   for ( it = data.begin(); it != itEnd; ++it )
     hist.Fill(*it);
-  
+ 
+  hist.GetXaxis()->SetTitle("[cm]");
   hist.Write();
+ 
   data.clear();
 }
 

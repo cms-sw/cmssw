@@ -13,9 +13,7 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 process.valid = cms.EDAnalyzer("ValidateGeometry",
-                               #infileName = cms.untracked.string('/afs/cern.ch/user/m/mccauley/cmsGeom11.root'),
-                               infileName = cms.untracked.string('/afs/cern.ch/cms/fireworks/beta/cmsShow36-beta-2/cmsGeom10.root'),
-                               #infileName = cms.untracked.string('/afs/cern.ch/user/m/mccauley/cmsRecoGeom1.root'),
+                               infileName = cms.untracked.string('/afs/cern.ch/cms/fireworks/release/cmsShow36/cmsGeom10.root'),
                                outfileName = cms.untracked.string('validateGeometry.root')
                                )
 
