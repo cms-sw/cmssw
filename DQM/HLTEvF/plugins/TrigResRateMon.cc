@@ -1,4 +1,4 @@
-// $Id: TrigResRateMon.cc,v 1.9 2010/07/24 09:53:09 rekovic Exp $
+// $Id: TrigResRateMon.cc,v 1.10 2010/07/24 19:02:31 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQM/HLTEvF/interface/TrigResRateMon.h"
@@ -308,12 +308,8 @@ TrigResRateMon::beginJob()
   }
   
   
-  if (dbe) {
-    dbe->setCurrentFolder(dirname_);
-  }  
-
-  MonitorElement* reportSummaryFloat = dbe->bookFloat("reportSummaryMap");
-  if(reportSummaryFloat) reportSummaryFloat->Fill(1);
+  MonitorElement* reportSummaryME = dbe->book1D("reportSummaryMap","report Summary Map",2,0,2);
+  if(reportSummaryME) reportSummaryME->Fill(1);
 
 
 }
