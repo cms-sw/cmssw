@@ -54,14 +54,6 @@ CmsShowMainBase::CmsShowMainBase()
      m_liveTimeout(600000),
      m_playDelay(3.f)
 {
-   try {
-      TGLWidget* w = TGLWidget::Create(gClient->GetDefaultRoot(), kTRUE, kTRUE, 0, 10, 10);
-      delete w;
-   }
-   catch (std::exception& iException) {
-      std::cerr <<"Insufficient GL support. " << iException.what() << std::endl;
-      throw;
-   }
 }
 
 CmsShowMainBase::~CmsShowMainBase()
@@ -449,4 +441,24 @@ CmsShowMainBase::playBackward()
    m_isPlaying = true;
    guiManager()->enableActions(kFALSE);
    startAutoLoadTimer();
+}
+
+void
+CmsShowMainBase::loadGeometry()
+{   // prepare geometry service
+   // ATTN: this should be made configurable
+   try 
+   {
+      guiManager()->updateStatus("Loading geometry...");
+      m_detIdToGeo.loadGeometry(m_geometryFilename.c_str());
+      m_detIdToGeo.loadMap(m_geometryFilename.c_str());
+      m_context->setGeom(&m_detIdToGeo);
+   }
+   catch (const std::runtime_error& iException)
+   {
+      fwLog(fwlog::kError) << "CmsShowMain::loadGeometry() caught exception: \n"
+                           << m_geometryFilename << " "
+                           << iException.what() << std::endl;
+      exit(0);
+   }
 }

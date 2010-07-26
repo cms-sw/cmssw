@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.172 2010/07/23 08:35:03 eulisse Exp $
+// $Id: CmsShowMain.cc,v 1.173 2010/07/26 15:13:59 matevz Exp $
 //
 
 // system include files
@@ -113,6 +113,15 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
                                       colorManager(),
                                       m_metadataManager.get()))
 {
+   try {
+      TGLWidget* w = TGLWidget::Create(gClient->GetDefaultRoot(), kTRUE, kTRUE, 0, 10, 10);
+      delete w;
+   }
+   catch (std::exception& iException) {
+      std::cerr <<"Insufficient GL support. " << iException.what() << std::endl;
+      throw;
+   }
+
    eiManager()->setContext(m_context.get());
 
    try {
@@ -204,12 +213,12 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
 
       // geometry
       if (vm.count(kGeomFileOpt)) {
-         m_geomFileName = vm[kGeomFileOpt].as<std::string>();
+         setGeometryFilename(vm[kGeomFileOpt].as<std::string>());
       } else {
          fwLog(fwlog::kInfo) << "No geom file name.  Choosing default.\n";
-         m_geomFileName.append("cmsGeom10.root");
+         setGeometryFilename("cmsGeom10.root");
       }
-      fwLog(fwlog::kInfo) << "Geom " <<  m_geomFileName.c_str() << std::endl;
+      fwLog(fwlog::kInfo) << "Geom " << geometryFilename() << std::endl;
 
       // Free-palette palette
       if (vm.count(kFreePaletteCommandOpt)) {
@@ -240,7 +249,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
          startupTasks()->addTask(f); 	 
       }
     
-      f=boost::bind(&CmsShowMain::loadGeometry,this);
+      f=boost::bind(&CmsShowMainBase::loadGeometry,this);
       startupTasks()->addTask(f);
       f=boost::bind(&CmsShowMain::setupViewManagers,this);
       startupTasks()->addTask(f);
@@ -450,24 +459,6 @@ CmsShowMain::openDataViaURL()
 //
 
 //STARTUP TASKS
-
-void
-CmsShowMain::loadGeometry()
-{   // prepare geometry service
-   // ATTN: this should be made configurable
-   try {
-      guiManager()->updateStatus("Loading geometry...");
-      m_detIdToGeo.loadGeometry( m_geomFileName.c_str() );
-      m_detIdToGeo.loadMap( m_geomFileName.c_str() );
-      m_context->setGeom(&m_detIdToGeo);
-   }
-   catch (const std::runtime_error& iException)
-   {
-      fwLog(fwlog::kError) << "CmsShowMain::loadGeometry() caught exception: \n"
-                           << iException.what() << std::endl;
-      exit(0);
-   }
-}
 
 void
 CmsShowMain::setupViewManagers()

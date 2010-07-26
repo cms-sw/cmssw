@@ -4,7 +4,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: FWNavigatorBase.h,v 1.1 2010/07/16 12:08:18 eulisse Exp $
+// $Id: FWNavigatorBase.h,v 1.2 2010/07/26 15:13:59 matevz Exp $
 //
 
 // system include files
@@ -16,7 +16,7 @@
 #include "Fireworks/Core/interface/FWConfigurable.h"
 
 // forward declarations
-class CmsShowMain;
+class CmsShowMainBase;
 
 namespace edm {
    class EventBase;
@@ -30,7 +30,7 @@ public:
    enum EFilterMode  { kOr = 1, kAnd = 2 };
    
 public:
-   FWNavigatorBase(const CmsShowMain &);
+   FWNavigatorBase(const CmsShowMainBase &);
    virtual ~FWNavigatorBase();
 
    //configuration management interface
@@ -61,7 +61,7 @@ private:
    // entry is an event index nubmer which runs from 0 to
    // #events or #selected_events depending on if we filter
    // events or not
-   const CmsShowMain &m_main;
+   const CmsShowMainBase &m_main;
 };
 
 #endif

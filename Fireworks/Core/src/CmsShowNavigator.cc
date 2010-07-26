@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.94 2010/07/16 12:08:18 eulisse Exp $
+// $Id: CmsShowNavigator.cc,v 1.95 2010/07/26 15:13:59 matevz Exp $
 //
 #define private public
 // FIXME: need access to private data members 
@@ -230,7 +230,8 @@ CmsShowNavigator::goTo(FileQueue_i fi, int event)
 void
 CmsShowNavigator::goToRunEvent(Int_t run, Int_t event)
 {
-   fwlite::Event* fwEvent = 0;
+// FIXME: commented out since not supported by 3_8_0_pre8
+/*   fwlite::Event* fwEvent = 0;
    edm::FileIndex::const_iterator it;
 
    for (FileQueue_i file = m_files.begin(); file != m_files.end(); ++file)
@@ -241,6 +242,7 @@ CmsShowNavigator::goToRunEvent(Int_t run, Int_t event)
       if (fwEvent->fileIndex_.end() != it)
          goTo(file, (*file)->getTreeEntryFromEventId(event));
    }
+*/
 }
 
 //______________________________________________________________________________

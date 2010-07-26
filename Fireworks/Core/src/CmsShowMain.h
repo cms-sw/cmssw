@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.49 2010/07/16 14:34:18 eulisse Exp $
+// $Id: CmsShowMain.h,v 1.50 2010/07/23 08:35:03 eulisse Exp $
 //
 
 #include "Fireworks/Core/interface/CmsShowMainBase.h"
@@ -70,11 +70,6 @@ public:
    virtual void quit();
    void doExit();
 
-   // ---------- const member functions ---------------------
-   const DetIdToMatrix& getIdToGeo() const {
-      return m_detIdToGeo;
-   }
-
    //  void writeConfigurationFile(const std::string& iFileName) const;
    // ---------- static member functions --------------------
    
@@ -114,10 +109,8 @@ private:
    std::auto_ptr<FWLiteJobMetadataManager>   m_metadataManager;
    std::auto_ptr<fireworks::Context>         m_context;
 
-   DetIdToMatrix            m_detIdToGeo;
    std::vector<std::string> m_inputFiles;
    bool                     m_loadedAnyInputFile;
-   std::string              m_geomFileName;
    const TFile             *m_openFile;
 
    std::auto_ptr<CmsShowSearchFiles>  m_searchFiles;

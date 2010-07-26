@@ -2,6 +2,7 @@
 #define Fireworks_Core_CmsShowMainBase_h
 
 #include "Fireworks/Core/interface/FWPhysicsObjectDesc.h"
+#include "Fireworks/Core/interface/DetIdToMatrix.h"
 
 #include <memory>
 #include <string>
@@ -68,6 +69,12 @@ public:
    void registerPhysicsObject(const FWPhysicsObjectDesc&iItem);
    void draw();
 
+   // Geometry handling
+   void loadGeometry();
+   void setGeometryFilename(const std::string &filename) {m_geometryFilename = filename; }
+   const std::string &geometryFilename(void) { return m_geometryFilename; }
+   const DetIdToMatrix& getIdToGeo() const { return m_detIdToGeo; }
+   
    // Event navigation.
    void doFirstEvent();
    void doPreviousEvent();
@@ -141,6 +148,8 @@ private:
    int                                   m_liveTimeout;
    Float_t                               m_playDelay;
    std::string                           m_configFileName;
+   std::string                           m_geometryFilename;
+   DetIdToMatrix                         m_detIdToGeo;
 };
 
 #endif
