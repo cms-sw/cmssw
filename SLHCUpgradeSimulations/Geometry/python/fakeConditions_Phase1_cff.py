@@ -11,8 +11,8 @@ siPixelFakeLorentzAngleESSource = cms.ESSource("SiPixelFakeLorentzAngleESSource"
 es_prefer_fake_lorentz = cms.ESPrefer("SiPixelFakeLorentzAngleESSource","siPixelFakeLorentzAngleESSource")
 
 from CalibTracker.SiStripESProducers.fake.SiStripNoisesFakeESSource_cfi import *
-SiStripNoisesGenerator.NoiseStripLengthSlope=51. #dec mode
-SiStripNoisesGenerator.NoiseStripLengthQuote=630.
+SiStripNoisesGenerator.NoiseStripLengthSlope=cms.vdouble(51.) #dec mode
+SiStripNoisesGenerator.NoiseStripLengthQuote=cms.vdouble(630.)
 
 siStripNoisesFakeESSource  = cms.ESSource("SiStripNoisesFakeESSource")
 es_prefer_fake_strip_noise = cms.ESPrefer("SiStripNoisesFakeESSource",
@@ -38,8 +38,8 @@ es_prefer_fake_strip_LA_sim = cms.ESPrefer("SiStripLorentzAngleSimFakeESSource",
                                                    "siStripLorentzAngleSimFakeESSource")
 
 from CalibTracker.SiStripESProducers.fake.SiStripApvGainFakeESSource_cfi import *
-SiStripApvGainGenerator.MeanGain=1.0
-SiStripApvGainGenerator.SigmaGain=0.0
+SiStripApvGainGenerator.MeanGain=cms.vdouble(1.0)
+SiStripApvGainGenerator.SigmaGain=cms.vdouble(0.0)
 SiStripApvGainGenerator.genMode = cms.string("default")
 
 myStripApvGainFakeESSource = cms.ESSource("SiStripApvGainFakeESSource")
