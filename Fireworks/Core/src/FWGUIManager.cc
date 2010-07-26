@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.210 2010/07/16 13:12:01 eulisse Exp $
+// $Id: FWGUIManager.cc,v 1.211 2010/07/16 14:34:17 eulisse Exp $
 
 //
 
@@ -79,7 +79,9 @@
 
 #include "Fireworks/Core/interface/fwLog.h"
 
-//
+#include "FWCore/Common/interface/EventBase.h"
+
+
 // constants, enums and typedefs
 //
 enum {kSaveConfiguration,
@@ -758,7 +760,7 @@ FWGUIManager::getGUIManager()
    return m_guiManager;
 }
 
-const fwlite::Event*
+const edm::EventBase*
 FWGUIManager::getCurrentEvent() const
 {
    return m_navigator->getCurrentEvent();  
@@ -897,7 +899,7 @@ FWGUIManager::exportAllViews(const std::string& format)
       }
    }
 
-   const fwlite::Event *event = getCurrentEvent();
+   const edm::EventBase *event = getCurrentEvent();
    for (name_map_i i = vls.begin(); i != vls.end(); ++i)
    {
       bool multi_p    = (i->second.size() > 1);

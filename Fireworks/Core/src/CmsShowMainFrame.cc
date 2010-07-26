@@ -9,10 +9,9 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.94 2010/06/08 18:30:46 matevz Exp $
-//
-// hacks
-#include "DataFormats/FWLite/interface/Event.h"
+// $Id: CmsShowMainFrame.cc,v 1.95 2010/06/18 10:17:14 yana Exp $
+
+#include "FWCore/Common/interface/EventBase.h"
 
 // system include files
 #include <TCollection.h>
@@ -502,8 +501,8 @@ CmsShowMainFrame::createNewViewerAction(const std::string& iActionName)
 
 
 
-void CmsShowMainFrame::loadEvent(const fwlite::Event& event) {
-
+void CmsShowMainFrame::loadEvent(const edm::EventBase& event)
+{
    if (event.id().run() != static_cast<unsigned int>(m_runEntry->GetIntNumber()))
       m_runEntry->SetIntNumber(event.id().run());
 

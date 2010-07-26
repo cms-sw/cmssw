@@ -4,7 +4,7 @@
 #include <math.h>
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/FWLite/interface/Event.h"
+#include "FWCore/Common/interface/EventBase.h"
 
 #include "TGeoBBox.h"
 #include "TGeoArb8.h"
@@ -169,7 +169,7 @@ TEveElementList *fw::getEcalCrystals (const EcalRecHitCollection *hits,
 }
 
 std::string
-fw::getTimeGMT( const fwlite::Event& event )
+fw::getTimeGMT(const edm::EventBase& event)
 {
    time_t t(event.time().value() >> 32);
    std::string text( asctime( gmtime(&t) ) );
@@ -180,7 +180,7 @@ fw::getTimeGMT( const fwlite::Event& event )
 }
 
 std::string
-fw::getLocalTime( const fwlite::Event& event )
+fw::getLocalTime(const edm::EventBase& event)
 {
    time_t t(event.time().value() >> 32);
    std::string text( asctime( localtime(&t) ) );

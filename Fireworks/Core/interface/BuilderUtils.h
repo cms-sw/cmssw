@@ -17,8 +17,8 @@ class DetId;
 class DetIdToMatrix;
 class FWProxyBuilderBase;
 
-namespace fwlite {
-   class Event;
+namespace edm {
+   class EventBase;
 }
 
 namespace reco {
@@ -62,8 +62,8 @@ TEveElementList *getEcalCrystals (const EcalRecHitCollection *,
                                   int n_eta = 5, int n_phi = 10);
 //    TEveElementList *getMuonCalTowers (double eta, double phi);
 
-std::string getTimeGMT( const fwlite::Event& event );
-std::string getLocalTime( const fwlite::Event& event );
+std::string getTimeGMT(const edm::EventBase& event);
+std::string getLocalTime(const edm::EventBase& event);
 }
 
 #endif

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.31 2010/06/22 19:11:26 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.32 2010/07/23 11:05:35 amraktad Exp $
 //
 
 // system include files
@@ -43,6 +43,7 @@
 #include "Fireworks/Core/interface/FWHFView.h"
 #include "Fireworks/Core/interface/FWRPZView.h"
 
+#include <boost/bind.hpp>
 
 class DetIdToMatrix;
 class FWViewContext;

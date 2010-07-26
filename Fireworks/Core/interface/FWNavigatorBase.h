@@ -4,21 +4,22 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.h,v 1.50 2010/06/17 20:17:20 amraktad Exp $
+// $Id: FWNavigatorBase.h,v 1.1 2010/07/16 12:08:18 eulisse Exp $
 //
 
 // system include files
 #include <string>
 #include <sigc++/sigc++.h>
+#include <Rtypes.h>
 
 // user include files
-#include "DataFormats/FWLite/interface/Event.h"
 #include "Fireworks/Core/interface/FWConfigurable.h"
 
 // forward declarations
 class CmsShowMain;
 
 namespace edm {
+   class EventBase;
    class EventID;
 }
 
@@ -42,12 +43,13 @@ public:
    virtual bool previousSelectedEvent() = 0;
    virtual void firstEvent() = 0;
    virtual void lastEvent() = 0;
+   // FIXME -- should be Long64_t.
    virtual void goToRunEvent(Int_t,Int_t) = 0;
 
    virtual bool isLastEvent() = 0;
    virtual bool isFirstEvent() = 0;
 
-   virtual const fwlite::Event* getCurrentEvent() const = 0;
+   virtual const edm::EventBase* getCurrentEvent() const = 0;
    virtual int  getNSelectedEvents() = 0;
    virtual int  getNTotalEvents() = 0;
 

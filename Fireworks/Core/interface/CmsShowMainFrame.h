@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.35 2009/12/04 18:59:43 amraktad Exp $
+// $Id: CmsShowMainFrame.h,v 1.36 2009/12/04 22:50:06 amraktad Exp $
 //
 
 // system include files
@@ -48,8 +48,8 @@ class TGSlider;
 class FWIntValueListener;
 class FWCustomIconsButton;
 
-namespace fwlite {
-   class Event;
+namespace edm {
+   class EventBase;
 }
 
 class CmsShowMainFrame : public TGMainFrame, public CSGActionSupervisor, public sigc::trackable {
@@ -65,7 +65,7 @@ public:
    // ---------- member functions ---------------------------
   virtual void CloseWindow();
 
-   void loadEvent(const fwlite::Event& event);
+   void loadEvent(const edm::EventBase& event);
    void enableNavigatorControls();
    void quit();
    virtual void enableActions(bool enable = true);

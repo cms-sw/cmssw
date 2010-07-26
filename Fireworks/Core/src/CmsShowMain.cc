@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.171 2010/07/16 14:34:18 eulisse Exp $
+// $Id: CmsShowMain.cc,v 1.172 2010/07/23 08:35:03 eulisse Exp $
 //
 
 // system include files
@@ -353,7 +353,7 @@ const fwlite::Event*
 CmsShowMain::getCurrentEvent() const
 {
    if (m_navigator.get())
-      return m_navigator->getCurrentEvent();
+     return static_cast<const fwlite::Event*>(m_navigator->getCurrentEvent());
    return 0;
 }
 

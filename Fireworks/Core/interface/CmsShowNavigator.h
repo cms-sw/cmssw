@@ -4,7 +4,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.h,v 1.50 2010/06/17 20:17:20 amraktad Exp $
+// $Id: CmsShowNavigator.h,v 1.51 2010/07/16 12:08:18 eulisse Exp $
 //
 
 // system include files
@@ -28,6 +28,7 @@ class TGWindow;
 class FWGUIEventFilter;
 
 namespace edm {
+   class EventBase;
    class EventID;
 }
 
@@ -112,7 +113,7 @@ public:
    void withdrawFilter();
    void resumeFilter();
    
-   virtual const fwlite::Event* getCurrentEvent() const;
+   virtual const edm::EventBase* getCurrentEvent() const;
    const char* filterStatusMessage();
    int  getNSelectedEvents();
    int  getNTotalEvents();

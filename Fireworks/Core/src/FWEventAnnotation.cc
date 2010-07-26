@@ -41,7 +41,7 @@ FWEventAnnotation::updateOverlayText()
 {
    fText = "CMS Experiment at LHC, CERN";
 
-   const fwlite::Event* event = FWGUIManager::getGUIManager()->getCurrentEvent();
+   const edm::EventBase* event = FWGUIManager::getGUIManager()->getCurrentEvent();
 
    if (event && m_level)
    {

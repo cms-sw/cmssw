@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     FWHLTValidator
-// $Id: FWHLTValidator.cc,v 1.5 2010/05/06 18:03:08 amraktad Exp $
+// $Id: FWHLTValidator.cc,v 1.6 2010/06/18 10:17:15 yana Exp $
 //
 
 // system include files
@@ -14,9 +14,12 @@
 #include "Fireworks/Core/interface/FWHLTValidator.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/fwLog.h"
-#include "DataFormats/FWLite/interface/Handle.h"
-#include "FWCore/Common/interface/TriggerNames.h"
+
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "FWCore/Common/interface/EventBase.h"
 
 void
 FWHLTValidator::fillOptions(const char* iBegin, const char* iEnd,
@@ -27,12 +30,14 @@ FWHLTValidator::fillOptions(const char* iBegin, const char* iEnd,
    part = boost::regex_replace(part,boost::regex(".*?(\\&\\&|\\|\\||\\s)+"),"");
 
    if (m_triggerNames.empty()){
-     fwlite::Handle<edm::TriggerResults> hTriggerResults;
+     edm::Handle<edm::TriggerResults> hTriggerResults;
      edm::TriggerNames const* triggerNames(0);
-     try{
-        const fwlite::Event& event = *FWGUIManager::getGUIManager()->getCurrentEvent();
-       hTriggerResults.getByLabel(event,"TriggerResults","","HLT");
-       triggerNames = &event.triggerNames(*hTriggerResults);
+     try
+     {
+       edm::InputTag tag("TriggerResults", "", "HLT");
+       const edm::EventBase* event = FWGUIManager::getGUIManager()->getCurrentEvent();
+       event->getByLabel(tag, hTriggerResults);
+       triggerNames = & event->triggerNames(*hTriggerResults);
      } catch (...){
        fwLog(fwlog::kWarning) << " no trigger results with process name HLT is available" << std::endl;
        return;

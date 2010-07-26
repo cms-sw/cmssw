@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.105 2010/07/16 13:12:02 eulisse Exp $
+// $Id: FWGUIManager.h,v 1.106 2010/07/16 14:34:18 eulisse Exp $
 //
 
 // system include files
@@ -31,7 +31,6 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWConfigurable.h"
-#include "DataFormats/FWLite/interface/Event.h"
 
 // forward declarations
 class TGPictureButton;
@@ -80,8 +79,8 @@ class FWModelContextMenuHandler;
 class FWViewContextMenuHandlerBase;
 class TGWindow;
 
-namespace fwlite {
-   class Event;
+namespace edm {
+   class EventBase;
 }
 
 class CmsShowEDI;
@@ -199,7 +198,7 @@ public:
    void subviewSwapped(FWGUISubviewArea*);
    
    CmsShowMainFrame* getMainFrame() const { return m_cmsShowMainFrame; }
-   const fwlite::Event* getCurrentEvent() const;
+   const edm::EventBase* getCurrentEvent() const;
    
    // signals
    sigc::signal<void> filterButtonClicked_;
