@@ -4,6 +4,7 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/EgammaReco"/>
+<use   name="DataFormats/METReco"/>
 <use   name="DataFormats/Math"/>
 <use   name="DataFormats/RecoCandidate"/>
 <use   name="DataFormats/Candidate"/>
