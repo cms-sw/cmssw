@@ -4,7 +4,7 @@ process = cms.Process("PROD")
 
 # Number of events to be generated
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(100)
 )
 
 # Include the RandomNumberGeneratorService definition
@@ -79,8 +79,9 @@ process.source = cms.Source("EmptySource")
 process.load("FastSimulation.Configuration.EventContent_cff")
 process.o1 = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring('drop *_*_*_*',
-                                 'keep *_L1Calo*_*_*',
-                                 'keep *_SLHCL1ExtraParticles_*_*'),
+                                           'keep *_L1Calo*_*_*',
+                                           'keep *_SLHCL1ExtraParticles_*_*',
+                                           'keep *_genParticles_*_*'),
     fileName = cms.untracked.string('SLHCOutput.root')
 )
 process.outpath = cms.EndPath(process.o1)

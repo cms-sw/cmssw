@@ -49,6 +49,11 @@ process.famosSimHits.SimulateTracking = True
 # Parameterized magnetic field
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 
+#Set RCT config
+process.load("L1TriggerConfig.RCTConfigProducers.L1RCTConfig_cff")
+process.RCTConfigProducers.eMinForHoECut = cms.double(1.0)
+process.RCTConfigProducers.eicIsolationThreshold = cms.uint32(6)
+
 # Number of pileup events per crossing
 process.famosPileUp.PileUpSimulator.averageNumber = 0.0
 

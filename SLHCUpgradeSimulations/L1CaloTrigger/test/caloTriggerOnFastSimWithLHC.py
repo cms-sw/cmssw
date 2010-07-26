@@ -11,7 +11,7 @@ process.maxEvents = cms.untracked.PSet(
 process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
 
 # Generate ttbar events
-process.load("Configuration.Generator.TTbar_cfi")
+process.load("Configuration.Generator.ZEE_cfi")
 
 # Common inputs, with fake conditions
 process.load("FastSimulation.Configuration.CommonInputs_cff")
@@ -48,6 +48,12 @@ process.famosSimHits.SimulateCalorimetry = True
 process.famosSimHits.SimulateTracking = True
 # Parameterized magnetic field
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
+
+#Set RCT config
+process.load("L1TriggerConfig.RCTConfigProducers.L1RCTConfig_cff")
+process.RCTConfigProducers.eMinForHoECut = cms.double(1.0)
+process.RCTConfigProducers.eicIsolationThreshold = cms.uint32(6)
+
 
 # Number of pileup events per crossing
 process.famosPileUp.PileUpSimulator.averageNumber = 0.0
@@ -104,11 +110,13 @@ process.schedule.append(process.p1)
 process.load("FastSimulation.Configuration.EventContent_cff")
 process.o1 = cms.OutputModule("PoolOutputModule",
 	outputCommands = cms.untracked.vstring('drop *_*_*_*',
-                                 'keep *_L1Calo*_*_*',
-                                 'keep *_SLHCL1ExtraParticles_*_*',
-                                 'keep *_l1extraParticles_*_*'),
-    fileName = cms.untracked.string('SLHC_HLT_Output.root')
-)
+                                               'keep *_L1Calo*_*_*',
+                                               'keep *_SLHCL1ExtraParticles_*_*',
+                                               'keep *_l1extraParticles_*_*',
+                                               'keep *_genParticles_*_*'),
+                              fileName = cms.untracked.string('SLHC_LHC_Output.root')
+                              )
+
 process.outpath = cms.EndPath(process.o1)
 
 # Add endpaths to the schedule
