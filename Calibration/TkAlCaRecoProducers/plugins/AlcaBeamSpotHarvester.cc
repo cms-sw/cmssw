@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/06/30 20:49:57 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/07/01 15:32:53 $
+ *  $Revision: 1.5 $
  *  \author L. Uplegger F. Yumiceva - Fermilab
  */
 
@@ -51,7 +51,12 @@ void AlcaBeamSpotHarvester::beginJob() {}
 void AlcaBeamSpotHarvester::endJob() {}  
 
 //--------------------------------------------------------------------------------------------------
-void AlcaBeamSpotHarvester::analyze(const edm::Event&, const edm::EventSetup&) {}
+void AlcaBeamSpotHarvester::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
+//  edm::LogInfo("AlcaBeamSpotHarvester")
+//      << "Lumi: " << iEvent.luminosityBlock() 
+//      << " Time: " << iEvent.time().unixTime() 
+//      << std::endl;
+}
 
 //--------------------------------------------------------------------------------------------------
 void AlcaBeamSpotHarvester::beginRun(const edm::Run&, const edm::EventSetup&){
@@ -97,7 +102,7 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
       }
 
       if (poolDbService->isNewTagRequest(outputrecordName_) ) {
-          edm::LogInfo("AlcaBeamSpotSpotHarvester")
+          edm::LogInfo("AlcaBeamSpotHarvester")
               << "new tag requested" << std::endl;
           //poolDbService->createNewIOV<BeamSpotObjects>(aBeamSpot, poolDbService->beginOfTime(),poolDbService->endOfTime(),"BeamSpotObjectsRcd");
 	  
@@ -105,7 +110,7 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
 	  poolDbService->writeOne<BeamSpotObjects>(aBeamSpot, thisIOV, outputrecordName_);
       } 
       else {
-        edm::LogInfo("AlcaBeamSpotSpotHarvester")
+        edm::LogInfo("AlcaBeamSpotHarvester")
             << "no new tag requested, appending IOV" << std::endl;
         //poolDbService->appendSinceTime<BeamSpotObjects>(aBeamSpot, poolDbService->currentTime(),"BeamSpotObjectsRcd");
 	poolDbService->writeOne<BeamSpotObjects>(aBeamSpot, thisIOV, outputrecordName_);
@@ -122,10 +127,10 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
 			   ,"-e","10"
 			   };
       
-      edm::LogInfo("AlcaBeamSpotSpotHarvester")
+      edm::LogInfo("AlcaBeamSpotHarvester")
         << "Running utilities!" 
 	<< utilities.run(argc,(char**)argv);
-      edm::LogInfo("AlcaBeamSpotSpotHarvester")
+      edm::LogInfo("AlcaBeamSpotHarvester")
         << "Run utilities!" 
 	<< std::endl;
 */
