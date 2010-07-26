@@ -9,8 +9,7 @@
 //<<<<<< PUBLIC DEFINES                                                 >>>>>>
 //<<<<<< PUBLIC CONSTANTS                                               >>>>>>
 //<<<<<< PUBLIC TYPES                                                   >>>>>>
-namespace edm 
-{
+namespace edm {
     class ParameterSet;
     class ActivityRegistry;
 }
@@ -19,41 +18,40 @@ namespace edm
 //<<<<<< PUBLIC FUNCTIONS                                               >>>>>>
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
-namespace edm 
-{
-    namespace service 
-    {
-      class SiteLocalConfigService : public SiteLocalConfig
-	{
+namespace edm {
+    namespace service {
+      class SiteLocalConfigService : public SiteLocalConfig {
 	public:
-	    SiteLocalConfigService (const ParameterSet & pset,
-			     const ActivityRegistry &activityRegistry);
-	    
-	    const std::string dataCatalog (void) const;
-	    const std::string lookupCalibConnect (const std::string& input) const;
-	    const std::string rfioType (void) const;
+	    SiteLocalConfigService (ParameterSet const& pset,
+			     ActivityRegistry const& activityRegistry);
 
-            const std::string* sourceCacheTempDir() const;
-            const double* sourceCacheMinFree() const;
-            const std::string* sourceCacheHint() const;
-            const std::string* sourceReadHint() const;
-            const unsigned int* sourceTTreeCacheSize() const;
-            const std::vector<std::string>* sourceNativeProtocols() const;
+	    std::string const dataCatalog(void) const;
+	    std::string const fallbackDataCatalog(void) const;
+	    std::string const lookupCalibConnect(std::string const& input) const;
+	    std::string const rfioType(void) const;
+
+            std::string const* sourceCacheTempDir() const;
+            double const* sourceCacheMinFree() const;
+            std::string const* sourceCacheHint() const;
+            std::string const* sourceReadHint() const;
+            unsigned int const* sourceTTreeCacheSize() const;
+            std::vector<std::string> const* sourceNativeProtocols() const;
 	    // implicit copy constructor
 	    // implicit assignment operator
 	    // implicit destructor
 	private:
-	    void parse (const std::string &url);
-	    const std::string frontierConnect (const std::string &servlet) const;
-	    std::string 	m_url;	    
+	    void parse (std::string const& url);
+	    std::string const frontierConnect(std::string const& servlet) const;
+	    std::string 	m_url;
 	    std::string 	m_dataCatalog;
+	    std::string 	m_fallbackDataCatalog;
 	    std::string		m_frontierConnect;
 	    std::string 	m_rfioType;
-	    bool		m_connected;	    
+	    bool		m_connected;
             std::string         m_cacheTempDir;
             std::string const*  m_cacheTempDirPtr;
 	    double		m_cacheMinFree;
-	    double const *	m_cacheMinFreePtr;
+	    double const*	m_cacheMinFreePtr;
             std::string         m_cacheHint;
             std::string const*  m_cacheHintPtr;
             std::string         m_readHint;

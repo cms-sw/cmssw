@@ -26,7 +26,7 @@ int main() {
     edm::ServiceRegistry::Operate operate(tempToken);
 
     {
-      edm::FileLocator fl("");
+      edm::FileLocator fl("", false);
 
       const char * lfn[] = {
       "/store/group/bha/bho",
@@ -50,7 +50,7 @@ int main() {
    }
 
     {
-      edm::FileLocator fl("trivialcatalog_file:FWCore/Catalog/test/override_catalog.xml?protocol=override");
+      edm::FileLocator fl("trivialcatalog_file:FWCore/Catalog/test/override_catalog.xml?protocol=override", false);
     
       const char * lfn[] = {
       "/store/unmerged/relval/CMSSW_3_8_0_pre3/RelValZTT/GEN-SIM-DIGI-RAW-HLTDEBUG/START38_V2-v1/0666/80EC0BCD-D279-DF11-B1DB-0030487C90EE.root",

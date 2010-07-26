@@ -152,6 +152,12 @@ namespace edm {
       }
     }
     closeFile_();
+
+    // Determine whether we have a fallback URL specified; if so, prepare it;
+    // Only valid if it is non-empty and differs from the original filename.
+    std::string fallbackName = fileIter_->fallbackFileName();
+    bool hasFallbackUrl = (!fallbackName.empty()) || (fallbackName == fileIter_->fileName());
+
     boost::shared_ptr<TFile> filePtr;
     try {
       logFileAction("  Initiating request to open file ", fileIter_->fileName());
@@ -159,10 +165,24 @@ namespace edm {
 	sentry(primaryFiles_ ? new InputSource::FileOpenSentry(input_) : 0);
       filePtr.reset(TFile::Open(gSystem->ExpandPathName(fileIter_->fileName().c_str())));
     }
-    catch (cms::Exception e) {
-      if(!skipBadFiles) {
+    catch (cms::Exception const& e) {
+      if(!skipBadFiles  && !hasFallbackUrl) {
 	throw edm::Exception(edm::errors::FileOpenError) << e.explainSelf() << "\n" <<
 	   "RootInputFileSequence::initFile(): Input file " << fileIter_->fileName() << " was not found or could not be opened.\n";
+      }
+    }
+    if(!(filePtr && !filePtr->IsZombie()) && (hasFallbackUrl)) {
+      try {
+        logFileAction("  Fallback request to file ", fallbackName);
+        std::auto_ptr<InputSource::FileOpenSentry>
+          sentry(primaryFiles_ ? new InputSource::FileOpenSentry(input_) : 0);
+        filePtr.reset(TFile::Open(gSystem->ExpandPathName(fallbackName.c_str())));
+      }
+      catch (cms::Exception const& e) {
+        if(!skipBadFiles) {
+          throw edm::Exception(edm::errors::FileOpenError) << e.explainSelf() << "\n" <<
+             "RootInputFileSequence::initFile(): Input fallback file " << fallbackName << " was not found or could not be opened.\n";
+        }
       }
     }
     if(filePtr && !filePtr->IsZombie()) {
