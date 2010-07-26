@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWLegoViewBase.cc,v 1.8 2010/06/23 10:24:54 amraktad Exp $
+// $Id: FWLegoViewBase.cc,v 1.9 2010/06/25 14:46:16 amraktad Exp $
 //
 
 // system include files
@@ -17,6 +17,7 @@
 #include "TAxis.h"
 
 #include "TGLViewer.h"
+#include "TGLLightSet.h"
 #include "TGLPerspectiveCamera.h"
 #include "TGLOrthoCamera.h"
 #include "TEveElement.h"
@@ -62,6 +63,7 @@ FWLegoViewBase::FWLegoViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId
    viewContext()->addScale("Calo", caloScale);
 
    viewerGL()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
+   viewerGL()->GetLightSet()->SetUseSpecular(false);
 
    m_projectionMode.addEntry(0, "Auto");
    m_projectionMode.addEntry(1, "3D");
