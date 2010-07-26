@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: ValidateGeometry.cc,v 1.5 2010/07/22 17:38:42 mccauley Exp $
+// $Id: ValidateGeometry.cc,v 1.6 2010/07/23 15:26:57 mccauley Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -59,7 +59,8 @@ private:
   void validateDTGeometry();
   void validateCSCGeometry();
 
-  void validateCaloGeometry(const std::vector<DetId>& ids, const char* detname);
+  void validateCaloGeometry(DetId::Detector detector, int subdetector,
+                            const char* detname);
 
   void validateTrackerGeometry(const TrackerGeometry::DetContainer& dets, 
                                const char* detname);
@@ -70,12 +71,8 @@ private:
   void compareTransform(const GlobalPoint& point, const TGeoHMatrix* matrix);
 
   void compareShape(const GeomDet* det, TEveGeoShape* shape);
-  void compareShape(const DetId& detId);
 
   double getDistance(const GlobalPoint& point1, const GlobalPoint& point2);
-
-  void fillCorners(std::vector<GlobalPoint>& corners, const GeomDet* det);
-  void fillCorners(std::vector<GlobalPoint>& corners, const DetId& detId);
 
   void makeHistograms(const char* detector);
   void makeHistogram(const std::string& name, std::vector<double>& data);
@@ -183,30 +180,30 @@ ValidateGeometry::analyze(const edm::Event& event, const edm::EventSetup& eventS
 
   eventSetup.get<CaloGeometryRecord>().get(caloGeometry_);
 
-  /*
+
   if ( caloGeometry_.isValid() )
   {
     std::cout<<"Validating EB geometry"<<std::endl;
-    validateCaloGeometry(caloGeometry_->getSubdetectorGeometry(DetId::Ecal, EcalBarrel)->getValidDetIds(DetId::Ecal, EcalBarrel), "EB");
+    validateCaloGeometry(DetId::Ecal, EcalBarrel, "EB");
 
     std::cout<<"Validating EE geometry"<<std::endl;
-    validateCaloGeometry(caloGeometry_->getSubdetectorGeometry(DetId::Ecal, EcalEndcap)->getValidDetIds(DetId::Ecal, EcalEndcap), "EE");
+    validateCaloGeometry(DetId::Ecal, EcalEndcap, "EE");
 
     std::cout<<"Validating HB geometry"<<std::endl;
-    validateCaloGeometry(caloGeometry_->getSubdetectorGeometry(DetId::Hcal, HcalBarrel)->getValidDetIds(DetId::Hcal, HcalBarrel), "HB");
+    validateCaloGeometry(DetId::Hcal, HcalBarrel, "HB");
   
     std::cout<<"Validating HE geometry"<<std::endl;
-    validateCaloGeometry(caloGeometry_->getSubdetectorGeometry(DetId::Hcal, HcalEndcap)->getValidDetIds(DetId::Hcal, HcalEndcap), "HE");
+    validateCaloGeometry(DetId::Hcal, HcalEndcap, "HE");
 
     std::cout<<"Validating HO geometry"<<std::endl;
-    validateCaloGeometry(caloGeometry_->getSubdetectorGeometry(DetId::Hcal, HcalOuter)->getValidDetIds(DetId::Hcal, HcalOuter), "HO");
+    validateCaloGeometry(DetId::Hcal, HcalOuter, "HO");
     
     std::cout<<"Validating HF geometry"<<std::endl;
-    validateCaloGeometry(caloGeometry_->getSubdetectorGeometry(DetId::Hcal, HcalForward)->getValidDetIds(DetId::Hcal, HcalForward), "HF");
+    validateCaloGeometry(DetId::Hcal, HcalForward, "HF");
   }
   else
     fwLog(fwlog::kWarning)<<"Invalid Calo geometry"<<std::endl; 
-  */
+
 }
 
 
@@ -348,14 +345,53 @@ ValidateGeometry::validateCSCGeometry()
 
 
 void 
-ValidateGeometry::validateCaloGeometry(const std::vector<DetId>& ids, const char* detname)
+ValidateGeometry::validateCaloGeometry(DetId::Detector detector, 
+                                       int subdetector,
+                                       const char* detname)
 {
+  const CaloSubdetectorGeometry* geometry = 
+    caloGeometry_->getSubdetectorGeometry(detector, subdetector);
+
+  const std::vector<DetId>& ids = geometry->getValidDetIds(detector, subdetector);
+
   for (std::vector<DetId>::const_iterator it = ids.begin(), 
                                         iEnd = ids.end(); 
        it != iEnd; ++it) 
   {
+    unsigned int rawId = (*it).rawId();
+
+    std::vector<TEveVector> points = detIdToMatrix_.getPoints(rawId);
+
+    if ( points.empty() )
+    { 
+      std::cout <<"Failed to get points of "<< detname 
+                <<" element with detid: "<< rawId <<std::endl;
+      continue;
+    }
+
+    assert(points.size() == 8);
+
+    const CaloCellGeometry* cellGeometry = geometry->getGeometry(*it);
+    const CaloCellGeometry::CornersVec& corners = cellGeometry->getCorners();
     
+    assert(corners.size() == 8);
+
+    for ( unsigned int i = 0; i < 8; ++i )
+    {
+      /*
+      std::cout<< points[i][0] <<" "<< points[i][1] <<" "<< points[i][2] <<" | "
+               << corners[i].x() <<" "<< corners[i].y() <<" "<< corners[i].z() <<std::endl;
+
+      */
+
+      double distance = getDistance(GlobalPoint(points[i][0], points[i][1], points[i][2]), 
+                                    GlobalPoint(corners[i].x(), corners[i].y(), corners[i].z()));
+      
+      distances_.push_back(distance);
+    }
   }
+
+  makeHistograms(detname);
 }
 
 
@@ -396,6 +432,7 @@ ValidateGeometry::validateTrackerGeometry(const TrackerGeometry::DetContainer& d
   
   makeHistograms(detname);
 }
+
 
 void
 ValidateGeometry::validateTrackerGeometry(const TrackerGeometry::DetUnitContainer& dets,
@@ -451,15 +488,6 @@ ValidateGeometry::compareTransform(const GlobalPoint& gp,
 
   double distance = getDistance(GlobalPoint(global[0], global[1], global[2]), gp);
   distances_.push_back(distance);
-}
-
-
-void 
-ValidateGeometry::compareShape(const DetId& detId)
-{
-  const CaloCellGeometry* cellGeometry = caloGeometry_->getGeometry(detId);
-  const CaloCellGeometry::CornersVec& cs = cellGeometry->getCorners();
-  assert(cs.size() == 8);
 }
 
 
@@ -564,84 +592,6 @@ ValidateGeometry::getDistance(const GlobalPoint& p1, const GlobalPoint& p2)
   return sqrt((p1.x()-p2.x())*(p1.x()-p2.x())+
               (p1.y()-p2.y())*(p1.y()-p2.y())+
               (p1.z()-p2.z())*(p1.z()-p2.z()));
-}
-
-
-void
-ValidateGeometry::fillCorners(std::vector<GlobalPoint>& corners, const GeomDet* det)
-{
-  const Bounds* bounds = &(det->surface().bounds());
-  const TrapezoidalPlaneBounds* tpbs;
-
-  if ( (tpbs = dynamic_cast<const TrapezoidalPlaneBounds*>(bounds)) )
-  {
-    std::vector<float> ps = tpbs->parameters();
-
-    assert(ps.size() == 4);
-    
-    corners.push_back(det->surface().toGlobal(LocalPoint(ps[0],-ps[3],ps[2]))); 
-    corners.push_back(det->surface().toGlobal(LocalPoint(-ps[0],-ps[3],ps[2])));                
-    corners.push_back(det->surface().toGlobal(LocalPoint(ps[1],ps[3],ps[2]))); 
-    corners.push_back(det->surface().toGlobal(LocalPoint(-ps[1],ps[3],ps[2]))); 
-    corners.push_back(det->surface().toGlobal(LocalPoint(ps[0],-ps[3],-ps[2]))); 
-    corners.push_back(det->surface().toGlobal(LocalPoint(-ps[0],-ps[3],-ps[2]))); 
-    corners.push_back(det->surface().toGlobal(LocalPoint(ps[1],ps[3],-ps[2]))); 
-    corners.push_back(det->surface().toGlobal(LocalPoint(-ps[1],ps[3],-ps[2])));
-  }
-  
-  else if ( (dynamic_cast<const RectangularPlaneBounds*>(bounds)) )
-  {
-    float length    = det->surface().bounds().length() / 2;
-    float width     = det->surface().bounds().width() / 2 ;
-    float thickness = det->surface().bounds().thickness() / 2;
-
-    corners.push_back(det->surface().toGlobal(LocalPoint(width,length,thickness))); 
-    corners.push_back(det->surface().toGlobal(LocalPoint(width,-length,thickness))); 
-    corners.push_back(det->surface().toGlobal(LocalPoint(-width,length,thickness))); 
-    corners.push_back(det->surface().toGlobal(LocalPoint(-width,-length,thickness))); 
-    corners.push_back(det->surface().toGlobal(LocalPoint(width,length,-thickness))); 
-    corners.push_back(det->surface().toGlobal(LocalPoint(width,-length,-thickness))); 
-    corners.push_back(det->surface().toGlobal(LocalPoint(-width,length,-thickness))); 
-    corners.push_back(det->surface().toGlobal(LocalPoint(-width,-length,-thickness)));
-  }
-  
-  assert(corners.size() == 8);
-  return;
-}
-
-
-void 
-ValidateGeometry::fillCorners(std::vector<GlobalPoint>& corners, const DetId& detId)
-{
-  const CaloCellGeometry* cellGeometry = caloGeometry_->getGeometry(detId);
-  const CaloCellGeometry::CornersVec& cs = cellGeometry->getCorners();
-  assert(cs.size() == 8);
-
-  if ( detId.det() == DetId::Ecal )
-  {
-    corners.push_back(cs[3]);
-    corners.push_back(cs[2]);
-    corners.push_back(cs[1]);
-    corners.push_back(cs[0]);
-
-    corners.push_back(cs[7]);
-    corners.push_back(cs[6]);
-    corners.push_back(cs[5]);
-    corners.push_back(cs[4]); 
-  }
-    
-  else if ( detId.det() == DetId::Hcal )
-  {
-    corners.push_back(cs[0]);
-    corners.push_back(cs[1]);
-    corners.push_back(cs[2]);
-    corners.push_back(cs[3]);
-
-    corners.push_back(cs[4]);
-    corners.push_back(cs[5]);
-    corners.push_back(cs[6]);
-    corners.push_back(cs[7]); 
-  }
 }
 
 
