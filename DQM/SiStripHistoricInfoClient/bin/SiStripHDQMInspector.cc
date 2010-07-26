@@ -43,8 +43,12 @@ void runTrackingInspector( const string &dbName, const string &tagName, const st
   vector<string> subDetectors;
   subDetectors.push_back("369098752"); // TIB (check)
   subDetectors.push_back("436207616"); // TOB (check)
-  subDetectors.push_back("402653184"); // TID (check)
-  subDetectors.push_back("469762048"); // TEC (check)
+  // subDetectors.push_back("402653184"); // TID (check)
+  subDetectors.push_back("402661376"); // TID- (check)
+  subDetectors.push_back("402669568"); // TID+ (check)
+  // subDetectors.push_back("469762048"); // TEC (check)
+  subDetectors.push_back("469778432"); // TEC- (check)
+  subDetectors.push_back("469794816"); // TEC+ (check)
   // -------------------
 
   HDQMInspectorConfigSiStrip siStripConfig;

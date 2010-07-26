@@ -56,9 +56,9 @@ uint32_t SiStripHistoryDQMService::returnDetComponent(const MonitorElement* ME){
   //TEC
   else if(str.find("TEC")!= std::string::npos){  
     if (str.find("side")!= std::string::npos){
-      layer=atoi(str.substr(str.find("wheel__")+__key_length__,1).c_str());
+      layer=atoi(str.substr(str.find("_side__")+__key_length__,1).c_str());
       if (str.find("wheel")!= std::string::npos){
-	side=atoi(str.substr(str.find("_side__")+__key_length__,1).c_str());
+	side=atoi(str.substr(str.find("wheel__")+__key_length__,1).c_str());
       }
     }
     return TECDetId(side,layer,0,0,0,0,0).rawId();
