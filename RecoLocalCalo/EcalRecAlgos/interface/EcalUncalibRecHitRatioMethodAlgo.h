@@ -5,9 +5,9 @@
  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
  *  using a ratio method
  *
- *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.9 2010/07/27 15:00:14 innocent Exp $
- *  $Date: 2010/07/27 15:00:14 $
- *  $Revision: 1.9 $
+ *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.10 2010/07/27 15:06:10 innocent Exp $
+ *  $Date: 2010/07/27 15:06:10 $
+ *  $Revision: 1.10 $
  *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
  */
 
@@ -208,6 +208,10 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
   double alpha = amplitudeFitParameters[0];
   double beta = amplitudeFitParameters[1];
   double overab = 1.0/alphabeta;
+  double RLimits[amplitudesSize];
+  for(unsigned int i = 1; i < amplitudesSize; i++){
+    RLimits[i] = exp(double(i)/beta)-0.001;
+  } 
  
   for(unsigned int i = 0; i < amplitudesSize-1; i++){
     for(unsigned int j = i+1; j < amplitudesSize; j++){
@@ -216,6 +220,9 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
 
 	// ratio
 	double Rtmp = amplitudes_[i]/amplitudes_[j];
+
+	// don't include useless ratios
+	if( Rtmp<0.001 ||  Rtmp> RLimits(j-i) ) continue;
 
 	// error^2 due to stat fluctuations of time samples
 	// (uncorrelated for both samples)
@@ -238,7 +245,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
 	// don't include useless ratios
 	if(totalError < 1.0
 	   && Rtmp>0.001
-	   && Rtmp<exp(double(j-i)/beta)-0.001
+	   && Rtmp< RLimits(j-i)
 	   ){
 	  Ratio currentRatio = { i, (j-i), Rtmp, totalError };
 	  ratios_.push_back(currentRatio);
@@ -265,8 +272,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
     if(Rmin<0.001) Rmin=0.001;
 
     double Rmax = ratios_[i].value + ratios_[i].error;
-    double RLimit = exp(stepOverBeta)-0.001;
-    if( Rmax > RLimit ) Rmax = RLimit;
+    if( Rmax > RLimits(ratios_[i].step) ) Rmax = RLimits(ratios_[i].step);
 
     double time1 = offset - ratios_[i].step/(exp((stepOverBeta-log(Rmin))/alpha)-1.0);
     double time2 = offset - ratios_[i].step/(exp((stepOverBeta-log(Rmax))/alpha)-1.0);
@@ -283,9 +289,9 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
       double offset = (double(it) - tmax)*overab;
       double term1 = 1.0 + offset;
       if(term1>1e-6){
-	double f = exp( alpha*(log(1.0+offset) - offset) );
-	sumAf += amplitudes_[it]*f*err2;
-	sumff += f*f*err2;
+	double f = exp( alpha*(log(term1) - offset) );
+	sumAf += amplitudes_[it]*(f*err2);
+	sumff += f*(f*err2);
       }
     }
 
@@ -345,9 +351,9 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
     double offset = (double(i) - tMaxAlphaBeta)*overab;
     double term1 = 1.0 + offset;
     if(term1>1e-6){
-      double f = exp( alpha*(log(1.0+offset) - offset) );
-      sumAf += amplitudes_[i]*f*err2;
-      sumff += f*f*err2;
+      double f = exp( alpha*(log(term1) - offset) );
+      sumAf += amplitudes_[i]*(f*err2);
+      sumff += f*(f*err2);
     }
   }
 
