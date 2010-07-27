@@ -5,9 +5,9 @@
  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
  *  using a ratio method
  *
- *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.7 2010/06/09 07:51:55 franzoni Exp $
- *  $Date: 2010/06/09 07:51:55 $
- *  $Revision: 1.7 $
+ *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.8 2010/06/10 10:13:05 franzoni Exp $
+ *  $Date: 2010/06/10 10:13:05 $
+ *  $Revision: 1.8 $
  *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
  */
 
@@ -18,137 +18,145 @@
 #include <vector>
 
 template < class C > class EcalUncalibRecHitRatioMethodAlgo {
-      public:
-	struct Ratio {
-		int index;
-                int step;
-		double value;
-		double error;
-	};
-	struct Tmax {
-		int index;
-                int step;
-		double value;
-		double error;
-                double amplitude;
-                double chi2;
-	};
-	struct CalculatedRecHit {
-		double amplitudeMax;
-		double timeMax;
-		double timeError;
-                double chi2;
-	};
+public:
+  struct Ratio {
+    int index;
+    int step;
+    double value;
+    double error;
+  };
+  struct Tmax {
+    int index;
+    int step;
+    double value;
+    double error;
+    double amplitude;
+    double chi2;
+  };
+  struct CalculatedRecHit {
+    double amplitudeMax;
+    double timeMax;
+    double timeError;
+    double chi2;
+  };
 
-	virtual ~ EcalUncalibRecHitRatioMethodAlgo < C > () { };
-	virtual EcalUncalibratedRecHit makeRecHit(const C & dataFrame,
-						  const double *pedestals,
-                                                  const double* pedestalRMSes,
-						  const double *gainRatios,
-						  std::vector < double >&timeFitParameters,
-						  std::vector < double >&amplitudeFitParameters,
-						  std::pair < double, double >&timeFitLimits);
+  virtual ~ EcalUncalibRecHitRatioMethodAlgo < C > () { };
+  virtual EcalUncalibratedRecHit makeRecHit(const C & dataFrame,
+					    const double *pedestals,
+					    const double* pedestalRMSes,
+					    const double *gainRatios,
+					    std::vector < double >&timeFitParameters,
+					    std::vector < double >&amplitudeFitParameters,
+					    std::pair < double, double >&timeFitLimits);
+  
+  // more function to be able to compute
+  // amplitude and time separately
+  void init( const C &dataFrame, const double * pedestals, const double * pedestalRMSes, const double * gainRatios );
+  void computeTime(std::vector < double >&timeFitParameters, std::pair < double, double >&timeFitLimits, std::vector< double > &amplitudeFitParameters);
+  void computeAmplitude( std::vector< double > &amplitudeFitParameters );
+  CalculatedRecHit getCalculatedRecHit() { return calculatedRechit_; };
+  
+protected:
 
-        // more function to be able to compute
-        // amplitude and time separately
-        void init( const C &dataFrame, const double * pedestals, const double * pedestalRMSes, const double * gainRatios );
-        void computeTime(std::vector < double >&timeFitParameters, std::pair < double, double >&timeFitLimits, std::vector< double > &amplitudeFitParameters);
-        void computeAmplitude( std::vector< double > &amplitudeFitParameters );
-        CalculatedRecHit getCalculatedRecHit() { return calculatedRechit_; };
 
-      protected:
-	std::vector < double > amplitudes_;
-        std::vector < double > amplitudeErrors_;
-	std::vector < Ratio > ratios_;
-	std::vector < Tmax > times_;
-        std::vector < Tmax > timesAB_;
+  static comst size_t =  amplitudesSize=C::MAXSAMPLES;
+  static comst size_t =  ratiosSize=C::MAXSAMPLES*(C::MAXSAMPLES-1)/2;
 
-        double pedestal_;
-	int    num_;
-        double ampMaxError_;
-
-	CalculatedRecHit calculatedRechit_;
+  double  amplitudes_[amplitudesSize];
+  double  amplitudeErrors_[amplitudesSize];
+  double  amplitudeErrors2_[amplitudesSize];
+  double  amplitudeErrors2inv_[amplitudesSize];
+ 
+  std::vector < Ratio > ratios_;
+  std::vector < Tmax > times_;
+  std::vector < Tmax > timesAB_;
+  
+  double pedestal_;
+  int    num_;
+  double ampMaxError_;
+  
+  CalculatedRecHit calculatedRechit_;
 };
 
 template <class C>
 void EcalUncalibRecHitRatioMethodAlgo<C>::init( const C &dataFrame, const double * pedestals, const double * pedestalRMSes, const double * gainRatios )
 {
-	calculatedRechit_.timeMax = 5;
-	calculatedRechit_.amplitudeMax = 0;
-	calculatedRechit_.timeError = -999;
-	amplitudes_.clear();
-	amplitudes_.reserve(C::MAXSAMPLES);
-	amplitudeErrors_.clear();
-	amplitudeErrors_.reserve(C::MAXSAMPLES);
-	ratios_.clear();
-	ratios_.reserve(C::MAXSAMPLES*(C::MAXSAMPLES-1)/2);
-	times_.clear();
-	times_.reserve(C::MAXSAMPLES*(C::MAXSAMPLES-1)/2);
-	timesAB_.clear();
-	timesAB_.reserve(C::MAXSAMPLES*(C::MAXSAMPLES-1)/2);
-	
-	// to obtain gain 12 pedestal:
-	// -> if it's in gain 12, use first sample
-	// --> average it with second sample if in gain 12 and 3-sigma-noise compatible (better LF noise cancellation)
-	// -> else use pedestal from database
-	pedestal_ = 0;
-	num_      = 0;
-	if (dataFrame.sample(0).gainId() == 1) {
-		pedestal_ += double (dataFrame.sample(0).adc());
-		num_++;
-	}
-	if (num_!=0 &&
-	    dataFrame.sample(1).gainId() == 1 && 
-	    fabs(dataFrame.sample(1).adc()-dataFrame.sample(0).adc())<3*pedestalRMSes[0]) {
-	        pedestal_ += double (dataFrame.sample(1).adc());
-	        num_++;
-	}
-	if (num_ != 0)
-		pedestal_ /= num_;
-	else
-		pedestal_ = pedestals[0];
+  calculatedRechit_.timeMax = 5;
+  calculatedRechit_.amplitudeMax = 0;
+  calculatedRechit_.timeError = -999;
 
-        // fill vector of amplitudes, pedestal subtracted and vector
-        // of amplitude uncertainties Also, find the uncertainty of a
-        // sample with max amplitude. We will use it later.
+  ratios_.clear();
+  ratios_.reserve(C::MAXSAMPLES*(C::MAXSAMPLES-1)/2);
+  times_.clear();
+  times_.reserve(C::MAXSAMPLES*(C::MAXSAMPLES-1)/2);
+  timesAB_.clear();
+  timesAB_.reserve(C::MAXSAMPLES*(C::MAXSAMPLES-1)/2);
+  
+  // to obtain gain 12 pedestal:
+  // -> if it's in gain 12, use first sample
+  // --> average it with second sample if in gain 12 and 3-sigma-noise compatible (better LF noise cancellation)
+  // -> else use pedestal from database
+  pedestal_ = 0;
+  num_      = 0;
+  if (dataFrame.sample(0).gainId() == 1) {
+    pedestal_ += double (dataFrame.sample(0).adc());
+    num_++;
+  }
+  if (num_!=0 &&
+      dataFrame.sample(1).gainId() == 1 && 
+      fabs(dataFrame.sample(1).adc()-dataFrame.sample(0).adc())<3*pedestalRMSes[0]) {
+    pedestal_ += double (dataFrame.sample(1).adc());
+    num_++;
+  }
+  if (num_ != 0)
+    pedestal_ /= num_;
+  else
+    pedestal_ = pedestals[0];
+  
+  // fill vector of amplitudes, pedestal subtracted and vector
+  // of amplitude uncertainties Also, find the uncertainty of a
+  // sample with max amplitude. We will use it later.
+  
+  ampMaxError_ = 0;
+  double ampMaxValue = -1000;
+  
+  // ped-subtracted and gain-renormalized samples. It is VERY
+  // IMPORTANT to have samples one clock apart which means to
+  // have vector size equal to MAXSAMPLES
+  double sample;
+  double sampleError;
+  int GainId;
+  for (int iSample = 0; iSample < C::MAXSAMPLES; iSample++) {
+    GainId = dataFrame.sample(iSample).gainId();
+    
+    if (GainId == 1) {
+      sample      = double (dataFrame.sample(iSample).adc() - pedestal_);
+      sampleError = pedestalRMSes[0];
+    } else if (GainId == 2 || GainId == 3){
+      sample      = (double (dataFrame.sample(iSample).adc() - pedestals[GainId - 1])) *gainRatios[GainId - 1];
+      sampleError = pedestalRMSes[GainId-1]*gainRatios[GainId-1];
+    } else {
+      sample      = 1e-9;  // GainId=0 case falls here, from saturation
+      sampleError = 1e+9;  // inflate error so won't generate ratio considered for the measurement 
+    }
+    
+  
+    if(sampleError>0){
+      amplitudes_[iSample]=sample;
+      amplitudeErrors_[iSample]=sampleError;
+      if(ampMaxValue < sample){
+	ampMaxValue = sample;
+	ampMaxError_ = sampleError;
+      }
+    }else{
+      // inflate error for useless samples
+      amplitudes_[iSample]=sample;
+      amplitudeErrors_[iSample]=1e+9;
+    }
+    amplitudeErrors2_[iSample] =  amplitudeErrors_[iSample]*amplitudeErrors_[iSample];
+    amplitudeErrors2inv_[iSample] = 1.0/amplitudeErrors2_[iSample];
+  }
 
-        ampMaxError_ = 0;
-        double ampMaxValue = -1000;
-
-	// ped-subtracted and gain-renormalized samples. It is VERY
-	// IMPORTANT to have samples one clock apart which means to
-	// have vector size equal to MAXSAMPLES
-	double sample;
-        double sampleError;
-	int GainId;
-        for (int iSample = 0; iSample < C::MAXSAMPLES; iSample++) {
-          GainId = dataFrame.sample(iSample).gainId();
-
-          if (GainId == 1) {
-            sample      = double (dataFrame.sample(iSample).adc() - pedestal_);
-            sampleError = pedestalRMSes[0];
-          } else if (GainId == 2 || GainId == 3){
-            sample      = (double (dataFrame.sample(iSample).adc() - pedestals[GainId - 1])) *gainRatios[GainId - 1];
-            sampleError = pedestalRMSes[GainId-1]*gainRatios[GainId-1];
-          } else {
-	    sample      = 1e-9;  // GainId=0 case falls here, from saturation
-	    sampleError = 1e+9;  // inflate error so won't generate ratio considered for the measurement 
-	  }
-
-
-          if(sampleError>0){
-            amplitudes_.push_back(sample);
-            amplitudeErrors_.push_back(sampleError);
-            if(ampMaxValue < sample){
-              ampMaxValue = sample;
-              ampMaxError_ = sampleError;
-            }
-          }else{
-	    // inflate error for useless samples
-            amplitudes_.push_back(sample);
-            amplitudeErrors_.push_back(1e+9);
-	  }
-        }
 }
 
 
@@ -176,12 +184,12 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
   double NullChi2 = 0;
 
   // null hypothesis = no pulse, pedestal only
-  for(unsigned int i = 0; i < amplitudes_.size(); i++){
-    double err2 = amplitudeErrors_[i]*amplitudeErrors_[i];
+  for(unsigned int i = 0; i < amplitudesSize; i++){
+    double err2 = amplitudeErrors2inv_[i];
     sum0  += 1;
-    sum1  += 1/err2;
-    sumA  += amplitudes_[i]/err2;
-    sumAA += amplitudes_[i]*amplitudes_[i]/err2;
+    sum1  += err2;
+    sumA  += amplitudes_[i]*err2;
+    sumAA += amplitudes_[i]*amplitudes_[i]*err2;
   }
   if(sum0>0){
     NullChi2 = (sumAA - sumA*sumA/sum1)/sum0;
@@ -199,9 +207,10 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
   double alphabeta = amplitudeFitParameters[0]*amplitudeFitParameters[1];
   double alpha = amplitudeFitParameters[0];
   double beta = amplitudeFitParameters[1];
-
-  for(unsigned int i = 0; i < amplitudes_.size()-1; i++){
-    for(unsigned int j = i+1; j < amplitudes_.size(); j++){
+  double overab = 1.0/alphabeta;
+ 
+  for(unsigned int i = 0; i < amplitudesSize-1; i++){
+    for(unsigned int j = i+1; j < amplitudesSize; j++){
 
       if(amplitudes_[i]>1 && amplitudes_[j]>1){
 
@@ -211,7 +220,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
 	// error^2 due to stat fluctuations of time samples
 	// (uncorrelated for both samples)
 
-	double err1 = Rtmp*Rtmp*( (amplitudeErrors_[i]*amplitudeErrors_[i]/(amplitudes_[i]*amplitudes_[i])) + (amplitudeErrors_[j]*amplitudeErrors_[j]/(amplitudes_[j]*amplitudes_[j])) );
+	double err1 = Rtmp*Rtmp*( (amplitudeErrors2_[i]/(amplitudes_[i]*amplitudes_[i])) + (amplitudeErrors2_[j]/(amplitudes_[j]*amplitudes_[j])) );
 
 	// error due to fluctuations of pedestal (common to both samples)
 	double stat;
@@ -269,22 +278,22 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
     // calculate chi2
     sumAf = 0;
     sumff = 0;
-    for(unsigned int it = 0; it < amplitudes_.size(); it++){
-      double err2 = amplitudeErrors_[it]*amplitudeErrors_[it];
-      double offset = (double(it) - tmax)/alphabeta;
+    for(unsigned int it = 0; it < amplitudesSize; it++){
+      double err2 = amplitudeErrors2inv_[it];
+      double offset = (double(it) - tmax)*overab;
       double term1 = 1.0 + offset;
       if(term1>1e-6){
 	double f = exp( alpha*(log(1.0+offset) - offset) );
-	sumAf += amplitudes_[it]*f/err2;
-	sumff += f*f/err2;
+	sumAf += amplitudes_[it]*f*err2;
+	sumff += f*f*err2;
       }
     }
 
     double chi2 = sumAA;
     double amp = 0;
     if( sumff > 0 ){
-      chi2 = sumAA - sumAf*sumAf/sumff;
       amp = sumAf/sumff;
+      chi2 = sumAA - sumAf*amp;
     }
     chi2 /= sum0;
 
@@ -331,20 +340,20 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
   // find amplitude and chi2
   sumAf = 0;
   sumff = 0;
-  for(unsigned int i = 0; i < amplitudes_.size(); i++){
-    double err2 = amplitudeErrors_[i]*amplitudeErrors_[i];
-    double offset = (double(i) - tMaxAlphaBeta)/alphabeta;
+  for(unsigned int i = 0; i < amplitudesSize; i++){
+    double err2 = amplitudeErrors2inv_[i];
+    double offset = (double(i) - tMaxAlphaBeta)*overab;
     double term1 = 1.0 + offset;
     if(term1>1e-6){
       double f = exp( alpha*(log(1.0+offset) - offset) );
-      sumAf += amplitudes_[i]*f/err2;
-      sumff += f*f/err2;
+      sumAf += amplitudes_[i]*f*err2;
+      sumff += f*f*err2;
     }
   }
 
   if( sumff > 0 ){
     ampMaxAlphaBeta  = sumAf/sumff;
-    double chi2AlphaBeta = (sumAA - sumAf*sumAf/sumff)/sum0;
+    double chi2AlphaBeta = (sumAA - sumAf* ampMaxAlphaBeta)/sum0;
     if(chi2AlphaBeta > NullChi2){
       // null hypothesis is better
       return;
@@ -477,22 +486,22 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeAmplitude( std::vector< double 
 	double sumAF = 0;
 	double sumFF = 0;
 	double sum1 = 0;
-	for (unsigned int i = 0; i < amplitudes_.size(); i++) {
-	        double err2 = amplitudeErrors_[i]*amplitudeErrors_[i];
+	for (unsigned int i = 0; i < amplitudesSize; i++) {
+	        double err2 = amplitudeErrors2inv_[i];
 		double f = 0;
 		double termOne = 1 + (i - calculatedRechit_.timeMax) / (alpha * beta);
-		if (termOne > 1.e-5) f = exp(alpha * log(termOne)) * exp(-(i - calculatedRechit_.timeMax) / beta);
+		if (termOne > 1.e-5) f = exp(alpha * log(termOne) -(i - calculatedRechit_.timeMax) / beta);
 
 		// apply range of interesting samples
 
 		if ( (i < pedestalLimit)
 		     || (f > 0.6 && i <= calculatedRechit_.timeMax)
 		     || (f > 0.4 && i >= calculatedRechit_.timeMax)) {
-		  	  sum1  += 1/err2;
-			  sumA  += amplitudes_[i]/err2;
-			  sumF  += f/err2;
-			  sumAF += f*amplitudes_[i]/err2;
-			  sumFF += f*f/err2;
+		  	  sum1  += err2;
+			  sumA  += amplitudes_[i]*err2;
+			  sumF  += (f*err2);
+			  sumAF += amplitudes_[i]*(f*err2);
+			  sumFF += f*(f*err2);
 		}
 	}
 
