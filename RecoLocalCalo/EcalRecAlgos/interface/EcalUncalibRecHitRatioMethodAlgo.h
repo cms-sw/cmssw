@@ -5,9 +5,9 @@
  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
  *  using a ratio method
  *
- *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.10 2010/07/27 15:06:10 innocent Exp $
- *  $Date: 2010/07/27 15:06:10 $
- *  $Revision: 1.10 $
+ *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.11 2010/07/27 15:16:17 innocent Exp $
+ *  $Date: 2010/07/27 15:16:17 $
+ *  $Revision: 1.11 $
  *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
  */
 
@@ -222,7 +222,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
 	double Rtmp = amplitudes_[i]/amplitudes_[j];
 
 	// don't include useless ratios
-	if( Rtmp<0.001 ||  Rtmp> RLimits(j-i) ) continue;
+	if( Rtmp<0.001 ||  Rtmp> RLimits[j-i] ) continue;
 
 	// error^2 due to stat fluctuations of time samples
 	// (uncorrelated for both samples)
@@ -245,7 +245,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
 	// don't include useless ratios
 	if(totalError < 1.0
 	   && Rtmp>0.001
-	   && Rtmp< RLimits(j-i)
+	   && Rtmp< RLimits[j-i]
 	   ){
 	  Ratio currentRatio = { i, (j-i), Rtmp, totalError };
 	  ratios_.push_back(currentRatio);
@@ -272,7 +272,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
     if(Rmin<0.001) Rmin=0.001;
 
     double Rmax = ratios_[i].value + ratios_[i].error;
-    if( Rmax > RLimits(ratios_[i].step) ) Rmax = RLimits(ratios_[i].step);
+    if( Rmax > RLimits[ratios_[i].step] ) Rmax = RLimits[ratios_[i].step];
 
     double time1 = offset - ratios_[i].step/(exp((stepOverBeta-log(Rmin))/alpha)-1.0);
     double time2 = offset - ratios_[i].step/(exp((stepOverBeta-log(Rmax))/alpha)-1.0);
