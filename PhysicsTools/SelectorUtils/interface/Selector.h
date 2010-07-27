@@ -10,7 +10,7 @@
   The user can then turn individual cuts on and off at will. 
 
   \author Salvatore Rappoccio
-  \version  $Id: Selector.h,v 1.10 2010/05/02 16:37:36 hegner Exp $
+  \version  $Id: Selector.h,v 1.11 2010/07/23 01:25:22 srappocc Exp $
 */
 
 
@@ -112,7 +112,7 @@ class Selector : public std::binary_function<T, pat::strbitset, bool>  {
 
   /// Set a given selection cut, on or off, and reset int cut value
   void set(std::string const & s, int cut, bool val = true) {
-    set( index_type(&bits_,s), val);
+    set( index_type(&bits_,s), cut);
   }
   void set(index_type const & i, int cut, bool val = true) {
     bits_[i] = val;
@@ -121,7 +121,7 @@ class Selector : public std::binary_function<T, pat::strbitset, bool>  {
 
   /// Set a given selection cut, on or off, and reset int cut value
   void set(std::string const & s, double cut, bool val = true) {
-    set( index_type(&bits_,s), val);
+    set( index_type(&bits_,s), cut);
   }
   void set(index_type const & i, double cut, bool val = true) {
     bits_[i] = val;
