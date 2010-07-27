@@ -69,7 +69,7 @@ void HIPixelClusterVtxProducer::produce(edm::Event& ev, const edm::EventSetup& e
     const SiPixelRecHitCollection *hits = hRecHits.product();
 
     // loop over pixel rechits
-    std::vector<VertexHit> vhits(hits->dataSize());
+    std::vector<VertexHit> vhits;
     for(SiPixelRecHitCollection::DataContainer::const_iterator hit = hits->data().begin(), 
           end = hits->data().end(); hit != end; ++hit) {
       if (!hit->isValid())
@@ -97,8 +97,8 @@ void HIPixelClusterVtxProducer::produce(edm::Event& ev, const edm::EventSetup& e
       }
 
       LocalPoint lpos = LocalPoint(hit->localPosition().x(),
-                                   hit->localPosition().y(),
-                                   hit->localPosition().z());
+				   hit->localPosition().y(),
+				   hit->localPosition().z());
       GlobalPoint gpos = pgdu->toGlobal(lpos);
       VertexHit vh;
       vh.z = gpos.z(); 
@@ -106,7 +106,7 @@ void HIPixelClusterVtxProducer::produce(edm::Event& ev, const edm::EventSetup& e
       vh.w = hit->cluster()->sizeY();
       vhits.push_back(vh);
     }
-
+    
     // estimate z-position from cluster lengths
     double zest = 0.0;
     int nhits = 0, nhits_max = 0;
