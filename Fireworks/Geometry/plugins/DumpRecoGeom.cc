@@ -161,10 +161,16 @@ DumpRecoGeom::analyze( const edm::Event& event, const edm::EventSetup& eventSetu
   TString *v_path( new TString );
   char v_name[1000];
   Float_t v_vertex[24];
-   
+  
+// An attempt to cache shapes and matrices.  
+//   TObject* v_volume( new TObject );
+//   TObject* v_shape( new TObject );
+
   tree->SetBranchStyle( 0 );
   tree->Branch( "id", &v_id, "id/i" );
   tree->Branch( "path", &v_name, "path/C" );
+//   tree->Branch( "volume", "TObject", &v_volume );
+//   tree->Branch( "shape", "TObject", &v_shape );
   tree->Branch( "points", &v_vertex, "points[24]/F" );
   for( std::map<unsigned int, Info>::const_iterator it = m_idToName.begin(),
 						   end = m_idToName.end();
@@ -175,6 +181,9 @@ DumpRecoGeom::analyze( const edm::Event& event, const edm::EventSetup& eventSetu
     for( unsigned int i = 0; i < 24; ++i )
       v_vertex[i] = it->second.points[i];
     strcpy( v_name, it->second.name.c_str());
+//     geom->cd( *v_path );
+//     v_volume = geom->GetCurrentVolume();
+//     v_shape = geom->GetCurrentVolume()->GetShape();
     tree->Fill();
   }
   file.WriteTObject( &*geom );
@@ -248,6 +257,7 @@ DumpRecoGeom::createShape( const GeomDet *det )
     if( 0 == shape )
     {
       shape = new TGeoTrap(
+	name.c_str(),
 	thickness,  //dz
 	0, 	    //theta
 	0, 	    //phi
@@ -282,7 +292,7 @@ DumpRecoGeom::createShape( const GeomDet *det )
     shape = m_nameToShape[name];
     if( 0 == shape )
     {
-      shape = new TGeoBBox( width / 2., length / 2., thickness / 2. ); // dx, dy, dz
+      shape = new TGeoBBox( name.c_str(), width / 2., length / 2., thickness / 2. ); // dx, dy, dz
 
       m_nameToShape[name] = shape;
     }
@@ -300,10 +310,9 @@ DumpRecoGeom::createVolume( const std::string& name, const GeomDet *det, const s
   { 
     TGeoShape* solid = createShape( det );
     TGeoMedium* medium = m_nameToMedium[material];
-
     if( 0 == medium )
     {
-      medium = new TGeoMedium( name.c_str(), 0, createMaterial( material ));
+      medium = new TGeoMedium( material.c_str(), 0, createMaterial( material ));
       m_nameToMedium[material] = medium;
     }
     if( solid )
@@ -311,9 +320,10 @@ DumpRecoGeom::createVolume( const std::string& name, const GeomDet *det, const s
       volume = new TGeoVolume( name.c_str(),
 			       solid,
 			       medium );
+      m_nameToVolume[name] = volume;
     }
-    m_nameToVolume[name] = volume;
-  }
+  }  
+  
   return volume;
 }
 
@@ -367,7 +377,7 @@ DumpRecoGeom::addCSCGeometry( TGeoVolume* top, const std::string& iName, int cop
       TGeoVolume* child = createVolume( name, chamber );
       assembly->AddNode( child, copy, createPlacement( chamber ));
       child->SetLineColor( kBlue );
-      
+
       s.clear();
       s << path( top, iName, copy ) << "/" << name << "_" << copy;
       m_idToName[rawid] = Info( s.str());
