@@ -25,19 +25,19 @@ DEFINE_FWK_MODULE(TtDecaySelection);
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtEvtBuilder.h"
 
-typedef TtEvtBuilder< TtFullHadronicEvent > TtFullHadEvtBuilder;
-typedef TtEvtBuilder< TtFullLeptonicEvent > TtFullLepEvtBuilder;
-typedef TtEvtBuilder< TtSemiLeptonicEvent > TtSemiLepEvtBuilder;
+typedef TtEvtBuilder<TtFullHadronicEvent> TtFullHadEvtBuilder;
+typedef TtEvtBuilder<TtFullLeptonicEvent> TtFullLepEvtBuilder;
+typedef TtEvtBuilder<TtSemiLeptonicEvent> TtSemiLepEvtBuilder;
 
 DEFINE_FWK_MODULE(TtFullHadEvtBuilder);
 DEFINE_FWK_MODULE(TtFullLepEvtBuilder);
 DEFINE_FWK_MODULE(TtSemiLepEvtBuilder);
 
-#include "TopQuarkAnalysis/TopEventProducers/interface/TtEvtFilter.h"
+#include "TopQuarkAnalysis/TopEventProducers/interface/StringCutObjectEvtFilter.h"
 
-typedef TtEvtFilter< TtFullHadronicEvent > TtFullHadEvtFilter;
-typedef TtEvtFilter< TtFullLeptonicEvent > TtFullLepEvtFilter;
-typedef TtEvtFilter< TtSemiLeptonicEvent > TtSemiLepEvtFilter;
+typedef StringCutObjectEvtFilter<TtFullHadronicEvent> TtFullHadEvtFilter;
+typedef StringCutObjectEvtFilter<TtFullLeptonicEvent> TtFullLepEvtFilter;
+typedef StringCutObjectEvtFilter<TtSemiLeptonicEvent> TtSemiLepEvtFilter;
 
 DEFINE_FWK_MODULE(TtFullHadEvtFilter);
 DEFINE_FWK_MODULE(TtFullLepEvtFilter);
