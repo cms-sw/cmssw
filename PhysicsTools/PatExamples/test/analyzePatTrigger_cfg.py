@@ -10,7 +10,7 @@ process.options = cms.untracked.PSet(
 process.source = cms.Source(
     "PoolSource"
   , fileNames = cms.untracked.vstring(
-        'file:edmPatTrigger.root'
+        'file:patTuple.root'
       )
   )
 process.maxEvents = cms.untracked.PSet(
@@ -26,7 +26,7 @@ process.triggerAnalysis = cms.EDAnalyzer(
     "PatTriggerAnalyzer"
   , trigger      = cms.InputTag( "patTrigger" )
   , triggerEvent = cms.InputTag( "patTriggerEvent" )
-  , muons        = cms.InputTag( "selectedPatMuons" )
+  , muons        = cms.InputTag( "cleanPatMuons" )
   , muonMatch    = cms.string( 'muonTriggerMatchHLTMuons' )
   , minID = cms.uint32( 81 )
   , maxID = cms.uint32( 96 )
