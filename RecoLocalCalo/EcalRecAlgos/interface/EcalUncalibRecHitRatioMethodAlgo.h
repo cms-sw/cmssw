@@ -5,9 +5,9 @@
  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
  *  using a ratio method
  *
- *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.11 2010/07/27 15:16:17 innocent Exp $
- *  $Date: 2010/07/27 15:16:17 $
- *  $Revision: 1.11 $
+ *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.12 2010/07/27 15:17:48 innocent Exp $
+ *  $Date: 2010/07/27 15:17:48 $
+ *  $Revision: 1.12 $
  *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
  */
 
@@ -212,7 +212,9 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
   for(unsigned int i = 1; i < amplitudesSize; i++){
     RLimits[i] = exp(double(i)/beta)-0.001;
   } 
- 
+  double stat=1;  // pedestal from db
+  if(num_>0) stat =  1.0/sqrt(double(num_);      // num presampeles used to compute pedestal
+
   for(unsigned int i = 0; i < amplitudesSize-1; i++){
     for(unsigned int j = i+1; j < amplitudesSize; j++){
 
@@ -230,10 +232,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
 	double err1 = Rtmp*Rtmp*( (amplitudeErrors2_[i]/(amplitudes_[i]*amplitudes_[i])) + (amplitudeErrors2_[j]/(amplitudes_[j]*amplitudes_[j])) );
 
 	// error due to fluctuations of pedestal (common to both samples)
-	double stat;
-	if(num_>0) stat = num_;      // num presampeles used to compute pedestal
-	else       stat = 1;         // pedestal from db
-	double err2 = amplitudeErrors_[j]*(amplitudes_[i]-amplitudes_[j])/(amplitudes_[j]*amplitudes_[j])/sqrt(stat);
+	double err2 = stat*amplitudeErrors_[j]*(amplitudes_[i]-amplitudes_[j])/(amplitudes_[j]*amplitudes_[j]);
 
 	//error due to integer round-down. It is relevant to low
 	//amplitudes_ in gainID=1 and negligible otherwise.
