@@ -1,4 +1,5 @@
 <use   name="DataFormats/PatCandidates"/>
+<use   name="DataFormats/Luminosity"/>
 <use   name="DataFormats/FWLite"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/FWLite"/>
@@ -19,4 +20,5 @@
   <bin   file="PatBasicFWLiteJetAnalyzer_Selector.cc"></bin>
   <bin   file="PatBasicFWLiteJetUnitTest.cc"></bin>
   <bin   file="PatCleaningExercise.cc"></bin>
+  <bin   file="FWLiteLumiAccess.cc"></bin>
 </environment>
