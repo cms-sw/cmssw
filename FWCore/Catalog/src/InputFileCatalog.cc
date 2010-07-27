@@ -13,22 +13,22 @@ namespace edm {
 
   InputFileCatalog::InputFileCatalog(std::vector<std::string> const& fileNames, std::string const& override, bool noThrow) :
     logicalFileNames_(fileNames),
-    fileNames_(logicalFileNames_),
-    fallbackFileNames_(logicalFileNames_),
+    fileNames_(fileNames),
+    fallbackFileNames_(fileNames.size()),
     fileCatalogItems_(),
     fileLocator_(),
-    fallbackFileLocator_(){
+    fallbackFileLocator_() {
 
     init(fileNames, override, "", noThrow);
   }
 
   InputFileCatalog::InputFileCatalog(std::vector<std::string> const& fileNames, std::string const& override, std::string const& overrideFallback, bool noThrow) :
     logicalFileNames_(fileNames),
-    fileNames_(logicalFileNames_),
-    fallbackFileNames_(logicalFileNames_),
+    fileNames_(fileNames),
+    fallbackFileNames_(fileNames.size()),
     fileCatalogItems_(),
     fileLocator_(),
-    fallbackFileLocator_(){
+    fallbackFileLocator_() {
 
     init(fileNames, override, overrideFallback, noThrow);
   }
@@ -47,7 +47,7 @@ namespace edm {
           << "An empty string specified in the fileNames parameter for input source.\n";
       }
       if (isPhysical(*it)) {
-        // Clear the LFN, but default the fallback filename to the same as the PFN.
+        // Clear the LFN.
         lt->clear();
       } else {
         if (!fileLocator_) {
@@ -74,8 +74,6 @@ namespace edm {
     if (fallbackFileLocator_) {
       fallbackPfn = fallbackFileLocator_->pfn(lfn);
       // Empty fallback PFN is OK.
-    } else {
-      fallbackPfn = pfn;
     }
   }
 }
