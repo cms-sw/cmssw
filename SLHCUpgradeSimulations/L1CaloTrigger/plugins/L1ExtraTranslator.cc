@@ -44,6 +44,10 @@ class L1ExtraTranslator : public edm::EDProducer {
       edm::InputTag jets_;
       int nParticles_; //Number of Objects to produce
       int nJets_; //Number of Objects to produce
+
+
+
+
 };
 
 
@@ -89,6 +93,7 @@ L1ExtraTranslator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 
+
    if(iEvent.getByLabel(clusters_,clusters))
    {
      int NEGamma=0;
@@ -96,36 +101,45 @@ L1ExtraTranslator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     int NIsoTau=0;
     int NTau=0;
 
-     for(size_t i = 0;i<clusters->size();++i)
+
+    //sort clusters
+   //Put Clusters to file
+    L1CaloClusterCollection finalClusters = *clusters; 
+    std::sort(finalClusters.begin(),finalClusters.end(),HigherClusterEt());
+    
+
+
+     for(size_t i = 0;i<finalClusters.size();++i)
        {
 	 //EGamma
-	 if((*clusters)[i].isEGamma()&&NEGamma<nParticles_)
+	 if(finalClusters.at(i).isEGamma()&&NEGamma<nParticles_)
 	   {
-	     l1EGamma->push_back(L1EmParticle((*clusters)[i].p4()));
+	     printf("New L1 EGAMMA pt,eta,phi %f %f %f\n",finalClusters.at(i).p4().pt(),finalClusters.at(i).p4().eta(),finalClusters.at(i).p4().phi()); 
+	     l1EGamma->push_back(L1EmParticle(finalClusters.at(i).p4()));
 	     NEGamma++;
 	   }
 
 	 //Isolated EGamma
-	 if((*clusters)[i].isIsoEGamma()&&NIsoEGamma<nParticles_)
+	 if(finalClusters.at(i).isIsoEGamma()&&NIsoEGamma<nParticles_)
 	   {
-	     l1IsoEGamma->push_back(L1EmParticle((*clusters)[i].p4()));
+	     l1IsoEGamma->push_back(L1EmParticle(finalClusters.at(i).p4()));
 	     NIsoEGamma++;
 	   }
 
 	 //Taus
 	 if(NTau<nParticles_)
-	   if(abs((*clusters)[i].iEta())<=26&&(*clusters)[i].isTau())
+	   if(abs(finalClusters.at(i).iEta())<=26&&finalClusters.at(i).isTau())
 	     {
-	       l1Tau->push_back(L1JetParticle((*clusters)[i].p4()));
+	       l1Tau->push_back(L1JetParticle(finalClusters.at(i).p4()));
 	       NTau++;
 	     }
 
 
 	 //IsoTaus
 	 if(NIsoTau<nParticles_)
-	   if(abs((*clusters)[i].iEta())<=26&&(*clusters)[i].isIsoTau())
+	   if(abs(finalClusters.at(i).iEta())<=26&&finalClusters.at(i).isIsoTau())
 	     {
-	       l1IsoTau->push_back(L1JetParticle((*clusters)[i].p4()));
+	       l1IsoTau->push_back(L1JetParticle(finalClusters.at(i).p4()));
 	       NIsoTau++;
 	     }
 	 
