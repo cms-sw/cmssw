@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: ValidateGeometry.cc,v 1.7 2010/07/26 10:00:04 mccauley Exp $
+// $Id: ValidateGeometry.cc,v 1.8 2010/07/26 14:10:04 mccauley Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -16,6 +16,7 @@
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/DTGeometry/interface/DTLayer.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -56,9 +57,18 @@ private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();  
 
-  void validateRPCGeometry();
-  void validateDTGeometry();
-  void validateCSCGeometry();
+  void validateRPCGeometry(const int regionNumber, 
+                           const char* regionName);
+
+  void validateDTChamberGeometry();
+  void validateDTSuperLayerGeometry();
+  void validateDTLayerGeometry();
+
+  void validateCSCChamberGeometry(const int endcap,
+                                  const char* detname);
+
+  void validateCSCLayerGeometry(const int endcap,
+                                const char* detname);
 
   void validateCaloGeometry(DetId::Detector detector, int subdetector,
                             const char* detname);
@@ -96,6 +106,24 @@ private:
   std::vector<double> bottomWidths_;
   std::vector<double> lengths_;
   std::vector<double> thicknesses_;
+
+  void clearData()
+    {
+      distances_.clear();
+      topWidths_.clear();
+      bottomWidths_.clear();
+      lengths_.clear();
+      thicknesses_.clear();
+    }
+
+  bool dataEmpty()
+    {
+      return (distances_.empty() && 
+              topWidths_.empty() && 
+              bottomWidths_.empty() && 
+              lengths_.empty() && 
+              thicknesses_.empty());
+    }
 };
 
 
@@ -121,8 +149,14 @@ ValidateGeometry::analyze(const edm::Event& event, const edm::EventSetup& eventS
   
   if ( rpcGeometry_.isValid() )
   {
-    std::cout<<"Validating RPC geometry"<<std::endl;
-    validateRPCGeometry();
+    std::cout<<"Validating RPC -z endcap geometry"<<std::endl;
+    validateRPCGeometry(-1, "RPC -z endcap");
+
+    std::cout<<"Validating RPC +z endcap geometry"<<std::endl;
+    validateRPCGeometry(+1, "RPC +z endcap");
+
+    std::cout<<"Validating RPC barrel geometry"<<std::endl;
+    validateRPCGeometry(0, "RPC barrel");
   }
   else
     fwLog(fwlog::kWarning)<<"Invalid RPC geometry"<<std::endl; 
@@ -132,8 +166,14 @@ ValidateGeometry::analyze(const edm::Event& event, const edm::EventSetup& eventS
 
   if ( dtGeometry_.isValid() )
   {
-    std::cout<<"Validating DT geometry"<<std::endl;
-    validateDTGeometry();
+    std::cout<<"Validating DT chamber geometry"<<std::endl;
+    validateDTChamberGeometry();
+
+    std::cout<<"Validating DT superlayer geometry"<<std::endl;
+    validateDTSuperLayerGeometry();
+
+    std::cout<<"Validating DT layer geometry"<<std::endl;
+    validateDTLayerGeometry();
   }
   else
     fwLog(fwlog::kWarning)<<"Invalid DT geometry"<<std::endl; 
@@ -143,8 +183,17 @@ ValidateGeometry::analyze(const edm::Event& event, const edm::EventSetup& eventS
   
   if ( cscGeometry_.isValid() )
   {
-    std::cout<<"Validating CSC geometry"<<std::endl;
-    validateCSCGeometry();
+    std::cout<<"Validating CSC chamber -z geometry"<<std::endl;
+    validateCSCChamberGeometry(-1, "CSC chamber -z endcap");
+
+    std::cout<<"Validating CSC chamber +z geometry"<<std::endl;
+    validateCSCChamberGeometry(+1, "CSC chamber +z endcap");
+
+    std::cout<<"Validating CSC layer -z geometry"<<std::endl;
+    validateCSCLayerGeometry(-1, "CSC layer -z endcap");
+
+    std::cout<<"Validating CSC layer +z geometry"<<std::endl;
+    validateCSCLayerGeometry(+1, "CSC layer +z endcap");
   }
   else
     fwLog(fwlog::kWarning)<<"Invalid CSC geometry"<<std::endl; 
@@ -154,8 +203,8 @@ ValidateGeometry::analyze(const edm::Event& event, const edm::EventSetup& eventS
 
   if ( trackerGeometry_.isValid() )
   {
-    std::cout<<"Validating Tracker geometry"<<std::endl;
-    validateTrackerGeometry(trackerGeometry_->detUnits(), "Tracker");
+    //std::cout<<"Validating Tracker geometry"<<std::endl;
+    //validateTrackerGeometry(trackerGeometry_->detUnits(), "Tracker");
 
     std::cout<<"Validating TIB geometry"<<std::endl;
     validateTrackerGeometry(trackerGeometry_->detsTIB(), "TIB");
@@ -209,8 +258,10 @@ ValidateGeometry::analyze(const edm::Event& event, const edm::EventSetup& eventS
 
 
 void
-ValidateGeometry::validateRPCGeometry()
+ValidateGeometry::validateRPCGeometry(const int regionNumber, const char* regionName)
 {
+  clearData();
+ 
   std::vector<RPCRoll*> rolls = rpcGeometry_->rolls();
   
   for ( std::vector<RPCRoll*>::const_iterator it = rolls.begin(), 
@@ -222,43 +273,48 @@ ValidateGeometry::validateRPCGeometry()
     if ( roll )
     {
       RPCDetId rpcDetId = roll->id();
-        
-      const GeomDetUnit* det = rpcGeometry_->idToDetUnit(rpcDetId);
-      GlobalPoint gp = det->surface().toGlobal(LocalPoint(0.0, 0.0, 0.0)); 
+
+      if ( rpcDetId.region() == regionNumber )
+      {  
+        const GeomDetUnit* det = rpcGeometry_->idToDetUnit(rpcDetId);
+        GlobalPoint gp = det->surface().toGlobal(LocalPoint(0.0, 0.0, 0.0)); 
       
-      const TGeoHMatrix* matrix = detIdToMatrix_.getMatrix(rpcDetId.rawId());
+        const TGeoHMatrix* matrix = detIdToMatrix_.getMatrix(rpcDetId.rawId());
 
-      if ( ! matrix )
-      {
-        std::cout<<"Failed to get geometry of RPC with detid: "
-                 << rpcDetId.rawId() <<std::endl;
-        continue;
-      }
+        if ( ! matrix )
+        {
+          std::cout<<"Failed to get matrix of RPC with detid: "
+                   << rpcDetId.rawId() <<std::endl;
+          continue;
+        }
 
-      compareTransform(gp, matrix);
+        compareTransform(gp, matrix);
 
 
-      //TEveGeoShape* shape = detIdToMatrix_.getShape(rpcDetId.rawId());
-      const TGeoVolume* shape = detIdToMatrix_.getVolume(rpcDetId.rawId());
+        //TEveGeoShape* shape = detIdToMatrix_.getShape(rpcDetId.rawId());
+        const TGeoVolume* shape = detIdToMatrix_.getVolume(rpcDetId.rawId());
 
-      if ( ! shape )
-      {
-        std::cout<<"Failed to get shape of RPC with detid: "
-                 << rpcDetId.rawId() <<std::endl;
-        continue;
-      }
+        if ( ! shape )
+        {
+          std::cout<<"Failed to get shape of RPC with detid: "
+                   << rpcDetId.rawId() <<std::endl;
+          continue;
+        }
       
-      compareShape(det, shape->GetShape());
+        compareShape(det, shape->GetShape());
+      }
     }
   }
 
-  makeHistograms("RPC");
+  makeHistograms(regionName);
 }
 
 
 void 
-ValidateGeometry::validateDTGeometry()
+ValidateGeometry::validateDTChamberGeometry()
 {
+  clearData();
+
   std::vector<DTChamber*> chambers = dtGeometry_->chambers();
   
   for ( std::vector<DTChamber*>::const_iterator it = chambers.begin(), 
@@ -276,7 +332,99 @@ ValidateGeometry::validateDTGeometry()
  
       if ( ! matrix )   
       {     
-        std::cout<<"Failed to get geometry of DT with detid: " 
+        std::cout<<"Failed to get matrix of DT chamber with detid: " 
+                 << chId.rawId() <<std::endl;
+        continue;
+      }
+
+      compareTransform(gp, matrix);
+
+      //TEveGeoShape* shape = detIdToMatrix_.getShape(chId.rawId());
+      const TGeoVolume* shape = detIdToMatrix_.getVolume(chId.rawId());
+
+      if ( ! shape )
+      {
+        std::cout<<"Failed to get shape of DT chamber with detid: "
+                 << chId.rawId() <<std::endl;
+        continue;
+      }
+      
+      compareShape(chamber, shape->GetShape());
+    }
+  }
+
+  makeHistograms("DT chamber");
+}
+
+void 
+ValidateGeometry::validateDTSuperLayerGeometry()
+{
+  clearData();
+
+  std::vector<DTSuperLayer*> superlayers = dtGeometry_->superLayers();
+  
+  for ( std::vector<DTSuperLayer*>::const_iterator it = superlayers.begin(), 
+                                                itEnd = superlayers.end(); 
+        it != itEnd; ++it)
+  {
+    const DTSuperLayer* superlayer = *it;
+      
+    if ( superlayer )
+    {
+      DTSuperLayerId chId = superlayer->id();
+      GlobalPoint gp = superlayer->surface().toGlobal(LocalPoint(0.0, 0.0, 0.0)); 
+     
+      const TGeoHMatrix* matrix = detIdToMatrix_.getMatrix(chId.rawId());
+ 
+      if ( ! matrix )   
+      {     
+        std::cout<<"Failed to get matrix of DT superlayer with detid: " 
+                 << chId.rawId() <<std::endl;
+        continue;
+      }
+
+      compareTransform(gp, matrix);
+
+      //TEveGeoShape* shape = detIdToMatrix_.getShape(chId.rawId());
+      const TGeoVolume* shape = detIdToMatrix_.getVolume(chId.rawId());
+
+      if ( ! shape )
+      {
+        std::cout<<"Failed to get shape of DT superlayer with detid: "
+                 << chId.rawId() <<std::endl;
+        continue;
+      }
+      
+      compareShape(superlayer, shape->GetShape());
+    }
+  }
+
+  makeHistograms("DT superlayer");
+}
+
+void 
+ValidateGeometry::validateDTLayerGeometry()
+{
+  clearData();
+
+  std::vector<DTLayer*> layers = dtGeometry_->layers();
+  
+  for ( std::vector<DTLayer*>::const_iterator it = layers.begin(), 
+                                           itEnd = layers.end(); 
+        it != itEnd; ++it)
+  {
+    const DTLayer* layer = *it;
+      
+    if ( layer )
+    {
+      DTLayerId chId = layer->id();
+      GlobalPoint gp = layer->surface().toGlobal(LocalPoint(0.0, 0.0, 0.0)); 
+     
+      const TGeoHMatrix* matrix = detIdToMatrix_.getMatrix(chId.rawId());
+ 
+      if ( ! matrix )   
+      {     
+        std::cout<<"Failed to get matrix of DT with detid: " 
                  << chId.rawId() <<std::endl;
         continue;
       }
@@ -293,17 +441,19 @@ ValidateGeometry::validateDTGeometry()
         continue;
       }
       
-      compareShape(chamber, shape->GetShape());
+      compareShape(layer, shape->GetShape());
     }
   }
 
-  makeHistograms("DT");
+  makeHistograms("DT layer");
 }
 
 
 void 
-ValidateGeometry::validateCSCGeometry()
+ValidateGeometry::validateCSCChamberGeometry(const int endcap, const char* detname)
 {
+  clearData();
+
   std::vector<CSCChamber *> chambers = cscGeometry_->chambers();
      
   for ( std::vector<CSCChamber*>::const_iterator it = chambers.begin(), 
@@ -312,7 +462,7 @@ ValidateGeometry::validateCSCGeometry()
   {
     const CSCChamber* chamber = *it;
          
-    if ( chamber )
+    if ( chamber && chamber->id().endcap() == endcap )
     {
       DetId detId = chamber->geographicalId();
       GlobalPoint gp = chamber->surface().toGlobal(LocalPoint(0.0,0.0,0.0));
@@ -321,7 +471,7 @@ ValidateGeometry::validateCSCGeometry()
   
       if ( ! matrix ) 
       {     
-        std::cout<<"Failed to get geometry of CSC with detid: " 
+        std::cout<<"Failed to get matrix of CSC chamber with detid: " 
                  << detId.rawId() <<std::endl;
         continue;
       }
@@ -334,7 +484,7 @@ ValidateGeometry::validateCSCGeometry()
 
       if ( ! shape )
       {
-        std::cout<<"Failed to get shape of CSC with detid: "
+        std::cout<<"Failed to get shape of CSC chamber with detid: "
                  << detId.rawId() <<std::endl;
         continue;
       }
@@ -343,16 +493,63 @@ ValidateGeometry::validateCSCGeometry()
     }
   }
 
-  makeHistograms("CSC");
+  makeHistograms(detname);
 }
 
+void 
+ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname)
+{
+  clearData();
 
+  std::vector<CSCLayer*> layers = cscGeometry_->layers();
+     
+  for ( std::vector<CSCLayer*>::const_iterator it = layers.begin(), 
+                                            itEnd = layers.end(); 
+        it != itEnd; ++it )
+  {
+    const CSCLayer* layer = *it;
+         
+    if ( layer && layer->id().endcap() == endcap )
+    {
+      DetId detId = layer->geographicalId();
+      GlobalPoint gp = layer->surface().toGlobal(LocalPoint(0.0,0.0,0.0));
+
+      const TGeoHMatrix* matrix = detIdToMatrix_.getMatrix(detId.rawId());
+  
+      if ( ! matrix ) 
+      {     
+        std::cout<<"Failed to get matrix of CSC layer with detid: " 
+                 << detId.rawId() <<std::endl;
+        continue;
+      }
+
+      compareTransform(gp, matrix);
+
+
+      //TEveGeoShape* shape = detIdToMatrix_.getShape(detId.rawId());
+      const TGeoVolume* shape = detIdToMatrix_.getVolume(detId.rawId());
+
+      if ( ! shape )
+      {
+        std::cout<<"Failed to get shape of CSC layer with detid: "
+                 << detId.rawId() <<std::endl;
+        continue;
+      }
+      
+      compareShape(layer, shape->GetShape());
+    }
+  }
+
+  makeHistograms(detname);
+}
 
 void 
 ValidateGeometry::validateCaloGeometry(DetId::Detector detector, 
                                        int subdetector,
                                        const char* detname)
 {
+  clearData();
+
   const CaloSubdetectorGeometry* geometry = 
     caloGeometry_->getSubdetectorGeometry(detector, subdetector);
 
@@ -403,6 +600,8 @@ void
 ValidateGeometry::validateTrackerGeometry(const TrackerGeometry::DetContainer& dets,
                                           const char* detname)
 {
+  clearData();
+
   for ( TrackerGeometry::DetContainer::const_iterator it = dets.begin(), 
                                                    itEnd = dets.end(); 
         it != itEnd; ++it )
@@ -414,7 +613,7 @@ ValidateGeometry::validateTrackerGeometry(const TrackerGeometry::DetContainer& d
 
     if ( ! matrix )
     {
-      std::cout <<"Failed to get geometry of "<< detname 
+      std::cout <<"Failed to get matrix of "<< detname 
                 <<" element with detid: "<< rawId <<std::endl;
       continue;
     }
@@ -443,6 +642,8 @@ void
 ValidateGeometry::validateTrackerGeometry(const TrackerGeometry::DetUnitContainer& dets,
                                           const char* detname)
 {
+  clearData();
+
   for ( TrackerGeometry::DetUnitContainer::const_iterator it = dets.begin(), 
                                                        itEnd = dets.end(); 
         it != itEnd; ++it )
@@ -454,7 +655,7 @@ ValidateGeometry::validateTrackerGeometry(const TrackerGeometry::DetUnitContaine
 
     if ( ! matrix )
     {
-      std::cout<< "Failed to get geometry of "<< detname 
+      std::cout<< "Failed to get matrix of "<< detname 
                <<" element with detid: "<< rawId <<std::endl;
       continue;
     }
@@ -511,22 +712,29 @@ ValidateGeometry::compareShape(const GeomDet* det, TGeoShape* shape)
   double shape_length;
   double shape_thickness;
 
-  if ( TGeoBBox* box = dynamic_cast<TGeoBBox*>(shape) )
-  {
-    shape_topWidth = box->GetDX()*2.0;
-    shape_bottomWidth = shape_topWidth;
-    shape_length = box->GetDY()*2.0;
-    shape_thickness = box->GetDZ()*2.0;
-  }
-  
-  else if ( TGeoTrap* trap = dynamic_cast<TGeoTrap*>(shape) )
+  bool tgeotrap = false;
+  bool tgeobbox = false;
+
+  if ( TGeoTrap* trap = dynamic_cast<TGeoTrap*>(shape) )
   {
     shape_topWidth = trap->GetTl1()*2.0;
     shape_bottomWidth = trap->GetBl1()*2.0;
     shape_length = trap->GetH1()*2.0;
     shape_thickness = trap->GetDz()*2.0;
+
+    tgeotrap = true;
   }
 
+  else if ( TGeoBBox* box = dynamic_cast<TGeoBBox*>(shape) )
+  {
+    shape_topWidth = box->GetDX()*2.0;
+    shape_bottomWidth = shape_topWidth;
+    shape_length = box->GetDY()*2.0;
+    shape_thickness = box->GetDZ()*2.0;
+
+    tgeobbox = true;
+  }
+  
   else
   {
     std::cout<<"Failed to get box or trapezoid from shape"<<std::endl;
@@ -535,6 +743,9 @@ ValidateGeometry::compareShape(const GeomDet* det, TGeoShape* shape)
 
   double topWidth, bottomWidth;
   double length, thickness;
+
+  bool trapezoid = false;
+  bool rectangle = false;
 
   const Bounds* bounds = &(det->surface().bounds());
  
@@ -548,6 +759,8 @@ ValidateGeometry::compareShape(const GeomDet* det, TGeoShape* shape)
     topWidth = ps[1]*2.0;
     thickness = ps[2]*2.0;
     length = ps[3]*2.0;
+
+    trapezoid = true;
   }
 
   else if ( (dynamic_cast<const RectangularPlaneBounds*>(bounds)) )
@@ -556,6 +769,8 @@ ValidateGeometry::compareShape(const GeomDet* det, TGeoShape* shape)
     topWidth = det->surface().bounds().width();
     bottomWidth = topWidth;
     thickness = det->surface().bounds().thickness();
+
+    rectangle = true;
   }
   
   else
@@ -563,7 +778,9 @@ ValidateGeometry::compareShape(const GeomDet* det, TGeoShape* shape)
     std::cout<<"Failed to get bounds"<<std::endl;
     return;
   }
-  
+   
+  //assert((tgeotrap && trapezoid) || (tgeobbox && rectangle)); 
+
   /*
   std::cout<<"topWidth: "<< shape_topWidth <<" "<< topWidth <<std::endl;
   std::cout<<"bottomWidth: "<< shape_bottomWidth <<" "<< bottomWidth <<std::endl;
@@ -607,10 +824,10 @@ ValidateGeometry::makeHistograms(const char* detector)
   
   std::string twn = d + ": absolute difference between top widths (along X)";
   makeHistogram(twn, topWidths_);
-  
+
   std::string bwn = d + ": absolute difference between bottom widths (along X)";
   makeHistogram(bwn, bottomWidths_);
-  
+
   std::string ln = d + ": absolute difference between lengths (along Y)";
   makeHistogram(ln, lengths_);
 
@@ -627,18 +844,23 @@ ValidateGeometry::makeHistogram(const std::string& name, std::vector<double>& da
   if ( data.empty() )
     return;
 
-  std::vector<double>::iterator it = std::max_element(data.begin(), data.end());
+  std::vector<double>::iterator it;
+  
+  it = std::min_element(data.begin(), data.end());
+  double minE = *it;
+
+  it = std::max_element(data.begin(), data.end());
+  double maxE = *it;
+
   std::vector<double>::iterator itEnd = data.end();
 
-  TH1D hist(name.c_str(), name.c_str(), 100, 0, (*it)*(1+0.10));
+  TH1D hist(name.c_str(), name.c_str(), 100, minE*(1+0.10), maxE*(1+0.10));
   
   for ( it = data.begin(); it != itEnd; ++it )
     hist.Fill(*it);
  
   hist.GetXaxis()->SetTitle("[cm]");
   hist.Write();
- 
-  data.clear();
 }
 
 
