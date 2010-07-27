@@ -129,7 +129,7 @@
 <flags EDM_PLUGIN=1>
 </library>
 
-<library file="SiStripConfObjectPyWrapper.cc" nameSiStripConfObjectPyInterface>
+<library file="SiStripConfObjectPyWrapper.cc" name=SiStripConfObjectPyInterface>
 <use name=CondCore/Utilities>
 <use name=CondFormats/SiStripObjects>
 <use name=boost>
