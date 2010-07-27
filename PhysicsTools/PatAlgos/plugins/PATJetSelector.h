@@ -1,5 +1,5 @@
 //
-// $Id: PATJetSelector.h,v 1.3 2010/07/22 16:09:31 srappocc Exp $
+// $Id: PATJetSelector.h,v 1.4 2010/07/23 13:01:14 srappocc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATJetSelector_h
@@ -30,6 +30,7 @@ namespace pat {
     edm::EDFilter( ),
       src_( params.getParameter<edm::InputTag>("src") ),
       cut_( params.getParameter<std::string>("cut") ),
+      filter_(false),
       selector_( cut_ )
       {
 	produces< std::vector<pat::Jet> >();
@@ -37,6 +38,10 @@ namespace pat {
 	produces<CaloTowerCollection > ("caloTowers");
 	produces<reco::PFCandidateCollection > ("pfCandidates");
 	produces<edm::OwnVector<reco::BaseTagInfo> > ("tagInfos");
+
+	if ( params.exists("filter") ) {
+	  filter_ = params.getParameter<bool>("filter");
+	}
       }
 
     virtual ~PATJetSelector() {}
@@ -182,15 +187,19 @@ namespace pat {
 
 
       // put genEvt  in Event
+      bool pass = patJets->size() > 0;
       iEvent.put(patJets);
 
-
-      return true;
+      if ( filter_ ) 
+	return pass;
+      else 
+	return true;
     }
 
   protected:
     edm::InputTag                  src_;
     std::string                    cut_;
+    bool                           filter_;
     StringCutObjectSelector<Jet>   selector_;
   };
 
