@@ -17,7 +17,7 @@
 // part of the code was inspired by http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/YGao/LhcTrackAnalyzer/
 // part of the code was inspired by 
 // other inputs from Andrea Giammanco, Gaelle Boudoul, Andrea Venturi, Steven Lowette, Gavril Giurgiu
-// $Id: TrackerDpgAnalysis.cc,v 1.6 2010/05/14 12:06:34 delaer Exp $
+// $Id: TrackerDpgAnalysis.cc,v 1.7 2010/05/14 19:42:41 delaer Exp $
 //
 //
 
@@ -476,6 +476,9 @@ TrackerDpgAnalysis::TrackerDpgAnalysis(const edm::ParameterSet& iConfig):hltConf
    readoutmap_->Branch("moduleName",moduleName_,"moduleName/C");
    readoutmap_->Branch("moduleId",moduleId_,"moduleId/C");
    readoutmap_->Branch("delay",&delay_,"delay/F");
+   readoutmap_->Branch("globalX",&globalX_,"globalX/F");
+   readoutmap_->Branch("globalY",&globalY_,"globalY/F");
+   readoutmap_->Branch("globalZ",&globalZ_,"globalZ/F");
 }
 
 TrackerDpgAnalysis::~TrackerDpgAnalysis()
@@ -937,10 +940,27 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 void 
 TrackerDpgAnalysis::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
+
+   //geometry
+   iSetup.get<TrackerDigiGeometryRecord>().get(tracker_);
+
+   //HLT names
+   bool changed (true);
+   if (hltConfig_.init(iRun,iSetup,HLTLabel_.process(),changed)) {
+     if (changed) {
+       hlNames_=hltConfig_.triggerNames();
+     }
+   }
+   int i=0;
+   for(std::vector<std::string>::const_iterator it = hlNames_.begin(); it<hlNames_.end();++it) {
+     std::cout << (i++) << " = " << (*it) << std::endl;
+   } 
+
    // read the delay offsets for each device from input files
    // this is only for the so-called "random delay" run
    std::map<uint32_t,float> delayMap = delay(delayFileNames_);
    TrackerMap tmap("Delays");
+
    // cabling I (readout)
    iSetup.get<SiStripFedCablingRcd>().get( cabling_ );
    const std::vector< uint16_t > & feds = cabling_->feds() ;
@@ -966,12 +986,18 @@ TrackerDpgAnalysis::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
          fedCh_ = conn->fedCh();
          fiberLength_ = conn->fiberLength();
 	 delay_ = delayMap[dcuId_];
+	 const StripGeomDetUnit* sgdu = static_cast<const StripGeomDetUnit*>(tracker_->idToDet(detid_));
+	 Surface::GlobalPoint gp = sgdu->surface().toGlobal(LocalPoint(0,0));
+	 globalX_ = gp.x();
+	 globalY_ = gp.y();
+	 globalZ_ = gp.z();
 	 readoutmap_->Fill();
          tmap.fill_current_val(detid_,delay_);
        }
      }
    }
    if(delayMap.size()) tmap.save(true, 0, 0, "delaymap.png");
+
    // cabling II (DCU map)
    ifstream cablingFile(cablingFileName_.c_str());
    if(cablingFile.is_open()) {
@@ -994,22 +1020,6 @@ TrackerDpgAnalysis::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
                                   << std::endl << " Looking for " << cablingFileName_.c_str() << "." 
 				  << std::endl << " Please specify a valid filename through the PSUFileName untracked parameter.";
    }
-
-   //geometry
-   iSetup.get<TrackerDigiGeometryRecord>().get(tracker_);
-
-   //HLT names
-   bool changed (true);
-   if (hltConfig_.init(iRun,iSetup,HLTLabel_.process(),changed)) {
-     if (changed) {
-       hlNames_=hltConfig_.triggerNames();
-     }
-   }
-   int i=0;
-   for(std::vector<std::string>::const_iterator it = hlNames_.begin(); it<hlNames_.end();++it) {
-     std::cout << (i++) << " = " << (*it) << std::endl;
-   } 
-
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
