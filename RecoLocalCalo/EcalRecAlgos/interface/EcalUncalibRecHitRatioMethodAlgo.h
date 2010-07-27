@@ -5,9 +5,9 @@
  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
  *  using a ratio method
  *
- *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.8 2010/06/10 10:13:05 franzoni Exp $
- *  $Date: 2010/06/10 10:13:05 $
- *  $Revision: 1.8 $
+ *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.9 2010/07/27 15:00:14 innocent Exp $
+ *  $Date: 2010/07/27 15:00:14 $
+ *  $Revision: 1.9 $
  *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
  */
 
@@ -59,8 +59,8 @@ public:
 protected:
 
 
-  static comst size_t =  amplitudesSize=C::MAXSAMPLES;
-  static comst size_t =  ratiosSize=C::MAXSAMPLES*(C::MAXSAMPLES-1)/2;
+  static const size_t amplitudesSize = C::MAXSAMPLES;
+  static const size_t ratiosSize = C::MAXSAMPLES*(C::MAXSAMPLES-1)/2;
 
   double  amplitudes_[amplitudesSize];
   double  amplitudeErrors_[amplitudesSize];
