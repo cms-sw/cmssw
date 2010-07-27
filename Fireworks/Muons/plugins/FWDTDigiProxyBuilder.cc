@@ -30,6 +30,7 @@ namespace
     matrix->LocalToMaster( localPos, globalPos );
     pointSet->SetNextPoint( globalPos[0],  globalPos[1],  globalPos[2] );
   }
+  
   void
   addTube( TEvePointSet* pointSet, const TGeoHMatrix* matrix, double localPos[3],  std::vector<TEveVector> &pars )
   {
@@ -80,7 +81,7 @@ FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
 	
   if( ! digis )
   {
-    fwLog( fwlog::kWarning ) << "WARNING: failed get DTDigis" << std::endl;
+    fwLog( fwlog::kWarning ) << "failed get DTDigis" << std::endl;
     return;
   }
 	
@@ -115,8 +116,10 @@ FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
 
       if( ! matrix ) 
       {
-	fwLog( fwlog::kError ) << " failed get geometry of DT layer with detid: " 
-			       << layerId << std::endl;
+	fwLog( fwlog::kError )
+	  << "failed get geometry of DT layer with detid: " 
+	  << layerId << std::endl;
+	
 	continue;
       }
 			
