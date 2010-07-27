@@ -127,7 +127,7 @@ void HIPixelClusterVtxProducer::produce(edm::Event& ev, const edm::EventSetup& e
 
     LogTrace("MinBiasTracking")
       << "  [vertex position] estimated = " << zest 
-      << " | pixel barrel hits = " << hits->size();
+      << " | pixel barrel hits = " << vhits.size();
 
     // put 1-d vertex and dummy errors into collection
     reco::Vertex::Error err;
@@ -143,7 +143,6 @@ void HIPixelClusterVtxProducer::produce(edm::Event& ev, const edm::EventSetup& e
 int HIPixelClusterVtxProducer::getContainedHits(const std::vector<VertexHit> &hits, double z0, double &chi)
 {
   // Calculate number of hits contained in v-shaped window in cluster y-width vs. z-position.
-
   int n = 0;
   chi   = 0.;
 
