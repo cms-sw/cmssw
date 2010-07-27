@@ -7,6 +7,12 @@ process.GlobalTag.globaltag = autoCond['mc']
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
+#Adding Timing service:
+process.Timing = cms.Service("Timing")
+process.options = cms.untracked.PSet(
+    wantSummary = cms.untracked.bool(True)
+    )
+
 process.source = cms.Source("EmptySource")
 
 process.maxEvents = cms.untracked.PSet(
