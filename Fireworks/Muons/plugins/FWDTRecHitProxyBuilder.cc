@@ -3,7 +3,7 @@
 // Package:     Muons
 // Class  :     FWDTRecHitProxyBuilder
 //
-// $Id: FWDTRecHitProxyBuilder.cc,v 1.7 2010/06/10 14:01:37 yana Exp $
+// $Id: FWDTRecHitProxyBuilder.cc,v 1.8 2010/07/23 13:53:37 yana Exp $
 //
 
 #include "TEvePointSet.h"
@@ -76,7 +76,7 @@ FWDTRecHitProxyBuilder::buildViewType( const DTRecHit1DPair& iData, unsigned int
   TEveStraightLineSet* recHitSet = new TEveStraightLineSet;
   setupAddElement( recHitSet, &oItemHolder );
 
-  TEvePointSet* pointSet = new TEvePointSet();
+  TEvePointSet* pointSet = new TEvePointSet;
   setupAddElement( pointSet, &oItemHolder );
 	 
   const DTRecHit1D* leftRecHit = iData.componentRecHit( Left );
