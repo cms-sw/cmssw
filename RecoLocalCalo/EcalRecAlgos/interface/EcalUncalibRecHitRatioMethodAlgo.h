@@ -5,9 +5,9 @@
  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
  *  using a ratio method
  *
- *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.21 2010/07/28 10:03:46 innocent Exp $
- *  $Date: 2010/07/28 10:03:46 $
- *  $Revision: 1.21 $
+ *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.22 2010/07/28 12:11:05 innocent Exp $
+ *  $Date: 2010/07/28 12:11:05 $
+ *  $Revision: 1.22 $
  *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
  */
 
@@ -247,9 +247,10 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeTime(std::vector < Input
   if(num_>0) stat =  1/std::sqrt(Scalar(num_));      // num presampeles used to compute pedestal
 
   for(unsigned int i = 0; i < amplitudesSize-1; i++){
-    for(unsigned int j = i+1; j < amplitudesSize; j++){
-
-      if(amplitudes_[i]>1 && amplitudes_[j]>1){
+    Scalar ampi = (amplitudeErrors2_[i]/(amplitudes_[i]*amplitudes_[i]));
+    if(amplitudes_[i]>1) {
+      for(unsigned int j = i+1; j < amplitudesSize; j++){
+	if(amplitudes_[j]>1){
 
 	// ratio
 	Scalar Rtmp = amplitudes_[i]/amplitudes_[j];
@@ -260,32 +261,29 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeTime(std::vector < Input
 	// error^2 due to stat fluctuations of time samples
 	// (uncorrelated for both samples)
 
-	Scalar err1 = Rtmp*Rtmp*( (amplitudeErrors2_[i]/(amplitudes_[i]*amplitudes_[i])) + (amplitudeErrors2_[j]/(amplitudes_[j]*amplitudes_[j])) );
+	Scalar err1 = Rtmp*Rtmp*(ampi + (amplitudeErrors2_[j]/(amplitudes_[j]*amplitudes_[j])) );
 
 	// error due to fluctuations of pedestal (common to both samples)
-	Scalar err2 = stat*amplitudeErrors_[j]*(amplitudes_[i]-amplitudes_[j])/(amplitudes_[j]*amplitudes_[j]);
+	Scalar err2 = stat*(amplitudes_[i]-amplitudes_[j])*amplitudeErrors_[j]/(amplitudes_[j]*amplitudes_[j]);
 
 	//error due to integer round-down. It is relevant to low
 	//amplitudes_ in gainID=1 and negligible otherwise.
         Scalar err3 = Scalar(0.289)/amplitudes_[j];
 
-	Scalar totalError = std::sqrt(err1 + err2*err2 +err3*err3);
+	Scalar totalError = err1 + err2*err2 +err3*err3;
 
 
 	// don't include useless ratios
-	if(totalError < 1
-	   && Rtmp>mill
-	   && Rtmp< RLimits[j-i]
-	   ){
-	  Ratio currentRatio = { i, (j-i), Rtmp, totalError };
+	if(totalError < 1){
+	  Ratio currentRatio = { i, (j-i), Rtmp, std::sqrt(totalError) };
 	  ratios_.push_back(currentRatio);
 	}
-
+	
+	}
+	
       }
-
     }
   }
-
   // No useful ratios, return zero amplitude and no time measurement
   if(!ratios_.size() >0)
     return;
@@ -305,8 +303,8 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeTime(std::vector < Input
     if( Rmax > RLimits[ratios_[i].step] ) Rmax = RLimits[ratios_[i].step];
 
     // real time is offset - timeN
-    Scalar time1 = ratios_[i].step/(std::exp((stepOverBeta-std::log(Rmin))/alpha)-1);
-    Scalar time2 = ratios_[i].step/(std::exp((stepOverBeta-std::log(Rmax))/alpha)-1);
+    Scalar time1 = ratios_[i].step/(std::exp((stepOverBeta-std::log(Rmin))/alpha)-Scalar(1));
+    Scalar time2 = ratios_[i].step/(std::exp((stepOverBeta-std::log(Rmax))/alpha)-Scalar(1));
 
     // this is the time measurement based on the ratios[i]
     Scalar tmax = offset - Scalar(0.5) * (time1 + time2);
@@ -380,7 +378,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeTime(std::vector < Input
 
 
   // Do Ratio's Method with "large" pulses
-  if( ampMaxAlphaBeta > 5.0*ampMaxError_ ){
+  if( ampMaxAlphaBeta > 5*ampMaxError_ ){
 
     // make a vector of Tmax measurements that correspond to each
     // ratio. Each measurement have it's value and the error
@@ -417,7 +415,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeTime(std::vector < Input
 	Scalar errorsquared =
 	  (ratios_[i].error * du) * (ratios_[i].error * du);
 	if (errorsquared > 0) {
-	  Scalar oe =  1.0 / errorsquared;
+	  Scalar oe =  Scalar(1) / errorsquared;
 	  time_max += oe * (time_max_i - u);
 	  time_wgt += oe;
 	  Tmax currentTmax =
