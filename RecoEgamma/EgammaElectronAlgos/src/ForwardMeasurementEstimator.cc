@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ForwardMeasurementEstimator.cc,v 1.17 2009/05/27 14:08:24 fabiocos Exp $
+// $Id: ForwardMeasurementEstimator.cc,v 1.18 2010/07/28 09:09:36 amartell Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/ForwardMeasurementEstimator.h"
@@ -58,8 +58,6 @@ std::pair<bool,double> ForwardMeasurementEstimator::estimate( const TrajectorySt
 
   float rDiff = tsR - rhR;
 
-
-
   if ( phiDiff < myPhimax && phiDiff > myPhimin &&
        rDiff < rMax && rDiff > rMin) {
     return std::pair<bool,double>(true,1.);
@@ -68,13 +66,13 @@ std::pair<bool,double> ForwardMeasurementEstimator::estimate( const TrajectorySt
   }
 }
 
-
-std::pair<bool,double> ForwardMeasurementEstimator::estimate( const GlobalPoint& vprim,
-                                                              const TrajectoryStateOnSurface& absolute_ts,
-                                                              GlobalPoint& absolute_gp) const {
-
-  GlobalVector ts = absolute_ts.globalParameters().position() - vprim;
-  GlobalVector gp = absolute_gp - vprim;
+std::pair<bool,double> ForwardMeasurementEstimator::estimate
+ ( const GlobalPoint& vprim,
+   const TrajectoryStateOnSurface& absolute_ts,
+   GlobalPoint & absolute_gp ) const
+ {
+  GlobalVector ts = absolute_ts.globalParameters().position() - vprim ;
+  GlobalVector gp = absolute_gp - vprim ;
 
   float tsR = ts.perp();
   float tsPhi = ts.phi();
@@ -95,9 +93,9 @@ std::pair<bool,double> ForwardMeasurementEstimator::estimate( const GlobalPoint&
       rMax = theRMaxI;
     }
 
-  float phiDiff = rhPhi - tsPhi;
-  if (phiDiff > pi) phiDiff -= twopi;
-  if (phiDiff < -pi) phiDiff += twopi;
+  float phiDiff = rhPhi - tsPhi ;
+  if (phiDiff > pi) phiDiff -= twopi ;
+  if (phiDiff < -pi) phiDiff += twopi ;
 
   float rDiff = rhR - tsR;
 
@@ -109,12 +107,11 @@ std::pair<bool,double> ForwardMeasurementEstimator::estimate( const GlobalPoint&
   }
 }
 
-
-
-bool ForwardMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts,
-					    const BoundPlane& plane) const {
-
-  typedef std::pair<float,float>   Range;
+bool ForwardMeasurementEstimator::estimate
+ ( const TrajectoryStateOnSurface & ts,
+   const BoundPlane & plane ) const
+ {
+  typedef std::pair<float,float> Range ;
 
   GlobalPoint trajPos(ts.globalParameters().position());
   GlobalDetRangeRPhi detRange(plane);
@@ -126,24 +123,26 @@ bool ForwardMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts,
   Range trajPhiRange(trajPos.phi() - fabs(thePhiMin), trajPos.phi() + fabs(thePhiMax));
 
   if(rangesIntersect(trajRRange, detRange.rRange()) &&
-     rangesIntersect(trajPhiRange, detRange.phiRange(), PhiLess())) {
-    return true;
-  } else {
-    return false;
-  }
+     rangesIntersect(trajPhiRange, detRange.phiRange(), PhiLess()))
+   { return true ; }
+  else
+   { return false ; }
 }
 
 MeasurementEstimator::Local2DVector
-ForwardMeasurementEstimator::maximalLocalDisplacement( const TrajectoryStateOnSurface& ts,
-						       const BoundPlane& plane) const
-{
+ForwardMeasurementEstimator::maximalLocalDisplacement
+ ( const TrajectoryStateOnSurface & ts,
+   const BoundPlane & plane) const
+ {
   float nSigmaCut = 3.;
-  if ( ts.hasError()) {
+  if ( ts.hasError())
+   {
     LocalError le = ts.localError().positionError();
     return Local2DVector( sqrt(le.xx())*nSigmaCut, sqrt(le.yy())*nSigmaCut);
-  }
-  else return Local2DVector(999999,999999);
-}
+   }
+  else
+    return Local2DVector(999999,999999) ;
+ }
 
 
 

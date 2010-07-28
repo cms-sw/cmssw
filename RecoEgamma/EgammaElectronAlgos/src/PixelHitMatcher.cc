@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.cc,v 1.39 2010/03/15 00:17:55 charlot Exp $
+// $Id: PixelHitMatcher.cc,v 1.40 2010/07/28 09:09:36 amartell Exp $
 //
 //
 
@@ -34,56 +34,58 @@
 
 #include <typeinfo>
 
-using namespace reco;
-using namespace std;
+using namespace reco ;
+using namespace std ;
 
-PixelHitMatcher::PixelHitMatcher(float phi1min, float phi1max, 
-				 float phi2minB, float phi2maxB, float phi2minF, float phi2maxF,
-				 float z2minB, float z2maxB, float r2minF, float r2maxF,
-				 float rMinI, float rMaxI, bool searchInTIDTEC) :
-  //zmin1 and zmax1 are dummy at this moment, set from beamspot later
-  meas1stBLayer(phi1min,phi1max,0.,0.), meas2ndBLayer(phi2minB,phi2maxB,z2minB,z2maxB),
-  meas1stFLayer(phi1min,phi1max,0.,0.), meas2ndFLayer(phi2minF,phi2maxF,r2minF,r2maxF),
-  startLayers(),
-  prop1stLayer(0), prop2ndLayer(0),theGeometricSearchTracker(0),theLayerMeasurements(0),vertex_(0.),
-    searchInTIDTEC_(searchInTIDTEC), useRecoVertex_(false)
-{
-  meas1stFLayer.setRRangeI(rMinI,rMaxI);
-  meas2ndFLayer.setRRangeI(rMinI,rMaxI);
-}
+PixelHitMatcher::PixelHitMatcher
+ ( float phi1min, float phi1max,
+   float phi2minB, float phi2maxB, float phi2minF, float phi2maxF,
+   float z2minB, float z2maxB, float r2minF, float r2maxF,
+   float rMinI, float rMaxI, bool searchInTIDTEC)
+ : //zmin1 and zmax1 are dummy at this moment, set from beamspot later
+   meas1stBLayer(phi1min,phi1max,0.,0.), meas2ndBLayer(phi2minB,phi2maxB,z2minB,z2maxB),
+   meas1stFLayer(phi1min,phi1max,0.,0.), meas2ndFLayer(phi2minF,phi2maxF,r2minF,r2maxF),
+   startLayers(),
+   prop1stLayer(0), prop2ndLayer(0),theGeometricSearchTracker(0),theLayerMeasurements(0),vertex_(0.),
+   searchInTIDTEC_(searchInTIDTEC), useRecoVertex_(false)
+ {
+  meas1stFLayer.setRRangeI(rMinI,rMaxI) ;
+  meas2ndFLayer.setRRangeI(rMinI,rMaxI) ;
+ }
 
 PixelHitMatcher::~PixelHitMatcher()
-{
-  delete prop1stLayer;
-  delete prop2ndLayer;
-  delete theLayerMeasurements;
-}
+ {
+  delete prop1stLayer ;
+  delete prop2ndLayer ;
+  delete theLayerMeasurements ;
+ }
 
-void PixelHitMatcher::set1stLayer(float dummyphi1min, float dummyphi1max)
-{
-  meas1stBLayer.setPhiRange(dummyphi1min,dummyphi1max);
-  meas1stFLayer.setPhiRange(dummyphi1min,dummyphi1max);
-}
+void PixelHitMatcher::set1stLayer( float dummyphi1min, float dummyphi1max )
+ {
+  meas1stBLayer.setPhiRange(dummyphi1min,dummyphi1max) ;
+  meas1stFLayer.setPhiRange(dummyphi1min,dummyphi1max) ;
+ }
 
-void PixelHitMatcher::set1stLayerZRange(float zmin1, float zmax1)
-{
-  meas1stBLayer.setZRange(zmin1,zmax1);
-  meas1stFLayer.setRRange(zmin1,zmax1);
-}
+void PixelHitMatcher::set1stLayerZRange( float zmin1, float zmax1 )
+ {
+  meas1stBLayer.setZRange(zmin1,zmax1) ;
+  meas1stFLayer.setRRange(zmin1,zmax1) ;
+ }
 
-void PixelHitMatcher::set2ndLayer(float dummyphi2minB, float dummyphi2maxB, float dummyphi2minF, float dummyphi2maxF)
-{
-  meas2ndBLayer.setPhiRange(dummyphi2minB,dummyphi2maxB);
-  meas2ndFLayer.setPhiRange(dummyphi2minF,dummyphi2maxF);
-}
+void PixelHitMatcher::set2ndLayer( float dummyphi2minB, float dummyphi2maxB, float dummyphi2minF, float dummyphi2maxF )
+ {
+  meas2ndBLayer.setPhiRange(dummyphi2minB,dummyphi2maxB) ;
+  meas2ndFLayer.setPhiRange(dummyphi2minF,dummyphi2maxF) ;
+ }
 
-void PixelHitMatcher::setUseRecoVertex(bool val){
+void PixelHitMatcher::setUseRecoVertex( bool val )
+ { useRecoVertex_ = val ; }
 
-  useRecoVertex_=val;
-}
-
-void PixelHitMatcher::setES(const MagneticField* magField, const MeasurementTracker *theMeasurementTracker, const TrackerGeometry *trackerGeometry){
-
+void PixelHitMatcher::setES
+ ( const MagneticField * magField,
+   const MeasurementTracker * theMeasurementTracker,
+   const TrackerGeometry * trackerGeometry )
+ {
   if (theMeasurementTracker)
    {
     theGeometricSearchTracker=theMeasurementTracker->geometricSearchTracker() ;
@@ -92,14 +94,14 @@ void PixelHitMatcher::setES(const MagneticField* magField, const MeasurementTrac
     theLayerMeasurements = new LayerMeasurements(theMeasurementTracker) ;
    }
 
-  theMagField = magField;
-  theTrackerGeometry = trackerGeometry;
-  float mass=.000511; // electron propagation
-  if (prop1stLayer) delete prop1stLayer;
-  prop1stLayer = new PropagatorWithMaterial(oppositeToMomentum,mass,theMagField);
-  if (prop2ndLayer) delete prop2ndLayer;
-  prop2ndLayer = new PropagatorWithMaterial(alongMomentum,mass,theMagField);
-}
+  theMagField = magField ;
+  theTrackerGeometry = trackerGeometry ;
+  float mass=.000511 ; // electron propagation
+  if (prop1stLayer) delete prop1stLayer ;
+  prop1stLayer = new PropagatorWithMaterial(oppositeToMomentum,mass,theMagField) ;
+  if (prop2ndLayer) delete prop2ndLayer ;
+  prop2ndLayer = new PropagatorWithMaterial(alongMomentum,mass,theMagField) ;
+ }
 
 //==================== helper code ====================
 
@@ -136,9 +138,8 @@ vector< pair< RecHitWithDist, PixelHitMatcher::ConstRecHitPointer > >
 PixelHitMatcher::compatibleHits
  ( const GlobalPoint & xmeas,
    const GlobalPoint & vprim,
-   float energy, float fcharge)
+   float energy, float fcharge )
  {
-
   float SCl_phi = xmeas.phi();
 
   int charge = int(fcharge);
@@ -443,12 +444,12 @@ PixelHitMatcher::compatibleSeeds
 	     GlobalVector tsos1_vtx = tsos1.globalParameters().position() - vprim;
              GlobalVector hitPos_vtx = hitPos - vprim;
              int subDet1 = id.subdetId() ;
+
 	     float dRz1 = (subDet1%2==1)?(hitPos_vtx.z()-tsos1_vtx.z()):(hitPos_vtx.perp()-tsos1_vtx.perp());
 	     float dPhi1 = PhiCheck::normalize(hitPos_vtx.phi() - tsos1_vtx.phi()) ;
 
-             //float dRz1 = (subDet1%2==1)?(hitPos.z()-tsos1.globalParameters().position().z()):(hitPos.perp()-tsos1.globalParameters().position().perp());
-             //float dPhi1 = PhiCheck::normalize(hitPos.phi() - tsos1.globalParameters().position().phi()) ;
-
+       //float dRz1 = (subDet1%2==1)?(hitPos.z()-tsos1.globalParameters().position().z()):(hitPos.perp()-tsos1.globalParameters().position().perp());
+       //float dPhi1 = PhiCheck::normalize(hitPos.phi() - tsos1.globalParameters().position().phi()) ;
 
 	     // now second Hit
 	     //CC@@
@@ -506,7 +507,7 @@ PixelHitMatcher::compatibleSeeds
 		{
 		  GlobalVector tsos2_vtx = tsos2.globalParameters().position() - vertex;
                   GlobalVector hitPos2_vtx = hitPos2 - vertex;
-		  
+
 		  int subDet2 = id2.subdetId() ;
  		  float dRz2 = (subDet2%2==1)?(hitPos2_vtx.z()-tsos2_vtx.z()):(hitPos2_vtx.perp()-tsos2_vtx.perp());
  		  float dPhi2 = PhiCheck::normalize(hitPos2_vtx.phi() - tsos2_vtx.phi());
@@ -514,7 +515,6 @@ PixelHitMatcher::compatibleSeeds
 
 		  //float dRz2 = (subDet2%2==1)?(hitPos2.z()-tsos2.globalParameters().position().z()):(hitPos2.perp()-tsos2.globalParameters().position().perp());
 		  //		  float dPhi2 = PhiCheck::normalize(hitPos2_vtx.phi() - tsos2_vtx.phi());
-
 
 		 result.push_back(SeedWithInfo((*seeds)[i],subDet2,dRz2,dPhi2,subDet1,dRz1,dPhi1)) ;
 		}
