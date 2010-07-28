@@ -5,9 +5,9 @@
  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
  *  using a ratio method
  *
- *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.13 2010/07/27 15:31:59 innocent Exp $
- *  $Date: 2010/07/27 15:31:59 $
- *  $Revision: 1.13 $
+ *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.14 2010/07/27 15:33:10 innocent Exp $
+ *  $Date: 2010/07/27 15:33:10 $
+ *  $Revision: 1.14 $
  *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
  */
 
@@ -58,6 +58,8 @@ public:
   
 protected:
 
+
+  double computeChi2(double t, double alpha, double overab) const;
 
   static const size_t amplitudesSize = C::MAXSAMPLES;
   static const size_t ratiosSize = C::MAXSAMPLES*(C::MAXSAMPLES-1)/2;
@@ -159,6 +161,30 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::init( const C &dataFrame, const double
 
 }
 
+template<class C>
+double EcalUncalibRecHitRatioMethodAlgo<C>::computeChi2(double t, double alpha, double overab) const {
+    double sumAf = 0;
+    double sumff = 0;
+    for(unsigned int it = 0; it < amplitudesSize; it++){
+      double err2 = amplitudeErrors2inv_[it];
+      double offset = (double(it) - t)*overab;
+      double term1 = 1.0 + offset;
+      if(term1>1e-6){
+	double f = std::exp( alpha*(std::log(term1) - offset) );
+	sumAf += amplitudes_[it]*(f*err2);
+	sumff += f*(f*err2);
+      }
+    }
+
+    double chi2 = sumAA;
+    double amp = 0;
+    if( sumff > 0 ){
+      amp = sumAf/sumff;
+      chi2 = sumAA - sumAf*amp;
+    }
+    chi2 /= sum0;
+    return chi2;
+}
 
 template<class C>
 void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&timeFitParameters,
@@ -188,8 +214,8 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
     double err2 = amplitudeErrors2inv_[i];
     sum0  += 1;
     sum1  += err2;
-    sumA  += amplitudes_[i]*err2;
-    sumAA += amplitudes_[i]*amplitudes_[i]*err2;
+    sumA  += (amplitudes_[i]*err2);
+    sumAA += amplitudes_[i]*(amplitudes_[i]*err2);
   }
   if(sum0>0){
     NullChi2 = (sumAA - sumA*sumA/sum1)/sum0;
@@ -209,7 +235,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
   double beta = amplitudeFitParameters[1];
   double overab = 1.0/alphabeta;
   double RLimits[amplitudesSize];
-  for(unsigned int i = 1; i < amplitudesSize; i++){
+  for(unsigned int i = 1; i < amplitudesSize; ++i){
     RLimits[i] = exp(double(i)/beta)-0.001;
   } 
   double stat=1;  // pedestal from db
@@ -281,26 +307,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
     double tmaxerr = 0.5 * sqrt( (time1 - time2)*(time1 - time2) );
 
     // calculate chi2
-    sumAf = 0;
-    sumff = 0;
-    for(unsigned int it = 0; it < amplitudesSize; it++){
-      double err2 = amplitudeErrors2inv_[it];
-      double offset = (double(it) - tmax)*overab;
-      double term1 = 1.0 + offset;
-      if(term1>1e-6){
-	double f = exp( alpha*(log(term1) - offset) );
-	sumAf += amplitudes_[it]*(f*err2);
-	sumff += f*(f*err2);
-      }
-    }
-
-    double chi2 = sumAA;
-    double amp = 0;
-    if( sumff > 0 ){
-      amp = sumAf/sumff;
-      chi2 = sumAA - sumAf*amp;
-    }
-    chi2 /= sum0;
+    chi2 = computeChi2(tmax,alpha,overb);
 
     // choose reasonable measurements. One might argue what is
     // reasonable and what is not.
@@ -381,92 +388,94 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
 
 
   // Do Ratio's Method with "large" pulses
-  if( ampMaxAlphaBeta/ampMaxError_ > 5.0 ){
+  if( ampMaxAlphaBeta > 5.0*ampMaxError_ ){
 
-	// make a vector of Tmax measurements that correspond to each
-	// ratio. Each measurement have it's value and the error
-
-	double time_max = 0;
-	double time_wgt = 0;
-
-
-	for (unsigned int i = 0; i < ratios_.size(); i++) {
-
-          if(ratios_[i].step == 1
-              && ratios_[i].value >= timeFitLimits.first
-              && ratios_[i].value <= timeFitLimits.second
-            ){
-
-		double time_max_i = ratios_[i].index;
-
-		// calculate polynomial for Tmax
-
-		double u = timeFitParameters[timeFitParameters.size() - 1];
-		for (int k = timeFitParameters.size() - 2; k >= 0; k--) {
-			u = u * ratios_[i].value + timeFitParameters[k];
-		}
-
-		// calculate derivative for Tmax error
-		double du =
-		    (timeFitParameters.size() -
-		     1) * timeFitParameters[timeFitParameters.size() - 1];
-		for (int k = timeFitParameters.size() - 2; k >= 1; k--) {
-			du = du * ratios_[i].value + k * timeFitParameters[k];
-		}
-
-
-		// running sums for weighted average
-		double errorsquared =
-		    ratios_[i].error * ratios_[i].error * du * du;
-		if (errorsquared > 0) {
-
-			time_max += (time_max_i - u) / errorsquared;
-			time_wgt += 1.0 / errorsquared;
-			Tmax currentTmax =
-			    { ratios_[i].index, 1, (time_max_i - u),
-		     sqrt(errorsquared),0,1 };
-			times_.push_back(currentTmax);
-
-		}
-          }
-        }
-
-
-	// calculate weighted average of all Tmax measurements
-	if (time_wgt > 0) {
-          tMaxRatio = time_max/time_wgt;
-          tMaxErrorRatio = 1.0/sqrt(time_wgt);
-
-          // combine RatioAlphaBeta and Ratio Methods
-
-          if( ampMaxAlphaBeta/ampMaxError_ > 10.0 ){
-
-            // use pure Ratio Method
-            calculatedRechit_.timeMax = tMaxRatio;
-            calculatedRechit_.timeError = tMaxErrorRatio;
-
-          }else{
-
-            // combine two methods
-            calculatedRechit_.timeMax = ( tMaxAlphaBeta*(10.0-ampMaxAlphaBeta/ampMaxError_) + tMaxRatio*(ampMaxAlphaBeta/ampMaxError_ - 5.0) )/5.0;
-            calculatedRechit_.timeError = ( tMaxErrorAlphaBeta*(10.0-ampMaxAlphaBeta/ampMaxError_) + tMaxErrorRatio*(ampMaxAlphaBeta/ampMaxError_ - 5.0) )/5.0;
-
-          }
-
-        }else{
-
-          // use RatioAlphaBeta Method
-          calculatedRechit_.timeMax = tMaxAlphaBeta;
-          calculatedRechit_.timeError = tMaxErrorAlphaBeta;
-
-        }
-
+    // make a vector of Tmax measurements that correspond to each
+    // ratio. Each measurement have it's value and the error
+    
+    double time_max = 0;
+    double time_wgt = 0;
+    
+    
+    for (unsigned int i = 0; i < ratios_.size(); i++) {
+      
+      if(ratios_[i].step == 1
+	 && ratios_[i].value >= timeFitLimits.first
+	 && ratios_[i].value <= timeFitLimits.second
+	 ){
+	
+	double time_max_i = ratios_[i].index;
+	
+	// calculate polynomial for Tmax
+	
+	double u = timeFitParameters[timeFitParameters.size() - 1];
+	for (int k = timeFitParameters.size() - 2; k >= 0; k--) {
+	  u = u * ratios_[i].value + timeFitParameters[k];
+	}
+	
+	// calculate derivative for Tmax error
+	double du =
+	  (timeFitParameters.size() -
+	   1) * timeFitParameters[timeFitParameters.size() - 1];
+	for (int k = timeFitParameters.size() - 2; k >= 1; k--) {
+	  du = du * ratios_[i].value + k * timeFitParameters[k];
+	}
+	
+	
+	// running sums for weighted average
+	double errorsquared =
+	  (ratios_[i].error * du) * (ratios_[i].error * du);
+	if (errorsquared > 0) {
+	  double oe =  1.0 / errorsquared;
+	  time_max += oe * (time_max_i - u);
+	  time_wgt += oe;
+	  Tmax currentTmax =
+	    { ratios_[i].index, 1, (time_max_i - u),
+	      (ratios_[i].error * du) ,0,1 };
+	  times_.push_back(currentTmax);
+	  
+	}
+      }
+    }
+    
+    
+    // calculate weighted average of all Tmax measurements
+    if (time_wgt > 0) {
+      tMaxRatio = time_max/time_wgt;
+      tMaxErrorRatio = 1.0/sqrt(time_wgt);
+      
+      // combine RatioAlphaBeta and Ratio Methods
+      
+      if( ampMaxAlphaBeta < 10.0*ampMaxError_  ){
+	
+	// use pure Ratio Method
+	calculatedRechit_.timeMax = tMaxRatio;
+	calculatedRechit_.timeError = tMaxErrorRatio;
+	
+      }else{
+	
+	// combine two methods
+	calculatedRechit_.timeMax = 0.2*( tMaxAlphaBeta*(10.0-(ampMaxAlphaBeta/ampMaxError_)) +
+				      tMaxRatio*((ampMaxAlphaBeta/ampMaxError_) - 5.0) );
+	calculatedRechit_.timeError = 0.2*( tMaxErrorAlphaBeta*(10.0-(ampMaxAlphaBeta/ampMaxError_)) + 
+					tMaxErrorRatio*((ampMaxAlphaBeta/ampMaxError_) - 5.0) );
+	
+      }
+      
+    }else{
+      
+      // use RatioAlphaBeta Method
+      calculatedRechit_.timeMax = tMaxAlphaBeta;
+      calculatedRechit_.timeError = tMaxErrorAlphaBeta;
+      
+    }
+    
   }else{
 
     // use RatioAlphaBeta Method
     calculatedRechit_.timeMax = tMaxAlphaBeta;
     calculatedRechit_.timeError = tMaxErrorAlphaBeta;
-
+    
   }
 }
 
@@ -492,24 +501,24 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeAmplitude( std::vector< double 
 	double sumFF = 0;
 	double sum1 = 0;
 	for (unsigned int i = 0; i < amplitudesSize; i++) {
-	        double err2 = amplitudeErrors2inv_[i];
-		double f = 0;
-		double termOne = 1 + (i - calculatedRechit_.timeMax) / (alpha * beta);
-		if (termOne > 1.e-5) f = exp(alpha * log(termOne) -(i - calculatedRechit_.timeMax) / beta);
-
-		// apply range of interesting samples
-
-		if ( (i < pedestalLimit)
-		     || (f > 0.6 && i <= calculatedRechit_.timeMax)
-		     || (f > 0.4 && i >= calculatedRechit_.timeMax)) {
-		  	  sum1  += err2;
-			  sumA  += amplitudes_[i]*err2;
-			  sumF  += (f*err2);
-			  sumAF += amplitudes_[i]*(f*err2);
-			  sumFF += f*(f*err2);
-		}
+	  double err2 = amplitudeErrors2inv_[i];
+	  double f = 0;
+	  double termOne = 1 + (i - calculatedRechit_.timeMax) / (alpha * beta);
+	  if (termOne > 1.e-5) f = std::exp(alpha * std::log(termOne) -(i - calculatedRechit_.timeMax) / beta);
+	  
+	  // apply range of interesting samples
+	  
+	  if ( (i < pedestalLimit)
+	       || (f > 0.6 && i <= calculatedRechit_.timeMax)
+	       || (f > 0.4 && i >= calculatedRechit_.timeMax)) {
+	    sum1  += err2;
+	    sumA  += amplitudes_[i]*err2;
+	    sumF  += (f*err2);
+	    sumAF += amplitudes_[i]*(f*err2);
+	    sumFF += f*(f*err2);
+	  }
 	}
-
+	
 	calculatedRechit_.amplitudeMax = 0;
 	if(sum1 > 0){
 	  double denom = sumFF*sum1 - sumF*sumF;
