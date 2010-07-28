@@ -167,6 +167,7 @@ def lumisummaryByrun(queryHandle,runnum,lumiversion,beamstatus=None,beamenergy=N
     queryHandle.addToOutputList('BEAMENERGY','beamenergy')
     queryHandle.addToOutputList('CMSALIVE','cmsalive')
     queryHandle.setCondition(conditionstring,queryCondition)
+    queryHandle.addToOrderList('startorbit')
     if beamstatus:
         conditionstring=conditionstring+' and BEAMSTATUS=:beamstatus'
         queryCondition.extend('beamstatus','string')
