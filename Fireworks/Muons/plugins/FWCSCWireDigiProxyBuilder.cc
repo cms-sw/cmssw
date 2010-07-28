@@ -8,7 +8,7 @@
 //
 // Original Author: mccauley
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCWireDigiProxyBuilder.cc,v 1.1.2.6 2010/06/16 12:54:11 mccauley Exp $
+// $Id: FWCSCWireDigiProxyBuilder.cc,v 1.3 2010/07/28 09:47:19 mccauley Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -19,8 +19,6 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Core/interface/fwLog.h"
-
-#include "Fireworks/Muons/interface/CSCUtils.h"
 
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 
