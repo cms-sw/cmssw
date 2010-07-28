@@ -31,9 +31,8 @@ namespace
   }
   
   void
-  addTube( TEvePointSet* pointSet, const TGeoHMatrix* matrix, double localPos[3],  std::vector<TEveVector> &pars )
+  addTube( TEveBox* shape, const TGeoHMatrix* matrix, double localPos[3],  std::vector<TEveVector> &pars )
   {
-    TEveBox* shape = new TEveBox( "DTube" );
     const Float_t vtx[24] = { localPos[0] - pars[0].fX / 2., -pars[0].fZ / 2., -pars[0].fY / 2.,
 			      localPos[0] - pars[0].fX / 2.,  pars[0].fZ / 2., -pars[0].fY / 2.,
 			      localPos[0] + pars[0].fX / 2.,  pars[0].fZ / 2., -pars[0].fY / 2.,
@@ -46,7 +45,6 @@ namespace
     shape->SetVertices( vtx );
     shape->SetTransMatrix( *matrix );
     shape->SetMainTransparency( 75 );
-    pointSet->AddElement( shape );
   }
 }
 
@@ -72,21 +70,17 @@ private:
 void
 FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType type, const FWViewContext* )
 {
-  // FIXME: This colour does not have any affect on how the points look like.
-  product->SetMainColor( iItem->defaultDisplayProperties().color() );
-
   const DTDigiCollection* digis = 0;
   iItem->get( digis );
 	
   if( ! digis )
   {
-    fwLog( fwlog::kWarning ) << "failed get DTDigis" << std::endl;
     return;
   }
 	
-  for( DTDigiCollection::DigiRangeIterator detIt = digis->begin(), detUnitItEnd = digis->end(); detIt != detUnitItEnd; ++detIt )
+  for( DTDigiCollection::DigiRangeIterator det = digis->begin(), detEnd = digis->end(); det != detEnd; ++det )
   {
-    const DTLayerId& layerId = (*detIt).first;
+    const DTLayerId& layerId = (*det).first;
     std::vector<TEveVector> pars = iItem->getGeom()->getPoints( layerId );
 
     int superLayer = layerId.superlayerId().superLayer();
@@ -95,23 +89,25 @@ FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
 		
     const TGeoHMatrix* matrix = item()->getGeom()->getMatrix( layerId );
     
-    const DTDigiCollection::Range &range = (*detIt).second;
+    const DTDigiCollection::Range &range = (*det).second;
 
     // Loop over the digis of this DetUnit
-    for( DTDigiCollection::const_iterator digiIt = range.first;
-	 digiIt != range.second; ++digiIt )
+    for( DTDigiCollection::const_iterator it = range.first;
+	 it != range.second; ++it )
     {
-      TEveCompound* compound = new TEveCompound( "DT digi compound" );
-      compound->OpenCompound();
-      product->AddElement( compound );
+      TEveCompound* compound = createCompound();
+      setupAddElement( compound, product );
+
       if( pars.empty() ) {
 	continue;
       }
 			
-      TEvePointSet* pointSet = new TEvePointSet();
+      TEvePointSet* pointSet = new TEvePointSet;
       pointSet->SetMarkerStyle( 24 );
-      pointSet->SetMarkerColor( 3 );
-      compound->AddElement( pointSet );
+      setupAddElement( pointSet, compound );
+
+      TEveBox* box = new TEveBox;
+      setupAddElement( box, compound );
 
       if( ! matrix ) 
       {
@@ -122,22 +118,20 @@ FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
 	continue;
       }
 			
-      int wire = (*digiIt).wire();
-
       // The x wire position in the layer, starting from its wire number.
       Float_t firstChannel = pars[1].fX;
       Float_t nChannels = pars[1].fZ;
-      localPos[0] = ( wire - ( firstChannel - 1 ) - 0.5 ) * pars[0].fX - nChannels / 2.0 * pars[0].fX;
+      localPos[0] = ((*it).wire() - ( firstChannel - 1 ) - 0.5 ) * pars[0].fX - nChannels / 2.0 * pars[0].fX;
 
       if( type == FWViewType::k3D || type == FWViewType::kISpy )
       {
-	addTube( pointSet, matrix, localPos, pars );
+	addTube( box, matrix, localPos, pars );
       }
       if(( type == FWViewType::kRhoPhi && superLayer != 2 ) ||
 	 ( type == FWViewType::kRhoZ && superLayer == 2 ))
       {
 	addMarkers( pointSet, matrix, localPos );
-	addTube( pointSet, matrix, localPos, pars );
+	addTube( box, matrix, localPos, pars );
       }
     }		
   }
