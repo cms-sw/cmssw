@@ -178,15 +178,17 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     if(cfg->pisPhysicsSample[procID]!=0) {
       int accMCMu=0;
       int accMCEle=0;
+      int accMCPi=0;
       if(cfg->selectBranchMC){
 	for(int iMCpart = 0; iMCpart < NMCpart; iMCpart ++){
 	  if((MCpid[iMCpart]==13||MCpid[iMCpart]==-13) && MCstatus[iMCpart]==1 && (MCeta[iMCpart] < 2.1 && MCeta[iMCpart] > -2.1) && (MCpt[iMCpart]>3))accMCMu=accMCMu+1;
 	  if((MCpid[iMCpart]==11||MCpid[iMCpart]==-11 )&& MCstatus[iMCpart]==1 && (MCeta[iMCpart] < 2.5 && MCeta[iMCpart] > -2.5) && (MCpt[iMCpart]>5))accMCEle=accMCEle+1;
+          if((MCpid[iMCpart]==211||MCpid[iMCpart]==-211 )&& MCstatus[iMCpart]==1 && (MCeta[iMCpart] < 2.5 && MCeta[iMCpart] > -2.5) && (MCpt[iMCpart]>0))accMCPi=accMCPi+1; 
 	}
 	if     ((cfg->pisPhysicsSample[procID]==1 && accMCEle>=1               )){ Den=Den+1;}
 	else if((cfg->pisPhysicsSample[procID]==2 &&                accMCMu >=1)){ Den=Den+1;}
 	else if((cfg->pisPhysicsSample[procID]==3 && accMCEle>=1 && accMCMu >=1)){ Den=Den+1;}
-
+        else if((cfg->pisPhysicsSample[procID]==5 && accMCPi>=1                )){ Den=Den+1;} 
 	else {continue;}
       }
     }
@@ -204,7 +206,8 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     if (cfg->pisPhysicsSample[procID]==1)ohltobject="electron";
     if (cfg->pisPhysicsSample[procID]==2)ohltobject="muon";
     if (cfg->pisPhysicsSample[procID]==3)ohltobject="ele_mu";
-    if (cfg->pisPhysicsSample[procID]==4)ohltobject=="photon";
+    if (cfg->pisPhysicsSample[procID]==4)ohltobject="photon";
+    if (cfg->pisPhysicsSample[procID]==5)ohltobject="pion"; 
     PlotOHltEffCurves(cfg,hlteffmode,ohltobject,h1,h2,h3,h4);
 
 
@@ -323,18 +326,43 @@ int OHltTree::readRefPrescaleFromFile(TString st)
 bool OHltTree::prescaleResponse(OHltMenu *menu,OHltConfig *cfg,OHltRateCounter *rc,int i) {
   if (cfg->doDeterministicPrescale) {
     (rc->prescaleCount[i])++;
-    return ((rc->prescaleCount[i]) % menu->GetPrescale(i) == 0); //
+    if(cfg->useNonIntegerPrescales) {
+      float prescalemod = 1.0 - fmod((float)(menu->GetPrescale(i)),1);
+      if(prescalemod == 1.0) prescalemod = 0.5; 
+      return (fmod((float)(rc->prescaleCount[i]),(float)(menu->GetPrescale(i))) <= prescalemod);
+    }
+    else
+      return (fmod((float)(rc->prescaleCount[i]),(float)(menu->GetPrescale(i))) == 0);
   } else {
-    return (GetIntRandom() % menu->GetPrescale(i) == 0);
+    float therandom = (float)(GetFloatRandom());
+    if(cfg->useNonIntegerPrescales) { 
+      float prescalemod = 1.0 - fmod((float)(menu->GetPrescale(i)),1); 
+      if(prescalemod == 1.0) prescalemod = 0.5; 
+      return (fmod(therandom,(float)(menu->GetPrescale(i))) <= prescalemod);
+    }
+    else
+      return (fmod((float)(GetIntRandom()),(float)(menu->GetPrescale(i))) == 0);
   }
 };
 
 bool OHltTree::prescaleResponseL1(OHltMenu *menu,OHltConfig *cfg,OHltRateCounter *rc,int i) {
   if (cfg->doDeterministicPrescale) {
     (rc->prescaleCountL1[i])++;
-    return ((rc->prescaleCountL1[i]) % menu->GetL1Prescale(i) == 0); //
+    if(cfg->useNonIntegerPrescales) {  
+      float prescalemod = 1.0 - fmod((float)(menu->GetL1Prescale(i)),1);  
+      if(prescalemod == 1.0) prescalemod = 0.5; 
+      return (fmod((float)(rc->prescaleCountL1[i]),(float)(menu->GetL1Prescale(i))) <= prescalemod); 
+    }
+    else
+      return (fmod((float)(rc->prescaleCountL1[i]),(float)(menu->GetL1Prescale(i))) == 0);  
   } else {
-    return (GetIntRandom() % menu->GetL1Prescale(i) == 0);
+    if(cfg->useNonIntegerPrescales) {   
+      float prescalemod = 1.0 - fmod((float)(menu->GetL1Prescale(i)),1);   
+      if(prescalemod == 1.0) prescalemod = 0.5;
+      return (fmod((float)(GetFloatRandom()),(float)(menu->GetL1Prescale(i))) <= prescalemod); 
+    }
+    else
+      return (fmod((float)(GetIntRandom()),(float)(menu->GetL1Prescale(i))) == 0);  
   }
 };
 

@@ -147,7 +147,7 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
   vector<float> coDen;
   vector<int> RefPrescale,RefL1Prescale;
   float DenEff=0.;
-  Int_t nbinpt = 50; Float_t ptmin = 0.0; Float_t ptmax = 10.0;
+  Int_t nbinpt = 50; Float_t ptmin = 0.0; Float_t ptmax = 2.0;
   Int_t nbineta = 30; Float_t etamin = -3.0; Float_t etamax = 3.0;
   TH1F *h1 = new TH1F("h1","pTnum",nbinpt,ptmin,ptmax);
   TH1F *h2 = new TH1F("h2","pTden",nbinpt,ptmin,ptmax);
@@ -286,7 +286,7 @@ void calcEff(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
   vector< vector<float> >coMa;
   vector<float> coDen;
   //  float DenEff=0.;
-  Int_t nbinpt = 50; Float_t ptmin = 0.0; Float_t ptmax = 15.0;
+  Int_t nbinpt = 50; Float_t ptmin = 0.0; Float_t ptmax = 2.0;
   Int_t nbineta = 30; Float_t etamin = -3.0; Float_t etamax = 3.0;
 
   vector<float> ftmp;
