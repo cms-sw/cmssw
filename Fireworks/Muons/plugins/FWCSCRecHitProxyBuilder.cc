@@ -3,7 +3,7 @@
 // Package:     Muons
 // Class  :     FWCSCRecHitProxyBuilder
 //
-// $Id: FWCSCRecHitProxyBuilder.cc,v 1.6 2010/05/06 18:03:08 amraktad Exp $
+// $Id: FWCSCRecHitProxyBuilder.cc,v 1.7 2010/06/15 17:05:59 mccauley Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -37,9 +37,9 @@ FWCSCRecHitProxyBuilder::build(const CSCRecHit2D& iData,
   const TGeoHMatrix* matrix = item()->getGeom()->getMatrix(iData.cscDetId().rawId());
   
   if ( ! matrix ) 
-  {
+  {     
      fwLog(fwlog::kError) << " failed to get geometry of CSC layer with detid: " 
-             << iData.cscDetId().rawId() <<std::endl;
+                          << iData.cscDetId().rawId() <<std::endl;
     return;
   }
 
@@ -53,8 +53,8 @@ FWCSCRecHitProxyBuilder::build(const CSCRecHit2D& iData,
   double localPositionX = iData.localPosition().x();
   double localPositionY = iData.localPosition().y();
   
-  double localPositionXX = iData.localPositionError().xx();
-  double localPositionYY = iData.localPositionError().yy();
+  double localPositionXX = sqrt(iData.localPositionError().xx());
+  double localPositionYY = sqrt(iData.localPositionError().yy());
   
   double localU1Point[3] = 
     {
