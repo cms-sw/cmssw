@@ -197,14 +197,14 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
 
                 // === time computation ===
                 // ratio method
-                float clockToNsConstant = 25.;
+                float const clockToNsConstant = 25.;
                 if (detid.subdetId()==EcalEndcap) {
                                 ratioMethod_endcap_.init( *itdg, pedVec, pedRMSVec, gainRatios );
                                 ratioMethod_endcap_.computeTime( EEtimeFitParameters_, EEtimeFitLimits_, EEamplitudeFitParameters_ );
                                 ratioMethod_endcap_.computeAmplitude( EEamplitudeFitParameters_);
                                 EcalUncalibRecHitRatioMethodAlgo<EEDataFrame>::CalculatedRecHit crh = ratioMethod_endcap_.getCalculatedRecHit();
                                 uncalibRecHit.setJitter( crh.timeMax - 5 );
-                                uncalibRecHit.setJitterError( sqrt(pow(crh.timeError,2) + pow(EEtimeConstantTerm_,2)/pow(clockToNsConstant,2)) );
+                                uncalibRecHit.setJitterError( std::sqrt(pow(crh.timeError,2) + std::pow(EEtimeConstantTerm_,2)/std::pow(clockToNsConstant,2)) );
                                 uncalibRecHit.setOutOfTimeEnergy( crh.amplitudeMax );
                                 if (uncalibRecHit.amplitude() > pedRMSVec[1] * amplitudeThreshEE_){
                                   int maxGain=1;
@@ -219,9 +219,9 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                                     float cterm=EEtimeConstantTerm_;
                                     float sigmaped=pedRMSVec[maxGain - 1];
                                     float nterm=EEtimeNconst_*sigmaped/uncalibRecHit.amplitude();
-                                    float sigmat=sqrt( nterm*nterm  + cterm*cterm   );
+                                    float sigmat=std::sqrt( nterm*nterm  + cterm*cterm   );
                                     
-                                    if ( fabs(correctedTime/sigmat) > outOfTimeThreshEE_ ) {
+                                    if ( fabs(correctedTime) > sigmat*outOfTimeThreshEE_ ) {
                                       uncalibRecHit.setRecoFlag( EcalUncalibratedRecHit::kOutOfTime );
                                     }
                                   }
@@ -232,7 +232,7 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                                 ratioMethod_barrel_.computeAmplitude( EBamplitudeFitParameters_);
                                 EcalUncalibRecHitRatioMethodAlgo<EBDataFrame>::CalculatedRecHit crh = ratioMethod_barrel_.getCalculatedRecHit();
                                 uncalibRecHit.setJitter( crh.timeMax - 5 );
-                                uncalibRecHit.setJitterError( sqrt(pow(crh.timeError,2) + pow(EBtimeConstantTerm_,2)/pow(clockToNsConstant,2)) );
+                                uncalibRecHit.setJitterError( std::sqrt(std::pow(crh.timeError,2) + std::pow(EBtimeConstantTerm_,2)/std::pow(clockToNsConstant,2)) );
                                 uncalibRecHit.setOutOfTimeEnergy( crh.amplitudeMax );
                                 if (uncalibRecHit.amplitude() > pedRMSVec[1] * amplitudeThreshEB_){
                                   int maxGain=1;
@@ -247,9 +247,9 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                                     float cterm=EBtimeConstantTerm_;
                                     float sigmaped=pedRMSVec[maxGain - 1];
                                     float nterm=EBtimeNconst_*sigmaped/uncalibRecHit.amplitude();
-                                    float sigmat=sqrt( nterm*nterm  + cterm*cterm   );
+                                    float sigmat=std::sqrt( nterm*nterm  + cterm*cterm   );
                                   
-                                    if ( fabs(correctedTime/sigmat) > outOfTimeThreshEB_ ) {
+                                    if ( fabs(correctedTime) > sigmat*outOfTimeThreshEB_ ) {
                                       uncalibRecHit.setRecoFlag( EcalUncalibratedRecHit::kOutOfTime );
                                     }
                                   }
