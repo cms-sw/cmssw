@@ -125,6 +125,15 @@ namespace csctf
     return 0; // DT chambers obviously don't have a csc id :-D
   }
 
+  unsigned TrackStub::cscidSeparateME1a() const
+  {
+    if(DetId(theDetId_).subdetId() != MuonSubdetId::CSC) return 0;
+    CSCDetId id(theDetId_);
+    unsigned normal_cscid = CSCTriggerNumbering::triggerCscIdFromLabels(id);
+    if (id.station()==1 && id.ring()==4) return normal_cscid + 9; // 10,11,12 for ME1a
+    return normal_cscid;
+  }
+
   bool TrackStub::operator<(const TrackStub& rhs) const
   {
     return ( rhs.isValid() && ( (!(isValid())) || (getQuality() < rhs.getQuality()) ||

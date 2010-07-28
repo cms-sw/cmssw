@@ -23,7 +23,7 @@ namespace csctf
   class TrackStub : public CSCCorrelatedLCTDigi
     {
     public:
-      TrackStub() : theDetId_(0), thePhi_(0),theEta_(0),link_(0) {}
+      TrackStub() {}
       TrackStub(const CSCCorrelatedLCTDigi&, const DetId&);
       TrackStub(const CSCCorrelatedLCTDigi&, const DetId&, const unsigned& phi, const unsigned& eta);
       TrackStub(const TrackStub&);
@@ -54,6 +54,7 @@ namespace csctf
       unsigned sector() const;
       unsigned subsector() const;
       unsigned cscid() const;
+      unsigned cscidSeparateME1a() const;
       int BX() const {return getBX();}
       
       
