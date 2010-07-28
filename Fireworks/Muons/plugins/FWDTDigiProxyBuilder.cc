@@ -18,7 +18,6 @@
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
-#include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 
 namespace 
