@@ -27,7 +27,8 @@
 // end includes for CMSSW main
 
 #include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Parser/interface/DDLConfiguration.h"
+#include "DetectorDescription/Parser/interface/DDLDocumentProvider.h"
+#include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
 #include "DetectorDescription/Core/interface/DDMap.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
@@ -83,7 +84,7 @@ class DDLTestDoc : public DDLDocumentProvider {
   void clear();
 
   // test routines
-//    void testRotations();
+  //   void testRotations();
 
 //    void testMaterials();
 
