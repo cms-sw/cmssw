@@ -12,7 +12,7 @@ process = cms.Process("HCALDQM")
 #-----------------------------------------------------                      
 
 maxevents      = 1000  # maximum number of events to process
-debuglevel     = 5     # larger value means more debug messages (0=no debug)
+debuglevel     = 0     # larger value means more debug messages (0=no debug)
 databasedir  = ''       # Set to an existing directory to dump out database info
 host = os.getenv("HOST")
 if (host.find(".")>-1):
