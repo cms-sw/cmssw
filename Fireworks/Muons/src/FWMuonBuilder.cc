@@ -2,7 +2,7 @@
 //
 // Package:     Muons
 // Class  :     FWMuonBuilder
-// $Id: FWMuonBuilder.cc,v 1.29 2010/07/06 18:32:08 amraktad Exp $
+// $Id: FWMuonBuilder.cc,v 1.30 2010/07/27 15:52:46 yana Exp $
 //
 
 #include "TEveVSDStructs.h"
@@ -94,31 +94,12 @@ void addMatchInformation( const reco::Muon* muon,
 
       if( TGeoTrap* trap = dynamic_cast<TGeoTrap*>( shape->GetShape()))
       {
-	Double_t thickness = trap->GetDz();
-	Double_t apothem = trap->GetH1();
-	Double_t hBottomEdge = trap->GetBl1();
-	Double_t hTopEdge = trap->GetTl1();
-
-	fwLog( fwlog::kDebug )
-	  << "thickness = " << thickness
-	  << ", apothem = " << apothem
-	  << ", hBottomEdge = " << hBottomEdge
-	  << ", hTopEdge = " << hTopEdge << std::endl;
-
-        segmentLength = thickness;
-        segmentLimit  = apothem;
+        segmentLength = trap->GetDz();
+        segmentLimit  = trap->GetH1();
       }
       else if( TGeoBBox* box = dynamic_cast<TGeoBBox*>( shape->GetShape()))
       {
-	Double_t width = box->GetDX();
-	Double_t length = box->GetDY();
-	Double_t thickness = box->GetDZ();
-	segmentLength = thickness;
-	
-	fwLog( fwlog::kDebug )
-	  << "width = " << width
-	  << ", length = " << length
-	  << ", thickness = " << thickness << std::endl;
+	segmentLength = box->GetDZ();
       }
       else
       {	
@@ -151,11 +132,11 @@ void addMatchInformation( const reco::Muon* muon,
     }
 
     for( std::vector<reco::MuonSegmentMatch>::const_iterator segment = chamber->segmentMatches.begin(),
-                                                          segmentEnd = chamber->segmentMatches.end();
-         segment != segmentEnd; ++segment )
+							  segmentEnd = chamber->segmentMatches.end();
+	 segment != segmentEnd; ++segment )
     {
-      double segmentPosition[3]  = {    segment->x,    segment->y, 0.0 };
-      double segmentDirection[3] = { segment->dXdZ, segment->dYdZ, 0.0 };
+      double segmentPosition[3]  = {    segment->x,     segment->y, 0.0 };
+      double segmentDirection[3] = { segment->dXdZ,  segment->dYdZ, 0.0 };
 
       double localSegmentInnerPoint[3];
       double localSegmentOuterPoint[3];
@@ -165,8 +146,15 @@ void addMatchInformation( const reco::Muon* muon,
 				segmentPosition, segmentDirection,
 				localSegmentInnerPoint, localSegmentOuterPoint );
       
-      fireworks::addSegment( matrix, *segmentSet, segmentPosition, localSegmentInnerPoint, localSegmentOuterPoint );
-    } 
+      double globalSegmentInnerPoint[3];
+      double globalSegmentOuterPoint[3];
+
+      matrix->LocalToMaster( localSegmentInnerPoint,  globalSegmentInnerPoint );
+      matrix->LocalToMaster( localSegmentOuterPoint,  globalSegmentOuterPoint );
+
+      segmentSet->AddLine( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
+			   globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
+    }
   }
    
   if( !matches.empty() ) 
