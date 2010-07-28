@@ -272,7 +272,8 @@ bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, pat::str
 
 
 	  if ( ignoreCut("== 1 Tight Lepton, Mu Veto") || 
-	       ( (muPlusJets_ && oneMuonMuVeto)  )
+	       ePlusJets_ ||
+	       (muPlusJets_ && oneMuonMuVeto)
 	       ) {
 	    passCut(ret, "== 1 Tight Lepton, Mu Veto");
 
