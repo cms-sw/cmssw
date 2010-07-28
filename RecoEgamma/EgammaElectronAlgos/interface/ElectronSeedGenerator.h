@@ -84,7 +84,8 @@ class ElectronSeedGenerator
   float sizeWindowENeg_;
   float phimin2_,phimax2_;
   float deltaPhi1Low_, deltaPhi1High_;
-  float deltaPhi2_;
+  float deltaPhi2B_;
+  float deltaPhi2F_;
 
   PixelHitMatcher *myMatchEle;
   PixelHitMatcher *myMatchPos;

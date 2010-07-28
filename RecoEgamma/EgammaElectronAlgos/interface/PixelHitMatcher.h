@@ -17,7 +17,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.h,v 1.27 2010/03/15 00:17:55 charlot Exp $
+// $Id: PixelHitMatcher.h,v 1.28 2010/04/30 13:54:23 chamont Exp $
 //
 //
 
@@ -134,7 +134,8 @@ class PixelHitMatcher {
   typedef TransientTrackingRecHit::RecHitPointer        RecHitPointer;
   typedef TransientTrackingRecHit::RecHitContainer      RecHitContainer;
 
-  PixelHitMatcher(float phi1min, float phi1max, float phi2min, float phi2max,
+  PixelHitMatcher(float phi1min, float phi1max, 
+		  float phi2minB, float phi2maxB, float phi2minF, float phi2maxF,
 		  float z2minB, float z2maxB, float r2minF, float r2maxF,
 		  float rMinI, float rMaxI, bool searchInTIDTEC);
 
@@ -155,7 +156,7 @@ class PixelHitMatcher {
 
   void set1stLayer (float dummyphi1min, float dummyphi1max);
   void set1stLayerZRange (float zmin1, float zmax1);
-  void set2ndLayer (float dummyphi2min, float dummyphi2max);
+  void set2ndLayer (float dummyphi2minB, float dummyphi2maxB, float dummyphi2minF, float dummyphi2maxF);
 
   float getVertex();
   void setUseRecoVertex(bool val);

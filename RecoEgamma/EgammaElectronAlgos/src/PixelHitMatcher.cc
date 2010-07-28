@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.cc,v 1.38 2010/03/12 14:54:02 chamont Exp $
+// $Id: PixelHitMatcher.cc,v 1.39 2010/03/15 00:17:55 charlot Exp $
 //
 //
 
@@ -37,18 +37,19 @@
 using namespace reco;
 using namespace std;
 
-PixelHitMatcher::PixelHitMatcher(float phi1min, float phi1max, float phi2min, float phi2max,
-		  float z2minB, float z2maxB, float r2minF, float r2maxF,
-		  float rMinI, float rMaxI, bool searchInTIDTEC) :
-    //zmin1 and zmax1 are dummy at this moment, set from beamspot later
-    meas1stBLayer(phi1min,phi1max,0.,0.), meas2ndBLayer(phi2min,phi2max,z2minB,z2maxB),
-    meas1stFLayer(phi1min,phi1max,0.,0.), meas2ndFLayer(phi2min,phi2max,r2minF,r2maxF),
-    startLayers(),
-    prop1stLayer(0), prop2ndLayer(0),theGeometricSearchTracker(0),theLayerMeasurements(0),vertex_(0.),
+PixelHitMatcher::PixelHitMatcher(float phi1min, float phi1max, 
+				 float phi2minB, float phi2maxB, float phi2minF, float phi2maxF,
+				 float z2minB, float z2maxB, float r2minF, float r2maxF,
+				 float rMinI, float rMaxI, bool searchInTIDTEC) :
+  //zmin1 and zmax1 are dummy at this moment, set from beamspot later
+  meas1stBLayer(phi1min,phi1max,0.,0.), meas2ndBLayer(phi2minB,phi2maxB,z2minB,z2maxB),
+  meas1stFLayer(phi1min,phi1max,0.,0.), meas2ndFLayer(phi2minF,phi2maxF,r2minF,r2maxF),
+  startLayers(),
+  prop1stLayer(0), prop2ndLayer(0),theGeometricSearchTracker(0),theLayerMeasurements(0),vertex_(0.),
     searchInTIDTEC_(searchInTIDTEC), useRecoVertex_(false)
 {
-   meas1stFLayer.setRRangeI(rMinI,rMaxI);
-   meas2ndFLayer.setRRangeI(rMinI,rMaxI);
+  meas1stFLayer.setRRangeI(rMinI,rMaxI);
+  meas2ndFLayer.setRRangeI(rMinI,rMaxI);
 }
 
 PixelHitMatcher::~PixelHitMatcher()
@@ -70,10 +71,10 @@ void PixelHitMatcher::set1stLayerZRange(float zmin1, float zmax1)
   meas1stFLayer.setRRange(zmin1,zmax1);
 }
 
-void PixelHitMatcher::set2ndLayer(float dummyphi2min, float dummyphi2max)
+void PixelHitMatcher::set2ndLayer(float dummyphi2minB, float dummyphi2maxB, float dummyphi2minF, float dummyphi2maxF)
 {
-  meas2ndBLayer.setPhiRange(dummyphi2min,dummyphi2max);
-  meas2ndFLayer.setPhiRange(dummyphi2min,dummyphi2max);
+  meas2ndBLayer.setPhiRange(dummyphi2minB,dummyphi2maxB);
+  meas2ndFLayer.setPhiRange(dummyphi2minF,dummyphi2maxF);
 }
 
 void PixelHitMatcher::setUseRecoVertex(bool val){
@@ -431,17 +432,23 @@ PixelHitMatcher::compatibleSeeds
 	   if (tsos1.isValid()) {
 
 	     std::pair<bool,double> est;
- 	     if (id.subdetId()%2==1) est=meas1stBLayer.estimate(tsos1,hitPos);
- 	     else est=meas1stFLayer.estimate(tsos1,hitPos);
+ 	     if (id.subdetId()%2==1) est=meas1stBLayer.estimate(vprim, tsos1,hitPos);
+ 	     else est=meas1stFLayer.estimate(vprim, tsos1,hitPos);
 	     if (!est.first)    continue;
 
 	     // UB add test on phidiff
              PhiCheck phiCheck(xmeas.phi()) ;
              if (!phiCheck(hitPos.phi())) continue ;
 
+	     GlobalVector tsos1_vtx = tsos1.globalParameters().position() - vprim;
+             GlobalVector hitPos_vtx = hitPos - vprim;
              int subDet1 = id.subdetId() ;
-	     float dRz1 = (subDet1%2==1)?(hitPos.z()-tsos1.globalPosition().z()):(hitPos.perp()-tsos1.globalPosition().perp()) ;
-             float dPhi1 = PhiCheck::normalize(hitPos.phi() - tsos1.globalPosition().phi()) ;
+	     float dRz1 = (subDet1%2==1)?(hitPos_vtx.z()-tsos1_vtx.z()):(hitPos_vtx.perp()-tsos1_vtx.perp());
+	     float dPhi1 = PhiCheck::normalize(hitPos_vtx.phi() - tsos1_vtx.phi()) ;
+
+             //float dRz1 = (subDet1%2==1)?(hitPos.z()-tsos1.globalParameters().position().z()):(hitPos.perp()-tsos1.globalParameters().position().perp());
+             //float dPhi1 = PhiCheck::normalize(hitPos.phi() - tsos1.globalParameters().position().phi()) ;
+
 
 	     // now second Hit
 	     //CC@@
@@ -493,13 +500,22 @@ PixelHitMatcher::compatibleSeeds
 	       LocalPoint lp2=(*it).localPosition();
 	       GlobalPoint hitPos2=geomdet2->surface().toGlobal(lp2);
 	       std::pair<bool,double> est2;
- 	       if (id2.subdetId()%2==1) est2=meas2ndBLayer.estimate(tsos2,hitPos2);
- 	       else est2=meas2ndFLayer.estimate(tsos2,hitPos2);
+ 	       if (id2.subdetId()%2==1) est2=meas2ndBLayer.estimate(vertex, tsos2,hitPos2);
+ 	       else est2=meas2ndFLayer.estimate(vertex, tsos2,hitPos2);
 	       if (est2.first)
 		{
-        	 int subDet2 = id2.subdetId() ;
-		 float dRz2 = (subDet2%2==1)?(hitPos2.z()-tsos2.globalPosition().z()):(hitPos2.perp()-tsos2.globalPosition().perp()) ;
-        	 float dPhi2 = PhiCheck::normalize(hitPos2.phi() - tsos2.globalPosition().phi()) ;
+		  GlobalVector tsos2_vtx = tsos2.globalParameters().position() - vertex;
+                  GlobalVector hitPos2_vtx = hitPos2 - vertex;
+		  
+		  int subDet2 = id2.subdetId() ;
+ 		  float dRz2 = (subDet2%2==1)?(hitPos2_vtx.z()-tsos2_vtx.z()):(hitPos2_vtx.perp()-tsos2_vtx.perp());
+ 		  float dPhi2 = PhiCheck::normalize(hitPos2_vtx.phi() - tsos2_vtx.phi());
+
+
+		  //float dRz2 = (subDet2%2==1)?(hitPos2.z()-tsos2.globalParameters().position().z()):(hitPos2.perp()-tsos2.globalParameters().position().perp());
+		  //		  float dPhi2 = PhiCheck::normalize(hitPos2_vtx.phi() - tsos2_vtx.phi());
+
+
 		 result.push_back(SeedWithInfo((*seeds)[i],subDet2,dRz2,dPhi2,subDet1,dRz1,dPhi1)) ;
 		}
 	     }

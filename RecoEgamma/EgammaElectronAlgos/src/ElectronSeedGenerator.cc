@@ -62,11 +62,13 @@ ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset)
       nSigmasDeltaZ1_(pset.getParameter<double>("nSigmasDeltaZ1")),
       deltaZ1WithVertex_(0.5),
       sizeWindowENeg_(pset.getParameter<double>("SizeWindowENeg")),
-      phimin2_(pset.getParameter<double>("PhiMin2")),
-      phimax2_(pset.getParameter<double>("PhiMax2")),
+      //      phimin2_(pset.getParameter<double>("PhiMin2")),
+      //      phimax2_(pset.getParameter<double>("PhiMax2")),
       deltaPhi1Low_(pset.getParameter<double>("DeltaPhi1Low")),
       deltaPhi1High_(pset.getParameter<double>("DeltaPhi1High")),
-      deltaPhi2_(pset.getParameter<double>("DeltaPhi2")),
+      //      deltaPhi2_(pset.getParameter<double>("DeltaPhi2")),
+      deltaPhi2B_(pset.getParameter<double>("DeltaPhi2B")),
+      deltaPhi2F_(pset.getParameter<double>("DeltaPhi2F")),
       myMatchEle(0), myMatchPos(0),
       thePropagator(0), theMeasurementTracker(0),
       theSetup(0), pts_(0),
@@ -87,8 +89,10 @@ ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset)
   // Instantiate the pixel hit matchers
   myMatchEle = new PixelHitMatcher( pset.getParameter<double>("ePhiMin1"),
 				    pset.getParameter<double>("ePhiMax1"),
-				    pset.getParameter<double>("PhiMin2"),
-				    pset.getParameter<double>("PhiMax2"),
+				    pset.getParameter<double>("PhiMin2B"),
+				    pset.getParameter<double>("PhiMax2B"),
+				    pset.getParameter<double>("PhiMin2F"),
+				    pset.getParameter<double>("PhiMax2F"),
 				    pset.getParameter<double>("z2MinB"),
 				    pset.getParameter<double>("z2MaxB"),
 				    pset.getParameter<double>("r2MinF"),
@@ -99,8 +103,10 @@ ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset)
 
   myMatchPos = new PixelHitMatcher( pset.getParameter<double>("pPhiMin1"),
 				    pset.getParameter<double>("pPhiMax1"),
-				    pset.getParameter<double>("PhiMin2"),
-				    pset.getParameter<double>("PhiMax2"),
+				    pset.getParameter<double>("PhiMin2B"),
+				    pset.getParameter<double>("PhiMax2B"),
+				    pset.getParameter<double>("PhiMin2F"),
+				    pset.getParameter<double>("PhiMax2F"),
 				    pset.getParameter<double>("z2MinB"),
 				    pset.getParameter<double>("z2MaxB"),
 				    pset.getParameter<double>("r2MinF"),
@@ -204,38 +210,44 @@ void  ElectronSeedGenerator::run
 }
 
 void ElectronSeedGenerator::seedsFromThisCluster
- ( edm::Ref<reco::SuperClusterCollection> seedCluster,
-   float hoe1, float hoe2,
-   reco::ElectronSeedCollection & result )
- {
+( edm::Ref<reco::SuperClusterCollection> seedCluster,
+  float hoe1, float hoe2,
+  reco::ElectronSeedCollection & result )
+{
   float clusterEnergy = seedCluster->energy() ;
   GlobalPoint clusterPos
-   ( seedCluster->position().x(),
-		 seedCluster->position().y(),
-	   seedCluster->position().z() ) ;
+    ( seedCluster->position().x(),
+      seedCluster->position().y(),
+      seedCluster->position().z() ) ;
   LogDebug("") << "[ElectronSeedGenerator::seedsFromThisCluster] new supercluster with energy: " << clusterEnergy ;
   LogDebug("") << "[ElectronSeedGenerator::seedsFromThisCluster] and position: " << clusterPos ;
 
   if (dynamicphiroad_)
    {
-    float clusterEnergyT = clusterEnergy*sin(seedCluster->position().theta()) ;
+     //    float clusterEnergyT = clusterEnergy*sin(seedCluster->position().theta()) ;
 
-    float deltaPhi1 = 0.875/clusterEnergyT + 0.055;
-    if (clusterEnergyT < lowPtThreshold_) deltaPhi1= deltaPhi1Low_;
-    if (clusterEnergyT > highPtThreshold_) deltaPhi1= deltaPhi1High_;
+     GlobalVector xdiff = clusterPos - ((GlobalPoint&)theBeamSpot->position());
+     float clusterEnergyT = clusterEnergy * sin( xdiff.theta() );
+
+     float deltaPhi1 = 0.875/clusterEnergyT + 0.055;
+     if (clusterEnergyT < lowPtThreshold_) deltaPhi1= deltaPhi1Low_;
+     if (clusterEnergyT > highPtThreshold_) deltaPhi1= deltaPhi1High_;
 
     float ephimin1 = -deltaPhi1*sizeWindowENeg_ ;
     float ephimax1 =  deltaPhi1*(1.-sizeWindowENeg_);
     float pphimin1 = -deltaPhi1*(1.-sizeWindowENeg_);
     float pphimax1 =  deltaPhi1*sizeWindowENeg_;
 
-    float phimin2  = -deltaPhi2_/2. ;
-    float phimax2  =  deltaPhi2_/2. ;
+    float phimin2B  = -deltaPhi2B_/2. ;
+    float phimax2B  =  deltaPhi2B_/2. ;
+    float phimin2F  = -deltaPhi2F_/2. ;
+    float phimax2F  =  deltaPhi2F_/2. ;
+
 
     myMatchEle->set1stLayer(ephimin1,ephimax1);
     myMatchPos->set1stLayer(pphimin1,pphimax1);
-    myMatchEle->set2ndLayer(phimin2,phimax2);
-    myMatchPos->set2ndLayer(phimin2,phimax2);
+    myMatchEle->set2ndLayer(phimin2B,phimax2B, phimin2F,phimax2F);
+    myMatchPos->set2ndLayer(phimin2B,phimax2B, phimin2F,phimax2F);
    }
 
   PropagationDirection dir = alongMomentum;

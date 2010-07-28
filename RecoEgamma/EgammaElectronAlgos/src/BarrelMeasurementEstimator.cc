@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: BarrelMeasurementEstimator.cc,v 1.14 2009/05/27 07:31:22 fabiocos Exp $
+// $Id: BarrelMeasurementEstimator.cc,v 1.16 2009/05/27 14:08:25 fabiocos Exp $
 //
 //
 
@@ -55,6 +55,9 @@ std::pair<bool,double> BarrelMeasurementEstimator::estimate( const TrajectorySta
   float phiDiff = tsPhi - rhPhi;
   if (phiDiff > pi) phiDiff -= twopi;
   if (phiDiff < -pi) phiDiff += twopi; 
+
+
+  
    
   if ( phiDiff < thePhiMax && phiDiff > thePhiMin && 
        zDiff < myZmax && zDiff > myZmin) {
@@ -65,6 +68,46 @@ std::pair<bool,double> BarrelMeasurementEstimator::estimate( const TrajectorySta
     return std::pair<bool,double>(false,0.);
     }
 }
+
+
+std::pair<bool,double> BarrelMeasurementEstimator::estimate( const GlobalPoint& vprim,
+                                                             const TrajectoryStateOnSurface& absolute_ts,
+                                                             GlobalPoint& absolute_gp) const {
+  
+  GlobalVector ts = absolute_ts.globalParameters().position() - vprim;
+  GlobalVector gp = absolute_gp - vprim;
+
+  float tsPhi = ts.phi();
+  float myR = gp.perp();
+  float myZ = gp.z();
+  
+  float myZmax =  theZMax;
+  float myZmin =  theZMin;
+
+  if(fabs(myZ)<30. && myR>8.)
+    {
+      myZmax = 0.09;
+      myZmin = -0.09;
+    } 
+
+  float rhPhi = gp.phi();
+  
+  float zDiff = gp.z() - ts.z(); 
+  float phiDiff = rhPhi - tsPhi;
+  if (phiDiff > pi) phiDiff -= twopi;
+  if (phiDiff < -pi) phiDiff += twopi; 
+
+
+
+  if ( phiDiff < thePhiMax && phiDiff > thePhiMin && 
+       zDiff < myZmax && zDiff > myZmin) {
+    return std::pair<bool,double>(true,1.);
+     } else {
+
+    return std::pair<bool,double>(false,0.);
+    }
+}
+
 
 bool BarrelMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts, 
 					   const BoundPlane& plane) const {

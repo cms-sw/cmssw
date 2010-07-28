@@ -15,7 +15,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: BarrelMeasurementEstimator.h,v 1.10 2008/04/12 22:33:57 charlot Exp $
+// $Id: BarrelMeasurementEstimator.h,v 1.11 2009/01/12 16:18:29 chamont Exp $
 //
 //
 
@@ -53,6 +53,12 @@ public:
 
   virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface& ts, 
 	                   GlobalPoint &gp) const;
+
+
+  virtual std::pair<bool,double> estimate( const GlobalPoint& vprim,
+					   const TrajectoryStateOnSurface& ts, 
+					   GlobalPoint &gp) const;
+
 
   virtual bool estimate( const TrajectoryStateOnSurface& ts, 
 			 const BoundPlane& plane) const;

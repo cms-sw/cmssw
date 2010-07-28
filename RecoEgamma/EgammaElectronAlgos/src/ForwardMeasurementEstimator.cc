@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ForwardMeasurementEstimator.cc,v 1.15 2009/05/27 07:31:22 fabiocos Exp $
+// $Id: ForwardMeasurementEstimator.cc,v 1.17 2009/05/27 14:08:24 fabiocos Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/ForwardMeasurementEstimator.h"
@@ -58,6 +58,8 @@ std::pair<bool,double> ForwardMeasurementEstimator::estimate( const TrajectorySt
 
   float rDiff = tsR - rhR;
 
+
+
   if ( phiDiff < myPhimax && phiDiff > myPhimin &&
        rDiff < rMax && rDiff > rMin) {
     return std::pair<bool,double>(true,1.);
@@ -65,6 +67,49 @@ std::pair<bool,double> ForwardMeasurementEstimator::estimate( const TrajectorySt
     return std::pair<bool,double>(false,0.);
   }
 }
+
+
+std::pair<bool,double> ForwardMeasurementEstimator::estimate( const GlobalPoint& vprim,
+                                                              const TrajectoryStateOnSurface& absolute_ts,
+                                                              GlobalPoint& absolute_gp) const {
+
+  GlobalVector ts = absolute_ts.globalParameters().position() - vprim;
+  GlobalVector gp = absolute_gp - vprim;
+
+  float tsR = ts.perp();
+  float tsPhi = ts.phi();
+
+  float rhPhi = gp.phi();
+  float rhR = gp.perp();
+
+  float myZ = gp.z();
+
+  float rMin = theRMin;
+  float rMax = theRMax;
+  float myPhimin = thePhiMin;
+  float myPhimax = thePhiMax;
+
+  if(fabs(myZ)> 70. &&  fabs(myZ)<170.)
+    {
+      rMin = theRMinI;
+      rMax = theRMaxI;
+    }
+
+  float phiDiff = rhPhi - tsPhi;
+  if (phiDiff > pi) phiDiff -= twopi;
+  if (phiDiff < -pi) phiDiff += twopi;
+
+  float rDiff = rhR - tsR;
+
+  if ( phiDiff < myPhimax && phiDiff > myPhimin &&
+       rDiff < rMax && rDiff > rMin) {
+    return std::pair<bool,double>(true,1.);
+  } else {
+    return std::pair<bool,double>(false,0.);
+  }
+}
+
+
 
 bool ForwardMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts,
 					    const BoundPlane& plane) const {
