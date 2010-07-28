@@ -9,7 +9,7 @@ process.options = cms.untracked.PSet(
 
 process.source = cms.Source( "PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:patTuple.root'
+        'file:/afs/cern.ch/cms/Tutorials/TWIKI_DATA/edmPatTrigger_zjets_patTutoial_june10.root'
     )
 )
 process.maxEvents = cms.untracked.PSet(
@@ -20,15 +20,13 @@ process.TFileService = cms.Service( "TFileService",
     fileName = cms.string( 'analyzePatTrigger.root' )
 )
 
-process.triggerAnalysis = cms.EDAnalyzer( "PatTriggerAnalyzer",
+process.tagAndProbeAnalysis = cms.EDAnalyzer( "PatTriggerTagAndProbe",
     trigger      = cms.InputTag( "patTrigger" ),
     triggerEvent = cms.InputTag( "patTriggerEvent" ),
     muons        = cms.InputTag( "selectedPatMuons" ),
-    muonMatch    = cms.string( 'muonTriggerMatchHLTMuons' ),
-    minID = cms.uint32( 81 ),
-    maxID = cms.uint32( 96 )
+    muonMatch    = cms.string( 'muonTriggerMatchHLTMuons' )
 )
 
 process.p = cms.Path(
-    process.triggerAnalysis
+    process.tagAndProbeAnalysis
 )
