@@ -5,9 +5,9 @@
  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
  *  using a ratio method
  *
- *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.22 2010/07/28 12:11:05 innocent Exp $
- *  $Date: 2010/07/28 12:11:05 $
- *  $Revision: 1.22 $
+ *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.23 2010/07/28 12:59:39 innocent Exp $
+ *  $Date: 2010/07/28 12:59:39 $
+ *  $Revision: 1.23 $
  *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
  */
 
@@ -171,7 +171,9 @@ template<class C, typename Scalar>
 void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeAmpChi2(Scalar sumAA, Scalar t, Scalar alpha, Scalar overab, Scalar & chi2, Scalar & amp) const {
   Scalar sumAf = 0;
   Scalar sumff = 0;
-  Scalar eps = 1e-6;
+  Scalar const eps = Scalar(1e-6);
+  Scalar const denom =  Scalar(1)/Scalar(amplitudesSize);
+
   for(unsigned int it = 0; it < amplitudesSize; it++){
     Scalar err2 = amplitudeErrors2inv_[it];
     Scalar offset = (Scalar(it) - t)*overab;
@@ -189,7 +191,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeAmpChi2(Scalar sumAA, Sc
     amp = sumAf/sumff;
     chi2 = sumAA - sumAf*amp;
   }
-  chi2 /= Scalar(amplitudesSize);
+  chi2 *=denom;
 }
 
 template<class C, typename Scalar>
@@ -247,8 +249,8 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeTime(std::vector < Input
   if(num_>0) stat =  1/std::sqrt(Scalar(num_));      // num presampeles used to compute pedestal
 
   for(unsigned int i = 0; i < amplitudesSize-1; i++){
-    Scalar ampi = (amplitudeErrors2_[i]/(amplitudes_[i]*amplitudes_[i]));
     if(amplitudes_[i]>1) {
+      Scalar ampi = (amplitudeErrors2_[i]/(amplitudes_[i]*amplitudes_[i]));
       for(unsigned int j = i+1; j < amplitudesSize; j++){
 	if(amplitudes_[j]>1){
 
@@ -303,8 +305,8 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeTime(std::vector < Input
     if( Rmax > RLimits[ratios_[i].step] ) Rmax = RLimits[ratios_[i].step];
 
     // real time is offset - timeN
-    Scalar time1 = ratios_[i].step/(std::exp((stepOverBeta-std::log(Rmin))/alpha)-Scalar(1));
-    Scalar time2 = ratios_[i].step/(std::exp((stepOverBeta-std::log(Rmax))/alpha)-Scalar(1));
+    Scalar time1 = Scalar(ratios_[i].step)/(std::exp((stepOverBeta-std::log(Rmin))/alpha)-Scalar(1));
+    Scalar time2 = Scalar(ratios_[i].step)/(std::exp((stepOverBeta-std::log(Rmax))/alpha)-Scalar(1));
 
     // this is the time measurement based on the ratios[i]
     Scalar tmax = offset - Scalar(0.5) * (time1 + time2);
@@ -422,7 +424,6 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeTime(std::vector < Input
 	    { ratios_[i].index, 1, (time_max_i - u),
 	      (ratios_[i].error * du) ,0,1 };
 	  times_.push_back(currentTmax);
-	  
 	}
       }
     }
