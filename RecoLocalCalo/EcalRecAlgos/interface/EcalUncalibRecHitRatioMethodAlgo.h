@@ -5,9 +5,9 @@
  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
  *  using a ratio method
  *
- *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.19 2010/07/28 09:11:35 innocent Exp $
- *  $Date: 2010/07/28 09:11:35 $
- *  $Revision: 1.19 $
+ *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.20 2010/07/28 09:19:48 innocent Exp $
+ *  $Date: 2010/07/28 09:19:48 $
+ *  $Revision: 1.20 $
  *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
  */
 
@@ -43,20 +43,22 @@ public:
 
   ~EcalUncalibRecHitRatioMethodAlgo() { }
   EcalUncalibratedRecHit makeRecHit(const C & dataFrame,
-				    const InputScalar *pedestals,
-				    const InputScalar* pedestalRMSes,
-				    const InputScalar *gainRatios,
-				    std::vector < InputScalar >&timeFitParameters,
-				    std::vector < InputScalar >&amplitudeFitParameters,
-				    std::pair < InputScalar, InputScalar >&timeFitLimits);
+				    const InputScalar * pedestals,
+				    const InputScalar * pedestalRMSes,
+				    const InputScalar * gainRatios,
+				    std::vector < InputScalar > const & timeFitParameters,
+				    std::vector < InputScalar > const & amplitudeFitParameters,
+				    std::pair < InputScalar, InputScalar > const & timeFitLimits);
   
   // more function to be able to compute
   // amplitude and time separately
   void init( const C &dataFrame, const InputScalar * pedestals, const InputScalar * pedestalRMSes, const InputScalar * gainRatios );
 
-  void computeTime(std::vector < InputScalar >&timeFitParameters, std::pair < InputScalar, InputScalar >&timeFitLimits, std::vector< InputScalar > &amplitudeFitParameters);
+  void computeTime(std::vector < InputScalar > const & timeFitParameters, std::pair < InputScalar, InputScalar > const & timeFitLimits, std::vector< InputScalar 
+> 
+ const & amplitudeFitParameters);
 
-  void computeAmplitude( std::vector< InputScalar > &amplitudeFitParameters ) ;
+  void computeAmplitude( std::vector< InputScalar > const & amplitudeFitParameters ) ;
 
   CalculatedRecHit const & getCalculatedRecHit() const { return calculatedRechit_; };
   
@@ -160,7 +162,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::init( const C &dataFrame, const
       amplitudeErrors_[iSample]=1e+9;
     }
     amplitudeErrors2_[iSample] =  amplitudeErrors_[iSample]*amplitudeErrors_[iSample];
-    amplitudeErrors2inv_[iSample] = 1.0/amplitudeErrors2_[iSample];
+    amplitudeErrors2inv_[iSample] = 1/amplitudeErrors2_[iSample];
   }
 
 }
@@ -169,11 +171,12 @@ template<class C, typename Scalar>
 void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeAmpChi2(Scalar sumAA, Scalar t, Scalar alpha, Scalar overab, Scalar & chi2, Scalar & amp) const {
   Scalar sumAf = 0;
   Scalar sumff = 0;
+  Scalar eps = 1e-6;
   for(unsigned int it = 0; it < amplitudesSize; it++){
     Scalar err2 = amplitudeErrors2inv_[it];
     Scalar offset = (Scalar(it) - t)*overab;
-    Scalar term1 = 1.0 + offset;
-    if(term1>1e-6){
+    Scalar term1 = 1 + offset;
+    if(term1>eps){
       Scalar f = std::exp( alpha*(std::log(term1) - offset) );
       sumAf += amplitudes_[it]*(f*err2);
       sumff += f*(f*err2);
@@ -181,7 +184,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeAmpChi2(Scalar sumAA, Sc
   }
   
   chi2 = sumAA;
-  amp = 0.;
+  amp = 0;
   if( sumff > 0 ){
     amp = sumAf/sumff;
     chi2 = sumAA - sumAf*amp;
@@ -190,8 +193,8 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeAmpChi2(Scalar sumAA, Sc
 }
 
 template<class C, typename Scalar>
-void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeTime(std::vector < InputScalar >&timeFitParameters,
-	    std::pair < InputScalar, InputScalar >&timeFitLimits, std::vector < InputScalar >&amplitudeFitParameters)
+void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeTime(std::vector < InputScalar > const & timeFitParameters,
+	    std::pair < InputScalar, InputScalar > const & timeFitLimits, std::vector < InputScalar > const & amplitudeFitParameters)
 {
   //////////////////////////////////////////////////////////////
   //                                                          //
@@ -234,13 +237,14 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeTime(std::vector < Input
   Scalar alphabeta = amplitudeFitParameters[0]*amplitudeFitParameters[1];
   Scalar alpha = amplitudeFitParameters[0];
   Scalar beta = amplitudeFitParameters[1];
-  Scalar overab = 1.0/alphabeta;
+  Scalar overab = 1/alphabeta;
+  Scalar mill = 0.001;
   Scalar RLimits[amplitudesSize];
   for(unsigned int i = 1; i < amplitudesSize; ++i){
-    RLimits[i] = exp(Scalar(i)/beta)-0.001;
+    RLimits[i] = std::exp(Scalar(i)/beta)-mill;
   } 
   Scalar stat=1;  // pedestal from db
-  if(num_>0) stat =  1.0/sqrt(Scalar(num_));      // num presampeles used to compute pedestal
+  if(num_>0) stat =  1/std::sqrt(Scalar(num_));      // num presampeles used to compute pedestal
 
   for(unsigned int i = 0; i < amplitudesSize-1; i++){
     for(unsigned int j = i+1; j < amplitudesSize; j++){
@@ -251,7 +255,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeTime(std::vector < Input
 	Scalar Rtmp = amplitudes_[i]/amplitudes_[j];
 
 	// don't include useless ratios
-	if( Rtmp<0.001 ||  Rtmp> RLimits[j-i] ) continue;
+	if( Rtmp<mill ||  Rtmp> RLimits[j-i] ) continue;
 
 	// error^2 due to stat fluctuations of time samples
 	// (uncorrelated for both samples)
@@ -263,14 +267,14 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeTime(std::vector < Input
 
 	//error due to integer round-down. It is relevant to low
 	//amplitudes_ in gainID=1 and negligible otherwise.
-        Scalar err3 = 0.289/amplitudes_[j];
+        Scalar err3 = Scalar(0.289)/amplitudes_[j];
 
-	Scalar totalError = sqrt(err1 + err2*err2 +err3*err3);
+	Scalar totalError = std::sqrt(err1 + err2*err2 +err3*err3);
 
 
 	// don't include useless ratios
-	if(totalError < 1.0
-	   && Rtmp>0.001
+	if(totalError < 1
+	   && Rtmp>mill
 	   && Rtmp< RLimits[j-i]
 	   ){
 	  Ratio currentRatio = { i, (j-i), Rtmp, totalError };
@@ -295,22 +299,22 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeTime(std::vector < Input
     Scalar offset = Scalar(ratios_[i].index) + alphabeta;
 
     Scalar Rmin = ratios_[i].value - ratios_[i].error;
-    if(Rmin<0.001) Rmin=0.001;
+    if(Rmin<mill) Rmin=mill;
 
     Scalar Rmax = ratios_[i].value + ratios_[i].error;
     if( Rmax > RLimits[ratios_[i].step] ) Rmax = RLimits[ratios_[i].step];
 
     // real time is offset - timeN
-    Scalar time1 = ratios_[i].step/(exp((stepOverBeta-log(Rmin))/alpha)-1.0);
-    Scalar time2 = ratios_[i].step/(exp((stepOverBeta-log(Rmax))/alpha)-1.0);
+    Scalar time1 = ratios_[i].step/(std::exp((stepOverBeta-std::log(Rmin))/alpha)-1);
+    Scalar time2 = ratios_[i].step/(std::exp((stepOverBeta-std::log(Rmax))/alpha)-1);
 
     // this is the time measurement based on the ratios[i]
-    Scalar tmax = offset - 0.5 * (time1 + time2);
-    Scalar tmaxerr = 0.5 * std::abs(time1 - time2);
+    Scalar tmax = offset - Scalar(0.5) * (time1 + time2);
+    Scalar tmaxerr = Scalar(0.5) * std::abs(time1 - time2);
 
     // calculate chi2
-    Scalar chi2=0.;
-    Scalar amp=0.;
+    Scalar chi2=0;
+    Scalar amp=0;
     computeAmpChi2(sumAA, tmax,alpha, overab, chi2,amp);
 
     // choose reasonable measurements. One might argue what is
@@ -339,21 +343,21 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeTime(std::vector < Input
 
   // make a weighted average of tmax measurements with "small" chi2
   // (within 1 sigma of statistical uncertainty :-)
-  Scalar chi2Limit = chi2min + 1.0;
+  Scalar chi2Limit = chi2min + 1;
   Scalar time_max = 0;
   Scalar time_wgt = 0;
   for(unsigned int i = 0; i < timesAB_.size(); i++){
     if(  timesAB_[i].chi2 < chi2Limit  ){
-      Scalar inverseSigmaSquared = 1.0/(timesAB_[i].error*timesAB_[i].error);
+      Scalar inverseSigmaSquared = 1/(timesAB_[i].error*timesAB_[i].error);
       time_wgt += inverseSigmaSquared;
       time_max += timesAB_[i].value*inverseSigmaSquared;
     }
   }
 
   tMaxAlphaBeta =  time_max/time_wgt;
-  tMaxErrorAlphaBeta = 1.0/sqrt(time_wgt);
+  tMaxErrorAlphaBeta = 1/std::sqrt(time_wgt);
 
-  Scalar chi2AlphaBeta = 0.;
+  Scalar chi2AlphaBeta = 0;
   // find amplitude and chi2
   computeAmpChi2(sumAA, tMaxAlphaBeta, alpha, overab, chi2AlphaBeta, ampMaxAlphaBeta);
 
@@ -430,11 +434,11 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeTime(std::vector < Input
     // calculate weighted average of all Tmax measurements
     if (time_wgt > 0) {
       tMaxRatio = time_max/time_wgt;
-      tMaxErrorRatio = 1.0/sqrt(time_wgt);
+      tMaxErrorRatio = 1/std::sqrt(time_wgt);
       
       // combine RatioAlphaBeta and Ratio Methods
       
-      if( ampMaxAlphaBeta < 10.0*ampMaxError_  ){
+      if( ampMaxAlphaBeta < 10*ampMaxError_  ){
 	
 	// use pure Ratio Method
 	calculatedRechit_.timeMax = tMaxRatio;
@@ -443,10 +447,10 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeTime(std::vector < Input
       }else{
 	
 	// combine two methods
-	calculatedRechit_.timeMax = 0.2*( tMaxAlphaBeta*(10.0-(ampMaxAlphaBeta/ampMaxError_)) +
-				      tMaxRatio*((ampMaxAlphaBeta/ampMaxError_) - 5.0) );
-	calculatedRechit_.timeError = 0.2*( tMaxErrorAlphaBeta*(10.0-(ampMaxAlphaBeta/ampMaxError_)) + 
-					tMaxErrorRatio*((ampMaxAlphaBeta/ampMaxError_) - 5.0) );
+	calculatedRechit_.timeMax = Scalar(0.2)*( tMaxAlphaBeta*(10-(ampMaxAlphaBeta/ampMaxError_)) +
+				      tMaxRatio*((ampMaxAlphaBeta/ampMaxError_) - 5) );
+	calculatedRechit_.timeError = Scalar(0.2)*( tMaxErrorAlphaBeta*(10-(ampMaxAlphaBeta/ampMaxError_)) + 
+					tMaxErrorRatio*((ampMaxAlphaBeta/ampMaxError_) - 5) );
 	
       }
       
@@ -468,7 +472,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeTime(std::vector < Input
 }
 
 template<class C, typename Scalar>
-void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeAmplitude( std::vector< InputScalar > &amplitudeFitParameters )
+void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeAmplitude( std::vector< InputScalar > const & amplitudeFitParameters )
 {
 	////////////////////////////////////////////////////////////////
 	//                                                            //
@@ -482,7 +486,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeAmplitude( std::vector< 
 
 	// calculate pedestal, again
 
-	Scalar pedestalLimit = calculatedRechit_.timeMax - (alpha * beta) - 1.0;
+	Scalar pedestalLimit = calculatedRechit_.timeMax - (alpha * beta) - 1;
 	Scalar sumA = 0;
 	Scalar sumF = 0;
 	Scalar sumAF = 0;
@@ -492,13 +496,13 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeAmplitude( std::vector< 
 	  Scalar err2 = amplitudeErrors2inv_[i];
 	  Scalar f = 0;
 	  Scalar termOne = 1 + (i - calculatedRechit_.timeMax) / (alpha * beta);
-	  if (termOne > 1.e-5) f = std::exp(alpha * std::log(termOne) -(i - calculatedRechit_.timeMax) / beta);
+	  if (termOne > Scalar(1.e-5)) f = std::exp(alpha * std::log(termOne) -(i - calculatedRechit_.timeMax) / beta);
 	  
 	  // apply range of interesting samples
 	  
 	  if ( (i < pedestalLimit)
-	       || (f > 0.6 && i <= calculatedRechit_.timeMax)
-	       || (f > 0.4 && i >= calculatedRechit_.timeMax)) {
+	       || (f > Scalar(0.6) && i <= calculatedRechit_.timeMax)
+	       || (f > Scalar(0.4) && i >= calculatedRechit_.timeMax)) {
 	    sum1  += err2;
 	    sumA  += amplitudes_[i]*err2;
 	    sumF  += (f*err2);
@@ -510,7 +514,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeAmplitude( std::vector< 
 	calculatedRechit_.amplitudeMax = 0;
 	if(sum1 > 0){
 	  Scalar denom = sumFF*sum1 - sumF*sumF;
-	  if(fabs(denom)>1.0e-20){
+	  if(fabs(denom)> float(1.0e-20)){
 	    calculatedRechit_.amplitudeMax = (sumAF*sum1 - sumA*sumF)/denom;
 	  }
 	}
@@ -523,9 +527,9 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeAmplitude( std::vector< 
 						       const InputScalar *pedestals,
                                                        const InputScalar *pedestalRMSes,
 						       const InputScalar *gainRatios,
-						       std::vector < InputScalar >&timeFitParameters,
-						       std::vector < InputScalar >&amplitudeFitParameters,
-						       std::pair < InputScalar, InputScalar >&timeFitLimits)
+						       std::vector < InputScalar > const & timeFitParameters,
+						       std::vector < InputScalar > const & amplitudeFitParameters,
+						       std::pair < InputScalar, InputScalar > const & timeFitLimits)
 {
 
         init( dataFrame, pedestals, pedestalRMSes, gainRatios );
