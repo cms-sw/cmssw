@@ -8,85 +8,93 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWDTSegmentProxyBuilder.cc,v 1.7 2010/05/12 15:13:02 dmytro Exp $
+// $Id: FWDTSegmentProxyBuilder.cc,v 1.8 2010/05/21 13:45:46 mccauley Exp $
 //
 
+#include "TEveGeoNode.h"
 #include "TEveStraightLineSet.h"
+#include "TGeoArb8.h"
 
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
-#include "Fireworks/Muons/interface/SegmentUtils.h"
-
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
-#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
 class FWDTSegmentProxyBuilder : public FWSimpleProxyBuilderTemplate<DTRecSegment4D>
 {
 public:
-   FWDTSegmentProxyBuilder() {}
-   virtual ~FWDTSegmentProxyBuilder() {}
+   FWDTSegmentProxyBuilder( void ) {}
+   virtual ~FWDTSegmentProxyBuilder( void ) {}
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWDTSegmentProxyBuilder(const FWDTSegmentProxyBuilder&);
-   const FWDTSegmentProxyBuilder& operator=(const FWDTSegmentProxyBuilder&);
+   FWDTSegmentProxyBuilder( const FWDTSegmentProxyBuilder& );
+   const FWDTSegmentProxyBuilder& operator=( const FWDTSegmentProxyBuilder& );
 
-   void build(const DTRecSegment4D& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*);
+   void build( const DTRecSegment4D& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* );
 };
 
 void
-FWDTSegmentProxyBuilder::build(const DTRecSegment4D& iData,           
-                               unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*)
+FWDTSegmentProxyBuilder::build( const DTRecSegment4D& iData,           
+				unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* )
 {
-   const TGeoHMatrix* matrix = item()->getGeom()->getMatrix(iData.chamberId().rawId());
+  unsigned int rawid = iData.chamberId().rawId();
+  const TGeoHMatrix* matrix = item()->getGeom()->getMatrix( rawid );
 
-   if (  ! matrix ) 
-   {
-      fwLog(fwlog::kError) << " failed to get geometry of DT chamber with detid: " 
-                           << iData.chamberId().rawId() <<std::endl;
-      return;
-   }
+  if( ! matrix ) 
+  {
+    fwLog( fwlog::kError ) << "failed to get geometry of DT chamber with detid: " 
+			   << rawid << std::endl;
+    return;
+  }
 
-   std::stringstream s;
-   s << "chamber" << iIndex;
+  TEveStraightLineSet* segmentSet = new TEveStraightLineSet();
+  // FIXME: This should be set elsewhere.
+  segmentSet->SetLineWidth( 3 );
+  setupAddElement( segmentSet, &oItemHolder );
+   
+  TEveGeoShape* shape = item()->getGeom()->getShape( rawid );
+  if( shape ) 
+  {
+    if( TGeoBBox* box = dynamic_cast<TGeoBBox*>( shape->GetShape()))
+    {
+      LocalPoint pos = iData.localPosition();
+      LocalVector dir = iData.localDirection();   
+      LocalVector unit = dir.unit();
+    
+      double localPosition[3]     = {  pos.x(),  pos.y(),  pos.z() };
+      double localDirectionIn[3]  = {  dir.x(),  dir.y(),  dir.z() };
+      double localDirectionOut[3] = { -dir.x(), -dir.y(), -dir.z() };
 
-   TEveStraightLineSet* segmentSet = new TEveStraightLineSet(s.str().c_str());
-   segmentSet->SetLineWidth(3);
-   setupAddElement(segmentSet, &oItemHolder);
+      Double_t distIn = box->DistFromInside( localPosition, localDirectionIn );
+      Double_t distOut = box->DistFromInside( localPosition, localDirectionOut );
+      LocalVector vIn = unit * distIn;
+      LocalVector vOut = -unit * distOut;
+      double localSegmentInnerPoint[3] = { localPosition[0] + vIn.x(),
+					   localPosition[1] + vIn.y(),
+					   localPosition[2] + vIn.z() 
+      };
+      
+      double localSegmentOuterPoint[3] = { localPosition[0] + vOut.x(),
+					   localPosition[1] + vOut.y(),
+					   localPosition[2] + vOut.z() 
+      };
+                                   
+      double globalSegmentInnerPoint[3];
+      double globalSegmentOuterPoint[3];
 
-   double localPosition[3] = 
-     {
-       iData.localPosition().x(), iData.localPosition().y(), iData.localPosition().z()
-     };
+      matrix->LocalToMaster( localSegmentInnerPoint,  globalSegmentInnerPoint );
+      matrix->LocalToMaster( localSegmentOuterPoint,  globalSegmentOuterPoint );
 
-   double localDirection[3] =
-     {
-       iData.localDirection().x(), iData.localDirection().y(), iData.localDirection().z()
-     };
-
-   double localSegmentInnerPoint[3];
-   double localSegmentOuterPoint[3];
-
-   fireworks::createSegment(MuonSubdetId::DT, false, 
-                            17.0, 0.0, // Get these from TGeoShape?               
-                            localPosition, localDirection, 
-                            localSegmentInnerPoint, localSegmentOuterPoint);
-                            
-   double globalSegmentInnerPoint[3];
-   double globalSegmentOuterPoint[3];
-
-   matrix->LocalToMaster(localSegmentInnerPoint,  globalSegmentInnerPoint);
-   matrix->LocalToMaster(localSegmentOuterPoint,  globalSegmentOuterPoint);
-
-   segmentSet->AddLine(globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
-                       globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2]);
-
+      segmentSet->AddLine( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
+			   globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
+    }
+  }
 }
 
-REGISTER_FWPROXYBUILDER( FWDTSegmentProxyBuilder, DTRecSegment4D, "DT-segments", FWViewType::kAll3DBits | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
+REGISTER_FWPROXYBUILDER( FWDTSegmentProxyBuilder, DTRecSegment4D, "DT-segments", FWViewType::kAll3DBits | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit );
 
 
