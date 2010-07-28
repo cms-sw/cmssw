@@ -79,7 +79,7 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName     = cms.untracked.string('ttSemiLepEvtBuilder.root'),
     SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('p') ),
     outputCommands = cms.untracked.vstring('drop *'),                      
-    dropMetaDataForDroppedData = cms.untracked.bool(True)
+    dropMetaData = cms.untracked.string('DROPPED')
 )
 process.outpath = cms.EndPath(process.out)
 

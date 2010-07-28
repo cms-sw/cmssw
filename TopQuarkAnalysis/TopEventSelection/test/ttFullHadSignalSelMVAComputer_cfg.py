@@ -97,7 +97,6 @@ process.out = cms.OutputModule(
   outputCommands = cms.untracked.vstring('drop *',
                                          'keep double_*_DiscSel_*'
                                         ),
-  verbose  = cms.untracked.bool(True),
   fileName = cms.untracked.string('MVAComputer_Output.root')
 )
 ## output path
