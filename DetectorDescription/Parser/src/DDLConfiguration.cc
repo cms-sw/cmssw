@@ -34,13 +34,13 @@ DDLConfiguration::~DDLConfiguration()
   //  parser_->getXMLParser()->setContentHandler(0);  
 }
 
-DDLConfiguration::DDLConfiguration(DDCompactView& cpv) : configHandler_( cpv ), cpv_(cpv)
-{ 
-  //  parser_ = DDLParser::instance();
-  //  std::cout << "Making a DDLConfiguration with configHandler_ at " << &configHandler_ << std::endl;
-}
+// DDLConfiguration::DDLConfiguration(DDCompactView& cpv) : configHandler_( cpv ), cpv_(cpv)
+// { 
+//   //  parser_ = DDLParser::instance();
+//   //  std::cout << "Making a DDLConfiguration with configHandler_ at " << &configHandler_ << std::endl;
+// }
 
-DDLConfiguration::DDLConfiguration(DDLParser * ip, DDCompactView& cpv) : configHandler_( cpv ), cpv_(cpv)
+DDLConfiguration::DDLConfiguration(DDLParser * ip, DDCompactView& cpv) : parser_(ip->getXMLParser()), configHandler_(cpv), cpv_(cpv)
 { 
   //  parser_ = ip; do NOTHING with the incomming pointer for now...
 }
@@ -80,9 +80,9 @@ int DDLConfiguration::readConfig(const std::string& filename)
   // Set the parser to use the handler for the configuration file.
   // This makes sure the Parser is initialized and gets a handle to it.
   // Set these to the flags for the configuration file.
-
+  //  DDLSAX2FileHandler* priorH = parser_->getDDLSAX2FileHandler();
   parser_->setContentHandler(&configHandler_);
   parser_->parse(filename.c_str());
-
+  //  parser_->setContentHandler(priorH);
   return 0;
 }
