@@ -267,7 +267,8 @@ namespace TopSingleLepton {
 
     // fill monitoring plots for electrons
     edm::Handle<edm::View<reco::GsfElectron> > elecs;
-    event.getByLabel(elecs_, elecs);
+    if( !event.getByLabel(elecs_, elecs) ) return;
+
     // check availability of electron id
     edm::Handle<edm::ValueMap<float> > electronId; 
     if(!electronId_.label().empty()) event.getByLabel(electronId_, electronId);
