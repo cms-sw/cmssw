@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.39 2010/04/20 16:09:29 srappocc Exp $
+// $Id: PATElectronProducer.cc,v 1.40 2010/07/22 19:34:46 srappocc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -281,6 +281,28 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 
 	  if ( useUserData_ ) {
 	    userDataHelper_.add( anElectron, iEvent, iSetup );
+	  }
+
+
+	  // embed high level selection
+	  if ( embedHighLevelSelection_ ) {
+	    // get the global track
+	    reco::GsfTrackRef track = PfTk;
+	    
+	    // Make sure the collection it points to is there
+	    if ( track.isNonnull() && track.isAvailable() ) {
+	      
+	      if ( !usePV_ ) {
+		double corr_d0 = track->dxy( beamPoint );
+		anElectron.setDB( corr_d0, -1.0 );
+	      } else {
+		reco::TransientTrack tt = trackBuilder->build(track);
+		std::pair<bool,Measurement1D> result = IPTools::absoluteTransverseImpactParameter(tt, primaryVertex);
+		double d0_corr = result.second.value();
+		double d0_err = result.second.error();
+		anElectron.setDB( d0_corr, d0_err );	    
+	      }
+	    } 
 	  }
 
 	  //Electron Id
