@@ -5,9 +5,9 @@
  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
  *  using a ratio method
  *
- *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.15 2010/07/28 07:21:37 innocent Exp $
- *  $Date: 2010/07/28 07:21:37 $
- *  $Revision: 1.15 $
+ *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.16 2010/07/28 07:30:39 innocent Exp $
+ *  $Date: 2010/07/28 07:30:39 $
+ *  $Revision: 1.16 $
  *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
  */
 
@@ -59,7 +59,7 @@ public:
 protected:
 
 
-  void computeAmpChi2(double t, double alpha, double overab, double & chi2, double & amp) const;
+  void computeAmpChi2(double sumAA, double t, double alpha, double overab, double & chi2, double & amp) const;
 
   static const size_t amplitudesSize = C::MAXSAMPLES;
   static const size_t ratiosSize = C::MAXSAMPLES*(C::MAXSAMPLES-1)/2;
@@ -162,7 +162,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::init( const C &dataFrame, const double
 }
 
 template<class C>
-void EcalUncalibRecHitRatioMethodAlgo<C>::computeAmpChi2(double t, double alpha, double overab, double & chi2, double & amp) const {
+void EcalUncalibRecHitRatioMethodAlgo<C>::computeAmpChi2(double sumAA, double t, double alpha, double overab, double & chi2, double & amp) const {
   double sumAf = 0;
   double sumff = 0;
   for(unsigned int it = 0; it < amplitudesSize; it++){
@@ -182,7 +182,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeAmpChi2(double t, double alpha,
     amp = sumAf/sumff;
     chi2 = sumAA - sumAf*amp;
   }
-  chi2 /= sum0;
+  chi2 /= double( amplitudesSize);
 }
 
 template<class C>
@@ -203,15 +203,13 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
   double sumAA = 0;
   double sumA  = 0;
   double sum1  = 0;
-  double sum0  = 0;
-  double sumAf = 0;
-  double sumff = 0;
+  double sum0  =  amplitudesSize;
   double NullChi2 = 0;
 
   // null hypothesis = no pulse, pedestal only
   for(unsigned int i = 0; i < amplitudesSize; i++){
     double err2 = amplitudeErrors2inv_[i];
-    sum0  += 1;
+    //sum0  += 1;
     sum1  += err2;
     sumA  += (amplitudes_[i]*err2);
     sumAA += amplitudes_[i]*(amplitudes_[i]*err2);
@@ -298,15 +296,16 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
     double Rmax = ratios_[i].value + ratios_[i].error;
     if( Rmax > RLimits[ratios_[i].step] ) Rmax = RLimits[ratios_[i].step];
 
-    double time1 = offset - ratios_[i].step/(exp((stepOverBeta-log(Rmin))/alpha)-1.0);
-    double time2 = offset - ratios_[i].step/(exp((stepOverBeta-log(Rmax))/alpha)-1.0);
+    // real time is offset - timeN
+    double time1 = ratios_[i].step/(exp((stepOverBeta-log(Rmin))/alpha)-1.0);
+    double time2 = ratios_[i].step/(exp((stepOverBeta-log(Rmax))/alpha)-1.0);
 
     // this is the time measurement based on the ratios[i]
-    double tmax = 0.5 * (time1 + time2);
-    double tmaxerr = 0.5 * sqrt( (time1 - time2)*(time1 - time2) );
+    double tmax = offset - 0.5 * (time1 + time2);
+    double tmaxerr = 0.5 * std::abs(time1 - time2);
 
     // calculate chi2
-    computeAmpChi2(tmax,alpha,overab, chi2,amp);
+    computeAmpChi2(sumAA, tmax,alpha,overab, chi2,amp);
 
     // choose reasonable measurements. One might argue what is
     // reasonable and what is not.
@@ -348,13 +347,14 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
   tMaxAlphaBeta =  time_max/time_wgt;
   tMaxErrorAlphaBeta = 1.0/sqrt(time_wgt);
 
+  double chi2AlphaBeta = 0.;
   // find amplitude and chi2
-  computeAmpChi2(tMaxAlphaBeta, alpha, overab, chi2AlphaBeta, ampMaxAlphaBeta);
+  computeAmpChi2(sumAA, tMaxAlphaBeta, alpha, overab, chi2AlphaBeta, ampMaxAlphaBeta);
 
-    if(chi2AlphaBeta > NullChi2){
-      // null hypothesis is better
-      return;
-    }
+  if(ampMaxAlphaBeta==0 || chi2AlphaBeta > NullChi2){
+    // null hypothesis is better
+    return;
+  }
 
   }else{
     // no visible pulse here
