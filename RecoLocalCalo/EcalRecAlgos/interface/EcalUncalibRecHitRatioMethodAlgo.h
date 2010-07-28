@@ -5,9 +5,9 @@
  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
  *  using a ratio method
  *
- *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.20 2010/07/28 09:19:48 innocent Exp $
- *  $Date: 2010/07/28 09:19:48 $
- *  $Revision: 1.20 $
+ *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.21 2010/07/28 10:03:46 innocent Exp $
+ *  $Date: 2010/07/28 10:03:46 $
+ *  $Revision: 1.21 $
  *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
  */
 
@@ -112,7 +112,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::init( const C &dataFrame, const
   }
   if (num_!=0 &&
       dataFrame.sample(1).gainId() == 1 && 
-      fabs(dataFrame.sample(1).adc()-dataFrame.sample(0).adc())<3*pedestalRMSes[0]) {
+      fabs(dataFrame.sample(1).adc()-dataFrame.sample(0).adc())<float(3*pedestalRMSes[0])) {
     pedestal_ += Scalar (dataFrame.sample(1).adc());
     num_++;
   }
@@ -141,7 +141,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::init( const C &dataFrame, const
       sample      = Scalar (dataFrame.sample(iSample).adc() - pedestal_);
       sampleError = pedestalRMSes[0];
     } else if (GainId == 2 || GainId == 3){
-      sample      = (Scalar (dataFrame.sample(iSample).adc() - pedestals[GainId - 1])) *gainRatios[GainId - 1];
+      sample      = (InputScalar (dataFrame.sample(iSample).adc()) - pedestals[GainId - 1]) *gainRatios[GainId - 1];
       sampleError = pedestalRMSes[GainId-1]*gainRatios[GainId-1];
     } else {
       sample      = 1e-9;  // GainId=0 case falls here, from saturation
@@ -162,7 +162,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::init( const C &dataFrame, const
       amplitudeErrors_[iSample]=1e+9;
     }
     amplitudeErrors2_[iSample] =  amplitudeErrors_[iSample]*amplitudeErrors_[iSample];
-    amplitudeErrors2inv_[iSample] = 1/amplitudeErrors2_[iSample];
+    amplitudeErrors2inv_[iSample] = Scalar(1)/amplitudeErrors2_[iSample];
   }
 
 }
@@ -175,7 +175,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeAmpChi2(Scalar sumAA, Sc
   for(unsigned int it = 0; it < amplitudesSize; it++){
     Scalar err2 = amplitudeErrors2inv_[it];
     Scalar offset = (Scalar(it) - t)*overab;
-    Scalar term1 = 1 + offset;
+    Scalar term1 = Scalar(1) + offset;
     if(term1>eps){
       Scalar f = std::exp( alpha*(std::log(term1) - offset) );
       sumAf += amplitudes_[it]*(f*err2);
@@ -189,7 +189,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeAmpChi2(Scalar sumAA, Sc
     amp = sumAf/sumff;
     chi2 = sumAA - sumAf*amp;
   }
-  chi2 /= Scalar( amplitudesSize);
+  chi2 /= Scalar(amplitudesSize);
 }
 
 template<class C, typename Scalar>
@@ -348,14 +348,14 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeTime(std::vector < Input
   Scalar time_wgt = 0;
   for(unsigned int i = 0; i < timesAB_.size(); i++){
     if(  timesAB_[i].chi2 < chi2Limit  ){
-      Scalar inverseSigmaSquared = 1/(timesAB_[i].error*timesAB_[i].error);
+      Scalar inverseSigmaSquared = Scalar(1)/(timesAB_[i].error*timesAB_[i].error);
       time_wgt += inverseSigmaSquared;
       time_max += timesAB_[i].value*inverseSigmaSquared;
     }
   }
 
   tMaxAlphaBeta =  time_max/time_wgt;
-  tMaxErrorAlphaBeta = 1/std::sqrt(time_wgt);
+  tMaxErrorAlphaBeta = Scalar(1)/std::sqrt(time_wgt);
 
   Scalar chi2AlphaBeta = 0;
   // find amplitude and chi2
@@ -392,8 +392,8 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeTime(std::vector < Input
     for (unsigned int i = 0; i < ratios_.size(); i++) {
       
       if(ratios_[i].step == 1
-	 && ratios_[i].value >= timeFitLimits.first
-	 && ratios_[i].value <= timeFitLimits.second
+	 && ratios_[i].value >= Scalar(timeFitLimits.first)
+	 && ratios_[i].value <= Scalar(timeFitLimits.second)
 	 ){
 	
 	Scalar time_max_i = ratios_[i].index;
@@ -402,15 +402,14 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeTime(std::vector < Input
 	
 	Scalar u = timeFitParameters[timeFitParameters.size() - 1];
 	for (int k = timeFitParameters.size() - 2; k >= 0; k--) {
-	  u = u * ratios_[i].value + timeFitParameters[k];
+	  u = u * ratios_[i].value + Scalar(timeFitParameters[k]);
 	}
 	
 	// calculate derivative for Tmax error
 	Scalar du =
-	  (timeFitParameters.size() -
-	   1) * timeFitParameters[timeFitParameters.size() - 1];
+	  (timeFitParameters.size() -1) * timeFitParameters[timeFitParameters.size() - 1];
 	for (int k = timeFitParameters.size() - 2; k >= 1; k--) {
-	  du = du * ratios_[i].value + k * timeFitParameters[k];
+	  du = du * ratios_[i].value + Scalar(k * timeFitParameters[k]);
 	}
 	
 	
