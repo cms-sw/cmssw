@@ -6,7 +6,6 @@ class TEveStraightLineSet;
 
 namespace fireworks
 {
-  void addSegment( const TGeoHMatrix* matrix, TEveStraightLineSet& oSegmentSet,  double* localSegmentCenterPoint, double* localSegmentInnerPoint, double* localSegmentOuterPoint );
   void createSegment( int detector,                // DT,CSC, or RPC? 
 		      bool matchedSegment,         // Is the segment a MuonSegmentMatch?
 		      double segmentLength,        // Nominal length of the segment along chamber thickness
