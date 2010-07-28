@@ -313,9 +313,9 @@ class matplotRender():
                 cl=self.colormap[ylabel]
             ax.plot(xpoints,ypoints[ylabel],'.',label=ylabel,color=cl)
             legendlist.append(ylabel+' max '+'%.2f'%(ymax[ylabel])+' '+'$\mu$b$^{-1}$s$^{-1}$')
-        ax.legend(tuple(legendlist),loc='best')
-        ax.axvspan(xpoints[0],xpoints[rawxdata[-1]-1],fill=False)
-#        ax.axvline(xpoints[rawxdata[-1]-1],color='grey')
+        #ax.legend(tuple(legendlist),loc='best')
+        ax.axvspan(xpoints[0],xpoints[rawxdata[-1]-1],fill=False,linewidth=0.2)        
+        ax.axhline(0,color='grey',linewidth=0.2)
        # ax.fill_between(xpoints[0:rawxdata[-1]],0,1,label='pippo',color='grey')
     def drawHTTPstring(self):
         self.__canvas=CanvasBackend(self.__fig)    
