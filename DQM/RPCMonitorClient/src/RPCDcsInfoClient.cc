@@ -1,5 +1,4 @@
 #include "DQM/RPCMonitorClient/interface/RPCDcsInfoClient.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 
 RPCDcsInfoClient::RPCDcsInfoClient( const edm::ParameterSet& ps ) {
@@ -25,6 +24,7 @@ void RPCDcsInfoClient::endLuminosityBlock(const edm::LuminosityBlock& l, const e
   unsigned int nlumi = l.id().luminosityBlock() ;
 
   if (nlumi+1 > DCS.size())   DCS.resize(nlumi+1);
+
 
   MonitorElement* DCSbyLS_ = dbe_->get(dcsinfofolder_ + "/DCSbyLS" ); 
 
@@ -52,8 +52,10 @@ void RPCDcsInfoClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
   dbe_->setCurrentFolder(dcsinfofolder_ );
 
   unsigned int nlsmax = DCS.size();
+  if (nlsmax > 900 ) nlsmax = 900;
    
-  MonitorElement* rpcHVStatus = dbe_->get(dcsinfofolder_ );
+  std::string meName = dcsinfofolder_ + "/rpcHVStatus";
+  MonitorElement* rpcHVStatus = dbe_->get(meName);
   if (rpcHVStatus) dbe_->removeElement(rpcHVStatus->getName());
 
   rpcHVStatus = dbe_->book2D("rpcHVStatus","RPC HV Status", nlsmax, 1., nlsmax+1, 1, 0.5, 1.5);
@@ -61,7 +63,7 @@ void RPCDcsInfoClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
   rpcHVStatus->setBinLabel(1,"",2);   
 
   // fill
-  for (unsigned int i = 0 ; i < DCS.size() ; i++ )  {
+  for (unsigned int i = 0 ; i < nlsmax ; i++ )  {
     rpcHVStatus->setBinContent(i+1,1,DCS[i]);
   }
 
