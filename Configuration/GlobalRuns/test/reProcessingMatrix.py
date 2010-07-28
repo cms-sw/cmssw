@@ -4,6 +4,7 @@ usage="--list"
 parser = optparse.OptionParser(usage)
 parser.add_option("--GT")
 parser.add_option("--era")
+parser.add_option("--release")
 (options,args)=parser.parse_args()
 
 def Era_8PDs():
@@ -32,22 +33,20 @@ def Era_1PDs():
     alcaMap['MinimumBias']='SiStripCalMinBias+SiStripCalZeroBias+TkAlMinBias+TkAlMuonIsolated+MuAlCalIsolatedMu+MuAlOverlaps+HcalCalIsoTrk+HcalCalDijets+DtCalib+EcalCalElectron'
     return alcaMap
             
-com='cmsDriver.py reco -s RAW2DIGI,L1Reco,RECO,DQM%s  --data --magField AutoFromDBCurrent --scenario pp --datatier RECO --eventcontent RECO,DQM --customise Configuration/GlobalRuns/reco_TLR_37X.py --cust_function customisePPData --no_exec --python_filename=rereco_%sCollision_37X.py --conditions %s'
+com='cmsDriver.py reco -s RAW2DIGI,L1Reco,RECO,DQM%s  --data --magField AutoFromDBCurrent --scenario pp --datatier RECO --eventcontent RECO,DQM --customise Configuration/GlobalRuns/reco_TLR_'+options.release+'.py --cust_function customisePPData --no_exec --python_filename=rereco_%sCollision_'+options.release+'.py --conditions %s'
 
 import os
-
-#GT='GR_R_37X_V5A::All'
 
 alcaMap=globals()["Era_%ss"%(options.era)]()
 for PD in alcaMap.keys():
     c=com
     if (PD==''):
         alca=''
-        spec=''
+        spec=options.era+'_'
         c=com+' --process reRECO'
     else:
         alca=',ALCA:%s'%(alcaMap[PD],)
-        spec=PD+"_"
+        spec=options.era+"_"+PD+"_"
     os.system(c%(alca,spec,options.GT))
 
 
