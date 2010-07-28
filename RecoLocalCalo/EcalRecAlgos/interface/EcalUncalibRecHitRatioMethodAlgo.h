@@ -5,9 +5,9 @@
  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
  *  using a ratio method
  *
- *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.14 2010/07/27 15:33:10 innocent Exp $
- *  $Date: 2010/07/27 15:33:10 $
- *  $Revision: 1.14 $
+ *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.15 2010/07/28 07:21:37 innocent Exp $
+ *  $Date: 2010/07/28 07:21:37 $
+ *  $Revision: 1.15 $
  *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
  */
 
@@ -59,7 +59,7 @@ public:
 protected:
 
 
-  double computeChi2(double t, double alpha, double overab) const;
+  void computeAmpChi2(double t, double alpha, double overab, double & chi2, double & amp) const;
 
   static const size_t amplitudesSize = C::MAXSAMPLES;
   static const size_t ratiosSize = C::MAXSAMPLES*(C::MAXSAMPLES-1)/2;
@@ -162,28 +162,27 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::init( const C &dataFrame, const double
 }
 
 template<class C>
-double EcalUncalibRecHitRatioMethodAlgo<C>::computeChi2(double t, double alpha, double overab) const {
-    double sumAf = 0;
-    double sumff = 0;
-    for(unsigned int it = 0; it < amplitudesSize; it++){
-      double err2 = amplitudeErrors2inv_[it];
-      double offset = (double(it) - t)*overab;
-      double term1 = 1.0 + offset;
-      if(term1>1e-6){
-	double f = std::exp( alpha*(std::log(term1) - offset) );
-	sumAf += amplitudes_[it]*(f*err2);
-	sumff += f*(f*err2);
-      }
+void EcalUncalibRecHitRatioMethodAlgo<C>::computeAmpChi2(double t, double alpha, double overab, double & chi2, double & amp) const {
+  double sumAf = 0;
+  double sumff = 0;
+  for(unsigned int it = 0; it < amplitudesSize; it++){
+    double err2 = amplitudeErrors2inv_[it];
+    double offset = (double(it) - t)*overab;
+    double term1 = 1.0 + offset;
+    if(term1>1e-6){
+      double f = std::exp( alpha*(std::log(term1) - offset) );
+      sumAf += amplitudes_[it]*(f*err2);
+      sumff += f*(f*err2);
     }
-
-    double chi2 = sumAA;
-    double amp = 0;
-    if( sumff > 0 ){
-      amp = sumAf/sumff;
-      chi2 = sumAA - sumAf*amp;
-    }
-    chi2 /= sum0;
-    return chi2;
+  }
+  
+  chi2 = sumAA;
+  amp = 0.;
+  if( sumff > 0 ){
+    amp = sumAf/sumff;
+    chi2 = sumAA - sumAf*amp;
+  }
+  chi2 /= sum0;
 }
 
 template<class C>
@@ -307,7 +306,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
     double tmaxerr = 0.5 * sqrt( (time1 - time2)*(time1 - time2) );
 
     // calculate chi2
-    chi2 = computeChi2(tmax,alpha,overb);
+    computeAmpChi2(tmax,alpha,overab, chi2,amp);
 
     // choose reasonable measurements. One might argue what is
     // reasonable and what is not.
@@ -350,22 +349,8 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
   tMaxErrorAlphaBeta = 1.0/sqrt(time_wgt);
 
   // find amplitude and chi2
-  sumAf = 0;
-  sumff = 0;
-  for(unsigned int i = 0; i < amplitudesSize; i++){
-    double err2 = amplitudeErrors2inv_[i];
-    double offset = (double(i) - tMaxAlphaBeta)*overab;
-    double term1 = 1.0 + offset;
-    if(term1>1e-6){
-      double f = exp( alpha*(log(term1) - offset) );
-      sumAf += amplitudes_[i]*(f*err2);
-      sumff += f*(f*err2);
-    }
-  }
+  computeAmpChi2(tMaxAlphaBeta, alpha, overab, chi2AlphaBeta, ampMaxAlphaBeta);
 
-  if( sumff > 0 ){
-    ampMaxAlphaBeta  = sumAf/sumff;
-    double chi2AlphaBeta = (sumAA - sumAf* ampMaxAlphaBeta)/sum0;
     if(chi2AlphaBeta > NullChi2){
       // null hypothesis is better
       return;
