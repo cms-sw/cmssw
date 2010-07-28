@@ -5,9 +5,9 @@
  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
  *  using a ratio method
  *
- *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.16 2010/07/28 07:30:39 innocent Exp $
- *  $Date: 2010/07/28 07:30:39 $
- *  $Revision: 1.16 $
+ *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.17 2010/07/28 07:51:36 innocent Exp $
+ *  $Date: 2010/07/28 07:51:36 $
+ *  $Revision: 1.17 $
  *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
  */
 
@@ -305,7 +305,9 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
     double tmaxerr = 0.5 * std::abs(time1 - time2);
 
     // calculate chi2
-    computeAmpChi2(sumAA, tmax,alpha,overab, chi2,amp);
+    double chi2=0.;
+    double amp=0.;
+    computeAmpChi2(sumAA, tmax,alpha, overab, chi2,amp);
 
     // choose reasonable measurements. One might argue what is
     // reasonable and what is not.
@@ -351,15 +353,12 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
   // find amplitude and chi2
   computeAmpChi2(sumAA, tMaxAlphaBeta, alpha, overab, chi2AlphaBeta, ampMaxAlphaBeta);
 
-  if(ampMaxAlphaBeta==0 || chi2AlphaBeta > NullChi2){
-    // null hypothesis is better
+  if(ampMaxAlphaBeta==0 || chi2AlphaBeta > NullChi2)
+    // // no visible pulse here or null hypothesis is better
     return;
-  }
+  
 
-  }else{
-    // no visible pulse here
-    return;
-  }
+ 
 
   // if we got to this point, we have a reconstructied Tmax
   // using RatioAlphaBeta Method. To summarize:
