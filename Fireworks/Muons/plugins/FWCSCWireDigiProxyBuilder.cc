@@ -8,12 +8,13 @@
 //
 // Original Author: mccauley
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCWireDigiProxyBuilder.cc,v 1.3 2010/07/28 09:47:19 mccauley Exp $
+// $Id: FWCSCWireDigiProxyBuilder.cc,v 1.4 2010/07/28 13:45:35 yana Exp $
 //
 
 #include "TEveStraightLineSet.h"
 #include "TEveGeoNode.h"
 #include "TEveCompound.h"
+#include "TGeoArb8.h"
 
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
@@ -41,10 +42,11 @@ private:
 };
 
 /*
- Use this for testing before getting from reco geometry
+ Use this for testing before getting from reco geometry and get rid of it once checked
 */
 
-void FWCSCWireDigiProxyBuilder::testParams(const int station, const int ring, double* params)
+void 
+FWCSCWireDigiProxyBuilder::testParams(const int station, const int ring, double* params)
 {
   // params = { length, thickness, bottomWidth, topWidth } in cm
 
@@ -204,6 +206,33 @@ FWCSCWireDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* prod
       continue;
     }
 
+    TEveGeoShape* shape = iItem->getGeom()->getShape(cscDetId.rawId());
+
+    if ( ! shape )
+    {
+      fwLog(fwlog::kWarning)<<"Failed to get shape of CSC chamber with detid: "
+                            << cscDetId.rawId() <<std::endl;
+      continue;
+    }
+
+    double length;
+    double topWidth;
+    double bottomWidth;
+ 
+    if ( TGeoTrap* trap = dynamic_cast<TGeoTrap*>(shape->GetShape()) )
+    {
+      topWidth = trap->GetTl1()*2.0;
+      bottomWidth = trap->GetBl1()*2.0;
+      length = trap->GetH1()*2.0;
+    }
+
+    else
+    {
+      fwLog(fwlog::kWarning)<<"Failed to get trapezoid from shape for CSC with detid: "
+                            << cscDetId.rawId() <<std::endl;
+      return;
+    }
+     
     for ( CSCWireDigiCollection::const_iterator dit = range.first;
           dit != range.second; ++dit )        
     { 
@@ -234,10 +263,6 @@ FWCSCWireDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* prod
         fwLog(fwlog::kWarning)<<"ME1a not handled yet"<<std::endl;
         continue;
       }
-
-      double params[4];
-      
-      testParams(station, ring, params);
 
       double wireSpacing;
 
@@ -275,19 +300,6 @@ FWCSCWireDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* prod
       // If so, then this should work with all except that chamber.
 
       double yOfWire = yOfFirstWire + (wireGroup-1)*wireSpacing;
-      
-      /*
-        Note:
-        
-        Length of the wire group can in principle be calculated as we know
-        the trapezoid length and width at the top and bottom. In fact, it is 
-        calculated in CSCWireGeometry.cc
-        Come back to this later. For now, make it a constant length for testing.
-      */
-
-      double length = params[0];
-      double bottomWidth = params[2];
-      double topWidth = params[3];
       
       double lengthOfWireGroup = (topWidth - bottomWidth)*0.5 / length;
       lengthOfWireGroup *= yOfWire;
