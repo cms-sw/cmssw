@@ -136,7 +136,7 @@ RunManager::RunManager(edm::ParameterSet const & p)
       m_pTrackingAction(p.getParameter<edm::ParameterSet>("TrackingAction")),
       m_pSteppingAction(p.getParameter<edm::ParameterSet>("SteppingAction")),
       m_G4Commands(p.getParameter<std::vector<std::string> >("G4Commands")),
-      m_p(p)
+      m_p(p), m_fieldBuilder(0)
 
 {    
     m_kernel = G4RunManagerKernel::GetRunManagerKernel();
@@ -201,7 +201,7 @@ void RunManager::initG4(const edm::EventSetup & es)
       const GlobalPoint g(0.,0.,0.);
 
       // m_fieldBuilder = std::auto_ptr<sim::FieldBuilder>(new sim::FieldBuilder(&(*pMF), map_, m_pField));
-      m_fieldBuilder = std::auto_ptr<sim::FieldBuilder>(new sim::FieldBuilder(&(*pMF), m_pField));
+      m_fieldBuilder = (new sim::FieldBuilder(&(*pMF), m_pField));
       G4TransportationManager * tM = G4TransportationManager::GetTransportationManager();
       m_fieldBuilder->build( tM->GetFieldManager(),tM->GetPropagatorInField() ) ;
       // m_fieldBuilder->configure("MagneticFieldType",tM->GetFieldManager(),tM->GetPropagatorInField());
@@ -236,7 +236,7 @@ void RunManager::initG4(const edm::EventSetup & es)
                                                    PhysicsListFactory::get()->create
                                                    (m_pPhysics.getParameter<std::string> ("type")));
   if (physicsMaker.get()==0) throw SimG4Exception("Unable to find the Physics list requested");
-  m_physicsList = physicsMaker->make(map_,fPDGTable,m_pPhysics,m_registry);
+  m_physicsList = physicsMaker->make(map_,fPDGTable,m_fieldBuilder,m_pPhysics,m_registry);
   if (m_physicsList.get()==0) throw SimG4Exception("Physics list construction failed!");
   m_kernel->SetPhysics(m_physicsList.get());
   m_kernel->InitializePhysics();

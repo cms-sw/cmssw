@@ -133,7 +133,7 @@ private:
     std::vector<boost::shared_ptr<SimProducer> > m_producers;
     
     std::auto_ptr<SimTrackManager> m_trackManager;
-    std::auto_ptr<sim::FieldBuilder> m_fieldBuilder;
+    sim::FieldBuilder             *m_fieldBuilder;
     
     edm::ESWatcher<IdealGeometryRecord> idealGeomRcdWatcher_;
     edm::ESWatcher<IdealMagneticFieldRecord> idealMagRcdWatcher_;
