@@ -194,7 +194,7 @@ v4sf log_ps(v4sf x) {
 #endif
   v4sf one = *(v4sf*)_ps_1;
 
-  v4sf invalid_mask = _mm_cmple_ps(x, _mm_setzero_ps());
+  v4sf invalid_mask = _mm_cmplt_ps(x, _mm_setzero_ps());
 
   x = _mm_max_ps(x, *(v4sf*)_ps_min_norm_pos);  /* cut off denormalized stuff */
 

@@ -80,6 +80,7 @@ void compChi2(V10 const & ampl, V10 const & err2, float t, float sumAA, float& c
 
 int main() {  
   using mathSSE::Vec4F;
+  typedef  __m128 Vec;
 
   Vec4F x(0.,-1.,1.,1000.);
   std::cout << x << std::endl;
@@ -89,6 +90,10 @@ int main() {
 
   Vec4F z; z.vec = log_ps(x.vec);
   std::cout << z << std::endl;
+
+  // some of z are nan... check if I can find out..
+  Vec4F m; m.vec = _mm_cmpeq_ps(_mm_andnot_ps(z.vec, *(Vec*)_ps_mant_mask),_mm_setzero_ps());
+  std::cout << m << std::endl;
 
   y.vec = log_ps(y.vec);
   std::cout << y << std::endl;
