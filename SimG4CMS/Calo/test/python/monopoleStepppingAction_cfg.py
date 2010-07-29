@@ -112,7 +112,7 @@ process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EML'
 process.g4SimHits.Physics.MonopoleCharge = 1
-process.g4SimHits.Physics.Verbosity = 1
+process.g4SimHits.Physics.Verbosity = 2
 process.g4SimHits.G4Commands = ['/tracking/verbose 1']
 process.g4SimHits.StackingAction = cms.PSet(
     process.common_heavy_suppression,
@@ -138,9 +138,8 @@ process.g4SimHits.SteppingAction = cms.PSet(
 process.g4SimHits.Watchers = cms.VPSet(
     cms.PSet(
       CheckForHighEtPhotons = cms.untracked.bool(False),
-      G4Verbose = cms.untracked.bool(True),
       EventMin  = cms.untracked.int32(0),
-      EventMax  = cms.untracked.int32(0),
+      EventMax  = cms.untracked.int32(1),
       EventStep = cms.untracked.int32(1),
       TrackMin  = cms.untracked.int32(0),
       TrackMax  = cms.untracked.int32(99999999),
@@ -148,6 +147,10 @@ process.g4SimHits.Watchers = cms.VPSet(
       VerboseLevel = cms.untracked.int32(2),
       DEBUG     = cms.untracked.bool(False),
       type      = cms.string('TrackingVerboseAction')
+   ),
+   cms.PSet(
+      ChangeFromFirstStep = cms.untracked.bool(True),
+      type      = cms.string('MonopoleSteppingAction')
    )
 )
 
