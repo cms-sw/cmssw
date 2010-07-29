@@ -5,9 +5,9 @@
  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
  *  using a ratio method
  *
- *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.28 2010/07/29 16:44:06 innocent Exp $
- *  $Date: 2010/07/29 16:44:06 $
- *  $Revision: 1.28 $
+ *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.29 2010/07/29 16:46:06 innocent Exp $
+ *  $Date: 2010/07/29 16:46:06 $
+ *  $Revision: 1.29 $
  *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
  */
 
@@ -236,6 +236,75 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeAmpChi2(Scalar sumAA, Sc
   }
   chi2 *=denom;
 }
+
+// vectorized version
+
+template<class C>
+void EcalUncalibRecHitRatioMethodAlgo<C,float>::computeAmpChi2(float sumAA, float t, float alpha, float overab, float & chi2, float & amp) const {
+
+  static const size_t ssesize = Array::Size::ssesize;
+  static const size_t arrsize = Array::Size::arrsize;
+
+  typedef float Scalar;
+  typedef typename Array::Vec Vec;
+  Scalar const denom =  Scalar(1)/Scalar(amplitudesSize);
+
+  Vec one = _mm_set1_ps(1);
+  Vec eps = _mm_set1_ps(1e-6);
+
+  Vec tV = _mm_set1_ps(t);
+  Vec alphaV = _mm_set1_ps(alpha);
+  Vec overabV = _mm_set1_ps(overab);
+
+  Array index;
+  Array mask;
+  for(unsigned int it = 0; it < ssesize; it++)
+    mask.vec[it] = _mm_cmpeq_ps(_mm_setzero_ps(),_mm_setzero_ps());
+  for(unsigned int it = 0; it < arrsize; it++)
+    index.arr[it]=it;
+  for(unsigned int it = SIZE; it < arrsize; it++) 
+    mask.arr[it]= 0;
+ 
+
+  Vec sumAf =  _mm_setzero_ps();
+  Vec sumff =  _mm_setzero_ps();
+
+
+  for(unsigned int it = 0; it < ssesize; it++){
+    Vec offset =  _mm_mul_ps(_mm_sub_ps(index.vec[it],tV),overabV);
+    Vec term1 =  _mm_add_ps(one,offset);
+    Vec cmp = _mm_cmpgt_ps(term1,eps);
+    
+    Vec f = exp_ps(_mm_mul_ps(alphaV,_mm_sub_ps(log_ps(term1),offset)) );
+    //Vec f = _mm_or_ps(_mm_andnot_ps(cmp, _mm_setzero_ps()), _mm_and_ps(cmp, f));
+    f = _mm_and_ps(cmp, f);
+    Vec fe = _mm_mul_ps(f, amplitudeErrors2inv__A.vec[it]);
+    sumAf = _mm_add_ps(sumAf, _mm_and_ps(mask.vec[it],_mm_mul_ps( amplitudes_A[it].vec[it],fe)));
+    sumff = _mm_add_ps(sumff, _mm_and_ps(mask.vec[it],_mm_mul_ps(f,fe)));
+  }
+  
+  sumAf = _mm_hadd_ps(sumAf,sumAf);
+  sumAf = _mm_hadd_ps(sumAf,sumAf);
+  sumff = _mm_hadd_ps(sumff,sumff);
+  sumff = _mm_hadd_ps(sumff,sumff);
+
+  Scalar af; _mm_store_ss(&af,sumAf);
+  Scalar ff; _mm_store_ss(&ff,sumff);
+  
+  chi2 = sumAA;
+  amp = 0;
+  if( ff > 0 ){
+    amp = af/ff;
+    chi2 = sumAA - af*amp;
+  }
+  chi2 *=denom;
+}
+
+
+
+
+
+
 
 template<class C, typename Scalar>
 void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeTime(std::vector < InputScalar > const & timeFitParameters,
