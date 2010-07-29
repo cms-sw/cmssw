@@ -154,9 +154,9 @@ int main() {
   float chi2=0;
   float amp=0;
   compChi2Scalar(ampl, err2, 4.7, sumAA, chi2, amp);
-  std::cout "scal " << chi2 << " " << amp << std::endl;
+  std::cout << "scal " << chi2 << " " << amp << std::endl;
   compChi2(ampl, err2, 4.7, sumAA, chi2, amp);
-  std::cout "vect " << chi2 << " " << amp << std::endl;
+  std::cout << "vect " << chi2 << " " << amp << std::endl;
    
   return 0;
 
