@@ -28,6 +28,8 @@ static const size_t arrsize = V10::SIZE::arrsize;
 
 
 void compChi2Scalar(V10 const & ampl, V10 const & err2, float t, float sumAA, float& chi2, float& amp) {
+  typedef float Scalar;
+
   Scalar sumAf = 0;
   Scalar sumff = 0;
   Scalar const eps = Scalar(1e-6);
@@ -144,9 +146,9 @@ int main() {
   V10 err2;
   float SumAA=0;
   for(unsigned int it = 0; it < SIZE; it++){
-    ampl.arr[i] = abs(SIZE/2-it)*10;
-    err2.arr[i] = std::pow(1./(0.05*ampl.arr[i]),2);
-    SumAA+=apl.arr[i]*ampl.arr[i]*err2.arr[i];
+    ampl.arr[it] = abs(SIZE/2-it)*10;
+    err2.arr[it] = std::pow(1./(0.05*ampl.arr[it]),2);
+    SumAA+=apl.arr[it]*ampl.arr[it]*err2.arr[it];
   }
 
   
