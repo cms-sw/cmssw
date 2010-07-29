@@ -5,9 +5,9 @@
  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
  *  using a ratio method
  *
- *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.26 2010/07/29 14:21:02 innocent Exp $
- *  $Date: 2010/07/29 14:21:02 $
- *  $Revision: 1.26 $
+ *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.27 2010/07/29 15:24:25 innocent Exp $
+ *  $Date: 2010/07/29 15:24:25 $
+ *  $Revision: 1.27 $
  *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
  */
 
@@ -18,6 +18,7 @@
 #include <vector>
 
 
+#include "DataFormats/Math/interface/SSEArray.h"
 #include "DataFormats/Math/interface/sse_mathfun.h"
 inline float log_ss(float f) {
     __m128 res = log_ps(_mm_set1_ps(f));
@@ -62,6 +63,14 @@ public:
     Scalar chi2;
   };
 
+  EcalUncalibRecHitRatioMethodAlgo() {
+    // so it is backward compatible...
+    amplitudes_ =  amplitudes_A.arr;
+    amplitudeErrors_ =  amplitudesErrors_A.arr;
+    amplitudeErrors2nor_ = amplitudesErrors2nor_A.arr;
+    amplitudeErrors2inv_ = amplitudesErrors2inv_A.arr;
+  }
+
   ~EcalUncalibRecHitRatioMethodAlgo() { }
   EcalUncalibratedRecHit makeRecHit(const C & dataFrame,
 				    const InputScalar * pedestals,
@@ -91,10 +100,18 @@ protected:
   static const size_t amplitudesSize = C::MAXSAMPLES;
   static const size_t ratiosSize = C::MAXSAMPLES*(C::MAXSAMPLES-1)/2;
 
-  Scalar  amplitudes_[amplitudesSize];
-  Scalar  amplitudeErrors_[amplitudesSize];
-  Scalar  amplitudeErrors2nor_[amplitudesSize];
-  Scalar  amplitudeErrors2inv_[amplitudesSize];
+  typedef mathSSE::Array<Scalar, C::MAXSAMPLES> Array;
+
+  Array  amplitudes_A;
+  Array  amplitudeErrors_A;
+  Array  amplitudeErrors2nor_A;
+  Array  amplitudeErrors2inv_A;
+
+
+  Scalar  * amplitudes_;
+  Scalar  * amplitudeErrors_;
+  Scalar  * amplitudeErrors2nor_;
+  Scalar  * amplitudeErrors2inv_;
  
   std::vector < Ratio > ratios_;
   std::vector < Tmax > times_;
