@@ -17,7 +17,7 @@
 // part of the code was inspired by http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/YGao/LhcTrackAnalyzer/
 // part of the code was inspired by 
 // other inputs from Andrea Giammanco, Gaelle Boudoul, Andrea Venturi, Steven Lowette, Gavril Giurgiu
-// $Id: TrackerDpgAnalysis.cc,v 1.7 2010/05/14 19:42:41 delaer Exp $
+// $Id: TrackerDpgAnalysis.cc,v 1.8 2010/07/27 15:14:31 delaer Exp $
 //
 //
 
@@ -257,8 +257,8 @@ TrackerDpgAnalysis::TrackerDpgAnalysis(const edm::ParameterSet& iConfig):hltConf
    for(size_t i = 0; i<trackLabel_.size(); ++i) {
      char buffer1[256];
      char buffer2[256];
-     sprintf(buffer1,"trackid%d",i);
-     sprintf(buffer2,"trackid%d/i",i);
+     sprintf(buffer1,"trackid%lu",(unsigned long)i);
+     sprintf(buffer2,"trackid%lu/i",(unsigned long)i);
      clusters_->Branch(buffer1,trackid_+i,buffer2);
    }
    clusters_->Branch("onTrack",&onTrack_,"onTrack/O");
@@ -288,8 +288,8 @@ TrackerDpgAnalysis::TrackerDpgAnalysis(const edm::ParameterSet& iConfig):hltConf
    for(size_t i = 0; i<trackLabel_.size(); ++i) {
      char buffer1[256];
      char buffer2[256];
-     sprintf(buffer1,"trackid%d",i);
-     sprintf(buffer2,"trackid%d/i",i);
+     sprintf(buffer1,"trackid%lu",(unsigned long)i);
+     sprintf(buffer2,"trackid%lu/i",(unsigned long)i);
      pixclusters_->Branch(buffer1,trackid_+i,buffer2);
    }
    pixclusters_->Branch("onTrack",&onTrack_,"onTrack/O");
@@ -311,11 +311,11 @@ TrackerDpgAnalysis::TrackerDpgAnalysis(const edm::ParameterSet& iConfig):hltConf
    for(size_t i = 0; i<trackLabel_.size(); ++i) {
      char buffer1[256];
      char buffer2[256];
-     sprintf(buffer1,"tracks%d",i);
-     sprintf(buffer2,"track%d information",i);
+     sprintf(buffer1,"tracks%lu",(unsigned long)i);
+     sprintf(buffer2,"track%lu information",(unsigned long)i);
      TTree* thetracks_ = dir->make<TTree>(buffer1,buffer2);
-     sprintf(buffer1,"trackid%d",i);
-     sprintf(buffer2,"trackid%d/i",i);
+     sprintf(buffer1,"trackid%lu",(unsigned long)i);
+     sprintf(buffer2,"trackid%lu/i",(unsigned long)i);
      thetracks_->Branch(buffer1,globaltrackid_+i,buffer2);
      thetracks_->Branch("eventid",&eventid_,"eventid/i");
      thetracks_->Branch("runid",&runid_,"runid/i");
@@ -360,11 +360,11 @@ TrackerDpgAnalysis::TrackerDpgAnalysis(const edm::ParameterSet& iConfig):hltConf
    for(size_t i = 0; i<trackLabel_.size(); ++i) {
      char buffer1[256];
      char buffer2[256];
-     sprintf(buffer1,"misingHits%d",i);
-     sprintf(buffer2,"missing hits from track collection %d",i);
+     sprintf(buffer1,"misingHits%lu",(unsigned long)i);
+     sprintf(buffer2,"missing hits from track collection %lu",(unsigned long)i);
      TTree* themissingHits_ = dir->make<TTree>(buffer1,buffer2);
-     sprintf(buffer1,"trackid%d",i);
-     sprintf(buffer2,"trackid%d/i",i);
+     sprintf(buffer1,"trackid%lu",(unsigned long)i);
+     sprintf(buffer2,"trackid%lu/i",(unsigned long)i);
      themissingHits_->Branch(buffer1,globaltrackid_+i,buffer2);
      themissingHits_->Branch("eventid",&eventid_,"eventid/i");
      themissingHits_->Branch("runid",&runid_,"runid/i");
@@ -429,11 +429,11 @@ TrackerDpgAnalysis::TrackerDpgAnalysis(const edm::ParameterSet& iConfig):hltConf
    event_->Branch("physicsDeclared",&physicsDeclared_,"physicsDeclared/s");
    event_->Branch("HLTDecisionBits",HLTDecisionBits_,"HLTDecisionBits[256]/O");
    char buffer[256];
-   sprintf(buffer,"ntracks[%d]/i",trackLabel_.size());
+   sprintf(buffer,"ntracks[%lu]/i",(unsigned long)trackLabel_.size());
    event_->Branch("ntracks",ntracks_,buffer);
-   sprintf(buffer,"ntrajs[%d]/i",trackLabel_.size());
+   sprintf(buffer,"ntrajs[%lu]/i",(unsigned long)trackLabel_.size());
    event_->Branch("ntrajs",ntrajs_,buffer);
-   sprintf(buffer,"lowPixelProbabilityFraction[%d]/F",trackLabel_.size());
+   sprintf(buffer,"lowPixelProbabilityFraction[%lu]/F",(unsigned long)trackLabel_.size());
    event_->Branch("lowPixelProbabilityFraction",lowPixelProbabilityFraction_,buffer);
    event_->Branch("nclusters",&nclusters_,"nclusters/i");
    event_->Branch("npixClusters",&npixClusters_,"npixClusters/i");
@@ -1027,13 +1027,13 @@ void
 TrackerDpgAnalysis::endJob() {
   for(size_t i = 0; i<tracks_.size();++i) {
     char buffer[256];
-    sprintf(buffer,"trackid%d",i);
+    sprintf(buffer,"trackid%lu",(unsigned long)i);
     if(tracks_[i]->GetEntries()) tracks_[i]->BuildIndex(buffer,"eventid");
   }
   /* not needed: missing hits is a high-level quantity
   for(size_t i = 0; i<missingHits_.size();++i) {
     char buffer[256];
-    sprintf(buffer,"trackid%d",i);
+    sprintf(buffer,"trackid%lu",(unsigned long)i);
     if(missingHits_[i]->GetEntries()) missingHits_[i]->BuildIndex(buffer);
   }
   */
