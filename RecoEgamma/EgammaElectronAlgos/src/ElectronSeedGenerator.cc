@@ -17,6 +17,7 @@
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronSeedGenerator.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
@@ -238,9 +239,7 @@ void ElectronSeedGenerator::seedsFromThisCluster
 
   if (dynamicphiroad_)
    {
-    // float clusterEnergyT = clusterEnergy*sin(seedCluster->position().theta()) ;
-    GlobalVector xdiff = clusterPos - ((GlobalPoint&)theBeamSpot->position());
-    float clusterEnergyT = clusterEnergy * sin( xdiff.theta() );
+    float clusterEnergyT = clusterEnergy / cosh( EleRelPoint(clusterPos,theBeamSpot->position()).eta() ) ;
 
     float deltaPhi1 = 0.875/clusterEnergyT + 0.055;
     if (clusterEnergyT < lowPtThreshold_) deltaPhi1= deltaPhi1Low_;
@@ -273,7 +272,8 @@ void ElectronSeedGenerator::seedsFromThisCluster
     zmin1_=theBeamSpot->position().z()-nSigmasDeltaZ1_*sq;
     zmax1_=theBeamSpot->position().z()+nSigmasDeltaZ1_*sq;
 
-    GlobalPoint vertexPos(theBeamSpot->position().x(),theBeamSpot->position().y(),theBeamSpot->position().z());
+    GlobalPoint vertexPos ;
+    ele_convert(theBeamSpot->position(),vertexPos) ;
 
     myMatchEle->set1stLayerZRange(zmin1_,zmax1_);
     myMatchPos->set1stLayerZRange(zmin1_,zmax1_);
