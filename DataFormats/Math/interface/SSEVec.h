@@ -6,6 +6,7 @@
 #define CMS_USE_SSE
 
 #else
+
 #ifdef __SSE2__
 #define CMS_USE_SSE
 
@@ -238,8 +239,10 @@ namespace mathSSE {
 #endif // CMS_USE_SSE
   
   typedef Vec3<float> Vec3F;
+  typedef Vec3<float> Vec4F;
   typedef Vec2<double> Vec2D;
   typedef Vec3<double> Vec3D;
+  typedef Vec3<double> Vec4D;
 
 }
 

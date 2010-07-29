@@ -14,3 +14,6 @@
 </bin>
 <bin   file="SSEVec_t.cpp" name="DataFormatsSSEVec_t">
 </bin>
+<bin   file="SSEMathFun_t.cpp" name="DataFormatsSSEMathFun_t">
+</bin>
+
