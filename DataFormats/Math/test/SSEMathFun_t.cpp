@@ -1,33 +1,21 @@
 #include "DataFormats/Math/interface/sse_mathfun.h"
 #include "DataFormats/Math/interface/SSEVec.h"
+#include "DataFormats/Math/interface/SSEArray.h"
 #include<iostream>
 
 #ifdef  CMS_USE_SSE
 
-// vertical vector (for floats and SSE)
-template<size_t S>
-struct VVECSIZE {
-  static const size_t size = S;
-  static const size_t ssesize = (S+3)/4;
-  static const size_t arrsize = 4*ssesize;
-};
 
-template<size_t S>
-union VVEC {
-  typedef VVECSIZE<S> SIZE;
-  __m128 vec[SIZE::ssesize];
-  float __attribute__ ((aligned(16))) arr[SIZE::arrsize];
-};
+typedef float Scalar;
 
 
-typedef VVEC<10> V10;
-static const size_t ssesize = V10::SIZE::ssesize;
-static const size_t arrsize = V10::SIZE::arrsize;
+typedef mathSSE::Array<Scalar,10> V10;
+static const size_t ssesize = V10::Size::ssesize;
+static const size_t arrsize = V10::Size::arrsize;
 
 const size_t SIZE = 10;
 
-void compChi2Scalar(V10 const & ampl, V10 const & err2, float t, float sumAA, float& chi2, float& amp) {
-  typedef float Scalar;
+void compChi2Scalar(V10 const & ampl, V10 const & err2, Scalar t, Scalar sumAA, Scalar& chi2, Scalar& amp) {
 
   Scalar sumAf = 0;
   Scalar sumff = 0;
@@ -56,9 +44,9 @@ void compChi2Scalar(V10 const & ampl, V10 const & err2, float t, float sumAA, fl
   chi2 *=denom;
 }
 
-void compChi2(V10 const & ampl, V10 const & err2, float t, float sumAA, float& chi2, float& amp) {
-  typedef float Scalar;
-  typedef  __m128 Vec;
+void compChi2(V10 const & ampl, V10 const & err2, Scalar t, Scalar sumAA, Scalar& chi2, Scalar& amp) {
+  typedef Scalar Scalar;
+  typedef  V10::Vec Vec;
   Scalar const denom =  Scalar(1)/Scalar(SIZE);
 
   Vec one = _mm_set1_ps(1);
@@ -100,8 +88,8 @@ void compChi2(V10 const & ampl, V10 const & err2, float t, float sumAA, float& c
   sumff = _mm_hadd_ps(sumff,sumff);
   sumff = _mm_hadd_ps(sumff,sumff);
 
-  float af; _mm_store_ss(&af,sumAf);
-  float ff; _mm_store_ss(&ff,sumff);
+  Scalar af; _mm_store_ss(&af,sumAf);
+  Scalar ff; _mm_store_ss(&ff,sumff);
   
   chi2 = sumAA;
   amp = 0;
@@ -116,8 +104,9 @@ void compChi2(V10 const & ampl, V10 const & err2, float t, float sumAA, float& c
 
 int main() {  
   using mathSSE::Vec4F;
-  typedef  __m128 Vec;
-
+  typedef  V10::Vec Vec;
+ 
+ 
   Vec4F x(0.,-1.,1.,1000.);
   std::cout << x << std::endl;
   
@@ -148,17 +137,17 @@ int main() {
   std::cout << "size " << SIZE << " " << arrsize << " " << ssesize << std::endl;
   V10 ampl;
   V10 err2;
-  float sumAA=0;
+  Scalar sumAA=0;
   for(unsigned int it = 0; it < SIZE; it++){
-    ampl.arr[it] = 10/std::abs(0.5*float(SIZE)-float(it)+0.5);
+    ampl.arr[it] = 10/std::abs(0.5*Scalar(SIZE)-Scalar(it)+0.5);
     err2.arr[it] = std::pow(1.f/(1+0.05f*ampl.arr[it]),2);
     sumAA+=ampl.arr[it]*ampl.arr[it]*err2.arr[it];
     std::cout<< "ampl " << ampl.arr[it] << " " << err2.arr[it] << " " << sumAA << std::endl;
   }
 
   
-  float chi2=0;
-  float amp=0;
+  Scalar chi2=0;
+  Scalar amp=0;
   compChi2Scalar(ampl, err2, 4.7, sumAA, chi2, amp);
   std::cout << "scal " << chi2 << " " << amp << std::endl;
   compChi2(ampl, err2, 4.7, sumAA, chi2, amp);

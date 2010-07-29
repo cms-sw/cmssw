@@ -49,10 +49,10 @@ namespace mathSSE {
   
   template<typename T, size_t S>
   union Array {
-    typedef Sizes<S> Size;
+    typedef Sizes<T,S> Size;
     typedef typename Size::Vec Vec;
-    Vec vec[SIZE::ssesize];
-    T __attribute__ ((aligned(16))) arr[SIZE::arrsize];
+    Vec vec[Size::ssesize];
+    T __attribute__ ((aligned(16))) arr[Size::arrsize];
   };
 
 
