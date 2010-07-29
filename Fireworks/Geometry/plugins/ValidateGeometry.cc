@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: ValidateGeometry.cc,v 1.9 2010/07/27 12:45:16 mccauley Exp $
+// $Id: ValidateGeometry.cc,v 1.10 2010/07/29 10:36:48 mccauley Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -407,6 +407,8 @@ void
 ValidateGeometry::validateDTLayerGeometry()
 {
   clearData();
+  
+  std::vector<double> wire_positions;
 
   std::vector<DTLayer*> layers = dtGeometry_->layers();
   
@@ -466,14 +468,17 @@ ValidateGeometry::validateDTLayerGeometry()
       for ( int wireN = firstChannel; wireN <= lastChannel; ++wireN )
       {
         double localX1 = layer->specificTopology().wirePosition(wireN);
-        // From the FWDTDigiProxyBuilder
         double localX2 = (wireN -(firstChannel-1)-0.5)*parameters[0].fX - nChannels/2.0*parameters[0].fX;
+
+        wire_positions.push_back(localX1-localX2);
 
         //std::cout<<"wireN, localXpos: "<< wireN <<" "<< localX1 <<" "<< localX2 <<std::endl;
 
       }
     }
   }
+
+  makeHistogram("DT layer wire localX", wire_positions);
 
   makeHistograms("DT layer");
 }
@@ -530,6 +535,7 @@ void
 ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname)
 {
   clearData();
+  std::vector<double> strip_positions;
 
   std::vector<CSCLayer*> layers = cscGeometry_->layers();
      
@@ -567,8 +573,50 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
       }
       
       compareShape(layer, shape->GetShape());
+
+
+      int yAxisOrientation = layer->geometry()->topology()->yAxisOrientation();
+      float centreToIntersection = layer->geometry()->topology()->centreToIntersection();
+      float yCentre = layer->geometry()->topology()->yCentreOfStripPlane();
+      float phiOfOneEdge = layer->geometry()->topology()->phiOfOneEdge();
+      float stripOffset = layer->geometry()->topology()->stripOffset();
+      float angularWidth = layer->geometry()->topology()->angularWidth();
+
+      for ( int nStrip = 1; nStrip <= layer->geometry()->numberOfStrips(); 
+            ++nStrip )
+      {
+        float xOfStrip1 = layer->geometry()->xOfStrip(nStrip);
+      
+        double stripAngle = phiOfOneEdge + yAxisOrientation*(nStrip-(0.5-stripOffset))*angularWidth;
+        double xOfStrip2 = yAxisOrientation*(centreToIntersection-yCentre)*tan(stripAngle);
+
+        strip_positions.push_back(xOfStrip1-xOfStrip2);
+      }
+      
+      /*
+      for ( int nWireGroup = 1; nWireGroup <= layer->geometry()->numberOfWireGroups(); 
+            ++nWireGroup )
+      {
+        float lengthOfWireGroup = layer->geometry()->lengthOfWireGroup(nWireGroup);
+        std::cout<<"wireGroup, lengthOfWireGroup: "<< nWireGroup <<" "<< lengthOfWireGroup <<std::endl;
+
+        for ( int nWire = 1; nWire <= layer->geometry()->numberOfWiresPerGroup(nWireGroup);
+              ++nWire )
+        {    
+          float yOfWire = layer->geometry()->yOfWire(nWire);
+          std::cout<<"wire, yOfWire: "<< nWire <<" "<< yOfWire <<std::endl;
+          
+        }
+      } 
+      */
+      
+      
+
     }
   }
+  
+  std::string hn(detname);
+  makeHistogram(hn+": xOfStrip", strip_positions);
 
   makeHistograms(detname);
 }
@@ -892,7 +940,6 @@ ValidateGeometry::makeHistogram(const std::string& name, std::vector<double>& da
   hist.GetXaxis()->SetTitle("[cm]");
   hist.Write();
 }
-
 
 void 
 ValidateGeometry::beginJob()

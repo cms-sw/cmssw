@@ -403,6 +403,14 @@ DumpRecoGeom::addCSCGeometry( TGeoVolume* top, const std::string& iName, int cop
       s.clear();
       s << path( top, iName, copy ) << "/" << name << "_" << copy;
       m_idToName[rawid] = Info( s.str());
+
+      // Parameters for CSC strips
+      m_idToName[rawid].points[0] = layer->geometry()->topology()->yAxisOrientation();
+      m_idToName[rawid].points[1] = layer->geometry()->topology()->centreToIntersection();
+      m_idToName[rawid].points[2] = layer->geometry()->topology()->yCentreOfStripPlane();
+      m_idToName[rawid].points[3] = layer->geometry()->topology()->phiOfOneEdge();
+      m_idToName[rawid].points[4] = layer->geometry()->topology()->stripOffset();
+      m_idToName[rawid].points[5] = layer->geometry()->topology()->angularWidth();
     }
   }
   
