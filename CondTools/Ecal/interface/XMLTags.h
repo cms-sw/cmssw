@@ -10,6 +10,8 @@ namespace xuti{
   const  std::string ix_tag("ix");
   const  std::string iy_tag("iy");
   const  std::string zside_tag("zside");
+  const  std::string ixSC_tag("ixSC");
+  const  std::string iySC_tag("iySC");
   const  std::string Cell_tag("cell");
   
   const  std::string Header_tag("EcalCondHeader");
@@ -57,6 +59,11 @@ namespace xuti{
   const std::string ChannelStatus_tag("EcalChannelStatus");
   const std::string ChannelStatusCode_tag("ChannelStatusCode");
 
+  const std::string DAQTowerStatus_tag("EcalDAQTowerStatus");
+  const std::string DAQStatusCode_tag("DAQStatusCode");
+
+  const std::string DCSTowerStatus_tag("EcalDCSTowerStatus");
+  const std::string DCSStatusCode_tag("DCSStatusCode");
 
   const  std::string ADCToGeVConstant_tag("EcalADCToGeVConstant");
   const  std::string Barrel_tag("BarrelValue");
