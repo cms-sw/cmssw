@@ -1,7 +1,7 @@
 /**
  *  \file Implementation of helper functions
  *
- *  $Id: DOMHelperFunctions.cc,v 1.1 2008/11/14 15:46:04 argiro Exp $
+ *  $Id: DOMHelperFunctions.cc,v 1.2 2009/10/28 13:34:46 argiro Exp $
  */
 
 
@@ -10,6 +10,7 @@
 #include "CondTools/Ecal/interface/XercesString.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/dom/DOMNode.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
@@ -28,12 +29,16 @@ const DetId xuti::readCellId(xercesc::DOMElement* node){
   int iphi =0;
   int ix   =0;
   int iy   =0;
+  int ixSC =0;
+  int iySC =0;
   int zside=0;
   
   stringstream ieta_str ;
   stringstream iphi_str;
   stringstream ix_str;
   stringstream iy_str ;
+  stringstream ixSC_str;
+  stringstream iySC_str ;
   stringstream zside_str ;
 
  
@@ -41,16 +46,21 @@ const DetId xuti::readCellId(xercesc::DOMElement* node){
   iphi_str << toNative(node->getAttribute(fromNative(iPhi_tag).c_str()));
   ix_str   << toNative(node->getAttribute(fromNative(ix_tag).c_str()));
   iy_str   << toNative(node->getAttribute(fromNative(iy_tag).c_str()));
+  ixSC_str << toNative(node->getAttribute(fromNative(ixSC_tag).c_str()));
+  iySC_str << toNative(node->getAttribute(fromNative(iySC_tag).c_str()));
   zside_str<< toNative(node->getAttribute(fromNative(zside_tag).c_str()));
   
   ieta_str>> ieta;
   iphi_str>> iphi;
   ix_str  >> ix;
   iy_str  >> iy;
-  zside_str  >> zside;
+  ixSC_str >> ixSC;
+  iySC_str >> iySC;
+  zside_str >> zside;
 
   if (ieta && iphi)        {return EBDetId(ieta,iphi);}
   if (ix   && iy  && zside){return EEDetId(ix,iy,zside);}
+  if (ixSC && iySC && zside){return EcalScDetId(ixSC, iySC, zside);}
   
   cerr<<"XMLCell: error reading cell, missing field ?"<<endl;
   return 0;
@@ -67,13 +77,11 @@ DOMElement*  xuti::writeCell(xercesc::DOMNode* node,
 
   node->appendChild(cell_node);
   
-  if (detid.subdetId()==EcalBarrel){ 
-        
+  if (detid.subdetId() == EcalBarrel ){ 
    
     stringstream value_s;
     value_s <<EBDetId(detid).ieta() ;
 
-  
     cell_node->setAttribute(fromNative(iEta_tag).c_str(),
 			    fromNative(value_s.str()).c_str());
     value_s.str("");
@@ -82,27 +90,56 @@ DOMElement*  xuti::writeCell(xercesc::DOMNode* node,
     cell_node->setAttribute(fromNative(iPhi_tag).c_str(),
 			    fromNative(value_s.str()).c_str());
 
-  } else  if (detid.subdetId()==EcalEndcap){
+  } else if (detid.subdetId() == EcalEndcap){
     
-    stringstream value_s;
-    value_s <<EEDetId(detid).ix() ;
-
+    // is it a EcalScDetId ?
+    if((!(uint)detid <<15)&1) {
+      stringstream value_s;
+      value_s <<EEDetId(detid).ix() ;
   
-    cell_node->setAttribute(fromNative(ix_tag).c_str(),
+      cell_node->setAttribute(fromNative(ix_tag).c_str(),
+			      fromNative(value_s.str()).c_str());
+      value_s.str("");
+      value_s <<EEDetId(detid).iy() ;
+
+      cell_node->setAttribute(fromNative(iy_tag).c_str(),
+			      fromNative(value_s.str()).c_str());
+      value_s.str("");
+      value_s <<EEDetId(detid).zside() ;
+
+      cell_node->setAttribute(fromNative(zside_tag).c_str(),
+			      fromNative(value_s.str()).c_str());
+    }
+    else {
+      stringstream value_s;
+      value_s << EcalScDetId(detid).ix() ;
+  
+      cell_node->setAttribute(fromNative(ixSC_tag).c_str(),
+			      fromNative(value_s.str()).c_str());
+      value_s.str("");
+      value_s << EcalScDetId(detid).iy() ;
+
+      cell_node->setAttribute(fromNative(iySC_tag).c_str(),
+			      fromNative(value_s.str()).c_str());
+      value_s.str("");
+      value_s << EcalScDetId(detid).zside() ;
+
+      cell_node->setAttribute(fromNative(zside_tag).c_str(),
+			      fromNative(value_s.str()).c_str());
+    }
+
+  } else if (detid.subdetId() == EcalTriggerTower ){ 
+    stringstream value_s;
+    value_s <<EcalTrigTowerDetId(detid).ieta() ;
+  
+    cell_node->setAttribute(fromNative(iEta_tag).c_str(),
 			    fromNative(value_s.str()).c_str());
     value_s.str("");
-    value_s <<EEDetId(detid).iy() ;
+    value_s <<EcalTrigTowerDetId(detid).iphi() ;
 
-    cell_node->setAttribute(fromNative(iy_tag).c_str(),
+    cell_node->setAttribute(fromNative(iPhi_tag).c_str(),
 			    fromNative(value_s.str()).c_str());
-    value_s.str("");
-    value_s <<EEDetId(detid).zside() ;
-
-    cell_node->setAttribute(fromNative(zside_tag).c_str(),
-			    fromNative(value_s.str()).c_str());
-
   }
-
   return cell_node;
 }
   
