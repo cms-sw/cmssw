@@ -44,7 +44,7 @@ void compChi2Scalar(V10 const & ampl, V10 const & err2, float t, float sumAA, fl
     if(term1>eps){
       Scalar f = std::exp( alpha*(std::log(term1) - offset) );
       sumAf += ampl.arr[it]*(f*err2.arr[it]);
-      sumff += f*(f*err2);
+      sumff += f*(f*err2.arr[it]);
     }
   }
  
@@ -106,7 +106,6 @@ void compChi2(V10 const & ampl, V10 const & err2, float t, float sumAA, float& c
     chi2 = sumAA - af*amp;
   }
   chi2 *=denom;
-  */
 }
 
 
