@@ -195,6 +195,8 @@ v4sf log_ps(v4sf x) {
   v4sf one = *(v4sf*)_ps_1;
 
   v4sf invalid_mask = _mm_cmplt_ps(x, _mm_setzero_ps());
+  // propagate nan
+  invalid_mask = _mm_and_ps(invalid_mask ,_mm_cmpeq_ps(_mm_andnot_ps(x, *(v4sf*)_ps_mant_mask),_mm_setzero_ps()));
 
   x = _mm_max_ps(x, *(v4sf*)_ps_min_norm_pos);  /* cut off denormalized stuff */
 
@@ -270,7 +272,7 @@ v4sf log_ps(v4sf x) {
   tmp = _mm_mul_ps(e, *(v4sf*)_ps_cephes_log_q2);
   x = _mm_add_ps(x, y);
   x = _mm_add_ps(x, tmp);
-  x = _mm_or_ps(x, invalid_mask); // negative arg will be NAN
+  x = _mm_or_ps(x, invalid_mask); // negative arg will be NAN (and NaN as well!)
   return x;
 }
 
@@ -296,6 +298,10 @@ v4sf exp_ps(v4sf x) {
   v2si mm0, mm1;
 #endif
   v4sf one = *(v4sf*)_ps_1;
+
+    // propagate nan
+  v4sf invalid_mask = _mm_cmpeq_ps(_mm_andnot_ps(x, *(v4sf*)_ps_mant_mask),_mm_setzero_ps());
+
 
   x = _mm_min_ps(x, *(v4sf*)_ps_exp_hi);
   x = _mm_max_ps(x, *(v4sf*)_ps_exp_lo);
@@ -363,6 +369,7 @@ v4sf exp_ps(v4sf x) {
   v4sf pow2n = _mm_castsi128_ps(emm0);
 #endif
   y = _mm_mul_ps(y, pow2n);
+  y = _mm_or_ps(y, invalid_mask); // propagate NaN
   return y;
 }
 
