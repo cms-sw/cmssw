@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.97 2010/06/04 13:26:38 sani Exp $
+// $Id: GsfElectronAlgo.cc,v 1.98 2010/07/29 12:05:31 chamont Exp $
 //
 //
 
@@ -467,7 +467,7 @@ void GsfElectronAlgo::process(
     if (mva<noCutMin) { throw cms::Exception("GsfElectronAlgo|UnexpectedMvaValue")<<"unexpected MVA value: "<<mva ; }
 
     // electron basic cluster
-    CaloClusterPtr elbcRef = getEleBasicCluster(gsfTrackRef,&theClus) ;
+    CaloClusterPtr elbcRef = getEleBasicCluster(gsfTrackRef,&theClus,bs) ;
 
     // calculate Trajectory StatesOnSurface....
     if (!calculateTSOS(*gsfTrackRef,theClus, bs)) continue ;
@@ -860,29 +860,31 @@ void GsfElectronAlgo::createElectron
  }
 
 
-const CaloClusterPtr GsfElectronAlgo::getEleBasicCluster(const GsfTrackRef &t, const SuperCluster *scRef)
+const CaloClusterPtr GsfElectronAlgo::getEleBasicCluster
+ ( const GsfTrackRef & t,
+   const SuperCluster * scRef,
+   const reco::BeamSpot & bs )
  {
-
-    CaloClusterPtr eleRef;
-    TrajectoryStateOnSurface tempTSOS;
-    TrajectoryStateOnSurface outTSOS = mtsTransform_->outerStateOnSurface(*t);
-    float dphimin = 1.e30;
-    for (CaloCluster_iterator bc=scRef->clustersBegin(); bc!=scRef->clustersEnd(); bc++) {
-      GlobalPoint posclu((*bc)->position().x(),(*bc)->position().y(),(*bc)->position().z());
-      tempTSOS = mtsTransform_->extrapolatedState(outTSOS,posclu) ;
-      if (!tempTSOS.isValid()) tempTSOS=outTSOS;
-      GlobalPoint extrap = tempTSOS.globalPosition();
-      float dphi = posclu.phi() - extrap.phi();
-      if (fabs(dphi)>CLHEP::pi) dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
-      if (fabs(dphi)<dphimin) {
-        dphimin = fabs(dphi) ;
-        eleRef = (*bc);
-        eleTSOS_ = tempTSOS ;
-      }
-    }
-    return eleRef ;
-
-}
+  CaloClusterPtr eleRef ;
+  TrajectoryStateOnSurface tempTSOS ;
+  TrajectoryStateOnSurface outTSOS = mtsTransform_->outerStateOnSurface(*t) ;
+  float dphimin = 1.e30 ;
+  for (CaloCluster_iterator bc=scRef->clustersBegin(); bc!=scRef->clustersEnd(); bc++)
+   {
+    GlobalPoint posclu((*bc)->position().x(),(*bc)->position().y(),(*bc)->position().z()) ;
+    tempTSOS = mtsTransform_->extrapolatedState(outTSOS,posclu) ;
+    if (!tempTSOS.isValid()) tempTSOS=outTSOS ;
+    GlobalPoint extrap = tempTSOS.globalPosition() ;
+    float dphi = EleRelPointPair(posclu,extrap,bs.position()).dPhi() ;
+    if (fabs(dphi)<dphimin)
+     {
+      dphimin = fabs(dphi) ;
+      eleRef = (*bc);
+      eleTSOS_ = tempTSOS ;
+     }
+   }
+  return eleRef ;
+ }
 
 bool  GsfElectronAlgo::calculateTSOS(const GsfTrack &t,const SuperCluster & theClus, const BeamSpot & bs){
 

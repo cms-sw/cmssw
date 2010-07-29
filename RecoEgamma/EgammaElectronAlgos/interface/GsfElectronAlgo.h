@@ -144,8 +144,10 @@ class GsfElectronAlgo {
     // associations
     const reco::SuperClusterRef getTrSuperCluster(const reco::GsfTrackRef & trackRef );
 
-    const reco::CaloClusterPtr getEleBasicCluster(const reco::GsfTrackRef & trackRef,
-      const reco::SuperCluster * scRef) ;
+    const reco::CaloClusterPtr getEleBasicCluster
+     ( const reco::GsfTrackRef & trackRef,
+       const reco::SuperCluster * scRef,
+       const reco::BeamSpot & bs ) ;
 
     // From Puneeth Kalavase : returns the CTF track that has the highest fraction
     // of shared hits in Pixels and the inner strip tracker with the electron Track

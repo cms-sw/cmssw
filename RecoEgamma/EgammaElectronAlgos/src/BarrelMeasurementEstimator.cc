@@ -13,16 +13,16 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: BarrelMeasurementEstimator.cc,v 1.17 2010/07/28 09:09:36 amartell Exp $
+// $Id: BarrelMeasurementEstimator.cc,v 1.18 2010/07/28 10:52:46 chamont Exp $
 //
 //
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/BarrelMeasurementEstimator.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalDetRangeZPhi.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
 
 
 // zero value indicates incompatible ts - hit pair
@@ -91,21 +91,15 @@ std::pair<bool,double> BarrelMeasurementEstimator::estimate
       myZmin = -0.09;
     }
 
-  float rhPhi = gp.phi();
+  float rhPhi = gp.phi() ;
+  float zDiff = gp.z()-ts.z() ;
+  float phiDiff = normalized_phi(rhPhi-tsPhi) ;
 
-  float zDiff = gp.z() - ts.z();
-  float phiDiff = rhPhi - tsPhi;
-  if (phiDiff > pi) phiDiff -= twopi;
-  if (phiDiff < -pi) phiDiff += twopi;
-
-  if ( phiDiff < thePhiMax && phiDiff > thePhiMin &&
-       zDiff < myZmax && zDiff > myZmin) {
-    return std::pair<bool,double>(true,1.);
-     } else {
-
-    return std::pair<bool,double>(false,0.);
-    }
-}
+  if ( phiDiff < thePhiMax && phiDiff > thePhiMin && zDiff < myZmax && zDiff > myZmin)
+   { return std::pair<bool,double>(true,1.) ; }
+  else
+   { return std::pair<bool,double>(false,0.) ; }
+ }
 
 bool BarrelMeasurementEstimator::estimate
  ( const TrajectoryStateOnSurface & ts,

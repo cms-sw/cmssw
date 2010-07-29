@@ -13,11 +13,11 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ForwardMeasurementEstimator.cc,v 1.18 2010/07/28 09:09:36 amartell Exp $
+// $Id: ForwardMeasurementEstimator.cc,v 1.19 2010/07/28 10:52:46 chamont Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/ForwardMeasurementEstimator.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalDetRangeRPhi.h"
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"
@@ -93,18 +93,13 @@ std::pair<bool,double> ForwardMeasurementEstimator::estimate
       rMax = theRMaxI;
     }
 
-  float phiDiff = rhPhi - tsPhi ;
-  if (phiDiff > pi) phiDiff -= twopi ;
-  if (phiDiff < -pi) phiDiff += twopi ;
-
+  float phiDiff = normalized_phi(rhPhi - tsPhi) ;
   float rDiff = rhR - tsR;
 
-  if ( phiDiff < myPhimax && phiDiff > myPhimin &&
-       rDiff < rMax && rDiff > rMin) {
-    return std::pair<bool,double>(true,1.);
-  } else {
-    return std::pair<bool,double>(false,0.);
-  }
+  if ( phiDiff < myPhimax && phiDiff > myPhimin && rDiff < rMax && rDiff > rMin)
+   { return std::pair<bool,double>(true,1.) ; }
+  else
+   { return std::pair<bool,double>(false,0.) ; }
 }
 
 bool ForwardMeasurementEstimator::estimate

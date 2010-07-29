@@ -34,8 +34,11 @@ class ExceptionSafeStlPtrCol : public StlColType
 template <typename RealType>
 RealType normalized_phi( RealType phi )
  {
-  if (fabs(phi)>CLHEP::pi) return (phi<0?CLHEP::twopi+phi:phi-CLHEP::twopi) ;
-  else return phi ;
+  if (phi>CLHEP::pi)
+   { phi -= (2*CLHEP::pi) ; }
+  if (phi<-CLHEP::pi)
+   { phi += (2*CLHEP::pi) ; }
+  return phi ;
  }
 
 
@@ -63,7 +66,7 @@ class EleRelPoint
     EleRelPoint( const GlobalPoint & p, const GlobalPoint & origin ) : relP_(p.x()-origin.x(),p.y()-origin.y(),p.z()-origin.z()) {}
     double eta() { return relP_.eta() ; }
     double phi() { return normalized_phi(relP_.phi()) ; }
-    double normxy() { return sqrt(relP_.x()*relP_.x()+relP_.y()*relP_.y()) ; }
+    double perp() { return sqrt(relP_.x()*relP_.x()+relP_.y()*relP_.y()) ; }
   private :
     math::XYZVector relP_ ;
  } ;
@@ -81,9 +84,11 @@ class EleRelPointPair
     EleRelPointPair( const GlobalPoint & p1, const GlobalPoint & p2, const GlobalPoint & origin ) : relP1_(p1.x()-origin.x(),p1.y()-origin.y(),p1.z()-origin.z()), relP2_(p2.x()-origin.x(),p2.y()-origin.y(),p2.z()-origin.z()) {}
     double dEta() { return (relP1_.eta()-relP2_.eta()) ; }
     double dPhi() { return normalized_phi(relP1_.phi()-relP2_.phi()) ; }
+    double dZ() { return (relP1_.z()-relP2_.z()) ; }
+    double dPerp() { return normalized_phi(relP1_.perp()-relP2_.perp()) ; }
   private :
-    math::XYZVector relP1_ ;
-    math::XYZVector relP2_ ;
+    GlobalVector relP1_ ;
+    GlobalVector relP2_ ;
  } ;
 
 
