@@ -17,14 +17,14 @@
 
 GFlash::GFlash(G4LogicalVolumeToDDLogicalPartMap& map, 
 	       const HepPDT::ParticleDataTable * table_, 
-	       const edm::ParameterSet & p) : PhysicsList(map, table_, p), 
+	       sim::FieldBuilder *fieldBuilder_, 
+	       const edm::ParameterSet & p) : PhysicsList(map, table_, fieldBuilder_, p), 
 					      thePar(p.getParameter<edm::ParameterSet>("GFlash")) {
 
   G4DataQuestionaire it(photon);
 
   int  ver           = p.getUntrackedParameter<int>("Verbosity",0);
   std::string region = p.getParameter<std::string>("Region");
-  double charge      = p.getUntrackedParameter<double>("MonopoleCharge",1.0);
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
 			      << "QGSP_BERT_EML 3.3 + CMS GFLASH with"
 			      << " special region " << region;
@@ -32,7 +32,7 @@ GFlash::GFlash(G4LogicalVolumeToDDLogicalPartMap& map,
   RegisterPhysics(new ParametrisedPhysics("parametrised",thePar)); 
 
   // EM Physics
-  RegisterPhysics( new CMSEmStandardPhysics92("standard EM EML",table_,ver,region,charge));
+  RegisterPhysics( new CMSEmStandardPhysics92("standard EM EML",ver,region));
 
   // Synchroton Radiation & GN Physics
   RegisterPhysics(new G4EmExtraPhysics("extra EM"));

@@ -11,7 +11,7 @@ class GflashHistogram;
 class GFlash : public PhysicsList
 {
 public:
-  GFlash(G4LogicalVolumeToDDLogicalPartMap& map, const HepPDT::ParticleDataTable * table_, const edm::ParameterSet & p);
+  GFlash(G4LogicalVolumeToDDLogicalPartMap& map, const HepPDT::ParticleDataTable * table_, sim::FieldBuilder *fieldBuilder_, const edm::ParameterSet & p);
   virtual ~GFlash();
 
 private:
