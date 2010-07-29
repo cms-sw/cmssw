@@ -9,6 +9,7 @@ const size_t SIZE = 10;
 
 template<size_t S>
 struct VVECSIZE {
+  static const size_t size = S;
   static const size_t ssesize = (S+3)/4;
   static const size_t arrsize = 4*ssesize;
 };
@@ -25,6 +26,34 @@ typedef VVEC<10> V10;
 static const size_t ssesize = V10::SIZE::ssesize;
 static const size_t arrsize = V10::SIZE::arrsize;
 
+
+void compChi2Scalar(V10 const & ampl, V10 const & err2, float t, float sumAA, float& chi2, float& amp) {
+  Scalar sumAf = 0;
+  Scalar sumff = 0;
+  Scalar const eps = Scalar(1e-6);
+  Scalar const denom =  Scalar(1)/Scalar(SIZE);
+
+  Scalar alpha = 2.;
+  Scalar overab = 0.2;
+
+  for(unsigned int it = 0; it < SIZE; it++){
+    Scalar offset = (Scalar(it) - t)*overab;
+    Scalar term1 = Scalar(1) + offset;
+    if(term1>eps){
+      Scalar f = std::exp( alpha*(std::log(term1) - offset) );
+      sumAf += ampl.arr[it]*(f*err2.arr[it]);
+      sumff += f*(f*err2);
+    }
+  }
+ 
+  chi2 = sumAA;
+  amp = 0;
+  if( sumff > 0 ){
+    amp = sumAf/sumff;
+    chi2 = sumAA - sumAf*amp;
+  }
+  chi2 *=denom;
+}
 
 void compChi2(V10 const & ampl, V10 const & err2, float t, float sumAA, float& chi2, float& amp) {
   typedef float Scalar;
@@ -65,12 +94,14 @@ void compChi2(V10 const & ampl, V10 const & err2, float t, float sumAA, float& c
   sumff = _mm_hadd_ps(sumff,sumff);
   sumff = _mm_hadd_ps(sumff,sumff);
 
-  /*
+  float af; _mm_store_ss(&af,sumAf);
+  float ff; _mm_store_ss(&ff,sumff);
+  
   chi2 = sumAA;
   amp = 0;
-  if( sumff.arr[0] > 0 ){
-    amp = sumAf.arr[0]/sumff.arr[0];
-    chi2 = sumAA - sumAf.arr[0]*amp;
+  if( ff > 0 ){
+    amp = af/ff;
+    chi2 = sumAA - af*amp;
   }
   chi2 *=denom;
   */
@@ -108,6 +139,24 @@ int main() {
   k.vec = _mm_and_ps(cmp.vec, k.vec  ); 
   std::cout << k  << std::endl;
 
+
+  V10 ampl;
+  V10 err2;
+  float SumAA=0;
+  for(unsigned int it = 0; it < SIZE; it++){
+    ampl.arr[i] = abs(SIZE/2-it)*10;
+    err2.arr[i] = std::pow(1./(0.05*ampl.arr[i]),2);
+    SumAA+=apl.arr[i]*ampl.arr[i]*err2.arr[i];
+  }
+
+  
+  float chi2=0;
+  float amp=0;
+  compChi2(ampl, err2, 4.7, sumAA, chi2, amp);
+  std::cout << chi2 << " " << amp << std::endl;
+  compChi2Scalar(ampl, err2, 4.7, sumAA, chi2, amp);
+   std::cout << chi2 << " " << amp << std::endl;
+   
   return 0;
 
 }
