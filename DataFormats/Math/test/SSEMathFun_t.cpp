@@ -36,7 +36,7 @@ void compChi2Scalar(V10 const & ampl, V10 const & err2, float t, float sumAA, fl
   Scalar const denom =  Scalar(1)/Scalar(SIZE);
 
   Scalar alpha = 2.;
-  Scalar overab = 0.2;
+  Scalar overab = 0.38;
 
   for(unsigned int it = 0; it < SIZE; it++){
     Scalar offset = (Scalar(it) - t)*overab;
@@ -67,7 +67,7 @@ void compChi2(V10 const & ampl, V10 const & err2, float t, float sumAA, float& c
 
   Vec tv = _mm_set1_ps(t);
   Vec alpha = _mm_set1_ps(2);
-  Vec overab = _mm_set1_ps(0.2);
+  Vec overab = _mm_set1_ps(0.38);
 
   V10 index;
   for(unsigned int it = 0; it < arrsize; it++){
@@ -145,7 +145,7 @@ int main() {
   V10 err2;
   float sumAA=0;
   for(unsigned int it = 0; it < SIZE; it++){
-    ampl.arr[it] = abs(SIZE/2-it)*10;
+    ampl.arr[it] = std::abs(SIZE/2-it)*10;
     err2.arr[it] = std::pow(1./(0.05*ampl.arr[it]),2);
     sumAA+=ampl.arr[it]*ampl.arr[it]*err2.arr[it];
   }
@@ -153,10 +153,10 @@ int main() {
   
   float chi2=0;
   float amp=0;
-  compChi2(ampl, err2, 4.7, sumAA, chi2, amp);
-  std::cout << chi2 << " " << amp << std::endl;
   compChi2Scalar(ampl, err2, 4.7, sumAA, chi2, amp);
-   std::cout << chi2 << " " << amp << std::endl;
+  std::cout "scal " << chi2 << " " << amp << std::endl;
+  compChi2(ampl, err2, 4.7, sumAA, chi2, amp);
+  std::cout "vect " << chi2 << " " << amp << std::endl;
    
   return 0;
 
