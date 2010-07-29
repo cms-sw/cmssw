@@ -3,8 +3,8 @@
 
 /** \class BeamMonitorBx
  * *
- *  $Date: 2010/07/07 01:41:18 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/07/15 04:19:32 $
+ *  $Revision: 1.7 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -62,7 +62,7 @@ class BeamMonitorBx : public edm::EDAnalyzer {
 		       std::string, TString, TString);
   void FillTables(int, int, std::map<std::string,std::string>&,
 		  reco::BeamSpot&, std::string);
-  void FillTrendHistos(int, std::map<std::string,std::string>&,
+  void FillTrendHistos(int, int, std::map<std::string,std::string>&,
 		       reco::BeamSpot&, TString);
   void weight(BeamSpotMapBx&, const BeamSpotMapBx&);
   void weight(double& mean,double& meanError,const double& val,const double& valError);

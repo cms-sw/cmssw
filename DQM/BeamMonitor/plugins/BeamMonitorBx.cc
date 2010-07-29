@@ -2,8 +2,8 @@
  * \file BeamMonitorBx.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/07/13 02:02:17 $
- * $Revision: 1.10 $
+ * $Date: 2010/07/15 04:19:31 $
+ * $Revision: 1.11 $
  *
  */
 
@@ -110,6 +110,7 @@ void BeamMonitorBx::beginJob() {
     subDir_ += varName->first;
     dbe_->setCurrentFolder(monitorName_+subDir_);
   }
+  dbe_->setCurrentFolder(monitorName_+"FitBx/All_nPVs");
 }
 
 //--------------------------------------------------------
@@ -219,6 +220,11 @@ void BeamMonitorBx::BookTrendHistos(bool plotPV,int nBx,map<string,string> & vMa
 				    string subDir_, TString prefix_, TString suffix_) {
   int nType_ = 2;
   if (plotPV) nType_ = 4;
+  std::ostringstream ss;
+  std::ostringstream ss1;
+  ss << setfill ('0') << setw (5) << nBx;
+  ss1 << nBx;
+
   for (int i = 0; i < nType_; i++) {
     for (std::map<std::string,std::string>::const_iterator varName = vMap.begin();
 	 varName != vMap.end(); ++varName) {
@@ -228,10 +234,6 @@ void BeamMonitorBx::BookTrendHistos(bool plotPV,int nBx,map<string,string> & vMa
       string tmpName;
       if (prefix_ != "") tmpName = prefix_ + "_" + varName->first;
       if (suffix_ != "") tmpName = tmpName + "_" + suffix_;
-      std::ostringstream ss;
-      std::ostringstream ss1;
-      ss << setfill ('0') << setw (5) << nBx;
-      ss1 << nBx;
       tmpName = tmpName + "_" + ss.str();
 
       TString histName(tmpName);
@@ -310,6 +312,17 @@ void BeamMonitorBx::BookTrendHistos(bool plotPV,int nBx,map<string,string> & vMa
       }
     }//End of variable loop
   }// End of type loop (lumi, time)
+
+  // num of PVs(#Bx) per LS
+  dbe_->cd(monitorName_+subDir_ + "/All_nPVs");
+  TString histName = "Trending_nPVs_lumi_bx_" + ss.str();
+  string xtitle = "Lumisection  [Bx# " + ss1.str() + "]";
+
+  hst[histName] = dbe_->book1D(histName,"Number of Good Reconstructed Vertices",40,0.5,40.5);
+  hst[histName]->setAxisTitle(xtitle,1);
+  hst[histName]->getTH1()->SetBit(TH1::kCanRebin);
+  hst[histName]->getTH1()->SetOption("E1");
+
 }
 
 //--------------------------------------------------------
@@ -348,12 +361,18 @@ void BeamMonitorBx::FitAndFill(const LuminosityBlock& lumiSeg,
     countGoodFit_++;
     edm::LogInfo("BX|BeamMonitorBx") << "Number of good fit = " << countGoodFit_ << endl;
     BeamSpotMapBx bsmap = theBeamFitter->getBeamSpotMap();
+    std::map<int,int> npvsmap = theBeamFitter->getNPVsperBX();
     edm::LogInfo("BX|BeamMonitorBx") << "Number of bx = " << bsmap.size() << endl;
     if (bsmap.size() == 0) return;
     if (countBx_ < bsmap.size()) {
       countBx_ = bsmap.size();
       BookTables(countBx_,varMap,"");
       BookTables(countBx_,varMap,"all");
+      for (BeamSpotMapBx::const_iterator abspot = bsmap.begin();
+	   abspot!= bsmap.end(); ++abspot) {
+	int bx = abspot->first;
+	BookTrendHistos(false,bx,varMap1,"FitBx","Trending","bx");
+      }
     }
 
     int * LSRange = theBeamFitter->getFitLSRange();
@@ -387,11 +406,12 @@ void BeamMonitorBx::FitAndFill(const LuminosityBlock& lumiSeg,
 	 abspot!= bsmap.end(); ++abspot,nthBin--) {
       reco::BeamSpot bs = abspot->second;
       int bx = abspot->first;
+      int nPVs = npvsmap.find(bx)->second;
+      edm::LogInfo("BeamMonitorBx") << "Number of PVs of bx#[" << bx << "] = " << nPVs << endl;
       // Tables
       FillTables(bx,nthBin,varMap,bs,"");
       // Histograms
-      BookTrendHistos(false,bx,varMap1,"FitBx","Trending","bx");
-      FillTrendHistos(bx,varMap1,bs,"Trending");
+      FillTrendHistos(bx,nPVs,varMap1,bs,"Trending");
     }
     // Calculate weighted beam spots
     weight(fbspotMap,bsmap);
@@ -444,7 +464,7 @@ void BeamMonitorBx::FillTables(int nthbx,int nthbin_,
 }
 
 //--------------------------------------------------------
-void BeamMonitorBx::FillTrendHistos(int nthBx, map<string,string> & vMap, 
+void BeamMonitorBx::FillTrendHistos(int nthBx, int nPVs_, map<string,string> & vMap, 
 				    reco::BeamSpot & bs_, TString prefix_) {
   map<TString,pair<double,double> > val_;
   val_[TString(prefix_+"_x")] = pair<double,double>(bs_.x0(),bs_.x0Error());
@@ -460,6 +480,7 @@ void BeamMonitorBx::FillTrendHistos(int nthBx, map<string,string> & vMap,
   for (map<TString,MonitorElement*>::iterator itHst = hst.begin();
        itHst != hst.end(); ++itHst) {
     if (!(itHst->first.Contains(ss.str()))) continue;
+    if (itHst->first.Contains("nPVs")) continue;
     edm::LogInfo("BX|BeamMonitorBx") << "Filling histogram: " << itHst->first << endl;
     if (itHst->first.Contains("time")) {
       int idx = itHst->first.Index("_time",5);
@@ -472,6 +493,9 @@ void BeamMonitorBx::FillTrendHistos(int nthBx, map<string,string> & vMap,
       itHst->second->setBinError(endLumiOfBSFit_,val_[itHst->first(0,idx)].second);
     }
   }
+  TString histName = "Trending_nPVs_lumi_bx_" + ss.str();
+  if (hst[histName])
+    hst[histName]->setBinContent(endLumiOfBSFit_,nPVs_);
 }
 
 //--------------------------------------------------------------------------------------------------

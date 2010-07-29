@@ -11,6 +11,9 @@
 <library   file="BeamMonitor.cc" name="BeamMonitor">
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library   file="BeamMonitorBx.cc" name="BeamMonitorBx">
+  <flags   EDM_PLUGIN="1"/>
+</library>
 <library   file="BeamConditionsMonitor.cc" name="BeamConditionsMonitor">
   <flags   EDM_PLUGIN="1"/>
 </library>
