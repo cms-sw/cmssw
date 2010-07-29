@@ -8,7 +8,7 @@
 //
 // Original Author: mccauley
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCStripDigiProxyBuilder.cc,v 1.1.2.3 2010/06/16 12:54:11 mccauley Exp $
+// $Id: FWCSCStripDigiProxyBuilder.cc,v 1.3 2010/07/28 09:47:19 mccauley Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -24,6 +24,8 @@
 
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
 
+#include <TGeoArb8.h>
+
 class FWCSCStripDigiProxyBuilder : public FWProxyBuilderBase
 {
 public:
@@ -36,113 +38,7 @@ private:
   virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*);
   FWCSCStripDigiProxyBuilder(const FWCSCStripDigiProxyBuilder&);    
   const FWCSCStripDigiProxyBuilder& operator=(const FWCSCStripDigiProxyBuilder&);
-
-  void testParams(int station, int ring, double* params); // this is a temp. test method
 };
-
-// This is for testing and should be moved to CSCUtils
-
-void 
-FWCSCStripDigiProxyBuilder::testParams(const int station, const int ring, double* params)
-{
-  if ( station == 1 )
-  {
-    if ( ring == 1 )
-    {
-      params[0] = 2.96;
-          
-      return;
-    }
-      
-    if ( ring == 2 )
-    { 
-      params[0] = 2.33;
-      
-      return;
-    }
-      
-    if ( ring == 3 )
-    {
-      params[0] = 2.15;
-
-      return;
-    }
-      
-    if ( ring == 4 )
-    {
-      params[0] = 2.96;
-    
-      return;
-    }
-      
-    else 
-      return;
-  }
-    
-  if ( station == 2 )
-  {
-    if ( ring == 1 )
-    {
-      params[0] = 4.65;
-      
-      return;
-    }
-    
-    if ( ring == 2 )
-    {
-      params[0] = 2.33;
-    
-      return;
-    }
-      
-    else 
-      return;
-  }
-    
-  if ( station == 3 )
-  {
-    if ( ring == 1 )
-    {
-      params[0] = 4.65;
-      
-      return;
-    }
-      
-    if ( ring == 2 )
-    {
-      params[0] = 2.33;
-      
-      return;
-    }
-      
-    else 
-      return;
-  }
-    
-  if ( station == 4 )
-  {
-    if ( ring == 1 )
-    {
-      params[0] = 4.65;
-     
-      return;
-    }
-      
-    if ( ring == 2 )
-    {
-      params[0] = 2.33;
-      
-      return;
-    }
-      
-    else 
-      return;
-  }
-    
-  else
-    return;
-}
-
 
 void
 FWCSCStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
@@ -157,9 +53,11 @@ FWCSCStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
      return;
   }
 
+  /*
   double width  = 0.01;
   double depth  = 0.01;
   double rotate = 0.0;
+  */
   int thresholdOffset = 9;       
 
   for ( CSCStripDigiCollection::DigiRangeIterator dri = digis->begin(), driEnd = digis->end();
@@ -172,11 +70,43 @@ FWCSCStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
     
     if ( ! matrix )
     {
-      fwLog(fwlog::kWarning)<<"Failed to get geometry of CSC chamber with detid: "
+      fwLog(fwlog::kWarning)<<"Failed to get geometry of CSC with detid: "
                             << cscDetId.rawId() <<std::endl;
       continue;
     }
      
+    TEveGeoShape* shape = iItem->getGeom()->getShape(cscDetId.rawId());
+
+    if ( ! shape )
+    {
+      fwLog(fwlog::kWarning)<<"Failed to get shape of CSC with detid: "
+                            << cscDetId.rawId() <<std::endl;
+      continue;
+    }
+
+    double length;
+
+    if ( TGeoTrap* trap = dynamic_cast<TGeoTrap*>(shape->GetShape()) )
+      length = trap->GetH1()*2.0;
+
+    else
+    {
+      fwLog(fwlog::kWarning)<<"Failed to get trapezoid from shape for CSC with detid: "
+                            << cscDetId.rawId() <<std::endl;
+      continue;
+    }
+
+    std::vector<TEveVector> parameters = iItem->getGeom()->getPoints(cscDetId.rawId());
+      
+    if ( parameters.empty() )
+    {
+      fwLog(fwlog::kWarning)<<"Parameters empty for CSC layer with detid: " 
+                            << cscDetId.rawId() <<std::endl;
+      continue;
+    }
+
+    assert(parameters.size() == 2);
+
     for( CSCStripDigiCollection::const_iterator dit = range.first;
          dit != range.second; ++dit )
     {
@@ -190,6 +120,14 @@ FWCSCStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
             
       if ( std::find_if(adcCounts.begin(),adcCounts.end(),bind2nd(std::greater<int>(),signalThreshold)) != adcCounts.end() ) 
       {
+        // This interface clearly needs some work
+        float yAxisOrientation = parameters[0].fX;
+        float centreToIntersection = parameters[0].fY;
+        float yCentre = parameters[0].fZ;
+        float phiOfOneEdge = parameters[1].fX;
+        float stripOffset = parameters[1].fY;
+        float angularWidth = parameters[1].fZ;
+
         TEveStraightLineSet* stripDigiSet = new TEveStraightLineSet();
         stripDigiSet->SetLineWidth(3);
         compound->AddElement(stripDigiSet);
@@ -199,18 +137,12 @@ FWCSCStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
 
         int stripId = (*dit).getStrip();  
 
-        int station = cscDetId.station();
-        int ring    = cscDetId.ring();
+        double stripAngle = phiOfOneEdge + yAxisOrientation*(stripId-(0.5-stripOffset))*angularWidth;
+        double xOfStrip = yAxisOrientation*(centreToIntersection-yCentre)*tan(stripAngle);
 
-        double params[1];
-        testParams(station, ring, params);
-
-        double angularWidth = params[0]/1000.0;
-        double length = 150.0; // magic number for testing
-
-        double stripAngle = stripId*angularWidth;
-        double xOfStrip = tan(stripAngle - 0.5);
-
+        // Need to determine intersection at top and bottom instead of
+        // using just using length?
+        
         double localPointTop[3] =
           {
             xOfStrip, length*0.5, 0.0
@@ -233,12 +165,6 @@ FWCSCStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
         matrix->LocalToMaster(localPointTop, globalPointTop);
         matrix->LocalToMaster(localPointCenter, globalPointCenter);
         matrix->LocalToMaster(localPointBottom, globalPointBottom);
-
-        /*
-        std::cout<<"CSC strip digi: "
-                 << globalPointCenter[0] <<" "<< globalPointCenter[1] <<" "<< globalPointCenter[2] 
-                 <<std::endl;
-        */
   
         stripDigiSet->AddLine(globalPointTop[0],  globalPointTop[1],  globalPointTop[2],
                               globalPointBottom[0], globalPointBottom[1], globalPointBottom[2]);
