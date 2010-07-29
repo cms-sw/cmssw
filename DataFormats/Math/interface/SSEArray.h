@@ -32,7 +32,7 @@ namespace mathSSE {
   };
 
   template<size_t S>
-  struct Sizes<float> {
+  struct Sizes<float, S> {
     typedef __m128 Vec;
     static const size_t size = S;
     static const size_t ssesize = (S+3)/4;
@@ -40,7 +40,7 @@ namespace mathSSE {
   };
   
   template<size_t S>
-  struct Sizes<double> {
+  struct Sizes<double, S> {
     typedef __m128d Vec;
     static const size_t size = S;
     static const size_t ssesize = (S+1)/2;
@@ -58,4 +58,4 @@ namespace mathSSE {
 
 }
 
-}
+#endif // DataFormat_Math_SSEArray_H
