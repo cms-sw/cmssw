@@ -27,6 +27,7 @@ class ElectronMcSignalValidator : public ElectronValidator
 
     edm::InputTag electronCollection_;
     edm::InputTag  mcTruthCollection_;
+    edm::InputTag beamSpotTag_ ;
     bool readAOD_;
     std::string outputFile_ ;
 

@@ -2,6 +2,8 @@
 // user include files
 #include "Validation/RecoEgamma/interface/ElectronMcSignalValidator.h"
 
+#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
+
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -17,6 +19,7 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -44,6 +47,7 @@ ElectronMcSignalValidator::ElectronMcSignalValidator( const edm::ParameterSet & 
   outputFile_ = conf.getParameter<std::string>("outputFile");
   electronCollection_ = conf.getParameter<edm::InputTag>("electronCollection");
   mcTruthCollection_ = conf.getParameter<edm::InputTag>("mcTruthCollection");
+  beamSpotTag_ = conf.getParameter<edm::InputTag>("beamSpot") ;
   readAOD_ = conf.getParameter<bool>("readAOD");
   maxPt_ = conf.getParameter<double>("MaxPt");
   maxAbsEta_ = conf.getParameter<double>("MaxAbsEta");
@@ -213,8 +217,8 @@ void ElectronMcSignalValidator::beginJob()
   h2_ele_simPtEta_matched = bookH2withSumw2("h_ele_simPtEta_matched","Efficiency vs pt #eta",eta2D_nbin,eta_min,eta_max,pt2D_nbin,5.,pt_max );
   h1_ele_simPhi_matched = bookH1withSumw2("h_ele_simPhi_matched","Efficiency vs gen phi",phi_nbin,phi_min,phi_max);
   h1_ele_vertexPhi = bookH1withSumw2("h_ele_vertexPhi","ele  momentum #phi",phi_nbin,phi_min,phi_max,"#phi (rad)");
-  h1_ele_vertexX = bookH1withSumw2("h_ele_vertexX","ele vertex x",xyz_nbin,-0.1,0.1,"x (cm)" );
-  h1_ele_vertexY = bookH1withSumw2("h_ele_vertexY","ele vertex y",xyz_nbin,-0.1,0.1,"y (cm)" );
+  h1_ele_vertexX = bookH1withSumw2("h_ele_vertexX","ele vertex x",xyz_nbin,-0.2,0.2,"x (cm)" );
+  h1_ele_vertexY = bookH1withSumw2("h_ele_vertexY","ele vertex y",xyz_nbin,-0.2,0.2,"y (cm)" );
   h1_ele_vertexZ = bookH1withSumw2("h_ele_vertexZ","ele vertex z",xyz_nbin,-25, 25,"z (cm)" );
   h1_ele_simZ_matched = bookH1withSumw2("h_ele_simZ_matched","Efficiency vs gen vertex z",xyz_nbin,-25,25);
   h1_ele_vertexTIP = bookH1withSumw2("h_ele_vertexTIP","ele transverse impact parameter (wrt gen vtx)",90,0.,0.15,"TIP (cm)");
@@ -506,11 +510,14 @@ ElectronMcSignalValidator::~ElectronMcSignalValidator()
 
 void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::EventSetup & iSetup )
  {
-  // get electrons
+  // get collections
   edm::Handle<GsfElectronCollection> gsfElectrons ;
   iEvent.getByLabel(electronCollection_,gsfElectrons) ;
   edm::Handle<GenParticleCollection> genParticles ;
   iEvent.getByLabel(mcTruthCollection_, genParticles) ;
+  edm::Handle<reco::BeamSpot> theBeamSpot ;
+  iEvent.getByLabel(beamSpotTag_,theBeamSpot) ;
+
   edm::LogInfo("ElectronMcSignalValidator::analyze")
     <<"Treating event "<<iEvent.id()
     <<" with "<<gsfElectrons.product()->size()<<" electrons" ;
@@ -531,8 +538,7 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
     h1_ele_dEtaCl_propOut_all->Fill(gsfIter->deltaEtaSeedClusterTrackAtCalo()) ;
     h1_ele_dPhiCl_propOut_all->Fill(gsfIter->deltaPhiSeedClusterTrackAtCalo()) ;
     h1_ele_HoE_all->Fill(gsfIter->hadronicOverEm()) ;
-    double d = gsfIter->vertex().x()*gsfIter->vertex().x()+gsfIter->vertex().y()*gsfIter->vertex().y() ;
-    h1_ele_TIP_all->Fill( sqrt(d) );
+    h1_ele_TIP_all->Fill( EleRelPoint(gsfIter->vertex(),theBeamSpot->position()).normxy() );
     h1_ele_vertexEta_all->Fill( gsfIter->eta() );
     h1_ele_vertexPt_all->Fill( gsfIter->pt() );
     h1_ele_Et_all->Fill( gsfIter->superCluster()->energy()/cosh(gsfIter->superCluster()->eta()));
@@ -553,7 +559,7 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
        {
         h1_ele_mee_os->Fill(sqrt(mee2));
         if (gsfIter->isEB() && gsfIter2->isEB()) { h1_ele_mee_os_ebeb->Fill(sqrt(mee2)) ; }
-	if ((gsfIter->isEB() && gsfIter2->isEE()) || (gsfIter->isEE() && gsfIter2->isEB())) h1_ele_mee_os_ebee -> Fill(sqrt(mee2));	
+	if ((gsfIter->isEB() && gsfIter2->isEE()) || (gsfIter->isEE() && gsfIter2->isEB())) h1_ele_mee_os_ebee -> Fill(sqrt(mee2));
         if (gsfIter->isEE() && gsfIter2->isEE()) { h1_ele_mee_os_eeee->Fill(sqrt(mee2)) ; }
         if
          ( (gsfIter->classification()==GsfElectron::GOLDEN && gsfIter2->classification()==GsfElectron::GOLDEN) ||
