@@ -318,9 +318,10 @@ class matplotRender():
         axtab.yaxis.set_major_locator(nullloc)
 
         ax=self.__fig.add_axes(rect_scatter)
+        
         majorLoc=matplotlib.ticker.LinearLocator(numticks=nticks)
         minorLoc=matplotlib.ticker.LinearLocator(numticks=nticks*4)
-        ax.set_xlabel(r'LS',position=(0.84,0))
+        ax.set_xlabel(r'LS',position=(0.96,0))
         ax.set_ylabel(r'L $\mu$b$^{-1}$s$^{-1}$',position=(0,0.9))
         ax.xaxis.set_major_locator(majorLoc)
         ax.xaxis.set_minor_locator(minorLoc)
@@ -331,22 +332,27 @@ class matplotRender():
         keylist=ypoints.keys()
         keylist.sort()
         legendlist=[]
+
         for ylabel in keylist:
             cl='k'
             if self.colormap.has_key(ylabel):
                 cl=self.colormap[ylabel]
             ax.plot(xpoints,ypoints[ylabel],'.',label=ylabel,color=cl)
-            legendlist.append(ylabel+' max '+'%.2f'%(ymax[ylabel])+' '+'$\mu$b$^{-1}$s$^{-1}$')      
-        ax.axhline(0,color='green',linewidth=0.2)
+            legendlist.append(ylabel)      
+        #ax.axhline(0,color='green',linewidth=0.2)
         ax.axvline(xpoints[ncmsls-1],color='green',linewidth=0.2)
-
+  
         colLabels=('run','fill','max inst(/$\mu$b/s)','delivered(/$\mu$b)','recorded(/$\mu$b)')
         cellText=[[str(runnum),str(fill),'%.3f'%(peakinst),'%.3f'%totaldelivered,'%.3f'%(totalrecorded)]]
        
         sumtable=axtab.table(cellText=cellText,colLabels=colLabels,colWidths=[0.12,0.1,0.27,0.27,0.27],cellLoc='center',loc='center')
-        
+        trans=matplotlib.transforms.BlendedGenericTransform(ax.transData,ax.transAxes)        
         axtab.add_table(sumtable)
         
+        ax.text(xpoints[0],1.02,starttime[0:17],transform=trans,horizontalalignment='left',size='x-small',color='green')   
+        ax.text(xpoints[ncmsls-1],1.02,stoptime[0:17],transform=trans,horizontalalignment='left',size='x-small',color='green')        
+        ax.legend(tuple(legendlist),loc='upper right',numpoints=1)
+
     def drawHTTPstring(self):
         self.__canvas=CanvasBackend(self.__fig)    
         cherrypy.response.headers['Content-Type']='image/png'

@@ -55,4 +55,4 @@ if __name__=='__main__':
     print 'orbit 0 : ',c.OrbitToTime(begTimeStr,0,0)
     print 'orbit 1 : ',c.OrbitToTime(begTimeStr,1,0)
     print 'orbit 262144 : ',c.OrbitToTime(begTimeStr,262144,0)
-    
+
