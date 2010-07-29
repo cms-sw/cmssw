@@ -15,7 +15,7 @@ public:
   G4Monopole (const G4String name="Monopole", G4int pdgEncoding= 0, 
 	      G4double mass_=100.*GeV, G4int magCharge_=1, G4int elCharge_ =0);
 
-  G4double MagneticCharge() {return magCharge;};
+  G4double MagneticCharge() const {return magCharge;};
 
 private:
 

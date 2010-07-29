@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Tue Nov 22 13:03:44 EST 2005
-// $Id: PhysicsListMaker.h,v 1.2 2007/05/08 23:05:23 sunanda Exp $
+// $Id: PhysicsListMaker.h,v 1.3 2009/12/04 11:09:29 sunanda Exp $
 //
 
 // system include files
@@ -38,10 +38,11 @@ class PhysicsListMaker : public PhysicsListMakerBase
       // ---------- const member functions ---------------------
       virtual std::auto_ptr<PhysicsList> make(G4LogicalVolumeToDDLogicalPartMap& map_,
 					      const HepPDT::ParticleDataTable * table_,
+					      sim::FieldBuilder * fieldBuilder_,
 					      const edm::ParameterSet& p,
 					      SimActivityRegistry& reg) const
       {
-	std::auto_ptr<T> returnValue(new T(map_, table_, p));
+	std::auto_ptr<T> returnValue(new T(map_, table_, fieldBuilder_, p));
 	SimActivityRegistryEnroller::enroll(reg, returnValue.get());
 	
 	return std::auto_ptr<PhysicsList>(returnValue);

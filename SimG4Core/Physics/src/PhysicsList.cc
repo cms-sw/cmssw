@@ -6,6 +6,7 @@
 
 PhysicsList::PhysicsList(G4LogicalVolumeToDDLogicalPartMap & map,
 			 const HepPDT::ParticleDataTable * table_,
+			 sim::FieldBuilder *fieldBuilder_,
 			 const edm::ParameterSet & p) 
   : G4VModularPhysicsList(), m_pPhysics(p),  prodCuts(0) {
   m_Verbosity = m_pPhysics.getUntrackedParameter<int>("Verbosity",0);

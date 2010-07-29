@@ -17,7 +17,7 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Tue Nov 22 13:03:39 EST 2005
-// $Id: PhysicsListMakerBase.h,v 1.2 2007/05/08 23:05:23 sunanda Exp $
+// $Id: PhysicsListMakerBase.h,v 1.3 2009/12/04 11:09:29 sunanda Exp $
 //
 
 // system include files
@@ -31,6 +31,9 @@ class SimActivityRegistry;
 namespace edm{
   class ParameterSet;
 }
+namespace sim {
+   class FieldBuilder;
+}
 
 class PhysicsListMakerBase
 {
@@ -41,7 +44,8 @@ class PhysicsListMakerBase
 
       // ---------- const member functions ---------------------
       virtual std::auto_ptr<PhysicsList> make(G4LogicalVolumeToDDLogicalPartMap&,
-					      const HepPDT::ParticleDataTable *,
+					      const HepPDT::ParticleDataTable * ,
+					      sim::FieldBuilder *,
 					      const edm::ParameterSet&,
 					      SimActivityRegistry&) const = 0;
 
