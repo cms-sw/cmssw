@@ -17,7 +17,6 @@
 // Parser parts
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/DDLDocumentProvider.h"
-#include "DetectorDescription/Parser/interface/DDLConfiguration.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2FileHandler.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"

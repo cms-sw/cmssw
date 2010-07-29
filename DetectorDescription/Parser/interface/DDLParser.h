@@ -42,7 +42,7 @@ class DDLDocumentProvider;
  *  the parser during run-time.
  *
  *  There is an interface to parse just one file.  If one uses this method
- *  and does not use the default DDLDocumentProvider (DDLConfiguration) the
+ *  and does not use the default DDLDocumentProvider 
  *  user is responsible for also setting the DDRootDef.
  *  
  *  Modification:
@@ -54,7 +54,12 @@ class DDLDocumentProvider;
  *         to "get" the files.
  *   2005-11-13:  Michael Case
  *         removed some of the un-necessary methods that were deprecated.
- *
+ *   2010-01 to 2010-04 sometime: Michael Case
+ *         removed singleton-ness.  MUST have a DDCompactView to refer to
+ *         and no more default constructor at the moment.
+ *   2010-07-29:  removed DDLConfiguration; use FIPConfiguration, it is easier.
+ *         for CMSSW Framework example see XMLIdealGeometryESSource (different
+ *         DDLDocumentProvider completely
  */
 class DDLParser 
 
@@ -66,19 +71,13 @@ class DDLParser
   
   DDLParser ( DDCompactView& cpv );
 
-/*   static DDLParser* instance(); */
-
-/*   // MEC: EDMProto temporary? Check later. */
-/*   static void setInstance( DDLParser* p ); */
-  
-  /// unique (and default) constructor
  protected:
-  DDLParser( );//seal::Context* ic=0);
+  DDLParser( );
   
  public:
   ~DDLParser();
 
-  /// Parse all files. FIX - After deprecated stuff removed, make this void
+  /// Parse all files. Return is meaningless.
   int parse( const DDLDocumentProvider& dp );
 
   /// Process a single files.
@@ -122,14 +121,6 @@ class DDLParser
   std::string getCurrFileName();
 
   /// Get the SAX2Parser from the DDLParser.  USE WITH CAUTION.  Set your own handler, etc.
-  /**
-   *  I wanted to do this for the DDLConfiguration to do the parsing separately.
-   *  Since these two classes are so connected I wonder if I should remove this, make
-   *  DDLConfiguration a friend of this guy and let it access the SAX2XMLReader directly.
-   *  FIX:  Maybe Configuration should handle its own parser?  Maybe I should
-   *  destroy the parser and remake it as needed, this way validation can be
-   *  turned on for the DDL after the CDL says what should be done.
-   */
   SAX2XMLReader* getXMLParser();
 
   /// To get the parent this class allows access to the handler.
@@ -159,8 +150,6 @@ class DDLParser
   void parseFile (const int& numtoproc);
 
  private:
-  /// For Singleton behavior.
-/*   static DDLParser* instance_; */
 
   /// reference to storage
   DDCompactView& cpv_;
