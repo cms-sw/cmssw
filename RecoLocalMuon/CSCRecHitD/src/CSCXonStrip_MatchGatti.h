@@ -12,7 +12,6 @@
  */
 
 #include <RecoLocalMuon/CSCRecHitD/src/CSCStripHit.h>
-#include <RecoLocalMuon/CSCRecHitD/src/CSCFindPeakTime.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCRecoConditions.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
@@ -36,7 +35,7 @@ class CSCXonStrip_MatchGatti
   /// Returns fitted local x position and its estimated error.
   void findXOnStrip( const CSCDetId& id, const CSCLayer* layer, const CSCStripHit& stripHit,
                      int centralStrip, float& xWithinChamber, float& stripWidth,
-                     float& tpeak, float& xWithinStrip, float& sigma, int & quality_flag);
+                     const float& tpeak, float& xWithinStrip, float& sigma, int & quality_flag);
 
   /// Use specs to setup Gatti parameters
   void initChamberSpecs();                       
@@ -89,8 +88,6 @@ class CSCXonStrip_MatchGatti
 
   // Cache pointer to conditions for current event
   const CSCRecoConditions* recoConditions_;
-
-  const std::auto_ptr<CSCFindPeakTime> peakTimeFinder_;
 
   // some variables and functions to use
 

@@ -36,7 +36,7 @@
                                                                                                  
 
 CSCXonStrip_MatchGatti::CSCXonStrip_MatchGatti(const edm::ParameterSet& ps) :
-  recoConditions_( 0 ),  peakTimeFinder_( new CSCFindPeakTime( ps ) ) {
+  recoConditions_( 0 )  {
 
   useCalib                   = ps.getParameter<bool>("CSCUseCalibrations");
   xtalksOffset               = ps.getParameter<double>("CSCStripxtalksOffset");
@@ -81,7 +81,7 @@ CSCXonStrip_MatchGatti::~CSCXonStrip_MatchGatti(){
  */
 void CSCXonStrip_MatchGatti::findXOnStrip( const CSCDetId& id, const CSCLayer* layer, const CSCStripHit& stripHit, 
                                             int centralStrip, float& xWithinChamber, float& sWidth, 
-                                            float& tpeak,  float& xWithinStrip, float& sigma, int & quality_flag) {
+                                            const float& tpeak, float& xWithinStrip, float& sigma, int & quality_flag) {
   quality_flag = 0; 
   // Initialize Gatti parameters using chamberSpecs
   // Cache specs_ info for ease of access
@@ -97,29 +97,30 @@ void CSCXonStrip_MatchGatti::findXOnStrip( const CSCDetId& id, const CSCLayer* l
   std::vector<float> adcs = stripHit.s_adc();
   int tmax = stripHit.tmax();
 
-  // Fit peaking time only if using calibrations
-  float t_peak = tpeak;
-  float t_zero = 0.;
-  float adc[4];
-
-  if ( useCalib ) {
-
-    for ( int t = 0; t < 4; ++t ) {
-      int k  = t + 4 * (centStrip-1);
-      adc[t] = adcs[k];
-    }
-
-    // t_peak from peak finder is now 'absolute' i.e. in ns from start of sca time bin 0
-    t_peak = peakTimeFinder_->peakTime( tmax, adc, t_peak );
-    // Just for completeness, the start time of the pulse is 133 ns earlier, according to Stan :)
-    t_zero = t_peak - 133.;
-    // and reset tpeak since that's the way it gets passed out of this function (Argh!)
-    tpeak = t_peak;
-    LogTrace("CSCRecHit|CSCXonStrip_MatchGatti") << "CSCXonStrip_MatchGatti: " << 
-       id << " strip=" << centralStrip << ", t_zero=" << t_zero << ", t_peak=" << t_peak;
-  }
+  //// Fit peaking time only if using calibrations
+  //float t_peak = tpeak;
+  //float t_zero = 0.;
+  //float adc[4];
+  //
+  //if ( useCalib ) {
+  //
+  //  for ( int t = 0; t < 4; ++t ) {
+  //    int k  = t + 4 * (centStrip-1);
+  //    adc[t] = adcs[k];
+  //  }
+  //
+  //  // t_peak from peak finder is now 'absolute' i.e. in ns from start of sca time bin 0
+  //  t_peak = peakTimeFinder_->peakTime( tmax, adc, t_peak );
+  //  // Just for completeness, the start time of the pulse is 133 ns earlier, according to Stan :)
+  //  t_zero = t_peak - 133.;
+  //  // and reset tpeak since that's the way it gets passed out of this function (Argh!)
+  //  tpeak = t_peak;
+  //  LogTrace("CSCRecHit|CSCXonStrip_MatchGatti") << "CSCXonStrip_MatchGatti: " << 
+  //     id << " strip=" << centralStrip << ", t_zero=" << t_zero << ", t_peak=" << t_peak;
+  //}
       
   //---- fill the charge matrix (3x3)
+  float adc[4];
   int j = 0;
   for ( int i = 1; i <= nStrips; ++i ) {
     if ( i > (centStrip-2) && i < (centStrip+2) ) {
@@ -139,7 +140,7 @@ void CSCXonStrip_MatchGatti::findXOnStrip( const CSCDetId& id, const CSCLayer* l
   if ( useCalib ) {
     std::vector<float> xtalks;
     recoConditions_->crossTalk( id, centralStrip, xtalks );
-    float dt = 50. * tmax - t_peak;
+    float dt = 50. * tmax - tpeak;
     // XTalks; l,r are for left, right XTalk; lr0,1,2 are for what charge "remains" in the strip 
     for ( int t = 0; t < 3; ++t ) {
       xt_l[0][t] = xtalks[0] * (50.* (t-1) + dt) + xtalks[1] + xtalksOffset;

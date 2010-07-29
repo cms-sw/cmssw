@@ -1,3 +1,5 @@
+#ifndef CSCRecHitD_CSCFindPeakTime_h
+#define CSCRecHitD_CSCFindPeakTime_h
 /** This is CSCFindPeakTime
  *
  *  Used to provide improved estimate of SCA peak time.
@@ -56,3 +58,5 @@ class CSCFindPeakTime
   bool useFivePoleFit;  
   
 };
+
+#endif

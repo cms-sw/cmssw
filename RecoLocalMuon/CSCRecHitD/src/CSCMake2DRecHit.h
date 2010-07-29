@@ -14,6 +14,7 @@
 #include <RecoLocalMuon/CSCRecHitD/src/CSCWireHit.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCStripHit.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCRecoConditions.h>
+#include <RecoLocalMuon/CSCRecHitD/src/CSCFindPeakTime.h>
 
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
 
@@ -61,6 +62,9 @@ class CSCMake2DRecHit
 
   // Cache pointer to conditions for current event
   const CSCRecoConditions* recoConditions_;
+
+  const std::auto_ptr<CSCFindPeakTime> peakTimeFinder_;
+
 
 };
 

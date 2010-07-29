@@ -22,7 +22,8 @@
 #include <string>
 
 
-CSCMake2DRecHit::CSCMake2DRecHit(const edm::ParameterSet& ps){
+CSCMake2DRecHit::CSCMake2DRecHit(const edm::ParameterSet& ps):
+  peakTimeFinder_( new CSCFindPeakTime( ps ) ){
     
   useCalib            = ps.getParameter<bool>("CSCUseCalibrations");
   stripWireDeltaTime  = ps.getParameter<int>("CSCstripWireDeltaTime"); //@@ Non-standard  CSC*s*trip...
@@ -129,9 +130,21 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
     LogTrace("CSCRecHit") << "CSCMake2DRecHit: strip = " << strips[iStrip] << 
       " adcs= " << adc2Raw[0] << " " << adc2Raw[1] << " " << adc2Raw[2] << " " << adc2Raw[3];
 
-    if (iStrip == nStrip/2 ) 
-      tpeak = 50. * ( adc2[0]*(tmax-1) + adc2[1]*tmax + adc2[2]*(tmax+1) ) / (adc2[0]+adc2[1]+adc2[2]);
   }
+
+  //The tpeak finding for both edge and non-edge strips has been moved to here
+  //tpeak will be a const argument for xMatchGatti_->findXOnStrip
+  float adcArray[4];
+  for ( int t = 0; t < 4; ++t ) {
+    int k = t+4*(idCenterStrip);
+    adcArray[t] = adc[k];
+  }
+  tpeak = peakTimeFinder_->peakTime( tmax, adcArray, tpeak ); 
+  // Just for completeness, the start time of the pulse is 133 ns earlier, according to Stan :)
+  float t_zero = tpeak - 133.;
+  LogTrace("CSCRecHit|CSCMake2DRecHit") << "CSCMake2DRecHit: " << 
+    id << " strip=" << centerStrip << ", t_zero=" << t_zero << ", tpeak=" << tpeak;
+
 
   float positionWithinTheStrip= -99.;
   float sigmaWithinTheStrip = -99.;
@@ -158,12 +171,14 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
     if(layergeom_->inside(lp11 )){// save time; this hit is to be discarded anyway - see isHitInFiducial(...)
 
       xMatchGatti_->findXOnStrip( id, layer_, sHit, centerStrip, 
-         			xWithinChamber,
-				stripWidth, tpeak, positionWithinTheStrip, 
-				sigmaWithinTheStrip, quality);
+				  xWithinChamber,
+				  stripWidth,  tpeak, positionWithinTheStrip, 
+				  sigmaWithinTheStrip, quality);
     }				
     lp0 = LocalPoint( xWithinChamber, layergeom_->yOfWire(centerWire, xWithinChamber) );
   }
+
+  
   
   // compute the errors in local x and y
   LocalError localerr = layergeom_->localError( centerStrip, 
@@ -177,11 +192,12 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
 
     GlobalPoint gp0 = layer_->toGlobal(lp0);
     float tofCorrection = gp0.mag()/29.9792458;
-
+    //float yCorrection = lp0.y()*0.012;
     //printf("RecHit in e:%d s:%d r:%d c:%d l:%d strip:%d \n",id.endcap(),id.station(), id.ring(),id.chamber(),id.layer(),centerStrip);
     //printf("\t tpeak before = %5.2f \t chipCorr %5.2f phaseCorr %5.2f chamberCorr %5.2f tofCorr %5.2f \n",
-    // 	   tpeak,chipCorrection, phaseCorrection,chamberCorrection,tofCorrection);
-    tpeak = tpeak + chipCorrection + phaseCorrection + chamberCorrection-tofCorrection;
+    //	   tpeak,chipCorrection, phaseCorrection,chamberCorrection,tofCorrection);
+    //printf("localy = %5.2f, yCorr = %5.2f \n",lp0.y(),yCorrection);
+    tpeak = tpeak + chipCorrection + phaseCorrection + chamberCorrection-tofCorrection;//-yCorrection;
     //printf("\t tpeak after = %5.2f\n",tpeak);
   }
 
