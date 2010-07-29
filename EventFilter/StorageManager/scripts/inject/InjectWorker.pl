@@ -126,6 +126,7 @@ POE::Session->create(
         heartbeat        => \&heartbeat,
         setup_lock       => \&setup_lock,
         sig_child        => \&sig_child,
+        sig_abort        => \&sig_abort,
         _stop            => \&shutdown,
         _default         => \&handle_default,
     },
@@ -205,10 +206,9 @@ sub setup_lock {
     END {
         unlink $lockfile if $lockfile;
     }
-    $SIG{TERM} = $SIG{INT} = $SIG{QUIT} = $SIG{HUP} = sub {
-        print STDERR "Caught a SIG$_[0] -- Shutting down\n";
-        exit 0;          # Ensure END block is called
-    };
+    $kernel->sig( INT  => 'sig_abort' );
+    $kernel->sig( TERM => 'sig_abort' );
+    $kernel->sig( QUIT => 'sig_abort' );
 }
 
 # Setup the DB connections, unless NOWRITEDB or NOACCESSDB are set
@@ -474,15 +474,17 @@ sub update_db {
             return;
         }
     }
+    $kernel->post( 'logger', debug => "Updating $handler with:"
+        . join( " ", map { "$params[$_]=$bind_params[$_]" } 0 .. $#params ) );
 
     # redirect setuplabel/streams to different destinations according to
     # https://twiki.cern.ch/twiki/bin/view/CMS/SMT0StreamTransferOptions
     my $stream = $args->{STREAM};
     return
-      if not defined $stream    # For EoL stuff
-          or $stream eq 'EcalCalibration'    # skip EcalCalibration
-          or $stream =~ '_EcalNFS$'          # skip old? EcalCalibration
-          or $stream =~ '_NoTransfer$';      # skip if NoTransfer option is set
+      if defined $stream
+          and (   $stream eq 'EcalCalibration'
+              or $stream =~ '_EcalNFS$'    #skip EcalCalibration
+          or $stream =~ '_NoTransfer$' );      #skip if NoTransfer option is set
 
     my $errflag = 0;
     my $rows = $heap->{sths}->{$handler}->execute(@bind_params) or $errflag = 1;
@@ -507,14 +509,33 @@ sub update_db {
         $kernel->post( 'logger',
                 error => "DB did not return one row for $handler ("
               . join( ', ', @bind_params )
-              . "), but $rows" );
+              . "), but $rows. Will NOT notify!" );
         return;
+    }
+    elsif( $handler eq 'closeFile' ) {
+
+        # Notify Tier0 by creating an entry in the notify logfile
+        return if $stream =~ '_DontNotifyT0$';    #skip if DontNotify
+
+        $kernel->post(
+            'notify',
+            info => join(
+                ' ',
+                'notifyTier0.pl',
+                grep defined,
+                map { exists $args->{$_} ? "--$_=$args->{$_}" : undef }
+                qw( APPNAME APPVERSION RUNNUMBER LUMISECTION FILENAME
+                PATHNAME HOSTNAME DESTINATION SETUPLABEL
+                STREAM TYPE NEVENTS FILESIZE CHECKSUM
+                HLTKEY INDEX STARTTIME STOPTIME )
+            )
+        );
     }
 }
 
 # Insert the line into the DB (new file)
 sub insert_file {
-    my ( $kernel, $session, $args ) = @_[ KERNEL, SESSION, ARG0 ];
+    my ( $kernel, $args ) = @_[ KERNEL, ARG0 ];
 
     $args->{PRODUCER} = 'StorageManager';
     $kernel->yield(
@@ -529,7 +550,7 @@ sub insert_file {
 
 # Inserts the line into the DB (closed file)
 sub close_file {
-    my ( $kernel, $session, $args ) = @_[ KERNEL, SESSION, ARG0 ];
+    my ( $kernel, $args ) = @_[ KERNEL, ARG0 ];
 
     # index file name and size
     $args->{INDFILE} = $args->{FILENAME};
@@ -574,36 +595,11 @@ sub close_file {
 
     # Run the hook
     $kernel->yield( start_hook => $args );
-
-    # XXX Write a proper log for the notification part
-    # XXX Remove this duplicate code...
-    # redirect setuplabel/streams to different destinations according to
-    # https://twiki.cern.ch/twiki/bin/view/CMS/SMT0StreamTransferOptions
-    return
-      if $stream eq 'EcalCalibration'
-          || $stream =~ '_EcalNFS$'          #skip EcalCalibration
-          || $stream =~ '_NoTransfer$'       #skip if NoTransfer option is set
-          || $stream =~ '_DontNotifyT0$';    #skip if DontNotify
-
-    $kernel->post(
-        'notify',
-        info => join(
-            ' ',
-            'notifyTier0.pl',
-            grep defined,
-            map { exists $args->{$_} ? "--$_=$args->{$_}" : undef }
-              qw( APPNAME APPVERSION RUNNUMBER LUMISECTION FILENAME
-              PATHNAME HOSTNAME DESTINATION SETUPLABEL
-              STREAM TYPE NEVENTS FILESIZE CHECKSUM
-              HLTKEY INDEX STARTTIME STOPTIME )
-        )
-    );
-
 }
 
 # Queue the hook
 sub start_hook {
-    my ( $kernel, $session, $heap, $args ) = @_[ KERNEL, SESSION, HEAP, ARG0 ];
+    my ( $kernel, $heap, $args ) = @_[ KERNEL, HEAP, ARG0 ];
     my $cmd = $ENV{'SM_HOOKSCRIPT'};
     return unless $cmd;
     my @args = grep defined,
@@ -619,7 +615,7 @@ sub start_hook {
 
 # Creates a new wheel to start the hook
 sub next_hook {
-    my ( $kernel, $session, $heap, $args ) = @_[ KERNEL, SESSION, HEAP, ARG0 ];
+    my ( $kernel, $heap, $args ) = @_[ KERNEL, HEAP, ARG0 ];
     while ( keys( %{ $heap->{task} } ) < $maxhooks ) {
         my $args = shift @{ $heap->{task_list} };
         last unless defined $args;
@@ -669,8 +665,8 @@ sub sig_child {
 
 # Got a new line in a logfile
 sub got_log_line {
-    my ( $kernel, $session, $heap, $line, $wheelID ) =
-      @_[ KERNEL, SESSION, HEAP, ARG0, ARG1 ];
+    my ( $kernel, $heap, $line, $wheelID ) =
+      @_[ KERNEL, HEAP, ARG0, ARG1 ];
     my $file = $heap->{watchlist}->{$wheelID};
     $kernel->post( 'logger', debug => "In $file, got line: $line" );
     if ( $line =~ /(?:(insert|close)File)/i ) {
@@ -780,18 +776,31 @@ sub read_changes {
     $heap->{watchlist}->{$file} = $wheel;
 }
 
+# Some terminal signal got received
+sub sig_abort {
+    my ( $kernel, $heap, $signal ) = @_[ KERNEL, HEAP, ARG0 ];
+    $kernel->post( 'logger', info => "Shutting down on signal SIG$signal" );
+    $kernel->yield( 'save_offsets' );
+    $kernel->yield( 'shutdown' );
+    $kernel->sig_handled;
+}
+
 # Clean shutdown
 sub shutdown {
-    my ( $kernel, $heap, $session ) = @_[ KERNEL, HEAP, SESSION ];
-    $kernel->call( $session => 'save_offsets' );
-    for (qw( insert close runcond )) {
-        $heap->{sths}->{$_}->finish;
-    }
-    for (qw( dbh )) {
-        $kernel->call( 'logger', info => "Disconnecting $_" );
-        $heap->{$_}->disconnect
-          or $kernel->call( 'logger',
-            warning => "Disconnection from Oracle $_ failed: $DBI::errstr" );
+    my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
+    if( $heap->{dbh} ) {
+        $kernel->call( 'logger', info => "Disconnecting from the DB" );
+        unless( $heap->{dbh}->{AutoCommit} ) {
+            $heap->{dbh}->commit or $kernel->call( 'logger',
+                warning => "Commit failed!" );
+        }
+        unless( $heap->{dbh}->disconnect ) {
+            $kernel->call( 'logger',
+                warning => "Disconnection from Oracle failed: $DBI::errstr" );
+        }
+        else {
+            delete $heap->{dbh};
+        }
     }
     die "Shutting down!";
 }
@@ -857,9 +866,9 @@ sub save_offsets {
     return unless keys %{ $heap->{offsets} };
     open my $save, '>', $offsetfile or die "Can't open $offsetfile: $!";
     for my $file ( sort keys %{ $heap->{offsets} } ) {
-        my $offset = $heap->{offsets}->{$file};
+        my $offset = delete $heap->{offsets}->{$file};
         $kernel->post( 'logger',
-            debug => "Saving session information for $file: $offset" );
+            debug => "Saving offset information for $file: $offset" );
         print $save "$file $offset\n";
     }
     close $save;
@@ -888,11 +897,11 @@ sub read_offsets {
             }
             $heap->{offsets}->{$file} = $offset;
             $kernel->post( 'logger',
-                debug => "Setting session information for $file: $offset" );
+                debug => "Setting offset information for $file: $offset" );
         }
         else {
             $kernel->post( 'logger',
-                debug => "Discarding session information"
+                debug => "Discarding offset information"
                   . " for non-existing $file: $offset" );
         }
     }
