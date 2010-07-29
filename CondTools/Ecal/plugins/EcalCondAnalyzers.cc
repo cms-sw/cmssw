@@ -20,6 +20,12 @@
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondTools/Ecal/interface/EcalChannelStatusXMLTranslator.h"
 
+#include "CondFormats/EcalObjects/interface/EcalDAQTowerStatus.h"
+#include "CondTools/Ecal/interface/EcalDAQTowerStatusXMLTranslator.h"
+
+#include "CondFormats/EcalObjects/interface/EcalDCSTowerStatus.h"
+#include "CondTools/Ecal/interface/EcalDCSTowerStatusXMLTranslator.h"
+
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondTools/Ecal/interface/EcalFloatCondObjectContainerXMLTranslator.h"
 
@@ -56,6 +62,15 @@ typedef EcalCondHandler<EcalChannelStatus,
 typedef popcon::PopConAnalyzer<EcalChannelStatusHandler>  
                                          EcalChannelStatusAnalyzer;
 
+typedef EcalCondHandler<EcalDAQTowerStatus,
+			EcalDAQTowerStatusXMLTranslator> EcalDAQTowerStatusHandler;
+typedef popcon::PopConAnalyzer<EcalDAQTowerStatusHandler>  
+                                         EcalDAQTowerStatusAnalyzer;
+
+typedef EcalCondHandler<EcalDCSTowerStatus,
+			EcalDCSTowerStatusXMLTranslator> EcalDCSTowerStatusHandler;
+typedef popcon::PopConAnalyzer<EcalDCSTowerStatusHandler>  
+                                         EcalDCSTowerStatusAnalyzer;
 
 typedef EcalCondHandler<EcalTBWeights,
 			EcalTBWeightsXMLTranslator> EcalTBWeightsHandler;
@@ -100,6 +115,8 @@ typedef popcon::PopConAnalyzer<EcalTimeCalibErrorsHandler>
 DEFINE_FWK_MODULE(EcalGainRatiosAnalyzer);
 DEFINE_FWK_MODULE(EcalADCToGeVConstantAnalyzer);
 DEFINE_FWK_MODULE(EcalChannelStatusAnalyzer);
+DEFINE_FWK_MODULE(EcalDAQTowerStatusAnalyzer);
+DEFINE_FWK_MODULE(EcalDCSTowerStatusAnalyzer);
 DEFINE_FWK_MODULE(EcalTBWeightsAnalyzer);
 DEFINE_FWK_MODULE(EcalWeightGroupAnalyzer);
 DEFINE_FWK_MODULE(EcalIntercalibConstantsAnalyzer);
