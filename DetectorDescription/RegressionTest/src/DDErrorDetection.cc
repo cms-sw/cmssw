@@ -18,9 +18,6 @@ template class DDI::Singleton<std::map<std::string,std::set<DDMaterial> > >;
 template class DDI::Singleton<std::map<std::string,std::set<DDSolid> > >;
 template class DDI::Singleton<std::map<std::string,std::set<DDRotation> > >;
 template class DDI::Singleton<std::map<std::string,std::set<DDSpecifics> > >;
-//DDI::Store<N, I, K>::~Store() [with N = DDName, I = DDI::LogicalPart*, K = DDI::LogicalPart*]
-//#include <DetectorDescription/Base/interface/Store.icc>
-//template class DDI::Store<DDName, DDI::LogicalPart*>;
 
 
 //*****
@@ -43,13 +40,6 @@ DDErrorDetection::~DDErrorDetection() {
   DDSpecifics::StoreT::instance().setReadOnly(true);
   DDRotation::StoreT::instance().setReadOnly(true); 
 }
-
-// maybe later
-// DDErrorDetection::DDErrorDetection( const DDCompactView& cpv )
-// {
-//   scan(cpv);
-// }
-
 
 
 void DDErrorDetection::scan( const DDCompactView& cpv )

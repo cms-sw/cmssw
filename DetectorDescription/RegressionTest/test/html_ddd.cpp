@@ -21,19 +21,7 @@
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
-
-#include "DetectorDescription/RegressionTest/test/tutorial.h"
-
-// html generator
 #include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
-
-
-//#include <DetectorDescription/Base/interface/Store.h>
-//DDI::Store<N, I, K>::~Store() [with N = DDName, I = DDI::LogicalPart*, K = DDI::LogicalPart*]
-//#include "DetectorDescription/Base/interface/Singleton.h"
-//#include "DetectorDescription/Base/interface/Singleton.icc"
-//template class DDI::Store<DDName, DDI::LogicalPart*>;
-
 
 int main(int argc, char *argv[])
 {
@@ -57,14 +45,11 @@ int main(int argc, char *argv[])
     } else {
       configfile += "configuration.xml";
     }
-    //  DDLConfiguration documentProvider(&myP, ddcpv);
     std::cout << configfile << std::endl;
     FIPConfiguration fp(ddcpv);
     fp.readConfig(configfile);
     fp.dumpFileList();
-    //  documentProvider.readConfig(configfile);
     std::cout << "about to start parsing" << std::endl;
-    //  int parserResult = myP.parse(documentProvider);
     int parserResult = myP.parse(fp);
 
     if (parserResult != 0) {
@@ -78,7 +63,6 @@ int main(int argc, char *argv[])
     DDCheck(ddcpv, std::cout);
 
     std::cout << std::endl << "Done with DDCheck!" << std::endl << std::endl;  
-    /* Now start the 'user-code' */
   
     typedef DDHtmlFormatter::ns_type ns_type;
   
@@ -98,7 +82,7 @@ int main(int argc, char *argv[])
     }
  
     DDErrorDetection ed(ddcpv);
-    //  ed.scan();
+
     ed.report(ddcpv, std::cout);
   
     DDHtmlLpDetails lpd("lp","LogicalParts");
