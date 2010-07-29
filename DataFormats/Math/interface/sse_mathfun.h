@@ -196,7 +196,7 @@ v4sf log_ps(v4sf x) {
 
   v4sf invalid_mask = _mm_cmplt_ps(x, _mm_setzero_ps());
   // propagate nan
-  invalid_mask = _mm_and_ps(invalid_mask ,_mm_cmpeq_ps(_mm_andnot_ps(x, *(v4sf*)_ps_mant_mask),_mm_setzero_ps()));
+  invalid_mask = _mm_or_ps(invalid_mask ,_mm_cmpeq_ps(_mm_andnot_ps(x, *(v4sf*)_ps_mant_mask),_mm_setzero_ps()));
 
   x = _mm_max_ps(x, *(v4sf*)_ps_min_norm_pos);  /* cut off denormalized stuff */
 
