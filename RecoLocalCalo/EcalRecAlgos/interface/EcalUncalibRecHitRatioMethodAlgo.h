@@ -5,9 +5,9 @@
  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
  *  using a ratio method
  *
- *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.23 2010/07/28 12:59:39 innocent Exp $
- *  $Date: 2010/07/28 12:59:39 $
- *  $Revision: 1.23 $
+ *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.24 2010/07/28 14:45:39 innocent Exp $
+ *  $Date: 2010/07/28 14:45:39 $
+ *  $Revision: 1.24 $
  *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
  */
 
@@ -72,7 +72,7 @@ protected:
 
   Scalar  amplitudes_[amplitudesSize];
   Scalar  amplitudeErrors_[amplitudesSize];
-  Scalar  amplitudeErrors2_[amplitudesSize];
+  Scalar  amplitudeErrors2nor_[amplitudesSize];
   Scalar  amplitudeErrors2inv_[amplitudesSize];
  
   std::vector < Ratio > ratios_;
@@ -161,8 +161,9 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::init( const C &dataFrame, const
       amplitudes_[iSample]=sample;
       amplitudeErrors_[iSample]=1e+9;
     }
-    amplitudeErrors2_[iSample] =  amplitudeErrors_[iSample]*amplitudeErrors_[iSample];
+    amplitudeErrors2nor_[iSample] =  amplitudeErrors_[iSample]*amplitudeErrors_[iSample];
     amplitudeErrors2inv_[iSample] = Scalar(1)/amplitudeErrors2_[iSample];
+    amplitudeErrors2nor_[iSample] /= (amplitudes_[iSample]*amplitudes_[iSample]);
   }
 
 }
@@ -184,7 +185,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeAmpChi2(Scalar sumAA, Sc
       sumff += f*(f*err2);
     }
   }
-  
+ 
   chi2 = sumAA;
   amp = 0;
   if( sumff > 0 ){
@@ -250,7 +251,6 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeTime(std::vector < Input
 
   for(unsigned int i = 0; i < amplitudesSize-1; i++){
     if(amplitudes_[i]>1) {
-      Scalar ampi = (amplitudeErrors2_[i]/(amplitudes_[i]*amplitudes_[i]));
       for(unsigned int j = i+1; j < amplitudesSize; j++){
 	if(amplitudes_[j]>1){
 
@@ -263,7 +263,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeTime(std::vector < Input
 	// error^2 due to stat fluctuations of time samples
 	// (uncorrelated for both samples)
 
-	Scalar err1 = Rtmp*Rtmp*(ampi + (amplitudeErrors2_[j]/(amplitudes_[j]*amplitudes_[j])) );
+	Scalar err1 = Rtmp*Rtmp*(amplitudeErrors2nor_[i] + amplitudeErrors2nor_[j] );
 
 	// error due to fluctuations of pedestal (common to both samples)
 	Scalar err2 = stat*(amplitudes_[i]-amplitudes_[j])*amplitudeErrors_[j]/(amplitudes_[j]*amplitudes_[j]);
