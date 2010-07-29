@@ -64,6 +64,7 @@ def getLumiPerRun(dbsession,c,run,beamstatus=None,beamenergy=None,beamenergyfluc
     del q
     runstarttime=runsummary[3]
     runstoptime=runsummary[4]
+    fillnum=runsummary[0]
     q=dbsession.nominalSchema().newQuery()
     lumiperrun=lumiQueryAPI.lumisummaryByrun(q,run,c.LUMIVERSION,beamstatus,beamenergy,beamenergyfluctuation)
     del q
@@ -85,8 +86,8 @@ def getLumiPerRun(dbsession,c,run,beamstatus=None,beamenergy=None,beamenergyfluc
             try:
                 recordedlumi=instlumi*(1.0-float(deadcount)/float(bitzero))
             except ZeroDivisionError:
-                pass
-        result.append([cmslsnum,instlumi,recordedlumi,numorbit,startorbit,runstarttime,runstoptime])
+                recordedlumi=-1.0           
+        result.append([cmslsnum,instlumi,recordedlumi,numorbit,startorbit,fillnum,runstarttime,runstoptime])
     dbsession.transaction().commit()
     if c.VERBOSE:
         print result
@@ -228,12 +229,14 @@ def main():
         m.plotPeakPerday_Time(xdata,ydata,minTime,maxTime)
     if args.action == 'run':
         runnumber=runList[0]
-        lumiperrun=getLumiPerRun(session,c,runnumber)#[[lsnumber,deliveredInst,recordedInst,norbit,startorbit,runstarttime,runstoptime]]
+        lumiperrun=getLumiPerRun(session,c,runnumber)#[[lsnumber,deliveredInst,recordedInst,norbit,startorbit,fillnum,runstarttime,runstoptime]]
         #print 'lumiperrun ',lumiperrun
-        xdata=[]#[stattime,stoptime,totalls,ncmsls]
+        xdata=[]#[runnumber,fillnum,norbit,stattime,stoptime,totalls,ncmsls]
         ydata={}#{label:[instlumi]}
         ydata['Delivered']=[]
         ydata['Recorded']=[]
+        norbit=lumiperrun[0][3]
+        fillnum=lumiperrun[0][-3]
         starttime=lumiperrun[0][-2]
         stoptime=lumiperrun[0][-1]
         ncmsls=0
@@ -246,7 +249,7 @@ def main():
             recordedInst=lsdata[2]
             ydata['Delivered'].append(deliveredInst)
             ydata['Recorded'].append(recordedInst)
-        xdata=[runnumber,starttime,stoptime,totalls,ncmsls]
+        xdata=[runnumber,fillnum,norbit,starttime,stoptime,totalls,ncmsls]
         print 'ydata ',ydata
         m.plotInst_RunLS(xdata,ydata)
     del session

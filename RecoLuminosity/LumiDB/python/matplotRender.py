@@ -279,10 +279,20 @@ class matplotRender():
 
     def plotInst_RunLS(self,rawxdata,rawydata,nticks=6):
         '''
-        Input: rawxdata [run,starttime,stoptime,totalls,ncmsls]
-               rawydata {label:{run:[instlumi]}}
+        Input: rawxdata [run,fill,norbit,starttime,stoptime,totalls,ncmsls]
+               rawydata {label:[instlumi]}
         '''
-        totalls=rawxdata[3]
+        runnum=rawxdata[0]
+        fill=rawxdata[1]
+        norbit=rawxdata[2]
+        starttime=rawxdata[3]
+        stoptime=rawxdata[4]
+        totalls=rawxdata[-2]
+        ncmsls=rawxdata[-1]
+        peakinst=max(rawydata['Delivered'])
+        lslength=float(norbit)*3564*25.0e-9
+        totaldelivered=sum(rawydata['Delivered'])*lslength
+        totalrecorded=sum(rawydata['Recorded'])*lslength
         xpoints=range(1,totalls+1)        
         print len(xpoints)
         ypoints={}
@@ -290,12 +300,26 @@ class matplotRender():
         for ylabel,yvalue in rawydata.items():
             ypoints[ylabel]=yvalue
             ymax[ylabel]=max(yvalue)
+        left=0.15
+        width=0.7
+        bottom=0.1
+        height=0.65
+        bottom_h=bottom+height
+        rect_scatter=[left,bottom,width,height]
+        rect_table=[left,bottom_h,width,0.25]
+        
+        nullfmt=matplotlib.ticker.NullFormatter()
+        nullloc=matplotlib.ticker.NullLocator()
+        axtab=self.__fig.add_axes(rect_table,frameon=False)
+        axtab.set_axis_off()
+        axtab.xaxis.set_major_formatter(nullfmt)
+        axtab.yaxis.set_major_formatter(nullfmt)
+        axtab.xaxis.set_major_locator(nullloc)
+        axtab.yaxis.set_major_locator(nullloc)
 
-        ax=self.__fig.add_subplot(111)
+        ax=self.__fig.add_axes(rect_scatter)
         majorLoc=matplotlib.ticker.LinearLocator(numticks=nticks)
         minorLoc=matplotlib.ticker.LinearLocator(numticks=nticks*4)
-        spantitle='Run '+str(rawxdata[0])
-        self.__fig.text(0.2,0.91,spantitle,color='grey',fontsize=15)
         ax.set_xlabel(r'LS',position=(0.84,0))
         ax.set_ylabel(r'L $\mu$b$^{-1}$s$^{-1}$',position=(0,0.9))
         ax.xaxis.set_major_locator(majorLoc)
@@ -312,11 +336,17 @@ class matplotRender():
             if self.colormap.has_key(ylabel):
                 cl=self.colormap[ylabel]
             ax.plot(xpoints,ypoints[ylabel],'.',label=ylabel,color=cl)
-            legendlist.append(ylabel+' max '+'%.2f'%(ymax[ylabel])+' '+'$\mu$b$^{-1}$s$^{-1}$')
-        #ax.legend(tuple(legendlist),loc='best')
-        ax.axvspan(xpoints[0],xpoints[rawxdata[-1]-1],fill=False,linewidth=0.2)        
-        ax.axhline(0,color='grey',linewidth=0.2)
-       # ax.fill_between(xpoints[0:rawxdata[-1]],0,1,label='pippo',color='grey')
+            legendlist.append(ylabel+' max '+'%.2f'%(ymax[ylabel])+' '+'$\mu$b$^{-1}$s$^{-1}$')      
+        ax.axhline(0,color='green',linewidth=0.2)
+        ax.axvline(xpoints[ncmsls-1],color='green',linewidth=0.2)
+
+        colLabels=('run','fill','max inst(/$\mu$b/s)','delivered(/$\mu$b)','recorded(/$\mu$b)')
+        cellText=[[str(runnum),str(fill),'%.3f'%(peakinst),'%.3f'%totaldelivered,'%.3f'%(totalrecorded)]]
+       
+        sumtable=axtab.table(cellText=cellText,colLabels=colLabels,colWidths=[0.12,0.1,0.27,0.27,0.27],cellLoc='center',loc='center')
+        
+        axtab.add_table(sumtable)
+        
     def drawHTTPstring(self):
         self.__canvas=CanvasBackend(self.__fig)    
         cherrypy.response.headers['Content-Type']='image/png'
@@ -342,7 +372,7 @@ class matplotRender():
         button.pack(side=Tk.BOTTOM)
         Tk.mainloop()
 if __name__=='__main__':
-    fig=Figure(figsize=(5,4),dpi=100)
+    fig=Figure(figsize=(8,8),dpi=100)
     a=fig.add_subplot(111)
     t=numpy.arange(0.0,3.0,0.01)
     s=numpy.sin(2*numpy.pi*t)
