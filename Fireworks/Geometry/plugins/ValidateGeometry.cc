@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: ValidateGeometry.cc,v 1.8 2010/07/26 14:10:04 mccauley Exp $
+// $Id: ValidateGeometry.cc,v 1.9 2010/07/27 12:45:16 mccauley Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -32,6 +32,7 @@
 
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/MuonDetId/interface/DTWireId.h"
 
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
@@ -64,8 +65,8 @@ private:
   void validateDTSuperLayerGeometry();
   void validateDTLayerGeometry();
 
-  void validateCSCChamberGeometry(const int endcap,
-                                  const char* detname);
+  void validateCSChamberGeometry(const int endcap,
+                                 const char* detname);
 
   void validateCSCLayerGeometry(const int endcap,
                                 const char* detname);
@@ -101,7 +102,7 @@ private:
 
   TFile* outFile_;
 
-  std::vector<double> distances_;
+  std::vector<double> globalDistances_;
   std::vector<double> topWidths_;
   std::vector<double> bottomWidths_;
   std::vector<double> lengths_;
@@ -109,7 +110,7 @@ private:
 
   void clearData()
     {
-      distances_.clear();
+      globalDistances_.clear();
       topWidths_.clear();
       bottomWidths_.clear();
       lengths_.clear();
@@ -118,7 +119,7 @@ private:
 
   bool dataEmpty()
     {
-      return (distances_.empty() && 
+      return (globalDistances_.empty() && 
               topWidths_.empty() && 
               bottomWidths_.empty() && 
               lengths_.empty() && 
@@ -183,11 +184,11 @@ ValidateGeometry::analyze(const edm::Event& event, const edm::EventSetup& eventS
   
   if ( cscGeometry_.isValid() )
   {
-    std::cout<<"Validating CSC chamber -z geometry"<<std::endl;
-    validateCSCChamberGeometry(-1, "CSC chamber -z endcap");
+    std::cout<<"Validating CSC -z geometry"<<std::endl;
+    validateCSChamberGeometry(-1, "CSC chamber -z endcap");
 
-    std::cout<<"Validating CSC chamber +z geometry"<<std::endl;
-    validateCSCChamberGeometry(+1, "CSC chamber +z endcap");
+    std::cout<<"Validating CSC +z geometry"<<std::endl;
+    validateCSChamberGeometry(+1, "CSC chamber +z endcap");
 
     std::cout<<"Validating CSC layer -z geometry"<<std::endl;
     validateCSCLayerGeometry(-1, "CSC layer -z endcap");
@@ -417,31 +418,60 @@ ValidateGeometry::validateDTLayerGeometry()
       
     if ( layer )
     {
-      DTLayerId chId = layer->id();
+      DTLayerId layerId = layer->id();
       GlobalPoint gp = layer->surface().toGlobal(LocalPoint(0.0, 0.0, 0.0)); 
      
-      const TGeoHMatrix* matrix = detIdToMatrix_.getMatrix(chId.rawId());
+      const TGeoHMatrix* matrix = detIdToMatrix_.getMatrix(layerId.rawId());
  
       if ( ! matrix )   
       {     
-        std::cout<<"Failed to get matrix of DT with detid: " 
-                 << chId.rawId() <<std::endl;
+        std::cout<<"Failed to get matrix of DT layer with detid: " 
+                 << layerId.rawId() <<std::endl;
         continue;
       }
 
       compareTransform(gp, matrix);
 
-      //TEveGeoShape* shape = detIdToMatrix_.getShape(chId.rawId());
-      const TGeoVolume* shape = detIdToMatrix_.getVolume(chId.rawId());
+
+
+      //TEveGeoShape* shape = detIdToMatrix_.getShape(layerId.rawId());
+      const TGeoVolume* shape = detIdToMatrix_.getVolume(layerId.rawId());
 
       if ( ! shape )
       {
-        std::cout<<"Failed to get shape of DT with detid: "
-                 << chId.rawId() <<std::endl;
+        std::cout<<"Failed to get shape of DT layer with detid: "
+                 << layerId.rawId() <<std::endl;
         continue;
       }
       
       compareShape(layer, shape->GetShape());
+
+      
+      std::vector<TEveVector> parameters = detIdToMatrix_.getPoints(layerId.rawId());
+      
+      if ( parameters.empty() )
+      {
+        std::cout<<"Parameters empty for DT layer with detid: " 
+                 << layerId.rawId() <<std::endl;
+        continue;
+      }
+      
+      int firstChannel = layer->specificTopology().firstChannel();
+      assert(firstChannel == parameters[1].fX);
+
+      int lastChannel  = layer->specificTopology().lastChannel();
+      int nChannels = parameters[1].fZ;
+      assert(nChannels == (lastChannel-firstChannel)+1);
+
+      for ( int wireN = firstChannel; wireN <= lastChannel; ++wireN )
+      {
+        double localX1 = layer->specificTopology().wirePosition(wireN);
+        // From the FWDTDigiProxyBuilder
+        double localX2 = (wireN -(firstChannel-1)-0.5)*parameters[0].fX - nChannels/2.0*parameters[0].fX;
+
+        //std::cout<<"wireN, localXpos: "<< wireN <<" "<< localX1 <<" "<< localX2 <<std::endl;
+
+      }
     }
   }
 
@@ -450,7 +480,7 @@ ValidateGeometry::validateDTLayerGeometry()
 
 
 void 
-ValidateGeometry::validateCSCChamberGeometry(const int endcap, const char* detname)
+ValidateGeometry::validateCSChamberGeometry(const int endcap, const char* detname)
 {
   clearData();
 
@@ -588,7 +618,7 @@ ValidateGeometry::validateCaloGeometry(DetId::Detector detector,
       double distance = getDistance(GlobalPoint(points[i][0], points[i][1], points[i][2]), 
                                     GlobalPoint(corners[i].x(), corners[i].y(), corners[i].z()));
       
-      distances_.push_back(distance);
+      globalDistances_.push_back(distance);
     }
   }
 
@@ -694,7 +724,7 @@ ValidateGeometry::compareTransform(const GlobalPoint& gp,
   matrix->LocalToMaster(local, global);
 
   double distance = getDistance(GlobalPoint(global[0], global[1], global[2]), gp);
-  distances_.push_back(distance);
+  globalDistances_.push_back(distance);
 }
 
 
@@ -819,9 +849,9 @@ ValidateGeometry::makeHistograms(const char* detector)
 
   std::string d(detector);
   
-  std::string dn = d+": distance between origins in global coordinates";
-  makeHistogram(dn, distances_);
-  
+  std::string gdn = d+": distance between points in global coordinates";
+  makeHistogram(gdn, globalDistances_);
+
   std::string twn = d + ": absolute difference between top widths (along X)";
   makeHistogram(twn, topWidths_);
 
