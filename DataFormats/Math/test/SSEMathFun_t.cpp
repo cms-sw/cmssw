@@ -143,11 +143,11 @@ int main() {
 
   V10 ampl;
   V10 err2;
-  float SumAA=0;
+  float sumAA=0;
   for(unsigned int it = 0; it < SIZE; it++){
     ampl.arr[it] = abs(SIZE/2-it)*10;
     err2.arr[it] = std::pow(1./(0.05*ampl.arr[it]),2);
-    SumAA+=apl.arr[it]*ampl.arr[it]*err2.arr[it];
+    sumAA+=ampl.arr[it]*ampl.arr[it]*err2.arr[it];
   }
 
   
