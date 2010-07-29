@@ -78,10 +78,11 @@ bool DDCheckConnect(const DDCompactView & cpv, std::ostream & os)
   
   // Pass 1:
   std::map<DDLogicalPart,bool> visited;
-  walker_type wkr = DDCompactView().walker();
+  //  walker_type wkr = DDCompactView().walker();
+  walker_type wkr = cpv.walker();
   visited[wkr.current().first]=true;
   while(wkr.next()) {
-    //LogDebug ("DDCheck") << "   " << wkr.current().first;
+    //    std::cout << "DDCheck" << "   " << wkr.current().first << std::endl;
     visited[wkr.current().first]=true;
   }
   os << " CompactView has " << visited.size() 
@@ -170,7 +171,35 @@ bool DDCheck(std::ostream&os)
    DDCompactView cpv; // THE one and only (prototype restriction) CompactView
    DDExpandedView exv(cpv);
    
-   result |= DDCheckMaterials(os);
+   //   result |= DDCheckMaterials(os);
+   //DDCheckLP(exv.logicalPart(),os);
+   result |=  DDCheckAll(cpv,os);
+   
+   // done
+   os << "DDCore: end of comprehensive checking" << std::endl;
+   
+   if (result) { // at least one error found
+     edm::LogError("DDCheck") << std::endl << "DDD:DDCore:DDCheck: found inconsistency problems!" << std::endl;
+//      edm::LogError("DDCheck") << "To continue press 'y' ... " << std::endl;
+//      char c;
+//      cin >> c;
+//      if (c != 'y') {
+//        edm::LogError("DDCheck") << " terminating ..." << std::endl; exit(1);
+// (Mike Case) should we throw instead? OR is an if (DDCheck) the best way?
+//     throw(DDException(std::string("DDD:DDCore:DDCheck: found inconsistency problems!"));
+   }
+     	  
+   return result;
+}
+
+bool DDCheck(const DDCompactView& cpv, std::ostream&os)
+{
+   bool result = false;
+   os << "DDCore: start comprehensive checking" << std::endl;
+   //   DDCompactView cpv; // THE one and only (prototype restriction) CompactView
+   DDExpandedView exv(cpv);
+   
+   //   result |= DDCheckMaterials(os);
    //DDCheckLP(exv.logicalPart(),os);
    result |=  DDCheckAll(cpv,os);
    
