@@ -1,5 +1,5 @@
 #!/bin/sh
-#$Id: t0inject.sh,v 1.22 2010/07/21 09:58:29 babar Exp $
+#$Id: t0inject.sh,v 1.23 2010/07/22 08:22:16 babar Exp $
 
 . /etc/init.d/functions
 
@@ -16,9 +16,6 @@ if test -d "/opt/injectworker"; then
     export SMT0_BASE_DIR=/opt/injectworker/inject
     export SMT0_CONFIG=/opt/injectworker/.db.conf
     export SMT0_LOCAL_RUN_DIR=/store/injectworker
-    if test -e "/opt/copyworker/t0_control.sh"; then
-        source /opt/copyworker/t0_control.sh status > /dev/null
-    fi
 fi
 
 if [ ! -d $SMT0_BASE_DIR ]; then
@@ -26,11 +23,14 @@ if [ ! -d $SMT0_BASE_DIR ]; then
     exit
 fi
 
-# main perl script
-SMT0_IW=$SMT0_BASE_DIR/InjectWorker.pl
+# Application name
+SM_APP=InjectWorker
 
-if [ ! -x $SMT0_IW ]; then
-    echo "SMT0_IW ($SMT0_IW)does not exist or is not executable"
+# main perl script
+SMT0_SCRIPT=$SMT0_BASE_DIR/$SM_APP.pl
+
+if [ ! -x $SMT0_SCRIPT ]; then
+    echo "SM Tier0 script ($SMT0_SCRIPT)does not exist or is not executable"
     exit
 fi
 
@@ -68,31 +68,39 @@ start(){
 
     ( # Double-fork
         cd ${SMT0_LOCAL_RUN_DIR}/workdir
-        export SMIW_RUNNUM=0
-        exec > `hostname`.$$
+        rm -f $SM_APP-`hostname`.*
+        exec > $SM_APP-`hostname`.$$
         exec 2>&1
         exec </dev/null
-        ${SMT0_IW} ${SMT0_MONDIR} ${SMT0_LOCAL_RUN_DIR}/logs ${SMT0_CONFIG} &
+        export SMIW_RUNNUM=0
+        $SMT0_SCRIPT $SMT0_MONDIR $SMT0_LOCAL_RUN_DIR/logs $SMT0_CONFIG &
     )
 }
 
 stop(){
-    pkill -15 -f -P 1 -u smpro $SMT0_IW
-    rm -f ${SMT0_LOCAL_RUN_DIR}/workdir/`hostname`.*
-    if [ -f /tmp/.InjectWorker.lock ]; then
+    gracetime=15
+    pkill -15 -f -P 1 -u smpro $SMT0_SCRIPT
+    while pgrep -f -P 1 -u smpro $SMT0_SCRIPT > /dev/null && [ $gracetime -gt 0 ]; do
+        echo -n .
+        let gracetime=$gracetime-1
+        sleep 1
+    done
+    if [ $gracetime -eq 0 ]; then
+        echo "$SM_APP did not terminate within 15 seconds, killing it!"
+        pkill -9 -f -P 1 -u smpro $SMT0_SCRIPT
+    fi
+    if [ -f /tmp/.$SM_APP.lock ]; then
         echo 'Lockfile is still there!'
-        exit 1
     fi
 }
 
 status(){
-    pgrep -l -f -P 1 -u smpro $SMT0_NW
+    pgrep -l -f -P 1 -u smpro $SMT0_SCRIPT
 }
 
 cleanup(){
-    find ${SMT0_LOCAL_RUN_DIR}/logs -type f -name "*.log*" -exec rm -f {} \;
-    find ${SMT0_LOCAL_RUN_DIR}/done -type f -name "*.log*" -exec rm -f {} \;
-    find ${SMT0_LOCAL_RUN_DIR}/workdir -type f -name "*.*" -exec rm -f {} \;
+    find $SMT0_LOCAL_RUN_DIR/{logs,done} -type f -name "*.log*" -exec rm -f {} \;
+    rm -f $SMT0_LOCAL_RUN_DIR/workdir/$SM_APP*
 }
 
 
