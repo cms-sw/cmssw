@@ -1,4 +1,5 @@
 <use name=SimGeneral/HepPDTRecord>
+<use name=DataFormats/Common>
 <export>
   <lib name=PhysicsToolsHepMCCandAlgos>
 </export>
