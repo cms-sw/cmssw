@@ -21,6 +21,9 @@ typedef DDI::Singleton<std::map<std::string,std::set<DDMaterial> > >    ma_err;
 typedef DDI::Singleton<std::map<std::string,std::set<DDSolid> > >       so_err;
 typedef DDI::Singleton<std::map<std::string,std::set<DDRotation> > >    ro_err;
 typedef DDI::Singleton<std::map<std::string,std::set<DDSpecifics> > >   sp_err;
+//typedef DDI::Singleton<DDI::Store<DDName, DDI::LogicalPart*> >::iterator<DDLogicalPart> frat;
+//#include <DetectorDescription/Base/interface/Store.h>
+//typedef DDBase<DDName, DDI::LogicalPart*>::iterator<DDLogicalPart> frat2;
 
 //==================
 //*********************************************************************************************************************************
@@ -120,10 +123,10 @@ template <class C> const std::map<std::string, std::set<C> > & dd_error_scan(con
 class DDErrorDetection
 {
 public:
-  //  DDErrorDetection(const DDCompactView& cpv);    
-  DDErrorDetection();    
+  DDErrorDetection(const DDCompactView& cpv);    
+  ~DDErrorDetection();
 
-  void scan();
+  void scan( const DDCompactView& cpv);
   
   void errors();
   
@@ -139,6 +142,9 @@ public:
   const std::vector<std::pair<std::string,DDName> > &  ma();
 
   void report(const DDCompactView& cpv, std::ostream & o); 
+
+ private:
+  DDErrorDetection() { };
 
 };
 

@@ -18,28 +18,50 @@ template class DDI::Singleton<std::map<std::string,std::set<DDMaterial> > >;
 template class DDI::Singleton<std::map<std::string,std::set<DDSolid> > >;
 template class DDI::Singleton<std::map<std::string,std::set<DDRotation> > >;
 template class DDI::Singleton<std::map<std::string,std::set<DDSpecifics> > >;
+//DDI::Store<N, I, K>::~Store() [with N = DDName, I = DDI::LogicalPart*, K = DDI::LogicalPart*]
+//#include <DetectorDescription/Base/interface/Store.icc>
+//template class DDI::Store<DDName, DDI::LogicalPart*>;
+
+
 //*****
 
-DDErrorDetection::DDErrorDetection( )
+DDErrorDetection::DDErrorDetection( const DDCompactView& cpv)
 {
-  scan();
+  DDMaterial::StoreT::instance().setReadOnly(false);
+  DDSolid::StoreT::instance().setReadOnly(false);
+  DDLogicalPart::StoreT::instance().setReadOnly(false);
+  DDSpecifics::StoreT::instance().setReadOnly(false);
+  DDRotation::StoreT::instance().setReadOnly(false);
+
+  scan(cpv);
 }
+
+DDErrorDetection::~DDErrorDetection() {
+  DDMaterial::StoreT::instance().setReadOnly(true);
+  DDSolid::StoreT::instance().setReadOnly(true);
+  DDLogicalPart::StoreT::instance().setReadOnly(true);
+  DDSpecifics::StoreT::instance().setReadOnly(true);
+  DDRotation::StoreT::instance().setReadOnly(true); 
+}
+
 // maybe later
 // DDErrorDetection::DDErrorDetection( const DDCompactView& cpv )
 // {
 //   scan(cpv);
 // }
 
-void DDErrorDetection::scan( )
+
+
+void DDErrorDetection::scan( const DDCompactView& cpv )
 {
   std::cout << "DDErrorDetection::scan(): Scanning for DDD errors ..." << std::flush;
   
   DDLogicalPart lp_dummy;
   DDMaterial ma_dummy;
   DDRotation ro_dummy;
-  DDSpecifics sp_dummy;
+  DDSpecifics sp_dummy; 
   DDSolid so_dummy;
-  
+
   lp_err::instance() = dd_error_scan(lp_dummy);
   ma_err::instance() = dd_error_scan(ma_dummy);
   ro_err::instance() = dd_error_scan(ro_dummy);
@@ -51,10 +73,12 @@ void DDErrorDetection::scan( )
 
 void DDErrorDetection::errors()
 {
+  std::cout << "What does DDErrorDetection::errors() do? nothing." << std::endl;
 }
 
 void DDErrorDetection::warnings()
 {
+  std::cout << "What does DDErrorDetection::warnings() do? nothing." << std::endl;
 }
 
 // ddname as std::string, std::set<edges>

@@ -57,9 +57,9 @@ int main(int argc, char *argv[])
     std::cout << std::endl << std::endl << "Start checking!" << std::endl << std::endl;
     std::cout.flush();
 
-//     DDErrorDetection ed(cpv);
+    DDErrorDetection ed(cpv);
     // maybe later   ed.report(cpv,std::cout);
-    DDErrorDetection ed;
+    //    DDErrorDetection ed;
     //    ed.scan();
     ed.report(cpv, std::cout);
 
