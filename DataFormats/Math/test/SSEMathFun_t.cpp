@@ -5,8 +5,6 @@
 #ifdef  CMS_USE_SSE
 
 // vertical vector (for floats and SSE)
-const size_t SIZE = 10;
-
 template<size_t S>
 struct VVECSIZE {
   static const size_t size = S;
@@ -26,6 +24,7 @@ typedef VVEC<10> V10;
 static const size_t ssesize = V10::SIZE::ssesize;
 static const size_t arrsize = V10::SIZE::arrsize;
 
+const size_t SIZE = 10;
 
 void compChi2Scalar(V10 const & ampl, V10 const & err2, float t, float sumAA, float& chi2, float& amp) {
   typedef float Scalar;
@@ -70,9 +69,14 @@ void compChi2(V10 const & ampl, V10 const & err2, float t, float sumAA, float& c
   Vec overab = _mm_set1_ps(0.38);
 
   V10 index;
-  for(unsigned int it = 0; it < arrsize; it++){
+  V10 mask;
+  for(unsigned int it = 0; it < ssesize; it++)
+      mask.vec[it] = _mm_cmpeq_ps(_mm_setzero_ps(),_mm_setzero_ps());
+  for(unsigned int it = 0; it < arrsize; it++)
     index.arr[it]=it;
-  }
+ for(unsigned int it = SIZE; it < arrsize; it++) 
+   mask.arr[it]= 0;
+ 
 
   Vec sumAf =  _mm_setzero_ps();
   Vec sumff =  _mm_setzero_ps();
@@ -83,12 +87,12 @@ void compChi2(V10 const & ampl, V10 const & err2, float t, float sumAA, float& c
     Vec term1 =  _mm_add_ps(one,offset);
     Vec cmp = _mm_cmpgt_ps(term1,eps);
     
-    Vec f = exp_ps( _mm_sub_ps(_mm_mul_ps(alpha,log_ps(term1)),offset) );
+    Vec f = exp_ps(_mm_mul_ps(alpha,_mm_sub_ps(log_ps(term1),offset)) );
     //Vec f = _mm_or_ps(_mm_andnot_ps(cmp, _mm_setzero_ps()), _mm_and_ps(cmp, f));
     f = _mm_and_ps(cmp, f);
     Vec fe = _mm_mul_ps(f, err2.vec[it]);
-    sumAf = _mm_add_ps(sumAf, _mm_mul_ps(ampl.vec[it],fe));
-    sumff = _mm_add_ps(sumff, _mm_mul_ps(f,fe));
+    sumAf = _mm_add_ps(sumAf, _mm_and_ps(mask.vec[it],_mm_mul_ps(ampl.vec[it],fe)));
+    sumff = _mm_add_ps(sumff, _mm_and_ps(mask.vec[it],_mm_mul_ps(f,fe)));
   }
   
   sumAf = _mm_hadd_ps(sumAf,sumAf);
@@ -141,13 +145,15 @@ int main() {
   std::cout << k  << std::endl;
 
 
+  std::cout << "size " << SIZE << " " << arrsize << " " << ssesize << std::endl;
   V10 ampl;
   V10 err2;
   float sumAA=0;
   for(unsigned int it = 0; it < SIZE; it++){
-    ampl.arr[it] = std::abs(SIZE/2-it)*10;
-    err2.arr[it] = std::pow(1./(0.05*ampl.arr[it]),2);
+    ampl.arr[it] = 10/std::abs(0.5*float(SIZE)-float(it)+0.5);
+    err2.arr[it] = std::pow(1.f/(1+0.05f*ampl.arr[it]),2);
     sumAA+=ampl.arr[it]*ampl.arr[it]*err2.arr[it];
+    std::cout<< "ampl " << ampl.arr[it] << " " << err2.arr[it] << " " << sumAA << std::endl;
   }
 
   
