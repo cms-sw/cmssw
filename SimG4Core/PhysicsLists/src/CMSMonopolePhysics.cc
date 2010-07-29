@@ -1,18 +1,23 @@
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
-#include "SimG4Core/Physics/interface/G4Monopole.hh"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "G4StepLimiter.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4ProcessManager.hh"
+
+#include "G4StepLimiter.hh"
+#include "G4Transportation.hh"
+#include "G4MonopoleTransportation.hh"
 #include "CMSG4mplIonisation.hh"
-#include "G4hhIonisation.hh"
+#include "G4mplIonisationWithDeltaModel.hh"
+#include "G4hMultipleScattering.hh"
+#include "G4hIonisation.hh"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 CMSMonopolePhysics::CMSMonopolePhysics(const HepPDT::ParticleDataTable * pdt,
-				       G4double chg, G4int ver) : verbose(ver),
-								  magn(0) {
+				       sim::FieldBuilder * fB_, G4double chg, 
+				       G4int ver) : 
+  G4VPhysicsConstructor("Monopole Physics"), fieldBuilder(fB_),  verbose(ver) {
   
   if (pdt) {
     int ii=0;
@@ -26,6 +31,10 @@ CMSMonopolePhysics::CMSMonopolePhysics(const HepPDT::ParticleDataTable * pdt,
 	elCharges.push_back((int)(particle.charge()));
 	pdgEncodings.push_back(particle.pid());
 	monopoles.push_back(0);
+	if (verbose > 0) G4cout << "CMSMonopolePhysics: Monopole[" << ii
+				<< "] " << particleName << " Mass "
+				<< particle.mass() << " GeV, Charge "
+				<< particle.charge() << G4endl;
       }
     }
   }
@@ -42,7 +51,6 @@ void CMSMonopolePhysics::ConstructParticle() {
     if (!monopoles[ii]) {
       G4Monopole* mpl = new G4Monopole(names[ii], pdgEncodings[ii],
 				       masses[ii], magCharge, elCharges[ii]);;
-      magn = mpl->MagneticCharge();
       monopoles[ii] = mpl;
       if (verbose > 0) G4cout << "Create G4Monopole " << names[ii] 
 			      << " of mass " << masses[ii]/CLHEP::GeV
@@ -61,18 +69,21 @@ void CMSMonopolePhysics::ConstructProcess() {
     G4cout << "### CMSMonopolePhysics ConstructProcess()" << G4endl;
   for (unsigned int ii=0; ii<monopoles.size(); ++ii) {
     if (monopoles[ii]) {
-      G4ParticleDefinition* particle = monopoles[ii];
-      G4ProcessManager* pmanager = particle->GetProcessManager();
-      G4String particleName = particle->GetParticleName();
+      G4Monopole* mpl = monopoles[ii];
+      G4ProcessManager* pmanager = new G4ProcessManager(mpl);
+      mpl->SetProcessManager(pmanager);
+
+      G4String particleName = mpl->GetParticleName();
+      G4double magn         = mpl->MagneticCharge();
       if (verbose > 1)
 	G4cout << "### CMSMonopolePhysics instantiates for " << particleName 
-	       << " at " << particle << " Mass " 
-	       << particle->GetPDGMass()/CLHEP::GeV << " GeV Mag " << magn
-	       << " Process manager " << pmanager << G4endl;
+	       << " at " << mpl << " Mass " << mpl->GetPDGMass()/CLHEP::GeV 
+	       << " GeV Mag " << magn  << " Process manager " << pmanager 
+	       << G4endl;
 
       // defined monopole parameters and binning
 
-      G4double emin = particle->GetPDGMass()/20000.;
+      G4double emin = mpl->GetPDGMass()/20000.;
       if(emin < CLHEP::keV) emin = CLHEP::keV;
       G4double emax = 10.*CLHEP::TeV;
       G4int nbin = G4int(std::log10(emin/CLHEP::eV));
@@ -82,25 +93,41 @@ void CMSMonopolePhysics::ConstructProcess() {
       if (nbin < 1) nbin = 1;
       nbin *= 10;
 
+      G4int idx = 1;
       if (verbose > 1)
 	G4cout << "### Magnetic charge " << magn << " and electric charge " 
-	       << particle->GetPDGCharge() <<"\n   # of bins in dE/dx table = "
+	       << mpl->GetPDGCharge() <<"\n   # of bins in dE/dx table = "
 	       << nbin << " in the range " << emin << ":" << emax << G4endl;
+  
+      if(magn == 0.0) {
+	pmanager->AddProcess( new G4Transportation(verbose), -1, 0, 0);
+      } else {
+	pmanager->AddProcess( new G4MonopoleTransportation(mpl,fieldBuilder,verbose), -1, 0, 0);
+      }
 
+      if(mpl->GetPDGCharge() != 0.0) {
+	//G4hMultipleScattering* hmsc = new G4hMultipleScattering();
+	//pmanager->AddProcess(hmsc,  -1, idx, idx);
+	//++idx;
+	G4hIonisation* hhioni = new G4hIonisation();
+	hhioni->SetDEDXBinning(nbin);
+	hhioni->SetMinKinEnergy(emin);
+	hhioni->SetMaxKinEnergy(emax);
+	pmanager->AddProcess(hhioni,  -1, idx, idx);
+	++idx;
+      }
       if(magn != 0.0) {
 	CMSG4mplIonisation* mplioni = new CMSG4mplIonisation(magn);
 	mplioni->SetDEDXBinning(nbin);
 	mplioni->SetMinKinEnergy(emin);
 	mplioni->SetMaxKinEnergy(emax);
-	pmanager->AddProcess(mplioni, -1, 1, 1);
+	G4mplIonisationWithDeltaModel* mod = 
+	  new G4mplIonisationWithDeltaModel(magn,"PAI");
+	mplioni->AddEmModel(0,mod,mod);
+	pmanager->AddProcess(mplioni, -1, idx, idx);
+	++idx;
       }
-      if(particle->GetPDGCharge() != 0.0) {
-	G4hhIonisation* hhioni = new G4hhIonisation();
-	hhioni->SetDEDXBinning(nbin);
-	hhioni->SetMinKinEnergy(emin);
-	hhioni->SetMaxKinEnergy(emax);
-	pmanager->AddProcess(hhioni,  -1, 2, 2);
-      }
+      pmanager->AddProcess( new G4StepLimiter(),  -1, -1, idx);
       if (verbose > 1) pmanager->DumpInfo();
     }
   }

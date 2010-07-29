@@ -11,7 +11,8 @@
 
 CMSModel::CMSModel(G4LogicalVolumeToDDLogicalPartMap& map, 
 		   const HepPDT::ParticleDataTable * table_, 
-		   const edm::ParameterSet & p) : PhysicsList(map, table_, p) {
+		   sim::FieldBuilder *fieldBuilder_, 
+		   const edm::ParameterSet & p) : PhysicsList(map, table_, fieldBuilder_, p) {
 
   G4DataQuestionaire it(photon);
   

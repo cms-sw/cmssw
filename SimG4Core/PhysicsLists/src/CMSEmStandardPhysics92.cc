@@ -63,15 +63,12 @@
 #include "G4Alpha.hh"
 #include "G4GenericIon.hh"
 
-CMSEmStandardPhysics92::CMSEmStandardPhysics92(const G4String& name,  const HepPDT::ParticleDataTable * table_, G4int ver, std::string reg, G4double charge_):
+CMSEmStandardPhysics92::CMSEmStandardPhysics92(const G4String& name, G4int ver, std::string reg):
   G4VPhysicsConstructor(name), verbose(ver), region(reg) {
   G4LossTableManager::Instance();
-  monopolePhysics = new CMSMonopolePhysics(table_, charge_, ver);
 }
 
-CMSEmStandardPhysics92::~CMSEmStandardPhysics92() {
-  delete monopolePhysics;
-}
+CMSEmStandardPhysics92::~CMSEmStandardPhysics92() {}
 
 void CMSEmStandardPhysics92::ConstructParticle() {
   // gamma
@@ -117,9 +114,6 @@ void CMSEmStandardPhysics92::ConstructParticle() {
   G4He3::He3();
   G4Alpha::Alpha();
   G4GenericIon::GenericIonDefinition();
-
-  // monopole
-  if (monopolePhysics) monopolePhysics->ConstructParticle();
 }
 
 void CMSEmStandardPhysics92::ConstructProcess() {
@@ -234,9 +228,6 @@ void CMSEmStandardPhysics92::ConstructProcess() {
       pmanager->AddProcess(new G4hIonisation,         -1, 2, 2);
     }
   }
-
-  // monopole
-  if (monopolePhysics) monopolePhysics->ConstructProcess();
 
   // Setup options
   //

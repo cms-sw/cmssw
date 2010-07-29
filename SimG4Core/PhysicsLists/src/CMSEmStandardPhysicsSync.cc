@@ -66,15 +66,12 @@
 #include "G4SynchrotronRadiation.hh"
 #include "G4SynchrotronRadiationInMat.hh"
 
-CMSEmStandardPhysicsSync::CMSEmStandardPhysicsSync(const G4String& name,  const HepPDT::ParticleDataTable * table_, G4int ver, G4bool type, std::string reg, G4double charge_):
+CMSEmStandardPhysicsSync::CMSEmStandardPhysicsSync(const G4String& name, G4int ver, G4bool type, std::string reg) :
   G4VPhysicsConstructor(name), verbose(ver), srType(type), region(reg) {
   G4LossTableManager::Instance();
-  monopolePhysics = new CMSMonopolePhysics(table_, charge_, ver);
 }
 
-CMSEmStandardPhysicsSync::~CMSEmStandardPhysicsSync() {
-  delete monopolePhysics;
-}
+CMSEmStandardPhysicsSync::~CMSEmStandardPhysicsSync() {}
 
 void CMSEmStandardPhysicsSync::ConstructParticle() {
   // gamma
@@ -120,9 +117,6 @@ void CMSEmStandardPhysicsSync::ConstructParticle() {
   G4He3::He3();
   G4Alpha::Alpha();
   G4GenericIon::GenericIonDefinition();
-
-  // monopole
-  if (monopolePhysics) monopolePhysics->ConstructParticle();
 }
 
 void CMSEmStandardPhysicsSync::ConstructProcess() {
@@ -245,9 +239,6 @@ void CMSEmStandardPhysicsSync::ConstructProcess() {
       pmanager->AddProcess(new G4hIonisation,         -1, 2, 2);
     }
   }
-
-  // monopole
-  if (monopolePhysics) monopolePhysics->ConstructProcess();
 
   // Setup options
   //

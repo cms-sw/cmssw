@@ -1,5 +1,6 @@
 #include "QGSPCMS_BERT_EMLSN.hh"
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics92.h"
+#include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "SimG4Core/PhysicsLists/interface/CMSGlauberGribovXS.h"
 #include "SimG4Core/PhysicsLists/interface/CMSNeutronXS.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -31,7 +32,8 @@
 
 QGSPCMS_BERT_EMLSN::QGSPCMS_BERT_EMLSN(G4LogicalVolumeToDDLogicalPartMap& map,
 				       const HepPDT::ParticleDataTable * table_,
-				       const edm::ParameterSet & p) : PhysicsList(map, table_, p) {
+				       sim::FieldBuilder *fieldBuilder_, 
+				       const edm::ParameterSet & p) : PhysicsList(map, table_, fieldBuilder_, p) {
 
   G4DataQuestionaire it(photon);
 
@@ -48,7 +50,7 @@ QGSPCMS_BERT_EMLSN::QGSPCMS_BERT_EMLSN(G4LogicalVolumeToDDLogicalPartMap& map,
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics( new CMSEmStandardPhysics92("emstandard_eml",table_,ver,region,charge));
+    RegisterPhysics( new CMSEmStandardPhysics92("emstandard_eml",ver,region));
     
     // Synchroton Radiation & GN Physics
     RegisterPhysics( new G4EmExtraPhysics("extra EM"));
@@ -81,6 +83,8 @@ QGSPCMS_BERT_EMLSN::QGSPCMS_BERT_EMLSN(G4LogicalVolumeToDDLogicalPartMap& map,
     RegisterPhysics( new CMSGlauberGribovXS(ver));
   }
 
+  // Monopoles
+  RegisterPhysics( new CMSMonopolePhysics(table_,fieldBuilder_,charge,ver));
 }
 
 

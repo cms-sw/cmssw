@@ -1,5 +1,6 @@
 #include "QGSPCMS_BERT_EML.hh"
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics92.h"
+#include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4DecayPhysics.hh"
@@ -16,7 +17,8 @@
 
 QGSPCMS_BERT_EML::QGSPCMS_BERT_EML(G4LogicalVolumeToDDLogicalPartMap& map,
 				   const HepPDT::ParticleDataTable * table_,
-				   const edm::ParameterSet & p) : PhysicsList(map, table_, p) {
+				   sim::FieldBuilder *fieldBuilder_, 
+				   const edm::ParameterSet & p) : PhysicsList(map, table_, fieldBuilder_, p) {
 
   G4DataQuestionaire it(photon);
   
@@ -33,7 +35,7 @@ QGSPCMS_BERT_EML::QGSPCMS_BERT_EML(G4LogicalVolumeToDDLogicalPartMap& map,
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics( new CMSEmStandardPhysics92("standard EM EML",table_,ver,region,charge));
+    RegisterPhysics( new CMSEmStandardPhysics92("standard EM EML",ver,region));
 
     // Synchroton Radiation & GN Physics
     RegisterPhysics( new G4EmExtraPhysics("extra EM"));
@@ -60,4 +62,7 @@ QGSPCMS_BERT_EML::QGSPCMS_BERT_EML(G4LogicalVolumeToDDLogicalPartMap& map,
     // Neutron tracking cut
     RegisterPhysics( new G4NeutronTrackingCut("Neutron tracking cut", ver));
   }
+
+  // Monopoles
+  RegisterPhysics( new CMSMonopolePhysics(table_,fieldBuilder_,charge,ver));
 }

@@ -1,5 +1,6 @@
 #include "QGSBCMS_BERT_NOLEP2.hh"
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
+#include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "SimG4Core/PhysicsLists/interface/HadronPhysicsQGSB_BERT_NOLEP2.hh"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -14,7 +15,8 @@
 
 QGSBCMS_BERT_NOLEP2::QGSBCMS_BERT_NOLEP2(G4LogicalVolumeToDDLogicalPartMap& map, 
 					 const HepPDT::ParticleDataTable * table_,
-					 const edm::ParameterSet & p) : PhysicsList(map, table_, p) {
+					 sim::FieldBuilder *fieldBuilder_, 
+					 const edm::ParameterSet & p) : PhysicsList(map, table_, fieldBuilder_, p) {
 
   G4DataQuestionaire it(photon);
   
@@ -29,7 +31,7 @@ QGSBCMS_BERT_NOLEP2::QGSBCMS_BERT_NOLEP2(G4LogicalVolumeToDDLogicalPartMap& map,
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics( new CMSEmStandardPhysics("standard EM",table_,ver,charge));
+    RegisterPhysics( new CMSEmStandardPhysics("standard EM",ver));
 
     // Synchroton Radiation & GN Physics
     RegisterPhysics( new G4EmExtraPhysics("extra EM"));
@@ -55,4 +57,7 @@ QGSBCMS_BERT_NOLEP2::QGSBCMS_BERT_NOLEP2(G4LogicalVolumeToDDLogicalPartMap& map,
     // Neutron tracking cut
     RegisterPhysics( new G4NeutronTrackingCut("Neutron tracking cut", ver));
   }
+
+  // Monopoles
+  RegisterPhysics( new CMSMonopolePhysics(table_,fieldBuilder_,charge,ver));
 }

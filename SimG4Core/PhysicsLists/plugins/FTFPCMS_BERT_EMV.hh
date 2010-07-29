@@ -7,7 +7,7 @@
 class FTFPCMS_BERT_EMV: public PhysicsList {
 
 public:
-  FTFPCMS_BERT_EMV(G4LogicalVolumeToDDLogicalPartMap& map, const HepPDT::ParticleDataTable * table_, const edm::ParameterSet & p);
+  FTFPCMS_BERT_EMV(G4LogicalVolumeToDDLogicalPartMap& map, const HepPDT::ParticleDataTable * table_, sim::FieldBuilder *fieldBuilder_, const edm::ParameterSet & p);
 };
 
 #endif

@@ -7,7 +7,7 @@
 class QGSCMS_BIC: public PhysicsList {
 
 public:
-  QGSCMS_BIC(G4LogicalVolumeToDDLogicalPartMap& map, const HepPDT::ParticleDataTable * table_, const edm::ParameterSet & p);
+  QGSCMS_BIC(G4LogicalVolumeToDDLogicalPartMap& map, const HepPDT::ParticleDataTable * table_, sim::FieldBuilder *fieldBuilder_, const edm::ParameterSet & p);
 };
 
 #endif

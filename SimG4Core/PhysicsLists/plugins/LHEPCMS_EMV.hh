@@ -7,7 +7,7 @@
 class LHEPCMS_EMV: public PhysicsList {
 
 public:
-  LHEPCMS_EMV(G4LogicalVolumeToDDLogicalPartMap& map, const HepPDT::ParticleDataTable * table_, const edm::ParameterSet & p);
+  LHEPCMS_EMV(G4LogicalVolumeToDDLogicalPartMap& map, const HepPDT::ParticleDataTable * table_, sim::FieldBuilder *fieldBuilder_, const edm::ParameterSet & p);
 };
 
 #endif

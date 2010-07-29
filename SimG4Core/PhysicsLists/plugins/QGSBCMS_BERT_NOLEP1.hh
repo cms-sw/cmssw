@@ -7,7 +7,7 @@
 class QGSBCMS_BERT_NOLEP1: public PhysicsList {
 
 public:
-  QGSBCMS_BERT_NOLEP1(G4LogicalVolumeToDDLogicalPartMap& map, const HepPDT::ParticleDataTable * table_, const edm::ParameterSet & p);
+  QGSBCMS_BERT_NOLEP1(G4LogicalVolumeToDDLogicalPartMap& map, const HepPDT::ParticleDataTable * table_, sim::FieldBuilder *fieldBuilder_, const edm::ParameterSet & p);
 };
 
 #endif

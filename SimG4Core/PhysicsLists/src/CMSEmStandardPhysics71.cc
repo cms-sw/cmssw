@@ -1,4 +1,5 @@
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics71.h"
+
 #include "G4ParticleDefinition.hh"
 #include "G4ProcessManager.hh"
 #include "G4LossTableManager.hh"
@@ -61,15 +62,12 @@
 #include "G4Alpha.hh"
 #include "G4GenericIon.hh"
 
-CMSEmStandardPhysics71::CMSEmStandardPhysics71(const G4String& name, const HepPDT::ParticleDataTable * table_, G4int ver, G4double charge_) :
+CMSEmStandardPhysics71::CMSEmStandardPhysics71(const G4String& name, G4int ver) :
   G4VPhysicsConstructor(name), verbose(ver) {
   G4LossTableManager::Instance();
-  monopolePhysics = new CMSMonopolePhysics(table_, charge_, ver);
 }
 
-CMSEmStandardPhysics71::~CMSEmStandardPhysics71() {
-  delete monopolePhysics;
-}
+CMSEmStandardPhysics71::~CMSEmStandardPhysics71() {}
 
 void CMSEmStandardPhysics71::ConstructParticle() {
   // gamma
@@ -115,9 +113,6 @@ void CMSEmStandardPhysics71::ConstructParticle() {
   G4He3::He3();
   G4Alpha::Alpha();
   G4GenericIon::GenericIonDefinition();
-
-  // monopole
-  if (monopolePhysics) monopolePhysics->ConstructParticle();
 }
 
 void CMSEmStandardPhysics71::ConstructProcess() {
@@ -221,9 +216,6 @@ void CMSEmStandardPhysics71::ConstructProcess() {
 
     }
   }
-
-  // monopole
-  if (monopolePhysics) monopolePhysics->ConstructProcess();
 
   G4EmProcessOptions opt;
   opt.SetVerbose(verbose);

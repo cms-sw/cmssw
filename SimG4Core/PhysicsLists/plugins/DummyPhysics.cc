@@ -6,7 +6,8 @@
 
 DummyPhysics::DummyPhysics(G4LogicalVolumeToDDLogicalPartMap& map, 
 			   const HepPDT::ParticleDataTable * table_,
-			   const edm::ParameterSet & p) : PhysicsList(map, table_, p) {
+			   sim::FieldBuilder *fieldBuilder_, 
+			   const edm::ParameterSet & p) : PhysicsList(map, table_, fieldBuilder_, p) {
 
   bool emPhys  = p.getUntrackedParameter<bool>("EMPhysics",true);
   RegisterPhysics(new G4DecayPhysics("decay"));

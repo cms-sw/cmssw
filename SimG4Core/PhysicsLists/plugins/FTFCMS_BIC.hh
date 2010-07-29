@@ -7,7 +7,7 @@
 class FTFCMS_BIC: public PhysicsList {
 
 public:
-  FTFCMS_BIC(G4LogicalVolumeToDDLogicalPartMap& map, const HepPDT::ParticleDataTable * table_, const edm::ParameterSet & p);
+  FTFCMS_BIC(G4LogicalVolumeToDDLogicalPartMap& map, const HepPDT::ParticleDataTable * table_, sim::FieldBuilder *fieldBuilder_, const edm::ParameterSet & p);
 };
 
 #endif

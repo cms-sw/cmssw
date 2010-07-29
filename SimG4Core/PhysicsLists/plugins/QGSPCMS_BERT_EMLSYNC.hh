@@ -7,7 +7,7 @@
 class QGSPCMS_BERT_EMLSYNC: public PhysicsList {
 
 public:
-  QGSPCMS_BERT_EMLSYNC(G4LogicalVolumeToDDLogicalPartMap& map, const HepPDT::ParticleDataTable * table_, const edm::ParameterSet & p);
+  QGSPCMS_BERT_EMLSYNC(G4LogicalVolumeToDDLogicalPartMap& map, const HepPDT::ParticleDataTable * table_, sim::FieldBuilder *fieldBuilder_, const edm::ParameterSet & p);
 };
 
 #endif
