@@ -5,8 +5,8 @@
  * default eta thresholds (lepton and jets) set to 3
  * At least two leptons and two jets present for each channel
  *
- * $Date: 2010/03/09 13:18:20 $
- * $Revision: 1.12 $
+ * $Date: 2010/03/25 09:22:19 $
+ * $Revision: 1.13 $
  *
  * \author Michele Gallinaro and Nuno Almeida - LIP
  *
@@ -102,14 +102,14 @@ bool TopLeptonTauFilter::electronFilter( edm::Event& iEvent, const edm::EventSet
 & iSetup ){
 
   // dealing with electrons
-  edm::Handle<GsfElectronCollection> ElecHandle;
+  edm::Handle<reco::GsfElectronCollection> ElecHandle;
   iEvent.getByLabel( Elecsrc_, ElecHandle );
   if ( ElecHandle->empty() && NminElec_!=0 ) return false;
-  GsfElectronCollection TheElecs = *ElecHandle;
+  reco::GsfElectronCollection TheElecs = *ElecHandle;
   std::stable_sort( TheElecs.begin(), TheElecs.end(), PtSorter() );
   
   int nElec = 0;
-  for ( GsfElectronCollection::const_iterator it = TheElecs.begin();
+  for ( reco::GsfElectronCollection::const_iterator it = TheElecs.begin();
 	it != TheElecs.end(); it++ ) {
     if ( (it->pt() > ElecPtmin_) 
 	 && (fabs(it->eta()) < 3.0) ) {
@@ -125,16 +125,16 @@ bool TopLeptonTauFilter::electronFilter( edm::Event& iEvent, const edm::EventSet
 bool TopLeptonTauFilter::muonFilter( edm::Event& iEvent, const edm::EventSetup
 & iSetup ){
 
-  edm::Handle<MuonCollection> MuonHandle;
+  edm::Handle<reco::MuonCollection> MuonHandle;
   iEvent.getByLabel( Muonsrc_, MuonHandle );
   if ( MuonHandle->empty() && NminMuon_!=0 ) return false;
-  MuonCollection TheMuons = *MuonHandle;
+  reco::MuonCollection TheMuons = *MuonHandle;
   std::stable_sort( TheMuons.begin(), TheMuons.end(), PtSorter() );
   
   int nMuon = 0;
 
   
-  for ( MuonCollection::const_iterator it = TheMuons.begin();
+  for ( reco::MuonCollection::const_iterator it = TheMuons.begin();
 	it != TheMuons.end(); it++ ) {
     if ( (it->pt() > MuonPtmin_) 
 	 && (fabs(it->eta()) < 3.0) ) {
@@ -154,15 +154,15 @@ bool TopLeptonTauFilter::muonFilter( edm::Event& iEvent, const edm::EventSetup
 bool TopLeptonTauFilter::tauFilter( edm::Event& iEvent, const edm::EventSetup
 & iSetup ){
 
-  edm::Handle<BaseTauCollection> TauHandle;
+  edm::Handle<reco::BaseTauCollection> TauHandle;
   iEvent.getByLabel(Tausrc_,TauHandle);
-  const BaseTauCollection& myTauCollection=*(TauHandle.product());
+  const reco::BaseTauCollection& myTauCollection=*(TauHandle.product());
   if ( myTauCollection.empty() && NminTau_!=0 ) return false;
   
   int nTau = 0;
-  for(BaseTauCollection::const_iterator it =myTauCollection.begin();it !=myTauCollection.end();it++)
+  for(reco::BaseTauCollection::const_iterator it =myTauCollection.begin();it !=myTauCollection.end();it++)
     {
-      TrackRef theLeadTk = it->leadTrack();
+      reco::TrackRef theLeadTk = it->leadTrack();
       if(!theLeadTk) {}
       else{
         double leadTkPt  = (*theLeadTk).pt();
@@ -185,12 +185,12 @@ bool TopLeptonTauFilter::tauFilter( edm::Event& iEvent, const edm::EventSetup
 bool TopLeptonTauFilter::jetFilter( edm::Event& iEvent, const edm::EventSetup
 & iSetup ){
 
-  edm::Handle<CaloJetCollection> CaloJetsHandle;
+  edm::Handle<reco::CaloJetCollection> CaloJetsHandle;
   iEvent.getByLabel( CaloJetsrc_, CaloJetsHandle );
   if ( CaloJetsHandle->empty() && NminCaloJet_!=0 ) return false;
 
   int nJet = 0;
-  for ( CaloJetCollection::const_iterator it = CaloJetsHandle->begin(); 
+  for ( reco::CaloJetCollection::const_iterator it = CaloJetsHandle->begin(); 
 	it != CaloJetsHandle->end(); it++ ) {
     if ( (fabs(it->eta()) < 3.0) &&
 	 (it->pt() > CaloJetPtmin_) ) nJet++;
@@ -215,7 +215,7 @@ void TopLeptonTauFilter::endJob()
     << "\n Events read " << nEvents_
     << " Events accepted " << nAccepted_
     << "\nEfficiency " << (double)(nAccepted_)/(double)(nEvents_) 
-    << endl;
+    << std::endl;
 
 }
 
