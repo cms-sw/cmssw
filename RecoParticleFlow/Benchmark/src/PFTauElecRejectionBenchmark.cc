@@ -213,9 +213,9 @@ void PFTauElecRejectionBenchmark::setup(
 }
 
 
-void PFTauElecRejectionBenchmark::process(Handle<HepMCProduct> mcevt, Handle<reco::PFTauCollection> pfTaus, 
-					  Handle<reco::PFTauDiscriminator> pfTauIsoDiscr, 
-					  Handle<reco::PFTauDiscriminator> pfTauElecDiscr) {
+void PFTauElecRejectionBenchmark::process(edm::Handle<edm::HepMCProduct> mcevt, edm::Handle<reco::PFTauCollection> pfTaus, 
+					  edm::Handle<reco::PFTauDiscriminator> pfTauIsoDiscr, 
+					  edm::Handle<reco::PFTauDiscriminator> pfTauElecDiscr) {
 
 
   // Find Gen Objects to be matched with

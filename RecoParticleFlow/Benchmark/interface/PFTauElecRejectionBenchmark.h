@@ -41,19 +41,19 @@ class PFTauElecRejectionBenchmark {
   virtual ~PFTauElecRejectionBenchmark();
   
   void setup(
-	     string Filename,
-	     string benchmarkLabel,
+	     std::string Filename,
+	     std::string benchmarkLabel,
 	     double maxDeltaR, 
 	     double minRecoPt, 
 	     double maxRecoAbsEta, 
 	     double minMCPt, 
 	     double maxMCAbsEta, 
-	     string sGenMatchObjectLabel,
+	     std::string sGenMatchObjectLabel,
 	     bool applyEcalCrackCut,
 	     DQMStore * db_store);
-  void process(Handle<HepMCProduct> mcevt, Handle<reco::PFTauCollection> pfTaus, 
-	       Handle<reco::PFTauDiscriminator> pfTauIsoDiscr, 
-	       Handle<reco::PFTauDiscriminator> pfTauElecDiscr);
+  void process(edm::Handle<edm::HepMCProduct> mcevt, edm::Handle<reco::PFTauCollection> pfTaus, 
+	       edm::Handle<reco::PFTauDiscriminator> pfTauIsoDiscr, 
+	       edm::Handle<reco::PFTauDiscriminator> pfTauElecDiscr);
   void write();
 	
  private:
@@ -62,13 +62,13 @@ class PFTauElecRejectionBenchmark {
 
   TFile *file_;
   std::string outputFile_;	
-  string benchmarkLabel_;
+  std::string benchmarkLabel_;
   double maxDeltaR_;
   double minMCPt_;
   double maxMCAbsEta_;
   double minRecoPt_;
   double maxRecoAbsEta_;
-  string sGenMatchObjectLabel_;
+  std::string sGenMatchObjectLabel_;
   bool applyEcalCrackCut_;
 
   // histograms

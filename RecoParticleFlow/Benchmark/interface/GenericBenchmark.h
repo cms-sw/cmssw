@@ -190,8 +190,8 @@ void GenericBenchmark::fill(const C *RecoCollection,
 
   // loop over gen particles
   
-  //   cout<<"Reco size = "<<RecoCollection->size()<<", ";
-  //   cout<<"Gen size = "<<GenCollection->size()<<endl;
+  //   std::cout<<"Reco size = "<<RecoCollection->size()<<", ";
+  //   std::cout<<"Gen size = "<<GenCollection->size()<<std::endl;
 
   int nGen = 0;
   for (unsigned int i = 0; i < GenCollection->size(); i++) {
