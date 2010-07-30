@@ -1,30 +1,8 @@
-# /dev/CMSSW_3_6_2/GRun/V36
+# /dev/CMSSW_3_6_2/GRun/V37
 
 import FWCore.ParameterSet.Config as cms
 
 # dump of the Stream A Datasets defined in the HLT table
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetEG_selector
-streamA_datasetEG_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetEG_selector.l1tResults = cms.InputTag('')
-streamA_datasetEG_selector.throw      = cms.bool(False)
-streamA_datasetEG_selector.triggerConditions = cms.vstring('HLT_DoublePhoton5_Upsilon_L1R', 
-    'HLT_DoublePhoton5_Jpsi_L1R', 
-    'HLT_Photon20_Cleaned_L1R', 
-    'HLT_DoubleEle10_SW_L1R', 
-    'HLT_DoublePhoton15_L1R', 
-    'HLT_Ele15_SW_EleId_L1R', 
-    'HLT_Ele15_SW_L1R', 
-    'HLT_Ele20_SW_L1R', 
-    'HLT_DoublePhoton5_CEP_L1R', 
-    'HLT_Ele10_SW_EleId_L1R', 
-    'HLT_Photon30_Cleaned_L1R', 
-    'HLT_Photon50_L1R', 
-    'HLT_DoubleEle4_SW_eeRes_L1R', 
-    'HLT_Ele15_SW_CaloEleId_L1R', 
-    'HLT_Photon50_Cleaned_L1R', 
-    'HLT_DoublePhoton20_L1R', 
-    'HLT_Ele25_SW_L1R')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMinimumBias_selector
 streamA_datasetMinimumBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -52,16 +30,16 @@ streamA_datasetMinimumBias_selector.triggerConditions = cms.vstring('HLT_L1Tech_
     'HLT_MultiVertex8_L1ETT60', 
     'HLT_PixelTracks_Multiplicity70')
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetBTau_selector
-streamA_datasetBTau_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetBTau_selector.l1tResults = cms.InputTag('')
-streamA_datasetBTau_selector.throw      = cms.bool(False)
-streamA_datasetBTau_selector.triggerConditions = cms.vstring('HLT_BTagIP_Jet50U', 
-    'HLT_DoubleLooseIsoTau15', 
-    'HLT_SingleLooseIsoTau20', 
-    'HLT_BTagMu_Jet10U', 
-    'HLT_SingleIsoTau20_Trk5', 
-    'HLT_SingleLooseIsoTau25_Trk5')
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetCommissioning_selector
+streamA_datasetCommissioning_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetCommissioning_selector.l1tResults = cms.InputTag('')
+streamA_datasetCommissioning_selector.throw      = cms.bool(False)
+streamA_datasetCommissioning_selector.triggerConditions = cms.vstring('HLT_Activity_DT', 
+    'HLT_Activity_DT_Tuned', 
+    'HLT_Activity_PixelClusters', 
+    'HLT_Activity_L1A', 
+    'HLT_Activity_CSC', 
+    'HLT_L1_BptxXOR_BscMinBiasOR')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetJetMET_selector
 streamA_datasetJetMET_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -85,6 +63,28 @@ streamA_datasetJetMET_selector.triggerConditions = cms.vstring('HLT_HT100U',
     'HLT_EcalOnly_SumEt160', 
     'HLT_L1ETT100')
 
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetEG_selector
+streamA_datasetEG_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetEG_selector.l1tResults = cms.InputTag('')
+streamA_datasetEG_selector.throw      = cms.bool(False)
+streamA_datasetEG_selector.triggerConditions = cms.vstring('HLT_DoublePhoton5_Upsilon_L1R', 
+    'HLT_DoublePhoton5_Jpsi_L1R', 
+    'HLT_Photon20_Cleaned_L1R', 
+    'HLT_DoubleEle10_SW_L1R', 
+    'HLT_DoublePhoton15_L1R', 
+    'HLT_Ele15_SW_EleId_L1R', 
+    'HLT_Ele15_SW_L1R', 
+    'HLT_Ele20_SW_L1R', 
+    'HLT_DoublePhoton5_CEP_L1R', 
+    'HLT_Ele10_SW_EleId_L1R', 
+    'HLT_Photon30_Cleaned_L1R', 
+    'HLT_Photon50_L1R', 
+    'HLT_DoubleEle4_SW_eeRes_L1R', 
+    'HLT_Ele15_SW_CaloEleId_L1R', 
+    'HLT_Photon50_Cleaned_L1R', 
+    'HLT_DoublePhoton20_L1R', 
+    'HLT_Ele25_SW_L1R')
+
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetEGMonitor_selector
 streamA_datasetEGMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetEGMonitor_selector.l1tResults = cms.InputTag('')
@@ -104,6 +104,17 @@ streamA_datasetEGMonitor_selector.triggerConditions = cms.vstring('HLT_L1SingleE
     'HLT_Activity_Ecal_SC7', 
     'HLT_Activity_Ecal_SC17', 
     'HLT_Ele20_SiStrip_L1R')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetBTau_selector
+streamA_datasetBTau_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetBTau_selector.l1tResults = cms.InputTag('')
+streamA_datasetBTau_selector.throw      = cms.bool(False)
+streamA_datasetBTau_selector.triggerConditions = cms.vstring('HLT_BTagIP_Jet50U', 
+    'HLT_DoubleLooseIsoTau15', 
+    'HLT_SingleLooseIsoTau20', 
+    'HLT_BTagMu_Jet10U', 
+    'HLT_SingleIsoTau20_Trk5', 
+    'HLT_SingleLooseIsoTau25_Trk5')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetJetMETTauMonitor_selector
 streamA_datasetJetMETTauMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -204,15 +215,4 @@ streamA_datasetMuMonitor_selector.triggerConditions = cms.vstring('HLT_Mu0_L1MuO
     'HLT_L2Mu3', 
     'HLT_L2Mu5', 
     'HLT_L1MuOpen_DT')
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetCommissioning_selector
-streamA_datasetCommissioning_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetCommissioning_selector.l1tResults = cms.InputTag('')
-streamA_datasetCommissioning_selector.throw      = cms.bool(False)
-streamA_datasetCommissioning_selector.triggerConditions = cms.vstring('HLT_Activity_DT', 
-    'HLT_Activity_DT_Tuned', 
-    'HLT_Activity_PixelClusters', 
-    'HLT_Activity_L1A', 
-    'HLT_Activity_CSC', 
-    'HLT_L1_BptxXOR_BscMinBiasOR')
 
