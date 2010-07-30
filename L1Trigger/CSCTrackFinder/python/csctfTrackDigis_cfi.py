@@ -14,7 +14,7 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
                                                                              ),
         
                                                             PTLUT = cms.PSet(LowQualityFlag = cms.untracked.uint32(4),
-                                                                             ReadPtLUT = cms.untracked.bool(False),
+                                                                             ReadPtLUT = cms.bool(False),
                                                                              PtMethod = cms.untracked.uint32(4)
                                                                              ),
 		
@@ -92,11 +92,16 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
                                                             QualityEnableME4a  = cms.uint32(65535),
                                                             QualityEnableME4b  = cms.uint32(65535),
                                                             QualityEnableME4c  = cms.uint32(65535),
+
+                                                            firmwareSP = cms.uint32(20100210),
+                                                            firmwareFA = cms.uint32(20090521),
+                                                            firmwareDD = cms.uint32(20090521),
+                                                            firmwareVM = cms.uint32(20090521),
                                                             initializeFromPSet = cms.bool(False)
                                                             ),
                                  isTMB07 = cms.bool(True),
                                  useDT = cms.bool(True),
-								 readDtDirect = cms.bool(False),
+                                 readDtDirect = cms.bool(False),
                                  )
 
 

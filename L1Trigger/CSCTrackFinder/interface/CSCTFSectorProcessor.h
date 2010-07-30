@@ -86,8 +86,10 @@ public:
   int trigger_on_ME1a, trigger_on_ME1b, trigger_on_ME2, trigger_on_ME3, trigger_on_ME4;
   int trigger_on_MB1a, trigger_on_MB1d;
   int singlesTrackPt;
-	unsigned int singlesTrackOutput;
+  unsigned int singlesTrackOutput;
   int rescaleSinglesPhi;
+
+  int m_firmSP, m_firmFA, m_firmDD, m_firmVM;
 
   CSCTriggerContainer<csc::L1Track> l1_tracks; // fully defined L1Tracks
   CSCTriggerContainer<csctf::TrackStub> dt_stubs; // Track Stubs to be sent to the DTTF

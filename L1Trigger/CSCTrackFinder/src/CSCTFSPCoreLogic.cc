@@ -199,23 +199,39 @@ void CSCTFSPCoreLogic::loadData(const CSCTriggerContainer<csctf::TrackStub>& the
 		  	switch(stubi->getMPCLink())
 		  	{
 		  	case 1:
-				//if(stubi->getQuality()%2==1)
-				//{
-		      			//io_[relative_bx].mb1aVp   = stubi->isValid();
-		      			io_[relative_bx].mb1aVp		= stubi->getStrip();
-					io_[relative_bx].mb1aQp   = stubi->getQuality();
-		      			io_[relative_bx].mb1aPhip = stubi->phiPacked();
-		      		//}
+			  if (this->GetFirmwareVersion() <= 20100210) {
+			    // introducing the bug which was causing only even DT qualities
+			    // to get accepted
+			    if(stubi->getQuality()%2==1)
+			      {
+				//io_[relative_bx].mb1aVp   = stubi->isValid();
+				io_[relative_bx].mb1aVp	  = stubi->getStrip();
+				io_[relative_bx].mb1aQp   = stubi->getQuality();
+				io_[relative_bx].mb1aPhip = stubi->phiPacked();
+			      }
+			  } else {
+			    io_[relative_bx].mb1aVp	  = stubi->getStrip();
+			    io_[relative_bx].mb1aQp   = stubi->getQuality();
+			    io_[relative_bx].mb1aPhip = stubi->phiPacked();
+			  }
 			break;
 		    	case 2:
-				//if(stubi->getQuality()%2==1)
-				//{
-					//io_[relative_bx].mb1bVp   = stubi->isValid();
-          				io_[relative_bx].mb1bVp		= stubi->getStrip();
-					io_[relative_bx].mb1bQp   = stubi->getQuality();
-          				io_[relative_bx].mb1bPhip = stubi->phiPacked();
-          			//}
-					break;
+			  if (this->GetFirmwareVersion() <= 20100210) {
+			    // introducing the bug which was causing only even DT qualities
+			    // to get accepted
+			    if(stubi->getQuality()%2==1)
+			      {
+				//io_[relative_bx].mb1aVp   = stubi->isValid();
+				io_[relative_bx].mb1aVp	  = stubi->getStrip();
+				io_[relative_bx].mb1aQp   = stubi->getQuality();
+				io_[relative_bx].mb1aPhip = stubi->phiPacked();
+			      }
+			  } else {
+			    io_[relative_bx].mb1aVp	  = stubi->getStrip();
+			    io_[relative_bx].mb1aQp   = stubi->getQuality();
+			    io_[relative_bx].mb1aPhip = stubi->phiPacked();
+			  }
+			break;
 		    /*case 3:
 		      io_[relative_bx].mb1cVp   = stubi->isValid();
                       io_[relative_bx].mb1cQp   = stubi->getQuality();

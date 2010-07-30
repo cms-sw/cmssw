@@ -131,23 +131,23 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
 void CSCTFSectorProcessor::initialize(const edm::EventSetup& c){
   if(!initializeFromPSet){
     // Only pT lut can be initialized from EventSetup, all front LUTs are initialized locally from their parametrizations
+    LogDebug("CSCTFSectorProcessor") <<"Initializing endcap: "<<m_endcap<<" sector:"<<m_sector << "SP:" << (m_endcap-1)*6+(m_sector-1);
     LogDebug("CSCTFSectorProcessor") << "Initializing pT LUT from EventSetup";
+
     ptLUT_ = new CSCTFPtLUT(c);
 
     // Extract from EventSetup alternative (to the one, used in constructor) ParameterSet
     edm::ESHandle<L1MuCSCTFConfiguration> config;
     c.get<L1MuCSCTFConfigurationRcd>().get(config);
     // And initialize only those parameters, which left uninitialized during construction
-//std::cout<<"Initializing endcap: "<<m_endcap<<" sector:"<<m_sector<<std::endl<<config.product()->parameters((m_endcap-1)*6+(m_sector-1))<<std::endl;;
     readParameters(config.product()->parameters((m_endcap-1)*6+(m_sector-1)));
   }
 
   // ---------------------------------------------------------------------------
   // This part is added per Vasile's request.
   // It will help people understanding the emulator configuration
-  // LogDebug
   LogDebug("CSCTFSectorProcessor") << "\n !!! CSCTF EMULATOR CONFIGURATION !!!"
-                                   << "\n\nCORE CONFIGURATION"
+				   << "\n\nCORE CONFIGURATION"
                                    << "\n Coincidence Trigger? " << run_core
                                    << "\n Singles in ME1a? "     << trigger_on_ME1a
                                    << "\n Singles in ME1b? "     << trigger_on_ME1b
@@ -241,7 +241,27 @@ void CSCTFSectorProcessor::initialize(const edm::EventSetup& c){
                                    << "\nParameter for the correction of misaligned 1-2-3-4 straight tracks =" << m_straightp
                                    << "\nParameter for the correction of misaligned 1-2-3-4 curved tracks=" << m_curvedp
                                    << "\nPhi Offset for MB1A=" << m_mbaPhiOff
-                                   << "\nPhi Offset for MB1D=" << m_mbbPhiOff ;
+                                   << "\nPhi Offset for MB1D=" << m_mbbPhiOff 
+
+				   << "\nFirmware SP year+month+day:" << m_firmSP
+				   << "\nFirmware FA year+month+day:" << m_firmFA
+				   << "\nFirmware DD year+month+day:" << m_firmDD
+				   << "\nFirmware VM year+month+day:" << m_firmVM;
+
+  if (m_firmSP <= 20100210) 
+    edm::LogInfo( "CSCTFSectorProcessor" ) << "\n\n"
+					   << "******************************* \n"
+					   << "***       DISCLAIMER        *** \n"
+					   << "******************************* \n"
+					   << "\n Firmware SP version (year+month+day)=" << m_firmSP
+					   << "\n -> KNOWN BUGS IN THE FIRMWARE:\n"
+					   << "\t * Wrong phi assignment for singles\n"
+					   << "\t * Wrapper passes to the core only even quality DT stubs\n"
+					   << "\n -> BUGS ARE GOING TO BE EMULATED BY THE SOFTWARE\n\n";
+ 
+  // Set the firmware for the CORE
+  core_ -> SetFirmwareVersion (m_firmSP);
+  LogDebug( "CSCTFSectorProcessor" ) << "\nCore Firmware is set to " << core_ -> GetFirmwareVersion();
   // ---------------------------------------------------------------------------
 
 
@@ -306,6 +326,25 @@ void CSCTFSectorProcessor::initialize(const edm::EventSetup& c){
   if(QualityEnableME4a<0) throw cms::Exception("CSCTFTrackBuilder")<<"QualityEnableME4a parameter left uninitialized";
   if(QualityEnableME4b<0) throw cms::Exception("CSCTFTrackBuilder")<<"QualityEnableME4b parameter left uninitialized";
   if(QualityEnableME4c<0) throw cms::Exception("CSCTFTrackBuilder")<<"QualityEnableME4c parameter left uninitialized";
+
+  if (m_firmSP<1) throw cms::Exception("CSCTFSectorProcessor")<< " firmwareSP parameter left uninitialized!!!\n";
+  if (m_firmFA<1) throw cms::Exception("CSCTFSectorProcessor")<< " firmwareFA parameter left uninitialized!!!\n";
+  if (m_firmDD<1) throw cms::Exception("CSCTFSectorProcessor")<< " firmwareDD parameter left uninitialized!!!\n";
+  if (m_firmVM<1) throw cms::Exception("CSCTFSectorProcessor")<< " firmwareVM parameter left uninitialized!!!\n";
+
+  if ( (m_firmFA != m_firmDD) ||
+       (m_firmFA != m_firmVM) ||
+       (m_firmDD != m_firmVM)  )
+    throw cms::Exception("CSCTFSectorProcessor")<< " firmwareFA (=" << m_firmFA << "), " 
+						<< " firmwareDD (=" << m_firmDD << "), " 
+						<< " firmwareVM (=" << m_firmVM << ") are NOT identical: it shoultd NOT happen!";
+
+  if (m_firmSP>20100210 && m_firmSP != 20100629)
+    throw cms::Exception("CSCTFSectorProcessor")<< " firmwareSP (=" << m_firmSP << ") is NOT VALID: I am crashing... "; 
+
+  if (m_firmFA>20090521)
+    throw cms::Exception("CSCTFSectorProcessor")<< " firmwareFA (=" << m_firmFA << ") is NOT VALID: I am crashing... "; 
+
 }
 
 void CSCTFSectorProcessor::readParameters(const edm::ParameterSet& pset){
@@ -371,6 +410,11 @@ void CSCTFSectorProcessor::readParameters(const edm::ParameterSet& pset){
       QualityEnableME4a = pset.getParameter<unsigned int>("QualityEnableME4a");
       QualityEnableME4b = pset.getParameter<unsigned int>("QualityEnableME4b");
       QualityEnableME4c = pset.getParameter<unsigned int>("QualityEnableME4c");
+
+      m_firmSP = pset.getParameter<unsigned int>("firmwareSP");
+      m_firmFA = pset.getParameter<unsigned int>("firmwareFA");
+      m_firmDD = pset.getParameter<unsigned int>("firmwareDD");
+      m_firmVM = pset.getParameter<unsigned int>("firmwareVM");
 }
 
 CSCTFSectorProcessor::~CSCTFSectorProcessor()
@@ -635,11 +679,18 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
                          bestStub  = st_iter;
                      }
                  }
-                 // switched back
-                  unsigned rescaled_phi = unsigned(24*(bestStub->phiPacked()>>5)/128.);
-                 // buggy implementation in the current firmware... at the end
-                 //data/emulator have to agree: e.g. wrong in the same way
-                 //unsigned rescaled_phi = unsigned(24*(bestStub->phiPacked()&0x7f)/128.);
+		 unsigned rescaled_phi = 999;
+		 if (m_firmSP <= 20100210) {
+		   // buggy implementation of the phi for singles in the wrapper... 
+		   // at the end data/emulator have to agree: e.g. wrong in the same way
+		   // BUG: getting the lowest 7 bits instead the 7 most significant ones.
+		   rescaled_phi = unsigned(24*(bestStub->phiPacked()&0x7f)/128.);
+		 }
+		 else {
+		   // correct implementation :-)
+		   rescaled_phi = unsigned(24*(bestStub->phiPacked()>>5)/128.);
+		 }
+
                  unsigned unscaled_phi =              bestStub->phiPacked()>>7       ;
                  track.setLocalPhi(rescaleSinglesPhi?rescaled_phi:unscaled_phi);
                  track.setEtaPacked((bestStub->etaPacked()>>2)&0x1f);

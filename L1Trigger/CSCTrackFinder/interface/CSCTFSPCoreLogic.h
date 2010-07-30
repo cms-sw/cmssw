@@ -84,12 +84,16 @@ class CSCTFSPCoreLogic
 	   const int& minBX, const int& maxBX);
 
   CSCTriggerContainer<csc::L1Track> tracks();
+  
+  void SetFirmwareVersion(const unsigned int fwVer) {firmwareVersion=fwVer; }
+  unsigned int GetFirmwareVersion() {return firmwareVersion; }
 
  private:
   static vpp_generated sp_;
   std::vector<SPio> io_;
   bool runme;
   CSCTriggerContainer<csc::L1Track> mytracks;
+  unsigned int firmwareVersion;
 };
 
 #endif
