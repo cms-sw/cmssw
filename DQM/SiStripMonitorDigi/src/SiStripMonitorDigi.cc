@@ -3,7 +3,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.60 2010/04/22 16:26:22 dutta Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.61 2010/05/06 08:23:15 dutta Exp $
 #include<fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -246,7 +246,7 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
   float iOrbitSec      = iEvent.orbitNumber()/11223.0;
 
   digi_detset_handles.clear();
-  for(vector<edm::InputTag>::iterator itDigiProducerList = digiProducerList.begin();
+  for(std::vector<edm::InputTag>::iterator itDigiProducerList = digiProducerList.begin();
      itDigiProducerList != digiProducerList.end(); ++itDigiProducerList ) {
 
     edm::Handle< edm::DetSetVector<SiStripDigi> > digi_handle;
@@ -409,7 +409,7 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
 	 it != SubDetMEsMap.end(); it++) {
 
       SubDetMEs subdetmes;
-      string subdet = it->first;
+      std::string subdet = it->first;
       subdetmes = it->second;
  
       int the_phase = APVCyclePhaseCollection::invalid;
