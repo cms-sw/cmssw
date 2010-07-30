@@ -60,8 +60,8 @@ class QcdHighPtDQM : public edm::EDAnalyzer {
   std::map<std::string, MonitorElement*> MEcontainer_;
 
   //methods to calculate MET over SumET and MET over Leading Jet Pt
-  float movers(const CaloMETCollection& metcollection);
-  float moverl(const CaloMETCollection& metcollection, float& ljpt);
+  float movers(const reco::CaloMETCollection& metcollection);
+  float moverl(const reco::CaloMETCollection& metcollection, float& ljpt);
 
 };
 #endif  
