@@ -5,9 +5,9 @@
  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
  *  using a ratio method
  *
- *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.29 2010/07/29 16:46:06 innocent Exp $
- *  $Date: 2010/07/29 16:46:06 $
- *  $Revision: 1.29 $
+ *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.30 2010/07/29 16:59:40 innocent Exp $
+ *  $Date: 2010/07/29 16:59:40 $
+ *  $Revision: 1.30 $
  *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
  */
 
@@ -39,7 +39,7 @@ inline double exp_ss(double f) {
 }
 
 
-template < class C, typename Scalar=double > class EcalUncalibRecHitRatioMethodAlgo {
+template < class C, typename Scalar=float > class EcalUncalibRecHitRatioMethodAlgo {
 public:
   typedef double InputScalar;
   struct Ratio {
@@ -96,6 +96,9 @@ protected:
 
 
   void computeAmpChi2(Scalar sumAA, Scalar t, Scalar alpha, Scalar overab, Scalar & chi2, Scalar & amp) const;
+  void computeAmpChi2_S(Scalar sumAA, Scalar t, Scalar alpha, Scalar overab, Scalar & chi2, Scalar & amp) const;
+  void computeAmpChi2_V(float sumAA, float t, float alpha, float overab, float & chi2, float & amp) const;
+  void computeAmpChi2_V(double sumAA, double t, double alpha, double overab, double & chi2, double & amp) const;
 
   static const size_t amplitudesSize = C::MAXSAMPLES;
   static const size_t ratiosSize = C::MAXSAMPLES*(C::MAXSAMPLES-1)/2;
@@ -206,9 +209,23 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::init( const C &dataFrame, const
 
 }
 
+template<class C, typename Scalar>
+void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeAmpChi2(Scalar sumAA, Scalar t, Scalar alpha, Scalar overab,
+Scalar & chi2, Scalar & amp) const {
+    computeAmpChi2_V(sumAA, t, alpha, overab, chi2, amp);
+}
+
 
 template<class C, typename Scalar>
-void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeAmpChi2(Scalar sumAA, Scalar t, Scalar alpha, Scalar overab, Scalar & chi2, Scalar & amp) const {
+void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeAmpChi2_V(double sumAA, double t, double alpha, double 
+overab, double & chi2, double & amp) const{
+  computeAmpChi2_S(sumAA, t, alpha, overab, chi2, amp); 
+}
+
+
+template<class C, typename Scalar>
+void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeAmpChi2_S(Scalar sumAA, Scalar t, Scalar alpha, Scalar overab, 
+Scalar & chi2, Scalar & amp) const {
   Scalar sumAf = 0;
   Scalar sumff = 0;
   Scalar const eps = Scalar(1e-6);
@@ -238,14 +255,14 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeAmpChi2(Scalar sumAA, Sc
 }
 
 // vectorized version
-
-template<class C>
-void EcalUncalibRecHitRatioMethodAlgo<C,float>::computeAmpChi2(float sumAA, float t, float alpha, float overab, float & chi2, float & amp) const {
+template<class C, typename Scalar>
+void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeAmpChi2_V(float sumAA, float t, float alpha, float overab, float & 
+chi2, float & amp) const {
 
   static const size_t ssesize = Array::Size::ssesize;
   static const size_t arrsize = Array::Size::arrsize;
 
-  typedef float Scalar;
+  // typedef float Scalar;
   typedef typename Array::Vec Vec;
   Scalar const denom =  Scalar(1)/Scalar(amplitudesSize);
 
@@ -262,7 +279,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C,float>::computeAmpChi2(float sumAA, floa
     mask.vec[it] = _mm_cmpeq_ps(_mm_setzero_ps(),_mm_setzero_ps());
   for(unsigned int it = 0; it < arrsize; it++)
     index.arr[it]=it;
-  for(unsigned int it = SIZE; it < arrsize; it++) 
+  for(unsigned int it = amplitudesSize; it < arrsize; it++) 
     mask.arr[it]= 0;
  
 
@@ -278,8 +295,8 @@ void EcalUncalibRecHitRatioMethodAlgo<C,float>::computeAmpChi2(float sumAA, floa
     Vec f = exp_ps(_mm_mul_ps(alphaV,_mm_sub_ps(log_ps(term1),offset)) );
     //Vec f = _mm_or_ps(_mm_andnot_ps(cmp, _mm_setzero_ps()), _mm_and_ps(cmp, f));
     f = _mm_and_ps(cmp, f);
-    Vec fe = _mm_mul_ps(f, amplitudeErrors2inv__A.vec[it]);
-    sumAf = _mm_add_ps(sumAf, _mm_and_ps(mask.vec[it],_mm_mul_ps( amplitudes_A[it].vec[it],fe)));
+    Vec fe = _mm_mul_ps(f, amplitudeErrors2inv_A.vec[it]);
+    sumAf = _mm_add_ps(sumAf, _mm_and_ps(mask.vec[it],_mm_mul_ps( amplitudes_A.vec[it],fe)));
     sumff = _mm_add_ps(sumff, _mm_and_ps(mask.vec[it],_mm_mul_ps(f,fe)));
   }
   
