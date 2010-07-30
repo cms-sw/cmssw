@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: SimpleZSPJPTJetCorrector.cc,v 1.5 2010/05/01 20:04:10 kodolova Exp $
+// $Id: SimpleZSPJPTJetCorrector.cc,v 1.6 2010/05/28 06:23:45 kodolova Exp $
 //
 // ZSP Jet Corrector
 //
@@ -84,7 +84,15 @@ double SimpleZSPJPTJetCorrector::correctionEtEtaPhiP (double fEt, double fEta, d
   
   double koef = 1. - mFunc->Eval(et);
 
-  if(koef <= 0.000001) {std::cout<<"SimpleZSPJPTJetCorrector::Problem with ZSP corrections "<<koef<<std::endl; koef = 1.;}
+// If et calojet less then some value - use correction on the boundary
+ 
+  if( et < p[0] ) koef = 1. - mFunc->Eval(p[0]);
+
+  if(koef <= 0.000001) 
+  {
+   if (zspjpt::debug)  std::cout<<"SimpleZSPJPTJetCorrector::Problem with ZSP corrections "<<koef<<std::endl; 
+  koef = 1.;
+  }
 
   double etnew = et/koef;
 
