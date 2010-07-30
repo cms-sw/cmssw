@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-import os,os.path,commands,sys
+import os,sys,commands
 import coral
 from RecoLuminosity.LumiDB import argparse,lumiQueryAPI,lumiTime,csvReporter
 ###
@@ -126,6 +126,7 @@ def instLumiForRuns(c,runnumbers,p='.',o='.'):
     draw instlumperrun plot for the given runs
     input:
       c connect string
+      runnumbers []
       p authenticaion path
       o output path
     '''
@@ -136,8 +137,8 @@ def instLumiForRuns(c,runnumbers,p='.',o='.'):
         elements=['lumiInstPlot.py','-c',c,'-P',p,'-begin',str(run),'-batch',batch,'run']
         command=' '.join(elements)
         print command
-        #statusAndOutput=commands.getstatusoutput(command)
-        #print 'output ',statusAndOutput[1]
+        statusAndOutput=commands.getstatusoutput(command)
+        print 'output ',statusAndOutput[1]
 
 def instPeakPerday(c,p='.',o='.',begTime="03/30/10 10:00:00.00",endTime=None):
     '''
@@ -155,19 +156,20 @@ def instPeakPerday(c,p='.',o='.',begTime="03/30/10 10:00:00.00",endTime=None):
     #print 'output ',statusAndOutput[1]
 
 def main():
-    parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description="Produce plots for lumi monitor site")
-    parser.add_argument('action',choices=['createrunlist','instperrun','instpeakvstime','totalvstime','totalvsfill','totalvsrun','perday'],help='command actions')  
+    parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description="Produce lumi plots")
     parser.add_argument('-c',dest='connect',action='store',required=True,help='connect string to lumiDB')
     parser.add_argument('-P',dest='authpath',action='store',required=False,help='auth path. Optional. Default to .')
     parser.add_argument('-L',dest='logpath',action='store',required=False,help='log path. Optional. Default to .')
     parser.add_argument('-i',dest='ifile',action='store',required=False,help='input selection file. Optional.')
     parser.add_argument('-o',dest='opath',action='store',required=False,help='output file path. Optional')
+    parser.add_argument('action',choices=['instperrun','instpeakvstime','totalvstime','totallumilastweek','totalvsfill','totalvsrun','perday','createrunlist'],help='command actions')
     args=parser.parse_args()
 
     authpath='.'
     logpath='.'
     connectstr=args.connect
-    
+
+    print 'args.action ',args.action
     if args.authpath:
         authpath=args.authpath
     if args.logpath:
@@ -179,14 +181,20 @@ def main():
     if args.action == 'createrunlist':
         createRunList(connectstr,authpath)
     if args.action == 'instperrun':
-        if not args.opath:
+        if not args.ifile:
             print 'option -i is required for action instperrun'
             return 2
+        f=open(args.ifile,'r')
+        runs=[]
+        for run in f:
+            runs.append(int(run))
+        last2runs=[runs[-2],runs[-1]]
+        instLumiForRuns(connectstr,last2runs,authpath)
     if args.action == 'instpeakvstime':
         pass
     if args.action == 'totalvstime':
         pass
-    if args.action == 'totalvstimeLastweek':
+    if args.action == 'totallumilastweek':
         pass
     if args.action == 'totalvsfill':
         pass
