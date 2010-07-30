@@ -238,8 +238,8 @@ class PlotMakerReco {
 
 
 
-  string myHistoName;
-  string myHistoTitle;
+  std::string myHistoName;
+  std::string myHistoTitle;
 
 };
 

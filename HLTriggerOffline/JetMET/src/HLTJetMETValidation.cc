@@ -117,7 +117,7 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   Handle<TriggerResults> hltresults,hltresultsDummy;
   iEvent.getByLabel(HLTriggerResults,hltresults);
   if (! hltresults.isValid() ) { 
-    //cout << "  -- No HLTRESULTS"; 
+    //std::cout << "  -- No HLTRESULTS"; 
     //if (evtCnt==1) edm::LogWarning("HLTJetMETValidation") << "  -- No HLTRESULTS";    
     gotHLT=false;
   }
@@ -128,14 +128,14 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     //    trig_iter=hltTriggerMap.find(MyTrigger);
     trig_iter=hltTriggerMap.find(_HLTPath.label());
     if (trig_iter==hltTriggerMap.end()){
-      //cout << "Could not find trigger path with name: " << _probefilter.label() << endl;
+      //std::cout << "Could not find trigger path with name: " << _probefilter.label() << std::endl;
       //if (evtCnt==1) edm::LogWarning("HLTJetMETValidation") << "Could not find trigger path with name: " << _probefilter.label(); 
     }else{
       myTrig=trig_iter->second;
     }
     trig_iter=hltTriggerMap.find(_HLTLow.label());
     if (trig_iter==hltTriggerMap.end()){
-      //cout << "Could not find trigger path with name: " << _probefilter.label() << endl;
+      //std::cout << "Could not find trigger path with name: " << _probefilter.label() << std::endl;
       //if (evtCnt==1) edm::LogWarning("HLTJetMETValidation") << "Could not find trigger path with name: " << _probefilter.label(); 
     }else{
       myTrigLow=trig_iter->second;
@@ -183,7 +183,7 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     if (myTrig) _meRecoHTTrg->Fill( calHT );
     if (myTrigLow) _meRecoHTTrgLow->Fill( calHT );
   }else{
-    //cout << "  -- No CaloJets" << endl;
+    //std::cout << "  -- No CaloJets" << std::endl;
     //if (evtCnt==1) edm::LogWarning("HLTJetMETValidation") << "  -- No CaloJets"; 
   }
 
@@ -227,7 +227,7 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     if (myTrig) _meGenHTTrg->Fill( genHT );
     if (myTrigLow) _meGenHTTrgLow->Fill( genHT );
   }else{
-    //cout << "  -- No GenJets" << endl;
+    //std::cout << "  -- No GenJets" << std::endl;
     //if (evtCnt==1) edm::LogWarning("HLTJetMETValidation") << "  -- No GenJets"; 
   }
 
@@ -237,7 +237,7 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   double calMet=-1;
   if (recmet.isValid()) { 
     typedef CaloMETCollection::const_iterator cmiter;
-    //cout << "Size of MET collection" <<  recmet.size() << endl;
+    //std::cout << "Size of MET collection" <<  recmet.size() << std::endl;
     for ( cmiter i=recmet->begin(); i!=recmet->end(); i++) {
       calMet = i->pt();
       //mcalphi = i->phi();
@@ -247,7 +247,7 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       if (myTrigLow) _meRecoMETTrgLow -> Fill(calMet);
     }
   }else{
-    //cout << "  -- No MET Collection with name: " << CaloMETColl << endl;
+    //std::cout << "  -- No MET Collection with name: " << CaloMETColl << std::endl;
     //if (evtCnt==1) edm::LogWarning("HLTJetMETValidation") << "  -- No MET Collection with name: "<< CaloMETColl; 
   }
 
@@ -257,7 +257,7 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   double genMet=-1;
   if (genmet.isValid()) { 
     typedef GenMETCollection::const_iterator cmiter;
-    //cout << "Size of GenMET collection" <<  recmet.size() << endl;
+    //std::cout << "Size of GenMET collection" <<  recmet.size() << std::endl;
     for ( cmiter i=genmet->begin(); i!=genmet->end(); i++) {
       genMet = i->pt();
       //mcalphi = i->phi();
@@ -267,7 +267,7 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       if (myTrigLow) _meGenMETTrgLow -> Fill(genMet);
     }
   }else{
-    //cout << "  -- No GenMET Collection with name: " << GenMETColl << endl;
+    //std::cout << "  -- No GenMET Collection with name: " << GenMETColl << std::endl;
     //if (evtCnt==1) edm::LogWarning("HLTJetMETValidation") << "  -- No GenMET Collection with name: "<< GenMETColl; 
   }
 }
@@ -279,21 +279,21 @@ void HLTJetMETValidation::getHLTResults(const edm::TriggerResults& hltresults,
   if (! HLTinit_){
     HLTinit_=true;
     
-    //if (writeFile_) cout << "Number of HLT Paths: " << ntrigs << endl;
+    //if (writeFile_) std::cout << "Number of HLT Paths: " << ntrigs << std::endl;
     for (int itrig = 0; itrig != ntrigs; ++itrig){
-      string trigName = triggerNames.triggerName(itrig);
-      // cout << "trigger " << itrig << ": " << trigName << endl; 
+      std::string trigName = triggerNames.triggerName(itrig);
+      // std::cout << "trigger " << itrig << ": " << trigName << std::endl; 
     }
   }
   
   for (int itrig = 0; itrig != ntrigs; ++itrig){
-    string trigName = triggerNames.triggerName(itrig);
+    std::string trigName = triggerNames.triggerName(itrig);
      bool accept=hltresults.accept(itrig);
 
      if (accept) _triggerResults->Fill(float(itrig));
 
      // fill the trigger map
-     typedef std::map<string,bool>::value_type valType;
+     typedef std::map<std::string,bool>::value_type valType;
      trig_iter=hltTriggerMap.find(trigName);
      if (trig_iter==hltTriggerMap.end())
        hltTriggerMap.insert(valType(trigName,accept));
