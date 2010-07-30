@@ -78,21 +78,21 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   // interface RECO tracks to vertex reconstruction
   edm::ESHandle<TransientTrackBuilder> theB;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
-  vector<reco::TransientTrack> t_tks = (*theB).build(tks, vertexBeamSpot);
-  if(fVerbose) {cout << "RecoVertex/PrimaryVertexProducer"
+  std::vector<reco::TransientTrack> t_tks = (*theB).build(tks, vertexBeamSpot);
+  if(fVerbose) {std::cout << "RecoVertex/PrimaryVertexProducer"
 		     << "Found: " << t_tks.size() << " reconstructed tracks" << "\n";
   }
 
 
   // call vertex reconstruction
-  vector<TransientVertex> t_vts = theAlgo.vertices(t_tks, vertexBeamSpot);
+  std::vector<TransientVertex> t_vts = theAlgo.vertices(t_tks, vertexBeamSpot);
   if(fVerbose){
     std::cout <<"RecoVertex/PrimaryVertexProducer: "
 	      << " found " << t_vts.size() << " reconstructed vertices" << "\n";
   }
    
   // convert transient vertices returned by the theAlgo to (reco) vertices
-  for (vector<TransientVertex>::const_iterator iv = t_vts.begin();
+  for (std::vector<TransientVertex>::const_iterator iv = t_vts.begin();
        iv != t_vts.end(); iv++) {
     reco::Vertex v = *iv;
     vColl.push_back(v);
@@ -108,7 +108,7 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       vColl.push_back(reco::Vertex(vertexBeamSpot.position(), we,0.,0.,0));
       if(fVerbose){
 	std::cout <<"RecoVertex/PrimaryVertexProducer: "
-		  << "Beamspot with invalid errors "<<bse.matrix()<<endl;
+		  << "Beamspot with invalid errors "<<bse.matrix()<<std::endl;
 	std::cout << "Will put Vertex derived from dummy-fake BeamSpot into Event.\n";
       }
     } else {

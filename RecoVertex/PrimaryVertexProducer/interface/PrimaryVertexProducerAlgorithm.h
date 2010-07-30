@@ -15,7 +15,7 @@
 //
 // Original Author:  Pascal Vanlaer
 //         Created:  Tue Feb 28 11:06:34 CET 2006
-// $Id: PrimaryVertexProducerAlgorithm.h,v 1.12 2010/03/03 09:45:21 werdmann Exp $
+// $Id: PrimaryVertexProducerAlgorithm.h,v 1.13 2010/04/29 06:15:17 werdmann Exp $
 //
 //
 
@@ -42,11 +42,11 @@ public:
   /** Find primary vertices
    */
 // obsolete method
-  virtual vector<TransientVertex> 
-  vertices(const vector<reco::TransientTrack> & tracks) const;
+  virtual std::vector<TransientVertex> 
+  vertices(const std::vector<reco::TransientTrack> & tracks) const;
 
-  virtual vector<TransientVertex> 
-  vertices(const vector<reco::TransientTrack> & tracks, 
+  virtual std::vector<TransientVertex> 
+  vertices(const std::vector<reco::TransientTrack> & tracks, 
 	   const reco::BeamSpot & beamSpot) const;
 
   /** Clone method
