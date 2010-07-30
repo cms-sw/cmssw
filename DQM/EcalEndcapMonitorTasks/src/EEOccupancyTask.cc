@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2010/06/04 12:34:38 $
- * $Revision: 1.76 $
+ * $Date: 2010/06/14 15:00:40 $
+ * $Revision: 1.77 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -843,7 +843,7 @@ void EEOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       int ism = Numbers::iSM( tpdigiItr->id() );
 
-      vector<DetId>* crystals = Numbers::crystals( tpdigiItr->id() );
+      std::vector<DetId>* crystals = Numbers::crystals( tpdigiItr->id() );
 
       for ( unsigned int i=0; i<crystals->size(); i++ ) {
 

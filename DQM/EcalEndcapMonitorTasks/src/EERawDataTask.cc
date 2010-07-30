@@ -1,8 +1,8 @@
 /*
  * \file EERawDataTask.cc
  *
- * $Date: 2010/06/29 18:44:22 $
- * $Revision: 1.30 $
+ * $Date: 2010/06/30 15:08:12 $
+ * $Revision: 1.31 $
  * \author E. Di Marco
  *
 */
@@ -397,10 +397,10 @@ void EERawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       // use the most frequent among the ECAL FEDs
 
-      map<int,int> ECALDCC_L1A_FreqMap;
-      map<int,int> ECALDCC_OrbitNumber_FreqMap;
-      map<int,int> ECALDCC_BunchCrossing_FreqMap;
-      map<int,int> ECALDCC_TriggerType_FreqMap;
+      std::map<int,int> ECALDCC_L1A_FreqMap;
+      std::map<int,int> ECALDCC_OrbitNumber_FreqMap;
+      std::map<int,int> ECALDCC_BunchCrossing_FreqMap;
+      std::map<int,int> ECALDCC_TriggerType_FreqMap;
 
       int ECALDCC_L1A_MostFreqCounts = 0;
       int ECALDCC_OrbitNumber_MostFreqCounts = 0;
