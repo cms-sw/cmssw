@@ -126,6 +126,11 @@ edm::ParameterSet L1MuCSCTFConfiguration::parameters(int sp) const {
 
   int eta_cnt=0;
 
+  unsigned int firmwareSP=0;
+  unsigned int firmwareFA=0;
+  unsigned int firmwareDD=0;
+  unsigned int firmwareVM=0;
+
   // default printout
   LogDebug("L1MuCSCTFConfiguration") << "\nCORE CONFIGURATION  DEFAULT VALUES" 
 				     << "\nrun_core="        << run_core       
@@ -219,7 +224,13 @@ edm::ParameterSet L1MuCSCTFConfiguration::parameters(int sp) const {
                                      << "\nstraightp=" << straightp 
                                      << "\ncurvedp  =" << curvedp   
                                      << "\nmbaPhiOff=" << mbaPhiOff 
-                                     << "\nmbbPhiOff=" << mbbPhiOff ;
+                                     << "\nmbbPhiOff=" << mbbPhiOff 
+    
+				     << "\n\nFIRMWARE VERSIONS"
+				     << "\nSP: " << firmwareSP
+				     << "\nFA: " << firmwareFA
+				     << "\nDD: " << firmwareDD
+				     << "\nVM: " << firmwareVM;
   
   // start filling the registers with the values in the DBS
   std::stringstream conf(registers[sp]);
@@ -344,7 +355,32 @@ edm::ParameterSet L1MuCSCTFConfiguration::parameters(int sp) const {
       eta_cnt++;
     }
 
+    // filling the firmware variables: SP MEZZANINE
+    if( register_=="FIRMWARE" && muon_=="SP" ){
+      unsigned int value = atoi(writeValue_.c_str());
+      firmwareSP=value;
+    }
+
+    // filling the firmware variables: Front FPGAs
+    if( register_=="FIRMWARE" && muon_=="FA" ){
+      unsigned int value = atoi(writeValue_.c_str());
+      firmwareFA=value;
+    }
+
+    // filling the firmware variables: DDU
+    if( register_=="FIRMWARE" && muon_=="DD" ){
+      unsigned int value = atoi(writeValue_.c_str());
+      firmwareDD=value;
+    }
+
+    // filling the firmware variables: VM
+    if( register_=="FIRMWARE" && muon_=="VM" ){
+      unsigned int value = atoi(writeValue_.c_str());
+      firmwareVM=value;
+    }
   }
+
+  
 
   pset.addParameter<bool>("run_core"       , run_core       );
   pset.addParameter<bool>("trigger_on_ME1a", trigger_on_ME1a);
@@ -419,6 +455,11 @@ edm::ParameterSet L1MuCSCTFConfiguration::parameters(int sp) const {
   pset.addParameter<unsigned int>("curvedp"  , curvedp  );
   pset.addParameter<unsigned int>("mbaPhiOff", mbaPhiOff);
   pset.addParameter<unsigned int>("mbbPhiOff", mbbPhiOff);
+
+  pset.addParameter<unsigned int>("firmwareSP", firmwareSP);
+  pset.addParameter<unsigned int>("firmwareFA", firmwareFA);
+  pset.addParameter<unsigned int>("firmwareDD", firmwareDD);
+  pset.addParameter<unsigned int>("firmwareVM", firmwareVM);
 
 
   // printout
@@ -514,7 +555,13 @@ edm::ParameterSet L1MuCSCTFConfiguration::parameters(int sp) const {
                                      << "\nstraightp=" << straightp 
                                      << "\ncurvedp  =" << curvedp   
                                      << "\nmbaPhiOff=" << mbaPhiOff 
-                                     << "\nmbbPhiOff=" << mbbPhiOff ;
+                                     << "\nmbbPhiOff=" << mbbPhiOff 
+
+				     << "\n\nFIRMWARE VERSIONS AFTER READING THE DBS VALUES"
+				     << "\nSP: " << firmwareSP
+				     << "\nFA: " << firmwareFA
+				     << "\nDD: " << firmwareDD
+				     << "\nVM: " << firmwareVM;
   
   // ---------------------------------------------------------
 

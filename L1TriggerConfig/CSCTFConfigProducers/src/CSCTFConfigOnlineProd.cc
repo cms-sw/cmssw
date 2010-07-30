@@ -1,4 +1,5 @@
 #include "L1TriggerConfig/CSCTFConfigProducers/interface/CSCTFConfigOnlineProd.h"
+//#include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <cstdio>
 
 boost::shared_ptr< L1MuCSCTFConfiguration >
@@ -6,9 +7,9 @@ CSCTFConfigOnlineProd::newObject( const std::string& objectKey )
 {
   
   edm::LogInfo( "L1-O2O: CSCTFConfigOnlineProd" ) << "Producing "
-					     << " L1MuCSCTFConfiguration"
-					     << "with key CSCTF_KEY="
-					     << objectKey;
+						  << "L1MuCSCTFConfiguration "
+						  << "with key CSCTF_KEY="
+						  << objectKey;
 
   std::string csctfreg[12];
 
@@ -21,137 +22,127 @@ CSCTFConfigOnlineProd::newObject( const std::string& objectKey )
 
     std::string spkey = objectKey + "00" + spName;
 
-    edm::LogInfo( "L1-O2O: CSCTFConfigOnlineProd" ) << "spkey: " 
-						    << spkey;
   
   
-     //  SELECT Multiple columns  FROM TABLE with correct key: 
-     std::vector< std::string > columns ;
-     columns.push_back( "STATIC_CONFIG" ) ;
-     columns.push_back( "ETA_CONFIG" ) ;
+    //  SELECT Multiple columns  FROM TABLE with correct key: 
+    std::vector< std::string > columns ;
+    columns.push_back( "STATIC_CONFIG" ) ;
+    columns.push_back( "ETA_CONFIG" ) ;
+    columns.push_back( "FIRMWARE" ) ;
      
-     //SELECT * FROM CMS_CSC_TF.CSCTF_SP_CONF WHERE CSCTF_SP_CONF.SP_KEY = spkey
-     l1t::OMDSReader::QueryResults results = m_omdsReader.basicQuery(
-								     columns,
-								     "CMS_CSC_TF",
-								     "CSCTF_SP_CONF",
-								     "CSCTF_SP_CONF.SP_KEY",
-								     m_omdsReader.singleAttribute( spkey )
-								     ) ;
+    //SELECT * FROM CMS_CSC_TF.CSCTF_SP_CONF WHERE CSCTF_SP_CONF.SP_KEY = spkey
+    l1t::OMDSReader::QueryResults results = m_omdsReader.basicQuery(
+								    columns,
+								    "CMS_CSC_TF",
+								    "CSCTF_SP_CONF",
+								    "CSCTF_SP_CONF.SP_KEY",
+								    m_omdsReader.singleAttribute( spkey )
+								    ) ;
   
-     if( results.queryFailed() ) // check if query was successful
-       {
+    if( results.queryFailed() ) // check if query was successful
+      {
 	edm::LogError( "L1-O2O" ) << "Problem with L1CSCTFParameters key." ;
 	// return empty configuration
 	return boost::shared_ptr< L1MuCSCTFConfiguration >( new L1MuCSCTFConfiguration() ) ;
-       }
+      }
   
 
-     std::string conf_stat, conf_eta;
-     results.fillVariable( "STATIC_CONFIG", conf_stat );
-     results.fillVariable( "ETA_CONFIG",    conf_eta  );
-     //   std::cout<<conf_stat<<std::endl;
+    std::string conf_stat, conf_eta, conf_firmware;
+    results.fillVariable( "STATIC_CONFIG", conf_stat );
+    results.fillVariable( "ETA_CONFIG",    conf_eta  );
+    results.fillVariable( "FIRMWARE",      conf_firmware );
+    
+    LogDebug( "L1-O2O: CSCTFConfigOnlineProd:" ) << "conf_stat queried: " << conf_stat
+						 << "conf_eta queried:"   << conf_eta
+						 << "conf_firmware queried:" << conf_firmware;
+    
+    for(size_t pos=conf_stat.find("\\n"); pos!=std::string::npos; pos=conf_stat.find("\\n",pos)) 
+      { 
+	conf_stat[pos]=' '; 
+	conf_stat[pos+1]='\n'; 
+      }
+    
+    for(size_t pos=conf_eta.find("\\n"); pos!=std::string::npos; pos=conf_eta.find("\\n",pos)) 
+      { 
+	conf_eta[pos]=' '; 
+	conf_eta[pos+1]='\n'; 
+      }
 
-     edm::LogInfo( "conf_stat queried" ) << conf_stat;
-     edm::LogInfo( "conf_eta queried" )  << conf_eta;
-    
-     for(size_t pos=conf_stat.find("\\n"); pos!=std::string::npos; pos=conf_stat.find("\\n",pos)) 
-       { 
-	 conf_stat[pos]=' '; 
-	 conf_stat[pos+1]='\n'; 
-       }
-    
-     for(size_t pos=conf_eta.find("\\n"); pos!=std::string::npos; pos=conf_eta.find("\\n",pos)) 
-       { 
-	 conf_eta[pos]=' '; 
-	 conf_eta[pos+1]='\n'; 
-       }
   
-     std::string conf_read=conf_eta+conf_stat;
-     // write all registers for a given SP
-     csctfreg[iSP-1]=conf_read;
+    for(size_t pos=conf_firmware.find("\\n"); pos!=std::string::npos; pos=conf_firmware.find("\\n",pos)) 
+      { 
+	conf_firmware[pos]=' '; 
+	conf_firmware[pos+1]='\n';
+      }
+
+    LogDebug( "L1-O2O: CSCTFConfigOnlineProd" ) << "\nSP KEY: "                  << spkey
+						<< "\n\nSTATIC CONFIGURATION:\n" << conf_stat
+						<< "\nDAT_ETA CONFIGURATION:\n"  << conf_eta
+						<< "\nFIRMWARE VERSIONS:\n"      << conf_firmware;
+
+    // The CSCTF firmware needs a bit more manipulation
+    // The firmware is written in the DBS as SP SP day/month/year, where the real year is 2000+year
+    // For easy handling when retrieving the configuration I prefer to write is as
+    // FIRMWARE SP SP yearmonthday
+    // e.g. SP SP 26/06/09 -> FIRMWARE SP SP 20090626
+
+    std::string conf_firmware_sp;
+
+    std::stringstream conf(conf_firmware);
+    while( !conf.eof() ){
+      char buff[1024];
+      conf.getline(buff,1024);
+      std::stringstream line(buff);
+      
+      std::string register_ = "FIRMWARE";
+      std::string chip_;    line>>chip_;
+      std::string muon_;    line>>muon_;
+      std::string writeValue_;   line>>writeValue_;
+
+      size_t pos;
+      pos=writeValue_.find('/');
+      
+      std::string day;
+      day.push_back(writeValue_[pos-2]);
+      day.push_back(writeValue_[pos-1]);
+
+      std::string month;
+      month.push_back(writeValue_[pos+1]);
+      month.push_back(writeValue_[pos+2]);
+
+      std::string year("20");
+      year.push_back(writeValue_[pos+4]);
+      year.push_back(writeValue_[pos+5]);
+
+      //std::cout << "day "   << day   <<std::endl;
+      //std::cout << "month " << month <<std::endl;
+      //std::cout << "year "  << year  <<std::endl;
+
+      std::string date=year+month+day;
+      // std::cout << register_  << " -- "
+      // 	   << chip_      << " -- "
+      // 	   << muon_      << " -- " 
+      // 	   << date       << " -- " 
+      // 	   << std::endl;
+
+      // for the CSCTF emulator there is no need of the other firmware (CCB and MS)
+      if(chip_ == "SP")
+	conf_firmware_sp+=register_+" "+chip_+" "+muon_+" "+date+"\n";      
+    }
+    
+    edm::LogInfo( "L1-O2O: CSCTFConfigOnlineProd" ) << "\nSP KEY: "                  << spkey
+						    << "\n\nSTATIC CONFIGURATION:\n" << conf_stat
+						    << "\nDAT_ETA CONFIGURATION:\n"  << conf_eta
+						    << "\nFIRMWARE VERSIONS:\n"      << conf_firmware_sp;
+
+    std::string conf_read=conf_eta+conf_stat+conf_firmware_sp;
+    // write all registers for a given SP
+    csctfreg[iSP-1]=conf_read; 
   }  
   
   // return the final object with the configuration for all CSCTF
   return boost::shared_ptr< L1MuCSCTFConfiguration >( new L1MuCSCTFConfiguration(csctfreg) ) ;    
 
-
-//   // Execute SQL queries to get data from OMDS (using key) and make C++ object
-//   // Example: SELECT A_PARAMETER FROM CMS_XXX.XXX_CONF WHERE XXX_CONF.XXX_KEY = objectKey
-  
-//  //  SELECT Multiple columns  FROM TABLE with correct key: 
-//  std::vector< std::string > columns ;
-//  columns.push_back( "STATIC_CONFIG" ) ;
-//  columns.push_back( "ETA_CONFIG" ) ;
-//  l1t::OMDSReader::QueryResults results = m_omdsReader.basicQuery(
-// 								 columns,
-// 								 "CMS_CSC_TF",
-// 								 "CSCTF_SP_CONF",
-// 								 "CSCTF_SP_CONF.SP_KEY",
-// 								 m_omdsReader.singleAttribute( objectKey )
-// 								 ) ;
-  
-//  if( results.queryFailed() ) // check if query was successful
-//    {
-//      edm::LogError( "L1-O2O" ) << "Problem with L1CSCTFParameters key." ;
-//      return boost::shared_ptr< L1MuCSCTFConfiguration >( new L1MuCSCTFConfiguration( ) ) ;
-//    }
-  
-//  //    double datum ;
-//  std::string conf_stat, conf_eta;
-//  results.fillVariable( "STATIC_CONFIG", conf_stat ) ;
-//  results.fillVariable( "ETA_CONFIG", conf_eta ) ;
-//  //   std::cout<<conf_stat<<std::endl;
-//  edm::LogInfo( "conf_stat queried" ) << conf_stat ;
-//  edm::LogInfo( "conf_eta queried" ) << conf_eta ;
-//  std::string csctfreg[12];
-//  std::vector<std::string> spreg;
-//  std::string registers;
-
-//  for(size_t pos=conf_stat.find("\\n"); pos!=std::string::npos; pos=conf_stat.find("\\n",pos)) 
-//    { 
-//      conf_stat[pos]=' '; 
-//      conf_stat[pos+1]='\n'; 
-//    }
-
-//  //std::cout<<" ******** \n"<<conf_stat<<std::endl;
-
-
-//  for(size_t pos=conf_eta.find("\\n"); pos!=std::string::npos; pos=conf_eta.find("\\n",pos)) 
-//    { 
-//      conf_eta[pos]=' '; 
-//      conf_eta[pos+1]='\n'; 
-
-//    }
-
-//  //std::cout<<" ******** \n"<<conf_eta<<std::endl;
-
-//  std::string conf_fixed= "CSR_LQE F1 M1 0xFFFF \nCSR_LQE F1 M2 0xFFFF \nCSR_LQE F1 M3 0xFFFF \nCSR_LQE F2 M1 0xFFFF \nCSR_LQE F2 M2 0xFFFF \nCSR_LQE F2 M3 0xFFFF \nCSR_LQE F3 M1 0xFFFF \nCSR_LQE F3 M2 0xFFFF \nCSR_LQE F3 M3 0xFFFF \nCSR_LQE F4 M1 0xFFFF \nCSR_LQE F4 M2 0xFFFF \nCSR_LQE F4 M3 0xFFFF \nCSR_LQE F5 M1 0xFFFF \nCSR_LQE F5 M2 0xFFFF \nCSR_LQE F5 M3 0xFFFF \nCSR_KFL SP MA 0x0000 \nDAT_FTR SP MA 0xFF   \nCSR_SFC SP MA 0x1000 \n";
-
-
-//  std::string conf_read=conf_fixed+conf_eta+conf_stat;
-//  // std::cout<<" ******** \n"<<conf_read<<std::endl;
-
-
-//  // spreg='"test1","test2","test3"';
-//  // std::cout<<spreg<<std::endl;
-//  //    for(std::vector<std::string>::const_iterator line=spreg.begin(); line!=spreg.end(); line++)
-//  // 	registers += *line + "\n";
-
-//  //
-//  for (int jsp=0;jsp<12; jsp++) {
-//    csctfreg[jsp]=conf_read;
-//  }
-
-//  L1MuCSCTFConfiguration myconfig(csctfreg);
-
-//  // print out
-//  //const std::string* outcfg=myconfig.configAsText();
-//  //   for (int jsp=0;jsp<12; jsp++) {
-//  //     std::cout<<"outcfg... "<<jsp<<std::endl;
-//  //     std::cout<<outcfg[jsp]<<std::endl;
-//  //  }
-// return boost::shared_ptr< L1MuCSCTFConfiguration >( new L1MuCSCTFConfiguration(csctfreg) ) ;
 }
 
 
