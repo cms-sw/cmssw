@@ -1,4 +1,4 @@
-import os,sys
+import os,sys,time
 from datetime import datetime,timedelta
 
 class lumiTime(object):
@@ -24,7 +24,13 @@ class lumiTime(object):
         '''
         given a orbit number, return its corresponding time. Default run begin time counting from orbit=0
         '''
-        return self.StrToDatetime(begStrTime)+(orbitnumber-begorbit)*self.OrbitDuration()    
+        return self.StrToDatetime(begStrTime)+(orbitnumber-begorbit)*self.OrbitDuration()
+    def OrbitToTimestamp(self,begStrTime,orbitnumber,begorbit=0):
+        '''
+        given a orbit number, return its corresponding unixtimestamp. Default run begin time counting from orbit=0
+        '''
+        orbittime=OrbitToTime(begStrTime,orbitnumber,begorbit)
+        return time.mktime(orbittime.timetuple())+orbittime.microsecond/1e6
     def StrToDatetime(self,strTime,customfm=''):
         '''convert string timestamp to python datetime
         '''
