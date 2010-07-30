@@ -2,8 +2,8 @@
 /**
  * \file EcalPedOffset.cc
  *
- * $Date: 2008/05/13 16:04:39 $
- * $Revision: 1.15 $
+ * $Date: 2010/01/04 15:06:29 $
+ * $Revision: 1.16 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch) - originally
  * \author S. Cooper (seth.cooper@cernNOSPAM.ch)
  * Last updated: @DATE@ @AUTHOR@
@@ -305,7 +305,7 @@ void EcalPedOffset::writeDb ()
   {
     LogInfo("EcalPedOffset") << "Opening DB connection with TNS_ADMIN ...";
     DBconnection = new EcalCondDBInterface(m_dbName, m_dbUserName, m_dbPassword);
-  } catch (runtime_error &e) {
+  } catch (std::runtime_error &e) {
     LogError("EcalPedOffset") << e.what();
     if ( m_dbHostName.size() != 0 )
     {
@@ -314,7 +314,7 @@ void EcalPedOffset::writeDb ()
         LogInfo("EcalPedOffset") << "Opening DB connection without TNS_ADMIN ...";
         DBconnection = new EcalCondDBInterface(m_dbHostName, m_dbName, 
             m_dbUserName, m_dbPassword, m_dbHostPort);
-      } catch (runtime_error &e) {
+      } catch (std::runtime_error &e) {
         LogError("EcalPedOffset") << e.what();
         return;
       }
@@ -357,7 +357,7 @@ void EcalPedOffset::writeDb ()
     runtag = runiov.getRunTag();
     moniov = DBconnection->fetchMonRunIOV(&runtag, &montag, run, subrun);
   } 
-  catch (runtime_error &e) {
+  catch (std::runtime_error &e) {
     if(m_create_moniov){
       //if not already in the DB create a new MonRunIOV
       Tm startSubRun;
@@ -379,7 +379,7 @@ void EcalPedOffset::writeDb ()
 
   // create the table to be filled and the map to be inserted
   EcalLogicID ecid ;
-  map<EcalLogicID, MonPedestalOffsetsDat> DBdataset ;
+  std::map<EcalLogicID, MonPedestalOffsetsDat> DBdataset ;
   MonPedestalOffsetsDat DBtable ;
 
   // fill the table
@@ -434,7 +434,7 @@ void EcalPedOffset::writeDb ()
             LogError("EcalPedOffset") << "FEDid is out of range 601-654";
 
           DBdataset[ecid] = DBtable ;
-        } catch (runtime_error &e) {
+        } catch (std::runtime_error &e) {
           edm::LogError ("EcalPedOffset") << e.what();
         }
       }
@@ -444,10 +444,10 @@ void EcalPedOffset::writeDb ()
   // insert the map of tables in the database
   if ( DBconnection ) {
     try {
-      LogDebug ("EcalPedOffset") << "Inserting dataset ... " << flush;
+      LogDebug ("EcalPedOffset") << "Inserting dataset ... " << std::flush;
       if ( DBdataset.size() != 0 ) DBconnection->insertDataSet (&DBdataset, &moniov);
       LogDebug ("EcalPedOffset") << "done." ;
-    } catch (runtime_error &e) {
+    } catch (std::runtime_error &e) {
       edm::LogError ("EcalPedOffset") << e.what ();
     }
   }
@@ -467,7 +467,7 @@ void EcalPedOffset::writeXMLFiles(std::string fileName)
       smRes != m_pedResult.end(); 
       ++smRes)
   {
-    string thisSMFileName = fileName;
+    std::string thisSMFileName = fileName;
     // open the output stream
     thisSMFileName+="_";
     thisSMFileName+=intToString(smRes->first);
@@ -546,12 +546,12 @@ void EcalPedOffset::makePlots ()
 // -----------------------------------------------------------------------------
 
 // convert an int to a string
-string EcalPedOffset::intToString(int num)
+std::string EcalPedOffset::intToString(int num)
 {
 
   // outputs the number into the string stream and then flushes
   // the buffer (makes sure the output is put into the stream)
-  ostringstream myStream;
-  myStream << num << flush;
+  std::ostringstream myStream;
+  myStream << num << std::flush;
   return(myStream.str()); //returns the string form of the stringstream object
 }

@@ -18,7 +18,7 @@ TwoBodyDecayFitter::TwoBodyDecayFitter( const edm::ParameterSet & config,
 TwoBodyDecayFitter::~TwoBodyDecayFitter( void ) {}
 
 
-const TwoBodyDecay TwoBodyDecayFitter::estimate( const vector< reco::TransientTrack >& tracks,
+const TwoBodyDecay TwoBodyDecayFitter::estimate( const std::vector< reco::TransientTrack >& tracks,
 						 const TwoBodyDecayVirtualMeasurement& vm ) const
 {
   // get geometrical linearization point

@@ -133,7 +133,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   try {
     iEvent.getByLabel("offlinePrimaryVertices", vertices);
   } catch (...) {
-    cout << "No offlinePrimaryVertices found!" << endl;
+    std::cout << "No offlinePrimaryVertices found!" << std::endl;
   }
   if ( vertices.isValid() ) {
     OfflineVertexX = (*vertices)[0].x();
@@ -166,7 +166,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
     double BSz0 = beamSpot.z0();
     
     if(debug_)
-    std::cout<<"Beamspot x:"<<BSx0<<" y:"<<BSy0<<" z:"<<BSz0<std::<endl; 
+    std::cout<<"Beamspot x:"<<BSx0<<" y:"<<BSy0<<" z:"<<BSz0<std::<std::endl; 
     
     //double sigmaz = beamSpot.sigmaZ();
     //double dxdz = beamSpot.dxdz();
@@ -322,7 +322,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
       ++nTracks_;  
 	
       if(debug_)
-	cout<< "Track "<<i<<" : pT = "<<track->pt()<<endl;
+	std::cout<< "Track "<<i<<" : pT = "<<track->pt()<<std::endl;
       
     }// for loop on tracks
   
