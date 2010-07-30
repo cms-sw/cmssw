@@ -27,6 +27,16 @@ process.load("ElectroWeakAnalysis.Skimming.zMuMu_SubskimPaths_cff")
 process.load("ElectroWeakAnalysis.Skimming.zMuMuSubskimOutputModule_cfi")
 process.zMuMuSubskimOutputModule.fileName = 'testZMuMuSubskim.root'
 
+
+
+### 3_6_X reprocessed MC: to process REDIGI HLT tables uncomment the following
+#process.dimuonsHLTFilter.TriggerResultsTag = cms.InputTag("TriggerResults","","REDIGI36X")
+#process.patTrigger.processName = "REDIGI36X"
+#process.patTriggerEvent.processName = "REDIGI36X"
+#process.patTrigger.triggerResults = cms.InputTag( "TriggerResults::REDIGI36X" )
+#process.patTrigger.triggerEvent = cms.InputTag( "hltTriggerSummaryAOD::REDIGI36X" )
+
+
 ############
 # MC truth matching sequence
 #process.load("ElectroWeakAnalysis.Skimming.zMuMu_SubskimPathsWithMCTruth_cff")
