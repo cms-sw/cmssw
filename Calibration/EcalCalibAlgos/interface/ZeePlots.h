@@ -16,7 +16,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO, Radek Ofierzynski
 //         Created:  Tue Jul 18 12:17:01 CEST 2006
-// $Id: ZeePlots.h,v 1.5 2009/03/31 13:45:39 argiro Exp $
+// $Id: ZeePlots.h,v 1.6 2009/11/30 12:53:53 elmer Exp $
 //
 //
 
@@ -68,7 +68,7 @@ class ZeePlots {
       void fillEleMCInfo( const HepMC::GenEvent* );
       void fillEleInfo( const reco::GsfElectronCollection* );
       void fillHLTInfo( edm::Handle<edm::TriggerResults> );
-      void fillZInfo(pair<calib::CalibElectron*,calib::CalibElectron*> myZeeCandidate);
+      void fillZInfo(std::pair<calib::CalibElectron*,calib::CalibElectron*> myZeeCandidate);
       void fillEleClassesPlots( calib::CalibElectron*);
       
       void writeEleHistograms();

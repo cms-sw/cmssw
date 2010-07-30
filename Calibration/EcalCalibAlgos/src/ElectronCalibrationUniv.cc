@@ -207,7 +207,7 @@ void ElectronCalibrationUniv::beginRun(edm::Run const &, edm::EventSetup const& 
       if(calibAlgo_=="HH" || calibAlgo_=="HHReg"){
 	MyHH = new HouseholderDecomposition(calibClusterSize, etaMin,etaMax, phiMin, phiMax); 
       }else{
-	cout<<" Name of Algorithm is not recognize "<<calibAlgo_<<" Should be either L3, HH or HHReg. Abort! "<<endl;
+	std::cout<<" Name of Algorithm is not recognize "<<calibAlgo_<<" Should be either L3, HH or HHReg. Abort! "<<std::endl;
       }
     }
   }
@@ -245,7 +245,7 @@ ElectronCalibrationUniv::endJob() {
        if(calibAlgo_=="HHReg"){
 	 solution = MyHH->runRegional(EventMatrix, MaxCCeta, MaxCCphi,EnergyVector, 2);
        }else{ 
-	 cout<<" Calibration not run due to problem in Algo Choice..."<<endl;
+	 std::cout<<" Calibration not run due to problem in Algo Choice..."<<std::endl;
 	 return ;
        }
      }
@@ -272,13 +272,13 @@ ElectronCalibrationUniv::endJob() {
   float coeff=-1;
   
   
-  map<EBDetId,float> OldCoeff;
+  std::map<EBDetId,float> OldCoeff;
  
  while(fileStatus != EOF) {
    fileStatus = fscanf(MisCalib,"%d %d %f\n",  &eta,&phi,&coeff);
    if(eta!=-1&&phi!=-1&& coeff!=-1){
-     //     cout<<" We have read correctly the coefficient " << coeff << " corresponding to eta "<<eta<<" and  phi "<<phi<<endl;
-     OldCoeff.insert(make_pair(EBDetId(eta,phi,EBDetId::ETAPHIMODE),coeff )); 
+     //     std::cout<<" We have read correctly the coefficient " << coeff << " corresponding to eta "<<eta<<" and  phi "<<phi<<std::endl;
+     OldCoeff.insert(std::make_pair(EBDetId(eta,phi,EBDetId::ETAPHIMODE),coeff )); 
    }
  } 
  
@@ -291,20 +291,20 @@ ElectronCalibrationUniv::endJob() {
   int X=-1;
   int Y=-1;
   float coeff2=-1;
-  map<EEDetId,float> OldCoeffEndCap;
+  std::map<EEDetId,float> OldCoeffEndCap;
  
  while(fileStatus2 != EOF) {
    fileStatus2 = fscanf(MisCalibEndCap,"%d %d %f\n",  &X,&Y,&coeff2);
    if(X!=-1&&Y!=-1&& coeff2!=-1){
-     //     cout<<" We have read correctly the coefficient " << coeff << " corresponding to eta "<<eta<<" and  phi "<<phi<<endl;
+     //     std::cout<<" We have read correctly the coefficient " << coeff << " corresponding to eta "<<eta<<" and  phi "<<phi<<std::endl;
      if(TestEEvalidDetId(X,Y,1)){
-       OldCoeffEndCap.insert(make_pair(EEDetId(X,Y,1,EEDetId::XYMODE),coeff2 )); 
+       OldCoeffEndCap.insert(std::make_pair(EEDetId(X,Y,1,EEDetId::XYMODE),coeff2 )); 
      }
    }
  } 
  
  fclose(MisCalibEndCap);
-  map<DetId,float>::const_iterator itmap;
+  std::map<DetId,float>::const_iterator itmap;
   for (itmap = Univsolution.begin(); itmap != Univsolution.end(); itmap++){
     const DetId Id(itmap->first);
     if(Id.subdetId()==1){
@@ -314,7 +314,7 @@ ElectronCalibrationUniv::endJob() {
       if (IChannelDetId.iphi()< minphi_){continue;} 
       if (IChannelDetId.iphi()> maxphi_){continue;}
      float Compare=1;
-      map<EBDetId,float>::iterator iter = OldCoeff.find(itmap->first);
+      std::map<EBDetId,float>::iterator iter = OldCoeff.find(itmap->first);
       if( iter != OldCoeff.end() )Compare = iter->second;
       Map3Dcalib->Fill(IChannelDetId.ieta(),IChannelDetId.iphi(),itmap->second*Compare) ;
       calibs->Fill(itmap->second);
@@ -335,7 +335,7 @@ ElectronCalibrationUniv::endJob() {
       if (IChannelDetId.ix()>100 ){continue;}
       if (IChannelDetId.iy()<50 ){continue;} 
       if (IChannelDetId.iy()>90 ){continue;}
-     map<EEDetId,float>::iterator iter = OldCoeffEndCap.find(itmap->first);
+     std::map<EEDetId,float>::iterator iter = OldCoeffEndCap.find(itmap->first);
       float Compare=1;
       if( iter != OldCoeffEndCap.end() )Compare = iter->second;
       Map3DcalibEndCap->Fill(IChannelDetId.ix(),IChannelDetId.iy(),itmap->second*Compare) ;
@@ -472,7 +472,7 @@ ElectronCalibrationUniv::analyze(const edm::Event& iEvent, const edm::EventSetup
    }
   const reco::GsfElectronCollection* electronCollection = pElectrons.product();
   read_events++;
-  if(read_events%1000 ==0)cout << "read_events = " << read_events << endl;
+  if(read_events%1000 ==0)std::cout << "read_events = " << read_events << std::endl;
 
   EventsAfterCuts->Fill(1);
   if (!EBhits || !EEhits)return;
@@ -504,7 +504,7 @@ ElectronCalibrationUniv::analyze(const edm::Event& iEvent, const edm::EventSetup
        highestElePt=eleIt->pt();
        highPtElectron = *eleIt;
        found =true;
-       //       cout<<" eleIt->pt( "<<eleIt->pt()<<" eleIt->eta() "<<eleIt->eta()<<endl;
+       //       std::cout<<" eleIt->pt( "<<eleIt->pt()<<" eleIt->eta() "<<eleIt->eta()<<std::endl;
     }
 
   }
@@ -513,7 +513,7 @@ ElectronCalibrationUniv::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   
   const reco::SuperCluster & sc = *(highPtElectron.superCluster()) ;
-  //  if(fabs(sc.eta())>1.479){cout<<" SC not in Barrel "<<endl;;}
+  //  if(fabs(sc.eta())>1.479){std::cout<<" SC not in Barrel "<<std::endl;;}
   //  const std::vector<DetId> & v1 = sc.getHitsByDetId();
 
       std::vector<DetId> v1;
@@ -529,7 +529,7 @@ for (std::vector<std::pair<DetId,float> >::const_iterator idsIt = sc.hitsAndFrac
   //maxHitId = findMaxHit(v1,EBhits,EEhits); 
   
   EventsAfterCuts->Fill(6);
-  if(maxHitId.null()){cout<<" Null "<<endl; return ;}
+  if(maxHitId.null()){std::cout<<" Null "<<std::endl; return ;}
 
   int maxCC_Eta = 0;
   int maxCC_Phi = 0;
@@ -553,7 +553,7 @@ for (std::vector<std::pair<DetId,float> >::const_iterator idsIt = sc.hitsAndFrac
   
   
   // fill cluster energy
-  vector<float> energy;
+  std::vector<float> energy;
   float energy3x3=0.;  
   float energy5x5=0.;  
   //Should be moved to cfg file!
@@ -569,7 +569,7 @@ for (std::vector<std::pair<DetId,float> >::const_iterator idsIt = sc.hitsAndFrac
   EventsAfterCuts->Fill(8);
    if(S9aroundMax.size()!=9)return;
  
-   //   cout<<" ******** New Event "<<endl;
+   //   std::cout<<" ******** New Event "<<std::endl;
 
   EventsAfterCuts->Fill(9);
    for (int icry=0;icry<ClusterSize*ClusterSize;icry++){
@@ -577,13 +577,13 @@ for (std::vector<std::pair<DetId,float> >::const_iterator idsIt = sc.hitsAndFrac
       EBRecHitCollection::const_iterator itrechit;
       itrechit = EBhits->find(NxNaroundMax[icry]);
       if(itrechit==EBhits->end()){ 
-	//	cout << "EB DetId not in e25" << endl;
+	//	std::cout << "EB DetId not in e25" << std::endl;
 	energy.push_back(0.);
 	energy5x5 += 0.;
 	continue;
       }
       
-      if (isnan(itrechit->energy())){cout<<" nan energy "<<endl; return;} 	  
+      if (isnan(itrechit->energy())){std::cout<<" nan energy "<<std::endl; return;} 	  
       energy.push_back(itrechit->energy());
       energy5x5 += itrechit->energy();
       
@@ -597,14 +597,14 @@ for (std::vector<std::pair<DetId,float> >::const_iterator idsIt = sc.hitsAndFrac
       itrechit = EEhits->find(NxNaroundMax[icry]);
       
       if(itrechit==EEhits->end()){ 
-	//	cout << "EE DetId not in e25" << endl;
-	//	cout<<" ******** putting 0 "<<endl;
+	//	std::cout << "EE DetId not in e25" << std::endl;
+	//	std::cout<<" ******** putting 0 "<<std::endl;
 	energy.push_back(0.);
 	energy5x5 += 0.;
  	continue;
       }
       
-      if (isnan(itrechit->energy())){cout<<" nan energy "<<endl; return;}
+      if (isnan(itrechit->energy())){std::cout<<" nan energy "<<std::endl; return;}
       energy.push_back(itrechit->energy());
       energy5x5 += itrechit->energy();
       
@@ -614,10 +614,10 @@ for (std::vector<std::pair<DetId,float> >::const_iterator idsIt = sc.hitsAndFrac
       }
     }
   }
-  //  if((read_events-50)%10000 ==0)cout << "++++++++++++ENERGY 5x5 " <<  energy5x5 << endl;
+  //  if((read_events-50)%10000 ==0)cout << "++++++++++++ENERGY 5x5 " <<  energy5x5 << std::endl;
   EventsAfterCuts->Fill(10);
-  //  cout<<" ******** NxNaroundMax.size() "<<NxNaroundMax.size()<<endl;
-  //  cout<<" ******** energy.size() "<<energy.size()<<endl;
+  //  std::cout<<" ******** NxNaroundMax.size() "<<NxNaroundMax.size()<<std::endl;
+  //  std::cout<<" ******** energy.size() "<<energy.size()<<std::endl;
   if((int)energy.size()!=ClusterSize*ClusterSize) return ;
 
   if(maxHitId.subdetId() == EcalBarrel){

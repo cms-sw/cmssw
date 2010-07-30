@@ -115,7 +115,7 @@ void ZeePlots::bookZHistograms(){
 
 //========================================================================
 
-void ZeePlots::fillZInfo( pair<calib::CalibElectron*,calib::CalibElectron*> myZeeCandidate ) {
+void ZeePlots::fillZInfo( std::pair<calib::CalibElectron*,calib::CalibElectron*> myZeeCandidate ) {
 
   h1_reco_ZEta_->Fill( ZeeKinematicTools::calculateZEta(myZeeCandidate) );
   h1_reco_ZTheta_->Fill( ZeeKinematicTools::calculateZTheta(myZeeCandidate) );
@@ -395,22 +395,22 @@ void ZeePlots::fillEleClassesPlots( calib::CalibElectron* myEle ){
   if(myClass==0 || myClass==100)
     h1_occupancyVsEtaGold_->Fill(myEta);
   
-  cout<< "[ZeePlots::fillEleClassesPlots]Done gold"<< std::endl;
+  std::cout<< "[ZeePlots::fillEleClassesPlots]Done gold"<< std::endl;
   
   if(myClass==40 || myClass==140)
     h1_occupancyVsEtaCrack_->Fill(myEta);
   
-  cout<< "[ZeePlots::fillEleClassesPlots]Done crack"<< std::endl;
+  std::cout<< "[ZeePlots::fillEleClassesPlots]Done crack"<< std::endl;
   
   if( (myClass>=30 && myClass<=34) || (myClass>=130 && myClass<=134) )
     h1_occupancyVsEtaShower_->Fill(myEta);
   
-  cout<< "[ZeePlots::fillEleClassesPlots]Done shower"<< std::endl;
+  std::cout<< "[ZeePlots::fillEleClassesPlots]Done shower"<< std::endl;
   
   if( myClass==10 || myClass==20 || myClass==110 || myClass ==120)
     h1_occupancyVsEtaSilver_->Fill(myEta);
   
-  cout<< "[ZeePlots::fillEleClassesPlots]Done"<< std::endl;
+  std::cout<< "[ZeePlots::fillEleClassesPlots]Done"<< std::endl;
   
 }
 

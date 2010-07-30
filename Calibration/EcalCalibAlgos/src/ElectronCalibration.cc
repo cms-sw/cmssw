@@ -39,7 +39,7 @@ ElectronCalibration::ElectronCalibration(const edm::ParameterSet& iConfig)
    electronLabel_ = iConfig.getParameter< edm::InputTag > ("electronLabel");
    trackLabel_ = iConfig.getParameter< edm::InputTag > ("trackLabel");
    calibAlgo_       = iConfig.getParameter<std::string>("CALIBRATION_ALGO");
-   cout << " The used Algorithm is  " << calibAlgo_ << endl;
+   std::cout << " The used Algorithm is  " << calibAlgo_ << std::endl;
    keventweight_ = iConfig.getParameter<int>("keventweight");
    ClusterSize_ = iConfig.getParameter<int>("Clustersize");
    ElePt_ = iConfig.getParameter<double>("ElePt");
@@ -51,7 +51,7 @@ ElectronCalibration::ElectronCalibration(const edm::ParameterSet& iConfig)
    cut2_ = iConfig.getParameter<double>("cut2");
    cut3_ = iConfig.getParameter<double>("cut3");
    elecclass_ = iConfig.getParameter<int>("elecclass");
-   cout << " The electronclass is " << elecclass_ <<endl;
+   std::cout << " The electronclass is " << elecclass_ <<std::endl;
    numevent_ = iConfig.getParameter<int>("numevent");
    miscalibfile_ = iConfig.getParameter<std::string>("miscalibfile");
 
@@ -208,7 +208,7 @@ void ElectronCalibration::beginJob() {
     if(calibAlgo_=="HH" || calibAlgo_=="HHReg"){
       MyHH = new HouseholderDecomposition(calibClusterSize, etaMin,etaMax, phiMin, phiMax); 
     }else{ 
-      cout<<" Name of Algorithm is not recognize "<<calibAlgo_<<" Should be either L3, HH or HHReg. Abort! "<<endl;
+      std::cout<<" Name of Algorithm is not recognize "<<calibAlgo_<<" Should be either L3, HH or HHReg. Abort! "<<std::endl;
     }
   }
   read_events=0;
@@ -222,7 +222,7 @@ void ElectronCalibration::beginJob() {
   for (int phi=0; phi<360; phi++){for (int eta=0; eta<171; eta++){eventcrystal[eta][phi]=0;}}
  
 
-  cout<<" Begin JOB "<<endl;
+  std::cout<<" Begin JOB "<<std::endl;
 }
 
 
@@ -241,13 +241,13 @@ if(calibAlgo_=="L3"){
   }else{
     if(calibAlgo_=="HHReg"){solution = MyHH->runRegional(EventMatrix, MaxCCeta, MaxCCphi,EnergyVector, 2);
     }else{ 
-      cout<<" Calibration not run due to problem in Algo Choice..."<<endl;return;
+      std::cout<<" Calibration not run due to problem in Algo Choice..."<<std::endl;return;
     }
   }
  }
  for (int ii=0;ii<(int)solution.size();ii++)
    {
-     cout << "solution[" << ii << "] = " << solution[ii] << endl;
+     std::cout << "solution[" << ii << "] = " << solution[ii] << std::endl;
      calibs->Fill(solution[ii]); 
    }
  
@@ -262,13 +262,13 @@ if(calibAlgo_=="L3"){
  int phi=-1;
  float coeff=-1;
  
- map<EBDetId,float> OldCoeff;
+ std::map<EBDetId,float> OldCoeff;
  
  while(fileStatus != EOF) {
    fileStatus = fscanf(MisCalib,"%d %d %f\n",  &eta,&phi,&coeff);
    if(eta!=-1&&phi!=-1&& coeff!=-1){
-     //      cout<<" We have read correctly the coefficient " << coeff << " corresponding to eta "<<eta<<" and  phi "<<phi<<endl;
-     OldCoeff.insert(make_pair(EBDetId(eta,phi,EBDetId::ETAPHIMODE),coeff )); 
+     //      std::cout<<" We have read correctly the coefficient " << coeff << " corresponding to eta "<<eta<<" and  phi "<<phi<<std::endl;
+     OldCoeff.insert(std::make_pair(EBDetId(eta,phi,EBDetId::ETAPHIMODE),coeff )); 
    }
  } 
  
@@ -282,7 +282,7 @@ if(calibAlgo_=="L3"){
    
    write_calibrations.writeLine(itmap->first,newCalibs[icry]);
    float Compare =1.;   
-   map<EBDetId,float>::iterator iter = OldCoeff.find(itmap->first);
+   std::map<EBDetId,float>::iterator iter = OldCoeff.find(itmap->first);
    if( iter != OldCoeff.end() )Compare = iter->second;
 
    if((itmap->first).ieta()>mineta_ && (itmap->first).ieta()<maxeta_ && (itmap->first).iphi()>minphi_ && (itmap->first).iphi()<maxphi_){
@@ -311,7 +311,7 @@ if(calibAlgo_=="L3"){
      if(calibAlgo_=="HHReg"){
        solutionNoCuts = MyHH->runRegional(EventMatrixNoCuts, MaxCCetaNoCuts, MaxCCphiNoCuts,EnergyVectorNoCuts, 2);
      }else{
-       cout<<" Calibration not run due to problem in AlgoChoice..."<<endl;return;
+       std::cout<<" Calibration not run due to problem in AlgoChoice..."<<std::endl;return;
      }
    }
  }
@@ -324,7 +324,7 @@ if(calibAlgo_=="L3"){
    
    newCalibs[icryp] = solutionNoCuts[icryp];
    float Compare2 =1.;   
-   map<EBDetId,float>::iterator iter2 = OldCoeff.find(itmapp->first);
+   std::map<EBDetId,float>::iterator iter2 = OldCoeff.find(itmapp->first);
    if( iter2 != OldCoeff.end() )Compare2 = iter2->second;
    
    if((itmapp->first).ieta()>mineta_ && (itmapp->first).ieta()<maxeta_ && (itmapp->first).iphi()>minphi_ && (itmapp->first).iphi()<maxphi_)Map3DcalibNoCuts->Fill((itmapp->first).ieta(),(itmapp->first).iphi(),newCalibs[icryp]*Compare2) ;
@@ -427,7 +427,7 @@ void ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   const reco::GsfElectronCollection* electronCollection = pElectrons.product();
   read_events++;
-  if(read_events%1000 ==0)cout << "read_events = " << read_events << endl;
+  if(read_events%1000 ==0)std::cout << "read_events = " << read_events << std::endl;
   
   if(!hits)return;
   if(hits->size() == 0)return;
@@ -460,10 +460,10 @@ void ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetu
       if(!found) return;
       const reco::SuperCluster & sc = *(highPtElectron.superCluster()) ;
       if(fabs(sc.eta())>(maxeta_+3) * 0.0175){
-	cout<<"++++ Problem with electron, electron eta is "<< highPtElectron.eta()<<" while SC is "<<sc.eta()<<endl;return;
+	std::cout<<"++++ Problem with electron, electron eta is "<< highPtElectron.eta()<<" while SC is "<<sc.eta()<<std::endl;return;
       }
-//      cout << "track eta = " << highPtElectron.eta() << endl;
-//      cout << "track phi = " << highPtElectron.phi() << endl;
+//      std::cout << "track eta = " << highPtElectron.eta() << std::endl;
+//      std::cout << "track phi = " << highPtElectron.phi() << std::endl;
     
       std::vector<DetId> v1;
       //Loop to fill the vector of DetIds
@@ -477,7 +477,7 @@ for (std::vector<std::pair<DetId,float> >::const_iterator idsIt = sc.hitsAndFrac
       
       maxHitId = findMaxHit2(v1,hits); 
       
-      if(maxHitId.null()){cout<<" Null "<<endl; return;}
+      if(maxHitId.null()){std::cout<<" Null "<<std::endl; return;}
       
       int maxCC_Eta = maxHitId.ieta();
       int maxCC_Phi = maxHitId.iphi();
@@ -493,12 +493,12 @@ for (std::vector<std::pair<DetId,float> >::const_iterator idsIt = sc.hitsAndFrac
 	if (eventcrystal[maxCC_Eta+85][maxCC_Phi-1] > numevent_) return;
       }
       
-      vector<EBDetId> Xtals5x5 = calibCluster.get5x5Id(maxHitId);
+      std::vector<EBDetId> Xtals5x5 = calibCluster.get5x5Id(maxHitId);
       
       if((int)Xtals5x5.size()!=ClusterSize_*ClusterSize_)return;
  
       // fill cluster energy
-      vector<float> energy;
+      std::vector<float> energy;
       float energy3x3=0.;  
       float energy5x5=0.;  
       
@@ -508,7 +508,7 @@ for (std::vector<std::pair<DetId,float> >::const_iterator idsIt = sc.hitsAndFrac
 	   if(Xtals5x5[icry].subdetId()!=1) continue;
 	   itrechit = hits->find(Xtals5x5[icry]);
 	   if(itrechit==hits->end())
-	     { cout << "DetId not is e25" << endl;
+	     { std::cout << "DetId not is e25" << std::endl;
 	       continue;
 	     }
 	   

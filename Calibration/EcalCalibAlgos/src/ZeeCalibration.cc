@@ -454,11 +454,11 @@ ZeeCalibration::endOfJob() {
       /*
       for(int jj =0; jj< 25; jj++){ 
       if(meanErr[jj] > 0.)
-	cout<<" meanErr[jj] before sqrt: "<<meanErr[jj]<<endl;
+	std::cout<<" meanErr[jj] before sqrt: "<<meanErr[jj]<<std::endl;
 
 	meanErr[jj] = 1./sqrt( meanErr[jj] );
 
-	cout<<" meanErr[jj] after sqrt: "<<meanErr[jj]<<endl;
+	std::cout<<" meanErr[jj] after sqrt: "<<meanErr[jj]<<std::endl;
       }
       */
       
@@ -522,7 +522,7 @@ ZeeCalibration::endOfJob() {
     h2_coeffVsEtaGrouped_->Fill( xtalEta[j],mean[j]);
   
   //  for(int sho = 0; sho <25; sho++)
-  //cout<<"xtalEta[j] "<< xtalEta[sho]<<" mean[j]  "<<mean[sho]<<"  err[j] "<<meanErr[sho]<<endl;
+  //cout<<"xtalEta[j] "<< xtalEta[sho]<<" mean[j]  "<<mean[sho]<<"  err[j] "<<meanErr[sho]<<std::endl;
 
   TProfile *px = h2_coeffVsEta_->ProfileX("coeffVsEtaProfile");
   px->SetXTitle("Eta channel");
@@ -1055,7 +1055,7 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
     {
       calibElectrons.push_back(calib::CalibElectron(&((*electronCollection)[e_it]),hits,ehits));
 #ifdef DEBUG
-      std::cout << calibElectrons.back().getRecoElectron()->superCluster()->energy() << " " << calibElectrons.back().getRecoElectron()->energy() << endl;
+      std::cout << calibElectrons.back().getRecoElectron()->superCluster()->energy() << " " << calibElectrons.back().getRecoElectron()->energy() << std::endl;
 #endif
       //      h1_recoEleEnergy_->Fill(calibElectrons.back().getRecoElectron()->superCluster()->energy());
     }
@@ -1067,7 +1067,7 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
 #endif  
   
   //COMBINATORY FOR Z MASS - begin                                                                                                                           
-  std::vector< pair<calib::CalibElectron*,calib::CalibElectron*> > zeeCandidates;
+  std::vector<std::pair<calib::CalibElectron*,calib::CalibElectron*> > zeeCandidates;
   int  myBestZ=-1;
   
   mass = -1.;
@@ -2207,7 +2207,7 @@ std::pair<DetId, double> ZeeCalibration::getHottestDetId(std::vector<std::pair< 
 	  }
       }    
     
-    //std::cout<<"[getHottestDetId] hottestRecHit->energy() "<<hottestRecHit->energy()<<endl;
+    //std::cout<<"[getHottestDetId] hottestRecHit->energy() "<<hottestRecHit->energy()<<std::endl;
    
     if(hottestRecHit && hottestRecHit->energy() > maxEnergy){
 
@@ -2373,15 +2373,15 @@ void ZeeCalibration::printStatistics(){
   std::cout<< "[ CHECK ON BARREL ELECTRON NUMBER ]"<<" first "<<BARREL_ELECTRONS_BEFORE_BORDER_CUT<<" second "<<TOTAL_ELECTRONS_IN_BARREL << std::endl;
   
   
-  std::cout<< "[ EFFICIENCY OF THE BORDER SELECTION ]" << (float)BARREL_ELECTRONS_AFTER_BORDER_CUT / (float) BARREL_ELECTRONS_BEFORE_BORDER_CUT << endl;
+  std::cout<< "[ EFFICIENCY OF THE BORDER SELECTION ]" << (float)BARREL_ELECTRONS_AFTER_BORDER_CUT / (float) BARREL_ELECTRONS_BEFORE_BORDER_CUT << std::endl;
   
-  std::cout<< "[ EFFICIENCY OF THE GOLDEN SELECTION ] BARREL: " << (float)GOLDEN_ELECTRONS_IN_BARREL / (float) TOTAL_ELECTRONS_IN_BARREL << " ENDCAP: "<< (float)GOLDEN_ELECTRONS_IN_ENDCAP / (float) TOTAL_ELECTRONS_IN_ENDCAP << endl;
+  std::cout<< "[ EFFICIENCY OF THE GOLDEN SELECTION ] BARREL: " << (float)GOLDEN_ELECTRONS_IN_BARREL / (float) TOTAL_ELECTRONS_IN_BARREL << " ENDCAP: "<< (float)GOLDEN_ELECTRONS_IN_ENDCAP / (float) TOTAL_ELECTRONS_IN_ENDCAP << std::endl;
   
-  std::cout<< "[ EFFICIENCY OF THE SILVER SELECTION ] BARREL: " << (float)SILVER_ELECTRONS_IN_BARREL / (float) TOTAL_ELECTRONS_IN_BARREL << " ENDCAP: "<< (float)SILVER_ELECTRONS_IN_ENDCAP / (float) TOTAL_ELECTRONS_IN_ENDCAP << endl;
+  std::cout<< "[ EFFICIENCY OF THE SILVER SELECTION ] BARREL: " << (float)SILVER_ELECTRONS_IN_BARREL / (float) TOTAL_ELECTRONS_IN_BARREL << " ENDCAP: "<< (float)SILVER_ELECTRONS_IN_ENDCAP / (float) TOTAL_ELECTRONS_IN_ENDCAP << std::endl;
   
-  std::cout<< "[ EFFICIENCY OF THE SHOWER SELECTION ] BARREL: " << (float)SHOWER_ELECTRONS_IN_BARREL / (float) TOTAL_ELECTRONS_IN_BARREL << " ENDCAP: "<< (float)SHOWER_ELECTRONS_IN_ENDCAP / (float) TOTAL_ELECTRONS_IN_ENDCAP << endl;
+  std::cout<< "[ EFFICIENCY OF THE SHOWER SELECTION ] BARREL: " << (float)SHOWER_ELECTRONS_IN_BARREL / (float) TOTAL_ELECTRONS_IN_BARREL << " ENDCAP: "<< (float)SHOWER_ELECTRONS_IN_ENDCAP / (float) TOTAL_ELECTRONS_IN_ENDCAP << std::endl;
   
-  std::cout<< "[ EFFICIENCY OF THE CRACK SELECTION ] BARREL: " << (float)CRACK_ELECTRONS_IN_BARREL / (float) TOTAL_ELECTRONS_IN_BARREL << " ENDCAP: "<< (float)CRACK_ELECTRONS_IN_ENDCAP / (float) TOTAL_ELECTRONS_IN_ENDCAP << endl;
+  std::cout<< "[ EFFICIENCY OF THE CRACK SELECTION ] BARREL: " << (float)CRACK_ELECTRONS_IN_BARREL / (float) TOTAL_ELECTRONS_IN_BARREL << " ENDCAP: "<< (float)CRACK_ELECTRONS_IN_ENDCAP / (float) TOTAL_ELECTRONS_IN_ENDCAP << std::endl;
   
   
   

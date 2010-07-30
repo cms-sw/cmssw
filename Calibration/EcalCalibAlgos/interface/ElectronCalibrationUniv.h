@@ -16,7 +16,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO, Radek Ofierzynski
 //         Created:  Tue Jul 18 12:17:01 CEST 2006
-// $Id: ElectronCalibrationUniv.h,v 1.4 2009/03/20 10:25:35 argiro Exp $
+// $Id: ElectronCalibrationUniv.h,v 1.5 2010/01/04 15:07:17 ferriff Exp $
 //
 //
 
@@ -104,27 +104,27 @@ class ElectronCalibrationUniv : public edm::EDAnalyzer {
       
       int calibClusterSize,keventweight;
       int etaMin, etaMax, phiMin, phiMax;
-      vector<float> EnergyVector;
-      vector<float> WeightVector;
-      vector<vector<float> > EventMatrix;
-      vector<int> MaxCCeta;
-      vector<int> MaxCCphi;
-      vector<float> EnergyVectorNoCuts;
-      vector<float> WeightVectorNoCuts;
-      vector<vector<float> > EventMatrixNoCuts;
-      vector<int> MaxCCetaNoCuts;
-      vector<int> MaxCCphiNoCuts;
+      std::vector<float> EnergyVector;
+      std::vector<float> WeightVector;
+      std::vector<std::vector<float> > EventMatrix;
+      std::vector<int> MaxCCeta;
+      std::vector<int> MaxCCphi;
+      std::vector<float> EnergyVectorNoCuts;
+      std::vector<float> WeightVectorNoCuts;
+      std::vector<std::vector<float> > EventMatrixNoCuts;
+      std::vector<int> MaxCCetaNoCuts;
+      std::vector<int> MaxCCphiNoCuts;
       MinL3Algorithm* MyL3Algo1;
       MinL3AlgoUniv<DetId>* UnivL3;
 
       edm::ESHandle<CaloTopology> theCaloTopology;
 
-      vector<float> solution;
-      vector<float> solutionNoCuts;
+      std::vector<float> solution;
+      std::vector<float> solutionNoCuts;
 
       //For Universal Algo
-      vector<vector<DetId> > UnivEventIds;
-      map<DetId,float> Univsolution;
+      std::vector<std::vector<DetId> > UnivEventIds;
+      std::map<DetId,float> Univsolution;
       
       // int eventcrystal[25][25];
       int numevent_;
