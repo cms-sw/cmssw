@@ -5,8 +5,8 @@ import sys
 import fileinput
 import string
 
-NewVersion='3_8_0_pre5'
-RefVersion='3_7_0'
+NewVersion='3_9_0_pre1'
+RefVersion='3_8_0'
 NewRelease='CMSSW_'+NewVersion
 RefRelease='CMSSW_'+RefVersion
 #NewRelease='Summer09'
@@ -40,25 +40,29 @@ Publish=False
 #GetFilesFrom='CASTOR'    # --> Copy root files from castor
 GetFilesFrom='GUI'       # --> Copy root files from the DQM GUI server
 #GetRefsFrom='WEB'
-GetRefsFrom='CASTOR'
-#GetRefsFrom='GUI'
+#GetRefsFrom='CASTOR'
+GetRefsFrom='GUI'
 
-DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_3_8_x/'
-DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_3_7_x/'
+DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_3_9_x/'
+DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_3_8_x/'
 CastorRepository = '/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'
 if ((GetFilesFrom=='GUI')|(GetRefsFrom=='GUI')):
     print "*** Did you remind doing:"
-    print " > source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.(c)sh"
+
+# USE THIS WITH wget
+#    print " > source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.(c)sh"
+# USE THIS WITH curl
+    print " > source /afs/cern.ch/project/gd/LCG-share/sl5/etc/profile.d/grid_env.(c)sh"
     print " > voms-proxy-init"
 
 
 # These are only needed if you copy any root file from the DQM GUI:
-NewLabel='MC_38Y_V3'
+NewLabel='MC_38Y_V8'
 if (NewCondition=='STARTUP'):
-    NewLabel='START38_V3'
-RefLabel='MC_37Y_V4'
+    NewLabel='START38_V8'
+RefLabel='MC_38Y_V7'
 if (RefCondition=='STARTUP'):
-    RefLabel='START37_V4'
+    RefLabel='START38_V7'
 
 
 ValidateHLT=True
@@ -131,7 +135,8 @@ for sample in samples :
         if (os.path.isfile(NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root')==True):
             print "New file found at: "+NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root'+' -> Use that one'
         elif (GetFilesFrom=='GUI'):
-            os.system('wget --ca-directory $X509_CERT_DIR/ --certificate=$X509_USER_PROXY --private-key=$X509_USER_PROXY '+DqmGuiNewRepository+'DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root ')
+#            os.system('wget --ca-directory $X509_CERT_DIR/ --certificate=$X509_USER_PROXY --private-key=$X509_USER_PROXY '+DqmGuiNewRepository+'DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root ')
+            os.system('/usr/bin/curl -O -L --capath $X509_CERT_DIR --key $X509_USER_PROXY --cert $X509_USER_PROXY '+DqmGuiNewRepository+'DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root ')
             os.system('mv DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
         elif (GetFilesFrom=='CASTOR'):
             os.system('rfcp '+CastorRepository+'/'+NewRelease+'_'+NewCondition+'_'+sample+'_val.'+sample+'.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
@@ -146,7 +151,8 @@ for sample in samples :
             print "Reference file found at: "+RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root'+' -> Use that one'
         elif (GetRefsFrom=='GUI'):
             print '*** Getting reference file from the DQM GUI server'
-            os.system('wget --ca-directory $X509_CERT_DIR/ --certificate=$X509_USER_PROXY --private-key=$X509_USER_PROXY '+DqmGuiRefRepository+'DQM_V0001_R000000001__'+sample+'__'+RefRelease+'-'+RefLabel+'__'+RefFormat+'.root ')
+#            os.system('wget --ca-directory $X509_CERT_DIR/ --certificate=$X509_USER_PROXY --private-key=$X509_USER_PROXY '+DqmGuiRefRepository+'DQM_V0001_R000000001__'+sample+'__'+RefRelease+'-'+RefLabel+'__'+RefFormat+'.root ')
+            os.system('/usr/bin/curl -O -L --capath $X509_CERT_DIR --key $X509_USER_PROXY --cert $X509_USER_PROXY '+DqmGuiRefRepository+'DQM_V0001_R000000001__'+sample+'__'+RefRelease+'-'+RefLabel+'__'+RefFormat+'.root ')
             os.system('mv DQM_V0001_R000000001__'+sample+'__'+RefRelease+'-'+RefLabel+'__'+RefFormat+'.root '+RefRelease+'/'+RefTag+'/'+sample+'/'+'val.'+sample+'.root')
         elif (GetRefsFrom=='CASTOR'):
             print '*** Getting reference file from castor'
