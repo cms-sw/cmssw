@@ -7,8 +7,8 @@
  *  This class is an EDAnalyzer implementing TrigReport (statistics
  *  printed to log file) for HL triggers
  *
- *  $Date: 2010/02/11 00:12:22 $
- *  $Revision: 1.5 $
+ *  $Date: 2010/02/16 22:33:12 $
+ *  $Revision: 1.6 $
  *
  *  \author Martin Grunewald
  *
@@ -275,20 +275,20 @@ class HLTHiggsBits : public edm::EDAnalyzer {
       int *hlt_nbits;
       int neventcount;
 
-      string histName;
-      std::vector<string> hlt_bitnames;
-      std::vector<string> hlt_bitnamesMu;
-      std::vector<string> hlt_bitnamesEg;
+      std::string histName;
+      std::vector<std::string> hlt_bitnames;
+      std::vector<std::string> hlt_bitnamesMu;
+      std::vector<std::string> hlt_bitnamesEg;
    
-      std::vector<string> hlt_bitnamesPh;
-      std::vector<string> hlt_bitnamesTau;
+      std::vector<std::string> hlt_bitnamesPh;
+      std::vector<std::string> hlt_bitnamesTau;
       
-    /*  std::vector<string> hlt_labels;
-      std::vector<string> hlt_labelsMu;
-      std::vector<string> hlt_labelsEg;*/
+    /*  std::vector<std::string> hlt_labels;
+      std::vector<std::string> hlt_labelsMu;
+      std::vector<std::string> hlt_labelsEg;*/
 
 
-      ofstream outfile;
+      std::ofstream outfile;
       
     /*  typedef math::XYZTLorentzVector LorentzVector;*/
 

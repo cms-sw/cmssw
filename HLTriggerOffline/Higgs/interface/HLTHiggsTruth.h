@@ -65,18 +65,18 @@ public:
 
 
 
- // void analyzeHWW2l(const CandidateView& mctruth,const MuonCollection& muonHandle, const GsfElectronCollection& electronHandle, TTree* tree);
+ // void analyzeHWW2l(const reco::CandidateView& mctruth,const reco::MuonCollection& muonHandle, const GsfElectronCollection& electronHandle, TTree* tree);
   
-   void analyzeHWW2l(const CandidateView& mctruth,const CaloMETCollection&
-   caloMet, const TrackCollection& Tracks, const MuonCollection& muonHandle, const GsfElectronCollection& electronHandle, TTree* tree);
+   void analyzeHWW2l(const reco::CandidateView& mctruth,const reco::CaloMETCollection&
+   caloMet, const reco::TrackCollection& Tracks, const reco::MuonCollection& muonHandle, const reco::GsfElectronCollection& electronHandle, TTree* tree);
   
   
-  void analyzeHZZ4l(const CandidateView& mctruth,const MuonCollection& muonHandle, const GsfElectronCollection& electronHandle, TTree* tree);
-  void analyzeHgg(const CandidateView& mctruth,const PhotonCollection& photonHandle,TTree* tree); 
-  void analyzeH2tau(const CandidateView& mctruth,TTree* tree);  
-  void analyzeHtaunu(const CandidateView& mctruth,TTree* tree);  
-  void analyzeA2mu(const CandidateView& mctruth,TTree* tree);  
-  void analyzeHinv(const CandidateView& mctruth,TTree* tree);
+  void analyzeHZZ4l(const reco::CandidateView& mctruth,const reco::MuonCollection& muonHandle, const reco::GsfElectronCollection& electronHandle, TTree* tree);
+  void analyzeHgg(const reco::CandidateView& mctruth,const reco::PhotonCollection& photonHandle,TTree* tree); 
+  void analyzeH2tau(const reco::CandidateView& mctruth,TTree* tree);  
+  void analyzeHtaunu(const reco::CandidateView& mctruth,TTree* tree);  
+  void analyzeA2mu(const reco::CandidateView& mctruth,TTree* tree);  
+  void analyzeHinv(const reco::CandidateView& mctruth,TTree* tree);
   
   /* study leptonic tau decays*/
   void LeptonicTauDecay(const reco::Candidate& tau, bool& elecdec, bool&

@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/02/16 22:33:13 $
- *  $Revision: 1.5 $
+ *  $Date: 2010/05/03 16:39:07 $
+ *  $Revision: 1.6 $
  *
  *  \author Mika Huhtinen
  *
@@ -47,13 +47,13 @@ HLTHiggsBits::HLTHiggsBits(const edm::ParameterSet& iConfig) :
   nEvents_(0),
   hlNames_(0),
   init_(false),
-  histName(iConfig.getParameter<string>("histName")),
-  hlt_bitnames(iConfig.getParameter<std::vector<string> >("hltBitNames")),
-  hlt_bitnamesMu(iConfig.getParameter<std::vector<string> >("hltBitNamesMu")),
-  hlt_bitnamesEg(iConfig.getParameter<std::vector<string> >("hltBitNamesEG")),
-  hlt_bitnamesPh(iConfig.getParameter<std::vector<string> >("hltBitNamesPh")),
-  hlt_bitnamesTau(iConfig.getParameter<std::vector<string> >("hltBitNamesTau")),
-  triggerTag_(iConfig.getUntrackedParameter<string>("DQMFolder","HLT/Higgs")),
+  histName(iConfig.getParameter<std::string>("histName")),
+  hlt_bitnames(iConfig.getParameter<std::vector<std::string> >("hltBitNames")),
+  hlt_bitnamesMu(iConfig.getParameter<std::vector<std::string> >("hltBitNamesMu")),
+  hlt_bitnamesEg(iConfig.getParameter<std::vector<std::string> >("hltBitNamesEG")),
+  hlt_bitnamesPh(iConfig.getParameter<std::vector<std::string> >("hltBitNamesPh")),
+  hlt_bitnamesTau(iConfig.getParameter<std::vector<std::string> >("hltBitNamesTau")),
+  triggerTag_(iConfig.getUntrackedParameter<std::string>("DQMFolder","HLT/Higgs")),
   outputFileName(iConfig.getParameter<std::string>("OutputFileName")),
   outputMEsInRootFile(iConfig.getParameter<bool>("OutputMEsInRootFile"))
  
@@ -71,9 +71,9 @@ HLTHiggsBits::HLTHiggsBits(const edm::ParameterSet& iConfig) :
     
    
  /* 
-  cout << "Number of bit names : " << n_hlt_bits << endl;
+  std::cout << "Number of bit names : " << n_hlt_bits << std::endl;
   if (n_hlt_bits>20) {
-    cout << "TOO MANY BITS REQUESTED - TREATING ONLY FIRST 20" << endl;
+    std::cout << "TOO MANY BITS REQUESTED - TREATING ONLY FIRST 20" << std::endl;
     n_hlt_bits=20;
   }*/
   
@@ -82,7 +82,7 @@ HLTHiggsBits::HLTHiggsBits(const edm::ParameterSet& iConfig) :
 
 // 1:H->ZZ->4l, 2:H->WW->2l, 3: H->gg, 4:qqh->2tau, 5:H+->taunu, 6:qqh->inv
 // The proper channel number has to be set in the cff-file
- // cout << "Analyzing Higgs channel number " << n_channel_ << endl;
+ // std::cout << "Analyzing Higgs channel number " << n_channel_ << std::endl;
 
   // open the histogram file
  // m_file=0; // set to null
@@ -202,10 +202,10 @@ HLTHiggsBits::HLTHiggsBits(const edm::ParameterSet& iConfig) :
      if (n_channel_==1 || n_channel_==2){
   
     for (int j=0;j<n_hlt_bits;j++) { 
-     string histnameptmuem  = "Muon1Pt_EM_"+hlt_bitnames[j];
-     string histnameetamuem = "Muon1Eta_EM_"+hlt_bitnames[j];
-     string histnameptelem  = "Electron1Pt_EM_"+hlt_bitnames[j];
-     string histnameetaelem = "Electron1Eta_EM_"+hlt_bitnames[j];
+     std::string histnameptmuem  = "Muon1Pt_EM_"+hlt_bitnames[j];
+     std::string histnameetamuem = "Muon1Eta_EM_"+hlt_bitnames[j];
+     std::string histnameptelem  = "Electron1Pt_EM_"+hlt_bitnames[j];
+     std::string histnameetaelem = "Electron1Eta_EM_"+hlt_bitnames[j];
      h_ptmu1_emu_trig[j] = dbe->book1D((histnameptmuem).c_str(),(hlt_bitnames[j]+"ptmuon").c_str(),50,0.0,150.0); 
      h_etamu1_emu_trig[j] = dbe->book1D((histnameetamuem).c_str(),(hlt_bitnames[j]+"etamuon").c_str(),50,-2.5,2.5);
      
@@ -220,8 +220,8 @@ HLTHiggsBits::HLTHiggsBits(const edm::ParameterSet& iConfig) :
   
       if (n_channel_==1 || n_channel_==2 || n_channel_==4){
    for (int j=0;j<n_hlt_bits_mu;j++) { 
-     string histnameptmu  = "Muon1Pt_"+hlt_bitnamesMu[j];
-     string histnameetamu = "Muon1Eta_"+hlt_bitnamesMu[j];
+     std::string histnameptmu  = "Muon1Pt_"+hlt_bitnamesMu[j];
+     std::string histnameetamu = "Muon1Eta_"+hlt_bitnamesMu[j];
      h_ptmu1_trig[j] = dbe->book1D((histnameptmu).c_str(),(hlt_bitnamesMu[j]+"ptmuon").c_str(),50,0.0,150.0); 
      h_etamu1_trig[j] = dbe->book1D((histnameetamu).c_str(),(hlt_bitnamesMu[j]+"etamuon").c_str(),50,-2.5,2.5); 
      hlt_bitmu_hist_reco -> setBinLabel(j+1,hlt_bitnamesMu[j].c_str());
@@ -229,8 +229,8 @@ HLTHiggsBits::HLTHiggsBits(const edm::ParameterSet& iConfig) :
    
   }
    for (int j=0;j<n_hlt_bits_eg;j++) { 
-     string histnameptel = "Electron1Pt_"+hlt_bitnamesEg[j];
-     string histnameetael = "Electron1Eta_"+hlt_bitnamesEg[j];
+     std::string histnameptel = "Electron1Pt_"+hlt_bitnamesEg[j];
+     std::string histnameetael = "Electron1Eta_"+hlt_bitnamesEg[j];
      h_ptel1_trig[j] = dbe->book1D((histnameptel).c_str(),(hlt_bitnamesEg[j]+"ptelectron").c_str(),50,0.0,150.0);
      h_etael1_trig[j] = dbe->book1D((histnameetael).c_str(),(hlt_bitnamesEg[j]+"etaelectron").c_str(),50,-2.5,2.5);  
    
@@ -244,8 +244,8 @@ HLTHiggsBits::HLTHiggsBits(const edm::ParameterSet& iConfig) :
   
     if (n_channel_==3){
    for (int j=0;j<n_hlt_bits_ph;j++) { 
-     string histnameptph = "Photon1Pt_"+hlt_bitnamesPh[j];
-     string histnameetaph = "Photon1Eta_"+hlt_bitnamesPh[j];
+     std::string histnameptph = "Photon1Pt_"+hlt_bitnamesPh[j];
+     std::string histnameetaph = "Photon1Eta_"+hlt_bitnamesPh[j];
      h_ptph1_trig[j] = dbe->book1D((histnameptph).c_str(),(hlt_bitnamesPh[j]+"ptphoton").c_str(),50,0.0,200);
      h_etaph1_trig[j] = dbe->book1D((histnameetaph).c_str(),(hlt_bitnamesPh[j]+"etaphoton").c_str(),50,-2.5,2.5);
   
@@ -258,8 +258,8 @@ HLTHiggsBits::HLTHiggsBits(const edm::ParameterSet& iConfig) :
   
     if (n_channel_==5){
   for (int j=0;j<n_hlt_bits_tau;j++) { 
-   //  string histnamepttau = "Tau1Pt_"+hlt_bitnamesTau[j];
-   //  string histnameetatau = "Tau1Eta_"+hlt_bitnamesTau[j];
+   //  std::string histnamepttau = "Tau1Pt_"+hlt_bitnamesTau[j];
+   //  std::string histnameetatau = "Tau1Eta_"+hlt_bitnamesTau[j];
    //  h_pttau1_trig[j] = dbe->book1D((histnamepttau).c_str(),(hlt_bitnamesTau[j]+"pttau").c_str(),50,0.0,300);
    //  h_etatau1_trig[j] = dbe->book1D((histnameetatau).c_str(),(hlt_bitnamesTau[j]+"etatau").c_str(),50,-5.0,5.0);
       hlt_bittau_hist_gen -> setBinLabel(j+1,hlt_bitnamesTau[j].c_str());
@@ -268,7 +268,7 @@ HLTHiggsBits::HLTHiggsBits(const edm::ParameterSet& iConfig) :
   }
   
  
- // cout << "booking OK " << endl;
+ // std::cout << "booking OK " << std::endl;
 
 }
 
@@ -291,17 +291,17 @@ HLTHiggsBits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
  
-  edm::Handle<MuonCollection> muonHandle;
+  edm::Handle<reco::MuonCollection> muonHandle;
   iEvent.getByLabel("muons", muonHandle);
   
   
-  edm::Handle<GsfElectronCollection> electronHandle;
+  edm::Handle<reco::GsfElectronCollection> electronHandle;
   iEvent.getByLabel("gsfElectrons",electronHandle);
   
-  edm::Handle<PhotonCollection> photonHandle;
+  edm::Handle<reco::PhotonCollection> photonHandle;
   iEvent.getByLabel("photons", photonHandle);
   
-  edm::Handle<CaloMETCollection> caloMet;
+  edm::Handle<reco::CaloMETCollection> caloMet;
  // iEvent.getByLabel("met", caloMet);  // first attempt of adding met variables
  iEvent.getByLabel("corMetGlobalMuons", caloMet);
 
@@ -310,8 +310,8 @@ HLTHiggsBits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
 // MC truth part
 
-  string errMsg("");
-  edm::Handle<CandidateView> mctruth;
+  std::string errMsg("");
+  edm::Handle<reco::CandidateView> mctruth;
   
  
   try {iEvent.getByLabel(mctruth_,mctruth);} catch (...) { errMsg=errMsg + "  -- No Gen Particles";}
@@ -411,7 +411,7 @@ HLTHiggsBits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          electron2 = mct_analysis_.electron2_();
     
     
-   //  cout<<"iso="<< electron1.dr03TkSumPt()<<endl;
+   //  std::cout<<"iso="<< electron1.dr03TkSumPt()<<std::endl;
     
         h_ptel1->Fill(electron1.pt());
         h_ptel2->Fill(electron2.pt());
@@ -680,12 +680,12 @@ HLTHiggsBits::endJob()
 {
   // final printout of accumulated statistics
 
- // cout << "Job ending " << endl;
+ // std::cout << "Job ending " << std::endl;
 
   using namespace std;
 
- // cout << "Number of events handled:                      " << nEvents_ << endl;
- // cout << "Number of events seen in MC:                   " << n_inmc_ << ", (" << 100.0*n_inmc_/nEvents_ <<"%)" << endl;
+ // std::cout << "Number of events handled:                      " << nEvents_ << std::endl;
+ // std::cout << "Number of events seen in MC:                   " << n_inmc_ << ", (" << 100.0*n_inmc_/nEvents_ <<"%)" << std::endl;
  
  
 

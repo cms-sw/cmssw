@@ -41,9 +41,9 @@ HLTHiggsTruth::HLTHiggsTruth() {
 void HLTHiggsTruth::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 
   edm::ParameterSet myMCParams = pSet.getParameter<edm::ParameterSet>("RunParameters") ;
-  vector<std::string> parameterNames = myMCParams.getParameterNames() ;
+  std::vector<std::string> parameterNames = myMCParams.getParameterNames() ;
   
-  for ( vector<std::string>::iterator iParam = parameterNames.begin();
+  for ( std::vector<std::string>::iterator iParam = parameterNames.begin();
 	iParam != parameterNames.end(); iParam++ ){
     if  ( (*iParam) == "Monte" ) _Monte =  myMCParams.getParameter<bool>( *iParam );
     else if ( (*iParam) == "Debug" ) _Debug =  myMCParams.getParameter<bool>( *iParam );
@@ -75,9 +75,9 @@ void HLTHiggsTruth::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 
 //// HWW->2l selection
 
-void HLTHiggsTruth::analyzeHWW2l(const CandidateView& mctruth,const CaloMETCollection&
-caloMet, const TrackCollection& Tracks, const MuonCollection& muonHandle, 
-const GsfElectronCollection& electronHandle, TTree* HltTree) {
+void HLTHiggsTruth::analyzeHWW2l(const reco::CandidateView& mctruth,const reco::CaloMETCollection&
+caloMet, const reco::TrackCollection& Tracks, const reco::MuonCollection& muonHandle, 
+const reco::GsfElectronCollection& electronHandle, TTree* HltTree) {
   if (_Monte) {
   
    // if (&mctruth){
@@ -235,8 +235,8 @@ const GsfElectronCollection& electronHandle, TTree* HltTree) {
 
 ////////////////  HZZ-->4l selection
 
-void HLTHiggsTruth::analyzeHZZ4l(const CandidateView& mctruth, const MuonCollection& muonHandle, 
-const GsfElectronCollection& electronHandle, TTree* HltTree) {
+void HLTHiggsTruth::analyzeHZZ4l(const reco::CandidateView& mctruth, const reco::MuonCollection& muonHandle, 
+const reco::GsfElectronCollection& electronHandle, TTree* HltTree) {
   if (_Monte) {
  
     
@@ -369,7 +369,7 @@ const GsfElectronCollection& electronHandle, TTree* HltTree) {
   }
 }
 
-void HLTHiggsTruth::analyzeHgg(const CandidateView& mctruth, const PhotonCollection& photonHandle, TTree* HltTree) {
+void HLTHiggsTruth::analyzeHgg(const reco::CandidateView& mctruth, const reco::PhotonCollection& photonHandle, TTree* HltTree) {
   if (_Monte) {
   //  int nphotons=0;  
     std::map<double,reco::Photon> photonMap;
@@ -415,12 +415,12 @@ void HLTHiggsTruth::analyzeHgg(const CandidateView& mctruth, const PhotonCollect
   }
 }
 
-void HLTHiggsTruth::analyzeA2mu(const CandidateView& mctruth,TTree* HltTree) {
+void HLTHiggsTruth::analyzeA2mu(const reco::CandidateView& mctruth,TTree* HltTree) {
   if (_Monte) {
     int nmuons=0;
     if (&mctruth){
       for (size_t i = 0; i < mctruth.size(); ++ i) {
-	const Candidate & p = (mctruth)[i];
+	const reco::Candidate & p = (mctruth)[i];
         int status = p.status();
 	if (status==1) {
           int pid=p.pdgId();
@@ -447,7 +447,7 @@ void HLTHiggsTruth::analyzeA2mu(const CandidateView& mctruth,TTree* HltTree) {
 }
 
 
-void HLTHiggsTruth::analyzeH2tau(const CandidateView& mctruth,TTree* HltTree) {
+void HLTHiggsTruth::analyzeH2tau(const reco::CandidateView& mctruth,TTree* HltTree) {
   if (_Monte) {
   //  int ntaus=0;
     int ngentau=0;
@@ -465,7 +465,7 @@ void HLTHiggsTruth::analyzeH2tau(const CandidateView& mctruth,TTree* HltTree) {
     
     
       for (size_t i = 0; i < mctruth.size(); ++ i) {
-	const Candidate & p = (mctruth)[i];
+	const reco::Candidate & p = (mctruth)[i];
         int status = p.status();
         int pid=p.pdgId();
 	
@@ -547,7 +547,7 @@ void HLTHiggsTruth::analyzeH2tau(const CandidateView& mctruth,TTree* HltTree) {
   }
 }
 
-void HLTHiggsTruth::analyzeHtaunu(const CandidateView& mctruth,TTree* HltTree) {
+void HLTHiggsTruth::analyzeHtaunu(const reco::CandidateView& mctruth,TTree* HltTree) {
   if (_Monte) {
     
     int ntaus=0;
@@ -555,11 +555,11 @@ void HLTHiggsTruth::analyzeHtaunu(const CandidateView& mctruth,TTree* HltTree) {
      std::map<double,reco::Particle> tauMap;
     if (&mctruth){
       for (size_t i = 0; i < mctruth.size(); ++ i) {
-	   const Candidate & p = (mctruth)[i];
+	   const reco::Candidate & p = (mctruth)[i];
            int status = p.status();
 	   int pid=p.pdgId();
 	 
-	// const Candidate *m=p.mother();
+	// const reco::Candidate *m=p.mother();
 	
 	   if (status==1 || status==2) {
      
@@ -587,7 +587,7 @@ void HLTHiggsTruth::analyzeHtaunu(const CandidateView& mctruth,TTree* HltTree) {
   }
 }
 
-void HLTHiggsTruth::analyzeHinv(const CandidateView& mctruth,TTree* HltTree) {
+void HLTHiggsTruth::analyzeHinv(const reco::CandidateView& mctruth,TTree* HltTree) {
   if (_Monte) {
     if (&mctruth){
       isvisible = true; 
@@ -602,7 +602,7 @@ void HLTHiggsTruth::LeptonicTauDecay(const reco::Candidate& tau, bool& elecdec, 
 
 {
   
-  //if (tau.begin() == tau.end()) cout << "No_llega_a_entrar_en_el_bucle" << std::endl;
+  //if (tau.begin() == tau.end()) std::cout << "No_llega_a_entrar_en_el_bucle" << std::endl;
   // loop on tau decays, check for an electron or muon
   for(reco::Candidate::const_iterator daughter=tau.begin();daughter!=tau.end(); ++daughter){
     //cout << "daughter_x" << std::endl;
