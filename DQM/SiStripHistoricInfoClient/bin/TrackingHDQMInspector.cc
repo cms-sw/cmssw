@@ -4,6 +4,11 @@
 #include "DQMServices/Diagnostic/interface/DQMHistoryCreateTrend.h"
 #include <string>
 
+#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include <TROOT.h>
+#include <TFile.h>
+#include <TSystem.h>
+
 using namespace std;
 
 /**
@@ -49,7 +54,6 @@ void runTrackingInspector( const string & dbName, const string &tagName, const s
   vector<Trend> config;
 
 
-
   // Something you might want for collisions
   config.push_back(Trend( siStripTracker+"@Chi2oNDF_GenTk@mean", "Chi2oNDF_GenTk_mean.gif", 0, condition, "", Start, End, nRuns, 0, 50 ));
   config.push_back(Trend( siStripTracker+"@NumberOfTracks_GenTk@mean", "NumberOfTracks_GenTk_mean.gif", 0, condition, "", Start, End, nRuns ));
@@ -64,27 +68,6 @@ void runTrackingInspector( const string & dbName, const string &tagName, const s
   // Integral
   config.push_back(Trend( siStripTracker+"@Chi2oNDF_GenTk@entries", "Chi2oNDF_GenTk_entries.gif", 0, condition, "", Start, End, nRuns ));
   config.push_back(Trend( siStripTracker+"@NumberOfTracks_GenTk@entries", "NumberOfTracks_GenTk_entries.gif", 0, condition, "", Start, End, nRuns ));
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 /*
@@ -202,10 +185,6 @@ void runTrackingInspector( const string & dbName, const string &tagName, const s
   // config.push_back(Trend( siStripTracker+"@NumberOfTracks_CKFTk@entries", "NumberOfTracks_CKFTk_entries.gif", 0, condition, "", Start, End, nRuns ));
   // config.push_back(Trend( siStripTracker+"@NumberOfRecHitsPerTrack_CKFTk@entries", "NumberOfRecHitsPerTrack_CKFTk_entries.gif", 0, condition, "", Start, End, nRuns ));
 */
-
-
-
-
 
 
   // Creation of trends

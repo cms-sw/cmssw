@@ -6,6 +6,11 @@
 #include <fstream>
 #include <boost/algorithm/string.hpp>
 
+#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include <TROOT.h>
+#include <TFile.h>
+#include <TSystem.h>
+
 using namespace std;
 
 /**
@@ -83,6 +88,10 @@ void runTrackingInspector( const string & dbName, const string &tagName, const s
 
 int main (int argc, char* argv[])
 {
+  // load framework libraries
+  gSystem->Load( "libFWCoreFWLite" );
+  AutoLibraryLoader::enable();
+
   if (argc != 8) {
     std::cerr << argv[0] << " [Database] [TagName] [Password] [WhiteListFile] [SelectedTrends] [FirstRun] [LastRun] " << std::endl;
     return 1;

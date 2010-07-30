@@ -7,6 +7,11 @@
 #include <string>
 #include <vector>
 
+#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include <TROOT.h>
+#include <TFile.h>
+#include <TSystem.h>
+
 using namespace std;
 
 /// Simple helper function for building the string for TIB,TOB,TEC,TID items
