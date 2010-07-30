@@ -51,16 +51,16 @@ public:
 
   virtual ~ConfigurableTrimmedVertexFinder() {}
 
-  virtual vector<TransientVertex> 
-    vertices(const vector<reco::TransientTrack> & tracks) const;
+  virtual std::vector<TransientVertex> 
+    vertices(const std::vector<reco::TransientTrack> & tracks) const;
   
-  virtual vector<TransientVertex> 
-    vertices(const vector<reco::TransientTrack> & tracks,
+  virtual std::vector<TransientVertex> 
+    vertices(const std::vector<reco::TransientTrack> & tracks,
         const reco::BeamSpot & spot ) const;
 
-  vector<TransientVertex> 
-    vertices( const vector<reco::TransientTrack> & tracks,
-	      vector<reco::TransientTrack>& unused,
+  std::vector<TransientVertex> 
+    vertices( const std::vector<reco::TransientTrack> & tracks,
+	      std::vector<reco::TransientTrack>& unused,
         const reco::BeamSpot & spot, bool use_spot ) const;
 
   /** Access to parameters
@@ -96,38 +96,38 @@ public:
 
 protected:
 
-  virtual void resetEvent(const vector<reco::TransientTrack> & tracks) const {}
+  virtual void resetEvent(const std::vector<reco::TransientTrack> & tracks) const {}
 
-  virtual void analyseInputTracks(const vector<reco::TransientTrack> & tracks) 
+  virtual void analyseInputTracks(const std::vector<reco::TransientTrack> & tracks) 
     const {}
 
   virtual void 
-    analyseClusterFinder(const vector<TransientVertex> & vts, 
-			 const vector<reco::TransientTrack> & remain) 
+    analyseClusterFinder(const std::vector<TransientVertex> & vts, 
+			 const std::vector<reco::TransientTrack> & remain) 
     const {}
 
-  virtual void analyseVertexCandidates(const vector<TransientVertex> & vts) 
+  virtual void analyseVertexCandidates(const std::vector<TransientVertex> & vts) 
     const {}
 
-  virtual void analyseFoundVertices(const vector<TransientVertex> & vts) 
+  virtual void analyseFoundVertices(const std::vector<TransientVertex> & vts) 
     const {}
 
 
 private:
 
   // separate tracks passing the filter
-  //  void separateTracks(vector<TransientTrack>& filtered, 
-  //		      vector<TransientTrack>& unused) const;
+  //  void separateTracks(std::vector<TransientTrack>& filtered, 
+  //		      std::vector<TransientTrack>& unused) const;
 
   // find vertex candidates
-  vector<TransientVertex> 
-    vertexCandidates(const vector<reco::TransientTrack> & tracks, 
-		     vector<reco::TransientTrack>& unused,
+  std::vector<TransientVertex> 
+    vertexCandidates(const std::vector<reco::TransientTrack> & tracks, 
+		     std::vector<reco::TransientTrack>& unused,
          const reco::BeamSpot & spot, bool use_spot ) const;
 
   // remove bad candidates
-  vector<TransientVertex> 
-    clean(const vector<TransientVertex> & candidates) const;
+  std::vector<TransientVertex> 
+    clean(const std::vector<TransientVertex> & candidates) const;
   
   // 
   mutable TrimmedVertexFinder theClusterFinder;

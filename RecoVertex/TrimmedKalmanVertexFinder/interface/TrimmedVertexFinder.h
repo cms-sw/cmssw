@@ -75,7 +75,7 @@ private:
   // finds least compatible track
   // returns vtxTracks.end() if all tracks are compatible
   //
-  vector<RefCountedVertexTrack>::iterator theWorst(
+  std::vector<RefCountedVertexTrack>::iterator theWorst(
     const CachingVertex<5> & vtx, 
     std::vector<RefCountedVertexTrack> & vtxTracks, 
     float cut) const;

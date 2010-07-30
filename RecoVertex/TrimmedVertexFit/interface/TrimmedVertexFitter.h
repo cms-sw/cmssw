@@ -21,25 +21,25 @@ public:
 
   virtual ~TrimmedVertexFitter(){}
 
-  virtual CachingVertex<5> vertex(const vector<reco::TransientTrack> & tracks) const;
+  virtual CachingVertex<5> vertex(const std::vector<reco::TransientTrack> & tracks) const;
 
-  virtual CachingVertex<5> vertex(const vector<RefCountedVertexTrack> & tracks) const;
+  virtual CachingVertex<5> vertex(const std::vector<RefCountedVertexTrack> & tracks) const;
   
-  virtual CachingVertex<5> vertex(const vector<RefCountedVertexTrack> & tracks,
+  virtual CachingVertex<5> vertex(const std::vector<RefCountedVertexTrack> & tracks,
       const reco::BeamSpot & spot ) const;
 
-  virtual CachingVertex<5> vertex(const vector<reco::TransientTrack> & tracks,
+  virtual CachingVertex<5> vertex(const std::vector<reco::TransientTrack> & tracks,
   			const GlobalPoint& linPoint) const;
 
-  virtual CachingVertex<5> vertex(const vector<reco::TransientTrack> & tracks,
+  virtual CachingVertex<5> vertex(const std::vector<reco::TransientTrack> & tracks,
   			const GlobalPoint& priorPos,
 			const GlobalError& priorError) const;
 
-  virtual CachingVertex<5> vertex(const vector<RefCountedVertexTrack> & tracks,
+  virtual CachingVertex<5> vertex(const std::vector<RefCountedVertexTrack> & tracks,
 	 		const GlobalPoint& priorPos,
 			const GlobalError& priorError) const;
 
-  virtual CachingVertex<5> vertex(const vector<reco::TransientTrack> & tracks,
+  virtual CachingVertex<5> vertex(const std::vector<reco::TransientTrack> & tracks,
 		const reco::BeamSpot& beamSpot) const;
 
 

@@ -29,7 +29,7 @@ TrimmedVertexFitter::vertex(const std::vector<reco::TransientTrack> & tracks) co
     LinearizedTrackStateFactory lfac;
     VertexTrackFactory<5> vfac; 
        VertexState state ( rv.position(), rv.positionError() );
-     vector < RefCountedVertexTrack > vtrks;
+     std::vector < RefCountedVertexTrack > vtrks;
     std::vector<reco::TransientTrack> mytrks = rv.originalTracks();
     for ( std::vector<reco::TransientTrack>::const_iterator rt=mytrks.begin(); 
           rt!=mytrks.end() ; ++rt )
@@ -46,17 +46,17 @@ TrimmedVertexFitter::vertex(const std::vector<reco::TransientTrack> & tracks) co
 }
 
 CachingVertex<5> TrimmedVertexFitter::vertex(
-    const vector<RefCountedVertexTrack> & tracks) const
+    const std::vector<RefCountedVertexTrack> & tracks) const
 {
-  cout << "[TrimmedVertexFitter] method not implemented" << endl;
+  std::cout << "[TrimmedVertexFitter] method not implemented" << std::endl;
   throw VertexException("not implemented");
 }
 
 CachingVertex<5> TrimmedVertexFitter::vertex(
-    const vector<RefCountedVertexTrack> & tracks,
+    const std::vector<RefCountedVertexTrack> & tracks,
     const reco::BeamSpot & spot ) const
 {
-  cout << "[TrimmedVertexFitter] method not implemented" << endl;
+  std::cout << "[TrimmedVertexFitter] method not implemented" << std::endl;
   throw VertexException("not implemented");
 }
 
@@ -64,7 +64,7 @@ CachingVertex<5> TrimmedVertexFitter::vertex(
 CachingVertex<5> TrimmedVertexFitter::vertex(
     const std::vector<reco::TransientTrack> & tracks, const GlobalPoint& linPoint) const
 {
-  cout << "[TrimmedVertexFitter] method not implemented" << endl;
+  std::cout << "[TrimmedVertexFitter] method not implemented" << std::endl;
   throw VertexException("not implemented");
 }
 
@@ -72,24 +72,24 @@ CachingVertex<5> TrimmedVertexFitter::vertex(
     const std::vector<reco::TransientTrack> & tracks, const GlobalPoint& priorPos,
     const GlobalError& priorError) const
 {
-  cout << "[TrimmedVertexFitter] method not implemented" << endl;
+  std::cout << "[TrimmedVertexFitter] method not implemented" << std::endl;
   throw VertexException("not implemented");
 }
 
 CachingVertex<5> TrimmedVertexFitter::vertex(
-    const vector<RefCountedVertexTrack> & tracks, 
+    const std::vector<RefCountedVertexTrack> & tracks, 
 	 const GlobalPoint& priorPos,
 	 const GlobalError& priorError) const
 {
- cout << "[TrimmedVertexFitter] method not implemented" << endl;
+ std::cout << "[TrimmedVertexFitter] method not implemented" << std::endl;
   throw VertexException("not implemented");
 }
 
 CachingVertex<5> 
-TrimmedVertexFitter::vertex(const vector<reco::TransientTrack> & tracks,
+TrimmedVertexFitter::vertex(const std::vector<reco::TransientTrack> & tracks,
 			       const reco::BeamSpot& beamSpot) const
 {
- cout << "[TrimmedVertexFitter] method not implemented" << endl;
+ std::cout << "[TrimmedVertexFitter] method not implemented" << std::endl;
   throw VertexException("not implemented");
 }
 

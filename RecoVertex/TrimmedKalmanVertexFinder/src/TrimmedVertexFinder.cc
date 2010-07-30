@@ -29,18 +29,18 @@ TrimmedVertexFinder::~TrimmedVertexFinder() {
   delete theEstimator;
 }
 
-vector<TransientVertex> 
-TrimmedVertexFinder::vertices(vector<TransientTrack> & tks ) const
+std::vector<TransientVertex> 
+TrimmedVertexFinder::vertices(std::vector<TransientTrack> & tks ) const
 {
   // FIXME write this!!!
   return vertices ( tks, reco::BeamSpot(), false );
 }
 
-vector<TransientVertex> 
-TrimmedVertexFinder::vertices(vector<TransientTrack> & tks,
+std::vector<TransientVertex> 
+TrimmedVertexFinder::vertices(std::vector<TransientTrack> & tks,
     const reco::BeamSpot & spot, bool use_spot )  const
 {
-  vector<TransientVertex> all;
+  std::vector<TransientVertex> all;
   if (tks.size() < 2) return all;
 
   // prepare vertex tracks and initial vertex
@@ -57,15 +57,15 @@ TrimmedVertexFinder::vertices(vector<TransientTrack> & tks,
     return all;
   }
 
-  vector<RefCountedVertexTrack> selected = vtx.tracks();
+  std::vector<RefCountedVertexTrack> selected = vtx.tracks();
 
   // reject incompatible tracks starting from the worst
-  vector<RefCountedVertexTrack> remain;
+  std::vector<RefCountedVertexTrack> remain;
   bool found = false;
   while (!found && selected.size() >= 2) {
 
     // find track with worst compatibility
-    vector<RefCountedVertexTrack>::iterator iWorst = theWorst(vtx, 
+    std::vector<RefCountedVertexTrack>::iterator iWorst = theWorst(vtx, 
 							      selected, 
 							      theMinProb);
     
@@ -107,7 +107,7 @@ TrimmedVertexFinder::vertices(vector<TransientTrack> & tks,
       int n_tracks_in_vertex = selected.size();
 
       // now return all tracks with weight < 0.5 to 'remain'.
-      for ( vector< RefCountedVertexTrack >::const_iterator t=selected.begin();
+      for ( std::vector< RefCountedVertexTrack >::const_iterator t=selected.begin();
           t!=selected.end() ; ++t )
       {
         if ( (**t).weight() < 0.5 )
@@ -132,7 +132,7 @@ TrimmedVertexFinder::vertices(vector<TransientTrack> & tks,
 
   // modify list of incompatible tracks
   tks.clear();
-  for (vector<RefCountedVertexTrack>::const_iterator i = remain.begin(); 
+  for (std::vector<RefCountedVertexTrack>::const_iterator i = remain.begin(); 
        i != remain.end(); i++) {
     const PerigeeLinearizedTrackState* plts = 
       dynamic_cast<const PerigeeLinearizedTrackState*>
@@ -149,22 +149,22 @@ TrimmedVertexFinder::vertices(vector<TransientTrack> & tks,
 }
 
 
-vector<TrimmedVertexFinder::RefCountedVertexTrack>::iterator 
+std::vector<TrimmedVertexFinder::RefCountedVertexTrack>::iterator 
 TrimmedVertexFinder::theWorst(const CachingVertex<5> & vtx, 
-  vector<RefCountedVertexTrack> & vtxTracks, float cut) const
+  std::vector<RefCountedVertexTrack> & vtxTracks, float cut) const
 {
 
   //  cout << "Cut is now " << cut << endl;
 
   // find track with worst compatibility
-  vector<RefCountedVertexTrack>::iterator iWorst = vtxTracks.end();
+  std::vector<RefCountedVertexTrack>::iterator iWorst = vtxTracks.end();
   float worseChi2 = 0.;
-  for (vector<RefCountedVertexTrack>::iterator itr = vtxTracks.begin();
+  for (std::vector<RefCountedVertexTrack>::iterator itr = vtxTracks.begin();
        itr != vtxTracks.end(); itr++) {
 
     CachingVertex<5> newV = theUpdator->remove(vtx, *itr);
     if (!newV.isValid()) return itr;
-    pair<bool, double> result = theEstimator->estimate(newV, *itr);
+    std::pair<bool, double> result = theEstimator->estimate(newV, *itr);
     if (!result.first) return itr;
     float chi2 = result.second;
 
