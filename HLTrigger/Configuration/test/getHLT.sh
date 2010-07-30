@@ -64,12 +64,14 @@ function getConfigForOnline() {
   log "    dumping full HLT for $NAME"
   if [ "$NAME" == "8E29" ] || [ "$NAME" == "GRun" ]; then
     $GETHLT --full --offline --data $CONFIG $NAME --l1 L1Menu_Commissioning2010_v3
+    $GETHLT --full --offline --mc   $CONFIG $NAME --l1 L1Menu_Commissioning2010_v3
   elif [ "$NAME" == "1E31" ] || [ "$NAME" == "HIon" ]; then
     $GETHLT --full --offline --data $CONFIG $NAME --l1 L1Menu_MC2010_v0
+    $GETHLT --full --offline --mc   $CONFIG $NAME --l1 L1Menu_MC2010_v0
   else
     $GETHLT --full --offline --data $CONFIG $NAME
+    $GETHLT --full --offline --mc   $CONFIG $NAME
   fi
-  $GETHLT --full --offline --mc   $CONFIG $NAME
 }
 
 # make sure we're using *this* working area
