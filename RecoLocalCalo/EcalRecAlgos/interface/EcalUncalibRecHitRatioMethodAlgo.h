@@ -5,9 +5,9 @@
  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
  *  using a ratio method
  *
- *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.30 2010/07/29 16:59:40 innocent Exp $
- *  $Date: 2010/07/29 16:59:40 $
- *  $Revision: 1.30 $
+ *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.31 2010/07/30 06:31:44 innocent Exp $
+ *  $Date: 2010/07/30 06:31:44 $
+ *  $Revision: 1.31 $
  *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
  */
 
@@ -255,36 +255,57 @@ Scalar & chi2, Scalar & amp) const {
 }
 
 // vectorized version
+
+namespace ecal_details {
+  template<typename C>
+  struct AmplitudeSSESupport {
+    typedef typename EcalUncalibRecHitRatioMethodAlgo<C,float>::Array Array;
+    static const size_t size = Array::Size::size;
+    static const size_t ssesize = Array::Size::ssesize;
+    static const size_t arrsize = Array::Size::arrsize;
+    
+    Array index;
+    Array mask;
+    AmplitudeSSESupport() {
+      for(unsigned int it = 0; it < ssesize; it++)
+	mask.vec[it] = _mm_cmpeq_ps(_mm_setzero_ps(),_mm_setzero_ps());
+      for(unsigned int it = 0; it < arrsize; it++)
+	index.arr[it]=it;
+      for(unsigned int it = size; it < arrsize; it++) 
+	mask.arr[it]= 0;
+    }
+  }
+    
+}
+
 template<class C, typename Scalar>
 void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeAmpChi2_V(float sumAA, float t, float alpha, float overab, float & 
 chi2, float & amp) const {
 
-  static const size_t ssesize = Array::Size::ssesize;
-  static const size_t arrsize = Array::Size::arrsize;
+  static const ecal_details::AmplitudeSSESupport<C> supportStruct;
+  
+
+  const size_t ssesize = Array::Size::ssesize;
+  const size_t arrsize = Array::Size::arrsize;
 
   // typedef float Scalar;
   typedef typename Array::Vec Vec;
   Scalar const denom =  Scalar(1)/Scalar(amplitudesSize);
 
-  Vec one = _mm_set1_ps(1);
-  Vec eps = _mm_set1_ps(1e-6);
+  Vec const zero =  _mm_setzero_ps();
+  Vec const one = _mm_set1_ps(1);
+  Vec const eps = _mm_set1_ps(1e-6);
 
   Vec tV = _mm_set1_ps(t);
   Vec alphaV = _mm_set1_ps(alpha);
   Vec overabV = _mm_set1_ps(overab);
 
-  Array index;
-  Array mask;
-  for(unsigned int it = 0; it < ssesize; it++)
-    mask.vec[it] = _mm_cmpeq_ps(_mm_setzero_ps(),_mm_setzero_ps());
-  for(unsigned int it = 0; it < arrsize; it++)
-    index.arr[it]=it;
-  for(unsigned int it = amplitudesSize; it < arrsize; it++) 
-    mask.arr[it]= 0;
+  Array const & index = supportStruct.index;
+  Array const & mask = supportStruct.mask;
  
 
-  Vec sumAf =  _mm_setzero_ps();
-  Vec sumff =  _mm_setzero_ps();
+  Vec sumAf =  zero;
+  Vec sumff =  zero;
 
 
   for(unsigned int it = 0; it < ssesize; it++){
