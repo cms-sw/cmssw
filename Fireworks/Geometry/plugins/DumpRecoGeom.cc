@@ -60,6 +60,7 @@ private:
   {
     std::string name;
     Float_t points[24]; // x1,y1,z1...x8,y8,z8
+    Float_t topology[9]; 
     Info( const std::string& iname )
       : name( iname )
       {
@@ -73,6 +74,7 @@ private:
     init( void )
       {
 	for( unsigned int i = 0; i < 24; ++i ) points[i] = 0;
+	for( unsigned int i = 0; i < 9; ++i ) topology[i] = 0;
       }
     void
     fillPoints( std::vector<GlobalPoint>::const_iterator begin, std::vector<GlobalPoint>::const_iterator end )
@@ -161,6 +163,7 @@ DumpRecoGeom::analyze( const edm::Event& event, const edm::EventSetup& eventSetu
   TString *v_path( new TString );
   char v_name[1000];
   Float_t v_vertex[24];
+  Float_t v_params[9];
   
 // An attempt to cache shapes and matrices.  
 //   TObject* v_volume( new TObject );
@@ -172,6 +175,7 @@ DumpRecoGeom::analyze( const edm::Event& event, const edm::EventSetup& eventSetu
 //   tree->Branch( "volume", "TObject", &v_volume );
 //   tree->Branch( "shape", "TObject", &v_shape );
   tree->Branch( "points", &v_vertex, "points[24]/F" );
+  tree->Branch( "topology", &v_params, "topology[9]/F" );
   for( std::map<unsigned int, Info>::const_iterator it = m_idToName.begin(),
 						   end = m_idToName.end();
        it != end; ++it )
@@ -180,6 +184,8 @@ DumpRecoGeom::analyze( const edm::Event& event, const edm::EventSetup& eventSetu
     *v_path = it->second.name.c_str();
     for( unsigned int i = 0; i < 24; ++i )
       v_vertex[i] = it->second.points[i];
+    for( unsigned int i = 0; i < 9; ++i )
+      v_params[i] = it->second.topology[i];
     strcpy( v_name, it->second.name.c_str());
 //     geom->cd( *v_path );
 //     v_volume = geom->GetCurrentVolume();
@@ -383,6 +389,9 @@ DumpRecoGeom::addCSCGeometry( TGeoVolume* top, const std::string& iName, int cop
       m_idToName[rawid] = Info( s.str());
     }
   }
+  //
+  // CSC layers geometry
+  //
   for( std::vector<CSCLayer*>::const_iterator it = m_cscGeom->layers().begin(),
 					     end = m_cscGeom->layers().end(); 
        it != end; ++it )
@@ -404,13 +413,17 @@ DumpRecoGeom::addCSCGeometry( TGeoVolume* top, const std::string& iName, int cop
       s << path( top, iName, copy ) << "/" << name << "_" << copy;
       m_idToName[rawid] = Info( s.str());
 
-      // Parameters for CSC strips
-      m_idToName[rawid].points[0] = layer->geometry()->topology()->yAxisOrientation();
-      m_idToName[rawid].points[1] = layer->geometry()->topology()->centreToIntersection();
-      m_idToName[rawid].points[2] = layer->geometry()->topology()->yCentreOfStripPlane();
-      m_idToName[rawid].points[3] = layer->geometry()->topology()->phiOfOneEdge();
-      m_idToName[rawid].points[4] = layer->geometry()->topology()->stripOffset();
-      m_idToName[rawid].points[5] = layer->geometry()->topology()->angularWidth();
+      const CSCStripTopology* stripTopology = layer->geometry()->topology();
+      m_idToName[rawid].topology[0] = stripTopology->yAxisOrientation();
+      m_idToName[rawid].topology[1] = stripTopology->centreToIntersection();
+      m_idToName[rawid].topology[2] = stripTopology->yCentreOfStripPlane();
+      m_idToName[rawid].topology[3] = stripTopology->phiOfOneEdge();
+      m_idToName[rawid].topology[4] = stripTopology->stripOffset();
+      m_idToName[rawid].topology[5] = stripTopology->angularWidth();
+
+      const CSCWireTopology* wireTopology = layer->geometry()->wireTopology();
+      m_idToName[rawid].topology[6] = wireTopology->numberOfWires();
+      m_idToName[rawid].topology[7] = wireTopology->wireAngle();
     }
   }
   
@@ -472,9 +485,9 @@ DumpRecoGeom::addDTGeometry( TGeoVolume* top, const std::string& iName, int copy
 
       const BoundPlane& surf = superlayer->surface();
       // Bounds W/H/L:
-      m_idToName[rawid].points[0] = surf.bounds().width();
-      m_idToName[rawid].points[1] = surf.bounds().thickness();
-      m_idToName[rawid].points[2] = surf.bounds().length();
+      m_idToName[rawid].topology[0] = surf.bounds().width();
+      m_idToName[rawid].topology[1] = surf.bounds().thickness();
+      m_idToName[rawid].topology[2] = surf.bounds().length();
     }
   }
 
@@ -503,17 +516,17 @@ DumpRecoGeom::addDTGeometry( TGeoVolume* top, const std::string& iName, int copy
       const DTTopology& topo = layer->specificTopology();
       const BoundPlane& surf = layer->surface();
       // Topology W/H/L:
-      m_idToName[rawid].points[0] = topo.cellWidth();
-      m_idToName[rawid].points[1] = topo.cellHeight();
-      m_idToName[rawid].points[2] = topo.cellLenght();
-      m_idToName[rawid].points[3] = topo.firstChannel();
-      m_idToName[rawid].points[4] = topo.lastChannel();
-      m_idToName[rawid].points[5] = topo.channels();
+      m_idToName[rawid].topology[0] = topo.cellWidth();
+      m_idToName[rawid].topology[1] = topo.cellHeight();
+      m_idToName[rawid].topology[2] = topo.cellLenght();
+      m_idToName[rawid].topology[3] = topo.firstChannel();
+      m_idToName[rawid].topology[4] = topo.lastChannel();
+      m_idToName[rawid].topology[5] = topo.channels();
 
       // Bounds W/H/L:
-      m_idToName[rawid].points[6] = surf.bounds().width();
-      m_idToName[rawid].points[7] = surf.bounds().thickness();
-      m_idToName[rawid].points[8] = surf.bounds().length();
+      m_idToName[rawid].topology[6] = surf.bounds().width();
+      m_idToName[rawid].topology[7] = surf.bounds().thickness();
+      m_idToName[rawid].topology[8] = surf.bounds().length();
     }
   }  
 }
