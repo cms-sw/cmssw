@@ -23,13 +23,13 @@ CachingVertex<5> AbstractConfFitter::vertex (
 }
 
 CachingVertex<5> AbstractConfFitter::vertex(
-  const vector<RefCountedVertexTrack> & tracks) const
+  const std::vector<RefCountedVertexTrack> & tracks) const
 {
   return theFitter->vertex ( tracks );
 }
 
 CachingVertex<5> AbstractConfFitter::vertex(
-  const vector<RefCountedVertexTrack> & tracks,
+  const std::vector<RefCountedVertexTrack> & tracks,
   const reco::BeamSpot & spot ) const
 {
   return theFitter->vertex ( tracks, spot );
@@ -37,25 +37,25 @@ CachingVertex<5> AbstractConfFitter::vertex(
 
 
 CachingVertex<5> AbstractConfFitter::vertex(
-  const vector<reco::TransientTrack> & tracks, const GlobalPoint& linPoint) const
+  const std::vector<reco::TransientTrack> & tracks, const GlobalPoint& linPoint) const
 {
   return theFitter->vertex ( tracks, linPoint );
 }
 
 CachingVertex<5> AbstractConfFitter::vertex(
-  const vector<reco::TransientTrack> & tracks, const GlobalPoint& priorPos,
+  const std::vector<reco::TransientTrack> & tracks, const GlobalPoint& priorPos,
   const GlobalError& priorError) const
 {
   return theFitter->vertex ( tracks, priorPos, priorError );
 }
 
 CachingVertex<5> AbstractConfFitter::vertex(
-  const vector<reco::TransientTrack> & tracks, const reco::BeamSpot& beamSpot) const
+  const std::vector<reco::TransientTrack> & tracks, const reco::BeamSpot& beamSpot) const
 {
   return theFitter->vertex ( tracks, beamSpot );
 }
 
-CachingVertex<5> AbstractConfFitter::vertex(const vector<RefCountedVertexTrack> & tracks, 
+CachingVertex<5> AbstractConfFitter::vertex(const std::vector<RefCountedVertexTrack> & tracks, 
   const GlobalPoint& priorPos, const GlobalError& priorError) const
 {
   return theFitter->vertex ( tracks, priorPos, priorError );

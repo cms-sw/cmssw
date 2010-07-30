@@ -13,7 +13,7 @@ namespace {
     ret.addParameter<double>("ratio",0.25);
     ret.addParameter<int>("cheat",0);
     edm::ParameterSet nest;
-    nest.addParameter<string>("finder","mbs");
+    nest.addParameter<std::string>("finder","mbs");
     ret.addParameter<edm::ParameterSet>("ini",nest);
     return ret;
   }
@@ -28,7 +28,7 @@ namespace {
   
   const VertexReconstructor * initialiser ( const edm::ParameterSet & p )
   {
-    // cout << "[ConfigurableMultiVertexFitter] ini: " << p << endl;
+    // std::cout << "[ConfigurableMultiVertexFitter] ini: " << p << std::endl;
     return new ConfigurableVertexReconstructor ( p );
   } 
 }
@@ -85,7 +85,7 @@ std::vector < TransientVertex > ConfigurableMultiVertexFitter::vertices (
   return theRector->vertices ( prims, secs, s );
 }
 
-vector < TransientVertex > ConfigurableMultiVertexFitter::vertices ( 
+std::vector < TransientVertex > ConfigurableMultiVertexFitter::vertices ( 
     const std::vector < reco::TransientTrack > & t ) const
 {
   return theRector->vertices ( t );
