@@ -154,12 +154,12 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips(SiStripQuali
       if(UseInputDB_){
 	if(InSiStripQuality->IsApvBad(detid,apv) ){
 	  if(edm::isDebugEnabled())
-	    LogTrace("SiStripHotStrip")<<"(Module and Apv number) "<<detid<<" , "<<apv<<" excluded by input ESetup."<<endl;
+	    LogTrace("SiStripHotStrip")<<"(Module and Apv number) "<<detid<<" , "<<apv<<" excluded by input ESetup."<<std::endl;
 	  continue;//if the apv is already flagged as bad, continue.
 	}
 	else{
 	  if(edm::isDebugEnabled())
-	    LogTrace("SiStripHotStrip")<<"(Module and Apv number) "<<detid<<" , "<<apv<<" good by input ESetup."<<endl;
+	    LogTrace("SiStripHotStrip")<<"(Module and Apv number) "<<detid<<" , "<<apv<<" good by input ESetup."<<std::endl;
 	}
       }
 
