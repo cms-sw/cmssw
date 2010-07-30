@@ -62,7 +62,7 @@ bool  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pair, reco:
   
   KinematicParticleFactoryFromTransientTrack pFactory;
   
-  vector<RefCountedKinematicParticle> particles;
+  std::vector<RefCountedKinematicParticle> particles;
   
   particles.push_back(pFactory.particle (pair[0],mass,chi,ndf,sigma));
   particles.push_back(pFactory.particle (pair[1],mass,chi,ndf,sigma));
@@ -110,7 +110,7 @@ TransientVertex  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  
   KalmanVertexFitter fitter(true);
   TransientVertex transientVtx;
 
-  const string metname =  "ConversionVertexFinder| ConversionVertexFinder";
+  const std::string metname =  "ConversionVertexFinder| ConversionVertexFinder";
   try{
 
     transientVtx = fitter.vertex(pair); 

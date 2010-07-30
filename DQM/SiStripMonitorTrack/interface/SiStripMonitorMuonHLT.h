@@ -4,7 +4,7 @@
 
 // system include files
 #include <memory>
-#include <string>
+#include <std::string>
 #include <cmath>
 
 // user include files
@@ -102,12 +102,12 @@ class SiStripMonitorMuonHLT : public edm::EDAnalyzer {
       virtual void endJob() ;
       void createMEs(const edm::EventSetup& es);
       //methods needed for normalisation
-      float GetEtaWeight(string label, GlobalPoint gp);
-      float GetPhiWeight(string label, GlobalPoint gp);
+      float GetEtaWeight(std::string label, GlobalPoint gp);
+      float GetPhiWeight(std::string label, GlobalPoint gp);
       void GeometryFromTrackGeom (std::vector<DetId> Dets,const TrackerGeometry & theTracker,
-                                  std::map< string,std::vector<float> > & m_PhiStripMod_Eta,std::map< string,std::vector<float> > & m_PhiStripMod_Nb);
+                                  std::map<std::string,std::vector<float> > & m_PhiStripMod_Eta,std::map<std::string,std::vector<float> > & m_PhiStripMod_Nb);
       void Normalizer (std::vector<DetId> Dets,const TrackerGeometry & theTracker);
-      void PrintNormalization (std::vector<string> v_LabelHisto);
+      void PrintNormalization (std::vector<std::string> v_LabelHisto);
 
       // ----------member data ---------------------------
 
@@ -143,10 +143,10 @@ class SiStripMonitorMuonHLT : public edm::EDAnalyzer {
 
     
       // FOR NORMALISATION     
-      std::map< string,std::vector<float> > m_BinPhi ;
-      std::map< string,std::vector<float> > m_BinEta ;
-      std::map< string,std::vector<float> > m_ModNormPhi;
-      std::map< string,std::vector<float> > m_ModNormEta;
+      std::map<std::string,std::vector<float> > m_BinPhi ;
+      std::map<std::string,std::vector<float> > m_BinEta ;
+      std::map<std::string,std::vector<float> > m_ModNormPhi;
+      std::map<std::string,std::vector<float> > m_ModNormEta;
       
 
 

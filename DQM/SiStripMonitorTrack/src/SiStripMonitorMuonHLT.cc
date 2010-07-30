@@ -13,7 +13,7 @@
 //
 // Original Author:  Eric Chabert
 //         Created:  Wed Sep 23 17:26:42 CEST 2009
-// $Id: SiStripMonitorMuonHLT.cc,v 1.10 2010/03/27 11:38:43 dutta Exp $
+// $Id: SiStripMonitorMuonHLT.cc,v 1.11 2010/04/28 14:22:22 echabert Exp $
 //
 
 #include "DQM/SiStripMonitorTrack/interface/SiStripMonitorMuonHLT.h"
@@ -29,7 +29,7 @@ SiStripMonitorMuonHLT::SiStripMonitorMuonHLT (const edm::ParameterSet & iConfig)
   verbose_ = parameters_.getUntrackedParameter<bool>("verbose",false);
   normalize_ = parameters_.getUntrackedParameter<bool>("normalize",true);
   printNormalize_ = parameters_.getUntrackedParameter<bool>("printNormalize",false);
-  monitorName_ = parameters_.getUntrackedParameter<string>("monitorName","HLT/HLTMonMuon");
+  monitorName_ = parameters_.getUntrackedParameter<std::string>("monitorName","HLT/HLTMonMuon");
   prescaleEvt_ = parameters_.getUntrackedParameter<int>("prescaleEvt",-1);
 
   //booleans
@@ -133,7 +133,7 @@ SiStripMonitorMuonHLT::analyze (const edm::Event & iEvent, const edm::EventSetup
   counterEvt_++;
   if (prescaleEvt_ > 0 && counterEvt_ % prescaleEvt_ != 0)
     return;
-  LogDebug ("SiStripMonitorHLTMuon") << " processing conterEvt_: " << counterEvt_ << endl;
+  LogDebug ("SiStripMonitorHLTMuon") << " processing conterEvt_: " << counterEvt_ << std::endl;
 
 
   edm::ESHandle < TrackerGeometry > TG;
@@ -1066,8 +1066,8 @@ SiStripMonitorMuonHLT::Normalizer (std::vector<DetId> Dets,const TrackerGeometry
 
           // SCRIPT TO INTEGRATE THE SURFACE INTO PHI BIN
 
-          float phiMin = min(bot_left_G.phi(),bot_rightG.phi());
-          float phiMax = max(top_left_G.phi(),top_rightG.phi());
+          float phiMin = std::min(bot_left_G.phi(),bot_rightG.phi());
+          float phiMax = std::max(top_left_G.phi(),top_rightG.phi());
 
           bool offlimit_prev = false;
           bool offlimit_foll = false;
@@ -1299,7 +1299,7 @@ SiStripMonitorMuonHLT::beginRun (const edm::Run& run, const edm::EventSetup & es
     {
       if (monitorName_ != "")
 	monitorName_ = monitorName_ + "/";
-      edm::LogInfo ("HLTMuonDQMSource") << "===>DQM event prescale = " << prescaleEvt_ << " events " << endl;
+      edm::LogInfo ("HLTMuonDQMSource") << "===>DQM event prescale = " << prescaleEvt_ << " events " << std::endl;
       createMEs (es);
       //create TKHistoMap
       if(runOnClusters_)

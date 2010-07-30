@@ -275,7 +275,7 @@ void SiStripMonitorTrack::bookLayerMEs(const uint32_t& mod_id, std::string& laye
   
   //Cluster Position
   short total_nr_strips = SiStripDetCabling_->nApvPairs(mod_id) * 2 * 128; 
-  if (layer_id.find("TEC") != string::npos && !flag_ring)  total_nr_strips = 3 * 2 * 128;
+  if (layer_id.find("TEC") != std::string::npos && !flag_ring)  total_nr_strips = 3 * 2 * 128;
   
   hname = hidmanager.createHistoLayer("Summary_ClusterPosition",name,layer_id,"OnTrack");
   theLayerMEs.ClusterPosOnTrack = dbe->book1D(hname, hname, total_nr_strips, 0.5,total_nr_strips+0.5);
@@ -293,7 +293,7 @@ void SiStripMonitorTrack::bookSubDetMEs(std::string& name){
 
   std::string subdet_tag;
   subdet_tag = "__" + name;
-  string completeName;
+  std::string completeName;
 
   SubDetMEs theSubDetMEs;
   theSubDetMEs.totNClustersOnTrack    = 0;
