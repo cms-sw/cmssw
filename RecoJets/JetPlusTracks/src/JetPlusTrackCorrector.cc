@@ -30,9 +30,12 @@ JetPlusTrackCorrector::JetPlusTrackCorrector( const edm::ParameterSet& pset )
     useMuons_( pset.getParameter<bool>("UseMuons") ),
     useElecs_( pset.getParameter<bool>("UseElectrons") ),
     useTrackQuality_( pset.getParameter<bool>("UseTrackQuality") ),
+    ptErrorQuality_( pset.getParameter<double>("PtErrorQuality") ),
+    dzVertexCut_( pset.getParameter<double>("DzVertexCut") ),
     jetTracksAtVertex_( pset.getParameter<edm::InputTag>("JetTracksAssociationAtVertex") ),
     jetTracksAtCalo_( pset.getParameter<edm::InputTag>("JetTracksAssociationAtCaloFace") ),
     jetSplitMerge_( pset.getParameter<int>("JetSplitMerge") ),
+    srcPVs_(pset.getParameter<edm::InputTag>("srcPVs") ),
     muons_( pset.getParameter<edm::InputTag>("Muons") ),
     electrons_( pset.getParameter<edm::InputTag>("Electrons") ),
     electronIds_( pset.getParameter<edm::InputTag>("ElectronIds") ),
@@ -388,6 +391,13 @@ void JetPlusTrackCorrector::matchTracks( const JetTracks& jet_tracks,
   muons.clear(); 
   elecs.clear(); 
 
+  // Need vertex for track cleaning
+
+   vertex_=reco::Particle::Point(0,0,0);
+   edm::Handle<reco::VertexCollection> pvCollection;
+   event.getByLabel(srcPVs_,pvCollection);
+   if ( pvCollection.isValid() && pvCollection->size()>0 ) vertex_=pvCollection->begin()->position();
+
   // Get RECO muons
   edm::Handle<RecoMuons> reco_muons;
   bool found_reco_muons = true;
@@ -516,8 +526,22 @@ bool JetPlusTrackCorrector::getElectrons( const edm::Event& event,
 // -----------------------------------------------------------------------------
 //
 bool JetPlusTrackCorrector::failTrackQuality( TrackRefs::const_iterator itrk ) const { 
-  if ( useTrackQuality_ && !(*itrk)->quality(trackQuality_) ) { return true; }
-  else { return false; }
+//  if ( useTrackQuality_ && !(*itrk)->quality(trackQuality_) ) { return true; }
+//  else { return false; }
+    
+    bool retcode = false;
+    if ( useTrackQuality_ && !(*itrk)->quality(trackQuality_) ) { retcode = true; return retcode;}
+    if(((*itrk)->ptError()/(*itrk)->pt()) > ptErrorQuality_) { 
+//      std::cout<<" failTrackQuality::Pt track "<<(*itrk)->pt()<<" "<<(*itrk)->ptError()/(*itrk)->pt()<<
+//                  " Cut "<<ptErrorQuality_<<std::endl;
+      retcode = true; return retcode;
+     }
+     if(fabs((*itrk)->dz(vertex_)) > dzVertexCut_) {
+//      std::cout<<" failTrackQuality::Pt track::vertex "<<(*itrk)->pt()<<" dz_vertex "<<(*itrk)->dz(vertex_)<<
+//     "Track vz "<<(*itrk)->vz()<<" vertex "<<vertex_<<" Cut "<<dzVertexCut_<<" Pt cut "<<(*itrk)->ptError()/(*itrk)->pt()<<std::endl;
+      retcode = true; return retcode;
+     }
+    return retcode;
 }
 
 // -----------------------------------------------------------------------------
@@ -823,8 +847,8 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::calculateCorr( const P4& jet,
     for ( ; itrk != jtrk; ++itrk ) {
 
       // Ignore high-pt tracks (only when in-cone and not a mip)
-      if ( in_cone_at_calo_face && is_pion && (*itrk)->pt() >= 50. ) { continue; }
-      
+       if ( in_cone_at_calo_face && is_pion && (*itrk)->pt() >= 50. ) { continue; }
+ 
       // Inner track 4-momentum
       P4 inner;
       if ( vectorial_ && vecResponse_ ) {
@@ -1165,7 +1189,7 @@ if( trBgOutOfVertex.size() == 0 ) return mScale;
      for( reco::TrackRefVector::iterator iBgtV = trBgOutOfVertex.begin(); iBgtV != trBgOutOfVertex.end(); iBgtV++)
        {
        // Temporary solution>>>>>> Remove tracks with pt>50 GeV
-         if( (**iBgtV).pt() >= 50. ) continue;
+          if( (**iBgtV).pt() >= 50. ) continue;
                //response_.value(ieta,ipt);
          double eta = fabs( (**iBgtV).eta() );
          double pt = fabs( (**iBgtV).pt() );

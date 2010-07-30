@@ -12,6 +12,8 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "boost/range/iterator_range.hpp"
@@ -398,6 +400,10 @@ class JetPlusTrackCorrector {
   edm::InputTag jetTracksAtVertex_;
   edm::InputTag jetTracksAtCalo_;
   int jetSplitMerge_;
+  edm::InputTag srcPVs_;
+  double ptErrorQuality_;
+  double dzVertexCut_;
+  mutable reco::Particle::Point vertex_;
 
   // Muons and electrons
   edm::InputTag muons_;
