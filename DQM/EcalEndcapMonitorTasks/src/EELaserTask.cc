@@ -1,8 +1,8 @@
 /*
  * \file EELaserTask.cc
  *
- * $Date: 2010/05/29 08:52:24 $
- * $Revision: 1.70 $
+ * $Date: 2010/06/14 15:00:40 $
+ * $Revision: 1.71 $
  * \author G. Della Ricca
  *
 */
@@ -50,7 +50,7 @@ EELaserTask::EELaserTask(const edm::ParameterSet& ps){
   // vector of enabled wavelengths (Default to all 4)
   laserWavelengths_.reserve(4);
   for ( unsigned int i = 1; i <= 4; i++ ) laserWavelengths_.push_back(i);
-  laserWavelengths_ = ps.getUntrackedParameter<vector<int> >("laserWavelengths", laserWavelengths_);
+  laserWavelengths_ = ps.getUntrackedParameter<std::vector<int> >("laserWavelengths", laserWavelengths_);
 
   for (int i = 0; i < 18; i++) {
     meShapeMapL1_[i] = 0;
