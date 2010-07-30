@@ -51,15 +51,22 @@ HFShowerParam::HFShowerParam(std::string & name, const DDCompactView & cpv,
   edm::Service<TFileService> tfile;
   if (tfile.isAvailable()) {
     fillHisto = true;
-    edm::LogInfo("HFShower") << "HFShowerParam::Save histos in directory "
-			     << "ProfileFromParam";
+    LogDebug("HFShower") << "HFShowerParam::Save histos in directory "
+			 << "ProfileFromParam";
     TFileDirectory showerDir = tfile->mkdir("ProfileFromParam");
-    em_2d         = showerDir.make<TH2F>("em_2d","Lateral Profile vs. Shower Depth;Radiation Length;Moliere Radius",800,800.0,1600.0,100,0.0,5.0);
-    em_long       = showerDir.make<TH1F>("em_long","Longitudinal Profile;Radiation Length;Number of Spots",800,800.0,1600.0);
-    em_lateral    = showerDir.make<TH1F>("em_lateral","Lateral Profile;Radiation Length;Moliere Radius",100,0.0,5.0);
+    hzv             = showerDir.make<TH1F>("hzv","Longitudinal Profile;Radiation Length;Number of Spots",330,0.0,1650.0);
+    em_2d_1         = showerDir.make<TH2F>("em_2d_1","Lateral Profile vs. Shower Depth;cm;Events",800,800.0,1600.0,100,50.0,150.0);
+    em_long_1       = showerDir.make<TH1F>("em_long_1","Longitudinal Profile;Radiation Length;Number of Spots",800,800.0,1600.0);
+    em_long_1_tuned = showerDir.make<TH1F>("em_long_1_tuned","Longitudinal Profile;Radiation Length;Number of Spots",800,800.0,1600.0);
+    em_lateral_1    = showerDir.make<TH1F>("em_lateral_1","Lateral Profile;cm;Events",100,50.0,150.0);
+    em_2d_2         = showerDir.make<TH2F>("em_2d_2","Lateral Profile vs. Shower Depth;cm;Events",800,800.0,1600.0,100,50.0,150.0);
+    em_long_2       = showerDir.make<TH1F>("em_long_2","Longitudinal Profile;Radiation Length;Number of Spots",800,800.0,1600.0);
+    em_lateral_2    = showerDir.make<TH1F>("em_lateral_2","Lateral Profile;cm;Events",100,50.0,150.0);
+    em_long_gflash  = showerDir.make<TH1F>("em_long_gflash","Longitudinal Profile From GFlash;cm;Number of Spots",800,800.0,1600.0);
+    em_long_sl      = showerDir.make<TH1F>("em_long_sl","Longitudinal Profile From Shower Library;cm;Number of Spots",800,800.0,1600.0);
   } else {
     fillHisto = false;
-    edm::LogInfo("HFShower") << "HFShowerParam::No file is available for "
+    LogDebug("HFShower") << "HFShowerParam::No file is available for "
 			     << "saving histos so the flag is set to false";
   }
 #endif
@@ -74,7 +81,6 @@ HFShowerParam::HFShowerParam(std::string & name, const DDCompactView & cpv,
   bool dodet = fv.firstChild();
   if (dodet) {
     DDsvalues_type sv(fv.mergedSpecifics());
-
     //Special Geometry parameters
     gpar      = getDDDArray("gparHF",sv);
     edm::LogInfo("HFShower") << "HFShowerParam: " <<gpar.size() <<" gpar (cm)";
@@ -116,6 +122,9 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep) {
 
   G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
   G4Track *     track    = aStep->GetTrack();   
+#ifdef DebugLog
+  LogDebug("HFShower") << " Track Momentum = " << track->GetMomentum();
+#endif
   G4ThreeVector hitPoint = preStepPoint->GetPosition();   
   G4int         particleCode = track->GetDefinition()->GetPDGEncoding();
   double        zv = std::abs(hitPoint.z()) - gpar[4] - 0.5*gpar[1];
@@ -171,11 +180,19 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep) {
 	    hit.edep     = 1;
 	    hits.push_back(hit);
 #ifdef DebugLog
-
 	    if (fillHisto) {
-	      em_2d->Fill(hit.position.z()/cm, hit.position.r()/cm);
-	      em_lateral->Fill(hit.position.r()/cm);
-	      em_long->Fill(hit.position.z()/cm);
+	      hzv->Fill(zv);
+	      em_long_sl->Fill(hit.position.z()/cm);
+	      if(hit.depth == 1){
+		em_2d_1->Fill(hit.position.z()/cm, sqrt(pow(hit.position.x()/cm,2)+pow(hit.position.y()/cm,2)));
+		em_lateral_1->Fill(sqrt(pow(hit.position.x()/cm,2)+pow(hit.position.y()/cm,2)));
+		em_long_1->Fill(hit.position.z()/cm);
+	      }
+	      if(hit.depth == 2){
+		em_2d_2->Fill(hit.position.z()/cm, sqrt(pow(hit.position.x()/cm,2)+pow(hit.position.y()/cm,2)));
+		em_lateral_2->Fill(sqrt(pow(hit.position.x()/cm,2)+pow(hit.position.y()/cm,2)));
+		em_long_2->Fill(hit.position.z()/cm);
+	      }
 	    }
 
 	    LogDebug("HFShower") << "HFShowerParam: Hit at depth " << hit.depth
@@ -187,28 +204,40 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep) {
 	  std::vector<HFGflash::Hit>  hitSL = gflash->gfParameterization(aStep,kill, onlyLong);
 	  for (unsigned int i=0; i<hitSL.size(); i++) {
 	    bool ok = true;
-	    double zv  = std::abs(hitSL[i].position.z()) - gpar[4];
+	    G4ThreeVector pe_effect(hitSL[i].position.x()/cm, hitSL[i].position.y()/cm, hitSL[i].position.z()/cm);
+	    pe_effect *= cm; //return to mm
+	    double zv  = std::abs(pe_effect.z()) - gpar[4];
 	    //depth
 	    int depth    = 1;
 	    if (G4UniformRand() > 0.5) depth = 2;
-	    if (zv < 0 || zv > gpar[1])     ok = false;
+	    if (zv < 0 )      ok = false;
+	    if (zv > gpar[1]) ok = false;
 	    if (depth == 2 && zv < gpar[0]) ok = false;
 	    if (ok) {
 	      //attenuation
 	      double time = fibre->tShift(localPoint,depth,0); //remaining part
 
 	      hit.position = hitSL[i].position;
+
 	      hit.depth    = depth;
 	      hit.time     = time + hitSL[i].time;
 	      hit.edep     = 1;
 	      hits.push_back(hit);
 #ifdef DebugLog
-
-	    if (fillHisto) {
-	      em_2d->Fill(hit.position.z()/cm, hit.position.r()/cm);
-	      em_lateral->Fill(hit.position.r()/cm);
-	      em_long->Fill(hit.position.z()/cm);
-	    }
+	      if (fillHisto) {
+		em_long_gflash->Fill(pe_effect.z()/cm, hitSL[i].edep);
+		hzv->Fill(zv);
+		if(hit.depth == 1){
+		  em_2d_1->Fill(hit.position.z()/cm, sqrt(pow(hit.position.x()/cm,2)+pow(hit.position.y()/cm,2)));
+		  em_lateral_1->Fill(sqrt(pow(hit.position.x()/cm,2)+pow(hit.position.y()/cm,2)));
+		  em_long_1->Fill(hit.position.z()/cm);
+		}
+		if(hit.depth == 2){
+		  em_2d_2->Fill(hit.position.z()/cm, sqrt(pow(hit.position.x()/cm,2)+pow(hit.position.y()/cm,2)));
+		  em_lateral_2->Fill(sqrt(pow(hit.position.x()/cm,2)+pow(hit.position.y()/cm,2)));
+		  em_long_2->Fill(hit.position.z()/cm);
+		}
+	      }
 
 	      LogDebug("HFShower") << "HFShowerParam: Hit at depth " << hit.depth
 				   << " with edep " << hit.edep << " Time " 
@@ -247,7 +276,7 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep) {
       for (unsigned int ii=0; ii<hits.size(); ii++) {
 	double zv = std::abs(hits[ii].position.z());
 	if (zv > 12790)
-	  LogDebug("HFShower") << "HFShowerParam: Abnormal hit along " << path
+	  LogDebug("HFShower") << "HFShowerParam: Abnormal hit along " <<path
 			       << " in " << preStepPoint->GetPhysicalVolume()->GetLogicalVolume()->GetName()
 			       << " at " << hits[ii].position << " zz " 
 			       << zv << " Edep " << edep << " due to " 

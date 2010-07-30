@@ -64,8 +64,9 @@ private:
   G4double longEcal[Gflash::NPar];  
   G4double lateralPar[4]; 
 
-  TH1F     *em_incE, *em_ssp_rho, *em_ssp_z, *em_long, *em_lateral, *em_long_sd, *em_lateral_sd, *em_nSpots_sd;
-  TH2F     *em_2d, *em_2d_sd;
+  TH1F     *em_incE, *em_ssp_rho, *em_ssp_z, *em_long, *em_lateral;
+  TH1F     *em_long_sd, *em_lateral_sd, *em_nSpots_sd, *em_ze_ratio;
+  TH2F     *em_2d, *em_2d_sd, *em_ze, *em_ratio, *em_ratio_selected;
 };
 
 #endif // HFGflash_h

@@ -56,8 +56,10 @@ private:
   G4int                 emPDG, epPDG, gammaPDG;
   std::vector<double>   gpar;
   bool                  fillHisto;
-  TH1F                  *em_long, *em_lateral;
-  TH2F                  *em_2d;
+  TH1F                  *em_long_1, *em_lateral_1, *em_long_2, *em_lateral_2;
+  TH1F                  *hzv, *em_long_1_tuned, *em_long_gflash, *em_long_sl;
+  TH2F                  *em_2d_1, *em_2d_2;
 };
+
 
 #endif // HFShowerParam_h
