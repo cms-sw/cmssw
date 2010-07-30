@@ -394,7 +394,7 @@ class PFRootEventManager {
 
   /// returns true if there is a PFCandidate of a given type over a given pT
   bool highPtPFCandidate( double ptMin, 
-			  reco::PFCandidate::ParticleType type = PFCandidate::X) const;
+			  reco::PFCandidate::ParticleType type = reco::PFCandidate::X) const;
 
   // data members -------------------------------------------------------
 
