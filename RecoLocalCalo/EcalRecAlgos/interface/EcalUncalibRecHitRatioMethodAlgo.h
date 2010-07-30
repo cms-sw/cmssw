@@ -5,9 +5,9 @@
  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
  *  using a ratio method
  *
- *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.32 2010/07/30 06:42:01 innocent Exp $
- *  $Date: 2010/07/30 06:42:01 $
- *  $Revision: 1.32 $
+ *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.33 2010/07/30 06:50:49 innocent Exp $
+ *  $Date: 2010/07/30 06:50:49 $
+ *  $Revision: 1.33 $
  *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
  */
 
@@ -312,7 +312,7 @@ chi2, float & amp) const {
     Vec offset =  _mm_mul_ps(_mm_sub_ps(index.vec[it],tV),overabV);
     Vec term1 =  _mm_add_ps(one,offset);
     Vec cmp = _mm_cmpgt_ps(term1,eps);
-    
+    if (_mm_movemask_ps(cmp)==0) continue;
     Vec f = exp_ps(_mm_mul_ps(alphaV,_mm_sub_ps(log_ps(term1),offset)) );
     //Vec f = _mm_or_ps(_mm_andnot_ps(cmp, _mm_setzero_ps()), _mm_and_ps(cmp, f));
     f = _mm_and_ps(cmp, f);
