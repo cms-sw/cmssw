@@ -5,9 +5,9 @@
  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
  *  using a ratio method
  *
- *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.31 2010/07/30 06:31:44 innocent Exp $
- *  $Date: 2010/07/30 06:31:44 $
- *  $Revision: 1.31 $
+ *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.32 2010/07/30 06:42:01 innocent Exp $
+ *  $Date: 2010/07/30 06:42:01 $
+ *  $Revision: 1.32 $
  *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
  */
 
@@ -91,7 +91,9 @@ public:
   void computeAmplitude( std::vector< InputScalar > const & amplitudeFitParameters ) ;
 
   CalculatedRecHit const & getCalculatedRecHit() const { return calculatedRechit_; };
-  
+
+ typedef mathSSE::Array<Scalar, C::MAXSAMPLES> Array;
+   
 protected:
 
 
@@ -102,8 +104,6 @@ protected:
 
   static const size_t amplitudesSize = C::MAXSAMPLES;
   static const size_t ratiosSize = C::MAXSAMPLES*(C::MAXSAMPLES-1)/2;
-
-  typedef mathSSE::Array<Scalar, C::MAXSAMPLES> Array;
 
   Array  amplitudes_A;
   Array  amplitudeErrors_A;
@@ -274,7 +274,7 @@ namespace ecal_details {
       for(unsigned int it = size; it < arrsize; it++) 
 	mask.arr[it]= 0;
     }
-  }
+  };
     
 }
 
