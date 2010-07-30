@@ -88,15 +88,6 @@ FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
     double localPos[3] = { 0.0, 0.0, 0.0 };
 		
     const TGeoHMatrix* matrix = item()->getGeom()->getMatrix( layerId );
-
-    if( ! matrix ) 
-    {
-      fwLog( fwlog::kError )
-        << "failed to get geometry of DT layer with detid: " 
-        << layerId << std::endl;
-	
-      continue;
-    }
     
     const DTDigiCollection::Range &range = (*det).second;
 
@@ -117,7 +108,16 @@ FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
 
       TEveBox* box = new TEveBox;
       setupAddElement( box, compound );
-		
+
+      if( ! matrix ) 
+      {
+	fwLog( fwlog::kError )
+	  << "failed get geometry of DT layer with detid: " 
+	  << layerId << std::endl;
+	
+	continue;
+      }
+			
       // The x wire position in the layer, starting from its wire number.
       Float_t firstChannel = pars[1].fX;
       Float_t nChannels = pars[1].fZ;
