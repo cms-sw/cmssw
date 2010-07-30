@@ -92,7 +92,7 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
     TString dirName(FolderName_.c_str()); 
     TString label(inputMETLabel_.label());
     dirName += label;
-    dbe_->setCurrentFolder((string)dirName);
+    dbe_->setCurrentFolder((std::string)dirName);
     
     if (METType_ == "CaloMET")
       { 
@@ -419,7 +419,8 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 
 void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  if (METType_ == "CaloMET")
+    using namespace reco;
+    if (METType_ == "CaloMET")
     { 
       const CaloMET *calomet;
       // Get CaloMET
@@ -455,7 +456,7 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       double caloEmEtInEE = calomet->emEtInEE();
       double caloEmEtInHF = calomet->emEtInHF();
 
-      edm::LogInfo("OutputInfo") << caloMET << " " << caloSumET << endl;
+      edm::LogInfo("OutputInfo") << caloMET << " " << caloSumET << std::endl;
       me["hNevents"]->Fill(0.5);
       me["hCaloMEx"]->Fill(caloMEx);
       me["hCaloMEy"]->Fill(caloMEy);
