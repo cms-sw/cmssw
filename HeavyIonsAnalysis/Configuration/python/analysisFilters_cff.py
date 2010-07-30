@@ -32,23 +32,38 @@ bscOrBptxOr = l1Filter.clone(
 
 
 ##### HLT selections #####
-from HLTrigger.HLTfilters.hltHighLevel_cfi import hltHighLevel
+import HLTrigger.HLTfilters.hltHighLevelDev_cfi
 
 # jet trigger
-hltJets = hltHighLevel.clone(
-    HLTPaths = cms.vstring('HLT_HIJet35U'),
-    andOr = cms.bool(True)
-    )
+hltJetHI = HLTrigger.HLTfilters.hltHighLevelDev_cfi.hltHighLevelDev.clone()
+hltJetHI.HLTPaths = ["HLT_HIJet35U"]
+hltJetHI.HLTPathsPrescales  = cms.vuint32(1)
+hltJetHI.HLTOverallPrescale = cms.uint32(1)
+hltJetHI.throw = False
+hltJetHI.andOr = True
 
 # photon trigger
-hltPhoton = hltHighLevel.clone(
-    HLTPaths = cms.vstring('HLT_HIPhoton15'),
-    andOr = cms.bool(True)
-    )
+hltPhotonHI = hltJetHI.clone()
+hltPhotonHI.HLTPaths = ["HLT_Photon15"]
+
+# dimuon trigger
+hltMuHI = hltJetHI.clone()
+hltMuHI.HLTPaths = ["HLT_L1DoubleMuOpen"]
 
 ##### Analysis selections #####
 
 # jets
+selectedPatJets = cms.EDFilter("PATJetSelector",
+    src = cms.InputTag("patJets"),
+    cut = cms.string("et > 40")
+    )
+
+countPatJets = cms.EDFilter("PATCandViewCountFilter",
+    minNumber = cms.uint32(1),
+    maxNumber = cms.uint32(999999),
+    src = cms.InputTag("selectedPatJets")
+    )
+
 dijets = cms.EDFilter("EtMinCaloJetCountFilter",
     src = cms.InputTag("iterativeConePu5CaloJets"),
     etMin = cms.double(10.0),
@@ -56,22 +71,27 @@ dijets = cms.EDFilter("EtMinCaloJetCountFilter",
     )
 
 # muons
-goodSTAMuons = cms.EDFilter("MuonViewRefSelector",
+muonSelector = cms.EDFilter("MuonSelector",
     src = cms.InputTag("muons"),
-    cut = cms.string('isStandAloneMuon = 1 & pt > 10 & abs(eta)<2.5'),
-    filter = cms.bool(True)                                
-)
+    cut = cms.string("(isStandAloneMuon || isGlobalMuon) && pt > 1."),
+    filter = cms.bool(True)
+    )
 
-dimuonsSTA = cms.EDFilter("CandViewShallowCloneCombiner",
-    checkCharge = cms.bool(True),
-    cut = cms.string('mass > 70 & mass < 120 & charge=0'),
-    decay = cms.string("goodSTAMuons@+ goodSTAMuons@-")
-)
- 
-dimuonsSTAFilter = cms.EDFilter("CandViewCountFilter",
-    src = cms.InputTag("dimuonsSTA"),
+muonFilter = cms.EDFilter("MuonCountFilter",
+    src = cms.InputTag("muonSelector"),
     minNumber = cms.uint32(1)
-)
+    )
+
+dimuonsMassCut = cms.EDProducer("CandViewShallowCloneCombiner",
+    checkCharge = cms.bool(True),
+    cut = cms.string(' mass > 70 & mass < 120 & charge=0'),
+    decay = cms.string("muonSelector@+ muonSelector@-")
+    )
+
+dimuonsMassCutFilter = cms.EDFilter("CandViewCountFilter",
+    src = cms.InputTag("dimuonsMassCut"),
+    minNumber = cms.uint32(1)
+    )
 
 # photons
 goodPhotons = cms.EDFilter("PhotonSelector",
