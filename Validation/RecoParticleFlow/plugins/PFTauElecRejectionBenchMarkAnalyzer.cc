@@ -16,7 +16,7 @@
 
 
 using namespace edm;
-//using namespace reco;
+using namespace reco;
 using namespace std;
 
 //
