@@ -27,7 +27,7 @@ if __name__ == '__main__':
     if len (args) < 2 or len (args) > 3:
         raise RuntimeError, "Two input filenames with one optional output filename must be provided."
     if not options.command:
-        raise RunetimeError, "Exactly one command option must be specified"
+        raise RuntimeError, "Exactly one command option must be specified"
 
     alphaList = LumiList (filename = args[0])  # Read in first  JSON file
     betaList  = LumiList (filename = args[1])  # Read in second JSON file
