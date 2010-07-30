@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Mon Mar 10 16:37:40 CDT 2008
-// $Id: MuonAlignmentInputXML.cc,v 1.13 2009/05/28 05:14:30 pivarski Exp $
+// $Id: MuonAlignmentInputXML.cc,v 1.14 2009/11/04 20:49:21 elmer Exp $
 //
 
 // system include files
@@ -66,6 +66,7 @@ MuonAlignmentInputXML::MuonAlignmentInputXML(std::string fileName)
    str_movelocal = XMLString::transcode("movelocal");
    str_rotatelocal = XMLString::transcode("rotatelocal");
    str_rotatebeamline = XMLString::transcode("rotatebeamline");
+   str_rotateglobalaxis = XMLString::transcode("rotateglobalaxis");
    str_relativeto = XMLString::transcode("relativeto");
    str_rawId = XMLString::transcode("rawId");
    str_wheel = XMLString::transcode("wheel");
@@ -144,6 +145,7 @@ MuonAlignmentInputXML::~MuonAlignmentInputXML() {
    XMLString::release(&str_movelocal);
    XMLString::release(&str_rotatelocal);
    XMLString::release(&str_rotatebeamline);
+   XMLString::release(&str_rotateglobalaxis);
    XMLString::release(&str_relativeto);
    XMLString::release(&str_rawId);
    XMLString::release(&str_wheel);
@@ -411,6 +413,10 @@ AlignableMuon *MuonAlignmentInputXML::newAlignableMuon(const edm::EventSetup& iS
 
 	    else if (XMLString::equals(node->getNodeName(), str_rotatebeamline)) {
 	       do_rotatebeamline((DOMElement*)(node), aliset, alitoideal);
+	    }
+
+	    else if (XMLString::equals(node->getNodeName(), str_rotateglobalaxis)) {
+	       do_rotateglobalaxis((DOMElement*)(node), aliset, alitoideal);
 	    }
 
 	    else {
@@ -1124,6 +1130,55 @@ void MuonAlignmentInputXML::do_rotatebeamline(const XERCES_CPP_NAMESPACE::DOMEle
       ali->move(GlobalVector(radius * (cos(phi0 + deltaphi) - cos(phi0)),
                              radius * (sin(phi0 + deltaphi) - sin(phi0)),
                              0.));
+
+      align::ErrorMatrix matrix6x6 = ROOT::Math::SMatrixIdentity();
+      matrix6x6 *= 1000.;  // initial assumption: infinitely weak constraint
+
+      const SurveyDet *survey = ali->survey();
+      if (survey != NULL) {
+         matrix6x6 = survey->errors();  // save the constraint information
+      }
+      ali->setSurvey(new SurveyDet(ali->surface(), matrix6x6));
+   } // end loop over alignables
+}
+
+void MuonAlignmentInputXML::do_rotateglobalaxis(const XERCES_CPP_NAMESPACE::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const {
+   DOMAttr *node_x = node->getAttributeNode(str_x);
+   DOMAttr *node_y = node->getAttributeNode(str_y);
+   DOMAttr *node_z = node->getAttributeNode(str_z);
+   DOMAttr *node_angle = node->getAttributeNode(str_angle);
+   if (node_x == NULL) throw cms::Exception("XMLException") << "<rotateglobalaxis> is missing required \"x\" attribute" << std::endl;
+   if (node_y == NULL) throw cms::Exception("XMLException") << "<rotateglobalaxis> is missing required \"y\" attribute" << std::endl;
+   if (node_z == NULL) throw cms::Exception("XMLException") << "<rotateglobalaxis> is missing required \"z\" attribute" << std::endl;
+   if (node_angle == NULL) throw cms::Exception("XMLException") << "<rotateglobalaxis> is missing required \"angle\" attribute" << std::endl;
+
+   double x = parseDouble(node_x->getValue(), "x");
+   double y = parseDouble(node_y->getValue(), "y");
+   double z = parseDouble(node_z->getValue(), "z");
+   double angle = parseDouble(node_angle->getValue(), "angle");
+
+   for (std::map<Alignable*, bool>::const_iterator aliiter = aliset.begin();  aliiter != aliset.end();  ++aliiter) {
+      Alignable *ali = aliiter->first;
+      GlobalPoint pos = ali->surface().toGlobal(LocalPoint(0,0,0));
+
+      ali->rotateAroundGlobalAxis(GlobalVector(x, y, z), angle);
+
+      double aprime = x/sqrt(x*x + y*y + z*z);
+      double bprime = y/sqrt(x*x + y*y + z*z);
+      double cprime = z/sqrt(x*x + y*y + z*z);
+      double q0 = cos(angle/2.);
+      double q1 = sin(angle/2.) * aprime;
+      double q2 = sin(angle/2.) * bprime;
+      double q3 = sin(angle/2.) * cprime;
+      
+      double pos2x = (q0*q0 + q1*q1 - q2*q2 - q3*q3) * pos.x()  +  2.*(q1*q2 - q0*q3) * pos.y()  +  2.*(q1*q3 + q0*q2) * pos.z();
+      double pos2y = 2.*(q2*q1 + q0*q3) * pos.x()  +  (q0*q0 - q1*q1 + q2*q2 - q3*q3) * pos.y()  +  2.*(q2*q3 - q0*q1) * pos.z();
+      double pos2z = 2.*(q3*q1 - q0*q2) * pos.x()  +  2.*(q3*q2 + q0*q1) * pos.y()  +  (q0*q0 - q1*q1 - q2*q2 + q3*q3) * pos.z();
+
+      double movex = pos2x - pos.x();
+      double movey = pos2y - pos.y();
+      double movez = pos2z - pos.z();
+      ali->move(GlobalVector(movex, movey, movez));
 
       align::ErrorMatrix matrix6x6 = ROOT::Math::SMatrixIdentity();
       matrix6x6 *= 1000.;  // initial assumption: infinitely weak constraint

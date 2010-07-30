@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Mon Mar 10 16:37:55 CDT 2008
-// $Id: MuonAlignmentInputXML.h,v 1.6 2009/02/08 02:22:32 pivarski Exp $
+// $Id: MuonAlignmentInputXML.h,v 1.7 2009/11/04 20:49:21 elmer Exp $
 //
 
 // system include files
@@ -67,6 +67,7 @@ class MuonAlignmentInputXML: public MuonAlignmentInputMethod {
       void do_movelocal   (const XERCES_CPP_NAMESPACE::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const;
       void do_rotatelocal (const XERCES_CPP_NAMESPACE::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const;
       void do_rotatebeamline (const XERCES_CPP_NAMESPACE::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const;
+      void do_rotateglobalaxis(const XERCES_CPP_NAMESPACE::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const;
 
       // ---------- member data --------------------------------
       std::string m_fileName;
@@ -92,6 +93,7 @@ class MuonAlignmentInputXML: public MuonAlignmentInputMethod {
       XMLCh *str_movelocal;
       XMLCh *str_rotatelocal;
       XMLCh *str_rotatebeamline;
+      XMLCh *str_rotateglobalaxis;
       XMLCh *str_relativeto;
       XMLCh *str_rawId;
       XMLCh *str_wheel;
