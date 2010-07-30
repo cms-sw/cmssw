@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2010/03/29 14:58:00 $
- * $Revision: 1.198 $
+ * $Date: 2010/03/29 15:48:14 $
+ * $Revision: 1.199 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -38,9 +38,9 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   if ( verbose_ ) {
-    cout << endl;
-    cout << " *** Ecal Barrel Generic Monitor ***" << endl;
-    cout << endl;
+    std::cout << std::endl;
+    std::cout << " *** Ecal Barrel Generic Monitor ***" << std::endl;
+    std::cout << std::endl;
   }
 
   init_ = false;
@@ -58,7 +58,7 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
 
   if ( fixedRunNumber_ ) {
     if ( verbose_ ) {
-      cout << " fixed Run Number = " << runNumber_ << endl;
+      std::cout << " fixed Run Number = " << runNumber_ << std::endl;
     }
   }
 
@@ -74,7 +74,7 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
 
   if ( fixedRunType_) {
     if ( verbose_ ) {
-      cout << " fixed Run Type = " << runType_ << endl;
+      std::cout << " fixed Run Type = " << runType_ << std::endl;
     }
   }
 
@@ -83,16 +83,16 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
 
   if ( debug_ ) {
     if ( verbose_ ) {
-      cout << " debug switch is ON" << endl;
+      std::cout << " debug switch is ON" << std::endl;
     }
   } else {
     if ( verbose_ ) {
-      cout << " debug switch is OFF" << endl;
+      std::cout << " debug switch is OFF" << std::endl;
     }
   }
 
   // prefixME path
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   // enableCleanup switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -102,11 +102,11 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
 
   if ( enableCleanup_ ) {
     if ( verbose_ ) {
-      cout << " enableCleanup switch is ON" << endl;
+      std::cout << " enableCleanup switch is ON" << std::endl;
     }
   } else {
     if ( verbose_ ) {
-      cout << " enableCleanup switch is OFF" << endl;
+      std::cout << " enableCleanup switch is OFF" << std::endl;
     }
   }
 
@@ -139,7 +139,7 @@ EcalBarrelMonitorModule::~EcalBarrelMonitorModule(){
 
 void EcalBarrelMonitorModule::beginJob(void){
 
-  if ( debug_ ) cout << "EcalBarrelMonitorModule: beginJob" << endl;
+  if ( debug_ ) std::cout << "EcalBarrelMonitorModule: beginJob" << std::endl;
 
   ievt_ = 0;
 
@@ -158,7 +158,7 @@ void EcalBarrelMonitorModule::beginJob(void){
 
 void EcalBarrelMonitorModule::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
-  if ( debug_ ) cout << "EcalBarrelMonitorModule: beginRun" << endl;
+  if ( debug_ ) std::cout << "EcalBarrelMonitorModule: beginRun" << std::endl;
 
   if ( ! mergeRuns_ ) this->reset();
 
@@ -166,7 +166,7 @@ void EcalBarrelMonitorModule::beginRun(const edm::Run& r, const edm::EventSetup&
 
 void EcalBarrelMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
-  if ( debug_ ) cout << "EcalBarrelMonitorModule: endRun" << endl;
+  if ( debug_ ) std::cout << "EcalBarrelMonitorModule: endRun" << std::endl;
 
   // end-of-run
   if ( meStatus_ ) meStatus_->Fill(2);
@@ -181,20 +181,20 @@ void EcalBarrelMonitorModule::reset(void) {
   if ( meEvtType_ ) meEvtType_->Reset();
 
   if ( meEBDCC_ ) meEBDCC_->Reset();
-    
+
   for (int i = 0; i < 2; i++) {
     if ( meEBdigis_[i] ) meEBdigis_[i]->Reset();
-    
+
     if ( meEBhits_[i] ) meEBdigis_[i]->Reset();
-    
+
     if ( meEBtpdigis_[i] ) meEBtpdigis_[i]->Reset();
-  } 
+  }
 
   if ( enableEventDisplay_ ) {
     for (int i = 0; i < 18; i++) {
       if ( meEvent_[i] ) meEvent_[i]->Reset();
     }
-  } 
+  }
 
 }
 
@@ -354,7 +354,7 @@ void EcalBarrelMonitorModule::cleanup(void){
 
 void EcalBarrelMonitorModule::endJob(void) {
 
-  if ( debug_ ) cout << "EcalBarrelMonitorModule: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) std::cout << "EcalBarrelMonitorModule: endJob, ievt = " << ievt_ << std::endl;
 
   if ( dqmStore_ ) {
     meStatus_ = dqmStore_->get(prefixME_ + "/EventInfo/STATUS");
@@ -403,7 +403,7 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
       nebc++;
 
-    }    
+    }
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
@@ -424,7 +424,7 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
       if ( evtType_ < 0 || evtType_ > 22 ) evtType_ = -1;
       if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5, 1./nebc);
-                
+
     }
 
     LogDebug("EcalBarrelMonitorModule") << "event: " << ievt_ << " DCC headers collection size: " << nebc;
@@ -464,12 +464,12 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
   if ( e.getByLabel(EBDigiCollection_, digis) ) {
 
-    int counter[36] = { 0 };
-
     int nebd = digis->size();
     LogDebug("EcalBarrelMonitorModule") << "event " << ievt_ << " digi collection size " << nebd;
 
-    if ( meEBdigis_[0] ) { 
+    int counter[36] = { 0 };
+
+    if ( meEBdigis_[0] ) {
       if ( isPhysics_ ) meEBdigis_[0]->Fill(float(nebd));
     }
 
@@ -488,6 +488,7 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
       if ( meEBdigis_[1] ) {
         if ( isPhysics_ ) meEBdigis_[1]->Fill(i+1+0.5, counter[i]);
       }
+
     }
 
   } else {

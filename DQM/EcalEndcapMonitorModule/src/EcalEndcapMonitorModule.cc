@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2010/06/14 13:34:08 $
- * $Revision: 1.80 $
+ * $Date: 2010/06/14 15:00:39 $
+ * $Revision: 1.81 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -73,7 +73,7 @@ EcalEndcapMonitorModule::EcalEndcapMonitorModule(const edm::ParameterSet& ps){
   if ( runType_ != -1 ) fixedRunType_ = true;
 
   if ( fixedRunType_) {
-    if ( verbose_ ) { 
+    if ( verbose_ ) {
       std::cout << " fixed Run Type = " << runType_ << std::endl;
     }
   }
@@ -82,11 +82,11 @@ EcalEndcapMonitorModule::EcalEndcapMonitorModule(const edm::ParameterSet& ps){
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   if ( debug_ ) {
-    if ( verbose_ ) { 
+    if ( verbose_ ) {
       std::cout << " debug switch is ON" << std::endl;
     }
   } else {
-    if ( verbose_ ) { 
+    if ( verbose_ ) {
       std::cout << " debug switch is OFF" << std::endl;
     }
   }
@@ -101,11 +101,11 @@ EcalEndcapMonitorModule::EcalEndcapMonitorModule(const edm::ParameterSet& ps){
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
   if ( enableCleanup_ ) {
-    if ( verbose_ ) { 
+    if ( verbose_ ) {
       std::cout << " enableCleanup switch is ON" << std::endl;
     }
   } else {
-    if ( verbose_ ) { 
+    if ( verbose_ ) {
       std::cout << " enableCleanup switch is OFF" << std::endl;
     }
   }
@@ -161,9 +161,9 @@ void EcalEndcapMonitorModule::beginRun(const edm::Run& r, const edm::EventSetup&
   if ( debug_ ) std::cout << "EcalEndcapMonitorModule: beginRun" << std::endl;
 
   if ( ! mergeRuns_ ) this->reset();
-  
+
 }
-  
+
 void EcalEndcapMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
   if ( debug_ ) std::cout << "EcalEndcapMonitorModule: endRun" << std::endl;
@@ -505,7 +505,7 @@ void EcalEndcapMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
     int neeh = hits->size();
     LogDebug("EcalEndcapMonitorModule") << "event " << ievt_ << " hits collection size " << neeh;
 
-    if ( meEEhits_[0] ) { 
+    if ( meEEhits_[0] ) {
       if ( isPhysics_ ) meEEhits_[0]->Fill(float(neeh));
     }
 
