@@ -5,9 +5,9 @@
  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
  *  using a ratio method
  *
- *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.33 2010/07/30 06:50:49 innocent Exp $
- *  $Date: 2010/07/30 06:50:49 $
- *  $Revision: 1.33 $
+ *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.34 2010/07/30 12:50:24 innocent Exp $
+ *  $Date: 2010/07/30 12:50:24 $
+ *  $Revision: 1.34 $
  *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
  */
 
@@ -286,7 +286,7 @@ chi2, float & amp) const {
   
 
   const size_t ssesize = Array::Size::ssesize;
-  const size_t arrsize = Array::Size::arrsize;
+  // const size_t arrsize = Array::Size::arrsize;
 
   // typedef float Scalar;
   typedef typename Array::Vec Vec;
