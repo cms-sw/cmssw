@@ -2,8 +2,8 @@
  *  Class:DQMGenericClient 
  *
  *
- *  $Date: 2010/07/20 02:58:28 $
- *  $Revision: 1.18 $
+ *  $Date: 2010/07/23 06:41:17 $
+ *  $Revision: 1.19 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -177,6 +177,8 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
     opt.namePrefix = args[0];
     opt.titlePrefix = args[1];
     opt.srcName = args[2];
+
+    resolOptions_.push_back(opt);
   }
 
   VPSet resolSets = pset.getUntrackedParameter<VPSet>("resolutionSets", VPSet());
@@ -187,6 +189,8 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
     opt.namePrefix = resolSet->getUntrackedParameter<string>("namePrefix");
     opt.titlePrefix = resolSet->getUntrackedParameter<string>("titlePrefix");
     opt.srcName = resolSet->getUntrackedParameter<string>("srcName");
+
+    resolOptions_.push_back(opt);
   }
 
   // Parse Normalization commands
