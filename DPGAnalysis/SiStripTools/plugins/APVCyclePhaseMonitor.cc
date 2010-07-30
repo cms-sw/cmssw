@@ -95,6 +95,8 @@ APVCyclePhaseMonitor::APVCyclePhaseMonitor(const edm::ParameterSet& iConfig):
 {
    //now do what ever initialization is needed
 
+  edm::LogInfo("UsedAPVCyclePhaseCollection") << " APVCyclePhaseCollection " << _apvphasecollection << " used";
+
 }
 
 

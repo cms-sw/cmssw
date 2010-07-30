@@ -112,6 +112,8 @@ EventTimeDistribution::EventTimeDistribution(const edm::ParameterSet& iConfig):
   _bxincyclevsbx = _rhm.makeTH2F("bxincyclevsbx","bxincyclevsbx",3564,-0.5,3563.5,70,-0.5,69.5);
   _orbitvsbxincycle = _rhm.makeTH2F("orbitvsbxincycle","orbitvsbxincycle",70,-0.5,69.5,3600,0,11223*_binsize*3600);
 
+  edm::LogInfo("UsedAPVCyclePhaseCollection") << " APVCyclePhaseCollection " << _apvphasecoll << " used";
+
 }
 
 

@@ -70,6 +70,9 @@ private:
   const std::vector<std::string> _defpartnames;
   const std::vector<int> _defphases;
   const bool _wantHistos;
+  const bool _useEC0;
+  const int _magicOffset;
+
   TH1F* _hsize;
   TH1F* _hlresync;
   TH1F* _hlOC0;
@@ -77,7 +80,19 @@ private:
   TH1F* _hlEC0;
   TH1F* _hlstart;
   TH1F* _hlHR;
+
+  TH1F* _hdlec0lresync;
+  TH1F* _hdlresynclHR;
+
   const unsigned int _firstgoodrun;
+  
+  long long _lastResync;
+  long long _lastHardReset;
+  long long _lastStart;
+  long long _lastEventCounter0;
+  long long _lastOrbitCounter0;
+  long long _lastTestEnable;
+
 
 };
 
@@ -98,7 +113,11 @@ APVCyclePhaseProducerFromL1TS::APVCyclePhaseProducerFromL1TS(const edm::Paramete
   _defpartnames(iConfig.getParameter<std::vector<std::string> >("defaultPartitionNames")),
   _defphases(iConfig.getParameter<std::vector<int> >("defaultPhases")),
   _wantHistos(iConfig.getUntrackedParameter<bool>("wantHistos",false)),
-  _firstgoodrun(110878)
+  _useEC0(iConfig.getUntrackedParameter<bool>("useEC0",false)),
+  _magicOffset(iConfig.getUntrackedParameter<int>("magicOffset",8)),
+  _firstgoodrun(131768),
+  _lastResync(-1),_lastHardReset(-1),_lastStart(-1),
+  _lastEventCounter0(-1),_lastOrbitCounter0(-1),_lastTestEnable(-1)
 {
 
   produces<APVCyclePhaseCollection,edm::InEvent>();
@@ -163,10 +182,16 @@ APVCyclePhaseProducerFromL1TS::beginRun(edm::Run& iRun, const edm::EventSetup& i
     _hlHR->GetXaxis()->SetTitle("Orbit");     _hlHR->GetYaxis()->SetTitle("Events");
     _hlHR->SetBit(TH1::kCanRebin);
 
+    _hdlec0lresync = subrun.make<TH1F>("dlec0lresync","Orbit difference EC0-Resync",4000,-1999.5,2000.5);
+    _hdlec0lresync->GetXaxis()->SetTitle("lastEC0-lastResync"); 
+
+    _hdlresynclHR = subrun.make<TH1F>("dlresynclHR","Orbit difference Resync-HR",4000,-1999.5,2000.5);
+    _hdlresynclHR->GetXaxis()->SetTitle("lastEC0-lastResync"); 
+
   }
 
   if(iRun.run() < _firstgoodrun) {
-    edm::LogInfo("UnreliableMissingL1TriggerScalers") << 
+    LogDebug("UnreliableMissingL1TriggerScalers") << 
       "In this run L1TriggerScalers is missing or unreliable for phase determination: default phases will be used"; 
   }
 
@@ -200,8 +225,10 @@ APVCyclePhaseProducerFromL1TS::produce(edm::Event& iEvent, const edm::EventSetup
     
     // offset computation
     
-    long long orbitoffset = (*l1ts)[0].lastResync();
-    orbitoffset = orbitoffset==0 ? 0 : orbitoffset+8;
+    long long orbitoffset = 0;
+    if((*l1ts)[0].lastResync()!=0) {
+      orbitoffset = _useEC0 ? (*l1ts)[0].lastEventCounter0() + _magicOffset : (*l1ts)[0].lastResync() + _magicOffset;
+    }
     
     if(_wantHistos) {
       _hsize->Fill(l1ts->size());
@@ -211,6 +238,33 @@ APVCyclePhaseProducerFromL1TS::produce(edm::Event& iEvent, const edm::EventSetup
       _hlstart->Fill((*l1ts)[0].lastStart());
       _hlEC0->Fill((*l1ts)[0].lastEventCounter0());
       _hlHR->Fill((*l1ts)[0].lastHardReset());
+    }
+
+    if(_lastResync != (*l1ts)[0].lastResync()) {
+      _lastResync = (*l1ts)[0].lastResync();
+      _hdlec0lresync->Fill((*l1ts)[0].lastEventCounter0()-(*l1ts)[0].lastResync());
+      LogDebug("TTCSignalReceived") << "New Resync at orbit " << _lastResync ;
+    }
+    if(_lastHardReset != (*l1ts)[0].lastHardReset()) {
+      _lastHardReset = (*l1ts)[0].lastHardReset();
+      _hdlresynclHR->Fill((*l1ts)[0].lastResync()-(*l1ts)[0].lastHardReset());
+      LogDebug("TTCSignalReceived") << "New HardReset at orbit " << _lastHardReset ;
+    }
+    if(_lastTestEnable != (*l1ts)[0].lastTestEnable()) {
+      _lastTestEnable = (*l1ts)[0].lastTestEnable();
+      //      LogDebug("TTCSignalReceived") << "New TestEnable at orbit " << _lastTestEnable ;
+    }
+    if(_lastOrbitCounter0 != (*l1ts)[0].lastOrbitCounter0()) {
+      _lastOrbitCounter0 = (*l1ts)[0].lastOrbitCounter0();
+      LogDebug("TTCSignalReceived") << "New OrbitCounter0 at orbit " << _lastOrbitCounter0 ;
+    }
+    if(_lastEventCounter0 != (*l1ts)[0].lastEventCounter0()) {
+      _lastEventCounter0 = (*l1ts)[0].lastEventCounter0();
+      LogDebug("TTCSignalReceived") << "New EventCounter0 at orbit " << _lastEventCounter0 ;
+    }
+    if(_lastStart != (*l1ts)[0].lastStart()) {
+      _lastStart = (*l1ts)[0].lastStart();
+      LogDebug("TTCSignalReceived") << "New Start at orbit " << _lastStart ;
     }
 
     phasechange = ((long long)(orbitoffset*3564))%70;
