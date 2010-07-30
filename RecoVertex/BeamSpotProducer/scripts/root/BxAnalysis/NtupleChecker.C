@@ -24,17 +24,18 @@
 using namespace std;
 
 //--------Global definiton of some funtions
-bool runPVFitter(std::map< int, std::vector<BeamSpotFitPVData> > bxMap_, int NFits);
+bool runPVFitter(std::map< int, std::vector<BeamSpotFitPVData> > bxMap_, int NFits, int tmpLumiCounter);
 void PlotHistoBX();
 void DefineHistStyle(TH1F *h1, int bx);
 void FillHist(TH1F* h, int fitN, double pos, double posError, TString lab);
+void FillnPVInfo(TH1F* h2,int fitN, float npv, TString lab );
 void PlotAllBunches(TCanvas* myCanvas,TH1F* hist[],int bunchN, std::map<int,int> tmpMap_);
 
 
 std::map<int, std::map< int, std::vector<BeamSpotFitPVData> > > StoreRunLSPVdata_;
 std::map<int, map<int, std::vector<BSFitData> > > FitDone_Results_;
 std::map<int, TString > FitDone_RunLumiRange_;
-std::map<int, map<int, int> > bxMapPVSize_;
+std::map<int, map<int, float> > bxMapPVSize_;
 
 
 
@@ -45,8 +46,8 @@ void NtupleChecker(){
   //----------------------------------------------//
   //                Input parameters              //
   //----------------------------------------------// 
-  Int_t beginRunNumber = 141950;
-  Int_t endRunNumber   = 141964;
+  Int_t beginRunNumber = 141956;
+  Int_t endRunNumber   = 141961;
 
   Int_t beginLSNumber  = -1;
   Int_t endLSNumber    = -1;
@@ -184,9 +185,12 @@ cout<<"-----------Step - 2 : Now Running the PVFitter for each Bunch Xrossing---
 	if((RemainingLSFit) && (LumiCounter != 0))
          {    RemainingLSFit=false;
               //cout<<"Run Number ="<<RunNumber<<",    Lumi Range = "<<Lumi_lo<<" - "<<Lumi_up<<endl;
+              int tmpLumiCounter=0;
+              tmpLumiCounter = LumiCounter;
+
               LumiCounter=0;
               Fit_Done++; 
-              if(runPVFitter(bxMap_,Fit_Done)){
+              if(runPVFitter(bxMap_,Fit_Done,tmpLumiCounter)){
 
                 //store the run : LS range as Tstring
                 Char_t RunLSRange[254];
@@ -317,21 +321,27 @@ void  PlotHistoBX(){
    sprintf(PVSize,"%s%d%s","h_nPV_bx_",tmpBxIt->first,"\0");
    TString PVSize_(PVSize);
    h_nPV_bx_[x] =new TH1F(PVSize_,PVSize_,PointsToPlot,0.,PointsToPlot);
-   h_nPV_bx_[x]->GetYaxis()->SetTitle("# of Primary Vertices");
+   h_nPV_bx_[x]->GetYaxis()->SetTitle("# of Primary Vertices/LS");
    DefineHistStyle(h_nPV_bx_[x],x);
 
-
-
    tmpBxIt++;
+   }
 
-    }
 
+
+  //Lets create an iteratior for nPV information
+  map<int, map<int, float > >::iterator bxnpvIt = bxMapPVSize_.begin(); 
+    
 
 
   int bxfit=0;
 
   for( std::map<int, map<int, std::vector<BSFitData> > >::iterator FitIt=FitDone_Results_.begin(); FitIt!=FitDone_Results_.end(); ++FitIt){
             bxfit=0;
+
+            //this for bx-nPV map
+            std::map<int, float >::iterator npvIt = bxnpvIt->second.begin();
+
     for( std::map<int, std::vector<BSFitData> >::iterator BxIt=FitIt->second.begin(); BxIt!=FitIt->second.end(); ++BxIt){
           for(size_t bsfit=0; bsfit < (BxIt->second).size(); bsfit++){
                cout<<"Fit #  = "<<FitIt->first<<"  Run:LS1-LS2  ="<<(RLS->second)<<"       Bx Number ="<< BxIt->first<<"     X0 = "<<((BxIt->second)[bsfit].xyz[0])<<endl;
@@ -349,6 +359,9 @@ void  PlotHistoBX(){
                                                      FillHist(h_widthX_bx_[bx_in->second],FitIt->first,(BxIt->second)[bsfit].xyzwidth[0],(BxIt->second)[bsfit].xyzwidthErr[0],RLS->second);
                                                      FillHist(h_widthY_bx_[bx_in->second],FitIt->first,(BxIt->second)[bsfit].xyzwidth[1],(BxIt->second)[bsfit].xyzwidthErr[1],RLS->second);
                                                      FillHist(h_widthZ_bx_[bx_in->second],FitIt->first,(BxIt->second)[bsfit].xyzwidth[2],(BxIt->second)[bsfit].xyzwidthErr[2],RLS->second);
+                                                     //Fill PV Info
+                                                     FillnPVInfo(h_nPV_bx_[bx_in->second],FitIt->first, npvIt->second,RLS->second);   
+
                                                  }
                                                   else{
                                                         FillHist(h_X_bx_[bx_in->second],FitIt->first,0.0,0.0,RLS->second);
@@ -358,9 +371,12 @@ void  PlotHistoBX(){
                                                         FillHist(h_widthX_bx_[bx_in->second],FitIt->first,0.0,0.0,RLS->second);
                                                         FillHist(h_widthY_bx_[bx_in->second],FitIt->first,0.0,0.0,RLS->second);
                                                         FillHist(h_widthZ_bx_[bx_in->second],FitIt->first,0.0,0.0,RLS->second);
+                                                        FillnPVInfo(h_nPV_bx_[bx_in->second],FitIt->first, 0.0,RLS->second );
+         
+
                                                       }
                  }//loop over bx index map
-               }//if soem bx are missing in this LS range
+               }//if some bx are missing in this LS range
 
               if(((FitIt->second).size()) == bunchN){            
                FillHist(h_X_bx_[bxfit],FitIt->first,(BxIt->second)[bsfit].xyz[0],(BxIt->second)[bsfit].xyzErr[0],RLS->second);
@@ -370,13 +386,18 @@ void  PlotHistoBX(){
                FillHist(h_widthX_bx_[bxfit],FitIt->first,(BxIt->second)[bsfit].xyzwidth[0],(BxIt->second)[bsfit].xyzwidthErr[0],RLS->second);
                FillHist(h_widthY_bx_[bxfit],FitIt->first,(BxIt->second)[bsfit].xyzwidth[1],(BxIt->second)[bsfit].xyzwidthErr[1],RLS->second);
                FillHist(h_widthZ_bx_[bxfit],FitIt->first,(BxIt->second)[bsfit].xyzwidth[2],(BxIt->second)[bsfit].xyzwidthErr[2],RLS->second);
+
+               FillnPVInfo(h_nPV_bx_[bxfit],FitIt->first,npvIt->second,RLS->second);
                }//
+
 
            } //loop over position errors
             bxfit++;
+            npvIt++;
         }//Loop over bx
 
        RLS++;
+       bxnpvIt++;
 
     }//Loop over each fit
 
@@ -388,6 +409,8 @@ void  PlotHistoBX(){
  TDirectory *SigmaZ0 = f1.mkdir("Sigma_Z0");
  TDirectory *SigmaX0 = f1.mkdir("width_X0");
  TDirectory *SigmaY0 = f1.mkdir("Width_Y0");
+ TDirectory *nPV     = f1.mkdir("bx_nPV");
+
 
 
 for(int t=0; t< bunchN; t++){
@@ -403,6 +426,9 @@ SigmaY0->cd();
 h_widthY_bx_[t]->Write();
 SigmaZ0->cd();
 h_widthZ_bx_[t]->Write();
+
+nPV->cd();
+h_nPV_bx_[t]->Write();
 
 }
 
@@ -434,7 +460,7 @@ All_widthZ->Write();
 
 
  cout<<"The PV fit is performed for all the  "<<bunchN<<"  bunches"<<endl;
-
+ if(bunchN> 1000 || bunchN < 0)cout<<"Something Went Wrong OR there is no input to the fit!!!! "<<endl;
 
 f1.cd();
 //write the root file
@@ -477,7 +503,8 @@ void DefineHistStyle(TH1F *h1, int bx){
  if(bx>10)h1->SetLineStyle(bx-9);
 
 }
-//----------------------------
+//------------------------
+
 
 void FillHist(TH1F* h, int fitN, double pos, double posError, TString lab){
 
@@ -486,6 +513,19 @@ h->SetBinError(fitN,posError);
 h->GetXaxis()->SetBinLabel(fitN,lab);
 
 }
+
+
+void FillnPVInfo(TH1F* h2,int fitN, float npv, TString lab ){
+
+h2->SetBinContent(fitN,npv);
+//h->SetBinError(fitN,posError);
+h2->GetXaxis()->SetBinLabel(fitN,lab);
+
+ npv=0.0;
+
+}
+
+
 
 
 //--------------put all bx on same canvas
@@ -525,7 +565,7 @@ void PlotAllBunches(TCanvas* myCanvas,TH1F* hist[], int bunchN, std::map<int,int
 //---------------------------------------------------------------------
 //------------------Here we define the Fitting module------------------
 //---------------------------------------------------------------------
-bool runPVFitter(std::map< int, std::vector<BeamSpotFitPVData> > bxMap_, int NFits){
+bool runPVFitter(std::map< int, std::vector<BeamSpotFitPVData> > bxMap_, int NFits, int tmpLumiCounter){
 
 float errorScale_    = 0.9;
 float sigmaCut_      = 5.0;
@@ -538,7 +578,7 @@ pvStore!=bxMap_.end(); ++pvStore) {
 
 
    //fill number of pv for each bx crossing:
-  bxMapPVSize_[NFits][pvStore->first]=((pvStore->second).size());
+  bxMapPVSize_[NFits][pvStore->first]=(((pvStore->second).size()/tmpLumiCounter));
 
   //cout<<"  For bx ="<<pvStore->first<<"     PV # =  "<<pvStore->second.size()<<endl;
   if ( (pvStore->second).size() <= minNrVertices_ ) {
