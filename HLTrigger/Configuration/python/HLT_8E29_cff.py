@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_6_2/8E29/V37 (CMSSW_3_6_2_HLT9)
+# /dev/CMSSW_3_6_2/8E29/V38 (CMSSW_3_6_2_HLT11)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_2/8E29/V37')
+  tableName = cms.string('/dev/CMSSW_3_6_2/8E29/V38')
 )
 
 streams = cms.PSet( 
@@ -18,8 +18,9 @@ streams = cms.PSet(
   Calibration = cms.vstring( 'TestEnables' ),
   HLTDQMResults = cms.vstring(  ),
   DQM = cms.vstring( 'OnlineMonitor' ),
+  EventDisplay = cms.vstring( 'EventDisplay' ),
+  Express = cms.vstring( 'ExpressPhysics' ),
   A = cms.vstring( 'MinimumBias',
-    'Commissioning',
     'JetMET',
     'EG',
     'EGMonitor',
@@ -31,9 +32,8 @@ streams = cms.PSet(
     'Cosmics',
     'Mu',
     'MuOnia',
-    'MuMonitor' ),
-  EventDisplay = cms.vstring( 'EventDisplay' ),
-  Express = cms.vstring( 'ExpressPhysics' ),
+    'MuMonitor',
+    'Commissioning' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
   HLTDQM = cms.vstring( 'OnlineHltMonitor' )
 )
@@ -119,6 +119,16 @@ datasets = cms.PSet(
     'HLT_TrackerCosmics',
     'HLT_ZeroBias',
     'HLT_ZeroBiasPixel_SingleTrack' ),
+  EventDisplay = cms.vstring( 'HLT_MET100',
+    'HLT_ZeroBias',
+    'HLT_TrackerCosmics',
+    'HLT_DoubleMu0',
+    'HLT_Mu9' ),
+  ExpressPhysics = cms.vstring( 'HLT_MET100',
+    'HLT_ZeroBias',
+    'HLT_TrackerCosmics',
+    'HLT_DoubleMu0',
+    'HLT_Mu9' ),
   MinimumBias = cms.vstring( 'HLT_IsoTrackHB',
     'HLT_IsoTrackHE',
     'HLT_L1Tech_BSC_HighMultiplicity',
@@ -126,7 +136,6 @@ datasets = cms.PSet(
     'HLT_StoppedHSCP',
     'HLT_ZeroBias',
     'HLT_PixelTracks_Multiplicity70' ),
-  Commissioning = cms.vstring(  ),
   JetMET = cms.vstring( 'HLT_HT100U',
     'HLT_MET100',
     'HLT_MET45',
@@ -193,16 +202,7 @@ datasets = cms.PSet(
     'HLT_L1Mu',
     'HLT_L1MuOpen',
     'HLT_Mu0_L2Mu0' ),
-  EventDisplay = cms.vstring( 'HLT_MET100',
-    'HLT_ZeroBias',
-    'HLT_TrackerCosmics',
-    'HLT_DoubleMu0',
-    'HLT_Mu9' ),
-  ExpressPhysics = cms.vstring( 'HLT_MET100',
-    'HLT_ZeroBias',
-    'HLT_TrackerCosmics',
-    'HLT_DoubleMu0',
-    'HLT_Mu9' ),
+  Commissioning = cms.vstring(  ),
   OfflineMonitor = cms.vstring( 'HLT_L1Jet6U',
     'HLT_Mu0_L1MuOpen',
     'HLT_Mu0_Track0_Jpsi',

@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_6_2/GRun/V37
+# /dev/CMSSW_3_6_2/GRun/V38
 
 import FWCore.ParameterSet.Config as cms
 
@@ -29,17 +29,6 @@ streamA_datasetMinimumBias_selector.triggerConditions = cms.vstring('HLT_L1Tech_
     'HLT_MultiVertex6', 
     'HLT_MultiVertex8_L1ETT60', 
     'HLT_PixelTracks_Multiplicity70')
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetCommissioning_selector
-streamA_datasetCommissioning_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetCommissioning_selector.l1tResults = cms.InputTag('')
-streamA_datasetCommissioning_selector.throw      = cms.bool(False)
-streamA_datasetCommissioning_selector.triggerConditions = cms.vstring('HLT_Activity_DT', 
-    'HLT_Activity_DT_Tuned', 
-    'HLT_Activity_PixelClusters', 
-    'HLT_Activity_L1A', 
-    'HLT_Activity_CSC', 
-    'HLT_L1_BptxXOR_BscMinBiasOR')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetJetMET_selector
 streamA_datasetJetMET_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -215,4 +204,15 @@ streamA_datasetMuMonitor_selector.triggerConditions = cms.vstring('HLT_Mu0_L1MuO
     'HLT_L2Mu3', 
     'HLT_L2Mu5', 
     'HLT_L1MuOpen_DT')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetCommissioning_selector
+streamA_datasetCommissioning_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetCommissioning_selector.l1tResults = cms.InputTag('')
+streamA_datasetCommissioning_selector.throw      = cms.bool(False)
+streamA_datasetCommissioning_selector.triggerConditions = cms.vstring('HLT_Activity_DT', 
+    'HLT_Activity_DT_Tuned', 
+    'HLT_Activity_PixelClusters', 
+    'HLT_Activity_L1A', 
+    'HLT_Activity_CSC', 
+    'HLT_L1_BptxXOR_BscMinBiasOR')
 

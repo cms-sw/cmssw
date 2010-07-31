@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_6_2/HIon/V37 (CMSSW_3_6_2_HLT9)
+# /dev/CMSSW_3_6_2/HIon/V38 (CMSSW_3_6_2_HLT11)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_2/HIon/V37')
+  tableName = cms.string('/dev/CMSSW_3_6_2/HIon/V38')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -22,8 +22,9 @@ process.streams = cms.PSet(
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   HLTDQMResults = cms.vstring(  ),
   DQM = cms.vstring( 'OnlineMonitor' ),
+  EventDisplay = cms.vstring( 'EventDisplay' ),
+  Express = cms.vstring( 'ExpressPhysics' ),
   A = cms.vstring( 'MinimumBias',
-    'Commissioning',
     'JetMET',
     'EG',
     'EGMonitor',
@@ -35,9 +36,8 @@ process.streams = cms.PSet(
     'Cosmics',
     'Mu',
     'MuOnia',
-    'MuMonitor' ),
-  EventDisplay = cms.vstring( 'EventDisplay' ),
-  Express = cms.vstring( 'ExpressPhysics' ),
+    'MuMonitor',
+    'Commissioning' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
   HLTDQM = cms.vstring( 'OnlineHltMonitor' )
 )
@@ -54,10 +54,11 @@ process.datasets = cms.PSet(
     'HLT_L1Tech_BSC_minBias',
     'HLT_Activity_PixelClusters',
     'HLT_ZeroBiasPixel_SingleTrack' ),
+  EventDisplay = cms.vstring(  ),
+  ExpressPhysics = cms.vstring(  ),
   MinimumBias = cms.vstring( 'HLT_L1Tech_HCAL_HF',
     'HLT_ZeroBiasPixel_SingleTrack',
     'HLT_L1Tech_BSC_minBias' ),
-  Commissioning = cms.vstring( 'HLT_Activity_PixelClusters' ),
   JetMET = cms.vstring(  ),
   EG = cms.vstring(  ),
   EGMonitor = cms.vstring(  ),
@@ -70,8 +71,7 @@ process.datasets = cms.PSet(
   Mu = cms.vstring(  ),
   MuOnia = cms.vstring(  ),
   MuMonitor = cms.vstring( 'HLT_L1DoubleMuOpen' ),
-  EventDisplay = cms.vstring(  ),
-  ExpressPhysics = cms.vstring(  ),
+  Commissioning = cms.vstring( 'HLT_Activity_PixelClusters' ),
   OfflineMonitor = cms.vstring( 'HLT_L1Tech_HCAL_HF',
     'HLT_ZeroBiasPixel_SingleTrack',
     'HLT_L1Tech_BSC_minBias',
