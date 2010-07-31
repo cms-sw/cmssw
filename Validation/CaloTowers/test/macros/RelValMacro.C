@@ -1,6 +1,6 @@
 #include "CombinedCaloTowers.C"
 
-void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int nHist1, const int nHist2, const int nProfInd, const int nHistTot, TString ref_vers, TString val_vers, TString HistDir);
+void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int nHist1, const int nHist2, const int nProfInd, const int nHistTot, TString ref_vers, TString val_vers, int harvest=0, bool bRBX=false);
 
 void RelValMacro(TString ref_vers="218", TString val_vers="218", TString rfname, TString vfname, TString InputStream="InputRelVal.txt", int harvest=0){
 
@@ -17,9 +17,6 @@ void RelValMacro(TString ref_vers="218", TString val_vers="218", TString rfname,
   const int CT_nHist1   = 22+15;
   const int CT_nHist2   = 6;
   const int CT_nProf    = 6;
-
-  TString           CT_HistDir = "DQMData/CaloTowersV/CaloTowersTask";
-  if (harvest == 1) CT_HistDir = "DQMData/Run 1/CaloTowersV/Run summary/CaloTowersTask";
   
   //RecHits
   const int RH_nHistTot = 95+4+4; 
@@ -27,22 +24,15 @@ void RelValMacro(TString ref_vers="218", TString val_vers="218", TString rfname,
   const int RH_nHist2   = 4;
   const int RH_nProfInd = 12;
 
-  TString           RH_HistDir = "DQMData/HcalRecHitsV/HcalRecHitTask";
-  if (harvest == 1) RH_HistDir = "DQMData/Run 1/HcalRecHitsV/Run summary/HcalRecHitTask";
-
   //RBX Noise
   const int RBX_nHistTot = 6;
   const int RBX_nHist1   = 5;
 
-  TString           RBX_HistDir = "DQMData/NoiseRatesV/NoiseRatesTask";
-  if (harvest == 1) RBX_HistDir = "DQMData/Run 1/NoiseRatesV/Run summary/NoiseRatesTask";
+  ProcessSubDetCT(Ref_File, Val_File, RelValStream, CT_nHist1, CT_nHist2, CT_nProf, CT_nHistTot, ref_vers, val_vers, harvest);
 
+  ProcessRelVal(Ref_File, Val_File, RelValStream, RH_nHist1, RH_nHist2, RH_nProfInd, RH_nHistTot, ref_vers, val_vers, harvest);
 
-  ProcessSubDetCT(Ref_File, Val_File, RelValStream, CT_nHist1, CT_nHist2, CT_nProf, CT_nHistTot, ref_vers, val_vers, CT_HistDir);
-
-  ProcessRelVal(Ref_File, Val_File, RelValStream, RH_nHist1, RH_nHist2, RH_nProfInd, RH_nHistTot, ref_vers, val_vers, RH_HistDir);
-
-  ProcessRelVal(Ref_File, Val_File, RelValStream, RBX_nHist1, 0, 0, RBX_nHistTot, ref_vers, val_vers, RBX_HistDir);
+  ProcessRelVal(Ref_File, Val_File, RelValStream, RBX_nHist1, 0, 0, RBX_nHistTot, ref_vers, val_vers, harvest, true);
 
   Ref_File.Close();
   Val_File.Close();
@@ -50,19 +40,58 @@ void RelValMacro(TString ref_vers="218", TString val_vers="218", TString rfname,
   return;
 }
 
-void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int nHist1, const int nHist2, const int nProfInd, const int nHistTot, TString ref_vers, TString val_vers, TString HistDir){
+void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int nHist1, const int nHist2, const int nProfInd, const int nHistTot, TString ref_vers, TString val_vers, int harvest, bool bRBX){
+
+  TString RefHistDir, ValHistDir;
+  
+  if (bRBX){
+    if      (harvest == 11){
+      RefHistDir = "DQMData/Run 1/NoiseRatesV/Run summary/NoiseRatesTask";
+      ValHistDir = "DQMData/Run 1/NoiseRatesV/Run summary/NoiseRatesTask";
+    }
+    else if (harvest == 10){
+      RefHistDir = "DQMData/NoiseRatesV/NoiseRatesTask";
+      ValHistDir = "DQMData/Run 1/NoiseRatesV/Run summary/NoiseRatesTask";
+    }
+    else if (harvest == 1){
+      RefHistDir = "DQMData/Run 1/NoiseRatesV/Run summary/NoiseRatesTask";
+      ValHistDir = "DQMData/NoiseRatesV/NoiseRatesTask";
+    }
+    else{
+      RefHistDir = "DQMData/NoiseRatesV/NoiseRatesTask";
+      ValHistDir = "DQMData/NoiseRatesV/NoiseRatesTask";
+    }
+  }
+  else{
+    if      (harvest == 11){
+      RefHistDir = "DQMData/Run 1/HcalRecHitsV/Run summary/HcalRecHitTask";
+      ValHistDir = "DQMData/Run 1/HcalRecHitsV/Run summary/HcalRecHitTask";
+    }
+    else if (harvest == 10){
+      RefHistDir = "DQMData/HcalRecHitsV/HcalRecHitTask";
+      ValHistDir = "DQMData/Run 1/HcalRecHitsV/Run summary/HcalRecHitTask";
+    }
+    else if (harvest == 1){
+      RefHistDir = "DQMData/Run 1/HcalRecHitsV/Run summary/HcalRecHitTask";
+      ValHistDir = "DQMData/HcalRecHitsV/HcalRecHitTask";
+    }
+    else{
+      RefHistDir = "DQMData/HcalRecHitsV/HcalRecHitTask";
+      ValHistDir = "DQMData/HcalRecHitsV/HcalRecHitTask";
+    }
+  }
 
   TCanvas* myc = 0;
   TLegend* leg = 0;
   TPaveText* ptchi2 = 0;
   TPaveStats *ptstats_r = 0;
   TPaveStats *ptstats_v = 0;
-
+  
   TH1F*     ref_hist1[nHist1];
   TH2F*     ref_hist2[nHist2];
   TProfile* ref_prof[nProfInd];
   TH1D*     ref_fp[nProfInd];
- 
+  
   TH1F*     val_hist1[nHist1];
   TH2F*     val_hist2[nHist2];
   TProfile* val_prof[nProfInd];
@@ -117,10 +146,10 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
 
     if (DimSwitch == "1D"){
       //Get histograms from files
-      ref_file.cd(HistDir);   
+      ref_file.cd(RefHistDir);   
       ref_hist1[nh1] = (TH1F*) gDirectory->Get(HistName);
       
-      val_file.cd(HistDir);   
+      val_file.cd(ValHistDir);   
       val_hist1[nh1] = (TH1F*) gDirectory->Get(HistName);
 
       //Rebin histograms -- has to be done first
@@ -233,10 +262,10 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
     //Profiles not associated with histograms
     else if (DimSwitch == "PR" || DimSwitch == "PRwide"){
       //Get profiles from files
-      ref_file.cd(HistDir);   
+      ref_file.cd(RefHistDir);   
       ref_prof[npi] = (TProfile*) gDirectory->Get(HistName);
       
-      val_file.cd(HistDir);   
+      val_file.cd(ValHistDir);   
       val_prof[npi] = (TProfile*) gDirectory->Get(HistName);
       
       //Legend
@@ -346,12 +375,12 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
       
       recstr>>HistName2;
 
-      ref_file.cd(HistDir);   
+      ref_file.cd(RefHistDir);   
       
       ref_hist2[nh2] = (TH2F*) gDirectory->Get(HistName);
       ref_prof[npi]  = (TProfile*) gDirectory->Get(HistName2);
       
-      val_file.cd(HistDir);   
+      val_file.cd(ValHistDir);   
       
       val_hist2[nh2] = (TH2F*) gDirectory->Get(HistName);
       val_prof[npi]  = (TProfile*) gDirectory->Get(HistName2);

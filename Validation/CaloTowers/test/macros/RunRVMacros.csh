@@ -15,8 +15,14 @@ endif
 set NEW_VERS=$1
 set OLD_VERS=$2
 
-#Change this to 0 if not running over centrally harvested samples
-set harvest=1
+# Two bit value with the first corresponding to whether the validation version is centrally
+# harvested (1) or not (0) and the second to whether the reference version is harvested. Thus:
+# 00: both are privately produced
+# 01: reference version is harvested, validation version is private
+# 10: validation version is harvested, reference version is private
+# 11: both versions are harvested
+# Any other value is the same as 0
+set harvest=11
 
 #Check if base directory already exists
 if (-d ${NEW_VERS}_vs_${OLD_VERS}_RelVal) then
