@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_6_2/HLT/V225 (CMSSW_3_6_2_HLT9)
+# /dev/CMSSW_3_6_2/HLT/V227 (CMSSW_3_6_2_HLT11)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_2/HLT/V225')
+  tableName = cms.string('/dev/CMSSW_3_6_2/HLT/V227')
 )
 
 streams = cms.PSet( 
@@ -1820,17 +1820,27 @@ hltDTTFUnpacker = cms.EDProducer( "DTTFFEDReader",
 hltDTActivityFilter = cms.EDFilter( "HLTDTActivityFilter",
     inputDCC = cms.InputTag( "hltDTTFUnpacker" ),
     inputDDU = cms.InputTag( "hltMuonDTDigis" ),
+    inputRPC = cms.InputTag( "hltGtDigis" ),
     inputDigis = cms.InputTag( "hltMuonDTDigis" ),
     processDCC = cms.bool( True ),
     processDDU = cms.bool( True ),
+    processRPC = cms.bool( True ),
     processDigis = cms.bool( True ),
-    processingMode = cms.int32( 2 ),
-    minQual = cms.int32( 2 ),
+    orTPG = cms.bool( True ),
+    orRPC = cms.bool( True ),
+    orDigi = cms.bool( False ),
+    minDCCBX = cms.int32( -1 ),
+    maxDCCBX = cms.int32( 1 ),
+    minDDUBX = cms.int32( 8 ),
+    maxDDUBX = cms.int32( 13 ),
+    minRPCBX = cms.int32( -1 ),
+    maxRPCBX = cms.int32( 1 ),
+    minTPGQual = cms.int32( 2 ),
     maxStation = cms.int32( 3 ),
-    minChamberLayers = cms.int32( 6 ),
-    minDDUBX = cms.int32( 9 ),
-    maxDDUBX = cms.int32( 14 ),
+    minChamberLayers = cms.int32( 5 ),
     minActiveChambs = cms.int32( 1 ),
+    maxDeltaPhi = cms.double( 1.0 ),
+    maxDeltaEta = cms.double( 0.3 ),
     activeSectors = cms.vint32( 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 )
 )
 hltPreActivityDTTuned = cms.EDFilter( "HLTPrescaler",
@@ -1839,17 +1849,27 @@ hltPreActivityDTTuned = cms.EDFilter( "HLTPrescaler",
 hltDTActivityFilterTuned = cms.EDFilter( "HLTDTActivityFilter",
     inputDCC = cms.InputTag( "hltDTTFUnpacker" ),
     inputDDU = cms.InputTag( "hltMuonDTDigis" ),
+    inputRPC = cms.InputTag( "hltGtDigis" ),
     inputDigis = cms.InputTag( "hltMuonDTDigis" ),
     processDCC = cms.bool( True ),
     processDDU = cms.bool( True ),
+    processRPC = cms.bool( True ),
     processDigis = cms.bool( True ),
-    processingMode = cms.int32( 2 ),
-    minQual = cms.int32( 2 ),
+    orTPG = cms.bool( True ),
+    orRPC = cms.bool( True ),
+    orDigi = cms.bool( False ),
+    minDCCBX = cms.int32( -1 ),
+    maxDCCBX = cms.int32( 1 ),
+    minDDUBX = cms.int32( 8 ),
+    maxDDUBX = cms.int32( 13 ),
+    minRPCBX = cms.int32( -1 ),
+    maxRPCBX = cms.int32( 1 ),
+    minTPGQual = cms.int32( 2 ),
     maxStation = cms.int32( 3 ),
-    minChamberLayers = cms.int32( 6 ),
-    minDDUBX = cms.int32( 9 ),
-    maxDDUBX = cms.int32( 14 ),
+    minChamberLayers = cms.int32( 5 ),
     minActiveChambs = cms.int32( 1 ),
+    maxDeltaPhi = cms.double( 1.0 ),
+    maxDeltaEta = cms.double( 0.3 ),
     activeSectors = cms.vint32( 1, 12 )
 )
 hltPreActivityEcalSC7 = cms.EDFilter( "HLTPrescaler",
@@ -7191,6 +7211,15 @@ hltMuTkMuJpsiTrackerMuons = cms.EDProducer( "MuonIdProducer",
     globalTrackQualityInputTag = cms.InputTag( "glbTrackQual" ),
     inputCollectionLabels = cms.VInputTag( 'hltMuTrackJpsiCtfTracks' ),
     inputCollectionTypes = cms.vstring( 'inner tracks' ),
+    arbitrationCleanerOptions = cms.PSet( 
+      ME1a = cms.bool( True ),
+      Overlap = cms.bool( True ),
+      Clustering = cms.bool( True ),
+      OverlapDPhi = cms.double( 0.0786 ),
+      OverlapDTheta = cms.double( 0.02 ),
+      ClusterDPhi = cms.double( 0.6 ),
+      ClusterDTheta = cms.double( 0.02 )
+    ),
     TrackAssociatorParameters = cms.PSet( 
       muonMaxDistanceSigmaX = cms.double( 0.0 ),
       muonMaxDistanceSigmaY = cms.double( 0.0 ),
@@ -7270,19 +7299,10 @@ hltMuTkMuJpsiTrackerMuons = cms.EDProducer( "MuonIdProducer",
       UseCSC = cms.bool( True ),
       UseECAL = cms.bool( False )
     ),
-    MuonCaloCompatibility = cms.PSet(  ),
-    CaloExtractorPSet = cms.PSet(  ),
-    arbitrationCleanerOptions = cms.PSet( 
-      ME1a = cms.bool( True ),
-      Overlap = cms.bool( True ),
-      Clustering = cms.bool( True ),
-      OverlapDPhi = cms.double( 0.0786 ),
-      OverlapDTheta = cms.double( 0.02 ),
-      ClusterDPhi = cms.double( 0.6 ),
-      ClusterDTheta = cms.double( 0.02 )
-    ),
+    JetExtractorPSet = cms.PSet(  ),
     TrackExtractorPSet = cms.PSet(  ),
-    JetExtractorPSet = cms.PSet(  )
+    MuonCaloCompatibility = cms.PSet(  ),
+    CaloExtractorPSet = cms.PSet(  )
 )
 hltMuTkMuJpsiTrackerMuonCands = cms.EDProducer( "L3MuonCandidateProducerFromMuons",
     InputObjects = cms.InputTag( "hltMuTkMuJpsiTrackerMuons" )
