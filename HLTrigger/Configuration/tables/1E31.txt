@@ -73,7 +73,7 @@ HLT_DoublePhoton10_L1R
 HLT_DoublePhoton15_L1R
 HLT_DoublePhoton15_VeryLooseEcalIso_L1R
 HLT_Photon70_L1R
-HLT_SingleIsoTau30_Trk5
+HLT_SingleIsoTau30_Trk5_L1JEC
 HLT_DoubleLooseIsoTau15_Trk5
 HLT_BTagIP_Jet80
 HLT_BTagIP_Jet120

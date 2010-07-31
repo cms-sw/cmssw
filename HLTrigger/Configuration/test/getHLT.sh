@@ -38,7 +38,13 @@ function getConfigForCVS() {
   local CONFIG="$1"
   local NAME="$2"
   log "    dumping HLT cff for $NAME"
-  $GETHLT --cff --mc $CONFIG $NAME
+  if [ "$NAME" == "8E29" ] || [ "$NAME" == "GRun" ]; then
+    $GETHLT --cff --offline --mc $CONFIG $NAME --l1 L1Menu_Commissioning2010_v3
+  elif [ "$NAME" == "1E31" ] || [ "$NAME" == "HIon" ]; then
+    $GETHLT --cff --offline --mc $CONFIG $NAME --l1 L1Menu_MC2010_v0
+  else
+    $GETHLT --cff --offline --mc $CONFIG $NAME
+  fi
 }
 
 function getContentForCVS() {
