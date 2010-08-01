@@ -53,7 +53,7 @@ namespace edm {
         if (!fileLocator_) {
           fileLocator_.reset(new FileLocator(inputOverride, false));
         }
-        if (!fallbackFileLocator_) {
+        if (!fallbackFileLocator_ && !inputOverrideFallback.empty()) {
           fallbackFileLocator_.reset(new FileLocator(inputOverrideFallback, true));
         }
         boost::trim(*lt);
