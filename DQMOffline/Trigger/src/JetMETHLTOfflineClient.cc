@@ -86,7 +86,7 @@ void JetMETHLTOfflineClient::runClient_()
 
     // Move on only if the folder name contains "Eff" Or "Trigger Summary"
     if (debug_) std::cout << fullPathHLTFolders[i] << std::endl;
-    if ((fullPathHLTFolders[i].find("Eff")!=string::npos)) {
+    if ((fullPathHLTFolders[i].find("Eff")!=std::string::npos)) {
       dbe_->setCurrentFolder(fullPathHLTFolders[i]);
        } else {
       continue;
@@ -101,25 +101,25 @@ void JetMETHLTOfflineClient::runClient_()
     
       // Look at all MonitorElements in this folder
       hltMEs = dbe_->getContents(fullSubPathHLTFolders[j]);
-      LogDebug("JetMETHLTOfflineClient")<< "Number of MEs for this HLT path = " << hltMEs.size() << endl;
+      LogDebug("JetMETHLTOfflineClient")<< "Number of MEs for this HLT path = " << hltMEs.size() << std::endl;
       
       for(unsigned int k=0;k<hltMEs.size();k++) {
 	if (debug_) std::cout << hltMEs[k]->getName() << std::endl;
 
 	//-----
-	if ((hltMEs[k]->getName().find("ME_Numerator")!=string::npos) && hltMEs[k]->getName().find("ME_Numerator")==0){
+	if ((hltMEs[k]->getName().find("ME_Numerator")!=std::string::npos) && hltMEs[k]->getName().find("ME_Numerator")==0){
 
 	  std::string name = hltMEs[k]->getName();
 	  name.erase(0,12); // Removed "ME_Numerator"
           if (debug_) std::cout <<"==name=="<< name << std::endl;
-//	  if( name.find("EtaPhi") !=string::npos ) continue; // do not consider EtaPhi 2D plots
+//	  if( name.find("EtaPhi") !=std::string::npos ) continue; // do not consider EtaPhi 2D plots
 
 //	  MonitorElement* eff ;
 
 	  for(unsigned int l=0;l<hltMEs.size();l++) {
 	    if (hltMEs[l]->getName() == "ME_Denominator"+name){
 	      // found denominator too
-              if(name.find("EtaPhi") !=string::npos) 
+              if(name.find("EtaPhi") !=std::string::npos) 
               {
               MonitorElement* eff ;   
 	      TH2F* tNumerator   = hltMEs[k]->getTH2F();
