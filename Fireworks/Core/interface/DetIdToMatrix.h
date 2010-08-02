@@ -78,13 +78,18 @@ public:
    // reco geometry
    std::vector<TEveVector> getPoints(unsigned int id) const;
 
-   TGeoManager* getManager() const {
+   // reco topology
+   std::vector<Float_t> getParameters(unsigned int id) const;
+
+   TGeoManager* getManager( void ) const {
       return manager_;
    }
+
 private:
    mutable std::map<unsigned int, TGeoHMatrix> idToMatrix_;
    std::map<unsigned int, std::string> idToPath_;
    std::map<unsigned int, std::vector<TEveVector> > idToPoints_;
+   std::map<unsigned int, std::vector<Float_t> > idToParameters_;
    mutable TGeoManager* manager_;
 };
 
