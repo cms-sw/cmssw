@@ -599,11 +599,12 @@ void HcalDetDiagNoiseMonitor::analyze(const edm::Event& iEvent, const edm::Event
 
        const edm::TriggerNames & triggerNames = iEvent.triggerNames(*hltTriggerResultHandle);
 
-//       triggerNames_.init(* hltTriggerResultHandle);
+       //       triggerNames_.init(* hltTriggerResultHandle);
        for (int itrig = 0; itrig != ntrigs; ++itrig){
          // obtain the trigger name
 //         string trigName = triggerNames_.triggerName(itrig);
          std::string trigName = triggerNames.triggerName(itrig);
+
          // did the trigger fire?
          bool accept = hltTriggerResultHandle->accept(itrig);
          if(UseMonitoringTrigger_) {
