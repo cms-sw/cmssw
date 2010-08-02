@@ -367,10 +367,10 @@ else:
 
     # override the preshower baseline setting for MC - needed for 3.5.x (x >= 7) and 3.6.x
     if not runOnData:
-      data = data + """# override the preshower baseline setting for MC
+      data = data + """
+# override the preshower baseline setting for MC
 if 'ESUnpackerWorkerESProducer' in process.__dict__:
     process.ESUnpackerWorkerESProducer.RHAlgo.ESBaseline = 1000
-
 """
 
     # if required, remove the HLT prescales
@@ -381,7 +381,6 @@ if 'PrescaleService' in process.__dict__:
     process.PrescaleService.lvl1DefaultLabel = cms.untracked.string( '0' )
     process.PrescaleService.lvl1Labels = cms.vstring( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' )
     process.PrescaleService.prescaleTable = cms.VPSet( )
-
 """
 
     data = data + """
@@ -473,6 +472,7 @@ process.es_prefer_Level1MenuOverride = cms.ESPrefer( "PoolDBESSource", "Level1Me
 
     # the following is stolen from HLTrigger.Configuration.customL1THLT_Options
       data = data + """
+# adapt HLT modules to the correct process name
 if 'hltTrigReport' in process.__dict__:
     process.hltTrigReport.HLTriggerResults       = cms.InputTag( 'TriggerResults','',process.name_() )
 
