@@ -16,7 +16,7 @@ namespace ora {
 
   class IArrayHandler;
   class BulkInsertOperation;
-  class SelectOperation;
+  class MultiRecordSelectOperation;
 
   class STLContainerWriter : public IRelationalWriter {
     
@@ -106,11 +106,10 @@ namespace ora {
     private:
       bool m_associative;
       DataElement* m_offset;
-      std::auto_ptr<SelectOperation> m_query;
+      std::auto_ptr<MultiRecordSelectOperation> m_query;
       std::auto_ptr<IArrayHandler> m_arrayHandler;
       std::auto_ptr<IRelationalReader> m_keyReader;
       std::auto_ptr<IRelationalReader> m_dataReader;
-      int m_oid;
   };
 
   class STLContainerStreamer : public IRelationalStreamer 

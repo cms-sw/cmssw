@@ -6,6 +6,7 @@
 #include "ContainerSchema.h"
 #include "RelationalBuffer.h"
 #include "RelationalOperation.h"
+#include "MultiRecordSelectOperation.h"
 #include "RelationalStreamerFactory.h"
 #include "ArrayHandlerFactory.h"
 #include "IArrayHandler.h"
@@ -235,8 +236,7 @@ ora::STLContainerReader::STLContainerReader(const Reflex::Type& objectType,
   m_query(),
   m_arrayHandler(),
   m_keyReader(),
-  m_dataReader(),
-  m_oid(-1){
+  m_dataReader(){
 }
 
 ora::STLContainerReader::~STLContainerReader(){
@@ -250,17 +250,14 @@ bool ora::STLContainerReader::build( DataElement& offset, IRelationalData& ){
 
   RelationalStreamerFactory streamerFactory( m_schema );
   
-  m_query.reset( new SelectOperation( m_mappingElement.tableName(), m_schema.storageSchema() ));
+  // first open the insert on the extra table...
+  m_query.reset( new MultiRecordSelectOperation( m_mappingElement.tableName(), m_schema.storageSchema() ));
 
   m_query->addWhereId( m_mappingElement.pkColumn() );
   std::vector<std::string> recIdCols = m_mappingElement.recordIdColumns();
-  size_t recIdSize = recIdCols.size();
-  for( size_t i=0; i<recIdSize; i++ ){
+  for( size_t i=0; i<recIdCols.size(); i++ ){
     m_query->addId( recIdCols[ i ] );
     m_query->addOrderId( recIdCols[ i ] );
-    if( i!=recIdSize-1) {
-      m_query->addWhereId( recIdCols[ i ] );
-    }
   }
   
   m_offset = &offset;
@@ -321,14 +318,11 @@ void ora::STLContainerReader::select( int oid ){
     throwException("The streamer has not been built.",
                    "STLContainerReader::read");
   }
-  m_oid = oid;
   coral::AttributeList& whereData = m_query->whereData();
   whereData[ m_mappingElement.pkColumn() ].data<int>() = oid;
-  std::vector<std::string> recIdCols = m_mappingElement.recordIdColumns();
-  for( unsigned int i=0; i<recIdCols.size()-1;i++ ){
-    whereData[ recIdCols[i] ].data<int>() = m_recordId[i];
-  }
   m_query->execute();
+  if(m_keyReader.get()) m_keyReader->select( oid );
+  m_dataReader->select( oid );
 }
 
 void ora::STLContainerReader::setRecordId( const std::vector<int>& identity ){
@@ -375,10 +369,12 @@ void ora::STLContainerReader::read( void* destinationData ) {
   
   m_arrayHandler->clear( address );
 
+  size_t cursorSize = m_query->selectionSize(m_recordId, m_recordId.size()-1);
   unsigned int i=0;
-  while ( m_query->nextCursorRow() ){
+  while ( i< cursorSize ){
 
     m_recordId[m_recordId.size()-1] = (int)i;
+    m_query->selectRow( m_recordId );
 
     // Create a new element for the array
     void* objectData = 0;
@@ -394,13 +390,11 @@ void ora::STLContainerReader::read( void* destinationData ) {
     if ( keyType ) { // treat the key object first
       keyData = static_cast< char* >( objectData ) + firstMember.Offset();
       m_keyReader->setRecordId( m_recordId );
-      m_keyReader->select( m_oid );
       m_keyReader->read( keyData );
       
       componentData = static_cast< char* >( objectData ) + secondMember.Offset();
     }
     m_dataReader->setRecordId( m_recordId );
-    m_dataReader->select( m_oid );
     m_dataReader->read( componentData );
 
     size_t prevSize = m_arrayHandler->size( address );
