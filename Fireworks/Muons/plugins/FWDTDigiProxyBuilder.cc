@@ -31,16 +31,20 @@ namespace
   }
   
   void
-  addTube( TEveBox* shape, const TGeoHMatrix* matrix, double localPos[3],  std::vector<TEveVector> &pars )
+  addTube( TEveBox* shape, const TGeoHMatrix* matrix, double localPos[3],  std::vector<Float_t> &pars )
   {
-    const Float_t vtx[24] = { localPos[0] - pars[0].fX / 2., -pars[0].fZ / 2., -pars[0].fY / 2.,
-			      localPos[0] - pars[0].fX / 2.,  pars[0].fZ / 2., -pars[0].fY / 2.,
-			      localPos[0] + pars[0].fX / 2.,  pars[0].fZ / 2., -pars[0].fY / 2.,
-			      localPos[0] + pars[0].fX / 2., -pars[0].fZ / 2., -pars[0].fY / 2.,
-			      localPos[0] - pars[0].fX / 2., -pars[0].fZ / 2.,  pars[0].fY / 2.,
-			      localPos[0] - pars[0].fX / 2.,  pars[0].fZ / 2.,  pars[0].fY / 2.,
-			      localPos[0] + pars[0].fX / 2.,  pars[0].fZ / 2.,  pars[0].fY / 2.,
-			      localPos[0] + pars[0].fX / 2., -pars[0].fZ / 2.,  pars[0].fY / 2.};
+    const Float_t width = pars[0] / 2.;
+    const Float_t thickness = pars[1] / 2.;
+    const Float_t length = pars[2] / 2.;
+    
+    const Float_t vtx[24] = { localPos[0] - width, -length, -thickness,
+			      localPos[0] - width,  length, -thickness,
+			      localPos[0] + width,  length, -thickness,
+			      localPos[0] + width, -length, -thickness,
+			      localPos[0] - width, -length,  thickness,
+			      localPos[0] - width,  length,  thickness,
+			      localPos[0] + width,  length,  thickness,
+			      localPos[0] + width, -length,  thickness };
     
     shape->SetVertices( vtx );
     shape->SetTransMatrix( *matrix );
@@ -81,7 +85,7 @@ FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
   for( DTDigiCollection::DigiRangeIterator det = digis->begin(), detEnd = digis->end(); det != detEnd; ++det )
   {
     const DTLayerId& layerId = (*det).first;
-    std::vector<TEveVector> pars = iItem->getGeom()->getPoints( layerId );
+    std::vector<Float_t> pars = iItem->getGeom()->getParameters( layerId );
 
     int superLayer = layerId.superlayerId().superLayer();
 
@@ -98,39 +102,35 @@ FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
       TEveCompound* compound = createCompound();
       setupAddElement( compound, product );
 
-      if( pars.empty() ) {
-	continue;
-      }
-			
-      TEvePointSet* pointSet = new TEvePointSet;
-      pointSet->SetMarkerStyle( 24 );
-      setupAddElement( pointSet, compound );
-
-      TEveBox* box = new TEveBox;
-      setupAddElement( box, compound );
-
-      if( ! matrix ) 
-      {
+      if( pars.empty() || (! matrix )) {
 	fwLog( fwlog::kError )
 	  << "failed get geometry of DT layer with detid: " 
 	  << layerId << std::endl;
-	
+
 	continue;
       }
 			
       // The x wire position in the layer, starting from its wire number.
-      Float_t firstChannel = pars[1].fX;
-      Float_t nChannels = pars[1].fZ;
-      localPos[0] = ((*it).wire() - ( firstChannel - 1 ) - 0.5 ) * pars[0].fX - nChannels / 2.0 * pars[0].fX;
+      Float_t firstChannel = pars[3];
+      Float_t nChannels = pars[5];
+      localPos[0] = ((*it).wire() - ( firstChannel - 1 ) - 0.5 ) * pars[0] - nChannels / 2.0 * pars[0];
 
       if( type == FWViewType::k3D || type == FWViewType::kISpy )
       {
+	TEveBox* box = new TEveBox;
+	setupAddElement( box, compound );
 	addTube( box, matrix, localPos, pars );
       }
       if(( type == FWViewType::kRhoPhi && superLayer != 2 ) ||
 	 ( type == FWViewType::kRhoZ && superLayer == 2 ))
       {
+	TEvePointSet* pointSet = new TEvePointSet;
+	pointSet->SetMarkerStyle( 24 );
+	setupAddElement( pointSet, compound );	
 	addMarkers( pointSet, matrix, localPos );
+
+	TEveBox* box = new TEveBox;
+	setupAddElement( box, compound );
 	addTube( box, matrix, localPos, pars );
       }
     }		
