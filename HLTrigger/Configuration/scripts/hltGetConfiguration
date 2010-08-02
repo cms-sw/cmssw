@@ -19,7 +19,7 @@ def usage():
     print 'Usage:'
     print '  hltGetConfiguration [--process <Name>] [--type <Type>]'
     print '                      [--globaltag <GlobalTag::All>] [--unprescale] [--l1 <L1_MENU_vX>]'
-    print '                      [--full|--cff] [--data|--mc] [--online|--offline]'
+    print '                      [--full|--cff] [--online|--offline] [--data|--mc] [--dataset <DATASET>]'
     print '                      <HLT menu from ConfDB>'
     print
     print 'Options:'
@@ -33,10 +33,11 @@ def usage():
     print
     print '  --full             Generate a full configuration file, with minimal modifications [this is the default]'
     print '  --cff              Generate a stripped down configuration file fragment, for inclusion by e.g. cmsDriver.py'
-    print '  --data             Prepare a menu for running on data (RAW in "source") [this is the default]'
-    print '  --mc               Prepare a menu for running on MC (RAW in "rawDataCollector")'
     print '  --online           Take the online compliant connection string and GlobalTag from the menu'
     print '  --offline          Override with the connection string and GlobalTag with te offline values [this is the default]'
+    print '  --data             Prepare a menu for running on data (RAW in "source") [this is the default]'
+    print '  --mc               Prepare a menu for running on MC (RAW in "rawDataCollector")'
+    print '  --dataset          Take the input files from the specified DATASET [only valid for "offline" mode]'
     print
     print 'Notes:'
     print '     using "--online" and "--mc" together is not supported (there is no online compliant GlobalTag for MC)'
@@ -52,6 +53,7 @@ menuL1Override  = ''
 menuGlobalTag   = ''
 menuConfigDB    = ''
 menuConfigName  = ''
+menuDataset     = ''
 menuUnprescale  = False
 
 def pipe(cmdline, input = None):
@@ -94,10 +96,11 @@ def parse_options(args):
   global menuGlobalTag
   global menuConfigDB
   global menuConfigName
+  global menuDataset
   global menuUnprescale
 
   # valid options
-  options = ( 'process=', 'l1=', 'globaltag=', 'type=', 'data', 'mc', 'online', 'offline', 'full', 'cff', 'unprescale' )
+  options = ( 'process=', 'l1=', 'globaltag=', 'type=', 'data', 'mc', 'online', 'offline', 'full', 'cff', 'dataset=', 'unprescale' )
 
   try:
     (opts, args) = getopt.gnu_getopt(args, 'f', options)
@@ -137,6 +140,9 @@ def parse_options(args):
     # run offline(overrithe the GlobalTag from the menu with an offline one)
     elif opt == '--offline':
       runOnline = False
+    # set input files from a dataset through DBS
+    elif opt == '--dataset':
+      menuDataset = value
     elif opt == '--unprescale':
       menuUnprescale = True
     else:
@@ -325,16 +331,24 @@ Level1MenuOverride.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
 
 else:
     if runOnline:
-        menuConfigSource =  "file:/tmp/InputCollection.root"
-    elif runOnData:
-        menuConfigSource =  "/store/data/Run2010A/MinimumBias/RAW/v1/000/139/458/1AD6DF4F-9988-DF11-939F-001617DBD472.root"
+      # online we always run on data
+      menuConfigSource =  "file:/tmp/InputCollection.root"
     else:
+      # offline we can run on data, on mc, or on a user-specified dataset
+      if runOnData:
+        menuConfigSource = "/store/data/Run2010A/MinimumBias/RAW/v1/000/140/381/08F3BCC8-6092-DF11-AE9B-001D09F2525D.root" 
+      elif menuDataset:
+        # query DBS and extract the files for the specified dataset
+        files = pipe("dbsql 'find file where dataset like %s'" % menuDataset)
+        files = [ f for f in files.split('\n') if 'store' in f ]
+        menuConfigSource = ','.join(files)
+      else:
         menuConfigSource =  "file:RelVal_DigiL1Raw_%s.root" % processType
 
     if not runOnData or menuL1Override:
-        # remove any eventual L1 override from the table
-        menuConfigOptions['essources'].append( "-Level1MenuOverride" )
-        menuConfigOptions['esmodules'].append( "-l1GtTriggerMenuXml" )
+      # remove any eventual L1 override from the table
+      menuConfigOptions['essources'].append( "-Level1MenuOverride" )
+      menuConfigOptions['esmodules'].append( "-l1GtTriggerMenuXml" )
 
     menuConfigOptions['services'].append( "-FUShmDQMOutputService" )
     menuConfigOptions['paths'].append( "-OfflineOutput" )
