@@ -269,9 +269,6 @@ if doCff:
       data = pipe("sed -e 's/cms.InputTag( \"source\" )/cms.InputTag( \"rawDataCollector\" )/'", data)
       data = pipe("sed -e 's/cms.string( \"source\" )/cms.string( \"rawDataCollector\" )/'", data)
 
-      # FIXME - this should be changed to a "tracked" parameter ASAP
-      data = pipe("sed -e 's/cms.EDProducer( \"CSCTFUnpacker\",\\s*/&\\n    producer = cms.untracked.InputTag( \"rawDataCollector\" ),/'", data)
-
     if processType in ('1E31', 'HIon'):
       # FIXME - should have a proper L1 MC/DESIGN/1E31 menue
       data = pipe("sed -e 's/\<L1_DoubleEG2\>/L1_DoubleEG1/'", data)
@@ -360,9 +357,6 @@ else:
       # FIXME - this should be done looking into the python objects, not working on the text representation
       data = pipe("sed -e 's/cms.InputTag( \"source\" )/cms.InputTag( \"rawDataCollector\" )/'", data)
       data = pipe("sed -e 's/cms.string( \"source\" )/cms.string( \"rawDataCollector\" )/'", data)
-
-      # FIXME - this should be changed to a "tracked" parameter ASAP
-      data = pipe("sed -e 's/cms.EDProducer( \"CSCTFUnpacker\",\\s*/&\\n    producer = cms.untracked.InputTag( \"rawDataCollector\" ),/'", data)
 
     if processType in ('1E31', 'HIon'):
       # FIXME - should have a proper L1 MC/DESIGN/1E31 menue
