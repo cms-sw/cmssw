@@ -97,7 +97,7 @@ void EEDaqInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
     edm::LogWarning("EEDaqInfoTask") << "EcalDAQTowerStatus record not valid";
     return;
   }
-  const EcalDAQTowerStatus *daqStatus = pDAQStatus.product();
+  const EcalDAQTowerStatus* daqStatus = pDAQStatus.product();
 
   for(int iz=-1; iz<=1; iz+=2) {
     for(int itx=0 ; itx<20; itx++) {

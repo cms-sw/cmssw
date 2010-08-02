@@ -92,7 +92,7 @@ void EBDcsInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
     edm::LogWarning("EBDcsInfoTask") << "EcalDCSTowerStatus record not valid";
     return;
   }
-  const EcalDCSTowerStatus *dcsStatus = pDCSStatus.product();
+  const EcalDCSTowerStatus* dcsStatus = pDCSStatus.product();
 
   for(int iz=-1; iz<=1; iz+=2) {
     for(int iptt=0 ; iptt<72; iptt++) {
