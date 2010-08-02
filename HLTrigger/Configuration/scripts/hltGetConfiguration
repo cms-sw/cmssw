@@ -274,7 +274,7 @@ if doCff:
 
     if processType in ('1E31', 'HIon'):
       # FIXME - should have a proper L1 MC/DESIGN/1E31 menue
-      data = pipe("sed -e 's/L1_DoubleEG2/L1_DoubleEG1/'", data)
+      data = pipe("sed -e 's/\<L1_DoubleEG2\>/L1_DoubleEG1/'", data)
 
     # override the preshower baseline setting for MC - needed for 3.5.x (x >= 7) and 3.6.x
     if not runOnData:
@@ -366,7 +366,7 @@ else:
 
     if processType in ('1E31', 'HIon'):
       # FIXME - should have a proper L1 MC/DESIGN/1E31 menue
-      data = pipe("sed -e 's/L1_DoubleEG2/L1_DoubleEG1/'", data)
+      data = pipe("sed -e 's/\<L1_DoubleEG2\>/L1_DoubleEG1/'", data)
 
     # FIXME - find a better way to override the output modules
     data = pipe("sed -e's/process\.hltOutput\(\w\+\) *= *cms\.OutputModule( *\"ShmStreamConsumer\" *,/process.hltOutput\\1 = cms.OutputModule( \"PoolOutputModule\",\\n    fileName = cms.untracked.string( \"output\\1.root\" ),/' ", data)
