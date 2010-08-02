@@ -86,7 +86,7 @@ def getLumiPerRun(dbsession,c,run,beamstatus=None,beamenergy=None,beamenergyfluc
             try:
                 recordedlumi=instlumi*(1.0-float(deadcount)/float(bitzero))
             except ZeroDivisionError:
-                recordedlumi=-1.0           
+                recordedlumi=-0.1 #           
         result.append([cmslsnum,instlumi,recordedlumi,numorbit,startorbit,fillnum,runstarttime,runstoptime])
     dbsession.transaction().commit()
     if c.VERBOSE:
