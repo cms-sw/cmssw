@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.56 2010/06/17 07:40:10 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.57 2010/06/22 18:31:20 rekovic Exp $
 //
 //
 // system include files
@@ -104,7 +104,7 @@ namespace edm {
 }
 
 typedef std::multimap<float,int> fimmap ;
-typedef std::set<fimmap , less<fimmap> > mmset;
+typedef std::set<fimmap , std::less<fimmap> > mmset;
 
 class FourVectorHLTOffline : public edm::EDAnalyzer {
 
@@ -1412,7 +1412,7 @@ void objMonData<T>::fillL1OffMatch(FourVectorHLTOffline* fv)
        if (dR > L1DRMatch_) continue;
        if( offCollB_.isValid()) {
 
-         typedef typename JetTagCollection::const_iterator const_iterator;
+         typedef typename reco::JetTagCollection::const_iterator const_iterator;
          const_iterator iter = offCollB_->begin();
          for (int count = 0; count < i; count++) iter++;
 
@@ -1426,7 +1426,7 @@ void objMonData<T>::fillL1OffMatch(FourVectorHLTOffline* fv)
       }
       else if( offCollMu_.isValid()) {
 
-        typedef typename MuonCollection::const_iterator const_iterator;
+        typedef typename reco::MuonCollection::const_iterator const_iterator;
         const_iterator iter = offCollMu_->begin();
         for (int count = 0; count < i; count++) iter++;
 
@@ -1515,7 +1515,7 @@ void objMonData<T>::fillOnOffMatch(FourVectorHLTOffline* fv)
        }
        else if( offCollMu_.isValid() && fL2MuFlag) {
 
-         typedef typename MuonCollection::const_iterator const_iterator;
+         typedef typename reco::MuonCollection::const_iterator const_iterator;
          const_iterator iter = offCollMu_->begin();
          for (int count = 0; count < i; count++) iter++;
 
