@@ -730,6 +730,7 @@ namespace edm {
     // now clean up.
     eventTree_.setEntryNumber(-1);
     eventAux_ = EventAuxiliary();
+    lastEventEntryNumberRead_ = -1LL;
 
     // Loop over luminosity block entries and fill information.
 
