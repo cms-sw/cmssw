@@ -1,6 +1,7 @@
 #ifndef INCLUDE_ORA_MULTIRECORDSELECTOPERATION_H
 #define INCLUDE_ORA_MULTIRECORDSELECTOPERATION_H
 
+#include "CondCore/ORA/interface/Record.h"
 #include "RelationalOperation.h"
 #include "MultiIndexDataTrie.h"
 
@@ -36,8 +37,8 @@ namespace ora {
     SelectOperation m_query;
     std::vector<std::string> m_idCols;
     MultiIndexDataTrie m_cache;
-    //coral::AttributeList* m_row;
-    boost::shared_ptr<coral::AttributeList> m_row;
+    RecordSpec m_spec;
+    std::auto_ptr<coral::AttributeList> m_row;
     
   };
   

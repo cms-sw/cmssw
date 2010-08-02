@@ -314,3 +314,7 @@ void ora::SelectOperation::execute(){
   m_cursor = &m_query->execute();
 }
 
+coral::AttributeListSpecification& ora::SelectOperation::attributeListSpecification(){
+  return *m_spec;
+}
+

@@ -2,12 +2,34 @@
 #include "MultiRecordSelectOperation.h"
 // externals 
 #include "CoralBase/Attribute.h"
+#include "CoralBase/Blob.h"
+
+namespace ora {
+  Record* newRecordFromAttributeList( RecordSpec& spec, const coral::AttributeList& data ){
+    Record* ret = new Record( spec );
+    for( size_t i=0;i<data.size();i++ ){
+      ret->set( i, const_cast<void*>(data[i].addressOfData()) );
+    }
+    return ret;
+  }
+
+  coral::AttributeList* newAttributeListFromRecord( coral::AttributeListSpecification& spec, const Record& data ){
+    coral::AttributeList* ret = new coral::AttributeList( spec, true );
+    for( size_t i=0;i<data.size();i++ ){
+      (*ret)[i].setValueFromAddress( data.get(i) );
+    }
+    return ret;
+  }
+  
+}
+
 
 ora::MultiRecordSelectOperation::MultiRecordSelectOperation( const std::string& tableName,
                                                               coral::ISchema& schema ):
   m_query( tableName, schema ),
   m_idCols(),
   m_cache(),
+  m_spec(),
   m_row(){
   //m_row( 0 ){
 }
@@ -22,7 +44,8 @@ void ora::MultiRecordSelectOperation::addOrderId(const std::string& columnName){
 
 void ora::MultiRecordSelectOperation::selectRow( const std::vector<int>& selection ){
   //m_row = &m_cache.lookup( selection );
-  m_row = m_cache.lookupAndClear( selection );
+  boost::shared_ptr<const Record> rec = m_cache.lookupAndClear( selection );
+  m_row.reset( newAttributeListFromRecord( m_query.attributeListSpecification(), *rec ) );
 }
 
 size_t ora::MultiRecordSelectOperation::selectionSize( const std::vector<int>& selection,
@@ -41,15 +64,18 @@ void ora::MultiRecordSelectOperation::clear(){
 
 void ora::MultiRecordSelectOperation::addId(const std::string& columnName){
   m_query.addId( columnName );
+  m_spec.add( columnName, typeid(int) );
 }
 
 void ora::MultiRecordSelectOperation::addData(const std::string& columnName,
                                                const std::type_info& columnType ){
   m_query.addData( columnName, columnType );  
+  m_spec.add( columnName, columnType );
 }
 
 void ora::MultiRecordSelectOperation::addBlobData(const std::string& columnName){
   m_query.addBlobData( columnName );  
+  m_spec.add( columnName, typeid(coral::Blob) );
 }
 
 void ora::MultiRecordSelectOperation::addWhereId(const std::string& columnName){
@@ -85,7 +111,8 @@ void ora::MultiRecordSelectOperation::execute(){
     for(size_t i=0;i<m_idCols.size();i++){
       indexes.push_back( row[m_idCols[i]].data<int>() );
     }
-    m_cache.push( indexes,row );
+    boost::shared_ptr<const Record> rec( newRecordFromAttributeList( m_spec, row ) );
+    m_cache.push( indexes,rec );
   }
   m_query.clear();
 }

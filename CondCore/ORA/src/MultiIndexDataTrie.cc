@@ -16,7 +16,7 @@ ora::MultiIndexDataTrie::~MultiIndexDataTrie(){
 }
 
 size_t ora::MultiIndexDataTrie::push( const std::vector<int>& indexes,
-                                      const coral::AttributeList& data ){
+                                      boost::shared_ptr<const Record>& data ){
   size_t s=0;
   MultiIndexDataTrie* trie = this;
   for( size_t i=0;i<indexes.size();i++){
@@ -38,11 +38,12 @@ size_t ora::MultiIndexDataTrie::push( const std::vector<int>& indexes,
     }
     trie = nt;
   }
-  trie->m_data.reset( new coral::AttributeList( data ) );
+  trie->m_data = data;
   return s;
 }
 
-coral::AttributeList& ora::MultiIndexDataTrie::lookup( const std::vector<int>& indexes ){
+/**
+  coral::AttributeList& ora::MultiIndexDataTrie::lookup( const std::vector<int>& indexes ){
   MultiIndexDataTrie* trie = this;
   for( size_t i=0;i<indexes.size();i++){
     if( trie->m_children.size()==0 || indexes[i] > (int)(trie->m_children.size()-1)){
@@ -63,9 +64,9 @@ coral::AttributeList& ora::MultiIndexDataTrie::lookup( const std::vector<int>& i
   }
   return *trie->m_data;
 }
+**/  
 
-#include <iostream>
-boost::shared_ptr<coral::AttributeList> ora::MultiIndexDataTrie::lookupAndClear( const std::vector<int>& indexes ){
+boost::shared_ptr<const ora::Record> ora::MultiIndexDataTrie::lookupAndClear( const std::vector<int>& indexes ) {
   MultiIndexDataTrie* branch = this;
   MultiIndexDataTrie* trie = 0;
   size_t i=0;
@@ -88,8 +89,7 @@ boost::shared_ptr<coral::AttributeList> ora::MultiIndexDataTrie::lookupAndClear(
     throwException( "No Data for the specified index combination.",
                     "MultiIndexDataTrie::lookupAndClear" );
   }
-  boost::shared_ptr<coral::AttributeList> tmp;
-  tmp = leaf->m_data;
+  boost::shared_ptr<const Record> tmp = leaf->m_data;
   delete leaf;
   trie->m_children[indexes[i-1]] = 0;
   return tmp;  

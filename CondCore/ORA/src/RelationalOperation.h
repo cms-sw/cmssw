@@ -165,6 +165,7 @@ namespace ora {
     bool nextCursorRow();
     void clear();
     void execute();
+    coral::AttributeListSpecification& attributeListSpecification();
 
     public:
     void addId(const std::string& columnName);

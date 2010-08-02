@@ -7,6 +7,8 @@
 #include <algorithm>
 #include <boost/type_traits/is_pointer.hpp>
 
+#include "CoralBase/Blob.h"
+
 namespace ora {
 
   struct TypeHandler {
@@ -96,7 +98,8 @@ namespace ora {
     AnyTypeHandler<unsigned short> us;
     AnyTypeHandler<int> i;
     AnyTypeHandler<unsigned int> ui;
-    AnyTypeHandler<long long> l;
+    AnyTypeHandler<long> l;
+    AnyTypeHandler<long long> ll;
     AnyTypeHandler<unsigned long long> ul;
     AnyTypeHandler<float> f;
     AnyTypeHandler<double> d;
@@ -119,6 +122,8 @@ namespace ora {
     AnyTypeHandler<long double*> ldp;
     AnyTypeHandler<std::string*> ssp;
 
+    AnyTypeHandler<coral::Blob> cb;
+
     std::vector<TypeHandler const *> all;
     typedef std::vector<TypeHandler const *>::const_iterator CI;
     TypeHandler const * operator()(std::type_info const & type) const;
@@ -139,6 +144,7 @@ namespace ora {
     all.push_back(&i);
     all.push_back(&ui);
     all.push_back(&l);
+    all.push_back(&ll);
     all.push_back(&ul);
     all.push_back(&f);
     all.push_back(&d);
@@ -158,6 +164,8 @@ namespace ora {
     all.push_back(&dp);
     all.push_back(&ldp);
     all.push_back(&ssp);
+
+    all.push_back(&cb);
     std::sort(all.begin(),all.end(),CompareTypeHandler());
   }
 

@@ -6,11 +6,9 @@
 //#include <memory>
 #include <boost/shared_ptr.hpp>
 
-namespace coral {
-  class AttributeList;
-}
-
 namespace ora {
+
+  class Record;
 
     // class describing an elementary part of data to be stored 
   class MultiIndexDataTrie {
@@ -18,9 +16,9 @@ namespace ora {
     MultiIndexDataTrie();
     virtual ~MultiIndexDataTrie();
 
-    size_t push( const std::vector<int>& indexes, const coral::AttributeList& data );
-    coral::AttributeList& lookup( const std::vector<int>& indexes );
-    boost::shared_ptr<coral::AttributeList> lookupAndClear( const std::vector<int>& indexes );
+    size_t push( const std::vector<int>& indexes, boost::shared_ptr<const Record>& data );
+    //const Record& lookup( const std::vector<int>& indexes ) const;
+    boost::shared_ptr<const Record> lookupAndClear( const std::vector<int>& indexes );
 
     void clear();
     size_t size() const;
@@ -36,7 +34,7 @@ namespace ora {
     private:
 
     std::vector<MultiIndexDataTrie*> m_children;
-    boost::shared_ptr<coral::AttributeList> m_data;
+    boost::shared_ptr<const Record> m_data;
     
   };
   
