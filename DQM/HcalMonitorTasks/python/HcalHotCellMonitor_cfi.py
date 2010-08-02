@@ -24,7 +24,7 @@ hcalHotCellMonitor=cms.EDAnalyzer("HcalHotCellMonitor",
                                   excludeHORing2  = cms.untracked.bool(True),
                                   
                                   # Booleans for various tests
-                                  test_energy     = cms.untracked.bool(True),
+                                  test_energy     = cms.untracked.bool(False),  # dropped in favor of ET test
                                   test_et         = cms.untracked.bool(True),
                                   test_persistent = cms.untracked.bool(True),
                                   test_neighbor   = cms.untracked.bool(False),
