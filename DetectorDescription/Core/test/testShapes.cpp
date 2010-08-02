@@ -32,10 +32,14 @@ int main(int argc, char *argv[])
   ddShapeTypeNames.push_back("ddshapeless");
   ddShapeTypeNames.push_back("ddpseudotrap");
   ddShapeTypeNames.push_back("ddtrunctubs");
+  ddShapeTypeNames.push_back("ddsphere");
+  ddShapeTypeNames.push_back("ddorb");
+  ddShapeTypeNames.push_back("ddellipticaltube");
+  ddShapeTypeNames.push_back("ddellipsoid");
 
   DDSolidShapesName ssn;
   DDSolidShape ish(dd_not_init);
-  for ( ; ish <= ddtrunctubs; ish=DDSolidShape(ish+1) ) {
+  for ( ; ish <= ddellipsoid; ish=DDSolidShape(ish+1) ) {
     switch (ish) {
     case 0:
       std::cout << ddShapeTypeNames[0] << " " << ssn.name(ish) << " " <<  dd_not_init;
@@ -87,6 +91,18 @@ int main(int argc, char *argv[])
       break;
     case 16:
       std::cout << ddShapeTypeNames[16] << " " << ssn.name(ish) << " " <<  ddtrunctubs;
+      break;
+    case 17:
+      std::cout << ddShapeTypeNames[17] << " " << ssn.name(ish) << " " <<  ddsphere;
+      break;
+    case 18:
+      std::cout << ddShapeTypeNames[18] << " " << ssn.name(ish) << " " <<  ddorb;
+      break;
+    case 19:
+      std::cout << ddShapeTypeNames[19] << " " << ssn.name(ish) << " " <<  ddellipticaltube;
+      break;
+    case 20:
+      std::cout << ddShapeTypeNames[20] << " " << ssn.name(ish) << " " <<  ddellipsoid;
       break;
     default:
       std::cout << "ERROR! No such shape!";

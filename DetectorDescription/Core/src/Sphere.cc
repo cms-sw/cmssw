@@ -1,6 +1,9 @@
 #include "DetectorDescription/Core/src/Sphere.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <DataFormats/GeometryVector/interface/Pi.h>
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
+
 #include <cmath>
 #include <ostream>
 
@@ -25,25 +28,23 @@ void DDI::Sphere::stream(std::ostream & os) const
 {
    os << " innerRadius=" << p_[0]/cm
       << " outerRadius=" << p_[1]/cm
-      << " startPhi=" << p_[2]/cm
-      << " deltaPhi=" << p_[3]/cm
-      << " startTheta=" << p_[4]/cm
+      << " startPhi=" << p_[2]/deg
+      << " deltaPhi=" << p_[3]/deg
+      << " startTheta=" << p_[4]/deg
       << " deltaTheta=" << p_[5]/deg;
 }
 
 double DDI::Sphere::volume() const
 {
-
-  /* I want the integral from x= minX to x = maxX of pi*y^2 */
- 
-  /* for a "truncated" sphere. rSin(theta) * rSin(theta) * pi is area of a circle.
-     integrate from startTheta to startTheta + deltaTheta over theta  ?
-
-  */
-  double volume=0.0;
-
+  double volume(0.);
+  if ( std::fabs(p_[3]) <= 2.*Geom::pi() && std::fabs(p_[5]) <= Geom::pi() ) {
+    volume = std::fabs((p_[1]*p_[1]*p_[1] - p_[0]*p_[0]*p_[0])/3. * (std::cos(p_[4]+p_[5]) - std::cos(p_[4]))*p_[3]);
+  } else if (std::fabs(p_[3]) <= 2.*Geom::pi() && std::fabs(p_[5]) > Geom::pi() ) {
+    volume = std::fabs((p_[1]*p_[1]*p_[1] - p_[0]*p_[0]*p_[0])/3. * (std::cos(p_[4]+p_[5]-180.*deg) - std::cos(p_[4]))*p_[3]);
+  } else if (std::fabs(p_[3]) > 2.*Geom::pi() && std::fabs(p_[5]) <= Geom::pi() ) {
+    volume = std::fabs((p_[1]*p_[1]*p_[1] - p_[0]*p_[0]*p_[0])/3. * (std::cos(p_[4]+p_[5]) - std::cos(p_[4]))*(p_[3]-p_[2]));
+  }
   return volume;
-
 }
 
 

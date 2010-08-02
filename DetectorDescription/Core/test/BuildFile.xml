@@ -2,9 +2,11 @@
 <use   name="boost"/>
 <use   name="cppunit"/>
 <use   name="FWCore/ParameterSet"/>
+<use   name="geant4core"/>
 <bin   name="testCore" file="testRunner.cpp,DDIsValid.cppunit.cc">
 </bin>
 <bin   name="testShapes" file="testShapes.cpp">
 </bin>
 <bin   file="clhepToROOTMath.cpp">
 </bin>
+<bin  name="testVolumes" file="testVolumes.cpp"></bin>
