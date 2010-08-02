@@ -16,7 +16,7 @@ class constants(object):
 def getInstLumiPerLS(dbsession,c,runList,selectionDict,beamstatus=None,beamenergy=None,beamenergyfluctuation=0.09):
     '''
     input: runList[runnum], selectionDict{runnum:[ls]}
-    output:[[runnumber,lsnumber,deliveredInst,recordedInst,norbit,startorbit,runstarttime]]
+    output:[[runnumber,lsnumber,deliveredInst,recordedInst,norbit,startorbit,runstarttime,runstoptime]]
     '''
     result=[]
     selectedRunlist=runList
@@ -212,14 +212,13 @@ def main():
         l=lumiTime.lumiTime()
         #lumiperls=getLumiPerLS(session,c,runList,selectionDict,beamstatus='STABLE BEAMS',beamenergy=3.5e3,beamenergyfluctuation=0.09)
         lumiperls=getInstLumiPerLS(session,c,runList,selectionDict)
-        #print 'lumiperls ',lumiperls 
         xdata=[]#[lsstarttime]
         ydata={}#{label:[instlumi]}
         ydata['Max Inst']=[]
         #ydata['Recorded']=[]
         for lsdata in lumiperls:
-            runstarttimeStr=lsdata[-1]#note: it is a string!!
-            startorbit=lsdata[-2]
+            runstarttimeStr=lsdata[-2]#note: it is a string!!
+            startorbit=lsdata[5]
             deliveredInst=lsdata[2]
             #recordedInst=lsdata[3]
             lsstarttime=l.OrbitToTime(runstarttimeStr,startorbit)
@@ -250,7 +249,6 @@ def main():
             ydata['Delivered'].append(deliveredInst)
             ydata['Recorded'].append(recordedInst)
         xdata=[runnumber,fillnum,norbit,starttime,stoptime,totalls,ncmsls]
-        print 'ydata ',ydata
         m.plotInst_RunLS(xdata,ydata)
     del session
     del svc
