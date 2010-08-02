@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/06/06 17:09:52 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/12/09 22:44:10 $
+ *  $Revision: 1.4 $
  *  \author S. Bolognesi
  */
 
@@ -40,7 +40,7 @@ using namespace edm;
 // Constructor
 DTTTrigWriter::DTTTrigWriter(const ParameterSet& pset) {
   // get selected debug option
-  debug = pset.getUntrackedParameter<bool>("debug", "false");
+  debug = pset.getUntrackedParameter<bool>("debug",false);
 
   // Open the root file which contains the histos
   theRootInputFile = pset.getUntrackedParameter<string>("rootFileName");
