@@ -232,6 +232,8 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	int auxflag=0;
 	for (int xx=firstauxTS_;xx<firstauxTS_+4 && xx<i->size();++xx)
 	  auxflag+=(i->sample(xx).adc())<<(7*(xx-firstauxTS_)); // store the time slices in the first 28 bits of aux, a set of 4 7-bit adc values
+	// bits 28 and 29 are reserved for capid of the first time slice saved in aux
+	auxflag+=((i->sample(firstauxTS_).capid())<<28);
 	(rec->back()).setAux(auxflag);
 
 	(rec->back()).setFlags(0);
@@ -301,6 +303,8 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	int auxflag=0;
 	for (int xx=firstauxTS_;xx<firstauxTS_+4 && xx<i->size();++xx)
 	  auxflag+=(i->sample(xx).adc())<<(7*(xx-firstauxTS_)); // store the time slices in the first 28 bits of aux, a set of 4 7-bit adc values
+	// bits 28 and 29 are reserved for capid of the first time slice saved in aux
+	auxflag+=((i->sample(firstauxTS_).capid())<<28);
 	(rec->back()).setAux(auxflag);
 
 	(rec->back()).setFlags(0);
@@ -351,6 +355,8 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	int auxflag=0;
 	for (int xx=firstauxTS_;xx<firstauxTS_+4 && xx<i->size();++xx)
 	  auxflag+=(i->sample(xx).adc())<<(7*(xx-firstauxTS_)); // store the time slices in the first 28 bits of aux, a set of 4 7-bit adc values
+	// bits 28 and 29 are reserved for capid of the first time slice saved in aux
+	auxflag+=((i->sample(firstauxTS_).capid())<<28);
 	(rec->back()).setAux(auxflag);
 
 	// Clear flags
@@ -434,6 +440,8 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	int auxflag=0;
 	for (int xx=firstauxTS_;xx<firstauxTS_+4 && xx<i->size();++xx)
 	  auxflag+=(i->sample(xx).adc())<<(7*(xx-firstauxTS_)); // store the time slices in the first 28 bits of aux, a set of 4 7-bit adc values
+	// bits 28 and 29 are reserved for capid of the first time slice saved in aux
+	auxflag+=((i->sample(firstauxTS_).capid())<<28);
 	(rec->back()).setAux(auxflag);
 
 	(rec->back()).setFlags(0); // Not yet implemented for HcalCalibRecHit
