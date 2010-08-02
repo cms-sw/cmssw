@@ -6,7 +6,7 @@ This module defines lowlevel SQL query API for lumiDB
 We do not like range queries so far because of performance of range scan.Use only necessary.
 The principle is to query by runnumber and per each coral queryhandle
 Try reuse db session/transaction and just renew query handle each time to reduce metadata queries.
-Avoid unnecessary explicit order by, mostly solved by asc index in the schema.
+Avoid unnecessary explicit order by
 Do not handle transaction in here.
 Do not do explicit del queryhandle in here.
 Note: all the returned dict format are not sorted by itself.Sort it outside if needed.

@@ -2,7 +2,7 @@
 VERSION='1.00'
 import os,sys,datetime
 import coral
-from RecoLuminosity.LumiDB import lumiTime,argparse,nameDealer,selectionParser,hltTrgSeedMapper,connectstrParser,cacheconfigParser,matplotRender,lumiQueryAPI,inputFilesetParser
+from RecoLuminosity.LumiDB import lumiTime,argparse,nameDealer,selectionParser,hltTrgSeedMapper,connectstrParser,cacheconfigParser,matplotRender,lumiQueryAPI,inputFilesetParser,csvReporter
 from matplotlib.figure import Figure
 class constants(object):
     def __init__(self):
@@ -18,7 +18,7 @@ class constants(object):
 def getLumiInfoForRuns(dbsession,c,runList,selectionDict,hltpath='',beamstatus=None,beamenergy=None,beamenergyfluctuation=0.09):
     '''
     input: runList[runnum], selectionDict{runnum:[ls]}
-    output:{runnumber:[delivered,recorded,recorded_hltpath] }
+    output:{runnumber:[delivered,recorded,recordedinpath] }
     '''
     t=lumiTime.lumiTime()
     result={}#runnumber:[lumisumoverlumils,lumisumovercmsls-deadtimecorrected,lumisumovercmsls-deadtimecorrected*hltcorrection_hltpath]
@@ -242,6 +242,7 @@ def main():
         runDict=lumiQueryAPI.runsByTimerange(qHandle,minTime,maxTime)#xrawdata
         session.transaction().commit()
         runList=runDict.keys()
+        print 'runDict ',runDict
         del qHandle
         #print runDict
     else:
@@ -262,10 +263,18 @@ def main():
         ydata['Recorded']=[]
         keylist=result.keys()
         keylist.sort() #must be sorted in order
+        if args.outputfile:
+            reporter=csvReporter.csvReporter(ofilename)
+            fieldnames=['run','delivered','recorded']
+            reporter.writeRow(fieldnames)
         for run in keylist:
             xdata.append(run)
-            ydata['Delivered'].append(result[run][0])
-            ydata['Recorded'].append(result[run][1])
+            delivered=result[run][0]
+            recorded=result[run][1]
+            ydata['Delivered'].append(delivered)
+            ydata['Recorded'].append(recorded)
+            if (delivered!=0 and recorded!=0):
+                reporter.writeRow([run,result[run][0],result[run][1]])                
         m.plotSumX_Run(xdata,ydata)
     elif args.action == 'fill':        
         lumiDict={}

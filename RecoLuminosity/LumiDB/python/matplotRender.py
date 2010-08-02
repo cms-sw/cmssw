@@ -87,7 +87,7 @@ class matplotRender():
             ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
             legendlist.append(ylabel+' '+'%.2f'%(ytotal[ylabel])+' '+'nb$^{-1}$')
         #font=FontProperties(size='medium',weight='demibold')
-
+        
         ax.legend(tuple(legendlist),loc='best')
         self.__fig.subplots_adjust(bottom=0.18,left=0.18)
         
@@ -129,15 +129,20 @@ class matplotRender():
         self.__fig.subplots_adjust(bottom=0.1,left=0.1)
         
     def plotSumX_Time(self,rawxdata,rawydata,minTime,maxTime,nticks=6):
+        '''
+        input:
+           rawxdata runDict{runnumber:[delivered,recorded,recorded_hltpath]}
+           rawydata {label:[rundata]}
+        '''
         xpoints=[]
         ypoints={}
         ytotal={}
         xidx=[]
         runs=rawxdata.keys()
         runs.sort()
-        for run in runs:
+        for idx,run in enumerate(runs):
             xpoints.append(matplotlib.dates.date2num(rawxdata[run][0]))
-            xidx.append(runs.index(run))
+            xidx.append(idx)
         for ylabel,yvalue in rawydata.items():
             ypoints[ylabel]=[]
             for i in xidx:
