@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: ValidateGeometry.cc,v 1.10 2010/07/29 10:36:48 mccauley Exp $
+// $Id: ValidateGeometry.cc,v 1.11 2010/07/29 15:53:51 mccauley Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -536,6 +536,7 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
 {
   clearData();
   std::vector<double> strip_positions;
+  std::vector<double> wire_positions;
 
   std::vector<CSCLayer*> layers = cscGeometry_->layers();
      
@@ -574,7 +575,24 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
       
       compareShape(layer, shape->GetShape());
 
-
+      double length;
+      double topWidth;
+      double bottomWidth;
+ 
+      if ( TGeoTrap* trap = dynamic_cast<TGeoTrap*>(shape->GetShape()) )
+      {
+        topWidth = trap->GetTl1();
+        bottomWidth = trap->GetBl1();
+        length = trap->GetH1();
+      }
+      
+      else
+      {      
+        std::cout<<"Failed to get trapezoid from shape for CSC layer with detid: "
+                 << detId.rawId() <<std::endl;
+        continue;
+      }
+      
       int yAxisOrientation = layer->geometry()->topology()->yAxisOrientation();
       float centreToIntersection = layer->geometry()->topology()->centreToIntersection();
       float yCentre = layer->geometry()->topology()->yCentreOfStripPlane();
@@ -592,31 +610,67 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
 
         strip_positions.push_back(xOfStrip1-xOfStrip2);
       }
-      
-      /*
+
+      double wireSpacing = layer->geometry()->wireTopology()->wireSpacing();
+      float wireAngle = layer->geometry()->wireTopology()->wireAngle();
+      float cosWireAngle = cos(wireAngle);
+
+      /* NOTE
+         Some parameters don't seem available in a public interface
+         so have to perhaps hard-code. This may not be too bad as there
+         seems to be a lot of degeneracy. 
+      */
+
+      int station = layer->id().station();
+      int ring    = layer->id().ring();
+
+      double alignmentPinToFirstWire;
+      double yAlignmentFrame;
+ 
+      if ( station == 1 && ring == 4 )
+      {
+        std::cout<<"ME1a not handled yet"<<std::endl;
+        continue;
+      }
+     
+      if ( station == 1 && ring == 1 )
+      {
+        alignmentPinToFirstWire = 1.065;
+        yAlignmentFrame = 0.0;
+      }
+      else
+      {
+        alignmentPinToFirstWire = 2.90;
+        yAlignmentFrame = 3.49;
+      }
+
+      double yOfFirstWire = yAlignmentFrame + alignmentPinToFirstWire;
+              
       for ( int nWireGroup = 1; nWireGroup <= layer->geometry()->numberOfWireGroups(); 
             ++nWireGroup )
       {
         float lengthOfWireGroup = layer->geometry()->lengthOfWireGroup(nWireGroup);
-        std::cout<<"wireGroup, lengthOfWireGroup: "<< nWireGroup <<" "<< lengthOfWireGroup <<std::endl;
-
+        
         for ( int nWire = 1; nWire <= layer->geometry()->numberOfWiresPerGroup(nWireGroup);
               ++nWire )
         {    
-          float yOfWire = layer->geometry()->yOfWire(nWire);
-          std::cout<<"wire, yOfWire: "<< nWire <<" "<< yOfWire <<std::endl;
-          
+          float yOfWire1 = layer->geometry()->yOfWire(nWire); 
+
+          double yOfWire2 = yOfFirstWire*cosWireAngle + (nWire-1)*wireSpacing;
+          yOfWire2 /= cosWireAngle;
+          yOfWire2 -= length;
+
+          wire_positions.push_back(yOfWire1-yOfWire2);
+
         }
       } 
-      */
-      
-      
-
     }
   }
   
   std::string hn(detname);
   makeHistogram(hn+": xOfStrip", strip_positions);
+
+  makeHistogram(hn+": yOfWire", wire_positions);
 
   makeHistograms(detname);
 }
