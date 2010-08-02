@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_6_2/GRun/V39
+# /dev/CMSSW_3_6_2/GRun/V40
 
 import FWCore.ParameterSet.Config as cms
 
@@ -14,8 +14,6 @@ streamA_datasetMinimumBias_selector.triggerConditions = cms.vstring('HLT_L1Tech_
     'HLT_L1Tech_RPC_TTU_RBst1_collisions', 
     'HLT_L1Tech_BSC_minBias_OR', 
     'HLT_L1Tech_BSC_HighMultiplicity', 
-    'HLT_MinBiasPixel_DoubleIsoTrack5', 
-    'HLT_MinBiasPixel_DoubleTrack', 
     'HLT_MinBiasPixel_SingleTrack', 
     'HLT_ZeroBiasPixel_SingleTrack', 
     'HLT_L1Tech_BSC_minBias', 
@@ -211,8 +209,6 @@ streamA_datasetCommissioning_selector.l1tResults = cms.InputTag('')
 streamA_datasetCommissioning_selector.throw      = cms.bool(False)
 streamA_datasetCommissioning_selector.triggerConditions = cms.vstring('HLT_Activity_DT', 
     'HLT_Activity_DT_Tuned', 
-    'HLT_Activity_PixelClusters', 
-    'HLT_Activity_L1A', 
     'HLT_Activity_CSC', 
     'HLT_L1_BptxXOR_BscMinBiasOR')
 

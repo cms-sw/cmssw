@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_6_2/HLT/V233 (CMSSW_3_6_2_HLT11)
+# /dev/CMSSW_3_6_2/HLT/V235 (CMSSW_3_6_2_HLT11)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_2/HLT/V233')
+  tableName = cms.string('/dev/CMSSW_3_6_2/HLT/V235')
 )
 
 streams = cms.PSet( 
@@ -105,8 +105,6 @@ datasets = cms.PSet(
     'HLT_MET100',
     'HLT_MET45',
     'HLT_L1Tech_BSC_minBias',
-    'HLT_MinBiasPixel_DoubleIsoTrack5',
-    'HLT_MinBiasPixel_DoubleTrack',
     'HLT_MinBiasPixel_SingleTrack',
     'HLT_Mu3',
     'HLT_Mu5',
@@ -220,8 +218,6 @@ datasets = cms.PSet(
     'HLT_L1Tech_RPC_TTU_RBst1_collisions',
     'HLT_L1Tech_BSC_minBias_OR',
     'HLT_L1Tech_BSC_HighMultiplicity',
-    'HLT_MinBiasPixel_DoubleIsoTrack5',
-    'HLT_MinBiasPixel_DoubleTrack',
     'HLT_MinBiasPixel_SingleTrack',
     'HLT_ZeroBiasPixel_SingleTrack',
     'HLT_L1Tech_BSC_minBias',
@@ -461,8 +457,6 @@ datasets = cms.PSet(
     'HLT_CSCBeamHaloOverlapRing2',
     'HLT_CSCBeamHaloOverlapRing1',
     'HLT_CSCBeamHalo',
-    'HLT_MinBiasPixel_DoubleIsoTrack5',
-    'HLT_MinBiasPixel_DoubleTrack',
     'HLT_MinBiasPixel_SingleTrack',
     'HLT_ZeroBiasPixel_SingleTrack',
     'HLT_L1Tech_BSC_minBias',
@@ -616,8 +610,6 @@ datasets = cms.PSet(
     'HLT_MET100',
     'HLT_MET45',
     'HLT_L1Tech_BSC_minBias',
-    'HLT_MinBiasPixel_DoubleIsoTrack5',
-    'HLT_MinBiasPixel_DoubleTrack',
     'HLT_MinBiasPixel_SingleTrack',
     'HLT_Mu3',
     'HLT_Mu5',
