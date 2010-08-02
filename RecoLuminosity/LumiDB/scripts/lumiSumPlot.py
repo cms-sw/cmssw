@@ -191,7 +191,7 @@ def main():
     #            lslist.sort()
     #            selectionDict[run]=lslist
     if ifilename:
-        ifparser=inputFilesetParser(ifilename)
+        ifparser=inputFilesetParser.inputFilesetParser(ifilename)
         runsandls=ifparser.runsandls()
         keylist=runsandls.keys()
         keylist.sort()
@@ -283,6 +283,7 @@ def main():
     elif args.action == 'time' or args.action == 'perday':
         lumiDict={}
         lumiDict=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath,beamstatus='STABLE BEAMS',beamenergy=3.5e3,beamenergyfluctuation=0.09)
+        #lumiDict=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath,beamstatus='STABLE BEAMS')
         xdata=runDict        
         ydata={}
         ydata['Delivered']=[]
