@@ -91,18 +91,19 @@ class matplotRender():
         ax.legend(tuple(legendlist),loc='best')
         self.__fig.subplots_adjust(bottom=0.18,left=0.18)
         
-    def plotSumX_Fill(self,rawxdata,rawydata,rawfillDict,sampleinterval=2,nticks=6):
-        fillboundaries=[]
-        xpoints=[]
-        ypoints={}
+    def plotSumX_Fill(self,rawxdata,rawydata,rawfillDict,nticks=6):
+        #print 'plotSumX_Fill rawxdata ',rawxdata
         ytotal={}
-        for ylabel in rawydata.keys():
-            ypoints[ylabel]=[]
-        xidx=[]
-        
-        #print 'ypoints : ',ypoints
+        ypoints={}
+        xpoints=rawfillDict.keys()
+        xpoints.sort()
         for ylabel,yvalue in rawydata.items():
+            ypoints[ylabel]=[]
             ytotal[ylabel]=sum(rawydata[ylabel])/1000.0
+            for fill in xpoints:
+                runlist=rawfillDict[fill]
+                xidx=rawxdata.index(max(runlist))
+                ypoints[ylabel].append(sum(yvalue[0:xidx])/1000.0)
         ax=self.__fig.add_subplot(111)
         ax.set_xlabel(r'LHC Fill Number',position=(0.84,0))
         ax.set_ylabel(r'L nb$^{-1}$',position=(0,0.9))
@@ -125,7 +126,7 @@ class matplotRender():
             legendlist.append(ylabel+' '+'%.2f'%(ytotal[ylabel])+' '+'nb$^{-1}$')
         #font=FontProperties(size='medium',weight='demibold')
         ax.legend(tuple(legendlist),loc='best')
-        self.__fig.subplots_adjust(bottom=0.18,left=0.3)
+        self.__fig.subplots_adjust(bottom=0.1,left=0.1)
         
     def plotSumX_Time(self,rawxdata,rawydata,minTime,maxTime,nticks=6):
         xpoints=[]
@@ -294,7 +295,7 @@ class matplotRender():
         totaldelivered=sum(rawydata['Delivered'])*lslength
         totalrecorded=sum(rawydata['Recorded'])*lslength
         xpoints=range(1,totalls+1)        
-        print len(xpoints)
+        #print len(xpoints)
         ypoints={}
         ymax={}
         for ylabel,yvalue in rawydata.items():

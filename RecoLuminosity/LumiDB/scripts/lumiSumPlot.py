@@ -172,7 +172,8 @@ def main():
     session.typeConverter().setCppTypeForSqlType("unsigned long long","NUMBER(20)")
     inputfilecontent=''
     fileparsingResult=''
-    runList={}
+    runList=[]
+    runDict={}
     fillDict={}
     selectionDict={}
     minTime=''
@@ -279,6 +280,7 @@ def main():
             xdata.append(run)
             ydata['Delivered'].append(lumiDict[run][0])
             ydata['Recorded'].append(lumiDict[run][1])
+        #print 'input fillDict ',len(fillDict.keys()),fillDict
         m.plotSumX_Fill(xdata,ydata,fillDict)
     elif args.action == 'time' or args.action == 'perday':
         lumiDict={}
