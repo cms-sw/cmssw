@@ -19,7 +19,7 @@ def usage():
     print 'Usage:'
     print '  hltGetConfiguration [--process <Name>] [--type <Type>]'
     print '                      [--globaltag <GlobalTag::All>] [--unprescale] [--l1 <L1_MENU_vX>]'
-    print '                      [--full|--cff] [--online|--offline] [--data|--mc] [--dataset <DATASET>]'
+    print '                      [--data|--mc] [--cff|--full [--online|--offline [--dataset <DATASET>]]]'
     print '                      <HLT menu from ConfDB>'
     print
     print 'Options:'
@@ -31,17 +31,18 @@ def usage():
     print '  --unprescale       Remove any HLT prescales'
     print '  --l1               Override the L1 menu, using the payload "L1GtTriggerMenu_<L1_MENU_vX>_mc" from the database'
     print
-    print '  --full             Generate a full configuration file, with minimal modifications [this is the default]'
-    print '  --cff              Generate a stripped down configuration file fragment, for inclusion by e.g. cmsDriver.py'
-    print '  --online           Take the online compliant connection string and GlobalTag from the menu'
-    print '  --offline          Override with the connection string and GlobalTag with te offline values [this is the default]'
     print '  --data             Prepare a menu for running on data (RAW in "source") [this is the default]'
     print '  --mc               Prepare a menu for running on MC (RAW in "rawDataCollector")'
+    print '  --cff              Generate a stripped down configuration file fragment, for inclusion by e.g. cmsDriver.py'
+    print '  --full             Generate a full configuration file, with minimal modifications [this is the default]'
+    print '  --online           Take the online compliant connection string and GlobalTag from the menu [only valid in "full" mode]'
+    print '  --offline          Override the connection string and GlobalTag with offline values [only valid in "full" mode, this is the default]'
     print '  --dataset          Take the input files from the specified DATASET [only valid for "offline" mode]'
     print
     print 'Notes:'
     print '     using "--online" and "--mc" together is not supported (there is no online compliant GlobalTag for MC)'
-    print '     using "--online/--offline" has no effect if "--cff" is used'
+    print '     using "--online/--offline" is meaingful only in conjunction with "--full"'
+    print '     using "--dataset" is meaingful only in conjunction with "--offline" '
 
 
 processName     = 'HLT'
