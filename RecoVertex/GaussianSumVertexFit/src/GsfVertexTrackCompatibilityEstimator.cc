@@ -23,8 +23,8 @@ GsfVertexTrackCompatibilityEstimator::estimate(const CachingVertex<5> & vertex,
 			 const RefCountedVertexTrack tr) const
 {
 //checking if the track passed really belongs to the vertex
-  vector<RefCountedVertexTrack> tracks = vertex.tracks();
-  vector<RefCountedVertexTrack>::iterator pos 
+  std::vector<RefCountedVertexTrack> tracks = vertex.tracks();
+  std::vector<RefCountedVertexTrack>::iterator pos 
     = find_if(tracks.begin(), tracks.end(), VertexTrackEqual<5>(tr));
  if (pos != tracks.end()) {
    return estimateFittedTrack(vertex,*pos);
@@ -57,7 +57,7 @@ GsfVertexTrackCompatibilityEstimator::estimate(const reco::Vertex & vertex,
   VertexState vState(linP, err);
   RefCountedVertexTrack vertexTrack = vTrackFactory.vertexTrack(linTrack, vState);
 
-  vector<RefCountedVertexTrack> initialTracks(1, vertexTrack);
+  std::vector<RefCountedVertexTrack> initialTracks(1, vertexTrack);
   CachingVertex<5> cachingVertex(linP, err, initialTracks,
   			    vertex.chi2());
   // FIXME: this should work also for tracks without a persistent ref.

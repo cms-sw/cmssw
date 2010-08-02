@@ -83,7 +83,7 @@ private:
 	 const RefCountedLinearizedTrackState linTrack, float weight) const;
 
   TrackChi2Pair assembleTrackComponents(
-	const vector<RefittedTrackComponent> & trackComponents,
+	const std::vector<RefittedTrackComponent> & trackComponents,
 	const GlobalPoint & referencePosition) const;
 
   /**

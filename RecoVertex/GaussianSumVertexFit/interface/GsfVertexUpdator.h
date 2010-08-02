@@ -57,7 +57,7 @@ private:
 	 const RefCountedLinearizedTrackState linTrack, float weight, int sign) const;
 
   VertexChi2Pair assembleVertexComponents(
-  	 const vector<VertexComponent> & newVertexComponents) const;
+  	 const std::vector<VertexComponent> & newVertexComponents) const;
 
   bool limitComponents;
   DeepCopyPointerByClone<GsfVertexMerger> theMerger;

@@ -15,8 +15,8 @@ GsfVertexMerger::GsfVertexMerger(const edm::ParameterSet& pSet)
 {
 
   maxComponents = pSet.getParameter<int>("maxNbrComponents");
-  std::string mergerName = pSet.getParameter<string>("merger");
-  std::string distanceName = pSet.getParameter<string>("distance");
+  std::string mergerName = pSet.getParameter<std::string>("merger");
+  std::string distanceName = pSet.getParameter<std::string>("distance");
 
   if ( mergerName=="CloseComponentsMerger" ) {
     DistanceBetweenComponents<3>* distance;
