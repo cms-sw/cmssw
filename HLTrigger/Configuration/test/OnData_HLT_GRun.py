@@ -13308,8 +13308,11 @@ process.DQMOutput = cms.EndPath( process.hltDQML1Scalers + process.hltDQML1SeedL
 process.HLTDQMOutput = cms.EndPath( process.hltPreHLTDQM + process.hltPreHLTDQMSmart + process.hltOutputHLTDQM )
 process.HLTMONOutput = cms.EndPath( process.hltPreHLTMON + process.hltPreHLTMONSmart + process.hltOutputHLTMON )
 
+
+# set process name
 process.setName_('HLTGRun')
 
+# add global options
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32( 100 )
 )
@@ -13348,6 +13351,7 @@ process.Level1MenuOverride = cms.ESSource( "PoolDBESSource",
 )
 process.es_prefer_Level1MenuOverride = cms.ESPrefer( "PoolDBESSource", "Level1MenuOverride" )
 
+# override the GlobalTag connection string
 if 'GlobalTag' in process.__dict__:
     process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
     process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
@@ -13358,6 +13362,7 @@ if 'Level1MenuOverride' in process.__dict__:
     process.Level1MenuOverride.connect   = 'frontier://FrontierProd/CMS_COND_31X_L1T'
     process.Level1MenuOverride.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
 
+# adapt HLT modules to the correct process name
 if 'hltTrigReport' in process.__dict__:
     process.hltTrigReport.HLTriggerResults       = cms.InputTag( 'TriggerResults','',process.name_() )
 
@@ -13376,7 +13381,7 @@ if 'hltPreDQMSmart' in process.__dict__:
 if 'hltDQML1SeedLogicScalers' in process.__dict__:
     process.hltDQML1SeedLogicScalers.processname = process.name_()
 
-process.options.wantSummary = cms.untracked.bool(True)
 process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
 process.MessageLogger.categories.append('L1GtTrigReport')
 process.MessageLogger.categories.append('HLTrigReport')
+

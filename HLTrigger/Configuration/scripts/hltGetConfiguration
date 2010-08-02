@@ -384,7 +384,7 @@ if 'PrescaleService' in process.__dict__:
 """
 
     data = data + """
-# overwrite process name
+# set process name
 process.setName_('%s')
 
 # add global options

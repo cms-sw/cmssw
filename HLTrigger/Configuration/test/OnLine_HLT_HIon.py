@@ -2126,12 +2126,15 @@ process.HLTAnalyzerEndpath = cms.EndPath( process.hltL1GtTrigReport + process.hl
 process.HLTOutput = cms.EndPath( process.hltOutputA )
 process.AlCaOutput = cms.EndPath( process.hltOutputCalibration + process.hltOutputEcalCalibration + process.hltOutputALCAP0 + process.hltOutputALCAPHISYM + process.hltOutputRPCMON + process.hltOutputOnlineErrors )
 
+
 # override the preshower baseline setting for MC
 if 'ESUnpackerWorkerESProducer' in process.__dict__:
     process.ESUnpackerWorkerESProducer.RHAlgo.ESBaseline = 1000
 
-process.setName_('HLT')
+# set process name
+process.setName_('HLTHIon')
 
+# add global options
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32( 100 )
 )
@@ -2170,6 +2173,7 @@ process.Level1MenuOverride = cms.ESSource( "PoolDBESSource",
 )
 process.es_prefer_Level1MenuOverride = cms.ESPrefer( "PoolDBESSource", "Level1MenuOverride" )
 
+# override the GlobalTag connection string
 if 'GlobalTag' in process.__dict__:
     process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
     from Configuration.PyReleaseValidation.autoCond import autoCond
@@ -2178,6 +2182,7 @@ if 'GlobalTag' in process.__dict__:
 if 'Level1MenuOverride' in process.__dict__:
     process.Level1MenuOverride.connect   = 'frontier://FrontierProd/CMS_COND_31X_L1T'
 
+# adapt HLT modules to the correct process name
 if 'hltTrigReport' in process.__dict__:
     process.hltTrigReport.HLTriggerResults       = cms.InputTag( 'TriggerResults','',process.name_() )
 
@@ -2196,7 +2201,7 @@ if 'hltPreDQMSmart' in process.__dict__:
 if 'hltDQML1SeedLogicScalers' in process.__dict__:
     process.hltDQML1SeedLogicScalers.processname = process.name_()
 
-process.options.wantSummary = cms.untracked.bool(True)
 process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
 process.MessageLogger.categories.append('L1GtTrigReport')
 process.MessageLogger.categories.append('HLTrigReport')
+
