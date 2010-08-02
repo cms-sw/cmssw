@@ -91,19 +91,15 @@ void PatTriggerAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSet
     kinematics comparison
   */
 
-  // recieve the TriggerObjectMatch from the triggerEvent
-  const pat::TriggerObjectMatch* triggerMatch( triggerEvent->triggerObjectMatchResult( muonMatch_ ) );
   // loop over muon references (PAT muons have been used in the matcher in task 3)
-  for( size_t iMuon=0; iMuon<muons->size(); ++iMuon){ 
-    // we need the reco::CandidateBaseRef as input for the matchHelper
-    const reco::CandidateBaseRef candBaseRef( pat::MuonRef( muons, iMuon ) );
-    // we need all these ingedients to recieve matched trigger object from the matchHelper 
-    const pat::TriggerObjectRef trigRef( matchHelper.triggerMatchObject( candBaseRef, triggerMatch, iEvent, *triggerEvent ) );
+  for( size_t iMuon=0; iMuon<muons->size(); ++iMuon){
+    // we need all these ingedients to recieve matched trigger object from the matchHelper
+    const pat::TriggerObjectRef trigRef( matchHelper.triggerMatchObject( muons, iMuon, muonMatch_, iEvent, *triggerEvent ) );
     // finally we can fill the histograms
     if ( trigRef.isAvailable() ) { // check references (necessary!)
-      histos2D_[ "ptTrigCand"  ]->Fill( candBaseRef->pt (), trigRef->pt () );
-      histos2D_[ "etaTrigCand" ]->Fill( candBaseRef->eta(), trigRef->eta() );
-      histos2D_[ "phiTrigCand" ]->Fill( candBaseRef->phi(), trigRef->phi() );
+      histos2D_[ "ptTrigCand" ]->Fill( muons->at( iMuon ).pt(), trigRef->pt() );
+      histos2D_[ "etaTrigCand" ]->Fill( muons->at( iMuon ).eta(), trigRef->eta() );
+      histos2D_[ "phiTrigCand" ]->Fill( muons->at( iMuon ).phi(), trigRef->phi() );
     }
   }
 
@@ -112,7 +108,7 @@ void PatTriggerAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSet
   */
 
   // loop over all trigger match objects from minID to maxID; have
-  // a look to DataFormats/HLTReco/interface/TriggerTypeDefs.h to 
+  // a look to DataFormats/HLTReco/interface/TriggerTypeDefs.h to
   // know more about the available trrigger object id's
   for(unsigned id=minID_; id<=maxID_; ++id){
     // vector of all objects for a given object id
