@@ -30,7 +30,6 @@ function findHltScript() {
   fi
 }
 
-GETHLT=$(findHltScript getHLT.py)
 GETCONTENT=$(findHltScript getEventContent.py)
 GETDATASETS=$(findHltScript getDatasets.py)
 
@@ -39,11 +38,11 @@ function getConfigForCVS() {
   local NAME="$2"
   log "    dumping HLT cff for $NAME"
   if [ "$NAME" == "8E29" ] || [ "$NAME" == "GRun" ]; then
-    $GETHLT --cff --offline --mc $CONFIG $NAME --l1 L1Menu_Commissioning2010_v3
+    hltGetConfiguration --cff --offline --mc $CONFIG --type $NAME --l1 L1Menu_Commissioning2010_v3  > HLT_${NAME}_cff.py
   elif [ "$NAME" == "1E31" ] || [ "$NAME" == "HIon" ]; then
-    $GETHLT --cff --offline --mc $CONFIG $NAME --l1 L1Menu_MC2010_v0
+    hltGetConfiguration --cff --offline --mc $CONFIG --type $NAME --l1 L1Menu_MC2010_v0             > HLT_${NAME}_cff.py
   else
-    $GETHLT --cff --offline --mc $CONFIG $NAME
+    hltGetConfiguration --cff --offline --mc $CONFIG --type $NAME                                   > HLT_${NAME}_cff.py
   fi
 }
 
@@ -69,14 +68,14 @@ function getConfigForOnline() {
 
   log "    dumping full HLT for $NAME"
   if [ "$NAME" == "8E29" ] || [ "$NAME" == "GRun" ]; then
-    $GETHLT --full --offline --data $CONFIG $NAME --l1 L1Menu_Commissioning2010_v3
-    $GETHLT --full --offline --mc   $CONFIG $NAME --l1 L1Menu_Commissioning2010_v3
+    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --process HLT$NAME --l1 L1Menu_Commissioning2010_v3  > OnData_HLT_$NAME.py
+    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --process HLT$NAME --l1 L1Menu_Commissioning2010_v3  > OnLine_HLT_$NAME.py 
   elif [ "$NAME" == "1E31" ] || [ "$NAME" == "HIon" ]; then
-    $GETHLT --full --offline --data $CONFIG $NAME --l1 L1Menu_MC2010_v0
-    $GETHLT --full --offline --mc   $CONFIG $NAME --l1 L1Menu_MC2010_v0
+    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --process HLT$NAME --l1 L1Menu_MC2010_v0             > OnData_HLT_$NAME.py
+    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --process HLT$NAME --l1 L1Menu_MC2010_v0             > OnLine_HLT_$NAME.py
   else
-    $GETHLT --full --offline --data $CONFIG $NAME
-    $GETHLT --full --offline --mc   $CONFIG $NAME
+    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --process HLT$NAME                                   > OnData_HLT_$NAME.py
+    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --process HLT$NAME                                   > OnLine_HLT_$NAME.py
   fi
 }
 
