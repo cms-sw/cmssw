@@ -109,8 +109,6 @@ HLT_ZeroBiasPixel_SingleTrack
 HLT_L1Tech_BSC_minBias_OR
 HLT_L1Tech_BSC_minBias
 HLT_MinBiasPixel_SingleTrack
-HLT_MinBiasPixel_DoubleTrack
-HLT_MinBiasPixel_DoubleIsoTrack5
 HLT_PixelTracks_Multiplicity70
 HLT_PixelTracks_Multiplicity85
 HLT_MultiVertex6
