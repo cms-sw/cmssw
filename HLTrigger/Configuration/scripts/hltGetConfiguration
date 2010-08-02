@@ -439,6 +439,7 @@ process.es_prefer_Level1MenuOverride = cms.ESPrefer( "PoolDBESSource", "Level1Me
     #      - if the GT is "auto:...", insert the code to read it from Configuration.PyReleaseValidation.autoCond
 
     if not runOnline:
+      data = data + "# override the GlobalTag connection string\n"
       data = data + "if 'GlobalTag' in process.__dict__:\n"
       data = data + "    process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'\n"
 
