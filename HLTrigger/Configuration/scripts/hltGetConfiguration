@@ -439,9 +439,11 @@ process.es_prefer_Level1MenuOverride = cms.ESPrefer( "PoolDBESSource", "Level1Me
     #      - if the GT is "auto:...", insert the code to read it from Configuration.PyReleaseValidation.autoCond
 
     if not runOnline:
-      data = data + "# override the GlobalTag connection string\n"
-      data = data + "if 'GlobalTag' in process.__dict__:\n"
-      data = data + "    process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'\n"
+      data = data + """
+# override the GlobalTag connection string
+if 'GlobalTag' in process.__dict__:
+    process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
+"""
 
       if runOnData:
         # don't override the GlobalTag, add only the pfnPrefix
@@ -469,10 +471,9 @@ process.es_prefer_Level1MenuOverride = cms.ESPrefer( "PoolDBESSource", "Level1Me
       data = data + "    process.Level1MenuOverride.connect   = 'frontier://FrontierProd/CMS_COND_31X_L1T'\n"
       if runOnData:
         data = data + "    process.Level1MenuOverride.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')\n"
-      data = data + "\n"
 
     # the following is stolen from HLTrigger.Configuration.customL1THLT_Options
-      data = data + """
+    data = data + """
 # adapt HLT modules to the correct process name
 if 'hltTrigReport' in process.__dict__:
     process.hltTrigReport.HLTriggerResults       = cms.InputTag( 'TriggerResults','',process.name_() )
