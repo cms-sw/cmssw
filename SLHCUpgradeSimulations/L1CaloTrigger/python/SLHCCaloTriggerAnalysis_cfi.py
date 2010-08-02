@@ -5,8 +5,9 @@ mcElectrons = cms.EDProducer(
     src = cms.InputTag("genParticles"),
     select = cms.vstring(
     "drop  *  ", # this is the default
-    "keep pdgId = 11 & status = 1",
-    "keep pdgId = -11 & status =1 ",
+    "keep++ pdgId = 23 | pdgId = 24",
+    "drop abs(pdgId) != 11",
+    "drop status != 1 "
     )
 )
 
@@ -16,7 +17,9 @@ mcPhotons = cms.EDProducer(
     src = cms.InputTag("genParticles"),
     select = cms.vstring(
     "drop  *  ", # this is the default
-    "keep pdgId = 22 & status =1 "
+    "keep++ pdgId = 25",
+    "drop pdgId != 22",
+    "drop status != 1"
     )
 )
 
@@ -69,9 +72,6 @@ mcSequence = cms.Sequence(mcElectrons*
                           tauGenJets*
                           tauGenJetsSelectorAllHadrons
 )
-
-
-
 
 SLHCelectrons = cms.EDAnalyzer('CaloTriggerAnalyzer',
                            src    = cms.InputTag("SLHCL1ExtraParticles","EGamma"),
@@ -131,18 +131,12 @@ LHCisoPhotons = cms.EDAnalyzer('CaloTriggerAnalyzer',
                            threshold = cms.double(5.)
 )                         
 
-
-
 SLHCjets = cms.EDAnalyzer('CaloTriggerAnalyzer',
                            src    = cms.InputTag("SLHCL1ExtraParticles","Jets"),
                            ref    = cms.InputTag("ak5CaloJets"),
                            deltaR = cms.double(0.5),
                            threshold = cms.double(30.)
-)                           
-
-
-
-
+)
 
 analysisSequence = cms.Sequence(SLHCelectrons*
                                 LHCelectrons*
