@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-import os,sys,commands
+import os,sys,commands,time,datetime
 import coral
 from RecoLuminosity.LumiDB import argparse,lumiQueryAPI,lumiTime,csvReporter
 ###
@@ -39,9 +39,10 @@ def totalLumivstime(c,p='.',i='',o='.',begTime="03/30/10 10:00:00.00",endTime=No
     '''
     plotoutname='totallumivstime.png'
     textoutname='totallumivstime.csv'
-    elements=['lumiSumPlot.py','-c',c,'-P',p,'-begin',begTime,'-batch',os.path.join(o,plotoutname),'time']
+    elements=['lumiSumPlot.py','-c',c,'-P',p,'-begin','"'+begTime+'"','-batch',os.path.join(o,plotoutname),'time']
     if endTime:
-        elements.append('-end '+endTime)
+        elements.append('-end ')
+        elements.append('"'+endTime+'"')
     command=' '.join(elements)
     #statusAndOutput=commands.getstatusoutput(command)
     print command
@@ -54,12 +55,16 @@ def totalLumivstimeLastweek(c,p='.',i='',o='.',selectionfile=None,beamstatus=Non
       p authenticaion path
       i input selection file name
       o output path
+      ##fix me: year boundary is not considered!
     '''
     plotoutname='totallumivstime-weekly.png'
     textoutname='totallumivstime-weekly.csv'
-    elements=['lumiSumPlot.py','-c',c,'-P',p,'-begin',begTime,'-batch',os.path.join(o,plotoutname),'time']
-    if endTime:
-        elements.append('-end '+endTime)
+    nowTime=datetime.datetime.now()
+    lastMondayStr=' '.join([str(nowTime.isocalendar()[0]),str(nowTime.isocalendar()[1]-1),str(nowTime.isocalendar()[2])])
+    
+    lastweekMonday=datetime.datetime(*time.strptime(lastMondayStr,'%Y %W %w')[0:5])
+    lastweekEndSunday=lastweekMonday+datetime.timedelta(days=7,hours=24)
+    elements=['lumiSumPlot.py','-c',c,'-P',p,'-begin','"'+lastweekMonday+'"','-end','"'+lastweekEndSunday+'"','-batch',os.path.join(o,plotoutname),'time']
     command=' '.join(elements)
     #statusAndOutput=commands.getstatusoutput(command)
     print command
@@ -75,9 +80,10 @@ def lumiPerDay(c,p='.',i='',o='',begTime="03/30/10 10:00:00.00",endTime=None,sel
     '''
     plotoutname='lumiperday.png'
     textoutname='lumiperday.csv'
-    elements=['lumiSumPlot.py','-c',c,'-P',p,'-begin',begTime,'-batch',os.path.join(o,plotoutname),'perday']
+    elements=['lumiSumPlot.py','-c',c,'-P',p,'-begin','"'+begTime+'"','-batch',os.path.join(o,plotoutname),'perday']
     if endTime:
-        elements.append('-end '+endTime)
+        elements.append('-end')
+        elements.append('"'+endTime+'"')
     command=' '.join(elements)
     #statusAndOutput=commands.getstatusoutput(command)
     print command
@@ -95,7 +101,11 @@ def totalLumivsRun(c,p='.',i='',o='',begRun="132440",endRun=None,selectionfile=N
     textoutname='totallumivsrun.csv'
     elements=['lumiSumPlot.py','-c',c,'-P',p,'-begin',begRun,'-batch',os.path.join(o,plotoutname),'run']
     if endRun:
-        elements.append('-end '+endRun)
+        elements.append('-end')
+        elements.append(endRun)
+    if textoutname:
+        elements.append('-o')
+        elements.append(textoutname)
     command=' '.join(elements)
     print command
     #statusAndOutput=commands.getstatusoutput(command)
@@ -115,7 +125,8 @@ def totalLumivsFill(c,p='.',i='',o='',begFill="1005",endFill=None,selectionfile=
         batch=defaultbatch
     elements=['lumiSumPlot.py','-c',c,'-P',p,'-begin',begFill,'-batch',os.path.join(o,plotoutname),'fill']
     if endFill:
-        elements.append('-end '+endFill)
+        elements.append('-end')
+        elements.append(endFill)
     command=' '.join(elements)
     print command
     #statusAndOutput=commands.getstatusoutput(command)
@@ -130,8 +141,8 @@ def instLumiForRuns(c,runnumbers,p='.',o='.'):
       p authenticaion path
       o output path
     '''
-    plotoutname='rollinginstlumi'
-    textoutname='rollinginstlumi'
+    plotoutname='rollinginstlumi_'
+    textoutname='rollinginstlumi_'
     for idx,run in enumerate(runnumbers):
         batch=os.path.join(o,plotoutname+str(idx+1)+'.png')
         elements=['lumiInstPlot.py','-c',c,'-P',p,'-begin',str(run),'-batch',batch,'run']
@@ -149,7 +160,10 @@ def instPeakPerday(c,p='.',o='.',begTime="03/30/10 10:00:00.00",endTime=None):
     '''
     plotoutname='lumipeak.png'
     textoutname='lumipeak.csv'
-    elements=['lumiInstPlot.py','-c',c,'-P',p,'-begin',begTime,'-batch',os.path.join(o,plotoutname),'peakperday']
+    elements=['lumiInstPlot.py','-c',c,'-P',p,'-begin','"'+begTime+'"','-batch',os.path.join(o,plotoutname),'peakperday']
+    if endTime:
+        elements.append('-end')
+        elements.append('"'+endTime+'"')
     command=' '.join(elements)
     print command
     #statusAndOutput=commands.getstatusoutput(command)
@@ -191,17 +205,16 @@ def main():
         last2runs=[runs[-2],runs[-1]]
         instLumiForRuns(connectstr,last2runs,authpath)
     if args.action == 'instpeakvstime':
-        pass
+        instPeakPerday(connectstr,p=authpath,o='/afs/cern.ch/cms/lumi/www/plots/operation')
     if args.action == 'totalvstime':
-        pass
+        totalLumivstime(connectstr,p=authpath,o='/afs/cern.ch/cms/lumi/www/plots/overview')
     if args.action == 'totallumilastweek':
-        pass
+        totalLumivstimeLastweek(connectstr,p=authpath,o='/afs/cern.ch/cms/lumi/www/plots/operation')
     if args.action == 'totalvsfill':
-        pass
+        totalLumivsFill(connectstr,p=authpath,o='/afs/cern.ch/cms/lumi/www/plots/operation')
     if args.action == 'totalvsrun':
-        pass
-    if args.action == 'perday':
-        pass
-    
+        totalLumivsRun(connectstr,p=authpath,o='/afs/cern.ch/cms/lumi/www/plots/operation')
+    if args.action == 'perday':       
+        lumiPerDay(connectstr,p=authpath,o='/afs/cern.ch/cms/lumi/www/plots/overview')
 if __name__=='__main__':
     main()
