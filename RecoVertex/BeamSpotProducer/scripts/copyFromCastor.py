@@ -3,19 +3,14 @@ import sys,os,commands
 from CommonMethods import *
 def main():
     if len(sys.argv) < 3:
-        print "Usage: cpFromCastor fromDir toDir (optional runnumber)"
-        exit(0)
+        error = "Usage: cpFromCastor fromDir toDir (optional filter)"
+        exit(error)
     user = os.getenv("USER")
     castorDir = "/castor/cern.ch/cms/store/caf/user/" + user + "/" + sys.argv[1] + "/"
-    aCommand = "nsls " + castorDir
-    
+    filter = ""
     if len(sys.argv) > 3:
-        aCommand += " | grep " + sys.argv[3]
-    output = commands.getstatusoutput(aCommand)
-    if output[0] != 0:
-        print output[1]
-        exit(0)
-    fileList = output[1].split('\n')
+        filter = sys.argv[3]
+    fileList = ls(castorDir,filter)
     destDir = sys.argv[2]
     copiedFiles = cp(castorDir,destDir,fileList)
 

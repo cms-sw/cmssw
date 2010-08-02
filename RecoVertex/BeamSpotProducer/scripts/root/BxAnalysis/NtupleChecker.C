@@ -1,7 +1,13 @@
-//----------------------------------------------------
+//-----------------------------------------------------
 //  Authors: Lorenzo Uplegger  : uplegger@cern.ch
 //           Sushil s. Chauhan : sushil@fnal.gov
-//   Last modified: 27 July 2010
+//
+//   Last modified: 30 July 2010
+//------------------------------------------------------
+// This script read the pv  ntuples from Beam Spot 
+// area and make plots for each bx using pv Fitter.
+// It also create  a canvas with all the bx plotted for
+// each beam spot variable in the output file. 
 //-----------------------------------------------------
 
 #include "RecoVertex/BeamSpotProducer/interface/BeamSpotTreeData.h"
@@ -20,12 +26,13 @@
 #include <TCanvas.h>
 #include <TLegend.h>
 #include <iostream>
+#include <fstream>
 
 using namespace std;
 
 //--------Global definiton of some funtions
 bool runPVFitter(std::map< int, std::vector<BeamSpotFitPVData> > bxMap_, int NFits, int tmpLumiCounter);
-void PlotHistoBX();
+void PlotHistoBX(TString OFN, TString ODN);
 void DefineHistStyle(TH1F *h1, int bx);
 void FillHist(TH1F* h, int fitN, double pos, double posError, TString lab);
 void FillnPVInfo(TH1F* h2,int fitN, float npv, TString lab );
@@ -37,6 +44,7 @@ std::map<int, map<int, std::vector<BSFitData> > > FitDone_Results_;
 std::map<int, TString > FitDone_RunLumiRange_;
 std::map<int, map<int, float> > bxMapPVSize_;
 
+ofstream outdata;
 
 
 
@@ -46,21 +54,32 @@ void NtupleChecker(){
   //----------------------------------------------//
   //                Input parameters              //
   //----------------------------------------------// 
-  Int_t beginRunNumber = 141956;
-  Int_t endRunNumber   = 141961;
+  Int_t beginRunNumber = 141956;           //give -1 if do not want to set lower run limit
+  Int_t endRunNumber   = -1;               //give -1 if do not want to set upper run limit
 
   Int_t beginLSNumber  = -1;
   Int_t endLSNumber    = -1;
 
-  Int_t FitNLumi       = 15;
+  Int_t FitNLumi       = 30;
+
+  TString OutPutFileName ="BxAnalysis.root";
+  TString OutPutDir      ="/afs/cern.ch/user/s/schauhan/scratch0/BeamSpot_2010/CMSSW_3_6_1_patch4/src/RecoVertex/BeamSpotProducer/scripts/BxAnalysisScripts"; 
+
+  //---------------------------------------------//
 
 
 
 
+  outdata.open("LogFile.dat");
   cout<<"-----------Step - 1 : Storing Info from Root file to a vector-----------------------"<<endl;
+  outdata<<" -----------Step - 1 : Storing Info from Root file to a vector-----------------------"<<endl;
+
   //clear the map before storing
   StoreRunLSPVdata_.clear();
-  
+  FitDone_RunLumiRange_.clear();
+  bxMapPVSize_.clear();
+  FitDone_Results_.clear();
+ 
   //set direcotry structure
   TString path = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_BSPOT/BxNtuples/";
   TSystemDirectory sourceDir("hi",path); 
@@ -72,7 +91,6 @@ void NtupleChecker(){
   int fileNumber = 1;
   int maxFiles = -1;
   BeamSpotTreeData aData;
-
 
 
 //-------------------Store all input in a map------------------------- 
@@ -113,7 +131,7 @@ void NtupleChecker(){
 
 
      //for Selected Runs and Slected or All LS
-     if(aData.getRun()>= beginRunNumber && aData.getRun()<= endRunNumber ){
+     if((aData.getRun()>= beginRunNumber && aData.getRun()<= endRunNumber) ||  (aData.getRun()>= beginRunNumber && endRunNumber == -1) || (beginRunNumber==-1 && aData.getRun()<= endRunNumber) ){
         if((aData.getLumi()<= beginLSNumber && aData.getLumi()>= endLSNumber) || (beginLSNumber ==-1 && endLSNumber ==-1) ){
         BeamSpotFitPVData Input=aData.getPvData(); 
         StoreRunLSPVdata_[aData.getRun()][aData.getLumi()].push_back(Input); 
@@ -129,13 +147,16 @@ void NtupleChecker(){
    for( std::map<int, std::map< int, std::vector<BeamSpotFitPVData> > >::iterator p=StoreRunLSPVdata_.begin(); p!=StoreRunLSPVdata_.end(); ++p)
      {  for( std::map< int, std::vector<BeamSpotFitPVData> >::iterator q=p->second.begin(); q!=p->second.end(); ++q)
         {  cout<<" Run Number= "<<p->first<<"   LS Number= "<<q->first<<endl;
+           outdata<<" Run Number= "<<p->first<<"   LS Number= "<<q->first<<endl;
         }
      }
 
 
   
+if(StoreRunLSPVdata_.size()==0)outdata<<" EIther the file is  missing or  it does not contain any data!!!!! Please check  "<<endl;
 
 cout<<"-----------Step - 2 : Now Running the PVFitter for each Bunch Xrossing-----------------------"<<endl;
+outdata<<"-----------Step - 2 : Now Running the PVFitter for each Bunch Xrossing-----------------------"<<endl;
 
 //-----------------Run the fitter and store the reulsts for plotting ----------------------------
 
@@ -212,20 +233,22 @@ cout<<"-----------Step - 2 : Now Running the PVFitter for each Bunch Xrossing---
 
 
 cout<<"-----------Step - 3 : Now Filling the histograms for each Bunch Xrossing-----------------------"<<endl;
+outdata<<"-----------Step - 3 : Now Filling the histograms for each Bunch Xrossing-----------------------"<<endl;
+
 //-------------------------------Plot the histograms and store them in a root file----------------
        
-     PlotHistoBX();
- 
+     PlotHistoBX(OutPutDir, OutPutFileName );
+
+outdata.close(); 
 }//NtupleChecker ends here
 
 
 
 
-
 //--------------------Plot histo after the fit results-----------------------------
-void  PlotHistoBX(){
+void  PlotHistoBX(TString ODN, TString OFN){
 
-   TFile f1("/afs/cern.ch/user/s/schauhan/scratch0/BeamSpot_2010/CMSSW_3_6_1_patch4/src/RecoVertex/BeamSpotProducer/scripts/BxAnalysisScripts/BxAnalysis.root","recreate");
+   TFile f1(ODN+"/"+OFN,"recreate");
 
 
   std::map<int, TString>::iterator RLS;
@@ -250,7 +273,6 @@ void  PlotHistoBX(){
   bunchN_previous=(tmpIt->second).size();
   }
   
- cout<<"There are Bunches ---> "<<bunchN<<endl;
 
  TH1F* h_X_bx_[bunchN];
  TH1F* h_Y_bx_[bunchN];
@@ -313,7 +335,6 @@ void  PlotHistoBX(){
    h_widthZ_bx_[x] =new TH1F(WZName_,WZName_,PointsToPlot,0.,PointsToPlot);
    h_widthZ_bx_[x]->GetYaxis()->SetTitle("BS Fit #sigma Z  (cm)");
    DefineHistStyle(h_widthZ_bx_[x],x);
-   //cout<<"x="<<x<<endl;
 
    //histo for PV # for each bx
 
@@ -321,7 +342,7 @@ void  PlotHistoBX(){
    sprintf(PVSize,"%s%d%s","h_nPV_bx_",tmpBxIt->first,"\0");
    TString PVSize_(PVSize);
    h_nPV_bx_[x] =new TH1F(PVSize_,PVSize_,PointsToPlot,0.,PointsToPlot);
-   h_nPV_bx_[x]->GetYaxis()->SetTitle("# of Primary Vertices/LS");
+   h_nPV_bx_[x]->GetYaxis()->SetTitle("# of Primary Vertices / LS");
    DefineHistStyle(h_nPV_bx_[x],x);
 
    tmpBxIt++;
@@ -344,9 +365,10 @@ void  PlotHistoBX(){
 
     for( std::map<int, std::vector<BSFitData> >::iterator BxIt=FitIt->second.begin(); BxIt!=FitIt->second.end(); ++BxIt){
           for(size_t bsfit=0; bsfit < (BxIt->second).size(); bsfit++){
-               cout<<"Fit #  = "<<FitIt->first<<"  Run:LS1-LS2  ="<<(RLS->second)<<"       Bx Number ="<< BxIt->first<<"     X0 = "<<((BxIt->second)[bsfit].xyz[0])<<endl;
-             
-               //if bx is not equal to bunchN then!! e.g when fitting for one LS only
+                cout<<"Fit #  = "<<FitIt->first<<"  Run:LS1-LS2  ="<<(RLS->second)<<"       Bx Number ="<< BxIt->first<<"     X0 = "<<((BxIt->second)[bsfit].xyz[0])<<endl;
+                outdata<<"Fit #  = "<<FitIt->first<<"  Run:LS1-LS2  ="<<(RLS->second)<<"       Bx Number ="<< BxIt->first<<"     X0 = "<<((BxIt->second)[bsfit].xyz[0])<<endl;
+  
+               //if bx is not equal to bunchN then!! e.g when fitting for one LS only and it is missing some of the bunches
     
                if(((FitIt->second).size()) < bunchN){
                   for( std::map<int, int> ::iterator bx_in = bxNIndexMap_.begin(); bx_in!=bxNIndexMap_.end(); ++bx_in){
@@ -458,9 +480,17 @@ PlotAllBunches(All_widthZ, h_widthZ_bx_, bunchN, bxNIndexMap_);
 SigmaZ0->cd();
 All_widthZ->Write();
 
+TCanvas *All_nPV= new TCanvas("All_nPV","",7,8,699,499);
+PlotAllBunches(All_nPV,h_nPV_bx_, bunchN, bxNIndexMap_);
+nPV->cd();
+All_nPV->Write();
+
 
  cout<<"The PV fit is performed for all the  "<<bunchN<<"  bunches"<<endl;
+ outdata<<"The PV fit is performed for all the  "<<bunchN<<"  bunches"<<endl;
+
  if(bunchN> 1000 || bunchN < 0)cout<<"Something Went Wrong OR there is no input to the fit!!!! "<<endl;
+ if(bunchN> 1000 || bunchN < 0)outdata<<"Something Went Wrong OR there is no input to the fit!!!! "<<endl;
 
 f1.cd();
 //write the root file
@@ -471,7 +501,6 @@ bxNIndexMap_.clear();
 FitDone_Results_.clear();
 FitDone_RunLumiRange_.clear();
 bxMapPVSize_.clear();
-
 }//PlotHistoBX ends here
 
 
@@ -501,6 +530,7 @@ void DefineHistStyle(TH1F *h1, int bx){
 
  h1->SetLineStyle(1);
  if(bx>10)h1->SetLineStyle(bx-9);
+ bx=0;
 
 }
 //------------------------
@@ -578,13 +608,13 @@ pvStore!=bxMap_.end(); ++pvStore) {
 
 
    //fill number of pv for each bx crossing:
-  bxMapPVSize_[NFits][pvStore->first]=(((pvStore->second).size()/tmpLumiCounter));
+  bxMapPVSize_[NFits][pvStore->first]=(((Float_t)(pvStore->second).size()/(Float_t)tmpLumiCounter));
 
   //cout<<"  For bx ="<<pvStore->first<<"     PV # =  "<<pvStore->second.size()<<endl;
-  if ( (pvStore->second).size() <= minNrVertices_ ) {
+  if ( (pvStore->second).size() <= minNrVertices_) {
        cout << " Not enough PVs, Setting to zero ->"<<(pvStore->second).size() << std::endl;
         fit_ok = false;
-      //continue; 
+        //continue; 
     }
 
 
