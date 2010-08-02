@@ -21,8 +21,8 @@ setenv CMSSWver1 3_8_0
 setenv CMSSWver2 3_8_0
 setenv OLDRELEASE 380
 setenv NEWRELEASE 380
-setenv OLDPRERELEASE pre7 
-setenv NEWPRERELEASE pre8
+setenv OLDPRERELEASE 
+setenv NEWPRERELEASE 
 
 setenv OLDRELEASE ${OLDRELEASE}${OLDPRERELEASE}
 setenv NEWRELEASE ${NEWRELEASE}${NEWPRERELEASE}
@@ -36,11 +36,11 @@ setenv NEWRELEASE ${NEWRELEASE}${NEWPRERELEASE}
 #setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
 
 
-setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
-setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
+#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
+#setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
 
-#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
-#setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
+setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
+setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
 
 
 
@@ -52,9 +52,9 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 #setenv SAMPLE PhotonJetPt80
 #setenv SAMPLE PhotonJetPt470
 
-setenv SAMPLE SingleGammaPt10IDEAL
+#setenv SAMPLE SingleGammaPt10IDEAL
 #setenv SAMPLE SingleGammaPt35IDEAL
-#setenv SAMPLE SingleGammaFlatPt10_100
+setenv SAMPLE SingleGammaFlatPt10_100IDEAL
 #setenv SAMPLE H130GGgluonfusionSTARTUP
 #setenv SAMPLE PhotonJets_Pt_10
 #setenv SAMPLE GammaJets_Pt_80_120STARTUP
@@ -81,6 +81,13 @@ else if ($SAMPLE == SingleGammaPt35IDEAL) then
 
 setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt35.root
 setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt35.root
+
+
+else if ($SAMPLE == SingleGammaFlatPt10_100IDEAL) then 
+
+setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_SingleGammaFlatPt10To100.root
+setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_SingleGammaFlatPt10To100.root
+
 
 else if ($SAMPLE == H130GGgluonfusionSTARTUP) then 
 
@@ -158,17 +165,20 @@ cat > efficiencyForPhotons <<EOF
   deadChVsEt
 EOF
 
+
+#  gamgamMassAll
+#  gamgamMassBarrel
+#  gamgamMassEndcap
+#  gamgamMassNoConvAll
+#  gamgamMassNoConvBarrel
+#  gamgamMassNoConvEndcap
+#  gamgamMassConvAll
+#  gamgamMassConvBarrel
+#  gamgamMassConvEndcap
+
+
 cat > scaledhistosForPhotons <<EOF
 
-  gamgamMassAll
-  gamgamMassBarrel
-  gamgamMassEndcap
-  gamgamMassNoConvAll
-  gamgamMassNoConvBarrel
-  gamgamMassNoConvEndcap
-  gamgamMassConvAll
-  gamgamMassConvBarrel
-  gamgamMassConvEndcap
   scEta
   scPhi
   scEAll
