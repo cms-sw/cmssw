@@ -13,6 +13,8 @@ else if (  $sample ==  H130GGgluonfusion ) then
 setenv outFileName H130GGgluonfusion
 else if (  $sample == PhotonJets_Pt_10 ) then
 setenv outFileName  PhotonJets_Pt_10
+else if (  $sample == QCD_Pt_20_30 ) then
+setenv outFileName  QCD_Pt_20_30
 else if (  $sample == QCD_Pt_80_120 ) then
 setenv outFileName  QCD_Pt_80_120
 endif
