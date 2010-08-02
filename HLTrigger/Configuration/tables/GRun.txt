@@ -1,6 +1,4 @@
 HLTriggerFirstPath
-HLT_Activity_L1A
-HLT_Activity_PixelClusters
 HLT_Activity_CSC
 HLT_Activity_DT
 HLT_Activity_DT_Tuned
