@@ -384,9 +384,9 @@ DumpRecoGeom::addCSCGeometry( TGeoVolume* top, const std::string& iName, int cop
       assembly->AddNode( child, copy, createPlacement( chamber ));
       child->SetLineColor( kBlue );
 
-      s.clear();
-      s << path( top, iName, copy ) << "/" << name << "_" << copy;
-      m_idToName[rawid] = Info( s.str());
+      std::stringstream p;
+      p << path( top, iName, copy ) << "/" << name << "_" << copy;
+      m_idToName[rawid] = Info( p.str());
     }
   }
   //
@@ -409,9 +409,9 @@ DumpRecoGeom::addCSCGeometry( TGeoVolume* top, const std::string& iName, int cop
       assembly->AddNode( child, copy, createPlacement( layer ));
       child->SetLineColor( kBlue );
       
-      s.clear();
-      s << path( top, iName, copy ) << "/" << name << "_" << copy;
-      m_idToName[rawid] = Info( s.str());
+      std::stringstream p;
+      p << path( top, iName, copy ) << "/" << name << "_" << copy;
+      m_idToName[rawid] = Info( p.str());
 
       const CSCStripTopology* stripTopology = layer->geometry()->topology();
       m_idToName[rawid].topology[0] = stripTopology->yAxisOrientation();
@@ -454,9 +454,9 @@ DumpRecoGeom::addDTGeometry( TGeoVolume* top, const std::string& iName, int copy
       assembly->AddNode( child, copy, createPlacement( chamber ));
       child->SetLineColor( kRed );
       
-      s.clear();
-      s << path( top, iName, copy ) << "/" << name << "_" << copy;
-      m_idToName[rawid] = Info( s.str());
+      std::stringstream p;
+      p << path( top, iName, copy ) << "/" << name << "_" << copy;
+      m_idToName[rawid] = Info( p.str());
     }
   }
   top->AddNode( assembly, copy );
@@ -479,9 +479,9 @@ DumpRecoGeom::addDTGeometry( TGeoVolume* top, const std::string& iName, int copy
       assembly->AddNode( child, copy, createPlacement( superlayer ));
       child->SetLineColor( kBlue );
       
-      s.clear();
-      s << path( top, iName, copy ) << "/" << name << "_" << copy;
-      m_idToName[rawid] = Info( s.str());
+      std::stringstream p;
+      p << path( top, iName, copy ) << "/" << name << "_" << copy;
+      m_idToName[rawid] = Info( p.str());
 
       const BoundPlane& surf = superlayer->surface();
       // Bounds W/H/L:
@@ -509,9 +509,9 @@ DumpRecoGeom::addDTGeometry( TGeoVolume* top, const std::string& iName, int copy
       assembly->AddNode( child, copy, createPlacement( layer ));
       child->SetLineColor( kBlue );
       
-      s.clear();
-      s << path( top, iName, copy ) << "/" << name << "_" << copy;
-      m_idToName[rawid] = Info( s.str());
+      std::stringstream p;
+      p << path( top, iName, copy ) << "/" << name << "_" << copy;
+      m_idToName[rawid] = Info( p.str());
 
       const DTTopology& topo = layer->specificTopology();
       const BoundPlane& surf = layer->surface();
@@ -555,9 +555,9 @@ DumpRecoGeom::addRPCGeometry( TGeoVolume* top, const std::string& iName, int cop
       assembly->AddNode( child, copy, createPlacement( roll ));
       child->SetLineColor( kYellow );
       
-      s.clear();
-      s << path( top, iName, copy ) << "/" << name << "_" << copy;
-      m_idToName[rawid] = Info( s.str());
+      std::stringstream p;
+      p << path( top, iName, copy ) << "/" << name << "_" << copy;
+      m_idToName[rawid] = Info( p.str());
     }
   }
   top->AddNode( assembly, copy );
@@ -580,9 +580,9 @@ DumpRecoGeom::addPixelBarrelGeometry( TGeoVolume* top, const std::string& iName,
     assembly->AddNode( child, copy, createPlacement( *it ));
     child->SetLineColor( kGreen );
 
-    s.clear();
-    s << path( top, iName, copy ) << "/" << name << "_" << copy;
-    m_idToName[rawid] = Info( s.str());
+    std::stringstream p;
+    p << path( top, iName, copy ) << "/" << name << "_" << copy;
+    m_idToName[rawid] = Info( p.str());
   }
   
   top->AddNode( assembly, copy );
@@ -605,9 +605,9 @@ DumpRecoGeom::addPixelForwardGeometry( TGeoVolume* top, const std::string& iName
     assembly->AddNode( child, copy, createPlacement( *it ));
     child->SetLineColor( kGreen );
 
-    s.clear();
-    s << path( top, iName, copy ) << "/" << name << "_" << copy;
-    m_idToName[rawid] = Info( s.str());
+    std::stringstream p;
+    p << path( top, iName, copy ) << "/" << name << "_" << copy;
+    m_idToName[rawid] = Info( p.str());
   }
   
   top->AddNode( assembly, copy );
@@ -630,9 +630,9 @@ DumpRecoGeom::addTIBGeometry( TGeoVolume* top, const std::string& iName, int cop
     assembly->AddNode( child, copy, createPlacement( *it ));
     child->SetLineColor( kGreen );
 
-    s.clear();
-    s << path( top, iName, copy ) << "/" << name << "_" << copy;
-    m_idToName[rawid] = Info( s.str());
+    std::stringstream p;
+    p << path( top, iName, copy ) << "/" << name << "_" << copy;
+    m_idToName[rawid] = Info( p.str());
   }
   
   top->AddNode( assembly, copy );
@@ -655,9 +655,9 @@ DumpRecoGeom::addTOBGeometry( TGeoVolume* top, const std::string& iName, int cop
     assembly->AddNode( child, copy, createPlacement( *it ));
     child->SetLineColor( kGreen );
 
-    s.clear();
-    s << path( top, iName, copy ) << "/" << name << "_" << copy;
-    m_idToName[rawid] = Info( s.str());
+    std::stringstream p;
+    p << path( top, iName, copy ) << "/" << name << "_" << copy;
+    m_idToName[rawid] = Info( p.str());
   }
   
   top->AddNode( assembly, copy );
@@ -680,9 +680,9 @@ DumpRecoGeom::addTIDGeometry( TGeoVolume* top, const std::string& iName, int cop
     assembly->AddNode( child, copy, createPlacement( *it ));
     child->SetLineColor( kGreen );
 
-    s.clear();
-    s << path( top, iName, copy ) << "/" << name << "_" << copy;
-    m_idToName[rawid] = Info( s.str());
+    std::stringstream p;
+    p << path( top, iName, copy ) << "/" << name << "_" << copy;
+    m_idToName[rawid] = Info( p.str());
   }
   
   top->AddNode( assembly, copy );
@@ -705,9 +705,9 @@ DumpRecoGeom::addTECGeometry( TGeoVolume* top, const std::string& iName, int cop
     assembly->AddNode( child, copy, createPlacement( *it ));
     child->SetLineColor( kGreen );
 
-    s.clear();
-    s << path( top, iName, copy ) << "/" << name << "_" << copy;
-    m_idToName[rawid] = Info( s.str());
+    std::stringstream p;
+    p << path( top, iName, copy ) << "/" << name << "_" << copy;
+    m_idToName[rawid] = Info( p.str());
   }
   
   top->AddNode( assembly, copy );
