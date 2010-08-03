@@ -25,8 +25,11 @@ sys.path.insert(0, os.path.join(os.environ['CMSSW_BASE'],
 #    }
 
 process.source = cms.Source("PoolSource",
-##    fileNames = cms.untracked.vstring('file:/data0/slava/data/run58731/4C6067C2-B972-DD11-9672-000423D996B4.root')
-     fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/cms/store/data/Run2010A/Cosmics/RAW/v1/000/137/079/12A5105A-C271-DF11-82D3-001D09F2527B.root')
+##     fileNames = cms.untracked.vstring('file:/data0/slava/data/run109562/FE316E49-047F-DE11-AC0C-001D09F231B0.root')
+     fileNames = cms.untracked.vstring(
+#       '/store/data/BeamCommissioning09/Cosmics/RAW/v1/000/122/909/F81EA88E-A5DB-DE11-AA71-00304879FBB2.root'
+        '/store/data/Run2010A/Mu/RAW/v1/000/142/135/D6C7EAD8-009E-DF11-AD9D-0030487CBD0A.root'
+     )
 ##        untracked uint32 debugVebosity = 10
 ##        untracked bool   debugFlag     = false
 ###	untracked uint32 skipEvents    = 2370
@@ -62,8 +65,8 @@ process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("Geometry.CSCGeometry.cscGeometry_cfi")
 
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'MC_3XY_V21::All'
-process.GlobalTag.globaltag = 'GR_R_36X_V12::All'
+process.GlobalTag.globaltag = 'MC_38Y_V8::All'
+#process.GlobalTag.globaltag = 'GR_R_38X_V8::All'
 #process.GlobalTag.globaltag = 'CRAFT09_R_V9::All'
 #process.prefer("GlobalTag")
 
@@ -117,7 +120,7 @@ process.lctreader.debug = True
 # ======
 process.out = cms.OutputModule("PoolOutputModule",
     #fileName = cms.untracked.string("/data0/slava/test/lcts_run122909.root"),
-    fileName = cms.untracked.string("lcts_run122909.root"),
+    fileName = cms.untracked.string("lcts_run142135.root"),
     outputCommands = cms.untracked.vstring("keep *", 
         "drop *_DaqSource_*_*")
 )
@@ -130,4 +133,4 @@ process.TFileService = cms.Service("TFileService",
 # ==============
 #process.p = cms.Path(process.myfilter*process.muonCSCDigis*process.cscTriggerPrimitiveDigis*process.lctreader)
 process.p = cms.Path(process.muonCSCDigis*process.cscTriggerPrimitiveDigis*process.lctreader)
-process.ep = cms.EndPath(process.out)
+#process.ep = cms.EndPath(process.out)

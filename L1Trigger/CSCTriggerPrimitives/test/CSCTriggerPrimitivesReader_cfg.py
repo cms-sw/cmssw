@@ -9,8 +9,8 @@ process = cms.Process("L1CSCTriggerPrimitivesReader")
 
 process.source = cms.Source("PoolSource",
     # fileNames = cms.untracked.vstring("file:lcts.root"),
-    # fileNames = cms.untracked.vstring("file:/data0/slava/test/lcts_muminus_pt50_emul_CMSSW_3_3_0.root"),
-    fileNames = cms.untracked.vstring("file:lcts_muminus_pt50_emul_CMSSW_3_5_0.root")
+    fileNames = cms.untracked.vstring("file:/data0/slava/test/lcts_muminus_pt50_emul_CMSSW_3_9_0_pre1.root"),
+    # fileNames = cms.untracked.vstring("file:lcts_muminus_pt50_emul_CMSSW_3_6_0_pre3.root")
 )
 #process.PoolSource.fileNames = ['/store/relval/CMSSW_3_1_0_pre7/RelValSingleMuPt100/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0004/EE15A7EC-E641-DE11-A279-001D09F29321.root']
 
@@ -40,7 +40,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.load('Configuration/StandardSequences/GeometryExtended_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.globaltag = 'DESIGN_31X_V8::All'
-process.GlobalTag.globaltag = 'MC_3XY_V21::All'
+process.GlobalTag.globaltag = 'MC_38Y_V8::All'
 
 # Enable floating point exceptions
 #process.EnableFloatingPointExceptions = cms.Service("EnableFloatingPointExceptions")
