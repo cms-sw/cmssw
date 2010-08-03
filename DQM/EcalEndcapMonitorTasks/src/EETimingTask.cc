@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2010/08/03 13:37:06 $
- * $Revision: 1.63 $
+ * $Date: 2010/08/03 13:41:28 $
+ * $Revision: 1.64 $
  * \author G. Della Ricca
  *
 */
@@ -311,9 +311,9 @@ void EETimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   ievt_++;
 
   // channel status
-  edm::ESHandle<EcalChannelStatusMap> pChannelStatus;
+  edm::ESHandle<EcalChannelStatus> pChannelStatus;
   c.get<EcalChannelStatusRcd>().get(pChannelStatus);
-  const EcalChannelStatusMap* chStatus = pChannelStatus.product();
+  const EcalChannelStatus* chStatus = pChannelStatus.product();
 
   float sumTime_hithr[2] = {0.,0.};
   int n_hithr[2] = {0,0};
