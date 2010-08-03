@@ -4,11 +4,11 @@ process = cms.Process("TkVal")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 ### standard includes
-process.load('Configuration.StandardSequences.GeometryDB_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+process.load('Configuration/StandardSequences/GeometryPilot2_cff')
 process.load("Configuration.StandardSequences.RawToDigi_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("SimGeneral.MixingModule.mixNoPU_cfi")
 
 ### conditions
@@ -42,8 +42,8 @@ process.cutsRecoTracks.quality = cms.vstring(QUALITY)
 
 process.multiTrackValidator.associators = ['TrackAssociatorByHits']
 process.multiTrackValidator.useLogPt=cms.untracked.bool(True)
-process.multiTrackValidator.minpT = cms.double(0.1)
-process.multiTrackValidator.maxpT = cms.double(1000)
+process.multiTrackValidator.minpT = cms.double(0)
+process.multiTrackValidator.maxpT = cms.double(3)
 process.multiTrackValidator.nintpT = cms.int32(40)
 process.multiTrackValidator.skipHistoFit=cms.untracked.bool(False)
 
@@ -130,7 +130,7 @@ process.OUTPUT = cms.OutputModule("PoolOutputModule",
 ValidationSequence="SEQUENCE"
 
 if ValidationSequence=="harvesting":
-    process.DQMStore.collateHistograms = True
+    process.DQMStore.collateHistograms = False
 
     process.dqmSaver.convention = 'Offline'
 

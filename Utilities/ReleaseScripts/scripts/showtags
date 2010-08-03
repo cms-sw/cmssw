@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# $Id: showtags,v 1.9 2009/02/14 10:11:40 elmer Exp $
+# $Id: showtags,v 1.10 2009/02/14 10:15:30 andreasp Exp $
 #
 # Created by: Shahram Rahatlou
 #             University of Rome & INFN
@@ -38,24 +38,28 @@ my @packages;
 my $curr = cwd();
 my %tagMap;
 
-die "CMSSW_BASE not defined! run scramv1 first!\n" unless defined $ENV{CMSSW_BASE} ;
-my $maindir = "$ENV{CMSSW_BASE}/src";
+my $localtop=&getLocalTop();
+die "ERROR: Could not find developers area base path. Please run this script from a developer area.\n" if ($localtop eq "");
+
+my $releasetop=&getReleaseTop($localtop);
+die "ERROR: Could not find release base path. Please run this script from a developer area.\n" if ($releasetop eq "");
+
+my $taglist = "${releasetop}/src/PackageList.cmssw";
+die "ERROR: Cannot find release package/tag list at $taglist\n" if (!-e $taglist);
+
+
+my $maindir = "${localtop}/src";
 chdir "$maindir" or die "could not change directory to $maindir!\n";
 
-die "CMSSW_RELEASE_BASE not defined! run scramv1 first!\n" unless defined $ENV{CMSSW_RELEASE_BASE};
-my @v1 = split('/',$ENV{CMSSW_RELEASE_BASE});
+my @v1 = split('/',$releasetop);
 my $nlast = @v1;
-
-my $taglist = "$ENV{CMSSW_RELEASE_BASE}/src/PackageList.cmssw";
-die "Cannot find release package/tag list at $taglist\n" if (!-e $taglist);
 
 # this is our release
 my $relver = $v1[$nlast-1];
 
 print STDOUT "Test Release based on: $relver\n";
-print STDOUT "Base Release in: $ENV{CMSSW_RELEASE_BASE}\n";
-print STDOUT "Your Test release in: $ENV{CMSSW_BASE}\n";
-
+print STDOUT "Base Release in: $releasetop\n";
+print STDOUT "Your Test release in: $localtop\n";
 
 # change printout depending on whether changes are shown wrt current test release or
 # the original production release. This helps a lot to quickly check changes being requested
@@ -290,4 +294,28 @@ ENDHELP
 exit 0;
 }
 
+sub getLocalTop(){
+    use File::Basename;
+    my $dir=getcwd;
+    my $subdir=".SCRAM";
+    while((!-d "${dir}/${subdir}") && ($dir!~/^[\.\/]$/)){$dir=dirname($dir);}
+    if(-d "${dir}/${subdir}"){return $dir;}
+    return ""; 
+}
 
+sub getReleaseTop(){
+    my ($dev)=@_;
+    &setArch();
+    my $reltop="";
+    if (-f "${dev}/.SCRAM/$ENV{SCRAM_ARCH}/Environment"){
+        $reltop=`cat ${dev}/.SCRAM/$ENV{SCRAM_ARCH}/Environment | grep '^RELEASETOP=' | sed 's|RELEASETOP=||'`; chomp $reltop;
+    }
+    return $reltop;
+}
+
+sub setArch(){
+    if (!defined $ENV{SCRAM_ARCH}){
+        my $arch=`scram arch`; chomp $arch;
+        $ENV{SCRAM_ARCH}=$arch;
+    }
+}

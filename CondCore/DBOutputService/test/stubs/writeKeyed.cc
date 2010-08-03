@@ -49,8 +49,8 @@ writeKeyed::endJob() {
 			   :
 			   bk = new condex::ConfF(dict[i]+nums[j],i+0.1*j),      
 			   dict[i]+nums[j]);
-      std::cout << k.m_skey << " " << k.m_key << std::endl;
-      outdb->writeOne(k.m_obj,0,k.m_key,confcont);
+      std::cout << (*k.m_sum) << " " << k.m_key << std::endl;
+      outdb->writeOne(k.m_obj,k.m_sum,k.m_key,confcont);
     }
 
   // populate the master payload

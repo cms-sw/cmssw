@@ -23,7 +23,7 @@ try:
 except Exception:
     distBaseDirectory=os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]),".."))
 
-sys.path.append(distBaseDirectory)
+sys.path.insert(0,distBaseDirectory)
 from Vispa.Main.Directories import *
 distBinaryBaseDirectory=os.path.join(baseDirectory,"dist")
 sys.path.append(distBinaryBaseDirectory)

@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerMatcher.cc,v 1.5 2010/05/14 00:19:52 hegner Exp $
+// $Id: PATTriggerMatcher.cc,v 1.7 2010/06/16 15:40:59 vadler Exp $
 //
 #include "PhysicsTools/PatAlgos/plugins/PATTriggerMatchSelector.h"
 #include "CommonTools/UtilAlgos/interface/PhysObjectMatcher.h"
@@ -50,32 +50,31 @@ typedef reco::PhysObjectMatcher<
   pat::PATTriggerMatchSelector<reco::CandidateView::value_type,
                                pat::TriggerObjectStandAloneCollection::value_type >,
   reco::MatchByDRDPt< reco::CandidateView::value_type,
-                      pat::TriggerObjectStandAloneCollection::value_type  >,
+                      pat::TriggerObjectStandAloneCollection::value_type >,
   reco::MatchLessByDPt< reco::CandidateView,
                         pat::TriggerObjectStandAloneCollection >
 > PATTriggerMatcherDRDPtLessByPt;
 
-/// Match by deltaR, ranking by deltaR (default)                                                                                                                                                               
+/// Match by deltaEta, ranking by deltaR
 typedef reco::PhysObjectMatcher<
   reco::CandidateView,
   pat::TriggerObjectStandAloneCollection,
   pat::PATTriggerMatchSelector< reco::CandidateView::value_type,
-                                pat::TriggerObjectStandAloneCollection::value_type>,
+                                pat::TriggerObjectStandAloneCollection::value_type >,
   reco::MatchByDEta< reco::CandidateView::value_type,
-                      pat::TriggerObjectStandAloneCollection::value_type >
+                     pat::TriggerObjectStandAloneCollection::value_type >
 > PATTriggerMatcherDEtaLessByDR;
 
-
-/// Match by deltaEta
+/// Match by deltaEta, ranking by deltaEta
 typedef reco::PhysObjectMatcher<
   reco::CandidateView,
   pat::TriggerObjectStandAloneCollection,
-  pat::PATTriggerMatchSelector<reco::CandidateView::value_type,
-                               pat::TriggerObjectStandAloneCollection::value_type >,
+  pat::PATTriggerMatchSelector< reco::CandidateView::value_type,
+                                pat::TriggerObjectStandAloneCollection::value_type >,
   reco::MatchByDEta< reco::CandidateView::value_type,
-                      pat::TriggerObjectStandAloneCollection::value_type  >,
+                     pat::TriggerObjectStandAloneCollection::value_type >,
   reco::MatchLessByDEta< reco::CandidateView,
-                        pat::TriggerObjectStandAloneCollection >
+                         pat::TriggerObjectStandAloneCollection >
 > PATTriggerMatcherDEtaLessByDEta;
 
 

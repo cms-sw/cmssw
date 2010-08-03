@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.43 2010/04/08 16:03:15 srappocc Exp $
+// $Id: Jet.h,v 1.45 2010/05/27 13:10:12 rwolf Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette, Giovanni Petrucciani, Roger Wolf, Christian Autermann
-  \version  $Id: Jet.h,v 1.43 2010/04/08 16:03:15 srappocc Exp $
+  \version  $Id: Jet.h,v 1.45 2010/05/27 13:10:12 rwolf Exp $
 */
 
 
@@ -295,18 +295,18 @@ namespace pat {
   
       // ---- JPT or PF Jet specific information ----
 
+      /// muonMultiplicity
+      int muonMultiplicity() const;
+      /// chargedMultiplicity
+      int chargedMultiplicity() const;
       /// chargedEmEnergy
       float chargedEmEnergy()  const;
       /// neutralEmEnergy
       float neutralEmEnergy()  const;
-      /// muonMultiplicity
-      float muonMultiplicity() const;
       /// chargedHadronEnergy
       float chargedHadronEnergy() const;
       /// neutralHadronEnergy
       float neutralHadronEnergy() const;
-      /// chargedMultiplicity
-      float chargedMultiplicity() const;
 
       /// chargedHadronEnergyFraction
       float  chargedHadronEnergyFraction() const {return chargedHadronEnergy()/energy();}
@@ -318,14 +318,47 @@ namespace pat {
       float neutralEmEnergyFraction()      const {return neutralEmEnergy()/energy();}
 
       // ---- PF Jet specific information ----
+      /// photonEnergy 
+      float photonEnergy () const {return pfSpecific().mPhotonEnergy;}
+      /// photonEnergyFraction
+      float photonEnergyFraction () const {return photonEnergy () / energy ();}
+      /// electronEnergy 
+      float electronEnergy () const {return pfSpecific().mElectronEnergy;}
+      /// muonEnergy 
+      float muonEnergy () const {return pfSpecific().mMuonEnergy;}
+      /// muonEnergyFraction
+      float muonEnergyFraction () const {return muonEnergy () / energy ();}
+      /// HFHadronEnergy 
+      float HFHadronEnergy () const {return pfSpecific().mHFHadronEnergy;}
+      /// HFHadronEnergyFraction
+      float HFHadronEnergyFraction () const {return HFHadronEnergy () / energy ();}
+      /// HFEMEnergy 
+      float HFEMEnergy () const {return pfSpecific().mHFEMEnergy;}
+      /// HFEMEnergyFraction
+      float HFEMEnergyFraction () const {return HFEMEnergy () / energy ();}
 
-      /// neutralMultiplicity
-      float neutralMultiplicity () const {return pfSpecific().mNeutralMultiplicity;}
-      /// chargedMuonEnergy
-      float chargedMuEnergy() const { return pfSpecific().mChargedMuEnergy; }
-      /// chargedMuonEnergyFraction
+      /// chargedHadronMultiplicity
+      int chargedHadronMultiplicity () const {return pfSpecific().mChargedHadronMultiplicity;}
+      /// neutralHadronMultiplicity
+      int neutralHadronMultiplicity () const {return pfSpecific().mNeutralHadronMultiplicity;}
+      /// photonMultiplicity
+      int photonMultiplicity () const {return pfSpecific().mPhotonMultiplicity;}
+      /// electronMultiplicity
+      int electronMultiplicity () const {return pfSpecific().mElectronMultiplicity;}
+      
+      /// HFHadronMultiplicity
+      int HFHadronMultiplicity () const {return pfSpecific().mHFHadronMultiplicity;}
+      /// HFEMMultiplicity
+      int HFEMMultiplicity () const {return pfSpecific().mHFEMMultiplicity;}
+      
+      /// chargedMuEnergy
+      float chargedMuEnergy () const {return pfSpecific().mChargedMuEnergy;}
+      /// chargedMuEnergyFraction
       float chargedMuEnergyFraction () const {return chargedMuEnergy () / energy ();}
-
+      
+      /// neutralMultiplicity
+      int neutralMultiplicity () const {return pfSpecific().mNeutralMultiplicity;}
+      
       /// convert generic constituent to specific type
       //  static CaloTowerPtr caloTower (const reco::Candidate* fConstituent);
       /// get specific constituent of the CaloJet. 
@@ -452,14 +485,14 @@ inline float pat::Jet::neutralEmEnergy() const
   else{ throw cms::Exception("Type Mismatch") << "This PAT jet was not made from a JPTJet nor from PFJet.\n"; }
 }
 
-inline float pat::Jet::muonMultiplicity() const 
+inline int pat::Jet::muonMultiplicity() const 
 {
   if(isPFJet()){ return pfSpecific().mMuonMultiplicity; }
   else if( isJPTJet() ){ return jptSpecific().muonsInVertexInCalo.size()+jptSpecific().muonsInVertexOutCalo.size();}
   else{ throw cms::Exception("Type Mismatch") << "This PAT jet was not made from a JPTJet nor from PFJet.\n"; }
 }
 
-inline float pat::Jet::chargedMultiplicity() const 
+inline int pat::Jet::chargedMultiplicity() const 
 {
   if(isPFJet()){ return pfSpecific().mChargedMultiplicity; }
   else if( isJPTJet() ){ return jptSpecific().muonsInVertexInCalo.size()+jptSpecific().muonsInVertexOutCalo.size()+

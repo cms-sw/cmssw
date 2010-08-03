@@ -81,6 +81,8 @@
        std::map<uint32_t,SiPixelRawDataErrorModule*> theFEDStructure;
        bool firstRun;
        MonitorElement* byLumiErrors; 
+       MonitorElement* errorRate;
+       
  };
 
 #endif

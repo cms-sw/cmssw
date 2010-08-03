@@ -157,6 +157,7 @@
   <!-- ==========================================================================================================================
               PAT Dataformats beyond PatObjects
        ========================================================================================================================== -->
+  <class name="std::vector<edm::Ptr<CaloTower> >" />
   <class name="pat::JetCorrFactors" />
   <class name="std::vector<pat::JetCorrFactors>" />
   <class name="edm::ValueMap<pat::JetCorrFactors>" />

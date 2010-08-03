@@ -2,16 +2,15 @@
 #define Cond_PayloadWrapper_h
 
 
-/*
 #include <typeinfo>
 #include "POOLCore/Ptr.h"
 #include "CondFormats/Common/interface/Summary.h"
 
 namespace cond {
 
-  // base class of IOV payload wapper
-  //    the final class will include ptrs for payload and its summary
-  //
+  /** base class of IOV payload wapper
+      the final class will include ptrs for payload and its summary
+  */
   class  PayloadWrapper {
   public:
     
@@ -52,8 +51,8 @@ namespace cond {
   };
   
   
-  // base class of IOV payload wrapper (no summary)
-  //
+  /** base class of IOV payload wrapper (no summary)
+   */
   template<typename O> 
   class DataWrapper : public PayloadWrapper {
   public:
@@ -84,7 +83,5 @@ namespace cond {
   };
   
 } // ns
-
-*/
 
 #endif //Cond_PayloadWrapper_h

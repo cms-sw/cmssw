@@ -5,7 +5,7 @@ process = cms.Process("PROD")
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(5000)
+    input = cms.untracked.int32(500)
 )
 
 #generation
@@ -19,7 +19,8 @@ process.load("RecoParticleFlow.PFTracking.source_particleGun_NuclearTest_cfi")
 process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
 process.load("FastSimulation.Configuration.CommonInputs_cff")
 process.load("FastSimulation.Configuration.FamosSequences_cff")
-process.GlobalTag.globaltag = "MC_37Y_V1::All"
+from Configuration.PyReleaseValidation.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['mc']
 
 
 process.famosSimHits.SimulateCalorimetry = True
@@ -44,7 +45,7 @@ process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 #process.famosSimHits.MaterialEffects.Bremsstrahlung = False
 #process.famosSimHits.MaterialEffects.EnergyLoss = False
 #process.famosSimHits.MaterialEffects.MultipleScattering = False
-#process.famosSimHits.MaterialEffects.NuclearInteraction = False
+process.famosSimHits.MaterialEffects.NuclearInteraction = False
 
 process.load("RecoParticleFlow.PFProducer.particleFlowSimParticle_cff")
 process.load("RecoParticleFlow.PFTracking.particleFlowDisplacedVertexCandidate_cff")

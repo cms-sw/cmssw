@@ -19,11 +19,7 @@
 #include "DataFormats/PatCandidates/interface/StringMap.h"
 #include "DataFormats/PatCandidates/interface/EventHypothesis.h"
 #include "DataFormats/PatCandidates/interface/EventHypothesisLooper.h"
-#include "DataFormats/PatCandidates/interface/TriggerObject.h"
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
-#include "DataFormats/PatCandidates/interface/TriggerFilter.h"
-#include "DataFormats/PatCandidates/interface/TriggerPath.h"
-#include "DataFormats/PatCandidates/interface/TriggerAlgorithm.h"
 #include "DataFormats/PatCandidates/interface/TriggerEvent.h"
 
 #include "DataFormats/PatCandidates/interface/Vertexing.h"
@@ -131,8 +127,8 @@ namespace {
   edm::reftobase::RefHolder<pat::CompositeCandidateRef>	rb_rh_p_cc;
   edm::reftobase::RefHolder<pat::PFParticleRef>	 	rb_rh_p_pfp;
   edm::reftobase::RefHolder<pat::GenericParticleRef>    rb_rh_p_gp;
-  /*   RefToBaseVector<Candidate> from PATObjects, not yet provided. Useful?   */
     /*   With direct VectorHolder   */
+  /*   RefToBaseVector<Candidate> from PATObjects, not yet provided. Useful?   */
   /*
   edm::reftobase::VectorHolder<reco::Candidate, pat::ElectronRefVector>	        rb_cand_vh_p_e;
   edm::reftobase::VectorHolder<reco::Candidate, pat::MuonRefVector>	        rb_cand_vh_p_mu;
@@ -179,6 +175,8 @@ namespace {
   /*   ==========================================================================================================================
               PAT Dataformats beyond PatObjects
        ==========================================================================================================================   */
+  std::vector<edm::Ptr<CaloTower> > v_p_ct;
+
   edm::Wrapper<edm::ValueMap<pat::JetCorrFactors> >  w_vm_jcf;
 
   edm::Wrapper<StringMap>   w_sm;

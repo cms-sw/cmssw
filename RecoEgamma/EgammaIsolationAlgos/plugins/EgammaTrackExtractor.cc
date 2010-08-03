@@ -1,6 +1,6 @@
 #include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaTrackExtractor.h"
 
-#include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaRange.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRange.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"

@@ -32,6 +32,7 @@ protected :
 
   void init(TLorentzVector* pini, const TMatrixD* theCovMatrix);
 
+  ClassDef(TFitParticleESpher, 1)    // Particle with spherical 4vector parametrization and free energy
 
 private:
   

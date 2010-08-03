@@ -10,10 +10,10 @@
    .
 
   \author   Volker Adler
-  \version  $Id: PATTriggerMatchEmbedder.cc,v 1.3 2009/07/04 13:15:29 vadler Exp $
+  \version  $Id: PATTriggerMatchEmbedder.cc,v 1.4 2010/04/20 21:39:47 vadler Exp $
 */
 //
-// $Id: PATTriggerMatchEmbedder.cc,v 1.3 2009/07/04 13:15:29 vadler Exp $
+// $Id: PATTriggerMatchEmbedder.cc,v 1.4 2010/04/20 21:39:47 vadler Exp $
 //
 
 
@@ -90,6 +90,7 @@ void PATTriggerMatchEmbedder< PATObjectType >::produce( edm::Event & iEvent, con
   for ( typename edm::View< PATObjectType >::const_iterator iCand = candidates->begin(); iCand != candidates->end(); ++iCand ) {
     const unsigned index( iCand - candidates->begin() );
     PATObjectType cand( candidates->at( index ) );
+    std::set< TriggerObjectStandAloneRef > cachedRefs;
     for ( size_t iMatch = 0; iMatch < matches_.size(); ++iMatch ) {
       edm::Handle< TriggerObjectStandAloneMatch > match;
       iEvent.getByLabel( matches_.at( iMatch ), match );
@@ -99,7 +100,9 @@ void PATTriggerMatchEmbedder< PATObjectType >::produce( edm::Event & iEvent, con
       }
       const TriggerObjectStandAloneRef trigRef( ( *match )[ candidates->refAt( index ) ] );
       if ( trigRef.isNonnull() && trigRef.isAvailable() ) {
-        cand.addTriggerObjectMatch( *trigRef );
+        if ( cachedRefs.insert( trigRef ).second ) { // protection from multiple entries of the same trigger objects
+          cand.addTriggerObjectMatch( *trigRef );
+        }
       }
     }
     output->push_back( cand );

@@ -165,14 +165,17 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf) {
   spikeIdThreshold_        = conf.getParameter<double>("spikeIdThreshold");
 
   //Need to figure out which algo to use
-  if( !conf.getParameter<std::string>("spikeIdString").compare("kE1OverE9") )   {
+  if(!conf.getParameter<std::string>("spikeIdString").compare("kE1OverE9") )   {
     spId_ = EcalSeverityLevelAlgo::kE1OverE9;
-  } else if( !conf.getParameter<std::string>("spikeIdString").compare("kSwissCross") ) {
+  } else if(!conf.getParameter<std::string>("spikeIdString").compare("kSwissCross") ) {
     spId_ = EcalSeverityLevelAlgo::kSwissCross;
+  } else if(!conf.getParameter<std::string>("spikeIdString").compare("kSwissCrossBordersIncluded") ) {
+    spId_ = EcalSeverityLevelAlgo::kSwissCrossBordersIncluded;
   } else {
-    spId_ = EcalSeverityLevelAlgo::kSwissCross;
+    spId_ = EcalSeverityLevelAlgo::kSwissCrossBordersIncluded;
+     edm::LogWarning("PhotonIsolationCalculator|SpikeRemovalForIsolation")
+       << "Cannot find the requested method. kSwissCross set instead.";
   }
-
 }
 
 

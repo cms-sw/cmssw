@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="SiStripFedCabling" >
+   <Class table="SISTRIPFEDCABLING" id_columns="IOV_VALUE_ID" name="SiStripFedCabling" mapping_version="SiStripFedCabling_basic" >
+     <Blob column="SISTRIPFEDCABLING_CONN" name="connections_"/>
+     <Blob column="SISTRIPFEDCABLING_DETEC" name="detected_"/>
+     <Blob column="SISTRIPFEDCABLING_UNDET" name="undetected_"/>
+     <Blob column="SISTRIPFEDCABLING_FEDS" name="feds_"/>
+     <Blob column="SISTRIPFEDCABLING_REG" name="registry_"/>
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >

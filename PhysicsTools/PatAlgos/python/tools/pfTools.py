@@ -122,12 +122,14 @@ def reconfigurePF2PATTaus(process,
 	 % (tauType, pf2patSelection)
 
    # Get the prototype of tau producer to make, i.e. fixedConePFTauProducer
-   producerName = producerFromType(tauType) + postfix
+   producerName = producerFromType(tauType)
    # Set as the source for the pf2pat taus (pfTaus) selector
-   applyPostfix(process,"pfTaus", postfix).src = producerName
+   applyPostfix(process,"pfTaus", postfix).src = producerName+postfix
    # Start our pf2pat taus base sequence
+   setattr(process,producerName+postfix,getattr(process,producerName).clone())
+   getattr(process,producerName+postfix).PFTauTagInfoProducer="pfRecoTauTagInfoProducer"+postfix
    setattr(process,"pfTausBaseSequence"+postfix, cms.Sequence(getattr(process,
-      producerName)))
+      producerName+postfix)))
    baseSequence = getattr(process,"pfTausBaseSequence"+postfix)
    
    #make custom mapper to take postfix into account (could have gone with lambda of lambda but... )
@@ -177,7 +179,13 @@ def adaptPFTaus(process,tauType = 'shrinkingConePFTau', postfix = ""):
     oldTaus =  applyPostfix(process,"patTaus", postfix).tauSource
 
     # Set up the collection used as a preselection to use this tau type    
-    reconfigurePF2PATTaus(process, tauType, postfix=postfix)
+    if tauType != 'hpsPFTau' :
+        reconfigurePF2PATTaus(process, tauType, postfix=postfix)
+    else:
+        reconfigurePF2PATTaus(process, tauType,
+                              ["DiscriminationByLooseIsolation"],
+                              ["DiscriminationByDecayModeFinding"],
+                              postfix=postfix)
     applyPostfix(process,"patTaus", postfix).tauSource = cms.InputTag("pfTaus"+postfix)
     
     redoPFTauDiscriminators(process, 
@@ -333,6 +341,8 @@ def usePF2PAT(process, runPF2PAT=True, jetAlgo='IC5', runOnMC=True, postfix = ""
     # Taus
     #adaptPFTaus( process ) #default (i.e. shrinkingConePFTau)
     adaptPFTaus( process, tauType='shrinkingConePFTau', postfix=postfix )
+    #adaptPFTaus( process, tauType='fixedConePFTau', postfix=postfix )
+    #adaptPFTaus( process, tauType='hpsPFTau', postfix=postfix )
 
     # MET
     switchToPFMET(process, cms.InputTag('pfMET'+postfix), postfix=postfix)

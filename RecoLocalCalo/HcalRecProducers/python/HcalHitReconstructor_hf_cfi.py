@@ -31,7 +31,7 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                                            HFdigiflagExpectedPeak    = cms.int32(4), # expected TS position of pulse peak
                                            HFdigiflagMinEthreshold  = cms.double(40), # minimum energy required to be flagged as noisy
                                            # Following parameters are used for determining
-                                           # minimum threshold fC(peak)/sum_fC(HFsamplesToAdd) > [0] +exp([1]+[2]*Energy)
+                                           # minimum threshold fC(peak)/sum_fC(HFsamplesToAdd) > [0] - exp([1]+[2]*Energy)
                                            HFdigiflagCoef0           = cms.double(0.93),
                                            HFdigiflagCoef1           = cms.double(-0.38275),
                                            HFdigiflagCoef2           = cms.double(-0.012667)

@@ -44,6 +44,6 @@ SiStripNoisesGenerator = cms.Service("SiStripNoisesGenerator",
                                      )
 
 from SimTracker.SiStripDigitizer.SiStripDigi_cfi import *
-SiStripNoisesGenerator.electronPerAdc=simSiStripDigis.electronPerAdc
+SiStripNoisesGenerator.electronPerAdc=simSiStripDigis.electronPerAdcDec
 
 

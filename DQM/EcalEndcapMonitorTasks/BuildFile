@@ -15,7 +15,6 @@
 <use name=RecoEcal/EgammaCoreTools>
 <use name=RecoLocalCalo/EcalRecAlgos>
 <use name=CondFormats/DataRecord>
-<use name=CondFormats/RunInfo>
 <use name=CondFormats/EcalObjects>
 <use name=rootphysics>
 <export>

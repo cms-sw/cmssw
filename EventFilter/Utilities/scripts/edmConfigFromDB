@@ -16,8 +16,7 @@ my $usage =
     "\t  [all other options are diregarded if --list <s> is specified!]\n\n" .
     "\t--configId <id>             (specify configuration by id)\n" .
     "\t--configName <name>         (specify configuration by name)\n" .
-    "\t--runNumber <run>           (specify configuration by run)\n" .
-    "\t  [--configId OR --configName OR --runNumber are required if --list is NOT specified!]\n\n" .
+    "\t  [--configId OR --configName are required if --list is NOT specified!]\n\n" .
     "\t--versions                  (list all versions for specified configuration)\n" .
     "\t--packages                  (list all packages of configuration)\n" .
     "\t  [all options below are disregarded if --versions/--packages specified!]\n\n" .
@@ -55,7 +54,6 @@ my $usage =
 die $usage if @ARGV<2;
 
 my $db_version  = "cms-project-confdb-hltdev";
-#my $db_version  = "test-confdb";
 my $db_name     = "hltdev";
 my $do_list     = 0;
 my $do_versions = 0;
@@ -129,20 +127,15 @@ while (@ARGV) {
     }
     
     elsif ($arg eq "--configId") {
-	die "ERROR: specify either --configId *or* --configName *or* --runNumber\n"
-	    if exists $args{'configName'} || exists $args{'runNumber'};
+	die "ERROR: specify either --configId *or* --configName\n"
+	    if exists $args{'configName'};
 	$args{'configId'} = shift @ARGV;
 	last if $do_versions || $do_packages;
     }
     elsif ($arg eq "--configName") {
-	die "ERROR: specify either --configId *or* --configName *or* --runNumber\n"
-	    if exists $args{'configId'} || exists $args{'runNumber'};
+	die "ERROR: specify either --configId *or* --configName\n"
+	    if exists $args{'configId'};
 	$args{'configName'} = shift @ARGV;
-    }
-    elsif ($arg eq "--runNumber") {
-	die "ERROR: specify either --configId *or* --configName *or* --runNumber\n"
-	    if exists $args{'configId'} || exists $args{'configName'};
-	$args{'runNumber'} = shift @ARGV;
     }
     elsif ($arg eq "--packages") {
 	die "ERROR: --packages doesn't go with --versions\n" if $do_versions;
@@ -183,7 +176,7 @@ if ($do_list) {
 }
 else {
     die "ERROR: neither --list nor --configId OR --configName specified\n"
-	if not exists $args{'configName'} and not exists $args{'configId'} and not exists $args{'runNumber'};
+	if not exists $args{'configName'} and not exists $args{'configId'};
     
     die "ERROR: specify either -configId OR --configName\n"
 	if exists $args{'configName'} and exists $args{'configId'};
@@ -192,16 +185,11 @@ else {
 	$url = $url . "&configId=" . $args{'configId'};
 	delete $args{'configId'};
     }
-    elsif ($args{'configName'}) {
+    else {
 	$url = $url . "&configName=" . $args{'configName'};
 	delete $args{'configName'};
     }
-    elsif ($args{'runNumber'}) {
-	$url = $url . "&runNumber=" . $args{'runNumber'};
-	delete $args{'runNumber'};
-    }
-	
-
+    
     if ($do_versions) {
 	$url = $url . "&versions=";
     }

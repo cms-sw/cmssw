@@ -129,9 +129,9 @@ class ElectronVPlusJetsIDSelectionFunctor : public Selector<pat::Electron>  {
     double corr_ed0 = electron.edB();
     double corr_sd0 = ( corr_ed0 > 0.000000001 ) ? corr_d0 / corr_ed0 : 999.0;
 	
-    double hcalIso = electron.hcalIso();
-    double ecalIso = electron.ecalIso();
-    double trkIso  = electron.trackIso();
+    double hcalIso = electron.dr03HcalTowerSumEt();
+    double ecalIso = electron.dr03EcalRecHitSumEt();
+    double trkIso  = electron.dr03TkSumPt();
     double et      = electron.et() ;
     
     double relIso = (ecalIso + hcalIso + trkIso) / et;

@@ -23,8 +23,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2009/05/19 12:49:13 $
- * $Revision: 1.23 $
+ * $Date: 2009/05/15 16:36:14 $
+ * $Revision: 1.22 $
  *
  */
 
@@ -81,8 +81,6 @@ class CSCCathodeLCTProcessor
   /** Returns vector of all found CLCTs, if any. */
   std::vector<CSCCLCTDigi> getCLCTs();
 
-  std::vector<int> preTriggerBXs() const {return thePreTriggerBXs;}
-
   static void distripStagger(int stag_triad[CSCConstants::MAX_NUM_STRIPS],
 			     int stag_time[CSCConstants::MAX_NUM_STRIPS],
 			     int stag_digi[CSCConstants::MAX_NUM_STRIPS],
@@ -123,7 +121,6 @@ class CSCCathodeLCTProcessor
   int stagger[CSCConstants::NUM_LAYERS];
 
   std::vector<CSCComparatorDigi> digiV[CSCConstants::NUM_LAYERS];
-  std::vector<int> thePreTriggerBXs;
 
   /** Flag for "real" - not idealized - version of the algorithm. */
   bool isMTCC; 

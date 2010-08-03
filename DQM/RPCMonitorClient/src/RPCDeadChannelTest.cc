@@ -34,9 +34,9 @@ void RPCDeadChannelTest::beginJob(DQMStore *  dbe ){
   dbe_=dbe;
 }
 
-void RPCDeadChannelTest::beginRun(const Run& r, const EventSetup& iSetup,vector<MonitorElement *> meVector, vector<RPCDetId> detIdVector){
+void RPCDeadChannelTest::endRun(const Run& r, const EventSetup& iSetup,vector<MonitorElement *> meVector, vector<RPCDetId> detIdVector){
 
- edm::LogVerbatim ("deadChannel") << "[RPCDeadChannelTest]: Begin run";
+ edm::LogVerbatim ("deadChannel") << "[RPCDeadChannelTest]: End run";
 
  MonitorElement* me;
  dbe_->setCurrentFolder( globalFolder_);
@@ -80,14 +80,15 @@ void RPCDeadChannelTest::beginRun(const Run& r, const EventSetup& iSetup,vector<
      dbe_->removeElement(me->getName());
    }
   
-   DEADDisk[i+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(), 36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5);
+   DEADDisk[i+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5);
    
    rpcUtils.labelXAxisSegment(DEADDisk[i+offset]);
    rpcUtils.labelYAxisRing(DEADDisk[i+offset], numberOfRings_);
+
   
  }//end loop on wheels and disks
 
- //Get Occupancy ME for each roll
+ //Get Occuoancy ME for each roll
   
  for (unsigned int i = 0 ; i<meVector.size(); i++){
 
@@ -115,18 +116,20 @@ void RPCDeadChannelTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, Ev
 
 void RPCDeadChannelTest::analyze(const edm::Event& iEvent, const edm::EventSetup& c){}
 
-void RPCDeadChannelTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup) {
- 
-  edm::LogVerbatim ("deadChannel") <<"[RPCDeadChannelTest]: End of LS transition, performing the DQM client operation";
+void RPCDeadChannelTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup){}
 
-    //Loop on chambers
+void RPCDeadChannelTest::clientOperation( EventSetup const& iSetup){
+ 
+  edm::LogVerbatim ("deadChannel") <<"[RPCDeadChannelTest]:Client Operation";
+  
+  //Loop on chambers
     for (unsigned int  i = 0 ; i<myOccupancyMe_.size();i++){
       this->CalculateDeadChannelPercentage(myDetIds_[i],myOccupancyMe_[i],iSetup);
     }//End loop on rolls in given chambers
 
 }
  
-void RPCDeadChannelTest::endRun(const Run& r, const EventSetup& c){}
+void RPCDeadChannelTest::beginRun(const Run& r, const EventSetup& c){}
 
 void RPCDeadChannelTest::endJob(){}
 
@@ -160,7 +163,7 @@ void  RPCDeadChannelTest::CalculateDeadChannelPercentage(RPCDetId & detId, Monit
 	 }
        }
      }
-     
+
      if (DEAD){
        int xBin,yBin;
        if(detId.region()==0){//Barrel
@@ -177,6 +180,9 @@ void  RPCDeadChannelTest::CalculateDeadChannelPercentage(RPCDetId & detId, Monit
 
      }
 
+
+     
+ 
    }
 }
 

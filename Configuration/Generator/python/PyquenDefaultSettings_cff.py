@@ -41,7 +41,11 @@ hydjetParameters = cms.PSet(sigmaInelNN = cms.double(58),
 
 pyquenPythiaDefaultBlock = cms.PSet(
     pythiaUESettingsBlock,
-    ppDefault = cms.vstring('MSEL=1   ! QCD hight pT processes',
+    hydjetPythiaDefault = cms.vstring('MSEL=0   ! user processes',
+                                      'CKIN(3)=6.',# ! ptMin
+                                      'MSTP(81)=0'
+                                      ),
+    ppDefault = cms.vstring('MSEL=1   ! QCD hight pT processes (only jets)',
                             'CKIN(3)=6.',# ! ptMin
                             'MSTP(81)=0'
                             ),

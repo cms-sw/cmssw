@@ -16,11 +16,11 @@
 
 <use name=EventFilter/RPCRawToDigi>
 
+<use name=DataFormats/L1GlobalMuonTrigger>
 <use name=DataFormats/RPCDigi>
 <use name=DataFormats/FEDRawData>
 
 <use name=CondFormats/RunInfo>
-
 
 <export>
   <lib name=DQMRPCMonitorClient> 

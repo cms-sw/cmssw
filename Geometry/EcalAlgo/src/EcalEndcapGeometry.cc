@@ -10,7 +10,7 @@ EcalEndcapGeometry::EcalEndcapGeometry() :
    _nnmods ( 316 ) ,
    _nncrys ( 25 ) ,
    m_borderMgr ( 0 ),
-   m_borderPtrVec ( 0 ) 
+   m_borderPtrVec ( 0 )
 {
 }
 

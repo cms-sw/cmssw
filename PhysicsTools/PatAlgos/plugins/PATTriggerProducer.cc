@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerProducer.cc,v 1.15 2010/04/20 21:39:47 vadler Exp $
+// $Id: PATTriggerProducer.cc,v 1.35 2010/06/27 18:09:25 vadler Exp $
 //
 
 
@@ -9,14 +9,6 @@
 #include <map>
 #include <cassert>
 
-#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
-#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
-#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
@@ -39,6 +31,7 @@ using namespace edm;
 PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
   onlyStandAlone_( iConfig.getParameter< bool >( "onlyStandAlone" ) ),
   // L1 configuration parameters
+  addL1Algos_( false ),
   tagL1ExtraMu_(),
   tagL1ExtraNoIsoEG_(),
   tagL1ExtraIsoEG_(),
@@ -47,6 +40,7 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
   tagL1ExtraTauJet_(),
   tagL1ExtraETM_(),
   tagL1ExtraHTM_(),
+  saveL1Refs_( false ),
   // HLT configuration parameters
   nameProcess_( iConfig.getParameter< std::string >( "processName" ) ),
   tagTriggerResults_( "TriggerResults" ),
@@ -59,6 +53,7 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
 {
 
   // L1 configuration parameters
+  if ( iConfig.exists( "addL1Algos" ) ) addL1Algos_ = iConfig.getParameter< bool >( "addL1Algos" );
   if ( iConfig.exists( "l1ExtraMu" ) ) {
     tagL1ExtraMu_ = iConfig.getParameter< InputTag >( "l1ExtraMu" );
     if ( tagL1ExtraMu_.process().empty() ) tagL1ExtraMu_ = InputTag( tagL1ExtraMu_.label(), tagL1ExtraMu_.instance(), nameProcess_ );
@@ -91,6 +86,7 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
     tagL1ExtraHTM_ = iConfig.getParameter< InputTag >( "l1ExtraHTM" );
     if ( tagL1ExtraHTM_.process().empty() ) tagL1ExtraHTM_ = InputTag( tagL1ExtraHTM_.label(), tagL1ExtraHTM_.instance(), nameProcess_ );
   }
+  if ( iConfig.exists( "saveL1Refs" ) ) saveL1Refs_ = iConfig.getParameter< bool >( "saveL1Refs" );
   // HLT configuration parameters
   if ( iConfig.exists( "triggerResults" ) )      tagTriggerResults_      = iConfig.getParameter< InputTag >( "triggerResults" );
   if ( iConfig.exists( "triggerEvent" ) )        tagTriggerEvent_        = iConfig.getParameter< InputTag >( "triggerEvent" );
@@ -137,35 +133,6 @@ void PATTriggerProducer::beginRun( Run & iRun, const EventSetup & iSetup )
         hltPrescaleTableRun_ = trigger::HLTPrescaleTable( handleHltPrescaleTable->set(), handleHltPrescaleTable->labels(), handleHltPrescaleTable->table() );
       }
     }
-    // Try parameter set, if no run product (products preferred, if configured explicitly)
-    if ( hltPrescaleTableRun_.size() == 0 ) {
-      std::string prescaleName( "" );
-      const std::string preS( "PrescaleService" ); // FIXME hard-coding
-      const std::string preT( "PrescaleTable" );   // FIXME hard-coding
-      if ( hltConfig_.processPSet().exists( preS ) ) {
-        prescaleName = preS;
-      } else if ( hltConfig_.processPSet().exists( preT ) ) {
-        prescaleName = preT;
-      }
-      if ( prescaleName.size() > 0 ) {
-        const ParameterSet parameterSet( hltConfig_.processPSet().getParameter< ParameterSet >( prescaleName ) );
-        const std::string hltPrescaleLabel( parameterSet.getUntrackedParameter< std::string >( "lvl1DefaultLabel", "" ) ); // FIXME Is the untracked parameter available?
-        const std::vector< std::string > prescaleLabels( parameterSet.getParameter< std::vector< std::string > >( "lvl1Labels" ) );
-        unsigned set( 0 );
-        for ( unsigned iLabel = 0; iLabel < prescaleLabels.size(); ++iLabel ) {
-          if ( prescaleLabels.at( iLabel ) == hltPrescaleLabel ) {
-            set = iLabel;
-            break;
-          }
-        }
-        std::map< std::string, std::vector< unsigned > > prescaleTable;
-        const std::vector< ParameterSet > prescaleParameters( parameterSet.getParameter< std::vector< ParameterSet > >( "prescaleTable" ) );
-        for ( std::vector< ParameterSet >::const_iterator iPSet = prescaleParameters.begin(); iPSet != prescaleParameters.end(); ++iPSet ) {
-          prescaleTable.insert( make_pair( iPSet->getParameter< std::string >( "pathName" ), iPSet->getParameter< std::vector< unsigned > >( "prescales" ) ) );
-        }
-        hltPrescaleTableRun_ = trigger::HLTPrescaleTable( set, prescaleLabels, prescaleTable );
-      }
-    }
   }
 
 }
@@ -209,12 +176,12 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
   bool goodHlt( hltConfigInit_ );
   if ( goodHlt ) {
     if( ! handleTriggerResults.isValid() ) {
-      LogError( "errorTriggerResultsValid" ) << "TriggerResults product with InputTag " << tagTriggerResults_.encode() << " not in event" << std::endl
-                                                  << "No HLT information produced.";
+      LogError( "errorTriggerResultsValid" ) << "TriggerResults product with InputTag " << tagTriggerResults_.encode() << " not in event\n"
+                                             << "No HLT information produced.";
       goodHlt = false;
     } else if ( ! handleTriggerEvent.isValid() ) {
-      LogError( "errorTriggerEventValid" ) << "trigger::TriggerEvent product with InputTag " << tagTriggerEvent_.encode() << " not in event" << std::endl
-                                                << "No HLT information produced.";
+      LogError( "errorTriggerEventValid" ) << "trigger::TriggerEvent product with InputTag " << tagTriggerEvent_.encode() << " not in event\n"
+                                           << "No HLT information produced.";
       goodHlt = false;
     }
   }
@@ -222,15 +189,6 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
   // Produce HLT paths and determine status of modules
 
   if ( goodHlt ) {
-
-    const unsigned sizePaths( hltConfig_.size() );
-    const unsigned sizeFilters( handleTriggerEvent->sizeFilters() );
-    const unsigned sizeObjects( handleTriggerEvent->sizeObjects() );
-
-    std::auto_ptr< TriggerPathCollection > triggerPaths( new TriggerPathCollection() );
-    triggerPaths->reserve( onlyStandAlone_ ? 0 : sizePaths );
-    std::map< std::string, int > moduleStates;
-    std::multimap< std::string, std::string > filterPaths;
 
     // Extract pre-scales
     // Start from lumi
@@ -243,41 +201,72 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         hltPrescaleTable = trigger::HLTPrescaleTable( handleHltPrescaleTable->set(), handleHltPrescaleTable->labels(), handleHltPrescaleTable->table() );
       }
     }
-    unsigned set( 0 );
-    bool foundPrescaleLabel( false );
-    if ( hltPrescaleLabel_.size() > 0 ) {
-      const std::vector< std::string > prescaleLabels( hltPrescaleTable.labels() );
-      for ( unsigned iLabel = 0; iLabel <  prescaleLabels.size(); ++iLabel ) {
-        if ( prescaleLabels.at( iLabel ) == hltPrescaleLabel_ ) {
-          set   = iLabel;
-          foundPrescaleLabel = true;
-          break;
+    // Try event setup, if no product
+    if ( hltPrescaleTable.size() == 0 ) {
+      if ( ! labelHltPrescaleTable_.empty() ) {
+        LogWarning( "hltPrescaleInputTag" ) << "HLTPrescaleTable product with label '" << labelHltPrescaleTable_ << "' not found in process '" << nameProcess_ << "'; using default from event setup";
+      }
+      if ( hltConfig_.prescaleSize() > 0 ) {
+        if ( hltConfig_.prescaleSet( iEvent, iSetup ) != -1 ) {
+          hltPrescaleTable = trigger::HLTPrescaleTable( hltConfig_.prescaleSet( iEvent, iSetup ), hltConfig_.prescaleLabels(), hltConfig_.prescaleTable() );
+        } else {
+          LogWarning( "hltPrescaleSet" ) << "HLTPrescaleTable from event setup has error";
         }
       }
-      if ( ! foundPrescaleLabel ) {
-        LogWarning( "hltPrescaleLabel" ) << "HLT prescale label '" << hltPrescaleLabel_ << "' not in prescale table; using default";
-      }
     }
-    if ( ! foundPrescaleLabel ) set = hltPrescaleTable.set();
+    unsigned set( hltPrescaleTable.set() );
+    if ( hltPrescaleTable.size() > 0 ) {
+      if ( hltPrescaleLabel_.size() > 0 ) {
+        bool foundPrescaleLabel( false );
+        for ( unsigned iLabel = 0; iLabel <  hltPrescaleTable.labels().size(); ++iLabel ) {
+          if ( hltPrescaleTable.labels().at( iLabel ) == hltPrescaleLabel_ ) {
+            set                = iLabel;
+            foundPrescaleLabel = true;
+            break;
+          }
+        }
+        if ( ! foundPrescaleLabel ) {
+          LogWarning( "hltPrescaleLabel" ) << "HLT prescale label '" << hltPrescaleLabel_ << "' not in prescale table; using default";
+        }
+      }
+    } else if ( iEvent.isRealData() ) LogWarning( "hltPrescaleTable" ) << "No HLT prescale table found; using default empty table with all prescales 1";
+
+    const unsigned sizePaths( hltConfig_.size() );
+    const unsigned sizeFilters( handleTriggerEvent->sizeFilters() );
+    const unsigned sizeObjects( handleTriggerEvent->sizeObjects() );
+
+    std::auto_ptr< TriggerPathCollection > triggerPaths( new TriggerPathCollection() );
+    triggerPaths->reserve( onlyStandAlone_ ? 0 : sizePaths );
+    std::map< std::string, int > moduleStates;
+    std::multimap< std::string, std::pair< std::string, bool > > filterPaths;
 
     for ( size_t iP = 0; iP < sizePaths; ++iP ) {
       const std::string namePath( hltConfig_.triggerName( iP ) );
       const unsigned indexPath( hltConfig_.triggerIndex( namePath ) );
-      const unsigned sizeModules( hltConfig_.size( namePath ) );
-      for ( size_t iM = 0; iM < sizeModules; ++iM ) {
-        const std::string nameModule( hltConfig_.moduleLabel( indexPath, iM ) );
-        const unsigned indexFilter( handleTriggerEvent->filterIndex( InputTag( nameModule, "", nameProcess_ ) ) );
+      const unsigned sizeModulesPath( hltConfig_.size( namePath ) );
+      const unsigned indexLastFilterPath( handleTriggerResults->index( indexPath ) );
+      unsigned indexLastFilterPathModules( indexLastFilterPath + 1 );
+      unsigned indexLastFilterFilters( sizeFilters );
+      while ( indexLastFilterPathModules > 0 ) {
+        --indexLastFilterPathModules;
+        const std::string labelLastFilterModules( hltConfig_.moduleLabel( indexPath, indexLastFilterPathModules ) );
+        indexLastFilterFilters = handleTriggerEvent->filterIndex( InputTag( labelLastFilterModules, "", nameProcess_ ) );
+        if ( indexLastFilterFilters < sizeFilters ) break;
+      }
+      for ( size_t iM = 0; iM < sizeModulesPath; ++iM ) {
+        const std::string nameFilter( hltConfig_.moduleLabel( indexPath, iM ) );
+        const unsigned indexFilter( handleTriggerEvent->filterIndex( InputTag( nameFilter, "", nameProcess_ ) ) );
         if ( indexFilter < sizeFilters ) {
-          filterPaths.insert( std::pair< std::string, std::string >( nameModule, namePath ) );
+          std::pair< std::string, bool > pathAndStatus( namePath, handleTriggerResults->wasrun( indexPath ) && handleTriggerResults->accept( indexPath ) && indexFilter == indexLastFilterFilters );
+          filterPaths.insert( std::pair< std::string, std::pair< std::string, bool > >( nameFilter, pathAndStatus ) );
         }
       }
       if ( ! onlyStandAlone_ ) {
-        const unsigned indexLastFilter( handleTriggerResults->index( indexPath ) );
-        TriggerPath triggerPath( namePath, indexPath, hltConfig_.prescaleValue( set, namePath ), handleTriggerResults->wasrun( indexPath ), handleTriggerResults->accept( indexPath ), handleTriggerResults->error( indexPath ), indexLastFilter );
+        TriggerPath triggerPath( namePath, indexPath, hltConfig_.prescaleValue( set, namePath ), handleTriggerResults->wasrun( indexPath ), handleTriggerResults->accept( indexPath ), handleTriggerResults->error( indexPath ), indexLastFilterPath );
         // add module names to path and states' map
-        assert( indexLastFilter < sizeModules );
+        assert( indexLastFilterPath < sizeModulesPath );
         std::map< unsigned, std::string > indicesModules;
-        for ( size_t iM = 0; iM < sizeModules; ++iM ) {
+        for ( size_t iM = 0; iM < sizeModulesPath; ++iM ) {
           const std::string nameModule( hltConfig_.moduleLabel( indexPath, iM ) );
           if ( addPathModuleLabels_ ) {
             triggerPath.addModule( nameModule );
@@ -293,9 +282,9 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         triggerPaths->push_back( triggerPath );
         // store module states to be used for the filters
         for ( std::map< unsigned, std::string >::const_iterator iM = indicesModules.begin(); iM != indicesModules.end(); ++iM ) {
-          if ( iM->first < indexLastFilter ) {
+          if ( iM->first < indexLastFilterPath ) {
             moduleStates[ iM->second ] = 1;
-          } else if ( iM->first == indexLastFilter ) {
+          } else if ( iM->first == indexLastFilterPath ) {
             moduleStates[ iM->second ] = handleTriggerResults->accept( indexPath );
           } else if ( moduleStates.find( iM->second ) == moduleStates.end() ) {
             moduleStates[ iM->second ] = -1;
@@ -361,7 +350,7 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
       TriggerObject triggerObject( handleTriggerEvent->getObjects().at( iO ) );
       // set collection
       while ( iO >= collectionKeys[ iC ] ) ++iC; // relies on well ordering of trigger objects with respect to the collections
-      triggerObject.setCollection( handleTriggerEvent->collectionTag( iC ).encode() );
+      triggerObject.setCollection( handleTriggerEvent->collectionTag( iC ) );
       // set filter ID
       for ( std::multimap< trigger::size_type, int >::iterator iM = filterIds.begin(); iM != filterIds.end(); ++iM ) {
         if ( iM->first == iO && ! triggerObject.hasFilterId( iM->second ) ) {
@@ -374,9 +363,9 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
       for ( std::multimap< trigger::size_type, std::string >::iterator iM = filterLabels.begin(); iM != filterLabels.end(); ++iM ) {
         if ( iM->first == iO ) {
           triggerObjectStandAlone.addFilterLabel( iM->second );
-          for ( std::multimap< std::string, std::string >::iterator iP = filterPaths.begin(); iP != filterPaths.end(); ++iP ) {
+          for ( std::multimap< std::string, std::pair< std::string, bool > >::iterator iP = filterPaths.begin(); iP != filterPaths.end(); ++iP ) {
             if ( iP->first == iM->second ) {
-              triggerObjectStandAlone.addPathName( iP->second );
+              triggerObjectStandAlone.addPathName( iP->second.first, iP->second.second );
             }
           }
         }
@@ -393,130 +382,162 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
   if ( ! tagL1ExtraMu_.label().empty() ) {
     Handle< l1extra::L1MuonParticleCollection > handleL1ExtraMu;
     iEvent.getByLabel( tagL1ExtraMu_, handleL1ExtraMu );
-    if ( ! handleL1ExtraMu.isValid() ) {
-      LogError( "errorL1ExtraMuValid" ) << "l1extra::L1MuonParticleCollection product with InputTag " << tagL1ExtraMu_.encode() << " not in event";
-    } else {
+    if ( handleL1ExtraMu.isValid() ) {
       for ( size_t l1Mu = 0; l1Mu < handleL1ExtraMu->size(); ++l1Mu ) {
-        const reco::LeafCandidate * leafCandidate( handleL1ExtraMu->at( l1Mu ).reco::LeafCandidate::clone() );
-        TriggerObject triggerObject( *leafCandidate );
-        triggerObject.setCollection( tagL1ExtraMu_.encode() );
+        TriggerObject triggerObject;
+        if ( saveL1Refs_ ) {
+          const reco::CandidateBaseRef leafCandRef( l1extra::L1MuonParticleRef( handleL1ExtraMu, l1Mu ) );
+          triggerObject = TriggerObject( leafCandRef );
+        } else {
+          const reco::LeafCandidate * leafCandidate( handleL1ExtraMu->at( l1Mu ).reco::LeafCandidate::clone() );
+          triggerObject = TriggerObject( *leafCandidate );
+        }
+        triggerObject.setCollection( tagL1ExtraMu_ );
         triggerObject.addFilterId( trigger::TriggerL1Mu );
         if ( ! onlyStandAlone_ ) triggerObjects->push_back( triggerObject );
         triggerObjectsStandAlone->push_back( TriggerObjectStandAlone( triggerObject ) );
       }
-    }
+    } else LogError( "errorL1ExtraMuValid" ) << "l1extra::L1MuonParticleCollection product with InputTag " << tagL1ExtraMu_.encode() << " not in event";
   }
   if ( ! tagL1ExtraNoIsoEG_.label().empty() ) {
     Handle< l1extra::L1EmParticleCollection > handleL1ExtraNoIsoEG;
     iEvent.getByLabel( tagL1ExtraNoIsoEG_, handleL1ExtraNoIsoEG );
-    if ( ! handleL1ExtraNoIsoEG.isValid() ) {
-      LogError( "errorL1ExtraNoIsoEGValid" ) << "l1extra::L1EmParticleCollection product with InputTag " << tagL1ExtraNoIsoEG_.encode() << " not in event";
-    } else {
+    if ( handleL1ExtraNoIsoEG.isValid() ) {
       for ( size_t l1NoIsoEG = 0; l1NoIsoEG < handleL1ExtraNoIsoEG->size(); ++l1NoIsoEG ) {
-        const reco::LeafCandidate * leafCandidate( handleL1ExtraNoIsoEG->at( l1NoIsoEG ).reco::LeafCandidate::clone() );
-        TriggerObject triggerObject( *leafCandidate );
-        triggerObject.setCollection( tagL1ExtraNoIsoEG_.encode() );
+        TriggerObject triggerObject;
+        if ( saveL1Refs_ ) {
+          const reco::CandidateBaseRef leafCandRef( l1extra::L1EmParticleRef( handleL1ExtraNoIsoEG, l1NoIsoEG ) );
+          triggerObject = TriggerObject( leafCandRef );
+        } else {
+          const reco::LeafCandidate * leafCandidate( handleL1ExtraNoIsoEG->at( l1NoIsoEG ).reco::LeafCandidate::clone() );
+          triggerObject = TriggerObject( *leafCandidate );
+        }
+        triggerObject.setCollection( tagL1ExtraNoIsoEG_ );
         triggerObject.addFilterId( trigger::TriggerL1NoIsoEG );
         if ( ! onlyStandAlone_ ) triggerObjects->push_back( triggerObject );
         triggerObjectsStandAlone->push_back( TriggerObjectStandAlone( triggerObject ) );
       }
-    }
+    } else LogError( "errorL1ExtraNoIsoEGValid" ) << "l1extra::L1EmParticleCollection product with InputTag " << tagL1ExtraNoIsoEG_.encode() << " not in event";
   }
   if ( ! tagL1ExtraIsoEG_.label().empty() ) {
     Handle< l1extra::L1EmParticleCollection > handleL1ExtraIsoEG;
     iEvent.getByLabel( tagL1ExtraIsoEG_, handleL1ExtraIsoEG );
-    if ( ! handleL1ExtraIsoEG.isValid() ) {
-      LogError( "errorL1ExtraisoEGValid" ) << "l1extra::L1EmParticleCollection product with InputTag " << tagL1ExtraIsoEG_.encode() << " not in event";
-    } else {
+    if ( handleL1ExtraIsoEG.isValid() ) {
       for ( size_t l1IsoEG = 0; l1IsoEG < handleL1ExtraIsoEG->size(); ++l1IsoEG ) {
-        const reco::LeafCandidate * leafCandidate( handleL1ExtraIsoEG->at( l1IsoEG ).reco::LeafCandidate::clone() );
-        TriggerObject triggerObject( *leafCandidate );
-        triggerObject.setCollection( tagL1ExtraIsoEG_.encode() );
+        TriggerObject triggerObject;
+        if ( saveL1Refs_ ) {
+          const reco::CandidateBaseRef leafCandRef( l1extra::L1EmParticleRef( handleL1ExtraIsoEG, l1IsoEG ) );
+          triggerObject = TriggerObject( leafCandRef );
+        } else {
+          const reco::LeafCandidate * leafCandidate( handleL1ExtraIsoEG->at( l1IsoEG ).reco::LeafCandidate::clone() );
+          triggerObject = TriggerObject( *leafCandidate );
+        }
+        triggerObject.setCollection( tagL1ExtraIsoEG_ );
         triggerObject.addFilterId( trigger::TriggerL1IsoEG );
-        if ( ! onlyStandAlone_ )triggerObjects->push_back( triggerObject );
+        if ( ! onlyStandAlone_ ) triggerObjects->push_back( triggerObject );
         triggerObjectsStandAlone->push_back( TriggerObjectStandAlone( triggerObject ) );
       }
-    }
+    } else LogError( "errorL1ExtraisoEGValid" ) << "l1extra::L1EmParticleCollection product with InputTag " << tagL1ExtraIsoEG_.encode() << " not in event";
   }
   if ( ! tagL1ExtraCenJet_.label().empty() ) {
     Handle< l1extra::L1JetParticleCollection > handleL1ExtraCenJet;
     iEvent.getByLabel( tagL1ExtraCenJet_, handleL1ExtraCenJet );
-    if ( ! handleL1ExtraCenJet.isValid() ) {
-      LogError( "errorL1ExtraCenJetValid" ) << "l1extra::L1JetParticleCollection product with InputTag " << tagL1ExtraCenJet_.encode() << " not in event";
-    } else {
+    if ( handleL1ExtraCenJet.isValid() ) {
       for ( size_t l1CenJet = 0; l1CenJet < handleL1ExtraCenJet->size(); ++l1CenJet ) {
-        const reco::LeafCandidate * leafCandidate( handleL1ExtraCenJet->at( l1CenJet ).reco::LeafCandidate::clone() );
-        TriggerObject triggerObject( *leafCandidate );
-        triggerObject.setCollection( tagL1ExtraCenJet_.encode() );
+        TriggerObject triggerObject;
+        if ( saveL1Refs_ ) {
+          const reco::CandidateBaseRef leafCandRef( l1extra::L1JetParticleRef( handleL1ExtraCenJet, l1CenJet ) );
+          triggerObject = TriggerObject( leafCandRef );
+        } else {
+          const reco::LeafCandidate * leafCandidate( handleL1ExtraCenJet->at( l1CenJet ).reco::LeafCandidate::clone() );
+          triggerObject = TriggerObject( *leafCandidate );
+        }
+        triggerObject.setCollection( tagL1ExtraCenJet_ );
         triggerObject.addFilterId( trigger::TriggerL1CenJet );
         if ( ! onlyStandAlone_ ) triggerObjects->push_back( triggerObject );
         triggerObjectsStandAlone->push_back( TriggerObjectStandAlone( triggerObject ) );
       }
-    }
+    } else LogError( "errorL1ExtraCenJetValid" ) << "l1extra::L1JetParticleCollection product with InputTag " << tagL1ExtraCenJet_.encode() << " not in event";
   }
   if ( ! tagL1ExtraForJet_.label().empty() ) {
     Handle< l1extra::L1JetParticleCollection > handleL1ExtraForJet;
     iEvent.getByLabel( tagL1ExtraForJet_, handleL1ExtraForJet );
-    if ( ! handleL1ExtraForJet.isValid() ) {
-      LogError( "errorL1ExtraForJetValid" ) << "l1extra::L1JetParticleCollection product with InputTag " << tagL1ExtraForJet_.encode() << " not in event";
-    } else {
+    if ( handleL1ExtraForJet.isValid() ) {
       for ( size_t l1ForJet = 0; l1ForJet < handleL1ExtraForJet->size(); ++l1ForJet ) {
-        const reco::LeafCandidate * leafCandidate( handleL1ExtraForJet->at( l1ForJet ).reco::LeafCandidate::clone() );
-        TriggerObject triggerObject( *leafCandidate );
-        triggerObject.setCollection( tagL1ExtraForJet_.encode() );
+        TriggerObject triggerObject;
+        if ( saveL1Refs_ ) {
+          const reco::CandidateBaseRef leafCandRef( l1extra::L1JetParticleRef( handleL1ExtraForJet, l1ForJet ) );
+          triggerObject = TriggerObject( leafCandRef );
+        } else {
+          const reco::LeafCandidate * leafCandidate( handleL1ExtraForJet->at( l1ForJet ).reco::LeafCandidate::clone() );
+          triggerObject = TriggerObject( *leafCandidate );
+        }
+        triggerObject.setCollection( tagL1ExtraForJet_ );
         triggerObject.addFilterId( trigger::TriggerL1ForJet );
         if ( ! onlyStandAlone_ ) triggerObjects->push_back( triggerObject );
         triggerObjectsStandAlone->push_back( TriggerObjectStandAlone( triggerObject ) );
       }
-    }
+    } else LogError( "errorL1ExtraForJetValid" ) << "l1extra::L1JetParticleCollection product with InputTag " << tagL1ExtraForJet_.encode() << " not in event";
   }
   if ( ! tagL1ExtraTauJet_.label().empty() ) {
     Handle< l1extra::L1JetParticleCollection > handleL1ExtraTauJet;
     iEvent.getByLabel( tagL1ExtraTauJet_, handleL1ExtraTauJet );
-    if ( ! handleL1ExtraTauJet.isValid() ) {
-      LogError( "errorL1ExtraTauJetValid" ) << "l1extra::L1JetParticleCollection product with InputTag " << tagL1ExtraTauJet_.encode() << " not in event";
-    } else {
+    if ( handleL1ExtraTauJet.isValid() ) {
       for ( size_t l1TauJet = 0; l1TauJet < handleL1ExtraTauJet->size(); ++l1TauJet ) {
-        const reco::LeafCandidate * leafCandidate( handleL1ExtraTauJet->at( l1TauJet ).reco::LeafCandidate::clone() );
-        TriggerObject triggerObject( *leafCandidate );
-        triggerObject.setCollection( tagL1ExtraTauJet_.encode() );
+        TriggerObject triggerObject;
+        if ( saveL1Refs_ ) {
+          const reco::CandidateBaseRef leafCandRef( l1extra::L1JetParticleRef( handleL1ExtraTauJet, l1TauJet ) );
+          triggerObject = TriggerObject( leafCandRef );
+        } else {
+          const reco::LeafCandidate * leafCandidate( handleL1ExtraTauJet->at( l1TauJet ).reco::LeafCandidate::clone() );
+          triggerObject = TriggerObject( *leafCandidate );
+        }
+        triggerObject.setCollection( tagL1ExtraTauJet_ );
         triggerObject.addFilterId( trigger::TriggerL1TauJet );
         if ( ! onlyStandAlone_ ) triggerObjects->push_back( triggerObject );
         triggerObjectsStandAlone->push_back( TriggerObjectStandAlone( triggerObject ) );
       }
-    }
+    } else LogError( "errorL1ExtraTauJetValid" ) << "l1extra::L1JetParticleCollection product with InputTag " << tagL1ExtraTauJet_.encode() << " not in event";
   }
   if ( ! tagL1ExtraETM_ .label().empty()) {
     Handle< l1extra::L1EtMissParticleCollection > handleL1ExtraETM;
     iEvent.getByLabel( tagL1ExtraETM_, handleL1ExtraETM );
-    if ( ! handleL1ExtraETM.isValid() ) {
-      LogError( "errorL1ExtraETMValid" ) << "l1extra::L1EtMissParticleCollection product with InputTag " << tagL1ExtraETM_.encode() << " not in event";
-    } else {
+    if ( handleL1ExtraETM.isValid() ) {
       for ( size_t l1ETM = 0; l1ETM < handleL1ExtraETM->size(); ++l1ETM ) {
-        const reco::LeafCandidate * leafCandidate( handleL1ExtraETM->at( l1ETM ).reco::LeafCandidate::clone() );
-        TriggerObject triggerObject( *leafCandidate );
-        triggerObject.setCollection( tagL1ExtraETM_.encode() );
+        TriggerObject triggerObject;
+        if ( saveL1Refs_ ) {
+          const reco::CandidateBaseRef leafCandRef( l1extra::L1EtMissParticleRef( handleL1ExtraETM, l1ETM ) );
+          triggerObject = TriggerObject( leafCandRef );
+        } else {
+          const reco::LeafCandidate * leafCandidate( handleL1ExtraETM->at( l1ETM ).reco::LeafCandidate::clone() );
+          triggerObject = TriggerObject( *leafCandidate );
+        }
+        triggerObject.setCollection( tagL1ExtraETM_ );
         triggerObject.addFilterId( trigger::TriggerL1ETM );
         if ( ! onlyStandAlone_ ) triggerObjects->push_back( triggerObject );
         triggerObjectsStandAlone->push_back( TriggerObjectStandAlone( triggerObject ) );
       }
-    }
+    } else LogError( "errorL1ExtraETMValid" ) << "l1extra::L1EtMissParticleCollection product with InputTag " << tagL1ExtraETM_.encode() << " not in event";
   }
   if ( ! tagL1ExtraHTM_.label().empty() ) {
     Handle< l1extra::L1EtMissParticleCollection > handleL1ExtraHTM;
     iEvent.getByLabel( tagL1ExtraHTM_, handleL1ExtraHTM );
-    if ( ! handleL1ExtraHTM.isValid() ) {
-      LogError( "errorL1ExtraHTMValid" ) << "l1extra::L1EtMissParticleCollection product with InputTag " << tagL1ExtraHTM_.encode() << " not in event";
-    } else {
+    if ( handleL1ExtraHTM.isValid() ) {
       for ( size_t l1HTM = 0; l1HTM < handleL1ExtraHTM->size(); ++l1HTM ) {
-        const reco::LeafCandidate * leafCandidate( handleL1ExtraHTM->at( l1HTM ).reco::LeafCandidate::clone() );
-        TriggerObject triggerObject( *leafCandidate );
-        triggerObject.setCollection( tagL1ExtraHTM_.encode() );
+        TriggerObject triggerObject;
+        if ( saveL1Refs_ ) {
+          const reco::CandidateBaseRef leafCandRef( l1extra::L1EtMissParticleRef( handleL1ExtraHTM, l1HTM ) );
+          triggerObject = TriggerObject( leafCandRef );
+        } else {
+          const reco::LeafCandidate * leafCandidate( handleL1ExtraHTM->at( l1HTM ).reco::LeafCandidate::clone() );
+          triggerObject = TriggerObject( *leafCandidate );
+        }
+        triggerObject.setCollection( tagL1ExtraHTM_ );
         triggerObject.addFilterId( trigger::TriggerL1HTM );
         if ( ! onlyStandAlone_ ) triggerObjects->push_back( triggerObject );
         triggerObjectsStandAlone->push_back( TriggerObjectStandAlone( triggerObject ) );
       }
-    }
+    } else LogError( "errorL1ExtraHTMValid" ) << "l1extra::L1EtMissParticleCollection product with InputTag " << tagL1ExtraHTM_.encode() << " not in event";
   }
 
   // Put HLT & L1 objects to event
@@ -525,66 +546,66 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
 
   // L1 algorithms
   if ( ! onlyStandAlone_ ) {
-    l1GtUtils_.retrieveL1EventSetup( iSetup );
-    ESHandle< L1GtTriggerMenu > handleL1GtTriggerMenu;
-    iSetup.get< L1GtTriggerMenuRcd >().get( handleL1GtTriggerMenu );
-    const AlgorithmMap l1GtAlgorithms( handleL1GtTriggerMenu->gtAlgorithmMap() );
-    const AlgorithmMap l1GtTechTriggers( handleL1GtTriggerMenu->gtTechnicalTriggerMap() );
-
     std::auto_ptr< TriggerAlgorithmCollection > triggerAlgos( new TriggerAlgorithmCollection() );
-    triggerAlgos->reserve( l1GtAlgorithms.size() + l1GtTechTriggers.size() );
-    // physics algorithms
-    for ( AlgorithmMap::const_iterator iAlgo = l1GtAlgorithms.begin(); iAlgo != l1GtAlgorithms.end(); ++iAlgo ) {
-      if ( iAlgo->second.algoBitNumber() > 127 ) {
-        LogError( "errorL1AlgoBit" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' has bit number " << iAlgo->second.algoBitNumber() << " > 127; skipping";
-        continue;
+    if ( addL1Algos_ ) {
+      l1GtUtils_.retrieveL1EventSetup( iSetup );
+      ESHandle< L1GtTriggerMenu > handleL1GtTriggerMenu;
+      iSetup.get< L1GtTriggerMenuRcd >().get( handleL1GtTriggerMenu );
+      const AlgorithmMap l1GtAlgorithms( handleL1GtTriggerMenu->gtAlgorithmMap() );
+      const AlgorithmMap l1GtTechTriggers( handleL1GtTriggerMenu->gtTechnicalTriggerMap() );
+      triggerAlgos->reserve( l1GtAlgorithms.size() + l1GtTechTriggers.size() );
+      // physics algorithms
+      for ( AlgorithmMap::const_iterator iAlgo = l1GtAlgorithms.begin(); iAlgo != l1GtAlgorithms.end(); ++iAlgo ) {
+        if ( iAlgo->second.algoBitNumber() > 127 ) {
+          LogError( "errorL1AlgoBit" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' has bit number " << iAlgo->second.algoBitNumber() << " > 127; skipping";
+          continue;
+        }
+        L1GtUtils::TriggerCategory category;
+        int bit;
+        if ( ! l1GtUtils_.l1AlgoTechTrigBitNumber( iAlgo->second.algoName(), category, bit ) ) {
+          LogError( "errorL1AlgoName" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' not found in the L1 menu; skipping";
+          continue;
+        }
+        bool decisionBeforeMask;
+        bool decisionAfterMask;
+        int  prescale;
+        int  mask;
+        int  error( l1GtUtils_.l1Results( iEvent, iAlgo->second.algoName(), decisionBeforeMask, decisionAfterMask, prescale, mask ) );
+        if ( error ) {
+          LogError( "errorL1AlgoDecision" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' decision has error code " << error << " from 'L1GtUtils'; skipping";
+          continue;
+        }
+        TriggerAlgorithm triggerAlgo( iAlgo->second.algoName(), iAlgo->second.algoAlias(), category == L1GtUtils::TechnicalTrigger, (unsigned)bit, (unsigned)prescale, (bool)mask, decisionBeforeMask, decisionAfterMask );
+        triggerAlgos->push_back( triggerAlgo );
       }
-      int tech;
-      int bit;
-      if ( ! l1GtUtils_.l1AlgTechTrigBitNumber( iAlgo->second.algoName(), tech, bit ) ) {
-        LogError( "errorL1AlgoName" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' not found in the L1 menu; skipping";
-        continue;
+      // technical triggers
+      for ( AlgorithmMap::const_iterator iAlgo = l1GtTechTriggers.begin(); iAlgo != l1GtTechTriggers.end(); ++iAlgo ) {
+        if ( iAlgo->second.algoBitNumber() > 63 ) {
+          LogError( "errorL1AlgoBit" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' has bit number " << iAlgo->second.algoBitNumber() << " > 63; skipping";
+          continue;
+        }
+        L1GtUtils::TriggerCategory category;
+        int bit;
+        if ( ! l1GtUtils_.l1AlgoTechTrigBitNumber( iAlgo->second.algoName(), category, bit ) ) {
+          LogError( "errorL1AlgoName" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' not found in the L1 menu; skipping";
+          continue;
+        }
+        bool decisionBeforeMask;
+        bool decisionAfterMask;
+        int  prescale;
+        int  mask;
+        int  error( l1GtUtils_.l1Results( iEvent, iAlgo->second.algoName(), decisionBeforeMask, decisionAfterMask, prescale, mask ) );
+        if ( error ) {
+          LogError( "errorL1AlgoDecision" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' decision has error code " << error << " from 'L1GtUtils'; skipping";
+          continue;
+        }
+        TriggerAlgorithm triggerAlgo( iAlgo->second.algoName(), iAlgo->second.algoAlias(), category == L1GtUtils::TechnicalTrigger, (unsigned)bit, (unsigned)prescale, (bool)mask, decisionBeforeMask, decisionAfterMask );
+        triggerAlgos->push_back( triggerAlgo );
       }
-      bool decisionBeforeMask;
-      bool decisionAfterMask;
-      int  prescale;
-      int  mask;
-      int  error( l1GtUtils_.l1Results( iEvent, iAlgo->second.algoName(), decisionBeforeMask, decisionAfterMask, prescale, mask ) );
-      if ( error != 0 ) {
-        LogError( "errorL1AlgoDecision" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' decision has error code " << error << "; skipping";
-        continue;
-      }
-      TriggerAlgorithm triggerAlgo( iAlgo->second.algoName(), iAlgo->second.algoAlias(), (bool)tech, (unsigned)bit, (unsigned)prescale, (bool)mask, decisionBeforeMask, decisionAfterMask );
-      triggerAlgos->push_back( triggerAlgo );
     }
-    // technical triggers
-    for ( AlgorithmMap::const_iterator iAlgo = l1GtTechTriggers.begin(); iAlgo != l1GtTechTriggers.end(); ++iAlgo ) {
-      if ( iAlgo->second.algoBitNumber() > 63 ) {
-        LogError( "errorL1AlgoBit" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' has bit number " << iAlgo->second.algoBitNumber() << " > 63; skipping";
-        continue;
-      }
-      int tech;
-      int bit;
-      if ( ! l1GtUtils_.l1AlgTechTrigBitNumber( iAlgo->second.algoName(), tech, bit ) ) {
-        LogError( "errorL1AlgoName" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' not found in the L1 menu; skipping";
-        continue;
-      }
-      bool decisionBeforeMask;
-      bool decisionAfterMask;
-      int  prescale;
-      int  mask;
-      int  error( l1GtUtils_.l1Results( iEvent, iAlgo->second.algoName(), decisionBeforeMask, decisionAfterMask, prescale, mask ) );
-      if ( error != 0 ) {
-        LogError( "errorL1AlgoDecision" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' decision has error code " << error << "; skipping";
-        continue;
-      }
-      TriggerAlgorithm triggerAlgo( iAlgo->second.algoName(), iAlgo->second.algoAlias(), (bool)tech, (unsigned)bit, (unsigned)prescale, (bool)mask, decisionBeforeMask, decisionAfterMask );
-      triggerAlgos->push_back( triggerAlgo );
-    }
-
 
     // Put L1 algorithms to event
-    iEvent.put( triggerAlgos );
+    iEvent.put( triggerAlgos ); // empty, but in event if 'addL1Algos_' is false for consistency with the PATTriggerEventProducer
   }
 
 }

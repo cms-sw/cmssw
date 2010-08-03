@@ -40,7 +40,6 @@ l1temumonitor = cms.Sequence(l1demon*dqmEnvL1TEmu)
 from DQM.HLTEvF.HLTAlCaMonPi0_cfi import *
 from DQM.HLTEvF.HLTAlCaMonEcalPhiSym_cfi import *
 # JetMET
-from DQM.HLTEvF.HLTMonJetMET_E28_cfi import *
 from DQM.HLTEvF.HLTMonJetMETDQMSource_cfi import *
 # Electron
 from DQM.HLTEvF.HLTMonEleBits_cfi import *
@@ -76,7 +75,7 @@ from DQMOffline.Trigger.EgHLTOfflineSource_cfi import *
 # Muon
 from DQMOffline.Trigger.MuonOffline_Trigger_cff import *
 # Top
-from DQMOffline.Trigger.QuadJetAna_cfi import *
+#from DQMOffline.Trigger.QuadJetAna_cfi import *
 # Tau
 from DQMOffline.Trigger.HLTTauDQMOffline_cff import *
 # JetMET

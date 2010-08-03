@@ -12,11 +12,6 @@ metJESCorIC5CaloJet = cms.EDProducer("Type1MET",
                                    metType = cms.string('CaloMET'),
                                    jetPTthreshold = cms.double(20.0),
                                    inputUncorMetLabel = cms.string('met'),
-                                   UscaleA = cms.double(1.2),
-                                   UscaleB = cms.double(2.1),
-                                   UscaleC = cms.double(0.6),
-                                   useTypeII = cms.bool(False),
-                                   hasMuonsCorr = cms.bool(False),
                                    corrector = cms.string('ic5CaloL2L3')
                                    )
 

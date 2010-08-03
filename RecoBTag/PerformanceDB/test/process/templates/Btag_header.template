@@ -1,0 +1,2 @@
+import FWCore.ParameterSet.Config as cms
+BtagPerformanceESProducer_MISTAGJPL = cms.ESProducer("BtagPerformanceESProducer",

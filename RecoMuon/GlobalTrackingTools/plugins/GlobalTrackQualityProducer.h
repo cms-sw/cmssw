@@ -16,7 +16,6 @@
 
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/GlobalTrackingTools/interface/GlobalMuonRefitter.h"
-#include "RecoMuon/GlobalTrackingTools/interface/GlobalMuonTrackMatcher.h"
 
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
@@ -35,10 +34,8 @@ class GlobalTrackQualityProducer : public edm::EDProducer {
   virtual std::pair<double,double> newChi2(Trajectory& muon) const;
   
   edm::InputTag inputCollection_;
-  edm::InputTag inputLinksCollection_;
   MuonServiceProxy* theService;
   GlobalMuonRefitter* theGlbRefitter;
-  GlobalMuonTrackMatcher* theGlbMatcher;
   MeasurementEstimator *theEstimator;
   //muon::SelectionType selectionType_;
 };

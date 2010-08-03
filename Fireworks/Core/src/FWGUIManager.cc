@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.204 2010/05/11 10:38:41 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.192 2010/03/26 20:20:21 matevz Exp $
 
 //
 
@@ -19,7 +19,6 @@
 #include <iostream>
 #include <cstdio>
 #include <sstream>
-#include <memory>
 
 #include "TGButton.h"
 #include "TGLabel.h"
@@ -61,13 +60,14 @@
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/FWDetailViewManager.h"
 #include "Fireworks/Core/interface/FWViewBase.h"
-#include "Fireworks/Core/interface/FWViewType.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
 
 #include "Fireworks/Core/interface/FWEventItem.h"
 
 #include "Fireworks/Core/interface/FWConfiguration.h"
+
+#include "Fireworks/Core/src/accessMenuBar.h"
 
 #include "Fireworks/Core/interface/CmsShowMainFrame.h"
 #include "Fireworks/Core/src/CmsShowMain.h"
@@ -94,8 +94,7 @@
 #include "Fireworks/Core/src/FWModelContextMenuHandler.h"
 
 #include "Fireworks/Core/interface/CmsShowNavigator.h"
-#include "Fireworks/Core/interface/Context.h"
-#include "Fireworks/Core/interface/fwLog.h"
+
 //
 // constants, enums and typedefs
 //
@@ -144,11 +143,15 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
                                              this, _1) );
 
    m_colorManager->colorsHaveChangedFinished_.connect(boost::bind(&FWGUIManager::finishUpColorChange,this));
+   // These are only needed temporarilty to work around a problem which
+   // Matevz has patched in a later version of the code
+   TApplication::NeedGraphicsLibs();
+   gApplication->InitializeGraphics();
 
-  
    TEveCompositeFrame::IconBarCreator_foo foo =  &FWGUIManager::makeGUIsubview;
    TEveCompositeFrame::SetupFrameMarkup(foo, 20, 4, false);
 
+   TEveManager::Create(kFALSE, "FIV");
    {
       //NOTE: by making sure we defaultly open to a fraction of the full screen size we avoid
       // causing the program to go into full screen mode under default SL4 window manager
@@ -168,14 +171,12 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
       m_cmsShowMainFrame->SetWindowName("CmsShow");
       m_cmsShowMainFrame->SetCleanup(kDeepCleanup);
 
-      m_detailViewManager  = new FWDetailViewManager(m_colorManager);
+      m_detailViewManager = new FWDetailViewManager(m_colorManager);
       m_contextMenuHandler = new FWModelContextMenuHandler(iSelMgr,m_detailViewManager,m_colorManager,this);
 
       getAction(cmsshow::sExportImage)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImageOfMainView));
-      getAction(cmsshow::sExportAllImages)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImagesOfAllViews));
-      getAction(cmsshow::sLoadConfig)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::promptForLoadConfigurationFile));
       getAction(cmsshow::sSaveConfig)->activated.connect(writeToPresentConfigurationFile_);
-      getAction(cmsshow::sSaveConfigAs)->activated.connect(sigc::mem_fun(*this,&FWGUIManager::promptForSaveConfigurationFile));
+      getAction(cmsshow::sSaveConfigAs)->activated.connect(sigc::mem_fun(*this,&FWGUIManager::promptForConfigurationFile));
       getAction(cmsshow::sShowEventDisplayInsp)->activated.connect(boost::bind( &FWGUIManager::showEDIFrame,this,-1));
       getAction(cmsshow::sShowMainViewCtl)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showViewPopup));
       getAction(cmsshow::sShowObjInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showModelPopup));
@@ -234,10 +235,7 @@ FWGUIManager::evePreTerminate()
    gEve->GetWindowManager()->Disconnect("WindowUndocked(TEveWindow*)", this, "checkSubviewAreaIconState(TEveWindow*)");
 
    // avoid emit signals at end
-   gEve->GetSelection()->Disconnect();
-   gEve->GetHighlight()->Disconnect();
    gEve->GetSelection()->RemoveElements();
-   gEve->GetHighlight()->RemoveElements();
     
    m_cmsShowMainFrame->UnmapWindow();
    for(ViewMap_i wIt = m_viewMap.begin(); wIt != m_viewMap.end(); ++wIt)
@@ -287,19 +285,7 @@ FWGUIManager::createView(const std::string& iName, TEveWindowSlot* slot)
       throw std::runtime_error(std::string("Unable to create view named ")+iName+" because it is unknown");
    }
    
-   if (!slot)
-   {
-      if (m_viewSecPack)
-      {
-         slot = m_viewSecPack->NewSlot();
-      }
-      else
-      {
-         slot = m_viewPrimPack->NewSlot();
-         m_viewSecPack = m_viewPrimPack->NewSlot()->MakePack();
-         m_viewSecPack->SetShowTitleBar(kFALSE);
-      }
-   }
+   if (!slot) slot = m_viewSecPack->NewSlot();
    TEveCompositeFrame *ef = slot->GetEveFrame();
    FWViewBase* viewBase = itFind->second(slot);
    //in future, get context from 'view'
@@ -348,7 +334,6 @@ FWGUIManager::loadEvent() {
    }
    
    m_cmsShowMainFrame->loadEvent(*getCurrentEvent());
-   m_detailViewManager->newEventCallback();
    if(m_dataAdder) {
       m_dataAdder->update(m_openFile, getCurrentEvent());
    }
@@ -538,40 +523,6 @@ FWGUIManager::subviewDestroy(FWGUISubviewArea* sva)
    FWViewBase* viewBase = m_viewMap[ew];
    m_viewMap.erase(ew);
    viewBase->destroy();
-}
-
-void
-FWGUIManager::subviewDestroyAll()
-{
-   std::vector<FWGUISubviewArea*> sd;
-   for(ViewMap_i wIt = m_viewMap.begin(); wIt != m_viewMap.end(); ++wIt)
-   {
-      FWGUISubviewArea* ar = FWGUISubviewArea::getToolBarFromWindow(wIt->first);
-      sd.push_back(ar);
-   }
-
-   for (std::vector<FWGUISubviewArea*>::iterator i= sd.begin(); i !=sd.end(); ++i)
-   {
-      if((*i)->isSelected())
-         setViewPopup(0);
-      subviewDestroy(*i);
-   }
-
-   gSystem->ProcessEvents();
-   gSystem->Sleep(200);
-
-
-   
-   while (m_viewPrimPack->HasChildren())
-   {
-      TEveWindow* w = dynamic_cast<TEveWindow*>(m_viewPrimPack->FirstChild());
-      if (w) w->DestroyWindowAndSlot();
-   }
-
-   gSystem->Sleep(200);
-   m_viewSecPack = 0;
-   gSystem->ProcessEvents();
-
 }
 
 void
@@ -781,62 +732,29 @@ FWGUIManager::getCurrentEvent() const
    return m_cmsShowMain->getCurrentEvent();  
 }
 
-/** Helper method for a load / save configuration dialog.
-
-    @a result where the picked file is stored.
-    
-    @a mode the mode for the dialog (i.e. Load / Save).
-    
-    @return true if a file was successfully picked, false otherwise.
-  */
-bool
-FWGUIManager::promptForConfigurationFile(std::string &result, enum EFileDialogMode mode)
+void
+FWGUIManager::promptForConfigurationFile()
 {
-   static const char* kFileTypes[] = {"Fireworks Configuration files","*.fwc",
-                                       "All Files","*",
-                                       0,0};
+   static const char* kSaveFileTypes[] = {"Fireworks Configuration files","*.fwc",
+                                          "All Files","*",
+                                          0,0};
 
    static TString dir(".");
 
    TGFileInfo fi;
-   fi.fFileTypes = kFileTypes;
+   fi.fFileTypes = kSaveFileTypes;
    fi.fIniDir    = StrDup(dir);
-   new TGFileDialog(gClient->GetDefaultRoot(), m_cmsShowMainFrame, mode, &fi);
+   new TGFileDialog(gClient->GetDefaultRoot(), m_cmsShowMainFrame,
+                    kFDSave,&fi);
    dir = fi.fIniDir;
-   if (fi.fFilename == 0) // to handle "cancel" button properly
-      return false;
-   std::string name = fi.fFilename;
-   // if the extension isn't already specified by hand, specify it now
-   std::string ext = kFileTypes[fi.fFileTypeIdx + 1] + 1;
-   if (ext.size() != 0 && name.find(ext) == name.npos)
-      name += ext;
-   result = name;
-   return true;
-}
-
-
-/** Emits the signal which request to load the configuration file picked up 
-    in a dialog.
-  */
-void
-FWGUIManager::promptForLoadConfigurationFile()
-{
-   std::string name;
-   if (!promptForConfigurationFile(name, kFDOpen))
-      return;
-   loadFromConfigurationFile_(name);
-}
-
-/** Emits the signal which requests to save the current configuration in the 
-    file picked up in the dialog.
-  */
-void
-FWGUIManager::promptForSaveConfigurationFile()
-{
-   std::string name;
-   if (!promptForConfigurationFile(name, kFDSave))
-      return;
-   writeToConfigurationFile_(name);
+   if (fi.fFilename != 0) { // to handle "cancel" button properly
+      std::string name = fi.fFilename;
+      // if the extension isn't already specified by hand, specify it now
+      std::string ext = kSaveFileTypes[fi.fFileTypeIdx + 1] + 1;
+      if (ext.size() != 0 && name.find(ext) == name.npos)
+         name += ext;
+      writeToConfigurationFile_(name);
+   }
 }
 
 void
@@ -845,40 +763,6 @@ FWGUIManager::exportImageOfMainView()
    TGFrameElementPack* frameEL = (TGFrameElementPack*) m_viewPrimPack->GetPack()->GetList()->At(1);
    TEveCompositeFrame* ef = dynamic_cast<TEveCompositeFrame*>(frameEL->fFrame);
    m_viewMap[ef->GetEveWindow()]->promptForSaveImageTo(m_cmsShowMainFrame);
-}
-
-void
-FWGUIManager::exportImagesOfAllViews()
-{
-   try {
-      static TString dir(".");
-      const char *  kImageExportTypes[] = {"PNG",                     "*.png",
-                                           "GIF",                     "*.gif",
-                                           "JPEG",                    "*.jpg",
-                                           "PDF",                     "*.pdf",
-                                           "Encapsulated PostScript", "*.eps",
-                                           0, 0};
-
-      TGFileInfo fi;
-      fi.fFileTypes = kImageExportTypes;
-      fi.fIniDir    = StrDup(dir);
-      new TGFileDialog(gClient->GetDefaultRoot(), m_cmsShowMainFrame,
-                       kFDSave,&fi);
-      dir = fi.fIniDir;
-      if (fi.fFilename != 0) {
-         std::string name = fi.fFilename;
-         // fi.fFileTypeIdx points to the name of the file type
-         // selected in the drop-down menu, so fi.fFileTypeIdx gives us
-         // the extension
-         std::string ext = kImageExportTypes[fi.fFileTypeIdx + 1] + 1;
-         if (name.find(ext) == name.npos)
-            name += ext;
-         // now add format trailing before the extension
-         name.insert(name.rfind('.'), "-%d_%d_%d_%s");
-         exportAllViews(name);
-      }
-   }
-   catch (std::runtime_error &e) { std::cout << e.what() << std::endl; }
 }
 
 void
@@ -1120,7 +1004,7 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
       TEveWindow* ew = (*it).eveWindow;
       if (ew) {
          FWViewBase* wb = m_viewMap[ew];
-         FWConfiguration tempWiew(wb->version());
+         FWConfiguration tempWiew(1);
          wb->addTo(tempWiew);
          views.addKeyValue(wb->typeName(), tempWiew, true);
          FWConfiguration tempArea(cfgVersion);
@@ -1188,8 +1072,6 @@ setWindowInfoFrom(const FWConfiguration& iFrom,
 void
 FWGUIManager::setFrom(const FWConfiguration& iFrom) {
    // main window
-   if (m_viewSecPack) subviewDestroyAll();
-
    const FWConfiguration* mw = iFrom.valueForKey(kMainWindow);
    assert(mw != 0);
    setWindowInfoFrom(*mw, m_cmsShowMainFrame);
@@ -1227,9 +1109,8 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
       {
          float weight = atof((areaIt->second).valueForKey("weight")->value().c_str());
          TEveWindowSlot* slot = ( m_viewMap.size() || (primSlot == 0) ) ? m_viewSecPack->NewSlotWithWeight(weight) : primSlot;
-         std::string name = it->first;
-         if (name == "3D Lego") name = FWViewType::kLegoName; 	 
-         ViewMap_i lastViewIt = createView(name, slot);
+
+          ViewMap_i lastViewIt = createView(it->first, slot);
          lastViewIt->second->setFrom(it->second);
 
          bool  undocked = atof((areaIt->second).valueForKey("undocked")->value().c_str());
@@ -1249,17 +1130,29 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
    else
    {  // create views with same weight in old version
       for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it!= keyVals->end(); ++it) {
-         std::string name = it->first;
-         if (name == "3D Lego") name = FWViewType::kLegoName; 	 
-         createView(name, m_viewMap.size() ? m_viewSecPack->NewSlot() : primSlot); 	 
-
+         createView(it->first, m_viewMap.size() ? m_viewSecPack->NewSlot() : primSlot);
          ViewMap_i lastViewIt = m_viewMap.end(); lastViewIt--;
          lastViewIt->second->setFrom(it->second);
       }
       // handle undocked windows in old version
       const FWConfiguration* undocked = iFrom.valueForKey(kUndocked);
       if(0!=undocked) {
-         fwLog(fwlog::kWarning) << "Restrore of undocked windows with old window management not supported." << std::endl;
+         const FWConfiguration::KeyValues* keyVals = undocked->keyValues();
+         if(0!=keyVals) {
+
+            int idx = m_viewMap.size() -keyVals->size();
+            for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it != keyVals->end(); ++it)
+            {
+               ViewMap_i lastViewIt = m_viewMap.end(); lastViewIt--;
+               TEveWindow* myw = lastViewIt->first;
+               idx++;
+               myw->UndockWindow();
+               TEveCompositeFrameInMainFrame* emf = dynamic_cast<TEveCompositeFrameInMainFrame*>(myw->GetEveFrame());
+               const TGMainFrame* mf =  dynamic_cast<const TGMainFrame*>(emf->GetParent());
+               TGMainFrame* mfp = (TGMainFrame*)mf;
+               setWindowInfoFrom(it->second, mfp);
+            }
+         }
       }
    }
 

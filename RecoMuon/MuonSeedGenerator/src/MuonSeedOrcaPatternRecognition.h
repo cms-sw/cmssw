@@ -28,11 +28,6 @@ private:
   void complete(MuonRecHitContainer& seedSegments,
                 const MuonRecHitContainer &recHits, bool* used=0) const;
 
-  MuonRecHitPointer
-  bestMatch(const ConstMuonRecHitPointer & first,  MuonRecHitContainer & good_rhit) const;
-  // some score to measure how well the two hits match
-  double discriminator(const ConstMuonRecHitPointer & first, 
-                       MuonRecHitPointer & other) const;
   // see if it's OK to add
   bool check(const MuonRecHitContainer & segments);
   bool isCrack(const ConstMuonRecHitPointer & segment) const;
@@ -42,7 +37,7 @@ private:
   void dumpLayer(const char * name, const MuonRecHitContainer & segments) const;
 
   /// apply some cuts to segments before using them
-  MuonRecHitContainer filterSegments(const MuonRecHitContainer & segments, double dThetaCut) const;
+  MuonRecHitContainer filterSegments(const MuonRecHitContainer & segments) const;
   void filterOverlappingChambers(MuonRecHitContainer & segments) const;
   bool isME1A(const ConstMuonRecHitPointer & segment) const;
   int countHits(const MuonRecHitPointer & segment) const;

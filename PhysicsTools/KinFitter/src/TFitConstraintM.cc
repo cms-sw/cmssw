@@ -17,6 +17,7 @@
 #include "TLorentzVector.h"
 #include "TClass.h"
 
+ClassImp(TFitConstraintM)
 
 //----------------
 // Constructor --

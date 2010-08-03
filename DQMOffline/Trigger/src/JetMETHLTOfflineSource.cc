@@ -896,7 +896,7 @@ int npath;
               jetID->calculate(iEvent, *jet);
  
               if(verbose_)cout<<"n90Hits==="<<jetID->n90Hits()<<"==fHPDs=="<<jetID->fHPD()<<endl;
-              if((jet->emEnergyFraction()<=_fEMF || fabs(jet->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits)
+              if((jet->emEnergyFraction()>_fEMF || fabs(jet->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits)
               {
               jetIDbool = true;
               v->getMEhisto_DenominatorPt()->Fill(jet->pt());
@@ -913,7 +913,7 @@ int npath;
               CaloJetCollection::const_iterator jet = calojet.begin();
               CaloJetCollection::const_iterator jet2 = jet++;
               jetID->calculate(iEvent, *jet2);
-              if(jetIDbool && ((jet2->emEnergyFraction()<=_fEMF || fabs(jet2->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits))
+              if(jetIDbool && ((jet2->emEnergyFraction()>_fEMF || fabs(jet2->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits))
               {
               v->getMEhisto_DenominatorPt()->Fill((jet->pt() + jet2->pt())/2.);
               v->getMEhisto_DenominatorEta()->Fill((jet->eta() + jet2->eta())/2.);
@@ -937,7 +937,7 @@ int npath;
               {
               CaloJetCollection::const_iterator jet = calojet.begin();
               jetID->calculate(iEvent, *jet);
-              if((jet->emEnergyFraction()<=_fEMF || fabs(jet->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits)
+              if((jet->emEnergyFraction()>_fEMF || fabs(jet->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits)
               {
               jetIDbool = true; 
               v->getMEhisto_NumeratorPt()->Fill(jet->pt());
@@ -954,7 +954,7 @@ int npath;
               CaloJetCollection::const_iterator jet = calojet.begin();
               CaloJetCollection::const_iterator jet2 = jet++;
               jetID->calculate(iEvent, *jet2);
-              if(jetIDbool && ((jet2->emEnergyFraction()<=_fEMF || fabs(jet2->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits))
+              if(jetIDbool && ((jet2->emEnergyFraction()>_fEMF || fabs(jet2->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits))
               {
               v->getMEhisto_NumeratorPt()->Fill((jet->pt() + jet2->pt())/2.);
               v->getMEhisto_NumeratorEta()->Fill((jet->eta() + jet2->eta())/2.);
@@ -1006,7 +1006,7 @@ int npath;
               {
               CaloJetCollection::const_iterator jet = calojet.begin();
               jetID->calculate(iEvent, *jet);
-              if((jet->emEnergyFraction()<=_fEMF || fabs(jet->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits)
+              if((jet->emEnergyFraction()>_fEMF || fabs(jet->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits)
               {
               jetIDbool = true;
               v->getMEhisto_DenominatorPt()->Fill(jet->pt());
@@ -1023,7 +1023,7 @@ int npath;
               CaloJetCollection::const_iterator jet = calojet.begin();
               CaloJetCollection::const_iterator jet2 = jet++;
               jetID->calculate(iEvent, *jet2);
-              if(jetIDbool && ((jet2->emEnergyFraction()<=_fEMF || fabs(jet2->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits))
+              if(jetIDbool && ((jet2->emEnergyFraction()>_fEMF || fabs(jet2->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits))
               { 
               v->getMEhisto_DenominatorPt()->Fill((jet->pt() + jet2->pt())/2.);
               v->getMEhisto_DenominatorEta()->Fill((jet->eta() + jet2->eta())/2.);
@@ -1047,7 +1047,7 @@ int npath;
               {
               CaloJetCollection::const_iterator jet = calojet.begin();
               jetID->calculate(iEvent, *jet);
-              if((jet->emEnergyFraction()<=_fEMF || fabs(jet->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits)
+              if((jet->emEnergyFraction()>_fEMF || fabs(jet->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits)
               {
               jetIDbool = true;
               v->getMEhisto_NumeratorPt()->Fill(jet->pt());
@@ -1064,7 +1064,7 @@ int npath;
               CaloJetCollection::const_iterator jet = calojet.begin();
               CaloJetCollection::const_iterator jet2 = jet++; 
               jetID->calculate(iEvent, *jet2);
-              if(jetIDbool && ((jet2->emEnergyFraction()<=_fEMF || fabs(jet2->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits))
+              if(jetIDbool && ((jet2->emEnergyFraction()>_fEMF || fabs(jet2->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits))
               {
               v->getMEhisto_NumeratorPt()->Fill((jet->pt() + jet2->pt())/2.);  
               v->getMEhisto_NumeratorEta()->Fill((jet->eta() + jet2->eta())/2.);
@@ -1118,7 +1118,7 @@ int npath;
               {
               CaloJetCollection::const_iterator jet = calojet.begin();
               jetID->calculate(iEvent, *jet);
-              if((jet->emEnergyFraction()<=_fEMF || fabs(jet->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits)
+              if((jet->emEnergyFraction()>_fEMF || fabs(jet->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits)
               {
               jetIDbool = true;
               v->getMEhisto_DenominatorPt()->Fill(jet->pt());
@@ -1135,7 +1135,7 @@ int npath;
               CaloJetCollection::const_iterator jet = calojet.begin();
               CaloJetCollection::const_iterator jet2 = jet++;
               jetID->calculate(iEvent, *jet2);
-              if(jetIDbool && ((jet2->emEnergyFraction()<=_fEMF || fabs(jet2->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits))
+              if(jetIDbool && ((jet2->emEnergyFraction()>_fEMF || fabs(jet2->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits))
               {
               v->getMEhisto_DenominatorPt()->Fill((jet->pt() + jet2->pt())/2.);  
               v->getMEhisto_DenominatorEta()->Fill((jet->eta() + jet2->eta())/2.);
@@ -1158,7 +1158,7 @@ int npath;
               {
               CaloJetCollection::const_iterator jet = calojet.begin();
               jetID->calculate(iEvent, *jet);
-              if((jet->emEnergyFraction()<=_fEMF || fabs(jet->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits)
+              if((jet->emEnergyFraction()>_fEMF || fabs(jet->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits)
               {
               jetIDbool = true; 
               v->getMEhisto_NumeratorPt()->Fill(jet->pt());
@@ -1175,7 +1175,7 @@ int npath;
               CaloJetCollection::const_iterator jet = calojet.begin();   
               CaloJetCollection::const_iterator jet2 = jet++;
               jetID->calculate(iEvent, *jet2);
-              if(jetIDbool && ((jet2->emEnergyFraction()<=_fEMF || fabs(jet2->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits))
+              if(jetIDbool && ((jet2->emEnergyFraction()>_fEMF || fabs(jet2->eta()) > _feta) && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits))
               {
               v->getMEhisto_NumeratorPt()->Fill((jet->pt() + jet2->pt())/2.);
               v->getMEhisto_NumeratorEta()->Fill((jet->eta() + jet2->eta())/2.);

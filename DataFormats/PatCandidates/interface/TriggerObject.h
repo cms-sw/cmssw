@@ -7,20 +7,18 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerObject
 //
-// $Id: TriggerObject.h,v 1.5 2009/06/24 15:49:28 vadler Exp $
+// $Id: TriggerObject.h,v 1.6.6.1 2010/06/16 18:06:20 vadler Exp $
 //
 /**
   \class    pat::TriggerObject TriggerObject.h "DataFormats/PatCandidates/interface/TriggerObject.h"
   \brief    Analysis-level trigger object class
 
    TriggerObject implements a container for trigger objects' information within the 'pat' namespace.
-   It inherits from reco::LeafCandidate and adds the following data members:
-   - [to be filled]
-   In addition, the data member reco::Particle::pdgId_ (inherited via reco::LeafCandidate) is used
-   to store the trigger object id from trigger::TriggerObject::id_.
+   For detailed information, consult
+   https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerObject
 
   \author   Volker Adler
-  \version  $Id: TriggerObject.h,v 1.5 2009/06/24 15:49:28 vadler Exp $
+  \version  $Id: TriggerObject.h,v 1.6.6.1 2010/06/16 18:06:20 vadler Exp $
 */
 
 
@@ -30,12 +28,18 @@
 #include <string>
 #include <vector>
 
+#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/RefProd.h"
-#include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefVectorIterator.h"
 #include "DataFormats/Common/interface/Association.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 
 namespace pat {
@@ -43,9 +47,10 @@ namespace pat {
   class TriggerObject : public reco::LeafCandidate {
 
       /// data members
-      std::string        collection_;
-      std::vector< int > filterIds_;  // special filter related ID as defined in enum 'TriggerObjectType' in DataFormats/HLTReco/interface/TriggerTypeDefs.h
-                                      // empty, if object was not used in last active filter
+      std::string            collection_;
+      std::vector< int >     filterIds_;  // special filter related ID as defined in enum 'TriggerObjectType' in DataFormats/HLTReco/interface/TriggerTypeDefs.h
+                                          // empty, if object was not used in last active filter
+      reco::CandidateBaseRef refToOrig_;  // reference to original trigger object, meant for 'l1extra' particles to access their additional functionalities
 
     public:
 
@@ -55,14 +60,33 @@ namespace pat {
       TriggerObject( const reco::Particle::PolarLorentzVector & vec, int id = 0 );
       TriggerObject( const trigger::TriggerObject & trigObj );
       TriggerObject( const reco::LeafCandidate & leafCand );
+      TriggerObject( const reco::CandidateBaseRef & candRef );
       virtual ~TriggerObject() {};
 
       /// setters & getters
-      void setCollection( const std::string & collection ) { collection_ = collection; };
-      void addFilterId( int filterId )                     { filterIds_.push_back( filterId ); };
-      std::string        collection() const { return collection_; };
-      std::vector< int > filterIds() const  { return filterIds_; };
+      void setCollection( const std::string & coll )   { collection_ = coll; };
+      void setCollection( const edm::InputTag & coll ) { collection_ = coll.encode(); };
+      void addFilterId( int filterId )                 { filterIds_.push_back( filterId ); };
+      std::string        collection() const                                { return collection_; };
+      bool               hasCollection( const edm::InputTag & coll ) const { return hasCollection( coll.encode() ); };
+      bool               hasCollection( const std::string & coll ) const;
+      std::vector< int > filterIds() const                                 { return filterIds_; };
       bool               hasFilterId( int filterId ) const;
+      // special general getters for 'l1extra' particles
+      const reco::CandidateBaseRef & origObjRef()  const { return refToOrig_; };
+      const reco::Candidate        * origObjCand() const { return refToOrig_.get(); };
+      // special specific getters for 'l1extra' particles
+      const l1extra::L1EmParticleRef       origL1EmRef()       const;
+      const L1GctEmCand                  * origL1GctEmCand()   const { return origL1EmRef().isNonnull() ? origL1EmRef()->gctEmCand() : 0; };
+      const l1extra::L1EtMissParticleRef   origL1EtMissRef()   const;
+      const L1GctEtMiss                  * origL1GctEtMiss()   const { return origL1EtMissRef().isNonnull() ? origL1EtMissRef()->gctEtMiss() : 0; };
+      const L1GctEtTotal                 * origL1GctEtTotal()  const { return origL1EtMissRef().isNonnull() ? origL1EtMissRef()->gctEtTotal() : 0; };
+      const L1GctHtMiss                  * origL1GctHtMiss()   const { return origL1EtMissRef().isNonnull() ? origL1EtMissRef()->gctHtMiss() : 0; };
+      const L1GctEtHad                   * origL1GctEtHad()    const { return origL1EtMissRef().isNonnull() ? origL1EtMissRef()->gctEtHad() : 0; };
+      const l1extra::L1JetParticleRef      origL1JetRef()      const;
+      const L1GctJetCand                 * origL1GctJetCand()  const { return origL1JetRef().isNonnull() ? origL1JetRef()->gctJetCand() : 0; };
+      const l1extra::L1MuonParticleRef     origL1MuonRef()     const;
+      const L1MuGMTExtendedCand          * origL1GmtMuonCand() const { return origL1MuonRef().isNonnull() ? &( origL1MuonRef()->gmtMuonCand() ) : 0; };
 
   };
 

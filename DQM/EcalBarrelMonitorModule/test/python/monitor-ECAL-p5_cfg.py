@@ -81,6 +81,8 @@ process.source = cms.Source("PoolSource",
 #---
 #    fileNames = cms.untracked.vstring('/store/user/dellaric/data/ecal_local.00058721.root')
 #---
+#    fileNames = cms.untracked.vstring('/store/user/dellaric/data/Data.00136100.root')
+#---
 )
 
 process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")

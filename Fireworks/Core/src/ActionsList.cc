@@ -22,7 +22,6 @@ const std::string cmsshow::sLoadConfig           = "Load Configuration";
 const std::string cmsshow::sSaveConfig           = "Save Configuration";
 const std::string cmsshow::sSaveConfigAs         = "Save Configuration As";
 const std::string cmsshow::sExportImage          = "Export Main View Image";
-const std::string cmsshow::sExportAllImages      = "Export Images of All Views";
 
 const std::string cmsshow::sQuit                 = "Quit";
 const std::string cmsshow::sUndo                 = "Undo";

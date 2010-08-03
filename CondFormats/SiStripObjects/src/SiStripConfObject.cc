@@ -1,31 +1,28 @@
 #include "CondFormats/SiStripObjects/interface/SiStripConfObject.h"
 
-int SiStripConfObject::getInt( const std::string & name )
+bool SiStripConfObject::put( const std::string & name, const int & value )
 {
-  int value = 0;
-  get(name, &value);
-  return value;
+  names.push_back(name);
+  values.push_back(value);
+  return true;
 }
 
-double SiStripConfObject::getDouble( const std::string & name )
+int SiStripConfObject::get( const std::string & name )
 {
-  double value = 0.;
-  get(name, &value);
-  return value;
-}
-
-std::string SiStripConfObject::getString( const std::string & name )
-{
-  std::string value;
-  get(name, &value);  
-  return value;
+  std::vector<std::string>::iterator it = std::find(names.begin(), names.end(), name);
+  if( it == names.end() ) {
+    edm::LogError("SiStripConfObject::get") << "Error: no parameter associated to " << name << " returning -1" << std::endl;
+    return( -1 );
+  }
+  return values[distance( names.begin(), it )];
 }
 
 void SiStripConfObject::printSummary(std::stringstream & ss) const
 {
-  parMap::const_iterator it = parameters.begin();
-  for( ; it != parameters.end(); ++it ) {
-    ss << "parameter name = " << it->first << " value = " << it->second << std::endl;
+  std::vector<std::string>::const_iterator namesIt = names.begin();
+  std::vector<int>::const_iterator valuesIt = values.begin();
+  for( ; namesIt != names.end(); ++namesIt, ++valuesIt ) {
+    ss << "parameter name = " << *namesIt << " value = " << *valuesIt << std::endl;
   }
 }
 

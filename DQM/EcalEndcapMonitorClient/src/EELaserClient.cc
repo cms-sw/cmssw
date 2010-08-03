@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2010/04/14 16:24:42 $
- * $Revision: 1.128 $
+ * $Date: 2010/05/28 09:02:48 $
+ * $Revision: 1.130 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -2048,7 +2048,7 @@ void EELaserClient::analyze(void) {
           val = 1.;
           if ( fabs(mean03 - meanAmplL2) > fabs(percentVariation_ * meanAmplL2) || mean03 < amplitudeThreshold_ || rms03 > rmsThresholdRelative_ * mean03 )
             val = 0.;
-          if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, val);
+          if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, val );
 
           int ic = Numbers::icEE(ism, jx, jy);
 
@@ -2625,7 +2625,7 @@ void EELaserClient::analyze(void) {
         std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
         if (iter == superModules_.end()) continue;
 
-        int i = ecid.getID2() - 1;
+        int i = ecid.getID2() + 1;
 
         UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
         UtilsClient::maskBinContent( meg06_[ism-1], i, 1 );
@@ -2647,7 +2647,7 @@ void EELaserClient::analyze(void) {
         std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
         if (iter == superModules_.end()) continue;
 
-        int i = ecid.getID2() - 1;
+        int i = ecid.getID2() + 1;
 
         UtilsClient::maskBinContent( meg09_[ism-1], i, 1 );
         UtilsClient::maskBinContent( meg10_[ism-1], i, 1 );

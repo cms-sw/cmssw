@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2010/04/14 16:13:39 $
- * $Revision: 1.263 $
+ * $Date: 2010/05/31 15:16:52 $
+ * $Revision: 1.268 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1881,19 +1881,19 @@ void EBLaserClient::analyze(void) {
         update04 = UtilsClient::getBinStatistics(h07_[ism-1], ie, ip, num04, mean04, rms04);
 
         // special correction for EB+04
-       if ( ism == 4 && ie <= 5 ) {
-          mean01 = mean01 * 2.0;
-          mean02 = mean02 * 2.0;
-          mean03 = mean03 * 2.0;
-          mean04 = mean04 * 2.0;
+       if ( ism == 22 && ie <= 5 ) {
+          mean01 = mean01 * 1.5;
+          mean02 = mean02 * 1.5;
+          mean03 = mean03 * 1.5;
+          mean04 = mean04 * 1.5;
         }
 
         // special correction for EB+09
-        if ( ism == 9 && ie > 5 && ip <= 10 ) {
-          mean01 = mean01 * 2.0;
-          mean02 = mean02 * 2.0;
-          mean03 = mean03 * 2.0;
-          mean04 = mean04 * 2.0;
+        if ( ism == 27 && ie > 5 && ip <= 10 ) {
+          mean01 = mean01 * 1.5;
+          mean02 = mean02 * 1.5;
+          mean03 = mean03 * 1.5;
+          mean04 = mean04 * 1.5;
         }
 
         if ( update01 ) {
@@ -1965,6 +1965,22 @@ void EBLaserClient::analyze(void) {
         update11 = UtilsClient::getBinStatistics(h11_[ism-1], ie, ip, num11, mean11, rms11);
         update12 = UtilsClient::getBinStatistics(h12_[ism-1], ie, ip, num12, mean12, rms12);
 
+        // special correction for EB+04
+       if ( ism == 22 && ie <= 5 ) {
+          mean01 = mean01 * 1.5;
+          mean03 = mean03 * 1.5;
+          mean05 = mean05 * 1.5;
+          mean07 = mean07 * 1.5;
+        }
+
+        // special correction for EB+09
+        if ( ism == 27 && ie > 5 && ip <= 10 ) {
+          mean01 = mean01 * 1.5;
+          mean03 = mean03 * 1.5;
+          mean05 = mean05 * 1.5;
+          mean07 = mean07 * 1.5;
+        }
+
         if ( update01 ) {
 
           float val;
@@ -1994,7 +2010,7 @@ void EBLaserClient::analyze(void) {
           val = 1.;
           if ( fabs(mean03 - meanAmplL2) > fabs(percentVariation_ * meanAmplL2) || mean03 < amplitudeThreshold_ || rms03 > rmsThresholdRelative_ * mean03 )
             val = 0.;
-          if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, val);
+          if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, val );
 
           int ic = Numbers::icEB(ism, ie, ip);
 
@@ -2489,7 +2505,7 @@ void EBLaserClient::analyze(void) {
         std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
         if (iter == superModules_.end()) continue;
 
-        int i = ecid.getID2() - 1;
+        int i = ecid.getID2() + 1;
 
         UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
         UtilsClient::maskBinContent( meg06_[ism-1], i, 1 );
@@ -2507,7 +2523,7 @@ void EBLaserClient::analyze(void) {
         std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
         if (iter == superModules_.end()) continue;
 
-        int i = ecid.getID2() - 1;
+        int i = ecid.getID2() + 1;
 
         UtilsClient::maskBinContent( meg09_[ism-1], i, 1 );
         UtilsClient::maskBinContent( meg10_[ism-1], i, 1 );

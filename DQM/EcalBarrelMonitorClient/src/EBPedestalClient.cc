@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2010/03/27 20:17:49 $
- * $Revision: 1.218 $
+ * $Date: 2010/05/28 09:02:47 $
+ * $Revision: 1.220 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -141,8 +141,8 @@ EBPedestalClient::EBPedestalClient(const edm::ParameterSet& ps) {
   discrepancyMeanPn_[0] = 100.0;
   discrepancyMeanPn_[1] = 100.0;
 
-  RMSThresholdPn_[0] = 10.;
-  RMSThresholdPn_[1] = 10.;
+  RMSThresholdPn_[0] = 999.;
+  RMSThresholdPn_[1] = 999.;
 
 }
 
@@ -1256,7 +1256,7 @@ void EBPedestalClient::analyze(void) {
         std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
         if (iter == superModules_.end()) continue;
 
-        int i = ecid.getID2() - 1;
+        int i = ecid.getID2() + 1;
 
         UtilsClient::maskBinContent( meg04_[ism-1], i, 1 );
 
@@ -1271,7 +1271,7 @@ void EBPedestalClient::analyze(void) {
         std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
         if (iter == superModules_.end()) continue;
 
-        int i = ecid.getID2() - 1;
+        int i = ecid.getID2() + 1;
 
         UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
 

@@ -1,5 +1,5 @@
 //
-// $Id: PATObject.h,v 1.27 2009/07/30 08:58:08 gpetrucc Exp $
+// $Id: PATObject.h,v 1.30 2010/06/16 15:40:51 vadler Exp $
 //
 
 #ifndef DataFormats_PatCandidates_PATObject_h
@@ -15,7 +15,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Volker Adler, Sal Rappoccio
-  \version  $Id: PATObject.h,v 1.27 2009/07/30 08:58:08 gpetrucc Exp $
+  \version  $Id: PATObject.h,v 1.30 2010/06/16 15:40:51 vadler Exp $
 */
 
 
@@ -53,7 +53,7 @@ namespace pat {
       /// constructor from reference
       PATObject(const edm::Ptr<ObjectType> & ref);
       /// destructor
-      virtual ~PATObject() {}    
+      virtual ~PATObject() {}
     // returns a clone                                  // NO: ObjectType can be an abstract type like reco::Candidate
     //  virtual PATObject<ObjectType> * clone() const ; //     for which the clone() can't be defined
 
@@ -63,19 +63,31 @@ namespace pat {
       const edm::Ptr<reco::Candidate> & originalObjectRef() const;
 
       /// embedded trigger matches
-      const TriggerObjectStandAloneCollection & triggerObjectMatches() const;
-      const TriggerObjectStandAloneCollection   triggerObjectMatchesByFilterID( const unsigned id ) const; // filter IDs are defined in enum trigger::TriggerObjectType (DataFormats/HLTReco/interface/TriggerTypeDefs.h)
-      const TriggerObjectStandAloneCollection   triggerObjectMatchesByCollection( const std::string & coll ) const; // filter IDs are defined in enum trigger::TriggerObjectType (DataFormats/HLTReco/interface/TriggerTypeDefs.h)
+      /// duplicated functions using char* instead of std::string are needed in order to work properly in CINT command lines
+      const TriggerObjectStandAloneCollection & triggerObjectMatches() const { return triggerObjectMatchesEmbedded_; };
+      const TriggerObjectStandAlone           * triggerObjectMatch( const size_t idx = 0 ) const;
+      const TriggerObjectStandAloneCollection   triggerObjectMatchesByFilterID( const unsigned id ) const;                     // \ filter IDs are defined in enum trigger::TriggerObjectType
+      const TriggerObjectStandAlone           * triggerObjectMatchByFilterID( const unsigned id, const size_t idx = 0 ) const; // / (DataFormats/HLTReco/interface/TriggerTypeDefs.h)
+      const TriggerObjectStandAloneCollection   triggerObjectMatchesByCollection( const std::string & coll ) const;
+      const TriggerObjectStandAloneCollection   triggerObjectMatchesByCollection( const char        * coll ) const { return triggerObjectMatchesByCollection( std::string( coll ) ); };
+      const TriggerObjectStandAlone           * triggerObjectMatchByCollection( const std::string & coll, const size_t idx = 0 ) const;
+      const TriggerObjectStandAlone           * triggerObjectMatchByCollection( const char        * coll, const size_t idx = 0 ) const { return triggerObjectMatchByCollection( std::string( coll ), idx ); };
       const TriggerObjectStandAloneCollection   triggerObjectMatchesByFilter( const std::string & labelFilter ) const;
-      const TriggerObjectStandAloneCollection   triggerObjectMatchesByPath( const std::string & namePath ) const;
+      const TriggerObjectStandAloneCollection   triggerObjectMatchesByFilter( const char        * labelFilter ) const { return triggerObjectMatchesByFilter( std::string( labelFilter ) ); };
+      const TriggerObjectStandAlone           * triggerObjectMatchByFilter( const std::string & labelFilter, const size_t idx = 0 ) const;
+      const TriggerObjectStandAlone           * triggerObjectMatchByFilter( const char        * labelFilter, const size_t idx = 0 ) const { return triggerObjectMatchByFilter( std::string( labelFilter ), idx ); };
+      const TriggerObjectStandAloneCollection   triggerObjectMatchesByPath( const std::string & namePath, const bool pathLastFilterAccepted = false ) const;
+      const TriggerObjectStandAloneCollection   triggerObjectMatchesByPath( const char        * namePath, const bool pathLastFilterAccepted = false ) const { return triggerObjectMatchesByPath( std::string( namePath ), pathLastFilterAccepted ); };
+      const TriggerObjectStandAlone           * triggerObjectMatchByPath( const std::string & namePath, const bool pathLastFilterAccepted = false, const size_t idx = 0 ) const;
+      const TriggerObjectStandAlone           * triggerObjectMatchByPath( const char        * namePath, const bool pathLastFilterAccepted = false, const size_t idx = 0 ) const { return triggerObjectMatchByPath( std::string( namePath ), pathLastFilterAccepted, idx ); };
       /// add a trigger match
-      void addTriggerObjectMatch( const TriggerObjectStandAlone & trigObj );
+      void addTriggerObjectMatch( const TriggerObjectStandAlone & trigObj ) { triggerObjectMatchesEmbedded_.push_back( trigObj ); };
 
       /// Returns an efficiency given its name
       const pat::LookupTableRecord       & efficiency(const std::string &name) const ;
       /// Returns the efficiencies as <name,value> pairs (by value)
       std::vector<std::pair<std::string,pat::LookupTableRecord> > efficiencies() const ;
-      /// Returns the list of the names of the stored efficiencies 
+      /// Returns the list of the names of the stored efficiencies
       const std::vector<std::string> & efficiencyNames() const { return efficiencyNames_; }
       /// Returns the list of the values of the stored efficiencies (the ordering is the same as in efficiencyNames())
       const std::vector<pat::LookupTableRecord> & efficiencyValues() const { return efficiencyValues_; }
@@ -83,20 +95,20 @@ namespace pat {
       /// If an efficiency with the same name exists, the old value is replaced by this one
       /// Calling this method many times with names not sorted alphabetically will be slow
       void setEfficiency(const std::string &name, const pat::LookupTableRecord & value) ;
-     
+
       /// Get generator level particle reference (might be a transient ref if the genParticle was embedded)
       /// If you stored multiple GenParticles, you can specify which one you want.
-      reco::GenParticleRef      genParticleRef(size_t idx=0) const { 
+      reco::GenParticleRef      genParticleRef(size_t idx=0) const {
             if (idx >= genParticlesSize()) return reco::GenParticleRef();
-            return genParticleEmbedded_.empty() ? genParticleRef_[idx] : reco::GenParticleRef(&genParticleEmbedded_, idx); 
+            return genParticleEmbedded_.empty() ? genParticleRef_[idx] : reco::GenParticleRef(&genParticleEmbedded_, idx);
       }
       /// Get a generator level particle reference with a given pdg id and status
       /// If there is no MC match with that pdgId and status, it will return a null ref
       /// Note: this might be a transient ref if the genParticle was embedded
       /// If status == 0, only the pdgId will be checked; likewise, if pdgId == 0, only the status will be checked.
       /// When autoCharge is set to true, and a charged reco particle is matched to a charged gen particle,
-      /// positive pdgId means 'same charge', negative pdgId means 'opposite charge'; 
-      /// for example, electron.genParticleById(11,0,true) will get an e^+ matched to e^+ or e^- matched to e^-, 
+      /// positive pdgId means 'same charge', negative pdgId means 'opposite charge';
+      /// for example, electron.genParticleById(11,0,true) will get an e^+ matched to e^+ or e^- matched to e^-,
       /// while genParticleById(-15,0,true) will get e^+ matched to e^- or vice versa.
       /// If a neutral reco particle is matched to a charged gen particle, the sign of the pdgId passed to getParticleById must match that of the gen particle;
       /// for example photon.getParticleById(11) will match gamma to e^-, while genParticleById(-11) will match gamma to e^+ (pdgId=-11)
@@ -105,25 +117,25 @@ namespace pat {
 
       /// Get generator level particle, as C++ pointer (might be 0 if the ref was null)
       /// If you stored multiple GenParticles, you can specify which one you want.
-      const reco::GenParticle * genParticle(size_t idx=0)    const { 
-            reco::GenParticleRef ref = genParticleRef(idx); 
-            return ref.isNonnull() ? ref.get() : 0; 
+      const reco::GenParticle * genParticle(size_t idx=0)    const {
+            reco::GenParticleRef ref = genParticleRef(idx);
+            return ref.isNonnull() ? ref.get() : 0;
       }
       /// Number of generator level particles stored as ref or embedded
-      size_t genParticlesSize() const { 
-            return genParticleEmbedded_.empty() ? genParticleRef_.size() : genParticleEmbedded_.size(); 
+      size_t genParticlesSize() const {
+            return genParticleEmbedded_.empty() ? genParticleRef_.size() : genParticleEmbedded_.size();
       }
       /// Return the list of generator level particles.
       /// Note that the refs can be transient refs to embedded GenParticles
       std::vector<reco::GenParticleRef> genParticleRefs() const ;
 
       /// Set the generator level particle reference
-      void setGenParticleRef(const reco::GenParticleRef &ref, bool embed=false) ; 
+      void setGenParticleRef(const reco::GenParticleRef &ref, bool embed=false) ;
       /// Add a generator level particle reference
       /// If there is already an embedded particle, this ref will be embedded too
-      void addGenParticleRef(const reco::GenParticleRef &ref) ; 
+      void addGenParticleRef(const reco::GenParticleRef &ref) ;
       /// Set the generator level particle from a particle not in the Event (embedding it, of course)
-      void setGenParticle( const reco::GenParticle &particle ) ; 
+      void setGenParticle( const reco::GenParticle &particle ) ;
       /// Embed the generator level particle(s) in this PATObject
       /// Note that generator level particles can only be all embedded or all not embedded.
       void embedGenParticle() ;
@@ -135,7 +147,7 @@ namespace pat {
       const reco::CandidatePtrVector & overlaps(const std::string &label) const ;
       /// Returns the labels of the overlap tests that found at least one overlap
       const std::vector<std::string> & overlapLabels() const { return overlapLabels_; }
-      /// Sets the list of overlapping items for one label 
+      /// Sets the list of overlapping items for one label
       /// Note that adding an empty PtrVector has no effect at all
       /// Items within the list should already be sorted appropriately (this method won't sort them)
       void setOverlaps(const std::string &label, const reco::CandidatePtrVector & overlaps) ;
@@ -144,18 +156,18 @@ namespace pat {
       template<typename T> const T * userData(const std::string &key) const {
           const pat::UserData * data = userDataObject_(key);
           return (data != 0 ? data->template get<T>() : 0);
-          
+
       }
       /// Check if user data with a specific type is present
       bool hasUserData(const std::string &key) const {
           return (userDataObject_(key) != 0);
       }
       /// Get human-readable type of user data object, for debugging
-      const std::string & userDataObjectType(const std::string &key) const { 
+      const std::string & userDataObjectType(const std::string &key) const {
           static const std::string EMPTY("");
           const pat::UserData * data = userDataObject_(key);
           return (data != 0 ? data->typeName() : EMPTY);
-      }; 
+      };
       /// Get list of user data object names
       const std::vector<std::string> & userDataNames() const  { return userDataLabels_; }
 
@@ -165,11 +177,11 @@ namespace pat {
           const pat::UserData * data = userDataObject_(key);
           return (data != 0 ? data->bareData() : 0);
       }
-    
+
       /// Set user-defined data
-      /// Needs dictionaries for T and for pat::UserHolder<T>, 
+      /// Needs dictionaries for T and for pat::UserHolder<T>,
       /// and it will throw exception if they're missing,
-      /// unless transientOnly is set to true 
+      /// unless transientOnly is set to true
       template<typename T>
       void addUserData( const std::string & label, const T & data, bool transientOnly=false ) {
           userDataLabels_.push_back(label);
@@ -182,7 +194,7 @@ namespace pat {
           userDataLabels_.push_back(label);
           userDataObjects_.push_back(data->clone());
       }
-      
+
       /// Get user-defined float
       /// Note: it will return 0.0 if the key is not found; you can check if the key exists with 'hasUserFloat' method.
       float userFloat( const std::string & key ) const;
@@ -225,7 +237,7 @@ namespace pat {
 
       /// Check if the kinematic resolutions are stored into this object (possibly specifying a label for them)
       bool hasKinResolution(const std::string &label="") const ;
-      
+
       /// Add a kinematic resolution to this object (possibly with a label)
       void setKinResolution(const pat::CandKinResolution &resol, const std::string &label="") ;
 
@@ -263,7 +275,7 @@ namespace pat {
       double resolPz(const std::string &label="") const { return getKinResolution(label).resolPz(this->p4()); }
 
       /// Resolution on mass, possibly with a label to specify which resolution to use
-      /// Note: this will be zero if a mass-constrained parametrization is used for this object 
+      /// Note: this will be zero if a mass-constrained parametrization is used for this object
       double resolM(const std::string &label="") const { return getKinResolution(label).resolM(this->p4()); }
 
 
@@ -283,7 +295,7 @@ namespace pat {
       /// Reference to a generator level particle
       std::vector<reco::GenParticleRef> genParticleRef_;
       /// vector to hold an embedded generator level particle
-      std::vector<reco::GenParticle>    genParticleEmbedded_; 
+      std::vector<reco::GenParticle>    genParticleEmbedded_;
 
       /// Overlapping test labels (only if there are any overlaps)
       std::vector<std::string> overlapLabels_;
@@ -305,7 +317,7 @@ namespace pat {
 
       /// Kinematic resolutions.
       std::vector<pat::CandKinResolution> kinResolutions_;
-      /// Labels for the kinematic resolutions. 
+      /// Labels for the kinematic resolutions.
       /// if (kinResolutions_.size() == kinResolutionLabels_.size()+1), then the first resolution has no label.
       std::vector<std::string>            kinResolutionLabels_;
 
@@ -347,55 +359,100 @@ namespace pat {
     }
   }
 
-  template <class ObjectType> 
+  template <class ObjectType>
   const edm::Ptr<reco::Candidate> & PATObject<ObjectType>::originalObjectRef() const { return refToOrig_; }
 
   template <class ObjectType>
-  const TriggerObjectStandAloneCollection & PATObject<ObjectType>::triggerObjectMatches() const { return triggerObjectMatchesEmbedded_; }
+  const TriggerObjectStandAlone * PATObject<ObjectType>::triggerObjectMatch( const size_t idx ) const {
+    if ( idx >= triggerObjectMatches().size() ) return 0;
+    TriggerObjectStandAloneRef ref( &triggerObjectMatchesEmbedded_, idx );
+    return ref.isNonnull() ? ref.get() : 0;
+  }
 
   template <class ObjectType>
   const TriggerObjectStandAloneCollection PATObject<ObjectType>::triggerObjectMatchesByFilterID( const unsigned id ) const {
     TriggerObjectStandAloneCollection matches;
     for ( size_t i = 0; i < triggerObjectMatches().size(); ++i ) {
-      if ( triggerObjectMatches().at( i ).hasFilterId( id ) ) matches.push_back( triggerObjectMatches().at( i ) );
+      if ( triggerObjectMatch( i ) != 0 && triggerObjectMatch( i )->hasFilterId( id ) ) matches.push_back( *( triggerObjectMatch( i ) ) );
     }
     return matches;
+  }
+
+  template <class ObjectType>
+  const TriggerObjectStandAlone * PATObject<ObjectType>::triggerObjectMatchByFilterID( const unsigned id, const size_t idx ) const {
+    std::vector< size_t > refs;
+    for ( size_t i = 0; i < triggerObjectMatches().size(); ++i ) {
+      if ( triggerObjectMatch( i ) != 0 && triggerObjectMatch( i )->hasFilterId( id ) ) refs.push_back( i );
+    }
+    if ( idx >= refs.size() ) return 0;
+    TriggerObjectStandAloneRef ref( &triggerObjectMatchesEmbedded_, refs.at( idx ) );
+    return ref.isNonnull() ? ref.get() : 0;
   }
 
   template <class ObjectType>
   const TriggerObjectStandAloneCollection PATObject<ObjectType>::triggerObjectMatchesByCollection( const std::string & coll ) const {
     TriggerObjectStandAloneCollection matches;
     for ( size_t i = 0; i < triggerObjectMatches().size(); ++i ) {
-      if ( triggerObjectMatches().at( i ).collection() == coll ) matches.push_back( triggerObjectMatches().at( i ) );
+      if ( triggerObjectMatch( i ) != 0 && triggerObjectMatch( i )->hasCollection( coll ) ) matches.push_back( *( triggerObjectMatch( i ) ) );
     }
     return matches;
+  }
+
+  template <class ObjectType>
+  const TriggerObjectStandAlone * PATObject<ObjectType>::triggerObjectMatchByCollection( const std::string & coll, const size_t idx ) const {
+    std::vector< size_t > refs;
+    for ( size_t i = 0; i < triggerObjectMatches().size(); ++i ) {
+      if ( triggerObjectMatch( i ) != 0 && triggerObjectMatch( i )->hasCollection( coll ) ) {
+        refs.push_back( i );
+      }
+    }
+    if ( idx >= refs.size() ) return 0;
+    TriggerObjectStandAloneRef ref( &triggerObjectMatchesEmbedded_, refs.at( idx ) );
+    return ref.isNonnull() ? ref.get() : 0;
   }
 
   template <class ObjectType>
   const TriggerObjectStandAloneCollection PATObject<ObjectType>::triggerObjectMatchesByFilter( const std::string & labelFilter ) const {
     TriggerObjectStandAloneCollection matches;
     for ( size_t i = 0; i < triggerObjectMatches().size(); ++i ) {
-      if ( triggerObjectMatches().at( i ).hasFilterLabel( labelFilter ) ) matches.push_back( triggerObjectMatches().at( i ) );
+      if ( triggerObjectMatch( i ) != 0 && triggerObjectMatch( i )->hasFilterLabel( labelFilter ) ) matches.push_back( *( triggerObjectMatch( i ) ) );
     }
     return matches;
   }
 
   template <class ObjectType>
-  const TriggerObjectStandAloneCollection PATObject<ObjectType>::triggerObjectMatchesByPath( const std::string & namePath ) const {
+  const TriggerObjectStandAlone * PATObject<ObjectType>::triggerObjectMatchByFilter( const std::string & labelFilter, const size_t idx ) const {
+    std::vector< size_t > refs;
+    for ( size_t i = 0; i < triggerObjectMatches().size(); ++i ) {
+      if ( triggerObjectMatch( i ) != 0 && triggerObjectMatch( i )->hasFilterLabel( labelFilter ) ) refs.push_back( i );
+    }
+    if ( idx >= refs.size() ) return 0;
+    TriggerObjectStandAloneRef ref( &triggerObjectMatchesEmbedded_, refs.at( idx ) );
+    return ref.isNonnull() ? ref.get() : 0;
+  }
+
+  template <class ObjectType>
+  const TriggerObjectStandAloneCollection PATObject<ObjectType>::triggerObjectMatchesByPath( const std::string & namePath, const bool pathLastFilterAccepted ) const {
     TriggerObjectStandAloneCollection matches;
     for ( size_t i = 0; i < triggerObjectMatches().size(); ++i ) {
-      if ( triggerObjectMatches().at( i ).hasPathName( namePath ) ) matches.push_back( triggerObjectMatches().at( i ) );
+      if ( triggerObjectMatch( i ) != 0 && triggerObjectMatch( i )->hasPathName( namePath, pathLastFilterAccepted ) ) matches.push_back( *( triggerObjectMatch( i ) ) );
     }
     return matches;
   }
 
   template <class ObjectType>
-  void PATObject<ObjectType>::addTriggerObjectMatch( const TriggerObjectStandAlone & trigObj ) {
-    triggerObjectMatchesEmbedded_.push_back( trigObj );
+  const TriggerObjectStandAlone * PATObject<ObjectType>::triggerObjectMatchByPath( const std::string & namePath, const bool pathLastFilterAccepted, const size_t idx ) const {
+    std::vector< size_t > refs;
+    for ( size_t i = 0; i < triggerObjectMatches().size(); ++i ) {
+      if ( triggerObjectMatch( i ) != 0 && triggerObjectMatch( i )->hasPathName( namePath, pathLastFilterAccepted ) ) refs.push_back( i );
+    }
+    if ( idx >= refs.size() ) return 0;
+    TriggerObjectStandAloneRef ref( &triggerObjectMatchesEmbedded_, refs.at( idx ) );
+    return ref.isNonnull() ? ref.get() : 0;
   }
 
   template <class ObjectType>
-  const pat::LookupTableRecord &  
+  const pat::LookupTableRecord &
   PATObject<ObjectType>::efficiency(const std::string &name) const {
     // find the name in the (sorted) list of names
     std::vector<std::string>::const_iterator it = std::lower_bound(efficiencyNames_.begin(), efficiencyNames_.end(), name);
@@ -406,7 +463,7 @@ namespace pat {
   }
 
   template <class ObjectType>
-  std::vector<std::pair<std::string,pat::LookupTableRecord> > 
+  std::vector<std::pair<std::string,pat::LookupTableRecord> >
   PATObject<ObjectType>::efficiencies() const {
     std::vector<std::pair<std::string,pat::LookupTableRecord> > ret;
     std::vector<std::string>::const_iterator itn = efficiencyNames_.begin(), edn = efficiencyNames_.end();
@@ -435,7 +492,7 @@ namespace pat {
   template <class ObjectType>
   void PATObject<ObjectType>::setGenParticleRef(const reco::GenParticleRef &ref, bool embed) {
           genParticleRef_ = std::vector<reco::GenParticleRef>(1,ref);
-          genParticleEmbedded_.clear(); 
+          genParticleEmbedded_.clear();
           if (embed) embedGenParticle();
   }
 
@@ -447,19 +504,19 @@ namespace pat {
           genParticleRef_.push_back(ref);
       }
   }
-  
+
   template <class ObjectType>
   void PATObject<ObjectType>::setGenParticle( const reco::GenParticle &particle ) {
-      genParticleEmbedded_.clear(); 
+      genParticleEmbedded_.clear();
       genParticleEmbedded_.push_back(particle);
       genParticleRef_.clear();
   }
 
   template <class ObjectType>
   void PATObject<ObjectType>::embedGenParticle() {
-      genParticleEmbedded_.clear(); 
+      genParticleEmbedded_.clear();
       for (std::vector<reco::GenParticleRef>::const_iterator it = genParticleRef_.begin(); it != genParticleRef_.end(); ++it) {
-          if (it->isNonnull()) genParticleEmbedded_.push_back(**it); 
+          if (it->isNonnull()) genParticleEmbedded_.push_back(**it);
       }
       genParticleRef_.clear();
   }

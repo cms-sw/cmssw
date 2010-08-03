@@ -1,10 +1,10 @@
-#ifndef DQMSERVICES_COMPONENTS_DQMFILESAVER_H
-#define DQMSERVICES_COMPONENTS_DQMFILESAVER_H
+#ifndef DQMSERVICES_COMPONEntS_DQMFILESAVER_H
+# define DQMSERVICES_COMPONEntS_DQMFILESAVER_H
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include <sys/time.h>
-#include <string>
+# include "FWCore/Framework/interface/EDAnalyzer.h"
+# include "DQMServices/Core/interface/MonitorElement.h"
+# include <sys/time.h>
+# include <string>
 
 class DQMStore;
 class DQMFileSaver : public edm::EDAnalyzer
@@ -24,7 +24,6 @@ protected:
 private:
   void saveForOffline(const std::string &workflow, int run, int lumi=0);
   void saveForOnline(const std::string &suffix, const std::string &rewrite);
-  void saveJobReport(const std::string &filename);
 
   enum Convention
   {
@@ -50,10 +49,7 @@ private:
   int		forceRunNumber_;
 
   std::string	fileBaseName_;
-  std::string	fileUpdate_;
-
   DQMStore	*dbe_;
-
   int		irun_;
   int		ilumi_;
   int		ilumiprev_;

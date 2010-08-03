@@ -54,7 +54,6 @@ public :
   const TAbsFitParticle* getMeasParticle( Int_t index ) { return _measParticles[index]; }
   Int_t nbUnmeasParticles() { return _unmeasParticles.size(); }
   const TAbsFitParticle* getUnmeasParticle( Int_t index ) { return _unmeasParticles[index]; }
-  Int_t nbConstraints() { return _constraints.size(); }
 
   void print();
 
@@ -145,6 +144,7 @@ private :
   Int_t _status;        // Status of the last fit;_
   Int_t _nbIter;        // number of iteration performed in the fit
 
+  ClassDef(TKinFitter, 1) // Class to perform kinematic fit with non-linear constraints
 };
 
 #endif

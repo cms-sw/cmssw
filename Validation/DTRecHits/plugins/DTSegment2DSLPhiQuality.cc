@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/04 13:54:51 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/10/25 11:58:37 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -22,89 +22,63 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "Histograms.h"
-#include "TStyle.h"
+
 #include "TFile.h"
 
 #include <iostream>
 #include <map>
-//#include "utils.C"
+
 
 using namespace std;
 using namespace edm;
-//TStyle * mystyle;
-
 
 // Constructor
 DTSegment2DSLPhiQuality::DTSegment2DSLPhiQuality(const ParameterSet& pset)  {
    // Get the debug parameter for verbose output
   debug = pset.getUntrackedParameter<bool>("debug");
   DTHitQualityUtils::debug = debug;
-
+ 
+  rootFileName = pset.getUntrackedParameter<string>("rootFileName");
   // the name of the simhit collection
-  simHitLabel = pset.getUntrackedParameter<InputTag>("simHitLabel");
+  simHitLabel = pset.getUntrackedParameter<string>("simHitLabel", "SimG4Object");
   // the name of the 4D rec hit collection
-  segment4DLabel = pset.getUntrackedParameter<InputTag>("segment4DLabel");
+  segment4DLabel = pset.getUntrackedParameter<string>("segment4DLabel");
 
   //sigma resolution on position
   sigmaResPos = pset.getParameter<double>("sigmaResPos");
   //sigma resolution on angle
   sigmaResAngle = pset.getParameter<double>("sigmaResAngle");
-  doall = pset.getUntrackedParameter<bool>("doall", false);
-  local = pset.getUntrackedParameter<bool>("local", false);
 
   // Create the root file
-  //theFile = new TFile(rootFileName.c_str(), "RECREATE");
-  //theFile->cd();
-  // ----------------------                 
-  // get hold of back-end interface 
-  dbe_ = 0;
-  dbe_ = Service<DQMStore>().operator->();
-  if ( dbe_ ) {
-    if (debug) {
-      dbe_->setVerbose(1);
-    } else {
-      dbe_->setVerbose(0);
-    }
-  }
-  if ( dbe_ ) {
-    if ( debug ) dbe_->showDirStructure();
-  }
+  theFile = new TFile(rootFileName.c_str(), "RECREATE");
+  theFile->cd();
 
   // Book the histos
-  h2DHitSuperPhi = new HRes2DHit ("SuperPhi",dbe_,doall,local);
-  if(doall) h2DHitEff_SuperPhi = new HEff2DHit ("SuperPhi",dbe_);
+  h2DHitSuperPhi = new HRes2DHit ("SuperPhi");
+  h2DHitEff_SuperPhi = new HEff2DHit ("SuperPhi");
 }
 
 // Destructor
 DTSegment2DSLPhiQuality::~DTSegment2DSLPhiQuality(){
 }
 
-void DTSegment2DSLPhiQuality::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-    edm::EventSetup const& c){
-}
-
-
-
-
 void DTSegment2DSLPhiQuality::endJob() {
   // Write the histos to file
-  //theFile->cd();
-  //h2DHitSuperPhi->Write();
+  theFile->cd();
 
-  if(doall) h2DHitEff_SuperPhi->ComputeEfficiency();
-  //h2DHitEff_SuperPhi->Write();
+  h2DHitSuperPhi->Write();
 
-  //if ( rootFileName.size() != 0 && dbe_ ) dbe_->save(rootFileName); 
-  //theFile->Close();
+  h2DHitEff_SuperPhi->ComputeEfficiency();
+  h2DHitEff_SuperPhi->Write();
+
+  theFile->Close();
 } 
 
 // The real analysis
 void DTSegment2DSLPhiQuality::analyze(const Event & event, const EventSetup& eventSetup){
-  //theFile->cd();
+  theFile->cd();
 
   // Get the DT Geometry
   ESHandle<DTGeometry> dtGeom;
@@ -112,7 +86,7 @@ void DTSegment2DSLPhiQuality::analyze(const Event & event, const EventSetup& eve
 
   // Get the SimHit collection from the event
   edm::Handle<PSimHitContainer> simHits;
-  event.getByLabel(simHitLabel, simHits); //FIXME: second string to be removed
+  event.getByLabel(simHitLabel, "MuonDTHits", simHits); //FIXME: second string to be removed
 
   //Map simHits by chamber
   map<DTChamberId, PSimHitContainer > simHitsPerCh;
@@ -127,12 +101,6 @@ void DTSegment2DSLPhiQuality::analyze(const Event & event, const EventSetup& eve
   // Get the 4D rechits from the event
   Handle<DTRecSegment4DCollection> segment4Ds;
   event.getByLabel(segment4DLabel, segment4Ds);
-
-  if(!segment4Ds.isValid()) {
-    if(debug) cout << "[DTSegment2DSLPhiQuality]**Warning: no 4D Segments with label: " << segment4DLabel
-   << " in this event, skipping!" << endl;
-    return;
-  }
     
   // Loop over all chambers containing a segment
   DTRecSegment4DCollection::id_iterator chamberId;
@@ -260,14 +228,16 @@ void DTSegment2DSLPhiQuality::analyze(const Event & event, const EventSetup& eve
     } //end of if(nsegm!=0)
 
       // Fill Efficiency plot
-    if(doall) {h2DHitEff_SuperPhi->Fill(etaSimSeg,
+    h2DHitEff_SuperPhi->Fill(etaSimSeg,
                             phiSimSeg,
                             posSimSeg,
                             angleSimSeg,
-					recHitFound);}
+                            recHitFound);
   } // End of loop over chambers
 }
 
 
-// Fit a histogram in the range (minfit, maxfit) with a gaussian and
-// draw it in the range (min, max)
+
+
+
+

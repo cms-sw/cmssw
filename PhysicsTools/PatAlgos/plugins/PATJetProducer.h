@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.h,v 1.23 2009/11/13 17:30:40 cbern Exp $
+// $Id: PATJetProducer.h,v 1.24.4.1 2010/06/16 19:10:33 srappocc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATJetProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of JetType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATJetProducer.h,v 1.23 2009/11/13 17:30:40 cbern Exp $
+  \version  $Id: PATJetProducer.h,v 1.24.4.1 2010/06/16 19:10:33 srappocc Exp $
 */
 
 

@@ -25,7 +25,8 @@ class PatEditorTestCase(unittest.TestCase):
         for plugin in self.app.plugins():
             if plugin.__class__.__name__=="ConfigEditorPlugin":
                 tab=plugin.newFile(False)
-        self.app.run()
+        if not hasattr(unittest,"NO_GUI_TEST"):
+            self.app.run()
 
 if __name__ == "__main__":
     Profiling.analyze("unittest.main()",__file__)

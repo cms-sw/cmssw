@@ -1044,13 +1044,16 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("particle_flow", "factors_45", factors45);
   assert ( factors45.size() == 2 );
   
-
+  bool usePFMuonMomAssign = false;
+  options_->GetOpt("particle_flow", "usePFMuonMomAssign", usePFMuonMomAssign);
+ 
   try { 
     pfAlgo_.setPFMuonAndFakeParameters(muonHCAL,
 				       muonECAL,
 				       nSigmaTRACK,
 				       ptError,
-				       factors45);
+				       factors45,
+				       usePFMuonMomAssign);
   }
   catch( std::exception& err ) {
     cerr<<"exception setting PFAlgo Muon and Fake parameters: "

@@ -8,11 +8,11 @@ import FWCore.ParameterSet.Config as cms
 # run = 72038
 # run = 78396 # no HV
 # run = 79652 # new TMB firmware in one crate
-run = 132272
-dir =  "/home/work_jarvis/emu_debug/localruns/" + str(run) + "/"
-file = "csc_00" + str(run) + "_"
+run = 80733 # new TMB firmware in all crates except ME-1
+dir =  "/data0/slava/data/run" + str(run) + "/"
+file = "csc_000" + str(run) + "_"
 ext = "_Monitor_000.raw"
-print dir+file+"EmuRUI00"+ext
+# print dir+file+"EmuRUI00"+ext
 
 source = cms.Source("DaqSource",
     readerPluginName = cms.untracked.string("CSCFileReader"),
