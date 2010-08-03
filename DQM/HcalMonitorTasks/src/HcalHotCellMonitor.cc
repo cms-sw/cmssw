@@ -338,13 +338,13 @@ void HcalHotCellMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
   if (test_neighbor_ || makeDiagnostics_)
     fillNevents_neighbor();
-  
+
   if (test_energy_ || test_et_)
     fillNevents_energy();
 
   if (test_persistent_)
     fillNevents_persistentenergy();
-  
+
   fillNevents_problemCells();
   return;
 } //endLuminosityBlock(...)
@@ -805,10 +805,16 @@ void HcalHotCellMonitor::fillNevents_energy(void)
   if (debug_>0)
     std::cout <<"<HcalHotCellMonitor::fillNevents_energy> ABOVE-ENERGY-THRESHOLD PLOTS"<<std::endl;
 
-  for (unsigned int h=0;h<AboveEnergyThresholdCellsByDepth.depth.size();++h)
-    AboveEnergyThresholdCellsByDepth.depth[h]->setBinContent(0,0,ievt_);
-  for (unsigned int h=0;h<AboveETThresholdCellsByDepth.depth.size();++h)
-    AboveETThresholdCellsByDepth.depth[h]->setBinContent(0,0,ievt_);
+  if (test_energy_)
+    {
+      for (unsigned int h=0;h<AboveEnergyThresholdCellsByDepth.depth.size();++h)
+	AboveEnergyThresholdCellsByDepth.depth[h]->setBinContent(0,0,ievt_);
+    }
+  if (test_et_)
+    {
+      for (unsigned int h=0;h<AboveETThresholdCellsByDepth.depth.size();++h)
+	AboveETThresholdCellsByDepth.depth[h]->setBinContent(0,0,ievt_);
+    }
 
   int ieta=0;
   int iphi=0;
@@ -818,7 +824,7 @@ void HcalHotCellMonitor::fillNevents_energy(void)
   
   if (test_energy_)
     maxdepth = AboveEnergyThresholdCellsByDepth.depth.size();
-  if (test_et_)
+  if (maxdepth==0 && test_et_)
     maxdepth = AboveETThresholdCellsByDepth.depth.size();
   for (unsigned int depth=0;depth<maxdepth;++depth)
     { 
@@ -977,6 +983,7 @@ void HcalHotCellMonitor::fillNevents_problemCells(void)
   int NumBadHFLUMI=0;
 
   unsigned int DEPTH = 0;
+
   if (test_persistent_)  
     {
       if (test_energy_)
@@ -994,24 +1001,36 @@ void HcalHotCellMonitor::fillNevents_problemCells(void)
     {
       if (test_persistent_) 
 	{
-	  etabins=AbovePersistentThresholdCellsByDepth.depth[depth]->getNbinsX();
-	  phibins=AbovePersistentThresholdCellsByDepth.depth[depth]->getNbinsY();
+	  if (test_energy_)
+	    {
+	      etabins=AbovePersistentThresholdCellsByDepth.depth[depth]->getNbinsX();
+	      phibins=AbovePersistentThresholdCellsByDepth.depth[depth]->getNbinsY();
+	    }
+	  else if (test_et_)
+	    {
+              etabins=AbovePersistentETThresholdCellsByDepth.depth[depth]->getNbinsX();
+              phibins=AbovePersistentETThresholdCellsByDepth.depth[depth]->getNbinsY();
+            }
 	}
-      else if (test_neighbor_)
+
+      if (test_neighbor_ && (etabins==0 || phibins==0))
 	{
 	  etabins=AboveNeighborsHotCellsByDepth.depth[depth]->getNbinsX();
 	  phibins=AboveNeighborsHotCellsByDepth.depth[depth]->getNbinsY();
 	}
-      else if (test_energy_)
+
+      if (test_energy_ && (etabins==0 || phibins==0))
 	{
 	  etabins=AboveEnergyThresholdCellsByDepth.depth[depth]->getNbinsX();
 	  phibins=AboveEnergyThresholdCellsByDepth.depth[depth]->getNbinsY();
 	}
-      else if (test_et_)
+
+      if (test_et_ && (etabins==0 || phibins==0))
 	{
 	  etabins=AboveETThresholdCellsByDepth.depth[depth]->getNbinsX();
 	  phibins=AboveETThresholdCellsByDepth.depth[depth]->getNbinsY();
 	}
+
       for (int eta=0;eta<etabins;++eta)
 	{
 	  ieta=CalcIeta(eta,depth+1);
@@ -1022,13 +1041,13 @@ void HcalHotCellMonitor::fillNevents_problemCells(void)
 	      else if (abs(ieta)>39 && (phi+1)%4!=3) continue;
 	      // find problem rate for particular cell
 	      problemvalue=false;
-	      if (test_persistent_    && AbovePersistentThresholdCellsByDepth.depth[depth]->getBinContent(eta+1,phi+1)>ievt_)
+	      if (test_energy_ && test_persistent_ && AbovePersistentThresholdCellsByDepth.depth[depth]->getBinContent(eta+1,phi+1)>ievt_)
 		problemvalue=true;
 	      if (test_neighbor_ && AboveNeighborsHotCellsByDepth.depth[depth]->getBinContent(eta+1,phi+1)>minErrorFlag_*ievt_)
 		problemvalue=true;
-	      if (test_energy_   && AboveEnergyThresholdCellsByDepth.depth[depth]->getBinContent(eta+1,phi+1)>minErrorFlag_*ievt_)
+	      if (test_energy_  && AboveEnergyThresholdCellsByDepth.depth[depth]->getBinContent(eta+1,phi+1)>minErrorFlag_*ievt_)
 		problemvalue=true;
-	      if (test_et_       && AboveETThresholdCellsByDepth.depth[depth]->getBinContent(eta+1,phi+1)>minErrorFlag_*ievt_)
+	      if (test_et_      && AboveETThresholdCellsByDepth.depth[depth]->getBinContent(eta+1,phi+1)>minErrorFlag_*ievt_)
 		problemvalue=true;
 	      if (test_et_ && test_persistent_ && AbovePersistentETThresholdCellsByDepth.depth[depth]->getBinContent(eta+1,phi+1)>minErrorFlag_*ievt_)
 		problemvalue=true;
