@@ -16,6 +16,45 @@ TxyCalculator::TxyCalculator(const edm::Event &iEvent, const edm::EventSetup &iS
    iEvent.getByLabel(trackLabel, recCollection); // !!
 } 
 
+
+int TxyCalculator::getNumAllTracks(double ptCut)
+{
+  using namespace edm;
+  using namespace reco;
+
+  int nTracks = 0;
+  
+  for(reco::TrackCollection::const_iterator
+	recTrack = recCollection->begin(); recTrack!= recCollection->end(); recTrack++)
+    {
+      double pt = recTrack->pt();
+      if ( pt > ptCut)  
+	nTracks = nTracks +1;
+    }
+  return nTracks;
+}
+
+
+int TxyCalculator::getNumLocalTracks(const reco::SuperClusterRef p, double detaCut, double ptCut)
+{
+  using namespace edm;
+  using namespace reco;
+
+  int nTracks = 0;
+
+  double eta1 = p->eta();
+  double phi1 = p->phi();
+
+  for(reco::TrackCollection::const_iterator
+        recTrack = recCollection->begin(); recTrack!= recCollection->end(); recTrack++)
+    {
+      double pt = recTrack->pt();
+      if ( (pt > ptCut) && ( fabs(eta1 - recTrack->eta()) < detaCut) && ( fabs(calcDphi(recTrack->phi(),phi1)) < 3.141592/2. ) )
+        nTracks= nTracks +1;
+    }
+  return nTracks;
+}
+
 double TxyCalculator::getTxy(const reco::SuperClusterRef p, double x, double y)
 {
    using namespace edm;

@@ -27,7 +27,9 @@ class TxyCalculator
 public:  
    TxyCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag trackLabel);
    double getTxy(const reco::SuperClusterRef p, double x, double y);
-
+   int getNumAllTracks(double ptCut);
+   int getNumLocalTracks(const reco::SuperClusterRef p, double detaCut, double ptCut);
+   
 private:
 
    double dRDistance(double eta1,double phi1,double eta2,double phi2)
