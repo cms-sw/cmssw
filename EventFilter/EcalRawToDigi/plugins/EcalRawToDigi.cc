@@ -54,7 +54,7 @@ EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf):
   
   put_(conf.getParameter<bool>("eventPut")),
   
-  dataLabel_(conf.getParameter<std::string>("InputLabel")),
+  dataLabel_(conf.getParameter<edm::InputTag>("InputLabel")),
 
   REGIONAL_(conf.getParameter<bool>("DoRegional")),
 

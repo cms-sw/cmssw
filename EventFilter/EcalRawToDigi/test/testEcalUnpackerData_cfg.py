@@ -6,8 +6,9 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
  fileNames = 
-  cms.untracked.vstring('/store/relval/CMSSW_3_1_0/RelValQCD_Pt_3000_3500/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V1-v1/0001/1A1C4478-5866-DE11-A907-001D09F27067.root')
 #cms.untracked.vstring('file:/tmp/nalmeida/1A1C4478-5866-DE11-A907-001D09F27067.root')
+ cms.untracked.vstring('/store/relval/CMSSW_3_8_0/RelValProdTTbar/GEN-SIM-RAW/MC_38Y_V7-v1/0004/306D1971-0C95-DF11-942B-002618943984.root')
+
 )
 
 process.load("Geometry.EcalMapping.EcalMapping_cfi")
@@ -27,9 +28,9 @@ process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_c
 
 
 # this is for MC
-process.ecalEBunpacker.InputLabel = cms.string('rawDataCollector')
+process.ecalEBunpacker.InputLabel = cms.InputTag('rawDataCollector')
 # this is for real data
-# process.ecalEBunpacker.InputLabel = cms.string('source')
+# process.ecalEBunpacker.InputLabel = cms.InputTag('source')
 
 # print out debug info ( put silent mode = False)
 #process.ecalEBunpacker.silentMode =  True 

@@ -44,8 +44,8 @@ ecalEBunpacker = cms.EDProducer("EcalRawToDigi",
     #            vint32 FEDs = {22}
     # By default these are true  
     eventPut = cms.bool(True),
-    InputLabel = cms.string('source'),
-    #   InputLabel = cms.string('rawDataCollector'),
+    InputLabel = cms.InputTag('source'),
+    #   InputLabel = cms.InputTag('rawDataCollector'),
     feIdCheck = cms.bool(True),
     #    by default whole ECAL fedId range is loaded, 600-670.
     #    This is in case a selection was needed.

@@ -9,8 +9,8 @@
  *
  * \file EcalRawToDigi.h
  *
- * $Date: 2009/10/19 17:25:37 $
- * $Revision: 1.4 $
+ * $Date: 2010/06/02 23:46:11 $
+ * $Revision: 1.5 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -86,7 +86,9 @@ class EcalRawToDigi : public edm::EDProducer{
   bool first_;
   bool put_;
 
-  std::string dataLabel_ ; 
+  
+  //std::string dataLabel_ ; 
+  edm::InputTag dataLabel_;
 
   // -- For regional unacking :
   bool REGIONAL_ ;
