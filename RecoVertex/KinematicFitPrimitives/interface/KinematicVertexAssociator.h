@@ -19,9 +19,9 @@ class TkSimVertex;
 class KinematicVertexAssociator {
 public:
     
-  typedef vector<RefCountedKinematicVertex> KinematicVertexContainer;
-  typedef vector<const TkSimVertex *> SimVertexPtrContainer;   
-  typedef vector<const TkSimVertex> SimVertexContainer;   
+  typedef std::vector<RefCountedKinematicVertex> KinematicVertexContainer;
+  typedef std::vector<const TkSimVertex *> SimVertexPtrContainer;   
+  typedef std::vector<const TkSimVertex> SimVertexContainer;   
 
   virtual ~KinematicVertexAssociator() {}
 

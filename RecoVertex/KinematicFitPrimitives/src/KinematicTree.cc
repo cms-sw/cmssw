@@ -35,18 +35,18 @@ void KinematicTree::addParticle(RefCountedKinematicVertex prodVtx,
  decVtx->setTreePointer(this);
 }
 
-vector<RefCountedKinematicParticle> KinematicTree::finalStateParticles() const
+std::vector<RefCountedKinematicParticle> KinematicTree::finalStateParticles() const
 {
  if(isEmpty() || !(isConsistent()))
  {
   throw VertexException("KinematicTree::finalStateParticles; tree is empty or not consistent");
  }else{
   RefCountedKinematicParticle initial = currentParticle();
-  vector<RefCountedKinematicParticle> rs;
+  std::vector<RefCountedKinematicParticle> rs;
   movePointerToTheTop();
   if(!(leftFinalParticle()))
   {
-   cout<<"top particle has no daughters, empty vector returned"<<endl;
+   std::cout<<"top particle has no daughters, empty vector returned"<<std::endl;
   }else{
 //now pointer is at the  most left final particle
    rs.push_back(currentParticle()); 
@@ -111,13 +111,13 @@ bool KinematicTree::leftFinalParticle() const
    return treeWalker->current().first;
  }
  
- pair<bool,RefCountedKinematicParticle>  KinematicTree::motherParticle() const
+ std::pair<bool,RefCountedKinematicParticle>  KinematicTree::motherParticle() const
  {
   if(isEmpty()) throw VertexException("KinematicTree::motherParticle; tree is empty!");
   bool top = currentProductionVertex()->vertexIsValid();
    RefCountedKinematicParticle cr  = treeWalker->current().second;
    bool up = treeWalker->parent();
-   pair<bool,RefCountedKinematicParticle> res; 
+   std::pair<bool,RefCountedKinematicParticle> res; 
    if(up && top){
     RefCountedKinematicParticle pr = treeWalker->current().second;
     
@@ -131,18 +131,18 @@ bool KinematicTree::leftFinalParticle() const
       if(!nx) throw VertexException("KinematicTree::motherParticle; tree is incorrect!");
      }while(*(treeWalker->current().second) != *cr);
     }
-    res = pair<bool,RefCountedKinematicParticle>(true,pr);
+    res = std::pair<bool,RefCountedKinematicParticle>(true,pr);
     return res;
    }else{
     RefCountedKinematicParticle fk;
-    return pair<bool,RefCountedKinematicParticle>(false,fk);
+    return std::pair<bool,RefCountedKinematicParticle>(false,fk);
    }
  }
  
- vector<RefCountedKinematicParticle>  KinematicTree::daughterParticles() const
+ std::vector<RefCountedKinematicParticle>  KinematicTree::daughterParticles() const
  {
   if(isEmpty()) throw VertexException("KinematicTree::daughterParticles; tree is empty!");
-  vector<RefCountedKinematicParticle> sResult;
+  std::vector<RefCountedKinematicParticle> sResult;
   RefCountedKinematicParticle initial = currentParticle();
   bool down  = treeWalker->firstChild();
   if(down)

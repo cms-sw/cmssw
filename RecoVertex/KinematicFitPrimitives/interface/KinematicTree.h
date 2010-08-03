@@ -78,7 +78,7 @@ class KinematicTree : public ReferenceCounted
  * particles for the whole decay tree.
  * Pointer is NOT moved after this operation
  */
- vector<RefCountedKinematicParticle> finalStateParticles() const;
+ std::vector<RefCountedKinematicParticle> finalStateParticles() const;
  
 /**
  * Returns the top particle of
@@ -111,7 +111,7 @@ class KinematicTree : public ReferenceCounted
  * in case of failure
  * Pointer is NOT moved.
  */
- pair<bool,RefCountedKinematicParticle>  motherParticle() const;
+ std::pair<bool,RefCountedKinematicParticle>  motherParticle() const;
  
  
 /**
@@ -119,7 +119,7 @@ class KinematicTree : public ReferenceCounted
  * 0 vector in case of failure  
  * Pointer is NOT moved
  */ 
- vector<RefCountedKinematicParticle> daughterParticles() const;
+ std::vector<RefCountedKinematicParticle> daughterParticles() const;
    
 /**
  *  Puts the pointer to the top (root)

@@ -116,14 +116,14 @@ KinematicVertex::operator reco::Vertex()
 
 //accessing the tree components, move pointer to top
   if (!tree->findDecayVertex(this)) return reco::Vertex();
-  vector<RefCountedKinematicParticle> daughters = tree->daughterParticles();
+  std::vector<RefCountedKinematicParticle> daughters = tree->daughterParticles();
 
   reco::Vertex vertex(reco::Vertex::Point(theState.position()),
 // 	RecoVertex::convertError(theVertexState.error()), 
 	theState.error().matrix_new(), 
 	chiSquared(), degreesOfFreedom(), daughters.size() );
 
-  for (vector<RefCountedKinematicParticle>::const_iterator i = daughters.begin();
+  for (std::vector<RefCountedKinematicParticle>::const_iterator i = daughters.begin();
        i != daughters.end(); ++i) {
 
     const TransientTrackKinematicParticle * ttkp = dynamic_cast<const TransientTrackKinematicParticle * >(&(**i));

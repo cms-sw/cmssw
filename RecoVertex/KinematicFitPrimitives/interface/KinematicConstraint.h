@@ -39,9 +39,9 @@ virtual ~KinematicConstraint() {}
  * vector should be of dimension 7xNumberOfStates
  */
 
-virtual pair<AlgebraicVector, AlgebraicVector> value(const AlgebraicVector& exPoint) const = 0;
+virtual std::pair<AlgebraicVector, AlgebraicVector> value(const AlgebraicVector& exPoint) const = 0;
 
-virtual pair<AlgebraicMatrix, AlgebraicVector> derivative(const AlgebraicVector& exPoint) const = 0;
+virtual std::pair<AlgebraicMatrix, AlgebraicVector> derivative(const AlgebraicVector& exPoint) const = 0;
 
 
 /**
@@ -50,9 +50,9 @@ virtual pair<AlgebraicMatrix, AlgebraicVector> derivative(const AlgebraicVector&
  * as expansion 7-point. Constraint can be 
  * made equaly for single and multiple states
  */
-virtual pair<AlgebraicVector, AlgebraicVector> value(const vector<RefCountedKinematicParticle> par) const = 0;
+virtual std::pair<AlgebraicVector, AlgebraicVector> value(const std::vector<RefCountedKinematicParticle> par) const = 0;
 
-virtual pair<AlgebraicMatrix, AlgebraicVector> derivative(const vector<RefCountedKinematicParticle> par) const = 0;
+virtual std::pair<AlgebraicMatrix, AlgebraicVector> derivative(const std::vector<RefCountedKinematicParticle> par) const = 0;
 
 /**
  * Returns vector of sigma squared  associated to the KinematicParameters

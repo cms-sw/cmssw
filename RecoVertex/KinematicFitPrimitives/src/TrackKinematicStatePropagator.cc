@@ -46,7 +46,7 @@ TrackKinematicStatePropagator::planeCrossing(const FreeTrajectoryState& state,
    planeCrossing(HelixPlaneCrossing::PositionType(inPos.x(), inPos.y(), inPos.z()),
 		 HelixPlaneCrossing::DirectionType(inMom.x(), inMom.y(), inMom.z()), 
 		 kappa, direction);
- return pair<HelixBarrelPlaneCrossingByCircle,BoundPlane::BoundPlanePointer>(planeCrossing,plane);
+ return std::pair<HelixBarrelPlaneCrossingByCircle,BoundPlane::BoundPlanePointer>(planeCrossing,plane);
 }
 
 
@@ -71,11 +71,11 @@ TrackKinematicStatePropagator::propagateToTheTransversePCACharged
 //for helix barrel plane crossing  
   FreeTrajectoryState fState = state.freeTrajectoryState();		
   GlobalPoint iP = referencePoint;					  
-  pair<HelixBarrelPlaneCrossingByCircle, BoundPlane::BoundPlanePointer> cros = planeCrossing(fState,iP);	   
+  std::pair<HelixBarrelPlaneCrossingByCircle, BoundPlane::BoundPlanePointer> cros = planeCrossing(fState,iP);	   
   
   HelixBarrelPlaneCrossingByCircle planeCrossing = cros.first; 
   BoundPlane::BoundPlanePointer plane = cros.second;
-  pair<bool,double> propResult = planeCrossing.pathLength(*plane);
+  std::pair<bool,double> propResult = planeCrossing.pathLength(*plane);
   if ( !propResult.first ) {
     LogDebug("RecoVertex/TrackKinematicStatePropagator") 
 	 << "Propagation failed! State is invalid\n";
