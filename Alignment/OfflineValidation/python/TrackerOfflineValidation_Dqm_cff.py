@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-
 ##
 ## Set standard binning for the DMR histograms
 ##
@@ -26,7 +25,6 @@ TrackerOfflineValidationSummary.TH1DmrYprimePixelModules.xmax = 0.005
 # First clone
 TrackerOfflineValidationSummaryBinned = TrackerOfflineValidationSummary.clone()
 
-
 ##
 ## TrackerOfflineValidation (DQM mode)
 ##
@@ -35,9 +33,7 @@ TrackerOfflineValidationDqm = TrackerOfflineValidationBinned.clone(
     useInDqmMode              = True,
     moduleDirectoryInOutput   = "Alignment/Tracker",
     Tracks =  'TrackRefitterForOfflineValidation',
-    trajectoryInput = 'TrackRefitterForOfflineValidation'
 )
-
 
 ##
 ## TrackerOfflineValidationSummary
@@ -46,7 +42,6 @@ TrackerOfflineValidationSummaryDqm = TrackerOfflineValidationSummaryBinned.clone
     removeModuleLevelHists = True,
     minEntriesPerModuleForDmr = 100
 )
-
 
 ##
 ## Output File Configuration

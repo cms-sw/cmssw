@@ -13,10 +13,9 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.37 2010/06/03 14:49:01 hauk Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.38 2010/07/09 11:36:16 jdraeger Exp $
 //
 //
-
 
 // system include files
 #include <memory>
@@ -37,14 +36,15 @@
 #include "TMath.h"
 
 // user include files
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Alignment/OfflineValidation/interface/TrackerValidationVariables.h"
-#include "Alignment/OfflineValidation/interface/TkOffTreeVariables.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
@@ -53,23 +53,26 @@
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
+
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "CommonTools/Utils/interface/TFileDirectory.h"
+
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
-#include "Alignment/CommonAlignment/interface/AlignableComposite.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
-#include "Alignment/CommonAlignment/interface/Utilities.h"
-#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
-#include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
+
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+#include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignment/interface/Utilities.h"
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
+#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+#include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
+
+#include "Alignment/OfflineValidation/interface/TrackerValidationVariables.h"
+#include "Alignment/OfflineValidation/interface/TkOffTreeVariables.h"
 
 //
 // class declaration
@@ -117,7 +120,11 @@ private:
   
   
   struct DirectoryWrapper{
-    DirectoryWrapper(const DirectoryWrapper& upDir,const std::string& newDir,const std::string& basedir,bool useDqmMode):tfd(0),dqmMode(useDqmMode),theDbe(0){
+    DirectoryWrapper(const DirectoryWrapper& upDir,const std::string& newDir,
+		     const std::string& basedir,bool useDqmMode)
+      : tfd(0),
+	dqmMode(useDqmMode),
+	theDbe(0) {
       if (newDir.length()!=0){
         if(upDir.directoryString.length()!=0)directoryString=upDir.directoryString+"/"+newDir;
 	else directoryString = newDir;
@@ -135,7 +142,10 @@ private:
       }
     }
     
-    DirectoryWrapper(const std::string& newDir,const std::string& basedir,bool useDqmMode):tfd(0),dqmMode(useDqmMode),theDbe(0){
+    DirectoryWrapper(const std::string& newDir,const std::string& basedir,bool useDqmMode)
+      : tfd(0),
+	dqmMode(useDqmMode),
+	theDbe(0) {
       if (!dqmMode){
 	edm::Service<TFileService> fs;
 	if (newDir.length()==0){
@@ -807,151 +817,152 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   TrackerValidationVariables avalidator_(iSetup,parSet_);
     
   std::vector<TrackerValidationVariables::AVTrackStruct> vTrackstruct;
-  avalidator_.fillTrackQuantities(iEvent,vTrackstruct);
-  std::vector<TrackerValidationVariables::AVHitStruct> vHitstruct;
-  avalidator_.fillHitQuantities(iEvent,vHitstruct);
+  avalidator_.fillTrackQuantities(iEvent, vTrackstruct);
   
-  
-  for (std::vector<TrackerValidationVariables::AVTrackStruct>::const_iterator it = vTrackstruct.begin(),
-	 itEnd = vTrackstruct.end(); it != itEnd; ++it) {
+  for (std::vector<TrackerValidationVariables::AVTrackStruct>::const_iterator itT = vTrackstruct.begin();	 
+       itT != vTrackstruct.end();
+       ++itT) {
+    
     // Fill 1D track histos
     static const int etaindex = this->GetIndex(vTrackHistos_,"h_tracketa");
-    vTrackHistos_[etaindex]->Fill(it->eta);
+    vTrackHistos_[etaindex]->Fill(itT->eta);
     static const int phiindex = this->GetIndex(vTrackHistos_,"h_trackphi");
-    vTrackHistos_[phiindex]->Fill(it->phi);
+    vTrackHistos_[phiindex]->Fill(itT->phi);
     static const int numOfValidHitsindex = this->GetIndex(vTrackHistos_,"h_trackNumberOfValidHits");
-    vTrackHistos_[numOfValidHitsindex]->Fill(it->numberOfValidHits);
+    vTrackHistos_[numOfValidHitsindex]->Fill(itT->numberOfValidHits);
     static const int numOfLostHitsindex = this->GetIndex(vTrackHistos_,"h_trackNumberOfLostHits");
-    vTrackHistos_[numOfLostHitsindex]->Fill(it->numberOfLostHits);
+    vTrackHistos_[numOfLostHitsindex]->Fill(itT->numberOfLostHits);
     static const int kappaindex = this->GetIndex(vTrackHistos_,"h_curvature");
-    vTrackHistos_[kappaindex]->Fill(it->kappa);
+    vTrackHistos_[kappaindex]->Fill(itT->kappa);
     static const int kappaposindex = this->GetIndex(vTrackHistos_,"h_curvature_pos");
-    if(it->charge > 0)
-      vTrackHistos_[kappaposindex]->Fill(fabs(it->kappa));
+    if (itT->charge > 0)
+      vTrackHistos_[kappaposindex]->Fill(fabs(itT->kappa));
     static const int kappanegindex = this->GetIndex(vTrackHistos_,"h_curvature_neg");
-    if(it->charge < 0)
-      vTrackHistos_[kappanegindex]->Fill(fabs(it->kappa));
+    if (itT->charge < 0)
+      vTrackHistos_[kappanegindex]->Fill(fabs(itT->kappa));
     static const int normchi2index = this->GetIndex(vTrackHistos_,"h_normchi2");
-    vTrackHistos_[normchi2index]->Fill(it->normchi2);
+    vTrackHistos_[normchi2index]->Fill(itT->normchi2);
     static const int chi2index = this->GetIndex(vTrackHistos_,"h_chi2");
-    vTrackHistos_[chi2index]->Fill(it->chi2);
+    vTrackHistos_[chi2index]->Fill(itT->chi2);
     static const int chi2Probindex = this->GetIndex(vTrackHistos_,"h_chi2Prob");
-    vTrackHistos_[chi2Probindex]->Fill(it->chi2Prob);
+    vTrackHistos_[chi2Probindex]->Fill(itT->chi2Prob);
     static const int ptindex = this->GetIndex(vTrackHistos_,"h_pt");
-    vTrackHistos_[ptindex]->Fill(it->pt);
-    if(it->ptError != 0.) {
+    vTrackHistos_[ptindex]->Fill(itT->pt);
+    if (itT->ptError != 0.) {
       static const int ptResolutionindex = this->GetIndex(vTrackHistos_,"h_ptResolution");
-      vTrackHistos_[ptResolutionindex]->Fill(it->ptError/it->pt);
+      vTrackHistos_[ptResolutionindex]->Fill(itT->ptError/itT->pt);
     }
     // Fill track profiles
     static const int d0phiindex = this->GetIndex(vTrackProfiles_,"p_d0_vs_phi");
-    vTrackProfiles_[d0phiindex]->Fill(it->phi,it->d0);
+    vTrackProfiles_[d0phiindex]->Fill(itT->phi,itT->d0);
     static const int dzphiindex = this->GetIndex(vTrackProfiles_,"p_dz_vs_phi");
-    vTrackProfiles_[dzphiindex]->Fill(it->phi,it->dz);
+    vTrackProfiles_[dzphiindex]->Fill(itT->phi,itT->dz);
     static const int d0etaindex = this->GetIndex(vTrackProfiles_,"p_d0_vs_eta");
-    vTrackProfiles_[d0etaindex]->Fill(it->eta,it->d0);
+    vTrackProfiles_[d0etaindex]->Fill(itT->eta,itT->d0);
     static const int dzetaindex = this->GetIndex(vTrackProfiles_,"p_dz_vs_eta");
-    vTrackProfiles_[dzetaindex]->Fill(it->eta,it->dz);
+    vTrackProfiles_[dzetaindex]->Fill(itT->eta,itT->dz);
     static const int chiphiindex = this->GetIndex(vTrackProfiles_,"p_chi2_vs_phi");
-    vTrackProfiles_[chiphiindex]->Fill(it->phi,it->chi2);
+    vTrackProfiles_[chiphiindex]->Fill(itT->phi,itT->chi2);
     static const int chiProbphiindex = this->GetIndex(vTrackProfiles_,"p_chi2Prob_vs_phi");
-    vTrackProfiles_[chiProbphiindex]->Fill(it->phi,it->chi2Prob);
+    vTrackProfiles_[chiProbphiindex]->Fill(itT->phi,itT->chi2Prob);
     static const int normchiphiindex = this->GetIndex(vTrackProfiles_,"p_normchi2_vs_phi");
-    vTrackProfiles_[normchiphiindex]->Fill(it->phi,it->normchi2);
+    vTrackProfiles_[normchiphiindex]->Fill(itT->phi,itT->normchi2);
     static const int chietaindex = this->GetIndex(vTrackProfiles_,"p_chi2_vs_eta");
-    vTrackProfiles_[chietaindex]->Fill(it->eta,it->chi2);
+    vTrackProfiles_[chietaindex]->Fill(itT->eta,itT->chi2);
     static const int normchiptindex = this->GetIndex(vTrackProfiles_,"p_normchi2_vs_pt");
-    vTrackProfiles_[normchiptindex]->Fill(it->pt,it->normchi2);
+    vTrackProfiles_[normchiptindex]->Fill(itT->pt,itT->normchi2);
     static const int normchipindex = this->GetIndex(vTrackProfiles_,"p_normchi2_vs_p");
-    vTrackProfiles_[normchipindex]->Fill(it->p,it->normchi2);
+    vTrackProfiles_[normchipindex]->Fill(itT->p,itT->normchi2);
     static const int chiProbetaindex = this->GetIndex(vTrackProfiles_,"p_chi2Prob_vs_eta");
-    vTrackProfiles_[chiProbetaindex]->Fill(it->eta,it->chi2Prob);
+    vTrackProfiles_[chiProbetaindex]->Fill(itT->eta,itT->chi2Prob);
     static const int normchietaindex = this->GetIndex(vTrackProfiles_,"p_normchi2_vs_eta");
-    vTrackProfiles_[normchietaindex]->Fill(it->eta,it->normchi2);
+    vTrackProfiles_[normchietaindex]->Fill(itT->eta,itT->normchi2);
     static const int kappaphiindex = this->GetIndex(vTrackProfiles_,"p_kappa_vs_phi");
-    vTrackProfiles_[kappaphiindex]->Fill(it->phi,it->kappa);
+    vTrackProfiles_[kappaphiindex]->Fill(itT->phi,itT->kappa);
     static const int kappaetaindex = this->GetIndex(vTrackProfiles_,"p_kappa_vs_eta");
-    vTrackProfiles_[kappaetaindex]->Fill(it->eta,it->kappa);
+    vTrackProfiles_[kappaetaindex]->Fill(itT->eta,itT->kappa);
     static const int ptResphiindex = this->GetIndex(vTrackProfiles_,"p_ptResolution_vs_phi");
-    vTrackProfiles_[ptResphiindex]->Fill(it->phi,it->ptError/it->pt);
+    vTrackProfiles_[ptResphiindex]->Fill(itT->phi,itT->ptError/itT->pt);
     static const int ptResetaindex = this->GetIndex(vTrackProfiles_,"p_ptResolution_vs_eta");
-    vTrackProfiles_[ptResetaindex]->Fill(it->eta,it->ptError/it->pt);
+    vTrackProfiles_[ptResetaindex]->Fill(itT->eta,itT->ptError/itT->pt);
 
     // Fill 2D track histos
     static const int d0phiindex_2d = this->GetIndex(vTrack2DHistos_,"h2_d0_vs_phi");
-    vTrack2DHistos_[d0phiindex_2d]->Fill(it->phi,it->d0);
+    vTrack2DHistos_[d0phiindex_2d]->Fill(itT->phi,itT->d0);
     static const int dzphiindex_2d = this->GetIndex(vTrack2DHistos_,"h2_dz_vs_phi");
-    vTrack2DHistos_[dzphiindex_2d]->Fill(it->phi,it->dz);
+    vTrack2DHistos_[dzphiindex_2d]->Fill(itT->phi,itT->dz);
     static const int d0etaindex_2d = this->GetIndex(vTrack2DHistos_,"h2_d0_vs_eta");
-    vTrack2DHistos_[d0etaindex_2d]->Fill(it->eta,it->d0);
+    vTrack2DHistos_[d0etaindex_2d]->Fill(itT->eta,itT->d0);
     static const int dzetaindex_2d = this->GetIndex(vTrack2DHistos_,"h2_dz_vs_eta");
-    vTrack2DHistos_[dzetaindex_2d]->Fill(it->eta,it->dz);
+    vTrack2DHistos_[dzetaindex_2d]->Fill(itT->eta,itT->dz);
     static const int chiphiindex_2d = this->GetIndex(vTrack2DHistos_,"h2_chi2_vs_phi");
-    vTrack2DHistos_[chiphiindex_2d]->Fill(it->phi,it->chi2);
+    vTrack2DHistos_[chiphiindex_2d]->Fill(itT->phi,itT->chi2);
     static const int chiProbphiindex_2d = this->GetIndex(vTrack2DHistos_,"h2_chi2Prob_vs_phi");
-    vTrack2DHistos_[chiProbphiindex_2d]->Fill(it->phi,it->chi2Prob);
+    vTrack2DHistos_[chiProbphiindex_2d]->Fill(itT->phi,itT->chi2Prob);
     static const int normchiphiindex_2d = this->GetIndex(vTrack2DHistos_,"h2_normchi2_vs_phi");
-    vTrack2DHistos_[normchiphiindex_2d]->Fill(it->phi,it->normchi2);
+    vTrack2DHistos_[normchiphiindex_2d]->Fill(itT->phi,itT->normchi2);
     static const int chietaindex_2d = this->GetIndex(vTrack2DHistos_,"h2_chi2_vs_eta");
-    vTrack2DHistos_[chietaindex_2d]->Fill(it->eta,it->chi2);
+    vTrack2DHistos_[chietaindex_2d]->Fill(itT->eta,itT->chi2);
     static const int chiProbetaindex_2d = this->GetIndex(vTrack2DHistos_,"h2_chi2Prob_vs_eta");
-    vTrack2DHistos_[chiProbetaindex_2d]->Fill(it->eta,it->chi2Prob);
+    vTrack2DHistos_[chiProbetaindex_2d]->Fill(itT->eta,itT->chi2Prob);
     static const int normchietaindex_2d = this->GetIndex(vTrack2DHistos_,"h2_normchi2_vs_eta");
-    vTrack2DHistos_[normchietaindex_2d]->Fill(it->eta,it->normchi2);
+    vTrack2DHistos_[normchietaindex_2d]->Fill(itT->eta,itT->normchi2);
     static const int kappaphiindex_2d = this->GetIndex(vTrack2DHistos_,"h2_kappa_vs_phi");
-    vTrack2DHistos_[kappaphiindex_2d]->Fill(it->phi,it->kappa);
+    vTrack2DHistos_[kappaphiindex_2d]->Fill(itT->phi,itT->kappa);
     static const int kappaetaindex_2d = this->GetIndex(vTrack2DHistos_,"h2_kappa_vs_eta");
-    vTrack2DHistos_[kappaetaindex_2d]->Fill(it->eta,it->kappa);
+    vTrack2DHistos_[kappaetaindex_2d]->Fill(itT->eta,itT->kappa);
     static const int normchi2kappa_2d = this->GetIndex(vTrack2DHistos_,"h2_normchi2_vs_kappa");
-    vTrack2DHistos_[normchi2kappa_2d]->Fill(it->normchi2,it->kappa); 
-  } // finish loop over track quantities
+    vTrack2DHistos_[normchi2kappa_2d]->Fill(itT->normchi2,itT->kappa);
 
+    // hit quantities: residuals, normalized residuals
+    for (std::vector<TrackerValidationVariables::AVHitStruct>::const_iterator itH = itT->hits.begin();
+	 itH != itT->hits.end();
+	 ++itH) {
+      
+      DetId detid(itH->rawDetId);
+      ModuleHistos &histStruct = this->getHistStructFromMap(detid);
 
-  // hit quantities: residuals, normalized residuals
-  for (std::vector<TrackerValidationVariables::AVHitStruct>::const_iterator it = vHitstruct.begin(),
-  	 itEnd = vHitstruct.end(); it != itEnd; ++it) {
-    DetId detid(it->rawDetId);
-    ModuleHistos &histStruct = this->getHistStructFromMap(detid);
-    
-    // fill histos in local coordinates if set in cf
-    if(lCoorHistOn_) {
-      histStruct.ResHisto->Fill(it->resX);
-      if(it->resErrX != 0) histStruct.NormResHisto->Fill(it->resX/it->resErrX);
-    }
-    if(it->resXprime != -999.) {
-      histStruct.ResXprimeHisto->Fill(it->resXprime);
-      if(it->resXprimeErr != 0 && it->resXprimeErr != -999 ) {	
-	histStruct.NormResXprimeHisto->Fill(it->resXprime/it->resXprimeErr);
-      } 
-    }
-    if(it->resYprime != -999.) {
-      if( this->isPixel(detid.subdetId())  || stripYResiduals_ ) {
-	histStruct.ResYprimeHisto->Fill(it->resYprime);
-	if(it->resYprimeErr != 0 && it->resYprimeErr != -999. ) {	
-	  histStruct.NormResYprimeHisto->Fill(it->resYprime/it->resYprimeErr);
-	} 
+      // fill histos in local coordinates if set in cf
+      if (lCoorHistOn_) {
+	histStruct.ResHisto->Fill(itH->resX);
+	if(itH->resErrX != 0) histStruct.NormResHisto->Fill(itH->resX/itH->resErrX);
       }
-    }
-
-    
-    if(overlappOn_) {
-      std::pair<uint32_t,uint32_t> tmp_pair(std::make_pair(it->rawDetId, it->overlapres.first));
-      if(it->overlapres.first != 0 ) {
-	if( hOverlappResidual[tmp_pair] ) {
-	  hOverlappResidual[tmp_pair]->Fill(it->overlapres.second);
-	} else if( hOverlappResidual[std::make_pair( it->overlapres.first, it->rawDetId) ]) {
-	  hOverlappResidual[std::make_pair( it->overlapres.first, it->rawDetId) ]->Fill(it->overlapres.second);
-	} else {
-	  std::string dirname("OverlappResiduals");
-	  DirectoryWrapper tfd(dirname.c_str(),moduleDirectory_,dqmMode_);
-	  hOverlappResidual[tmp_pair] = tfd.make<TH1F>(Form("hOverlappResidual_%d_%d",tmp_pair.first,tmp_pair.second),
-						       "Overlapp Residuals",100,-50,50);
-	  hOverlappResidual[tmp_pair]->Fill(it->overlapres.second);
+      if (itH->resXprime != -999.) {
+	histStruct.ResXprimeHisto->Fill(itH->resXprime);
+	if(itH->resXprimeErr != 0 && itH->resXprimeErr != -999 ) {	
+	  histStruct.NormResXprimeHisto->Fill(itH->resXprime/itH->resXprimeErr);
 	}
       }
-    } // end overlappOn
+      if (itH->resYprime != -999.) {
+	if (this->isPixel(detid.subdetId()) ||
+	    stripYResiduals_ ) {
+	  histStruct.ResYprimeHisto->Fill(itH->resYprime);
+	  if (itH->resYprimeErr != 0 && itH->resYprimeErr != -999. ) {	
+	    histStruct.NormResYprimeHisto->Fill(itH->resYprime/itH->resYprimeErr);
+	  } 
+	}
+      }
+      
+      if (overlappOn_) {
+	std::pair<uint32_t,uint32_t> tmp_pair(std::make_pair(itH->rawDetId, itH->overlapres.first));
+	if (itH->overlapres.first != 0) {
+	  if (hOverlappResidual[tmp_pair]) {
+	    hOverlappResidual[tmp_pair]->Fill(itH->overlapres.second);
+	  } else if (hOverlappResidual[std::make_pair(itH->overlapres.first, itH->rawDetId)]) {
+	    hOverlappResidual[std::make_pair( itH->overlapres.first, itH->rawDetId)]->Fill(itH->overlapres.second);
+	  } else {
+	    std::string dirname("OverlappResiduals");
+	    DirectoryWrapper tfd(dirname.c_str(),moduleDirectory_,dqmMode_);
+	    hOverlappResidual[tmp_pair] = tfd.make<TH1F>(Form("hOverlappResidual_%d_%d",tmp_pair.first,tmp_pair.second),
+							 "Overlapp Residuals",100,-50,50);
+	    hOverlappResidual[tmp_pair]->Fill(itH->overlapres.second);
+	  }
+	}
+      }
+      
+    } // finish loop over hit quantities
+  } // finish loop over track quantities
 
-  }
   if (useOverflowForRMS_) TH1::StatOverflows(kFALSE);  
 }
 
@@ -962,7 +973,6 @@ TrackerOfflineValidation::endJob()
 {
 
   if (!tkGeom_.product()) return;
-
 
   AlignableTracker aliTracker(&(*tkGeom_));
   
@@ -999,7 +1009,6 @@ TrackerOfflineValidation::endJob()
   this->fillTree(*tree, mTecResiduals_, *treeMemPtr, *tkGeom_);
 
   delete treeMemPtr; treeMemPtr = 0;
-
 }
 
 
@@ -1010,11 +1019,11 @@ TrackerOfflineValidation::collateSummaryHists( DirectoryWrapper& tfd, const Alig
 {
   std::vector<Alignable*> alivec(ali.components());
   if( this->isDetOrDetUnit((alivec)[0]->alignableObjectId()) ) return;
-
+  
   for(int iComp=0, iCompEnd = ali.components().size();iComp < iCompEnd; ++iComp) {
     std::vector< TrackerOfflineValidation::SummaryContainer > vProfiles;        
     std::string structurename  = aliobjid.typeToName((alivec)[iComp]->alignableObjectId());
- 
+    
     LogDebug("TrackerOfflineValidation") << "StructureName = " << structurename;
     std::stringstream dirname;
     dirname << structurename;

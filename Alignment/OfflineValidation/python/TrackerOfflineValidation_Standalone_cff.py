@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-
 ##
 ## Set standard binning for the residual histograms in both, standalone and DQM mode
 ##
@@ -58,17 +57,14 @@ TrackerOfflineValidation.TH1YResPixelModules.xmax = 0.1 #0.5
 # First clone contains the standard histogram binning for both, Standalone and DQMmode
 TrackerOfflineValidationBinned = TrackerOfflineValidation.clone()
 
-
 ##
 ## TrackerOfflineValidation (standalone mode)
 ##
 # Second clone
 TrackerOfflineValidationStandalone = TrackerOfflineValidationBinned.clone(
     Tracks = 'TrackRefitterForOfflineValidation',
-    trajectoryInput = 'TrackRefitterForOfflineValidation',
     moduleLevelHistsTransient = cms.bool(True),
 )
-
 
 ##
 ## Output File Configuration 
@@ -79,7 +75,6 @@ TFileService = cms.Service("TFileService",
     fileName = cms.string('$TMPDIR/trackerOfflineValidation.root'),
     closeFileFast = cms.untracked.bool(True)
 )
-
 
 ##
 ## Sequence
