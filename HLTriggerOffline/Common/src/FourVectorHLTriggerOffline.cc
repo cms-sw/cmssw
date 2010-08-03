@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTriggerOffline.cc,v 1.36 2010/02/25 19:14:36 wdd Exp $
+// $Id: FourVectorHLTriggerOffline.cc,v 1.38 2010/02/25 19:45:23 wdd Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "HLTriggerOffline/Common/interface/FourVectorHLTriggerOffline.h"
@@ -123,7 +123,7 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
   ++nev_;
   //LogDebug("FourVectorHLTriggerOffline")<< " analyze...." ;
   
-  Handle<GenParticleCollection> genParticles;
+  Handle<reco::GenParticleCollection> genParticles;
   iEvent.getByLabel("genParticles", genParticles);
   if(!genParticles.isValid()) { 
     edm::LogInfo("FourVectorHLTriggerOffline") << "genParticles not found, "
@@ -131,7 +131,7 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
     return;
   }
 
-  Handle<GenJetCollection> genJets;
+  Handle<reco::GenJetCollection> genJets;
   iEvent.getByLabel("iterativeCone5GenJets",genJets);
   if(!genJets.isValid()) { 
     edm::LogInfo("FourVectorHLTriggerOffline") << "genJets not found, "
@@ -139,7 +139,7 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
     return;
   }
 
-  Handle<GenMETCollection> genMets;
+  Handle<reco::GenMETCollection> genMets;
   iEvent.getByLabel("genMetTrue",genMets);
   if(!genMets.isValid()) { 
     edm::LogInfo("FourVectorHLTriggerOffline") << "genMets not found, "
@@ -356,7 +356,7 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
   for(PathInfoCollection::iterator v = hltPaths_.begin();
       v!= hltPaths_.end(); ++v ) 
     { 
-      //LogTrace("FourVectorHLTriggerOffline") << " path " << v->getPath() << endl;
+      //LogTrace("FourVectorHLTriggerOffline") << " path " << v->getPath() << std::endl;
       if (v->getPath().find("BTagIP") != std::string::npos ) btagMon = btagIPMon;
       else btagMon = btagMuMon;
 
@@ -437,13 +437,13 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 		for (std::vector<std::string>::const_iterator labelIter= filterLabels.begin(); labelIter!=filterLabels.end(); labelIter++)          
 		  {
 
-		    //cout << v->getPath() << "\t" << *labelIter << endl;
+		    //std::cout << v->getPath() << "\t" << *labelIter << std::endl;
 		    // last match wins...
 		    edm::InputTag testTag(*labelIter,"",processname_);
 		    int testindex = triggerObj->filterIndex(testTag);
 		    if ( !(testindex >= triggerObj->sizeFilters()) ) {
 
-		      //cout << "found one! " << v->getPath() << "\t" << testTag.label() << endl; 
+		      //std::cout << "found one! " << v->getPath() << "\t" << testTag.label() << std::endl; 
 		      filterTag = testTag; v->setLabel(*labelIter);}
 		  }
 	      }
@@ -451,8 +451,8 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	      const int index = triggerObj->filterIndex(filterTag);
 	      if ( index >= triggerObj->sizeFilters() ) {
 
-	        //        cout << "WTF no index "<< index << " of that name "
-	        //	     << filterTag << endl;
+	        //        std::cout << "WTF no index "<< index << " of that name "
+	        //	     << filterTag << std::endl;
 	        continue; // not in this event
 
 	      }
@@ -461,8 +461,8 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 	      const trigger::Keys & k = triggerObj->filterKeys(index);
 	      //      const trigger::Vids & idtype = triggerObj->filterIds(index);
 	      // assume for now the first object type is the same as all objects in the collection
-	      //    cout << filterTag << "\t" << idtype.size() << "\t" << k.size() << endl;
-	      //     cout << "path " << v->getPath() << " trigger type "<<triggertype << endl;
+	      //    std::cout << filterTag << "\t" << idtype.size() << "\t" << k.size() << std::endl;
+	      //     std::cout << "path " << v->getPath() << " trigger type "<<triggertype << std::endl;
 	      //if (k.size() > 0) v->getNOnHisto()->Fill(k.size());
 
 
@@ -540,13 +540,13 @@ FourVectorHLTriggerOffline::endJob()
   return;
 }
 
-vector< pair<int,int> > FourVectorHLTriggerOffline::ParseTriggerType(const std::string& pathname)
+std::vector< std::pair<int,int> > FourVectorHLTriggerOffline::ParseTriggerType(const std::string& pathname)
 {
   //std::string testpath = "HLT_IsoMu3_DoubleEle10" ;
-  // cout << pathname << endl;
+  // std::cout << pathname << std::endl;
   // first, tokenize the ptah name into _ separated words
-  std::vector< string > pathwordlist;
-  std::vector< pair<int, int > > objecttype;
+  std::vector< std::string > pathwordlist;
+  std::vector< std::pair<int, int > > objecttype;
 
   boost::smatch matches;
   //for now, only support HLT paths (not ALCA)
@@ -558,7 +558,7 @@ vector< pair<int,int> > FourVectorHLTriggerOffline::ParseTriggerType(const std::
 
 
   boost::algorithm::split_regex( pathwordlist, pathname, boost::regex( "_" ) ) ;
-  for (std::vector< string >::iterator word = pathwordlist.begin(); word != pathwordlist.end(); word++)
+  for (std::vector< std::string >::iterator word = pathwordlist.begin(); word != pathwordlist.end(); word++)
     {
       // for each word, determine whether it names an object 
       // of known type and number.  If so, throw it onto the stack.
@@ -610,9 +610,9 @@ vector< pair<int,int> > FourVectorHLTriggerOffline::ParseTriggerType(const std::
 	}
     }  
 
-  for (std::vector< pair<int,int> >::iterator objects = objecttype.begin(); objects != objecttype.end(); objects++)
+  for (std::vector< std::pair<int,int> >::iterator objects = objecttype.begin(); objects != objecttype.end(); objects++)
     {
-      // cout << objects->first << "\t" << objects->second << endl;
+      // std::cout << objects->first << "\t" << objects->second << std::endl;
     }
 
   return objecttype;
@@ -625,11 +625,11 @@ std::string FourVectorHLTriggerOffline::ParseL1SeedModule(const std::string& pat
   std::string l1pathname = "dummy";
   for(std::vector<std::string>::iterator numpathmodule = numpathmodules.begin();
       numpathmodule!= numpathmodules.end(); ++numpathmodule ) {
-    //  cout << pathname << "\t" << *numpathmodule << "\t" << hltConfig_.moduleType(*numpathmodule) << endl;
+    //  std::cout << pathname << "\t" << *numpathmodule << "\t" << hltConfig_.moduleType(*numpathmodule) << std::endl;
     if (hltConfig_.moduleType(*numpathmodule) == "HLTLevel1GTSeed")
       {
 	edm::ParameterSet l1GTPSet = hltConfig_.modulePSet(*numpathmodule);
-	//                  cout << l1GTPSet.getParameter<std::string>("L1SeedsLogicalExpression") << endl;
+	//                  std::cout << l1GTPSet.getParameter<std::string>("L1SeedsLogicalExpression") << std::endl;
 	//  l1pathname = l1GTPSet.getParameter<std::string>("L1SeedsLogicalExpression");
 	return *numpathmodule;  
       }
@@ -652,7 +652,7 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
       LogDebug("FourVectorHLTriggerOffline") << "HLTConfigProvider failed to initialize.";
     }
     // check if trigger name in (new) config
-    //	cout << "Available TriggerNames are: " << endl;
+    //	std::cout << "Available TriggerNames are: " << std::endl;
     //	hltConfig_.dump("Triggers");
   }
 
@@ -673,15 +673,15 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
 	  std::string pathname = hltConfig_.triggerName(j);  
 	  std::string l1pathname = "dummy";
 	  for (unsigned int i=0; i!=n; ++i) {
-	    // cout << hltConfig_.triggerName(i) << endl;
+	    // std::cout << hltConfig_.triggerName(i) << std::endl;
     
 	    std::string denompathname = hltConfig_.triggerName(i);  
 	    int objectType = 0;
 	    int denomobjectType = 0;
 
-	    std::vector< pair<int,int> > objectTypeList = FourVectorHLTriggerOffline::ParseTriggerType(pathname);
+	    std::vector< std::pair<int,int> > objectTypeList = FourVectorHLTriggerOffline::ParseTriggerType(pathname);
 	    objectType = !objectTypeList.empty()?objectTypeList[0].first:0;
-	    std::vector< pair<int,int> > denomobjectTypeList = FourVectorHLTriggerOffline::ParseTriggerType(denompathname);
+	    std::vector< std::pair<int,int> > denomobjectTypeList = FourVectorHLTriggerOffline::ParseTriggerType(denompathname);
 	    denomobjectType = !denomobjectTypeList.empty()?denomobjectTypeList[0].first:0;
             l1pathname = FourVectorHLTriggerOffline::ParseL1SeedModule(pathname);
     
@@ -705,11 +705,11 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
 	    int objectType = 0;
 	    int denomobjectType = 0;
 
-	    std::vector< pair<int,int> > objectTypeList = FourVectorHLTriggerOffline::ParseTriggerType(pathname);
+	    std::vector< std::pair<int,int> > objectTypeList = FourVectorHLTriggerOffline::ParseTriggerType(pathname);
 	    objectType = !objectTypeList.empty()?objectTypeList[0].first:0;
-	    std::vector< pair<int,int> > denomobjectTypeList = FourVectorHLTriggerOffline::ParseTriggerType(denompathname);
+	    std::vector< std::pair<int,int> > denomobjectTypeList = FourVectorHLTriggerOffline::ParseTriggerType(denompathname);
 	    denomobjectType = !denomobjectTypeList.empty()?denomobjectTypeList[0].first:0;
-	    //cout << pathname << "\t" << objectType << endl;
+	    //std::cout << pathname << "\t" << objectType << std::endl;
 	    // find L1 condition for numpath with numpath objecttype 
 	    // find PSet for L1 global seed for numpath, 
 	    // list module labels for numpath
@@ -763,11 +763,11 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
 		      continue;
 		    }
 
-		  //cout << pathname << "\t" << denompathname << endl;
+		  //std::cout << pathname << "\t" << denompathname << std::endl;
 		  std::string l1pathname = "dummy";
 		  int objectType = 0;
 
-		  std::vector< pair<int,int> > objectTypeList = FourVectorHLTriggerOffline::ParseTriggerType(pathname);
+		  std::vector< std::pair<int,int> > objectTypeList = FourVectorHLTriggerOffline::ParseTriggerType(pathname);
 		  objectType = !objectTypeList.empty()?objectTypeList[0].first:0;
                   l1pathname = FourVectorHLTriggerOffline::ParseL1SeedModule(pathname);
 
@@ -1250,8 +1250,8 @@ void FourVectorHLTriggerOffline::endRun(const edm::Run& run, const edm::EventSet
 void FourVectorHLTriggerOffline::cleanDRMatchSet(mmset& tempSet)
 {
 
-  //  LogDebug("FourVectorHLTriggerOffline") << "cleanDRMatchSet(mmset& tempSet) " << endl;
-  // LogDebug("FourVectorHLTriggerOffline") << "size of the set (before CLEANED)= " << tempSet.size() << " maps." << endl;
+  //  LogDebug("FourVectorHLTriggerOffline") << "cleanDRMatchSet(mmset& tempSet) " << std::endl;
+  // LogDebug("FourVectorHLTriggerOffline") << "size of the set (before CLEANED)= " << tempSet.size() << " maps." << std::endl;
 
   if(tempSet.size() < 2) return;
  
@@ -1263,7 +1263,7 @@ void FourVectorHLTriggerOffline::cleanDRMatchSet(mmset& tempSet)
 
     cleanedOneMap=false;
 
-    //LogTrace("FourVectorHLTriggerOffline") << "cleaning: size of the set  = " << tempSet.size() << " maps." << endl;
+    //LogTrace("FourVectorHLTriggerOffline") << "cleaning: size of the set  = " << tempSet.size() << " maps." << std::endl;
 
     int imap = 0;
     for ( mmset::iterator setIter_i = tempSet.begin( ); setIter_i != tempSet.end( ); setIter_i++ ) 
@@ -1271,12 +1271,12 @@ void FourVectorHLTriggerOffline::cleanDRMatchSet(mmset& tempSet)
 
 	fimmap tempMap_j = *setIter_i;
 
-	//LogTrace("FourVectorHLTriggerOffline") << " map " << imap << endl;
-	//LogTrace("FourVectorHLTriggerOffline") << " --------" << endl;
+	//LogTrace("FourVectorHLTriggerOffline") << " map " << imap << std::endl;
+	//LogTrace("FourVectorHLTriggerOffline") << " --------" << std::endl;
 	for (fimmap::iterator it = tempMap_j.begin(); it != tempMap_j.end(); ++it)
 	  {
 
-	    //LogTrace("FourVectorHLTriggerOffline") << " " <<   (*it).first << " :  " << (*it).second << endl;
+	    //LogTrace("FourVectorHLTriggerOffline") << " " <<   (*it).first << " :  " << (*it).second << std::endl;
 
 	  }
 
@@ -1291,7 +1291,7 @@ void FourVectorHLTriggerOffline::cleanDRMatchSet(mmset& tempSet)
 	fimmap tempMap_i = *setIter_i;
 	fimmap::iterator it = tempMap_i.begin();
 	int topValue = (*it).second;
-	//LogTrace("FourVectorHLTriggerOffline") << " topValue = " << topValue << endl;
+	//LogTrace("FourVectorHLTriggerOffline") << " topValue = " << topValue << std::endl;
 
     
 	mmset::iterator tempIter_i = setIter_i;
@@ -1302,7 +1302,7 @@ void FourVectorHLTriggerOffline::cleanDRMatchSet(mmset& tempSet)
 	  {
 
 	    fimmap tempMap_j = *setIter_j;
-	    //LogTrace("FourVectorHLTriggerOffline") << "  size of the map  = " << tempMap_j.size() << endl;
+	    //LogTrace("FourVectorHLTriggerOffline") << "  size of the map  = " << tempMap_j.size() << std::endl;
 
 	    for (fimmap::iterator it = tempMap_j.begin(); it != tempMap_j.end(); ++it)
 	      {
@@ -1310,7 +1310,7 @@ void FourVectorHLTriggerOffline::cleanDRMatchSet(mmset& tempSet)
 		if(topValue == (*it).second) 
 		  {
 				  
-		    //LogTrace("FourVectorHLTriggerOffline") << "   Ridding map of a doubly-matched object." << endl;
+		    //LogTrace("FourVectorHLTriggerOffline") << "   Ridding map of a doubly-matched object." << std::endl;
 		    tempMap_j.erase(it);
 
 		    cleanedOneMap = true;
@@ -1356,7 +1356,7 @@ void FourVectorHLTriggerOffline::cleanDRMatchSet(mmset& tempSet)
 
   } // end while
 
-  //LogTrace("FourVectorHLTriggerOffline") << "cleaned: size of the set  = " << tempSet.size() << " maps." << endl;
+  //LogTrace("FourVectorHLTriggerOffline") << "cleaned: size of the set  = " << tempSet.size() << " maps." << std::endl;
   int jmap = 0;
 
   for ( mmset::iterator setIter_i = tempSet.begin( ); setIter_i != tempSet.end( ); setIter_i++ ) 
@@ -1364,13 +1364,13 @@ void FourVectorHLTriggerOffline::cleanDRMatchSet(mmset& tempSet)
 
       fimmap tempMap_j = *setIter_i;
 
-      //LogTrace("FourVectorHLTriggerOffline") << " map " << jmap << endl;
-      //LogTrace("FourVectorHLTriggerOffline") << " --------" << endl;
+      //LogTrace("FourVectorHLTriggerOffline") << " map " << jmap << std::endl;
+      //LogTrace("FourVectorHLTriggerOffline") << " --------" << std::endl;
 
       for (fimmap::iterator it = tempMap_j.begin(); it != tempMap_j.end(); ++it)
 	{
 
-	  //LogTrace("FourVectorHLTriggerOffline") << " " <<   (*it).first << " :  " << (*it).second << endl;
+	  //LogTrace("FourVectorHLTriggerOffline") << " " <<   (*it).first << " :  " << (*it).second << std::endl;
       
 	}
 

@@ -18,7 +18,7 @@
 //         Created:  June 2008
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
-// $Id: FourVectorHLTriggerOffline.h,v 1.26 2010/02/25 19:14:36 wdd Exp $
+// $Id: FourVectorHLTriggerOffline.h,v 1.28 2010/02/25 19:45:23 wdd Exp $
 //
 //
 
@@ -95,7 +95,7 @@
 
 
 typedef std::multimap<float,int> fimmap ;
-typedef std::set<fimmap , less<fimmap> > mmset;
+typedef std::set<fimmap , std::less<fimmap> > mmset;
 
 class FourVectorHLTriggerOffline : public edm::EDAnalyzer {
    public:
@@ -664,7 +664,7 @@ public:
 		void setPath(FourVectorHLTriggerOffline::PathInfoCollection::iterator v) { v_ = v; }
 		void setReco(edm::Handle<T> offColl) { offColl_ = offColl; }
 		void setRecoB(edm::Handle<reco::JetTagCollection> offCollB) { offCollB_ = offCollB; }
-		void setMC(edm::Handle<GenParticleCollection> genParticles, int pdgId, int status)
+		void setMC(edm::Handle<reco::GenParticleCollection> genParticles, int pdgId, int status)
 		{
 
       genParticles_ = genParticles;
@@ -711,7 +711,7 @@ public:
 
 		bool isTriggerType(int t);
 		bool isL1TriggerType(int t);
-    bool hasBPartonInCone(GenJetCollection::const_iterator gjet, float coneSize);
+    bool hasBPartonInCone(reco::GenJetCollection::const_iterator gjet, float coneSize);
 
     mmset L1OffDRMatchSet;
     mmset L1MCDRMatchSet;
@@ -721,7 +721,7 @@ public:
     mmset OffMCDRMatchSet;
 
 
-		void setGenJets(bool flag, edm::Handle<GenJetCollection> genJets ) 
+		void setGenJets(bool flag, edm::Handle<reco::GenJetCollection> genJets ) 
 		{ 
 		  GenJetsFlag_ = flag;  
 			genJets_ = genJets; 
@@ -751,8 +751,8 @@ private:
     edm::Handle<T> offColl_;
     edm::Handle<reco::JetTagCollection> offCollB_;
 
-    edm::Handle<GenParticleCollection> genParticles_;
-    edm::Handle<GenJetCollection> genJets_;
+    edm::Handle<reco::GenParticleCollection> genParticles_;
+    edm::Handle<reco::GenJetCollection> genJets_;
     FourVectorHLTriggerOffline::PathInfoCollection::iterator v_;
 
 };
@@ -870,7 +870,7 @@ void objMon<T>::fillMC()
 
 	if (! genJets_.isValid()) return;
 
-  for(GenJetCollection::const_iterator gjet=genJets_->begin(); gjet!=genJets_->end(); gjet++) {
+  for(reco::GenJetCollection::const_iterator gjet=genJets_->begin(); gjet!=genJets_->end(); gjet++) {
 
     if (fabs(gjet->eta()) <= EtaMax_ && gjet->pt() >= EtMin_ ){
 
@@ -897,7 +897,7 @@ void objMon<T>::fillMC()
 
  for(size_t i = 0; i < genParticles_->size(); ++ i) {
 
-   const GenParticle & p = (*genParticles_)[i];
+   const reco::GenParticle & p = (*genParticles_)[i];
    if (abs(p.pdgId()) == pdgId_ && p.status() == pdgStatus_ && fabs(p.eta()) <= EtaMax_ && p.pt() >= EtMin_ ){
     
 		NMc++;
@@ -1027,7 +1027,7 @@ void objMon<T>::monitorL1(const trigger::Vids & idtype, const trigger::Keys & l1
 	      fimmap L1MCDRMatchMap;
 	      int j=0;
 
-        for(GenJetCollection::const_iterator gjet=genJets_->begin(); gjet!=genJets_->end(); gjet++) {
+        for(reco::GenJetCollection::const_iterator gjet=genJets_->begin(); gjet!=genJets_->end(); gjet++) {
        
           if (fabs(gjet->eta()) <= EtaMax_ && gjet->pt() >= EtMin_ ){
 
@@ -1057,7 +1057,7 @@ void objMon<T>::monitorL1(const trigger::Vids & idtype, const trigger::Keys & l1
 	           if ( dR < 1.0) 
 						 {
 
-		          L1MCDRMatchMap.insert(pair<float,int>(dR,j));
+		          L1MCDRMatchMap.insert(std::pair<float,int>(dR,j));
 
 						 }
 
@@ -1080,7 +1080,7 @@ void objMon<T>::monitorL1(const trigger::Vids & idtype, const trigger::Keys & l1
         for(size_t i = 0; i < genParticles_->size(); ++ i) 
 				{
 
-           const GenParticle & p = (*genParticles_)[i];
+           const reco::GenParticle & p = (*genParticles_)[i];
            if (abs(p.pdgId()) == pdgId_ && p.status() == pdgStatus_ && fabs(p.eta()) <= EtaMax_ && p.pt() >= EtMin_)
 					 { 
 
@@ -1098,7 +1098,7 @@ void objMon<T>::monitorL1(const trigger::Vids & idtype, const trigger::Keys & l1
 	           if ( dR < 1.0) 
 						 {
 
-		          L1MCDRMatchMap.insert(pair<float,int>(dR,i));
+		          L1MCDRMatchMap.insert(std::pair<float,int>(dR,i));
 
 						 }
 
@@ -1284,7 +1284,7 @@ void objMon<T>::monitorOnline(const trigger::Vids & idtype, const trigger::Keys 
 	      fimmap OnMCDRMatchMap;
 	      int j=0;
 
-        for(GenJetCollection::const_iterator gjet=genJets_->begin(); gjet!=genJets_->end(); gjet++) {
+        for(reco::GenJetCollection::const_iterator gjet=genJets_->begin(); gjet!=genJets_->end(); gjet++) {
        
           if (fabs(gjet->eta()) <= EtaMax_ && gjet->pt() >= EtMin_ ){
        
@@ -1313,7 +1313,7 @@ void objMon<T>::monitorOnline(const trigger::Vids & idtype, const trigger::Keys 
 	           if ( dR < 1.0) 
 						 {
 
-		          OnMCDRMatchMap.insert(pair<float,int>(dR,j));
+		          OnMCDRMatchMap.insert(std::pair<float,int>(dR,j));
 
 						 }
        
@@ -1333,7 +1333,7 @@ void objMon<T>::monitorOnline(const trigger::Vids & idtype, const trigger::Keys 
         for(size_t i = 0; i < genParticles_->size(); ++ i) 
 				{
 
-           const GenParticle & p = (*genParticles_)[i];
+           const reco::GenParticle & p = (*genParticles_)[i];
            if (abs(p.pdgId()) == pdgId_ && p.status() == pdgStatus_ && fabs(p.eta()) <= EtaMax_ && p.pt() >= EtMin_)
 					 { 
 
@@ -1351,7 +1351,7 @@ void objMon<T>::monitorOnline(const trigger::Vids & idtype, const trigger::Keys 
 	           if ( dR < 1.0)
 						 {
 
-		          OnMCDRMatchMap.insert(pair<float,int>(dR,i));
+		          OnMCDRMatchMap.insert(std::pair<float,int>(dR,i));
 
 						 }
 	         } // end if
@@ -1392,7 +1392,7 @@ void objMon<T>::monitorOffline(FourVectorHLTriggerOffline* fv)
              fimmap OffMCDRMatchMap;
 	           int j=0;
 
-             for(GenJetCollection::const_iterator gjet=genJets_->begin(); gjet!=genJets_->end(); gjet++) {
+             for(reco::GenJetCollection::const_iterator gjet=genJets_->begin(); gjet!=genJets_->end(); gjet++) {
 
             
                if (fabs(gjet->eta()) <= EtaMax_ && gjet->pt() >= EtMin_ ){
@@ -1414,7 +1414,7 @@ void objMon<T>::monitorOffline(FourVectorHLTriggerOffline* fv)
 	                if ( dR < 1.0) 
 		       			 {
 
-		               OffMCDRMatchMap.insert(pair<float,int>(dR,j));
+		               OffMCDRMatchMap.insert(std::pair<float,int>(dR,j));
 
 		       			 }
 
@@ -1447,7 +1447,7 @@ void objMon<T>::monitorOffline(FourVectorHLTriggerOffline* fv)
              fimmap OffMCDRMatchMap;
 	           int j=0;
 
-             for(GenJetCollection::const_iterator gjet=genJets_->begin(); gjet!=genJets_->end(); gjet++) {
+             for(reco::GenJetCollection::const_iterator gjet=genJets_->begin(); gjet!=genJets_->end(); gjet++) {
             
                if (fabs(gjet->eta()) <= EtaMax_ && gjet->pt() >= EtMin_ ){
             
@@ -1477,7 +1477,7 @@ void objMon<T>::monitorOffline(FourVectorHLTriggerOffline* fv)
 	                if ( dR < 1.0) 
 		       			 {
 
-		               OffMCDRMatchMap.insert(pair<float,int>(dR,j));
+		               OffMCDRMatchMap.insert(std::pair<float,int>(dR,j));
 
 		       			 }
             
@@ -1498,7 +1498,7 @@ void objMon<T>::monitorOffline(FourVectorHLTriggerOffline* fv)
             for(size_t i = 0; i < genParticles_->size(); ++ i) 
  	         {
 
-               const GenParticle & p = (*genParticles_)[i];
+               const reco::GenParticle & p = (*genParticles_)[i];
                if (abs(p.pdgId()) == pdgId_ && p.status() == pdgStatus_ && fabs(p.eta()) <= EtaMax_ && p.pt() >= EtMin_)
  	         	 { 
 
@@ -1516,7 +1516,7 @@ void objMon<T>::monitorOffline(FourVectorHLTriggerOffline* fv)
                  if ( dR < 1.0) 
  	         		 {
 
-                  OffMCDRMatchMap.insert(pair<float,int>(dR,i));
+                  OffMCDRMatchMap.insert(std::pair<float,int>(dR,i));
 
  	         		 }
 
@@ -1559,7 +1559,7 @@ void objMon<T>::fillL1OffMatch(FourVectorHLTriggerOffline* fv)
        if (dR > DRMatch_) continue;
        if( offCollB_.isValid()) {
 
-         typedef typename JetTagCollection::const_iterator const_iterator;
+         typedef typename reco::JetTagCollection::const_iterator const_iterator;
 			   const_iterator iter = offCollB_->begin();
          for (int count = 0; count < i; count++) iter++;
 
@@ -1619,7 +1619,7 @@ void objMon<T>::fillL1MCMatch(FourVectorHLTriggerOffline* fv)
 
        if (dR > DRMatch_) continue;
 
-       GenJetCollection::const_iterator gjet=genJets_->begin(); 
+       reco::GenJetCollection::const_iterator gjet=genJets_->begin(); 
        for (int count = 0; count < i; count++) gjet++;
   
 			 NL1Mc++;
@@ -1649,7 +1649,7 @@ void objMon<T>::fillL1MCMatch(FourVectorHLTriggerOffline* fv)
   
        if (dR > DRMatch_) continue;
   
-       const GenParticle & p = (*genParticles_)[i];
+       const reco::GenParticle & p = (*genParticles_)[i];
 
   	   NL1Mc++;
   	   v_->getMcEtL1McHisto()->Fill(p.pt());
@@ -1744,7 +1744,7 @@ void objMon<T>::fillOnMCMatch(FourVectorHLTriggerOffline* fv)
 
        if (dR > DRMatch_) continue;
 
-       GenJetCollection::const_iterator gjet=genJets_->begin(); 
+       reco::GenJetCollection::const_iterator gjet=genJets_->begin(); 
        for (int count = 0; count < i; count++) gjet++;
   
   
@@ -1773,7 +1773,7 @@ void objMon<T>::fillOnMCMatch(FourVectorHLTriggerOffline* fv)
 
      if (dR > DRMatch_) continue;
           
-     const GenParticle & p = (*genParticles_)[i];
+     const reco::GenParticle & p = (*genParticles_)[i];
 
 	   NOnMc++;
 	   v_->getMcEtOnMcHisto()->Fill(p.pt());
@@ -1814,7 +1814,7 @@ void objMon<T>::fillOffMCMatch(FourVectorHLTriggerOffline* fv)
 
        if (dR > DRMatch_) continue;
 
-       GenJetCollection::const_iterator gjet=genJets_->begin(); 
+       reco::GenJetCollection::const_iterator gjet=genJets_->begin(); 
        for (int count = 0; count < i; count++) gjet++;
   
        NOffMc++; 
@@ -1842,7 +1842,7 @@ void objMon<T>::fillOffMCMatch(FourVectorHLTriggerOffline* fv)
 
      if (dR > DRMatch_) continue;
           
-     const GenParticle & p = (*genParticles_)[i];
+     const reco::GenParticle & p = (*genParticles_)[i];
 
 	   NOffMc++;
 	   v_->getMcEtOffMcHisto()->Fill(p.pt());
@@ -1891,7 +1891,7 @@ void objMon<T>::fillOnL1Match(FourVectorHLTriggerOffline* fv, const trigger::Key
 }
 
 template <class T> 
-bool objMon<T>::hasBPartonInCone(GenJetCollection::const_iterator gjet, float coneSize)
+bool objMon<T>::hasBPartonInCone(reco::GenJetCollection::const_iterator gjet, float coneSize)
 {
 
   bool rc = false;
@@ -1899,7 +1899,7 @@ bool objMon<T>::hasBPartonInCone(GenJetCollection::const_iterator gjet, float co
 
   for(size_t i = 0; i < genParticles_->size(); ++ i) {
 	
-    const GenParticle & p = (*genParticles_)[i];
+    const reco::GenParticle & p = (*genParticles_)[i];
     if (abs(p.pdgId()) == 5){ 
 
 	    if (reco::deltaR(p.eta(),p.phi(),gjet->eta(),gjet->phi()) < coneSize){
