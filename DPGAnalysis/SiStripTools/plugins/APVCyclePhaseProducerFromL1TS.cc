@@ -242,12 +242,12 @@ APVCyclePhaseProducerFromL1TS::produce(edm::Event& iEvent, const edm::EventSetup
 
     if(_lastResync != (*l1ts)[0].lastResync()) {
       _lastResync = (*l1ts)[0].lastResync();
-      _hdlec0lresync->Fill((*l1ts)[0].lastEventCounter0()-(*l1ts)[0].lastResync());
+      if(_wantHistos) _hdlec0lresync->Fill((*l1ts)[0].lastEventCounter0()-(*l1ts)[0].lastResync());
       LogDebug("TTCSignalReceived") << "New Resync at orbit " << _lastResync ;
     }
     if(_lastHardReset != (*l1ts)[0].lastHardReset()) {
       _lastHardReset = (*l1ts)[0].lastHardReset();
-      _hdlresynclHR->Fill((*l1ts)[0].lastResync()-(*l1ts)[0].lastHardReset());
+      if(_wantHistos) _hdlresynclHR->Fill((*l1ts)[0].lastResync()-(*l1ts)[0].lastHardReset());
       LogDebug("TTCSignalReceived") << "New HardReset at orbit " << _lastHardReset ;
     }
     if(_lastTestEnable != (*l1ts)[0].lastTestEnable()) {
