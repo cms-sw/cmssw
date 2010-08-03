@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_6_2/HIon/V40 (CMSSW_3_6_2_HLT11)
+# /dev/CMSSW_3_6_2/HIon/V42 (CMSSW_3_6_2_HLT11)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_2/HIon/V40')
+  tableName = cms.string('/dev/CMSSW_3_6_2/HIon/V42')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -19,7 +19,6 @@ process.streams = cms.PSet(
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   Calibration = cms.vstring( 'TestEnables' ),
-  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   HLTDQMResults = cms.vstring(  ),
   DQM = cms.vstring( 'OnlineMonitor' ),
   EventDisplay = cms.vstring( 'EventDisplay' ),
@@ -28,7 +27,6 @@ process.streams = cms.PSet(
     'JetMET',
     'EG',
     'EGMonitor',
-    'BTau',
     'JetMETTauMonitor',
     'HcalHPDNoise',
     'RandomTriggers',
@@ -37,7 +35,9 @@ process.streams = cms.PSet(
     'Mu',
     'MuOnia',
     'MuMonitor',
-    'Commissioning' ),
+    'Commissioning',
+    'BTau' ),
+  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
   HLTDQM = cms.vstring( 'OnlineHltMonitor' )
 )
@@ -48,7 +48,6 @@ process.datasets = cms.PSet(
   EcalLaser = cms.vstring(  ),
   AlCaP0 = cms.vstring(  ),
   TestEnables = cms.vstring(  ),
-  AlCaPhiSymEcal = cms.vstring(  ),
   OnlineMonitor = cms.vstring( 'HLT_L1DoubleMuOpen',
     'HLT_L1Tech_HCAL_HF',
     'HLT_L1Tech_BSC_minBias',
@@ -61,7 +60,6 @@ process.datasets = cms.PSet(
   JetMET = cms.vstring(  ),
   EG = cms.vstring(  ),
   EGMonitor = cms.vstring(  ),
-  BTau = cms.vstring(  ),
   JetMETTauMonitor = cms.vstring(  ),
   HcalHPDNoise = cms.vstring(  ),
   RandomTriggers = cms.vstring(  ),
@@ -71,6 +69,8 @@ process.datasets = cms.PSet(
   MuOnia = cms.vstring(  ),
   MuMonitor = cms.vstring( 'HLT_L1DoubleMuOpen' ),
   Commissioning = cms.vstring(  ),
+  BTau = cms.vstring(  ),
+  AlCaPhiSymEcal = cms.vstring(  ),
   OfflineMonitor = cms.vstring( 'HLT_L1DoubleMuOpen',
     'HLT_L1Tech_HCAL_HF',
     'HLT_ZeroBiasPixel_SingleTrack',

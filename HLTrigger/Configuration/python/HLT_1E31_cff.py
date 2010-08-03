@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_6_2/1E31/V40 (CMSSW_3_6_2_HLT11)
+# /dev/CMSSW_3_6_2/1E31/V42 (CMSSW_3_6_2_HLT11)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_2/1E31/V40')
+  tableName = cms.string('/dev/CMSSW_3_6_2/1E31/V42')
 )
 
 streams = cms.PSet( 
@@ -15,7 +15,6 @@ streams = cms.PSet(
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   Calibration = cms.vstring( 'TestEnables' ),
-  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   HLTDQMResults = cms.vstring(  ),
   DQM = cms.vstring( 'OnlineMonitor' ),
   EventDisplay = cms.vstring( 'EventDisplay' ),
@@ -24,7 +23,6 @@ streams = cms.PSet(
     'JetMET',
     'EG',
     'EGMonitor',
-    'BTau',
     'JetMETTauMonitor',
     'HcalHPDNoise',
     'RandomTriggers',
@@ -33,7 +31,9 @@ streams = cms.PSet(
     'Mu',
     'MuOnia',
     'MuMonitor',
-    'Commissioning' ),
+    'Commissioning',
+    'BTau' ),
+  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
   HLTDQM = cms.vstring( 'OnlineHltMonitor' )
 )
@@ -46,7 +46,6 @@ datasets = cms.PSet(
   EcalLaser = cms.vstring(  ),
   AlCaP0 = cms.vstring(  ),
   TestEnables = cms.vstring(  ),
-  AlCaPhiSymEcal = cms.vstring(  ),
   OnlineMonitor = cms.vstring( 'HLT_Ele15_SW_EleId_L1R',
     'HLT_Ele15_SW_L1R',
     'HLT_Ele15_SiStrip_L1R',
@@ -125,7 +124,6 @@ datasets = cms.PSet(
     'HLT_L1SingleEG5',
     'HLT_Photon15_Cleaned_L1R',
     'HLT_Ele20_SiStrip_L1R' ),
-  BTau = cms.vstring(  ),
   JetMETTauMonitor = cms.vstring( 'HLT_L1MET20' ),
   HcalHPDNoise = cms.vstring(  ),
   RandomTriggers = cms.vstring(  ),
@@ -157,6 +155,8 @@ datasets = cms.PSet(
     'HLT_L1MuOpen',
     'HLT_Mu0_L2Mu0' ),
   Commissioning = cms.vstring(  ),
+  BTau = cms.vstring(  ),
+  AlCaPhiSymEcal = cms.vstring(  ),
   OfflineMonitor = cms.vstring( 'HLT_Ele15_SiStrip_L1R',
     'HLT_L1SingleEG5',
     'HLT_L1DoubleMuOpen',
