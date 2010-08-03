@@ -27,7 +27,7 @@ iterativeConePu5CaloJets = cms.EDProducer("FastjetJetProducer",
                                           subtractorName = cms.string("MultipleAlgoIterator"),
                                           doFastJetNonUniform = cms.bool(True),
                                           puCenters = cms.vdouble(-5,-4,-3,-2,-1,0,1,2,3,4,5),
-                                          puWidth = cms.double(0.8)
+                                          puWidth = cms.double(0.5)
                                           )
 
 iterativeConePu5CaloJets.doPUOffsetCorr = True
@@ -45,7 +45,7 @@ iterativeConePu7CaloJets = cms.EDProducer("FastjetJetProducer",
                                           subtractorName = cms.string("MultipleAlgoIterator"),
                                           doFastJetNonUniform = cms.bool(True),
                                           puCenters = cms.vdouble(-5,-4,-3,-2,-1,0,1,2,3,4,5),
-                                          puWidth = cms.double(0.8)
+                                          puWidth = cms.double(0.5)
                                           )
 
 iterativeConePu7CaloJets.doPUOffsetCorr = True
@@ -64,7 +64,7 @@ ktPu4CaloJets = cms.EDProducer(
     subtractorName = cms.string("MultipleAlgoIterator"),
     doFastJetNonUniform = cms.bool(True),
     puCenters = cms.vdouble(-5,-4,-3,-2,-1,0,1,2,3,4,5),
-    puWidth = cms.double(0.8)
+    puWidth = cms.double(0.5)
     )
 
 ktPu4CaloJets.doPUOffsetCorr = True
@@ -83,7 +83,7 @@ ktPu6CaloJets = cms.EDProducer(
     subtractorName = cms.string("MultipleAlgoIterator"),
     doFastJetNonUniform = cms.bool(True),
     puCenters = cms.vdouble(-5,-4,-3,-2,-1,0,1,2,3,4,5),
-    puWidth = cms.double(0.8)
+    puWidth = cms.double(0.5)
     )
 
 ktPu6CaloJets.doPUOffsetCorr = True
@@ -102,7 +102,7 @@ akPu5CaloJets = cms.EDProducer(
     subtractorName = cms.string("MultipleAlgoIterator"),
     doFastJetNonUniform = cms.bool(True),
     puCenters = cms.vdouble(-5,-4,-3,-2,-1,0,1,2,3,4,5),
-    puWidth = cms.double(0.8)
+    puWidth = cms.double(0.5)
     )
 
 akPu5CaloJets.doPUOffsetCorr = True
@@ -121,7 +121,7 @@ akPu7CaloJets = cms.EDProducer(
     subtractorName = cms.string("MultipleAlgoIterator"),
     doFastJetNonUniform = cms.bool(True),
     puCenters = cms.vdouble(-5,-4,-3,-2,-1,0,1,2,3,4,5),
-    puWidth = cms.double(0.8)
+    puWidth = cms.double(0.5)
     )
 
 akPu7CaloJets.doPUOffsetCorr = True
