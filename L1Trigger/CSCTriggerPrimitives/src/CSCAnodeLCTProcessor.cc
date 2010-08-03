@@ -20,8 +20,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2009/10/16 09:10:56 $
-//   $Revision: 1.37 $
+//   $Date: 2010/05/05 13:37:49 $
+//   $Revision: 1.39 $
 //
 //   Modifications: 
 //
@@ -457,8 +457,9 @@ CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* wiredc) {
     // If the number of layers containing digis is smaller than that
     // required to trigger, quit right away.
     const unsigned int min_layers =
-      (nplanes_hit_pattern <= nplanes_hit_accel_pattern)
-      ? nplanes_hit_pattern : nplanes_hit_accel_pattern;
+      (nplanes_hit_accel_pattern == 0) ? nplanes_hit_pattern :
+      ((nplanes_hit_pattern <= nplanes_hit_accel_pattern)
+       ? nplanes_hit_pattern : nplanes_hit_accel_pattern);
 
     unsigned int layersHit = 0;
     for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
@@ -598,30 +599,24 @@ void CSCAnodeLCTProcessor::readWireDigis(std::vector<int> wire[CSCConstants::NUM
       // use them since they can modify the ALCTs found later, via
       // ghost-cancellation logic.
       int last_time = -999;
-      int counter=0;
-      fail_oneshot=bx_times.size();
-      if(fail_oneshot==16) {
+      if (bx_times.size() == fifo_tbins) {
 	wire[i_layer][i_wire].push_back(0);	
-	wire[i_layer][i_wire].push_back(6);
 	wire[i_layer][i_wire].push_back(6);
       }
       else {
 	for (unsigned int i = 0; i < bx_times.size(); i++) {
-	  //find rising edge change
-	  if(bx_times[i]==counter) { 
-	    counter++;
-	    continue;
-	  }
-	  else {
-	    counter=bx_times[i]+1;
-	  }
+	  // Find rising edge change
+	  if (i > 0 && bx_times[i] == (bx_times[i-1]+1)) continue;
 	  if (bx_times[i] < static_cast<int>(fifo_tbins)) {
 	    if (infoV > 2) LogTrace("CSCAnodeLCTProcessor")
 			     << "Digi on layer " << i_layer << " wire " << i_wire
 			     << " at time " << bx_times[i];
+
+	    // Finally save times of hit wires.  One shot module will
+	    // not restart if a new pulse comes before the expiration
+	    // of the 6-bx period.
 	    if (last_time < 0 || ((bx_times[i]-last_time) >= 6) ) {
 	      wire[i_layer][i_wire].push_back(bx_times[i]);
-	      //	  break;
 	      last_time = bx_times[i];
 	    }
 	  }
@@ -630,12 +625,6 @@ void CSCAnodeLCTProcessor::readWireDigis(std::vector<int> wire[CSCConstants::NUM
 			     << "+++ Skipping wire digi: wire = " << i_wire
 			     << " layer = " << i_layer << ", bx = " << bx_times[i] << " +++";
 	  }
-	}
-	if (infoV > 1) LogTrace("CSCAnodeLCTProcessor")
-			 << "num bx_times " << fail_oneshot;
-	if(fail_oneshot>2) {
-	  if (infoV > 1) LogTrace("CSCAnodeLCTProcessor")
-			   << "more than two time bins" << fail_oneshot;
 	}
       }
     }
@@ -720,8 +709,13 @@ bool CSCAnodeLCTProcessor::preTrigger(const int key_wire, const int start_bx) {
   unsigned int layers_hit;
   bool hit_layer[CSCConstants::NUM_LAYERS];
   int this_layer, this_wire;
+  // If nplanes_hit_accel_pretrig is 0, the firmware uses the value
+  // of nplanes_hit_pretrig instead.
+  const unsigned int nplanes_hit_pretrig_acc =
+    (nplanes_hit_accel_pretrig != 0) ? nplanes_hit_accel_pretrig :
+    nplanes_hit_pretrig;
   const unsigned int pretrig_thresh[CSCConstants::NUM_ALCT_PATTERNS] = {
-    nplanes_hit_accel_pretrig, nplanes_hit_pretrig, nplanes_hit_pretrig
+    nplanes_hit_pretrig_acc, nplanes_hit_pretrig, nplanes_hit_pretrig
   };
 
   // Loop over bx times, accelerator and collision patterns to 
@@ -779,8 +773,13 @@ bool CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
   bool hit_layer[CSCConstants::NUM_LAYERS];
   unsigned int temp_quality;
   int this_layer, this_wire;
+  // If nplanes_hit_accel_pattern is 0, the firmware uses the value
+  // of nplanes_hit_pattern instead.
+  const unsigned int nplanes_hit_pattern_acc =
+    (nplanes_hit_accel_pattern != 0) ? nplanes_hit_accel_pattern :
+    nplanes_hit_pattern;
   const unsigned int pattern_thresh[CSCConstants::NUM_ALCT_PATTERNS] = {
-    nplanes_hit_accel_pattern, nplanes_hit_pattern, nplanes_hit_pattern
+    nplanes_hit_pattern_acc, nplanes_hit_pattern, nplanes_hit_pattern
   };
   const std::string ptn_label[] = {"Accelerator", "CollisionA", "CollisionB"};
 
@@ -967,7 +966,6 @@ void CSCAnodeLCTProcessor::lctSearch() {
       if (quality[i_wire][0] > 0) {
 	int qual = (quality[i_wire][0] & 0x03); // 2 LSBs
 	CSCALCTDigi lct_info(1, qual, 1, 0, i_wire, first_bx[i_wire]);
-	lct_info.setFullBX(fail_oneshot);
 	lct_list.push_back(lct_info);
       }
 
@@ -976,7 +974,6 @@ void CSCAnodeLCTProcessor::lctSearch() {
 	int qual = (quality[i_wire][1] & 0x03); // 2 LSBs
 	CSCALCTDigi lct_info(1, qual, 0, quality[i_wire][2], i_wire,
 			     first_bx[i_wire]);
-	lct_info.setFullBX(fail_oneshot);
 	lct_list.push_back(lct_info);
       }
 
