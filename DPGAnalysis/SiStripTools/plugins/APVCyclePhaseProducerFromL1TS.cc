@@ -223,55 +223,59 @@ APVCyclePhaseProducerFromL1TS::produce(edm::Event& iEvent, const edm::EventSetup
     Handle<Level1TriggerScalersCollection> l1ts;
     iEvent.getByLabel(_l1tscollection,l1ts);
     
+    if(_wantHistos) _hsize->Fill(l1ts->size());
+
     // offset computation
     
     long long orbitoffset = 0;
-    if((*l1ts)[0].lastResync()!=0) {
-      orbitoffset = _useEC0 ? (*l1ts)[0].lastEventCounter0() + _magicOffset : (*l1ts)[0].lastResync() + _magicOffset;
-    }
-    
-    if(_wantHistos) {
-      _hsize->Fill(l1ts->size());
-      _hlresync->Fill((*l1ts)[0].lastResync());
-      _hlOC0->Fill((*l1ts)[0].lastOrbitCounter0());
-      _hlTE->Fill((*l1ts)[0].lastTestEnable());
-      _hlstart->Fill((*l1ts)[0].lastStart());
-      _hlEC0->Fill((*l1ts)[0].lastEventCounter0());
-      _hlHR->Fill((*l1ts)[0].lastHardReset());
-    }
 
-    if(_lastResync != (*l1ts)[0].lastResync()) {
-      _lastResync = (*l1ts)[0].lastResync();
-      if(_wantHistos) _hdlec0lresync->Fill((*l1ts)[0].lastEventCounter0()-(*l1ts)[0].lastResync());
-      LogDebug("TTCSignalReceived") << "New Resync at orbit " << _lastResync ;
-    }
-    if(_lastHardReset != (*l1ts)[0].lastHardReset()) {
-      _lastHardReset = (*l1ts)[0].lastHardReset();
-      if(_wantHistos) _hdlresynclHR->Fill((*l1ts)[0].lastResync()-(*l1ts)[0].lastHardReset());
-      LogDebug("TTCSignalReceived") << "New HardReset at orbit " << _lastHardReset ;
-    }
-    if(_lastTestEnable != (*l1ts)[0].lastTestEnable()) {
-      _lastTestEnable = (*l1ts)[0].lastTestEnable();
-      //      LogDebug("TTCSignalReceived") << "New TestEnable at orbit " << _lastTestEnable ;
-    }
-    if(_lastOrbitCounter0 != (*l1ts)[0].lastOrbitCounter0()) {
-      _lastOrbitCounter0 = (*l1ts)[0].lastOrbitCounter0();
-      LogDebug("TTCSignalReceived") << "New OrbitCounter0 at orbit " << _lastOrbitCounter0 ;
-    }
-    if(_lastEventCounter0 != (*l1ts)[0].lastEventCounter0()) {
-      _lastEventCounter0 = (*l1ts)[0].lastEventCounter0();
-      LogDebug("TTCSignalReceived") << "New EventCounter0 at orbit " << _lastEventCounter0 ;
-    }
-    if(_lastStart != (*l1ts)[0].lastStart()) {
-      _lastStart = (*l1ts)[0].lastStart();
-      LogDebug("TTCSignalReceived") << "New Start at orbit " << _lastStart ;
-    }
+    if(l1ts->size()>0) {
 
-    phasechange = ((long long)(orbitoffset*3564))%70;
-
+      if((*l1ts)[0].lastResync()!=0) {
+	orbitoffset = _useEC0 ? (*l1ts)[0].lastEventCounter0() + _magicOffset : (*l1ts)[0].lastResync() + _magicOffset;
+      }
+      
+      if(_wantHistos) {
+	_hlresync->Fill((*l1ts)[0].lastResync());
+	_hlOC0->Fill((*l1ts)[0].lastOrbitCounter0());
+	_hlTE->Fill((*l1ts)[0].lastTestEnable());
+	_hlstart->Fill((*l1ts)[0].lastStart());
+	_hlEC0->Fill((*l1ts)[0].lastEventCounter0());
+	_hlHR->Fill((*l1ts)[0].lastHardReset());
+      }
+      
+      if(_lastResync != (*l1ts)[0].lastResync()) {
+	_lastResync = (*l1ts)[0].lastResync();
+	if(_wantHistos) _hdlec0lresync->Fill((*l1ts)[0].lastEventCounter0()-(*l1ts)[0].lastResync());
+	LogDebug("TTCSignalReceived") << "New Resync at orbit " << _lastResync ;
+      }
+      if(_lastHardReset != (*l1ts)[0].lastHardReset()) {
+	_lastHardReset = (*l1ts)[0].lastHardReset();
+	if(_wantHistos) _hdlresynclHR->Fill((*l1ts)[0].lastResync()-(*l1ts)[0].lastHardReset());
+	LogDebug("TTCSignalReceived") << "New HardReset at orbit " << _lastHardReset ;
+      }
+      if(_lastTestEnable != (*l1ts)[0].lastTestEnable()) {
+	_lastTestEnable = (*l1ts)[0].lastTestEnable();
+	//      LogDebug("TTCSignalReceived") << "New TestEnable at orbit " << _lastTestEnable ;
+      }
+      if(_lastOrbitCounter0 != (*l1ts)[0].lastOrbitCounter0()) {
+	_lastOrbitCounter0 = (*l1ts)[0].lastOrbitCounter0();
+	LogDebug("TTCSignalReceived") << "New OrbitCounter0 at orbit " << _lastOrbitCounter0 ;
+      }
+      if(_lastEventCounter0 != (*l1ts)[0].lastEventCounter0()) {
+	_lastEventCounter0 = (*l1ts)[0].lastEventCounter0();
+	LogDebug("TTCSignalReceived") << "New EventCounter0 at orbit " << _lastEventCounter0 ;
+      }
+      if(_lastStart != (*l1ts)[0].lastStart()) {
+	_lastStart = (*l1ts)[0].lastStart();
+	LogDebug("TTCSignalReceived") << "New Start at orbit " << _lastStart ;
+      }
+      
+      phasechange = ((long long)(orbitoffset*3564))%70;
+      
+    }
   }
-  
-
+    
 
   if(phases.size() < partnames.size() ) {
     // throw exception
