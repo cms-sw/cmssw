@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.41 2010/07/15 08:31:26 merkelp Exp $
+// $Id: SiPixelDigiSource.cc,v 1.42 2010/07/15 10:21:02 merkelp Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -326,7 +326,6 @@ void SiPixelDigiSource::bookMEs(){
   SiPixelFolderOrganizer theSiPixelFolder;
 
   for(struct_iter = thePixelStructure.begin(); struct_iter != thePixelStructure.end(); struct_iter++){
- 
     /// Create folder tree and book histograms 
     if(modOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first)){
@@ -382,7 +381,14 @@ void SiPixelDigiSource::bookMEs(){
       }
     }
   }
-
+  std::string currDir = theDMBE->pwd();
+  theDMBE->cd("Pixel/Barrel");
+  meNDigisCOMBBarrel_ = theDMBE->book1D("ALLMODS_ndigisCOMB_Barrel","Number of Digis",500,0.,1000.);
+  meNDigisCOMBBarrel_->setAxisTitle("Number of digis per module per event",1);
+  theDMBE->cd("Pixel/Endcap");
+  meNDigisCOMBEndcap_ = theDMBE->book1D("ALLMODS_ndigisCOMB_Endcap","Number of Digis",500,0.,1000.);
+  meNDigisCOMBEndcap_->setAxisTitle("Number of digis per module per event",1);
+  theDMBE->cd(currDir);
 }
 
 //define this as a plug-in
