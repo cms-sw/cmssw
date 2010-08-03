@@ -2,8 +2,8 @@
 #     R. Mankel, DESY Hamburg     03-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
 #
-#     $Revision: 1.22 $
-#     $Date: 2010/04/06 14:08:26 $
+#     $Revision: 1.23 $
+#     $Date: 2010/08/03 11:54:56 $
 #
 #  produce cfg file for merging run
 #
@@ -217,7 +217,7 @@ if ($nn != 1) {
 
 # AP 03.08.2010 - Temporary hack from Jula Draeger et al., in order to run event setup in CMSSW >= 351
 # Set maxevents to one
-$nn = ($body =~ s/process.maxEvents = cms.untracked.PSet\(\n.+?\n +?\)/process.maxEvents = cms.untracked.PSet(\n    input = cms.untracked.int32(1)\n)/);
+$nn = ($body =~ s/ *?process.maxEvents *?= *?cms.untracked.PSet\(.*?\n.+?\n.*?\).*?/process.maxEvents = cms.untracked.PSet(\n    input = cms.untracked.int32(1)\n)/);
 if ($nn != 1) {
   $replaceBlock = "$replaceBlock\nprocess.maxEvents = cms.untracked.PSet(\n    input = cms.untracked.int32(1)\n)";
   print "No process.maxEvents directive found, adding one to replace block\n";
