@@ -8,8 +8,8 @@
  *
  * \author Slava Valuev, UCLA.
  *
- * $Date: 2009/05/20 15:01:34 $
- * $Revision: 1.15 $
+ * $Date: 2010/05/05 13:28:11 $
+ * $Revision: 1.17 $
  *
  */
 
@@ -18,7 +18,7 @@
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <FWCore/ParameterSet/interface/InputTag.h>
+#include <FWCore/Utilities/interface/InputTag.h>
 
 #include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
 
