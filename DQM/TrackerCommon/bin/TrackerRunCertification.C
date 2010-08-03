@@ -2,7 +2,7 @@
 //
 // Package: DQM/TrackerCommon
 //
-// $Id: TrackerRunCertification.C,v 1.2 2010/06/03 20:32:58 vadler Exp $
+// $Id: TrackerRunCertification.C,v 1.3 2010/07/21 19:52:09 vadler Exp $
 //
 /**
   \brief    Performs DQM offline data certification for SiStrip, Pixel and Tracking
@@ -81,7 +81,7 @@
        display this help and exit
 
   \author   Volker Adler
-  \version  $Id: TrackerRunCertification.C,v 1.2 2010/06/03 20:32:58 vadler Exp $
+  \version  $Id: TrackerRunCertification.C,v 1.3 2010/07/21 19:52:09 vadler Exp $
 */
 
 #include <algorithm>
@@ -975,7 +975,8 @@ void certifyRun()
     Bool_t flagReportSummary( fCertificates_[ "PixelReportSummary" ] > maxBad_ );
     Bool_t flagDAQ( ( fCertificates_[ "DAQPixelBarrelFraction" ] == ( Double_t )EXCL || fCertificates_[ "DAQPixelBarrelFraction" ] > 0. ) &&  ( fCertificates_[ "DAQPixelEndcapFraction" ] == ( Double_t )EXCL || fCertificates_[ "DAQPixelEndcapFraction" ] > 0. ) ); // unidentified bug in Pixel DAQ fraction determination
     Bool_t flagDCS( fCertificates_[ "PixelDCSSummary" ] == ( Double_t )EXCL || fCertificates_[ "PixelDCSSummary" ] > maxBad_ );
-    Bool_t flagDQM( flagReportSummary * flagDAQ * flagDCS );
+//     Bool_t flagDQM( flagReportSummary * flagDAQ * flagDCS );
+    Bool_t flagDQM( flagDCS ); // bugs in DAQ fraction and report summary
     Bool_t flagCert( iFlagsRRTracker_[ sSubSys_[ Pixel ] ] );
 //     iFlags[ sSubSys_[ Pixel ] ] = ( Int_t )( flagDQM * bPixelOn_ * flagCert );
     iFlags[ sSubSys_[ Pixel ] ] = ( Int_t )( flagDQM * flagCert );
