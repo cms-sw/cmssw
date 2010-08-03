@@ -1,8 +1,0 @@
-<use name=TrackingTools/TransientTrack>
-<use name=TrackingTools/GeomPropagators>
-<export>
- <lib name=RecoVertexKinematicFitPrimitives>
- <use name=RecoVertex/VertexPrimitives>
-</export>
-
-<use name=RecoVertex/VertexPrimitives>
