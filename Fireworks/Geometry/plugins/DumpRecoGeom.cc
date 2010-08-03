@@ -48,10 +48,10 @@ private:
   void addRPCGeometry( TGeoVolume* top, const std::string& name = "RPC", int copy = 1 );
   void addPixelBarrelGeometry( TGeoVolume* top, const std::string& name = "PixelBarrel", int copy = 1 );
   void addPixelForwardGeometry( TGeoVolume* top, const std::string& name = "PixelForward", int copy = 1 );
-  void addTIBGeometry( TGeoVolume* top, const std::string& name = "tib:TIB", int copy = 1 );
-  void addTOBGeometry( TGeoVolume* top, const std::string& name = "tob:TOB", int copy = 1 );
-  void addTIDGeometry( TGeoVolume* top, const std::string& name = "tid:TID", int copy = 1 );
-  void addTECGeometry( TGeoVolume* top, const std::string& name = "tec:TEC", int copy = 1 );
+  void addTIBGeometry( TGeoVolume* top, const std::string& name = "TIB", int copy = 1 );
+  void addTOBGeometry( TGeoVolume* top, const std::string& name = "TOB", int copy = 1 );
+  void addTIDGeometry( TGeoVolume* top, const std::string& name = "TID", int copy = 1 );
+  void addTECGeometry( TGeoVolume* top, const std::string& name = "TEC", int copy = 1 );
   void addCaloGeometry( void );
   
   int m_level;
@@ -126,13 +126,10 @@ DumpRecoGeom::analyze( const edm::Event& event, const edm::EventSetup& eventSetu
     gGeoIdentity = new TGeoIdentity( "Identity" );
   }
 
-  // Default material is air
-  TGeoMaterial *material = geom->GetMaterial( "Air" );
+  // Default material is Vacuum
   TGeoMaterial *matVacuum = new TGeoMaterial( "Vacuum", 0 ,0 ,0 );
   // so is default medium
-  TGeoMedium *medium = new TGeoMedium( "Air", 1, material );
   TGeoMedium *vacuum = new TGeoMedium( "Vacuum", 1, matVacuum );
-//   TGeoVolume* top = geom->MakeTube( "CMS", medium, 0., 7.5, 30. );
   TGeoVolume *top = geom->MakeBox( "CMS", vacuum, 270., 270., 120. );
   
   if( 0 == top )
@@ -428,7 +425,7 @@ DumpRecoGeom::addCSCGeometry( TGeoVolume* top, const std::string& iName, int cop
       m_idToName[rawid].topology[5] = stripTopology->angularWidth();
 
       const CSCWireTopology* wireTopology = layer->geometry()->wireTopology();
-      m_idToName[rawid].topology[6] = wireTopology->numberOfWires();
+      m_idToName[rawid].topology[6] = wireTopology->wireSpacing();
       m_idToName[rawid].topology[7] = wireTopology->wireAngle();
     }
   }
