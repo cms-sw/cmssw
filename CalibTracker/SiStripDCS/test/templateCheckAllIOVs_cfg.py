@@ -75,7 +75,8 @@ process.poolDBESSource = cms.ESSource("PoolDBESSource",
     ))
 )
 
-process.reader = cms.EDFilter("SiStripDetVOffDummyPrinter")
+#Change the EDFilter into EDAnalyzer as requested by CMSSW since 3_8_0...
+process.reader = cms.EDAnalyzer("SiStripDetVOffDummyPrinter")
                               
 process.p1 = cms.Path(process.reader)
 

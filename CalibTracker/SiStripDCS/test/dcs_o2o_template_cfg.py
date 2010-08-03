@@ -27,6 +27,8 @@ process.load("CalibTracker.SiStripDCS.MessLogger_cfi")
 #   Partitions
 # -----------------------------------------------------------------------------
 
+#This is not currently used in the O2O code, an ASCII file with the map is used instead...
+#Will eventually get rid of it completely...
 process.SiStripConfigDb = cms.Service("SiStripConfigDb",
     ConfDb = cms.untracked.string('cms_trk_r/PASSWORD@cms_omds_tunnel'),
     TNS_ADMIN = cms.untracked.string('/exports/slc4/CMSSW/Development/Users/gbenelli/connection_files'),
@@ -102,9 +104,13 @@ process.CondDBCommon.connect = cms.string('oracle://cms_omds_tunnel/CMS_TRK_R')
 process.SiStripDetVOffBuilder = cms.Service(
     "SiStripDetVOffBuilder",
     onlineDB = cms.string('oracle://cms_omds_tunnel/CMS_TRK_R'),
+    #EDIT here with your favorite connection_files directory!
     #authPath = cms.string('/opt/cmssw/shifter/o2o_dcs/connection_files'),
-    authPath = cms.string('/exports/slc4/CMSSW/Development/Users/gbenelli/connection_files'),
+    #authPath = cms.string('/exports/slc4/CMSSW/Development/Users/gbenelli/connection_files'),
+    authPath = cms.string('/afs/cern.ch/user/g/gbenelli/O2O/connection_files'),
 
+    #The Tmin and Tmax indicated here drive the ManualO2O.py script setting the overall interval
+    #By default this is broken into 1 hour O2O jobs (1 cmsRun cfg per hour interval)
     # Format for date/time vector:  year, month, day, hour, minute, second, nanosecond      
     Tmin = cms.untracked.vint32(2009, 11, 23,  4,  0, 0, 000),
     Tmax = cms.untracked.vint32(2009, 11, 23,  16,  0, 0, 000),
@@ -123,16 +129,28 @@ process.SiStripDetVOffBuilder = cms.Service(
     
     # flag to toggle debug output
     debugModeOn = cms.bool(False),
+
     
     # DetIdFile
+    #Remember to change this to a Pixel list if you are testing the O2O code with Pixels before
+    #the proper migration is done...
     DetIdListFile = cms.string('CalibTracker/SiStripCommon/data/SiStripDetInfo.dat'),
 
     # Threshold to consider an HV channel on
     HighVoltageOnThreshold = cms.double(0.97),
 
     # Leave empty if you want to use the db
-    PsuDetIdMapFile = cms.string("CalibTracker/SiStripDCS/data/PsuDetIdMap.dat"),
-    ExcludedDetIdListFile = cms.string('CalibTracker/SiStripDCS/data/ExcludedSiStripDetInfo.dat')
+    #Pick your map carefully!
+    #It changed on Jan 13th 2010 with the doubling of the mainframes, so for dates before that
+    #use the committed StripPsuDetIdMapDecember.dat:
+    #PsuDetIdMapFile = cms.string("CalibTracker/SiStripDCS/data/StripPsuDetIdMapDecember.dat"),
+    PsuDetIdMapFile = cms.string("CalibTracker/SiStripDCS/data/StripPsuDetIdMap.dat"),
+    #In case of tests with Pixel detId maps:
+    #PsuDetIdMapFile = cms.string("CalibTracker/SiStripDCS/data/PixelPsuDetIdMap.dat"),
+    #In case of modules that need to be excluded for whatever reason use the appropriate map like:
+    #ExcludedDetIdListFile = cms.string('CalibTracker/SiStripDCS/data/ExcludedSiStripDetInfo.dat')
+    #In principle there should be no excluded modules though:
+    ExcludedDetIdListFile = cms.string('') 
 )
 
 # -----------------------------------------------------------------------------

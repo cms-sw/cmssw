@@ -58,7 +58,8 @@ SiStripDetVOffBuilder::SiStripDetVOffBuilder(const edm::ParameterSet& pset, cons
      << "     Parameters:\n" 
      << "     DB connection string: " << onlineDbConnectionString << "\n"
      << "     Authentication path: "  << authenticationPath       << "\n"
-     << "     Table to be queried: "  << whichTable               << "\n";
+     << "     Table to be queried: "  << whichTable               << "\n"
+     << "     MapFile: "  << psuDetIdMapFile_                << "\n";
   
   if (whichQuery){
     ss << "     Tmin: "; printPar(ss,tmin_par);  ss << std::endl;
