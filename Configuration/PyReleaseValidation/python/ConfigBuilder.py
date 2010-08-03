@@ -1,11 +1,12 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.192 $"
+__version__ = "$Revision: 1.193 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Modules import _Module 
 import sys
+import re
 
 class Options:
         pass
@@ -142,7 +143,8 @@ class ConfigBuilder(object):
                 self.process.source.inputCommands = cms.untracked.vstring('drop *','keep *_generator_*_*','keep *_g4SimHits_*_*')
                 self.process.source.dropDescendantsOfDroppedBranches=cms.untracked.bool(False)
 		
-            evt_type = self._options.evt_type.rstrip(".py").replace(".","_")
+            evt_type = re.sub(r'\.py$', '', self._options.evt_type)
+            evt_type = evt_type.replace(".","_")
             if "/" in evt_type:
                 evt_type = evt_type.replace("python/","")
                 evt_type = evt_type.replace("/",".")
@@ -278,7 +280,7 @@ class ConfigBuilder(object):
 
    
         # what steps are provided by this class?
-        stepList = [methodName.lstrip("prepare_") for methodName in ConfigBuilder.__dict__ if methodName.startswith('prepare_')]
+        stepList = [re.sub(r'^prepare_', '', methodName) for methodName in ConfigBuilder.__dict__ if methodName.startswith('prepare_')]
 
         ### Benedikt can we add here a check that assure that we are going to generate a correct config file?
         ### i.e. the harvesting do not have to include other step......
@@ -345,7 +347,7 @@ class ConfigBuilder(object):
         package = sys.modules[packageName]
 
         # now ask the package for its definition and pick .py instead of .pyc
-        customiseFile = package.__file__.rstrip("c")
+        customiseFile = re.sub(r'\.pyc$', '.py', package.__file__)
         
         final_snippet='\n\n# Automatic addition of the customisation function\n'
         for line in file(customiseFile,'r'):
@@ -925,7 +927,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.192 $"),
+              (version=cms.untracked.string("$Revision: 1.193 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
