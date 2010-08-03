@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: ValidateGeometry.cc,v 1.11 2010/07/29 15:53:51 mccauley Exp $
+// $Id: ValidateGeometry.cc,v 1.12 2010/08/02 14:32:36 mccauley Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -626,31 +626,42 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
 
       double alignmentPinToFirstWire;
       double yAlignmentFrame;
- 
-      if ( station == 1 && ring == 4 )
+   
+      if ( station == 1 ) 
       {
-        std::cout<<"ME1a not handled yet"<<std::endl;
-        continue;
-      }
-     
-      if ( station == 1 && ring == 1 )
-      {
-        alignmentPinToFirstWire = 1.065;
         yAlignmentFrame = 0.0;
+ 
+        if ( ring == 1 || ring == 4 )
+          alignmentPinToFirstWire = 1.065;
+        else
+          alignmentPinToFirstWire = 2.85;
       }
-      else
+      
+      else if ( station == 4 && ring == 1 )
       {
-        alignmentPinToFirstWire = 2.90;
+        alignmentPinToFirstWire = 3.04;
+        yAlignmentFrame = 3.49;
+      }
+      
+      else if ( station == 3 && ring == 1 )
+      {
+        alignmentPinToFirstWire =  2.84;
+        yAlignmentFrame = 3.49;
+      }
+      
+      else  
+      {
+        alignmentPinToFirstWire = 2.87;
         yAlignmentFrame = 3.49;
       }
 
-      double yOfFirstWire = yAlignmentFrame + alignmentPinToFirstWire;
+      double yOfFirstWire = (yAlignmentFrame-length) + alignmentPinToFirstWire;
               
       for ( int nWireGroup = 1; nWireGroup <= layer->geometry()->numberOfWireGroups(); 
             ++nWireGroup )
       {
-        float lengthOfWireGroup = layer->geometry()->lengthOfWireGroup(nWireGroup);
-        
+        //double lengthOfWireGroup = layer->geometry()->lengthOfWireGroup(nWireGroup);
+
         for ( int nWire = 1; nWire <= layer->geometry()->numberOfWiresPerGroup(nWireGroup);
               ++nWire )
         {    
@@ -658,10 +669,8 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
 
           double yOfWire2 = yOfFirstWire*cosWireAngle + (nWire-1)*wireSpacing;
           yOfWire2 /= cosWireAngle;
-          yOfWire2 -= length;
 
           wire_positions.push_back(yOfWire1-yOfWire2);
-
         }
       } 
     }
