@@ -8,6 +8,7 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h" // for eta bounds
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 // constructor
 HcalCoarsePedestalMonitor::HcalCoarsePedestalMonitor(const edm::ParameterSet& ps) 
