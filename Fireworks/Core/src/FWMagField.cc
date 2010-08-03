@@ -6,8 +6,7 @@
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/Common/interface/ConditionsInEdm.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
-
-
+#include "DataFormats/FWLite/interface/Event.h"
 
 FWMagField::FWMagField() :
    TEveMagField(),
