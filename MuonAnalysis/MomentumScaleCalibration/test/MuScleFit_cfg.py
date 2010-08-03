@@ -397,6 +397,8 @@ process.looper = cms.Looper(
     # Negate the result of the trigger
     NegateTrigger = cms.untracked.bool(False),
 
+    # Set to true to save also the empty pairs (default is False)
+    SaveAllToTree = cms.untracked.bool(False),
 )
 
 # Timing information

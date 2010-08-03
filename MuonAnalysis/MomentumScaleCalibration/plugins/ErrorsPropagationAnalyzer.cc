@@ -14,7 +14,11 @@ ErrorsPropagationAnalyzer::ErrorsPropagationAnalyzer(const edm::ParameterSet& iC
   etaBins_( iConfig.getParameter<int>("EtaBins") ),
   etaMin_( iConfig.getParameter<double>("EtaMin") ),
   etaMax_( iConfig.getParameter<double>("EtaMax") ),
-  debug_( iConfig.getParameter<bool>("Debug") )
+  debug_( iConfig.getParameter<bool>("Debug") ),
+  ptMinCut_( iConfig.getUntrackedParameter<double>("PtMinCut", 0.) ),
+  ptMaxCut_( iConfig.getUntrackedParameter<double>("PtMaxCut", 999999.) ),
+  etaMinCut_( iConfig.getUntrackedParameter<double>("EtaMinCut", 0.) ),
+  etaMaxCut_( iConfig.getUntrackedParameter<double>("EtaMaxCut", 100.) )
 {
   parameters_ = iConfig.getParameter<std::vector<double> >("Parameters");
   errors_ = iConfig.getParameter<std::vector<double> >("Errors");
@@ -217,6 +221,8 @@ void ErrorsPropagationAnalyzer::fillHistograms()
     if( debug_ ) {
       std::cout << "pt1 = " << pt1 << ", eta1 = " << eta1 << ", pt2 = " << pt2 << ", eta2 = " << eta2 << std::endl;
     }
+    double fabsEta1 = fabs(eta1);
+    double fabsEta2 = fabs(eta2);
 
     if( pt1 == 0 && pt2 == 0 && eta1 == 0 && eta2 == 0 ) continue;
 
@@ -267,41 +273,41 @@ void ErrorsPropagationAnalyzer::fillHistograms()
     // std::cout << "sigmaPtPlusErr1 = " << sigmaPtPlusErr1 << ", sigmaPtMinusErr2 = " << sigmaPtMinusErr2 << std::endl;
     // std::cout << "sigmaPtMinusErr1 = " << sigmaPtPlusErr1 << ", sigmaPtMinusErr2 = " << sigmaPtMinusErr2 << std::endl;
 
-    sigmaPtVsPt_->Fill(pt1, sigmaPt1);
-    sigmaPtVsPt_->Fill(pt2, sigmaPt2);
-    sigmaPtVsPtPlusErr_->Fill(pt1, sigmaPtPlusErr1);
-    sigmaPtVsPtPlusErr_->Fill(pt2, sigmaPtPlusErr2);
-    sigmaPtVsPtMinusErr_->Fill(pt1, sigmaPtMinusErr1);
-    sigmaPtVsPtMinusErr_->Fill(pt2, sigmaPtMinusErr2);
 
-    sigmaPtVsEta_->Fill(eta1, sigmaPt1);
-    sigmaPtVsEta_->Fill(eta2, sigmaPt2);
-    sigmaPtVsEtaPlusErr_->Fill(eta1, sigmaPtPlusErr1);
-    sigmaPtVsEtaPlusErr_->Fill(eta2, sigmaPtPlusErr2);
-    sigmaPtVsEtaMinusErr_->Fill(eta1, sigmaPtMinusErr1);
-    sigmaPtVsEtaMinusErr_->Fill(eta2, sigmaPtMinusErr2);
+    if( (pt1 >= ptMinCut_ && pt1 <= ptMaxCut_) && (fabs(eta1) >= etaMinCut_ && fabs(eta1) <= etaMaxCut_) ) {
+      sigmaPtVsPt_->Fill(pt1, sigmaPt1);
+      sigmaPtVsPtPlusErr_->Fill(pt1, sigmaPtPlusErr1);
+      sigmaPtVsPtMinusErr_->Fill(pt1, sigmaPtMinusErr1);
+      sigmaPtVsPtDiff_->Fill(pt1, sigmaPtDiff.squaredDiff(eta1));
+      sigmaMassVsPt_->Fill(pt1, sigmaMass);
+      sigmaMassVsPtPlusErr_->Fill(pt1, sigmaMassPlusErr);
+      sigmaMassVsPtMinusErr_->Fill(pt1, sigmaMassMinusErr);
 
+      sigmaPtVsEta_->Fill(eta1, sigmaPt1);
+      sigmaPtVsEtaPlusErr_->Fill(eta1, sigmaPtPlusErr1);
+      sigmaPtVsEtaMinusErr_->Fill(eta1, sigmaPtMinusErr1);
+      sigmaPtVsEtaDiff_->Fill(eta1, sigmaPtDiff.squaredDiff(eta1));
+      sigmaMassVsEta_->Fill(eta1, sigmaMass);
+      sigmaMassVsEtaPlusErr_->Fill(eta1, sigmaMassPlusErr);
+      sigmaMassVsEtaMinusErr_->Fill(eta1, sigmaMassMinusErr);
+    }
+    if( (pt2 >= ptMinCut_ && pt2 <= ptMaxCut_) && (fabs(eta2) >= etaMinCut_ && fabs(eta2) <= etaMaxCut_) ) {
+      sigmaPtVsPt_->Fill(pt2, sigmaPt2);
+      sigmaPtVsPtPlusErr_->Fill(pt2, sigmaPtPlusErr2);
+      sigmaPtVsPtMinusErr_->Fill(pt2, sigmaPtMinusErr2);
+      sigmaPtVsPtDiff_->Fill(pt2, sigmaPtDiff.squaredDiff(eta2));
+      sigmaMassVsPt_->Fill(pt2, sigmaMass);
+      sigmaMassVsPtPlusErr_->Fill(pt2, sigmaMassPlusErr);
+      sigmaMassVsPtMinusErr_->Fill(pt2, sigmaMassMinusErr);
 
-    
-    sigmaPtVsPtDiff_->Fill(pt1, sigmaPtDiff.squaredDiff(eta1));
-    sigmaPtVsPtDiff_->Fill(pt2, sigmaPtDiff.squaredDiff(eta2));
-    sigmaPtVsEtaDiff_->Fill(eta1, sigmaPtDiff.squaredDiff(eta1));
-    sigmaPtVsEtaDiff_->Fill(eta2, sigmaPtDiff.squaredDiff(eta2));
-
-
-    sigmaMassVsPt_->Fill(pt1, sigmaMass);
-    sigmaMassVsPt_->Fill(pt2, sigmaMass);
-    sigmaMassVsPtPlusErr_->Fill(pt1, sigmaMassPlusErr);
-    sigmaMassVsPtPlusErr_->Fill(pt2, sigmaMassPlusErr);
-    sigmaMassVsPtMinusErr_->Fill(pt1, sigmaMassMinusErr);
-    sigmaMassVsPtMinusErr_->Fill(pt2, sigmaMassMinusErr);
-
-    sigmaMassVsEta_->Fill(eta1, sigmaMass);
-    sigmaMassVsEta_->Fill(eta2, sigmaMass);
-    sigmaMassVsEtaPlusErr_->Fill(eta1, sigmaMassPlusErr);
-    sigmaMassVsEtaPlusErr_->Fill(eta2, sigmaMassPlusErr);
-    sigmaMassVsEtaMinusErr_->Fill(eta1, sigmaMassMinusErr);
-    sigmaMassVsEtaMinusErr_->Fill(eta2, sigmaMassMinusErr);
+      sigmaPtVsEta_->Fill(eta2, sigmaPt2);
+      sigmaPtVsEtaPlusErr_->Fill(eta2, sigmaPtPlusErr2);
+      sigmaPtVsEtaMinusErr_->Fill(eta2, sigmaPtMinusErr2);
+      sigmaPtVsEtaDiff_->Fill(eta2, sigmaPtDiff.squaredDiff(eta2));
+      sigmaMassVsEta_->Fill(eta2, sigmaMass);
+      sigmaMassVsEtaPlusErr_->Fill(eta2, sigmaMassPlusErr);
+      sigmaMassVsEtaMinusErr_->Fill(eta2, sigmaMassMinusErr);
+    }
   }
 }
 

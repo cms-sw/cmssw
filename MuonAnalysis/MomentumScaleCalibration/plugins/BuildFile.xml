@@ -14,6 +14,8 @@
 <use   name="CondFormats/PhysicsToolsObjects"/>
 <use   name="DataFormats/PatCandidates"/>
 <use   name="HLTrigger/HLTcore"/>
+<use   name="PhysicsTools/UtilAlgos"/>
+<use   name="FWCore/ServiceRegistry"/>
 <use   name="hepmc"/>
 <use   name="heppdt"/>
 <use   name="CLHEP"/>

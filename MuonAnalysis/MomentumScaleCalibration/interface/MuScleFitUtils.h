@@ -5,8 +5,8 @@
  *
  *  Provide basic functionalities useful for MuScleFit
  *
- *  $Date: 2010/05/25 10:26:05 $
- *  $Revision: 1.23 $
+ *  $Date: 2010/06/21 15:20:19 $
+ *  $Revision: 1.24 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo - INFN Padova
  */
 
@@ -221,6 +221,8 @@ public:
   static bool rapidityBinsForZ_;
 
   static int iev_;
+
+  static bool useProbsFile_;
 
   // Cuts on the muons to use in the fit
   static double minMuonPt_;

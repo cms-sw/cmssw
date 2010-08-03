@@ -1188,7 +1188,6 @@ public:
   }
 };
 
-
 // Built for the first 100/nb of J/Psi in data
 // It has eta dependent corrections only for |eta| > parScale[6] and separate parabolic corrections for eta > 0 or < 0. 
 template <class T>
@@ -1234,6 +1233,79 @@ public:
     }
   }
 };
+
+
+
+// Built for the first 100/nb of J/Psi in data
+// It has eta dependent corrections only for |eta| > parScale[6] and separate parabolic corrections for eta > 0 or < 0. 
+template <class T>
+class scaleFunctionType27 : public scaleFunctionBase<T> {
+public:
+  scaleFunctionType27() { this->parNum_ = 13; }
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
+    double ptPart = parScale[0] + parScale[1]*pt;
+    double fabsEta = fabs(eta);
+
+    if( fabsEta > parScale[12] ) {
+      if( eta > 0 ) {
+	return( (ptPart+parScale[2]+
+		 parScale[3]*(fabsEta - parScale[5]) +
+		 parScale[4]*(fabsEta - parScale[5])*(fabsEta - parScale[5]))*pt );
+      }
+      else {
+	return( (ptPart+parScale[6]+
+		 parScale[7]*(fabsEta - parScale[9]) +
+		 parScale[8]*(fabsEta - parScale[9])*(fabsEta - parScale[9]))*pt );
+      }
+    }
+    return( (ptPart + parScale[10]*fabsEta + parScale[11]*eta*eta)*pt );
+  }
+  // Fill the scaleVec with neutral parameters
+  virtual void resetParameters(std::vector<double> * scaleVec) const {
+    scaleVec->push_back(1);
+    for( int i=1; i<this->parNum_; ++i ) {
+      scaleVec->push_back(0);
+    }
+  }
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const std::vector<int> & parScaleOrder, const int muonType) {
+    double thisStep[] = {0.00001, 0.000001,
+			 0.000001, 0.0000001, 0.0000001, 0.0000001,
+			 0.000001, 0.0000001, 0.0000001, 0.0000001,
+			 0.0000001, 0.0000001,
+			 0.00001};
+    TString thisParName[] = {"Pt offset", "Pt slope",
+			     "Eta shift pos eta", "Eta slope pos eta", "Eta quadr pos eta", "Eta center pos eta",
+			     "Eta shift neg eta", "Eta slope neg eta", "Eta quadr neg eta", "Eta center neg eta",
+			     "Eta splope barrel", "Eta quadr barrel",
+			     "Eta corr region"};
+    if( muonType == 1 ) {
+      double thisMini[] = {0.9, -0.3,
+			   -0.3, -0.3, -0.3, -0.3,
+			   -0.3, -0.3, -0.3, -0.3,
+			   -0.3, -0.3,
+			   0.};
+      double thisMaxi[] = {1.1, 0.3,
+			   0.3, 0.3, 0.3, 0.3,
+			   0.3, 0.3, 0.3, 0.3,
+			   0.3, 0.3,
+			   0.3};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
+    } else {
+      double thisMini[] = {0.9, -0.002,
+			   -0.01, -0.01, -0.005, 0.,
+			   -0.01, -0.01, -0.005, 0.,
+			   -0.01, -0.005,
+			   0.};
+      double thisMaxi[] = {1.1,  0.002,
+			   0.01, 0.01, 0.005, 2.4,
+			   0.01, 0.01, 0.005, 2.4,
+			   0.01, 0.005,
+			   2.4};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
+    }
+  }
+};
+
 
 
 /// Service to build the scale functor corresponding to the passed identifier
@@ -2385,7 +2457,7 @@ class resolutionFunctionType20 : public resolutionFunctionBase<T> {
 			      // "Phi res. sc.", "Phi res. 1/Pt sc.", "Phi res. Eta sc.", "Phi res. Eta^2 sc." };
     double thisMini[] = { 0.8, -0.1,
                           0., 0., 0., 0.,
-                          1.4,
+                          1.0,
                           -0.1, 0. };
     if( muonType == 1 ) {
       double thisMaxi[] = { 1., 1., 1., 1.,

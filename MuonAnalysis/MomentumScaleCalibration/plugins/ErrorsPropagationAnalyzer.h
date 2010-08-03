@@ -16,7 +16,7 @@
 //
 // Original Author:  Marco De Mattia
 //         Created:  Thu Sep 11 12:16:00 CEST 2008
-// $Id: ErrorsPropagationAnalyzer.h,v 1.4 2010/05/28 08:47:44 demattia Exp $
+// $Id: ErrorsPropagationAnalyzer.h,v 1.1 2010/07/13 11:02:16 demattia Exp $
 //
 //
 
@@ -71,6 +71,8 @@ private:
   double etaMin_;
   double etaMax_;
   bool debug_;
+
+  double ptMinCut_, ptMaxCut_, etaMinCut_, etaMaxCut_;
 
   std::vector<double> parameters_;
   std::vector<double> errors_;

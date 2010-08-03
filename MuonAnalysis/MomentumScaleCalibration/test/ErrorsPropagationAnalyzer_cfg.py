@@ -91,6 +91,12 @@ process.ErrorsPropagationAnalyzerModule = cms.EDAnalyzer(
     EtaMin = cms.double(-3.),
     EtaMax = cms.double(3.),
     
+    # Optionally configure cuts on pt and eta of the muons used to fill the histograms
+    PtMinCut = cms.untracked.double(0.),
+    PtMaxCut = cms.untracked.double(999999.),
+    EtaMinCut = cms.untracked.double(0.),
+    EtaMaxCut = cms.untracked.double(100.),
+
     Debug = cms.bool(False),
 )
 

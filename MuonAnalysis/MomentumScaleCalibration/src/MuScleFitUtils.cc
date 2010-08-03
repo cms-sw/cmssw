@@ -1,7 +1,7 @@
 /** See header file for a class description
  *
- *  $Date: 2010/06/21 15:20:29 $
- *  $Revision: 1.39 $
+ *  $Date: 2010/07/20 09:42:27 $
+ *  $Revision: 1.40 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -228,6 +228,8 @@ bool MuScleFitUtils::scaleFitNotDone_ = true;
 
 bool MuScleFitUtils::sherpa_ = false;
 
+bool MuScleFitUtils::useProbsFile_ = true;
+
 bool MuScleFitUtils::rapidityBinsForZ_ = true;
 
 double MuScleFitUtils::minMuonPt_ = 0.;
@@ -325,34 +327,43 @@ std::pair<lorentzVector,lorentzVector> MuScleFitUtils::findBestRecoRes( const st
           eta1 > minMuonEtaSecondRange_ && eta1 < maxMuonEtaSecondRange_ &&
           eta2 > minMuonEtaSecondRange_ && eta2 < maxMuonEtaSecondRange_ ) {
         double mcomb = ((*Muon1).p4()+(*Muon2).p4()).mass();
-        double Y = ((*Muon1).p4()+(*Muon2).p4()).Rapidity();
-        if (debug>1) {
-          std::cout<<"muon1 "<<(*Muon1).p4().Px()<<", "<<(*Muon1).p4().Py()<<", "<<(*Muon1).p4().Pz()<<", "<<(*Muon1).p4().E()<<std::endl;
-          std::cout<<"muon2 "<<(*Muon2).p4().Px()<<", "<<(*Muon2).p4().Py()<<", "<<(*Muon2).p4().Pz()<<", "<<(*Muon2).p4().E()<<std::endl;
-          std::cout<<"mcomb "<<mcomb<<std::endl;}
-        double massResol = massResolution ((*Muon1).p4(), (*Muon2).p4(), parResol);
-        double prob;
-        for( int ires=0; ires<6; ires++ ) {
-          if( resfind[ires]>0 ) {
-            prob = massProb( mcomb, Y, ires, massResol );
-            if( prob>maxprob ) {
-              if( (*Muon1).charge()<0 ) { // store first the mu minus and then the mu plus
-                recMuFromBestRes.first = (*Muon1).p4();
-                recMuFromBestRes.second = (*Muon2).p4();
-              } else {
-                recMuFromBestRes.first = (*Muon2).p4();
-                recMuFromBestRes.second = (*Muon1).p4();
-              }
-              ResFound = true; // NNBB we accept "resonances" even outside mass bounds
-              maxprob = prob;
-            }
-            double deltaMass = fabs(mcomb-ResMass[ires]);
-            if( deltaMass<minDeltaMass ){
-              bestMassMuons = std::make_pair((*Muon1),(*Muon2));
-              minDeltaMass = deltaMass;
-            }
-          }
-        }
+	double Y = ((*Muon1).p4()+(*Muon2).p4()).Rapidity();
+	if (debug>1) {
+	  std::cout<<"muon1 "<<(*Muon1).p4().Px()<<", "<<(*Muon1).p4().Py()<<", "<<(*Muon1).p4().Pz()<<", "<<(*Muon1).p4().E()<<std::endl;
+	  std::cout<<"muon2 "<<(*Muon2).p4().Px()<<", "<<(*Muon2).p4().Py()<<", "<<(*Muon2).p4().Pz()<<", "<<(*Muon2).p4().E()<<std::endl;
+	  std::cout<<"mcomb "<<mcomb<<std::endl;}
+	double massResol = 0.;
+	if( useProbsFile_ ) {
+	  massResol = massResolution ((*Muon1).p4(), (*Muon2).p4(), parResol);
+	}
+	double prob = 0;
+	for( int ires=0; ires<6; ires++ ) {
+	  if( resfind[ires]>0 ) {
+	    if( useProbsFile_ ) {
+	      prob = massProb( mcomb, Y, ires, massResol );
+	    }
+	    if( prob>maxprob ) {
+	      if( (*Muon1).charge()<0 ) { // store first the mu minus and then the mu plus
+		recMuFromBestRes.first = (*Muon1).p4();
+		recMuFromBestRes.second = (*Muon2).p4();
+	      } else {
+		recMuFromBestRes.first = (*Muon2).p4();
+		recMuFromBestRes.second = (*Muon1).p4();
+	      }
+	      ResFound = true; // NNBB we accept "resonances" even outside mass bounds
+	      maxprob = prob;
+	    }
+	    // if( ResMass[ires] == 0 ) {
+	    //   std::cout << "Error: ResMass["<<ires<<"] = " << ResMass[ires] << std::endl;
+	    //   exit(1);
+	    // }
+	    double deltaMass = fabs(mcomb-ResMass[ires])/ResMass[ires];
+	    if( deltaMass<minDeltaMass ){
+	      bestMassMuons = std::make_pair((*Muon1),(*Muon2));
+	      minDeltaMass = deltaMass;
+	    }
+	  }
+	}
       }
     }
   }
@@ -368,7 +379,6 @@ std::pair<lorentzVector,lorentzVector> MuScleFitUtils::findBestRecoRes( const st
       recMuFromBestRes.first = bestMassMuons.second.p4();
     }
   }
-
   return recMuFromBestRes;
 }
 
