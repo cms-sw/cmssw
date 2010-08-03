@@ -2,6 +2,8 @@
 ----------------------------------------------------------------------*/
 #include <cassert>
 #include <cstring>
+#include <sys/time.h>
+#include <iomanip>
 #include "PrincipalCache.h"
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
@@ -390,13 +392,27 @@ namespace edm {
   void
   InputSource::issueReports(EventID const& eventID, LuminosityBlockNumber_t const& lumi) {
     if(edm::isInfoEnabled()) {
-      time_t t = time(0);
-      char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
-      strftime(ts, strlen(ts) + 1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t));
+      //time_t t = time(0);
+      struct timeval tv;
+      struct timezone tz;
+      gettimeofday(&tv, &tz);
+      char ts[] = "dd-Mon-yyyy hh:mm:ss.000 TZN     ";
+      strftime(ts, strlen(ts) + 1, "%d-%b-%Y %H:%M:%S. %Z", localtime(&(tv.tv_sec)));
+      const char* formatedTime = ts;
+      const char* formatedTimeZone = 0;
+      unsigned int offset = 20;
+      if('.' != ts[offset]) {
+        offset = 0;
+        for(const char* p = ts; *p != '.' && *p != 0; ++p,++offset);
+      }
+      ts[offset]=0;
+      formatedTimeZone = ts+offset+1;
+
       LogVerbatim("FwkReport") << "Begin processing the " << readCount_
                                << suffix(readCount_) << " record. Run " << eventID.run()
                                << ", Event " << eventID.event()
-                               << ", LumiSection " << lumi<< " at " << ts;
+                               << ", LumiSection " << lumi
+                               << " at " <<formatedTime<<"."<< std::setfill('0')<<std::setw(3)<<tv.tv_usec/1000<<formatedTimeZone;
     }
     // At some point we may want to initiate checkpointing here
   }
