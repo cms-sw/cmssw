@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.19 $
- *  $Date: 2010/02/23 13:10:25 $
+ *  $Revision: 1.20 $
+ *  $Date: 2010/02/25 18:44:13 $
  *  (last update by $Author: frmeier $)
  */
 
@@ -22,6 +22,15 @@
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
 #include "Alignment/CommonAlignmentParametrization/interface/FrameToFrameDerivative.h"
+
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+const int kBPIX = PixelSubdetector::PixelBarrel;
+const int kFPIX = PixelSubdetector::PixelEndcap;
 
 #include <TProfile2D.h>
 #include <TFile.h>
@@ -81,9 +90,28 @@ bool MillePedeMonitor::init(TDirectory *directory)
   myTrackHists1D.push_back(new TH1F("pTrack",  "p(track);p [GeV]",
 				    kNumBins, binsPt[0], 1.3*binsPt[kNumBins]));
   myTrackHists1D.push_back(new TH1F("etaTrack", "#eta(track);#eta", 26, -2.6, 2.6));
+  myTrackHists1D.push_back(new TH1F("thetaTrack", "#theta(track);#theta", 100, 0., TMath::Pi()));
   myTrackHists1D.push_back(new TH1F("phiTrack", "#phi(track);#phi", 15, -TMath::Pi(), TMath::Pi()));
 
-  myTrackHists1D.push_back(new TH1F("nHitTrack", "N_{hit}(track);N_{hit}", 30, 5., 35.));
+  myTrackHists1D.push_back(new TH1F("nHitTrack", "N_{hit}(track);N_{hit}", 40, 5., 45.));
+  myTrackHists1D.push_back(new TH1F("nHitBPIXTrack", "N_{hit, BPIX}(track);N_{hit}", 45, 0., 45.));
+  myTrackHists1D.push_back(new TH1F("nHitFPIXTrack", "N_{hit, FPIX}(track);N_{hit}", 45, 0., 45.));
+  myTrackHists1D.push_back(new TH1F("nHitFPIXplusTrack", "N_{hit, BPIXplus}(track);N_{hit}", 45, 0., 45.));
+  myTrackHists1D.push_back(new TH1F("nHitFPIXminusTrack", "N_{hit, BPIXminus}(track);N_{hit}", 45, 0., 45.));
+  myTrackHists1D.push_back(new TH1F("nHitPIXELTrack", "N_{hit, PIXEL}(track);N_{hit}", 45, 0., 45.));
+  myTrackHists1D.push_back(new TH1F("nHitTIBTrack", "N_{hit, TIB}(track);N_{hit}", 45, 0., 45.));
+  myTrackHists1D.push_back(new TH1F("nHitTOBTrack", "N_{hit, TOB}(track);N_{hit}", 45, 0., 45.));
+  myTrackHists1D.push_back(new TH1F("nHitTIDplusTrack", "N_{hit, TIDplus}(track);N_{hit}", 45, 0., 45.));
+  myTrackHists1D.push_back(new TH1F("nHitTIDminusTrack", "N_{hit, TIDminus}(track);N_{hit}", 45, 0., 45.));
+  myTrackHists1D.push_back(new TH1F("nHitTIDTrack", "N_{hit, TID}(track);N_{hit}", 45, 0., 45.));
+  myTrackHists1D.push_back(new TH1F("nHitTECplusTrack", "N_{hit, TECplus}(track);N_{hit}", 45, 0., 45.));
+  myTrackHists1D.push_back(new TH1F("nHitTECminusTrack", "N_{hit, TECminus}(track);N_{hit}", 45, 0., 45.));
+  myTrackHists1D.push_back(new TH1F("nHitTECTrack", "N_{hit, TEC}(track);N_{hit}", 45, 0., 45.));
+  myTrackHists1D.push_back(new TH1F("nHitENDCAPplusTrack", "N_{hit, ENDCAPplus}(track);N_{hit}", 45, 0., 45.));
+  myTrackHists1D.push_back(new TH1F("nHitENDCAPminusTrack", "N_{hit, ENDCAPminus}(track);N_{hit}", 45, 0., 45.));
+  myTrackHists1D.push_back(new TH1F("nHitENDCAPTrack", "N_{hit, ENDCAP}(track);N_{hit}", 45, 0., 45.));
+  myTrackHists2D.push_back(new TH2F("nHitENDCAPTrackMinusVsPlus", "N_{hit, ENDCAP}(track);N_{hit, plus};N_{hit, minus}",
+				    45, 0., 45.,45, 0., 45.));
   myTrackHists1D.push_back(new TH1F("nHitInvalidTrack", "N_{hit, invalid}(track)", 5, 0., 5.));
   myTrackHists1D.push_back(new TH1F("r1Track", "r(1st hit);r [cm]", 20, 0., 20.));
   myTrackHists1D.push_back(new TH1F("phi1Track", "#phi(1st hit);#phi",
@@ -522,6 +550,8 @@ void MillePedeMonitor::fillTrack(const reco::Track *track, std::vector<TH1*> &tr
   trackHists1D[iP]->Fill(p.R());
   static const int iEta = this->GetIndex(trackHists1D, "etaTrack");
   trackHists1D[iEta]->Fill(p.Eta());
+  static const int iTheta = this->GetIndex(trackHists1D, "thetaTrack");
+  trackHists1D[iTheta]->Fill(p.Theta());
   static const int iPhi = this->GetIndex(trackHists1D, "phiTrack");
   trackHists1D[iPhi]->Fill(p.Phi());
 
@@ -529,6 +559,101 @@ void MillePedeMonitor::fillTrack(const reco::Track *track, std::vector<TH1*> &tr
   trackHists1D[iNhit]->Fill(track->numberOfValidHits());
   static const int iNhitInvalid = this->GetIndex(trackHists1D, "nHitInvalidTrack");
   trackHists1D[iNhitInvalid]->Fill(track->numberOfLostHits());
+
+  int nhitinTIB = 0, nhitinTOB = 0, nhitinTID = 0;
+  int nhitinTEC = 0, nhitinBPIX = 0, nhitinFPIX = 0, nhitinPIXEL=0;
+  int nhitinENDCAP = 0, nhitinENDCAPplus = 0, nhitinENDCAPminus = 0;
+  int nhitinTIDplus = 0, nhitinTIDminus = 0;
+  int nhitinFPIXplus = 0, nhitinFPIXminus = 0;
+  int nhitinTECplus = 0, nhitinTECminus = 0;
+  unsigned int thishit = 0;
+
+  for (trackingRecHit_iterator iHit = track->recHitsBegin(); iHit != track->recHitsEnd(); ++iHit) {
+    thishit++;
+    const DetId detId((*iHit)->geographicalId());
+    const int subdetId = detId.subdetId(); 
+
+    if (!(*iHit)->isValid()) continue; // only real hits count as in track->numberOfValidHits()
+    if (detId.det() != DetId::Tracker) {
+      edm::LogError("DetectorMismatch") << "@SUB=MillePedeMonitor::fillTrack"
+                                        << "DetId.det() != DetId::Tracker (=" << DetId::Tracker
+                                        << "), but " << detId.det() << ".";
+    }
+
+    if      (SiStripDetId::TIB == subdetId) ++nhitinTIB;
+    else if (SiStripDetId::TOB == subdetId) ++nhitinTOB;
+    else if (SiStripDetId::TID == subdetId) {
+      ++nhitinTID;
+      ++nhitinENDCAP;
+      TIDDetId tidId(detId);
+      if (tidId.isZMinusSide()) {
+        ++nhitinTIDminus;
+        ++nhitinENDCAPminus;
+      }
+      else if (tidId.isZPlusSide()) {
+        ++nhitinTIDplus;
+        ++nhitinENDCAPplus;
+      }
+    }
+    else if (SiStripDetId::TEC == subdetId) {
+      ++nhitinTEC;
+      ++nhitinENDCAP;
+      TECDetId tecId(detId);
+      if (tecId.isZMinusSide()) {
+        ++nhitinTECminus;
+        ++nhitinENDCAPminus;
+      }
+      else if (tecId.isZPlusSide()) {
+        ++nhitinTECplus;
+        ++nhitinENDCAPplus;
+      }
+    }
+    else if (            kBPIX == subdetId) {++nhitinBPIX;++nhitinPIXEL;}
+    else if (            kFPIX == subdetId) {
+      ++nhitinFPIX;
+      ++nhitinPIXEL;
+      PXFDetId fpixId(detId);
+      if (fpixId.side()==1) ++nhitinFPIXminus;
+      else if (fpixId.side()==2) ++nhitinFPIXplus;
+    }
+
+  } // end loop on hits
+
+  static const int iNhit01 = this->GetIndex(trackHists1D, "nHitBPIXTrack");
+  trackHists1D[iNhit01]->Fill(nhitinBPIX);
+  static const int iNhit02 = this->GetIndex(trackHists1D, "nHitFPIXplusTrack");
+  trackHists1D[iNhit02]->Fill(nhitinFPIXplus);
+  static const int iNhit03 = this->GetIndex(trackHists1D, "nHitFPIXminusTrack");
+  trackHists1D[iNhit03]->Fill(nhitinFPIXminus);
+  static const int iNhit04 = this->GetIndex(trackHists1D, "nHitFPIXTrack");
+  trackHists1D[iNhit04]->Fill(nhitinFPIX);
+  static const int iNhit05 = this->GetIndex(trackHists1D, "nHitPIXELTrack");
+  trackHists1D[iNhit05]->Fill(nhitinPIXEL);
+  static const int iNhit06 = this->GetIndex(trackHists1D, "nHitTIBTrack");
+  trackHists1D[iNhit06]->Fill(nhitinTIB);
+  static const int iNhit07 = this->GetIndex(trackHists1D, "nHitTOBTrack");
+  trackHists1D[iNhit07]->Fill(nhitinTOB);
+  static const int iNhit08 = this->GetIndex(trackHists1D, "nHitTIDplusTrack");
+  trackHists1D[iNhit08]->Fill(nhitinTIDplus);
+  static const int iNhit09 = this->GetIndex(trackHists1D, "nHitTIDminusTrack");
+  trackHists1D[iNhit09]->Fill(nhitinTIDminus);
+  static const int iNhit10 = this->GetIndex(trackHists1D, "nHitTIDTrack");
+  trackHists1D[iNhit10]->Fill(nhitinTID);
+  static const int iNhit11 = this->GetIndex(trackHists1D, "nHitTECplusTrack");
+  trackHists1D[iNhit11]->Fill(nhitinTECplus);
+  static const int iNhit12 = this->GetIndex(trackHists1D, "nHitTECminusTrack");
+  trackHists1D[iNhit12]->Fill(nhitinTECminus);
+  static const int iNhit13 = this->GetIndex(trackHists1D, "nHitTECTrack");
+  trackHists1D[iNhit13]->Fill(nhitinTEC);
+  static const int iNhit14 = this->GetIndex(trackHists1D, "nHitENDCAPplusTrack");
+  trackHists1D[iNhit14]->Fill(nhitinENDCAPplus);
+  static const int iNhit15 = this->GetIndex(trackHists1D, "nHitENDCAPminusTrack");
+  trackHists1D[iNhit15]->Fill(nhitinENDCAPminus);
+  static const int iNhit16 = this->GetIndex(trackHists1D, "nHitENDCAPTrack");
+  trackHists1D[iNhit16]->Fill(nhitinENDCAP);
+  static const int iNhit17 = this->GetIndex(trackHists2D, "nHitENDCAPTrackMinusVsPlus");
+  trackHists2D[iNhit17]->Fill(nhitinENDCAPplus,nhitinENDCAPminus);
+
   if (track->innerOk()) {
     const reco::TrackBase::Point firstPoint(track->innerPosition());
     static const int iR1 = this->GetIndex(trackHists1D, "r1Track");
@@ -549,6 +674,7 @@ void MillePedeMonitor::fillTrack(const reco::Track *track, std::vector<TH1*> &tr
     static const int iXy1 = this->GetIndex(trackHists2D, "xy1Track");
     trackHists2D[iXy1]->Fill(firstPoint.X(), firstPoint.Y());
   }
+
   if (track->outerOk()) {
     const reco::TrackBase::Point lastPoint(track->outerPosition());
     static const int iRlast = this->GetIndex(trackHists1D, "rLastTrack");
