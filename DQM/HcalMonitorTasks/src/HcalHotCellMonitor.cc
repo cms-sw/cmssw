@@ -960,6 +960,8 @@ void HcalHotCellMonitor::fillNevents_problemCells(void)
   if (debug_>0)
     std::cout <<"<HcalHotCellMonitor::fillNevents_problemCells> FILLING PROBLEM CELL PLOTS"<<std::endl;
 
+  if (ievt_==0) return;  // no events; no need to bother with this 
+
   int ieta=0;
   int etabins=0;
   int phibins=0;
@@ -975,10 +977,16 @@ void HcalHotCellMonitor::fillNevents_problemCells(void)
   int NumBadHFLUMI=0;
 
   unsigned int DEPTH = 0;
-  if (test_persistent_)     DEPTH = AbovePersistentThresholdCellsByDepth.depth.size();
-  else if (test_energy_)    DEPTH = AboveEnergyThresholdCellsByDepth.depth.size();
-  else if (test_et_)        DEPTH = AboveETThresholdCellsByDepth.depth.size();
-  else if (test_neighbor_)  DEPTH = AboveNeighborsHotCellsByDepth.depth.size();
+  if (test_persistent_)  
+    {
+      if (test_energy_)
+	DEPTH = AbovePersistentThresholdCellsByDepth.depth.size();
+      else if (test_et_)
+	DEPTH = AbovePersistentETThresholdCellsByDepth.depth.size();
+    }
+  else if (test_energy_ && DEPTH==0)    DEPTH = AboveEnergyThresholdCellsByDepth.depth.size();
+  else if (test_et_ && DEPTH==0)        DEPTH = AboveETThresholdCellsByDepth.depth.size();
+  else if (test_neighbor_ && DEPTH==0)  DEPTH = AboveNeighborsHotCellsByDepth.depth.size();
   
   if (DEPTH==0) return;
 
@@ -1014,7 +1022,7 @@ void HcalHotCellMonitor::fillNevents_problemCells(void)
 	      else if (abs(ieta)>39 && (phi+1)%4!=3) continue;
 	      // find problem rate for particular cell
 	      problemvalue=false;
-	      if (test_persistent_    && AbovePersistentThresholdCellsByDepth.depth[depth]->getBinContent(eta+1,phi+1)>=ievt_)
+	      if (test_persistent_    && AbovePersistentThresholdCellsByDepth.depth[depth]->getBinContent(eta+1,phi+1)>ievt_)
 		problemvalue=true;
 	      if (test_neighbor_ && AboveNeighborsHotCellsByDepth.depth[depth]->getBinContent(eta+1,phi+1)>minErrorFlag_*ievt_)
 		problemvalue=true;
