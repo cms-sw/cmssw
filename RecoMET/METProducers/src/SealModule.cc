@@ -9,11 +9,11 @@
 #include "RecoMET/METProducers/interface/EcalHaloDataProducer.h" 
 #include "RecoMET/METProducers/interface/GlobalHaloDataProducer.h" 
 using cms::METProducer;
-
-
-using cms::METProducer;
-
-
+using reco::BeamHaloSummaryProducer;
+using reco::CSCHaloDataProducer;
+using reco::HcalHaloDataProducer;
+using reco::EcalHaloDataProducer;
+using reco::GlobalHaloDataProducer;
 
 DEFINE_FWK_MODULE(METProducer);
 DEFINE_FWK_MODULE(BeamHaloSummaryProducer);

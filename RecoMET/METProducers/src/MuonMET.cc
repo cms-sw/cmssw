@@ -52,9 +52,9 @@ namespace cms
     muonDepValueMap_             = iConfig.getParameter<edm::InputTag>("muonMETDepositValueMapInputTag");
 
     if( metTypeInputTag_.label() == "CaloMET" ) {
-      produces<CaloMETCollection>();
+      produces<reco::CaloMETCollection>();
     } else 
-      produces<METCollection>();
+      produces<reco::METCollection>();
     
   }
   MuonMET::MuonMET() : alg_() {}
@@ -78,7 +78,7 @@ namespace cms
       {
 	Handle<View<reco::CaloMET> > inputUncorMet;
 	iEvent.getByLabel( uncorMETInputTag_, inputUncorMet  );     //Get Inputs
-	std::auto_ptr<CaloMETCollection> output( new CaloMETCollection() );  //Create empty output
+	std::auto_ptr<reco::CaloMETCollection> output( new reco::CaloMETCollection() );  //Create empty output
 	
 	alg_.run(*(inputMuons.product()), *(vm_muCorrData_h.product()),
 		 *(inputUncorMet.product()), &*output);
@@ -89,7 +89,7 @@ namespace cms
       {
 	Handle<View<reco::MET> > inputUncorMet;                     //Define Inputs
 	iEvent.getByLabel( uncorMETInputTag_,  inputUncorMet );     //Get Inputs
-	std::auto_ptr<METCollection> output( new METCollection() );  //Create empty output
+	std::auto_ptr<reco::METCollection> output( new reco::METCollection() );  //Create empty output
 	
 
 	alg_.run(*(inputMuons.product()), *(vm_muCorrData_h.product()),*(inputUncorMet.product()), &*output);
