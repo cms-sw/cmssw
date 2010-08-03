@@ -12,8 +12,8 @@
 
 /** \class HcalHotCellMonitor
   *
-  * $Date: 2010/07/17 00:37:42 $
-  * $Revision: 1.40 $
+  * $Date: 2010/07/19 22:33:37 $
+  * $Revision: 1.41 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -98,7 +98,7 @@ class HcalHotCellMonitor: public HcalBaseDQMonitor {
   double HBnsigma_, HEnsigma_, HOnsigma_, HFnsigma_;
   EtaPhiHists   AboveNeighborsHotCellsByDepth;
   EtaPhiHists   AboveEnergyThresholdCellsByDepth;
-  EtaPhiHists   AboveEtThresholdCellsByDepth;
+  EtaPhiHists   AboveETThresholdCellsByDepth;
   EtaPhiHists   AbovePersistentThresholdCellsByDepth; 
   EtaPhiHists   AbovePersistentETThresholdCellsByDepth;
 
