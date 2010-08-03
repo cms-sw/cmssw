@@ -5,11 +5,7 @@
 #include "CoralBase/Blob.h"
 #include "CondCore/ORA/interface/IBlobStreamingService.h"
 
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,19,0)
-typedef ROOT::Reflex::Type TypeH;
-#else
 typedef Reflex::Type TypeH;
-#endif
 
 namespace cond {
   // prerequisite check for supported dictionary type
