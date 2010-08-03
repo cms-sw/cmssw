@@ -4,7 +4,7 @@ process = cms.Process("PROD")
 
 # Number of events to be generated
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(500)
 )
 
 # Include the RandomNumberGeneratorService definition
@@ -23,14 +23,14 @@ process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 
 # If you want to turn on/off pile-up
-process.famosPileUp.PileUpSimulator.averageNumber = 5.0
+process.famosPileUp.PileUpSimulator.averageNumber = 25.0
 # You may not want to simulate everything for your study
 process.famosSimHits.SimulateCalorimetry = True
 process.famosSimHits.SimulateTracking = False
 
 # Get frontier conditions    - not applied in the HCAL, see below
 from Configuration.PyReleaseValidation.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['mc']
+process.GlobalTag.globaltag = autoCond['startup']
 
 # Apply ECAL miscalibration
 process.ecalRecHit.doMiscalib = True
@@ -86,7 +86,6 @@ process.source = cms.Source("EmptySource")
 # To write out events
 #process.load("FastSimulation.Configuration.EventContent_cff")
 #process.o1 = cms.OutputModule("PoolOutputModule",
-#    process.AODSIMEventContent,
 #    fileName = cms.untracked.string('AODIntegrationTest.root')
 #)
 #process.outpath = cms.EndPath(process.o1)
@@ -102,3 +101,55 @@ process.source = cms.Source("EmptySource")
 
 # Make the job crash in case of missing product
 process.options = cms.untracked.PSet( Rethrow = cms.untracked.vstring('ProductNotFound') )
+
+
+
+#CALO TRIGGER CONFIGURATION OVERRIDE
+process.load("L1TriggerConfig.RCTConfigProducers.L1RCTConfig_cff")
+process.RCTConfigProducers.eMaxForHoECut = cms.double(60.0)
+process.RCTConfigProducers.hOeCut = cms.double(0.05)
+process.RCTConfigProducers.eGammaECalScaleFactors = cms.vdouble(1.0, 1.01, 1.02, 1.02, 1.02,
+                                                      1.06, 1.04, 1.04, 1.05, 1.09,
+                                                      1.1, 1.1, 1.15, 1.2, 1.27,
+                                                      1.29, 1.32, 1.52, 1.52, 1.48,
+                                                      1.4, 1.32, 1.26, 1.21, 1.17,
+                                                      1.15, 1.15, 1.15)
+process.RCTConfigProducers.eMinForHoECut = cms.double(3.0)
+process.RCTConfigProducers.hActivityCut = cms.double(4.0)
+process.RCTConfigProducers.eActivityCut = cms.double(4.0)
+process.RCTConfigProducers.jetMETHCalScaleFactors = cms.vdouble(1.0, 1.0, 1.0, 1.0, 1.0,
+                                                                1.0, 1.0, 1.0, 1.0, 1.0,
+                                                                1.0, 1.0, 1.0, 1.0, 1.0,
+                                                                1.0, 1.0, 1.0, 1.0, 1.0,
+                                                                1.0, 1.0, 1.0, 1.0, 1.0,
+                                                                1.0, 1.0, 1.0)
+process.RCTConfigProducers.eicIsolationThreshold = cms.uint32(6)
+process.RCTConfigProducers.etMETLSB = cms.double(0.25)
+process.RCTConfigProducers.jetMETECalScaleFactors = cms.vdouble(1.0, 1.0, 1.0, 1.0, 1.0,
+                                                                1.0, 1.0, 1.0, 1.0, 1.0,
+                                                                1.0, 1.0, 1.0, 1.0, 1.0,
+                                                                1.0, 1.0, 1.0, 1.0, 1.0,
+                                                                1.0, 1.0, 1.0, 1.0, 1.0,
+                                                                1.0, 1.0, 1.0)
+process.RCTConfigProducers.eMinForFGCut = cms.double(100.0)
+process.RCTConfigProducers.eGammaLSB = cms.double(0.25)
+
+process.L1GctConfigProducers = cms.ESProducer("L1GctConfigProducers",
+                                          JetFinderCentralJetSeed = cms.double(0.5),
+                                          JetFinderForwardJetSeed = cms.double(0.5),
+                                          TauIsoEtThreshold = cms.double(2.0),
+                                          HtJetEtThreshold = cms.double(10.0),
+                                          MHtJetEtThreshold = cms.double(10.0),
+                                          RctRegionEtLSB = cms.double(0.25),
+                                          GctHtLSB = cms.double(0.25),
+                                          # The CalibrationStyle should be "none", "PowerSeries", or "ORCAStyle
+                                          CalibrationStyle = cms.string('None'),
+                                          ConvertEtValuesToEnergy = cms.bool(False)
+)                                      
+
+
+
+
+
+
+                                                     

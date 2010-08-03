@@ -44,12 +44,28 @@ L1CaloJetExpander = cms.EDProducer("L1CaloJetExpander",
 )
 
 
-SLHCL1ExtraParticles = cms.EDProducer("L1ExtraTranslator",
+rawSLHCL1ExtraParticles = cms.EDProducer("L1ExtraTranslator",
                                   Clusters = cms.InputTag("L1CaloClusterIsolator"),
                                   Jets = cms.InputTag("L1CaloJetExpander"),
                                   NParticles = cms.int32(8),
                                   NJets      = cms.int32(12)
                               
+)
+
+SLHCL1ExtraParticles = cms.EDProducer("L1ExtraCalibrator",
+                                      eGamma = cms.InputTag("rawSLHCL1ExtraParticles","EGamma"),
+                                      isoEGamma = cms.InputTag("rawSLHCL1ExtraParticles","IsoEGamma"),
+                                      taus = cms.InputTag("rawSLHCL1ExtraParticles","Taus"),
+                                      isoTaus = cms.InputTag("rawSLHCL1ExtraParticles","IsoTaus"),
+                                      jets = cms.InputTag("rawSLHCL1ExtraParticles","Jets"),
+                                      ##How to calibrate  
+                                      ##Scale factor = MC/RAW = a+b |eta| +c|eta|^2 
+                                      ##Give the coeffs for egamma and taus 
+                                      ##So you need to fit the eta correction with a  
+                                      ##parabola and add the coeffs here
+                                      ## Same as we do for RCT Calibration
+                                      eGammaCoefficients = cms.vdouble(1.0,0.0,0.0),
+                                      tauCoefficients    = cms.vdouble(1.0,0.0,0.0)
 )
 
 
