@@ -17,7 +17,8 @@ void OHltRatePrinter::SetupAll(vector<float> tRate,vector<float> tRateErr,vector
 			       vector<float> tpureRateErr,vector< vector<float> >tcoMa,
 			       vector < vector <float> > tRatePerLS,vector<int> tRunID,
 			       vector<int> tLumiSection, vector<float> tTotalRatePerLS, 
-			       vector< vector<int> > tRefPrescalePerLS, vector< vector<int> > tRefL1PrescalePerLS) {
+			       vector< vector<int> > tRefPrescalePerLS, vector< vector<int> > tRefL1PrescalePerLS,
+			       vector<float> tAverageRefPrescaleHLT, vector<float> tAverageRefPrescaleL1) {
   Rate = tRate;
   RateErr = tRateErr;
   spureRate = tspureRate;
@@ -31,9 +32,10 @@ void OHltRatePrinter::SetupAll(vector<float> tRate,vector<float> tRateErr,vector
   totalRatePerLS = tTotalRatePerLS;
   prescaleRefPerLS = tRefPrescalePerLS;
   prescaleL1RefPerLS = tRefL1PrescalePerLS;
+  averageRefPrescaleHLT = tAverageRefPrescaleHLT;
+  averageRefPrescaleL1 = tAverageRefPrescaleL1;
 
   ReorderRunLS(); // reorder messed up runids/LS
-
 }
 
 /* ********************************************** */
@@ -51,11 +53,19 @@ void OHltRatePrinter::printRatesASCII(OHltConfig *cfg, OHltMenu *menu) {
 
   float cumulRate = 0.;
   float cumulRateErr = 0.;
+  float hltPrescaleCorrection = 1.;
+
   for (unsigned int i=0;i<menu->GetTriggerSize();i++) {
     cumulRate += spureRate[i];
     cumulRateErr += pow(spureRateErr[i],fTwo);
+
+    if(cfg->readRefPrescalesFromNtuple)  
+      hltPrescaleCorrection = averageRefPrescaleHLT[i];  
+    else  
+      hltPrescaleCorrection = menu->GetReferenceRunPrescale(i);  
+
     cout<<setw(50)<<menu->GetTriggerName(i)<<" ("
-	<<setw(8)<<(int)(menu->GetPrescale(i) * menu->GetReferenceRunPrescale(i))<<")  "
+	<<setw(8)<<(int)(menu->GetPrescale(i) * hltPrescaleCorrection)<<")  "
 	<<setw(8)<<Rate[i]<<" +- "
 	<<setw(7)<<RateErr[i]<<"  "
 	<<setw(8)<<spureRate[i]<<"  "
@@ -112,6 +122,7 @@ void OHltRatePrinter::printHltRatesTwiki(OHltConfig *cfg, OHltMenu *menu) {
   float physCutThruErr = 0.; 
   float cuPhysRate = 0.; 
   float cuPhysRateErr = 0.; 
+  float hltPrescaleCorrection = 1.;
 
   for (unsigned int i=0;i<menu->GetTriggerSize();i++) { 
     cumulRate += spureRate[i]; 
@@ -155,10 +166,15 @@ void OHltRatePrinter::printHltRatesTwiki(OHltConfig *cfg, OHltMenu *menu) {
 
     tempTrigSeeds = menu->GetSeedCondition(menu->GetTriggerName(i));
 
+    if(cfg->readRefPrescalesFromNtuple)   
+      hltPrescaleCorrection = averageRefPrescaleHLT[i];   
+    else   
+      hltPrescaleCorrection = menu->GetReferenceRunPrescale(i);   
+
     outFile << "| !"<< menu->GetTriggerName(i)
 	    << " | !" << tempTrigSeeds
 	    << " | " << tempTrigSeedPrescales
-	    << " | " << (int)(menu->GetPrescale(i) * menu->GetReferenceRunPrescale(i))
+	    << " | " << (int)(menu->GetPrescale(i) * hltPrescaleCorrection)
 	    << " | " << Rate[i] << "+-" << RateErr[i]
 	    << " | " << cumulRate
 	    << " | " << menu->GetEventsize(i)
@@ -200,14 +216,20 @@ void OHltRatePrinter::printL1RatesTwiki(OHltConfig *cfg, OHltMenu *menu) {
 
   float cumulRate = 0.; 
   float cumulRateErr = 0.; 
+  float hltPrescaleCorrection = 1.; 
   for (unsigned int i=0;i<menu->GetTriggerSize();i++) { 
     cumulRate += spureRate[i]; 
     cumulRateErr += pow(spureRateErr[i],fTwo); 
+
+    if(cfg->readRefPrescalesFromNtuple)
+      hltPrescaleCorrection = averageRefPrescaleHLT[i];
+    else
+      hltPrescaleCorrection = menu->GetReferenceRunPrescale(i);
      
     TString tempTrigName = menu->GetTriggerName(i); 
  
     outFile << "| !" << tempTrigName 
-            << " | " <<  (int)(menu->GetPrescale(i) * menu->GetReferenceRunPrescale(i))  
+            << " | " <<  (int)(menu->GetPrescale(i) * hltPrescaleCorrection)  
             << " | " << Rate[i] << "+-" << RateErr[i] 
             << " | " << cumulRate << " |" << endl; 
   } 
@@ -449,6 +471,7 @@ void OHltRatePrinter::printL1RatesTex(OHltConfig *cfg, OHltMenu *menu) {
   
   float cumulRate = 0.;
   float cumulRateErr = 0.;
+  float hltPrescaleCorrection = 1.;
   for (unsigned int i=0;i<menu->GetTriggerSize();i++) {
     cumulRate += spureRate[i];
     cumulRateErr += pow(spureRateErr[i],fTwo);
@@ -456,8 +479,13 @@ void OHltRatePrinter::printL1RatesTex(OHltConfig *cfg, OHltMenu *menu) {
     TString tempTrigName = menu->GetTriggerName(i);
     tempTrigName.ReplaceAll("_","\\_");
 
+    if(cfg->readRefPrescalesFromNtuple)    
+      hltPrescaleCorrection = averageRefPrescaleHLT[i];    
+    else    
+      hltPrescaleCorrection = menu->GetReferenceRunPrescale(i);    
+
     outFile << "\\color{blue}"  << tempTrigName
-	    << " & " <<  (int)(menu->GetPrescale(i) * menu->GetReferenceRunPrescale(i)) 
+	    << " & " <<  (int)(menu->GetPrescale(i) * hltPrescaleCorrection)
 	    << " & " << Rate[i] << " {$\\pm$ " << RateErr[i]
 	    << "} & " << cumulRate << "\\\\" << endl;
   }
@@ -537,6 +565,7 @@ void OHltRatePrinter::printHltRatesTex(OHltConfig *cfg, OHltMenu *menu) {
   float physCutThruErr = 0.;
   float cuPhysRate = 0.;
   float cuPhysRateErr = 0.;
+  float hltPrescaleCorrection = 0.;
   vector<TString> footTrigSeedPrescales;
   vector<TString> footTrigSeeds;
   vector<TString> footTrigNames;
@@ -610,10 +639,15 @@ void OHltRatePrinter::printHltRatesTex(OHltConfig *cfg, OHltMenu *menu) {
     tempTrigSeeds.ReplaceAll("_","\\_");
     tempTrigSeedPrescales.ReplaceAll("_","\\_");
     
+    if(cfg->readRefPrescalesFromNtuple)    
+      hltPrescaleCorrection = averageRefPrescaleHLT[i];    
+    else    
+      hltPrescaleCorrection = menu->GetReferenceRunPrescale(i);    
+
     outFile << "\\color{blue}"  << tempTrigName
 	    << " & " << tempTrigSeeds
 	    << " & " << tempTrigSeedPrescales
-	    << " & " <<  (int)(menu->GetPrescale(i) * menu->GetReferenceRunPrescale(i)) 
+	    << " & " <<  (int)(menu->GetPrescale(i) * hltPrescaleCorrection)
 	    << " & " << Rate[i] << " {$\\pm$ " << RateErr[i]
 	    << "} & " << cumulRate
       	    << " & " << menu->GetEventsize(i)
@@ -674,10 +708,16 @@ void OHltRatePrinter::printPrescalesCfg(OHltConfig *cfg, OHltMenu *menu) {
   outFile << "\tcms.PSet(  pathName = cms.string( \"HLTriggerFirstPath\" )," << endl; 
   outFile << "\t\tprescales = cms.vuint32( 1 )" << endl; 
   outFile << "\t\t)," << endl; 
-  
+
+  float hltPrescaleCorrection = 1.;
   for (unsigned int i=0;i<menu->GetTriggerSize();i++) { 
+    if(cfg->readRefPrescalesFromNtuple)   
+      hltPrescaleCorrection = averageRefPrescaleHLT[i];   
+    else   
+      hltPrescaleCorrection = menu->GetReferenceRunPrescale(i);   
+
     outFile << "\tcms.PSet(  pathName = cms.string( \"" << menu->GetTriggerName(i) << "\" )," << endl;
-    outFile << "\t\tprescales = cms.vuint32( " << (int)(menu->GetPrescale(i) * menu->GetReferenceRunPrescale(i)) << " )" << endl;
+    outFile << "\t\tprescales = cms.vuint32( " << (int)(menu->GetPrescale(i) * hltPrescaleCorrection) << " )" << endl;
     outFile << "\t\t)," << endl;
   }
 
@@ -698,13 +738,14 @@ void OHltRatePrinter::printHLTDatasets(OHltConfig *cfg, OHltMenu *menu
 		, TString   &fullPathTableName       ///< Name for the output files. You can use this to put the output in your directory of choice (don't forget the trailing slash). Directories are automatically created as necessary.
         , const Int_t     significantDigits = 3   ///< Number of significant digits to report percentages in.
 ) {
-//  TString tableFileName = GetFileName(cfg,menu);
+  //  TString tableFileName = GetFileName(cfg,menu);
   char sLumi[10];
   sprintf(sLumi,"%1.1e",cfg->iLumi);
 // 	printf("OHltRatePrinter::printHLTDatasets. About to call hltDatasets.report\n"); //RR
   hltDatasets.report(sLumi, fullPathTableName+ "_PS_",significantDigits);   //SAK -- prints PDF tables
 // 	printf("OHltRatePrinter::printHLTDatasets. About to call hltDatasets.write\n"); //RR
   hltDatasets.write();
+  float hltPrescaleCorrection = 1.;
 
 	printf("**************************************************************************************************************************\n");
 	unsigned int HLTDSsize=hltDatasets.size();
@@ -748,8 +789,14 @@ void OHltRatePrinter::printHLTDatasets(OHltConfig *cfg, OHltMenu *menu
 					tempTrigSeeds = menu->GetSeedCondition(menu->GetTriggerName(i));
 
 					TString iMenuTriggerName(menu->GetTriggerName(i));
+
+					if(cfg->readRefPrescalesFromNtuple)    
+					  hltPrescaleCorrection = averageRefPrescaleHLT[i];    
+					else    
+					  hltPrescaleCorrection = menu->GetReferenceRunPrescale(i);    
+
 					if (DStriggerName.CompareTo(iMenuTriggerName)==0) {
-						printf("%-40s\t%-30s\t%40s\t%10d\t%10.2lf\n",(menu->GetTriggerName(i)).Data(), tempTrigSeeds.Data(), tempTrigSeedPrescales.Data(), (int)(menu->GetPrescale(i) * menu->GetReferenceRunPrescale(i)), Rate[i]);
+						printf("%-40s\t%-30s\t%40s\t%10d\t%10.2lf\n",(menu->GetTriggerName(i)).Data(), tempTrigSeeds.Data(), tempTrigSeedPrescales.Data(), (int)(menu->GetPrescale(i) * hltPrescaleCorrection), Rate[i]);
 					}
 				}
 			}

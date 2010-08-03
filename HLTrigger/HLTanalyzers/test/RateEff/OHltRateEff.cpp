@@ -146,6 +146,8 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
   vector< vector<float> >coMa;
   vector<float> coDen;
   vector<int> RefPrescale,RefL1Prescale;
+  vector<float> weightedPrescaleRefHLT; 
+  vector<float> weightedPrescaleRefL1; 
   float DenEff=0.;
   Int_t nbinpt = 50; Float_t ptmin = 0.0; Float_t ptmax = 2.0;
   Int_t nbineta = 30; Float_t etamin = -3.0; Float_t etamax = 3.0;
@@ -161,10 +163,12 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
     // per lumisection
     Rate.push_back(0.);pureRate.push_back(0.);spureRate.push_back(0.);ftmp.push_back(0.);
     RateErr.push_back(0.);pureRateErr.push_back(0.);spureRateErr.push_back(0.);RefPrescale.push_back(1);
+    weightedPrescaleRefHLT.push_back(0.);  
     coDen.push_back(0.);
   }
   for(int i=0;i<nL1trig;i++) { // Init
     RefL1Prescale.push_back(1);
+    weightedPrescaleRefL1.push_back(0.);  
   }
   for (int j=0;j<ntrig;j++) { coMa.push_back(ftmp); }
 
@@ -182,6 +186,7 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
 
     float scaleddeno = -1;
     float scaleddenoPerLS = -1;
+    float prescaleSum = 0.0;  
 
     float chainEntries = (float)procs[i]->fChain->GetEntries(); 
     if (deno <= 0. || deno > chainEntries) {
@@ -213,21 +218,29 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
       totalRatePerLS[iLS] += OHltRateCounter::eff((float)rcs[i]->perLumiSectionTotCount[iLS],scaleddenoPerLS);
     }
     
+
+
     for (int j=0;j<nL1trig;j++) {
       // per lumisection
+      prescaleSum = 0.0;
       for (unsigned int iLS=0;iLS<rcs[i]->perLumiSectionCount.size();iLS++) {
         RefL1PrescalePerLS[iLS][j] = (float)rcs[i]->perLumiSectionRefL1Prescale[iLS][j];
+	prescaleSum += RefL1PrescalePerLS[iLS][j];  
       }
+      weightedPrescaleRefL1[j] = prescaleSum/(rcs[i]->perLumiSectionCount.size());  
     }
-    
+
     for (int j=0;j<ntrig;j++) {
 
       // per lumisection
+      prescaleSum = 0.0;
       for (unsigned int iLS=0;iLS<rcs[i]->perLumiSectionCount.size();iLS++) {
 	RatePerLS[iLS][j] += OHltRateCounter::eff((float)rcs[i]->perLumiSectionCount[iLS][j],scaleddenoPerLS);
 	RefPrescalePerLS[iLS][j] = (float)rcs[i]->perLumiSectionRefPrescale[iLS][j];
+	prescaleSum += RefPrescalePerLS[iLS][j];  
       }
-      
+      weightedPrescaleRefHLT[j] = prescaleSum/(rcs[i]->perLumiSectionCount.size()); 
+
       if(cfg->isRealData == 1) {
 	Rate[j]    += OHltRateCounter::eff((float)rcs[i]->iCount[j],scaleddeno);   
 	RateErr[j] += OHltRateCounter::errRate2((float)rcs[i]->iCount[j],scaleddeno); 
@@ -270,9 +283,10 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
       coMa[i][j] = coMa[i][j]/coDen[i]; 
     }
   }
-  
+
   rprint->SetupAll(Rate,RateErr,spureRate,spureRateErr,pureRate,pureRateErr,coMa,
-		   RatePerLS,rcs[0]->runID,rcs[0]->lumiSection,totalRatePerLS,RefPrescalePerLS,RefL1PrescalePerLS);
+		   RatePerLS,rcs[0]->runID,rcs[0]->lumiSection,totalRatePerLS,RefPrescalePerLS,RefL1PrescalePerLS,
+		   weightedPrescaleRefHLT,weightedPrescaleRefL1);
   
 }
 void calcEff(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
