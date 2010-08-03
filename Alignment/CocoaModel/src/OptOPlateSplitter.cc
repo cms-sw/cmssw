@@ -7,7 +7,7 @@
 
 #include "Alignment/CocoaModel/interface/OptOPlateSplitter.h"
 #include "Alignment/CocoaModel/interface/LightRay.h"
-#include "Alignment/CocoaModel/interface/ALIPlane.h" 
+#include "Alignment/CocoaModel/interface/ALIPlane.h"
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 #ifdef COCOA_VIS
 #include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
@@ -15,6 +15,8 @@
 #endif
 #include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeBox.h"
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
+
+using namespace CLHEP;
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@ Detailed simulation of Reflection in Plate Splitter

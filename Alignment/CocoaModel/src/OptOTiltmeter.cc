@@ -16,6 +16,8 @@
 #include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeBox.h"
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 
+using namespace CLHEP;
+
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@  Default behaviour: make measurement
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

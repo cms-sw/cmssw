@@ -25,6 +25,7 @@
 #include <fstream>
 #include <cstdlib>
 
+using namespace CLHEP;
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@  Make measurement as distance to previous object 'screen'

@@ -15,6 +15,8 @@
 #include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeBox.h"
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 
+using namespace CLHEP;
+
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@ do nothing
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

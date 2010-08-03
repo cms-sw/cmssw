@@ -7,7 +7,7 @@
 
 #include "Alignment/CocoaModel/interface/OptOOpticalSquare.h"
 #include "Alignment/CocoaModel/interface/LightRay.h"
-#include "Alignment/CocoaModel/interface/ALIPlane.h" 
+#include "Alignment/CocoaModel/interface/ALIPlane.h"
 #include "Alignment/CocoaModel/interface/Measurement.h"
 #include <iostream>
 #include <iomanip>
@@ -17,6 +17,8 @@
 #endif
 #include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeBox.h"
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
+
+using namespace CLHEP;
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@  Detailed simulation of deviation of the light ray 

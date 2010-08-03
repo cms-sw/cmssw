@@ -24,6 +24,7 @@
 #include <math.h>     		// I have added a new library for isnan() function
 #include <cstdlib>
 
+using namespace CLHEP;
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@  Make measurement as distance to previous object 'screen'

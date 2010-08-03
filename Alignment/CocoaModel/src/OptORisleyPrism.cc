@@ -12,6 +12,8 @@
 #include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeBox.h"
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 
+using namespace CLHEP;
+
 void OptORisleyPrism::participateInMeasurement( LightRay& lightray, Measurement& meas, const ALIstring& behav )
 {
  std::cerr << "object not implemented yet " << std::endl;

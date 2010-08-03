@@ -12,6 +12,8 @@
 #include <iomanip>
 #include <cstdlib>
 
+using namespace CLHEP;
+
 void OptOCameraDetector::participateInMeasurement( LightRay& lightray, Measurement* meas, const ALIstring& behav )
 {
  std::cerr << "object not implemented yet " << std::endl;
