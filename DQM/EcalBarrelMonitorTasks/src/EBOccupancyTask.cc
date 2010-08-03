@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2010/03/27 20:07:58 $
- * $Revision: 1.86 $
+ * $Date: 2010/08/03 13:37:05 $
+ * $Revision: 1.87 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -498,7 +498,7 @@ void EBOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   }
 
   // channel status
-  edm::ESHandle<EcalChannelStatus> pChannelStatus;
+  edm::ESHandle<EcalChannelStatusMap> pChannelStatus;
   c.get<EcalChannelStatusRcd>().get(pChannelStatus);
   const EcalChannelStatusMap* chStatus = pChannelStatus.product();
 
