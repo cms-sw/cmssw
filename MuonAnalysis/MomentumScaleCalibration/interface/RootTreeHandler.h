@@ -18,8 +18,9 @@ typedef std::vector<std::pair<lorentzVector,lorentzVector> > MuonPairVector;
 class RootTreeHandler
 {
 public:
-  void writeTree( const TString & fileName, const MuonPairVector * savedPair, const MuonPairVector * genPair = 0 )
+  void writeTree( const TString & fileName, const MuonPairVector * savedPair, const MuonPairVector * genPair = 0, const bool saveAll = false )
   {
+    lorentzVector emptyLorentzVector(0,0,0,0);
     TFile * f1 = new TFile(fileName, "RECREATE");
     TTree * tree = new TTree("T", "Muon pairs");
     MuonPair * muonPair = new MuonPair;
@@ -33,15 +34,17 @@ public:
     unsigned int iev = 0;
     for( ; muonPairIt != savedPair->end(); ++muonPairIt, ++iev ) {
 
-      muonPair->mu1 = (muonPairIt->first);
-      muonPair->mu2 = (muonPairIt->second);
+      if( saveAll || ( (muonPairIt->first != emptyLorentzVector) && (muonPairIt->second != emptyLorentzVector) ) ) {
+	muonPair->mu1 = (muonPairIt->first);
+	muonPair->mu2 = (muonPairIt->second);
 
-      if( genPair != 0 && genPair->size() != 0 ) {
-        genMuonPair->mu1 = ((*genPair)[iev].first);
-        genMuonPair->mu2 = ((*genPair)[iev].second);
+	if( genPair != 0 && genPair->size() != 0 ) {
+	  genMuonPair->mu1 = ((*genPair)[iev].first);
+	  genMuonPair->mu2 = ((*genPair)[iev].second);
+	}
+
+	tree->Fill();
       }
-
-      tree->Fill();
     }
     f1->Write();
     f1->Close();

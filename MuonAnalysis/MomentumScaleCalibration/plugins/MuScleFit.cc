@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2010/06/24 09:28:58 $
-//  $Revision: 1.90 $
+//  $Date: 2010/07/13 10:50:38 $
+//  $Revision: 1.91 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -145,7 +145,9 @@
 
 // Constructor
 // -----------
-MuScleFit::MuScleFit( const edm::ParameterSet& pset ) : MuScleFitBase( pset ), totalEvents_(0)
+MuScleFit::MuScleFit( const edm::ParameterSet& pset ) :
+  MuScleFitBase( pset ),
+  totalEvents_(0)
 {
   MuScleFitUtils::debug = debug_;
   if (debug_>0) std::cout << "[MuScleFit]: Constructor" << std::endl;
@@ -241,9 +243,14 @@ MuScleFit::MuScleFit( const edm::ParameterSet& pset ) : MuScleFitBase( pset ), t
   triggerResultsProcess_ = pset.getUntrackedParameter<std::string>("TriggerResultsProcess");
   triggerPath_ = pset.getUntrackedParameter<std::string>("TriggerPath");
   negateTrigger_ = pset.getUntrackedParameter<bool>("NegateTrigger", false);
+  saveAllToTree_ = pset.getUntrackedParameter<bool>("SaveAllToTree", false);
 
   PATmuons_ = pset.getUntrackedParameter<bool>("PATmuons", false);
   genParticlesName_ = pset.getUntrackedParameter<std::string>("GenParticlesName", "genParticles");
+
+  // Use the probability file or not. If not it will perform a simpler selection taking the muon pair with
+  // invariant mass closer to the pdf value and will crash if some fit is attempted.
+  MuScleFitUtils::useProbsFile_ = pset.getUntrackedParameter<bool>("UseProbsFile", true);
 
   // This must be set to true if using events generated with Sherpa
   MuScleFitUtils::sherpa_ = pset.getUntrackedParameter<bool>("Sherpa", false);
@@ -261,14 +268,9 @@ MuScleFit::MuScleFit( const edm::ParameterSet& pset ) : MuScleFitBase( pset ), t
   MuScleFitUtils::debugMassResol_ = pset.getUntrackedParameter<bool>("DebugMassResol", false);
   // MuScleFitUtils::massResolComponentsStruct MuScleFitUtils::massResolComponents;
 
-  // Read the Probs file from database. If false it searches the root file in
-  // MuonAnalysis/MomentumScaleCalibration/test of the active release.
-  // readPdfFromDB = pset.getParameter<bool>("readPdfFromDB");
-
   // Check for parameters consistency
   // it will abort in case of errors.
-
- checkParameters();
+  checkParameters();
 
   // Generate array of gaussian-distributed numbers for smearing
   // -----------------------------------------------------------
@@ -357,10 +359,10 @@ MuScleFit::~MuScleFit () {
       std::cout << "Saving muon pairs to root tree" << std::endl;
       RootTreeHandler rootTreeHandler;
       if( MuScleFitUtils::speedup ) {
-        rootTreeHandler.writeTree(outputRootTreeFileName_, &(MuScleFitUtils::SavedPair));
+        rootTreeHandler.writeTree(outputRootTreeFileName_, &(MuScleFitUtils::SavedPair), 0, saveAllToTree_);
       }
       else {
-        rootTreeHandler.writeTree(outputRootTreeFileName_, &(MuScleFitUtils::SavedPair), &(MuScleFitUtils::genPair));
+        rootTreeHandler.writeTree(outputRootTreeFileName_, &(MuScleFitUtils::SavedPair), &(MuScleFitUtils::genPair), saveAllToTree_ );
       }
     }
     else {
@@ -377,7 +379,9 @@ void MuScleFit::beginOfJobInConstructor()
 {
   if (debug_>0) std::cout << "[MuScleFit]: beginOfJob" << std::endl;
   //if(maxLoopNumber>1)
-  readProbabilityDistributionsFromFile();
+  if( MuScleFitUtils::useProbsFile_ ) {
+    readProbabilityDistributionsFromFile();
+  }
 
   if (debug_>0) std::cout << "[MuScleFit]: beginOfJob" << std::endl;
 

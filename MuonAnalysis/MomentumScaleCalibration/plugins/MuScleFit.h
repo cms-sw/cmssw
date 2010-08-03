@@ -4,8 +4,8 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2010/06/21 15:20:23 $
- *  $Revision: 1.36 $
+ *  $Date: 2010/07/13 10:50:38 $
+ *  $Revision: 1.37 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -164,6 +164,7 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase
   std::string triggerResultsProcess_;
   std::string triggerPath_;
   bool negateTrigger_;
+  bool saveAllToTree_;
 };
 
 template<typename T>
