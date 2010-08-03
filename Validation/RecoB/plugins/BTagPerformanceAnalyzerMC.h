@@ -15,6 +15,7 @@
 #include "DQMOffline/RecoB/interface/BTagDifferentialPlot.h"
 #include "DQMOffline/RecoB/interface/AcceptJet.h"
 #include "DQMOffline/RecoB/interface/JetTagPlotter.h"
+#include "DQMOffline/RecoB/interface/TagCorrelationPlotter.h"
 #include "DQMOffline/RecoB/interface/BaseTagInfoPlotter.h"
 #include "DQMOffline/RecoB/interface/Tools.h"
 //#include "RecoBTag/MCTools/interface/JetFlavourIdentifier.h"
@@ -61,28 +62,24 @@ class BTagPerformanceAnalyzerMC : public edm::EDAnalyzer {
   };
 
   // Get histogram plotting options from configuration.
-  void init(const edm::ParameterSet& iConfig);
   void bookHistos(const edm::ParameterSet& pSet);
-  EtaPtBin getEtaPtBin(int iEta, int iPt);
+  EtaPtBin getEtaPtBin(const int& iEta, const int& iPt);
     typedef std::pair<reco::Jet, reco::JetFlavour> JetWithFlavour;
 typedef std::map<edm::RefToBase<reco::Jet>, unsigned int, JetRefCompare> FlavourMap;
 typedef std::map<edm::RefToBase<reco::Jet>, reco::JetFlavour::Leptons, JetRefCompare> LeptonMap;
   //  reco::JetFlavour getJetFlavour(
   //	edm::RefToBase<reco::Jet> caloRef, FlavourMap flavours);
-  bool getJetWithFlavour(edm::RefToBase<reco::Jet> caloRef,
+  bool getJetWithFlavour( edm::RefToBase<reco::Jet> caloRef,
                          FlavourMap flavours, JetWithFlavour &jetWithFlavour,
                          const edm::EventSetup & es);
 
   std::vector<std::string> tiDataFormatType;
   bool partonKinematics;
-  double etaMin, etaMax;
-  double ptRecJetMin, ptRecJetMax;
   double ptPartonMin, ptPartonMax;
-  double ratioMin, ratioMax;
   AcceptJet jetSelector;   // Decides if jet and parton satisfy kinematic cuts.
   std::vector<double> etaRanges, ptRanges;
   bool produceEps, producePs;
-  TString psBaseName, epsBaseName, inputFile;
+  std::string psBaseName, epsBaseName, inputFile;
   bool update, allHisto;
   bool finalize;
   bool finalizeOnly;
@@ -90,8 +87,10 @@ typedef std::map<edm::RefToBase<reco::Jet>, reco::JetFlavour::Leptons, JetRefCom
   edm::InputTag slInfoTag;
 
   std::vector< std::vector<JetTagPlotter*> > binJetTagPlotters;
+  std::vector< std::vector<TagCorrelationPlotter*> > binTagCorrelationPlotters;
   std::vector< std::vector<BaseTagInfoPlotter*> > binTagInfoPlotters;
   std::vector<edm::InputTag> jetTagInputTags;
+  std::vector< std::pair<edm::InputTag, edm::InputTag> > tagCorrelationInputTags;
   std::vector< std::vector<edm::InputTag> > tagInfoInputTags;
   // Contains plots for each bin of rapidity and pt.
   std::vector< std::vector<BTagDifferentialPlot*> > differentialPlots;
@@ -99,7 +98,7 @@ typedef std::map<edm::RefToBase<reco::Jet>, reco::JetFlavour::Leptons, JetRefCom
   std::vector<edm::ParameterSet> moduleConfig;
   std::map<BaseTagInfoPlotter*, size_t> binTagInfoPlottersToModuleConfig;
 
-  bool mcPlots_;
+  bool mcPlots_, makeDiffPlots_;
 
   CorrectJet jetCorrector;
   MatchJet jetMatcher;
