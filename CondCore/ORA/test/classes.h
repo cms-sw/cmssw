@@ -16,6 +16,8 @@
 
 typedef unsigned int uint32_t;
 
+namespace testORA {
+
 class BObj {
   public:
   BObj(): id(0){
@@ -1180,6 +1182,10 @@ class SG {
   ora::UniqueRef<IBase> m_ref2;
 };
 
+}  // namespace testORA
+
+// to be moved elsewhere...
+using namespace testORA; 
 
 
 namespace {
