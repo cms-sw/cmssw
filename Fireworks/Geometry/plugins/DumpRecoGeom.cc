@@ -128,9 +128,12 @@ DumpRecoGeom::analyze( const edm::Event& event, const edm::EventSetup& eventSetu
 
   // Default material is air
   TGeoMaterial *material = geom->GetMaterial( "Air" );
+  TGeoMaterial *matVacuum = new TGeoMaterial( "Vacuum", 0 ,0 ,0 );
   // so is default medium
   TGeoMedium *medium = new TGeoMedium( "Air", 1, material );
-  TGeoVolume* top = geom->MakeTube( "CMS", medium, 0., 7.5, 30. );
+  TGeoMedium *vacuum = new TGeoMedium( "Vacuum", 1, matVacuum );
+//   TGeoVolume* top = geom->MakeTube( "CMS", medium, 0., 7.5, 30. );
+  TGeoVolume *top = geom->MakeBox( "CMS", vacuum, 270., 270., 120. );
   
   if( 0 == top )
   {
@@ -164,6 +167,7 @@ DumpRecoGeom::analyze( const edm::Event& event, const edm::EventSetup& eventSetu
   char v_name[1000];
   Float_t v_vertex[24];
   Float_t v_params[9];
+//   TGeoHMatrix* v_matrix( new TGeoHMatrix );
   
 // An attempt to cache shapes and matrices.  
 //   TObject* v_volume( new TObject );
@@ -176,6 +180,7 @@ DumpRecoGeom::analyze( const edm::Event& event, const edm::EventSetup& eventSetu
 //   tree->Branch( "shape", "TObject", &v_shape );
   tree->Branch( "points", &v_vertex, "points[24]/F" );
   tree->Branch( "topology", &v_params, "topology[9]/F" );
+//   tree->Branch( "matrix", "TGeoHMatrix", &v_matrix );
   for( std::map<unsigned int, Info>::const_iterator it = m_idToName.begin(),
 						   end = m_idToName.end();
        it != end; ++it )
@@ -188,6 +193,7 @@ DumpRecoGeom::analyze( const edm::Event& event, const edm::EventSetup& eventSetu
       v_params[i] = it->second.topology[i];
     strcpy( v_name, it->second.name.c_str());
 //     geom->cd( *v_path );
+//     v_matrix = geom->GetCurrentMatrix();
 //     v_volume = geom->GetCurrentVolume();
 //     v_shape = geom->GetCurrentVolume()->GetShape();
     tree->Fill();
