@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2010/07/01 10:01:48 $
- * $Revision: 1.215 $
+ * $Date: 2010/07/26 11:28:31 $
+ * $Revision: 1.216 $
  * \author G. Della Ricca
  *
 */
@@ -158,7 +158,7 @@ EBSummaryClient::EBSummaryClient(const edm::ParameterSet& ps) {
 
   }
 
-  synchErrorThreshold_ = 0.05;
+  synchErrorThreshold_ = 0.0;
 
 }
 
@@ -1935,7 +1935,7 @@ void EBSummaryClient::analyze(void) {
           float frac_synch_errors = 0.;
           float norm = norm01_->GetBinContent(ism);
           if(norm > 0) frac_synch_errors = float(synch01_->GetBinContent(ism))/float(norm);
-          float val_sy = (frac_synch_errors < synchErrorThreshold_);
+          float val_sy = (frac_synch_errors <= synchErrorThreshold_);
           if(val_sy==0) xval=0;
         }
 

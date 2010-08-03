@@ -1,8 +1,8 @@
 /*
  * \file EERawDataTask.cc
  *
- * $Date: 2010/06/30 15:08:12 $
- * $Revision: 1.31 $
+ * $Date: 2010/07/30 14:15:49 $
+ * $Revision: 1.32 $
  * \author E. Di Marco
  *
 */
@@ -537,21 +537,23 @@ void EERawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       const std::vector<short> feBxs = dcchItr->getFEBxs();
       const std::vector<short> tccBx = dcchItr->getTCCBx();
       const short srpBx = dcchItr->getSRPBx();
+      const std::vector<short> status = dcchItr->getFEStatus();
 
       for(int fe=0; fe<(int)feBxs.size(); fe++) {
-        if(ism==1 && fe==31) continue; // mask known bad tower
-        if(feBxs[fe] != ECALDCC_BunchCrossing && feBxs[fe] != -1) meEEBunchCrossingFEErrors_->Fill( xism, 1/(float)feBxs.size());
+        // do not consider desynch errors if the DCC detected them 
+        if( ( status[fe] == 10 || status[fe] == 11 )) continue;
+        if(feBxs[fe] != ECALDCC_BunchCrossing && feBxs[fe] != -1 && ECALDCC_BunchCrossing != -1) meEEBunchCrossingFEErrors_->Fill( xism, 1/(float)feBxs.size());
       }
 
       // vector of TCC channels has 4 elements for both EB and EE. 
       // EB uses [0], EE uses [0-3].
       if(tccBx.size() == MAX_TCC_SIZE) {
         for(int tcc=0; tcc<MAX_TCC_SIZE; tcc++) {
-          if(tccBx[tcc] != ECALDCC_BunchCrossing && tccBx[tcc] != -1) meEEBunchCrossingTCCErrors_->Fill( xism, 1/(float)tccBx.size());
+          if(tccBx[tcc] != ECALDCC_BunchCrossing && tccBx[tcc] != -1 && ECALDCC_BunchCrossing != -1) meEEBunchCrossingTCCErrors_->Fill( xism, 1/(float)tccBx.size());
         }
       }
 
-      if(srpBx != ECALDCC_BunchCrossing && srpBx != -1) meEEBunchCrossingSRPErrors_->Fill( xism );
+      if(srpBx != ECALDCC_BunchCrossing && srpBx != -1 && ECALDCC_BunchCrossing != -1) meEEBunchCrossingSRPErrors_->Fill( xism );
 
       const std::vector<short> feLv1 = dcchItr->getFELv1();
       const std::vector<short> tccLv1 = dcchItr->getTCCLv1();
@@ -561,19 +563,20 @@ void EERawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       int ECALDCC_L1A_12bit = ECALDCC_L1A & 0xfff;
 
       for(int fe=0; fe<(int)feLv1.size(); fe++) {
-        if(ism==1 && fe==31) continue; // mask known bad tower
-        if(feLv1[fe] != ECALDCC_L1A_12bit - 1 && feLv1[fe] != -1) meEEL1AFEErrors_->Fill( xism, 1/(float)feLv1.size());
+        // do not consider desynch errors if the DCC detected them 
+        if( ( status[fe] == 9 || status[fe] == 11 )) continue;
+        if(feLv1[fe] != ECALDCC_L1A_12bit - 1 && feLv1[fe] != -1 && ECALDCC_L1A_12bit - 1 != -1) meEEL1AFEErrors_->Fill( xism, 1/(float)feLv1.size());
       }
 
       // vector of TCC channels has 4 elements for both EB and EE. 
       // EB uses [0], EE uses [0-3].
       if(tccLv1.size() == MAX_TCC_SIZE) {
         for(int tcc=0; tcc<MAX_TCC_SIZE; tcc++) {
-          if(tccLv1[tcc] != ECALDCC_L1A_12bit && tccLv1[tcc] != -1) meEEL1ATCCErrors_->Fill( xism, 1/(float)tccLv1.size());
+          if(tccLv1[tcc] != ECALDCC_L1A_12bit && tccLv1[tcc] != -1 && ECALDCC_L1A_12bit - 1 != -1) meEEL1ATCCErrors_->Fill( xism, 1/(float)tccLv1.size());
         }
       }
 
-      if(srpLv1 != ECALDCC_L1A_12bit && srpLv1 != -1) meEEL1ASRPErrors_->Fill( xism );
+      if(srpLv1 != ECALDCC_L1A_12bit && srpLv1 != -1 && ECALDCC_L1A_12bit - 1 != -1) meEEL1ASRPErrors_->Fill( xism );
 
       if ( gtFedDataSize > 0 ) {
 

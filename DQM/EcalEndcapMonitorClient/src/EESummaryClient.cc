@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2010/07/01 09:59:35 $
- * $Revision: 1.203 $
+ * $Date: 2010/07/26 11:30:33 $
+ * $Revision: 1.204 $
  * \author G. Della Ricca
  *
 */
@@ -207,7 +207,7 @@ EESummaryClient::EESummaryClient(const edm::ParameterSet& ps) {
 
   }
 
-  synchErrorThreshold_ = 0.05;
+  synchErrorThreshold_ = 0.0;
 
 }
 
@@ -2684,7 +2684,7 @@ void EESummaryClient::analyze(void) {
                 float frac_synch_errors = 0.;
                 float norm = norm01_->GetBinContent(ism);
                 if(norm > 0) frac_synch_errors = float(synch01_->GetBinContent(ism))/float(norm);
-                float val_sy = (frac_synch_errors < synchErrorThreshold_);
+                float val_sy = (frac_synch_errors <= synchErrorThreshold_);
                 if(val_sy==0) xval=0;
               }
 
@@ -2816,7 +2816,7 @@ void EESummaryClient::analyze(void) {
                 float frac_synch_errors = 0.;
                 float norm = norm01_->GetBinContent(ism);
                 if(norm > 0) frac_synch_errors = float(synch01_->GetBinContent(ism))/float(norm);
-                float val_sy = (frac_synch_errors < synchErrorThreshold_);
+                float val_sy = (frac_synch_errors <= synchErrorThreshold_);
                 if(val_sy==0) xval=0;
               }
 
