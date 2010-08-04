@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: ValidateGeometry.cc,v 1.12 2010/08/02 14:32:36 mccauley Exp $
+// $Id: ValidateGeometry.cc,v 1.13 2010/08/03 14:40:59 mccauley Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -263,6 +263,8 @@ ValidateGeometry::validateRPCGeometry(const int regionNumber, const char* region
 {
   clearData();
  
+  std::vector<double> centers;
+ 
   std::vector<RPCRoll*> rolls = rpcGeometry_->rolls();
   
   for ( std::vector<RPCRoll*>::const_iterator it = rolls.begin(), 
@@ -291,7 +293,6 @@ ValidateGeometry::validateRPCGeometry(const int regionNumber, const char* region
 
         compareTransform(gp, matrix);
 
-
         //TEveGeoShape* shape = detIdToMatrix_.getShape(rpcDetId.rawId());
         const TGeoVolume* shape = detIdToMatrix_.getVolume(rpcDetId.rawId());
 
@@ -303,9 +304,29 @@ ValidateGeometry::validateRPCGeometry(const int regionNumber, const char* region
         }
       
         compareShape(det, shape->GetShape());
+               
+        float pitch = roll->specificTopology().pitch();
+        int nStrips = roll->nstrips();
+
+        float offset = -0.5*nStrips*pitch;
+
+        float stripLength = roll->specificTopology().stripLength();
+
+        for ( int strip = 1; strip <= roll->nstrips(); ++strip )
+        {
+          LocalPoint centreOfStrip1 = roll->centreOfStrip(strip);        
+          LocalPoint centreOfStrip2 = LocalPoint((strip-0.5)*pitch + offset, 0.0);
+
+          centers.push_back(centreOfStrip1.x()-centreOfStrip2.x());
+
+        }      
       }
     }
   }
+
+  std::string hn(regionName);
+  makeHistogram(hn+": centreOfStrip", centers);
+  
 
   makeHistograms(regionName);
 }
