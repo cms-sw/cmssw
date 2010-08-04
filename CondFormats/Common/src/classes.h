@@ -16,6 +16,7 @@ namespace {
 
     struct Dummy {
          std::map<unsigned long long,unsigned long long> dummyForTests;
+         std::map<unsigned long long,unsigned long long>::value_type dummyForTest2;
     };
 
   }
