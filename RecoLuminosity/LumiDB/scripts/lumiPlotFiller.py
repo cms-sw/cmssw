@@ -106,9 +106,9 @@ def totalLumivsRun(c,p='.',i='',o='',begRun="132440",endRun=None,selectionfile=N
     if endRun:
         elements.append('-end')
         elements.append(endRun)
-    if textoutname:
+    if len(o)!=0:
         elements.append('-o')
-        elements.append(textoutname)
+        elements.append(os.path.join(o,textoutname))
     command=' '.join(elements)
     print command
     if not dryrun:
