@@ -78,15 +78,18 @@ public:
       return m_manager;
    }
 private:
+  void fillCorners( unsigned int id ) const;
+  
   mutable std::map<unsigned int, TGeoHMatrix> m_idToMatrix;
 
   struct RecoGeomInfo
   {
     std::string path;
-    std::vector<TEveVector> points;
+    std::vector<Float_t> points;
+    std::vector<TEveVector> corners;
     std::vector<Float_t> parameters;
   };
-  std::map<unsigned int, RecoGeomInfo> m_idToInfo;
+  mutable std::map<unsigned int, RecoGeomInfo> m_idToInfo;
   
   mutable TGeoManager* m_manager;
 };

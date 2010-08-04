@@ -12,6 +12,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include <iostream>
+#include <cassert>
 #include <sstream>
 #include <stdexcept>
 
@@ -122,17 +123,17 @@ DetIdToMatrix::loadMap( const char* fileName )
       m_idToInfo[id].path = path;
       if( loadPoints )
       {
-         std::vector<TEveVector> p(8);
-         for( unsigned int j = 0; j < 8; ++j )
-	    p[j].Set( points[3*j], points[3*j+1], points[3*j+2] );
-	 m_idToInfo[id].points = p;
+         std::vector<Float_t> p( 24 );
+	 for( unsigned int j = 0; j < 24; ++j )
+	    p[j] = points[j];
+	 m_idToInfo[id].points.swap( p );
       }
       if( loadParameters )
       {
-         std::vector<Float_t> t(9);
-         for( unsigned int j = 0; j < 9; ++j )
+         std::vector<Float_t> t( 9 );
+	 for( unsigned int j = 0; j < 9; ++j )
 	    t[j] = topology[j];
-	 m_idToInfo[id].parameters = t;
+	 m_idToInfo[id].parameters.swap( t );
       }      
    }
    file->Close();
@@ -261,8 +262,16 @@ DetIdToMatrix::getPoints( unsigned int id ) const
    {
       fwLog(fwlog::kWarning) << "no reco geometry is found for id " <<  id << std::endl;
       return std::vector<TEveVector>();
-   } else {
-      return it->second.points;
+   }
+   else
+   {
+      if( it->second.corners.empty())
+      {
+	 assert( ! it->second.points.empty());
+	 fillCorners( id );
+      }
+
+      return it->second.corners;
    }
 }
 
@@ -280,4 +289,13 @@ DetIdToMatrix::getParameters( unsigned int id ) const
    {
       return it->second.parameters;
    }
+}
+
+void
+DetIdToMatrix::fillCorners( unsigned int id ) const
+{
+   std::vector<TEveVector> p(8);
+   for( unsigned int j = 0; j < 8; ++j )
+      p[j].Set( m_idToInfo[id].points[3 * j], m_idToInfo[id].points[3 * j + 1], m_idToInfo[id].points[3 * j + 2] );
+   m_idToInfo[id].corners.swap( p );
 }
