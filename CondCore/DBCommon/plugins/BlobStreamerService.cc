@@ -56,7 +56,7 @@ namespace cond {
  
   BlobStreamingService::BlobStreamingService() : rootService(new cond::TBufferBlobStreamingService()){}
   
-  ~BlobStreamingService::BlobStreamingService(){}
+  BlobStreamingService::~BlobStreamingService(){}
   
   boost::shared_ptr<coral::Blob> BlobStreamingService::write( const void* addressOfInputData,  Reflex::Type const & classDictionary ) {
 
@@ -65,6 +65,7 @@ namespace cond {
     boost::shared_ptr<coral::Blob> buffer = rootService->write(addressOfInputData, classDictionary);
     boost::shared_ptr<coral::Blob> blobOut = compress(buffer->startingAddress(),buffer->size());
     *reinterpret_cast<uuid*>(blobOut->startingAddress()) = variantIds[COMPRESSED_TBUFFER];
+    return blobOut;
   }
 
   void BlobStreamingService::read( const coral::Blob& blobData, void* addressOfContainer,  Reflex::Type const & classDictionary ) {
@@ -125,15 +126,15 @@ namespace cond {
   }
 
   boost::shared_ptr<coral::Blob> BlobStreamingService::expand(const coral::Blob& blobIn) {
-    if (size_t(blobIn.size()) < m_idsize + sizeof(unsigned long long)) return;
+    if (size_t(blobIn.size()) < m_idsize + sizeof(unsigned long long)) return boost::shared_ptr<coral::Blob>(new coral::Blob());
     long long csize =  blobIn.size() - (m_idsize + sizeof(unsigned long long));
-    unsigned char const * startingAddress = (unsigned char const*)(blobIn->startingAddress())+ m_idsize;
+    unsigned char const * startingAddress = (unsigned char const*)(blobIn.startingAddress())+ m_idsize;
     unsigned long long usize = *reinterpret_cast<unsigned long long const*>(startingAddress);
     startingAddress +=  sizeof(unsigned long long);
     boost::shared_ptr<coral::Blob> theBlob( new coral::Blob(usize));
     uLongf destLen = usize;
-    int zerr =  uncompress((unsigned char const *)(theBlob->startingAddress()),  &destLen,
-			   startingAddress, usize);
+    int zerr =  uncompress((unsigned char *)(theBlob->startingAddress()),  &destLen,
+			   startingAddress, csize);
     if (zerr!=0 || usize!=destLen) 
       edm::LogError("BlobStreamingService")<< "uncompressing error " << zerr
 			       << " original size was " << usize
