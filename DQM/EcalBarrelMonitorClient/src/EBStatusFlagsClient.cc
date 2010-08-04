@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsClient.cc
  *
- * $Date: 2010/04/14 16:13:39 $
- * $Revision: 1.38 $
+ * $Date: 2010/08/04 08:20:13 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  *
 */
@@ -18,10 +18,10 @@
 
 #ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
-#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
-#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include "DQM/EcalCommon/interface/LogicID.h"
 #endif
+
+#include "DQM/EcalCommon/interface/Masks.h"
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
@@ -179,10 +179,8 @@ void EBStatusFlagsClient::analyze(void) {
     if ( debug_ ) std::cout << "EBStatusFlagsClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
-#ifdef WITH_ECAL_COND_DB
-  uint64_t bits01 = 0;
-  bits01 |= EcalErrorDictionary::getMask("STATUS_FLAG_ERROR");
-#endif
+  uint32_t bits01 = 0;
+  bits01 |= 1 << EcalDQMStatusHelper::STATUS_FLAG_ERROR;
 
   char histo[200];
 
@@ -207,39 +205,17 @@ void EBStatusFlagsClient::analyze(void) {
     h03_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h01_[ism-1] );
     meh03_[ism-1] = me;    
 
-  }
-
-#ifdef WITH_ECAL_COND_DB
-  if ( EcalErrorMask::mapTTErrors_.size() != 0 ) {
-    map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
-    for (m = EcalErrorMask::mapTTErrors_.begin(); m != EcalErrorMask::mapTTErrors_.end(); m++) {
-
-      if ( (m->second).getErrorBits() & bits01 ) {
-        EcalLogicID ecid = m->first;
-
-        if ( strcmp(ecid.getMapsTo().c_str(), "EB_trigger_tower") != 0 ) continue;
-
-        int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
-        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
-        if (iter == superModules_.end()) continue;
-
-        int itt = ecid.getID2();
-        int iet = (itt-1)/4 + 1;
-        int ipt = (itt-1)%4 + 1;
-
-        if ( itt > 70 ) continue;
-
-        if ( itt >= 1 && itt <= 68 ) {
-          if ( meh01_[ism-1] ) meh01_[ism-1]->setBinError( iet, ipt, 0.01 );
-        } else if ( itt == 69 || itt == 70 ) {
-          if ( meh03_[ism-1] ) meh03_[ism-1]->setBinError( itt-68, 1, 0.01 );
-        }
-
+    for (int itt = 1; itt <= 68; itt++) {
+      int ie = 5*(itt-68-1)+1;
+      int ip = 1;
+      int iet = (itt-1)/4 + 1;
+      int ipt = (itt-1)%4 + 1;
+      if ( Masks::maskTower(ism, ie, ip, bits01, EcalBarrel) ) {
+        if ( meh01_[ism-1] ) meh01_[ism-1]->setBinError( iet, ipt, 0.01 );
       }
-
     }
+
   }
-#endif
 
 }
 

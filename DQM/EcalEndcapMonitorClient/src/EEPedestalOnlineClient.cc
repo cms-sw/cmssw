@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2010/04/14 16:24:42 $
- * $Revision: 1.102 $
+ * $Date: 2010/08/04 08:20:14 $
+ * $Revision: 1.103 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -23,10 +23,10 @@
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
-#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include "DQM/EcalCommon/interface/LogicID.h"
 #endif
+
+#include "DQM/EcalCommon/interface/Masks.h"
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
@@ -317,13 +317,9 @@ void EEPedestalOnlineClient::analyze(void) {
     if ( debug_ ) std::cout << "EEPedestalOnlineClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
-#ifdef WITH_ECAL_COND_DB
-  uint64_t bits03 = 0;
-  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_MEAN_WARNING");
-  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_RMS_WARNING");
-  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_MEAN_ERROR");
-  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR");
-#endif
+  uint32_t bits03 = 0;
+  bits03 |= 1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_MEAN_ERROR;
+  bits03 |= 1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR;
 
   char histo[200];
 
@@ -379,89 +375,12 @@ void EEPedestalOnlineClient::analyze(void) {
 
         }
 
+        if ( Masks::maskChannel(ism, ix, iy, bits03, EcalBarrel) ) UtilsClient::maskBinContent( meg03_[ism-1], ix, iy );
+
       }
     }
 
   }
-
-#ifdef WITH_ECAL_COND_DB
-  if ( EcalErrorMask::mapCrystalErrors_.size() != 0 ) {
-    map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
-    for (m = EcalErrorMask::mapCrystalErrors_.begin(); m != EcalErrorMask::mapCrystalErrors_.end(); m++) {
-
-      if ( (m->second).getErrorBits() & bits03 ) {
-        EcalLogicID ecid = m->first;
-
-        if ( strcmp(ecid.getMapsTo().c_str(), "EE_crystal_number") != 0 ) continue;
-
-        int iz = ecid.getID1();
-        int ix = ecid.getID2();
-        int iy = ecid.getID3();
-
-        for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-          int ism = superModules_[i];
-          std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
-          if (iter == superModules_.end()) continue;
-          if ( iz == -1 && ( ism >=  1 && ism <=  9 ) ) {
-            int jx = 101 - ix - Numbers::ix0EE(ism);
-            int jy = iy - Numbers::iy0EE(ism);
-            if ( Numbers::validEE(ism, ix, iy) ) UtilsClient::maskBinContent( meg03_[ism-1], jx, jy );
-          }
-          if ( iz == +1 && ( ism >= 10 && ism <= 18 ) ) {
-            int jx = ix - Numbers::ix0EE(ism);
-            int jy = iy - Numbers::iy0EE(ism);
-            if ( Numbers::validEE(ism, ix, iy) ) UtilsClient::maskBinContent( meg03_[ism-1], jx, jy );
-          }
-        }
-
-      }
-
-    }
-  }
-
-  if ( EcalErrorMask::mapTTErrors_.size() != 0 ) {
-    map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
-    for (m = EcalErrorMask::mapTTErrors_.begin(); m != EcalErrorMask::mapTTErrors_.end(); m++) {
-
-      if ( (m->second).getErrorBits() & bits03 ) {
-        EcalLogicID ecid = m->first;
-
-        if ( strcmp(ecid.getMapsTo().c_str(), "EE_readout_tower") != 0 ) continue;
-
-        int idcc = ecid.getID1() - 600;
-
-        int ism = -1;
-        if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
-        if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
-        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
-        if (iter == superModules_.end()) continue;
-
-        int itt = ecid.getID2();
-
-        if ( itt > 70 ) continue;
-
-        if ( itt >= 42 && itt <= 68 ) continue;
-
-        if ( ( ism == 8 || ism == 17 ) && ( itt >= 18 && itt <= 24 ) ) continue;
-
-        if ( itt >= 1 && itt <= 68 ) {
-          std::vector<DetId>* crystals = Numbers::crystals( idcc, itt );
-          for ( unsigned int i=0; i<crystals->size(); i++ ) {
-            EEDetId id = (*crystals)[i];
-            int ix = id.ix();
-            int iy = id.iy();
-            if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
-            int jx = ix - Numbers::ix0EE(ism);
-            int jy = iy - Numbers::iy0EE(ism);
-            UtilsClient::maskBinContent( meg03_[ism-1], jx, jy );
-          }
-        }
-
-      }
-
-    }
-  }
-#endif
 
 }
 
