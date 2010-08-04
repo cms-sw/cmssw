@@ -177,7 +177,7 @@ int main(){
     }
     std::set< std::string > conts = db.containers();
     if( conts.find( "Cont0" )!= conts.end() ) db.dropContainer( "Cont0" );
-    if( conts.find( "SiStripNoises" )!= conts.end() ) db.dropContainer( "SiStripNoises" );
+    if( conts.find( "testORA::SiStripNoises" )!= conts.end() ) db.dropContainer( "testORA::SiStripNoises" );
     //
     db.createContainer<SB>("Cont0");
     ora::Container contH0 = db.containerHandle( "Cont0" );
@@ -193,7 +193,7 @@ int main(){
     std::vector<boost::shared_ptr<SiStripNoises> > buff2;
     for( unsigned int i=0;i<10;i++){
       boost::shared_ptr<SiStripNoises> obj( new SiStripNoises(i) );
-      db.insert("SiStripNoises", *obj );
+      db.insert("testORA::SiStripNoises", *obj );
       buff2.push_back( obj );
     }
     db.flush();
@@ -218,7 +218,7 @@ int main(){
         std::cout << "** Read out data for class SB with seed="<<seed<<" is ok."<<std::endl;
       }
     }
-    cont2 = db.containerHandle( "SiStripNoises" );
+    cont2 = db.containerHandle( "testORA::SiStripNoises" );
     iter = cont2.iterator();
     while( iter.next() ){
       boost::shared_ptr<SiStripNoises> obj = iter.get<SiStripNoises>();
