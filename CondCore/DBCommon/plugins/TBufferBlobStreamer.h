@@ -7,19 +7,12 @@
 #include "Reflex/Type.h"
 #include "TClass.h"
 
-#include "RVersion.h"
-
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,19,0)
- typedef ROOT::Reflex::Type TypeH;
-#else
- typedef Reflex::Type TypeH;
-#endif
 
 namespace cond {
   class TBufferBlobTypeInfo
   {
   public:
-    TBufferBlobTypeInfo( const TypeH& type );
+    TBufferBlobTypeInfo(  Reflex::Type const & type );
 
     /// length of the plain C array (zero otherwise)
     std::size_t m_arraySize;
@@ -35,7 +28,7 @@ namespace cond {
   {
   public:
     /// Constructor
-    explicit TBufferBlobWriter( const TypeH& type );
+    explicit TBufferBlobWriter(  Reflex::Type const & type );
 
     /// Empty destructor
     virtual ~TBufferBlobWriter();

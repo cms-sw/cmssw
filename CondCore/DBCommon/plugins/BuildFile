@@ -1,6 +1,7 @@
 <use name=FWCore/PluginManager>
 <use name=CondCore/DBCommon>
 <use name=rootcintex>
+<use name=zlib>
 
 <library file="SQLiteProxy.cc" name=CondCoreDBCommonSQLiteProxy>
 <flags EDM_PLUGIN=1>

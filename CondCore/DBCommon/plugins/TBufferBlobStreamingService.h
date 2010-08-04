@@ -8,13 +8,6 @@
 #include "CoralBase/Blob.h"
 #include "Reflex/Type.h"
 #include "TClass.h"
-#include "RVersion.h"
-
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,19,0)
- typedef ROOT::Reflex::Type TypeH;
-#else
- typedef Reflex::Type TypeH;
-#endif
 
 namespace cond {
   class TBufferBlobTypeInfo {
@@ -37,9 +30,9 @@ namespace cond {
     
     virtual ~TBufferBlobStreamingService();
 
-    boost::shared_ptr<coral::Blob> write( const void* addressOfInputData, const TypeH& classDictionary );
+    boost::shared_ptr<coral::Blob> write( const void* addressOfInputData,  Reflex::Type const & classDictionary );
 
-    void read( const coral::Blob& blobData, void* addressOfContainer, const TypeH& classDictionary );
+    void read( const coral::Blob& blobData, void* addressOfContainer,  Reflex::Type const & classDictionary );
 
   };
   

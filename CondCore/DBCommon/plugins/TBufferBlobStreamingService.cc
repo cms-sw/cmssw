@@ -50,7 +50,7 @@ static const std::size_t nPrimitives =
 
 #undef PRIMTIVE
 
-cond::TBufferBlobTypeInfo::TBufferBlobTypeInfo(const TypeH& type_)
+cond::TBufferBlobTypeInfo::TBufferBlobTypeInfo( Reflex::Type const & type_)
  : m_arraySize(0), m_class(0), m_primitive(0)
 {
   static bool cintexInitialized = false;
@@ -94,7 +94,6 @@ cond::TBufferBlobTypeInfo::TBufferBlobTypeInfo(const TypeH& type_)
                           "Cannot handle C++ type " + type.Name());
 }
 
-DEFINE_EDM_PLUGIN(cond::BlobStreamerPluginFactory,cond::TBufferBlobStreamingService,"COND/Services/TBufferBlobStreamingService");
 
 cond::TBufferBlobStreamingService::TBufferBlobStreamingService(){
 }
@@ -103,7 +102,7 @@ cond::TBufferBlobStreamingService::~TBufferBlobStreamingService(){
 }
 
 boost::shared_ptr<coral::Blob> cond::TBufferBlobStreamingService::write( const void* addr,
-                                                                         const TypeH& classDictionary ){
+                                                                          Reflex::Type const & classDictionary ){
   TBufferBlobTypeInfo theType( classDictionary );
   if (theType.m_class && theType.m_class->GetActualClass(addr) != theType.m_class)
     throw cond::Exception("TBufferBlobWriter::write object to stream is "
@@ -132,7 +131,7 @@ boost::shared_ptr<coral::Blob> cond::TBufferBlobStreamingService::write( const v
 
 void cond::TBufferBlobStreamingService::read( const coral::Blob& blobData,
                                               void* addr,
-                                              const TypeH& classDictionary ){
+                                               Reflex::Type const & classDictionary ){
   TBufferBlobTypeInfo theType( classDictionary );
   const void *startingAddress = blobData.startingAddress();
   size_t size = blobData.size();
