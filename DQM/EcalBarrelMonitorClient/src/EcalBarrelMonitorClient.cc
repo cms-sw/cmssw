@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2010/06/02 07:27:51 $
- * $Revision: 1.487 $
+ * $Date: 2010/08/04 06:25:45 $
+ * $Revision: 1.488 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -34,28 +34,28 @@
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunDat.h"
+#include "DQM/EcalCommon/interface/EcalErrorMask.h"
+#include "DQM/EcalCommon/interface/LogicID.h"
 #endif
 
-#include "DQM/EcalCommon/interface/EcalErrorMask.h"
-#include <DQM/EcalCommon/interface/UtilsClient.h>
-#include <DQM/EcalCommon/interface/Numbers.h>
-#include <DQM/EcalCommon/interface/LogicID.h>
+#include "DQM/EcalCommon/interface/UtilsClient.h"
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalBarrelMonitorClient/interface/EcalBarrelMonitorClient.h>
+#include "DQM/EcalBarrelMonitorClient/interface/EcalBarrelMonitorClient.h"
 
-#include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBStatusFlagsClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBOccupancyClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBCosmicClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBPedestalClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBPedestalOnlineClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBTestPulseClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBBeamCaloClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBBeamHodoClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBTriggerTowerClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBClusterClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBTimingClient.h>
+#include "DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBStatusFlagsClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBOccupancyClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBCosmicClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBPedestalClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBPedestalOnlineClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBTestPulseClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBBeamCaloClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBBeamHodoClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBTriggerTowerClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBClusterClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBTimingClient.h"
 
 EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps) {
 

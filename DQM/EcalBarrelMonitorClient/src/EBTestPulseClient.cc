@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2010/05/28 09:02:47 $
- * $Revision: 1.228 $
+ * $Date: 2010/05/31 10:49:00 $
+ * $Revision: 1.229 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -26,13 +26,12 @@
 #include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
+#include "DQM/EcalCommon/interface/EcalErrorMask.h"
+#include "DQM/EcalCommon/interface/LogicID.h"
 #endif
 
-#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
-
-#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include "DQM/EcalCommon/interface/UtilsClient.h"
-#include "DQM/EcalCommon/interface/LogicID.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBTestPulseClient.h>
@@ -671,6 +670,7 @@ void EBTestPulseClient::analyze(void) {
     if ( debug_ ) std::cout << "EBTestPulseClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
+#ifdef WITH_ECAL_COND_DB
   uint64_t bits01 = 0;
   bits01 |= EcalErrorDictionary::getMask("TESTPULSE_LOW_GAIN_MEAN_WARNING");
   bits01 |= EcalErrorDictionary::getMask("TESTPULSE_LOW_GAIN_RMS_WARNING");
@@ -700,6 +700,7 @@ void EBTestPulseClient::analyze(void) {
   bits06 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_WARNING");
   bits06 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_MEAN_ERROR");
   bits06 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_ERROR");
+#endif
 
   char histo[200];
 

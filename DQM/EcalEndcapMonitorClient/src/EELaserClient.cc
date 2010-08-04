@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2010/05/28 09:02:48 $
- * $Revision: 1.130 $
+ * $Date: 2010/05/31 12:06:46 $
+ * $Revision: 1.131 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -35,13 +35,12 @@
 #include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
+#include "DQM/EcalCommon/interface/EcalErrorMask.h"
+#include "DQM/EcalCommon/interface/LogicID.h"
 #endif
 
-#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
-
-#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include "DQM/EcalCommon/interface/UtilsClient.h"
-#include "DQM/EcalCommon/interface/LogicID.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
@@ -1586,6 +1585,7 @@ void EELaserClient::analyze(void) {
     if ( debug_ ) std::cout << "EELaserClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
+#ifdef WITH_ECAL_COND_DB
   uint64_t bits01 = 0;
   bits01 |= EcalErrorDictionary::getMask("LASER_MEAN_WARNING");
   bits01 |= EcalErrorDictionary::getMask("LASER_RMS_WARNING");
@@ -1609,6 +1609,7 @@ void EELaserClient::analyze(void) {
   bits04 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_WARNING");
   bits04 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_MEAN_ERROR");
   bits04 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_ERROR");
+#endif
 
   char histo[200];
 

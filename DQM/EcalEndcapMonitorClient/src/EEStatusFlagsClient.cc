@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsClient.cc
  *
- * $Date: 2010/04/14 15:13:47 $
- * $Revision: 1.39 $
+ * $Date: 2010/04/14 16:13:40 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  *
 */
@@ -18,12 +18,11 @@
 
 #ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
-#endif
-
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
-
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include "DQM/EcalCommon/interface/LogicID.h"
+#endif
+
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
@@ -182,8 +181,10 @@ void EEStatusFlagsClient::analyze(void) {
     if ( debug_ ) std::cout << "EEStatusFlagsClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
+#ifdef WITH_ECAL_COND_DB
   uint64_t bits01 = 0;
   bits01 |= EcalErrorDictionary::getMask("STATUS_FLAG_ERROR");
+#endif
 
   char histo[200];
 

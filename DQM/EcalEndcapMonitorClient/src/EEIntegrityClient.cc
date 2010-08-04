@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2010/04/14 16:13:39 $
- * $Revision: 1.105 $
+ * $Date: 2010/04/14 16:24:42 $
+ * $Revision: 1.106 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -31,13 +31,12 @@
 #include "OnlineDB/EcalCondDB/interface/RunMemChErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunMemTTErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
+#include "DQM/EcalCommon/interface/EcalErrorMask.h"
+#include "DQM/EcalCommon/interface/LogicID.h"
 #endif
 
-#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
-
-#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include "DQM/EcalCommon/interface/UtilsClient.h"
-#include "DQM/EcalCommon/interface/LogicID.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
@@ -695,6 +694,7 @@ void EEIntegrityClient::analyze(void) {
     if ( debug_ ) std::cout << "EEIntegrityClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
+#ifdef WITH_ECAL_COND_DB
   uint64_t bits01 = 0;
   bits01 |= EcalErrorDictionary::getMask("CH_ID_WARNING");
   bits01 |= EcalErrorDictionary::getMask("CH_GAIN_ZERO_WARNING");
@@ -712,6 +712,7 @@ void EEIntegrityClient::analyze(void) {
   bits02 |= EcalErrorDictionary::getMask("TT_SIZE_ERROR");
   bits02 |= EcalErrorDictionary::getMask("TT_LV1_ERROR");
   bits02 |= EcalErrorDictionary::getMask("TT_BUNCH_X_ERROR");
+#endif
 
   char histo[200];
 
