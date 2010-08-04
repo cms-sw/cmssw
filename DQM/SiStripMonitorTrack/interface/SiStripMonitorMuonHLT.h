@@ -4,7 +4,7 @@
 
 // system include files
 #include <memory>
-#include <std::string>
+#include <string>
 #include <cmath>
 
 // user include files
