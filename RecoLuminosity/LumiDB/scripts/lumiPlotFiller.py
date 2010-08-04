@@ -92,7 +92,7 @@ def lumiPerDay(c,p='.',i='',o='',begTime="03/30/10 10:00:00.00",endTime=None,sel
     if not dryrun:
         statusAndOutput=commands.getstatusoutput(command)
         print statusAndOutput[1]
-def totalLumivsRun(c,p='.',i='',o='',begRun="132440",endRun=None,selectionfile=None,beamenergy=None,beamenergyfluctuation=None,dryrun=False):
+def totalLumivsRun(c,p='.',i='',o='',begRun="132440",endRun=None,selectionfile=None,beamenergy=None,beamenergyfluctuation=None,dryrun=False,withTextOutput=False):
     '''
     input:
       c connect string
@@ -106,7 +106,7 @@ def totalLumivsRun(c,p='.',i='',o='',begRun="132440",endRun=None,selectionfile=N
     if endRun:
         elements.append('-end')
         elements.append(endRun)
-    if len(o)!=0:
+    if withTextOutput:
         elements.append('-o')
         elements.append(os.path.join(o,textoutname))
     command=' '.join(elements)
@@ -115,7 +115,7 @@ def totalLumivsRun(c,p='.',i='',o='',begRun="132440",endRun=None,selectionfile=N
         statusAndOutput=commands.getstatusoutput(command)
         print statusAndOutput[1]
 
-def totalLumivsFill(c,p='.',i='',o='',begFill="1005",endFill=None,selectionfile=None,beamenergy=None,beamenergyfluctuation=None,dryrun=False):
+def totalLumivsFill(c,p='.',i='',o='',begFill="1005",endFill=None,selectionfile=None,beamenergy=None,beamenergyfluctuation=None,dryrun=False,withTextOutput=False):
     '''
     input:
       c connect string
@@ -129,12 +129,15 @@ def totalLumivsFill(c,p='.',i='',o='',begFill="1005",endFill=None,selectionfile=
     if endFill:
         elements.append('-end')
         elements.append(endFill)
+    if withTextOutput:
+        elements.append('-o')
+        elements.append(os.path.join(o,textoutname))
     command=' '.join(elements)
     print command
     if not dryrun:
         statusAndOutput=commands.getstatusoutput(command)
         print statusAndOutput[1]
-def instLumiForRuns(c,runnumbers,p='.',o='.',dryrun=False):
+def instLumiForRuns(c,runnumbers,p='.',o='',dryrun=False):
     '''
     draw instlumperrun plot for the given runs
     input:
@@ -178,6 +181,7 @@ def main():
     parser.add_argument('-L',dest='logpath',action='store',required=False,help='log path. Optional. Default to .')
     parser.add_argument('-i',dest='ifile',action='store',required=False,help='input selection file. Optional.')
     parser.add_argument('-o',dest='opath',action='store',required=False,help='output file path. Optional')
+    parser.add_argument('--withTextOutput',dest='withtextoutput',action='store_true',help='write to text output file')
     parser.add_argument('--dryrun',dest='dryrun',action='store_true',help='dryrun mode')
     parser.add_argument('action',choices=['instperrun','instpeakvstime','totalvstime','totallumilastweek','totalvsfill','totalvsrun','perday','createrunlist'],help='command actions')
     args=parser.parse_args()
@@ -187,8 +191,11 @@ def main():
     opath='.'
     connectstr=args.connect
     isDryrun=False
+    withTextOutput=False
     if args.dryrun:
         isDryrun=True
+    if args.withtextoutput:
+        withTextOutput=True
     if args.authpath:
         authpath=args.authpath
     if args.logpath:
@@ -217,7 +224,7 @@ def main():
         runs=[]
         for run in f:
             runs.append(int(run))
-        totalLumivsRun(connectstr,p=authpath,begRun=str(runs[0]),o=opath,endRun=str(runs[-1]),dryrun=isDryrun)
+        totalLumivsRun(connectstr,p=authpath,begRun=str(runs[0]),o=opath,endRun=str(runs[-1]),dryrun=isDryrun,withTextOutput=withTextOutput)
     if args.action == 'instpeakvstime':
         instPeakPerday(connectstr,p=authpath,o=opath,dryrun=isDryrun)
     if args.action == 'totalvstime':
@@ -225,7 +232,7 @@ def main():
     if args.action == 'totallumilastweek':
         totalLumivstimeLastweek(connectstr,p=authpath,o=opath,dryrun=isDryrun)
     if args.action == 'totalvsfill':
-        totalLumivsFill(connectstr,p=authpath,o=opath,dryrun=isDryrun)
+        totalLumivsFill(connectstr,p=authpath,o=opath,dryrun=isDryrun,withTextOutput=withTextOutput)
     if args.action == 'perday':       
         lumiPerDay(connectstr,p=authpath,o=opath,dryrun=isDryrun)
 if __name__=='__main__':

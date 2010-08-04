@@ -282,12 +282,23 @@ def main():
         ydata={}
         ydata['Delivered']=[]
         ydata['Recorded']=[]
-        keylist=lumiDict.keys()
-        keylist.sort()
-        for run in keylist:
-            xdata.append(run)
-            ydata['Delivered'].append(lumiDict[run][0])
-            ydata['Recorded'].append(lumiDict[run][1])
+        #keylist=lumiDict.keys()
+        #keylist.sort()
+        if args.outputfile:
+            reporter=csvReporter.csvReporter(ofilename)
+            fieldnames=['fill','run','delivered','recorded']
+            reporter.writeRow(fieldnames)
+        fills=fillDict.keys()
+        fills.sort()
+        for fill in fills:
+            runs=fillDict[fill]
+            runs.sort()
+            for run in runs:
+                xdata.append(run)
+                ydata['Delivered'].append(lumiDict[run][0])
+                ydata['Recorded'].append(lumiDict[run][1])
+                if args.outputfile :
+                    reporter.writeRow([fill,run,lumiDict[run][0],lumiDict[run][1]])   
         #print 'input fillDict ',len(fillDict.keys()),fillDict
         m.plotSumX_Fill(xdata,ydata,fillDict)
     elif args.action == 'time' or args.action == 'perday':
@@ -300,9 +311,17 @@ def main():
         ydata['Recorded']=[]
         keylist=lumiDict.keys()
         keylist.sort()
+        if args.outputfile:
+            reporter=csvReporter.csvReporter(ofilename)
+            fieldnames=['run','starttime','stoptime','delivered','recorded']
+            reporter.writeRow(fieldnames)
         for run in keylist:
             ydata['Delivered'].append(lumiDict[run][0])
             ydata['Recorded'].append(lumiDict[run][1])
+            starttime=xdata[run][0]
+            stoptime=xdata[run][1]
+            if args.outputfile :
+                reporter.writeRow([run,starttime,stoptime,lumiDict[run][0],lumiDict[run][1]])   
         if args.action == 'time':
             m.plotSumX_Time(xdata,ydata,minTime,maxTime)
         if args.action == 'perday':
