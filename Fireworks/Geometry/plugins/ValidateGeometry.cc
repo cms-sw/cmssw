@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: ValidateGeometry.cc,v 1.13 2010/08/03 14:40:59 mccauley Exp $
+// $Id: ValidateGeometry.cc,v 1.14 2010/08/04 14:38:21 mccauley Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -304,13 +304,29 @@ ValidateGeometry::validateRPCGeometry(const int regionNumber, const char* region
         }
       
         compareShape(det, shape->GetShape());
-               
-        float pitch = roll->specificTopology().pitch();
+
+        std::vector<float> parameters = detIdToMatrix_.getParameters(rpcDetId.rawId());
+
+        if ( parameters.empty() )
+        {
+          std::cout<<"Parameters empty for RPC with detid: "
+                   << rpcDetId.rawId() <<std::endl;
+          continue;
+        }
+              
+        // Yes, I know that below I'm comparing the equivalence
+        // of floating point numbers
+       
         int nStrips = roll->nstrips();
+        assert(nStrips == parameters[0]); 
+        
+        float stripLength = roll->specificTopology().stripLength();
+        assert(stripLength == parameters[1]);
+
+        float pitch = roll->specificTopology().pitch();
+        assert(pitch == parameters[2]);
 
         float offset = -0.5*nStrips*pitch;
-
-        float stripLength = roll->specificTopology().stripLength();
 
         for ( int strip = 1; strip <= roll->nstrips(); ++strip )
         {
@@ -318,7 +334,6 @@ ValidateGeometry::validateRPCGeometry(const int regionNumber, const char* region
           LocalPoint centreOfStrip2 = LocalPoint((strip-0.5)*pitch + offset, 0.0);
 
           centers.push_back(centreOfStrip1.x()-centreOfStrip2.x());
-
         }      
       }
     }
@@ -470,7 +485,7 @@ ValidateGeometry::validateDTLayerGeometry()
       compareShape(layer, shape->GetShape());
 
       
-      std::vector<TEveVector> parameters = detIdToMatrix_.getPoints(layerId.rawId());
+      std::vector<float> parameters = detIdToMatrix_.getParameters(layerId.rawId());
       
       if ( parameters.empty() )
       {
@@ -480,16 +495,16 @@ ValidateGeometry::validateDTLayerGeometry()
       }
       
       int firstChannel = layer->specificTopology().firstChannel();
-      assert(firstChannel == parameters[1].fX);
+      assert(firstChannel == parameters[3]);
 
       int lastChannel  = layer->specificTopology().lastChannel();
-      int nChannels = parameters[1].fZ;
+      int nChannels = parameters[5];
       assert(nChannels == (lastChannel-firstChannel)+1);
 
       for ( int wireN = firstChannel; wireN <= lastChannel; ++wireN )
       {
         double localX1 = layer->specificTopology().wirePosition(wireN);
-        double localX2 = (wireN -(firstChannel-1)-0.5)*parameters[0].fX - nChannels/2.0*parameters[0].fX;
+        double localX2 = (wireN -(firstChannel-1)-0.5)*parameters[0] - nChannels/2.0*parameters[0];
 
         wire_positions.push_back(localX1-localX2);
 
@@ -614,12 +629,32 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
         continue;
       }
       
+      std::vector<float> parameters = detIdToMatrix_.getParameters(detId.rawId());
+
+      if ( parameters.empty() )
+      {
+        std::cout<<"Parameters empty for CSC layer with detid: "
+                 << detId.rawId() <<std::endl;
+        continue;
+      }
+     
       int yAxisOrientation = layer->geometry()->topology()->yAxisOrientation();
+      assert(yAxisOrientation == parameters[0]);
+     
       float centreToIntersection = layer->geometry()->topology()->centreToIntersection();
+      assert(centreToIntersection == parameters[1]);
+
       float yCentre = layer->geometry()->topology()->yCentreOfStripPlane();
+      assert(yCentre == parameters[2]);
+
       float phiOfOneEdge = layer->geometry()->topology()->phiOfOneEdge();
+      assert(phiOfOneEdge == parameters[3]);
+
       float stripOffset = layer->geometry()->topology()->stripOffset();
+      assert(stripOffset == parameters[4]);
+
       float angularWidth = layer->geometry()->topology()->angularWidth();
+      assert(angularWidth == parameters[5]);
 
       for ( int nStrip = 1; nStrip <= layer->geometry()->numberOfStrips(); 
             ++nStrip )
@@ -633,7 +668,11 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
       }
 
       double wireSpacing = layer->geometry()->wireTopology()->wireSpacing();
+      assert(wireSpacing == parameters[6]);
+
       float wireAngle = layer->geometry()->wireTopology()->wireAngle();
+      assert(wireAngle == parameters[7]);
+
       float cosWireAngle = cos(wireAngle);
 
       /* NOTE
