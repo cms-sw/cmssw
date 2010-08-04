@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2010/08/04 08:20:13 $
- * $Revision: 1.489 $
+ * $Date: 2010/08/04 19:10:24 $
+ * $Revision: 1.490 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -34,7 +34,6 @@
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunDat.h"
-#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include "DQM/EcalCommon/interface/LogicID.h"
 #endif
 
@@ -110,17 +109,6 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps) {
 #endif
     } else {
       std::cout << " Ecal Cond DB is OFF" << std::endl;
-    }
-  }
-
-  // Mask file
-
-  maskFile_ = ps.getUntrackedParameter<std::string>("maskFile", "");
-
-  if ( verbose_ ) {
-    if ( maskFile_.size() != 0 ) {
-      maskFile_ = edm::FileInPath(maskFile_).fullPath();
-      std::cout << " maskFile is '" << maskFile_ << "'" << std::endl;
     }
   }
 
@@ -1073,26 +1061,6 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
           runType_ = i;
         }
         break;
-      }
-    }
-  }
-
-  if ( maskFile_.size() != 0 ) {
-    try {
-      if ( verbose_ ) std::cout << "Fetching masked channels from file ..." << std::endl;
-      EcalErrorMask::readFile(maskFile_, debug_);
-      if ( verbose_ ) std::cout << "done." << std::endl;
-    } catch (runtime_error &e) {
-      cerr << e.what() << std::endl;
-    }
-  } else {
-    if ( econn ) {
-      try {
-        if ( verbose_ ) std::cout << "Fetching masked channels from DB ..." << std::endl;
-        EcalErrorMask::readDB(econn, &runiov_);
-        if ( verbose_ ) std::cout << "done." << std::endl;
-      } catch (runtime_error &e) {
-        cerr << e.what() << std::endl;
       }
     }
   }
