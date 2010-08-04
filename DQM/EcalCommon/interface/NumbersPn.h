@@ -1,5 +1,5 @@
-#ifndef NumbersPn_H
-#define NumbersPn_H
+#ifndef NUMBERSPN_H
+#define NUMBERSPN_H
 
 #include <string>
 #include <stdexcept>
@@ -17,4 +17,4 @@ class NumbersPn {
 
 };
 
-#endif // NumbersPn_H
+#endif // NUMBERSPN_H

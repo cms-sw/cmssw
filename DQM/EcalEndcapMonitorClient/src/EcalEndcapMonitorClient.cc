@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2010/06/02 06:50:30 $
- * $Revision: 1.247 $
+ * $Date: 2010/06/02 07:27:57 $
+ * $Revision: 1.248 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -922,7 +922,7 @@ void EcalEndcapMonitorClient::endRun(const edm::Run& r, const edm::EventSetup& c
 
 }
 
-void EcalEndcapMonitorClient::beginLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &c) {
+void EcalEndcapMonitorClient::beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) {
 
   if ( verbose_ ) {
     std::cout << std::endl;
@@ -932,7 +932,7 @@ void EcalEndcapMonitorClient::beginLuminosityBlock(const edm::LuminosityBlock &l
 
 }
 
-void EcalEndcapMonitorClient::endLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &c) {
+void EcalEndcapMonitorClient::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) {
 
   current_time_ = time(NULL);
 
@@ -1151,7 +1151,7 @@ void EcalEndcapMonitorClient::beginRunDb(void) {
 
 }
 
-void EcalEndcapMonitorClient::writeDb() {
+void EcalEndcapMonitorClient::writeDb(void) {
 
   subrun_++;
 
@@ -1750,7 +1750,7 @@ void EcalEndcapMonitorClient::analyze(void) {
 
 }
 
-void EcalEndcapMonitorClient::analyze(const edm::Event &e, const edm::EventSetup &c) {
+void EcalEndcapMonitorClient::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
   run_ = e.id().run();
   evt_ = e.id().event();

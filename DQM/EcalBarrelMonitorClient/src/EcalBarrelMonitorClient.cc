@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2010/06/02 06:50:30 $
- * $Revision: 1.486 $
+ * $Date: 2010/06/02 07:27:51 $
+ * $Revision: 1.487 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -880,7 +880,7 @@ void EcalBarrelMonitorClient::endRun(const edm::Run& r, const edm::EventSetup& c
 
 }
 
-void EcalBarrelMonitorClient::beginLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &c) {
+void EcalBarrelMonitorClient::beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) {
 
   if ( verbose_ ) {
     std::cout << std::endl;
@@ -890,7 +890,7 @@ void EcalBarrelMonitorClient::beginLuminosityBlock(const edm::LuminosityBlock &l
 
 }
 
-void EcalBarrelMonitorClient::endLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &c) {
+void EcalBarrelMonitorClient::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) {
 
   current_time_ = time(NULL);
 
@@ -1109,7 +1109,7 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
 
 }
 
-void EcalBarrelMonitorClient::writeDb() {
+void EcalBarrelMonitorClient::writeDb(void) {
 
   subrun_++;
 
@@ -1707,7 +1707,7 @@ void EcalBarrelMonitorClient::analyze(void) {
 
 }
 
-void EcalBarrelMonitorClient::analyze(const edm::Event &e, const edm::EventSetup &c) {
+void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
   run_ = e.id().run();
   evt_ = e.id().event();
