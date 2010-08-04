@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.83 2010/08/04 09:32:03 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.84 2010/08/04 14:27:04 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -2558,6 +2558,11 @@ bool FourVectorHLTOffline::isVBTFMuon(const reco::Muon& muon)
   reco::TrackRef tk = muon.innerTrack();
 
   // Quality cuts
+  // ------------
+
+  // Must have BeamSpot for the 1st qualityCut
+  if(!fBeamSpotHandle.isValid()) return 0;
+
   double dxy = gm->dxy(fBeamSpotHandle->position());
   double normalizedChi2 = gm->normalizedChi2(); 
   int trackerHits = tk->hitPattern().numberOfValidTrackerHits();
